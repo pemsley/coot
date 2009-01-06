@@ -1,0 +1,39 @@
+# ccp4mg-utils/Makefile.am
+# 
+# Copyright 2005 The University of York
+# Author: Paul Emsley
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or (at
+# your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA
+
+#SUBDIRS = util mmut pygl
+
+lib_LTLIBRARIES=libccp4mg-utils.la
+
+include_HEADERS = geomutil.h mgtree.h cartesian.h quat.h ppmutil.h
+
+EXTRA_DIST = convert.sh get-new-utils.sh get-all-new-utils.sh
+
+INCLUDES =  \
+	-I$(top_srcdir)/ccp4mg-utils/util       \
+	$(MMDB_CXXFLAGS)
+
+# for ppmutil.cc compilation
+# CXXFLAGS = -DUSE_LIBPNG -I/sw/include
+
+libccp4mg_utils_la_SOURCES = geomutil.cc mgtree.cc cartesian.cc \
+	quat.cc ppmutil.cc
+
+

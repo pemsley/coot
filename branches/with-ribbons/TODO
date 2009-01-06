@@ -1,0 +1,375 @@
+
+-*-text-*-
+
+   What's Planned for the Upcoming Coot Releases?
+
+
+
+-----
+
+    Release 0.6 and 0.7 [April 2008, June 2009]
+
+   Top commitments:
+
+  o Edit a SHELXL file before refinement
+  o backrub on rotamer search
+  o Helix fitting overshoots
+  o PISA output display
+  o In the restraints editor, the volume sign should be displayed as 
+    a string (generated from volume_string_int)
+  o Make ligand fitting work from a given position (find the blob
+    centre close and do the orientation search there)
+  o P backbone mode
+
+  Like to do:
+  o redo sequence view
+  o Fix 64-bit coot problem(s)
+
+
+   o Seg Ids (Mailing list issue):
+
+      At least in these two situations, I think that COOT could make a
+      very educated guess as to the correct SEGID.
+
+       * In mutate (simple or otherwise), COOT could carry over what
+         existed for the residue being mutated
+
+       * In "insert after terminal residue" COOT could carry over what
+         exists for the terminal residue
+
+      These might not always be correct, but they should be 99+% of
+      the time.
+
+   o enable --splash-screen
+
+   o "CA mode" for nucleic acids should draw a P and C1' trace. [VR]
+     Priority: 10, Difficulty: 4
+
+   o Does the window stay constant size (on something other than a
+     laptop) on start, exit, start exit cycling?
+     Priority: 6: Difficulty: 4
+
+   o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim Fenn.
+ 
+*  Let's hear from Tim Fenn.  OK, he replied.  Non-trivial.  OK, Punt to 0.6
+
+   o update map without generating a new molecule.
+     Perhaps the NCS maps, or read a new map from MTZ updating a
+     already existing map.
+
+* Done.
+
+  o Consider setting the "handled" flag only for key pressed that did
+    something, e.g. we could then use the "B" and "S" keys, because they
+    are not often used.  Maybe "A" too. Punt.
+
+  o Check out the virtualbox page on the ubuntu wiki for info about how
+    to set it up. Punt.
+
+  o What's crashing on using NCS in Bill's 0.5 build?  No idea.
+
+   o Mails from Phil Evans, Stephen Graham, Early April 2008 about SEG
+     ids.  Doing a NCS loop with Seg ids.  Doing a mutation with Segids
+     (might be the same issue).  The segid for the new atoms should be
+     inherited from those of the rest of the residue (if they are
+     consistent).
+
+   o Give the user a chance to edit the ins file before it is sent off
+     for refinement [Tobias Beck].  Not doing so, as currently,
+     practically makes the shelxl refine in Coot useless if the user
+     needs to modify the file.  Fire up a text widget with the .ins file
+     in it.
+
+   o Rotamer plots need to update on multiple do/undos.
+
+   o in coot_toolbuttons.py Bernhard registers the icons.  Does that
+     make them smooth?
+
+   o Phil Evans wants colour by chain as the default.  Can you make
+     this the default at coordinates read time (similarly, others want
+     CA mode).  
+
+   o Put globularize protein into Coot.  Make it a bit more clever?
+
+   o Garib wants a function to move waters close to the protein.
+
+   o Do the tutorial.  Are the blob numbers correct? (EJD 1008 May 23
+     suggests not).
+
+   o check the "movie" interface
+
+   o Use LSQ for NCS matrices - need to be user setable option.
+
+   o Add the reading of a good map and a CNS map to tests.
+
+   o Backrub-based auto-fit rotamer search.  Question: how do I test
+     this? Synthetic map?  How does it work when we do this for an alt
+     conf too?  Man, this will be powerful, if I can make it work. Don't
+     forget to also rotate the mainchain hydrogens.  Does
+     is_mainchain_atom() working for mainchain hydrogens?
+
+   o Investigate interupting long fitting/Post MR tools [JED request]
+
+   o add a mechanism where we can register functions to run after
+     refinement and/or regularization. 
+  
+     or deleting things says JED.  In fact, a funtion to run that is
+      attached to a molecule (somehow) on any update/change/manipulation.
+
+   o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
+
+* see what cootbb says...  Bill says add it (currently is skipped).
+
+   o Bill: This might be hard to implement, but in case it isn't, I
+     thought it might be worth suggesting...
+
+     It would be great to be able to click on a nucleotide base in a
+     single strand of DNA or RNA and generate its W/C partner...
+
+   o Fix up mini-RSR so that it compiles properly.
+
+   o Use libglade
+
+   o Rotate Translate: Add an additional GUI (possibly in the toolbar)
+     to specify the type of R/T entity, a zone (default) a chain, a
+     whole molecule.
+
+   o Move widget functions in c-interface-build.cc to
+     c-interface-gui.cc (or consider new c-interface-build-gui.cc).
+
+   o Dynamic distances define need a pick cursor.
+
+   o Put refine-zone and regularize-zone into the history.
+
+   o multiple residue ranges, glycosylation, covalent bond entities
+  
+   o Redo sequence view 
+
+   o check that the puckers of the ideal RNA/DNA is correct for A form
+     and B form.  Try to find matrix example nucs for Z form.
+
+   o Centos/RHEL 4.6, has gtk2 version 2.4.13, fails to compile
+     guile-gtk-2.1 out of the box. It didn't know about GtkAboutDialog,
+     I think.  Also there were some extranaeous ^:^s in the .x
+     files. 4hd.  
+    
+     Not going to get the hardware in before 0.5 is released.  Punt for 0.6.
+
+   o Hydrogens from a SHELXL molecule
+
+   o Mouse bindings, consistency with MG.  Can we drag using middle
+     mouse, instead of ctrl left mouse?  Needs abstraction of state in
+     that function, I think.
+
+   o helix fitting overshoots
+
+   o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
+
+* see what cootbb says...  Bill says add a thymine. 
+
+   o consider making bonds to hydrogens thinner.  A spike needed to
+     test for bonds split on thickness or colour most deeply.
+
+   o Problem SHELX .ins file, enable bonds to symmetry atoms?
+
+   o check for updates?
+
+   o push back the rotation centre (for hardware stereo mode) in the
+     viewport? [Mark Mayer 20080527].
+
+   o Revisit CCP4mg button
+
+   o Gtk2 coot: set the colour patch in the map properties and
+     symmetry molecule colouring (needs version 2.6).  There is some
+     problem in the update, how do I set continuous updates on the
+     resulting colour chooser?
+
+   o (un)Label atoms in given atom selection
+
+   o More work on ligand bonding
+       Things with Cl etc, 
+       O->P bonds
+       faster bonding with many molecules
+
+   o colour by B-factor CA mode
+
+   o Lasso (perhaps) active atoms to select atoms for R/Ting?  
+     So that fragments of monomers can be moved independently
+
+   o Update python files
+
+   o Thymine in RNA: check string, "are you sure?" on finding a t.  If
+     yes, sure add a Tr.  Need to add an O2' somehow to the reference Tr.
+
+   o How about a post-swig command to add #ifdef USE_PYTHON around 
+     coot_wrap_python.cc (or is it coot_wrap_python_pre.cc?)
+
+     Is that necessary now?  In build-coot-fc4-gtk2,
+     coot_wrap_python.cc is generated and so is an practically empty
+     coot_wrap_python.lo
+
+   o rotamer-score function needs to be filled
+
+   o "Find Waters" sometimes does not to put waters in what seems sensible
+     places - why is that?
+
+   o Calculate NCS matrices from molecules created by
+     new_molecule_by_atom_selection()
+
+   o Check the distribution of selection of phi/psis from
+     random-phi-psi function matches a Ramachandran plot
+
+   o Randy's side-by-side frame drawing?
+
+   o Investigate communcation with PISA
+
+   o "Fit ligand here" which gets a monomer then does a ligand search
+     based on the blob at the current position.
+
+   o Non-bonded contacts.  Can they be speeded up.  What about nbcs
+     with Hydrogens.  Are they good?  Refine 50 residues and profile.
+
+   o Why does loop fitting fail on residue 96A of tutorial-modern.pdb?
+
+   o Make fit-loop work backward.  
+
+   o Profile the bonding on reading in a ribosome fragment. 2 minutes? 
+     Not good.
+
+   o Make a demo script that downloads data and runs it - add it to
+     the package and make it available to run from extensions.
+
+   o Fit a ligand.  Use write_connectivity to generate its hydrogens.
+     Use reduce and probe to make ligand interactions (and render them).
+
+   o Display ligand diapoles using charges from cif file.
+
+   o consider a function generator for dialog box of buttons.  Because
+     we need a function that accepts args for close-dialog and one
+     that does not.  A macro maybe.
+
+   o Rotate/Translate a whole protein (many chains)
+
+   o When there is a non-square GL context, the axes become skewed.
+     Needs othogonalizing.
+
+   o Geometric distortions graph for alt confs - currently broken?
+
+   o Update stand-alone refinement program. 
+     (Write a test for it?)
+
+* Update done. Tried test.  Problem in greg child process. Upgrade to
+  guile-1.8.3.  Does that fix the greg child process problem?  If not,
+  mail list.  And give up.  Check how greg behaves on compile/build - 
+  it tests itself before install.
+
+   o The zooming in out out of a Ramachandran plot is inelegant.
+     Needs fixing.
+
+   o Integrate scripting functions into main documentation somehow
+
+   o I want to be able to interupt those MR Extensions - not have to
+     wait.
+
+   o When fitting waters in a low resolution(ish) map (from buccaneer
+     tutorial), the water were often placed in protein density - it was
+     missing the fact that the "water" density was connected to the
+     protein density - because we only look at the masked map.
+     (see bucca-tut on memory stick)
+
+   o Use LSQ not SSM for NCS ghost matrix.
+     (Make a speed test.)
+
+   o *create* a molecule by symmetry, not (just) write it out.
+      Consider a dialog to Write/Create a symmetry molecule.
+
+   o RNA backbone plot by connecting phosphates
+
+   o NCS bone skeleton search - like ncs6d?.  Can be punted, if needed.
+
+   o a test for write connectivity 1hd
+
+* Don't know how to test this.
+
+   o Add to scripting layer: add-alt-conf that will work on the active
+     residue.  Not sure if it should auto-accept.  I guess not. 
+
+   o rsync to bubbles test data.
+
+
+ 0.7 Priorities:
+
+   o Rotate/Translate on dsDNA (for example)
+
+ ------
+    
+    Release 0.8 [Sept 2009]
+
+   o Use libglade.
+
+   o rewrite the SSM alignment output in a more robust and more
+     simple-minded manner.
+
+   o User pickable atoms.
+
+   o sort out the problem with the color wheel colour chooser from the
+     colour-picker/patch widget for maps.  This needs to update the map 
+     colour dynamically.
+
+   o sort out the includes so that I use -I .. and
+     #include "ideal/geometry.hh" etc.
+
+   o Other Button: tw & penny
+
+   o handle links properly (as above).
+
+   o multiple representations?
+  
+   o Add Terminal Residue should pick up from the assigned sequence.
+     Should work for bases too.
+
+   o mutate residue range for bases
+
+   o Fix leak and deprecated functions message.
+
+   o Bring partial charges to electrostatic surface
+
+   o Activate molecule_class_info_t deconstuctor.  
+
+* No need now.
+
+   o Add parentheses if they are missing from an interactive scripting
+     command
+
+   o Make the N and M zoom keys work with multiframes, rather than a
+     step/jump in zoom.
+
+* Done!
+
+   o RNA rotamer analysis "What is the rotamer of this suite here?"
+
+------
+
+   Release 0.9, Facelift-release [Dec 2009]
+
+   o Oxidized cysine - with a modification
+
+   o Clean up menu items, use Preferences.
+
+* Done.
+
+   o Internationalize (enable translations)
+
+   o Switch to GTk2, guile1.8.  Dump Gtk1 interface, 
+
+   o re-write build-it script
+
+* Done.
+
+   o read multiple files from shift and ctrl clicking in the file selection.
+
+
+-----
+ 
+   Release 1.0 [April 2010]
+

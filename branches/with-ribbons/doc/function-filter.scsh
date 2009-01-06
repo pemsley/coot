@@ -1,0 +1,404 @@
+
+; -*-scheme-*- version 0.0
+
+; (define target-doc-type 'LaTeX)
+(define target-doc-type 'texinfo)
+
+(define typed 
+  (lambda (doc-element)
+
+    (if (eq? target-doc-type 'LaTeX)
+	(cond
+	 ((eq? doc-element 'subsection)     "\\subsection")
+	 ((eq? doc-element 'index)          "\\index")
+	 ((eq? doc-element 'item)           "\\item")
+	 ((eq? doc-element 'begin-trivlist) "\\begin{trivlist}")
+	 ((eq? doc-element 'end-trivlist)   "\\end{trivlist}\n")
+	 ((eq? doc-element 'section-start)  "~%\\section{")
+	 ((eq? doc-element 'code)          "\\texttt{")
+	 ((eq? doc-element 'end-code)      "}")
+	 ((eq? doc-element 'section-end)    "}~%")
+	 ((eq? doc-element 'open-brace)     "{")
+	 ((eq? doc-element 'close-brace)    "}")
+	 (else 
+	  "")))
+    
+    (if (eq? target-doc-type 'texinfo)
+	(cond
+	 ((eq? doc-element 'subsection)    "@subsection ")
+	 ((eq? doc-element 'index)         "@cindex ")
+	 ((eq? doc-element 'item)          "@item ")
+	 ((eq? doc-element 'begin-table)   "@table @command")
+	 ((eq? doc-element 'end-table)   "@end table\n")
+	 ((eq? doc-element 'begin-trivlist) "@itemize ")
+	 ((eq? doc-element 'end-trivlist)   "@end itemize\n")
+	 ((eq? doc-element 'section-start) "~%@section ")
+	 ((eq? doc-element 'section-end)   "~%")
+	 ((eq? doc-element 'code)          "@code{")
+	 ((eq? doc-element 'end-code)      "}")
+	 ((eq? doc-element 'open-brace)     "")
+	 ((eq? doc-element 'close-brace)    "")
+	 (else 
+	  "")))))
+
+(define filter 
+  (lambda (func ls)
+    
+    (cond 
+     ((null? ls) '())
+     ((func (car ls)) (filter func (cdr ls)))
+     (else 
+      (cons (car ls) (filter func (cdr ls)))))))
+
+;    First check the first word that contains a "(" by seeing if the
+;    last character of the word is a "(".  If it *is* then we don't
+;    use the first word to determine the type.  If it is not, then we
+;    do use it to determine the first word of the typed arguments.
+;
+;    After that, we divide the words into sets of words, the markers
+;    being "," at the end of a word.
+;
+      (define filter-fn (lambda (x) (string=? "" x)))
+
+      ;
+      (define type-args
+	(lambda (cfunction)
+	  
+	  (let ((ls ((infix-splitter) cfunction)))
+	    (let f ((ls ls))
+	      (cond 
+	       ((null? ls) '())
+	       ((regexp-search? (rx "(") (car ls))
+		(let ((de-tailed
+		       (let ((word-bits-list
+			      ((infix-splitter (rx "(")) (car ls))))
+			 (if (= 1 (length word-bits-list))
+					; ( was at the end
+			     (de-tail (cdr ls))
+			     (let ((first-word (post-paren (car ls))))
+			       (de-tail (cons first-word (cdr ls))))))))
+		  (map (lambda (ls)
+			 (filter filter-fn ls))
+		       (split-on-comma de-tailed))))
+	       (else
+		(f (cdr ls))))))))
+
+      ; Return the part of the string after "(".
+      (define post-paren
+	(lambda (word)
+	  (regexp-substitute/global #f (rx "(") word 'post)))
+
+      ; return the part of word that is after the literal string tag
+      ; e.g. (post-tag "testing,end-bit" ",") -> end-bit).
+      ; 
+      (define post-tag
+	(lambda (word tag)
+	  (regexp-substitute/global #f (rx ,tag) word 'post)))
+
+      ; return the part of word that is before the literal string tag
+      ; e.g. (pre-tag "testing,end-bit" ",") -> testing)
+      ; 
+      (define pre-tag
+	(lambda (word tag)
+	  (regexp-substitute/global #f (rx ,tag) word 'pre)))
+
+      ; Given a list of strings, look through the list looking for a
+      ; string that constains a ")".  If found, return a list of
+      ; strings with that particular string stripped of the ")" and
+      ; anything after it and cut the end of the list at that point
+      ; (often of course, it will be the end of the list itself).
+      ; 
+      (define de-tail
+	(lambda (str-ls)
+	  
+	  (cond
+	   ((null? str-ls) '())
+	   ((regexp-search? (rx ")") (car str-ls))
+	    (list (regexp-substitute/global #f (rx ")") (car str-ls) 'pre)))
+	   (else 
+	    (cons (car str-ls) (de-tail (cdr str-ls)))))))
+
+      ; "*mtz_file_name" -> "mtz-file-name"
+      ; 
+      (define name-from-arg-list
+	(lambda (arg-list)
+	  ; (format #t "name-from-arg-list arg-list: ~s~%" arg-list)
+	  (if (null? arg-list)
+	      '()
+	      (schemify-name
+	       (post-tag (car (reverse arg-list)) "*")))))
+
+      ;
+      (define schemify-name
+	(lambda (str)
+	  (regexp-substitute/global #f (rx "_") str 'pre "-" 'post)))
+
+
+      ; we are passed a list of strings; return a list of list of
+      ; strings that are comma separated. e.g.: '("const" "char"
+      ; "*weight," "int" "use_weights," "int" "is_diff_map" 
+      ; -> (list '("const" "char" "*weight")
+      ;           ("int" "use_weights")
+      ;           ("int" "is_diff_map"))
+      ; 
+      (define split-on-comma 
+	(lambda (str-list)
+
+	  (let f ((ls str-list) 
+		  (running-list '())
+		  (arg-lists '()))
+
+	 ;   (format #t "~s ~s ~s~%" ls running-list arg-lists)
+
+	    (cond 
+	     ((null? ls) (reverse (cons (reverse running-list) arg-lists)))
+	     ((regexp-search? (rx ",") (car ls))
+	      (f (cdr ls)
+		 '()
+		 (cons (reverse (cons (pre-tag (car ls) ",") running-list))
+		       arg-lists)))
+	     (else 
+	      (f (cdr ls)
+		 (cons (car ls) running-list)
+		 arg-lists))))))
+
+       ; 
+       (define remove-null-strings-from-lists
+	 (lambda (args-list-ls)
+
+	   (map filter-fn args-list-ls)))
+		 
+	    ; (split-on-comma (list "int" "imol," "const" "char" "*name"))
+	  
+      
+; (("const" "char" "*mtz_file_name") 
+;  ("const" "char" "*a")
+;  ("const" "char" "*b") 
+;  ("char" "*weight")
+;  ("int" "use_weights")
+;  ("int" "is_diff_map"))
+; -> where mtz-file-name is a string
+;          a is a string
+;          b is a string
+;          weight is a string
+;          use_weights is an integer number 
+;          is_diff_map is an integer number
+;
+       (define where-data
+	 (lambda (arg-lists) 
+	   
+	   (let ((str ""))
+	     (if (not (null? arg-lists))
+		 (set! str (string-append
+			    "\nwhere: \n "
+			    ; "\\begin{trivlist}"
+			    (typed 'begin-trivlist)
+			    "\n")))
+	     (for-each 
+	      (lambda (arg-list)
+		(if (not (null? arg-list))
+		    (let ((var-name (name-from-arg-list arg-list))
+			  (var-type (get-var-type arg-list)))
+		      (set! str
+			    (string-append 
+			     str
+			     (format #f "     ~a~a is ~a~%" 
+				     (typed 'item)
+				     var-name var-type))))))
+	      arg-lists)
+	     (if (not (null? arg-lists))
+		 (string-append str 
+				(string-append " "
+					       (typed 'end-trivlist)
+					       "\n"))
+		 str))))
+
+        ; ("float" "thing")       -> "an inexact number"
+        ; ("short" "int" "thing") -> "an exact integer number"
+        ; ("int" "thing")         -> "an exact integer number"
+        ; ("const" "char" "*var") -> "a string"
+        ; ("char" "var") -> "a character"
+        ; return #f on null list
+        ;
+        (define get-var-type
+	  (lambda (arg-list) 
+
+	    (if (null? arg-list) 
+		#f
+		(cond
+		 ((string=? (car arg-list) "float") "an inexact number")
+		 ((and (string=? (car arg-list) "short") 
+		       (string=? (car (cdr arg-list)) "int"))
+		       "an exact integer number")
+		 ((string=? (car arg-list) "int") "an exact integer number")
+		 ((and (string=? (car arg-list) "const") 
+		       (string=? (car (cdr arg-list)) "char"))
+		       "a string")
+		 ((and (string=? (car arg-list) "char") 
+		       (regexp-search? (rx "*") (car (cdr arg-list))))
+		  "a string")
+		 ((and (string=? (car arg-list) "char") 
+		       (not (regexp-search? (rx "*") (car (cdr arg-list)))))
+		  "a character")
+		 (else "an unknown type")))))
+
+(define get-documented-c-functions
+  (let ((running-func "")
+	(in-func #f)
+	(in-c++ #f))
+    (lambda (file-name)
+      
+      ; cfunction comes with arguments that are '() possibly.  We need
+      ; to filter those out so that we don't have an empty trivlist
+      ; describing the parameter (TeX objects to that).
+      ; 
+      (define found-function
+	(lambda (cfunction)
+
+	  (let* ((func-name (schemify-name 
+			     (get-func-name cfunction)))
+		 (typed-args (type-args cfunction))
+		 (filtered-typed-args (filter null? typed-args)))
+
+	    ; (format #t "typed-args: ~s~%" typed-args)
+	    (for-each 
+	     (lambda (wrapper)
+	       
+	       (format #t "~a~a~a~a~a~a~%"
+		       (typed 'open-brace)
+		       wrapper
+		       (typed 'code)
+		       (cons func-name
+			     (map name-from-arg-list filtered-typed-args))
+		       (typed 'end-code)
+		       (typed 'close-brace)))
+	     (list (typed 'subsection) (typed 'index)))
+
+	    (let* ((w (where-data filtered-typed-args)))
+	      (format #t " ~a~%" w)))))
+
+
+      ; split into space separated words
+      ;
+      ; i) find the first word that contains an "("
+      ; ii) find the part of the string that is in front of 
+      ;     the "(".  
+      ; iii) return that.
+      ; 
+      (define get-func-name
+	(lambda (str)
+	  
+	  (let ((ls ((infix-splitter) str)))
+	    (call-with-current-continuation
+	     (lambda (break)
+	       (for-each 
+		(lambda (word)
+		  ; does this word have a "("?
+		  (if (regexp-search? (rx "(") word)
+		      (let ((word-bits-list
+			     ((infix-splitter (rx "(")) word)))
+			(break (car word-bits-list)))))
+		ls))))))
+
+      (define function-start
+	(lambda (record)
+
+	  (if (not (regexp-search? (rx "Gtk") record))
+	      (if (regexp-search? (rx ")") record)
+		  (if (eq? #f in-c++)
+		  
+		      (begin
+			(found-function record))
+		  
+		      (begin 
+			(set! running-func record)
+			(set! in-func #t)))))))
+		      
+      (define add-to-running-func
+	(lambda (str)
+
+	  (set! running-func (string-append running-func str))
+	  (if (regexp-search? (rx ")") str)
+	      (begin
+		(found-function running-func)
+		(set! in-func #f)
+		(set! running-func "")))))
+
+      (define do-section
+	(lambda (fields)
+	  
+	  (if (> (length fields) 3)
+	      (begin
+		(format #t (typed 'section-start))
+		(let ((ls (cdr (cdr fields))))
+		  (let f ((ls ls))
+		    (if (not (null? (cdr ls)))
+			(begin
+			  (format #t "~a " (car ls))
+			  (f (cdr ls))))))
+		(format #t (typed 'section-end))))))
+	
+      ; main body
+      ; 
+      (if (file-not-exists? file-name)
+	  
+	  (begin
+	    (format #t "Error ~s does not exist~%" file-name)
+	    #f)
+	  
+	  (begin 
+	    (call-with-input-file (expand-file-name file-name)
+	      (lambda (port)
+		(awk ((field-reader) port) (record fields) ()
+
+		     ; the following functions maybe set in-func and
+		     ; running-func so we put this first so that this
+		     ; function does not happen in those cases
+		     
+		     ((eq? in-func #t)
+		      (add-to-running-func record))
+
+		     ((: bos "void " (+ any) "(" )
+		      (function-start record))
+		     ((: bos "short int " (+ any) "(" )
+		      (function-start record))
+		     ((: bos "int " (+ any) "(" )
+		      (function-start record))
+		     ((: bos "float " (+ any) "(" )
+		      (function-start record))
+
+		     ((: bos "/* section " (+ any) "*/")
+		      (do-section fields))
+
+		     ((: bos "#ifdef __cplusplus")
+		      (set! in-c++ #t))
+
+		     ((: bos "#endif")
+		      (set! in-c++ #f))
+
+		     ))))))))
+
+
+; antagonims: screen, dust, table (a motion)
+		     
+(if (> (length command-line-arguments) 0) 
+    (let ((source-file (car command-line-arguments)))
+      (get-documented-c-functions source-file))) ; typically "../../coot/src/c-interface.h"
+
+
+; (get-documented-c-functions "sample.h")
+; (get-documented-c-functions "bit.h")
+
+; Note that all the functions described here are internal c fuctions
+; that are called by c-functions.  Therefore the user can define their
+; own (shorten-baton) function and it will make no difference - the c
+; program will not see it - i.e. these are internal functions that
+; cannot be overridden. 
+; 
+; However these functions can of course be used in user-defined
+; routines (and indeed that is the primary purpose of making these
+; functions available to the user).
+;
+; Note to self:  Put these paragraphs round the other way.
+
+; Note to self: mutate_internal needs a const or remove the reference
