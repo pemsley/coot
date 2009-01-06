@@ -81,6 +81,16 @@
 
 #include "manipulation-modes.hh"
 
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+// no fix up needed 
+#else    
+#define scm_to_int gh_scm2int
+#define scm_to_locale_string SCM_STRING_CHARS
+#define scm_to_double  gh_scm2double
+#define  scm_is_true gh_scm2bool
+#endif // SCM version
+
+
 
 // A few non-class members - should be somewhere else, I guess.
 // 
