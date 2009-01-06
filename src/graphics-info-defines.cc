@@ -2,7 +2,7 @@
  * 
  * Copyright 2004, 2005 by The University of York
  * Copyright 2007 by The University of York
- * Copyright 2008 by The University of Oxford
+ * Copyright 2008, 2009 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,9 @@
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "interface.h"
+
+#include "rotate-translate-modes.hh"
+#include "manipulation-modes.hh"
 
 void
 graphics_info_t::clear_pending_picks() {
@@ -640,6 +643,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 	 if (running_dynamic_distance.filled()) {
 	    dynamic_distances.push_back(running_dynamic_distance);
 	    graphics_draw();
+	    normal_cursor();
 	    in_dynamic_distance_define = 0;
 	    running_dynamic_distance = coot::intermediate_atom_distance_t();
 	    unset_geometry_dialog_dynamic_distance_togglebutton();
@@ -700,6 +704,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       normal_cursor();
 	       delete_atom_by_atom_index(naii.imol, naii.atom_index,
 					 destroy_delete_dialog_flag_by_ctrl_press);
+	       run_post_manipulation_hook(naii.imol, DELETED);
 	       pick_pending_flag = 0;
 	    }
 	 } else { 
@@ -715,6 +720,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		     delete_atom_by_atom_index(im, index,
 					       destroy_delete_dialog_flag_by_ctrl_press);
 		     normal_cursor();
+		     run_post_manipulation_hook(naii.imol, DELETED);
 		     pick_pending_flag = 0;
 		  }
 		  
@@ -755,6 +761,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       delete_atom_by_atom_index(naii.imol, naii.atom_index,
 					 destroy_delete_dialog_flag_by_ctrl_press);
 	       pick_pending_flag = 0;
+	       run_post_manipulation_hook(naii.imol, DELETED);
 	    }
 	 } else { 
 
@@ -770,6 +777,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		     delete_atom_by_atom_index(im, index,
 					       destroy_delete_dialog_flag_by_ctrl_press);
 		     normal_cursor();
+		     run_post_manipulation_hook(im, DELETED);
 		     pick_pending_flag = 0;
 		  }
 	       }
@@ -790,6 +798,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       const char *chain_id = res->GetChainID();
 	       delete_residue_sidechain(naii.imol, chain_id, resno, ins_code,
 					destroy_delete_dialog_flag_by_ctrl_press);
+	       run_post_manipulation_hook(naii.imol, DELETED);
 	    }
 	 }
       } 
@@ -804,6 +813,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       normal_cursor();
 	       delete_residue_by_atom_index(naii.imol, naii.atom_index,
 					    destroy_delete_dialog_flag_by_ctrl_press);
+	       run_post_manipulation_hook(naii.imol, DELETED);
 	       pick_pending_flag = 0;
 	    }
 	 } else { 
@@ -823,6 +833,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 			int im = symm_nearest_atom_index_info.imol;
 			delete_residue_by_atom_index(im, index,
 						     destroy_delete_dialog_flag_by_ctrl_press);
+			run_post_manipulation_hook(im, DELETED);
 		     }
 		  }
 	       } else { // not used
@@ -859,6 +870,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		     int im = symm_nearest_atom_index_info.imol;
 		     delete_residue_hydrogens_by_atom_index(im, index,
 							    destroy_delete_dialog_flag_by_ctrl_press);
+		     run_post_manipulation_hook(im, DELETED);
 		     pick_pending_flag = 0;
 		     normal_cursor();
 		  }
@@ -903,6 +915,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       delete_residue_range(naii.imol, g.delete_item_residue_zone_1, res2);
 	       pick_pending_flag = 0;
 	       g.delete_item_residue_zone = 1; //reset for next time
+	       run_post_manipulation_hook(naii.imol, DELETED);
 
 	       // normal_cursor(); not necessarily, the dialog may not close
 	    }
@@ -1019,37 +1032,69 @@ graphics_info_t::check_if_in_rot_trans_define(GdkEventButton *event) {
    
    int state = 0;
    graphics_info_t g;
-   if (g.in_rot_trans_object_define) { 
-      pick_info naii = atom_pick(event); 
-      if (naii.success == GL_TRUE) { 
-	 molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
-	 if (g.in_rot_trans_object_define == 1) { 
-	    g.rot_trans_atom_index_1 = naii.atom_index;
-	    g.in_rot_trans_object_define = 2;
-	    g.imol_rot_trans_object = naii.imol;
-	 } else { 
-
-	    if (g.in_rot_trans_object_define == 2) { 
-	       if (naii.imol == g.imol_rot_trans_object) { 
-		  g.rot_trans_atom_index_2 = naii.atom_index;
-		  
-		  // now we are setup to move:
-		  g.execute_rotate_translate_ready();
-		  fleur_cursor();
-	       } else { 
-		  std::cout << "Rotation/Translations: that atom was ";
-		  std::cout << "not in the same molecule as the "
-			    << "previous atom" << std::endl;
-		  std::cout << "Cancelling selection" << std::endl;
+   if (g.in_rot_trans_object_define) {
+      if (g.rot_trans_object_type == ROT_TRANS_TYPE_ZONE) { 
+	 pick_info naii = atom_pick(event); 
+	 if (naii.success == GL_TRUE) { 
+	    molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
+	    if (g.in_rot_trans_object_define == 1) { 
+	       g.rot_trans_atom_index_1 = naii.atom_index;
+	       g.in_rot_trans_object_define = 2;
+	       g.imol_rot_trans_object = naii.imol;
+	    } else { 
+	       
+	       if (g.in_rot_trans_object_define == 2) { 
+		  if (naii.imol == g.imol_rot_trans_object) { 
+		     g.rot_trans_atom_index_2 = naii.atom_index;
+		     
+		     // now we are setup to move:
+		     g.execute_rotate_translate_ready();
+		     fleur_cursor();
+		  } else { 
+		     std::cout << "Rotation/Translations: that atom was ";
+		     std::cout << "not in the same molecule as the "
+			       << "previous atom" << std::endl;
+		     std::cout << "Cancelling selection" << std::endl;
+		  }
 	       }
+	       g.in_rot_trans_object_define = 0;
+	       pick_pending_flag = 0;
+	       normal_cursor();
+	       model_fit_refine_unactive_togglebutton("model_refine_dialog_rot_trans_togglebutton");
 	    }
+	    graphics_draw(); // let's see the label
+	 }
+      }
+
+      if (g.rot_trans_object_type == ROT_TRANS_TYPE_CHAIN) {
+	 // One click
+	 pick_info naii = atom_pick(event); 
+	 if (naii.success == GL_TRUE) { 
+	    molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
+	    g.imol_rot_trans_object = naii.imol;
+	    g.rot_trans_atom_index_1 = naii.atom_index;
+	    g.execute_rotate_translate_ready();
+	    fleur_cursor();
 	    g.in_rot_trans_object_define = 0;
-	    pick_pending_flag = 0;
-	    normal_cursor();
 	    model_fit_refine_unactive_togglebutton("model_refine_dialog_rot_trans_togglebutton");
 	 }
-	 graphics_draw(); // let's see the label
       }
+
+      
+      if (g.rot_trans_object_type == ROT_TRANS_TYPE_MOLECULE) {
+	 // One click
+	 pick_info naii = atom_pick(event); 
+	 if (naii.success == GL_TRUE) { 
+	    molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
+	    g.imol_rot_trans_object = naii.imol;
+	    g.rot_trans_atom_index_1 = naii.atom_index;
+	    g.execute_rotate_translate_ready();
+	    fleur_cursor();
+	    g.in_rot_trans_object_define = 0;
+	    model_fit_refine_unactive_togglebutton("model_refine_dialog_rot_trans_togglebutton");
+	 }
+      }
+      
    }
    return state; // ignored, currently
 } 
@@ -1141,7 +1186,7 @@ graphics_info_t::check_if_in_mutate_define(GdkEventButton *event) {
 	 normal_cursor();
 	 model_fit_refine_unactive_togglebutton("model_refine_dialog_mutate_togglebutton");
       }
-   } 
+   }
 } 
 
 void

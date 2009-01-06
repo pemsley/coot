@@ -1,6 +1,7 @@
 /* ligand/ligand.hh
  * 
  * Copyright 2002, 2003, 2004, 2005 by The University of York
+ * Copyright 2009 by The University of Oxford.
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -394,6 +395,13 @@ namespace coot {
       void find_clusters(float cut_off);
       void find_clusters_old(float cut_off);
       void find_clusters_int(float cut_off);
+
+      // and now we want to give a cluster centre (actually, a point
+      // close to a cluster centre).  We need to create a
+      // map_point_cluster and calulate its centre and eigens, like we
+      // do when given a whole map.
+      // 
+      void cluster_from_point(clipper::Coord_orth pt, float cut_off);
 
       // cluster size maxes out, starts new.
       void find_clusters_water_flood(float cut_off,

@@ -2,7 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005 by The University of York
  * Author Paul Emsley
- * Copyright 2008 by The University of Oxford
+ * Copyright 2008, 2009 by The University of Oxford
  * Author Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -853,7 +853,7 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
 	    while (q.size()) { 
 	       c_g_start = q.front();
 	       q.pop();
-	       for (int i=0; i<neighb.size(); i++) {
+	       for (unsigned int i=0; i<neighb.size(); i++) {
 		  c_g = c_g_start + neighb[i];
 		  if (xmap_cluster.get_data(c_g) > cut_off) {
 		     if (! cluster_map.get_data(c_g)) {
@@ -888,6 +888,122 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
    if (verbose_reporting)
       print_cluster_details(); 
 }
+
+void
+coot::ligand::cluster_from_point(clipper::Coord_orth pt,
+				 float z_cut_off_in) {
+
+   // convert pt to a grid point first.
+   clipper::Coord_frac a_cf   = pt.coord_frac(xmap_cluster.cell());
+   clipper::Coord_map  a_cm   = a_cf.coord_map(xmap_cluster.grid_sampling());
+   clipper::Coord_grid a_grid = a_cf.coord_grid(xmap_cluster.grid_sampling());
+   clipper::Skeleton_basic::Neighbours neighb(xmap_cluster);
+   float br = 3.0;
+   float density_crit = z_cut_off_in * map_rms;
+
+   std::cout << " density_crit " << density_crit << std::endl;
+
+   // Coord_map is like Coord_grid, but non-integer.
+
+   // we need to find a starting point that is in the cluster (close
+   // to pt).
+
+   clipper::Coord_grid c_g_start;  // initially unset
+   
+   clipper::Coord_grid c_g = a_grid;
+
+   std::cout << " starting at a_grid: " << a_grid.format() << std::endl;
+
+   // scored grid values, in a set of neighbours, get them all and
+   // take the top of the sorted list.
+   std::vector<std::pair<clipper::Coord_grid, float> > sg;
+
+   float d = xmap_cluster.get_data(a_grid);
+   if (d > density_crit) {
+      c_g_start = c_g;
+   } else {
+      bool found_site = 0;
+      std::queue<clipper::Coord_grid> q;
+
+      // if no points in the map are above density_crit, then this
+      // could loop endlessly, so add a termination condition on
+      // counts.
+      // 
+      int count_max = 200000;
+      int count = 0;
+
+      // we don't want to add a neighbour if we've added this grid point
+      // to the queue already.
+      clipper::Xmap<short int> neighbour_map; // cant use bools
+      neighbour_map.init(xmap_pristine.spacegroup(), xmap_pristine.cell(), 
+			 xmap_pristine.grid_sampling());
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = neighbour_map.first(); !ix.last(); ix.next())
+	 neighbour_map[ix] = 0;
+
+      q.push(a_grid);
+      
+      while (! found_site && (count < count_max)) {
+	 count++;
+	 c_g = q.front();
+	 q.pop();
+	 neighbour_map.set_data(c_g, 1); // mark as examined.
+	 d = xmap_cluster.get_data(c_g);
+	 if (d > density_crit) {
+	    c_g_start = c_g;
+	    found_site = 1;
+	 } else { 
+	    for (int i=0; i<neighb.size(); i++) {
+	       if (neighbour_map.get_data(c_g + neighb[i]) == 0)
+		  q.push(c_g + neighb[i]);
+	    }
+	 }
+      }
+      if (! found_site) {
+	 std::cout << "Hopeless - no ligand density cluster found"
+		   << std::endl;
+      } else {
+	 std::cout << "starting point found for cluster " << count
+		   << std::endl;
+	 clipper::Xmap<int> cluster_map;
+	 cluster_map.init(xmap_pristine.spacegroup(), xmap_pristine.cell(), 
+			  xmap_pristine.grid_sampling());
+	 clipper::Xmap_base::Map_reference_index ix;
+	 for (ix = cluster_map.first(); !ix.last(); ix.next())
+	    cluster_map[ix] = 0;
+	 std::queue<clipper::Coord_grid> q2;
+	 q2.push(c_g_start);
+	 coot::map_point_cluster mpc;
+	 while (q2.size()) {
+	    c_g_start = q2.front();
+	    q2.pop();
+	    for (unsigned int i=0; i<neighb.size(); i++) {
+	       c_g = c_g_start + neighb[i];
+	       if (xmap_cluster.get_data(c_g) > density_crit) {
+		  if (! cluster_map.get_data(c_g)) {
+		     cluster_map.set_data(c_g, 1);
+		     mpc.map_grid.push_back(c_g);
+		     mpc.score += xmap_cluster.get_data(c_g);
+		     q2.push(c_g);
+		  }
+	       }
+	    }
+	 }
+	 if (mpc.map_grid.size() > 0) {
+	    cluster.push_back(mpc);
+	    n_clusters++; // class variable
+	 } 
+      } 
+   }
+   calculate_cluster_centres_and_eigens();
+   std::vector <clipper::Coord_orth> sampled_protein_coords =
+      make_sample_protein_coords();
+   move_ligand_centres_close_to_protein(sampled_protein_coords);
+   
+   if (verbose_reporting)
+      print_cluster_details(); 
+}
+
 
 int
 coot::ligand::n_grid_limit_for_water_cluster() const { 

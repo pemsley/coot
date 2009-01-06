@@ -2688,7 +2688,11 @@ echo ./configure $coot_prefix \
       $scripting          \
       $python_scripting   \
       $shared_static_flag \
-      $coot_extra_args  
+      $coot_optim_args    \
+      $coot_extra_args
+
+# consider adding -DCOOT_SYS_TYPE=systype (or something like that)
+# here, so that coot --version-info/full returns it.
 
 rm src/coot_wrap_guile_pre.cc
 rm src/coot_wrap_python_pre.cc

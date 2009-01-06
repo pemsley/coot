@@ -1,11 +1,12 @@
 /* ligand/ideal-rna.hh
  * 
  * Copyright 2006 by The University of York
+ * Copyright 2009 by the University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -42,7 +43,7 @@ namespace coot {
 					       CMMDBManager *standard_residues) const;
       clipper::RTop_orth n_turns(int nbase, int n_in_chain, coot::ideal_rna::form_t form_flag) const;
       CMMDBManager *standard_residues;
-      short int is_valid_base(char base) const;
+      bool is_valid_base(char base) const;
       char antisense_base(char base, short int is_dna_flag) const;
       int mutate_res(CResidue *res, char base, short int is_dna_flag) const;
       void delete_o2_prime(CResidue *res) const; // RNA -> DNA

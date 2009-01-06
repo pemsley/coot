@@ -34,7 +34,9 @@
 (define get-refmac-sad-atom-info-scm #f)
 (define set-find-hydrogen-torsions #f)
 (define find-terminal-residue-type #f)
-
+(define residues-near-position-scm #f)
+(define non-standard-residue-names-scm #f)
+(define refine-residues-scm #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")

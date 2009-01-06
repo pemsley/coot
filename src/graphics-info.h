@@ -118,8 +118,10 @@ namespace coot {
 
 
 namespace coot { 
-   enum {MAX_LABELLED_ATOMS = 200};
-   enum {NEW_COORDS_ADD = 1, NEW_COORDS_REPLACE = 2, NEW_COORDS_REPLACE_CHANGE_ALTCONF = 3, 
+   enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
+	 //         NEW_COORDS_ADD = 1,                 // not used (yet)
+	 NEW_COORDS_REPLACE = 2, 
+	 NEW_COORDS_REPLACE_CHANGE_ALTCONF = 3, 
 	 NEW_COORDS_INSERT = 4,
          NEW_COORDS_INSERT_CHANGE_ALTCONF = 5};
    enum {STATE_SCM = 1, STATE_PYTHON = 2};
@@ -488,10 +490,9 @@ class graphics_info_t {
    static coot::protein_geometry* geom_p;
 
    static coot::rotamer_probability_tables rot_prob_tables;
-   coot::rotamer_probability_info_t get_rotamer_probability(CResidue *res,
-							    CMMDBManager *mol,
-							    float lowest_probability,
-							    short int add_extra_PHE_and_TYR_rotamers_flag);
+
+   // now used for residue_score (from c-interface.h)
+   // coot::rotamer_probability_info_t get_rotamer_probability(...)
 
    static atom_selection_container_t *moving_atoms_asc;
    CResidue *get_first_res_of_moving_atoms();
@@ -613,6 +614,17 @@ class graphics_info_t {
    static coot::restraints_container_t last_restraints;
 #endif // HAVE_GSL   
    // the mode flag is public:
+
+
+   void run_post_manipulation_hook(int imol, int mode);
+   // which uses the following...
+#ifdef USE_GUILE
+   void run_post_manipulation_hook_scm(int imol, int mode);
+#endif    
+#ifdef USE_PYTHON
+   void run_post_manipulation_hook_py(int imol, int mode);
+#endif
+
 
    // edit ramachandran store:
    static coot::ramachandran_points_container_t rama_points;
@@ -1763,6 +1775,7 @@ public:
 
    // rotate/translate object mode
    static short int in_rot_trans_object_define;
+   static short int rot_trans_object_type;
    static int rot_trans_atom_index_1;
    static int rot_trans_atom_index_2;
    static int imol_rot_trans_object;
@@ -1825,6 +1838,7 @@ public:
    static short int in_residue_info_define; // initially 0
    static float geometry_vs_map_weight; 
    static float rama_plot_restraint_weight;
+   static int rama_n_diffs;
 
    // similarly for distance and angles:
    //
@@ -2024,6 +2038,12 @@ public:
    std::vector<coot::geometry_graph_block_info_generic>
      rotamers_from_residue_selection(PCResidue *SelResidues,
 				   int nSelResidues, int imol); 
+   // now used for residue_score (from c-interface.h)
+   coot::rotamer_probability_info_t get_rotamer_probability(CResidue *res,
+							    CMMDBManager *mol,
+							    float lowest_probability,
+							    short int add_extra_PHE_and_TYR_rotamers_flag);
+
 
    std::vector<coot::geometry_graph_block_info_generic> ncs_diffs_from_mol(int imol);
    std::vector<coot::geometry_graph_block_info_generic> ncs_diffs(int imol, 

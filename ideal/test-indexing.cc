@@ -20,11 +20,14 @@
  */
 
 
+#include <iostream>
+#include <string>
+#include <vector>
+
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <iostream>
 #include <string.h>
 #include <math.h>
 
@@ -32,9 +35,6 @@
 #include "mmdb_mmcif.h"
 #endif
   
-#include <iostream>
-#include <string>
-#include <vector>
 
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"

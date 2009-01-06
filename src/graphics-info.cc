@@ -1,7 +1,7 @@
 /* src/graphics-info.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by the University of York
- * Copyright 2007, 2008 by the University of Oxford
+ * Copyright 2007, 2008, 2009 by the University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,6 +79,7 @@
 //temp
 #include "cmtz-interface.hh"
 
+#include "manipulation-modes.hh"
 
 
 // A few non-class members - should be somewhere else, I guess.
@@ -2568,7 +2569,8 @@ graphics_info_t::accept_moving_atoms() {
 //    std::cout << ":::: INFO:: imol moving atoms is "
 // 	     << imol_moving_atoms << std::endl;
    
-   if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) {
+//    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!
+   if (0) { 
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);
    } else {
       bool mzo = refinement_move_atoms_with_zero_occupancy_flag;
@@ -2629,7 +2631,60 @@ graphics_info_t::accept_moving_atoms() {
    if (do_probe_dots_post_refine_flag) {
       do_interactive_probe();
    }
+
+
+   int mode = MOVINGATOMS;
+   run_post_manipulation_hook(imol_moving_atoms, mode);
 }
+
+void
+graphics_info_t::run_post_manipulation_hook(int imol, int mode) {
+   
+#ifdef USE_GUILE
+   run_post_manipulation_hook_scm(imol, mode);
+#endif    
+#ifdef USE_PYTHON
+   run_post_manipulation_hook_py(imol, mode);
+#endif
+
+}
+
+#ifdef USE_GUILE
+void
+graphics_info_t::run_post_manipulation_hook_scm(int imol,
+						int mode) {
+
+   std::string pms = "post-manipulation-hook";
+   SCM v = safe_scheme_command(pms);
+
+   if (scm_is_true(scm_procedure_p(v))) {
+      std::string ss = "(";
+      ss += pms;
+      ss += " ";
+      ss += int_to_string(imol);
+      ss += " ";
+      ss += int_to_string(mode);
+      ss += ")";
+      SCM res = safe_scheme_command(ss);
+      SCM dest = SCM_BOOL_F;
+      SCM mess =  scm_makfrom0str("result: ~s\n");
+      SCM p = scm_simple_format(dest, mess, scm_list_1(res));
+      std::cout << scm_to_locale_string(p);
+   }
+}
+#endif
+
+
+#ifdef USE_PYTHON
+void
+graphics_info_t::run_post_manipulation_hoo_py(int imol, int mode) {
+
+   std::string pms = "post_manipulation_script";
+
+   // ... more here.
+   
+}
+#endif
 
 
 void
@@ -2693,7 +2748,7 @@ void
 graphics_info_t::clear_up_moving_atoms() { 
 
    std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms..." << std::endl;
-   moving_atoms_asc_type = 0; // unset
+   moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
    in_moving_atoms_drag_atom_mode_flag = 0; // no more dragging atoms
    have_fixed_points_sheared_drag_flag = 0;
    // and take out any drag refine idle function:
@@ -4462,6 +4517,9 @@ graphics_info_t::apply_undo() {
 			gtk_object_get_user_data(GTK_OBJECT(w));
 		     handle_rama_plot_update(plot);
 		  }
+		  // now update the geometry graphs, so get the asc
+		  atom_selection_container_t u_asc = molecules[umol].atom_sel;
+		  update_geometry_graphs(u_asc, umol);
 #endif // HAVE_GTK_CANVAS   
 	       }
 	    } else {

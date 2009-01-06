@@ -15112,9 +15112,15 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
       </child>
 
       <widget>
-	<class>GtkLabel</class>
-	<name>label131</name>
-	<label>
+	<class>GtkVBox</class>
+	<name>vbox205</name>
+	<homogeneous>False</homogeneous>
+	<spacing>0</spacing>
+
+	<widget>
+	  <class>GtkLabel</class>
+	  <name>label131</name>
+	  <label>
 No Restraints Found!
 
 Non-existent or minimal description of restrained residues.
@@ -15128,12 +15134,41 @@ If not, try File -&gt; Import CIF Dictionary
 Alternatively, did you check that the atom names of the 
 PDB file match those of the restraints?
 </label>
-	<justify>GTK_JUSTIFY_CENTER</justify>
-	<wrap>False</wrap>
-	<xalign>0</xalign>
-	<yalign>0</yalign>
-	<xpad>8</xpad>
-	<ypad>0</ypad>
+	  <justify>GTK_JUSTIFY_CENTER</justify>
+	  <wrap>False</wrap>
+	  <xalign>0</xalign>
+	  <yalign>0</yalign>
+	  <xpad>8</xpad>
+	  <ypad>0</ypad>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
+
+	<widget>
+	  <class>GtkLabel</class>
+	  <name>no_restraints_extra_label</name>
+	  <label>-----------------
+
+The residues in the chain are out of order.   This can 
+cause problems with residues selection.
+
+Suggest you re-order residues in increasing order.
+</label>
+	  <justify>GTK_JUSTIFY_CENTER</justify>
+	  <wrap>False</wrap>
+	  <xalign>0.5</xalign>
+	  <yalign>0.5</yalign>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
       </widget>
     </widget>
   </widget>

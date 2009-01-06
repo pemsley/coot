@@ -270,6 +270,8 @@ public:
    void init(int imol_no, float level_prefered, float level_allowed, float block_size_for_background, short int is_kleywegt_plot_flag);
 
    void allow_seqnum_offset();
+   void set_n_diffs(int nd);
+
 
    // The graphics interface, given that you have a CMMDBManager. 
    // 

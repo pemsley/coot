@@ -102,7 +102,7 @@ molecule_class_info_t::make_ribbons() {
   CMMANManager* molHnd=0;
   CMGSBase *s_base = new CMGSBase((char *)mon_lib_dir.c_str(),
                                   (char *)mon_lib_dir.c_str(),
-                                  "",
+                                  (char *)"",
                                   (char *)ener_lib.c_str(),
                                   (char *)mon_lib_list.c_str(),
                                   (char *)elements.c_str());

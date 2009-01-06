@@ -1,6 +1,7 @@
 /* src/c-interface.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
+ * Copyright 2008, 2009 by The University of Oxford
  * Author: Paul Emsley, Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or
@@ -110,6 +111,8 @@
 
 #include "c-interface.h"
 #include "cc-interface.hh"
+
+#include "nsv.hh"
 
 #include "testing.hh"
 
@@ -5195,6 +5198,22 @@ void graphics_to_b_factor_representation(int imol) {
    graphics_draw();
 }
 
+void graphics_to_b_factor_cas_representation(int imol) {
+
+   if (is_valid_model_molecule(imol)) { 
+      graphics_info_t::molecules[imol].b_factor_representation_as_cas();
+      std::vector<std::string> command_strings;
+      command_strings.push_back("graphics-to-b-factor-cas-representation");
+      command_strings.push_back(graphics_info_t::int_to_string(imol));
+      add_to_history(command_strings);
+   }
+   else
+      std::cout << "WARNING:: no such valid molecule " << imol
+		<< " in graphics_to_b_factor_representation"
+		<< std::endl;
+   graphics_draw();
+}
+
 void graphics_to_occupancy_representation(int imol) {
 
    if (is_valid_model_molecule(imol)) { 
@@ -6700,7 +6719,20 @@ add_on_sequence_view_choices() {
 void set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
    graphics_info_t g;
    g.set_sequence_view_is_displayed(widget, imol);
-} 
+}
+
+void nsv(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::string name = g.molecules[imol].name_for_display_manager();
+      exptl::nsv *seq_view =
+	 new exptl::nsv(g.molecules[imol].atom_sel.mol, name, imol,
+			g.use_graphics_interface_flag);
+      // 
+      // g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
+   }
+}
 
 /*  ----------------------------------------------------------------------- */
 /*           rotate moving atoms peptide                                    */
@@ -6737,7 +6769,9 @@ void setup_backbone_torsion_edit(short int state) {
 void setup_dynamic_distances(short int state) {
 
    graphics_info_t::in_dynamic_distance_define = state;
-
+   if (state) {
+      pick_cursor_maybe();
+   }
 }
 
 

@@ -10385,7 +10385,9 @@ create_no_restraints_info_dialog (void)
   GtkWidget *no_restraints_info_dialog;
   GtkWidget *dialog_vbox34;
   GtkWidget *frame78;
+  GtkWidget *vbox205;
   GtkWidget *label131;
+  GtkWidget *no_restraints_extra_label;
   GtkWidget *dialog_action_area34;
   GtkWidget *no_restraints_info_dialog_button;
 
@@ -10406,14 +10408,28 @@ create_no_restraints_info_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox34), frame78, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame78), 6);
 
+  vbox205 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox205);
+  gtk_object_set_data_full (GTK_OBJECT (no_restraints_info_dialog), "vbox205", vbox205,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox205);
+  gtk_container_add (GTK_CONTAINER (frame78), vbox205);
+
   label131 = gtk_label_new (_("\nNo Restraints Found!\n\nNon-existent or minimal description of restrained residues.\n\nAre you sure that you read a non-minimal mmCIF dictionary\nfor this monomer? Are you sure the PDB residue name\nmatches the dictionary residue name?\n\nIf not, try File -> Import CIF Dictionary\n\nAlternatively, did you check that the atom names of the \nPDB file match those of the restraints?\n"));
   gtk_widget_ref (label131);
   gtk_object_set_data_full (GTK_OBJECT (no_restraints_info_dialog), "label131", label131,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (label131);
-  gtk_container_add (GTK_CONTAINER (frame78), label131);
+  gtk_box_pack_start (GTK_BOX (vbox205), label131, FALSE, FALSE, 0);
   gtk_misc_set_alignment (GTK_MISC (label131), 0, 0);
   gtk_misc_set_padding (GTK_MISC (label131), 8, 0);
+
+  no_restraints_extra_label = gtk_label_new (_("-----------------\n\nThe residues in the chain are out of order.   This can \ncause problems with residues selection.\n\nSuggest you re-order residues in increasing order.\n"));
+  gtk_widget_ref (no_restraints_extra_label);
+  gtk_object_set_data_full (GTK_OBJECT (no_restraints_info_dialog), "no_restraints_extra_label", no_restraints_extra_label,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (no_restraints_extra_label);
+  gtk_box_pack_start (GTK_BOX (vbox205), no_restraints_extra_label, FALSE, FALSE, 0);
 
   dialog_action_area34 = GTK_DIALOG (no_restraints_info_dialog)->action_area;
   gtk_object_set_data (GTK_OBJECT (no_restraints_info_dialog), "dialog_action_area34", dialog_action_area34);

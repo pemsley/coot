@@ -3,7 +3,7 @@
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
- * Copyright 2008 by The University of Oxford
+ * Copyright 2008, 2009 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -411,6 +411,11 @@ SCM closest_atom(int imol);
 // 
 SCM residues_near_residue(int imol, SCM residue_in, float radius);
 
+// Return a list of pairs of (imol, residue_spec).
+// pos is a list of 3 numbers.  (get imol from active-atom)
+// 
+SCM residues_near_position_scm(int imol, SCM pos, float radius);
+
 #endif	/* USE_GUILE */
 
 /* Here the Python code for ATOM INFO */
@@ -469,6 +474,7 @@ PyObject *closest_atom_py(int imol);
 // specified by res_in.
 // 
 PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius);
+PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 
 #endif // USE_PYTHON
 

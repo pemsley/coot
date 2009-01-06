@@ -3,7 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
- * Copyright 2007, 2008 The University of Oxford
+ * Copyright 2007, 2008, 2009 The University of Oxford
  * Copyright 2008 by The University of Oxford
  * Author: Paul Emsley
  * Copyright 2007, 2008 by Bernhard Lohkamp
@@ -786,6 +786,48 @@ PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius)
    return r;
 }
 #endif // USE_PYTHON
+
+#ifdef USE_GUILE
+SCM residues_near_position_scm(int imol, SCM pt_in_scm, float radius) {
+
+   SCM r = SCM_EOL;
+
+   if (is_valid_model_molecule(imol)) {
+
+      SCM pt_in_length_scm = scm_length(pt_in_scm);
+      int pt_in_length = scm_to_int(pt_in_length_scm);
+      if (pt_in_length != 3) {
+	 std::cout << "WARNING:: input pt is not a list of 3 elements"
+		   << std::endl;
+      } else {
+
+	 double x = scm_to_double(scm_list_ref(pt_in_scm, SCM_MAKINUM(0)));
+	 double y = scm_to_double(scm_list_ref(pt_in_scm, SCM_MAKINUM(1)));
+	 double z = scm_to_double(scm_list_ref(pt_in_scm, SCM_MAKINUM(2)));
+
+	 clipper::Coord_orth pt(x,y,z);
+	 
+	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 std::vector<CResidue *> v = coot::residues_near_position(pt, mol, radius);
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    SCM r_scm = scm_residue(coot::residue_spec_t(v[i]));
+	    r = scm_cons(r_scm, r);
+	 }
+      }
+   }
+   return r;
+} 
+#endif 
+
+#ifdef USE_PYTHON
+SCM residues_near_position_py(int imol, PyObject *residue_in, float radius) {
+
+   PyObject *r = PyList_New(0);
+
+   return r;
+} 
+#endif 
+
 
 #ifdef USE_GUILE
 coot::residue_spec_t residue_spec_from_scm(SCM residue_in) {

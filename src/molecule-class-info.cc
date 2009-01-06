@@ -3,7 +3,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2007 by Paul Emsley
- * Copyright 2007, 2008 by The University of Oxford
+ * Copyright 2007, 2008, 2009 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include "mmdb_manager.h"
 #include "mmdb_tables.h"
@@ -1853,6 +1854,134 @@ molecule_class_info_t::display_symmetry_bonds() {
    }
 }
 
+// publically accessible
+void
+molecule_class_info_t::add_dipole(const coot::residue_spec_t &res,
+				  const coot::protein_geometry &geom) {
+
+
+   CResidue *residue_p = get_residue(res);
+   if (residue_p) {
+      try {
+	 std::string res_type = residue_p->GetResName();
+	 std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
+	    geom.get_monomer_restraints(res_type);
+	 if (rp.first) {
+	    coot::dipole d(rp.second, residue_p);
+	    // std::cout << "   DEBUG:: added dipole " << d << std::endl;
+	    dipoles.push_back(d);
+	 }
+      }
+      catch (std::runtime_error mess) {
+	 std::cout << mess.what() << std::endl;
+      }
+   }
+}
+
+void
+molecule_class_info_t::delete_dipole(int dipole_number) {
+
+   if (dipole_number < dipoles.size()) {
+      std::vector<coot::dipole>::iterator it;
+      int n=0;
+      for (it=dipoles.begin(); it!=dipoles.end(); it++) {
+	 if (n == dipole_number) {
+	    dipoles.erase(it);
+	    break;
+	 }
+	 n++;
+      }
+   }
+}
+
+
+void
+molecule_class_info_t::draw_dipoles() const {
+
+   if (! drawit)
+      return;
+   
+   if (dipoles.size() > 0) { 
+      glPushMatrix();
+      glLineWidth(2.0);
+      std::vector<clipper::Coord_orth> arrow_points;
+      arrow_points.push_back(clipper::Coord_orth(0,0,0));
+      arrow_points.push_back(clipper::Coord_orth(0.13,0,0));
+      arrow_points.push_back(clipper::Coord_orth(0.13,0,0.66));
+      arrow_points.push_back(clipper::Coord_orth(0.3,0,0.66));
+      arrow_points.push_back(clipper::Coord_orth(0,0,1));
+      // shift so that the centre of the arrow is at the origin
+      for (unsigned int i=0; i<arrow_points.size(); i++)
+	 arrow_points[i] -= clipper::Coord_orth(0,0,0.4); // not 0.5,
+                                                          // esthetics
+
+      // Guide-line object
+      if (0) { 
+	 glColor3f(0.8,0.6,0.4);
+	 for (unsigned int i=0; i<dipoles.size(); i++) {
+	    clipper::Coord_orth pt = dipoles[i].position();
+	    clipper::Coord_orth d = dipoles[i].get_dipole();
+	    double sc = 3.0;
+	    glBegin(GL_LINES);
+	    glVertex3d(pt.x(), pt.y(), pt.z());
+	    glVertex3d(pt.x() + d.x() * sc,
+		       pt.y() + d.y() * sc,
+		       pt.z() + d.z() * sc);
+	    glVertex3d(pt.x(), pt.y(), pt.z());
+	    glVertex3d(pt.x() - d.x() * sc,
+		       pt.y() - d.y() * sc,
+		       pt.z() - d.z() * sc);
+	    glEnd();
+	 }
+      }
+
+      glColor3f(0.5,0.6,0.8);
+      for (unsigned int i=0; i<dipoles.size(); i++) {
+	 clipper::Coord_orth pt = dipoles[i].position();
+	 clipper::Coord_orth  d = dipoles[i].get_dipole();
+	 clipper::Coord_orth d_unit = dipoles[i].get_unit_dipole();
+	 float sc = 4.0;
+
+	 // make an arbitrary vector not parallel to d_unit.
+	 // 
+	 clipper::Coord_orth arb(0,0.1,0.9);
+	 if (d_unit.y() < d_unit.z())
+	    arb = clipper::Coord_orth(0.0, 0.9, 0.1);
+	 if (d_unit.x() < d_unit.y())
+	    arb = clipper::Coord_orth(0.9, 0.0, 0.1);
+
+	 clipper::Coord_orth p1(clipper::Coord_orth::cross(arb, d_unit).unit());
+	 clipper::Coord_orth p2(clipper::Coord_orth::cross( p1, d_unit).unit());
+	 clipper::Coord_orth p3 = d_unit;
+	 
+	 GL_matrix m(p1.x(), p1.y(), p1.z(),
+		     p2.x(), p2.y(), p2.z(),
+		     p3.x(), p3.y(), p3.z());
+
+	 glPushMatrix();
+	 glTranslated(pt.x(), pt.y(), pt.z());
+	 glMultMatrixf(m.get());
+	 glBegin(GL_LINES);
+	 for (unsigned int i=0; i<arrow_points.size()-1; i++) {
+	    glVertex3d(arrow_points[i].x(),
+		       arrow_points[i].y(),
+		       arrow_points[i].z());
+	    glVertex3d(arrow_points[i+1].x(),
+		       arrow_points[i+1].y(),
+		       arrow_points[i+1].z());
+	    glVertex3d(-arrow_points[i].x(),
+		        arrow_points[i].y(),
+		        arrow_points[i].z());
+	    glVertex3d(-arrow_points[i+1].x(),
+		        arrow_points[i+1].y(),
+		        arrow_points[i+1].z());
+	 }
+	 glEnd();
+	 glPopMatrix();
+      }
+      glPopMatrix();
+   }
+}
 
 std::string
 coot::atom_selection_info_t::name () const {
@@ -3154,15 +3283,11 @@ molecule_class_info_t::insert_coords(const atom_selection_container_t &asc) {
 
       // pointer comparison
       if (asc.mol == atom_sel.mol) {
-
 	 std::cout << "ERROR:: matching asc.mol and atom_sel.mol in insert_coords\n";
 	 std::cout << "ERROR:: new algorithm required\n";
-
       } else {
-
-         make_backup();
+         make_backup(); // checks backup_this_molecule
 	 insert_coords_internal(asc);
-
       }
    }
 } 
@@ -3216,19 +3341,24 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 // 			  << " ires_asc = " << ires_asc
 // 			  << std::endl;
 
-	       int serial_number =
+	       std::pair<int, CResidue *> serial_number =
 		  find_serial_number_for_insert(asc_residue->GetSeqNum(),
 						mol_chain_str);
 
 // 	       std::cout << "DEBUG:: returned serial_number: " << serial_number
 // 			 << std::endl;
 
-	       if (serial_number != -1) { 
-		  chain->InsResidue(res, serial_number);
+	       if (serial_number.first != -1) {
+		  // insert at this position (other residues are
+		  // shifted up).
+		  chain->InsResidue(res, serial_number.first);
+		  coot::copy_segid(serial_number.second, res);
 		  inserted = 1;
 	       } else { 
 		  // std::cout << "insert coord add residue\n";
+		  CResidue *last_residue = last_residue_in_chain(chain);
 		  chain->AddResidue(res);
+		  coot::copy_segid(last_residue, res);
 		  inserted = 1;
 	       }
 	    }
@@ -3479,7 +3609,7 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
 // before the residue whose serial number we return).
 //
 // return -1 on error.
-int
+std::pair<int, CResidue *>
 molecule_class_info_t::find_serial_number_for_insert(int seqnum_new,
 						     const std::string &chain_id) const {
 
@@ -3487,6 +3617,8 @@ molecule_class_info_t::find_serial_number_for_insert(int seqnum_new,
    int current_diff = 999999;
    CChain *chain;
    int n_chains = atom_sel.mol->GetNumberOfChains(1);
+   CResidue *res = NULL;
+   
    for (int i_chain=0; i_chain<n_chains; i_chain++) {
       
       chain = atom_sel.mol->GetChain(1,i_chain);
@@ -3507,12 +3639,13 @@ molecule_class_info_t::find_serial_number_for_insert(int seqnum_new,
 
 	    if ( (diff > 0) && (diff < current_diff) ) {
 	       iserial_no = ires;
+	       res = residue;
 	       current_diff = diff;
 	    }
 	 }
       }
    }
-   return iserial_no;
+   return std::pair<int, CResidue *> (iserial_no, res);
 } 
 
 
@@ -5452,29 +5585,6 @@ molecule_class_info_t::get_standard_residue_instance(const std::string &residue_
    }
    return std_residue;
 }
-
-// 1: success
-// 0: failure
-// 
-short int
-molecule_class_info_t::progressive_residues_in_chain_check_by_chain(const char *chain_id) const {
-
-   short int r = 0;
-   
-   if (atom_sel.n_selected_atoms > 0) { 
-      int nchains = atom_sel.mol->GetNumberOfChains(1);
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 const CChain *chain_p = (const CChain *)atom_sel.mol->GetChain(1,ichain);
-	 std::string mol_chain_id(((CChain*)chain_p)->GetChainID());
-	 if (mol_chain_id == std::string(chain_id)) { 
-	    r = coot::progressive_residues_in_chain_check(chain_p);
-	    break;
-	 }
-      }
-   }
-
-   return r; 
-} 
 
 
 // return the number of residues in chain with chain_id, return -1 on error

@@ -297,7 +297,7 @@
      (let ((imol-sphere (new-molecule-by-sphere-selection 
 			 imol-rnase 
 			 24.6114959716797 24.8355808258057 7.43978214263916
-			 3.6)))
+			 3.6 1))) ;; allow partial residues in output
 
        (if (not (valid-model-molecule? imol-sphere))
 	   (begin
@@ -1152,6 +1152,31 @@
 	   (list 4 0) (list 6 0)))))
 
 
+(greg-testcase "Residues in region of a point" #t 
+   (lambda () 
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+       (let* ((pt (list 43.838   0.734  13.811)) ; CA 47 A
+	      (residues (residues-near-position imol pt 2)))
+	 (if (not (= (length residues) 1))
+	     (begin
+	       (format #t "  Fail, got residues: ~s~%" residues)
+	       (throw 'fail))
+	     (if (not (equal? (car residues)
+			      (list #t "A" 47 "")))
+		 (begin
+		   (format #t "  Fail 2, got residues: ~s~%" residues)
+		   (throw 'fail))
+		 
+		 (let ((residues-2 (residues-near-position imol pt 4)))
+		   (if (not (= (length residues-2) 3)) ;; its neighbours too.
+		       (begin
+			 (format #t "  Fail 3, got residues-2: ~s~%" residues-2)
+			 (throw 'fail))
+		       #t))))))))
+
+
+
 (greg-testcase "Empty molecule on type selection" #t 
    (lambda () 
      (let ((imol1 (new-molecule-by-residue-type-selection imol-rnase "TRP"))
@@ -1210,7 +1235,37 @@
 	     #t)))))) ;; everything OK
 
 
-		   
+(greg-testcase "Rotamer names and scores are correct" #t 
+   (lambda () 
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+       (with-no-backups 
+	imol 
+	
+	(let* ((residue-attributes (list "A" 28 ""))
+	       (results 
+	  
+		(map
+		 (lambda (rotamer-number correct-name correct-prob)
+		   (apply set-residue-to-rotamer-number imol 
+			  (append residue-attributes (list rotamer-number)))
+		   (let ((rotamer-name (apply get-rotamer-name imol residue-attributes))
+			 (rotamer-prob (apply rotamer-score imol residue-attributes)))
+		     (format #t " Rotamer ~s : ~s ~s ~%" 
+			     rotamer-number rotamer-name rotamer-prob)
+		     (if (not (close-float? correct-prob rotamer-prob))
+			 (begin
+			   (format #t "fail on rotamer probability ~s ~s ~%"
+				   rotamer-prob correct-prob)
+			   (throw 'fail)))
+		     (string=? rotamer-name correct-name)))
+		 (range 0 5)
+		 ;; the spaces at the end of the name are in the Complete_rotamer_lib.csv
+		 ;; and hence in richardson-rotamers.cc.  C'est la vie.
+		 (list "m-85" "t80" "p90" "m -30 " "m -30 ")
+		 (list 100 90.16684 50.707787 21.423154 21.423154))))
+	  (all-true? results))))))
+
 
 (greg-testcase "Align and mutate a model with deletions" #t 
    (lambda ()
@@ -1269,74 +1324,72 @@
      (map (lambda (ls)
 	    (/ (apply + ls) (length ls)))
 	  (transpose-mat (map (lambda (x) (list-ref x 2)) mat))))
-   
      
-     (let* ((imol (greg-pdb "pdb3hfl.ent"))
-	    (mtz-file-name (append-dir-file greg-data-dir "3hfl_sigmaa.mtz"))
-	    (imol-map (make-and-draw-map mtz-file-name
-					 "2FOFCWT" "PH2FOFCWT" "" 0 0)))
+   (let* ((imol (greg-pdb "pdb3hfl.ent"))
+	  (mtz-file-name (append-dir-file greg-data-dir "3hfl_sigmaa.mtz"))
+	  (imol-map (make-and-draw-map mtz-file-name
+				       "2FOFCWT" "PH2FOFCWT" "" 0 0)))
 
-       (if (not (valid-map-molecule? imol-map))
+     (if (not (valid-map-molecule? imol-map))
+	 (begin
+	   (format #t "   no map from 3hfl_sigmaa.mtz~%")
 	   (throw 'fail))
 
-       (let ((leu-atoms-1 (residue-info imol "H" 52 ""))
-	     (leu-resname (residue-name imol "H" 52 ""))
-	     (gly-atoms-1 (residue-info imol "H" 53 ""))
-	     (gly-resname (residue-name imol "H" 53 ""))
-	     (pro-atoms-1 (residue-info imol "H" 52 "A"))
-	     (pro-resname (residue-name imol "H" 52 "A")))
+	 (let ((leu-atoms-1 (residue-info imol "H" 52 ""))
+	       (leu-resname (residue-name imol "H" 52 ""))
+	       (gly-atoms-1 (residue-info imol "H" 53 ""))
+	       (gly-resname (residue-name imol "H" 53 ""))
+	       (pro-atoms-1 (residue-info imol "H" 52 "A"))
+	       (pro-resname (residue-name imol "H" 52 "A")))
 
-	 ;; First check that the residue names are correct
-	 (if (not
-	      (and 
-	       (string=? leu-resname "LEU")
-	       (string=? gly-resname "GLY")
-	       (string=? pro-resname "PRO")))
-	     (begin
-	       (format #t "  failure of residues names: ~s ~s ~s~%"
-		       leu-resname gly-resname pro-resname)
-	       (throw 'fail)))
-	       
-
-	 ;; OK, what are the centre points of these residues?
-	 (let ((leu-centre-1 (centre-atoms leu-atoms-1))
-	       (gly-centre-1 (centre-atoms gly-atoms-1))
-	       (pro-centre-1 (centre-atoms pro-atoms-1)))
-
-	   (auto-fit-best-rotamer 52 "" "A" "H" imol imol-map 0 0)
+	   ;; First check that the residue names are correct
+	   (if (not
+		(and 
+		 (string=? leu-resname "LEU")
+		 (string=? gly-resname "GLY")
+		 (string=? pro-resname "PRO")))
+	       (begin
+		 (format #t "  failure of residues names: ~s ~s ~s~%"
+			 leu-resname gly-resname pro-resname)
+		 (throw 'fail)))
+	   
 
 	   ;; OK, what are the centre points of these residues?
-	   (let ((leu-atoms-2 (residue-info imol "H" 52 ""))
-		 (gly-atoms-2 (residue-info imol "H" 53 ""))
-		 (pro-atoms-2 (residue-info imol "H" 52 "A")))
-	     
-	     (let ((leu-centre-2 (centre-atoms leu-atoms-2))
-		   (gly-centre-2 (centre-atoms gly-atoms-2))
-		   (pro-centre-2 (centre-atoms pro-atoms-2)))
+	   (let ((leu-centre-1 (centre-atoms leu-atoms-1))
+		 (gly-centre-1 (centre-atoms gly-atoms-1))
+		 (pro-centre-1 (centre-atoms pro-atoms-1)))
+
+	     (auto-fit-best-rotamer 52 "" "A" "H" imol imol-map 0 0)
+
+	     ;; OK, what are the centre points of these residues?
+	     (let ((leu-atoms-2 (residue-info imol "H" 52 ""))
+		   (gly-atoms-2 (residue-info imol "H" 53 ""))
+		   (pro-atoms-2 (residue-info imol "H" 52 "A")))
 	       
-	       (let ((d-leu (pos-difference leu-centre-1 leu-centre-2))
-		     (d-gly (pos-difference gly-centre-1 gly-centre-2))
-		     (d-pro (pos-difference pro-centre-1 pro-centre-2)))
+	       (let ((leu-centre-2 (centre-atoms leu-atoms-2))
+		     (gly-centre-2 (centre-atoms gly-atoms-2))
+		     (pro-centre-2 (centre-atoms pro-atoms-2)))
 		 
-		 (if (not (close-float? d-leu 0.0))
-		     (begin 
-		       (format #t "   Failure: LEU 52 moved~%")
-		       (throw 'fail)))
+		 (let ((d-leu (pos-difference leu-centre-1 leu-centre-2))
+		       (d-gly (pos-difference gly-centre-1 gly-centre-2))
+		       (d-pro (pos-difference pro-centre-1 pro-centre-2)))
+		   
+		   (if (not (close-float? d-leu 0.0))
+		       (begin 
+			 (format #t "   Failure: LEU 52 moved~%")
+			 (throw 'fail)))
 
-		 (if (not (close-float? d-gly 0.0))
-		     (begin 
-		       (format #t "   Failure: GLY 53 moved~%")
-		       (throw 'fail)))
+		   (if (not (close-float? d-gly 0.0))
+		       (begin 
+			 (format #t "   Failure: GLY 53 moved~%")
+			 (throw 'fail)))
 
-		 (if (< d-pro 0.05)
-		     (begin 
-		       (format #t "   Failure: PRO 52A not moved enough~%")
-		       (throw 'fail)))
-		 
-		 ;; rotamer 4 is out of range.
- 		 (set-residue-to-rotamer-number imol "H" 52 "A" 4) ;; crash
-		 #t
-		 ))))))))
-
-
-
+		   (if (< d-pro 0.05)
+		       (begin 
+			 (format #t "   Failure: PRO 52A not moved enough~%")
+			 (throw 'fail)))
+		   
+		   ;; rotamer 4 is out of range.
+		   (set-residue-to-rotamer-number imol "H" 52 "A" 4) ;; crash
+		   #t
+		   )))))))))

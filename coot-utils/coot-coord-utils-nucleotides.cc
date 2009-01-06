@@ -1,6 +1,6 @@
 /* coot-utils/coot-coord-utils-nucleotides.cc
  * 
- * Copyright 2008 by The University of Oxford
+ * Copyright 2008, 2009 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -169,3 +169,4 @@ coot::pucker_analysis_info_t::puckered_atom() const {
       s = " O4'";
    return s;
 } 
+

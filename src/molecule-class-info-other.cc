@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2007 by The University of Oxford
+ * Copyright 2007, 2008, 2009 The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -212,6 +213,20 @@ molecule_class_info_t::b_factor_representation() {
 } 
 
 void
+molecule_class_info_t::b_factor_representation_as_cas() { 
+
+   Bond_lines_container::bond_representation_type bond_type =
+      Bond_lines_container::COLOUR_BY_B_FACTOR;
+   std::cout << "molecule_class_info_t::b_factor_representation_as_cas with "
+	     << "bond type " << bond_type << std::endl;
+   Bond_lines_container bonds;
+   bonds.do_Ca_plus_ligands_bonds(atom_sel, 2.4, 4.7, bond_type);
+   bonds_box = bonds.make_graphical_bonds();
+   // bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
+   bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR;
+} 
+
+void
 molecule_class_info_t::occupancy_representation() { 
 
    Bond_lines_container::bond_representation_type bond_type =
@@ -294,6 +309,9 @@ molecule_class_info_t::set_atom_string_attribute(std::string chain_id, int resno
 	 }
 	 if (attribute_name == "element") {
 	    at->SetElementName(val_str.c_str());
+	 }
+	 if (attribute_name == "segid") {
+	    strncpy(at->segID, val_str.c_str(), 4);
 	 }
       }
       have_unsaved_changes_flag = 1;
@@ -4159,7 +4177,7 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 
 
 
-// add OXT
+// for add OXT
 std::pair<short int, int>
 molecule_class_info_t::last_residue_in_chain(const std::string &chain_id) const {
 
@@ -4189,6 +4207,7 @@ molecule_class_info_t::last_residue_in_chain(const std::string &chain_id) const 
    p.second = biggest_resno;
    return p;
 }
+
 
 std::pair<short int, int> 
 molecule_class_info_t::first_residue_in_chain(const std::string &chain_id) const { 
@@ -4220,6 +4239,24 @@ molecule_class_info_t::first_residue_in_chain(const std::string &chain_id) const
    return p;
 }
 
+
+// return NULL on no last residue.
+CResidue *
+molecule_class_info_t::last_residue_in_chain(CChain *chain_p) const {
+
+   CResidue *res = NULL;
+   int biggest_resno = -99999;
+
+   int n_residues = chain_p->GetNumberOfResidues();
+   for (int i=0; i<n_residues; i++) {
+      CResidue *r = chain_p->GetResidue(i);
+      if (r->GetSeqNum() >= biggest_resno) {
+	 biggest_resno = r->GetSeqNum();
+	 res = r;
+      } 
+   } 
+   return res;
+} 
 
 
 

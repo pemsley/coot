@@ -1,7 +1,7 @@
 
 ;;;; Copyright 2004, 2005, 2006 by The University of York
 ;;;; Copyright 2007 by Paul Emsley
-;;;; Copyright 2007 by The University of Oxford
+;;;; Copyright 2007, 2009 by The University of Oxford
  
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -136,9 +136,27 @@
 	    (substring str 0 (car (vector-ref result 1)))
 	    str)))))
 
-
+;; 
 (define shelxl-refine 
   (lambda (imol . hkl-file-in)
+
+    (let ((func (lambda (ins-file-name)
+		  (write-shelx-ins-file imol ins-file-name))))
+      (shelxl-refine-inner imol hkl-file-in-maybe func))))
+;;
+(define shelxl-refine-primitive
+  (lambda (imol ins-text hkl-file-in-maybe)
+
+    (let ((func (lambda (ins-file-name)
+		  (call-with-output-file ins-file-name
+		    (lambda (port) 
+		      (display ins-text port))))))
+
+      (shelxl-refine-inner imol hkl-file-in-maybe func))))
+
+
+(define shelxl-refine-inner
+  (lambda (imol hkl-file-in-maybe func)
 
     ; First write out the imol-th molecule in shelx format.
     ; What should the filename be? 
@@ -154,8 +172,8 @@
 	(format #t "coot warning: can't find executable shelxl~%")
 
 	(let ((orig-hkl-file (cond 
-			      ((eq? '() hkl-file-in) #f) 
-			      (else (car hkl-file-in)))))
+			      ((eq? '() hkl-file-in-maybe) #f) 
+			      (else (car hkl-file-in-maybe)))))
 
 	  (if (not (file-exists? *coot-shelxl-dir*))
 	      (mkdir *coot-shelxl-dir*))
@@ -247,7 +265,15 @@
 			      hkl-filename))
 		    
 		    (begin
-		      (write-shelx-ins-file imol ins-filename)
+
+		      (func ins-filename)
+
+		      ;; changed
+		      ;; (write-shelx-ins-file imol ins-filename)
+		      ;;
+		      ;; need to write text to ins-filename instead.
+		      ;; 
+
 		      ; running shelxl creates stub.res
 		      (goosh-command "shelxl" (list stub) '() log-filename #t)
 		      ; it isn't a pdb file, but coot knows what to do.

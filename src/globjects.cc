@@ -3,7 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2006 by Bernhard Lohkamp
  * Copyright 2007 by Paul Emsley
- * Copyright 2008 by The University of Oxford
+ * Copyright 2008, 2009 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,8 +79,9 @@
 #include "cc-interface.hh"
 #include "globjects.h"  // string
 
+#include "coot-database.hh"
 
-#include "coot-database.hh"  
+#include "rotate-translate-modes.hh"
 
 std::vector<molecule_class_info_t> graphics_info_t::molecules;
 
@@ -581,6 +582,7 @@ short int graphics_info_t::in_torsion_general_define = 0;
 short int graphics_info_t::in_save_symmetry_define = 0; 
 
 short int graphics_info_t::in_rot_trans_object_define = 0;
+short int graphics_info_t::rot_trans_object_type = ROT_TRANS_TYPE_ZONE;
 short int graphics_info_t::rot_trans_zone_rotates_about_zone_centre = 0;
 int graphics_info_t::rot_trans_atom_index_1 = -1;
 int graphics_info_t::rot_trans_atom_index_2 = -1;
@@ -608,9 +610,10 @@ int graphics_info_t::show_origin_marker_flag = 1;
 //
 float graphics_info_t::geometry_vs_map_weight = 60.0;
 float graphics_info_t::rama_plot_restraint_weight = 1.0;
+int   graphics_info_t::rama_n_diffs = 50;
 
 atom_selection_container_t *graphics_info_t::moving_atoms_asc = NULL;
-short int graphics_info_t::moving_atoms_asc_type = 0; // unset
+short int graphics_info_t::moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
 int graphics_info_t::imol_moving_atoms = 0;
 int graphics_info_t::imol_refinement_map = -1; // magic initial value
                                  // checked in graphics_info_t::refine()
@@ -1880,6 +1883,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 //
 	 graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag);
 
+	 //
+	 graphics_info_t::molecules[ii].draw_dipoles();
+
 	 // draw display list objects
 	 if (graphics_info_t::molecules[ii].has_display_list_objects()) {
 	    glEnable(GL_LIGHTING);
@@ -1933,6 +1939,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       graphics_info_t::baton_object();
 
       //
+      // test_object();
+
+      //
       graphics_info_t::geometry_objects(); // angles and distances
 
       // pointer distances
@@ -1954,12 +1963,14 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glColor3f(0.8,0.8,0.2);
 	 myWireCube (1.0);
       }
+
       // Put a wirecube at the rotation centre.
       //
       glPushMatrix();
       glTranslatef(graphics_info_t::RotationCentre_x(),
 		   graphics_info_t::RotationCentre_y(),
 		   graphics_info_t::RotationCentre_z());
+
       draw_axes(m);
 
       glScalef (graphics_info_t::rotation_centre_cube_size, 
@@ -2104,70 +2115,49 @@ void myWireCube(float size) {
 	    {0.5,0.5,-0.5}, //6 
 	    {0.5,0.5,0.5}};//7 
 
+	 glBegin(GL_LINES);
+	 
 	 // bottom left connections
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[0][0], corners[0][1], corners[0][2]);
 	   glVertex3f(corners[1][0], corners[1][1], corners[1][2]);
-	 glEnd();
 
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[0][0], corners[0][1], corners[0][2]);
 	   glVertex3f(corners[2][0], corners[2][1], corners[2][2]);
-	 glEnd();
 	 
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[0][0], corners[0][1], corners[0][2]);
 	   glVertex3f(corners[4][0], corners[4][1], corners[4][2]);
-         glEnd();
 
 	 // top right front connections
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[6][0], corners[6][1], corners[6][2]);
 	   glVertex3f(corners[4][0], corners[4][1], corners[4][2]);
-         glEnd();
 	 
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[6][0], corners[6][1], corners[6][2]);
 	   glVertex3f(corners[2][0], corners[2][1], corners[2][2]);
-         glEnd();
 	 
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[6][0], corners[6][1], corners[6][2]);
 	   glVertex3f(corners[7][0], corners[7][1], corners[7][2]);
-         glEnd();
 	 
 	 // from 5
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[5][0], corners[5][1], corners[5][2]);
 	   glVertex3f(corners[7][0], corners[7][1], corners[7][2]);
-         glEnd();
 
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[5][0], corners[5][1], corners[5][2]);
 	   glVertex3f(corners[4][0], corners[4][1], corners[4][2]);
-         glEnd();
 
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[5][0], corners[5][1], corners[5][2]);
 	   glVertex3f(corners[1][0], corners[1][1], corners[1][2]);
-         glEnd();
 
 	 // from 3
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[3][0], corners[3][1], corners[3][2]);
 	   glVertex3f(corners[1][0], corners[1][1], corners[1][2]);
-         glEnd();
 
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[3][0], corners[3][1], corners[3][2]);
 	   glVertex3f(corners[7][0], corners[7][1], corners[7][2]);
-         glEnd();
 
-	 glBegin(GL_LINES); 
 	   glVertex3f(corners[3][0], corners[3][1], corners[3][2]);
 	   glVertex3f(corners[2][0], corners[2][1], corners[2][2]);
-         glEnd();
 
+	   glEnd();
    
 } 
 
@@ -2837,12 +2827,10 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       break;
       
    case GDK_i:
-   case GDK_I:
       // throw away i key pressed (we act on i key released).
       handled = TRUE; 
       break;
 
-   case GDK_A:
    case GDK_a:
 
       if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
@@ -2850,10 +2838,10 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 
       } else { 
 
-	 graphics_info_t::a_is_pressed = 1;
-
 	 if (graphics_info_t::in_range_define_for_refine == 2) {
 	    
+	    graphics_info_t::a_is_pressed = 1;
+
 	    int rot_trans_rotation_origin_atom = 0; // flag for Ctrl left
 	    // mouse behaviour (we don't want to rotate
 	    // the atoms)
@@ -2868,12 +2856,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    normal_cursor();
 	    g.pick_pending_flag = 0;
 	    g.model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
+	    handled = TRUE; 
 	 }
       }
-      handled = TRUE; 
       break;
 
-   case GDK_B:
    case GDK_b:
       if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
 	 graphics_info_t::go_to_residue_keyboarding_string += "B";
@@ -2882,21 +2869,17 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       break;
       
    case GDK_c:
-   case GDK_C:
       if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
 	 graphics_info_t::go_to_residue_keyboarding_string += "C";
 	 handled = TRUE; 
       }
       break; // stops C key getting through to key-press-hook
 
-   case GDK_U:
    case GDK_u:
       undo_last_move();
       handled = TRUE; 
       break;
 
-
-   case GDK_D:
    case GDK_d:
       
       if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
@@ -2921,7 +2904,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       break;
       
-   case GDK_F:
    case GDK_f:
       
       if (graphics_info_t::clipping_back > -10.2) { 
@@ -2932,7 +2914,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
-   case GDK_N:
    case GDK_n:
       
       for (int i=0; i<5; i++) {
@@ -2942,7 +2923,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
-   case GDK_M:
    case GDK_m:
 
       for (int i=0; i<5; i++) {
@@ -3084,8 +3064,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    baton_build_delete_last_residue();
 	 else 
 	    apply_undo();
+	 handled = TRUE; 
       }
-      handled = TRUE; 
       break;
    case GDK_F5:
       post_model_fit_refine_dialog();
@@ -3146,6 +3126,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       handled = TRUE; 
       break;
+      
    case GDK_comma:
       //       std::cout << "Got an ,\n";
       if (graphics_info_t::rotamer_dialog) {
@@ -3170,6 +3151,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       handled = TRUE; 
       break;
+      
    case GDK_minus:
       handled = TRUE; 
       break;
@@ -3888,6 +3870,35 @@ void handle_scroll_event(int scroll_up_down_flag) {
       }
    }
 } 
+
+
+void test_object() {
+
+   int n = 40;
+   float f = 1.0;
+
+   std::vector<int> colours;
+   colours.push_back(green);
+   colours.push_back(blue);
+   colours.push_back(grey);
+
+   for (unsigned int ic=0; ic<colours.size(); ic++) {
+      set_bond_colour(colours[ic]);
+      if (ic == 2)
+	 glLineWidth(2.0);
+      else 
+	 glLineWidth(5.0);
+      
+      glBegin(GL_LINES);
+      for (int i=0; i<n; i++) { 
+	 for (int j=0; j<n; j++) {
+	    glVertex3f(i*f, j*f, ic);
+	    glVertex3f(i*f, j*f, ic+1);
+	 }
+      }
+      glEnd();
+   }
+}
 
 
 void

@@ -1,6 +1,7 @@
 /* coords/mmdb.cc
  * 
  * Copyright 2005 by The University of York
+ * Copyright 2009 by the University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -432,7 +433,8 @@ ostream& operator<<(ostream& s, PCAtom atom) {
    s << atom->GetModelNum() << "/" << atom->GetChainID() << "/"
      << atom->GetSeqNum()   << atom->GetInsCode() << "/"
      << atom->GetResName() << "/"
-     << atom->name << " altLoc :" << atom->altLoc << ": pos: ("
+     << atom->name << " altLoc :" << atom->altLoc << ": segid :"
+     << atom->segID << ":" << " pos: ("
      << atom->x << "," << atom->y << "," << atom->z
      << ") B-factor: " << atom->tempFactor;
 

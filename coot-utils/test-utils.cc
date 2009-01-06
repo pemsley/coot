@@ -20,8 +20,12 @@
 
 #include <iostream>
 #include <algorithm>
+
+#include "clipper/core/rotation.h"
+
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
+
 
 namespace coot { 
    class SortableChainsCMMDBManager : public CMMDBManager {
@@ -52,6 +56,16 @@ coot::SortableChainsCMMDBManager::SortChains() {
    }
    PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
    FinishStructEdit();
+}
+
+void test_euler_angles() {
+
+   clipper::Euler_ccp4 e(M_PI/2.0, 0, 0);
+   clipper::Rotation r(e);
+
+   std::cout << "Rotation from euler angles: \n"
+	     << r.matrix().format() << std::endl;
+   
 }
 
 
@@ -184,6 +198,8 @@ int main(int argv, char **argc) {
 
 
    test_sort_chains();
+
+   test_euler_angles();
    
    return 0;
 }

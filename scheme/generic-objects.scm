@@ -1,7 +1,9 @@
-
 ;;;; Copyright 2006 by The University of York
 ;;;; Author: Paul Emsley
- 
+;;;; Copyright 2008 by The University of York
+;;;; Copyright 2009 by the University of Oxford
+;;;; Author: Paul Emsley
+;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
 ;;;; the Free Software Foundation; either version 2 of the License, or (at
@@ -170,7 +172,11 @@
 			(graphics-draw))))))))))
 
 		    
-				   
+;; gets set the first time we run interactive-probe.  Takes values
+;; unset (initial value) 'yes and 'no)
+;; 			
+(define *interactive-probe-is-OK?* 'unset)
+
 ;; run "probe" interactively, 
 ;; which in the current implementation, means that this function 
 ;; can run during a edit-chi angles manipulation, or after
@@ -212,10 +218,108 @@
       (format #t "probe command ~s ~s~%" *probe-command* 
 	      (list "-mc" "-u" "-quiet" "-drop" "-stdbonds" "-both" 
 		    atom-sel "file2" probe-pdb-in-1 probe-pdb-in-2))
-      (goosh-command *probe-command* (list "-mc" "-u" "-quiet" "-drop" "-stdbonds" "-both" 
-					   atom-sel "file2"
-					   probe-pdb-in-1 probe-pdb-in-2)
-		     '() probe-out #f)
-      ; don't show the gui, so the imol is not needed/dummy.
-      (handle-read-draw-probe-dots-unformatted probe-out 0 0)
-      (graphics-draw))))
+
+      ;; if unset, then set it.
+      (if (eq? *interactive-probe-is-OK?* 'unset)
+	  (if (command-in-path? *probe-command*)
+	      (set! *interactive-probe-is-OK?* 'yes)
+	      (set! *interactive-probe-is-OK?* 'no)))
+
+      (if (eq? *interactive-probe-is-OK?* 'yes)
+	  (begin
+	    (goosh-command *probe-command* 
+			   (list "-mc" "-u" "-quiet" "-drop" "-stdbonds" 
+				 "-both" atom-sel "file2"
+				 probe-pdb-in-1 probe-pdb-in-2)
+			   '() probe-out #f)
+	    ;; don't show the gui, so the imol is not needed/dummy.
+	    (handle-read-draw-probe-dots-unformatted probe-out 0 0)
+	    (graphics-draw))))))
+
+;; 
+;;
+(define (get-probe-dots-from pdb-file-name point radius)
+
+  ;; if unset, then set it, try to make dir too
+  (if (eq? *interactive-probe-is-OK?* 'unset)
+      (if (not (command-in-path? *probe-command*))
+	  (set! *interactive-probe-is-OK?* 'no)
+	  (let ((status (make-directory-maybe "coot-molprobity")))
+	    (if (= 0 status) ;; 0 is good for mkdir()
+		(set! *interactive-probe-is-OK?* 'yes)
+		(set! *interactive-probe-is-OK?* 'no)))))
+  
+  (if (eq? *interactive-probe-is-OK?* 'yes)
+      (let* ((probe-out "coot-molprobity/molprobity-tmp-probe-dots.out")
+	     (within-str (string-append "(within "
+					(number->string radius)
+					" of "
+					(number->string (list-ref point 0))
+					", "
+					(number->string (list-ref point 1))
+					", "
+					(number->string (list-ref point 2))
+					")"))
+	     (args (list "-mc" "-u" "-quiet" "-drop" "-stdbonds" 
+			 "ALL" ;; whole residues from sphere selection
+			       ;; was needed to make this work
+			 ;; within-str ;; problems with atom selection
+			 pdb-file-name)))
+	(format #t "goosh-command on ~s ~s~%" *probe-command* args)
+	(goosh-command *probe-command* args '() probe-out #f)
+	(handle-read-draw-probe-dots-unformatted probe-out 0 0)
+	(graphics-draw))))
+
+
+;;
+(define (probe-local-sphere imol radius)
+
+  ;; We need to select more atoms than we probe because if the atom
+  ;; selection radius and the probe radius are the same, then
+  ;; sometimes the middle atom of a bonded angle set is missing
+  ;; (outside the sphere) and that leads to bad clashes.
+
+  (let* ((pt (rotation-centre))
+	 (imol-new (apply new-molecule-by-sphere-selection 
+		    imol (append pt (list radius 0)))))
+
+    (set-mol-displayed imol-new 0)
+    (let ((pdb-name "molprobity-tmp-reference-file.pdb"))
+      (make-directory-maybe "coot-molprobity")
+      (write-pdb-file-for-molprobity imol-new pdb-name)
+      
+      (get-probe-dots-from pdb-name pt radius))))
+
+
+;; add in the conn files by concatting.
+;;
+(define (write-pdb-file-for-molprobity imol pdb-name)
+
+  (let ((tmp-pdb-name (string-append
+		       (file-name-sans-extension pdb-name)
+		       "-tmp.pdb")))
+						 
+    (write-pdb-file imol tmp-pdb-name)
+  
+    ;; Let's add on the connectivity cards of the residues that
+    ;; molprobity doesn't know about (which I presume are all
+    ;; non-standard residues).  Cut of (filter) files that didn't
+    ;; write properly.
+    ;;
+    (let ((con-file-names 
+	   (filter string? 
+		   (map (lambda (res-name)
+			  (let* ((f-name (string-append 
+					  "coot-molprobity/conn-"
+					  res-name
+					  ".txt"))
+				 (status (write-connectivity res-name f-name)))
+			    (if (= status 1)
+				f-name
+				#f)))
+			(non-standard-residue-names imol)))))
+      
+      ;; now, add (append) each of the con-file-names to the end of
+      ;; pdb-name
+      (goosh-command "cat" (cons tmp-pdb-name con-file-names)
+		     '() pdb-name #f))))

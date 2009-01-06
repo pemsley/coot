@@ -1,6 +1,7 @@
 /* coot-utils/coot-coord-extras.cc
  * 
  * Copyright 2006, by The University of York
+ * Copyright 2009 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -308,7 +309,6 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 		     std::string at2_name(at2->name);
 		     std::string at2_altconf(at2->altLoc);
 
-		     // std::cout << "comparing :"<< at1_name << ": :" << at2_name << ":" << std::endl;
 		     if (at1_name == at2_name) {
 			if (at1_altconf == at2_altconf) {
 			   v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));

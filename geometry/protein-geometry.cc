@@ -2,7 +2,7 @@
  * 
  * Copyright 2003, 2004, 2005, 2006 The University of York
  * Author: Paul Emsley
- * Copyright 2007 The University of Oxford
+ * Copyright 2007, 2008, 2009 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -465,9 +465,11 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos_ideal) { 
 
    // debugging
-//     std::cout << "adding atom " << comp_id << " " << atom_id << " "
-// 	      << type_symbol << " " << type_energy << " " << partial_charge
-// 	      << std::endl;
+   if (0) { 
+     std::cout << "   mon_lib_add_atom  " << comp_id << " " << atom_id << " "
+	       << type_symbol << " " << type_energy << " (" << partial_charge.first
+	       << "," << partial_charge.second << ")" << std::endl;
+   } 
 
    coot::dict_atom at_info(atom_id, atom_id_4c, type_symbol, type_energy, partial_charge);
 //    std::cout << "mon_lib_add_atom " << model_pos.first << " "
@@ -480,10 +482,12 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
    if (model_pos_ideal.first)
       at_info.add_pos(coot::dict_atom::IDEAL_MODEL_POS, model_pos_ideal);
 
-    short int ifound = 0;
+   short int ifound = 0;
+   int this_index = -1; // unset
 
     for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
        if (dict_res_restraints[i].comp_id == comp_id) {
+	  this_index = i;
 	  if (dict_res_restraints[i].read_number == read_number) { 
 	     ifound = 1;
 	     dict_res_restraints[i].atom_info.push_back(at_info);
@@ -497,9 +501,17 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 
     if (! ifound) {
        // std::cout << "residue not found in mon_lib_add_atom" << std::endl;
+       this_index = dict_res_restraints.size()-1;
        dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
-       dict_res_restraints[dict_res_restraints.size()-1].atom_info.push_back(at_info);
+       dict_res_restraints[this_index].atom_info.push_back(at_info);
     }
+
+    if (0) {
+       std::cout << "   dictionary for " << dict_res_restraints[this_index].comp_id
+		 << " now contains " << dict_res_restraints[this_index].atom_info.size()
+		 << " atoms" << std::endl;
+    }
+
 }
 
 void

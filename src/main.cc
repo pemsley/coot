@@ -2,7 +2,7 @@
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Author: Paul Emsley
- * Copyright 2007 by The University of Oxford
+ * Copyright 2007, 2009 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -212,11 +212,12 @@ main (int argc, char *argv[]) {
   if (graphics_info_t::use_graphics_interface_flag) {
 
      if (cld.use_splash_screen) {
-	if (cld.alternate_splash_screen_file_name == "") 
+	std::string f = cld.alternate_splash_screen_file_name;
+	if (f == "") {
 	   splash = create_splash_screen_window();
-	// else we need to pass cld.alternate_splash_screen_file_name
-	// to a function that accepts a file_name a makes a splash
-	// screen.  Hmm..
+	} else {
+	   splash = create_splash_screen_window_for_file(f.c_str());
+	}
 	gtk_widget_show(splash);
      }
   
