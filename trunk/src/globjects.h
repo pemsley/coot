@@ -1,6 +1,7 @@
 /* src/globjects.h
  * 
  * Copyright 2002, 2003 by The University of York
+ * Copyright 2009 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,5 +125,7 @@ void set_skeleton_bond_colour_random(int i, const std::vector< std::vector<float
 void myWireCube(float size); 
 
 void keypad_translate_xyz(short int axis, short int direction);
+
+void test_object();
 
 #endif // GLOBJECTS_H

@@ -192,7 +192,8 @@ INCLUDES = \
 
 bin_PROGRAMS = coot-real density-score-by-residue fix-nomenclature-errors
 dist_bin_SCRIPTS = coot
-noinst_PROGRAMS = test-coot-align test-chol
+# noinst_PROGRAMS = test-coot-align test-chol
+check_PROGRAMS = test-coot-align test-chol
 # testmap write_map testcartesian graphics_crash_test test_cholesky test-command-line
 
 #coot: coot.in
@@ -208,28 +209,30 @@ coot_real_SOURCES = \
 	svn-revision.cc 	 \
 	c-inner-main.c		 \
 	c-inner-main.h		 \
-	c-interface-scm.hh	 \
+	c-interface.h            \
+	c-interface-build.cc	 \
+	c-interface-build-gui.cc \
+	c-interface-database.hh  \
+	c-interface-database.cc  \
 	c-interface-python.hh	 \
 	c-interface.cc		 \
 	c-interface-gui.cc	 \
 	c-interface-gtk2.cc	 \
-	c-interface-ncs.cc	 \
-	c-interface-scm.cc	 \
-	c-interface-python.cc	 \
 	c-interface-info.cc	 \
-	c-interface-mmdb.cc	 \
-	c-interface-build.cc	 \
-	c-interface-waters.cc	 \
-	c-interface-mutate.cc    \
 	c-interface-ligands.cc   \
-	c-interface-widgets.cc   \
-	c-interface-validate.cc	 \
-	c-interface-database.cc  \
-	c-interface-superpose.cc \
-	c-interface-preferences.cc \
-	c-interface-nucleotides.cc \
-	c-interface-database.hh  \
+	c-interface-mmdb.cc	 \
 	c-interface-mmdb.hh      \
+	c-interface-mutate.cc    \
+	c-interface-ncs.cc	 \
+	c-interface-nucleotides.cc \
+	c-interface-python.cc	 \
+	c-interface-preferences.cc \
+	c-interface-scm.hh	 \
+	c-interface-scm.cc	 \
+	c-interface-superpose.cc \
+	c-interface-validate.cc	 \
+	c-interface-widgets.cc   \
+	c-interface-waters.cc	 \
 	cc-interface.hh		 \
 	callbacks.c callbacks.h	 \
 	cmtz-interface.hh	 \
@@ -240,18 +243,20 @@ coot_real_SOURCES = \
 	coot-align.cc 		 \
 	coot-align.hh		 \
 	coot-nomenclature.cc	 \
-	coot-preferences.h       \
-	coot-references.h        \
-	coot-render.hh           \
+	coot-fileselections.h    \
 	coot-glue.hh             \
 	coot-glue.c              \
 	coot-glue-gtk2.c	 \
 	coot-glue-gtk2-python.cc \
+	coot-render.hh           \
 	coot_pythonmodule.cc     \
+	coot-preferences.h       \
+	coot-references.h        \
 	generic-display-object.hh\
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
 	globjects.cc 		 \
+	globjects.h gl-matrix.h  \
 	graphics-info.cc	 \
 	graphics-info-modelling.cc \
 	graphics-info-graphs.cc	 \
@@ -267,6 +272,7 @@ coot_real_SOURCES = \
 	graphics-info-navigation-gtk2.cc\
 	graphics-info-preferences.cc	\
 	gl-matrix.cc 		 \
+	graphics-info.h 	 \
 	gtk-manual.cc		 \
 	gtk-manual.h		 \
 	gtk2-interface.c	 \
@@ -274,28 +280,23 @@ coot_real_SOURCES = \
 	history_list.hh		 \
 	interface.c	 	 \
 	interface.h              \
-	c-interface.h  pick.h	 \
-	graphics-info.h 	 \
-	triangle-extras.h 	 \
+        manipulation-modes.hh    \
 	molecule-class-info.cc 	 \
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-other.cc 	\
 	molecule-class-info.h 	        \
 	molecule-class-info-mutate.cc 	\
+	molecule-class-info-residues.cc \
 	molecule-class-info-surface.cc 	\
 	molecule-class-info-ncs.cc 	\
 	molecule-class-info-widget-work.cc \
-	globjects.h gl-matrix.h  \
-	coot-fileselections.h    \
-	trackball.c trackball.h  \
-	pick.cc			 \
+	nsv.cc nsv.hh    	 \
+        pick.h pick.cc		 \
 	positioned-widgets.h     \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
 	read-cif.c		 \
-	xmap-utils.cc 		 \
-	xmap-utils.h		 \
 	rama_mousey.cc		 \
 	rama_mousey.hh		 \
 	rama_plot.cc		 \
@@ -303,11 +304,16 @@ coot_real_SOURCES = \
 	restraints-editor.cc     \
 	restraints-editor.hh     \
 	restraints-editor-c.h    \
+	rotate-translate-modes.hh \
 	support.c support.h 	 \
 	support-gtk2-extras.c    \
 	testing.cc testing.hh    \
+	trackball.c trackball.h  \
+	triangle-extras.h 	 \
+	select-atom-info.hh      \
 	validation-graphs.hh	 \
-	select-atom-info.hh      
+	xmap-utils.cc 		 \
+	xmap-utils.h		 
 
 # testcartesian_SOURCES = testcartesian.cc
 

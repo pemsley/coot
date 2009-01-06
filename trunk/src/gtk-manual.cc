@@ -1,7 +1,7 @@
-/* src/c-interface.cc
+/* src/gtk-manual.cc
  * 
  * Copyright 2002, 2003, 2004, 2005 by The University of York
- * Copyright 2008 by The University of Oxford
+ * Copyright 2008, 2009 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -782,7 +782,18 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
  /* Now a button for B-factor colours: */
 
-  glade_menuitem = gtk_menu_item_new_with_label (_("Colour by B-factors"));
+  glade_menuitem = gtk_menu_item_new_with_label (_("Colour by B-factors - CAs"));
+  gtk_widget_show (glade_menuitem);
+  gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
+/* Notice how this time we attach a pointer to the molecule number -
+   more usually, we attach a pointer tto the menu item position number */
+  gtk_signal_connect(GTK_OBJECT(glade_menuitem), "activate",
+		     GTK_SIGNAL_FUNC(render_as_b_factor_cas_representation_button_select),
+		     GINT_TO_POINTER(n));
+
+ /* Now a button for B-factor colours: */
+
+  glade_menuitem = gtk_menu_item_new_with_label (_("Colour by B-factors - All"));
   gtk_widget_show (glade_menuitem);
   gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
 /* Notice how this time we attach a pointer to the molecule number -
@@ -861,17 +872,20 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
      if (bond_type == 7) { /* CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR */
        gtk_menu_set_active(GTK_MENU(menu), 6); 
      }
-     if (bond_type == 8) { /* COULUR_BY_MOLECULE_BONDS */
+     if (bond_type == 8) { /* COLOUR_BY_MOLECULE_BONDS */
        gtk_menu_set_active(GTK_MENU(menu), 1); 
      }
      if (bond_type == 9) { /* COLOUR_BY_RAINBOW_BONDS */
        gtk_menu_set_active(GTK_MENU(menu), 7); 
      }
      if (bond_type == 10) { /* COLOUR_BY_B_FACTOR_BONDS */
-       gtk_menu_set_active(GTK_MENU(menu), 9); 
+       gtk_menu_set_active(GTK_MENU(menu), 10); 
      }
      if (bond_type == 11) { /* COLOUR_BY_OCCUPANCY_BONDS */
-       gtk_menu_set_active(GTK_MENU(menu), 10); 
+       gtk_menu_set_active(GTK_MENU(menu), 11); 
+     }
+     if (bond_type == 14) { /* CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR */
+       gtk_menu_set_active(GTK_MENU(menu), 9); 
      }
      /* c.f molecule-class-info.h:30 enum */
   }
@@ -1022,6 +1036,11 @@ void render_as_rainbow_representation_button_select(GtkWidget *item, GtkPosition
 
 void render_as_b_factor_representation_button_select(GtkWidget *item, GtkPositionType pos) { 
    graphics_to_b_factor_representation(pos);
+
+}
+
+void render_as_b_factor_cas_representation_button_select(GtkWidget *item, GtkPositionType pos) { 
+   graphics_to_b_factor_cas_representation(pos);
 
 }
 
@@ -1781,6 +1800,26 @@ void add_rep_toggle_button_toggled(GtkToggleButton       *button,
       on_off_flag = 1;
    set_show_additional_representation(p.first, p.second, on_off_flag);
 } 
+
+GtkWidget*
+create_splash_screen_window_for_file(const char *file_name)
+{
+  GtkWidget *splash_screen_window;
+  GtkWidget *image6807;
+
+  splash_screen_window = gtk_window_new (GTK_WINDOW_POPUP);
+  gtk_widget_set_name (splash_screen_window, "splash_screen_window");
+  gtk_window_set_title (GTK_WINDOW (splash_screen_window), _("Coot"));
+  gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
+  gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window),
+			    GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
+
+  image6807 = create_pixmap (splash_screen_window, file_name);
+  gtk_widget_show (image6807);
+  gtk_container_add (GTK_CONTAINER (splash_screen_window), image6807);
+
+  return splash_screen_window;
+}
 
 
 #ifdef COOT_USE_GTK2_INTERFACE

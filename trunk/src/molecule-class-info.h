@@ -4,7 +4,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
- * Copyright 2008 by the University of Oxford
+ * Copyright 2008, 2009 by the University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,6 +68,7 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 				 // to be part of graphics_info_t before the 
                                  // array->vector change-over.
 
+#include "dipole.hh"
 
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
@@ -78,7 +79,9 @@ namespace coot {
 
    enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2, COLOUR_BY_CHAIN_BONDS=3,
 	  CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
-	  CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7, COLOUR_BY_MOLECULE_BONDS=8,
+	  CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
+	  CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
+	  COLOUR_BY_MOLECULE_BONDS=8,
 	  COLOUR_BY_RAINBOW_BONDS=9, COLOUR_BY_B_FACTOR_BONDS=10,
 	  COLOUR_BY_OCCUPANCY_BONDS=11};
 
@@ -631,8 +634,9 @@ class molecule_class_info_t {
    void convert_rgb_to_hsv_in_place(const float *rgb, float *hsv) const; 
    void convert_hsv_to_rgb_in_place(const float* hsv, float *rgb) const;
 
-
    float combine_colour (float v, int col_part_index);
+
+   std::vector<coot::dipole> dipoles;
 
    // we may decide in future that sequence can be more sophisticated
    // than a simple string.
@@ -1154,6 +1158,7 @@ class molecule_class_info_t {
    void ca_plus_ligands_sec_struct_representation();
    void ca_plus_ligands_rainbow_representation();
    void b_factor_representation();
+   void b_factor_representation_as_cas();
    void occupancy_representation();
 
    void make_bonds_type_checked(); 
@@ -1307,6 +1312,7 @@ class molecule_class_info_t {
    void draw_density_map(short int display_list_for_maps_flag,
 			 short int main_or_secondary);
    void draw_surface();
+   void draw_dipoles() const;
    bool has_display_list_objects();
    int draw_display_list_objects(); // return number of display list objects to be drawn
    // return the display list tag
@@ -1515,8 +1521,11 @@ class molecule_class_info_t {
    // 
    void insert_coords(const atom_selection_container_t &asc);
    void insert_coords_change_altconf(const atom_selection_container_t &asc);
-   // a utility function for insert_coords:
-   int find_serial_number_for_insert(int, const std::string &chain_id) const;
+   // a utility function for insert_coords, return the residue (that
+   // is currently at res_index) too.  Return a index of -1 (and a
+   // CResidue of NULL) when no residue found.
+   
+   std::pair<int, CResidue *> find_serial_number_for_insert(int res_index, const std::string &chain_id) const;
 
    void update_molecule_to(std::vector<coot::scored_skel_coord> &pos_position); 
 
@@ -1703,7 +1712,7 @@ class molecule_class_info_t {
    void set_have_unsaved_changes_from_outside();
 
    void mutate_internal(CResidue *residue, CResidue *std_residue);
-   short int progressive_residues_in_chain_check_by_chain(const char *chain_id) const;
+   bool progressive_residues_in_chain_check_by_chain(const char *chain_id) const;
    void mutate_base_internal(CResidue *residue, CResidue *std_base);
 
    // multiple mutate: we don't want to put the results into an asc,
@@ -1935,7 +1944,9 @@ class molecule_class_info_t {
 
    std::pair<short int, int>  last_residue_in_chain(const std::string &chain_id) const;
    std::pair<short int, int> first_residue_in_chain(const std::string &chain_id) const;
-   
+
+   // return NULL on no last residue.
+   CResidue *last_residue_in_chain(CChain *chain_p) const;
 
    // 
    int residue_serial_number(int reso, const std::string &insertion_code,
@@ -2384,8 +2395,16 @@ class molecule_class_info_t {
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const; 
 
    void remove_ter_atoms(const coot::residue_spec_t &spec); // from all models
+
+   // c.f. progressive_residues_in_chain_check_by_chain()
+   // bool residues_in_order_p(std::string &chain_id) const;
    
    coot::validation_graphs_t validation_graphs;
+
+   void add_dipole(const coot::residue_spec_t &res,
+		   const coot::protein_geometry &geom);
+
+   void delete_dipole(int dipole_number);
 
 };
 

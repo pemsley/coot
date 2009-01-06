@@ -1,6 +1,7 @@
 /* src/c-interface-validate.cc
  * 
  * Copyright 2004, 2005, 2006, 2007 The University of York
+ * Copyright 2008, 2009 The University of Oxford
  * Author: Paul Emsley
  * Copyright 2006, 2007 by Bernhard Lohkamp
  * 
@@ -1261,6 +1262,7 @@ void do_ramachandran_plot(int imol) {
 	       rama->set_position(graphics_info_t::ramachandran_plot_x_position,
 				  graphics_info_t::ramachandran_plot_y_position);
 	    short int is_kleywegt_plot_flag = 0;
+	    rama->set_n_diffs(graphics_info_t::rama_n_diffs);
 	    rama->init(imol,
 		       graphics_info_t::rama_level_prefered,
 		       graphics_info_t::rama_level_allowed,
@@ -1272,6 +1274,11 @@ void do_ramachandran_plot(int imol) {
    }
 #endif // HAVE_GTK_CANVAS
 }
+
+void set_kleywegt_plot_n_diffs(int ndiffs) {
+   graphics_info_t::rama_n_diffs = ndiffs;
+}
+
 
 void
 ramachandran_plot_differences(int imol1, int imol2) { 
@@ -1295,6 +1302,7 @@ ramachandran_plot_differences(int imol1, int imol2) {
 		     if (graphics_info_t::molecules[imol2].has_model()) { 
 			rama = new coot::rama_plot;
 			short int is_kleywegt_plot_flag = 1;
+			rama->set_n_diffs(graphics_info_t::rama_n_diffs);
 			rama->init(imol1,
 				   graphics_info_t::rama_level_prefered,
 				   graphics_info_t::rama_level_allowed,
@@ -1330,6 +1338,7 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 	 if (is_valid_model_molecule(imol2)) {
 	    short int is_kleywegt_plot_flag = 0;
 	    coot::rama_plot *rama = new coot::rama_plot; 
+	    rama->set_n_diffs(graphics_info_t::rama_n_diffs);
 	    rama->init(imol1,
 		       graphics_info_t::rama_level_prefered,
 		       graphics_info_t::rama_level_allowed,

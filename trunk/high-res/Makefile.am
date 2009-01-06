@@ -40,7 +40,7 @@ INCLUDES = \
 libcoot_high_res_la_SOURCES = high-res.cc coot-atom-graph.cc residue-distortions.cc \
 	sequence-assignment.cc
 
-noinst_PROGRAMS = testatomgraph tracehighres testseqalign testseqassignment globularize_protein
+check_PROGRAMS = testatomgraph tracehighres testseqalign testseqassignment globularize_protein
 
 testatomgraph_SOURCES = test-atom-graph.cc
 

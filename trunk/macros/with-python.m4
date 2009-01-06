@@ -67,7 +67,7 @@ if test x$with_python != x; then
      # normal execution proceeds..
      PYTHON_CFLAGS="-DUSE_PYTHON -I`$PYTHON -c 'import sys; print sys.prefix + "/include/python" + sys.version[[:3]]'`"
    # PYTHON_LIBS="-L/h/paule/build/lib/python2.2/config -lpython2.2 -lutil"
-     PYTHON_LIBS_PRE="-L`$PYTHON -c 'import sys; print sys.prefix + "/lib/python" + sys.version[[:3]] + "/config"'` -lpython`$PYTHON -c 'import sys; print sys.version[[:3]]'`"
+     PYTHON_LIBS_PRE="-L`$PYTHON -c 'import sys; print sys.prefix + "/$acl_libdirstem/python" + sys.version[[:3]] + "/config"'` -lpython`$PYTHON -c 'import sys; print sys.version[[:3]]'`"
    fi
 	
    # now we have to deal with the -lutil issue.  On GNU/Linux, we need

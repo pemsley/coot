@@ -1,9 +1,9 @@
 /* coot-utils/coot-coord-utils.cc
  * 
- * Copyright 2006, by The University of York
- * Author: Paul Emsley
+ * Copyright 2006 by The University of York
  * Copyright 2007 by Paul Emsley
- * Copyright 2007, 2008 by The University of Oxford
+ * Copyright 2007, 2008, 2009 by The University of Oxford
+ * Author: Paul Emsley
  * Author: Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -85,6 +85,36 @@ coot::util::residue_types_in_molecule(CMMDBManager *mol) {
    }
    return v;
 }
+
+std::vector<std::string>
+coot::util::non_standard_residue_types_in_molecule(CMMDBManager *mol) {
+
+   std::vector<std::string> r;
+   std::vector<std::string> v = residue_types_in_molecule(mol);
+   std::vector<std::string> standards = coot::util::standard_residue_types();
+   
+   for (unsigned int i=0; i<v.size(); i++)
+      if (! is_member_p(standards, v[i]))
+	 r.push_back(v[i]);
+	    
+   return r; 
+}
+
+std::vector<std::string>
+coot::util::standard_residue_types() {
+
+   std::vector<std::string> v;
+   v.push_back("ALA"); v.push_back("ARG"); v.push_back("ASP");
+   v.push_back("ASN"); v.push_back("CYS"); v.push_back("SER");
+   v.push_back("PRO"); v.push_back("PHE"); v.push_back("GLY");
+   v.push_back("GLU"); v.push_back("GLN"); v.push_back("ILE");
+   v.push_back("LEU"); v.push_back("TYR"); v.push_back("TRP");
+   v.push_back("HIS"); v.push_back("LYS"); v.push_back("MET");
+   v.push_back("VAL"); v.push_back("THR"); v.push_back("MSE"); 
+   return v;
+}
+
+
 
 std::vector<std::pair<int, int> >
 coot::util::pair_residue_atoms(CResidue *a_residue_p,
@@ -288,8 +318,39 @@ coot::residues_near_residue(CResidue *res_ref,
    }
    mol->DeleteSelection(SelectionHandle);
    return close_residues;
-} 
+}
 
+std::vector<CResidue *>
+coot::residues_near_position(const clipper::Coord_orth &pt,
+			     CMMDBManager *mol,
+			     double radius) {
+
+   std::vector<CResidue *> v;
+   int imod = 1;
+   CModel *model_p = mol->GetModel(imod);
+   CChain *chain_p;
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      PCResidue residue_p;
+      CAtom *at;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 int n_atoms = residue_p->GetNumberOfAtoms();
+	 for (int iat=0; iat<n_atoms; iat++) {
+	    at = residue_p->GetAtom(iat);
+	    clipper::Coord_orth at_pt(at->x, at->y, at->z);
+	    double d = clipper::Coord_orth::length(pt, at_pt);
+	    if (d < radius) { 
+	       v.push_back(residue_p);
+	       break;
+	    }
+	 }
+      }
+   }
+   return v;
+}
 
 
 std::pair<bool,float>
@@ -570,6 +631,136 @@ bool coot::is_hydrogen_p(CAtom *at) {
       return 0;
    }
 }
+
+bool
+coot::residues_in_order_p(CChain *chain_p) {
+
+   bool ordered_flag = 1;
+
+   if (chain_p) {
+
+      int n_residues = chain_p->GetNumberOfResidues();
+      int current_resno = -9999999;
+      for (int ires=0; ires<n_residues; ires++) {
+	 CResidue *res_p = chain_p->GetResidue(ires);
+	 int seqnum = res_p->GetSeqNum();
+	 if (seqnum < current_resno) {
+	    ordered_flag = 0;
+	    break;
+	 } else {
+	    current_resno = seqnum;
+	 }
+      }
+   }
+   return ordered_flag;
+}
+
+// Throw an exception if there is no consistent seg id for the
+// atoms in the given residue.
+std::string
+coot::residue_atoms_segid(CResidue *residue_p) {
+
+   int n_residue_atoms;
+   PPCAtom residue_atoms;
+
+   std::vector<std::string> seg_ids;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      CAtom *at = residue_atoms[iat];
+      std::string seg_id = at->segID;
+      if (seg_ids.size() == 0) {
+	 seg_ids.push_back(seg_id);
+      } else {
+	 if (!coot::is_member_p(seg_ids, seg_id)) {
+	    std::string mess = "No consistent segids for residue ";
+	    mess += coot::util::int_to_string(residue_p->GetSeqNum());
+	    throw std::runtime_error(mess);
+	 }
+      }
+   }
+
+   if (seg_ids.size() == 0) {
+      std::string mess = "No segids for residue ";
+      mess += coot::util::int_to_string(residue_p->GetSeqNum());
+      throw std::runtime_error(mess);
+   }
+      
+   return seg_ids[0]; 
+}
+
+
+// Use the above function the get the segid and insert it into all
+// the atoms of receiver.
+bool
+coot::copy_segid(CResidue *provider, CResidue *receiver) {
+
+   try {
+      std::string s = coot::residue_atoms_segid(provider);
+      int n_residue_atoms;
+      PPCAtom residue_atoms;
+      
+      receiver->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+	 CAtom *at = residue_atoms[iat];
+	 // we want to set just the segid, but there is no function to
+	 // do that (there is for others, e.g. element, atom-name etc.).
+	 at->SetAtomName(at->GetIndex(),
+			 at->serNum,
+			 at->GetAtomName(),
+			 at->altLoc,
+			 s.c_str(),
+			 at->GetElementName());
+      }
+   }
+
+   catch (std::runtime_error mess) {
+      // maybe do this.. not sure.
+      std::cout << "   INFO:: " << mess.what() << std::endl;
+   }
+
+   return 1;
+
+}
+
+// Throw an exception if there is no consistent seg id for the
+// atoms in the given chain.
+std::string
+coot::chain_atoms_segid(CChain *chain_p) {
+
+ 
+   int n_residue_atoms;
+   PPCAtom residue_atoms;
+
+   std::vector<std::string> seg_ids;
+
+   int n_residues = chain_p->GetNumberOfResidues();
+
+   for (int ires=0; ires<n_residues; ires++) {
+      CResidue *residue_p = chain_p->GetResidue(ires);
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+	 CAtom *at = residue_atoms[iat];
+	 std::string seg_id = at->segID;
+	 if (seg_ids.size() == 0) {
+	    seg_ids.push_back(seg_id);
+	 } else {
+	    if (!coot::is_member_p(seg_ids, seg_id)) {
+	       std::string mess = "No consistent segids for chain ";
+	       mess += chain_p->GetChainID();
+	       throw std::runtime_error(mess);
+	    }
+	 }
+      }
+   }
+   
+
+   if (seg_ids.size() == 0) {
+      std::string mess = "No segids for chain ";
+      mess += chain_p->GetChainID();
+      throw std::runtime_error(mess);
+   }
+   return seg_ids[0]; 
+} 
 
 
 
@@ -3702,7 +3893,8 @@ std::pair<bool, clipper::RTop_orth> coot::util::nucleotide_to_nucleotide(CResidu
 }
 
 void
-coot::util::mutate_internal(CResidue *residue, CResidue *std_residue, short int is_from_shelx_ins_flag) {
+coot::util::mutate_internal(CResidue *residue, CResidue *std_residue,
+			    short int is_from_shelx_ins_flag) {
 
    PPCAtom residue_atoms;
    int nResidueAtoms;
@@ -3714,6 +3906,14 @@ coot::util::mutate_internal(CResidue *residue, CResidue *std_residue, short int 
    std_residue->GetAtomTable(std_residue_atoms, n_std_ResidueAtoms);
 
    //
+   std::string old_seg_id_for_residue_atoms;
+   bool use_old_seg_id = 0;
+   try {
+      old_seg_id_for_residue_atoms = coot::residue_atoms_segid(residue);
+      use_old_seg_id = 1;
+   }
+   catch (std::runtime_error mess) {
+   } 
 
    bool verb = 0;
    if (verb) { 
@@ -3750,12 +3950,16 @@ coot::util::mutate_internal(CResidue *residue, CResidue *std_residue, short int 
       if (! coot::is_main_chain_p(std_residue_atoms[i])) {
 	 if (is_from_shelx_ins_flag)
 	    std_residue_atoms[i]->occupancy = 11.0;
-	 residue->AddAtom(std_residue_atoms[i]);
+	 CAtom *copy_at = new CAtom;
+	 copy_at->Copy(std_residue_atoms[i]);
+	 residue->AddAtom(copy_at);
+	 if (use_old_seg_id) {
+	    strcpy(copy_at->segID, old_seg_id_for_residue_atoms.c_str());
+	 }
       }
    };
 
-   if (std::string(residue->name).length() <= std::string(std_residue->name).length()) 
-      strcpy(residue->name, std_residue->name);
+   residue->SetResName(std_residue->GetResName());
    residue->TrimAtomTable();
 }
 
@@ -3874,6 +4078,17 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
    pyrimidine.push_back(" C5 ");
    pyrimidine.push_back(" C6 ");
    pyrimidine.push_back(" C4 ");
+
+
+   std::string old_seg_id_for_residue_atoms;
+   bool use_old_seg_id = 0;
+   try {
+      old_seg_id_for_residue_atoms = coot::residue_atoms_segid(residue);
+      use_old_seg_id = 1;
+   }
+   catch (std::runtime_error mess) {
+   } 
+
 
    // We need to know whether we have purine or pyrimidine for both
    // the molecule base and the std_base.
@@ -4123,6 +4338,8 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
 			   // force it down the atom's throat :) [is there a better way?]
 			   strncpy(at->altLoc, new_alt_conf.c_str(), 1);
 			   residue->AddAtom(at);
+			   if (use_old_seg_id)
+			      strcpy(at->segID, old_seg_id_for_residue_atoms.c_str());
 			}
 		     }
 		  }
@@ -4143,9 +4360,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
 // 			       << debug_s << std::endl;
 		  }
 
-		  std::cout << "DEBUG:: mutate_base(): shoving new name "
-			    << new_base_name << " into residue" << std::endl;
-		  strcpy(residue->name, new_base_name.c_str());
+		  residue->SetResName(new_base_name.c_str());
 		  residue->TrimAtomTable();
 
 	       }

@@ -1,6 +1,6 @@
 ;;;; Copyright 2007 by The University of York
 ;;;; Copyright 2007 by Paul Emsley
-;;;; Copyright 2007 by The University of Oxford
+;;;; Copyright 2007, 2009 by The University of Oxford
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 	 (let ((window (gtk-window-new 'toplevel))
 	       (hbox (gtk-vbox-new #f 0))
 	       (vbox (gtk-hbox-new #f 0))
-	       (go-button (gtk-button-new-with-label "  Refine  "))
+	       (go-button (gtk-button-new-with-label "  Refine...  "))
 	       (cancel-button (gtk-button-new-with-label "  Cancel  "))
 	       (entry-hint-text "HKL data filename \n(leave blank for default)")
 	       (chooser-hint-text " Choose molecule for SHELX refinement  ")
@@ -45,8 +45,8 @@
 						      option-menu-mol-list-pair)))
 				     (if (number? imol)
 					 (if (= (string-length txt) 0)
-					     (shelxl-refine imol)
-					     (shelxl-refine imol txt)))
+					     (shelxl-refine-gui imol)
+					     (shelxl-refine-gui imol txt)))
 				     (gtk-widget-destroy window))))
 	     (gtk-signal-connect cancel-button "clicked"
 				 (lambda ()
@@ -113,21 +113,79 @@
 
 
 ))
-      
+
+(define (shelx-ins-strings imol)      
+
+  (let ((ins-tmp-file "coot-tmp.ins"))
+    (write-shelx-ins-file imol ins-tmp-file)
+    (call-with-input-file ins-tmp-file
+      (lambda (port)
+	(let f ((line (read-line port))
+		(lines '()))
+	  (cond 
+	   ((eof-object? line) (reverse lines))
+	   (else
+	    (f (read-line port) 
+	       (cons line lines)))))))))
+
+(define (shelxl-refine-gui imol . hkl-file-name-maybe)
+
+  (let ((window (gtk-window-new 'toplevel))
+	(vbox (gtk-vbox-new #f 2))
+	(buttons-hbox (gtk-hbox-new #f 2))
+	(scrolled-win (gtk-scrolled-window-new))
+	(text (gtk-text-new #f #f))
+	(refine-button (gtk-button-new-with-label "   Refine   "))
+	(cancel-button (gtk-button-new-with-label "   Cancel   ")))
+	
+    (gtk-container-add window vbox)
+    (gtk-container-add scrolled-win text)
+    (gtk-box-pack-start buttons-hbox refine-button #f #f 2)
+    (gtk-box-pack-start buttons-hbox cancel-button #f #f 2)
+    (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+    (gtk-box-pack-start vbox buttons-hbox #f #f 2)
+    (gtk-box-pack-start vbox scrolled-win)
+
+    (let ((text-strings (shelx-ins-strings imol))
+	  (bg-col "#c0e6c0"))
+      (for-each
+       (lambda (str) 
+	 (gtk-text-insert text #f "black" bg-col str -1)
+	 (gtk-text-insert text #f "black" bg-col "\n" -1))
+       text-strings))
+
+    (gtk-signal-connect refine-button "clicked"
+			(lambda ()
+			  
+			  (let* ((l (gtk-text-get-length text))
+				 (text-text (gtk-editable-get-chars text 0 l)))
+
+			    (shelxl-refine-primitive imol text-text hkl-file-name-maybe)
+			    (gtk-widget-destroy window))))
+
+    (gtk-signal-connect cancel-button "clicked"
+			(lambda () 
+			  (gtk-widget-destroy window)))
+
+    (gtk-text-set-editable text #t)
+    (gtk-window-set-default-size window 500 500)
+    (gtk-widget-show-all window)))
+
+
 
 ;; This is a top-level dialog that add an HFIX instruction to a given .res 
 ;; molecule.  It is a specific, not generally very useful, as it stands.
 ;;
-;;(let ((buttons 
-;;        (list 
-;;	(list
-;; 	 "Rebuild Hydrogens: HFIX 137 C2BA "
-;; 	 (lambda ()
-;;	   (molecule-chooser-gui "Add rebuild hydrogens instructions"
-;;				 (lambda (imol)
-;;				   (let ((s "HFIX 137 C2BA"))
-;;				     (add-shelx-string-to-molecule imol s)))))))))
-;;  (dialog-box-of-buttons "SHELX Demo" (cons 200 50) buttons "  Close  "))
+(let ((buttons 
+        (list 
+	(list
+ 	 "Rebuild Hydrogens: HFIX 137 C2BA "
+	 (lambda ()
+	   (molecule-chooser-gui "Add rebuild hydrogens instructions"
+				 (lambda (imol)
+				   (let ((s "HFIX 137 C2BA"))
+				     (add-shelx-string-to-molecule imol s)))))))))
+  (dialog-box-of-buttons "SHELX Demo" (cons 200 50) buttons "  Close  "))
 
 
 

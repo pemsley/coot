@@ -1,19 +1,50 @@
 
-   o multiple residue ranges, glycosylation, covalent bond entities ::: 10
-
-   o Why does NAG not refine?  e.g. 1h4p ::: 1
-
-   o need (residues-near-point imol) function ::: 1
-  
-   o Dynamic distances define need a pick cursor. ::: 1
-
-   o rotamer-score function needs to be filled ::: 1
-
-   o Display ligand diapoles using charges from cif file. ::: 4
-
    o Rotate Translate: Add an additional GUI (possibly in the toolbar)
      to specify the type of R/T entity, a zone (default) a chain, a
      whole molecule. ::: 5
+
+* Almost Done. Exception of adding to the GUI the ability to swap
+  rot_trans_object_type modes.
+
+   o multiple residue ranges, glycosylation, covalent bond entities ::: 10
+
+* What else is there to do here?  Write a test.
+
+   o need a function (bound to Shift D) to update dots centred around
+     this point.  interactive-probe does something like we want, but
+     with the filenames already written to disk.  We need to protect
+     interactive-probe by checking a global flag that is set the
+     first time we run interactive-probe (i.e. we test for
+     command-in-path? only once) ::: 1
+
+* This turned out to be much harder that I'd supposed.  First, I
+  needed to turn off the Shifted key bindings (now D is different to
+  d).  Next, I had to write a new routine probe-local-sphere which
+  uses get-probe-dots-from.  There was a problem because if the atom
+  selection radius and the probe radius are the same, then sometimes
+  the middle atom of a bonded angle set is missing (outside the
+  sphere) and that leads to bad clashes.  So I had to update
+  new-molecule-by-sphere-selection to allow the writing of whole
+  residues optionally.  This prevents the missing middle atom problem
+  and now the probe-local-sphere works nicely. There is a problem of
+  alt confs here though.  The alt conf specifier in
+  deep_copy_this_residue() is checked "by hand" so "*" doesn't work.
+  Maybe deep_copy_this_residue() [mmdb-extras, I think] should be
+  changed so that it does.
+
+   o Why does NAG not refine? e.g. 1h4p.
+     
+* Actually it refines fine.  The problem is that 1h4p has residues out
+  of order which mess up the residue selection. Let's add a function
+  that test if residues are number in increasing order for a
+  particular chain.  Let's use that function and if they are not in
+  order, then add that to the warning text of the
+  no_restraints_dialog.  OK, needs testing on a PDB file that has an
+  unknown monomer but residues are not out of order.  Hmm. ::: 2
+
+   o Display ligand diapoles using charges from cif file. ::: 4
+
+* There is a problem in orienting the dipole arrow.
 
    o Seg Ids (Mailing list issue):
 
@@ -35,82 +66,86 @@
      atoms should be inherited from those of the rest of the residue
      (if they are consistent). ::: 6
 
+* mutate done (needs a test?).  But what about ncs-copy-residue-range? 
+  Done, needs test. And what about add_terminal_residue, which uses
+  NEW_COORDS_INSERT, I think.  It does. Coded, needs a test
+  (set-atom-string-attribute now can take a "segid" tag), so we're 
+  all set to make a test.
+
    o "Fit ligand here" which gets a monomer then does a ligand search
      based on the blob at the current position. ::: 8
 
-   o Give the user a chance to edit the ins file before it is sent off
-     for refinement [Tobias Beck].  Not doing so, as currently,
-     practically makes the shelxl refine in Coot useless if the user
-     needs to modify the file.  Fire up a text widget with the .ins file
-     in it.  ::: 2
+* I added a function to find a blob close to the given postion, then
+  add it as a cluster.  That was fun. It made the cluster correctly,
+  same as reference (blob 2).  Then trying to do wiggly ligands there
+  I ran in to the problem.  I was wondering why I was getting a poor
+  solution, the ribose was always rotated (compared to the reference
+  and correct solution).  Why?  The torsion was wrong.  In the
+  dictionary we have
 
-   o Communcation with PISA.  Get PISA on jackal ::: 6
+ 3GP      var_2    C8     N9     C1*    C2*      -78.375    2.000   1
 
-   o Backrub-based auto-fit rotamer search.  Question: how do I test
-     this? Synthetic map?  How does it work when we do this for an alt
-     conf too?  ::: 10
-
-   o redo sequence view ::: 10
-
-   o enable --splash-screen  ::: 2
-
-   o Does the window stay constant size (on something other than a
-     laptop) on start, exit, start exit cycling?
-     Priority: 6: Difficulty: 4  ::: 2
-
-   o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim
-     Fenn. ::: 2
- 
-*  Let's hear from Tim Fenn.  OK, he replied.  Non-trivial. 
-
-  o Consider setting the "handled" flag only for key pressed that did
-    something, e.g. we could then use the "B" and "S" keys, because they
-    are not often used.  Maybe "A" too. ::: 1
-
-   o Rotamer plots need to update on multiple do/undos. ::: 1
-
-   o Garib wants a function to move waters close to the protein. ::: 4
-
-   o Investigate interupting long fitting/Post MR tools [JED request] 
-     Add a stop button to the toolbar perhaps.
-     ::: 2
-
-   o add a mechanism where we can register functions to run after
-     refinement and/or regularization. 
-  
-     or deleting things says JED.  In fact, a funtion to run that is
-      attached to a molecule (somehow) on any
-      update/change/manipulation. ::: 3
+  There is a torsion round N9 C1 - and in the wiggly ligand models it
+  was always wrong.  It turns out that wiggly ligands was setting the
+  torsion of the C8 N9 C1* H1* instead.  Hopelessly wrong.  To fix
+  this needs a re-write of the torsion setting code. Sigh.  Strange
+  that I haven't notice this before.
 
    o Bill: This might be hard to implement, but in case it isn't, I
      thought it might be worth suggesting...
 
      It would be great to be able to click on a nucleotide base in a
-     single strand of DNA or RNA and generate its W/C partner... ::: 4
+     single strand of DNA or RNA and generate its W/C partner...  ::: 4
+ 
+* Not so hard - generate a WC pair (just one base, double
+  stranded). Fit the base atoms of one of those to the
+  clicked-on-residue. Use the matrix to move the other residue.
+  Bingo.  Needs atom-by-atom matching in the least-squares procedure -
+  may need thinking about that. Bernhard mentioned that he would
+  be looking at atom matching in lsq, so I will leave it for now.
+  The base-pairing files are in ligand dir now.
+
+   o Investigate interupting long fitting/Post MR tools [JED request] 
+     Add a stop button to the toolbar perhaps.
+     ::: 2
+
+* gtk-toolbar-insert and gtk-toolbutton-new are not available in
+  guile-gtk-2.0, or so it currently seems to me.  This can't be done
+  from scripting then. Hmm... [Probably possible in python].  Does
+  this mean I should consider looking at guile-gnome?  Or how about
+  coot-add-main-toolbar-stop-toolbutton which gets passed a function
+  to call when the button is clicked.  Need to think about how the
+  button goes away without being clicked.  Pass back the widget?
+  Seems complex - how about just destroy-toolbar-stop-toolbutton. Yes.
+  Should those refinement scripts be run as idle functions then?  
+
+   o redo sequence view ::: 10
+
+* Started.
+
+   o Backrub-based auto-fit rotamer search.  Question: how do I test
+     this? Synthetic map?  How does it work when we do this for an alt
+     conf too?  ::: 10
+
+   o Communication with PISA.  Get PISA on jackal ::: 6
+
+   o Does the window stay constant size (on something other than a
+     laptop) on start, exit, start exit cycling?
+     Priority: 6: Difficulty: 4  ::: 2
+
+   o Garib wants a function to move waters close to the protein. ::: 4
 
    o Fix up mini-RSR so that it compiles properly. ::: 4
-
-   o Move widget functions in c-interface-build.cc to
-     c-interface-gui.cc (or consider new c-interface-build-gui.cc). ::: 1
 
    o Put refine-zone and regularize-zone into the history. ::: 2
 
    o consider making bonds to hydrogens thinner.  A spike needed to
-     test for bonds split on thickness or colour most deeply.  ::: 4
+     test for bonds split on thickness or colour most deeply.  ::: 5
 
    o Gtk2 coot: set the colour patch in the map properties and
      symmetry molecule colouring (needs version 2.6).  There is some
      problem in the update, how do I set continuous updates on the
      resulting colour chooser?  ::: 2 
-
-   o colour by B-factor CA mode, (CA + Ligs atom sel should be used
-     for B-factor colouring mode) ::: 1
-
-   o Calculate NCS matrices from molecules created by
-     new_molecule_by_atom_selection() ::: 1
-
-   o Use write_connectivity to generate ligand hydrogens. Use reduce
-     and probe to make ligand interactions (and render them). ::: 4
 
    o Geometric distortions graph for alt confs - currently broken? ::: 4
 
@@ -121,11 +156,106 @@
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.  ::: 2
 
-   o Helix fitting overshoots ::: 4
+   o Helix fitting overshoots - e.g.     
+       1a02: place helix here at (9.2 36.6 28.3)
+       1env: place helix here - many places.  Lots of errors.
+    ::: 4
+
+   o Art authors: 
+       world in connect-to-world is "cartoon globe" by lunanaut
+       computer mouse for scroll wheel by crispy.
+
 
 ------
 
    o Does is_mainchain_atom() working for mainchain hydrogens?  
      You mean is_main_chain_p().  Yes it is.
      ::: 1
+
+   o need (residues-near-point imol radius) function.  ::: 1
+
+* Done.  With test.  Needs python version filled.
+
+   o Dynamic distances define need a pick cursor. ::: 1
+
+* Easy.  Done 
+
+   o rotamer-score function needs to be filled ::: 1
+
+* Done.  Added test.
+
+   o Move widget functions in c-interface-build.cc to
+     c-interface-gui.cc (or consider new c-interface-build-gui.cc). ::: 1
+
+* Done with the c-interface-build-gui.cc option.
+
+   o Give the user a chance to edit the ins file before it is sent off
+     for refinement [Tobias Beck].  Not doing so, as currently,
+     practically makes the shelxl refine in Coot useless if the user
+     needs to modify the file.  Fire up a text widget with the .ins file
+     in it.  ::: 2
+
+* Done.  Quite easy.
+
+   o Rotamer plots need to update on multiple do/undos. ::: 1
+
+* Done. Easy - just call update_geometry_graphs() with an asc on
+  apply_undo().
+
+   o enable --splash-screen  ::: 1
+
+* Easy.  Create a function, added to the bottom of gtk-manual.cc.
+  Tricky thing was to edit support.c to check this directory and
+  absolute path name.  Will the changes to support.c remain intact?
+  Or does support.c get overwritten?  Maybe, on using post-glade.  OK,
+  I have turned off the writing of support files in glade.
+
+   o Consider setting the "handled" flag only for key pressed that did
+     something, e.g. we could then use the "B" and "S" keys, because they
+     are not often used.  Maybe "A" too. ::: 1
+
+* Done.
+
+   o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim
+     Fenn. ::: 2
+ 
+* Let's hear from Tim Fenn.  OK, he replied.  Non-trivial. 
+  OK, done I think.  I used AC_LIB_PREPARE_MULTILIB and $acl_libdirstem.
+  I am presuming that does what he wanted.  On re-reading, perhaps
+  not (but only perhaps).
+
+   o add a mechanism where we can register functions to run after
+     refinement and/or regularization. 
+  
+     or deleting things says JED.  In fact, a funtion to run that is
+      attached to a molecule (somehow) on any
+      update/change/manipulation. ::: 2
+
+* Done for scm, I added manipulation-modes.hh so that the
+  MOVINGATOMS, DELETED and MUTATED variables were available from
+  scheme, (an _ in MOVING_ATOMS means that fails to be exported).
+
+   o colour by B-factor CA mode, (CA + Ligs atom sel should be used
+     for B-factor colouring mode).  Don't forget picking
+     (grphics-info-pick c.f. CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR)
+     ::: 1
+
+* Done.
+
+   o Use write_connectivity to generate ligand hydrogens. Use reduce
+     and probe to make ligand interactions. It might be needed to ask
+     Eugene about this.  Typical example is I have a model/PDB of
+     protein and a model/PDB that has CONECT cards (written by
+     write-connectivity and then appened to the PDB file).  I want to
+     merge ligand with its connectivity to the protein molecule.  Or
+     generate the connectivity and add it directly to the ligand
+     molecule without going via a file and file append.
+
+     I went for the separate file and append option with goosh-command
+     and cat.  Works nicely. 
+     ::: 1
+
+* Well, that it works nicely was nothing to do with me, as it turns
+  out, and everything to do with new probe (I suppose).  I doesn't
+  need CONECT cards to do the ligand hydrogen contacts now.
 

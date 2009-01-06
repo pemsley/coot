@@ -1,10 +1,12 @@
 /* ligand/wiggly-ligand.cc 
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 by Paul Emsley, The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
+ * Copyright 2009 by The University of Oxford.
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -14,7 +16,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 #include <stdexcept>
@@ -141,7 +144,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       else 
 	 contacts = getcontacts(ligand);
 
-      if (debug_wiggly_ligands)
+      if (0)
 	 for (unsigned int i=0; i<contacts.size(); i++)
 	    for (unsigned int j=0; j<contacts[i].size(); j++)
 	       std::cout << "DEBUG:: contacts " << i << " to " << contacts[i][j] << std::endl;
@@ -305,7 +308,7 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
 
    float non_rotating_torsion_cut_off = 11.0;
 
-   if (0) {
+   if (1) {
       for(unsigned int itor=0; itor<m_torsions.size(); itor++) {
 	 std::cout << "DEBUG get_torsions_by_random: input torsion: " << itor << " "
 		   << m_torsions[itor].atom_id_2_4c() << " "

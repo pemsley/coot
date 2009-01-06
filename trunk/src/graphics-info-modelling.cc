@@ -1,7 +1,7 @@
 /* src/graphics-info.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
- * Copyright 2007 by the University of Oxford
+ * Copyright 2007, 2008, 2009 by the University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@
 #include "ligand.hh"
 #include "ideal-rna.hh"
 #include "graphics-info.h"
+#include "rotate-translate-modes.hh"
 
 // Including python needs to come after graphics-info.h, because
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in
@@ -423,8 +424,24 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       
 	    }
 	 } else { 
-	    if (use_graphics_interface_flag) { 
+	    if (use_graphics_interface_flag) {
+
+	       // This needs to be carefully handled when refactoring
+	       // this block.
+
+	       bool residues_order_flag =
+		  molecules[imol].progressive_residues_in_chain_check_by_chain(chain_id_1.c_str());
+
 	       GtkWidget *widget = create_no_restraints_info_dialog();
+	       if (!residues_order_flag) {
+		  GtkWidget *l = lookup_widget(widget, "no_restraints_extra_label");
+		  if (l) {
+		     gtk_widget_show(l);
+		  } else {
+		     gtk_widget_hide(l); // by default it is show.
+		  } 
+	       }
+		  
 	       gtk_widget_show(widget);
 	    }
 	 }
@@ -552,7 +569,12 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       
 	 }
       } else { 
-	 if (use_graphics_interface_flag) { 
+	 if (use_graphics_interface_flag) {
+
+	    // the linear form is no longer the same here, it checks
+	    // the chain of chain_id to see of the residues are in
+	    // order.
+	    
 	    GtkWidget *widget = create_no_restraints_info_dialog();
 	    gtk_widget_show(widget);
 	 }
@@ -911,8 +933,8 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<CResidue *
 	 n_flanker++;
       }
    }
-   std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
-	     << " free residues and " << n_flanker << " flankers" << std::endl;
+//    std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
+// 	     << " free residues and " << n_flanker << " flankers" << std::endl;
    return std::pair <CMMDBManager *, std::vector<CResidue *> > (new_mol, rv);
 }
 
@@ -2002,19 +2024,59 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 void
 graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
+   // now we are called by chain and molecule pick (as well as the old
+   // zone pick).
+
+   // We use the rot_trans_object_type to distinguish.
+
+   const char *chain_id = "*";
+   int resno_1 = ANY_RES;
+   int resno_2 = ANY_RES;
+   bool good_settings = 0; // fail initially
    CAtom *atom1 = molecules[imol_rot_trans_object].atom_sel.atom_selection[rot_trans_atom_index_1];
-   CAtom *atom2 = molecules[imol_rot_trans_object].atom_sel.atom_selection[rot_trans_atom_index_2];
+   const char *altLoc = atom1->altLoc;
+   // This uses moving_atoms_asc internally, we don't need to pass it:
+   coot::atom_spec_t origin_atom_spec(atom1);
 
-   char *altLoc = atom1->altLoc;
 
-   char *chain_id_1 = atom1->GetChainID(); // not const, sigh.
-   char *chain_id_2 = atom2->GetChainID(); // not const, sigh.
+   if (rot_trans_object_type == ROT_TRANS_TYPE_CHAIN) {
+      chain_id = atom1->GetChainID();
+      altLoc = "*";
+      good_settings = 1;
+   }
 
-   if (chain_id_1 != chain_id_2) {
-      std::string info_string("Atoms must be in the same chain");
-      statusbar_text(info_string);
+   if (rot_trans_object_type == ROT_TRANS_TYPE_MOLECULE) {
+      // use default settings
+      altLoc = "*";
+      good_settings = 1;
+   }
+
+   if (rot_trans_object_type == ROT_TRANS_TYPE_ZONE) {
+      CAtom *atom2 = molecules[imol_rot_trans_object].atom_sel.atom_selection[rot_trans_atom_index_2];
+      char *chain_id_1 = atom1->GetChainID(); // not const, sigh.
+      char *chain_id_2 = atom2->GetChainID(); // not const, sigh.
+
+      if (chain_id_1 != chain_id_2) {
+	 std::string info_string("Atoms must be in the same chain");
+	 statusbar_text(info_string);
+      } else {
+	 chain_id = chain_id_1;
+	 resno_1 = atom1->GetSeqNum();
+	 resno_2 = atom2->GetSeqNum();
+	 if (resno_1 > resno_2) { 
+	    int tmp = resno_1; 
+	    resno_1 = resno_2;
+	    resno_2 = tmp;
+	 }
+	 
+	 origin_atom_spec = coot::atom_spec_t(atom2); // as it used to be
+	 
+	 good_settings = 1;
+      }
+   }
+
       
-   } else {
+   if (good_settings) { 
       // OK, the atoms were in the same chain...
       GtkWidget *widget = create_rotate_translate_obj_dialog();
       GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
@@ -2031,15 +2093,6 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       }
       gtk_widget_show(widget);
 
-   int resno_1 = atom1->GetSeqNum();
-      int resno_2 = atom2->GetSeqNum();
-
-      if (resno_1 > resno_2) { 
-	 int tmp = resno_1; 
-	 resno_1 = resno_2;
-	 resno_2 = tmp;
-      }
-
       atom_selection_container_t rt_asc;
       // No! It cannot point to the same CAtoms.
       // rt_asc.mol = molecules[imol_rot_trans_object].atom_sel.mol; 
@@ -2052,7 +2105,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       int n_sel_residues;
       int selHnd = molecules[imol_rot_trans_object].atom_sel.mol->NewSelection();
       molecules[imol_rot_trans_object].atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
-							    chain_id_1,
+							    chain_id,
 							    resno_1, "*",
 							    resno_2, "*",
 							    "*",  // residue name
@@ -2071,7 +2124,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       std::pair<CMMDBManager *, int> mp = 
 	 coot::util::create_mmdbmanager_from_res_selection(molecules[imol_rot_trans_object].atom_sel.mol,
 							   sel_residues, n_sel_residues,
-							   0, 0, altloc_string, chain_id_1,
+							   0, 0, altloc_string, chain_id,
 							   alt_conf_split_flag);
       rt_asc = make_asc(mp.first);
       rt_asc.UDDOldAtomIndexHandle = mp.second;
@@ -2090,9 +2143,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       // 				      atom2->GetSeqNum(),
       // 				      atom2->name);  // uses moving_atoms_asc
 
-      // This uses moving_atoms_asc internally, we don't need to pass it:
-      coot::atom_spec_t atom_spec(atom2);
-      rot_trans_rotation_origin_atom = find_atom_in_moving_atoms(atom_spec);
+      rot_trans_rotation_origin_atom = find_atom_in_moving_atoms(origin_atom_spec);
       //    std::cout << "DEBUG:: in execute_rotate_translate_read, found rotation atom: "
       // 	     << rot_trans_rotation_origin_atom << std::endl;
       

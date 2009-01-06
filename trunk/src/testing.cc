@@ -1,3 +1,22 @@
+/* src/testing.cc
+ * 
+ * Copyright 2008, 2009 by the University of Oxford
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include "testing.hh"
 
@@ -25,9 +44,19 @@
 #endif
 
 #include "coot-map-utils.hh"
+#include "dipole.hh"
 
-// a shorthand so that the push back line doesn't get too long:
-typedef std::pair<int(*)(), std::string> named_func;
+class testing_data {
+public:
+   static coot::protein_geometry geom;
+   testing_data() {
+      if (geom.size() == 0)
+	 geom.init_standard();
+   }
+};
+
+coot::protein_geometry testing_data::geom;
+
 
 std::string greg_test(const std::string &file_name) {
 
@@ -80,7 +109,13 @@ bool close_pair_test(std::pair<double, double> a, std::pair<double, double> b) {
 std::ostream& operator<< (std::ostream &s, std::pair<double, double> b) {
    s << "[" << b.first << "," << b.second << "]";
    return s;
+}
+
+void add_test(int (*)(), const std::string &test_name, std::vector<named_func> *functions) {
+   //    named_func p(t, test_name);
+   //    functions->push_back(named_func(p));
 } 
+
 
 int test_internal() {
 
@@ -93,8 +128,20 @@ int test_internal() {
    // functions.push_back(named_func(test_ramachandran_probabilities, "test_ramachandran_probabilities"));
    functions.push_back(named_func(test_fragmemt_atom_selection, "test_fragmemt_atom_selection"));
    functions.push_back(named_func(test_add_atom, "test_add_atom"));
+
+   // restore me at some stage
    // functions.push_back(named_func(restr_res_vector, "restraints_for_residue_vec"));
-   functions.push_back(named_func(test_peptide_link, "test_peptide_link"));
+
+   // restore me at some stage.
+   // functions.push_back(named_func(test_peptide_link, "test_peptide_link"));
+   functions.push_back(named_func(test_dictionary_partial_charges,
+				  "test dictionary partial charges"));
+   // restore me at some stage
+   // functions.push_back(named_func(test_dipole, "test_dipole"));
+
+   functions.push_back(named_func(test_segid_exchange, "test segid exchange"));
+
+   functions.push_back(named_func(test_ligand_fit_from_given_point, "test ligand"));
 
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
@@ -234,8 +281,8 @@ int test_wiggly_ligands () {
    // out) that shouldn't be - and the ring is breaking).
    
    int r = 1;
-   coot::protein_geometry geom;
    std::string cif_file_name = greg_test("libcheck_BUA.cif");
+   coot::protein_geometry geom;
    int geom_stat = geom.init_refmac_mon_lib(cif_file_name, 0);
    if (geom_stat == 0) {
       std::string m = "Critical cif dictionary reading failure.";
@@ -880,5 +927,249 @@ test_add_atom() {
    return status;
 }
 
+int
+test_dipole() {
+
+   int result = 0; // fail initially.
+   testing_data t;
+   
+   std::string res_type = "TYR";
+   
+   std::string filename = greg_test("tutorial-modern.pdb");
+   atom_selection_container_t atom_sel = get_atom_selection(filename);
+
+   std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
+      t.geom.get_monomer_restraints(res_type);
+
+   if (rp.first) { 
+   
+      int imod = 1;
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 PCResidue residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    if (std::string(residue_p->GetResName()) == res_type) { 
+	       coot::dipole d(rp.second, residue_p);
+	       std::cout << "residue " << coot::residue_spec_t(residue_p)
+			 << "   dipole: " << d << " at " << d.position().format()
+			 << std::endl;
+	       break;
+	    }
+	 }
+      }
+   }
+   return result;
+}
+
+
+int
+test_dictionary_partial_charges() {
+
+   std::vector<std::string> v;
+   v.push_back("ALA");
+   v.push_back("ARG");
+   v.push_back("TYR");
+   v.push_back("TRP");
+   v.push_back("VAL");
+   v.push_back("SER");
+
+   testing_data t;
+   for (unsigned int iv=0; iv<v.size(); iv++) {
+      std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
+	 t.geom.get_monomer_restraints(v[iv]);
+      if (! rp.first) {
+	 std::cout << " Fail - no restraints for " << v[iv] << std::endl;
+	 return 0;
+      } else {
+	 for (unsigned int iat=0; iat<rp.second.atom_info.size(); iat++) {
+	    if (! rp.second.atom_info[iat].partial_charge.first) {
+	       std::cout << " Fail - no partial charge for "
+			 << rp.second.atom_info[iat].atom_id << " in "
+			 << v[iv] << std::endl;
+	       return 0;
+	    }
+	 }
+      } 
+   }
+   return 1;
+}
+
+int test_segid_exchange() {
+
+   int status = 0;
+   
+   std::string filename = greg_test("tutorial-modern.pdb");
+   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   bool ifound = 0;
+
+   std::vector<CResidue *> residues;
+
+   int imod = 1;
+   if (atom_sel.read_success > 0) { 
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 std::string chain_id = chain_p->GetChainID();
+	 int nres = chain_p->GetNumberOfResidues();
+	 PCResidue residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    residues.push_back(residue_p);
+	    if (residues.size() == 3)
+	       break;
+	 }
+	 if (residues.size() == 3)
+	    break;
+      }
+
+      if (residues.size() == 3) {
+	 PPCAtom residue_atoms_1;
+	 PPCAtom residue_atoms_2;
+	 PPCAtom residue_atoms_3;
+	 int n_residue_atoms_1;
+	 int n_residue_atoms_2;
+	 int n_residue_atoms_3;
+	 
+	 std::string new_seg_id  = "N";
+	 
+	 residues[0]->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+	 for (int iat=0; iat<n_residue_atoms_1; iat++) {
+	    CAtom *at = residue_atoms_1[iat];
+	    at->SetAtomName(at->GetIndex(),
+			    at->serNum,
+			    at->GetAtomName(),
+			    at->altLoc,
+			    new_seg_id.c_str(),
+			    at->GetElementName());
+	 }
+
+	 // testing this function:
+	 coot::copy_segid(residues[0], residues[1]);
+	 
+	 residues[1]->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+	 for (int iat=0; iat<n_residue_atoms_2; iat++) {
+	    CAtom *at = residue_atoms_2[iat];
+	    std::string this_seg_id = at->segID;
+	    if (this_seg_id != new_seg_id) {
+	       std::cout << "   Failed to copy seg id.  Was :"
+			 << this_seg_id << ": should be :" << new_seg_id
+			 << ":\n for atom " << at << std::endl;
+	       return 0; // fail
+	    }
+	 }
+
+
+	 // Now something harder, test that the segids are unchanged
+	 // when the segids of provider are not consistent.
+	 //
+
+	 std::cout << "   Test with a rogue segid " << std::endl;
+	 // Add a rogue:
+	 // 
+	 CAtom *at = residue_atoms_1[2];
+	 at->SetAtomName(at->GetIndex(),
+			 at->serNum,
+			 at->GetAtomName(),
+			 at->altLoc,
+			 "C",
+			 at->GetElementName());
+
+	 residues[2]->GetAtomTable(residue_atoms_3, n_residue_atoms_3);
+
+	 std::vector<std::string> orig_seg_ids;
+	 for (int iat=0; iat<n_residue_atoms_2; iat++) {
+	    CAtom *at = residue_atoms_2[iat];
+	    std::string this_seg_id = at->segID;
+	    orig_seg_ids.push_back(this_seg_id);
+	 }
+
+	 coot::copy_segid(residues[0], residues[2]);
+	 bool fail_this = 0;
+	 for (int iat=0; iat<n_residue_atoms_2; iat++) {
+	    CAtom *at = residue_atoms_2[iat];
+	    std::string this_seg_id = at->segID;
+	    if (this_seg_id != orig_seg_ids[iat]) {
+	       std::cout << "  Failed: segid changed when it shouldn't"
+			 << " have, for " << at << std::endl;
+	       fail_this = 1;
+	       break;
+	    }
+	 }
+
+	 // if we go to here it should be ok if fail_this didn't fail
+	 if (! fail_this)
+	    status = 1;
+      } 
+   }
+   return status;
+}
+
+int test_ligand_fit_from_given_point() {
+
+   int status = 0;
+   testing_data t;
+
+   std::string cif_file_name = "libcheck_3GP-torsion-filtered.cif";
+   int geom_stat = t.geom.init_refmac_mon_lib(cif_file_name, 0);
+   if (geom_stat == 0) {
+      std::string m = "Critical cif dictionary reading failure.";
+      std::cout << m << std::endl;
+      throw std::runtime_error(m);
+   }
+   
+   std::string f = greg_test("tutorial-modern.pdb");
+   atom_selection_container_t asc = get_atom_selection(f);
+   if (!asc.read_success)
+      return 0;
+   std::string l = greg_test("monomer-3GP.pdb");
+   atom_selection_container_t l_asc = get_atom_selection(l);
+   if (!l_asc.read_success)
+      return 0;
+   
+   
+   clipper::Xmap<float> xmap;
+   coot::util::map_fill_from_mtz(&xmap, "rnasa-1.8-all_refmac1.mtz",
+				 "FWT", "PHWT", "WT", 0, 0);
+   coot::wligand wlig;
+   wlig.set_verbose_reporting();
+   wlig.set_debug_wiggly_ligands();
+   wlig.import_map_from(xmap);
+   bool optim_geom = 1;
+   bool fill_vec = 0;
+   coot::minimol::molecule mmol(l_asc.mol);
+   wlig.install_simple_wiggly_ligands(&t.geom, mmol, 50, optim_geom, fill_vec);
+   short int mask_waters_flag = 1;
+   wlig.mask_map(asc.mol, mask_waters_flag);
+   clipper::Coord_orth pt(55.06, 10.16, 21.73); // close to 3GP peak (not in it).
+   float n_sigma = 1.0; // cluster points must be more than this.
+   wlig.cluster_from_point(pt, n_sigma);
+   wlig.fit_ligands_to_clusters(1);
+   int n_final_ligands = wlig.n_final_ligands();
+   if (n_final_ligands == 0) {
+      return 0;
+   } else { 
+      coot::minimol::molecule m = wlig.get_solution(0);
+      clipper::Coord_orth centre = m.centre();
+      clipper::Coord_orth ref_pt(55.5, 9.36, 20.7); // coords of centred
+                                                    // correct solution
+      double d = clipper::Coord_orth::length(centre, ref_pt);
+      if (d < 1.0) {
+	 std::cout << " found distance from reference centre "
+		   << d << std::endl;
+	 status = 1;
+      }
+   }
+
+   return status;
+} 
+
 
 #endif // BUILT_IN_TESTING
+

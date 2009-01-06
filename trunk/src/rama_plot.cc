@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2005 by Bernhard Lohkamp
+ * Copyright 2009 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -352,6 +353,11 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    // 
    r_non_gly_pro.init(clipper::Ramachandran::NonGlyPro);
    r_non_gly_pro.set_thresholds(level_prefered, level_allowed);
+}
+
+void
+coot::rama_plot::set_n_diffs(int nd) {
+   n_diffs = nd;
 }
 
 void 

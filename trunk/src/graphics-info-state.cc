@@ -1,7 +1,7 @@
 /* src/graphics-info-state.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
- * Copyright 2007 by The University of Oxford.
+ * Copyright 2007, 2009 by The University of Oxford.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -545,9 +545,16 @@ graphics_info_t::save_state_data_and_models(short int lang_flag) const {
    std::vector<std::string> v;
    for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].has_map() || molecules[i].has_model()) {
-	 std::string s = ";;molecule-info: ";
-	 s += molecules[i].name_for_display_manager();
-	 v.push_back(s);
+	 // don't tell us that there are molecules in the state file
+	 // that can't be read from a file (i.e. if
+	 // save_state_command_strings() is blank).
+	 std::vector <std::string> command_strings =
+	    molecules[i].save_state_command_strings();
+	 if (command_strings.size() > 0) {
+	    std::string s = ";;molecule-info: ";
+	    s += molecules[i].name_for_display_manager();
+	    v.push_back(s);
+	 }
       }
    }
 

@@ -2,7 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
- * Copyright 2008 The University of Oxford
+ * Copyright 2008, 2009 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,11 +44,12 @@
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "coot-coord-utils.hh"
+
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
 #include "wligand.hh"
-
 
 /*  ----------------------------------------------------------------------- */
 /*                  ligand overlay                                          */
@@ -1384,3 +1385,48 @@ on_monomer_lib_search_results_button_press (GtkButton *button,
 //       for (int i=0; i<atoms.size(); i++) {
 // 	 std::cout << "range mol atom: " << atoms[i]->pos.format() << std::endl;
 //       }
+
+
+void add_dipole(int imol, const char* chain_id, int res_no, const char *ins_code) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t rs(chain_id, res_no, ins_code);
+      graphics_info_t g;
+      g.molecules[imol].add_dipole(rs, *g.Geom_p());
+
+   }
+   graphics_draw();
+}
+
+
+void delete_dipole(int imol, int dipole_number) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].delete_dipole(dipole_number);
+   }
+   graphics_draw();
+}
+
+#ifdef USE_GUILE
+SCM non_standard_residue_names_scm(int imol) {
+
+   SCM r = SCM_EOL;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      std::vector<std::string> resnames =
+	 coot::util::non_standard_residue_types_in_molecule(mol);
+      r = generic_string_vector_to_list_internal(resnames);
+   }
+
+   return r;
+} 
+#endif
+
+#ifdef USE_PYTHON
+PyObject *non_standard_residue_names_py(int imol) {
+
+   PyObject *o = NULL;
+
+   return o;
+}
+#endif

@@ -1,11 +1,12 @@
 /* coords/Bond_lines.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+ * Copyright 2009 by the University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -1863,7 +1864,10 @@ coot::my_atom_colour_map_t
 Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAtom,
 						const char *backbone_atom_id,
 						coot::my_atom_colour_map_t atom_colour_map,
-						float min_dist, float max_dist, int bond_colour_type) { 
+						float min_dist, float max_dist, int bond_colour_type) {
+
+   std::cout << "DEBUG:: do_Ca_or_P_bonds_internal with bond_colour_type "
+	     << bond_colour_type << std::endl;
 
    PPCAtom Ca_selection = NULL; 
    int n_ca;
@@ -1958,26 +1962,39 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 			segid2 = (Ca_selection[ contact[i].id2 ]->GetChainID());
 
 			if (segid1 == segid2) { 
-			   // hack! FIXME
-			   if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT)
-			      col = atom_colour(Ca_selection[ contact[i].id1 ], bond_colour_type);
-			   else
-			      if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
-				 if (atom_colours_udd > 0) {
-				    realtype f;
-				    if (Ca_selection[contact[i].id1]->GetUDData(atom_colours_udd, f) == UDDATA_Ok) {
-				       col = atom_colour_map.index_for_rainbow(f);
+
+			   if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
+
+			      coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+			      col = atom_colour(Ca_selection[ contact[i].id1 ],
+						coot::COLOUR_BY_B_FACTOR);
+			      addBond(col, ca_1, bond_mid_point);
+			      col = atom_colour(Ca_selection[ contact[i].id2 ],
+						coot::COLOUR_BY_B_FACTOR);
+			      addBond(col, bond_mid_point, ca_2);
+			      
+			   } else {
+			      
+			      if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT)
+				 col = atom_colour(Ca_selection[ contact[i].id1 ], bond_colour_type);
+			      else
+				 if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
+				    if (atom_colours_udd > 0) {
+				       realtype f;
+				       if (Ca_selection[contact[i].id1]->GetUDData(atom_colours_udd, f) == UDDATA_Ok) {
+					  col = atom_colour_map.index_for_rainbow(f);
+				       } else {
+					  col = 0;
+				       }
 				    } else {
 				       col = 0;
 				    }
 				 } else {
-				    col = 0;
+				    col = atom_colour_map.index_for_chain(segid1);
 				 }
-			      } else {
-				 col = atom_colour_map.index_for_chain(segid1);
-			      }
-			   bonds_size_colour_check(col);
-			   addBond(col, ca_1, ca_2);
+			      bonds_size_colour_check(col);
+			      addBond(col, ca_1, ca_2);
+			   }
 			}
 		     }
 		  }
@@ -2192,9 +2209,10 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 void
 Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
 					       float min_dist, float max_dist, 
-					       int atom_colour_type) { 
-   // tmp.  FIXME
-   // atom_colour_type = coot::COLOUR_BY_RAINBOW;
+					       int atom_colour_type) {
+
+   std::cout << "do_Ca_plus_ligands_bonds with atom_colour_type "
+	     << atom_colour_type << std::endl;
    
    CModel *model_p = SelAtom.mol->GetModel(1);
    if (model_p) {

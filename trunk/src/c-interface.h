@@ -2,7 +2,7 @@
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
- * Copyright 2007 by The University of Oxford
+ * Copyright 2007, 2008, 2009 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -1994,7 +1994,7 @@ int set_atom_attribute(int imol, const char *chain_id, int resno, const char *in
 
 /*! \brief set a string attibute to the atom with the given specifier.
 
-Attributes can be "atom-name", "alt-conf" or "element". */
+Attributes can be "atom-name", "alt-conf", "element" or "segid". */
 int set_atom_string_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, const char *attribute_value);
 
 /*! \brief set lots of atom attributes at once by-passing the rebonding and redrawing of the above 2 functions  */
@@ -2275,6 +2275,11 @@ void update_go_to_atom_from_current_position();
 /*  read the widget values and apply them to the graphics */
  
 int apply_go_to_atom_values(GtkWidget * window);
+
+
+/* moving gtk functionn out of build functions, delete_atom() updates
+   the go to atom atom list on deleting an atom  */
+void update_go_to_atom_residue_list(int imol);
 
 /*  return an atom index */
 /*! \brief what is the atom index of the given atom? */
@@ -2622,6 +2627,9 @@ void run_python_script(const char *filename);
 void do_regularize(short int state); /* pass 0 for off (unclick togglebutton) */
 void do_refine(short int state);
 
+/* and a gui function used by those functions */
+void do_regularize_kill_delete_dialog();
+
 /*! \brief add a restraint on peptides to make them planar 
 
   This adds a 5 atom restraint that includes both CA atoms of the
@@ -2677,7 +2685,7 @@ void do_torsions_toggle(GtkWidget *button);
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
-SCM secret_jed_refine_func(int imol, SCM r); /* to be renamed later. */
+SCM refine_residues_scm(int imol, SCM r); /* to be renamed later. */
 #endif
 #endif
 
@@ -3030,6 +3038,15 @@ void handle_cif_dictionary(const char *filename);
 void read_cif_dictionary(const char *filename);
 int write_connectivity(const char* monomer_name, const char *filename);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM non_standard_residue_names_scm(int imol);
+#endif
+#ifdef USE_PYTHON
+PyObject *non_standard_residue_names_py(int imol);
+#endif
+#endif
+
 /* Use the environment variable COOT_REFMAC_LIB_DIR to find cif files
    in subdirectories and import them all. */
 void import_all_refmac_cifs(); 
@@ -3141,6 +3158,12 @@ void gln_asn_b_factor_outliers_py(int imol);
 
 /*! \brief Ramachandran plot for molecule number imol */
 void do_ramachandran_plot(int imol);
+
+/*! \brief set the number of biggest difference arrows on the Kleywegt
+  plot.  */
+void set_kleywegt_plot_n_diffs(int n_diffs);
+
+
 /*  the the menu */
 void add_on_rama_choices();
 
@@ -3597,6 +3620,8 @@ void graphics_to_sec_struct_bonds_representation(int imol);
 void graphics_to_rainbow_representation(int imol);
 /*! \brief draw molecule number imol coloured by B-factor */
 void graphics_to_b_factor_representation(int imol);
+/*! \brief draw molecule number imol coloured by B-factor, CA + ligands */
+void graphics_to_b_factor_cas_representation(int imol);
 /*! \brief draw molecule number imol coloured by occupancy */
 void graphics_to_occupancy_representation(int imol);
 /*! \brief what is the bond drawing state of molecule number imol  */
@@ -3845,6 +3870,9 @@ short int delete_item_widget_keep_active_on();
    callback, so this wrapper does it */
 GtkWidget *wrapped_create_delete_item_dialog();
 
+/* utility function, moving widget work out of c-interface-build.cc */
+void delete_object_handle_delete_dialog(short int do_delete_dialog);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -3856,6 +3884,7 @@ void do_rot_trans_setup(short int state);
 void do_rot_trans_adjustments(GtkWidget *dialog);
 void rot_trans_reset_previous();
 void set_rotate_translate_zone_rotates_about_zone_centre(int istate);
+void set_rot_trans_object_type(short int rt_type); /* zone, chain, mol */
 
 /*  ----------------------------------------------------------------------- */
 /*                  cis <-> trans conversion                                */
@@ -3957,9 +3986,7 @@ float auto_fit_best_rotamer(int resno,
    function). 0 off, 1 on.*/
 void set_auto_fit_best_rotamer_clash_flag(int i); /*  */
 /* currently stub function only */
-float rotamer_score(int resno, const char *insertion_code,
-		    const char *chain_id, int imol_coords, int imol_map,
-		    int rotamer_number); 
+float rotamer_score(int imol, const char *chain_id, int res_no, const char *insertion_code);
 void setup_auto_fit_rotamer(short int state);	/* called by the Auto Fit button call
 				   back, set's in_auto_fit_define. */
 
@@ -4136,6 +4163,8 @@ void reset_b_factor_residue_range(int imol, const char *chain_id, int ires1, int
 /*! \{ */
 
 void place_atom_at_pointer();
+/* which calls the following gui function (if using non dummies) */
+void place_atom_at_pointer_by_window(); 
 void place_typed_atom_at_pointer(const char *type);
 
 /* ! \brief set pointer atom is a water (HOH) */
@@ -4657,7 +4686,8 @@ int new_molecule_by_atom_selection(int imol, const char* atom_selection);
   within the given radius (r) of the given position.
 
 @return the new molecule number, -1 means an error. */
-int new_molecule_by_sphere_selection(int imol, float x, float y, float z, float r);
+int new_molecule_by_sphere_selection(int imol, float x, float y, float z, 
+				     float r, short int allow_partial_residues);
 
 
 /*  ----------------------------------------------------------------------- */
@@ -5105,6 +5135,15 @@ char *get_atom_colour_from_mol_no(int imol, const char *element);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
+/*                  Dipoles                                                 */
+/*  ----------------------------------------------------------------------- */
+/*! \name Dipoles */
+/* \{ */
+void add_dipole(int imol, const char* chain_id, int res_no, const char *ins_code); 
+void delete_dipole(int imol, int dipole_number);
+/* \} */
+
+/*  ----------------------------------------------------------------------- */
 /*                  Laplacian                                               */
 /*  ----------------------------------------------------------------------- */
 /*! \name Aux functions */
@@ -5171,6 +5210,11 @@ int place_text(const char*text, float x, float y, float z, int size);
 /*! \brief Remove text */
 void remove_text(int text_handle);
 /* \} */
+
+/*  ----------------------------------------------------------------------- */
+/*                  experimental                                      */
+/*  ----------------------------------------------------------------------- */
+void nsv(int imol);
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS

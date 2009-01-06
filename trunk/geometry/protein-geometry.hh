@@ -1,7 +1,7 @@
 /* geometry/protein-geometry.cc
  * 
  * Copyright 2004, 2005 The University of York
- * Copyright 2008 The University of Oxford
+ * Copyright 2008, 2009 The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -338,7 +338,6 @@ namespace coot {
       std::string type_symbol;
       std::string type_energy;
       std::pair<bool, float> partial_charge;
-      short int partial_charge_is_valid_flag;
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
       dict_atom(const std::string &atom_id_in,

@@ -1,3 +1,24 @@
+/* src/gtk-manual.hh
+ * 
+ * Copyright 2002, 2003, 2004, 2005 by The University of York
+ * Copyright 2008, 2009 by The University of Oxford
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #ifndef GTK_MANUAL_H
 #define GTK_MANUAL_H
@@ -142,6 +163,7 @@ void render_as_ca_plus_ligands_sec_str_bonds_button_select(GtkWidget *item, GtkP
 void render_as_sec_struct_bonds_button_select(GtkWidget *item, GtkPositionType pos);
 void render_as_rainbow_representation_button_select(GtkWidget *item, GtkPositionType pos);
 void render_as_b_factor_representation_button_select(GtkWidget *item, GtkPositionType pos);
+void render_as_b_factor_cas_representation_button_select(GtkWidget *item, GtkPositionType pos);
 void render_as_occupancy_representation_button_select(GtkWidget *item, GtkPositionType pos);
 GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade, 
 					 const gchar *name, 
@@ -199,9 +221,11 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
 
 /* ------------------------------------------------------------------------------ */
-/*                                                            */
+/*  manual splash screen                                                          */
 /* ------------------------------------------------------------------------------ */
 
+GtkWidget* create_splash_screen_window_for_file(const char *file_name);
+   
 
 
 

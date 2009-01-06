@@ -1,7 +1,7 @@
 /* coot-utils/coot-coord-utils.hh
  * 
  * Copyright 2006, 2007, by The University of York
- * Copyright 2008 by The University of Oxford
+ * Copyright 2008, 2009 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -175,6 +175,31 @@ namespace coot {
 	 }
 	 return 0;
       }
+      bool operator<(const residue_spec_t &matcher) const{
+	 if (matcher.chain == chain) {
+	    if (matcher.resno == resno) {
+	       if (matcher.insertion_code == insertion_code) {
+		  return 0; 
+	       } else {
+		  if (matcher.insertion_code < insertion_code)
+		     return 0;
+		  else
+		     return 1;
+	       }
+	    } else {
+	       if (matcher.resno < resno)
+		  return 0;
+	       else
+		  return 1;
+	    } 
+	 } else {
+	    if (matcher.chain < chain)
+	       return 0;
+	    else
+	       return 1;
+	 } 
+	 return 0;
+      } 
 
       friend std::ostream& operator<< (std::ostream& s, const residue_spec_t &spec);
    };
@@ -265,6 +290,25 @@ namespace coot {
 
    bool is_member_p(const std::vector<CResidue *> &v, CResidue *a);
 
+
+   // Throw an exception if there is no consistent seg id for the
+   // atoms in the given residue.
+   std::string residue_atoms_segid(CResidue *residue_p);
+
+   // Throw an exception if there is no consistent seg id for the
+   // atoms in the given chain.
+   std::string chain_atoms_segid(CChain *chain_p);
+
+   // Use the above function the get the segid and insert it into all
+   // the atoms of receiver.
+   bool copy_segid(CResidue *provider, CResidue *receiver);
+
+   // residues are in increasing number order (if they are not, this
+   // causes the residue selection of mmdb to fail at the misplaced
+   // residue).
+   //
+   bool residues_in_order_p(CChain *chain_p);
+
    // return residue specs for residues that have atoms that are
    // closer than radius Angstroems to any atom in the residue
    // specified by res_in.
@@ -275,6 +319,10 @@ namespace coot {
 
    std::vector<CResidue *> residues_near_residue(CResidue *res_ref, CMMDBManager *mol,
 						 float radius);
+
+   std::vector<CResidue *> residues_near_position(const clipper::Coord_orth &pt,
+						  CMMDBManager *mol,
+						  double radius);
 
    // Return a pair, the bool of which is set if the float is sensible.
    // 
@@ -539,6 +587,11 @@ namespace coot {
       std::vector<std::string> get_residue_alt_confs(CResidue *res);
 
       std::vector<std::string> residue_types_in_molecule(CMMDBManager *mol);
+      // non-standard means not one of the standard protein amino acid
+      // residues.
+      std::vector<std::string> non_standard_residue_types_in_molecule(CMMDBManager *mol);
+      // a utility function 
+      std::vector<std::string> standard_residue_types(); 
       std::vector<std::string> residue_types_in_chain(CChain *chain_p);
       std::vector<std::string> chains_in_molecule(CMMDBManager *mol);
       int number_of_residues_in_molecule(CMMDBManager *mol);

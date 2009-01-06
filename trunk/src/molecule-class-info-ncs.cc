@@ -3,6 +3,7 @@
  * Copyright 2004, 2005, 2006, 2007 by The University of York
  * Author: Paul Emsley
  * Copyright 2007 by The University of York
+ * Copyright 2009 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -24,6 +25,8 @@
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
+
+#include <stdexcept>
 
 #include "Cartesian.h"
 #include "mmdb_manager.h"
@@ -1174,6 +1177,15 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
       make_backup();
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
 
+      std::string old_seg_id_for_chain_atoms;
+      bool use_old_seg_id = 0;
+      try {
+	 old_seg_id_for_chain_atoms = coot::chain_atoms_segid(to_chain);
+	 use_old_seg_id = 1;
+      }
+      catch (std::runtime_error mess) {
+      }
+      
       // Don't do a selection here, we have the (from) chain already.
       int n_from_chain_residues = from_chain->GetNumberOfResidues();
       for (int ifc=0; ifc<n_from_chain_residues; ifc++) {
@@ -1239,6 +1251,8 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
 		  if (from_residue_atoms[iat]) { 
 		     at->Copy(from_residue_atoms[iat]);
 		     to_residue->AddAtom(at);
+		     if (use_old_seg_id)
+			strcpy(at->segID, old_seg_id_for_chain_atoms.c_str());
 		  } else {
 		     std::cout << "ERROR:: Trapped error, null from_residue_atoms "
 			       << iat << std::endl;
@@ -1268,12 +1282,16 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
 	       
 	       to_residue = coot::util::deep_copy_this_residue(from_residue, "", 1);
 
-	       int serial_number = find_serial_number_for_insert(to_residue->GetSeqNum(),
-								 to_chain->GetChainID());
-	       if (serial_number != -1) {
-		  to_chain->InsResidue(to_residue, serial_number);
+	       std::pair<int, CResidue *> serial_number =
+		  find_serial_number_for_insert(to_residue->GetSeqNum(),
+						to_chain->GetChainID());
+	       if (serial_number.first != -1) {
+		  to_chain->InsResidue(to_residue, serial_number.first);
+		  coot::copy_segid(serial_number.second, to_residue);
 	       } else {
+		  CResidue *res = last_residue_in_chain(to_chain);
 		  to_chain->AddResidue(to_residue);
+		  coot::copy_segid(res, to_residue);
 	       }
 	       atom_sel.mol->FinishStructEdit();
 	    }

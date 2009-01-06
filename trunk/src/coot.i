@@ -17,6 +17,7 @@
 #include "cc-interface.hh"
 #include "c-interface-database.hh"
 #include "c-interface-python.hh"
+#include "manipulation-modes.hh"
 %}
 
 
@@ -26,3 +27,5 @@
 %include "cc-interface.hh"
 %include "c-interface-database.hh"
 %include "c-interface-python.hh"
+%include "manipulation-modes.hh"
+

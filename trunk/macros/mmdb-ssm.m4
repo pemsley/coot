@@ -33,7 +33,7 @@ AC_MSG_CHECKING([for SSMLib])
 if test x$with_ssmlib_prefix != x; then
 
    MMDBSSM_CXXFLAGS="-DHAVE_SSMLIB"
-   MMDBSSM_LIBS="-L$with_ssmlib_prefix/lib -lssm"
+   MMDBSSM_LIBS="-L$with_ssmlib_prefix/$acl_libdirstem -lssm"
 
 ac_mmdb_dirs='
 .

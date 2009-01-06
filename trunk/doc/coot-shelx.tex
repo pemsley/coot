@@ -2,8 +2,9 @@
 
 \usepackage{epsf}
 \usepackage{a4}
-\usepackage{palatino}
-\usepackage{euler}
+
+%\usepackage{palatino}
+%\usepackage{euler}
 
 \newcommand {\atilde} {$_{\char '176}$} % tilde(~) character
 % I thought tilde was $\sim$...
@@ -29,11 +30,11 @@ basics of SHELXL refinement\footnote{If this is not the case you might
   read:\\http://shelx.uni-ac.gwdg.de/SHELX/shelx.pdf and
   http://shelx.uni-ac.gwdg.de/SHELX/pn1a.htm}, and would like to use
 Coot as a model building and validation tool between SHELXL refinement
-cycles. This is, however, no substitute for the classical Coot
+cycles. This is, however, no substitute for the standard Coot
 tutorial\footnote{http://www.ysbl.york.ac.uk/$\sim$emsley/coot/tutorial-2.pdf}.
 
 Some of the SHELXL-related functionalities of Coot will only work in
-version 0.4.0-pre or higher.
+version 0.4 or higher.
 
 \section{A SHELXL Project}
 Refinement in SHELXL requires two files:
@@ -67,22 +68,21 @@ However, not all SHELX commands are interpreted.
 \item {\bf CELL, LATT and SYMM cards} are used to determine the cell
   and space group when reading \texttt{ins/res}.
 
-\item {\bf Atomic coordinates} are "unshelxed" upon read-in: the
-  single protein chain is split up based on gaps in residue number. It
-  is assumed that a gap larger than 21 indicates the beginning of a
-  new chain, where a new chain identifier is assigned. Residues are
-  not renumbered, i.e. residue numbers correspond to those in the
-  SHELX coordinate
+\item {\bf Atomic coordinates} are reformated upon as they are read:
+  the single protein chain is split up based on gaps in residue
+  number. It is assumed that a gap larger than 21 indicates the
+  beginning of a new chain, where a new chain identifier is assigned.
+  Residues are not renumbered, \emph{i.e.} residue numbers correspond
+  to those in the SHELX coordinate
   file. % Is 21 the limit really? Would be an odd number to
         % choose. Actually, it would be better to check for gap AND a
         % 1000 step in residue numbers. A 1000 shift is the classical
         % way of treating chains, at least this is what SHELXPRO
         % suggests.
 
-  By default, hydrogens are not displayed for protein molecules even
-  if they are present in \texttt{ins} or \texttt{res}. They can be set
-  to be visible in \textsf{Edit$\to$Bond Parameters\ldots}
-%% Why are symmetry equivalent hydrogens visible then?
+  By default, hydrogens are displayed for protein molecules if they
+  are present in \texttt{ins} or \texttt{res}. They can be set to be
+  invisible in \textsf{Edit$\to$Bond Parameters\ldots}
 
 \item {\bf PART cards} are converted to alternate conformation
   identifiers (up to four alternate conformations). Negative PART
@@ -186,14 +186,13 @@ automatically after refinement has finished.
 \section{03srv}
 %% How do we get the files i.e. who's going to host them?
 
-In the small molecular world, at least in most cases, it is not
-necessary to display electron density maps, as they can be represented
-by a simple peaklist quite precisely. However, visual examination of
-especially difference density maps can reveal subtle errors in
-refinement and can prove quite educational. So, suppose we have a
-small molecule project in some middle stage of refinement and wish to
-have a glance of the electron density map and maybe fix problematic
-parts of the structure.
+In the small molecular world, it is generally not necessary to display
+electron density maps, as they can be represented by a simple peaklist
+quite precisely. However, visual examination of especially difference
+density maps can reveal subtle errors in refinement and can prove
+quite educational. So, suppose we have a small molecule project in
+some middle stage of refinement and wish to have a glance of the
+electron density map and maybe fix problematic parts of the structure.
 
 \subsection{Reading the project}
 \begin{itemize}

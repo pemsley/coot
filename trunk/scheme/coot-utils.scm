@@ -2,7 +2,7 @@
 ;;;; Copyright 2000 by Paul Emsley
 ;;;; Copyright 2004, 2005, 2006, 2007 by The University of York
 ;;;; Copyright 2008 by The University of York
-;;;; Copyright 2008 by The University of Oxford
+;;;; Copyright 2008, 2009 by The University of Oxford
 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -53,6 +53,9 @@
 (define get-refmac-sad-atom-info get-refmac-sad-atom-info-scm)
 ;; fix typo
 (define set-find-hydrogen-torsion set-find-hydrogen-torsions)
+(define residues-near-position residues-near-position-scm)
+(define non-standard-residue-names non-standard-residue-names-scm)
+(define refine-residues refine-residues-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a
@@ -70,9 +73,10 @@
   `(begin
      (let ((b-state (backup-state ,imol)))
        (turn-off-backup ,imol)
-       (,func)
-       (if (= 1 b-state)
-	   (turn-on-backup ,imol)))))
+       (let ((v ,func))
+	 (if (= 1 b-state)
+	     (turn-on-backup ,imol))
+	 v)))) ;; return the value generated from running the function
 
 ;; Macro to tidy up a set of functions to be run with automatic
 ;; accepting of the refinement
@@ -112,10 +116,23 @@
 ;   (format #t "tum tee tumm...~%")
 ;   (format #t "tra la la...~%"))
 
-
 (defmacro print-var (var)
   (let ((s (format #f "~s" var)))
     `(format #t "DEBUG:: ~a is ~s~%" ,s ,var)))
+
+;; set this to a function accepting two argument (the molecule number
+;; and the manipulation mode) and it will be run after a model
+;; manipulation.
+;;
+;; The manipulation mode will be one of (MOVING-ATOMS), (DELETED) or
+;; (MUTATED) and these can be tested with "=".
+;;
+;; e.g.
+;;
+;; (if (= mode (DELETED))
+;      (display "Something was deleted"))
+;; 
+(define post-manipulation-hook #f)
 
 ;; Return a list of molecule numbers (closed and open) The elements of
 ;; the returned list need to be tested against
@@ -1195,18 +1212,6 @@
 ;; 
 (define (atom-specs imol chain-id resno ins-code atom-name alt-conf)
   (atom-info-string imol chain-id resno ins-code atom-name alt-conf))
-
-
-;; backups wrapper: doesn't work currently, I think.  More cleverness required.
-(define (with-no-backups imol thunk)
-
-  (let ((backup-mode (backup-state imol)))
-    
-    (turn-off-backup imol)
-    (lambda ()
-      (thunk))
-    (if (= backup-mode 1)
-	(turn-on-backup imol))))
 
 
 ;; return a guess at the map to be refined (usually called after

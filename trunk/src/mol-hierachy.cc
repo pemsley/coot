@@ -1,4 +1,15 @@
-	 clipper::HKL_info::HKL_reference_index hri;
+
+
+   int n_residue_atoms;
+   PPCAtom residue_atoms;
+
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      CAtom *at = residue_atoms[iat];
+   }
+
+
+         clipper::HKL_info::HKL_reference_index hri;
 	 for (hri=fphidata.first(); !hri.last(); hri.next()) {
 	    std::cout << " MTZ fphi: " << hri.hkl().h() << " "
 		      << hri.hkl().k() << " " << hri.hkl().l() << " "

@@ -1,6 +1,7 @@
 /* src/graphics-info-mutate.cc
  * 
  * Copyright 2004, 2005 by The University of York
+ * Copyright 2008, 2009 by The University of Oxford.
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -59,6 +60,7 @@
 #include "coot-sysdep.h"
 
 #include "graphics-info.h"
+#include "manipulation-modes.hh"
 
 // #include "coot-utils.hh"
 
@@ -210,6 +212,8 @@ graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_
 
 	 // This is the wrong function, isn't it?
 	 update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
+
+	 run_post_manipulation_hook(mutate_auto_fit_residue_imol, MUTATED);
 	    
       } else { 
 	    
@@ -221,6 +225,7 @@ graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_
       molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type,
 					    do_stub_flag); 
       update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
+      run_post_manipulation_hook(mutate_auto_fit_residue_imol, MUTATED);
 
    }
    graphics_draw();
@@ -233,6 +238,7 @@ graphics_info_t::do_mutation_auto_fit(const std::string &residue_type,
    molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type,
 					 do_stub_flag); 
    graphics_draw();
+   run_post_manipulation_hook(mutate_residue_imol, MUTATED);
 }
 
 

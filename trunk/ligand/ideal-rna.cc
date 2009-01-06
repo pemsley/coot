@@ -1,6 +1,7 @@
 /* ligand/ideal-rna.cc
  * 
  * Copyright 2006 The University of York
+ * Copyright 2009 by the University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -183,7 +184,7 @@ coot::ideal_rna::n_turns(int nbase, int n_in_chain, coot::ideal_rna::form_t form
 
 }
 
-short int
+bool
 coot::ideal_rna::is_valid_base(char base) const {
 
    if (base == 'g') {
