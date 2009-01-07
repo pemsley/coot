@@ -45,6 +45,7 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "coot-coord-utils.hh"
+#include "peak-search.hh"
 
 #ifdef USE_PYTHON
 #include "Python.h"
@@ -1430,3 +1431,40 @@ PyObject *non_standard_residue_names_py(int imol) {
    return o;
 }
 #endif
+
+
+#ifdef USE_PYTHON 
+PyObject *map_peaks_py(int imol_map, float n_sigma) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_map_molecule(imol_map)) {
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      int do_positive_levels_flag = 1;
+      int also_negative_levels_flag = 0;
+      coot::peak_search ps(xmap);
+      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
+	 ps.get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
+      r = PyList_New(peaks.size());
+      for (unsigned int i=0; i<peaks.size(); i++) {
+	 PyObject *coords = PyList_New(3);
+	 PyList_SetItem(coords, 0, PyFloat_FromDouble(peaks[i].first.x()));
+	 PyList_SetItem(coords, 1, PyFloat_FromDouble(peaks[i].first.y()));
+	 PyList_SetItem(coords, 2, PyFloat_FromDouble(peaks[i].first.z()));
+	 PyList_SetItem(r, i, coords);
+      }
+   } 
+   return r;
+}
+
+#endif 
+#ifdef USE_GUILE
+SCM map_peaks_scm(int imol_map, float n_sigma) {
+
+   SCM r = SCM_BOOL_F;
+
+
+   return r;
+
+} 
+#endif 

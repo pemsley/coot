@@ -3141,6 +3141,16 @@ GtkWidget *wrapped_create_generate_diff_map_peaks_dialog();
 void gln_asn_b_factor_outliers(int imol);
 #ifdef USE_PYTHON
 void gln_asn_b_factor_outliers_py(int imol);
+
+#ifdef __cplusplus 
+#ifdef USE_PYTHON 
+PyObject *map_peaks_py(int imol_map, float n_sigma);
+#endif 
+#ifdef USE_GUILE
+SCM map_peaks_scm(int imol_map, float n_sigma);
+#endif 
+#endif 
+
 #endif // USE_PYTHON
 
 /* \} */
