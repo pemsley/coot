@@ -27,6 +27,7 @@
 // when this is working.
 
 #include <vector>
+#include <iostream>
 #include <algorithm>
 #include <map>
 
@@ -75,7 +76,7 @@ exptl::nsv::nsv(CMMDBManager *mol,
    GtkWidget *top_lev = gtk_dialog_new();
    gtk_object_set_data(GTK_OBJECT(top_lev), "nsv_dialog", top_lev);
    GtkWidget *vbox = GTK_DIALOG(top_lev)->vbox;
-   canvas = GNOME_CANVAS(gnome_canvas_new());
+   canvas = GTK_CANVAS(gnome_canvas_new());
    GtkWidget *name_label = gtk_label_new(molecule_name.c_str());
    gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, FALSE, 1);
    GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
@@ -203,7 +204,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol) {
 	 scroll_height = canvas_y_size - 100;
 	 scroll_width = canvas_x_size - 110;
    
-	 gnome_canvas_set_scroll_region(canvas, left_limit, upper_limit,
+	 gtk_canvas_set_scroll_region(canvas, left_limit, upper_limit,
 					scroll_width, scroll_height);
 
 

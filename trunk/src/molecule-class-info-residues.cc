@@ -21,7 +21,10 @@
  */
 
 // Must include these headers to get molecule_class_info_t.h to parse.
-// 
+//
+
+#include <string>
+
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"
 #include "Cartesian.h"
