@@ -7232,6 +7232,7 @@ Thu Sep  4 06:41:12 JST 2008
 
     Try probe clashes on a protein ligand complex.
 
+* Done.
 
 ---
 Wed Sep 10 13:43:57 BST 2008
@@ -7422,8 +7423,17 @@ Mon Oct  6 13:56:44 BST 2008
    logs. Problems! overlapping dependencies, test the tar file and
    transfer it - many fixes to sort out.
 
-----
-Wed Oct  8 14:11:40 BST 2008
+   Coot builds on 32 and 64 bit systems.  In which directory should
+   the libraries go?  By convention, 32 bit libs in prefix/lib and 64
+   bit libs in prefix/lib64.  How is this sorted out in the configure?
+   Buy using an autoconf macro AC_LIB_PREPARE_MULTILIB.  Where is this
+   provided? In a recent version of gettext (more recent that fink
+   currently provides).  So on every build system we have to get (e.g
+   from the pre-build package e.g. Ubuntu intrepid) or downlaod and
+   install gettext manually and point the autogen (that run aclocal and
+   autoconf) to use the macros in the files installed from gettext.
+
+---- Wed Oct 8 14:11:40 BST 2008
 
    coot-shelx-ins.cc
    // 20081008 allow for a site occupancy factor on the PART line
