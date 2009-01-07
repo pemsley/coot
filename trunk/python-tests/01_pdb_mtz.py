@@ -273,7 +273,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    global imol_rnase
 	    imol_sphere = new_molecule_by_sphere_selection(imol_rnase, 
 							   24.6114959716797, 24.8355808258057, 7.43978214263916,
-							   3.6)
+							   3.6, 1)
 
 	    self.failUnless(valid_model_molecule_qm(imol_sphere), "Bad sphere molecule")
 	    n_atoms = 0
