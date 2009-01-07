@@ -27,6 +27,8 @@
 
 #include <GL/glut.h> // needed for GLUT_ELAPSED_TIME
 
+#include "coot-sysdep.h"
+
 #include "clipper/core/ramachandran.h"
 
 #include "coot-coord-utils.hh"
