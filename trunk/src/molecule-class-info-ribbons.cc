@@ -184,10 +184,7 @@ void
 molecule_class_info_t::set_ribbon_param(const std::string &name,
 					int value) {
    
-  CParamsManager params;   
-
-  params.SetInt(name.c_str(), value);
-  Displayobject Ribbons;
+  ribbon_params.SetInt(name.c_str(), value);
   make_ribbons(); //refresh
   graphics_info_t::graphics_draw();
 
@@ -198,7 +195,6 @@ molecule_class_info_t::set_ribbon_param(const std::string &name,
 					float value) {
 
    ribbon_params.SetFloat(name.c_str(), value);
-   Displayobject Ribbons;
    make_ribbons(); //refresh
    graphics_info_t::graphics_draw();
 
@@ -209,7 +205,6 @@ molecule_class_info_t::set_global_ribbon_param(const std::string &name,
 					       int value) {
 
   ribbon_global_params.SetInt(name.c_str(), value);
-  Displayobject Ribbons;
   make_ribbons(); // refresh?!
   graphics_info_t::graphics_draw();
 

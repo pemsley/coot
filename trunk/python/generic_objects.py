@@ -50,14 +50,14 @@ def generic_object_with_name(obj_name):
 #
 def generic_objects_gui():
 
-  pygtk_flag = False
-  try:
-    import pygtk
-    pygtk.require("2.0")
-    import gtk, pango
-    pygtk_flag = True
-  except:
-    print "BL WARNING:: no pygtk2. Function wont work!!!"
+    pygtk_flag = False
+    try:
+      import pygtk
+      pygtk.require("2.0")
+      import gtk, pango
+      pygtk_flag = True
+    except:
+      print "BL WARNING:: no pygtk2. Function wont work!!!"
 	  
     if (pygtk_flag):
       # Now we run the gui
