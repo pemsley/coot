@@ -76,7 +76,7 @@ exptl::nsv::nsv(CMMDBManager *mol,
    GtkWidget *top_lev = gtk_dialog_new();
    gtk_object_set_data(GTK_OBJECT(top_lev), "nsv_dialog", top_lev);
    GtkWidget *vbox = GTK_DIALOG(top_lev)->vbox;
-   canvas = GTK_CANVAS(gnome_canvas_new());
+   canvas = GTK_CANVAS(gtk_canvas_new());
    GtkWidget *name_label = gtk_label_new(molecule_name.c_str());
    gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, FALSE, 1);
    GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
