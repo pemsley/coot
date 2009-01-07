@@ -81,6 +81,8 @@
 
 #include "manipulation-modes.hh"
 
+#ifdef USE_GUILE
+#include <guile/gh.h>
 #if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 // no fix up needed 
 #else    
@@ -89,7 +91,7 @@
 #define scm_to_double  gh_scm2double
 #define  scm_is_true gh_scm2bool
 #endif // SCM version
-
+#endif 
 
 
 // A few non-class members - should be somewhere else, I guess.
