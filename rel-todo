@@ -164,6 +164,9 @@
    o find-waters --mapin 3bwp.map ... fails to run (silently) but
      using --hklin, --f and --phi worked. ::: 1
 
+   o Make sure that .coot.py keybindings appear in the keybindings
+     GUI. ::: 1
+
    o Art authors: 
        world in connect-to-world is "cartoon globe" by lunanaut
        computer mouse for scroll wheel by crispy.
