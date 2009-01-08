@@ -3136,22 +3136,24 @@ void clear_diff_map_peaks();
 GtkWidget *wrapped_create_generate_diff_map_peaks_dialog();
 
 /*! \brief Make a gui for GLN adn ASN B-factor outiers, compairing the
-  O and N temperature factore idfference to the distribution of
+  O and N temperatur factors difference to the distribution of
   temperature factors from the other atoms.  */
 void gln_asn_b_factor_outliers(int imol);
 #ifdef USE_PYTHON
 void gln_asn_b_factor_outliers_py(int imol);
+#endif /*  USE_PYTHON */ 
 
 #ifdef __cplusplus 
 #ifdef USE_PYTHON 
 PyObject *map_peaks_py(int imol_map, float n_sigma);
-#endif 
+PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y, float z, float radius);
+#endif /*  USE_PYTHON */ 
 #ifdef USE_GUILE
 SCM map_peaks_scm(int imol_map, float n_sigma);
-#endif 
+SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, float z, float radius);
 #endif 
 
-#endif // USE_PYTHON
+#endif /* __cplusplus  */
 
 /* \} */
 

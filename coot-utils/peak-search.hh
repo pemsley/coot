@@ -53,6 +53,8 @@ namespace coot {
 			     const clipper::Coord_orth &co, float atom_radius) const;
       std::vector<clipper::Coord_orth>
       make_sample_protein_coords(CMMDBManager *mol) const;
+      std::vector<clipper::Coord_orth>
+      make_sample_protein_coords(CMMDBManager *mol, int every_n) const;
       clipper::Coord_orth
       move_point_close_to_protein(const clipper::Coord_orth &pt,
 				  const std::vector<clipper::Coord_orth> &protein,

@@ -37,6 +37,9 @@
 (define residues-near-position-scm #f)
 (define non-standard-residue-names-scm #f)
 (define refine-residues-scm #f)
+(define map-peaks-scm #f)
+(define map-peaks-near-point-scm #f)
+
 
 (load "filter.scm")
 (load "coot-utils.scm")

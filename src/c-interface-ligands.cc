@@ -1457,14 +1457,113 @@ PyObject *map_peaks_py(int imol_map, float n_sigma) {
    return r;
 }
 
+#ifdef USE_PYTHON
+PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y, float z,
+				  float radius) {
+   
+   PyObject *r = Py_False;
+
+   if (is_valid_map_molecule(imol_map)) {
+
+      CAtom *at = new CAtom;
+      at->SetCoordinates(x,y,z,1.0,10.0);
+      at->SetAtomName(" CA ");
+      at->SetElementName(" C");
+
+      CMMDBManager *mol = coot::util::create_mmdbmanager_from_atom(at);
+      
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      int do_positive_levels_flag = 1;
+      int also_negative_levels_flag = 0;
+      coot::peak_search ps(xmap);
+      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
+	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
+      r = PyList_New(peaks.size());
+      clipper::Coord_orth ref_pt(x,y,z);
+      for (unsigned int i=0; i<peaks.size(); i++) {
+	 if (clipper::Coord_orth::length(ref_pt, peaks[i].first) < radius) { 
+	    PyObject *coords = PyList_New(3);
+	    PyList_SetItem(coords, 0, PyFloat_FromDouble(peaks[i].first.x()));
+	    PyList_SetItem(coords, 1, PyFloat_FromDouble(peaks[i].first.y()));
+	    PyList_SetItem(coords, 2, PyFloat_FromDouble(peaks[i].first.z()));
+	    PyList_SetItem(r, i, coords);
+	 }
+      }
+      delete mol;
+   } 
+   return r;
+}
+#endif 
+
+
 #endif 
 #ifdef USE_GUILE
 SCM map_peaks_scm(int imol_map, float n_sigma) {
 
    SCM r = SCM_BOOL_F;
 
-
+   if (is_valid_map_molecule(imol_map)) {
+      r = SCM_EOL;
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      int do_positive_levels_flag = 1;
+      int also_negative_levels_flag = 0;
+      coot::peak_search ps(xmap);
+      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
+	 ps.get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
+      for (unsigned int i=0; i<peaks.size(); i++) {
+	 SCM pt = SCM_EOL;
+	 SCM x_scm = scm_double2num(peaks[i].first.x());
+	 SCM y_scm = scm_double2num(peaks[i].first.y());
+	 SCM z_scm = scm_double2num(peaks[i].first.z());
+	 pt = scm_cons(x_scm, pt);
+	 pt = scm_cons(y_scm, pt);
+	 pt = scm_cons(z_scm, pt);
+	 pt = scm_reverse(pt);
+	 r = scm_cons(pt, r);
+      }
+   }
    return r;
-
 } 
 #endif 
+
+#ifdef USE_GUILE
+SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, float z,
+			     float radius) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_map_molecule(imol_map)) {
+
+      CAtom *at = new CAtom;
+      at->SetCoordinates(x,y,z,1.0,10.0);
+      at->SetAtomName(" CA ");
+      at->SetElementName(" C");
+
+      CMMDBManager *mol = coot::util::create_mmdbmanager_from_atom(at);
+      
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      int do_positive_levels_flag = 1;
+      int also_negative_levels_flag = 0;
+      coot::peak_search ps(xmap);
+      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
+	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
+      clipper::Coord_orth ref_pt(x,y,z);
+      r = SCM_EOL;
+      for (unsigned int i=0; i<peaks.size(); i++) {
+	 if (clipper::Coord_orth::length(ref_pt, peaks[i].first) < radius) { 
+	    SCM pt = SCM_EOL;
+	    SCM x_scm = scm_double2num(peaks[i].first.x());
+	    SCM y_scm = scm_double2num(peaks[i].first.y());
+	    SCM z_scm = scm_double2num(peaks[i].first.z());
+	    pt = scm_cons(x_scm, pt);
+	    pt = scm_cons(y_scm, pt);
+	    pt = scm_cons(z_scm, pt);
+	    pt = scm_reverse(pt);
+	    r = scm_cons(pt, r);
+	 }
+      }
+      delete mol;
+   }
+   return r;
+} 
+#endif 
+// (map-peaks-near-point-scm 1 4 44.7 11 13.6 6)

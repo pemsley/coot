@@ -1302,6 +1302,7 @@ static swig_module_info swig_module = {swig_types, 43, 0, 0, 0, 0};
 #include "cc-interface.hh"
 #include "c-interface-database.hh"
 #include "c-interface-python.hh"
+#include "manipulation-modes.hh"
 
 static char *gswig_const_COOT_SCHEME_DIR = "COOT_SCHEME_DIR";
 static int gswig_const_VT_FLAT = 1;
@@ -1309,6 +1310,9 @@ static int gswig_const_VT_SPHERICAL = 2;
 static int gswig_const_command_arg_t_INT = coot::command_arg_t::INT;
 static int gswig_const_command_arg_t_FLOAT = coot::command_arg_t::FLOAT;
 static int gswig_const_command_arg_t_STRING = coot::command_arg_t::STRING;
+static int gswig_const_DELETED = 2;
+static int gswig_const_MUTATED = 3;
+static int gswig_const_MOVINGATOMS = 4;
 static SCM
 _wrap_COOT_SCHEME_DIR(SCM s_0)
 {
@@ -12757,6 +12761,25 @@ _wrap_apply_go_to_atom_values (SCM s_0)
 
 
 static SCM
+_wrap_update_go_to_atom_residue_list (SCM s_0)
+{
+#define FUNC_NAME "update-go-to-atom-residue-list"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  update_go_to_atom_residue_list(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_atom_spec_to_atom_index (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
 {
 #define FUNC_NAME "atom-spec-to-atom-index"
@@ -14611,6 +14634,21 @@ _wrap_do_refine (SCM s_0)
 
 
 static SCM
+_wrap_do_regularize_kill_delete_dialog ()
+{
+#define FUNC_NAME "do-regularize-kill-delete-dialog"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  do_regularize_kill_delete_dialog();
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_add_planar_peptide_restraints ()
 {
 #define FUNC_NAME "add-planar-peptide-restraints"
@@ -14848,9 +14886,9 @@ _wrap_do_torsions_toggle (SCM s_0)
 
 
 static SCM
-_wrap_secret_jed_refine_func (SCM s_0, SCM s_1)
+_wrap_refine_residues_scm (SCM s_0, SCM s_1)
 {
-#define FUNC_NAME "secret-jed-refine-func"
+#define FUNC_NAME "refine-residues-scm"
   int arg1 ;
   SCM arg2 ;
   SCM gswig_result;
@@ -14861,7 +14899,7 @@ _wrap_secret_jed_refine_func (SCM s_0, SCM s_1)
     arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
   }
   arg2=s_1;
-  result = (SCM)secret_jed_refine_func(arg1,arg2);
+  result = (SCM)refine_residues_scm(arg1,arg2);
   gswig_result=result;
   
   return gswig_result;
@@ -16959,6 +16997,26 @@ _wrap_write_connectivity (SCM s_0, SCM s_1)
 
 
 static SCM
+_wrap_non_standard_residue_names_scm (SCM s_0)
+{
+#define FUNC_NAME "non-standard-residue-names-scm"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (SCM)non_standard_residue_names_scm(arg1);
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_import_all_refmac_cifs ()
 {
 #define FUNC_NAME "import-all-refmac-cifs"
@@ -17626,6 +17684,25 @@ _wrap_do_ramachandran_plot (SCM s_0)
     arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
   }
   do_ramachandran_plot(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_kleywegt_plot_n_diffs (SCM s_0)
+{
+#define FUNC_NAME "set-kleywegt-plot-n-diffs"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_kleywegt_plot_n_diffs(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
@@ -20587,6 +20664,25 @@ _wrap_graphics_to_b_factor_representation (SCM s_0)
 
 
 static SCM
+_wrap_graphics_to_b_factor_cas_representation (SCM s_0)
+{
+#define FUNC_NAME "graphics-to-b-factor-cas-representation"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  graphics_to_b_factor_cas_representation(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_graphics_to_occupancy_representation (SCM s_0)
 {
 #define FUNC_NAME "graphics-to-occupancy-representation"
@@ -22294,6 +22390,25 @@ _wrap_wrapped_create_delete_item_dialog ()
 
 
 static SCM
+_wrap_delete_object_handle_delete_dialog (SCM s_0)
+{
+#define FUNC_NAME "delete-object-handle-delete-dialog"
+  short arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (short) scm_num2short(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  delete_object_handle_delete_dialog(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_do_rot_trans_setup (SCM s_0)
 {
 #define FUNC_NAME "do-rot-trans-setup"
@@ -22359,6 +22474,25 @@ _wrap_set_rotate_translate_zone_rotates_about_zone_centre (SCM s_0)
     arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
   }
   set_rotate_translate_zone_rotates_about_zone_centre(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_rot_trans_object_type (SCM s_0)
+{
+#define FUNC_NAME "set-rot-trans-object-type"
+  short arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (short) scm_num2short(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_rot_trans_object_type(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
@@ -22828,17 +22962,15 @@ _wrap_set_auto_fit_best_rotamer_clash_flag (SCM s_0)
 
 
 static SCM
-_wrap_rotamer_score (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5)
+_wrap_rotamer_score (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
 {
 #define FUNC_NAME "rotamer-score"
   int arg1 ;
   char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
-  int arg4 ;
-  int arg5 ;
-  int arg6 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
   int must_free2 = 0 ;
-  int must_free3 = 0 ;
+  int must_free4 = 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
   float result;
@@ -22851,24 +22983,18 @@ _wrap_rotamer_score (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5)
     must_free2 = 1;
   }
   {
-    arg3 = (char *)SWIG_scm2str(s_2);
-    must_free3 = 1;
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
   }
   {
-    arg4 = (int) scm_num2int(s_3, SCM_ARG1, FUNC_NAME);
+    arg4 = (char *)SWIG_scm2str(s_3);
+    must_free4 = 1;
   }
-  {
-    arg5 = (int) scm_num2int(s_4, SCM_ARG1, FUNC_NAME);
-  }
-  {
-    arg6 = (int) scm_num2int(s_5, SCM_ARG1, FUNC_NAME);
-  }
-  result = (float)rotamer_score(arg1,(char const *)arg2,(char const *)arg3,arg4,arg5,arg6);
+  result = (float)rotamer_score(arg1,(char const *)arg2,arg3,(char const *)arg4);
   {
     gswig_result = scm_make_real(result);
   }
   if (must_free2 && arg2) SWIG_free(arg2);
-  if (must_free3 && arg3) SWIG_free(arg3);
+  if (must_free4 && arg4) SWIG_free(arg4);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -23837,6 +23963,21 @@ _wrap_place_atom_at_pointer ()
   SWIGUNUSED int gswig_list_p = 0;
   
   place_atom_at_pointer();
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_place_atom_at_pointer_by_window ()
+{
+#define FUNC_NAME "place-atom-at-pointer-by-window"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  place_atom_at_pointer_by_window();
   gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
@@ -26653,7 +26794,7 @@ _wrap_new_molecule_by_atom_selection (SCM s_0, SCM s_1)
 
 
 static SCM
-_wrap_new_molecule_by_sphere_selection (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4)
+_wrap_new_molecule_by_sphere_selection (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5)
 {
 #define FUNC_NAME "new-molecule-by-sphere-selection"
   int arg1 ;
@@ -26661,6 +26802,7 @@ _wrap_new_molecule_by_sphere_selection (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM 
   float arg3 ;
   float arg4 ;
   float arg5 ;
+  short arg6 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
   int result;
@@ -26680,7 +26822,10 @@ _wrap_new_molecule_by_sphere_selection (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM 
   {
     arg5 = (float) scm_num2dbl(s_4, FUNC_NAME);
   }
-  result = (int)new_molecule_by_sphere_selection(arg1,arg2,arg3,arg4,arg5);
+  {
+    arg6 = (short) scm_num2short(s_5, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)new_molecule_by_sphere_selection(arg1,arg2,arg3,arg4,arg5,arg6);
   {
     gswig_result = scm_long2num(result);
   }
@@ -28683,6 +28828,66 @@ _wrap_get_atom_colour_from_mol_no (SCM s_0, SCM s_1)
 
 
 static SCM
+_wrap_add_dipole (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
+{
+#define FUNC_NAME "add-dipole"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  int must_free2 = 0 ;
+  int must_free4 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = (char *)SWIG_scm2str(s_3);
+    must_free4 = 1;
+  }
+  add_dipole(arg1,(char const *)arg2,arg3,(char const *)arg4);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free2 && arg2) SWIG_free(arg2);
+  if (must_free4 && arg4) SWIG_free(arg4);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_delete_dipole (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "delete-dipole"
+  int arg1 ;
+  int arg2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (int) scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  delete_dipole(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_laplacian (SCM s_0)
 {
 #define FUNC_NAME "laplacian"
@@ -28809,6 +29014,25 @@ _wrap_remove_text (SCM s_0)
     arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
   }
   remove_text(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_nsv (SCM s_0)
+{
+#define FUNC_NAME "nsv"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  nsv(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
@@ -31207,6 +31431,32 @@ _wrap_residues_near_residue (SCM s_0, SCM s_1, SCM s_2)
 
 
 static SCM
+_wrap_residues_near_position_scm (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "residues-near-position-scm"
+  int arg1 ;
+  SCM arg2 ;
+  float arg3 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  arg2=s_1;
+  {
+    arg3 = (float) scm_num2dbl(s_2, FUNC_NAME);
+  }
+  result = (SCM)residues_near_position_scm(arg1,arg2,arg3);
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_water_chain_from_shelx_ins_scm (SCM s_0)
 {
 #define FUNC_NAME "water-chain-from-shelx-ins-scm"
@@ -31794,6 +32044,51 @@ _wrap_key_sym_code_scm (SCM s_0)
   result = (int)key_sym_code_scm(arg1);
   {
     gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_DELETED(SCM s_0)
+{
+#define FUNC_NAME "DELETED"
+  SCM gswig_result;
+  
+  {
+    gswig_result = scm_long2num(gswig_const_DELETED);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_MUTATED(SCM s_0)
+{
+#define FUNC_NAME "MUTATED"
+  SCM gswig_result;
+  
+  {
+    gswig_result = scm_long2num(gswig_const_MUTATED);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_MOVINGATOMS(SCM s_0)
+{
+#define FUNC_NAME "MOVINGATOMS"
+  SCM gswig_result;
+  
+  {
+    gswig_result = scm_long2num(gswig_const_MOVINGATOMS);
   }
   
   return gswig_result;
@@ -32751,6 +33046,7 @@ SWIG_init(void)
   scm_c_define_gsubr("goto-previous-atom-maybe-new", 1, 0, 0, (swig_guile_proc) _wrap_goto_previous_atom_maybe_new);
   scm_c_define_gsubr("update-go-to-atom-from-current-position", 0, 0, 0, (swig_guile_proc) _wrap_update_go_to_atom_from_current_position);
   scm_c_define_gsubr("apply-go-to-atom-values", 1, 0, 0, (swig_guile_proc) _wrap_apply_go_to_atom_values);
+  scm_c_define_gsubr("update-go-to-atom-residue-list", 1, 0, 0, (swig_guile_proc) _wrap_update_go_to_atom_residue_list);
   scm_c_define_gsubr("atom-spec-to-atom-index", 4, 0, 0, (swig_guile_proc) _wrap_atom_spec_to_atom_index);
   scm_c_define_gsubr("full-atom-spec-to-atom-index", 6, 0, 0, (swig_guile_proc) _wrap_full_atom_spec_to_atom_index);
   scm_c_define_gsubr("update-go-to-atom-window-on-changed-mol", 1, 0, 0, (swig_guile_proc) _wrap_update_go_to_atom_window_on_changed_mol);
@@ -32834,6 +33130,7 @@ SWIG_init(void)
   scm_c_define_gsubr("run-python-script", 1, 0, 0, (swig_guile_proc) _wrap_run_python_script);
   scm_c_define_gsubr("do-regularize", 1, 0, 0, (swig_guile_proc) _wrap_do_regularize);
   scm_c_define_gsubr("do-refine", 1, 0, 0, (swig_guile_proc) _wrap_do_refine);
+  scm_c_define_gsubr("do-regularize-kill-delete-dialog", 0, 0, 0, (swig_guile_proc) _wrap_do_regularize_kill_delete_dialog);
   scm_c_define_gsubr("add-planar-peptide-restraints", 0, 0, 0, (swig_guile_proc) _wrap_add_planar_peptide_restraints);
   scm_c_define_gsubr("remove-planar-peptide-restraints", 0, 0, 0, (swig_guile_proc) _wrap_remove_planar_peptide_restraints);
   scm_c_define_gsubr("planar-peptide-restraints-state", 0, 0, 0, (swig_guile_proc) _wrap_planar_peptide_restraints_state);
@@ -32848,7 +33145,7 @@ SWIG_init(void)
   scm_c_define_gsubr("fill-option-menu-with-refine-options", 1, 0, 0, (swig_guile_proc) _wrap_fill_option_menu_with_refine_options);
   scm_c_define_gsubr("wrapped-create-refine-params-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_refine_params_dialog);
   scm_c_define_gsubr("do-torsions-toggle", 1, 0, 0, (swig_guile_proc) _wrap_do_torsions_toggle);
-  scm_c_define_gsubr("secret-jed-refine-func", 2, 0, 0, (swig_guile_proc) _wrap_secret_jed_refine_func);
+  scm_c_define_gsubr("refine-residues-scm", 2, 0, 0, (swig_guile_proc) _wrap_refine_residues_scm);
   scm_c_define_gsubr("set-refine-with-torsion-restraints", 1, 0, 0, (swig_guile_proc) _wrap_set_refine_with_torsion_restraints);
   scm_c_define_gsubr("refine-with-torsion-restraints-state", 0, 0, 0, (swig_guile_proc) _wrap_refine_with_torsion_restraints_state);
   scm_c_define_gsubr("set-refine-params-toggle-buttons", 1, 0, 0, (swig_guile_proc) _wrap_set_refine_params_toggle_buttons);
@@ -32939,6 +33236,7 @@ SWIG_init(void)
   scm_c_define_gsubr("handle-cif-dictionary", 1, 0, 0, (swig_guile_proc) _wrap_handle_cif_dictionary);
   scm_c_define_gsubr("read-cif-dictionary", 1, 0, 0, (swig_guile_proc) _wrap_read_cif_dictionary);
   scm_c_define_gsubr("write-connectivity", 2, 0, 0, (swig_guile_proc) _wrap_write_connectivity);
+  scm_c_define_gsubr("non-standard-residue-names-scm", 1, 0, 0, (swig_guile_proc) _wrap_non_standard_residue_names_scm);
   scm_c_define_gsubr("import-all-refmac-cifs", 0, 0, 0, (swig_guile_proc) _wrap_import_all_refmac_cifs);
   scm_c_define_gsubr("read-shelx-ins-file", 1, 0, 0, (swig_guile_proc) _wrap_read_shelx_ins_file);
   scm_c_define_gsubr("write-shelx-ins-file", 2, 0, 0, (swig_guile_proc) _wrap_write_shelx_ins_file);
@@ -32968,6 +33266,7 @@ SWIG_init(void)
   scm_c_define_gsubr("wrapped-create-generate-diff-map-peaks-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_generate_diff_map_peaks_dialog);
   scm_c_define_gsubr("gln-asn-b-factor-outliers", 1, 0, 0, (swig_guile_proc) _wrap_gln_asn_b_factor_outliers);
   scm_c_define_gsubr("do-ramachandran-plot", 1, 0, 0, (swig_guile_proc) _wrap_do_ramachandran_plot);
+  scm_c_define_gsubr("set-kleywegt-plot-n-diffs", 1, 0, 0, (swig_guile_proc) _wrap_set_kleywegt_plot_n_diffs);
   scm_c_define_gsubr("add-on-rama-choices", 0, 0, 0, (swig_guile_proc) _wrap_add_on_rama_choices);
   scm_c_define_gsubr("set-ramachandran-plot-contour-levels", 2, 0, 0, (swig_guile_proc) _wrap_set_ramachandran_plot_contour_levels);
   scm_c_define_gsubr("set-ramachandran-plot-background-block-size", 1, 0, 0, (swig_guile_proc) _wrap_set_ramachandran_plot_background_block_size);
@@ -33101,6 +33400,7 @@ SWIG_init(void)
   scm_c_define_gsubr("graphics-to-sec-struct-bonds-representation", 1, 0, 0, (swig_guile_proc) _wrap_graphics_to_sec_struct_bonds_representation);
   scm_c_define_gsubr("graphics-to-rainbow-representation", 1, 0, 0, (swig_guile_proc) _wrap_graphics_to_rainbow_representation);
   scm_c_define_gsubr("graphics-to-b-factor-representation", 1, 0, 0, (swig_guile_proc) _wrap_graphics_to_b_factor_representation);
+  scm_c_define_gsubr("graphics-to-b-factor-cas-representation", 1, 0, 0, (swig_guile_proc) _wrap_graphics_to_b_factor_cas_representation);
   scm_c_define_gsubr("graphics-to-occupancy-representation", 1, 0, 0, (swig_guile_proc) _wrap_graphics_to_occupancy_representation);
   scm_c_define_gsubr("graphics-molecule-bond-type", 1, 0, 0, (swig_guile_proc) _wrap_graphics_molecule_bond_type);
   scm_c_define_gsubr("set-b-factor-bonds-scale-factor", 2, 0, 0, (swig_guile_proc) _wrap_set_b_factor_bonds_scale_factor);
@@ -33174,10 +33474,12 @@ SWIG_init(void)
   scm_c_define_gsubr("delete-item-widget-is-being-shown", 0, 0, 0, (swig_guile_proc) _wrap_delete_item_widget_is_being_shown);
   scm_c_define_gsubr("delete-item-widget-keep-active-on", 0, 0, 0, (swig_guile_proc) _wrap_delete_item_widget_keep_active_on);
   scm_c_define_gsubr("wrapped-create-delete-item-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_delete_item_dialog);
+  scm_c_define_gsubr("delete-object-handle-delete-dialog", 1, 0, 0, (swig_guile_proc) _wrap_delete_object_handle_delete_dialog);
   scm_c_define_gsubr("do-rot-trans-setup", 1, 0, 0, (swig_guile_proc) _wrap_do_rot_trans_setup);
   scm_c_define_gsubr("do-rot-trans-adjustments", 1, 0, 0, (swig_guile_proc) _wrap_do_rot_trans_adjustments);
   scm_c_define_gsubr("rot-trans-reset-previous", 0, 0, 0, (swig_guile_proc) _wrap_rot_trans_reset_previous);
   scm_c_define_gsubr("set-rotate-translate-zone-rotates-about-zone-centre", 1, 0, 0, (swig_guile_proc) _wrap_set_rotate_translate_zone_rotates_about_zone_centre);
+  scm_c_define_gsubr("set-rot-trans-object-type", 1, 0, 0, (swig_guile_proc) _wrap_set_rot_trans_object_type);
   scm_c_define_gsubr("do-cis-trans-conversion-setup", 1, 0, 0, (swig_guile_proc) _wrap_do_cis_trans_conversion_setup);
   scm_c_define_gsubr("cis-trans-convert", 4, 0, 0, (swig_guile_proc) _wrap_cis_trans_convert);
   scm_c_define_gsubr("cis-peptides", 1, 0, 0, (swig_guile_proc) _wrap_cis_peptides);
@@ -33196,7 +33498,7 @@ SWIG_init(void)
   scm_c_define_gsubr("set-rotamer-check-clashes", 1, 0, 0, (swig_guile_proc) _wrap_set_rotamer_check_clashes);
   scm_c_define_gsubr("auto-fit-best-rotamer", 8, 0, 0, (swig_guile_proc) _wrap_auto_fit_best_rotamer);
   scm_c_define_gsubr("set-auto-fit-best-rotamer-clash-flag", 1, 0, 0, (swig_guile_proc) _wrap_set_auto_fit_best_rotamer_clash_flag);
-  scm_c_define_gsubr("rotamer-score", 6, 0, 0, (swig_guile_proc) _wrap_rotamer_score);
+  scm_c_define_gsubr("rotamer-score", 4, 0, 0, (swig_guile_proc) _wrap_rotamer_score);
   scm_c_define_gsubr("setup-auto-fit-rotamer", 1, 0, 0, (swig_guile_proc) _wrap_setup_auto_fit_rotamer);
   scm_c_define_gsubr("n-rotamers", 4, 0, 0, (swig_guile_proc) _wrap_n_rotamers);
   scm_c_define_gsubr("set-residue-to-rotamer-number", 5, 0, 0, (swig_guile_proc) _wrap_set_residue_to_rotamer_number);
@@ -33235,6 +33537,7 @@ SWIG_init(void)
   scm_c_define_gsubr("set-b-factor-residue-range", 5, 0, 0, (swig_guile_proc) _wrap_set_b_factor_residue_range);
   scm_c_define_gsubr("reset-b-factor-residue-range", 4, 0, 0, (swig_guile_proc) _wrap_reset_b_factor_residue_range);
   scm_c_define_gsubr("place-atom-at-pointer", 0, 0, 0, (swig_guile_proc) _wrap_place_atom_at_pointer);
+  scm_c_define_gsubr("place-atom-at-pointer-by-window", 0, 0, 0, (swig_guile_proc) _wrap_place_atom_at_pointer_by_window);
   scm_c_define_gsubr("place-typed-atom-at-pointer", 1, 0, 0, (swig_guile_proc) _wrap_place_typed_atom_at_pointer);
   scm_c_define_gsubr("set-pointer-atom-is-dummy", 1, 0, 0, (swig_guile_proc) _wrap_set_pointer_atom_is_dummy);
   scm_c_define_gsubr("fill-place-atom-molecule-option-menu", 1, 0, 0, (swig_guile_proc) _wrap_fill_place_atom_molecule_option_menu);
@@ -33353,7 +33656,7 @@ SWIG_init(void)
   scm_c_define_gsubr("find-strands", 0, 0, 0, (swig_guile_proc) _wrap_find_strands);
   scm_c_define_gsubr("new-molecule-by-residue-type-selection", 2, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_residue_type_selection);
   scm_c_define_gsubr("new-molecule-by-atom-selection", 2, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_atom_selection);
-  scm_c_define_gsubr("new-molecule-by-sphere-selection", 5, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_sphere_selection);
+  scm_c_define_gsubr("new-molecule-by-sphere-selection", 6, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_sphere_selection);
   scm_c_define_gsubr("set-axis-orientation-matrix", 9, 0, 0, (swig_guile_proc) _wrap_set_axis_orientation_matrix);
   scm_c_define_gsubr("set-axis-orientation-matrix-usage", 1, 0, 0, (swig_guile_proc) _wrap_set_axis_orientation_matrix_usage);
   scm_c_define_gsubr("ideal-nucleic-acid", 4, 0, 0, (swig_guile_proc) _wrap_ideal_nucleic_acid);
@@ -33443,12 +33746,15 @@ SWIG_init(void)
   scm_c_define_gsubr("ccp4i-projects-scm", 0, 0, 0, (swig_guile_proc) _wrap_ccp4i_projects_scm);
   scm_c_define_gsubr("write-ccp4mg-picture-description", 1, 0, 0, (swig_guile_proc) _wrap_write_ccp4mg_picture_description);
   scm_c_define_gsubr("get-atom-colour-from-mol-no", 2, 0, 0, (swig_guile_proc) _wrap_get_atom_colour_from_mol_no);
+  scm_c_define_gsubr("add-dipole", 4, 0, 0, (swig_guile_proc) _wrap_add_dipole);
+  scm_c_define_gsubr("delete-dipole", 2, 0, 0, (swig_guile_proc) _wrap_delete_dipole);
   scm_c_define_gsubr("laplacian", 1, 0, 0, (swig_guile_proc) _wrap_laplacian);
   scm_c_define_gsubr("do-smiles-gui", 0, 0, 0, (swig_guile_proc) _wrap_do_smiles_gui);
   scm_c_define_gsubr("do-tw", 0, 0, 0, (swig_guile_proc) _wrap_do_tw);
   scm_c_define_gsubr("set-button-label-for-external-refinement", 1, 0, 0, (swig_guile_proc) _wrap_set_button_label_for_external_refinement);
   scm_c_define_gsubr("place-text", 5, 0, 0, (swig_guile_proc) _wrap_place_text);
   scm_c_define_gsubr("remove-text", 1, 0, 0, (swig_guile_proc) _wrap_remove_text);
+  scm_c_define_gsubr("nsv", 1, 0, 0, (swig_guile_proc) _wrap_nsv);
   SWIG_TypeClientData(SWIGTYPE_p_coot__alias_path_t, (void *) &_swig_guile_clientdataalias_path_t);
   scm_c_define_gsubr("alias-path-t-index-set", 2, 0, 0, (swig_guile_proc) _wrap_alias_path_t_index_set);
   scm_c_define_gsubr("alias-path-t-index-get", 1, 0, 0, (swig_guile_proc) _wrap_alias_path_t_index_get);
@@ -33541,6 +33847,7 @@ SWIG_init(void)
   scm_c_define_gsubr("active-residue", 0, 0, 0, (swig_guile_proc) _wrap_active_residue);
   scm_c_define_gsubr("closest-atom", 1, 0, 0, (swig_guile_proc) _wrap_closest_atom);
   scm_c_define_gsubr("residues-near-residue", 3, 0, 0, (swig_guile_proc) _wrap_residues_near_residue);
+  scm_c_define_gsubr("residues-near-position-scm", 3, 0, 0, (swig_guile_proc) _wrap_residues_near_position_scm);
   scm_c_define_gsubr("water-chain-from-shelx-ins-scm", 1, 0, 0, (swig_guile_proc) _wrap_water_chain_from_shelx_ins_scm);
   scm_c_define_gsubr("water-chain-scm", 1, 0, 0, (swig_guile_proc) _wrap_water_chain_scm);
   scm_c_define_gsubr("spin-search-by-atom-vectors", 7, 0, 0, (swig_guile_proc) _wrap_spin_search_by_atom_vectors);
@@ -33563,6 +33870,9 @@ SWIG_init(void)
   scm_c_define_gsubr("encode-ints", 2, 0, 0, (swig_guile_proc) _wrap_encode_ints);
   scm_c_define_gsubr("decode-ints", 1, 0, 0, (swig_guile_proc) _wrap_decode_ints);
   scm_c_define_gsubr("key-sym-code-scm", 1, 0, 0, (swig_guile_proc) _wrap_key_sym_code_scm);
+  scm_c_define_gsubr("DELETED", 0, 0, 0, (swig_guile_proc) _wrap_DELETED);
+  scm_c_define_gsubr("MUTATED", 0, 0, 0, (swig_guile_proc) _wrap_MUTATED);
+  scm_c_define_gsubr("MOVINGATOMS", 0, 0, 0, (swig_guile_proc) _wrap_MOVINGATOMS);
 }
 
 #ifdef __cplusplus

@@ -668,6 +668,9 @@ namespace coot {
       // Beware: This destroys (inverts) the atom selection as passed.
       CMMDBManager *create_mmdbmanager_from_inverted_atom_selection(CMMDBManager *orig_mol,
 								    int SelectionHandle);
+
+      CMMDBManager *create_mmdbmanager_from_atom(CAtom *at);
+      
       void add_copy_of_atom(CMMDBManager *mol, CAtom *atom);
 
       // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
