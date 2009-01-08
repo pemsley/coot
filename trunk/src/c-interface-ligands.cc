@@ -1478,16 +1478,21 @@ PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y,
       coot::peak_search ps(xmap);
       std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
 	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
-      r = PyList_New(peaks.size());
       clipper::Coord_orth ref_pt(x,y,z);
+      std::vector<std::pair<clipper::Coord_orth, float> > close_peaks;
       for (unsigned int i=0; i<peaks.size(); i++) {
-	 if (clipper::Coord_orth::length(ref_pt, peaks[i].first) < radius) { 
-	    PyObject *coords = PyList_New(3);
-	    PyList_SetItem(coords, 0, PyFloat_FromDouble(peaks[i].first.x()));
-	    PyList_SetItem(coords, 1, PyFloat_FromDouble(peaks[i].first.y()));
-	    PyList_SetItem(coords, 2, PyFloat_FromDouble(peaks[i].first.z()));
-	    PyList_SetItem(r, i, coords);
+	 if (clipper::Coord_orth::length(ref_pt, peaks[i].first) < radius) {
+	    close_peaks.push_back(peaks[i]);
 	 }
+      } 
+      r = PyList_New(close_peaks.size());
+      for (unsigned int i=0; i<close_peaks.size(); i++) {
+	 PyObject *coords = PyList_New(4);
+	 PyList_SetItem(coords, 0, PyFloat_FromDouble(close_peaks[i].first.x()));
+	 PyList_SetItem(coords, 1, PyFloat_FromDouble(close_peaks[i].first.y()));
+	 PyList_SetItem(coords, 2, PyFloat_FromDouble(close_peaks[i].first.z()));
+	 PyList_SetItem(coords, 3, PyFloat_FromDouble(close_peaks[i].second));
+	 PyList_SetItem(r, i, coords);
       }
       delete mol;
    } 
@@ -1548,18 +1553,24 @@ SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, floa
 	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
       clipper::Coord_orth ref_pt(x,y,z);
       r = SCM_EOL;
+      std::vector<std::pair<clipper::Coord_orth, float> > close_peaks;
       for (unsigned int i=0; i<peaks.size(); i++) {
-	 if (clipper::Coord_orth::length(ref_pt, peaks[i].first) < radius) { 
-	    SCM pt = SCM_EOL;
-	    SCM x_scm = scm_double2num(peaks[i].first.x());
-	    SCM y_scm = scm_double2num(peaks[i].first.y());
-	    SCM z_scm = scm_double2num(peaks[i].first.z());
-	    pt = scm_cons(x_scm, pt);
-	    pt = scm_cons(y_scm, pt);
-	    pt = scm_cons(z_scm, pt);
-	    pt = scm_reverse(pt);
-	    r = scm_cons(pt, r);
+	 if (clipper::Coord_orth::length(ref_pt, peaks[i].first) < radius) {
+	    close_peaks.push_back(peaks[i]);
 	 }
+      } 
+      for (unsigned int i=0; i<close_peaks.size(); i++) {
+	 SCM pt = SCM_EOL;
+	 SCM d     = scm_double2num(close_peaks[i].second);
+	 SCM x_scm = scm_double2num(close_peaks[i].first.x());
+	 SCM y_scm = scm_double2num(close_peaks[i].first.y());
+	 SCM z_scm = scm_double2num(close_peaks[i].first.z());
+	 pt = scm_cons(d, pt);
+	 pt = scm_cons(x_scm, pt);
+	 pt = scm_cons(y_scm, pt);
+	 pt = scm_cons(z_scm, pt);
+	 pt = scm_reverse(pt);
+	 r = scm_cons(pt, r);
       }
       delete mol;
    }
