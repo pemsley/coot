@@ -2143,7 +2143,19 @@ coot::util::create_mmdbmanager_from_residue(CMMDBManager *orig_mol,
    return mol;
 }
 
-
+CMMDBManager *
+coot::util::create_mmdbmanager_from_atom(CAtom *at) {
+   CResidue *res = new CResidue;
+   res->AddAtom(at);
+   CChain *chain_p = new CChain;
+   chain_p->AddResidue(res);
+   chain_p->SetChainID("A");
+   CModel *model_p = new CModel;
+   model_p->AddChain(chain_p);
+   CMMDBManager *mol = new CMMDBManager;
+   mol->AddModel(model_p);
+   return mol;
+} 
 
 
 // Note, we also create a chain and add this residue to that chain.

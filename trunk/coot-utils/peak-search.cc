@@ -387,8 +387,14 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 std::vector<clipper::Coord_orth>
 coot::peak_search::make_sample_protein_coords(CMMDBManager *mol) const {
 
+   return make_sample_protein_coords(mol, 5);
+}
+
+std::vector<clipper::Coord_orth>
+coot::peak_search::make_sample_protein_coords(CMMDBManager *mol, int every_n) const {
+
    std::vector<clipper::Coord_orth> r;
-   int atom_count = 10;
+   int atom_count = every_n;
 
    int imod = 1;
       
@@ -406,7 +412,7 @@ coot::peak_search::make_sample_protein_coords(CMMDBManager *mol) const {
 	 int n_atoms = residue_p->GetNumberOfAtoms();
 	 
 	 for (int iat=0; iat<n_atoms; iat++) {
-	    if (atom_count == 10) { 
+	    if (atom_count == every_n) { 
 	       at = residue_p->GetAtom(iat);
 	       r.push_back(clipper::Coord_orth(at->x, at->y, at->z));
 	       atom_count = 0; 
@@ -415,7 +421,6 @@ coot::peak_search::make_sample_protein_coords(CMMDBManager *mol) const {
 	 }
       }
    }
-
    return r;
 }
 
