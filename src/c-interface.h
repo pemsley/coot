@@ -4985,6 +4985,10 @@ void close_generic_object(int object_number);
 */
 short int is_closed_generic_object_p(int object_number);
 
+/*! \brief clear out the lines and points from object_number, but keep
+  it displayable (not closed). */
+void generic_object_clear(int object_number);
+
 /*! \brief a kludgey thing, so that the generic objects gui can be
   called from a callback.  */
 void generic_objects_gui_wrapper();

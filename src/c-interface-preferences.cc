@@ -878,10 +878,12 @@ void to_generic_object_add_line(int object_number,
 							coords);
 	 
       } else {
-	 std::cout << "BAD object_number in to_generic_object_add_line" << std::endl;
+	 std::cout << "BAD object_number in to_generic_object_add_line"
+		   << " out of range high" << object_number << std::endl;
       }
    } else {
-      std::cout << "BAD object_number in to_generic_object_add_line" << std::endl;
+      std::cout << "BAD object_number (out of range low) in to_generic_object_add_line"
+		<< object_number << std::endl;
    }
 }
 
@@ -1046,6 +1048,20 @@ PyObject *generic_object_name_py(int obj_number) {
 } 
 #endif /* USE_PYTHON */
 
+
+/*! \brief clear out the lines and points from object_number, but keep
+  it displayable (not closed). */
+void generic_object_clear(int object_number) {
+
+   graphics_info_t g;
+   if (object_number >= 0) {
+      if (object_number < int(g.generic_objects_p->size())) {
+	 g.generic_objects_p[object_number].clear();
+      }
+   } 
+ 
+
+}
 
 
 
