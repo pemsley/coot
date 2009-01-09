@@ -34,7 +34,6 @@
 #include "nsv.hh"
 #include "support.h"
 #include "coot-utils.hh"
-#include "coot-coord-utils.hh"
 
 #include "c-interface.h" // for sequence_view_is_displayed()
 
@@ -68,9 +67,10 @@
 
 exptl::nsv::nsv(CMMDBManager *mol,
 		const std::string &molecule_name,
-		int molecule_number,
+		int molecule_number_in,
 		bool use_graphics_interface_in) {
 
+   molecule_number = molecule_number_in;
    use_graphics_interface_flag = use_graphics_interface_in;
 
    GtkWidget *top_lev = gtk_dialog_new();
@@ -243,27 +243,29 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number) {
 
    for (int ires=0; ires<nres; ires++) {
       CResidue *residue_p = chain_p->GetResidue(ires);
+      exptl::nsv::spec_and_mol_no_t *local_spec =
+	 new exptl::nsv::spec_and_mol_no_t (molecule_number, residue_p);
       std::string res_code =
 	 coot::util::three_letter_to_one_letter(residue_p->GetResName());
       std::string colour = "black";
       double x = residue_p->GetSeqNum() * pixels_per_letter -3;
       double y = - pixels_per_chain * position_number - 6;
-      double x1 = x;
-      double y1 = y + 2;
-      double x2 = x + 1; // pixels_per_letter;
-      double y2 = y - 1; // pixels_per_letter;
+      double x1 = x - 2;
+      double y1 = y + 5;
+      double x2 = x1 + 8; // pixels_per_letter;
+      double y2 = y1 - 11; // pixels_per_letter;
       item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 				 GTK_CANVAS_TYPE_CANVAS_RECT,
 				 "x1", x1,
 				 "y1", y1,
 				 "x2", x2,
 				 "y2", y2,
-				 "fill_color", "grey",
-				 "outline_color", "blue",
+				 "fill_color", "grey90",
+				 "width_pixels", 1,
 				 NULL);
       canvas_item_vec.push_back(item);
       gtk_signal_connect(GTK_OBJECT(item), "event",
-			 GTK_SIGNAL_FUNC(letter_clicked), NULL);
+			 GTK_SIGNAL_FUNC(letter_clicked), local_spec);
       item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 				 GTK_CANVAS_TYPE_CANVAS_TEXT,
 				 "text", res_code.c_str(),
@@ -272,6 +274,8 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number) {
 				 "anchor", GTK_ANCHOR_WEST,
 				 "font", fixed_font_str.c_str(),
 				 NULL);
+      gtk_signal_connect(GTK_OBJECT(item), "event",
+			 GTK_SIGNAL_FUNC(letter_clicked), local_spec);
       canvas_item_vec.push_back(item);
    }
 
@@ -296,12 +300,17 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number) {
 // static
 gint
 exptl::nsv::letter_clicked (GtkWidget *widget,
-			    GdkEvent *event) {
+			    GdkEvent *event,
+			    gpointer data) {
 
    if (event->motion.state & GDK_BUTTON1_MASK) {
-      std::cout << "letter clicked" << std::endl;
+      // std::cout << "letter clicked" << std::endl;
+      exptl::nsv::spec_and_mol_no_t res_spec = *((exptl::nsv::spec_and_mol_no_t *) data);
+      std::cout << "go to residue " << res_spec.res_spec << " of molecule number "
+		<< res_spec.mol_no << std::endl;
+      
    } else {
-      std::cout << "something other than clicked" << std::endl;
+      // std::cout << "something other than clicked" << std::endl;
    } 
 
    return 1;

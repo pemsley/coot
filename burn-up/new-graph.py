@@ -35,6 +35,7 @@ yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 # y_ranges, Pychart will pick the minimum Y value among the samples,
 # i.e., 20, as the base value of Y axis.
 ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,30), y_range=(0,180))
+can = canvas.default_canvas()
 
 # The first plot extracts Y values from the 2nd column
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
@@ -49,3 +50,17 @@ ar.add_plot(plot, plot2)
 # draws the axes, the plots, and the legend (if any).
 
 ar.draw()
+
+
+yloc = ar.loc[1] + ar.size[1] + 50
+ytip = ar.loc[1] + ar.size[1]
+ybot = ar.loc[1]
+
+def describeEvent(seconds, label, off):
+    x1 = ar.x_pos(seconds)
+    can.line(line_style.black_dash1, x1, ybot, x1, ytip)
+    tb = text_box.T(text=label, loc=(x1+off, yloc), shadow=(2,-2,fill_style.gray70))
+    tb.add_arrow((x1, ytip))
+    tb.draw()
+    
+describeEvent(5, "Christmas\nholidays", -10)

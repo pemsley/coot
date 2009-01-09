@@ -681,9 +681,6 @@ coot::geometry_graphs::plot_block(const coot::geometry_graph_block_info &block_i
    double distortion = block_info.distortion;
    int offset = offset_in;
 
-//    if (distortion > distortion_max)
-//       distortion = distortion_max;
-
    double x1 = (resno-offset)*scale;
    double x2 = (resno-offset)*scale + 8;
    double y1 = 50 + chain_number*chain_scale - distortion*0.5;
@@ -726,15 +723,10 @@ coot::geometry_graphs::plot_block(const coot::geometry_graph_block_info &block_i
    } 
 
    coot::geometry_graph_block_info *local_block_info_p = new coot::geometry_graph_block_info(block_info);
-   // *local_block_info_p = block_info;
 
    gtk_signal_connect(GTK_OBJECT(item), "event", 
 		      (GtkSignalFunc) coot::on_geometry_graph_block_clicked, // dangerous?
 		      gpointer(local_block_info_p));
-
-//    std::cout << "plotted box: "
-// 	     << x1 << " " << x2 << " "
-// 	     << y1 << " " << y2 << std::endl;
 
 }
 
