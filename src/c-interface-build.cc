@@ -5461,16 +5461,9 @@ int get_monomer(const char *three_letter_code) {
 
    SCM v = safe_scheme_command(scheme_command);
 
-   int was_int_flag = gh_scm2bool(scm_integer_p(v));
-
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)      
+   int was_int_flag = scm_is_true(scm_integer_p(v));
    if (was_int_flag)
       imol = scm_to_int(v);
-#else    
-   if (was_int_flag)
-      imol = gh_scm2int(v);
-#endif // SCM version   
-   
 
 #else 
    
