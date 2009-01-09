@@ -2657,7 +2657,8 @@ if [ $architecture = x86_64 ] ; then
 
    # There is a problem quoting this, e.g.
    # coot_optim_args="CXXFLAGS='\"-g -O\"'" fails in configure
-   coot_optim_args="CXXFLAGS=-gO"
+   #coot_optim_args="CXXFLAGS=-gO"
+   #coot_optim_args="CXXFLAGS=\"-g -O\""
    export CXXFLAGS="-g -O"
 fi
 
