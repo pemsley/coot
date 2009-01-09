@@ -67,10 +67,14 @@ namespace exptl {
       class spec_and_mol_no_t {
       public:
 	 int mol_no;
-	 coot::residue_spec_t res_spec;
-	 spec_and_mol_no_t(int mol_no_in, coot::residue_spec_t res_spec_in) {
+	 coot::atom_spec_t atom_spec;
+	 spec_and_mol_no_t(int mol_no_in, coot::atom_spec_t atom_spec_in) {
 	    mol_no = mol_no_in;
-	    res_spec = res_spec_in;
+	    atom_spec = atom_spec_in;
+	 } 
+	 spec_and_mol_no_t(int mol_no_in, CAtom *at) {
+	    mol_no = mol_no_in;
+	    atom_spec = coot::atom_spec_t(at);
 	 } 
       };
 
