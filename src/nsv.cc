@@ -85,9 +85,6 @@ exptl::nsv::nsv(CMMDBManager *mol,
 
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					 GTK_WIDGET(canvas));
-   gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 100);
-   gtk_widget_show(scrolled_window);
-   
    
    GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
    GtkWidget *aa = GTK_DIALOG(top_lev)->action_area;
@@ -103,7 +100,8 @@ exptl::nsv::nsv(CMMDBManager *mol,
    gtk_object_set_user_data(GTK_OBJECT(top_lev),
 			    GINT_TO_POINTER(molecule_number));
 
-   setup_canvas(mol);
+   setup_canvas(mol, scrolled_window);
+   gtk_widget_show(scrolled_window);
 		      
    if (use_graphics_interface_flag) { 
       gtk_widget_show(aa);
@@ -140,7 +138,7 @@ exptl::nsv::on_nsv_dialog_destroy (GtkObject *obj,
 
 
 void
-exptl::nsv::setup_canvas(CMMDBManager *mol) {
+exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 
    fixed_font_str = "fixed";
    pixels_per_letter = 8;
@@ -163,11 +161,14 @@ exptl::nsv::setup_canvas(CMMDBManager *mol) {
       // 
       int lowest_resno = rcv[0].first_res_no;
       int biggest_res_count = 0;
+      int biggest_res_number = 0;
       for (unsigned int i=0; i<rcv.size(); i++) {
 	 if (rcv[i].first_res_no < lowest_resno)
 	    lowest_resno = rcv[i].first_res_no;
 	 if (rcv[i].n_residue_count > biggest_res_count)
 	    biggest_res_count = rcv[i].n_residue_count;
+	 if (rcv[i].n_residue_count > biggest_res_number)
+	    biggest_res_number = rcv[i].max_resno;
       }
 
       std::vector<CResidue*> ins_code_residues =
@@ -183,8 +184,20 @@ exptl::nsv::setup_canvas(CMMDBManager *mol) {
 	 // 
 	 std::map <std::string, std::pair<int, int> > chain_id_graph_map;
 
-	 int canvas_x_size =  5 + (biggest_res_count - lowest_resno) * 10;
-	 int canvas_y_size =  5 + rcv.size() * 50;
+	 // 100 is good for 2 chains
+	 // 
+
+	 int canvas_x_size =  5 + (biggest_res_count) * 10;
+	 // 50 is good for 2 chains.
+	 int canvas_y_size =  5 + rcv.size() * 50; 
+
+	 std::cout << "DEBUG:: biggest_res_count is " << biggest_res_count
+		   << " with canvas_x_size " << canvas_x_size << std::endl;
+
+	 // the size of the widget on the screen
+	 gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+rcv.size()));
+	 // the size of the canvas (e.g. long chain, we see only part
+	 // of it at one time).
 	 gtk_widget_set_usize(GTK_WIDGET(canvas), canvas_x_size, canvas_y_size);
 
 	 double left_limit = 0.0;
@@ -192,7 +205,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol) {
 	 double scroll_width;   // right 
 	 double scroll_height;  // lower
 
-	 left_limit =    0.0;
+	 left_limit =    biggest_res_count * 10;
 	 upper_limit =   0.0;
 
 	 // scroll_height affects the position of the canvas origin
@@ -202,15 +215,19 @@ exptl::nsv::setup_canvas(CMMDBManager *mol) {
 	 // page, a bit more esthetically pleasing, and we will need
 	 // room to write Chain "A" etc on the left there too.
 	 //
-	 scroll_height = canvas_y_size - 100;
-	 scroll_width = canvas_x_size - 110;
+
+	 // for scroll_height, -100 is good for 2 chains, -150 is good
+	 // for 4 chains.
+	 
+	 scroll_height = canvas_y_size - 50 - 25 * rcv.size();
+	 scroll_width = canvas_x_size - 120 - left_limit ; // -120 for fat font on jackal
    
 	 gtk_canvas_set_scroll_region(canvas, left_limit, upper_limit,
-					scroll_width, scroll_height);
+				      scroll_width, scroll_height);
 
 
 	 origin_marker();
-	 draw_axes(rcv, lowest_resno, biggest_res_count);
+	 draw_axes(rcv, lowest_resno, biggest_res_number);
 	 mol_to_canvas(mol);
 	 
 
@@ -300,6 +317,9 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number) {
    std::string chain_label = "Chain ";
    chain_label += chain_p->GetChainID();
    double x = -50;
+   // On jackal it needs to be more left? Why? The font is wider?
+   // How do I check the font width?
+   x -= 10;
    double y = -pixels_per_chain * position_number - 6;
    item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 			      GTK_CANVAS_TYPE_CANVAS_TEXT,
@@ -323,8 +343,6 @@ exptl::nsv::letter_clicked (GtkWidget *widget,
    if (event->motion.state & GDK_BUTTON1_MASK) {
       // std::cout << "letter clicked" << std::endl;
       exptl::nsv::spec_and_mol_no_t atom_spec = *((exptl::nsv::spec_and_mol_no_t *) data);
-      std::cout << "go to atom " << atom_spec.atom_spec << " of molecule number "
-		<< atom_spec.mol_no << std::endl;
       set_go_to_atom_molecule(atom_spec.mol_no);
       set_go_to_atom_from_spec(atom_spec.atom_spec);
       
@@ -378,7 +396,8 @@ exptl::nsv::get_residue_counts(CMMDBManager *mol) const {
 		<< n_residue_count << std::endl;
       exptl::nsv::chain_length_residue_units_t p(chain_p->GetChainID(),
 						 n_residue_count,
-						 lowest_resno);
+						 lowest_resno,
+						 highest_resno);
       chain_length_residue_units.push_back(p);
    }
 
@@ -396,6 +415,8 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
    GtkCanvasPoints *points = gtk_canvas_points_new(2);
    float font_scaler = pixels_per_letter;
 
+   std::cout << "DEBUG:: in draw_axes() ticks stop at " << brn << std::endl;
+
    // ticks and text
    int irn_start = tick_start_number(lrn);
    // 2 sets of x-axis and ticks and tick numbers, one above and one
@@ -410,12 +431,6 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       points->coords[1] = y_value;
       points->coords[2] = brn*font_scaler;
       points->coords[3] = y_value;
-
-      //
-      std::cout << "y values for x axis: " <<  points->coords[1]
-		<< " from " << y_value << " "
-		<< clru.size() << " and " << pixels_per_chain
-		<< std::endl;
 
       double tick_length = 3.0;
       if (i_ax_pos == 1)
