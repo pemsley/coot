@@ -692,14 +692,20 @@
 	(list "binary-Linux-i386-fedora-4-python-gtk2"
 	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2"))
 
-	(list "binary-Linux-i386-fedora-6-python-gtk2"
-	      "Linux-setsuko.chem.york.ac.uk/gtk2" #t)
+;	(list "binary-Linux-i386-fedora-6-python-gtk2"
+;	      "Linux-setsuko.chem.york.ac.uk/gtk2" #t)
 
-	(list "binary-Linux-i386-fedora-6"
-	      "Linux-setsuko.chem.york.ac.uk/gtk1" #f)
+;	(list "binary-Linux-i386-fedora-6"
+;	      "Linux-setsuko.chem.york.ac.uk/gtk1" #f)
 
-	(list "binary-Linux-i386-fedora-6-python"
-	      "Linux-setsuko.chem.york.ac.uk/gtk1" #t)
+;	(list "binary-Linux-i386-fedora-6-python"
+;	      "Linux-setsuko.chem.york.ac.uk/gtk1" #t)
+
+	(list "binary-Linux-i386-fedora-10-python-gtk2"
+	      "fedora-10/gtk2" #t)
+
+	(list "binary-Linux-i386-fedora-8-python-gtk2"
+	      "fedora-8/gtk2" #t)
 
 ;	(list "binary-Linux-i386-fedora-8"
 ;	      "Linux-dragon.chem.york.ac.uk/gtk1" #f)
