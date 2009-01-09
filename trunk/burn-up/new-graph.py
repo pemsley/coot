@@ -14,9 +14,11 @@
 from pychart import *
 theme.get_options()
 theme.output_format="png"
-theme.scale_factor=3.0
+theme.scale_factor=4.2
 theme.default_font_size=6
 theme.reinitialize()
+
+can = canvas.default_canvas()
 
 # We have 10 sample points total.  The first value in each tuple is
 # the X value, and subsequent values are Y values for different lines.
@@ -35,14 +37,13 @@ yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 # y_ranges, Pychart will pick the minimum Y value among the samples,
 # i.e., 20, as the base value of Y axis.
 ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,30), y_range=(0,180))
-can = canvas.default_canvas()
 
 # The first plot extracts Y values from the 2nd column
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
 # column, which is the default.
 plot = line_plot.T(label="Done", data=data, ycol=1)
 # plot2 = line_plot.T(label="Total", data=data, ycol=2, tick_mark=tick_mark.square)
-plot2 = line_plot.T(label="Total", data=data, ycol=2)
+plot2 = line_plot.T(label="Total Scope for 0.6", data=data, ycol=2)
 
 ar.add_plot(plot, plot2)
 
@@ -52,15 +53,23 @@ ar.add_plot(plot, plot2)
 ar.draw()
 
 
+
 yloc = ar.loc[1] + ar.size[1] + 50
 ytip = ar.loc[1] + ar.size[1]
 ybot = ar.loc[1]
 
-def describeEvent(seconds, label, off):
-    x1 = ar.x_pos(seconds)
-    can.line(line_style.black_dash1, x1, ybot, x1, ytip)
-    tb = text_box.T(text=label, loc=(x1+off, yloc), shadow=(2,-2,fill_style.gray70))
-    tb.add_arrow((x1, ytip))
+yloc = 20
+ybot = 0
+theme.default_font_size=4
+
+
+def describeEvent(days, label, off):
+    x1 = ar.x_pos(days)
+    # can.line(line_style.black_dash1, x1, ybot, x1, ytip)
+    # can.line(line_style.black_dash1, x1, ybot, x1, 2)
+    tb = text_box.T(text=label, loc=(x1+off, yloc), shadow=(1,-1,fill_style.gray70))
+    tb.add_arrow((x1, 0))
     tb.draw()
     
-describeEvent(5, "Christmas\nholidays", -10)
+describeEvent(5, "Christmas\nholidays start", -10)
+
