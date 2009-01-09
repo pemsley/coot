@@ -55,12 +55,15 @@ namespace exptl {
 	 std::string chain_id;
 	 int n_residue_count;
 	 int first_res_no;
+	 int max_resno;
 	 chain_length_residue_units_t(std::string chain_id_in,
 				      int n_res_count_in,
-				      int first_in) {
+				      int first_in,
+				      int max_resno_in) {
 	    chain_id = chain_id_in;
 	    n_residue_count = n_res_count_in;
 	    first_res_no = first_in;
+	    max_resno = max_resno_in;
 	 }
       };
 
@@ -81,7 +84,7 @@ namespace exptl {
       int molecule_number;
       GtkCanvas *canvas;
       std::vector<GtkCanvasItem *> canvas_item_vec;
-      void setup_canvas(CMMDBManager *mol);
+      void setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window);
       std::vector<chain_length_residue_units_t> get_residue_counts(CMMDBManager *mol) const;
       bool use_graphics_interface_flag;
       static void on_nsv_close_button_clicked (GtkButton *button,
