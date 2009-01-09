@@ -1751,22 +1751,20 @@ if test -n "$build_clipper" ; then
     # (it uses configure, not scons)
     #
     echo BUILDING clipper:
-    clipper_version=20ac
+    clipper_version=2.1-081201-ac
+    clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper$clipper_version.latest.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
        ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
     fi 
     (
-    mkdir clipper
-    cd clipper
-    gzip -dc ${AUTOBUILD_SOURCES}/clipper$clipper_version.latest.tar.gz | tar xf -
-    ccp4_libs_dir="`pwd`"
+    gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
+    cd clipper-$clipper_dir_version
     
     # make clipper
-    echo . -----------------------------------------------------------------------------------
-    echo . "         clipper                                                                  "
-    echo . -----------------------------------------------------------------------------------
-    cd $ccp4_libs_dir/lib/clipper
+    echo . ------------------------------------------------------------------------------
+    echo . "         clipper                                                            "
+    echo . ------------------------------------------------------------------------------
     if [ "$need_clipper_contrib_patch" = true ] ; then
        patch -p0 < ${AUTOBUILD_SOURCES}/clipper_test_contrib.cpp.patch
     fi
@@ -1784,7 +1782,6 @@ if test -n "$build_clipper" ; then
        CXXFLAGS="-g -O2 -fno-strict-aliasing"
     # we don't want to make the clipper executables, so let's cd in to the clipper libs and 
     # make (just) those.
-    cd clipper
     $MAKE
     status=$?
     clipper_status=$status
@@ -1794,7 +1791,6 @@ if test -n "$build_clipper" ; then
     else   
 	$MAKE install
     fi
-
     ) > $HOSTLOGDIR/04-clipper.txt 2>&1
 
     clipper_build_status=$?

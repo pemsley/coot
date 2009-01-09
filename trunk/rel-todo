@@ -164,6 +164,11 @@
    o find-waters --mapin 3bwp.map ... fails to run (silently) but
      using --hklin, --f and --phi worked. ::: 1
 
+   o Add a test for clear of generic object. ::: 1
+
+   o Add add rep of a residue.  Change background to white.  Move
+     molecule.  Ugliness! ::: 2 [Erik Vogan]
+
    o Make sure that .coot.py keybindings appear in the keybindings
      GUI. ::: 1
 

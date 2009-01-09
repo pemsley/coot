@@ -44,6 +44,8 @@
    #endif
 #endif
 
+#include "coot-coord-utils.hh"
+
 namespace exptl {
 
    class nsv {
@@ -61,7 +63,18 @@ namespace exptl {
 	    first_res_no = first_in;
 	 }
       };
-	 
+
+      class spec_and_mol_no_t {
+      public:
+	 int mol_no;
+	 coot::residue_spec_t res_spec;
+	 spec_and_mol_no_t(int mol_no_in, coot::residue_spec_t res_spec_in) {
+	    mol_no = mol_no_in;
+	    res_spec = res_spec_in;
+	 } 
+      };
+
+      int molecule_number;
       GtkCanvas *canvas;
       std::vector<GtkCanvasItem *> canvas_item_vec;
       void setup_canvas(CMMDBManager *mol);
@@ -72,7 +85,8 @@ namespace exptl {
       static void on_nsv_dialog_destroy (GtkObject *obj,
 					 gpointer user_data);
       static gint letter_clicked (GtkWidget *widget,
-				  GdkEvent *event);
+				  GdkEvent *event,
+				  gpointer data);
       void draw_axes(std::vector<chain_length_residue_units_t>, int l, int b);
       std::string fixed_font_str;
       int pixels_per_letter;
@@ -85,7 +99,7 @@ namespace exptl {
    public:
       nsv(CMMDBManager *mol,
 	  const std::string &molecule_name,
-	  int molecule_number,
+	  int molecule_number_in,
 	  bool use_graphics_interface);
       void regenerate(CMMDBManager *mol);
       GtkWidget *Canvas() const { return GTK_WIDGET(canvas); }
