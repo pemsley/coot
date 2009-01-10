@@ -172,6 +172,11 @@
    o Make sure that .coot.py keybindings appear in the keybindings
      GUI. ::: 1
 
+   o get-monomer fails for JED.  Why? ::: 1
+
+   o geometry graph for residues at a gap - makes an inappropriate
+     link - e.g. 45-47 - it should check by distance ::: 1 [JED]
+
    o Art authors: 
        world in connect-to-world is "cartoon globe" by lunanaut
        computer mouse for scroll wheel by crispy.

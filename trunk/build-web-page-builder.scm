@@ -701,11 +701,11 @@
 ;	(list "binary-Linux-i386-fedora-6-python"
 ;	      "Linux-setsuko.chem.york.ac.uk/gtk1" #t)
 
-	(list "binary-Linux-i386-fedora-10-python-gtk2"
-	      "fedora-10/gtk2" #t)
-
 	(list "binary-Linux-i386-fedora-8-python-gtk2"
 	      "fedora-8/gtk2" #t)
+
+	(list "binary-Linux-i386-fedora-10-python-gtk2"
+	      "fedora-10/gtk2" #t)
 
 ;	(list "binary-Linux-i386-fedora-8"
 ;	      "Linux-dragon.chem.york.ac.uk/gtk1" #f)
