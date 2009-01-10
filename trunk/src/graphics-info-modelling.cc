@@ -429,19 +429,18 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       // This needs to be carefully handled when refactoring
 	       // this block.
 
-	       bool residues_order_flag =
+	       bool residues_ordered_flag =
 		  molecules[imol].progressive_residues_in_chain_check_by_chain(chain_id_1.c_str());
 
 	       GtkWidget *widget = create_no_restraints_info_dialog();
-	       if (!residues_order_flag) {
-		  GtkWidget *l = lookup_widget(widget, "no_restraints_extra_label");
-		  if (l) {
+	       GtkWidget *l = lookup_widget(widget, "no_restraints_extra_label");
+	       if (l) {
+		  if (!residues_ordered_flag) {
 		     gtk_widget_show(l);
 		  } else {
 		     gtk_widget_hide(l); // by default it is show.
-		  } 
+		  }
 	       }
-		  
 	       gtk_widget_show(widget);
 	    }
 	 }

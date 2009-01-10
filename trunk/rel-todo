@@ -10,16 +10,6 @@
 
 * What else is there to do here?  Write a test.
 
-   o Why does NAG not refine? e.g. 1h4p. ::: 2
-     
-* Actually it refines fine.  The problem is that 1h4p has residues out
-  of order which mess up the residue selection. Let's add a function
-  that test if residues are number in increasing order for a
-  particular chain.  Let's use that function and if they are not in
-  order, then add that to the warning text of the
-  no_restraints_dialog.  OK, needs testing on a PDB file that has an
-  unknown monomer but residues are not out of order. 
-
    o Seg Ids (Mailing list issue):
 
       At least in these two situations, I think that COOT could make a
@@ -284,4 +274,12 @@
   matrix.
 
 
-
+   o Why does NAG not refine? e.g. 1h4p. ::: 2
+     
+* Actually it refines fine.  The problem is that 1h4p has residues out
+  of order which mess up the residue selection. Let's add a function
+  that test if residues are number in increasing order for a
+  particular chain.  Let's use that function and if they are not in
+  order, then add that to the warning text of the
+  no_restraints_dialog.  OK, needs testing on a PDB file that has an
+  unknown monomer but residues are not out of order.  OK, tested. Fine.
