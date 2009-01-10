@@ -1962,19 +1962,27 @@ molecule_class_info_t::draw_dipoles() const {
 	 glTranslated(pt.x(), pt.y(), pt.z());
 	 glMultMatrixf(m.get());
 	 glBegin(GL_LINES);
-	 for (unsigned int i=0; i<arrow_points.size()-1; i++) {
-	    glVertex3d(arrow_points[i].x(),
-		       arrow_points[i].y(),
-		       arrow_points[i].z());
-	    glVertex3d(arrow_points[i+1].x(),
-		       arrow_points[i+1].y(),
-		       arrow_points[i+1].z());
-	    glVertex3d(-arrow_points[i].x(),
-		        arrow_points[i].y(),
-		        arrow_points[i].z());
-	    glVertex3d(-arrow_points[i+1].x(),
-		        arrow_points[i+1].y(),
-		        arrow_points[i+1].z());
+
+	 // scale the dipole
+	 //
+	 double ds = sqrt(d.lengthsq());
+	 std::vector<clipper::Coord_orth> local_arrow_points = arrow_points;
+	 for (unsigned int i=0; i<arrow_points.size(); i++)
+	    local_arrow_points[i] = 0.3 * ds * arrow_points[i];
+	       
+	 for (unsigned int i=0; i<local_arrow_points.size()-1; i++) {
+	    glVertex3d(local_arrow_points[i].x(),
+		       local_arrow_points[i].y(),
+		       local_arrow_points[i].z());
+	    glVertex3d(local_arrow_points[i+1].x(),
+		       local_arrow_points[i+1].y(),
+		       local_arrow_points[i+1].z());
+	    glVertex3d(-local_arrow_points[i].x(),
+		        local_arrow_points[i].y(),
+		        local_arrow_points[i].z());
+	    glVertex3d(-local_arrow_points[i+1].x(),
+		        local_arrow_points[i+1].y(),
+		        local_arrow_points[i+1].z());
 	 }
 	 glEnd();
 	 glPopMatrix();

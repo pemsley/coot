@@ -10,29 +10,7 @@
 
 * What else is there to do here?  Write a test.
 
-   o need a function (bound to Shift D) to update dots centred around
-     this point.  interactive-probe does something like we want, but
-     with the filenames already written to disk.  We need to protect
-     interactive-probe by checking a global flag that is set the
-     first time we run interactive-probe (i.e. we test for
-     command-in-path? only once) ::: 1
-
-* This turned out to be much harder that I'd supposed.  First, I
-  needed to turn off the Shifted key bindings (now D is different to
-  d).  Next, I had to write a new routine probe-local-sphere which
-  uses get-probe-dots-from.  There was a problem because if the atom
-  selection radius and the probe radius are the same, then sometimes
-  the middle atom of a bonded angle set is missing (outside the
-  sphere) and that leads to bad clashes.  So I had to update
-  new-molecule-by-sphere-selection to allow the writing of whole
-  residues optionally.  This prevents the missing middle atom problem
-  and now the probe-local-sphere works nicely. There is a problem of
-  alt confs here though.  The alt conf specifier in
-  deep_copy_this_residue() is checked "by hand" so "*" doesn't work.
-  Maybe deep_copy_this_residue() [mmdb-extras, I think] should be
-  changed so that it does.
-
-   o Why does NAG not refine? e.g. 1h4p.
+   o Why does NAG not refine? e.g. 1h4p. ::: 2
      
 * Actually it refines fine.  The problem is that 1h4p has residues out
   of order which mess up the residue selection. Let's add a function
@@ -40,11 +18,7 @@
   particular chain.  Let's use that function and if they are not in
   order, then add that to the warning text of the
   no_restraints_dialog.  OK, needs testing on a PDB file that has an
-  unknown monomer but residues are not out of order.  Hmm. ::: 2
-
-   o Display ligand diapoles using charges from cif file. ::: 4
-
-* There is a problem in orienting the dipole arrow.
+  unknown monomer but residues are not out of order. 
 
    o Seg Ids (Mailing list issue):
 
@@ -89,7 +63,8 @@
   was always wrong.  It turns out that wiggly ligands was setting the
   torsion of the C8 N9 C1* H1* instead.  Hopelessly wrong.  To fix
   this needs a re-write of the torsion setting code. Sigh.  Strange
-  that I haven't notice this before.
+  that I haven't notice this before.  Waiting for Stuart to fix
+  SetDihedralAngle().
 
    o Bill: This might be hard to implement, but in case it isn't, I
      thought it might be worth suggesting...
@@ -279,4 +254,34 @@
 * Well, that it works nicely was nothing to do with me, as it turns
   out, and everything to do with new probe (I suppose).  I doesn't
   need CONECT cards to do the ligand hydrogen contacts now.
+
+   o need a function (bound to Shift D) to update dots centred around
+     this point.  interactive-probe does something like we want, but
+     with the filenames already written to disk.  We need to protect
+     interactive-probe by checking a global flag that is set the
+     first time we run interactive-probe (i.e. we test for
+     command-in-path? only once) ::: 1
+
+* This turned out to be much harder that I'd supposed.  First, I
+  needed to turn off the Shifted key bindings (now D is different to
+  d).  Next, I had to write a new routine probe-local-sphere which
+  uses get-probe-dots-from.  There was a problem because if the atom
+  selection radius and the probe radius are the same, then sometimes
+  the middle atom of a bonded angle set is missing (outside the
+  sphere) and that leads to bad clashes.  So I had to update
+  new-molecule-by-sphere-selection to allow the writing of whole
+  residues optionally.  This prevents the missing middle atom problem
+  and now the probe-local-sphere works nicely. There is a problem of
+  alt confs here though.  The alt conf specifier in
+  deep_copy_this_residue() is checked "by hand" so "*" doesn't work.
+  Maybe deep_copy_this_residue() [mmdb-extras, I think] should be
+  changed so that it does.
+
+   o Display ligand diapoles using charges from cif file. ::: 4
+
+* There was a problem in orienting the dipole arrow.  Talk with Kevin
+  fixed that.  I needed a dummy point to get a fill the rotation
+  matrix.
+
+
 
