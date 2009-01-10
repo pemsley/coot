@@ -366,6 +366,9 @@ function post_install_slim {
     mkdir_maybe $cleaned_dir
     mkdir_maybe $cleaned_dir/bin
     mkdir_maybe $cleaned_dir/lib
+    if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
+       mkdir_maybe $cleaned_dir/include/python$pver
+    fi
 
     lib_sos=`cd $fat_dir && ls -1 lib/lib*.so*`
     lib_as=`cd $fat_dir && ls -1 lib/lib*.a`
@@ -385,7 +388,7 @@ function post_install_slim {
 
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
         file_list="$file_list bin/python bin/python$pver bin/python-config \
-                   bin/python$python_version-config \
+                   bin/$python_version-config \
                    lib/$python_version include/python$pver"
     fi
     echo rsyncing...
@@ -396,7 +399,7 @@ function post_install_slim {
           # echo rsync -axr $fat_dir/$file $cleaned_dir/$dn
           rsync -axr $fat_dir/$file $cleaned_dir/$dn
        else
-          echo $fat_dir/$file does not exist
+          echo $file in $fat_dir does not exist, no sync.
        fi
     done
 }
