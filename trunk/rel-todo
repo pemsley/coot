@@ -177,6 +177,11 @@
    o geometry graph for residues at a gap - makes an inappropriate
      link - e.g. 45-47 - it should check by distance ::: 1 [JED]
 
+   o reset view behaves strangely sometimes? ::: 1
+
+   o Refine CL - should behave sensibly - possibly looking at
+     neighbours e.g. sphere refine ::: 2
+
    o Art authors: 
        world in connect-to-world is "cartoon globe" by lunanaut
        computer mouse for scroll wheel by crispy.
