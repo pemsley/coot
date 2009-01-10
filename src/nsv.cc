@@ -170,7 +170,8 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	 if (rcv[i].n_residue_count > biggest_res_number)
 	    biggest_res_number = rcv[i].max_resno;
       }
-
+      int total_res_range = biggest_res_number - lowest_resno;
+      
       std::vector<CResidue*> ins_code_residues =
 	 coot::util::residues_with_insertion_codes(mol);
 
@@ -180,6 +181,10 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
       
       if (ins_code_residues.size() == 0) { 
 
+	 int n_chains = rcv.size();
+	 int n_limited_chains = n_chains;
+	 if (n_limited_chains > 30)
+	    n_limited_chains = 30;
 	 // e.g. chain_id_graph_map["B"] -> (graph_group_no, sequence_line_no)
 	 // 
 	 std::map <std::string, std::pair<int, int> > chain_id_graph_map;
@@ -187,15 +192,12 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	 // 100 is good for 2 chains
 	 // 
 
-	 int canvas_x_size =  5 + (biggest_res_count) * 10;
+	 int canvas_x_size =  5 + total_res_range * 8 + 140;
 	 // 50 is good for 2 chains.
-	 int canvas_y_size =  5 + rcv.size() * 50; 
+	 int canvas_y_size =  5 + n_limited_chains * 50; 
 
-	 std::cout << "DEBUG:: biggest_res_count is " << biggest_res_count
-		   << " with canvas_x_size " << canvas_x_size << std::endl;
-
-	 // the size of the widget on the screen
-	 gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+rcv.size()));
+	 // the size of the widget on the screens
+	 gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+n_limited_chains));
 	 // the size of the canvas (e.g. long chain, we see only part
 	 // of it at one time).
 	 gtk_widget_set_usize(GTK_WIDGET(canvas), canvas_x_size, canvas_y_size);
@@ -220,10 +222,10 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	 // for 4 chains.
 	 
 	 scroll_height = canvas_y_size - 50 - 25 * rcv.size();
-	 scroll_width = canvas_x_size - 120 - left_limit ; // -120 for fat font on jackal
+	 scroll_width = canvas_x_size  - 130 - left_limit ; // -130 for fat font on jackal
    
-	 gtk_canvas_set_scroll_region(canvas, left_limit, upper_limit,
-				      scroll_width, scroll_height);
+ 	 gtk_canvas_set_scroll_region(canvas, left_limit, upper_limit,
+ 				      scroll_width, scroll_height);
 
 
 	 origin_marker();
@@ -276,10 +278,7 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number) {
       // 
       // Hmm... maybe I do.
       // 
-      // Maybe I don't - there are some positions where this even this
-      // rectangle click is ignored too.
-      // 
-      if (0) { 
+      if (1) { 
 	 double x1 = x - 2;
 	 double y1 = y + 5;
 	 double x2 = x1 + 7; // pixels_per_letter; 8 is too many for
@@ -341,7 +340,7 @@ exptl::nsv::letter_clicked (GtkWidget *widget,
 			    gpointer data) {
 
    if (event->motion.state & GDK_BUTTON1_MASK) {
-      // std::cout << "letter clicked" << std::endl;
+      std::cout << "letter clicked" << std::endl;
       exptl::nsv::spec_and_mol_no_t atom_spec = *((exptl::nsv::spec_and_mol_no_t *) data);
       set_go_to_atom_molecule(atom_spec.mol_no);
       set_go_to_atom_from_spec(atom_spec.atom_spec);
