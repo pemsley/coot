@@ -270,8 +270,7 @@
    o Display ligand diapoles using charges from cif file. ::: 4
 
 * There was a problem in orienting the dipole arrow.  Talk with Kevin
-  fixed that.  I needed a dummy point to get a fill the rotation
-  matrix.
+  fixed that.  I needed a dummy point to fill the rotation matrix.
 
 
    o Why does NAG not refine? e.g. 1h4p. ::: 2
