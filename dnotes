@@ -3962,4 +3962,21 @@ INFO::
    o Build binaries on some hosts
    o Mail mailing list
 
+---
+Mon Jan 12 00:17:05 GMT 2009
+
+   run libcheck from a pdb file:
+
+
+Y
+_FILE_L /home/paule/ccp4i/rnase/STU_bondlist.cif
+_MON STU
+_SRCH N
+_FILE_O /home/paule/ccp4_scr/RNAse_22
+_REF
+_END
+
+Fine but where did /home/paule/ccp4i/rnase/STU_bondlist.cif come from?
+
+
 -----
