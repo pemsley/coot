@@ -689,11 +689,6 @@ graphics_info_t::check_dictionary_for_residues(PCResidue *SelResidues, int nSelR
 	    resname = resname.substr(0,2);
       status = geom_p->have_dictionary_for_residue_type(resname,
 							cif_dictionary_read_number);
-      std::cout << "DEBUG:: residue " << ires << " of " << nSelResidues
-		<< " have_dictionary_for_residue "
-		<< coot::residue_spec_t(SelResidues[ires])
-		<< " type :" << resname
-		<< ": returns " << status << std::endl;
       
       cif_dictionary_read_number++;
       // This bit is redundant now that try_dynamic_add has been added

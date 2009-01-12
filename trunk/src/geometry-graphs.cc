@@ -234,11 +234,13 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
    std::vector<double> distortion_sum  (max_resno - min_resno + 1, 0);
    std::vector<double> distortion_worst(max_resno - min_resno + 1, 0);
    std::vector<std::string> atom_of_distortion(max_resno - min_resno + 1, " CA ");
+
+   // resi_of_distortion gets set by bond restraints (only).
    std::vector<int>         resi_of_distortion(max_resno - min_resno + 1,
 					       NO_DISTORTION_IN_THIS_RESIDUE); // unassigned.
    std::vector<std::string> distortion_string(distortion_sum.size());
 
-   std::cout << "DEBUG:: dc has size " << dc.size() << " in render_blocks_internal\n";
+   // std::cout << "DEBUG:: dc has size " << dc.size() << " in render_blocks_internal\n";
    
    for (unsigned int i=0; i<dc.geometry_distortion.size(); i++) {
       std::string info_stub;
@@ -271,6 +273,9 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	    info += " z score: ";
 	    info += coot::util::float_to_string(sqrt(extra));
 	    atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->name;
+// 	    std::cout << "DEBUG::  BOND_RESTRAINT setting resi_of_distortion["
+// 		      << this_resno1 - min_resno << "] to " << dc.atom[idx1]->GetSeqNum()
+// 		      << std::endl;
 	    resi_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->GetSeqNum();
 	    distortion_string[this_resno1 - min_resno] = info;
 	    distortion_worst[this_resno1 - min_resno] = extra;
@@ -302,7 +307,6 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	    info += coot::util::float_to_string(sqrt(extra));
 	    distortion_string[this_resno1 - min_resno] = info;
 	    atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx2]->name;
-	    resi_of_distortion[this_resno1 - min_resno] = dc.atom[idx2]->GetSeqNum();
 	    distortion_worst[this_resno1 - min_resno] = extra;
 	 }
 	 distortion_sum[this_resno1 - min_resno] += 0.333 * dc.geometry_distortion[i].distortion_score * occ1;
@@ -331,7 +335,6 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 		  info += coot::util::float_to_string(sqrt(extra));
 		  distortion_string[this_resno1 - min_resno] = info;
 		  atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->name;
-		  resi_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->GetSeqNum();
 		  distortion_worst[this_resno1 - min_resno] = extra;
 	       }
 	       distortion_sum[this_resno1 - min_resno] +=
@@ -345,25 +348,28 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
    // 
    // 
    int chain_number = chain_id_to_chain_index(dc.chain_id);
-   if (chain_number >= 0) { 
+   if (chain_number >= 0) {
+
       for (unsigned int ires=0; ires<distortion_sum.size(); ires++) { 
-	 this_resno1 = ires + min_resno;
 	 this_resno1 = resi_of_distortion[ires];
 	 if (this_resno1 != NO_DISTORTION_IN_THIS_RESIDUE) { 
-// 	    std::cout << "DEBUG:: oops! found resi_of_distortion[" << ires << "] is "
-// 		      << this_resno1 << std::endl;
 	    std::string inscode("");
 	    std::string at_name = atom_of_distortion[ires];
 	    std::string altconf("");
 	    coot::atom_spec_t atom_spec(dc.chain_id, this_resno1, inscode, at_name, altconf);
+// 	    std::cout << "DEBUG:: making block_info with this_resno1 " << this_resno1
+// 		      << " from ires " << ires << std::endl;
 	    geometry_graph_block_info block_info(imol, this_resno1, atom_spec,
 						 0.6 * distortion_sum[ires], 
 						 distortion_string[ires], canvas);
-	    //  	 std::cout << "DEBUG:: plot_block (geom dist) " << block_info.resno
-	    //  		   << " " << min_resno << " " << offsets[chain_number] << " "
-	    //                     << chain_number << std::endl;
+// 	    std::cout << "DEBUG:: plot_block (geom dist) " << block_info.resno
+// 		      << " " << min_resno << " " << offsets[chain_number] << " "
+// 		      << chain_number << std::endl;
 	    plot_block(block_info, offsets[chain_number], chain_number);
-	 }
+// 	 } else {
+// 	    std::cout << "DEBUG:: Found NO_DISTORTION_IN_THIS_RESIDUE for "
+// 		      << ires << std::endl;
+	 } 
       }
    } else {
       // Failing here?  Then check that the chain of these residues
@@ -631,10 +637,10 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    gtk_widget_set_usize(dialog, 600, 400);
    GtkWidget *scrolled_window = lookup_widget(dialog, "geometry_graphs_scrolledwindow");
 
-   std::cout << "INFO:: canvas size based on " << n_chains << " chains with max"
-	     << " length " << max_chain_length << std::endl;
-   std::cout << "INFO:: canvas size: " << canvas_usize_x << " " << canvas_usize_y
-	     << std::endl;
+//    std::cout << "INFO:: canvas size based on " << n_chains << " chains with max"
+// 	     << " length " << max_chain_length << std::endl;
+//    std::cout << "INFO:: canvas size: " << canvas_usize_x << " " << canvas_usize_y
+// 	     << std::endl;
 
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					 GTK_WIDGET(canvas));
