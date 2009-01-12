@@ -258,19 +258,21 @@ coot_real_SOURCES = \
 	globjects.cc 		 \
 	globjects.h gl-matrix.h  \
 	graphics-info.cc	 \
-	graphics-info-modelling.cc \
-	graphics-info-graphs.cc	 \
-	graphics-info-state.cc	 \
 	graphics-info-defines.cc \
-	graphics-info-lsq.cc	 \
-	graphics-info-pick.cc	 \
-	graphics-info-render.cc	 \
-	graphics-info-mutate.cc	 \
-	graphics-info-superpose.cc	\
+	graphics-info-refmac.cc  \
+	graphics-info-graphs.cc	 \
+	graphics-info-gui.cc	 \
+	graphics-info-modelling.cc \
 	graphics-info-navigation.cc	\
 	graphics-info-navigation-gtk1.cc\
 	graphics-info-navigation-gtk2.cc\
 	graphics-info-preferences.cc	\
+	graphics-info-mutate.cc	 \
+	graphics-info-lsq.cc	 \
+	graphics-info-pick.cc	 \
+	graphics-info-render.cc	 \
+	graphics-info-state.cc	 \
+	graphics-info-superpose.cc	\
 	gl-matrix.cc 		 \
 	graphics-info.h 	 \
 	gtk-manual.cc		 \
