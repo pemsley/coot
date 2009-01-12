@@ -1056,7 +1056,7 @@ void generic_object_clear(int object_number) {
    graphics_info_t g;
    if (object_number >= 0) {
       if (object_number < int(g.generic_objects_p->size())) {
-	 g.generic_objects_p[object_number].clear();
+	 (*g.generic_objects_p)[object_number].clear();
       }
    } 
  

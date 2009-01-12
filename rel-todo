@@ -112,8 +112,6 @@
      problem in the update, how do I set continuous updates on the
      resulting colour chooser?  ::: 2 
 
-   o Geometric distortions graph for alt confs - currently broken? ::: 4
-
    o Integrate scripting functions into main documentation somehow.
      Well, you can look at this, if it is hard, punt it.
      ::: 2
@@ -124,9 +122,7 @@
    o Helix fitting overshoots - e.g.     
        1a02: place helix here at (9.2 36.6 28.3)
        1env: place helix here - many places.  Lots of errors.
-    ::: 4
-
-   o Add a test for clear of generic object. ::: 1
+       ::: 4
 
    o Add add rep of a residue.  Change background to white.  Move
      molecule.  Ugliness! ::: 2 [Erik Vogan]
@@ -136,12 +132,10 @@
 
    o get-monomer fails for JED.  Why? ::: 1
 
+   o Geometric distortions graph for alt confs - currently broken? ::: 4
+
    o Refine CL - should behave sensibly - possibly looking at
      neighbours e.g. sphere refine ::: 2
-
-   o Art authors: 
-       world in connect-to-world is "cartoon globe" by lunanaut
-       computer mouse for scroll wheel by crispy.
 
 
 ------
@@ -291,6 +285,14 @@
    o reset view behaves strangely sometimes? ::: 1
 
 * Done.  A fixed value was being used in setRotationCentreAndZoom().
+
+   o Add a test for clear of generic object. ::: 1
+
+* Done.  There was a bug in indexing of the generic object array.
+
+   o Art authors: 
+       world in connect-to-world is "cartoon globe" by lunanaut
+       computer mouse for scroll wheel by crispy.
 
 
 
