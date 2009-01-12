@@ -1195,7 +1195,7 @@ graphics_info_t::setRotationCentreAndZoom(coot::Cartesian centre,
 
    if (graphics_info_t::smooth_scroll == 1)
       smooth_scroll_maybe(centre.x(), centre.y(), centre.z(),
-			  1, 100.0);
+			  1, target_zoom);
 
    rotation_centre_x = centre.get_x();
    rotation_centre_y = centre.get_y();

@@ -222,7 +222,11 @@ main(int argc, char **argv) {
 	 }
       }
       
-      if (do_it) { 
+      if (! do_it) {
+
+	 std::cout << "Bad command line" << std::endl;
+
+      } else { 
 
 	 float input_sigma_level = atof(sigma_str.c_str());
 	 short int use_weights = 0;
@@ -243,75 +247,75 @@ main(int argc, char **argv) {
 	       std::cout << "ERROR: in filling map from mtz file: " << mtz_filename
 			 << std::endl;
 	       exit(1);
+	    }
+
+	 }
+
+	 if (! do_flood_flag) { 
+	    if (pdb_file_name.length() == 0) {
+	       std::cout << "confused input: no pdb input name and no --flood specified...\n";
+	       exit(1);
 	    } else { 
+	       if (do_chop_flag == 0) { 
 
-	       if (! do_flood_flag) { 
-		  if (pdb_file_name.length() == 0) {
-		     std::cout << "confused input: no pdb input name and no --flood specified...\n";
-		     exit(1);
+		  // mask_by_atoms() [which calls mask_map(flag)] here in
+		  // find-waters currently behaves differently to
+		  // c-interface-waters.cc's mask_map(mol, water_flag)
+		  // resulting in move_atom_to_peak() moving wats to the
+		  // wrong place
+		  //
+		  lig.set_map_atom_mask_radius(1.9);
+		  lig.mask_by_atoms(pdb_file_name);
+		  if (lig.masking_molecule_has_atoms()) { 
+		     lig.output_map("find-waters-masked.map");
+		     // 		  std::cout << "DEBUG:: in findwaters: using input_sigma_level: "
+		     // 			    << input_sigma_level << std::endl;
+		     lig.water_fit(input_sigma_level, 3); // e.g. 2.0 sigma for 3 cycles 
+		     coot::minimol::molecule water_mol = lig.water_mol();
+		     water_mol.write_file(output_pdb, 20.0);
 		  } else { 
-		     if (do_chop_flag == 0) { 
-
-			// mask_by_atoms() [which calls mask_map(flag)] here in
-			// find-waters currently behaves differently to
-			// c-interface-waters.cc's mask_map(mol, water_flag)
-			// resulting in move_atom_to_peak() moving wats to the
-			// wrong place
-			//
-			lig.set_map_atom_mask_radius(1.9);
-			lig.mask_by_atoms(pdb_file_name);
-			if (lig.masking_molecule_has_atoms()) { 
-			   lig.output_map("find-waters-masked.map");
-			   // 		  std::cout << "DEBUG:: in findwaters: using input_sigma_level: "
-			   // 			    << input_sigma_level << std::endl;
-			   lig.water_fit(input_sigma_level, 3); // e.g. 2.0 sigma for 3 cycles 
-			   coot::minimol::molecule water_mol = lig.water_mol();
-			   water_mol.write_file(output_pdb, 20.0);
-			} else { 
-			   std::cout << "No atoms found in masking molecule: " 
-				     << pdb_file_name << std::endl;
-			}
-
-		     } else {
-
-			// chop[py] waters!
-			float input_sigma_level = atof(sigma_str.c_str());
-			clipper::Xmap<float> xmap;
-			coot::util::map_fill_from_mtz(&xmap, mtz_filename, f_col, phi_col, "", 
-						      use_weights, is_diff_map);
-			atom_selection_container_t asc = get_atom_selection(pdb_file_name);
-			short int waters_only_flag = 1;
-			short int remove_or_zero_occ_flag = coot::util::TRIM_BY_MAP_DELETE;
-			clipper::Map_stats stats(xmap);
-			float map_level = stats.mean() + input_sigma_level * stats.std_dev();
-			int n_atoms = coot::util::trim_molecule_by_map(asc, xmap, map_level,
-								       remove_or_zero_occ_flag,
-								       waters_only_flag);
-			std::cout << "INFO:: " << n_atoms << " waters removed" << std::endl;
-			asc.mol->WritePDBASCII((char *)output_pdb.c_str());
-		     }
+		     std::cout << "No atoms found in masking molecule: " 
+			       << pdb_file_name << std::endl;
 		  }
+
 	       } else {
-		  std::cout << "===================== Flood mode ======================= "
-			    << std::endl;
-		  // if a pdb file was defined, let's mask it
-		  if (pdb_file_name.length() > 0) {
-		     std::cout << "INFO:: masking map by coords in " << pdb_file_name << std::endl;
-		     lig.set_map_atom_mask_radius(1.9);
-		     lig.mask_by_atoms(pdb_file_name);
-		  } 
-		  lig.set_cluster_size_check_off();
-		  lig.set_chemically_sensible_check_off();
-		  lig.set_sphericity_test_off();
-		  lig.set_map_atom_mask_radius(1.2);
-		  lig.set_water_to_protein_distance_limits(10.0, 1.5); // should not be 
-		  // used in lig.
-		  lig.flood2(input_sigma_level); // with atoms (waters initially)
-		  coot::minimol::molecule water_mol = lig.water_mol();
-		  water_mol.write_file(output_pdb, 30.0);
-		  // lig.output_map("find-waters-masked-flooded.map");
+
+		  // chop[py] waters!
+		  float input_sigma_level = atof(sigma_str.c_str());
+		  clipper::Xmap<float> xmap;
+		  coot::util::map_fill_from_mtz(&xmap, mtz_filename, f_col, phi_col, "", 
+						use_weights, is_diff_map);
+		  atom_selection_container_t asc = get_atom_selection(pdb_file_name);
+		  short int waters_only_flag = 1;
+		  short int remove_or_zero_occ_flag = coot::util::TRIM_BY_MAP_DELETE;
+		  clipper::Map_stats stats(xmap);
+		  float map_level = stats.mean() + input_sigma_level * stats.std_dev();
+		  int n_atoms = coot::util::trim_molecule_by_map(asc, xmap, map_level,
+								 remove_or_zero_occ_flag,
+								 waters_only_flag);
+		  std::cout << "INFO:: " << n_atoms << " waters removed" << std::endl;
+		  asc.mol->WritePDBASCII((char *)output_pdb.c_str());
 	       }
 	    }
+	 } else {
+	    std::cout << "===================== Flood mode ======================= "
+		      << std::endl;
+	    // if a pdb file was defined, let's mask it
+	    if (pdb_file_name.length() > 0) {
+	       std::cout << "INFO:: masking map by coords in " << pdb_file_name << std::endl;
+	       lig.set_map_atom_mask_radius(1.9);
+	       lig.mask_by_atoms(pdb_file_name);
+	    } 
+	    lig.set_cluster_size_check_off();
+	    lig.set_chemically_sensible_check_off();
+	    lig.set_sphericity_test_off();
+	    lig.set_map_atom_mask_radius(1.2);
+	    lig.set_water_to_protein_distance_limits(10.0, 1.5); // should not be 
+	    // used in lig.
+	    lig.flood2(input_sigma_level); // with atoms (waters initially)
+	    coot::minimol::molecule water_mol = lig.water_mol();
+	    water_mol.write_file(output_pdb, 30.0);
+	    // lig.output_map("find-waters-masked-flooded.map");
 	 }
       }
    }
