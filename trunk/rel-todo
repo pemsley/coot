@@ -113,8 +113,12 @@
      resulting colour chooser?  ::: 2 
 
    o Integrate scripting functions into main documentation somehow.
-     Well, you can look at this, if it is hard, punt it.
+     Well, you can look at this, if it is hard, punt it.  
      ::: 2
+ 
+* It looks like it can be done using @html, @end html stipping out the
+  body etc tags. Ugly though.  Include files need to be in source doc
+  directory.  Call it xxx.html.texi and add @html tags in there.
 
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.  ::: 2
