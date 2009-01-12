@@ -1962,6 +1962,7 @@ if test -n "$build_clipper" ; then
     # that files untars into.
     clipper_version=20ac
     clipper_version=2.1-081118-ac
+    clipper_version=2.1-081201-ac
     clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
