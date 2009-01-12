@@ -3979,4 +3979,20 @@ _END
 Fine but where did /home/paule/ccp4i/rnase/STU_bondlist.cif come from?
 
 
+---
+Mon Jan 12 17:26:40 GMT 2009
+
+
+   INFO::
+
+   Nice example of sphere refinement:
+
+   set 37 B (or A) to rotamer 1.  
+
+   Do "r" refinement.  -> Wrong solution
+
+   Do "R" (sphere) refinment, PHE gets kicked and goes to the right
+   solution (I wonder if refmac would do that?)
+
+
 -----

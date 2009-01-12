@@ -141,6 +141,9 @@
    o Refine CL - should behave sensibly - possibly looking at
      neighbours e.g. sphere refine ::: 2
 
+   o write_residue_range_to_pdb_file need to write the correct chain
+     ::: 1
+
 
 ------
 
@@ -235,6 +238,7 @@
   out, and everything to do with new probe (I suppose).  I doesn't
   need CONECT cards to do the ligand hydrogen contacts now.
 
+
    o need a function (bound to Shift D) to update dots centred around
      this point.  interactive-probe does something like we want, but
      with the filenames already written to disk.  We need to protect
@@ -273,26 +277,29 @@
   no_restraints_dialog.  OK, needs testing on a PDB file that has an
   unknown monomer but residues are not out of order.  OK, tested. Fine.
 
+
    o geometry graph for residues at a gap - makes an inappropriate
      link - e.g. 45-47 - it should check by distance.  Make sure that
      a gap between a refined residue and a flank is handled properly
      (i.e. there should be no flanking restraints in that direction).
      ::: 1 [JED]
 
-* Seems good now (including flanking refine).
+* Seems good now (including flanking refine). 20080112.
 
    o find-waters --mapin 3bwp.map ... fails to run (silently) but
      using --hklin, --f and --phi worked. ::: 1
 
-* Done.  'if' logic messed up.
+* Done.  'if' logic messed up. 20080112.
 
    o reset view behaves strangely sometimes? ::: 1
 
-* Done.  A fixed value was being used in setRotationCentreAndZoom().
+* Done.  A fixed value was being used in
+  setRotationCentreAndZoom(). 20080112
 
    o Add a test for clear of generic object. ::: 1
 
-* Done.  There was a bug in indexing of the generic object array.
+* Done.  There was a bug in indexing of the generic object
+  array. 20080112
 
    o Art authors: 
        world in connect-to-world is "cartoon globe" by lunanaut

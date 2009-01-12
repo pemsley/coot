@@ -703,6 +703,16 @@ class graphics_info_t {
    static std::vector<std::string> other_modelling_tools_toggle_button_name_list();
    static std::vector<std::string> other_modelling_tools_button_name_list();
 
+   // rename me
+   coot::refinement_results_t
+     update_refinement_atoms(int n_restraints,
+			     coot::restraints_container_t &restraints,
+			     coot::refinement_results_t rr,
+			     atom_selection_container_t local_mov_ats, 
+			     bool need_residue_order_check, 
+			     int imol,
+			     std::string chain_id);
+   
    // ----------------------------------------------------------------
    //             public:
    // ----------------------------------------------------------------

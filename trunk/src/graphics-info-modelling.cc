@@ -379,72 +379,12 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
 	 if (do_numerical_gradients)
 	    restraints.set_do_numerical_gradients();
+
+	 rr = update_refinement_atoms(nrestraints, restraints, rr, local_moving_atoms_asc,
+				      1, imol, chain_id_1);
 	 
-	 if (nrestraints > 0) { 
-	    irest = 1;
-	    moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
-	    last_restraints = restraints;
-
-	    if (0) { 
-	       restraints.minimize(flags);
-	       regularize_object_bonds_box.clear_up();
-	       make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
-	    } else {
-	       regularize_object_bonds_box.clear_up();
-	       make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
-	       int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
-	       graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
-	       // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
-	       // << std::endl;
-	       short int continue_flag = 1;
-	       int step_count = 0; 
-	       print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
-	       while ((step_count < 10000) && continue_flag) {
-		  int retval = drag_refine_idle_function(NULL);
-		  step_count += dragged_refinement_steps_per_frame;
-		  if (retval == GSL_SUCCESS) { 
-		     continue_flag = 0;
-		     rr = graphics_info_t::saved_dragged_refinement_results;
-		  }
-		  if (retval == GSL_ENOPROG) {
-		     continue_flag = 0;
-		     rr = graphics_info_t::saved_dragged_refinement_results;
-		  }
-	       }
-
-	       // if we reach here with continue_flag == 1, then we
-	       // were refining (regularizing more like) and ran out
-	       // of steps before convergence.  We still want to give
-	       // the use a dialog though.
-	       //
-	       if (continue_flag == 1) {
-		  rr = graphics_info_t::saved_dragged_refinement_results;
-		  rr.info = "Time's up...";
-	       }
-	       
-	    }
-	 } else { 
-	    if (use_graphics_interface_flag) {
-
-	       // This needs to be carefully handled when refactoring
-	       // this block.
-
-	       bool residues_ordered_flag =
-		  molecules[imol].progressive_residues_in_chain_check_by_chain(chain_id_1.c_str());
-
-	       GtkWidget *widget = create_no_restraints_info_dialog();
-	       GtkWidget *l = lookup_widget(widget, "no_restraints_extra_label");
-	       if (l) {
-		  if (!residues_ordered_flag) {
-		     gtk_widget_show(l);
-		  } else {
-		     gtk_widget_hide(l); // by default it is show.
-		  }
-	       }
-	       gtk_widget_show(widget);
-	    }
-	 }
       }
+      
    } else {
       std::cout << "No Atoms!!!!  This should never happen: " << std::endl;
       std::cout << "  in create_regularized_graphical_object" << std::endl;
@@ -457,6 +397,92 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
 #endif // HAVE_GSL
 }
+
+
+coot::refinement_results_t
+graphics_info_t::update_refinement_atoms(int n_restraints,
+					 coot::restraints_container_t &restraints,
+					 coot::refinement_results_t rr_in,
+					 atom_selection_container_t local_moving_atoms_asc,
+					 bool need_residue_order_check,
+					 int imol,
+					 std::string chain_id_1) {
+   
+   coot::refinement_results_t rr = rr_in;
+   
+   if (n_restraints > 0) {
+      moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
+      last_restraints = restraints;
+
+      if (1) { // clear me up.
+	 regularize_object_bonds_box.clear_up();
+	 make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
+	 int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
+	 graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
+	 // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
+	 // << std::endl;
+	 short int continue_flag = 1;
+	 int step_count = 0; 
+	 print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
+	 while ((step_count < 10000) && continue_flag) {
+	    int retval = drag_refine_idle_function(NULL);
+	    step_count += dragged_refinement_steps_per_frame;
+	    if (retval == GSL_SUCCESS) { 
+	       continue_flag = 0;
+	       rr = graphics_info_t::saved_dragged_refinement_results;
+	    }
+	    if (retval == GSL_ENOPROG) {
+	       continue_flag = 0;
+	       rr = graphics_info_t::saved_dragged_refinement_results;
+	    }
+	 }
+
+	 // if we reach here with continue_flag == 1, then we
+	 // were refining (regularizing more like) and ran out
+	 // of steps before convergence.  We still want to give
+	 // the use a dialog though.
+	 //
+	 if (continue_flag == 1) {
+	    rr = graphics_info_t::saved_dragged_refinement_results;
+	    rr.info = "Time's up...";
+	 }
+	       
+      }
+   } else { 
+      if (use_graphics_interface_flag) {
+
+	 // residues might be out of order (causing problems in atom
+	 // selection).  But the sphere selection doesn't need this
+	 // check.
+	 
+	 if (need_residue_order_check) {
+
+	    bool residues_ordered_flag =
+	       molecules[imol].progressive_residues_in_chain_check_by_chain(chain_id_1.c_str());
+	    
+	    GtkWidget *widget = create_no_restraints_info_dialog();
+	    GtkWidget *l = lookup_widget(widget, "no_restraints_extra_label");
+	    if (l) {
+	       if (!residues_ordered_flag) {
+		  gtk_widget_show(l);
+	       } else {
+		  gtk_widget_hide(l); // by default it is show.
+	       }
+	    }
+	    gtk_widget_show(widget);
+	    
+	 } else { // just do it
+	 
+	    GtkWidget *widget = create_no_restraints_info_dialog();
+	    gtk_widget_show(widget);
+
+	 }
+      }
+   } 
+   return rr;
+} 
+
+
 
 void
 graphics_info_t::refine_residues_vec(int imol, 
@@ -508,6 +534,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
       
       std::string residues_alt_conf = ""; // fix me later
+      imol_moving_atoms = imol;
       std::pair<CMMDBManager *, std::vector<CResidue *> > residues_mol_and_res_vec =
 	 create_mmdbmanager_from_res_vector(residues, imol, mol, residues_alt_conf);
       atom_selection_container_t local_moving_atoms_asc =
@@ -519,68 +546,10 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 					      residues_mol_and_res_vec.first,
 					      fixed_atom_specs, xmap, weight);
       int n_restraints = restraints.make_restraints(*Geom_p(), flags, 0, 0.0, 0, coot::NO_PSEUDO_BONDS);
-      
-      // 
-      // ================= factor out this block ============================
-      // 
 
-
-      if (n_restraints > 0) {
-	 moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
-	 last_restraints = restraints;
-
-	 if (0) { 
-	    restraints.minimize(flags);
-	    regularize_object_bonds_box.clear_up();
-	    make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
-	 } else {
-	    regularize_object_bonds_box.clear_up();
-	    make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
-	    int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
-	    graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
-	    // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
-	    // << std::endl;
-	    short int continue_flag = 1;
-	    int step_count = 0; 
-	    print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
-	    while ((step_count < 10000) && continue_flag) {
-	       int retval = drag_refine_idle_function(NULL);
-	       step_count += dragged_refinement_steps_per_frame;
-	       if (retval == GSL_SUCCESS) { 
-		  continue_flag = 0;
-		  rr = graphics_info_t::saved_dragged_refinement_results;
-	       }
-	       if (retval == GSL_ENOPROG) {
-		  continue_flag = 0;
-		  rr = graphics_info_t::saved_dragged_refinement_results;
-	       }
-	    }
-
-	    // if we reach here with continue_flag == 1, then we
-	    // were refining (regularizing more like) and ran out
-	    // of steps before convergence.  We still want to give
-	    // the use a dialog though.
-	    //
-	    if (continue_flag == 1) {
-	       rr = graphics_info_t::saved_dragged_refinement_results;
-	       rr.info = "Time's up...";
-	    }
-	       
-	 }
-      } else { 
-	 if (use_graphics_interface_flag) {
-
-	    // the linear form is no longer the same here, it checks
-	    // the chain of chain_id to see of the residues are in
-	    // order.
-	    
-	    GtkWidget *widget = create_no_restraints_info_dialog();
-	    gtk_widget_show(widget);
-	 }
-      } 
-
-      // ================== end refactor block =====================
-      
+      std::string dummy_chain = ""; // not used
+      rr = update_refinement_atoms(n_restraints, restraints, rr, local_moving_atoms_asc,
+				   0, imol, dummy_chain);
    } 
 
    return rr;

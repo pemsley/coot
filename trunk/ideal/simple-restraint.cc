@@ -412,7 +412,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // indexing of that work when (say) adding a bond?
    coot::bonded_pair_container_t bpc = bonded_flanking_residues_by_residue_vector(geom);
 
-   std::cout << "   DEBUG:: made " << bpc.size() << " bonded flanking pairs " << std::endl;
+   //    std::cout << "   DEBUG:: made " << bpc.size() << " bonded flanking pairs " << std::endl;
 
    // passed and flanking
    std::vector<CResidue *> all_residues;
@@ -435,9 +435,10 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	 n_bonded_flankers_in_total++;
       } 
    }
-   std::cout << "   DEBUG:: There are " << residues.size() << " passed residues and "
-	     << all_residues.size() << " residues total (including flankers)"
-	     << std::endl;
+
+//    std::cout << "   DEBUG:: There are " << residues.size() << " passed residues and "
+// 	     << all_residues.size() << " residues total (including flankers)"
+// 	     << std::endl;
 
    n_atoms = 0;
    for (unsigned int i=0; i<all_residues.size(); i++) {
@@ -4027,8 +4028,9 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
    int n_link_torsion_restr = 0;
    int n_link_plane_restr = 0;
 
-   std::cout << "   DEBUG:: in make_link_restraints_by_pairs, linking "
-	     << bonded_residue_pairs.size() << " pairs" << std::endl;
+//    std::cout << "   DEBUG:: in make_link_restraints_by_pairs, linking "
+// 	     << bonded_residue_pairs.size() << " pairs" << std::endl;
+
    for (unsigned int ibonded_residue=0;
 	ibonded_residue<bonded_residue_pairs.size();
 	ibonded_residue++) {
@@ -4888,7 +4890,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_linear(const coot::pro
    }
    mol->DeleteSelection(selHnd);
 
-   std::cout << "DEBUG:: bonded_flanking_residues_by_linear() reutrns " << bpc;
+   // std::cout << "DEBUG:: bonded_flanking_residues_by_linear() reutrns " << bpc;
    return bpc;
 }
 
@@ -4909,10 +4911,10 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
 
       std::vector<CResidue *> neighbours = coot::residues_near_residue(residues_vec[ir].second,
 								       mol, dist_crit);
-      std::cout << " DEBUG:: bonded_flanking_residues_by_residue_vector using reference res "
- 		<< ir << " of " << residues_vec.size() << " " 
- 		<< residues_vec[ir].second << " with " << neighbours.size() << " neighbours"
-		<< std::endl;
+//       std::cout << " DEBUG:: bonded_flanking_residues_by_residue_vector using reference res "
+//  		<< ir << " of " << residues_vec.size() << " " 
+//  		<< residues_vec[ir].second << " with " << neighbours.size() << " neighbours"
+// 		<< std::endl;
       
       for (unsigned int ineighb=0; ineighb<neighbours.size(); ineighb++) {
 
@@ -4929,9 +4931,9 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
 	    // OK, so this neighbour was not in the passed set of
 	    // moving residues, it can be a flanking residue then...
 	    std::pair<bool, float> d = closest_approach(neighbours[ineighb], residues_vec[ir].second);
-	    std::cout << " not in residue vec... " << d.first << " " << d.second
-		      << " for " << coot::residue_spec_t(neighbours[ineighb]) << " to "
-		      << coot::residue_spec_t(residues_vec[ir].second) << std::endl;
+// 	    std::cout << " not in residue vec... " << d.first << " " << d.second
+// 		      << " for " << coot::residue_spec_t(neighbours[ineighb]) << " to "
+// 		      << coot::residue_spec_t(residues_vec[ir].second) << std::endl;
 	    if (d.first) {
 	       if (d.second < dist_crit) {
 		  std::pair<std::string, bool> l =
