@@ -3990,7 +3990,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 	     << std::endl;
    
    coot::bonded_pair_container_t bonded_residue_pairs = bonded_residues_conventional(selHnd, geom);
-   std::cout << "DEBUG:: in make_link_restraints_by_linear " << bonded_residue_pairs;
+
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Link");
 
    if (do_rama_plot_restraints)
@@ -4044,13 +4044,14 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 
       CResidue *sel_res_1 = bonded_residue_pairs[ibonded_residue].res_1;
       CResidue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
-      
-      
-      std::cout << "   looking for link :" << link_type
-		<< ": restraints etc. between residues " 
-		<< sel_res_1->GetChainID() << " " << sel_res_1->seqNum << " - " 
-		<< sel_res_2->GetChainID() << " " << sel_res_2->seqNum << std::endl;
 
+      if (0) { 
+	 std::cout << "   looking for link :" << link_type
+		   << ": restraints etc. between residues " 
+		   << sel_res_1->GetChainID() << " " << sel_res_1->seqNum << " - " 
+		   << sel_res_2->GetChainID() << " " << sel_res_2->seqNum << std::endl;
+      }
+	 
 // 	    gettimeofday(&start_time, NULL);
 
       // Are these residues neighbours?  We can add some sort of
@@ -4181,6 +4182,7 @@ coot::restraints_container_t::bonded_residues_conventional(int selHnd,
    coot::bonded_pair_container_t c = bonded_residues_by_linear(selHnd, geom);
 
    // Now, are there any other links?
+   //
    PPCResidue SelResidue;
    int nSelResidues;
    mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
@@ -4224,10 +4226,16 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
       for (int i=0; i<(nSelResidues-1); i++) {
 	 if (SelResidue[i] && SelResidue[i+1]) {
 
+
+	    // There are a couple of ways we allow links.  First, that
+	    // the residue numbers are consecutive.
+	    //
+	    // If there is a gap in residue numbering, the C and N
+	    // have to be within 3A.
+	    
 	    // Are these residues neighbours?  We can add some sort of
 	    // ins code test here in the future.
-	    if ( abs(SelResidue[i]->GetSeqNum() - SelResidue[i+1]->GetSeqNum()) <= 1
-		 || abs(SelResidue[i]->index - SelResidue[i+1]->index) <= 1) { 
+	    if ( abs(SelResidue[i]->GetSeqNum() - SelResidue[i+1]->GetSeqNum()) <= 1) { 
 	       link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
 	       if (link_type != "") {
 		  bool whole_first_residue_is_fixed = 0;
@@ -4237,6 +4245,32 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 					whole_second_residue_is_fixed, link_type);
 		  c.try_add(p);
 	       }
+	    }
+
+	    // distance check this one.... it could be the opposite of
+	    // an insertion code, or simply a gap - and we don't want
+	    // to make a bond for a gap.
+	    // 
+	    if (abs(SelResidue[i]->index - SelResidue[i+1]->index) <= 1) {
+	       // link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
+	       std::pair<std::string, bool> link_info =
+		  find_link_type_rigourous(SelResidue[i], SelResidue[i+1], geom);
+	       if (link_info.first != "") {
+		  bool whole_first_residue_is_fixed = 0;
+		  bool whole_second_residue_is_fixed = 0;
+		  if (link_info.second == 0) { 
+		     coot::bonded_pair_t p(SelResidue[i], SelResidue[i+1],
+					   whole_first_residue_is_fixed,
+					   whole_second_residue_is_fixed, link_type);
+		     c.try_add(p);
+		  } else {
+		     // order switch
+		     coot::bonded_pair_t p(SelResidue[i+1], SelResidue[i],
+					   whole_first_residue_is_fixed,
+					   whole_second_residue_is_fixed, link_type);
+		     c.try_add(p);
+		  }
+	       } 
 	    }
 	 }
       }
@@ -4536,6 +4570,7 @@ coot::restraints_container_t::link_infos_are_glycosidic_p(const std::vector<std:
 } 
 
 // Return the link type and a residue order switch flag.
+// Return link_type as "" if not found.
 // 
 std::pair<std::string, bool>
 coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue *second,
@@ -4549,11 +4584,11 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
    try {
       std::string group_1 = geom.get_group(first);
       std::string group_2 = geom.get_group(second);
-      std::cout << "====== debug:: find_link_type_rigourous() from "
-		<< first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetResName()
-		<< " <--> " 
-		<< second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
-		<< " " << std::endl;
+//       std::cout << "====== debug:: find_link_type_rigourous() from "
+// 		<< first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetResName()
+// 		<< " <--> " 
+// 		<< second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
+// 		<< " " << std::endl;
       try {
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
@@ -4608,8 +4643,8 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
    catch (std::runtime_error mess) {
       std::cout << mess.what() << std::endl;
    }
-   std::cout << "   DEBUG:: find_link_type_rigourous returns link type :"
-	     << link_type << ": and order-switch flag " << order_switch_flag << std::endl;
+//    std::cout << "   DEBUG:: find_link_type_rigourous returns link type :"
+// 	     << link_type << ": and order-switch flag " << order_switch_flag << std::endl;
    return std::pair<std::string, bool> (link_type, order_switch_flag);
 }
 
@@ -5703,39 +5738,21 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 	    for (int ifat=0; ifat<n_first_res_atoms; ifat++) { 
 	       std::string pdb_atom_name_1(first_sel[ifat]->name);
 
-//  	       std::cout << "debug:: comparing atom 1 :" << pdb_atom_name_1 << ": and :" 
-//  			 << geom.link(i).link_bond_restraint[j].atom_id_1_4c()
-//   			 << ":" << std::endl;
-
 	       if (pdb_atom_name_1 == geom.link(i).link_bond_restraint[j].atom_id_1_4c()) {
 		  for (int isat=0; isat<n_second_res_atoms; isat++) { 
 		     std::string pdb_atom_name_2(second_sel[isat]->name);
 
-//   		     std::cout << "debug:: comparing atom 2 :" << pdb_atom_name_2 << ": and :" 
-//   			       << geom.link(i).link_bond_restraint[j].atom_id_2_4c()
-//   			       << ":" << std::endl;
-		     
 		     if (pdb_atom_name_2 == geom.link(i).link_bond_restraint[j].atom_id_2_4c()) {
 
-  			std::cout << "   adding " << link_type << " bond for "
-				  << first->seqNum
-   				  << " -> " << second->seqNum << " atoms " 
-				  << first_sel [ifat]->GetAtomName() << " to "
-				  << second_sel[isat]->GetAtomName() 
-				  << std::endl;
-
-//  			int index1_old = get_asc_index(pdb_atom_name_1,
-//  						   first->seqNum,
-//  						   first->GetChainID());
-//  			int index2_old = get_asc_index(pdb_atom_name_2,
-//  						   second->seqNum,
-//  						   second->GetChainID());
+//   			std::cout << "DEBUG::  adding " << link_type << " bond for "
+// 				  << first->seqNum
+//    				  << " -> " << second->seqNum << " atoms " 
+// 				  << first_sel [ifat]->GetAtomName() << " to "
+// 				  << second_sel[isat]->GetAtomName() 
+// 				  << std::endl;
 
 			first_sel [ifat]->GetUDData(udd_atom_index_handle, index1);
 			second_sel[isat]->GetUDData(udd_atom_index_handle, index2);
-
-// 			std::cout << "add_link_bond: " << ifat << " " << index1 << std::endl;
-//  		        std::cout << "add_link_bond: " << isat << " " << index2 << std::endl;
 
 			// set the UDD flag for this residue being bonded/angle with 
 			// the other

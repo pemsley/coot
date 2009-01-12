@@ -140,7 +140,10 @@
    o get-monomer fails for JED.  Why? ::: 1
 
    o geometry graph for residues at a gap - makes an inappropriate
-     link - e.g. 45-47 - it should check by distance ::: 1 [JED]
+     link - e.g. 45-47 - it should check by distance.  Make sure that
+     a gap between a refined residue and a flank is handled properly
+     (i.e. there should be no flanking restraints in that direction).
+     ::: 1 [JED]
 
    o reset view behaves strangely sometimes? ::: 1
 

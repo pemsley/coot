@@ -2257,7 +2257,6 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 					   const std::string &group_2,
 					   bool allow_peptide_link_flag) const {
 
-   coot::chem_link cl("", "", "", "", "", "", "", "");
    bool switch_order_flag = 0;
    bool found = 0;
    
@@ -2272,26 +2271,37 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	 chem_link_vec[i_chem_link].matches_comp_ids_and_groups(comp_id_1, group_1,
 								comp_id_2, group_2);
       if (match_res.first) {
+	 
+// 	 std::cout << "... matching link "
+// 		   << comp_id_1 << " " << comp_id_2 << " " 
+// 		   << chem_link_vec[i_chem_link] << std::endl;
 	 // make sure that this link id is not a (currently) useless one.
 	 if (chem_link_vec[i_chem_link].Id() != "gap" &&
 	     chem_link_vec[i_chem_link].Id() != "symmetry") { 
 	    coot::chem_link clt = chem_link_vec[i_chem_link];
 	    if (!clt.is_peptide_link_p() || allow_peptide_link_flag) {
-	       cl = clt;
 	       switch_order_flag = match_res.second;
 	       found = 1;
-	       std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
+	       std::pair<coot::chem_link, bool> p(clt, switch_order_flag);
 	       matching_chem_links.push_back(p);
 	    }
 	 }
       }
    }
 
-   if (! found) {
-      std::string rte = "No chem link for ";
+   // When allow_peptide_link_flag is FALSE, we don't want to hear
+   // about not making a link between ASP and VAL etc (otherwise we
+   // do).
+   // 
+   if ( (!found) && (allow_peptide_link_flag)) {
+      std::string rte = "INFO:: No chem link for groups ";
       rte += group_1;
       rte += " ";
       rte += group_2;
+      rte += " and comp_ids ";
+      rte += comp_id_1;
+      rte += " ";
+      rte += comp_id_2;
       throw std::runtime_error(rte);
    }
    return matching_chem_links;
