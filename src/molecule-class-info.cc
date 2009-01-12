@@ -2718,6 +2718,7 @@ CMMDBManager
       }
    }
 
+   chain_new->SetChainID(chain_id.c_str());
    model_new->AddChain(chain_new);
    mol_new->AddModel(model_new);
    mol_new->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);

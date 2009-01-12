@@ -1317,7 +1317,7 @@ int write_pdb_file(int imol, const char *file_name);
 
 /*! \brief write molecule number imol's residue range as a PDB to file
   file_name */
-/*  return 0 on success, 1 on error. */
+/*  return 0 on success, -1 on error. */
 int write_residue_range_to_pdb_file(int imol, const char *chainid, 
 				    int resno_start, int resno_end, 
 				    const char *filename);
