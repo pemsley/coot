@@ -661,7 +661,7 @@ namespace coot {
       // Added to by the simple_mon_lib* functions.
       std::vector<dictionary_residue_restraints_t> simple_monomer_descriptions;
 
-      void comp_atom   (PCMMCIFLoop mmCIFLoop); 
+      int  comp_atom   (PCMMCIFLoop mmCIFLoop); 
       std::string comp_atom_pad_atom_name(const std::string &atom_id, const std::string &type_symbol) const;
       void chem_comp   (PCMMCIFLoop mmCIFLoop);
       void comp_tree   (PCMMCIFLoop mmCIFLoop); 
@@ -867,8 +867,7 @@ namespace coot {
       int init_standard(); // standard protein residues and links.
        			   // Return the current read_number
       
-      // Return 0 on failure to do a dynamic add (actually, the number of
-      // bond restraints found).
+      // Return 0 on failure to do a dynamic add 
       // 
       int try_dynamic_add(const std::string &resname, int read_number);  // return success status?
       // this is not const if we use dynamic add.
@@ -898,6 +897,8 @@ namespace coot {
       //
       int have_dictionary_for_residue_type(const std::string &monomer_type,
 					   int read_number);
+      // likewise not const
+      bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types);
 
       // add "synthetic" 5 atom planar peptide restraint
       void add_planar_peptide_restraint();

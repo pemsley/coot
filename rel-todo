@@ -138,13 +138,6 @@
 
    o Geometric distortions graph for alt confs - currently broken? ::: 4
 
-   o Refine CL - should behave sensibly - possibly looking at
-     neighbours e.g. sphere refine ::: 2
-
-   o write_residue_range_to_pdb_file need to write the correct chain
-     ::: 1
-
-
 ------
 
    o Does is_mainchain_atom() working for mainchain hydrogens?  
@@ -221,6 +214,7 @@
 
 * Done.
 
+
    o Use write_connectivity to generate ligand hydrogens. Use reduce
      and probe to make ligand interactions. It might be needed to ask
      Eugene about this.  Typical example is I have a model/PDB of
@@ -260,6 +254,7 @@
   deep_copy_this_residue() is checked "by hand" so "*" doesn't work.
   Maybe deep_copy_this_residue() [mmdb-extras, I think] should be
   changed so that it does.
+
 
    o Display ligand diapoles using charges from cif file. ::: 4
 
@@ -305,5 +300,16 @@
        world in connect-to-world is "cartoon globe" by lunanaut
        computer mouse for scroll wheel by crispy.
 
+* Done.
+
+   o write_residue_range_to_pdb_file need to write the correct chain
+     ::: 1
+
+* Done.
+
+   o Refine CL - should behave sensibly - possibly looking at
+     neighbours e.g. sphere refine ::: 2
+
+* Done.
 
 

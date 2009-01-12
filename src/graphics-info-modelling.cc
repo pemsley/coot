@@ -255,12 +255,14 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       SKEY_NEW // selection key
 	       );
    molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
-    std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
-    std::cout << "selecting from residue " << iselection_resno_start
-	      << " to " << iselection_resno_end << " selects "
-	      << nSelResidues << " residues" << std::endl;
 
-   std::cout << "=====================" << std::endl;
+   if (0) {  // debugging.
+      std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
+      std::cout << "selecting from residue " << iselection_resno_start
+		<< " to " << iselection_resno_end << " selects "
+		<< nSelResidues << " residues" << std::endl;
+   }
+
    std::pair<int, std::vector<std::string> > icheck = 
       check_dictionary_for_residues(SelResidues, nSelResidues);
 
@@ -272,9 +274,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       }
    } else {
       // debug
-      std::cout << "DEUBG:: check_dictionary_for_residues returns OK!" << std::endl;
+      std::cout << "DEBUG:: check_dictionary_for_residues returns OK!" << std::endl;
    } 
-   std::cout << "=====================" << std::endl;
 
    std::cout << "INFO:: " << nSelResidues 
 	     << " residues selected for refined and flanking residues"
@@ -451,31 +452,26 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
    } else { 
       if (use_graphics_interface_flag) {
 
-	 // residues might be out of order (causing problems in atom
+	 // Residues might be out of order (causing problems in atom
 	 // selection).  But the sphere selection doesn't need this
 	 // check.
 	 
-	 if (need_residue_order_check) {
-
+	 GtkWidget *widget = create_no_restraints_info_dialog();
+	 if (! need_residue_order_check) {
+	    gtk_widget_show(widget);
+	 } else { 
 	    bool residues_ordered_flag =
 	       molecules[imol].progressive_residues_in_chain_check_by_chain(chain_id_1.c_str());
 	    
-	    GtkWidget *widget = create_no_restraints_info_dialog();
 	    GtkWidget *l = lookup_widget(widget, "no_restraints_extra_label");
 	    if (l) {
 	       if (!residues_ordered_flag) {
 		  gtk_widget_show(l);
 	       } else {
-		  gtk_widget_hide(l); // by default it is show.
+		  gtk_widget_hide(l); // by default it is show?
 	       }
 	    }
 	    gtk_widget_show(widget);
-	    
-	 } else { // just do it
-	 
-	    GtkWidget *widget = create_no_restraints_info_dialog();
-	    gtk_widget_show(widget);
-
 	 }
       }
    } 
@@ -1184,7 +1180,7 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
       std::string chain_id_1(SelAtom[i_atom_no_1]->residue->GetChainID());
       std::string chain_id_2(SelAtom[i_atom_no_2]->residue->GetChainID());
       std::string altconf(SelAtom[i_atom_no_2]->altLoc);
-      short int is_water_flag = 0;
+      short int is_water_like_flag = 0;
       std::string resname_1(SelAtom[i_atom_no_1]->GetResName());
       std::string resname_2(SelAtom[i_atom_no_2]->GetResName());
       std::string inscode_1(SelAtom[i_atom_no_1]->GetInsCode());
@@ -1199,19 +1195,37 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
 	 inscode_1 = tmp_ins;
       }
       
-      // std::cout << "DEBUG:: altconf in refine :" << altconf << ":" << std::endl;
-      if (resname_1 == "WAT" || resname_1 == "HOH" ||
-	  resname_2 == "WAT" || resname_2 == "HOH")
-	 is_water_flag = 1;
+      is_water_like_flag = check_for_no_restraints_object(resname_1, resname_2);
       refine_residue_range(imol, chain_id_1, chain_id_2, resno_1, inscode_1,
-			   resno_2, inscode_2, altconf, is_water_flag);
+			   resno_2, inscode_2, altconf, is_water_like_flag);
    }
 }
+
+// I mean thinks liek HOH, CL, BR etc
+bool
+graphics_info_t::check_for_no_restraints_object(std::string &resname_1, std::string &resname_2) const {
+
+   bool r = 0;
+   if (resname_1 == "WAT" || resname_1 == "HOH" ||
+       resname_2 == "WAT" || resname_2 == "HOH")
+      r = 1;
+   if (resname_1 == "BR" || resname_1 == "CL" ||
+       resname_2 == "BR" || resname_2 == "CL")
+      r = 1;
+   if (resname_1 == "NA" || resname_1 == "CA" ||
+       resname_2 == "NA" || resname_2 == "CA")
+      r = 1;
+   if (resname_1 == "K" || resname_1 == "MG" ||
+       resname_2 == "K" || resname_2 == "MG")
+      r = 1;
+   return r;
+
+} 
 
 // The calling function need to check that if chain_id_1 and
 // chain_id_2 are not the same chain (CChain *), then we don't call
 // this function.  We don't want to do an atom selection here (we can
-// do that in copy_mol_and_refine), so we need to pass is_water_flag
+// do that in copy_mol_and_refine), so we need to pass is_water_like_flag
 // and the auto_range is determined by the calling function.  Here we
 // are passed the results of any auto_range calculation.
 // 
@@ -1224,13 +1238,13 @@ graphics_info_t::refine_residue_range(int imol,
 				      int resno_2,
 				      const std::string &ins_code_2,
 				      const std::string &altconf,
-				      short int is_water_flag) {
+				      short int is_water_like_flag) {
 
 //    std::cout << "DEBUG:: ================ refine_residue_range: "
 // 	     << imol << " " << chain_id_1
 //  	     << " " <<  resno_1 << ":" << ins_code_1 << ":"
 //  	     << " " <<  resno_2 << ":" << ins_code_2 << ":"
-//  	     << " " << ":" << altconf << ": " << is_water_flag << std::endl;
+//  	     << " " << ":" << altconf << ": " << is_water_like_flag << std::endl;
 
    int imol_map = Imol_Refinement_Map();
    if (imol_map == -1) { // magic number check,
@@ -1254,7 +1268,7 @@ graphics_info_t::refine_residue_range(int imol,
 					       // selected.
 	    short int simple_water = 0;
 	    if (resno_1 == resno_2) {
-	       if (is_water_flag) {
+	       if (is_water_like_flag) {
 		  simple_water = 1;
 // 		  std::string s = "That water molecule doesn't have restraints.\n";
 // 		  s += "Using Rigid Body Fit Zone";

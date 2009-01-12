@@ -1926,6 +1926,9 @@ public:
 		       std::string altconf, // use this altconf or "" atoms.
 		       std::string chain_id_1);
 
+   bool check_for_no_restraints_object(std::string &resname_1, std::string &resname_2) const;
+
+
    // void (int imol,
    // const std::vector<CResidue *> &residues); 
 
