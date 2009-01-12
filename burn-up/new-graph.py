@@ -29,7 +29,13 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # Here, texts are rotated -60 degrees ("/a-60"), left-aligned ("/hL"),
 # and numbers are printed as integers ("%d").
 #
-xaxis = axis.X(tic_interval = 2, label="Days (since pre-release start)")
+
+x_day_range = 30
+x_tick_interval = 2
+if (x_day_range > 40)
+   x_tick_interval = 5
+
+xaxis = axis.X(tic_interval = x_tick_interval, label="Days (since pre-release start)")
 yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 
 # Define the drawing area. "y_range=(0,None)" tells that the Y minimum
@@ -51,7 +57,6 @@ ar.add_plot(plot, plot2)
 # draws the axes, the plots, and the legend (if any).
 
 ar.draw()
-
 
 
 yloc = ar.loc[1] + ar.size[1] + 50
