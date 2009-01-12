@@ -2435,7 +2435,7 @@ write_residue_range_to_pdb_file(int imol, const char *chain_id,
 				int resno_start, int resno_end,
 				const char *filename) {
 
-   int istat = -1;
+   int istat = 1;
    if (is_valid_model_molecule(imol)) {
       std::string chain(chain_id);
       if (resno_end < resno_start) {

@@ -545,10 +545,16 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 		     dcv.push_back(restraints.geometric_distortions(flags));
 		  
 		  } else {
-		     GtkWidget *widget = create_no_restraints_info_dialog();
-		     gtk_widget_show(widget);
+
+		     // don't give this annoying dialog if restraints
+		     // have been read for the residues in this chain.
+		     // e.g. a single CLs residues in a chain.
+		     std::vector<std::string> res_types = coot::util::residue_types_in_chain(chain_p);
+		     if (!geom_p->have_dictionary_for_residue_types(res_types)) {
+			GtkWidget *widget = create_no_restraints_info_dialog();
+			gtk_widget_show(widget);
+		     }
 		  }
-		  
 	       }
 	       asc.mol->DeleteSelection(selHnd);
 	    }
