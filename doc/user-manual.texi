@@ -553,6 +553,7 @@ describing the particular features and are documented in Chapter
 * Screenshot::
 * Raster3D::
 * Display Manager::
+* The Modelling Toolbar::
 * The file selector::
 * Scripting::
 * Scheme::
@@ -1248,6 +1249,7 @@ file(s).
 * Mean and Median Temperature Factors::
 * Secondary Structure Matching (SSM)::
 * Least-Squares Fitting::
+* Ligand Overlaying::
 * Writing PDB files::
 @end menu
 
@@ -1823,8 +1825,8 @@ The scripting function
 
 returns a rotation+translation operator which can be applied to other
 molecules (and maps).  Here, @code{@emph{imol-ligand}} is the molecule
-number of the ligand (which is presumed to be a a molecule on its own
-- Coot simply takes the first residue that it finds). @code{imol-ref
+number of the ligand (which is presumed to be a a molecule on its own -
+Coot simply takes the first residue that it finds). @code{@emph{imol-ref
 chain-id-ref resno-ref}} collectively describe the target position for
 the moving @code{@emph{imol-ligand}} molecule.
 
@@ -4250,6 +4252,7 @@ One uses @code{findligand} like this:
  @emph{i.e.} the example ligand pdb files that you wish to search for
 are given at the end of the command line.
 
+@c @include dox/c-interface_8h.html.texi
 
 @node Index
 @unnumbered Index
