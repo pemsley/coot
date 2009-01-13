@@ -44,6 +44,7 @@ namespace coot {
       clipper::Coord_orth get_dipole() const { return dipole_; }
       clipper::Coord_orth get_unit_dipole() const;
       std::vector<std::pair<CAtom *, float> > charged_atoms(CResidue *r, const dictionary_residue_restraints_t &rest) const;
+      void fill_charged_atoms(CResidue *residue_p, const coot::dictionary_residue_restraints_t &rest);
    }; 
    std::ostream& operator<<(std::ostream &s, const dipole &d);
 }

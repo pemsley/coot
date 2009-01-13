@@ -1321,7 +1321,8 @@ class molecule_class_info_t {
 			   short int do_spheres_flag);
    void clear_display_list_object(GLuint tag);
 
-   void make_surface(int on_off_flag);
+   // the charges for the surface come from the dictionary.
+   void make_surface(int on_off_flag, const coot::protein_geometry &geom);
    
    void dynamically_transform(coot::CartesianPairInfo v);
    void set_draw_vecs(const coot::CartesianPair* c, int n) { 
@@ -2400,6 +2401,9 @@ class molecule_class_info_t {
    // bool residues_in_order_p(std::string &chain_id) const;
    
    coot::validation_graphs_t validation_graphs;
+
+
+   void apply_charges(const coot::protein_geometry &geom);
 
    void add_dipole(const coot::residue_spec_t &res,
 		   const coot::protein_geometry &geom);

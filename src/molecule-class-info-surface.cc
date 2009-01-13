@@ -53,20 +53,26 @@ molecule_class_info_t::draw_surface() {
 
 
 void
-molecule_class_info_t::make_surface(int on_off_flag) {
+molecule_class_info_t::make_surface(int on_off_flag,
+				    const coot::protein_geometry &geom) {
 
-   if (on_off_flag == 0) {
-      cootsurface = NULL;
-      glDeleteLists(theSurface, 1);
-   } else {
-      glDeleteLists(theSurface, 1);
-      theSurface = glGenLists(1);
-      glNewList(theSurface, GL_COMPILE);
-      cootsurface = new coot::surface;
-      cootsurface->fill_from(atom_sel.mol, atom_sel.SelectionHandle);
-      if (cootsurface) 
-	 cootsurface->draw(0, 0);
-      glEndList();
+   if (atom_sel.n_selected_atoms > 0) {
+
+      apply_charges(geom);
+      
+      if (on_off_flag == 0) {
+	 cootsurface = NULL;
+	 glDeleteLists(theSurface, 1);
+      } else {
+	 glDeleteLists(theSurface, 1);
+	 theSurface = glGenLists(1);
+	 glNewList(theSurface, GL_COMPILE);
+	 cootsurface = new coot::surface;
+	 cootsurface->fill_from(atom_sel.mol, atom_sel.SelectionHandle);
+	 if (cootsurface) 
+	    cootsurface->draw(0, 0);
+	 glEndList();
+      }
    }
 }
 
@@ -77,4 +83,6 @@ void
 molecule_class_info_t::do_solid_surface_for_density(short int on_off_flag) {
 
 }
+
+
 

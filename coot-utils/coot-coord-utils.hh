@@ -38,7 +38,12 @@
 #include "clipper/core/coords.h"
 #include "coot-lsq-types.h"
 
+// How should I do this better?
+#define CXX_UNSET_CHARGE -99.8
+
 namespace coot {
+
+   
 
    // Perhaps this should be a class function of a class derived from CMMDBManager?
    int write_coords_pdb(CMMDBManager *mol, const std::string &file_name);
