@@ -93,6 +93,10 @@
 #endif // SCM version
 #endif 
 
+#ifdef USE_PYTHON
+#include "Python.h"
+#include "cc-interface.hh"
+#endif
 
 // A few non-class members - should be somewhere else, I guess.
 // 
@@ -1042,9 +1046,9 @@ graphics_info_t::accept_moving_atoms() {
 void
 graphics_info_t::run_post_manipulation_hook(int imol, int mode) {
    
-#ifdef USE_GUILE
+#if defined USE_GUILE && !defined WINDOWS_MINGW
    run_post_manipulation_hook_scm(imol, mode);
-#endif    
+#endif // GUILE
 #ifdef USE_PYTHON
    run_post_manipulation_hook_py(imol, mode);
 #endif
@@ -1082,9 +1086,21 @@ void
 graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
    std::string pms = "post_manipulation_script";
-
-   // ... more here.
-   
+   PyObject *v = safe_python_command_with_return(pms);
+   if (v == Py_True) {
+     std::string ss = pms;
+     ss += "(";
+     ss += int_to_string(imol);
+     ss += ", ";
+     ss += int_to_string(mode);
+     ss += ")";
+     PyObject *res = safe_python_command_with_return(ss);
+     PyObject *p = PyString_FromFormat("result: %s\n", res); // new reference
+     std::cout << PyString_AsString(p);
+     Py_DECREF(res);
+     Py_DECREF(p);
+   }
+   Py_DECREF(v);
 }
 #endif
 

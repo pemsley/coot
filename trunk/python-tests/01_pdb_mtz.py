@@ -912,6 +912,18 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		    print "found %s neighbours %s" %(len(rs), rs)
 	    
 
+    def test29_1(self):
+	    """Residues in region of a point"""
+
+	    imol = unittest_pdb("tutorial-modern.pdb")
+	    pt = [43.838, 0.734, 13.811] # CA 47 A
+	    residues = residues_near_position(imol, pt, 2)
+	    self.failUnless(len(residues) == 1, "  Fail, got residues: %s" %residues)
+	    self.failUnless(residues[0] == [True, "A", 47, ""], "  Fail 2, got residues: %s" %residues)
+	    residues_2 = residues_near_position(imol, pt, 4)
+	    self.failUnless(len(residues_2) == 3, "  Fail 3, got residues-2: %s" %residues_2) #its neighbours too.
+	    
+
     def test30_0(self):
 	    """Empty molecule on type selection"""
 
@@ -951,6 +963,29 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(all(map(lambda d: d <= 0.6, dists)))
 	    self.failUnless(all(map(lambda d: d >= 0.0, dists)))
 	    
+
+    def test31_1(self):
+	    """Rotamer names and scores are correct"""
+
+	    imol = unittest_pdb("tutorial-modern.pdb")
+	    turn_off_backup(imol)  # easier for long function that using with_no_backup
+	    residue_attributes = ["A", 28, ""]
+	    for rotamer_number, correct_name, correct_prob \
+		in zip(range(5),
+		       # the spaces at the end of the name are in the Complete_rotamer_lib.csv
+		       # and hence in richardson-rotamers.cc.  C'est la vie.
+		       ["m-85", "t80", "p90", "m -30 ", "m -30 "],
+		       [100, 90.16684, 50.707787, 21.423154, 21.423154]):
+		    set_residue_to_rotamer_number(imol, *(residue_attributes + [rotamer_number]))
+		    rotamer_name = get_rotamer_name(imol, *residue_attributes)
+		    rotamer_prob = rotamer_score(imol, *residue_attributes)
+		    print " Rotamer %s : %s %s" %(rotamer_number, rotamer_name, rotamer_prob)
+		    self.failUnlessAlmostEqual(rotamer_prob, correct_prob, 3,
+					       "fail on rotamer probability %s %s" %(rotamer_prob, correct_prob)),
+		    self.failUnless(rotamer_name == correct_name)
+
+	    turn_on_backup(imol)
+
 
     def test32_0(self):
 	    """Align and mutate a model with deletions"""
@@ -1030,7 +1065,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    imol_map = make_and_draw_map(mtz_file_name,
 					 "2FOFCWT", "PH2FOFCWT", "", 0, 0)
 
-	    self.failUnless(valid_map_molecule_qm(imol_map))
+	    self.failUnless(valid_map_molecule_qm(imol_map), "   no map from 3hfl_sigmaa.mtz")
 
 	    leu_atoms_1 = residue_info(imol, "H", 52, "")
 	    leu_resname = residue_name(imol, "H", 52, "")
