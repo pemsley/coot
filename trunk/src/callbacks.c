@@ -251,11 +251,11 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
 					"coords_fileselection1");
   
   if (0) {			/* old style */
-  checkbutton = lookup_widget(GTK_WIDGET(button), 
+    checkbutton = lookup_widget(GTK_WIDGET(button), 
 			      "coords_fileselection1_recentre_checkbutton");
-  if (checkbutton) 
-    if (GTK_TOGGLE_BUTTON(checkbutton)->active)
-      recentre_on_read_pdb_flag = 1;
+    if (checkbutton)
+      if (GTK_TOGGLE_BUTTON(checkbutton)->active)
+	recentre_on_read_pdb_flag = 1;
   } else {
     /* new style 20081214 */
     option_menu = lookup_widget(GTK_WIDGET(button), 
@@ -266,8 +266,8 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
       active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
       printf("DEBUG:: on ok button pressed, active index %d\n", active_index);
       /* active items: 0: recentre view on new molecule
-                       1: don't recentre new molecule
-                       2: recentre new molecule on view
+	               1: don't recentre new molecule
+	               2: recentre new molecule on view
       */
       if (active_index == 0) 
 	recentre_on_read_pdb_flag = 1;
@@ -10118,17 +10118,30 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
  if (response_id == GTK_RESPONSE_OK) {
   const gchar *filename; 
   GtkWidget *coords_fileselection1;
-  GtkWidget *checkbutton;
+  GtkWidget *combobox;
   int recentre_on_read_pdb_flag = 0;
+  short int move_molecule_here_flag = 0;
+  int active_index;
 
   coords_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
                                         "coords_filechooserdialog1");
   
-  checkbutton = lookup_widget(GTK_WIDGET(dialog), 
-                              "coords_filechooserdialog1_recentre_checkbutton");
-  if (checkbutton) 
-    if (GTK_TOGGLE_BUTTON(checkbutton)->active)
+  combobox = lookup_widget(GTK_WIDGET(dialog), 
+                              "coords_filechooserdialog1_recentre_combobox");
+  if (combobox) {
+    active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(combobox));
+    printf("DEBUG:: on ok button pressed, active index %d\n", active_index);
+    /* active items: 0: recentre view on new molecule
+	             1: don't recentre new molecule
+	             2: recentre new molecule on view
+    */
+    if (active_index == 0) 
       recentre_on_read_pdb_flag = 1;
+    if (active_index == 1) 
+      recentre_on_read_pdb_flag = 0;
+    if (active_index == 2) 
+      move_molecule_here_flag = 1;
+  }
 
   save_directory_from_filechooser(coords_fileselection1);
 
@@ -10138,12 +10151,16 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
 /*     From here, we go into c++ (that's why the c++ function
        handle_read_draw needs to be declared external) and read the
        molecule and display it. */
-   
-  if (recentre_on_read_pdb_flag)
-    handle_read_draw_molecule_with_recentre(filename, 1);
-  else 
-    handle_read_draw_molecule_with_recentre(filename, 0); // no recentre
-
+  
+  if (move_molecule_here_flag) { 
+    handle_read_draw_molecule_and_move_molecule_here(filename);
+  } else { 
+    if (recentre_on_read_pdb_flag)
+      handle_read_draw_molecule_with_recentre(filename, 1);
+    else 
+      handle_read_draw_molecule_with_recentre(filename, 0); // no recentre
+  }
+  
   gtk_widget_destroy(coords_fileselection1);
 
  } else {
