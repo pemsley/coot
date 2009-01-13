@@ -1426,9 +1426,15 @@ SCM non_standard_residue_names_scm(int imol) {
 #ifdef USE_PYTHON
 PyObject *non_standard_residue_names_py(int imol) {
 
-   PyObject *o = NULL;
+  PyObject *r = PyList_New(0);
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      std::vector<std::string> resnames =
+	 coot::util::non_standard_residue_types_in_molecule(mol);
+      r = generic_string_vector_to_list_internal_py(resnames);
+   }
 
-   return o;
+   return r;  
 }
 #endif
 
@@ -1453,7 +1459,12 @@ PyObject *map_peaks_py(int imol_map, float n_sigma) {
 	 PyList_SetItem(coords, 2, PyFloat_FromDouble(peaks[i].first.z()));
 	 PyList_SetItem(r, i, coords);
       }
-   } 
+   }
+ 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+
    return r;
 }
 
@@ -1496,6 +1507,11 @@ PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y,
       }
       delete mol;
    } 
+
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+
    return r;
 }
 #endif 

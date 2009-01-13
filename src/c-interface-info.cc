@@ -820,10 +820,32 @@ SCM residues_near_position_scm(int imol, SCM pt_in_scm, float radius) {
 #endif 
 
 #ifdef USE_PYTHON
-PyObject *residues_near_position_py(int imol, PyObject *residue_in, float radius) {
+PyObject *residues_near_position_py(int imol, PyObject *pt_in_py, float radius) {
 
    PyObject *r = PyList_New(0);
 
+   if (is_valid_model_molecule(imol)) {
+
+      int pt_in_length = PyObject_Length(pt_in_py);
+      if (pt_in_length != 3) {
+	 std::cout << "WARNING:: input pt is not a list of 3 elements"
+		   << std::endl;
+      } else {
+
+	double x = PyFloat_AsDouble(PyList_GetItem(pt_in_py, 0));
+	double y = PyFloat_AsDouble(PyList_GetItem(pt_in_py, 1));
+	double z = PyFloat_AsDouble(PyList_GetItem(pt_in_py, 2));
+
+	clipper::Coord_orth pt(x,y,z);
+	 
+	CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	std::vector<CResidue *> v = coot::residues_near_position(pt, mol, radius);
+	for (unsigned int i=0; i<v.size(); i++) {
+	  PyObject *r_py = py_residue(coot::residue_spec_t(v[i]));
+	  PyList_Append(r, r_py);
+	}
+      }
+   }
    return r;
 } 
 #endif 
@@ -1413,7 +1435,7 @@ SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v) {
 #ifdef USE_PYTHON
 PyObject *generic_string_vector_to_list_internal_py(const std::vector<std::string> &v) {
 
-  PyObject *r = PyList_New(0);
+  PyObject *r;
 
    r = PyList_New(v.size());
    for (int i=v.size()-1; i>=0; i--) {

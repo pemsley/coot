@@ -17,6 +17,14 @@ tests   rev 1625
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+   o note to self: fix Paul's python things
+
+   o note to self: - include appropriate manuals (update automatically)
+		   and update website links....
+		   - failed test should result in no published installer
+
+   o write_residue_range_to_pdb_file looses chain_id (feature/bug?)
+
    o new options for recentre in gtk2 file chooser - combobox (and extensions - radiobuttons)
 
 25/12/08

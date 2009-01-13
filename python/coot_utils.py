@@ -2,9 +2,9 @@
 # adapted from coot-utils.scm
 #
 # Copyright 2004, 2005, 2006, 2007 by Bernhard Lohkamp
-# Copyright 2008 by Bernhard Lohkamp, The University of York
+# Copyright 2008, 2009 by Bernhard Lohkamp, The University of York
 # Copyright 2000 by Paul Emsley
-# Copyright 2004, 2tr005, 2006, 2007 by Paul Emsley, The University of York
+# Copyright 2004, 2005, 2006, 2007 by Paul Emsley, The University of York
 #    <one line to give the program's name and a brief idea of what it does.>
 #    Copyright (C) <year>  <name of author>
 #
@@ -24,21 +24,25 @@
 
 # not sure if the implementation of the macros will work
 
-# 'Macro' to run funcs on an active atom
+# 'Macro' to tidy up a a setup of functions to be run with no backup
+# for a particular molecule.
 #
-def using_active_atom(*func):
+# funcs is a normal set of functions (not a thunk), here i.e. a list of
+# functions with function as a list with func name and args,
+# e.g.: [centre_of_mass, 0], [func_name, arg1, arg2,...],...
+#
+def with_no_backups(imol, *funcs):
 
-    active_atom = active_residue()
-    if (not active_residue):
-        add_status_bar_text("No residue found")
-    else:
-        aa_imol      = active_atom[0]
-        aa_chain_id  = active_atom[1]
-        aa_res_no    = active_atom[2]
-        aa_ins_code  = active_atom[3]
-        aa_atom_name = active_atom[4]
-        aa_alt_conf  = active_atom[5]
-    
+    b_state = backup_state(imol)
+    turn_off_backup(imol)
+    for f in funcs:
+        func = f[0]
+        args = f[1:len(f)]
+        #print "BL DEBUG:: func %s and args %s" %(func, args)
+        func(*args)
+    if backup_mode == 1:
+        turn_on_backup(imol)
+
 
 # 'Macro' to tidy up a set of functions to be run with automatic
 # accepting of the refinement
@@ -61,6 +65,39 @@ def with_auto_accept(*funcs):
     if (replace_state == 0):
         set_refinement_immediate_replacement(0)
 
+
+# 'Macro' to run funcs on an active atom
+# only works if the functions in funcs take 6 args, specified by active atom
+#
+def using_active_atom(*funcs):
+
+    active_atom = active_residue()
+    if (not active_residue):
+        add_status_bar_text("No residue found")
+    else:
+        aa_imol      = active_atom[0]
+        aa_chain_id  = active_atom[1]
+        aa_res_no    = active_atom[2]
+        aa_ins_code  = active_atom[3]
+        aa_atom_name = active_atom[4]
+        aa_alt_conf  = active_atom[5]
+        for f in funcs:
+            f(aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf)
+
+# set this to a function accepting two argument (the molecule number
+# and the manipulation mode) and it will be run after a model
+# manipulation.
+#
+# The manipulation mode will be one of (MOVING-ATOMS), (DELETED) or
+# (MUTATED) and these can be tested with "=".
+#
+# e.g.
+#
+# if (mode == DELETED):
+#      display/print "Something was deleted"
+#
+def post_manipulation_script():
+    return False
 
 # return a list of molecule numbers (closed and open)
 # The elements of the returned list need to be tested against
@@ -790,14 +827,6 @@ def atom_specs(imol, chain_id, resno, ins_code, atom_name, alt_conf):
 
     return atom_info_string(imol, chain_id, resno, ins_code, atom_name, alt_conf)
 
-# Paul says:
-# backups wrapper: doesn't work currently, I think.  More cleverness required.
-def with_no_backups(imol):
-
-    backup_mode = backup_state(imol)
-    turn_off_backup(imol)
-    if backup_mode == 1:
-        turn_on_backup(imol)
 
 # return a guess at the map to be refined (usually called after
 # imol_refinement_map returns -1)
@@ -1524,77 +1553,91 @@ def pukka_puckers_qm(imol):
 #############
 # some re-definitions from coot python functions
 ############
+# sorted by header files:
 
-spin_search            = spin_search_py
-set_atom_attributes    = set_atom_attributes_py
+# c-interface.h:
+run_clear_backups      = run_clear_backups_py
 test_internal          = test_internal_py
 refmac_parameters      = refmac_parameters_py
-mark_atom_as_fixed     = mark_atom_as_fixed_py
-ccp4i_projects         = ccp4i_projects_py
-drag_intermediate_atom = drag_intermediate_atom_py
-merge_molecules        = merge_molecules_py
-clear_and_update_molecule = clear_and_update_molecule_py
-add_molecule           = add_molecule_py
-alignment_results      = alignment_results_py
-find_terminal_residue_type = find_terminal_residue_type_py
-change_chain_id_with_result = change_chain_id_with_result_py
-missing_atom_info      = missing_atom_info_py
-chain_id_for_shelxl_residue_number = chain_id_for_shelxl_residue_number_py
 map_sigma              = map_sigma_py
 map_parameters         = map_parameters_py
 map_cell               = map_cell_py
 get_refmac_sad_atom_info = get_refmac_sad_atom_info_py
-map_colour_components  = map_colour_components_py
-additional_representation_info = additional_representation_info_py
-centre_of_mass_string  = centre_of_mass_string_py
-make_image_raster3d    = make_image_raster3d_py
-make_image_povray      = make_image_povray_py
-cis_peptides           = cis_peptides_py
-get_rotamer_name       = get_rotamer_name_py
+save_state_file_name   = save_state_file_name_py
 run_state_file         = run_state_file_py
 wrapped_create_run_state_file_dialog =  wrapped_create_run_state_file_dialog_py
-raster_screen_shot     = raster_screen_shot_py
+centre_of_mass_string  = centre_of_mass_string_py
+set_atom_attributes    = set_atom_attributes_py
+merge_molecules        = merge_molecules_py
+alignment_results      = alignment_results_py
+change_chain_id_with_result        = change_chain_id_with_result_py
+non_standard_residue_names         = non_standard_residue_names_py
+chain_id_for_shelxl_residue_number = chain_id_for_shelxl_residue_number_py
+gln_asn_b_factor_outliers          = gln_asn_b_factor_outliers_py
+map_peaks              = map_peaks_py
+map_peaks_near_point   = map_peaks_near_point_py
 view_name              = view_name_py
 view_description       = view_description_py
 go_to_view             = go_to_view_py
-run_clear_backups      = run_clear_backups_py
-sequence_info          = sequence_info_py
-atom_info_string       = atom_info_string_py
-residue_info           = residue_info_py
-residue_name           = residue_name_py
-goto_next_atom_maybe   = goto_next_atom_maybe_py
-goto_prev_atom_maybe   = goto_prev_atom_maybe_py
-active_residue         = active_residue_py
-closest_atom           = closest_atom_py
-residues_near_residue  = residues_near_residue_py
-generic_string_vector_to_list_internal = generic_string_vector_to_list_internal_py
-generic_list_to_string_vector_internal = generic_list_to_string_vector_internal_py
-generic_int_vector_to_list_internal = generic_int_vector_to_list_internal_py
-inverse_rtop           = inverse_rtop_py
-get_symmetry           = get_symmetry_py
-dictionaries_read      = dictionaries_read_py
-monomer_restraints     = monomer_restraints_py
-set_monomer_restraints = set_monomer_restraints_py
-get_pkgdatadir         = get_pkgdatadir_py
+movie_file_name_prefix = movie_file_name_prefix_py
+execute_ligand_search  = execute_ligand_search_py
 overlap_ligands        = overlap_ligands_py
 analyse_ligand_differences = analyse_ligand_differences_py
-execute_ligand_search  = execute_ligand_search_py
-cootaneer              = cootaneer_py
+additional_representation_info = additional_representation_info_py
+find_terminal_residue_type = find_terminal_residue_type_py
+cis_peptides           = cis_peptides_py
+get_rotamer_name       = get_rotamer_name_py
+missing_atom_info      = missing_atom_info_py
+rotamer_graphs         = rotamer_graphs_py
+apply_lsq_matches      = apply_lsq_matches_py
+make_image_raster3d    = make_image_raster3d_py
+make_image_povray      = make_image_povray_py
+raster_screen_shot     = raster_screen_shot_py
 ncs_chain_differences  = ncs_chain_differences_py
 ncs_chain_ids          = ncs_chain_ids_py
 ncs_ghosts             = ncs_ghosts_py
 pucker_info            = pucker_info_py
-save_state_file_name   = save_state_file_name_py
+sequence_info          = sequence_info_py
 generic_object_name    = generic_object_name_py
-movie_file_name_prefix = movie_file_name_prefix_py
-make_atom_spec         = make_atom_spec_py
-key_sym_code           = key_sym_code_py
-apply_lsq_matches      = apply_lsq_matches_py
-rotamer_graphs         = rotamer_graphs_py
 probe_available_p      = probe_available_p_py
-gln_asn_b_factor_outliers      = gln_asn_b_factor_outliers_py
+drag_intermediate_atom = drag_intermediate_atom_py
+mark_atom_as_fixed     = mark_atom_as_fixed_py
+ccp4i_projects         = ccp4i_projects_py
+get_pkgdatadir         = get_pkgdatadir_py
+
+# graphics_info.h:
+#run_post_manipulation_hook = run_post_manipulation_hook_py
+
+# c-interface-python.hh:
+make_atom_spec         = make_atom_spec_py
+
+# cc-interface.hh:
+goto_next_atom_maybe   = goto_next_atom_maybe_py
+goto_prev_atom_maybe   = goto_prev_atom_maybe_py
+get_symmetry           = get_symmetry_py
+map_colour_components  = map_colour_components_py
+dictionaries_read      = dictionaries_read_py
+monomer_restraints     = monomer_restraints_py
+set_monomer_restraints = set_monomer_restraints_py
+atom_info_string       = atom_info_string_py
+residue_info           = residue_info_py
+residue_name           = residue_name_py
+clear_and_update_molecule = clear_and_update_molecule_py
+add_molecule           = add_molecule_py
+active_residue         = active_residue_py
+closest_atom           = closest_atom_py
+residues_near_residue  = residues_near_residue_py
+residues_near_position = residues_near_position_py
 water_chain_from_shelx_ins = water_chain_from_shelx_ins_py
 water_chain            = water_chain_py
+spin_search            = spin_search_py
+cootaneer              = cootaneer_py
+generic_string_vector_to_list_internal = generic_string_vector_to_list_internal_py
+generic_list_to_string_vector_internal = generic_list_to_string_vector_internal_py
+generic_int_vector_to_list_internal = generic_int_vector_to_list_internal_py
+inverse_rtop           = inverse_rtop_py
+key_sym_code           = key_sym_code_py
+
 
 # and some acronyms
 de_chainsaw                    = fill_partial_residues
