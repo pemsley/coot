@@ -23247,16 +23247,14 @@ create_coords_filechooserdialog1 (void)
 {
   GtkWidget *coords_filechooserdialog1;
   GtkWidget *dialog_vbox100;
+  GtkWidget *hbox383;
   GtkWidget *frame177;
   GtkWidget *alignment104;
-  GtkWidget *coords_filechooserdialog1_recentre_checkbutton;
+  GtkWidget *coords_filechooserdialog1_recentre_combobox;
   GtkWidget *label441;
   GtkWidget *dialog_action_area99;
   GtkWidget *button5;
   GtkWidget *button6;
-  GtkTooltips *tooltips;
-
-  tooltips = gtk_tooltips_new ();
 
   coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (coords_filechooserdialog1), 10);
@@ -23265,19 +23263,22 @@ create_coords_filechooserdialog1 (void)
   dialog_vbox100 = GTK_DIALOG (coords_filechooserdialog1)->vbox;
   gtk_widget_show (dialog_vbox100);
 
+  hbox383 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox383);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox100), hbox383, FALSE, FALSE, 0);
+
   frame177 = gtk_frame_new (NULL);
   gtk_widget_show (frame177);
-  gtk_box_pack_end (GTK_BOX (dialog_vbox100), frame177, FALSE, TRUE, 0);
+  gtk_box_pack_end (GTK_BOX (hbox383), frame177, FALSE, FALSE, 0);
 
   alignment104 = gtk_alignment_new (0.5, 0.5, 1, 1);
   gtk_widget_show (alignment104);
   gtk_container_add (GTK_CONTAINER (frame177), alignment104);
-  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment104), 0, 0, 12, 0);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment104), 3, 3, 5, 5);
 
-  coords_filechooserdialog1_recentre_checkbutton = gtk_check_button_new_with_mnemonic (_("Recentre"));
-  gtk_widget_show (coords_filechooserdialog1_recentre_checkbutton);
-  gtk_container_add (GTK_CONTAINER (alignment104), coords_filechooserdialog1_recentre_checkbutton);
-  gtk_tooltips_set_tip (tooltips, coords_filechooserdialog1_recentre_checkbutton, _("Deactivate this checkbutton if you don't want to change the view centre when these new coordinates are read"), NULL);
+  coords_filechooserdialog1_recentre_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (coords_filechooserdialog1_recentre_combobox);
+  gtk_container_add (GTK_CONTAINER (alignment104), coords_filechooserdialog1_recentre_combobox);
 
   label441 = gtk_label_new (_("Recentre?"));
   gtk_widget_show (label441);
@@ -23304,21 +23305,18 @@ create_coords_filechooserdialog1 (void)
   g_signal_connect ((gpointer) coords_filechooserdialog1, "destroy",
                     G_CALLBACK (on_coords_filechooserdialog1_destroy),
                     NULL);
-  g_signal_connect ((gpointer) coords_filechooserdialog1_recentre_checkbutton, "toggled",
-                    G_CALLBACK (on_coords_filechooserdialog1_recentre_checkbutton_toggled),
-                    NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, coords_filechooserdialog1, "coords_filechooserdialog1");
   GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, dialog_vbox100, "dialog_vbox100");
+  GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, hbox383, "hbox383");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, frame177, "frame177");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, alignment104, "alignment104");
-  GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, coords_filechooserdialog1_recentre_checkbutton, "coords_filechooserdialog1_recentre_checkbutton");
+  GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, coords_filechooserdialog1_recentre_combobox, "coords_filechooserdialog1_recentre_combobox");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, label441, "label441");
   GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, dialog_action_area99, "dialog_action_area99");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, button5, "button5");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, button6, "button6");
-  GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, tooltips, "tooltips");
 
   gtk_widget_grab_default (button6);
   return coords_filechooserdialog1;
