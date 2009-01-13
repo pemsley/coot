@@ -322,17 +322,23 @@ coot::sequence_view::chain_and_resno(const coot::sequence_view_res_info_t &in) c
       // 
       CModel *model_p = mol[in.molecule_number]->GetModel(1);
       CChain *chain_p = model_p->GetChain(in.chain_number);
-      CResidue *residue_p = chain_p->GetResidue(in.residue_serial_number);
-      if (!residue_p) {
-	 out.residue_serial_number = -1; // signal an error in finding residue
-      } else {
-	 //       std::cout << "Real chain " << chain_p->GetChainID()
-	 // 		<< " real resno " << residue_p->GetResName()
-	 // 		<< " " << residue_p->GetSeqNum() << std::endl;
-	 out.chain = chain_p->GetChainID();
-	 out.residue_seq_num = residue_p->GetSeqNum();
-	 out.resname = residue_p->GetResName();
-	 out.ins_code = residue_p->GetInsCode();
+
+      if (! chain_p) {
+	 std::cout << "ERROR:: missing (NULL) chain! " << std::endl;
+      } else { 
+	 CResidue *residue_p = chain_p->GetResidue(in.residue_serial_number);
+	 if (!residue_p) {
+	    out.residue_serial_number = -1; // signal an error in finding residue
+	 } else {
+	    //       std::cout << "Real chain " << chain_p->GetChainID()
+	    // 		<< " real resno " << residue_p->GetResName()
+	    // 		<< " " << residue_p->GetSeqNum() << std::endl;
+	    out.chain = chain_p->GetChainID();
+	    out.residue_seq_num = residue_p->GetSeqNum();
+	    out.resname = residue_p->GetResName();
+	    out.ins_code = residue_p->GetInsCode();
+	 }
+
       }
    } else {
       out.residue_serial_number = -1; // signal an error

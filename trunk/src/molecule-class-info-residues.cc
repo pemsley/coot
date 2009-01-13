@@ -56,3 +56,57 @@ molecule_class_info_t::progressive_residues_in_chain_check_by_chain(const char *
    return r; 
 } 
 
+
+// only apply charges if the molecule contains lots of hydrogens.
+void
+molecule_class_info_t::apply_charges(const coot::protein_geometry &geom) {
+
+   // More than 20% of the atoms have to be hydrogens for use to set
+   // the charges on all the atoms (to something other than
+   // CXX_UNSET_CHARGE).
+   
+   float fraction_hydrogens = 0.2;
+
+   if (atom_sel.n_selected_atoms > 0) { 
+      CMMDBManager *mol = atom_sel.mol;
+
+      // first set all atom charges to unset:
+      for (int i=0; i<atom_sel.n_selected_atoms; i++)
+	 atom_sel.atom_selection[i]->charge = CXX_UNSET_CHARGE - 0.1;
+
+      int n_H = 0;
+      int n_all = 0; 
+      for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+	 std::string ele(atom_sel.atom_selection[i]->element);
+	 if (ele == " H" || ele == " D") {
+	    n_H++; 
+	 }
+	 n_all++;
+      }
+
+      if ( float(n_H)/float(n_all) > fraction_hydrogens) {
+
+	 // Now add real charges from the dictionary
+	 // 
+	 int imod = 1;
+	 CModel *model_p = mol->GetModel(imod);
+	 CChain *chain_p;
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    PCResidue residue_p;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       std::string res_type = residue_p->GetResName();
+	       std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
+		  geom.get_monomer_restraints(res_type);
+	       if (rp.first) {
+		  coot::dipole p(rp.second, residue_p);
+		  p.fill_charged_atoms(residue_p, rp.second);
+	       }
+	    }
+	 }
+      }
+   } 
+} 

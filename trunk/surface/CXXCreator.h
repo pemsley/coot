@@ -39,6 +39,7 @@
 #include "mmdb_manager.h"
 #include "mmdb_tables.h"
 #endif
+
 #ifndef  __CXXException__
 #include <CXXException.h>
 #endif

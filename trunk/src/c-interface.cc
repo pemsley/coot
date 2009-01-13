@@ -7684,7 +7684,8 @@ set_tip_of_the_day_flag (int state) {
 void do_surface(int imol, int state) {
 
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].make_surface(state);
+      graphics_info_t g;
+      graphics_info_t::molecules[imol].make_surface(state, *g.Geom_p());
       graphics_draw();
    }
 }

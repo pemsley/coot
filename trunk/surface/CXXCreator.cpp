@@ -27,7 +27,9 @@
  *
  */
 
+#include "coot-coord-utils.hh"
 #include "CXXCreator.h"
+#include "mmdb_tables.h"  // why is this needed?
 #include <algorithm>
 
 CXXCreator::CXXCreator (pstr thePdb) {
@@ -188,9 +190,10 @@ double CXXCreator::lookUpCharge(int atomNr) {
 	atomName = getAtomName(atomNr);
 	element = getAtomElement(atomNr);
 
-	double theAtomCharge;
-	if ((theAtomCharge = SelAtom[atomNr]->charge) == 0.)
-	  theAtomCharge = theChargeTable.getCharge(residueName, atomName);
+	double theAtomCharge = SelAtom[atomNr]->charge;
+	if (theAtomCharge < CXX_UNSET_CHARGE) // i.e. is unset
+	   theAtomCharge = theChargeTable.getCharge(residueName, atomName);
+
 	return theAtomCharge;
 }
 

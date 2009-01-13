@@ -1874,7 +1874,7 @@ endresno pdb-file-name})}
 * Pep-flip::
 * Adding Alternative Conformations::
 * Mutation::
-* Importing Monomers::
+* Importing Ligands/Monomers::
 * Ligand from SMILES strings::
 * Find Ligands::
 * Flip Ligand::
@@ -2639,18 +2639,27 @@ renumber dialog available under @command{Calculate ->
     last-resno offset})}
 
 
-@node    Importing Monomers
-@section Importing Monomers
+@node    Importing Ligands/Monomers
+@section Importing Lignds/Monomers
 @cindex  monomers
+@cindex  ligands
 
 You can import monomers (often ligands) using @command{File -> Get
-Monomer@dots{}}@footnote{this is a wrapper round LIBCHECK} by providing
+Monomer@dots{}}@footnote{this is a wrapper round LIBCHECK, so you must
+have CCP4 suite to installed for this function to work} by providing
 the 3-letter code of your monomer/ligand.  The resulting molecule will
 be moved so that it placed at the current screen centre.
 
 Typically, when you are happy about the placement of the ligand, you'd
 then use @command{Merge Molecules} to add the ligand/monomer to the main
 set of coordinates.
+
+This procedure creates a pdb file @file{monomer-XXX.pdb} and a
+dictionary file @file{libcheck_XXX.cif} in the directory in which Coot
+was started.
+
+A future invocation of Get Monomer uses these file so that the monomer
+appears quickly @footnote{rather than running LIBCHECK again}.
 
 @node    Ligand from SMILES strings
 @section Ligand from SMILES strings

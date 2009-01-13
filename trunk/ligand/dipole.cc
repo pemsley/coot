@@ -93,6 +93,16 @@ coot::dipole::dipole(const coot::dictionary_residue_restraints_t &rest,
    dipole_ = dip;
 }
 
+void
+coot::dipole::fill_charged_atoms(CResidue *residue_p,
+				 const coot::dictionary_residue_restraints_t &rest) {
+
+   std::vector<std::pair<CAtom *, float> > v = charged_atoms(residue_p, rest);
+   for (unsigned int i=0; i<v.size(); i++) {
+      v[i].first->charge = v[i].second;
+   }
+}
+
 std::vector<std::pair<CAtom *, float> >
 coot::dipole::charged_atoms(CResidue *residue_p,
 			    const coot::dictionary_residue_restraints_t &rest) const {
