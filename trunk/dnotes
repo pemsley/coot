@@ -3995,4 +3995,10 @@ Mon Jan 12 17:26:40 GMT 2009
    solution (I wonder if refmac would do that?)
 
 
+---
+Mon Jan 12 22:43:50 GMT 2009
+
+	in wiggly-ligands, add an option to invert chiral centres
+	(just in case the chemist made the wrong thing).
+
 -----

@@ -203,15 +203,15 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	    // note that chem_link goes here to:
 	    // 
 	    if (std::string(data->GetDataName()).substr(0,5) == "link_") {
-	       // std::cout  << "matches link: " <<
-	       // std::string(data->GetDataName()) << std::endl;
-	       init_links(data);
+// 	       std::cout  << "DEUBG:: ==== matches link: " << std::string(data->GetDataName())
+// 			  << std::endl;
+	       ret_val += init_links(data);
 	    }
 
 
 	    if (std::string(data->GetDataName()).length() > 7) { 
 	       if (std::string(data->GetDataName()).substr(0,5) == "mod_list") {
-		  add_mods(data);
+		  ret_val += add_mods(data);
 	       }
 	    }
 	    
@@ -256,7 +256,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  
 		  // monomer info, name, number of atoms etc.
 		  if (cat_name == "_chem_comp_atom")
-		     ret_val = comp_atom(mmCIFLoop); // and at the end pad up the atom names
+		     ret_val += comp_atom(mmCIFLoop); // and at the end pad up the atom names
 
 		  // tree
 		  if (cat_name == "_chem_comp_tree")
@@ -1591,9 +1591,10 @@ coot::protein_geometry::info() const {
 } 
 
 // 
-void
+int
 coot::protein_geometry::add_mods(PCMMCIFData data) {
-   
+
+   int n_mods = 0;
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
       PCMMCIFCategory cat = data->GetCategory(icat);
@@ -1608,22 +1609,31 @@ coot::protein_geometry::add_mods(PCMMCIFData data) {
       } else {
 	 int n_chiral = 0;
 	 if (cat_name == "_chem_mod")
-	    add_chem_mods(mmCIFLoop);
+	    n_mods += add_chem_mods(mmCIFLoop);
       }
    }
+   return n_mods;
 }
 
-void
+int 
 coot::protein_geometry::add_chem_mods(PCMMCIFLoop mmCIFLoop) {
 
+   int n_chem_mods = 0;
+
+   return n_chem_mods;
 }
 
 // Normally, we would use a const pointer (or a reference). But this
 // is mmdb.
+//
+// return then number of links read (to pass on to
+// init_refmac_mon_lib) so it doesn't return 0 (ie. fail) when reading
+// links (no new atoms in a link, you see).
 // 
-void
+int
 coot::protein_geometry::init_links(PCMMCIFData data) {
 
+   int r = 0; 
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
       PCMMCIFCategory cat = data->GetCategory(icat);
@@ -1640,7 +1650,7 @@ coot::protein_geometry::init_links(PCMMCIFData data) {
 	 if (cat_name == "_chem_link")
 	    add_chem_links(mmCIFLoop);
 	 if (cat_name == "_chem_link_bond")
-	    link_bond(mmCIFLoop);
+	    r += link_bond(mmCIFLoop);
 	 if (cat_name == "_chem_link_angle")
 	    link_angle(mmCIFLoop);
 	 if (cat_name == "_chem_link_tor")
@@ -1654,6 +1664,7 @@ coot::protein_geometry::init_links(PCMMCIFData data) {
 	 }
       }
    }
+   return r;
 } 
 
 
@@ -1792,7 +1803,7 @@ std::ostream& coot::operator<<(std::ostream &s, coot::chem_link lnk) {
    return s; 
 }
 
-void
+int
 coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
    std::string link_id;
    std::string atom_id_1, atom_id_2;
@@ -1803,6 +1814,7 @@ coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
    char *s;
    int ierr;
    int ierr_tot = 0;
+   int n_link_bonds = 0;
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
       s = mmCIFLoop->GetString("link_id",j,ierr);
@@ -1834,10 +1846,12 @@ coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
 		       atom_1_comp_id, atom_2_comp_id,
 		       atom_id_1, atom_id_2,
 		       value_dist, value_dist_esd);
+	 n_link_bonds++;
       } else {
 	 std::cout << "problem reading bond mmCIFLoop" << std::endl;
       } 
    }
+   return n_link_bonds;
 }
 
 void
@@ -3774,3 +3788,12 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
    }
    return mol;
 }
+
+void
+coot::protein_geometry::print_chem_links() const {
+
+   for (unsigned int i_chem_link=0; i_chem_link<chem_link_vec.size(); i_chem_link++) {
+      std::cout<< i_chem_link << " " << chem_link_vec[i_chem_link] << "\n";
+   } 
+
+} 

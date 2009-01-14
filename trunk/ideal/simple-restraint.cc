@@ -4299,9 +4299,10 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	    if (d.second < dist_crit) {
 	       std::pair<std::string, bool> l = find_link_type_rigourous(res_f, res_s, geom);
 	       std::string link_type = l.first;
-// 	       std::cout << "   in bonded_residues_from_res_vec link_type :"
-// 			 << link_type << ":" << std::endl;
 	       if (link_type != "") {
+		  std::cout << "INFO:: "
+			    << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
+			    << " link_type :" << link_type << ":" << std::endl;
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
 		  bool order_switch_flag = l.second;
@@ -4597,17 +4598,6 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 
 	 unsigned int ilink = 0; // the first link
 	 
-	 // we don't get here if there was not a match! (execption thrown above).
-	 //
-	 if (0) { 
-	    if  (link_infos[ilink].second) 
-	       std::cout << "   ======  chem_link info " << link_infos[ilink].first
-			 << " order-switch? " << link_infos[ilink].second << std::endl;
-	    else 
-	       std::cout << "   ======  chem_link info " << "no order-switch" << std::endl;
-	 }
-	    
-
 	 // Now, if link is a TRANS (default-peptide-link), then
 	 // make sure that the C and N (or N and C) atoms of the
 	 // first and second residue are within dist_crit (2.0A) of
@@ -4640,6 +4630,7 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
       catch (std::runtime_error mess_in) {
 	 // didn't find a chem_link for this pair, that's OK sometimes.
 	 std::cout << mess_in.what() << std::endl;
+	 // geom.print_chem_links();
       } 
    }
    catch (std::runtime_error mess) {

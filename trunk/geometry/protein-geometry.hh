@@ -674,7 +674,7 @@ namespace coot {
       void add_chem_links (PCMMCIFLoop mmCIFLoop); // references to the modifications
                                                 // to the link groups (the modifications
                                                 // themselves are in data_mod_list)
-      void link_bond   (PCMMCIFLoop mmCIFLoop); 
+      int  link_bond   (PCMMCIFLoop mmCIFLoop); 
       void link_angle  (PCMMCIFLoop mmCIFLoop); 
       void link_torsion(PCMMCIFLoop mmCIFLoop); 
       void link_plane  (PCMMCIFLoop mmCIFLoop);
@@ -759,11 +759,11 @@ namespace coot {
 					const std::string &description_level);
 
       // mod stuff (references by chem links)
-      void add_mods(PCMMCIFData data);
-      void add_chem_mods(PCMMCIFLoop mmCIFLoop); 
+      int add_mods(PCMMCIFData data);
+      int add_chem_mods(PCMMCIFLoop mmCIFLoop); 
 
       // link stuff
-      void init_links(PCMMCIFData data);
+      int init_links(PCMMCIFData data);
 
       void link_add_bond(const std::string &link_id,
 			 int atom_1_comp_id,
@@ -943,7 +943,9 @@ namespace coot {
       matching_chem_link_non_peptide(const std::string &comp_id_1,
 				     const std::string &group_1,
 				     const std::string &comp_id_2,
-				     const std::string &group_2) const; 
+				     const std::string &group_2) const;
+
+      void print_chem_links() const;
       
    };
 

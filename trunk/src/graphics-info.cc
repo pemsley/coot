@@ -267,7 +267,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 std::string s;
 	 s = "Read ";
 	 s += int_to_string(nbonds);
-	 s += " bond restraints from ";
+	 s += " atoms/links in restraints from ";
 	 s += cif_dictionary_filename;
 	 display_density_level_screen_string = s;
 	 statusbar_text(s);

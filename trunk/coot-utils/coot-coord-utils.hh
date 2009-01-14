@@ -340,6 +340,7 @@ namespace coot {
    // sort chains in lexographical order
    void sort_chains(CMMDBManager *mol);
 
+
    // Pukka puckers?
    //
    // Throw an exception if it is not possible to generate pucker info
@@ -598,6 +599,8 @@ namespace coot {
       // a utility function 
       std::vector<std::string> standard_residue_types(); 
       std::vector<std::string> residue_types_in_chain(CChain *chain_p);
+      std::vector<std::string> residue_types_in_residue_vec(const std::vector<CResidue *> &residues);
+
       std::vector<std::string> chains_in_molecule(CMMDBManager *mol);
       int number_of_residues_in_molecule(CMMDBManager *mol);
       // Return -1 on badness

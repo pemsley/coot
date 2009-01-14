@@ -527,7 +527,9 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       // The flanking atoms are fixed the passed residues are not fixed.
       // Keep a clear head.
       
-
+      std::vector<std::string> residue_types = coot::util::residue_types_in_residue_vec(residues);
+      // use try_dynamic_add()
+      geom_p->have_dictionary_for_residue_types(residue_types);
       
       std::string residues_alt_conf = ""; // fix me later
       imol_moving_atoms = imol;
@@ -1201,9 +1203,12 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
    }
 }
 
-// I mean thinks liek HOH, CL, BR etc
+// I mean things like HOH, CL, BR etc
 bool
 graphics_info_t::check_for_no_restraints_object(std::string &resname_1, std::string &resname_2) const {
+
+   // a better check would be to check in the geom for a dictionary of
+   // that name and see if there are bonds for that residue type.
 
    bool r = 0;
    if (resname_1 == "WAT" || resname_1 == "HOH" ||

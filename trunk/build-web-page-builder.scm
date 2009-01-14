@@ -690,7 +690,7 @@
 	      "Linux-bunyip.chem.york.ac.uk/gtk1" #t)
 
 	(list "binary-Linux-i386-fedora-4-python-gtk2"
-	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2"))
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" #t))
 
 ;	(list "binary-Linux-i386-fedora-6-python-gtk2"
 ;	      "Linux-setsuko.chem.york.ac.uk/gtk2" #t)
@@ -720,16 +720,16 @@
 	      "Linux-bubbles/gtk1" #t)
 
 	(list "binary-Linux-i386-centos-4-gtk2"
-	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"))
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2" #f))
 
 	(list "binary-Linux-i386-centos-4-python-gtk2"
-	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"))
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2" #t))
 
 	(list "binary-Linux-x86_64-centos-5-gtk2"
-	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2"))
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2" #f))
 
 	(list "binary-Linux-x86_64-centos-5-python-gtk2"
-	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2"))
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2" #t))
 
 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
 	      "ubuntu-6.06/gtk2" #t)
@@ -743,7 +743,7 @@
 
 	(list "WinCoot" 
 	      (list 'absolute 
-		    "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-5.1-sarabellum/gtk2"))
+		    "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-5.1-sarabellum/gtk2" #t))
 
 	; no guile-gtk for this one.
 	; (list "binary-Linux-i386-fedora-3-python-gtk2"
