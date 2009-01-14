@@ -39,6 +39,7 @@
 PyObject *display_python(PyObject *o);
 
 std::pair<bool, coot::atom_spec_t> make_atom_spec_py(PyObject *spec);
+std::pair<bool, coot::residue_spec_t> make_residue_spec_py(PyObject *spec);
 
 #endif  // USE_PYTHON
 

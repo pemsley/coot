@@ -1116,7 +1116,53 @@ SCM refine_residues_scm(int imol, SCM r) {
    }
    return rv;
 } 
-#endif
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+PyObject *refine_residues_py(int imol, PyObject *r) {
+   PyObject *rv = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> residue_specs;
+      int r_length = PyObject_Length(r);
+      for (unsigned int i=0; i<r_length; i++) {
+	 PyObject *res_spec_py = PyList_GetItem(r, i);
+	 std::pair<bool, coot::residue_spec_t> res_spec =
+	    make_residue_spec_py(res_spec_py);
+	 if (res_spec.first) {
+	    residue_specs.push_back(res_spec.second);
+	 } 
+      }
+
+      if (residue_specs.size() > 0) {
+	 std::vector<CResidue *> residues;
+	 for (unsigned int i=0; i<residue_specs.size(); i++) {
+	    coot::residue_spec_t rs = residue_specs[i];
+	    CResidue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    if (r) {
+	       residues.push_back(r);
+	    }
+	 }
+
+	 if (residues.size() > 0) {
+	    graphics_info_t g;
+	    int imol_map = g.Imol_Refinement_Map();
+	    if (is_valid_map_molecule(imol_map)) { 
+	       CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+	       g.refine_residues_vec(imol, residues, mol);
+	    }
+	 } 
+      } else {
+	 std::cout << "No residue specs found" << std::endl;
+      } 
+   }
+
+   if (PyBool_Check(rv)) {
+     Py_INCREF(rv);
+   }
+
+   return rv;
+} 
+#endif // USE_PYTHON
 
 
 
