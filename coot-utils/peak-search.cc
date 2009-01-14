@@ -507,7 +507,6 @@ coot::peak_search::find_protein_to_origin_translations(const std::vector<clipper
 clipper::Coord_orth
 coot::peak_search::move_point_close_to_protein(const clipper::Coord_orth &pt,
 					       const std::vector<clipper::Coord_orth> &sampled_protein_coords,
-
 					       const std::vector<int> &itrans,
 					       const clipper::Xmap<float> &xmap) const {
 

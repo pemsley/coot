@@ -782,6 +782,21 @@ coot::util::residue_types_in_chain(CChain *chain_p) {
    return v;
 }
 
+std::vector<std::string>
+coot::util::residue_types_in_residue_vec(const std::vector<CResidue *> &residues) {
+
+   std::vector<std::string> v;
+   for (unsigned int ires=0; ires<residues.size(); ires++) { 
+      if (residues[ires]) {
+	 std::string n(residues[ires]->name);
+	 if (! is_member_p(v, n))
+	    v.push_back(n);
+      }
+   }
+   return v;
+} 
+
+
 // Return -1 on badness 
 int
 coot::util::max_number_of_residues_in_chain(CMMDBManager *mol) {

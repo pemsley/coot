@@ -98,8 +98,6 @@
      laptop) on start, exit, start exit cycling?
      Priority: 6: Difficulty: 4  ::: 2
 
-   o Garib wants a function to move waters close to the protein. ::: 4
-
    o Fix up mini-RSR so that it compiles properly. ::: 4
 
    o Put refine-zone and regularize-zone into the history. ::: 2
@@ -116,7 +114,7 @@
      Well, you can look at this, if it is hard, punt it.  
      ::: 2
  
-* It looks like it can be done using @html, @end html stipping out the
+* It looks like it can be done using @html, @end html stripping out the
   body etc tags. Ugly though.  Include files need to be in source doc
   directory.  Call it xxx.html.texi and add @html tags in there.
 
@@ -135,6 +133,8 @@
      GUI. ::: 1
 
    o get-monomer fails for JED.  Why? ::: 1
+
+   o Garib wants a function to move waters close to the protein. ::: 4
 
    o Geometric distortions graph for alt confs - currently broken? ::: 4
 

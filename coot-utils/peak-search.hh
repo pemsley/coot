@@ -62,7 +62,8 @@ namespace coot {
 				  const clipper::Xmap<float> &xmap) const;
 
       const std::vector<int>
-      find_protein_to_origin_translations(const std::vector<clipper::Coord_orth> &sampled_protein_coords, const clipper::Xmap<float> &xmap) const;
+      find_protein_to_origin_translations(const std::vector<clipper::Coord_orth> &sampled_protein_coords,
+					  const clipper::Xmap<float> &xmap) const;
       
       double
       min_dist_to_protein(const clipper::Coord_orth &point,
