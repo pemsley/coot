@@ -7,6 +7,12 @@ tests   rev 1750
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+   o WinCoot:
+	- update to python 2.6 (now with pygtk etc)
+	- before stable release copy python over
+	- silent python installation? Possible? (http://www.autoitscript.com/autoit3/)
+
+
 04/09/08
    o loop building backwards in scheme (use python?)?
 

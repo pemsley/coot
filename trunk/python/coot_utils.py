@@ -1570,6 +1570,7 @@ centre_of_mass_string  = centre_of_mass_string_py
 set_atom_attributes    = set_atom_attributes_py
 merge_molecules        = merge_molecules_py
 alignment_results      = alignment_results_py
+refine_residues        = refine_residues_py
 change_chain_id_with_result        = change_chain_id_with_result_py
 non_standard_residue_names         = non_standard_residue_names_py
 chain_id_for_shelxl_residue_number = chain_id_for_shelxl_residue_number_py

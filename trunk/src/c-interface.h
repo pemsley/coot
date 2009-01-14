@@ -2687,6 +2687,9 @@ void do_torsions_toggle(GtkWidget *button);
 #ifdef USE_GUILE
 SCM refine_residues_scm(int imol, SCM r); /* to be renamed later. */
 #endif
+#ifdef USE_PYTHON
+PyObject *refine_residues_py(int imol, PyObject *r);  /* to be renamed later. */
+#endif /* PYTHON */
 #endif
 
 /*! \brief turn on (or off) torsion restraints 
