@@ -10,6 +10,7 @@
 
 * What else is there to do here?  Write a test.
 
+
    o Seg Ids (Mailing list issue):
 
       At least in these two situations, I think that COOT could make a
@@ -36,6 +37,7 @@
   (set-atom-string-attribute now can take a "segid" tag), so we're 
   all set to make a test.
 
+
    o "Fit ligand here" which gets a monomer then does a ligand search
      based on the blob at the current position. ::: 8
 
@@ -55,6 +57,7 @@
   this needs a re-write of the torsion setting code. Sigh.  Strange
   that I haven't notice this before.  Waiting for Stuart to fix
   SetDihedralAngle().
+
 
    o Bill: This might be hard to implement, but in case it isn't, I
      thought it might be worth suggesting...
@@ -92,7 +95,8 @@
      this? Synthetic map?  How does it work when we do this for an alt
      conf too?  ::: 10
 
-   o Communication with PISA.  Get PISA on jackal ::: 6
+   o Communication with PISA.  Get PISA on jackal.  I'd like show the
+     interface with molprobity dots. ::: 6
 
    o Does the window stay constant size (on something other than a
      laptop) on start, exit, start exit cycling?
@@ -145,6 +149,16 @@
 
    o Add terminal residue does not respect the default B factor [Pete
      Meyer] ::: 1
+
+   o Stereo (hardward, side by side) Add-reps.  Need to update the
+     display list objects when the GL context changes. Need to store a
+     GL display list number for the alternate GL context in side by
+     side mode? ::: 3
+
+   o A dipole for a selection of residues. ::: 2
+
+   o sphere-refine in a region with undisplayed add-reps -> add reps
+     displayed. ::: 1
 
 
 ------
