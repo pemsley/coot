@@ -276,7 +276,7 @@ coot::residues_near_residue(CResidue *res_ref,
       min_dist = 0.0;
    // bypass a bug when the n_contacts is 11m or so, but
    // pscontact[0] is NULL.  hence crash when we try to get the
-   // resiude from that atom index.
+   // residue from that atom index.
    // 
    if (radius > 0.0) { 
       mol->SeekContacts(res_atom_selection, n_res_atoms, 

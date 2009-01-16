@@ -65,7 +65,8 @@
 // #include "coot-utils.hh"
 
 
-// This should be in coot-coord-utils
+// This should be in coot-coord-utils.
+// 
 atom_selection_container_t
 graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 						std::string res_type) {
@@ -120,7 +121,12 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 		     int n_std_ResidueAtoms;
 		     std_res_copy->GetAtomTable(std_residue_atoms, n_std_ResidueAtoms);
 
-		     short int verb = 0;
+		     // set the b factor for the new atoms.
+		     for(int i=0; i<n_std_ResidueAtoms; i++) {
+			std_residue_atoms[i]->tempFactor = default_new_atoms_b_factor;
+		     };
+		     
+		     bool verb = 1;
 		     if (verb) { 
 			std::cout << "Mutate Atom Tables" << std::endl;
 			std::cout << "Before" << std::endl;
@@ -142,8 +148,10 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 
 		     for(int i=0; i<n_std_ResidueAtoms; i++) {
 			std::string std_residue_this_atom (std_residue_atoms[i]->name);
-			if (std_residue_this_atom != " O  ")
+			if (std_residue_this_atom != " O  ") {
+			   std::cout << "Adding atom " << std_residue_atoms[i] << std::endl;
 			   residue_p->AddAtom(std_residue_atoms[i]);
+			} 
 		     };
 		     // strcpy(residue_p->name, std_res->name);
 		     residue_p->TrimAtomTable();

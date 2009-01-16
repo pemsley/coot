@@ -649,7 +649,7 @@ coot::minimol::molecule::pcmmdbmanager(float b_factor_new_atoms) const {
 		  atom_p->SetCoordinates((*this)[ifrag][ires][iatom].pos.x(),
 					 (*this)[ifrag][ires][iatom].pos.y(),
 					 (*this)[ifrag][ires][iatom].pos.z(),
-					 (*this)[ifrag][ires][iatom].occupancy, 20.0);
+					 (*this)[ifrag][ires][iatom].occupancy, b_factor_new_atoms);
 		  atom_p->SetAtomName((*this)[ifrag][ires][iatom].name.c_str());
 		  strncpy(atom_p->element,(*this)[ifrag][ires][iatom].element.c_str(),3);
 		  strncpy(atom_p->altLoc, (*this)[ifrag][ires][iatom].altLoc.c_str(), 2);

@@ -30,7 +30,7 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 30
+x_day_range = 45
 x_tick_interval = 2
 if (x_day_range > 40):
    x_tick_interval = 5
@@ -77,4 +77,6 @@ def describeEvent(days, label, off):
     tb.draw()
     
 describeEvent(5, "Christmas\nholidays start", -10)
+
+describeEvent(5, "Boston Trip", -10)
 
