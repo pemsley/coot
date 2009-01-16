@@ -264,6 +264,7 @@
 			       terminal-residue-test-pdb)
 		       (throw 'untested))
 		     (begin
+		       (set-default-temperature-factor-for-new-atoms 45)
 		       (add-terminal-residue imol "A" 1 "ALA" 1)
 		       (write-pdb-file imol "regression-test-terminal-residue.pdb")
 		       ;; where did that extra residue go?
@@ -287,10 +288,27 @@
 				       (begin 
 					 (format #t "Bad placement of terminal residue~%")
 					 #f)
-				       #t))))))))))))))
 
-
-
+				       ;; now test that the new atoms have the correct
+				       ;; B factor.
+				       (let ((new-atoms (residue-info imol "A" 0 "")))
+					 (if (not (> (length new-atoms) 4))
+					     (begin
+					       (format #t "Not enough new atoms ~s~%" new-atoms)
+					       (throw 'fail))
+					     (if (not 
+						  (all-true? 
+						   (map (lambda (atom)
+							  (close-float? 45
+									(list-ref (list-ref atom 1) 1)))
+							new-atoms)))
+						 (begin 
+						   (format #t "Fail b-factor test ~s~%" new-atoms)
+						   #f)
+						 
+						 #t)))))))))))))))))
+						       
+				       
 (greg-testcase "Select by Sphere" #t
    (lambda ()
 

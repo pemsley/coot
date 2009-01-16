@@ -138,6 +138,15 @@
 
    o Geometric distortions graph for alt confs - currently broken? ::: 4
 
+   o Check that sort chain ids does indeed sort the chain ids and does
+     not change the order of the atoms in the molecule [Steven Sheriff] ::: 1
+
+   o Add terminal residue has disconnected atoms.  Why? ::: 1
+
+   o Add terminal residue does not respect the default B factor [Pete
+     Meyer] ::: 1
+
+
 ------
 
    o Does is_mainchain_atom() working for mainchain hydrogens?  

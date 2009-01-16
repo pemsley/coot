@@ -1803,7 +1803,8 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		  gtk_widget_show(w);
 	       }
 
-	    } else { 
+	    } else {
+
 
 	       atom_selection_container_t terminal_res_asc;
 	       float bf = default_new_atoms_b_factor;
@@ -1838,6 +1839,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       //atom_selection_container_t tmp_asc = add_cb_to_terminal_res(terminal_res_asc);
 	       atom_selection_container_t tmp_asc =
 		  add_side_chain_to_terminal_res(terminal_res_asc, res_type);
+
 
 // 	       std::cout << "-------------- tmp_asc --------" << std::endl;
 // 	       debug_atom_selection_container(tmp_asc);
