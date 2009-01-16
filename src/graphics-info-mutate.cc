@@ -126,7 +126,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 			std_residue_atoms[i]->tempFactor = default_new_atoms_b_factor;
 		     };
 		     
-		     bool verb = 1;
+		     bool verb = 0;
 		     if (verb) { 
 			std::cout << "Mutate Atom Tables" << std::endl;
 			std::cout << "Before" << std::endl;
@@ -149,7 +149,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 		     for(int i=0; i<n_std_ResidueAtoms; i++) {
 			std::string std_residue_this_atom (std_residue_atoms[i]->name);
 			if (std_residue_this_atom != " O  ") {
-			   std::cout << "Adding atom " << std_residue_atoms[i] << std::endl;
+			   // std::cout << "Adding atom " << std_residue_atoms[i] << std::endl;
 			   residue_p->AddAtom(std_residue_atoms[i]);
 			} 
 		     };
