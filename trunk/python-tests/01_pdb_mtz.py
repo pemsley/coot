@@ -242,6 +242,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			skipped_tests.append("Add Terminal Residue Test")
 			return
 
+	set_default_temperature_factor_for_new_atoms(45)
 	add_terminal_residue(imol, "A", 1, "ALA", 1)
 	write_pdb_file(imol, "regression-test-terminal-residue.pdb")
 	# where did that extra residue go?
@@ -256,15 +257,19 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	new_mol = new_molecule_by_atom_selection(imol, "//A/0")
 	self.failUnless(valid_model_molecule_qm(new_mol))
 	move_molecule_here(new_mol)
-	# not sure we want to move the molecule to the screen centre?!
-	#set_go_to_atom_molecule(new_mol)
-	#set_go_to_atom_chain_residue_atom_name("A", 0, " CA ")
 	rc = rotation_centre()
 	ls = [45.6, 15.8, 11.8]
 	r = sum([rc[i] - ls[i] for i in range(len(rc))])
 	#print "BL DEBUG:: r and imol is", r, imol
 	
 	self.failIf(r > 0.66, "Bad placement of terminal residue")
+	
+	# now test that the new atoms have the correct
+	# B factor.
+	new_atoms = residue_info(imol, "A", 0, "")
+	self.failUnless(len(new_atoms) > 4, "Not enough new atoms %s" %new_atoms)
+	test_ls = map(lambda atom: atom[1][1], new_atoms)
+	map(lambda atom: self.failUnlessAlmostEqual(atom[1][1], 45, 1, "Fail b-factor test %s" %new_atoms), new_atoms)
 
 
     def test10_0(self):

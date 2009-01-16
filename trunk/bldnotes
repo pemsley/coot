@@ -12,6 +12,8 @@ tests   rev 1750
 	- before stable release copy python over
 	- silent python installation? Possible? (http://www.autoitscript.com/autoit3/)
 
+15/01/09
+   o update Refmac GUI SAD as in new CCP4i
 
 04/09/08
    o loop building backwards in scheme (use python?)?
