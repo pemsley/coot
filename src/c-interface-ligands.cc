@@ -1388,15 +1388,17 @@ on_monomer_lib_search_results_button_press (GtkButton *button,
 //       }
 
 
-void add_dipole(int imol, const char* chain_id, int res_no, const char *ins_code) {
+int add_dipole(int imol, const char* chain_id, int res_no, const char *ins_code) {
 
+   int id = -1; 
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t rs(chain_id, res_no, ins_code);
       graphics_info_t g;
-      g.molecules[imol].add_dipole(rs, *g.Geom_p());
+      id = g.molecules[imol].add_dipole(rs, *g.Geom_p());
 
    }
    graphics_draw();
+   return id; 
 }
 
 

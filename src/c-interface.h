@@ -5158,7 +5158,8 @@ char *get_atom_colour_from_mol_no(int imol, const char *element);
 /*  ----------------------------------------------------------------------- */
 /*! \name Dipoles */
 /* \{ */
-void add_dipole(int imol, const char* chain_id, int res_no, const char *ins_code); 
+/*! \brief return the dipole number */
+int add_dipole(int imol, const char* chain_id, int res_no, const char *ins_code); 
 void delete_dipole(int imol, int dipole_number);
 /* \} */
 
