@@ -1855,11 +1855,11 @@ molecule_class_info_t::display_symmetry_bonds() {
 }
 
 // publically accessible
-void
+int
 molecule_class_info_t::add_dipole(const coot::residue_spec_t &res,
 				  const coot::protein_geometry &geom) {
 
-
+   int id = -1;
    CResidue *residue_p = get_residue(res);
    if (residue_p) {
       try {
@@ -1870,12 +1870,14 @@ molecule_class_info_t::add_dipole(const coot::residue_spec_t &res,
 	    coot::dipole d(rp.second, residue_p);
 	    // std::cout << "   DEBUG:: added dipole " << d << std::endl;
 	    dipoles.push_back(d);
+	    id = dipoles.size();
 	 }
       }
       catch (std::runtime_error mess) {
 	 std::cout << mess.what() << std::endl;
       }
    }
+   return id; 
 }
 
 void

@@ -2405,8 +2405,9 @@ class molecule_class_info_t {
 
    void apply_charges(const coot::protein_geometry &geom);
 
-   void add_dipole(const coot::residue_spec_t &res,
-		   const coot::protein_geometry &geom);
+   // return the dipole number 
+   int add_dipole(const coot::residue_spec_t &res,
+		  const coot::protein_geometry &geom);
 
    void delete_dipole(int dipole_number);
 

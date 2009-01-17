@@ -157,6 +157,8 @@
    o sphere-refine in a region with undisplayed add-reps -> add reps
      displayed. ::: 1
 
+   o CA+Ligands has gone into CA by B-factor mode.  Don't like - it 
+     should be just the same as CA mode.
 
 
 ------
