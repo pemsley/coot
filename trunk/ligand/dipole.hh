@@ -34,16 +34,19 @@ namespace coot {
       bool dipole_is_good_flag;
       clipper::Coord_orth dipole_;
       clipper::Coord_orth residue_centre;
+      void init(std::vector<std::pair<dictionary_residue_restraints_t, CResidue *> > dict_res_pairs);
    public:
       // Thow an exception on failure to make a dipole
       // 
-      dipole(const dictionary_residue_restraints_t &rest,
-	     CResidue *residue_p);
+      dipole(const dictionary_residue_restraints_t &rest, CResidue *residue_p);
+      dipole(std::vector<std::pair<dictionary_residue_restraints_t, CResidue *> > dict_res_pairs);
+
       friend std::ostream& operator<<(std::ostream &s, const dipole &d);
       clipper::Coord_orth position() const { return residue_centre; };
       clipper::Coord_orth get_dipole() const { return dipole_; }
       clipper::Coord_orth get_unit_dipole() const;
       std::vector<std::pair<CAtom *, float> > charged_atoms(CResidue *r, const dictionary_residue_restraints_t &rest) const;
+      std::vector<std::pair<CAtom *, float> > charged_atoms(std::vector<std::pair<dictionary_residue_restraints_t, CResidue *> > dict_res_pairs) const;
       void fill_charged_atoms(CResidue *residue_p, const coot::dictionary_residue_restraints_t &rest);
    }; 
    std::ostream& operator<<(std::ostream &s, const dipole &d);
