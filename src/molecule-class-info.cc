@@ -1856,27 +1856,34 @@ molecule_class_info_t::display_symmetry_bonds() {
 
 // publically accessible
 int
-molecule_class_info_t::add_dipole(const coot::residue_spec_t &res,
+molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_specs,
 				  const coot::protein_geometry &geom) {
 
    int id = -1;
-   CResidue *residue_p = get_residue(res);
-   if (residue_p) {
-      try {
-	 std::string res_type = residue_p->GetResName();
-	 std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
-	    geom.get_monomer_restraints(res_type);
-	 if (rp.first) {
-	    coot::dipole d(rp.second, residue_p);
-	    // std::cout << "   DEBUG:: added dipole " << d << std::endl;
-	    dipoles.push_back(d);
-	    id = dipoles.size();
+   std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > pairs;
+   
+   for (unsigned int ires=0; ires<res_specs.size(); ires++) { 
+      CResidue *residue_p = get_residue(res_specs[ires]);
+      
+      if (residue_p) {
+	 try {
+	    std::string res_type = residue_p->GetResName();
+	    std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
+	       geom.get_monomer_restraints(res_type);
+	    if (rp.first) {
+	       std::pair<coot::dictionary_residue_restraints_t, CResidue *> p(rp.second, residue_p);
+	       pairs.push_back(p);
+	    }
+	 }
+	 catch (std::runtime_error mess) {
+	    std::cout << mess.what() << std::endl;
 	 }
       }
-      catch (std::runtime_error mess) {
-	 std::cout << mess.what() << std::endl;
-      }
    }
+   
+   coot::dipole d(pairs);
+   dipoles.push_back(d);
+   id = dipoles.size() -1;
    return id; 
 }
 
@@ -1937,7 +1944,7 @@ molecule_class_info_t::draw_dipoles() const {
 	 }
       }
 
-      glColor3f(0.5,0.6,0.8);
+      glColor3f(0.9,0.6,0.8);
       for (unsigned int i=0; i<dipoles.size(); i++) {
 	 clipper::Coord_orth pt = dipoles[i].position();
 	 clipper::Coord_orth  d = dipoles[i].get_dipole();

@@ -30,31 +30,58 @@
 coot::dipole::dipole(const coot::dictionary_residue_restraints_t &rest,
 		     CResidue *residue_p) {
 
-   dipole_is_good_flag = 0;
+   
+   std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > dict_res_pairs;
+   std::pair<coot::dictionary_residue_restraints_t, CResidue *> p(rest, residue_p);
+   dict_res_pairs.push_back(p);
+   init(dict_res_pairs);
+}
 
-   PPCAtom SelAtoms;
-   int nSelAtoms;
-   residue_p->GetAtomTable(SelAtoms, nSelAtoms);
+coot::dipole::dipole(std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > dict_res_pairs) {
+   init(dict_res_pairs);
+}
+
+void
+coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > dict_res_pairs) {
+
+   dipole_is_good_flag = 0;
 
    // Find the centre of the residue
    double sum_x = 0; 
    double sum_y = 0; 
    double sum_z = 0;
    int n_points = 0;
-   for (int i_res_at=0; i_res_at<nSelAtoms; i_res_at++) {
-      sum_x += SelAtoms[i_res_at]->x;
-      sum_y += SelAtoms[i_res_at]->y;
-      sum_z += SelAtoms[i_res_at]->z;
-      n_points++;
+
+
+   for (unsigned int ires=0; ires<dict_res_pairs.size(); ires++) {
+      CResidue *residue_p = dict_res_pairs[ires].second;
+      coot::dictionary_residue_restraints_t rest = dict_res_pairs[ires].first;
+
+      PPCAtom SelAtoms;
+      int nSelAtoms;
+      residue_p->GetAtomTable(SelAtoms, nSelAtoms);
+
+      for (int i_res_at=0; i_res_at<nSelAtoms; i_res_at++) {
+	 sum_x += SelAtoms[i_res_at]->x;
+	 sum_y += SelAtoms[i_res_at]->y;
+	 sum_z += SelAtoms[i_res_at]->z;
+	 n_points++;
+      }
    }
 
    if (n_points == 0) {
-      std::string mess = "No atoms in residue ";
-      mess += residue_p->GetChainID();
-      mess += " ";
-      mess += residue_p->GetSeqNum();
+      std::string mess = "No atoms in residue(s) ";
+      for (unsigned int i=0; i<dict_res_pairs.size(); i++) {
+         CResidue *residue_p = dict_res_pairs[i].second;
+         mess += residue_p->GetChainID();
+         mess += " ";
+         mess += residue_p->GetSeqNum();
+         mess += ", ";
+      }
       throw std::runtime_error(mess);
    }
+
+
    double multiplier = 1.0/double(n_points);
 
    // class member:
@@ -62,7 +89,7 @@ coot::dipole::dipole(const coot::dictionary_residue_restraints_t &rest,
 					sum_y*multiplier,
 					sum_z*multiplier);
    
-   std::vector<std::pair<CAtom *, float> > charged_ats = charged_atoms(residue_p, rest);
+   std::vector<std::pair<CAtom *, float> > charged_ats = charged_atoms(dict_res_pairs);
    std::vector<std::pair<float, clipper::Coord_orth> > charged_points(charged_ats.size());
    for (unsigned int i=0; i<charged_ats.size(); i++) {
       clipper::Coord_orth p(charged_ats[i].first->x,
@@ -84,14 +111,18 @@ coot::dipole::dipole(const coot::dictionary_residue_restraints_t &rest,
 
    if (! dipole_is_good_flag) {
       std::string mess = "Dipole is not good for ";
-      mess += residue_p->GetChainID();
-      mess += " ";
-      mess += residue_p->GetSeqNum();
+      for (unsigned int i=0; i<dict_res_pairs.size(); i++) {
+         CResidue *residue_p = dict_res_pairs[i].second;
+         mess += residue_p->GetChainID();
+         mess += " ";
+         mess += residue_p->GetSeqNum();
+         mess += ", ";
+      }
       throw std::runtime_error(mess);
    }
       
    dipole_ = dip;
-}
+} 
 
 void
 coot::dipole::fill_charged_atoms(CResidue *residue_p,
@@ -128,6 +159,24 @@ coot::dipole::charged_atoms(CResidue *residue_p,
 	    std::cout << "    no partial charge for "
 		      << rest.atom_info[j].atom_id << std::endl;
 	 }
+      }
+   }
+   return charged_ats;
+}
+
+
+
+std::vector<std::pair<CAtom *, float> >
+coot::dipole::charged_atoms(std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > dict_res_pairs) const {
+
+   std::vector<std::pair<CAtom *, float> > charged_ats;
+
+   for (unsigned int i=0; i<dict_res_pairs.size(); i++) {
+      CResidue *residue_p = dict_res_pairs[i].second;
+      coot::dictionary_residue_restraints_t rest = dict_res_pairs[i].first;
+      std::vector<std::pair<CAtom *, float> > residue_charged_ats = charged_atoms(residue_p, rest);
+      for (unsigned int j=0; j<residue_charged_ats.size(); j++) {
+         charged_ats.push_back(residue_charged_ats[j]);
       }
    }
    return charged_ats;
