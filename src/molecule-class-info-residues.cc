@@ -24,6 +24,7 @@
 //
 
 #include <string>
+#include <stdexcept>
 
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"
@@ -84,7 +85,7 @@ molecule_class_info_t::apply_charges(const coot::protein_geometry &geom) {
 	 n_all++;
       }
 
-      if ( float(n_H)/float(n_all) > fraction_hydrogens) {
+      if ( (float(n_H)/float(n_all) > fraction_hydrogens) || n_all < 40) {
 
 	 // Now add real charges from the dictionary
 	 // 
@@ -102,8 +103,13 @@ molecule_class_info_t::apply_charges(const coot::protein_geometry &geom) {
 	       std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
 		  geom.get_monomer_restraints(res_type);
 	       if (rp.first) {
-		  coot::dipole p(rp.second, residue_p);
-		  p.fill_charged_atoms(residue_p, rp.second);
+		  try { 
+		     coot::dipole p(rp.second, residue_p);
+		     p.fill_charged_atoms(residue_p, rp.second);
+		  }
+		  catch (std::runtime_error mess) {
+		     std::cout << mess.what() << std::endl;
+		  }
 	       }
 	    }
 	 }

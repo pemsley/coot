@@ -24,6 +24,7 @@
 
 #include <stdexcept>
 #include "dipole.hh"
+#include "coot-utils.hh" // for int_to_string()
 
 // Thow an exception on failure to make a dipole
 // 
@@ -70,7 +71,12 @@ coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, 
    }
 
    if (n_points == 0) {
-      std::string mess = "No atoms in residue(s) ";
+      std::string mess = "No atoms in ";
+      mess += coot::util::int_to_string(dict_res_pairs.size());
+      mess += " residue";
+      if (dict_res_pairs.size() != 1)
+	 mess += "s";
+      mess += " ";
       for (unsigned int i=0; i<dict_res_pairs.size(); i++) {
          CResidue *residue_p = dict_res_pairs[i].second;
          mess += residue_p->GetChainID();
@@ -111,11 +117,18 @@ coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, 
 
    if (! dipole_is_good_flag) {
       std::string mess = "Dipole is not good for ";
+      mess += coot::util::int_to_string(dict_res_pairs.size());
+      mess += " residue";
+      if (dict_res_pairs.size() != 1)
+	 mess += "s";
+      mess += " ";
       for (unsigned int i=0; i<dict_res_pairs.size(); i++) {
          CResidue *residue_p = dict_res_pairs[i].second;
          mess += residue_p->GetChainID();
          mess += " ";
-         mess += residue_p->GetSeqNum();
+         mess += coot::util::int_to_string(residue_p->GetSeqNum());
+         mess += " ";
+         mess += residue_p->GetResName();
          mess += ", ";
       }
       throw std::runtime_error(mess);
