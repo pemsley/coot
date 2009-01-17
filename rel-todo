@@ -147,9 +147,6 @@
 
    o Add terminal residue has disconnected atoms.  Why? ::: 1
 
-   o Add terminal residue does not respect the default B factor [Pete
-     Meyer] ::: 1
-
    o Stereo (hardward, side by side) Add-reps.  Need to update the
      display list objects when the GL context changes. Need to store a
      GL display list number for the alternate GL context in side by
@@ -159,6 +156,7 @@
 
    o sphere-refine in a region with undisplayed add-reps -> add reps
      displayed. ::: 1
+
 
 
 ------
@@ -334,5 +332,8 @@
      neighbours e.g. sphere refine ::: 2
 
 * Done.
+
+   o Add terminal residue does not respect the default B factor [Pete
+     Meyer] ::: 1
 
 
