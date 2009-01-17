@@ -256,8 +256,8 @@ coot::residues_near_residue(CResidue *res_ref,
    int nSelAtoms;
    mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
 
-   PPCAtom res_atom_selection;
-   int n_res_atoms;
+   PPCAtom res_atom_selection = 0;
+   int n_res_atoms = 0;
    res_ref->GetAtomTable(res_atom_selection, n_res_atoms);
 
    if (n_res_atoms > 0) {
