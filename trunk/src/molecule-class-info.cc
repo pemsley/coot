@@ -1873,17 +1873,30 @@ molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_s
 	    if (rp.first) {
 	       std::pair<coot::dictionary_residue_restraints_t, CResidue *> p(rp.second, residue_p);
 	       pairs.push_back(p);
-	    }
+	    } else {
+	       std::cout << "INFO:: no monomer restraints found for "
+			 << coot::residue_spec_t(residue_p) << " type: " << res_type << std::endl;
+	    } 
 	 }
 	 catch (std::runtime_error mess) {
 	    std::cout << mess.what() << std::endl;
 	 }
+      } else {
+	 std::cout << "   add_dipole: trapped null residue" << std::endl;
+      } 
+   }
+
+   if (pairs.size() > 0) {
+      try { 
+	 coot::dipole d(pairs);
+	 dipoles.push_back(d);
+	 id = dipoles.size() -1;
+      }
+      catch (std::runtime_error mess) {
+	    std::cout << mess.what() << std::endl;
       }
    }
    
-   coot::dipole d(pairs);
-   dipoles.push_back(d);
-   id = dipoles.size() -1;
    return id; 
 }
 
