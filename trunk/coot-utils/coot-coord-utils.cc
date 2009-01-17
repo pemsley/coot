@@ -259,64 +259,67 @@ coot::residues_near_residue(CResidue *res_ref,
    PPCAtom res_atom_selection;
    int n_res_atoms;
    res_ref->GetAtomTable(res_atom_selection, n_res_atoms);
-      
-   PSContact pscontact = NULL;
-   int n_contacts;
-   float min_dist = 0.01;
-   long i_contact_group = 1;
-   mat44 my_matt;
-   CSymOps symm;
-   for (int i=0; i<4; i++) 
-      for (int j=0; j<4; j++) 
-	 my_matt[i][j] = 0.0;      
-   for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
-   // by-pass bug noted below (?)
-   if (min_dist < radius)
-      min_dist = 0.0;
-   // bypass a bug when the n_contacts is 11m or so, but
-   // pscontact[0] is NULL.  hence crash when we try to get the
-   // residue from that atom index.
-   // 
-   if (radius > 0.0) { 
-      mol->SeekContacts(res_atom_selection, n_res_atoms, 
-			atom_selection, n_selected_atoms,
-			min_dist, radius, // min, max distances
-			0,        // seqDist 0 -> in same res also
-			pscontact, n_contacts,
-			0, &my_matt, i_contact_group);
+   if (n_res_atoms > 0) {
+
+      PSContact pscontact = NULL;
+      int n_contacts;
+      float min_dist = 0.01;
+      long i_contact_group = 1;
+      mat44 my_matt;
+      CSymOps symm;
+      for (int i=0; i<4; i++) 
+	 for (int j=0; j<4; j++) 
+	    my_matt[i][j] = 0.0;      
+      for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+      // by-pass bug noted below (?)
+      if (min_dist < radius)
+	 min_dist = 0.0;
+      // bypass a bug when the n_contacts is 11m or so, but
+      // pscontact[0] is NULL.  hence crash when we try to get the
+      // residue from that atom index.
+      // 
+      if (radius > 0.0) { 
+	 mol->SeekContacts(res_atom_selection, n_res_atoms, 
+			   atom_selection, n_selected_atoms,
+			   min_dist, radius, // min, max distances
+			   0,        // seqDist 0 -> in same res also
+			   pscontact, n_contacts,
+			   0, &my_matt, i_contact_group);
 	 
-      //       std::cout << " Found " << n_contacts  << " contacts " << std::endl;
+	 //       std::cout << " Found " << n_contacts  << " contacts " << std::endl;
 	 
-      if (n_contacts > 0) {
-	 if (pscontact) { 
-	    int n_cont_diff = 0; 
-	    int n_cont_same = 0; 
-	    for (int i=0; i<n_contacts; i++) {
-	       // 	    std::cout << "   comparing " << atom_selection[pscontact[i].id2]
-	       // 		      << " " << coot::atom_spec_t(atom_selection[pscontact[i].id2])
-	       // 		      << " " << " to " << rs << " " << res_p << std::endl;
-	       if (atom_selection[pscontact[i].id2]->residue != res_ref) {
-		  n_cont_diff++;
-		  std::vector<CResidue *>::iterator result =
-		     std::find(close_residues.begin(),
-			       close_residues.end(),
-			       atom_selection[pscontact[i].id2]->residue);
+	 if (n_contacts > 0) {
+	    if (pscontact) { 
+	       int n_cont_diff = 0; 
+	       int n_cont_same = 0; 
+	       for (int i=0; i<n_contacts; i++) {
+		  // 	    std::cout << "   comparing " << atom_selection[pscontact[i].id2]
+		  // 		      << " " << coot::atom_spec_t(atom_selection[pscontact[i].id2])
+		  // 		      << " " << " to " << rs << " " << res_p << std::endl;
+		  if (atom_selection[pscontact[i].id2]->residue != res_ref) {
+		     n_cont_diff++;
+		     std::vector<CResidue *>::iterator result =
+			std::find(close_residues.begin(),
+				  close_residues.end(),
+				  atom_selection[pscontact[i].id2]->residue);
 		  
-		  if (result == close_residues.end()) { 
-		     close_residues.push_back(atom_selection[pscontact[i].id2]->residue);
+		     if (result == close_residues.end()) { 
+			close_residues.push_back(atom_selection[pscontact[i].id2]->residue);
+		     }
+		  } else {
+		     n_cont_same++;
 		  }
-	       } else {
-		  n_cont_same++;
 	       }
-	    }
-	 } else {
-	    std::cout << "ERROR:: trapped null pscontact in residues_near_residue"
-		      << std::endl;
-	 } 
+	    } else {
+	       std::cout << "ERROR:: trapped null pscontact in residues_near_residue"
+			 << std::endl;
+	    } 
+	 }
       }
+      mol->DeleteSelection(SelectionHandle);
    }
-   mol->DeleteSelection(SelectionHandle);
    return close_residues;
 }
 
