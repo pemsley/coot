@@ -72,6 +72,7 @@ namespace coot {
       // that is shortest distance to view_centre
       Cartesian front_clipping_plane_point;
       colour_t background;
+      bool raster3d_enable_shadows;
       
       raytrace_info_t(Cartesian centre_view_in, float zoom_in,
 		      const colour_t &background_in,
@@ -93,6 +94,7 @@ namespace coot {
 	 density_thickness = density_thickness_in;
 	 clipping = clipping_in;
 	 atom_radius = atom_radius_in;
+	 raster3d_enable_shadows = 1;
       }
       void set_view_matrix(GL_matrix view_matrix_in) {
 	 view_matrix = view_matrix_in;
@@ -104,6 +106,11 @@ namespace coot {
       void set_front_clipping_plane_point(const Cartesian &fcpp) {
 	 front_clipping_plane_point = fcpp;
       }
+
+      void set_raster3d_enable_shadows(bool state) {
+	 raster3d_enable_shadows = state;
+      } 
+      
       void add_display_objects(const std::vector<coot::generic_display_object_t> &display_objects_in) {
 	 for (unsigned int i=0; i<display_objects_in.size(); i++) {
 	    display_objects.push_back(display_objects_in[i]);

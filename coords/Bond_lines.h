@@ -246,7 +246,6 @@ enum symm_keys {NO_SYMMETRY_BONDS};
 
 class Bond_lines_container { 
 
-
    short int verbose_reporting;
    short int do_disulfide_bonds_flag;
    short int do_bonds_to_hydrogens;

@@ -1961,8 +1961,13 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 			segid1 = (Ca_selection[ contact[i].id1 ]->GetChainID());
 			segid2 = (Ca_selection[ contact[i].id2 ]->GetChainID());
 
-			if (segid1 == segid2) { 
+			if (segid1 == segid2) {
 
+// 			   std::cout << "bond_colour_type: " << bond_colour_type << " vs "
+// 				     << Bond_lines_container::COLOUR_BY_B_FACTOR << " and "
+// 				     << coot::COLOUR_BY_SEC_STRUCT
+// 				     << std::endl;
+			      
 			   if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
 
 			      coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);

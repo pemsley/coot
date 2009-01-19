@@ -3017,6 +3017,7 @@ public:
    static float raster3d_density_thickness;
    static int renderer_show_atoms_flag;
    static float raster3d_bone_thickness; 
+   static bool  raster3d_enable_shadows; 
 
    // ------- auto read mtz file: --------
    static int auto_read_do_difference_map_too_flag;
