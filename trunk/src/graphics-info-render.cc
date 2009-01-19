@@ -64,6 +64,8 @@ graphics_info_t::raster3d(std::string filename) {
 
    rt.add_display_objects(*generic_objects_p);
 
+   rt.set_raster3d_enable_shadows(raster3d_enable_shadows);
+
    std::cout << "Generating raytrace molecule objects..." << std::endl;
    for (int imol=0; imol<n_molecules(); imol++) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
@@ -192,7 +194,11 @@ coot::raytrace_info_t::render_ray_trace(std::string filename) {
       render_stream << background.col[0] << " ";
       render_stream << background.col[1] << " ";
       render_stream << background.col[2] << "    background\n";
-      render_stream << "T        shadows\n";
+      if (raster3d_enable_shadows) 
+	 render_stream << "T";
+      else 
+	 render_stream << "F";
+      render_stream << "        shadows\n";
       render_stream << "25       Phong power\n";
       render_stream << "0.15     secondary light contribution\n";
       render_stream << "0.05     ambient light contribution\n";

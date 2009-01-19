@@ -1767,6 +1767,11 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 void
 molecule_class_info_t::display_symmetry_bonds() {
 
+   // We may come here after having done additional_representations -
+   // which would change the line width.
+   // 
+   glLineWidth(bond_width);
+   
    Lines_list ll;
    if ((show_symmetry == 1) && (graphics_info_t::show_symmetry == 1)) {
       int isymop;

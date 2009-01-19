@@ -4453,6 +4453,8 @@ void set_raster3d_density_thickness(float f);
 void set_renderer_show_atoms(int istate);
 /*! \brief set the bone (skeleton) thickness for the Raster3D representation  */
 void set_raster3d_bone_thickness(float f);
+/*! \brief turn off shadows for raster3d output - give argument 0 to turn off  */
+void set_raster3d_shadows_enabled(int state);
 /*! \brief run raster3d and display the resulting image.  */
 void raster_screen_shot(); /* run raster3d or povray and guile */
                            /* script to render and display image */

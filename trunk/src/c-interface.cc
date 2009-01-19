@@ -7525,7 +7525,13 @@ raster_screen_shot_py() {  // run raster3d or povray and guile
 void set_renderer_show_atoms(int istate) {
 
    graphics_info_t::renderer_show_atoms_flag = istate;
+}
+
+/*! \brief turn off shadows for raster3d output - give argument 0 to turn off  */
+void set_raster3d_shadows_enabled(int state) {
+   graphics_info_t::raster3d_enable_shadows = state;
 } 
+
 
 
 /*  ----------------------------------------------------------------------- */
