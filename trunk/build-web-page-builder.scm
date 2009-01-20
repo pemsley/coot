@@ -734,11 +734,11 @@
 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
 	      "ubuntu-6.06/gtk2" #t)
 
-	(list "binary-Linux-i686-ubuntu-8.04.1" 
+	(list "binary-Linux-i686-ubuntu-8.04.2" 
 	      "Linux-bragg3/gtk1" #f)
-	(list "binary-Linux-i686-ubuntu-8.04.1-python" 
+	(list "binary-Linux-i686-ubuntu-8.04.2-python" 
 	      "Linux-bragg3/gtk1" #t)
-	(list "binary-Linux-i686-ubuntu-8.04.1-python-gtk2"
+	(list "binary-Linux-i686-ubuntu-8.04.2-python-gtk2"
 	      "Linux-bragg3/gtk2" #t)
 
 	(list "WinCoot" 
