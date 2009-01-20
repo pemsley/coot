@@ -429,23 +429,14 @@ wrapped_create_run_refmac_dialog() {
       gtk_widget_hide(labels);
     }
     GtkWidget *extra_options = lookup_widget(window, "run_refmac_extra_refinement_options_frame");
-    GtkWidget *tls_check_button = lookup_widget(window, "run_refmac_tls_checkbutton");
     GtkWidget *twin_check_button = lookup_widget(window, "run_refmac_twin_checkbutton");
-    GtkWidget *sad_check_button = lookup_widget(window, "run_refmac_sad_checkbutton");
     GtkWidget *sad_extras = lookup_widget(window, "run_refmac_sad_extra_hbox");
-    if (refmac_use_tls_state()) {
-       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), TRUE);
-    } else {
-       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), FALSE);
-    }
     gtk_widget_show(extra_options);
     gtk_widget_hide(twin_check_button);
-    gtk_widget_hide(sad_check_button);
 
     if (refmac_runs_with_nolabels() >= 2) {
       /* add the tls, twin and sad buttons */
        gtk_widget_show(twin_check_button);
-       gtk_widget_show(sad_check_button);
       /* update the check buttons */
       GtkWidget *mtz_file_label = lookup_widget(window, "run_refmac_mtz_file_label");
       store_refmac_mtz_file_label(mtz_file_label);
@@ -457,20 +448,16 @@ wrapped_create_run_refmac_dialog() {
       }
       if (refmac_use_twin_state()) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
-	gtk_widget_set_sensitive(sad_check_button, FALSE);
 	gtk_widget_hide(sad_extras);
       } else {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), FALSE);
-	gtk_widget_set_sensitive(sad_check_button, TRUE);
       }
-      if (refmac_use_sad_state()) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_check_button), TRUE);
+      if (get_refmac_phase_input() == 3) {
 	gtk_widget_set_sensitive(twin_check_button, FALSE);
 	gtk_widget_show(sad_extras);
 	/* fill the entry with 1st existing atom */
 	fill_refmac_sad_atom_entry(window);
       } else {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_check_button), FALSE);
 	gtk_widget_set_sensitive(twin_check_button, TRUE);
 	gtk_widget_hide(sad_extras);
       }

@@ -3393,6 +3393,9 @@ void set_make_movie_mode(int make_movies_flag);
  red, green and blue are numbers between 0.0 and 1.0 */
 void set_background_colour(double red, double green, double blue); 
 
+/*! \brief re draw the background colour when switching between mono and stereo */
+void redraw_background();
+
 /*! \brief is the background black (or nearly black)?
 
 @return 1 if the background is black (or nearly black), 

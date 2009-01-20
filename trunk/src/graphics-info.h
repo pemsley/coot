@@ -149,11 +149,13 @@ namespace coot {
                                   BOTTOM = 3};
    }
    namespace refmac {
-     enum refmac_refinement_method_type { RESTRAINED = 0,
-					  RIGID_BODY = 1 };
+     enum refmac_refinement_method_type { RESTRAINED     = 0 ,
+					  RIGID_BODY     = 1 ,
+					  RESTRAINED_TLS = 2 };
      enum refmac_phase_input_type { NO_PHASES = 0,
 				    PHASE_FOM = 1 ,
-				    HL        = 2 };
+				    HL        = 2 ,
+                                    SAD       = 3 };
      enum refmac_use_tls_type { TLS_OFF = 0,
 				TLS_ON  = 1};
      enum refmac_use_twin_type { TWIN_OFF = 0,
@@ -1195,6 +1197,7 @@ public:
 
    static short int do_anti_aliasing_flag; // BL feature
    void set_do_anti_aliasing(int state);
+   void draw_anti_aliasing();
    static int display_mode; // e.g. HARDWARE_STEREO_MODE, DTI_SIDE_BY_SIDE_STEREO
    static float hardware_stereo_angle_factor;
    static short int do_lighting_flag; 

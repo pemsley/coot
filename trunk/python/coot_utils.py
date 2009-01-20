@@ -1972,3 +1972,21 @@ def kill_process(pid):
             return True
         except:
             return False
+
+
+# some example function for the toolbutton
+def stereo_mono_toggle():
+    display_state = stereo_mode_state()
+    if (display_state == 0):
+        hardware_stereo_mode()
+    else:
+        mono_mode()
+
+def side_by_side_stereo_mono_toggle():
+    display_state = stereo_mode_state()
+    if (display_state == 0):
+        side_by_side_stereo_mode(0)
+    else:
+        mono_mode()
+
+

@@ -230,6 +230,7 @@ graphics_info_t::fill_option_menu_with_refmac_methods_options(GtkWidget *option_
   std::vector<std::string> v;
   v.push_back("restrained refinement ");
   v.push_back("rigid body refinement ");
+  v.push_back("TLS & restrained refinement ");
 
   for (int i=0; i<v.size(); i++) {
     menuitem = gtk_menu_item_new_with_label((char *) v[i].c_str());
@@ -260,7 +261,8 @@ graphics_info_t::fill_option_menu_with_refmac_phase_input_options(GtkWidget *opt
   std::vector<std::string> v;
   v.push_back("no prior phase information");
   v.push_back("phase and FOM");
-  v.push_back("Hendrickson-Lattman coefficients ");
+  v.push_back("Hendrickson-Lattman coefficients");
+  v.push_back("SAD data directly");
   
   for (int i=0; i<v.size(); i++) {
     menuitem = gtk_menu_item_new_with_label((char *) v[i].c_str());
@@ -535,6 +537,10 @@ graphics_info_t::set_refmac_phase_input(int phase_flag) {
     g.refmac_phase_input = coot::refmac::HL;
     break;
 
+  case coot::refmac::SAD:
+    g.refmac_phase_input = coot::refmac::SAD;
+    break;
+
   default:
     g.refmac_phase_input = coot::refmac::NO_PHASES;
     break;
@@ -561,6 +567,10 @@ graphics_info_t::set_refmac_refinement_method(int method) {
 
   case coot::refmac::RIGID_BODY:
     g.refmac_refinement_method = coot::refmac::RIGID_BODY;
+    break;
+
+  case coot::refmac::RESTRAINED_TLS:
+    g.refmac_refinement_method = coot::refmac::RESTRAINED_TLS;
     break;
 
   default:

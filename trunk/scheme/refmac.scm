@@ -90,7 +90,7 @@
 		   ; need to check for f-col being a string or list
 	   (labin-string (if (and (string? f-col) (string=? f-col "")) ""
 				(apply string-append (append
-					   (if (= (refmac-use-sad-state) 1)
+					   (if (= phase-combine-flag 3)
 						   (list "LABIN" " "
 								 "F+=" (strip-path (car f-col)) " "
 								 "SIGF+=" (strip-path (car sig-f-col)) " "
@@ -148,13 +148,13 @@
 							(number->string force-n-cycles))
 						   "")
 					   "")
-			       (if (and (= (refmac-use-tls-state) 1) (>= (refmac-runs-with-nolabels) 2))
+			       (if (= (get-refmac-refinement-method) 2)
 				   "REFI TLSC 5"
 				   "")
 			       (if (= (refmac-use-twin-state) 1)
 				   "TWIN"
 				   "")
-			       (if (and (= (refmac-use-sad-state) 1) (string=? labin-string ""))
+			       (if (and (= phase-combine-flag 3) (string=? labin-string ""))
 				   "REFI SAD"
 				   "")
 ;			       (if (= (refmac-use-sad-state) 1)
@@ -267,7 +267,7 @@
 			  (set-refmac-counter imol (+ imol-refmac-count 1))
 			  
 			  (let ((new-map-id (apply make-and-draw-map-with-refmac-params 
-						   (if (= (refmac-use-sad-state) 1) args-default args))))
+						   (if (= phase-combine-flag 3) args-default args))))
 			    
 			    (if (= swap-map-colours-post-refmac? 1)
 				(swap-map-colours imol-mtz-molecule new-map-id))
@@ -276,7 +276,7 @@
 			    (if (= (get-refmac-used-mtz-file-state) 1)
 				(begin
 				  (set-stored-refmac-file-mtz-filename new-map-id mtz-in-filename)
-				  (if (> phase-combine-flag 0)
+				  (if (and (> phase-combine-flag 0) (< phase-combine-flag 3))
 				      (begin
 					(let ((phib "")
 					      (fom  "")
@@ -300,7 +300,7 @@
 				      ))))
 			  
 			  (if (= 1 show-diff-map-flag) ; flag was set
-				  (if (= (refmac-use-sad-state) 1)
+				  (if (= phase-combine-flag 3)
 					  (let ((args (append
 								   (list mtz-out-filename "DELFWT" "PHDELWT" "" 0 1 1
 										 "FP" "SIGFP")

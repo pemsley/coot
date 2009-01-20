@@ -3799,14 +3799,17 @@ on_run_refmac_phase_input_optionmenu_changed
   GtkWidget *sad_checkbutton;
   GtkWidget *twin_checkbutton;
   GtkWidget *sad_extras;
+  GtkWidget *fobs_hbox;
+  GtkWidget *fpm_hbox;
   int phase_combine_flag;
 
   phases_hbox = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_phases_hbox");
   hl_hbox     = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_hl_hbox");
   no_labels_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_nolabels_checkbutton");
-  sad_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_sad_checkbutton");
   twin_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_twin_checkbutton");
   sad_extras = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_sad_extra_hbox");
+  fobs_hbox  = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_fobs_hbox");
+  fpm_hbox   = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_fpm_hbox");
 
   phase_combine_flag = get_refmac_phase_input();
 
@@ -3828,18 +3831,27 @@ on_run_refmac_phase_input_optionmenu_changed
 	 so we de-sensitise and uncheck the buttons */
       gtk_widget_set_sensitive(twin_checkbutton, FALSE);
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_checkbutton), FALSE);
-      gtk_widget_set_sensitive(sad_checkbutton, FALSE);
-      gtk_widget_hide(sad_extras);
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_checkbutton), FALSE);
       /* current version doesnt allow phase input without giving labels */
       gtk_widget_set_sensitive(no_labels_checkbutton, FALSE);
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(no_labels_checkbutton), FALSE);
     } else {
       gtk_widget_set_sensitive(twin_checkbutton, TRUE);
-      gtk_widget_set_sensitive(sad_checkbutton, TRUE);
       gtk_widget_set_sensitive(no_labels_checkbutton, TRUE);
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(no_labels_checkbutton), TRUE);
     }
+    if (phase_combine_flag == 3) {
+      /* SAD */
+      gtk_widget_show(sad_extras);
+      /* change label box from fobs to f+/- as SAD needs this */
+      gtk_widget_hide(fobs_hbox);
+      gtk_widget_show(fpm_hbox);
+    } else {
+      gtk_widget_hide(sad_extras);
+      /* change label box back from f+/- to fobs for 'normal' refinement */
+      gtk_widget_hide(fpm_hbox);
+      gtk_widget_show(fobs_hbox);
+    }
+
   }
     
 }
@@ -3861,7 +3873,6 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
   GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
-  GtkWidget *sad_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_checkbutton");
   GtkWidget *sad_extras      = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_extra_hbox");
   GtkWidget *mtz_button      = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_mtz_radiobutton");
   GtkWidget *mtz_frame       = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_mtz_hbox");
@@ -3873,9 +3884,7 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
     set_refmac_use_twin(1);
     /* update the column labels */
     fill_option_menu_with_refmac_labels_options(map_optionmenu);
-    /* de-sensitise the SAD button, no need to switch off use_sad as done in use_twin */
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_checkbutton), FALSE);
-    gtk_widget_set_sensitive(sad_checkbutton, FALSE);
+    /* hide SAD extras, no need to switch off use_sad as done in use_twin */
     gtk_widget_hide(sad_extras);
     /* make the the mtz frame and label insensitive */
     gtk_widget_set_sensitive(mtz_button, FALSE);
@@ -3888,7 +3897,6 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
     set_refmac_use_twin(0);
     /* update the column labels */
     fill_option_menu_with_refmac_labels_options(map_optionmenu);
-    gtk_widget_set_sensitive(sad_checkbutton, TRUE);
     /* hide the twin mtz frame and label but show the 'normal' ones */
     gtk_widget_set_sensitive(mtz_button, TRUE);
     gtk_widget_set_sensitive(mtz_frame, TRUE);
