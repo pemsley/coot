@@ -5170,7 +5170,7 @@ int add_dipole_for_residues_scm(int imol, SCM residue_specs);
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
 /*! \brief generate a dipole from all atoms in the given residues. */
-PyObject*add_dipole_for_residues_py(int imol, PyObject *residue_specs);
+int add_dipole_for_residues_py(int imol, PyObject *residue_specs);
 #endif /* USE_PYTHON */
 #endif
 /* \} */
