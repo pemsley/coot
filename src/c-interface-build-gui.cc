@@ -3,7 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
- * Copyright 2007 by Bernhard Lohkamp
+ * Copyright 2007,2008, 2009 by Bernhard Lohkamp
  * Copyright 2008 by Kevin Cowtan
  * Copyright 2007, 2008, 2009 The University of Oxford
  * 
@@ -527,6 +527,7 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		// 0: no phase
 		// 1: combine (with phase and FOM, as before)
 		// 2: combine with HL
+		// 3: SAD
 		phase_combine_flag = get_refmac_phase_input();
 	       
 		checkbutton =  lookup_widget(window,"run_refmac_diff_map_checkbutton");
@@ -639,7 +640,7 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		  //std::cout << "BL DEBUG:: selected fom col " << saved_f_phi_columns->selected_refmac_fom_col<<std::endl;
 		  //std::cout << "BL DEBUG:: selected hla col " << saved_f_phi_columns->selected_refmac_hla_col<<std::endl;
 
-		  if (refmac_use_sad_state()) {
+		  if (phase_combine_flag == 3) {
 		    // SAD F/sigF columns
 		    // we make F=/F- and sigF+/f- a list to pass to scripting refmac
 		    std::string fp_col;

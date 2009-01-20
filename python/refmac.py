@@ -134,7 +134,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
     refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
 
     labin_string = ""
-    if (refmac_use_sad_state() and (len(f_col) == 2)):
+    if (phase_combine_flag == 3 and (len(f_col) == 2)):
         labin_string = "LABIN F+=" + split_label(f_col[0]) + \
                          " SIGF+=" + split_label(sig_f_col[0]) +\
                             " F-=" + split_label(f_col[1]) +\
@@ -207,7 +207,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
            else:
                std_lines.append("NCYC " + str(force_n_cycles))
     # TLS?
-    if (refmac_use_tls_state() and (refmac_runs_with_nolabels() >= 1)):
+    if (refinement_type == 2):
         tls_string = "REFI TLSC 5"
         std_lines.append(tls_string)
 
@@ -216,7 +216,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
         std_lines.append("TWIN")
 
     # SAD?
-    if (refmac_use_sad_state()):
+    if (phase_combine_flag == 3):
         if (not labin_string):
             std_lines.append("REFI SAD")
         sad_atom_ls = get_refmac_sad_atom_info()
@@ -309,6 +309,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                             pdb_out_filename, mtz_out_filename,
                             refmac_log_file_name,
                             phib_fom_pair, f_col, sig_f_col, r_free_col,
+                            phase_combine_flag,
                             refmac_process, logObj,
                             kill_button, True)
     else:
@@ -320,7 +321,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                         pdb_out_filename, mtz_out_filename,
                         refmac_log_file_name,
                         phib_fom_pair, f_col, sig_f_col, r_free_col,
-                        refmac_status)
+                        phase_combine_flag, refmac_status)
 
 
 def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
@@ -328,6 +329,7 @@ def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
                     pdb_out_filename, mtz_out_filename,
                     refmac_log_file_name,
                     phib_fom_pair, f_col, sig_f_col, r_free_col,
+                    phase_combine_flag,
                     refmac_process, logObj=None,
                     button = None, run_in_timer=False):
 
@@ -347,6 +349,8 @@ def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
         
     if (refmac_status) : # refmac ran fail...
         print "Refmac Failed."
+        if (button):
+            button.destroy()
         if (run_in_timer):
             # stop the gobject timer
             print "... or was killed"
@@ -374,7 +378,7 @@ def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
             set_recentre_on_read_pdb(1)
         set_refmac_counter(imol, imol_refmac_count + 1)
 
-        if (refmac_use_sad_state() or refmac_use_twin_state()):
+        if (phase_combine_flag == 3 or refmac_use_twin_state()):
             # for now we have to assume the 'standard' name, let's see if we can do better...
                 # this may not be necessary!?
             args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, "FP", "SIGFP"] + r_free_bit
@@ -388,7 +392,7 @@ def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
         # store the refmac parameters to the new map (if we used a file)
         if (get_refmac_used_mtz_file_state()):
             set_stored_refmac_file_mtz_filename(new_map_id, mtz_in_filename)
-            if (phase_combine_flag):
+            if (phase_combine_flag > 0 and phase_combine_flag < 3):
                 # save the phase information
                 phib = ""
                 fom  = ""
@@ -412,7 +416,7 @@ def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
 
         # difference map (flag was set):
         if (show_diff_map_flag == 1):
-            if (refmac_use_sad_state()):
+            if (phase_combine_flag == 3):
                 # for now we have to assume the 'standard' name, let's see if we can do better...
                 args = [mtz_out_filename, "DELFWT", "PHDELWT", "", 0, 1, 1, "FP", "SIGFP"] + r_free_bit
                 make_and_draw_map_with_refmac_params(*args)

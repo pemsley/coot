@@ -542,6 +542,9 @@ void hardware_stereo_mode() {
 	       gtk_widget_destroy(graphics_info_t::glarea);
 	       graphics_info_t::glarea = glarea;
 	       gtk_widget_show(glarea);
+	       // antialiasing?
+	       graphics_info_t g;
+	       g.draw_anti_aliasing();
 	       graphics_draw();
 	    } else {
 	       std::cout << "WARNING:: switch to hardware_stereo_mode failed\n";
@@ -601,6 +604,8 @@ void mono_mode() {
 	       graphics_info_t g;
 	       g.setRotationCentre(coot::Cartesian(g.X(), g.Y(), g.Z()));
 	       g.post_recentre_update_and_redraw();
+	       g.draw_anti_aliasing();
+	       redraw_background();
 	    } else {
 	       graphics_info_t::display_mode = previous_mode;
 	       std::cout << "WARNING:: switch to mono mode failed\n";
@@ -648,6 +653,10 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 	    gtk_widget_show(glarea);
 	    gtk_widget_show(graphics_info_t::glarea_2);
 	    update_maps();
+	    // antialiasing?
+	    graphics_info_t g;
+	    g.draw_anti_aliasing();
+	    redraw_background();
 	    graphics_draw();
 // BL says:: maybe we should set the set_display_lists_for_maps here for
 // windows, actually Mac as well if I remember correctly
@@ -7280,7 +7289,16 @@ void set_background_colour(double red, double green, double blue) {
 
    graphics_info_t g;
 
-   if (g.use_graphics_interface_flag) { 
+   if (g.use_graphics_interface_flag) {
+     if(g.glarea_2) {
+       g.make_current_gl_context(g.glarea_2);
+       glClearColor(red,green,blue,1.0);
+       g.background_colour[0] = red; 
+       g.background_colour[1] = green; 
+       g.background_colour[2] = blue; 
+       glFogfv(GL_FOG_COLOR, g.background_colour);
+     }
+     g.make_current_gl_context(g.glarea);
      glClearColor(red,green,blue,1.0);
      g.background_colour[0] = red; 
      g.background_colour[1] = green; 
@@ -7288,6 +7306,28 @@ void set_background_colour(double red, double green, double blue) {
      glFogfv(GL_FOG_COLOR, g.background_colour);
      graphics_draw();
    }
+}
+
+void
+redraw_background() {
+
+   graphics_info_t g;
+
+   double red   = g.background_colour[0];
+   double green = g.background_colour[1]; 
+   double blue  = g.background_colour[2]; 
+   if (g.use_graphics_interface_flag && !background_is_black_p()) {
+     if(g.glarea_2) {
+       g.make_current_gl_context(g.glarea_2);
+       glClearColor(red,green,blue,1.0);
+       glFogfv(GL_FOG_COLOR, g.background_colour);
+     }
+     g.make_current_gl_context(g.glarea);
+     glClearColor(red,green,blue,1.0);
+     glFogfv(GL_FOG_COLOR, g.background_colour);
+     graphics_draw();
+   }
+
 }
 
 int  background_is_black_p() {

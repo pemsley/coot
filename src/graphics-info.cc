@@ -232,25 +232,48 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label)
 void
 graphics_info_t::set_do_anti_aliasing(int state) { 
 
-   if (do_anti_aliasing_flag != state) {
-      if (glarea) { 
-	 if (make_current_gl_context(glarea)) { 
-	       if (state) { 
-	       // should we also add a (quality) hint here?
-	       glEnable(GL_LINE_SMOOTH);
-	       glEnable(GL_BLEND);
-	       glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
-	       // glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
-	    } else {
-	       glDisable(GL_LINE_SMOOTH);
-	       glDisable(GL_BLEND);
-	       glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
-	    }
-	    graphics_draw();
-	 }
+  short int old_flag = graphics_info_t::do_anti_aliasing_flag;
+  graphics_info_t::do_anti_aliasing_flag = state;
+  if (do_anti_aliasing_flag != old_flag) {
+    draw_anti_aliasing();
+  }
+}
+
+void
+graphics_info_t::draw_anti_aliasing() {
+  
+  // first for stereo
+  if (glarea_2) {
+    if (make_current_gl_context(glarea_2)) { 
+      if (do_anti_aliasing_flag) {
+	// should we also add a (quality) hint here?
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
+	// glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
+      } else {
+	glDisable(GL_LINE_SMOOTH);
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
       }
-   }
-   graphics_info_t::do_anti_aliasing_flag = state;
+    }
+  }
+  // normal path
+  if (glarea) {
+    if (make_current_gl_context(glarea)) {
+      if (do_anti_aliasing_flag) {
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
+	// glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
+      } else {
+	glDisable(GL_LINE_SMOOTH);
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
+      }
+      graphics_draw();
+    }
+  }
 }
 
 void

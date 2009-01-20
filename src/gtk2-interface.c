@@ -10458,7 +10458,6 @@ create_run_refmac_dialog (void)
   gtk_container_add (GTK_CONTAINER (run_refmac_extra_refinement_options_frame), vbox279);
 
   run_refmac_tls_checkbutton = gtk_check_button_new_with_mnemonic (_("Use TLS?"));
-  gtk_widget_show (run_refmac_tls_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox279), run_refmac_tls_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_tls_checkbutton), 3);
   gtk_tooltips_set_tip (tooltips, run_refmac_tls_checkbutton, _("Refmac will use each chain as an TLS group (run 5 cycles of TLS)"), NULL);
@@ -10470,7 +10469,6 @@ create_run_refmac_dialog (void)
   gtk_tooltips_set_tip (tooltips, run_refmac_twin_checkbutton, _("Use twin refinement (you need to input an extra mtz file for intensities)"), NULL);
 
   run_refmac_sad_checkbutton = gtk_check_button_new_with_mnemonic (_("SAD refinement?"));
-  gtk_widget_show (run_refmac_sad_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox279), run_refmac_sad_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_sad_checkbutton), 3);
   gtk_tooltips_set_tip (tooltips, run_refmac_sad_checkbutton, _("Use anomalous data to refine your structure (input F+/F-)"), NULL);
@@ -10478,7 +10476,7 @@ create_run_refmac_dialog (void)
   run_refmac_sad_extra_hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox279), run_refmac_sad_extra_hbox, TRUE, TRUE, 0);
 
-  label658 = gtk_label_new (_("      Atom name"));
+  label658 = gtk_label_new (_("      Anomalous atom"));
   gtk_widget_show (label658);
   gtk_box_pack_start (GTK_BOX (run_refmac_sad_extra_hbox), label658, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label658), GTK_JUSTIFY_RIGHT);

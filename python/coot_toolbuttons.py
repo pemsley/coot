@@ -54,14 +54,6 @@ def register_coot_icons():
 
 if (have_coot_python):
 
-  # an example function for the toolbutton (not sure if it should be here!)
-  def stereo_mono_toggle():
-    display_state = stereo_mode_state()
-    if (display_state == 0):
-      hardware_stereo_mode()
-    else:
-      mono_mode()
-
   if coot_python.main_toolbar():
 
     register_coot_icons()
@@ -537,6 +529,7 @@ def remove_toolbar_from_init_file(button_label):
 def list_of_toolbar_functions():
   ls = [["Display",
          ["Stereo/Mono", "stereo_mono_toggle()", "Toggle between Stereo and Mono view", "stereo-view.svg"],
+         ["Side-by-side/Mono", "side_by_side_stereo_mono_toggle()", "Toggle between Side-by-Side Stereo and Mono view", "stereo-view.svg"],
          ["Test", "rotation_centre()", "test function"]],
         ["Refinement",
          ["Refine residue", "refine_active_residue()", "RSR active residue"],

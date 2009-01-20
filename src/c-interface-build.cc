@@ -2563,7 +2563,7 @@ execute_refmac_real(std::string pdb_in_filename,
    cmds.push_back(graphics_info_t::int_to_string(phase_combine_flag));
 
    std::string phase_combine_cmd;
-   if (phase_combine_flag) {
+   if (phase_combine_flag > 0 && phase_combine_flag < 3) {
 #ifdef USE_GUILE
       phase_combine_cmd += "(cons ";
       phase_combine_cmd += single_quote(phib_string);
@@ -2589,7 +2589,7 @@ execute_refmac_real(std::string pdb_in_filename,
    cmds.push_back(graphics_info_t::int_to_string(graphics_info_t::refmac_ncycles));
    // BL says:: again debackslash
    cmds.push_back(single_quote(coot::util::intelligent_debackslash(ccp4i_project_dir)));
-   if (graphics_info_t::refmac_use_sad_flag && fobs_col_name != "") {
+   if (phase_combine_flag == 3 && fobs_col_name != "") {
      cmds.push_back(fobs_col_name);
      cmds.push_back(sigfobs_col_name);
    } else {

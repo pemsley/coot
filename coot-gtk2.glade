@@ -20474,7 +20474,6 @@ programs to which you may be more accustomed.
 		  <child>
 		    <widget class="GtkCheckButton" id="run_refmac_tls_checkbutton">
 		      <property name="border_width">3</property>
-		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Refmac will use each chain as an TLS group (run 5 cycles of TLS)</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">Use TLS?</property>
@@ -20518,7 +20517,6 @@ programs to which you may be more accustomed.
 		  <child>
 		    <widget class="GtkCheckButton" id="run_refmac_sad_checkbutton">
 		      <property name="border_width">3</property>
-		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Use anomalous data to refine your structure (input F+/F-)</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">SAD refinement?</property>
@@ -20545,7 +20543,7 @@ programs to which you may be more accustomed.
 		      <child>
 			<widget class="GtkLabel" id="label658">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">      Atom name</property>
+			  <property name="label" translatable="yes">      Anomalous atom</property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_RIGHT</property>
