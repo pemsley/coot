@@ -1149,6 +1149,7 @@ PyObject *refine_residues_py(int imol, PyObject *r) {
 	    if (is_valid_map_molecule(imol_map)) { 
 	       CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
 	       g.refine_residues_vec(imol, residues, mol);
+               rv = Py_True;  // success?? we could refine
 	    }
 	 } 
       } else {

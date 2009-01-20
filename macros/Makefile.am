@@ -32,6 +32,7 @@ MACROS=						\
   with-python.m4				\
   guile.m4					\
   coot-windows.m4				\
+  lib-prefix.m4					\
   glut.m4				
 
 EXTRA_DIST=$(MACROS)

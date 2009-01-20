@@ -4193,7 +4193,7 @@ GtkWidget *wrapped_create_goto_atom_window() {
    } else {
       widget = create_goto_atom_window();
       graphics_info_t::go_to_atom_window = widget;
-      if (graphics_info_t::model_fit_refine_x_position > -1) { 
+      if (graphics_info_t::go_to_atom_window_x_position > -1) { 
 	 gtk_widget_set_uposition(widget,
 				  graphics_info_t::go_to_atom_window_x_position,
 				  graphics_info_t::go_to_atom_window_y_position);

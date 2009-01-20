@@ -1604,6 +1604,7 @@ probe_available_p      = probe_available_p_py
 drag_intermediate_atom = drag_intermediate_atom_py
 mark_atom_as_fixed     = mark_atom_as_fixed_py
 ccp4i_projects         = ccp4i_projects_py
+add_dipole_for_residues = add_dipole_for_residues_py
 get_pkgdatadir         = get_pkgdatadir_py
 
 # graphics_info.h:

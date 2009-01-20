@@ -758,7 +758,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 			      wiggly_ligand_info);
 
       if (chief_ligand_many_atoms.size() == 0 ) {
-#ifdef USE_GUILE
+#if defined USE_GUILE && !defined WINDOWS_MINGW
 	 execute_ligand_search();
 #else
 #ifdef USE_PYTHON
@@ -878,6 +878,7 @@ SCM execute_ligand_search() {
    return generic_int_vector_to_list_internal(solutions);
 }
 #endif // USE_GUILE
+
 #ifdef USE_PYTHON
 PyObject *execute_ligand_search_py() {
 
@@ -1441,13 +1442,22 @@ int add_dipole_for_residues_scm(int imol, SCM residue_specs) {
 
 #ifdef USE_PYTHON
 /*! \brief generate a dipole from all atoms in the given residues. */
-PyObject*add_dipole_for_residues_py(int imol, PyObject *residue_specs) {
+int add_dipole_for_residues_py(int imol, PyObject *residue_specs) {
 
-   PyObject *r = Py_False;  // should be an int, I suppose for consistency.
-
-
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> res_specs;
+      int l = PyObject_Length(residue_specs);
+      for (unsigned int ispec=0; ispec<l; ispec++) {
+	 PyObject *residue_spec_py = PyList_GetItem(residue_specs, ispec);
+	 coot::residue_spec_t rs = residue_spec_from_py(residue_spec_py);
+	 res_specs.push_back(rs);
+      } 
+      graphics_info_t g;
+      r = g.molecules[imol].add_dipole(res_specs, *g.Geom_p());
+   }
+   graphics_draw();
    return r;
-   
 }
 #endif /* USE_PYTHON */
 

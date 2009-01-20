@@ -7,6 +7,19 @@ tests   rev 1750
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+19/01/09
+
+   o resize after side-by-side stereo goes back to default, rather than previous/current
+     size [Victor Alves]
+
+   o stereo/mono button for side-by-side stereo [Victor Alves]
+
+   o antialiasing in s-b-s stereo only left panel (bg colour messed up too) [Victor Alvez, me]
+
+   o Display Manager position setting not reliable (same for Go to Atom - fixed?!)?! [Victor Alves]
+
+
+
    o WinCoot:
 	- update to python 2.6 (now with pygtk etc)
 	- before stable release copy python over
