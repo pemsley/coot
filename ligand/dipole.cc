@@ -46,6 +46,9 @@ coot::dipole::dipole(std::vector<std::pair<coot::dictionary_residue_restraints_t
    init(dict_res_pairs);
 }
 
+// This needs not to fail with a residue of 1 atom, because we need
+// fill_charged_atoms to work for the partially charged surface.
+// 
 void
 coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > dict_res_pairs) {
 
@@ -56,7 +59,6 @@ coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, 
    double sum_y = 0; 
    double sum_z = 0;
    int n_points = 0;
-
 
    for (unsigned int ires=0; ires<dict_res_pairs.size(); ires++) {
       CResidue *residue_p = dict_res_pairs[ires].second;

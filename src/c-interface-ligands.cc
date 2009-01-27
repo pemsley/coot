@@ -1464,6 +1464,24 @@ SCM add_dipole_for_residues_scm(int imol, SCM residue_specs) {
 #endif /* USE_GUILE */
 
 #ifdef USE_PYTHON
+PyObject *add_dipole_py(int imol, const char* chain_id, int res_no, const char *ins_code) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> res_specs;
+      coot::residue_spec_t rs(chain_id, res_no, ins_code);
+      res_specs.push_back(rs);
+      graphics_info_t g;
+      std::pair<coot::dipole, int> dp =
+	 g.molecules[imol].add_dipole(res_specs, *g.Geom_p());
+      // set r
+   }
+   graphics_draw();
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
 /*! \brief generate a dipole from all atoms in the given residues. */
 PyObject *add_dipole_for_residues_py(int imol, PyObject *residue_specs) {
 
@@ -1477,7 +1495,9 @@ PyObject *add_dipole_for_residues_py(int imol, PyObject *residue_specs) {
 	 res_specs.push_back(rs);
       } 
       graphics_info_t g;
-      coot::dipole = g.molecules[imol].add_dipole(res_specs, *g.Geom_p());
+      std::pair<coot::dipole, int> d =
+	 g.molecules[imol].add_dipole(res_specs, *g.Geom_p());
+      // set r as a python object here.
    }
    graphics_draw();
    return r;
