@@ -522,7 +522,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       if (do_rama_restraints) 
 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
       
-      std::vector<coot::atom_spec_t> fixed_atom_specs;
+      std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol].get_fixed_atoms();
 
       // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]
       // molecule.  We need to do 2 things:
@@ -552,6 +552,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       coot::restraints_container_t restraints(local_residues, *Geom_p(),
 					      residues_mol_and_res_vec.first,
 					      fixed_atom_specs, xmap, weight);
+
       int n_restraints = restraints.make_restraints(*Geom_p(), flags,
 						    do_residue_internal_torsions,
 						    rama_plot_restraint_weight,

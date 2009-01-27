@@ -4001,4 +4001,32 @@ Mon Jan 12 22:43:50 GMT 2009
 	in wiggly-ligands, add an option to invert chiral centres
 	(just in case the chemist made the wrong thing).
 
+
+----
+Tue 20 Jan 2009 10:13:19 EST
+
+    Heres a failure that should not be...
+
+    Get monomer -> PAD.
+ 
+    Delete residue 3 from 1a72 and try to fit libchecked PAD.
+
+
+-----
+Fri 23 Jan 2009 17:31:50 EST
+
+  Paul Hubbard:  I awant to do righid body refinement on the fragment
+   of the active residue - don't make me click 2 residues to define
+   the fragment - find it yourself 
+
+
+----
+Sun 25 Jan 2009 04:57:33 EST
+ 
+   How about adding the rmsd bonds, angles (etc?) along with the 
+   chi squareds. 
+
+
+
+
 -----

@@ -1860,11 +1860,12 @@ molecule_class_info_t::display_symmetry_bonds() {
 }
 
 // publically accessible
-int
+std::pair<coot::dipole, int>
 molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_specs,
 				  const coot::protein_geometry &geom) {
 
    int id = -1;
+   coot::dipole d;
    std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > pairs;
    
    for (unsigned int ires=0; ires<res_specs.size(); ires++) { 
@@ -1893,16 +1894,17 @@ molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_s
 
    if (pairs.size() > 0) {
       try { 
-	 coot::dipole d(pairs);
-	 dipoles.push_back(d);
+	 coot::dipole dl(pairs);
+	 dipoles.push_back(dl);
 	 id = dipoles.size() -1;
+	 d = dl;
       }
       catch (std::runtime_error mess) {
 	    std::cout << mess.what() << std::endl;
       }
    }
    
-   return id; 
+   return std::pair<coot::dipole, int> (d,id); 
 }
 
 void
@@ -1995,7 +1997,7 @@ molecule_class_info_t::draw_dipoles() const {
 	 double ds = sqrt(d.lengthsq());
 	 std::vector<clipper::Coord_orth> local_arrow_points = arrow_points;
 	 for (unsigned int i=0; i<arrow_points.size(); i++)
-	    local_arrow_points[i] = 0.3 * ds * arrow_points[i];
+	    local_arrow_points[i] = 0.181818181818181818181818181818181818 * ds * arrow_points[i];
 	       
 	 for (unsigned int i=0; i<local_arrow_points.size()-1; i++) {
 	    glVertex3d(local_arrow_points[i].x(),
@@ -2602,11 +2604,10 @@ void molecule_class_info_t::update_additional_representations() {
       } else {
 
 	 // let's remove the old/current dlo from the tags list before we add a new one.
-
 	 
 	 int old_handle = add_reps[i].display_list_handle;
 	 remove_display_list_object_with_handle(old_handle);
-	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(), 0.12, 0.28, 1);
+	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(), 0.11, 0.24, 1);
 	 if ((handle >= 0) && (handle < display_list_tags.size())) 
 	    add_reps[i].update_self_display_list_entity(handle);
       }

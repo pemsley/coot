@@ -25,6 +25,8 @@
 
 #include "coot-coord-utils.hh"
 
+#include "dipole.hh"
+
 namespace coot {
 
    class alias_path_t {
@@ -283,6 +285,13 @@ PyObject *monomer_restraints_py(const char *monomer_type);
 PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints);
 #endif // USE_PYTHON
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  dipole                                                  */
+/*  ----------------------------------------------------------------------- */
+// This is here because it uses a C++ class, coot::dipole
+// 
+SCM dipole_to_scm(std::pair<coot::dipole, int> dp);
 
 /*  ----------------------------------------------------------------------- */
 /*                  scripting                                               */

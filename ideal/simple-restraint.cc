@@ -4168,7 +4168,10 @@ coot::restraints_container_t::add_rama_links(int selHnd, const coot::protein_geo
 void
 coot::restraints_container_t::add_rama_links_from_res_vec(const coot::protein_geometry &geom) {
 
-   std::cout << "Fix me " << std::endl;
+   std::cout << "::::::::: FIX ME :::::: residue vec rama triples " << std::endl;
+   // need to get rama triples
+   //
+   // make_rama_triples(, geom);
 }
 
 coot::bonded_pair_container_t

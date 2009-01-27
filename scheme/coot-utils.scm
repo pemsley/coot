@@ -23,7 +23,7 @@
 	     (ice-9 format)
 	     (ice-9 rdelim))
 (use-modules (goosh))
-; (use-modules (goosh goosh))
+;; (use-modules (goosh goosh))
 
 ;; scm aliases.  Don't forget to add them to snarf-coot-docs too.
 ;; 
@@ -58,6 +58,8 @@
 (define refine-residues refine-residues-scm)
 (define map-peaks map-peaks-scm)
 (define map-peaks-near-point map-peaks-near-point-scm)
+(define add-dipole add-dipole-scm)
+(define add-dipole-for-residues add-dipole-for-residues-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a
