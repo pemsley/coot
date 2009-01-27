@@ -291,7 +291,12 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 /*  ----------------------------------------------------------------------- */
 // This is here because it uses a C++ class, coot::dipole
 // 
+#ifdef USE_GUILE
 SCM dipole_to_scm(std::pair<coot::dipole, int> dp);
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+PyObject *dipole_to_py(std::pair<coot::dipole, int> dp);
+#endif // USE_PYTHON
 
 /*  ----------------------------------------------------------------------- */
 /*                  scripting                                               */

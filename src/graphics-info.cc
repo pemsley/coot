@@ -1118,10 +1118,17 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
      ss += int_to_string(mode);
      ss += ")";
      PyObject *res = safe_python_command_with_return(ss);
-     PyObject *p = PyString_FromFormat("result: %s\n", res); // new reference
+     PyObject *p = PyString_FromString("result: %s\n");
+     PyObject *tuple = PyTuple_New(1);
+     PyTuple_SetItem(tuple, 0, res);
+//     PyString_ConcatAndDel(&p, res);
+//     PyString_ConcatAndDel(&p, "\n");
+     PyString_Format(p, tuple);
+     
      std::cout << PyString_AsString(p);
-     Py_DECREF(res);
      Py_DECREF(p);
+     Py_DECREF(tuple);
+     Py_DECREF(res);
    }
    Py_DECREF(v);
 }

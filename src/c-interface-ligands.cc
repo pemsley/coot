@@ -157,7 +157,7 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
    
    if (rtop_info.success) {
       PyObject *match_info;
-      PyList_New(2);
+      match_info = PyList_New(2);
       PyList_SetItem(match_info, 0, PyFloat_FromDouble(rtop_info.dist_score));
       PyList_SetItem(match_info, 1, PyInt_FromLong(rtop_info.n_match));
       python_status = PyList_New(2);
@@ -1475,11 +1475,32 @@ PyObject *add_dipole_py(int imol, const char* chain_id, int res_no, const char *
       std::pair<coot::dipole, int> dp =
 	 g.molecules[imol].add_dipole(res_specs, *g.Geom_p());
       // set r
+      r = dipole_to_py(dp);
    }
    graphics_draw();
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 #endif
+
+#ifdef USE_PYTHON
+PyObject *dipole_to_py(std::pair<coot::dipole, int> dp) {
+
+  PyObject *r = PyList_New(0);
+
+  clipper::Coord_orth co = dp.first.get_dipole();
+  PyObject *co_py = PyList_New(0);
+  PyList_Append(co_py, PyFloat_FromDouble(co.x()));
+  PyList_Append(co_py, PyFloat_FromDouble(co.y()));
+  PyList_Append(co_py, PyFloat_FromDouble(co.z()));
+  PyList_Append(r, PyInt_FromLong(dp.second));
+  PyList_Append(r, co_py);
+  return r;
+}
+#endif
+
 
 #ifdef USE_PYTHON
 /*! \brief generate a dipole from all atoms in the given residues. */
@@ -1495,11 +1516,15 @@ PyObject *add_dipole_for_residues_py(int imol, PyObject *residue_specs) {
 	 res_specs.push_back(rs);
       } 
       graphics_info_t g;
-      std::pair<coot::dipole, int> d =
+      std::pair<coot::dipole, int> dp =
 	 g.molecules[imol].add_dipole(res_specs, *g.Geom_p());
       // set r as a python object here.
+      r = dipole_to_py(dp);
    }
    graphics_draw();
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 #endif /* USE_PYTHON */
