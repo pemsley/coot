@@ -513,6 +513,15 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       clipper::Xmap<float> xmap = molecules[Imol_Refinement_Map()].xmap_list[0];
       float weight = geometry_vs_map_weight;
       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+      short int do_residue_internal_torsions = 0;
+      if (do_torsion_restraints) { 
+	 do_residue_internal_torsions = 1;
+	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+      } 
+      
+      if (do_rama_restraints) 
+	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+      
       std::vector<coot::atom_spec_t> fixed_atom_specs;
 
       // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]
@@ -543,7 +552,11 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       coot::restraints_container_t restraints(local_residues, *Geom_p(),
 					      residues_mol_and_res_vec.first,
 					      fixed_atom_specs, xmap, weight);
-      int n_restraints = restraints.make_restraints(*Geom_p(), flags, 0, 0.0, 0, coot::NO_PSEUDO_BONDS);
+      int n_restraints = restraints.make_restraints(*Geom_p(), flags,
+						    do_residue_internal_torsions,
+						    rama_plot_restraint_weight,
+						    do_rama_restraints,
+						    pseudo_bonds_type);
 
       std::string dummy_chain = ""; // not used
       rr = update_refinement_atoms(n_restraints, restraints, rr, local_moving_atoms_asc,
