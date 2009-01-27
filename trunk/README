@@ -96,6 +96,18 @@ Building Automatically
  executable too (recommended).
 
 
+ From a fresh ubuntu install, you also need to install:
+
+ patch
+ m4
+ g++
+ libxext6-dev
+ libc6-dev
+ libglu1-mesa-dev 
+ mesa-common-dev
+ swig
+
+
 Building by Hand
 ----------------
 

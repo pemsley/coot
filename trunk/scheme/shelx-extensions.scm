@@ -45,8 +45,8 @@
 						      option-menu-mol-list-pair)))
 				     (if (number? imol)
 					 (if (= (string-length txt) 0)
-					     (shelxl-refine-gui imol)
-					     (shelxl-refine-gui imol txt)))
+					     (editable-shelx-gui imol)
+					     (shelxl-refine imol txt)))
 				     (gtk-widget-destroy window))))
 	     (gtk-signal-connect cancel-button "clicked"
 				 (lambda ()
@@ -172,20 +172,91 @@
     (gtk-widget-show-all window)))
 
 
+(define (editable-shelx-gui imol)
 
-;; This is a top-level dialog that add an HFIX instruction to a given .res 
-;; molecule.  It is a specific, not generally very useful, as it stands.
-;;
-(let ((buttons 
-        (list 
-	(list
- 	 "Rebuild Hydrogens: HFIX 137 C2BA "
-	 (lambda ()
-	   (molecule-chooser-gui "Add rebuild hydrogens instructions"
-				 (lambda (imol)
-				   (let ((s "HFIX 137 C2BA"))
-				     (add-shelx-string-to-molecule imol s)))))))))
-  (dialog-box-of-buttons "SHELX Demo" (cons 200 50) buttons "  Close  "))
+  (let ((window (gtk-window-new 'toplevel))
+	(text (gtk-text-new #f #f))
+	(scrolled-win (gtk-scrolled-window-new))
+	(cancel-button (gtk-button-new-with-label "  Close  "))
+	(run-button (gtk-button-new-with-label "  Run  "))
+	(vbox (gtk-vbox-new #f 0))
+	(buttons-vbox (gtk-hbox-new #f 0)))
+    
+    (gtk-window-set-default-size window 450 400)
+    (gtk-container-add window vbox)
+    (gtk-container-add scrolled-win text)
+    (gtk-container-border-width vbox 5)
+    (gtk-box-pack-start buttons-vbox    run-button #t #f 2)
+    (gtk-box-pack-start buttons-vbox cancel-button #t #f 2)
+    (gtk-box-pack-start vbox buttons-vbox #f #f 0)
+    (gtk-box-pack-start vbox scrolled-win #t #t 2)
+    (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+    
+    (let ((shelx-ins-list (get-shelx-ins-list imol))
+;	  (background-colour "#c0e6c0")
+	  (background-colour "white"))
+      
+      ;; now fill the text with the shelx-ins strings 
+      ;;
+      (for-each
+       (lambda (str)
+	 (gtk-text-insert text #f "black" background-colour str -1)
+	 (gtk-text-insert text #f "black" background-colour "\n" -1))
+       shelx-ins-list))
+
+    ;; button press actions
+    ;; 
+    (gtk-signal-connect cancel-button "clicked" 
+			(lambda () (gtk-widget-destroy window)))
+    (gtk-signal-connect run-button "clicked"
+			(lambda () 
+			  (let* ((l (gtk-text-get-length text))
+				 (text-text (gtk-editable-get-chars text 0 l)))
+			    (if (string? text-text) 
+				(begin
+				  (call-with-output-file edited-shelx-ins-file-name
+				    (lambda (port)
+				      (display text-text port)))
+				  (shelxl-refine-primitive edited-shelx-ins-file-name
+							   hklin-file-name)))
+			  
+			  (gtk-widget-destroy window)))
+    
+
+    (gtk-text-set-editable text #t)
+    (gtk-widget-show-all window)))
+
+
+(define (get-shelx-ins-list imol)
+  (let ((tmp-ins "tmp.ins"))
+    (write-shelx-ins-file imol tmp-ins)
+    (if (file-exists? tmp-ins)
+	(call-with-input-file tmp-ins
+	  (lambda (port)
+	    (let f ((obj (read-line port))
+		    (lines '()))
+	      (cond
+	       ((eof-object? obj) (reverse lines))
+	       (else 
+		(f (read-line port)
+		   (cons obj lines))))))))))
+
+	
+
+
+;;; This is a top-level dialog that add an HFIX instruction to a given .res 
+;;; molecule.  It is a specific, not generally very useful, as it stands.
+;;;
+;(let ((buttons 
+;        (list 
+;	(list
+; 	 "Rebuild Hydrogens: HFIX 137 C2BA "
+;	 (lambda ()
+;	   (molecule-chooser-gui "Add rebuild hydrogens instructions"
+;				 (lambda (imol)
+;				   (let ((s "HFIX 137 C2BA"))
+;				     (add-shelx-string-to-molecule imol s)))))))))
+;  (dialog-box-of-buttons "SHELX Demo" (cons 200 50) buttons "  Close  "))
 
 
 

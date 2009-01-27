@@ -5163,17 +5163,22 @@ char *get_atom_colour_from_mol_no(int imol, const char *element);
 /*  ----------------------------------------------------------------------- */
 /*! \name Dipoles */
 /* \{ */
-/*! \brief return the dipole number */
-int add_dipole(int imol, const char* chain_id, int res_no, const char *ins_code); 
 void delete_dipole(int imol, int dipole_number);
 #ifdef __cplusplus
 #ifdef USE_GUILE
-/*! \brief generate a dipole from all atoms in the given residues. Return the dipole number*/
-int add_dipole_for_residues_scm(int imol, SCM residue_specs);
+/*! \brief generate a dipole from all atoms in the given
+  residues. Return the dipole description */
+SCM add_dipole_for_residues_scm(int imol, SCM residue_specs);
+/*! \brief return the dipole number */
+SCM add_dipole_scm(int imol, const char* chain_id, int res_no, const char *ins_code); 
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
 /*! \brief generate a dipole from all atoms in the given residues. */
-int add_dipole_for_residues_py(int imol, PyObject *residue_specs);
+PyObject *add_dipole_py(int imol, const char* chain_id, int res_no, 
+			const char *ins_code); 
+/*! \brief add a dipole given a set of residues.  Return a dipole
+  description. */
+PyObject *add_dipole_for_residues_py(int imol, PyObject *residue_specs);
 #endif /* USE_PYTHON */
 #endif
 /* \} */

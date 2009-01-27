@@ -19,6 +19,9 @@
  * 02110-1301, USA.
  */
 
+#ifndef HAVE_DIPOLE_HH
+#define HAVE_DIPOLE_HH
+
 #include <iostream>
 #include <fstream>
 #include "protein-geometry.hh"
@@ -36,8 +39,9 @@ namespace coot {
       clipper::Coord_orth residue_centre;
       void init(std::vector<std::pair<dictionary_residue_restraints_t, CResidue *> > dict_res_pairs);
    public:
+      dipole();
       // Thow an exception on failure to make a dipole
-      // 
+      //
       dipole(const dictionary_residue_restraints_t &rest, CResidue *residue_p);
       dipole(std::vector<std::pair<dictionary_residue_restraints_t, CResidue *> > dict_res_pairs);
 
@@ -51,3 +55,5 @@ namespace coot {
    }; 
    std::ostream& operator<<(std::ostream &s, const dipole &d);
 }
+
+#endif // HAVE_DIPOLE_HH

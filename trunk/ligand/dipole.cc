@@ -26,11 +26,15 @@
 #include "dipole.hh"
 #include "coot-utils.hh" // for int_to_string()
 
+coot::dipole::dipole() {
+   dipole_is_good_flag = 0;
+} 
+
 // Thow an exception on failure to make a dipole
 // 
 coot::dipole::dipole(const coot::dictionary_residue_restraints_t &rest,
 		     CResidue *residue_p) {
-
+   
    
    std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > dict_res_pairs;
    std::pair<coot::dictionary_residue_restraints_t, CResidue *> p(rest, residue_p);

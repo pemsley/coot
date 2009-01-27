@@ -26,6 +26,9 @@
   o 
   o Fix 64-bit coot problem(s)
 
+   o Add "centre molecule here" check button for reading coordinates
+     Kevin M.
+
 * Done
 
 
