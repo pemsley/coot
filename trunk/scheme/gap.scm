@@ -84,7 +84,7 @@
 				 (+ start-resno 1))))
 		
 		(format #t "~%~%add-terminal-residue: residue number: ~s~%~%" resno)
-		(let ((status (add-terminal-residue imol chain-id resno "ALA" 1)))
+		(let ((status (add-terminal-residue imol chain-id resno "auto" 1)))
 		  (cond 
 		   ((= 1 status)
 					; first do a refinement of what we have 
@@ -99,8 +99,10 @@
 	      ;; -----------------------------------------------
 	      ;; From poly ala to sequence (if given):
 	      ;; -----------------------------------------------
+	      ;; cleverer now:
+	      ;; only mutate if we dont have a sequence assigned
 
-	      (if (not (null? sequence))
+	      (if (and (not (null? sequence)) (not (has-sequence? imol chain-id)))
 		  (begin
 		    (format #t "mutate-and-autofit-residue-range ~s ~S ~s ~s ~s~%"
 			    imol chain-id start-resno stop-resno sequence)
@@ -143,7 +145,25 @@
 	    (set-refine-ramachandran-angles rama-status)))))
 
 
-       
+
+;; helper function to see if a sequence has been assigned to a chain in imol
+;; return #t if sequence is there, #f otherwise
+;;       
+
+(define (has-sequence? imol chain-id-ref)
+  (let ((ls (sequence-info imol)))
+    (if (not (list? ls))
+	#f
+	(let loop ((seq-info ls))
+	  (if (null? seq-info)
+	      #f
+	      (begin
+		(let ((chain-id (car (car seq-info)))
+		      (seq      (cdr (car seq-info))))
+		  (if (and (string=? chain-id chain-id-ref) (> (string-length seq) 0))
+		       #t
+		       (loop (cdr seq-info))))))))))
+
 
 ;;;; For Kay Diederichs, autofit without a map (find rotamer with best
 ;;;; clash score). This ignores alt conformations and residues with

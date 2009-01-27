@@ -49,13 +49,13 @@
 
 #ifdef USE_GUILE
 #include <guile/gh.h>
-#endif // USE_GUILE
 
 #if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 // no fix up needed 
 #else    
 
 #endif // SCM version
+#endif // USE_GUILE
 
 // Including python needs to come after graphics-info.h, because
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in

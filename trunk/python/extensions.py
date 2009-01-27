@@ -340,7 +340,7 @@ if (have_coot_python):
      menuitem2 = gtk.MenuItem("Dock Sequence...")
 
      menuitem2.set_submenu(submenu)
-     submenu_models.append(menuitem2)
+     menu.append(menuitem2)
      menuitem2.show()
      
      add_simple_coot_menu_menuitem(

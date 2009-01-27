@@ -233,7 +233,7 @@ def fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence=""):
       # -----------------------------------------------
       # only if sequence is hasnt been assigned
       
-      if (not sequence == "" and not has_sequence(imol, chain_id)):
+      if (not sequence == "" and not has_sequence_qm(imol, chain_id)):
          print "mutate-and-autofit-residue-range ",imol, chain_id, start_resno,stop_resno, sequence
          if direction == "forwards":
             mutate_and_autofit_residue_range(imol, chain_id,
@@ -279,13 +279,13 @@ def fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence=""):
 # helper function to see if a sequence has been assigned to a chain in imol
 # return True if sequence is there, False otherwise
 #
-def has_sequence(imol, chain_id_ref):
-   ret = False
+def has_sequence_qm(imol, chain_id_ref):
    for item in sequence_info(imol):
       chain_id = item[0]
       sequence = item[1]
       if (chain_id_ref == chain_id and len(sequence) > 0):
          return True
+   return False
 
 
 # For Kay Diederichs, autofit without a map (find rotamer with best
