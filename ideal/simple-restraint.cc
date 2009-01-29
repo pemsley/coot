@@ -3990,7 +3990,8 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 	     << istart_res << " and " << iend_res << " of chain " << chain_id_save
 	     << std::endl;
    
-   coot::bonded_pair_container_t bonded_residue_pairs = bonded_residues_conventional(selHnd, geom);
+   coot::bonded_pair_container_t bonded_residue_pairs =
+      bonded_residues_conventional(selHnd, geom);
 
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Link");
 
@@ -4200,8 +4201,7 @@ coot::restraints_container_t::bonded_residues_conventional(int selHnd,
 		  if (d.first) {
 		     if (d.second < dist_crit) {
 			std::pair<std::string, bool> l =
-			   find_link_type_rigourous(SelResidue[ii],
-						    SelResidue[jj], geom);
+			   find_link_type_rigourous(SelResidue[ii], SelResidue[jj], geom);
 			if (l.first != "") {
 			} 
 		     } 
@@ -4866,7 +4866,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_linear(const coot::pro
    mol->Select (selHnd,STYPE_RESIDUE, 1, // .. TYPE, iModel
 		chain_id_save.c_str(), // Chain(s)
 		iend_res,   "*",  // starting res
-		iend_res+1,     "*",  // ending res
+		iend_res+1, "*",  // ending res
 		"*",  // residue name
 		"*",  // Residue must contain this atom name?
 		"*",  // Residue must contain this Element?
