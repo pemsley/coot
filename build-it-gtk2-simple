@@ -778,7 +778,13 @@ if test $OS = Linux ; then
         systype=${architecture}-redhat-${dist_ver}
       ;;
       * )
-        systype=rhel-`echo ${dist_ver} | sed s/[A-Za-z]//g`
+        systype=${architecture}-rhel-`echo ${dist_ver} | sed s/[A-Za-z]//g`
+        if [ $arch = x86_64 ] ; then 
+	   if [ $dist_ver = 4WS ] ; then
+	      echo RedHat 4 Linux x86_64 detected. need to update libtool
+              update_libtool=1
+	   fi
+        fi
       ;;
     esac
     ;;
@@ -1278,7 +1284,8 @@ echo ccp4_system_type $ccp4_system_type
 
 # check for swig
 #
-which swig > /dev/null
+echo this swig:
+which swig
 have_swig=$?
 if [ $have_swig = 0 ] ; then
     swig -version
@@ -2062,6 +2069,9 @@ if [ "$build_gtkglext" = 1 ] ; then
      gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
      cd gtkglext-$gtkglext_version
      ./configure $generic_prefix
+     if [ $update_libtool = 1 ] ; then
+        cp $install_top_dir/bin/libtool .
+     fi
      $MAKE
     status=$?
     if [ "$status" != 0 ] ; then
@@ -2695,6 +2705,13 @@ echo ./configure $coot_prefix \
 
 # consider adding -DCOOT_SYS_TYPE=systype (or something like that)
 # here, so that coot --version-info/full returns it.
+
+if [ $update_libtool = 1 ] ; then
+   echo need to update libtool here $PWD
+   cp $install_top_dir/bin/libtool .
+else 
+   echo NO need to update libtool $PWD
+fi
 
 rm src/coot_wrap_guile_pre.cc
 rm src/coot_wrap_python_pre.cc
