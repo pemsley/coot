@@ -314,6 +314,10 @@ namespace coot {
    //
    bool residues_in_order_p(CChain *chain_p);
 
+   // convert atoms in residue to HETATMs.  Return the number of HET
+   // atoms.
+   int hetify_residue_atoms(CResidue *res);
+
    // return residue specs for residues that have atoms that are
    // closer than radius Angstroems to any atom in the residue
    // specified by res_in.

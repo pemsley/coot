@@ -3956,6 +3956,7 @@ INFO::
         the bottom layer, merge and bevel 6.
    o svn add the new splash screen pixmap
    o Fix the old-coot timer.
+   o Fix the release name in the About dialog.
    o commit
    o Is everyting OK on bubbles? Makes new source tar file?
    o clear out pre-releases

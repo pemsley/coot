@@ -4786,3 +4786,24 @@ coot::write_coords_pdb(CMMDBManager *mol, const std::string &file_name) {
 
    return r;
 }
+
+
+// convert atoms in residue to HETATMs
+// 
+int
+coot::hetify_residue_atoms(CResidue *res) {
+
+   int n = 0;
+   if (res) { 
+      PPCAtom residue_atoms;
+      int natoms;
+      res->GetAtomTable(residue_atoms, natoms);
+      for (int iat=0; iat<natoms; iat++) {
+	 CAtom *at = residue_atoms[iat];
+	 at->Het = 1;
+	 n++;
+      } 
+   }
+   return n;
+}
+
