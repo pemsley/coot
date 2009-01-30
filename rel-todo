@@ -182,6 +182,15 @@
      should be just the same as CA mode. There is a mix up over what
      bond_colour_type means. ::: 1
 
+   o When a new residue is created (e.g. HOH) it should be checked
+     against standard PDB residue types and if not found, then the
+     atoms in the residue should be marked as HETATMs (set atom->Het).
+     David Mathog
+
+     http://www.wwpdb.org/documentation/Format_v32_letter.pdf
+
+     ::: 2
+
    o crash: coot-download a structure 1ucs.  create a map from mtz,
      create another map from mtz (I meant to change the limits, but
      forgot). Delete that new map (using the button on display
