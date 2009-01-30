@@ -4297,6 +4297,7 @@ molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
       res_p->AddAtom(atom_p);
       res_p->seqNum = ires_prev + 1;
       res_p->SetResName("HOH");
+      coot::hetify_residue_atoms(res_p);
 
       atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
@@ -4350,6 +4351,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
       else
 	 occ = 1.0;
       atom_p->SetCoordinates(pos.x(), pos.y(), pos.z(), occ, graphics_info_t::default_new_atoms_b_factor);
+      atom_p->Het = 1; // it's a HETATM.
 
       if (type == "Water") { 
 
@@ -4513,6 +4515,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 
       if (mol_chain_id.first || pre_existing_chain_flag) { 
 	 add_pointer_multiatom(res_p, pos, type);
+	 coot::hetify_residue_atoms(res_p);
 	 if (! pre_existing_chain_flag) { 
 	    chain_p->SetChainID(mol_chain_id.second.c_str());
 	    atom_sel.mol->GetModel(1)->AddChain(chain_p);
