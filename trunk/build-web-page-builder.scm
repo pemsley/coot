@@ -722,6 +722,9 @@
 	(list "binary-Linux-x86_64-rhel-4-gtk2"
 	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" #f))
 
+	(list "binary-Linux-x86_64-rhel-4-gtk2"
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" #t))
+
 	(list "binary-Linux-i386-centos-4-gtk2"
 	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2" #f))
 

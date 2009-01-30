@@ -1695,16 +1695,20 @@ fi
 build_gtkglext=1
 if [ "$build_gtk" = "" ] ; then 
    if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
+      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.so
       build_gtkglext=
    fi
    if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.la ; then
+      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.la
       build_gtkglext=
    fi
 else 
    if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
+      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.so
       build_gtkglext=
    fi
    if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.la ; then
+      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.la
       build_gtkglext=
    fi
 fi
