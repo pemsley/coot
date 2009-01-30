@@ -78,8 +78,9 @@ def describeEvent(days, label, off):
     
 describeEvent(5, "Christmas\nholidays start", -10)
 
-tb = text_box.T(loc=(70, 37), text="Boston", line_style=None)
-tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "cb")
+tb = text_box.T(loc=(48, 37), text="Boston")
+# tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "cb")
+tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "c")
 tb.draw()
 
 
