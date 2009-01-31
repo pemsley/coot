@@ -304,6 +304,15 @@
 				       imol-base imol-fragment atom-selection-str)))))))
 
 	(add-simple-coot-menu-menuitem
+	 submenu-models "Replace residue..."
+	 (lambda ()
+	   (generic-single-entry "Replace this residue with residue of type:" "ALA" "Mutate" 
+				 (lambda (text) 
+				   (using-active-atom 
+				    (mutate-by-overlap aa-imol aa-chain-id aa-res-no text)))))))
+
+
+	(add-simple-coot-menu-menuitem
 	 submenu-models "Reorder Chains..."
 	 (lambda () 
 	   (molecule-chooser-gui "Sort Chain IDs in molecule:"
