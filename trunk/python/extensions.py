@@ -313,7 +313,7 @@ if (have_coot_python):
 # BL says:: may work, not sure about function entirely
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Replace Fragment",
+       "Replace Fragment...",
        lambda func: molecule_chooser_gui("Define the molecule that needs updating",
 		lambda imol_base: generic_chooser_and_entry(
 				"Molecule that contains the new fragment:",
@@ -322,6 +322,7 @@ if (have_coot_python):
 				replace_fragment(imol_base, imol_fragment, atom_selection_str))))
 
 
+     ### add replace residue gui here.  Tricky? scm version uses using-active-atom...
 
      add_simple_coot_menu_menuitem(
        submenu_models,
