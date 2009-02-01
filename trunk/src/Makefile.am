@@ -220,6 +220,7 @@ coot_real_SOURCES = \
 	c-interface-gtk2.cc	 \
 	c-interface-info.cc	 \
 	c-interface-ligands.cc   \
+	c-interface-ligands-gui.cc \
 	c-interface-mmdb.cc	 \
 	c-interface-mmdb.hh      \
 	c-interface-mutate.cc    \
@@ -279,6 +280,7 @@ coot_real_SOURCES = \
 	gtk-manual.h		 \
 	gtk2-interface.c	 \
 	gtk-manual.hh		 \
+	guile-fixups.h		 \
 	history_list.hh		 \
 	interface.c	 	 \
 	interface.h              \

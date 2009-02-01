@@ -153,41 +153,51 @@
 ;; smiles GUI
 (define (smiles-gui)
 
-  (let* ((window (gtk-window-new 'toplevel))
-	 (vbox (gtk-vbox-new #f 0))
-	 (hbox1 (gtk-hbox-new #f 0))
-	 (hbox2 (gtk-hbox-new #f 0))
-	 (tlc-label (gtk-label-new "  3-letter code "))
-	 (tlc-entry (gtk-entry-new))
-	 (smiles-label (gtk-label-new "SMILES string "))
-	 (smiles-entry (gtk-entry-new))
-	 (go-button (gtk-button-new-with-label "  Go  ")))
+  (define (smiles-gui-internal)
+    (let* ((window (gtk-window-new 'toplevel))
+	   (vbox (gtk-vbox-new #f 0))
+	   (hbox1 (gtk-hbox-new #f 0))
+	   (hbox2 (gtk-hbox-new #f 0))
+	   (tlc-label (gtk-label-new "  3-letter code "))
+	   (tlc-entry (gtk-entry-new))
+	   (smiles-label (gtk-label-new "SMILES string "))
+	   (smiles-entry (gtk-entry-new))
+	   (text (gtk-text-new "SMILES interface works by using CCP4's LIBCHECK"))
+	   (go-button (gtk-button-new-with-label "  Go  ")))
 
-    (gtk-box-pack-start vbox hbox1 #f #f 0)
-    (gtk-box-pack-start vbox hbox2 #f #f 4)
-    (gtk-box-pack-start vbox go-button #f #f 6)
-    (gtk-box-pack-start hbox1 tlc-label #f 0)
-    (gtk-box-pack-start hbox1 tlc-entry #f 0)
-    (gtk-box-pack-start hbox2 smiles-label #f 0)
-    (gtk-box-pack-start hbox2 smiles-entry #t 4)
-    (gtk-container-add window vbox)
-    (gtk-container-border-width vbox 6)
+      (gtk-box-pack-start vbox hbox1 #f #f 0)
+      (gtk-box-pack-start vbox hbox2 #f #f 4)
+      (gtk-box-pack-start vbox text #f #f 2)
+      (gtk-box-pack-start vbox go-button #f #f 6)
+      (gtk-box-pack-start hbox1 tlc-label #f 0)
+      (gtk-box-pack-start hbox1 tlc-entry #f 0)
+      (gtk-box-pack-start hbox2 smiles-label #f 0)
+      (gtk-box-pack-start hbox2 smiles-entry #t 4)
+      (gtk-container-add window vbox)
+      (gtk-container-border-width vbox 6)
 
-    (gtk-signal-connect go-button "clicked"
-			(lambda args
-			  (handle-smiles-go tlc-entry smiles-entry)
-			  (gtk-widget-destroy window)))
-    
-    (gtk-signal-connect smiles-entry "key-press-event"
-			(lambda (event)
-			  (if (= 65293 (gdk-event-keyval event)) ; GDK_Return
-			      (begin
-				(handle-smiles-go tlc-entry smiles-entry)
-				(gtk-widget-destroy window)))
-			  #f))
-			  
+      (gtk-signal-connect go-button "clicked"
+			  (lambda args
+			    (handle-smiles-go tlc-entry smiles-entry)
+			    (gtk-widget-destroy window)))
+      
+      (gtk-signal-connect smiles-entry "key-press-event"
+			  (lambda (event)
+			    (if (= 65293 (gdk-event-keyval event)) ; GDK_Return
+				(begin
+				  (handle-smiles-go tlc-entry smiles-entry)
+				  (gtk-widget-destroy window)))
+			    #f))
+      
 
-    (gtk-widget-show-all window)))
+      (gtk-widget-show-all window)))
+
+  ;; first check that libcheck is available... if not put up and info
+  ;; dialog.
+  (if (command-in-path? libcheck-exe)
+      (smiles-gui-internal)
+      (info-dialog "You need to setup CCP4 (specifically LIBCHECK) first.")))
+
 
 
 ;; Generic single entry widget

@@ -5131,7 +5131,7 @@ void
 on_get_monomer1_activate               (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *dialog = create_libcheck_monomer_dialog();
+  GtkWidget *dialog = wrapped_create_libcheck_monomer_dialog();
   
   gtk_widget_show(dialog);
 }
