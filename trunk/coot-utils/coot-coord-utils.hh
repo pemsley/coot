@@ -314,6 +314,10 @@ namespace coot {
    //
    bool residues_in_order_p(CChain *chain_p);
 
+   // convert atoms in residue to HETATMs if residue is not of
+   // standard PDB type
+   int hetify_residue_atoms_as_needed(CResidue *res);
+
    // convert atoms in residue to HETATMs.  Return the number of HET
    // atoms.
    int hetify_residue_atoms(CResidue *res);
@@ -601,7 +605,10 @@ namespace coot {
       // residues.
       std::vector<std::string> non_standard_residue_types_in_molecule(CMMDBManager *mol);
       // a utility function 
-      std::vector<std::string> standard_residue_types(); 
+      std::vector<std::string> standard_residue_types();
+
+      std::vector<std::string> PDB_standard_residue_types();
+      
       std::vector<std::string> residue_types_in_chain(CChain *chain_p);
       std::vector<std::string> residue_types_in_residue_vec(const std::vector<CResidue *> &residues);
 

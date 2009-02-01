@@ -539,6 +539,11 @@ int handle_read_draw_molecule_and_move_molecule_here(const char *filename);
 /*! \brief read coordinates from filename */
 int read_pdb(const char *filename); // cc4mg function name
 
+/*! \brief some programs produce PDB files with ATOMs where there
+  should be HETATMs.  This is a function to assign HETATMs as per the
+  PDB definition. */
+int assign_hetatms(int imol);
+
 /*! \brief replace the parts of molecule number imol that are
   duplicated in molecule number imol_frag */
 int replace_fragment(int imol_target, int imol_fragment, const char *atom_selection);

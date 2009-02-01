@@ -5368,7 +5368,20 @@ void read_cif_dictionary(const char *filename) {
    
    handle_cif_dictionary(filename);
 
-} 
+}
+
+/*! \brief some programs produce PDB files with ATOMs where there
+  should be HETATMs.  This is a function to assign HETATMs as per the
+  PDB definition. */
+int assign_hetatms(int imol) {
+
+   int r = 0;
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].assign_hetatms();
+   }
+   return r;
+}
+
 
 
 /*  ----------------------------------------------------------------------- */

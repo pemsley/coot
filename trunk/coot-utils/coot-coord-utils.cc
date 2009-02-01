@@ -114,6 +114,23 @@ coot::util::standard_residue_types() {
    return v;
 }
 
+std::vector<std::string>
+coot::util::PDB_standard_residue_types() {
+
+   std::vector<std::string> v = coot::util::standard_residue_types();
+   v.push_back("Td"); v.push_back("Tr"); v.push_back("T");
+   v.push_back("Gd"); v.push_back("Gr"); v.push_back("G");
+   v.push_back("Ad"); v.push_back("Ar"); v.push_back("A");
+
+   v.push_back("DG"); v.push_back("DC"); v.push_back("DA");
+   v.push_back("DU"); v.push_back("DT"); v.push_back("DI");
+
+   v.push_back("UNK"); v.push_back("N");
+
+   return v;
+}
+
+
 
 
 std::vector<std::pair<int, int> >
@@ -4806,4 +4823,18 @@ coot::hetify_residue_atoms(CResidue *res) {
    }
    return n;
 }
+
+// convert atoms in residue to HETATMs
+// 
+int
+coot::hetify_residue_atoms_as_needed(CResidue *res) {
+
+   int r = 0;
+   if (res) { 
+      std::string resname = res->GetResName();
+      if (! is_member_p(coot::util::PDB_standard_residue_types(), resname))
+	 r = hetify_residue_atoms(res);
+   }
+   return r;
+} 
 
