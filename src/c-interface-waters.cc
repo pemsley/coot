@@ -264,7 +264,21 @@ void fill_find_waters_dialog(GtkWidget *find_ligand_dialog) {
    char *txt = get_text_for_find_waters_sigma_cut_off();
    gtk_entry_set_text(GTK_ENTRY(entry), txt);
    free(txt);
-   
+
+   // Now deal with the (new) entries for the distances to the protein
+   // (if they exist (not (yet?) in gtk1 version)).
+   //
+   GtkWidget *wd1 = lookup_widget(GTK_WIDGET(find_ligand_dialog),
+				  "find_waters_max_dist_to_protein_entry");
+   GtkWidget *wd2 = lookup_widget(GTK_WIDGET(find_ligand_dialog),
+				  "find_waters_min_dist_to_protein_entry");
+
+   if (wd1 && wd2) {
+      float max = graphics_info_t::ligand_water_to_protein_distance_lim_max;
+      float min = graphics_info_t::ligand_water_to_protein_distance_lim_min;
+      gtk_entry_set_text(GTK_ENTRY(wd1), coot::util::float_to_string(max).c_str());
+      gtk_entry_set_text(GTK_ENTRY(wd2), coot::util::float_to_string(min).c_str());
+   }
 }
 
 char *get_text_for_find_waters_sigma_cut_off() {
@@ -370,6 +384,30 @@ execute_find_waters(GtkWidget *dialog_ok_button) {
    set_value_for_find_waters_sigma_cut_off(f); // save it for later
 					       // display of the
 					       // dialog
+
+
+   // 20090201
+   //
+   // Now deal with the (new) entries for the distances to the protein
+   // (if they exist (not (yet?) in gtk1 version)).
+   //
+   GtkWidget *wd1 = lookup_widget(GTK_WIDGET(dialog_ok_button),
+				  "find_waters_max_dist_to_protein_entry");
+   GtkWidget *wd2 = lookup_widget(GTK_WIDGET(dialog_ok_button),
+				  "find_waters_min_dist_to_protein_entry");
+
+   if (wd1 && wd2) {
+      const gchar *t1 = gtk_entry_get_text(GTK_ENTRY(wd1));
+      const gchar *t2 = gtk_entry_get_text(GTK_ENTRY(wd2));
+      float f1 = atof(t1);
+      float f2 = atof(t2);
+      // slam in the distances to the static vars directly (not as
+      // arguments to find_waters_real()).
+      g.ligand_water_to_protein_distance_lim_min = f1;      
+      g.ligand_water_to_protein_distance_lim_max = f2;
+   } 
+
+
 
    // Should the waters be added to a new molecule or the masking molecule?
    //

@@ -8265,6 +8265,14 @@ create_find_waters_dialog (void)
   GtkWidget *hbox44;
   GtkWidget *find_waters_peak_level_entry;
   GtkWidget *label88;
+  GtkWidget *frame287;
+  GtkWidget *alignment131;
+  GtkWidget *table6;
+  GtkWidget *label702;
+  GtkWidget *label703;
+  GtkWidget *find_waters_max_dist_to_protein_entry;
+  GtkWidget *find_waters_min_dist_to_protein_entry;
+  GtkWidget *label701;
   GtkWidget *frame63;
   GtkWidget *vbox80;
   GtkWidget *label108;
@@ -8348,12 +8356,59 @@ create_find_waters_dialog (void)
   find_waters_peak_level_entry = gtk_entry_new ();
   gtk_widget_show (find_waters_peak_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox44), find_waters_peak_level_entry, FALSE, TRUE, 6);
+  gtk_widget_set_size_request (find_waters_peak_level_entry, 78, -1);
   gtk_tooltips_set_tip (tooltips, find_waters_peak_level_entry, _("Note that this is sigma of the map after it has been masked by the protein.  1.8 sigma seems good for a 2Fo-Fc style map and about 3.0 for a difference map."), NULL);
 
   label88 = gtk_label_new (_(" sigma "));
   gtk_widget_show (label88);
   gtk_box_pack_start (GTK_BOX (hbox44), label88, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label88), GTK_JUSTIFY_CENTER);
+
+  frame287 = gtk_frame_new (NULL);
+  gtk_widget_show (frame287);
+  gtk_box_pack_start (GTK_BOX (vbox54), frame287, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame287), 6);
+
+  alignment131 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment131);
+  gtk_container_add (GTK_CONTAINER (frame287), alignment131);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment131), 0, 0, 12, 0);
+
+  table6 = gtk_table_new (2, 2, FALSE);
+  gtk_widget_show (table6);
+  gtk_container_add (GTK_CONTAINER (alignment131), table6);
+
+  label702 = gtk_label_new (_("Minimum distance to protein atoms: "));
+  gtk_widget_show (label702);
+  gtk_table_attach (GTK_TABLE (table6), label702, 0, 1, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (label702), 0, 0.5);
+
+  label703 = gtk_label_new (_("Maximum distance to protein atoms: "));
+  gtk_widget_show (label703);
+  gtk_table_attach (GTK_TABLE (table6), label703, 0, 1, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (label703), 0, 0.5);
+
+  find_waters_max_dist_to_protein_entry = gtk_entry_new ();
+  gtk_widget_show (find_waters_max_dist_to_protein_entry);
+  gtk_table_attach (GTK_TABLE (table6), find_waters_max_dist_to_protein_entry, 1, 2, 0, 1,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_widget_set_size_request (find_waters_max_dist_to_protein_entry, 113, -1);
+
+  find_waters_min_dist_to_protein_entry = gtk_entry_new ();
+  gtk_widget_show (find_waters_min_dist_to_protein_entry);
+  gtk_table_attach (GTK_TABLE (table6), find_waters_min_dist_to_protein_entry, 1, 2, 1, 2,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+
+  label701 = gtk_label_new ("");
+  gtk_widget_show (label701);
+  gtk_frame_set_label_widget (GTK_FRAME (frame287), label701);
+  gtk_label_set_use_markup (GTK_LABEL (label701), TRUE);
 
   frame63 = gtk_frame_new (NULL);
   gtk_widget_show (frame63);
@@ -8458,6 +8513,14 @@ create_find_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (find_waters_dialog, hbox44, "hbox44");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, find_waters_peak_level_entry, "find_waters_peak_level_entry");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, label88, "label88");
+  GLADE_HOOKUP_OBJECT (find_waters_dialog, frame287, "frame287");
+  GLADE_HOOKUP_OBJECT (find_waters_dialog, alignment131, "alignment131");
+  GLADE_HOOKUP_OBJECT (find_waters_dialog, table6, "table6");
+  GLADE_HOOKUP_OBJECT (find_waters_dialog, label702, "label702");
+  GLADE_HOOKUP_OBJECT (find_waters_dialog, label703, "label703");
+  GLADE_HOOKUP_OBJECT (find_waters_dialog, find_waters_max_dist_to_protein_entry, "find_waters_max_dist_to_protein_entry");
+  GLADE_HOOKUP_OBJECT (find_waters_dialog, find_waters_min_dist_to_protein_entry, "find_waters_min_dist_to_protein_entry");
+  GLADE_HOOKUP_OBJECT (find_waters_dialog, label701, "label701");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, frame63, "frame63");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, vbox80, "vbox80");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, label108, "label108");
@@ -18667,9 +18730,10 @@ create_preferences (void)
   gtk_widget_show (hbuttonbox5);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox5), GTK_BUTTONBOX_END);
 
-  hbox115 = gtk_hbox_new (FALSE, 0);
+  hbox115 = gtk_hbox_new (TRUE, 0);
   gtk_widget_show (hbox115);
   gtk_container_add (GTK_CONTAINER (hbuttonbox5), hbox115);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox115), 2);
 
   preferences_reset_button = gtk_button_new ();
   gtk_widget_show (preferences_reset_button);
