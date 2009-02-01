@@ -2581,8 +2581,20 @@ void set_python_gui_loaded_flag();
 void set_found_coot_gui(); 
 void set_found_coot_python_gui(); 
 
+/* \} */
+
+/*  ----------------------------------------------------------------------- */
+/*                  Monomer                                                 */
+/*  ----------------------------------------------------------------------- */
+/* section monomers */
+
+/*! \name Monomer */
+/* \{ */
 /* Accession code */
 void handle_get_accession_code(GtkWidget *widget); 
+
+/* in here we check if libcheck is available (if scripting is available) */
+GtkWidget *wrapped_create_libcheck_monomer_dialog();
 
 /* Libcheck monomer code */
 void handle_get_libcheck_monomer_code(GtkWidget *widget); 

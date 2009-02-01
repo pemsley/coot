@@ -13491,7 +13491,11 @@ create_libcheck_monomer_dialog (void)
   GtkWidget *libcheck_monomer_dialog;
   GtkWidget *dialog_vbox43;
   GtkWidget *vbox105;
-  GtkWidget *hbox80;
+  GtkWidget *no_libcheck_frame;
+  GtkWidget *alignment132;
+  GtkWidget *no_libcheck_label;
+  GtkWidget *label705;
+  GtkWidget *get_monomer_hbox;
   GtkWidget *label151;
   GtkWidget *libcheck_monomer_entry;
   GtkWidget *label152;
@@ -13512,19 +13516,37 @@ create_libcheck_monomer_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox43), vbox105, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox105), 4);
 
-  hbox80 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox80);
-  gtk_box_pack_start (GTK_BOX (vbox105), hbox80, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (hbox80), 17);
+  no_libcheck_frame = gtk_frame_new (NULL);
+  gtk_box_pack_start (GTK_BOX (vbox105), no_libcheck_frame, FALSE, FALSE, 0);
+
+  alignment132 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment132);
+  gtk_container_add (GTK_CONTAINER (no_libcheck_frame), alignment132);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment132), 0, 0, 12, 0);
+
+  no_libcheck_label = gtk_label_new (_("CCP4's LIBCHECK is not available\n\nThis probably won't work"));
+  gtk_widget_show (no_libcheck_label);
+  gtk_container_add (GTK_CONTAINER (alignment132), no_libcheck_label);
+  gtk_misc_set_padding (GTK_MISC (no_libcheck_label), 0, 7);
+
+  label705 = gtk_label_new (_("<b>No LIBCHECK</b>"));
+  gtk_widget_show (label705);
+  gtk_frame_set_label_widget (GTK_FRAME (no_libcheck_frame), label705);
+  gtk_label_set_use_markup (GTK_LABEL (label705), TRUE);
+
+  get_monomer_hbox = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (get_monomer_hbox);
+  gtk_box_pack_start (GTK_BOX (vbox105), get_monomer_hbox, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (get_monomer_hbox), 17);
 
   label151 = gtk_label_new (_("  3 Letter Code: "));
   gtk_widget_show (label151);
-  gtk_box_pack_start (GTK_BOX (hbox80), label151, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (get_monomer_hbox), label151, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label151), GTK_JUSTIFY_CENTER);
 
   libcheck_monomer_entry = gtk_entry_new ();
   gtk_widget_show (libcheck_monomer_entry);
-  gtk_box_pack_start (GTK_BOX (hbox80), libcheck_monomer_entry, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (get_monomer_hbox), libcheck_monomer_entry, FALSE, TRUE, 0);
 
   label152 = gtk_label_new (_("  Note: Code is Case Sensitive  "));
   gtk_widget_show (label152);
@@ -13564,7 +13586,11 @@ create_libcheck_monomer_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (libcheck_monomer_dialog, libcheck_monomer_dialog, "libcheck_monomer_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (libcheck_monomer_dialog, dialog_vbox43, "dialog_vbox43");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, vbox105, "vbox105");
-  GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, hbox80, "hbox80");
+  GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, no_libcheck_frame, "no_libcheck_frame");
+  GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, alignment132, "alignment132");
+  GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, no_libcheck_label, "no_libcheck_label");
+  GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, label705, "label705");
+  GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, get_monomer_hbox, "get_monomer_hbox");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, label151, "label151");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, libcheck_monomer_entry, "libcheck_monomer_entry");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, label152, "label152");
