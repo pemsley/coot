@@ -178,6 +178,7 @@
 			     post-refmac-pdb-file-name 0)))
 	    (if (valid-model-molecule? pdb-status) 
 		(begin
+		  (assign-hetatms pdb-status)
 		  (move-molecule-here pdb-status)
 		  (read-cif-dictionary cif-file-name)
 		  pdb-status))))) ; return imol of the ligand

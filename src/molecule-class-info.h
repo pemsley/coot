@@ -2413,6 +2413,9 @@ class molecule_class_info_t {
 
    void delete_dipole(int dipole_number);
 
+   // return the number of new hetatoms
+   int assign_hetatms();
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T
