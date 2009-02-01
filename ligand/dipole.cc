@@ -113,12 +113,10 @@ coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, 
 
    clipper::Coord_orth dip(0,0,0);
    for (int ii=0; ii<charged_points.size(); ii++) { 
-      for (int jj=(ii+1); jj<charged_points.size(); jj++) {
-	 clipper::Coord_orth scaled(charged_points[jj].second - residue_centre);
-	 scaled = charged_points[jj].first * scaled;
+      clipper::Coord_orth scaled(charged_points[ii].second - residue_centre);
+	 scaled = charged_points[ii].first * scaled;
 	 dip += scaled;
 	 dipole_is_good_flag = 1;
-      }
    }
 
    if (! dipole_is_good_flag) {
