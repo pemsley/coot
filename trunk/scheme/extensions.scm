@@ -309,7 +309,7 @@
 	   (generic-single-entry "Replace this residue with residue of type:" "ALA" "Mutate" 
 				 (lambda (text) 
 				   (using-active-atom 
-				    (mutate-by-overlap aa-imol aa-chain-id aa-res-no text)))))))
+				    (mutate-by-overlap aa-imol aa-chain-id aa-res-no text))))))
 
 
 	(add-simple-coot-menu-menuitem
