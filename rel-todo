@@ -1,8 +1,6 @@
    o sphere-refine in a region with undisplayed add-reps -> add reps
      displayed. ::: 1
 
-   o A dipole for a selection of residues. Needs a test. ::: 2
-
    o Check that sort chain ids does indeed sort the chain ids and does
      not change the order of the atoms in the molecule.  Convert to minimol 
      and sort the chains there - make sure that cell and symm are transfered.
@@ -463,3 +461,8 @@ button, but I did use the Close molecule button!  Hmm!
      ::: 2
 
 * Done.
+
+   o A dipole for a selection of residues. Needs a test. ::: 2
+
+* Done.
+
