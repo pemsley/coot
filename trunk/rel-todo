@@ -1,28 +1,7 @@
-
-   o Make it more clear that the SMILES interface uses libcheck.
-     (perhaps grey out the function if libcheck is not available).
-     ::: 1
-
-   o When a new residue is created (e.g. HOH) it should be checked
-     against standard PDB residue types and if not found, then the
-     atoms in the residue should be marked as HETATMs (set atom->Het).
-     [ David Mathog noted problem]
-
-     http://www.wwpdb.org/documentation/Format_v32_letter.pdf
-
-     Consider hetify_residue_atoms_maybe(residue_p) which checks the
-     residue name against standard pdb residue names, and if not
-     there, then hetifies the atoms.
-
-     Need to call this when reading the monomer-XXX.pdb output of
-     libcheck.
-
-     ::: 2
-
-   o A dipole for a selection of residues. Needs a test. ::: 2
-
    o sphere-refine in a region with undisplayed add-reps -> add reps
      displayed. ::: 1
+
+   o A dipole for a selection of residues. Needs a test. ::: 2
 
    o Check that sort chain ids does indeed sort the chain ids and does
      not change the order of the atoms in the molecule.  Convert to minimol 
@@ -460,3 +439,27 @@ button, but I did use the Close molecule button!  Hmm!
      Simple, use generic-single-entry ::: 1
 
 * Done for scm.
+
+   o Make it more clear that the SMILES interface uses libcheck.
+     (perhaps grey out the function if libcheck is not available).
+     ::: 1
+
+* Done.
+
+   o When a new residue is created (e.g. HOH) it should be checked
+     against standard PDB residue types and if not found, then the
+     atoms in the residue should be marked as HETATMs (set atom->Het).
+     [ David Mathog noted problem]
+
+     http://www.wwpdb.org/documentation/Format_v32_letter.pdf
+
+     Consider hetify_residue_atoms_maybe(residue_p) which checks the
+     residue name against standard pdb residue names, and if not
+     there, then hetifies the atoms.
+
+     Need to call this when reading the monomer-XXX.pdb output of
+     libcheck.
+
+     ::: 2
+
+* Done.
