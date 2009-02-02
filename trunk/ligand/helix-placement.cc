@@ -51,7 +51,8 @@
 coot::helix_placement_info_t
 coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
 					      int n_residues,
-					      float density_level_for_trim) const {
+					      float density_level_for_trim,
+					      float b_factor) const {
 
    clipper::Coord_orth ptc = pt;
    for (int i=0; i<10; i++) { 
@@ -246,7 +247,7 @@ coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
 	 mr.set_cell(acell);
 	 mr.set_spacegroup(spacegroup_str_hm);
 	 success = 1;
-	 trim_and_grow(&mr, density_level_for_trim); // modify mr
+	 trim_and_grow(&mr, density_level_for_trim, b_factor); // modify mr
 	 float final_score = score_helix_position(mr);
 	 if (final_score < 0) {
 	    success = 0;
@@ -266,7 +267,8 @@ coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
 coot::helix_placement_info_t
 coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_orth &pt,
 							 int n_residues,
-							 float min_density_limit) const {
+							 float min_density_limit,
+							 float b_factor) const {
 
    clipper::Coord_orth ptc = pt;
    for (int i=0; i<10; i++) {
@@ -370,7 +372,7 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 	    // restore the occupancies of CBetas
 	    mr[iofm].set_atom_occ(" CB ", 1.0);
 	    success = 1;
-	    trim_and_grow(&mr[iofm], min_density_limit); // modify mr
+	    trim_and_grow(&mr[iofm], min_density_limit, b_factor); // modify mr
 	    float final_score = score_helix_position(mr[iofm]);
 	    std::cout << "INFO:: Helix position score: " << final_score << "\n";
 	    if (final_score < 0) { 
@@ -1036,7 +1038,9 @@ coot::helix_placement::trim_end(coot::minimol::fragment *f, short int end_type, 
 
 
 void
-coot::helix_placement::build_on_N_end(coot::minimol::fragment *f, float min_density_limit) const { 
+coot::helix_placement::build_on_N_end(coot::minimol::fragment *f,
+				      float min_density_limit,
+				      float b_factor) const { 
 
    // We only come here if we actually mean to do some building.  The
    // test for whether the end was trimmed must be performed in the
@@ -1070,7 +1074,7 @@ coot::helix_placement::build_on_N_end(coot::minimol::fragment *f, float min_dens
       }
    }
    if (found_CA && found_C && found_N) {
-      coot::minimol::residue r = build_N_terminal_ALA(n, ca, c, ires_current_last-1);
+      coot::minimol::residue r = build_N_terminal_ALA(n, ca, c, ires_current_last-1, b_factor);
       // if that residue is in positive density then add it to f and try to add another res
       coot::util::density_stats_info_t dsi = score_residue(r);
       std::pair<float, float> mv = dsi.mean_and_variance();
@@ -1082,7 +1086,7 @@ coot::helix_placement::build_on_N_end(coot::minimol::fragment *f, float min_dens
 	 f->addresidue(r, 0);
 	 std::cout << "INFO build of N terminal residue " << ires_current_last-1
 		   << " success" << std::endl;
-	 build_on_N_end(f, min_density_limit);
+	 build_on_N_end(f, min_density_limit, b_factor);
       } else {
 	 std::cout << "INFO build of N terminal residue " << ires_current_last-1
 		   << " failed (bad density fit)" << std::endl;
@@ -1093,7 +1097,9 @@ coot::helix_placement::build_on_N_end(coot::minimol::fragment *f, float min_dens
 }
 
 void
-coot::helix_placement::build_on_C_end(coot::minimol::fragment *f, float min_density_limit) const { 
+coot::helix_placement::build_on_C_end(coot::minimol::fragment *f,
+				      float min_density_limit,
+				      float b_factor) const { 
 
    // We only come here if we actually mean to do some building.  The
    // test for whether the end was trimmed must be performed in the
@@ -1127,7 +1133,7 @@ coot::helix_placement::build_on_C_end(coot::minimol::fragment *f, float min_dens
       }
    }
    if (found_CA && found_C && found_N) {
-      coot::minimol::residue r = build_C_terminal_ALA(n, ca, c, ires_current_last+1);
+      coot::minimol::residue r = build_C_terminal_ALA(n, ca, c, ires_current_last+1, b_factor);
       // if that residue is in positive density then add it to f and try to add another res
       coot::util::density_stats_info_t dsi = score_residue(r);
       std::pair<float, float> mv = dsi.mean_and_variance();
@@ -1139,7 +1145,7 @@ coot::helix_placement::build_on_C_end(coot::minimol::fragment *f, float min_dens
 	 f->addresidue(r, 0);
 	 std::cout << "INFO build of N terminal residue " << ires_current_last-1
 		   << " success" << std::endl;
-	 build_on_C_end(f, min_density_limit);
+	 build_on_C_end(f, min_density_limit, b_factor);
 	 
       } else {
 	 std::cout << "INFO build of C terminal residue " << ires_current_last-1
@@ -1154,13 +1160,15 @@ coot::minimol::residue
 coot::helix_placement::build_N_terminal_ALA(const clipper::Coord_orth &prev_n,
 					    const clipper::Coord_orth &prev_ca,
 					    const clipper::Coord_orth &prev_c, 
-					    int seqno) const { 
+					    int seqno,
+					    float b_factor) const { 
 
    // theortical helix CA-N bond: -57.82 phi
    //                  CA-C bond: -47    psi
    float phi = -57.82; 
    float psi = -47.0;
-   coot::minimol::residue r = coot::build_N_terminal_ALA(phi, psi, seqno, prev_n, prev_ca, prev_c);
+   coot::minimol::residue r = coot::build_N_terminal_ALA(phi, psi, seqno, prev_n, prev_ca, prev_c,
+							 b_factor);
 
    return r;
 }
@@ -1169,13 +1177,15 @@ coot::minimol::residue
 coot::helix_placement::build_C_terminal_ALA(const clipper::Coord_orth &prev_n,
 					    const clipper::Coord_orth &prev_ca,
 					    const clipper::Coord_orth &prev_c, 
-					    int seqno) const { 
+					    int seqno,
+					    float b_factor) const { 
 
    // theortical helix CA-N bond: -57.82 phi
    //                  CA-C bond: -47    psi
    float phi = -57.82; 
    float psi = -47.0;
-   coot::minimol::residue r = coot::build_C_terminal_ALA(phi, psi, seqno, prev_n, prev_ca, prev_c);
+   coot::minimol::residue r = coot::build_C_terminal_ALA(phi, psi, seqno, prev_n, prev_ca, prev_c,
+							 b_factor);
 
    return r;
 }
@@ -1183,17 +1193,18 @@ coot::helix_placement::build_C_terminal_ALA(const clipper::Coord_orth &prev_n,
 
 // Tinker with m
 void
-coot::helix_placement::trim_and_grow(minimol::molecule *m, float min_density_limit) const {
+coot::helix_placement::trim_and_grow(minimol::molecule *m, float min_density_limit,
+				     float b_factor) const {
 
    for (unsigned int ifrag=0; ifrag<m->fragments.size(); ifrag++) { 
       std::pair<int, int> trim_pair = trim_ends(&(*m)[ifrag], min_density_limit);
       if (trim_pair.first == 0) {
-	 build_on_N_end(&(*m)[ifrag], min_density_limit);
+	 build_on_N_end(&(*m)[ifrag], min_density_limit, b_factor);
       } else {
 	 std::cout << "N terminal of placed helix was trimmed" << std::endl;
       } 
       if (trim_pair.second == 0) {
-	 build_on_C_end(&(*m)[ifrag], min_density_limit);
+	 build_on_C_end(&(*m)[ifrag], min_density_limit, b_factor);
       } else {
 	 std::cout << "C terminal of placed helix was trimmed" << std::endl;
       }

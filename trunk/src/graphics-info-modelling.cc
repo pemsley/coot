@@ -1699,9 +1699,10 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       res_type = "ALA";
 	    } 
 	 } 
-	 
+
+	 float bf = default_new_atoms_b_factor;
 	 coot::residue_by_phi_psi addres(molecules[imol].atom_sel.mol,
-					 terminus_type, res_p, chain_id, res_type);
+					 terminus_type, res_p, chain_id, res_type, bf);
 
 	 // std::cout << "DEBUG:: term_type: " << terminus_type << std::endl;
 
