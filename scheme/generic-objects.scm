@@ -129,7 +129,7 @@
 			(reduce-out-pdb-file "coot-molprobity/reduced.pdb"))
 		    (write-pdb-file imol mol-pdb-file)
 		    (goosh-command *reduce-command* 
-				   (list "-build" mol-pdb-file)
+				   (list "-build" "-oldpdb" mol-pdb-file)
 				   '() reduce-out-pdb-file #f)
 		    (let* ((probe-name-stub (strip-extension (strip-path (molecule-name imol))))
 			   (probe-pdb-in  (string-append 

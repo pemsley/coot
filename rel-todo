@@ -4,8 +4,6 @@
      to specify the type of R/T entity, a zone (default) a chain, a
      whole molecule. ::: 5
 
-   o is -oldpdb in the input to reduce?
-
 * Almost Done. Exception of adding to the GUI the ability to swap
   rot_trans_object_type modes.
 
@@ -473,4 +471,8 @@ button, but I did use the Close molecule button!  Hmm!
 * Done.  one liner: in update_additional_representations():
 	 display_list_tags[handle].display_it = add_reps[i].show_it;
 
+
+   o is -oldpdb in the input to reduce?
+
+* It is now.
 
