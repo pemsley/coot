@@ -3045,7 +3045,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       break;
       
    case GDK_l:
-   case GDK_L:
       {
 	 graphics_info_t g;
 	 std::pair<int, int> cl_at = g.get_closest_atom();
@@ -3058,7 +3057,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       break;
 
    case GDK_z:
-   case GDK_Z:
       graphics_info_t::z_is_pressed = 1;
       if (graphics_info_t::control_is_pressed) { 
 	 if (graphics_info_t::draw_baton_flag)

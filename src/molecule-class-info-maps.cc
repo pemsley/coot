@@ -574,7 +574,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
 	 std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
 	 xmap_is_filled[0] = 1;  // set the map-is-filled? flag
-   
+	 update_map_in_display_control_widget();
   
 	 // Fill the class variables:
 	 //   clipper::Map_stats stats(xmap_list[0]);
@@ -1109,6 +1109,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       map_max_   = mv.max_density;
       map_min_   = mv.min_density;
 
+      update_map_in_display_control_widget();
       set_initial_contour_level();
 
       std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
@@ -1152,7 +1153,8 @@ molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string n
    float var = mv.variance; 
    contour_level[0]  = nearest_step(mean + 1.5*sqrt(var), 0.05);
    xmap_is_filled[0] = 1;  // set the map-is-filled? flag
-
+   update_map_in_display_control_widget();
+   
    // fill class variables
    map_mean_ = mv.mean;
    map_sigma_ = sqrt(mv.variance);
@@ -1305,6 +1307,7 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
 
   xmap_is_diff_map[0] = 0; 
   xmap_is_filled[0] = 1; 
+  update_map_in_display_control_widget();
   contour_level[0] = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
 
   std::cout << "updating map..." << std::endl;
@@ -1642,7 +1645,8 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
   
    xmap_is_diff_map[0] = 0; 
    xmap_is_filled[0] = 1; 
-
+   update_map_in_display_control_widget();
+   
    std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
    std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
    std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
@@ -1821,7 +1825,8 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	      << mv.mean << " and " << sqrt(mv.variance) << endl; 
 
 	 xmap_is_filled[0] = 1; 
-
+	 update_map_in_display_control_widget();
+	 
 	 map_mean_  = mv.mean; 
 	 map_sigma_ = sqrt(mv.variance);
 	 map_max_   = mv.max_density;
@@ -1996,7 +2001,8 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
 	 xmap_is_filled[0] = 1; 
 
 	 int imol = imol_no_in;
-   
+	 update_map_in_display_control_widget();
+	 
 	 update_map();
 
 	 have_unsaved_changes_flag = 0;
@@ -2191,7 +2197,8 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
   xmap_is_diff_map[0] = 0; 
   xmap_is_filled[0] = 1; 
   contour_level[0] = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
-
+  update_map_in_display_control_widget();
+  
   std::cout << "updating map..." << std::endl;
   update_map();
   std::cout << "done updating map..." << std::endl;

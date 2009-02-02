@@ -1,4 +1,6 @@
-   o Add terminal residue has disconnected atoms.  Why? ::: 1
+
+   o Add terminal residue has disconnected atoms.  Why? ::: 2
+
 
    o multiple residue ranges, glycosylation, covalent bond entities ::: 10
 
@@ -175,6 +177,8 @@
      create another map from mtz (I meant to change the limits, but
      forgot). Delete that new map (using the button on display
      control). mtz read same mtz with reso limits -> crash.
+
+ gtk_radio_button_set_group: assertion `!g_slist_find (group, radio_button)' failed
 
 #0  0x034e2ce7 in gtk_radio_button_set_group () from /usr/lib/libgtk-x11-2.0.so.0
 #1  0x034e2f61 in gtk_radio_button_new_with_label () from /usr/lib/libgtk-x11-2.0.so.0

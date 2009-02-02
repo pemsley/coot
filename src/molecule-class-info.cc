@@ -1247,7 +1247,10 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
 
    drawit_for_map = 1; // display the map initially, by default
 
-   update_map_in_display_control_widget();
+   // We can't call this untill xmap_is_filled[0] has been assigned,
+   // and here we only make room for it.
+   // 
+   // update_map_in_display_control_widget();
    
 }
 
