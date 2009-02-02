@@ -96,20 +96,22 @@ namespace coot {
       std::pair<int, int> trim_ends(minimol::fragment *m, float min_density_limit) const; // modify m by chopping off residues
       int trim_end(minimol::fragment *m, short int end_type, float min_density_limit) const;
 
-      void build_on_N_end(minimol::fragment *m, float min_density_limit) const;
-      void build_on_C_end(minimol::fragment *m, float min_density_limit) const;
+      void build_on_N_end(minimol::fragment *m, float min_density_limit, float b_factor) const;
+      void build_on_C_end(minimol::fragment *m, float min_density_limit, float b_factor) const;
       minimol::residue
       build_N_terminal_ALA(const clipper::Coord_orth &prev_n,
 			   const clipper::Coord_orth &prev_ca,
 			   const clipper::Coord_orth &prev_c,
-			   int seqno) const;
+			   int seqno,
+			   float b_factor) const;
       minimol::residue
       build_C_terminal_ALA(const clipper::Coord_orth &prev_n,
 			   const clipper::Coord_orth &prev_ca,
 			   const clipper::Coord_orth &prev_c,
-			   int seqno) const;
+			   int seqno,
+			   float b_factor) const;
       // tinker with m
-      void trim_and_grow(minimol::molecule *m, float min_density_limit) const;
+      void trim_and_grow(minimol::molecule *m, float min_density_limit, float b_factor) const;
 
       // factoring out for strand tubes
       clipper::RTop_orth
@@ -136,13 +138,15 @@ namespace coot {
       // 20, try 12 if that fails.
       helix_placement_info_t place_alpha_helix_near(const clipper::Coord_orth &pt,
 						    int n_helix_residues_start,
-						    float density_level_for_trim) const;
+						    float density_level_for_trim,
+						    float b_factor) const;
       
       // Kevin's engine: do MR-like search on the surface of a
       // cylinder, not just the eigen vectors
       helix_placement_info_t place_alpha_helix_near_kc_version(const clipper::Coord_orth &pt,
 							       int n_helix_residues_start,
-							       float density_level_for_trim) const;
+							       float density_level_for_trim,
+							       float b_factor) const;
 
       // and now for strands, we use much of the same code, including
       // the perhaps mis-leading helper class names

@@ -43,6 +43,7 @@ namespace coot {
      std::string terminus_type;
      float rama_max;
      clipper::Ramachandran rama;
+     float b_factor;
 
 
      // This is not const because GetAtom() fo CResidue is not a const
@@ -95,7 +96,8 @@ namespace coot {
 			const std::string &terminus_type, // "N", or "C"
 			const CResidue *res_p,
 			const std::string &chain_id, 
-			const std::string &res_type);
+			const std::string &res_type,
+			float b_factor_in);
 
      minimol::molecule best_fit_phi_psi(int n_trials, short int do_rigid_body_refinement,
 					int add_other_residue_flag);
@@ -104,14 +106,16 @@ namespace coot {
 
   minimol::residue 
   build_N_terminal_ALA(float phi, float psi, int seqno,
-			const clipper::Coord_orth &previous_n,
-			const clipper::Coord_orth &previous_ca,
-			const clipper::Coord_orth &previous_c); 
+		       const clipper::Coord_orth &previous_n,
+		       const clipper::Coord_orth &previous_ca,
+		       const clipper::Coord_orth &previous_c,
+		       float b_factor); 
    minimol::residue 
    build_C_terminal_ALA(float phi, float psi, int seqno,
 			const clipper::Coord_orth &next_n,
 			const clipper::Coord_orth &next_ca,
-			const clipper::Coord_orth &next_c); 
+			const clipper::Coord_orth &next_c,
+			float b_factor); 
 
 
 } // namespace coot

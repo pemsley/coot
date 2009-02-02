@@ -27,18 +27,18 @@ coot::residue_by_phi_psi::residue_by_phi_psi(const CMMDBManager *mol_in,
 					     const std::string &terminus,
 					     const CResidue *res_p,
 					     const std::string &chain_id_in, 
-					     const std::string &res_type) { 
+					     const std::string &res_type,
+					     float b_factor_in) { 
    
    
    mol = mol_in;
    chain_id = chain_id_in;
    residue_type = res_type;
    terminus_type = terminus;
+   b_factor = b_factor_in;
    residue_p = (CResidue *) res_p; // casting needed because
                                    // GetAtom is not const (sigh).
-   
    init_phi_psi_plot();
-
    set_dont_test_rotations();
    set_dont_write_solutions();
 }  
@@ -464,10 +464,10 @@ coot::residue_by_phi_psi::construct_next_res_from_rama_angles(float phi, float p
    clipper::Coord_orth o_pos(n_pos, ca_pos, c_pos,
 			     1.231, angle, torsion); // C-O bond
 
-   mres.addatom(coot::minimol::atom(" N  ", " N", n_pos, "", 30.0));
-   mres.addatom(coot::minimol::atom(" C  ", " C", c_pos, "", 30.0));
-   mres.addatom(coot::minimol::atom(" CA ", " C", ca_pos, "", 30.0));
-   mres.addatom(coot::minimol::atom(" O  ", " O", o_pos, "", 30.0));
+   mres.addatom(coot::minimol::atom(" N  ", " N", n_pos,  "", b_factor));
+   mres.addatom(coot::minimol::atom(" C  ", " C", c_pos,  "", b_factor));
+   mres.addatom(coot::minimol::atom(" CA ", " C", ca_pos, "", b_factor));
+   mres.addatom(coot::minimol::atom(" O  ", " O", o_pos,  "", b_factor));
 
    return mres;
 }   
@@ -514,10 +514,10 @@ coot::residue_by_phi_psi::construct_prev_res_from_rama_angles(float phi, float p
 
    // ---------------------------
 
-   mres.addatom(coot::minimol::atom(" N  ", " N", n_pos,  "", 30.0));
-   mres.addatom(coot::minimol::atom(" C  ", " C", c_pos,  "", 30.0));
-   mres.addatom(coot::minimol::atom(" CA ", " C", ca_pos, "", 30.0));
-   mres.addatom(coot::minimol::atom(" O  ", " O", o_pos,  "", 30.0));
+   mres.addatom(coot::minimol::atom(" N  ", " N", n_pos,  "", b_factor));
+   mres.addatom(coot::minimol::atom(" C  ", " C", c_pos,  "", b_factor));
+   mres.addatom(coot::minimol::atom(" CA ", " C", ca_pos, "", b_factor));
+   mres.addatom(coot::minimol::atom(" O  ", " O", o_pos,  "", b_factor));
 
    return mres;
 }
@@ -606,7 +606,8 @@ coot::build_C_terminal_ALA(float phi, float psi,
 			   int seqno,
 			   const clipper::Coord_orth &previous_n,
 			   const clipper::Coord_orth &previous_ca,
-			   const clipper::Coord_orth &previous_c) {
+			   const clipper::Coord_orth &previous_c,
+			   float b_factor) {
 
 
    coot::minimol::residue mres(seqno);
@@ -637,10 +638,10 @@ coot::build_C_terminal_ALA(float phi, float psi,
    clipper::Coord_orth o_pos(n_pos, ca_pos, c_pos,
 			     1.231, angle, torsion); // C-O bond
 
-   mres.addatom(coot::minimol::atom(" N  ", " N", n_pos,  "", 30.0));
-   mres.addatom(coot::minimol::atom(" C  ", " C", c_pos,  "", 30.0));
-   mres.addatom(coot::minimol::atom(" CA ", " C", ca_pos, "", 30.0));
-   mres.addatom(coot::minimol::atom(" O  ", " O", o_pos,  "", 30.0));
+   mres.addatom(coot::minimol::atom(" N  ", " N", n_pos,  "", b_factor));
+   mres.addatom(coot::minimol::atom(" C  ", " C", c_pos,  "", b_factor));
+   mres.addatom(coot::minimol::atom(" CA ", " C", ca_pos, "", b_factor));
+   mres.addatom(coot::minimol::atom(" O  ", " O", o_pos,  "", b_factor));
 
    return mres;
 }   
@@ -650,7 +651,8 @@ coot::build_N_terminal_ALA(float phi, float psi,
 			   int seqno,
 			   const clipper::Coord_orth &next_n,
 			   const clipper::Coord_orth &next_ca,
-			   const clipper::Coord_orth &next_c) {
+			   const clipper::Coord_orth &next_c,
+			   float b_factor) {
    
    coot::minimol::residue mres(seqno);
    mres.name = "ALA"; // can be change to UNK by caller
@@ -687,10 +689,10 @@ coot::build_N_terminal_ALA(float phi, float psi,
 
    // ---------------------------
 
-   mres.addatom(coot::minimol::atom(" N  ", " N", n_pos,  "", 30.0));
-   mres.addatom(coot::minimol::atom(" C  ", " C", c_pos,  "", 30.0));
-   mres.addatom(coot::minimol::atom(" CA ", " C", ca_pos, "", 30.0));
-   mres.addatom(coot::minimol::atom(" O  ", " O", o_pos,  "", 30.0));
+   mres.addatom(coot::minimol::atom(" N  ", " N", n_pos,  "", b_factor));
+   mres.addatom(coot::minimol::atom(" C  ", " C", c_pos,  "", b_factor));
+   mres.addatom(coot::minimol::atom(" CA ", " C", ca_pos, "", b_factor));
+   mres.addatom(coot::minimol::atom(" O  ", " O", o_pos,  "", b_factor));
 
    return mres;
 }

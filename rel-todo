@@ -1,16 +1,10 @@
-   o sphere-refine in a region with undisplayed add-reps -> add reps
-     displayed. ::: 1
-
-   o Check that sort chain ids does indeed sort the chain ids and does
-     not change the order of the atoms in the molecule.  Convert to minimol 
-     and sort the chains there - make sure that cell and symm are transfered.
-     [Steven Sheriff, Bob Nolte] ::: 1
-
    o Add terminal residue has disconnected atoms.  Why? ::: 1
 
    o Rotate Translate: Add an additional GUI (possibly in the toolbar)
      to specify the type of R/T entity, a zone (default) a chain, a
      whole molecule. ::: 5
+
+   o is -oldpdb in the input to reduce?
 
 * Almost Done. Exception of adding to the GUI the ability to swap
   rot_trans_object_type modes.
@@ -465,4 +459,18 @@ button, but I did use the Close molecule button!  Hmm!
    o A dipole for a selection of residues. Needs a test. ::: 2
 
 * Done.
+
+   o Check that sort chain ids does indeed sort the chain ids and does
+     not change the order of the atoms in the molecule.  Convert to minimol 
+     and sort the chains there - make sure that cell and symm are transfered.
+     [Steven Sheriff, Bob Nolte] ::: 1
+
+* Done.
+
+   o sphere-refine in a region with undisplayed add-reps -> add reps
+     displayed. ::: 1
+
+* Done.  one liner: in update_additional_representations():
+	 display_list_tags[handle].display_it = add_reps[i].show_it;
+
 
