@@ -999,7 +999,7 @@ execute_ligand_search_internal() {
       m = wlig.get_solution(ilig);
       if (! m.is_empty()) {
 	 float bf = graphics_info_t::default_new_atoms_b_factor;
-	 atom_selection_container_t asc = make_asc(m.pcmmdbmanager(bf));
+	 atom_selection_container_t asc = make_asc(m.pcmmdbmanager());
 	 int g_mol = graphics_info_t::create_molecule();
 	 std::string label = "Fitted ligand #";
 	 label += g.int_to_string(ilig);
@@ -1103,8 +1103,7 @@ void flip_ligand(int imol, const char *chain_id, int resno) {
 	 graphics_info_t::molecules[imol].eigen_flip_residue(chain_id, resno);
 
       if (0) { 
-	 float bf = graphics_info_t::default_new_atoms_b_factor;
-	 atom_selection_container_t asc = make_asc(m.pcmmdbmanager(bf));
+	 atom_selection_container_t asc = make_asc(m.pcmmdbmanager());
 	 int g_mol = graphics_info_t::create_molecule();
 	 std::string label = "flipping residue";
 	 graphics_info_t::molecules[g_mol].install_model(g_mol, asc, label, 1);

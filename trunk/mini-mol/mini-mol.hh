@@ -50,12 +50,14 @@ namespace coot {
 
       class atom { 
       public:
-	 atom(std::string atom_name, std::string ele, float x, float y, float z, const std::string &altloc);
-	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc);
-	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float occupancy);
+	 atom(std::string atom_name, std::string ele, float x, float y, float z, const std::string &altloc, float dbf);
+	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float dbf);
+	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float occupancy,
+	      float b_factor);
 	 atom() {}
 	 std::string altLoc;
 	 float occupancy;
+	 float temperature_factor;
 	 clipper::Coord_orth pos;
 	 std::string name;
 	 std::string element; // " H", " N", " O" etc.
@@ -82,9 +84,9 @@ namespace coot {
                                             	 // with name "FAIL" if the atom is not there.
 	 atom&       operator[](int i) {return atoms[i];}
 	 void addatom(std::string atom_name, std::string element,
-		      float x, float y, float z, const std::string &altloc);
+		      float x, float y, float z, const std::string &altloc, float bf);
 	 void addatom(std::string atom_name, std::string element,
-		      const clipper::Coord_orth &pos, const std::string &altloc);
+		      const clipper::Coord_orth &pos, const std::string &altloc, float bf);
 	 void addatom(const atom &at); 
 	 friend std::ostream&  operator<<(std::ostream&, residue);
 	 int n_atoms() const { return atoms.size(); }
@@ -131,6 +133,9 @@ namespace coot {
 	 clipper::Coord_orth midpoint() const;
 	 // transform all coordinates in the fragment by rtop:
 	 void transform(const clipper::RTop_orth &rtop);
+	 bool operator<(const fragment &f1) const {
+	    return (fragment_id < f1.fragment_id);
+	 } 
       };
 
       class molecule {
@@ -179,7 +184,7 @@ namespace coot {
 	 // Note that the b-factor is not an attribute of a minimol
 	 // atom, so we need to pass it. 
 	 // 
-	 PCMMDBManager pcmmdbmanager(float b_factor_new_atoms) const;
+	 PCMMDBManager pcmmdbmanager() const;
 	 void delete_molecule();
 	 const fragment& operator[](int i) const {return fragments[i];}
 	 fragment&       operator[](int i)       {return fragments[i];}
@@ -230,6 +235,9 @@ namespace coot {
 	 // Can this molecule be described as a simple zone?  If so,
 	 // return the parameters.
 	 zone_info_t zone_info() const;
+
+	 // sorting chains lexographically.
+	 void sort_chains();
 
       };
       std::ostream& operator<<(std::ostream& s, coot::minimol::atom at);

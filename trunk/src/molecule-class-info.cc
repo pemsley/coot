@@ -6348,7 +6348,7 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
       have_unsaved_changes_flag = 1;
 
       float bf = 1.0;
-      replace_coords(make_asc(m.pcmmdbmanager(bf)), 0, 1);
+      replace_coords(make_asc(m.pcmmdbmanager()), 0, 1);
    }
    return m;
 } 

@@ -734,7 +734,7 @@ coot::weighted_residue::pull_residue() const {
    
    coot::minimol::residue res;
    coot::minimol::atom at(std::string("tmp"),
-			  std::string("tmp"), 0,0,0, ""); // overridden
+			  std::string("tmp"), 0,0,0, "", 30.0); // overridden
    
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
       at.name = atoms[iat].name;
@@ -858,7 +858,7 @@ coot::weighted_residue::add_residue_pos(const minimol::residue &in_res,
 	 }
       }
    } else {
-      minimol::atom tmp_atom("tmp", "tmp", 0,0,0, ""); // overridden
+      minimol::atom tmp_atom("tmp", "tmp", 0,0,0, "", 30.0); // overridden
       for (unsigned int jat=0; jat<in_res.atoms.size(); jat++) {
 	 if (in_res[jat].name != " CB ") { 
 	    tmp_atom     =  in_res[jat];

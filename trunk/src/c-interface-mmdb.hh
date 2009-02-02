@@ -29,7 +29,9 @@
 #include <libguile.h>	
 #include <guile/gh.h> // needed for guile-1.6.x
 
-// return 0 on failure
+// return 0 on failure.  An atom with an atom name of "" and element
+// of "" is converted to a Ter atom.
+// 
 CMMDBManager *
 mmdb_manager_from_scheme_expression(SCM molecule_expression);
 SCM display_scm(SCM o);

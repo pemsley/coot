@@ -42,10 +42,10 @@ coot::atom_graph::atom_graph(CMMDBManager *mol,
       std::string dum_atom_ele (" C");
       std::string altloc("");
       coot::minimol::atom dummy_atom(dum_atom_name, dum_atom_ele, 
-				     clipper::Coord_orth(0.0, 0.0, 0.0), altloc);
+				     clipper::Coord_orth(0.0, 0.0, 0.0), altloc, 30.0);
       atoms.resize(ic, dummy_atom);
       for (int iat=0; iat<coords.size(); iat++)
-      	 atoms[iat] = coot::minimol::atom(dum_atom_name, dum_atom_ele, coords[iat], altloc);
+      	 atoms[iat] = coot::minimol::atom(dum_atom_name, dum_atom_ele, coords[iat], altloc, 30.0);
       mol_internal_ptr_copy = mol;
 
       // assign cell and space group spgr
@@ -291,7 +291,7 @@ coot::atom_graph::assign_c_betas() {
 		     if (nodes[index][j].symm_trans_needed_flag)
 			cb_tranformations.push_back(nodes[index][j].rtop);
 		     clipper::Coord_orth tpos = get_transformed_atom(atoms[nodes[index][j].index].pos, cb_tranformations);
-		     coot::minimol::atom at(" CB ", " C", tpos, "");
+		     coot::minimol::atom at(" CB ", " C", tpos, "", 30.0);
 		     atom_info[nodes[index][j].index].push_back(coot::graph_atom_info(resno, chain_number, at,
 										      cb_tranformations, 0, 1));
 		  } else {
@@ -328,7 +328,7 @@ coot::atom_graph::assign_waters() {
       if (nodes[i].size() == 0) { 
 	 // it has no neigbours.  A water then?
 	 //
-	 coot::minimol::atom at(" O  ", " O", atoms[i].pos, "");
+	 coot::minimol::atom at(" O  ", " O", atoms[i].pos, "", 30.0);
 	 short int is_water_flag = 1;
 	 std::vector<clipper::RTop_orth> water_transformations;
 	 atom_info[i].push_back(coot::graph_atom_info(resno, chain_number,
@@ -706,24 +706,24 @@ coot::atom_graph::make_assignments(int direction,
    }
 
    tpos = get_transformed_atom(atoms[i_node_peptide_start].pos, transformations_1);
-   coot::minimol::atom at1(" CA ", " C", tpos, "");
+   coot::minimol::atom at1(" CA ", " C", tpos, "", 30.0);
    atom_info[i_node_peptide_start].push_back(coot::graph_atom_info(res_no, chain_number, at1, transformations_1, is_water_flag, weight));
 
    tpos = get_transformed_atom(atoms[index_2].pos, transformations_2);
-   coot::minimol::atom at2(index_2_at_name, index_2_ele_name, tpos, "");
+   coot::minimol::atom at2(index_2_at_name, index_2_ele_name, tpos, "", 30.0);
    atom_info[index_2].push_back(coot::graph_atom_info(resno_index_2, chain_number, at2, transformations_2, is_water_flag, weight));
 
    tpos = get_transformed_atom(atoms[index_3].pos, transformations_3);
-   coot::minimol::atom at3(index_2_at_name, index_3_ele_name, tpos, "");
+   coot::minimol::atom at3(index_2_at_name, index_3_ele_name, tpos, "", 30.0);
    atom_info[index_3].push_back(coot::graph_atom_info(resno_index_3, chain_number, at3, transformations_3, is_water_flag, weight));
    
    tpos = get_transformed_atom(atoms[index_4].pos, transformations_4);
-   coot::minimol::atom at4(" CA ", " C", tpos, "");
+   coot::minimol::atom at4(" CA ", " C", tpos, "", 30.0);
    atom_info[index_4].push_back(coot::graph_atom_info(resno_ca_index_4, chain_number, at4, transformations_4, is_water_flag, weight));
 
    if (do_o_assign) {
       tpos = get_transformed_atom(atoms[oxygen_index].pos, transformations_o);
-      coot::minimol::atom ox_at(" O  ", " O", tpos, "");
+      coot::minimol::atom ox_at(" O  ", " O", tpos, "", 30.0);
       atom_info[oxygen_index].push_back(coot::graph_atom_info(oxygen_res_no, chain_number, ox_at, transformations_o, is_water_flag, weight));
    }
 
