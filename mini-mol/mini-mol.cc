@@ -20,6 +20,7 @@
  */
 
 #include <string.h>   // for str(n)cpy
+#include <algorithm>  // for sort
 
 #include "mini-mol.hh"
 #include "coot-coord-utils.hh"
