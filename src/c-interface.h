@@ -378,9 +378,8 @@ int n_chains(int imol);
 int is_solvent_chain_p(int imol, const char *chain_id);
 
 /*! xxbrief sort the chain ids of the imol-th molecule in lexographical order */
-/* withdrawn for now because it can cause coot to crash - need more investigation
 void sort_chains(int imol);	
-*/
+
 
 /*! \brief copy molecule imol
 

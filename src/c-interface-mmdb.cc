@@ -173,8 +173,14 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 					     float z = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(2)));
 					     CAtom *atom = new CAtom;
 					     atom->SetCoordinates(x, y, z, occ, b);
-					     atom->SetAtomName(atom_name.c_str());
-					     atom->SetElementName(ele.c_str());
+					     if ( ! ((atom_name == "") && (ele == ""))) {
+						atom->SetAtomName(atom_name.c_str());
+						atom->SetElementName(ele.c_str());
+						atom->MakeTer();
+					     } else { 
+						atom->SetAtomName(atom_name.c_str());
+						atom->SetElementName(ele.c_str());
+					     }
 					     strncpy(atom->altLoc, alt_conf.c_str(), 2);
 					     residue_p->AddAtom(atom);
 					     // std::cout << "DEBUG:: adding atom " << atom << std::endl;

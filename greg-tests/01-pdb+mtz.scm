@@ -1095,9 +1095,26 @@
 		     (bond-length-within-tolerance? atom-1 atom-2 1.512 0.04))))))))))
 
 
+
 (greg-testcase "Change Chain IDs and Chain Sorting" #t 
    (lambda () 
-     (let ((imol (copy-molecule imol-rnase)))
+
+     (define (chains-in-order? chain-list)
+       
+       (let loop ((ls chain-list)
+		  (ref-chain-id ""))
+	 (cond
+	  ((null? ls) #t)
+	  ((string<? (car ls) ref-chain-id)
+	   (begin
+	     (format #t "ERROR:: ~s was less than ~s in ~s ~%" 
+		     (car ls) ref-chain-id chain-list)
+	     #f))
+	  (else 
+	   (loop (cdr ls) (car ls))))))
+	    
+     ;; 
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
        (change-chain-id imol "A" "D" 0  0  0)
        (change-chain-id imol "B" "E" 1 80 90)  
        (change-chain-id imol "B" "F" 1 70 80)
@@ -1107,12 +1124,10 @@
        (change-chain-id imol "B" "N" 1 30 38)
        (change-chain-id imol "B" "Z" 1 20 28)
 
-;        (sort-chains imol)
+       (sort-chains imol)
 
-;       (let ((c (chain-ids imol)))
-;	 (chains-in-order? c)))))
-
-       #t)))
+       (let ((c (chain-ids imol)))
+	 (chains-in-order? c)))))
 
 
 (greg-testcase "Replace Fragment" #t

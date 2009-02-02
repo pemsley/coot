@@ -536,7 +536,7 @@ void find_waters(int imol_for_map,
 	 if (new_waters_mol_flag) { 
 	    if (! water_mol.is_empty()) {
 	       float bf = graphics_info_t::default_new_atoms_b_factor;
-	       atom_selection_container_t asc = make_asc(water_mol.pcmmdbmanager(bf));
+	       atom_selection_container_t asc = make_asc(water_mol.pcmmdbmanager());
 	       int g_mol_for_waters = graphics_info_t::create_molecule();
 	       g.molecules[g_mol_for_waters].install_model(g_mol_for_waters, asc, "waters", 1);
 	       if (g.go_to_atom_window){

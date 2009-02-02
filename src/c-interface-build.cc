@@ -2316,15 +2316,14 @@ int is_solvent_chain_p(int imol, const char *chain_id) {
    return r;
 }
 
-/* withdrawn for now because it can cause coot to crash - need more investigation */
 // 
 // /*! \brief sort the chain ids of the imol-th molecule in lexographical order */
-// void sort_chains(int imol) { 
+void sort_chains(int imol) { 
 
-//    if (is_valid_model_molecule(imol)) {
-//       graphics_info_t::molecules[imol].sort_chains();
-//    }
-// }
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].sort_chains();
+   }
+}
 
 
 
@@ -4300,40 +4299,39 @@ int place_helix_here() {
        }
 
        if (n.success) {
-	  float bf = graphics_info_t::default_new_atoms_b_factor;
-	 atom_selection_container_t asc = make_asc(n.mol[0].pcmmdbmanager(bf));
-	 imol = g.create_molecule();
-	 graphics_info_t::molecules[imol].install_model(imol, asc, "Helix", 1);
-
-	 if (n.mol.size() > 1) { 
-	    atom_selection_container_t asc2 = make_asc(n.mol[1].pcmmdbmanager(bf));
-	    imol = g.create_molecule();
-	    graphics_info_t::molecules[imol].install_model(imol, asc2, "Reverse Helix", 1);
-	 }
-	 
-	 if (g.go_to_atom_window) {
-	    g.set_go_to_atom_molecule(imol);
-	    g.update_go_to_atom_window_on_new_mol();
-	 } else {
-	    g.set_go_to_atom_molecule(imol);
-	 }
-	 g.statusbar_text("Helix added");
-      } else {
-	 std::cout << "Helix addition failure: message: " << n.failure_message << "\n";
-	 g.statusbar_text(n.failure_message);
-      }
-      std::vector<std::string> command_strings;
-      command_strings.push_back("set-rotation-centre");
-      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_x()));
-      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_y()));
-      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_z()));
-      add_to_history(command_strings);
-      
-      command_strings.resize(0);
-      command_strings.push_back("place-helix-here");
-      add_to_history(command_strings);
-      graphics_draw();
-      return imol;
+	  atom_selection_container_t asc = make_asc(n.mol[0].pcmmdbmanager());
+	  imol = g.create_molecule();
+	  graphics_info_t::molecules[imol].install_model(imol, asc, "Helix", 1);
+	  
+	  if (n.mol.size() > 1) { 
+	     atom_selection_container_t asc2 = make_asc(n.mol[1].pcmmdbmanager());
+	     imol = g.create_molecule();
+	     graphics_info_t::molecules[imol].install_model(imol, asc2, "Reverse Helix", 1);
+	  }
+	  
+	  if (g.go_to_atom_window) {
+	     g.set_go_to_atom_molecule(imol);
+	     g.update_go_to_atom_window_on_new_mol();
+	  } else {
+	     g.set_go_to_atom_molecule(imol);
+	  }
+	  g.statusbar_text("Helix added");
+       } else {
+	  std::cout << "Helix addition failure: message: " << n.failure_message << "\n";
+	  g.statusbar_text(n.failure_message);
+       }
+       std::vector<std::string> command_strings;
+       command_strings.push_back("set-rotation-centre");
+       command_strings.push_back(coot::util::float_to_string(g.RotationCentre_x()));
+       command_strings.push_back(coot::util::float_to_string(g.RotationCentre_y()));
+       command_strings.push_back(coot::util::float_to_string(g.RotationCentre_z()));
+       add_to_history(command_strings);
+       
+       command_strings.resize(0);
+       command_strings.push_back("place-helix-here");
+       add_to_history(command_strings);
+       graphics_draw();
+       return imol;
    } else {
       std::cout << " You need to set the map to fit against\n";
       g.statusbar_text("You need to set the map to fit against");
@@ -4364,8 +4362,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 // nice to refine the fragment here, but the interface
 	 // doesn't work that way, so put the refinement after the
 	 // molecule has been accepted.
-	 float bf = graphics_info_t::default_new_atoms_b_factor;
-	 atom_selection_container_t asc = make_asc(si.mol[0].pcmmdbmanager(bf));
+	 atom_selection_container_t asc = make_asc(si.mol[0].pcmmdbmanager());
 	 imol = g.create_molecule();
 	 graphics_info_t::molecules[imol].install_model(imol, asc, "Strand", 1);
 	 g.statusbar_text("Strand added");
@@ -4438,8 +4435,7 @@ int find_helices() {
       ssfind( graphics_info_t::molecules[imol_map].xmap_list[0], pt,
 	      0.0, 7, coot::fast_secondary_structure_search::ALPHA3 );
       if (ssfind.success) {
-	 float bf = graphics_info_t::default_new_atoms_b_factor;
-	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager(bf));
+	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager());
 	 imol = g.create_molecule();
 	 graphics_info_t::molecules[imol].install_model(imol,asc,"Helices",1);
 	 g.molecules[imol].ca_representation();
@@ -4487,8 +4483,7 @@ int find_strands() {
       ssfind( graphics_info_t::molecules[imol_map].xmap_list[0], pt,
 	      0.0, 7, coot::fast_secondary_structure_search::BETA3 );
       if (ssfind.success) {
-	 float bf = graphics_info_t::default_new_atoms_b_factor;
-	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager(bf));
+	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager());
 	 imol = g.create_molecule();
 	 graphics_info_t::molecules[imol].install_model(imol,asc,"Strands",1);
 	 g.molecules[imol].ca_representation();

@@ -75,7 +75,7 @@ coot::high_res::get_middle_pos(const coot::minimol::molecule &minimol_mol) const
    std::pair<clipper::Coord_orth, CMMDBManager *> r;
    long i_contact_group = 1;
 
-   CMMDBManager *mol = minimol_mol.pcmmdbmanager(20.0);
+   CMMDBManager *mol = minimol_mol.pcmmdbmanager();
    r.second = mol;
    PSContact pscontact = NULL;
    int n_contacts = -1;
@@ -176,7 +176,7 @@ coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol,
 // 					     one_over_n_atoms * sum_atoms.z());
 //  	    std::cout << "TARGET pos       " <<  target_pos.x() << " "
 //  		      << target_pos.y() << " " << target_pos.z() << "\n";
-	    residue.addatom(" C  ", " C", t, "");
+	    residue.addatom(" C  ", " C", t, "", 30.0);
 	 }
 	 // 	 globular_molecule[igfrag].addresidue(residue, 0);
       }
@@ -217,7 +217,7 @@ coot::high_res::fill_globular_protein_by_fragments(const coot::minimol::molecule
 void
 coot::high_res::make_trees() { 
 
-   CMMDBManager *mol = globular_molecule.pcmmdbmanager(20.0);
+   CMMDBManager *mol = globular_molecule.pcmmdbmanager();
    atom_selection_container_t asc = make_asc(mol);
 
    PSContact pscontact = NULL;
@@ -341,7 +341,7 @@ coot::high_res::buccafilter_neighbours() {
    // selection to do that.
    //
 
-   CMMDBManager *mol = globular_molecule.pcmmdbmanager(20.0);
+   CMMDBManager *mol = globular_molecule.pcmmdbmanager();
    atom_selection_container_t asc = make_asc(mol);
    
    PSContact contact = NULL;
@@ -465,7 +465,7 @@ coot::high_res::buccafilter() {
    // globular_molecule.fragments = fragments;
    // globular_molecule.write_file("fragmented.pdb"); // debug
 
-   CMMDBManager *mol = globular_molecule.pcmmdbmanager(20.0);
+   CMMDBManager *mol = globular_molecule.pcmmdbmanager();
    atom_selection_container_t asc = make_asc(mol);
    
    PSContact contact = NULL;
@@ -563,7 +563,7 @@ coot::high_res::add_os() {
 		  //  	       std::cout << "::::::::: o p returns " << p.first << " "
 		  //  			 << p.second.format() << std::endl;
 		  if (p.first) {
-		     coot::minimol::atom o(" O  ", " O", p.second, "");
+		     coot::minimol::atom o(" O  ", " O", p.second, "", 30.0);
 		     globular_molecule[ifrag][ires].addatom(o);
 		  }
 	       }
@@ -600,7 +600,7 @@ coot::high_res::add_cbetas() {
 	       std::pair<short int, clipper::Coord_orth> p =
 		  coot::cbeta_position(globular_molecule[ifrag][ires]);
 	       if (p.first == 1)
-		  globular_molecule[ifrag][ires].addatom(" CB ", " C", p.second, "");
+		  globular_molecule[ifrag][ires].addatom(" CB ", " C", p.second, "", 30.0);
 	    }
 	 }
       }
@@ -726,7 +726,7 @@ coot::high_res::filter_on_groups(const std::vector<std::vector<int> > &groups,
 	 int resno = speced_at->GetSeqNum();
 	 std::string chain_id(speced_at->GetChainID());
 	 int ifrag = m.fragment_for_chain(chain_id);
-	 coot::minimol::atom atom(atom_name, atom_element, av_pt, "");
+	 coot::minimol::atom atom(atom_name, atom_element, av_pt, "", 30.0);
 	 // std::cout << "DEBUG:: resno is " << resno << std::endl;
 	 m[ifrag][resno].name = "ALA";
 	 m[ifrag][resno].seqnum = resno;

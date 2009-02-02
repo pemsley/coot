@@ -48,10 +48,11 @@ coot::minimol::molecule::molecule(const std::vector<clipper::Coord_orth> &atom_l
       fragments[0][i+1] = coot::minimol::residue(i+1); // atoms start at 0, residues at 1.
       fragments[0][i+1].name = residue_type;  // not "WAT" says EJD - 030624
       fragments[0][i+1].addatom(atom_name,
-			      element,
-			      atom_list[i].x(),
-			      atom_list[i].y(),
-			      atom_list[i].z(), std::string(""));
+				element,
+				atom_list[i].x(),
+				atom_list[i].y(),
+				atom_list[i].z(), std::string(""),
+				30.0); // pass this? 20090201
    }
    have_cell = 0;
    have_spacegroup = 0;
@@ -124,7 +125,8 @@ coot::minimol::molecule::setup(CMMDBManager *mol) {
 						   std::string(at->element),
 						   p,
 						   std::string(at->altLoc),
-						   at->occupancy);
+						   at->occupancy,
+						   at->tempFactor);
 			   r.addatom(mat);
 			}
 			fragments[ifrag].addresidue(r, 0);
@@ -329,7 +331,7 @@ int
 coot::minimol::molecule::write_file(std::string pdb_filename, float atoms_b_factor) const {
    
    // std::cout << "\nDEBUG:: write_file " << pdb_filename << std::endl;
-   PCMMDBManager newmol = pcmmdbmanager(atoms_b_factor);
+   PCMMDBManager newmol = pcmmdbmanager();
 
    int ierr = newmol->WritePDBASCII((char *)pdb_filename.c_str());
    // std::cout << "DEBUG:: write_file " << pdb_filename << " done\n " << std::endl;
@@ -378,7 +380,8 @@ coot::minimol::residue::residue(const CResidue* residue_p) {
 	      residue_atoms[i]->x,
 	      residue_atoms[i]->y,
 	      residue_atoms[i]->z,
-	      std::string(residue_atoms[i]->altLoc));
+	      std::string(residue_atoms[i]->altLoc),
+	      residue_atoms[i]->tempFactor);
    }
 }
 
@@ -523,15 +526,16 @@ coot::minimol::fragment::midpoint() const {
 void
 coot::minimol::residue::addatom(std::string atom_name,
 				std::string element,
-				float x, float y, float z, const std::string &altloc) {
-   atoms.push_back(atom(atom_name, element, x, y, z, altloc));
+				float x, float y, float z, const std::string &altloc,
+				float bf) {
+   atoms.push_back(atom(atom_name, element, x, y, z, altloc, bf));
 }
 
 
 void 
 coot::minimol::residue::addatom(std::string atom_name, std::string element,
-				const clipper::Coord_orth &pos, const std::string &altloc) { 
-   atoms.push_back(atom(atom_name, element, pos.x(), pos.y(), pos.z(), altloc));
+				const clipper::Coord_orth &pos, const std::string &altloc, float bf) { 
+   atoms.push_back(atom(atom_name, element, pos.x(), pos.y(), pos.z(), altloc, bf));
 }
 
 
@@ -551,39 +555,43 @@ coot::minimol::residue::addatom(const atom &at) {
 } 
 
 coot::minimol::atom::atom(std::string atom_name,
-			  std::string ele, float x, float y, float z, const std::string &altloc) {
+			  std::string ele, float x, float y, float z, const std::string &altloc, float dbf) {
    name = atom_name;
    element = ele;
    altLoc = altloc;
    pos = clipper::Coord_orth(x,y,z);
    occupancy = 1.0;
+   temperature_factor = dbf;
 } 
 
 coot::minimol::atom::atom(std::string atom_name,
 			  std::string ele, 
-			  const clipper::Coord_orth &pos_in, const std::string &altloc) {
+			  const clipper::Coord_orth &pos_in, const std::string &altloc,  float dbf) {
    name = atom_name;
    element = ele;
    pos = pos_in;
    altLoc = altloc;
    occupancy = 1.0;
+   temperature_factor = dbf;
 } 
 
 coot::minimol::atom::atom(std::string atom_name,
 			  std::string ele, 
 			  const clipper::Coord_orth &pos_in, const std::string &altloc,
-			  float occupancy_in) {
+			  float occupancy_in,
+			  float dbf) {
    name = atom_name;
    element = ele;
    pos = pos_in;
    altLoc = altloc;
    occupancy = occupancy_in;
+   temperature_factor = dbf;
 } 
 
 void
 coot::minimol::molecule::delete_molecule() {
 
-   fragments.resize(0); 
+   fragments.clear();
 
 }
 
@@ -606,7 +614,7 @@ coot::minimol::molecule::zone_info() const {
 // pointer to it.  You are responsible for deleting it.
 //
 PCMMDBManager 
-coot::minimol::molecule::pcmmdbmanager(float b_factor_new_atoms) const {
+coot::minimol::molecule::pcmmdbmanager() const {
 
    PCMMDBManager mol = new CMMDBManager;
    InitMatType();
@@ -649,7 +657,8 @@ coot::minimol::molecule::pcmmdbmanager(float b_factor_new_atoms) const {
 		  atom_p->SetCoordinates((*this)[ifrag][ires][iatom].pos.x(),
 					 (*this)[ifrag][ires][iatom].pos.y(),
 					 (*this)[ifrag][ires][iatom].pos.z(),
-					 (*this)[ifrag][ires][iatom].occupancy, b_factor_new_atoms);
+					 (*this)[ifrag][ires][iatom].occupancy,
+					 (*this)[ifrag][ires][iatom].temperature_factor);
 		  atom_p->SetAtomName((*this)[ifrag][ires][iatom].name.c_str());
 		  strncpy(atom_p->element,(*this)[ifrag][ires][iatom].element.c_str(),3);
 		  strncpy(atom_p->altLoc, (*this)[ifrag][ires][iatom].altLoc.c_str(), 2);
@@ -1022,3 +1031,10 @@ coot::minimol::molecule::set_atom_occ(const std::string &atom_name, float occ) {
    return natoms;
 }
 	 
+
+// sorting chains lexographically.
+void coot::minimol::molecule::sort_chains() {
+
+   std::sort(fragments.begin(), fragments.end());
+
+} 

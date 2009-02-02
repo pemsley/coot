@@ -62,7 +62,7 @@ main(int argc, char **argv) {
    coot::minimol::molecule a;
    int ifrag = a.fragment_for_chain("A");
    coot::minimol::residue res(1,"ALA");
-   res.addatom(" CA ", " C", clipper::Coord_orth(0,0,0), "");
+   res.addatom(" CA ", " C", clipper::Coord_orth(0,0,0), "", 10.0);
    a[ifrag].addresidue(res, 0);
 
    a.write_file("atest.pdb", 20.0);

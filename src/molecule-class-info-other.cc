@@ -1434,8 +1434,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	    // replace_coords method:
 	    //
 	    float bf = graphics_info_t::default_new_atoms_b_factor;
-	    PCMMDBManager mol = best_rotamer_mol.pcmmdbmanager(bf);
-	    mol->WritePDBASCII("moving-atoms.pdb");
+	    PCMMDBManager mol = best_rotamer_mol.pcmmdbmanager();
+	    // mol->WritePDBASCII("moving-atoms.pdb");
 	    atom_selection_container_t asc = make_asc(mol);
 	    bool move_zero_occ = 1;
 	    replace_coords(asc, 1, move_zero_occ); // fix other alt conf occ
@@ -6060,7 +6060,7 @@ molecule_class_info_t::reverse_direction_of_fragment(const std::string &chain_id
       if (found_fragment_flag) {
 
 	 float bf = graphics_info_t::default_new_atoms_b_factor;
-	 CMMDBManager *mol = fragmented_mol.pcmmdbmanager(bf);
+	 CMMDBManager *mol = fragmented_mol.pcmmdbmanager();
 	 // before we get rid of the old atom_sel lets save the cell, symm.
 	 realtype a[6];
 	 realtype vol;
@@ -6764,7 +6764,10 @@ molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
 void
 molecule_class_info_t::sort_chains() {
 
-   coot::sort_chains(atom_sel.mol);
+   coot::minimol::molecule mol(atom_sel.mol);
+   mol.sort_chains();
+   atom_sel = make_asc(mol.pcmmdbmanager());
+   update_molecule_after_additions();
 
 }
 

@@ -942,7 +942,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 			at_info = scm_list_3(compound_name, compound_attrib, at_pos);
 			all_atoms = scm_cons(at_info, all_atoms);
 		     }
-		     r = all_atoms;
+		     r = scm_reverse(all_atoms);
 		  }
 	       }
 	    }

@@ -1541,7 +1541,7 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
       // 					 rigid_body_asc.atom_selection,
       // 					 rigid_body_asc.n_selected_atoms);
 	 
-      rigid_body_asc = make_asc(moved_mol.pcmmdbmanager(default_new_atoms_b_factor));
+      rigid_body_asc = make_asc(moved_mol.pcmmdbmanager());
 
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
       imol_moving_atoms = imol_rigid_body_refine;
@@ -1822,7 +1822,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 	       atom_selection_container_t terminal_res_asc;
 	       float bf = default_new_atoms_b_factor;
-	       terminal_res_asc.mol = (MyCMMDBManager *) mmol.pcmmdbmanager(bf);
+	       terminal_res_asc.mol = (MyCMMDBManager *) mmol.pcmmdbmanager();
 
 	       int SelHnd = terminal_res_asc.mol->NewSelection();
 	       terminal_res_asc.mol->SelectAtoms(SelHnd, 0, "*",
@@ -2529,7 +2529,7 @@ graphics_info_t::execute_db_main(int imol,
 	 std::pair<std::vector<float>, std::string> cell_spgr = 
 	    molecules[imol].get_cell_and_symm();
 	 float bf = default_new_atoms_b_factor;
-	 atom_selection_container_t asc = make_asc(mol.pcmmdbmanager(bf));
+	 atom_selection_container_t asc = make_asc(mol.pcmmdbmanager());
 	 set_mmdb_cell_and_symm(asc, cell_spgr); // tinker with asc. 
 	                                         // Consider asc as an object.
 	 int imol_new = create_molecule();

@@ -524,7 +524,7 @@ void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xm
     minimol::fragment mf( cname );
     for ( int r = 0; r < sscoord[c].size(); r++ ) {
       minimol::residue mr( r+1, "UNK" );
-      minimol::atom ma( " CA ", "C", sscoord[c][r], "" );
+      minimol::atom ma( " CA ", "C", sscoord[c][r], "", 30.0);
       mr.atoms.push_back( ma );
       mf.residues.push_back( mr );
     }
