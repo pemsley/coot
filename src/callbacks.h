@@ -3664,6 +3664,15 @@ on_model_toolbar_rigid_body_fit_togglebutton_toggled
                                         gpointer         user_data);
 
 void
+on_model_toolbar_rot_trans_toolbutton_show_menu
+                                        (GtkMenuToolButton *menutoolbutton,
+                                        gpointer         user_data);
+void
+on_model_toolbar_rot_trans_toolbutton_clicked
+                                        (GtkMenuToolButton *menutoolbutton,
+                                        gpointer         user_data);
+
+void
 on_model_toolbar_rot_trans_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);

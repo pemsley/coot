@@ -2850,21 +2850,20 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkToggleToolButton" id="model_toolbar_rot_trans_togglebutton">
+		    <widget class="GtkMenuToolButton" id="model_toolbar_rot_trans_toolbutton">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Rotate/Translate Zone...</property>
-		      <property name="label" translatable="yes">Rotate/Translate Zone</property>
+		      <property name="label" translatable="yes"></property>
 		      <property name="use_underline">True</property>
 		      <property name="icon">rtz.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
-		      <property name="active">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_rot_trans_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:10:48 GMT"/>
+		      <signal name="show_menu" handler="on_model_toolbar_rot_trans_toolbutton_show_menu" last_modification_time="Mon, 02 Feb 2009 16:19:05 GMT"/>
+		      <signal name="clicked" handler="on_model_toolbar_rot_trans_toolbutton_clicked" last_modification_time="Mon, 02 Feb 2009 16:19:13 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">True</property>
+		      <property name="homogeneous">False</property>
 		    </packing>
 		  </child>
 

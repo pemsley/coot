@@ -1,12 +1,5 @@
    o Add terminal residue has disconnected atoms.  Why? ::: 1
 
-   o Rotate Translate: Add an additional GUI (possibly in the toolbar)
-     to specify the type of R/T entity, a zone (default) a chain, a
-     whole molecule. ::: 5
-
-* Almost Done. Exception of adding to the GUI the ability to swap
-  rot_trans_object_type modes.
-
    o multiple residue ranges, glycosylation, covalent bond entities ::: 10
 
 * What else is there to do here?  Write a test.
@@ -170,6 +163,12 @@
    o CA+Ligands has gone into CA by B-factor mode.  Don't like - it 
      should be just the same as CA mode. There is a mix up over what
      bond_colour_type means. ::: 1
+
+
+   o What about if there are python and scheme bindings to a
+   particular key?  graphics-general-key-press-hook should return the
+   status of the key being found and the binding function used.  Then
+   if not, we can run the python function [JED]. ::: 1
 
 
    o crash: coot-download a structure 1ucs.  create a map from mtz,
@@ -475,4 +474,13 @@ button, but I did use the Close molecule button!  Hmm!
    o is -oldpdb in the input to reduce?
 
 * It is now.
+
+   o Rotate Translate: Add an additional GUI (possibly in the toolbar)
+     to specify the type of R/T entity, a zone (default) a chain, a
+     whole molecule. Include adding to the GUI the ability to swap
+     rot_trans_object_type modes.  ::: 5
+
+* Done.
+
+
 

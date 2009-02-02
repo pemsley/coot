@@ -145,6 +145,8 @@ SWIGEXPORT(void) SWIG_init(void);
 #include "c-inner-main.h"
 #include "coot-glue.hh"
 
+#include "rotate-translate-modes.hh"
+
 void show_citation_request();
 void load_gtk_resources();
 void setup_splash_screen();
@@ -153,6 +155,7 @@ void setup_application_icon(GtkWindow *window);
 void setup_symm_lib();
 void setup_rgb_reps();
 void check_reference_structures_dir();
+void create_rot_trans_menutoolbutton_menu(GtkWidget *window1);
 #ifdef USE_MYSQL_DATABASE
 #include "mysql/mysql.h"
 int setup_database();
@@ -298,6 +301,7 @@ main (int argc, char *argv[]) {
 	   gtk_statusbar_get_context_id(GTK_STATUSBAR(sb), "picked atom info");
 	
 	gtk_widget_show (window1);
+	create_rot_trans_menutoolbutton_menu(window1);
 	
 	// We need to somehow connect the submenu to the menu's (which are
 	// accessible via window1)
@@ -964,3 +968,44 @@ void check_reference_structures_dir() {
    }
 
 }
+
+void
+menutoolbutton_rot_trans_activated(GtkWidget *item, GtkPositionType pos) {
+
+   std::cout << "changing to zone type" << pos << std::endl;
+   set_rot_trans_object_type(pos);
+   do_rot_trans_setup(1);
+}
+
+void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
+
+   GtkWidget *menu_tool_button = lookup_widget(window1, "model_toolbar_rot_trans_toolbutton");
+
+   if (menu_tool_button) { 
+      GtkWidget *menu = gtk_menu_new();
+      GtkWidget *menu_item; 
+
+      menu_item = gtk_menu_item_new_with_label("By Residue Range...");
+      gtk_menu_append(GTK_MENU(menu), menu_item);
+      gtk_widget_show(menu_item);
+      gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
+			 GTK_SIGNAL_FUNC(menutoolbutton_rot_trans_activated),
+			 GINT_TO_POINTER(ROT_TRANS_TYPE_ZONE));
+      menu_item = gtk_menu_item_new_with_label("By Chain...");
+      gtk_menu_append(GTK_MENU(menu), menu_item);
+      gtk_widget_show(menu_item);
+      gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
+			 GTK_SIGNAL_FUNC(menutoolbutton_rot_trans_activated),
+			 GINT_TO_POINTER(ROT_TRANS_TYPE_CHAIN));
+      menu_item = gtk_menu_item_new_with_label("By Molecule...");
+      gtk_menu_append(GTK_MENU(menu), menu_item);
+      gtk_widget_show(menu_item);
+      gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
+			 GTK_SIGNAL_FUNC(menutoolbutton_rot_trans_activated),
+			 GINT_TO_POINTER(ROT_TRANS_TYPE_MOLECULE));
+      
+      gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(menu_tool_button), menu);
+   }
+
+} 
+
