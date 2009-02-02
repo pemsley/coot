@@ -972,13 +972,14 @@ void check_reference_structures_dir() {
 void
 menutoolbutton_rot_trans_activated(GtkWidget *item, GtkPositionType pos) {
 
-   std::cout << "changing to zone type" << pos << std::endl;
+   // std::cout << "changing to zone type" << pos << std::endl;
    set_rot_trans_object_type(pos);
    do_rot_trans_setup(1);
 }
 
 void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
 
+#if (GTK_MAJOR_VERSION > 1) 
    GtkWidget *menu_tool_button = lookup_widget(window1, "model_toolbar_rot_trans_toolbutton");
 
    if (menu_tool_button) { 
@@ -1006,6 +1007,6 @@ void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
       
       gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(menu_tool_button), menu);
    }
-
+#endif 
 } 
 

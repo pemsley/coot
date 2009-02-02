@@ -898,7 +898,8 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
 					  is_diff_map_flag,
 					  swap_difference_map_colours_flag);
    xmap_is_filled[0] = 1; // must come after init.. - urgh.
-
+   update_map_in_display_control_widget();
+   
    map_ghost_info = ghost_info;
    
    // fill class variables

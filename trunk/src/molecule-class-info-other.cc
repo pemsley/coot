@@ -6666,7 +6666,8 @@ molecule_class_info_t::make_map_from_cns_data(const clipper::Spacegroup &sg,
    cout << "doing fft..." ; 
    xmap_list[0].fft_from( fphidata );                  // generate map
    cout << "done." << endl;
-
+   update_map_in_display_control_widget();
+   
    mean_and_variance<float> mv = map_density_distribution(xmap_list[0],0);
 
    cout << "Mean and sigma of map from CNS file: " << mv.mean 
