@@ -779,21 +779,24 @@ void
 graphics_info_t::show_hide_model_toolbar_icon_pos(int pos, int show_hide_flag) {
 
    if (use_graphics_interface_flag) {
-      GtkWidget *icon_button;
+      GtkWidget *icon_button = NULL;
 
       std::vector<coot::preferences_icon_info_t> all_items =*model_toolbar_icons;
       coot::preferences_icon_info_t item = all_items[pos];
       std::string widget_name = item.icon_widget;
       icon_button = lookup_widget(graphics_info_t::glarea, widget_name.c_str());
 
-      if (show_hide_flag == 1) {
-	 preferences_internal_change_value_int2(PREFERENCES_MODEL_TOOLBAR_ICONS, pos, 1);
-	 (*model_toolbar_icons)[pos].show();
-	 gtk_widget_show(icon_button);
-      } else {
-	 preferences_internal_change_value_int2(PREFERENCES_MODEL_TOOLBAR_ICONS, pos, 0);
-	 (*model_toolbar_icons)[pos].hide();
-	 gtk_widget_hide(icon_button);
+      if (icon_button) { 
+
+	 if (show_hide_flag == 1) {
+	    preferences_internal_change_value_int2(PREFERENCES_MODEL_TOOLBAR_ICONS, pos, 1);
+	    (*model_toolbar_icons)[pos].show();
+	    gtk_widget_show(icon_button);
+	 } else {
+	    preferences_internal_change_value_int2(PREFERENCES_MODEL_TOOLBAR_ICONS, pos, 0);
+	    (*model_toolbar_icons)[pos].hide();
+	    gtk_widget_hide(icon_button);
+	 }
       }
    }
 }

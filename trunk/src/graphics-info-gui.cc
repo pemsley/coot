@@ -1629,7 +1629,7 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
 	  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(toggle_button), FALSE);
       }
    }
-#endif    
+#endif    // GTK version
    
 } 
 

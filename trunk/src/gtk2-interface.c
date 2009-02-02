@@ -297,7 +297,7 @@ create_window1 (void)
   GtkWidget *model_toolbar_regularize_togglebutton;
   GtkWidget *model_toolbar_fixed_atoms_button;
   GtkWidget *model_toolbar_rigid_body_fit_togglebutton;
-  GtkWidget *model_toolbar_rot_trans_togglebutton;
+  GtkWidget *model_toolbar_rot_trans_toolbutton;
   GtkWidget *model_toolbar_auto_fit_rotamer_togglebutton;
   GtkWidget *model_toolbar_rotamers_togglebutton;
   GtkWidget *model_toolbar_edit_chi_angles_togglebutton;
@@ -1479,14 +1479,12 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rigid_body_fit_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), tooltips, _("Rigid Body Fit Zone (click on 2 atoms)"), NULL);
 
-  model_toolbar_rot_trans_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
-  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rot_trans_togglebutton), _("Rotate/Translate Zone"));
   tmp_image = gtk_image_new_from_stock ("rtz.svg", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
-  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rot_trans_togglebutton), tmp_image);
-  gtk_widget_show (model_toolbar_rot_trans_togglebutton);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rot_trans_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rot_trans_togglebutton), tooltips, _("Rotate/Translate Zone..."), NULL);
+  model_toolbar_rot_trans_toolbutton = (GtkWidget*) gtk_menu_tool_button_new (tmp_image, "");
+  gtk_widget_show (model_toolbar_rot_trans_toolbutton);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rot_trans_toolbutton);
 
   model_toolbar_auto_fit_rotamer_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), _("Auto Fit Rotamer"));
@@ -2100,8 +2098,11 @@ create_window1 (void)
   g_signal_connect ((gpointer) model_toolbar_rigid_body_fit_togglebutton, "toggled",
                     G_CALLBACK (on_model_toolbar_rigid_body_fit_togglebutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) model_toolbar_rot_trans_togglebutton, "toggled",
-                    G_CALLBACK (on_model_toolbar_rot_trans_togglebutton_toggled),
+  g_signal_connect ((gpointer) model_toolbar_rot_trans_toolbutton, "show_menu",
+                    G_CALLBACK (on_model_toolbar_rot_trans_toolbutton_show_menu),
+                    NULL);
+  g_signal_connect ((gpointer) model_toolbar_rot_trans_toolbutton, "clicked",
+                    G_CALLBACK (on_model_toolbar_rot_trans_toolbutton_clicked),
                     NULL);
   g_signal_connect ((gpointer) model_toolbar_auto_fit_rotamer_togglebutton, "toggled",
                     G_CALLBACK (on_model_toolbar_auto_fit_rotamer_togglebutton_toggled),
@@ -2440,7 +2441,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_regularize_togglebutton, "model_toolbar_regularize_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_fixed_atoms_button, "model_toolbar_fixed_atoms_button");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rigid_body_fit_togglebutton, "model_toolbar_rigid_body_fit_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_togglebutton, "model_toolbar_rot_trans_togglebutton");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_toolbutton, "model_toolbar_rot_trans_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_auto_fit_rotamer_togglebutton, "model_toolbar_auto_fit_rotamer_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rotamers_togglebutton, "model_toolbar_rotamers_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_edit_chi_angles_togglebutton, "model_toolbar_edit_chi_angles_togglebutton");
