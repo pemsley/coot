@@ -11197,12 +11197,15 @@ on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled
    fill_chi_angles_vbox(vbox);
 }
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_rot_trans_toolbutton_show_menu
                                         (GtkMenuToolButton *toolbutton,
 					 gpointer         user_data) { 
 }
+#endif	/* GTK_MAJOR_VERSION */
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_rot_trans_toolbutton_clicked
                                         (GtkMenuToolButton *toolbutton,
@@ -11211,3 +11214,4 @@ on_model_toolbar_rot_trans_toolbutton_clicked
   printf("clicked!\n");
   do_rot_trans_setup(1);
 } 
+#endif	/* GTK_MAJOR_VERSION */
