@@ -867,7 +867,18 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test27_0(self):
 	    """Change Chain IDs and Chain Sorting"""
 
-	    imol = copy_molecule(imol_rnase)
+	    def chains_in_order_qm(chain_list):
+		    ref_chain = ""
+		    for chain in chain_list:
+			    if (chain < ref_chain):
+				    print "ERROR:: %s was less than %s in %s" %(chain, ref_chain, chain_list)
+				    return False
+			    else:
+				    ref_chain = chain
+		    return True
+			    
+	    imol = unittest_pdb("tutorial-modern.pdb")
+
 	    change_chain_id(imol, "A", "D", 0,  0,  0)
 	    change_chain_id(imol, "B", "E", 1, 80, 90)
 	    change_chain_id(imol, "B", "F", 1, 70, 80)
@@ -876,6 +887,10 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    change_chain_id(imol, "B", "L", 1, 40, 49)
 	    change_chain_id(imol, "B", "N", 1, 30, 38)
 	    change_chain_id(imol, "B", "Z", 1, 20, 28)
+
+	    c = chain_ids(imol)
+	    print "BL DEBUG:: chains_in_order_qm", chains_in_order_qm(c)
+	    #self.failUnless(chains_in_order_qm(c))
 
 
     def test28_0(self):

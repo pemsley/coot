@@ -195,4 +195,33 @@ class LigandTestFunctions(unittest.TestCase):
         self.failUnless(d2 < 0.001, "fail to move atom back to start d2")
 
 
+    def test06_0(self):
+        """Test dipole"""
+
+        imol = unittest_pdb("dipole-residues.pdb")
+
+        self.failUnless(valid_model_molecule_qm(imol), "dipole-residues.pdb not found")
+
+        residue_specs = [["A", 1, ""],
+                         ["A", 2, ""],
+                         ["A", 3, ""]]
+        dipole = add_dipole_for_residues(imol, residue_specs)
+
+        self.failIf(not dipole, "bad dipole %s" %dipole)
+
+        d = dipole[0]
+        dip = dipole[1]
+
+        dip_x = dip[0]
+        dip_y = dip[1]
+        dip_z = dip[2]
+        
+        print "info:: dipole components", dip
+
+        self.failUnlessAlmostEqual(dip_y, 0.0, 2, "bad dipole y component %s" %dip_y) 
+        self.failUnlessAlmostEqual(dip_z, 0.0, 2, "bad dipole z component %s" %dip_z)
+
+        self.failUnless(dip_x < 0 and dip_x < 20)  # doesnt make sense ... if < 0 then < 20!? 
+
+        
             
