@@ -227,7 +227,7 @@
 			 
 			 ;; dipole points in the negative x direction
                          (if (and (< dip-x 0) 
-                                  (< dip-x 20))
+                                  (> dip-x -20))
 
                              #t
                              #f))))))))))
