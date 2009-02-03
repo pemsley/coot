@@ -7,6 +7,8 @@ tests   rev 1750
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+   o fix pass-build/pass-test (with guile build )
+
    o fix returned lists in coot_gui.py combobox fillers
 
    o WinCoot:
