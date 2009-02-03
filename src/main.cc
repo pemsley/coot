@@ -984,21 +984,29 @@ void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
 
    if (menu_tool_button) { 
       GtkWidget *menu = gtk_menu_new();
-      GtkWidget *menu_item; 
+      GtkWidget *menu_item;
+      GSList *group = NULL;
 
-      menu_item = gtk_menu_item_new_with_label("By Residue Range...");
+      menu_item = gtk_radio_menu_item_new_with_label(group, "By Residue Range...");
+      group = gtk_radio_menu_item_group(GTK_RADIO_MENU_ITEM(menu_item));
       gtk_menu_append(GTK_MENU(menu), menu_item);
       gtk_widget_show(menu_item);
       gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
 			 GTK_SIGNAL_FUNC(menutoolbutton_rot_trans_activated),
 			 GINT_TO_POINTER(ROT_TRANS_TYPE_ZONE));
-      menu_item = gtk_menu_item_new_with_label("By Chain...");
+      /* activate the first item */
+      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
+
+      menu_item = gtk_radio_menu_item_new_with_label(group, "By Chain...");
+      group = gtk_radio_menu_item_group(GTK_RADIO_MENU_ITEM(menu_item));
       gtk_menu_append(GTK_MENU(menu), menu_item);
       gtk_widget_show(menu_item);
       gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
 			 GTK_SIGNAL_FUNC(menutoolbutton_rot_trans_activated),
 			 GINT_TO_POINTER(ROT_TRANS_TYPE_CHAIN));
-      menu_item = gtk_menu_item_new_with_label("By Molecule...");
+
+      menu_item = gtk_radio_menu_item_new_with_label(group, "By Molecule...");
+      group = gtk_radio_menu_item_group(GTK_RADIO_MENU_ITEM(menu_item));
       gtk_menu_append(GTK_MENU(menu), menu_item);
       gtk_widget_show(menu_item);
       gtk_signal_connect(GTK_OBJECT(menu_item), "activate",

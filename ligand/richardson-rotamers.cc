@@ -154,9 +154,9 @@ coot::chi_angles::add_richardson_rotamers() {
        add_richardson_rotamer("PHE", "t80", 522, 33, 57, 18, 29, 177, -177, 80, 80, 0, 0, 0, 0);
        add_richardson_rotamer("PHE", "m-85", 697, 44, 29, 51, 47, -64, -65, -83, -85, 0, 0, 0, 0);
        add_richardson_rotamer("PHE", "m -30 ", 149, 9, 12, 5, 11, -64, -65, -19, -30, 0, 0, 0, 0);
-       add_richardson_rotamer("PRO", "Cg endo",    379, 44, 23, 54, 43,  30,  30, 0, 0, 0, 0, 0, 0);
-       add_richardson_rotamer("PRO", "Cg exo",     372, 43, 68, 28, 44, -29, -30, 0, 0, 0, 0, 0, 0);
-       add_richardson_rotamer("PRO", "cis Cg endo", 56,  6,  0,  1,  7,  31,  30, 0, 0, 0, 0, 0, 0);
+       add_richardson_rotamer("PRO", "Cg endo",    379, 44, 23, 54, 43,  30,  30, -37.5, -37.5, 0, 0, 0, 0);
+       add_richardson_rotamer("PRO", "Cg exo",     372, 43, 68, 28, 44, -29, -30, 37.5, 37.5, 0, 0, 0, 0);
+       add_richardson_rotamer("PRO", "cis Cg endo", 56,  6,  0,  1,  7,  31,  30, -37.5, -37.5, 0, 0, 0, 0);
        add_richardson_rotamer("THR", "p", 1200, 49, 25, 31, 65, 59, 62, 0, 0, 0, 0, 0, 0);
        add_richardson_rotamer("THR", "t", 169, 7, 0, 13, 6, -171, -175, 0, 0, 0, 0, 0, 0);
        add_richardson_rotamer("THR", "m", 1062, 43, 74, 55, 29, -61, -65, 0, 0, 0, 0, 0, 0);
