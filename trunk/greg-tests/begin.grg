@@ -4,7 +4,8 @@
 (format #t "==================== Testing ==================================~%")
 (format #t "===============================================================~%")
 
-(turn-on-debugging)
+;; makes tests fail.
+;; (turn-on-debugging)
 
 ; (define greg-data-dir "greg-data")
 
