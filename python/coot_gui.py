@@ -949,20 +949,20 @@ def interesting_things_with_fix_maybe(title, baddie_list):
 #
 def fill_option_menu_with_mol_options(menu, filter_function):
 
-    mols = 0
+    mol_ls = []
     n_molecules = graphics_n_molecules()
    
-    for mol_no_ls in molecule_number_list():
-        if filter_function(mol_no_ls):
-           label_str = molecule_name(mol_no_ls)
+    for mol_no in molecule_number_list():
+        if filter_function(mol_no):
+           label_str = molecule_name(mol_no)
            if (isinstance(label_str,types.StringTypes)):
-              mlabel_str = str(mol_no_ls) + " " + label_str
+              mlabel_str = str(mol_no) + " " + label_str
               menu.append_text(mlabel_str)
               menu.set_active(0)
-              mols += 1
+              mol_ls.append(mol_no)
            else:
               print "OOps molecule name for molecule %s is %s" %(mol_no_ls,label_str)
-    return mols
+    return mol_ls
 
 # Fill an option menu with maps and return the list of maps
 #
@@ -982,14 +982,14 @@ def fill_option_menu_with_coordinates_mol_options(menu):
 
 #
 def fill_option_menu_with_number_options(menu, number_list, default_option_value):
-    count = 0
-    while count < len(number_list):
-       mlabel_str = str(number_list[count])
+
+    for number in number_list:
+       mlabel_str = str(number)
        menu.append_text(mlabel_str)
-       if (default_option_value == number_list[count]):
+       if (default_option_value == number):
+          count = number_list.index(number)
           menu.set_active(count)
           print "setting menu active ", default_option_value, count
-       count +=1
 
 # Helper function for molecule chooser.  Not really for users.
 # 
@@ -1003,11 +1003,9 @@ def get_option_menu_active_molecule(option_menu, model_mol_list):
     model = option_menu.get_model()
     active_item = option_menu.get_active()
     # combobox has no children as such, so we just count the rows
-    children = 0
-    for i in model:
-        children += 1
+    children = len(model)
 
-    if (children == model_mol_list or children == len(model_mol_list)):
+    if (children == len(model_mol_list)):
        try:
           all_model = model[active_item][0]
           imol_model, junk = all_model.split(' ', 1)
