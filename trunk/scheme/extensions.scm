@@ -304,7 +304,7 @@
 				       imol-base imol-fragment atom-selection-str)))))))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-models "Replace residue..."
+	 submenu-models "Replace Residue..."
 	 (lambda ()
 	   (generic-single-entry "Replace this residue with residue of type:" "ALA" "Mutate" 
 				 (lambda (text) 

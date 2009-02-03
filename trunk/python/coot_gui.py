@@ -344,10 +344,10 @@ def handle_smiles_go(tlc_entry,smiles_entry):
        smiles_input.write(smiles_text)
        smiles_input.close()
        #now let's run libcheck (based on libcheck.py)
-       libcheck_exe = find_exe("libcheck", "CCP4_BIN", "PATH")
+       libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
 
-       if (libcheck_exe):
-          status = popen_command(libcheck_exe, [], libcheck_data_lines, log_file_name, True)
+       if (libcheck_exe_file):
+          status = popen_command(libcheck_exe_file, [], libcheck_data_lines, log_file_name, True)
           if (status == 0):
              if (os.path.isfile("libcheck.lib")):
                 if (os.path.isfile(cif_file_name)):
@@ -380,46 +380,54 @@ def handle_smiles_go(tlc_entry,smiles_entry):
 # smiles GUI
 def smiles_gui():
 
-    def delete_event(*args):
-        smiles_window.destroy()
-        return False
+   def smiles_gui_internal():
+      def delete_event(*args):
+         smiles_window.destroy()
+         return False
    
-    def go_button_pressed(widget, tlc_entry, smiles_entry,smiles_window):
-        handle_smiles_go(tlc_entry,smiles_entry)
-        smiles_window.destroy()
-        delete_event()
+      def go_button_pressed(widget, tlc_entry, smiles_entry,smiles_window):
+         handle_smiles_go(tlc_entry,smiles_entry)
+         smiles_window.destroy()
+         delete_event()
 
-    def smiles_connect(widget, event, tlc_entry, smiles_entry, smiles_window):
-        if (event.keyval == 65293):
-           handle_smiles_go(tlc_entry,smiles_entry)
-           smiles_window.destroy()
+      def smiles_connect(widget, event, tlc_entry, smiles_entry, smiles_window):
+         if (event.keyval == 65293):
+            handle_smiles_go(tlc_entry,smiles_entry)
+            smiles_window.destroy()
 
-    smiles_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    smiles_window.set_title("SMILES GUI")
-    vbox = gtk.VBox(False, 0)
-    hbox1 = gtk.HBox(False, 0)
-    hbox2 = gtk.HBox(False, 0)
-    tlc_label = gtk.Label("  3-letter code ")
-    tlc_entry = gtk.Entry(max=3)
-    tlc_entry.set_text("")
-    smiles_label = gtk.Label("SMILES string ")
-    smiles_entry = gtk.Entry()
-    go_button = gtk.Button("  Go  ")
-    vbox.pack_start(hbox1, False, False, 0)
-    vbox.pack_start(hbox2, False, False, 0)
-    vbox.pack_start(go_button, False, False, 6)
-    hbox1.pack_start(tlc_label, False, False, 0)
-    hbox1.pack_start(tlc_entry, False, False, 0)
-    hbox2.pack_start(smiles_label, False, False, 0)
-    hbox2.pack_start(smiles_entry, True, True, 0)
-    smiles_window.add(vbox)
-    vbox.set_border_width(6)
-    
-    smiles_entry.connect("key-press-event", smiles_connect, tlc_entry, smiles_entry, smiles_window)
-    go_button.connect("clicked", go_button_pressed,tlc_entry,smiles_entry,smiles_window)
-    smiles_window.connect("delete_event",delete_event)
-    
-    smiles_window.show_all()
+      smiles_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+      smiles_window.set_title("SMILES GUI")
+      vbox = gtk.VBox(False, 0)
+      hbox1 = gtk.HBox(False, 0)
+      hbox2 = gtk.HBox(False, 0)
+      tlc_label = gtk.Label("  3-letter code ")
+      tlc_entry = gtk.Entry(max=3)
+      tlc_entry.set_text("")
+      smiles_label = gtk.Label("SMILES string ")
+      smiles_entry = gtk.Entry()
+      go_button = gtk.Button("  Go  ")
+      vbox.pack_start(hbox1, False, False, 0)
+      vbox.pack_start(hbox2, False, False, 0)
+      vbox.pack_start(go_button, False, False, 6)
+      hbox1.pack_start(tlc_label, False, False, 0)
+      hbox1.pack_start(tlc_entry, False, False, 0)
+      hbox2.pack_start(smiles_label, False, False, 0)
+      hbox2.pack_start(smiles_entry, True, True, 0)
+      smiles_window.add(vbox)
+      vbox.set_border_width(6)
+
+      smiles_entry.connect("key-press-event", smiles_connect, tlc_entry, smiles_entry, smiles_window)
+      go_button.connect("clicked", go_button_pressed,tlc_entry,smiles_entry,smiles_window)
+      smiles_window.connect("delete_event",delete_event)
+
+      smiles_window.show_all()
+   # first check that libcheck is available... if not put up and info
+   # dialog.
+   if (find_exe(libcheck_exe)):
+      smiles_gui_internal()
+   else:
+      info_dialog("You need to setup CCP4 (specifically LIBCHECK) first.")
+      
 
 # Generic single entry widget
 # 
