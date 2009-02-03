@@ -322,7 +322,14 @@ if (have_coot_python):
 				replace_fragment(imol_base, imol_fragment, atom_selection_str))))
 
 
-     ### add replace residue gui here.  Tricky? scm version uses using-active-atom...
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Replace Residue...",
+       lambda func: generic_single_entry("Replace this residue with residue of type:",
+                                         "ALA", "Mutate",
+                                         lambda text: using_active_atom([[mutate_by_overlap,
+                                                                          ["aa_imol", "aa_chain_id", "aa_res_no"],
+                                                                          [text]]])))
 
      add_simple_coot_menu_menuitem(
        submenu_models,

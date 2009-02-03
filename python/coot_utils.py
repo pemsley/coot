@@ -67,22 +67,35 @@ def with_auto_accept(*funcs):
 
 
 # 'Macro' to run funcs on an active atom
-# only works if the functions in funcs take 6 args, specified by active atom
+# funcs is a list of functions, active_atom specifiers and extra args
+# [[func1, ["aa_imol", "aa_chain_id",...], [extra_arg1, extra arg2, ..]], [func2,...]]
 #
-def using_active_atom(*funcs):
+def using_active_atom(funcs):
 
     active_atom = active_residue()
     if (not active_residue):
         add_status_bar_text("No residue found")
     else:
-        aa_imol      = active_atom[0]
-        aa_chain_id  = active_atom[1]
-        aa_res_no    = active_atom[2]
-        aa_ins_code  = active_atom[3]
-        aa_atom_name = active_atom[4]
-        aa_alt_conf  = active_atom[5]
-        for f in funcs:
-            f(aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf)
+        aa_dict = {"aa_imol":      active_atom[0],
+                   "aa_chain_id":  active_atom[1],
+                   "aa_res_no":    active_atom[2],
+                   "aa_ins_code":  active_atom[3],
+                   "aa_atom_name": active_atom[4],
+                   "aa_alt_conf":  active_atom[5]}
+#        aa_imol      = active_atom[0]
+#        aa_chain_id  = active_atom[1]
+#        aa_res_no    = active_atom[2]
+#        aa_ins_code  = active_atom[3]
+#        aa_atom_name = active_atom[4]
+#        aa_alt_conf  = active_atom[5]
+
+        for (func, aa_args, extra_args) in funcs:
+            args = []
+            for aa_arg in aa_args:
+                args.append(aa_dict[aa_arg])
+            for extra_arg in extra_args:
+                args.append(extra_arg)
+            func(*args)
 
 # set this to a function accepting two argument (the molecule number
 # and the manipulation mode) and it will be run after a model
@@ -1732,7 +1745,7 @@ def reset_b_factor_active_residue():
 #
 def find_exe(*args):
 
-    import os, string, fnmatch
+    import os, string
 
     global search_disk
     search_disk = None
@@ -1990,4 +2003,12 @@ def side_by_side_stereo_mono_toggle():
     else:
         mono_mode()
 
+# helper function to test for a number
+# returns True if number, otherwise False
+def isNumber(num):
+    from types import IntType, FloatType
+    if ((type(num) is IntType) or (type(num) is FloatType)):
+        return True
+    else:
+        return False
 

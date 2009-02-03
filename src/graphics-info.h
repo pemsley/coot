@@ -969,7 +969,7 @@ public:
 								   1, 1));
       model_toolbar_icons->push_back(coot::preferences_icon_info_t(4, "rtz.svg",
 								   "Rotate/Translate Zone",
-								   "model_toolbar_rot_trans_togglebutton",
+								   "model_toolbar_rot_trans_toolbutton",
 								   1, 1));
       model_toolbar_icons->push_back(coot::preferences_icon_info_t(5, "auto-fit-rotamer.svg",
 								   "Auto Fit Rotamer",

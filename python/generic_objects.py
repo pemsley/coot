@@ -189,7 +189,8 @@ def probe(imol):
 	 print "BL INFO:: run reduce as ", reduce_command + " " + mol_pdb_file + " > " + reduce_out_pdb_file
 
 	 reduce_status = popen_command(reduce_command,
-					["-build", mol_pdb_file],
+#					["-build", mol_pdb_file],
+					["-build", "-oldpdb", mol_pdb_file],
 					[],
 					reduce_out_pdb_file)
 	 if (reduce_status):

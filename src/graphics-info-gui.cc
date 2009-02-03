@@ -1588,8 +1588,8 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
       toolbar_button_name = "model_toolbar_regularize_togglebutton";
    if (button_name == "model_refine_dialog_rigid_body_togglebutton")
       toolbar_button_name = "model_toolbar_rigid_body_fit_togglebutton";
-   if (button_name == "model_refine_dialog_rot_trans_togglebutton")
-      toolbar_button_name = "model_toolbar_rot_trans_togglebutton";
+   if (button_name == "model_refine_dialog_rot_trans_toolbutton")
+      toolbar_button_name = "model_toolbar_rot_trans_toolbutton";
    if (button_name == "model_refine_dialog_auto_fit_rotamer_togglebutton")
       toolbar_button_name = "model_toolbar_auto_fit_rotamer_togglebutton";
    if (button_name == "model_refine_dialog_rotamer_togglebutton")

@@ -3059,6 +3059,7 @@ void on_rotate_translate_obj_cancel_button_clicked (GtkButton       *button,
   clear_up_moving_atoms();
   store_window_position(COOT_ROTATE_TRANSLATE_DIALOG, widget);
   gtk_widget_destroy(widget);
+  normal_cursor();
 }
 
 

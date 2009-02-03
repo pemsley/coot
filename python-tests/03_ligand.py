@@ -221,7 +221,7 @@ class LigandTestFunctions(unittest.TestCase):
         self.failUnlessAlmostEqual(dip_y, 0.0, 2, "bad dipole y component %s" %dip_y) 
         self.failUnlessAlmostEqual(dip_z, 0.0, 2, "bad dipole z component %s" %dip_z)
 
-        self.failUnless(dip_x < 0 and dip_x < 20)  # doesnt make sense ... if < 0 then < 20!? 
+        self.failUnless(dip_x < 0 and dip_x > -20)
 
         
             
