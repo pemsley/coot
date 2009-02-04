@@ -34,6 +34,7 @@
 #endif // _MSC_VER
 
 #ifdef USE_GUILE
+#include <cstdio>  // for std::FILE
 #include <guile/gh.h>
 #endif 
 

@@ -3,6 +3,7 @@
 
 %{
 
+#include <cstdio>
 /* #ifdef USE_PYTHON */
 /* #define SWIG_init SWIG_python_init */
 /* #endif */

@@ -28,7 +28,6 @@
 #include <pygobject.h>
 #include <pygtk/pygtk.h>
 
-
 #include <c-interface.h>
 #include "coot-glue.hh"
 

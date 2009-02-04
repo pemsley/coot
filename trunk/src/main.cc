@@ -440,15 +440,15 @@ main (int argc, char *argv[]) {
 	std::cout << "WARNING python directory " << pydirectory 
                   << " does not exist" << std::endl;;
      } else { 
-         char *coot_dot_py = "coot.py";
-         char *coot_dot_py_checked = does_file_exist(pydirectory.c_str(), coot_dot_py);
+         const char *coot_dot_py = "coot.py";
+         const char *coot_dot_py_checked = does_file_exist(pydirectory.c_str(), coot_dot_py);
          if (coot_dot_py_checked) {
 	    std::cout << "INFO:: loading coot.py from " << coot_dot_py_checked
 		      << std::endl;
 	    run_python_script(coot_dot_py_checked);
 	    std::cout << "INFO:: coot.py loaded" << std::endl;
 
-            char *coot_load_modules_dot_py;
+            const char *coot_load_modules_dot_py;
             if (use_graphics_flag) {
 	      // we have gui
 	      // BL says:: lets initialize glue too but only if we have pygtk 
@@ -535,7 +535,7 @@ main (int argc, char *argv[]) {
 #endif // GTK2
 
      // load personal coot file .coot.py
-     char *filename = ".coot.py";
+     const char *filename = ".coot.py";
      if (directory) { 
         char *check_file = does_file_exist(directory, filename);
         if (check_file) {

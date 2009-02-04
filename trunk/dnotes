@@ -4028,6 +4028,13 @@ Sun 25 Jan 2009 04:57:33 EST
    chi squareds. 
 
 
+----
+Tue Feb  3 14:55:32 GMT 2009
+
+   INFO:::
+
+	std::FILE (e.g. used by gmp.h) is resolved by including cstdio
+	(e.g. before including libguile.h).
 
 
 -----
