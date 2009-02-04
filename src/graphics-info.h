@@ -119,7 +119,7 @@ namespace coot {
 
 namespace coot { 
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
-	 //         NEW_COORDS_ADD = 1,                 // not used (yet)
+	 NEW_COORDS_ADD = 1,                 // not used?
 	 NEW_COORDS_REPLACE = 2, 
 	 NEW_COORDS_REPLACE_CHANGE_ALTCONF = 3, 
 	 NEW_COORDS_INSERT = 4,

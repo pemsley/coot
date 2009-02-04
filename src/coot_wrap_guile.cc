@@ -725,6 +725,8 @@ SWIG_UnpackDataName(const char *c, void *ptr, size_t sz, const char *name) {
  * guile_scm_run.swg
  * ----------------------------------------------------------------------------- */
 
+#include <string.h>
+
 #include <libguile.h>
 #include <stdio.h>
 #include <string.h>

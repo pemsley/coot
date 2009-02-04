@@ -998,8 +998,8 @@ graphics_info_t::accept_moving_atoms() {
 //    std::cout << ":::: INFO:: imol moving atoms is "
 // 	     << imol_moving_atoms << std::endl;
    
-//    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!
-   if (0) { 
+   if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!
+     //    if (0) { 
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);
    } else {
       bool mzo = refinement_move_atoms_with_zero_occupancy_flag;
@@ -1835,18 +1835,21 @@ graphics_info_t::find_atom_in_moving_atoms(const coot::atom_spec_t &at) const {
 
    CAtom *cat = NULL;
    if (moving_atoms_asc->mol != NULL) { 
+
       int SelHnd = coot::get_selection_handle(moving_atoms_asc->mol, at);
       int nSelAtoms; 
       PPCAtom local_SelAtom = NULL; 
       moving_atoms_asc->mol->GetSelIndex(SelHnd, local_SelAtom, nSelAtoms);
       if (nSelAtoms > 0)
 	 cat = local_SelAtom[0];
-//       std::cout << "DEBUG:: in find_atom_in_moving_atoms: here are the "
-// 		<< nSelAtoms << " qualifying atoms..." << std::endl;
-//       for(int i=0; i<nSelAtoms; i++)
-// 	 std::cout << "      " << i << "  " << local_SelAtom[i] << std::endl;
+       std::cout << "DEBUG:: in find_atom_in_moving_atoms: here are the "
+ 		<< nSelAtoms << " qualifying atoms..." << std::endl;
+       for(int i=0; i<nSelAtoms; i++)
+ 	 std::cout << "      " << i << "  " << local_SelAtom[i] << std::endl;
       moving_atoms_asc->mol->DeleteSelection(SelHnd);
-   }
+   } else { 
+     std::cout << "WARNING:: OOps: moving_atoms_asc->mol is NULL" << std::endl;
+   } 
    return cat;
 }
 

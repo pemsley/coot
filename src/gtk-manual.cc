@@ -250,7 +250,7 @@ create_initial_map_color_submenu(GtkWidget *widget) {
 
 
 
-/* And similar code for the scroll whell - which need to know about the 
+/* And similar code for the scroll wheel - which need to know about the 
    list of maps too.  */
 /* ----------------------------------------------------------------- */
 /*  scroll wheel menu */
@@ -1094,7 +1094,8 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 /*   printf("display_map_frame_{thing} name constructed as: :%s:\n", widget_name);  */
   
 
-  gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), widget_name, display_map_frame_1,
+  gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), widget_name,
+			    display_map_frame_1,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (display_map_frame_1);
   /* setting to true means that the buttons etc in the box can expand

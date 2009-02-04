@@ -63,6 +63,7 @@
    twice in C-declarations inside gmp library. Hmm! */
 #ifdef __cplusplus
 #ifdef USE_GUILE
+#include <cstdio> // for std::FILE in gmp.h for libguile.h
 #include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
 #endif /*  USE_GUILE */
 // BL says:: ok then we put python here too

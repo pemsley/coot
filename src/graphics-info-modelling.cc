@@ -2037,6 +2037,8 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
    // This uses moving_atoms_asc internally, we don't need to pass it:
    coot::atom_spec_t origin_atom_spec(atom1);
 
+   std::cout << "debug:: rot_trans_atom_index_1 " << rot_trans_atom_index_1 << " gives atom "
+	     << atom1 << std::endl;
 
    if (rot_trans_object_type == ROT_TRANS_TYPE_CHAIN) {
       chain_id = atom1->GetChainID();
@@ -2052,8 +2054,8 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
    if (rot_trans_object_type == ROT_TRANS_TYPE_ZONE) {
       CAtom *atom2 = molecules[imol_rot_trans_object].atom_sel.atom_selection[rot_trans_atom_index_2];
-      char *chain_id_1 = atom1->GetChainID(); // not const, sigh.
-      char *chain_id_2 = atom2->GetChainID(); // not const, sigh.
+      char *chain_id_1 = atom1->GetChainID();
+      char *chain_id_2 = atom2->GetChainID();
 
       if (chain_id_1 != chain_id_2) {
 	 std::string info_string("Atoms must be in the same chain");
@@ -2075,13 +2077,13 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
    }
 
       
-   if (good_settings) { 
-      // OK, the atoms were in the same chain...
+   if (good_settings) {
+
       GtkWidget *widget = create_rotate_translate_obj_dialog();
       GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
 							"window1"));
       gtk_window_set_transient_for(GTK_WINDOW(widget), main_window);
-      // setup_rotate_translate_buttons(widget); // old style buttons, not adjustments
+
       do_rot_trans_adjustments(widget);
 
       // set its position if it was shown before
@@ -2120,11 +2122,19 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 	 alt_conf_split_flag = 1;
 
       // create a complete new clean copy of chains/residues/atoms
-      std::pair<CMMDBManager *, int> mp = 
+      std::pair<CMMDBManager *, int> mp(0,0);
+
+      if (rot_trans_object_type == ROT_TRANS_TYPE_CHAIN) 
+	mp = 
 	 coot::util::create_mmdbmanager_from_res_selection(molecules[imol_rot_trans_object].atom_sel.mol,
 							   sel_residues, n_sel_residues,
 							   0, 0, altloc_string, chain_id,
 							   alt_conf_split_flag);
+
+      if (rot_trans_object_type == ROT_TRANS_TYPE_MOLECULE)
+	mp = 
+	  coot::util::create_mmdbmanager_from_mmdbmanager(molecules[imol_rot_trans_object].atom_sel.mol);
+							 
       rt_asc = make_asc(mp.first);
       rt_asc.UDDOldAtomIndexHandle = mp.second;
 
@@ -2142,7 +2152,17 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       // 				      atom2->GetSeqNum(),
       // 				      atom2->name);  // uses moving_atoms_asc
 
+
       rot_trans_rotation_origin_atom = find_atom_in_moving_atoms(origin_atom_spec);
+
+      if (rot_trans_rotation_origin_atom) { 
+	std::cout << "DEBUG:: atom spec in moving atom " << origin_atom_spec << " returns "
+		  << rot_trans_rotation_origin_atom << std::endl;
+      } else { 
+	std::cout << "DEBUG:: atom spec in moving atom " << origin_atom_spec << " returns NULL "
+		  << std::endl;
+      } 
+
       //    std::cout << "DEBUG:: in execute_rotate_translate_read, found rotation atom: "
       // 	     << rot_trans_rotation_origin_atom << std::endl;
       
@@ -2361,16 +2381,22 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
 
       // int indx = rot_trans_atom_index_rotation_origin_atom;
       CAtom *rot_centre = rot_trans_rotation_origin_atom;
-      clipper::Coord_orth rotation_centre(rot_centre->x, 
-					  rot_centre->y, 
-					  rot_centre->z);
+      clipper::Coord_orth rotation_centre(0,0,0); // updated.
 
       // But! maybe we have a different rotation centre
       if (rot_trans_zone_rotates_about_zone_centre) {
 	 if (moving_atoms_asc->n_selected_atoms  > 0) {
 	    graphics_info_t g;
 	    rotation_centre = g.moving_atoms_centre();
-	 }
+	 } 
+      } else { 
+	 if (rot_centre) { 
+	   rotation_centre = clipper::Coord_orth(rot_centre->x, 
+						 rot_centre->y, 
+						 rot_centre->z);
+	 } else { 
+	   std::cout << "WARNING:: rot_centre atom not found" << std::endl;
+	 } 
       }
 
 
