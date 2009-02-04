@@ -979,7 +979,10 @@ menutoolbutton_rot_trans_activated(GtkWidget *item, GtkPositionType pos) {
 
 void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
 
-#if (GTK_MAJOR_VERSION > 1) 
+#if (GTK_MAJOR_VERSION > 1)
+// RHEL 4 (gtk 2.4.13) does't have menutoolbuttons (not sure at which
+// minor version it was introduced).
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 4) ) || GTK_MAJOR_VERSION > 2)
    GtkWidget *menu_tool_button = lookup_widget(window1, "model_toolbar_rot_trans_toolbutton");
 
    if (menu_tool_button) { 
@@ -1015,6 +1018,7 @@ void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
       
       gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(menu_tool_button), menu);
    }
-#endif 
+#endif  // GTK_MINOR_VERSION
+#endif  // GTK_MAJOR_VERSION
 } 
 
