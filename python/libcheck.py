@@ -154,9 +154,9 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
                    libcheck_lib = "libcheck.lib"
                    if (os.path.isfile(libcheck_lib)):
                      shutil.copyfile(libcheck_lib, cif_file_name)
-                   handle_libcheck_cif_and_pdb(cif_file_name,
-                                               pdb_file_name,
-                                               post_refmac_pdb_file_name)
+                   return handle_libcheck_cif_and_pdb(cif_file_name,
+                                                      pdb_file_name,
+                                                      post_refmac_pdb_file_name)
                    
   def handle_libcheck_cif_and_pdb(cif_file_name, pdb_file_name, post_refmac_pdb_file_name):
 
@@ -183,7 +183,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
       dir_prefix = ccp4i_project_dir
     else:
       dir_prefix = os.path.normpath(ccp4i_project_dir)
-    print "BL DEBUG:: dir prefix", dir_prefix
+    #print "BL DEBUG:: dir prefix", dir_prefix
 
     code_str = str(code)
 
@@ -193,7 +193,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
 
     if (os.path.isfile(post_refmac_pdb_file_name) and
         os.path.isfile(cif_file_name)):
-      handle_libcheck_cif_and_pdb(cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
+      return handle_libcheck_cif_and_pdb(cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
       
     else:
       libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
@@ -201,7 +201,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
         info_dialog("You need to setup CCP4 (specifically LIBCHECK) first.")
         return -2
       else:
-        libcheck_monomer_gui(dir_prefix, code_str, cif_file_name,
-                             pdb_file_name, post_refmac_pdb_file_name)
-
+        return libcheck_monomer_gui(dir_prefix, code_str, cif_file_name,
+                                    pdb_file_name, post_refmac_pdb_file_name)
+      
 #monomer_molecule_from_3_let_code("3GP","")
