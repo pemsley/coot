@@ -2016,6 +2016,45 @@ coot::util::create_mmdbmanager_from_res_selection(CMMDBManager *orig_mol,
 }
 
 
+// We don't mess with the chain ids, give as we get, but also
+// return the handle for the atom index transfer.
+std::pair<CMMDBManager *, int>
+coot::util::create_mmdbmanager_from_mmdbmanager(CMMDBManager *mol_in) { 
+
+   CMMDBManager *residues_mol = new CMMDBManager;
+   int atom_index_handle = residues_mol->RegisterUDInteger(UDR_ATOM, "mol's atom index");
+   int afix_handle_orig = mol_in->GetUDDHandle(UDR_ATOM, "shelx afix");
+   int afix_handle_new_mol = -1;
+   if (afix_handle_orig >= 0)
+      afix_handle_new_mol = residues_mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
+
+   std::string altconf = ""; // dummy
+   short int whole_res_flag = 1;
+
+   for(int imod = 1; imod<=mol_in->GetNumberOfModels(); imod++) {
+     int imod = 1;
+     CModel *model_p = mol_in->GetModel(imod);
+     CModel *new_model_p = new CModel;
+     int nchains = model_p->GetNumberOfChains();
+     for (int ichain=0; ichain<nchains; ichain++) {
+       CChain *chain_p = model_p->GetChain(ichain);
+       CChain *new_chain_p = new CChain;
+       new_chain_p->SetChainID(chain_p->GetChainID());
+       int nres = chain_p->GetNumberOfResidues();
+       for (int ires=0; ires<nres; ires++) { 
+	 CResidue *residue_p = chain_p->GetResidue(ires);
+	 CResidue *r = coot::util::deep_copy_this_residue_with_atom_index_and_afix_transfer(mol_in, residue_p, altconf, whole_res_flag, atom_index_handle, afix_handle_new_mol);
+	 new_chain_p->AddResidue(r);
+       }
+       new_model_p->AddChain(new_chain_p);
+     }
+     residues_mol->AddModel(new_model_p);
+   }
+
+   return std::pair<CMMDBManager *, int> (residues_mol, atom_index_handle);
+} 
+
+
 // ignore atom index transfer
 CMMDBManager *
 coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
