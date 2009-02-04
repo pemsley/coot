@@ -674,6 +674,11 @@ namespace coot {
 					    const std::string &chain_id_1,
 					    short int residue_from_alt_conf_split_flag);
 
+      // We don't mess with the chain ids (give as we get), but also
+      // return the handle for the atom index transfer.
+      std::pair<CMMDBManager *, int> create_mmdbmanager_from_mmdbmanager(CMMDBManager *);
+
+
       // ignore atom index transfer, return NULL on error.
       CMMDBManager *create_mmdbmanager_from_residue(CMMDBManager *orig_mol,
 						    CResidue *res);
@@ -689,7 +694,7 @@ namespace coot {
 								    int SelectionHandle);
 
       CMMDBManager *create_mmdbmanager_from_atom(CAtom *at);
-      
+
       void add_copy_of_atom(CMMDBManager *mol, CAtom *atom);
 
       // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
