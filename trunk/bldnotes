@@ -9,7 +9,7 @@ tests   rev 1825
 
    o fix pass-build/pass-test (with guile build )
 
-   o fix returned lists in coot_gui.py combobox fillers
+   o separate test sets when running one test set
 
    o WinCoot:
 	- update to python 2.6 (now with pygtk etc)
@@ -174,4 +174,8 @@ tests   rev 1825
    o after associated sequence no sequ input in fit loop
 
 * Done 
+
+   o fix returned lists in coot_gui.py combobox fillers
+
+* Done
 
