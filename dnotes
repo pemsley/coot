@@ -3766,6 +3766,16 @@ Mon Oct  6 13:56:44 BST 2008
    install gettext manually and point the autogen (that run aclocal and
    autoconf) to use the macros in the files installed from gettext.
 
+   I wanted to check that the torsions in ligand conformation were
+   being correctly set.  I needed a function therefore to return a
+   torsion to the scripting level - given a set of atom specifiers.
+   So first a wrote a test that tested that the torsion generation
+   function worked - did it fail properly when the (some of) the atoms
+   were not correctly specified (i.e. not in the molecule).  When that
+   was working, I could write a test to do the ligand fitting and
+   check the torsions of the best fitting (hopefully correctly
+   fitting) model.
+
 ---- Wed Oct 8 14:11:40 BST 2008
 
    coot-shelx-ins.cc

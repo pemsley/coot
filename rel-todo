@@ -1,5 +1,5 @@
 
-   o Add terminal residue has disconnected atoms.  Why? ::: 2
+   o Add terminal residue has disconnected atoms.  Why? ::: 3
 
 
    o multiple residue ranges, glycosylation, covalent bond entities ::: 10
@@ -55,6 +55,11 @@
   SetDihedralAngle().
 
 
+   o Turn on torsion angle restraints and regularize monomer-3GP.
+     Look at above var_2 torsion.  After minimization, torsion is 171.09
+     degrees.  Wrong. :: 2
+
+
    o Bill: This might be hard to implement, but in case it isn't, I
      thought it might be worth suggesting...
 
@@ -72,6 +77,13 @@
    o Investigate interupting long fitting/Post MR tools [JED request] 
      Add a stop button to the toolbar perhaps.
      ::: 2
+
+   o When reading in a dictionary twice, does it add or replace?  Why
+     do I see 20 non-const non-H torsions in 3GP when using flexible
+     ligands? ::: 2
+
+   o Export the ligand fitting from a position (rather than searching
+     the whole map to find cluster site). ::: 2
 
 * gtk-toolbar-insert and gtk-toolbutton-new are not available in
   guile-gtk-2.0, or so it currently seems to me.  This can't be done
@@ -166,12 +178,13 @@
      should be just the same as CA mode. There is a mix up over what
      bond_colour_type means. ::: 1
 
+   o When starting up with --no-state-script, don't write a state
+     script on closing.
 
    o What about if there are python and scheme bindings to a
-   particular key?  graphics-general-key-press-hook should return the
-   status of the key being found and the binding function used.  Then
-   if not, we can run the python function [JED]. ::: 1
-
+     particular key?  graphics-general-key-press-hook should return the
+     status of the key being found and the binding function used.  Then
+     if not, we can run the python function [JED]. ::: 1
 
    o crash: coot-download a structure 1ucs.  create a map from mtz,
      create another map from mtz (I meant to change the limits, but
