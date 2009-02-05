@@ -1648,8 +1648,60 @@ graphics_info_t::display_geometry_angle() const {
 }
 
 
+// ---- simple torsion ------
+bool
+graphics_info_t::set_angle_tors(int imol,
+				const coot::atom_spec_t &as1,
+				const coot::atom_spec_t &as2,
+				const coot::atom_spec_t &as3,
+				const coot::atom_spec_t &as4) {
+
+   bool r = 0;
+   if (is_valid_model_molecule(imol)) { 
+      CAtom *at1 = molecules[imol].get_atom(as1);
+      CAtom *at2 = molecules[imol].get_atom(as2);
+      CAtom *at3 = molecules[imol].get_atom(as3);
+      CAtom *at4 = molecules[imol].get_atom(as4);
+      if (! at1)
+	 std::cout << "   WARNING:: atom not found in molecule #"
+		   << imol << " " << as1 << std::endl;
+      if (! at2)
+	 std::cout << "   WARNING:: atom not found in molecule #"
+		   << imol << " " << as2 << std::endl;
+      if (! at3)
+	 std::cout << "   WARNING:: atom not found in molecule #"
+		   << imol << " " << as3 << std::endl;
+      if (! at4)
+	 std::cout << "   WARNING:: atom not found in molecule #"
+		   << imol << " " << as4 << std::endl;
+      
+      if (at1 && at2 && at3 && at4) {
+	 angle_tor_pos_1 = coot::Cartesian(at1->x, at1->y, at1->z);
+	 angle_tor_pos_2 = coot::Cartesian(at2->x, at2->y, at2->z);
+	 angle_tor_pos_3 = coot::Cartesian(at3->x, at3->y, at3->z);
+	 angle_tor_pos_4 = coot::Cartesian(at4->x, at4->y, at4->z);
+	 r = 1;
+      }
+   }
+   return r;
+} 
+
 void
 graphics_info_t::display_geometry_torsion() const {
+
+   double torsion = get_geometry_torsion(); 
+
+   display_density_level_this_image = 1;
+   display_density_level_screen_string = "  Torsion:  ";
+   display_density_level_screen_string += float_to_string(torsion);
+   display_density_level_screen_string += " degrees";
+   statusbar_text(display_density_level_screen_string);
+   graphics_draw();
+   
+}
+
+double
+graphics_info_t::get_geometry_torsion() const { 
 
    clipper::Coord_orth p1(angle_tor_pos_1.x(), angle_tor_pos_1.y(), angle_tor_pos_1.z());
    clipper::Coord_orth p2(angle_tor_pos_2.x(), angle_tor_pos_2.y(), angle_tor_pos_2.z());
@@ -1712,13 +1764,8 @@ graphics_info_t::display_geometry_torsion() const {
    double torsion = clipper::Util::rad2d(tors);
    std::cout << "       torsion: " << torsion << " degrees "
 	     << std::endl;
-   
-   display_density_level_this_image = 1;
-   display_density_level_screen_string = "  Torsion:  ";
-   display_density_level_screen_string += float_to_string(torsion);
-   display_density_level_screen_string += " degrees";
-   statusbar_text(display_density_level_screen_string);
-   graphics_draw();
+
+   return torsion;
 
 }
 

@@ -1133,6 +1133,8 @@ class molecule_class_info_t {
 		   const coot::atom_spec_t &active_atom_spec,
 		   const coot::Cartesian &pt) const;
 
+   CAtom *get_atom(const coot::atom_spec_t &atom_spec) const;
+
    void set_draw_hydrogens_state(int i) {
       if (draw_hydrogens_flag != i) { 
 	 draw_hydrogens_flag = i;

@@ -40,7 +40,9 @@
 (define map-peaks-scm #f)
 (define map-peaks-near-point-scm #f)
 (define add-dipole-scm #f)
-(defein add-dipole-for-residues-scm #f)
+(define add-dipole-for-residues-scm #f)
+(define get-torsion-scm #f)
+(define test-internal-single-scm #f)
 
 
 (load "filter.scm")

@@ -199,6 +199,20 @@ SCM test_internal_scm() {
 } 
 #endif // USE_GUILE
 
+#ifdef USE_GUILE
+SCM test_internal_single_scm() {
+
+   SCM r = SCM_BOOL_T;
+
+#ifdef BUILT_IN_TESTING   
+   int status = test_internal_single();
+   if (!status)
+      r = SCM_BOOL_F;
+#endif   
+   return r;
+} 
+#endif // USE_GUILE
+
 #ifdef USE_PYTHON
 PyObject *test_internal_py() {
 
@@ -5404,11 +5418,15 @@ post_display_control_window() {
    add_to_history(command_strings);
 }
 
-GSList **gslist_for_scroll_in_display_manager_p() {
+GSList *get_gslist_for_scroll_in_display_manager() {
 
-   return &graphics_info_t::gslist_for_scroll_in_display_manager;
+   return graphics_info_t::gslist_for_scroll_in_display_manager;
 }
 
+void set_gslist_for_scroll_in_display_manager(GSList *list) {
+
+   graphics_info_t::gslist_for_scroll_in_display_manager = list;
+} 
 
 
  

@@ -39,8 +39,10 @@ typedef std::pair<int(*)(), std::string> named_func;
 void add_test(int(*)(), const std::string &test_name, std::vector<named_func> *functions);
 
 int test_internal();
+int test_internal_single();
 
 int test_alt_conf_rotamers();
+int test_ligand_conformer_torsion_angles();
 int test_wiggly_ligands();
 int test_torsion_derivs();
 int test_ramachandran_probabilities();

@@ -24,35 +24,76 @@
 
 namespace coot {
 
+   class torsioned_atoms_info_t {
+   public:
+      torsioned_atoms_info_t(dict_torsion_restraint_t rest, double tors_in) {
+	 quad = atom_name_quad(rest.atom_id_1_4c(),
+			       rest.atom_id_2_4c(),
+			       rest.atom_id_3_4c(),
+			       rest.atom_id_4_4c());
+	 torsion_from_restraint = rest.angle();
+	 esd_from_restraint = rest.esd();
+	 period_from_restraint = rest.periodicity();
+	 torsion = tors_in;
+      } 
+      atom_name_quad quad;
+      double torsion_from_restraint;
+      double esd_from_restraint;
+      int period_from_restraint;
+      double torsion; // torsion fed into mgtree class
+   };
+      
+      
+   class installed_wiggly_ligand_info_t {
+   public:
+      minimol::molecule mol;
+      std::vector<torsioned_atoms_info_t> torsioned_atoms;
+      void add_torsion(const dict_torsion_restraint_t &rest, double torsion);
+      void add_torsions(const std::vector<dict_torsion_restraint_t> &rests,
+			const std::vector<float> torsions);
+      unsigned int n_torsions() const;
+      // throw an exception if not possible
+      std::pair<float, float> get_set_and_ideal_torsions(int i) const;
+      // throw an exception if not possible
+      std::pair<float, float> get_set_and_real_torsions(int i) const;
+   };
+
    class wligand : public ligand, public monomer_utils {
 
       // monomer_type, residue_type, comp_id are synonymous.
       // 
 
 
-       std::vector<coot::atom_name_pair> get_torsion_bonds_atom_pairs(const std::string &monomer_type,
- 								     const std::vector <coot::dict_torsion_restraint_t> &monomer_torsions) const;
+       std::vector<atom_name_pair> get_torsion_bonds_atom_pairs(const std::string &monomer_type,
+ 								     const std::vector <dict_torsion_restraint_t> &monomer_torsions) const;
+       std::vector<atom_name_quad> get_torsion_bonds_atom_quads(const std::string &monomer_type,
+ 								     const std::vector <dict_torsion_restraint_t> &monomer_torsions) const;
 
       
-      std::vector<coot::atom_index_pair>
-      get_atom_index_pairs(std::vector<coot::atom_name_pair>atom_name_pairs,
-			   const coot::minimol::molecule &ligand) const;
+      std::vector<atom_index_pair>
+      get_atom_index_pairs(std::vector<atom_name_pair>atom_name_pairs,
+			   const minimol::molecule &ligand) const;
 
-      std::vector<coot::atom_index_pair> get_atom_index_pairs(std::vector<coot::atom_name_pair> atom_name_pairs,
-							      const coot::minimol::molecule &ligand,
-							      int imono) const;
+      std::vector<atom_index_quad>
+      get_atom_index_quads(std::vector<atom_name_quad>atom_name_quads,
+			   const minimol::molecule &ligand) const;
 
-      std::vector<std::vector<int> > getcontacts(const coot::minimol::molecule &mol) const;
-      std::vector<std::vector<int> > getcontacts(const coot::minimol::molecule &mol,
-						 const coot::dictionary_residue_restraints_t &dict) const;
+      std::vector<atom_index_pair>
+      get_atom_index_pairs(std::vector<atom_name_pair> atom_name_pairs,
+			   const minimol::molecule &ligand,
+			   int imono) const;
+
+      std::vector<std::vector<int> > getcontacts(const minimol::molecule &mol) const;
+      std::vector<std::vector<int> > getcontacts(const minimol::molecule &mol,
+						 const dictionary_residue_restraints_t &dict) const;
 
 
-      std::string get_monomer_type_from_mol(const coot::minimol::molecule &mol) const;
+      std::string get_monomer_type_from_mol(const minimol::molecule &mol) const;
 
       std::vector <float>
-      get_torsions_by_random(const std::vector <coot::dict_torsion_restraint_t> &m_torsions) const;
+      get_torsions_by_random(const std::vector <dict_torsion_restraint_t> &m_torsions) const;
 
-      float probability_of_torsions(const std::vector <coot::dict_torsion_restraint_t> &m_torsions,
+      float probability_of_torsions(const std::vector <dict_torsion_restraint_t> &m_torsions,
 				    const std::vector <float> &r) const;
 
       std::vector<float> cumulative;
@@ -116,15 +157,15 @@ namespace coot {
       // Throw an exception if there is failure to install the ligands.
       // [used to return std::pair<short int, std::string>]
       //
-      std::vector<minimol::molecule>
-      install_simple_wiggly_ligands(coot::protein_geometry *pg,
-				    const coot::minimol::molecule &ligand,
+      std::vector<installed_wiggly_ligand_info_t>
+      install_simple_wiggly_ligands(protein_geometry *pg,
+				    const minimol::molecule &ligand,
 				    int n_samples,
 				    bool optimize_geometry_flag,
 				    bool fill_returned_molecules_vector_flag);
 
-      short int install_linked_wiggly_ligands(const coot::protein_geometry &pg,
-					      const coot::minimol::molecule &ligand,
+      short int install_linked_wiggly_ligands(const protein_geometry &pg,
+					      const minimol::molecule &ligand,
 					      int n_samples);
 
       void set_debug_wiggly_ligands() { debug_wiggly_ligands = 1; } 

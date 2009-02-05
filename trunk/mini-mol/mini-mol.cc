@@ -1039,3 +1039,54 @@ void coot::minimol::molecule::sort_chains() {
    std::sort(fragments.begin(), fragments.end());
 
 } 
+
+
+// throw an exception if atoms not found
+double
+coot::minimol::residue::get_torsion(coot::atom_name_quad &quad) const {
+
+   bool fat1 = 0;
+   bool fat2 = 0;
+   bool fat3 = 0;
+   bool fat4 = 0;
+   clipper::Coord_orth pos1, pos2, pos3, pos4;
+   for (unsigned int i=0; i< atoms.size(); i++) {
+      if (atoms[i].name == quad.atom1) { 
+	 pos1 = atoms[i].pos;
+	 fat1 = 1;
+      } 
+      if (atoms[i].name == quad.atom2) { 
+	 pos2 = atoms[i].pos;
+	 fat2 = 1;
+      } 
+      if (atoms[i].name == quad.atom3) { 
+	 pos3 = atoms[i].pos;
+	 fat3 = 1;
+      } 
+      if (atoms[i].name == quad.atom4) { 
+	 pos4 = atoms[i].pos;
+	 fat4 = 1;
+      } 
+   }
+
+   if (! (fat1 && fat2 && fat3 && fat4)) {
+      std::string mess = "get_torsion: not all atoms found in residue\n";
+      mess += "searching for ";
+      mess += quad.atom1;
+      mess += " ";
+      mess += quad.atom2;
+      mess += " ";
+      mess += quad.atom3;
+      mess += " ";
+      mess += quad.atom4;
+      mess += "\n available:   ";
+      for (unsigned int iat=0; iat<atoms.size(); iat++) { 
+	 mess += atoms[iat].name;
+	 mess += " ";
+      }
+      throw std::runtime_error(mess);
+   }
+
+   double t = clipper::Coord_orth::torsion(pos1, pos2, pos3, pos4);
+   return clipper::Util::rad2d(t);
+} 

@@ -922,7 +922,8 @@ execute_ligand_search_internal() {
 
    // debugging, output the post-conformer generation ligands wligand-*.pdb
    // (but pre-idealized).
-   // wlig.set_debug_wiggly_ligands(); 
+
+   wlig.set_debug_wiggly_ligands(); 
 
    for(unsigned int i=0; i<ligands.size(); i++) {
 
@@ -957,8 +958,10 @@ execute_ligand_search_internal() {
 	 catch (std::runtime_error mess) {
 	    std::cout << "Error in flexible ligand definition.\n";
 	    std::cout << mess.what() << std::endl;
-	    GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
-	    gtk_widget_show(w);
+	    if (graphics_info_t::use_graphics_interface_flag) { 
+	       GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
+	       gtk_widget_show(w);
+	    }
 	    return solutions;
 	 }
       } else { 

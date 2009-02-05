@@ -16,6 +16,8 @@ namespace coot {
       std::string atom2;
       std::string atom3;
       std::string atom4;
+      atom_name_quad() {} // sigh.  needed for torsioned_atoms_info_t,
+			  // don't know why.
       atom_name_quad(const std::string &atom_name_1,
                      const std::string &atom_name_2,
                      const std::string &atom_name_3,

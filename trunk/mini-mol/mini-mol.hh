@@ -25,7 +25,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
+#include "atom-quads.hh"
 #include "mmdb_manager.h"
 #include "clipper/core/coords.h"
 
@@ -92,6 +94,8 @@ namespace coot {
 	 int n_atoms() const { return atoms.size(); }
 	 std::vector<atom *> select_atoms_serial() const;
 	 void delete_atom_indices(const std::vector<int> &atom_indices);
+	 // throw an exception if atoms not found
+	 double get_torsion(coot::atom_name_quad &quad) const;
       };
 
       class fragment {
@@ -244,8 +248,8 @@ namespace coot {
       std::ostream& operator<<(std::ostream& s, coot::minimol::residue res);
       std::ostream& operator<<(std::ostream& s, coot::minimol::fragment frag);
    }
-
 }
+
 
 /* Need this construction?
    for(int ifrag=0; ifrag<fragments.size(); ifrag++) {
