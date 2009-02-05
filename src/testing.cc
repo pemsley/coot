@@ -143,7 +143,7 @@ int test_internal() {
 
    functions.push_back(named_func(test_segid_exchange, "test segid exchange"));
 
-   functions.push_back(named_func(test_ligand_fit_from_given_point, "test ligand"));
+   functions.push_back(named_func(test_ligand_fit_from_given_point, "test ligand from point"));
 
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
@@ -164,6 +164,18 @@ int test_internal() {
    } 
    return status; 
 }
+
+int test_internal_single() {
+   int status = 0;
+   try { 
+      status = test_ligand_conformer_torsion_angles();
+   }
+   catch (std::runtime_error mess) {
+      std::cout << "FAIL: " << " " << mess.what() << std::endl;
+   }
+   return status;
+}
+      
 
       
 int test_alt_conf_rotamers() {
@@ -298,7 +310,7 @@ int test_wiggly_ligands () {
    try { 
       bool optim_geom = 0;
       bool fill_vec = 1;
-      std::vector<coot::minimol::molecule> ms = 
+      std::vector<coot::installed_wiggly_ligand_info_t> ms = 
 	 wlig.install_simple_wiggly_ligands(&geom, mmol, wiggly_ligand_n_samples,
 					    optim_geom, fill_vec);
 
@@ -314,7 +326,7 @@ int test_wiggly_ligands () {
 	 std::string file_name = "test-wiggly-ligand-";
 	 file_name += stringify(imol);
 	 file_name += ".pdb";
-	 ms[imol].write_file(file_name, 10.0);
+	 ms[imol].mol.write_file(file_name, 10.0);
       }
    }
    catch (std::runtime_error mess) {
@@ -1137,8 +1149,15 @@ int test_ligand_fit_from_given_point() {
    
    
    clipper::Xmap<float> xmap;
-   coot::util::map_fill_from_mtz(&xmap, "rnasa-1.8-all_refmac1.mtz",
-				 "FWT", "PHWT", "WT", 0, 0);
+   bool stat = coot::util::map_fill_from_mtz(&xmap, "rnasa-1.8-all_refmac1.mtz",
+					     "FWT", "PHWT", "WT", 0, 0);
+
+   if (!stat) {
+      std::cout << "   Bad map fill from " << "rnasa-1.8-all_refmac1.mtz" << "\n";
+      return 0; 
+   }
+
+   
    coot::wligand wlig;
    wlig.set_verbose_reporting();
    wlig.set_debug_wiggly_ligands();
@@ -1170,7 +1189,48 @@ int test_ligand_fit_from_given_point() {
    }
 
    return status;
-} 
+}
+
+
+int test_ligand_conformer_torsion_angles() { 
+
+   int status = 0;
+   testing_data t;
+
+   std::string cif_file_name = "libcheck_3GP-torsion-filtered.cif";
+   int geom_stat = t.geom.init_refmac_mon_lib(cif_file_name, 0);
+   if (geom_stat == 0) {
+      std::string m = "Critical cif dictionary reading failure.";
+      std::cout << m << std::endl;
+      throw std::runtime_error(m);
+   }
+   
+   std::string l = greg_test("monomer-3GP.pdb");
+   atom_selection_container_t l_asc = get_atom_selection(l);
+   if (!l_asc.read_success)
+      return 0;
+   
+   coot::wligand wlig;
+   wlig.set_verbose_reporting();
+   wlig.set_debug_wiggly_ligands();
+   bool optim_geom = 0;
+   bool fill_vec = 1;
+   int n_conformers = 200;
+   coot::minimol::molecule mmol(l_asc.mol);
+   std::vector<coot::installed_wiggly_ligand_info_t> conformer_info = 
+      wlig.install_simple_wiggly_ligands(&t.geom, mmol, n_conformers,
+					 optim_geom, fill_vec);
+   std::cout << "INFO:: there were " << conformer_info.size() << " returned conformers"
+	     << std::endl;
+   for (unsigned int i=0; i<conformer_info.size(); i++) {
+      unsigned int itor=0;
+      std::pair<float, float> p = conformer_info[i].get_set_and_real_torsions(itor);
+      std::cout << "   " << i << " " << itor << "  set: " << p.first << " real: "
+		<< p.second << std::endl;
+   }
+
+   return 1;
+}
 
 
 #endif // BUILT_IN_TESTING

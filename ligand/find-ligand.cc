@@ -334,7 +334,8 @@ main(int argc, char **argv) {
 			      bool optim_geom = 1;
 			      bool fill_vec = 0;
 			      try { 
-				 std::vector<coot::minimol::molecule> wiggled_ligands = 
+				 std::vector<coot::installed_wiggly_ligand_info_t>
+				    wiggled_ligands =
 				    wlig.install_simple_wiggly_ligands(&geom, mmol,
 								       wiggly_ligand_n_samples,
 								       optim_geom,

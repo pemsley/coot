@@ -3284,6 +3284,10 @@ close_molecule_by_widget(GtkWidget *optionmenu) {
 
 void close_molecule(int imol) {
 
+   std::cout << " debug:: start of close_molecule() "
+	     << get_gslist_for_scroll_in_display_manager()
+	     << std::endl;
+
    if (is_valid_model_molecule(imol) ||
        is_valid_map_molecule(imol)) {
       graphics_info_t::molecules[imol].close_yourself();
@@ -3300,6 +3304,10 @@ void close_molecule(int imol) {
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
    add_to_history_typed(cmd, args);
+
+   std::cout << " debug::   end of close_molecule() "
+	     << get_gslist_for_scroll_in_display_manager()
+	     << std::endl;
 }
 
 void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu) {

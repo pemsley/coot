@@ -2236,6 +2236,7 @@ public:
    // (text message in the console, currently)
    void display_geometry_distance() ; // not const because we add to distance_object_vec
    void display_geometry_angle() const;
+   double get_geometry_torsion() const;
    void display_geometry_torsion() const;
    void display_geometry_distance_symm(const coot::Cartesian &p1, const coot::Cartesian &p2);
    //
@@ -3020,7 +3021,16 @@ public:
    static float raster3d_density_thickness;
    static int renderer_show_atoms_flag;
    static float raster3d_bone_thickness; 
-   static bool  raster3d_enable_shadows; 
+   static bool  raster3d_enable_shadows;
+
+
+   // ---- simple torsion ------
+   // return true if all atoms found
+   bool set_angle_tors(int imol,
+		       const coot::atom_spec_t &as1,
+		       const coot::atom_spec_t &as2,
+		       const coot::atom_spec_t &as3,
+		       const coot::atom_spec_t &as4);
 
    // ------- auto read mtz file: --------
    static int auto_read_do_difference_map_too_flag;

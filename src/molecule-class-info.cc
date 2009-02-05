@@ -3878,16 +3878,9 @@ molecule_class_info_t::close_yourself() {
       GtkWidget *display_frame = lookup_widget(display_control_window,
 					       display_frame_name.c_str());
       if (display_frame) {
-	 GSList **sgp = gslist_for_scroll_in_display_manager_p();
-	 GSList *scroll_group = *sgp;
 
 	 gtk_widget_destroy(display_frame);
 
-
-// 	 std::cout << "DEBUG:: scroll_group after  delete: " << scroll_group->data
-// 		   << " " << scroll_group->next << std::endl;
-
-	 
 	 // Check here if there are any maps left open.  If there are none,
 	 // then set the gslist_for_scroll to NULL.  This will prevent
 	 // "Gtk-CRITICAL **: file gtkradiobutton.c: line 167
@@ -3910,12 +3903,6 @@ molecule_class_info_t::close_yourself() {
 	    // std::cout << "DEBUG:: n_maps_left: " << n_maps_left
 	    // << " reset scroll list." << std::endl;
 	 } 
-	 
-	 sgp = gslist_for_scroll_in_display_manager_p();
-	 scroll_group = *sgp;
-	 // std::cout << "DEBUG:: scroll_group after delete: " << scroll_group
-	 // << std::endl;
-
       }
    } else {
       // std::cout << "close: display_control_window is not active" << std::endl;

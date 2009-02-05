@@ -1071,8 +1071,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   gchar *widget_name; 
   gchar *tmp_name; 
 
-  GSList **sgp = gslist_for_scroll_in_display_manager_p();
-  GSList *scroll_group = *sgp;
+  GSList *scroll_group = get_gslist_for_scroll_in_display_manager();
 
   GtkWidget *scroll_radio_button_1;
 
@@ -1185,14 +1184,17 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   tmp_name = widget_name + strlen(widget_name); 
   snprintf(tmp_name, 4, "%-d", n);
 
+  printf("using scroll_group 0x%x\n", scroll_group);
   scroll_radio_button_1 = gtk_radio_button_new_with_label(scroll_group, _("Scroll"));
+  printf("made scroll_radio_button_1 0x%x\n", scroll_radio_button_1);
   scroll_group = gtk_radio_button_group (GTK_RADIO_BUTTON(scroll_radio_button_1));
-  *gslist_for_scroll_in_display_manager_p() = scroll_group;
+  printf("saving scroll_group 0x%x\n", scroll_group);
+  set_gslist_for_scroll_in_display_manager(scroll_group);
+  printf("saved scroll_group is now 0x%x\n", get_gslist_for_scroll_in_display_manager());
 
-  gtk_widget_ref(scroll_radio_button_1);
   gtk_object_set_data_full(GTK_OBJECT(display_control_window_glade), widget_name,
-			   scroll_radio_button_1, 
-			   (GtkDestroyNotify) gtk_widget_unref);
+			   scroll_radio_button_1,
+			   NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), FALSE);
 
   gtk_widget_show(scroll_radio_button_1);
@@ -1203,8 +1205,8 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   if (scroll_wheel_map() == n) {
      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), TRUE);
   }
-/*   gtk_object_set_user_data (GTK_OBJECT (scroll_radio_button_1), (char *) n);  */
 
+  
 /* -- */
 
   strcpy(widget_name, "properties_button_"); 

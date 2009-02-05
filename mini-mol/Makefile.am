@@ -20,7 +20,7 @@
 
 lib_LTLIBRARIES=libcoot-mini-mol.la
 
-include_HEADERS =  mini-mol.hh mini-mol-utils.hh
+include_HEADERS =  mini-mol.hh mini-mol-utils.hh atom-quads.hh
 
 INCLUDES =  \
 	-I$(top_srcdir)/coot-utils \

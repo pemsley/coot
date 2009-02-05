@@ -1600,6 +1600,33 @@ molecule_class_info_t::get_atom(const std::string &go_to_residue_string,
    return at;
 }
 
+// simple version of above, don't be intelligent.
+//
+CAtom *
+molecule_class_info_t::get_atom(const coot::atom_spec_t &atom_spec) const {
+
+   CAtom *at = NULL;
+   CResidue *res = get_residue(atom_spec.resno, atom_spec.insertion_code, atom_spec.chain);
+   if (res) {
+      PPCAtom residue_atoms;
+      int nResidueAtoms;
+      res->GetAtomTable(residue_atoms, nResidueAtoms);
+      for (int iat=0; iat<nResidueAtoms; iat++) {
+	 CAtom *test_at = residue_atoms[iat];
+	 std::string at_name = test_at->name;
+	 std::string at_alt_conf = test_at->altLoc;
+	 if (atom_spec.atom_name == at_name) {
+	    if (atom_spec.alt_conf == at_alt_conf) {
+	       at = test_at;
+	       break;
+	    }
+	 } 
+      } 
+   } 
+   return at;
+
+} 
+
 // This should check that if "a" is typed, then set "a" as the
 // chain_id if it exists, else convert to "A" (if that exists).
 // 

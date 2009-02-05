@@ -60,6 +60,8 @@
 (define map-peaks-near-point map-peaks-near-point-scm)
 (define add-dipole add-dipole-scm)
 (define add-dipole-for-residues add-dipole-for-residues-scm)
+(define get-torsion get-torsion-scm)
+(define test-internal-single test-internal-single-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a

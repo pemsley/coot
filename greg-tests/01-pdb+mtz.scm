@@ -1289,7 +1289,7 @@
 			     rotamer-number rotamer-name rotamer-prob)
 		     (if (not (close-float? correct-prob rotamer-prob))
 			 (begin
-			   (format #t "fail on rotamer probability ~s ~s ~%"
+			   (format #t "fail on rotamer probability: result: ~s should be: ~s ~%"
 				   rotamer-prob correct-prob)
 			   (throw 'fail)))
 		     (string=? rotamer-name correct-name)))

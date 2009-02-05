@@ -151,7 +151,9 @@ void set_show_paths_in_display_manager(int i);
 int show_paths_in_display_manager_state();
 
 /* 20050316 Ooooh! Hairy hairy! */
-GSList **gslist_for_scroll_in_display_manager_p();
+GSList *get_gslist_for_scroll_in_display_manager();
+
+void set_gslist_for_scroll_in_display_manager(GSList *list);
 
 /*! \brief add an extension to be treated as coordinate files 
 */
@@ -584,6 +586,7 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM test_internal_scm(); 
+SCM test_internal_single_scm(); 
 #endif	/* USE_GUILE */
 #ifdef USE_PYTHON
 PyObject *test_internal_py(); 
@@ -3171,7 +3174,17 @@ PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y,
 #ifdef USE_GUILE
 SCM map_peaks_scm(int imol_map, float n_sigma);
 SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, float z, float radius);
-#endif 
+#endif
+
+
+/* does this live here really? */
+#ifdef __cplusplus 
+#ifdef USE_GUILE
+SCM get_torsion_scm(int imol, SCM atom_spec_1, SCM atom_spec_2, SCM atom_spec_3, SCM atom_spec_4);
+#endif
+#endif
+
+
 
 #endif /* __cplusplus  */
 

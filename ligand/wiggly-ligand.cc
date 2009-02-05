@@ -39,14 +39,14 @@
 //  done  (it was half done anyway).
 //
 
-std::vector<coot::minimol::molecule>
+std::vector<coot::installed_wiggly_ligand_info_t>
 coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 					     const coot::minimol::molecule &ligand_in,
 					     int n_samples,
 					     bool optimize_geometry_flag,
 					     bool fill_returned_molecules_vector_flag) {
 
-   std::vector<coot::minimol::molecule> returned_molecules;
+   std::vector<coot::installed_wiggly_ligand_info_t> returned_tors_molecules_info;
    short int istat = 0;
    std::string m = ""; 
    
@@ -65,17 +65,24 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
    std::vector <coot::dict_torsion_restraint_t> non_const_torsions;
    int n_torsionable = 0;
    for (unsigned int i_tor=0; i_tor<m_torsions.size(); i_tor++) {
-      if (! m_torsions[i_tor].is_const())
+      if (! m_torsions[i_tor].is_const()) { 
 	 non_const_torsions.push_back(m_torsions[i_tor]);
 	 n_torsionable++;
+      } 
    } 
    std::cout << "This residues has " << m_torsions.size() << " defined non-H torsions "
 	     << "of which " << n_torsionable << " are rotatable " << std::endl;
+   if (debug_wiggly_ligands) {
+      for (unsigned int itor=0; itor<m_torsions.size(); itor++) { 
+	 std::cout << "   " << itor << " " << m_torsions[itor] << "\n";
+      }
+   }
 
    
    if (non_const_torsions.size() == 0) {
 
-      // << " Did you forget to read the dictionary?\n";
+      // " Did you forget to read the dictionary?";
+      
       std::pair<short int, dictionary_residue_restraints_t> p = 
 	 pg->get_monomer_restraints(monomer_type);
 
@@ -94,9 +101,12 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	 install_ligand(ligand_in);
 	 istat = 1;
       }
-      if (fill_returned_molecules_vector_flag)
-	 returned_molecules.push_back(ligand_in); // get what you give.
-      return returned_molecules;
+      if (fill_returned_molecules_vector_flag) {
+	 coot::installed_wiggly_ligand_info_t l;
+	 l.mol = ligand_in;
+	 returned_tors_molecules_info.push_back(l); // get what you give.
+	 return returned_tors_molecules_info;
+      } 
 
    } else {
       istat = 1; // OK.... so far.
@@ -125,17 +135,16 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	 
       //  Rotatable bonds -> coord indices
       // 
-      std::vector<coot::atom_name_pair> atom_name_pairs =
-	 get_torsion_bonds_atom_pairs(monomer_type, non_const_torsions);
+      std::vector<coot::atom_name_quad> atom_name_quads =
+	 get_torsion_bonds_atom_quads(monomer_type, non_const_torsions);
 
-      std::vector<coot::atom_index_pair> atom_index_pairs =
-	 get_atom_index_pairs(atom_name_pairs, ligand);
+      std::vector<coot::atom_index_quad> atom_index_quads =
+	 get_atom_index_quads(atom_name_quads, ligand);
 
-      if (atom_name_pairs.size() != atom_index_pairs.size()) { 
+      if (atom_name_quads.size() != atom_index_quads.size()) { 
 	 std::cout << "DISASTER:: atom_name_pairs.size() != atom_index_pairs.size()\n";
-	 std::cout << "atom_name_pairs.size()   " << atom_name_pairs.size()  << std::endl;
-	 std::cout << "atom_index_pairs.size()  " << atom_index_pairs.size() << std::endl;
-
+	 std::cout << "atom_name_pairs.size()   " << atom_name_quads.size()  << std::endl;
+	 std::cout << "atom_index_pairs.size()  " << atom_index_quads.size() << std::endl;
       }
 
       std::vector<std::vector<int> > contacts;
@@ -171,14 +180,25 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       
 //       std::cout << " There are " << atom_index_pairs.size() 
 // 	        << " atom_index_pairs" << std::endl;
-      for (unsigned int ibond=0; ibond< atom_index_pairs.size(); ibond++) {
+      for (unsigned int ibond=0; ibond< atom_index_quads.size(); ibond++) {
          if (! non_const_torsions[ibond].is_const())  {
 	    if (debug_wiggly_ligands)
 	       std::cout << "rotating to " << torsion_set[ibond] << " round "
-			 << atom_index_pairs[ibond].index1 << " "
-			 << atom_index_pairs[ibond].index2 << "\n";
-	    tree.SetDihedralAngle(atom_index_pairs[ibond].index1,
-				  atom_index_pairs[ibond].index2,
+			 << atom_index_quads[ibond].index1 << " "
+			 << atom_index_quads[ibond].index2 << " "
+			 << atom_index_quads[ibond].index3 << " "
+			 << atom_index_quads[ibond].index4 << "\n";
+
+	    // new version of mgtree, doesn't work	    
+	    //tree.SetDihedralAngle(atom_index_quads[ibond].index1,
+	    //			  atom_index_quads[ibond].index2,
+	    //			  atom_index_quads[ibond].index3,
+	    //			  atom_index_quads[ibond].index4,
+	    //			  clipper::Util::d2rad(torsion_set[ibond]));
+	    
+	    // 
+	    tree.SetDihedralAngle(atom_index_quads[ibond].index2,
+				  atom_index_quads[ibond].index3,
 				  clipper::Util::d2rad(torsion_set[ibond]));
          }
       }
@@ -188,11 +208,11 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
 	 for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++) {
 	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) {
-// 	       if (debug_wiggly_ligands)
-// 		  std::cout << "DEBUG:: updating position from "
-// 			    << ligand[ifrag][ires][iat].pos.format()
-// 			    << " to "
-// 			    << rotated_coords[ncoord] << std::endl;
+ 	       if (debug_wiggly_ligands)
+ 		  std::cout << "DEBUG:: updating position from "
+ 			    << ligand[ifrag][ires][iat].pos.format()
+ 			    << " to "
+ 			    << rotated_coords[ncoord] << std::endl;
 	       ligand[ifrag][ires][iat].pos =
 		  clipper::Coord_orth(rotated_coords[ncoord].get_x(),
 				      rotated_coords[ncoord].get_y(),
@@ -214,21 +234,32 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       if (optimize_geometry_flag) { 
 	 coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(ligand, *pg);
 	 install_ligand(reg_ligand);
-	 if (fill_returned_molecules_vector_flag)
-	    returned_molecules.push_back(reg_ligand);
+	 if (fill_returned_molecules_vector_flag) {
+	    coot::installed_wiggly_ligand_info_t l;
+	    l.mol = reg_ligand;
+	    l.add_torsions(non_const_torsions, torsion_set);
+	    returned_tors_molecules_info.push_back(l);
+	 } 
       } else {
 	 install_ligand(ligand);
-	 if (fill_returned_molecules_vector_flag)
-	    returned_molecules.push_back(ligand);
+	 if (fill_returned_molecules_vector_flag) { 
+	    coot::installed_wiggly_ligand_info_t l;
+	    l.mol = ligand;
+	    l.add_torsions(non_const_torsions, torsion_set);
+	    returned_tors_molecules_info.push_back(l);
+	 } 
       }
 #else
       install_ligand(ligand);
-      if (fill_returned_molecules_vector_flag)
-	 returned_molecules.push_back(ligand);
+      if (fill_returned_molecules_vector_flag) { 
+	 coot::installed_wiggly_ligand_info_t l;
+	 l.mol = ligand_in;
+	 returned_tors_molecules_info.push_back(l);
+      }
 #endif
    }
    // return std::pair<short int, std::string> (istat, m); old
-   return returned_molecules;
+   return returned_tors_molecules_info;
 }
 
 std::string
@@ -549,6 +580,50 @@ coot::wligand::get_atom_index_pairs(std::vector<coot::atom_name_pair>atom_name_p
    return index_pairs; 
 }
 
+std::vector<coot::atom_index_quad>
+coot::wligand::get_atom_index_quads(std::vector<coot::atom_name_quad> atom_name_quads,
+				    const coot::minimol::molecule &ligand) const {
+   
+   int i_store_index_1; 
+   int i_store_index_2; 
+   int i_store_index_3; 
+   std::vector<coot::atom_index_quad> index_quads;
+
+   for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
+      for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++) {
+	 for (unsigned int iquad=0; iquad<atom_name_quads.size(); iquad++) {
+	    i_store_index_1 = -1;
+	    i_store_index_2 = -2;
+	    i_store_index_3 = -3;
+	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++)
+	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom1)
+		  i_store_index_1 = iat;
+	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++)
+	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom2)
+		  i_store_index_2 = iat;
+	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++)
+	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom3)
+		  i_store_index_3 = iat;
+
+	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) {
+	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom2) {
+		  if (i_store_index_1 > -1) { 
+		     if (i_store_index_2 > -1) { 
+			if (i_store_index_3 > -1) { 
+			   index_quads.push_back(coot::atom_index_quad(i_store_index_1,
+								       i_store_index_2,
+								       i_store_index_3,
+								       iat));
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return index_quads; 
+}
 
 std::vector<coot::atom_name_pair>
 coot::wligand::get_torsion_bonds_atom_pairs(const std::string &monomer_type,
@@ -561,4 +636,94 @@ coot::wligand::get_torsion_bonds_atom_pairs(const std::string &monomer_type,
       atom_pairs.push_back(pair);
    }
    return atom_pairs;
+} 
+
+
+std::vector<coot::atom_name_quad>
+coot::wligand::get_torsion_bonds_atom_quads(const std::string &monomer_type,
+					    const std::vector <coot::dict_torsion_restraint_t> &monomer_torsions) const {
+
+   std::vector<coot::atom_name_quad> atom_quads;
+   for(unsigned int i=0; i<monomer_torsions.size(); i++) {
+      coot::atom_name_quad quad(monomer_torsions[i].atom_id_1_4c(),
+				monomer_torsions[i].atom_id_2_4c(),
+				monomer_torsions[i].atom_id_3_4c(),
+				monomer_torsions[i].atom_id_4_4c());
+      atom_quads.push_back(quad);
+   }
+   return atom_quads;
+}
+
+void
+coot::installed_wiggly_ligand_info_t::add_torsion(const coot::dict_torsion_restraint_t &rest,
+						  double torsion) {
+
+   coot::torsioned_atoms_info_t t(rest, torsion);
+   torsioned_atoms.push_back(t);
+}
+
+void
+coot::installed_wiggly_ligand_info_t::add_torsions(const std::vector<coot::dict_torsion_restraint_t> &rests,
+						   const std::vector<float> torsions) {
+
+   if (torsions.size() == rests.size()) {
+      for (unsigned int i=0; i<torsions.size(); i++)
+	 add_torsion(rests[i], torsions[i]);
+   } else {
+      std::cout << "ERROR:: in installed_wiggly_ligand_info_t\n";
+      std::cout << "    random_torsions size != non_const_torsions size() "
+		<< torsions.size() << " " << rests.size() << std::endl;
+   } 
+
+} 
+
+unsigned int
+coot::installed_wiggly_ligand_info_t::n_torsions() const {
+   return torsioned_atoms.size();
+}
+
+// throw an exception if not possible
+std::pair<float, float>
+coot::installed_wiggly_ligand_info_t::get_set_and_ideal_torsions(int i) const {
+
+   std::pair<float, float> p;
+   if (i >= 0) { 
+      if (i < n_torsions()) {
+	 p.first = torsioned_atoms[i].torsion;
+	 p.second = torsioned_atoms[i].torsion_from_restraint;
+      } else {
+	 std::string mess = "bad torsion index ";
+	 mess += coot::util::int_to_string(i);
+	 throw std::runtime_error(mess);
+      }
+   } else {
+      std::string mess = "bad torsion index ";
+      mess += coot::util::int_to_string(i);
+      throw std::runtime_error(mess);
+   } 
+   return p;
+} 
+
+// throw an exception if not possible
+std::pair<float, float>
+coot::installed_wiggly_ligand_info_t::get_set_and_real_torsions(int i) const {
+
+   std::pair<float, float> p = get_set_and_ideal_torsions(i);
+   if (i >= 0) { 
+      if (i < n_torsions()) {
+	 coot::atom_name_quad quad = torsioned_atoms[i].quad;
+	 coot::minimol::residue res = mol[0][1];
+	 p.second = res.get_torsion(quad);
+	 
+      } else {
+	 std::string mess = "bad torsion index ";
+	 mess += coot::util::int_to_string(i);
+	 throw std::runtime_error(mess);
+      }
+   } else {
+      std::string mess = "bad torsion index ";
+      mess += coot::util::int_to_string(i);
+      throw std::runtime_error(mess);
+   }
+   return p;
 } 

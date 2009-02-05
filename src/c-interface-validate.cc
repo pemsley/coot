@@ -1686,3 +1686,34 @@ void set_show_chiral_volume_errors_dialog(short int istate) {
 
 }
 
+
+/* does this live here really? */
+
+#ifdef USE_GUILE
+SCM get_torsion_scm(int imol, SCM atom_spec_1, SCM atom_spec_2, SCM atom_spec_3, SCM atom_spec_4) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t as1 = atom_spec_from_scm_expression(atom_spec_1);
+      coot::atom_spec_t as2 = atom_spec_from_scm_expression(atom_spec_2);
+      coot::atom_spec_t as3 = atom_spec_from_scm_expression(atom_spec_3);
+      coot::atom_spec_t as4 = atom_spec_from_scm_expression(atom_spec_4);
+
+      graphics_info_t g;
+      bool suc = g.set_angle_tors(imol, as1, as2, as3, as4);
+      if (suc) { 
+	 double tors = g.get_geometry_torsion();
+	 r = scm_double2num(tors);
+      } else {
+	 std::cout << "   WARNING:: (some) atoms not found in molecule #"
+		   << imol << " "
+		   << as1 << " " 
+		   << as2 << " "
+		   << as3 << " "
+		   << as4 << std::endl;
+	    } 
+   }
+   return r;
+} 
+#endif
+
