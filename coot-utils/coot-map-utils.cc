@@ -26,10 +26,11 @@
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
 
+#include "coot-utils.hh"
 #include "coot-map-utils.hh"
 
 
-void
+bool
 coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
 			      std::string mtz_file_name,
 			      std::string f_col,
@@ -38,11 +39,11 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
 			      short int use_weights,
 			      short int is_diff_map) {
 
-   coot::util::map_fill_from_mtz(xmap, mtz_file_name, f_col, phi_col, weight_col,
+   return coot::util::map_fill_from_mtz(xmap, mtz_file_name, f_col, phi_col, weight_col,
 				 use_weights, is_diff_map, 0, 0);
 }
 
-void
+bool
 coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
 			      std::string mtz_file_name,
 			      std::string f_col,
@@ -52,6 +53,9 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
 			      short int is_diff_map,
 			      float reso_limit_high,
 			      short int use_reso_limit_high) {
+
+  if (!file_exists(mtz_file_name))
+      return 0;
 
   clipper::HKL_info myhkl; 
   clipper::MTZdataset myset; 
@@ -104,6 +108,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
   std::cout << "doing fft..." << std::endl;
   xmap->fft_from( fphidata );                  // generate map
   std::cout << "done fft..." << std::endl;
+  return 1;
 }
 
 // Note density_at_point in molecule-class-info looks as if its
