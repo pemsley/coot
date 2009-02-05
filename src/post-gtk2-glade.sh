@@ -35,6 +35,8 @@ sed -e 's/#include "callbacks.h.gtk2"/#if (GTK_MAJOR_VERSION > 1)\n\n#include "c
         /png/s/create_pixmap (preferences, /gtk_image_new_from_stock (/
         /png/s/);/, GTK_ICON_SIZE_BUTTON);/
         }' \
+    -e 's/tmp_image.*rtz.svg/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &/' \
+    -e 's/gtk_container_add.*model_toolbar_rot_trans_toolbutton);/&\n#endif\n/' \
     gtk2-interface.c > gtk2-interface.tmp
 echo '#endif /* (GTK_MAJOR_VERSION > 1) */' >> gtk2-interface.tmp
 
