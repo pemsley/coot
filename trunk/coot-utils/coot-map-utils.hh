@@ -85,7 +85,9 @@ namespace coot {
       // real graphics program.  Use instead import_map_from() with a
       // precalculated map.
       //
-      void map_fill_from_mtz(clipper::Xmap<float> *xmap,
+      // return 1 if map is filled, 0 if not (e.g. mtz file not found).
+      // 
+      bool map_fill_from_mtz(clipper::Xmap<float> *xmap,
 			     std::string mtz_file_name,
 			     std::string f_col,
 			     std::string phi_col,
@@ -93,7 +95,7 @@ namespace coot {
 			     short int use_weights,
 			     short int is_diff_map);
 
-      void map_fill_from_mtz(clipper::Xmap<float> *xmap,
+      bool map_fill_from_mtz(clipper::Xmap<float> *xmap,
 			     std::string mtz_file_name,
 			     std::string f_col,
 			     std::string phi_col,
