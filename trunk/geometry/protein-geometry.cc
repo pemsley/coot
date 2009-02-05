@@ -846,6 +846,23 @@ std::ostream& coot::operator<<(std::ostream&s, coot::dict_plane_restraint_t rest
    return s;
 }
 
+std::ostream&
+coot::operator<<(std::ostream &s, dict_torsion_restraint_t &rest) {
+   s << "[torsion-restraint: " << rest.id() << " "
+     << rest.atom_id_1_4c() << " "
+     << rest.atom_id_2_4c() <<  " "
+     << rest.atom_id_3_4c() <<  " "
+     << rest.atom_id_4_4c() <<  " "
+     << rest.angle() << " " 
+     << rest.esd() << " " 
+     << rest.periodicity();
+   if (rest.is_const())
+      s << " CONST ";
+   s << "]";
+   return s;
+} 
+
+
 // We currently want to stop adding chem comp info
 // if the chem_comp info comes from mon_lib_list.cif:
 //
