@@ -197,7 +197,10 @@ parse_command_line(int argc, char ** argv ) {
 			    << "            [--no-state-script]\n"
 			    << "            [--no-splash-screen]\n"
 			    << "            [--no-graphics]\n"
+			    << "            [--no-guano]\n"
+			    << "            [--small-screen]\n"
 			    << "            [--stereo]\n"
+			    << "            [--side-by-side]\n"
 			    << "            [--version]" << std::endl;
 		  exit(0);
 	       } else {
