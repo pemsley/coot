@@ -981,7 +981,7 @@ void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
 
 #if (GTK_MAJOR_VERSION > 1)
 // RHEL 4 (gtk 2.4.13) does't have menutoolbuttons (not sure at which
-// minor version it was introduced).
+// minor version it was introduced).  FC4 (GTK 2.6.7 *does* have it).
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 4) ) || GTK_MAJOR_VERSION > 2)
    GtkWidget *menu_tool_button = lookup_widget(window1, "model_toolbar_rot_trans_toolbutton");
 
