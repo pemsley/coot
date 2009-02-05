@@ -205,7 +205,10 @@
     (let ((core (core-file)))
       (format #t "core: ~s~%" core)
       (if (eq? core #f)
-	  (format #t "No core file found.  No debugging~%")
+	  (begin
+	    (format #t "No core file found.  No debugging~%")
+	    (format #t "   This is not helpful.  ~%")
+	    (format #t "   Please turn on core dumps before sending a crash report~%"))
 	  (let ((gdb-script (make-gdb-script)))
 	    (if (string? gdb-script)
 		(begin
