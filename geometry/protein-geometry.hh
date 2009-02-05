@@ -225,7 +225,9 @@ namespace coot {
       int periodicity() const { return period; }
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}
+      friend std::ostream& operator<<(std::ostream &s, dict_torsion_restraint_t &rest); 
    };
+   std::ostream& operator<<(std::ostream &s, dict_torsion_restraint_t &rest); 
 
    // ------------------------------------------------------------------------
    // class dict_plane_restraint_t 
