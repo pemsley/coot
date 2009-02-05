@@ -2122,7 +2122,11 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 	 alt_conf_split_flag = 1;
 
       // create a complete new clean copy of chains/residues/atoms
-      std::pair<CMMDBManager *, int> mp(0,0);
+      std::pair<CMMDBManager *, int> mp(0, 0);
+
+
+      if (rot_trans_object_type == ROT_TRANS_TYPE_ZONE) 
+	 mp = std::pair<CMMDBManager *, int> (molecules[imol_rot_trans_object].atom_sel.mol,selHnd);
 
       if (rot_trans_object_type == ROT_TRANS_TYPE_CHAIN) 
 	mp = 
