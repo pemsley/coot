@@ -1427,3 +1427,138 @@
 		   (set-residue-to-rotamer-number imol "H" 52 "A" 4) ;; crash
 		   #t
 		   )))))))))
+
+
+
+(greg-testcase "RNA base has correct after mutation" #t 
+   (lambda ()
+
+     (let ((rna-mol (ideal-nucleic-acid "RNA" "A" 0 "GACUCUAG")))
+
+       (let ((success (mutate-base rna-mol "A" 2 "" "Cr")))
+	 (if (not (= success 1))
+	     (begin
+	       (format #t "  mutation fail!~%")
+	       (throw 'fail)))
+	 (let ((rn (residue-name rna-mol "A" 2 "")))
+	   (format #t "  mutated base to type ~s~%" rn)
+	   (string=? rn "Cr"))))))
+
+
+(greg-testcase "SegIDs are correct after mutate" #t
+   (lambda () 
+
+     ;; main line
+     (let ((imol (copy-molecule imol-rnase)))
+       
+       (if (not (valid-model-molecule? imol))
+	   (throw 'fail))
+
+       (let ((atoms (residue-info imol "A" 32 "")))
+	 
+	 (if (not (atoms-have-correct-seg-id? atoms ""))
+	     (begin
+	       (format #t "wrong seg-id ~s should be ~s~%" atoms "")
+	       (throw 'fail))))
+
+       ;; now convert that residue to segid "A"
+       ;; 
+       (let ((attribs (map (lambda (atom)
+			     (list imol "A" 32 ""
+				   (car (car atom))
+				   (car (cdr (car atom)))
+				   "segid" "A"))
+			   (residue-info imol "A" 32 ""))))
+	 
+	 (set-atom-attributes attribs))
+
+       (let ((atoms (residue-info imol "A" 32 "")))
+	 (if (not (atoms-have-correct-seg-id? atoms "A"))
+	     (begin
+	       (format #t "wrong seg-id ~s should be ~s~%" atoms "A")
+	       (throw 'fail))))
+
+       ;; now let's do the mutation
+       (mutate imol "A" 32 "" "LYS")
+
+       (let ((rn (residue-name imol "A" 32 "")))
+	 (if (not (string=? rn "LYS"))
+	     (begin 
+	       (format #t "  Wrong residue name after mutate ~s~%" rn)
+	       (throw 'fail))))
+
+       (let ((atoms (residue-info imol "A" 32 "")))
+	 (if (not (atoms-have-correct-seg-id? atoms "A"))
+	     (begin
+	       (format #t "wrong seg-id ~s should be ~s~%" atoms "A")
+	       (throw 'fail))))
+
+       #t)))
+
+
+	     
+
+(greg-testcase "Correct Segid After Add Terminal Residue" #t 
+   (lambda () 
+
+     (let ((imol (copy-molecule imol-rnase))
+	   (imol-map (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
+
+       ;; now convert that residue to segid "A"
+       ;; 
+       (let ((attribs (map (lambda (atom)
+			     (list imol "A" 93 ""
+				   (car (car atom))
+				   (car (cdr (car atom)))
+				   "segid" "A"))
+			   (residue-info imol "A" 93 ""))))
+	 (set-atom-attributes attribs))
+
+       (add-terminal-residue imol "A" 93 "ALA" 1)
+
+       (let ((atoms (residue-info imol "A" 94 "")))
+	 (if (not (atoms-have-correct-seg-id? atoms "A"))
+	     (begin
+	       (format #t "wrong seg-id ~s should be ~s~%" atoms "A")
+	       (throw 'fail))))
+
+       #t)))
+
+
+(greg-testcase "Correct Segid after NCS residue range copy" #t 
+   (lambda () 
+
+     (define (convert-residue-seg-ids imol chain-id resno seg-id)
+       (let ((attribs (map (lambda (atom)
+			     (list imol chain-id resno ""
+				   (car (car atom))
+				   (car (cdr (car atom)))
+				   "segid" seg-id))
+			   (residue-info imol chain-id resno ""))))
+	 (set-atom-attributes attribs)))
+       
+
+     ;; main line
+     (let ((imol (copy-molecule imol-rnase)))
+       
+       ;; convert a residue range
+       (for-each (lambda (resno)
+		  (convert-residue-seg-ids imol "A" resno "X"))
+		(range 20 30))
+
+       ;; NCS copy
+       (make-ncs-ghosts-maybe imol)
+       (copy-residue-range-from-ncs-master-to-others imol "A" 20 30)
+
+       ;; does B have segid X for residues 20-30?
+       (for-each (lambda (resno)
+		  (let ((atoms (residue-info imol "A" resno "")))
+		    (if (not (atoms-have-correct-seg-id? atoms "X"))
+			(begin
+			  (format #t "wrong seg-id ~s should be ~s~%" atoms "X")
+			  (throw 'fail)))))
+		(range 20 30))
+
+       #t)))
+
+	

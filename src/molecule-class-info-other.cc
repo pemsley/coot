@@ -347,7 +347,7 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 // 			 << v[iv].attribute_value.type << " " << v[iv].attribute_name << " :"
 // 			 << v[iv].attribute_value.s << ": " << v[iv].attribute_value.val
 // 			 << std::endl;
-	       if (v[iv].attribute_value.type == coot::atom_attribute_setting_help_t::IS_STRING) { 
+	       if (v[iv].attribute_value.type == coot::atom_attribute_setting_help_t::IS_STRING) {
 		  if (v[iv].attribute_name == "atom-name")
 		     at->SetAtomName((char *) v[iv].attribute_value.s.c_str());
 		  if (v[iv].attribute_name == "alt-conf") {
@@ -355,6 +355,9 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 		  }
 		  if (v[iv].attribute_name == "element") {
 		     at->SetElementName(v[iv].attribute_value.s.c_str());
+		  }
+		  if (v[iv].attribute_name == "segid") {
+		     strncpy(at->segID, v[iv].attribute_value.s.c_str(), 4);
 		  }
 	       }
 	       if (v[iv].attribute_value.type == coot::atom_attribute_setting_help_t::IS_FLOAT) {

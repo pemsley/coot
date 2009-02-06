@@ -43,7 +43,8 @@
 
 namespace coot {
 
-   
+   // for canonical_base_name();
+   enum base_t { RNA, DNA };
 
    // Perhaps this should be a class function of a class derived from CMMDBManager?
    int write_coords_pdb(CMMDBManager *mol, const std::string &file_name);
@@ -818,6 +819,9 @@ namespace coot {
       // Return the angles in radians.
       peptide_torsion_angles_info_t peptide_torsions(CResidue *C_residue, CResidue *N_residue,
 						     const std::string &altconf);
+
+      // return "" on no canonical name found
+      std::string canonical_base_name(const std::string res_name_in, base_t rna_or_dna);
 
       // Return the RTop that matches moving to reference.  Don't move
       // moving though.

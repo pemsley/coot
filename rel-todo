@@ -2,36 +2,14 @@
    o Add terminal residue has disconnected atoms.  Why? ::: 3
 
 
+   o When you mutate an RNA base, it does it fine on the
+     screen. However, when it writes out the file, it changes, e.g., Cr
+     to Cd [VR]
+
+
    o multiple residue ranges, glycosylation, covalent bond entities ::: 10
 
 * What else is there to do here?  Write a test.
-
-
-   o Seg Ids (Mailing list issue):
-
-      At least in these two situations, I think that COOT could make a
-      very educated guess as to the correct SEGID.
-
-       * In mutate (simple or otherwise), COOT could carry over what
-         existed for the residue being mutated
-
-       * In "insert after terminal residue" COOT could carry over what
-         exists for the terminal residue
-
-      These might not always be correct, but they should be 99+% of
-      the time.
-
-     Also mails from Phil Evans, Stephen Graham, Early April 2008
-     about SEG ids.  Doing a NCS loop with Seg ids.  Doing a mutation
-     with Segids (might be the same issue).  The segid for the new
-     atoms should be inherited from those of the rest of the residue
-     (if they are consistent). ::: 6
-
-* mutate done (needs a test?).  But what about ncs-copy-residue-range? 
-  Done, needs test. And what about add_terminal_residue, which uses
-  NEW_COORDS_INSERT, I think.  It does. Coded, needs a test
-  (set-atom-string-attribute now can take a "segid" tag), so we're 
-  all set to make a test.
 
 
    o "Fit ligand here" which gets a monomer then does a ligand search
@@ -499,5 +477,29 @@ button, but I did use the Close molecule button!  Hmm!
 
 * Done.
 
+   o Seg Ids (Mailing list issue):
 
+      At least in these two situations, I think that COOT could make a
+      very educated guess as to the correct SEGID.
+
+       * In mutate (simple or otherwise), COOT could carry over what
+         existed for the residue being mutated
+
+       * In "insert after terminal residue" COOT could carry over what
+         exists for the terminal residue
+
+      These might not always be correct, but they should be 99+% of
+      the time.
+
+     Also mails from Phil Evans, Stephen Graham, Early April 2008
+     about SEG ids.  Doing a NCS loop with Seg ids.  Doing a mutation
+     with Segids (might be the same issue).  The segid for the new
+     atoms should be inherited from those of the rest of the residue
+     (if they are consistent). ::: 6
+
+* mutate done (needs a test?).  But what about ncs-copy-residue-range? 
+  Done, needs test. And what about add_terminal_residue, which uses
+  NEW_COORDS_INSERT, I think.  It does. Coded, needs a test
+  (set-atom-string-attribute now can take a "segid" tag), so we're 
+  all set to make a test.  Done.
 

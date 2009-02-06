@@ -912,6 +912,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 		     SCM at_info = SCM_BOOL(0);
 		     SCM at_pos;
 		     SCM at_occ, at_biso, at_ele, at_name, at_altconf;
+		     SCM at_segid;
 		     SCM at_x, at_y, at_z;
 		     SCM all_atoms = SCM_EOL;
 		     for (int iat=0; iat<n_atoms; iat++) {
@@ -924,6 +925,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 			at_biso= scm_float2num(at->tempFactor);
 			at_ele = scm_makfrom0str(at->element);
 			at_name = scm_makfrom0str(at->name);
+			at_segid = scm_makfrom0str(at->segID);
 			at_altconf = scm_makfrom0str(at->altLoc);
 			SCM at_b = at_biso;
 			if (at->WhatIsSet & ASET_Anis_tFac) {
@@ -938,7 +940,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 			   at_b = scm_reverse(at_b);
 			}
 			SCM compound_name = scm_list_2(at_name, at_altconf);
-			SCM compound_attrib = scm_list_3(at_occ, at_b, at_ele);
+			SCM compound_attrib = scm_list_4(at_occ, at_b, at_ele, at_segid);
 			at_info = scm_list_3(compound_name, compound_attrib, at_pos);
 			all_atoms = scm_cons(at_info, all_atoms);
 		     }
