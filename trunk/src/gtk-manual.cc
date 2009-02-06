@@ -1192,15 +1192,20 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   set_gslist_for_scroll_in_display_manager(scroll_group);
   printf("saved scroll_group is now 0x%x\n", get_gslist_for_scroll_in_display_manager());
 
-  gtk_object_set_data_full(GTK_OBJECT(display_control_window_glade), widget_name,
-			   scroll_radio_button_1,
-			   NULL);
+  gtk_object_set_data_full(GTK_OBJECT(display_control_window_glade),
+			   widget_name,
+ 			   scroll_radio_button_1,
+ 			   NULL);
+  
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), FALSE);
 
   gtk_widget_show(scroll_radio_button_1);
   gtk_box_pack_start(GTK_BOX(hbox32), scroll_radio_button_1, FALSE,FALSE, 2);
   gtk_signal_connect(GTK_OBJECT(scroll_radio_button_1), "toggled",
 		     GTK_SIGNAL_FUNC (on_display_control_map_scroll_radio_button_toggled),
+		     GINT_TO_POINTER(n));
+  gtk_signal_connect(GTK_OBJECT(scroll_radio_button_1), "group_changed",
+		     GTK_SIGNAL_FUNC (on_display_control_map_scroll_radio_button_group_changed),
 		     GINT_TO_POINTER(n));
   if (scroll_wheel_map() == n) {
      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), TRUE);
@@ -1266,6 +1271,20 @@ on_display_control_map_scroll_radio_button_toggled (GtkToggleButton *button,
     set_scrollable_map(imol);
   }
 }
+
+void
+on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button,
+							  gpointer         user_data) {
+  int imol = GPOINTER_TO_INT(user_data);
+  GSList *ls = gtk_radio_button_get_group(button);
+  std::cout << "======= DEBUG:: group of button " << imol << " changed to "
+	    << ls << std::endl;
+  // don't save the group from a radio button that has just been
+  // destroy (a destroyed radio button has a group of NULL.)
+  if (ls) 
+     set_gslist_for_scroll_in_display_manager(ls);
+}
+
 
 void
 on_display_control_delete_molecule_button_clicked   (GtkButton       *button,
