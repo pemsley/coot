@@ -201,6 +201,11 @@ void
 on_display_control_map_scroll_radio_button_toggled (GtkToggleButton    *button,
 						    gpointer         user_data); 
 
+void
+on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button,
+							  gpointer         user_data);
+
+
 void fill_map_colour_patch(GtkWidget *patch_frame, int imol); 
 
 
