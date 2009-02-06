@@ -170,3 +170,76 @@ coot::pucker_analysis_info_t::puckered_atom() const {
    return s;
 } 
 
+
+// return "" on no canonical name found
+std::string
+coot::util::canonical_base_name(const std::string res_name_in, base_t rna_or_dna) {
+
+   if (rna_or_dna == coot::RNA) {
+      if (res_name_in == "C")
+	 return "Cr";
+      if (res_name_in == "A")
+	 return "Ar";
+      if (res_name_in == "G")
+	 return "Gr";
+      if (res_name_in == "T")
+	 return "Tr";
+      if (res_name_in == "U")
+	 return "Ur";
+      if (res_name_in == "Cr")
+	 return "Cr";
+      if (res_name_in == "Ar")
+	 return "Ar";
+      if (res_name_in == "Gr")
+	 return "Gr";
+      if (res_name_in == "Tr")
+	 return "Tr";
+      if (res_name_in == "Ur")
+	 return "Ur";
+      if (res_name_in == "Cd")
+	 return "Cr";
+      if (res_name_in == "Ad")
+	 return "Ar";
+      if (res_name_in == "Gd")
+	 return "Gr";
+      if (res_name_in == "Td")
+	 return "Tr";
+      if (res_name_in == "Ud")
+	 return "Ur";
+   }
+   
+   if (rna_or_dna == coot::RNA) {
+      if (res_name_in == "C")
+	 return "Cd";
+      if (res_name_in == "A")
+	 return "Ad";
+      if (res_name_in == "G")
+	 return "Gd";
+      if (res_name_in == "T")
+	 return "Td";
+      if (res_name_in == "U")
+	 return "Ud";
+      if (res_name_in == "Cd")
+	 return "Cd";
+      if (res_name_in == "Ad")
+	 return "Ad";
+      if (res_name_in == "Gd")
+	 return "Gd";
+      if (res_name_in == "Td")
+	 return "Td";
+      if (res_name_in == "Ud")
+	 return "Ud";
+      if (res_name_in == "Cr")
+	 return "Cd";
+      if (res_name_in == "Ar")
+	 return "Ad";
+      if (res_name_in == "Gr")
+	 return "Gd";
+      if (res_name_in == "Tr")
+	 return "Td";
+      if (res_name_in == "Ur")
+	 return "Ud";
+   }
+
+   return "";
+}

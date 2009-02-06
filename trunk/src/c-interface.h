@@ -4130,6 +4130,10 @@ target_res_type is a three-letter-code.
 Return 1 on a good mutate. */
 int mutate(int imol, const char *chain_id, int ires, const char *inscode,  const char *target_res_type);
 
+/* return success status, 1 for a good mutate. */
+int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code, const char *res_type);
+
+
 /*! \brief Do you want Coot to automatically run a refinement after
   every mutate and autofit?
 

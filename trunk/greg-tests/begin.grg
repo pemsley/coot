@@ -235,3 +235,16 @@
 	 (else
 	  (loop (cons line lines) (read-line port))))))))
 
+
+(define (atoms-have-correct-seg-id? atoms seg-id)
+  
+  (let loop ((atoms atoms))
+    (cond
+     ((null? atoms) #t)
+     ((let ((atom-seg-id (list-ref (list-ref (car atoms) 1) 3)))
+	(not (string=? atom-seg-id seg-id)))
+      #f)
+     (else 
+      (atoms-have-correct-seg-id? (cdr atoms) seg-id)))))
+
+

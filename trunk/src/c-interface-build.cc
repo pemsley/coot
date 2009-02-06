@@ -2102,7 +2102,19 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
    add_to_history_typed(cmd, args);
    
    return istate;
+}
+
+// return success status.  
+int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code, const char *res_type) {
+   int istate = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t r(chain_id, res_no, ins_code);
+      istate = graphics_info_t::molecules[imol].mutate_base(r, res_type);
+      graphics_draw();
+   } 
+   return istate; 
 } 
+
 
 
 // Return success on residue type match
@@ -3934,13 +3946,16 @@ void do_base_mutation(const char *type) {
       CAtom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[idx];
       CResidue *r = at->residue;
       if (r) {
-	 coot::residue_spec_t res_spec_t(r);
-	 int istat = graphics_info_t::molecules[imol].mutate_base(res_spec_t, std::string(type));
+	 std::string cbn = coot::util::canonical_base_name(type, coot::RNA);
+	 coot::residue_spec_t res_spec(r);
+	 int istat = graphics_info_t::molecules[imol].mutate_base(res_spec, cbn);
 	 if (istat)
 	    graphics_draw();
       }
    }
 }
+
+
 
 void change_chain_id(int imol, const char *from_chain_id, const char *to_chain_id, 
 		     short int use_res_range_flag, int from_resno, int to_resno) {
