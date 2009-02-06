@@ -1184,13 +1184,13 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   tmp_name = widget_name + strlen(widget_name); 
   snprintf(tmp_name, 4, "%-d", n);
 
-  printf("using scroll_group 0x%x\n", scroll_group);
+  // printf("using scroll_group 0x%x\n", scroll_group);
   scroll_radio_button_1 = gtk_radio_button_new_with_label(scroll_group, _("Scroll"));
-  printf("made scroll_radio_button_1 0x%x\n", scroll_radio_button_1);
+  // printf("made scroll_radio_button_1 0x%x\n", scroll_radio_button_1);
   scroll_group = gtk_radio_button_group (GTK_RADIO_BUTTON(scroll_radio_button_1));
-  printf("saving scroll_group 0x%x\n", scroll_group);
+  // printf("saving scroll_group 0x%x\n", scroll_group);
   set_gslist_for_scroll_in_display_manager(scroll_group);
-  printf("saved scroll_group is now 0x%x\n", get_gslist_for_scroll_in_display_manager());
+  // printf("saved scroll_group is now 0x%x\n", get_gslist_for_scroll_in_display_manager());
 
   gtk_object_set_data_full(GTK_OBJECT(display_control_window_glade),
 			   widget_name,
@@ -1276,7 +1276,8 @@ void
 on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button,
 							  gpointer         user_data) {
   int imol = GPOINTER_TO_INT(user_data);
-  GSList *ls = gtk_radio_button_get_group(button);
+  // GSList *ls = gtk_radio_button_get_group(button); // gtk2
+  GSList *ls = gtk_radio_button_group(button); // old style but works.
   std::cout << "======= DEBUG:: group of button " << imol << " changed to "
 	    << ls << std::endl;
   // don't save the group from a radio button that has just been
