@@ -2126,7 +2126,11 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
 
       if (rot_trans_object_type == ROT_TRANS_TYPE_ZONE) 
-	 mp = std::pair<CMMDBManager *, int> (molecules[imol_rot_trans_object].atom_sel.mol,selHnd);
+	mp = 
+	 coot::util::create_mmdbmanager_from_res_selection(molecules[imol_rot_trans_object].atom_sel.mol,
+							   sel_residues, n_sel_residues,
+							   0, 0, altloc_string, chain_id,
+							   alt_conf_split_flag);
 
       if (rot_trans_object_type == ROT_TRANS_TYPE_CHAIN) 
 	mp = 
