@@ -4411,7 +4411,12 @@ void add_lsq_match(int reference_resno_start,
 		   int match_type); /* 0: all
 				       1: main
 				       2: CA 
-				     */
+				    */
+#ifdef __cplusplus
+#ifdef USE_GUILE
+void add_lsq_atom_pair_scm(SCM atom_spec_ref, SCM atom_spec_moving);
+#endif
+#endif
 
 /* Return an rtop pair (proper list) on good match, else #f */
 #ifdef __cplusplus	/* need this wrapper, else gmp.h problems in callback.c */

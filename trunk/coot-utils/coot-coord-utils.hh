@@ -253,7 +253,12 @@ namespace coot {
       std::string reference_chain_id;
       std::string matcher_chain_id;
       int match_type_flag; // CA/Main/All
-      lsq_range_match_info_t() {};
+      bool is_single_atom_match;
+      std::string reference_atom_name;
+      std::string reference_alt_conf;
+      std::string matcher_atom_name;
+      std::string matcher_alt_conf;
+      lsq_range_match_info_t() { is_single_atom_match = 0;};
       lsq_range_match_info_t(int to_reference_start_resno_in,
 			     int to_reference_end_resno_in,
 			     std::string reference_chain_id_in,
@@ -261,6 +266,7 @@ namespace coot {
 			     int from_matcher_end_resno_in,
 			     std::string matcher_chain_id_in,
 			     short int match_type_flag_in) {
+	 is_single_atom_match = 0;
 	 match_type_flag = match_type_flag_in;
 	 to_reference_start_resno = to_reference_start_resno_in;
 	 to_reference_end_resno = to_reference_end_resno_in;
@@ -268,6 +274,30 @@ namespace coot {
 	 from_matcher_end_resno = from_matcher_end_resno_in;
 	 reference_chain_id = reference_chain_id_in;
 	 matcher_chain_id = matcher_chain_id_in;
+      }
+      
+      lsq_range_match_info_t(std::string reference_chain_id_in,
+			     int reference_resno_in,
+			     std::string reference_insertion_code_in,
+			     std::string reference_atom_name_in,
+			     std::string reference_alt_conf_in,
+			     std::string matcher_chain_id_in,
+			     int matcher_resno_in,
+			     std::string matcher_insertion_code_in,
+			     std::string matcher_atom_name_in,
+			     std::string matcher_alt_conf_in) {
+	 is_single_atom_match = 1;
+	 match_type_flag = ALL;
+	 to_reference_start_resno = reference_resno_in;
+	 to_reference_end_resno   = reference_resno_in;
+	 from_matcher_start_resno = matcher_resno_in;
+	 from_matcher_end_resno   = matcher_resno_in;
+	 reference_chain_id       = reference_chain_id_in;
+ 	 matcher_chain_id         = matcher_chain_id_in;
+	 reference_atom_name      = reference_atom_name_in;
+	 reference_alt_conf       = reference_alt_conf_in;
+	 matcher_atom_name        = matcher_atom_name_in;
+	 matcher_alt_conf         = matcher_alt_conf_in;
       }
       
    };

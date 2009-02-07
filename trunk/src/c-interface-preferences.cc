@@ -46,6 +46,9 @@
 
 #include <dirent.h>   // for extra scheme dir
 
+
+#include "guile-fixups.h"
+
 #include "graphics-info.h"
 #include "interface.h"
 #include "c-interface.h"
