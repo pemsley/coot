@@ -58,6 +58,7 @@ graphics_info_t::clear_pending_picks() {
    in_dynamic_distance_define  = 0;
    in_torsion_general_define   = 0;
    pick_pending_flag           = 0;
+   in_user_defined_define      = 0;
 
    std::vector<std::string> button_name_vec =
       model_fit_refine_toggle_button_name_list();
@@ -205,6 +206,7 @@ graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
 
    int iv = 0;
 
+   check_if_in_user_defined_define(event);
    check_if_in_residue_info_define(event);
    iv += check_if_in_regularize_define(event);
    iv += check_if_in_refine_define(event);
@@ -235,6 +237,28 @@ graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
 
    return iv;
 }
+
+void
+graphics_info_t::check_if_in_user_defined_define(GdkEventButton *event) {
+
+   graphics_info_t g;
+   if (g.in_user_defined_define) {
+      pick_info nearest_atom_index_info = atom_pick(event);
+      if (nearest_atom_index_info.success == GL_TRUE) {
+	 in_user_defined_define--;
+	 int im = nearest_atom_index_info.imol;
+	 CAtom *at = molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index];
+	 coot::atom_spec_t spec(at);
+	 spec.int_user_data = im;
+	 user_defined_atom_pick_specs.push_back(spec);
+	 if (in_user_defined_define == 0) {
+	    run_user_defined_click_func(); // uses user_defined_atom_pick_specs
+	    normal_cursor();
+	 } 
+      }
+   } 
+} 
+
 
 void
 graphics_info_t::check_if_in_residue_info_define(GdkEventButton *event) {
@@ -1000,8 +1024,7 @@ graphics_info_t::check_if_in_terminal_residue_define(GdkEventButton *event) {
 	    add_it_now_flag = 1;
 	 }
 	 CResidue *r = (CResidue *) res_p;
-	 if (!coot::util::is_nucleotide(r)) {
-	    // const CResidue * is pain:
+	 if (!coot::util::is_nucleotide_by_dict_dynamic_add(r, Geom_p())) {
 	    g.execute_add_terminal_residue(naii.imol,
 					   term_type,
 					   res_p,
@@ -1173,7 +1196,7 @@ graphics_info_t::check_if_in_mutate_define(GdkEventButton *event) {
 	 g.mutate_residue_imol = naii.imol;
 	 g.mutate_residue_atom_index = naii.atom_index;
 	 CResidue *r = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
-	 if (coot::util::is_nucleotide(r)) {
+	 if (coot::util::is_nucleotide_by_dict_dynamic_add(r, Geom_p())) {
 	    GtkWidget *w = create_nucleic_acid_base_chooser_dialog();
 	    gtk_widget_show(w);
 	 } else { 

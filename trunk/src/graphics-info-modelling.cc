@@ -1851,9 +1851,10 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 	       // terminal_res_asc.mol->WritePDBASCII("terminal_res_asc.pdb");
 	       
-	       //atom_selection_container_t tmp_asc = add_cb_to_terminal_res(terminal_res_asc);
-	       atom_selection_container_t tmp_asc =
-		  add_side_chain_to_terminal_res(terminal_res_asc, res_type);
+	       // atom_selection_container_t tmp_asc = add_cb_to_terminal_res(terminal_res_asc);
+
+ 	       atom_selection_container_t tmp_asc =
+ 		  add_side_chain_to_terminal_res(terminal_res_asc, res_type);
 
 
 // 	       std::cout << "-------------- tmp_asc --------" << std::endl;

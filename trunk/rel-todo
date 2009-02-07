@@ -1,13 +1,11 @@
 
-   o Add terminal residue has disconnected atoms.  Why? ::: 3
+   o Add terminal residue has disconnected atoms.  Why? This is an
+   extremely deeply-buried problem. ::: 4
 
 
-   o When you mutate an RNA base, it does it fine on the
-     screen. However, when it writes out the file, it changes, e.g., Cr
-     to Cd [VR]
-
-
-   o multiple residue ranges, glycosylation, covalent bond entities ::: 10
+   o multiple residue ranges, glycosylation, covalent bond entities,
+     make sure it works with alt confs and residues with TER atoms 
+     ::: 10
 
 * What else is there to do here?  Write a test.
 
@@ -503,3 +501,9 @@ button, but I did use the Close molecule button!  Hmm!
   (set-atom-string-attribute now can take a "segid" tag), so we're 
   all set to make a test.  Done.
 
+
+   o When you mutate an RNA base, it does it fine on the
+     screen. However, when it writes out the file, it changes, e.g., Cr
+     to Cd  [VR] ::: 1
+
+* Done.  Test added.

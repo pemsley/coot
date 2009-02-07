@@ -94,7 +94,6 @@ std::vector<std::string> *graphics_info_t::command_line_scripts;
 coot::command_line_commands_t graphics_info_t::command_line_commands;
 std::vector<std::string> graphics_info_t::command_line_accession_codes;
 
-
 std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
 std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
 std::vector<coot::view_info_t> *graphics_info_t::views = 0;
@@ -824,6 +823,11 @@ std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
 
 //
 short int graphics_info_t::in_reverse_direction_define = 0;
+
+// user defined
+short int graphics_info_t::in_user_defined_define = 0;
+SCM graphics_info_t::user_defined_click_scm_func;
+std::vector<coot::atom_spec_t> graphics_info_t::user_defined_atom_pick_specs;
 
 
 // Miguel's axis orientation matrix ---------------

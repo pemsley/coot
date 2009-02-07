@@ -5082,3 +5082,91 @@ void show_restraints_editor(const char *monomer_type) {
 }
 
 #endif
+
+
+// ===================================================================
+//                   sequence view
+// ===================================================================
+
+void sequence_view_old_style(int imol) {
+   
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   graphics_info_t g;
+   if (g.molecules[imol].has_model()) {
+      graphics_info_t g;
+
+      GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+      if (w) {
+
+	 // it already exists... just raise it and map it.
+
+	 // GtkWidget *canvas = g.sequence_view_is_displayed[imol];
+	 GtkWidget *canvas = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+	 // so what is the window (which we shall call widget)?
+	 GtkWidget *widget = lookup_widget(canvas, "sequence_view_dialog");
+
+	 if (!GTK_WIDGET_MAPPED(widget)) {
+	    gtk_widget_show(widget);
+	 } else {
+	    gdk_window_raise(widget->window);
+	 }
+
+      } else {
+
+	 // create a new one
+
+	 // Let's have a name that has the leading / and .pdb stripped
+	 //
+	 std::string short_name;
+
+	 std::string::size_type islash = g.molecules[imol].name_.find_last_of("/");
+	 std::string tstring;
+	 if (islash == string::npos) { 
+	    // no slash found
+	    tstring = g.molecules[imol].name_;
+	 } else { 
+	    tstring = g.molecules[imol].name_.substr(islash + 1);
+	 }
+      
+	 std::string::size_type ipdb = tstring.rfind(".pdb");
+
+	 if (ipdb == string::npos) {
+	    std::cout << "INFO .pdb not found in filename" << std::endl;
+	    short_name = tstring;
+	 } else {
+	    short_name = tstring.substr(0, ipdb);
+	 }
+	 coot::sequence_view *seq_view =
+	    new coot::sequence_view(g.molecules[imol].atom_sel.mol,
+				    short_name, imol);
+	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
+      }
+   }
+#endif // HAVE_GTK_CANVAS   
+}
+
+void
+add_on_sequence_view_choices() {
+
+   graphics_info_t g;
+   GtkWidget *menu = lookup_widget(GTK_WIDGET(g.glarea), "seq_view_menu");
+
+   if (menu) { 
+      gtk_container_foreach(GTK_CONTAINER(menu),
+			    my_delete_ramachandran_mol_option,
+			    (gpointer) menu);
+      for(int i=0; i<g.n_molecules(); i++) {
+	 if (g.molecules[i].has_model()) {
+	    std::string name;
+	    name = graphics_info_t::molecules[i].dotted_chopped_name();
+	    update_sequence_view_menu_manual(i, name.c_str());
+	 }
+      }
+   }
+} 
+
+
+void set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
+   graphics_info_t g;
+   g.set_sequence_view_is_displayed(widget, imol);
+}

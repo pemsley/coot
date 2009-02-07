@@ -700,6 +700,7 @@ class graphics_info_t {
    void check_if_in_torsion_general_define(GdkEventButton *event);
    void check_if_in_fixed_atom_define(GdkEventButton *event,
 				      const GdkModifierType &state); // can use Ctrl key
+   void check_if_in_user_defined_define(GdkEventButton *event);
    static std::vector<std::string> model_fit_refine_toggle_button_name_list();
    static std::vector<std::string> model_fit_refine_button_name_list();
    static std::vector<std::string> other_modelling_tools_toggle_button_name_list();
@@ -714,7 +715,7 @@ class graphics_info_t {
 			     bool need_residue_order_check, 
 			     int imol,
 			     std::string chain_id);
-   
+
    // ----------------------------------------------------------------
    //             public:
    // ----------------------------------------------------------------
@@ -1803,6 +1804,8 @@ public:
    static short int in_torsion_general_define;
    // static int rot_trans_atom_index_rotation_origin_atom; old naive way.
    static CAtom *rot_trans_rotation_origin_atom; // "Eugene's way"
+
+   static short int in_user_defined_define; 
 
    // save symmetry?
    static short int in_save_symmetry_define;
@@ -3298,7 +3301,16 @@ public:
    // 
    static int listener_socket_have_good_socket_state; 
 
-   void post_recentre_update_and_redraw(); 
+   void post_recentre_update_and_redraw();
+
+   // --- user defined picks
+   static std::vector<coot::atom_spec_t> user_defined_atom_pick_specs;
+   
+#ifdef USE_GUILE
+   static SCM user_defined_click_scm_func;
+   SCM atom_spec_to_scm(const coot::atom_spec_t &spec) const; 
+#endif
+   void run_user_defined_click_func();
 
 
 #ifdef USE_MYSQL_DATABASE

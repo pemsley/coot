@@ -46,7 +46,6 @@
 
 #include <dirent.h>   // for extra scheme dir
 
-
 #include "graphics-info.h"
 #include "interface.h"
 #include "c-interface.h"
@@ -814,6 +813,23 @@ void set_ramachandran_plot_dialog_position(int x_pos, int y_pos) {
    graphics_info_t::ramachandran_plot_y_position = y_pos;
 }
 
+
+
+
+/*  ------------------------------------------------------------------------ */
+/*                     user define clicks                                    */
+/*  ------------------------------------------------------------------------ */
+void user_defined_click_scm(int n_clicks, SCM func) {
+   graphics_info_t g;
+   g.user_defined_atom_pick_specs.clear();
+   g.in_user_defined_define = n_clicks;
+   SCM dest = SCM_BOOL_F;
+   SCM mess = scm_makfrom0str("~s");
+   SCM v = scm_simple_format(dest, mess, scm_list_1(func));
+   std::string func_string = scm_to_locale_string(v);
+   g.user_defined_click_scm_func = func;
+   g.pick_cursor_maybe();
+} 
 
 /*  ------------------------------------------------------------------------ */
 /*                     state (a graphics_info thing)                         */

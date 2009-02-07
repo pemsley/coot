@@ -87,28 +87,6 @@
 	    (< (abs (- b ideal-length)) tolerance)))))
 
 
-(define (get-atom imol chain-id resno atom-name . alt-conf)
-  
-  (define (get-atom-from-res atom-name residue-atoms alt-conf)
-    (let loop ((residue-atoms residue-atoms))
-      (cond 
-       ((null? residue-atoms) #f)
-       ((and (string=? atom-name (car (car (car residue-atoms))))
-	     (string=? alt-conf (car (cdr (car (car residue-atoms))))))
-	(car residue-atoms))
-       (else 
-	(loop (cdr residue-atoms))))))
-
-  (let ((res-info (residue-info imol chain-id resno ""))
-	(alt-conf-internal (if (null? alt-conf)
-			       ""
-			       (car alt-conf))))
-
-    (if (not res-info)
-	#f
-	(get-atom-from-res atom-name res-info alt-conf-internal))))
-	
-
 (define (shelx-waters-all-good-occ? imol-insulin-res)
 
   (let ((chain-id (water-chain imol-insulin-res)))
