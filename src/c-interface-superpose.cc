@@ -39,12 +39,13 @@
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
-//#include "mmdb_spose.h" old ssmlib
-// #include "ss_vxedge.h"
+
 #include "ssm_align.h"
 #include <iostream>
 #include "interface.h"
+
 #else 
+
 #include <gtk/gtk.h>
 #include <string>
 #include <vector>
@@ -52,6 +53,7 @@
 #include "cc-interface.hh"
 #endif // HAVE_SSMLIB
 
+#include "guile-fixups.h"
 
 void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) { 
 
@@ -402,6 +404,25 @@ void add_lsq_match(int reference_resno_start,
    graphics_info_t::lsq_matchers->push_back(m);
 
 }
+
+#ifdef USE_GUILE
+void add_lsq_atom_pair_scm(SCM atom_spec_ref, SCM atom_spec_moving) { 
+
+   coot::atom_spec_t ref_spec = atom_spec_from_scm_expression(atom_spec_ref);
+   coot::atom_spec_t mov_spec = atom_spec_from_scm_expression(atom_spec_moving);
+
+   coot::lsq_range_match_info_t m(ref_spec.chain, ref_spec.resno,
+				  ref_spec.insertion_code, ref_spec.atom_name,
+				  ref_spec.alt_conf,
+				  mov_spec.chain,
+				  mov_spec.resno, mov_spec.insertion_code,
+				  mov_spec.atom_name, mov_spec.alt_conf);
+
+   graphics_info_t::lsq_matchers->push_back(m);
+   
+} 
+#endif
+
 
 // return the rtop on a good match 
 #ifdef USE_GUILE

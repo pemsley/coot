@@ -291,8 +291,7 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 	 //
 	 if (match.match_type_flag == COOT_LSQ_ALL) {
 
-	    //	    if (res_type_1 == res_type_2) {
-	    if (1) {
+	    if (! match.is_single_atom_match) {
 	       PCAtom *residue_atoms1 = NULL;
 	       PCAtom *residue_atoms2 = NULL;
 	       int n_residue_atoms1;
@@ -319,7 +318,36 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 		     }
 		  }
 	       }
-	    }
+	    } else {
+	       // is single atom match
+	       PCAtom *residue_atoms1 = NULL;
+	       PCAtom *residue_atoms2 = NULL;
+	       int n_residue_atoms1;
+	       int n_residue_atoms2;
+	       SelResidue_1[0]->GetAtomTable(residue_atoms1, n_residue_atoms1);
+	       SelResidue_2[0]->GetAtomTable(residue_atoms2, n_residue_atoms2);
+	       for (int iat=0; iat<n_residue_atoms1; iat++) {
+		  CAtom *at1 = residue_atoms1[iat];
+		  std::string at1_name(at1->name);
+		  std::string at1_altconf(at1->altLoc);
+		  short int found_atom2 = 0;
+		  if (at1_name == match.reference_atom_name) { 
+		     if (at1_altconf == match.reference_alt_conf) { 
+			for (int jat=0; jat<n_residue_atoms2; jat++) {
+			   CAtom *at2 = residue_atoms2[jat];
+			   std::string at2_name(at2->name);
+			   std::string at2_altconf(at2->altLoc);
+			   if (at2_name == match.matcher_atom_name) { 
+			      if (at2_altconf == match.matcher_alt_conf) {
+				 v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
+				 v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    } 
 	 }
       }
 
