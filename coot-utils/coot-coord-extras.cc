@@ -221,7 +221,8 @@ coot::util::is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, coot::protein
 	 // 
 	 is_nuc = is_nucleotide_by_dict_dynamic_add(residue_p, geom_p);
       } 
-   } 
+   }
+
    return is_nuc;
 }
 

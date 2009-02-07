@@ -62,6 +62,7 @@
 (define add-dipole-for-residues add-dipole-for-residues-scm)
 (define get-torsion get-torsion-scm)
 (define test-internal-single test-internal-single-scm)
+(define user-defined-click user-defined-click-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a
@@ -633,6 +634,32 @@
 	 (f (cons (car ls) res) (cdr ls) (- n 1)))
 	(else 
 	 (f res (cdr ls) (- count 1)))))))
+
+
+;; Return an atom info or #f (if atom not found).
+;;
+(define (get-atom imol chain-id resno atom-name . alt-conf)
+  
+  (define (get-atom-from-res atom-name residue-atoms alt-conf)
+    (let loop ((residue-atoms residue-atoms))
+      (cond 
+       ((null? residue-atoms) #f)
+       ((and (string=? atom-name (car (car (car residue-atoms))))
+	     (string=? alt-conf (car (cdr (car (car residue-atoms))))))
+	(car residue-atoms))
+       (else 
+	(loop (cdr residue-atoms))))))
+
+  (let ((res-info (residue-info imol chain-id resno ""))
+	(alt-conf-internal (if (null? alt-conf)
+			       ""
+			       (car alt-conf))))
+
+    (if (not res-info)
+	#f
+	(get-atom-from-res atom-name res-info alt-conf-internal))))
+	
+
 
 ;;
 (define (residue-info-dialog-displayed?)

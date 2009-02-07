@@ -4130,7 +4130,7 @@ target_res_type is a three-letter-code.
 Return 1 on a good mutate. */
 int mutate(int imol, const char *chain_id, int ires, const char *inscode,  const char *target_res_type);
 
-/* return success status, 1 for a good mutate. */
+/* \brief mutate a base. return success status, 1 for a good mutate. */
 int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code, const char *res_type);
 
 
@@ -5289,6 +5289,12 @@ void remove_text(int text_handle);
 /*                  experimental                                      */
 /*  ----------------------------------------------------------------------- */
 void nsv(int imol);
+void sequence_view_old_style(int imol);
+#ifdef __cplusplus
+#ifdef USE_GUILE
+void user_defined_click_scm(int n_clicks, SCM func);
+#endif
+#endif
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS

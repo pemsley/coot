@@ -188,12 +188,31 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
    // in mmdb's MakeBricks (or something like that) from here, that's
    // because we are passing an atom that has a nan for a coordinate.
 
+   if (0) { 
+      std::cout << "Seeking contact: selection 1 " << std::endl;
+      for (int ii=0; ii<n_selected_atoms_1; ii++)
+	 std::cout << "   " << ii << " " << atom_selection_1[ii] << " :"
+		   << atom_selection_1[ii]->isTer() << ":" << std::endl;
+      std::cout << "Seeking contact: selection 2 " << std::endl;
+      for (int ii=0; ii<n_selected_atoms_2; ii++)
+	 std::cout << "   " << ii << " " << atom_selection_2[ii] << " :"
+		   << atom_selection_2[ii]->isTer() << ":" << std::endl;
+   }
+
    asc.mol->SeekContacts(atom_selection_1, n_selected_atoms_1,
 			 atom_selection_2, n_selected_atoms_2,
 			 min_dist, max_dist, // min, max distances
 			 0,        // seqDist 0 -> in same res also
 			 contact, ncontacts,
 			 0, &my_matt, i_contact_group);
+
+   if (0) {
+      for (int i=0; i< ncontacts; i++) {
+	 CAtom *atom_p_1 = atom_selection_1[ contact[i].id1 ];
+	 CAtom *atom_p_2 = atom_selection_2[ contact[i].id2 ];
+	 std::cout << "raw contact " << atom_p_1 << " to " << atom_p_2 << std::endl;
+      }
+   }
 
    //     if (verbose_reporting)
 //    std::cout << "in construct_from_atom_selection found " << ncontacts << " contacts from "
@@ -261,16 +280,25 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Cl")) ||
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Br")) ||
-				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, " P"))))
+				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, " P")))) { 
 			      atom_selection_1[ contact[i].id1 ]->PutUDData(udd_handle, 1);
+// 			      std::cout << "marking udd handle "
+// 					<< atom_selection_1[ contact[i].id1 ]
+// 					<< std::endl;
+			   } 
+
  			   if (! ((!strcmp(atom_selection_2[ contact[i].id2 ]->element, " S")) ||
 				  (!strcmp(atom_selection_2[ contact[i].id2 ]->element, "SE")) ||
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "CL")) ||
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Cl")) ||
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Br")) ||
-				  (!strcmp(atom_selection_2[ contact[i].id2 ]->element, " P"))))
+				  (!strcmp(atom_selection_2[ contact[i].id2 ]->element, " P")))) { 
 			      atom_selection_2[ contact[i].id2 ]->PutUDData(udd_handle, 1);
+// 			      std::cout << "marking udd handle "
+// 					<< atom_selection_2[ contact[i].id2 ]
+// 					<< std::endl;
+			   }
 			}
 
 			if (element_1 != element_2) {
@@ -400,8 +428,9 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       std::cout << " atom bonding registration failed.\n";
       have_udd_atoms = 0;
    } else {
-      for (int i=0; i<SelAtom.n_selected_atoms; i++)
+      for (int i=0; i<SelAtom.n_selected_atoms; i++) { 
 	 SelAtom.atom_selection[i]->PutUDData(uddHnd,0);
+      } 
    }
 
    // ------------------
@@ -502,6 +531,9 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 		   (!strcmp(non_Hydrogen_atoms[i]->element, " S")) ||
 		   (!strcmp(non_Hydrogen_atoms[i]->element, "SE")) ||
 		   (!strcmp(non_Hydrogen_atoms[i]->element, " P"))) {
+
+// 		  std::cout << " No contact for " << non_Hydrogen_atoms[i]
+// 			    << std::endl;
 	       
 		  // no contact found or was Sulphur, or Phosphor
 
@@ -1919,8 +1951,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 	 for (int i=0; i<SelAtom.n_selected_atoms; i++) found_contact[i] = 0;
       
 	 for (int i=0; i< ncontacts; i++) {
-	    std::string segid1;
-	    std::string segid2;
+	    std::string chainid1;
+	    std::string chainid2;
 	    if ( contact[i].id2 >  contact[i].id1 ) {
 
 	       int res_1 = Ca_selection[ contact[i].id1 ]->GetSeqNum();
@@ -1958,10 +1990,10 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 					     Ca_selection[ contact[i].id2 ]->y,
 					     Ca_selection[ contact[i].id2 ]->z);
 		     
-			segid1 = (Ca_selection[ contact[i].id1 ]->GetChainID());
-			segid2 = (Ca_selection[ contact[i].id2 ]->GetChainID());
+			chainid1 = (Ca_selection[ contact[i].id1 ]->GetChainID());
+			chainid2 = (Ca_selection[ contact[i].id2 ]->GetChainID());
 
-			if (segid1 == segid2) {
+			if (chainid1 == chainid2) {
 
 // 			   std::cout << "bond_colour_type: " << bond_colour_type << " vs "
 // 				     << Bond_lines_container::COLOUR_BY_B_FACTOR << " and "
@@ -1995,7 +2027,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 				       col = 0;
 				    }
 				 } else {
-				    col = atom_colour_map.index_for_chain(segid1);
+				    col = atom_colour_map.index_for_chain(chainid1);
 				 }
 			      bonds_size_colour_check(col);
 			      addBond(col, ca_1, ca_2);

@@ -6667,11 +6667,22 @@ void print_sequence_chain(int imol, const char *chain_id) {
 
 void do_sequence_view(int imol) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-   graphics_info_t g;
-   if (g.molecules[imol].has_model()) {
-      graphics_info_t g;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      std::vector<CResidue *> r = coot::util::residues_with_insertion_codes(mol);
+      if (r.size() > 0) {
+	 do_sequence_view(imol);
+      } else {
+	 nsv(imol);
+      } 
+   } 
 
+} 
+
+
+void nsv(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
       if (w) {
 
@@ -6689,75 +6700,14 @@ void do_sequence_view(int imol) {
 	 }
 
       } else {
-
-	 // create a new one
-
-	 // Let's have a name that has the leading / and .pdb stripped
-	 //
-	 std::string short_name;
-
-	 std::string::size_type islash = g.molecules[imol].name_.find_last_of("/");
-	 std::string tstring;
-	 if (islash == string::npos) { 
-	    // no slash found
-	    tstring = g.molecules[imol].name_;
-	 } else { 
-	    tstring = g.molecules[imol].name_.substr(islash + 1);
-	 }
-      
-	 std::string::size_type ipdb = tstring.rfind(".pdb");
-
-	 if (ipdb == string::npos) {
-	    std::cout << "INFO .pdb not found in filename" << std::endl;
-	    short_name = tstring;
-	 } else {
-	    short_name = tstring.substr(0, ipdb);
-	 }
-	 coot::sequence_view *seq_view =
-	    new coot::sequence_view(g.molecules[imol].atom_sel.mol,
-				    short_name, imol);
+	 graphics_info_t g;
+	 std::string name = g.molecules[imol].name_for_display_manager();
+	 exptl::nsv *seq_view =
+	    new exptl::nsv(g.molecules[imol].atom_sel.mol, name, imol,
+			   g.use_graphics_interface_flag);
+	 // 
 	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
       }
-   }
-#endif // HAVE_GTK_CANVAS   
-}
-
-void
-add_on_sequence_view_choices() {
-
-   graphics_info_t g;
-   GtkWidget *menu = lookup_widget(GTK_WIDGET(g.glarea), "seq_view_menu");
-
-   if (menu) { 
-      gtk_container_foreach(GTK_CONTAINER(menu),
-			    my_delete_ramachandran_mol_option,
-			    (gpointer) menu);
-      for(int i=0; i<g.n_molecules(); i++) {
-	 if (g.molecules[i].has_model()) {
-	    std::string name;
-	    name = graphics_info_t::molecules[i].dotted_chopped_name();
-	    update_sequence_view_menu_manual(i, name.c_str());
-	 }
-      }
-   }
-} 
-
-
-void set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
-   graphics_info_t g;
-   g.set_sequence_view_is_displayed(widget, imol);
-}
-
-void nsv(int imol) {
-
-   if (is_valid_model_molecule(imol)) {
-      graphics_info_t g;
-      std::string name = g.molecules[imol].name_for_display_manager();
-      exptl::nsv *seq_view =
-	 new exptl::nsv(g.molecules[imol].atom_sel.mol, name, imol,
-			g.use_graphics_interface_flag);
-      // 
-      // g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
    }
 }
 

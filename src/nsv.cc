@@ -141,7 +141,7 @@ void
 exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 
    fixed_font_str = "fixed";
-   pixels_per_letter = 8;
+   pixels_per_letter = 10; // 10 for my F10 box
    pixels_per_chain  = 12;
 
 #ifdef HAVE_GTK_CANVAS
@@ -192,7 +192,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	 // 100 is good for 2 chains
 	 // 
 
-	 int canvas_x_size =  5 + total_res_range * 8 + 140;
+	 int canvas_x_size =  5 + total_res_range * pixels_per_letter + 140;
 	 // 50 is good for 2 chains.
 	 int canvas_y_size =  5 + n_limited_chains * 50; 
 
