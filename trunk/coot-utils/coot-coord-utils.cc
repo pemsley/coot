@@ -1726,7 +1726,7 @@ coot::util::get_residue(int reso, const std::string &insertion_code,
 
    CResidue *res = NULL;
    bool found_res = 0;
-      
+
    if (mol) {
       CModel *model_p = mol->GetModel(1);
       CChain *chain_p;
@@ -4091,7 +4091,7 @@ coot::util::mutate(CResidue *res, CResidue *std_res_unoriented, short int shelx_
 void
 coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
 
-   std::vector<std::string> adenine;  // Pirimidine
+   std::vector<std::string> adenine;  // Pyrimidine
    adenine.push_back(" N9 ");
    adenine.push_back(" C8 ");
    adenine.push_back(" N7 ");
@@ -4104,7 +4104,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
    adenine.push_back(" C6 ");
    adenine.push_back(" N6 ");
 
-   std::vector<std::string> guanine; // Pirimidine
+   std::vector<std::string> guanine; // Pyrimidine
    guanine.push_back(" N9 ");
    guanine.push_back(" C8 ");
    guanine.push_back(" N7 ");

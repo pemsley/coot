@@ -24,10 +24,11 @@
 #include "clipper/core/coords.h"
 #include "coot-lsq-types.h"
 
-namespace coot { 
-CResidue *
-watson_crick_partner(CResidue *res_ref,
-		     CMMDBManager *standard_residues);
+namespace coot {
+   // we need standard residues to make the ideal RNA
+   CResidue * watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues);
+   std::pair<bool, clipper::RTop_orth> 
+      base_pair_match_matix(CResidue *res_ref, CResidue *res_moving);
 
 }
 

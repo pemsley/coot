@@ -245,7 +245,6 @@ namespace coot {
 
    class lsq_range_match_info_t {
    public:
-      enum { CA, MAIN, ALL};
       int to_reference_start_resno;
       int to_reference_end_resno;
       int from_matcher_start_resno;
@@ -287,7 +286,7 @@ namespace coot {
 			     std::string matcher_atom_name_in,
 			     std::string matcher_alt_conf_in) {
 	 is_single_atom_match = 1;
-	 match_type_flag = ALL;
+	 match_type_flag = COOT_LSQ_ALL;
 	 to_reference_start_resno = reference_resno_in;
 	 to_reference_end_resno   = reference_resno_in;
 	 from_matcher_start_resno = matcher_resno_in;

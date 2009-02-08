@@ -701,6 +701,7 @@ class graphics_info_t {
    void check_if_in_lsq_plane_define(GdkEventButton *event);
    void check_if_in_lsq_plane_deviant_atom_define(GdkEventButton *event);
    void check_if_in_torsion_general_define(GdkEventButton *event);
+   void check_if_in_base_pairing_define(GdkEventButton *event);
    void check_if_in_fixed_atom_define(GdkEventButton *event,
 				      const GdkModifierType &state); // can use Ctrl key
    void check_if_in_user_defined_define(GdkEventButton *event);
@@ -3222,7 +3223,10 @@ public:
    static short int in_lsq_plane_define;
 
    // -------- Fffearing -------------
-   static float fffear_angular_resolution; 
+   static float fffear_angular_resolution;
+
+   // -------- Base Pairing (Watson Crick) -------------
+   static int in_base_paring_define;
 
    // ------- generic object interface ------
    static std::vector<coot::generic_display_object_t> *generic_objects_p;

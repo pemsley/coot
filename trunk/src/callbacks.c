@@ -9026,6 +9026,16 @@ on_other_tools_RNA_button_clicked      (GtkButton       *button,
   gtk_widget_show(w);
 }
 
+void
+on_other_tools_base_pair_toggle_button_toggled      (GtkToggleButton       *button,
+                                        gpointer         user_data) { 
+  if (button->active)
+    setup_base_pairing(1);
+  else
+    setup_base_pairing(0);
+} 
+
+
 
 void
 on_ideal_rna_ok_button_clicked         (GtkButton       *button,

@@ -3655,7 +3655,7 @@ int reset_view() {
       int centred_mol = -1;
       float best_fit_for_centred = 9001.1;
    
-      for (int i=0; i<candidate_centres.size(); i++) {
+      for (unsigned int i=0; i<candidate_centres.size(); i++) {
 	 float d = (candidate_centres[i].second - current_centre).length();
 	 if (d < best_fit_for_centred) {
 	    best_fit_for_centred = d;
@@ -3686,7 +3686,7 @@ int reset_view() {
 				      // candidate centre with a
 				      // molecule number greater than
 				      // the centred_mol;
-	    for (int i=0; i<candidate_centres.size(); i++) {
+	    for (unsigned int i=0; i<candidate_centres.size(); i++) {
 	       if (candidate_centres[i].first > centred_mol) {
 		  new_centred_molecule = candidate_centres[i].first;
 		  new_centre = candidate_centres[i].second;
@@ -5823,7 +5823,7 @@ int difference_map(int imol1, int imol2, float map_scale) {
  				       map_scale);
 	 int imol = graphics_info_t::create_molecule();
 	 std::string name = "difference-map";
-	 int swpcolf = graphics_info_t::swap_difference_map_colours;
+	 // int swpcolf = graphics_info_t::swap_difference_map_colours;
 	 graphics_info_t::molecules[imol].new_map(dm.first, name);
 	 graphics_info_t::molecules[imol].set_map_is_difference_map();
 	 
@@ -6354,8 +6354,8 @@ void set_found_coot_gui() {
 
 void set_found_coot_python_gui() {
   
-  graphics_info_t g;
 #ifdef USE_PYTHON
+   graphics_info_t g;
    cout << "Coot Python Scripting GUI code found and loaded." << endl; 
    g.python_gui_loaded_flag = TRUE;
 #endif // USE_PYTHON

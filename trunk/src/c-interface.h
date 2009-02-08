@@ -4799,6 +4799,13 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec, int do_pukka_pucker_c
 #endif /* USE_PYTHON */
 #endif /*  __cplusplus */
 
+/* Return a molecule that contains a residue that is the WC pair
+   partner of the clicked/picked/selected residue */
+int watson_crick_pair(int imol, const char * chain_id, int resno);
+
+/* not for user level */
+void setup_base_pairing(int state);
+
 
 /* \} */
 

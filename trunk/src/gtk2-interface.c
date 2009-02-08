@@ -21034,6 +21034,7 @@ create_other_model_tools_dialog (void)
   GtkWidget *reverse_fragment_direction_togglebutton;
   GtkWidget *place_helix_here_button;
   GtkWidget *other_tools_RNA_button;
+  GtkWidget *other_tools_base_pair_toggle_button;
   GtkWidget *set_undo_molecule_button;
   GtkWidget *dialog_action_area88;
   GtkWidget *other_modelling_tools_close_button;
@@ -21124,6 +21125,11 @@ create_other_model_tools_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox163), other_tools_RNA_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (other_tools_RNA_button), 1);
 
+  other_tools_base_pair_toggle_button = gtk_toggle_button_new_with_mnemonic (_("Base Pair..."));
+  gtk_widget_show (other_tools_base_pair_toggle_button);
+  gtk_box_pack_start (GTK_BOX (vbox163), other_tools_base_pair_toggle_button, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, other_tools_base_pair_toggle_button, _("Click on an atom in a base to generate the base pairing partner"), NULL);
+
   set_undo_molecule_button = gtk_button_new_with_mnemonic (_(" Choose \"Undo\" Molecule... "));
   gtk_widget_show (set_undo_molecule_button);
   gtk_box_pack_start (GTK_BOX (vbox163), set_undo_molecule_button, FALSE, FALSE, 1);
@@ -21183,6 +21189,9 @@ create_other_model_tools_dialog (void)
   g_signal_connect ((gpointer) other_tools_RNA_button, "clicked",
                     G_CALLBACK (on_other_tools_RNA_button_clicked),
                     NULL);
+  g_signal_connect ((gpointer) other_tools_base_pair_toggle_button, "toggled",
+                    G_CALLBACK (on_other_tools_base_pair_toggle_button_toggled),
+                    NULL);
   g_signal_connect ((gpointer) set_undo_molecule_button, "clicked",
                     G_CALLBACK (on_set_undo_molecule_button_clicked),
                     NULL);
@@ -21207,6 +21216,7 @@ create_other_model_tools_dialog (void)
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, reverse_fragment_direction_togglebutton, "reverse_fragment_direction_togglebutton");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, place_helix_here_button, "place_helix_here_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, other_tools_RNA_button, "other_tools_RNA_button");
+  GLADE_HOOKUP_OBJECT (other_model_tools_dialog, other_tools_base_pair_toggle_button, "other_tools_base_pair_toggle_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, set_undo_molecule_button, "set_undo_molecule_button");
   GLADE_HOOKUP_OBJECT_NO_REF (other_model_tools_dialog, dialog_action_area88, "dialog_action_area88");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, other_modelling_tools_close_button, "other_modelling_tools_close_button");

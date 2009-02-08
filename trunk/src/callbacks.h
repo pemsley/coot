@@ -3210,6 +3210,10 @@ on_other_tools_RNA_button_clicked      (GtkButton       *button,
                                         gpointer         user_data);
 
 void
+on_other_tools_base_pair_toggle_button_toggled      (GtkToggleButton       *button,
+                                        gpointer         user_data);
+
+void
 on_ideal_rna_ok_button_clicked         (GtkButton       *button,
                                         gpointer         user_data);
 

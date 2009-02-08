@@ -73,6 +73,7 @@ coot::ideal_rna::make_molecule() {
    }
 
    if (ur) {
+
       mol = new CMMDBManager;
       CModel *model_p = new CModel;
       CChain *sense_chain_p = new CChain;
@@ -94,14 +95,14 @@ coot::ideal_rna::make_molecule() {
 	    res->seqNum = 1 + iseq ;
 	    clipper::RTop_orth o = n_turns(iseq, seq.length(), form_flag);
 	    coot::util::transform_atoms(res, o);
-	    std::cout << " about to mutate residue " << res->GetSeqNum()
-		      << " to type: " << seq[iseq] << " dna-flag: " << is_dna_flag
-		      << std::endl;
+// 	    std::cout << " debug about to mutate residue " << res->GetSeqNum()
+// 		      << " to type: " << seq[iseq] << " dna-flag: " << is_dna_flag
+// 		      << std::endl;
 	    int success = mutate_res(res, seq[iseq], is_dna_flag);
 	    if (success) { 
 	       sense_chain_p->AddResidue(res);
-	       std::cout << " mutated residue " << res->GetSeqNum()
-			 << " to type: " << res->GetResName() << std::endl;
+// 	       std::cout << " mutated residue " << res->GetSeqNum()
+// 			 << " to type: " << res->GetResName() << std::endl;
 	    }
 	 }
       }
@@ -148,6 +149,8 @@ coot::ideal_rna::make_molecule() {
    } else {
       std::cout << "WARNING:: Bad standard residue Ur/Td" << std::endl;
    }
+
+
    return mol;
 }
 

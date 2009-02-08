@@ -225,6 +225,7 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 
 	 if (match.match_type_flag == COOT_LSQ_CA) {
 
+
 	    CAtom *at1 = NULL;
 	    CAtom *at2 = NULL;
 	    if (SelResidue_1[0]->isAminoacid()) {
@@ -326,6 +327,11 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 	       int n_residue_atoms2;
 	       SelResidue_1[0]->GetAtomTable(residue_atoms1, n_residue_atoms1);
 	       SelResidue_2[0]->GetAtomTable(residue_atoms2, n_residue_atoms2);
+// 	       std::cout << "single atom match: residue: ref: "
+// 			 << coot::residue_spec_t(SelResidue_1[0])
+// 			 << " to " 
+// 			 << coot::residue_spec_t(SelResidue_2[0])
+// 			 << std::endl;
 	       for (int iat=0; iat<n_residue_atoms1; iat++) {
 		  CAtom *at1 = residue_atoms1[iat];
 		  std::string at1_name(at1->name);

@@ -1436,7 +1436,6 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	    // we create a mol and then an asc and then use
 	    // replace_coords method:
 	    //
-	    float bf = graphics_info_t::default_new_atoms_b_factor;
 	    PCMMDBManager mol = best_rotamer_mol.pcmmdbmanager();
 	    // mol->WritePDBASCII("moving-atoms.pdb");
 	    atom_selection_container_t asc = make_asc(mol);
@@ -6089,7 +6088,6 @@ molecule_class_info_t::reverse_direction_of_fragment(const std::string &chain_id
       }
       if (found_fragment_flag) {
 
-	 float bf = graphics_info_t::default_new_atoms_b_factor;
 	 CMMDBManager *mol = fragmented_mol.pcmmdbmanager();
 	 // before we get rid of the old atom_sel lets save the cell, symm.
 	 realtype a[6];

@@ -1562,3 +1562,34 @@
        #t)))
 
 	
+(greg-testcase "LSQ by atom" #t
+   (lambda ()
+
+     (define (make-spec-ref atom-name)
+       (list "A" 35 "" atom-name ""))
+
+     (define (make-spec-mov atom-name)
+       (list "B" 35 "" atom-name ""))
+
+     (clear-lsq-matches)
+     (let ((imol-1 (copy-molecule imol-rnase))
+	   (imol-2 (copy-molecule imol-rnase)))
+
+       (let ((spec-refs (map make-spec-ref (list " CG2" " CG1" " CB " " CA ")))
+	     (spec-movs (map make-spec-mov (list " CG2" " CG1" " CB " " CA "))))
+
+	 (map add-lsq-atom-pair spec-refs spec-movs)
+
+	 (let ((result (apply-lsq-matches imol-1 imol-2)))
+
+	   (if (not result) 
+	       (begin
+		 (format #t "Bad match~%")
+		 (throw 'fail)))
+	   
+	   (let* ((c-1 (get-atom imol-1 "A" 35 " C  "))
+		  (c-2 (get-atom imol-2 "B" 35 " C  "))
+		  (b (bond-length-from-atoms c-1 c-2)))
+	     
+	     (bond-length-within-tolerance? c-1 c-2 0.0 0.2)))))))
+

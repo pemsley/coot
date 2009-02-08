@@ -59,6 +59,7 @@
 
 #include "cc-interface.hh"
 #include "ideal-rna.hh"
+#include "base-pairing.hh"
 
 #ifdef USE_GUILE
 SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
@@ -84,7 +85,7 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 		     r = scm_cons(scm_double2num(pi.out_of_plane_distance), r);
 		     r = scm_cons(scm_makfrom0str(pi.puckered_atom().c_str()), r);
 		     r = scm_cons(scm_double2num(phosphate_d), r);
-		     double dist_crit = 1.2;
+		     // double dist_crit = 1.2;
 		     // If C2', phosphate oop dist should be > dist_crit
 		     // If C3', phosphate oop dist should be < dist_crit
 		     
@@ -265,3 +266,49 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 
    return istat;
 }
+
+
+/* Return a molecule that contains a residue that is the WC pair
+   partner of the clicked/picked/selected residue */
+int watson_crick_pair(int imol, const char *chain_id, int resno) {
+
+   int imol_return = -1;
+
+   if (is_valid_model_molecule(imol)) {
+      CResidue *res = graphics_info_t::molecules[imol].get_residue(resno, "", chain_id);
+      if (!res) {
+	 std::cout << "Residue not found in " << imol << " " << chain_id << " " << resno
+		   << std::endl;
+      } else { 
+	 CResidue *res_wc =
+	    coot::watson_crick_partner(res, graphics_info_t::standard_residues_asc.mol);
+	 if (res_wc) {
+	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(0, res_wc);
+	    if (mol) {
+	       graphics_info_t g;
+	       int imol_new = g.create_molecule();
+	       atom_selection_container_t asc_wc = make_asc(mol);
+	       g.molecules[imol_new].install_model(imol_new, asc_wc, "WC partner", 1);
+	       graphics_draw();
+	    }
+	 }
+      } 
+   } 
+
+   return imol_return; 
+} 
+
+
+/* not for user level */
+void setup_base_pairing(int state) {
+
+   graphics_info_t g;
+   if (state) { 
+      g.in_base_paring_define = 1;
+      pick_cursor_maybe();
+   } else { 
+      g.in_base_paring_define = 0;
+      normal_cursor();
+   } 
+
+} 
