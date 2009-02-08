@@ -822,6 +822,7 @@ void set_ramachandran_plot_dialog_position(int x_pos, int y_pos) {
 /*  ------------------------------------------------------------------------ */
 /*                     user define clicks                                    */
 /*  ------------------------------------------------------------------------ */
+#ifdef USE_GUILE
 void user_defined_click_scm(int n_clicks, SCM func) {
    graphics_info_t g;
    g.user_defined_atom_pick_specs.clear();
@@ -833,7 +834,17 @@ void user_defined_click_scm(int n_clicks, SCM func) {
    g.user_defined_click_scm_func = func;
    g.pick_cursor_maybe();
 } 
+#endif // USE_GUILE
 
+#ifdef USE_PYTHON
+void user_defined_click_py(int n_clicks, PyObject *func) {
+   graphics_info_t g;
+   g.user_defined_atom_pick_specs.clear();
+   g.in_user_defined_define = n_clicks;
+   g.user_defined_click_py_func = func;
+   g.pick_cursor_maybe();
+} 
+#endif // USE_PYTHON
 /*  ------------------------------------------------------------------------ */
 /*                     state (a graphics_info thing)                         */
 /*  ------------------------------------------------------------------------ */

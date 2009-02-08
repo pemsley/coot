@@ -84,6 +84,9 @@
 #ifdef USE_GUILE
 #include <libguile.h>
 #endif 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif
 
 #ifdef HAVE_GSL
 #else
@@ -3309,6 +3312,10 @@ public:
 #ifdef USE_GUILE
    static SCM user_defined_click_scm_func;
    SCM atom_spec_to_scm(const coot::atom_spec_t &spec) const; 
+#endif
+#ifdef USE_PYTHON
+   static PyObject *user_defined_click_py_func;
+   PyObject *atom_spec_to_py(const coot::atom_spec_t &spec) const; 
 #endif
    void run_user_defined_click_func();
 

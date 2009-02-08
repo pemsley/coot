@@ -987,6 +987,7 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
 		     PyObject *at_info = Py_False;
 		     PyObject *at_pos;
 		     PyObject *at_occ, *at_b, *at_biso, *at_ele, *at_name, *at_altconf;
+		     PyObject *at_segid;
 		     PyObject *at_x, *at_y, *at_z;
 		     PyObject *compound_name;
 		     PyObject *compound_attrib;
@@ -1006,6 +1007,7 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
                         at_biso= PyFloat_FromDouble(at->tempFactor);
                         at_ele = PyString_FromString(at->element);
                         at_name = PyString_FromString(at->name);
+                        at_segid = PyString_FromString(at->segID);
                         at_altconf = PyString_FromString(at->altLoc);
 
 			at_b = at_biso;
@@ -1024,10 +1026,11 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
                         PyList_SetItem(compound_name, 0 ,at_name);
                         PyList_SetItem(compound_name, 1 ,at_altconf);
 
-                        compound_attrib = PyList_New(3);
+                        compound_attrib = PyList_New(4);
                         PyList_SetItem(compound_attrib, 0, at_occ);
                         PyList_SetItem(compound_attrib, 1, at_b);
                         PyList_SetItem(compound_attrib, 2, at_ele);
+                        PyList_SetItem(compound_attrib, 3, at_segid);
 
                         at_info = PyList_New(3);
                         PyList_SetItem(at_info, 0, compound_name);

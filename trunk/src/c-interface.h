@@ -4416,6 +4416,9 @@ void add_lsq_match(int reference_resno_start,
 #ifdef USE_GUILE
 void add_lsq_atom_pair_scm(SCM atom_spec_ref, SCM atom_spec_moving);
 #endif
+#ifdef USE_PYTHON
+void add_lsq_atom_pair_py(PyObject *atom_spec_ref, PyObject *atom_spec_moving);
+#endif
 #endif
 
 /* Return an rtop pair (proper list) on good match, else #f */
@@ -5299,6 +5302,9 @@ void sequence_view_old_style(int imol);
 #ifdef USE_GUILE
 void user_defined_click_scm(int n_clicks, SCM func);
 #endif
+#ifdef USE_PYTHON
+void user_defined_click_py(int n_clicks, PyObject *func);
+#endif /* PYTHON */
 #endif
 
 #endif /* C_INTERFACE_H */
