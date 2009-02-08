@@ -43104,6 +43104,26 @@ distances more than:</property>
 	      </child>
 
 	      <child>
+		<widget class="GtkToggleButton" id="other_tools_base_pair_toggle_button">
+		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">Click on an atom in a base to generate the base pairing partner</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Base Pair...</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">False</property>
+		  <property name="inconsistent">False</property>
+		  <signal name="toggled" handler="on_other_tools_base_pair_toggle_button_toggled" last_modification_time="Sun, 08 Feb 2009 22:58:48 GMT"/>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
 		<widget class="GtkButton" id="set_undo_molecule_button">
 		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Choose the molecule number to which &quot;Undo&quot; actions occur.</property>
@@ -43119,10 +43139,6 @@ distances more than:</property>
 		  <property name="expand">False</property>
 		  <property name="fill">False</property>
 		</packing>
-	      </child>
-
-	      <child>
-		<placeholder/>
 	      </child>
 	    </widget>
 	  </child>

@@ -97,7 +97,6 @@ GtkWidget *create_map_colour_selection_window(struct map_colour_data_type *mcdt)
 /*    GtkColorSelectionDialog *colorseldialog;  */
    GtkWidget  *colorseldialog;
 
-   GtkButton *ok_button;
    GtkButton *cancel_button;
    GtkButton *help_button;
    GtkWidget *colorsel;
@@ -525,8 +524,6 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 					const gchar *name, 
 					int n, bool show_add_reps_frame_flag) {
 
-  GtkWidget *my_combo_box; 
-
   GtkWidget *display_molecule_vbox; 
 /*   GtkWidget *display_control_window_glade; passed parameter */
 
@@ -541,8 +538,6 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   GtkWidget *glade_menuitem; 
   GtkWidget *menu;
   int bond_type; 
-  GList  *tmp_list;
-  GtkWidget *child;
   GtkWidget *active_item;
   GtkWidget *mol_label;
 
@@ -1275,11 +1270,13 @@ on_display_control_map_scroll_radio_button_toggled (GtkToggleButton *button,
 void
 on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button,
 							  gpointer         user_data) {
-  int imol = GPOINTER_TO_INT(user_data);
-  // GSList *ls = gtk_radio_button_get_group(button); // gtk2
-  GSList *ls = gtk_radio_button_group(button); // old style but works.
-  std::cout << "======= DEBUG:: group of button " << imol << " changed to "
-	    << ls << std::endl;
+   //   int imol = GPOINTER_TO_INT(user_data);
+   // GSList *ls = gtk_radio_button_get_group(button); // gtk2
+   
+   GSList *ls = gtk_radio_button_group(button); // old style but works.
+   
+//   std::cout << "======= DEBUG:: group of button " << imol << " changed to "
+// 	    << ls << std::endl;
   // don't save the group from a radio button that has just been
   // destroy (a destroyed radio button has a group of NULL.)
   if (ls) 
@@ -1305,8 +1302,8 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
   int imol = GPOINTER_TO_INT(user_data);
   GtkWidget *frame;
   GtkWidget *window = create_single_map_properties_dialog();
-  GtkWidget *patch_frame = lookup_widget(window, 
-					 "single_map_colour_button_frame");
+//   GtkWidget *patch_frame = lookup_widget(window, 
+// 					 "single_map_colour_button_frame");
   GtkWidget *single_map_properties_colour_button = 
     lookup_widget(window, "single_map_properties_colour_button");
   GtkWidget *label = lookup_widget(window, "label114");

@@ -234,6 +234,7 @@ graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
    check_if_in_lsq_plane_deviant_atom_define(event);
    check_if_in_torsion_general_define(event);
    check_if_in_fixed_atom_define(event, state);
+   check_if_in_base_pairing_define(event);
 
    return iv;
 }
@@ -1668,3 +1669,26 @@ graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event,
       }
    }
 }
+
+
+void
+graphics_info_t::check_if_in_base_pairing_define(GdkEventButton *event) {
+
+   if (in_base_paring_define) {
+      pick_info naii = atom_pick(event);
+      if (naii.success == TRUE) {
+	 in_base_paring_define = 0;
+	 CAtom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+	 int res_no = at->GetSeqNum();
+	 std::string chain_id = at->GetChainID();
+	 watson_crick_pair(naii.imol, chain_id.c_str(), res_no);
+	 if (other_modelling_tools_dialog) {
+	    GtkWidget *w = lookup_widget(other_modelling_tools_dialog,
+					 "other_tools_base_pair_toggle_button");
+	    if (w) {
+	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), FALSE);
+	    } 
+	 } 
+      } 
+   } 
+} 

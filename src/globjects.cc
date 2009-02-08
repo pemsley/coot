@@ -502,6 +502,8 @@ GtkWidget *graphics_info_t::rotamer_dialog = NULL;
 GtkWidget *graphics_info_t::difference_map_peaks_dialog = NULL;
 GtkWidget *graphics_info_t::checked_waters_baddies_dialog = NULL;
 
+int graphics_info_t::in_base_paring_define = 0;
+
 GtkWidget *graphics_info_t::other_modelling_tools_dialog = 0;
 
 coot::residue_spec_t graphics_info_t::current_residue = coot::residue_spec_t();

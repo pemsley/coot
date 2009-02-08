@@ -298,8 +298,6 @@ molecule_class_info_t::centre_of_molecule() const {
 float
 molecule_class_info_t::size_of_molecule() const {
    
-   double xs=0, ys=0, zs=0;
-   double d;
    double d2_sum = 0;
    float r = 0;
    coot::Cartesian centre = centre_of_molecule();
@@ -1428,7 +1426,7 @@ molecule_class_info_t::is_in_labelled_list(int i) {
 
    // is the i'th atom in the list of atoms to be labelled?
 
-   for (int ii=0; ii<labelled_atom_index_list.size(); ii++) {
+   for (unsigned int ii=0; ii<labelled_atom_index_list.size(); ii++) {
       if (labelled_atom_index_list[ii] == i) {
 	 return 1;
       }
@@ -1547,7 +1545,7 @@ molecule_class_info_t::is_in_labelled_symm_list(int i) {
 
    // is the i'th atom in the list of atoms to be labelled?
 
-   for (int ii=0; ii<labelled_symm_atom_index_list.size(); ii++) {
+   for (unsigned int ii=0; ii<labelled_symm_atom_index_list.size(); ii++) {
       if (labelled_symm_atom_index_list[ii] == i) {
 	 return 1;
       }
@@ -1640,7 +1638,7 @@ molecule_class_info_t::draw_fixed_atom_positions() const {
       glColor3f(0.6, 0.95, 0.6);
       glPointSize(10.5);
       glBegin(GL_POINTS); 
-      for (int i=0; i<fixed_atom_positions.size(); i++) {
+      for (unsigned int i=0; i<fixed_atom_positions.size(); i++) {
 	 glVertex3f(fixed_atom_positions[i].x(),
 		    fixed_atom_positions[i].y(),
 		    fixed_atom_positions[i].z());
@@ -1913,7 +1911,7 @@ molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_s
 void
 molecule_class_info_t::delete_dipole(int dipole_number) {
 
-   if (dipole_number < dipoles.size()) {
+   if (dipole_number < int(dipoles.size())) {
       std::vector<coot::dipole>::iterator it;
       int n=0;
       for (it=dipoles.begin(); it!=dipoles.end(); it++) {
@@ -1972,7 +1970,6 @@ molecule_class_info_t::draw_dipoles() const {
 	 clipper::Coord_orth pt = dipoles[i].position();
 	 clipper::Coord_orth  d = dipoles[i].get_dipole();
 	 clipper::Coord_orth d_unit = dipoles[i].get_unit_dipole();
-	 float sc = 4.0;
 
 	 // make an arbitrary vector not parallel to d_unit.
 	 // 
@@ -2035,8 +2032,6 @@ coot::atom_selection_info_t::name () const {
 int
 coot::atom_selection_info_t::select_atoms(CMMDBManager *mol) const {
 
-   int n_atoms = 0;
-   PPCAtom atom_selection = NULL;
    int SelHnd = -1;
    const char *alt_conf_str = "*";
    if (alt_conf_is_set)
@@ -4445,8 +4440,6 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 			      ele = at_name.substr(0,2);
 
 			   element = ele;
-			   int res_number = 1; // start of a new chain (updated if
-			                      // a shelx molecule).
 			   atom_p->SetAtomName(at_name.c_str());
 			   atom_p->SetElementName(ele.c_str());
 			   res_p->SetResName(resname.c_str());
@@ -6341,7 +6334,6 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
       make_bonds_type_checked();
       have_unsaved_changes_flag = 1;
 
-      float bf = 1.0;
       replace_coords(make_asc(m.pcmmdbmanager()), 0, 1);
    }
    return m;
