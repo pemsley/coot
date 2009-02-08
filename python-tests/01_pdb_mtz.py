@@ -888,9 +888,11 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    change_chain_id(imol, "B", "N", 1, 30, 38)
 	    change_chain_id(imol, "B", "Z", 1, 20, 28)
 
+	    sort_chains(imol)
+
 	    c = chain_ids(imol)
 	    print "BL DEBUG:: chains_in_order_qm", chains_in_order_qm(c)
-	    #self.failUnless(chains_in_order_qm(c))
+	    self.failUnless(chains_in_order_qm(c))
 
 
     def test28_0(self):
@@ -1001,7 +1003,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		    rotamer_prob = rotamer_score(imol, *residue_attributes)
 		    print " Rotamer %s : %s %s" %(rotamer_number, rotamer_name, rotamer_prob)
 		    self.failUnlessAlmostEqual(rotamer_prob, correct_prob, 3,
-					       "fail on rotamer probability %s %s" %(rotamer_prob, correct_prob)),
+					       "fail on rotamer probability: result: %s %s" %(rotamer_prob, correct_prob)),
 		    self.failUnless(rotamer_name == correct_name)
 
 	    turn_on_backup(imol)
@@ -1130,3 +1132,114 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    # rotamer 4 is out of range.
 	    set_residue_to_rotamer_number(imol, "H", 52, "A", 4) # crash!!?
+
+
+    def test35_0(self):
+	    """RNA base has correct after mutation"""
+
+	    rna_mol = ideal_nucleic_acid("RNA", "A", 0, "GACUCUAG")
+
+	    sucess = mutate_base(rna_mol, "A", 2, "", "Cr")
+	    self.failUnless(sucess == 1, "  mutation fail!")
+	    rn = residue_name(rna_mol, "A", 2, "")
+	    print "  mutated base to type", rn
+	    self.failUnless(rn == "Cr")
+
+    def test36_0(self):
+	    """SegIDs are correct after mutate"""
+
+	    # main line
+	    global imol_rnase
+	    imol = copy_molecule(imol_rnase)
+
+	    self.failUnless(valid_model_molecule_qm(imol))
+
+	    atoms = residue_info(imol, "A", 32, "")
+
+	    self.failUnless(atoms_have_correct_seg_id_qm(atoms, ""),
+			    "wrong seg-id %s should be %s" %(atoms, ""))
+
+	    # now convert that residue to segid "A"
+	    #
+	    attribs = map(lambda atom: [imol, "A", 32, "",
+					atom[0][0],
+					atom[0][1],
+					"segid", "A"],
+			  residue_info(imol, "A", 32, ""))
+	    print "BL DEBUG:: attribs", attribs
+	    set_atom_attributes(attribs)
+
+	    atoms = residue_info(imol, "A", 32, "")
+	    self.failUnless(atoms_have_correct_seg_id_qm(atoms, "A"),
+			    "wrong seg-id %s should be %s" %(atoms, "A"))
+
+	    # now let's do the mutation
+	    mutate(imol, "A", 32, "", "LYS")
+
+	    rn = residue_name(imol, "A", 32, "")
+	    self.failUnless(rn == "LYS",
+			    "  Wrong residue name after mutate %s" %rn)
+
+	    atoms = residue_info(imol, "A", 32, "")
+	    self.failUnless(atoms_have_correct_seg_id_qm(atoms, "A"),
+			    "wrong seg-id %s should be %s" %(atoms, "A"))
+
+
+    def test37_0(self):
+	    """Correct Segid After Add Terminal Residue"""
+
+	    global imol_rnase
+	    global rnase_mtz
+	    imol = copy_molecule(imol_rnase)
+	    imol_map = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+
+	    # now convert taht residue to segid "A"
+	    #
+	    attribs = map(lambda atom: [imol, "A", 93, "",
+					atom[0][0],
+					atom[0][1],
+					"segid", "A"],
+			  residue_info(imol, "A", 93, ""))
+	    print "BL DEBUG:: attribs", attribs
+	    set_atom_attributes(attribs)
+
+	    add_terminal_residue(imol, "A", 93, "ALA", 1)
+
+	    atoms = residue_info(imol, "A", 94, "")
+	    self.failUnless(atoms_have_correct_seg_id_qm(atoms, "A"),
+			    "wrong seg-id %s should be %s" %(atoms, "A"))
+
+	    	    
+    def test38_0(self):
+	    """Correct Segid after NCS residue range copy"""
+
+	    def convert_residue_seg_ids(imol, chain_id, resno, seg_id):
+		    attribs = map(lambda atom: [imol, chain_id, resno, "",
+						atom[0][0],
+						atom[0][1],
+						"segid", seg_id],
+				  residue_info(imol, chain_id, resno, ""))
+		    set_atom_attributes(attribs)
+
+	    # main line
+	    global imol_rnase
+	    imol = copy_molecule(imol_rnase)
+
+	    # convert a residue range
+	    for resno in range(20, 30):
+		    convert_residue_seg_ids(imol, "A", resno, "X")
+
+	    # NCS copy
+	    make_ncs_ghosts_maybe(imol)
+	    copy_residue_range_from_ncs_master_to_others(imol, "A", 20, 30)
+
+	    # does B have segid X for residues 20-30?
+	    for resno in range(20, 30):
+		    atoms = residue_info(imol, "A", resno, "")
+		    self.failUnless(atoms_have_correct_seg_id_qm(atoms, "X"),
+				    "wrong seg-id %s should be %s" %(atoms, "X"))
+		    
+		    
+		    
+
+

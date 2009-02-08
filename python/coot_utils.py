@@ -404,6 +404,26 @@ def every_nth(ls, n):
         a.append(ls[i])
     return a
 
+# return atom info or False (if atom not found).
+#
+def get_atom(imol, chain_id, resno, atom_name, alt_conf_internal=""):
+
+    def get_atom_from_res(atom_name, residue_atoms, alt_conf):
+        for residue_atom in residue_atoms:
+            if (residue_atom[0][0] == atom_name and
+                residue_atom[0][1] == alt_conf):
+                return residue_atom
+        #print "BL WARNING:: no atom name %s found in residue" %atom_name
+        return False # no residue name found
+    
+    res_info = residue_info(imol, chain_id, resno, "")
+
+    if (not res_info):
+        return False
+    else:
+        ret = get_atom_from_res(atom_name, res_info, alt_conf_internal)
+        return ret
+
 #
 def residue_info_dialog_displayed_qm():
     if (residue_info_dialog_is_displayed == 1):
@@ -1603,6 +1623,7 @@ cis_peptides           = cis_peptides_py
 get_rotamer_name       = get_rotamer_name_py
 missing_atom_info      = missing_atom_info_py
 rotamer_graphs         = rotamer_graphs_py
+add_lsq_atom_pair      = add_lsq_atom_pair_py
 apply_lsq_matches      = apply_lsq_matches_py
 make_image_raster3d    = make_image_raster3d_py
 make_image_povray      = make_image_povray_py
@@ -1620,6 +1641,7 @@ ccp4i_projects         = ccp4i_projects_py
 add_dipole             = add_dipole_py
 add_dipole_for_residues = add_dipole_for_residues_py
 get_pkgdatadir         = get_pkgdatadir_py
+user_defined_click     = user_defined_click_py
 
 # graphics_info.h:
 #run_post_manipulation_hook = run_post_manipulation_hook_py

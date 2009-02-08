@@ -4099,7 +4099,7 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
 #endif // USE_GUILE
 
 void graphics_info_t::run_user_defined_click_func() {
-#ifdef USE_GUILE
+#if defined USE_GUILE && ! defined WINDOWS_MINGW
 
    SCM arg_list = SCM_EOL;
    for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
@@ -4119,7 +4119,24 @@ void graphics_info_t::run_user_defined_click_func() {
    SCM rest = SCM_EOL;
    SCM v = scm_apply_1(user_defined_click_scm_func, arg_list, rest);
 
-#endif 
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+
+   PyObject *arg_list_py = PyList_New(0);
+   for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
+      PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
+      PyList_Append(arg_list_py, spec_py);
+   } 
+
+   // what are we running? Print it out.
+   std::cout << "INFO applying " << PyString_AsString(user_defined_click_py_func) << " on "
+	     << PyString_AsString(arg_list_py) << std::endl;
+
+   PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
+   Py_DECREF(result);
+
+#endif // USE_PYTHON
 } 
 
 
@@ -4136,6 +4153,22 @@ graphics_info_t::atom_spec_to_scm(const coot::atom_spec_t &spec) const {
    r = scm_cons(SCM_MAKINUM(spec.int_user_data), r);
 
    return r;
+} 
+#endif
+
+#ifdef USE_PYTHON
+PyObject *
+graphics_info_t::atom_spec_to_py(const coot::atom_spec_t &spec) const {
+
+  PyObject *r = PyList_New(0);
+  PyList_Append(r, PyInt_FromLong(spec.int_user_data));
+  PyList_Append(r, PyString_FromString(spec.chain.c_str()));
+  PyList_Append(r, PyInt_FromLong(spec.resno));
+  PyList_Append(r, PyString_FromString(spec.insertion_code.c_str()));
+  PyList_Append(r, PyString_FromString(spec.atom_name.c_str()));
+  PyList_Append(r, PyString_FromString(spec.alt_conf.c_str()));
+
+  return r;
 } 
 #endif
 
