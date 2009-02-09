@@ -70,15 +70,40 @@ namespace exptl {
       class spec_and_mol_no_t {
       public:
 	 int mol_no;
+	 GtkCanvasItem *text_item;
+	 GtkCanvasItem *rect_item;
 	 coot::atom_spec_t atom_spec;
-	 spec_and_mol_no_t(int mol_no_in, coot::atom_spec_t atom_spec_in) {
+	 double x1, x2, y1, y2;
+	 double text_x, text_y;
+	 std::string text;
+	 int position_number;
+	 spec_and_mol_no_t(int mol_no_in, coot::atom_spec_t atom_spec_in,
+			   int pos_number) {
 	    mol_no = mol_no_in;
 	    atom_spec = atom_spec_in;
+	    position_number = pos_number;
 	 } 
 	 spec_and_mol_no_t(int mol_no_in, CAtom *at) {
+	    text_item = NULL;
+	    rect_item = NULL;
 	    mol_no = mol_no_in;
 	    atom_spec = coot::atom_spec_t(at);
-	 } 
+	 }
+	 void add_rect_attribs(GtkCanvasItem *rect_item_in,
+			       double x1in, double x2in, double y1in, double y2in) {
+	    rect_item = rect_item_in;
+	    x1 = x1in;
+	    x2 = x2in;
+	    y1 = y1in;
+	    y2 = y2in;
+	 }
+	 void add_text_attribs(GtkCanvasItem *text_item_in, std::string text_in,
+			       double x_in, double y_in) {
+	    text = text_in;
+	    text_item = text_item_in;
+	    text_x = x_in;
+	    text_y = y_in;
+	 }
       };
 
       int molecule_number;
@@ -102,7 +127,7 @@ namespace exptl {
       void origin_marker();
       int tick_start_number(int l) const;
       int pixels_per_chain;
-      
+      void add_text_and_rect(const coot::residue_spec_t &res_spec, int pos_number);
    public:
       nsv(CMMDBManager *mol,
 	  const std::string &molecule_name,

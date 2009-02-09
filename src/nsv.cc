@@ -38,6 +38,8 @@
 #include "c-interface.h" // for sequence_view_is_displayed()
 #include "cc-interface.hh" // for set_go_to_atom_from_spec()
 
+#include "get-residue.hh"
+
 #ifdef HAVE_GNOME_CANVAS
   typedef GnomeCanvas GtkCanvas;
   typedef GnomeCanvasItem GtkCanvasItem;
@@ -263,53 +265,9 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number) {
 
    for (int ires=0; ires<nres; ires++) {
       CResidue *residue_p = chain_p->GetResidue(ires);
-      CAtom *at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
-      exptl::nsv::spec_and_mol_no_t *local_spec =
-	 new exptl::nsv::spec_and_mol_no_t (molecule_number, at);
-      std::string res_code =
-	 coot::util::three_letter_to_one_letter(residue_p->GetResName());
-      std::string colour = "black";
-      double x = residue_p->GetSeqNum() * pixels_per_letter -3;
-      double y = - pixels_per_chain * position_number - 6;
-      
-      // It seems that I don't need the following, the letter seems to
-      // be being clicked even if we click off the actual black of the
-      // letter.
-      // 
-      // Hmm... maybe I do.
-      // 
-      if (1) { 
-	 double x1 = x - 2;
-	 double y1 = y + 5;
-	 double x2 = x1 + 7; // pixels_per_letter; 8 is too many for
-			     // jackal, it partially covers the
-			     // previous letter. 
-	 double y2 = y1 - 11; // pixels_per_letter;
-	 
-	 item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-				    GTK_CANVAS_TYPE_CANVAS_RECT,
-				    "x1", x1,
-				    "y1", y1,
-				    "x2", x2,
-				    "y2", y2,
-				    "fill_color", "grey90",
-				    "width_pixels", 1,
-				    NULL);
-	 canvas_item_vec.push_back(item);
-	 gtk_signal_connect(GTK_OBJECT(item), "event",
-			    GTK_SIGNAL_FUNC(letter_clicked), local_spec);
-      }
-      item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-				 GTK_CANVAS_TYPE_CANVAS_TEXT,
-				 "text", res_code.c_str(),
-				 "x", x,
-				 "y", y,
-				 "anchor", GTK_ANCHOR_WEST,
-				 "font", fixed_font_str.c_str(),
-				 NULL);
-      gtk_signal_connect(GTK_OBJECT(item), "event",
-			 GTK_SIGNAL_FUNC(letter_clicked), local_spec);
-      canvas_item_vec.push_back(item);
+      coot::residue_spec_t res_spec(residue_p);
+
+      add_text_and_rect(res_spec, position_number);  // adds items to canvas_item_vec
    }
 
    // now the chain label:
@@ -329,9 +287,69 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number) {
 			      "font", fixed_font_str.c_str(),
 			      NULL);
    canvas_item_vec.push_back(item);
-   
+}
 
-} 
+
+void
+exptl::nsv::add_text_and_rect(const coot::residue_spec_t &res_spec,
+			      int position_number) {
+
+   CResidue *residue_p = get_residue(molecule_number, res_spec);
+
+   if (residue_p) { 
+      CAtom *at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
+      exptl::nsv::spec_and_mol_no_t *local_spec =
+	 new exptl::nsv::spec_and_mol_no_t (molecule_number, at, position_number);
+      std::string res_code =
+	 coot::util::three_letter_to_one_letter(residue_p->GetResName());
+      std::string colour = "black";
+      double x = residue_p->GetSeqNum() * pixels_per_letter -3;
+      double y = - pixels_per_chain * position_number - 6;
+      
+      // It seems that I don't need the following, the letter seems to
+      // be being clicked even if we click off the actual black of the
+      // letter.
+      // 
+      // Hmm... maybe I do.
+      // 
+      double x1 = x - 2;
+      double y1 = y + 5;
+      double x2 = x1 + 7; // pixels_per_letter; 8 is too many for
+      // jackal, it partially covers the
+      // previous letter. 
+      double y2 = y1 - 11; // pixels_per_letter;
+
+      GtkCanvasItem *item;
+      item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+				 GTK_CANVAS_TYPE_CANVAS_RECT,
+				 "x1", x1,
+				 "y1", y1,
+				 "x2", x2,
+				 "y2", y2,
+				 "fill_color", "grey90",
+				 "width_pixels", 1,
+				 NULL);
+      canvas_item_vec.push_back(item);
+      gtk_signal_connect(GTK_OBJECT(item), "event",
+			 GTK_SIGNAL_FUNC(letter_clicked), local_spec);
+      local_spec->add_rect_attribs(item, x1, x2, y1, y2);
+
+      item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+				 GTK_CANVAS_TYPE_CANVAS_TEXT,
+				 "text", res_code.c_str(),
+				 "x", x,
+				 "y", y,
+				 "anchor", GTK_ANCHOR_WEST,
+				 "font", fixed_font_str.c_str(),
+				 NULL);
+      gtk_signal_connect(GTK_OBJECT(item), "event",
+			 GTK_SIGNAL_FUNC(letter_clicked), local_spec);
+      canvas_item_vec.push_back(item);
+      local_spec->add_text_attribs(item, res_code, x, y);
+   }
+}
+
+
 
 // static
 gint
@@ -346,7 +364,13 @@ exptl::nsv::letter_clicked (GtkWidget *widget,
       set_go_to_atom_from_spec(atom_spec.atom_spec);
       
    } else {
-      // std::cout << "something other than clicked" << std::endl;
+      std::cout << "something other than clicked" << std::endl;
+      if (event->type == GDK_ENTER_NOTIFY) {
+	 std::cout << "Entering a thing" << std::endl;
+      } 
+      if (event->type == GDK_LEAVE_NOTIFY) {
+	 std::cout << "Leaving a thing" << std::endl;
+      } 
    } 
 
    return 1;

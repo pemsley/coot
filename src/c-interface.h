@@ -3788,9 +3788,6 @@ void
 rigid_body_refine_by_atom_selection(int imol, 
 				    const char *atom_selection_string);
 
-/*! \brief actually do the rigid body refinement
-
-   various atom selection holders in graphics-info have been set, actually do it.  */
 void execute_rigid_body_refine(short int auto_range_flag); /* atom picking has happened.
 				     Actually do it */
 

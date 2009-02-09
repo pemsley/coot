@@ -256,6 +256,8 @@ coot_real_SOURCES = \
 	generic-display-object.hh\
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
+	get-residue.hh           \
+	get-residue.cc           \
 	globjects.cc 		 \
 	globjects.h gl-matrix.h  \
 	graphics-info.cc	 \
