@@ -4099,42 +4099,47 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
 #endif // USE_GUILE
 
 void graphics_info_t::run_user_defined_click_func() {
+   
 #if defined USE_GUILE && ! defined WINDOWS_MINGW
 
-   SCM arg_list = SCM_EOL;
-   for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
-      SCM spec_scm = atom_spec_to_scm(user_defined_atom_pick_specs[i]);
-      arg_list = scm_cons(spec_scm, arg_list);
-   } 
-   arg_list = scm_reverse(arg_list);
-
-   // what are we running? Print it out.
-   SCM dest = SCM_BOOL_F;
-   SCM mess = scm_makfrom0str("~s");
-   SCM ds = scm_simple_format(dest, mess, scm_list_1(user_defined_click_scm_func));
-   SCM da = scm_simple_format(dest, mess, scm_list_1(arg_list));
-   std::cout << "INFO applying " << scm_to_locale_string(ds) << " on "
-	     << scm_to_locale_string(da) << std::endl;
-
-   SCM rest = SCM_EOL;
-   SCM v = scm_apply_1(user_defined_click_scm_func, arg_list, rest);
+   if (scm_is_true(user_defined_click_scm_func)) { 
+      SCM arg_list = SCM_EOL;
+      for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
+	 SCM spec_scm = atom_spec_to_scm(user_defined_atom_pick_specs[i]);
+	 arg_list = scm_cons(spec_scm, arg_list);
+      } 
+      arg_list = scm_reverse(arg_list);
+      
+      // what are we running? Print it out.
+      SCM dest = SCM_BOOL_F;
+      SCM mess = scm_makfrom0str("~s");
+      SCM ds = scm_simple_format(dest, mess, scm_list_1(user_defined_click_scm_func));
+      SCM da = scm_simple_format(dest, mess, scm_list_1(arg_list));
+      std::cout << "INFO applying " << scm_to_locale_string(ds) << " on "
+		<< scm_to_locale_string(da) << std::endl;
+      
+      SCM rest = SCM_EOL;
+      SCM v = scm_apply_1(user_defined_click_scm_func, arg_list, rest);
+   }
 
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
 
-   PyObject *arg_list_py = PyList_New(0);
-   for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
-      PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
-      PyList_Append(arg_list_py, spec_py);
-   } 
-
-   // what are we running? Print it out.
-   std::cout << "INFO applying " << PyString_AsString(user_defined_click_py_func) << " on "
-	     << PyString_AsString(arg_list_py) << std::endl;
-
-   PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
-   Py_DECREF(result);
+   if (user_defined_click_py_func) { 
+      PyObject *arg_list_py = PyList_New(0);
+      for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
+	 PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
+	 PyList_Append(arg_list_py, spec_py);
+      } 
+      
+      // what are we running? Print it out.
+      std::cout << "INFO applying " << PyString_AsString(user_defined_click_py_func) << " on "
+		<< PyString_AsString(arg_list_py) << std::endl;
+      
+      PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
+      Py_DECREF(result);
+   }
 
 #endif // USE_PYTHON
 } 
