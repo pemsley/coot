@@ -266,7 +266,6 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number) {
    for (int ires=0; ires<nres; ires++) {
       CResidue *residue_p = chain_p->GetResidue(ires);
       coot::residue_spec_t res_spec(residue_p);
-
       add_text_and_rect(res_spec, position_number);  // adds items to canvas_item_vec
    }
 
@@ -298,13 +297,15 @@ exptl::nsv::add_text_and_rect(const coot::residue_spec_t &res_spec,
 
    if (residue_p) { 
       CAtom *at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
-      exptl::nsv::spec_and_mol_no_t *local_spec =
-	 new exptl::nsv::spec_and_mol_no_t (molecule_number, at, position_number);
+      coot::atom_spec_t at_spec(at);
       std::string res_code =
 	 coot::util::three_letter_to_one_letter(residue_p->GetResName());
       std::string colour = "black";
       double x = residue_p->GetSeqNum() * pixels_per_letter -3;
       double y = - pixels_per_chain * position_number - 6;
+      
+      exptl::nsv::spec_and_object *so = 
+	 new exptl::nsv::spec_and_object(molecule_number, at_spec, position_number);
       
       // It seems that I don't need the following, the letter seems to
       // be being clicked even if we click off the actual black of the
@@ -312,40 +313,47 @@ exptl::nsv::add_text_and_rect(const coot::residue_spec_t &res_spec,
       // 
       // Hmm... maybe I do.
       // 
-      double x1 = x - 2;
+      // double x1 = x - 2;
+      double x1 = x - 0; // otherwise rect too far to right relative to letter
+                         // (on fed10 home).
       double y1 = y + 5;
-      double x2 = x1 + 7; // pixels_per_letter; 8 is too many for
-      // jackal, it partially covers the
-      // previous letter. 
+      
+      // double x2 = x1 + 7; // pixels_per_letter; 8 is too many for
+                          // jackal, it partially covers the
+                          // previous letter.
+
+      double x2 = x + pixels_per_letter - 2; // how about that then?
+      
       double y2 = y1 - 11; // pixels_per_letter;
+      std::string rect_colour = "grey85";
 
-      GtkCanvasItem *item;
-      item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-				 GTK_CANVAS_TYPE_CANVAS_RECT,
-				 "x1", x1,
-				 "y1", y1,
-				 "x2", x2,
-				 "y2", y2,
-				 "fill_color", "grey90",
-				 "width_pixels", 1,
-				 NULL);
-      canvas_item_vec.push_back(item);
-      gtk_signal_connect(GTK_OBJECT(item), "event",
-			 GTK_SIGNAL_FUNC(letter_clicked), local_spec);
-      local_spec->add_rect_attribs(item, x1, x2, y1, y2);
+      GtkCanvasItem *rect_item;
+      rect_item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+				      GTK_CANVAS_TYPE_CANVAS_RECT,
+				      "x1", x1,
+				      "y1", y1,
+				      "x2", x2,
+				      "y2", y2,
+				      "fill_color", rect_colour.c_str(),
+				      "width_pixels", 1,
+				      NULL);
+      so->obj = rect_item;
+      canvas_item_vec.push_back(rect_item);
+      gtk_signal_connect(GTK_OBJECT(rect_item), "event",
+			 GTK_SIGNAL_FUNC(rect_event), so);
 
-      item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-				 GTK_CANVAS_TYPE_CANVAS_TEXT,
-				 "text", res_code.c_str(),
-				 "x", x,
-				 "y", y,
-				 "anchor", GTK_ANCHOR_WEST,
-				 "font", fixed_font_str.c_str(),
-				 NULL);
-      gtk_signal_connect(GTK_OBJECT(item), "event",
-			 GTK_SIGNAL_FUNC(letter_clicked), local_spec);
-      canvas_item_vec.push_back(item);
-      local_spec->add_text_attribs(item, res_code, x, y);
+      GtkCanvasItem *text_item;
+      text_item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+				      GTK_CANVAS_TYPE_CANVAS_TEXT,
+				      "text", res_code.c_str(),
+				      "x", x,
+				      "y", y,
+				      "anchor", GTK_ANCHOR_WEST,
+				      "font", fixed_font_str.c_str(),
+				      NULL);
+       gtk_signal_connect(GTK_OBJECT(text_item), "event",
+			  GTK_SIGNAL_FUNC(letter_event), so);
+      canvas_item_vec.push_back(text_item);
    }
 }
 
@@ -353,23 +361,49 @@ exptl::nsv::add_text_and_rect(const coot::residue_spec_t &res_spec,
 
 // static
 gint
-exptl::nsv::letter_clicked (GtkWidget *widget,
+exptl::nsv::letter_event (GtkObject *obj,
 			    GdkEvent *event,
 			    gpointer data) {
 
+   exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
    if (event->motion.state & GDK_BUTTON1_MASK) {
-      std::cout << "letter clicked" << std::endl;
-      exptl::nsv::spec_and_mol_no_t atom_spec = *((exptl::nsv::spec_and_mol_no_t *) data);
-      set_go_to_atom_molecule(atom_spec.mol_no);
-      set_go_to_atom_from_spec(atom_spec.atom_spec);
+      set_go_to_atom_molecule(spec_obj.mol_no);
+      set_go_to_atom_from_spec(spec_obj.atom_spec);
+   } else { 
+      if (event->type == GDK_ENTER_NOTIFY) {
+	 // std::cout << "Entering a text " << obj << " " << rect_object << std::endl;
+	 gnome_canvas_item_set(GNOME_CANVAS_ITEM(spec_obj.obj), "fill_color", "moccasin", NULL);
+      }
+
+      if (event->type == GDK_LEAVE_NOTIFY) {
+	 // std::cout << " Leaving a text " << obj << " " << rect_object << std::endl;
+	 gnome_canvas_item_set(GNOME_CANVAS_ITEM(spec_obj.obj), "fill_color", "grey85", NULL);
+      }
+   }
+}
+   
+// static
+gint
+exptl::nsv::rect_event (GtkObject *obj,
+			GdkEvent *event,
+			gpointer data) {
+   
+   exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
+   if (event->motion.state & GDK_BUTTON1_MASK) {
+      std::cout << "box clicked" << std::endl;
+      set_go_to_atom_molecule(spec_obj.mol_no);
+      set_go_to_atom_from_spec(spec_obj.atom_spec);
       
    } else {
-      std::cout << "something other than clicked" << std::endl;
+
       if (event->type == GDK_ENTER_NOTIFY) {
-	 std::cout << "Entering a thing" << std::endl;
-      } 
+	 // std::cout << "Entering a box " << obj << std::endl;
+	 gnome_canvas_item_set(GNOME_CANVAS_ITEM(obj), "fill_color", "moccasin", NULL);
+      }
+
       if (event->type == GDK_LEAVE_NOTIFY) {
-	 std::cout << "Leaving a thing" << std::endl;
+	 // std::cout << " Leaving a box " << obj << std::endl;
+	 gnome_canvas_item_set(GNOME_CANVAS_ITEM(obj), "fill_color", "grey85", NULL);
       } 
    } 
 

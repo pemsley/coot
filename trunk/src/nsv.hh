@@ -67,44 +67,25 @@ namespace exptl {
 	 }
       };
 
-      class spec_and_mol_no_t {
+      class spec_and_object {
       public:
 	 int mol_no;
-	 GtkCanvasItem *text_item;
-	 GtkCanvasItem *rect_item;
+	 GtkCanvasItem *obj;
 	 coot::atom_spec_t atom_spec;
-	 double x1, x2, y1, y2;
-	 double text_x, text_y;
-	 std::string text;
 	 int position_number;
-	 spec_and_mol_no_t(int mol_no_in, coot::atom_spec_t atom_spec_in,
-			   int pos_number) {
-	    mol_no = mol_no_in;
-	    atom_spec = atom_spec_in;
-	    position_number = pos_number;
+  	 spec_and_object(int molecule_number_in, coot::atom_spec_t &spec_in,
+			 int position_number_in) { 
+	    mol_no = molecule_number_in;
+	    atom_spec = spec_in;
+	    position_number = position_number_in;
 	 } 
-	 spec_and_mol_no_t(int mol_no_in, CAtom *at) {
-	    text_item = NULL;
-	    rect_item = NULL;
-	    mol_no = mol_no_in;
-	    atom_spec = coot::atom_spec_t(at);
-	 }
-	 void add_rect_attribs(GtkCanvasItem *rect_item_in,
-			       double x1in, double x2in, double y1in, double y2in) {
-	    rect_item = rect_item_in;
-	    x1 = x1in;
-	    x2 = x2in;
-	    y1 = y1in;
-	    y2 = y2in;
-	 }
-	 void add_text_attribs(GtkCanvasItem *text_item_in, std::string text_in,
-			       double x_in, double y_in) {
-	    text = text_in;
-	    text_item = text_item_in;
-	    text_x = x_in;
-	    text_y = y_in;
+	 void add_rect_attribs(GtkCanvasItem *rect_item_in) { 
+	    obj = rect_item_in;
 	 }
       };
+
+
+     
 
       int molecule_number;
       GtkCanvas *canvas;
@@ -116,9 +97,8 @@ namespace exptl {
 					       gpointer         user_data);
       static void on_nsv_dialog_destroy (GtkObject *obj,
 					 gpointer user_data);
-      static gint letter_clicked (GtkWidget *widget,
-				  GdkEvent *event,
-				  gpointer data);
+      static gint letter_event (GtkObject *obj, GdkEvent *event, gpointer data);
+      static gint rect_event   (GtkObject *obj, GdkEvent *event, gpointer data);
       void draw_axes(std::vector<chain_length_residue_units_t>, int l, int b);
       std::string fixed_font_str;
       int pixels_per_letter;
