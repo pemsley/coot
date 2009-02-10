@@ -1240,6 +1240,34 @@ class PdbMtzTestFunctions(unittest.TestCase):
 				    "wrong seg-id %s should be %s" %(atoms, "X"))
 		    
 		    
+    def test39_0(self):
+	    """LSQ by atom"""
+
+	    global imol_rnase
+	    
+	    def make_spec_ref(atom_name):
+		    return ["A", 35, "", atom_name, ""]
+	    
+	    def make_spec_mov(atom_name):
+		    return ["B", 35, "", atom_name, ""]
+
+	    clear_lsq_matches()
+	    imol_1= copy_molecule(imol_rnase)
+	    imol_2= copy_molecule(imol_rnase)
+
+	    spec_refs = map(make_spec_ref, [" CG2", " CG1", " CB ", " CA "])
+	    spec_movs = map(make_spec_mov, [" CG2", " CG1", " CB ", " CA "])
+	    map(add_lsq_atom_pair, spec_refs, spec_movs)
+
+	    result = apply_lsq_matches(imol_1, imol_2)
+	    self.failUnless(result, "Bad match")
+
+	    c_1 = get_atom(imol_1, "A", 35, " C  ")
+	    c_2 = get_atom(imol_2, "B", 35, " C  ")
+	    b = bond_length_from_atoms(c_1, c_2)
+
+	    self.failUnless(bond_length_within_tolerance_qm(c_1, c_2, 0.0, 0.2))
+	    
 		    
 
 

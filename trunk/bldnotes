@@ -1,13 +1,15 @@
  -*-text-*-
 
 scripts rev 1855
-tests   rev 1855
+tests   rev 1860
 
 ---------------
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
-   o fix pass-build/pass-test (with guile build )
+   o merge solvent chains [JG]
+
+   o fix pass-build/pass-test (with guile build) and include progress status
 
    o separate test sets when running one test set
 
