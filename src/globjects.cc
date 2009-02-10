@@ -829,10 +829,10 @@ short int graphics_info_t::in_reverse_direction_define = 0;
 // user defined
 short int graphics_info_t::in_user_defined_define = 0;
 #ifdef USE_GUILE
-SCM graphics_info_t::user_defined_click_scm_func;
+SCM graphics_info_t::user_defined_click_scm_func = SCM_BOOL_F;
 #endif // GUILE
 #ifdef USE_PYTHON
-PyObject *graphics_info_t::user_defined_click_py_func;
+PyObject *graphics_info_t::user_defined_click_py_func = NULL;
 #endif // PYTHON
 std::vector<coot::atom_spec_t> graphics_info_t::user_defined_atom_pick_specs;
 
