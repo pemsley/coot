@@ -41,7 +41,7 @@
 
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/ccp4/ccp4_map_io.h"
-#include "clipper/core/xmap.h"
+#include "clipper/cns/cns_hkl_io.h"
 #include "clipper/cns/cns_map_io.h"
 #include "clipper/core/hkl_compute.h"
 #include "clipper/core/map_utils.h" // Map_stats
@@ -649,6 +649,103 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
    // std::cout << "DEBUG:: finishing map_fill_from_mtz_with_reso_limits, imol_no is "
    // << imol_no << std::endl;
 }
+
+void
+molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
+					     std::string f_col,
+					     int is_diff_map, 
+					     float map_sampling_rate)
+{
+   graphics_info_t g;
+
+   clipper::HKL_info myhkl; 
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(myhkl); 
+
+   long T0 = 0; // timer
+   T0 = glutGet(GLUT_ELAPSED_TIME);
+
+   clipper::CNS_HKLfile cnsin; 
+   cnsin.open_read( cns_file_name );       // open new file 
+   cnsin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
+   cnsin.import_hkl_data( fphidata, f_col );
+   cnsin.close_read();
+   
+   std::string mol_name = cns_file_name + " "; 
+   mol_name += f_col; 
+   
+   initialize_map_things_on_read_molecule(mol_name,
+					  is_diff_map,
+					  g.swap_difference_map_colours);
+   xmap_list = new clipper::Xmap<float>[5];  // 18Kb each (empty) Xmap
+   max_xmaps++;
+
+      long T1 = glutGet(GLUT_ELAPSED_TIME);
+
+      int n_reflections = myhkl.num_reflections();
+      std::cout << "Number of reflections: " << n_reflections << "\n";
+      if (n_reflections <= 0) {
+	 std::cout << "WARNING:: No reflections in cns file!?" << std::endl;
+      } else { 
+	 cout << "INFO:: finding ASU unique map points with sampling rate "
+   	      << map_sampling_rate	<< endl;
+         clipper::Grid_sampling gs(myhkl.spacegroup(),
+				   myhkl.cell(),
+				   myhkl.resolution(),
+				   map_sampling_rate);
+	 cout << "INFO grid sampling..." << gs.format() << endl; 
+	 xmap_list[0].init( myhkl.spacegroup(), myhkl.cell(), gs ); // 1.5 default
+	 // 	 cout << "Grid..." << xmap_list[0].grid_sampling().format() << "\n";
+   
+	 long T2 = glutGet(GLUT_ELAPSED_TIME);
+	 
+	 // cout << "doing fft..." << endl;
+	 xmap_list[0].fft_from( fphidata );                  // generate map
+	 // cout << "done fft..." << endl;
+   
+	 long T3 = glutGet(GLUT_ELAPSED_TIME);
+	 std::cout << "INFO:: " << float(T1-T0)/1000.0 << " seconds to read CNS file\n";
+	 std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
+	 std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
+	 xmap_is_filled[0] = 1;  // set the map-is-filled? flag
+	 update_map_in_display_control_widget();
+  
+	 // Fill the class variables:
+	 //   clipper::Map_stats stats(xmap_list[0]);
+	 //   map_mean_ = stats.mean();
+	 //   map_sigma_ = stats.std_dev();
+
+	 mean_and_variance<float> mv = map_density_distribution(xmap_list[0], 0);
+
+	 save_mtz_file_name = cns_file_name;
+	 save_f_col = f_col;
+	 save_phi_col = "";
+	 save_weight_col = "";
+	 save_use_weights = 0;
+	 save_is_anomalous_map_flag = 0;
+	 save_is_diff_map_flag = is_diff_map;
+
+	 map_mean_  = mv.mean; 
+	 map_sigma_ = sqrt(mv.variance);
+	 map_max_   = mv.max_density;
+	 map_min_   = mv.min_density;
+
+	 long T4 = glutGet(GLUT_ELAPSED_TIME);
+	 std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
+
+	 std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
+	 std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
+	 std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
+	 std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+
+	 set_initial_contour_level();
+
+	 update_map();
+	 long T5 = glutGet(GLUT_ELAPSED_TIME);
+	 std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
+	 std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
+   }
+}
+
 
 void
 molecule_class_info_t::set_refmac_save_state_commands(std::string mtz_file_name,
