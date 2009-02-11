@@ -3054,6 +3054,21 @@ int is_mtz_file_p(const char *mtz_file_name) {
 }
 
 
+int cns_file_has_phases_p(const char *cns_file_name) {
+   FILE* file = fopen( cns_file_name, "r" );
+   char buf[4096];
+   for ( int i = 0; i < 4096; i++ ) buf[i] = toupper(fgetc(file));
+   fclose( file );
+   buf[4095] = 0;
+   if ( strstr( buf, "ALPHA" ) != NULL && strstr( buf, "BETA"  ) != NULL &&
+	strstr( buf, "GAMMA" ) != NULL && strstr( buf, "SYMOP" ) != NULL &&
+	strstr( buf, " F1="  ) != NULL && strstr( buf, " F2="  ) != NULL )
+      return 1;
+   else
+      return 0;
+}
+
+
 /* a c callable wrapper to the graphics_info_t function */
 void fill_option_menu_with_coordinates_options(GtkWidget *option_menu, 
 					       GtkSignalFunc signal_func,

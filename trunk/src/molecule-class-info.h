@@ -1019,6 +1019,11 @@ class molecule_class_info_t {
 					   float high_reso_limit, 
 					   float map_sampling_rate);
 
+   void map_fill_from_cns_hkl(std::string cns_file_name,
+			      std::string f_col,
+			      int is_diff_map, 
+			      float map_sampling_rate);
+
    atom_selection_container_t atom_sel;
    int drawit; // used by Molecule Display control, toggled using
 	       // toggle fuctions. 

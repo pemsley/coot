@@ -1227,6 +1227,10 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 
 
 int auto_read_make_and_draw_maps(const char *mtz_file_name) {
+  graphics_info_t g;
+
+  if ( is_mtz_file_p(mtz_file_name) ) {
+   // try MTZ file
    // list of standard column names
    const char coldefs[][40] = { "+FWT,PHWT,",
 				"-DELFWT,PHDELWT,",
@@ -1289,7 +1293,6 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
    if ( imols.size() > 0 ) {
       imol1 = imols.front();
       imol2 = imols.back();
-      graphics_info_t g;
       g.scroll_wheel_map = imol1;
       g.activate_scroll_radio_button_in_display_manager(imol1);
    } else {
@@ -1298,6 +1301,18 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
    }
    
    return imol2; // return to callbacks.c (currently ignored)
+
+  } else {
+    // Otherwise try extended CNS format
+    float msr = graphics_info_t::map_sampling_rate;
+    int imol1 = g.create_molecule();
+    g.molecules[imol1].map_fill_from_cns_hkl( mtz_file_name, "F1", 0, msr );
+    int imol2 = g.create_molecule();
+    g.molecules[imol2].map_fill_from_cns_hkl( mtz_file_name, "F2", 1, msr );
+    g.scroll_wheel_map = imol1;
+    g.activate_scroll_radio_button_in_display_manager(imol1);
+    return imol2;
+  }
 }
 
 int auto_read_do_difference_map_too_state() {

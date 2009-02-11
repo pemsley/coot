@@ -1153,6 +1153,8 @@ int mtz_file_has_phases_p(const char *mtz_file_name);
 
 int is_mtz_file_p(const char *filename);
 
+int cns_file_has_phases_p(const char *cns_file_name); 
+
 /*! \brief read MTZ file filename and from it try to make maps
 
 Useful for reading the output of refmac.  The default labels (FWT/PHWT

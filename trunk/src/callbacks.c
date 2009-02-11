@@ -323,17 +323,19 @@ on_ok_button_dataset_clicked           (GtkButton       *button,
    copied_filename = (char *) malloc(strlen(filename) + 1);
    strcpy(copied_filename, filename);
 
-   if (mtz_file_has_phases_p(filename)) {
-
-     auto_read_flag = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dataset_fileselection1)));
+   auto_read_flag = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dataset_fileselection1)));
      
+   if (mtz_file_has_phases_p(filename)||cns_file_has_phases_p(filename)) {
+
      if (auto_read_flag) 
        auto_read_make_and_draw_maps(filename);
      else 
        /* this does a create_column_label_window, fills and displays it. */
        manage_column_selector(copied_filename);
    } else { 
+
      /* no phases path */
+     if (auto_read_flag) printf ("INFO:: This file is not an MTZ map coefficient file,\nINFO:: or a 2009 CNS-Coot interchange file. Trying other file types.\n");
      if (is_mtz_file_p(filename))
        calc_phases_generic(filename);
      else 
@@ -10246,17 +10248,19 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
    copied_filename = (char *) malloc(strlen(filename) + 1);
    strcpy(copied_filename, filename);
 
-   if (mtz_file_has_phases_p(filename)) {
-
-     auto_read_flag = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dataset_fileselection1)));
+   auto_read_flag = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dataset_fileselection1)));
      
+   if (mtz_file_has_phases_p(filename)||cns_file_has_phases_p(filename)) {
+
      if (auto_read_flag) 
        auto_read_make_and_draw_maps(filename);
      else 
        /* this does a create_column_label_window, fills and displays it. */
        manage_column_selector(copied_filename);
    } else { 
+
      /* no phases path */
+     if (auto_read_flag) printf ("INFO:: This file is not an MTZ map coefficient file,\nINFO:: or a 2009 CNS-Coot interchange file. Trying other file types.\n");
      if (is_mtz_file_p(filename))
        calc_phases_generic(filename);
      else 
