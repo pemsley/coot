@@ -236,6 +236,7 @@ coot_real_SOURCES = \
 	c-interface-waters.cc	 \
 	cc-interface.hh		 \
 	callbacks.c callbacks.h	 \
+        canvas-fixes.hh          \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
 	command-line.cc		 \

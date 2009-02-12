@@ -1066,8 +1066,6 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   gchar *widget_name; 
   gchar *tmp_name; 
 
-  GSList *scroll_group = get_gslist_for_scroll_in_display_manager();
-
   GtkWidget *scroll_radio_button_1;
 
   /* we need to find references to objects that contain this widget */
@@ -1179,14 +1177,15 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   tmp_name = widget_name + strlen(widget_name); 
   snprintf(tmp_name, 4, "%-d", n);
 
-  // printf("using scroll_group 0x%x\n", scroll_group);
-  scroll_radio_button_1 = gtk_radio_button_new_with_label(scroll_group, _("Scroll"));
-  // printf("made scroll_radio_button_1 0x%x\n", scroll_radio_button_1);
-  scroll_group = gtk_radio_button_group (GTK_RADIO_BUTTON(scroll_radio_button_1));
-  // printf("saving scroll_group 0x%x\n", scroll_group);
-  set_gslist_for_scroll_in_display_manager(scroll_group);
-  // printf("saved scroll_group is now 0x%x\n", get_gslist_for_scroll_in_display_manager());
-
+  GtkWidget *previous_radio_button =
+     get_radio_button_in_scroll_group(display_control_window_glade, n);
+  if (previous_radio_button) 
+     scroll_radio_button_1 =
+	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(previous_radio_button),
+						    _("Scroll"));
+  else 
+     scroll_radio_button_1 = gtk_radio_button_new_with_label(NULL, _("Scroll"));
+  
   gtk_object_set_data_full(GTK_OBJECT(display_control_window_glade),
 			   widget_name,
  			   scroll_radio_button_1,
@@ -1270,18 +1269,33 @@ on_display_control_map_scroll_radio_button_toggled (GtkToggleButton *button,
 void
 on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button,
 							  gpointer         user_data) {
-   //   int imol = GPOINTER_TO_INT(user_data);
-   // GSList *ls = gtk_radio_button_get_group(button); // gtk2
-   
-   GSList *ls = gtk_radio_button_group(button); // old style but works.
-   
-//   std::cout << "======= DEBUG:: group of button " << imol << " changed to "
-// 	    << ls << std::endl;
-  // don't save the group from a radio button that has just been
-  // destroy (a destroyed radio button has a group of NULL.)
-  if (ls) 
-     set_gslist_for_scroll_in_display_manager(ls);
+   // do nothing these days. Scroll group is handled gtk-internally via radio buttons.
 }
+
+// return NULL when there are no radio buttons found that have a group
+// (i.e. there are no maps displayed in the Display Manager.
+// 
+GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
+					    int imol_this) {
+
+   GtkWidget *w = NULL;
+   if (display_manager_dialog) {
+      for (int i=0; i<graphics_n_molecules(); i++) {
+	 if (is_valid_map_molecule(i)) {
+	    if (i != imol_this) {
+	       if (mol_is_displayed(i)) { 
+		  std::string test_name = "map_scroll_button_";
+		  test_name += coot::util::int_to_string(i);
+		  w = lookup_widget(display_manager_dialog, test_name.c_str());
+		  if (w)
+		     break;
+	       }
+	    }
+	 } 
+      }
+   } 
+   return w;
+} 
 
 
 void

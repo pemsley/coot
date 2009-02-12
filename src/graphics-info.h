@@ -2171,6 +2171,7 @@ public:
    static short int find_ligand_mask_waters_flag;
    static int find_ligand_ligand_atom_limit;
    static short int ligand_expert_flag;
+   static bool find_ligand_here_cluster_flag;
    static float map_mask_atom_radius;
 
    // Geometry issues:

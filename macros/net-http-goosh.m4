@@ -32,7 +32,7 @@ AC_MSG_CHECKING([for Guile Goosh])
 if test -z "$ac_cv_path_GUILE" ; then 
    have_goosh=not_installed
 else 
-   guile -c '(use-modules (goosh))'
+   guile -c '(use-modules (goosh goosh))'
    if test "$?" = 0  ; then 
       have_goosh=yes
    else 

@@ -144,6 +144,9 @@ void on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
 /* ------------------------------------------------------------------------ */
 
 
+
+GtkWidget *get_radio_button_in_scroll_group(GtkWidget *d, int imol_this);
+
 void update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_window_glade, 
 						       const gchar *name, 
 						       int n);
