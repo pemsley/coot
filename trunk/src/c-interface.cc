@@ -5433,16 +5433,6 @@ post_display_control_window() {
    add_to_history(command_strings);
 }
 
-GSList *get_gslist_for_scroll_in_display_manager() {
-
-   return graphics_info_t::gslist_for_scroll_in_display_manager;
-}
-
-void set_gslist_for_scroll_in_display_manager(GSList *list) {
-
-   graphics_info_t::gslist_for_scroll_in_display_manager = list;
-} 
-
 
  
 void add_map_display_control_widgets() { 

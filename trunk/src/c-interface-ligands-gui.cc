@@ -137,7 +137,16 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
    else 
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), FALSE);
 
-      
+
+   // The Search/Here toggle buttons:
+   // 
+   GtkWidget *search_here_toggle_button;
+   search_here_toggle_button = lookup_widget(find_ligand_dialog,
+					     "find_ligands_search_here_radiobutton");
+   if (search_here_toggle_button) 
+      if (graphics_info_t::find_ligand_here_cluster_flag)
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(search_here_toggle_button), TRUE);
+   
    // 040211: fill new sigma level entry
    fill_ligands_sigma_level_entry(find_ligand_dialog);
 
@@ -503,6 +512,21 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
       graphics_info_t::find_ligand_mask_waters_flag = 1;
    else 
       graphics_info_t::find_ligand_mask_waters_flag = 0;
+
+
+   // The Search/Here toggle buttons:
+   
+   GtkWidget *search_here_toggle_button;
+   search_here_toggle_button = lookup_widget(button,
+					     "find_ligands_search_here_radiobutton");
+   if (search_here_toggle_button) 
+      if (GTK_TOGGLE_BUTTON(search_here_toggle_button)->active) {
+	 std::cout << " Activating SEARCH HERE in ligand fitting" << std::endl;
+	 graphics_info_t::find_ligand_here_cluster_flag = 1;
+      } else {
+	 graphics_info_t::find_ligand_here_cluster_flag = 0;
+      } 
+   
 
    // For each imol in molecules, if we have selected coordinates,
    // construct a string begining "find_ligand_ligands_imol_" then the
