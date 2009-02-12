@@ -11230,3 +11230,18 @@ on_model_toolbar_rot_trans_toolbutton_clicked
   do_rot_trans_setup(1);
 } 
 #endif	/* GTK_MAJOR_VERSION */
+
+
+void
+on_find_ligands_search_all_radiobutton_toggled
+                                        (GtkButton       *button,
+                                        gpointer         user_data) { 
+}
+
+
+void
+on_find_ligands_search_here_radiobutton_toggled
+                                        (GtkButton       *button,
+                                        gpointer         user_data) { 
+
+}

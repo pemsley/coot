@@ -1720,15 +1720,8 @@ public:
    // 
    void save_display_control_widget_in_graphics(GtkWidget *widget) { 
       display_control_window_ = widget;
-      if (widget == NULL) {
-	 // then the widget was destroyed and so we need to unset the
-	 // group of the scroll radio buttons.
-	 gslist_for_scroll_in_display_manager = NULL;
-      }
    }
 
-   static GSList *gslist_for_scroll_in_display_manager;
-   
    GtkWidget *display_control_window() { 
      return display_control_window_; 
    }

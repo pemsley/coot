@@ -3876,28 +3876,6 @@ molecule_class_info_t::close_yourself() {
 
 	 gtk_widget_destroy(display_frame);
 
-	 // Check here if there are any maps left open.  If there are none,
-	 // then set the gslist_for_scroll to NULL.  This will prevent
-	 // "Gtk-CRITICAL **: file gtkradiobutton.c: line 167
-	 // (gtk_radio_button_set_group): assertion `!g_slist_find (group,
-	 // radio_button)' failed." when we try to add a map to an old open
-	 // but emptied Display Control
-	 //
-	 int n_maps_left = 0;
-	 for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-	    if (imol != imol_no) { 
-	       if (is_valid_map_molecule(imol)) {
-		  n_maps_left++;
-		  break;
-	       }
-	    }
-	 }
-	 // std::cout << "DEBUG:: n_maps_left: " << n_maps_left << std::endl;
-	 if (n_maps_left == 0) { 
-	    graphics_info_t::gslist_for_scroll_in_display_manager = NULL;
-	    // std::cout << "DEBUG:: n_maps_left: " << n_maps_left
-	    // << " reset scroll list." << std::endl;
-	 } 
       }
    } else {
       // std::cout << "close: display_control_window is not active" << std::endl;

@@ -4058,3 +4058,13 @@ void
 on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+
+void
+on_find_ligands_search_all_radiobutton_toggled
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_find_ligands_search_here_radiobutton_toggled
+                                        (GtkButton       *button,
+                                        gpointer         user_data);

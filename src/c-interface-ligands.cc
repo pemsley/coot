@@ -441,11 +441,14 @@ execute_ligand_search_internal() {
 	 g.scroll_wheel_map = imol;  // change the current scrollable map to
                                      // the masked map.
       }
+      wlig.find_clusters(g.ligand_cluster_sigma_level);  // trashes the xmap
 
    } else {
 
       // don't search the map, just use the peak/cluser at the screen
       // centre.
+
+      std::cout << " ===== SEARCH HERE path in ligand fitting" << std::endl;
       
       wlig.mask_map(protein_mol, mask_waters_flag);
       clipper::Coord_orth pt(g.X(), g.Y(), g.Z()); // close to 3GP peak (not in it).
@@ -454,7 +457,6 @@ execute_ligand_search_internal() {
       
    } 
    wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
-   wlig.find_clusters(g.ligand_cluster_sigma_level);  // trashes the xmap
    wlig.fit_ligands_to_clusters(g.find_ligand_n_top_ligands); // 10 clusters
    wlig.make_pseudo_atoms(); // put anisotropic atoms at the ligand sites
 

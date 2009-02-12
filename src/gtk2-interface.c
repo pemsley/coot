@@ -5936,6 +5936,13 @@ create_find_ligand_dialog (void)
   GtkWidget *find_ligands_ligands_scrolledwindow;
   GtkWidget *viewport16;
   GtkWidget *find_ligand_ligands_vbox;
+  GtkWidget *frame288;
+  GtkWidget *alignment133;
+  GtkWidget *vbox300;
+  GtkWidget *find_ligands_search_all_radiobutton;
+  GSList *find_ligands_search_all_radiobutton_group = NULL;
+  GtkWidget *find_ligands_search_here_radiobutton;
+  GtkWidget *label706;
   GtkWidget *frame85;
   GtkWidget *hbox79;
   GtkWidget *find_ligand_sigma_level_entry;
@@ -6084,6 +6091,37 @@ create_find_ligand_dialog (void)
   gtk_widget_show (find_ligand_ligands_vbox);
   gtk_container_add (GTK_CONTAINER (viewport16), find_ligand_ligands_vbox);
 
+  frame288 = gtk_frame_new (NULL);
+  gtk_widget_show (frame288);
+  gtk_box_pack_start (GTK_BOX (vbox44), frame288, TRUE, TRUE, 0);
+
+  alignment133 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment133);
+  gtk_container_add (GTK_CONTAINER (frame288), alignment133);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment133), 0, 0, 12, 0);
+
+  vbox300 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox300);
+  gtk_container_add (GTK_CONTAINER (alignment133), vbox300);
+
+  find_ligands_search_all_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Everywhere"));
+  gtk_widget_show (find_ligands_search_all_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox300), find_ligands_search_all_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (find_ligands_search_all_radiobutton), find_ligands_search_all_radiobutton_group);
+  find_ligands_search_all_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (find_ligands_search_all_radiobutton));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (find_ligands_search_all_radiobutton), TRUE);
+
+  find_ligands_search_here_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Right here"));
+  gtk_widget_show (find_ligands_search_here_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox300), find_ligands_search_here_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (find_ligands_search_here_radiobutton), find_ligands_search_all_radiobutton_group);
+  find_ligands_search_all_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (find_ligands_search_here_radiobutton));
+
+  label706 = gtk_label_new (_("Where to Search?"));
+  gtk_widget_show (label706);
+  gtk_frame_set_label_widget (GTK_FRAME (frame288), label706);
+  gtk_label_set_use_markup (GTK_LABEL (label706), TRUE);
+
   frame85 = gtk_frame_new (NULL);
   gtk_widget_show (frame85);
   gtk_box_pack_start (GTK_BOX (vbox44), frame85, FALSE, FALSE, 0);
@@ -6198,6 +6236,12 @@ create_find_ligand_dialog (void)
   gtk_widget_show (label365);
   gtk_box_pack_start (GTK_BOX (hbox191), label365, FALSE, FALSE, 0);
 
+  g_signal_connect ((gpointer) find_ligands_search_all_radiobutton, "toggled",
+                    G_CALLBACK (on_find_ligands_search_all_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) find_ligands_search_here_radiobutton, "toggled",
+                    G_CALLBACK (on_find_ligands_search_here_radiobutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) find_ligand_ok_button, "clicked",
                     G_CALLBACK (on_find_ligand_ok_button_clicked),
                     NULL);
@@ -6232,6 +6276,12 @@ create_find_ligand_dialog (void)
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligands_ligands_scrolledwindow, "find_ligands_ligands_scrolledwindow");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, viewport16, "viewport16");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_ligands_vbox, "find_ligand_ligands_vbox");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, frame288, "frame288");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, alignment133, "alignment133");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, vbox300, "vbox300");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligands_search_all_radiobutton, "find_ligands_search_all_radiobutton");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligands_search_here_radiobutton, "find_ligands_search_here_radiobutton");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, label706, "label706");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, frame85, "frame85");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, hbox79, "hbox79");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_sigma_level_entry, "find_ligand_sigma_level_entry");
