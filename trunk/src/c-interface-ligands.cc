@@ -418,29 +418,45 @@ execute_ligand_search_internal() {
       }
    }
 
-   int imol = graphics_info_t::create_molecule();
-   
+
    short int mask_waters_flag; // treat waters like other atoms?
    mask_waters_flag = g.find_ligand_mask_waters_flag;
-   if (graphics_info_t::map_mask_atom_radius > 0) {
-      // only do this if it was set by the user.
-      wlig.set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
-   } else { 
-      wlig.set_map_atom_mask_radius(2.0);  // Angstroms
-   } 
+   if (! g.find_ligand_here_cluster_flag) { 
+      int imol = graphics_info_t::create_molecule();
+      if (graphics_info_t::map_mask_atom_radius > 0) {
+	 // only do this if it was set by the user.
+	 wlig.set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
+      } else { 
+	 wlig.set_map_atom_mask_radius(2.0);  // Angstroms
+      } 
+      
+      std::string name("ligand masked map");
+      // std::cout << "DEBUG:: calling mask_map\n";
+      wlig.mask_map(protein_mol, mask_waters_flag); // mask by protein
+      // std::cout << "DEBUG:: done mask_map\n";
+      g.molecules[imol].new_map(wlig.masked_map(), wlig.masked_map_name());
 
-   std::string name("ligand masked map");
-   // std::cout << "DEBUG:: calling mask_map\n";
-   wlig.mask_map(protein_mol, mask_waters_flag); // mask by protein
-   // std::cout << "DEBUG:: done mask_map\n";
-   g.molecules[imol].new_map(wlig.masked_map(), wlig.masked_map_name());
+      // This should not be be scroll map?
+      if (0) { 
+	 g.scroll_wheel_map = imol;  // change the current scrollable map to
+                                     // the masked map.
+      }
+
+   } else {
+
+      // don't search the map, just use the peak/cluser at the screen
+      // centre.
+      
+      wlig.mask_map(protein_mol, mask_waters_flag);
+      clipper::Coord_orth pt(g.X(), g.Y(), g.Z()); // close to 3GP peak (not in it).
+      float n_sigma = g.ligand_cluster_sigma_level; // cluster points must be more than this.
+      wlig.cluster_from_point(pt, n_sigma);
+      
+   } 
    wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
    wlig.find_clusters(g.ligand_cluster_sigma_level);  // trashes the xmap
    wlig.fit_ligands_to_clusters(g.find_ligand_n_top_ligands); // 10 clusters
    wlig.make_pseudo_atoms(); // put anisotropic atoms at the ligand sites
-
-   g.scroll_wheel_map = imol;  // change the current scrollable map to
-			       // the masked map.
 
    // now add in the solution ligands:
    int n_final_ligands = wlig.n_final_ligands(); 

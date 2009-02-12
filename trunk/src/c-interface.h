@@ -150,11 +150,6 @@ void set_show_paths_in_display_manager(int i);
  */
 int show_paths_in_display_manager_state();
 
-/* 20050316 Ooooh! Hairy hairy! */
-GSList *get_gslist_for_scroll_in_display_manager();
-
-void set_gslist_for_scroll_in_display_manager(GSList *list);
-
 /*! \brief add an extension to be treated as coordinate files 
 */
 void add_coordinates_glob_extension(const char *ext);

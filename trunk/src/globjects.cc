@@ -524,7 +524,6 @@ short int graphics_info_t::sticky_sort_by_date = 0; // initally not.
 
 // Maps and Molecule Display Control window:
 GtkWidget *graphics_info_t::display_control_window_ = NULL;
-GSList    *graphics_info_t::gslist_for_scroll_in_display_manager = NULL;
 
 int graphics_info_t::draw_axes_flag = 1; // on by default now.
 
@@ -638,6 +637,7 @@ short int graphics_info_t::python_gui_loaded_flag = FALSE;
 //
 int graphics_info_t::find_ligand_map_mol_ = -1;
 int graphics_info_t::find_ligand_protein_mol_ = -1;
+bool graphics_info_t::find_ligand_here_cluster_flag = 0;
 int graphics_info_t::find_ligand_n_top_ligands = 10;
 short int graphics_info_t::find_ligand_mask_waters_flag = 0;
 float graphics_info_t::map_mask_atom_radius = -99; // unset
