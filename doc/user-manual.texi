@@ -2013,6 +2013,16 @@ changed using the scripting function: @emph{e.g.}
 @subsection Dictionary
 @cindex cif dictionary 
 @cindex mmCIF dictionary 
+
+The geometry description for residues, monomers and links used by Coot
+are in the standard mmCIF format.  Because this format alows multiple
+comp_ids (residue types) to be described within a cif loop, it is hard
+to tell when a dictionary entry needs to be overwritten when reading a
+new file.  Therefore Coot makes this extra constraint: that the
+``chem_comp'' loop should appear first in the comp list data item - if
+this is the case, then Coot can overwrite an old restraint table for a
+particular comp_id/residue-type when a new one is read.
+
 By default, 
 the geometry dictionary entries for only the standard
 residues are read in at the start  @footnote{And a few extras, such as
