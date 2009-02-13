@@ -224,4 +224,18 @@ class LigandTestFunctions(unittest.TestCase):
         self.failUnless(dip_x < 0 and dip_x > -20)
 
         
-            
+    def test06_0(self):
+        """Reading new dictionary replaces"""
+
+        def get_torsions(r):
+            return r["_chem_comp_tor"]
+
+        read_cif_dictionary(os.path.join(unittest_data_dir, "libcheck_3GP.cif"))
+        read_cif_dictionary(os.path.join(unittest_data_dir, "libcheck_3GP.cif"))
+        read_cif_dictionary(os.path.join(unittest_data_dir, "libcheck_3GP.cif"))
+
+        r = monomer_restraints("3GP")
+        t = get_torsions(r)
+
+        #
+        self.failUnless(len(t) == 25, "torsions: %s %s" %(len(t), t))
