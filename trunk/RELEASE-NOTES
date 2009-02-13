@@ -18,6 +18,8 @@ Pre-release 0.6
 
   o CHANGE: SEGIDs are more intelligently inherited 
 
+  o CHANGE: Ramachandran Plots now have molecule name labels [Wendy Offen].
+
   o BUG-FIX: new atoms are added as HETATMs if appropriate
  
 -----

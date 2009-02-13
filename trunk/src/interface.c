@@ -4542,6 +4542,7 @@ create_dynarama_window (void)
 {
   GtkWidget *dynarama_window;
   GtkWidget *dynarama_vbox;
+  GtkWidget *dynarama_label;
   GtkWidget *dynarama_scrolledwindow;
   GtkWidget *dynarama_viewport;
   GtkWidget *rama_stats_frame;
@@ -4564,6 +4565,13 @@ create_dynarama_window (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dynarama_vbox);
   gtk_container_add (GTK_CONTAINER (dynarama_window), dynarama_vbox);
+
+  dynarama_label = gtk_label_new (_("Ramachandran Plot"));
+  gtk_widget_ref (dynarama_label);
+  gtk_object_set_data_full (GTK_OBJECT (dynarama_window), "dynarama_label", dynarama_label,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (dynarama_label);
+  gtk_box_pack_start (GTK_BOX (dynarama_vbox), dynarama_label, FALSE, FALSE, 3);
 
   dynarama_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_ref (dynarama_scrolledwindow);
@@ -4820,6 +4828,11 @@ create_find_ligand_dialog (void)
   GtkWidget *find_ligands_ligands_scrolledwindow;
   GtkWidget *viewport16;
   GtkWidget *find_ligand_ligands_vbox;
+  GtkWidget *frame200;
+  GtkWidget *vbox206;
+  GSList *find_ligands_search_group = NULL;
+  GtkWidget *find_ligands_search_all_radiobutton;
+  GtkWidget *find_ligands_search_here_radiobutton;
   GtkWidget *frame85;
   GtkWidget *hbox79;
   GtkWidget *find_ligand_sigma_level_entry;
@@ -5022,6 +5035,38 @@ create_find_ligand_dialog (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (find_ligand_ligands_vbox);
   gtk_container_add (GTK_CONTAINER (viewport16), find_ligand_ligands_vbox);
+
+  frame200 = gtk_frame_new (_("Where to Search?"));
+  gtk_widget_ref (frame200);
+  gtk_object_set_data_full (GTK_OBJECT (find_ligand_dialog), "frame200", frame200,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (frame200);
+  gtk_box_pack_start (GTK_BOX (vbox44), frame200, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame200), 2);
+
+  vbox206 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox206);
+  gtk_object_set_data_full (GTK_OBJECT (find_ligand_dialog), "vbox206", vbox206,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox206);
+  gtk_container_add (GTK_CONTAINER (frame200), vbox206);
+
+  find_ligands_search_all_radiobutton = gtk_radio_button_new_with_label (find_ligands_search_group, _("Everywhere"));
+  find_ligands_search_group = gtk_radio_button_group (GTK_RADIO_BUTTON (find_ligands_search_all_radiobutton));
+  gtk_widget_ref (find_ligands_search_all_radiobutton);
+  gtk_object_set_data_full (GTK_OBJECT (find_ligand_dialog), "find_ligands_search_all_radiobutton", find_ligands_search_all_radiobutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (find_ligands_search_all_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox206), find_ligands_search_all_radiobutton, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (find_ligands_search_all_radiobutton), TRUE);
+
+  find_ligands_search_here_radiobutton = gtk_radio_button_new_with_label (find_ligands_search_group, _("Right Here"));
+  find_ligands_search_group = gtk_radio_button_group (GTK_RADIO_BUTTON (find_ligands_search_here_radiobutton));
+  gtk_widget_ref (find_ligands_search_here_radiobutton);
+  gtk_object_set_data_full (GTK_OBJECT (find_ligand_dialog), "find_ligands_search_here_radiobutton", find_ligands_search_here_radiobutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (find_ligands_search_here_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox206), find_ligands_search_here_radiobutton, FALSE, FALSE, 0);
 
   frame85 = gtk_frame_new (_("Sigma Level"));
   gtk_widget_ref (frame85);

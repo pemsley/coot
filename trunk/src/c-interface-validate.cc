@@ -1264,6 +1264,7 @@ void do_ramachandran_plot(int imol) {
 	    short int is_kleywegt_plot_flag = 0;
 	    rama->set_n_diffs(graphics_info_t::rama_n_diffs);
 	    rama->init(imol,
+		       graphics_info_t::molecules[imol].dotted_chopped_name(), 
 		       graphics_info_t::rama_level_prefered,
 		       graphics_info_t::rama_level_allowed,
 		       graphics_info_t::rama_plot_background_block_size,
@@ -1304,6 +1305,7 @@ ramachandran_plot_differences(int imol1, int imol2) {
 			short int is_kleywegt_plot_flag = 1;
 			rama->set_n_diffs(graphics_info_t::rama_n_diffs);
 			rama->init(imol1,
+				   graphics_info_t::molecules[imol1].dotted_chopped_name(),  
 				   graphics_info_t::rama_level_prefered,
 				   graphics_info_t::rama_level_allowed,
 				   graphics_info_t::rama_plot_background_block_size,
@@ -1340,6 +1342,7 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 	    coot::rama_plot *rama = new coot::rama_plot; 
 	    rama->set_n_diffs(graphics_info_t::rama_n_diffs);
 	    rama->init(imol1,
+		       graphics_info_t::molecules[imol1].dotted_chopped_name(),
 		       graphics_info_t::rama_level_prefered,
 		       graphics_info_t::rama_level_allowed,
 		       graphics_info_t::rama_plot_background_block_size,
