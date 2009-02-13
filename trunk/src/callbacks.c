@@ -306,7 +306,7 @@ on_ok_button_dataset_clicked           (GtkButton       *button,
 {
   const gchar *filename; 
   gchar *copied_filename;
-  int auto_read_flag = 0;
+  int auto_read_flag = 0, ismtz = 0, ismtzauto = 0, iscnsauto = 0;
   int itmp = -1;
 
   GtkWidget *dataset_fileselection1;
@@ -324,8 +324,11 @@ on_ok_button_dataset_clicked           (GtkButton       *button,
    strcpy(copied_filename, filename);
 
    auto_read_flag = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dataset_fileselection1)));
-     
-   if (mtz_file_has_phases_p(filename)||cns_file_has_phases_p(filename)) {
+   ismtz = is_mtz_file_p(filename);
+   if (ismtz) ismtzauto = mtz_file_has_phases_p(filename);
+   else       iscnsauto = cns_file_has_phases_p(filename);
+
+   if ( ismtzauto || iscnsauto ) {
 
      if (auto_read_flag) 
        auto_read_make_and_draw_maps(filename);
@@ -335,8 +338,8 @@ on_ok_button_dataset_clicked           (GtkButton       *button,
    } else { 
 
      /* no phases path */
-     if (auto_read_flag) printf ("INFO:: This file is not an MTZ map coefficient file,\nINFO:: or a 2009 CNS-Coot interchange file. Trying other file types.\n");
-     if (is_mtz_file_p(filename))
+     if (auto_read_flag) printf ("INFO:: This file is not a map coefficient file. Coot can auto-read\nINFO::  - MTZ files from refmac, phenix.refine, phaser, parrot, dm.\nINFO::  - CNS files (new 2009 format only) with cell, symops, F1, F2.\n");
+     if ( ismtz )
        calc_phases_generic(filename);
      else 
        /* try to read as a phs, cif etc... */
@@ -10231,7 +10234,7 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
  if (response_id == GTK_RESPONSE_OK) {
   const gchar *filename; 
   gchar *copied_filename;
-  int auto_read_flag = 0;
+  int auto_read_flag = 0, ismtz = 0, ismtzauto = 0, iscnsauto = 0;
   int itmp = -1;
 
   GtkWidget *dataset_fileselection1;
@@ -10249,8 +10252,11 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
    strcpy(copied_filename, filename);
 
    auto_read_flag = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dataset_fileselection1)));
-     
-   if (mtz_file_has_phases_p(filename)||cns_file_has_phases_p(filename)) {
+   ismtz = is_mtz_file_p(filename);
+   if (ismtz) ismtzauto = mtz_file_has_phases_p(filename);
+   else       iscnsauto = cns_file_has_phases_p(filename);
+
+   if ( ismtzauto || iscnsauto ) {
 
      if (auto_read_flag) 
        auto_read_make_and_draw_maps(filename);
@@ -10260,13 +10266,13 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
    } else { 
 
      /* no phases path */
-     if (auto_read_flag) printf ("INFO:: This file is not an MTZ map coefficient file,\nINFO:: or a 2009 CNS-Coot interchange file. Trying other file types.\n");
-     if (is_mtz_file_p(filename))
+     if (auto_read_flag) printf ("INFO:: This file is not a map coefficient file. Coot can auto-read\nINFO::  - MTZ files from refmac, phenix.refine, phaser, parrot, dm.\nINFO::  - CNS files (new 2009 format only) with cell, symops, F1, F2.\n");
+     if ( ismtz )
        calc_phases_generic(filename);
      else 
        /* try to read as a phs, cif etc... */
        manage_column_selector(copied_filename);
-   } 
+   }
    gtk_widget_destroy(dataset_fileselection1);
  } else {
   GtkWidget *dataset_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
