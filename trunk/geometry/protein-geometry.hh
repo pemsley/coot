@@ -820,6 +820,9 @@ namespace coot {
       void assign_link_chiral_volume_targets();
       int read_number;
 
+      void delete_mon_lib(std::string comp_id); // delete comp_id from dict_res_restraints
+						// (if it exists there).
+
       std::vector <std::string> standard_protein_monomer_files() const; 
       // a wrapper to init_refmac_mon_lib
       int refmac_monomer(const std::string &s, // dir

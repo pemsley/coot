@@ -1,12 +1,4 @@
 
-   o When reading in a dictionary twice, does it add or replace?  Why
-     do I see 20 non-const non-H torsions in 3GP when using flexible
-     ligands? ::: 2
-
-
-   o Export the ligand fitting from a position (rather than searching
-     the whole map to find cluster site). ::: 2
-
 
    o Turn on torsion angle restraints and regularize monomer-3GP.
      Look at above var_2 torsion.  After minimization, torsion is 171.09
@@ -22,6 +14,9 @@
      ::: 10
 
 * What else is there to do here?  Write a test.
+
+   o Check that ncs-chain-skip works for NCS heterodimer
+     [Jianghai Zhu] ::: 1
 
 
    o "Fit ligand here" which gets a monomer then does a ligand search
@@ -45,6 +40,10 @@
   SetDihedralAngle().
 
 
+   o Document the post-manipulation-hook.  How, for example, might you
+     use it to move the residue added on a "Add Terminal residue"? 
+     [Ethan Merritt] ::: 1
+
 
    o Investigate interupting long fitting/Post MR tools [JED request] 
      Add a stop button to the toolbar perhaps.
@@ -60,10 +59,6 @@
   Seems complex - how about just destroy-toolbar-stop-toolbutton. Yes.
   Should those refinement scripts be run as idle functions then?  
 
-
-   o redo sequence view ::: 10
-
-* Started.
 
    o Backrub-based auto-fit rotamer search.  Question: how do I test
      this? Synthetic map?  How does it work when we do this for an alt
@@ -151,74 +146,6 @@
      particular key?  graphics-general-key-press-hook should return the
      status of the key being found and the binding function used.  Then
      if not, we can run the python function [JED]. ::: 1
-
-   o crash: coot-download a structure 1ucs.  create a map from mtz,
-     create another map from mtz (I meant to change the limits, but
-     forgot). Delete that new map (using the button on display
-     control). mtz read same mtz with reso limits -> crash.
-
- gtk_radio_button_set_group: assertion `!g_slist_find (group, radio_button)' failed
-
-#0  0x034e2ce7 in gtk_radio_button_set_group () from /usr/lib/libgtk-x11-2.0.so.0
-#1  0x034e2f61 in gtk_radio_button_new_with_label () from /usr/lib/libgtk-x11-2.0.so.0
-#2  0x082e3bae in display_control_map_combo_box (display_control_window_glade=0x95e0cc0,
-    name=0x8a035c4 "1ucs_sigmaa.mtz 2FOFCWT PH2FOFCWT 50.00  0.80", n=6) at ../../coot/src/gtk-manual.cc:1187
-#3  0x0837219d in molecule_class_info_t::update_map_in_display_control_widget (this=0x9bafa30) at ../../coot/src/molecule-class-info-maps.cc:131
-#4  0x0835a3cb in molecule_class_info_t::initialize_map_things_on_read_molecule (this=0x9bafa30, molecule_name=@0xbfb67fac,
-    is_diff_map=-1078562068, swap_difference_map_colours=0) at ../../coot/src/molecule-class-info.cc:1250
-#5  0x0837b39b in molecule_class_info_t::map_fill_from_mtz_with_reso_limits (this=0x9bafa30, mtz_file_name=@0xbfb68140, f_col=@0xbfb6813c,
-    phi_col=@0xbfb68138, weight_col=@0xbfb68134, use_weights=0, is_anomalous_flag=0, is_diff_map=0, use_reso_limits=1, low_reso_limit=50,
-    high_reso_limit=0.800000012, map_sampling_rate=1.5) at ../../coot/src/molecule-class-info-maps.cc:488
-#6  0x0813e8f2 in make_and_draw_map_with_reso_with_refmac_params (
-    mtz_file_name=0x9bdaa74 "/home/paule/Projects/build-coot-fc4-gtk2/src/coot-download/1ucs_sigmaa.mtz",
-    f_col=0x9bf9b14 "/unknown/unknown221007/2FOFCWT", phi_col=0x9bf72c4 "/unknown/unknown221007/PH2FOFCWT", weight_col=0x84d9204 "", use_weights=0,
-    is_diff_map=0, have_refmac_params=0, fobs_col=0x84d9204 "", sigfobs_col=0x84d9204 "", r_free_col=0x84d9204 "", sensible_r_free_col=0,
-    is_anomalous_flag=0, use_reso_limits=1, low_reso_limit=50, high_reso_limit=0.800000012) at ../../coot/src/c-interface.cc:1131
-#7  0x0815508c in handle_column_label_make_fourier (column_label_window=0x9c21060) at ../../coot/src/c-interface-gui.cc:364
-
-and again, similar, this time I shut and open the dialog (not sure if
-I deleted after I opened again though).
-
-#0  0x034e2ce7 in gtk_radio_button_set_group () from /usr/lib/libgtk-x11-2.0.so.0
-#1  0x034e2f61 in gtk_radio_button_new_with_label () from /usr/lib/libgtk-x11-2.0.so.0
-#2  0x082e38ca in display_control_map_combo_box (display_control_window_glade=0x9855550,
-    name=0x987df5c "1ucs_sigmaa.mtz 2FOFCWT PH2FOFCWT 50.00  1.20", n=5) at ../../coot/src/gtk-manual.cc:1187
-#3  0x08371ec9 in molecule_class_info_t::update_map_in_display_control_widget (this=0x9e98c58) at ../../coot/src/molecule-class-info-maps.cc:131
-#4  0x0835a0f7 in molecule_class_info_t::initialize_map_things_on_read_molecule (this=0x9e98c58, molecule_name=@0xbfb254ac,
-    is_diff_map=-1078835220, swap_difference_map_colours=0) at ../../coot/src/molecule-class-info.cc:1250
-#5  0x0837b0c7 in molecule_class_info_t::map_fill_from_mtz_with_reso_limits (this=0x9e98c58, mtz_file_name=@0xbfb25640, f_col=@0xbfb2563c,
-    phi_col=@0xbfb25638, weight_col=@0xbfb25634, use_weights=0, is_anomalous_flag=0, is_diff_map=0, use_reso_limits=1, low_reso_limit=50,
-    high_reso_limit=1.20000005, map_sampling_rate=5) at ../../coot/src/molecule-class-info-maps.cc:488
-#6  0x0813e8fe in make_and_draw_map_with_reso_with_refmac_params (
-    mtz_file_name=0x987f6c4 "/home/paule/Projects/build-coot-fc4-gtk2/src/coot-download/1ucs_sigmaa.mtz",
-    f_col=0x9876fe4 "/unknown/unknown221007/2FOFCWT", phi_col=0x9872294 "/unknown/unknown221007/PH2FOFCWT", weight_col=0x84d8e84 "", use_weights=0,
-    is_diff_map=0, have_refmac_params=0, fobs_col=0x84d8e84 "", sigfobs_col=0x84d8e84 "", r_free_col=0x84d8e84 "", sensible_r_free_col=0,
-    is_anomalous_flag=0, use_reso_limits=1, low_reso_limit=50, high_reso_limit=1.20000005) at ../../coot/src/c-interface.cc:1131
-#7  0x08155098 in handle_column_label_make_fourier (column_label_window=0x990f2e8) at ../../coot/src/c-interface-gui.cc:364
-
-
-This time I think I did not delete the map using the display control
-button, but I did use the Close molecule button!  Hmm!
-
-
-#0  0x034e2ce7 in gtk_radio_button_set_group () from /usr/lib/libgtk-x11-2.0.so.0
-#1  0x034e2f61 in gtk_radio_button_new_with_label () from /usr/lib/libgtk-x11-2.0.so.0
-#2  0x082e38ca in display_control_map_combo_box (display_control_window_glade=0xa878b68,
-    name=0xa8bff4c "1ucs_sigmaa.mtz 2FOFCWT PH2FOFCWT 50.00  1.80", n=5) at ../../coot/src/gtk-manual.cc:1187
-#3  0x08371ec9 in molecule_class_info_t::update_map_in_display_control_widget (this=0xa97ac80) at ../../coot/src/molecule-class-info-maps.cc:131
-#4  0x0835a0f7 in molecule_class_info_t::initialize_map_things_on_read_molecule (this=0xa97ac80, molecule_name=@0xbfae6e2c,
-    is_diff_map=-1079090836, swap_difference_map_colours=0) at ../../coot/src/molecule-class-info.cc:1250
-#5  0x0837b0c7 in molecule_class_info_t::map_fill_from_mtz_with_reso_limits (this=0xa97ac80, mtz_file_name=@0xbfae6fc0, f_col=@0xbfae6fbc,
-    phi_col=@0xbfae6fb8, weight_col=@0xbfae6fb4, use_weights=0, is_anomalous_flag=0, is_diff_map=0, use_reso_limits=1, low_reso_limit=50,
-    high_reso_limit=1.79999995, map_sampling_rate=5) at ../../coot/src/molecule-class-info-maps.cc:488
-#6  0x0813e8fe in make_and_draw_map_with_reso_with_refmac_params (
-    mtz_file_name=0xa88b9ac "/home/paule/Projects/build-coot-fc4-gtk2/src/coot-download/1ucs_sigmaa.mtz",
-    f_col=0xa8b3fac "/unknown/unknown221007/2FOFCWT", phi_col=0xa8b8a74 "/unknown/unknown221007/PH2FOFCWT", weight_col=0x84d8e84 "", use_weights=0,
-    is_diff_map=0, have_refmac_params=0, fobs_col=0x84d8e84 "", sigfobs_col=0x84d8e84 "", r_free_col=0x84d8e84 "", sensible_r_free_col=0,
-    is_anomalous_flag=0, use_reso_limits=1, low_reso_limit=50, high_reso_limit=1.79999995) at ../../coot/src/c-interface.cc:1131
-#7  0x08155098 in handle_column_label_make_fourier (column_label_window=0xa85e0e8) at ../../coot/src/c-interface-gui.cc:364
-
-    ::: 2
 
 
 ------
@@ -517,4 +444,89 @@ button, but I did use the Close molecule button!  Hmm!
 
   Done now.
 
+   o Export the ligand fitting from a position (rather than searching
+     the whole map to find cluster site). ::: 2
 
+* Done.
+
+   o redo sequence view ::: 10
+
+* Done.  Maybe it will need enhancements later, but this is what I
+  wanted to achieve for now.
+
+
+   o crash: coot-download a structure 1ucs.  create a map from mtz,
+     create another map from mtz (I meant to change the limits, but
+     forgot). Delete that new map (using the button on display
+     control). mtz read same mtz with reso limits -> crash.
+
+ gtk_radio_button_set_group: assertion `!g_slist_find (group, radio_button)' failed
+
+#0  0x034e2ce7 in gtk_radio_button_set_group () from /usr/lib/libgtk-x11-2.0.so.0
+#1  0x034e2f61 in gtk_radio_button_new_with_label () from /usr/lib/libgtk-x11-2.0.so.0
+#2  0x082e3bae in display_control_map_combo_box (display_control_window_glade=0x95e0cc0,
+    name=0x8a035c4 "1ucs_sigmaa.mtz 2FOFCWT PH2FOFCWT 50.00  0.80", n=6) at ../../coot/src/gtk-manual.cc:1187
+#3  0x0837219d in molecule_class_info_t::update_map_in_display_control_widget (this=0x9bafa30) at ../../coot/src/molecule-class-info-maps.cc:131
+#4  0x0835a3cb in molecule_class_info_t::initialize_map_things_on_read_molecule (this=0x9bafa30, molecule_name=@0xbfb67fac,
+    is_diff_map=-1078562068, swap_difference_map_colours=0) at ../../coot/src/molecule-class-info.cc:1250
+#5  0x0837b39b in molecule_class_info_t::map_fill_from_mtz_with_reso_limits (this=0x9bafa30, mtz_file_name=@0xbfb68140, f_col=@0xbfb6813c,
+    phi_col=@0xbfb68138, weight_col=@0xbfb68134, use_weights=0, is_anomalous_flag=0, is_diff_map=0, use_reso_limits=1, low_reso_limit=50,
+    high_reso_limit=0.800000012, map_sampling_rate=1.5) at ../../coot/src/molecule-class-info-maps.cc:488
+#6  0x0813e8f2 in make_and_draw_map_with_reso_with_refmac_params (
+    mtz_file_name=0x9bdaa74 "/home/paule/Projects/build-coot-fc4-gtk2/src/coot-download/1ucs_sigmaa.mtz",
+    f_col=0x9bf9b14 "/unknown/unknown221007/2FOFCWT", phi_col=0x9bf72c4 "/unknown/unknown221007/PH2FOFCWT", weight_col=0x84d9204 "", use_weights=0,
+    is_diff_map=0, have_refmac_params=0, fobs_col=0x84d9204 "", sigfobs_col=0x84d9204 "", r_free_col=0x84d9204 "", sensible_r_free_col=0,
+    is_anomalous_flag=0, use_reso_limits=1, low_reso_limit=50, high_reso_limit=0.800000012) at ../../coot/src/c-interface.cc:1131
+#7  0x0815508c in handle_column_label_make_fourier (column_label_window=0x9c21060) at ../../coot/src/c-interface-gui.cc:364
+
+and again, similar, this time I shut and open the dialog (not sure if
+I deleted after I opened again though).
+
+#0  0x034e2ce7 in gtk_radio_button_set_group () from /usr/lib/libgtk-x11-2.0.so.0
+#1  0x034e2f61 in gtk_radio_button_new_with_label () from /usr/lib/libgtk-x11-2.0.so.0
+#2  0x082e38ca in display_control_map_combo_box (display_control_window_glade=0x9855550,
+    name=0x987df5c "1ucs_sigmaa.mtz 2FOFCWT PH2FOFCWT 50.00  1.20", n=5) at ../../coot/src/gtk-manual.cc:1187
+#3  0x08371ec9 in molecule_class_info_t::update_map_in_display_control_widget (this=0x9e98c58) at ../../coot/src/molecule-class-info-maps.cc:131
+#4  0x0835a0f7 in molecule_class_info_t::initialize_map_things_on_read_molecule (this=0x9e98c58, molecule_name=@0xbfb254ac,
+    is_diff_map=-1078835220, swap_difference_map_colours=0) at ../../coot/src/molecule-class-info.cc:1250
+#5  0x0837b0c7 in molecule_class_info_t::map_fill_from_mtz_with_reso_limits (this=0x9e98c58, mtz_file_name=@0xbfb25640, f_col=@0xbfb2563c,
+    phi_col=@0xbfb25638, weight_col=@0xbfb25634, use_weights=0, is_anomalous_flag=0, is_diff_map=0, use_reso_limits=1, low_reso_limit=50,
+    high_reso_limit=1.20000005, map_sampling_rate=5) at ../../coot/src/molecule-class-info-maps.cc:488
+#6  0x0813e8fe in make_and_draw_map_with_reso_with_refmac_params (
+    mtz_file_name=0x987f6c4 "/home/paule/Projects/build-coot-fc4-gtk2/src/coot-download/1ucs_sigmaa.mtz",
+    f_col=0x9876fe4 "/unknown/unknown221007/2FOFCWT", phi_col=0x9872294 "/unknown/unknown221007/PH2FOFCWT", weight_col=0x84d8e84 "", use_weights=0,
+    is_diff_map=0, have_refmac_params=0, fobs_col=0x84d8e84 "", sigfobs_col=0x84d8e84 "", r_free_col=0x84d8e84 "", sensible_r_free_col=0,
+    is_anomalous_flag=0, use_reso_limits=1, low_reso_limit=50, high_reso_limit=1.20000005) at ../../coot/src/c-interface.cc:1131
+#7  0x08155098 in handle_column_label_make_fourier (column_label_window=0x990f2e8) at ../../coot/src/c-interface-gui.cc:364
+
+
+This time I think I did not delete the map using the display control
+button, but I did use the Close molecule button!  Hmm!
+
+
+#0  0x034e2ce7 in gtk_radio_button_set_group () from /usr/lib/libgtk-x11-2.0.so.0
+#1  0x034e2f61 in gtk_radio_button_new_with_label () from /usr/lib/libgtk-x11-2.0.so.0
+#2  0x082e38ca in display_control_map_combo_box (display_control_window_glade=0xa878b68,
+    name=0xa8bff4c "1ucs_sigmaa.mtz 2FOFCWT PH2FOFCWT 50.00  1.80", n=5) at ../../coot/src/gtk-manual.cc:1187
+#3  0x08371ec9 in molecule_class_info_t::update_map_in_display_control_widget (this=0xa97ac80) at ../../coot/src/molecule-class-info-maps.cc:131
+#4  0x0835a0f7 in molecule_class_info_t::initialize_map_things_on_read_molecule (this=0xa97ac80, molecule_name=@0xbfae6e2c,
+    is_diff_map=-1079090836, swap_difference_map_colours=0) at ../../coot/src/molecule-class-info.cc:1250
+#5  0x0837b0c7 in molecule_class_info_t::map_fill_from_mtz_with_reso_limits (this=0xa97ac80, mtz_file_name=@0xbfae6fc0, f_col=@0xbfae6fbc,
+    phi_col=@0xbfae6fb8, weight_col=@0xbfae6fb4, use_weights=0, is_anomalous_flag=0, is_diff_map=0, use_reso_limits=1, low_reso_limit=50,
+    high_reso_limit=1.79999995, map_sampling_rate=5) at ../../coot/src/molecule-class-info-maps.cc:488
+#6  0x0813e8fe in make_and_draw_map_with_reso_with_refmac_params (
+    mtz_file_name=0xa88b9ac "/home/paule/Projects/build-coot-fc4-gtk2/src/coot-download/1ucs_sigmaa.mtz",
+    f_col=0xa8b3fac "/unknown/unknown221007/2FOFCWT", phi_col=0xa8b8a74 "/unknown/unknown221007/PH2FOFCWT", weight_col=0x84d8e84 "", use_weights=0,
+    is_diff_map=0, have_refmac_params=0, fobs_col=0x84d8e84 "", sigfobs_col=0x84d8e84 "", r_free_col=0x84d8e84 "", sensible_r_free_col=0,
+    is_anomalous_flag=0, use_reso_limits=1, low_reso_limit=50, high_reso_limit=1.79999995) at ../../coot/src/c-interface.cc:1131
+#7  0x08155098 in handle_column_label_make_fourier (column_label_window=0xa85e0e8) at ../../coot/src/c-interface-gui.cc:364
+
+    ::: 2
+
+* Fixed now that we don't handle the scroll group directly.
+
+   o When reading in a dictionary twice, does it add or replace?  Why
+     do I see 20 non-const non-H torsions in 3GP when using flexible
+     ligands? ::: 2
+
+* Done.

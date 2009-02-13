@@ -180,6 +180,12 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
       if (ierr!=CIFRC_Ok) {
 	 std::cout << "dirty mmCIF file? " << ciffilename.c_str() << std::endl;
 	 std::cout << "    Bad CIFRC_Ok on ReadMMCIFFile" << std::endl;
+	 std::cout << "    " << GetErrorDescription(ierr) << std::endl;
+	 char        err_buff[1000];
+	 std::cout <<  "CIF error rc=" << ierr << " reason:" << 
+	    GetCIFMessage (err_buff,ierr) << std::endl;
+
+
       } else {
 	 if (verbose_mode)
 	    std::cout << "There are " << ciffile.GetNofData() << " data in "
@@ -227,8 +233,9 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       // std::cout << "debug got catagory: " << cat_name << std::endl; 
 
 	       PCMMCIFLoop mmCIFLoop = data->GetLoop( (char *) cat_name.c_str() );
-            
-	       if (mmCIFLoop == NULL) { 
+
+	       int n_loop_time = 0;
+	       if (mmCIFLoop == NULL) {
 		  if (cat_name == "_chem_comp") {
 		     // read the chemical component library which does
 		     // not have a loop (the refmac files do) for the
@@ -242,8 +249,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  } 
 	       } else {
                
-		  //             cout << "Loop " << cat_name << " length: " 
-		  //                  << mmCIFLoop->GetLoopLength() << endl;
+		  n_loop_time++;
 
 		  // We currently want to stop adding chem comp info
 		  // if the chem_comp info comes from mon_lib_list.cif:
@@ -921,6 +927,8 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 // 	    std::cout << "Adding :" << comp_id << ": :" << three_letter_code << ": :" << name << ": :"
 // 		      << group << ": " << number_atoms_all << " "
 // 		      << number_atoms_nh << " :" << description_level << ":" << std::endl;
+
+	    delete_mon_lib(comp_id); // delete it if it exists already.
 
 	    mon_lib_add_chem_comp(comp_id, three_letter_code, name,
 				  group, number_atoms_all, number_atoms_nh,
@@ -3814,3 +3822,18 @@ coot::protein_geometry::print_chem_links() const {
    } 
 
 } 
+
+// delete comp_id from dict_res_restraints (if it exists there).
+void
+coot::protein_geometry::delete_mon_lib(std::string comp_id) {
+
+   std::vector<coot::dictionary_residue_restraints_t>::iterator it;
+   for (it=dict_res_restraints.begin(); it!=dict_res_restraints.end(); it++) {
+      if (it->comp_id == comp_id) { 
+	 dict_res_restraints.erase(it);
+	 break;
+      }
+   } 
+
+} 
+
