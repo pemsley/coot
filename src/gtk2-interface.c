@@ -5641,6 +5641,7 @@ create_dynarama_window (void)
 {
   GtkWidget *dynarama_window;
   GtkWidget *dynarama_vbox;
+  GtkWidget *dynarama_label;
   GtkWidget *dynarama_scrolledwindow;
   GtkWidget *dynarama_viewport;
   GtkWidget *rama_stats_frame;
@@ -5667,6 +5668,10 @@ create_dynarama_window (void)
   dynarama_vbox = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (dynarama_vbox);
   gtk_container_add (GTK_CONTAINER (dynarama_window), dynarama_vbox);
+
+  dynarama_label = gtk_label_new (_("Ramachandran Plot "));
+  gtk_widget_show (dynarama_label);
+  gtk_box_pack_start (GTK_BOX (dynarama_vbox), dynarama_label, FALSE, FALSE, 2);
 
   dynarama_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (dynarama_scrolledwindow);
@@ -5772,6 +5777,7 @@ create_dynarama_window (void)
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (dynarama_window, dynarama_window, "dynarama_window");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_vbox, "dynarama_vbox");
+  GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_label, "dynarama_label");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_scrolledwindow, "dynarama_scrolledwindow");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_viewport, "dynarama_viewport");
   GLADE_HOOKUP_OBJECT (dynarama_window, rama_stats_frame, "rama_stats_frame");

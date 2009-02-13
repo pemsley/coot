@@ -83,12 +83,12 @@ using namespace std;
 
 
 void
-coot::rama_plot::init(int imol_in, float level_prefered, float level_allowed, float block_size, short int is_kleywegt_plot_flag_in) {
+coot::rama_plot::init(int imol_in, const std::string &mol_name_in, float level_prefered, float level_allowed, float block_size, short int is_kleywegt_plot_flag_in) {
 
    imol = imol_in; 
    phipsi_edit_flag = 0;
    backbone_edit_flag = 0;
-   init_internal(level_prefered, level_allowed, block_size, 0,
+   init_internal(mol_name_in, level_prefered, level_allowed, block_size, 0,
 		 is_kleywegt_plot_flag_in);
    // is_kleywegt_plot_flag = is_kleywegt_plot_flag_in;
 
@@ -104,7 +104,7 @@ coot::rama_plot::init(const std::string &type) {
       phipsi_edit_flag = 1;
       backbone_edit_flag = 0;
       imol = -9999; // magic number used in OK button callback.
-      init_internal(0.02, 0.002, 10);
+      init_internal("Ramachandran Plot", 0.02, 0.002, 10);
       hide_stats_frame();
    }
    if (type == "backbone-edit") { 
@@ -112,7 +112,7 @@ coot::rama_plot::init(const std::string &type) {
       backbone_edit_flag = 1;
       imol = -9999; // magic number used in OK button callback.
       short int hide_buttons = 1;
-      init_internal(0.02, 0.002, 10, hide_buttons); 
+      init_internal("Ramachandran Plot", 0.02, 0.002, 10, hide_buttons); 
       hide_stats_frame();
    }
    big_box_item = 0;
@@ -123,7 +123,8 @@ coot::rama_plot::init(const std::string &type) {
 //
 // hide_buttons is optional arg
 void
-coot::rama_plot::init_internal(float level_prefered, float level_allowed,
+coot::rama_plot::init_internal(const std::string &mol_name,
+			       float level_prefered, float level_allowed,
 			       float step_in, 
 			       short int hide_buttons,
 			       short int is_kleywegt_plot_flag_local) {
@@ -145,6 +146,12 @@ coot::rama_plot::init_internal(float level_prefered, float level_allowed,
 #ifdef HAVE_GTK_CANVAS
    gtk_canvas_init(); 
 #endif
+
+   // set the title of of widget
+   GtkWidget *label = lookup_widget(app1, "dynarama_label");
+   if (label) 
+      gtk_label_set_text(GTK_LABEL(label), mol_name.c_str());
+   
 
    allow_seqnum_offset_flag = 0;
 
