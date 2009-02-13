@@ -231,3 +231,26 @@
 
                              #t
                              #f))))))))))
+
+
+(greg-testcase "Reading new dictionary replaces" ;; not adds
+   #t
+   (lambda ()
+
+     (define (get-torsions r)
+       ; (format #t "r: ~s~%" r)
+       (cdr (assoc "_chem_comp_tor" r)))
+
+     (read-cif-dictionary (append-dir-file greg-data-dir "libcheck_3GP.cif"))
+     (read-cif-dictionary (append-dir-file greg-data-dir "libcheck_3GP.cif"))
+     (read-cif-dictionary (append-dir-file greg-data-dir "libcheck_3GP.cif"))
+
+     (let* ((r (monomer-restraints "3GP"))
+	    (t (get-torsions r)))
+
+       ;; 
+       (if (not (= (length t) 25))
+	   (begin
+	     (format #t "torsions: ~s ~s~%" (length t) t)
+	     (throw 'fail))
+	   #t))))
