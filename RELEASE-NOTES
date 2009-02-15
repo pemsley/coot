@@ -1,26 +1,26 @@
 
 Pre-release 0.6
 
-  o FEATURE: User-defined clicks [Joel Bard]
+  o FEATURE: User-defined clicks [Joel Bard].
 
   o FEATURE: SHELXL interfaces allows the user to modify the input before
     running the SHELXL executable [Tobias Beck].
 
   o FEATURE: Post-manipulation function hook added [JED].
 
-  o FEATURE: "Sphere" (residue selection) refinement - experimental
+  o FEATURE: "Sphere" (residue selection) refinement - experimental.
 
   o FEATURE: function to (re-)calculate probe dots around a give point.
 
-  o FEATURE: monomer and residue selection dipoles
+  o FEATURE: monomer and residue selection dipoles.
 
-  o CHANGE: partial charges added to electrostatic surface calculation
+  o CHANGE: partial charges added to electrostatic surface calculation.
 
-  o CHANGE: SEGIDs are more intelligently inherited 
+  o CHANGE: SEGIDs are more intelligently inherited [Steven Sheriff, Bob Nolte]
 
   o CHANGE: Ramachandran Plots now have molecule name labels [Wendy Offen].
 
-  o BUG-FIX: new atoms are added as HETATMs if appropriate
+  o BUG-FIX: new atoms are added as HETATMs if appropriate.
  
 -----
 

@@ -1,8 +1,22 @@
 
 
-   o Turn on torsion angle restraints and regularize monomer-3GP.
-     Look at above var_2 torsion.  After minimization, torsion is 171.09
-     degrees.  Wrong. :: 2
+   o Check that ncs-chain-skip works for NCS heterodimer.  Use 3FCS.
+     [Jianghai Zhu] ::: 1
+
+   o Communication with PISA.  Get PISA on jackal.  I'd like show the
+     interface with molprobity dots. ::: 6
+
+
+   o sphere-refine:  turn on rama restraints for restraints from residue_vec.
+    make_link_restraints_by_linear() has
+    if (do_rama_plot_restraints)
+      add_rama_links(selHnd, geom);
+
+    make_link_restraints_from_res_vec() has
+    add_rama_links_from_res_vec(), but that is not filled.
+    need something like bonded_residues_from_res_vec(), but for
+    residue triples - returning 3 residues.
+    ::: 3
 
 
    o Add terminal residue has disconnected atoms.  Why? This is an
@@ -15,9 +29,8 @@
 
 * What else is there to do here?  Write a test.
 
-   o Check that ncs-chain-skip works for NCS heterodimer
-     [Jianghai Zhu] ::: 1
-
+   o Some tests for rigid body fitting many residue.  Consider
+     residues with TERs and alt confs. [Bob Nolte]
 
    o "Fit ligand here" which gets a monomer then does a ligand search
      based on the blob at the current position. ::: 8
@@ -64,23 +77,9 @@
      this? Synthetic map?  How does it work when we do this for an alt
      conf too?  ::: 10
 
-   o Communication with PISA.  Get PISA on jackal.  I'd like show the
-     interface with molprobity dots. ::: 6
-
    o Does the window stay constant size (on something other than a
      laptop) on start, exit, start exit cycling?
      Priority: 6: Difficulty: 4  ::: 2
-
-   o sphere-refine:  turn on rama restraints for restraints from residue_vec.
-    make_link_restraints_by_linear() has
-    if (do_rama_plot_restraints)
-      add_rama_links(selHnd, geom);
-
-    make_link_restraints_from_res_vec() has
-    add_rama_links_from_res_vec(), but that is not filled.
-    need something like bonded_residues_from_res_vec(), but for
-    residue triples - returning 3 residues.
-    ::: 3
 
    o Fix up mini-RSR so that it compiles properly. ::: 4
 
@@ -132,7 +131,6 @@
 
      When switching stereo contexts creating a new GL context, we need
      to run update_additional_representations() for each model molecule.
-
      ::: 3
 
    o CA+Ligands has gone into CA by B-factor mode.  Don't like - it 
@@ -141,6 +139,12 @@
 
    o When starting up with --no-state-script, don't write a state
      script on closing.
+
+   o Regularize monomer-3GP. Turn on torsion angle restraints.
+     Regularize again. Look at above var_2 torsion.  After
+     minimization, torsion is 171.09 degrees.  Wrong.  The minimizer
+     doesn't terminate though. Use libcheck_3GP-torsion-filtered.cif 
+     ::: 4
 
    o What about if there are python and scheme bindings to a
      particular key?  graphics-general-key-press-hook should return the
