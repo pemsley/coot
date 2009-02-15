@@ -172,6 +172,11 @@ namespace coot {
       atom_name_pair_list(const std::string &res_type) const;
       std::vector<coot::atom_index_pair> get_atom_index_pairs(const std::vector<coot::atom_name_pair> &atom_name_pairs,
 							      const PPCAtom atoms, int nresatoms) const;
+
+      std::vector<coot::atom_name_quad> atom_name_quad_list(const std::string &residue_type) const;
+      std::vector<coot::atom_index_quad> get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_quads,
+							      const PPCAtom atoms, int nresatoms) const;
+
       void add_all_rotamers();  // an autogen function
       void add_richardson_rotamers(); 
       void add_rotamer(std::string restype,

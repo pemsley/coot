@@ -119,20 +119,6 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 
       coot::minimol::molecule ligand = ligand_in; // local changable copy
       
-      // Let's make the coordinates:
-      // 
-      std::vector< ::Cartesian> coords;
-      for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
-	 for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++) {
-	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) {
-	       // coords.push_back(coord_orth_to_cartesian(ligand[ifrag][ires][iat].pos));
-	       coords.push_back( ::Cartesian(ligand[ifrag][ires][iat].pos.x(),
-					     ligand[ifrag][ires][iat].pos.y(),
-					     ligand[ifrag][ires][iat].pos.z()));
-	    }
-	 }
-      }
-	 
       //  Rotatable bonds -> coord indices
       // 
       std::vector<coot::atom_name_quad> atom_name_quads =
@@ -153,16 +139,6 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       else 
 	 contacts = getcontacts(ligand);
 
-      if (0)
-	 for (unsigned int i=0; i<contacts.size(); i++)
-	    for (unsigned int j=0; j<contacts[i].size(); j++)
-	       std::cout << "DEBUG:: contacts " << i << " to " << contacts[i][j] << std::endl;
-
-      Tree tree;
-      // std::cout << "Filling tree with " << coords.size() << " coordinates \n";
-
-      tree.SetCoords(coords, 0, contacts); // compile XXX
-
       std::vector<float> torsion_set = get_torsions_by_random(non_const_torsions);
 
       if (debug_wiggly_ligands) { 
@@ -175,6 +151,16 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       }
 
 
+      // Let's make the inital coordinates:
+      // 
+      std::vector< ::Cartesian> coords;
+      for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) 
+	 for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++)
+	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) 
+	       coords.push_back( ::Cartesian(ligand[ifrag][ires][iat].pos.x(),
+					     ligand[ifrag][ires][iat].pos.y(),
+					     ligand[ifrag][ires][iat].pos.z()));
+      
       // Here: check that torsion_set, atom_index_pairs and
       // atom_name_pairs all have the same size.
       
@@ -189,22 +175,35 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 			 << atom_index_quads[ibond].index3 << " "
 			 << atom_index_quads[ibond].index4 << "\n";
 
-	    // new version of mgtree, doesn't work	    
-	    //tree.SetDihedralAngle(atom_index_quads[ibond].index1,
-	    //			  atom_index_quads[ibond].index2,
-	    //			  atom_index_quads[ibond].index3,
-	    //			  atom_index_quads[ibond].index4,
-	    //			  clipper::Util::d2rad(torsion_set[ibond]));
-	    
+	    Tree tree;
+	 
+	    std::vector<std::vector <int> > forced_conns;
+	    std::vector<int> fconn;
+	    fconn.push_back(atom_index_quads[ibond].index1);
+	    fconn.push_back(atom_index_quads[ibond].index2);
+	    fconn.push_back(atom_index_quads[ibond].index3);
+	    fconn.push_back(atom_index_quads[ibond].index4);
+	    forced_conns.push_back(fconn); 
+	    tree.SetCoords(coords, 0, contacts, forced_conns);
+
 	    // 
-	    tree.SetDihedralAngle(atom_index_quads[ibond].index2,
+	    tree.SetDihedralAngle(atom_index_quads[ibond].index1,
+				  atom_index_quads[ibond].index2,
 				  atom_index_quads[ibond].index3,
+				  atom_index_quads[ibond].index4,
 				  clipper::Util::d2rad(torsion_set[ibond]));
+
+	    coords = tree.GetAllCartesians();
+
          }
       }
 
+      
+
       int ncoord = 0;
-      std::vector< ::Cartesian > rotated_coords = tree.GetAllCartesians();
+      //       std::vector< ::Cartesian > rotated_coords = tree.GetAllCartesians();
+      std::vector< ::Cartesian > rotated_coords = coords;
+      
       for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
 	 for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++) {
 	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) {

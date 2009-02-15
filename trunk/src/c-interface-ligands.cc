@@ -375,7 +375,7 @@ execute_ligand_search_internal() {
 
    for(unsigned int i=0; i<ligands.size(); i++) {
 
-      std::cout << "ligand number " << i << " is molecule number "
+      std::cout << "INFO:: ligand number " << i << " is molecule number "
 		<< g.find_ligand_ligand_mols()[i].first << "  " 
 		<< " with wiggly flag: "
 		<< g.find_ligand_ligand_mols()[i].second << std::endl;
@@ -442,26 +442,28 @@ execute_ligand_search_internal() {
                                      // the masked map.
       }
       wlig.find_clusters(g.ligand_cluster_sigma_level);  // trashes the xmap
+      wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
+      wlig.fit_ligands_to_clusters(g.find_ligand_n_top_ligands); // 10 clusters
 
    } else {
 
       // don't search the map, just use the peak/cluser at the screen
       // centre.
 
-      std::cout << " ===== SEARCH HERE path in ligand fitting" << std::endl;
-      
       wlig.mask_map(protein_mol, mask_waters_flag);
+      // wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
+      
       clipper::Coord_orth pt(g.X(), g.Y(), g.Z()); // close to 3GP peak (not in it).
       float n_sigma = g.ligand_cluster_sigma_level; // cluster points must be more than this.
       wlig.cluster_from_point(pt, n_sigma);
+      wlig.fit_ligands_to_clusters(1); // just this cluster.
       
    } 
-   wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
-   wlig.fit_ligands_to_clusters(g.find_ligand_n_top_ligands); // 10 clusters
    wlig.make_pseudo_atoms(); // put anisotropic atoms at the ligand sites
 
    // now add in the solution ligands:
-   int n_final_ligands = wlig.n_final_ligands(); 
+   int n_final_ligands = wlig.n_final_ligands();
+
    int n_new_ligand = 0;
    coot::minimol::molecule m;
    for (int ilig=0; ilig<n_final_ligands; ilig++) { 

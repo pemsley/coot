@@ -901,7 +901,7 @@ coot::ligand::cluster_from_point(clipper::Coord_orth pt,
    float br = 3.0;
    float density_crit = z_cut_off_in * map_rms;
 
-   std::cout << " density_crit " << density_crit << std::endl;
+   // std::cout << " DEBUG:: cluster_from_point density_crit " << density_crit << std::endl;
 
    // Coord_map is like Coord_grid, but non-integer.
 
@@ -912,7 +912,8 @@ coot::ligand::cluster_from_point(clipper::Coord_orth pt,
    
    clipper::Coord_grid c_g = a_grid;
 
-   std::cout << " starting at a_grid: " << a_grid.format() << std::endl;
+   //std::cout << " DEBUG:: cluster_from_point starting at a_grid: " << a_grid.format()
+   // << std::endl;
 
    // scored grid values, in a set of neighbours, get them all and
    // take the top of the sorted list.
@@ -922,6 +923,7 @@ coot::ligand::cluster_from_point(clipper::Coord_orth pt,
    if (d > density_crit) {
       c_g_start = c_g;
    } else {
+
       bool found_site = 0;
       std::queue<clipper::Coord_grid> q;
 
@@ -962,39 +964,41 @@ coot::ligand::cluster_from_point(clipper::Coord_orth pt,
       if (! found_site) {
 	 std::cout << "Hopeless - no ligand density cluster found"
 		   << std::endl;
-      } else {
-	 std::cout << "starting point found for cluster " << count
-		   << std::endl;
-	 clipper::Xmap<int> cluster_map;
-	 cluster_map.init(xmap_pristine.spacegroup(), xmap_pristine.cell(), 
-			  xmap_pristine.grid_sampling());
-	 clipper::Xmap_base::Map_reference_index ix;
-	 for (ix = cluster_map.first(); !ix.last(); ix.next())
-	    cluster_map[ix] = 0;
-	 std::queue<clipper::Coord_grid> q2;
-	 q2.push(c_g_start);
-	 coot::map_point_cluster mpc;
-	 while (q2.size()) {
-	    c_g_start = q2.front();
-	    q2.pop();
-	    for (unsigned int i=0; i<neighb.size(); i++) {
-	       c_g = c_g_start + neighb[i];
-	       if (xmap_cluster.get_data(c_g) > density_crit) {
-		  if (! cluster_map.get_data(c_g)) {
-		     cluster_map.set_data(c_g, 1);
-		     mpc.map_grid.push_back(c_g);
-		     mpc.score += xmap_cluster.get_data(c_g);
-		     q2.push(c_g);
-		  }
-	       }
+	 return;
+      }
+   }
+
+   // now we have c_g_start
+   
+   clipper::Xmap<int> cluster_map;
+   cluster_map.init(xmap_pristine.spacegroup(), xmap_pristine.cell(), 
+		    xmap_pristine.grid_sampling());
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = cluster_map.first(); !ix.last(); ix.next())
+      cluster_map[ix] = 0;
+   std::queue<clipper::Coord_grid> q2;
+   q2.push(c_g_start);
+   coot::map_point_cluster mpc;
+   while (q2.size()) {
+      c_g_start = q2.front();
+      q2.pop();
+      for (unsigned int i=0; i<neighb.size(); i++) {
+	 c_g = c_g_start + neighb[i];
+	 if (xmap_cluster.get_data(c_g) > density_crit) {
+	    if (! cluster_map.get_data(c_g)) {
+	       cluster_map.set_data(c_g, 1);
+	       mpc.map_grid.push_back(c_g);
+	       mpc.score += xmap_cluster.get_data(c_g);
+	       q2.push(c_g);
 	    }
 	 }
-	 if (mpc.map_grid.size() > 0) {
-	    cluster.push_back(mpc);
-	    n_clusters++; // class variable
-	 } 
-      } 
+      }
    }
+   if (mpc.map_grid.size() > 0) {
+      cluster.push_back(mpc);
+      n_clusters++; // class variable
+   }
+   
    calculate_cluster_centres_and_eigens();
    std::vector <clipper::Coord_orth> sampled_protein_coords =
       make_sample_protein_coords();
@@ -1767,7 +1771,7 @@ coot::ligand::fit_ligands_to_clusters(int max_placements) {
 // 	     << cluster.size() << " clusters to which will be fitted "
 // 	     << initial_ligand.size() << " ligands" << std::endl;
    // std::cout << "Testing top " << max_placements << " clusters" << std::endl;
-   
+
    for (int iclust=0; iclust<int(cluster.size()) && iclust<max_placements; iclust++) {
      fit_ligands_to_cluster(iclust);
    }

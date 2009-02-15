@@ -80,6 +80,10 @@ namespace coot {
    public:
       std::vector<atom_name_pair> AtomPairs() const {
 	 return atom_name_pair_list;
+      } 
+
+      std::vector<atom_name_quad> AtomQuads() const {
+	 return atom_name_quad_list;
       }
 
       void add_torsion_bond_by_name(const std::string &atom_name_1,

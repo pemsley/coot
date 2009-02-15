@@ -1507,6 +1507,7 @@ molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_sp
 		  ref_residue_atoms[iref]->y = mov_residue_atoms[imov]->y;
 		  ref_residue_atoms[iref]->z = mov_residue_atoms[imov]->z;
 		  n_atoms++;
+		  i_done = 1;
 	       }
 	    }
 	 }
@@ -1517,7 +1518,11 @@ molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_sp
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
-   } 
+   } else {
+      std::cout << "WARNING:: failed to find residue " << res_spec << std::endl;
+   }
+   if (! i_done) 
+      std::cout << "WARNING:: set to rotamer number failed" << std::endl;
    return i_done;
 } 
 

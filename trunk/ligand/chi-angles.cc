@@ -830,6 +830,21 @@ coot::chi_angles::atom_name_pair_list(const std::string &res_type) const {
       } 
    }
    return pairs;
+}
+
+
+std::vector<coot::atom_name_quad>
+coot::chi_angles::atom_name_quad_list(const std::string &residue_type) const {
+
+   std::vector<coot::atom_name_quad> quads;
+   quads.push_back(coot::atom_name_quad("empty", "empty", "empty", "empty"));
+   for(unsigned int i=0; i<typed_rotamers.size(); i++) {
+      if (typed_rotamers[i].Type() == residue_type) {
+	 quads = typed_rotamers[i].AtomQuads();
+	 break;
+      } 
+   }
+   return quads;
 } 
 
 std::vector<coot::atom_name_pair>
@@ -905,6 +920,38 @@ coot::chi_angles::get_atom_index_pairs(const std::vector<coot::atom_name_pair> &
    } 
    return index_pairs;
 } 
+
+
+std::vector<coot::atom_index_quad>
+coot::chi_angles::get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_quads,
+				       const PPCAtom atoms, int nresatoms) const {
+
+   std::vector<coot::atom_index_quad> index_quads;
+   for (unsigned int iquad=0; iquad<atom_name_quads.size(); iquad++) {
+      int index_1 = -1;
+      int index_2 = -1;
+      int index_3 = -1;
+      int index_4 = -1;
+      for (int iat=0; iat<nresatoms; iat++) {
+	 std::string atomname = atoms[iat]->name;
+	 if (atomname == atom_name_quads[iquad].atom1)
+	    index_1 = iat;
+	 if (atomname == atom_name_quads[iquad].atom2)
+	    index_2 = iat;
+	 if (atomname == atom_name_quads[iquad].atom3)
+	    index_3 = iat;
+	 if (atomname == atom_name_quads[iquad].atom4)
+	    index_4 = iat;
+      }
+      if ((index_1 != -1) && (index_2 != -1) && (index_3 != -1) && (index_4 != -1)) {
+	 coot::atom_index_quad iq(index_1, index_2, index_3, index_4);
+	 index_quads.push_back(iq);
+      } 
+   } 
+
+   return index_quads;
+}
+
 
 
 std::pair<std::string, std::string>
