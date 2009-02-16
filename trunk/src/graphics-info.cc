@@ -4127,18 +4127,39 @@ void graphics_info_t::run_user_defined_click_func() {
 #ifdef USE_PYTHON
 
    if (user_defined_click_py_func) { 
-      PyObject *arg_list_py = PyList_New(0);
+
+      // what are we running? Print it out.
+      std::cout << "INFO applying " 
+		<< PyEval_GetFuncName(user_defined_click_py_func)
+		<< " on "
+		<< std::endl;
+
+      PyObject *arg_list_py = PyTuple_New(user_defined_atom_pick_specs.size());
       for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
 	 PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
-	 PyList_Append(arg_list_py, spec_py);
-      } 
+	 // continue output from above
+	 PyObject *fmt = PyString_FromString("[%i,%s,%i,%s,%s,%s]");
+	 PyObject *msg = PyString_Format(fmt, spec_py);
+	 //std::cout <<PyString_AsString(msg);
+	 //	 std::cout<<Py_BuildValue("[i,s,i,s,s,s]", spec_py);
+	 //std::cout<<"BL DEBUG:: spec and id " << user_defined_atom_pick_specs[i] << " " << i <<std::endl;
+	 PyTuple_SetItem(arg_list_py, i, spec_py);
+      }
+      std::cout<< "end input..." <<std::endl;
       
-      // what are we running? Print it out.
-      std::cout << "INFO applying " << PyString_AsString(user_defined_click_py_func) << " on "
-		<< PyString_AsString(arg_list_py) << std::endl;
+      if (PyTuple_Check(arg_list_py)) {
+	std::cout<< "BL DEBUG:: is tuple"<<std::endl;
+      } else {
+	std::cout<< "BL DEBUG:: is NOT tuple"<<std::endl;
+      }
       
       PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
-      Py_DECREF(result);
+      Py_DECREF(arg_list_py);
+      if (result) {
+	Py_DECREF(result);
+      } else {
+	std::cout<<"ERROR:: executing user_defined_click" <<std::endl;
+      }
    }
 
 #endif // USE_PYTHON
@@ -4162,9 +4183,11 @@ graphics_info_t::atom_spec_to_scm(const coot::atom_spec_t &spec) const {
 #endif
 
 #ifdef USE_PYTHON
+// lets have it as a tuple not a list
 PyObject *
 graphics_info_t::atom_spec_to_py(const coot::atom_spec_t &spec) const {
 
+  //  PyObject *r = PyTuple_New(6);
   PyObject *r = PyList_New(0);
   PyList_Append(r, PyInt_FromLong(spec.int_user_data));
   PyList_Append(r, PyString_FromString(spec.chain.c_str()));

@@ -817,6 +817,7 @@ def chain_ids(imol):
 #
 def is_solvent_chain_qm(imol,chain_id):
     if (is_solvent_chain_p(imol,chain_id)==1): return True
+    else: return False
 
 # schemey interface to eponymous scripting interface function!?
 def valid_model_molecule_qm(imol): 
@@ -2034,3 +2035,35 @@ def isNumber(num):
     else:
         return False
 
+
+# function to merge multiple solvent chains
+#
+def merge_solvent_chains(imol):
+
+    # first renumber all water chains
+    renumber_waters(imol)
+    # collect all solvent chains
+    solvent_chains = []
+    for chain_id in chain_ids(imol):
+        if (is_solvent_chain_qm(imol, chain_id)):
+            solvent_chains.append(chain_id)
+
+    # now renumber
+    if (len(solvent_chains) > 1):
+        master_chain = solvent_chains[0]
+        last_prev_water = chain_n_residues(master_chain, imol)
+        for chain_id in solvent_chains[1:]:
+            n_residues = chain_n_residues(chain_id, imol)     
+            renumber_residue_range(imol, chain_id, 1,
+                                   n_residues, last_prev_water)
+            new_start = last_prev_water + 1
+            new_end   = last_prev_water + n_residues
+            change_chain_id(imol, chain_id, master_chain, 1,
+                            new_start, new_end)
+            last_prev_water = new_end
+            
+
+# acronym
+merge_water_chains = merge_solvent_chains
+
+    
