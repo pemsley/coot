@@ -21,6 +21,8 @@ Pre-release 0.6
   o CHANGE: Ramachandran Plots now have molecule name labels [Wendy Offen].
 
   o BUG-FIX: new atoms are added as HETATMs if appropriate.
+
+  o BUG-FIX: NCS chain jumping now works on heterodimers [Jianghai Zhu].
  
 -----
 
