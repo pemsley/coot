@@ -160,6 +160,60 @@ graphics_info_t::povray(std::string filename) {
 } 
 
 
+// Renderman format:  (Fun 20090215)
+// 
+short int
+graphics_info_t::renderman(std::string filename) {
+
+   short int istate = 0;
+
+   coot::colour_t background;
+   background.col.resize(3);
+   background.col[0] = background_colour[0];
+   background.col[1] = background_colour[1];
+   background.col[2] = background_colour[2];
+   int width = 600;
+   int height = 600;
+   if (glarea) {
+      width = glarea->allocation.width;
+      height = glarea->allocation.height;
+   } 
+   coot::raytrace_info_t rt(RotationCentre(), zoom, background,
+			    width, height,
+			    clipping_front,
+			    raster3d_bond_thickness,
+			    raster3d_bone_thickness,
+			    raster3d_atom_radius,
+			    raster3d_density_thickness);
+   GL_matrix m;
+   m.from_quaternion(quat);
+   rt.set_view_matrix(m);
+
+   rt.add_display_objects(*generic_objects_p);
+
+   std::cout << "Generating raytrace molecule objects..." << std::endl;
+   for (int imol=0; imol<n_molecules(); imol++) {
+      std::cout << " molecule " << imol << " in  raytrace" << std::endl;
+      
+      if (molecules[imol].has_model()) {
+	 if (molecules[imol].is_displayed_p()) { 
+	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info());
+	 }
+      }
+      if (molecules[imol].has_map()) {
+	 rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
+	 if (molecules[imol].is_difference_map_p()) { 
+	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
+	 }
+      }
+   }
+   std::cout << "Rendering with renderman output..." << std::endl;
+   rt.renderman_render(filename);
+   std::cout << "done raytrace." << std::endl;
+   return istate;
+
+}
+
 int 
 coot::raytrace_info_t::render_ray_trace(std::string filename) {
 
@@ -273,7 +327,54 @@ coot::raytrace_info_t::render_ray_trace(std::string filename) {
       istat = 0;
    }
    return istat;
-} 
+}
+
+int coot::raytrace_info_t::renderman_render(std::string filename) {
+
+   int istate = 0;
+   int istat = 1;
+   std::ofstream render_stream(filename.c_str());
+
+   if (!render_stream) {
+      std::cout << "WARNING:: can't open file " << filename << std::endl;
+      istat = 1;
+      
+   } else {
+
+      render_stream << "##RenderMan RIB-Structure 1.0\n";
+      render_stream << "\n";
+      render_stream << "FrameBegin 1\n";
+      render_stream << "\n";
+      render_stream << "Display \"" << filename << ".tif\" \"file\" \"rgba\"\n";
+      render_stream << "Format 640 480 -1\n";
+      render_stream << "ShadingRate 1\n";
+      render_stream << "Projection \"perspective\" \"fov\" [30]\n";
+      render_stream << "FrameAspectRatio 1.33\n";
+      render_stream << "Identity\n";
+      render_stream << "\n";
+      render_stream << "# Default distant headlight\n";
+      render_stream << "LightSource \"distantlight\" 1\n";
+      render_stream << "# Camera transformation\n"; 
+      render_stream << "Translate 0 0 20\n"; 
+      render_stream << "WorldBegin\n";
+      render_stream << "Identity\n";
+
+      // molecule attributes
+      
+      for (unsigned int i=0; i<rt_mol_info.size(); i++) {
+	 std::cout << "rendman output for molecule : " << i << std::endl;
+	 rt_mol_info[i].renderman_molecule(render_stream, bond_thickness,
+					   atom_radius, density_thickness,
+					   bone_thickness);
+      }
+      
+      render_stream << "WorldEnd\n";
+      render_stream << "FrameEnd\n";
+
+   } 
+   return istate;
+}
+
 
 
 void
@@ -369,6 +470,40 @@ coot::raytrace_info_t::render_generic_objects(std::ofstream &render_stream) cons
       display_objects[i].raster3d(render_stream);
    }
 }
+
+void
+coot::ray_trace_molecule_info::renderman_molecule(std::ofstream &render_stream,
+						  float bond_thickness,
+						  float atom_radius,
+						  float density_thickness,
+						  float bone_thickness) {
+
+   for (unsigned int ib=0; ib<bond_lines.size(); ib++) {
+      render_stream << "# render a bond\n";
+      render_stream << "AttributeBegin\n";
+      render_stream << "   Color [" << bond_colour[ib].col[0] << " "
+		    << bond_colour[ib].col[1] << " "
+		    << bond_colour[ib].col[2] << "]\n";
+      render_stream << "   Surface \"plastic\" \"Ka\" [1] \"Kd\" [0.5] \"Ks\" 1 \"roughness\" 0.1\n";
+// 		    << bond_lines[ib].first.x() << " "
+// 		    << bond_lines[ib].first.y() << " "
+// 		    << bond_lines[ib].first.z() << " "
+// 		    << bond_lines[ib].second.x() << " "
+// 		    << bond_lines[ib].second.y() << " "
+// 		    << bond_lines[ib].second.z() << "\n";
+      render_stream << "   TransformBegin\n";
+      render_stream << "   Translate "
+		    << bond_lines[ib].first.x() << " "
+		    << bond_lines[ib].first.y() << " "
+		    << bond_lines[ib].first.z() << "\n";
+      double l = (bond_lines[ib].second - bond_lines[ib].first).amplitude();
+      render_stream << "   Cylinder 1 0 " << l << "  360\n";
+      render_stream << "   TransformEnd\n";
+      render_stream << "AttributeEnd\n";
+   }
+
+}
+
 
 
 void 

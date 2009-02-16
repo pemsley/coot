@@ -39,6 +39,11 @@ namespace coot {
 			   float atom_radius,
 			   float density_thickness,
 			   float bone_thickness);
+      void renderman_molecule(std::ofstream &render_stream,
+			      float bond_thickness,
+			      float atom_radius,
+			      float density_thickness,
+			      float bone_thickness);
       void povray_molecule(std::ofstream &render_stream,
 			   float bond_thickness,
 			   float density_thickness,
@@ -53,6 +58,7 @@ namespace coot {
       int window_width, window_height;
       int quality;
       void render_molecules(std::ofstream &render_stream);
+      void renderman_molecules(std::ofstream &render_stream);
       void povray_molecules(std::ofstream &render_stream);
       void render_generic_objects(std::ofstream &render_stream) const;
       float bond_thickness; 
@@ -126,6 +132,7 @@ namespace coot {
 
       int povray_ray_trace(std::string filename);
       int render_ray_trace(std::string filename);
+      int renderman_render(std::string filename);
       
    };
 }
