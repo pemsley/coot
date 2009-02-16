@@ -3103,10 +3103,12 @@ graphics_info_t::fill_chain_option_menu(GtkWidget *chain_option_menu, int imol,
 		  first_chain = chains[i];
 	       }
 	       menu_item = gtk_menu_item_new_with_label(chains[i].c_str());
-	       char *v = new char[chains[i].length() + 1];
-	       strcpy(v, chains[i].c_str());
-	       gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
-				  signal_func, v);
+	       int l = chains[i].length();
+	       char *v = new char[ l + 1];
+	       for (int i=0; i<=l; i++)
+		 v[i] = 0;
+	       strncpy(v, chains[i].c_str(), l);
+	       gtk_signal_connect(GTK_OBJECT(menu_item), "activate", signal_func, v);
 	       gtk_menu_append(GTK_MENU(menu), menu_item);
 	       gtk_widget_show(menu_item);
 	    }
