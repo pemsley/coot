@@ -1,8 +1,5 @@
 
 
-   o Check that ncs-chain-skip works for NCS heterodimer.  Use 3FCS.
-     [Jianghai Zhu] ::: 1
-
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
      interface with molprobity dots. ::: 6
 
@@ -534,3 +531,6 @@ button, but I did use the Close molecule button!  Hmm!
      ligands? ::: 2
 
 * Done.
+   o Check that ncs-chain-skip works for NCS heterodimer.  Use 3FCS.
+     [Jianghai Zhu] ::: 1
+
