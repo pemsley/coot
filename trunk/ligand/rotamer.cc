@@ -554,9 +554,6 @@ coot::rotamer::GetResidue(int i_rot) const {
 // 	     << rres->GetSeqNum() << rres->GetInsCode()
 // 	     << "\n";
 
-   std::cout << "================ here in rotamer::GetResidue() ==================="
-	     << std::endl;
-      
    std::string rt = Residue_Type();
    if (rt == "MSE")
       rt = "MET";
