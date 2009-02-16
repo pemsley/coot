@@ -354,6 +354,8 @@ exptl::nsv::letter_event (GtkObject *obj,
 	 gtk_canvas_item_set(GTK_CANVAS_ITEM(spec_obj.obj), "fill_color", "grey85", NULL);
       }
    }
+   // BL says:: need to return something. Not sure what?!
+   return 1;
 }
    
 // static

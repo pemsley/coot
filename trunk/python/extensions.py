@@ -43,7 +43,7 @@ if (have_coot_python):
      # ---------------------------------------------
      menu = coot_menubar_menu("About")
      if (menu):
-       add_simple_coot_menu_menuitem(menu, "Coot News",
+       add_simple_coot_menu_menuitem(menu, "Coot News...",
                                      lambda func: whats_new_dialog())
 
      

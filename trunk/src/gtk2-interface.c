@@ -6414,7 +6414,20 @@ create_model_refine_dialog (void)
   GtkWidget *hbox216;
   GtkWidget *image1826;
   GtkWidget *label390;
+  GtkWidget *hbox384;
   GtkWidget *model_refine_dialog_rot_trans_togglebutton;
+  GtkWidget *hbox385;
+  GtkWidget *image6808;
+  GtkWidget *label707;
+  GtkWidget *model_refine_dialog_rot_trans_menubar;
+  GtkWidget *menuitem3;
+  GtkWidget *image6809;
+  GtkWidget *menuitem3_menu;
+  GSList *model_refine_dialog_rot_trans_by_residue_range_group = NULL;
+  GtkWidget *model_refine_dialog_rot_trans_by_residue_range;
+  GtkWidget *model_refine_dialog_rot_trans_by_chain;
+  GtkWidget *model_refine_dialog_rot_trans_by_molecule;
+  GtkWidget *model_refine_dialog_rot_trans_togglebutton1;
   GtkWidget *hbox156;
   GtkWidget *image5;
   GtkWidget *label330;
@@ -6601,15 +6614,67 @@ create_model_refine_dialog (void)
   gtk_widget_show (label390);
   gtk_box_pack_start (GTK_BOX (hbox216), label390, TRUE, TRUE, 0);
 
+  hbox384 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox384);
+  gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), hbox384, TRUE, TRUE, 0);
+
   model_refine_dialog_rot_trans_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (model_refine_dialog_rot_trans_togglebutton);
-  gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_rot_trans_togglebutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox384), model_refine_dialog_rot_trans_togglebutton, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_rot_trans_togglebutton, _("Click and Drag across the rotation/translation buttons.  Use Ctrl-click to move a single atom [but make sure that you have graphics window focus!]"), NULL);
 
+  hbox385 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox385);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton), hbox385);
+
+  image6808 = gtk_image_new_from_stock ("rtz.svg", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6808);
+  gtk_box_pack_start (GTK_BOX (hbox385), image6808, FALSE, FALSE, 0);
+
+  label707 = gtk_label_new_with_mnemonic (_("Rotate/Translate Zone"));
+  gtk_widget_show (label707);
+  gtk_box_pack_start (GTK_BOX (hbox385), label707, TRUE, TRUE, 0);
+
+  model_refine_dialog_rot_trans_menubar = gtk_menu_bar_new ();
+  gtk_widget_show (model_refine_dialog_rot_trans_menubar);
+  gtk_box_pack_start (GTK_BOX (hbox384), model_refine_dialog_rot_trans_menubar, FALSE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rot_trans_menubar), 1);
+
+  menuitem3 = gtk_image_menu_item_new_with_mnemonic (_(" "));
+  gtk_widget_show (menuitem3);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_rot_trans_menubar), menuitem3);
+
+  image6809 = gtk_image_new_from_stock ("gtk-media-play", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image6809);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem3), image6809);
+
+  menuitem3_menu = gtk_menu_new ();
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem3), menuitem3_menu);
+
+  model_refine_dialog_rot_trans_by_residue_range = gtk_radio_menu_item_new_with_mnemonic (model_refine_dialog_rot_trans_by_residue_range_group, _("By Residue Range..."));
+  model_refine_dialog_rot_trans_by_residue_range_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (model_refine_dialog_rot_trans_by_residue_range));
+  gtk_widget_show (model_refine_dialog_rot_trans_by_residue_range);
+  gtk_container_add (GTK_CONTAINER (menuitem3_menu), model_refine_dialog_rot_trans_by_residue_range);
+
+  model_refine_dialog_rot_trans_by_chain = gtk_radio_menu_item_new_with_mnemonic (model_refine_dialog_rot_trans_by_residue_range_group, _("By Chain..."));
+  model_refine_dialog_rot_trans_by_residue_range_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (model_refine_dialog_rot_trans_by_chain));
+  gtk_widget_show (model_refine_dialog_rot_trans_by_chain);
+  gtk_container_add (GTK_CONTAINER (menuitem3_menu), model_refine_dialog_rot_trans_by_chain);
+
+  model_refine_dialog_rot_trans_by_molecule = gtk_radio_menu_item_new_with_mnemonic (model_refine_dialog_rot_trans_by_residue_range_group, _("By Molecule..."));
+  model_refine_dialog_rot_trans_by_residue_range_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (model_refine_dialog_rot_trans_by_molecule));
+  gtk_widget_show (model_refine_dialog_rot_trans_by_molecule);
+  gtk_container_add (GTK_CONTAINER (menuitem3_menu), model_refine_dialog_rot_trans_by_molecule);
+
+  model_refine_dialog_rot_trans_togglebutton1 = gtk_toggle_button_new ();
+  gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_rot_trans_togglebutton1, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton1), 1);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_rot_trans_togglebutton1, _("Click and Drag across the rotation/translation buttons.  Use Ctrl-click to move a single atom [but make sure that you have graphics window focus!]"), NULL);
+
   hbox156 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox156);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton), hbox156);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton1), hbox156);
 
   image5 = gtk_image_new_from_stock ("rtz.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image5);
@@ -6975,6 +7040,18 @@ create_model_refine_dialog (void)
   g_signal_connect ((gpointer) model_refine_dialog_rot_trans_togglebutton, "toggled",
                     G_CALLBACK (on_model_refine_dialog_rot_trans_togglebutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) model_refine_dialog_rot_trans_by_residue_range, "activate",
+                    G_CALLBACK (on_model_refine_dialog_rot_trans_by_residue_range_activate),
+                    NULL);
+  g_signal_connect ((gpointer) model_refine_dialog_rot_trans_by_chain, "activate",
+                    G_CALLBACK (on_model_refine_dialog_rot_trans_by_chain_activate),
+                    NULL);
+  g_signal_connect ((gpointer) model_refine_dialog_rot_trans_by_molecule, "activate",
+                    G_CALLBACK (on_model_refine_dialog_rot_trans_by_molecule_activate),
+                    NULL);
+  g_signal_connect ((gpointer) model_refine_dialog_rot_trans_togglebutton1, "toggled",
+                    G_CALLBACK (on_model_refine_dialog_rot_trans_togglebutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) model_refine_dialog_auto_fit_rotamer_togglebutton, "toggled",
                     G_CALLBACK (on_model_refine_dialog_auto_fit_rotamer_togglebutton_toggled),
                     NULL);
@@ -7060,7 +7137,19 @@ create_model_refine_dialog (void)
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox216, "hbox216");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image1826, "image1826");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label390, "label390");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox384, "hbox384");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rot_trans_togglebutton, "model_refine_dialog_rot_trans_togglebutton");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox385, "hbox385");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, image6808, "image6808");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, label707, "label707");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rot_trans_menubar, "model_refine_dialog_rot_trans_menubar");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, menuitem3, "menuitem3");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, image6809, "image6809");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, menuitem3_menu, "menuitem3_menu");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rot_trans_by_residue_range, "model_refine_dialog_rot_trans_by_residue_range");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rot_trans_by_chain, "model_refine_dialog_rot_trans_by_chain");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rot_trans_by_molecule, "model_refine_dialog_rot_trans_by_molecule");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rot_trans_togglebutton1, "model_refine_dialog_rot_trans_togglebutton1");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox156, "hbox156");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image5, "image5");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label330, "label330");

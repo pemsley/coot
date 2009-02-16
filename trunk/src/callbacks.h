@@ -912,6 +912,21 @@ on_model_refine_dialog_rot_trans_togglebutton_toggled
                                         gpointer         user_data);
 
 void
+on_model_refine_dialog_rot_trans_by_residue_range_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_model_refine_dialog_rot_trans_by_chain_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_model_refine_dialog_rot_trans_by_molecule_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
 on_rotate_translate_obj_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);

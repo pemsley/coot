@@ -771,6 +771,8 @@ void set_pick_cursor_index(int icursor_index);
 /*! \brief display the Model/Fit/Refine dialog */
 void post_model_fit_refine_dialog();
 GtkWidget *wrapped_create_model_fit_refine_dialog(); 
+void update_model_fit_refine_dialog_menu(GtkWidget *widget);
+void update_model_fit_refine_dialog_buttons(GtkWidget *widget);
 void unset_model_fit_refine_dialog();
 void unset_refine_params_dialog();
 /*! \brief display the Display Manager dialog */
@@ -3927,6 +3929,7 @@ void do_rot_trans_adjustments(GtkWidget *dialog);
 void rot_trans_reset_previous();
 void set_rotate_translate_zone_rotates_about_zone_centre(int istate);
 void set_rot_trans_object_type(short int rt_type); /* zone, chain, mol */
+int get_rot_trans_object_type();
 
 /*  ----------------------------------------------------------------------- */
 /*                  cis <-> trans conversion                                */

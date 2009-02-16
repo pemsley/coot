@@ -7,6 +7,8 @@ tests   rev 1860
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+   o test user defined func python
+
    o merge solvent chains [JG]
 
    o fix pass-build/pass-test (with guile build) and include progress status

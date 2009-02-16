@@ -975,6 +975,9 @@ menutoolbutton_rot_trans_activated(GtkWidget *item, GtkPositionType pos) {
    // std::cout << "changing to zone type" << pos << std::endl;
    set_rot_trans_object_type(pos);
    do_rot_trans_setup(1);
+   if (graphics_info_t::model_fit_refine_dialog) {
+     update_model_fit_refine_dialog_menu(graphics_info_t::model_fit_refine_dialog);
+   }
 }
 
 void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
