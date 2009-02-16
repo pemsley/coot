@@ -3024,6 +3024,8 @@ public:
    static float raster3d_bone_thickness; 
    static bool  raster3d_enable_shadows;
 
+   short int renderman(std::string filename);
+
 
    // ---- simple torsion ------
    // return true if all atoms found

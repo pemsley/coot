@@ -7468,6 +7468,11 @@ void raster3d(const char *filename) {
    g.raster3d(std::string(filename));
 }
 
+void renderman(const char *filename) {
+   graphics_info_t g;
+   g.renderman(filename);
+}
+
 void povray(const char *filename) {
 
    graphics_info_t g;

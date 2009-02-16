@@ -4473,6 +4473,7 @@ void trim_molecule_by_map(int imol_coords, int imol_map,
 /*! \brief create a r3d file for the current view */
 void raster3d(const char *rd3_filename);
 void povray(const char *filename);
+void renderman(const char *rib_filename);
 /* a wrapper for the (scheme) function that makes the image, callable
    from callbacks.c  */
 void make_image_raster3d(const char *filename);
