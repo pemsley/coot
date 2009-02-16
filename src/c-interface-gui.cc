@@ -65,6 +65,7 @@
 #include "c-interface-scm.hh"
 #include "coot-fileselections.h"
 #include "coot-references.h"
+#include "rotate-translate-modes.hh"
 
 #include "graphics-info.h"
 #include "interface.h"
@@ -2851,14 +2852,9 @@ GtkWidget *wrapped_create_model_fit_refine_dialog() {
 			    graphics_info_t::model_fit_refine_place_atom_at_pointer_string.c_str());
    }
    
-   button = lookup_widget(widget,
-			  "model_refine_dialog_rot_trans_togglebutton");
-   if (button) {
-      if (graphics_info_t::model_fit_refine_rotate_translate_zone_string != "")
-	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),
-			    graphics_info_t::model_fit_refine_rotate_translate_zone_string.c_str());
-      
-   }
+   update_model_fit_refine_dialog_menu(widget);
+   update_model_fit_refine_dialog_buttons(widget);
+
    graphics_info_t::set_model_fit_refine_button_names(widget);
 
    // Refmac button
@@ -2871,6 +2867,55 @@ GtkWidget *wrapped_create_model_fit_refine_dialog() {
    } 
 
    return widget; 
+}
+
+// function to update selected menu items (currently rot/trans only
+void
+update_model_fit_refine_dialog_menu(GtkWidget *dialog) {
+
+#if (GTK_MAJOR_VERSION > 1)
+   GtkWidget *menu_item;
+   // update the menu for the rot/trans menu
+   if (graphics_info_t::rot_trans_object_type == ROT_TRANS_TYPE_CHAIN) {
+     menu_item = lookup_widget(dialog, "model_refine_dialog_rot_trans_by_chain");
+     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
+   } else {
+     if (graphics_info_t::rot_trans_object_type == ROT_TRANS_TYPE_MOLECULE) {
+       menu_item = lookup_widget(dialog, "model_refine_dialog_rot_trans_by_molecule");
+       gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
+     } else {
+       menu_item = lookup_widget(dialog, "model_refine_dialog_rot_trans_by_residue_range");
+       gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
+     }
+   }
+#endif
+}
+
+// function to update button labels (currently rot/trans only)
+void
+update_model_fit_refine_dialog_buttons(GtkWidget *dialog) {
+
+  GtkWidget *button;
+  GList *children;
+
+  button = lookup_widget(dialog,
+			 "model_refine_dialog_rot_trans_togglebutton");
+  if (button) {
+    if (graphics_info_t::model_fit_refine_rotate_translate_zone_string != "") {
+	//	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),
+#if (GTK_MAJOR_VERSION > 1)
+      children = gtk_container_get_children(GTK_CONTAINER(GTK_BIN(button)->child));
+#else
+      children = gtk_container_children(GTK_CONTAINER(GTK_BIN(button)->child));
+#endif
+      children = children->next;
+      gtk_label_set_text(GTK_LABEL(children->data),
+			 graphics_info_t::model_fit_refine_rotate_translate_zone_string.c_str());
+    }
+      
+  }
+  graphics_info_t::set_model_fit_refine_button_names(dialog);
+
 }
 
 

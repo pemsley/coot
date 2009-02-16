@@ -40,6 +40,7 @@
 #include "coot-fileselections.h"
 #include "coot-preferences.h"
 #include "coot-references.h"
+#include "rotate-translate-modes.hh"
 
 #include "callbacks.h"
 #include "interface.h"
@@ -3033,6 +3034,45 @@ on_model_refine_dialog_rot_trans_togglebutton_toggled (GtkButton       *button,
     do_rot_trans_setup(1);
   } else {
     do_rot_trans_setup(0);
+  }
+
+}
+
+
+void
+on_model_refine_dialog_rot_trans_by_residue_range_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active) {
+    set_model_fit_refine_rotate_translate_zone_label("Rotate/Translate Zone");
+    set_rot_trans_object_type(12);
+  }
+
+}
+
+
+void
+on_model_refine_dialog_rot_trans_by_chain_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active) {
+    set_model_fit_refine_rotate_translate_zone_label("Rotate/Translate Chain");
+    set_rot_trans_object_type(13);
+  }
+
+}
+
+
+void
+on_model_refine_dialog_rot_trans_by_molecule_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active) {
+    set_model_fit_refine_rotate_translate_zone_label("Rotate/Translate Molecule");
+    set_rot_trans_object_type(14);
   }
 
 }
@@ -11223,6 +11263,26 @@ void
 on_model_toolbar_rot_trans_toolbutton_show_menu
                                         (GtkMenuToolButton *toolbutton,
 					 gpointer         user_data) { 
+
+  GtkWidget *menu;
+  GList *children;
+  GtkWidget *menu_item;
+  menu = gtk_menu_tool_button_get_menu(toolbutton);
+  children = gtk_container_get_children(GTK_CONTAINER(menu));
+  if (get_rot_trans_object_type() == ROT_TRANS_TYPE_ZONE) {
+    menu_item = children->data;
+  }
+  if (get_rot_trans_object_type() == ROT_TRANS_TYPE_CHAIN) {
+    children = children->next;
+    menu_item = children->data;
+  }
+  if (get_rot_trans_object_type() == ROT_TRANS_TYPE_MOLECULE) {
+    children = children->next;
+    children = children->next;
+    menu_item = children->data;
+  }
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
+  
 }
 #endif	/* GTK_MAJOR_VERSION */
 

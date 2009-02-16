@@ -222,6 +222,10 @@ int map_from_mtz_by_refmac_calc_phases(const char *mtz_file_name,
 /*  ------------------------------------------------------------------------ */
 void set_model_fit_refine_rotate_translate_zone_label(const char *txt) {
    graphics_info_t::model_fit_refine_rotate_translate_zone_string = txt;
+   // if we have the dialog open we shall change the label
+   if (graphics_info_t::model_fit_refine_dialog) {
+     update_model_fit_refine_dialog_buttons(graphics_info_t::model_fit_refine_dialog);
+   }
    std::vector<std::string> command_strings;
    command_strings.push_back("set-model-fit-refine-rotate-translate-zone-label");
    command_strings.push_back(txt);
@@ -575,6 +579,12 @@ void set_rotate_translate_zone_rotates_about_zone_centre(int istate) {
 void set_rot_trans_object_type(short int rt_type) { /* zone, chain, mol */
 
    graphics_info_t::rot_trans_object_type = rt_type;
+}
+
+int
+get_rot_trans_object_type() {
+
+   return graphics_info_t::rot_trans_object_type;
 }
 
 /*  ----------------------------------------------------------------------- */
