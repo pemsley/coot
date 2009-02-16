@@ -2347,7 +2347,7 @@
       (define (get-news-thread)
 	(let ((s (with-output-to-string (lambda () (http-get url)))))
 	  ;; (test-string)))
-	  ; (format #t "http-get returned ~s~%" s)
+	  ;; (format #t "http-get on ~s returned ~s~%" url s)
 	  (let ((both-news (trim-news s)))
 	    ;; trim-news returns (cons pre-release-news-string
 	    ;;                         std-release-news-string)

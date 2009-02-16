@@ -10,7 +10,7 @@ Pre-release 0.6
 
   o FEATURE: "Sphere" (residue selection) refinement - experimental.
 
-  o FEATURE: function to (re-)calculate probe dots around a give point.
+  o FEATURE: function to (re-)calculate probe dots around a give point [Joel Bard].
 
   o FEATURE: monomer and residue selection dipoles.
 
@@ -20,7 +20,7 @@ Pre-release 0.6
 
   o CHANGE: Ramachandran Plots now have molecule name labels [Wendy Offen].
 
-  o BUG-FIX: new atoms are added as HETATMs if appropriate.
+  o BUG-FIX: new atoms are added as HETATMs if appropriate [David Mathog].
 
   o BUG-FIX: NCS chain jumping now works on heterodimers [Jianghai Zhu].
  
@@ -29,8 +29,6 @@ Pre-release 0.6
 Release 0.5.2 Uneno
 
    o BUG-FIX: Fix annoying shift-key-labels-atoms bug
-
------
 
 Release 0.5.1 Uneno
 

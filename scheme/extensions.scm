@@ -30,7 +30,7 @@
     (let ((menu (coot-menubar-menu "About")))
       (if menu
 	  (add-simple-coot-menu-menuitem
-	   menu "Coot News"
+	   menu "Coot News..."
 	   (lambda ()
 	     (whats-new-dialog))))))
 
