@@ -1797,3 +1797,27 @@ pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
    } 
    return pi;
 }
+
+
+
+
+
+#else 
+
+   std::cout << "============== gtk2 path =================" << std::endl;
+
+// How do you get a menu of a menu item?  (Not like this, this gets
+// the submenu, (if there is a submenu attached to this menu item).
+
+   GtkWidget *menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(item));
+   const char *t = gtk_menu_get_title(GTK_MENU(menu));
+   if (t) 
+     std::cout << "         got a t: " << t << std::endl;
+   else 
+     std::cout << "         got a NULL t: " << std::endl;
+
+   if (t) 
+      graphics_info_t::change_chain_id_from_chain = t; // a static std::string
+
+#endif // GTK_MAJOR_VERSION
+
