@@ -1179,6 +1179,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
   GtkWidget *previous_radio_button =
      get_radio_button_in_scroll_group(display_control_window_glade, n);
+
   if (previous_radio_button) 
      scroll_radio_button_1 =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(previous_radio_button),
@@ -1283,7 +1284,7 @@ GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
       for (int i=0; i<graphics_n_molecules(); i++) {
 	 if (is_valid_map_molecule(i)) {
 	    if (i != imol_this) {
-	       if (mol_is_displayed(i)) { 
+	       if (map_is_displayed(i)) { 
 		  std::string test_name = "map_scroll_button_";
 		  test_name += coot::util::int_to_string(i);
 		  w = lookup_widget(display_manager_dialog, test_name.c_str());
@@ -1291,11 +1292,11 @@ GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
 		     break;
 	       }
 	    }
-	 } 
+	 }
       }
-   } 
+   }
    return w;
-} 
+}
 
 
 void
