@@ -7,8 +7,6 @@ tests   rev 1860
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
-   o test user defined func python
-
    o fix pass-build/pass-test (with guile build) and include progress status
 
    o separate test sets when running one test set
@@ -185,4 +183,7 @@ tests   rev 1860
 
 * Done
 
+   o test and implement user defined func python
+
+* Done
 
