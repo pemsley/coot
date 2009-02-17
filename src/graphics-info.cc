@@ -4129,37 +4129,33 @@ void graphics_info_t::run_user_defined_click_func() {
    if (user_defined_click_py_func) { 
 
       // what are we running? Print it out.
-      std::cout << "INFO applying " 
+      std::cout << "INFO applying > " 
 		<< PyEval_GetFuncName(user_defined_click_py_func)
-		<< " on "
-		<< std::endl;
+		<< " < on ";
 
       PyObject *arg_list_py = PyTuple_New(user_defined_atom_pick_specs.size());
       for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
 	 PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
 	 // continue output from above
-	 PyObject *fmt = PyString_FromString("[%i,%s,%i,%s,%s,%s]");
-	 PyObject *msg = PyString_Format(fmt, spec_py);
-	 //std::cout <<PyString_AsString(msg);
-	 //	 std::cout<<Py_BuildValue("[i,s,i,s,s,s]", spec_py);
-	 //std::cout<<"BL DEBUG:: spec and id " << user_defined_atom_pick_specs[i] << " " << i <<std::endl;
+	 PyObject *fmt = PyString_FromString("[%i,'%s',%i,'%s','%s','%s']");
+	 PyObject *msg = PyString_Format(fmt, PyList_AsTuple(spec_py));
+	 std::cout <<PyString_AsString(msg) << " ";
 	 PyTuple_SetItem(arg_list_py, i, spec_py);
+	 Py_DECREF(fmt);
+	 Py_DECREF(msg);
       }
-      std::cout<< "end input..." <<std::endl;
+      std::cout<< "" <<std::endl; // end ouput
       
       if (PyTuple_Check(arg_list_py)) {
-	std::cout<< "BL DEBUG:: is tuple"<<std::endl;
+	PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
+	Py_DECREF(arg_list_py);
+	if (result) {
+	  Py_DECREF(result);
+	}
       } else {
-	std::cout<< "BL DEBUG:: is NOT tuple"<<std::endl;
-      }
-      
-      PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
-      Py_DECREF(arg_list_py);
-      if (result) {
-	Py_DECREF(result);
-      } else {
+	Py_DECREF(arg_list_py);
 	std::cout<<"ERROR:: executing user_defined_click" <<std::endl;
-      }
+      }      
    }
 
 #endif // USE_PYTHON
