@@ -3,13 +3,65 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
       <head>
 	<title>The Happy/Coot Developer Diary</title>
-	<!-- Changed by: Paul Emsley, 04-Feb-2009 -->
+	<!-- Changed by: Paul Emsley, 18-Feb-2009 -->
       </head>
 
   <body>
     <h1>The Happy Coot Developer Diary</h1>
 
-<hr>Fri Feb  6 21:44:16 GMT 2009
+<hr>
+<p>Wed Feb 18 16:13:16 GMT 2009
+</p>
+
+<p>Other recent new stuff:
+
+<ul>
+<li>User-defined clicks
+</ls>
+<li>A new sequence view.
+</li>
+</ul>
+</p>
+
+
+<p>I've been working on symmetry and handling <a href="http://www.ebi.ac.uk/msd-srv/prot_int/pistart.html">PISA</a> output to represent
+interfaces and assemblies.  Still a lot to do here.  </p>
+
+
+<hr>
+<p>Wed Feb 18 15:57:47 GMT 2009</p>
+
+<p>An update on last Thursdays bugs:</p>
+
+<ul>
+<li>The code now tests for the presence of menu tool bars to conditionally 
+    compile the Rotation/Translation toolbar code.
+</li>
+
+<li>Stuart McNicholas and I had quite a bit of back and forth and he
+    and I (mostly he)
+    bashed the dihedral angle code into shape so that we can now
+    rotate to the correct angle given an atom name spec quad.  Hooray.
+    This was combined with the abiltity to search only a given region
+    of the map.  This should advance ligand fitting in a known site.
+    Next time I give a ligand-fitting talk I'll have to update my
+    slides.  </li>
+
+<li>It turns out (I discover after picking over the documentation)
+    that the radio button group changes when you move from 2 items to
+    1 item in a group (and also from 1 to 0 obviously).  I also
+    discovered that you can use the group indirectly via a radio
+    button already in the group.  So that's what I did, and thus
+    deleted horrid ** pointer code.  Thus long-standing Display
+    Manager bug is dead - hoorah.
+</li>
+</ul>
+
+<p>Which still leaves the "terminal residue atoms as stars" bug.
+</p>
+
+<hr>
+<p>Fri Feb  6 21:44:16 GMT 2009
 
 <p>Failed to go to <a href="http://www.strubi.ox.ac.uk/">STRUBI</a>
 today because of snow (buses canceled).</p>
