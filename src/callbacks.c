@@ -11266,7 +11266,7 @@ on_model_toolbar_rot_trans_toolbutton_show_menu
 
   GtkWidget *menu;
   GList *children;
-  GtkWidget *menu_item;
+  GtkWidget *menu_item = NULL;
   menu = gtk_menu_tool_button_get_menu(toolbutton);
   children = gtk_container_get_children(GTK_CONTAINER(menu));
   if (get_rot_trans_object_type() == ROT_TRANS_TYPE_ZONE) {
