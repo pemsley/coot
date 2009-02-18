@@ -3105,8 +3105,8 @@ graphics_info_t::fill_chain_option_menu(GtkWidget *chain_option_menu, int imol,
 	       menu_item = gtk_menu_item_new_with_label(chains[i].c_str());
 	       int l = chains[i].length();
 	       char *v = new char[ l + 1];
-	       for (int i=0; i<=l; i++)
-		 v[i] = 0;
+	       for (int ii=0; ii<=l; ii++)
+		 v[ii] = 0;
 	       strncpy(v, chains[i].c_str(), l);
 	       gtk_signal_connect(GTK_OBJECT(menu_item), "activate", signal_func, v);
 	       gtk_menu_append(GTK_MENU(menu), menu_item);
