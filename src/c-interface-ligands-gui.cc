@@ -519,13 +519,14 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
    GtkWidget *search_here_toggle_button;
    search_here_toggle_button = lookup_widget(button,
 					     "find_ligands_search_here_radiobutton");
-   if (search_here_toggle_button) 
+   if (search_here_toggle_button) {
       if (GTK_TOGGLE_BUTTON(search_here_toggle_button)->active) {
 	 std::cout << " Activating SEARCH HERE in ligand fitting" << std::endl;
 	 graphics_info_t::find_ligand_here_cluster_flag = 1;
       } else {
 	 graphics_info_t::find_ligand_here_cluster_flag = 0;
-      } 
+      }
+   }
    
 
    // For each imol in molecules, if we have selected coordinates,
