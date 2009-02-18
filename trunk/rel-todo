@@ -26,8 +26,14 @@
 
 * What else is there to do here?  Write a test.
 
+
    o Some tests for rigid body fitting many residue.  Consider
      residues with TERs and alt confs. [Bob Nolte]
+
+
+   o Job for Bernie?  Tool bar in text mode does not show text for 
+     the new rotate/translate toolbar menu button.
+
 
    o "Fit ligand here" which gets a monomer then does a ligand search
      based on the blob at the current position. ::: 8
