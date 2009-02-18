@@ -1306,9 +1306,9 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
     // Otherwise try extended CNS format
     float msr = graphics_info_t::map_sampling_rate;
     int imol1 = g.create_molecule();
-    g.molecules[imol1].map_fill_from_cns_hkl( mtz_file_name, "F1", 0, msr );
+    g.molecules[imol1].map_fill_from_cns_hkl( mtz_file_name, "F2", 0, msr );
     int imol2 = g.create_molecule();
-    g.molecules[imol2].map_fill_from_cns_hkl( mtz_file_name, "F2", 1, msr );
+    g.molecules[imol2].map_fill_from_cns_hkl( mtz_file_name, "F1", 1, msr );
     g.scroll_wheel_map = imol1;
     g.activate_scroll_radio_button_in_display_manager(imol1);
     return imol2;
