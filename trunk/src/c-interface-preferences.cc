@@ -824,25 +824,33 @@ void set_ramachandran_plot_dialog_position(int x_pos, int y_pos) {
 /*  ------------------------------------------------------------------------ */
 #ifdef USE_GUILE
 void user_defined_click_scm(int n_clicks, SCM func) {
-   graphics_info_t g;
-   g.user_defined_atom_pick_specs.clear();
-   g.in_user_defined_define = n_clicks;
-   SCM dest = SCM_BOOL_F;
-   SCM mess = scm_makfrom0str("~s");
-   SCM v = scm_simple_format(dest, mess, scm_list_1(func));
-   std::string func_string = scm_to_locale_string(v);
-   g.user_defined_click_scm_func = func;
-   g.pick_cursor_maybe();
+  if (n_clicks > 0) {
+    graphics_info_t g;
+    g.user_defined_atom_pick_specs.clear();
+    g.in_user_defined_define = n_clicks;
+    SCM dest = SCM_BOOL_F;
+    SCM mess = scm_makfrom0str("~s");
+    SCM v = scm_simple_format(dest, mess, scm_list_1(func));
+    std::string func_string = scm_to_locale_string(v);
+    g.user_defined_click_scm_func = func;
+    g.pick_cursor_maybe();
+  } else {
+    std::cout<<"INFO:: number of clicks less than 1, cannot define user click"<<std::endl;
+  } 
 } 
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
 void user_defined_click_py(int n_clicks, PyObject *func) {
-   graphics_info_t g;
-   g.user_defined_atom_pick_specs.clear();
-   g.in_user_defined_define = n_clicks;
-   g.user_defined_click_py_func = func;
-   g.pick_cursor_maybe();
+  if (n_clicks > 0) {
+    graphics_info_t g;
+    g.user_defined_atom_pick_specs.clear();
+    g.in_user_defined_define = n_clicks;
+    g.user_defined_click_py_func = func;
+    g.pick_cursor_maybe();
+  } else {
+    std::cout<<"INFO:: number of clicks less than 1, cannot define user click"<<std::endl;
+  } 
 } 
 #endif // USE_PYTHON
 /*  ------------------------------------------------------------------------ */
