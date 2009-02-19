@@ -42,7 +42,7 @@ if test x$glut_prefix != x ; then
 	# the GL and GTK libs to find them... sigh.
 	GLUT_CFLAGS="-I$glut_prefix/include $GL_CFLAGS"
 	# vanilla UNIX:
-	GLUT_LDOPTS="-L$glut_prefix/lib -lglut -L/usr/X11R6/lib -lXmu $GL_LIBS"
+	GLUT_LDOPTS="-L$glut_prefix/$acl_libdirstem -lglut -L/usr/X11R6/$acl_libdirstem -lXmu $GL_LIBS"
 
         # but there is no libXmu on Darwin... argh!
 
@@ -50,25 +50,25 @@ if test x$glut_prefix != x ; then
         case $ac_cv_build_alias in
 
 	powerpc-apple-darwin*)
-	   GLUT_LDOPTS="-L/usr/X11R6/lib -L$glut_prefix/lib -lglut $GL_LIBS"
+	   GLUT_LDOPTS="-L/usr/X11R6/$acl_libdirstem -L$glut_prefix/$acl_libdirstem -lglut $GL_LIBS"
 	   GLUT_CFLAGS="-I/usr/X11R6/include $GLUT_CFLAGS"
 	   break;;
 
 	i686-pc-linux-gnu*)
 	   if test -e /etc/fedora-release ; then
-	      GLUT_LDOPTS="-L$glut_prefix/lib -lglut $GL_LIBS -L/usr/X11R6/lib -lXi -lXmu"
+	      GLUT_LDOPTS="-L$glut_prefix/$acl_libdirstem -lglut $GL_LIBS -L/usr/X11R6/$acl_libdirstem -lXi -lXmu"
 	   fi
 	   break;;
 
         i686-apple-darwin*) 
 	   # Mactel, same as G4
-	   GLUT_LDOPTS="-L/usr/X11R6/lib -L$glut_prefix/lib -lglut $GL_LIBS"
+	   GLUT_LDOPTS="-L/usr/X11R6/$acl_libdirstem -L$glut_prefix/$acl_libdirstem -lglut $GL_LIBS"
 	   GLUT_CFLAGS="-I/usr/X11R6/include $GLUT_CFLAGS"
 	   break;;
 
 	i686-pc-linux-gnu*)
 	   if test -e /etc/fedora-release ; then
-	      GLUT_LDOPTS="-L$glut_prefix/lib -lglut $GL_LIBS -L/usr/X11R6/lib -lXi -lXmu"
+	      GLUT_LDOPTS="-L$glut_prefix/$acl_libdirstem -lglut $GL_LIBS -L/usr/X11R6/lib -lXi -lXmu"
 	   fi
 	   break;;
 	
