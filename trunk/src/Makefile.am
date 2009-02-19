@@ -214,6 +214,7 @@ coot_real_SOURCES = \
 	c-interface-build-gui.cc \
 	c-interface-database.hh  \
 	c-interface-database.cc  \
+	c-interface-pisa.cc	 \
 	c-interface-python.hh	 \
 	c-interface.cc		 \
 	c-interface-gui.cc	 \

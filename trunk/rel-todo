@@ -1,7 +1,7 @@
 
 
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
-     interface with molprobity dots. ::: 6
+     interface with molprobity dots. ::: 8
 
 
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
@@ -27,33 +27,15 @@
 * What else is there to do here?  Write a test.
 
 
+   o Put the scripting window into the state file. ::: 1
+
+
    o Some tests for rigid body fitting many residue.  Consider
-     residues with TERs and alt confs. [Bob Nolte]
+     residues with TERs and alt confs. ::: 2 [Bob Nolte]
 
 
    o Job for Bernie?  Tool bar in text mode does not show text for 
      the new rotate/translate toolbar menu button.
-
-
-   o "Fit ligand here" which gets a monomer then does a ligand search
-     based on the blob at the current position. ::: 8
-
-* I added a function to find a blob close to the given postion, then
-  add it as a cluster.  That was fun. It made the cluster correctly,
-  same as reference (blob 2).  Then trying to do wiggly ligands there
-  I ran in to the problem.  I was wondering why I was getting a poor
-  solution, the ribose was always rotated (compared to the reference
-  and correct solution).  Why?  The torsion was wrong.  In the
-  dictionary we have
-
- 3GP      var_2    C8     N9     C1*    C2*      -78.375    2.000   1
-
-  There is a torsion round N9 C1 - and in the wiggly ligand models it
-  was always wrong.  It turns out that wiggly ligands was setting the
-  torsion of the C8 N9 C1* H1* instead.  Hopelessly wrong.  To fix
-  this needs a re-write of the torsion setting code. Sigh.  Strange
-  that I haven't notice this before.  Waiting for Stuart to fix
-  SetDihedralAngle().
 
 
    o Document the post-manipulation-hook.  How, for example, might you
@@ -80,24 +62,31 @@
      this? Synthetic map?  How does it work when we do this for an alt
      conf too?  ::: 10
 
+
    o Does the window stay constant size (on something other than a
      laptop) on start, exit, start exit cycling?
      Priority: 6: Difficulty: 4  ::: 2
 
+
    o Fix up mini-RSR so that it compiles properly. ::: 4
 
+
    o Put refine-zone and regularize-zone into the history. ::: 2
+
 
    o consider making bonds to hydrogens thinner.  A spike needed to
      test for bonds split on thickness or colour most deeply.  ::: 5
 
+
    o Can we have a regularize-residues function?  That would be cool
      for fixing molecular models. ::: 2
+
 
    o Gtk2 coot: set the colour patch in the map properties and
      symmetry molecule colouring (needs version 2.6).  There is some
      problem in the update, how do I set continuous updates on the
      resulting colour chooser?  ::: 2 
+
 
    o Integrate scripting functions into main documentation somehow.
      Well, you can look at this, if it is hard, punt it.  
@@ -107,25 +96,35 @@
   body etc tags. Ugly though.  Include files need to be in source doc
   directory.  Call it xxx.html.texi and add @html tags in there.
 
+
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.  ::: 2
+
+* Done.  You need to supply a RTop, not a string symmetry operator
+  though.  We should have both, I suppose.
 
    o Helix fitting overshoots - e.g.     
        1a02: place helix here at (9.2 36.6 28.3)
        1env: place helix here - many places.  Lots of errors.
        ::: 4
 
+
    o Add add rep of a residue.  Change background to white.  Rotate
      view.  Ugliness! ::: 2 [Erik Vogan]
+
 
    o Make sure that .coot.py keybindings appear in the keybindings
      GUI. ::: 1
 
+
    o get-monomer fails for JED.  Why? ::: 1
+
 
    o Garib wants a function to move waters close to the protein. ::: 4
 
+
    o Geometric distortions graph for alt confs - currently broken? ::: 4
+
 
    o Stereo (hardware, side by side) Add-reps.  Need to update the
      display list objects when the GL context changes. Need to store a
@@ -136,18 +135,22 @@
      to run update_additional_representations() for each model molecule.
      ::: 3
 
+
    o CA+Ligands has gone into CA by B-factor mode.  Don't like - it 
      should be just the same as CA mode. There is a mix up over what
      bond_colour_type means. ::: 1
 
+
    o When starting up with --no-state-script, don't write a state
      script on closing.
+
 
    o Regularize monomer-3GP. Turn on torsion angle restraints.
      Regularize again. Look at above var_2 torsion.  After
      minimization, torsion is 171.09 degrees.  Wrong.  The minimizer
      doesn't terminate though. Use libcheck_3GP-torsion-filtered.cif 
      ::: 4
+
 
    o What about if there are python and scheme bindings to a
      particular key?  graphics-general-key-press-hook should return the
@@ -540,3 +543,24 @@ button, but I did use the Close molecule button!  Hmm!
    o Check that ncs-chain-skip works for NCS heterodimer.  Use 3FCS.
      [Jianghai Zhu] ::: 1
 
+   o "Fit ligand here" which gets a monomer then does a ligand search
+     based on the blob at the current position. ::: 8
+
+* I added a function to find a blob close to the given postion, then
+  add it as a cluster.  That was fun. It made the cluster correctly,
+  same as reference (blob 2).  Then trying to do wiggly ligands there
+  I ran in to the problem.  I was wondering why I was getting a poor
+  solution, the ribose was always rotated (compared to the reference
+  and correct solution).  Why?  The torsion was wrong.  In the
+  dictionary we have
+
+ 3GP      var_2    C8     N9     C1*    C2*      -78.375    2.000   1
+
+  There is a torsion round N9 C1 - and in the wiggly ligand models it
+  was always wrong.  It turns out that wiggly ligands was setting the
+  torsion of the C8 N9 C1* H1* instead.  Hopelessly wrong.  To fix
+  this needs a re-write of the torsion setting code. Sigh.  Strange
+  that I haven't notice this before.  Waiting for Stuart to fix
+  SetDihedralAngle().
+
+* Done.  For now.

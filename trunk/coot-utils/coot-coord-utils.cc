@@ -2069,6 +2069,11 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<CResidue *>
       model_p->AddChain(chain_p);
    }
 
+   CMMDBManager *mol = new CMMDBManager;
+   mol->AddModel(model_p);
+
+   return std::pair<bool, CMMDBManager *> (1, mol);
+
 } 
 
 void 
@@ -5030,4 +5035,135 @@ coot::hetify_residue_atoms_as_needed(CResidue *res) {
    }
    return r;
 } 
+
+
+// Interacting Residues: Return all residues of mol1, mol2 that
+// have atoms that are closer that dist to atoms of mol2/mol1.
+//
+// Slightly horrifically, we have to create a new molecule from the 2
+// given molecules so that we can run SeekContacts().  So we choose
+// the first (non-blank) model of each of the molecules to go into
+// MODEL 1 and MODEL 2 of the combined/new molecule.
+//
+// The returned CResidues are not in mol1 and mol2 - they are in combined_mol.
+// 
+std::pair<std::vector<CResidue *>, std::vector<CResidue *> >
+coot::close_residues_from_different_molecules_t::close_residues(CMMDBManager *mol1,
+								CMMDBManager *mol2, float dist) {
+
+   std::vector<CResidue *> v1;
+   std::vector<CResidue *> v2;
+
+   if (mol1 && mol2) {
+
+      combined_mol = new CMMDBManager;
+      
+      // combined_mol MODEL number 1 
+      int n_models_mol_1 = mol1->GetNumberOfModels();
+      for (int imod=1; imod<=n_models_mol_1; imod++) {
+	 CModel *model_p = mol1->GetModel(imod);
+	 if (model_p) {
+	    CModel *new_model = new CModel;
+	    new_model->Copy(model_p);
+	    combined_mol->AddModel(new_model);
+	    break;
+	 } 
+      } 
+
+      // combined_mol MODEL number 2
+      int n_models_mol_2 = mol2->GetNumberOfModels();
+      for (int imod=1; imod<=n_models_mol_2; imod++) {
+	 CModel *model_p = mol2->GetModel(imod);
+	 if (model_p) {
+	    CModel *new_model = new CModel;
+	    new_model->Copy(model_p);
+	    combined_mol->AddModel(new_model);
+	    break;
+	 } 
+      } 
+
+      int SelectionHandle_1 = combined_mol->NewSelection();
+      PPCAtom atom_selection_1;
+      combined_mol->SelectAtoms (SelectionHandle_1, 1, "*",
+				 ANY_RES, // starting resno, an int
+				 "*", // any insertion code
+				 ANY_RES, // ending resno
+				 "*", // ending insertion code
+				 "*", // any residue name
+				 "*", // atom name
+				 "*", // elements
+				 "*"  // alt loc.
+				 );
+      int n_selected_atoms_1;
+      combined_mol->GetSelIndex(SelectionHandle_1, atom_selection_1, n_selected_atoms_1);
+      
+      int SelectionHandle_2 = combined_mol->NewSelection();
+      PPCAtom atom_selection_2;
+      combined_mol->SelectAtoms (SelectionHandle_2, 2, "*",
+				 ANY_RES, // starting resno, an int
+				 "*", // any insertion code
+				 ANY_RES, // ending resno
+				 "*", // ending insertion code
+				 "*", // any residue name
+				 "*", // atom name
+				 "*", // elements
+				 "*"  // alt loc.
+				 );
+      int n_selected_atoms_2;
+      combined_mol->GetSelIndex(SelectionHandle_2, atom_selection_2, n_selected_atoms_2);
+
+      std::cout << "INFO:: selected " << n_selected_atoms_1
+		<< " from (copy of) 1st interaction molecule\n";
+      std::cout << "INFO:: selected " << n_selected_atoms_2
+		<< " from (copy of) 2nd interaction molecule\n";
+      
+      
+      // (Sigh (of relief))...
+      //
+      // OK, now we can run SeekContacts();
+
+      PSContact pscontact = NULL;
+      int n_contacts;
+      long i_contact_group = 1;
+      mat44 my_matt;
+      CSymOps symm;
+      for (int i=0; i<4; i++) 
+	 for (int j=0; j<4; j++) 
+	    my_matt[i][j] = 0.0;      
+      for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+      combined_mol->SeekContacts(atom_selection_1, n_selected_atoms_1,
+				 atom_selection_2, n_selected_atoms_2,
+				 0.0, dist,
+				 1, pscontact, n_contacts,
+				 0, &my_matt, i_contact_group);
+
+      std::cout << "INFO:: Contacts between 2 molecules: found "
+		<< n_contacts << " contacts" << std::endl;
+      
+      if (n_contacts > 0) {
+	 if (pscontact) {
+	    for (int i_contact=0; i_contact<n_contacts; i_contact++) {
+
+	       CResidue *r1 = atom_selection_1[pscontact[i_contact].id1]->GetResidue();
+	       CResidue *r2 = atom_selection_2[pscontact[i_contact].id2]->GetResidue();
+
+	       CModel *model_1 = r1->GetModel();
+	       CModel *model_2 = r2->GetModel();
+
+	       if (model_1 != model_2) { 
+	       
+		  if (! coot::is_member_p(v1, r1))
+		     v1.push_back(r1);
+		  if (! coot::is_member_p(v2, r2))
+		     v2.push_back(r2);
+	       }
+	    }
+	 }
+      } 
+   }
+   std::cout << "INFO:: interacting residues from molecules: "
+	     << v1.size() << " and " << v2.size() << std::endl;
+   return std::pair<std::vector<CResidue *>, std::vector<CResidue *> > (v1, v2);
+}
 

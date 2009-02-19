@@ -384,7 +384,18 @@ namespace coot {
 				clipper::Cell cell,
 				clipper::RTop_frac rtop_frac,
 				std::vector<int> pre_shift_abc);
-  
+
+   class close_residues_from_different_molecules_t {
+      // Interacting Residues: Return all residues of mol1, mol2 that
+      // have atoms that are closer that dist to atoms of mol2/mol1.
+      //
+      CMMDBManager *combined_mol;
+   public:
+      close_residues_from_different_molecules_t() {};
+      std::pair<std::vector<CResidue *>, std::vector<CResidue *> >
+	 close_residues(CMMDBManager *mol1, CMMDBManager *mol2, float dist);
+      void clean_up() { delete combined_mol; } 
+   }; 
 
 
 
