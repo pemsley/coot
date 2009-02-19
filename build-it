@@ -2464,7 +2464,7 @@ $MAKE
 $MAKE install
 ) > $HOSTLOGDIR/14-guile-lib.txt 2>&1
 else 
-    echo not building guile_goosh:
+    echo not building guile-lib
 fi
 
 
