@@ -284,12 +284,12 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
     probe_pdb_in_1 = "molprobity-tmp-reference-file.pdb"
     probe_pdb_in_2 = "molprobity-tmp-moving-file.pdb"
     probe_out = "coot-molprobity/molprobity-tmp-probe-dots.out"
-    atom_sel = "\"(file1 within " + str(radius) + " of " \
+    atom_sel = "(file1 within " + str(radius) + " of " \
 	       + str(x_cen) + ", " \
 	       + str(y_cen) + ", " \
 	       + str(z_cen) + ", " \
 	       + "not water not (chain" + string.lower(chain_id) + " " \
-	       + str(res_no) + ")),file2\""
+	       + str(res_no) + ")),file2"
 
     if not (os.path.isfile(probe_command)):
 	probe_command = find_exe("probe", "PATH")
