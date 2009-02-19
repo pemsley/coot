@@ -138,8 +138,10 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
       std::cout << "INFO:: Found " << n_models << " models\n";
       for (int imod=1; imod<=n_models; imod++) {
 	 CModel *model_p = atom_sel.mol->GetModel(imod);
-	 int n_links = model_p->GetNumberOfLinks();
-	 std::cout << "   Model "  << imod << " had " << n_links << " links\n";
+	 if (model_p) { 
+	    int n_links = model_p->GetNumberOfLinks();
+	    std::cout << "   Model "  << imod << " had " << n_links
+		      << " links\n";} 
       }
       
 
@@ -1740,27 +1742,56 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	 set_bond_colour_by_colour_wheel_position(i, coot::COLOUR_BY_RAINBOW);
       }
       int linesdrawn = 0;
-      glBegin(GL_LINES); 
-      for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 
-// 	 if ( j > 200000) {
-// 	    cout << "Heuristics fencepost failure j " << j << endl;
-// 	    exit(1);
-// 	 }
-	 
-	 glVertex3f(ll.pair_list[j].getStart().get_x(),
-		    ll.pair_list[j].getStart().get_y(),
-		    ll.pair_list[j].getStart().get_z());
-	 glVertex3f(ll.pair_list[j].getFinish().get_x(),
-		    ll.pair_list[j].getFinish().get_y(),
-		    ll.pair_list[j].getFinish().get_z());
-	 if ( (++linesdrawn & 1023) == 0) {
-	    glEnd();
-	    glBegin(GL_LINES);
-	    linesdrawn = 0;
+      if (1) { 
+	 glBegin(GL_LINES); 
+	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
+	    
+	    // 	 if ( j > 200000) {
+	    // 	    cout << "Heuristics fencepost failure j " << j << endl;
+	    // 	    exit(1);
+	    // 	 }
+	    
+	    glVertex3f(ll.pair_list[j].getStart().get_x(),
+		       ll.pair_list[j].getStart().get_y(),
+		       ll.pair_list[j].getStart().get_z());
+	    glVertex3f(ll.pair_list[j].getFinish().get_x(),
+		       ll.pair_list[j].getFinish().get_y(),
+		       ll.pair_list[j].getFinish().get_z());
+	    if ( (++linesdrawn & 1023) == 0) {
+	       glEnd();
+	       glBegin(GL_LINES);
+	       linesdrawn = 0;
+	    }
 	 }
+	 glEnd();
       }
-      glEnd();
+
+      // quads.  This is poor currently.  Needs to be based on view
+      // rotation matrix and zoom, so that we can draw the quad
+      // perpendicular to the view direction (and of the right
+      // thickness).
+      if (0) {
+	 glBegin(GL_QUADS);
+	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
+	    glVertex3f(ll.pair_list[j].getStart().get_x()+0.05,
+		       ll.pair_list[j].getStart().get_y(),
+		       ll.pair_list[j].getStart().get_z());
+	    glVertex3f(ll.pair_list[j].getStart().get_x()-0.05,
+		       ll.pair_list[j].getStart().get_y(),
+		       ll.pair_list[j].getStart().get_z());
+
+	    glVertex3f(ll.pair_list[j].getFinish().get_x(),
+		       ll.pair_list[j].getFinish().get_y()+0.05,
+		       ll.pair_list[j].getFinish().get_z());
+	    glVertex3f(ll.pair_list[j].getFinish().get_x(),
+		       ll.pair_list[j].getFinish().get_y()-0.05,
+		       ll.pair_list[j].getFinish().get_z());
+	 }
+	 glEnd();
+      } 
+
+      
    }
 
 }
