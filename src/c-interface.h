@@ -1507,6 +1507,25 @@ void save_symmetry_coords(int imol,
 			  int pre_shift_to_origin_nb,
 			  int pre_shift_to_origin_nc);
 
+/*! \brief create a new molecule (molecule number is the return value)
+  from imol.  
+
+The rotation/translation matrix components are given in *fractional*
+coordinates.
+
+Allow a shift of the coordinates to the origin before symmetry
+expansion is aplied.
+
+Return -1 on failure. */ 
+int new_molecule_by_symmetry(int imol,
+			     double m11, double m12, double m13, 
+			     double m21, double m22, double m23, 
+			     double m31, double m32, double m33, 
+			     double tx, double ty, double tz,
+			     int pre_shift_to_origin_na,
+			     int pre_shift_to_origin_nb,
+			     int pre_shift_to_origin_nc);
+
 void setup_save_symmetry_coords();
 
 void save_symmetry_coords_from_fileselection(GtkWidget *fileselection);

@@ -276,6 +276,19 @@ molecule_class_info_t::cell() const {
    if (has_map()) {
       p = std::pair<bool, clipper::Cell> (1, xmap_list[0].cell());
    } 
+
+   if (has_model()) { 
+      realtype a[6];
+      realtype vol;
+      int orthcode;
+      atom_sel.mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
+      clipper::Cell_descr cdr(a[0], a[1], a[2],
+			      clipper::Util::d2rad(a[3]),
+			      clipper::Util::d2rad(a[4]),
+			      clipper::Util::d2rad(a[5]));
+      p.first = 1;
+      p.second = clipper::Cell(cdr);
+   } 
    return p;
 }
 

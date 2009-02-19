@@ -2015,6 +2015,99 @@ coot::util::create_mmdbmanager_from_res_selection(CMMDBManager *orig_mol,
    return std::pair<CMMDBManager *, int>(residues_mol, atom_index_handle);
 }
 
+// More complex than above because res_vec is not sorted on chain or residue number.
+std::pair<bool, CMMDBManager *>
+coot::util::create_mmdbmanager_from_residue_vector(const std::vector<CResidue *> &res_vec) { 
+  
+   // So, first make a vector of residue sets, one residue set for each chain.
+   std::vector<coot::util::chain_id_residue_vec_helper_t> residues_of_chain;
+   
+   for (unsigned int i=0; i<res_vec.size(); i++) { 
+      std::string chain_id = res_vec[i]->GetChainID();
+      
+      // is chain_id already in residues_of_chain?  Do it in line here
+      //
+      bool found = 0;
+      for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
+	 if (residues_of_chain[ich].chain_id == chain_id) { 
+	    found = 1;
+	    break;
+	 }
+      }
+      if (! found) { 
+	 coot::util::chain_id_residue_vec_helper_t chir;
+	 chir.chain_id = chain_id;
+	 residues_of_chain.push_back(chir);
+      } 
+   }
+
+   // now residues_of_chain is full of containers that have the chain_id specified.
+   for (unsigned int i=0; i<res_vec.size(); i++) { 
+      std::string chain_id = res_vec[i]->GetChainID();
+      for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
+	 if (residues_of_chain[ich].chain_id == chain_id) { 
+	    residues_of_chain[ich].residues.push_back(res_vec[i]);
+	    break;
+	 } 
+      }
+   }
+   
+   for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
+      residues_of_chain[ich].sort_residues();
+   }
+
+   std::sort(residues_of_chain.begin(), residues_of_chain.end());
+
+   CModel *model_p = new CModel;
+   for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
+      CChain *chain_p = new CChain;
+      for (unsigned int ires=0; ires<residues_of_chain[ich].residues.size(); ires++) { 
+	 CResidue *residue_p = 
+            coot::util::deep_copy_this_residue(residues_of_chain[ich].residues[ires], "", 1);
+	 chain_p->AddResidue(residue_p);
+      }
+      model_p->AddChain(chain_p);
+   }
+
+} 
+
+void 
+coot::util::chain_id_residue_vec_helper_t::sort_residues() { 
+
+   
+   std::sort(residues.begin(), residues.end(), 
+	     coot::util::chain_id_residue_vec_helper_t::residues_sort_func);
+
+}
+
+
+bool
+coot::util::chain_id_residue_vec_helper_t::operator<(const chain_id_residue_vec_helper_t &c) const { 
+
+   return (chain_id < c.chain_id);
+}
+
+// static 
+bool
+coot::util::chain_id_residue_vec_helper_t::residues_sort_func(CResidue *first, CResidue *second) { 
+   
+   if (first->GetSeqNum() < second->GetSeqNum()) { 
+      return 1;
+   } else { 
+      if (first->GetSeqNum() > second->GetSeqNum()) { 
+	 return 0; 
+      } else { 
+	 std::string inscode_1 = first->GetInsCode();
+	 std::string inscode_2 = second->GetInsCode(); 
+	 if (inscode_1 < inscode_2) 
+	    return 1; 
+	 else 
+	    return 0;
+      }
+   }
+   return 0; // not reached.
+}
+
 
 // We don't mess with the chain ids, give as we get, but also
 // return the handle for the atom index transfer.
@@ -4829,6 +4922,67 @@ coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
       } 
    }
 #endif // HAVE_MMDB_WITH_CISPEP
+} 
+
+
+CMMDBManager *
+coot::mol_by_symmetry(CMMDBManager *mol, 
+		      clipper::Cell cell, 
+		      clipper::RTop_frac rtop_frac,
+		      std::vector<int> pre_shift_to_origin_abc) {
+  
+   CMMDBManager *mol2 = new CMMDBManager;
+   mol2->Copy(mol, MMDBFCM_All);
+   
+   mat44 mat;
+   mat44 mat_origin_shift;
+   
+   if (pre_shift_to_origin_abc.size() == 3) { 
+      mol2->GetTMatrix(mat_origin_shift, 0,
+		       -pre_shift_to_origin_abc[0],
+		       -pre_shift_to_origin_abc[1],
+		       -pre_shift_to_origin_abc[2]);
+   }
+      
+   // mol2->GetTMatrix(mat, symop_no, shift_a, shift_b, shift_c);
+
+   clipper::Coord_orth origin_shift_orth(mat_origin_shift[0][3],
+					 mat_origin_shift[1][3],
+					 mat_origin_shift[2][3]);
+   clipper::RTop_orth to_origin_rtop(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1),
+				     origin_shift_orth);
+
+   clipper::RTop_orth rtop = rtop_frac.rtop_orth(cell);
+   for(int imod = 1; imod<=mol2->GetNumberOfModels(); imod++) {
+      CModel *model_p = mol2->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       at = residue_p->GetAtom(iat);
+	       clipper::Coord_orth co(at->x, at->y, at->z);
+	       co -= origin_shift_orth;
+	       clipper::Coord_orth to = co.transform(rtop);
+	       to += origin_shift_orth;
+// 	       std::cout << " atom from " 
+// 			 << at->x << " " << at->y << " " << at->z << " " 
+// 			 << " to " << to.format() << std::endl;
+	       at->x = to.x(); at->y = to.y(); at->z = to.z(); 
+	    }
+	 }
+      }
+   }
+   std::cout << "symmetry rtop_orth:\n" << rtop.format() << std::endl;
+   std::cout << "symmetry rtop_frac:\n" << rtop_frac.format() << std::endl;
+   
+   return mol2;
 } 
 
 

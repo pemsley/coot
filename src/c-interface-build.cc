@@ -3921,6 +3921,52 @@ void save_symmetry_coords(int imol,
    }
 }
 
+/*! \brief create a new molecule (molecule number is the return value)
+  from imol. 
+
+Allow a shift of the coordinates to the origin before symmetry
+expansion is apllied.
+
+Return -1 on failure. */ 
+int new_molecule_by_symmetry(int imol,
+			     double m11, double m12, double m13, 
+			     double m21, double m22, double m23, 
+			     double m31, double m32, double m33, 
+			     double tx, double ty, double tz,
+			     int pre_shift_to_origin_na,
+			     int pre_shift_to_origin_nb,
+			     int pre_shift_to_origin_nc) { 
+   int istate = -1;
+   if (is_valid_model_molecule(imol)) { 
+      std::pair<bool, clipper::Cell> cell_info = graphics_info_t::molecules[imol].cell();
+      if (cell_info.first) { 
+	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 std::vector<int> pre_shift;
+	 clipper::Mat33<double> mat(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+	 // clipper::Mat33<double> mat(m11, m21, m31, m12, m22, m32, m13, m23, m33);
+	 clipper::Vec3<double> vec(tx, ty, tz);
+	 clipper::RTop_frac rtop_frac(mat, vec);
+	 CMMDBManager *new_mol = coot::mol_by_symmetry(mol, cell_info.second, rtop_frac, pre_shift);
+	 int imol_new = graphics_info_t::create_molecule(); 
+	 atom_selection_container_t asc = make_asc(new_mol);
+	 std::string name = "Symmetry copy of ";
+	 name += coot::util::int_to_string(imol);
+	 graphics_info_t::molecules[imol_new].install_model(imol_new, asc, name, 1);
+	 update_go_to_atom_window_on_new_mol();
+	 graphics_draw();
+	 istate = imol_new;
+      } else { 
+	 std::cout << "WARNING:: molecule " << imol << " does not have a proper cell " 
+		   << std::endl;
+      }
+   } else { 
+	 std::cout << "WARNING:: molecule " << imol << " is not a valid model molecule " 
+		   << std::endl;
+   }
+   return istate; 
+} 
+
+
 
 
 

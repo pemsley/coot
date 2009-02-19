@@ -159,6 +159,11 @@ namespace coot {
 	 resno = res->GetSeqNum();
 	 insertion_code = res->GetInsCode();
       } 
+      residue_spec_t(const atom_spec_t &atom_spec) { 
+         chain = atom_spec.chain;
+         resno = atom_spec.resno;
+         insertion_code = atom_spec.insertion_code;
+      }
       // This one for coot_wrap_guile
       residue_spec_t() {
 	 resno = -9999;
@@ -371,6 +376,16 @@ namespace coot {
    // 
    std::pair<bool,float> closest_approach(CMMDBManager *mol,
 					  CResidue *r1, CResidue *r2);
+
+  // create a new molecule.  rtop_frac comes from the symmetry
+  // operator.  If pre_shift_abc is not of size 3 then don't apply it
+  // (if it is, do so, of course).
+  CMMDBManager *mol_by_symmetry(CMMDBManager *mol, 
+				clipper::Cell cell,
+				clipper::RTop_frac rtop_frac,
+				std::vector<int> pre_shift_abc);
+  
+
 
 
    // Fiddle with mol. 
@@ -608,6 +623,15 @@ namespace coot {
 	    return r;
 	 }
       };
+
+      class chain_id_residue_vec_helper_t { 
+      public: 
+	 std::vector<CResidue *> residues;
+	 std::string chain_id;
+	 void sort_residues();
+	 static bool residues_sort_func(CResidue *first, CResidue *second);
+	 bool operator<(const chain_id_residue_vec_helper_t &c) const;
+      };
 	 
       std::string single_letter_to_3_letter_code(char code);
 
@@ -708,6 +732,9 @@ namespace coot {
       // return the handle for the atom index transfer.
       std::pair<CMMDBManager *, int> create_mmdbmanager_from_mmdbmanager(CMMDBManager *);
 
+
+     std::pair<bool, CMMDBManager *>
+     create_mmdbmanager_from_residue_vector(const std::vector<CResidue *> &res_vec);
 
       // ignore atom index transfer, return NULL on error.
       CMMDBManager *create_mmdbmanager_from_residue(CMMDBManager *orig_mol,
