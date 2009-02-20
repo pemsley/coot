@@ -23,6 +23,8 @@ Pre-release 0.6
   o BUG-FIX: new atoms are added as HETATMs if appropriate [David Mathog].
 
   o BUG-FIX: NCS chain jumping now works on heterodimers [Jianghai Zhu].
+
+  o BUG-FIX: The Chain Reordering function in Extensions has been fixed.
  
 -----
 

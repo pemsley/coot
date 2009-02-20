@@ -4,6 +4,9 @@
      interface with molprobity dots. ::: 8
 
 
+   o Torsion general is broken? ::: 2
+
+
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
     make_link_restraints_by_linear() has
     if (do_rama_plot_restraints)
@@ -14,6 +17,14 @@
     need something like bonded_residues_from_res_vec(), but for
     residue triples - returning 3 residues.
     ::: 3
+
+
+   o (reorder-chains 0) -> 
+
+     bad atom (occ b element expression) 
+     object: (1.0 17.4099998474121 " C" "")
+     etc...
+     ::: 1
 
 
    o Add terminal residue has disconnected atoms.  Why? This is an
