@@ -777,7 +777,7 @@ class molecule_class_info_t {
    // sharpen the map:
    // uncommenting the following line causes a crash in the multi-molecule
    // (expand molecule space) test.
-   // clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
 
 
    // remove TER record from residue
