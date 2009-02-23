@@ -7721,6 +7721,7 @@ void sharpen(int imol, float b_factor) {
 
    if (is_valid_map_molecule(imol)) {
       graphics_info_t::molecules[imol].sharpen(b_factor);
+      graphics_draw();
    }
 }
 

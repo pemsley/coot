@@ -73,16 +73,71 @@ molecule_class_info_t::sharpen(float b_factor) {
    int n_data = 0;
    int n_tweaked = 0;
 
-//    clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis = original_fphis;
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis;
-   clipper::HKL_info::HKL_reference_index hri;   
-   for (hri = fphis.first(); !hri.last(); hri.next()) {
-      n_data++;
+   int n_count = 0;
 
-      std::cout << " " << hri.invresolsq() << std::endl;
+   std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
+	     << " original data " << std::endl;
 
-      fphis[hri].f() = 0.0;
-      n_tweaked++;
+   if (original_fphis.num_obs() > 0) { 
+      clipper::HKL_info::HKL_reference_index hri;
+      for (hri = original_fphis.first(); !hri.last(); hri.next()) {
+	 
+	 std::cout << "original_fphis: " << original_fphis[hri].f() << " "
+		   << hri.invresolsq() << std::endl;
+	 n_count++;
+	 if (n_count == 50)
+	    break;
+      } 
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis;
+      fphis.init(original_fphis.hkl_info(), original_fphis.cell());
+      fphis = original_fphis;
+   
+      n_count = 0;
+      for (hri = fphis.first(); !hri.last(); hri.next()) {
+	 std::cout << "new fphis: " << fphis[hri].f() << " "
+		   << hri.invresolsq() << std::endl;
+	 n_count++;
+	 if (n_count == 50)
+	    break;
+      }
+   
+      std::cout << "INFO:: sharpening " << original_fphis.num_obs() << " "
+		<< fphis.num_obs() << " data " << std::endl;
+   
+      for (hri = fphis.first(); !hri.last(); hri.next()) {
+	 n_data++;
+
+	 std::cout << " " << hri.invresolsq() << std::endl;
+
+	 float f = fphis[hri].f();
+	 if (! clipper::Util::is_nan(f)) {
+	    float irs =  hri.invresolsq();
+	    fphis[hri].f() *= exp(-b_factor * irs);
+	    n_tweaked++;
+	 } 
+      }
+
+      xmap_list[0].fft_from(fphis);
+      xmap_is_filled[0] = 1; 
+      update_map_in_display_control_widget();
+
+      mean_and_variance<float> mv = map_density_distribution(xmap_list[0], 0);
+      map_mean_  = mv.mean; 
+      map_sigma_ = sqrt(mv.variance);
+      map_max_   = mv.max_density;
+      map_min_   = mv.min_density;
+   
+      std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
+      std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
+      std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
+      std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+   
+      set_initial_contour_level();
+   
+      // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
+      // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str()); 
+   
+      update_map();
    }
 }
 
@@ -562,8 +617,28 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 // 	    ncount++;
 // 	 } 
 
-// 	 original_fphis = fphidata;
 
+	 original_fphis.init(fphidata.hkl_info(), fphidata.cell());
+	 original_fphis = fphidata;
+
+	 // debug
+	 if (1) { 
+	    int n_count = 0;
+	    clipper::HKL_info::HKL_reference_index hri;
+	    for (hri = original_fphis.first(); !hri.last(); hri.next()) {
+	       std::cout << "fill original_fphis: " << original_fphis[hri].f() << " "
+			 << hri.invresolsq() << std::endl;
+	       n_count++;
+	       if (n_count == 50)
+		  break;
+	    }
+	 }
+	 
+
+	 std::cout << "DEBUG:: saved " << original_fphis.num_obs()
+		   << " observations from "
+		   << fphidata.num_obs() << " MTZ data " << std::endl;
+   
 	 
 	 // cout << "doing fft..." << endl;
 	 xmap_list[0].fft_from( fphidata );                  // generate map
