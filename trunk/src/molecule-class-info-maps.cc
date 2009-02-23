@@ -622,7 +622,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 original_fphis = fphidata;
 
 	 // debug
-	 if (1) { 
+	 if (0) {
 	    int n_count = 0;
 	    clipper::HKL_info::HKL_reference_index hri;
 	    for (hri = original_fphis.first(); !hri.last(); hri.next()) {
