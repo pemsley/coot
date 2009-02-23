@@ -335,7 +335,7 @@ if (have_coot_python):
        submenu_models,
        "Reorder Chains...",
        lambda func: molecule_chooser_gui("Sort Chain IDs in molecule:",
-                                         lambda imol: reorder_chains(imol)))
+                                         lambda imol: sort_chains(imol)))
 
 
      add_simple_coot_menu_menuitem(
