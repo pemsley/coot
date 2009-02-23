@@ -1,6 +1,6 @@
 # unittest_extensions.py
-# Copyright 2007, 2008 by The University of York
-# Copyright 2008 by Bernhard Lohkamp
+# Copyright 2007, 2008, 2009 by The University of York
+# Copyright 2008, 2009 by Bernhard Lohkamp
 # Copyright 2007 by Paul Emsley
 # Copyright 2007 by The University of Oxford
 # 
@@ -88,9 +88,9 @@ if (have_coot_python):
 
         def run_test_set_gui():
             exec_file("begin.py")
-            print "BL DEBUG:: test list", test_list
-            for tmp in test_list:
-                print "BL DEBUG:: test str", str(tmp).split(".")[1].rstrip("\'>")
+            #print "BL DEBUG:: test list", test_list
+            #for tmp in test_list:
+            #    print "BL DEBUG:: test str", str(tmp).split(".")[1].rstrip("\'>")
 
             # make buttons list:
             buttons = []
@@ -113,8 +113,14 @@ if (have_coot_python):
 
             # make buttons list:
             buttons = []
+            prev_test_class = "PdbMtzTestFunction"
             for test in test_list:
-                buttons.append([test[1], "run_one_test(" + str(test_list.index(test)) + ")"])
+              if (not prev_test_class in test[2]):
+                # new set, let's introduce
+                #print "BL DEBUG:: test id of new set", test[2]
+                buttons.append(["HSep"])
+              buttons.append([test[1], "run_one_test(" + str(test_list.index(test)) + ")"])
+              prev_test_class = test[2].split(".")[1]
             
             dialog_box_of_buttons("Coot Unittests", [400, 500], buttons,
                                   "  Close  ")

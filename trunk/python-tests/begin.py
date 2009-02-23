@@ -237,7 +237,7 @@ for test in test_list:
 def list_of_all_tests():
     ret =[]
     for test in suite:
-        ret.append([test, test.shortDescription()])
+        ret.append([test, test.shortDescription(), test.id()])
     return ret
     
 global unittest_output

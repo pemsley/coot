@@ -1850,25 +1850,29 @@ def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
    
    for button_info in buttons:
       button_label = button_info[0]
-      callback = button_info[1]
-      if len(button_info)==2:
-         description = False
+      if ((button_label == "HSep") and (len(button_info) == 1)):
+         # insert a HSeparator rather than a button
+         button = gtk.HSeparator()
       else:
-         description = button_info[2]
-      button = gtk.Button(button_label)
+         callback = button_info[1]
+         if (len(button_info) == 2):
+            description = False
+         else:
+            description = button_info[2]
+         button = gtk.Button(button_label)
 
-      # BL says:: in python we should pass the callback as a string
-      if type(callback) is StringType:
-         def callback_func(button, call):
-            eval(call)
-         button.connect("clicked", callback_func, callback)
-      elif (type(callback) is ListType):
-         def callback_func(button, call):
-            for item in call:
-               eval(item)
-         button.connect("clicked", callback_func, callback)                   
-      else:
-         button.connect("clicked", callback)
+         # BL says:: in python we should pass the callback as a string
+         if type(callback) is StringType:
+            def callback_func(button, call):
+               eval(call)
+            button.connect("clicked", callback_func, callback)
+         elif (type(callback) is ListType):
+            def callback_func(button, call):
+               for item in call:
+                  eval(item)
+            button.connect("clicked", callback_func, callback)                   
+         else:
+            button.connect("clicked", callback)
 
       inside_vbox.pack_start(button, False, False, 2)
 

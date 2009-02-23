@@ -1,15 +1,11 @@
  -*-text-*-
 
-scripts rev 1855
+scripts rev 1905
 tests   rev 1860
 
 ---------------
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
-
-   o fix pass-build/pass-test (with guile build) and include progress status
-
-   o separate test sets when running one test set
 
    o WinCoot:
 	- update to python 2.6 (now with pygtk etc)
@@ -24,8 +20,6 @@ tests   rev 1860
 22/12/08
    o fat bonds remain after ball-n-stick from additional repr (TS)
 * dont understand (seems ok to me)
-
-   o 17/12/08: set difference map doesnt do 'nice' default difference map colours [Jodie Guy]
 
    o notes to self:
      - ribbons: include ribbons
@@ -184,6 +178,18 @@ tests   rev 1860
 * Done
 
    o test and implement user defined func python
+
+* Done
+
+   o fix pass-build/pass-test (with guile build) and include progress status
+
+* Done
+
+   o separate test sets when running one test set
+
+* Done
+
+   o 17/12/08: set difference map doesnt do 'nice' default difference map colours [Jodie Guy]
 
 * Done
 

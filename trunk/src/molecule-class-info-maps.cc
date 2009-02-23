@@ -2471,6 +2471,18 @@ molecule_class_info_t::set_map_is_difference_map() {
 
    if (has_map()) { 
       xmap_is_diff_map[0] = 1;
+      // we should update the contour level...
+      set_initial_contour_level();
+      // and set the right colors
+      if (graphics_info_t::swap_difference_map_colours != 1) { 
+	map_colour[0][0] = 0.2; 
+	map_colour[0][1] = 0.6; 
+	map_colour[0][2] = 0.2;
+      } else { 
+	map_colour[0][0] = 0.6; 
+	map_colour[0][1] = 0.2; 
+	map_colour[0][2] = 0.2; 
+      } 
       update_map();
    }
 }
