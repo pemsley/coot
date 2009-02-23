@@ -103,15 +103,22 @@ molecule_class_info_t::sharpen(float b_factor) {
    
       std::cout << "INFO:: sharpening " << original_fphis.num_obs() << " "
 		<< fphis.num_obs() << " data " << std::endl;
-   
+
+      n_count = 0; 
       for (hri = fphis.first(); !hri.last(); hri.next()) {
 	 n_data++;
 
-	 std::cout << " " << hri.invresolsq() << std::endl;
+	 // std::cout << " " << hri.invresolsq() << std::endl;
 
 	 float f = fphis[hri].f();
 	 if (! clipper::Util::is_nan(f)) {
 	    float irs =  hri.invresolsq();
+	    if (n_count < 50) {
+	       n_count++;
+	       std::cout << hri.hkl().format() << " scale factor: e(-" << b_factor
+			 << "*" << irs << ") = " << exp(-b_factor * irs)
+			 << std::endl;
+	    }
 	    fphis[hri].f() *= exp(-b_factor * irs);
 	    n_tweaked++;
 	 } 
@@ -695,8 +702,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
 	 // save state strings
 
-	 //
-  
+
 	 if (have_sensible_refmac_params) { 
 	    save_state_command_strings_.push_back("make-and-draw-map-with-refmac-params");
 	    save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
@@ -934,8 +940,9 @@ molecule_class_info_t::set_initial_contour_level() {
 	 level = graphics_info_t::default_sigma_level_for_map * map_sigma_;
       }
    }
-   contour_level[0] = level;
 
+   // std::cout << "debug:: contour level set to " << level << std::endl;
+   contour_level[0] = level;
 }
 
 
