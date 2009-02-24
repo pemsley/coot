@@ -325,6 +325,24 @@
 	   (place-strand-here-gui)))
 
 	(let ((submenu (gtk-menu-new))
+	      (menuitem2 (gtk-menu-item-new-with-label "Find Secondary Structure...")))
+
+	  (gtk-menu-item-set-submenu menuitem2 submenu)
+	  (gtk-menu-append submenu-models menuitem2)
+	  (gtk-widget-show menuitem2)
+
+	  (add-simple-coot-menu-menuitem
+	   submenu "Find Helices"
+	   (lambda ()
+	     (find-helices)))
+	  
+	  (add-simple-coot-menu-menuitem
+	   submenu "Find Strands"
+	   (lambda ()
+	     (find-strands))))
+
+
+	(let ((submenu (gtk-menu-new))
 	      (menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
 	  
 	  (gtk-menu-item-set-submenu menuitem2 submenu)

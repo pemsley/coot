@@ -345,6 +345,25 @@ if (have_coot_python):
 
 
      submenu = gtk.Menu()
+     menuitem2 = gtk.MenuItem("Find Secondary Structure...")
+
+     menuitem2.set_submenu(submenu)
+     submenu_models.append(menuitem2)
+     menuitem2.show()
+     
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Find Helices", 
+       lambda func: find_helices())
+
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Find Strands", 
+       lambda func: find_strands())
+
+
+     # NOTE:: this is (currently) in the main menu?! shall it?
+     submenu = gtk.Menu()
      menuitem2 = gtk.MenuItem("Dock Sequence...")
 
      menuitem2.set_submenu(submenu)
@@ -819,7 +838,7 @@ if (have_coot_python):
      menuitem2 = gtk.MenuItem("Views")
  
      menuitem2.set_submenu(submenu)
-     submenu_representation.append(menuitem2)
+     menu.append(menuitem2)
      menuitem2.show()
 
      add_simple_coot_menu_menuitem(
