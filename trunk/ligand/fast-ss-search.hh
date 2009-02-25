@@ -37,7 +37,8 @@ namespace coot {
      Suitable for interactive secondary structure searches. */
    class SSfind {
    public:
-     enum SSTYPE { ALPHA2, ALPHA3, ALPHA4, BETA2, BETA3, BETA4 };
+     enum SSTYPE { ALPHA2, ALPHA3, ALPHA4, ALPHA3S,
+		   BETA2,  BETA3,  BETA4,  BETA3S  };
      typedef std::pair<clipper::Coord_orth,clipper::Coord_orth> Pair_coord;
 
      class Target {
@@ -71,7 +72,7 @@ namespace coot {
      static std::vector<std::vector<clipper::Coord_orth> > join( std::vector<std::vector<clipper::Coord_orth> > frags, int extn=0 );
      void operator()( const clipper::Xmap<float>& xmap,
 		      const clipper::Coord_orth& centre,
-		      double radius, int num_residues, SSTYPE type );
+		      double radius, std::vector<SSfind::Target> targets );
      minimol::molecule mol;
      bool success;
    };

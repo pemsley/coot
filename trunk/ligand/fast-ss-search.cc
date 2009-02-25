@@ -58,6 +58,9 @@ SSfind::Target::Target( SSfind::SSTYPE type, int num_residues )
 			{ { 0.87, 0.00, 1.23}, {-1.00, 2.00, 0.25} } };
   float ta4[][2][3] = { { { 0.00, 0.00, 0.00}, { 0.75,-2.75, 0.00} },
 			{ { 0.87, 0.00, 1.23}, { 1.25,-2.75, 0.00} } };
+  float ta3s[][2][3]= { { { 0.00, 0.00, 0.00}, { 3.00, 0.00, 0.00} },
+			{ { 0.87, 0.00, 1.23}, {-1.00, 2.00, 0.25} },
+			{ { 0.85, 0.45,-0.70}, { 1.50, 2.00 ,1.50} } };
   float tb2[][2][3] = { { { 0.00, 0.00, 0.00}, {-1.00, 0.00,-1.75} },
 			{ { 0.87, 0.00, 1.23}, { 2.00, 1.25, 0.50} },
 			{ { 0.83, 0.00,-1.18}, { 1.75,-1.50,-0.25} } };
@@ -65,6 +68,9 @@ SSfind::Target::Target( SSfind::SSTYPE type, int num_residues )
 			{ { 0.87, 0.00, 1.23}, { 3.00, 0.50,-0.25} } };
   float tb4[][2][3] = { { { 0.00, 0.00, 0.00}, { 3.25, 0.50,-0.25} },
 			{ { 0.87, 0.00, 1.23}, { 3.25, 0.25, 0.00} } };
+  float tb3s[][2][3]= { { { 0.00, 0.00, 0.00}, { 2.00, 2.00,-0.25} },
+			{ { 0.87, 0.00, 1.23}, { 3.00, 0.50,-0.25} },
+			{ { 0.35, 0.45,-1.10}, { 0.75,-2.75, 0.50} } };
   typedef std::pair<clipper::Coord_orth,clipper::Coord_orth> Pair_coord;
   std::vector<Pair_coord> rep_co, all_co;
   double phi0, psi0;
@@ -86,6 +92,12 @@ SSfind::Target::Target( SSfind::SSTYPE type, int num_residues )
         clipper::Coord_orth(ta4[i][0][0],ta4[i][0][1],ta4[i][0][2]),
 	clipper::Coord_orth(ta4[i][1][0],ta4[i][1][1],ta4[i][1][2]) ) );
     phi0 = clipper::Util::d2rad(-58.0); psi0 = clipper::Util::d2rad(-47.0);
+  } else if ( type == ALPHA3S ) {
+    for ( int i = 0; i < sizeof(ta3s)/sizeof(ta3s[0]); i++ )  // repr coords
+      rep_co.push_back( Pair_coord(
+        clipper::Coord_orth(ta3s[i][0][0],ta3s[i][0][1],ta3s[i][0][2]),
+	clipper::Coord_orth(ta3s[i][1][0],ta3s[i][1][1],ta3s[i][1][2]) ) );
+    phi0 = clipper::Util::d2rad(-58.0); psi0 = clipper::Util::d2rad(-47.0);
   } else if ( type == BETA2 ) {
     for ( int i = 0; i < sizeof(tb2)/sizeof(tb2[0]); i++ )  // repr coords
       rep_co.push_back( Pair_coord(
@@ -103,6 +115,12 @@ SSfind::Target::Target( SSfind::SSTYPE type, int num_residues )
       rep_co.push_back( Pair_coord(
         clipper::Coord_orth(tb4[i][0][0],tb4[i][0][1],tb4[i][0][2]),
 	clipper::Coord_orth(tb4[i][1][0],tb4[i][1][1],tb4[i][1][2]) ) );
+    phi0 = clipper::Util::d2rad(-120.0); psi0 = clipper::Util::d2rad(120.0);
+  } else if ( type == BETA3S ) {
+    for ( int i = 0; i < sizeof(tb3s)/sizeof(tb3s[0]); i++ )  // repr coords
+      rep_co.push_back( Pair_coord(
+        clipper::Coord_orth(tb3s[i][0][0],tb3s[i][0][1],tb3s[i][0][2]),
+	clipper::Coord_orth(tb3s[i][1][0],tb3s[i][1][1],tb3s[i][1][2]) ) );
     phi0 = clipper::Util::d2rad(-120.0); psi0 = clipper::Util::d2rad(120.0);
   } else {
     for ( int i = 0; i < sizeof(ta3)/sizeof(ta3[0]); i++ )  // repr coords
@@ -388,7 +406,7 @@ std::vector<std::vector<clipper::Coord_orth> > fast_secondary_structure_search::
 }
 
 
-void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xmap, const clipper::Coord_orth& centre, double radius, int num_residues, SSTYPE type )
+void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xmap, const clipper::Coord_orth& centre, double radius, std::vector<SSfind::Target> targets )
 {
   typedef clipper::Xmap<float>::Map_reference_index MRI;
   const clipper::Spacegroup& spgr    = xmap.spacegroup();
@@ -421,17 +439,16 @@ void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xm
       }
   }
 
-  // make a target model and representative coordinates
-  Target target( type, num_residues );
-
-  // get map radius
-  const std::vector<Pair_coord>& target_cs = target.target_coords();
+  // get model radius from targets
   double r2( 0.0 ), d2( 0.0 );
-  for ( int i = 0; i < target_cs.size(); i++ ) {
-    d2 = target_cs[i].first.lengthsq();
-    if ( d2 > r2 ) r2 = d2;
-    d2 = target_cs[i].second.lengthsq();
-    if ( d2 > r2 ) r2 = d2;
+  for ( int t = 0; t < targets.size(); t++ ) {
+    const std::vector<Pair_coord>& target_cs = targets[t].target_coords();
+    for ( int i = 0; i < target_cs.size(); i++ ) {
+      d2 = target_cs[i].first.lengthsq();
+      if ( d2 > r2 ) r2 = d2;
+      d2 = target_cs[i].second.lengthsq();
+      if ( d2 > r2 ) r2 = d2;
+    }
   }
   double rad = sqrt( r2 ) + 1.0;
 
@@ -445,59 +462,68 @@ void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xm
   // make a list of results
   prep_search( xmap, sigcut, radius, centre );
 
-  // find ss elements
-  std::vector<SearchResult> rslts = search( target_cs, rots, sigcut, 0.4 );
+  // loop over targets and find:
+  std::vector<std::vector<clipper::Coord_orth> > sscoord;
+  for ( int t = 0; t < targets.size(); t++ ) {
+    const std::vector<Pair_coord>& target_cs = targets[t].target_coords();
+    const std::vector<clipper::Coord_orth>& calpha_cs = targets[t].calpha_coords();
 
-  // filter
-  std::vector<SearchResult> rsltf;
-  for ( int i = 0; i < rslts.size(); i++ )
-    if ( rslts[i].rot >= 0 && rslts[i].trn >= 0 ) rsltf.push_back( rslts[i] );
+    // find ss elements
+    std::vector<SearchResult> rslts = search( target_cs, rots, sigcut, 0.4 );
 
-  // sort
-  std::sort( rsltf.begin(), rsltf.end() );
-  std::reverse( rsltf.begin(), rsltf.end() );
+    // filter
+    std::vector<SearchResult> rsltf;
+    for ( int i = 0; i < rslts.size(); i++ )
+      if ( rslts[i].rot>=0 && rslts[i].trn>=0 ) rsltf.push_back( rslts[i] );
 
-  // build result list
-  std::vector<clipper::RTop_orth> rtops;
-  for ( int i = 0; i < rsltf.size(); i++ ) {
-    int ir = rsltf[i].rot;
-    int it = rsltf[i].trn;
-    clipper::RTop_orth rtop( rots[ir].rot(),
-			     xmap.coord_orth(grid.deindex(it).coord_map()) );
-    rtops.push_back( rtop );
-  }
+    // sort
+    std::sort( rsltf.begin(), rsltf.end() );
+    std::reverse( rsltf.begin(), rsltf.end() );
 
-  // now do some magic to get the chains near the given centre
-  clipper::Coord_frac cf = centre.coord_frac( cell );
-  for ( int i = 0; i < rtops.size(); i++ ) {
-    clipper::RTop_frac rtof = rtops[i].rtop_frac( cell );
-    int smin = 0;
-    double d2min = 1.0e12;
-    for ( int s = 0; s < spgr.num_symops(); s++ ) {
-      clipper::Coord_frac cfs( spgr.symop(s) * rtof.trn() );
-      cfs = cfs.lattice_copy_near( cf ) - cf;
-      double d2 = cfs.lengthsq( cell );
-      if ( d2 < d2min ) { smin  = s; d2min = d2; }
+    // build result list
+    std::vector<clipper::RTop_orth> rtops;
+    for ( int i = 0; i < rsltf.size(); i++ ) {
+      int ir = rsltf[i].rot;
+      int it = rsltf[i].trn;
+      clipper::RTop_orth rtop( rots[ir].rot(),
+			       xmap.coord_orth(grid.deindex(it).coord_map()) );
+      rtops.push_back( rtop );
     }
-    rtof = clipper::RTop_frac( spgr.symop(smin) * rtof );
-    clipper::Coord_frac df( rtof.trn() );
-    df = df.lattice_copy_near( cf ) - df;
-    rtof = clipper::RTop_frac( rtof.rot(), rtof.trn() + df );
-    rtops[i] = rtof.rtop_orth( cell );
-  }
 
-  // build the results
-  const std::vector<clipper::Coord_orth>& calpha_cs = target.calpha_coords();
-  std::vector<clipper::Coord_orth> ss( calpha_cs.size() );
-  std::vector<std::vector<clipper::Coord_orth> > result( rtops.size() );
-  for ( int i = 0; i < rtops.size(); i++ ) {
-    for ( int r = 0; r < ss.size(); r++ )
-      ss[r] = rtops[i] * calpha_cs[r];
-    result[i] = ss;
-  }
+    // now do some magic to get the chains near the given centre
+    clipper::Coord_frac cf = centre.coord_frac( cell );
+    for ( int i = 0; i < rtops.size(); i++ ) {
+      clipper::RTop_frac rtof = rtops[i].rtop_frac( cell );
+      int smin = 0;
+      double d2min = 1.0e12;
+      for ( int s = 0; s < spgr.num_symops(); s++ ) {
+	clipper::Coord_frac cfs( spgr.symop(s) * rtof.trn() );
+	cfs = cfs.lattice_copy_near( cf ) - cf;
+	double d2 = cfs.lengthsq( cell );
+	if ( d2 < d2min ) { smin  = s; d2min = d2; }
+      }
+      rtof = clipper::RTop_frac( spgr.symop(smin) * rtof );
+      clipper::Coord_frac df( rtof.trn() );
+      df = df.lattice_copy_near( cf ) - df;
+      rtof = clipper::RTop_frac( rtof.rot(), rtof.trn() + df );
+      rtops[i] = rtof.rtop_orth( cell );
+    }
 
-  // join fragments
-  std::vector<std::vector<clipper::Coord_orth> > sscoord = join( result, 1 );
+    // build the results
+    std::vector<clipper::Coord_orth> ss( calpha_cs.size() );
+    std::vector<std::vector<clipper::Coord_orth> > result( rtops.size() );
+    for ( int i = 0; i < rtops.size(); i++ ) {
+      for ( int r = 0; r < ss.size(); r++ )
+	ss[r] = rtops[i] * calpha_cs[r];
+      result[i] = ss;
+    }
+
+    // join fragments
+    std::vector<std::vector<clipper::Coord_orth> > ssj = join( result, 1 );
+
+    // and add to final model
+    for ( int i = 0; i < ssj.size(); i++ ) sscoord.push_back( ssj[i] );
+  }
 
   // NOW PREPARE THE MODEL FOR COOT
   float acell[6];
