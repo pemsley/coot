@@ -4742,6 +4742,27 @@ int find_helices();
    @return the index of the new molecule.*/
 int find_strands();
 
+/*! \brief autobuild secondary structure
+
+   Find secondary structure in the current map.
+   Add to a molecule called "SecStruc", create it if needed.
+
+   @return the index of the new molecule.*/
+int find_secondary_structure(
+    short int use_helix,  int helix_length,  int helix_target,
+    short int use_strand, int strand_length, int strand_target );
+
+/*! \brief autobuild secondary structure
+
+   Find secondary structure local to current view in the current map.
+   Add to a molecule called "SecStruc", create it if needed.
+
+   @return the index of the new molecule.*/
+int find_secondary_structure_local(
+    short int use_helix,  int helix_length,  int helix_target,
+    short int use_strand, int strand_length, int strand_target,
+    float radius );
+
 /* \} */
 
 

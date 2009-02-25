@@ -4496,44 +4496,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
    Add to a molecule called "Helices", create it if
    needed. */
 int find_helices() {
-   graphics_info_t g;
-   clipper::Coord_orth pt(g.RotationCentre_x(),
-			  g.RotationCentre_y(),
-			  g.RotationCentre_z());
-   int imol_map = g.Imol_Refinement_Map();
-   if (imol_map != -1) {
-      int imol = -1;
-      coot::fast_secondary_structure_search ssfind;
-      ssfind( graphics_info_t::molecules[imol_map].xmap_list[0], pt,
-	      0.0, 7, coot::fast_secondary_structure_search::ALPHA3 );
-      if (ssfind.success) {
-	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager());
-	 imol = g.create_molecule();
-	 graphics_info_t::molecules[imol].install_model(imol,asc,"Helices",1);
-	 g.molecules[imol].ca_representation();
-	 if (g.go_to_atom_window) {
-	    g.set_go_to_atom_molecule(imol);
-	    g.update_go_to_atom_window_on_new_mol();
-	 } else {
-	    g.set_go_to_atom_molecule(imol);
-	 }
-	 g.statusbar_text("Helices added");
-      } else {
-	 std::cout << "No secondary structure found\n";
-	 g.statusbar_text("No secondary structure found" );
-      }
-      std::vector<std::string> command_strings;
-      command_strings.resize(0);
-      command_strings.push_back("find-helices");
-      add_to_history(command_strings);
-      graphics_draw();
-      return imol;
-   } else {
-      std::cout << " You need to set the map to fit against\n";
-      g.statusbar_text("You need to set the map to fit against");
-      g.show_select_map_dialog();
-      return -1;
-   }
+  return find_secondary_structure_local( 1, 7, 0, 0, 0, 0, 0.0 );
 } 
 
 
@@ -4544,20 +4507,61 @@ int find_helices() {
    Add to a molecule called "Strands", create it if
    needed. */
 int find_strands() {
+  return find_secondary_structure_local( 0, 0, 0, 1, 7, 0, 0.0 );
+}
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  Autofind Secondary Structure                            */
+/*  ----------------------------------------------------------------------- */
+/* Find secondary structure in the current map.
+   Add to a molecule called "SecStruc", create it if
+   needed. */
+int find_secondary_structure(
+    short int use_helix,  int helix_length,  int helix_target,
+    short int use_strand, int strand_length, int strand_target )
+{
+  return find_secondary_structure_local(
+      use_helix,  helix_length,  helix_target,
+      use_strand, strand_length, strand_target,
+      0.0 );
+}
+
+/*  ----------------------------------------------------------------------- */
+/*                  Autofind Secondary Structure                            */
+/*  ----------------------------------------------------------------------- */
+/* Find secondary structure in the current map.
+   Add to a molecule called "SecStruc", create it if
+   needed. */
+int find_secondary_structure_local(
+    short int use_helix,  int helix_length,  int helix_target,
+    short int use_strand, int strand_length, int strand_target,
+    float radius )
+{
    graphics_info_t g;
    clipper::Coord_orth pt(g.RotationCentre_x(),
 			  g.RotationCentre_y(),
 			  g.RotationCentre_z());
    int imol_map = g.Imol_Refinement_Map();
    if (imol_map != -1) {
+      using coot::SSfind;
+      coot::SSfind::SSTYPE ta[] = { SSfind::ALPHA3, SSfind::ALPHA3S,
+				    SSfind::ALPHA2, SSfind::ALPHA4 };
+      coot::SSfind::SSTYPE tb[] = { SSfind::BETA3,  SSfind::BETA3S,
+				    SSfind::BETA2,  SSfind::BETA4  };
       int imol = -1;
+      std::vector<SSfind::Target> tgtvec;
+      if ( use_helix )
+	tgtvec.push_back( SSfind::Target(ta[helix_target %4],helix_length ) );
+      if ( use_strand )
+	tgtvec.push_back( SSfind::Target(tb[strand_target%4],strand_length) );
       coot::fast_secondary_structure_search ssfind;
       ssfind( graphics_info_t::molecules[imol_map].xmap_list[0], pt,
-	      0.0, 7, coot::fast_secondary_structure_search::BETA3 );
+	      0.0, tgtvec );
       if (ssfind.success) {
 	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager());
 	 imol = g.create_molecule();
-	 graphics_info_t::molecules[imol].install_model(imol,asc,"Strands",1);
+	 graphics_info_t::molecules[imol].install_model(imol,asc,"SecStruc",1);
 	 g.molecules[imol].ca_representation();
 	 if (g.go_to_atom_window) {
 	    g.set_go_to_atom_molecule(imol);
@@ -4565,14 +4569,14 @@ int find_strands() {
 	 } else {
 	    g.set_go_to_atom_molecule(imol);
 	 }
-	 g.statusbar_text("Strands added");
+	 g.statusbar_text("Secondary structure added");
       } else {
 	 std::cout << "No secondary structure found\n";
 	 g.statusbar_text("No secondary structure found" );
       }
       std::vector<std::string> command_strings;
       command_strings.resize(0);
-      command_strings.push_back("find-strands");
+      command_strings.push_back("find-secondary-structure");
       add_to_history(command_strings);
       graphics_draw();
       return imol;
