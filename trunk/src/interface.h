@@ -169,6 +169,7 @@ GtkWidget* create_run_refmac_file_help_dialog(void);
 GtkWidget* create_run_refmac_sad_help_dialog(void);
 GtkWidget* create_run_refmac_mtz_filechooserdialog(void);
 GtkWidget* create_coot_references_dialog(void);
+GtkWidget* create_fast_ss_search_dialog(void);
 #endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS

@@ -19,10 +19,10 @@
  */
 
 
+#include "graphics-info.h"
 #include <gtk/gtk.h>
 #include "c-interface.h"
 #include "mmdb_manager.h"
-#include "graphics-info.h"
 
 /*  ----------------------------------------------------------------------- */
 /*                  PISA Interface                                      */

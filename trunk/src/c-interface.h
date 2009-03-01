@@ -436,7 +436,7 @@ void run_clear_backups_py(int retval);
 
 void fill_about_window(GtkWidget *widget);
 void add_coot_references_button(GtkWidget *widget);
-void wrapped_create_coot_references_dialog();
+GtkWidget *wrapped_create_coot_references_dialog();
 #ifdef COOT_USE_GTK2_INTERFACE
 void fill_references_notebook(GtkToolButton *toolbutton, int reference_id);
 #endif
@@ -795,6 +795,8 @@ void post_other_modelling_tools_dialog();
 void set_refinement_move_atoms_with_zero_occupancy(int state);
 /*! \brief return the state of "shall atoms with zero occupancy be moved when refining?" */
 int refinement_move_atoms_with_zero_occupancy_state();
+
+GtkWidget *wrapped_create_fast_ss_search_dialog();
 
 /*! \} */
 

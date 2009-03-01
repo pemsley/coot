@@ -1994,3 +1994,38 @@ create_skeleton_colour_selection_window() {
 
 }
 
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+/*                               fast secondary structure search            */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+GtkWidget *
+wrapped_create_fast_ss_search_dialog() {
+
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *dialog;
+  GtkWidget *helix_temp_combobox;
+  GtkWidget *strand_temp_combobox;
+  GtkWidget *helix_noaa_combobox;
+  GtkWidget *strand_noaa_combobox;
+  GtkWidget *radius_combobox;
+
+  dialog = create_fast_ss_search_dialog();
+
+  helix_temp_combobox = lookup_widget(dialog, "fast_sss_dialog_helix_template_combobox");
+  helix_noaa_combobox = lookup_widget(dialog, "fast_sss_dialog_helix_no_aa_combobox");
+  strand_temp_combobox = lookup_widget(dialog, "fast_sss_dialog_strand_template_combobox");
+  strand_noaa_combobox = lookup_widget(dialog, "fast_sss_dialog_strand_no_aa_combobox");
+  radius_combobox = lookup_widget(dialog, "fast_sss_dialog_radius_combobox");
+
+  // fill the comboboxes (done automatically, set the active ones)
+  gtk_combo_box_set_active(GTK_COMBO_BOX(helix_temp_combobox), 0);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(helix_noaa_combobox), 1);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(strand_temp_combobox), 1);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(strand_noaa_combobox), 0);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(radius_combobox),1);
+
+  return dialog;
+#endif // GTK_MAJOR_VERSION
+}

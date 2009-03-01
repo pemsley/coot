@@ -760,6 +760,16 @@ on_find_waters_cancel_button_clicked   (GtkButton       *button,
                                         gpointer         user_data);
 
 void
+on_fast_sss_dialog_cancel_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
+                                        gpointer         user_data);
+
+
+void
 on_environment_distances1_activate     (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
@@ -3995,6 +4005,16 @@ on_run_refmac_nolabels_help_dialog_ok_button_clicked
 
 void
 on_model_refine_dialog_fix_atoms_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_model_refine_dialog_fast_sss_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_fast_sss_dialog_citation_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 
