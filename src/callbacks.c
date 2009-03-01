@@ -2503,6 +2503,100 @@ on_find_waters_cancel_button_clicked   (GtkButton       *button,
 
 
 void
+on_fast_sss_dialog_cancel_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *widget;
+  widget = lookup_widget(GTK_WIDGET(button), "fast_ss_search_dialog");
+  gtk_widget_destroy(widget);
+
+}
+
+
+void
+on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
+                                        gpointer         user_data)
+{
+#if (GTK_MAJOR_VERION > 1)
+  GtkWidget *dialog;
+  GtkWidget *helix_checkbutton;
+  GtkWidget *helix_temp_combobox;
+  GtkWidget *helix_noaa_combobox;
+  GtkWidget *strand_checkbutton;
+  GtkWidget *strand_temp_combobox;
+  GtkWidget *strand_noaa_combobox;
+  GtkWidget *radius_checkbutton;
+  GtkWidget *radius_combobox;
+  int use_helix  = 0;
+  int helix_target;
+  int helix_length;
+  int use_strand = 0;
+  int strand_target;
+  int strand_length;
+  float radius = 0.;
+
+  dialog = lookup_widget(GTK_WIDGET(button), "fast_ss_search_dialog");
+
+  helix_checkbutton   = lookup_widget(dialog, "fast_sss_dialog_helix_checkbutton");
+  helix_temp_combobox = lookup_widget(dialog, "fast_sss_dialog_helix_template_combobox");
+  helix_noaa_combobox = lookup_widget(dialog, "fast_sss_dialog_helix_no_aa_combobox");
+  strand_checkbutton   = lookup_widget(dialog, "fast_sss_dialog_helix_checkbutton");
+  strand_temp_combobox = lookup_widget(dialog, "fast_sss_dialog_strand_template_combobox");
+  strand_noaa_combobox = lookup_widget(dialog, "fast_sss_dialog_strand_no_aa_combobox");
+  radius_checkbutton   = lookup_widget(dialog, "fast_sss_dialog_local_checkbutton");
+  radius_combobox = lookup_widget(dialog, "fast_sss_dialog_radius_combobox");
+
+  if (GTK_TOGGLE_BUTTON(helix_checkbutton)->active) {
+    use_helix = 1;
+  }
+  helix_length = gtk_combo_box_get_active(GTK_COMBO_BOX(helix_noaa_combobox)) *2 + 5;
+  helix_target = gtk_combo_box_get_active(GTK_COMBO_BOX(helix_temp_combobox));
+
+  if (GTK_TOGGLE_BUTTON(strand_checkbutton)->active) {
+    use_strand = 1;
+  }
+  strand_length = gtk_combo_box_get_active(GTK_COMBO_BOX(strand_noaa_combobox)) *2 + 5;
+  strand_target = gtk_combo_box_get_active(GTK_COMBO_BOX(strand_temp_combobox));
+
+  if (GTK_TOGGLE_BUTTON(radius_checkbutton)->active) {
+    radius = (gtk_combo_box_get_active(GTK_COMBO_BOX(radius_combobox)) + 1. ) * 10.;
+  }
+
+
+  g_print("BL DEBUG:: run fast secondary structure search with params:\n");
+  g_print("BL DEBUG:: helix: %i %i %i\n", use_helix, helix_length, helix_target);
+  g_print("BL DEBUG:: strand: %i %i %i\n", use_strand, strand_length, strand_target);
+  g_print("BL DEBUG:: radius: %f \n", radius);
+
+  find_secondary_structure_local(use_helix, helix_length, helix_target,
+				 use_strand, strand_length, strand_target,
+				 radius);
+
+  gtk_widget_destroy(dialog);
+#endif /* GTK_MAJOR_VERSION */
+}
+
+
+void
+on_fast_sss_dialog_citation_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *dialog;
+  GtkWidget *toolbutton;
+  dialog = wrapped_create_coot_references_dialog();
+  toolbutton = lookup_widget(dialog, "coot_references_buccaneer_toolbutton");
+  fill_references_notebook(GTK_TOOL_BUTTON(toolbutton), COOT_REFERENCE_BUCCANEER);
+#else
+  g_print("BL DEBUG:: sorry not in GTK+ 1.2\n");
+#endif /* GTK_MAJOR_VERSION */
+
+}
+
+
+void
 on_environment_distances1_activate     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
@@ -11070,6 +11164,18 @@ on_model_refine_dialog_fix_atoms_button_clicked
 {
   GtkWidget *w = wrapped_create_fixed_atom_dialog();
   gtk_widget_show(w);
+}
+
+
+void
+on_model_refine_dialog_fast_sss_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *dialog;
+  dialog = wrapped_create_fast_ss_search_dialog();
+  gtk_widget_show(dialog);
+
 }
 
 

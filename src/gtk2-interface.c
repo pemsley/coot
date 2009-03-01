@@ -21172,6 +21172,10 @@ create_other_model_tools_dialog (void)
   GtkWidget *image6803;
   GtkWidget *label693;
   GtkWidget *model_refine_dialog_find_ligands_button;
+  GtkWidget *model_refine_dialog_fast_sss_button;
+  GtkWidget *hbox395;
+  GtkWidget *image6810;
+  GtkWidget *label722;
   GtkWidget *cis_trans_conversion_toggle_button;
   GtkWidget *model_refine_dialog_baton_button;
   GtkWidget *model_refine_dialog_db_main_togglebutton;
@@ -21229,6 +21233,24 @@ create_other_model_tools_dialog (void)
   gtk_widget_show (model_refine_dialog_find_ligands_button);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_find_ligands_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_find_ligands_button), 1);
+
+  model_refine_dialog_fast_sss_button = gtk_button_new ();
+  gtk_widget_show (model_refine_dialog_fast_sss_button);
+  gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_fast_sss_button, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_fast_sss_button), 1);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_fast_sss_button, _("Quickly find secondary structure elements..."), NULL);
+
+  hbox395 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox395);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_fast_sss_button), hbox395);
+
+  image6810 = create_pixmap (other_model_tools_dialog, "secondary-structure.svg");
+  gtk_widget_show (image6810);
+  gtk_box_pack_start (GTK_BOX (hbox395), image6810, FALSE, FALSE, 0);
+
+  label722 = gtk_label_new_with_mnemonic (_("Find Secondary Structure..."));
+  gtk_widget_show (label722);
+  gtk_box_pack_start (GTK_BOX (hbox395), label722, TRUE, TRUE, 0);
 
   cis_trans_conversion_toggle_button = gtk_toggle_button_new_with_mnemonic (_("   Cis <-> Trans   "));
   gtk_widget_show (cis_trans_conversion_toggle_button);
@@ -21313,6 +21335,9 @@ create_other_model_tools_dialog (void)
   g_signal_connect ((gpointer) model_refine_dialog_find_ligands_button, "clicked",
                     G_CALLBACK (on_model_refine_dialog_find_ligands_button_clicked),
                     NULL);
+  g_signal_connect ((gpointer) model_refine_dialog_fast_sss_button, "clicked",
+                    G_CALLBACK (on_model_refine_dialog_fast_sss_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) cis_trans_conversion_toggle_button, "toggled",
                     G_CALLBACK (on_cis_trans_conversion_toggle_button_toggled),
                     NULL);
@@ -21354,6 +21379,10 @@ create_other_model_tools_dialog (void)
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, image6803, "image6803");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, label693, "label693");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, model_refine_dialog_find_ligands_button, "model_refine_dialog_find_ligands_button");
+  GLADE_HOOKUP_OBJECT (other_model_tools_dialog, model_refine_dialog_fast_sss_button, "model_refine_dialog_fast_sss_button");
+  GLADE_HOOKUP_OBJECT (other_model_tools_dialog, hbox395, "hbox395");
+  GLADE_HOOKUP_OBJECT (other_model_tools_dialog, image6810, "image6810");
+  GLADE_HOOKUP_OBJECT (other_model_tools_dialog, label722, "label722");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, cis_trans_conversion_toggle_button, "cis_trans_conversion_toggle_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, model_refine_dialog_baton_button, "model_refine_dialog_baton_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, model_refine_dialog_db_main_togglebutton, "model_refine_dialog_db_main_togglebutton");
@@ -25644,6 +25673,215 @@ create_run_refmac_mtz_filechooserdialog (void)
 
   gtk_widget_grab_default (button31);
   return run_refmac_mtz_filechooserdialog;
+}
+
+GtkWidget*
+create_fast_ss_search_dialog (void)
+{
+  GtkWidget *fast_ss_search_dialog;
+  GtkWidget *dialog_vbox120;
+  GtkWidget *vbox301;
+  GtkWidget *hbox387;
+  GtkWidget *fast_sss_dialog_helix_checkbutton;
+  GtkWidget *fast_sss_dialog_helix_template_combobox;
+  GtkWidget *label709;
+  GtkWidget *fast_sss_dialog_helix_no_aa_combobox;
+  GtkWidget *label710;
+  GtkWidget *hbox390;
+  GtkWidget *fast_sss_dialog_strand_checkbutton;
+  GtkWidget *fast_sss_dialog_strand_template_combobox;
+  GtkWidget *label714;
+  GtkWidget *fast_sss_dialog_strand_no_aa_combobox;
+  GtkWidget *label715;
+  GtkWidget *hbox389;
+  GtkWidget *fast_sss_dialog_local_checkbutton;
+  GtkWidget *fast_sss_dialog_radius_combobox;
+  GtkWidget *label713;
+  GtkWidget *dialog_action_area119;
+  GtkWidget *fast_sss_dialog_citation_button;
+  GtkWidget *alignment134;
+  GtkWidget *hbox396;
+  GtkWidget *image6811;
+  GtkWidget *label723;
+  GtkWidget *fast_sss_dialog_cancel_button;
+  GtkWidget *fast_sss_dialog_ok_button;
+
+  fast_ss_search_dialog = gtk_dialog_new ();
+  gtk_window_set_title (GTK_WINDOW (fast_ss_search_dialog), _("Fast Secondary Structure Search"));
+  gtk_window_set_type_hint (GTK_WINDOW (fast_ss_search_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox120 = GTK_DIALOG (fast_ss_search_dialog)->vbox;
+  gtk_widget_show (dialog_vbox120);
+
+  vbox301 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox301);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox120), vbox301, TRUE, TRUE, 0);
+
+  hbox387 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox387);
+  gtk_box_pack_start (GTK_BOX (vbox301), hbox387, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox387), 3);
+
+  fast_sss_dialog_helix_checkbutton = gtk_check_button_new_with_mnemonic (_("find helices, using"));
+  gtk_widget_show (fast_sss_dialog_helix_checkbutton);
+  gtk_box_pack_start (GTK_BOX (hbox387), fast_sss_dialog_helix_checkbutton, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (fast_sss_dialog_helix_checkbutton), TRUE);
+
+  fast_sss_dialog_helix_template_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (fast_sss_dialog_helix_template_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox387), fast_sss_dialog_helix_template_combobox, TRUE, TRUE, 0);
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_template_combobox), _("normal"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_template_combobox), _("strict"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_template_combobox), _("high resolution"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_template_combobox), _("low resolution"));
+
+  label709 = gtk_label_new (_(" template of "));
+  gtk_widget_show (label709);
+  gtk_box_pack_start (GTK_BOX (hbox387), label709, FALSE, FALSE, 0);
+
+  fast_sss_dialog_helix_no_aa_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (fast_sss_dialog_helix_no_aa_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox387), fast_sss_dialog_helix_no_aa_combobox, TRUE, TRUE, 0);
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_no_aa_combobox), _("5"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_no_aa_combobox), _("7"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_no_aa_combobox), _("9"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_no_aa_combobox), _("11"));
+
+  label710 = gtk_label_new (_(" amino acids."));
+  gtk_widget_show (label710);
+  gtk_box_pack_start (GTK_BOX (hbox387), label710, FALSE, FALSE, 0);
+
+  hbox390 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox390);
+  gtk_box_pack_start (GTK_BOX (vbox301), hbox390, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox390), 3);
+
+  fast_sss_dialog_strand_checkbutton = gtk_check_button_new_with_mnemonic (_("find strands, using"));
+  gtk_widget_show (fast_sss_dialog_strand_checkbutton);
+  gtk_box_pack_start (GTK_BOX (hbox390), fast_sss_dialog_strand_checkbutton, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (fast_sss_dialog_strand_checkbutton), TRUE);
+
+  fast_sss_dialog_strand_template_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (fast_sss_dialog_strand_template_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox390), fast_sss_dialog_strand_template_combobox, TRUE, TRUE, 0);
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_template_combobox), _("normal"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_template_combobox), _("strict"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_template_combobox), _("high resolution"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_template_combobox), _("low resolution"));
+
+  label714 = gtk_label_new (_(" template of "));
+  gtk_widget_show (label714);
+  gtk_box_pack_start (GTK_BOX (hbox390), label714, FALSE, FALSE, 0);
+
+  fast_sss_dialog_strand_no_aa_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (fast_sss_dialog_strand_no_aa_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox390), fast_sss_dialog_strand_no_aa_combobox, TRUE, TRUE, 0);
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_no_aa_combobox), _("5"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_no_aa_combobox), _("7"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_no_aa_combobox), _("9"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_no_aa_combobox), _("11"));
+
+  label715 = gtk_label_new (_(" amino acids."));
+  gtk_widget_show (label715);
+  gtk_box_pack_start (GTK_BOX (hbox390), label715, FALSE, FALSE, 0);
+
+  hbox389 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox389);
+  gtk_box_pack_start (GTK_BOX (vbox301), hbox389, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox389), 3);
+
+  fast_sss_dialog_local_checkbutton = gtk_check_button_new_with_mnemonic (_("limit search to a "));
+  gtk_widget_show (fast_sss_dialog_local_checkbutton);
+  gtk_box_pack_start (GTK_BOX (hbox389), fast_sss_dialog_local_checkbutton, FALSE, FALSE, 0);
+
+  fast_sss_dialog_radius_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (fast_sss_dialog_radius_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox389), fast_sss_dialog_radius_combobox, FALSE, TRUE, 0);
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_radius_combobox), _("10"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_radius_combobox), _("20"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_radius_combobox), _("30"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_radius_combobox), _("40"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_radius_combobox), _("50"));
+
+  label713 = gtk_label_new (_(" A sphere about the cursor."));
+  gtk_widget_show (label713);
+  gtk_box_pack_start (GTK_BOX (hbox389), label713, FALSE, FALSE, 0);
+
+  dialog_action_area119 = GTK_DIALOG (fast_ss_search_dialog)->action_area;
+  gtk_widget_show (dialog_action_area119);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area119), GTK_BUTTONBOX_END);
+
+  fast_sss_dialog_citation_button = gtk_button_new ();
+  gtk_widget_show (fast_sss_dialog_citation_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (fast_ss_search_dialog), fast_sss_dialog_citation_button, 0);
+  GTK_WIDGET_SET_FLAGS (fast_sss_dialog_citation_button, GTK_CAN_DEFAULT);
+
+  alignment134 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment134);
+  gtk_container_add (GTK_CONTAINER (fast_sss_dialog_citation_button), alignment134);
+
+  hbox396 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox396);
+  gtk_container_add (GTK_CONTAINER (alignment134), hbox396);
+
+  image6811 = gtk_image_new_from_stock ("gtk-help", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6811);
+  gtk_box_pack_start (GTK_BOX (hbox396), image6811, FALSE, FALSE, 0);
+
+  label723 = gtk_label_new_with_mnemonic (_("Reference"));
+  gtk_widget_show (label723);
+  gtk_box_pack_start (GTK_BOX (hbox396), label723, FALSE, FALSE, 0);
+
+  fast_sss_dialog_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_show (fast_sss_dialog_cancel_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (fast_ss_search_dialog), fast_sss_dialog_cancel_button, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (fast_sss_dialog_cancel_button, GTK_CAN_DEFAULT);
+
+  fast_sss_dialog_ok_button = gtk_button_new_from_stock ("gtk-ok");
+  gtk_widget_show (fast_sss_dialog_ok_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (fast_ss_search_dialog), fast_sss_dialog_ok_button, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (fast_sss_dialog_ok_button, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) fast_sss_dialog_citation_button, "clicked",
+                    G_CALLBACK (on_fast_sss_dialog_citation_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) fast_sss_dialog_cancel_button, "clicked",
+                    G_CALLBACK (on_fast_sss_dialog_cancel_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) fast_sss_dialog_ok_button, "clicked",
+                    G_CALLBACK (on_fast_sss_dialog_ok_button_clicked),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (fast_ss_search_dialog, fast_ss_search_dialog, "fast_ss_search_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (fast_ss_search_dialog, dialog_vbox120, "dialog_vbox120");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, vbox301, "vbox301");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, hbox387, "hbox387");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_helix_checkbutton, "fast_sss_dialog_helix_checkbutton");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_helix_template_combobox, "fast_sss_dialog_helix_template_combobox");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, label709, "label709");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_helix_no_aa_combobox, "fast_sss_dialog_helix_no_aa_combobox");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, label710, "label710");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, hbox390, "hbox390");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_strand_checkbutton, "fast_sss_dialog_strand_checkbutton");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_strand_template_combobox, "fast_sss_dialog_strand_template_combobox");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, label714, "label714");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_strand_no_aa_combobox, "fast_sss_dialog_strand_no_aa_combobox");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, label715, "label715");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, hbox389, "hbox389");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_local_checkbutton, "fast_sss_dialog_local_checkbutton");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_radius_combobox, "fast_sss_dialog_radius_combobox");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, label713, "label713");
+  GLADE_HOOKUP_OBJECT_NO_REF (fast_ss_search_dialog, dialog_action_area119, "dialog_action_area119");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_citation_button, "fast_sss_dialog_citation_button");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, alignment134, "alignment134");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, hbox396, "hbox396");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, image6811, "image6811");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, label723, "label723");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_cancel_button, "fast_sss_dialog_cancel_button");
+  GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_ok_button, "fast_sss_dialog_ok_button");
+
+  return fast_ss_search_dialog;
 }
 
 #endif /* (GTK_MAJOR_VERSION > 1) */

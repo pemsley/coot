@@ -557,7 +557,7 @@ void add_coot_references_button(GtkWidget *widget) {
   
 }
 
-void wrapped_create_coot_references_dialog() {
+GtkWidget *wrapped_create_coot_references_dialog() {
   
 #if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
   GtkWidget *references_dialog;
@@ -566,6 +566,7 @@ void wrapped_create_coot_references_dialog() {
   coot_reference_button = lookup_widget(references_dialog, "coot_references_coot_toolbutton");
   g_signal_emit_by_name(G_OBJECT(coot_reference_button), "clicked");
   gtk_widget_show(references_dialog);
+  return references_dialog;
 #endif // GTK_MAJOR_VERSION
 
 }
@@ -726,7 +727,7 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
 
   if (reference_id == COOT_REFERENCE_BUCCANEER) {
 
-    ref_description = "If using the Coot sequencing tool (\"Cootaneer\"), please cite:\n\n";
+    ref_description = "If using the Coot sequencing tool (\"Cootaneer\") or Fast Secondary Structure Search, please cite:\n\n";
 
     title       = "Fitting molecular fragments into electron density";
     author      = "Cowtan K";
