@@ -4496,7 +4496,8 @@ int place_strand_here(int n_residues, int n_sample_strands) {
    Add to a molecule called "Helices", create it if
    needed. */
 int find_helices() {
-  return find_secondary_structure_local( 1, 7, 0, 0, 0, 0, 0.0 );
+  return find_secondary_structure_local( 1, 7, FIND_SECSTRUC_NORMAL,
+					 0, 0, FIND_SECSTRUC_NORMAL, 0.0 );
 } 
 
 
@@ -4507,7 +4508,8 @@ int find_helices() {
    Add to a molecule called "Strands", create it if
    needed. */
 int find_strands() {
-  return find_secondary_structure_local( 0, 0, 0, 1, 7, 0, 0.0 );
+  return find_secondary_structure_local( 0, 0, FIND_SECSTRUC_STRICT,
+					 1, 5, FIND_SECSTRUC_STRICT, 0.0 );
 }
 
 

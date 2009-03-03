@@ -4701,6 +4701,12 @@ PyObject *ncs_ghosts_py(int imol);
 /*  ----------------------------------------------------------------------- */
 /*                  Autobuild helices and strands                           */
 /*  ----------------------------------------------------------------------- */
+
+#define FIND_SECSTRUC_NORMAL 0
+#define FIND_SECSTRUC_STRICT 1
+#define FIND_SECSTRUC_HI_RES 2
+#define FIND_SECSTRUC_LO_RES 3
+
 /*! \name Helices and Strands*/
 /*! \{ */
 /*! \brief add a helix 
