@@ -2518,7 +2518,7 @@ void
 on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERION > 1)
+#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *dialog;
   GtkWidget *helix_checkbutton;
   GtkWidget *helix_temp_combobox;
