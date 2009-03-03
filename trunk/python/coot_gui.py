@@ -1,9 +1,9 @@
 # coot-gui.py
 #
 # Copyright 2001 by Neil Jerram
-# Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008 by The University of York
+# Copyright 2002-2008, 2009 by The University of York
 # Copyright 2007 by Paul Emsley
-# Copyright 2006, 2007, 2008 by Bernhard Lohkamp
+# Copyright 2006, 2007, 2008, 2009 by Bernhard Lohkamp
 # with adaptions from
 #   Interactive Python-GTK Console
 #   Copyright (C), 1998 James Henstridge <james@daa.com.au>
@@ -2904,9 +2904,8 @@ def coot_news_info(*args):
       print "error: news: error in %s with args %s" %(key, args)
 
    def get_news():
-      import thread
       # no threading for now. Doesnt do the right thing
-      get_news_thread()
+      run_python_thread(get_news_thread, ())
       
    def insert_string(s, text):
       background_colour = "#c0e6c0"
@@ -2960,7 +2959,7 @@ def whats_new_dialog():
    def check_for_new_news():
       global count
       count += 1
-      timer_string = str(count * ms_step / 1000) + "s"
+      timer_string = str(count * ms_step / 1000.) + "s"
       timer_label.set_alignment(0.96, 0.5)
       timer_label.set_text(timer_string)
       #if (count > 100):
@@ -3607,27 +3606,42 @@ def show_progressbar(text):
    python_return = window
    gtk.main()
 
+import threading
+# helper function to push the python threads
+# this only runs python threads for 20ms every 50ms
+def python_thread_sleeper():
+   time.sleep(0.02)
+   if (threading.activeCount() == 1):
+     #print "BL DEBUG:: stopping timeout"
+     return False
+   return True
 
-global python_return
-python_return = False
-   
-def run_python_thread(function, *args):
+# this has locked, so that no one else can use it
+global python_thread_return
+python_thread_return = False
+
+# function to run a python thread with function using
+# args which is a tuple
+# N.B. requires gobject hence in coot_gui.py
+#
+def run_python_thread(function, args):
+
    import gobject
-   import threading
    
    class MyThread(threading.Thread):
-
       def __init__(self):
          threading.Thread.__init__(self)
       def run(self):
-         print "BL DEBUG:: now run thread"
-         #python_return = function(*args)
-         function(*args)
+         global python_thread_return
+         python_return_lock = threading.Lock()
+         python_return_lock.acquire()
+         try:
+            python_thread_return = function(*args)
+         finally:
+            python_return_lock.release()
 
-#   gtk.gdk.threads_enter()
    MyThread().start()
-   gtk.gdk.threads_leave()
-   #gtk.main_iteration()
+   gobject.timeout_add(50, python_thread_sleeper)
    
 
 # let the c++ part of mapview know that this file was loaded:
