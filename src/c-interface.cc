@@ -7630,9 +7630,7 @@ void make_socket_listener_maybe() {
 
    std::vector<std::string> cmd;
 
-   std::cout << "BL DEBUG:: we are in socket.. and try is" <<graphics_info_t::try_port_listener<<std::endl;
    if (graphics_info_t::try_port_listener) { 
-      std::cout << "BL DEBUG:: ... and should try_port_listener" <<std::endl;
       cmd.push_back("open-coot-listener-socket");
       cmd.push_back(graphics_info_t::int_to_string(graphics_info_t::remote_control_port_number));
       cmd.push_back(single_quote(graphics_info_t::remote_control_hostname));

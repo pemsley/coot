@@ -1,5 +1,5 @@
 #   remote_control.py
-#   Copyright (C) 2008  Bernhard Lohkamp, University of York
+#   Copyright (C) 2008, 2009  Bernhard Lohkamp, University of York
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ def open_coot_listener_socket(port_number, host_name):
     print "in open_coot_listener_socket port: %s host %s" %(port_number, host_name)
 
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     host_adress = "127.0.0.1"
 
     soc.connect((host_adress, port_number))
@@ -51,17 +52,10 @@ def open_coot_listener_socket(port_number, host_name):
     if soc:
         set_coot_listener_socket_state_internal(1)
 
-    # threads?
+    # threads? Needed?
     import thread
-    status = thread.start_new_thread(coot_listener_idle_function_proc,())
-    print "status trhead ", status
+    status = run_python_thread(coot_listener_idle_function_proc,())
 
-    #import threading
-    #class MyThread(threading.Thread):
-    #    def run(self):
-    #        coot_listener_idle_function_proc()
-    #MyThread().start()
-    #print "thread count ", threading.activeCount()
 
 def coot_listener_idle_function_procbbbbbb():
 
@@ -90,12 +84,18 @@ def coot_listener_idle_function_proc():
     import time
     #print " in idle func"
     if (coot_listener_socket):
-        import thread
         while (1):
             continue_qm = listen_coot_listener_socket(coot_listener_socket)
             if (not continue_qm):
                 set_coot_listener_socket_state_internal(0)
-                coot_listener_socket.shutdown(2)
+                try:
+                    coot_listener_socket.shutdown(2)
+                except:
+                    try:
+                        coot_listener_socket.shutdown(1)
+                    except:
+                        print "BL DEBUG::problems shutting down the controling socket, "
+                        print "maybe already down"
                 coot_listener_socket.close()
                 coot_listener_socket = False
                 print "server gone - listener thread ends", coot_listener_socket
@@ -108,28 +108,35 @@ def coot_listener_idle_function_proc():
 
 def listen_coot_listener_socket(soc):
 
-    end_transmission_string = "end"  # just 'end' for test
+    close_connection_string = "# close"
+    end_connection_string = "# end"    # just 'end' for test
 
-    def evaluate_character_list(string):
-        print "received in evaluate",  string
-        if (string == end_transmission_string):
-            print "finish socket"
-            soc.send("Closing session")
-            return False
-        try:
-            ret = eval(string)
-        except SyntaxError:
-            if (string == "\n"): print "CR"
+    def evaluate_character_list(string_list):
+        print "received in evaluate", string_list
+        # new eval?!
+        for line in string_list.split("\n"):
+            print "BL DEBUG:: line and close_conn", line, close_connection_string
+            if (line == close_connection_string):
+                print "finish socket"
+                #soc.send("Closing session")
+                return False
             try:
-                exec string in globals()
-                ret = None
+                ret = eval(line)
+            except SyntaxError:
+                if (line == "\n"): print "CR"
+                try:
+                    exec line in globals()
+                    ret = None
+                except:
+                    ret = "INFO:: cannot eval or exec given string: " + string
             except:
-                ret = "INFO:: cannot eval or exec given string: " + string
-        except:
-            ret = "Info:: input error"
-        # can only send strings back in this way
-        ret = "return value: " + str(ret)
-        soc.send(ret)
+                    ret = "Info:: input error"
+            # can only send strings back in this way
+            ret = "return value: " + str(ret)
+            try:
+                soc.send(ret)
+            except:
+                pass
         return True
 
     # main body
@@ -137,54 +144,37 @@ def listen_coot_listener_socket(soc):
     data = False
     soc.setblocking(0)
     try:
+        total_data = []
         #print "waiting to receive"
-        data = soc.recv(1024)
-        print "received", data
+        while True:
+            data = soc.recv(1024)
+            import time
+            time.sleep(0.1)
+            print "BL DEBUG:: after recv", data
+            if (end_connection_string in data):
+                total_data.append(data[:data.rfind(end_connection_string)])
+                #total_data.append(data[:data.find(end_connection_string)])
+                break
+            total_data.append(data)
+            if (len(total_data) > 1):
+                # check if end_connection_string was split
+                last_pair = total_data[-2] + total_data[-1]
+                if (end_connection_string in last_pair):
+                    total_data[-2] = last_pair[:last_pair.find(end_connection_string)]
+                    total_data.pop()
+                    break
+        total_data = ''.join(total_data)
+        print "received total_data", total_data
+        if (not data):
+            #print "nothing on the line..."
+            return True
+        else:
+            ret = evaluate_character_list(total_data)
+            print "BL DEBUG::returning", ret
+            return ret
     except:
-        pass
-    if (not data):
-        #print "nothing on the line..."
         return True
-    else:
-        res = evaluate_character_list(data)
-        return res
-
+        
 
 #open_coot_listener_socket(50007, "bla")
-#import time
-#time.sleep(20)
 
-#!/usr/bin/python
-import socket
-import sys
-
-if len(sys.argv) < 3:
-    print 'Usage: %s [hostname] [portnumber]' % sys.argv[0]
-    sys.exit(1)
-
-hostname = sys.argv[1]
-port = int(sys.argv[2])
-msg = 'start'
-
-def make_server_for_remote_control():
-    #Setup a standard internet socket.
-    #The sockopt call lets this server use the given port even if
-    #it was recently used by another server
-    sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
-    sock.bind((hostname,port))
-    sock.listen(1)
-    print 'Waiting for a Request'
-
-    #Handle a client request
-    request,clientAddress = sock.accept()
-    print 'Request received from: ', clientAddress
-    data = request.recv(1024)
-    print 'Received connection Msg: ', data
-    while msg != 'exit':
-        msg = raw_input('Enter a Message: ')
-        request.send(msg)
-        data = request.recv(1024)
-        print 'Received Msg: ', data
-    request.shutdown(2) #Stop the client from reading or writing anything.
-    sock.close()

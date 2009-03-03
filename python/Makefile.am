@@ -29,17 +29,18 @@ coot-python-functions.texi:
 endif
 
 EXTRA_DIST =    \
-background_demo.py coot_utils.py        get_ebi.py	  mutate.py	\
-                                          hello.py        raster3d.py	\
-brute_lsqman.py                                           refmac.py	\
-coot_gui.py          filter.py            libcheck.py     		\
-coot_load_modules.py                      local_code.py   		\
-gap.py                                    povray.py       coot_lsq.py	\
-shelx.py             group_settings.py    fitting.py      americanisms.py \
-tips.py              tips_gui.py          generic_objects.py cns2coot.py  \
-extensions.py        ncs.py		  				\
-		     clear_backup.py	  bones_reader.py		\
-		     shelx_extensions.py				\
-coot_toolbuttons.py		\
+                     coot_utils.py        get_ebi.py      mutate.py        \
+background_demo.py                                                         \
+                                          hello.py        raster3d.py      \
+brute_lsqman.py                                           refmac.py        \
+coot_gui.py          filter.py            libcheck.py                      \
+coot_load_modules.py                      local_code.py                    \
+gap.py               remote_control.py    povray.py       coot_lsq.py      \
+shelx.py             group_settings.py    fitting.py      americanisms.py  \
+tips.py              tips_gui.py          generic_objects.py  cns2coot.py  \
+extensions.py        ncs.py               create_server.py                 \
+python_coot_docs.py  clear_backup.py      bones_reader.py                  \
+                     shelx_extensions.py                                   \
+coot_toolbuttons.py		                                           \
 ../src/coot.py $(TEXI_FILE)
 
