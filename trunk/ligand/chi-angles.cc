@@ -709,10 +709,10 @@ coot::chi_angles::change_by_internal(int ichi,
 		   << " " << atom_name_pairs[i].atom1 << "       "
 		   << atom_index_pairs[i].index2 << " "
 		   << atom_name_pairs[i].atom2 << "\n";
-      std::cout << " -----------  coords ---------------- " << std::endl;
-      for(unsigned int i=0; i<coords.size(); i++)
-	 std::cout << i << " " << residue_atoms[i]->GetAtomName()
-		   << " " << coords[i] << "\n";;
+       std::cout << " -----------  coords ---------------- " << std::endl;
+       for(unsigned int i=0; i<coords.size(); i++)
+ 	 std::cout << i << " " << residue_atoms[i]->GetAtomName()
+ 		   << " " << coords[i] << "\n";;
    
       // display contact indices here:
       //
@@ -770,11 +770,11 @@ coot::chi_angles::change_by_internal(int ichi,
       p.second = tors_orig + tors; // in radians
 
 //       std::cout << "moving coordinates by " << diff
-// 		<< " degrees (tors = " << tors <<  ")." << std::endl;
+// 		 << " degrees (tors = " << tors <<  ")." << std::endl;
 
-//        std::cout << "rotating about atom indices: "
-//  		<< atom_index_pairs[ibond].index2 << " "
-//  		<< atom_index_pairs[ibond].index1 << "\n";
+//       std::cout << "rotating about atom indices: "
+//   		<< atom_index_pairs[ibond].index2 << " "
+//   		<< atom_index_pairs[ibond].index1 << "\n";
 
       tree.RotateAboutBond(atom_index_pairs[ibond].index2,
 			   atom_index_pairs[ibond].index1, tors);
