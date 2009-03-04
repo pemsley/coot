@@ -1,21 +1,44 @@
-/*
-     util/mgtree.h: CCP4MG Molecular Graphics Program
-     Copyright (C) 2001-2008 University of York, CCLRC
-
-     This library is free software: you can redistribute it and/or
-     modify it under the terms of the GNU Lesser General Public License
-     version 3, modified in accordance with the provisions of the 
-     license to address the requirements of UK law.
- 
-     You should have received a copy of the modified GNU Lesser General 
-     Public License along with this library.  If not, copies may be 
-     downloaded from http://www.ccp4.ac.uk/ccp4license.php
- 
-     This program is distributed in the hope that it will be useful,
-     but WITHOUT ANY WARRANTY; without even the implied warranty of
-     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-     GNU Lesser General Public License for more details.
-*/
+//   CCP4 Molecular Graphics Program
+//
+//   Copyright (C) Stuart McNicholas and Liz Potterton 2004.
+//
+//   This program is free software and is distributed under the terms
+//   and conditions of the CCP4 licence agreement as `Part 0' (Annex 2)
+//   software, which is version 2.1 of the GNU Lesser General Public
+//   Licence (LGPL) with the following additional clause:
+//
+//      `You may also combine or link a "work that uses the Library"
+//      to produce a work containing portions of the Library, and
+//      distribute that work under terms of your choice, provided that
+//      you give prominent notice with each copy of the work that the
+//      specified version of the Library is used in it, and that you
+//      include or provide public access to the complete corresponding
+//      machine-readable source code for the Library including whatever
+//      changes were used in the work. (i.e. If you make changes to the
+//      Library you must distribute those, but you do not need to
+//      distribute source or object code to those portions of the work
+//      not covered by this licence.)'
+//
+//   Note that this clause grants an additional right and does not
+//   impose any additional restriction, and so does not affect
+//   compatibility with the GNU General Public Licence (GPL). If you
+//   wish to negotiate other terms, please contact the maintainer.
+//   You can redistribute it and/or modify the program under the terms
+//   of the GNU Lesser General Public License as published by the Free
+//   Software Foundation; either version 2.1 of the License, or (at
+//   your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//   Lesser General Public License for more details.
+//
+//   You should have received a copy of the CCP4 licence and/or GNU
+//   Lesser General Public License along with this program; if not,
+//   write to the CCP4 Secretary, Daresbury Laboratory, Warrington
+//   WA4 4AD, UK. The GNU Lesser General Public can also be obtained
+//   writing to the Free Software Foundation, Inc., 51 Franklin
+//   Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 
 #ifndef _CCP4MG_TREE_
@@ -42,7 +65,7 @@ class TreeVertex{
    std::vector<TreeVertex*> children;
    /* 
       Since this corresponds to something outside this tree, the actual child doesn't exist. 
-      So this number corresponds to something beyond the scope of this object, ug. The application
+      So this number corresponds to something beyond the scop of this object, ug. The application
       has to know what this means ....
    */
    std::vector<Cartesian> ext_children; 
@@ -86,10 +109,6 @@ class TreeVertex{
    double GetParentDihedralAngle() const {return parent_dihedral_angle;};
    std::vector <TreeVertex*> GetBranch();
    int GetNumberOfDescendants() const ;
-   void GetDescendants(std::vector<TreeVertex *> &desc_vertices, const TreeVertex *stop_node=0) const ;
-   void GetDescendants(std::vector<TreeVertex *> &desc_vertices, const std::vector<TreeVertex*> stop_nodes) const ;
-   void GetNonDescendants(std::vector<TreeVertex *> &desc_vertices) const ;
-   void GetNonDescendants(std::vector<TreeVertex *> &desc_vertices, const std::vector<TreeVertex*> stop_nodes) const ;
 };
 
 class Tree{
@@ -100,40 +119,23 @@ class Tree{
    std::vector<std::vector<int> > connectivity;
    void CalculateTree(void);
    void RecurseCalculateTree(TreeVertex* coord);
-   void RecurseCalculateTreeWithLengthsAndAngles(TreeVertex* coord);
    void SetDummy(TreeVertex *coord);
    void ExtendBranchCartesians(const Cartesian &p1, const Cartesian &p2, const Cartesian &p3, TreeVertex* child, std::vector<Cartesian> &cartesians) const ;
-   void RecurseZMatrix(std::ostream &c, const TreeVertex *vertex, const std::vector<std::string> &labels, const std::string &separater);
+   void RecurseZMatrix(std::ostream &c, const TreeVertex *vertex, const std::vector<std::string> &labels);
    int start;
    std::vector<int> permutation;
-   void ClearCoords();
   public:
-   Tree& operator=(const Tree &a);
-   Tree(const Tree &t);
    Tree();
-   // This method and following constructor build a tree from a set of existing bonds, angles and torsions (eg. RefMac monomer library).
-   void SetBondsAnglesTorsions(const int &nvertices,
-                               const std::vector<std::vector<int> > &bonds, const std::vector<double> &bond_lengths,
-                               const std::vector<std::vector<int> > &angles, const std::vector<double> &bond_angles,
-                               const std::vector<std::vector<int> > &torsions, const std::vector<double> &torsion_angles,
-			       const std::vector<std::vector<int> > &chirals);
-   Tree(const int &nvertices,
-        const std::vector<std::vector<int> > &bonds, const std::vector<double> &bond_lengths,
-        const std::vector<std::vector<int> > &angles, const std::vector<double> &bond_angles,
-        const std::vector<std::vector<int> > &torsions, const std::vector<double> &torsion_angles,
-        const std::vector<std::vector<int> > &chirals);
    Tree(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians);
-   Tree(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians, const std::vector<std::vector<int> > &forced_connections);
    ~Tree();
    void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists);
-   void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const std::vector<std::vector<int> > &forced_connections);
-   void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians, const std::vector<std::vector<int> > &forced_connections);
+   void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians);
    friend std::ostream& operator<<(std::ostream &c, Tree a);
    void Print(void){ std::cout << *this;};
    int FindMaxDepth(void);
    std::vector<std::pair<int,int> > extra_bonded_pairs;
-   void PrintZMatrix(std::ostream &c, const std::vector<std::string> &labels, const std::string &separater=",");
-   void PrintZMatrix(const std::vector<std::string> &labels, const std::string &separater=",");
+   void PrintZMatrix(std::ostream &c, const std::vector<std::string> &labels);
+   void PrintZMatrix(const std::vector<std::string> &labels);
    int GetNumberOfVertices() const {return coords.size();}
    Cartesian GetCartesian(TreeVertex *unknown) const ;
 
@@ -148,7 +150,7 @@ class Tree{
     * permuted. So if you create from a set of coordinates and then request
     * rotation about bond 2,3, the rotation will be applied about 2,3 of the
     * original order. What you want usually. One can ask for the result to
-    * be in the permuted space by passing optional argument. Will probably never 
+    * be in the permuted spae by passing optional argument. Will probably never 
     * be required.
     */
 
@@ -157,11 +159,7 @@ class Tree{
    Cartesian GetCartesian(int i, bool permuted=false) const;
    std::vector<Cartesian> GetAllCartesians(bool permuted=false) const ;
    void RotateAboutBond(int atom, int child, double TorsionAngleDiff, bool permuted=false);
-   void SetDihedralAngle(int atom, int child, double TorsionAngle, bool permuted=false, int movingAtom=-1, int baseAtom=-1);
-   std::vector<std::vector<int> > FindLongBranches(int req_depth);
-   void AddVertex(int pid, double dist, int gpid, double angle, int ggpid, double dihedral, int chiral);
-   void SetDihedralAngle(int baseAtom, int atom, int child, int movingAtom, double TorsionAngle);
-   void ForceEarlyConnection(int parent,int child);
+   void SetDihedralAngle(int atom, int child, double TorsionAngle, bool permuted=false);
    
 };
 

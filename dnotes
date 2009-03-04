@@ -4046,5 +4046,18 @@ Tue Feb  3 14:55:32 GMT 2009
 	std::FILE (e.g. used by gmp.h) is resolved by including cstdio
 	(e.g. before including libguile.h).
 
+----
+Wed Mar  4 13:12:21 GMT 2009
+
+	when testing new tree code:
+
+     test: torsion general
+     test: wiggly ligand best solution C* N9 C1* C2* is correct
+     test: var4 and var4 for ATP and var1s for MPR
+
+
+     Note: revision 1917 has "new" mgtree code, which seems to work
+     for wiggly ligands, but torsion angles are horrifically broken.
+
 
 -----

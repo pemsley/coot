@@ -83,7 +83,7 @@ coot::torsion_general::GetTree() const {
 } 
 
 int
-coot::torsion_general::change_by(double diff, Tree *tree) {
+coot::torsion_general::change_by(double diff, Tree *tree, bool permuted_flag) {
 
    int r=1;
 //    std::cout << "user_defined_torsion_atoms.size(): " << user_defined_torsion_atoms.size()
@@ -106,8 +106,21 @@ coot::torsion_general::change_by(double diff, Tree *tree) {
       if (tv->GetNumberOfChildren() > 0) {
 	 TreeVertex *tvc0 = tv->GetChild(0);
 	 float tors = clipper::Util::d2rad(diff);
+
+	 // 20090220: This fails now that we have new mg tree code.
+
+	 std::cout << "DEBUG:: rotate about " << clicked_atom_indices[1] << " to "
+		   << clicked_atom_indices[2] << " permuted: " << permuted_flag
+		   << std::endl;
+
 	 tree->RotateAboutBond(clicked_atom_indices[1],
-			       clicked_atom_indices[2], tors);
+			       clicked_atom_indices[2], tors, permuted_flag);
+
+// 	 tree->RotateAboutBond(clicked_atom_indices[0],
+// 			       clicked_atom_indices[1],
+// 			       clicked_atom_indices[2],
+// 			       clicked_atom_indices[3],
+// 			       tors);
       
 	 std::vector< ::Cartesian > coords_rotatated =
 	    tree->GetAllCartesians();
