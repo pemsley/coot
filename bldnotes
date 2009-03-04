@@ -50,6 +50,7 @@ tests   rev 1860
 ---------------
 
    o additional representations: hide parts of model (use bond thickness 0?!?
+	bond thickness 0 doesnt work. hiding seems tricky!?
 
    o revisit python sockets
 
@@ -63,8 +64,6 @@ tests   rev 1860
    o refmac to run from an XML file
 
    o read_refmac_log to read refmac XML output (if there)
-
-   o ribbons from aesop python things from CCP4MG (at some point)
 
    o use libglade
 
