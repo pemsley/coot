@@ -19,6 +19,15 @@
     ::: 3
 
 
+   o documetation for Torsion General. ::: 0.3
+   You need to click on the torsion-general icon, then click 4 atoms
+   that describe the torsion - the first atom will be the base (non
+   moving) part of the atom tree, on clicking the 4th atom a dialog
+   will pop up with a "Reverse" button [1].  Move this dialog out of
+   the way and then left mouse click and drag in the main window will
+   rotate the "top" part of the residue round the clicked atoms 2 and
+   3.  When you are happy, click "Accept".
+
    o (reorder-chains 0) -> 
 
      bad atom (occ b element expression) 
