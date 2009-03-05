@@ -79,6 +79,22 @@
      Priority: 6: Difficulty: 4  ::: 2
 
 
+   o put density-score-by-residue into distro tar file ::: 1
+
+
+   o Fix ligand chi angles. ::: 1
+
+
+   o > I was wondering if there's a way to avoid that a new "symmetry
+       controller" window opens every time I click on the "symmetry by
+       molecule..." button of the "Show symmetry?" dialog, rather than
+       just bringing to the front an already opened one.
+                                         Sebastiano Pasqualato  ::: 1
+
+
+   o "Add a NAG/XXX?" to this ASN. Puntable. ::: 3
+
+
    o Fix up mini-RSR so that it compiles properly. ::: 4
 
 
@@ -99,10 +115,16 @@
      resulting colour chooser?  ::: 2 
 
 
+   o PRE: Minor irritation: if I display the molecule as CA atoms
+     only, clicking for naming or centering will still pick up the
+     invisible non-CA atoms. It would be Nice if it didn't.  [Perhaps
+     he means CA + ligs mode?] ::: 2
+ 
+
    o Integrate scripting functions into main documentation somehow.
      Well, you can look at this, if it is hard, punt it.  
      ::: 2
- 
+
 * It looks like it can be done using @html, @end html stripping out the
   body etc tags. Ugly though.  Include files need to be in source doc
   directory.  Call it xxx.html.texi and add @html tags in there.
