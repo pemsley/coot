@@ -2305,7 +2305,7 @@ void update_go_to_atom_from_current_position();
 int apply_go_to_atom_values(GtkWidget * window);
 
 
-/* moving gtk functionn out of build functions, delete_atom() updates
+/* moving gtk function out of build functions, delete_atom() updates
    the go to atom atom list on deleting an atom  */
 void update_go_to_atom_residue_list(int imol);
 

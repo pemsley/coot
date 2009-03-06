@@ -1179,7 +1179,7 @@
 	 (brighten-map imap 1.25))
        (map-molecule-list)))
 
-;; Make all maps brighter
+;; Make all maps darker.
 ;; 
 (define (darken-maps)
   (map (lambda (imap)
@@ -1201,11 +1201,14 @@
 
 ;; convert from interface name to schemish name
 ;; 
+;; Return #t or #f. 
+;; 
 (define (is-solvent-chain? imol chain-id)
 
   (= (is-solvent-chain-p imol chain-id) 1))
 
 ;; schemey interface to eponymous scripting interface function.
+;; Return #t or #f. 
 (define (valid-model-molecule? imol)
 
   (if (not (number? imol))
@@ -1213,9 +1216,18 @@
       (= (is-valid-model-molecule imol) 1)))
 
 ;; schemey interface to eponymous scripting interface function.
+;; Return #t or #f. 
 (define (valid-map-molecule? imol)
 
   (= (is-valid-map-molecule imol) 1))
+
+;; schemey interface to the function that returns whether or not a map
+;; is a difference map.  Return #t or #f.
+(define (is-difference-map? imol-map)
+  (if (not (is-valid-map-molecule? imol-map))
+      #f
+      (= (map-is-difference-map imol-map) 1)))
+      
 
 ;; Does residue resno with insertion code ins-code of chain chain-id
 ;; and in molecule number imol exist?  

@@ -54,7 +54,7 @@
       (display "Coot listener socket ready!\n" soc)
       (set! %coot-listener-socket soc)
 
-      (gtk-timeout-add 500 coot-socket-timeout-func)))
+      (gtk-timeout-add 1000 coot-socket-timeout-func)))
 
 ;; based on coot-listener-idle-function-proc
 ;; 
@@ -69,7 +69,7 @@
 		    (format #t "server gone - listener thread ends~%")
 		    #f)
 		  (begin
-		    ; (format #t "keep listening...~%")
+		    ;; (format #t "keep listening...~%")
 		    #t)))))
 	(begin
 	  (format #t "coot-listener-idle-function-proc bad sock: ~s~%" 
@@ -124,7 +124,10 @@
 ;;
 (define (listen-coot-listener-socket-v3 soc)
 
-  (define end-transmition-string "; end transmition")
+  (define end-transmition-string ; "; end transmission\n" (where "\n"
+				 ; is a newline character, not 2
+				 ; chars)
+    (string-append "; end transmission" (list->string (list #\newline))))
 
   (define evaluate-char-list
     (lambda (read-bits)
@@ -133,10 +136,13 @@
 	;; is it python?
 	(if (and (>= (string-length s) 8) ; (checked in order)
 		 (string-match "# PYTHON" (substring s 0 8)))
-	    ;; this is a silly "testing" name
+	    ;; python script
 	    (begin
 	      (format #t "this python string will be evaluated: ~s~%" s)
-	      (safe-python-command-by-char-star s))
+	      (pyrun-simple-string s)
+	      (set-socket-string-waiting "")
+	      (format #t "======== done setting socket string waiting (py)...~%"))
+	      
 	    ;; not python
 	    (begin 
 	      (format #t "this scheme string will be evaluated: ~s~%" s)
@@ -173,30 +179,36 @@
 		      (car read-chars))) #f)
 	   (else
 	    (loop (cdr read-chars) (cdr match-chars)))))))
+
+
+  ; (format #t "listening...~%")
 	
   ;; main body:
   ;;
   (if (not (char-ready? soc))
       (begin
-;	(format #t "nothing on the line...~%")
+	;; (format #t "nothing on the line...~%")
 	#t)
       (begin
-;	(format #t "there *is* a ready-char!~%" soc)
-;	(format #t "about to read from socket soc: ~s~%" soc)
+	(format #t "there *is* a ready-char!~%" soc)
+	(format #t "about to read from socket soc: ~s~%" soc)
 	(let f ((c (read-char soc))
 		(read-bits '()))
-; 	  (format #t "socket read char ~s~%" c)
+ 	  ; (format #t "socket read char ~s~%" c)
 	  (cond
 	   ((eof-object? c) (format #t "server gone\n") #f)
 	   ((hit-end-transmit? (cons c read-bits)
 			       end-transmition-string)
-;	    (format #t "  ~s found in ~s~%" 
-;		    end-transmition-string
-;		    (list->string (reverse (cons c read-bits))))
+	    (format #t "  ~s found in ~s~%" 
+		    end-transmition-string
+		    (list->string (reverse (cons c read-bits))))
 	    (evaluate-char-list (strip-tail (cons c read-bits)))
+	    (format #t "=== char list was evaluated... back to listen-coot-listener-socket-v3~%") 
 	    #t)
 
 	   (else 
+	    ; (format #t "loop f, reading new char...~%")
 	    (f (read-char soc) (cons c read-bits))))))))
+
 
 

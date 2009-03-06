@@ -23333,8 +23333,8 @@ create_aboutdialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (aboutdialog), 4);
   gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (aboutdialog), VERSION);
   gtk_about_dialog_set_name (GTK_ABOUT_DIALOG (aboutdialog), _("Coot"));
-  gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), _("Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by The University of York\nCopyright 2007, 2008 by The University of Oxford\nCopyright 2001, 2007 by Paul Emsley"));
-  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _(g_strconcat("Northumberland", coot_revision(), NULL)));
+  gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), _("Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,2009 by The University of York\nCopyright 2007, 2008, 2009 by The University of Oxford\nCopyright 2001, 2007 by Paul Emsley"));
+  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _(g_strconcat("Durham", coot_revision(), NULL)));
   gtk_about_dialog_set_license (GTK_ABOUT_DIALOG (aboutdialog), _("GNU GPL"));
   gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (aboutdialog), "http://www.ysbl.york.ac.uk/~emsley/coot");
   gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG (aboutdialog), _("Coot Website"));

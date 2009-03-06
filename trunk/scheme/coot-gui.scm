@@ -1448,7 +1448,9 @@
 
 ;; geometry is an improper list of ints.
 ;; 
-;; return the h-box of the buttons
+;; return the h-box of the buttons.
+;;
+;; a button is a list of (label callback-thunk text-description)
 ;; 
 (define (dialog-box-of-buttons window-name geometry buttons close-button-label)
 
