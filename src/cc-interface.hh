@@ -336,6 +336,14 @@ PyObject *run_scheme_command(const char *scheme_command);
 SCM run_python_command(const char *python_command);
 #endif // USE_GUILE
 
+// This is not inside a #ifdef USE_PYTHON because we want to use it
+// from the guile level and USE_PYTHON is not passed as an argument to
+// swig when generating coot_wrap_guile.cc.
+//
+// [Consider removing safe_python_command_by_char_star() which is
+// conditionally compiled].
+int pyrun_simple_string(const char *python_command); 
+
 #ifdef USE_GUILE
 // Return a list describing a residue like that returned by
 // residues-matching-criteria (list return-val chain-id resno ins-code)

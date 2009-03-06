@@ -5880,6 +5880,10 @@ SCM safe_scheme_command(const std::string &scheme_command) {
    add_to_history(cs);
    return graphics_info_t::safe_scheme_command(scheme_command);
 }
+#endif // USE_GUILE
+
+
+#ifdef USE_GUILE
 SCM safe_scheme_command_test(const char *cmd) {
 
    std::string s = cmd;
@@ -5892,12 +5896,14 @@ void safe_scheme_command(const std::string &scheme_command) { /* do nothing */
 }
 #endif // USE_GUILE
 
+
 void safe_python_command(const std::string &python_cmd) {
 
 #ifdef USE_PYTHON
    PyRun_SimpleString((char *)python_cmd.c_str());
 #endif   
 }
+
 
 #ifdef USE_PYTHON
 // We need a function to clean up the returned types from safe_python_command_with_return
@@ -5954,7 +5960,17 @@ PyObject *py_clean_internal(PyObject *o) {
    }
    return ret;
 }
+#endif  // USE_PYTHON
 
+int pyrun_simple_string(const char *python_command) { 
+  
+#ifdef USE_PYTHON
+  return PyRun_SimpleString(python_command);
+#endif 
+  return -1;
+} 
+
+#ifdef USE_PYTHON
 // BL says:: let's have a python command with can receive return values
 // we need to pass the script file containing the funcn and the funcn itself
 // returns a PyObject which can then be used further
@@ -5984,9 +6000,8 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
       pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, pDict, pDict);
 
-
-      // std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
-      // << pValue << std::endl;
+      std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
+		<< pValue << std::endl;
 
       if (pValue != NULL)
 	 {
@@ -6034,7 +6049,9 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
    }
    return ret;
 }
+#endif //PYTHON
 
+#ifdef USE_PYTHON
 PyObject *safe_python_command_test(const char *cmd) {
 
    std::string s = cmd;
@@ -8323,8 +8340,13 @@ void set_socket_string_waiting(const char *s) {
    graphics_info_t::socket_string_waiting = s;
    graphics_info_t::have_socket_string_waiting_flag = 1;
 
+   std::cout << "DEBUG:: set_socket_string_waiting() socket_string_waiting set to " 
+	     << graphics_info_t::socket_string_waiting << std::endl;
+
    GSourceFunc f = graphics_info_t::process_socket_string_waiting_bool;
    g_idle_add(f, NULL); // if f returns FALSE then f is not called again.
+
+   
 
    // old way, generates a Xlib async error sometimes?   
 //       gtk_widget_queue_draw_area(graphics_info_t::glarea, 0, 0,

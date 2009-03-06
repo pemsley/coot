@@ -101,7 +101,8 @@
                                          Sebastiano Pasqualato  ::: 1
 
 
-   o "Add a NAG/XXX?" to this ASN. Puntable. ::: 3
+   o "Add a NAG/XXX?" to this ASN. look at using spin-search. 
+      Puntable. ::: 3
 
 
    o Fix up mini-RSR so that it compiles properly. ::: 4

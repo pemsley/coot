@@ -157,6 +157,7 @@
 ;; 
 ;; 20050725 EDS code
 ;; 
+
 (define (get-eds-pdb-and-mtz id)
 
   ;; Gerard DVD Kleywegt says we can find the coords/mtz thusly:
@@ -165,6 +166,7 @@
   ;; - mtz   = http://eds.bmc.uu.se/eds/sfd/1cbs/1cbs_sigmaa.mtz
 
   (define eds-site "http://eds.bmc.uu.se/eds")
+
 
   (let ((r (coot-mkdir coot-tmp-dir)))
 
@@ -183,13 +185,16 @@
 	  (let ((s1 (net-get-url model-url dir-target-pdb-file))
 		(s2 (net-get-url mtz-url   dir-target-mtz-file)))
 	    
-	    (format #t "read model status: ~s~%" s1)
-	    (format #t "read mtz   status: ~s~%" s2)
+	    (format #t "INFO:: read model status: ~s~%" s1)
+	    (format #t "INFO:: read mtz   status: ~s~%" s2)
 	    
-	    (handle-read-draw-molecule dir-target-pdb-file)
-	    (let ((sc-map (make-and-draw-map 
-			   dir-target-mtz-file "2FOFCWT" "PH2FOFCWT" "" 0 0)))
-	      (make-and-draw-map 
-	       dir-target-mtz-file  "FOFCWT"  "PHFOFCWT" "" 0 1)
-	      (set-scrollable-map sc-map)))))))
+	    (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file))
+		  (sc-map (make-and-draw-map dir-target-mtz-file "2FOFCWT" "PH2FOFCWT" "" 0 0)))
+	      (make-and-draw-map dir-target-mtz-file  "FOFCWT"  "PHFOFCWT" "" 0 1)
+	      (set-scrollable-map sc-map)
+	      (if (valid-model-molecule? r-imol)
+		  r-imol
+		  #f)))))))
+
+
 
