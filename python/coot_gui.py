@@ -50,15 +50,20 @@ history = ['']
 # type functions in to start with.
 #
 def coot_gui():
-
+   
+   global coot_listener_socket
    import sys, string
    import re
+
+   have_socket = False
+   if (coot_listener_socket):
+      have_socket = True
+   
    def delete_event(*args):
        window.destroy()
+       if (have_socket):
+          gtk.main_quit()
        return False
-
-#   def destroy(*args):
-#       gtk.main_quit()
 
    def hist_func(widget, event, entry, textbuffer, text):
        if event.keyval in (gtk.keysyms.KP_Up, gtk.keysyms.Up):
@@ -94,19 +99,6 @@ def coot_gui():
           entry.set_text(history[histpos])
 #       print "BL DEBUG:: hist and pos", history, histpos
 
-   def warning_event(entry, event):
-      if (event.state & gtk.gdk.CONTROL_MASK):
-        # BL says:: for windows we want to exclude Ctrl so that we can copy things
-        # alhough not really needed since we can use middle mouse  or drag to copy
-        return
-      else:
-       tag1 = textbuffer.create_tag(foreground="red",weight=pango.WEIGHT_BOLD)
-       insert_tag_text(tag1,"Don't type here.  Type in the white entry bar\n")
-       insert_prompt()
-       while gtk.events_pending():
-          gtk.main_iteration(False)
-       return
-
    def scroll_to_end():
        end = textbuffer.get_end_iter()
        textbuffer.place_cursor(end)
@@ -127,6 +119,19 @@ def coot_gui():
        end = textbuffer.get_end_iter()
        insert_normal_text("coot >> ")
        scroll_to_end()
+
+   def warning_event(entry, event):
+      if (event.state & gtk.gdk.CONTROL_MASK):
+        # BL says:: for windows we want to exclude Ctrl so that we can copy things
+        # alhough not really needed since we can use middle mouse  or drag to copy
+        return
+      else:
+       tag1 = textbuffer.create_tag(foreground="red",weight=pango.WEIGHT_BOLD)
+       insert_tag_text(tag1,"Don't type here.  Type in the white entry bar\n")
+       insert_prompt()
+       while gtk.events_pending():
+          gtk.main_iteration(False)
+       return
 
    # BL says:: now we check if entry was guile command (by mistake?!)
    # if so, let's translate it
@@ -313,7 +318,9 @@ def coot_gui():
 
    text.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#bfe6bf"))
    window.show_all()
-#   gtk.main()
+   # run in own gtk loop only when using sockets!
+   if (have_socket):
+      gtk.main()
 
 
 # The callback from pressing the Go button in the smiles widget, an
@@ -1823,6 +1830,14 @@ def view_saver_gui():
 		lambda text: add_view_here(text))
 
 # geometry is an improper list of ints
+#
+# return the h_box of the buttons
+#
+# a button is a list of [label, callback, text_description]
+#
+# Note:
+#  - if label is "HSep" a horizontal separator is inserted instead of a button
+#  - the description is optional
 #
 def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
    
@@ -3610,7 +3625,9 @@ import threading
 # helper function to push the python threads
 # this only runs python threads for 20ms every 50ms
 def python_thread_sleeper():
-   time.sleep(0.02)
+   global python_thread_sleep
+   sleep_time = python_thread_sleep
+   time.sleep(sleep_time / 1000.)
    if (threading.activeCount() == 1):
      #print "BL DEBUG:: stopping timeout"
      return False
@@ -3619,12 +3636,16 @@ def python_thread_sleeper():
 # this has locked, so that no one else can use it
 global python_thread_return
 python_thread_return = False
+#global python_thread_sleep
+#python_thread_sleep = 20
 
 # function to run a python thread with function using
 # args which is a tuple
+# optionally pass sleep time in ms (default is 20) - usefull
+# for computationally expensive threads which may have run longer
 # N.B. requires gobject hence in coot_gui.py
 #
-def run_python_thread(function, args):
+def run_python_thread(function, args, sleep_time=20):
 
    import gobject
    
@@ -3640,10 +3661,13 @@ def run_python_thread(function, args):
          finally:
             python_return_lock.release()
 
+   global python_thread_sleep
+   if (not sleep_time == 20):
+      python_thread_sleep = sleep_time
+   if (threading.activeCount() == 1):
+      gobject.timeout_add(50, python_thread_sleeper)
    MyThread().start()
-   gobject.timeout_add(50, python_thread_sleeper)
    
 
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()
-

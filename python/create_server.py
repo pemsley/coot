@@ -60,4 +60,4 @@ def connection_proc(port, hostname):
     #request.shutdown(2) #Stop the client from reading or writing anything.
     #sock.close()
 
-connection_proc(50007, "localhost")
+connection_proc(port, hostname)

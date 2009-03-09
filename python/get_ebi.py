@@ -142,6 +142,8 @@ def get_ebi_pdb(id):
 #
 # @var{id} is the accession code.
 #
+# returns imol of read pdb or False on error.
+#
 # 20050725 EDS code
 #
 def get_eds_pdb_and_mtz(id):
@@ -166,25 +168,27 @@ def get_eds_pdb_and_mtz(id):
       target_mtz_file = down_id + "_sigmaa.mtz"
       dir_target_mtz_file = coot_tmp_dir + "/" + target_mtz_file
       mtz_url = eds_url + down_id + "/" + target_mtz_file
-#      print "BL DEBUG: pdb file:",model_url
-#      print "BL DEBUG: mtz file:",mtz_url
 
       try:
         s1 = urllib.urlretrieve(model_url, dir_target_pdb_file)
-        print "read model status: ",s1
+        print "INFO:: read model status: ",s1
       except IOError:
         print "BL ERROR:: We can't open ", model_url
       try:
         s2 = urllib.urlretrieve(mtz_url, dir_target_mtz_file)
-        print "read mtz   status: ",s2
+        print "INFO:: read mtz   status: ",s2
       except IOError:
         print "BL ERROR:: We can't open ", mtz_url 
 
 
-      handle_read_draw_molecule(dir_target_pdb_file)
+      r_imol = handle_read_draw_molecule(dir_target_pdb_file)
       sc_map = make_and_draw_map(dir_target_mtz_file,"2FOFCWT","PH2FOFCWT","",0,0)
       make_and_draw_map(dir_target_mtz_file,"FOFCWT","PHFOFCWT","",0,1)
       set_scrollable_map(sc_map)
+      if (valid_model_molecule_qm(r_imol)):
+          return r_imol
+      else:
+          return False
 
     else:
       print "Can't make directory ",coot_tmp_dir
