@@ -10,6 +10,7 @@ hostname = sys.argv[1]
 port = int(sys.argv[2])
 
 def make_server_for_remote_control():
+    global sock
     msg = 'start'
     print "BL DEBUG:: msg, host, port", msg, hostname,port
     #Setup a standard internet socket.
@@ -22,7 +23,7 @@ def make_server_for_remote_control():
     print 'Waiting for a Request'
 
     #Handle a client request
-    request,clientAddress = sock.accept()
+    request, clientAddress = sock.accept()
     print 'Request received from: ', clientAddress
     data = request.recv(1024)
     print 'Received connection Msg: ', data
@@ -33,5 +34,5 @@ def make_server_for_remote_control():
         print 'Received Msg: ', data
     request.shutdown(2) #Stop the client from reading or writing anything.
     sock.close()
-
+    
 make_server_for_remote_control()

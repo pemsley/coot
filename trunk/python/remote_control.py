@@ -46,15 +46,81 @@ def open_coot_listener_socket(port_number, host_name):
 
     soc.connect((host_adress, port_number))
 
-    print "Coot listener socket ready! from remote_control.py"
+    print "Coot listener socket ready!"
     soc.send("Coot listener socket ready!\n")
     coot_listener_socket = soc
     if soc:
         set_coot_listener_socket_state_internal(1)
 
     # threads? Needed?
-    import thread
     status = run_python_thread(coot_listener_idle_function_proc,())
+
+# yet another go to make a coot port reader work.  This time, we use
+# a gtk-timer to read stuff from the socket.  
+# 
+# The gtk-timer function must return True to be called again.  When we
+# want to close the socket reader, simply make the function return False.
+# 
+def open_coot_listener_socket_with_timeout(port_number, host_name):
+
+    try:
+        import gobject
+    except:
+        print "BL WARNING:: no gobject available, so no socket. Sorry!"
+        return
+    
+    import socket
+    global coot_listener_socket
+
+    print "in open_coot_listener_socket port: %s host %s" %(port_number, host_name)
+
+    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    host_adress = "127.0.0.1"
+
+    try:
+        soc.connect((host_adress, port_number))
+    except:
+        print "BL INFO:: cannot connect to socket on host %s with port %s" %(host_name, port_number)
+        return
+
+    print "Coot listener socket ready!"
+    soc.send("Coot listener socket ready!\n")
+    coot_listener_socket = soc
+
+    gobject.timeout_add(1000, coot_socket_timeout_func)
+
+# based on coot_listener_idle_func_proc
+#
+def coot_socket_timeout_func():
+    
+    global coot_listener_socket
+
+    global total_socket_data
+    print "BL DEBUG:: in timeout func with total_daat", total_socket_data
+    if (coot_listener_socket):
+        while (1):
+            continue_qm = listen_coot_listener_socket(coot_listener_socket)
+            if (not continue_qm):
+                set_coot_listener_socket_state_internal(0)
+                try:
+                    coot_listener_socket.shutdown(2)
+                except:
+                    try:
+                        coot_listener_socket.shutdown(1)
+                    except:
+                        print "BL INFO:: problems shutting down the controling socket, "
+                        print "maybe already down"
+                coot_listener_socket.close()
+                coot_listener_socket = False
+                print "server gone - listener thread ends", coot_listener_socket
+                return False
+            else:
+                # keep listening
+                #time.sleep(0.01)
+                return True
+    else:
+        print "coot_socket_timeout_func bad sock: ", coot_listener_socket
+        return False
 
 
 def coot_listener_idle_function_procbbbbbb():
@@ -94,7 +160,7 @@ def coot_listener_idle_function_proc():
                     try:
                         coot_listener_socket.shutdown(1)
                     except:
-                        print "BL DEBUG::problems shutting down the controling socket, "
+                        print "BL INFO:: problem shutting down the controling socket, "
                         print "maybe already down"
                 coot_listener_socket.close()
                 coot_listener_socket = False
@@ -106,8 +172,12 @@ def coot_listener_idle_function_proc():
     else:
         print "coot_listener_idle_func_proc bad sock: ", coot_listener_socket
 
+global total_socket_data
+total_socket_data = []
+
 def listen_coot_listener_socket(soc):
 
+    global total_socket_data
     close_connection_string = "# close"
     end_connection_string = "# end"    # just 'end' for test
 
@@ -115,7 +185,6 @@ def listen_coot_listener_socket(soc):
         print "received in evaluate", string_list
         # new eval?!
         for line in string_list.split("\n"):
-            print "BL DEBUG:: line and close_conn", line, close_connection_string
             if (line == close_connection_string):
                 print "finish socket"
                 #soc.send("Closing session")
@@ -143,38 +212,49 @@ def listen_coot_listener_socket(soc):
     #
     data = False
     soc.setblocking(0)
+    def check_aliveness():
+        # first check if serve is still there?
+        try:
+            soc.sendall("")
+        except:
+            print "BL INFO:: appear that serve is down, closing down connection"
+            return False
+        return True
+
     try:
-        total_data = []
-        #print "waiting to receive"
         while True:
             data = soc.recv(1024)
+
             import time
             time.sleep(0.1)
-            print "BL DEBUG:: after recv", data
             if (end_connection_string in data):
-                total_data.append(data[:data.rfind(end_connection_string)])
-                #total_data.append(data[:data.find(end_connection_string)])
+                total_socket_data.append(data[:data.rfind(end_connection_string)])
                 break
-            total_data.append(data)
-            if (len(total_data) > 1):
+
+            if (not data == ""):
+                total_socket_data.append(data)
+            else:
+                return check_aliveness()
+                
+            if (len(total_socket_data) > 1):
                 # check if end_connection_string was split
-                last_pair = total_data[-2] + total_data[-1]
+                last_pair = total_socket_data[-2] + total_socket_data[-1]
                 if (end_connection_string in last_pair):
-                    total_data[-2] = last_pair[:last_pair.find(end_connection_string)]
-                    total_data.pop()
+                    total_socket_data[-2] = last_pair[:last_pair.find(end_connection_string)]
+                    total_socket_data.pop()
                     break
-        total_data = ''.join(total_data)
-        print "received total_data", total_data
+        total_socket_data = ''.join(total_socket_data)
         if (not data):
             #print "nothing on the line..."
             return True
         else:
-            ret = evaluate_character_list(total_data)
-            print "BL DEBUG::returning", ret
+            ret = evaluate_character_list(total_socket_data)
+            total_socket_data = [] # reset total data
             return ret
     except:
         return True
         
+
 
 #open_coot_listener_socket(50007, "bla")
 

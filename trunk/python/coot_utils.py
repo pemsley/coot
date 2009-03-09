@@ -815,24 +815,44 @@ def chain_ids(imol):
 
 # convert from interface name to schemisch name to be equivalent to Paul's naming
 #
+# return True or False
+#
 def is_solvent_chain_qm(imol,chain_id):
     if (is_solvent_chain_p(imol,chain_id)==1): return True
     else: return False
 
-# schemey interface to eponymous scripting interface function!?
+# python (schemeyish) interface to eponymous scripting interface function!?
+# return True or False
+#
 def valid_model_molecule_qm(imol): 
     if (is_valid_model_molecule(imol)==1): return True
     else: return False
 
-# schemey interface to eponymous scripting interface function.
+# python (schemeyish) interface to eponymous scripting interface function.
+# return True or False
+#
 def valid_map_molecule_qm(imol):
     if (is_valid_map_molecule(imol)==1): return True
     else: return False
+
+# python (schemeyish) interface to the function that returns whether or not a map
+# is a difference map.
+# Return True or False.
+#
+def is_difference_map_qm(imol_map):
+    if (not is_valid_map_molecule(imol_map)):
+        return False
+    else:
+        if (map_is_difference_map(imol_map) == 1):
+            return True
+        else:
+            return False
 
 # Does residue resno with insertion code ins_code of chain chain_id
 # and in molecule number imol exist?
 #
 # Return True or False
+#
 def residue_exists_qm(imol,chain_id,resno,ins_code): 
     if (does_residue_exist_p(imol,chain_id,resno,ins_code)==1): return True
     else: return False
