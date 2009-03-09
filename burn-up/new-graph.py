@@ -30,10 +30,13 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 80
+x_day_range = 90
+
 x_tick_interval = 2
 if (x_day_range > 40):
    x_tick_interval = 5
+if (x_day_range > 80):
+   x_tick_interval = 10
 
 xaxis = axis.X(tic_interval = x_tick_interval, label="Days (since pre-release start)")
 yaxis = axis.Y(tic_interval = 20, label="Dev Points")
