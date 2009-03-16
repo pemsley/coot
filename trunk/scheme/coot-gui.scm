@@ -162,7 +162,7 @@
 	   (tlc-entry (gtk-entry-new))
 	   (smiles-label (gtk-label-new "SMILES string "))
 	   (smiles-entry (gtk-entry-new))
-	   (text (gtk-text-new "SMILES interface works by using CCP4's LIBCHECK"))
+	   (text (gtk-label-new "  [SMILES interface works by using CCP4's LIBCHECK]  "))
 	   (go-button (gtk-button-new-with-label "  Go  ")))
 
       (gtk-box-pack-start vbox hbox1 #f #f 0)
@@ -1282,7 +1282,8 @@
     (list option-menu model-mol-list)))
     
 
-;; Return an entry, insert the widget into the hbox in this function
+;; Return an entry, the widget is inserted into the hbox passed to
+;; this function.
 ;; 
 (define (file-selector-entry hbox hint-text)
 
