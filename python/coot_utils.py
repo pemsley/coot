@@ -954,12 +954,14 @@ def add_key_binding(name, key, thunk):
     else:
         if (type(key) is IntType):
             if (key in keys):
-                print "INFO:: you are overwriting existing code", key
+                print "INFO:: you are overwriting existing key", key
+                key_bindings.pop(keys.index(key))
             key_bindings.append([key, key, name, thunk])
         elif (type(key) is StringType):
             code = decode_key(key)
             if (code in codes):
-                print "INFO:: you are overwriting existing key", key
+                print "INFO:: you are overwriting existing key (from code)", key
+                key_bindings.pop(codes.index(code))
             if (not (code == -1)):
                 key_bindings.append([code, key, name, thunk])
             else:
@@ -1385,7 +1387,11 @@ def save_dialog_positions_to_init_file():
         
 # saves a string to a file!
 # if the string is already present dont do anything
-def save_string_to_file(string, filename):
+# optional arg: overwrite
+#               False - default
+#               True  - overwrite file
+#
+def save_string_to_file(string, filename, overwrite=False):
     
     #home = 'HOME'
     #if (os.name == 'nt'):
@@ -1393,8 +1399,12 @@ def save_string_to_file(string, filename):
     init_file = filename
     if (os.path.isfile(init_file)):
         # init file exists
-        port = open(init_file, 'r+')
-        lines = port.readlines()
+        if (overwrite):
+            port = open(init_file, 'w')
+            lines = []
+        else:
+            port = open(init_file, 'r+')
+            lines = port.readlines()
     else:
         port = open(init_file, 'w')
         lines = []
