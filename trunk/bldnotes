@@ -1,11 +1,15 @@
  -*-text-*-
 
-scripts rev 1924
+scripts rev 1930
 tests   rev 1873
 
 ---------------
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
+
+   o (scripting) GUI to find zero occ atoms.
+
+   o annotations in Extensions
 
    o fix OXT refinement
 
@@ -52,6 +56,8 @@ tests   rev 1873
 ---------------
 * TO DO THINGS *
 ---------------
+
+   o density histogram graph?!
 
    o additional representations: hide parts of model (use bond thickness 0?!?
 	bond thickness 0 doesnt work. hiding seems tricky!?

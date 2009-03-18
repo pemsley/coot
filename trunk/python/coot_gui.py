@@ -326,7 +326,7 @@ def coot_gui():
 # The callback from pressing the Go button in the smiles widget, an
 # interface to run libcheck.
 #
-def handle_smiles_go(tlc_entry,smiles_entry):
+def handle_smiles_go(tlc_entry, smiles_entry):
 
     import os, stat, shutil
 
@@ -385,6 +385,7 @@ def handle_smiles_go(tlc_entry,smiles_entry):
        print "BL WARNING:: Wrong input (no smiles text)! Can't continue!"
 
 # smiles GUI
+#
 def smiles_gui():
 
    def smiles_gui_internal():
@@ -412,14 +413,16 @@ def smiles_gui():
       tlc_entry.set_text("")
       smiles_label = gtk.Label("SMILES string ")
       smiles_entry = gtk.Entry()
+      text = gtk.Label("  [SMILES interface works by using CCP4's LIBCHECK]  ")
       go_button = gtk.Button("  Go  ")
       vbox.pack_start(hbox1, False, False, 0)
-      vbox.pack_start(hbox2, False, False, 0)
+      vbox.pack_start(hbox2, False, False, 4)
+      vbox.pack_start(text, False, False, 2)
       vbox.pack_start(go_button, False, False, 6)
       hbox1.pack_start(tlc_label, False, False, 0)
       hbox1.pack_start(tlc_entry, False, False, 0)
       hbox2.pack_start(smiles_label, False, False, 0)
-      hbox2.pack_start(smiles_entry, True, True, 0)
+      hbox2.pack_start(smiles_entry, True, True, 4)
       smiles_window.add(vbox)
       vbox.set_border_width(6)
 
@@ -430,7 +433,7 @@ def smiles_gui():
       smiles_window.show_all()
    # first check that libcheck is available... if not put up and info
    # dialog.
-   if (find_exe(libcheck_exe)):
+   if (find_exe(libcheck_exe, "CCP4_BIN", "PATH")):
       smiles_gui_internal()
    else:
       info_dialog("You need to setup CCP4 (specifically LIBCHECK) first.")
@@ -1635,7 +1638,8 @@ def generic_molecule_chooser(hbox, hint_text):
 	hbox.pack_start(option_menu, True, True, 2)
         return [option_menu, model_mol_list]
 
-# Return an entry, insert the widget into the hbox in this function
+# Return an entry, the widget is inserted into the hbox passed to
+# this function
 #
 def file_selector_entry(hbox, hint_text):
 
@@ -1666,7 +1670,8 @@ def file_selector_entry(hbox, hint_text):
       return file_chooser_entry(hbox, hint_text)
 
 # This is the same as the file_selector_entry, but using the modern FileChooser
-# Return an entry, insert the widget into the hbox in this function
+# Return an entry, the widget is inserted into the hbox passed to
+# this function
 #
 def file_chooser_entry(hbox, hint_text):
 
@@ -1711,6 +1716,7 @@ def place_strand_here_gui():
                             lambda n: place_strand_here(n, 15))
 
 # Cootaneer gui
+#
 def cootaneer_gui(imol):
 
 	def delete_event(*args):
@@ -1805,6 +1811,7 @@ def cootaneer_gui(imol):
 
 
 # The gui for saving views
+#
 def view_saver_gui():
 
 	def local_view_name():
