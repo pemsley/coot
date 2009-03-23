@@ -7294,6 +7294,10 @@ void set_background_colour(double red, double green, double blue) {
      g.background_colour[1] = green; 
      g.background_colour[2] = blue; 
      glFogfv(GL_FOG_COLOR, g.background_colour);
+     if (g.do_anti_aliasing_flag) {
+       // update the antialias?!
+       g.draw_anti_aliasing();
+     }
      graphics_draw();
    }
 }

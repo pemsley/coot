@@ -271,6 +271,11 @@ create_window1 (void)
   GtkWidget *non_bonded_contacts_eventbox_docked;
   GtkWidget *frame190;
   GtkWidget *rama_eventbox_docked;
+  GtkWidget *accept_reject_docked_reverse_button;
+  GtkWidget *alignment135;
+  GtkWidget *hbox397;
+  GtkWidget *image6812;
+  GtkWidget *label724;
   GtkWidget *hbuttonbox1;
   GtkWidget *hbox275;
   GtkWidget *button25;
@@ -1337,6 +1342,27 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (frame190), rama_eventbox_docked);
   gtk_tooltips_set_tip (tooltips, rama_eventbox_docked, _("Ramachandran Plot deviance"), NULL);
 
+  accept_reject_docked_reverse_button = gtk_button_new ();
+  gtk_box_pack_start (GTK_BOX (hbox274), accept_reject_docked_reverse_button, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (accept_reject_docked_reverse_button), 1);
+  GTK_WIDGET_UNSET_FLAGS (accept_reject_docked_reverse_button, GTK_CAN_FOCUS);
+
+  alignment135 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment135);
+  gtk_container_add (GTK_CONTAINER (accept_reject_docked_reverse_button), alignment135);
+
+  hbox397 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox397);
+  gtk_container_add (GTK_CONTAINER (alignment135), hbox397);
+
+  image6812 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6812);
+  gtk_box_pack_start (GTK_BOX (hbox397), image6812, FALSE, FALSE, 0);
+
+  label724 = gtk_label_new_with_mnemonic (_(" Reverse"));
+  gtk_widget_show (label724);
+  gtk_box_pack_start (GTK_BOX (hbox397), label724, FALSE, FALSE, 0);
+
   hbuttonbox1 = gtk_hbutton_box_new ();
   gtk_widget_show (hbuttonbox1);
   gtk_box_pack_start (GTK_BOX (hbox274), hbuttonbox1, TRUE, TRUE, 0);
@@ -2065,6 +2091,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) accept_reject_dialog_frame_docked, "hide",
                     G_CALLBACK (on_accept_reject_dialog_frame_docked_hide),
                     NULL);
+  g_signal_connect ((gpointer) accept_reject_docked_reverse_button, "clicked",
+                    G_CALLBACK (on_accept_reject_reverse_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) button25, "clicked",
                     G_CALLBACK (on_accept_reject_refinement_docked_accept_button_clicked),
                     NULL);
@@ -2422,6 +2451,11 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, non_bonded_contacts_eventbox_docked, "non_bonded_contacts_eventbox_docked");
   GLADE_HOOKUP_OBJECT (window1, frame190, "frame190");
   GLADE_HOOKUP_OBJECT (window1, rama_eventbox_docked, "rama_eventbox_docked");
+  GLADE_HOOKUP_OBJECT (window1, accept_reject_docked_reverse_button, "accept_reject_docked_reverse_button");
+  GLADE_HOOKUP_OBJECT (window1, alignment135, "alignment135");
+  GLADE_HOOKUP_OBJECT (window1, hbox397, "hbox397");
+  GLADE_HOOKUP_OBJECT (window1, image6812, "image6812");
+  GLADE_HOOKUP_OBJECT (window1, label724, "label724");
   GLADE_HOOKUP_OBJECT (window1, hbuttonbox1, "hbuttonbox1");
   GLADE_HOOKUP_OBJECT (window1, hbox275, "hbox275");
   GLADE_HOOKUP_OBJECT (window1, button25, "button25");

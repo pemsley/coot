@@ -444,7 +444,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    for (unsigned int i=0; i<all_residues.size(); i++) {
       n_atoms += all_residues[i]->GetNumberOfAtoms();
    }
-   std::cout << "   DEUBG:: There are " << n_atoms << " atoms total (including flankers)"
+   std::cout << "   DEBUG:: There are " << n_atoms << " atoms total (including flankers)"
 	     << std::endl;
 
    atom = new PCAtom[n_atoms];
@@ -604,12 +604,12 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	    cout << "unexpected error from gsl_multimin_fdfminimizer_iterate"
 		 << endl;
 	    if (status == GSL_ENOPROG) {
-	       cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG"
-		    << endl; 
-	       chi_squareds("Final Chi Squareds", s->x);
+	      cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG"
+		   << endl; 
+	      chi_squareds("Final Chi Squareds", s->x);
 	    }
 	    break;
-	 } 
+	 }
 
 	 // back of envelope calculation suggests g_crit = 0.1 for
 	 // coordinate shift of 0.001:  So let's choose 0.05
@@ -5149,14 +5149,16 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 
 		       for (unsigned int j=0; j<bonded_atom_indices[atom_index].size(); j++) { 
 		 
-			  if (bonded_atom_indices[atom_index][j] == atom_index_inner) { 
+			  if (bonded_atom_indices[atom_index][j] == atom_index_inner ||
+			      std::string(atom[atom_index]->altLoc) != 
+			      std::string(atom[atom_index_inner]->altLoc)) { 
 			     was_bonded_flag = 1;
 			     break;
 			  } 
 		       }
-		 
 		       if (was_bonded_flag == 0) { 
 			  non_bonded_atom_indices[atom_index].push_back(atom_index_inner);
+			std::cout<<"BL DEBUG::  adding "<<atom_index<<std::endl;
 		       }
 		    }
 		 }

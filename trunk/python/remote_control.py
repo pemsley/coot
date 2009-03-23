@@ -41,7 +41,7 @@ def open_coot_listener_socket(port_number, host_name):
     print "in open_coot_listener_socket port: %s host %s" %(port_number, host_name)
 
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     host_adress = "127.0.0.1"
 
     soc.connect((host_adress, port_number))
@@ -96,7 +96,6 @@ def coot_socket_timeout_func():
     global coot_listener_socket
 
     global total_socket_data
-    print "BL DEBUG:: in timeout func with total_daat", total_socket_data
     if (coot_listener_socket):
         while (1):
             continue_qm = listen_coot_listener_socket(coot_listener_socket)

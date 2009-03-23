@@ -1365,6 +1365,13 @@ def missing_atoms_gui(imol):
    interesting_residues_gui(imol, "Residues with missing atoms",
                             missing_atom_info(imol))
 
+# Make an interesting things GUI for residues with zero occupancy atoms
+#
+def zero_occ_atoms_gui(imol):
+
+   interesting_things_gui("Residues with zero occupancy atoms",
+                          atoms_with_zero_occ(imol))
+
 
 # Make an interesting things GUI for residues of molecule number
 # imol for the given imol.   A generalization of alt-confs gui.

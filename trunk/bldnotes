@@ -7,15 +7,22 @@ tests   rev 1873
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
-   o (scripting) GUI to find zero occ atoms.
+   o simulate middle mouse with Alt left ?!
+
+   o torsion general 'Reverse button' for docked accept/refine dialog
 
    o annotations in Extensions
 
-   o fix OXT refinement
-
    o labelling with 'l' doesnt show status bar info (feature/bug?)
 
+   o refinement weighting by occupancy
+
+   o (scripting) GUI to find zero occ atoms.
+
+* Done (python; needs guile/scheme)
+
    o WinCoot:
+        - update dictionaries!!
 	- update to python 2.6 (now with pygtk etc)
 	- before stable release copy python over
 	- silent python installation? Possible? (http://www.autoitscript.com/autoit3/)
@@ -56,6 +63,9 @@ tests   rev 1873
 ---------------
 * TO DO THINGS *
 ---------------
+
+   o fix OXT refinement
+     (maybe not now, as it may be fixed with MODRES etc...)
 
    o density histogram graph?!
 
@@ -201,4 +211,9 @@ tests   rev 1873
    o 17/12/08: set difference map doesnt do 'nice' default difference map colours [Jodie Guy]
 
 * Done
+
+   o antialias depending on bg colour
+
+* Done
+
 
