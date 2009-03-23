@@ -434,6 +434,14 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_models,
+       "Atoms with Zero Occupancies...",
+       lambda func: molecule_chooser_gui(
+         "Which molecule to check for Atoms with zero occupancies?",
+         lambda imol: zero_occ_atoms_gui(imol)))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
        "Phosphorylate this residue",
        lambda func: phosphorylate_active_residue())
 

@@ -139,9 +139,13 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
    gtk_label_set_text(GTK_LABEL(label), txt.c_str());
 
    // Was this a torsion general, in which we need to active the reverse button?
+   GtkWidget *reverse_button = lookup_widget(window, "accept_reject_docked_reverse_button");
+   gtk_widget_hide(reverse_button);
    if (fit_type == "Torsion General") {
-      GtkWidget *reverse_button = lookup_widget(window, "accept_reject_reverse_button");
-      gtk_widget_show(reverse_button);	
+     if (graphics_info_t::accept_reject_dialog_docked_flag != coot::DIALOG_DOCKED){
+       reverse_button = lookup_widget(window, "accept_reject_reverse_button");
+     }
+     gtk_widget_show(reverse_button);	
    }
    
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
@@ -153,10 +157,8 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
      if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_SHOW) {
        gtk_widget_set_sensitive(window, TRUE);
      }
-     gtk_widget_show(window);
-   } else {
-     gtk_widget_show(window);
    }
+   gtk_widget_show(window);
 }
 
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results) {

@@ -188,7 +188,7 @@ coot::deep_copy_this_residue(CResidue *residue,
    
    for(int iat=0; iat<nResidueAtoms; iat++) {
       std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
-      if (whole_residue_flag ||
+      if (whole_residue_flag || altconf == "" ||
 	  this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
 	 atom_p = new CAtom;
 	 atom_p->Copy(residue_atoms[iat]);

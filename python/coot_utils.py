@@ -1049,6 +1049,36 @@ def residue_alt_confs(imol, chain_id, res_no, ins_code):
 					alt_confs.append(alt_conf_str)
 	return alt_confs
 
+
+# Return a list of all atoms that have zero occupancy: where an atom
+# is specified thusly: [[chain_id, resno, ins_code, name, altconf], [...] ]
+# 
+def atoms_with_zero_occ(imol):
+
+    r = []
+    for chain_id in chain_ids(imol):
+        n_residues = chain_n_residues(chain_id, imol)
+        for serial_number in range(n_residues):
+                              
+            res_name = resname_from_serial_number(imol, chain_id, serial_number)
+            res_no = seqnum_from_serial_number(imol, chain_id, serial_number)
+            ins_code = insertion_code_from_serial_number(imol, chain_id, serial_number)
+            res_info = residue_info(imol, chain_id, res_no, ins_code)
+            for atom_info in res_info:
+                occ      = atom_info[1][0]
+                name     = atom_info[0][0]
+                alt_conf = atom_info[0][1]
+                if (occ < 0.01):
+                    text = str(imol)   + " " + chain_id + " " + \
+                           str(res_no) + " " + name
+                    if (alt_conf):
+                        text += " "
+                        text += alt_conf
+                    r.append([text, imol, chain_id, res_no, ins_code, name, alt_conf])
+
+    return r
+
+
 # Return False if no atom can be found given the spec else return a list
 # consisting of the atom name and alt-conf specifier.  
 # 

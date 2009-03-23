@@ -249,8 +249,13 @@ graphics_info_t::draw_anti_aliasing() {
 	// should we also add a (quality) hint here?
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
-	// glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
+	if (graphics_info_t::background_colour[0] < 0.01 &&
+	    graphics_info_t::background_colour[1] < 0.01 &&
+	    graphics_info_t::background_colour[2] < 0.01) {
+	  glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
+	} else {
+	  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
+	}
       } else {
 	glDisable(GL_LINE_SMOOTH);
 	glDisable(GL_BLEND);
@@ -264,8 +269,13 @@ graphics_info_t::draw_anti_aliasing() {
       if (do_anti_aliasing_flag) {
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
-	// glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
+	if (graphics_info_t::background_colour[0] < 0.01 &&
+	    graphics_info_t::background_colour[1] < 0.01 &&
+	    graphics_info_t::background_colour[2] < 0.01) {
+	  glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
+	} else {
+	  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
+	}
       } else {
 	glDisable(GL_LINE_SMOOTH);
 	glDisable(GL_BLEND);
