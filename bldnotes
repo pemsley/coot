@@ -9,8 +9,6 @@ tests   rev 1873
 
    o simulate middle mouse with Alt left ?!
 
-   o torsion general 'Reverse button' for docked accept/refine dialog
-
    o annotations in Extensions
 
    o labelling with 'l' doesnt show status bar info (feature/bug?)
@@ -216,4 +214,7 @@ tests   rev 1873
 
 * Done
 
+   o torsion general 'Reverse button' for docked accept/refine dialog
+
+* Done
 
