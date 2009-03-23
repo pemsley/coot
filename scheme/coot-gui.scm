@@ -128,14 +128,14 @@
 		 (pdb-file-name (string-append "libcheck_" three-letter-code ".pdb"))
 		 (cif-file-name (string-append "libcheck_" three-letter-code ".cif")))
 	    
-					; write the smiles strings to a file
+	    ;; write the smiles strings to a file
 	    (call-with-output-file smiles-file
 	      (lambda (port)
 		(format port "~a~%" smiles-text)))
 	    
 	    (let ((status (goosh-command libcheck-exe '() libcheck-data-lines log-file-name #t)))
-					; the output of libcheck goes to libcheck.lib, we want it in
-					; (i.e. overwrite the minimal description in cif-file-name
+	      ;; the output of libcheck goes to libcheck.lib, we want it in
+	      ;; (i.e. overwrite the minimal description in cif-file-name
 	      (if (number? status)
 		  (if (= status 0)
 		      (begin
