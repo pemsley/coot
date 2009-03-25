@@ -7118,8 +7118,8 @@ on_preferences_dialog_accept_on_radiobutton_toggled
                                         gpointer         user_data)
 {
   if (togglebutton->active) {
-    preferences_internal_change_value_int(PREFERENCES_IMMEDIATE_REPLACEMENT, 1);
-    set_refinement_immediate_replacement(1);
+    preferences_internal_change_value_int(PREFERENCES_IMMEDIATE_REPLACEMENT, 0);
+    set_refinement_immediate_replacement(0);
   }
 
 }
@@ -7131,8 +7131,8 @@ on_preferences_dialog_accept_off_radiobutton_toggled
                                         gpointer         user_data)
 {
   if (togglebutton->active) {
-    preferences_internal_change_value_int(PREFERENCES_IMMEDIATE_REPLACEMENT, 0);
-    set_refinement_immediate_replacement(0);
+    preferences_internal_change_value_int(PREFERENCES_IMMEDIATE_REPLACEMENT, 1);
+    set_refinement_immediate_replacement(1);
   }
 
 }

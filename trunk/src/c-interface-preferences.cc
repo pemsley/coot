@@ -263,11 +263,11 @@ void update_preference_gui() {
       break;
 
     case PREFERENCES_IMMEDIATE_REPLACEMENT:
-      w = lookup_widget(dialog, "preferences_dialog_accept_on_radiobutton");
+      w = lookup_widget(dialog, "preferences_dialog_accept_off_radiobutton");
       if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
-	w = lookup_widget(dialog, "preferences_dialog_accept_off_radiobutton");
+	w = lookup_widget(dialog, "preferences_dialog_accept_on_radiobutton");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       }
       break;
