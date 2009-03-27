@@ -85,6 +85,7 @@ Paul Emsley
 * Validation::
 * Hints and Usage Tips::
 * Other Programs::
+* Scripting Functions::
 * Index::   Complete index.
 @end menu
      
@@ -4271,7 +4272,21 @@ One uses @code{findligand} like this:
  @emph{i.e.} the example ligand pdb files that you wish to search for
 are given at the end of the command line.
 
+@c % -----------------------------------------------------------
+@node    Scripting Functions
+@chapter Scripting Functions
+@c % -----------------------------------------------------------
+
+@c integrating HTML documentation.  Not good.
 @c @include dox/c-interface_8h.html.texi
+
+Placeholder for scripting functions.
+
+@c integrating doxygen->xml->texi documentation.  Quite good.  No
+@c menus for the node/sections though.  Output needs to be formalised.
+@c 
+@c @include ../src/test-it.texi
+
 
 @node Index
 @unnumbered Index

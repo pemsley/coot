@@ -4026,7 +4026,7 @@ Tue 20 Jan 2009 10:13:19 EST
 -----
 Fri 23 Jan 2009 17:31:50 EST
 
-  Paul Hubbard:  I awant to do righid body refinement on the fragment
+  Paul Hubbard:  I awant to do rigid body refinement on the fragment
    of the active residue - don't make me click 2 residues to define
    the fragment - find it yourself 
 
@@ -4060,6 +4060,12 @@ Wed Mar  4 13:12:21 GMT 2009
      for wiggly ligands, but torsion angles are horrifically broken.
 
 
+----
+Thu Mar  5 10:26:43 GMT 2009
+
+    Torsion general should optionally wag the chain or molecule (not
+    just the rest of the residue).  Frank von Delft, Cathy Lawson.
+
 -----
 
 
@@ -4068,4 +4074,24 @@ Wed Mar  4 13:12:21 GMT 2009
 
 
    3f5p has a nice ligand
+
+
+     Add a residue/chain selector (an mmdb string entry) to allow the 
+     selction for a ramachandran plot (put it at the bottom of the dialog).
+
+
+-----
+Thu Mar 26 18:39:42 GMT 2009
+   
+     Adding a terminal residue: 
+
+     the phi/psi pairs from a ramamchandran plot can't be the phi/psi for *one* residue, they 
+     must be psi of one and phi of the next (or the other way round).   Hmm... needs some 
+     though.
+     
+
+
+
+------
+
 

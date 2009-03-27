@@ -307,8 +307,8 @@ GtkWidget *main_toolbar();
 /*  -------------------------------------------------------------------- */
 /*                   mtz and data handling utilities                     */
 /*  -------------------------------------------------------------------- */
-/* section Widget Utilities */
-/*! \name Widget Utilities */
+/* section MTZ and data handling utilities */
+/*! \name  MTZ and data handling utilities */
 /* \{ */
 /* We try as .phs and .cif files first */
 
@@ -1718,8 +1718,8 @@ void set_clipping_front(float v);
 /*  ----------------------------------------------------------------------- */
 /*                         Unit Cell                                        */
 /*  ----------------------------------------------------------------------- */
-/* section Unit Cell */
-/*! \name  Unit Cell */
+/* section Unit Cell interface */
+/*! \name  Unit Cell interface */
 /* \{ */
 
 /*! \brief return the stage of show unit cell for molecule number imol */
@@ -1800,8 +1800,8 @@ float get_molecule_bonds_colour_map_rotation(int imol);
 /*  ----------------------------------------------------------------------- */
 /*                         Anisotropic Atoms */
 /*  ----------------------------------------------------------------------- */
-/* section Anisotropic Atoms */
-/*! \name  Anisotropic Atoms */
+/* section Anisotropic Atoms Interface */
+/*! \name  Anisotropic Atoms Interface */
 /* \{ */
 /*  we use the text interface to this in callback.c rather */
 /*  than getting the float directly. */
@@ -2041,8 +2041,8 @@ int set_atom_attributes_py(PyObject *attribute_expression_list);
 /*  ----------------------------------------------------------------------- */
 /*                            skeletonization                               */
 /*  ----------------------------------------------------------------------- */
-/* section Skeletonization */
-/*! \name  Skeletonization */
+/* section Skeletonization Interface */
+/*! \name  Skeletonization Interface */
 /* \{ */
 void skel_greer_on(); 
 void skel_greer_off(); 
@@ -2573,9 +2573,9 @@ PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, co
 /*  ----------------------------------------------------------------------- */
 /*                  scripting                                               */
 /*  ----------------------------------------------------------------------- */
-/* section Scripting */
+/* section Scripting Interface */
 
-/*! \name Scripting */
+/*! \name Scripting Interface */
 /* \{ */
 
 /*! \brief do nothing - compatibility function */
@@ -2747,7 +2747,7 @@ void set_refine_params_toggle_buttons(GtkWidget *button);
  The default is 60.
 
  The higher the number the more weight that is given to the map terms
- but the resulting @math{\chi^2} values are higher).  This will be
+ but the resulting chi squared values are higher).  This will be
  needed for maps generated from data not on (or close to) the absolute
  scale or maps that have been scaled (for example so that the sigma
  level has been scaled to 1.0).
@@ -2898,7 +2898,7 @@ void write_restraints_cif_dictionary(const char *monomer_type, const char *file_
 /*  ----------------------------------------------------------------------- */
 /*               Simplex Refinement                                         */
 /*  ----------------------------------------------------------------------- */
-/*! \name Simplex Refinement */
+/*! \name Simplex Refinement Interface */
 /*! \{ */
 
 /*! \brief refine residue range using simplex optimization */
@@ -2935,8 +2935,8 @@ int move_molecule_to_screen_centre_internal(int imol);
 /*  ----------------------------------------------------------------------- */
 /*               Atom info                                                  */
 /*  ----------------------------------------------------------------------- */
-/* section Atom Info */
-/*! \name Atom Info */
+/* section Atom Info Interface */
+/*! \name Atom Info  Interface */
 /* \{ */
 
 /*! \brief output Atom Info for the give atom specs
@@ -3285,8 +3285,9 @@ void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *
 /*  ----------------------------------------------------------------------- */
 /*           sequence_view                                                  */
 /*  ----------------------------------------------------------------------- */
-/*! \name Sequence View  */
+/*! \name Sequence View Interface  */
 /* \{ */
+/* \brief display the sequence view dialog for molecule number imol */
 void do_sequence_view(int imol);
 void add_on_sequence_view_choices();
 void set_sequence_view_is_displayed(GtkWidget *widget, int imol); 
@@ -3378,7 +3379,7 @@ void remove_view(int view_number);
 int go_to_first_view(int snap_to_view_flag);
 int go_to_view_number(int view_number, int snap_to_view_flag);
 int add_spin_view(const char *view_name, int n_steps, float degrees_total);
-/*! \brief return the number of views */
+/*! \brief Add a view description/annotation to the give view number */
 void add_view_description(int view_number, const char *description);
 /*! \brief add a view (not add to an existing view) that *does*
   something (e.g. displays or undisplays a molecule) rather than move
@@ -3778,8 +3779,8 @@ int n_dots_sets(int imol);
 /*  ----------------------------------------------------------------------- */
 /*                  pepflip                                                 */
 /*  ----------------------------------------------------------------------- */
-/* section Pep-flip */
-/*! \name Pep-flip */
+/* section Pep-flip Interface */
+/*! \name Pep-flip Interface */
 /* \{ */
 void do_pepflip(short int state); /* sets up pepflip, ready for atom pick. */
 /*! \brief pepflip the given residue */
@@ -3790,8 +3791,8 @@ void pepflip(int imol, const char *chain_id, int resno, const char *inscode);
 /*  ----------------------------------------------------------------------- */
 /*                  rigid body refinement                                   */
 /*  ----------------------------------------------------------------------- */
-/* section Rigid Body Refinement */
-/*! \name Rigid Body Refinement */
+/* section Rigid Body Refinement Interface */
+/*! \name Rigid Body Refinement Interface */
 /* \{ */
 /* a gui-based interface: setup the rigid body refinement.*/
 void do_rigid_body_refine(short int state);	/* set up for atom picking */
@@ -4180,10 +4181,13 @@ int rotamer_auto_fit_do_post_refine_state();
    Hence mutate() is for use as a "one-by-one" type and the following
    2 by wrappers that muate either a residue range or a whole chain
 
-   Note that the target_res_type is a char, not a string (or a char *).  So from the scheme 
-   interface you'd use (for example) #\A {hash backslash A} for ALA.
-*/
-int mutate_single_residue_by_serial_number(int ires_ser, const char *chain_id, 
+   Note that the target_res_type is a char, not a string (or a char *).  
+   So from the scheme interface you'd use (for example) hash
+   backslash A for ALA.  */
+
+
+int mutate_single_residue_by_serial_number(int ires_ser, 
+					   const char *chain_id,
 					   int imol, char target_res_type);
 /* ires is the seqnum of the residue (conventional) */
 int mutate_single_residue_by_seqno(int ires, const char *inscode,
@@ -4294,9 +4298,10 @@ void apply_add_OXT_from_widget(GtkWidget *w);
 /*  ----------------------------------------------------------------------- */
 /*                  crosshairs                                              */
 /*  ----------------------------------------------------------------------- */
-/* section Crosshairs  */
-/*! \name Crosshairs  */
+/* section Crosshairs Interface */
+/*! \name Crosshairs  Interface */
 /*! \{ */
+/* \brief draw the distance crosshairs, 0 for off, 1 for on. */
 void set_draw_crosshairs(short int i);
 /* so that we display the crosshairs with the radiobuttons in the
    right state, return draw_crosshairs_flag */
