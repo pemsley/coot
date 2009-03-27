@@ -1149,11 +1149,15 @@ int test_ligand_fit_from_given_point() {
    
    
    clipper::Xmap<float> xmap;
-   bool stat = coot::util::map_fill_from_mtz(&xmap, "rnasa-1.8-all_refmac1.mtz",
+   std::string mtz_file_name;
+   mtz_file_name = getenv("HOME");
+   mtz_file_name += "/data/greg-data/rnasa-1.8-all_refmac1.mtz";
+   
+   bool stat = coot::util::map_fill_from_mtz(&xmap, mtz_file_name,
 					     "FWT", "PHWT", "WT", 0, 0);
 
    if (!stat) {
-      std::cout << "   Bad map fill from " << "rnasa-1.8-all_refmac1.mtz" << "\n";
+      std::cout << "   ERROR:: Bad map fill from " << mtz_file_name << "\n";
       return 0; 
    }
 
