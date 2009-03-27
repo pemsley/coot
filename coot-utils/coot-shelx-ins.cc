@@ -734,13 +734,15 @@ coot::ShelxIns::read_line(std::ifstream &f) {
    while (!f.eof()) {
       c = f.get();
       int c_as_int = c;
-      if ((c_as_int >= 32) || (c_as_int == 10)) { // George Sheldrick suggestion 20070415
+      // BL says:: we shall include tab here too (9)
+      if ((c_as_int >= 32) || (c_as_int == 10) || (c_as_int == 9)) { // George Sheldrick suggestion 20070415
 	 if (c == '\n') {
 	    if (running_word.length() > 0)
 	       sv.push_back(running_word);
 	    break;
 	 } else {
-	    if (c == ' ') {
+	    // BL says:: let's include tabs as separator of words too
+	    if (c == ' ' || c == '\t') {
 	       if (running_word.length() > 0)
 		  sv.push_back(running_word);
 	       running_word = "";
@@ -768,8 +770,8 @@ coot::ShelxIns::read_line(std::ifstream &f) {
 	 shelx_card_info.spaced_start = 1;
       }
    }
-   
 
+   
 //    for (int i=0; i<shelx_card_info.words.size(); i++) {
 //       std::cout << ":" << shelx_card_info.words[i] << ": ";
 //    }
@@ -1034,7 +1036,9 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 	       write_sfac_line(f);
 	       sfac_done = 1;
 	       f << pre_atom_lines[i];
-	       if (sfac.size() != unit.size()) {
+	       // BL says:: maybe only if size unit > sfac !?! or absolute value?!
+	       // lets say only when positive (FIXME!?)
+	       if (sfac.size() >= unit.size()) {
 		  std::cout << "INFO :: padding UNIT card from size "
 			    << unit.size() << " to " << sfac.size() << std::endl;
 		  for (unsigned int iextra=0; iextra<(sfac.size() - unit.size()); iextra++) {
