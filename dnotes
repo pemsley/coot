@@ -4068,12 +4068,27 @@ Thu Mar  5 10:26:43 GMT 2009
 
 -----
 
-
-
-   better credit for USF in get pdb and data.
-
+   Better Credit for USF in get pdb and data.
 
    3f5p has a nice ligand
+
+
+-----
+Tue Mar 24 19:05:54 GMT 2009
+
+     Let the Display Manager auto-resize on reading new pdb or map.
+	[Frank von Delft]
+
+
+---
+Wed Mar 25 19:09:38 GMT 2009
+
+    A tool to split out ions/ NA/ CL from a particular chain(?) and put them in their own chain.  
+
+    Then isSolventChain() can work, and so renumber-waters can work.
+
+
+----
 
 
      Add a residue/chain selector (an mmdb string entry) to allow the 
@@ -4091,7 +4106,4 @@ Thu Mar 26 18:39:42 GMT 2009
      
 
 
-
 ------
-
-
