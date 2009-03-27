@@ -365,6 +365,11 @@ def add_tmp_extension_to(file_name):
     else:
        return "tmp"
 
+# Same function as strip_extension, different name, as per scsh, in fact.
+# 
+def file_name_sans_extension(s):
+    return strip_extension(s)
+
 # /a/b.t -> b.t   d/e.ext -> e.ext
 # file-name-sans-path
 def strip_path(s):
@@ -374,13 +379,21 @@ def strip_path(s):
 
 # does s start with a "/" ?
 # return True or False
+#
+# for windows return True when drive letter, e.g. C, or even \\ (backslash):
 def slash_start_qm(s):
     import types
+    import string
     if isinstance(s, types.StringTypes):
        if len(s) > 0:
-          if s.startswith("/"): return True
-          else: return False
-       else: return False
+          if (s.startswith("/") or s.startswith("\\")):
+              return True
+          else:
+              if (os.name == 'nt' and len(s) > 1):
+                  # for windows check if the start is a drive letter
+                  drive_letter_ls = [dl + ':' for dl in string.ascii_uppercase]
+                  if (s[0:2] in drive_letter_ls):
+                      return True
     return False
 
 # return a string that contains the date/time

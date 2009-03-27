@@ -7,6 +7,8 @@ tests   rev 1873
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+   o running shelx should be 'threaded'
+
    o annotations in Extensions
 
    o labelling with 'l' doesnt show status bar info (feature/bug?)

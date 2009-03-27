@@ -36,7 +36,7 @@ if (have_coot_python and find_exe("shelxl", "PATH")):
        h_sep = gtk.HSeparator()
 
        window.add(vbox)
-       options_menu_mol_list_pair = generic_molecule_chooser(vbox, chooser_hint_text)
+       option_menu_mol_list_pair = generic_molecule_chooser(vbox, chooser_hint_text)
        entry = file_selector_entry(vbox, entry_hint_text)
 
        def shelx_delete_event(*args):
@@ -46,10 +46,10 @@ if (have_coot_python and find_exe("shelxl", "PATH")):
        def shelx_refine_go_funcn_event(*args):
            import operator
            txt = entry.get_text()
-           imol = get_option_menu_active_molecule(option_menu_list_pair)
+           imol = get_option_menu_active_molecule(*option_menu_mol_list_pair)
            if (operator.isNumberType(imol)):
                if (len(txt) == 0):
-                   shelxl_refine(imol)
+                   editable_shelx_gui(imol)
                else:
                    shelxl_refine(imol, txt)
            window.destroy()
@@ -65,7 +65,7 @@ if (have_coot_python and find_exe("shelxl", "PATH")):
        window.show_all()
        
     add_simple_coot_menu_menuitem(menu, "SHELXL Refine...",
-                                  lambda func:shelx_refine_func())
+                                  lambda func: shelx_refine_func())
 
 
     def shelx_read_project_func(*args):
@@ -103,12 +103,16 @@ if (have_coot_python and find_exe("shelxl", "PATH")):
                                   lambda func: shelx_read_project_func())
 
 
+    def test_fun(fn, imol):
+        print "BL DEBUG:: intially fn and imol", fn, imol
+        read_shelx_lst_file(fn, imol)
     add_simple_coot_menu_menuitem(menu, "Read LST file...",
                lambda func: generic_chooser_and_file_selector("Model Corresponding to LST file: ",
                                                               valid_model_molecule_qm,
                                                               "LST file",
                                                               "",
-                                                              lambda imol, lst_file_name: read_shelx_lst_file(lst_file_name, imol)))
+                                                              lambda imol, lst_file_name: test_fun(lst_file_name, imol)))
+#                                                              lambda imol, lst_file_name: read_shelx_lst_file(lst_file_name, imol)))
 
 
     add_simple_coot_menu_menuitem(menu, "Add SHELXL instruction...",
@@ -116,3 +120,114 @@ if (have_coot_python and find_exe("shelxl", "PATH")):
                                                       "SHELX instruction:",
                                                       "",
                                                       lambda imol, text: add_shelx_string_to_molecule(imol, text)))
+
+def shelx_ins_strings(imol):
+
+    ins_tmp_file = "coot-tmp.ins"
+    write_shelx_ins_file(imol, ins_tmp_file)
+    lines = []
+    try:
+        fin = open(ins_tmp_file, 'r')
+        lines = fin.readlines()
+        fin.close()
+    except:
+        print "INFO:: problems reading file", ins_tmp_file
+    return lines
+
+def shelxl_refine_gui(imol, hkl_file_name_maybe=False):
+
+    def shelx_delete_event(*args):
+        window.destroy()
+        return False
+
+    def shelx_refine_go_funcn_event(*args):
+        import operator
+        start, end = textbuffer.get_bounds()
+        txt = textbuffer.get_text(start, end)
+        shelxl_refine_primitive(imol, txt, hkl_file_name_maybe)
+        window.destroy()
+        return False
+
+    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    window.set_size_request(500, 500)
+    vbox = gtk.VBox(False, 2)
+    buttons_hbox = gtk.HBox(False, 2)
+    scrolled_win = gtk.ScrolledWindow()
+    text = gtk.TextView()
+    textbuffer = text.get_buffer()
+    text.set_editable(True)
+    refine_button = gtk.Button("  Refine  ")
+    cancel_button = gtk.Button("  Cancel  ")
+
+    window.add(vbox)
+    scrolled_win.add(text)
+    buttons_hbox.pack_start(refine_button, False, False, 2)
+    buttons_hbox.pack_start(cancel_button, False, False, 2)
+    scrolled_win.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+    vbox.pack_start(buttons_hbox, False, False, 2)
+    vbox.pack_start(scrolled_win)
+
+    text_strings = shelx_ins_strings(imol)
+    bg_col = "#c0e6c0"
+
+    text.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg_col))
+    text.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
+    for string in text_strings:
+        end = textbuffer.get_end_iter()
+        textbuffer.insert(end, string)
+
+    refine_button.connect("clicked", shelx_refine_go_funcn_event)
+    cancel_button.connect("clicked", shelx_delete_event)
+
+    window.show_all()
+
+
+def editable_shelx_gui(imol):
+
+    def shelx_delete_event(*args):
+        window.destroy()
+        return False
+
+    def shelx_refine_go_funcn_event(*args):
+        import operator
+        start, end = textbuffer.get_bounds()
+        txt = textbuffer.get_text(start, end)
+        shelxl_refine_primitive(imol, txt, hklin_file_name)
+        window.destroy()
+        return False
+
+    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    text = gtk.TextView()
+    textbuffer = text.get_buffer()
+    scrolled_win = gtk.ScrolledWindow()
+    cancel_button = gtk.Button("  Cancel  ")
+    run_button = gtk.Button("  Run  ")
+    vbox = gtk.VBox(False, 0)
+    buttons_hbox = gtk.HBox(False, 0)
+
+    window.set_size_request(450, 400)
+    window.add(vbox)
+    scrolled_win.add(text)
+    vbox.set_border_width(5)
+    buttons_hbox.pack_start(run_button,    True, False, 2)
+    buttons_hbox.pack_start(cancel_button, True, False, 2)
+    vbox.pack_start(buttons_hbox, False, False, 0)
+    vbox.pack_start(scrolled_win, True, True, 2)
+    scrolled_win.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+    text.set_editable(True)
+
+    shelx_ins_list = get_shelx_ins_list(imol)
+    bg_col = "white"
+
+    text.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg_col))
+    text.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
+    for string in shelx_ins_list:
+        end = textbuffer.get_end_iter()
+        textbuffer.insert(end, string)
+
+    run_button.connect("clicked", shelx_refine_go_funcn_event)
+    cancel_button.connect("clicked", shelx_delete_event)
+    window.show_all()
+
+# seems to be the same...
+get_shelx_ins_list = shelx_ins_strings
