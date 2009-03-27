@@ -1195,8 +1195,7 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
       
       std::string chain_id_1(SelAtom[i_atom_no_1]->residue->GetChainID());
       std::string chain_id_2(SelAtom[i_atom_no_2]->residue->GetChainID());
-      std::string altconf_1(SelAtom[i_atom_no_1]->altLoc);
-      std::string altconf_2(SelAtom[i_atom_no_2]->altLoc);
+      std::string altconf(SelAtom[i_atom_no_2]->altLoc);
       short int is_water_like_flag = 0;
       std::string resname_1(SelAtom[i_atom_no_1]->GetResName());
       std::string resname_2(SelAtom[i_atom_no_2]->GetResName());
@@ -1213,11 +1212,6 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
       }
       
       is_water_like_flag = check_for_no_restraints_object(resname_1, resname_2);
-      // BL says:: only pass the alt_conf if same in both clicked atoms?!
-      std::string altconf = "";
-      if (altconf_1 == altconf_2) {
-          altconf = altconf_1;
-      }
       refine_residue_range(imol, chain_id_1, chain_id_2, resno_1, inscode_1,
 			   resno_2, inscode_2, altconf, is_water_like_flag);
    }
