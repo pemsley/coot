@@ -578,7 +578,7 @@ def read_shelx_lst_file(file_name, imol):
 # then strip that off before adding new extensions.
 #
 def read_shelx_project(file_name):
-	import os, time
+	import os
 
 	file_name = os.path.abspath(file_name)
 	extension = file_name_extension(file_name)
@@ -628,7 +628,7 @@ def read_shelx_project(file_name):
                         # only want to read the xxx.fcf.cif if it is
                         # more recent than xxx.fcf (if it is not, we
                         # want to handle-shelx-fcf-file.
-                        from stat import *
+                        from stat import ST_MTIME
                         fcf_date = os.stat(fcf_file_name)[ST_MTIME]
                         fcf_cif_date = os.stat(fcf_cif_file_name)[ST_MTIME]
                         # print "    fcf_date %s fcf_cif_date %s" %(time.ctime(fcf_date), time.ctime(fcf_cif_date))
