@@ -100,8 +100,11 @@ def using_active_atom(funcs):
 # set this to a function accepting two argument (the molecule number
 # and the manipulation mode) and it will be run after a model
 # manipulation.
+# e.g.
+# def post_manipulation_script(imol, mode):
+#  ... continue below
 #
-# The manipulation mode will be one of (MOVING-ATOMS), (DELETED) or
+# The manipulation mode will be one of (MOVINGATOMS), (DELETED) or
 # (MUTATED) and these can be tested with "=".
 #
 # e.g.
@@ -109,8 +112,7 @@ def using_active_atom(funcs):
 # if (mode == DELETED):
 #      display/print "Something was deleted"
 #
-def post_manipulation_script():
-    return False
+post_manipulation_script = False
 
 # return a list of molecule numbers (closed and open)
 # The elements of the returned list need to be tested against

@@ -132,7 +132,7 @@
 ;; and the manipulation mode) and it will be run after a model
 ;; manipulation.
 ;;
-;; The manipulation mode will be one of (MOVING-ATOMS), (DELETED) or
+;; The manipulation mode will be one of (MOVINGATOMS), (DELETED) or
 ;; (MUTATED) and these can be tested with "=".
 ;;
 ;; e.g.

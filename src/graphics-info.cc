@@ -1118,8 +1118,13 @@ graphics_info_t::run_post_manipulation_hook_scm(int imol,
 void
 graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
+   // BL says:: we can do it all in python API or use the 'lazy' method
+   // and check in the python layer (which we will do...)
    std::string pms = "post_manipulation_script";
-   PyObject *v = safe_python_command_with_return(pms);
+   std::string check_pms = "callable(";
+   check_pms += pms;
+   check_pms += ")";
+   PyObject *v = safe_python_command_with_return(check_pms);
    if (v == Py_True) {
      std::string ss = pms;
      ss += "(";
@@ -1128,17 +1133,14 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
      ss += int_to_string(mode);
      ss += ")";
      PyObject *res = safe_python_command_with_return(ss);
-     PyObject *p = PyString_FromString("result: %s\n");
+     PyObject *fmt =  PyString_FromString("result: \%s");
      PyObject *tuple = PyTuple_New(1);
      PyTuple_SetItem(tuple, 0, res);
-//     PyString_ConcatAndDel(&p, res);
-//     PyString_ConcatAndDel(&p, "\n");
-     PyString_Format(p, tuple);
+     //PyString_Format(p, tuple);
+     PyObject *msg = PyString_Format(fmt, tuple);
      
-     std::cout << PyString_AsString(p);
-     Py_DECREF(p);
-     Py_DECREF(tuple);
-     Py_DECREF(res);
+     std::cout << PyString_AsString(msg)<<std::endl;;
+     Py_DECREF(msg);
    }
    Py_DECREF(v);
 }
