@@ -27,6 +27,9 @@ c-interface.cc:5998
 #8  0x4009ee48 in scm_apply () from
 /apps/xtal/coot/current/linux/lib/libguile.so.12
 
+   
+   o Is the TER atoms remove from the "added-to-residue" on terminal
+     residue addition?   ::: 1
 
 
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
@@ -69,7 +72,7 @@ c-interface.cc:5998
 
 
    o Add terminal residue has disconnected atoms.  Why? This is an
-   extremely deeply-buried problem. ::: 4
+     extremely deeply-buried problem. ::: 4
 
 
    o multiple residue ranges, glycosylation, covalent bond entities,
@@ -80,6 +83,14 @@ c-interface.cc:5998
 
 
    o Put the scripting window into the state file. ::: 1
+
+
+   o Ramachandran Plots need a molecule name/number title [Wendy
+     Offen] ::: 1
+
+
+   o "Fit ligand here" which gets a monomer then does a ligand search
+     based on the blob at the current position. ::: 8
 
 
    o Some tests for rigid body fitting many residue.  Consider
@@ -179,6 +190,19 @@ c-interface.cc:5998
   body etc tags. Ugly though.  Include files need to be in source doc
   directory.  Call it xxx.html.texi and add @html tags in there.
 
+  Actually, there is a better way, use the JED conversion script.
+
+   o Ingo K.: try to pepflip a peptide with alt conf "B" - it flips
+     the "A" version.  ::: 1
+
+   o Ingo K.: Ctrl left-mouse dragging sometimes does not work for alt
+     conf fragment residue range.
+
+   o Time Grune: When you read in a shelx ins file, it ignores the
+     "Recentre" check button on the file selection dialog.  ::: 1
+
+   o Tim Grune: When you add a terminal residue to a .ins molecule,
+     then the main chain atoms have occupancy 1.0.  ::: 1
 
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.  ::: 2
