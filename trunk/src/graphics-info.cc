@@ -1120,12 +1120,15 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
    // BL says:: we can do it all in python API or use the 'lazy' method
    // and check in the python layer (which we will do...)
+   PyObject *v;
+   int ret;
    std::string pms = "post_manipulation_script";
    std::string check_pms = "callable(";
    check_pms += pms;
    check_pms += ")";
-   PyObject *v = safe_python_command_with_return(check_pms);
-   if (v == Py_True) {
+   v = safe_python_command_with_return(check_pms);
+   ret = PyInt_AsLong(v);
+   if (ret) {
      std::string ss = pms;
      ss += "(";
      ss += int_to_string(imol);

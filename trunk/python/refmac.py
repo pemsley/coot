@@ -1341,7 +1341,7 @@ def get_refmac_version():
 
     if (refmac_execfile):
         log_file = "refmac_version_tmp.log"
-        status = popen_command(refmac_execfile, ["-i"], ["\n"], log_file)
+        status = popen_command(refmac_execfile, ["-i"], [], log_file)
         if (status == 0):
             fin = open(log_file, 'r')
             lines = fin.readlines()
