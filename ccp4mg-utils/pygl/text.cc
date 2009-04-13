@@ -279,6 +279,7 @@ SimpleText::SimpleText(const Cartesian &vertex_in, const GLuint tex_id, const GL
   vertices.push_back(vertex_in);
   slant = "";
   weight = "normal";
+  underline = false;
   text = text_in;
   origin = origin_in;
   texture_id = tex_id;
@@ -302,7 +303,9 @@ SimpleText::SimpleText(const Cartesian &vertex_in, const std::string &text_in, c
   alpha = alpha_in;
   family = family_in;
   fn_size = size_in;
+  //fn_descent = 0;
   weight = weight_in;
+  underline = false;
   slant = slant_in;
   yskip = 0.0;
   id = text_id++; // Need to get rid of this crap
@@ -1435,8 +1438,17 @@ std::string SimpleText::StripTags()
   
 }
 
+int SimpleText::GetFontDescent() const {
+	return fn_descent;
+}
+
+void SimpleText::SetFontDescent(unsigned int fn_isize){
+  fn_descent = fn_isize;
+}
+
 void SimpleText::SetFontSize(unsigned int fn_isize){
   fn_size = fn_isize;
+  //SetFontDescent(fn_size); // Until we know
 }
 
 void SimpleText::SetFontFamily(const std::string &Family){

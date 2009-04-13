@@ -3021,6 +3021,23 @@ hide_ribbons(int imol) {
 }
 
 void
+show_aniso_spheroids(int imol) {
+  graphics_info_t::molecules[imol].cootanisospheroids = 1;
+  graphics_info_t::molecules[imol].make_aniso_spheroids();
+  graphics_draw();
+
+}
+
+void
+hide_aniso_spheroids(int imol) {
+
+  graphics_info_t::molecules[imol].cootanisospheroids = 0;
+  graphics_draw();
+
+}
+
+
+void
 set_ribbon_param_int(int imol, const char *name, int value) {
 
   graphics_info_t::molecules[imol].set_ribbon_param(name, value);
@@ -3033,9 +3050,15 @@ set_ribbon_param_float(int imol, const char *name, float value) {
 }
 
 void
-set_global_ribbon_param(int imol, const char *name, int value) {
+set_global_ccp4mg_param_int(int imol, const char *name, int value) {
 
-  graphics_info_t::molecules[imol].set_global_ribbon_param(name, value);
+  graphics_info_t::molecules[imol].set_global_ccp4mg_param(name, value);
+}
+
+void
+set_global_ccp4mg_param_float(int imol, const char *name, float value) {
+
+  graphics_info_t::molecules[imol].set_global_ccp4mg_param(name, value);
 }
 
 /*  ----------------------------------------------------------------------- */

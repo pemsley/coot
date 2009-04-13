@@ -631,11 +631,11 @@ int CheckIfStereoAvailable(void){
   DescribePixelFormat (hDC, format, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 
   if ((pfd.dwFlags & PFD_STEREO) == 0){
-    printf("Windows does not think stereo is available\n");
+    //printf("Windows does not think stereo is available\n");
     DestroyWindow(hWnd);
     return 0;
   }else{
-    printf("Windows thinks stereo is available\n");
+    //printf("Windows thinks stereo is available\n");
     DestroyWindow(hWnd);
     return 1;
   }

@@ -73,7 +73,7 @@ const std::vector<Primitive*> &Displayobject::GetPrimitives() const {
 const std::vector<Primitive*> &Displayobject::GetSurfacePrimitives() const {
   return surf_prims;
 }
-const std::vector<SimpleBillBoard*> &Displayobject::GetImagePrimitives() const {
+const std::vector<BillBoard*> &Displayobject::GetImagePrimitives() const {
   return image_prims;
 }
 const std::vector<SimpleText*> &Displayobject::GetTextPrimitives() const {
@@ -294,13 +294,14 @@ int* Displayobject::GetTextIDS(void) const{
 
 void Displayobject::SetTextFont(
   const std::string family,  const std::string weight, 
-  const std::string slant, const int size ) {
+  const std::string slant, const int size, const int underline ) {
   std::vector<SimpleText*>::const_iterator k = text_prims.begin();
   while(k!=text_prims.end()){
     (*k)->SetFontFamily(family);
     (*k)->SetFontWeight(weight);
     (*k)->SetFontSlant(slant);
     (*k)->SetFontSize(size);
+    (*k)->SetFontUnderline(underline);
     //(*k)->initialize();
     (*k)->renderStringToPixmap(); 
     k++;
@@ -379,7 +380,7 @@ Quat Displayobject::GetUnitCellAlignmentRotation(const std::string &axis){
 }
 
 void Displayobject::DrawUnitCell(){
-  if(unit_cell.size()<3)
+  if(unit_cell.size()<3||!GetDrawUnitCell())
     return;
   glDisable(GL_LIGHTING);
   GLfloat *params = new GLfloat[4];
@@ -518,7 +519,7 @@ void Displayobject::add_text_primitive(SimpleText *prim){
   text_prims.push_back(prim);
 }
 
-void Displayobject::add_image_primitive(SimpleBillBoard *prim){
+void Displayobject::add_image_primitive(BillBoard *prim){
   image_prims.push_back(prim);
 }
 
@@ -848,8 +849,9 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
       double pix_w= (*k)->GetTexture().get_width();
       double pix_h= (*k)->GetTexture().get_height();
       double size = fabs(win_h*pix_h/view_h*radius/60.0);
-      double size_offset = -2*fabs(win_h*(pix_h-(*k)->GetFontSize())/view_h*radius/60.0);
+      double size_offset = -2*fabs(win_h*((*k)->GetFontDescent())/view_h*radius/60.0);
       double ratio = double(pix_w)/pix_h;
+      //glDisable(GL_TEXTURE_2D); glColor4f(0,0,0,1);
       glBegin(GL_QUADS);
       glTexCoord2f(0,0);
       glVertex3f(0,size_offset,0);
@@ -886,7 +888,7 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
       double pix_w= (*k)->GetTexture().get_width();
       double pix_h= (*k)->GetTexture().get_height();
       double size = fabs(win_h*pix_h/view_h*radius/60.0);
-      double size_offset = -2*fabs(win_h*(pix_h-(*k)->GetFontSize())/view_h*radius/60.0);
+      double size_offset = -2*fabs(win_h*((*k)->GetFontDescent())/view_h*radius/60.0);
       double ratio = double(pix_w)/pix_h;
       if((*k)->IsBillBoard()){
         glLoadIdentity();
@@ -900,6 +902,7 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
         glTranslatef(v.get_x(),v.get_y(),v.get_z());
         glMultMatrixd(matinv);
       }
+      //glDisable(GL_TEXTURE_2D); glColor4f(0,0,0,1);
       glBegin(GL_QUADS);
       glTexCoord2f(0,0);
       glVertex3f(0,size_offset,0);
@@ -927,7 +930,7 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
 void Displayobject::draw_images(void){
 
   glDepthFunc(GL_ALWAYS);
-  std::vector<SimpleBillBoard*>::const_iterator k = image_prims.begin();
+  std::vector<BillBoard*>::const_iterator k = image_prims.begin();
 
   while(k!=image_prims.end()){
     (*k)->draw();
@@ -1280,7 +1283,7 @@ void Displayobject::OutputTextLabels(std::ofstream &fp, const Quat &quat_in, dou
     }
     kk++;
   }
-  std::vector<SimpleBillBoard*>::const_iterator ll = image_prims.begin();
+  std::vector<BillBoard*>::const_iterator ll = image_prims.begin();
   while(ll!=image_prims.end()){
     if(clip_test){
       glDisable(GL_CLIP_PLANE0);
@@ -1363,7 +1366,7 @@ void Displayobject::DrawPostscript(std::ofstream &fp, const Quat &quat_in, doubl
   * need to make all that more portable and interpret it here somehow.
   * Tricky. */
 
-  std::vector<SimpleBillBoard*>::const_iterator ll = image_prims.begin();
+  std::vector<BillBoard*>::const_iterator ll = image_prims.begin();
   while(ll!=image_prims.end()){
     (*ll)->DrawPostScript(fp,quat_in,radius,ox,oy,oz,get_rotation_matrix(),origin,double(xoff),double(yoff),xscale,yscale,xscaleps,v);
     ll++;

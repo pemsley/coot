@@ -72,6 +72,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-opengl.la 	\
 	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-bezier.la 	\
 	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-cprim.la 	\
+	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-ppmutil.la 	\
 	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-psutil.la 	\
 	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-rgbreps.la 	\
 	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-symmetry.la 	\
@@ -81,7 +82,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/ccp4mg-utils/util/libccp4mg-mgutil.la 	\
 	$(top_builddir)/ccp4mg-utils/util/libccp4mg-paramsmanager.la 	\
 	$(top_builddir)/ccp4mg-utils/util/libccp4mg-redirect.la 	\
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
@@ -168,7 +168,6 @@ INCLUDES = \
 	-I$(top_srcdir)/ccp4mg-utils/util	\
 	-I$(top_srcdir)/ccp4mg-utils/mmut	\
 	-I$(top_srcdir)/ccp4mg-utils/pygl	\
-	-I$(top_srcdir)/ccp4mg-utils	\
 	-I$(top_srcdir)/coot-utils	\
 	-I$(top_srcdir)/intl 		\
 	-I$(top_srcdir)/skeleton	\
@@ -342,7 +341,6 @@ fix_nomenclature_errors_LDADD = \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la      		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/ccp4mg-utils/util/libccp4mg-pygl_coord.la   \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\

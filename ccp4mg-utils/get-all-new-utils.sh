@@ -89,6 +89,7 @@ cp $CCP4MGHOME/pygl/atom_util.cc  \
    $CCP4MGHOME/pygl/freetype_dl.c    \
    $CCP4MGHOME/pygl/help.cc    \
    $CCP4MGHOME/pygl/lincrv.cc    \
+   $CCP4MGHOME/pygl/ppmutil.cc    \
    $CCP4MGHOME/pygl/psutil.cc    \
    $CCP4MGHOME/pygl/rgbreps.cc    \
    $CCP4MGHOME/pygl/sphere.cc    \
@@ -115,6 +116,7 @@ cp $CCP4MGHOME/pygl/atom_util.h  \
    $CCP4MGHOME/pygl/freetype_dl.h    \
    $CCP4MGHOME/pygl/help.h    \
    $CCP4MGHOME/pygl/lincrv.h    \
+   $CCP4MGHOME/pygl/ppmutil.h    \
    $CCP4MGHOME/pygl/psutil.h    \
    $CCP4MGHOME/pygl/rgbreps.h    \
    $CCP4MGHOME/pygl/sphere.h    \

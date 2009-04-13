@@ -84,8 +84,6 @@ CMMANManager::CMMANManager(PCMGSBase p_sbase_in,
   transform_com_set = false;
   unremediated = false;
   Mat4Init(current_transform);
-  
-
 }
 
 //-------------------------------------------------------------------------
@@ -143,7 +141,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
     char lib[500];
     strcpy(lib,lib1);
     if (monlib.size()>0) {
-      cout << "clearing monlib" << endl;
+      //out << "clearing monlib" << endl;
       //LoadedPCSBStructure_iter p = monlib.find(resn);
       //if (p!=monlib.end()) return p->second;
       monlib.clear();
@@ -284,7 +282,7 @@ int CMMANManager::SetupAtomEnergyTypes () {
   PCResidue p_res;
   pstr compoundID = NULL;
   PCSBStructure p_sbase_struct;
-  cpstr atomType;
+  pstr atomType;
   int atomOrdinal;
   PCSBAtom p_sbase_atom;
 
@@ -319,16 +317,12 @@ int CMMANManager::SetupAtomEnergyTypes () {
 	//printf ( "resType %s index %i atomType %s %i\n"
 	    //  ,compoundID,atomOrdinal,atomType,strlen(atomType));
         if ( strlen(atomType) <  1 ) 
-	   //atomTable[j]->PutUDData(udd_atomEnergyType,-1);
-	   {
-	      char *v = (char *) "";
-	      atomTable[j]->PutUDData(udd_atomEnergyType,
-				      p_sbase->LibAtom(v,atomTable[j]->element));
-	   } 
-        else {
-	  int atty = p_sbase->LibAtom((char *) atomType);
-          atomTable[j]->PutUDData(udd_atomEnergyType, atty);
-	} 
+          //atomTable[j]->PutUDData(udd_atomEnergyType,-1);
+          atomTable[j]->PutUDData(udd_atomEnergyType,
+		p_sbase->LibAtom("",atomTable[j]->element));
+        else 
+          atomTable[j]->PutUDData(udd_atomEnergyType,
+                              p_sbase->LibAtom(atomType));
 	
       }  // End of loop over atoms
     } 
@@ -337,7 +331,7 @@ int CMMANManager::SetupAtomEnergyTypes () {
     else { 
       for (j=0;j<nat;j++) {
         atomTable[j]->PutUDData(udd_atomEnergyType,
-			p_sbase->LibAtom((char *) "",atomTable[j]->element));
+		p_sbase->LibAtom("",atomTable[j]->element));
         //printf ( "element %s type %i\n",atomTable[j]->element,
           //      p_sbase->LibAtom(1,atomTable[j]->element));
       }
@@ -491,7 +485,7 @@ int CMMANManager::GetAtomHBondType1(PCAtom p_atom) {
   return p_sbase->libAtom[atomOrd].hbType;
 }
 //---------------------------------------------------------------------
-const char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
+char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
 //---------------------------------------------------------------------
   int atomOrd;
   p_atom->GetUDData(udd_atomEnergyType, atomOrd);
@@ -499,7 +493,7 @@ const char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
     return p_sbase->libAtom[atomOrd].getHBType();
   }
   else {
-     return (char *) "U";
+    return "U";
   }
 }
 //---------------------------------------------------------------------
@@ -1150,7 +1144,7 @@ CMMANManager* GetMMANManager(PCAtom pAtom) {
   return  (PCMMANManager)(PCMMDBFile)pAtom->GetCoordHierarchy();
 }
 
-
+/*
 //----------------------------------------------------------------------
 std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
 //---------------------------------------------------------------------
@@ -1161,8 +1155,8 @@ std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
 
   if (nsym < 0 || nsym >= GetNumberOfSymOps()) return output.str();
 
-  SymOp.SetSymOp ( GetSymOp(nsym) );   
-  SymOp.GetTMatrix ( TMatrix );
+  SymOp.SetSymOp ( GetSymOp(nsym) );
+
   TMatrix[0][3] += i;
   TMatrix[1][3] += j;
   TMatrix[2][3] += k;
@@ -1171,6 +1165,80 @@ std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
   output << symOpTitle;
   return output.str();
 }
+*/
+
+//----------------------------------------------------------------------
+std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
+//---------------------------------------------------------------------
+  std::ostringstream output;
+  pstr symOpTitle;
+  CSymOps SymOps;
+
+  SymOps.SetGroup(GetSpaceGroup());
+  if (nsym < 0 || nsym >= SymOps.GetNofSymOps()) return output.str();
+
+  symOpTitle = SymOps.GetSymOp(nsym);
+
+  output << symOpTitle;
+  return output.str();
+}
+
+
+//------------------------------------------------------------------------
+int CMMANManager::GenerateTransformedModel(int model,realtype *vmat) {
+//------------------------------------------------------------------------
+  // Apply transformation
+  int new_model;
+  PCModel p_model;
+  mat44 TMatrix;
+
+  new_model =  CopyModel(model);
+  p_model = GetModel(new_model);
+  int kk = 0;
+  for (int ii = 0;ii<4;ii++) {
+    for (int jj = 0;jj<4;jj++) {
+      TMatrix[jj][ii] = vmat[kk];
+      kk++;
+    }
+  }
+  p_model->ApplyTransform (TMatrix);
+  return new_model;
+}
+
+//------------------------------------------------------------------------
+int CMMANManager::ApplyTransformtoModel(int model,realtype *vmat,Boolean undo) {
+//------------------------------------------------------------------------
+  mat44 TMatrix,invTMatrix;
+  PCModel p_model = GetModel(model);
+  int kk = 0;
+  for (int ii = 0;ii<4;ii++) {
+    for (int jj = 0;jj<4;jj++) {
+      TMatrix[jj][ii] = vmat[kk];
+      kk++;
+    }
+  }
+
+  if (undo) {
+    Mat4Inverse (TMatrix,invTMatrix);
+    p_model->ApplyTransform (invTMatrix);
+  } else
+    p_model->ApplyTransform (TMatrix);
+  return 0;
+}
+
+//------------------------------------------------------------------------
+int CMMANManager::GetLibTMatrix(mat44 &TMatrix,int nsym,int i,int j,int k) {
+//------------------------------------------------------------------------
+  CSymOps SymOps;
+  mat44 transmat,rotmat;
+  //cout << "GetLibTMatrix " << nsym << " " << i << " " << j << " " << k << endl;
+  SymOps.SetGroup(GetSpaceGroup());
+  int rv = SymOps.GetTMatrix(rotmat,nsym);
+  GetTMatrix(transmat,0,i,j,k);
+  Mat4Mult(TMatrix,rotmat,transmat);
+  return rv;
+}
+  
 
 //------------------------------------------------------------------------
 int CMMANManager::GenerateSymmetryModel(int model,int nsym,int i,int j,int k) {
@@ -1182,37 +1250,29 @@ int CMMANManager::GenerateSymmetryModel(int model,int nsym,int i,int j,int k) {
 
   new_model =  CopyModel(model);
   p_model = GetModel(new_model);
-  GetTMatrix(TMatrix,nsym,i,j,k);
+  GetLibTMatrix(TMatrix,nsym,i,j,k);
   p_model->ApplyTransform (TMatrix);
   return new_model;
 }
+
+
 //------------------------------------------------------------------------
-int CMMANManager::ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,int undo_nsym,int undo_i,int undo_j,int undo_k) {
+int CMMANManager::ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,Boolean undo) {
 //------------------------------------------------------------------------
   // Apply transformation
-  mat44 TMatrix, invTMatrix, multTMatrix;
+  mat44 TMatrix, invTMatrix;
   PCModel p_model;
 
   p_model = GetModel(model);
   if (p_model == NULL) return 1;
-  if (undo_nsym>=0) {
-     GetTMatrix(TMatrix,undo_nsym,undo_i,undo_j,undo_k);
-     Mat4Inverse (TMatrix,invTMatrix);
-     GetTMatrix(TMatrix,nsym,i,j,k);
+  GetLibTMatrix(TMatrix,nsym,i,j,k);
+  if (undo) {
+    GetLibTMatrix(invTMatrix,nsym,i,j,k);
+    Mat4Inverse (invTMatrix,TMatrix);
+  } else 
+     GetLibTMatrix(TMatrix,nsym,i,j,k);
      
-     for (int i = 0;i<4;i++) {
-       for (int j= 0;j<4;j++) {
-         multTMatrix[j][i]=0.0;
-         for (int k= 0;k<4;k++) multTMatrix[j][i]=
-              multTMatrix[j][i]+(TMatrix[j][k]*invTMatrix[k][i]);
-       }
-     }
-    
-     p_model->ApplyTransform (multTMatrix);
-  } else {
-    GetTMatrix(TMatrix,nsym,i,j,k);
-    p_model->ApplyTransform (TMatrix);
-  }
+  p_model->ApplyTransform (TMatrix);
   return 0;
 }
 
@@ -1247,7 +1307,7 @@ int CMMANManager::IfSymmetryNeighbours(int selHnd, int model, int nsym,
   // in model
   if ( selHnd <= 0 )  GetSelIndex(modelSelHnd,selAtoms,nSelAtoms);  
 
-  GetTMatrix(TMatrix,nsym,i,j,k);
+  GetLibTMatrix(TMatrix,nsym,i,j,k);
   
   SeekContacts ( selAtoms, nSelAtoms, modelAtoms, nModelAtoms, 0.0, dist, 0,
 			 contact,ncontacts,maxlen,&TMatrix);
@@ -1703,7 +1763,8 @@ int CMMANManager::SetTransform ( const std::vector<float>& transf , const std::v
 
 
 void CMMANManager::UnSetTransform(bool apply_inverse) {
-  //cout << "UnSetTransform isTransformed " << isTransformed << endl; 
+  //cout << "UnSetTransform isTransformed " << isTransformed << " apply inverse " << apply_inverse << endl;
+  
   if (isTransformed && apply_inverse) {
     mat44 InvMatrix;
     Mat4Inverse(current_transform,InvMatrix);
@@ -1781,13 +1842,15 @@ int CMMANManager::SetTransform (mat44 &TMatrix , const bool reset) {
       current_transform[k][i]=newMatrix[k][i];
     } 
   } 
+ 
   /*
   cout << "\nSetTransform:\n\n";
   for (int i=0;i<4;i++) {
     for (int j=0;j<4;j++) cout << current_transform[i][j] << " ";
     cout << endl;
-  } 
+  }
   */
+  
   return 0;
 }
 
@@ -1861,7 +1924,7 @@ double CMMANManager::DeltaResidueOrientation (PCResidue pRes,PCResidue pResFx) {
   PCAtom mvAtoms[5];
   PCAtom fxAtoms[5];
   int nat=0;
-  const char *names[] = { "CA" , "N", "C", "CB" };
+  char *names[] = { "CA" , "N", "C", "CB" };
 
   for (int n=0;n<4;n++ ){
     mvAtoms[nat]=pRes->GetAtom(names[n],"*","*");
@@ -2094,6 +2157,44 @@ int CMMANManager::LoadSerial(const PCMMDBManager fromMolHnd ) {
   return udd_serial;
 }
 
+//---------------------------------------------------------------------------
+int CMMANManager::LoadSerialFromDifferentModel(const PCMMDBManager fromMolHnd ,int udd ) {
+//---------------------------------------------------------------------------
+
+  /*
+  Copy serial numbers from one MMDBManager to UDD of another MMDBManager
+  */
+  PCAtom pAtom;
+  PPCAtom  fromAtoms=NULL,atomTable=NULL;
+  int fromSelHnd, fromNat;
+  int natoms=0,nCopy = 0;
+
+  GetAtomTable1(atomTable,natoms);
+  for (int ia=0; ia<natoms;ia++) atomTable[ia]->PutUDData(udd,0);
+
+  fromSelHnd = fromMolHnd->NewSelection();
+  fromMolHnd->Select(fromSelHnd,STYPE_ATOM,0,"*",ANY_RES,
+       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  fromMolHnd->GetSelIndex(fromSelHnd,fromAtoms,fromNat);
+
+  for ( int ia=0; ia<fromNat; ia++ ) {
+    pAtom = GetAtom ( fromAtoms[ia]->GetModelNum(),
+		      fromAtoms[ia]->GetChainID(),
+                      fromAtoms[ia]->residue->seqNum,
+                      fromAtoms[ia]->residue->insCode,
+                      fromAtoms[ia]->name,
+                      fromAtoms[ia]->element,
+                      fromAtoms[ia]->altLoc );
+
+    if (pAtom) {
+      //if (fromAtoms[ia]->serNum==3 ||fromAtoms[ia]->serNum==6 ) cout << "LoadSerialFromDifferentModel " << fromAtoms[ia]->residue->seqNum << " " <<fromAtoms[ia]->serNum << endl;
+      pAtom->PutUDData(udd,fromAtoms[ia]->serNum);
+      nCopy++;
+    }
+  }
+  return nCopy;
+  
+}
 
 //-----------------------------------------------------------------------
 std::string CMMANManager::PrintSecStructure (void) { 

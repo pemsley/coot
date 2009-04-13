@@ -34,7 +34,7 @@ public:
   CColours();
   ~CColours();
     
-  static int SetColours(int n, const char *cols[] );
+  static int SetColours(int n, char *cols[] );
   static int GetCode ( int nAppCol, psvector appCol, ivector code );
 
   protected:
@@ -53,9 +53,9 @@ class CColourScheme {
 public:
   CColourScheme();
   ~CColourScheme();
-  int SetScheme ( int n, const char *typs[], const char *cols[]);
-  int SetScheme ( int n,  int ityps[], const char *cols[]);
-  int SetScheme ( int n, realtype rngs[], int bns[], const char *cols[]);	
+  int SetScheme (int n, char *typs[], char *cols[]);
+  int SetScheme ( int n, int ityps[], char *cols[]);
+  int SetScheme ( int n, realtype rngs[], int bns[], char *cols[]);	
 
  protected:
   int defColour;

@@ -77,7 +77,7 @@ class CMMANManager : public CMMUTManager  {
     int GetAtomEnergyType(PCAtom p_atom);
 
     realtype GetAtomVDWRadius(PCAtom p_atom);
-    const char* GetAtomHBondType(PCAtom p_atom);
+    char* GetAtomHBondType(PCAtom p_atom);
     int GetAtomHBondType1(PCAtom p_atom);
     int LoadCharge(std::string loadfrom);
     std::string PrintCharges(void);
@@ -93,8 +93,10 @@ class CMMANManager : public CMMUTManager  {
 
     int CopyModel(int model);
     int GenerateSymmetryModel(int model,int nsym,int i,int j,int k);
+    int GenerateTransformedModel(int model,realtype *vmat);
+    int ApplyTransformtoModel(int model,realtype *vmat,Boolean undo=false);
     std::string GetSymOpTitle(int nsym,int i,int j,int k);
-    int ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,int undo_nsym=-1,int undo_i=0,int undo_j=0,int undo_k=0);
+    int ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,Boolean undo=false);
     int IfSymmetryNeighbours(int selHnd, int model, int nsym, 
 			     int i, int j, int k, double dist );
     int MoveFragment(int nMove, PPCAtom moveAtoms, Cartesian dxyz); 
@@ -124,10 +126,12 @@ class CMMANManager : public CMMUTManager  {
     int TransformToSuperposeCloseAtoms(PCMMANManager fxMolHnd, int fxSelHnd , realtype central_cutoff, realtype cutoff, int mvSuperposeHnd,int fxSuperposeHnd);
     int CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel=1);
     int LoadSerial(const PCMMDBManager fromMolHnd );
+    int LoadSerialFromDifferentModel(const PCMMDBManager fromMolHnd , int uddSerial);
     bool GetUnremediated() { return unremediated; };
     std::string PrintSecStructure (void);
+    int GetLibTMatrix(mat44 &TMatrix,int nsym,int i,int j,int k);
 
-  private: 
+  private:
     
     // SAS
     PCSASArea p_sas;
@@ -155,6 +159,7 @@ class CMMANManager : public CMMUTManager  {
     realtype transform_com[3];
 
     bool unremediated;
+
 
 };
 

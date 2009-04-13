@@ -668,7 +668,6 @@ PointElement::PointElement(const Cartesian &vertex, double *colour_in, const Car
 Point::Point(const Cartesian &vertex, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Primitive(){
   size = size_in;
   alpha = alpha_in;
-  vertices.clear();
   vertices.push_back(vertex);
   colour[0] = colour_in[0];
   colour[1] = colour_in[1];

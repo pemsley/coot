@@ -1,7 +1,7 @@
 /* geometry/protein-geometry.cc
  * 
  * Copyright 2004, 2005 The University of York
- * Copyright 2008 The University of Oxford
+ * Copyright 2008, 2009 The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -338,7 +338,6 @@ namespace coot {
       std::string type_symbol;
       std::string type_energy;
       std::pair<bool, float> partial_charge;
-      short int partial_charge_is_valid_flag;
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
       dict_atom(const std::string &atom_id_in,
@@ -662,7 +661,7 @@ namespace coot {
       // Added to by the simple_mon_lib* functions.
       std::vector<dictionary_residue_restraints_t> simple_monomer_descriptions;
 
-      void comp_atom   (PCMMCIFLoop mmCIFLoop); 
+      int  comp_atom   (PCMMCIFLoop mmCIFLoop); 
       std::string comp_atom_pad_atom_name(const std::string &atom_id, const std::string &type_symbol) const;
       void chem_comp   (PCMMCIFLoop mmCIFLoop);
       void comp_tree   (PCMMCIFLoop mmCIFLoop); 
@@ -675,7 +674,7 @@ namespace coot {
       void add_chem_links (PCMMCIFLoop mmCIFLoop); // references to the modifications
                                                 // to the link groups (the modifications
                                                 // themselves are in data_mod_list)
-      void link_bond   (PCMMCIFLoop mmCIFLoop); 
+      int  link_bond   (PCMMCIFLoop mmCIFLoop); 
       void link_angle  (PCMMCIFLoop mmCIFLoop); 
       void link_torsion(PCMMCIFLoop mmCIFLoop); 
       void link_plane  (PCMMCIFLoop mmCIFLoop);
@@ -760,11 +759,11 @@ namespace coot {
 					const std::string &description_level);
 
       // mod stuff (references by chem links)
-      void add_mods(PCMMCIFData data);
-      void add_chem_mods(PCMMCIFLoop mmCIFLoop); 
+      int add_mods(PCMMCIFData data);
+      int add_chem_mods(PCMMCIFLoop mmCIFLoop); 
 
       // link stuff
-      void init_links(PCMMCIFData data);
+      int init_links(PCMMCIFData data);
 
       void link_add_bond(const std::string &link_id,
 			 int atom_1_comp_id,
@@ -838,12 +837,10 @@ namespace coot {
 								  const std::string &group_2,
 								  bool allow_peptide_link_flag) const;
 
+
    public:
 
-      std::string mon_lib_dir;
-
       protein_geometry() { read_number = 0; set_verbose(1); }
-
 #ifdef USE_SBASE   
       // SBase things
       int init_sbase(const std::string &sbase_monomer_dir); // inits SBase
@@ -867,16 +864,10 @@ namespace coot {
 
       void set_verbose(bool verbose_mode_in);
 
-      std::pair<int, char*> init_mon_lib_dir(); // set the mon_lib_dir and return using_clidb_mon
-
-      std::string get_mon_lib_dir() { return mon_lib_dir; }
-      void set_mon_lib_dir(const std::string &dir) { mon_lib_dir = dir; }
-
       int init_standard(); // standard protein residues and links.
        			   // Return the current read_number
       
-      // Return 0 on failure to do a dynamic add (actually, the number of
-      // bond restraints found).
+      // Return 0 on failure to do a dynamic add 
       // 
       int try_dynamic_add(const std::string &resname, int read_number);  // return success status?
       // this is not const if we use dynamic add.
@@ -906,6 +897,8 @@ namespace coot {
       //
       int have_dictionary_for_residue_type(const std::string &monomer_type,
 					   int read_number);
+      // likewise not const
+      bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types);
 
       // add "synthetic" 5 atom planar peptide restraint
       void add_planar_peptide_restraint();
@@ -950,7 +943,12 @@ namespace coot {
       matching_chem_link_non_peptide(const std::string &comp_id_1,
 				     const std::string &group_1,
 				     const std::string &comp_id_2,
-				     const std::string &group_2) const; 
+				     const std::string &group_2) const;
+
+      void print_chem_links() const;
+
+      // the saved mon lib dir
+      std::string saved_mon_lib_dir;
       
    };
 

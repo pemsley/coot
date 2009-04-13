@@ -69,7 +69,7 @@ class CMMUTManager : public CMMDBManager  {
 
     Boolean isMainChain(PCAtom p_atom);
     Boolean doAltLocMatch ( PCAtom pa1, PCAtom pa2 ); 
-    int NameComparison (const char *name , int ntypes , const char *types[] );
+    int NameComparison ( char *name , int ntypes , char *types[] );
     std::string  TrimString(pstr inp);
     std::string AtomLabel(PCAtom p_atom, int mask[]);
     Boolean ChainIDisDigit(PCChain p_ch);

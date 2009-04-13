@@ -3647,9 +3647,12 @@ void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType 
 /* void show_ribbons(int imol); */
 void show_ribbons(int imol);
 void hide_ribbons(int imol);
+void show_aniso_spheroids(int imol);
+void hide_aniso_spheroids(int imol);
 void set_ribbon_param_int(int imol, const char *name, int value);
 void set_ribbon_param_float(int imol, const char *name, float value);
-void set_global_ribbon_param(int imol, const char *name, int value);
+void set_global_ccp4mg_param_int(int imol, const char *name, int value);
+void set_global_ccp4mg_param_float(int imol, const char *name, float value);
 
 
 #ifdef __cplusplus

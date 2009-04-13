@@ -217,6 +217,7 @@ ccp4mg-utils/Makefile
 ccp4mg-utils/util/Makefile
 ccp4mg-utils/pygl/Makefile
 ccp4mg-utils/mmut/Makefile
+ccp4mg-utils/mgapp/Makefile
 coords/Makefile
 db-main/Makefile
 density-contour/Makefile

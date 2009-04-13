@@ -34,6 +34,7 @@ lib_LTLIBRARIES=libccp4mg-opengl.la	\
 	libccp4mg-font_cache.la		\
 	libccp4mg-cprim.la		\
 	libccp4mg-symmetry.la		\
+	libccp4mg-ppmutil.la		\
 	libccp4mg-psutil.la
 
 include_HEADERS = cbuild.h 	\
@@ -81,6 +82,9 @@ libccp4mg_symmetry_la_LDFLAGS = -L../util -ccp4mg-pygl_coord -L../mmut -lccp4mg-
 
 libccp4mg_psutil_la_SOURCES = \
 	psutil.cc zsortps.cc psutil.h 
+
+libccp4mg_ppmutil_la_SOURCES = \
+	ppmutil.cc
 
 
 # must have GUILE and GUILE_GTK flags before $(INCLUDES), and this 

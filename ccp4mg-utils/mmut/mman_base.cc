@@ -55,7 +55,7 @@ CMMANBase::CMMANBase (const PCMMUTManager molHndin, const int selHndin,
   exclude_hydrogen=0;
   exclude_alternate=0;
   own_selHnds = false;
-  use_altLoc = (char *) "";
+  use_altLoc = "";
 
   molHnds[0] = molHndin;
   selHnds[0] = selHndin;
