@@ -30,15 +30,13 @@
 #include "ppmutil.h"
 #include "font_info.h"
 
-/* My Ubuntu Intripid GCC 4.3.2 goes via the the __APPLE_CC__ path. So
-   I am commenting this out. 20090106 - PE */
-/* #ifdef __APPLE_CC__ */
-/* #include <OpenGL/gl.h> */
-/* #include <OpenGL/glu.h> */
-/* #else */
+#ifdef __APPLE_CC__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
-/* #endif */
+#endif
 
 void draw_flat_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
 void draw_flat_rounded_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
@@ -189,11 +187,11 @@ class ArrowElement : public LineElement {
   void DrawPostScript(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, double xoff, double yoff, double xscale, double yscale, double xscaleps, const Volume &v);
   bool isLine() const {return true;};
   std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin);
+  int GetArrowHead() const { return arrow_head; };
+  void SetArrowHead(int arrow_head_in) { arrow_head = arrow_head_in; };
 };
 
 class Arrow : public ArrowElement {
- protected:
-  int arrow_head;
  public:
   Arrow();
   Arrow(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in=1.0, double alpha_in=1.0,int arrow_head=0);
@@ -208,6 +206,7 @@ class Arrow : public ArrowElement {
 class DashArrowElement : public LineElement  {
  protected:
   int arrow_head;
+  double dash_length;
  public:
   DashArrowElement();
   DashArrowElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in=1.0, double alpha_in=1.0,int arrow_head=0);
@@ -219,14 +218,12 @@ class DashArrowElement : public LineElement  {
   std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin);
   void SetDashLength(double length) { dash_length = length; };
   double GetDashLength() const { return dash_length; };
- private:
-  double dash_length;
+  int GetArrowHead() const { return arrow_head; };
+  void SetArrowHead(int arrow_head_in) { arrow_head = arrow_head_in; };
 
 };
 
 class DashArrow : public DashArrowElement {
- protected:
-  int arrow_head;
  public:
   DashArrow();
   DashArrow(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in=1.0, double alpha_in=1.0,int arrow_head=0);
@@ -234,12 +231,7 @@ class DashArrow : public DashArrowElement {
   void draw(double *override_colour=0, int selective_override=0);
   void DrawPovray(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const Volume &v);
   void DrawPostScript(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, double xoff, double yoff, double xscale, double yscale, double xscaleps, const Volume &v);
-  bool isLine() const {return true;};
   std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin);
-  void SetDashLength(double length) { dash_length = length; };
-  double GetDashLength() const { return dash_length; };
- private:
-  double dash_length;
 
 };
 
@@ -574,6 +566,7 @@ class SimpleBillBoard {
 
 static bool force_load_textures;
 class BillBoard : public Primitive, public SimpleBillBoard {
+ protected:
    image_info image;
    unsigned int texture_id;
    unsigned int mask_texture_id;
@@ -595,6 +588,14 @@ class BillBoard : public Primitive, public SimpleBillBoard {
   virtual void DrawPovray(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const Volume &v);
   virtual void DrawPostScript(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, double xoff, double yoff, double xscale, double yscale, double xscaleps, const Volume &v);
   bool isLine() const {return false;};
+  std::vector<double>  GetScale() const {std::vector<double> s; s.push_back(scale_w); s.push_back(scale_h); return s;};
+  double  GetScaleW() const { return scale_w; }
+  double  GetScaleH() const { return scale_h; }
+  unsigned GetTextureID() const {return texture_id;};
+  std::vector<int>  GetImageSize() const {std::vector<int> s; s.push_back(image.get_width()); s.push_back(image.get_height()); return s;};
+  int GetImageWidth() const { return image.get_width(); }
+  int GetImageHeight() const { return image.get_height(); }
+  const char* GetFilename() const { return filename; }
 };
 
 class SimpleText : public Primitive{
@@ -605,12 +606,15 @@ class SimpleText : public Primitive{
   std::string weight;
   std::string slant;
   int fn_size;
+  int fn_descent;
   double yskip;
   int id;
   GLuint texture_id;
   GLuint texture_id_b;
   image_info texture;
   bool multicoloured;
+  bool underline;
+  bool strikeout;
  public:
   void initialize(void);
   SimpleText();
@@ -649,6 +653,12 @@ class SimpleText : public Primitive{
   bool isLine() const {return true;};
   std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin);
   void DrawPSmain(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, double xoff, double yoff, double xscale, double yscale, double xscaleps, const Volume &v, bool is_a_bill_board);
+  void SetFontDescent(unsigned int fn_isize);
+  int GetFontDescent() const;
+  void SetFontUnderline(bool underline_in){underline = underline_in;};
+  void SetFontStrikeout(bool strikeout_in){strikeout = strikeout_in;};
+  bool GetFontUnderline() const { return underline;};
+  bool GetFontStrikeout() const { return strikeout;};
 };
 
 class Text : public SimpleText{

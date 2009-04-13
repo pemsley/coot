@@ -141,7 +141,7 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
    
    if (rtop_info.success) {
       PyObject *match_info;
-      PyList_New(2);
+      match_info = PyList_New(2);
       PyList_SetItem(match_info, 0, PyFloat_FromDouble(rtop_info.dist_score));
       PyList_SetItem(match_info, 1, PyInt_FromLong(rtop_info.n_match));
       python_status = PyList_New(2);

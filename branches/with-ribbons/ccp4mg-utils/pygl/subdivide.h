@@ -32,6 +32,6 @@
 
 void drawtriangle(float *v1, float *v2, float *v3);
 void subdivide(float *v1, float *v2, float *v3, int depth, float radius);
-void SubdivideDots(double *v1, double *v2, double *v3, double dotSpacing, bool draw_first=true);
+void SubdivideDots(double *v1, double *v2, double *v3, double dotSpacingSquared, bool draw_first=true);
 
 #endif

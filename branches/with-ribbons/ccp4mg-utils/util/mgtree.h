@@ -123,9 +123,11 @@ class Tree{
         const std::vector<std::vector<int> > &torsions, const std::vector<double> &torsion_angles,
         const std::vector<std::vector<int> > &chirals);
    Tree(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians);
+   Tree(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians, const std::vector<std::vector<int> > &forced_connections);
    ~Tree();
    void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists);
-   void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians);
+   void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const std::vector<std::vector<int> > &forced_connections);
+   void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians, const std::vector<std::vector<int> > &forced_connections);
    friend std::ostream& operator<<(std::ostream &c, Tree a);
    void Print(void){ std::cout << *this;};
    int FindMaxDepth(void);
@@ -155,9 +157,11 @@ class Tree{
    Cartesian GetCartesian(int i, bool permuted=false) const;
    std::vector<Cartesian> GetAllCartesians(bool permuted=false) const ;
    void RotateAboutBond(int atom, int child, double TorsionAngleDiff, bool permuted=false);
-   void SetDihedralAngle(int atom, int child, double TorsionAngle, bool permuted=false);
+   void SetDihedralAngle(int atom, int child, double TorsionAngle, bool permuted=false, int movingAtom=-1, int baseAtom=-1);
    std::vector<std::vector<int> > FindLongBranches(int req_depth);
    void AddVertex(int pid, double dist, int gpid, double angle, int ggpid, double dihedral, int chiral);
+   void SetDihedralAngle(int baseAtom, int atom, int child, int movingAtom, double TorsionAngle);
+   void ForceEarlyConnection(int parent,int child);
    
 };
 

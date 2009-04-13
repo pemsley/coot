@@ -2,7 +2,7 @@
  * 
  * Copyright 2003, 2004, 2005, 2006 The University of York
  * Author: Paul Emsley
- * Copyright 2007 The University of Oxford
+ * Copyright 2007, 2008, 2009 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,7 +135,10 @@ coot::protein_geometry::init_sbase(const std::string &sbase_monomer_dir) {
 }
 #endif // USE_SBASE
 
-
+// return the number of atoms read (not the number of bonds (because
+// that is not a good measure of having read the file properly for
+// (for example) CL)).
+// 
 int
 coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_number_in) {
  
@@ -200,15 +203,15 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	    // note that chem_link goes here to:
 	    // 
 	    if (std::string(data->GetDataName()).substr(0,5) == "link_") {
-	       // std::cout  << "matches link: " <<
-	       // std::string(data->GetDataName()) << std::endl;
-	       init_links(data);
+// 	       std::cout  << "DEUBG:: ==== matches link: " << std::string(data->GetDataName())
+// 			  << std::endl;
+	       ret_val += init_links(data);
 	    }
 
 
 	    if (std::string(data->GetDataName()).length() > 7) { 
 	       if (std::string(data->GetDataName()).substr(0,5) == "mod_list") {
-		  add_mods(data);
+		  ret_val += add_mods(data);
 	       }
 	    }
 	    
@@ -253,7 +256,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  
 		  // monomer info, name, number of atoms etc.
 		  if (cat_name == "_chem_comp_atom")
-		     comp_atom(mmCIFLoop); // and at the end pad up the atom names
+		     ret_val += comp_atom(mmCIFLoop); // and at the end pad up the atom names
 
 		  // tree
 		  if (cat_name == "_chem_comp_tree")
@@ -261,7 +264,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 		  // bond
 		  if (cat_name == "_chem_comp_bond")
-		     ret_val = comp_bond(mmCIFLoop);
+		     comp_bond(mmCIFLoop);
 
 		  // angle
 		  if (cat_name == "_chem_comp_angle")
@@ -289,7 +292,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	 } // for idata
       } // cif file is OK test
    } // is regular file test
-   return ret_val; // the number of bond restraints.
+   return ret_val; // the number of atoms read.
 }
 
 void
@@ -465,9 +468,11 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos_ideal) { 
 
    // debugging
-//     std::cout << "adding atom " << comp_id << " " << atom_id << " "
-// 	      << type_symbol << " " << type_energy << " " << partial_charge
-// 	      << std::endl;
+   if (0) { 
+     std::cout << "   mon_lib_add_atom  " << comp_id << " " << atom_id << " "
+	       << type_symbol << " " << type_energy << " (" << partial_charge.first
+	       << "," << partial_charge.second << ")" << std::endl;
+   } 
 
    coot::dict_atom at_info(atom_id, atom_id_4c, type_symbol, type_energy, partial_charge);
 //    std::cout << "mon_lib_add_atom " << model_pos.first << " "
@@ -480,10 +485,12 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
    if (model_pos_ideal.first)
       at_info.add_pos(coot::dict_atom::IDEAL_MODEL_POS, model_pos_ideal);
 
-    short int ifound = 0;
+   short int ifound = 0;
+   int this_index = -1; // unset
 
     for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
        if (dict_res_restraints[i].comp_id == comp_id) {
+	  this_index = i;
 	  if (dict_res_restraints[i].read_number == read_number) { 
 	     ifound = 1;
 	     dict_res_restraints[i].atom_info.push_back(at_info);
@@ -497,9 +504,17 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 
     if (! ifound) {
        // std::cout << "residue not found in mon_lib_add_atom" << std::endl;
+       this_index = dict_res_restraints.size()-1;
        dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
-       dict_res_restraints[dict_res_restraints.size()-1].atom_info.push_back(at_info);
+       dict_res_restraints[this_index].atom_info.push_back(at_info);
     }
+
+    if (0) {
+       std::cout << "   dictionary for " << dict_res_restraints[this_index].comp_id
+		 << " now contains " << dict_res_restraints[this_index].atom_info.size()
+		 << " atoms" << std::endl;
+    }
+
 }
 
 void
@@ -961,8 +976,8 @@ coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
    }
 }
 
-
-void
+// return the number of atoms.
+int 
 coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 
    // If the number of atoms with partial charge matches the number of
@@ -1101,6 +1116,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 }
       }
    }
+   return n_atoms;
 }
 
 
@@ -1575,9 +1591,10 @@ coot::protein_geometry::info() const {
 } 
 
 // 
-void
+int
 coot::protein_geometry::add_mods(PCMMCIFData data) {
-   
+
+   int n_mods = 0;
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
       PCMMCIFCategory cat = data->GetCategory(icat);
@@ -1592,22 +1609,31 @@ coot::protein_geometry::add_mods(PCMMCIFData data) {
       } else {
 	 int n_chiral = 0;
 	 if (cat_name == "_chem_mod")
-	    add_chem_mods(mmCIFLoop);
+	    n_mods += add_chem_mods(mmCIFLoop);
       }
    }
+   return n_mods;
 }
 
-void
+int 
 coot::protein_geometry::add_chem_mods(PCMMCIFLoop mmCIFLoop) {
 
+   int n_chem_mods = 0;
+
+   return n_chem_mods;
 }
 
 // Normally, we would use a const pointer (or a reference). But this
 // is mmdb.
+//
+// return then number of links read (to pass on to
+// init_refmac_mon_lib) so it doesn't return 0 (ie. fail) when reading
+// links (no new atoms in a link, you see).
 // 
-void
+int
 coot::protein_geometry::init_links(PCMMCIFData data) {
 
+   int r = 0; 
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
       PCMMCIFCategory cat = data->GetCategory(icat);
@@ -1624,7 +1650,7 @@ coot::protein_geometry::init_links(PCMMCIFData data) {
 	 if (cat_name == "_chem_link")
 	    add_chem_links(mmCIFLoop);
 	 if (cat_name == "_chem_link_bond")
-	    link_bond(mmCIFLoop);
+	    r += link_bond(mmCIFLoop);
 	 if (cat_name == "_chem_link_angle")
 	    link_angle(mmCIFLoop);
 	 if (cat_name == "_chem_link_tor")
@@ -1638,6 +1664,7 @@ coot::protein_geometry::init_links(PCMMCIFData data) {
 	 }
       }
    }
+   return r;
 } 
 
 
@@ -1776,7 +1803,7 @@ std::ostream& coot::operator<<(std::ostream &s, coot::chem_link lnk) {
    return s; 
 }
 
-void
+int
 coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
    std::string link_id;
    std::string atom_id_1, atom_id_2;
@@ -1787,6 +1814,7 @@ coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
    char *s;
    int ierr;
    int ierr_tot = 0;
+   int n_link_bonds = 0;
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
       s = mmCIFLoop->GetString("link_id",j,ierr);
@@ -1818,10 +1846,12 @@ coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
 		       atom_1_comp_id, atom_2_comp_id,
 		       atom_id_1, atom_id_2,
 		       value_dist, value_dist_esd);
+	 n_link_bonds++;
       } else {
 	 std::cout << "problem reading bond mmCIFLoop" << std::endl;
       } 
    }
+   return n_link_bonds;
 }
 
 void
@@ -2245,7 +2275,6 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 					   const std::string &group_2,
 					   bool allow_peptide_link_flag) const {
 
-   coot::chem_link cl("", "", "", "", "", "", "", "");
    bool switch_order_flag = 0;
    bool found = 0;
    
@@ -2260,26 +2289,37 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	 chem_link_vec[i_chem_link].matches_comp_ids_and_groups(comp_id_1, group_1,
 								comp_id_2, group_2);
       if (match_res.first) {
+	 
+// 	 std::cout << "... matching link "
+// 		   << comp_id_1 << " " << comp_id_2 << " " 
+// 		   << chem_link_vec[i_chem_link] << std::endl;
 	 // make sure that this link id is not a (currently) useless one.
 	 if (chem_link_vec[i_chem_link].Id() != "gap" &&
 	     chem_link_vec[i_chem_link].Id() != "symmetry") { 
 	    coot::chem_link clt = chem_link_vec[i_chem_link];
 	    if (!clt.is_peptide_link_p() || allow_peptide_link_flag) {
-	       cl = clt;
 	       switch_order_flag = match_res.second;
 	       found = 1;
-	       std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
+	       std::pair<coot::chem_link, bool> p(clt, switch_order_flag);
 	       matching_chem_links.push_back(p);
 	    }
 	 }
       }
    }
 
-   if (! found) {
-      std::string rte = "No chem link for ";
+   // When allow_peptide_link_flag is FALSE, we don't want to hear
+   // about not making a link between ASP and VAL etc (otherwise we
+   // do).
+   // 
+   if ( (!found) && (allow_peptide_link_flag)) {
+      std::string rte = "INFO:: No chem link for groups ";
       rte += group_1;
       rte += " ";
       rte += group_2;
+      rte += " and comp_ids ";
+      rte += comp_id_1;
+      rte += " ";
+      rte += comp_id_2;
       throw std::runtime_error(rte);
    }
    return matching_chem_links;
@@ -2301,9 +2341,8 @@ coot::protein_geometry::set_verbose(bool verbose_flag) {
    verbose_mode = verbose_flag;
 }
 
-
-std::pair<int, char*>
-coot::protein_geometry::init_mon_lib_dir() {
+int 
+coot::protein_geometry::init_standard() {
 
    // So, first we check if COOT_REFMAC_LIB_DIR has been set.  If it
    // try to use it.  If the directory fails to exist, try next...
@@ -2323,7 +2362,7 @@ coot::protein_geometry::init_mon_lib_dir() {
    hardwired_default_place = util::append_dir_dir(hardwired_default_place, "lib");
    short int using_clibd_mon = 0; 
 
-   std::string mon_lib_dir_tmp; 
+   std::string mon_lib_dir; 
    short int env_dir_fails = 0;
    int istat;
    struct stat buf;
@@ -2337,7 +2376,7 @@ coot::protein_geometry::init_mon_lib_dir() {
 	 std::cout << "WARNING:: Coot REFMAC dictionary override COOT_REFMAC_LIB_DIR"
 		   << "failed to find a dictionary " << s << std::endl;
       } else {
-	 mon_lib_dir_tmp = s;
+	 mon_lib_dir = s;
       }
    }
 
@@ -2345,7 +2384,7 @@ coot::protein_geometry::init_mon_lib_dir() {
       cmld = getenv("COOT_MONOMER_LIB_DIR"); // for phenix.
       // we find $COOT_MONOMER_LIB_DIR/a/ALA.cif
       if (cmld) {
-	 mon_lib_dir_tmp = s;
+	 mon_lib_dir = s;
       }
    } 
       
@@ -2363,7 +2402,7 @@ coot::protein_geometry::init_mon_lib_dir() {
 	    env_dir_fails = 0;
 	    std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
 		      << " CLIBD_MON: " << s << std::endl;
-	    mon_lib_dir_tmp = s;
+	    mon_lib_dir = s;
 	    using_clibd_mon = 1;
 	 }
       }
@@ -2376,7 +2415,7 @@ coot::protein_geometry::init_mon_lib_dir() {
 	 if (s) {
 	    std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
 		      << s << std::endl;
-	    mon_lib_dir_tmp = s;
+	    mon_lib_dir = s;
 
 	 } else {
 
@@ -2385,7 +2424,7 @@ coot::protein_geometry::init_mon_lib_dir() {
 
 	    int istat = stat(hardwired_default_place.c_str(), &buf);
 	    if (istat == 0) {
-	       mon_lib_dir_tmp = hardwired_default_place;
+	       mon_lib_dir = hardwired_default_place;
 	    } else {
 
 	       // OK, let's look for $COOT_PREFIX/share/coot/lib (as you
@@ -2398,7 +2437,7 @@ coot::protein_geometry::init_mon_lib_dir() {
 		  lib_dir = util::append_dir_dir(lib_dir, "lib");
 		  istat = stat(lib_dir.c_str(), &buf);
 		  if (istat == 0) {
-		     mon_lib_dir_tmp = lib_dir;
+		     mon_lib_dir = lib_dir;
 		  } else {
 		     std::cout << "WARNING:: COOT_PREFIX set, but no dictionary lib found\n";
 		  }
@@ -2410,36 +2449,13 @@ coot::protein_geometry::init_mon_lib_dir() {
 	 }
       }
    }
-   set_mon_lib_dir(mon_lib_dir_tmp);
-
-   std::pair<int, char*> c_n_c(using_clibd_mon, cmld);
    
-   return c_n_c;
-  
-}
-
-
-int 
-coot::protein_geometry::init_standard() {
-   
-
-   // get the monomer library
-   int using_clibd_mon;
-   char *cmld;
-   std::pair<int, char*> c_n_c;
-   c_n_c = init_mon_lib_dir();
-   using_clibd_mon = c_n_c.first;
-   cmld = c_n_c.second;
-
-   //std::string mon_lib_dir_use = coot::protein_geometry::mon_lib_dir;
-   std::string mon_lib_dir_use = get_mon_lib_dir();
-
-   if (mon_lib_dir_use.length() > 0) {
-      std::string filename = mon_lib_dir_use;
+   if (mon_lib_dir.length() > 0) {
+      std::string filename = mon_lib_dir;
       // contains the linkages:
       filename += "/data/monomers/list/mon_lib_list.cif";
       if (using_clibd_mon) {
-	 filename = mon_lib_dir_use;
+	 filename = mon_lib_dir;
 	 filename += "list/mon_lib_list.cif";
       } 
       // now check that that file is there:
@@ -2457,9 +2473,9 @@ coot::protein_geometry::init_standard() {
 		<< std::endl; 
    }
 
-   std::string mon_lib_cif = mon_lib_dir_use + "/data/monomers/list/mon_lib_list.cif";
+   std::string mon_lib_cif = mon_lib_dir + "/data/monomers/list/mon_lib_list.cif";
    if (using_clibd_mon)
-      mon_lib_cif = mon_lib_dir_use + "/list/mon_lib_list.cif";
+      mon_lib_cif = mon_lib_dir + "/list/mon_lib_list.cif";
    if (cmld) { 
       mon_lib_cif = cmld;
       mon_lib_cif += "/list/mon_lib_list.cif";
@@ -2473,8 +2489,10 @@ coot::protein_geometry::init_standard() {
       if (!cmld && !using_clibd_mon) {
 	 monomer_cif_file = "data/monomers/" + monomer_cif_file;
       }
-      refmac_monomer(mon_lib_dir_use, monomer_cif_file); // update read_number too :)
+      refmac_monomer(mon_lib_dir, monomer_cif_file); // update read_number too :)
    }
+   
+   saved_mon_lib_dir = mon_lib_dir;
 
    return read_number;
 }
@@ -2521,12 +2539,14 @@ coot::protein_geometry::refmac_monomer(const std::string &s, // dir
 }
 
 // Return 0 on failure to do a dynamic add (actually, the number of
-// bond restraints found).
+// atoms read).
 // 
 int
 coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_number) {
 
-   int nbonds = 0;
+   int success = 0;  // fail initially and is set to the number of
+		     // atoms read from the mmcif dictionary file in
+		     // init_refmac_mon_lib().
 
    // So what is happening here?
    //
@@ -2597,7 +2617,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 int istat = stat(filename.c_str(), &buf);
 	 if (istat == 0) { 
 	    if (S_ISREG(buf.st_mode)) {
-	       nbonds = init_refmac_mon_lib(filename, read_number);
+	       success = init_refmac_mon_lib(filename, read_number);
 	    } else {
 	       
 	       // continue with regular file code
@@ -2628,27 +2648,27 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	    // 
 	    istat = stat(upcased_resname_filename.c_str(), &buf);
 	    if (istat == 0) {
-		  nbonds = init_refmac_mon_lib(upcased_resname_filename, read_number);
+		  success = init_refmac_mon_lib(upcased_resname_filename, read_number);
 	    } else { 
 
 	       // try the beta anomer version
 	       istat = stat(beta_anomer_name.c_str(), &buf);
 	       if (istat == 0) {
-		  nbonds = init_refmac_mon_lib(beta_anomer_name, read_number);
+		  success = init_refmac_mon_lib(beta_anomer_name, read_number);
 	       } else {
 		  // try the upcased file name e.g. xxx/NAG-B-D.cif
 		  istat = stat(alt_beta_anomer_name.c_str(), &buf);
 		  if (istat == 0) {
-		     nbonds = init_refmac_mon_lib(alt_beta_anomer_name, read_number);
+		     success = init_refmac_mon_lib(alt_beta_anomer_name, read_number);
 		  } else {
 		     // alpha?
 		     istat = stat(alpha_anomer_name.c_str(), &buf);
 		     if (istat == 0) {
-			nbonds = init_refmac_mon_lib(alpha_anomer_name, read_number);
+			success = init_refmac_mon_lib(alpha_anomer_name, read_number);
 		     } else {
 			istat = stat(alt_alpha_anomer_name.c_str(), &buf);
 			if (istat == 0) {
-			   nbonds = init_refmac_mon_lib(alt_alpha_anomer_name, read_number);
+			   success = init_refmac_mon_lib(alt_alpha_anomer_name, read_number);
 			}
 		     }
 		  }
@@ -2657,7 +2677,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 }
       } 
    }
-   return nbonds;
+   return success;
 } 
 
 std::vector <coot::dict_torsion_restraint_t>
@@ -2893,7 +2913,23 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
       ifound = try_dynamic_add(monomer_type, read_number);
    }
    return ifound;
+}
+
+bool
+coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std::string> &residue_types) {
+
+   bool have_all = 1;
+   int read_number = 30; // hack dummy thing.
+   for (unsigned int i=0; i<residue_types.size(); i++) {
+      int ifound = have_dictionary_for_residue_type(residue_types[i], read_number);
+      if (ifound == 0) {
+	 have_all = 0;
+      } 
+      read_number++;
+   }
+   return have_all;
 } 
+
 
 
 std::pair<short int, coot::dictionary_residue_restraints_t>
@@ -3754,3 +3790,12 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
    }
    return mol;
 }
+
+void
+coot::protein_geometry::print_chem_links() const {
+
+   for (unsigned int i_chem_link=0; i_chem_link<chem_link_vec.size(); i_chem_link++) {
+      std::cout<< i_chem_link << " " << chem_link_vec[i_chem_link] << "\n";
+   } 
+
+} 

@@ -19,9 +19,9 @@
 #include <stdio.h>
 
 void RedirectStdOut(const char *fname){
-   FILE *f = freopen(fname,"a",stdout);
+  freopen(fname,"a",stdout);
 }
 
 void RedirectStdErr(const char *fname){
-   FILE *f = freopen(fname,"a",stderr);
+  freopen(fname,"a",stderr);
 }

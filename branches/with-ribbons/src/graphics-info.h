@@ -740,6 +740,7 @@ public:
       geom_p = new coot::protein_geometry;
       cif_dictionary_read_number = geom_p->init_standard();
       geom_p->add_planar_peptide_restraint();
+      master_mon_lib_dir = geom_p->saved_mon_lib_dir;
 
       // rotamer probabilitiles
       // guess we shall rather use COOT_DATA_DIR and only as fallback PKGDATADIR?!
@@ -1972,6 +1973,9 @@ public:
    // read) a cif dictionary file.  Public because reading cif file in
    // molecule-class-info-other.cc (bad chiral volumes) needs it.
    static int cif_dictionary_read_number;
+
+   // save the master monomer library dictionary somewhere
+   static std::string master_mon_lib_dir;
 
    static int residue_selection_flash_frames_number;
 

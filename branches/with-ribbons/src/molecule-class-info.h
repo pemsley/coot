@@ -636,7 +636,10 @@ class molecule_class_info_t {
    // CCP4MG ribbons
    Displayobject Ribbons;
    CParamsManager ribbon_params;
-   CParamsManager ribbon_global_params;
+   CParamsManager ccp4mg_global_params;
+
+   // CCP4MG spheroids
+   Displayobject AnisoSpheroids;
    
    // difference map negative level colour relative to positive level:
    float rotate_colour_map_for_difference_map; // 120.0 default colour_map_rotation
@@ -978,23 +981,31 @@ class molecule_class_info_t {
       cootsurface = NULL; // no surface initial, updated by make_surface()
       theSurface = 0;
 
+      // CCP4MG stuff
       // ribbons
       cootribbons = 0;
       ribbon_settings = new coot::ribbon_settings_t();
       Ribbons = Displayobject();
-      ribbon_global_params.SetInt("solid_quality", 1);
+      // aniso atoms
+      cootanisospheroids = 0;
+      AnisoSpheroids = Displayobject();
+      // settings
+      ccp4mg_global_params.SetInt("solid_quality", 1);
       ribbon_params.SetFloat("cylinder_width", 0.2);
       ribbon_params.SetFloat("ribbon_width", 2.5);
       ribbon_params.SetFloat("alpha_helix_width", 1.5);
       ribbon_params.SetFloat("arrow_width", 2.2);
       ribbon_params.SetFloat("arrow_length", 2.2);
       ribbon_params.SetFloat("worm_width", 0.2);
+      ribbon_params.SetFloat("opacity", 0.5);
+      ribbon_params.SetInt("transparent", 0);
       ribbon_params.SetInt("ribbon_style", 0);
       ribbon_params.SetInt("two_colour_ribbon", 0);
       ribbon_params.SetInt("helix_style", 0);
       ribbon_params.SetInt("flatten_loop", 0);
       ribbon_params.SetInt("flatten_beta", 1);
       ribbon_params.SetInt("spline_beta_flat", 1);
+      ribbon_params.SetInt("smooth_helix", 0);
 
       //
       theMapContours.first = 0;
@@ -1371,7 +1382,11 @@ class molecule_class_info_t {
    void make_ribbons();
    void set_ribbon_param(const std::string &name, int value);
    void set_ribbon_param(const std::string &name, float value);
-   void set_global_ribbon_param(const std::string &name, int value);
+   void set_global_ccp4mg_param(const std::string &name, int value);
+   void set_global_ccp4mg_param(const std::string &name, float value);
+   void make_aniso_spheroids();
+   void draw_aniso_spheroids();
+
    bool has_display_list_objects();
    int draw_display_list_objects(); // return number of display list objects to be drawn
    // return the display list tag
@@ -2122,6 +2137,7 @@ class molecule_class_info_t {
    // ribbons
    int cootribbons;
    coot::ribbon_settings_t *ribbon_settings;
+   int cootanisospheroids;
 
    // for widget label:
    std::string cell_text_with_embeded_newline() const;

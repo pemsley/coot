@@ -162,8 +162,15 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
         // On first pass through (newchain=1) this should not
         // test the secstr_indices, right?
         if ( atom_colour_vector ){
+	  std::cout << "BL DEBUG:: have colour vector" << std::endl;
 	  if(j==0||newchain){
             double * atcol = atom_colour_vector->GetRGB(j);
+	    std::cout <<"BL DEBUG:: atcol1 is " 
+		      << atcol[0] << " "
+		      << atcol[1] << " "
+		      << atcol[2] << " "
+		      << atcol[3] << " "
+		      << std::endl;
             splineinfo.colours.back().push_back(Cartesian(atcol));
 	    delete [] atcol;
 	  } else {
@@ -177,17 +184,35 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
                 double * atcol1 = atom_colour_vector->GetRGB(j-1);
                 splineinfo.colours.back().push_back(Cartesian(atcol1));
 	        //delete [] atcol;
+	    std::cout <<"BL DEBUG:: atcol2 is " 
+		      << atcol1[0] << " "
+		      << atcol1[1] << " "
+		      << atcol1[2] << " "
+		      << atcol1[3] << " "
+		      << std::endl;
 	        delete [] atcol1;
 	      } else {
                 double * atcol = atom_colour_vector->GetRGB(j);
                 splineinfo.colours.back().pop_back();
                 splineinfo.colours.back().push_back(Cartesian(atcol));
                 splineinfo.colours.back().push_back(Cartesian(atcol));
+	    std::cout <<"BL DEBUG:: atcol3 is " 
+		      << atcol[0] << " "
+		      << atcol[1] << " "
+		      << atcol[2] << " "
+		      << atcol[3] << " "
+		      << std::endl;
 	        delete [] atcol;
 	      }
 	    } else {
               double * atcol = atom_colour_vector->GetRGB(j);
               splineinfo.colours.back().push_back(Cartesian(atcol));
+	    std::cout <<"BL DEBUG:: atcol4 is " 
+		      << atcol[0] << " "
+		      << atcol[1] << " "
+		      << atcol[2] << " "
+		      << atcol[3] << " "
+		      << std::endl;
 	      delete [] atcol;
 	    }
           }

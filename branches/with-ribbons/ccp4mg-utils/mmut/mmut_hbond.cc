@@ -122,13 +122,13 @@ int CHBond::Calculate0(int model)  {
   int nDonors,nAcceptors;
   int udd,udd2;
   int loop,nLoops = 1;
-  int uddD = -1, uddA = -1,selHndD = -1, selHndA = -1;
-  PCMMUTManager molHndD = 0,molHndA = 0;
-  int selHndDonors,selHndAcceptors,selHndHydrogens,selHndOverlap = -1;
+  int uddD,uddA,selHndD,selHndA;
+  PCMMUTManager molHndD,molHndA;
+  int selHndDonors,selHndAcceptors,selHndHydrogens,selHndOverlap;
   PSContact contacts = NULL;
   int ncontacts;
   int nOverlap = 0;
- 
+
   int RC,hbtype1,hbtype2,accept;
   int i,n;
   SAtomBond *donorBond = 0;

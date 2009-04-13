@@ -882,7 +882,7 @@ int Connectivity2::SetTag ( int iV, int i ) {
 }
 
 std::string Connectivity2::Print ( const std::string &tag1, const std::string &tag2 ) {
-  PCMMUTManager M1 = 0, M2 = 0;
+  PCMMUTManager M1,M2;
 
   std::ostringstream output;
   output.setf(ios::fixed);
@@ -906,13 +906,15 @@ std::string Connectivity2::Print ( const std::string &tag1, const std::string &t
   }
   if ( tag1.length()>=1 &&  (nAtomSets<=1 || tag1.length()>=1 )) {
     while(i<pAtom1.end()){
-      output << "<dataobj=" << tag1 << ">";
+      //output << "<dataobj=" << tag1 << ">";
+      output << tag1 << ": ";
       output << M1->AtomLabel_atom(*i) << " ";
-      output << "</dataobj>";
+      //output << "</dataobj>";
       if  ( nAtomSets>=2) {
-        output << "<dataobj=" << tag2 << ">";
+        //output << "<dataobj=" << tag2 << ">";
+        output << tag2 << ": ";
         output << M2->AtomLabel_atom(*j) << " ";
-        output << "</dataobj>";
+	// output << "</dataobj>";
         j++;
       }
       output << cc->label << endl;

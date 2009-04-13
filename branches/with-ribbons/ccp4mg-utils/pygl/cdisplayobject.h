@@ -40,7 +40,7 @@ class Displayobject{
  protected:
   std::vector<Primitive*> prims;
   std::vector<Primitive*> surf_prims;
-  std::vector<SimpleBillBoard*> image_prims;
+  std::vector<BillBoard*> image_prims;
   std::vector<SimpleText*> text_prims;
  public:
   Quat camera_quat; // These two are for any drawing which needs to
@@ -48,7 +48,7 @@ class Displayobject{
   int anchored;
   virtual const std::vector<Primitive*> &GetPrimitives() const;
   virtual const std::vector<Primitive*> &GetSurfacePrimitives() const;
-  virtual const std::vector<SimpleBillBoard*> &GetImagePrimitives() const;
+  virtual const std::vector<BillBoard*> &GetImagePrimitives() const;
   virtual const std::vector<SimpleText*> &GetTextPrimitives() const;
   std::vector<matrix> symm_mat;
   std::vector<int> symm_nos;
@@ -74,7 +74,7 @@ class Displayobject{
   void add_surf_primitive(Primitive *prim);
   void add_primitive(Primitive *prim);
   void add_text_primitive(SimpleText *prim);
-  void add_image_primitive(SimpleBillBoard *prim);
+  void add_image_primitive(BillBoard *prim);
   void increase_shininess(double shininess);
   void increase_specular(std::vector<double>specular);
   void increase_ambient(std::vector<double>specular);
@@ -122,7 +122,7 @@ class Displayobject{
   // the Text class to Python. But were doing it like this now.
   int *GetTextIDS(void) const;
   void SetTextFont(const std::string family,  const std::string weight, 
-                   const std::string slant, const int size);
+                   const std::string slant, const int size, const int underline=0);
   void DeleteText(void);
   int GetNumberOfTextIDS(void) const;
   void SetTextString(int text_id, const char* new_string);
@@ -149,7 +149,7 @@ class Displayobject{
   void SetDrawSymmetryColoured(int symm_diff_colour_in) { symm_diff_colour = symm_diff_colour_in; };
   int GetDrawSymmetryColoured() const { return symm_diff_colour; };
   void SetDrawUnitCell(int draw_unit_cell_in) { draw_unit_cell = draw_unit_cell_in; };
-  int GetDrawUnitCell() { return draw_unit_cell; };
+  int GetDrawUnitCell() const { return draw_unit_cell; };
   int IsAnchored() const {return anchored;};
   void ZoomIn() {};
   void ZoomOut() {};
@@ -161,6 +161,7 @@ class Displayobject{
   void set_transparent(int trans_in);
   int get_transparent() const {return transparent;} ;
   int reInitializeTextPrims();
+  const std::vector<Cartesian> &GetUnitCell() const {return unit_cell;};
 };
 
 void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int acsize, double xoff, double yoff, std::vector<std::vector<double> > jarray, std::vector<Cartesian> axes, bool antialias, bool rebuilt);

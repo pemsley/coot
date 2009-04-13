@@ -133,7 +133,7 @@ class CCompoundGroup {
   static int GetCifGroupCode ( pstr name);
   bool Match ( int cd );
   static bool groupMatch[13][13];
-  static const char *cifGroupNames[12];
+  static char *cifGroupNames[12];
   static int groupCode[12];
 
  protected:
@@ -149,7 +149,7 @@ friend class MGCLink;
 
  public:  
   MGCLinkGroup ();
-  void Set ( pstr comp, pstr modif, pstr grp, cpstr atm );
+  void Set ( pstr comp, pstr modif, pstr grp, pstr atm );
   ~MGCLinkGroup();
   void Print();
   bool Match( int grp, pstr comp, pstr atm );
@@ -220,10 +220,10 @@ class CLibAtom {
   realtype charge;
 
   static int nHbCodes;
-  static const char *hbCharCode[6];
+  static char *hbCharCode[6];
   static int hbCode[6];
   int encodeHbType( pstr hb);
-  const char* getHBType();
+  char* getHBType();
 
 };
 
@@ -245,7 +245,7 @@ class CLibBond {
   //realtype length_esd;
 
   static int nBondCodes;
-  static const char *bondCharCode[6];
+  static char *bondCharCode[6];
   static int bondCode[6];
   static int encodeBondType( pstr ty );
 
@@ -277,8 +277,8 @@ public:
   int LoadMonomerLibrary( char* filename, LoadedPCSBStructure &monlib);
   PCSBStructure LoadCifMonomer ( const ResName resNam , const PCMMCIFFile file, const bool unscramble=true );
   int MatchGraphs(PCResidue pRes,int Hflag, Boolean Cflag, const pstr altLoc, 
-		  PCSBStructure pSbaseRes, int &nMatched,
-		  ivector match, int minMatchSize );
+                          PCSBStructure pSbaseRes, int &nMatched,
+		      ivector match, int minMatchSize );
   //PCLibAtom LibAtom (char *);
   int LibAtom(char*);
   int LibAtom(char *, char *);

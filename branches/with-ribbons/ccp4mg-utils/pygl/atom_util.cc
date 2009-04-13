@@ -186,8 +186,11 @@ double *AtomColourVector::GetRGB ( int i ) {
   float fColour;
  
   //std::cout << "GetRGB interpolation_mode " << interpolation_mode << std::endl;
+  std::cout << "GetRGB interpolation_mode " << interpolation_mode << std::endl;
+  std::cout << "BL DEBUG:: colour_mode is " <<colour_mode<<std::endl;
 
   if ( colour_mode == ACV_COLOUR_MODE_ICOLOUR) {
+
     return  RGBReps::GetColourP(icolour[i]);
 
 
@@ -205,6 +208,7 @@ double *AtomColourVector::GetRGB ( int i ) {
       } else {    
         ir = int(property[i]);
         //std::cout << property[i]<< " " << ir << std::endl;
+        std::cout << property[i]<< " " << ir << std::endl;
         for (j=0;j<3;j++) {col[j] =  colours[ir+1][j]; }
       }
     } else if ( property[i] >max_cutoff ) {
@@ -221,6 +225,8 @@ double *AtomColourVector::GetRGB ( int i ) {
       fColour=property[i]-float(ir);
       //std::cout << "GetRGB " << i << " " << property[i] << " " << ir << " " << fColour << " " << colour_wheel_direction[ir+1] <<  std::endl;
       //std::cout << fColour << " " << ir << " " << colour_wheel_direction[ir+1];
+      std::cout << "GetRGB " << i << " " << property[i] << " " << ir << " " << fColour << " " << colour_wheel_direction[ir+1] <<  std::endl;
+      std::cout << fColour << " " << ir << " " << colour_wheel_direction[ir+1];
       // dir is the direction round the wheel that we will get if
       // we do the simplest interpolation 
       int dir = COLOUR_WHEEL_CLOCK;
@@ -247,6 +253,7 @@ double *AtomColourVector::GetRGB ( int i ) {
       }
     }
     //std::cout << " " << col[0] << " " << col[1] << " " << col[2];
+    std::cout << " " << col[0] << " " << col[1] << " " << col[2];
     //double *col1 = new double[4];
     //col1 = RGBReps::hsvtorgb(col);
     //std::cout << " : " <<  col1[0] << " " << col1[1] << " " << col1[2]<< " " << col1[3] << std::endl;
