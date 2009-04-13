@@ -3618,7 +3618,116 @@ def run_python_thread(function, *args):
    MyThread().start()
    gtk.gdk.threads_leave()
    #gtk.main_iteration()
+
+
+# primtive GUI to change ribbon parameters. Not sure how to do yet, e.g.
+# 1.) do we set all things and apply on exit
+# 2.) have interactive change?
+# 1/2) when do we choose the molecule? Or do we not want to have individual settings?
+# for now we use option 1 with imol as an entry no as easiest to do
+#
+def ribbons_settings_gui():
    
+
+   def delete_event(*rags):
+      window.destroy()
+      return False
+
+   def go_function_event(*args):
+      print "Finished"
+      window.destroy()
+      return False
+
+
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   window.set_title("Ribbons setting")
+   vbox = gtk.VBox(False, 2)
+
+   imol_entry = gtk.Entry()
+   imol_entry_label = gtk.Label("Imol")
+
+   ribbon_width_entry       = gtk.Entry()
+   ribbon_width_entry_label = gtk.Label("Protein ribbon width")
+
+   strand_arrow_width_entry       = gtk.Entry()
+   strand_arrow_width_entry_label = gtk.Label("Beta strand arrow width")
+
+   worm_width_entry       = gtk.Entry()
+   worm_width_entry_label = gtk.Label("Worm width")
+
+   strand_style_option_menu = gtk.combo_box_new_text()
+   fill_option_menu_with_list(strand_style_option_menu, ["Oval", "Flat", "Flat/Round"])
+   strand_style_label = gtk.Label("Strand ribbon style")
+
+   helix_style_option_menu = gtk.combo_box_new_text()
+   fill_option_menu_with_list(helix_style_option_menu, ["Oval", "Flat", "Flat/Round", "Fancy"])
+   helix_style_label = gtk.Label("Helix ribbon style")
+
+   shorten_loops_check_button = gtk.CheckButton()
+   shorten_loops_label = gtk.Label("Shorten loops")
+
+   smooth_beta_check_button = gtk.CheckButton()
+   smooth_beta_label = gtk.Label("Smooth beta-strands")
+
+   helix_colouring_option_menu = gtk.combo_box_new_text()
+   fill_option_menu_with_list(helix_colouring_option_menu, ["Normal", "Inside grey"])
+   helix_colouring_label = gtk.Label("Helix colouring")
+
+   # use a table to put all the things in
+   table = gtk.Table(2, 9)
+
+   hbox_buttons = gtk.HBox(True, 2)
+   go_button = gtk.Button("  Apply  ")
+   cancel_button = gtk.Button(" Cancel ")
+   h_sep = gtk.HSeparator()
+
+   window.add(vbox)
+
+   table.attach(imol_entry_label , 0, 1, 0, 1)
+   table.attach(imol_entry ,       1, 2, 0, 1)
+
+   table.attach(ribbon_width_entry_label , 0, 1, 1, 2)
+   table.attach(ribbon_width_entry ,       1, 2, 1, 2)
+
+   table.attach(strand_arrow_width_entry_label , 0, 1, 2, 3)
+   table.attach(strand_arrow_width_entry ,       1, 2, 2, 3)
+
+   table.attach(worm_width_entry_label , 0, 1, 3, 4)
+   table.attach(worm_width_entry ,       1, 2, 3, 4)
+
+   table.attach(strand_style_label , 0, 1, 4, 5)
+   table.attach(strand_style_option_menu , 1, 2, 4, 5)
+
+   table.attach(helix_style_label , 0, 1, 5, 6)
+   table.attach(helix_style_option_menu , 1, 2, 5, 6)
+
+   table.attach(shorten_loops_label , 0, 1, 6, 7)
+   table.attach(shorten_loops_check_button , 1, 2, 6, 7)
+
+   table.attach(smooth_beta_label , 0, 1, 7, 8)
+   table.attach(smooth_beta_check_button , 1, 2, 7, 8)
+
+   table.attach(helix_colouring_label , 0, 1, 8, 9)
+   table.attach(helix_colouring_option_menu , 1, 2, 8, 9)
+
+
+   vbox.pack_start(table, False, False, 2)
+   vbox.pack_start(h_sep, False, False, 2)
+   vbox.pack_start(hbox_buttons, False, False, 0)
+   hbox_buttons.pack_start(go_button, False, False, 6)
+   hbox_buttons.pack_start(cancel_button, False, False, 6)
+
+   go_button.connect("clicked", go_function_event)
+   cancel_button.connect("clicked", delete_event)
+   window.show_all()
+
+
+def fill_option_menu_with_list(menu, item_list, active=0):
+   
+   for item in item_list:
+      menu.append_text(item)
+   menu.set_active(active)
+      
 
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()
