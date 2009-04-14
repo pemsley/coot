@@ -123,15 +123,15 @@ molecule_class_info_t::make_ribbons() {
 
 
   AtomColourVector* cv = new AtomColourVector();
-  std::cout<< "BL DEBUG::setting colour names?!"<<std::endl;
-  CColours();
-  std::cout<< "BL DEBUG::done setting colour names?!"<<std::endl;
-  PCColourSchemes schemes = new CColourSchemes();
+  //std::cout<< "BL DEBUG::setting colour names?!"<<std::endl;
+  //CColours();
+  //std::cout<< "BL DEBUG::done setting colour names?!"<<std::endl;
+  //PCColourSchemes schemes = new CColourSchemes();
   //PCColourSchemes schemes;
-  schemes->AtomType;
-  CMolColour cmc = CMolColour(molHnd, selHnd, schemes);
-  cmc.SetMode(2);
-  cmc.GetAtomColourVector(nSelAtoms, (int*)cv);
+  //schemes->AtomType;
+  //CMolColour cmc = CMolColour(molHnd, selHnd, schemes);
+  //cmc.SetMode(2);
+  //cmc.GetAtomColourVector(nSelAtoms, (int*)cv);
 
   int *colours = new int[nSelAtoms];
   //cmc.GetAtomColourVector(nSelAtoms, colours);
