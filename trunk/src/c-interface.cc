@@ -5985,6 +5985,7 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
       PyObject *globals;
       PyObject *pValue = NULL;
       // include $COOT_PYTHON_DIR in module search path
+      // but is alread (except for windows - shall fix BL)
       PyRun_SimpleString("import sys, os");
       PyRun_SimpleString("sys.path.append(os.getenv('COOT_PYTHON_DIR'))");
 
@@ -5996,49 +5997,53 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
       pModule = PyImport_AddModule("__main__");
       pDict = PyModule_GetDict(pModule);
       globals = PyRun_String("globals()", Py_eval_input, pDict, pDict);
-      pDict = globals;
 
-      pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, pDict, pDict);
+      if (! PyDict_Check(globals)) {
+	std::cout<<"ERROR:: could not get globals when running " << python_cmd <<std::endl;
+      } else {
+	pDict = globals;
+	pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, pDict, pDict);
 
-      std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
-		<< pValue << std::endl;
+	std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
+		  << pValue << std::endl;
 
-      if (pValue != NULL)
-	 {
+	if (pValue != NULL)
+	  {
 	    if (pValue != Py_None) {
-	       ret = py_clean_internal(pValue);
-	       if (! ret)
-		  ret = Py_None;
+	      ret = py_clean_internal(pValue);
+	      if (! ret)
+		ret = Py_None;
 	    } else {
-	       ret = Py_None;
+	      ret = Py_None;
 	    }
 	    Py_DECREF(pValue);
 
-	 } else {
-	 // there is an Error. Could be a syntax error whilst trying to evaluate a statement
-	 // so let's try to run it as a statement
-	 if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
+	  } else {
+	  // there is an Error. Could be a syntax error whilst trying to evaluate a statement
+	  // so let's try to run it as a statement
+	  if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
 	    std::cout << "error (syntax error)" << std::endl;
 	    PyErr_Clear();
 	    pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, pDict, pDict);
 	    if (pValue != NULL) {
-	       ret = pValue;
+	      ret = pValue;
 	    }
-	 } else {
+	  } else {
 	    std::cout << "error (not syntax error)" << std::endl;
 	    PyErr_Print();
-	 }
+	  }
+	}
       }
-
       // Clean up
       Py_DECREF(pModule);
       Py_DECREF(pName);
-      Py_DECREF(pDict);
-      Py_DECREF(globals);
+      Py_XDECREF(pDict);
+      Py_XDECREF(globals);
    }
 
    // Running PyBool_Check(NULL) crashes.
    if (ret == NULL) 
+      Py_INCREF(Py_None);
       return Py_None; // don't try to convert this to a SCM thing.
    
    if (PyBool_Check(ret)) { 
@@ -6593,6 +6598,30 @@ run_python_script(const char *filename_in) {
    PyRun_SimpleString((char *)simple.c_str());
 
 #endif // USE_PYTHON
+}
+
+int
+import_python_module(const char *module_name, int use_namespace) { 
+
+  int err = 1;
+
+#ifdef USE_PYTHON
+  
+  std::string simple;
+  if (use_namespace) {
+    simple = "import ";
+    simple += module_name;
+  } else {
+    simple = "from ";
+    simple += module_name;
+    simple += " import *";
+  }
+  std::cout << "Importing python module " << module_name 
+	    << " using command " << simple << std::endl;
+  // not a const argument?  Dear oh dear....
+  err = PyRun_SimpleString((char *)simple.c_str());
+#endif // USE_PYTHON
+  return err;
 }
 
 

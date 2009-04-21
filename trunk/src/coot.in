@@ -44,7 +44,7 @@ COOT_PYTHON_DIR=$COOT_PREFIX/share/coot/python
 if [ -z "$PYTHONPATH" ] ; then
     PYTHONPATH=$COOT_PREFIX/share/coot/python
 else
-    PYTHONPATH=${PYTHONPATH}:$COOT_PREFIX/share/coot/python
+    PYTHONPATH=$COOT_PREFIX/share/coot/python:${PYTHONPATH}
 fi
 PYTHONHOME=$COOT_PREFIX
 
