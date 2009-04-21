@@ -437,57 +437,65 @@ main (int argc, char *argv[]) {
      struct stat buf;
      int status = stat(pydirectory.c_str(), &buf);
      if (status != 0) { 
-	std::cout << "WARNING python directory " << pydirectory 
-                  << " does not exist" << std::endl;;
+       std::cout << "WARNING python directory " << pydirectory 
+		 << " does not exist" << std::endl;;
      } else { 
-         const char *coot_dot_py = "coot.py";
-         const char *coot_dot_py_checked = does_file_exist(pydirectory.c_str(), coot_dot_py);
-         if (coot_dot_py_checked) {
-	    std::cout << "INFO:: loading coot.py from " << coot_dot_py_checked
-		      << std::endl;
-	    run_python_script(coot_dot_py_checked);
-	    std::cout << "INFO:: coot.py loaded" << std::endl;
+       const char *coot_dot_py = "coot.py";
+       const char *coot_dot_py_checked = does_file_exist(pydirectory.c_str(), coot_dot_py);
+       if (coot_dot_py_checked) {
+	 std::cout << "INFO:: importing coot.py from " << coot_dot_py_checked
+		   << std::endl;
+	 //run_python_script(coot_dot_py_checked);
+	 // not a const argument?  Dear oh dear....
+	 int err = import_python_module("coot", 0);
+	 //PyRun_SimpleString((char *)simple.c_str());
+	 if (err == -1) {
+	   std::cout << "ERROR:: could not import coot.py" << std::endl;
+	 } else {
 
-            const char *coot_load_modules_dot_py;
-            if (use_graphics_flag) {
-	      // we have gui
-	      // BL says:: lets initialize glue too but only if we have pygtk 
-	      // (and gtk2)
+	   std::cout << "INFO:: coot.py imported" << std::endl;
+
+	   const char *coot_load_modules_dot_py;
+	   if (use_graphics_flag) {
+	     // we have gui
+	     // BL says:: lets initialize glue too but only if we have pygtk 
+	     // (and gtk2)
 #ifdef USE_PYGTK
-  #ifdef COOT_USE_GTK2_INTERFACE
-	       initcoot_python();
-	       std::cout << "INFO:: coot_python initialized" << std::endl;
-    #ifdef USE_GUILE_GTK
-	      safe_python_command("global use_gui_qm; use_gui_qm = 2");
-    #else
-	      safe_python_command("global use_gui_qm; use_gui_qm = 1");
-    #endif
-  #else
-	      safe_python_command("global use_gui_qm; use_gui_qm = False");
-  #endif // GKT2
+#ifdef COOT_USE_GTK2_INTERFACE
+	     initcoot_python();
+	     std::cout << "INFO:: coot_python initialized" << std::endl;
+#ifdef USE_GUILE_GTK
+	     safe_python_command("global use_gui_qm; use_gui_qm = 2");
 #else
-	      safe_python_command("global use_gui_qm; use_gui_qm = False");
+	     safe_python_command("global use_gui_qm; use_gui_qm = 1");
+#endif
+#else
+	     safe_python_command("global use_gui_qm; use_gui_qm = False");
+#endif // GKT2
+#else
+	     safe_python_command("global use_gui_qm; use_gui_qm = False");
 #endif // PYTGK
-	    } else {
-	       // we dont have gui
-	       safe_python_command("global use_gui_qm; use_gui_qm = False");
-	    }
-	    coot_load_modules_dot_py = "coot_load_modules.py";
-            char *coot_load_modules_dot_py_checked = 
-                  does_file_exist(pydirectory.c_str(), coot_load_modules_dot_py);
-            if (coot_load_modules_dot_py_checked) { 
-                 std::cout << "INFO loading coot python modules" << std::endl;
-                 run_python_script(coot_load_modules_dot_py_checked);
-                } else {
-                 std::cout << "WARNING:: No coot modules found! Python scripting crippled. " 
-                                << std::endl;
-            }
-         } else { 
-            std::cout << "WARNING:: No coot.py file found! Python scripting unavailable. " 
-                      << std::endl;
-         }
+	   } else {
+	     // we dont have gui
+	     safe_python_command("global use_gui_qm; use_gui_qm = False");
+	   }
+	   coot_load_modules_dot_py = "coot_load_modules.py";
+	   char *coot_load_modules_dot_py_checked = 
+	     does_file_exist(pydirectory.c_str(), coot_load_modules_dot_py);
+	   if (coot_load_modules_dot_py_checked) { 
+	     std::cout << "INFO loading coot python modules" << std::endl;
+	     run_python_script(coot_load_modules_dot_py_checked);
+	   } else {
+	     std::cout << "WARNING:: No coot modules found! Python scripting crippled. " 
+		       << std::endl;
+	   }
+	 }
+       } else { 
+	 std::cout << "WARNING:: No coot.py file found! Python scripting unavailable. " 
+		   << std::endl;
+       }
      }
-
+     
      // try to load extra dir files (if exist) do before preferences (as for
      // scheme version
      try_load_python_extras_dir();

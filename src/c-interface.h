@@ -2648,12 +2648,16 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport);
 /*  and now we make it return a value, which we can decode in the calling
     function. I make a dummy version for when GUILE is not being used in case
     there are functions in the rest of the code that call safe_scheme_command
-    without checking if there is USE_GUILE first.*/
+    without checking if there is USE_GUILE first.
+    importing ability for python modules, use_namespace to maintain the 
+    namespace of the module, returns 1 if not running, 0 on success, -1 
+    when error importing (no further information) */
 
 /*! \brief run script file */
 void run_script       (const char *filename);
 void run_guile_script (const char *filename);
 void run_python_script(const char *filename);
+int import_python_module(const char *module_name, int use_namespace);
 
 /* \} */
 
