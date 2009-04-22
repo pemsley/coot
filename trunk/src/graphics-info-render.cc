@@ -188,6 +188,16 @@ graphics_info_t::renderman(std::string filename) {
    GL_matrix m;
    m.from_quaternion(quat);
    rt.set_view_matrix(m);
+   rt.set_quaternion(quat);
+
+   float aspect_ratio = 1.3;
+   if (use_graphics_interface_flag) { 
+      aspect_ratio = float (glarea->allocation.width)/float (glarea->allocation.height);
+   }
+   
+   rt.set_ortho_params(-0.3*zoom*aspect_ratio,
+		       0.3*zoom*aspect_ratio,
+		       -0.3*zoom, 0.3*zoom);
 
    rt.add_display_objects(*generic_objects_p);
 
@@ -348,8 +358,21 @@ int coot::raytrace_info_t::renderman_render(std::string filename) {
       render_stream << "Display \"" << filename << ".tif\" \"file\" \"rgba\"\n";
       render_stream << "Format 640 480 -1\n";
       render_stream << "ShadingRate 1\n";
-      render_stream << "Projection \"perspective\" \"fov\" [30]\n";
-      render_stream << "FrameAspectRatio 1.33\n";
+      // render_stream << "Projection \"perspective\" \"fov\" [30]\n";
+      render_stream << "Projection \"orthographic\"\n";
+
+      // Get the camera orientation from the quaterions.
+
+      // You can get the glOrtho from the GL context: Glget(GL_PROJECTION_MATRIX, &some_variable);
+      
+      render_stream << "ScreenWindow " << ortho_left << " " << ortho_right << " "
+		    << ortho_bottom << " " << ortho_top << "\n";
+
+      render_stream << "Exposure 1.0 1.3\n";
+      // Atmosphere "mgfog" "background" [0.0 0.0 0.0] "mindistance" 196.67 "maxdistance" 206.66
+      render_stream << "Translate 0 0 200\n";
+
+      // render_stream << "FrameAspectRatio 1.33\n";
       render_stream << "Identity\n";
       render_stream << "\n";
       render_stream << "# Default distant headlight\n";
@@ -357,7 +380,45 @@ int coot::raytrace_info_t::renderman_render(std::string filename) {
       render_stream << "# Camera transformation\n"; 
       render_stream << "Translate 0 0 20\n"; 
       render_stream << "WorldBegin\n";
-      render_stream << "Identity\n";
+      
+      render_stream << "Attribute \"visibility\"  # make objects visible to eye\n";
+      render_stream << "Attribute \"trace\" \"bias\" 0.1\n";
+
+
+      // mg code:
+
+      // 	def getCameraRotations(self,quat):
+      //                 import pygl_coord
+      //                 import math
+      // 
+      //                 dp = quat.Getdval()
+      //                 tmp = pygl_coord.doublea(1)
+      //                 quatp = tmp.frompointer(dp)
+      // 
+      //                 angle = 2*math.acos(quatp[0])
+      //                 sina = math.sin(angle/2.)
+      //                 x = quatp[1]/sina
+      //                 y = quatp[2]/sina
+      //                 z = quatp[3]/sina
+      //                 return angle, x,y,z
+      // 
+      // ax,rx,ry,rz = self.getCameraRotations(quat)
+      // outstream.Print("		Rotate "+str(-ax/math.pi*180.)+" "+str(rx)+" "+str(ry)+" "+str(-rz)+"\n")
+      // outstream.Print("		Translate "+str(rpos[0])+" "+str(rpos[1])+" "+str(-rpos[2])+"\n");
+
+      double angle = 2.0 * acos(view_quat.q0);
+      double sina = sin(angle/2.0);
+      double qx = view_quat.q1/sina;
+      double qy = view_quat.q2/sina;
+      double qz = view_quat.q3/sina;
+      
+      render_stream << "Rotate " // -317.207100403 0.242010379709 -0.95971828126 -0.142729803226
+		    << angle*M_PI/180.0 << " " << qx << " " << qy << " " << qz << "\n";
+      render_stream << "Translate " << view_centre.x() << " "
+		    << view_centre.y() << " " << view_centre.z() 
+		    << "\n";
+      
+		   // render_stream << "Identity\n";
 
       // molecule attributes
       
@@ -491,18 +552,44 @@ coot::ray_trace_molecule_info::renderman_molecule(std::ofstream &render_stream,
 // 		    << bond_lines[ib].second.x() << " "
 // 		    << bond_lines[ib].second.y() << " "
 // 		    << bond_lines[ib].second.z() << "\n";
-      render_stream << "   TransformBegin\n";
+
+//       render_stream << "   TransformBegin\n"; // no need
       render_stream << "   Translate "
 		    << bond_lines[ib].first.x() << " "
 		    << bond_lines[ib].first.y() << " "
 		    << bond_lines[ib].first.z() << "\n";
       double l = (bond_lines[ib].second - bond_lines[ib].first).amplitude();
-      render_stream << "   Cylinder 1 0 " << l << "  360\n";
-      render_stream << "   TransformEnd\n";
+
+      coot::Cartesian v = (bond_lines[ib].second - bond_lines[ib].first);
+      v.unit_vector_yourself();
+      coot::Cartesian axis = coot::Cartesian::CrossProduct(v,Cartesian(0,0,1));
+      double dp = coot::dot_product(v,coot::Cartesian(0,0,-1));
+      // std::cout << " dot product: " << dp << std::endl;
+      if (dp > 1.0)  dp =  1.0;
+      if (dp < -1.0) dp = -1.0;
+      double angle = -180.0/M_PI*acos(dp);
+      if(fabs(axis.length())<1e-7) axis = coot::Cartesian(0,1,0);
+      render_stream << "   Rotate "
+		    << angle << " " << axis.x() << " " << axis.y() << " " << axis.z() << "\n";
+      // Think about scaling the cylinder so that far away bonds are not tiny thin.
+      
+      
+      render_stream << "   Cylinder 0.15 0 " << l << "  360\n";
+      //       render_stream << "   TransformEnd\n";  // no need
       render_stream << "AttributeEnd\n";
    }
 
 }
+
+void
+coot::raytrace_info_t::set_ortho_params(float left, float right, float bottom, float top) {
+
+   ortho_left = left;
+   ortho_right = right;
+   ortho_bottom = bottom;
+   ortho_top = top;
+} 
+
 
 
 

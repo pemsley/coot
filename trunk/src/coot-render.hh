@@ -20,7 +20,9 @@ namespace coot {
       std::vector<float> col;
    };
    //
+
    class ray_trace_molecule_info {
+
       float bond_thickness; 
       float density_thickness;
       float zoom;
@@ -54,7 +56,26 @@ namespace coot {
    };
 
    class raytrace_info_t {
+   public: 
+      class quat_container {
+      public:
+	 double q0;
+	 double q1;
+	 double q2;
+	 double q3;
+	 quat_container(float q[4]) {
+	    q0 = q[0];	    q1 = q[1];
+	    q2 = q[2];	    q3 = q[3];
+	 }
+	 quat_container() {
+	    q0 = 0; q1 = 0;
+	    q2 = 0; q3 = 0;
+	 }
+      }; 
+
+   private:
       GL_matrix view_matrix;
+      quat_container view_quat;
       int window_width, window_height;
       int quality;
       void render_molecules(std::ofstream &render_stream);
@@ -66,6 +87,7 @@ namespace coot {
       float density_thickness;
       float clipping;
       float atom_radius;
+      float ortho_left, ortho_right, ortho_bottom, ortho_top;
       std::vector<coot::generic_display_object_t> display_objects;
 
    public:
@@ -105,6 +127,12 @@ namespace coot {
       void set_view_matrix(GL_matrix view_matrix_in) {
 	 view_matrix = view_matrix_in;
       }
+
+      void set_quaternion(float f[4]) {
+	 view_quat = quat_container(f);
+      } 
+
+      
       void set_camera_location(const Cartesian &camera_in) {
 	 camera_location = camera_in;
       }
@@ -124,7 +152,10 @@ namespace coot {
       }
       void add_display_object(const coot::generic_display_object_t &display_object_in) {
 	 display_objects.push_back(display_object_in);
-      } 
+      }
+
+      void set_ortho_params(float left, float right, float bottom, float top);
+
       
       // iq is either 8 (normal) 16 (good) 24 (best)
       // 
