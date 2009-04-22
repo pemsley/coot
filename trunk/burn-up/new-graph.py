@@ -30,7 +30,7 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 110
+x_day_range = 120
 
 x_tick_interval = 2
 if (x_day_range > 40):
@@ -81,14 +81,11 @@ def describeEvent(days, label, off):
     
 describeEvent(5, "Christmas\nholidays start", -10)
 
-tb = text_box.T(loc=(28, 40), text="Boston", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(21, 39), text="Boston", shadow=(1,-1,fill_style.gray70))
 # tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "cb")
 tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(55, 73), text="Papers & Happy", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(50, 73), text="Papers & Happy", shadow=(1,-1,fill_style.gray70))
 tb.add_arrow((ar.x_pos(data[74][0]), ar.y_pos(data[74][1])), "c")
 tb.draw()
-
-
-
