@@ -565,6 +565,10 @@ if test "$run_tests" = true ; then
    # for python build we need to set COOT_PYTHON_DIR and COOT_HOME
    COOT_PYTHON_DIR=$install_top_dir/share/coot/python
    COOT_HOME=$HOME
+   PYTHONPATH=$COOT_PYTHON_DIR
+   PYTHONHOME=$install_top_dir/bin
+   export PYTHONPATH
+   export PYTHONHOME
    export COOT_PYTHON_DIR
    export COOT_HOME
    
