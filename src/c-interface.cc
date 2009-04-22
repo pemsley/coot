@@ -6042,9 +6042,10 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
    }
 
    // Running PyBool_Check(NULL) crashes.
-   if (ret == NULL) 
+   if (ret == NULL) {
       Py_INCREF(Py_None);
       return Py_None; // don't try to convert this to a SCM thing.
+   }
    
    if (PyBool_Check(ret)) { 
       Py_INCREF(ret);
