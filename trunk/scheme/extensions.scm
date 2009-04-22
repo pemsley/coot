@@ -449,7 +449,7 @@
 	;; ---------------------------------------------------------------------
 	
 	(add-simple-coot-menu-menuitem 
-	 submenu-ncs "Copy NCS Reside Range..."
+	 submenu-ncs "Copy NCS Residue Range..."
 	 (lambda ()
 	   (generic-chooser-and-entry "Apply NCS Range from Master"
 				      "Master Chain ID"
