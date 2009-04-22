@@ -557,7 +557,7 @@ namespace coot {
 	 though (if flip_number is not 1). */
       coot::minimol::molecule flip_ligand(short int flip_number) const;
    }; 
-   
+
 
 } // namespace coot
 
