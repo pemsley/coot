@@ -46,28 +46,34 @@
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include <iostream>
 
+void show_usage(std::string pname) {
+   std::cout << "Usage: " << pname
+	     << " --pdbin pdb-in-filename" << " --hklin mtz-filename"
+	     << " --f f_col_label"
+	     << " --phi phi_col_label"
+	     << " --pdbout waters-filename"
+	     << " --sigma sigma-level"
+	     << " --flood"
+	     << " --chop"
+	     << "\n"
+	     << "        --mapin ccp4-map-name can be used"
+	     << " instead of --hklin --f --phi\n";
+   std::cout << "        where pdbin is the protein (typically)\n"
+	     << "        and pdbout is file for the waters.\n"
+	     << "        The default sigma level is 2.0\n"
+	     << "        Use --chop to remove waters below given sigma-level\n"
+	     << "            In this case, pdbout is the modified input coordinates\n"
+	     << "        Use ---flood to fill everything with waters "
+ 	     << "(not just water peaks)\n"
+	     << "        and --flood-atom-radius to adjust contact distance\n"
+	     << "           (default 1.4A).\n";
+} 
+
 int
 main(int argc, char **argv) {
    
-   if (argc < 6) { 
-      std::cout << "Usage: " << argv[0] 
-		<< " --pdbin pdb-in-filename" << " --hklin mtz-filename"
-		<< " --f f_col_label"
-		<< " --phi phi_col_label"
-		<< " --pdbout waters-filename"
-		<< " --sigma sigma-level"
-		<< " --flood"
-		<< " --chop"
-		<< "\n"
-		<< "        --mapin ccp4-map-name can be used"
-		<< " instead of --hklin --f --phi\n";
-      std::cout << "        where pdbin is the protein (typically)\n"
-		<< "        and pdbout is file for the waters.\n"
-		<< "        The default sigma level is 2.0\n"
-		<< "        Use --chop to remove waters below given sigma-level\n"
-		<< "            In this case, pdbout is the modified input coordinates\n"
-		<< "        Use ---flood to fill everything with waters "
-		<< "(not just water peaks)\n";
+   if (argc < 3) {
+      show_usage(argv[0]); 
    } else { 
 
       std::string pdb_file_name;
@@ -79,6 +85,7 @@ main(int argc, char **argv) {
       std::string map_file_name;
       short int do_flood_flag = 0;
       short int do_chop_flag = 0;
+      float flood_atom_mask_radius = 1.4; 
 
       const char *optstr = "i:h:f:p:o:s:e:c:m";
       struct option long_options[] = {
@@ -89,6 +96,7 @@ main(int argc, char **argv) {
 	 {"pdbout", 1, 0, 0},
 	 {"sigma",  1, 0, 0},
 	 {"mapin",  1, 0, 0},
+	 {"flood-atom-radius",  1, 0, 0},
 	 {"flood",  0, 0, 0},
 	 {"chop",   0, 0, 0},
 	 {0, 0, 0, 0}
@@ -125,6 +133,9 @@ main(int argc, char **argv) {
 	       }
 	       if (arg_str == "mapin") {
 		  map_file_name = optarg;
+	       }
+	       if (arg_str == "flood-atom-radius") {
+		  flood_atom_mask_radius = atof(optarg);
 	       }
 	       
 	    } else { 
@@ -198,6 +209,9 @@ main(int argc, char **argv) {
 	    if (have_map) {
 	       do_it_with_map = 1;
 	       do_it = 1;
+	       if (sigma_str.length() == 0) {
+		  sigma_str = "2.0";
+	       }
 	    } else { 
 	       if (mtz_filename.length() == 0) { 
 		  std::cout << "Missing MTZ file\n";
@@ -238,16 +252,26 @@ main(int argc, char **argv) {
 	    file.open_read(map_file_name);
 	    file.import_xmap(xmap);
 	    file.close_read();
-	    lig.import_map_from(xmap);
-	 } else { 
-	    short int stat = lig.map_fill_from_mtz(mtz_filename, f_col, phi_col, "", 
-						   use_weights, is_diff_map);
+	    clipper::Xmap<float> fine_xmap =
+	       coot::util::reinterp_map_fine_gridding(xmap);
+	    lig.import_map_from(fine_xmap);
+	    lig.output_map("fine-map.map");
+	 } else {
+	    clipper::Xmap<float> xmap;
+	    bool stat = coot::util::map_fill_from_mtz(&xmap,
+						      mtz_filename,
+						      f_col, phi_col, "", 
+						      use_weights, is_diff_map);
 
 	    if (! stat) { 
 	       std::cout << "ERROR: in filling map from mtz file: " << mtz_filename
 			 << std::endl;
 	       exit(1);
-	    }
+	    } else {
+	       clipper::Xmap<float> fine_xmap =
+		  coot::util::reinterp_map_fine_gridding(xmap);
+	       lig.import_map_from(fine_xmap);
+	    } 
 
 	 }
 
@@ -267,7 +291,7 @@ main(int argc, char **argv) {
 		  lig.set_map_atom_mask_radius(1.9);
 		  lig.mask_by_atoms(pdb_file_name);
 		  if (lig.masking_molecule_has_atoms()) { 
-		     lig.output_map("find-waters-masked.map");
+		     // lig.output_map("find-waters-masked.map");
 		     // 		  std::cout << "DEBUG:: in findwaters: using input_sigma_level: "
 		     // 			    << input_sigma_level << std::endl;
 		     lig.water_fit(input_sigma_level, 3); // e.g. 2.0 sigma for 3 cycles 
@@ -298,21 +322,25 @@ main(int argc, char **argv) {
 	       }
 	    }
 	 } else {
+
 	    std::cout << "===================== Flood mode ======================= "
 		      << std::endl;
+	    std::cout << "input_sigma_level:: " << input_sigma_level << std::endl;
 	    // if a pdb file was defined, let's mask it
 	    if (pdb_file_name.length() > 0) {
-	       std::cout << "INFO:: masking map by coords in " << pdb_file_name << std::endl;
+	       std::cout << "INFO:: masking map by coords in " << pdb_file_name
+			 << std::endl;
 	       lig.set_map_atom_mask_radius(1.9);
 	       lig.mask_by_atoms(pdb_file_name);
 	    } 
 	    lig.set_cluster_size_check_off();
 	    lig.set_chemically_sensible_check_off();
 	    lig.set_sphericity_test_off();
-	    lig.set_map_atom_mask_radius(1.2);
+	       
+	    lig.set_map_atom_mask_radius(flood_atom_mask_radius);
 	    lig.set_water_to_protein_distance_limits(10.0, 1.5); // should not be 
 	    // used in lig.
-	    lig.flood2(input_sigma_level); // with atoms (waters initially)
+	    lig.flood2(input_sigma_level); // with atoms
 	    coot::minimol::molecule water_mol = lig.water_mol();
 	    water_mol.write_file(output_pdb, 30.0);
 	    // lig.output_map("find-waters-masked-flooded.map");

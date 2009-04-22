@@ -575,26 +575,37 @@ coot::ligand::flood2(float n_sigma) {
 
    int n_rounds = 10;
    std::vector<clipper::Coord_orth> water_list;
-   double d_crit = 1.2; // A.  don't make waters closer to each other than this.
+
    mean_and_variance<float> mv_start = map_density_distribution(xmap_masked,0);
 
+   int n_added_waters=0;
    for (int iround=0; iround<n_rounds; iround++) {
 
       mean_and_variance<float> mv_this = map_density_distribution(xmap_masked,0);
+
+      // float n_sigma_crit = n_sigma * sqrt(mv_start.variance/mv_this.variance);
+      // Hmm... try non-dynamic:
+      
       float n_sigma_crit = n_sigma * sqrt(mv_start.variance/mv_this.variance);
+      
       coot::peak_search ps(xmap_masked);
       std::vector<clipper::Coord_orth> peaks = ps.get_peaks(xmap_masked, n_sigma_crit);
-      std::cout << "DEBUG:: Round " << iround << " found " << peaks.size()
-		<< " peaks " << std::endl;
+      std::cout << "INFO:: Round " << iround << " found " << peaks.size()
+		<< " peaks above " << n_sigma_crit
+		<< " sigma (based on the current map)"
+		<< std::endl;
+      if (peaks.size() == 0) break;
       // mask new waters
       for (unsigned int iw=0; iw<peaks.size(); iw++) {
-	 if (! close_to_another(peaks[iw], water_list, d_crit)) {
+	 if (! close_to_another(peaks[iw], water_list, map_atom_mask_radius)) {
 	    // change xmap_masked:
 	    mask_around_coord(peaks[iw], map_atom_mask_radius, &xmap_masked);
 	    water_list.push_back(peaks[iw]);
+	    n_added_waters++;
 	 }
       }
    }
+   std::cout << "INFO:: added " << n_added_waters << " waters to molecule\n";
    std::string ch = protein_atoms.unused_chain_id("W");
    coot::minimol::molecule mol(water_list, "DUM", " DUM", ch);
    mol.set_cell(xmap_masked.cell());
