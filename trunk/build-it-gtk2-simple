@@ -2885,6 +2885,8 @@ else
    echo ========================
    echo '  ' first coot test failed
    echo ========================
+   echo greg test status: $r
+   echo python test status: $rp
    echo fail-test > $LOGS/$build_type-test-status
 fi
 
