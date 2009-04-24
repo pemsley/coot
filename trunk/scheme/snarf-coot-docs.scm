@@ -44,7 +44,8 @@
 (define get-torsion-scm #f)
 (define test-internal-single-scm #f)
 (define user-defined-click-scm #f)
-(define add-lsq-atom-pair-scm #f
+(define add-lsq-atom-pair-scm #f)
+
 
 
 (load "filter.scm")
