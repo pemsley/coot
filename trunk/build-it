@@ -488,6 +488,19 @@ fi
 if test "$run_tests" = true ; then
    # let's test our new coot
    
+   # for python build we need to set COOT_PYTHON_DIR and COOT_HOME
+   # as well as PYTHONPATH things now, because we do a "proper" 
+   # import * from coot, which needs to find coot.py the 
+   # conventional/pythonic way. If python doesn't start properly, 
+   # the greg tests fail.
+
+   COOT_PYTHON_DIR=$install_top_dir/share/coot/python
+   PYTHONPATH=$COOT_PYTHON_DIR
+   PYTHONHOME=$install_top_dir
+   export COOT_PYTHON_DIR
+   export PYTHONPATH
+   export PYTHONHOME
+
    # the greg tests are where the coot source code was untarred.
    # 
    if [ ! -d greg-tests ] ; then 
