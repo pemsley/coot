@@ -135,6 +135,9 @@ Current language:  auto; currently c
 
      ::: 1
 
+     o Steven Sheriff: fix up the difference map peaks so that I don't
+       get two that are close together.  ::: 1
+
 
      o Markus Rudolf: 
 
@@ -172,6 +175,11 @@ Current language:  auto; currently c
    o make reading a dirty cif file report the bad line number. ::: 1
 
 
+   o Reading in a map messes with the scroll button in the display
+   menu (possibly). JED.
+    ::: 1 
+
+
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
     make_link_restraints_by_linear() has
     if (do_rama_plot_restraints)
@@ -200,6 +208,18 @@ Current language:  auto; currently c
      etc...
      ::: 1
 
+   o Refining a GLC gives:
+
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+c-interface clear_up_moving_atoms...
+
 
    o Add terminal residue has disconnected atoms.  Why? This is an
      extremely deeply-buried problem. ::: 4
@@ -210,6 +230,21 @@ Current language:  auto; currently c
      ::: 10
 
 * What else is there to do here?  Write a test.
+
+    o An interface to make dotted lines (generic objects).  Tobias Beck ::: 2
+
+    o On map masking, on pressing the "Mask" button with inversion enabled:
+
+** (lt-coot-real:9413): WARNING **: Widget not found: map_scroll_button_3
+changed active state to #t
+debug:: invert-mask? is #t
+INFO:: Masking around 0 atoms
+
+             ::: 1
+
+
+   o crash when adding a view annoation (first I added an annotation
+     to view 4 (which didn't exist))   ::: 1
 
 
    o Put the scripting window into the state file. ::: 1

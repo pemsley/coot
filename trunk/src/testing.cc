@@ -1224,8 +1224,8 @@ int test_ligand_conformer_torsion_angles() {
    std::vector<coot::installed_wiggly_ligand_info_t> conformer_info = 
       wlig.install_simple_wiggly_ligands(&t.geom, mmol, n_conformers,
 					 optim_geom, fill_vec);
-   std::cout << "INFO:: there were " << conformer_info.size() << " returned conformers"
-	     << std::endl;
+   std::cout << "INFO:: there were " << conformer_info.size()
+	     << " returned conformers" << std::endl;
    for (unsigned int i=0; i<conformer_info.size(); i++) {
       unsigned int itor=0;
       std::pair<float, float> p = conformer_info[i].get_set_and_real_torsions(itor);

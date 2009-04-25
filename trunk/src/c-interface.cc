@@ -8139,7 +8139,7 @@ int insert_action_view_after_view(int view_number, const char *view_name, const 
 
 void add_view_description(int view_number, const char *descr) {
 
-   if (view_number <= int(graphics_info_t::views->size()))
+   if (view_number < int(graphics_info_t::views->size()))
       if (view_number >= 0)
 	 (*graphics_info_t::views)[view_number].add_description(descr);
 
