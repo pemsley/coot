@@ -1430,7 +1430,7 @@
 
 
 
-(greg-testcase "RNA base has correct after mutation" #t 
+(greg-testcase "RNA base has correct residue type after mutation" #t 
    (lambda ()
 
      (let ((rna-mol (ideal-nucleic-acid "RNA" "A" 0 "GACUCUAG")))

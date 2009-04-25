@@ -208,7 +208,7 @@ coot::util::canonical_base_name(const std::string res_name_in, base_t rna_or_dna
 	 return "Ur";
    }
    
-   if (rna_or_dna == coot::RNA) {
+   if (rna_or_dna == coot::DNA) {
       if (res_name_in == "C")
 	 return "Cd";
       if (res_name_in == "A")

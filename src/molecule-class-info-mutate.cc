@@ -667,7 +667,7 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
 	 refmac_nuc_type = "Td";
       if (refmac_nuc_type == "U")
 	 refmac_nuc_type = "Ur";
-   } 
+   }
    
    if (atom_sel.n_selected_atoms > 0) { 
 

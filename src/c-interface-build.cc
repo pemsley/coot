@@ -4002,11 +4002,22 @@ void do_base_mutation(const char *type) {
       CAtom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[idx];
       CResidue *r = at->residue;
       if (r) {
-	 std::string cbn = coot::util::canonical_base_name(type, coot::RNA);
-	 coot::residue_spec_t res_spec(r);
-	 int istat = graphics_info_t::molecules[imol].mutate_base(res_spec, cbn);
-	 if (istat)
-	    graphics_draw();
+	 std::string cbn = "";
+	 if (coot::util::nucleotide_is_DNA(r)) {
+	    cbn = coot::util::canonical_base_name(type, coot::DNA);
+	 } else {
+	    cbn = coot::util::canonical_base_name(type, coot::RNA);
+	 } 
+	 if (cbn != "") { 
+	    coot::residue_spec_t res_spec(r);
+	    int istat = graphics_info_t::molecules[imol].mutate_base(res_spec, cbn);
+	    if (istat)
+	       graphics_draw();
+	 } else {
+	    std::string s = "No canonical base name found";
+	    std::cout << "WARNING:: " << s << std::endl;
+	    add_status_bar_text(s.c_str());
+	 } 
       }
    }
 }
