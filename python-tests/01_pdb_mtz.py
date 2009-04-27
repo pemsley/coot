@@ -1135,7 +1135,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 
     def test35_0(self):
-	    """RNA base has correct after mutation"""
+	    """RNA base has correct residue type after mutation"""
 
 	    rna_mol = ideal_nucleic_acid("RNA", "A", 0, "GACUCUAG")
 
@@ -1267,6 +1267,20 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    b = bond_length_from_atoms(c_1, c_2)
 
 	    self.failUnless(bond_length_within_tolerance_qm(c_1, c_2, 0.0, 0.2))
+	    
+    def test39_0(self):
+	    """Hundreds of Ramchadran refinements (post_manipulation_hook_py test)"""
+
+	    # doesnt test for anything just crash
+	    global imol_rnase, imol_rnase_map
+	    
+	    imol = imol_rnase
+	    turn_off_backup(imol)
+	    set_imol_refinement_map(imol_rnase_map)
+	    for i in range(3):
+		    stepped_refine_protein_for_rama(imol)
+
+	    turn_on_backup(imol)
 	    
 		    
 

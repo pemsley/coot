@@ -1128,7 +1128,7 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    check_pms += ")";
    v = safe_python_command_with_return(check_pms);
    ret = PyInt_AsLong(v);
-   if (ret) {
+   if (ret == 1) {
      std::string ss = pms;
      ss += "(";
      ss += int_to_string(imol);
@@ -1145,7 +1145,7 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
      std::cout << PyString_AsString(msg)<<std::endl;;
      Py_DECREF(msg);
    }
-   Py_DECREF(v);
+   Py_XDECREF(v);
 }
 #endif
 

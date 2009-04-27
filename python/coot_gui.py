@@ -1067,7 +1067,7 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
            try:
               callback_function(active_mol_no)
            except:
-              print "BL INFO:: problem in callback_function"
+              print "BL INFO:: problem in callback_function", callback_function.func_name
            delete_event()
         except:
            print "Failed to get a (molecule) number"

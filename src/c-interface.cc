@@ -5981,13 +5981,13 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
    if (python_cmd != "") {
 
-      PyObject *pName, *pModule, *pDict;
+      PyObject *pName, *pModule;
       PyObject *globals;
       PyObject *pValue = NULL;
       // include $COOT_PYTHON_DIR in module search path
       // but is alread (except for windows - shall fix BL)
-      PyRun_SimpleString("import sys, os");
-      PyRun_SimpleString("sys.path.append(os.getenv('COOT_PYTHON_DIR'))");
+      //PyRun_SimpleString("import sys, os");
+      //PyRun_SimpleString("sys.path.append(os.getenv('COOT_PYTHON_DIR'))");
 
 
       // Build the name object
@@ -5995,49 +5995,50 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
       pName = PyString_FromString(modulename);
       pModule = PyImport_Import(pName);
       pModule = PyImport_AddModule("__main__");
-      pDict = PyModule_GetDict(pModule);
-      globals = PyRun_String("globals()", Py_eval_input, pDict, pDict);
+      globals = PyModule_GetDict(pModule);
+      Py_XINCREF(globals);
 
-      if (! PyDict_Check(globals)) {
-	std::cout<<"ERROR:: could not get globals when running " << python_cmd <<std::endl;
+      if (globals == NULL) {
+	std::cout<<"ERROR:: globals are NULL when running "<< python_cmd <<std::endl;
       } else {
-	pDict = globals;
-	pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, pDict, pDict);
+	if (! PyDict_Check(globals)) {
+	  std::cout<<"ERROR:: could not get globals when running " << python_cmd <<std::endl;
+	} else {
+	  pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, globals, globals);
 
-	std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
-		  << pValue << std::endl;
+	  std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
+		    << pValue << std::endl;
 
-	if (pValue != NULL)
-	  {
-	    if (pValue != Py_None) {
-	      ret = py_clean_internal(pValue);
-	      if (! ret)
+	  if (pValue != NULL)
+	    {
+	      if (pValue != Py_None) {
+		ret = py_clean_internal(pValue);
+		if (! ret)
+		  ret = Py_None;
+	      } else {
 		ret = Py_None;
+	      }
 	    } else {
-	      ret = Py_None;
+	    // there is an Error. Could be a syntax error whilst trying to evaluate a statement
+	    // so let's try to run it as a statement
+	    if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
+	      std::cout << "error (syntax error)" << std::endl;
+	      PyErr_Clear();
+	      pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, globals, globals);
+	      if (pValue != NULL) {
+		ret = pValue;
+	      }
+	    } else {
+	      std::cout << "error (not syntax error)" << std::endl;
+	      PyErr_Print();
 	    }
-	    Py_DECREF(pValue);
-
-	  } else {
-	  // there is an Error. Could be a syntax error whilst trying to evaluate a statement
-	  // so let's try to run it as a statement
-	  if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
-	    std::cout << "error (syntax error)" << std::endl;
-	    PyErr_Clear();
-	    pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, pDict, pDict);
-	    if (pValue != NULL) {
-	      ret = pValue;
-	    }
-	  } else {
-	    std::cout << "error (not syntax error)" << std::endl;
-	    PyErr_Print();
 	  }
+	  Py_XDECREF(pValue);
 	}
       }
       // Clean up
-      Py_DECREF(pModule);
-      Py_DECREF(pName);
-      Py_XDECREF(pDict);
+      Py_XDECREF(pModule);
+      Py_XDECREF(pName);
       Py_XDECREF(globals);
    }
 
