@@ -24,6 +24,11 @@
 
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-coord-utils.hh"
+/* actually we should ignore all GtkWidgets or similar.... */
+%ignore main_window();
+%ignore main_menubar();
+%ignore main_statusbar();
+%ignore main_toolbar();
 %include "c-interface.h"
 %include "cc-interface.hh"
 %include "c-interface-database.hh"

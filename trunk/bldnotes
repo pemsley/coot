@@ -7,6 +7,14 @@ tests   rev 1873
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+   o ccp4mg ellipsoids
+
+   o revisit refinement convergence of alt conf refinement
+
+   o add all GtkWidget and similar functions as ignore to coot.i (script)
+
+   o simulate middle mouse with Alt left ?!
+
    o running shelx should be 'threaded'
 
    o annotations in Extensions

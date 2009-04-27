@@ -116,7 +116,7 @@ if (have_coot_python):
        lambda func: molecule_chooser_gui("Fit Protein using Rotamer Search",
 		lambda imol: (imol_refinement_map() == -1 and
                               add_status_bar_text("oops. Must set a map to fit") or
-                              fit_protein(imol))[0]))                                          
+                              fit_protein(imol))))
 
 
      add_simple_coot_menu_menuitem(
@@ -125,7 +125,7 @@ if (have_coot_python):
        lambda func: molecule_chooser_gui("Stepped Refine: ",
 		lambda imol: (imol_refinement_map() == -1 and
                               add_status_bar_text("oops. Must set a map to fit") or
-                              stepped_refine_protein(imol))[0]))
+                              stepped_refine_protein(imol))))
 
      add_simple_coot_menu_menuitem(
        submenu_all_molecule,
@@ -133,7 +133,7 @@ if (have_coot_python):
        lambda func: molecule_chooser_gui("Refine Protein with Ramachanran Plot Optimization: ",
                 lambda imol: (imol_refinement_map() == -1 and
                               add_status_bar_text("oops. Must set a map to fit") or
-                              stepped_refine_protein_for_rama(imol))[0]))
+                              stepped_refine_protein_for_rama(imol))))
                                          
 
      #---------------------------------------------------------------------
