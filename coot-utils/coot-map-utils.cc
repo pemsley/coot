@@ -123,14 +123,14 @@ coot::util::reinterp_map_fine_gridding(const clipper::Xmap<float> &xmap) {
    cell_length[1] = xmap.cell().descr().b();
    cell_length[2] = xmap.cell().descr().c();
 
-   float sampling[3];
+   int sampling[3];
    sampling[0] = xmap.grid_sampling().nu();
    sampling[1] = xmap.grid_sampling().nv();
    sampling[2] = xmap.grid_sampling().nw();
 
    float rate[3];
    for (int i=0; i<3; i++)
-      rate[i] = sampling[i]/(cell_length[i] + 0.0001);
+      rate[i] = float(sampling[i])/(cell_length[i] + 0.0001);
    float smallest_rate = 100000;
    for (int i=0; i<3; i++)
       if (rate[i] < smallest_rate)
