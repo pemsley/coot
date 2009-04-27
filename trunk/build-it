@@ -219,7 +219,8 @@
 # 2.52 20081124 test for greg using full path to guile.
 # 2.53 20081127 Make file_list in post_install_slim python-dependent, like the 
 #               gtk2 version.
-script_version=2.53
+# 2.54 20090427 Remove python and its config from bin in slimmed dir
+script_version=2.54
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -387,9 +388,9 @@ function post_install_slim {
 
 
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
-        file_list="$file_list bin/python bin/python$pver bin/python-config \
-                   bin/$python_version-config \
-                   lib/$python_version include/python$pver"
+        # 20090427 remove python and python config from bin dir (as it
+        #  interfers with system python)
+        file_list="$file_list lib/$python_version include/python$pver"
     fi
     echo rsyncing...
     for file in $file_list ;

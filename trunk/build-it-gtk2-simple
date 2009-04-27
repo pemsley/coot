@@ -258,7 +258,8 @@
 #               intrepid problem?)
 # 4.37 20090220 Fix up guile-gui, post-neil-jerram patch added.
 # 4.38 20090423 Fix up PYTHONPATH when starting greg tests.
-script_version=4.38
+# 4.39 20090427 Remove python and its config from bin in slimmed dir
+script_version=4.39
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -432,8 +433,9 @@ function post_install_slim {
 
 
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
-        file_list="$file_list html bin/python bin/python$pver bin/python-config \
-                   bin/$python_version-config \
+        # 20090427 remove python and python config from bin dir (as it
+        #  interfers with system python)
+        file_list="$file_list html  \
                    lib/$python_version include/python$pver"
     fi
     echo rsyncing... 
