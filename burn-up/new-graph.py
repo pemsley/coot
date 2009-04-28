@@ -30,13 +30,15 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 120
+x_day_range = 140
 
 x_tick_interval = 2
 if (x_day_range > 40):
    x_tick_interval = 5
 if (x_day_range > 80):
    x_tick_interval = 10
+if (x_day_range > 120):
+   x_tick_interval = 20
 
 xaxis = axis.X(tic_interval = x_tick_interval, label="Days (since pre-release start)")
 yaxis = axis.Y(tic_interval = 20, label="Dev Points")
@@ -86,6 +88,14 @@ tb = text_box.T(loc=(21, 39), text="Boston", shadow=(1,-1,fill_style.gray70))
 tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(50, 73), text="Papers & Happy", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(40, 73), text="Papers & Happy", shadow=(1,-1,fill_style.gray70))
 tb.add_arrow((ar.x_pos(data[74][0]), ar.y_pos(data[74][1])), "c")
+tb.draw()
+
+tb = text_box.T(loc=(80, 72), text="CCP4 Dev", shadow=(1,-1,fill_style.gray70))
+tb.add_arrow((ar.x_pos(data[115][0]), ar.y_pos(data[115][1])), "c")
+tb.draw()
+
+tb = text_box.T(loc=(85, 32), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70))
+tb.add_arrow((ar.x_pos(data[122][0]), ar.y_pos(data[122][1])), "tc")
 tb.draw()
