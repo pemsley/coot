@@ -1,7 +1,8 @@
 #!/bin/sh
 # -*-shell-script-*-
 # coot wrapper script 
-# Copyright 2004, 2005, 2006, 2007 University of York, written by Paul Emsley
+# Copyright 2004, 2005, 2006, 2007 University of York
+# written by Paul Emsley
 
 #
 current_exe_dir=`dirname $0`
@@ -47,6 +48,16 @@ else
     PYTHONPATH=$COOT_PREFIX/share/coot/python:${PYTHONPATH}
 fi
 PYTHONHOME=$COOT_PREFIX
+
+# Added 20090429 - take this out when trying internationalization.
+LANG=C
+LC_ALL=C
+LC_NUMERIC=C
+export LANG
+export LC_ALL
+export LC_NUMERIC
+
+
 
 # GUILE_VERSION=1.6
 
