@@ -4465,20 +4465,28 @@ coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CRes
    }
 
    std::sort(close.begin(), close.end());
-   std::cout << "DEBUG:: number of sorted distances in glycosidic_linkage: "
- 	     << close.size() << std::endl;
-   for (unsigned int i=0; i<close.size(); i++) {
-      std::cout << "#### glyco close: " << close[i].distance << "  "
-		<< close[i].at1->GetChainID() << " " 
-		<< close[i].at1->GetSeqNum() << " " 
-		<< close[i].at1->GetAtomName() << " " 
-		<< " to "
-		<< close[i].at2->GetChainID() << " " 
-		<< close[i].at2->GetSeqNum() << " " 
-		<< close[i].at2->GetAtomName() << " " 
-		<< std::endl;
+
+   // if you consider to uncomment this to debug a repulsion instead
+   // the forming of a glycosidic bond, consider the residue numbering
+   // of the residues involved: the "residue 1" should have the O4 and
+   // the "residue 2" (+1 residue number) should have the C1.
+   // 
+   if (0) { 
+      std::cout << "DEBUG:: number of sorted distances in glycosidic_linkage: "
+		<< close.size() << std::endl;
+      for (unsigned int i=0; i<close.size(); i++) {
+	 std::cout << "#### glyco close: " << close[i].distance << "  "
+		   << close[i].at1->GetChainID() << " " 
+		   << close[i].at1->GetSeqNum() << " " 
+		   << close[i].at1->GetAtomName() << " " 
+		   << " to "
+		   << close[i].at2->GetChainID() << " " 
+		   << close[i].at2->GetSeqNum() << " " 
+		   << close[i].at2->GetAtomName() << " " 
+		   << std::endl;
+      }
    }
-   
+
    std::string link_type("");
    
    // short int found_link = 0;
