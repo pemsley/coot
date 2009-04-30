@@ -47,7 +47,7 @@ yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 # is 0, but the Y maximum is to be computed automatically. Without
 # y_ranges, Pychart will pick the minimum Y value among the samples,
 # i.e., 20, as the base value of Y axis.
-ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,180))
+ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,230))
 
 # The first plot extracts Y values from the 2nd column
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
@@ -83,7 +83,7 @@ def describeEvent(days, label, off):
     
 describeEvent(5, "Christmas\nholidays start", -10)
 
-tb = text_box.T(loc=(21, 39), text="Boston", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(21, 43), text="Boston", shadow=(1,-1,fill_style.gray70))
 # tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "cb")
 tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "c")
 tb.draw()
@@ -96,6 +96,6 @@ tb = text_box.T(loc=(80, 72), text="CCP4 Dev", shadow=(1,-1,fill_style.gray70))
 tb.add_arrow((ar.x_pos(data[115][0]), ar.y_pos(data[115][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(85, 32), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(85, 22), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70))
 tb.add_arrow((ar.x_pos(data[122][0]), ar.y_pos(data[122][1])), "tc")
 tb.draw()
