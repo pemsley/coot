@@ -142,8 +142,11 @@
 
     (let ((func (lambda (ins-file-name)
 		  (write-shelx-ins-file imol ins-file-name))))
-      (shelxl-refine-inner imol hkl-file-in-maybe func))))
-;;
+      ;; hkl-file-in can be null '() or (list astring).
+      (shelxl-refine-inner imol hkl-file-in func))))
+
+
+;; hkl-file-in can be null '() or (list astring).
 (define shelxl-refine-primitive
   (lambda (imol ins-text hkl-file-in-maybe)
 

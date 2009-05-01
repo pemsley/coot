@@ -45,7 +45,7 @@
 						      option-menu-mol-list-pair)))
 				     (if (number? imol)
 					 (if (= (string-length txt) 0)
-					     (editable-shelx-gui imol)
+					     (editable-shelx-gui imol txt)
 					     (shelxl-refine imol txt)))
 				     (gtk-widget-destroy window))))
 	     (gtk-signal-connect cancel-button "clicked"
@@ -109,9 +109,6 @@
                      ""
              (lambda (imol text)
                         (add-shelx-string-to-molecule imol text)))))
-
-
-
 ))
 
 (define (shelx-ins-strings imol)      
@@ -172,7 +169,7 @@
     (gtk-widget-show-all window)))
 
 
-(define (editable-shelx-gui imol)
+(define (editable-shelx-gui imol hklin-file-name)
 
   (let ((window (gtk-window-new 'toplevel))
 	(text (gtk-text-new #f #f))
@@ -212,14 +209,13 @@
 			(lambda () 
 			  (let* ((l (gtk-text-get-length text))
 				 (text-text (gtk-editable-get-chars text 0 l)))
-			    (if (string? text-text) 
-				(begin
-				  (call-with-output-file edited-shelx-ins-file-name
-				    (lambda (port)
-				      (display text-text port)))
-				  (shelxl-refine-primitive edited-shelx-ins-file-name
-							   hklin-file-name)))
-			  
+			    (if (string? text-text)
+				(let ((hklin-file-info 
+				       (if (= (string-length hklin-file-name) 0)
+					   '()
+					   (list hklin-file-name))))
+				(shelxl-refine-primitive imol text-text
+							 hklin-file-info))))
 			  (gtk-widget-destroy window)))
     
 
