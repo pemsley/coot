@@ -26,6 +26,9 @@
 coot::peak_search::peak_search(const clipper::Xmap<float> &xmap) { 
    // 			       float n_sigma_in) { 
 
+    max_closeness = 1.0; // don't allow "smaller" peaks that are
+                         // within max_closeness of a larger one.
+
    float sum   = 0.0;
    float sumsq = 0.0;
    float n = 0;
@@ -324,7 +327,10 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
       }
    }
    std::sort(r.begin(), r.end(), compare_ps_peaks);
-   return r;
+
+   std::vector<std::pair<clipper::Coord_orth, float> > rf = filter_peaks_by_closeness(r, max_closeness);
+   
+   return rf;
 }
 
 std::vector<std::pair<clipper::Coord_orth, float> >
@@ -383,6 +389,28 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 
    return r;
 }
+
+std::vector<std::pair<clipper::Coord_orth, float> >
+coot::peak_search::filter_peaks_by_closeness(const std::vector<std::pair<clipper::Coord_orth, float> > &v, 
+					     float d) const {
+
+   std::vector<std::pair<clipper::Coord_orth, float> > nv;
+   for (unsigned int ipeak=0; ipeak<v.size(); ipeak++) {
+      bool found_a_close_one = 0;
+      for (unsigned int jpeak=0; jpeak<nv.size(); jpeak++) {
+	 double d = clipper::Coord_orth::length(v[ipeak].first, nv[jpeak].first);
+	 if (d < max_closeness) { 
+	    found_a_close_one = 1;
+	    break;
+	 }
+      }
+      if (! found_a_close_one)
+	 nv.push_back(v[ipeak]);
+   }
+   std::cout << " npeaks: in: " << v.size() << " out: " << nv.size() << std::endl;
+   return nv;
+} 
+
 
 std::vector<clipper::Coord_orth>
 coot::peak_search::make_sample_protein_coords(CMMDBManager *mol) const {

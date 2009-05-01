@@ -145,6 +145,9 @@ int test_internal() {
 
    functions.push_back(named_func(test_ligand_fit_from_given_point, "test ligand from point"));
 
+   functions.push_back(named_func(test_peaksearch_non_close_peaks,
+				  "test peak search non-close"));
+
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
       try { 
@@ -1128,6 +1131,7 @@ int test_segid_exchange() {
 int test_ligand_fit_from_given_point() {
 
    int status = 0;
+   int n_conformers = 5;
    testing_data t;
 
    std::string cif_file_name = "libcheck_3GP-torsion-filtered.cif";
@@ -1169,7 +1173,7 @@ int test_ligand_fit_from_given_point() {
    bool optim_geom = 1;
    bool fill_vec = 0;
    coot::minimol::molecule mmol(l_asc.mol);
-   wlig.install_simple_wiggly_ligands(&t.geom, mmol, 50, optim_geom, fill_vec);
+   wlig.install_simple_wiggly_ligands(&t.geom, mmol, n_conformers, optim_geom, fill_vec);
    short int mask_waters_flag = 1;
    wlig.mask_map(asc.mol, mask_waters_flag);
    clipper::Coord_orth pt(55.06, 10.16, 21.73); // close to 3GP peak (not in it).
@@ -1235,6 +1239,58 @@ int test_ligand_conformer_torsion_angles() {
 
    return 1;
 }
+
+#include "peak-search.hh"
+int test_peaksearch_non_close_peaks() {
+
+   clipper::Xmap<float> xmap;
+   std::string mtz_file_name;
+   mtz_file_name = getenv("HOME");
+   mtz_file_name += "/data/greg-data/rnasa-1.8-all_refmac1.mtz";
+   
+   bool stat = coot::util::map_fill_from_mtz(&xmap, mtz_file_name,
+					     "FWT", "PHWT", "WT", 0, 0);
+   if (!stat) {
+      std::cout << "   ERROR:: Bad map fill from " << mtz_file_name << "\n";
+      return 0; 
+   }
+
+   double d_crit = 2.0; // don't return peaks that have a higher
+		       // (absolute) peak less than 4.0 A away.
+
+
+   coot::peak_search ps(xmap);
+   ps.set_max_closeness(d_crit);
+   std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
+      ps.get_peaks(xmap, 0.5, 1, 1);
+
+   if (peaks.size() < 20) {
+      std::cout << "   Not enough peaks! " << peaks.size() << std::endl;
+      return 0;
+   } 
+
+   std::vector<std::pair<clipper::Coord_orth, float> > problems;
+
+
+   for (unsigned int ipeak=0; ipeak<(peaks.size()-1); ipeak++) {
+      for (unsigned int jpeak=(ipeak+1); jpeak<peaks.size(); jpeak++) {
+	 double d = clipper::Coord_orth::length(peaks[ipeak].first, peaks[jpeak].first);
+	 if (d < d_crit) { 
+	    problems.push_back(peaks[jpeak]);
+	    break;
+	 }
+      }
+   }
+
+   std::cout << "   There are " << peaks.size() << " peaks and "
+	     << problems.size() << " problem peaks" << std::endl;
+   if (problems.size() == 0) {
+      return 1;
+   } else {
+      return 0;
+   } 
+   
+} 
 
 
 #endif // BUILT_IN_TESTING

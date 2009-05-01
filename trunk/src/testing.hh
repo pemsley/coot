@@ -55,6 +55,7 @@ int test_dictionary_partial_charges();
 int test_dipole();
 int test_segid_exchange();
 int test_ligand_fit_from_given_point();
+int test_peaksearch_non_close_peaks();
 
 class residue_selection_t {
 public:
