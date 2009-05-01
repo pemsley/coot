@@ -284,6 +284,7 @@
 		    imol (append pt (list radius 0)))))
 
     (set-mol-displayed imol-new 0)
+    (set-mol-active    imol-new 0)
     (let ((pdb-name "molprobity-tmp-reference-file.pdb"))
       (make-directory-maybe "coot-molprobity")
       (write-pdb-file-for-molprobity imol-new pdb-name)
