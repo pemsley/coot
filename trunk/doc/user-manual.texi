@@ -4287,6 +4287,9 @@ Placeholder for scripting functions.
 @c 
 @c @include ../src/test-it.texi
 
+@c @include c-interface_8h.texi
+@c @include ../../coot/scheme/coot-scheme-functions.texi
+
 
 @node Index
 @unnumbered Index
