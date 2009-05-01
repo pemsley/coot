@@ -192,6 +192,18 @@ Current language:  auto; currently c
     ::: 3
 
 
+   o normal usage (the start up script doesn't seem to be the issue)
+** (lt-coot-real:1937): WARNING **: Widget not found: map_scroll_button_3
+   This happens on opening the Display Manager (with 2 maps (2 and 3)
+   and 2 pdbs (0 and 1).  (but also I'd done (pointer-atom-molecule)
+   but (molecule-number-list was (0 1 2 3)), so that is probably not
+   relevant.)
+    ::: 1
+
+   o JED: File -> Coordinates, resize window big. Cancel File ->
+     Coordinates, resize window to small -> Fail.  ::: 1
+
+
    o documetation for Torsion General. ::: 0.3
    You need to click on the torsion-general icon, then click 4 atoms
    that describe the torsion - the first atom will be the base (non
@@ -378,6 +390,9 @@ INFO:: Masking around 0 atoms
    o Helix fitting overshoots - e.g.     
        1a02: place helix here at (9.2 36.6 28.3)
        1env: place helix here - many places.  Lots of errors.
+
+       3cjb_sigmaa at (-22.9451 0.2204 20.011) fail.
+
        ::: 4
 
 

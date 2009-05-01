@@ -4113,4 +4113,14 @@ Thu Mar 26 18:39:42 GMT 2009
      
 
 
+---
+Fri Apr 17 17:38:02 BST 2009
+
+	 Worry about the generation of coot_wrap_*_pre.cc.  Copying
+	 them from the build directory back to source dir.  Do it more
+	 often so that these files are not out of date.
+
+	How can this be made easier/automated?
+
+
 ------

@@ -76,6 +76,13 @@ namespace coot {
       static bool compare_ps_peaks_cg(const std::pair<clipper::Coord_grid, float> &a,
 				      const std::pair<clipper::Coord_grid, float> &b);
 
+      std::vector<std::pair<clipper::Coord_orth, float> >
+      filter_peaks_by_closeness(const std::vector<std::pair<clipper::Coord_orth, float> > &v,
+				float d) const;
+      float max_closeness; // don't allow "smaller" peaks that are
+                           // within max_closeness of a larger one.
+      
+
    public:
       peak_search(const clipper::Xmap<float> &xmap);
       std::vector<clipper::Coord_orth>
@@ -87,6 +94,12 @@ namespace coot {
       std::vector<std::pair<clipper::Coord_grid, float> >
       get_peak_grid_points(const clipper::Xmap<float> &xmap,
 			   float n_sigma) const;
+
+      // return a list of peaks, together with the density level at
+      // that position. but avoiding peaks where the molecule mol is.
+      // Peaks list is returned sorted on abolute value of the
+      // density.
+      // 
       std::vector<std::pair<clipper::Coord_orth, float> >
       get_peaks(const clipper::Xmap<float> &xmap,
 		CMMDBManager *mol, 
@@ -104,6 +117,8 @@ namespace coot {
 
       void add_peak_vectors(std::vector<clipper::Coord_orth> *in,
 			    const std::vector<clipper::Coord_orth> &extras) const;
+
+      void set_max_closeness(float d) { max_closeness = d; } 
 
    };
 }

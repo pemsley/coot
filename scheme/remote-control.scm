@@ -194,7 +194,7 @@
 	(format #t "about to read from socket soc: ~s~%" soc)
 	(let f ((c (read-char soc))
 		(read-bits '()))
- 	  ; (format #t "socket read char ~s~%" c)
+	  (format #t "socket read char ~s~%" c)
 	  (cond
 	   ((eof-object? c) (format #t "server gone\n") #f)
 	   ((hit-end-transmit? (cons c read-bits)

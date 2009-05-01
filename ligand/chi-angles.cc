@@ -743,8 +743,8 @@ coot::chi_angles::change_by_internal(int ichi,
    
    Tree tree;
    tree.SetCoords(coords, base_index, contact_indices);
-//    std::cout << tree << "\n";
-//    std::cout << base_index << "\n";
+    // std::cout << tree << "\n";
+    // std::cout << base_index << "\n";
    // test that the atom indices are sensible?
    //
    // std::cout << "DEBUG:: tree has " << tree.GetNumberOfVertices() << " vertices\n";
