@@ -136,11 +136,11 @@ Current language:  auto; currently c
      ::: 1
 
      o Steven Sheriff: fix up the difference map peaks so that I don't
-       get two that are close together.  ::: 1
+       get two that are close together.  Done - test written.  Seems good, 
+       needs a manual check. ::: 1
 
 
      o Markus Rudolf: 
-
 
   when updating to the latest gtk1 or gtk2 builds, we get this error:
 
