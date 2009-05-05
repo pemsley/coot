@@ -244,6 +244,7 @@ def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
          else:
            ins_filename = stub + ".ins"
            res_filename = stub + ".res"
+           lst_filename = stub + ".lst"
            fcf_filename = stub + ".fcf"
            log_filename = stub + ".log"
            hkl_filename = stub + ".hkl"
@@ -336,9 +337,11 @@ def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
               if (not shelx_status and
                   os.path.isfile(res_filename) and
                   os.path.isfile(fcf_filename)):
-                 read_pdb(res_filename)
-                 handle_shelx_fcf_file(fcf_filename)
-              else: 
+                  # it isn't a pdb file, but Coot knows what to do.
+                  imol_res = read_pdb(res_filename)
+                  handle_shelx_fcf_file(fcf_filename)
+                  read_shelx_lst_file(lst_filename, imol_res)
+              else:
                  print "BL WARNING:: shelxl didnt run ok! No output files found!"
 
 #handle_shelx_fcf_file("test.fcf")
@@ -542,9 +545,9 @@ def read_shelx_lst_file(file_name, imol):
                      atom_id = parts[3]
                      # e.g; atom_id: CD1_1392
                      atom_parts = make_atom_parts(atom_id)
-		     buton_label = "Atom " + str(atom_parts[1]) + " " + atom_parts[3] + " may be split?"
-		     split_list.append([buton_label,imol])
-		     split_list.append(atom_parts)
+		     button_label = "Atom " + str(atom_parts[1]) + " " + atom_parts[3] + " may be split?"
+		     split_list.append([button_label, imol] + atom_parts)
+		     #split_list.append(atom_parts)
 	         elif ("   Observed   Target    Error     Sigma     Restraint" in line):
 			dr_count = 1
 		 elif (dr_count == 1):

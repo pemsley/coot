@@ -31,17 +31,17 @@ def tip_list():
   number of steps"""
  """Want distance of the atoms to the pointer?  
   Use Measures -> Pointer Distances...""",
- "To label an atom: Shift Left-mouse on it",
+ "To label an atom: Double click it. Or Shift Left-mouse on it",
  """To make atoms be insensitive to clicking, deactivate it by unclicking
   that molecule's \"Active\" button in the Display Control window""",
  """Can't label or centre on some symmetry atoms?  It's a known bug.  
   (For now, drag that atom closer to the centre of the screen).""",
  "Use function key 'F8' to make a rendered snapshot.",
- "Use the Ctrl to rotate the view when changing Chi angles.",
+ "Use the Ctrl key to rotate the view when changing Chi angles.",
  """Too many cis peptides when using dragged refinement?  Use the 
   'Planar Peptide Restraints' suggested in the Coot FAQ.""",
  "Use the Ctrl to rotate the view when using Delete.",
- """When in skeleton mode, new skeleton can be displayed around the 
+ """When in skeleton mode, new skeleton bones can be displayed around the
   current point using the 'S' key.""",
  """When in baton mode, the baton can be rotated independently from the 
   Guide Points by using the 'B' key (it's a toggle).""",
@@ -63,8 +63,8 @@ def tip_list():
  "Use keyboard + and - to zoom in Ramachandran and Kleywegt Plots.",
  "The 'U' key undoes last nagivation (e.g. re-centering on new pdb file).",
  "The 'D' and 'F' keys change the clipping/slabbing.",
- """\"view_matrix()\" prints the current view matrix, useful for 
-  molscript, perhaps.""",
+ """\"view_matrix()\" prints the current view matrix (useful for 
+  molscript, perhaps).""",
  """Baton-building low resolution maps is better down with maps that 
   have increased sampling rate (2.0 or 2.5).""",
  "Coot can read SHELXL .ins/.res files. (It can write them too.)",
@@ -73,8 +73,7 @@ def tip_list():
  """Esc and Return are keyboard accelerators for Reject/Accept for 
   Refinement and Regularization.""",
  "To disable coot tips: add \"no_coot_tips()\" to your $COOT_HOME/.coot.py file.",
- """It is possible to accidently invert chiral centres.  Use Validate -> Chiral Centre 
-  to check."""
+ "To validate chiral centres use Validate -> Incorrect Chiral Volumes.." 
  ]
 
 # Function to turn off coot tips at start

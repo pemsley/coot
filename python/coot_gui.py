@@ -2060,7 +2060,7 @@ def dialog_box_of_radiobuttons(window_name, geometry, buttons,
       return False
 
    def cancel_function_cb(widget):
-      print "BL DEBUG:: just for the sake"
+      #print "BL DEBUG:: just for the sake"
       if (cancel_function):
          eval(cancel_function)
       window.destroy()

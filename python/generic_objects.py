@@ -19,6 +19,12 @@
 global probe_command
 global reduce_command
 global reduce_molecule_updates_current
+global interactive_probe_is_OK_qm
+
+# gets set the first time we run interactive_probe.  Takes values
+# 'unset' (initial value) 'yes' and 'no')
+#
+interactive_probe_is_OK_qm = 'unset'
 
 # set reduce  and probe command full path here if you wish
 # (or have a look in group_settings!! These overwrite whatever is here), e.g.
@@ -280,20 +286,33 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
 
     import os, string
     global probe_command
+    global interactive_probe_is_OK_qm
 
     probe_pdb_in_1 = "molprobity-tmp-reference-file.pdb"
     probe_pdb_in_2 = "molprobity-tmp-moving-file.pdb"
     probe_out = "coot-molprobity/molprobity-tmp-probe-dots.out"
+    chain_str = ""
+    if (not chain_id == ""):
+      chain_str = "chain"
     atom_sel = "(file1 within " + str(radius) + " of " \
 	       + str(x_cen) + ", " \
 	       + str(y_cen) + ", " \
 	       + str(z_cen) + ", " \
-	       + "not water not (chain" + string.lower(chain_id) + " " \
+	       + "not water not (" + chain_str + string.lower(chain_id) + " " \
 	       + str(res_no) + ")),file2"
 
-    if not (os.path.isfile(probe_command)):
-	probe_command = find_exe("probe", "PATH")
-    if (probe_command):
+    print "probe command", probe_command, \
+          ["-mc", "-u", "-quiet", "-drop", "-stdbonds", "-both",
+           atom_sel, "file2", probe_pdb_in_1, probe_pdb_in_2]
+
+    # if unset, then set it.
+    if (interactive_probe_is_OK_qm == 'unset'):
+      if (command_in_path_qm(probe_command)):
+        interactive_probe_is_OK_qm = 'yes'
+      else:
+        interactive_probe_is_OK_qm = 'no'
+        
+    if (interactive_probe_is_OK_qm == 'yes'):
        status = popen_command(probe_command,
 			      ["-mc", "-u", "-quiet", "-drop", "-stdbonds", "-both",
 			       atom_sel, "file2",
@@ -305,6 +324,96 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
        handle_read_draw_probe_dots_unformatted(probe_out, 0, 0)
        graphics_draw()
 
+#
+#
+def get_probe_dots_from(pdb_file_name, point, radius):
 
-#probe(0)
+  global probe_command
+  global interactive_probe_is_OK_qm
+  import os
+  # if unset, then set it, try to make dir too
+  if (interactive_probe_is_OK_qm == 'unset'):
+    if (not command_in_path_qm(probe_command)):
+      interactive_probe_is_OK_qm = 'no'
+    else:
+      status = make_directory_maybe("coot-molprobity")
+      if (status == 0):    # 0 is good for mkdir()
+        interactive_probe_is_OK_qm = 'yes'
+      else:
+        interactive_probe_is_OK_qm = 'no'
 
+  if (interactive_probe_is_OK_qm == 'yes'):
+    probe_out = os.path.join("coot-molprobity", "molprobity-tmp-probe-dots.out")
+    within_str = "(within " + \
+                 str(radius) + \
+                 " of " + \
+                 str(point[0]) + \
+                 ", " + \
+                 str(point[1]) + \
+                 ", " + \
+                 str(point[2]) + \
+                 ")"
+    args = ["-mc", "-u", "-quiet", "-drop", "-stdbonds",
+            "ALL",  # whole residues from sphere selection
+                    # was needed to make this work
+            # within_str  # problems with atom selection
+            pdb_file_name]
+    print "popen_comand on", probe_command, args
+    popen_command(probe_command, args, [], probe_out, False)
+    handle_read_draw_probe_dots_unformatted(probe_out, 0, 0)
+    graphics_draw()
+
+#
+def probe_local_sphere(imol, radius):
+
+  # We need to select more atoms than we probe because if the atom
+  # selection radius and the probe radius are the same, then
+  # sometimes the middle atom of a bonded angle set is missing
+  # (outside the sphere) and that leads to bad clashes.
+
+  pt = rotation_centre()
+  imol_new = new_molecule_by_sphere_selection(imol, pt[0], pt[1], pt[2],
+                                              radius, 0)
+  set_mol_displayed(imol_new, 0)
+  set_mol_active   (imol_new, 0)
+  pdb_name = "molprobity-tmp-reference-file.pdb"
+  make_directory_maybe("coot-molprobity")
+  write_pdb_file_for_molprobity(imol_new, pdb_name)
+
+  get_probe_dots_from(pdb_name, pt, radius)
+
+# add in the conn files by concatting.
+#
+def write_pdb_file_for_molprobity(imol, pdb_name):
+
+  tmp_pdb_name = file_name_sans_extension(pdb_name) + "-tmp.pdb"
+
+  write_pdb_file(imol, tmp_pdb_name)
+
+  # Let's add on the connectivity cards of the residues that
+  # molprobity doesn't know about (which I presume are all
+  # non-standard residues).  Cut of (filter) files that didn't
+  # write properly.
+  #
+  conn_file_names = []
+  for res_name in non_standard_residue_names(imol):
+    f_name = os.path.join("coot-molprobity", "conn-" + res_name + ".txt")
+    status = write_connectivity(res_name, f_name)
+    if (status == 1):
+      con_file_names.append(f_name)
+
+  # now, add (append) each of the con-file-names to the end of
+  # pdb-name
+  if (not os.path.isfile(tmp_pdb_name)):
+    print "ERROR:: tmp file name not found", tmp_pdb_name
+  else:
+    conn_file_names.insert(0, tmp_pdb_name)
+    fn_all = open(pdb_name, 'w')
+    for conn_file in conn_file_names:
+      if (os.path.isfile(conn_file)):
+        cf = open(conn_file, 'r')
+        data = cf.read()
+        cf.close()
+        fn_all.write(data)
+    fn_all.close()
+      

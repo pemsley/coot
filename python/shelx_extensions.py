@@ -49,7 +49,7 @@ if (have_coot_python and find_exe("shelxl", "PATH")):
            imol = get_option_menu_active_molecule(*option_menu_mol_list_pair)
            if (operator.isNumberType(imol)):
                if (len(txt) == 0):
-                   editable_shelx_gui(imol)
+                   editable_shelx_gui(imol, txt)
                else:
                    shelxl_refine(imol, txt)
            window.destroy()
@@ -103,16 +103,12 @@ if (have_coot_python and find_exe("shelxl", "PATH")):
                                   lambda func: shelx_read_project_func())
 
 
-    def test_fun(fn, imol):
-        print "BL DEBUG:: intially fn and imol", fn, imol
-        read_shelx_lst_file(fn, imol)
     add_simple_coot_menu_menuitem(menu, "Read LST file...",
                lambda func: generic_chooser_and_file_selector("Model Corresponding to LST file: ",
                                                               valid_model_molecule_qm,
                                                               "LST file",
                                                               "",
-                                                              lambda imol, lst_file_name: test_fun(lst_file_name, imol)))
-#                                                              lambda imol, lst_file_name: read_shelx_lst_file(lst_file_name, imol)))
+                                                              lambda imol, lst_file_name: read_shelx_lst_file(lst_file_name, imol)))
 
 
     add_simple_coot_menu_menuitem(menu, "Add SHELXL instruction...",
@@ -182,17 +178,21 @@ def shelxl_refine_gui(imol, hkl_file_name_maybe=False):
     window.show_all()
 
 
-def editable_shelx_gui(imol):
+def editable_shelx_gui(imol, hklin_file_name):
 
     def shelx_delete_event(*args):
         window.destroy()
         return False
 
     def shelx_refine_go_funcn_event(*args):
-        import operator
+        from types import StringType
         start, end = textbuffer.get_bounds()
         txt = textbuffer.get_text(start, end)
-        shelxl_refine_primitive(imol, txt, hklin_file_name)
+        if (type(txt) == StringType):
+            hklin_file_info = False
+            if (len(hklin_file_name) > 0):
+                hklin_file_info = hklin_file_name
+            shelxl_refine_primitive(imol, txt, hklin_file_info)
         window.destroy()
         return False
 
