@@ -44,9 +44,7 @@
 					 (imol (apply get-option-menu-active-molecule 
 						      option-menu-mol-list-pair)))
 				     (if (number? imol)
-					 (if (= (string-length txt) 0)
-					     (editable-shelx-gui imol txt)
-					     (shelxl-refine imol txt)))
+					 (editable-shelx-gui imol txt))
 				     (gtk-widget-destroy window))))
 	     (gtk-signal-connect cancel-button "clicked"
 				 (lambda ()
@@ -190,8 +188,7 @@
     (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
     
     (let ((shelx-ins-list (get-shelx-ins-list imol))
-;	  (background-colour "#c0e6c0")
-	  (background-colour "white"))
+	  (background-colour "#c0e6c0"))
       
       ;; now fill the text with the shelx-ins strings 
       ;;
