@@ -318,6 +318,13 @@
 	   (molecule-chooser-gui "Sort Chain IDs in molecule:"
 				 (lambda (imol)
 				   (sort-chains imol)))))
+
+	(add-simple-coot-menu-menuitem 
+	 submenu-models "Merge Water Chains..."
+	 (lambda ()
+	   (molecule-chooser-gui "Merge Water Chains in molecule: " 
+				 (lambda (imol)
+				   (merge-solvent-chains imol)))))
 				    
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Add Strand Here..."

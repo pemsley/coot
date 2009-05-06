@@ -7355,16 +7355,10 @@ redraw_background() {
 
 }
 
-int  background_is_black_p() {
+int background_is_black_p() {
 
-   int v = 0;
    graphics_info_t g;
-   if (g.background_colour[0] < 0.1)
-      if (g.background_colour[1] < 0.1)
-	 if (g.background_colour[2] < 0.1)
-	    v = 1;
-
-   return v;
+   return g.background_is_black_p();
 }
 
 

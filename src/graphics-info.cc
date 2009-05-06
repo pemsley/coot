@@ -239,8 +239,28 @@ graphics_info_t::set_do_anti_aliasing(int state) {
   }
 }
 
+bool
+graphics_info_t::background_is_black_p() {
+
+   bool v = 0;
+   if (background_colour[0] < 0.1)
+      if (background_colour[1] < 0.1)
+	 if (background_colour[2] < 0.1)
+	    v = 1;
+
+   return v;
+} 
+
 void
 graphics_info_t::draw_anti_aliasing() {
+
+   // Bernie code?
+   // 
+   // PE 20090426 JB reports a crash here (I'm guessing it's here -
+   // top of the stack was the callback
+   // on_background_white1_activate()).  Can't reproduce crash.
+   //
+   // I did however change to using background_is_black_p().
   
   // first for stereo
   if (glarea_2) {
@@ -249,9 +269,7 @@ graphics_info_t::draw_anti_aliasing() {
 	// should we also add a (quality) hint here?
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
-	if (graphics_info_t::background_colour[0] < 0.01 &&
-	    graphics_info_t::background_colour[1] < 0.01 &&
-	    graphics_info_t::background_colour[2] < 0.01) {
+	if (background_is_black_p()) {
 	  glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
 	} else {
 	  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
@@ -269,9 +287,7 @@ graphics_info_t::draw_anti_aliasing() {
       if (do_anti_aliasing_flag) {
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
-	if (graphics_info_t::background_colour[0] < 0.01 &&
-	    graphics_info_t::background_colour[1] < 0.01 &&
-	    graphics_info_t::background_colour[2] < 0.01) {
+	if (background_is_black_p()) {
 	  glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
 	} else {
 	  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.

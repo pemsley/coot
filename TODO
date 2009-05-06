@@ -303,9 +303,30 @@
    o rsync to bubbles test data.
 
 
+   o Tips should have a "No more tips" checkbuttons (Coot behaves like
+     a proper program).
+
+ 
+   o Request from Antony Oliver: Put an indicator for the current
+     refinement map in (well, next to) the status bar.  Consider greying
+     it out if the map is undisplayed.
+
+   o Request from JED: Make the EDS map getter have a cancel button.
+     And a progress bar ideally.
+
+   o We need a function that does a renumber and rechain at the same time
+     e.g. B 20-30  -> A 10-20
+     In such a case we can't renumber then change the chain id.  
+     Use it in merge-solvent-chains, and make merge-solvent-chains not need
+     to renumber-waters first.
+
+
  0.7 Priorities:
 
    o Rotate/Translate on dsDNA (for example)
+
+   o Move (symmetry-related) waters around protein (or has this been
+     done by now?)
 
  ------
     

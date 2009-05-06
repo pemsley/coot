@@ -1445,6 +1445,32 @@
 	   (string=? rn "Cr"))))))
 
 
+
+
+(greg-testcase "DNA bases are the correct residue type after mutation" #t  
+   (lambda ()
+
+
+     (define (correct-base-type? rna-mol target-base-type)
+       (let ((success (mutate-base rna-mol "A" 2 "" target-base-type)))
+	 (if (not (= success 1))
+	     (begin 
+	       (format #t "  DNA base mutation fail!~%")
+	       (throw 'fail)))
+	 (let ((rn (residue-name rna-mol "A" 2 "")))
+	   (format #t "  mutated base to type ~s~%" rn)
+	   (string=? rn target-base-type))))
+
+     ;; main line
+     (let ((rna-mol (ideal-nucleic-acid "DNA" "A" 0 "GACTCTAG")))
+       (all-true?
+	(map (lambda (base)
+	       (correct-base-type? rna-mol base))
+	     (list "Cd" "Gd" "Ad" "Td"))))))
+
+
+
+
 (greg-testcase "SegIDs are correct after mutate" #t
    (lambda () 
 
@@ -1560,6 +1586,69 @@
 		(range 20 30))
 
        #t)))
+
+
+(greg-testcase "Merge Water Chains" #t
+   (lambda ()
+
+     (define (create-water-chain imol from-chain-id chain-id n-waters offset prev-offset)
+       (for-each (lambda (n)
+		   (place-typed-atom-at-pointer "Water")
+		   ;; move the centre of the screen
+		   (let ((rc (rotation-centre)))
+		     (apply set-rotation-centre 
+			    (+ (car rc) 2)
+			    (cdr rc))))
+		 (range n-waters))
+       (change-chain-id imol from-chain-id chain-id 1 
+			(+ 1 prev-offset) 
+			(+ n-waters prev-offset))
+       (renumber-residue-range imol chain-id (+ 1 prev-offset) (+ 5 prev-offset) offset))
+     
+
+
+     ;; main line
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+
+       (with-no-backups imol
+			(let ((imol imol))
+			  (set-pointer-atom-molecule imol)
+			  
+			  ;; first create a few chains of waters
+			  (create-water-chain imol "C" "D" 5 10 0)
+			  (create-water-chain imol "D" "E" 5 5 10)
+			  (create-water-chain imol "D" "F" 5 2 15)
+			  
+			  ;; OK, we have set up a molecule, now let's test it:
+			  ;; 
+			  (merge-solvent-chains imol)
+			  ))
+       
+       ;; Test the result:
+       ;; 
+       (let ((nc (n-chains imol)))
+	 (if (not (= nc 3))
+	     (begin
+	       (format #t "  wrong number of chains ~s~%" nc)
+	       (throw 'fail))
+	     ;; There should be 15 waters in the last chain
+	     (let ((solvent-chain-id (chain-id imol 2)))
+	       (let ((n-res (chain-n-residues solvent-chain-id imol)))
+		 (if (not (= n-res 15))
+		     (begin
+		       (format #t "  wrong number of residues ~s~%" n-res)
+		       (throw 'fail))
+		     (let ((r1  (seqnum-from-serial-number imol "D" 0))
+			   (r15 (seqnum-from-serial-number imol "D" 14)))
+		       (if (not (= r1 1))
+			   (begin
+			     (format #t "  wrong residue number r1 ~s~%" r1)
+			     (throw 'fail))
+			   (if (not (= r15 15))
+			       (begin
+				 (format #t "  wrong residue number r15 ~s~%" r15)
+				 (throw 'fail))
+			       #t))))))))))) ;; passes test
 
 	
 (greg-testcase "LSQ by atom" #t

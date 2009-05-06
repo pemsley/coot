@@ -460,7 +460,7 @@ coot::peak_search::find_protein_to_origin_translations(const std::vector<clipper
 
    // get the protein centre:
    clipper::Coord_orth running(0,0,0);
-   for (int i=0; i<sampled_protein_coords.size(); i++)
+   for (unsigned int i=0; i<sampled_protein_coords.size(); i++)
       running += sampled_protein_coords[i];
 
    if (sampled_protein_coords.size() > 0) {

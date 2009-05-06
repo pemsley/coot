@@ -1527,6 +1527,28 @@
 	(apply delete-atom active-atom))))
 
 
+(define (merge-solvent-chains imol)
+
+  (if (valid-model-molecule? imol)
+      (let ((solvent-chains (filter (lambda (c) (is-solvent-chain? imol c)) 
+				    (chain-ids imol))))
+	(if (> (length solvent-chains) 1)
+	    (let* ((master-solvent-chain (car solvent-chains)))
+	      (renumber-waters imol)
+	      (for-each (lambda (c)
+			  (let* ((master-n-solvent-residues (chain-n-residues master-solvent-chain imol))
+				 (last-prev-water
+				  (seqnum-from-serial-number imol master-solvent-chain
+							     (- master-n-solvent-residues 1)))
+				 (n-residues (chain-n-residues master-solvent-chain imol)))
+			    (renumber-residue-range imol c 1 n-residues last-prev-water)
+			    (change-chain-id imol c master-solvent-chain 1
+					     (+ last-prev-water 1)
+					     (+ last-prev-water n-residues))))
+			(cdr solvent-chains)))))))
+						 
+				
+
 
 ;; general mutate
 ;; 
