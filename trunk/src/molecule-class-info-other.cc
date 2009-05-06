@@ -5555,10 +5555,10 @@ molecule_class_info_t::change_chain_id_with_residue_range_helper_insert_or_add(C
       
    if (target_res_serial_number != coot::RESIDUE_NUMBER_UNSET) {
       // Good stuff
-      std::cout << "Debugging, inserting residue here...." << std::endl;
+      // std::cout << "Debugging, inserting residue here...." << std::endl;
       to_chain_p->InsResidue(new_residue, target_res_serial_number);
    } else {
-      std::cout << "Debugging, adding residue here...." << std::endl;
+      // std::cout << "Debugging, adding residue here...." << std::endl;
       to_chain_p->AddResidue(new_residue);
    } 
 }
