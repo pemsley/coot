@@ -259,7 +259,8 @@
 # 4.37 20090220 Fix up guile-gui, post-neil-jerram patch added.
 # 4.38 20090423 Fix up PYTHONPATH when starting greg tests.
 # 4.39 20090427 Remove python and its config from bin in slimmed dir
-script_version=4.39
+# 4.40 20090506 Upgrade to mmdb 1.21
+script_version=4.40
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1919,6 +1920,7 @@ if test -n "$build_mmdb" ; then
 mmdb_version=1.11
 mmdb_version=1.12
 mmdb_version=1.19
+mmdb_version=1.21
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # this patch is badly formed.
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch

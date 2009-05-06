@@ -1,25 +1,5 @@
 
 
-   o Build with new mmdb 1.20.   Add a test for correct link format. ::: 2
-
-   o Tobias Beck:
-
-In /net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/guile/gtk-1.2/gtk.scm:
- 127: 0* [apply #<procedure #f ()> ()]
-In unknown file:
-   ?: 1  [#<procedure #f ()>]
-In /net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/extensions.scm:
- 625: 2  (let ((txt #) (imol #)) (if (number? imol) (if # # ...)) ...)
- 628: 3* (if (number? imol) (if (= (string-length txt) 0) (shelxl-refine imol) ...))
- 629: 4  (if (= (string-length txt) 0) (shelxl-refine imol) (shelxl-refine imol txt))
-In /net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/shelx.scm:
-   ...
- 145: 5  [shelxl-refine-inner 0 ...
-/net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/shelx.scm:145:7: While evaluating arguments to shelxl-refine-inner in expression (shelxl-refine-inner imol hkl-file-in-maybe ...):
-/net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/shelx.scm:145:7: Unbound variable: hkl-file-in-maybe 
-
-    ::: 1
-
    
    o Is the TER atoms remove from the "added-to-residue" on terminal
      residue addition?   ::: 1
@@ -926,4 +906,28 @@ c-interface.cc:5998
     CCP4 dev meeting.
 
       ::: 1
+
+   o Tobias Beck:
+
+In /net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/guile/gtk-1.2/gtk.scm:
+ 127: 0* [apply #<procedure #f ()> ()]
+In unknown file:
+   ?: 1  [#<procedure #f ()>]
+In /net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/extensions.scm:
+ 625: 2  (let ((txt #) (imol #)) (if (number? imol) (if # # ...)) ...)
+ 628: 3* (if (number? imol) (if (= (string-length txt) 0) (shelxl-refine imol) ...))
+ 629: 4  (if (= (string-length txt) 0) (shelxl-refine imol) (shelxl-refine imol txt))
+In /net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/shelx.scm:
+   ...
+ 145: 5  [shelxl-refine-inner 0 ...
+/net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/shelx.scm:145:7: While evaluating arguments to shelxl-refine-inner in expression (shelxl-refine-inner imol hkl-file-in-maybe ...):
+/net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/shelx.scm:145:7: Unbound variable: hkl-file-in-maybe 
+
+    ::: 1
+
+* Done.
+
+   o Build with new mmdb 1.20.    ::: 1
+
+* Done. 1.21 actually.
 
