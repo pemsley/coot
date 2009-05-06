@@ -1,105 +1,23 @@
 
-
+   o sequence view fails to start at the correct residue when using
+    chains starting at 120, 150 or so?] Use offset-resno-test.pdb
+    ::: 2
    
-   o Is the TER atoms remove from the "added-to-residue" on terminal
-     residue addition?   ::: 1
+
+
+   o Torsion general is broken? ::: 2
+
+
+   o make reading a dirty cif file report the bad line number. ::: 1
+
+
+   o Reading in a map messes with the scroll button in the display
+     menu (possibly). JED.
+    ::: 1 
 
 
    o Rama-refine rnase: Does it work properly?  (possibly more work
      here.) ::: 1
-
-
-   o Crash from Joel Bard:
-#0  on_background_white1_activate (menuitem=0x6e8e020, user_data=0x0)
-    at callbacks.c:2028
-#1  0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
-#2  0x000000322121b3bd in g_signal_override_class_closure ()
-   from /lib64/libgobject-2.0.so.0
-#3  0x000000322121c826 in g_signal_emit_valist ()
-   from /lib64/libgobject-2.0.so.0
-#4  0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
-#5  0x00002afe90a4716d in gtk_radio_menu_item_new_with_label_from_widget ()
-   from /usr/lib64/libgtk-x11-2.0.so.0
-#6  0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
-#7  0x000000322121b80d in g_signal_override_class_closure ()
-   from /lib64/libgobject-2.0.so.0
-#8  0x000000322121c826 in g_signal_emit_valist ()
-   from /lib64/libgobject-2.0.so.0
-#9  0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
-#10 0x00000000005832d5 in on_background_colour1_activate (menuitem=0x6e8a580, 
-    user_data=<value optimized out>) at callbacks.c:5853
-#11 0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
-#12 0x000000322121b3bd in g_signal_override_class_closure ()
-   from /lib64/libgobject-2.0.so.0
-#13 0x000000322121c826 in g_signal_emit_valist ()
-   from /lib64/libgobject-2.0.so.0
----Type <return> to continue, or q <return> to quit---
-#14 0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
-#15 0x00002afe90b1445a in gtk_widget_activate ()
-   from /usr/lib64/libgtk-x11-2.0.so.0
-#16 0x00002afe90a1fff1 in gtk_menu_shell_append ()
-   from /usr/lib64/libgtk-x11-2.0.so.0
-#17 0x00002afe90a184e6 in gtk_menu_reorder_child ()
-   from /usr/lib64/libgtk-x11-2.0.so.0
-#18 0x00002afe90a12fbd in gtk_marshal_BOOLEAN__VOID ()
-   from /usr/lib64/libgtk-x11-2.0.so.0
-#19 0x000000322120b220 in g_closure_invoke () from /lib64/libgobject-2.0.so.0
-#20 0x000000322121b9dd in g_signal_override_class_closure ()
-   from /lib64/libgobject-2.0.so.0
-#21 0x000000322121c5ef in g_signal_emit_valist ()
-   from /lib64/libgobject-2.0.so.0
-#22 0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
-#23 0x00002afe90b1078e in gtk_widget_get_default_style ()
-   from /usr/lib64/libgtk-x11-2.0.so.0
-#24 0x00002afe90a12fbd in gtk_marshal_BOOLEAN__VOID ()
-   from /usr/lib64/libgtk-x11-2.0.so.0
-#25 0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
-#26 0x000000322121b9dd in g_signal_override_class_closure ()
-   from /lib64/libgobject-2.0.so.0
-#27 0x000000322121c5ef in g_signal_emit_valist ()
----Type <return> to continue, or q <return> to quit---
-   from /lib64/libgobject-2.0.so.0
-#28 0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
-#29 0x00002afe90b1078e in gtk_widget_get_default_style ()
-   from /usr/lib64/libgtk-x11-2.0.so.0
-#30 0x00002afe90a0d705 in gtk_main_do_event ()
-   from /usr/lib64/libgtk-x11-2.0.so.0
-#31 0x00000032236468cc in gdk_add_client_message_filter ()
-   from /usr/lib64/libgdk-x11-2.0.so.0
-#32 0x000000321fe2cf44 in g_main_context_dispatch ()
-   from /lib64/libglib-2.0.so.0
-#33 0x000000321fe2fd7d in g_main_context_check () from /lib64/libglib-2.0.so.0
-#34 0x000000321fe3008a in g_main_loop_run () from /lib64/libglib-2.0.so.0
-#35 0x00002afe90a0da53 in gtk_main () from /usr/lib64/libgtk-x11-2.0.so.0
-#36 0x00000000004a344b in c_inner_main (closure=<value optimized out>, 
-    argc=<value optimized out>, argv=0x7fff21675878) at c-inner-main.c:306
-#37 0x00002afe8d2fdca6 in invoke_main_func ()
-   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
-#38 0x00002afe8d2d4a72 in c_body ()
-   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
-#39 0x00002afe8d339466 in scm_c_catch ()
-   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
-#40 0x00002afe8d2d4e12 in scm_i_with_continuation_barrier ()
-   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
----Type <return> to continue, or q <return> to quit---
-#41 0x00002afe8d2d4eb0 in scm_c_with_continuation_barrier ()
-   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
-#42 0x00002afe8d338488 in scm_i_with_guile_and_parent ()
-   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
-#43 0x00002afe8d338514 in scm_with_guile ()
-   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
-#44 0x00002afe8d2fdc6b in scm_boot_guile ()
-   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
-#45 0x00000000004a2d73 in c_wrapper_scm_boot_guile (argc=115925024, argv=0x0)
-    at c-inner-main.c:326
-#46 0x000000000049978b in main (argc=3, argv=0x7fff21675878) at main.cc:569
-Current language:  auto; currently c
-
-     ::: 1
-
-     o Steven Sheriff: fix up the difference map peaks so that I don't
-       get two that are close together.  Done - test written.  Seems good, 
-       needs a manual check. ::: 1
 
 
      o Markus Rudolf: 
@@ -116,41 +34,6 @@ Current language:  auto; currently c
 
         ::: 1
 
-     o 
-
-        Wuyi> It supposed to ask for a pdb but nothing happened. I
-        even loaded the pdb first. The coot 0.5.2 on Ubuntu works fine
-        on same files.
-
-
-> Wuyi Meng wrote:
->>
->> Hi Paul,
->>
->> I am having trouble to read phs file created from hkl2map. I am
->> running OSX 10.5.6 on an Intel MacBook Pro, both coot 0.6 pre or 0.5.2
->> have the error message:
->>
->> "
->>>>>>>>
->>>>>>>> CCP4 library signal mtz:File not identified as MTZ (Error)
->>
->>         raised in MtzGet <<<<<<
->> CCP4MTZfile: open_read - File missing or corrupted:
->> /Users/meng/tan/tan_i.phs
->> INFO:: not an mtz file: /Users/meng/tan/tan_i.phs
->>>>>>>>
->>>>>>>> CCP4 library signal mtz:File not identified as MTZ (Error)
->>
->>         raised in MtzGet <<<<<<
->> CCP4MTZfile: open_read - File missing or corrupted:
->> /Users/meng/tan/tan_i.phs
->> INFO:: not an mtz file: /Users/meng/tan/tan_i.phs
->> INFO:: data file /Users/meng/tan/tan_i.phs is not a valid mtz file
->> /Users/meng/tan/tan_i.phs is a .phs file
->> " 
-
-      ::: 2 
 
 
      o Steven Sheriff:
@@ -165,25 +48,8 @@ Current language:  auto; currently c
       ::: 1
 
 
-   o sequence view fails to start at the correct residue when using
-    chains starting at 120, 150 or so?] Use offset-resno-test.pdb
-    ::: 2
-
-
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
      interface with molprobity dots. ::: 8
-
-
-   o Torsion general is broken? ::: 2
-
-
-   o make reading a dirty cif file report the bad line number. ::: 1
-
-
-   o Reading in a map messes with the scroll button in the display
-   menu (possibly). JED.
-    ::: 1 
-
 
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
     make_link_restraints_by_linear() has
@@ -930,4 +796,145 @@ In /net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/sc
    o Build with new mmdb 1.20.    ::: 1
 
 * Done. 1.21 actually.
+
+
+
+   o Crash from Joel Bard:
+#0  on_background_white1_activate (menuitem=0x6e8e020, user_data=0x0)
+    at callbacks.c:2028
+#1  0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#2  0x000000322121b3bd in g_signal_override_class_closure ()
+   from /lib64/libgobject-2.0.so.0
+#3  0x000000322121c826 in g_signal_emit_valist ()
+   from /lib64/libgobject-2.0.so.0
+#4  0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#5  0x00002afe90a4716d in gtk_radio_menu_item_new_with_label_from_widget ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#6  0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#7  0x000000322121b80d in g_signal_override_class_closure ()
+   from /lib64/libgobject-2.0.so.0
+#8  0x000000322121c826 in g_signal_emit_valist ()
+   from /lib64/libgobject-2.0.so.0
+#9  0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#10 0x00000000005832d5 in on_background_colour1_activate (menuitem=0x6e8a580, 
+    user_data=<value optimized out>) at callbacks.c:5853
+#11 0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#12 0x000000322121b3bd in g_signal_override_class_closure ()
+   from /lib64/libgobject-2.0.so.0
+#13 0x000000322121c826 in g_signal_emit_valist ()
+   from /lib64/libgobject-2.0.so.0
+---Type <return> to continue, or q <return> to quit---
+#14 0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#15 0x00002afe90b1445a in gtk_widget_activate ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#16 0x00002afe90a1fff1 in gtk_menu_shell_append ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#17 0x00002afe90a184e6 in gtk_menu_reorder_child ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#18 0x00002afe90a12fbd in gtk_marshal_BOOLEAN__VOID ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#19 0x000000322120b220 in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#20 0x000000322121b9dd in g_signal_override_class_closure ()
+   from /lib64/libgobject-2.0.so.0
+#21 0x000000322121c5ef in g_signal_emit_valist ()
+   from /lib64/libgobject-2.0.so.0
+#22 0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#23 0x00002afe90b1078e in gtk_widget_get_default_style ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#24 0x00002afe90a12fbd in gtk_marshal_BOOLEAN__VOID ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#25 0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#26 0x000000322121b9dd in g_signal_override_class_closure ()
+   from /lib64/libgobject-2.0.so.0
+#27 0x000000322121c5ef in g_signal_emit_valist ()
+---Type <return> to continue, or q <return> to quit---
+   from /lib64/libgobject-2.0.so.0
+#28 0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#29 0x00002afe90b1078e in gtk_widget_get_default_style ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#30 0x00002afe90a0d705 in gtk_main_do_event ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#31 0x00000032236468cc in gdk_add_client_message_filter ()
+   from /usr/lib64/libgdk-x11-2.0.so.0
+#32 0x000000321fe2cf44 in g_main_context_dispatch ()
+   from /lib64/libglib-2.0.so.0
+#33 0x000000321fe2fd7d in g_main_context_check () from /lib64/libglib-2.0.so.0
+#34 0x000000321fe3008a in g_main_loop_run () from /lib64/libglib-2.0.so.0
+#35 0x00002afe90a0da53 in gtk_main () from /usr/lib64/libgtk-x11-2.0.so.0
+#36 0x00000000004a344b in c_inner_main (closure=<value optimized out>, 
+    argc=<value optimized out>, argv=0x7fff21675878) at c-inner-main.c:306
+#37 0x00002afe8d2fdca6 in invoke_main_func ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#38 0x00002afe8d2d4a72 in c_body ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#39 0x00002afe8d339466 in scm_c_catch ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#40 0x00002afe8d2d4e12 in scm_i_with_continuation_barrier ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+---Type <return> to continue, or q <return> to quit---
+#41 0x00002afe8d2d4eb0 in scm_c_with_continuation_barrier ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#42 0x00002afe8d338488 in scm_i_with_guile_and_parent ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#43 0x00002afe8d338514 in scm_with_guile ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#44 0x00002afe8d2fdc6b in scm_boot_guile ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#45 0x00000000004a2d73 in c_wrapper_scm_boot_guile (argc=115925024, argv=0x0)
+    at c-inner-main.c:326
+#46 0x000000000049978b in main (argc=3, argv=0x7fff21675878) at main.cc:569
+Current language:  auto; currently c
+
+     ::: 1
+
+* anti-aliasing code re-worked.  I investigated, but couldn't see the
+  cause of this.  Maybe I'll have to come back to it :(
+
+   o Is the TER atoms remove from the "added-to-residue" on terminal
+     residue addition?   ::: 1
+
+* Yes it is.  Still have starred atoms though.
+
+     o Steven Sheriff: fix up the difference map peaks so that I don't
+       get two that are close together.  Done - test written.  Seems good, 
+       needs a manual check. ::: 1
+
+* Done.
+    
+
+     o  Wuyi> It supposed to ask for a pdb but nothing happened. I
+        even loaded the pdb first. The coot 0.5.2 on Ubuntu works fine
+        on same files.
+
+
+> Wuyi Meng wrote:
+>>
+>> Hi Paul,
+>>
+>> I am having trouble to read phs file created from hkl2map. I am
+>> running OSX 10.5.6 on an Intel MacBook Pro, both coot 0.6 pre or 0.5.2
+>> have the error message:
+>>
+>> "
+>>>>>>>>
+>>>>>>>> CCP4 library signal mtz:File not identified as MTZ (Error)
+>>
+>>         raised in MtzGet <<<<<<
+>> CCP4MTZfile: open_read - File missing or corrupted:
+>> /Users/meng/tan/tan_i.phs
+>> INFO:: not an mtz file: /Users/meng/tan/tan_i.phs
+>>>>>>>>
+>>>>>>>> CCP4 library signal mtz:File not identified as MTZ (Error)
+>>
+>>         raised in MtzGet <<<<<<
+>> CCP4MTZfile: open_read - File missing or corrupted:
+>> /Users/meng/tan/tan_i.phs
+>> INFO:: not an mtz file: /Users/meng/tan/tan_i.phs
+>> INFO:: data file /Users/meng/tan/tan_i.phs is not a valid mtz file
+>> /Users/meng/tan/tan_i.phs is a .phs file
+>> " 
+
+      ::: 2 
+
+* Fixed.  I did nothing.  User updated, maybe Bill fixed it.
 

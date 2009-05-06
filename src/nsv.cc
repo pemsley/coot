@@ -132,9 +132,6 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
       // group.  If not, then a different graph group.
       //
       //
-      // we need to convert chainid -> graph group and sequence-line
-      // number thereof.  Let's use map.
-      // 
       int lowest_resno = rcv[0].first_res_no;
       int biggest_res_count = 0;
       int biggest_res_number = 0;
@@ -143,10 +140,16 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	    lowest_resno = rcv[i].first_res_no;
 	 if (rcv[i].n_residue_count > biggest_res_count)
 	    biggest_res_count = rcv[i].n_residue_count;
-	 if (rcv[i].n_residue_count > biggest_res_number)
+	 if (rcv[i].max_resno > biggest_res_number)
 	    biggest_res_number = rcv[i].max_resno;
       }
       int total_res_range = biggest_res_number - lowest_resno;
+
+      if (0) {
+	 std::cout << "debug resnos: biggest_res_number "
+		   << biggest_res_number << " lowest_resno: "
+		   << lowest_resno << " total_res_range: " << total_res_range << std::endl;
+      }
       
       std::vector<CResidue*> ins_code_residues =
 	 coot::util::residues_with_insertion_codes(mol);
@@ -176,6 +179,8 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	 gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+n_limited_chains));
 	 // the size of the canvas (e.g. long chain, we see only part
 	 // of it at one time).
+	 std::cout << "DEBUG:: in setup_canvas(), total_res_range: " << total_res_range
+		   << " canvas_x_size " << canvas_x_size << std::endl;
 	 gtk_widget_set_usize(GTK_WIDGET(canvas), canvas_x_size, canvas_y_size);
 
 	 double left_limit = 0.0;
@@ -206,7 +211,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 
 	 origin_marker();
 	 draw_axes(rcv, lowest_resno, biggest_res_number);
-	 mol_to_canvas(mol);
+	 mol_to_canvas(mol, lowest_resno);
 	 
 
       } else {
@@ -217,7 +222,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 }
 
 void
-exptl::nsv::mol_to_canvas(CMMDBManager *mol) {
+exptl::nsv::mol_to_canvas(CMMDBManager *mol, int lowest_resno) {
 
    int imod = 1;
    CModel *model_p = mol->GetModel(imod);
@@ -227,12 +232,12 @@ exptl::nsv::mol_to_canvas(CMMDBManager *mol) {
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int position_number = nchains - ichain - 1;
-      chain_to_canvas(chain_p, position_number);
+      chain_to_canvas(chain_p, position_number, lowest_resno);
    }
 }
 
 void
-exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number) {
+exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number, int lowest_resno) {
 
    int nres = chain_p->GetNumberOfResidues();
    GtkCanvasItem *item;
@@ -240,7 +245,7 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number) {
    for (int ires=0; ires<nres; ires++) {
       CResidue *residue_p = chain_p->GetResidue(ires);
       coot::residue_spec_t res_spec(residue_p);
-      add_text_and_rect(res_spec, position_number);  // adds items to canvas_item_vec
+      add_text_and_rect(res_spec, position_number, lowest_resno);  // adds items to canvas_item_vec
    }
 
    // now the chain label:
@@ -265,7 +270,8 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number) {
 
 void
 exptl::nsv::add_text_and_rect(const coot::residue_spec_t &res_spec,
-			      int position_number) {
+			      int position_number,
+			      int lowest_resno) {
 
    CResidue *residue_p = get_residue(molecule_number, res_spec);
 
@@ -275,7 +281,7 @@ exptl::nsv::add_text_and_rect(const coot::residue_spec_t &res_spec,
       std::string res_code =
 	 coot::util::three_letter_to_one_letter(residue_p->GetResName());
       std::string colour = "black";
-      double x = residue_p->GetSeqNum() * pixels_per_letter -3;
+      double x = (residue_p->GetSeqNum() - lowest_resno + 1) * pixels_per_letter -3;
       double y = - pixels_per_chain * position_number - 6;
       
       exptl::nsv::spec_and_object *so = 
@@ -448,7 +454,10 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
    GtkCanvasPoints *points = gtk_canvas_points_new(2);
    float font_scaler = pixels_per_letter;
 
-   std::cout << "DEBUG:: in draw_axes() ticks stop at " << brn << std::endl;
+   if (0) { 
+      std::cout << "DEBUG:: in draw_axes() ticks stop at " << brn << std::endl;
+      std::cout << "DEBUG:: in draw_axes() lrn is " << lrn << std::endl;
+   }
 
    // ticks and text
    int irn_start = tick_start_number(lrn);
@@ -460,9 +469,16 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       double y_value = 0;
       if (i_ax_pos == 1)
 	 y_value = -1.0 * double(clru.size() * pixels_per_chain) - 2.0;
+
+      // old values, bad with offset resnos.
       points->coords[0] = lrn*font_scaler;
       points->coords[1] = y_value;
       points->coords[2] = brn*font_scaler;
+      points->coords[3] = y_value;
+
+      points->coords[0] = 5; // don't extend too far to the left
+      points->coords[1] = y_value;
+      points->coords[2] = (brn-lrn)*font_scaler;
       points->coords[3] = y_value;
 
       double tick_length = 3.0;
@@ -483,11 +499,19 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 
       // tick marks and tick labels
       for (unsigned int irn=irn_start; irn<brn; irn+=5) {
+
+	 // old values, badd with offset resnos
 	 points->coords[0] = irn*font_scaler;
 	 points->coords[1] = y_value;
 	 points->coords[2] = irn*font_scaler;
 	 points->coords[3] = double(y_value + tick_length);
-	 double x = irn*font_scaler -3.0;
+
+ 	 points->coords[0] = (irn-lrn+1)*font_scaler;
+ 	 points->coords[1] = y_value;
+ 	 points->coords[2] = (irn-lrn+1)*font_scaler;
+ 	 points->coords[3] = double(y_value + tick_length);
+	 
+	 double x = (irn-lrn)*font_scaler -3.0; // x for resno label
 	 std::string lab = coot::util::int_to_string(irn);
 	 item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 				    GTK_CANVAS_TYPE_CANVAS_LINE,
@@ -513,34 +537,36 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 
 int 
 exptl::nsv::tick_start_number(int low_res_no) const {
-
-   int t = 5;
-
-   return t;
+   // 1 -> 5
+   // 12 -> 15
+   int j = (low_res_no-1)/5;
+   return (j+1)*5;
 }
 
 void
 exptl::nsv::origin_marker() {
 
-   GtkCanvasItem *item;
-   GtkCanvasPoints *points = gtk_canvas_points_new(5);
-
-   points->coords[0] = 5;
-   points->coords[1] = 5;
-   points->coords[2] = 5;
-   points->coords[3] = -5;
-   points->coords[4] = -5;
-   points->coords[5] = -5;
-   points->coords[6] = -5;
-   points->coords[7] = 5;
-   points->coords[8] = 5;
-   points->coords[9] = 5;
-   item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-			      GTK_CANVAS_TYPE_CANVAS_LINE,
-			      "width_pixels", 1,
-			      "points", points,
-			      "fill_color", "blue",
-			      NULL);
+   if (0) { 
+      GtkCanvasItem *item;
+      GtkCanvasPoints *points = gtk_canvas_points_new(5);
+      
+      points->coords[0] = 5;
+      points->coords[1] = 5;
+      points->coords[2] = 5;
+      points->coords[3] = -5;
+      points->coords[4] = -5;
+      points->coords[5] = -5;
+      points->coords[6] = -5;
+      points->coords[7] = 5;
+      points->coords[8] = 5;
+      points->coords[9] = 5;
+      item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+				 GTK_CANVAS_TYPE_CANVAS_LINE,
+				 "width_pixels", 1,
+				 "points", points,
+				 "fill_color", "blue",
+				 NULL);
+   }
 }
 
 #endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
