@@ -220,7 +220,8 @@
 # 2.53 20081127 Make file_list in post_install_slim python-dependent, like the 
 #               gtk2 version.
 # 2.54 20090427 Remove python and its config from bin in slimmed dir
-script_version=2.54
+# 2.55 20090506 Upgrade to mmdb 1.21
+script_version=2.55
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1698,6 +1699,7 @@ mmdb_version=1.0.8-ysbl-3
 mmdb_version=1.11
 mmdb_version=1.12
 mmdb_version=1.19
+mmdb_version=1.21
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # this patch is badly formed.
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
