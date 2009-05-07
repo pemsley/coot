@@ -1,8 +1,4 @@
 
-   o sequence view fails to start at the correct residue when using
-    chains starting at 120, 150 or so?] Use offset-resno-test.pdb
-    ::: 2
-   
 
 
    o Torsion general is broken? ::: 2
@@ -938,3 +934,8 @@ Current language:  auto; currently c
 
 * Fixed.  I did nothing.  User updated, maybe Bill fixed it.
 
+   o sequence view fails to start at the correct residue when using
+    chains starting at 120, 150 or so?] Use offset-resno-test.pdb
+    ::: 2
+   
+* Done.
