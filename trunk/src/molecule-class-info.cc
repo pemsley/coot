@@ -4371,7 +4371,8 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	 occ = 11.0;
       else
 	 occ = 1.0;
-      atom_p->SetCoordinates(pos.x(), pos.y(), pos.z(), occ, graphics_info_t::default_new_atoms_b_factor);
+      atom_p->SetCoordinates(pos.x(), pos.y(), pos.z(), occ,
+			     graphics_info_t::default_new_atoms_b_factor);
       atom_p->Het = 1; // it's a HETATM.
 
       if (type == "Water") { 
@@ -4407,7 +4408,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	 } else { 
 	    // There was no water chain
 	    res_p->AddAtom(atom_p);
-	    std::cout << atom_p << " added to molecule" << std::endl;
+	    std::cout << atom_p << " added to molecule (and new chain)" << std::endl;
 	    if (!pre_existing_chain_flag) { 
 	       chain_p->SetChainID(mol_chain_id.second.c_str());
 	       atom_sel.mol->GetModel(1)->AddChain(chain_p);

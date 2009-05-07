@@ -763,12 +763,28 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    }
    
 
+   // seqDist has to be 0 here or else failure to find contacts to new
+   // waters added as pointer atoms. Why?  Don't know - a bug in mmdb,
+   // I suspect.
+   // 
    SelAtom.mol->SeekContacts(residue_atoms, n_residue_atoms,
 			     SelAtom.atom_selection, SelAtom.n_selected_atoms,
 			     min_dist,
 			     max_dist,
-			     1,  // seqDist
+			     0,  // seqDist (in same residue allowed)
 			     contact, ncontacts);
+
+   if (0) {  // debugging seqDist
+      std::cout << " DEBUG:: there are " << n_residue_atoms << " residue atoms "
+		<< " and " << SelAtom.n_selected_atoms << " mol atoms\n";
+      for (int iat=0; iat<n_residue_atoms; iat++)
+	 std::cout << "residue atoms: " << iat << "/" << n_residue_atoms
+		   << " " << residue_atoms[iat] << std::endl;
+      for (int iat=0; iat<SelAtom.n_selected_atoms; iat++)
+	 std::cout << "    mol atoms: " << iat << "/" << SelAtom.n_selected_atoms
+		   << " " << SelAtom.atom_selection[iat] << std::endl;
+   }
+
    
    if (ncontacts > 0) {
       for (int i=0; i<ncontacts; i++) {
@@ -788,12 +804,17 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	    std::string ele1 = residue_atoms[ contact[i].id1 ]->element;
 	    std::string ele2 = SelAtom.atom_selection[ contact[i].id2 ]->element;
 
+	    if (0) { // debug
+	       std::cout << " DEBUG:: add env dist "
+			 << residue_atoms[ contact[i].id1 ] << " to "
+			 << SelAtom.atom_selection[ contact[i].id2 ]
+			 << std::endl;
+	    }
 	    if (ele1 == " C" || ele2 == " C")
 	       addBond(0, atom_1, atom_2);
 	    else 
 	       addBond(1, atom_1, atom_2);
-
-	 }
+	 } 
       }
       delete [] contact;
    }

@@ -320,6 +320,10 @@
      Use it in merge-solvent-chains, and make merge-solvent-chains not need
      to renumber-waters first.
 
+    o EJD: I want to do a Ramachandran plot of only a selection of residues.
+
+    o EJD: I want the Ramachandran plot to be marked up if the atoms
+      have zero occupancy.
 
  0.7 Priorities:
 
@@ -374,6 +378,17 @@
 * Done!
 
    o RNA rotamer analysis "What is the rotamer of this suite here?"
+
+
+   o Maia Cherney: 
+ 
+     The general torsion function is not as good as the torsion in old
+     X-fit. In x-fit you click on two atoms of a single bond and you
+     can rotate the rest of the molecule around that bond. This bond
+     can be in the middle of the main chain etc. It's a very useful
+     function, if you need to rotate a polypeptide around a single
+     bond. 
+
 
 ------
 
