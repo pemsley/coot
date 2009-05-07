@@ -1041,9 +1041,12 @@ void set_file_selection_dialog_size(GtkWidget *dialog) {
    if (graphics_info_t::file_selection_dialog_x_size > 0) {
 #if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 2))
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-         gtk_widget_set_size_request(dialog,
- 			   graphics_info_t::file_selection_dialog_x_size,
-			   graphics_info_t::file_selection_dialog_y_size);
+//          gtk_widget_set_size_request(dialog,
+//  			   graphics_info_t::file_selection_dialog_x_size,
+// 			   graphics_info_t::file_selection_dialog_y_size);
+         gtk_window_set_default_size(GTK_WINDOW(dialog),
+				     graphics_info_t::file_selection_dialog_x_size,
+				     graphics_info_t::file_selection_dialog_y_size);
       } else {
          gtk_window_resize(GTK_WINDOW(dialog),
  			   graphics_info_t::file_selection_dialog_x_size,

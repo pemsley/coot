@@ -1,5 +1,4 @@
 
-
    o Torsion general is broken? ::: 2
 
 
@@ -45,25 +44,7 @@
    relevant.)
     ::: 1
 
-   o JED: File -> Coordinates, resize window big. Cancel File ->
-     Coordinates, resize window to small -> Fail.  ::: 1
 
-
-   o documetation for Torsion General. ::: 0.3
-   You need to click on the torsion-general icon, then click 4 atoms
-   that describe the torsion - the first atom will be the base (non
-   moving) part of the atom tree, on clicking the 4th atom a dialog
-   will pop up with a "Reverse" button [1].  Move this dialog out of
-   the way and then left mouse click and drag in the main window will
-   rotate the "top" part of the residue round the clicked atoms 2 and
-   3.  When you are happy, click "Accept".
-
-   o (reorder-chains 0) -> 
-
-     bad atom (occ b element expression) 
-     object: (1.0 17.4099998474121 " C" "")
-     etc...
-     ::: 1
 
    o Refining a GLC gives:
 
@@ -87,9 +68,6 @@ c-interface clear_up_moving_atoms...
      ::: 10
 
 * What else is there to do here?  Write a test.
-
-    o An interface to make dotted lines (generic objects).  Tobias Beck ::: 2
-
 
     o Fixing atoms does not stop them from moving with
       rotate/translate.  Should it?  ::: 1
@@ -117,15 +95,8 @@ Elsewhere:
              ::: 1
 
 
-   o crash when adding a view annoation (first I added an annotation
-     to view 4 (which didn't exist))   ::: 1
-
 
    o Put the scripting window into the state file. ::: 1
-
-
-   o Ramachandran Plots need a molecule name/number title [Wendy
-     Offen] ::: 1
 
 
    o "Fit ligand here" which gets a monomer then does a ligand search
@@ -942,3 +913,43 @@ Current language:  auto; currently c
 
 * Fixed.
 
+
+   o JED: File -> Coordinates, resize window big. Cancel File ->
+     Coordinates, resize window to small -> Fail.  ::: 1
+
+* Done. Use gtk_window_set_default_size() not gtk_widget_set_size_request().
+
+
+   o documetation for Torsion General. ::: 0.3
+   You need to click on the torsion-general icon, then click 4 atoms
+   that describe the torsion - the first atom will be the base (non
+   moving) part of the atom tree, on clicking the 4th atom a dialog
+   will pop up with a "Reverse" button [1].  Move this dialog out of
+   the way and then left mouse click and drag in the main window will
+   rotate the "top" part of the residue round the clicked atoms 2 and
+   3.  When you are happy, click "Accept".
+
+
+    o An interface to make dotted lines (generic objects).  Tobias Beck ::: 1
+
+* Done.  It was easy.  Reduce to 1 point.
+
+   o Ramachandran Plots need a molecule name/number title [Wendy
+     Offen] ::: 1
+
+* Done - a while ago.
+
+   o crash when adding a view annoation (first I added an annotation
+     to view 4 (which didn't exist))   ::: 1
+
+* Done - a while ago also.
+
+
+   o (reorder-chains 0) -> 
+
+     bad atom (occ b element expression) 
+     object: (1.0 17.4099998474121 " C" "")
+     etc...
+     ::: 1
+
+* Done - using scm_is_string().  Not sure if this is in 1.6.
