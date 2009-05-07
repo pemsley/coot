@@ -432,10 +432,11 @@ molecule_class_info_t::pepflip_residue(int resno,
 graphical_bonds_container
 molecule_class_info_t::make_environment_bonds_box(int atom_index) const {
 
+   graphics_info_t g;
    graphical_bonds_container bonds_box;
    
    PCAtom point_atom_p = atom_sel.atom_selection[atom_index];
-   graphics_info_t g;
+   // std::cout << " DEBUG:: point_atom_p " << point_atom_p << std::endl;
 
    PPCResidue SelResidues;
    int nSelResdues;
@@ -482,6 +483,7 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index) const {
 	 bonds_box = bonds.make_graphical_bonds();
       }
    }
+   atom_sel.mol->DeleteSelection(selHnd);  // Added 20090507
    return bonds_box;
 } 
 

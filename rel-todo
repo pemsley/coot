@@ -31,19 +31,6 @@
         ::: 1
 
 
-
-     o Steven Sheriff:
-
-        In v0.5.2 and earlier (at least back to v0.3 something or
-        other), when one adds water molecules in the vicinity of one
-        another Measures->Environment Distance... usually does not
-        pick up the distances between newly added water molecules
-        (unfortunately, I don't think this is a 100% failure, which,
-        of course, will make it much more difficult to debug).
-
-      ::: 1
-
-
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
      interface with molprobity dots. ::: 8
 
@@ -939,3 +926,16 @@ Current language:  auto; currently c
     ::: 2
    
 * Done.
+
+     o Steven Sheriff:
+
+        In v0.5.2 and earlier (at least back to v0.3 something or
+        other), when one adds water molecules in the vicinity of one
+        another Measures->Environment Distance... usually does not
+        pick up the distances between newly added water molecules
+        (unfortunately, I don't think this is a 100% failure, which,
+        of course, will make it much more difficult to debug).
+
+      ::: 1
+
+* Done - worked around a seqDist problem (mmdb bug) in SeekContacts().
