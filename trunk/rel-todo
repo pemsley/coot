@@ -1,15 +1,6 @@
 
 
-
    o Torsion general is broken? ::: 2
-
-
-   o make reading a dirty cif file report the bad line number. ::: 1
-
-
-   o Reading in a map messes with the scroll button in the display
-     menu (possibly). JED.
-    ::: 1 
 
 
    o Rama-refine rnase: Does it work properly?  (possibly more work
@@ -939,3 +930,15 @@ Current language:  auto; currently c
       ::: 1
 
 * Done - worked around a seqDist problem (mmdb bug) in SeekContacts().
+
+
+   o make reading a dirty cif file report the bad line number. ::: 1
+
+* It seems that that this was already in place.
+
+   o Reading in a map messes with the scroll button in the display
+     menu (possibly). JED.
+    ::: 1 
+
+* Fixed.
+

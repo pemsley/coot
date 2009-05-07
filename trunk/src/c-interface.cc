@@ -4353,6 +4353,7 @@ handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
 
 	 std::string name = g.molecules[imol_new].dotted_chopped_name();
 	 g.scroll_wheel_map = imol_new;  // change the current scrollable map.
+	 g.activate_scroll_radio_button_in_display_manager(imol_new);
       } else {
 	 g.erase_last_molecule();
 	 std::cout << "Read map " << str << " failed" << std::endl;
