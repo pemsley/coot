@@ -156,7 +156,8 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 				    SCM len_pos_expr_scm = scm_length(pos_expr);
 				    int len_pos_expr = scm_to_int(len_pos_expr_scm);
 				    if (len_name_alt_conf == 2) {
-				       if (len_occ_b_ele == 3) {
+				       // the occ_b_ele list can contain an optional segid
+				       if ( (len_occ_b_ele == 3) || (len_occ_b_ele == 4)) {
 					  if (len_pos_expr == 3) {
 					     SCM atom_name_scm = SCM_CAR(name_alt_conf_pair);
 					     std::string atom_name = scm_to_locale_string(atom_name_scm);
@@ -165,6 +166,15 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 					     SCM occ_scm = scm_list_ref(occ_b_ele, SCM_MAKINUM(0));
 					     SCM b_scm   = scm_list_ref(occ_b_ele, SCM_MAKINUM(1));
 					     SCM ele_scm = scm_list_ref(occ_b_ele, SCM_MAKINUM(2));
+					     std::string segid;
+					     bool have_segid = 0;
+					     if (len_occ_b_ele == 4) {
+						SCM segid_scm = scm_list_ref(occ_b_ele, SCM_MAKINUM(3));
+						if (scm_is_string(segid_scm)) { 
+						   have_segid = 1;
+						   segid = scm_to_locale_string(segid_scm);
+						} 
+					     } 
 					     float b = scm_to_double(b_scm);
 					     float occ = scm_to_double(occ_scm);
 					     std::string ele = scm_to_locale_string(ele_scm);
@@ -182,7 +192,10 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 						atom->SetElementName(ele.c_str());
 					     }
 					     strncpy(atom->altLoc, alt_conf.c_str(), 2);
+					     if (have_segid)
+						strncpy(atom->segID, segid.c_str(), 4);
 					     residue_p->AddAtom(atom);
+					     
 					     // std::cout << "DEBUG:: adding atom " << atom << std::endl;
 					  } else {
 					     std::cout << "bad atom (position expression) "

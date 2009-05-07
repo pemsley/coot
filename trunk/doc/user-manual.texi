@@ -26,7 +26,7 @@
 @c @copying
 @c @end copying
 
-@c Copyright @copyright{} 2002, 2003, 2004, 2005, 2006, 2007, 2008 Paul Emsley
+@c Copyright @copyright{} 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Paul Emsley
 
 @c Part 3: Titlepage, Contents, Copyright
 
@@ -1872,6 +1872,7 @@ endresno pdb-file-name})}
 * Backbone Torsion Angles::
 * Rotamers::
 * Editing Chi Angles::
+* Torsion General::
 * Pep-flip::
 * Adding Alternative Conformations::
 * Mutation::
@@ -2497,6 +2498,19 @@ you click!
 By default torsions for hydrogen atoms are turned off.  To turn them on:
 
 @code{(set-find-hydrogen-torsions 1)}
+
+@node Torsion General
+@section Torsion General
+@cindex torsion general
+
+   You need to click on the torsion-general button, then click 4 atoms
+   that describe the torsion - the first atom will be the base (non
+   moving) part of the atom tree, on clicking the 4th atom a dialog
+   will pop up with a "Reverse" button.  Move this dialog out of
+   the way and then left mouse click and drag in the main window will
+   rotate the "top" part of the residue round the clicked atoms 2 and
+   3.  When you are happy, click "Accept".
+
 
 @subsection Ligand Torsion angles
 @cindex torsion angles, ligand 
