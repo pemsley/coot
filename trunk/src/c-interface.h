@@ -5037,6 +5037,20 @@ void to_generic_object_add_line(int object_number,
 				float to_y2, 
 				float to_z2);
 
+/*! \brief add a dashed line to generic object object_number 
+
+dash_density is number of dashes per Angstrom.*/
+void to_generic_object_add_dashed_line(int object_number, 
+				       const char *colour,
+				       int line_width,
+				       float dash_density,
+				       float from_x1, 
+				       float from_y1, 
+				       float from_z1, 
+				       float to_x2, 
+				       float to_y2, 
+				       float to_z2); 
+
 /*! \brief add point to generic object object_number */
 void to_generic_object_add_point(int object_number, 
 				 const char *colour,

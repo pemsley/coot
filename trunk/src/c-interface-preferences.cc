@@ -925,6 +925,40 @@ void to_generic_object_add_line(int object_number,
    }
 }
 
+/*! \brief add line to generic object object_number */
+void to_generic_object_add_dashed_line(int object_number, 
+				       const char *colour,
+				       int line_width,
+				       float dash_density,
+				       float from_x1, 
+				       float from_y1, 
+				       float from_z1, 
+				       float to_x2, 
+				       float to_y2, 
+				       float to_z2) {
+
+   clipper::Coord_orth p_start(from_x1, from_y1, from_z1);
+   clipper::Coord_orth p_end(to_x2, to_y2, to_z2);
+   float ll = clipper::Coord_orth::length(p_start, p_end);
+   int n_dashes = dash_density * ll;
+   bool visible = 1;
+   
+   for (unsigned int idash=0; idash<(n_dashes-1); idash++) {
+      if (visible) { 
+	 float fracs = float(idash)/float(n_dashes);
+	 float fracn = float(idash+1)/float(n_dashes);
+	 clipper::Coord_orth p1 = p_start + fracs * p_end;
+	 clipper::Coord_orth p2 = p_start + fracn * p_end;
+	 to_generic_object_add_line(object_number, colour, line_width,
+				    p1.x(), p1.y(), p1.z(), 
+				    p2.x(), p2.y(), p2.z());
+      }
+      visible = !visible;
+   }
+} 
+
+
+
 
 
 void to_generic_object_add_point(int object_number, 
