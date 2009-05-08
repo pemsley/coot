@@ -1279,17 +1279,29 @@ on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button
 GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
 					    int imol_this) {
 
+   // 20090517: Previously, we'd been looking at all
+   // map_scroll_buttons (i.e. for every map), but in the case of 2
+   // maps (say 1 and 3) when we are rendering the first combo_box the
+   // combo_box for map 3 doesn't exist - so we get a widget not found
+   // warning (ugly).
+   // 
+   // This is only called from one place, (in the combo_box renderer)
+   // so let's only look for map molecule with a molecule number less
+   // than imol_this.  (if not found, return null of course).
+   // 
    GtkWidget *w = NULL;
    if (display_manager_dialog) {
       for (int i=0; i<graphics_n_molecules(); i++) {
-	 if (is_valid_map_molecule(i)) {
-	    if (i != imol_this) {
-	       if (map_is_displayed(i)) { 
-		  std::string test_name = "map_scroll_button_";
-		  test_name += coot::util::int_to_string(i);
-		  w = lookup_widget(display_manager_dialog, test_name.c_str());
-		  if (w)
-		     break;
+	 if (i<imol_this) { 
+	    if (is_valid_map_molecule(i)) {
+	       if (i != imol_this) {
+		  if (map_is_displayed(i)) { 
+		     std::string test_name = "map_scroll_button_";
+		     test_name += coot::util::int_to_string(i);
+		     w = lookup_widget(display_manager_dialog, test_name.c_str());
+		     if (w)
+			break;
+		  }
 	       }
 	    }
 	 }
