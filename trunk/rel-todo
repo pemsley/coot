@@ -1,39 +1,35 @@
 
+   o > I was wondering if there's a way to avoid that a new "symmetry
+       controller" window opens every time I click on the "symmetry by
+       molecule..." button of the "Show symmetry?" dialog, rather than
+       just bringing to the front an already opened one.
+                                         Sebastiano Pasqualato  ::: 1
+
+
+   o put density-score-by-residue into distro tar file ::: 1
+
+
+   o When starting up with --no-state-script, don't write a state
+     script on closing.  ::: 1
+
    o Torsion general is broken? ::: 2
+
+
+   o Fix ligand chi angles. ::: 1
+
+
+   o Put the scripting window into the state file. How do we know if
+     the scripting window is open at end time? ::: 1
 
 
    o Rama-refine rnase: Does it work properly?  (possibly more work
      here.) ::: 1
 
 
-     o Markus Rudolf: 
-
-  when updating to the latest gtk1 or gtk2 builds, we get this error:
-
-  Gtk-WARNING **: invalid cast from `GtkLabel' to `GtkContainer'
-  Gtk-CRITICAL **: file gtkcontainer.c: line 1119 (gtk_container_foreach): assertion `GTK_IS_CONTAINER (container)' failed.
-
-  gtk1 build 1855 works fine. 
-
-    Baah.  Can't reproduce.  Needs to be followed up. get startup
-    script etc.
-
-        ::: 1
 
 
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
      interface with molprobity dots. ::: 8
-
-   o sphere-refine:  turn on rama restraints for restraints from residue_vec.
-    make_link_restraints_by_linear() has
-    if (do_rama_plot_restraints)
-      add_rama_links(selHnd, geom);
-
-    make_link_restraints_from_res_vec() has
-    add_rama_links_from_res_vec(), but that is not filled.
-    need something like bonded_residues_from_res_vec(), but for
-    residue triples - returning 3 residues.
-    ::: 3
 
 
    o normal usage (the start up script doesn't seem to be the issue)
@@ -43,35 +39,6 @@
    but (molecule-number-list was (0 1 2 3)), so that is probably not
    relevant.)
     ::: 1
-
-
-
-   o Refining a GLC gives:
-
-There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
-WARNING: residue type GLC not found in restraints dictionary (chiral)
-There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
-WARNING: residue type GLC not found in restraints dictionary (chiral)
-There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
-WARNING: residue type GLC not found in restraints dictionary (chiral)
-There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
-WARNING: residue type GLC not found in restraints dictionary (chiral)
-c-interface clear_up_moving_atoms...
-
-
-   o Add terminal residue has disconnected atoms.  Why? This is an
-     extremely deeply-buried problem. ::: 4
-
-
-   o multiple residue ranges, glycosylation, covalent bond entities,
-     make sure it works with alt confs and residues with TER atoms 
-     ::: 10
-
-* What else is there to do here?  Write a test.
-
-    o Fixing atoms does not stop them from moving with
-      rotate/translate.  Should it?  ::: 1
-
 
     o On map masking, on pressing the "Mask" button with inversion enabled:
 
@@ -95,13 +62,45 @@ Elsewhere:
              ::: 1
 
 
+   o Refining a GLC gives:
 
-   o Put the scripting window into the state file. ::: 1
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+c-interface clear_up_moving_atoms...   
+     ::: 2
 
 
-   o "Fit ligand here" which gets a monomer then does a ligand search
-     based on the blob at the current position. ::: 8
+   o Add terminal residue has disconnected atoms.  Why? This is an
+     extremely deeply-buried problem. ::: 4
 
+
+   o multiple residue ranges, glycosylation, covalent bond entities,
+     make sure it works with alt confs and residues with TER atoms 
+     ::: 10
+
+* What else is there to do here?  Write a test.
+
+    o Fixing atoms does not stop them from moving with
+      rotate/translate.  Should it?  ::: 1
+
+
+
+   o sphere-refine:  turn on rama restraints for restraints from residue_vec.
+    make_link_restraints_by_linear() has
+    if (do_rama_plot_restraints)
+      add_rama_links(selHnd, geom);
+
+    make_link_restraints_from_res_vec() has
+    add_rama_links_from_res_vec(), but that is not filled.
+    need something like bonded_residues_from_res_vec(), but for
+    residue triples - returning 3 residues.
+    ::: 3
 
    o Some tests for rigid body fitting many residue.  Consider
      residues with TERs and alt confs. ::: 2 [Bob Nolte]
@@ -139,19 +138,6 @@ Elsewhere:
    o Does the window stay constant size (on something other than a
      laptop) on start, exit, start exit cycling?
      Priority: 6: Difficulty: 4  ::: 2
-
-
-   o put density-score-by-residue into distro tar file ::: 1
-
-
-   o Fix ligand chi angles. ::: 1
-
-
-   o > I was wondering if there's a way to avoid that a new "symmetry
-       controller" window opens every time I click on the "symmetry by
-       molecule..." button of the "Show symmetry?" dialog, rather than
-       just bringing to the front an already opened one.
-                                         Sebastiano Pasqualato  ::: 1
 
 
    o "Add a NAG/XXX?" to this ASN. look at using spin-search.  OK, a
@@ -229,6 +215,20 @@ Elsewhere:
        ::: 4
 
 
+     o Markus Rudolf: 
+
+  when updating to the latest gtk1 or gtk2 builds, we get this error:
+
+  Gtk-WARNING **: invalid cast from `GtkLabel' to `GtkContainer'
+  Gtk-CRITICAL **: file gtkcontainer.c: line 1119 (gtk_container_foreach): assertion `GTK_IS_CONTAINER (container)' failed.
+
+  gtk1 build 1855 works fine. 
+
+    Baah.  Can't reproduce.  Needs to be followed up. get startup
+    script etc.
+
+        ::: 1
+
    o Add add rep of a residue.  Change background to white.  Rotate
      view.  Ugliness! ::: 2 [Erik Vogan]
 
@@ -262,10 +262,6 @@ Elsewhere:
    o CA+Ligands has gone into CA by B-factor mode.  Don't like - it 
      should be just the same as CA mode. There is a mix up over what
      bond_colour_type means. ::: 1
-
-
-   o When starting up with --no-state-script, don't write a state
-     script on closing.  ::: 1
 
 
    o Regularize monomer-3GP. Turn on torsion angle restraints.
