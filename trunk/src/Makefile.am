@@ -191,7 +191,7 @@ INCLUDES = \
 
 
 bin_PROGRAMS = coot-real density-score-by-residue-real fix-nomenclature-errors
-dist_bin_SCRIPTS = coot
+dist_bin_SCRIPTS = coot density-score-by-residue
 # noinst_PROGRAMS = test-coot-align test-chol
 check_PROGRAMS = test-coot-align test-chol
 # testmap write_map testcartesian graphics_crash_test test_cholesky test-command-line
