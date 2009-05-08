@@ -190,7 +190,7 @@ INCLUDES = \
 #	$(WITH_SCRIPT_CFLAGS) 
 
 
-bin_PROGRAMS = coot-real density-score-by-residue fix-nomenclature-errors
+bin_PROGRAMS = coot-real density-score-by-residue-real fix-nomenclature-errors
 dist_bin_SCRIPTS = coot
 # noinst_PROGRAMS = test-coot-align test-chol
 check_PROGRAMS = test-coot-align test-chol
@@ -409,8 +409,8 @@ test_coot_align_LDADD =	\
 	$(MMDB_LIBS)
 
 
-density_score_by_residue_SOURCES = density-score-by-residue.cc
-density_score_by_residue_LDADD  =	\
+density_score_by_residue_real_SOURCES = density-score-by-residue.cc
+density_score_by_residue_real_LDADD  =	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
