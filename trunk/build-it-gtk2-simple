@@ -2100,7 +2100,7 @@ if [ "$build_gtkglext" = 1 ] ; then
      gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
      cd gtkglext-$gtkglext_version
      ./configure $generic_prefix
-     if [ $update_libtool = 1 ] ; then
+     if [ "$update_libtool" = 1 ] ; then
         cp $install_top_dir/bin/libtool .
      fi
      $MAKE
@@ -2739,7 +2739,7 @@ echo ./configure $coot_prefix \
 # consider adding -DCOOT_SYS_TYPE=systype (or something like that)
 # here, so that coot --version-info/full returns it.
 
-if [ $update_libtool = 1 ] ; then
+if [ "$update_libtool" = 1 ] ; then
    echo need to update libtool here $PWD
    cp $install_top_dir/bin/libtool .
 else 
