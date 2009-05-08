@@ -3335,13 +3335,22 @@ graphics_info_t::int_from_entry(GtkWidget *entry) {
 // symmetry control dialog:
 GtkWidget *graphics_info_t::wrapped_create_symmetry_controller_dialog() const {
 
-   GtkWidget *w = create_symmetry_controller_dialog();
-   for (int imol=0; imol<n_molecules(); imol++) {
-      if (molecules[imol].has_model())
- 	 molecules[imol].fill_symmetry_control_frame(w);
+   GtkWidget *w = symmetry_controller_dialog;
+   if (! w) { 
+      w = create_symmetry_controller_dialog();
+      symmetry_controller_dialog = w;
+      for (int imol=0; imol<n_molecules(); imol++) {
+	 if (molecules[imol].has_model())
+	    molecules[imol].fill_symmetry_control_frame(w);
+      }
    }
+#if (GTK_MAJOR_VERSION > 1)
+   gtk_window_deiconify(GTK_WINDOW(w));
+#endif    
    return w;
-} 
+}
+
+
 
 GtkWidget *
 graphics_info_t::wrapped_create_lsq_plane_dialog() {

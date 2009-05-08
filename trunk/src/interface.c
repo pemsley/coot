@@ -17124,6 +17124,9 @@ create_symmetry_controller_dialog (void)
   gtk_widget_show (symmetry_controller_ok_button);
   gtk_box_pack_start (GTK_BOX (dialog_action_area89), symmetry_controller_ok_button, FALSE, FALSE, 0);
 
+  gtk_signal_connect (GTK_OBJECT (symmetry_controller_dialog), "destroy",
+                      GTK_SIGNAL_FUNC (on_symmetry_controller_dialog_destroy),
+                      NULL);
   gtk_signal_connect (GTK_OBJECT (molecule_0_checkbutton), "toggled",
                       GTK_SIGNAL_FUNC (on_molecule_0_checkbutton_toggled),
                       NULL);

@@ -3820,6 +3820,22 @@ void symmetry_colour_adjustment_changed (GtkAdjustment *adj,
 					     combine_colour() */
 }
 
+
+GtkWidget *symmetry_molecule_controller_dialog() {
+
+   graphics_info_t g;
+   return g.wrapped_create_symmetry_controller_dialog();
+}
+
+
+/* used by destroy callback, needed because there should only be one of these. */
+void set_symmetry_controller_dialog_widget(GtkWidget *w) {
+
+   graphics_info_t g;
+   g.symmetry_controller_dialog = w;
+} 
+
+
 void
 handle_map_colour_change(int imol, gdouble* map_col) {
    

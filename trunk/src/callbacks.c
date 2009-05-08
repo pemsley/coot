@@ -11417,3 +11417,11 @@ on_find_ligands_search_here_radiobutton_toggled
                                         gpointer         user_data) { 
 
 }
+
+void
+on_symmetry_controller_dialog_destroy  (GtkObject       *object,
+                                        gpointer         user_data)
+{
+  set_symmetry_controller_dialog_widget(0);
+}
+

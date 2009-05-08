@@ -120,18 +120,6 @@ create_pixmap                          (GtkWidget       *widget,
       found_filename = check_file_exists ("../pixmaps", filename);
     }
 
-  /* If we haven't found the pixmap, try this directory. */
-  if (!found_filename)
-    {
-      found_filename = check_file_exists (".", filename);
-    }
-
-  /* If we haven't found the pixmap, try / directory (absolute). */
-  if (!found_filename)
-    {
-      found_filename = check_file_exists ("/", filename);
-    }
-
   if (!found_filename)
     {
       g_warning (_("Couldn't find pixmap file: %s"), filename);

@@ -17667,6 +17667,7 @@ create_preferences (void)
   gtk_container_set_border_width (GTK_CONTAINER (preferences_dialog_accept_on_radiobutton), 5);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_dialog_accept_on_radiobutton), preferences_dialog_accept_on_radiobutton_group);
   preferences_dialog_accept_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_dialog_accept_on_radiobutton));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (preferences_dialog_accept_on_radiobutton), TRUE);
 
   preferences_dialog_accept_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
   gtk_widget_show (preferences_dialog_accept_off_radiobutton);
@@ -21615,6 +21616,9 @@ create_symmetry_controller_dialog (void)
   gtk_widget_show (symmetry_controller_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (symmetry_controller_dialog), symmetry_controller_ok_button, GTK_RESPONSE_OK);
 
+  g_signal_connect ((gpointer) symmetry_controller_dialog, "destroy",
+                    G_CALLBACK (on_symmetry_controller_dialog_destroy),
+                    NULL);
   g_signal_connect ((gpointer) molecule_0_checkbutton, "toggled",
                     G_CALLBACK (on_molecule_0_checkbutton_toggled),
                     NULL);

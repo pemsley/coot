@@ -3207,6 +3207,7 @@ public:
 
    // symmetry control dialog:
    GtkWidget *wrapped_create_symmetry_controller_dialog() const;
+   static GtkWidget *symmetry_controller_dialog;  // returned by above
 
    // ----- LSQ Plane -----
    static std::vector<clipper::Coord_orth> *lsq_plane_atom_positions;
