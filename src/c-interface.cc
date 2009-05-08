@@ -2372,11 +2372,6 @@ short int get_show_symmetry() {
    return graphics_info_t::show_symmetry; // master
 }
 
-GtkWidget *symmetry_molecule_controller_dialog() {
-
-   graphics_info_t g;
-   return g.wrapped_create_symmetry_controller_dialog();
-} 
 
    
 void

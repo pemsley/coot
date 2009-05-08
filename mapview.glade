@@ -25253,6 +25253,11 @@ View Mode</label>
 <widget>
   <class>GtkDialog</class>
   <name>symmetry_controller_dialog</name>
+  <signal>
+    <name>destroy</name>
+    <handler>on_symmetry_controller_dialog_destroy</handler>
+    <last_modification_time>Fri, 08 May 2009 13:04:15 GMT</last_modification_time>
+  </signal>
   <title>Symmetry Controller</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>

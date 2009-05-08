@@ -3,13 +3,6 @@
      Done.  Needs checking. ::: 1
 
 
-   o > I was wondering if there's a way to avoid that a new "symmetry
-       controller" window opens every time I click on the "symmetry by
-       molecule..." button of the "Show symmetry?" dialog, rather than
-       just bringing to the front an already opened one.
-                                         Sebastiano Pasqualato  ::: 1
-
-
    o Torsion general is broken? ::: 2
 
 
@@ -950,5 +943,14 @@ Current language:  auto; currently c
 
    o When starting up with --no-state-script, don't write a state
      script on closing.  ::: 0.5
+
+* Done.
+
+   o > I was wondering if there's a way to avoid that a new "symmetry
+       controller" window opens every time I click on the "symmetry by
+       molecule..." button of the "Show symmetry?" dialog, rather than
+       just bringing to the front an already opened one.
+                                         Sebastiano Pasqualato  ::: 1
+
 
 * Done.

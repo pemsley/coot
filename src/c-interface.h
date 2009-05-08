@@ -1488,6 +1488,9 @@ void symmetry_colour_adjustment_changed (GtkAdjustment *adj,
 					 GtkWidget *window); 
 GtkWidget *symmetry_molecule_controller_dialog();
 
+/* used by destroy callback, needed because there should only be one of these. */
+void set_symmetry_controller_dialog_widget(GtkWidget *w); 
+
 /*! \brief molecule number imol has a unit cell? 
 
    @return 1 on "yes, it has a cell", 0 for "no" */

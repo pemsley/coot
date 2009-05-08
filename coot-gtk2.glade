@@ -43631,6 +43631,7 @@ distances more than:</property>
   <property name="focus_on_map">True</property>
   <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
+  <signal name="destroy" handler="on_symmetry_controller_dialog_destroy" last_modification_time="Fri, 08 May 2009 13:03:35 GMT"/>
 
   <child internal-child="vbox">
     <widget class="GtkVBox" id="dialog-vbox90">

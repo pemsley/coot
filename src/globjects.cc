@@ -679,6 +679,8 @@ GtkWidget *graphics_info_t::delete_item_widget = NULL;
 int       graphics_info_t::keep_delete_item_active_flag = 0;
 coot::residue_spec_t graphics_info_t::delete_item_residue_zone_1;
 
+GtkWidget *graphics_info_t::symmetry_controller_dialog = 0;
+
 short int graphics_info_t::do_scroll_by_wheel_mouse_flag = 1;
 
 
