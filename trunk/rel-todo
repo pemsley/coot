@@ -1,8 +1,4 @@
 
-   o put density-score-by-residue into distro tar file
-     Done.  Needs checking. ::: 1
-
-
    o Torsion general is broken? ::: 2
 
 
@@ -17,40 +13,9 @@
      here.) ::: 1
 
 
-
-
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
      interface with molprobity dots. ::: 8
 
-
-   o normal usage (the start up script doesn't seem to be the issue)
-** (lt-coot-real:1937): WARNING **: Widget not found: map_scroll_button_3
-   This happens on opening the Display Manager (with 2 maps (2 and 3)
-   and 2 pdbs (0 and 1).  (but also I'd done (pointer-atom-molecule)
-   but (molecule-number-list was (0 1 2 3)), so that is probably not
-   relevant.)
-    ::: 1
-
-    o On map masking, on pressing the "Mask" button with inversion enabled:
-
-** (lt-coot-real:9413): WARNING **: Widget not found: map_scroll_button_3
-changed active state to #t
-debug:: invert-mask? is #t
-INFO:: Masking around 0 atoms
-
-Elsewhere: 
-
-** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_4
-
-** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_5
-
-** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_4
-
-** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_5
-
-** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_5
-
-             ::: 1
 
 
    o Refining a GLC gives:
@@ -954,3 +919,46 @@ Current language:  auto; currently c
 
 
 * Done.
+
+   o normal usage (the start up script doesn't seem to be the issue)
+** (lt-coot-real:1937): WARNING **: Widget not found: map_scroll_button_3
+   This happens on opening the Display Manager (with 2 maps (2 and 3)
+   and 2 pdbs (0 and 1).  (but also I'd done (pointer-atom-molecule)
+   but (molecule-number-list was (0 1 2 3)), so that is probably not
+   relevant.)
+    ::: 1
+
+    o On map masking, on pressing the "Mask" button with inversion enabled:
+
+** (lt-coot-real:9413): WARNING **: Widget not found: map_scroll_button_3
+changed active state to #t
+debug:: invert-mask? is #t
+INFO:: Masking around 0 atoms
+
+Elsewhere: 
+
+** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_4
+
+** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_5
+
+** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_4
+
+** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_5
+
+** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_5
+
+             ::: 1
+
+ * Done.  It was get_radio_button_in_scroll_group() looking for
+   map_scroll_button buttons that did not yet exist.
+
+
+   o put density-score-by-residue into distro tar file
+     Done.  Needs checking. ::: 1
+
+
+* It certainly did need checking.  On bubbles the previous binary
+  density-score-by-residue was added to the source tar file instead of
+  the script in the source src dir.
+
+
