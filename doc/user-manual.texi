@@ -285,7 +285,8 @@ following command line arguments:
 @itemize
 @item @code{--c @emph{cmd}} to run a command @code{@emph{cmd}} on start up
 @item @code{--script @emph{filename}} to run a script on start up (but see Section @ref{Scripting})
-@item @code{--no-state-script} don't run the @t{0-coot.state.scm} script on start up
+@item @code{--no-state-script} don't run the @t{0-coot.state.scm} script on start up.  
+   Don't save a state script on exit either.
 @item @code{--pdb @emph{filename}}  for pdb/coordinates file
 @item @code{--coords @emph{filename}}  for SHELX .ins/.res and CIF files
 @item @code{--data @emph{filename}} for mtz, phs or mmCIF data file
