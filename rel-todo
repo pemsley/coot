@@ -6,8 +6,8 @@
                                          Sebastiano Pasqualato  ::: 1
 
 
-   o put density-score-by-residue into distro tar file ::: 1
-
+   o put density-score-by-residue into distro tar file
+     Done.  Needs checking. ::: 1
 
    o When starting up with --no-state-script, don't write a state
      script on closing.  ::: 1
