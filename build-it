@@ -221,7 +221,8 @@
 #               gtk2 version.
 # 2.54 20090427 Remove python and its config from bin in slimmed dir
 # 2.55 20090506 Upgrade to mmdb 1.21
-script_version=2.55
+# 2.56 20090508 add density-score-by-residue to tar ball.
+script_version=2.56
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -385,6 +386,7 @@ function post_install_slim {
 
     file_list="etc info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
+        bin/density-score-by-residue bin/density-score-by-residue-real \
 	bin/guile $keep_lib_archs"
 
 

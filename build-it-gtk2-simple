@@ -260,7 +260,8 @@
 # 4.38 20090423 Fix up PYTHONPATH when starting greg tests.
 # 4.39 20090427 Remove python and its config from bin in slimmed dir
 # 4.40 20090506 Upgrade to mmdb 1.21
-script_version=4.40
+# 4.41 20090508 add density-score-by-residue to tar ball.
+script_version=4.41
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
