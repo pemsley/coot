@@ -4302,7 +4302,15 @@ Placeholder for scripting functions.
 @c 
 @c @include ../src/test-it.texi
 
-@c @include c-interface_8h.texi
+
+@c the documentation from doxygen in c-interface.h
+@c from the source src directory:
+@c doxygen coot-dox.cfg
+@  from the build doc directory:
+@c xsltproc ../../coot/doc/xml2texi.xsl ../../coot/src/doxygen/xml/c-interface_8h.xml > c-interface.h.texi
+@include c-interface_8h.texi
+
+@c the documentation from snarfing scheme docs
 @c @include ../../coot/scheme/coot-scheme-functions.texi
 
 
