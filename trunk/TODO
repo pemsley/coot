@@ -302,6 +302,27 @@
 
    o rsync to bubbles test data.
 
+   o "Add a NAG/XXX?" to this ASN. look at using spin-search.  OK, a
+     new spin-search is needed, where we spin all of a given residue
+     round a bond specified in another residue.  This will involved some
+     code refactoring.   ::: 4
+
+
+   o Can we have a regularize-residues function?  That would be cool
+     for fixing molecular models. ::: 2
+
+
+   o Gtk2 coot: set the colour patch in the map properties and
+     symmetry molecule colouring (needs version 2.6).  There is some
+     problem in the update, how do I set continuous updates on the
+     resulting colour chooser?  ::: 2 
+
+
+   o PRE: Minor irritation: if I display the molecule as CA atoms
+     only, clicking for naming or centering will still pick up the
+     invisible non-CA atoms. It would be Nice if it didn't.  [Perhaps
+     he means CA + ligs mode?] ::: 2
+ 
 
    o Tips should have a "No more tips" checkbuttons (Coot behaves like
      a proper program).

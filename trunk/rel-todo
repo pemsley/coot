@@ -1,22 +1,16 @@
+   o fix-nomenclature-errors added to GUI ::: 1
 
-   o Torsion general is broken? ::: 2
+   o Ingo K.: try to pepflip a peptide with alt conf "B" - it flips
+     the "A" version.  ::: 1
 
+   o Ingo K.: Ctrl left-mouse dragging sometimes does not work for alt
+     conf fragment residue range.
 
-   o Fix ligand chi angles. ::: 1
+   o Time Grune: When you read in a shelx ins file, it ignores the
+     "Recentre" check button on the file selection dialog.  ::: 1
 
-
-   o Put the scripting window into the state file. How do we know if
-     the scripting window is open at end time? ::: 1
-
-
-   o Rama-refine rnase: Does it work properly?  (possibly more work
-     here.) ::: 1
-
-
-   o Communication with PISA.  Get PISA on jackal.  I'd like show the
-     interface with molprobity dots. ::: 8
-
-
+   o Tim Grune: When you add a terminal residue to a .ins molecule,
+     then the main chain atoms have occupancy 1.0.  ::: 1
 
    o Refining a GLC gives:
 
@@ -32,6 +26,33 @@ c-interface clear_up_moving_atoms...
      ::: 2
 
 
+   o Fixing atoms does not stop them from moving with
+     rotate/translate.  Should it?  ::: 1
+
+
+   o Torsion general is broken? ::: 2
+
+
+   o Fix ligand chi angles. ::: 1
+
+
+   o Put the scripting window into the state file. How do we know if
+     the scripting window is open at end time? ::: 1
+
+
+   o Rama-refine rnase: Does it work properly?  (possibly more work
+     here.) ::: 1
+
+
+   o CA+Ligands has gone into CA by B-factor mode.  Don't like - it 
+     should be just the same as CA mode. There is a mix up over what
+     bond_colour_type means. ::: 1
+
+
+   o Communication with PISA.  Get PISA on jackal.  I'd like show the
+     interface with molprobity dots. ::: 8
+
+
    o Add terminal residue has disconnected atoms.  Why? This is an
      extremely deeply-buried problem. ::: 4
 
@@ -41,10 +62,6 @@ c-interface clear_up_moving_atoms...
      ::: 10
 
 * What else is there to do here?  Write a test.
-
-    o Fixing atoms does not stop them from moving with
-      rotate/translate.  Should it?  ::: 1
-
 
 
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
@@ -57,6 +74,7 @@ c-interface clear_up_moving_atoms...
     need something like bonded_residues_from_res_vec(), but for
     residue triples - returning 3 residues.
     ::: 3
+
 
    o Some tests for rigid body fitting many residue.  Consider
      residues with TERs and alt confs. ::: 2 [Bob Nolte]
@@ -96,16 +114,7 @@ c-interface clear_up_moving_atoms...
      Priority: 6: Difficulty: 4  ::: 2
 
 
-   o "Add a NAG/XXX?" to this ASN. look at using spin-search.  OK, a
-     new spin-search is needed, where we spin all of a given residue
-     round a bond specified in another residue.  This will involved some
-     code refactoring.  Puntable. ::: 4
-
    o Fix up mini-RSR so that it compiles properly. ::: 4
-
-  
-   o Remove debugging:
-     DEBUG:: on ok button pressed, active index 0
 
 
    o Put refine-zone and regularize-zone into the history. ::: 2
@@ -115,24 +124,10 @@ c-interface clear_up_moving_atoms...
      test for bonds split on thickness or colour most deeply.  ::: 5
 
 
-   o Can we have a regularize-residues function?  That would be cool
-     for fixing molecular models. ::: 2
-
-
-   o Gtk2 coot: set the colour patch in the map properties and
-     symmetry molecule colouring (needs version 2.6).  There is some
-     problem in the update, how do I set continuous updates on the
-     resulting colour chooser?  ::: 2 
-
-   o Delay the reading of coords, mtzs, maps until after ~/coot etc
+   o Delay the reading of coords, mtzs, maps until after ~/.coot etc
      have been read (something like run_command_line_scripts()], see
      handle_command_line_data().  [Pete Meyer] ::: 2
 
-   o PRE: Minor irritation: if I display the molecule as CA atoms
-     only, clicking for naming or centering will still pick up the
-     invisible non-CA atoms. It would be Nice if it didn't.  [Perhaps
-     he means CA + ligs mode?] ::: 2
- 
 
    o Integrate scripting functions into main documentation somehow.
      Well, you can look at this, if it is hard, punt it.  
@@ -143,18 +138,6 @@ c-interface clear_up_moving_atoms...
   directory.  Call it xxx.html.texi and add @html tags in there.
 
   Actually, there is a better way, use the JED conversion script.
-
-   o Ingo K.: try to pepflip a peptide with alt conf "B" - it flips
-     the "A" version.  ::: 1
-
-   o Ingo K.: Ctrl left-mouse dragging sometimes does not work for alt
-     conf fragment residue range.
-
-   o Time Grune: When you read in a shelx ins file, it ignores the
-     "Recentre" check button on the file selection dialog.  ::: 1
-
-   o Tim Grune: When you add a terminal residue to a .ins molecule,
-     then the main chain atoms have occupancy 1.0.  ::: 1
 
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.  ::: 2
@@ -196,9 +179,6 @@ c-interface clear_up_moving_atoms...
    o get-monomer fails for JED.  Why? ::: 1
 
 
-   o fix-nomenclature-errors added to GUI ::: 1
-
-
    o Garib wants a function to move (symmetry-related) waters close to
      the protein. ::: 4
 
@@ -213,11 +193,6 @@ c-interface clear_up_moving_atoms...
      When switching stereo contexts creating a new GL context, we need
      to run update_additional_representations() for each model molecule.
      ::: 3
-
-
-   o CA+Ligands has gone into CA by B-factor mode.  Don't like - it 
-     should be just the same as CA mode. There is a mix up over what
-     bond_colour_type means. ::: 1
 
 
    o Regularize monomer-3GP. Turn on torsion angle restraints.
@@ -962,3 +937,8 @@ Elsewhere:
   the script in the source src dir.
 
 
+  
+   o Remove debugging:
+     DEBUG:: on ok button pressed, active index 0
+
+* Done - callbacks.c

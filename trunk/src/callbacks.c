@@ -265,7 +265,6 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
       menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
       active_item = gtk_menu_get_active(GTK_MENU(menu));
       active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
-      printf("DEBUG:: on ok button pressed, active index %d\n", active_index);
       /* active items: 0: recentre view on new molecule
 	               1: don't recentre new molecule
 	               2: recentre new molecule on view
@@ -10288,7 +10287,6 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
                               "coords_filechooserdialog1_recentre_combobox");
   if (combobox) {
     active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(combobox));
-    printf("DEBUG:: on ok button pressed, active index %d\n", active_index);
     /* active items: 0: recentre view on new molecule
 	             1: don't recentre new molecule
 	             2: recentre new molecule on view

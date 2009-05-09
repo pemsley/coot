@@ -155,7 +155,8 @@
 			  
 			  (format port "@node    ~a ~%" stub)
 			  (format port "@section ~a ~%" stub)
-			  (format port "@cindex  ~a ~%" stub)))))
+			  ;; (format port "@cindex  ~a ~%" stub) not cindex
+			  ))))
 		  non-empty-texis)
 	(format menu-port "@end menu~%")))
 	

@@ -4295,22 +4295,23 @@ are given at the end of the command line.
 @c integrating HTML documentation.  Not good.
 @c @include dox/c-interface_8h.html.texi
 
-Placeholder for scripting functions.
-
 @c integrating doxygen->xml->texi documentation.  Quite good.  No
 @c menus for the node/sections though.  Output needs to be formalised.
 @c 
 @c @include ../src/test-it.texi
 
-
 @c the documentation from doxygen in c-interface.h
 @c from the source src directory:
 @c doxygen coot-dox.cfg
-@  from the build doc directory:
+@c from the build doc directory:
 @c xsltproc ../../coot/doc/xml2texi.xsl ../../coot/src/doxygen/xml/c-interface_8h.xml > c-interface.h.texi
 @include c-interface_8h.texi
 
-@c the documentation from snarfing scheme docs
+@c The documentation from snarfing scheme docs.
+@c
+@c Lets not include this yet, there are problems with dupicate
+@c nodes (mutate, povray) and (e.g.) `tips-gui', but has no menu entry for this node
+@c
 @c @include ../../coot/scheme/coot-scheme-functions.texi
 
 
