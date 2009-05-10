@@ -564,6 +564,8 @@ if test "$run_tests" = true ; then
    rm coot-backup/*
    # for python build we need to set COOT_PYTHON_DIR and COOT_HOME
    COOT_PYTHON_DIR=$install_top_dir/share/coot/python
+   PYTHONPATH=$COOT_PYTHON_DIR
+   PYTHONHOME=$install_top_dir/bin
    COOT_HOME=$HOME
    PYTHONPATH=$COOT_PYTHON_DIR
    PYTHONHOME=$install_top_dir/bin
@@ -571,6 +573,8 @@ if test "$run_tests" = true ; then
    export PYTHONHOME
    export COOT_PYTHON_DIR
    export COOT_HOME
+   export PYTHONPATH
+   export PYTHONHOME
    
    echo $coot_binary --no-graphics --script python-tests/coot_unittest.py
         $coot_binary --no-graphics --script python-tests/coot_unittest.py
@@ -1896,18 +1900,25 @@ if test -n "$build_mmdb" ; then
 # mmdb_version=1.0.8-ysbl-3
 # mmdb_version=1.12
 mmdb_version=1.19
+mmdb_version=1.21
 #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb_file_.cpp.patch
+# this patch is not needed any more (BL)
+#${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb_file_.cpp.patch
+# but we need this one now
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb_title.cpp.patch
 # this patch is badly formed.
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
 cd  mmdb-$mmdb_version
-patch -p0 < ${AUTOBUILD_SOURCES}/mmdb_file_.cpp.patch
+patch -p0 < ${AUTOBUILD_SOURCES}/mmdb_title.cpp.patch
 # patch to read long lines in a cif file
-patch -p0 < ../mmdb-mmcif-long-line.patch
+#patch -p0 < ../mmdb-mmcif-long-line.patch
+# FIXME (temp, BL)
+# needed for working configure
+sh ./autogen.sh
 ./configure $generic_prefix
 $MAKE
 $MAKE install
