@@ -151,8 +151,8 @@
 		     #f)
 		   (begin
 		     (flip-ligand imol chain-id res-no)
-		     (let ((atom-orig-1 (get-atom imol-orig "A" 1 " C8 "))
-			   (atom-move-1 (get-atom imol      "A" 1 " C8 ")))
+		     (let ((atom-orig-1 (get-atom imol-orig "A" 1 "" " C8 "))
+			   (atom-move-1 (get-atom imol      "A" 1 "" " C8 ")))
 
 		       (if (not (list? atom-orig-1))
 			   (begin
@@ -177,8 +177,8 @@
 			       ;; having flipped it round the axes 4
 			       ;; times, we should be back where we
 			       ;; started.
-			       (let ((atom-orig-1 (get-atom imol-orig "A" 1 " C8 "))
-				     (atom-move-1 (get-atom imol      "A" 1 " C8 ")))
+			       (let ((atom-orig-1 (get-atom imol-orig "A" 1 "" " C8 "))
+				     (atom-move-1 (get-atom imol      "A" 1 "" " C8 ")))
 				 (let ((d2 (bond-length (list-ref atom-orig-1 2)
 							(list-ref atom-move-1 2))))
 				   (format #t "distance d2: ~s~%" d2)

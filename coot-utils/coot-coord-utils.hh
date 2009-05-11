@@ -832,6 +832,17 @@ namespace coot {
       // 
       CAtom* intelligent_this_residue_mmdb_atom(CResidue *res_p);
 
+      // A function to find the previous (next) residue.  Find residue
+      // by previous (next) serial number.
+      // Return NULL if prevous (next) resiude not found.
+      // this_residue must be part of a molecule hierarchy.
+      //
+      // (c.f. get_following_residue()).
+      // 
+      // (used in pepflip)
+      CResidue *previous_residue(CResidue *this_residue);
+      CResidue *next_residue(CResidue *this_residue);
+
       std::string three_letter_to_one_letter(const std::string &resname);
 
 

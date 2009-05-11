@@ -319,6 +319,13 @@
 				 (lambda (imol)
 				   (sort-chains imol)))))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Fix Nomenclature Errors..."
+	 (lambda () 
+	   (molecule-chooser-gui "Fix Nomenclature Error in molecule:"
+				 (lambda (imol)
+				   (fix-nomenclature-errors imol)))))
+
 	(add-simple-coot-menu-menuitem 
 	 submenu-models "Merge Water Chains..."
 	 (lambda ()

@@ -388,32 +388,38 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 // -----------------------------------------------------------------------------
 //                     pepflip
 // -----------------------------------------------------------------------------
+
+// This is the function called by graphics-info-define (handling the atom click)
+// 
 void
 molecule_class_info_t::pepflip(int atom_index) {
 
    const char *chain_id = atom_sel.atom_selection[atom_index]->residue->GetChainID();
    int resno = atom_sel.atom_selection[atom_index]->residue->seqNum;
    std::string atom_name = atom_sel.atom_selection[atom_index]->name;
+   std::string inscode =  atom_sel.atom_selection[atom_index]->GetInsCode();
    std::string altconf =  atom_sel.atom_selection[atom_index]->altLoc;
 
-   std::cout << "flipping " << resno << " " << altconf << " " << chain_id << std::endl;
+   std::cout << "INFO:: flipping " << resno << " " << altconf << " "
+	     << chain_id << std::endl;
    if (atom_name == " N  ")
       resno--;
    if (atom_name == " H  ")
       resno--;
 
-   pepflip_residue(resno, altconf, chain_id);
+   pepflip_residue(chain_id, resno, inscode, altconf);
    
 }
 // model_refine_dialog_pepflip_button
 
 int
-molecule_class_info_t::pepflip_residue(int resno, 
-				       const std::string &alt_conf, 
-				       const std::string &chain_id) {
+molecule_class_info_t::pepflip_residue(const std::string &chain_id, 
+				       int resno, 
+				       const std::string &ins_code, 
+				       const std::string &alt_conf) {
 
    make_backup(); // must do it here, no intermediate.
-   int iresult = coot::pepflip(atom_sel.mol, resno, alt_conf, chain_id);
+   int iresult = coot::pepflip(atom_sel.mol, chain_id, resno, ins_code, alt_conf);
 
    if (iresult) {
       std::cout << "flipped " << resno << " " << chain_id << std::endl;

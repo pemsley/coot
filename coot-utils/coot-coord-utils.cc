@@ -270,7 +270,6 @@ coot::residues_near_residue(CResidue *res_ref,
 		     "*"  // alt loc.
 		     );
       
-   int nSelAtoms;
    mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
 
    if (! res_ref)
@@ -602,7 +601,7 @@ coot::is_member_p(const std::vector<CResidue *> &v, CResidue *a) {
    bool ir = 0;
    unsigned int vsize = v.size();
 
-   for (int i=0; i<vsize; i++) { 
+   for (unsigned int i=0; i<vsize; i++) { 
       if (v[i] == a) { 
 	 ir = 1;
 	 break;
@@ -1763,7 +1762,6 @@ coot::util::get_following_residue(const residue_spec_t &rs,
 
    CResidue *res = NULL;
    if (mol) {
-      int imod = 1;
       CModel *model_p = mol->GetModel(1);
       CChain *chain_p;
       CChain *chain_this_res = NULL;
@@ -2514,6 +2512,49 @@ coot::util::transform_mol(CMMDBManager *mol, const clipper::RTop_orth &rtop) {
    }
 } 
 
+// a function to find the previous (next) residue.  Find residue
+// by previous (next) serial number.
+// Return NULL if prevous (next) resiude not found.
+// 
+CResidue *
+coot::util::previous_residue(CResidue *this_residue) {
+
+   CResidue *prev_res = NULL;
+   CChain *chain_p = this_residue->GetChain();
+   int nres = chain_p->GetNumberOfResidues();
+   CResidue *residue_p;
+   for (int ires=0; ires<nres; ires++) { 
+      residue_p = chain_p->GetResidue(ires);
+      if (this_residue == residue_p) {
+	 if (ires>0)
+	    prev_res = chain_p->GetResidue(ires-1);
+	 break;
+      } 
+   }
+   return prev_res;
+}
+
+// a function to find the previous (next) residue.  Find residue
+// by previous (next) serial number.
+// Return NULL if prevous (next) resiude not found.
+// 
+CResidue *
+coot::util::next_residue(CResidue *this_residue) {
+
+   CResidue *prev_res = NULL;
+   CChain *chain_p = this_residue->GetChain();
+   int nres = chain_p->GetNumberOfResidues();
+   CResidue *residue_p;
+   for (int ires=0; ires<nres; ires++) { 
+      residue_p = chain_p->GetResidue(ires);
+      if (this_residue == residue_p) {
+	 if (ires < (nres-1))
+	    prev_res = chain_p->GetResidue(ires+1);
+	 break;
+      } 
+   }
+   return prev_res;
+}
 
 
 CAtom *
@@ -4939,7 +4980,6 @@ coot::mol_by_symmetry(CMMDBManager *mol,
    CMMDBManager *mol2 = new CMMDBManager;
    mol2->Copy(mol, MMDBFCM_All);
    
-   mat44 mat;
    mat44 mat_origin_shift;
    
    if (pre_shift_to_origin_abc.size() == 3) { 

@@ -172,7 +172,6 @@ coot::util::create_directory(const std::string &dir_name) {
 }
 
 
-
 std::string
 coot::util::intelligent_debackslash(const std::string &s) {
 
@@ -208,7 +207,7 @@ coot::is_member_p(const std::vector<std::string> &v, const std::string &a) {
    bool ir = 0;
    unsigned int vsize = v.size();
 
-   for (int i=0; i<vsize; i++) { 
+   for (unsigned int i=0; i<vsize; i++) { 
       if (v[i] == a) { 
 	 ir = 1;
 	 break;
@@ -224,7 +223,7 @@ coot::is_member_p(const std::vector<int> &v, const int &a) {
    bool ir = 0;
    unsigned int vsize = v.size();
 
-   for (int i=0; i<vsize; i++) { 
+   for (unsigned int i=0; i<vsize; i++) { 
       if (v[i] == a) { 
 	 ir = 1;
 	 break;

@@ -4156,6 +4156,7 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
    return i_atom_index;
 }
 
+
 // If there is a CA in this residue then return the index of that
 // atom, if not, then return the index of the first atom in the
 // residue.

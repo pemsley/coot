@@ -489,7 +489,7 @@
 	      (atom-name (list-ref active-atom 4))
 	      (alt-conf  (list-ref active-atom 5)))
 	  
-	  (pepflip imol chain-id res-no ins-code)))))
+	  (pepflip imol chain-id res-no ins-code alt-conf)))))
 
 ;; Another cool function that needs a key binding.
 ;; 

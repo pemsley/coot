@@ -1565,7 +1565,10 @@ class molecule_class_info_t {
 
    //
    void pepflip(int atom_index);
-   int pepflip_residue(int ires_seqno, const std::string &alt_conf, const std::string &chain_id);
+   int pepflip_residue(const std::string &chain_id,
+		       int ires_seqno,
+		       const std::string &ins_code,
+		       const std::string &alt_conf);
 
    int do_180_degree_side_chain_flip(const std::string &chain_id,
 				     int resno,
