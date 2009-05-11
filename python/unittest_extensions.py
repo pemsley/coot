@@ -17,8 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-unittest_filename="/y/people/lohkamp/Projects/coot/python-tests/coot_unittest.py"
-begin_filename="/y/people/lohkamp/Projects/coot/python-tests/begin.py"
+import os
+if (os.name == 'nt'):
+        home_dir = os.getenv('COOT_HOME')
+else:
+        home_dir = os.getenv('HOME')
+project_dir = os.path.join(home_dir, "Projects", "coot", "python-tests")
+unittest_filename = os.path.join(project_dir, "coot_unittest.py")
+begin_filename = os.path.join(project_dir, "begin.py")
 
 have_coot_python = False
 try: 
