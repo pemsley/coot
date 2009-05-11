@@ -1,9 +1,6 @@
    o Ingo K.: Ctrl left-mouse dragging sometimes does not work for alt
      conf fragment residue range.
 
-   o Time Grune: When you read in a shelx ins file, it ignores the
-     "Recentre" check button on the file selection dialog.  ::: 1
-
    o Tim Grune: When you add a terminal residue to a .ins molecule,
      then the main chain atoms have occupancy 1.0.  ::: 1
 
@@ -947,3 +944,8 @@ Elsewhere:
      the "A" version.  ::: 1
 
 * Done.  Big rewrite of pepflip and small rewrite of get-atom.
+
+   o Time Grune: When you read in a shelx ins file, it ignores the
+     "Recentre" check button on the file selection dialog.  ::: 1
+
+* Done.
