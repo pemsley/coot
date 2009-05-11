@@ -48,10 +48,7 @@ if (have_coot_python and find_exe("shelxl", "PATH")):
            txt = entry.get_text()
            imol = get_option_menu_active_molecule(*option_menu_mol_list_pair)
            if (operator.isNumberType(imol)):
-               if (len(txt) == 0):
-                   editable_shelx_gui(imol, txt)
-               else:
-                   shelxl_refine(imol, txt)
+               editable_shelx_gui(imol, txt)
            window.destroy()
            return False
 

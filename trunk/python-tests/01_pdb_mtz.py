@@ -438,7 +438,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    go_to_view_number(view_number, 1)
 
 	    cis_trans_convert(cis_pep_mol, chain_id, resno, ins_code)
-	    pepflip(cis_pep_mol, chain_id, resno, ins_code)
+	    pepflip(cis_pep_mol, chain_id, resno, ins_code, "")
 	    res_type = residue_name(cis_pep_mol, chain_id, resno, ins_code)
 	    self.failUnless(type(res_type) is StringType)
 	    mutate(cis_pep_mol, chain_id, resno, "", "GLY")
@@ -1139,13 +1139,31 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    rna_mol = ideal_nucleic_acid("RNA", "A", 0, "GACUCUAG")
 
-	    sucess = mutate_base(rna_mol, "A", 2, "", "Cr")
-	    self.failUnless(sucess == 1, "  mutation fail!")
+	    success = mutate_base(rna_mol, "A", 2, "", "Cr")
+	    self.failUnless(success == 1, "  mutation fail!")
 	    rn = residue_name(rna_mol, "A", 2, "")
 	    print "  mutated base to type", rn
 	    self.failUnless(rn == "Cr")
 
+
     def test36_0(self):
+	    """DNA bases are the correct residue type after mutation"""
+
+	    def correct_base_type_qm(rna_mol, target_base_type):
+		    success = mutate_base(rna_mol, "A", 2, "", target_base_type)
+		    self.failUnless(success == 1, "  DNA base mutation fail!")
+		    rn = residue_name(rna_mol, "A", 2, "")
+		    print "  mutated base to type", rn
+		    return (rn == target_base_type)
+
+	    # main line
+	    rna_mol = ideal_nucleic_acid("DNA", "A", 0, "GACTCTAG")
+	    res = map(lambda base: correct_base_type_qm(rna_mol, base),
+		      ["Cd", "Gd", "Ad", "Td"])
+	    self.failUnless(all(res))
+	    
+
+    def test37_0(self):
 	    """SegIDs are correct after mutate"""
 
 	    # main line
@@ -1185,7 +1203,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    "wrong seg-id %s should be %s" %(atoms, "A"))
 
 
-    def test37_0(self):
+    def test38_0(self):
 	    """Correct Segid After Add Terminal Residue"""
 
 	    global imol_rnase
@@ -1210,7 +1228,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    "wrong seg-id %s should be %s" %(atoms, "A"))
 
 	    	    
-    def test38_0(self):
+    def test39_0(self):
 	    """Correct Segid after NCS residue range copy"""
 
 	    def convert_residue_seg_ids(imol, chain_id, resno, seg_id):
@@ -1238,9 +1256,54 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		    atoms = residue_info(imol, "A", resno, "")
 		    self.failUnless(atoms_have_correct_seg_id_qm(atoms, "X"),
 				    "wrong seg-id %s should be %s" %(atoms, "X"))
+
 		    
+    def test40_0(self):
+	    """Merge Water Chains"""
+
+	    def create_water_chain(imol, from_chain_id, chain_id, n_waters,
+				   offset, prev_offset):
+		    for n in range(n_waters):
+			    place_typed_atom_at_pointer("Water")
+			    # move the centre of the screen
+			    rc = rotation_centre()
+			    set_rotation_centre(rc[0] + 2., rc[1], rc[2])
+		    change_chain_id(imol, from_chain_id, chain_id, 1,
+				    prev_offset + 1, n_waters + prev_offset)
+		    renumber_residue_range(imol, chain_id, prev_offset + 1,
+					   prev_offset + 5, offset)
+
+	    # main line
+	    imol = unittest_pdb("tutorial-modern.pdb")
+	    # with_no_backup....
+	    turn_off_backup(imol)
+	    set_pointer_atom_molecule(imol)
+
+	    # first create a few chains of waters
+	    create_water_chain(imol, "C", "D", 5, 10,  0)
+	    create_water_chain(imol, "D", "E", 5,  5, 10)
+	    create_water_chain(imol, "D", "F", 5,  2, 15)
+
+	    # OK, we have set up a molecule, now let's test it:
+	    #
+	    merge_solvent_chains(imol)
+	    turn_on_backup(imol)
+
+	    # Test the result:
+	    #
+	    nc = n_chains(imol)
+	    self.failUnless(nc == 3, "  wrong number of chains %s" %nc)
+	    # There should be 15 waters in the last chain
+	    solvent_chain_id = chain_id(imol, 2)
+	    n_res = chain_n_residues(solvent_chain_id, imol)
+	    self.failUnless(n_res == 15, "  wrong number of residues %s" %n_res)
+	    r1  = seqnum_from_serial_number(imol, "D", 0)
+	    r15 = seqnum_from_serial_number(imol, "D", 14)
+	    self.failUnless(r1  == 1,  "  wrong residue number r1 %s"  %r1)
+	    self.failUnless(r15 == 15, "  wrong residue number r15 %s" %r15)
+
 		    
-    def test39_0(self):
+    def test41_0(self):
 	    """LSQ by atom"""
 
 	    global imol_rnase
@@ -1268,8 +1331,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    self.failUnless(bond_length_within_tolerance_qm(c_1, c_2, 0.0, 0.2))
 	    
-    def test39_0(self):
-	    """Hundreds of Ramchadran refinements (post_manipulation_hook_py test)"""
+    def test42_0(self):
+	    """Hundreds of Ramachandran refinements (post_manipulation_hook_py test)"""
 
 	    # doesnt test for anything just crash
 	    global imol_rnase, imol_rnase_map
