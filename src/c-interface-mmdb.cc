@@ -337,7 +337,8 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                     int len_occ_b_ele = PyObject_Length(occ_b_ele);
                                     int len_pos_expr = PyObject_Length(pos_expr);
                                     if (len_name_alt_conf == 2) {
-                                       if (len_occ_b_ele == 3) {
+                                       // the occ_b_ele list can contain an optional segid
+				      if ( (len_occ_b_ele == 3) || (len_occ_b_ele == 4)) {
                                           if (len_pos_expr == 3) {
                                              PyObject *atom_name_python = PyList_GetItem(name_alt_conf_pair, 0);
                                              std::string atom_name = PyString_AsString(atom_name_python);
@@ -346,7 +347,16 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                              PyObject *occ_python = PyList_GetItem(occ_b_ele, 0);
                                              PyObject *b_python = PyList_GetItem(occ_b_ele, 1);
                                              PyObject *ele_python = PyList_GetItem(occ_b_ele, 2);
-                                             float b = PyFloat_AsDouble(b_python);
+					     std::string segid;
+					     bool have_segid = 0;
+					     if (len_occ_b_ele == 4) {
+                                               PyObject *segid_python = PyList_GetItem(occ_b_ele, 3);
+                                               if (PyString_Check(segid_python)) { 
+						 have_segid = 1;
+						 segid = PyString_AsString(segid_python);
+                                               } 
+					     }
+					     float b = PyFloat_AsDouble(b_python);
                                              float occ = PyFloat_AsDouble(occ_python);
                                              std::string ele = PyString_AsString(ele_python);
                                              float x = PyFloat_AsDouble(PyList_GetItem(pos_expr, 0));
@@ -357,7 +367,10 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                              atom->SetAtomName(atom_name.c_str());
                                              atom->SetElementName(ele.c_str());
                                              strncpy(atom->altLoc, alt_conf.c_str(), 2);
+					     if (have_segid)
+						strncpy(atom->segID, segid.c_str(), 4);
                                              residue_p->AddAtom(atom);
+					     
                                              // std::cout << "DEBUG:: adding atom " << atom << std::endl;
                                           } else {
                                              std::cout << "bad atom (position expression) "
