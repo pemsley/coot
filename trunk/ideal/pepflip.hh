@@ -43,9 +43,11 @@ namespace coot {
    // Typically, one would copy one's mol (and save it) before calling
    // this.
    // 
-   int pepflip(CMMDBManager *mol, int resno, 
-	       const std::string &altconf,
-	       const std::string &chain_id);
+   int pepflip(CMMDBManager *mol,
+	       const std::string &chain_id,
+	       int resno, 
+	       const std::string &inscode,
+	       const std::string &altconf);
 
    // You are advised against using this externally.
    // 

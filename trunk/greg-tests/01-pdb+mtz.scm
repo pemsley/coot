@@ -488,6 +488,62 @@
 		 (close-float? occ-sum-pre occ-sum-post))))))))
 
 
+(greg-testcase "Pepflip flips the correct alt confed atoms" #t
+   (lambda () 
+
+     (let ((imol (greg-pdb "alt-conf-pepflip-test.pdb")))
+       (if (not (valid-model-molecule? imol))
+	   (begin
+	     (format #t "   not found greg test pdb alt-conf-pepflip-test.pdb~%")
+	     (throw 'fail)))
+       
+       ;; get the original coords 
+       (let ((c-atom-A-o (get-atom imol "A" 65 "" " C  " "A"))
+	     (o-atom-A-o (get-atom imol "A" 65 "" " O  " "A"))
+	     (n-atom-A-o (get-atom imol "A" 66 "" " N  " "A"))
+	     (c-atom-B-o (get-atom imol "A" 65 "" " C  " "B"))
+	     (o-atom-B-o (get-atom imol "A" 65 "" " O  " "B"))
+	     (n-atom-B-o (get-atom imol "A" 66 "" " N  " "B")))
+	   
+	 (pepflip imol "A" 65 "" "B")
+
+	 ;; get the new coords 
+	 (let ((c-atom-A-n (get-atom imol "A" 65 "" " C  " "A"))
+	       (o-atom-A-n (get-atom imol "A" 65 "" " O  " "A"))
+	       (n-atom-A-n (get-atom imol "A" 66 "" " N  " "A"))
+	       (c-atom-B-n (get-atom imol "A" 65 "" " C  " "B"))
+	       (o-atom-B-n (get-atom imol "A" 65 "" " O  " "B"))
+	       (n-atom-B-n (get-atom imol "A" 66 "" " N  " "B")))
+
+	   ;; now, the *A-n atoms should match the position of the
+	   ;; *A-o atoms: 
+
+	   (let ((b1 (bond-length-from-atoms c-atom-A-o c-atom-A-n))
+		 (b2 (bond-length-from-atoms o-atom-A-o o-atom-A-n))
+		 (b3 (bond-length-from-atoms n-atom-A-o n-atom-A-n))
+		 (b4 (bond-length-from-atoms c-atom-B-o c-atom-B-n))
+		 (b5 (bond-length-from-atoms o-atom-B-o o-atom-B-n))
+		 (b6 (bond-length-from-atoms n-atom-B-o n-atom-B-n)))
+
+	     (if (not (and (< b1 0.001)
+			   (< b2 0.001)
+			   (< b3 0.001)))
+		 (begin
+		   (format #t "   bad! A conf moved ~s ~s ~s~%" b1 b2 b3)
+		   (throw 'fail)))
+	     
+	     (if (not (and (> b4 0.8)
+			   (> b5 2.0)
+			   (> b6 0.5)))
+		 (begin
+		   (format #t "   bad! B conf moved too little ~s ~s ~s~%" b3 b4 b5)
+		   (throw 'fail)))
+
+	     #t ;; success then
+
+	     ))))))
+
+
 
 ;; This test we expect to fail until the CISPEP correction code is in
 ;; place (using mmdb-1.10+).
@@ -526,7 +582,7 @@
 	    (go-to-view-number view-number 1))
 
 	  (cis-trans-convert cis-pep-mol chain-id resno ins-code)
-	  (pepflip cis-pep-mol chain-id resno ins-code) 
+	  (pepflip cis-pep-mol chain-id resno ins-code "")
 	  (let ((res-type (residue-name cis-pep-mol chain-id resno ins-code)))
 	    (if (not (string? res-type))
 		(throw 'fail)
@@ -566,10 +622,10 @@
 	   (imol-map (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)))
 
        (set-imol-refinement-map imol-map)
-       (let ((at-1 (get-atom imol "B" 72 " SG " "B")))
+       (let ((at-1 (get-atom imol "B" 72 "" " SG " "B")))
 	 (with-auto-accept
 	  (refine-zone imol "B" 72 72 "B"))
-	 (let ((at-2 (get-atom imol "B" 72 " SG " "B")))
+	 (let ((at-2 (get-atom imol "B" 72 "" " SG " "B")))
 	   (let ((d (bond-length-from-atoms at-1 at-2)))
 	     ;; the atom should move in refinement
 	     (format #t "   refined moved: d=~s~%" d)
@@ -952,8 +1008,8 @@
 	     (format #t "file not found: ~s~%" carbo)
 	     #f)
 	   
-	   (let ((atom-1 (get-atom imol "A" 1 " O4 "))
-		 (atom-2 (get-atom imol "A" 2 " C1 ")))
+	   (let ((atom-1 (get-atom imol "A" 1 "" " O4 "))
+		 (atom-2 (get-atom imol "A" 2 "" " C1 ")))
 	     
 	     (format #t "bond-length: ~s: ~%"
 		     (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
@@ -964,8 +1020,8 @@
 		(regularize-zone imol "A" 1 2 ""))
 	       (set-dragged-refinement-steps-per-frame s))
 
-	     (let ((atom-1 (get-atom imol "A" 1 " O4 "))
-		   (atom-2 (get-atom imol "A" 2 " C1 ")))
+	     (let ((atom-1 (get-atom imol "A" 1 "" " O4 "))
+		   (atom-2 (get-atom imol "A" 2 "" " C1 ")))
 
 	       (format #t "bond-length: ~s: ~%"
 		       (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
@@ -990,8 +1046,8 @@
        (apply-undo)
        (with-auto-accept (regularize-zone imol "A" 1 1 ""))
        
-       (let ((atom-1 (get-atom imol "A" 1 "HG11"))
-	     (atom-2 (get-atom imol "A" 1 " CG1")))
+       (let ((atom-1 (get-atom imol "A" 1 "" "HG11"))
+	     (atom-2 (get-atom imol "A" 1 "" " CG1")))
 
 	 (if (bond-length-within-tolerance? atom-1 atom-2 0.96 0.02)
 	     #t
@@ -1027,8 +1083,8 @@
 	 (all-true?
 	  (map
 	   (lambda (pair)
-	     (let ((atom-1 (get-atom imol "B" 6 (car pair)))
-		   (atom-2 (get-atom imol "B" 6 (cdr pair))))
+	     (let ((atom-1 (get-atom imol "B" 6 "" (car pair)))
+		   (atom-2 (get-atom imol "B" 6 "" (cdr pair))))
 	       (if (bond-length-within-tolerance? atom-1 atom-2 0.96 0.02)
 		   #t 
 		   (begin
@@ -1057,8 +1113,8 @@
 	   (with-auto-accept
 	    (refine-zone imol "A" 30 30 ""))
 	   
-	   (let ((atom-1 (get-atom imol "A" 30 " CB "))
-		 (atom-2 (get-atom imol "A" 30 " CG ")))
+	   (let ((atom-1 (get-atom imol "A" 30 "" " CB "))
+		 (atom-2 (get-atom imol "A" 30 "" " CG ")))
 	     
 	     (format #t "   Bond-length: ~s: ~%"
 		     (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
@@ -1074,8 +1130,8 @@
 		   (with-auto-accept
 		    (refine-zone imol "A" 30 30 ""))
 		 
-		   (let ((atom-1 (get-atom imol "A" 30 " CB "))
-			 (atom-2 (get-atom imol "A" 30 " CG ")))
+		   (let ((atom-1 (get-atom imol "A" 30 "" " CB "))
+			 (atom-2 (get-atom imol "A" 30 "" " CG ")))
 
 		     (let ((post-set-plane-restraints (assoc-ref (monomer-restraints "TYR")
 								 "_chem_comp_plane_atom")))
@@ -1676,8 +1732,8 @@
 		 (format #t "Bad match~%")
 		 (throw 'fail)))
 	   
-	   (let* ((c-1 (get-atom imol-1 "A" 35 " C  "))
-		  (c-2 (get-atom imol-2 "B" 35 " C  "))
+	   (let* ((c-1 (get-atom imol-1 "A" 35 "" " C  "))
+		  (c-2 (get-atom imol-2 "B" 35 "" " C  "))
 		  (b (bond-length-from-atoms c-1 c-2)))
 	     
 	     (bond-length-within-tolerance? c-1 c-2 0.0 0.2)))))))

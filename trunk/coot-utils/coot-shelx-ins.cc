@@ -882,7 +882,7 @@ coot::shelx_card_info_t::strip_post_bang() {
 
    if (bang_index() != -1) {
       std::vector<std::string> new_words;
-      for (int i=0; i<words.size(); i++) { 
+      for (unsigned int i=0; i<words.size(); i++) { 
 	 if (words[i][0] == '!') {
 	    words = new_words;
 	    break;
@@ -899,7 +899,7 @@ int
 coot::shelx_card_info_t::bang_index() const {
 
    int index = -1; // no bang
-   for (int i=0; i<words.size(); i++) { 
+   for (unsigned int i=0; i<words.size(); i++) { 
       if (words[i][0] == '!') {
 	 index = i;
 	 break;
@@ -2047,7 +2047,6 @@ coot::reshelx(CMMDBManager *mol) {
    bool made_afix_transfer_message = 0;
    
    int udd_afix_handle = mol->GetUDDHandle(UDR_ATOM, "shelx afix");
-   int udd_afix_handle_shelx = shelx_mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
    
    // run over chains of the existing mol
    CModel *model_p = mol->GetModel(imod);
@@ -2059,7 +2058,6 @@ coot::reshelx(CMMDBManager *mol) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       PCResidue residue_p;
-      CAtom *at;
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
 	 CResidue *copy_residue_p = coot::util::deep_copy_this_residue(residue_p, "", 1);

@@ -1,8 +1,3 @@
-   o fix-nomenclature-errors added to GUI ::: 1
-
-   o Ingo K.: try to pepflip a peptide with alt conf "B" - it flips
-     the "A" version.  ::: 1
-
    o Ingo K.: Ctrl left-mouse dragging sometimes does not work for alt
      conf fragment residue range.
 
@@ -942,3 +937,13 @@ Elsewhere:
      DEBUG:: on ok button pressed, active index 0
 
 * Done - callbacks.c
+
+   o fix-nomenclature-errors added to GUI ::: 1
+
+* Done.
+
+
+   o Ingo K.: try to pepflip a peptide with alt conf "B" - it flips
+     the "A" version.  ::: 1
+
+* Done.  Big rewrite of pepflip and small rewrite of get-atom.

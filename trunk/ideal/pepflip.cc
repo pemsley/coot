@@ -20,6 +20,7 @@
  */
 
 #include <string>
+#include "coot-coord-utils.hh"
 #include "pepflip.hh"
 
 // mmdb-style interface
@@ -32,13 +33,13 @@
 // Return status is 0 if the flip did not happen (because, for
 // example, either or both of the Ca's could not be found).
 //
-// Typically, one would copy one's mol (and save it) before calling
-// this.
-// 
+// mol is manipulated.
 int
-coot::pepflip(CMMDBManager *mol, int resno, 
-	      const std::string &altconf,
-	      const std::string &chain_id) {
+coot::pepflip(CMMDBManager *mol,
+	      const std::string &chain_id,
+	      int resno, 
+	      const std::string &ins_code, 
+	      const std::string &altconf) {
 
    // We need to find the 2 Ca's.  If we do not we return 0.
    //
@@ -53,158 +54,78 @@ coot::pepflip(CMMDBManager *mol, int resno,
    // 
    // The RTop around the vector...?
    //
+   int status = 0; // fail initially
 
-
-   // So, let's get the Ca's:
-   //
-   int SelHnd_ca1 = mol->NewSelection();
-   int SelHnd_ca2 = mol->NewSelection();
-   PPCAtom SelAtom_ca1;
-   PPCAtom SelAtom_ca2;
-   int nSelAtoms_ca1;
-   int nSelAtoms_ca2;
-   short int found_ca = 0;
-   int status = 0;
-   std::string altloc_composite;
-   altloc_composite = "[" ;
-   altloc_composite += altconf;
-   altloc_composite += "";
-   altloc_composite += "]";
-   
-
-   mol->SelectAtoms(SelHnd_ca1,
-		    0,
-		    (char *) chain_id.c_str(),
-		    resno, "*",
-		    resno, "*",
-		    "*", // rnames
-		    " CA ",
-		    "*", // elements
-		    "*"
-		    );
-   
-   mol->GetSelIndex(SelHnd_ca1, SelAtom_ca1, nSelAtoms_ca1);
-
-   mol->SelectAtoms(SelHnd_ca2,
-		    0,
-		    (char *)chain_id.c_str(),
-		    resno+1, "*",
-		    resno+1, "*",
-		    "*", // rnames
-		    " CA ",
-		    "*", // elements
-		    "*" // altconf
-		    );
-   
-   mol->GetSelIndex(SelHnd_ca1, SelAtom_ca1, nSelAtoms_ca1);
-   mol->GetSelIndex(SelHnd_ca2, SelAtom_ca2, nSelAtoms_ca2);
-
-   if (nSelAtoms_ca1 > 0)
-      if (nSelAtoms_ca2 > 0) 
-	 found_ca = 1;
-      
-
-   if (!found_ca) {
-      std::cout << "WARNING: Failed pepflip: failed to find CA atoms for some reason."
-		<< " Sorry\n";
-      return 0;
-   } else { 
-      // std::cout << "DEBUG:: found CAs\n";
-   } 
-
-   std::vector<clipper::Coord_orth> ca(2);
-   ca[0] = clipper::Coord_orth(SelAtom_ca1[0]->x,
-			       SelAtom_ca1[0]->y,
-			       SelAtom_ca1[0]->z);
-   ca[1] = clipper::Coord_orth(SelAtom_ca2[0]->x,
-			       SelAtom_ca2[0]->y,
-			       SelAtom_ca2[0]->z);
-
-   std::cout << "   CA 0 " << ca[0].format() << std::endl;
-   std::cout << "   CA 1 " << ca[1].format() << std::endl;
-
-   mol->DeleteSelection(SelHnd_ca1);
-   mol->DeleteSelection(SelHnd_ca2);
-
-   // Now the other atoms:
-
-   
+   std::vector<const char *> second_atoms;
    std::vector<const char *> first_atoms(2);
-   std::vector<int> selHnd_first(2);
-   std::vector<PPCAtom> SelAtom_first(2);
-   std::vector<int> nSelAtoms_first(2);
-   PPCAtom  SelAtom_second = NULL;
-   int nSelAtoms_second;
-
    first_atoms[0] = " C  ";
    first_atoms[1] = " O  ";
-   
-   std::vector<const char *> second_atoms;
    second_atoms.push_back(" N  ");
    second_atoms.push_back(" H  ");
-   
-   for (int iat=0; iat<2; iat++) { 
-      SelAtom_first[iat] = NULL;
-      selHnd_first[iat] = mol->NewSelection();
-      mol->SelectAtoms(selHnd_first[iat],
-		       0,
-		       chain_id.c_str(),
-		       resno, "*",
-		       resno, "*",
-		       "*", // rnames
-		       first_atoms[iat],
-		       "*", // elements
-		       "*" // altLocs 
-		       );
-      mol->GetSelIndex(selHnd_first[iat], SelAtom_first[iat], nSelAtoms_first[iat]);
-      if (nSelAtoms_first[iat] > 0) { 
-	 CAtom *flipped_atom = SelAtom_first[iat][0];
-// 	 std::cout << " start coords for iat: " << iat << " "
-// 		   << flipped_atom[0]->x << " " 
-// 		   << flipped_atom[0]->y << " " 
-// 		   << flipped_atom[0]->z << " " 
-// 		   << std::endl;
-	 std::vector<CAtom *> flipped_as_vec;
-	 flipped_as_vec.push_back(flipped_atom);
-	 std::vector<clipper::Coord_orth> c = flip_internal(ca, flipped_as_vec);
-	 SelAtom_first[iat][0]->x = c[0].x();
-	 SelAtom_first[iat][0]->y = c[0].y();
-	 SelAtom_first[iat][0]->z = c[0].z();
-	 status = 1;
-      }
-      mol->DeleteSelection(selHnd_first[iat]);
-   }
 
-   for (int iat=0; iat<2; iat++) { 
-      int SelHnd_second  = mol->NewSelection();
-      mol->SelectAtoms(SelHnd_second,
-		       0,
-		       chain_id.c_str(),
-		       resno+1, "*",
-		       resno+1, "*",
-		       "*", // rnames
-		       second_atoms[iat],
-		       "*", // elements
-		       "*" // altLocs 
-		       );
-      mol->GetSelIndex(SelHnd_second, SelAtom_second, nSelAtoms_second);
-      // std::cout << "debug:: " << second_atoms[iat] << " " << nSelAtoms_second << std::endl;
-      if (nSelAtoms_second > 0) { 
-	 CAtom *flipped_atom = SelAtom_second[0];
-// 	 std::cout << " start coords for second "
-// 		   << flipped_atom << " " 
-// 		   << flipped_atom->x << " " 
-// 		   << flipped_atom->y << " " 
-// 		   << flipped_atom->z << " " 
-// 		   << std::endl;
-	 std::vector<CAtom *> flipped_as_vec;
-	 flipped_as_vec.push_back(flipped_atom);
-	 std::vector<clipper::Coord_orth> c = flip_internal(ca, flipped_as_vec);
-	 SelAtom_second[0]->x = c[0].x();
-	 SelAtom_second[0]->y = c[0].y();
-	 SelAtom_second[0]->z = c[0].z();
+   CAtom *ca1 = NULL;
+   CAtom *ca2 = NULL;
+
+   CResidue *first_res = coot::util::get_residue(resno, ins_code, chain_id, mol);
+   std::vector<CAtom *> flipping_atoms;
+   if (first_res) {
+      coot::residue_spec_t rs(first_res);
+      CResidue *second_res = coot::util::get_following_residue(rs, mol);
+      if (second_res) {
+	 PCAtom *first_residue_atoms = NULL;
+	 PCAtom *second_residue_atoms = NULL;
+	 int n_first_residue_atoms; 
+	 int n_second_residue_atoms;
+	 first_res->GetAtomTable(first_residue_atoms, n_first_residue_atoms);
+	 second_res->GetAtomTable(second_residue_atoms, n_second_residue_atoms);
+	 for (unsigned int iat=0; iat<n_first_residue_atoms; iat++) {
+	    std::string atom_name(first_residue_atoms[iat]->name);
+	    std::string alt_conf_atom(first_residue_atoms[iat]->altLoc);
+	    if (alt_conf_atom == altconf || alt_conf_atom == "") {
+	       if (atom_name == " CA " ) {
+		  ca1 = first_residue_atoms[iat];
+	       }
+	       for (unsigned int i=0; i<first_atoms.size(); i++) {
+		  if (atom_name == first_atoms[i]) {
+		     flipping_atoms.push_back(first_residue_atoms[iat]);
+		  } 
+	       }
+	    } 
+	 }
+	 for (unsigned int iat=0; iat<n_second_residue_atoms; iat++) {
+	    std::string atom_name(second_residue_atoms[iat]->name);
+	    std::string alt_conf_atom(second_residue_atoms[iat]->altLoc);
+	    if (alt_conf_atom == altconf || alt_conf_atom == "") {
+	       if (atom_name == " CA " ) {
+		  ca2 = second_residue_atoms[iat];
+	       }
+	       for (unsigned int i=0; i<second_atoms.size(); i++) {
+		  if (atom_name == second_atoms[i]) {
+		     flipping_atoms.push_back(second_residue_atoms[iat]);
+		  } 
+	       }
+	    }
+	 }
+	 if (! ca1) {
+	    std::cout << "WARNING:: No first CA atom found" << std::endl;
+	 } else { 
+	    if (! ca2) {
+	       std::cout << "WARNING:: No second CA atom found" << std::endl;
+	    } else {
+	       status = 1;
+	       std::vector<clipper::Coord_orth> cas(2);
+	       cas[0] = clipper::Coord_orth(ca1->x, ca1->y, ca1->z);
+	       cas[1] = clipper::Coord_orth(ca2->x, ca2->y, ca2->z);
+	       std::vector<clipper::Coord_orth> v = 
+		  flip_internal(cas, flipping_atoms);
+	       for (unsigned int i=0; i<v.size(); i++) {
+		  flipping_atoms[i]->x = v[i].x();
+		  flipping_atoms[i]->y = v[i].y();
+		  flipping_atoms[i]->z = v[i].z();
+	       } 
+	    } 
+	 } 
       }
-      mol->DeleteSelection(SelHnd_second);
    }
 
    return status; // 1 success, 0 failure

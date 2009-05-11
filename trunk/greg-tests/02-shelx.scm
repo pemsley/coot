@@ -202,8 +202,8 @@
      (let ((imol (greg-pdb "horma-p21.res")))
        (write-shelx-ins-file imol "new-horma.ins")
        (let ((imol-2 (read-pdb "new-horma.ins")))
-	 (let ((at-1 (get-atom imol   "A" 4 " N1 "))
-	       (at-2 (get-atom imol-2 "A" 4 " N1 ")))
+	 (let ((at-1 (get-atom imol   "A" 4 "" " N1 "))
+	       (at-2 (get-atom imol-2 "A" 4 "" " N1 ")))
 	   (let ((b-1 (aniso-b-from-atom at-1))
 		 (b-2 (aniso-b-from-atom at-2)))
 	     

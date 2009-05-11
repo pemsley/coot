@@ -3792,7 +3792,8 @@ int n_dots_sets(int imol);
 void do_pepflip(short int state); /* sets up pepflip, ready for atom pick. */
 /*! \brief pepflip the given residue */
 /* the residue with CO, for scripting interface. */
-void pepflip(int imol, const char *chain_id, int resno, const char *inscode); 
+void pepflip(int imol, const char *chain_id, int resno, const char *inscode, 
+	     const char *altconf); 
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

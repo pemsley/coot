@@ -193,7 +193,6 @@
     (cond
      ((null? molecule-list) (reverse map-list))
      ((valid-map-molecule? (car molecule-list))
-      (format #t "debug:: ~s is a valid map~%" (car molecule-list))
       (loop (cdr molecule-list)
 	    (cons (car molecule-list) map-list)))
      (else 
@@ -639,8 +638,9 @@
 
 ;; Return an atom info or #f (if atom not found).
 ;;
-(define (get-atom imol chain-id resno atom-name . alt-conf)
+(define (get-atom imol chain-id resno ins-code atom-name . alt-conf)
   
+
   (define (get-atom-from-res atom-name residue-atoms alt-conf)
     (let loop ((residue-atoms residue-atoms))
       (cond 
@@ -650,6 +650,10 @@
 	(car residue-atoms))
        (else 
 	(loop (cdr residue-atoms))))))
+
+  ;; main line
+  ;; 
+  ;; (format #t "DEBUG::  get-atom is passed imol ~s: chain-id: ~s  resno: ~s  atom-name: ~s alt-conf: ~s ~%" imol chain-id resno atom-name alt-conf)
 
   (let ((res-info (residue-info imol chain-id resno ""))
 	(alt-conf-internal (if (null? alt-conf)
