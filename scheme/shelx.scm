@@ -583,7 +583,6 @@
 	       (if (file-exists? res-file-name)
 		   (begin
 		     (format #t "Read res file ~s~%" res-file-name)
-;		     (read-shelx-ins-file res-file-name))
 		     (handle-read-draw-molecule-with-recentre res-file-name 0))
 		   (begin
 		     (format #t "   No res file ~s~%" res-file-name)

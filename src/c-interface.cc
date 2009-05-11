@@ -416,7 +416,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
       // We'd like the fixing of hydrogen names in this
       // read_shelx_ins_file path too.
       
-      r = read_shelx_ins_file(filename);
+      r = read_shelx_ins_file(filename, recentre_on_read_pdb_flag);
 
    } else { 
       // recentre and not a backup-restore

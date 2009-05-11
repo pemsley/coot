@@ -3109,7 +3109,7 @@ void import_all_refmac_cifs();
 /*! \name SHELXL Functions */
 /* \{ */
 /*! \brief read a SHELXL .ins file */
-int read_shelx_ins_file(const char *filename);
+int read_shelx_ins_file(const char *filename, short int recentre_flag);
 /*! \brief write a SHELXL .ins file for molecule number imol */
 int write_shelx_ins_file(int imol, const char *filename);
 /* for shelx fcf file that needs to be filtered: */
