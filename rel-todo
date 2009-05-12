@@ -1,7 +1,8 @@
-   o Ingo K.: Ctrl left-mouse dragging sometimes does not work for alt
-     conf fragment residue range.
 
-   o Tim Grune: When you add a terminal residue to a .ins molecule,
+   40 items
+
+
+   o Tim Gruene: When you add a terminal residue to a .ins molecule,
      then the main chain atoms have occupancy 1.0.  ::: 1
 
    o Refining a GLC gives:

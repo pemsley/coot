@@ -102,35 +102,77 @@
 				 (lambda (imol)
 				   (fill-partial-residues imol)))))
 
+
+; old style - not interruptable.
+;
+; 	(add-simple-coot-menu-menuitem
+; 	 submenu-all-molecule "[Post MR] Fit Protein..."
+; 	 (lambda ()
+; 	   (molecule-chooser-gui "Fit Protein using Rotamer Search"
+; 				 (lambda (imol)
+; 				   (if (not (= (imol-refinement-map) -1))
+; 				       (fit-protein imol)
+; 				       (let ((s "oops.  Must set a map to fit"))
+; 					 (add-status-bar-text s)))))))
+
+; 	(add-simple-coot-menu-menuitem 
+; 	 submenu-all-molecule "[Post MR] Stepped Refine..." 
+; 	 (lambda ()
+; 	   (molecule-chooser-gui "Stepped Refine: " 
+; 				 (lambda (imol) 
+; 				   (if (not (= (imol-refinement-map) -1))
+; 				       (stepped-refine-protein imol)
+; 				       (let ((s  "oops.  Must set a map to fit"))
+; 					 (add-status-bar-text s)))))))
+
+; 	(add-simple-coot-menu-menuitem 
+; 	 submenu-all-molecule "Refine/Improve Ramachandran Plot..." 
+; 	 (lambda ()
+; 	   (molecule-chooser-gui "Refine Protein with Ramachandran Plot Optimization: "
+; 				 (lambda (imol) 
+; 				   (if (not (= (imol-refinement-map) -1))
+; 				       (stepped-refine-protein-for-rama imol)
+; 				       (let ((s  "oops.  Must set a map to fit"))
+; 					 (add-status-bar-text s)))))))
+
+
 	(add-simple-coot-menu-menuitem
-	 submenu-all-molecule "[Post MR] Fit Protein..."
+	 submenu-all-molecule "New Fit Protein..." 
 	 (lambda ()
 	   (molecule-chooser-gui "Fit Protein using Rotamer Search"
 				 (lambda (imol)
 				   (if (not (= (imol-refinement-map) -1))
-				       (fit-protein imol)
+				       (begin
+					 (set! *continue-multi-refine* #t)
+					 (interruptible-fit-protein imol fit-protein-fit-function))
 				       (let ((s "oops.  Must set a map to fit"))
 					 (add-status-bar-text s)))))))
 
-	(add-simple-coot-menu-menuitem 
-	 submenu-all-molecule "[Post MR] Stepped Refine..." 
+	(add-simple-coot-menu-menuitem
+	 submenu-all-molecule "New Stepped Refine..." 
 	 (lambda ()
-	   (molecule-chooser-gui "Stepped Refine: " 
-				 (lambda (imol) 
+	   (molecule-chooser-gui "Fit Protein using Rotamer Search"
+				 (lambda (imol)
 				   (if (not (= (imol-refinement-map) -1))
-				       (stepped-refine-protein imol)
-				       (let ((s  "oops.  Must set a map to fit"))
+				       (begin
+					 (set! *continue-multi-refine* #t)
+					 (interruptible-fit-protein imol fit-protein-stepped-refine-function))
+				       (let ((s "oops.  Must set a map to fit"))
 					 (add-status-bar-text s)))))))
 
-	(add-simple-coot-menu-menuitem 
-	 submenu-all-molecule "Refine/Improve Ramachandran Plot..." 
+	(add-simple-coot-menu-menuitem
+	 submenu-all-molecule "New Refine/Improve Ramachandran Plot..."
 	 (lambda ()
-	   (molecule-chooser-gui "Refine Protein with Ramachanran Plot Optimization: "
-				 (lambda (imol) 
+	   (molecule-chooser-gui "Refine Protein with Ramachandran Plot Optimization: "
+				 (lambda (imol)
 				   (if (not (= (imol-refinement-map) -1))
-				       (stepped-refine-protein-for-rama imol)
-				       (let ((s  "oops.  Must set a map to fit"))
+				       (begin
+					 (set! *continue-multi-refine* #t)
+					 (interruptible-fit-protein imol fit-protein-rama-fit-function))
+				       (let ((s "oops.  Must set a map to fit"))
 					 (add-status-bar-text s)))))))
+
+	
 
 
 	;; ---------------------------------------------------------------------

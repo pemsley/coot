@@ -346,6 +346,12 @@
     o EJD: I want the Ramachandran plot to be marked up if the atoms
       have zero occupancy.
 
+
+   o Ingo K.: Ctrl left-mouse dragging sometimes does not work for alt
+     conf fragment residue.  Can't reproduce.  Punt.  Needs checking
+     with Ingo.  (He means refinement?)
+
+
  0.7 Priorities:
 
    o Rotate/Translate on dsDNA (for example)

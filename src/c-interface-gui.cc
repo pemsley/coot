@@ -5244,3 +5244,78 @@ void set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
    graphics_info_t g;
    g.set_sequence_view_is_displayed(widget, imol);
 }
+
+/*  ----------------------------------------------------------------------- */
+/* Multirefine interface (because in guile-gtk there is no way to
+		    insert toolbuttons into the toolbar) so this
+		    rather kludgy interface.  It should go when we
+		    move to guile-gnome, I think. */
+/*  ----------------------------------------------------------------------- */
+void toolbar_multi_refine_stop() {
+
+#if (GTK_MAJOR_VERSION > 1)
+
+#ifdef USE_GUILE
+
+   // the idle function looks at this value
+   std::string s = "(set! *continue-multi-refine* #f)";
+   safe_scheme_command(s.c_str());
+   set_visible_toolbar_multi_refine_continue_button(1);
+   
+#endif // USE_GUILE   
+
+
+#endif    
+
+} 
+
+
+void toolbar_multi_refine_continue() {
+
+#if (GTK_MAJOR_VERSION > 1)
+
+#ifdef USE_GUILE
+
+   std::string s = "(set! *continue-multi-refine* #t)";
+   safe_scheme_command(s.c_str());
+   s = "(gtk-idle-add *multi-refine-idle-proc*)";
+   safe_scheme_command(s.c_str());
+   
+#endif // USE_GUILE   
+
+
+
+#endif   
+
+} 
+
+
+void set_visible_toolbar_multi_refine_stop_button(short int state) {
+
+   graphics_info_t g;
+   if (graphics_info_t::use_graphics_interface_flag) {
+      GtkWidget *w = lookup_widget(g.glarea, "toolbar_multi_refine_stop_button");
+      if (w) {
+	 if (state) { 
+	    gtk_widget_show(w);
+	 } else { 
+	    gtk_widget_hide(w);
+	 } 
+      } 
+   }
+}
+
+void set_visible_toolbar_multi_refine_continue_button(short int state) {
+
+   graphics_info_t g;
+   if (graphics_info_t::use_graphics_interface_flag) {
+      GtkWidget *w = lookup_widget(g.glarea, "toolbar_multi_refine_continue_button");
+      if (w) {
+	 if (state) {
+	    gtk_widget_show(w);
+	 } else { 
+	    gtk_widget_hide(w);
+	 } 
+      } 
+   }
+} 

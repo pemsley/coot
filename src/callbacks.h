@@ -4077,6 +4077,17 @@ void
 on_coot_references_others_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
                                         gpointer         user_data);
+
+void
+on_toolbar_multi_refine_continue_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_toolbar_multi_refine_stop_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
 #endif /* GTK_MAJOR_VERSION */
 
 void

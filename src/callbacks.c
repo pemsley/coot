@@ -11423,3 +11423,22 @@ on_symmetry_controller_dialog_destroy  (GtkObject       *object,
   set_symmetry_controller_dialog_widget(0);
 }
 
+
+void
+on_toolbar_multi_refine_continue_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  toolbar_multi_refine_continue();
+}
+
+
+void
+on_toolbar_multi_refine_stop_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  toolbar_multi_refine_stop();
+}
+
+  
