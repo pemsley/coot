@@ -28,6 +28,9 @@
 ;; are already resonably well-fitted.  So residues with alternate
 ;; conformations undergo only real space refinement.
 ;; 
+;; This is simple-minded and outdated now we have the interruptible
+;; version (below).
+;; 
 (define (fit-protein imol)
 
   (set-go-to-atom-molecule imol)
@@ -76,6 +79,144 @@
 	      (set-refinement-immediate-replacement 0))
 	  (if (= backup-mode 1)
 	      (turn-on-backup imol))))))
+
+
+;; 20090517: thinking about making the fit-protein function
+;; interuptable with a toolbar button press.  How do we do that? 
+;; fit-protein needs to be split into 2 parts, one, that generates a
+;; list of residues specs the other that does a refinement given a
+;; residue spec, then we run and idle function that calls
+;; fit-residue-by-spec or each spec in turn and at the end return
+
+
+;; These 2 variables are used by multi-refine function(s), called by
+;; idle functions to refine just one residue.
+;; 
+(define *continue-multi-refine* #f)
+(define *multi-refine-spec-list* '())
+(define *multi-refine-idle-proc* #f)
+
+;; Return a list of residue specs
+;;
+;; chain-specifier can be a string, where it is the chain of interest.
+;; or 'all-chains, where all chains are chosen.
+;; 
+(define (fit-protein-make-specs imol chain-specifier)
+  (if (not (valid-model-molecule? imol))
+      '()
+
+      (let ((chain-list (cond
+			 ((eq? chain-specifier 'all-chains) (chain-ids imol))
+			 ((string? chain-specifier) (list chain-specifier))
+			 (else 
+			  '())))) ;; return null list - incomprehensible
+	(if (not (null? chain-list))
+	    (let loop ((chain-list chain-list)
+		       (serial-number-list (range (chain-n-residues (car chain-list) imol)))
+		       (spec-list '()))
+	      (cond 
+	       ((null? chain-list) (reverse spec-list))
+	       ((null? serial-number-list)
+		(loop (cdr chain-list) 
+		      (range (chain-n-residues (car chain-list) imol))
+		      spec-list))
+	       (else 
+		(format #t " seqnum from ~s ~s ~s~%" imol (car chain-list) (car serial-number-list))
+		(let ((res-no   (seqnum-from-serial-number         imol (car chain-list) (car serial-number-list)))
+		      (ins-code (insertion-code-from-serial-number imol (car chain-list) (car serial-number-list))))
+		  
+		  (loop chain-list (cdr serial-number-list)
+			(cons (list imol (car chain-list) res-no ins-code) spec-list))))))))))
+
+    
+(define (fit-protein-fit-function res-spec imol-map)
+  (let ((imol     (list-ref res-spec 0))
+	(chain-id (list-ref res-spec 1))
+	(res-no   (list-ref res-spec 2))
+	(ins-code (list-ref res-spec 3)))
+    (map (lambda (alt-conf) 
+	   (with-auto-accept
+	    (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+	    (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+	    (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
+	    (if (string=? alt-conf "")
+		(auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol 
+				       imol-map 1 0.1))
+	    (if (>= imol-map 0)
+		(begin
+		  ;; (refine-auto-range imol chain-id res-no "")
+		  (refine-zone imol chain-id res-no res-no alt-conf)
+		  (accept-regularizement)))
+	    (rotate-y-scene 10 0.3)))
+	 (residue-alt-confs imol chain-id res-no ins-code))))
+
+
+(define (fit-protein-stepped-refine-function res-spec imol-map)
+  (let ((imol     (list-ref res-spec 0))
+	(chain-id (list-ref res-spec 1))
+	(res-no   (list-ref res-spec 2))
+	(ins-code (list-ref res-spec 3)))
+    (let ((current-steps/frame (dragged-refinement-steps-per-frame))
+	  (current-rama-state (refine-ramachandran-angles-state)))
+      (map (lambda (alt-conf)
+	     (with-auto-accept
+	      (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+	      (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+	      (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
+	      (refine-auto-range imol chain-id res-no alt-conf)
+	      (accept-regularizement)
+	      (rotate-y-scene 10 0.3)))
+	   (residue-alt-confs imol chain-id res-no ins-code)))))
+    
+
+(define (fit-protein-rama-fit-function res-spec imol-map)
+  (let ((imol     (list-ref res-spec 0))
+	(chain-id (list-ref res-spec 1))
+	(res-no   (list-ref res-spec 2))
+	(ins-code (list-ref res-spec 3)))
+    (let ((current-steps/frame (dragged-refinement-steps-per-frame))
+	  (current-rama-state (refine-ramachandran-angles-state)))
+      (map (lambda (alt-conf)
+	     (set-refine-ramachandran-angles 1)
+	     (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+	     (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+	     (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
+	     (with-auto-accept
+	      (refine-auto-range imol chain-id res-no alt-conf)
+	      (accept-regularizement)
+	      (rotate-y-scene 10 0.3)))
+	   (residue-alt-confs imol chain-id res-no ins-code))
+      (set-refine-ramachandran-angles current-rama-state)
+      (set-dragged-refinement-steps-per-frame current-steps/frame))))
+
+    
+
+;; func is a refinement function that takes 2 args, one a residue
+;; spec, the other the imol-refinement-map.  e.g. fit-protein-fit-function
+;; 
+(define (interruptible-fit-protein imol func)
+
+  (let ((specs (fit-protein-make-specs imol 'all-chains)))
+    (if (not (null? specs))
+	(begin
+	  (set-visible-toolbar-multi-refine-stop-button 1)
+	  (set! *multi-refine-spec-list* specs)
+	  (let ((idle-func 
+		 (lambda ()
+		   (if (null? *multi-refine-spec-list*)
+		       (begin
+			 (set-visible-toolbar-multi-refine-stop-button 0)
+			 (set-visible-toolbar-multi-refine-continue-button 0)
+			 #f)
+		       (if *continue-multi-refine*
+			   (let ((imol-map (imol-refinement-map)))
+			     (func (car *multi-refine-spec-list*) imol-map)
+			     (set! *multi-refine-spec-list* (cdr *multi-refine-spec-list*))
+			     #t)
+			   #f)))))
+	    (gtk-idle-add idle-func)
+	    (set! *multi-refine-idle-proc* idle-func))))))
+
 
 ;; For each residue in chain chain-id of molecule number imol, do a
 ;; rotamer fit and real space refinement of each residue.  Don't

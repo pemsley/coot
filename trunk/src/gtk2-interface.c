@@ -247,6 +247,18 @@ create_window1 (void)
   GtkWidget *tmp_image;
   GtkWidget *reset_view_toolbutton;
   GtkWidget *display_manager_toolbutton;
+  GtkWidget *toolitem30;
+  GtkWidget *hbox398;
+  GtkWidget *toolbar_multi_refine_stop_button;
+  GtkWidget *alignment137;
+  GtkWidget *hbox400;
+  GtkWidget *image6814;
+  GtkWidget *label726;
+  GtkWidget *toolbar_multi_refine_continue_button;
+  GtkWidget *alignment136;
+  GtkWidget *hbox399;
+  GtkWidget *image6813;
+  GtkWidget *label725;
   GtkWidget *accept_reject_dialog_frame_docked;
   GtkWidget *hbox274;
   GtkWidget *frame185;
@@ -1204,6 +1216,54 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (display_manager_toolbutton), tooltips, _("Display the dialog for displaying and undisplaying molecules and changing their representation"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (display_manager_toolbutton), TRUE);
 
+  toolitem30 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem30);
+  gtk_container_add (GTK_CONTAINER (toolbar1), toolitem30);
+
+  hbox398 = gtk_hbox_new (TRUE, 6);
+  gtk_widget_show (hbox398);
+  gtk_container_add (GTK_CONTAINER (toolitem30), hbox398);
+
+  toolbar_multi_refine_stop_button = gtk_button_new ();
+  gtk_box_pack_start (GTK_BOX (hbox398), toolbar_multi_refine_stop_button, TRUE, TRUE, 0);
+  gtk_button_set_focus_on_click (GTK_BUTTON (toolbar_multi_refine_stop_button), FALSE);
+
+  alignment137 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment137);
+  gtk_container_add (GTK_CONTAINER (toolbar_multi_refine_stop_button), alignment137);
+
+  hbox400 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox400);
+  gtk_container_add (GTK_CONTAINER (alignment137), hbox400);
+
+  image6814 = gtk_image_new_from_stock ("gtk-stop", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6814);
+  gtk_box_pack_start (GTK_BOX (hbox400), image6814, FALSE, FALSE, 0);
+
+  label726 = gtk_label_new_with_mnemonic (_("Stop"));
+  gtk_widget_show (label726);
+  gtk_box_pack_start (GTK_BOX (hbox400), label726, FALSE, FALSE, 0);
+
+  toolbar_multi_refine_continue_button = gtk_button_new ();
+  gtk_box_pack_start (GTK_BOX (hbox398), toolbar_multi_refine_continue_button, TRUE, FALSE, 0);
+  gtk_button_set_focus_on_click (GTK_BUTTON (toolbar_multi_refine_continue_button), FALSE);
+
+  alignment136 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment136);
+  gtk_container_add (GTK_CONTAINER (toolbar_multi_refine_continue_button), alignment136);
+
+  hbox399 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox399);
+  gtk_container_add (GTK_CONTAINER (alignment136), hbox399);
+
+  image6813 = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6813);
+  gtk_box_pack_start (GTK_BOX (hbox399), image6813, FALSE, FALSE, 0);
+
+  label725 = gtk_label_new_with_mnemonic (_("Continue"));
+  gtk_widget_show (label725);
+  gtk_box_pack_start (GTK_BOX (hbox399), label725, FALSE, FALSE, 0);
+
   accept_reject_dialog_frame_docked = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (vbox1), accept_reject_dialog_frame_docked, FALSE, TRUE, 0);
 
@@ -2088,6 +2148,12 @@ create_window1 (void)
   g_signal_connect ((gpointer) display_manager_toolbutton, "clicked",
                     G_CALLBACK (on_display_manager_toolbutton_clicked),
                     NULL);
+  g_signal_connect ((gpointer) toolbar_multi_refine_stop_button, "clicked",
+                    G_CALLBACK (on_toolbar_multi_refine_stop_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) toolbar_multi_refine_continue_button, "clicked",
+                    G_CALLBACK (on_toolbar_multi_refine_continue_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) accept_reject_dialog_frame_docked, "hide",
                     G_CALLBACK (on_accept_reject_dialog_frame_docked_hide),
                     NULL);
@@ -2427,6 +2493,18 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, toolbar1, "toolbar1");
   GLADE_HOOKUP_OBJECT (window1, reset_view_toolbutton, "reset_view_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, display_manager_toolbutton, "display_manager_toolbutton");
+  GLADE_HOOKUP_OBJECT (window1, toolitem30, "toolitem30");
+  GLADE_HOOKUP_OBJECT (window1, hbox398, "hbox398");
+  GLADE_HOOKUP_OBJECT (window1, toolbar_multi_refine_stop_button, "toolbar_multi_refine_stop_button");
+  GLADE_HOOKUP_OBJECT (window1, alignment137, "alignment137");
+  GLADE_HOOKUP_OBJECT (window1, hbox400, "hbox400");
+  GLADE_HOOKUP_OBJECT (window1, image6814, "image6814");
+  GLADE_HOOKUP_OBJECT (window1, label726, "label726");
+  GLADE_HOOKUP_OBJECT (window1, toolbar_multi_refine_continue_button, "toolbar_multi_refine_continue_button");
+  GLADE_HOOKUP_OBJECT (window1, alignment136, "alignment136");
+  GLADE_HOOKUP_OBJECT (window1, hbox399, "hbox399");
+  GLADE_HOOKUP_OBJECT (window1, image6813, "image6813");
+  GLADE_HOOKUP_OBJECT (window1, label725, "label725");
   GLADE_HOOKUP_OBJECT (window1, accept_reject_dialog_frame_docked, "accept_reject_dialog_frame_docked");
   GLADE_HOOKUP_OBJECT (window1, hbox274, "hbox274");
   GLADE_HOOKUP_OBJECT (window1, frame185, "frame185");

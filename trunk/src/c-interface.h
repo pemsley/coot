@@ -5383,6 +5383,18 @@ void pisa_interaction(int imol_1, int imol_2);
 
 
 /*  ----------------------------------------------------------------------- */
+/* Multirefine interface (because in guile-gtk there is no way to
+		    insert toolbuttons into the toolbar) so this
+		    rather kludgy interface.  It should go when we
+		    move to guile-gnome, I think. */
+/*  ----------------------------------------------------------------------- */
+void toolbar_multi_refine_stop();
+void toolbar_multi_refine_continue();
+void set_visible_toolbar_multi_refine_stop_button(short int state);
+void set_visible_toolbar_multi_refine_continue_button(short int state);
+
+
+/*  ----------------------------------------------------------------------- */
 /*                  experimental                                      */
 /*  ----------------------------------------------------------------------- */
 void nsv(int imol);
