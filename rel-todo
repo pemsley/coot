@@ -1,22 +1,9 @@
 
-   40 items
+   39 items
 
 
    o Tim Gruene: When you add a terminal residue to a .ins molecule,
      then the main chain atoms have occupancy 1.0.  ::: 1
-
-   o Refining a GLC gives:
-
-There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
-WARNING: residue type GLC not found in restraints dictionary (chiral)
-There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
-WARNING: residue type GLC not found in restraints dictionary (chiral)
-There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
-WARNING: residue type GLC not found in restraints dictionary (chiral)
-There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
-WARNING: residue type GLC not found in restraints dictionary (chiral)
-c-interface clear_up_moving_atoms...   
-     ::: 2
 
 
    o Fixing atoms does not stop them from moving with
@@ -950,3 +937,21 @@ Elsewhere:
      "Recentre" check button on the file selection dialog.  ::: 1
 
 * Done.
+
+   o Refining a GLC gives:
+
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+c-interface clear_up_moving_atoms...   
+     ::: 2
+
+
+* Done.  have_dictionary_for_residue_type() and :get_monomer_chiral_volumes() both now check the 
+  residue_info.three_letter_code of a dict_res_restraint
+

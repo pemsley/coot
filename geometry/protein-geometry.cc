@@ -2861,6 +2861,19 @@ coot::protein_geometry::get_monomer_chiral_volumes(const std::string monomer_typ
 	 break;
       }
    }
+   // OK so the monomer_type did not match the comp_id.  Perhaps the
+   // comp_id was not the same as the three letter code, so let's
+   // check the monomer_type against the three_letter_codes.
+   // 
+   if (ifound == 0) {
+      for (int i=0; i<dict_res_restraints.size(); i++) {
+	 if (dict_res_restraints[i].residue_info.three_letter_code == monomer_type) {
+	    ifound = 1;
+	    rv = dict_res_restraints[i].chiral_restraint;
+	    break;
+	 }
+      }
+   } 
    if (ifound == 0) {
       // try dynamic add?
       std::cout << "WARNING: residue type " << monomer_type << " not found "
@@ -2931,6 +2944,18 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 	 break;
       }
    }
+   // OK so the monomer_type did not match the comp_id.  Perhaps the
+   // comp_id was not the same as the three letter code, so let's
+   // check the monomer_type against the three_letter_codes.
+   // 
+   if (ifound == 0) {
+      for (int i=0; i<ndict; i++) {
+	 if (dict_res_restraints[i].residue_info.three_letter_code == monomer_type) {
+	    ifound = 1;
+	    break;
+	 }
+      }
+   } 
 
    if (ifound == 0) {
       ifound = try_dynamic_add(monomer_type, read_number);

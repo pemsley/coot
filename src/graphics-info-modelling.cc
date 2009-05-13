@@ -3322,7 +3322,8 @@ graphics_info_t::do_interactive_probe() const {
 void
 graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
 
-#ifdef HAVE_GSL   
+#ifdef HAVE_GSL
+
    if (moving_atoms_asc) { 
       if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE ||
 	  moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) { // needed?

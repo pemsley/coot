@@ -4271,7 +4271,9 @@ void baton_try_another();
 void shorten_baton();
 void lengthen_baton();
 void baton_build_delete_last_residue();
-void set_baton_build_params(int istart_resno, const char *chain_id, const char *backwards); 
+/*! \brief set the parameters for the start of a new baton-built fragment. direction can either 
+     be "forwards" or "backwards" */
+void set_baton_build_params(int istart_resno, const char *chain_id, const char *direction); 
 void baton_mode_calculate_skeleton(GtkWidget *window);
 
 

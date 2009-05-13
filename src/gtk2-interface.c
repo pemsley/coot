@@ -4887,6 +4887,10 @@ create_display_control_window_glade (void)
   GtkWidget *display_molecule_vbox;
   GtkWidget *frame32;
   GtkWidget *display_control_ok_button;
+  GtkWidget *alignment138;
+  GtkWidget *hbox401;
+  GtkWidget *image6815;
+  GtkWidget *label727;
 
   display_control_window_glade = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_widget_set_size_request (display_control_window_glade, 500, 316);
@@ -4972,9 +4976,25 @@ create_display_control_window_glade (void)
   GTK_WIDGET_SET_FLAGS (frame32, GTK_CAN_FOCUS);
   GTK_WIDGET_SET_FLAGS (frame32, GTK_CAN_DEFAULT);
 
-  display_control_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  display_control_ok_button = gtk_button_new ();
   gtk_widget_show (display_control_ok_button);
   gtk_container_add (GTK_CONTAINER (frame32), display_control_ok_button);
+
+  alignment138 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment138);
+  gtk_container_add (GTK_CONTAINER (display_control_ok_button), alignment138);
+
+  hbox401 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox401);
+  gtk_container_add (GTK_CONTAINER (alignment138), hbox401);
+
+  image6815 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6815);
+  gtk_box_pack_start (GTK_BOX (hbox401), image6815, FALSE, FALSE, 0);
+
+  label727 = gtk_label_new_with_mnemonic (_(" Close "));
+  gtk_widget_show (label727);
+  gtk_box_pack_start (GTK_BOX (hbox401), label727, FALSE, FALSE, 0);
 
   g_signal_connect ((gpointer) display_control_window_glade, "configure_event",
                     G_CALLBACK (on_display_control_window_glade_configure_event),
@@ -5012,6 +5032,10 @@ create_display_control_window_glade (void)
   GLADE_HOOKUP_OBJECT (display_control_window_glade, display_molecule_vbox, "display_molecule_vbox");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, frame32, "frame32");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_ok_button, "display_control_ok_button");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, alignment138, "alignment138");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, hbox401, "hbox401");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, image6815, "image6815");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, label727, "label727");
 
   gtk_widget_grab_focus (frame32);
   gtk_widget_grab_default (frame32);
