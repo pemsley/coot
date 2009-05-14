@@ -124,8 +124,7 @@ void try_load_python_extras_dir();
 /*!  \name File System Functions */
 /* \{ */
 
-/*! 
-   \brief make a directory dir (if it doesn't exist) and return error code
+/*! \brief make a directory dir (if it doesn't exist) and return error code
 
    If it can be created, create the directory dir, return the success status
    like mkdir: mkdir 
@@ -338,7 +337,7 @@ int chain_n_residues(const char *chain_id, int imol);
 float molecule_centre_internal(int imol, int iaxis);
 /*! \brief return the rename from a residue serial number
 
-   @return NULL (#f) on failure. */
+   @return NULL (scheme False) on failure. */
 char *resname_from_serial_number(int imol, const char *chain_id, 
 				 int serial_num);
 
@@ -351,7 +350,7 @@ int  seqnum_from_serial_number(int imol, const char *chain_id,
 
 /*! \brief the insertion code of the residue.
 
-   @return NULL (#f) on failure. */
+   @return NULL (scheme False) on failure. */
 char *insertion_code_from_serial_number(int imol, const char *chain_id, int serial_num);
 
 /*! \brief the chain_id (string) of the ichain-th chain
@@ -413,7 +412,7 @@ char *coot_version();
 
 /*! \brief return the name of molecule number imol
 
- @return 0 if not a valid name ( -> #f in scheme) 
+ @return 0 if not a valid name ( -> False in scheme) 
  e.g. "/a/b/c.pdb" for "d/e/f.mtz FWT PHWT" */ 
 const char *molecule_name(int imol);
 /*! \brief set the molecule name of the imol-th molecule */
@@ -729,13 +728,13 @@ void set_control_key_for_rotate(int state);
 /*! \brief return the control key rotate state */
 int control_key_for_rotate_state();
 
-/* Put the blob under the cursor to the screen centre.  Check only
+/*! \brief Put the blob under the cursor to the screen centre.  Check only
 positive blobs.  Useful function if bound to a key.
 
 The refinement map must be set.  (We can't check all maps because they
 are not (or may not be) on the same scale).
 
-   return 1 if successfully found a blob and moved there.
+   @return 1 if successfully found a blob and moved there.
    return 0 if no move.
 */
 int blob_under_pointer_to_screen_centre();
@@ -825,9 +824,8 @@ void apply_redo();
 /*! \brief set the molecule number imol to be marked as having unsaved changes */
 void set_have_unsaved_changes(int imol);
 
-/* \brief does molecule number imol have unsaved changes?
-
-return -1 on bad imol, 0 on no unsaved changes, 1 on has unsaved changes */
+/*! \brief does molecule number imol have unsaved changes?
+ @return -1 on bad imol, 0 on no unsaved changes, 1 on has unsaved changes */
 int have_unsaved_changes_p(int imol);
 
 
@@ -1241,6 +1239,8 @@ float density_at_point(int imol, float x, float y, float z);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
+/*! \brief return sigma for the given map.  Return scheme False if not
+  a valid map molecule number. */
 SCM map_sigma_scm(int imol);
 #endif
 #ifdef USE_PYTHON
@@ -3242,8 +3242,10 @@ void add_on_rama_choices();
 /*! \brief set the contour levels for theremachandran plot, default
   values are 0.02 (prefered) 0.002 (allowed) */
 void set_ramachandran_plot_contour_levels(float level_prefered, float level_allowed);
-/*! \brief set the ramachandran plot background block size. Smaller is
-  smoother but slower.  Should be divisible exactly into 360.  Default value is 10. */
+/*! \brief set the ramachandran plot background block size. 
+
+  Smaller is smoother but slower.  Should be divisible exactly into
+  360.  Default value is 10. */
 void set_ramachandran_plot_background_block_size(float blocksize) ;
 
 void my_delete_ramachandran_mol_option(GtkWidget *widget, void *);
@@ -3272,10 +3274,10 @@ void setup_dynamic_distances(short int state);
 
 void destroy_edit_backbone_rama_plot();
 
-/* \brief  2 molecule ramachandran plot (NCS differences) a.k.a. A Kleywegt Plot. */
+/*! \brief  2 molecule ramachandran plot (NCS differences) a.k.a. A Kleywegt Plot. */
 void ramachandran_plot_differences(int imol1, int imol2);
 
-/* \brief  A chain-specific Kleywegt Plot. */
+/*! \brief  A chain-specific Kleywegt Plot. */
 void ramachandran_plot_differences_by_chain(int imol1, int imol2, 
 					    const char *a_chain, const char *b_chain);
 
@@ -3294,7 +3296,7 @@ void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *
 /*  ----------------------------------------------------------------------- */
 /*! \name Sequence View Interface  */
 /* \{ */
-/* \brief display the sequence view dialog for molecule number imol */
+/*! \brief display the sequence view dialog for molecule number imol */
 void do_sequence_view(int imol);
 void add_on_sequence_view_choices();
 void set_sequence_view_is_displayed(GtkWidget *widget, int imol); 
@@ -3401,8 +3403,6 @@ int add_action_view(const char *view_name, const char *action_function);
  */
 int insert_action_view_after_view(int view_number, const char *view_name, const char *action_function);
 int n_views(); 
-/*! \brief return the name of the given view, if view_number does not
-  specify a view return #f */
 
 /*! \brief save views to view_file_name */
 void save_views(const char *view_file_name);
@@ -3412,6 +3412,9 @@ void set_views_play_speed(float f);
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
+/*! \brief return the name of the given view, if view_number does not
+  specify a view return scheme value False */
+
 SCM view_name(int view_number);
 SCM view_description(int view_number);
 void go_to_view(SCM view);
@@ -3558,7 +3561,7 @@ void set_ligand_expert_options_from_widget(GtkWidget *button);
   imol_ligand onto the residue specified by the reference parameters.
   Use graph matching, not atom names.  
 
-@return success status, #f = failed to find residue in either
+@return success status, False = failed to find residue in either
 imol_ligand or imo_ref, 
 
 otherwise return the RT operator */
@@ -3581,7 +3584,7 @@ void execute_get_mols_ligand_search(GtkWidget *button);
    up. */
 void  free_blob_dialog_memory(GtkWidget *w);
 
-/* flip the ligand (usually active residue) around its eigen vectors
+/*! \brief flip the ligand (usually active residue) around its eigen vectors
    to the next flip number.  Immediate replacement (like flip
    peptide). */
 void flip_ligand(int imol, const char *chain_id, int resno);
@@ -3661,7 +3664,7 @@ void set_bond_thickness(int imol, float t);
 void set_bond_thickness_intermediate_atoms(float t);
 void set_unbonded_atom_star_size(float f);
 
-/* \brief get the default thickness for bonds*/
+/*! \brief get the default thickness for bonds*/
 int get_default_bond_thickness();
 
 /*! \brief set status of drawing zero occupancy markers.
@@ -4034,7 +4037,7 @@ void do_rotamers(int atom_index, int imol);
 
 void show_rotamers_dialog(int imol, const char *chain_id, int resno, const char *ins_code, const char *altconf);
 
-/* \brief For Dunbrack rotamers, set the lowest probability to be
+/*! \brief For Dunbrack rotamers, set the lowest probability to be
    considered.  Set as a percentage i.e. 1.00 is quite low.  For
    Richardson Rotamers, this has no effect. */
 void set_rotamer_lowest_probability(float f);
@@ -4157,7 +4160,7 @@ target_res_type is a three-letter-code.
 Return 1 on a good mutate. */
 int mutate(int imol, const char *chain_id, int ires, const char *inscode,  const char *target_res_type);
 
-/* \brief mutate a base. return success status, 1 for a good mutate. */
+/*! \brief mutate a base. return success status, 1 for a good mutate. */
 int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code, const char *res_type);
 
 
@@ -4262,19 +4265,29 @@ void set_pointer_atom_molecule(int imol);
 /*  ----------------------------------------------------------------------- */
 /*                  baton mode                                              */
 /*  ----------------------------------------------------------------------- */
+/*! \name Baton Build Interface Functions */
 /* section Baton Build Functions */
 /* c-interface-build */
+/*! \{ */
+/*! \brief toggle so that mouse movement moves the baton not rotates the view. */
 void set_baton_mode(short int i); /* Mouse movement moves the baton not the view? */
+/*! \brief draw the baton or not */
 void set_draw_baton(short int i); /* draw the baton or not */
+/*! \brief accept the baton tip position - a prime candidate for a key binding */
 void accept_baton_position();	/* put an atom at the tip */
+/*! \brief move the baton tip position - another prime candidate for a key binding */
 void baton_try_another();
+/*! \brief shorten the baton length */
 void shorten_baton();
+/*! \brief lengthen the baton */
 void lengthen_baton();
+/*! \brief delete the most recently build CA position */
 void baton_build_delete_last_residue();
 /*! \brief set the parameters for the start of a new baton-built fragment. direction can either 
      be "forwards" or "backwards" */
 void set_baton_build_params(int istart_resno, const char *chain_id, const char *direction); 
 void baton_mode_calculate_skeleton(GtkWidget *window);
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -4311,7 +4324,7 @@ void apply_add_OXT_from_widget(GtkWidget *w);
 /* section Crosshairs Interface */
 /*! \name Crosshairs  Interface */
 /*! \{ */
-/* \brief draw the distance crosshairs, 0 for off, 1 for on. */
+/*! \brief draw the distance crosshairs, 0 for off, 1 for on. */
 void set_draw_crosshairs(short int i);
 /* so that we display the crosshairs with the radiobuttons in the
    right state, return draw_crosshairs_flag */
@@ -4490,11 +4503,13 @@ void fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
 /*  ----------------------------------------------------------------------- */
 /*                  trim                                                    */
 /*  ----------------------------------------------------------------------- */
-/* section Trim */
+/* section Molecule Trimming Interface */
 /*! \name Trim */
 /*! \{ */
 
 /* a c-interface-build function */
+/*! \brief cut off (delete or give zero occupancy) atoms in the given
+  molecule if they are below the given map (absolute) level. */
 void trim_molecule_by_map(int imol_coords, int imol_map, 
 			  float map_level, int delete_or_zero_occ_flag);
 
@@ -4507,7 +4522,6 @@ void trim_molecule_by_map(int imol_coords, int imol_map,
 /* make the text input to external programs */
 /*! \name External Ray-Tracing */
 /* \{ */
-/* \name Povray and Raster3D Interface */
 
 /*! \brief create a r3d file for the current view */
 void raster3d(const char *rd3_filename);
@@ -4524,7 +4538,7 @@ void make_image_povray_py(const char *filename);
 
 /*! \brief set the bond thickness for the Raster3D representation  */
 void set_raster3d_bond_thickness(float f);
-/* \brief set the atom radius for the Raster3D representation  */
+/*! \brief set the atom radius for the Raster3D representation  */
 void set_raster3d_atom_radius(float f);
 /*! \brief set the density line thickness for the Raster3D representation  */
 void set_raster3d_density_thickness(float f);
@@ -4860,7 +4874,7 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec, int do_pukka_pucker_c
 #endif /* USE_PYTHON */
 #endif /*  __cplusplus */
 
-/* Return a molecule that contains a residue that is the WC pair
+/*! \brief Return a molecule that contains a residue that is the WC pair
    partner of the clicked/picked/selected residue */
 int watson_crick_pair(int imol, const char * chain_id, int resno);
 
@@ -5084,7 +5098,7 @@ int generic_object_index(const char *name);
 
 /*! \brief what is the name of generic object number obj_number? 
 
- @return 0 (NULL) #f  on obj_number not available */
+ @return 0 (NULL) (scheme False)  on obj_number not available */
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM generic_object_name_scm(int obj_number);
@@ -5235,6 +5249,8 @@ void set_debug_atom_picking(int istate);
 /*  ----------------------------------------------------------------------- */
 /*! \name Partial Charges */
 /* \{ */
+/*! \brief show the partial charges for the residue of the given specs
+   (charges are read from the dictionary) */
 void show_partial_charge_info(int imol, const char *chain_id, int resno, const char *ins_code); 
 /* \} */
 
@@ -5243,7 +5259,7 @@ void show_partial_charge_info(int imol, const char *chain_id, int resno, const c
 /*  ----------------------------------------------------------------------- */
 /*! \name EM interface */
 /* \{ */
-/* \brief Scale the cell, for use with EM maps, where the cell needs
+/*! \brief Scale the cell, for use with EM maps, where the cell needs
    to be adjusted.  Use like:  (scale-cell 2 1.012 1.012 1.012). Return error 
    status, 1 means it worked, 0 means it did not work. */
 int scale_cell(int imol_map, float fac_u, float fac_v, float fac_w); 
@@ -5267,17 +5283,10 @@ SCM ccp4i_projects_scm();
 PyObject *ccp4i_projects_py();
 #endif /* USE_PYTHON */
 #endif
-/* \} */
 
-
-/*  ----------------------------------------------------------------------- */
-/*                  CCP4MG Interface                                        */
-/*  ----------------------------------------------------------------------- */
-/*! \name CCP4mg Interface */
-/* \{ */
-/* \brief write a ccp4mg picture description file */
+/*! \brief write a ccp4mg picture description file */
 void write_ccp4mg_picture_description(const char *filename);
-/* \brief get element colour for imol as Python formatted list char*/
+/*! \brief get element colour for imol as Python formatted list char*/
 char *get_atom_colour_from_mol_no(int imol, const char *element);
 
 /* \} */
@@ -5312,7 +5321,7 @@ PyObject *add_dipole_for_residues_py(int imol, PyObject *residue_specs);
 /*  ----------------------------------------------------------------------- */
 /*! \name Aux functions */
 /* \{ */
-/* \brief Create the "Laplacian" (-ve second derivative) of the given map. */
+/*! \brief Create the "Laplacian" (-ve second derivative) of the given map. */
 int laplacian (int imol);
 /* \} */
 
