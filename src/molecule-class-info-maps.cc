@@ -87,7 +87,7 @@ molecule_class_info_t::sharpen(float b_factor) {
       clipper::HKL_info::HKL_reference_index hri;
       for (hri=fphis.first(); !hri.last(); hri.next()) {
  	 float reso = hri.invresolsq();
- 	 std::cout << "DEBUG:: " << hri.hkl().h() << " " << hri.hkl().k() << " " hri.hkl().l()
+ 	 std::cout << "DEBUG:: " << hri.hkl().h() << " " << hri.hkl().k() << " " << hri.hkl().l()
 		   << " has reso " << reso << std::endl;
  	 float fac = exp(b_factor/reso); // or something
  	 fphis[hri].f() *= fac;
