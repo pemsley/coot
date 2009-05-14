@@ -2382,6 +2382,7 @@ class molecule_class_info_t {
 
    // 
    void sharpen(float b_factor);
+   void sharpen_using_orig_fphis(float b_factor);
 
    // reorder the chains in the models
    void sort_chains();

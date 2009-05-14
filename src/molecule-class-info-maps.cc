@@ -70,60 +70,30 @@
 void
 molecule_class_info_t::sharpen(float b_factor) {
 
-   int n_data = 0;
-   int n_tweaked = 0;
+   // sharpen by back-transforming the current map then fiddling with
+   // current fs and creating a map.
 
-   int n_count = 0;
 
-   std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
-	     << " original data " << std::endl;
+   if (has_map()) {
+      const clipper::Spacegroup sg = xmap_list[0].spacegroup();
+      const clipper::Cell     cell = xmap_list[0].cell();
+      // How do a get a resolution from an xmap?
+      clipper::Resolution resolution(1.0); // FIXME
+      clipper::HKL_info myhkl(sg, cell, resolution); 
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+      xmap_list[0].fft_to(fphis);
 
-   if (original_fphis.num_obs() > 0) { 
+      
       clipper::HKL_info::HKL_reference_index hri;
-      for (hri = original_fphis.first(); !hri.last(); hri.next()) {
-	 
-	 std::cout << "original_fphis: " << original_fphis[hri].f() << " "
-		   << hri.invresolsq() << std::endl;
-	 n_count++;
-	 if (n_count == 50)
-	    break;
-      } 
-      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis;
-      fphis.init(original_fphis.hkl_info(), original_fphis.cell());
-      fphis = original_fphis;
-   
-      n_count = 0;
-      for (hri = fphis.first(); !hri.last(); hri.next()) {
-	 std::cout << "new fphis: " << fphis[hri].f() << " "
-		   << hri.invresolsq() << std::endl;
-	 n_count++;
-	 if (n_count == 50)
-	    break;
-      }
-   
-      std::cout << "INFO:: sharpening " << original_fphis.num_obs() << " "
-		<< fphis.num_obs() << " data " << std::endl;
-
-      n_count = 0; 
-      for (hri = fphis.first(); !hri.last(); hri.next()) {
-	 n_data++;
-
-	 // std::cout << " " << hri.invresolsq() << std::endl;
-
-	 float f = fphis[hri].f();
-	 if (! clipper::Util::is_nan(f)) {
-	    float irs =  hri.invresolsq();
-	    if (n_count < 50) {
-	       n_count++;
-	       std::cout << hri.hkl().format() << " scale factor: e(-" << b_factor
-			 << "*" << irs << ") = " << exp(-b_factor * irs)
-			 << std::endl;
-	    }
-	    fphis[hri].f() *= exp(-b_factor * irs);
-	    n_tweaked++;
-	 } 
+      for (hri=fphis.first(); !hri.last(); hri.next()) {
+ 	 float reso = hri.invresolsq();
+ 	 std::cout << "DEBUG:: " << hri.hkl().h() << " " << hri.hkl().k() << " " hri.hkl().l()
+		   << " has reso " << reso << std::endl;
+ 	 float fac = exp(b_factor/reso); // or something
+ 	 fphis[hri].f() *= fac;
       }
 
+      
       xmap_list[0].fft_from(fphis);
       xmap_is_filled[0] = 1; 
       update_map_in_display_control_widget();
@@ -139,14 +109,14 @@ molecule_class_info_t::sharpen(float b_factor) {
       std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
       std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
    
-      set_initial_contour_level();
-   
+      // set_initial_contour_level(); // hmm!
       // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
       // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str()); 
    
       update_map();
    }
 }
+
 
 
 
