@@ -754,7 +754,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
    graphics_info_t g;
 
    clipper::HKL_info myhkl; 
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(myhkl); 
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata; 
 
    long T0 = 0; // timer
    T0 = glutGet(GLUT_ELAPSED_TIME);
@@ -762,6 +762,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
    clipper::CNS_HKLfile cnsin; 
    cnsin.open_read( cns_file_name );       // open new file 
    cnsin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
+   fphidata.init(myhkl.spacegroup(),myhkl.cell(),myhkl.hkl_sampling());
    cnsin.import_hkl_data( fphidata, f_col );
    cnsin.close_read();
    
