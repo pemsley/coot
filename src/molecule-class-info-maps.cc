@@ -2214,19 +2214,15 @@ molecule_class_info_t::make_map_from_mtz_by_calc_phases(int imol_no_in,
 							atom_selection_container_t SelAtom,
 							short int is_2fofc_type) {
 
-   clipper::HKL_info mydata;
    clipper::CCP4MTZfile mtz;
-   clipper::MTZdataset myset; 
-   clipper::MTZcrystal myxtal; 
 
    std::cout << "reading mtz file..." << mtz_file_name << std::endl; 
    mtz.open_read(mtz_file_name);
 
    // make the data names for import:
    std::pair<std::string, std::string> p = make_import_datanames(f_col, sigf_col, "", 0);
-   mtz.import_hkl_info(mydata); // set spacegroup, cell and get hkl list. 
-   clipper::HKL_data< clipper::datatypes::F_sigF<float> > myfsigf(mydata, myxtal);
-   mtz.import_hkl_data(myfsigf, myset, myxtal, p.first);
+   clipper::HKL_data< clipper::datatypes::F_sigF<float> > myfsigf;
+   mtz.import_hkl_data(myfsigf, p.first);
    mtz.close_read();
    
    return calculate_sfs_and_make_map(imol_no_in, 
