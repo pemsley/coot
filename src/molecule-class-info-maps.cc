@@ -531,10 +531,6 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
    clipper::CCP4MTZfile mtzin; 
    mtzin.open_read( mtz_file_name );       // open new file 
-   //mtzin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
-   //clipper::HKL_data< clipper::datatypes::F_sigF<float> >   f_sigf_data(myhkl, myxtl);
-   //clipper::HKL_data< clipper::datatypes::Phi_fom<float> > phi_fom_data(myhkl, myxtl);
-   //clipper::HKL_data< clipper::datatypes::F_phi<float> >       fphidata(myhkl, myxtl); 
    clipper::HKL_data< clipper::datatypes::F_sigF<float> >  f_sigf_data;
    clipper::HKL_data< clipper::datatypes::Phi_fom<float> > phi_fom_data;
    clipper::HKL_data< clipper::datatypes::F_phi<float> >   fphidata;
@@ -732,16 +728,14 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 {
    graphics_info_t g;
 
-   clipper::HKL_info myhkl; 
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata; 
-
    long T0 = 0; // timer
    T0 = glutGet(GLUT_ELAPSED_TIME);
 
    clipper::CNS_HKLfile cnsin; 
-   cnsin.open_read( cns_file_name );       // open new file 
-   cnsin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
-   fphidata.init(myhkl.spacegroup(),myhkl.cell(),myhkl.hkl_sampling());
+   cnsin.open_read( cns_file_name );       // open new file
+   clipper::HKL_sampling hklsam( cnsin.cell(), cnsin.resolution() );
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > 
+     fphidata( cnsin.spacegroup(), cnsin.cell(), hklsam );
    cnsin.import_hkl_data( fphidata, f_col );
    cnsin.close_read();
    
@@ -756,19 +750,19 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 
       long T1 = glutGet(GLUT_ELAPSED_TIME);
 
-      int n_reflections = myhkl.num_reflections();
-      std::cout << "Number of reflections: " << n_reflections << "\n";
+      int n_reflections = fphidata.num_obs();
+      std::cout << "Number of OBSERVED reflections: " << n_reflections << "\n";
       if (n_reflections <= 0) {
 	 std::cout << "WARNING:: No reflections in cns file!?" << std::endl;
       } else { 
 	 cout << "INFO:: finding ASU unique map points with sampling rate "
    	      << map_sampling_rate	<< endl;
-         clipper::Grid_sampling gs(myhkl.spacegroup(),
-				   myhkl.cell(),
-				   myhkl.resolution(),
+         clipper::Grid_sampling gs(fphidata.spacegroup(),
+				   fphidata.cell(),
+				   fphidata.resolution(),
 				   map_sampling_rate);
 	 cout << "INFO grid sampling..." << gs.format() << endl; 
-	 xmap_list[0].init( myhkl.spacegroup(), myhkl.cell(), gs ); // 1.5 default
+	 xmap_list[0].init( fphidata.spacegroup(), fphidata.cell(), gs ); // 1.5 default
 	 // 	 cout << "Grid..." << xmap_list[0].grid_sampling().format() << "\n";
    
 	 long T2 = glutGet(GLUT_ELAPSED_TIME);
