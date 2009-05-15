@@ -636,29 +636,6 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 // 			 << clipper::Util::rad2d(fphidata[hri].phi()) << std::endl;
 // 	    ncount++;
 // 	 } 
-
-
-	 original_fphis.init(fphidata.hkl_info(), fphidata.cell());
-	 original_fphis = fphidata;
-
-	 // debug
-	 if (0) {
-	    int n_count = 0;
-	    clipper::HKL_info::HKL_reference_index hri;
-	    for (hri = original_fphis.first(); !hri.last(); hri.next()) {
-	       std::cout << "fill original_fphis: " << original_fphis[hri].f() << " "
-			 << hri.invresolsq() << std::endl;
-	       n_count++;
-	       if (n_count == 50)
-		  break;
-	    }
-	 }
-	 
-
-	 std::cout << "DEBUG:: saved " << original_fphis.num_obs()
-		   << " observations from "
-		   << fphidata.num_obs() << " MTZ data " << std::endl;
-   
 	 
 	 // cout << "doing fft..." << endl;
 	 xmap_list[0].fft_from( fphidata );                  // generate map
@@ -694,6 +671,9 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 map_sigma_ = sqrt(mv.variance);
 	 map_max_   = mv.max_density;
 	 map_min_   = mv.min_density;
+
+	 original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
+	 original_fphis = fphidata;
 
 	 long T4 = glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
@@ -823,6 +803,9 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 	 map_sigma_ = sqrt(mv.variance);
 	 map_max_   = mv.max_density;
 	 map_min_   = mv.min_density;
+
+	 original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
+	 original_fphis = fphidata;
 
 	 long T4 = glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
@@ -1828,11 +1811,14 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
    map_sigma_ = sqrt(mv.variance);
    map_max_   = mv.max_density;
    map_min_   = mv.min_density;
+   
+   original_fphis.init(map_fphidata.spacegroup(),map_fphidata.cell(),map_fphidata.hkl_sampling());
+   original_fphis = map_fphidata;
   
    xmap_is_diff_map[0] = 0; 
    xmap_is_filled[0] = 1; 
    update_map_in_display_control_widget();
-   
+
    std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
    std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
    std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
