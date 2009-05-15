@@ -5052,7 +5052,10 @@ int new_molecule_by_residue_type_selection(int imol_orig, const char *residue_ty
 	 name += graphics_info_t::molecules[imol_orig].name_for_display_manager();
 	 atom_selection_container_t asc = make_asc(mol);
 	 if (asc.n_selected_atoms > 0) {
-	   graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+	    bool shelx_flag = 0;
+	    if (graphics_info_t::molecules[imol_orig].is_from_shelx_ins())
+	       shelx_flag = 1;
+	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1, shelx_flag);
 	 } else {
             std::cout << "in new_molecule_by_residue_type_selection "
                       << "Something bad happened - No residues selected"
@@ -5115,8 +5118,11 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 std::string name = "atom selection from ";
 	 name += graphics_info_t::molecules[imol_orig].name_for_display_manager();
 	 atom_selection_container_t asc = make_asc(mol);
-	 if (asc.n_selected_atoms > 0){ 
-	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+	 if (asc.n_selected_atoms > 0){
+	    bool shelx_flag = 0;
+	    if (graphics_info_t::molecules[imol_orig].is_from_shelx_ins())
+	       shelx_flag = 1;
+	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1, shelx_flag);
 	    update_go_to_atom_window_on_new_mol();
 	 } else {
 	    std::cout << "in new_molecule_by_atom_selection "
@@ -5196,8 +5202,11 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
 	 std::string name = "sphere selection from ";
 	 name += graphics_info_t::molecules[imol_orig].name_for_display_manager();
 	 atom_selection_container_t asc = make_asc(mol);
-	 if (asc.n_selected_atoms > 0){ 
-	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+	 if (asc.n_selected_atoms > 0){
+	    bool shelx_flag = 0;
+	    if (graphics_info_t::molecules[imol_orig].is_from_shelx_ins())
+	       shelx_flag = 1;
+	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1, shelx_flag);
 	 } else {
 	    graphics_info_t::erase_last_molecule();
 	    std::cout << "in new_molecule_by_atom_selection "

@@ -189,7 +189,6 @@
 				  (gtk-widget-destroy window)))
 			    #f))
       
-
       (gtk-widget-show-all window)))
 
   ;; first check that libcheck is available... if not put up and info
@@ -2487,12 +2486,34 @@
 
 
 
+(define (map-sharpening-gui imol)
+
+  (let* ((window (gtk-window-new 'toplevel))
+	 (vbox (gtk-vbox-new #f 2))
+	 (adj (gtk-adjustment-new 0.0 -30 60 0.05 2 30.1))
+	 (slider (gtk-hscale-new adj))
+	 (label (gtk-label-new "\nSharpen Map: Add B-factor")))
+
+    (gtk-box-pack-start vbox label  #f #f 2)
+    (gtk-box-pack-start vbox slider #f #f 2)
+    (gtk-container-add window vbox)
+    (gtk-window-set-default-size window 500 100)
+
+    (gtk-signal-connect adj "value_changed"
+			(lambda ()
+			  (sharpen imol (gtk-adjustment-value adj))))
+
+    (gtk-widget-show-all window)))
+
+
+
 ; let the c++ part of mapview know that this file was loaded:
 (set-found-coot-gui)
 	 
 ;;; Local Variables:
 ;;; mode: scheme
 ;;; End:
+
 
 
 

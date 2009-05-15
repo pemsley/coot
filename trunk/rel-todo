@@ -1,13 +1,9 @@
 
-   39 items
-
-
-   o Tim Gruene: When you add a terminal residue to a .ins molecule,
-     then the main chain atoms have occupancy 1.0.  ::: 1
+   37 items
 
 
    o Fixing atoms does not stop them from moving with
-     rotate/translate.  Should it?  ::: 1
+     rotate/translate.  Should it?  No ::: 1
 
 
    o Torsion general is broken? ::: 2
@@ -67,21 +63,6 @@
    o Document the post-manipulation-hook.  How, for example, might you
      use it to move the residue added on a "Add Terminal residue"? 
      [Ethan Merritt] ::: 1
-
-
-   o Investigate interupting long fitting/Post MR tools [JED request] 
-     Add a stop button to the toolbar perhaps.
-     ::: 2
-
-* gtk-toolbar-insert and gtk-toolbutton-new are not available in
-  guile-gtk-2.0, or so it currently seems to me.  This can't be done
-  from scripting then. Hmm... [Probably possible in python].  Does
-  this mean I should consider looking at guile-gnome?  Or how about
-  coot-add-main-toolbar-stop-toolbutton which gets passed a function
-  to call when the button is clicked.  Need to think about how the
-  button goes away without being clicked.  Pass back the widget?
-  Seems complex - how about just destroy-toolbar-stop-toolbutton. Yes.
-  Should those refinement scripts be run as idle functions then?  
 
 
    o Backrub-based auto-fit rotamer search.  Question: how do I test
@@ -933,10 +914,31 @@ Elsewhere:
 
 * Done.  Big rewrite of pepflip and small rewrite of get-atom.
 
+
    o Time Grune: When you read in a shelx ins file, it ignores the
      "Recentre" check button on the file selection dialog.  ::: 1
 
 * Done.
+
+
+   o Investigate interupting long fitting/Post MR tools [JED request] 
+     Add a stop button to the toolbar perhaps.
+     ::: 2
+
+* gtk-toolbar-insert and gtk-toolbutton-new are not available in
+  guile-gtk-2.0, or so it currently seems to me.  This can't be done
+  from scripting then. Hmm... [Probably possible in python].  Does
+  this mean I should consider looking at guile-gnome?  Or how about
+  coot-add-main-toolbar-stop-toolbutton which gets passed a function
+  to call when the button is clicked.  Need to think about how the
+  button goes away without being clicked.  Pass back the widget?
+  Seems complex - how about just destroy-toolbar-stop-toolbutton. Yes.
+  Should those refinement scripts be run as idle functions then?  
+
+  Done, at least in scheme.
+
+   o Tim Gruene: When you add a terminal residue to a .ins molecule,
+     then the main chain atoms have occupancy 1.0.  ::: 1
 
    o Refining a GLC gives:
 
@@ -952,6 +954,9 @@ c-interface clear_up_moving_atoms...
      ::: 2
 
 
-* Done.  have_dictionary_for_residue_type() and :get_monomer_chiral_volumes() both now check the 
-  residue_info.three_letter_code of a dict_res_restraint
+
+   o What happened to WC partner (watson_crick_pair())? Other Modelling Tools "Base Pair"
+    ::: 0.2
+
+
 

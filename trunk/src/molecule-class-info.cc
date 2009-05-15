@@ -435,12 +435,14 @@ void
 molecule_class_info_t::install_model(int imol_no_in,
 				     atom_selection_container_t asc,
 				     const std::string &name, 
-				     short int display_in_display_control_widget_status) {
+				     short int display_in_display_control_widget_status,
+				     bool is_from_shelx_ins) {
 
    imol_no = imol_no_in;
    graphics_info_t g;
    bond_width = g.default_bond_width; // bleugh, perhaps this should
 				      // be a passed parameter?
+   is_from_shelx_ins_flag = is_from_shelx_ins;
 
    atom_sel = asc;
 

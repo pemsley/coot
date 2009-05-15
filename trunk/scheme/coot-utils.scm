@@ -1222,8 +1222,11 @@
 ;; schemey interface to eponymous scripting interface function.
 ;; Return #t or #f. 
 (define (valid-map-molecule? imol)
-
   (= (is-valid-map-molecule imol) 1))
+
+;; schemey interface to shelx molecule test
+(define (shelx-molecule? imol)
+  (= (is-shelx-molecule imol) 1))
 
 ;; schemey interface to the function that returns whether or not a map
 ;; is a difference map.  Return #t or #f.
