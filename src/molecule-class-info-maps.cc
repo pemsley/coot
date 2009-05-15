@@ -1601,14 +1601,13 @@ molecule_class_info_t::make_map_from_cif_generic(int imol_in,
       std::cout << "Error reading cif file, can't make a map" << std::endl;
       return -1; // Error
    }
-   return calculate_sfs_and_make_map(imol_in, cif_file_name, mydata, myfsigf,
+   return calculate_sfs_and_make_map(imol_in, cif_file_name, myfsigf,
 				     SelAtom, is_2fofc_type);
 }
    
 int
 molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 						  const std::string &mol_name,
-						  const clipper::HKL_info &mydata,
 						  const clipper::HKL_data< clipper::datatypes::F_sigF<float> > &myfsigf,
 						  atom_selection_container_t SelAtom,
 						  short int is_2fofc_type) {
@@ -1627,10 +1626,11 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
    // Fix up fphidata to contain the calculated structure factors
 
    // Calculated structure factors go here:
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(mydata);
+   const clipper::HKL_info& hkls = myfsigf.hkl_info();
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(myfsigf.spacegroup(),myfsigf.cell(),myfsigf.hkl_sampling());
    // map coefficients ((combined Fo and scaled Fc) and calc phi) go here:
 
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(mydata);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(myfsigf.spacegroup(),myfsigf.cell(),myfsigf.hkl_sampling());
   
    // get a list of all the atoms
    clipper::MMDBAtom_list atoms(SelAtom.atom_selection, SelAtom.n_selected_atoms);
@@ -1651,7 +1651,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
       float sum_fc = 0;
       int n_fo = 0;
       int n_fc = 0;
-      for (clipper::HKL_info::HKL_reference_index ih=mydata.first();
+      for (clipper::HKL_info::HKL_reference_index ih=myfsigf.first();
 	   !ih.last(); ih.next()) {
 	 if (!myfsigf[ih].missing()) {
 	    n_fo++;
@@ -1665,7 +1665,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 		<< std::endl; 
       std::cout << "DEBUG:: fc: sum average: " << sum_fc << " " << sum_fc/float(n_fc)
 		<< std::endl;
-      for (clipper::HKL_info::HKL_reference_index ih=mydata.first();
+      for (clipper::HKL_info::HKL_reference_index ih=myfsigf.first();
 	   !ih.last(); ih.next())
 	      std::cout << "DEBUG::  myfsigf " <<  " " <<  myfsigf[ih].f() << " "
 		   << myfsigf[ih].sigf() << " " << myfsigf[ih].missing() << std::endl;
@@ -1696,18 +1696,18 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
       if (is_2fofc_type == molecule_map_type::TYPE_FO_FC)
 	 std::cout << "INFO:: calculating fofc map..." << std::endl;
       
-      clipper::BasisFn_spline basis_f1f2( mydata, nprm, 2.0 );
+      clipper::BasisFn_spline basis_f1f2( hkls, nprm, 2.0 );
       //  target_f1f2( fc, fo );
       clipper::TargetFn_scaleF1F2<clipper::datatypes::F_phi<float>,
 	 clipper::datatypes::F_sigF<float> >
 	 target_f1f2( fphidata, myfsigf );
-      clipper::ResolutionFn fscale( mydata, basis_f1f2, target_f1f2, params_init );
+      clipper::ResolutionFn fscale( hkls, basis_f1f2, target_f1f2, params_init );
 
       float multiplier = 2.0;
       if (is_2fofc_type == molecule_map_type::TYPE_FO_FC)
 	 multiplier = 1.0;
      
-      for ( clipper::HKL_info::HKL_reference_index ih=mydata.first();
+      for ( clipper::HKL_info::HKL_reference_index ih=myfsigf.first();
 	    !ih.last(); ih.next() ) { 
 	 map_fphidata[ih].phi() = fphidata[ih].phi(); 
 	 if (!myfsigf[ih].missing()) {
@@ -1741,11 +1741,6 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 
 	 // need an mmdb
 	 CMMDBManager *mmdb = SelAtom.mol;
-	 // clipper::MTZcrystal cxtl; // and a cxtl, whatever that is...
-	 clipper::Cell cxtl = myfsigf.hkl_info().cell();
-	 // hkls
-	 // fo
-	 // 
 	    
 	 // get a list of all the atoms
 	 clipper::mmdb::PPCAtom psel;
@@ -1757,9 +1752,8 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 	 mmdb->DeleteSelection( hndl );
 
 	 // calculate structure factors
-	 const clipper::HKL_info& hkls = mydata;
 	 const clipper::HKL_data<clipper::datatypes::F_sigF<float> >& fo = myfsigf;
-	 clipper::HKL_data<clipper::datatypes::F_phi<float> > fc( hkls, cxtl );
+	 clipper::HKL_data<clipper::datatypes::F_phi<float> > fc( hkls );
 	 clipper::SFcalc_obs_bulk<float> sfcb;
 	 sfcb( fc, fo, atoms );
 
@@ -1769,9 +1763,9 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 	 sfscl( fc, fo );  // scale Fcal
 
 	 // now do sigmaa calc
-	 clipper::HKL_data<clipper::datatypes::F_phi<float> >   fb( hkls, cxtl ), fd( hkls, cxtl );
-	 clipper::HKL_data<clipper::datatypes::Phi_fom<float> > phiw( hkls, cxtl );
-	 clipper::HKL_data<clipper::datatypes::Flag>    flag( hkls, cxtl );
+	 clipper::HKL_data<clipper::datatypes::F_phi<float> >   fb( hkls ), fd( hkls );
+	 clipper::HKL_data<clipper::datatypes::Phi_fom<float> > phiw( hkls );
+	 clipper::HKL_data<clipper::datatypes::Flag>    flag( hkls );
 	 typedef clipper::HKL_data_base::HKL_reference_index HRI;
 	 // If no free flag is available, then use all reflections..
 	 for (HRI ih = flag.first(); !ih.last(); ih.next() )
@@ -1813,11 +1807,10 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 		<< std::endl;
    } 
    cout << "initializing map..."; 
-   xmap_list[0].init(mydata.spacegroup(), 
-		     mydata.cell(), 
-		     clipper::Grid_sampling(mydata.spacegroup(),
-					    mydata.cell(), 
-					    mydata.resolution()));
+   xmap_list[0].init(map_fphidata.spacegroup(), map_fphidata.cell(), 
+		     clipper::Grid_sampling(map_fphidata.spacegroup(),
+					    map_fphidata.cell(), 
+					    map_fphidata.resolution()));
    cout << "done."<< endl; 
 
 
@@ -2153,7 +2146,7 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
 
 	 int nrefl = 0;
 	 int nmissing = 0;
-	 for (clipper::HKL_info::HKL_reference_index ih=mydata.first();
+	 for (clipper::HKL_info::HKL_reference_index ih=myfsigf.first();
 	      !ih.last(); ih.next()) {
 	    nrefl++;
 	    if (!myfsigf[ih].missing()) {
@@ -2237,7 +2230,7 @@ molecule_class_info_t::make_map_from_mtz_by_calc_phases(int imol_no_in,
    mtz.close_read();
    
    return calculate_sfs_and_make_map(imol_no_in, 
-				     mtz_file_name, mydata, myfsigf,
+				     mtz_file_name, myfsigf,
 				     SelAtom, is_2fofc_type);
 }
 
