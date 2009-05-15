@@ -1432,7 +1432,6 @@ class molecule_class_info_t {
 			       short int swap_difference_map_colours);
    int calculate_sfs_and_make_map(int imol_no_in,
 				  const std::string &mol_name,
-				  const clipper::HKL_info &mydata,
 				  const clipper::HKL_data< clipper::datatypes::F_sigF<float> > &myfsigf,
 				  atom_selection_container_t SelAtom,
 				  short int is_2fofc_type);
