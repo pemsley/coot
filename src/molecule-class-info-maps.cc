@@ -90,8 +90,7 @@ molecule_class_info_t::sharpen(float b_factor) {
 	 if (n_count == 50)
 	    break;
       } 
-      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis;
-      fphis.init(original_fphis.hkl_info(), original_fphis.cell());
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(original_fphis.spacegroup(),original_fphis.cell(),original_fphis.hkl_sampling());
       fphis = original_fphis;
    
       n_count = 0;
