@@ -137,7 +137,7 @@
 
 
 	(add-simple-coot-menu-menuitem
-	 submenu-all-molecule "New Fit Protein..." 
+	 submenu-all-molecule "Fit Protein..." 
 	 (lambda ()
 	   (molecule-chooser-gui "Fit Protein using Rotamer Search"
 				 (lambda (imol)
@@ -149,7 +149,7 @@
 					 (add-status-bar-text s)))))))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-all-molecule "New Stepped Refine..." 
+	 submenu-all-molecule "Stepped Refine..." 
 	 (lambda ()
 	   (molecule-chooser-gui "Fit Protein using Rotamer Search"
 				 (lambda (imol)
@@ -161,7 +161,7 @@
 					 (add-status-bar-text s)))))))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-all-molecule "New Refine/Improve Ramachandran Plot..."
+	 submenu-all-molecule "Refine/Improve Ramachandran Plot..."
 	 (lambda ()
 	   (molecule-chooser-gui "Refine Protein with Ramachandran Plot Optimization: "
 				 (lambda (imol)
@@ -239,6 +239,15 @@
 	(add-simple-coot-menu-menuitem
 	 submenu-maps "Transform map by LSQ model fit..."
 	 (lambda () (transform-map-using-lsq-matrix-gui)))
+	
+	(add-simple-coot-menu-menuitem
+	 submenu-maps "Sharpen Map..."
+	 (lambda ()
+	   (map-molecule-chooser-gui 
+	    "Choose a map to sharpen"
+	    (lambda (imol)
+	      (map-sharpening-gui imol)))))
+
 
 	(add-simple-coot-menu-menuitem
 	 submenu-maps "Export map..."

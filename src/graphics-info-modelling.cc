@@ -1676,6 +1676,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
       }
    } else { 
 
+
       if (terminus_type == "not-terminal-residue") {
 	 std::cout << "that residue was not at a terminus" << std::endl;
       } else {
@@ -1775,7 +1776,6 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	    std::cout << "WARNING:: terminal atom not assigned - no masking!" << std::endl;
 	 }
 
-	 
  	 // addres.output_map("terminal-residue.map");
 	 // This bit can be deleted later:
 	 // 
@@ -1820,9 +1820,15 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 	    } else {
 
-
 	       atom_selection_container_t terminal_res_asc;
 	       float bf = default_new_atoms_b_factor;
+
+	       // if this is begin added to a shelx molecule, then we
+	       // need to set the occs to 11.0
+	       //
+	       if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
+		  bf = 11.0;
+	       } 
 	       terminal_res_asc.mol = (MyCMMDBManager *) mmol.pcmmdbmanager();
 
 	       int SelHnd = terminal_res_asc.mol->NewSelection();
@@ -1876,7 +1882,6 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       coot::residue_spec_t rs(unconst_res_p);
 	       graphics_info_t::molecules[imol].remove_ter_atoms(rs);
 
-	       
 	       if (! immediate_addition_flag) { 
 		  make_moving_atoms_graphics_object(tmp_asc);
 		  moving_atoms_asc_type = coot::NEW_COORDS_INSERT;
@@ -1886,6 +1891,12 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		     do_accept_reject_dialog("Terminal Residue", dummy);
 		  } 
 	       } else {
+
+		  if (molecules[imol].is_from_shelx_ins()) { 
+		     for (unsigned int i=0; i<tmp_asc.n_selected_atoms; i++) {
+			tmp_asc.atom_selection[i]->occupancy = 11.0;
+		     }
+		  } 
 		  molecules[imol_moving_atoms].insert_coords(tmp_asc);
 		  graphics_draw();
 	       }
@@ -2038,8 +2049,8 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
    // This uses moving_atoms_asc internally, we don't need to pass it:
    coot::atom_spec_t origin_atom_spec(atom1);
 
-   std::cout << "debug:: rot_trans_atom_index_1 " << rot_trans_atom_index_1 << " gives atom "
-	     << atom1 << std::endl;
+//    std::cout << "debug:: rot_trans_atom_index_1 " << rot_trans_atom_index_1 << " gives atom "
+// 	     << atom1 << std::endl;
 
    if (rot_trans_object_type == ROT_TRANS_TYPE_CHAIN) {
       chain_id = atom1->GetChainID();
@@ -2164,13 +2175,15 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
       rot_trans_rotation_origin_atom = find_atom_in_moving_atoms(origin_atom_spec);
 
-      if (rot_trans_rotation_origin_atom) { 
-	std::cout << "DEBUG:: atom spec in moving atom " << origin_atom_spec << " returns "
-		  << rot_trans_rotation_origin_atom << std::endl;
-      } else { 
-	std::cout << "DEBUG:: atom spec in moving atom " << origin_atom_spec << " returns NULL "
-		  << std::endl;
-      } 
+      if (0) { 
+	 if (rot_trans_rotation_origin_atom) { 
+	    std::cout << "DEBUG:: atom spec in moving atom " << origin_atom_spec << " returns "
+		      << rot_trans_rotation_origin_atom << std::endl;
+	 } else { 
+	    std::cout << "DEBUG:: atom spec in moving atom " << origin_atom_spec << " returns NULL "
+		      << std::endl;
+	 }
+      }
 
       //    std::cout << "DEBUG:: in execute_rotate_translate_read, found rotation atom: "
       // 	     << rot_trans_rotation_origin_atom << std::endl;
@@ -2557,9 +2570,9 @@ graphics_info_t::execute_db_main(int imol,
       mol.fragments.push_back(main_chain.mainchain_fragment());
       mol.write_file("db-mainchain.pdb", 20.0);
 
-      std::cout << "DEBUG:: mol.is_empty() returns " << mol.is_empty() << std::endl;
+      // std::cout << "DEBUG:: mol.is_empty() returns " << mol.is_empty() << std::endl;
       std::vector<coot::minimol::atom *> serial_atoms = mol.select_atoms_serial();
-      std::cout << "DEBUG:: serial_atoms.size() returns " << serial_atoms.size() << std::endl;
+      // std::cout << "DEBUG:: serial_atoms.size() returns " << serial_atoms.size() << std::endl;
       
       if (serial_atoms.size() > 0) {
 	 std::pair<std::vector<float>, std::string> cell_spgr = 

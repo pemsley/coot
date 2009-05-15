@@ -1197,7 +1197,8 @@ class molecule_class_info_t {
 							       short int is_undo_or_redo);
    void install_model(int imol_no_in, 
 		      atom_selection_container_t asc, const std::string &mol_name,
-		      short int display_in_display_control_widget_status);
+		      short int display_in_display_control_widget_status,
+		      bool is_from_shelx_ins=0);
 
    const coot::CartesianPair* draw_vectors;
    const coot::CartesianPair* diff_map_draw_vectors;

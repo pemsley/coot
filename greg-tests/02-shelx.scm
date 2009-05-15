@@ -133,6 +133,59 @@
 
 
 
+(greg-testcase "new molecule by atom selection inherits shelx molecule flag"  #t 
+   (lambda ()
+
+     (let ((insulin-frag (new-molecule-by-atom-selection imol-insulin-res "//B/2010-2020")))
+       (if (not (valid-model-molecule? insulin-frag))
+	   (begin
+	     (format #t " bad fragment of insulin res molecule~%")
+	     (throw 'fail)))
+
+       (if (not (shelx-molecule? insulin-frag))
+	   (begin 
+	     (format #t " bad shelx flag from insulin-frag~%")
+	     (throw 'fail)))
+       
+       #t)))
+     
+
+
+(greg-testcase "Addition of Terminal Residue on SHELX molecule has correct occupancy" #t
+   (lambda ()
+
+     (let ((insulin-frag (new-molecule-by-atom-selection imol-insulin-res "//B/2010-2020")))
+       (if (not (valid-model-molecule? insulin-frag))
+	   (begin
+	     (format #t " bad fragment of insulin res molecule~%")
+	     (throw 'fail)))
+
+       (set-imol-refinement-map imol-insulin-map)
+       (add-terminal-residue insulin-frag "B" 2020 "ALA" 1)
+
+       (let ((res-atoms (residue-info insulin-frag "B" 2021 "")))
+
+	 (if (null? res-atoms)
+	   (begin
+	     (format #t " bad residue info after add terminal residue~%")
+	     (throw 'fail)))
+
+	 (if (not 
+	      (all-true? 
+	       (map (lambda (atom)
+		      (let ((b-factor (car (list-ref atom 1))))
+			(close-float? b-factor 11.0)))
+		    res-atoms)))
+	     (begin
+	       (format #t " bad occupancides in new residue ~%")
+	       (for-each (lambda (at) (format #t "~s~%" at)) res-atoms)
+	       (throw 'fail)))
+
+	 #t ;; correct then
+	 
+	 ))))
+
+
 (greg-testcase "Add water to SHELX molecule" #t
    (lambda ()
 

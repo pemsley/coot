@@ -4834,6 +4834,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
       // save state strings
       save_state_command_strings_.push_back("read-shelx-ins-file");
       save_state_command_strings_.push_back(single_quote(filename));
+      save_state_command_strings_.push_back("1"); // recentre flag
    }
    // std::cout << " ##### read_shelx_ins_file returning " << istat << std::endl;
    return istat;

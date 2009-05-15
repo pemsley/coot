@@ -365,6 +365,10 @@
 
    o Use libglade.
 
+
+   o 	We need to activate this: graphics_info_t::execute_add_terminal_residue
+        // just shove it on without a map (i.e. add a residue with no map)
+
    o rewrite the SSM alignment output in a more robust and more
      simple-minded manner.
 
