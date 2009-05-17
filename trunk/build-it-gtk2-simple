@@ -261,7 +261,8 @@
 # 4.39 20090427 Remove python and its config from bin in slimmed dir
 # 4.40 20090506 Upgrade to mmdb 1.21
 # 4.41 20090508 add density-score-by-residue to tar ball.
-script_version=4.41
+# 4.42 20090517 Remove standard error redirections.
+script_version=4.42
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -466,7 +467,6 @@ function make_tar {
     cd $install_top_dir/..
     if [ -e $tar_dir ] ; then
        echo taring nightly... from $tar_dir to $tar_file_name
-       echo taring nightly... from $tar_dir to $tar_file_name >&2
        tar czf $tar_file_name $tar_dir
        status=$?
        if [ "$status" != 0 ] ; then 
@@ -480,7 +480,6 @@ function make_tar {
        fi
     else
        echo ERROR:: tar target directory $tar_dir does not exist.
-       echo ERROR:: tar target directory $tar_dir does not exist. >&2
     fi
 }
 
@@ -2771,16 +2770,13 @@ fi
 coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
-    echo coot build failed, exiting. >&2
     echo fail-build > $LOGS/gtk2-build-status
     my_exit 2
 else 
     echo coot build was good.
-    echo coot build was good. >&2
     echo pass-build > $LOGS/gtk2-build-status
 fi
 echo done coot build. 
-echo done coot build. >&2
 
 
 # now, do we need to add the extra data files, the refmac monomer
