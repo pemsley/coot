@@ -1482,9 +1482,16 @@ def toolbar_label_list():
    button_label_ls = []
    for toolbar_child in coot_main_toolbar.get_children():
       ls = []
-      ls.append(toolbar_child.get_label())
-      ls.append(toolbar_child)
-      button_label_ls.append(ls)
+      try:
+        label = toolbar_child.get_label()
+      except:
+        # try to do something with the gtk build in label/icons
+        # for now just pass
+        pass
+      else:
+        ls.append(toolbar_child.get_label())
+        ls.append(toolbar_child)
+        button_label_ls.append(ls)
    return button_label_ls
 
 

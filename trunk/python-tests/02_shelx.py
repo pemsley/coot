@@ -206,8 +206,8 @@ class ShelxTestFunctions(unittest.TestCase):
         imol = unittest_pdb("horma-p21.res")
         write_shelx_ins_file(imol, "new-horma.ins")
         imol_2 = read_pdb("new-horma.ins")
-        at_1 = get_atom(imol   , "A", 4, " N1 ")
-        at_2 = get_atom(imol_2 , "A", 4, " N1 ")
+        at_1 = get_atom(imol   , "A", 4, "", " N1 ")
+        at_2 = get_atom(imol_2 , "A", 4, "", " N1 ")
         b_1  = aniso_b_from_atom(at_1)
         b_2  = aniso_b_from_atom(at_2)
 

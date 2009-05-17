@@ -170,8 +170,8 @@ class LigandTestFunctions(unittest.TestCase):
         alt_conf  = active_atom[5]
         self.failIf(imol == imol_orig, "oops - didn't pick the copy for active res")
         flip_ligand(imol, chain_id, res_no)
-        atom_orig_1 = get_atom(imol_orig, "A", 1, " C8 ")
-        atom_move_1 = get_atom(imol     , "A", 1, " C8 ")
+        atom_orig_1 = get_atom(imol_orig, "A", 1, "", " C8 ")
+        atom_move_1 = get_atom(imol     , "A", 1, "", " C8 ")
 
         from types import ListType
 
@@ -188,8 +188,8 @@ class LigandTestFunctions(unittest.TestCase):
         #  having flipped it round the axes 4
         # times, we should be back where we
         # started.
-        atom_orig_1 = get_atom(imol_orig, "A", 1, " C8 ")
-        atom_move_1 = get_atom(imol     , "A", 1, " C8 ")
+        atom_orig_1 = get_atom(imol_orig, "A", 1, "", " C8 ")
+        atom_move_1 = get_atom(imol     , "A", 1, "", " C8 ")
         d2 = bond_length(atom_orig_1[2], atom_move_1[2])
         print "distance d2: ", d2
         self.failUnless(d2 < 0.001, "fail to move atom back to start d2")

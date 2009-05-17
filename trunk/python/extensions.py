@@ -340,6 +340,13 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_models,
+       "Fix Nomenclature Errors...",
+       lambda func: molecule_chooser_gui("Fix Nomenclature Error in molecule:",
+                                         lambda imol: fix_nomenclature_errors(imol)))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
        "Merge Water Chains...",
        lambda func: molecule_chooser_gui("Merge Water Chains in molecule:",
                                          lambda imol: merge_solvent_chains(imol)))
