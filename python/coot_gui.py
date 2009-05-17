@@ -3688,7 +3688,24 @@ def run_python_thread(function, args, sleep_time=20):
    if (threading.activeCount() == 1):
       gobject.timeout_add(50, python_thread_sleeper)
    MyThread().start()
+
+
+def map_sharpening_gui(imol):
+
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   vbox = gtk.VBox(False, 2)
+   adj = gtk.Adjustment(0.0, -30, 60, 0.05, 2, 30.1)
+   slider = gtk.HScale(adj)
+   label = gtk.Label("\nSharpen Map: Add B-factor")
+
+   vbox.pack_start(label,  False, False, 2)
+   vbox.pack_start(slider, False, False, 2)
+   window.add(vbox)
+   window.set_size_request(500, 100)
+
+   adj.connect("value_changed", lambda func: sharpen(imol, adj.value))
    
+   window.show_all()
 
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()
