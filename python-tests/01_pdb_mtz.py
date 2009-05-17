@@ -410,20 +410,20 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    # get the originla coords
 	    c_atom_A_o = get_atom(imol, "A", 65, "", " C  ", "A")
 	    o_atom_A_o = get_atom(imol, "A", 65, "", " O  ", "A")
-	    n_atom_A_o = get_atom(imol, "A", 65, "", " N  ", "A")
+	    n_atom_A_o = get_atom(imol, "A", 66, "", " N  ", "A")
 	    c_atom_B_o = get_atom(imol, "A", 65, "", " C  ", "B")
 	    o_atom_B_o = get_atom(imol, "A", 65, "", " O  ", "B")
-	    n_atom_B_o = get_atom(imol, "A", 65, "", " N  ", "B")
+	    n_atom_B_o = get_atom(imol, "A", 66, "", " N  ", "B")
 
 	    pepflip(imol, "A", 65, "", "B")
 
 	    # get the new coords
 	    c_atom_A_n = get_atom(imol, "A", 65, "", " C  ", "A")
 	    o_atom_A_n = get_atom(imol, "A", 65, "", " O  ", "A")
-	    n_atom_A_n = get_atom(imol, "A", 65, "", " N  ", "A")
+	    n_atom_A_n = get_atom(imol, "A", 66, "", " N  ", "A")
 	    c_atom_B_n = get_atom(imol, "A", 65, "", " C  ", "B")
 	    o_atom_B_n = get_atom(imol, "A", 65, "", " O  ", "B")
-	    n_atom_B_n = get_atom(imol, "A", 65, "", " N  ", "B")
+	    n_atom_B_n = get_atom(imol, "A", 66, "", " N  ", "B")
 
 	    # now, the *A-n atoms should match the position of the
 	    # *A-o atoms:

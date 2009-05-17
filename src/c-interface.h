@@ -3120,8 +3120,8 @@ int handle_shelx_fcf_file_internal(const char *filename);
   can't do it/fail. */
 SCM chain_id_for_shelxl_residue_number(int imol, int resno);
 /* return 1 for yes, 0 for invalid imol or no. */
-int is_shelx_molecule(int imol);
 #endif 
+int is_shelx_molecule(int imol);
 
 #ifdef USE_PYTHON
 /*! \brief @return the chain id for the given residue.  Return Py_False if

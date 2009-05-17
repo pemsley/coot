@@ -421,7 +421,7 @@ def every_nth(ls, n):
 
 # return atom info or False (if atom not found).
 #
-def get_atom(imol, chain_id, resno, atom_name, alt_conf_internal=""):
+def get_atom(imol, chain_id, resno, ins_code, atom_name, alt_conf_internal=""):
 
     def get_atom_from_res(atom_name, residue_atoms, alt_conf):
         for residue_atom in residue_atoms:
