@@ -940,7 +940,7 @@ void to_generic_object_add_dashed_line(int object_number,
    clipper::Coord_orth p_start(from_x1, from_y1, from_z1);
    clipper::Coord_orth p_end(to_x2, to_y2, to_z2);
    float ll = clipper::Coord_orth::length(p_start, p_end);
-   int n_dashes = dash_density * ll;
+   int n_dashes = int(dash_density * ll);
    bool visible = 1;
    
    for (unsigned int idash=0; idash<(n_dashes-1); idash++) {

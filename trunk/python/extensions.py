@@ -227,6 +227,13 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_maps,
+       "Sharpen Map...", 
+       lambda func: map_molecule_chooser_gui("Choose a map to sharpen...", 
+		lambda imol: map_sharpening_gui(imol)))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_maps,
        "Export map...",
        lambda func: generic_chooser_and_file_selector("Export Map: ",
                 valid_map_molecule_qm, "File_name: ", "",

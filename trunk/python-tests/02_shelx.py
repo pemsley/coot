@@ -128,6 +128,42 @@ class ShelxTestFunctions(unittest.TestCase):
 
 
     def test05_0(self):
+        """new molecule by atom selection inherits shelx molecule flag"""
+
+        global imol_insulin_res
+        insulin_frag = new_molecule_by_atom_selection(imol_insulin_res,
+                                                      "//B/2010-2020")
+        self.failUnless(valid_model_molecule_qm(insulin_frag),
+                        " bad fragment of insulin res molecule")
+        self.failUnless(shelx_molecule_qm(insulin_frag),
+                        " bad shelx flag from insulin-frag")
+
+
+    def test06_0(self):
+        """Addition of Terminal Residue on SHELX molecule has correct occupancy"""
+
+        global imol_insulin_res
+        global imol_insulin_map
+        insulin_frag = new_molecule_by_atom_selection(imol_insulin_res,
+                                                      "//B/2010-2020")
+        self.failUnless(valid_model_molecule_qm(insulin_frag),
+                        " bad fragment of insulin res molecule")
+
+        set_imol_refinement_map(imol_insulin_map)
+        add_terminal_residue(insulin_frag, "B", 2020, "ALA", 1)
+
+        res_atoms = residue_info(insulin_frag, "B", 2021, "")
+
+        self.failUnless(res_atoms,
+                        " bad residue info after add terminal residue")
+
+        for atom in res_atoms:
+            occ = atom[1][0]
+            self.failUnlessAlmostEqual(occ, 11.0, 1,
+                                       " bad occupancides in new residue %s" %atom)
+        
+
+    def test07_0(self):
         """Add water to SHELX molecule"""
 
         global imol_insulin_res
@@ -138,24 +174,9 @@ class ShelxTestFunctions(unittest.TestCase):
         # test is to have to occupancy of the new HOH to be 11.0
         shelx_waters_all_good_occ_qm(self, imol_insulin_res)
 
-        # now defined elsewhere
-        #chain_id = water_chain(imol_insulin_res)
-        #n_residues = chain_n_residues(chain_id, imol_insulin_res)
-        #serial_number = n_residues - 1
-        #res_name = resname_from_serial_number(imol_insulin_res, chain_id, serial_number)
-        #res_no   = seqnum_from_serial_number (imol_insulin_res, chain_id, serial_number)
-        #ins_code = insertion_code_from_serial_number(imol_insulin_res, chain_id, serial_number)
-        #
-        #self.failUnlessEqual(res_name, "HOH")
-        #atom_list = residue_info(imol_insulin_res, chain_id, res_no, ins_code)
-        #self.failIfEqual(atom_list, [])
-        #for atom in atom_list:
-        #    occ = atom[1][0]
-        #    self.failUnlessAlmostEqual(occ, 11.0, 1, "  bad occupancy in SHELXL molecule %s" %atom)
-
 
     # Tobias Beck test
-    def test06_0(self):
+    def test08_0(self):
         """Find Waters for a SHELXL molecule"""
 
         n_chains_pre = n_chains(imol_insulin_res)
@@ -168,7 +189,7 @@ class ShelxTestFunctions(unittest.TestCase):
 
 # non positive definite anistropic atom (reported by Mitch Miller)
 # crash test
-    def test07_0(self):
+    def test09_0(self):
         """NPD Anisotropic Atom [Mitch Miller]"""
 
         imol_miller = handle_read_draw_molecule_with_recentre(m_miller_res, 1)
@@ -184,7 +205,7 @@ class ShelxTestFunctions(unittest.TestCase):
         
 # cheesy test, close the shelx molecules
 #             
-    def test08_0(self):
+    def test10_0(self):
         """close shelx molecules"""
 
         close_molecule(imol_insulin_map)
