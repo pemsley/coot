@@ -1890,7 +1890,6 @@ fi
 # libccp4c:
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4c
-    echo BUILDING: libccp4c >&2
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/ccp4-libs-underlay.tar.gz
     ( 
@@ -1915,7 +1914,6 @@ fi
 #
 if test -n "$build_mmdb" ; then
    echo BUILDING mmdb:
-   echo BUILDING: mmdb >&2
 #
 # mmdb_version=1.0.10.  Not yet.
 # mmdb_version=1.0.8-ysbl-3
@@ -2596,7 +2594,6 @@ fi
 
 
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
-echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT >&2
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
@@ -2674,7 +2671,6 @@ fi
 ###############################################################################
 #
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
-echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT >&2
 
 # set the python tag outside the compile/install sub-shell.
 if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
