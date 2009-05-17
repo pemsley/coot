@@ -613,7 +613,6 @@ def read_shelx_project(file_name):
 
 	if (os.path.isfile(res_file_name)):
 		print "Read res file ", res_file_name
-		read_shelx_ins_file(res_file_name)
 		imol_res = handle_read_draw_molecule_with_recentre(res_file_name, 0)
 	else:
 		print "  No res file ", res_file_name

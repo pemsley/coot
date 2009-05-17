@@ -401,6 +401,46 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessAlmostEqual(occ_sum_pre, occ_sum_post, 1, "   test for closeness: %s %s" %(occ_sum_pre, occ_sum_post))
 
 
+    def test14_1(self):
+	    """Pepflip flips the correct alt confed atoms"""
+
+	    imol = unittest_pdb("alt-conf-pepflip-test.pdb")
+	    self.failUnless(valid_model_molecule_qm(imol))
+
+	    # get the originla coords
+	    c_atom_A_o = get_atom(imol, "A", 65, "", " C  ", "A")
+	    o_atom_A_o = get_atom(imol, "A", 65, "", " O  ", "A")
+	    n_atom_A_o = get_atom(imol, "A", 65, "", " N  ", "A")
+	    c_atom_B_o = get_atom(imol, "A", 65, "", " C  ", "B")
+	    o_atom_B_o = get_atom(imol, "A", 65, "", " O  ", "B")
+	    n_atom_B_o = get_atom(imol, "A", 65, "", " N  ", "B")
+
+	    pepflip(imol, "A", 65, "", "B")
+
+	    # get the new coords
+	    c_atom_A_n = get_atom(imol, "A", 65, "", " C  ", "A")
+	    o_atom_A_n = get_atom(imol, "A", 65, "", " O  ", "A")
+	    n_atom_A_n = get_atom(imol, "A", 65, "", " N  ", "A")
+	    c_atom_B_n = get_atom(imol, "A", 65, "", " C  ", "B")
+	    o_atom_B_n = get_atom(imol, "A", 65, "", " O  ", "B")
+	    n_atom_B_n = get_atom(imol, "A", 65, "", " N  ", "B")
+
+	    # now, the *A-n atoms should match the position of the
+	    # *A-o atoms:
+	    b1 = bond_length_from_atoms(c_atom_A_o, c_atom_A_n)
+	    b2 = bond_length_from_atoms(o_atom_A_o, o_atom_A_n)
+	    b3 = bond_length_from_atoms(n_atom_A_o, n_atom_A_n)
+	    b4 = bond_length_from_atoms(c_atom_B_o, c_atom_B_n)
+	    b5 = bond_length_from_atoms(o_atom_B_o, o_atom_B_n)
+	    b6 = bond_length_from_atoms(n_atom_B_o, n_atom_B_n)
+
+	    self.failUnless(b1 < 0.001 and b2 < 0.001 and b3 < 0.001,
+			    "   bad! A conf moved %s %s %s" %(b1, b2, b3))
+
+	    self.failUnless(b4 > 0.8 and b5 > 2.0 and b6 > 0.5,
+			    "   bad! B conf moved too little %s %s %s" %(b4, b5, b6))
+
+
     # This test we expect to fail until the CISPEP correction code is in
     # place (using mmdb-1.10+).
     # 
@@ -496,9 +536,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    imol_map = make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
 
 	    set_imol_refinement_map(imol_map)
-	    at_1 = get_atom(imol, "B", 72, " SG ", "B")
+	    at_1 = get_atom(imol, "B", 72, "", " SG ", "B")
 	    with_auto_accept([refine_zone, imol, "B", 72, 72, "B"])
-	    at_2 = get_atom(imol, "B", 72, " SG ", "B")
+	    at_2 = get_atom(imol, "B", 72, "", " SG ", "B")
 	    d = bond_length_from_atoms(at_1, at_2)
 	    # the atom should move in the refinement
 	    print "   refined moved: d=", d
@@ -765,8 +805,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			skipped_tests.append("Make a glycosidic linkage")
 			return
 		    
-	    atom_1 = get_atom(imol, "A", 1, " O4 ")
-	    atom_2 = get_atom(imol, "A", 2, " C1 ")
+	    atom_1 = get_atom(imol, "A", 1, "", " O4 ")
+	    atom_2 = get_atom(imol, "A", 2, "", " C1 ")
 
 	    print "bond-length: ", bond_length(atom_1[2], atom_2[2])
 
@@ -775,8 +815,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    with_auto_accept([regularize_zone, imol, "A", 1, 2, ""])
 	    set_dragged_refinement_steps_per_frame(s)
 
-	    atom_1 = get_atom(imol, "A", 1, " O4 ")
-	    atom_2 = get_atom(imol, "A", 2, " C1 ")
+	    atom_1 = get_atom(imol, "A", 1, "", " O4 ")
+	    atom_2 = get_atom(imol, "A", 2, "", " C1 ")
 
 	    print "bond-length: ", bond_length(atom_1[2], atom_2[2])
 
@@ -794,8 +834,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    apply_undo()
 	    with_auto_accept([regularize_zone, imol, "A", 1, 1, ""])
 
-	    atom_1 = get_atom(imol, "A", 1, "HG11")
-	    atom_2 = get_atom(imol, "A", 1, " CG1")
+	    atom_1 = get_atom(imol, "A", 1, "", "HG11")
+	    atom_2 = get_atom(imol, "A", 1, "", " CG1")
 
 	    self.failUnless((type(atom_1) is ListType) and
 			    (type(atom_2) is ListType) ,
@@ -817,8 +857,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			  ["HD21", " CD2"],
 			  ["HD22", " CD2"],
 			  ["HD23", " CD2"]]
-	    atoms_1 = map(lambda pair: get_atom(imol, "B", 6, pair[0]), atom_pairs)
-	    atoms_2 = map(lambda pair: get_atom(imol, "B", 6, pair[1]), atom_pairs)
+	    atoms_1 = map(lambda pair: get_atom(imol, "B", 6, "", pair[0]), atom_pairs)
+	    atoms_2 = map(lambda pair: get_atom(imol, "B", 6, "", pair[1]), atom_pairs)
 	    #all_true = map(lambda atom_1, atom_2: bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), atoms_1, atoms_2)
 	    self.failUnless(all(map(lambda atom_1, atom_2: bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), atoms_1, atoms_2)), "Hydrogen names mangled from PDB")
 
@@ -834,13 +874,13 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    imol = new_molecule_by_atom_selection(imol_rnase, "//A/30")
 
-	    atom_1 = get_atom(imol, "A", 30, " CB ")
-	    atom_2 = get_atom(imol, "A", 30, " CG ")
+	    atom_1 = get_atom(imol, "A", 30, "", " CB ")
+	    atom_2 = get_atom(imol, "A", 30, "", " CG ")
 
 	    with_auto_accept([refine_zone, imol, "A", 30, 30, ""])
 
-	    atom_1 = get_atom(imol, "A", 30, " CB ")
-	    atom_2 = get_atom(imol, "A", 30, " CG ")
+	    atom_1 = get_atom(imol, "A", 30, "", " CB ")
+	    atom_2 = get_atom(imol, "A", 30, "", " CG ")
 	    print "  Bond-length: ", bond_length(atom_1[2], atom_2[2])
 
 	    self.failUnless(bond_length_within_tolerance_qm(atom_1, atom_2, 2.8, 0.6),
@@ -850,8 +890,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    with_auto_accept([refine_zone, imol, "A", 30, 30, ""])
 	    
-	    atom_1 = get_atom(imol, "A", 30, " CB ")
-	    atom_2 = get_atom(imol, "A", 30, " CG ")
+	    atom_1 = get_atom(imol, "A", 30, "", " CB ")
+	    atom_2 = get_atom(imol, "A", 30, "", " CG ")
 
 	    post_set_plane_restraints = monomer_restraints("TYR")["_chem_comp_plane_atom"]
 
@@ -1325,8 +1365,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    result = apply_lsq_matches(imol_1, imol_2)
 	    self.failUnless(result, "Bad match")
 
-	    c_1 = get_atom(imol_1, "A", 35, " C  ")
-	    c_2 = get_atom(imol_2, "B", 35, " C  ")
+	    c_1 = get_atom(imol_1, "A", 35, "", " C  ")
+	    c_2 = get_atom(imol_2, "B", 35, "", " C  ")
 	    b = bond_length_from_atoms(c_1, c_2)
 
 	    self.failUnless(bond_length_within_tolerance_qm(c_1, c_2, 0.0, 0.2))

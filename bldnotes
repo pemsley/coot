@@ -7,6 +7,20 @@ tests   rev 1998
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+   o fix toobuttons
+
+   o website guile comment
+
+   o simple guile implementation in WinCoot
+
+   o interuptable refinement in python
+
+   o include density-score-by-residue.exe in WinCoot installer
+
+   o build-info: show pass-build but dont make installer if test fails (WinCoot)
+
+   o update python WIKI scripts
+
    o ccp4mg ellipsoids
 
    o revisit refinement convergence of alt conf refinement

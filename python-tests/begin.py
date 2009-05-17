@@ -69,8 +69,15 @@ def bond_length(pos_1, pos_2):
 pos_diff = bond_length
 
 def bond_length_from_atoms(atom_1, atom_2):
-    return bond_length(atom_1[2],
-                       atom_2[2])
+    from types import ListType
+    if (type(atom_1) is not ListType):
+        print "   WARNING:: bond_length_from_atoms: atom_1 not a list:", atom_1
+        return
+    elif (type(atom_2) is not ListType):
+        print "   WARNING:: bond_length_from_atoms: atom_2 not a list:", atom_2        return
+    else:
+        return bond_length(atom_1[2],
+                           atom_2[2])
 
 def bond_length_within_tolerance_qm(atom_1, atom_2, ideal_length, tolerance):
 
