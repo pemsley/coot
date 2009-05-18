@@ -347,9 +347,60 @@
       have zero occupancy.
 
 
+Punted from 0.6:
+
    o Ingo K.: Ctrl left-mouse dragging sometimes does not work for alt
      conf fragment residue.  Can't reproduce.  Punt.  Needs checking
      with Ingo.  (He means refinement?)
+
+   o Does the window stay constant size (on something other than a
+     laptop) on start, exit, start exit cycling?
+     Priority: 6: Difficulty: 4  ::: 2
+
+   o Fix up mini-RSR so that it compiles properly. ::: 4
+
+
+   o Put refine-zone and regularize-zone into the history. ::: 2
+
+
+   o consider making bonds to hydrogens thinner.  A spike needed to
+     test for bonds split on thickness or colour most deeply.  ::: 5
+
+
+   o Delay the reading of coords, mtzs, maps until after ~/.coot etc
+     have been read (something like run_command_line_scripts()], see
+     handle_command_line_data().  [Pete Meyer] ::: 2
+
+   o Helix fitting overshoots - e.g.     
+       1a02: place helix here at (9.2 36.6 28.3)
+       1env: place helix here - many places.  Lots of errors.
+
+       3cjb_sigmaa at (-22.9451 0.2204 20.011) fail.
+
+       ::: 4
+
+
+     o Markus Rudolf: 
+
+  when updating to the latest gtk1 or gtk2 builds, we get this error:
+
+  Gtk-WARNING **: invalid cast from `GtkLabel' to `GtkContainer'
+  Gtk-CRITICAL **: file gtkcontainer.c: line 1119 (gtk_container_foreach): assertion `GTK_IS_CONTAINER (container)' failed.
+
+  gtk1 build 1855 works fine. 
+
+    Baah.  Can't reproduce.  Needs to be followed up. get startup
+    script etc.
+
+        ::: 1
+
+
+   o Add add rep of a residue.  Change background to white.  Rotate
+     view.  Ugliness! ::: 2 [Erik Vogan]
+
+
+   o Garib wants a function to move (symmetry-related) waters close to
+     the protein. ::: 4
 
 
  0.7 Priorities:
@@ -426,6 +477,12 @@
    Release 0.9, Facelift-release [Dec 2009]
 
    o Oxidized cysine - with a modification
+
+   o Alex Luso: Thu 14 May 01:42:09 2009 BST
+   I wonder if adding the function as buttons on the
+   baton window would be useful? (i.e. "Build Backwards" and "Build
+   Forwards" - perhaps asking for user input as to the relevant
+   res-num or guessing it). I think O does that. Just a thought.
 
    o Clean up menu items, use Preferences.
 
