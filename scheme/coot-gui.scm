@@ -2490,14 +2490,19 @@
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (vbox (gtk-vbox-new #f 2))
+	 (hbox (gtk-hbox-new #f 2))
 	 (adj (gtk-adjustment-new 0.0 -30 60 0.05 2 30.1))
 	 (slider (gtk-hscale-new adj))
-	 (label (gtk-label-new "\nSharpen Map: Add B-factor")))
+	 (label (gtk-label-new "\nSharpen Map:"))
+	 (lab2  (gtk-label-new "Add B-factor: ")))
 
     (gtk-box-pack-start vbox label  #f #f 2)
-    (gtk-box-pack-start vbox slider #f #f 2)
+    (gtk-box-pack-start vbox hbox   #f #f 2)
+    (gtk-box-pack-start hbox lab2   #f #f 2)
+    (gtk-box-pack-start hbox slider #t #t 2)
     (gtk-container-add window vbox)
     (gtk-window-set-default-size window 500 100)
+    ;; (gtk-scale-add-mark slider -30 -30 "")  guile-gtk not up to it :-(
 
     (gtk-signal-connect adj "value_changed"
 			(lambda ()
