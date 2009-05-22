@@ -136,7 +136,7 @@ AM_WITH_MMDBSSM
 
 dnl Check for Clipper.  we exit if clipper is not found.
 #
-AM_PATH_CLIPPER(, [echo Error locating Clipper - a CNS-enabled version of Clipper \(2.1-090210-ac or later\) is required now; exit 1],AC_MSG_ERROR([Cannot find Clipper]))
+AM_PATH_CLIPPER(, [echo Error locating Clipper - a CNS-enabled version of Clipper \(2.1-090520-ac or later\) is required now; exit 1],AC_MSG_ERROR([Cannot find Clipper]))
 
 # we set default coot_guile to true
 coot_guile=true
