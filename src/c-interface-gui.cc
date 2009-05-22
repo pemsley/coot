@@ -73,7 +73,7 @@
 #include "cc-interface.hh"
 #include "cmtz-interface.hh"
 #include "mmdb.h"  // for centre of molecule
-#include "clipper/clipper.h"
+#include "clipper/core/clipper_instance.h"
 
 #if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 5))
 #define HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT

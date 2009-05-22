@@ -98,7 +98,8 @@ AC_MSG_CHECKING([for Clipper])
 	CC="$CXX $CXXFLAGS"
 	AC_TRY_LINK([#include "clipper/core/xmap.h"
 #include "clipper/cns/cns_hkl_io.h"
-#include "clipper/minimol/minimol.h"] ,[ clipper::Xmap<float> a; clipper::MMonomer m1, m2; clipper::MMonomer::protein_peptide_bond(m1,m2,1.6);   clipper::HKL_info myhkl; clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(myhkl); clipper::CNS_HKLfile cnsin; cnsin.import_hkl_data(fphidata, "test"); ], have_clipper=yes, have_clipper=no)
+#include "clipper/core/clipper_instance.h"
+#include "clipper/minimol/minimol.h"] ,[ clipper::Xmap<float> a; clipper::MMonomer m1, m2; clipper::MMonomer::protein_peptide_bond(m1,m2,1.6);   clipper::HKL_info myhkl; clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(myhkl); clipper::CNS_HKLfile cnsin; cnsin.import_hkl_data(fphidata, "test"); clipper::ClipperInstantiator::instance().destroy(); ], have_clipper=yes, have_clipper=no)
 	CC="$CC_save"
 	AC_MSG_RESULT($have_clipper)
 
