@@ -1091,7 +1091,7 @@ names (@emph{e.g.} @code{@t{"P 21 21 21"}}).
 @cindex space group operators
 @cindex symmetry operators
 To show the symmetry operators of a particular molecule use:
-@code{(show-symmetry @emph{imol})}
+@code{(get-symmetry @emph{imol})}
 which will return a list of strings.
 
 @node Recentring View
