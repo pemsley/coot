@@ -3694,14 +3694,19 @@ def map_sharpening_gui(imol):
 
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    vbox = gtk.VBox(False, 2)
+   hbox = gtk.HBox(False, 2)
    adj = gtk.Adjustment(0.0, -30, 60, 0.05, 2, 30.1)
    slider = gtk.HScale(adj)
-   label = gtk.Label("\nSharpen Map: Add B-factor")
+   label = gtk.Label("\nSharpen Map:")
+   lab2  = gtk.Label("Add B-factor: ")
 
    vbox.pack_start(label,  False, False, 2)
-   vbox.pack_start(slider, False, False, 2)
+   vbox.pack_start(hbox,   False, False, 2)
+   hbox.pack_start(lab2,   False, False, 2)
+   hbox.pack_start(slider, True,  True,  2)
    window.add(vbox)
    window.set_size_request(500, 100)
+   # slider.add_mark(-30, -30, 0) # not yet
 
    adj.connect("value_changed", lambda func: sharpen(imol, adj.value))
    

@@ -73,6 +73,7 @@
 #include "cc-interface.hh"
 #include "cmtz-interface.hh"
 #include "mmdb.h"  // for centre of molecule
+#include "clipper/clipper.h"
 
 #if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 5))
 #define HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
@@ -1192,6 +1193,9 @@ coot_real_exit(int retval) {
 #ifdef USE_PYTHON
    // Py_Finalize();
 #endif
+
+   clipper::ClipperInstantiator::instance().destroy();
+
    gtk_exit(retval); 
 
 }
