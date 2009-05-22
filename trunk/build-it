@@ -1778,6 +1778,7 @@ if test -n "$build_clipper" ; then
     echo BUILDING clipper:
     clipper_version=2.1-081201-ac
     clipper_version=2.1-090210-ac
+    clipper_version=2.1-090520-ac
     clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
