@@ -262,7 +262,8 @@
 # 4.40 20090506 Upgrade to mmdb 1.21
 # 4.41 20090508 add density-score-by-residue to tar ball.
 # 4.42 20090517 Remove standard error redirections.
-script_version=4.42
+# 4.43 20090522 Update to guile-1.8.6 on the advice of Ed Podharski.
+script_version=4.43
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2361,7 +2362,7 @@ fi
 if test -n "$build_guile" ; then 
     echo BUILDING guile:
 #
-guile_version=1.8.5
+guile_version=1.8.6
 # mirror has gone/moved.
 # ${WGET} http://mirror.ac.uk/mirror/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
