@@ -263,7 +263,8 @@
 # 4.41 20090508 add density-score-by-residue to tar ball.
 # 4.42 20090517 Remove standard error redirections.
 # 4.43 20090522 Update to guile-1.8.6 on the advice of Ed Podharski.
-script_version=4.43
+# 4.44 20090523 Add some build info to the mmdb and clipper logs.
+script_version=4.44
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1928,7 +1929,9 @@ ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
+echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz
 cd  mmdb-$mmdb_version
+pwd
 # patch to read long lines in a cif file
 patch -p0 < ../mmdb-mmcif-long-line.patch
 ./configure $generic_prefix
@@ -2006,8 +2009,11 @@ if test -n "$build_clipper" ; then
        ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
     fi
     (
+    echo Unzipping ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz 
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
     cd clipper-$clipper_dir_version
+    pwd
+    date
     
     # make clipper
     echo . ------------------------------------------------------------------------------
