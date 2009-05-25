@@ -8390,3 +8390,7 @@ void set_socket_string_waiting(const char *s) {
    
 }
 
+
+void set_map_sharpening_scale_limit(float f) {
+   graphics_info_t::map_sharpening_scale_limit = f;
+} 

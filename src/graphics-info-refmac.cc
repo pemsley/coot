@@ -101,17 +101,19 @@
 #endif // SCM version
 #endif 
 
-void
+int
 graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
 						   GtkSignalFunc signal_func) {
 
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
    GtkWidget *menuitem;
+   int active_map_mol_no = -1;
 
    //   std::cout << "DEBUG:: menu: " << menu << std::endl;
    if (menu)
       gtk_widget_destroy(menu);
    menu = gtk_menu_new();
+   int menu_index = 0;
    
    for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].xmap_is_filled[0] == 1) {
@@ -126,9 +128,15 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
 			    GINT_TO_POINTER(i));
 	 gtk_menu_append(GTK_MENU(menu), menuitem);
 	 gtk_widget_show(menuitem);
+	 if (active_map_mol_no == -1) { 
+	    active_map_mol_no = i;
+	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
+	 }
       }
+      menu_index++;
    }
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
+   return active_map_mol_no;
 }
 
 // c.f. the other function:

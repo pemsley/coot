@@ -85,6 +85,7 @@ create_window1 (void)
   GtkWidget *change_chain_ids2;
   GtkWidget *move_molecule_here1;
   GtkWidget *fit_loop1;
+  GtkWidget *map_sharpening1;
   GtkWidget *cowtan_foadi_skeleton1;
   GtkWidget *ncs_maps1;
   GtkWidget *frames_sec1;
@@ -570,6 +571,13 @@ create_window1 (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (fit_loop1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), fit_loop1);
+
+  map_sharpening1 = gtk_menu_item_new_with_label (_("Map Sharpening..."));
+  gtk_widget_ref (map_sharpening1);
+  gtk_object_set_data_full (GTK_OBJECT (window1), "map_sharpening1", map_sharpening1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (map_sharpening1);
+  gtk_container_add (GTK_CONTAINER (calculate1_menu), map_sharpening1);
 
   cowtan_foadi_skeleton1 = gtk_menu_item_new_with_label (_("Map Skeleton..."));
   gtk_widget_ref (cowtan_foadi_skeleton1);
@@ -1266,6 +1274,9 @@ create_window1 (void)
                       NULL);
   gtk_signal_connect (GTK_OBJECT (fit_loop1), "activate",
                       GTK_SIGNAL_FUNC (on_fit_loop1_activate),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (map_sharpening1), "activate",
+                      GTK_SIGNAL_FUNC (on_map_sharpening1_activate),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (cowtan_foadi_skeleton1), "activate",
                       GTK_SIGNAL_FUNC (on_skeleton1_activate),
@@ -19067,6 +19078,106 @@ create_run_refmac_nolabels_help_dialog (void)
                       NULL);
 
   return run_refmac_nolabels_help_dialog;
+}
+
+GtkWidget*
+create_map_sharpening_dialog (void)
+{
+  GtkWidget *map_sharpening_dialog;
+  GtkWidget *dialog_vbox101;
+  GtkWidget *vbox207;
+  GtkWidget *label310;
+  GtkWidget *map_sharpening_optionmenu;
+  GtkWidget *map_sharpening_optionmenu_menu;
+  GtkWidget *alignment1;
+  GtkWidget *map_sharpening_hscale;
+  GtkWidget *dialog_action_area100;
+  GtkWidget *hbox161;
+  GtkWidget *map_sharpening_ok_button;
+  GtkWidget *map_sharpening_cancel_button;
+
+  map_sharpening_dialog = gtk_dialog_new ();
+  gtk_object_set_data (GTK_OBJECT (map_sharpening_dialog), "map_sharpening_dialog", map_sharpening_dialog);
+  gtk_widget_set_usize (map_sharpening_dialog, 350, -2);
+  gtk_window_set_title (GTK_WINDOW (map_sharpening_dialog), _("Map Sharpening"));
+  gtk_window_set_policy (GTK_WINDOW (map_sharpening_dialog), TRUE, TRUE, FALSE);
+
+  dialog_vbox101 = GTK_DIALOG (map_sharpening_dialog)->vbox;
+  gtk_object_set_data (GTK_OBJECT (map_sharpening_dialog), "dialog_vbox101", dialog_vbox101);
+  gtk_widget_show (dialog_vbox101);
+
+  vbox207 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox207);
+  gtk_object_set_data_full (GTK_OBJECT (map_sharpening_dialog), "vbox207", vbox207,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox207);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox101), vbox207, TRUE, TRUE, 0);
+
+  label310 = gtk_label_new (_("\nMap to Sharpen\n"));
+  gtk_widget_ref (label310);
+  gtk_object_set_data_full (GTK_OBJECT (map_sharpening_dialog), "label310", label310,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (label310);
+  gtk_box_pack_start (GTK_BOX (vbox207), label310, FALSE, FALSE, 0);
+
+  map_sharpening_optionmenu = gtk_option_menu_new ();
+  gtk_widget_ref (map_sharpening_optionmenu);
+  gtk_object_set_data_full (GTK_OBJECT (map_sharpening_dialog), "map_sharpening_optionmenu", map_sharpening_optionmenu,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (map_sharpening_optionmenu);
+  gtk_box_pack_start (GTK_BOX (vbox207), map_sharpening_optionmenu, FALSE, FALSE, 0);
+  map_sharpening_optionmenu_menu = gtk_menu_new ();
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (map_sharpening_optionmenu), map_sharpening_optionmenu_menu);
+
+  alignment1 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_ref (alignment1);
+  gtk_object_set_data_full (GTK_OBJECT (map_sharpening_dialog), "alignment1", alignment1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (alignment1);
+  gtk_box_pack_start (GTK_BOX (vbox207), alignment1, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (alignment1), 6);
+
+  map_sharpening_hscale = gtk_hscale_new (GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 0, 0, 0, 0)));
+  gtk_widget_ref (map_sharpening_hscale);
+  gtk_object_set_data_full (GTK_OBJECT (map_sharpening_dialog), "map_sharpening_hscale", map_sharpening_hscale,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (map_sharpening_hscale);
+  gtk_container_add (GTK_CONTAINER (alignment1), map_sharpening_hscale);
+
+  dialog_action_area100 = GTK_DIALOG (map_sharpening_dialog)->action_area;
+  gtk_object_set_data (GTK_OBJECT (map_sharpening_dialog), "dialog_action_area100", dialog_action_area100);
+  gtk_widget_show (dialog_action_area100);
+  gtk_container_set_border_width (GTK_CONTAINER (dialog_action_area100), 10);
+
+  hbox161 = gtk_hbox_new (TRUE, 0);
+  gtk_widget_ref (hbox161);
+  gtk_object_set_data_full (GTK_OBJECT (map_sharpening_dialog), "hbox161", hbox161,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox161);
+  gtk_box_pack_start (GTK_BOX (dialog_action_area100), hbox161, TRUE, TRUE, 0);
+
+  map_sharpening_ok_button = gtk_button_new_with_label (_("  OK  "));
+  gtk_widget_ref (map_sharpening_ok_button);
+  gtk_object_set_data_full (GTK_OBJECT (map_sharpening_dialog), "map_sharpening_ok_button", map_sharpening_ok_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (map_sharpening_ok_button);
+  gtk_box_pack_start (GTK_BOX (hbox161), map_sharpening_ok_button, TRUE, FALSE, 0);
+
+  map_sharpening_cancel_button = gtk_button_new_with_label (_("  Cancel  "));
+  gtk_widget_ref (map_sharpening_cancel_button);
+  gtk_object_set_data_full (GTK_OBJECT (map_sharpening_dialog), "map_sharpening_cancel_button", map_sharpening_cancel_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (map_sharpening_cancel_button);
+  gtk_box_pack_start (GTK_BOX (hbox161), map_sharpening_cancel_button, TRUE, FALSE, 0);
+
+  gtk_signal_connect (GTK_OBJECT (map_sharpening_ok_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_map_sharpening_ok_button_clicked),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (map_sharpening_cancel_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_map_sharpening_cancel_button_clicked),
+                      NULL);
+
+  return map_sharpening_dialog;
 }
 
 #endif

@@ -11442,3 +11442,32 @@ on_toolbar_multi_refine_stop_button_clicked
 }
 
   
+
+void
+on_map_sharpening1_activate            (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+   GtkWidget *w = wrapped_create_map_shapening_dialog();
+   gtk_widget_show(w);
+}
+
+
+void
+on_map_sharpening_ok_button_clicked    (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "map_sharpening_dialog");
+   gtk_widget_destroy(w);
+
+}
+
+
+void
+on_map_sharpening_cancel_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+

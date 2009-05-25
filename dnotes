@@ -4123,4 +4123,28 @@ Fri Apr 17 17:38:02 BST 2009
 	How can this be made easier/automated?
 
 
+----
+Mon May 18 23:28:41 BST 2009
+
+	Add to GUI talk: What's the difference between:
+        Some function
+	and 
+	Some function...
+       	?
+
+----
+Wed May 20 00:16:05 BST 2009
+
+	Have go to atom open... on a bulding structure
+	
+	file -> get 1gxt from pdb 
+	
+	(change molecule to (new) 1gxt
+	
+	but the chains in the residue/chain tree do not change!
+
+	Bug!
+
+
+
 ------
