@@ -2378,8 +2378,9 @@ public:
    static gboolean on_residue_info_master_atom_b_factor_changed (GtkWidget       *widget,
 								 GdkEventKey     *event,
 								 gpointer         user_data);
-
-   void fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func); 
+   // Return the molecule number of the selected map (I mean, top of
+   // the list, in the option menu)
+   int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func); 
    void fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func,
 					  int imol_active_position); 
    void set_on_off_skeleton_radio_buttons(GtkWidget *skeleton_frame); 
@@ -3307,6 +3308,10 @@ public:
    static int listener_socket_have_good_socket_state; 
 
    void post_recentre_update_and_redraw();
+
+   // --- map sharpening
+   static int imol_map_sharpening;
+   static float map_sharpening_scale_limit;
 
    // --- user defined picks
    static std::vector<coot::atom_spec_t> user_defined_atom_pick_specs;

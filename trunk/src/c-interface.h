@@ -2722,7 +2722,6 @@ void set_residue_selection_flash_frames_number(int i);
 void accept_regularizement();
 void clear_up_moving_atoms();	/* remove the molecule and bonds */
 void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done here). */
-/* void fill_option_menu_with_map_options(GtkWidget *option_menu); old */
 /* now we use */
 void fill_option_menu_with_refine_options(GtkWidget *option_menu);
 
@@ -5204,12 +5203,27 @@ void set_dti_stereo_mode(short int state);
 /*  ----------------------------------------------------------------------- */
 /*           Sharpen                                                        */
 /*  ----------------------------------------------------------------------- */
+/*! \name Map Sharpening Interface */
+/* \{ */
+/*! \brief Sharpen map imol by b_factor (note (of course) that positive numbers 
+    blur the map).  */
 void sharpen(int imol, float b_factor);
+
+GtkWidget *wrapped_create_map_shapening_dialog();
+void map_sharpening_map_select(GtkWidget *item, GtkPositionType pos);
+void map_sharpening_value_changed (GtkAdjustment *adj, GtkWidget *window);
+int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
+/*! \brief set the limit of the b-factor sharpening slider (default 30) */
+void set_map_sharpening_scale_limit(float f);
+/*! \} */
+
 
 /*  ----------------------------------------------------------------------- */
 /*           Intermediate Atom Manipulation                                 */
 /*  ----------------------------------------------------------------------- */
 
+/*! \name Intermediate Atom Manipulation Interface */
+/* \{ */
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position);
@@ -5218,11 +5232,14 @@ SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position);
 PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
 #endif 
 #endif 
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*           Fixed Atom Manipulation                                        */
 /*  ----------------------------------------------------------------------- */
 
+/*! \name Marking Fixed Atom Interface */
+/* \{ */
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state);
@@ -5243,6 +5260,7 @@ void clear_fixed_atoms_all();
 /* produce debugging output from problematic atom picking  */
 void set_debug_atom_picking(int istate);
 
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Partial Charge                                          */

@@ -1914,11 +1914,11 @@ void guile_window_enter_callback( GtkWidget *widget,
 // it to graphics_info_t because it is also used when there is an
 // ambiguity in the map for refinement (graphics_info_t::refine)
 // 
-void fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
 
    graphics_info_t g;
 
-   g.fill_option_menu_with_map_options(option_menu, signalfunc);
+   return g.fill_option_menu_with_map_options(option_menu, signalfunc);
 }
 
 void fill_option_menu_with_skeleton_options(GtkWidget *option_menu) {  /* a wrapper */
@@ -5323,3 +5323,65 @@ void set_visible_toolbar_multi_refine_continue_button(short int state) {
       } 
    }
 } 
+
+
+// ---------------------------------------------
+//        Map Sharpening dialog
+// ---------------------------------------------
+
+GtkWidget *wrapped_create_map_shapening_dialog() {
+
+   float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;
+   GtkWidget *w = create_map_sharpening_dialog();
+   GtkSignalFunc signal_func = GTK_SIGNAL_FUNC(map_sharpening_map_select);
+
+   GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
+
+   int imol = fill_option_menu_with_map_options(option_menu, signal_func);
+   graphics_info_t::imol_map_sharpening = imol;
+
+   std::cout << "DEBUG:: imol from fill_option_menu_with_map_options() " << imol << std::endl;
+
+   GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
+   //GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
+   // 0.05, 2, 30.1);
+   GtkObject *adj = gtk_adjustment_new(0.0, -30, 60, 0.05, 0.2, 30.1);
+   gtk_range_set_adjustment(GTK_RANGE(h_scale), GTK_ADJUSTMENT(adj));
+
+   gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
+		      GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
+
+#if (GTK_MAJOR_VERSION > 1)
+#if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14) 
+   for (int i=0; i<5; i++)
+      gtk_scale_add_mark(GTK_RANGE(h_scale),
+			 float (i-2) * 0.5 * sharpening_limit,
+			 GTK_POS_BOTTOM);
+   gtk_scale_add_mark(GTK_RANGE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "Blur");
+   gtk_scale_add_mark(GTK_RANGE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "Sharp");
+#endif   
+#endif
+
+   // Don't display the cancel button.
+   GtkWidget *c = lookup_widget(w, "map_sharpening_cancel_button");
+   gtk_widget_hide(c);
+
+   return w;
+}
+
+void
+map_sharpening_map_select(GtkWidget *item, GtkPositionType pos) {
+
+   graphics_info_t::imol_map_sharpening = pos;
+
+}
+
+void map_sharpening_value_changed (GtkAdjustment *adj, 
+				   GtkWidget *window) {
+
+   int imol = graphics_info_t::imol_map_sharpening;
+   if (is_valid_map_molecule(imol)) {
+      // std::cout << "sharpen " << imol << " by " << adj->value << std::endl;
+      sharpen(imol, adj->value);
+   } 
+}
