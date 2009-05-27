@@ -240,14 +240,6 @@
 	 submenu-maps "Transform map by LSQ model fit..."
 	 (lambda () (transform-map-using-lsq-matrix-gui)))
 	
-	(add-simple-coot-menu-menuitem
-	 submenu-maps "Sharpen Map..."
-	 (lambda ()
-	   (map-molecule-chooser-gui 
-	    "Choose a map to sharpen"
-	    (lambda (imol)
-	      (map-sharpening-gui imol)))))
-
 
 	(add-simple-coot-menu-menuitem
 	 submenu-maps "Export map..."
