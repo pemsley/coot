@@ -1386,6 +1386,13 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
      n_contexts = 2;
      graphics_info_t::display_mode = try_stereo_flag;
   }
+
+   if (try_stereo_flag == coot::ZALMAN_STEREO) {
+     // BL asks: should be here?!
+     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_SINGLE | GLUT_STENCIL);
+
+   }
+
   int context_count = 0;
   
   while(context_count < n_contexts) {
@@ -1408,8 +1415,10 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
  	if (context_count > 1) { // more than the first context
 	   // std::cout << " =============== " << context_count << std::endl;
+	  if (graphics_info_t::glarea) {
  	   gl_context_x_size = graphics_info_t::glarea->allocation.width;
  	   gl_context_y_size = graphics_info_t::glarea->allocation.height;
+	  }
 	   // std::cout << " ===============" << gl_context_x_size
 	   // << " "<< gl_context_y_size << std::endl;
  	}
@@ -1708,31 +1717,35 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
    if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
       draw_hardware_stereo(widget, event);
    } else {
-      if (graphics_info_t::display_mode_use_secondary_p()) { 
+     if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
+       draw_zalman_stereo(widget, event);
+     } else {
+       if (graphics_info_t::display_mode_use_secondary_p()) { 
 	 if (widget == graphics_info_t::glarea_2) {
-	    // std::cout << "DEBUG:: draw other window" << std::endl;
-	    graphics_info_t g; // is this a slow thing?
-	    float tbs =  g.get_trackball_size(); 
-	    float spin_quat[4];
-	    // 0.0174 = 1/(2*pi)
-	    float eye_fac = 1.0;
-// 	    if (graphics_info_t::in_wall_eyed_side_by_side_stereo_mode)
-// 	       eye_fac = -1.0;
-	    if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE)
-	       eye_fac = -1.0;
-	    trackball(spin_quat, 0, 0, eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
-	    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-	    draw_mono(widget, event, 0);
-	    // reset the viewing angle:
-	    trackball(spin_quat, 0, 0, -eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
-	    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
+	   // std::cout << "DEBUG:: draw other window" << std::endl;
+	   graphics_info_t g; // is this a slow thing?
+	   float tbs =  g.get_trackball_size(); 
+	   float spin_quat[4];
+	   // 0.0174 = 1/(2*pi)
+	   float eye_fac = 1.0;
+	   // 	    if (graphics_info_t::in_wall_eyed_side_by_side_stereo_mode)
+	   // 	       eye_fac = -1.0;
+	   if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE)
+	     eye_fac = -1.0;
+	   trackball(spin_quat, 0, 0, eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
+	   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
+	   draw_mono(widget, event, 0);
+	   // reset the viewing angle:
+	   trackball(spin_quat, 0, 0, -eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
+	   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 	 } else {
-	    // std::cout << "draw main window" << std::endl;
-	    draw_mono(widget, event, 0);
+	   // std::cout << "draw main window" << std::endl;
+	   draw_mono(widget, event, 0);
 	 }
-      } else { 
+       } else { 
 	 draw_mono(widget, event, 0);
-      }
+       }
+     }
    }
    return TRUE;
 }
@@ -1774,6 +1787,32 @@ gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
    return TRUE;
 }
 
+gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event) {
+
+   // tinker with graphics_info_t::quat, rotate it left, draw it,
+   // rotate it right, draw it.
+   graphics_info_t g; // is this a slow thing?
+   float tbs =  g.get_trackball_size(); 
+   float spin_quat[4];
+   // 0.0174 = 1/(2*pi)
+   trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
+   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
+
+   // draw right (should maybe be left)??:
+   draw_mono(widget, event, 5); // 5 for right
+   
+   trackball(spin_quat, 0, 0, 2.0*g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
+   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
+
+   // draw left (should maybe be right)??:
+   draw_mono(widget, event, 6); // 6 for left
+
+   // reset the viewing angle:
+   trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
+   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
+
+   return TRUE;
+}
 
 void gdkglext_finish_frame(GtkWidget *widget) {
 
@@ -1825,21 +1864,23 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // Clear the scene
       // 
-      glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+      // BL says:: another hack!? FIXME
+      // dont clear when we want to draw the 2 Zalman views
+      if (in_stereo_flag != 6) 
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
       // From Bernhard
 #if (GTK_MAJOR_VERSION > 1) 
-   glEnable (GL_FOG);
-   glFogi(GL_FOG_MODE, GL_LINEAR);
-   glFogf(GL_FOG_START, -20.0);
-   glFogf(GL_FOG_END, 20.0);
-   glDepthFunc (GL_LESS);
-   glFogfv(GL_FOG_COLOR, graphics_info_t::background_colour);
-   glEnable(GL_DEPTH_TEST);
+      glEnable (GL_FOG);
+      glFogi(GL_FOG_MODE, GL_LINEAR);
+      glFogf(GL_FOG_START, -20.0);
+      glFogf(GL_FOG_END, 20.0);
+      glDepthFunc (GL_LESS);
+      glFogfv(GL_FOG_COLOR, graphics_info_t::background_colour);
+      glEnable(GL_DEPTH_TEST);
 #endif
 
 
-      
       // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
       glMatrixMode(GL_PROJECTION);
@@ -1919,8 +1960,14 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // secondary window, so that, when display lists are being
 	 // used we use the correct part of theMapContours.
 	 //
+         // BL says:: bad hack FIXME
+         if (in_stereo_flag == 5 || in_stereo_flag == 6) {
+	 graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
+							 0);
+         } else {
 	 graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
 							 in_stereo_flag);
+         }
 
 	 // Turn the light(s) on and after off, if needed.
 	 // 
@@ -1943,6 +1990,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 graphics_info_t::molecules[ii].draw_skeleton();
 
       }
+
       // regularize object 
       graphics_info_t::moving_atoms_graphics_object();
 
@@ -1999,7 +2047,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glColor3f(0.8,0.6,0.7);
 	 myWireCube (1.0);
       }
-      // Now we have finished displaying our objects and making
+ 
+
+     // Now we have finished displaying our objects and making
       // transformations, lets put the matrix back how it used
       // to be.
       glPopMatrix();
@@ -2029,10 +2079,85 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 // 	 glPopMatrix();
 //       }
 
+      // BL:: this is code for Zalman monitor. Maybe can be somewhere else!?
+      if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT,viewport);
+    
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0,viewport[2],0,viewport[3],-10.0,10.0);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glTranslatef(0.33F,0.33F,0.0F); 
+
+	/* We/you may not need all of these... FIXME*/
+
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_FOG);
+	glDisable(GL_NORMALIZE);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_COLOR_MATERIAL);
+	glDisable(GL_LINE_SMOOTH);
+	glDisable(GL_DITHER);
+	glDisable(GL_BLEND);
+	glShadeModel(GL_SMOOTH);
+	//glDisable(0x809D); /* GL_MULTISAMPLE_ARB */ 
+
+	glDisable(GL_STENCIL_TEST);
+	glClearStencil(0);
+	glColorMask(false,false,false,false);
+	glDepthMask(false);
+	glClear(GL_STENCIL_BUFFER_BIT);
+
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_ALWAYS, 1, 1);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	{
+	  int h = viewport[3], w=viewport[2];
+	  int y;
+	  glLineWidth(1.0);
+	  glBegin(GL_LINES);
+	  for(y=0;y<h;y+=2) {
+	    glVertex2i(0,y);
+	    glVertex2i(w,y);
+	  }
+	  glEnd();
+	}
+
+	glColorMask(true,true,true,true);
+	glDepthMask(true);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	if (in_stereo_flag == 5) {
+	  // draws one Zalman lines
+	  glStencilFunc(GL_EQUAL, 1, 1);
+	  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	  glEnable(GL_STENCIL_TEST);
+	  //glDisable(GL_STENCIL_TEST);
+	}
+
+	if (in_stereo_flag == 6) {
+	  // draws the other Zalman lines
+	  glStencilFunc(GL_EQUAL, 0, 1);
+	  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	  //glEnable(GL_STENCIL_TEST);
+	}
+      }
       graphics_info_t::draw_generic_objects();
       graphics_info_t::draw_generic_text();
 
-      if (! in_stereo_flag) {
+      // BL says:: not sure if we dont need to do this for 2nd Zalman view
+      //      if (! in_stereo_flag) {
+      if (in_stereo_flag != 1 || in_stereo_flag != 5) {
          /* Swap backbuffer to front */
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
          gtk_gl_area_swapbuffers(GTK_GL_AREA(widget));

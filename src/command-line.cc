@@ -106,6 +106,7 @@ parse_command_line(int argc, char ** argv ) {
       {"no-splash-screen",        0, 0, 0},
       {"stereo",     0, 0, 0},       // no arguments 
       {"side-by-side",     0, 0, 0}, // no arguments 
+      {"zalman-stereo",     0, 0, 0}, // no arguments 
       {"version",    0, 0, 0},       // no arguments 
       {"no-guano",   0, 0, 0},       // no arguments
       {"small-screen", 0, 0, 0},       // no arguments (setting for EEE PC and other small screens)
@@ -182,10 +183,13 @@ parse_command_line(int argc, char ** argv ) {
 	    if (arg_str == "stereo") {
 	       cld.hardware_stereo_flag = 1;
 	    } else {
+	      if (arg_str == "zalman-stereo") {
+		cld.hardware_stereo_flag = 5;
+	      } else {
 
-	       // Thanks for suggesting this Ezra.
-	       // 
-	       if (arg_str == "help") {
+		// Thanks for suggesting this Ezra.
+		// 
+		if (arg_str == "help") {
 		  std::cout << std::endl
 			    << "Usage: coot [--pdb pdb-file-name]\n"
 			    << "            [--coords pdb/cif/shelx-filename]\n"
@@ -200,51 +204,53 @@ parse_command_line(int argc, char ** argv ) {
 			    << "            [--no-guano]\n"
 			    << "            [--small-screen]\n"
 			    << "            [--stereo]\n"
+			    << "            [--zalman-stereo]\n"
 			    << "            [--side-by-side]\n"
 			    << "            [--version]" << std::endl;
 		  exit(0);
-	       } else {
+		} else {
 
 		  if (arg_str == "version") {
-		     std::cout << coot_version() << std::endl;
-		     exit(0);
+		    std::cout << coot_version() << std::endl;
+		    exit(0);
 		  } else {
 
-		     if (arg_str == "python") {
-			cld.script_is_python_flag = 1;
-		     } else { 
+		    if (arg_str == "python") {
+		      cld.script_is_python_flag = 1;
+		    } else { 
 
-			if (arg_str == "no-state-script") {
-			   graphics_info_t::run_state_file_status = 0;
+		      if (arg_str == "no-state-script") {
+			graphics_info_t::run_state_file_status = 0;
+		      } else { 
+
+			if (arg_str == "no-graphics") {
+			  cld.do_graphics = 0;
 			} else { 
-
-			   if (arg_str == "no-graphics") {
-			      cld.do_graphics = 0;
-			   } else { 
-			      if (arg_str == "side-by-side") {
-				 cld.hardware_stereo_flag = 2;
-			      } else { 
-				 if (arg_str == "no-guano") {
-				    cld.disable_state_script_writing = 1;
-				 } else {
-				   if (arg_str == "small-screen") {
-				      cld.small_screen_display = 1;
-				   } else {
-				      if (arg_str == "no-splash-screen") {
-					 cld.use_splash_screen = 0;
-				      } else { 
-					 std::cout << "WARNING! Malformed option - needs an argument: " 
-						   << long_options[option_index].name
-						   << std::endl << std::endl;
-				      }
-				   }
-				 }
+			  if (arg_str == "side-by-side") {
+			    cld.hardware_stereo_flag = 2;
+			  } else { 
+			    if (arg_str == "no-guano") {
+			      cld.disable_state_script_writing = 1;
+			    } else {
+			      if (arg_str == "small-screen") {
+				cld.small_screen_display = 1;
+			      } else {
+				if (arg_str == "no-splash-screen") {
+				  cld.use_splash_screen = 0;
+				} else {
+				  std::cout << "WARNING! Malformed option - needs an argument: " 
+					    << long_options[option_index].name
+					    << std::endl << std::endl;
+				}
 			      }
-			   }
+			    }
+			  }
 			}
-		     }
+		      }
+		    }
 		  }
-	       }
+		}
+	      }
 	    }
 	 }
 	 break; 

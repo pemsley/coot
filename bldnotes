@@ -1,23 +1,32 @@
  -*-text-*-
 
-scripts rev 1998
-tests   rev 1998
+scripts rev 2021 (except interuptable fitting)
+tests   rev 2021
 
 ---------------
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+   o update WinCoot to guile 1.8.6 (if possible)
+
+   o fix addition of guile and python keybindings (translation of lambda functions?)
+
+   o key code for ( and ) not recognised (on FC10 e.g.)
+
    o fix toobuttons
 
    o website guile comment
+* Done
 
    o simple guile implementation in WinCoot
 
    o interuptable refinement in python
 
    o include density-score-by-residue.exe in WinCoot installer
+* Done
 
    o build-info: show pass-build but dont make installer if test fails (WinCoot)
+* Done
 
    o update python WIKI scripts
 

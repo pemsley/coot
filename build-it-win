@@ -1912,7 +1912,9 @@ ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb_title.cpp.patch
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
+echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz
 cd  mmdb-$mmdb_version
+pwd
 patch -p0 < ${AUTOBUILD_SOURCES}/mmdb_title.cpp.patch
 # patch to read long lines in a cif file
 #patch -p0 < ../mmdb-mmcif-long-line.patch
@@ -1993,8 +1995,11 @@ if test -n "$build_clipper" ; then
        ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
     fi 
     (
+    echo Unzipping ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
     cd clipper-$clipper_dir_version
+    pwd
+    date
     
     # make clipper
     echo . ------------------------------------------------------------------------------

@@ -877,7 +877,8 @@ graphics_info_t::pythonize_command_strings(const std::vector<std::string> &comma
 	 command += command_strings[i];
 	 command += ", ";
       }
-      command += command_strings.back();
+      if (command_strings.size() > 1)
+         command += command_strings.back();
       command += ")";
    }
    // std::cout << "INFO:: python history command: " << command << std::endl;

@@ -573,6 +573,55 @@ void hardware_stereo_mode() {
 
 }
 
+void zalman_stereo_mode() {
+
+  // FIXME this is not really zalman!!!!!
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
+	 int previous_mode = graphics_info_t::display_mode;
+	 graphics_info_t::display_mode = coot::ZALMAN_STEREO;
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 if (!vbox) {
+	    std::cout << "ERROR:: failed to get vbox in zalman_stereo_mode!\n";
+	 } else {
+
+	    if ( (previous_mode == coot::SIDE_BY_SIDE_STEREO) ||
+		 (previous_mode == coot::DTI_SIDE_BY_SIDE_STEREO)  || 
+		 (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ) {
+
+	       if (graphics_info_t::glarea_2) {
+		  gtk_widget_destroy(graphics_info_t::glarea_2);
+		  graphics_info_t::glarea_2 = NULL;
+	       }
+	    }
+	    
+	    short int try_hardware_stereo_flag = 5;
+	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
+	    if (glarea) { 
+	       std::cout << "INFO:: switch to zalman_stereo_mode succeeded\n";
+	       if (graphics_info_t::i_fn_token) { 
+		  toggle_idle_spin_function(); // turn it off;
+	       }
+	       gtk_widget_destroy(graphics_info_t::glarea);
+	       graphics_info_t::glarea = glarea;
+	       gtk_widget_show(glarea);
+	       // antialiasing?
+	       graphics_info_t g;
+	       g.draw_anti_aliasing();
+	       graphics_draw();
+	    } else {
+	       std::cout << "WARNING:: switch to zalman_stereo_mode failed\n";
+	       graphics_info_t::display_mode = previous_mode;
+	    }
+	 }
+      } else {
+	 std::cout << "Already in zalman stereo mode" << std::endl;
+      }
+   }
+   add_to_history_simple("zalman-stereo-mode");
+
+}
+
 void mono_mode() {
 
    if (graphics_info_t::use_graphics_interface_flag) {
