@@ -132,7 +132,8 @@ namespace coot {
    enum display_mode_type {MONO_MODE=0, HARDWARE_STEREO_MODE=1, 
 			   SIDE_BY_SIDE_STEREO=2,  // cross-eye
 			   DTI_SIDE_BY_SIDE_STEREO=3,
-                           SIDE_BY_SIDE_STEREO_WALL_EYE=4};
+                           SIDE_BY_SIDE_STEREO_WALL_EYE=4,
+                           ZALMAN_STEREO=5};
    enum accept_reject_text_type { CHI_SQUAREDS, CHIRAL_CENTRES};
    enum chooser_selector_type { OLD_STYLE, CHOOSER_STYLE };
    enum chooser_overwrite_type { CHOOSER_OVERWRITE, CHOOSER_OVERWRITE_PROTECT };
