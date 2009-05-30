@@ -4903,9 +4903,9 @@ molecule_class_info_t::next_ca_by_skel(const std::vector<clipper::Coord_orth> &p
    std::vector<coot::scored_skel_coord> t; 
    coot::CalphaBuild buildca(max_skeleton_search_depth);
 
-   std::cout << "DEBUG:: "
-	     << "in molecule_class_info_t::next_ca_by_skel skeleton_treenodemap_is_filled is "
-	     << skeleton_treenodemap_is_filled << " for molecule " << imol_no << std::endl;
+//    std::cout << "DEBUG:: "
+// 	     << "in molecule_class_info_t::next_ca_by_skel skeleton_treenodemap_is_filled is "
+// 	     << skeleton_treenodemap_is_filled << " for molecule " << imol_no << std::endl;
 
    if (skeleton_treenodemap_is_filled) { 
       t = buildca.next_ca_by_skel(previous_ca_positions,
