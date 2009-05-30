@@ -334,6 +334,102 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
    }
 }
 
+void
+Bond_lines_container::construct_from_model_links(CModel *model_p,
+						 int atom_colour_type) {
+
+   int n_links = model_p->GetNumberOfLinks();
+   if (n_links > 0) { 
+      for (int i_link=1; i_link<=n_links; i_link++) {
+	 PCLink link = model_p->GetLink(i_link);
+	 PCAtom atom_1 = NULL;
+	 PCAtom atom_2 = NULL;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ich=0; ich<n_chains; ich++) {
+	    CChain *chain_p = model_p->GetChain(ich);
+	    if (std::string(chain_p->GetChainID()) ==
+		std::string(link->chainID1)) {
+	       int n_residues = model_p->GetNumberOfResidues();
+	       for (int i_res=0; i_res<n_residues; i_res++) {
+		  CResidue *res_p = chain_p->GetResidue(i_res);
+		  if (res_p->GetSeqNum() == link->seqNum1) {
+		     if (std::string(res_p->GetInsCode()) ==
+			 std::string(link->insCode1)) {
+			int n_atoms = res_p->GetNumberOfAtoms();
+			for (int iat=0; iat<n_atoms; iat++) {
+			   CAtom *at = res_p->GetAtom(iat);
+			   if (std::string(at->name) ==
+			       std::string(link->atName1)) {
+			      if (std::string(at->altLoc) ==
+				  std::string(link->aloc1)) {
+				 atom_1 = at;
+				 break;
+			      }
+			   }
+			   if (atom_1) break;
+			}
+		     }
+		  }
+		  if (atom_1) break;
+	       }
+	    }
+	    if (atom_1) break;
+	 }
+
+	 if (atom_1) {
+	    for (int ich=0; ich<n_chains; ich++) {
+	       CChain *chain_p = model_p->GetChain(ich);
+	       if (std::string(chain_p->GetChainID()) ==
+		   std::string(link->chainID2)) {
+		  int n_residues = model_p->GetNumberOfResidues();
+		  for (int i_res=0; i_res<n_residues; i_res++) {
+		     CResidue *res_p = chain_p->GetResidue(i_res);
+		     if (res_p->GetSeqNum() == link->seqNum2) {
+			if (std::string(res_p->GetInsCode()) ==
+			    std::string(link->insCode2)) {
+			   int n_atoms = res_p->GetNumberOfAtoms();
+			   for (int iat=0; iat<n_atoms; iat++) {
+			      CAtom *at = res_p->GetAtom(iat);
+			      if (std::string(at->name) ==
+				  std::string(link->atName2)) {
+				 if (std::string(at->altLoc) ==
+				     std::string(link->aloc2)) {
+				    atom_2 = at;
+				    break;
+				 }
+			      }
+			      if (atom_2) break;
+			   }
+			}
+		     }
+		  if (atom_2) break;
+		  }
+	       }
+	       if (atom_2) break;
+	    }
+	 } 
+
+	 // OK, make the link bond then!
+	 if (atom_1 && atom_2) {
+	    coot::Cartesian pos_1(atom_1->x, atom_1->y, atom_1->z);
+	    coot::Cartesian pos_2(atom_2->x, atom_2->y, atom_2->z);
+	    std::string ele_1 = atom_1->element;
+	    std::string ele_2 = atom_2->element;
+	    if (ele_1 == ele_2) {
+	       int col = atom_colour(atom_1, atom_colour_type);
+	       addBond(col, pos_1, pos_2);
+	    } else {
+	       coot::Cartesian bond_mid_point = pos_1.mid_point(pos_2);
+	       int col = atom_colour(atom_1, atom_colour_type);
+	       addBond(col, pos_1, bond_mid_point);
+	       col = atom_colour(atom_2, atom_colour_type);
+	       addBond(col, pos_2, bond_mid_point);
+	    } 
+	 }
+      }
+   }
+}
+
 
 PPCAtom
 coot::model_bond_atom_info_t::Hydrogen_atoms() const {
@@ -505,6 +601,8 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 				       1, have_udd_atoms, uddHnd);
       }
 
+      construct_from_model_links(SelAtom.mol->GetModel(imodel), atom_colour_type);
+      
       // std::cout << "DEBUG:: (post) SelAtom: mol, n_selected_atoms "
       // << SelAtom.mol << " " << SelAtom.n_selected_atoms << std::endl;
 
