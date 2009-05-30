@@ -270,6 +270,7 @@ class Bond_lines_container {
 				      short int are_different_atom_selections,
 				      short int have_udd_atoms,
 				      int udd_handle);
+   void construct_from_model_links(CModel *model, int atom_colour_type);
 
    void handle_MET_or_MSE_case (PCAtom mse_atom, int atom_colour_type);
    void handle_long_bonded_atom(PCAtom     atom, int atom_colour_type);
