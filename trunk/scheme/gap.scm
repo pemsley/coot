@@ -51,10 +51,11 @@
 			      (car sequence+rama)))
 		(use-rama-restraints (if (null? sequence+rama)
 					 0 ; as boolean
-					 (car (last-pair sequence+rama))))
+					 (if (= (length sequence+rama) 2)
+					     (car (last-pair sequence+rama))
+					     0)))
 		(rama-status (refine-ramachandran-angles-state)))
 	    
-
 	    (make-backup imol)
 	    (turn-off-backup imol)
 	    (set-refine-ramachandran-angles use-rama-restraints)
