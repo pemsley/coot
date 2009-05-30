@@ -2054,8 +2054,8 @@ graphics_info_t::baton_next_directions(int imol_for_skel, const CAtom *latest_at
 				       short int use_cg_start) {
 
 
-   std::cout << "DEBUG in baton_next_directions imol_for_skel is "
-	     << imol_for_skel << std::endl;
+//    std::cout << "DEBUG in baton_next_directions imol_for_skel is "
+// 	     << imol_for_skel << std::endl;
          
    std::vector<clipper::Coord_orth> previous_ca_positions;
    // store the position of the just accepted atom as a previous atom
