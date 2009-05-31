@@ -276,7 +276,15 @@ PyObject *dictionaries_read_py();
 /*                         Restraints                                       */
 /*  ----------------------------------------------------------------------- */
 #ifdef USE_GUILE
+/*! \name  Restraints Interface */
+/* \{ */
+/*!  \brief return the monomer restraints for the given monomer_type,
+  return scheme false on "restraints for monomer not found" */
 SCM monomer_restraints(const char *monomer_type);
+/*!  \brief set the monomer restraints of the given monomer_type.
+
+  @return scheme false or true for success or failure to set the
+  restrains for monomer_type */
 SCM set_monomer_restraints(const char *monomer_type, SCM restraints);
 #endif // USE_GUILE
 
@@ -285,6 +293,7 @@ PyObject *monomer_restraints_py(const char *monomer_type);
 PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints);
 #endif // USE_PYTHON
 
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  dipole                                                  */

@@ -1152,6 +1152,88 @@
 
 
 
+(greg-testcase "Refinement OK with zero bond esd" #t
+   (lambda ()
+     
+     ;; return the restraints as passed (in r-list) except for a bond
+     ;; restraint atom-1 to atom-2 set the esd to 0.0 (new-dist is
+     ;; passed but not useful).
+     (define (zero-bond-restraint r-list atom-1 atom-2 new-dist)
+     
+       (let loop ((r-list r-list))
+	 
+	 (cond
+	  ((null? r-list) '())
+	  ((string=? "_chem_comp_bond" (car (car r-list)))
+
+	   (let ((v 
+		  (let ((bond-list (cdr (car r-list))))
+
+		    (let loop-2 ((bond-list bond-list))
+		      
+		      (cond 
+		       ((null? bond-list) '())
+		       ((and (string=? (car (car bond-list)) atom-1)
+			     (string=? (car (cdr (car bond-list))) atom-2))
+			(cons 
+			 (list atom-1 atom-2 new-dist 0.0)
+			 (loop-2 (cdr bond-list))))
+		       (else
+			(cons (car bond-list) (loop-2 (cdr bond-list)))))))))
+
+	     (cons (cons "_chem_comp_bond" v) (loop (cdr r-list)))))
+	   
+	  (else
+	   (cons (car r-list) (loop (cdr r-list)))))))
+     
+     ;; main line
+     ;; 
+     (let ((imol (greg-pdb "monomer-ACT.pdb")))
+       (read-cif-dictionary (append-dir-file greg-data-dir "libcheck_ACT.cif"))
+       (if (not (valid-model-molecule? imol))
+	   (begin 
+	     (format #t "   bad molecule from ACT from greg data dir~%")
+	     (throw 'fail)))
+       
+       (let* ((r (monomer-restraints "ACT")))
+	 
+	 (case (list? r)
+	   ((#f)
+	    (format #t "   ACT restraints are #f~%")
+	    (throw 'fail)))
+
+	 (let ((r-2 (zero-bond-restraint r " O  " " C  " 1.25)))
+	   
+	   ;; (format #t "r: ~s~%=======~%" r)
+	   ;; (format #t "r-2: ~s~%" r-2)
+	   
+	   (case r-2
+	     (('())
+	      ((format #t "   null modified restraints~%")
+	      (throw 'fail))))
+	   
+	   (let ((mr-set (set-monomer-restraints "ACT" r-2)))
+	     
+	     (case mr-set
+	       ((#f)
+		(format #t "   set restraints fail~%")
+		(throw 'fail)))
+	     
+	     (let ((r-3 (monomer-restraints "ACT")))
+	       ;; (format #t "r-3: ~s~%" r-3)
+	       
+	       (case r-3
+		 ((#f)
+		  (format #t "   get modified restraints fail~%")
+		  (throw 'fail)))
+	       
+	       (with-auto-accept
+		(refine-zone imol "A" 1 1 ""))
+	       
+	       #t))))))) ;; it didn't crash
+
+
+
 (greg-testcase "Change Chain IDs and Chain Sorting" #t 
    (lambda () 
 

@@ -453,28 +453,27 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 	std::string mtz_in_filename = "";
 	if (!have_mtz_file) {
 	  // we get imol from a map mtz file
-	  imol_window = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
+	   imol_window = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
 	} else {
-	  // check the filename of the button
-	  GtkWidget *button_mtz_label = lookup_widget(window, "run_refmac_mtz_file_label");
+	   // check the filename of the button
+	   GtkWidget *button_mtz_label = lookup_widget(window, "run_refmac_mtz_file_label");
 #if (GTK_MAJOR_VERSION > 1)
-	  const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(button_mtz_label));
-	  mtz_in_filename = mtz_filename;
+	   const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(button_mtz_label));
+	   mtz_in_filename = mtz_filename;
 #else
-	  gchar **mtz_filename = 0;
-	  gtk_label_get(GTK_LABEL(button_mtz_label), mtz_filename);
-	  mtz_in_filename = (char *)mtz_filename;
+	   gchar **mtz_filename = 0;
+	   gtk_label_get(GTK_LABEL(button_mtz_label), mtz_filename);
+	   mtz_in_filename = (char *)mtz_filename;
 #endif // GTK
-	  if (mtz_in_filename == "(None)") {
-	    have_mtz_file = 0;
-	    std::cout << "WARNING:: no mtz file given" <<std::endl;
-	  } else {
-	    if (! coot::file_exists(mtz_in_filename)) {
+	   if (mtz_in_filename == "(None)") {
 	      have_mtz_file = 0;
-	      std::cout << "WARNING:: mtz file " << mtz_in_filename << " does not exist" <<std::endl;
-	    }
-	  }
-
+	      std::cout << "WARNING:: no mtz file given" <<std::endl;
+	   } else {
+	      if (! coot::file_exists(mtz_in_filename)) {
+		 have_mtz_file = 0;
+		 std::cout << "WARNING:: mtz file " << mtz_in_filename << " does not exist" <<std::endl;
+	      }
+	   }
 	}
 
 	if (imol_window < 0 && have_mtz_file == 0) {

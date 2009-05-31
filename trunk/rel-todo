@@ -1,5 +1,8 @@
 
-   22 items
+   23 items
+
+   o Move Koala to gcc 4.1.2 20080704 (RH 4.1.2-44) or better.  See
+     Esser build log problems.  ::: 2
 
 
    o Fixing atoms does not stop them from moving with
