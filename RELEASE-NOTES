@@ -10,13 +10,19 @@ Pre-release 0.6
 
   o FEATURE: "Sphere" (residue selection) refinement - experimental.
 
-  o FEATURE: function to (re-)calculate probe dots around a give point [Joel Bard].
+  o FEATURE: function to (re-)calculate probe dots around a give point
+    [Joel Bard].
 
   o FEATURE: monomer and residue selection dipoles.
 
+  o FEATURE: Interactive map sharpening.
+
+  o FEATURE: LINK bonds are are now represented.
+
   o CHANGE: partial charges added to electrostatic surface calculation.
 
-  o CHANGE: SEGIDs are more intelligently inherited [Steven Sheriff, Bob Nolte]
+  o CHANGE: SEGIDs are more intelligently inherited [Steven Sheriff,
+    Bob Nolte]
 
   o CHANGE: Ramachandran Plots now have molecule name labels [Wendy Offen].
 

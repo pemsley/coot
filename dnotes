@@ -4122,6 +4122,31 @@ Fri Apr 17 17:38:02 BST 2009
 
 	How can this be made easier/automated?
 
+----
+Sat 16 May 2009 12:40:38 BST
+
+   how to move an svn repo:
+http://whynotwiki.com/How_I_moved_my_code_repository_to_Google_Code
+
+
+--
+Sun 17 May 2009 13:01:52 BST
+
+compiling on bragg3
+
+c-interface-mmdb.cc: In function 'CMMDBManager* mmdb_manager_from_python_expression(PyObject*)':
+c-interface-mmdb.cc:326: warning: deprecated conversion from string constant to 'char*'
+c-interface-mmdb.cc: In function 'PyObject* display_python(PyObject*)':
+c-interface-mmdb.cc:424: warning: deprecated conversion from string constant to 'char*'
+
+
+----
+Sun 24 May 2009 11:27:12 BST
+
+	gtk2-build-status on cycle seems to being written by a gtk2
+	build.  
+
+
 
 ----
 Mon May 18 23:28:41 BST 2009
@@ -4146,5 +4171,19 @@ Wed May 20 00:16:05 BST 2009
 	Bug!
 
 
+---
+Thu 28 May 2009 23:16:29 EDT
+
+   Bug!
+
+   (On mac) restraints editor -> edit ESD for O C in ACT -> 0.0 (or
+   anything) -> Coot resets it to 0.02 Grr.
+
+
+---
+Sun 31 May 2009 09:32:42 EDT
+
+	read-cif-dictionary should return a result and should be
+	tested against in greg tests.
 
 ------

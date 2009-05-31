@@ -777,9 +777,11 @@ namespace coot {
 	       const std::vector<bool> &fixed_atom_flags,
 	       float tar, 
 	       float sig, float obs){
-    
-	 simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig, obs);
-	 restraints_vec.push_back(r);
+
+	 if (sig > 0.0) { 
+	    simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig, obs);
+	    restraints_vec.push_back(r);
+	 }
       }
 
       void add(short int rest_type, int atom_1, int atom_2, int atom_3, 
@@ -787,10 +789,12 @@ namespace coot {
 	       float tar, 
 	       float sig, float obs){
     
-	 restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, 
-						   atom_3,
-						   fixed_atom_flags,
-						   tar, sig, obs)); 
+	 if (sig > 0.0) { 
+	    restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, 
+						      atom_3,
+						      fixed_atom_flags,
+						      tar, sig, obs));
+	 }
       }
 
       void add(short int rest_type, int atom_1, int atom_2, 
@@ -799,12 +803,15 @@ namespace coot {
 	       float tar, 
 	       float sig, float obs, int periodicty){
     
-	 restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, 
-						   atom_3, atom_4,
-						   fixed_atom_flags,
-						   tar, sig, obs, periodicty)); 
+	 if (sig > 0.0) { 
+	    restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, 
+						      atom_3, atom_4,
+						      fixed_atom_flags,
+						      tar, sig, obs, periodicty));
+	 }
       }
 
+      // used for Ramachandran restraint
       void add(short int rest_type,
 	       int atom_1, int atom_2, int atom_3, 
 	       int atom_4, int atom_5, 
@@ -826,10 +833,12 @@ namespace coot {
       void add_plane(const std::vector<int> atom_index_in,
 		     const std::vector<bool> &fixed_atom_flags,
 		     float sigma) {
-	 restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT, 
-						   atom_index_in, 
-						   fixed_atom_flags, 
-						   sigma));
+	 if (sigma > 0.0) { 
+	    restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT, 
+						      atom_index_in, 
+						      fixed_atom_flags, 
+						      sigma));
+	 }
       }
 
 
