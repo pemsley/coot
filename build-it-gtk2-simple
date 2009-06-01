@@ -264,7 +264,9 @@
 # 4.42 20090517 Remove standard error redirections.
 # 4.43 20090522 Update to guile-1.8.6 on the advice of Ed Podharski.
 # 4.44 20090523 Add some build info to the mmdb and clipper logs.
-script_version=4.44
+# 4.45 20090523 build status results now go to $build_type-build-status
+#               (not gtk2-build-status)
+script_version=4.45
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2002,7 +2004,7 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1-081118-ac
     clipper_version=2.1-081201-ac
     clipper_version=2.1-090210-ac
-    clipper_version=2.1-090520-ac
+    clipper_version=2.1-090522-ac
     clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
@@ -2778,11 +2780,11 @@ fi
 coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
-    echo fail-build > $LOGS/gtk2-build-status
+    echo fail-build > $LOGS/$build_type-build-status
     my_exit 2
 else 
     echo coot build was good.
-    echo pass-build > $LOGS/gtk2-build-status
+    echo pass-build > $LOGS/$build_type-build-status
 fi
 echo done coot build. 
 
