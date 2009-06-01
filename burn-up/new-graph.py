@@ -30,7 +30,7 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 160
+x_day_range = 180
 
 x_tick_interval = 2
 if (x_day_range > 40):
@@ -83,19 +83,22 @@ def describeEvent(days, label, off):
     
 describeEvent(5, "Christmas\nholidays start", -10)
 
-tb = text_box.T(loc=(21, 43), text="Boston", shadow=(1,-1,fill_style.gray70))
+xpscale = 0.9
+
+tb = text_box.T(loc=(21*xpscale, 43), text="Boston", shadow=(1,-1,fill_style.gray70))
 # tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "cb")
 tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(40, 73), text="Papers & Happy", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(40*xpscale, 73), text="Papers & Happy", shadow=(1,-1,fill_style.gray70))
 tb.add_arrow((ar.x_pos(data[74][0]), ar.y_pos(data[74][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(80, 72), text="CCP4 Dev", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(80*xpscale, 72), text="CCP4 Dev", shadow=(1,-1,fill_style.gray70))
 tb.add_arrow((ar.x_pos(data[115][0]), ar.y_pos(data[115][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(85, 22), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(85*xpscale, 22), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70))
 tb.add_arrow((ar.x_pos(data[122][0]), ar.y_pos(data[122][1])), "tc")
 tb.draw()
+
