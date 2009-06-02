@@ -358,12 +358,14 @@ Bond_lines_container::construct_from_model_links(CModel *model_p,
 			int n_atoms = res_p->GetNumberOfAtoms();
 			for (int iat=0; iat<n_atoms; iat++) {
 			   CAtom *at = res_p->GetAtom(iat);
-			   if (std::string(at->name) ==
-			       std::string(link->atName1)) {
-			      if (std::string(at->altLoc) ==
-				  std::string(link->aloc1)) {
-				 atom_1 = at;
-				 break;
+			   if (! at->isTer()) { 
+			      if (std::string(at->name) ==
+				  std::string(link->atName1)) {
+				 if (std::string(at->altLoc) ==
+				     std::string(link->aloc1)) {
+				    atom_1 = at;
+				    break;
+				 }
 			      }
 			   }
 			   if (atom_1) break;
