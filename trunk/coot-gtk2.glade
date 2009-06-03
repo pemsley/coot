@@ -53129,7 +53129,7 @@ low resolution</property>
 </widget>
 
 <widget class="GtkDialog" id="map_sharpening_dialog">
-  <property name="width_request">322</property>
+  <property name="width_request">385</property>
   <property name="visible">True</property>
   <property name="title" translatable="yes">Map Sharpening...</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
@@ -53372,8 +53372,8 @@ Map to Sharpen:
 	      <property name="yscale">1</property>
 	      <property name="top_padding">0</property>
 	      <property name="bottom_padding">0</property>
-	      <property name="left_padding">8</property>
-	      <property name="right_padding">8</property>
+	      <property name="left_padding">14</property>
+	      <property name="right_padding">14</property>
 
 	      <child>
 		<widget class="GtkHScale" id="map_sharpening_hscale">
@@ -53389,7 +53389,7 @@ Map to Sharpen:
 	      </child>
 	    </widget>
 	    <packing>
-	      <property name="padding">4</property>
+	      <property name="padding">6</property>
 	      <property name="expand">True</property>
 	      <property name="fill">True</property>
 	    </packing>
