@@ -5363,7 +5363,7 @@ GtkWidget *wrapped_create_map_shapening_dialog() {
    for (int i=0; i<5; i++)
       gtk_scale_add_mark(GTK_SCALE(h_scale),
 			 float (i-2) * 0.5 * sharpening_limit,
-			 GTK_POS_BOTTOM);
+			 GTK_POS_BOTTOM, NULL);
    gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "Blur");
    gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "Sharp");
 #endif   
