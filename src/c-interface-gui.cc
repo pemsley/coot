@@ -5360,12 +5360,14 @@ GtkWidget *wrapped_create_map_shapening_dialog() {
 
 #if (GTK_MAJOR_VERSION > 1)
 #if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14) 
-   for (int i=0; i<5; i++)
+   for (int i=1; i<6; i++) {
+      float p = float (i-3) * 0.333333333 * sharpening_limit;
       gtk_scale_add_mark(GTK_SCALE(h_scale),
-			 float (i-2) * 0.5 * sharpening_limit,
-			 GTK_POS_BOTTOM, NULL);
-   gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "Blur");
-   gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "Sharp");
+			 p,
+			 GTK_POS_BOTTOM, coot::util::float_to_string(p).c_str());
+   }
+   gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "Sharpen");
+   gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "Blur");
 #endif   
 #endif
 
