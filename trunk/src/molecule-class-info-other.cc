@@ -3207,18 +3207,20 @@ molecule_class_info_t::check_waters_by_difference_map(const clipper::Xmap<float>
 
    for (int i=0; i<atom_sel.n_selected_atoms; i++) {
       std::string resname = atom_sel.atom_selection[i]->residue->name;
-      if (resname == "WAT" || resname == "HOH") {
-	 clipper::Coord_orth p(atom_sel.atom_selection[i]->x,
-			       atom_sel.atom_selection[i]->y,
-			       atom_sel.atom_selection[i]->z);
-	 coot::atom_spec_t at_spec(atom_sel.atom_selection[i]->GetChainID(),
-				   atom_sel.atom_selection[i]->GetSeqNum(),
-				   atom_sel.atom_selection[i]->GetInsCode(),
-				   atom_sel.atom_selection[i]->GetAtomName(),
-				   atom_sel.atom_selection[i]->altLoc);
-	 pair = std::pair<coot::util::density_stats_info_t, coot::atom_spec_t>(coot::util::density_around_point(p, xmap, 1.5), at_spec);
-      
-      dsi.push_back(pair);
+      if (atom_sel.atom_selection[i]->isTer()) { 
+	 if (resname == "WAT" || resname == "HOH") {
+	    clipper::Coord_orth p(atom_sel.atom_selection[i]->x,
+				  atom_sel.atom_selection[i]->y,
+				  atom_sel.atom_selection[i]->z);
+	    coot::atom_spec_t at_spec(atom_sel.atom_selection[i]->GetChainID(),
+				      atom_sel.atom_selection[i]->GetSeqNum(),
+				      atom_sel.atom_selection[i]->GetInsCode(),
+				      atom_sel.atom_selection[i]->GetAtomName(),
+				      atom_sel.atom_selection[i]->altLoc);
+	    pair = std::pair<coot::util::density_stats_info_t, coot::atom_spec_t>(coot::util::density_around_point(p, xmap, 1.5), at_spec);
+	    
+	    dsi.push_back(pair);
+	 }
       }
    }
 
@@ -4483,15 +4485,17 @@ molecule_class_info_t::find_water_baddies_AND(float b_factor_lim, const clipper:
 
    for (int i=0; i<atom_sel.n_selected_atoms; i++) {
       if (atom_sel.atom_selection[i]->tempFactor > b_factor_lim) {
-	 std::string resname = atom_sel.atom_selection[i]->GetResName();
-	 if (resname == "WAT" || resname == "HOH") { 
-	    clipper::Coord_orth a(atom_sel.atom_selection[i]->x,
-				  atom_sel.atom_selection[i]->y,
-				  atom_sel.atom_selection[i]->z);
-	    den = coot::util::density_at_point(xmap_in, a);
-
-	    if (den > outlier_sigma_level*map_sigma) {
-	       idx.push_back(i);
+	 if (! atom_sel.atom_selection[i]->isTer()) { 
+	    std::string resname = atom_sel.atom_selection[i]->GetResName();
+	    if (resname == "WAT" || resname == "HOH") {
+		  clipper::Coord_orth a(atom_sel.atom_selection[i]->x,
+					atom_sel.atom_selection[i]->y,
+					atom_sel.atom_selection[i]->z);
+	       den = coot::util::density_at_point(xmap_in, a);
+	       
+	       if (den > outlier_sigma_level*map_sigma) {
+		  idx.push_back(i);
+	       }
 	    }
 	 }
       }
@@ -4609,63 +4613,66 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 			for (int iat=0; iat<n_atoms; iat++) {
 			   at = residue_p->GetAtom(iat);
 			   this_is_marked = 0;
+
+			   if (! at->isTer()) { 
 			   
-			   // density check:
-			   if (map_in_sigma > 0.0) { // it *should* be!
-			      clipper::Coord_orth a(at->x, at->y, at->z);
-			      den = coot::util::density_at_point(xmap_in, a);
+			      // density check:
+			      if (map_in_sigma > 0.0) { // it *should* be!
+				 clipper::Coord_orth a(at->x, at->y, at->z);
+				 den = coot::util::density_at_point(xmap_in, a);
+				 
+				 den /= map_in_sigma;
+				 if (den < outlier_sigma_level && use_map_sigma_limit_test) {
+				    this_is_marked = 1;
+				    marked_for_display.push_back(std::pair<CAtom *, float>(at, den));
+				 }
+			      } else {
+				 std::cout << "Ooops! Map sigma is " << map_in_sigma << std::endl;
+			   }
 			      
-			      den /= map_in_sigma;
-			      if (den < outlier_sigma_level && use_map_sigma_limit_test) {
-				 this_is_marked = 1;
-				 marked_for_display.push_back(std::pair<CAtom *, float>(at, den));
+			      // B factor check:
+			      if (this_is_marked == 0) {
+				 if (at->tempFactor > b_factor_lim && use_b_factor_limit_test) {
+				    marked_for_display.push_back(std::pair<CAtom *, float>(at, den));
 			      }
-			   } else {
-			      std::cout << "Ooops! Map sigma is " << map_in_sigma << std::endl;
-			   }
-			   
-			   // B factor check:
-			   if (this_is_marked == 0) {
-			      if (at->tempFactor > b_factor_lim && use_b_factor_limit_test) {
-				 marked_for_display.push_back(std::pair<CAtom *, float>(at, den));
 			      }
-			   }
-
-
-			   // distance check
-			   if (this_is_marked == 0) {
-
-			      // (ignoring things means less marked atoms)
-			      if (ignore_part_occ_contact_flag==0) { 
-
-				 // we want mark as a baddie if ignore Zero Occ is off (0)
-				 //
-				 if (ignore_zero_occ_flag==0 || at->occupancy < 0.01) { 
-				    double dist_to_atoms_min = 99999;
-				    double d;
-				    clipper::Coord_orth a(at->x, at->y, at->z);
-				    for (int j=0; j<atom_sel.n_selected_atoms; j++) {
-				       if (at != atom_sel.atom_selection[j]) {
-					  clipper::Coord_orth p(atom_sel.atom_selection[j]->x,
-								atom_sel.atom_selection[j]->y,
-								atom_sel.atom_selection[j]->z);
-					  d = clipper::Coord_orth::length(p,a);
-					  if (d < dist_to_atoms_min)
-					     dist_to_atoms_min = d;
+			      
+			      
+			      // distance check
+			      if (this_is_marked == 0) {
+				 
+				 // (ignoring things means less marked atoms)
+				 if (ignore_part_occ_contact_flag==0) { 
+				    
+				    // we want mark as a baddie if ignore Zero Occ is off (0)
+				    //
+				    if (ignore_zero_occ_flag==0 || at->occupancy < 0.01) { 
+				       double dist_to_atoms_min = 99999;
+				       double d;
+				       clipper::Coord_orth a(at->x, at->y, at->z);
+				       for (int j=0; j<atom_sel.n_selected_atoms; j++) {
+					  if (at != atom_sel.atom_selection[j]) {
+					     clipper::Coord_orth p(atom_sel.atom_selection[j]->x,
+								   atom_sel.atom_selection[j]->y,
+								   atom_sel.atom_selection[j]->z);
+					     d = clipper::Coord_orth::length(p,a);
+					     if (d < dist_to_atoms_min)
+						dist_to_atoms_min = d;
+					  }
 				       }
-				    }
-				    short int failed_min_dist_test = 0;
-				    short int failed_max_dist_test = 0;
-
-				    if ((dist_to_atoms_min < min_dist) && use_min_dist_test)
-				       failed_min_dist_test = 1;
-
-				    if ((dist_to_atoms_min > max_dist) && use_max_dist_test)
-				       failed_max_dist_test = 1;
+				       short int failed_min_dist_test = 0;
+				       short int failed_max_dist_test = 0;
 				       
-				    if (failed_min_dist_test || failed_max_dist_test) {
-
-				       marked_for_display.push_back(std::pair<CAtom *, float>(at, den));
+				       if ((dist_to_atoms_min < min_dist) && use_min_dist_test)
+					  failed_min_dist_test = 1;
+				       
+				       if ((dist_to_atoms_min > max_dist) && use_max_dist_test)
+					  failed_max_dist_test = 1;
+				       
+				       if (failed_min_dist_test || failed_max_dist_test) {
+					  
+					  marked_for_display.push_back(std::pair<CAtom *, float>(at, den));
+				       }
 				    }
 				 }
 			      }

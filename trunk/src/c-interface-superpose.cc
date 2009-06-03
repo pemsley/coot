@@ -565,6 +565,12 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    g.fill_option_menu_with_coordinates_options(ref_option_menu, callback_func1, imol);
    g.fill_option_menu_with_coordinates_options(mov_option_menu, callback_func2, imol);
 
+   // fill with 1 to 999
+   gtk_entry_set_text(GTK_ENTRY(ref_res_range_1), "1");
+   gtk_entry_set_text(GTK_ENTRY(ref_res_range_2), "999");
+   gtk_entry_set_text(GTK_ENTRY(mov_res_range_1), "1");
+   gtk_entry_set_text(GTK_ENTRY(mov_res_range_2), "999");
+
    
    fill_lsq_option_menu_with_chain_options(ref_mol_chain_id_option_menu, 1);
    fill_lsq_option_menu_with_chain_options(mov_mol_chain_id_option_menu, 0);

@@ -3131,8 +3131,15 @@ void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
    g.fill_option_menu_with_coordinates_options(option_menu,
 					       signal_func,
 					       imol_active_position);
-
 }
+
+void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_menu, 
+							     GtkSignalFunc signal_func,
+							     int imol_active_position) {
+   // a mess.  This function could be deleted.
+   fill_option_menu_with_coordinates_options(option_menu, signal_func, imol_active_position);
+} 
+
 
 
 // void store_refmac_params(const char *fobs_col, const char *sigfobs_col,
@@ -5354,11 +5361,11 @@ GtkWidget *wrapped_create_map_shapening_dialog() {
 #if (GTK_MAJOR_VERSION > 1)
 #if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14) 
    for (int i=0; i<5; i++)
-      gtk_scale_add_mark(GTK_RANGE(h_scale),
+      gtk_scale_add_mark(GTK_SCALE(h_scale),
 			 float (i-2) * 0.5 * sharpening_limit,
 			 GTK_POS_BOTTOM);
-   gtk_scale_add_mark(GTK_RANGE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "Blur");
-   gtk_scale_add_mark(GTK_RANGE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "Sharp");
+   gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "Blur");
+   gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "Sharp");
 #endif   
 #endif
 

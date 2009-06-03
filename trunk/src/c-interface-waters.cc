@@ -449,6 +449,8 @@ execute_find_waters_real(int imol_for_map,
    find_waters(imol_for_map, imol_for_protein, new_waters_mol_flag, sigma_cut_off, 1);
 }
 
+// fire up a waters dialog.
+// 
 void find_waters(int imol_for_map,
 		 int imol_for_protein,
 		 short int new_waters_mol_flag, 
@@ -537,6 +539,9 @@ void find_waters(int imol_for_map,
 	    if (! water_mol.is_empty()) {
 	       float bf = graphics_info_t::default_new_atoms_b_factor;
 	       atom_selection_container_t asc = make_asc(water_mol.pcmmdbmanager());
+	       // We need to make the atoms in asc HETATMs
+	       for (int iat=0; iat<asc.n_selected_atoms; iat++)
+		  asc.atom_selection[iat]->Het = 1;
 	       int g_mol_for_waters = graphics_info_t::create_molecule();
 	       g.molecules[g_mol_for_waters].install_model(g_mol_for_waters, asc, "waters", 1);
 	       if (g.go_to_atom_window){

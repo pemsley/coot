@@ -523,6 +523,21 @@ int first_coords_imol() {
    return imol;
 }
 
+int first_unsaved_coords_imol() {
+
+   int imol = -1;
+   for (int i=0; i<graphics_n_molecules(); i++) {
+      if (graphics_info_t::molecules[i].has_model()) {
+	 if (graphics_info_t::molecules[i].Have_unsaved_changes_p()) {
+	    imol = i;
+	    break;
+	 }
+      }
+   }
+   add_to_history_simple("first-unsaved-coords-imol");
+   return imol;
+} 
+
 
 
 void hardware_stereo_mode() {

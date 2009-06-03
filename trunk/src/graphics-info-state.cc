@@ -810,6 +810,7 @@ graphics_info_t::fill_unsaved_changes_dialog(GtkWidget *dialog) const {
    GtkWidget *vbox = lookup_widget(GTK_WIDGET(dialog),
 				   "unsaved_changes_molecule_vbox");
 
+   int menu_index=0;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].Have_unsaved_changes_p()) {
 	 std::string labelstr = int_to_string(imol);

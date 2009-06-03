@@ -783,6 +783,7 @@ class molecule_class_info_t {
    // remove TER record from residue
    bool residue_has_TER_atom(CResidue *res_p) const;
    void remove_TER_internal(CResidue *res_p);
+   void remove_TER_on_last_residue(CChain *chain_p);
 
    // ------------------------------------------------------------------
  public:

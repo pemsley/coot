@@ -1212,6 +1212,9 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
       }
       
       is_water_like_flag = check_for_no_restraints_object(resname_1, resname_2);
+      if (! is_water_like_flag)
+	 if (SelAtom[i_atom_no_1]->GetResidue() == SelAtom[i_atom_no_2]->GetResidue())
+	    is_water_like_flag = check_for_single_hetatom(SelAtom[i_atom_no_2]->GetResidue());
       refine_residue_range(imol, chain_id_1, chain_id_2, resno_1, inscode_1,
 			   resno_2, inscode_2, altconf, is_water_like_flag);
    }
@@ -1239,7 +1242,32 @@ graphics_info_t::check_for_no_restraints_object(std::string &resname_1, std::str
       r = 1;
    return r;
 
-} 
+}
+
+// I suppose that if check_for_no_restraints_object() was fully
+// featured (i.e. it checked the restraints), we wouldn't need this
+// function.
+//
+// We also check for Metal atom.
+// 
+bool
+graphics_info_t::check_for_single_hetatom(CResidue *res_p) const {
+
+   bool r = 0;
+
+   int n_atoms = res_p->GetNumberOfAtoms();
+   if (n_atoms == 1) {
+      PPCAtom residue_atoms;
+      int nResidueAtoms;
+      res_p->GetAtomTable(residue_atoms, nResidueAtoms);
+      if (residue_atoms[0]->Het)
+	 r = 1;
+      if (residue_atoms[0]->isMetal())
+	 r = 1;
+   } 
+   return r;
+}
+
 
 // The calling function need to check that if chain_id_1 and
 // chain_id_2 are not the same chain (CChain *), then we don't call

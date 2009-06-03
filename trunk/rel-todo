@@ -1,15 +1,15 @@
 
    23 items
 
+   o Torsion general is broken? Yes (argh!) ::: 2
+
+
    o Move Koala to gcc 4.1.2 20080704 (RH 4.1.2-44) or better.  See
      Esser build log problems.  ::: 2
 
 
    o Fixing atoms does not stop them from moving with
-     rotate/translate.  Should it?  No ::: 1
-
-
-   o Torsion general is broken? ::: 2
+     rotate/translate.  Should it?  Yes, I think ::: 1
 
 
    o Fix ligand chi angles. ::: 1
@@ -17,6 +17,9 @@
 
    o Put the scripting window into the state file. How do we know if
      the scripting window is open at end time? ::: 1
+
+
+   o Add cancel button to rama refine ::: 1
 
 
    o Rama-refine rnase: Does it work properly?  (possibly more work
