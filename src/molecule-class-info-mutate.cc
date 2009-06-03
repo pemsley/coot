@@ -1194,7 +1194,19 @@ molecule_class_info_t::residue_has_TER_atom(CResidue *res_p) const {
       }
    }
    return has_ter;
+}
+
+
+void
+molecule_class_info_t::remove_TER_on_last_residue(CChain *chain_p) {
+
+   int n_residues = chain_p->GetNumberOfResidues();
+   if (n_residues > 0) {
+      CResidue *r = chain_p->GetResidue(n_residues-1); // last residue
+      remove_TER_internal(r);
+   }
 } 
+
 
 // remove TER record from residue
 //

@@ -236,6 +236,9 @@ gboolean on_filename_filter_key_press_event (GtkWidget       *widget,
 void fill_option_menu_with_coordinates_options(GtkWidget *option_menu, 
 					       GtkSignalFunc signal_func,
 					       int imol_active_position);
+void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_menu, 
+							     GtkSignalFunc signal_func,
+							     int imol_active_position);
 GtkWidget *coot_file_chooser();
 
 GtkWidget *coot_dataset_chooser();
@@ -444,6 +447,11 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id);
 
    return -1 when there is none. */
 int first_coords_imol(); 	
+
+/*! \brief What is the molecule number of first unsaved coordinates molecule?
+
+   return -1 when there is none. */
+int first_unsaved_coords_imol(); 	
 
 /* \} */
 

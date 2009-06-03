@@ -21,6 +21,7 @@
  * 02110-1301, USA
  */
 
+#include <string>
 #include <fstream>
 #include <stdexcept>
 

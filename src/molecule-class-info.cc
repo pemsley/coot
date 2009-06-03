@@ -4390,8 +4390,12 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	 CChain *w = water_chain();
 	 int wresno = 1;
 	 
-	 if (w) { 
-	    // add atom to chain w
+	 if (w) {
+	    // remove a TER atom if it exists on the last residue
+	    // prior to insertion of a new residue.
+	    remove_TER_on_last_residue(w);
+	    
+	    // Now add atom to chain w.
 	    std::pair<short int, int> wresno_pair = next_residue_in_chain(w);
 	    if (wresno_pair.first) { 
 	       wresno = wresno_pair.second;
@@ -4434,31 +4438,31 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	    if (type == "Br") { 
 	       atom_p->SetAtomName("BR  ");
 	       atom_p->SetElementName("BR");
-	       res_p->SetResName("BR ");
+	       res_p->SetResName(" BR");
 	       element = "BR";
 	    } else { 
 	       if (type == "Ca") { 
 		  atom_p->SetAtomName("CA  ");
 		  atom_p->SetElementName("CA");
-		  res_p->SetResName("CA ");
+		  res_p->SetResName(" CA");
 		  element = "CA";
 	       } else { 
 		  if (type == "Na") { 
 		     atom_p->SetAtomName("NA  ");
 		     atom_p->SetElementName("NA");
-		     res_p->SetResName("NA ");
+		     res_p->SetResName(" NA");
 		     element = "NA";
 		  } else { 
 		     if (type == "Cl") { 
 			atom_p->SetAtomName("CL  ");
 			atom_p->SetElementName("CL");
-			res_p->SetResName("CL ");
+			res_p->SetResName(" CL");
 			element = "CL";
 		     } else { 
 			if (type == "Mg") { 
 			   atom_p->SetAtomName("MG  ");
 			   atom_p->SetElementName("MG");
-			   res_p->SetResName("MG ");
+			   res_p->SetResName(" MG");
 			   element = "MG";
 			} else { 
 
@@ -5795,6 +5799,8 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
    } else {
       chain_p = solvent_chain_p; // put it back, (kludgey, should use
 				 // solvent_chain_p from here, not chain_p).
+      // OK, we also need to remove any TER cards that are in that chain_p
+      remove_TER_on_last_residue(solvent_chain_p);
    } 
 
 //    std::cout << "Debug:: choose chain " << chain_p->GetChainID()
@@ -5840,6 +5846,7 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
 					  water_mol[ifrag][ires][iatom].pos.y(),
 					  water_mol[ifrag][ires][iatom].pos.z(), occ, bf);
 	       new_atom_p->SetAtomName(water_mol[ifrag][ires][iatom].name.c_str());
+	       new_atom_p->Het = 1; // waters are now HETATMs
 	       strncpy(new_atom_p->element, water_mol[ifrag][ires][iatom].element.c_str(), 3);
 	       strncpy(new_atom_p->altLoc, water_mol[ifrag][ires][iatom].altLoc.c_str(), 2);
 

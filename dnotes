@@ -4146,8 +4146,6 @@ Sun 24 May 2009 11:27:12 BST
 	gtk2-build-status on cycle seems to being written by a gtk2
 	build.  
 
-
-
 ----
 Mon May 18 23:28:41 BST 2009
 
@@ -4185,5 +4183,20 @@ Sun 31 May 2009 09:32:42 EDT
 
 	read-cif-dictionary should return a result and should be
 	tested against in greg tests.
+
+
+---
+Tue Jun  2 02:52:49 EDT 2009
+
+   Herb Klei:
+
+   unsaved changes dialog should have a check button that
+   allows/dissallows showing unsaved-only/all as menu items in the
+   option menu.
+
+   It should start up as default showing only unsaved molecules.
+  
+   See graphics_info_t::fill_unsaved_changes_dialog().
+
 
 ------

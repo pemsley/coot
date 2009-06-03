@@ -15,7 +15,7 @@ Pre-release 0.6
 
   o FEATURE: monomer and residue selection dipoles.
 
-  o FEATURE: Interactive map sharpening.
+  o FEATURE: Interactive map sharpening [Randy Read, Alex Brunger]
 
   o FEATURE: LINK bonds are are now represented.
 
@@ -26,11 +26,27 @@ Pre-release 0.6
 
   o CHANGE: Ramachandran Plots now have molecule name labels [Wendy Offen].
 
-  o BUG-FIX: new atoms are added as HETATMs if appropriate [David Mathog].
+  o CHANGE: The save coordinates dialogs active item is the first
+    molecule with unsaved changes (rather than simply the first
+    molecule) [Herb Klei]
+
+  o BUG-FIX: TER records are removed on addition of waters [Herb Klei].
+
+  o BUG-FIX: Single HETATMs now are refined by rigid body (as waters
+    are) when using Refine Zone.
+
+  o BUG-FIX: new atoms (and waters) are added as HETATMs if
+    appropriate [David Mathog].
+
+  o BUG-FIX: TER records for water chains are no longer tested in
+    water validation tests [Herb Klei].
 
   o BUG-FIX: NCS chain jumping now works on heterodimers [Jianghai Zhu].
 
   o BUG-FIX: The Chain Reordering function in Extensions has been fixed.
+
+  o BUG-FIX: HETATM Waters as TER records are no longer used as real
+    atoms in water validation tests [Herb Klei]
  
 -----
 

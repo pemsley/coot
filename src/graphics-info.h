@@ -1630,6 +1630,7 @@ public:
    void fill_option_menu_with_coordinates_options_internal_with_active_mol(GtkWidget *option_menu,
 									   GtkSignalFunc callback_func, 
 									   int imol_active);
+   
    static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); 
    static void on_go_to_atom_residue_list_selection_changed (GtkList *gtklist,
 							     gpointer user_data);
@@ -1931,6 +1932,7 @@ public:
 		       std::string chain_id_1);
 
    bool check_for_no_restraints_object(std::string &resname_1, std::string &resname_2) const;
+   bool check_for_single_hetatom(CResidue *res_p) const;
 
 
    // void (int imol,

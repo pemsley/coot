@@ -2149,6 +2149,9 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
   GtkWidget *option_menu; 
   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(save_molecule_coords_button_select);
   int imol = first_coords_imol();
+  int imol_unsaved = first_unsaved_coords_imol();
+  if (imol_unsaved != -1) 
+    imol = imol_unsaved;
   set_save_molecule_number(imol); /* set *save* molecule number */
 
   widget = create_save_coords_dialog(); 
@@ -2156,7 +2159,7 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
   option_menu = lookup_widget(GTK_WIDGET(widget),
 			      "save_coords_optionmenu");
 
-  fill_option_menu_with_coordinates_options(option_menu, callback_func, imol);
+  fill_option_menu_with_coordinates_options_unsaved_first(option_menu, callback_func, imol);
   gtk_widget_show(widget);
 }
 

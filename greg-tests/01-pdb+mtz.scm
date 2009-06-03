@@ -1660,6 +1660,66 @@
        #t)))
 
 
+(greg-testcase "TER on water chain is removed on adding a water by hand" #t 
+   (lambda ()
+
+     (let ((imol (greg-pdb "some-waters-with-ter.pdb")))
+       
+       (if (not (valid-model-molecule? imol))
+	   (begin
+	     (format #t "bad read of some-waters-with-ter.pdb~%")
+	     (throw 'fail)))
+       
+       (set-rotation-centre 3 4 5)
+       (set-pointer-atom-molecule imol)
+       (place-typed-atom-at-pointer "Water")
+
+       ;; OK let's write out that molecule now as a PDB file and look
+       ;; to see if the PDB file contains a TER record - it should
+       ;; not.
+       ;; 
+       (let ((opdb  "tmp-with-new-water.pdb"))
+	 (write-pdb-file imol opdb)
+	 (call-with-input-file opdb
+	   (lambda (port)
+
+	     (let loop ((obj (read-line port)))
+	       (cond
+		((eof-object? obj) #t) ; test did not fail before now,
+				       ; so it passes.
+		((string-match "TER" obj)
+		 (format #t "   TER card found: ~%    ~s~%" obj)
+		 #f ;; fail!
+		 )
+		(else (loop (read-line port)))))))))))
+
+
+
+(greg-testcase "TER on water chain is removed on adding waters automatically" #t 
+   (lambda ()
+     
+     (let ((imol-model (greg-pdb "tm+some-waters.pdb")))
+       (find-waters imol-rnase-map imol-model 0 2.0 0)
+       (write-pdb-file imol-model "auto-waters.pdb")
+
+       ;; OK let's write out that molecule now as a PDB file and look
+       ;; to see if the PDB file contains a TER record - it should
+       ;; not.
+       ;; 
+       (let ((opdb  "tmp-with-new-water.pdb"))
+	 (write-pdb-file imol-model opdb)
+	 (call-with-input-file opdb
+	   (lambda (port)
+
+	     (let loop ((obj (read-line port)))
+	       (cond
+		((eof-object? obj) #t) ; test did not fail before now,
+				       ; so it passes.
+		((string-match "TER" obj)
+		 (format #t "   TER card found: ~%    ~s~%" obj)
+		 #f ;; fail!
+		 )
+		(else (loop (read-line port)))))))))))
 	     
 
 (greg-testcase "Correct Segid After Add Terminal Residue" #t 
