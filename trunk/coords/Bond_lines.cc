@@ -652,8 +652,8 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 		     } else {
 			std::string ele = non_Hydrogen_atoms[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
-			    || ele == "Cl" || ele == "Br"
-			    || ele == "AS" || ele == " P") {
+			    || ele == "Cl" || ele == "Br" 
+			    || ele == "AS" || ele == " P" || ele == "AU") {
 			   handle_long_bonded_atom(non_Hydrogen_atoms[i],
 						   atom_colour_type);
 			} else { 
@@ -781,10 +781,20 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
 
    float bond_limit = 2.1; // A
 
+   
    std::string atom_name(atom->name);
    std::string residue_name(atom->GetResName());
+   std::string element(atom->element);
    CResidue *res = atom->residue;
+
+   // std::cout << "handling long bonds for " << atom << std::endl;
+   // std::cout << " ele name :" << element << ":" << std::endl;
+   
    if (atom_name == "AS  ")
+      bond_limit = 2.4;
+   if (element == "AU")
+      bond_limit = 2.4;
+   if (element == "AS")
       bond_limit = 2.4;
    float  bl2 = bond_limit * bond_limit;
    short int bond_added_flag = 0;
@@ -802,6 +812,8 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
 					 residue_atoms[i]->y,
 					 residue_atoms[i]->z);
 	    float len2 = (atom_pos - res_atom_pos).amplitude_squared();
+	    // std::cout << "long bonds: comparing " << sqrt(len2) << " and "
+	    // << sqrt(bl2) << std::endl;
 	    if (len2 < bl2) {
 	       std::string altconf1 = atom->altLoc;
 	       std::string altconf2 = residue_atoms[i]->altLoc;

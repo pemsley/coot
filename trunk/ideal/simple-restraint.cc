@@ -5291,24 +5291,29 @@ coot::restraints_container_t::add_bonds(int idr, PPCAtom res_selection,
 					const coot::protein_geometry &geom) {
 
    int n_bond_restr = 0;
-   int index1, index2; 
+   int index1, index2;
+   bool debug = 0;
 
    for (unsigned int ib=0; ib<geom[idr].bond_restraint.size(); ib++) {
       for (int iat=0; iat<i_no_res_atoms; iat++) {
 	 std::string pdb_atom_name1(res_selection[iat]->name);
 
-//     	 std::cout << "comparing first :" << pdb_atom_name1 << ": with :"
-//     		   << geom[idr].bond_restraint[ib].atom_id_1_4c()
-//      		   << ":" << std::endl; 
+	 if (debug)
+	    std::cout << "comparing first (pdb) :" << pdb_atom_name1
+		      << ": with (dict) :"
+		      << geom[idr].bond_restraint[ib].atom_id_1_4c()
+		      << ":" << std::endl; 
 
 	 if (pdb_atom_name1 == geom[idr].bond_restraint[ib].atom_id_1_4c()) {
 	    for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
 
 	       std::string pdb_atom_name2(res_selection[iat2]->name);
 
-// 	       std::cout << "comparing second :" << pdb_atom_name2 << ": with :"
-// 			 << geom[idr].bond_restraint[ib].atom_id_2_4c()
-// 			 << ":" << std::endl;
+	       if (debug)
+		  std::cout << "comparing second (pdb) :" << pdb_atom_name2
+			    << ": with (dict) :"
+			    << geom[idr].bond_restraint[ib].atom_id_2_4c()
+			    << ":" << std::endl;
 	       
 	       if (pdb_atom_name2 == geom[idr].bond_restraint[ib].atom_id_2_4c()) {
 
@@ -5316,10 +5321,12 @@ coot::restraints_container_t::add_bonds(int idr, PPCAtom res_selection,
 		  std::string alt_1(res_selection[iat ]->altLoc);
 		  std::string alt_2(res_selection[iat2]->altLoc);
 		  if (alt_1 == "" || alt_2 == "" || alt_1 == alt_2) { 
-				    
-// 		     std::cout << "atom match 1 " << pdb_atom_name1;
-// 		     std::cout << " atom match 2 " << pdb_atom_name2
-// 			       << std::endl;
+
+		     if (debug) { 
+			std::cout << "atom match 1 " << pdb_atom_name1;
+			std::cout << " atom match 2 " << pdb_atom_name2
+				  << std::endl;
+		     }
 
 		     // now we need the indices of
 		     // pdb_atom_name1 and
