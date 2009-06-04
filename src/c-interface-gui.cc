@@ -5359,15 +5359,17 @@ GtkWidget *wrapped_create_map_shapening_dialog() {
 		      GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
 
 #if (GTK_MAJOR_VERSION > 1)
-#if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14) 
-   for (int i=1; i<6; i++) {
-      float p = float (i-3) * 0.333333333 * sharpening_limit;
+#if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14)
+   int ticks = 3;  // number of ticks on the (one) side (not including centre tick)
+   for (int i=0; i<=2*ticks; i++) {
+      float p = float (i-ticks) * (1.0/float(ticks)) * sharpening_limit;
+      std::string pos_string = coot::util::float_to_string_using_dec_pl(p,1);
       gtk_scale_add_mark(GTK_SCALE(h_scale),
 			 p,
-			 GTK_POS_BOTTOM, coot::util::float_to_string(p).c_str());
+			 GTK_POS_BOTTOM, pos_string.c_str());
    }
-   gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "Sharpen");
-   gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "Blur");
+   gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\nSharpen");
+   gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "\nBlur");
 #endif   
 #endif
 
