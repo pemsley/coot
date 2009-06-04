@@ -338,6 +338,10 @@ void
 Bond_lines_container::construct_from_model_links(CModel *model_p,
 						 int atom_colour_type) {
 
+   // Interestingly, when we add a LINK to a PDB file, if there are
+   // less residues in a chain than is specified in a LINK line, mmdb
+   // expands the residue list in a chain with NULL residues!
+   
    int n_links = model_p->GetNumberOfLinks();
    if (n_links > 0) { 
       for (int i_link=1; i_link<=n_links; i_link++) {
@@ -347,69 +351,77 @@ Bond_lines_container::construct_from_model_links(CModel *model_p,
 	 int n_chains = model_p->GetNumberOfChains();
 	 for (int ich=0; ich<n_chains; ich++) {
 	    CChain *chain_p = model_p->GetChain(ich);
-	    if (std::string(chain_p->GetChainID()) ==
-		std::string(link->chainID1)) {
-	       int n_residues = model_p->GetNumberOfResidues();
-	       for (int i_res=0; i_res<n_residues; i_res++) {
-		  CResidue *res_p = chain_p->GetResidue(i_res);
-		  if (res_p->GetSeqNum() == link->seqNum1) {
-		     if (std::string(res_p->GetInsCode()) ==
-			 std::string(link->insCode1)) {
-			int n_atoms = res_p->GetNumberOfAtoms();
-			for (int iat=0; iat<n_atoms; iat++) {
-			   CAtom *at = res_p->GetAtom(iat);
-			   if (! at->isTer()) { 
-			      if (std::string(at->name) ==
-				  std::string(link->atName1)) {
-				 if (std::string(at->altLoc) ==
-				     std::string(link->aloc1)) {
-				    atom_1 = at;
-				    break;
+	    if (chain_p) { 
+	       if (std::string(chain_p->GetChainID()) ==
+		   std::string(link->chainID1)) {
+		  int n_residues = model_p->GetNumberOfResidues();
+		  for (int i_res=0; i_res<n_residues; i_res++) {
+		     CResidue *res_p = chain_p->GetResidue(i_res);
+		     if (res_p) {
+			if (res_p->GetSeqNum() == link->seqNum1) {
+			   if (std::string(res_p->GetInsCode()) ==
+			       std::string(link->insCode1)) {
+			      int n_atoms = res_p->GetNumberOfAtoms();
+			      for (int iat=0; iat<n_atoms; iat++) {
+				 CAtom *at = res_p->GetAtom(iat);
+				 if (! at->isTer()) { 
+				    if (std::string(at->name) ==
+					std::string(link->atName1)) {
+				       if (std::string(at->altLoc) ==
+					   std::string(link->aloc1)) {
+					  atom_1 = at;
+					  break;
+				       }
+				    }
 				 }
+				 if (atom_1) break;
 			      }
 			   }
-			   if (atom_1) break;
 			}
-		     }
+		     } // null residue test
+		     if (atom_1) break;
 		  }
-		  if (atom_1) break;
 	       }
-	    }
+	    } // chain_p test
 	    if (atom_1) break;
 	 }
 
 	 if (atom_1) {
 	    for (int ich=0; ich<n_chains; ich++) {
 	       CChain *chain_p = model_p->GetChain(ich);
-	       if (std::string(chain_p->GetChainID()) ==
-		   std::string(link->chainID2)) {
-		  int n_residues = model_p->GetNumberOfResidues();
-		  for (int i_res=0; i_res<n_residues; i_res++) {
-		     CResidue *res_p = chain_p->GetResidue(i_res);
-		     if (res_p->GetSeqNum() == link->seqNum2) {
-			if (std::string(res_p->GetInsCode()) ==
-			    std::string(link->insCode2)) {
-			   int n_atoms = res_p->GetNumberOfAtoms();
-			   for (int iat=0; iat<n_atoms; iat++) {
-			      CAtom *at = res_p->GetAtom(iat);
-			      if (! at->isTer()) { 
-				 if (std::string(at->name) ==
-				     std::string(link->atName2)) {
-				    if (std::string(at->altLoc) ==
-					std::string(link->aloc2)) {
-				       atom_2 = at;
-				       break;
+	       if (chain_p) { 
+		  if (std::string(chain_p->GetChainID()) ==
+		      std::string(link->chainID2)) {
+		     int n_residues = model_p->GetNumberOfResidues();
+		     for (int i_res=0; i_res<n_residues; i_res++) {
+			CResidue *res_p = chain_p->GetResidue(i_res);
+			if (res_p) { 
+			   if (res_p->GetSeqNum() == link->seqNum2) {
+			      if (std::string(res_p->GetInsCode()) ==
+				  std::string(link->insCode2)) {
+				 int n_atoms = res_p->GetNumberOfAtoms();
+				 for (int iat=0; iat<n_atoms; iat++) {
+				    CAtom *at = res_p->GetAtom(iat);
+				    if (! at->isTer()) { 
+				       if (std::string(at->name) ==
+					   std::string(link->atName2)) {
+					  if (std::string(at->altLoc) ==
+					      std::string(link->aloc2)) {
+					     atom_2 = at;
+					     break;
+					  }
+				       }
 				    }
+				    if (atom_2) break;
 				 }
 			      }
-			      if (atom_2) break;
 			   }
-			}
+			} // res_p test
+			if (atom_2) break;
 		     }
-		  if (atom_2) break;
 		  }
-	       }
-	       if (atom_2) break;
+		  if (atom_2) break;
+	       } // chain_p test
 	    }
 	 } 
 
