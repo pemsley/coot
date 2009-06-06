@@ -566,6 +566,7 @@ describing the particular features and are documented in Chapter
 * Unit Cell::
 * Rotation Centre Pointer::
 * Crosshairs::
+* 3D Annotations::
 * Frame Rate::
 * Program Output::
 @end menu
@@ -1184,6 +1185,13 @@ Crosshairs can be drawn at the centre of the screen, using either the
 @key{C} key@footnote{and @key{C} again to toggle them off.} in graphics
 window or @command{Draw -> Crosshairs@dots{}}.  The ticks are at
 1.54@AA{}, 2.7@AA{} and 3.8@AA{}.
+
+@node 3D Annotations
+@section 3D Annotations
+@cindex annotations
+Positions in 3D space can be annotated with 3D text.  The mechanism to
+do this can be found under Extensions -> Representations -> 3D
+Annotations.  3D Annotations can be saved to and loaded from a file.
 
 @node Frame Rate
 @section Frame Rate
