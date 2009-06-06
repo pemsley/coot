@@ -25,6 +25,9 @@
 (use-modules (goosh)) 
 ;; (use-modules (goosh goosh))
 
+;; 3D annotations - a bit of a hack currently
+(define *annotations* '())
+
 ;; scm aliases.  Don't forget to add them to snarf-coot-docs too.
 ;; 
 (define drag-intermediate-atom drag-intermediate-atom-scm)
@@ -2001,6 +2004,36 @@
 				 (cons 370 250)
 				 buttons
 				 "  Close  ")))))
+
+;; ---------- annotations ---------------------
+
+
+(define (add-annotation-here text)
+  (let ((rc (rotation-centre))
+	(ann (cons text (rotation-centre))))
+
+    (set! *annotations* (cons ann *annotations*))
+    (apply place-text text (append (rotation-centre) (list 0)))
+    (graphics-draw)))
+
+(define (save-annotations file-name)
+  (call-with-output-file file-name
+    (lambda (port)
+      (format port "~s~%" *annotations*))))
+
+(define (load-annotations file-name)
+  (if (file-exists? file-name)
+      (begin
+	(call-with-input-file file-name
+	  (lambda (port)
+	    (let ((ls (read port)))
+	      (if (list? ls)
+		  (begin
+		    (set! *annotations* ls)
+		    (for-each (lambda (ann)
+				(apply place-text (append ann (list 0))))
+			      *annotations*)))
+	      (graphics-draw)))))))
 
 	
 ; to determine if we have pygtk

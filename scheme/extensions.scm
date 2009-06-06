@@ -949,6 +949,43 @@
 				   (lambda (txt)
 				     (save-views txt))))))
 
+	
+	;; ---------------------------------------------------------------------
+	;;     3D annotations
+	;; ---------------------------------------------------------------------
+	
+	(let ((submenu (gtk-menu-new))
+	      (menuitem2 (gtk-menu-item-new-with-label "3D Annotations...")))
+	  
+	  (gtk-menu-item-set-submenu menuitem2 submenu)
+	  (gtk-menu-append submenu-representation menuitem2)
+	  (gtk-widget-show menuitem2)
+	  
+	  (add-simple-coot-menu-menuitem
+	   submenu "Annotate position..."
+	   (lambda ()
+	     (generic-single-entry "Annotation: "  "" "Make Annotation" 
+				   (lambda (txt)
+				     (add-annotation-here txt)))))
+
+
+	  (add-simple-coot-menu-menuitem
+	   submenu "Save Annotations......"
+	   (lambda ()
+	     (generic-single-entry "Save Annotations" "coot-annotations.scm" " Save "
+				   (lambda (file-name)
+				     (save-annotations file-name)))))
+
+	  (add-simple-coot-menu-menuitem
+	   submenu "Load Annotations..."
+	   (lambda ()
+	     (generic-single-entry "Save Annotations" "coot-annotations.scm" " Load "
+				   (lambda (file-name)
+				     (load-annotations file-name))))))
+
+
+
+
 
 	;; ---------------------------------------------------------------------
 	;;     Other Representation Programs
