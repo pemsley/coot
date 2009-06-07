@@ -630,9 +630,10 @@
 
 
 	;; ---------------------------------------------------------------------
-	;;     Settings
+	;;     Refine
 	;; ---------------------------------------------------------------------
 	;; 
+
 
 	(if (coot-has-pygtk?)
 
@@ -798,16 +799,6 @@
 	;;     Views/Representations
 	;; ---------------------------------------------------------------------
 	;; 
-
-	(add-simple-coot-menu-menuitem 
-	 submenu-representation "Set Spin Speed..."
-	 (lambda ()
-	   (generic-single-entry "Set Spin Speed (smaller is slower)"
-				 (number->string (idle-function-rotate-angle))
-				 "Set it" (lambda (text)
-					    (let ((t (string->number text)))
-					      (if (number? t)
-						  (set-idle-function-rotate-angle t)))))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-representation "Ball & Stick..."
@@ -1021,6 +1012,17 @@
 	   submenu "Rotate About Second Clicked Atom"
 	   (lambda ()
 	     (set-rotate-translate-zone-rotates-about-zone-centre 0))))
+
+
+	(add-simple-coot-menu-menuitem 
+	 submenu-representation "Set Spin Speed..."
+	 (lambda ()
+	   (generic-single-entry "Set Spin Speed (smaller is slower)"
+				 (number->string (idle-function-rotate-angle))
+				 "Set it" (lambda (text)
+					    (let ((t (string->number text)))
+					      (if (number? t)
+						  (set-idle-function-rotate-angle t)))))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-settings "Nudge Centre..."
