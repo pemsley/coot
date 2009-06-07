@@ -760,15 +760,6 @@ if (have_coot_python):
      # ---------------------------------------------------------------------
      #
 
-     # BL says:: maybe check if number at some point
-     add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Set Spin Speed",
-       lambda func: generic_single_entry("Set Spin Speed (smaller is slower)",
-			str(idle_function_rotate_angle()), "Set it",
-			lambda text: set_idle_function_rotate_angle(float(text))))
-
-
      def make_ball_n_stick_func(imol, text):
        bns_handle = make_ball_and_stick(imol, text, 0.18, 0.3, 1)
        print "handle: ", bns_handle
@@ -905,6 +896,43 @@ if (have_coot_python):
 
 
      #---------------------------------------------------------------------
+     #     3D annotations
+     #---------------------------------------------------------------------
+
+     submenu = gtk.Menu()
+     menuitem2 = gtk.MenuItem("3D Annotations...")
+ 
+     menuitem2.set_submenu(submenu)
+     menu.append(menuitem2)
+     menuitem2.show()
+
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Annotate position...",
+       lambda func: generic_single_entry("Annotation: ", "",
+                                         "Make Annotation",
+                                         lambda txt: add_annotation_here(txt)))
+
+
+     # BL says:: maybe this (and next) should have a file chooser/selector!?
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Save Annotations...",
+       lambda func: generic_single_entry("Save Annotations",
+                                         "coot_annotations.py",
+                                         " Save ",
+                                         lambda file_name: save_annotations(file_name)))
+       
+
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Load Annotations...",
+       lambda func: generic_single_entry("Load Annotations",
+                                         "coot_annotations.py",
+                                         " Load ",
+                                         lambda file_name: load_annotations(file_name)))
+
+     #---------------------------------------------------------------------
      #     Other Representation Programs
      #
      #---------------------------------------------------------------------
@@ -951,6 +979,15 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(
        submenu, "Rotate About Second Clicked Atom",
        lambda func: set_rotate_translate_zone_rotates_about_zone_centre(0))
+
+
+     # BL says:: maybe check if number at some point
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Set Spin Speed",
+       lambda func: generic_single_entry("Set Spin Speed (smaller is slower)",
+			str(idle_function_rotate_angle()), "Set it",
+			lambda text: set_idle_function_rotate_angle(float(text))))
 
 
      add_simple_coot_menu_menuitem(

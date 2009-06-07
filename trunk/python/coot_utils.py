@@ -21,6 +21,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# 3D annotations - a bit of a hack currently
+global annotations
+annotations = []
 
 # not sure if the implementation of the macros will work
 
@@ -1657,7 +1660,58 @@ def pukka_puckers_qm(imol):
                               [370, 250],
                               buttons,
                               "  Close  ")
-                                
+
+
+# ---------- annotations ---------------------
+
+def add_annotation_here(text):
+    global annotations
+    rc = rotation_centre()
+    ann = [text] + rc
+
+    annotations.append(ann)
+    place_text(*(ann + [0]))
+    graphics_draw()
+
+def add_annotation_at_click(text):
+    print "BL DEBUG:: txt here is", text
+    global pass_text
+    pass_text = text
+    def add_here(*args):
+        global annotations
+        global pass_text
+        text = pass_text
+        atom_spec = atom_specs(*args[0])
+        ann = [text] + atom_spec[3:]
+        annotations.append(ann)
+        place_text(*(ann + [0]))
+        graphics_draw()
+    user_defined_click(1, add_here)
+
+def save_annotations(file_name):
+    global annotations
+    #if (os.path.isfile(file_name)):
+        # remove existing file
+    #    print "BL INFO:: overwrite old annotation file", file_name
+    #    os.remove(file_name)
+        
+    save_string_to_file(str(annotations), file_name, True)
+
+def load_annotations(file_name):
+    if (os.path.isfile(file_name)):
+        from types import ListType
+        port = open(file_name, 'r')
+        ls = port.readline()
+        port.close()
+        ls = ls.rstrip("\n")
+        ls = eval(ls)
+        if (type(ls) is ListType):
+            global annotations
+            annotations = ls
+            for ann in annotations:
+                place_text(*(ann + [0]))
+            graphics_draw()
+
 
 #############
 # some re-definitions from coot python functions

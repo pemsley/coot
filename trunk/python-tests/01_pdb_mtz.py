@@ -904,6 +904,19 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    "fail 1.512 tolerance test")
 	    
 
+#    def test26_1(self):
+	#    """Refinement OK with zero bond esd"""
+	    
+	   # return the restraints as passed (in r-list) except for a bond
+	   # restraint atom-1 to atom-2 set the esd to 0.0 (new-dist is
+	   # passed but not useful).
+	 #  def zero_bond_restraint(r_list, atom_1, atom_2, new_dist):
+		   
+		#   for item in r_list:
+			   
+	   
+	    
+
     def test27_0(self):
 	    """Change Chain IDs and Chain Sorting"""
 
@@ -1296,6 +1309,60 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		    atoms = residue_info(imol, "A", resno, "")
 		    self.failUnless(atoms_have_correct_seg_id_qm(atoms, "X"),
 				    "wrong seg-id %s should be %s" %(atoms, "X"))
+
+
+    # these are earlier in greg test but should be here to keep the
+    # segid tests grouped!?
+
+    def test39_1(self):
+	    """TER on water chain is removed on adding a water by hand"""
+
+	    imol = unittest_pdb("some-waters-with-ter.pdb")
+
+	    self.failUnless(valid_model_molecule_qm(imol),
+			    "bad read of some-waters-with-ter.pdb")
+
+	    set_rotation_centre(3, 4, 5)
+	    set_pointer_atom_molecule(imol)
+	    place_typed_atom_at_pointer("Water")
+
+	    # OK let's write out that molecule now as a PDB file and look
+	    # to see if the PDB file contains a TER record - it should
+	    # not.
+	    #
+	    opdb = "tmp-with-new-water.pdb"
+	    write_pdb_file(imol, opdb)
+	    fin = open(opdb, 'r')
+	    lines = fin.readlines()
+	    fin.close()
+	    found_ter = False
+	    for line in lines:
+		    self.failIf("TER" in line,
+				"   TER card found: %s" %line)
+
+		    
+    def test39_2(self):
+	    """TER on water chain is removed on adding waters automatically"""
+
+	    global imol_rnase_map
+	    imol_model = unittest_pdb("tm+some-waters.pdb")
+	    self.failUnless(valid_model_molecule_qm(imol_model),
+			    "bad read of tm+some-waters.pdb")
+	    find_waters(imol_rnase_map, imol_model, 0, 0.2, 0)
+
+	    # OK let's write out that molecule now as a PDB file and look
+	    # to see if the PDB file contains a TER record - it should
+	    # not.
+	    #
+	    opdb = "auto-waters.pdb"
+	    write_pdb_file(imol_model)
+	    fin = open(opdb, 'r')
+	    lines = fin.readlines()
+	    fin.close()
+	    found_ter = False
+	    for line in lines:
+		    self.failIf("TER" in line,
+				"   TER card found: %s" %line)
 
 		    
     def test40_0(self):
