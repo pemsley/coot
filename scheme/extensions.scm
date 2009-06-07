@@ -970,7 +970,7 @@
 	  (add-simple-coot-menu-menuitem
 	   submenu "Load Annotations..."
 	   (lambda ()
-	     (generic-single-entry "Save Annotations" "coot-annotations.scm" " Load "
+	     (generic-single-entry "Load Annotations" "coot-annotations.scm" " Load "
 				   (lambda (file-name)
 				     (load-annotations file-name))))))
 
