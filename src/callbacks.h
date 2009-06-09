@@ -4088,6 +4088,12 @@ on_toolbar_multi_refine_stop_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 
+void
+on_toolbar_multi_refine_cancel_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+
 #endif /* GTK_MAJOR_VERSION */
 
 void

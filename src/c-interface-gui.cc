@@ -5271,7 +5271,10 @@ void toolbar_multi_refine_stop() {
    // the idle function looks at this value
    std::string s = "(set! *continue-multi-refine* #f)";
    safe_scheme_command(s.c_str());
+   
    set_visible_toolbar_multi_refine_continue_button(1);
+   set_visible_toolbar_multi_refine_cancel_button(1);
+   toolbar_multi_refine_button_set_sensitive("cancel", 1);
    
 #endif // USE_GUILE   
 
@@ -5287,18 +5290,36 @@ void toolbar_multi_refine_continue() {
 
 #ifdef USE_GUILE
 
+   toolbar_multi_refine_button_set_sensitive("cancel", 0);
    std::string s = "(set! *continue-multi-refine* #t)";
    safe_scheme_command(s.c_str());
    s = "(gtk-idle-add *multi-refine-idle-proc*)";
    safe_scheme_command(s.c_str());
+
    
 #endif // USE_GUILE   
 
-
-
 #endif   
 
+}
+
+void toolbar_multi_refine_cancel() {
+
+#if (GTK_MAJOR_VERSION > 1)
+#ifdef USE_GUILE
+
+   // the idle function looks at this value
+   std::string s = "(set! *continue-multi-refine* #f)";
+   safe_scheme_command(s.c_str());
+   set_visible_toolbar_multi_refine_continue_button(0);
+   set_visible_toolbar_multi_refine_stop_button(0);
+   set_visible_toolbar_multi_refine_cancel_button(0);
+   
+#endif // USE_GUILE   
+#endif    
+
 } 
+
 
 
 void set_visible_toolbar_multi_refine_stop_button(short int state) {
@@ -5312,7 +5333,7 @@ void set_visible_toolbar_multi_refine_stop_button(short int state) {
 	 } else { 
 	    gtk_widget_hide(w);
 	 } 
-      } 
+      }
    }
 }
 
@@ -5328,8 +5349,50 @@ void set_visible_toolbar_multi_refine_continue_button(short int state) {
 	    gtk_widget_hide(w);
 	 } 
       } 
+      toolbar_multi_refine_button_set_sensitive("cancel", 0);
    }
 } 
+
+void set_visible_toolbar_multi_refine_cancel_button(short int state) {
+
+   graphics_info_t g;
+   if (graphics_info_t::use_graphics_interface_flag) {
+      GtkWidget *w = lookup_widget(g.glarea, "toolbar_multi_refine_cancel_button");
+      if (w) {
+	 if (state) {
+	    gtk_widget_show(w);
+	 } else { 
+	    gtk_widget_hide(w);
+	 } 
+      } 
+   }
+}
+
+/* button_type is one of "stop", "continue", "cancel"
+   state is 1 for on, 0 for off. */
+void toolbar_multi_refine_button_set_sensitive(const char *button_type, short int state) {
+   GtkWidget *w = NULL;
+
+   std::string bt(button_type);
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      graphics_info_t g;
+      if (bt == "cancel")
+	 w = lookup_widget(g.glarea, "toolbar_multi_refine_cancel_button");
+      if (bt == "continue")
+	 w = lookup_widget(g.glarea, "toolbar_multi_refine_continue_button");
+      if (bt == "stop")
+	 w = lookup_widget(g.glarea, "toolbar_multi_refine_stop_button");
+      
+      if (w)
+	 if (state) 
+	    gtk_widget_set_sensitive(w, TRUE);
+	 else 
+	    gtk_widget_set_sensitive(w, FALSE);
+   }
+} 
+
+
 
 
 // ---------------------------------------------

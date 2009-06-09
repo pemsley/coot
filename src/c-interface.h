@@ -5429,8 +5429,13 @@ void pisa_interaction(int imol_1, int imol_2);
 /*  ----------------------------------------------------------------------- */
 void toolbar_multi_refine_stop();
 void toolbar_multi_refine_continue();
+void toolbar_multi_refine_cancel();
 void set_visible_toolbar_multi_refine_stop_button(short int state);
 void set_visible_toolbar_multi_refine_continue_button(short int state);
+void set_visible_toolbar_multi_refine_cancel_button(short int state);
+/* button_type is one of "stop", "continue", "cancel"
+   state is 1 for on, 0 for off. */
+void toolbar_multi_refine_button_set_sensitive(const char *button_type, short int state);
 
 
 /*  ----------------------------------------------------------------------- */
