@@ -11444,6 +11444,15 @@ on_toolbar_multi_refine_stop_button_clicked
   toolbar_multi_refine_stop();
 }
 
+void
+on_toolbar_multi_refine_cancel_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data) { 
+
+  toolbar_multi_refine_cancel();
+} 
+
+
   
 
 void

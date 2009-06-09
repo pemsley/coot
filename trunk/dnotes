@@ -4072,6 +4072,8 @@ Thu Mar  5 10:26:43 GMT 2009
 
     Torsion general should optionally wag the chain or molecule (not
     just the rest of the residue).  Frank von Delft, Cathy Lawson.
+    Maia Cheney.
+
 
 -----
 
@@ -4090,13 +4092,13 @@ Tue Mar 24 19:05:54 GMT 2009
 ---
 Wed Mar 25 19:09:38 GMT 2009
 
-    A tool to split out ions/ NA/ CL from a particular chain(?) and put them in their own chain.  
+    A tool to split out ions/ NA/ CL from a particular chain(?) and
+    put them in their own chain.
 
     Then isSolventChain() can work, and so renumber-waters can work.
 
 
 ----
-
 
      Add a residue/chain selector (an mmdb string entry) to allow the 
      selction for a ramachandran plot (put it at the bottom of the dialog).
@@ -4107,11 +4109,11 @@ Thu Mar 26 18:39:42 GMT 2009
    
      Adding a terminal residue: 
 
-     the phi/psi pairs from a ramamchandran plot can't be the phi/psi for *one* residue, they 
-     must be psi of one and phi of the next (or the other way round).   Hmm... needs some 
-     though.
+     the phi/psi pairs from a ramamchandran plot can't be the phi/psi
+     for *one* residue, they
+     must be psi of one and phi of the next (or the other way round).
+     Hmm... needs some though.
      
-
 
 ---
 Fri Apr 17 17:38:02 BST 2009
@@ -4122,8 +4124,26 @@ Fri Apr 17 17:38:02 BST 2009
 
 	How can this be made easier/automated?
 
-----
+
+---
 Sat 16 May 2009 12:40:38 BST
+	It would be nice if when batton building, Coot realized that
+	the maps was not sufficiently smoothly sampled and suggested
+	to resample it.
+
+
+----
+Thu May 21 15:11:17 BST 2009
+
+    Ligand search:
+
+    Fit libcheck_ZMR.pdb (jackal) to 2cml (without A1477 of course)
+
+    "Right here" mode.
+
+
+----
+Fri May 15 14:37:13 BST 2009
 
    how to move an svn repo:
 http://whynotwiki.com/How_I_moved_my_code_repository_to_Google_Code
@@ -4199,4 +4219,5 @@ Tue Jun  2 02:52:49 EDT 2009
    See graphics_info_t::fill_unsaved_changes_dialog().
 
 
+>>>>>>> .r2049
 ------

@@ -1936,6 +1936,15 @@ cd  mmdb-$mmdb_version
 pwd
 # patch to read long lines in a cif file
 patch -p0 < ../mmdb-mmcif-long-line.patch
+# add the following 2 touches because centos 4.6 jackal gives LIBTOOL 
+# problems on `make'.
+# if configure.in newer than aclocal.m4 -> rebuild aclocal.m4
+# if aclocal.m4 newer than Makefile.in -> rebuild Makfile.in
+# mmdb 1.21 has configure.in newer than aclocal.m4 for some reason.
+# must make sure that next version does not.
+touch aclocal.m4
+sleep 2
+touch Makefile.in
 ./configure $generic_prefix
 $MAKE
 $MAKE install
