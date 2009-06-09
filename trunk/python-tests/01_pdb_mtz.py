@@ -904,17 +904,51 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    "fail 1.512 tolerance test")
 	    
 
-#    def test26_1(self):
-	#    """Refinement OK with zero bond esd"""
+    def test26_1(self):
+	    """Refinement OK with zero bond esd"""
 	    
-	   # return the restraints as passed (in r-list) except for a bond
-	   # restraint atom-1 to atom-2 set the esd to 0.0 (new-dist is
-	   # passed but not useful).
-	 #  def zero_bond_restraint(r_list, atom_1, atom_2, new_dist):
-		   
-		#   for item in r_list:
-			   
-	   
+	    # return the restraints as passed (in r_list) except for a bond
+	    # restraint atom_1 to atom_2 set the esd to 0.0 (new_dist is
+	    # passed but not useful).
+	    def zero_bond_restraint(r_list, atom_1, atom_2, new_dist):
+
+		    bond_list = r_list["_chem_comp_bond"]
+		    for restraint in bond_list:
+			    if (restraint[0] == atom_1 and
+				restraint[1] == atom_2):
+				    bond_list[bond_list.index(restraint)] = [atom_1,
+									     atom_2,
+									     new_dist,
+									     0.0]
+		    r_list["_chem_comp_bond"] = bond_list
+		    return r_list
+	    
+	    # main line
+	    #
+	    import os
+	    from types import DictType
+	    imol = unittest_pdb("monomer-ACT.pdb")
+	    read_cif_dictionary(os.path.join(unittest_data_dir, "libcheck_ACT.cif"))
+	    self.failUnless(valid_model_molecule_qm(imol),
+			    "   bad molecule from ACT from greg data dir")
+
+	    r = monomer_restraints("ACT")
+	    self.failUnless(type(r) is DictType, "   ACT restraints are False")
+
+	    r_2 = zero_bond_restraint(r, " O  ", " C  ", 1.25)
+	    #print "r:  ", r
+	    #print "r2: ", r_2
+	    self.failIf(r_2 == {}, "   null modified restraints")
+
+	    mr_set = set_monomer_restraints("ACT", r_2)
+	    self.failUnless(mr_set, "   set restraints fail")
+
+	    r_3 = monomer_restraints("ACT")
+	    self.failUnless(r_3, "   get modified restraints fail")
+
+	    with_auto_accept([refine_zone, imol, "A", 1, 1, ""])
+
+	    # didn't crash?!
 	    
 
     def test27_0(self):
@@ -1314,7 +1348,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
     # these are earlier in greg test but should be here to keep the
     # segid tests grouped!?
 
-    def test39_1(self):
+    def test40_0(self):
 	    """TER on water chain is removed on adding a water by hand"""
 
 	    imol = unittest_pdb("some-waters-with-ter.pdb")
@@ -1341,7 +1375,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 				"   TER card found: %s" %line)
 
 		    
-    def test39_2(self):
+    def test41_0(self):
 	    """TER on water chain is removed on adding waters automatically"""
 
 	    global imol_rnase_map
@@ -1365,7 +1399,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 				"   TER card found: %s" %line)
 
 		    
-    def test40_0(self):
+    def test42_0(self):
 	    """Merge Water Chains"""
 
 	    def create_water_chain(imol, from_chain_id, chain_id, n_waters,
@@ -1410,7 +1444,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(r15 == 15, "  wrong residue number r15 %s" %r15)
 
 		    
-    def test41_0(self):
+    def test43_0(self):
 	    """LSQ by atom"""
 
 	    global imol_rnase
@@ -1438,7 +1472,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    self.failUnless(bond_length_within_tolerance_qm(c_1, c_2, 0.0, 0.2))
 	    
-    def test42_0(self):
+    def test44_0(self):
 	    """Hundreds of Ramachandran refinements (post_manipulation_hook_py test)"""
 
 	    # doesnt test for anything just crash
