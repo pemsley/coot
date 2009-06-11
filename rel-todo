@@ -19,9 +19,6 @@
      the scripting window is open at end time? ::: 1
 
 
-   o Add cancel button to rama refine ::: 1
-
-
    o Rama-refine rnase: Does it work properly?  (possibly more work
      here.) ::: 1
 
@@ -913,9 +910,14 @@ c-interface clear_up_moving_atoms...
      ::: 2
 
 
-
    o What happened to WC partner (watson_crick_pair())? Other Modelling Tools "Base Pair"
     ::: 0.2
+ 
+*  Other Modelling Tools.
 
+
+   o Add cancel button to rama refine ::: 1
+
+* Done.
 
 

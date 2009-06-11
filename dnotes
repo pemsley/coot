@@ -4219,5 +4219,80 @@ Tue Jun  2 02:52:49 EDT 2009
    See graphics_info_t::fill_unsaved_changes_dialog().
 
 
->>>>>>> .r2049
+* Done - sort of.  The active molecule is the first unsaved molecule.
+  It would be better to have a check button here:
+  "Just molecules with unsaved changes?"
+
+---
+
+     Think about providing a syncing "service"
+
+     sync from here:
+ 
+     rsync is basically a free lib?
+
+     rsyncing from an ftp server directory tree?
+
+
+----
+
+    Charles want to add "update mechanisms" to the "testing" talks
+    day.
+
+
+    Display the R-factors from the refmac log file somehow.
+    Job for Bernhard?
+
+
+----
+
+   Phil: gross structural changes in 7A anisotropic data (had higher
+   resolution structure in a different conformation) for Den.
+
+
+----
+
+    When cootaneer fails, what has it done?  Why did it fails?
+
+
+---
+
+    Think about "undo" on delete molecule form the display manager
+
+    validation -> check waters or density fit window, there are
+    multiple copies of these that fail behind the main window
+
+   Using GNOME suse 11?
+
+-----
+
+   Nick: compare pdb file to original sequence.  As a validation tool
+
+----
+
+   easy way to make the baton build build backwards.
+
+---
+
+  Phil (considering building from scratch ) "Join up these
+  fragments for me"
+
+
+---
+
+   fobs - fobs difference map made in coot, you need to define a scale
+   for the maps.
+
+	minimize:   sigma (fobs1 - (k+b)fobs2)
+
+   * consider phase?  |FWT| can substitue for |Fobs| I guess.
+     (considering phase only makes sense for isomorphous maps)
+
+----
+
+   shift-click and ctrl click on the file browser for file selection.
+
+* Done.
+
+
 ------
