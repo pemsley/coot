@@ -2002,8 +2002,10 @@ GtkWidget *coot_file_chooser() {
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_coords_fileselection1();
+      gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(w), TRUE);
    } else {
       w = create_coords_filechooserdialog1(); 
+      gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(w), TRUE);
    }
 #endif
    return w;

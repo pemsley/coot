@@ -247,6 +247,7 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
   GtkWidget *active_item;
   int active_index;
   short int move_molecule_here_flag = 0;
+  char **sel_files;
 
   coords_fileselection1 = lookup_widget(GTK_WIDGET(button),
 					"coords_fileselection1");
@@ -280,22 +281,27 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
 
   save_directory_from_fileselection(coords_fileselection1);
 
-  filename = gtk_file_selection_get_filename 
-     (GTK_FILE_SELECTION(coords_fileselection1));
+/* before multiple selections: */
+/*   filename = gtk_file_selection_get_filename  */
+/*      (GTK_FILE_SELECTION(coords_fileselection1)); */
+
+  sel_files = gtk_file_selection_get_selections(GTK_FILE_SELECTION(coords_fileselection1));
+  while (*sel_files) {
    
 /*     From here, we go into c++ (that's why the c++ function
        handle_read_draw needs to be declared external) and read the
        molecule and display it. */
-   
-  if (move_molecule_here_flag) { 
-    handle_read_draw_molecule_and_move_molecule_here(filename);
-  } else { 
-    if (recentre_on_read_pdb_flag)
-      handle_read_draw_molecule_with_recentre(filename, 1);
-    else 
-      handle_read_draw_molecule_with_recentre(filename, 0); // no recentre
-  }
     
+    if (move_molecule_here_flag) { 
+      handle_read_draw_molecule_and_move_molecule_here(*sel_files);
+    } else { 
+      if (recentre_on_read_pdb_flag)
+	handle_read_draw_molecule_with_recentre(*sel_files, 1);
+      else 
+	handle_read_draw_molecule_with_recentre(*sel_files, 0); // no recentre
+    }
+    sel_files++;
+  }
   gtk_widget_destroy(coords_fileselection1); 
 }
 
@@ -8830,8 +8836,8 @@ on_ncs_controller_ncs_master_chain_ich_radiobutton_toggled
    int imol_chain = GPOINTER_TO_INT(user_data);
    int imol = imol_chain/1000;
    int ich = imol_chain - imol*1000;
-   printf("==== DEBUG:: chain raiobutton toggled: imol %d ich %d active-state: %d \n", 
-	  imol, ich, togglebutton->active);
+/*    printf("==== DEBUG:: chain raiobutton toggled: imol %d ich %d active-state: %d \n",  */
+/* 	  imol, ich, togglebutton->active); */
    if (togglebutton->active) { 
 /*      printf("NCS_controller_ncs_master_chain_ich_radiobutton_toggled on for imol %d %d %d\n",  */
 /* 	    imol_chain, imol, ich); */
@@ -10282,6 +10288,8 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
   int recentre_on_read_pdb_flag = 0;
   short int move_molecule_here_flag = 0;
   int active_index;
+  GSList *sel_files;
+  GFile  *gfile;
 
   coords_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
                                         "coords_filechooserdialog1");
@@ -10304,20 +10312,32 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
 
   save_directory_from_filechooser(coords_fileselection1);
 
-  filename = gtk_file_chooser_get_filename 
-     (GTK_FILE_CHOOSER(coords_fileselection1));
+/* no longer used now that we use ..._get_files (multiple files
+   (GFiles) returned in a GSList). */
+/*   filename = gtk_file_chooser_get_filename  */
+/*      (GTK_FILE_CHOOSER(coords_fileselection1)); */
+
+
+  sel_files = gtk_file_chooser_get_files(GTK_FILE_CHOOSER(coords_fileselection1));
+  while (sel_files) { 
+
+    gfile = G_FILE(sel_files->data);
+    filename = g_file_get_path(gfile);
+/*     printf("DEBUG:: filename: %s\n", filename); */
    
 /*     From here, we go into c++ (that's why the c++ function
        handle_read_draw needs to be declared external) and read the
        molecule and display it. */
   
-  if (move_molecule_here_flag) { 
-    handle_read_draw_molecule_and_move_molecule_here(filename);
-  } else { 
-    if (recentre_on_read_pdb_flag)
-      handle_read_draw_molecule_with_recentre(filename, 1);
-    else 
-      handle_read_draw_molecule_with_recentre(filename, 0); // no recentre
+    if (move_molecule_here_flag) { 
+      handle_read_draw_molecule_and_move_molecule_here(filename);
+    } else { 
+      if (recentre_on_read_pdb_flag)
+	handle_read_draw_molecule_with_recentre(filename, 1);
+      else 
+	handle_read_draw_molecule_with_recentre(filename, 0); // no recentre
+    }
+    sel_files = sel_files->next;
   }
   
   gtk_widget_destroy(coords_fileselection1);
