@@ -285,6 +285,8 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
 /*   filename = gtk_file_selection_get_filename  */
 /*      (GTK_FILE_SELECTION(coords_fileselection1)); */
 
+#if (GTK_MAJOR_VERSION > 1) 
+
   sel_files = gtk_file_selection_get_selections(GTK_FILE_SELECTION(coords_fileselection1));
   while (*sel_files) {
    
@@ -303,6 +305,28 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
     sel_files++;
   }
   gtk_widget_destroy(coords_fileselection1); 
+
+#else 
+/*  old GTK1 style */
+
+  filename = gtk_file_selection_get_filename 
+     (GTK_FILE_SELECTION(coords_fileselection1));
+
+/*     From here, we go into c++ (that's why the c++ function
+       handle_read_draw needs to be declared external) and read the
+       molecule and display it. */
+   
+  if (move_molecule_here_flag) { 
+    handle_read_draw_molecule_and_move_molecule_here(filename);
+  } else { 
+    if (recentre_on_read_pdb_flag)
+      handle_read_draw_molecule_with_recentre(filename, 1);
+    else 
+      handle_read_draw_molecule_with_recentre(filename, 0); // no recentre
+  }
+
+#endif 
+
 }
 
 
