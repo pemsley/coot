@@ -247,7 +247,7 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
   GtkWidget *active_item;
   int active_index;
   short int move_molecule_here_flag = 0;
-  char **sel_files;
+  char **files_arr;
 
   coords_fileselection1 = lookup_widget(GTK_WIDGET(button),
 					"coords_fileselection1");
@@ -281,28 +281,25 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
 
   save_directory_from_fileselection(coords_fileselection1);
 
-/* before multiple selections: */
-/*   filename = gtk_file_selection_get_filename  */
-/*      (GTK_FILE_SELECTION(coords_fileselection1)); */
 
 #if (GTK_MAJOR_VERSION > 1) 
 
-  sel_files = gtk_file_selection_get_selections(GTK_FILE_SELECTION(coords_fileselection1));
-  while (*sel_files) {
+  files_arr = gtk_file_selection_get_selections(GTK_FILE_SELECTION(coords_fileselection1));
+  while (*files_arr) {
    
 /*     From here, we go into c++ (that's why the c++ function
        handle_read_draw needs to be declared external) and read the
        molecule and display it. */
     
     if (move_molecule_here_flag) { 
-      handle_read_draw_molecule_and_move_molecule_here(*sel_files);
+      handle_read_draw_molecule_and_move_molecule_here(*files_arr);
     } else { 
       if (recentre_on_read_pdb_flag)
-	handle_read_draw_molecule_with_recentre(*sel_files, 1);
+	handle_read_draw_molecule_with_recentre(*files_arr, 1);
       else 
-	handle_read_draw_molecule_with_recentre(*sel_files, 0); // no recentre
+	handle_read_draw_molecule_with_recentre(*files_arr, 0); // no recentre
     }
-    sel_files++;
+    files_arr++;
   }
   gtk_widget_destroy(coords_fileselection1); 
 
@@ -10312,8 +10309,8 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
   int recentre_on_read_pdb_flag = 0;
   short int move_molecule_here_flag = 0;
   int active_index;
-  GSList *sel_files;
-  GFile  *gfile;
+  GSList *sel_files;  
+/*   GFile  *gfile; for xxx_get_files(), which we don't use (too modern) */
 
   coords_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
                                         "coords_filechooserdialog1");
