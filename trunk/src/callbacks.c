@@ -10342,12 +10342,19 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
 /*      (GTK_FILE_CHOOSER(coords_fileselection1)); */
 
 
-  sel_files = gtk_file_chooser_get_files(GTK_FILE_CHOOSER(coords_fileselection1));
+  sel_files = 
+    gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(coords_fileselection1));
+
   while (sel_files) { 
 
-    gfile = G_FILE(sel_files->data);
-    filename = g_file_get_path(gfile);
-/*     printf("DEBUG:: filename: %s\n", filename); */
+/* xxx_get_files() method returns a list of GFiles */
+/*     gfile = G_FILE(sel_files->data); */
+
+/*     filename = g_file_get_path(gfile); */
+
+    filename = (char *) sel_files->data;
+
+    printf("DEBUG:: filename: %s\n", filename);
    
 /*     From here, we go into c++ (that's why the c++ function
        handle_read_draw needs to be declared external) and read the
