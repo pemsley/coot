@@ -184,6 +184,14 @@ dnl AC_CHECK_LIB(gsl,main)
 AM_WITH_MYSQL_DATABASE
 
 
+# 20090613 We need to be able to determine the build type, and embed
+# that value in to coot binary.  We need to do that for the updating
+# Coot.  THe build type will be set by COOT_SYS_BUILD_TYPE.  Which is 
+# for now one variable.  I may split it into os/os-ver/python/arch etc 
+# later.
+AM_COOT_SYS_BUILD_TYPE
+
+
 dnl Fix this another time.
 dnl dnl Add the languages which your application supports here.
 dnl ALL_LINGUAS="es es_ES"
