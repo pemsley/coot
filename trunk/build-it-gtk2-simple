@@ -266,6 +266,7 @@
 # 4.44 20090523 Add some build info to the mmdb and clipper logs.
 # 4.45 20090523 build status results now go to $build_type-build-status
 #               (not gtk2-build-status)
+# 4.46 20090613 Add coot revision info to build status line.
 script_version=4.45
 
 # :: NOTE:: 
@@ -520,13 +521,16 @@ function setup_ccp4 {
 }
 
 # exit 
-function my_exit { 
-    
-   echo fail-build > $LOGS/$build_type-test-status
+function my_exit {
+
+   exit_arg=$1
+   shift
+   extra_args=$*
+   echo fail-build $extra_args > $LOGS/$build_type-build-status
    if [ -e $LOGS/$build_type-build-status ] ; then
       rm $LOGS/$build_type-build-status
    fi
-   exit $1
+   exit $exit_arg
 }
 
 
@@ -2624,7 +2628,8 @@ else
    else 
       # compile release code then:
       ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
-   fi 
+   fi
+   coot_revision=`echo $coot_version | awk '{a=$1; i=index(a,"revision"); print substr(a,i)}'`
    # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
 fi
 
@@ -2635,7 +2640,7 @@ if [ -e ${AUTOBUILD_SOURCES}/$coot_version.tar.gz ] ; then
 else 
    echo badness ${AUTOBUILD_SOURCES}/$coot_version.tar.gz does not exist.
    echo nothing left to do then.  Goodbye.
-   my_exit 2
+   my_exit 2 $coot_version.tar.gz not found
 fi
 date
 pwd
@@ -2789,11 +2794,11 @@ fi
 coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
-    echo fail-build > $LOGS/$build_type-build-status
-    my_exit 2
+    echo fail-build $coot_revision > $LOGS/$build_type-build-status
+    my_exit 2 $coot_revision
 else 
     echo coot build was good.
-    echo pass-build > $LOGS/$build_type-build-status
+    echo pass-build $coot_revsion > $LOGS/$build_type-build-status
 fi
 echo done coot build. 
 
