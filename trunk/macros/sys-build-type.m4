@@ -4,7 +4,6 @@ AC_DEFUN([AM_COOT_SYS_BUILD_TYPE],
 [
 AC_MSG_CHECKING([build type])
 
-echo ..........................here\! ...............
 
 OS=`uname`
 systype=unknown 
@@ -16,9 +15,16 @@ if test "$OS" = "Darwin" ; then
 fi
 
 if test $OS = Linux ; then 
+
+  architecture=`uname -i`
+  # uname -i and uname -p (strangely) return unknown on my ubuntu
+  if test $architecture = unknown ; then
+     architecture=`uname -m`
+  fi
+
   which rpm > /dev/null
   have_rpm=$?
-  if  [ $have_rpm = 0 ] ; then 
+  if  test $have_rpm = 0 ; then 
       for i in fedora redhat centos ; do
 	dist=`rpm -q --qf '%{name}' ${i}-release`
 	if test $? = 0 ; then
@@ -41,12 +47,6 @@ if test $OS = Linux ; then
       ;;
       * )
         systype=${architecture}-rhel-`echo ${dist_ver} | sed s/[A-Za-z]//g`
-        if [ $arch = x86_64 ] ; then 
-	   if [ $dist_ver = 4WS ] ; then
-	      echo RedHat 4 Linux x86_64 detected. need to update libtool
-              update_libtool=1
-	   fi
-        fi
       ;;
     esac
     ;;
@@ -65,9 +65,14 @@ if test $OS = Linux ; then
   esac
 fi
 
+# echo :::::: architecture has been set to $architecture
+# echo :::::: systype has been set to $systype
+
 if test "$coot_python" = true ; then
+   # echo setting python_tag to -python
    python_tag=-python
 else 
+   # echo setting python_tag to blank
    python_tag=
 fi
   
