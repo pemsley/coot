@@ -494,7 +494,7 @@
     (if (> time-diff 0)
 	(let ((s (if (> time-diff 86000)
 		     "This is an Old Coot!\n\nIt's time to upgrade."
-		     (if (= (random 3) 0)
+		     (if (= (random 10) 0)
 			 ;; Jorge Garcia:
 			 "(Nothing says \"patriotism\" like an Ireland shirt...)\n"
 			 "This is an Old Coot!\n\nIt's time to upgrade."))))

@@ -137,6 +137,7 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DPACKAGE_LOCALE_DIR='"$(pkgdatadir)/locale"' \
 	-DDATADIR='"$(datadir)"'    \
+        -DCOOT_SYS_BUILD_TYPE='"$(COOT_SYS_BUILD_TYPE)"' \
 	$(WITH_GUILE_CFLAGS)	\
 	$(USE_GUILE_GTK) 	\
 	$(GUILE_CFLAGS)		\

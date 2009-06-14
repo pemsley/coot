@@ -45,6 +45,7 @@
 (define test-internal-single-scm #f)
 (define user-defined-click-scm #f)
 (define add-lsq-atom-pair-scm #f)
+(define coot-sys-build-type-scm #f)
 
 
 
