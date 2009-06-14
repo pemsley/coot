@@ -67,6 +67,7 @@
 (define test-internal-single test-internal-single-scm)
 (define user-defined-click user-defined-click-scm)
 (define add-lsq-atom-pair add-lsq-atom-pair-scm)
+(define coot-sys-build-type coot-sys-build-type-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a

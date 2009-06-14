@@ -4224,6 +4224,51 @@ Tue Jun  2 02:52:49 EDT 2009
   "Just molecules with unsaved changes?"
 
 ---
+Mon Jun  8 17:28:43 BST 2009
+
+
+	on rama refining pdb1h3y.ent (at the end, I think)
+
+In /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/guile/gtk-2.0/gtk.scm:
+ 147:  0* [apply #<procedure #f ()> ()]
+In unknown file:
+   ?:  1  [#<procedure #f ()>]
+In /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/scheme/fitting.scm:
+    ...
+ 212:  2  (let* ((imol-map #)) (func (car *multi-refine-spec-list*) imol-map) ...)
+ 213:  3* [fit-protein-rama-fit-function (4 "B" -10000 #f) 5]
+ 173:  4  (let ((imol #) (chain-id #) (res-no #) ...) (let (# #) (map # #) ...))
+ 177:  5  (let (# #) (map # #) ...)
+ 179:  6* [map #<procedure #f (alt-conf)> ...
+ 188:  7*  [residue-alt-confs 4 "B" -10000 #f]
+In /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/scheme/coot-utils.scm:
+1456:  8   [reverse ...
+1457:  9*   [f ...
+1457: 10*    [residue-info 4 "B" -10000 #f]
+/home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/scheme/coot-utils.scm:1457:21: In procedure SWIG_Guile_scm2newstr in expression (residue-info imol chain-id ...):
+/home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/scheme/coot-utils.scm:1457:21: Wrong type argument in position 1: #f
+
+----
+Tue Jun  9 06:30:16 BST 2009
+
+   In a MET, move the SD to 2.85A from the CG/CE and then do rotamers.
+   The SD and CE do not move. [HK]
+
+
+----
+Tue Jun  9 06:30:23 BST 2009
+
+   MolProbity display clashes with Alt conf atoms handled correctly,
+   currently it's a mess. [HK]
+
+
+---
+Tue Jun  9 06:30:49 BST 2009
+
+   Update symmetry on Ctrl-G resno Return [HK]
+
+
+----
 
      Think about providing a syncing "service"
 

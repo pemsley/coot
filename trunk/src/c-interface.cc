@@ -161,6 +161,7 @@ char *coot_version() {
    version_string += " embedded]";
 #endif    
    int len = version_string.length();
+
    
    char *r = new char[len+1];
    strncpy(r, version_string.c_str(), len+1);
@@ -179,6 +180,16 @@ char *coot_revision() {
   return r;
 
 }
+
+#ifdef USE_GUILE
+SCM coot_sys_build_type_scm() {
+
+   std::string sb = COOT_SYS_BUILD_TYPE;
+   SCM r = scm_makfrom0str(sb.c_str());
+   return r;
+} 
+#endif
+
 
 /*  -------------------------------------------------------------------- */
 /*                     Testing Interface:                                */

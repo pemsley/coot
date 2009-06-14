@@ -215,7 +215,8 @@
 			     #t)
 			   #f)))))
 	    (gtk-idle-add idle-func)
-	    (set! *multi-refine-idle-proc* idle-func))))))
+	    (set! *multi-refine-idle-proc* idle-func)
+	    (set-go-to-atom-molecule imol))))))
 
 
 ;; For each residue in chain chain-id of molecule number imol, do a

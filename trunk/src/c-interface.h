@@ -413,6 +413,12 @@ int exchange_chain_ids_for_seg_ids(int imol);
    always be lexographically greater than previous versions. */
 char *coot_version();
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM coot_sys_build_type_scm();
+#endif
+#endif
+
 /*! \brief return the name of molecule number imol
 
  @return 0 if not a valid name ( -> False in scheme) 
@@ -1632,6 +1638,13 @@ void print_all_history_in_python();
 
   1 for on, 0 for off. */
 void set_console_display_commands_state(short int istate);
+/*! \brief set a flag to show the text command equivalent of gui
+  commands in the console as they happen in bold and colours.
+
+  colour_flag: pass  1 for on, 0 for off.
+
+  colour_index 0 to 7 inclusive for various different colourings.
+ */
 void set_console_display_commands_hilights(short int bold_flag, short int colour_flag, int colour_index);
 
 /* \} */
