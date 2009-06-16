@@ -498,7 +498,7 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       canvas_item_vec.push_back(item);
 
       // tick marks and tick labels
-      for (unsigned int irn=irn_start; irn<brn; irn+=5) {
+      for (int irn=irn_start; irn<brn; irn+=5) {
 
 	 // old values, badd with offset resnos
 	 points->coords[0] = irn*font_scaler;
