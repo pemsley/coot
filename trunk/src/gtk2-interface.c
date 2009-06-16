@@ -19097,7 +19097,7 @@ create_preferences (void)
 
   preferences_reset_button = gtk_button_new ();
   gtk_widget_show (preferences_reset_button);
-  gtk_box_pack_start (GTK_BOX (hbox115), preferences_reset_button, TRUE, TRUE, 25);
+  gtk_box_pack_start (GTK_BOX (hbox115), preferences_reset_button, TRUE, TRUE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_reset_button), 2);
 
   alignment110 = gtk_alignment_new (0.5, 0.5, 0, 0);
@@ -19112,13 +19112,13 @@ create_preferences (void)
   gtk_widget_show (image6181);
   gtk_box_pack_start (GTK_BOX (hbox326), image6181, FALSE, FALSE, 0);
 
-  label590 = gtk_label_new_with_mnemonic (_("Reset Defaults"));
+  label590 = gtk_label_new_with_mnemonic (_("   Reset Defaults   "));
   gtk_widget_show (label590);
   gtk_box_pack_start (GTK_BOX (hbox326), label590, FALSE, FALSE, 0);
 
   preferences_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (preferences_ok_button);
-  gtk_box_pack_start (GTK_BOX (hbox115), preferences_ok_button, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox115), preferences_ok_button, TRUE, TRUE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_ok_button), 2);
 
   g_signal_connect ((gpointer) preferences, "destroy",

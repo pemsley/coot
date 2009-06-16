@@ -34989,7 +34989,7 @@ View Mode</property>
 			  <child>
 			    <widget class="GtkLabel" id="label590">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Reset Defaults</property>
+			      <property name="label" translatable="yes">   Reset Defaults   </property>
 			      <property name="use_underline">True</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -35016,7 +35016,7 @@ View Mode</property>
 		  </child>
 		</widget>
 		<packing>
-		  <property name="padding">25</property>
+		  <property name="padding">6</property>
 		  <property name="expand">True</property>
 		  <property name="fill">True</property>
 		</packing>
@@ -35034,7 +35034,7 @@ View Mode</property>
 		  <signal name="clicked" handler="on_preferences_ok_button_clicked"/>
 		</widget>
 		<packing>
-		  <property name="padding">0</property>
+		  <property name="padding">6</property>
 		  <property name="expand">True</property>
 		  <property name="fill">True</property>
 		</packing>

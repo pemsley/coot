@@ -403,6 +403,14 @@ Punted from 0.6:
      the protein. ::: 4
 
 
+   o Put the scripting window into the state file. How do we know if
+     the scripting window is open at end time? ::: 1
+
+
+   o Fixing atoms does not stop them from moving with
+     rotate/translate.  Should it?  Yes, I think ::: 1
+
+
  0.7 Priorities:
 
    o Rotate/Translate on dsDNA (for example)
