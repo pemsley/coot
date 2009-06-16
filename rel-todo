@@ -4,23 +4,15 @@
    o Torsion general is broken? Yes (argh!) ::: 2
 
 
-   o Move Koala to gcc 4.1.2 20080704 (RH 4.1.2-44) or better.  See
-     Esser build log problems.  ::: 2
-
-
-   o Fixing atoms does not stop them from moving with
-     rotate/translate.  Should it?  Yes, I think ::: 1
-
-
    o Fix ligand chi angles. ::: 1
 
 
-   o Put the scripting window into the state file. How do we know if
-     the scripting window is open at end time? ::: 1
+   o Add terminal residue has disconnected atoms.  Why? This is an
+     extremely deeply-buried problem. ::: 4
 
 
-   o Rama-refine rnase: Does it work properly?  (possibly more work
-     here.) ::: 1
+   o Move Koala to gcc 4.1.2 20080704 (RH 4.1.2-44) or better.  See
+     Esser build log problems.  ::: 2
 
 
    o CA+Ligands has gone into CA by B-factor mode.  Don't like - it 
@@ -32,8 +24,8 @@
      interface with molprobity dots. ::: 8
 
 
-   o Add terminal residue has disconnected atoms.  Why? This is an
-     extremely deeply-buried problem. ::: 4
+   o Look at 1y7l difference map. Peaks 12 and 13 are too close to
+     each other? 1.12A. ::: 1
 
 
    o multiple residue ranges, glycosylation, covalent bond entities,
@@ -919,5 +911,11 @@ c-interface clear_up_moving_atoms...
    o Add cancel button to rama refine ::: 1
 
 * Done.
+
+
+   o Rama-refine rnase: Does it work properly?  (possibly more work
+     here.) ::: 1
+
+* It's fine.
 
 

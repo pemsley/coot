@@ -6804,37 +6804,6 @@ void do_sequence_view(int imol) {
 } 
 
 
-void nsv(int imol) {
-
-   if (is_valid_model_molecule(imol)) {
-      GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
-      if (w) {
-
-	 // it already exists... just raise it and map it.
-
-	 // GtkWidget *canvas = g.sequence_view_is_displayed[imol];
-	 GtkWidget *canvas = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
-	 // so what is the window (which we shall call widget)?
-	 GtkWidget *widget = lookup_widget(canvas, "sequence_view_dialog");
-
-	 if (!GTK_WIDGET_MAPPED(widget)) {
-	    gtk_widget_show(widget);
-	 } else {
-	    gdk_window_raise(widget->window);
-	 }
-
-      } else {
-	 graphics_info_t g;
-	 std::string name = g.molecules[imol].name_for_display_manager();
-	 exptl::nsv *seq_view =
-	    new exptl::nsv(g.molecules[imol].atom_sel.mol, name, imol,
-			   g.use_graphics_interface_flag);
-	 // 
-	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
-      }
-   }
-}
-
 /*  ----------------------------------------------------------------------- */
 /*           rotate moving atoms peptide                                    */
 /*  ----------------------------------------------------------------------- */

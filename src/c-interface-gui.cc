@@ -66,6 +66,7 @@
 #include "coot-fileselections.h"
 #include "coot-references.h"
 #include "rotate-translate-modes.hh"
+#include "nsv.hh"
 
 #include "graphics-info.h"
 #include "interface.h"
@@ -3244,7 +3245,13 @@ new_close_molecules(GtkWidget *window) {
 			       << imol << std::endl;
 		  }
 		  GtkWidget *window = lookup_widget(w, "sequence_view_dialog");
-		  gtk_widget_destroy(window);
+		  if (window) { 
+		     gtk_widget_destroy(window);
+		  } else { 
+		     window = lookup_widget(w, "nsv_dialog");
+		     if (window) 
+			gtk_widget_destroy(window);
+		  }
 	       } 
 #endif
 	       graphics_info_t::molecules[imol].close_yourself();
@@ -5175,6 +5182,53 @@ void show_restraints_editor(const char *monomer_type) {
 //                   sequence view
 // ===================================================================
 
+
+void nsv(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+      if (w) {
+
+	 // it already exists... just raise it and map it.
+
+	 // GtkWidget *canvas = g.sequence_view_is_displayed[imol];
+	 GtkWidget *canvas = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+	 // so what is the window (which we shall call widget)?
+
+	 
+	 GtkWidget *widget = lookup_widget(canvas, "nsv_dialog");
+
+	 if (widget) { 
+	    if (!GTK_WIDGET_MAPPED(widget)) {
+	       gtk_widget_show(widget);
+	    } else {
+	       gdk_window_raise(widget->window);
+	    }
+	 } else { 
+
+	    widget = lookup_widget(canvas, "sequence_view_dialog");
+	    if (widget) { 
+	       if (!GTK_WIDGET_MAPPED(widget)) {
+		  gtk_widget_show(widget);
+	       } else {
+		  gdk_window_raise(widget->window);
+	       }
+	    }
+	 }
+
+      } else {
+	 graphics_info_t g;
+	 std::string name = g.molecules[imol].name_for_display_manager();
+	 exptl::nsv *seq_view =
+	    new exptl::nsv(g.molecules[imol].atom_sel.mol, name, imol,
+			   g.use_graphics_interface_flag);
+	 // 
+	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
+      }
+   }
+}
+
+
 void sequence_view_old_style(int imol) {
    
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
@@ -5192,10 +5246,12 @@ void sequence_view_old_style(int imol) {
 	 // so what is the window (which we shall call widget)?
 	 GtkWidget *widget = lookup_widget(canvas, "sequence_view_dialog");
 
-	 if (!GTK_WIDGET_MAPPED(widget)) {
-	    gtk_widget_show(widget);
-	 } else {
-	    gdk_window_raise(widget->window);
+	 if (widget) { 
+	    if (!GTK_WIDGET_MAPPED(widget)) {
+	       gtk_widget_show(widget);
+	    } else {
+	       gdk_window_raise(widget->window);
+	    }
 	 }
 
       } else {
