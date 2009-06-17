@@ -267,7 +267,11 @@
 # 4.45 20090523 build status results now go to $build_type-build-status
 #               (not gtk2-build-status)
 # 4.46 20090613 Add coot revision info to build status line.
-script_version=4.45
+# 4.47 20090617 Make a file (and transfer it if neeeded) type-binary-xxx.txt
+#               containing the $coot_version of the just-built binary.  Used
+#               in the update-binary mechanism to find if there is a newer
+#               version than this binary (that we are running).
+script_version=4.47
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -494,7 +498,9 @@ function ssh_copy {
     if [ "$domainname" = "biop" ] ; then
        echo copying over files...
        $HOME/bin/sput-with-dir $bin_tar_file        public_html/software/binaries/nightlies/pre-release/
-       $HOME/bin/sput-with-dir $bin_tar_file.md5sum public_html/software/binaries/nightlies/pre-release/
+       if [ -e $bin_tar_file.md5sum ] ; then 
+          $HOME/bin/sput-with-dir $bin_tar_file.md5sum public_html/software/binaries/nightlies/pre-release/
+       end
     else 
        echo Not copying file to York, $domainname
     fi    
@@ -2894,7 +2900,14 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 
 	    mv $holding_tar_file $bin_tar_file
 	    mv $holding_tar_file.md5sum $bin_tar_file.md5sum
+            # copy file to pre-release dir if needed
             ssh_copy $bin_tar_file
+
+            # update the description of the latest binary tar file for
+            # this build-type.
+            binary_type_latest=$BINARY_TAR_DEST_DIR/type-binary-${OS}-${systype}${python_tag}${gtk2}-latest.txt
+	    echo $coot_version > $binary_type_latest
+            ssh_copy $binary_type_latest
 
             # update the ChangeLog, README and RELEASE-NOTES
             cd "$build_dir"
