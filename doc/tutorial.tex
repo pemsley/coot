@@ -21,7 +21,8 @@
 %\author{EMBO 2007 Workshop}
 %\author{Soleil 2008 Workshop}
 % \author{CSHL 2008 Workshop}
-\author{ChemBioBootCamp 2009 Workshop}
+%\author{ChemBioBootCamp 2009 Workshop}
+\author{CCP4 School APS 2009}
 
 \begin{document}
 \maketitle
@@ -169,7 +170,7 @@ the molecule to the motion of the mouse.  Many people don't like this.
 
 So you might like to try the following. In the Coot main menu-bar:
 
-\textsf{Edit $\rightarrow$ Preferences...}
+\textsf{Edit $\rightarrow$ Preferences\ldots}
 
 \textsl{  [Coot displays a Preferences window]}
 
@@ -870,13 +871,7 @@ It is an alternative conformation.
 
 Let's model it
 
-\item \textsf{Add Alt Conf\ldots\footnote{This is one of the few items 
-  `missing' in the modelling toolbar. However you can add your own ``Add 
-  Alt Conf'' button to the top toolbar of the Coot window (only in Python 
-  versions). Click Right-mouse on the toolbar (besides the ``Display Manager'' 
-  button) and you will see a pop-up menu. Select ``Manage Buttons'',  
-  tick the box besides ``Add Alt Conf'' and click ``Apply''. A new button 
-  named ``Add Alt Conf'' will appear on the toolbar.}}
+\item \textsf{Add Alt Conf\ldots}
 
 \textsl{  [Coot pops up a residue splitter dialog]}
 
@@ -957,11 +952,21 @@ the real structure afterwards.
 
 Refmac is a program that does Maximum Likelihood refinement of the
 model, and the interface to it can be found on the Model/Fit/Refine
-dialog. (There is no icon on the toolbar for this action - open the
-window from the calculate menu\footnote{or add your own ``Run Refmac''
-button to the top toolbar as described for ``Add Alt Conf''}). Now 
-click on \textsf{``Run Refmac\ldots''} at the bottom of the 
-Model/Fit/Refine window.
+dialog. (By default there is no icon on the toolbar for this action
+- open the window from the calculate menu\footnote{or add your own 
+``Run Refmac'' button to the toolbar or the main/top toolbar. To add 
+the button to the modelling/side toolbar, open the ``Preference'' window.
+Now go to \textsf{Preferences $\rightarrow$ General $\rightarrow$ 
+Refinement Toolbar}. In the right hand window scroll down and tick the
+box besides ``Run Refmac\ldots''. A corresponding button will appear on the 
+modelling toolbar. Alternatively you can add your own ``Run Refmac\ldots'' 
+button to the top toolbar of the Coot window (only in Python 
+versions). Click Right-mouse on the toolbar (besides the ``Display Manager'' 
+button) and you will see a pop-up menu. Select ``Manage Buttons'',  
+tick the box besides ``Add Alt Conf'' and click ``Apply''. A new button 
+named ``Add Alt Conf'' will appear on the toolbar.}). Now 
+click on \textsf{``Run Refmac\ldots''} (at the bottom of the 
+Model/Fit/Refine window).
 
 The defaults should be fine...
 
@@ -974,6 +979,11 @@ The defaults should be fine...
 \begin{itemize}
 \item Use \textsf{``Validate $\rightarrow$ Difference Map Peaks''} to
   find interesting features in the newly created map and model.
+\item Python enabled version only: a dialog with geometric outliers and
+  other interesting things (if they exist) detected by Refmac shows up
+  \footnote{This is an analysis from the Refmac log file and can 
+  alternatively be opened from \textsf{Extensions... $\rightarrow$ 
+  Refine...  $\rightarrow$ Read REFMAC log}}.
 \end{itemize}
 
 

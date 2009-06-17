@@ -68,6 +68,7 @@ class NcsTestFunctions(unittest.TestCase):
         self.failUnless(type(first_ghost[1]) is StringType, "    Fail: not strings first-ghost %s" %first_ghost[1])
         print "   NCS info: ", ncs_chain_info
 
+
     def test03_0(self):
         """NCS deviation info"""
 
@@ -105,6 +106,7 @@ class NcsTestFunctions(unittest.TestCase):
 
         # prepare the input
         imol = read_pdb(rnase_pdb)
+        self.failUnless(valid_model_molecule_qm(imol), "fail to read %s" %rnase_pdb)
         for r in range(1, 4):
             delete_residue(imol, "B", r, "")
         # make ghosts

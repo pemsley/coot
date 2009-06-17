@@ -167,7 +167,8 @@ class ShelxTestFunctions(unittest.TestCase):
         """Add water to SHELX molecule"""
 
         global imol_insulin_res
-
+        self.failUnless(valid_model_molecule_qm(imol_insulin_res),"   failed to get a valid imol_insulin_res")
+        
         set_pointer_atom_molecule(imol_insulin_res)
         set_rotation_centre(3, -1, 60)
         place_typed_atom_at_pointer("Water")
@@ -178,6 +179,8 @@ class ShelxTestFunctions(unittest.TestCase):
     # Tobias Beck test
     def test08_0(self):
         """Find Waters for a SHELXL molecule"""
+
+        self.failUnless(valid_model_molecule_qm(imol_insulin_res),"   failed to get a valid imol_insulin_res")
 
         n_chains_pre = n_chains(imol_insulin_res)
         find_waters(imol_insulin_map, imol_insulin_res, 0, 0.6, 1)
@@ -225,6 +228,7 @@ class ShelxTestFunctions(unittest.TestCase):
             return occ_etc[1]
 
         imol = unittest_pdb("horma-p21.res")
+        self.failUnless(valid_model_molecule_qm(imol), "  failed to get a valid imoll from horma-p21.res")
         write_shelx_ins_file(imol, "new-horma.ins")
         imol_2 = read_pdb("new-horma.ins")
         at_1 = get_atom(imol   , "A", 4, "", " N1 ")
