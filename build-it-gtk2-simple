@@ -500,7 +500,7 @@ function ssh_copy {
        $HOME/bin/sput-with-dir $bin_tar_file        public_html/software/binaries/nightlies/pre-release/
        if [ -e $bin_tar_file.md5sum ] ; then 
           $HOME/bin/sput-with-dir $bin_tar_file.md5sum public_html/software/binaries/nightlies/pre-release/
-       end
+       fi
     else 
        echo Not copying file to York, $domainname
     fi    
