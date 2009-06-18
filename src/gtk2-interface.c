@@ -2604,7 +2604,9 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_regularize_togglebutton, "model_toolbar_regularize_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_fixed_atoms_button, "model_toolbar_fixed_atoms_button");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rigid_body_fit_togglebutton, "model_toolbar_rigid_body_fit_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_toolbutton, "model_toolbar_rot_trans_toolbutton");
+#ifdef GTK_TYPE_MENU_TOOL_BUTTON
+    GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_toolbutton, "model_toolbar_rot_trans_toolbutton");
+#endif
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_auto_fit_rotamer_togglebutton, "model_toolbar_auto_fit_rotamer_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rotamers_togglebutton, "model_toolbar_rotamers_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_edit_chi_angles_togglebutton, "model_toolbar_edit_chi_angles_togglebutton");
