@@ -388,11 +388,11 @@ fallback_coot_version=coot-0.4
 #   End of tinkering with parameters.
 # ----------------------------------------------------------------
 
-# First, check that this is bash!
+# First, check that this is bash.
 # 
 if [ "$BASH" = "" ] ; then 
-   echo this is not bash\!
-   echo this must be run with bash\!
+   echo this shell is not bash\!
+   echo this script must be run with bash\!
    exit
 fi
 
