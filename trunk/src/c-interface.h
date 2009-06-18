@@ -419,6 +419,12 @@ SCM coot_sys_build_type_scm();
 #endif
 #endif
 
+/*! \brief return the subversion revision number of this build.
+ 
+Used in finding updates.  */
+int svn_revision(); 
+
+
 /*! \brief return the name of molecule number imol
 
  @return 0 if not a valid name ( -> False in scheme) 

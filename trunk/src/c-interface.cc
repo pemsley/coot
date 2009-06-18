@@ -130,9 +130,7 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
-// no include file for this?
 int svn_revision(); 
-
 
 char *coot_version() {
 
@@ -168,17 +166,18 @@ char *coot_version() {
    return r;
 }
 
+// return the coot_revision as a char *.  note that svn_revision()
+// returns the svn revision as an it.  More useful?
 char *coot_revision() {
   
-  std::string revision_string = " (revision ";
-  revision_string += coot::util::int_to_string(svn_revision());
-  revision_string += ") ";
-  int len = revision_string.length();
+   std::string revision_string = " (revision ";
+   revision_string += coot::util::int_to_string(svn_revision());
+   revision_string += ") ";
+   int len = revision_string.length();
    
-  char *r = new char[len+1];
-  strncpy(r, revision_string.c_str(), len+1);
-  return r;
-
+   char *r = new char[len+1];
+   strncpy(r, revision_string.c_str(), len+1);
+   return r;
 }
 
 #ifdef USE_GUILE
