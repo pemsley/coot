@@ -1460,6 +1460,7 @@
 
      (cond 
       ((null? atom-ls) alt-confs)
+      ((not (list? atom-ls)) alt-confs) ;; might be #f
       (else
        (let* ((atom (car atom-ls)) 
 	      (compound-name (car atom))
