@@ -31,7 +31,7 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 180
+x_day_range = 200
 
 x_tick_interval = 2
 if (x_day_range > 40):
@@ -95,15 +95,19 @@ tb = text_box.T(loc=(40*xpscale, 73), text="Papers & Happy", shadow=(1,-1,fill_s
 tb.add_arrow((ar.x_pos(data[74][0]), ar.y_pos(data[74][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(80*xpscale, 60), text="CCP4 Dev", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(72*xpscale, 60), text="CCP4 Dev", shadow=(1,-1,fill_style.gray70))
 tb.add_arrow((ar.x_pos(data[115][0]), ar.y_pos(data[115][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(90*xpscale, 22), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(70*xpscale, 18), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70))
 tb.add_arrow((ar.x_pos(data[122][0]), ar.y_pos(data[122][1])), "tc")
 tb.draw()
 
 tb = text_box.T(loc=(110*xpscale, 72), text="NIH & MAMCM", shadow=(1,-1,fill_style.gray70))
 tb.add_arrow((ar.x_pos(data[160][0]), ar.y_pos(data[160][1])), "c")
+tb.draw()
+
+tb = text_box.T(loc=(130*xpscale, 32), text="Paper Submitted", shadow=(1,-1,fill_style.gray70))
+tb.add_arrow((ar.x_pos(data[206][0]), ar.y_pos(data[206][1])), "tc")
 tb.draw()
 
