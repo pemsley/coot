@@ -346,21 +346,30 @@ exptl::nsv::letter_event (GtkObject *obj,
 			    gpointer data) {
 
    exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
-   if (event->motion.state & GDK_BUTTON1_MASK) {
+
+   // I had been checking on mouse motion (it seems).  But lots of
+   // mouse motion causes many calls to set_go_to_atom_from_spec()
+   // (which is expensive).
+   // So, only go to an atom on button release.
+   // 
+
+   // std::cout << "event type: " << event->type << std::endl;
+   
+   // if (event->motion.state & GDK_BUTTON1_MASK) {
+   if (event->type == GDK_BUTTON_RELEASE) {
       set_go_to_atom_molecule(spec_obj.mol_no);
       set_go_to_atom_from_spec(spec_obj.atom_spec);
-   } else { 
+   } else {
       if (event->type == GDK_ENTER_NOTIFY) {
-	 // std::cout << "Entering a text " << obj << " " << rect_object << std::endl;
+	 // std::cout << "Entering a text " << obj << " " << obj << std::endl;
 	 gtk_canvas_item_set(GTK_CANVAS_ITEM(spec_obj.obj), "fill_color", "moccasin", NULL);
       }
 
       if (event->type == GDK_LEAVE_NOTIFY) {
-	 // std::cout << " Leaving a text " << obj << " " << rect_object << std::endl;
+	 // std::cout << " Leaving a text " << obj << " " << obj << std::endl;
 	 gtk_canvas_item_set(GTK_CANVAS_ITEM(spec_obj.obj), "fill_color", "grey85", NULL);
       }
    }
-   // BL says:: need to return something. Not sure what?!
    return 1;
 }
    
@@ -388,7 +397,6 @@ exptl::nsv::rect_event (GtkObject *obj,
 	 gtk_canvas_item_set(GTK_CANVAS_ITEM(obj), "fill_color", "grey85", NULL);
       } 
    } 
-
    return 1;
 }
 
