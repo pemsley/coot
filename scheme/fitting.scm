@@ -121,9 +121,12 @@
 		      (range (chain-n-residues (car chain-list) imol))
 		      spec-list))
 	       (else 
-		(format #t " seqnum from ~s ~s ~s~%" imol (car chain-list) (car serial-number-list))
-		(let ((res-no   (seqnum-from-serial-number         imol (car chain-list) (car serial-number-list)))
-		      (ins-code (insertion-code-from-serial-number imol (car chain-list) (car serial-number-list))))
+		(format #t " seqnum from ~s ~s ~s~%" imol (car chain-list) 
+			(car serial-number-list))
+		(let ((res-no   (seqnum-from-serial-number         imol (car chain-list) 
+								   (car serial-number-list)))
+		      (ins-code (insertion-code-from-serial-number imol (car chain-list) 
+								   (car serial-number-list))))
 		  
 		  (loop chain-list (cdr serial-number-list)
 			(cons (list imol (car chain-list) res-no ins-code) spec-list))))))))))
@@ -200,6 +203,7 @@
     (if (not (null? specs))
 	(begin
 	  (set-visible-toolbar-multi-refine-stop-button 1)
+	  (toolbar-multi-refine-button-set-sensitive "stop" 1)
 	  (set! *multi-refine-spec-list* specs)
 	  (let ((idle-func 
 		 (lambda ()
