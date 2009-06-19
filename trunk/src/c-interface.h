@@ -1063,11 +1063,11 @@ void set_last_map_contour_level(float level);
     number to n_sigma sigma */
 void set_last_map_contour_level_by_sigma(float n_sigma);
 
-/*! \brief create a lower limit to the "2Fo-Fc-style" map contour level changing 
+/*! \brief create a lower limit to the "Fo-Fc-style" map contour level changing 
 
   (default 1 on) */
 void set_stop_scroll_diff_map(int i);
-/*! \brief create a lower limit to the difference map contour level changing 
+/*! \brief create a lower limit to the "2Fo-Fc-style" map contour level changing 
 
   (default 1 on) */
 void set_stop_scroll_iso_map(int i);

@@ -411,12 +411,17 @@ Punted from 0.6:
      rotate/translate.  Should it?  Yes, I think ::: 1
 
 
+
  0.7 Priorities:
 
    o Rotate/Translate on dsDNA (for example)
 
    o Move (symmetry-related) waters around protein (or has this been
      done by now?)
+
+   o CA (or CA + ligs?) mode, edit bond colours -> Changes the colour
+     of the first chain only.   ::: 1
+
 
  ------
     
