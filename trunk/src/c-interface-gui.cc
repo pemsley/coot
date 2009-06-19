@@ -5332,7 +5332,9 @@ void toolbar_multi_refine_stop() {
    
    set_visible_toolbar_multi_refine_continue_button(1);
    set_visible_toolbar_multi_refine_cancel_button(1);
-   toolbar_multi_refine_button_set_sensitive("cancel", 1);
+   toolbar_multi_refine_button_set_sensitive("continue", 1);
+   toolbar_multi_refine_button_set_sensitive("cancel",   1);
+   toolbar_multi_refine_button_set_sensitive("stop",     0); // it's already stopped.
    
 #endif // USE_GUILE   
 
@@ -5348,7 +5350,9 @@ void toolbar_multi_refine_continue() {
 
 #ifdef USE_GUILE
 
-   toolbar_multi_refine_button_set_sensitive("cancel", 0);
+   toolbar_multi_refine_button_set_sensitive("stop",     1);
+   toolbar_multi_refine_button_set_sensitive("cancel",   0);
+   toolbar_multi_refine_button_set_sensitive("continue", 0);
    std::string s = "(set! *continue-multi-refine* #t)";
    safe_scheme_command(s.c_str());
    s = "(gtk-idle-add *multi-refine-idle-proc*)";
@@ -5369,6 +5373,7 @@ void toolbar_multi_refine_cancel() {
    // the idle function looks at this value
    std::string s = "(set! *continue-multi-refine* #f)";
    safe_scheme_command(s.c_str());
+   toolbar_multi_refine_button_set_sensitive("stop", 1); // for next time
    set_visible_toolbar_multi_refine_continue_button(0);
    set_visible_toolbar_multi_refine_stop_button(0);
    set_visible_toolbar_multi_refine_cancel_button(0);
