@@ -164,6 +164,9 @@ make_asc(CMMDBManager *mol) {
 // 
 // whole_residue_flag: only copy atoms that are either in this altLoc,
 // or has an altLoc of "".
+//
+// This always returns a CResidue pointer pointing to a allocated
+// residue.  It may not have any atoms in it though.
 // 
 CResidue *
 coot::deep_copy_this_residue(CResidue *residue,
@@ -171,31 +174,71 @@ coot::deep_copy_this_residue(CResidue *residue,
 			     short int whole_residue_flag,
 			     int atom_index_handle) {
 
-   // Horrible casting to CResidue because GetSeqNum and GetAtomTable
-   // are not const functions.
+   // 20090622 altconf is "", whole_residue_flag = 0, and residue is
+   // completely split into A and B.
+   //
+   // This would return a residue that is valid, but has no atoms in
+   // it.  However when we come to do a GetAtomTable() on such as
+   // residue (e.g. init_from_residue_vec in simple_restraint.cc) we
+   // get a crash because for some reason I cannot understand, nAtoms
+   // is not 0 and we try to read atoms in the residue_atoms that do
+   // not exist...  So now, when there are no atoms added to the
+   // returned residue, I will delete the residue and return a NULL.
+   // I have changed all uses of this function to now check for NULL.
+   //
    // 
-   CResidue *rres = new CResidue;
-   CChain   *chain_p = new CChain;
-   chain_p->SetChainID(((CResidue *)residue)->GetChainID());
-   rres->SetResID(residue->GetResName(),
-		  residue->GetSeqNum(),
-		  residue->GetInsCode());
 
+   CResidue *rres = 0; 
    PPCAtom residue_atoms;
    int nResidueAtoms;
-   ((CResidue *)residue)->GetAtomTable(residue_atoms, nResidueAtoms);
+   residue->GetAtomTable(residue_atoms, nResidueAtoms);
    CAtom *atom_p;
-   
-   for(int iat=0; iat<nResidueAtoms; iat++) {
-      std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
-      if (whole_residue_flag ||
-	  this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
-	 atom_p = new CAtom;
-	 atom_p->Copy(residue_atoms[iat]);
-	 int i_add = rres->AddAtom(atom_p);
+
+   if (nResidueAtoms > 0) { 
+      // 
+      rres = new CResidue();
+      CChain   *chain_p = new CChain;
+      chain_p->SetChainID(residue->GetChainID());
+      rres->SetResID(residue->GetResName(),
+		     residue->GetSeqNum(),
+		     residue->GetInsCode());
+      
+      int n_added_atoms = 0; 
+      for(int iat=0; iat<nResidueAtoms; iat++) {
+	 if (! residue_atoms[iat]->Ter) { 
+	    std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
+	    if (whole_residue_flag ||
+		this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
+	       atom_p = new CAtom;
+	       atom_p->Copy(residue_atoms[iat]);
+	       int i_add = rres->AddAtom(atom_p);
+	       n_added_atoms++;
+	    }
+	 }
       }
-   }
-   chain_p->AddResidue(rres);
+      if (n_added_atoms == 0) {
+	 // reset the returned residue
+	 delete rres;
+	 rres = NULL;
+      } else {
+	 // As normal
+	 chain_p->AddResidue(rres);
+
+	 // debug
+	 if (0) { 
+	    std::cout << "debug:: coot::deep_copy_this_residue returns a residue copy of "
+		      << residue ->GetChainID() << " " << residue->GetSeqNum() <<  " "
+		      << residue->GetInsCode() << " " << "with alt confs \"" << altconf << "\""
+		      << " which is " << rres <<  " with "  
+		      << rres->nAtoms << " atoms " << " and atoms array " << rres->atom
+		      << std::endl;
+	 }
+      }
+   } else {
+      if (0) {  // debug
+	 std::cout << "Debug:: deep_copy_this_residue returns NULL" << std::endl;
+      }
+   } 
    return rres;
 }
 
@@ -237,16 +280,17 @@ coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
       do_shelx_afix_data_flag = 1;
    
    for(int iat=0; iat<nResidueAtoms; iat++) {
-      std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
-      if (whole_residue_flag ||
-	  this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
-	 atom_p = new CAtom;
-	 atom_p->Copy(residue_atoms[iat]);
-	 int i_add = rres->AddAtom(atom_p);
-	 if (atom_index_handle > -1 ) { 
-	    // copy across the atom indices:
+      if (! residue_atoms[iat]->Ter) { 
+	 std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
+	 if (whole_residue_flag ||
+	     this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
+	    atom_p = new CAtom;
+	    atom_p->Copy(residue_atoms[iat]);
+	    int i_add = rres->AddAtom(atom_p);
+	    if (atom_index_handle > -1 ) { 
+	       // copy across the atom indices:
 	    
-	 }
+	    }
 // 	 if (do_shelx_afix_data_flag) {
 // 	    int ic;
 // 	    if (residue_atoms[iat]->GetUDData(udd_afix_handle, ic) == UDDATA_Ok) {
@@ -259,6 +303,7 @@ coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
 // 	       }
 // 	    }
 // 	 }
+	 }
       }
    }
    chain_p->AddResidue(rres);

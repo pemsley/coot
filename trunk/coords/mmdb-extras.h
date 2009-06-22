@@ -105,6 +105,8 @@ namespace coot {
   // 
   // whole_residue_flag: only copy atoms that are either in this altLoc,
   // or has an altLoc of "".
+  //
+  // Returns NULL if input residue has no atoms
   // 
   CResidue *
   deep_copy_this_residue(CResidue *residue, 

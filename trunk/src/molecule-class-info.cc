@@ -3433,27 +3433,30 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 // 	       std::cout << "DEBUG:: returned serial_number: " << serial_number
 // 			 << std::endl;
 
-	       if (serial_number.first != -1) {
-		  // insert at this position (other residues are
-		  // shifted up).
-		  chain->InsResidue(res, serial_number.first);
-		  coot::copy_segid(serial_number.second, res);
-		  inserted = 1;
-	       } else { 
-		  std::cout << "DEBUG:: insert_coords_internal() add residue\n";
-		  CResidue *last_residue = last_residue_in_chain(chain);
-		  if (last_residue) { 
+	       if (res) { 
 
-		     // debug::
-		     int nat = last_residue->GetNumberOfAtoms();
-		     for (int iat=0; iat<nat; iat++) {
-			std::cout << iat << " of " << nat << " "
-				  << last_residue->GetAtom(iat) << std::endl;
-		     } 
-		     
-		     chain->AddResidue(res);
-		     coot::copy_segid(last_residue, res);
+		  if (serial_number.first != -1) {
+		     // insert at this position (other residues are
+		     // shifted up).
+		     chain->InsResidue(res, serial_number.first);
+		     coot::copy_segid(serial_number.second, res);
 		     inserted = 1;
+		  } else { 
+		     std::cout << "DEBUG:: insert_coords_internal() add residue\n";
+		     CResidue *last_residue = last_residue_in_chain(chain);
+		     if (last_residue) { 
+			
+			// debug::
+			int nat = last_residue->GetNumberOfAtoms();
+			for (int iat=0; iat<nat; iat++) {
+			   std::cout << iat << " of " << nat << " "
+				     << last_residue->GetAtom(iat) << std::endl;
+			} 
+			
+			chain->AddResidue(res);
+			coot::copy_segid(last_residue, res);
+			inserted = 1;
+		     }
 		  }
 	       }
 	    }
@@ -3476,9 +3479,11 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 
 	    CResidue *res = 
 	       coot::deep_copy_this_residue(asc_residue, "", 1, udd_atom_index);
-	    new_chain->AddResidue(res);
-	    atom_sel.mol->FinishStructEdit(); // so that we don't keep adding a
-                                  	      // new Chain to atom_sel.mol
+	    if (res) { 
+	       new_chain->AddResidue(res);
+	       atom_sel.mol->FinishStructEdit(); // so that we don't keep adding a
+	                                         // new Chain to atom_sel.mol
+	    }
 
 	 } 
 	 //if (inserted) break;

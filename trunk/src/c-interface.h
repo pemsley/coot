@@ -2760,10 +2760,12 @@ void do_torsions_toggle(GtkWidget *button);
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
-SCM refine_residues_scm(int imol, SCM r); /* to be renamed later. */
+SCM refine_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */
+SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); /* to be renamed later. */
 #endif
 #ifdef USE_PYTHON
 PyObject *refine_residues_py(int imol, PyObject *r);  /* to be renamed later. */
+PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r);  /* to be renamed later. */
 #endif /* PYTHON */
 #endif
 

@@ -753,6 +753,18 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
       // However, if there *was/were* a molecule in existance before
       // the new one was added, we don't want to change the go to atom
       // molecule residue tree (do we?)
+      //
+      // 20090620:
+      // 
+      //    I wonder why I thought the above.  The behaviour before
+      //    todays fix was that on reading a new molecule, the
+      //    residue/atom trees were not updated.  How can I have
+      //    thought that that was the right thing?
+      //
+      //    Ah, it is the right thing because the go_to_atom_molecule
+      //    is not updated by reading in a new PDB file!  That's why
+      //    the atom/residue trees should not be changed (except for
+      //    special circumstances).
       
       int mol_no= -1;
       std::vector<int> imols_existing;
@@ -828,6 +840,8 @@ graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionTyp
    graphics_info_t g;
    int old_go_to_molecule = g.go_to_atom_molecule();
    g.set_go_to_atom_molecule(pos);
+
+   std::cout << "debug pos: " << pos << " vs old go to atom mol: " << old_go_to_molecule << std::endl;
    if (pos != old_go_to_molecule) {
       // old style:
 //       GtkWidget *residue_gtklist = lookup_widget(GTK_WIDGET(item),
@@ -836,7 +850,8 @@ graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionTyp
 						 "go_to_atom_residue_tree");
 #if (GTK_MAJOR_VERSION == 1)
       fill_go_to_atom_residue_list_gtk1(residue_gtktree);
-#else      
+#else
+      std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << pos << std::endl;
       fill_go_to_atom_residue_tree_gtk2(pos, residue_gtktree);
 #endif      
    }

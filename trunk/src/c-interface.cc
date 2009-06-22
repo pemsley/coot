@@ -445,7 +445,18 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 // reflect the existance of this new molecule.
 
 	 if (g.go_to_atom_window) {
-	    g.set_go_to_atom_molecule(imol);
+	    //
+	    // 20090620: 
+	    // Are we sure that we want to set the go_to_atom_molecule
+	    // on reading a pdb file?
+	    //
+	    // The code handling the residue trees presumes that we
+	    // don't.  i.e. the residue trees are not updated if the
+	    // new molecule menu item is selected but has the pos as
+	    // the go_to_atom_molecule() which we (used to) set here.
+	    
+	    // g.set_go_to_atom_molecule(imol);  // No.
+	    
 	    g.update_go_to_atom_window_on_new_mol();
 	    // g.update_go_to_atom_window_on_changed_mol(imol);
 	 } else {

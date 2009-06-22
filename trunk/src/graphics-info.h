@@ -1973,10 +1973,12 @@ public:
    coot::refinement_results_t
      generate_molecule_and_refine(int imol,  // needed for UDD Atom handle transfer
 				  const std::vector<CResidue *> &residues,
+				  const char *alt_conf,
 				  CMMDBManager *mol);
 
    void refine_residues_vec(int imol, 
 			    const std::vector<CResidue *> &residues,
+			    const char *alt_conf,
 			    CMMDBManager *mol);
 			       
 
