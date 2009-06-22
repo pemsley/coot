@@ -660,6 +660,8 @@ namespace coot {
       int n_atoms; 
       gsl_vector *x; // these are the variables, x_k, y_k, z_k, x_l etc.
       CMMDBManager *mol;
+      
+      // The bool is the "atoms of this residue are fixed" flag.
       std::vector<std::pair<bool,CResidue *> > residues_vec;
       int udd_bond_angle;  // for is a bond, angle or not (0).
       int udd_atom_index_handle; // for indexing into the atoms array.

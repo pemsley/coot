@@ -1087,6 +1087,14 @@ PyObject *refmac_parameters_py(int imol) {
 
 #ifdef USE_GUILE
 SCM refine_residues_scm(int imol, SCM r) {
+   return refine_residues_with_alt_conf_scm(imol, r, "");
+}
+#endif // USE_GUILE
+
+
+#ifdef USE_GUILE
+SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /* to be renamed later. */
+
    SCM rv = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       std::vector<coot::residue_spec_t> residue_specs;
@@ -1116,7 +1124,7 @@ SCM refine_residues_scm(int imol, SCM r) {
 	    int imol_map = g.Imol_Refinement_Map();
 	    if (is_valid_map_molecule(imol_map)) { 
 	       CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
-	       g.refine_residues_vec(imol, residues, mol);
+	       g.refine_residues_vec(imol, residues, alt_conf, mol);
 	    }
 	 } 
       } else {
@@ -1129,6 +1137,13 @@ SCM refine_residues_scm(int imol, SCM r) {
 
 #ifdef USE_PYTHON
 PyObject *refine_residues_py(int imol, PyObject *r) {
+   return refine_residues_with_alt_conf_py(imol, r, "");
+}
+#endif // USE_PYTHON
+
+#ifdef USE_PYTHON
+PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf) {
+      
    PyObject *rv = Py_False;
    if (is_valid_model_molecule(imol)) {
       std::vector<coot::residue_spec_t> residue_specs;
@@ -1157,7 +1172,7 @@ PyObject *refine_residues_py(int imol, PyObject *r) {
 	    int imol_map = g.Imol_Refinement_Map();
 	    if (is_valid_map_molecule(imol_map)) { 
 	       CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
-	       g.refine_residues_vec(imol, residues, mol);
+	       g.refine_residues_vec(imol, residues, alt_conf, mol);
                rv = Py_True;  // success?? we could refine
 	    }
 	 } 
@@ -5310,7 +5325,11 @@ int read_shelx_ins_file(const char *filename, short int recentre_flag) {
 	 std::cout << "Molecule " << imol << " read successfully\n";
 	 istat = imol; // for return status 
 	 if (g.go_to_atom_window) {
-	    g.set_go_to_atom_molecule(imol);
+
+	    // See comments in
+	    // handle_read_draw_molecule_with_recentre() about this.
+	    // g.set_go_to_atom_molecule(imol); // No. 20090620
+	    
 	    g.update_go_to_atom_window_on_new_mol();
 	 }
 	 graphics_draw();

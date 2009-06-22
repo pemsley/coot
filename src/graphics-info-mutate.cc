@@ -104,57 +104,59 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 	       std::cout << "NULL chain in add_cb_to_terminal_res" << std::endl;
 	    } else { 
 	       CResidue *std_res_copy = coot::deep_copy_this_residue(std_res, "", 1, -1);
-	       int nres = chain->GetNumberOfResidues();
-	       for (int ires=0; ires<nres; ires++) { 
-		  PCResidue residue_p = chain->GetResidue(ires);
-		  //
-		  std::cout << "INFO:: mutating residue in add_cb_to_terminal_res\n";
-		  istat = molci.move_std_residue(std_res_copy, (const CResidue *)residue_p);
+	       if (std_res_copy) { 
+		  int nres = chain->GetNumberOfResidues();
+		  for (int ires=0; ires<nres; ires++) { 
+		     PCResidue residue_p = chain->GetResidue(ires);
+		     //
+		     std::cout << "INFO:: mutating residue in add_cb_to_terminal_res\n";
+		     istat = molci.move_std_residue(std_res_copy, (const CResidue *)residue_p);
 
-		  if (istat) { 
+		     if (istat) { 
 
-		     PPCAtom residue_atoms;
-		     int nResidueAtoms;
-		     residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+			PPCAtom residue_atoms;
+			int nResidueAtoms;
+			residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
 
-		     PPCAtom std_residue_atoms;
-		     int n_std_ResidueAtoms;
-		     std_res_copy->GetAtomTable(std_residue_atoms, n_std_ResidueAtoms);
+			PPCAtom std_residue_atoms;
+			int n_std_ResidueAtoms;
+			std_res_copy->GetAtomTable(std_residue_atoms, n_std_ResidueAtoms);
 
-		     // set the b factor for the new atoms.
-		     for(int i=0; i<n_std_ResidueAtoms; i++) {
-			std_residue_atoms[i]->tempFactor = default_new_atoms_b_factor;
-		     };
+			// set the b factor for the new atoms.
+			for(int i=0; i<n_std_ResidueAtoms; i++) {
+			   std_residue_atoms[i]->tempFactor = default_new_atoms_b_factor;
+			};
 		     
-		     bool verb = 0;
-		     if (verb) { 
-			std::cout << "Mutate Atom Tables" << std::endl;
-			std::cout << "Before" << std::endl;
+			bool verb = 0;
+			if (verb) { 
+			   std::cout << "Mutate Atom Tables" << std::endl;
+			   std::cout << "Before" << std::endl;
+			   for(int i=0; i<nResidueAtoms; i++) {
+			      std::cout << residue_atoms[i] << std::endl;
+			   };
+
+			   std::cout << "To be replaced by:" << std::endl;
+			   for(int i=0; i<n_std_ResidueAtoms; i++) {
+			      std::cout << std_residue_atoms[i] << std::endl;
+			   }
+			}
+
 			for(int i=0; i<nResidueAtoms; i++) {
-			   std::cout << residue_atoms[i] << std::endl;
+			   std::string residue_this_atom (residue_atoms[i]->name);
+			   if (residue_this_atom != " O  ")
+			      residue_p->DeleteAtom(i);
 			};
 
-			std::cout << "To be replaced by:" << std::endl;
 			for(int i=0; i<n_std_ResidueAtoms; i++) {
-			   std::cout << std_residue_atoms[i] << std::endl;
-			}
+			   std::string std_residue_this_atom (std_residue_atoms[i]->name);
+			   if (std_residue_this_atom != " O  ") {
+			      // std::cout << "Adding atom " << std_residue_atoms[i] << std::endl;
+			      residue_p->AddAtom(std_residue_atoms[i]);
+			   } 
+			};
+			// strcpy(residue_p->name, std_res->name);
+			residue_p->TrimAtomTable();
 		     }
-
-		     for(int i=0; i<nResidueAtoms; i++) {
-			std::string residue_this_atom (residue_atoms[i]->name);
-			if (residue_this_atom != " O  ")
-			   residue_p->DeleteAtom(i);
-		     };
-
-		     for(int i=0; i<n_std_ResidueAtoms; i++) {
-			std::string std_residue_this_atom (std_residue_atoms[i]->name);
-			if (std_residue_this_atom != " O  ") {
-			   // std::cout << "Adding atom " << std_residue_atoms[i] << std::endl;
-			   residue_p->AddAtom(std_residue_atoms[i]);
-			} 
-		     };
-		     // strcpy(residue_p->name, std_res->name);
-		     residue_p->TrimAtomTable();
 		  }
 	       }
 

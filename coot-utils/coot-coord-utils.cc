@@ -280,6 +280,7 @@ coot::residues_near_residue(CResidue *res_ref,
    int n_res_atoms = 0;
    res_ref->GetAtomTable(res_atom_selection, n_res_atoms);
 
+
    if (n_res_atoms > 0) {
 
       PSContact pscontact = NULL;
@@ -300,7 +301,8 @@ coot::residues_near_residue(CResidue *res_ref,
       // pscontact[0] is NULL.  hence crash when we try to get the
       // residue from that atom index.
       // 
-      if (radius > 0.0) { 
+      if (radius > 0.0) {
+
 	 mol->SeekContacts(res_atom_selection, n_res_atoms, 
 			   atom_selection, n_selected_atoms,
 			   min_dist, radius, // min, max distances
@@ -2358,12 +2360,14 @@ coot::util::deep_copy_this_residue(const CResidue *residue,
    CAtom *atom_p;
    
    for(int iat=0; iat<nResidueAtoms; iat++) {
-      std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
-      if (whole_residue_flag ||
-	  this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
-	 atom_p = new CAtom;
-	 atom_p->Copy(residue_atoms[iat]);
-	 rres->AddAtom(atom_p);
+      if (! residue_atoms[iat]->Ter) { 
+	 std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
+	 if (whole_residue_flag ||
+	     this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
+	    atom_p = new CAtom;
+	    atom_p->Copy(residue_atoms[iat]);
+	    rres->AddAtom(atom_p);
+	 }
       }
    }
    chain_p->AddResidue(rres);

@@ -152,45 +152,48 @@ molecule_class_info_t::mutate(CResidue *res, const std::string &residue_type) {
 
       CResidue *std_residue = coot::deep_copy_this_residue(SelResidue[0], "", 1, 
 							   atom_sel.UDDAtomIndexHandle);
-      std::pair<clipper::RTop_orth, short int> rtop_pair =
-	 coot::util::get_ori_to_this_res(res); // the passed res.
 
-      if (rtop_pair.second == 0) {
+      if (std_residue) { 
+	 std::pair<clipper::RTop_orth, short int> rtop_pair =
+	    coot::util::get_ori_to_this_res(res); // the passed res.
+
+	 if (rtop_pair.second == 0) {
 	 
-	 std::cout << "failure to get orientation matrix" << std::endl;
+	    std::cout << "failure to get orientation matrix" << std::endl;
 
-      } else { 
+	 } else { 
       
-	 make_backup();
+	    make_backup();
 
-	 PPCAtom residue_atoms;
-	 int nResidueAtoms;
-	 std_residue->GetAtomTable(residue_atoms, nResidueAtoms);
-	 if (nResidueAtoms == 0) {
-	    std::cout << " something broken in atom residue selection in ";
-	    std::cout << "mutate, got 0 atoms" << std::endl;
-	 } else {
-	    for(int iat=0; iat<nResidueAtoms; iat++) {
-	       clipper::Coord_orth co(residue_atoms[iat]->x,
-				      residue_atoms[iat]->y,
-				      residue_atoms[iat]->z);
-	       clipper::Coord_orth rotted = co.transform(rtop_pair.first);
-	       residue_atoms[iat]->x = rotted.x();
-	       residue_atoms[iat]->y = rotted.y();
-	       residue_atoms[iat]->z = rotted.z();
+	    PPCAtom residue_atoms;
+	    int nResidueAtoms;
+	    std_residue->GetAtomTable(residue_atoms, nResidueAtoms);
+	    if (nResidueAtoms == 0) {
+	       std::cout << " something broken in atom residue selection in ";
+	       std::cout << "mutate, got 0 atoms" << std::endl;
+	    } else {
+	       for(int iat=0; iat<nResidueAtoms; iat++) {
+		  clipper::Coord_orth co(residue_atoms[iat]->x,
+					 residue_atoms[iat]->y,
+					 residue_atoms[iat]->z);
+		  clipper::Coord_orth rotted = co.transform(rtop_pair.first);
+		  residue_atoms[iat]->x = rotted.x();
+		  residue_atoms[iat]->y = rotted.y();
+		  residue_atoms[iat]->z = rotted.z();
+	       }
+
+	       // 	 std::cout << " standard residue has moved to these positions: " 
+	       //             << std::endl;
+	       // 	 for(int iat=0; iat<nResidueAtoms; iat++) {
+	       // 	    std::cout << residue_atoms[iat]->name << " " 
+	       // 		      << residue_atoms[iat]->x << " "
+	       // 		      << residue_atoms[iat]->y << " "
+	       // 		      << residue_atoms[iat]->z << "\n";
+	       // 	 }
+	       // add the atom of std_res to res, deleting excess.
+	       mutate_internal(res, std_residue);
+	       istate = 1;
 	    }
-
-	    // 	 std::cout << " standard residue has moved to these positions: " 
-	    //             << std::endl;
-	    // 	 for(int iat=0; iat<nResidueAtoms; iat++) {
-	    // 	    std::cout << residue_atoms[iat]->name << " " 
-	    // 		      << residue_atoms[iat]->x << " "
-	    // 		      << residue_atoms[iat]->y << " "
-	    // 		      << residue_atoms[iat]->z << "\n";
-	    // 	 }
-	    // add the atom of std_res to res, deleting excess.
-	    mutate_internal(res, std_residue);
-	    istate = 1;
 	 }
       }
    }

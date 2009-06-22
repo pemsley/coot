@@ -26,7 +26,7 @@
 coot::peak_search::peak_search(const clipper::Xmap<float> &xmap) { 
    // 			       float n_sigma_in) { 
 
-    max_closeness = 1.0; // don't allow "smaller" peaks that are
+    max_closeness = 2.0; // don't allow "smaller" peaks that are
                          // within max_closeness of a larger one.
 
    float sum   = 0.0;

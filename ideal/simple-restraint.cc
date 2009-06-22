@@ -407,6 +407,35 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    // Need to set class members PPCAtom atom and int n_atoms.
    // ...
+   // 20090620: or do we?
+
+   // debug:
+   if (0) { 
+      for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+	 std::cout << "debug:: =============== in init_from_residue_vec() residue "
+		   << ir << " of " << residues_vec.size() << " "
+		   << residues_vec[ir].second << std::endl;
+	 PCAtom *res_atom_selection = NULL;
+	 int n_res_atoms;
+	 residues_vec[ir].second->GetAtomTable(res_atom_selection, n_res_atoms);
+	 std::cout << "debug:: =============== in init_from_residue_vec() residue "
+		   << ir << " of " << residues_vec.size() << " has : "
+		   << n_res_atoms << " atom " << std::endl;
+	 std::cout << "debug:: =============== in init_from_residue_vec() residue "
+		   << ir << " of " << residues_vec.size() << " seqnum: "
+		   << residues_vec[ir].second->GetSeqNum() << " chainid: "
+		   << residues_vec[ir].second->GetChainID() << std::endl;
+	 for (int iat=0; iat<n_res_atoms; iat++) {
+	    CAtom *at =  res_atom_selection[iat];
+	    std::cout << "DEBUG:: in init_from_residue_vec: atom "
+		      << iat << " of " << n_res_atoms << " \"" 
+		      << at->name << "\" \"" << at->altLoc << "\" " 
+		      << at->GetSeqNum() << " \"" << at->GetInsCode() << "\" \"" 
+		      << at->GetChainID() << "\"" << std::endl;
+	 }
+      }
+   }
+   
 
    // what about adding the flanking residues?  How does the atom
    // indexing of that work when (say) adding a bond?
@@ -4917,6 +4946,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
    // But that is a really hard thing - isn't it? To find a GLC that
    // is connected to this residue?
 
+   
    for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
 
       std::vector<CResidue *> neighbours = coot::residues_near_residue(residues_vec[ir].second,
