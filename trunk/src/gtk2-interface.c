@@ -1600,7 +1600,7 @@ create_window1 (void)
   #ifdef GTK_TYPE_MENU_TOOL_BUTTON
   tmp_image = gtk_image_new_from_stock ("rtz.svg", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
-  model_toolbar_rot_trans_toolbutton = (GtkWidget*) gtk_menu_tool_button_new (tmp_image, "");
+  model_toolbar_rot_trans_toolbutton = (GtkWidget*) gtk_menu_tool_button_new (tmp_image, _("Rotate Translate"));
   gtk_widget_show (model_toolbar_rot_trans_toolbutton);
   gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), FALSE);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rot_trans_toolbutton);

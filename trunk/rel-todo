@@ -11,10 +11,6 @@
      extremely deeply-buried problem. ::: 4
 
 
-   o Move Koala to gcc 4.1.2 20080704 (RH 4.1.2-44) or better.  See
-     Esser build log problems.  ::: 2
-
-
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
      interface with molprobity dots. ::: 8
 
@@ -43,20 +39,11 @@
     ::: 3
 
 
-   o Some tests for rigid body fitting many residue.  Consider
-     residues with TERs and alt confs. ::: 2 [Bob Nolte]
-
-
-   o Job for Bernie?  Tool bar in text mode does not show text for 
-     the new rotate/translate toolbar menu button.
-
-
 
 
    o Backrub-based auto-fit rotamer search.  Question: how do I test
      this? Synthetic map?  How does it work when we do this for an alt
      conf too?  ::: 10
-
 
 
    o Integrate scripting functions into main documentation somehow.
@@ -68,6 +55,7 @@
   directory.  Call it xxx.html.texi and add @html tags in there.
 
   Actually, there is a better way, use the JED conversion script.
+
 
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.  ::: 2
@@ -959,8 +947,29 @@ c-interface clear_up_moving_atoms...
 
 * Done.
 
+   o Move Koala to gcc 4.1.2 20080704 (RH 4.1.2-44) or better.  See
+     Esser build log problems.  ::: 2
+
+* Fixed, well Lothar has it building.
+
+
+   o Some tests for rigid body fitting many residue.  Consider
+     residues with TERs and alt confs. ::: 2 [Bob Nolte]
+
+* I did it by hand.  TERs are excluded in construction of a minimol
+  molecule from a CMMDBManager now.  rigid body fitting an alt conf
+  seems fine.
+
+
+   o Job for Bernie?  Tool bar in text mode does not show text for 
+     the new rotate/translate toolbar menu button.
+
+* Done (in glade-2)
+
+
    o Document the post-manipulation-hook.  How, for example, might you
      use it to move the residue added on a "Add Terminal residue"? 
      [Ethan Merritt] ::: 1
 
 * Done.
+

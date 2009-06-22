@@ -121,14 +121,16 @@ coot::minimol::molecule::setup(CMMDBManager *mol) {
 
 			for (int iat=0; iat<n_atoms; iat++) {
 			   at = residue_p->GetAtom(iat);
-			   clipper::Coord_orth p(at->x, at->y, at->z);
-			   coot::minimol::atom mat(std::string(at->name),
-						   std::string(at->element),
-						   p,
-						   std::string(at->altLoc),
-						   at->occupancy,
-						   at->tempFactor);
-			   r.addatom(mat);
+			   if (! at->isTer()) { 
+			      clipper::Coord_orth p(at->x, at->y, at->z);
+			      coot::minimol::atom mat(std::string(at->name),
+						      std::string(at->element),
+						      p,
+						      std::string(at->altLoc),
+						      at->occupancy,
+						      at->tempFactor);
+			      r.addatom(mat);
+			   }
 			}
 			fragments[ifrag].addresidue(r, 0);
 		     }

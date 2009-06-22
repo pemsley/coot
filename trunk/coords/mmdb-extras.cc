@@ -205,7 +205,7 @@ coot::deep_copy_this_residue(CResidue *residue,
       
       int n_added_atoms = 0; 
       for(int iat=0; iat<nResidueAtoms; iat++) {
-	 if (! residue_atoms[iat]->Ter) { 
+	 if (! residue_atoms[iat]->isTer()) { 
 	    std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
 	    if (whole_residue_flag ||
 		this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
@@ -280,7 +280,7 @@ coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
       do_shelx_afix_data_flag = 1;
    
    for(int iat=0; iat<nResidueAtoms; iat++) {
-      if (! residue_atoms[iat]->Ter) { 
+      if (! residue_atoms[iat]->isTer()) { 
 	 std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
 	 if (whole_residue_flag ||
 	     this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 

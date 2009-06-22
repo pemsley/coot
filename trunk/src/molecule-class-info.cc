@@ -3192,131 +3192,138 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
    int tmp_index;
 
    make_backup();
-   
-//    std::cout << "DEBUG:: --------------- replace_coords replacing "
-// 	     << asc.n_selected_atoms << " atoms " << std::endl;
-//    for (int i=0; i<asc.n_selected_atoms; i++) {
-//       CAtom *atom = asc.atom_selection[i];
-//       std::cout << "DEBUG:: intermediate atom on replace coords: chain-id :"
-// 		<< atom->residue->GetChainID() <<  ": "
-// 		<< atom->residue->seqNum << " inscode :" 
-// 		<< atom->GetInsCode() << ": name :" 
-// 		<< atom->name << ": altloc :"
-// 		<< atom->altLoc << ":" << std::endl;
-//    }
+
+
+   // debug::
+   if (0) { 
+      std::cout << "DEBUG:: --------------- replace_coords replacing "
+		<< asc.n_selected_atoms << " atoms " << std::endl;
+      for (int i=0; i<asc.n_selected_atoms; i++) {
+	 CAtom *atom = asc.atom_selection[i];
+	 bool is_ter_state = atom->isTer();
+	 std::cout << "DEBUG:: intermediate atom on replace coords: chain-id :"
+		   << atom->residue->GetChainID() <<  ": "
+		   << atom->residue->seqNum << " inscode :" 
+		   << atom->GetInsCode() << ": name :" 
+		   << atom->name << ": altloc :"
+		   << atom->altLoc << ":"
+		   << " ter state: " << is_ter_state << "." << std::endl;
+      }
+   }
 
    // For each atom in the new set of atoms:
    // 
    for (int i=0; i<asc.n_selected_atoms; i++) {
       int idx = -1;
       CAtom *atom = asc.atom_selection[i];
+      if (! atom->isTer()) { 
 //       idx = atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
 // 				    atom->residue->seqNum,
 // 				    std::string(atom->name));
-      if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
-	 if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == UDDATA_Ok) {
-	    if (tmp_index >= 0) { 
-	       if (moving_atom_matches(atom, tmp_index)) { 
-		  // std::cout << "DEBUG:: successfully found old atom index" << std::endl;
-		  idx = tmp_index;
+	 if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
+	    if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == UDDATA_Ok) {
+	       if (tmp_index >= 0) { 
+		  if (moving_atom_matches(atom, tmp_index)) { 
+		     // std::cout << "DEBUG:: successfully found old atom index" << std::endl;
+		     idx = tmp_index;
+		  } else {
+		     // std::cout << "DEBUG:: atom index mismatch (this molecule was changed)"
+		     // << std::endl;
+		     idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
+							atom->residue->seqNum,
+							std::string(atom->GetInsCode()),
+							std::string(atom->name),
+							std::string(atom->altLoc));
+		     // std::cout << "full_atom_spec_to_atom_index gives index: " << idx << std::endl;
+		  }
 	       } else {
-		  // std::cout << "DEBUG:: atom index mismatch (this molecule was changed)"
-		  // << std::endl;
+		  // This shouldn't happen.
+		  std::cout << "Good Handle, bad index found for old atom: specing" << std::endl;
 		  idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
 						     atom->residue->seqNum,
 						     std::string(atom->GetInsCode()),
 						     std::string(atom->name),
 						     std::string(atom->altLoc));
-		  // std::cout << "full_atom_spec_to_atom_index gives index: " << idx << std::endl;
 	       }
-	    } else {
-	       // This shouldn't happen.
-	       std::cout << "Good Handle, bad index found for old atom: specing" << std::endl;
-	       idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
-						  atom->residue->seqNum,
-						  std::string(atom->GetInsCode()),
-						  std::string(atom->name),
-						  std::string(atom->altLoc));
-	    }
-	 } else { 
-	    std::cout << "ERROR:: non-bad handle (" << asc.UDDOldAtomIndexHandle 
-		      <<  "), bad GetUDData for this atom " << std::endl;
-	 } 
-      } else {
-//  	 std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is " 
-//   		   << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
-// 		   << std::endl;
-	    
-	 idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
-					    atom->residue->seqNum,
-					    std::string(atom->GetInsCode()),
-					    std::string(atom->name),
-					    std::string(atom->altLoc));
-	 if (idx == -1) {
-	    std::cout << "DEBUG:: idx: " << idx << "\n";
-	    std::cout << "ERROR:: failed to find spec for chain-id :"
-		      << std::string(atom->residue->GetChainID()) <<  ": "
-		      << atom->residue->seqNum << " inscode :" 
-		      << std::string(atom->GetInsCode()) << ": name :" 
-		      << std::string(atom->name) << ": altloc :"
-		      << std::string(atom->altLoc) << ":" << std::endl;
-	 }
-      }
-
-      if (change_altconf_occs_flag) { 
-	 if (idx >= 0) {
-	    n_atom++;
-	    CAtom *mol_atom = atom_sel.atom_selection[idx];
-	    float atom_occ = atom->occupancy;
-	    // if this is a shelx molecule, then we don't change
-	    // occupancies this way.  We do it by changing the FVAR
-	    if (is_from_shelx_ins_flag) { 
-	       atom_occ = mol_atom->occupancy;
-
-	       // OK, one more go.  We have an occupancy of 31 or -31
-	       // say.  Now, the alt conf atoms has been immmediately
-	       // added with the old occupancy for the actual FVAR number
-	       // - this happens before we get to twiddle the occupancy
-	       // slider.  So here we have to find out the index of the
-	       // replaced atom and set it's fvar to whatever the slider
-	       // value had been set to.
-
-	       int fvar_number = coot::ShelxIns::shelx_occ_to_fvar(atom_occ);
-	       if (fvar_number > 1) { 
-		  // 	       std::cout << "DEBUG:: replace_coords: setting fvar number "
-		  // 			 <<  fvar_number << " (generated from occ " << atom_occ << ") to "
-		  // 			 << graphics_info_t::add_alt_conf_new_atoms_occupancy << std::endl;
-		  shelxins.set_fvar(fvar_number, graphics_info_t::add_alt_conf_new_atoms_occupancy);
-	       }
-
-	       if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
-		  mol_atom->SetCoordinates(atom->x,
-					   atom->y,
-					   atom->z,
-					   atom_occ,
-					   mol_atom->tempFactor);
 	    } else { 
-	       if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
-		  mol_atom->SetCoordinates(atom->x,
-					   atom->y,
-					   atom->z,
-					   atom_occ,
-					   mol_atom->tempFactor);
-	    }
-
-	    // similarly we adjust occupancy if this is not a shelx molecule
-	    if (! is_from_shelx_ins_flag) 
-	       adjust_occupancy_other_residue_atoms(mol_atom, mol_atom->residue, 0);
-	    // std::cout << atom << " coords replace " << idx << " " << mol_atom << std::endl;
+	       std::cout << "ERROR:: non-bad handle (" << asc.UDDOldAtomIndexHandle 
+			 <<  "), bad GetUDData for this atom " << std::endl;
+	    } 
 	 } else {
-	    std::cout << "ERROR:: bad atom index in replace_coords replacing atom: "
-		      << atom << std::endl;
+	    //  	 std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is " 
+	    //   		   << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
+	    // 		   << std::endl;
+	    
+	    idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
+					       atom->residue->seqNum,
+					       std::string(atom->GetInsCode()),
+					       std::string(atom->name),
+					       std::string(atom->altLoc));
+	    if (idx == -1) {
+	       std::cout << "DEBUG:: idx: " << idx << "\n";
+	       std::cout << "ERROR:: failed to find spec for chain-id :"
+			 << std::string(atom->residue->GetChainID()) <<  ": "
+			 << atom->residue->seqNum << " inscode :" 
+			 << std::string(atom->GetInsCode()) << ": name :" 
+			 << std::string(atom->name) << ": altloc :"
+			 << std::string(atom->altLoc) << ":" << std::endl;
+	    }
 	 }
-      } else {
 
-	 // don't change alt confs.
+	 if (change_altconf_occs_flag) { 
+	    if (idx >= 0) {
+	       n_atom++;
+	       CAtom *mol_atom = atom_sel.atom_selection[idx];
+	       float atom_occ = atom->occupancy;
+	       // if this is a shelx molecule, then we don't change
+	       // occupancies this way.  We do it by changing the FVAR
+	       if (is_from_shelx_ins_flag) { 
+		  atom_occ = mol_atom->occupancy;
 
-	 if (idx != -1 ) {  // enable this text when fixed.
+		  // OK, one more go.  We have an occupancy of 31 or -31
+		  // say.  Now, the alt conf atoms has been immmediately
+		  // added with the old occupancy for the actual FVAR number
+		  // - this happens before we get to twiddle the occupancy
+		  // slider.  So here we have to find out the index of the
+		  // replaced atom and set it's fvar to whatever the slider
+		  // value had been set to.
+
+		  int fvar_number = coot::ShelxIns::shelx_occ_to_fvar(atom_occ);
+		  if (fvar_number > 1) { 
+		     // 	       std::cout << "DEBUG:: replace_coords: setting fvar number "
+		     // 			 <<  fvar_number << " (generated from occ " << atom_occ << ") to "
+		     // 			 << graphics_info_t::add_alt_conf_new_atoms_occupancy << std::endl;
+		     shelxins.set_fvar(fvar_number, graphics_info_t::add_alt_conf_new_atoms_occupancy);
+		  }
+
+		  if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
+		     mol_atom->SetCoordinates(atom->x,
+					      atom->y,
+					      atom->z,
+					      atom_occ,
+					      mol_atom->tempFactor);
+	       } else { 
+		  if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
+		     mol_atom->SetCoordinates(atom->x,
+					      atom->y,
+					      atom->z,
+					      atom_occ,
+					      mol_atom->tempFactor);
+	       }
+
+	       // similarly we adjust occupancy if this is not a shelx molecule
+	       if (! is_from_shelx_ins_flag) 
+		  adjust_occupancy_other_residue_atoms(mol_atom, mol_atom->residue, 0);
+	       // std::cout << atom << " coords replace " << idx << " " << mol_atom << std::endl;
+	    } else {
+	       std::cout << "ERROR:: bad atom index in replace_coords replacing atom: "
+			 << atom << std::endl;
+	    }
+	 } else {
+
+	    // don't change alt confs.
+
+	    if (idx != -1 ) {  // enable this text when fixed.
 	       CAtom *mol_atom = atom_sel.atom_selection[idx];
 	       if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
 		  mol_atom->SetCoordinates(atom->x,
@@ -3324,6 +3331,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 					   atom->z,
 					   mol_atom->occupancy,
 					   mol_atom->tempFactor);
+	    }
 	 }
       }
    }
