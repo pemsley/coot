@@ -1734,6 +1734,8 @@ set_atom_attributes    = set_atom_attributes_py
 merge_molecules        = merge_molecules_py
 alignment_results      = alignment_results_py
 refine_residues        = refine_residues_py
+# to be renamed later
+refine_residues_with_alt_conf        = refine_residues_with_alt_conf_py
 change_chain_id_with_result        = change_chain_id_with_result_py
 non_standard_residue_names         = non_standard_residue_names_py
 chain_id_for_shelxl_residue_number = chain_id_for_shelxl_residue_number_py
