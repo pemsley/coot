@@ -3630,6 +3630,7 @@ void flip_ligand(int imol, const char *chain_id, int resno);
 
 /*! Renumber the waters of molecule number imol with consecutive numbering */
 void renumber_waters(int imol); 
+void wrapped_create_find_waters_dialog();
 void fill_find_waters_dialog(GtkWidget *find_ligand_dialog);
 /* interface fluff */
 void execute_find_waters(GtkWidget *ok_button);  

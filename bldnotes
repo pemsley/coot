@@ -7,20 +7,35 @@ tests   rev 2050 (?check! prev 2021)
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+   o optional tooltips for main toolbar buttons
+
+   o check for new pyt/scm functions?!
+
+   o thomas schneider superposition program
+
+   o coot.in to be MinGW compatible
+
+* Done
+
+   o make md5sum note on WinCoot website
+
    o update WinCoot to guile 1.8.6 (if possible)
 
    o fix addition of guile and python keybindings (translation of lambda functions?)
 
    o key code for ( and ) not recognised (on FC10 e.g.)
 
-   o fix toobuttons
+   o fix toolbuttons (??)
 
    o website guile comment
+
 * Done
 
    o simple guile implementation in WinCoot
 
    o interuptable refinement in python
+
+   o Python COOPS
 
    o include density-score-by-residue.exe in WinCoot installer
 * Done
@@ -42,13 +57,15 @@ tests   rev 2050 (?check! prev 2021)
 
    o annotations in Extensions
 
+* Done
+
    o labelling with 'l' doesnt show status bar info (feature/bug?)
 
    o refinement weighting by occupancy
 
    o (scripting) GUI to find zero occ atoms.
 
-* Done (python; needs guile/scheme)
+* Done (python; needs guile/scheme; rework and use residue properties or such)
 
    o WinCoot:
         - update dictionaries!!
