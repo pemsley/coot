@@ -2360,7 +2360,7 @@ coot::util::deep_copy_this_residue(const CResidue *residue,
    CAtom *atom_p;
    
    for(int iat=0; iat<nResidueAtoms; iat++) {
-      if (! residue_atoms[iat]->Ter) { 
+      if (! residue_atoms[iat]->isTer()) { 
 	 std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
 	 if (whole_residue_flag ||
 	     this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
