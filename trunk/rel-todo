@@ -51,9 +51,6 @@
      the new rotate/translate toolbar menu button.
 
 
-   o Document the post-manipulation-hook.  How, for example, might you
-     use it to move the residue added on a "Add Terminal residue"? 
-     [Ethan Merritt] ::: 1
 
 
    o Backrub-based auto-fit rotamer search.  Question: how do I test
@@ -959,5 +956,11 @@ c-interface clear_up_moving_atoms...
    -> the chain/atom tree won't update, only on multiple changing back
       and forth between go to atom molecules. 
    ::: 1
+
+* Done.
+
+   o Document the post-manipulation-hook.  How, for example, might you
+     use it to move the residue added on a "Add Terminal residue"? 
+     [Ethan Merritt] ::: 1
 
 * Done.

@@ -21,6 +21,9 @@ Pre-release 0.6
 
   o CHANGE: partial charges added to electrostatic surface calculation.
 
+  o CHANGE: shift-click and ctrl-click in the file selectors now work
+    for reading in several coordinates files [Roberto Steiner].
+
   o CHANGE: SEGIDs are more intelligently inherited [Steven Sheriff,
     Bob Nolte]
 

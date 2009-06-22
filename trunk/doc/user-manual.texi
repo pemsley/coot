@@ -1875,6 +1875,7 @@ endresno pdb-file-name})}
 * Rotate/Translate Zone::
 * Rigid Body Refinement::
 * Simplex Refinement::
+* Post-manipulation-hook::
 * Baton Building::
 * Reversing Direction of Fragment::
 * C-alpha -> Mainchain::
@@ -2188,6 +2189,25 @@ be accessed as follows:
 
 There is currently no GUI interface to Simplex refinement.
 
+@node    Post-manipulation-hook
+@section Post-manipulation-hook
+@cindex  post-manipulation-hook
+
+If you wanted automatically run a function after a model has been
+manipulated then you can do so using by creating a function that takes
+2 arguments, such as:
+
+@code{(post-manipulation-hook @emph{imol manipulation-mode})}
+
+@code{@emph{manipulation-mode}} is one of @code{@emph(DELETED)},
+@code{@emph(MUTATED)} or @code{@emph(MOVINGATOMS)}.
+
+And of course @code{@emph{imol}} is the model number of the maniplated
+molecule.
+
+(It would of course be far more useful if this function was also
+passed a list of residues - that is something for the future).
+
 @node    Baton Building
 @section Baton Building
 @cindex  baton build 
@@ -2477,7 +2497,7 @@ alternate conformation.  The
 @code{@emph{lowest-rotamer-probability}} is set to 0.01.
 
 @node Editing Chi Angles
-@section Editing @math{\chi} Angles
+@section Editing chi Angles
 @cindex edit @math{\chi} angles
 @cindex chi angles
 Instead of using Rotamers, one can instead
@@ -2702,19 +2722,19 @@ appears quickly @footnote{rather than running LIBCHECK again}.
 Similarly, you can generate ligands using @command{File -> SMILES...}
 and providing a SMILES string and a code for the residue name (this is
 your name for the residue type and a dictionary will be generated for
-the monomer of this type)@footnote{this function is also a wrapper to
-LIBCHECK}.
+the monomer of this type). This function is also a wrapper to
+LIBCHECK.
 
 
 @node    Find Ligands
 @section Find Ligands
 @cindex ligands
-You are offered a selection of maps to search (you can
-only choose one at a time) and a selection of molecules that act as a
-mask to this map.  Finally you must choose which ligand types you are
-going to search for in this map @footnote{you can search for many
-  different ligand types.}.  Only molecules with less than 400 atoms
-are suggested as potential ligands.  
+You are offered a selection of maps to search (you can only choose one
+at a time) and a selection of molecules that act as a mask to this
+map.  Finally you must choose which ligand types you are going to
+search for in this map @footnote{you can search for many different
+ligand types.}.  Only molecules with less than 400 atoms are suggested
+as potential ligands.
 
 If you do not have any molecules with less that 400 atoms loaded in
 Coot, you will get the message:
