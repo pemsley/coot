@@ -237,6 +237,16 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 }
 
 
+// function to show find waters (from wherever)
+void
+wrapped_create_find_waters_dialog() {
+
+   GtkWidget *widget;
+   widget = create_find_waters_dialog();
+   fill_find_waters_dialog(widget);
+   gtk_widget_show(widget);
+}
+
 // We need to look up the vboxes and add items, like we did in code in
 // gtk-manual.c
 // 

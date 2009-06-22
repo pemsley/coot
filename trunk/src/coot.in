@@ -47,7 +47,17 @@ if [ -z "$PYTHONPATH" ] ; then
 else
     PYTHONPATH=$COOT_PREFIX/share/coot/python:${PYTHONPATH}
 fi
-PYTHONHOME=$COOT_PREFIX
+
+systype=`uname`
+
+if [ $systype = MINGW32_NT-5.1 ] ; then 
+    PYTHONHOME=$COOT_PREFIX/bin
+    # for MinGW we only use Coot's pythonpath otherwise too complicated
+    # i'm probably the only one using it anyway...
+    PYTHONPATH=$COOT_PREFIX/share/coot/python
+else
+    PYTHONHOME=$COOT_PREFIX
+fi
 
 # Added 20090429 - take this out when trying internationalization.
 LANG=C
@@ -75,8 +85,6 @@ if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then
 fi
 
 # echo GUILE_LOAD_PATH is now $GUILE_LOAD_PATH
-
-systype=`uname`
 
 if [ $systype = Linux ] ; then 
    if [ -z "$LD_LIBRARY_PATH" ] ;  then

@@ -484,7 +484,7 @@ if (have_coot_python):
 
     def show_pop_up_menu(widget, event):
       if (event.button == 3):
-        create_show_pop_menu([["Manage Buttons(add, delete Buttons)", make_toolbar_button_gui],
+        create_show_pop_menu([["Manage Buttons (add, delete Buttons)", make_toolbar_button_gui],
                               ["Add a user-defined Button", add_toolbar_button_gui],
                               ["Remove a Button", remove_toolbar_button_gui],
                               ["Hide Text (only icons)", toolbar_hide_text],
@@ -534,6 +534,7 @@ def list_of_toolbar_functions():
         ["Refinement",
          ["Refine residue", "refine_active_residue()", "RSR active residue"],
          ["Reset B", "reset_b_factor_active_residue()", "Reset the B-Factor of active Residue"],
+         ["Find Waters", "wrapped_create_find_waters_dialog()", "Find water molecules in map", "add-water.svg"],
          ["Add Alt Conf", "altconf()", "Add alternative conformation", "add-alt-conf.svg"],
          ["Edit BB", "setup_backbone_torsion_edit(1)", "Edit Backbone Torsion Angle", "flip-peptide.svg"],
          ['Torsion Gen.', "setup_torsion_general(1)", "Torsion General (after O function)", "edit-chi.svg"],
