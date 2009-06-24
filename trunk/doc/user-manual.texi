@@ -2199,8 +2199,8 @@ manipulated then you can do so using by creating a function that takes
 
 @code{(post-manipulation-hook @emph{imol manipulation-mode})}
 
-@code{@emph{manipulation-mode}} is one of @code{@emph(DELETED)},
-@code{@emph(MUTATED)} or @code{@emph(MOVINGATOMS)}.
+@code{@emph{manipulation-mode}} is one of @code{@emph{(DELETED)}},
+@code{@emph{(MUTATED)}} or @code{@emph{(MOVINGATOMS)}}.
 
 And of course @code{@emph{imol}} is the model number of the maniplated
 molecule.
@@ -4007,8 +4007,13 @@ temperature factor variance, peptide distortion and rotamer analysis.
 
 @subsection Residue Density Fit 
 
+The density fit graph shows the density fit for residues.  The score
+is the average electron density level at the atom centres of the atoms
+in the residue.  The height of the blocks is inversely proportional to
+the density average.
+
 The residue density fit is by default scaled to a map that is
-calculated on the absolute scale.  Some users use maps that have maps
+calculated on the absolute scale.  Sometimes you might be using a map
 with density levels considerably different to this, which makes the
 residue density fit graph less useful.  To correct for this you can
 use the scripting function:
