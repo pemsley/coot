@@ -222,7 +222,8 @@
 # 2.54 20090427 Remove python and its config from bin in slimmed dir
 # 2.55 20090506 Upgrade to mmdb 1.21
 # 2.56 20090508 add density-score-by-residue to tar ball.
-script_version=2.56
+# 2.57 20090624 Make pre_release_server_dir be biop.ox
+script_version=2.57
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -957,8 +958,11 @@ fi
 # latest version (without .tar.gz extension)
 coot_version=$fallback_coot_version
 
+pre_release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
+pre_release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/pre-releases/
+
 ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log http://www.ysbl.york.ac.uk/~emsley/software/
-${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
+${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
 pre_release_files_html=""
 if [ $build_coot_prerelease = 1 ]  ; then 
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
