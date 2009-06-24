@@ -13,5 +13,5 @@ print "}"                      > svn_revision_cc;
 print "}"                      > svn_revision_cc;
 print ""                       > svn_revision_cc;  
 }'
-tail -3 src/svn-revision.cc | head -1 | awk '{split($2, arr, ";"); print arr[1]}'
+tail -4 src/svn-revision.cc | head -1 | awk '{split($2, arr, ";"); print arr[1]}'
 
