@@ -61,7 +61,9 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 	 SCM model_expression = scm_list_ref(molecule_expression, imodel_scm);
 	 SCM model_expression_length = scm_length(model_expression);
 	 int len_model_expression = scm_to_int(model_expression_length);
-	 if (len_model_expression > 0) {
+	 if (len_model_expression == 0) {
+	    std::cout << "model length zero!\n";
+	 } else { 
 	    // SCM chain_list = model_expression; // interesting
 	    int nchains = len_model_expression;
 
@@ -121,6 +123,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 			   }
 			   SCM n_atoms_scm = scm_length(atoms_list);
 			   int n_atoms = scm_to_int(n_atoms_scm);
+
 			   if (n_atoms > 0) {
 			      CResidue *residue_p = new CResidue;
 			      std::string resname = scm_to_locale_string(scm_residue_name);
@@ -187,7 +190,6 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 					     if ( ! ((atom_name == "") && (ele == ""))) {
 						atom->SetAtomName(atom_name.c_str());
 						atom->SetElementName(ele.c_str());
-						atom->MakeTer();
 					     } else { 
 						atom->SetAtomName(atom_name.c_str());
 						atom->SetElementName(ele.c_str());
@@ -197,7 +199,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 						strncpy(atom->segID, segid.c_str(), 4);
 					     residue_p->AddAtom(atom);
 					     
-					     // std::cout << "DEBUG:: adding atom " << atom << std::endl;
+					     // std::cout << "DEBUG:: adding mmdb atom " << atom << std::endl;
 					  } else {
 					     std::cout << "bad atom (position expression) "
 						       << std::endl;
@@ -232,6 +234,10 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 	    }
 	 }
       }
+   }
+   if (mol) { 
+      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->FinishStructEdit();
    }
    return mol;
 } 
@@ -406,6 +412,10 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
             }
          }
       }
+   }
+   if (mol) { 
+      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->FinishStructEdit();
    }
    return mol;
 } 

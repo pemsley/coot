@@ -5447,11 +5447,13 @@ void toolbar_multi_refine_button_set_sensitive(const char *button_type, short in
       if (bt == "stop")
 	 w = lookup_widget(g.glarea, "toolbar_multi_refine_stop_button");
       
-      if (w)
-	 if (state) 
+      if (w) { 
+	 if (state) { 
 	    gtk_widget_set_sensitive(w, TRUE);
-	 else 
+	 } else { 
 	    gtk_widget_set_sensitive(w, FALSE);
+	 }
+      } 
    }
 } 
 
@@ -5522,3 +5524,27 @@ void map_sharpening_value_changed (GtkAdjustment *adj,
       sharpen(imol, adj->value);
    } 
 }
+
+void set_baton_build_params_from_widget(GtkWidget *params_dialog) {
+
+   GtkWidget *ent_res_no   = lookup_widget(params_dialog, "baton_build_params_residue_number_entry");
+   GtkWidget *ent_chain_id = lookup_widget(params_dialog, "baton_build_params_chain_id_entry");
+   GtkWidget *check_button = lookup_widget(params_dialog, "baton_build_params_backwards_checkbutton");
+
+   const char *resno_txt = gtk_entry_get_text(GTK_ENTRY(ent_res_no));
+   const char *chain_id  = gtk_entry_get_text(GTK_ENTRY(ent_chain_id));
+
+   const char *direction = "forwards";
+   if (GTK_TOGGLE_BUTTON(check_button)->active)
+      direction = "backwards";
+
+   try {
+      int rn = coot::util::string_to_int(resno_txt);
+      set_baton_build_params(rn, chain_id, direction);
+   }
+   catch (std::runtime_error rte) {
+      std::cout << rte.what() << " aborting." << std::endl;
+   }
+
+} 
+

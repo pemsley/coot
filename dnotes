@@ -4346,4 +4346,10 @@ Tue Jun  9 06:30:49 BST 2009
     Receptor]
 
 
+----
+
+    INFO:: when adding a Gtk2-only widget, you need to adds it
+    create_xxx_dialog function to add-c-extern.sh
+
+
 ------

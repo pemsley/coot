@@ -23,6 +23,9 @@
 // Portability (to Windows, particularly) functions go here.
 // 
 
+#include <stdexcept> // for string_to_int.
+#include <sstream>   // ditto.
+
 #include "coot-sysdep.h"
 #if defined _MSC_VER
 #include <direct.h>
@@ -331,6 +334,40 @@ coot::util::float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
    snprintf(s, 99, prec.c_str() ,f); // haha, FIXME. (use n_dec_pl, not 4)
    return std::string(s);
 }
+
+// throw an exception on unable to convert
+int
+coot::util::string_to_int(const std::string &s) {
+   
+   int i;
+   std::istringstream myStream(s);
+   
+   if (myStream>>i) { 
+      return i;
+   } else {
+      std::string mess = "Cannot convert \"";
+      mess += s;
+      mess += "\" to an integer";
+      throw std::runtime_error(mess);
+   }
+} 
+
+// throw an exception on unable to convert
+float
+coot::util::string_to_float(const std::string &s) {
+   
+   float f;
+   std::istringstream myStream(s);
+   
+   if (myStream>>f) { 
+      return f;
+   } else {
+      std::string mess = "Cannot convert \"";
+      mess += s;
+      mess += "\" to an integer";
+      throw std::runtime_error(mess);
+   }
+} 
 
 
 

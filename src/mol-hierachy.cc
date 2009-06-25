@@ -57,7 +57,23 @@
 			at = residue_p->GetAtom(iat);
 
 			
-  // ---- simple version 
+	       
+ // ---- 
+void check_chiral_volumes(int imol) { 
+   graphics_info_t g;
+   if (imol < graphics_info_t::n_molecules) { 
+      if (graphics_info_t::molecule[imol].has_model()) { 
+	 // my function here
+      } else {
+	 std::cout << "WARNING:: molecule " << imol 
+		   <<  " does not have coordinates\n";
+      }
+   } else {
+      std::cout << "WARNING:: no such molecule " << imol << std::endl;
+   } 
+} 
+
+   // ---- simple version 
 
 
    // for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
@@ -78,18 +94,3 @@
 	 for (int iat=0; iat<n_atoms; iat++) {
 	    at = residue_p->GetAtom(iat);
 
-	       
- // ---- 
-void check_chiral_volumes(int imol) { 
-   graphics_info_t g;
-   if (imol < graphics_info_t::n_molecules) { 
-      if (graphics_info_t::molecule[imol].has_model()) { 
-	 // my function here
-      } else {
-	 std::cout << "WARNING:: molecule " << imol 
-		   <<  " does not have coordinates\n";
-      }
-   } else {
-      std::cout << "WARNING:: no such molecule " << imol << std::endl;
-   } 
-} 

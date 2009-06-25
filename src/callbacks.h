@@ -4137,3 +4137,18 @@ void
 on_map_sharpening_cancel_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
+
+
+void
+on_baton_build_params_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_baton_build_params_cancel_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+void
+on_baton_build_set_params_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);

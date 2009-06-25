@@ -59,6 +59,10 @@ namespace coot {
       std::string long_int_to_string(long int i);
       std::string float_to_string(float f);
       std::string float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl);
+      // throw an exception on unable to convert
+      int string_to_int(const std::string &s);
+      // throw an exception on unable to convert
+      float string_to_float(const std::string &s);
       // 
       std::pair<std::string, std::string> split_string_on_last_slash(const std::string &string_in);
       std::vector<std::string> split_string(const std::string &string_in,

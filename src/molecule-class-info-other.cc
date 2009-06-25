@@ -6789,6 +6789,40 @@ molecule_class_info_t::replace_molecule(CMMDBManager *mol) {
       update_symmetry();
       was_changed = 1;
    }
+
+   // deubugging
+   if (0) {
+      std::cout << "DEBUG:: in replace_molecule was_changed " << was_changed << std::endl;
+      std::cout << "DEBUG:: n_atoms:  " << atom_sel.n_selected_atoms << std::endl;
+      
+      std::cout << atom_sel.mol->GetNumberOfModels() << " models" << std::endl;
+      for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+	 std::cout <<  "   model " << imod << std::endl;
+	 CModel *model_p = atom_sel.mol->GetModel(imod);
+	 CChain *chain_p;
+	 // run over chains of the existing mol
+	 int nchains = model_p->GetNumberOfChains();
+	 std::cout << "   " << nchains << " chains" << std::endl;
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    std::cout <<  "      \"" << chain_p->GetChainID() << "\"" << std::endl;
+	    int nres = chain_p->GetNumberOfResidues();
+	    std::cout << "      " << nres << " residues" << std::endl;
+	    CResidue *residue_p;
+	    CAtom *at;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       std::cout <<  "         Residue: " << residue_p->GetSeqNum() << "" << std::endl;
+	       int n_atoms = residue_p->GetNumberOfAtoms();
+	       std::cout << "         " << n_atoms << " atoms" << std::endl;
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  at = residue_p->GetAtom(iat);
+		  std::cout << "            " << at << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
    return was_changed;
 }
 

@@ -3792,6 +3792,8 @@ int reset_view() {
       }
 
       float size = g.molecules[new_centred_molecule].size_of_molecule();
+      if (size<1)
+	 size = 1;
       float new_zoom = 7.0*size;
 
       g.setRotationCentreAndZoom(new_centre, new_zoom);
