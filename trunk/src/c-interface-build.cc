@@ -3749,7 +3749,10 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
 	 graphics_info_t::molecules[molecule_number].replace_molecule(mol);
 	 graphics_draw();
       }
-   }
+   } else {
+      std::cout << "WARNING:: " << molecule_number << " is not a valid model molecule"
+		<< std::endl;
+   } 
    return state;
 }
 #endif // USE_GUILE

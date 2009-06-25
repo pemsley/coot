@@ -39,7 +39,8 @@
     ::: 3
 
 
-
+   o Tweak the go-to-blob algorithm to much favour blobs at the front.
+     Especially those above the displayed contour level.
 
    o Backrub-based auto-fit rotamer search.  Question: how do I test
      this? Synthetic map?  How does it work when we do this for an alt

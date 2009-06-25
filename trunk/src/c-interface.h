@@ -4317,6 +4317,7 @@ void baton_build_delete_last_residue();
 /*! \brief set the parameters for the start of a new baton-built fragment. direction can either 
      be "forwards" or "backwards" */
 void set_baton_build_params(int istart_resno, const char *chain_id, const char *direction); 
+void set_baton_build_params_from_widget(GtkWidget *params_dialog);
 void baton_mode_calculate_skeleton(GtkWidget *window);
 /*! \} */
 

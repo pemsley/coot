@@ -11531,3 +11531,37 @@ on_map_sharpening_cancel_button_clicked
 
 }
 
+
+void
+on_baton_build_params_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "baton_build_params_dialog");
+  set_baton_build_params_from_widget(w);
+  gtk_widget_destroy(w);
+
+}
+
+
+void
+on_baton_build_params_cancel_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "baton_build_params_dialog");
+  gtk_widget_destroy(w);
+}
+
+
+void
+on_baton_build_set_params_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data) { 
+
+  GtkWidget *w = create_baton_build_params_dialog();
+  gtk_widget_show(w);
+
+} 

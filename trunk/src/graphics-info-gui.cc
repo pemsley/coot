@@ -1571,8 +1571,8 @@ graphics_info_t::set_baton_build_params(int istart_resno,
       }
    }
    baton_build_chain_id = std::string(chain_id);
+}
 
-} 
 void
 graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &button_name) const { 
 

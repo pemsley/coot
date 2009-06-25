@@ -2045,8 +2045,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 						coot::my_atom_colour_map_t atom_colour_map,
 						float min_dist, float max_dist, int bond_colour_type) {
 
-   std::cout << "DEBUG:: do_Ca_or_P_bonds_internal with bond_colour_type "
-	     << bond_colour_type << std::endl;
+//    std::cout << "DEBUG:: do_Ca_or_P_bonds_internal with bond_colour_type "
+// 	     << bond_colour_type << std::endl;
 
    PPCAtom Ca_selection = NULL; 
    int n_ca;

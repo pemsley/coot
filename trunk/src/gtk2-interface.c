@@ -10263,21 +10263,24 @@ create_baton_dialog (void)
   GtkWidget *baton_dialog;
   GtkWidget *dialog_vbox18;
   GtkWidget *vbox69;
-  GtkWidget *frame55;
-  GtkWidget *vbox70;
-  GtkWidget *label101;
-  GtkWidget *frame57;
+  GtkWidget *frame289;
+  GtkWidget *alignment143;
   GtkWidget *vbox72;
   GtkWidget *baton_accept_button;
   GtkWidget *baton_try_again_button;
   GtkWidget *baton_undo_button;
-  GtkWidget *frame56;
-  GtkWidget *vbox71;
-  GtkWidget *label102;
-  GtkWidget *frame58;
+  GtkWidget *label732;
+  GtkWidget *frame290;
+  GtkWidget *alignment144;
   GtkWidget *vbox73;
   GtkWidget *baton_lengthen_button;
   GtkWidget *baton_shorten_button;
+  GtkWidget *label733;
+  GtkWidget *frame291;
+  GtkWidget *alignment145;
+  GtkWidget *vbox303;
+  GtkWidget *baton_build_set_params_button;
+  GtkWidget *label734;
   GtkWidget *dialog_action_area18;
   GtkWidget *baton_dialog_ok_button;
   GtkTooltips *tooltips;
@@ -10296,28 +10299,19 @@ create_baton_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox18), vbox69, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox69), 6);
 
-  frame55 = gtk_frame_new (NULL);
-  gtk_widget_show (frame55);
-  gtk_box_pack_start (GTK_BOX (vbox69), frame55, TRUE, TRUE, 0);
+  frame289 = gtk_frame_new (NULL);
+  gtk_widget_show (frame289);
+  gtk_box_pack_start (GTK_BOX (vbox69), frame289, TRUE, TRUE, 0);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame289), GTK_SHADOW_NONE);
 
-  vbox70 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox70);
-  gtk_container_add (GTK_CONTAINER (frame55), vbox70);
-  gtk_container_set_border_width (GTK_CONTAINER (vbox70), 2);
-
-  label101 = gtk_label_new (_("  Baton Position"));
-  gtk_widget_show (label101);
-  gtk_box_pack_start (GTK_BOX (vbox70), label101, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label101), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_alignment (GTK_MISC (label101), 0, 0.5);
-
-  frame57 = gtk_frame_new (NULL);
-  gtk_widget_show (frame57);
-  gtk_box_pack_start (GTK_BOX (vbox70), frame57, TRUE, TRUE, 0);
+  alignment143 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment143);
+  gtk_container_add (GTK_CONTAINER (frame289), alignment143);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment143), 0, 0, 12, 0);
 
   vbox72 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox72);
-  gtk_container_add (GTK_CONTAINER (frame57), vbox72);
+  gtk_container_add (GTK_CONTAINER (alignment143), vbox72);
 
   baton_accept_button = gtk_button_new_with_mnemonic (_("Accept"));
   gtk_widget_show (baton_accept_button);
@@ -10336,27 +10330,24 @@ create_baton_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox72), baton_undo_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_undo_button), 4);
 
-  frame56 = gtk_frame_new (NULL);
-  gtk_widget_show (frame56);
-  gtk_box_pack_start (GTK_BOX (vbox69), frame56, TRUE, TRUE, 0);
+  label732 = gtk_label_new (_("<b>Baton Position</b>"));
+  gtk_widget_show (label732);
+  gtk_frame_set_label_widget (GTK_FRAME (frame289), label732);
+  gtk_label_set_use_markup (GTK_LABEL (label732), TRUE);
 
-  vbox71 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox71);
-  gtk_container_add (GTK_CONTAINER (frame56), vbox71);
+  frame290 = gtk_frame_new (NULL);
+  gtk_widget_show (frame290);
+  gtk_box_pack_start (GTK_BOX (vbox69), frame290, TRUE, TRUE, 0);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame290), GTK_SHADOW_NONE);
 
-  label102 = gtk_label_new (_("  Baton Length"));
-  gtk_widget_show (label102);
-  gtk_box_pack_start (GTK_BOX (vbox71), label102, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label102), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_alignment (GTK_MISC (label102), 0, 0.5);
-
-  frame58 = gtk_frame_new (NULL);
-  gtk_widget_show (frame58);
-  gtk_box_pack_start (GTK_BOX (vbox71), frame58, TRUE, TRUE, 0);
+  alignment144 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment144);
+  gtk_container_add (GTK_CONTAINER (frame290), alignment144);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment144), 0, 0, 12, 0);
 
   vbox73 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox73);
-  gtk_container_add (GTK_CONTAINER (frame58), vbox73);
+  gtk_container_add (GTK_CONTAINER (alignment144), vbox73);
 
   baton_lengthen_button = gtk_button_new_with_mnemonic (_("  Lengthen  "));
   gtk_widget_show (baton_lengthen_button);
@@ -10367,6 +10358,35 @@ create_baton_dialog (void)
   gtk_widget_show (baton_shorten_button);
   gtk_box_pack_start (GTK_BOX (vbox73), baton_shorten_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_shorten_button), 5);
+
+  label733 = gtk_label_new (_("<b>Baton Length</b>"));
+  gtk_widget_show (label733);
+  gtk_frame_set_label_widget (GTK_FRAME (frame290), label733);
+  gtk_label_set_use_markup (GTK_LABEL (label733), TRUE);
+
+  frame291 = gtk_frame_new (NULL);
+  gtk_widget_show (frame291);
+  gtk_box_pack_start (GTK_BOX (vbox69), frame291, TRUE, TRUE, 0);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame291), GTK_SHADOW_NONE);
+
+  alignment145 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment145);
+  gtk_container_add (GTK_CONTAINER (frame291), alignment145);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment145), 0, 0, 12, 0);
+
+  vbox303 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox303);
+  gtk_container_add (GTK_CONTAINER (alignment145), vbox303);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox303), 4);
+
+  baton_build_set_params_button = gtk_button_new_with_mnemonic (_("Baton-build params..."));
+  gtk_widget_show (baton_build_set_params_button);
+  gtk_box_pack_start (GTK_BOX (vbox303), baton_build_set_params_button, FALSE, FALSE, 0);
+
+  label734 = gtk_label_new (_("<b>Build Parameters</b>"));
+  gtk_widget_show (label734);
+  gtk_frame_set_label_widget (GTK_FRAME (frame291), label734);
+  gtk_label_set_use_markup (GTK_LABEL (label734), TRUE);
 
   dialog_action_area18 = GTK_DIALOG (baton_dialog)->action_area;
   gtk_widget_show (dialog_action_area18);
@@ -10392,6 +10412,9 @@ create_baton_dialog (void)
   g_signal_connect ((gpointer) baton_shorten_button, "clicked",
                     G_CALLBACK (on_baton_shorten_button_clicked),
                     NULL);
+  g_signal_connect ((gpointer) baton_build_set_params_button, "clicked",
+                    G_CALLBACK (on_baton_build_set_params_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) baton_dialog_ok_button, "clicked",
                     G_CALLBACK (on_baton_dialog_ok_button_clicked),
                     NULL);
@@ -10400,21 +10423,24 @@ create_baton_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (baton_dialog, baton_dialog, "baton_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (baton_dialog, dialog_vbox18, "dialog_vbox18");
   GLADE_HOOKUP_OBJECT (baton_dialog, vbox69, "vbox69");
-  GLADE_HOOKUP_OBJECT (baton_dialog, frame55, "frame55");
-  GLADE_HOOKUP_OBJECT (baton_dialog, vbox70, "vbox70");
-  GLADE_HOOKUP_OBJECT (baton_dialog, label101, "label101");
-  GLADE_HOOKUP_OBJECT (baton_dialog, frame57, "frame57");
+  GLADE_HOOKUP_OBJECT (baton_dialog, frame289, "frame289");
+  GLADE_HOOKUP_OBJECT (baton_dialog, alignment143, "alignment143");
   GLADE_HOOKUP_OBJECT (baton_dialog, vbox72, "vbox72");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_accept_button, "baton_accept_button");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_try_again_button, "baton_try_again_button");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_undo_button, "baton_undo_button");
-  GLADE_HOOKUP_OBJECT (baton_dialog, frame56, "frame56");
-  GLADE_HOOKUP_OBJECT (baton_dialog, vbox71, "vbox71");
-  GLADE_HOOKUP_OBJECT (baton_dialog, label102, "label102");
-  GLADE_HOOKUP_OBJECT (baton_dialog, frame58, "frame58");
+  GLADE_HOOKUP_OBJECT (baton_dialog, label732, "label732");
+  GLADE_HOOKUP_OBJECT (baton_dialog, frame290, "frame290");
+  GLADE_HOOKUP_OBJECT (baton_dialog, alignment144, "alignment144");
   GLADE_HOOKUP_OBJECT (baton_dialog, vbox73, "vbox73");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_lengthen_button, "baton_lengthen_button");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_shorten_button, "baton_shorten_button");
+  GLADE_HOOKUP_OBJECT (baton_dialog, label733, "label733");
+  GLADE_HOOKUP_OBJECT (baton_dialog, frame291, "frame291");
+  GLADE_HOOKUP_OBJECT (baton_dialog, alignment145, "alignment145");
+  GLADE_HOOKUP_OBJECT (baton_dialog, vbox303, "vbox303");
+  GLADE_HOOKUP_OBJECT (baton_dialog, baton_build_set_params_button, "baton_build_set_params_button");
+  GLADE_HOOKUP_OBJECT (baton_dialog, label734, "label734");
   GLADE_HOOKUP_OBJECT_NO_REF (baton_dialog, dialog_action_area18, "dialog_action_area18");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_dialog_ok_button, "baton_dialog_ok_button");
   GLADE_HOOKUP_OBJECT_NO_REF (baton_dialog, tooltips, "tooltips");
@@ -26195,6 +26221,114 @@ create_map_sharpening_dialog (void)
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label730, "label730");
 
   return map_sharpening_dialog;
+}
+
+GtkWidget*
+create_baton_build_params_dialog (void)
+{
+  GtkWidget *baton_build_params_dialog;
+  GtkWidget *dialog_vbox122;
+  GtkWidget *vbox304;
+  GtkWidget *hbox405;
+  GtkWidget *label735;
+  GtkWidget *baton_build_params_residue_number_entry;
+  GtkWidget *hbox406;
+  GtkWidget *label736;
+  GtkWidget *baton_build_params_chain_id_entry;
+  GtkWidget *baton_build_params_backwards_checkbutton;
+  GtkWidget *dialog_action_area121;
+  GtkWidget *baton_build_params_ok_button;
+  GtkWidget *baton_build_params_cancel_button;
+  GtkTooltips *tooltips;
+
+  tooltips = gtk_tooltips_new ();
+
+  baton_build_params_dialog = gtk_dialog_new ();
+  gtk_window_set_title (GTK_WINDOW (baton_build_params_dialog), _("Baton-Build Parameters"));
+  gtk_window_set_type_hint (GTK_WINDOW (baton_build_params_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox122 = GTK_DIALOG (baton_build_params_dialog)->vbox;
+  gtk_widget_show (dialog_vbox122);
+
+  vbox304 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox304);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox122), vbox304, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox304), 6);
+
+  hbox405 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox405);
+  gtk_box_pack_start (GTK_BOX (vbox304), hbox405, TRUE, TRUE, 0);
+
+  label735 = gtk_label_new (_("Starting Residue Number: "));
+  gtk_widget_show (label735);
+  gtk_box_pack_start (GTK_BOX (hbox405), label735, FALSE, FALSE, 0);
+
+  baton_build_params_residue_number_entry = gtk_entry_new ();
+  gtk_widget_show (baton_build_params_residue_number_entry);
+  gtk_box_pack_start (GTK_BOX (hbox405), baton_build_params_residue_number_entry, FALSE, TRUE, 0);
+  gtk_widget_set_size_request (baton_build_params_residue_number_entry, 60, -1);
+  gtk_entry_set_text (GTK_ENTRY (baton_build_params_residue_number_entry), _("1"));
+  gtk_entry_set_invisible_char (GTK_ENTRY (baton_build_params_residue_number_entry), 8226);
+
+  hbox406 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox406);
+  gtk_box_pack_start (GTK_BOX (vbox304), hbox406, TRUE, TRUE, 0);
+
+  label736 = gtk_label_new (_("Chain ID: "));
+  gtk_widget_show (label736);
+  gtk_box_pack_start (GTK_BOX (hbox406), label736, FALSE, FALSE, 0);
+
+  baton_build_params_chain_id_entry = gtk_entry_new ();
+  gtk_widget_show (baton_build_params_chain_id_entry);
+  gtk_box_pack_start (GTK_BOX (hbox406), baton_build_params_chain_id_entry, FALSE, TRUE, 0);
+  gtk_widget_set_size_request (baton_build_params_chain_id_entry, 50, -1);
+  gtk_entry_set_text (GTK_ENTRY (baton_build_params_chain_id_entry), _("A"));
+  gtk_entry_set_invisible_char (GTK_ENTRY (baton_build_params_chain_id_entry), 8226);
+
+  baton_build_params_backwards_checkbutton = gtk_check_button_new_with_mnemonic (_("Build Backwards"));
+  gtk_widget_show (baton_build_params_backwards_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox304), baton_build_params_backwards_checkbutton, FALSE, FALSE, 4);
+  gtk_container_set_border_width (GTK_CONTAINER (baton_build_params_backwards_checkbutton), 2);
+  gtk_tooltips_set_tip (tooltips, baton_build_params_backwards_checkbutton, _("i.e. the residue number of the newly added residues decrease as the new residues get added"), NULL);
+
+  dialog_action_area121 = GTK_DIALOG (baton_build_params_dialog)->action_area;
+  gtk_widget_show (dialog_action_area121);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area121), GTK_BUTTONBOX_END);
+
+  baton_build_params_ok_button = gtk_button_new_from_stock ("gtk-ok");
+  gtk_widget_show (baton_build_params_ok_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (baton_build_params_dialog), baton_build_params_ok_button, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (baton_build_params_ok_button, GTK_CAN_DEFAULT);
+
+  baton_build_params_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_show (baton_build_params_cancel_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (baton_build_params_dialog), baton_build_params_cancel_button, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (baton_build_params_cancel_button, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) baton_build_params_ok_button, "clicked",
+                    G_CALLBACK (on_baton_build_params_ok_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) baton_build_params_cancel_button, "clicked",
+                    G_CALLBACK (on_baton_build_params_cancel_button_clicked),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_build_params_dialog, baton_build_params_dialog, "baton_build_params_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_build_params_dialog, dialog_vbox122, "dialog_vbox122");
+  GLADE_HOOKUP_OBJECT (baton_build_params_dialog, vbox304, "vbox304");
+  GLADE_HOOKUP_OBJECT (baton_build_params_dialog, hbox405, "hbox405");
+  GLADE_HOOKUP_OBJECT (baton_build_params_dialog, label735, "label735");
+  GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_residue_number_entry, "baton_build_params_residue_number_entry");
+  GLADE_HOOKUP_OBJECT (baton_build_params_dialog, hbox406, "hbox406");
+  GLADE_HOOKUP_OBJECT (baton_build_params_dialog, label736, "label736");
+  GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_chain_id_entry, "baton_build_params_chain_id_entry");
+  GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_backwards_checkbutton, "baton_build_params_backwards_checkbutton");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_build_params_dialog, dialog_action_area121, "dialog_action_area121");
+  GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_ok_button, "baton_build_params_ok_button");
+  GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_cancel_button, "baton_build_params_cancel_button");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_build_params_dialog, tooltips, "tooltips");
+
+  return baton_build_params_dialog;
 }
 
 #endif /* (GTK_MAJOR_VERSION > 1) */

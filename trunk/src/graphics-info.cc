@@ -695,6 +695,7 @@ graphics_info_t::setRotationCentre(coot::Cartesian centre) {
    old_rotation_centre_y = rotation_centre_y; 
    old_rotation_centre_z = rotation_centre_z; 
 
+   // std::cout << "in setRotationCentre Cartesian" << graphics_info_t::smooth_scroll << std::endl;
    if (graphics_info_t::smooth_scroll == 1)
       smooth_scroll_maybe(centre.x(), centre.y(), centre.z(),
 			  0, 100.0); // don't zoom and dummy value
