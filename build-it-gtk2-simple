@@ -1177,7 +1177,7 @@ END {
       else
          coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
       fi
-      coot_source_tar_file=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/$coot_version_pre
+      coot_source_tar_file=$pre_release_server_dir/$coot_version_pre
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
       BINARY_TAR_DEST_DIR=$NIGHTLY_DEST_DIR
       mkdir -p ${NIGHTLY_DEST_DIR}
