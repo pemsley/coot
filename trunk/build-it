@@ -223,7 +223,8 @@
 # 2.55 20090506 Upgrade to mmdb 1.21
 # 2.56 20090508 add density-score-by-residue to tar ball.
 # 2.57 20090624 Make pre_release_server_dir be biop.ox
-script_version=2.57
+# 2.58 20090627 Use pre_release_server_dir to set coot_version
+script_version=2.58
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1052,7 +1053,7 @@ coot_prerelease_exists=
 
 if test "$build_coot_prerelease" = 1 ; then 
 
-   ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log http://www.ysbl.york.ac.uk/~emsley/software/pre-release
+   ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
    coot_version_pre=`egrep href ${AUTOBUILD_SOURCES}/index.html | sed -e 's/.*">//' -e 's/<.*//' | awk ' /^coot-[0-9]\.[0-9]+.*-pre.*\.tar\.gz$/ { 
    last=$0 }
 END {
@@ -1068,7 +1069,7 @@ END {
       coot_prerelease_exists=1
       # tinker with coot_prefix, it is generic_prefix with pre-release added to prefix dir
       coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release ${config_extras:-}"
-      coot_source_tar_file=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/$coot_version_pre
+      coot_source_tar_file=$pre_release_server_dir/$coot_version_pre
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
       BINARY_TAR_DEST_DIR=$NIGHTLY_DEST_DIR
       mkdir -p ${NIGHTLY_DEST_DIR}
