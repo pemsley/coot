@@ -5331,7 +5331,7 @@ void toolbar_multi_refine_stop() {
 
 #if (GTK_MAJOR_VERSION > 1)
 
-#ifdef USE_GUILE && !defined WINDOWS_MINGW
+#if (defined USE_GUILE) && !defined WINDOWS_MINGW
 
    // the idle function looks at this value
    std::string s = "(set! *continue-multi-refine* #f)";
@@ -5367,7 +5367,7 @@ void toolbar_multi_refine_continue() {
 
 #if (GTK_MAJOR_VERSION > 1)
 
-#ifdef USE_GUILE && !defined WINDOWS_MINGW
+#if (defined USE_GUILE) && !defined WINDOWS_MINGW
 
    toolbar_multi_refine_button_set_sensitive("stop",     1);
    toolbar_multi_refine_button_set_sensitive("cancel",   0);
@@ -5400,7 +5400,7 @@ void toolbar_multi_refine_continue() {
 void toolbar_multi_refine_cancel() {
 
 #if (GTK_MAJOR_VERSION > 1)
-#ifdef USE_GUILE && !defined WINDOWS_MINGW
+#if (defined USE_GUILE) && !defined WINDOWS_MINGW
 
    // the idle function looks at this value
    std::string s = "(set! *continue-multi-refine* #f)";
