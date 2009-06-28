@@ -417,6 +417,9 @@ char *coot_version();
 #ifdef USE_GUILE
 SCM coot_sys_build_type_scm();
 #endif
+#ifdef USE_PYTHON
+PyObject *coot_sys_build_type_py();
+#endif /* USE_PYTHON */
 #endif
 
 /*! \brief return the subversion revision number of this build.

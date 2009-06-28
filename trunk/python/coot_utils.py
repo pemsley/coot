@@ -1052,20 +1052,19 @@ def residues_with_alt_confs(imol):
     return residue_matching_criteria(imol, lambda chain_id, res_no, ins_code, res_serial_no: alt_func1(chain_id, res_no, ins_code, res_serial_no))
 
 # Return a list of all the altconfs in the residue. 
-# Typically this will return [] or ["A","B"]
+# Typically this will return [""] or ["A", "B"]
 # 
 def residue_alt_confs(imol, chain_id, res_no, ins_code):
 
-	atom_ls = residue_info(imol, chain_id, res_no, ins_code)
-        alt_confs = []
+    atom_ls = residue_info(imol, chain_id, res_no, ins_code)
+    alt_confs = []
 
-	if atom_ls:
-		for i in range(len(atom_ls)-1):
-			alt_conf_str = atom_ls[i][0][1]
-			if alt_conf_str:
-				if not alt_conf_str in alt_confs:
-					alt_confs.append(alt_conf_str)
-	return alt_confs
+    if atom_ls:
+        for i in range(len(atom_ls)-1):
+            alt_conf_str = atom_ls[i][0][1]
+            if not alt_conf_str in alt_confs:
+                alt_confs.append(alt_conf_str)
+    return alt_confs
 
 
 # Return a list of all atoms that have zero occupancy: where an atom
@@ -1719,6 +1718,7 @@ def load_annotations(file_name):
 # sorted by header files:
 
 # c-interface.h:
+coot_sys_build_type    = coot_sys_build_type_py
 run_clear_backups      = run_clear_backups_py
 test_internal          = test_internal_py
 refmac_parameters      = refmac_parameters_py

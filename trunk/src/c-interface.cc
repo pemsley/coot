@@ -189,6 +189,15 @@ SCM coot_sys_build_type_scm() {
 } 
 #endif
 
+#ifdef USE_PYTHON
+PyObject *coot_sys_build_type_py() {
+
+   std::string sb = COOT_SYS_BUILD_TYPE;
+   PyObject *r = PyString_FromString(sb.c_str());
+   return r;
+} 
+#endif // USE_PYTHON
+
 
 /*  -------------------------------------------------------------------- */
 /*                     Testing Interface:                                */

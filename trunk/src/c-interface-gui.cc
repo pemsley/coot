@@ -5320,11 +5320,18 @@ void set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
 		    rather kludgy interface.  It should go when we
 		    move to guile-gnome, I think. */
 /*  ----------------------------------------------------------------------- */
+/* BL comment:: at the moment this has a python implementation too, it should
+   however be using the toolbuttons on the main toolbar, as we can! Furthermore
+   we have the general problem that in this way we cannot control a python
+   started function if guile is available too. We would need to know if it was
+   started from python or guile... */
+/* well I have put the python buttons into the scripting layer using the main
+   toolbar. It's still here for completeness. */
 void toolbar_multi_refine_stop() {
 
 #if (GTK_MAJOR_VERSION > 1)
 
-#ifdef USE_GUILE
+#ifdef USE_GUILE && !defined WINDOWS_MINGW
 
    // the idle function looks at this value
    std::string s = "(set! *continue-multi-refine* #f)";
@@ -5338,6 +5345,18 @@ void toolbar_multi_refine_stop() {
    
 #endif // USE_GUILE   
 
+#ifdef USE_PYTHON
+   // the idle function looks at this value
+   std::string s = "global continue_multi_refine; continue_multi_refine = False";
+   safe_python_command(s.c_str());
+   
+   set_visible_toolbar_multi_refine_continue_button(1);
+   set_visible_toolbar_multi_refine_cancel_button(1);
+   toolbar_multi_refine_button_set_sensitive("continue", 1);
+   toolbar_multi_refine_button_set_sensitive("cancel",   1);
+   toolbar_multi_refine_button_set_sensitive("stop",     0); // it's already stopped.
+#endif // USE_PYTHON
+
 
 #endif    
 
@@ -5348,7 +5367,7 @@ void toolbar_multi_refine_continue() {
 
 #if (GTK_MAJOR_VERSION > 1)
 
-#ifdef USE_GUILE
+#ifdef USE_GUILE && !defined WINDOWS_MINGW
 
    toolbar_multi_refine_button_set_sensitive("stop",     1);
    toolbar_multi_refine_button_set_sensitive("cancel",   0);
@@ -5361,6 +5380,19 @@ void toolbar_multi_refine_continue() {
    
 #endif // USE_GUILE   
 
+#ifdef USE_PYTHON
+
+   toolbar_multi_refine_button_set_sensitive("stop",     1);
+   toolbar_multi_refine_button_set_sensitive("cancel",   0);
+   toolbar_multi_refine_button_set_sensitive("continue", 0);
+   std::string s = "global continue_multi_refine; continue_multi_refine = True";
+   safe_python_command(s.c_str());
+   s = "global multi_refine_idle_proc; gobject.idle_add(multi_refine_idle_proc)";
+   safe_python_command(s.c_str());
+
+   
+#endif // USE_PYTHON   
+
 #endif   
 
 }
@@ -5368,7 +5400,7 @@ void toolbar_multi_refine_continue() {
 void toolbar_multi_refine_cancel() {
 
 #if (GTK_MAJOR_VERSION > 1)
-#ifdef USE_GUILE
+#ifdef USE_GUILE && !defined WINDOWS_MINGW
 
    // the idle function looks at this value
    std::string s = "(set! *continue-multi-refine* #f)";
@@ -5379,6 +5411,17 @@ void toolbar_multi_refine_cancel() {
    set_visible_toolbar_multi_refine_cancel_button(0);
    
 #endif // USE_GUILE   
+#ifdef USE_PYTHON
+
+   // the idle function looks at this value
+   std::string s = "global continue_multi_refine; continue_multi_refine = False";
+   safe_python_command(s.c_str());
+   toolbar_multi_refine_button_set_sensitive("stop", 1); // for next time
+   set_visible_toolbar_multi_refine_continue_button(0);
+   set_visible_toolbar_multi_refine_stop_button(0);
+   set_visible_toolbar_multi_refine_cancel_button(0);
+   
+#endif // USE_PYTHON
 #endif    
 
 } 
