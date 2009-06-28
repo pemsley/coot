@@ -329,7 +329,7 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                  if (len_atom_expr != 3) {
                                     std::cout << "bad atom expression, length "
                                               << len_residue_expr << std::endl;
-                                    char *mess =  "object: %S\n";
+                                    const char *mess =  "object: %S\n";
                                     PyObject *bad_python = PyString_FromFormat(mess, atom_expression);
                                     std::string bad_str = PyString_AsString(bad_python);
                                     std::cout << bad_str << std::endl;
@@ -431,7 +431,7 @@ PyObject * display_python(PyObject *o) {
 
    PyObject *dest;
    dest = Py_False;
-   char *mess = "object: %s\n";
+   const char *mess = "object: %s\n";
    Py_XDECREF(dest);
    return PyString_FromFormat(mess, o);
 }

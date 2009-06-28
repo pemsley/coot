@@ -5331,7 +5331,7 @@ void toolbar_multi_refine_stop() {
 
 #if (GTK_MAJOR_VERSION > 1)
 
-#if (defined USE_GUILE) && !defined WINDOWS_MINGW
+#ifdef USE_GUILE
 
    // the idle function looks at this value
    std::string s = "(set! *continue-multi-refine* #f)";
@@ -5343,7 +5343,7 @@ void toolbar_multi_refine_stop() {
    toolbar_multi_refine_button_set_sensitive("cancel",   1);
    toolbar_multi_refine_button_set_sensitive("stop",     0); // it's already stopped.
    
-#endif // USE_GUILE   
+#else 
 
 #ifdef USE_PYTHON
    // the idle function looks at this value
@@ -5356,9 +5356,8 @@ void toolbar_multi_refine_stop() {
    toolbar_multi_refine_button_set_sensitive("cancel",   1);
    toolbar_multi_refine_button_set_sensitive("stop",     0); // it's already stopped.
 #endif // USE_PYTHON
-
-
-#endif    
+#endif // USE_GUILE
+#endif // GTK_MAJOR_VERSION
 
 } 
 
@@ -5367,7 +5366,7 @@ void toolbar_multi_refine_continue() {
 
 #if (GTK_MAJOR_VERSION > 1)
 
-#if (defined USE_GUILE) && !defined WINDOWS_MINGW
+#ifdef USE_GUILE
 
    toolbar_multi_refine_button_set_sensitive("stop",     1);
    toolbar_multi_refine_button_set_sensitive("cancel",   0);
@@ -5376,9 +5375,8 @@ void toolbar_multi_refine_continue() {
    safe_scheme_command(s.c_str());
    s = "(gtk-idle-add *multi-refine-idle-proc*)";
    safe_scheme_command(s.c_str());
-
    
-#endif // USE_GUILE   
+#else 
 
 #ifdef USE_PYTHON
 
@@ -5390,17 +5388,16 @@ void toolbar_multi_refine_continue() {
    s = "global multi_refine_idle_proc; gobject.idle_add(multi_refine_idle_proc)";
    safe_python_command(s.c_str());
 
-   
 #endif // USE_PYTHON   
-
-#endif   
+#endif // USE_GUILE
+#endif // GTK_MAJOR_VERSION
 
 }
 
 void toolbar_multi_refine_cancel() {
 
 #if (GTK_MAJOR_VERSION > 1)
-#if (defined USE_GUILE) && !defined WINDOWS_MINGW
+#ifdef USE_GUILE
 
    // the idle function looks at this value
    std::string s = "(set! *continue-multi-refine* #f)";
@@ -5410,7 +5407,8 @@ void toolbar_multi_refine_cancel() {
    set_visible_toolbar_multi_refine_stop_button(0);
    set_visible_toolbar_multi_refine_cancel_button(0);
    
-#endif // USE_GUILE   
+#else
+   
 #ifdef USE_PYTHON
 
    // the idle function looks at this value
@@ -5422,7 +5420,8 @@ void toolbar_multi_refine_cancel() {
    set_visible_toolbar_multi_refine_cancel_button(0);
    
 #endif // USE_PYTHON
-#endif    
+#endif // USE_GUILE
+#endif // GTK_MAJOR_VERSION
 
 } 
 
