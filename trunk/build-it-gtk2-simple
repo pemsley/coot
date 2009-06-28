@@ -272,7 +272,9 @@
 #               in the update-binary mechanism to find if there is a newer
 #               version than this binary (that we are running).
 # 4.48 20090624 Make pre_release_server_dir be biop.ox
-script_version=4.48
+# 4.49 20090628 On my_exit, remove the test-status file, not the build-status 
+#               file.
+script_version=4.49
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -534,8 +536,8 @@ function my_exit {
    shift
    extra_args=$*
    echo fail-build $extra_args > $LOGS/$build_type-build-status
-   if [ -e $LOGS/$build_type-build-status ] ; then
-      rm $LOGS/$build_type-build-status
+   if [ -e $LOGS/$build_type-test-status ] ; then
+      rm $LOGS/$build_type-test-status
    fi
    exit $exit_arg
 }
@@ -1712,6 +1714,7 @@ else
    gsl_version=`gsl-config --version`
 
    needed_gsl_version=1.11
+   needed_gsl_version=1.12
 
    # tmp value
    build_gsl=`awk -v A=$gsl_version -v N=$needed_gsl_version 'BEGIN{x = ((A+0) != (N+0)) ; print x}'`
