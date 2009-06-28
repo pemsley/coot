@@ -274,7 +274,8 @@
 # 4.48 20090624 Make pre_release_server_dir be biop.ox
 # 4.49 20090628 On my_exit, remove the test-status file, not the build-status 
 #               file.
-script_version=4.49
+# 4.50 20090628 Change the GSL version to 1.12
+script_version=4.50
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1350,10 +1351,8 @@ else
 fi
 
 # clean up old test status:
-if [ -e $LOGS/gtk2-test-status ] ; then
-   echo build-in-progress > $LOGS/$build_type-build-status
-   echo in-progress       > $LOGS/$build_type-test-status
-fi
+echo build-in-progress    > $LOGS/$build_type-build-status
+echo waiting for build... > $LOGS/$build_type-test-status
 
 
 
@@ -1713,6 +1712,7 @@ if test $? != 0 ; then
 else 
    gsl_version=`gsl-config --version`
 
+   # if you change this, change also gsl_version below.
    needed_gsl_version=1.11
    needed_gsl_version=1.12
 
@@ -2601,7 +2601,7 @@ if test -n "$build_gsl" ; then
 # wget http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl/gsl-1.5.tar.gz
 # wget http://ftp.gnu.org/gnu/gsl/gsl-1.6.tar.gz
 # if you change this, change needed_gsl_version above
-gsl_version=1.11
+gsl_version=1.12
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
