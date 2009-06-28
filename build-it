@@ -224,6 +224,7 @@
 # 2.56 20090508 add density-score-by-residue to tar ball.
 # 2.57 20090624 Make pre_release_server_dir be biop.ox
 # 2.58 20090627 Use pre_release_server_dir to set coot_version
+# 2.59 20090628 Don't delete build-status on my_exit.
 script_version=2.58
 
 # :: NOTE:: 
@@ -586,7 +587,7 @@ fi
 function my_exit {
     
    echo fail-build > $LOGS/$build_type-test-status
-   rm $LOGS/$build_type-build-status
+   echo fail-build > $LOGS/$build_type-build-status
    exit $1
 }
 
