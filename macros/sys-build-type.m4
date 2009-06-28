@@ -14,6 +14,10 @@ if test "$OS" = "Darwin" ; then
    systype=MacOSX-${osversion}-${processor}
 fi
 
+if test "$OS" = "MINGW32_NT-5.1" ; then
+   systype=`uname -m`
+fi
+
 if test $OS = Linux ; then 
 
   architecture=`uname -i`

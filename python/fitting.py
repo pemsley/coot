@@ -1,6 +1,7 @@
 # fitting.py
 # Copyright 2005, 2006, 2007 by Bernhard Lohkamp 
-# Copyright 2004, 2005, 2006 by Paul Emsley, The University of York
+# Copyright 2004, 2005, 2006, 2008, 2009 by The University of York
+# Copyright 2009 by Bernhard Lohkamp
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -27,8 +28,10 @@
 # are already resonably well-fitted.  So residues with alternate
 # conformations undergo only real space refinement.
 #
+# This is simple-minded and outdated now we have the interruptible
+# version (below).
+#
 def fit_protein(imol):
-#    print "BL DEBUG:: imol_refinement_map()",imol_refinement_map()
 
     set_go_to_atom_molecule(imol)
     make_backup(imol) # do a backup first
@@ -74,6 +77,209 @@ def fit_protein(imol):
 	  set_refinement_immediate_replacement(0)
     if (backup_mode == 1):
 	  turn_on_backup(imol)
+
+# Paul: 20090517: thinking about making the fit-protein function
+# interuptable with a toolbar button press.  How do we do that? 
+# fit_protein needs to be split into 2 parts, one, that generates a
+# list of residues specs the other that does a refinement given a
+# residue spec, then we run and idle function that calls
+# fit_residue_by_spec or each spec in turn and at the end return
+#
+
+# These 2 variables are used by multi-refine function(s), called by
+# idle functions to refine just one residue.
+# 
+global continue_multi_refine
+global multi_refine_spec_list
+global multi_refine_idle_proc
+global multi_refine_stop_button
+global multi_refine_cancel_button
+global multi_refine_continue_button
+continue_multi_refine = False
+multi_refine_spec_list = []
+multi_refine_idle_proc = False
+multi_refine_stop_button = False
+multi_refine_cancel_button = False
+multi_refine_continue_button = False
+
+# Return a list of residue specs
+#
+# chain-specifier can be a string, where it is the chain of interest.
+# or 'all-chains, where all chains are chosen.
+#
+def fit_protein_make_specs(imol, chain_specifier):
+    from types import StringType
+    if (not valid_model_molecule_qm(imol)):
+        return []
+    else:
+        if (chain_specifier == 'all-chains'):
+            chain_list = chain_ids(imol)
+        elif (type(chain_specifier) == StringType):
+            chain_list = [chain_specifier]
+        else:
+            chain_list = []   # return null list - incomprehensible
+
+        spec_list = []
+        for chain_id in chain_list:
+            serial_number_list = range(chain_n_residues(chain_id, imol))
+            print " seqnum from ", imol, chain_id, serial_number_list
+            for serial_number in serial_number_list:
+                res_no   = seqnum_from_serial_number(imol, chain_id,
+                                                   serial_number)
+                ins_code = insertion_code_from_serial_number(imol, chain_id,
+                                                             serial_number)
+                spec_list.append([imol, chain_id, res_no, ins_code])
+        return spec_list
+
+def fit_protein_fit_function(res_spec, imol_map):
+    
+    imol     = res_spec[0]
+    chain_id = res_spec[1]
+    res_no   = res_spec[2]
+    ins_code = res_spec[3]
+
+    # BL says: we dont use with_auto_accept here, get's too messy
+    replace_state = refinement_immediate_replacement_state()
+    set_refinement_immediate_replacement(1)
+
+    for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
+        print "centering on", chain_id, res_no, "CA"
+        set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+        rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
+        if (alt_conf == ""):
+            auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
+                                  imol_map, 1, 0.1)
+        if (imol_map >= 0):
+            refine_zone(imol, chain_id, res_no, res_no, alt_conf)
+            accept_regularizement()
+        rotate_y_scene(10, 0.3)
+
+    if (replace_state == 0):
+        set_refinement_immediate_replacement(0)
+
+def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
+    
+    imol     = res_spec[0]
+    chain_id = res_spec[1]
+    res_no   = res_spec[2]
+    ins_code = res_spec[3]
+    current_steps_per_frame = dragged_refinement_steps_per_frame()
+    current_rama_state = refine_ramachandran_angles_state()
+
+    # BL says: again we dont use with_auto_accept here, get's too messy
+    replace_state = refinement_immediate_replacement_state()
+    set_refinement_immediate_replacement(1)
+
+    for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
+        if use_rama:
+            set_refine_ramachandran_angles(1)
+        print "centering on", chain_id, res_no, "CA"
+        set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+        rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
+        refine_auto_range(imol, chain_id, res_no, alt_conf)
+        accept_regularizement()
+        rotate_y_scene(10, 0.3)    
+
+    set_refine_ramachandran_angles(current_rama_state)
+    set_dragged_refinement_steps_per_frame(current_steps_per_frame)
+    
+    if (replace_state == 0):
+        set_refinement_immediate_replacement(0)
+
+def fit_protein_rama_fit_function(res_spec, imol_map):
+    # BL says: make it more generic
+    fit_protein_stepped_refine_function(res_spec, imol_map, True)
+
+# func is a refinement function that takes 2 args, one a residue
+# spec, the other the imol_refinement_map.  e.g. fit_protein_fit_function
+#
+def interruptible_fit_protein(imol, func):
+
+    import gobject
+    global multi_refine_spec_list
+    global continue_multi_refine
+    global multi_refine_idle_proc
+    global multi_refine_stop_button
+    specs = fit_protein_make_specs(imol, 'all-chains')
+    if specs:
+        multi_refine_stop_button = coot_toolbar_button("Stop2", "stop_interruptible_fit_protein()", "gtk-stop")
+        multi_refine_spec_list = specs
+        def idle_func():
+            global multi_refine_spec_list
+            global continue_multi_refine
+            global multi_refine_idle_proc
+            global multi_refine_stop_button
+            if not multi_refine_spec_list:
+                #set_visible_toolbar_multi_refine_stop_button(0)
+                #set_visible_toolbar_multi_refine_continue_button(0)
+                multi_refine_stop_button.destroy()
+                multi_refine_stop_button = False
+                return False
+            if continue_multi_refine:
+                imol_map = imol_refinement_map()
+                func(multi_refine_spec_list[0], imol_map)
+                del multi_refine_spec_list[0]
+                return True
+            else:
+                return False
+        gobject.idle_add(idle_func)
+        multi_refine_idle_proc = idle_func
+        set_go_to_atom_molecule(imol)
+
+# this will stop the currently running interuptible fit protein function
+#
+def stop_interruptible_fit_protein():
+    global continue_multi_refine
+    global multi_refine_stop_button
+    global multi_refine_cancel_button
+    global multi_refine_continue_button
+    
+    continue_multi_refine = False
+
+    multi_refine_cancel_button = coot_toolbar_button("Cancel2",
+                                                     "cancel_interruptible_fit_protein()",
+                                                     "gtk-cancel")
+    multi_refine_continue_button = coot_toolbar_button("Continue2",
+                                                     "continue_interruptible_fit_protein()",
+                                                     "gtk-apply")
+    
+    multi_refine_stop_button.set_sensitive(False)
+    #multi_refine_cancel_button.set_sensitive(True)
+    #multi_refine_continue_button.set_sensitive(True)
+
+# Continue with the interruptible fitting
+#
+def continue_interruptible_fit_protein():
+    global multi_refine_stop_button
+    global multi_refine_cancel_button
+    global multi_refine_continue_button
+    global continue_multi_refine
+    global multi_refine_idle_proc
+
+    multi_refine_stop_button.set_sensitive(True)
+    multi_refine_cancel_button.destroy()
+    multi_refine_cancel_button = False
+    multi_refine_continue_button.destroy()
+    multi_refine_continue_button = False
+    continue_multi_refine = True
+    gobject.idle_add(multi_refine_idle_proc)
+
+# use to completely stop the interruptible fit function
+#
+def cancel_interruptible_fit_protein():
+    global multi_refine_stop_button
+    global multi_refine_cancel_button
+    global multi_refine_continue_button
+    global continue_multi_refine
+
+    continue_multi_refine = False
+    multi_refine_stop_button.destroy()
+    multi_refine_stop_button = False
+    multi_refine_cancel_button.destroy()
+    multi_refine_cancel_button = False
+    multi_refine_continue_button.destroy()
+    multi_refine_continue_button = False
+    
 
 # For each residue in chain chain-id of molecule number imol, do a
 # rotamer fit and real space refinement of each residue.  Don't

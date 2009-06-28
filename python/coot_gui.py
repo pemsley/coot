@@ -764,7 +764,7 @@ def old_coot_qm():
       if (time_diff > 8600):
          s = "This is an Old Coot!\n\nIt's time to upgrade."
       else:
-         if (random.randint(0,3) == 0):
+         if (random.randint(0,10) == 0):
             # Jorge Garcia:
             s = "(Nothing says \"patriotism\" like an Ireland shirt...)\n"
          else:
@@ -1467,11 +1467,11 @@ def coot_toolbar_button(*args):
             print "BL INFO::  icon name/widget given but could not add the icon"
 
    return toolbutton
-
    
 # returns a list of existing toolbar buttons
 # [[label, toolbutton],[]...]
 # or False if coot_python is not available
+#
 def toolbar_label_list():
    try:
       import coot_python
@@ -3706,7 +3706,7 @@ def map_sharpening_gui(imol):
    hbox.pack_start(slider, True,  True,  2)
    window.add(vbox)
    window.set_size_request(500, 100)
-   # slider.add_mark(-30, -30, 0) # not yet
+   # slider.add_mark(-30, -30, 0) # not yet, needs updated pygtk
 
    adj.connect("value_changed", lambda func: sharpen(imol, adj.value))
    

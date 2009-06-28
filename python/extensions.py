@@ -110,30 +110,78 @@ if (have_coot_python):
 		lambda imol: fill_partial_residues(imol)))
 
 
+     # old style - not interruptable
+     #     add_simple_coot_menu_menuitem(
+     #       submenu_all_molecule,
+     #       "[Post MR] Fit Protein...",
+     #       lambda func: molecule_chooser_gui("Fit Protein using Rotamer Search",
+     #		lambda imol: (imol_refinement_map() == -1 and
+     #                              add_status_bar_text("oops. Must set a map to fit") or
+     #                              fit_protein(imol))))
+     #
+     #
+     #     add_simple_coot_menu_menuitem(
+     #       submenu_all_molecule,
+     #       "[Post MR] Stepped Refine...",
+     #       lambda func: molecule_chooser_gui("Stepped Refine: ",
+     #		lambda imol: (imol_refinement_map() == -1 and
+     #                              add_status_bar_text("oops. Must set a map to fit") or
+     #                              stepped_refine_protein(imol))))
+     #
+     #     add_simple_coot_menu_menuitem(
+     #       submenu_all_molecule,
+     #       "Refine/Improve Ramachandran Plot...",
+     #       lambda func: molecule_chooser_gui("Refine Protein with Ramachanran Plot Optimization: ",
+     #                lambda imol: (imol_refinement_map() == -1 and
+     #                              add_status_bar_text("oops. Must set a map to fit") or
+     #                              stepped_refine_protein_for_rama(imol))))
+     #                                         
+
+     # BL says:: we cannot do this with lambda functions in python
+     # statements are not allowed! Needed for globals!!
+     def fit_protein_func1(imol):
+       if (imol_refinement_map() == -1):
+         add_status_bar_text("oops. Must set a map to fit")
+       else:
+         global continue_multi_refine
+         continue_multi_refine = True
+         interruptible_fit_protein(imol, fit_protein_fit_function)
+
      add_simple_coot_menu_menuitem(
        submenu_all_molecule,
-       "[Post MR] Fit Protein...",
+       "Fit Protein...",
        lambda func: molecule_chooser_gui("Fit Protein using Rotamer Search",
-		lambda imol: (imol_refinement_map() == -1 and
-                              add_status_bar_text("oops. Must set a map to fit") or
-                              fit_protein(imol))))
+		lambda imol: fit_protein_func1(imol)))
 
+
+     def fit_protein_func2(imol):
+       if (imol_refinement_map() == -1):
+         add_status_bar_text("oops. Must set a map to fit")
+       else:
+         global continue_multi_refine
+         continue_multi_refine = True
+         interruptible_fit_protein(imol, fit_protein_stepped_refine_function)
 
      add_simple_coot_menu_menuitem(
        submenu_all_molecule,
-       "[Post MR] Stepped Refine...",
-       lambda func: molecule_chooser_gui("Stepped Refine: ",
-		lambda imol: (imol_refinement_map() == -1 and
-                              add_status_bar_text("oops. Must set a map to fit") or
-                              stepped_refine_protein(imol))))
+       "Stepped Refine...",
+       lambda func: molecule_chooser_gui("Fit protein with Stepped Refine: ",
+		lambda imol: fit_protein_func2(imol)))
 
+
+     def fit_protein_func3(imol):
+       if (imol_refinement_map() == -1):
+         add_status_bar_text("oops. Must set a map to fit")
+       else:
+         global continue_multi_refine
+         continue_multi_refine = True
+         interruptible_fit_protein(imol, fit_protein_rama_fit_function)
+         
      add_simple_coot_menu_menuitem(
        submenu_all_molecule,
        "Refine/Improve Ramachandran Plot...",
        lambda func: molecule_chooser_gui("Refine Protein with Ramachanran Plot Optimization: ",
-                lambda imol: (imol_refinement_map() == -1 and
-                              add_status_bar_text("oops. Must set a map to fit") or
-                              stepped_refine_protein_for_rama(imol))))
+                lambda imol: fit_protein_func3(imol)))
                                          
 
      #---------------------------------------------------------------------
