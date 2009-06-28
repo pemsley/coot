@@ -11568,3 +11568,4 @@ on_baton_build_set_params_button_clicked
 
 } 
 #endif /* GTK_MAJOR_VERSION */
+

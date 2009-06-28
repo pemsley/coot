@@ -5490,15 +5490,15 @@ void toolbar_multi_refine_button_set_sensitive(const char *button_type, short in
       if (bt == "stop")
 	 w = lookup_widget(g.glarea, "toolbar_multi_refine_stop_button");
       
-      if (w) { 
-	 if (state) { 
+      if (w) {
+	 if (state) {
 	    gtk_widget_set_sensitive(w, TRUE);
-	 } else { 
+	 } else {
 	    gtk_widget_set_sensitive(w, FALSE);
 	 }
-      } 
+      }
    }
-} 
+}
 
 
 
