@@ -4342,6 +4342,24 @@ Tue Jun  9 06:30:49 BST 2009
 
 ----
 
+In tests:
+
+Fix non-printable characters.
+
+Entered testcase - Read small molecule .res file
+
+
+WARNING:: failed to get AFIX handle for  <DA> HIS  N   ,
+WARNING:: failed to get AFIX handle for  <DA> HIS  CA  ,
+WARNING:: failed to get AFIX handle for  <DA> HIS  C   ,
+WARNING:: failed to get AFIX handle for  <DA> HIS  O   ,
+WARNING:: failed to get AFIX handle for  <DA> HIS  CB  ,
+WARNING:: failed to get AFIX handle for  <DA> HIS  CG  ,
+
+
+
+----
+
     NCS Jumping with ligands: pdb2vt4.ent (from EDS) [Beta1 Adrenergic
     Receptor]
 

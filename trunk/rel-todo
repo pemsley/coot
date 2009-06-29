@@ -17,10 +17,14 @@
 
    o multiple residue ranges, glycosylation, covalent bond entities,
      make sure it works with alt confs and residues with TER atoms.  
+
+     Sphere refinement on N-linked NAG glycans work fine (e.g. 1pp4).
+
      OK, sphere refinement on a residue next to a residue with an alt
-     conf fails (E_NOPROGRESS).  Sphere refinement on a resiude with
-     an alt conf ignores the centre residue and refines the residues
-     around it). Hard.
+     conf fails (E_NOPROGRESS).  
+
+     Sphere refinement on a resiude with an alt conf ignores the
+     centre residue and refines the residues around it). Hard.
 
      ::: 10
 
@@ -974,3 +978,8 @@ c-interface clear_up_moving_atoms...
 
 * Done.
 
+   o Move Koala to gcc 4.1.2 20080704 (RH 4.1.2-44) or better.  See
+     Esser build log problems.  ::: 2
+
+
+-----

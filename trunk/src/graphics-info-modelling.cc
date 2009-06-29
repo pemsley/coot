@@ -3162,12 +3162,10 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
 
    std::vector<coot::atom_spec_t> specs_local =
       graphics_info_t::torsion_general_atom_specs;
-
-   // testing.
-   if (0) 
-      if (torsion_general_reverse_flag)
-	 std::reverse(specs_local.begin(),
-		      specs_local.end());
+   
+   if (torsion_general_reverse_flag)
+      std::reverse(specs_local.begin(),
+		   specs_local.end());
 
    short int istat = 1; // failure
    if (! moving_atoms_asc) {
@@ -3177,8 +3175,7 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
       if (residue_p) {
 	 coot::torsion_general tg(residue_p, moving_atoms_asc->mol,
 				  specs_local);
-	 istat = tg.change_by(diff, &torsion_general_tree,
-			      torsion_general_reverse_flag); // fiddle with the tree
+	 istat = tg.change_by(diff, &torsion_general_tree); // fiddle with the tree
       }
    }
 

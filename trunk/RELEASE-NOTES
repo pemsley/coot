@@ -19,6 +19,8 @@ Pre-release 0.6
 
   o FEATURE: LINK bonds are are now represented.
 
+  o FEATURE: Baton build parameters (e.g. "backwards") now have a GUI [Phil Evans] 
+
   o CHANGE: partial charges added to electrostatic surface calculation.
 
   o CHANGE: shift-click and ctrl-click in the file selectors now work
@@ -48,9 +50,6 @@ Pre-release 0.6
 
   o BUG-FIX: The Chain Reordering function in Extensions has been fixed.
 
-  o BUG-FIX: HETATM Waters as TER records are no longer used as real
-    atoms in water validation tests [Herb Klei]
- 
 -----
 
 Release 0.5.2 Uneno
