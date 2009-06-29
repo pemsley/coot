@@ -554,7 +554,7 @@ coot::rotamer::GetResidue(int i_rot) const {
 // 	     << " -> "
 // 	     << rres->GetSeqNum() << rres->GetInsCode()
 // 	     << "\n";
-      
+
    std::string rt = Residue_Type();
    if (rt == "MSE")
       rt = "MET";
@@ -610,10 +610,17 @@ coot::rotamer::GetResidue(int i_rot) const {
 
       // Rotatable bonds -> coord indices
       // 
-      std::vector<coot::atom_name_pair> atom_name_pairs
-	 = atom_name_pair_list(Residue_Type());
-      std::vector<coot::atom_index_pair> atom_index_pairs
-	 = get_atom_index_pairs(atom_name_pairs, ordered_residue_atoms_ppcatom, nResidueAtoms);
+      std::vector<coot::atom_name_pair> atom_name_pairs =
+	 atom_name_pair_list(Residue_Type());
+      std::vector<coot::atom_index_pair> atom_index_pairs =
+	 get_atom_index_pairs(atom_name_pairs, ordered_residue_atoms_ppcatom, nResidueAtoms);
+
+      std::vector<coot::atom_name_quad> atom_name_quads =
+	 atom_name_quad_list(Residue_Type());
+      std::vector<coot::atom_index_quad> atom_index_quads =
+	 get_atom_index_quads(atom_name_quads, ordered_residue_atoms_ppcatom, nResidueAtoms);
+	 
+	 
       
 //       //
 //       for (int i=0; i<atom_name_pairs.size(); i++) { 
@@ -672,7 +679,7 @@ coot::rotamer::GetResidue(int i_rot) const {
 	 
       // test that the atom indices are sensible?
       //
-      for(unsigned int ibond=0; ibond<atom_index_pairs.size(); ibond++) { 
+      for(unsigned int ibond=0; ibond<atom_index_quads.size(); ibond++) { 
 	    
 	 tors = clipper::Util::d2rad(this_rot[ibond]);
 
@@ -709,12 +716,20 @@ coot::rotamer::GetResidue(int i_rot) const {
 // 		      << atom_index_pairs[ibond].index2 << std::endl;
 
 
-// very old style	    
+// old style	    
 // 	    tree.RotateAboutBond(atom_index_pairs[ibond].index1,
 // 				 atom_index_pairs[ibond].index2, tors);
-	    
-	    tree.SetDihedralAngle(atom_index_pairs[ibond].index1,
-				 atom_index_pairs[ibond].index2, tors);
+
+// 2-atom style
+// 	    tree.SetDihedralAngle(atom_index_pairs[ibond].index1,
+//				  atom_index_pairs[ibond].index2, tors);
+
+// 20090213
+	    tree.SetDihedralAngle(atom_index_quads[ibond].index1,
+				  atom_index_quads[ibond].index2,
+				  atom_index_quads[ibond].index3,
+				  atom_index_quads[ibond].index4,
+				  tors);
 
 	    ctors = tree.GetCoord(atom_index_pairs[ibond].index2)->GetChild(0)->GetParentDihedralAngle();
 	    child_0_coord = tree.GetCoord(atom_index_pairs[ibond].index2)->GetChild(0)->GetCoord();
