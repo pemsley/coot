@@ -1717,7 +1717,7 @@ date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
 cd  mmdb-$mmdb_version
 # patch to read long lines in a cif file
-patch -p0 < ../mmdb-mmcif-long-line.patch
+# patch -p0 < ../mmdb-mmcif-long-line.patch, commented out see above
 ./configure $generic_prefix
 $MAKE
 $MAKE install
