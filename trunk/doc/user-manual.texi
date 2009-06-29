@@ -2577,6 +2577,11 @@ scripting function:
 
 @code{(set-add-alt-conf-new-atoms-occupancy 0.4)}
 
+The remaining occupancy of the atoms (after the new occupancy has been
+added) is split amongst the atoms that existed in the residue before
+the split.  It is important therefore that the residues atoms have
+sane occupancies before adding an alternative conformation.
+
 @c % The intermediate atoms interface can be forced using:
 
 @c % @code{(set-show-alt-conf-intermediate-atoms 1)}
