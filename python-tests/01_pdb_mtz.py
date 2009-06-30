@@ -245,6 +245,11 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	set_default_temperature_factor_for_new_atoms(45)
 	add_terminal_residue(imol, "A", 1, "ALA", 1)
 	write_pdb_file(imol, "regression-test-terminal-residue.pdb")
+	
+	# lets modify the test, so that we additionally can test if the added
+	# residue is actually in the pdb file we just wrote.
+	imol_added = read_pdb("regression-test-terminal-residue.pdb")
+
 	# where did that extra residue go?
 	# 
 	# Let's copy a fragment from imol and go to
@@ -254,8 +259,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	#
 	# we shall make sure that we recentre on read pdb (may be overwritten
 	# in preferences!!!
-	new_mol = new_molecule_by_atom_selection(imol, "//A/0")
-	self.failUnless(valid_model_molecule_qm(new_mol))
+	new_mol = new_molecule_by_atom_selection(imol_added, "//A/0")
+	self.failUnless(valid_model_molecule_qm(new_mol), "Added residue is not found in the new pdb file")
 	move_molecule_here(new_mol)
 	rc = rotation_centre()
 	ls = [45.6, 15.8, 11.8]

@@ -951,7 +951,7 @@ if (have_coot_python):
      menuitem2 = gtk.MenuItem("3D Annotations...")
  
      menuitem2.set_submenu(submenu)
-     menu.append(menuitem2)
+     submenu_representation.append(menuitem2)
      menuitem2.show()
 
      add_simple_coot_menu_menuitem(

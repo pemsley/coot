@@ -3425,7 +3425,7 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 	    if (asc_chain_str == mol_chain_str) {
 
 	       // insert that residue!
-	       CResidue *res = 
+	       PCResidue res = 
 		  coot::deep_copy_this_residue(asc_residue, "", 1, udd_atom_index);
 // 	       std::cout  << "DEBUG:: inserting residue in chain "
 // 			  << mol_chain << " residue number "
