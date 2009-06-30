@@ -607,6 +607,7 @@ SCM test_internal_single_scm();
 #endif	/* USE_GUILE */
 #ifdef USE_PYTHON
 PyObject *test_internal_py(); 
+PyObject *test_internal_single_py(); 
 #endif	/* USE_PYTHON */
 #endif	/* __cplusplus */
 
@@ -3241,6 +3242,9 @@ SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, floa
 #ifdef __cplusplus 
 #ifdef USE_GUILE
 SCM get_torsion_scm(int imol, SCM atom_spec_1, SCM atom_spec_2, SCM atom_spec_3, SCM atom_spec_4);
+#endif
+#ifdef USE_PYTHON
+PyObject *get_torsion_py(int imol, PyObject *atom_spec_1, PyObject *atom_spec_2, PyObject *atom_spec_3, PyObject *atom_spec_4);
 #endif
 #endif
 

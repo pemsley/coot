@@ -1369,8 +1369,15 @@ def missing_atoms_gui(imol):
 #
 def zero_occ_atoms_gui(imol):
 
-   interesting_things_gui("Residues with zero occupancy atoms",
-                          atoms_with_zero_occ(imol))
+   atom_ls = atoms_with_zero_occ(imol)
+   if atom_ls:
+      interesting_things_gui("Residues with zero occupancy atoms",
+                             atom_ls)
+   else:
+      s  = "No atoms with zero occupancy found\n"
+      s += "in molecule "
+      s += str(imol)
+      info_dialog(s)
 
 
 # Make an interesting things GUI for residues of molecule number
@@ -1485,8 +1492,10 @@ def toolbar_label_list():
       try:
         label = toolbar_child.get_label()
       except:
-        # try to do something with the gtk build in label/icons
-        # for now just pass
+        # some toolitems we have from GTK2 cannot be accessed here
+        # so we pass it and dont add it to teh list.
+        # nothing we can do about it. Probably good as we dont want to
+        # play with the GTK2 toolitems only with the PYGTK ones.
         pass
       else:
         ls.append(toolbar_child.get_label())
@@ -3657,8 +3666,8 @@ def python_thread_sleeper():
 # this has locked, so that no one else can use it
 global python_thread_return
 python_thread_return = False
-#global python_thread_sleep
-#python_thread_sleep = 20
+global python_thread_sleep
+python_thread_sleep = 20
 
 # function to run a python thread with function using
 # args which is a tuple

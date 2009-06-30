@@ -727,14 +727,18 @@ coot::copy_segid(CResidue *provider, CResidue *receiver) {
       receiver->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
 	 CAtom *at = residue_atoms[iat];
+	 // BL says:: to set the SegID we just strcpy it, we shouldnt fiddle
+	 // with GetIndex().
+	 strcpy(at->segID, s.c_str());
 	 // we want to set just the segid, but there is no function to
 	 // do that (there is for others, e.g. element, atom-name etc.).
-	 at->SetAtomName(at->GetIndex(),
-			 at->serNum,
-			 at->GetAtomName(),
-			 at->altLoc,
-			 s.c_str(),
-			 at->GetElementName());
+	 //	 at->SetAtomName(at->GetIndex(),
+	 //		 at->serNum,
+	 //		 at->GetAtomName(),
+	 //		 at->altLoc,
+	 //		 s.c_str(),
+	 //		 at->GetElementName());
+
       }
    }
 

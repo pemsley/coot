@@ -1718,5 +1718,36 @@ SCM get_torsion_scm(int imol, SCM atom_spec_1, SCM atom_spec_2, SCM atom_spec_3,
    }
    return r;
 } 
-#endif
+#endif /* USE_GUILE */
+
+#ifdef USE_PYTHON
+PyObject *get_torsion_py(int imol, PyObject *atom_spec_1, PyObject *atom_spec_2, PyObject *atom_spec_3, PyObject *atom_spec_4) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t as1 = atom_spec_from_python_expression(atom_spec_1);
+      coot::atom_spec_t as2 = atom_spec_from_python_expression(atom_spec_2);
+      coot::atom_spec_t as3 = atom_spec_from_python_expression(atom_spec_3);
+      coot::atom_spec_t as4 = atom_spec_from_python_expression(atom_spec_4);
+
+      graphics_info_t g;
+      bool suc = g.set_angle_tors(imol, as1, as2, as3, as4);
+      if (suc) { 
+	 double tors = g.get_geometry_torsion();
+	 r = PyFloat_FromDouble(tors);
+      } else {
+	 std::cout << "   WARNING:: (some) atoms not found in molecule #"
+		   << imol << " "
+		   << as1 << " " 
+		   << as2 << " "
+		   << as3 << " "
+		   << as4 << std::endl;
+	    } 
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+} 
+#endif /* USE_PYTHON */
 

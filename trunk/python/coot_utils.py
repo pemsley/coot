@@ -1014,6 +1014,7 @@ def graphics_general_key_press_hook(key):
 #
 # Return a list of residues, each of which has a return value at the
 # start, ie. [return_value, chain_id, res_no, ins_code]
+#
 def residue_matching_criteria(imol, residue_test_func):
 
     chain_list = chain_ids(imol)
@@ -1774,6 +1775,7 @@ add_dipole             = add_dipole_py
 add_dipole_for_residues = add_dipole_for_residues_py
 get_pkgdatadir         = get_pkgdatadir_py
 user_defined_click     = user_defined_click_py
+get_torsion            = get_torsion_py
 
 # graphics_info.h:
 #run_post_manipulation_hook = run_post_manipulation_hook_py

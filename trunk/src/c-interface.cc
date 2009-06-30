@@ -248,6 +248,21 @@ PyObject *test_internal_py() {
 } 
 #endif // USE_PYTHON
 
+#ifdef USE_PYTHON
+PyObject *test_internal_single_py() {
+
+   PyObject *r = Py_True;
+
+#ifdef BUILT_IN_TESTING   
+   int status = test_internal_single();
+   if (!status)
+      r = Py_False;
+#endif   
+   Py_INCREF(r);
+   return r;
+} 
+#endif // USE_PYTHON
+
 
 // Return 0 if not a valid name ( -> #f in scheme)
 // e.g. /a/b/c.pdb "d/e/f.mtz FWT PHWT"
