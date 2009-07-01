@@ -31,6 +31,8 @@
 coot::pucker_analysis_info_t::pucker_analysis_info_t(CResidue *res_p,
 						     std::string altconf_in) {
 
+   assign_base_atom_coords(res_p);
+
    // The atoms are in the following order C1' C2' C3' C4' O4
    //
    altconf = altconf_in; // save for phosphate distance (if needed).
@@ -114,9 +116,118 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(CResidue *res_p,
    }
 }
 
-// Use the 3' phosphate of the following residue to calculate
-// its out of plane distance.  Decide from that if this should
-// have been 3' or 2'.  Check vs the actual puckering.
+
+void
+coot::pucker_analysis_info_t::assign_base_atom_coords(CResidue *residue_p) {
+
+   std::vector<std::string> cytidine_base_names;
+   std::vector<std::string> uracil_base_names;
+   std::vector<std::string> adenine_base_names;
+   std::vector<std::string> guanine_base_names;
+   std::vector<std::string> thymine_base_names;
+   
+   cytidine_base_names.push_back(" N1 ");
+   cytidine_base_names.push_back(" C2 ");
+   cytidine_base_names.push_back(" N3 ");
+   cytidine_base_names.push_back(" C4 ");
+   cytidine_base_names.push_back(" C5 ");
+   cytidine_base_names.push_back(" C6 ");
+   cytidine_base_names.push_back(" O2 ");
+   cytidine_base_names.push_back(" N4 ");
+
+   uracil_base_names.push_back(" N1 ");
+   uracil_base_names.push_back(" C2 ");
+   uracil_base_names.push_back(" N3 ");
+   uracil_base_names.push_back(" C4 ");
+   uracil_base_names.push_back(" C5 ");
+   uracil_base_names.push_back(" C6 ");
+   uracil_base_names.push_back(" O2 ");
+   uracil_base_names.push_back(" O4 ");
+
+   adenine_base_names.push_back(" N9 ");
+   adenine_base_names.push_back(" C8 ");
+   adenine_base_names.push_back(" N7 ");
+   adenine_base_names.push_back(" C5 ");
+   adenine_base_names.push_back(" C4 ");
+   adenine_base_names.push_back(" N1 ");
+   adenine_base_names.push_back(" C2 ");
+   adenine_base_names.push_back(" N3 ");
+   adenine_base_names.push_back(" C6 ");
+   adenine_base_names.push_back(" N6 ");
+
+   guanine_base_names.push_back(" N9 ");
+   guanine_base_names.push_back(" C8 ");
+   guanine_base_names.push_back(" N7 ");
+   guanine_base_names.push_back(" C5 ");
+   guanine_base_names.push_back(" C4 ");
+   guanine_base_names.push_back(" N1 ");
+   guanine_base_names.push_back(" C2 ");
+   guanine_base_names.push_back(" N3 ");
+   guanine_base_names.push_back(" C6 ");
+   guanine_base_names.push_back(" O6 ");
+   guanine_base_names.push_back(" N2 ");
+   
+   thymine_base_names.push_back(" N1 ");
+   thymine_base_names.push_back(" C2 ");
+   thymine_base_names.push_back(" N3 ");
+   thymine_base_names.push_back(" C4 ");
+   thymine_base_names.push_back(" C5 ");
+   thymine_base_names.push_back(" C6 ");
+   thymine_base_names.push_back(" O2 ");
+   thymine_base_names.push_back(" O4 ");
+   thymine_base_names.push_back(" C5M");
+
+
+   PPCAtom residue_atoms = NULL;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   // Fill base_names according to residue type/name.  If base_name is
+   // empty after setting, just fall out (an exception is thrown in
+   // the constructor if there are not enough base name atoms.
+
+   std::vector<std::string> base_names;
+   
+   std::string residue_name(residue_p->GetResName());
+
+   if (residue_name == "Cr")
+      base_names = cytidine_base_names;
+   if (residue_name == "Ur")
+      base_names = uracil_base_names;
+   if (residue_name == "Ar")
+      base_names = adenine_base_names;
+   if (residue_name == "Gr")
+      base_names = guanine_base_names;
+   // modern (3.x) RNA base names
+   if (residue_name == "CYT")
+      base_names = cytidine_base_names;
+   if (residue_name == "URA")
+      base_names = uracil_base_names;
+   if (residue_name == "ADE")
+      base_names = adenine_base_names;
+   if (residue_name == "GUA")
+      base_names = guanine_base_names;
+
+   if (base_names.size() > 0) { 
+      for (int i=0; i<n_residue_atoms; i++) {
+	 std::string atm_name(residue_atoms[i]->name);
+	 std::string alt_name(residue_atoms[i]->altLoc);
+	 for (unsigned int j=0; j<base_names.size(); j++) {
+	    if (base_names[j] == atm_name) {
+	       base_atoms_coords.push_back(clipper::Coord_orth(residue_atoms[i]->x,
+							       residue_atoms[i]->y,
+							       residue_atoms[i]->z));
+	    }
+	 }
+      }
+   }
+} 
+
+
+// Use the 3' phosphate of the following residue to calculate its out
+// of plane distance (the plane being the base plane).  Decide from
+// that if this should have been 3' or 2'.  Check vs the actual
+// puckering.
 //
 // Throw an exception if we can't do this.
 // 
@@ -137,16 +248,28 @@ coot::pucker_analysis_info_t::phosphate_distance(CResidue *following_res) {
 				   residue_atoms[i]->y,
 				   residue_atoms[i]->z);
 	    // lsq_plane_deviation returns pair(out-of-plane-dist, rms_deviation_plane);
-	    std::pair<double, double> oop_plus_dev =
-	       coot::lsq_plane_deviation(ribose_atoms_coords, pt);
-	    oop = oop_plus_dev.first;
-	    found = 1;
-	    break;
+
+	    if (base_atoms_coords.size() < 4) {
+
+	       // construct an error message and throw an exception.
+	       // 
+	       std::string m = "Failed to find base atoms. Found ";
+	       m += coot::util::int_to_string(base_atoms_coords.size());
+	       m += " atoms. ";
+	       throw std::runtime_error(m);
+		  
+	    } else { 
+	       std::pair<double, double> oop_plus_dev =
+		  coot::lsq_plane_deviation(base_atoms_coords, pt);
+	       oop = oop_plus_dev.first;
+	       found = 1;
+	       break;
+	    }
 	 }
       }
    }
    if (found == 0) {
-      throw std::runtime_error("Failed to find following phosphate"); 
+      throw std::runtime_error("Failed to find following phosphate");
    } 
    return oop;
 }

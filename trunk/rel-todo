@@ -1,6 +1,22 @@
 
    23 items
 
+   o *create* a molecule by symmetry, not (just) write it out.
+      Consider a dialog to Write/Create a symmetry molecule.  ::: 2
+
+* Done.  You need to supply a RTop, not a string symmetry operator
+  though.  We should have both, I suppose.
+
+
+   o Tweak the go-to-blob algorithm to much favour blobs at the front.
+     Especially those above the displayed contour level. Does this
+     work with the refinement map?  What happens when the refinement
+     map is not defined?  ::: 1
+
+ 
+   o Fix Pukka Puckers ::: 4
+
+
    o Torsion general is broken? Yes (argh!) ::: 2
 
 
@@ -43,9 +59,6 @@
     ::: 3
 
 
-   o Tweak the go-to-blob algorithm to much favour blobs at the front.
-     Especially those above the displayed contour level.
-
    o Backrub-based auto-fit rotamer search.  Question: how do I test
      this? Synthetic map?  How does it work when we do this for an alt
      conf too?  ::: 10
@@ -60,13 +73,6 @@
   directory.  Call it xxx.html.texi and add @html tags in there.
 
   Actually, there is a better way, use the JED conversion script.
-
-
-   o *create* a molecule by symmetry, not (just) write it out.
-      Consider a dialog to Write/Create a symmetry molecule.  ::: 2
-
-* Done.  You need to supply a RTop, not a string symmetry operator
-  though.  We should have both, I suppose.
 
 
    o Make sure that .coot.py keybindings appear in the keybindings

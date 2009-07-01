@@ -85,14 +85,16 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 		     r = scm_cons(scm_double2num(pi.out_of_plane_distance), r);
 		     r = scm_cons(scm_makfrom0str(pi.puckered_atom().c_str()), r);
 		     r = scm_cons(scm_double2num(phosphate_d), r);
-		     // double dist_crit = 1.2;
+
+		     
+		     // double dist_crit = xxx
 		     // If C2', phosphate oop dist should be > dist_crit
 		     // If C3', phosphate oop dist should be < dist_crit
 		     
 		  }
 		  catch (std::runtime_error phos_mess) {
-		     std::cout << " Failed to find Phosphate for "
-			       << coot::residue_spec_t(following_res) << " " 
+		     std::cout << " Fail in Pucker analysis for "
+			       << coot::residue_spec_t(res_p) << " " 
 			       << phos_mess.what() << std::endl;
 		  } 
 		  
@@ -142,13 +144,13 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
 		     PyList_Append(r, PyString_FromString(pi.puckered_atom().c_str()));
 		     PyList_Append(r, PyFloat_FromDouble(pi.out_of_plane_distance));
 		     PyList_Append(r, PyFloat_FromDouble(pi.plane_distortion));
-		     double dist_crit = 1.2;
+		     // double dist_crit = 1.2;
 		     // If C2', phosphate oop dist should be > dist_crit
 		     // If C3', phosphate oop dist should be < dist_crit
 		     
 		  }
 		  catch (std::runtime_error phos_mess) {
-		     std::cout << " Failed to find Phosphate for "
+		     std::cout << " Failed in pucker analysis for "
 			       << coot::residue_spec_t(following_res) << " " 
 			       << phos_mess.what() << std::endl;
 		  } 

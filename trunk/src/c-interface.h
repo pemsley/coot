@@ -4906,6 +4906,15 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog);
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
+
+/*! \brief return #f if residue not found,  otherwise
+ (list (list phosphate-distance puckered-atom out-of-plane-distance plane-distortion) chain-id resno ins-code)
+
+ (where plane-distortion is for the other 4 atoms in the plane (I think)).
+ 
+ and if there is no following residue, then the phosphate distance
+ cannot be calculated, so the (inner) list is null (not filled).
+*/
 SCM pucker_info_scm(int imol, SCM residue_spec, int do_pukka_pucker_check);
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
