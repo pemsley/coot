@@ -413,11 +413,14 @@ namespace coot {
       enum PUCKERED_ATOM_T { NONE, C1_PRIME, C2_PRIME, C3_PRIME, C4_PRIME, O4_PRIME};
       PUCKERED_ATOM_T puckered_atom_;
       std::string altconf;
+      void assign_base_atom_coords(CResidue *residue_p);
    public:
       float plane_distortion;
       float out_of_plane_distance;
       std::vector<clipper::Coord_orth> ribose_atoms_coords;
-      
+      std::vector<clipper::Coord_orth> base_atoms_coords; // the perpendicular distance of the
+                                                          // following phosphate is to the *BASE*
+                                                          // atoms (stupid boy).
 
       // Throw an exception if it is not possible to generate pucker info
       // 

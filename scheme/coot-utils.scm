@@ -1421,6 +1421,11 @@
 		(cons (list r chain-id res-no ins-code) 
 		      alt-conf-residue-list)))))))))))
 
+;; Return residue specs for all residues in imol (each spec is preceeded by #t)
+;; 
+(define (all-residues imol)
+  (residues-matching-criteria imol (lambda (chain-id resno ins-code serial) #t)))
+
   
 ;; Return a list of all residues that have alt confs: where a residue
 ;; is specified thusly: (list chain-id resno ins-code)
@@ -1911,26 +1916,33 @@
 ;; Function based on Davis et al. (2007) Molprobity: all atom contacts
 ;; and structure validation for proteins and nucleic acids, Nucleic
 ;; Acids Research 35, W375-W383.  
+;; 
+;;    "RNA sugar puckers (C3'endo or C2'endo) is strongly correlated
+;;    to the perpendicular distance between the following (3')
+;;    phosphate and either the plane of the base or the C1'-N1/9
+;;    glycosidic bond vector. [] .. a sugar pucker is very difficult
+;;    to determine directly from the electron density at resolutions
+;;    typical for RNAs."
 ;;
 ;; To paraphrase:
-;; The distance of the plane of the ribose of the following phosphate
+;; The distance of the plane of the base to the following phosphate
 ;; is highly correlated to the pucker of the ribose. 
 ;; 
 ;; An analysis of the structures in RNADB2005 shows that a critical
-;; distance of 1.2A provides a partition function to separate C2' from
+;; distance of 3.3A provides a partition function to separate C2' from
 ;; C3' endo puckering.  Not all ribose follow this rule.  There may be
 ;; some errors in the models comprising RNADB2005. So we check the
 ;; distance of the following phosphate to the plane of the ribose and
 ;; record the riboses that are inconsitent.  We also report puckers
 ;; that are not C2' or C3'.  The puckers are determined by the most
 ;; out-of-plane atom of the ribose (the rms deviation of the 4 atoms
-;; in the plane is calculated, but not used to determinte the
+;; in the plane is calculated, but not used to determine the
 ;; puckering atom).
 ;; 
 (define (pukka-puckers? imol)
 
   (let ((residue-list '())
-	(crit-d 1.2))
+	(crit-d 3.3))
 
     (define (add-questionable r)
       (set! residue-list (cons r residue-list)))
