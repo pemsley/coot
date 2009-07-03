@@ -1563,12 +1563,20 @@ molecule_class_info_t::get_residue(const coot::residue_spec_t &residue_spec) con
    return res;
 }
 
+
+// Can return NULL.
 CResidue *
 molecule_class_info_t::get_following_residue(const coot::residue_spec_t &rs) const {
 
    CResidue *res = NULL;
    if (atom_sel.n_selected_atoms > 0) {
       res = coot::util::get_following_residue(rs, atom_sel.mol);
+      if (res) { 
+	 int new_res_res_number = res->GetSeqNum();
+	 if (new_res_res_number < rs.resno) {
+	    res = NULL;
+	 }
+      }
    }
    return res;
 } 
