@@ -1240,13 +1240,13 @@ static swig_guile_clientdata _swig_guile_clientdatacommand_arg_t = { NULL, SCM_E
 #define SWIGTYPE_p_GdkEventKey swig_types[1]
 #define SWIGTYPE_p_GtkAdjustment swig_types[2]
 #define SWIGTYPE_p_GtkButton swig_types[3]
-#define SWIGTYPE_p_GtkEntry swig_types[4]
-#define SWIGTYPE_p_GtkList swig_types[5]
-#define SWIGTYPE_p_GtkMenuItem swig_types[6]
-#define SWIGTYPE_p_GtkPositionType swig_types[7]
-#define SWIGTYPE_p_GtkSignalFunc swig_types[8]
-#define SWIGTYPE_p_GtkToggleButton swig_types[9]
-#define SWIGTYPE_p_GtkToolButton swig_types[10]
+#define SWIGTYPE_p_GtkCList swig_types[4]
+#define SWIGTYPE_p_GtkEntry swig_types[5]
+#define SWIGTYPE_p_GtkList swig_types[6]
+#define SWIGTYPE_p_GtkMenuItem swig_types[7]
+#define SWIGTYPE_p_GtkPositionType swig_types[8]
+#define SWIGTYPE_p_GtkSignalFunc swig_types[9]
+#define SWIGTYPE_p_GtkToggleButton swig_types[10]
 #define SWIGTYPE_p_GtkToolbar swig_types[11]
 #define SWIGTYPE_p_GtkWidget swig_types[12]
 #define SWIGTYPE_p_clipper__RTop_orth swig_types[13]
@@ -1263,8 +1263,8 @@ static swig_guile_clientdata _swig_guile_clientdatacommand_arg_t = { NULL, SCM_E
 #define SWIGTYPE_p_gchar swig_types[24]
 #define SWIGTYPE_p_gdouble swig_types[25]
 #define SWIGTYPE_p_gpointer swig_types[26]
-#define SWIGTYPE_p_p_GSList swig_types[27]
-#define SWIGTYPE_p_std__pairT_bool_std__pairT_int_coot__atom_spec_t_t_t swig_types[28]
+#define SWIGTYPE_p_std__pairT_bool_std__pairT_int_coot__atom_spec_t_t_t swig_types[27]
+#define SWIGTYPE_p_std__pairT_coot__dipole_int_t swig_types[28]
 #define SWIGTYPE_p_std__pairT_int_int_t swig_types[29]
 #define SWIGTYPE_p_std__pairT_int_std__vectorT_std__string_t_t swig_types[30]
 #define SWIGTYPE_p_std__pairT_short_float_t swig_types[31]
@@ -1288,6 +1288,7 @@ static swig_module_info swig_module = {swig_types, 43, 0, 0, 0, 0};
 
 
 
+#include <cstdio>
 /* #ifdef USE_PYTHON */
 /* #define SWIG_init SWIG_python_init */
 /* #endif */
@@ -1307,6 +1308,10 @@ static swig_module_info swig_module = {swig_types, 43, 0, 0, 0, 0};
 static char *gswig_const_COOT_SCHEME_DIR = "COOT_SCHEME_DIR";
 static int gswig_const_VT_FLAT = 1;
 static int gswig_const_VT_SPHERICAL = 2;
+static int gswig_const_FIND_SECSTRUC_NORMAL = 0;
+static int gswig_const_FIND_SECSTRUC_STRICT = 1;
+static int gswig_const_FIND_SECSTRUC_HI_RES = 2;
+static int gswig_const_FIND_SECSTRUC_LO_RES = 3;
 static int gswig_const_command_arg_t_INT = coot::command_arg_t::INT;
 static int gswig_const_command_arg_t_FLOAT = coot::command_arg_t::FLOAT;
 static int gswig_const_command_arg_t_STRING = coot::command_arg_t::STRING;
@@ -1398,24 +1403,6 @@ _wrap_show_paths_in_display_manager_state ()
   result = (int)show_paths_in_display_manager_state();
   {
     gswig_result = scm_long2num(result);
-  }
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_gslist_for_scroll_in_display_manager_p ()
-{
-#define FUNC_NAME "gslist-for-scroll-in-display-manager-p"
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  GSList **result = 0 ;
-  
-  result = (GSList **)gslist_for_scroll_in_display_manager_p();
-  {
-    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_p_GSList, 0);
   }
   
   return gswig_result;
@@ -1687,9 +1674,9 @@ _wrap_filter_fileselection_filenames_state ()
 
 
 static SCM
-_wrap_on_filename_filter_toggle_button_toggled (SCM s_0, SCM s_1)
+_wrap_on_filename_filter_toggle_button_toggled_gtk1 (SCM s_0, SCM s_1)
 {
-#define FUNC_NAME "on-filename-filter-toggle-button-toggled"
+#define FUNC_NAME "on-filename-filter-toggle-button-toggled-gtk1"
   GtkButton *arg1 = (GtkButton *) 0 ;
   gpointer arg2 ;
   gpointer *argp2 ;
@@ -1703,7 +1690,7 @@ _wrap_on_filename_filter_toggle_button_toggled (SCM s_0, SCM s_1)
     argp2 = (gpointer *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_gpointer, 2, 0);
     arg2 = *argp2;
   }
-  on_filename_filter_toggle_button_toggled(arg1,arg2);
+  on_filename_filter_toggle_button_toggled_gtk1(arg1,arg2);
   gswig_result = SCM_UNSPECIFIED;
   
   
@@ -1752,60 +1739,6 @@ _wrap_add_filename_filter_button (SCM s_0, SCM s_1)
   {
     gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_GtkWidget, 0);
   }
-  
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_add_filechooser_filter_button (SCM s_0, SCM s_1)
-{
-#define FUNC_NAME "add-filechooser-filter-button"
-  GtkWidget *arg1 = (GtkWidget *) 0 ;
-  short arg2 ;
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  
-  {
-    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
-  }
-  {
-    arg2 = (short) scm_num2short(s_1, SCM_ARG1, FUNC_NAME);
-  }
-  add_filechooser_filter_button(arg1,arg2);
-  gswig_result = SCM_UNSPECIFIED;
-  
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_add_filechooser_extra_filter_button (SCM s_0, SCM s_1, SCM s_2)
-{
-#define FUNC_NAME "add-filechooser-extra-filter-button"
-  GtkWidget *arg1 = (GtkWidget *) 0 ;
-  gchar *arg2 = (gchar *) 0 ;
-  gchar *arg3 = (gchar *) 0 ;
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  
-  {
-    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
-  }
-  {
-    arg2 = (gchar *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_gchar, 2, 0);
-  }
-  {
-    arg3 = (gchar *)SWIG_MustGetPtr(s_2, SWIGTYPE_p_gchar, 3, 0);
-  }
-  add_filechooser_extra_filter_button(arg1,(gchar const *)arg2,(gchar const *)arg3);
-  gswig_result = SCM_UNSPECIFIED;
-  
-  
   
   
   return gswig_result;
@@ -1871,6 +1804,36 @@ _wrap_fill_option_menu_with_coordinates_options (SCM s_0, SCM s_1, SCM s_2)
     arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
   }
   fill_option_menu_with_coordinates_options(arg1,arg2,arg3);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_fill_option_menu_with_coordinates_options_unsaved_first (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "fill-option-menu-with-coordinates-options-unsaved-first"
+  GtkWidget *arg1 = (GtkWidget *) 0 ;
+  GtkSignalFunc arg2 ;
+  int arg3 ;
+  GtkSignalFunc *argp2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
+  }
+  {
+    argp2 = (GtkSignalFunc *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_GtkSignalFunc, 2, 0);
+    arg2 = *argp2;
+  }
+  {
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  fill_option_menu_with_coordinates_options_unsaved_first(arg1,arg2,arg3);
   gswig_result = SCM_UNSPECIFIED;
   
   
@@ -2110,80 +2073,6 @@ _wrap_set_filename_for_filechooserselection (SCM s_0, SCM s_1)
 
 
 static SCM
-_wrap_set_file_chooser_selector (SCM s_0)
-{
-#define FUNC_NAME "set-file-chooser-selector"
-  int arg1 ;
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  
-  {
-    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
-  }
-  set_file_chooser_selector(arg1);
-  gswig_result = SCM_UNSPECIFIED;
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_file_chooser_selector_state ()
-{
-#define FUNC_NAME "file-chooser-selector-state"
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  int result;
-  
-  result = (int)file_chooser_selector_state();
-  {
-    gswig_result = scm_long2num(result);
-  }
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_set_file_chooser_overwrite (SCM s_0)
-{
-#define FUNC_NAME "set-file-chooser-overwrite"
-  int arg1 ;
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  
-  {
-    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
-  }
-  set_file_chooser_overwrite(arg1);
-  gswig_result = SCM_UNSPECIFIED;
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_file_chooser_overwrite_state ()
-{
-#define FUNC_NAME "file-chooser-overwrite-state"
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  int result;
-  
-  result = (int)file_chooser_overwrite_state();
-  {
-    gswig_result = scm_long2num(result);
-  }
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
 _wrap_get_positive_float_from_entry (SCM s_0)
 {
 #define FUNC_NAME "get-positive-float-from-entry"
@@ -2207,9 +2096,9 @@ _wrap_get_positive_float_from_entry (SCM s_0)
 
 
 static SCM
-_wrap_handle_filename_filter_gtk2 (SCM s_0)
+_wrap_handle_filename_filter_gtk1 (SCM s_0)
 {
-#define FUNC_NAME "handle-filename-filter-gtk2"
+#define FUNC_NAME "handle-filename-filter-gtk1"
   GtkWidget *arg1 = (GtkWidget *) 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
@@ -2217,7 +2106,7 @@ _wrap_handle_filename_filter_gtk2 (SCM s_0)
   {
     arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
   }
-  handle_filename_filter_gtk2(arg1);
+  handle_filename_filter_gtk1(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
   
@@ -2266,60 +2155,6 @@ _wrap_info_dialog (SCM s_0)
   info_dialog((char const *)arg1);
   gswig_result = SCM_UNSPECIFIED;
   if (must_free1 && arg1) SWIG_free(arg1);
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_main_menubar ()
-{
-#define FUNC_NAME "main-menubar"
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  GtkWidget *result = 0 ;
-  
-  result = (GtkWidget *)main_menubar();
-  {
-    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_GtkWidget, 0);
-  }
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_main_statusbar ()
-{
-#define FUNC_NAME "main-statusbar"
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  GtkWidget *result = 0 ;
-  
-  result = (GtkWidget *)main_statusbar();
-  {
-    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_GtkWidget, 0);
-  }
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_main_toolbar ()
-{
-#define FUNC_NAME "main-toolbar"
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  GtkWidget *result = 0 ;
-  
-  result = (GtkWidget *)main_toolbar();
-  {
-    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_GtkWidget, 0);
-  }
   
   return gswig_result;
 #undef FUNC_NAME
@@ -2655,6 +2490,25 @@ _wrap_is_solvent_chain_p (SCM s_0, SCM s_1)
 
 
 static SCM
+_wrap_sort_chains (SCM s_0)
+{
+#define FUNC_NAME "sort-chains"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  sort_chains(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_copy_molecule (SCM s_0)
 {
 #define FUNC_NAME "copy-molecule"
@@ -2717,6 +2571,40 @@ _wrap_coot_version ()
 
 
 static SCM
+_wrap_coot_sys_build_type_scm ()
+{
+#define FUNC_NAME "coot-sys-build-type-scm"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  result = (SCM)coot_sys_build_type_scm();
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_svn_revision ()
+{
+#define FUNC_NAME "svn-revision"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  result = (int)svn_revision();
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_molecule_name (SCM s_0)
 {
 #define FUNC_NAME "molecule-name"
@@ -2758,24 +2646,6 @@ _wrap_set_molecule_name (SCM s_0, SCM s_1)
   set_molecule_name(arg1,(char const *)arg2);
   gswig_result = SCM_UNSPECIFIED;
   if (must_free2 && arg2) SWIG_free(arg2);
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_main_window ()
-{
-#define FUNC_NAME "main-window"
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  GtkWidget *result = 0 ;
-  
-  result = (GtkWidget *)main_window();
-  {
-    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_GtkWidget, 0);
-  }
   
   return gswig_result;
 #undef FUNC_NAME
@@ -2909,33 +2779,12 @@ _wrap_wrapped_create_coot_references_dialog ()
 #define FUNC_NAME "wrapped-create-coot-references-dialog"
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
+  GtkWidget *result = 0 ;
   
-  wrapped_create_coot_references_dialog();
-  gswig_result = SCM_UNSPECIFIED;
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_fill_references_notebook (SCM s_0, SCM s_1)
-{
-#define FUNC_NAME "fill-references-notebook"
-  GtkToolButton *arg1 = (GtkToolButton *) 0 ;
-  int arg2 ;
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  
+  result = (GtkWidget *)wrapped_create_coot_references_dialog();
   {
-    arg1 = (GtkToolButton *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkToolButton, 1, 0);
+    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_GtkWidget, 0);
   }
-  {
-    arg2 = (int) scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
-  }
-  fill_references_notebook(arg1,arg2);
-  gswig_result = SCM_UNSPECIFIED;
-  
   
   return gswig_result;
 #undef FUNC_NAME
@@ -2951,6 +2800,24 @@ _wrap_first_coords_imol ()
   int result;
   
   result = (int)first_coords_imol();
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_first_unsaved_coords_imol ()
+{
+#define FUNC_NAME "first-unsaved-coords-imol"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  result = (int)first_unsaved_coords_imol();
   {
     gswig_result = scm_long2num(result);
   }
@@ -3304,6 +3171,28 @@ _wrap_read_pdb (SCM s_0)
 
 
 static SCM
+_wrap_assign_hetatms (SCM s_0)
+{
+#define FUNC_NAME "assign-hetatms"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)assign_hetatms(arg1);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_replace_fragment (SCM s_0, SCM s_1, SCM s_2)
 {
 #define FUNC_NAME "replace-fragment"
@@ -3488,6 +3377,22 @@ _wrap_test_internal_scm ()
   SCM result;
   
   result = (SCM)test_internal_scm();
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_test_internal_single_scm ()
+{
+#define FUNC_NAME "test-internal-single-scm"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  result = (SCM)test_internal_single_scm();
   gswig_result=result;
   
   return gswig_result;
@@ -4447,6 +4352,46 @@ _wrap_wrapped_create_model_fit_refine_dialog ()
 
 
 static SCM
+_wrap_update_model_fit_refine_dialog_menu (SCM s_0)
+{
+#define FUNC_NAME "update-model-fit-refine-dialog-menu"
+  GtkWidget *arg1 = (GtkWidget *) 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
+  }
+  update_model_fit_refine_dialog_menu(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_update_model_fit_refine_dialog_buttons (SCM s_0)
+{
+#define FUNC_NAME "update-model-fit-refine-dialog-buttons"
+  GtkWidget *arg1 = (GtkWidget *) 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
+  }
+  update_model_fit_refine_dialog_buttons(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_unset_model_fit_refine_dialog ()
 {
 #define FUNC_NAME "unset-model-fit-refine-dialog"
@@ -4613,6 +4558,24 @@ _wrap_refinement_move_atoms_with_zero_occupancy_state ()
   result = (int)refinement_move_atoms_with_zero_occupancy_state();
   {
     gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_wrapped_create_fast_ss_search_dialog ()
+{
+#define FUNC_NAME "wrapped-create-fast-ss-search-dialog"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  GtkWidget *result = 0 ;
+  
+  result = (GtkWidget *)wrapped_create_fast_ss_search_dialog();
+  {
+    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_GtkWidget, 0);
   }
   
   return gswig_result;
@@ -6621,6 +6584,31 @@ _wrap_is_mtz_file_p (SCM s_0)
     must_free1 = 1;
   }
   result = (int)is_mtz_file_p((char const *)arg1);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free1 && arg1) SWIG_free(arg1);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_cns_file_has_phases_p (SCM s_0)
+{
+#define FUNC_NAME "cns-file-has-phases-p"
+  char *arg1 = (char *) 0 ;
+  int must_free1 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (char *)SWIG_scm2str(s_0);
+    must_free1 = 1;
+  }
+  result = (int)cns_file_has_phases_p((char const *)arg1);
   {
     gswig_result = scm_long2num(result);
   }
@@ -8765,6 +8753,26 @@ _wrap_symmetry_molecule_controller_dialog ()
 
 
 static SCM
+_wrap_set_symmetry_controller_dialog_widget (SCM s_0)
+{
+#define FUNC_NAME "set-symmetry-controller-dialog-widget"
+  GtkWidget *arg1 = (GtkWidget *) 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
+  }
+  set_symmetry_controller_dialog_widget(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_has_unit_cell_state (SCM s_0)
 {
 #define FUNC_NAME "has-unit-cell-state"
@@ -8840,6 +8848,95 @@ _wrap_save_symmetry_coords (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5
 }
 
 
+static SCM
+_wrap_new_molecule_by_symmetry (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6, SCM s_7, SCM s_8, SCM s_9, SCM s_10, SCM s_11, SCM s_12, SCM s_13, SCM s_14, SCM s_15)
+{
+#define FUNC_NAME "new-molecule-by-symmetry"
+  int arg1 ;
+  double arg2 ;
+  double arg3 ;
+  double arg4 ;
+  double arg5 ;
+  double arg6 ;
+  double arg7 ;
+  double arg8 ;
+  double arg9 ;
+  double arg10 ;
+  double arg11 ;
+  double arg12 ;
+  double arg13 ;
+  int arg14 ;
+  int arg15 ;
+  int arg16 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (double) scm_num2dbl(s_1, FUNC_NAME);
+  }
+  {
+    arg3 = (double) scm_num2dbl(s_2, FUNC_NAME);
+  }
+  {
+    arg4 = (double) scm_num2dbl(s_3, FUNC_NAME);
+  }
+  {
+    arg5 = (double) scm_num2dbl(s_4, FUNC_NAME);
+  }
+  {
+    arg6 = (double) scm_num2dbl(s_5, FUNC_NAME);
+  }
+  {
+    arg7 = (double) scm_num2dbl(s_6, FUNC_NAME);
+  }
+  {
+    arg8 = (double) scm_num2dbl(s_7, FUNC_NAME);
+  }
+  {
+    arg9 = (double) scm_num2dbl(s_8, FUNC_NAME);
+  }
+  {
+    arg10 = (double) scm_num2dbl(s_9, FUNC_NAME);
+  }
+  {
+    arg11 = (double) scm_num2dbl(s_10, FUNC_NAME);
+  }
+  {
+    arg12 = (double) scm_num2dbl(s_11, FUNC_NAME);
+  }
+  {
+    arg13 = (double) scm_num2dbl(s_12, FUNC_NAME);
+  }
+  {
+    arg14 = (int) scm_num2int(s_13, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg15 = (int) scm_num2int(s_14, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg16 = (int) scm_num2int(s_15, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)new_molecule_by_symmetry(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_new_molecule_by_symmetry_rest (SCM rest)
+{
+SCM arg[16];
+SWIG_Guile_GetArgs (arg, rest, 16, 0, "new-molecule-by-symmetry");
+return _wrap_new_molecule_by_symmetry(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6], arg[7], arg[8], arg[9], arg[10], arg[11], arg[12], arg[13], arg[14], arg[15]);
+}
 static SCM
 _wrap_setup_save_symmetry_coords ()
 {
@@ -8992,66 +9089,6 @@ _wrap_set_file_for_save_fileselection (SCM s_0)
     arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
   }
   set_file_for_save_fileselection(arg1);
-  gswig_result = SCM_UNSPECIFIED;
-  
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_set_directory_for_filechooser (SCM s_0)
-{
-#define FUNC_NAME "set-directory-for-filechooser"
-  GtkWidget *arg1 = (GtkWidget *) 0 ;
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  
-  {
-    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
-  }
-  set_directory_for_filechooser(arg1);
-  gswig_result = SCM_UNSPECIFIED;
-  
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_save_directory_from_filechooser (SCM s_0)
-{
-#define FUNC_NAME "save-directory-from-filechooser"
-  GtkWidget *arg1 = (GtkWidget *) 0 ;
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  
-  {
-    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
-  }
-  save_directory_from_filechooser((GtkWidget const *)arg1);
-  gswig_result = SCM_UNSPECIFIED;
-  
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
-_wrap_save_directory_for_saving_from_filechooser (SCM s_0)
-{
-#define FUNC_NAME "save-directory-for-saving-from-filechooser"
-  GtkWidget *arg1 = (GtkWidget *) 0 ;
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  
-  {
-    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
-  }
-  save_directory_for_saving_from_filechooser((GtkWidget const *)arg1);
   gswig_result = SCM_UNSPECIFIED;
   
   
@@ -9252,11 +9289,11 @@ _wrap_lookup_file_selection_widgets (SCM s_0, SCM s_1)
 
 
 static SCM
-_wrap_fileselection_sort_button_clicked (SCM s_0, SCM s_1)
+_wrap_fileselection_sort_button_clicked_gtk1 (SCM s_0, SCM s_1)
 {
-#define FUNC_NAME "fileselection-sort-button-clicked"
+#define FUNC_NAME "fileselection-sort-button-clicked-gtk1"
   GtkWidget *arg1 = (GtkWidget *) 0 ;
-  GtkWidget *arg2 = (GtkWidget *) 0 ;
+  GtkCList *arg2 = (GtkCList *) 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
   
@@ -9264,9 +9301,9 @@ _wrap_fileselection_sort_button_clicked (SCM s_0, SCM s_1)
     arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
   }
   {
-    arg2 = (GtkWidget *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_GtkWidget, 2, 0);
+    arg2 = (GtkCList *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_GtkCList, 2, 0);
   }
-  fileselection_sort_button_clicked(arg1,arg2);
+  fileselection_sort_button_clicked_gtk1(arg1,arg2);
   gswig_result = SCM_UNSPECIFIED;
   
   
@@ -10313,6 +10350,21 @@ _wrap_graphics_draw ()
   SWIGUNUSED int gswig_list_p = 0;
   
   graphics_draw();
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_zalman_stereo_mode ()
+{
+#define FUNC_NAME "zalman-stereo-mode"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  zalman_stereo_mode();
   gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
@@ -13075,6 +13127,89 @@ _wrap_on_go_to_atom_residue_list_select_child (SCM s_0, SCM s_1, SCM s_2)
 
 
 static SCM
+_wrap_on_go_to_atom_residue_tree_selection_changed_gtk1 (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "on-go-to-atom-residue-tree-selection-changed-gtk1"
+  GtkList *arg1 = (GtkList *) 0 ;
+  gpointer arg2 ;
+  gpointer *argp2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkList *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkList, 1, 0);
+  }
+  {
+    argp2 = (gpointer *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_gpointer, 2, 0);
+    arg2 = *argp2;
+  }
+  on_go_to_atom_residue_tree_selection_changed_gtk1(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_on_go_to_atom_atom_list_selection_changed_gtk1 (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "on-go-to-atom-atom-list-selection-changed-gtk1"
+  GtkList *arg1 = (GtkList *) 0 ;
+  gpointer arg2 ;
+  gpointer *argp2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkList *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkList, 1, 0);
+  }
+  {
+    argp2 = (gpointer *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_gpointer, 2, 0);
+    arg2 = *argp2;
+  }
+  on_go_to_atom_atom_list_selection_changed_gtk1(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_on_go_to_atom_residue_list_unselect_child (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "on-go-to-atom-residue-list-unselect-child"
+  GtkList *arg1 = (GtkList *) 0 ;
+  GtkWidget *arg2 = (GtkWidget *) 0 ;
+  gpointer arg3 ;
+  gpointer *argp3 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkList *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkList, 1, 0);
+  }
+  {
+    arg2 = (GtkWidget *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_GtkWidget, 2, 0);
+  }
+  {
+    argp3 = (gpointer *)SWIG_MustGetPtr(s_2, SWIGTYPE_p_gpointer, 3, 0);
+    arg3 = *argp3;
+  }
+  on_go_to_atom_residue_list_unselect_child(arg1,arg2,arg3);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_autobuild_ca_off ()
 {
 #define FUNC_NAME "autobuild-ca-off"
@@ -14426,6 +14561,24 @@ _wrap_handle_get_accession_code (SCM s_0)
 
 
 static SCM
+_wrap_wrapped_create_libcheck_monomer_dialog ()
+{
+#define FUNC_NAME "wrapped-create-libcheck-monomer-dialog"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  GtkWidget *result = 0 ;
+  
+  result = (GtkWidget *)wrapped_create_libcheck_monomer_dialog();
+  {
+    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_GtkWidget, 0);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_handle_get_libcheck_monomer_code (SCM s_0)
 {
 #define FUNC_NAME "handle-get-libcheck-monomer-code"
@@ -14588,6 +14741,35 @@ _wrap_run_python_script (SCM s_0)
   }
   run_python_script((char const *)arg1);
   gswig_result = SCM_UNSPECIFIED;
+  if (must_free1 && arg1) SWIG_free(arg1);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_import_python_module (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "import-python-module"
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int must_free1 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (char *)SWIG_scm2str(s_0);
+    must_free1 = 1;
+  }
+  {
+    arg2 = (int) scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)import_python_module((char const *)arg1,arg2);
+  {
+    gswig_result = scm_long2num(result);
+  }
   if (must_free1 && arg1) SWIG_free(arg1);
   
   return gswig_result;
@@ -14901,6 +15083,35 @@ _wrap_refine_residues_scm (SCM s_0, SCM s_1)
   arg2=s_1;
   result = (SCM)refine_residues_scm(arg1,arg2);
   gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_refine_residues_with_alt_conf_scm (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "refine-residues-with-alt-conf-scm"
+  int arg1 ;
+  SCM arg2 ;
+  char *arg3 = (char *) 0 ;
+  int must_free3 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  arg2=s_1;
+  {
+    arg3 = (char *)SWIG_scm2str(s_2);
+    must_free3 = 1;
+  }
+  result = (SCM)refine_residues_with_alt_conf_scm(arg1,arg2,(char const *)arg3);
+  gswig_result=result;
+  if (must_free3 && arg3) SWIG_free(arg3);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -17032,10 +17243,11 @@ _wrap_import_all_refmac_cifs ()
 
 
 static SCM
-_wrap_read_shelx_ins_file (SCM s_0)
+_wrap_read_shelx_ins_file (SCM s_0, SCM s_1)
 {
 #define FUNC_NAME "read-shelx-ins-file"
   char *arg1 = (char *) 0 ;
+  short arg2 ;
   int must_free1 = 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
@@ -17045,7 +17257,10 @@ _wrap_read_shelx_ins_file (SCM s_0)
     arg1 = (char *)SWIG_scm2str(s_0);
     must_free1 = 1;
   }
-  result = (int)read_shelx_ins_file((char const *)arg1);
+  {
+    arg2 = (short) scm_num2short(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)read_shelx_ins_file((char const *)arg1,arg2);
   {
     gswig_result = scm_long2num(result);
   }
@@ -17666,6 +17881,98 @@ _wrap_gln_asn_b_factor_outliers (SCM s_0)
   }
   gln_asn_b_factor_outliers(arg1);
   gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_map_peaks_scm (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "map-peaks-scm"
+  int arg1 ;
+  float arg2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (float) scm_num2dbl(s_1, FUNC_NAME);
+  }
+  result = (SCM)map_peaks_scm(arg1,arg2);
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_map_peaks_near_point_scm (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5)
+{
+#define FUNC_NAME "map-peaks-near-point-scm"
+  int arg1 ;
+  float arg2 ;
+  float arg3 ;
+  float arg4 ;
+  float arg5 ;
+  float arg6 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (float) scm_num2dbl(s_1, FUNC_NAME);
+  }
+  {
+    arg3 = (float) scm_num2dbl(s_2, FUNC_NAME);
+  }
+  {
+    arg4 = (float) scm_num2dbl(s_3, FUNC_NAME);
+  }
+  {
+    arg5 = (float) scm_num2dbl(s_4, FUNC_NAME);
+  }
+  {
+    arg6 = (float) scm_num2dbl(s_5, FUNC_NAME);
+  }
+  result = (SCM)map_peaks_near_point_scm(arg1,arg2,arg3,arg4,arg5,arg6);
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_get_torsion_scm (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4)
+{
+#define FUNC_NAME "get-torsion-scm"
+  int arg1 ;
+  SCM arg2 ;
+  SCM arg3 ;
+  SCM arg4 ;
+  SCM arg5 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  arg2=s_1;
+  arg3=s_2;
+  arg4=s_3;
+  arg5=s_4;
+  result = (SCM)get_torsion_scm(arg1,arg2,arg3,arg4,arg5);
+  gswig_result=result;
   
   return gswig_result;
 #undef FUNC_NAME
@@ -19294,6 +19601,21 @@ _wrap_set_background_colour (SCM s_0, SCM s_1, SCM s_2)
 
 
 static SCM
+_wrap_redraw_background ()
+{
+#define FUNC_NAME "redraw-background"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  redraw_background();
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_background_is_black_p ()
 {
 #define FUNC_NAME "background-is-black-p"
@@ -20028,6 +20350,21 @@ _wrap_renumber_waters (SCM s_0)
     arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
   }
   renumber_waters(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_wrapped_create_find_waters_dialog ()
+{
+#define FUNC_NAME "wrapped-create-find-waters-dialog"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  wrapped_create_find_waters_dialog();
   gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
@@ -21191,15 +21528,17 @@ _wrap_do_pepflip (SCM s_0)
 
 
 static SCM
-_wrap_pepflip (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
+_wrap_pepflip (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4)
 {
 #define FUNC_NAME "pepflip"
   int arg1 ;
   char *arg2 = (char *) 0 ;
   int arg3 ;
   char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
   int must_free2 = 0 ;
   int must_free4 = 0 ;
+  int must_free5 = 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
   
@@ -21217,10 +21556,15 @@ _wrap_pepflip (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
     arg4 = (char *)SWIG_scm2str(s_3);
     must_free4 = 1;
   }
-  pepflip(arg1,(char const *)arg2,arg3,(char const *)arg4);
+  {
+    arg5 = (char *)SWIG_scm2str(s_4);
+    must_free5 = 1;
+  }
+  pepflip(arg1,(char const *)arg2,arg3,(char const *)arg4,(char const *)arg5);
   gswig_result = SCM_UNSPECIFIED;
   if (must_free2 && arg2) SWIG_free(arg2);
   if (must_free4 && arg4) SWIG_free(arg4);
+  if (must_free5 && arg5) SWIG_free(arg5);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -22501,6 +22845,24 @@ _wrap_set_rot_trans_object_type (SCM s_0)
 
 
 static SCM
+_wrap_get_rot_trans_object_type ()
+{
+#define FUNC_NAME "get-rot-trans-object-type"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  result = (int)get_rot_trans_object_type();
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_do_cis_trans_conversion_setup (SCM s_0)
 {
 #define FUNC_NAME "do-cis-trans-conversion-setup"
@@ -23462,6 +23824,53 @@ _wrap_mutate (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4)
 
 
 static SCM
+_wrap_mutate_base (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4)
+{
+#define FUNC_NAME "mutate-base"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  int must_free2 = 0 ;
+  int must_free4 = 0 ;
+  int must_free5 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = (char *)SWIG_scm2str(s_3);
+    must_free4 = 1;
+  }
+  {
+    arg5 = (char *)SWIG_scm2str(s_4);
+    must_free5 = 1;
+  }
+  result = (int)mutate_base(arg1,(char const *)arg2,arg3,(char const *)arg4,(char const *)arg5);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free2 && arg2) SWIG_free(arg2);
+  if (must_free4 && arg4) SWIG_free(arg4);
+  if (must_free5 && arg5) SWIG_free(arg5);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_set_mutate_auto_fit_do_post_refine (SCM s_0)
 {
 #define FUNC_NAME "set-mutate-auto-fit-do-post-refine"
@@ -24238,6 +24647,26 @@ _wrap_set_baton_build_params (SCM s_0, SCM s_1, SCM s_2)
   gswig_result = SCM_UNSPECIFIED;
   if (must_free2 && arg2) SWIG_free(arg2);
   if (must_free3 && arg3) SWIG_free(arg3);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_baton_build_params_from_widget (SCM s_0)
+{
+#define FUNC_NAME "set-baton-build-params-from-widget"
+  GtkWidget *arg1 = (GtkWidget *) 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
+  }
+  set_baton_build_params_from_widget(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
   
   return gswig_result;
 #undef FUNC_NAME
@@ -25170,6 +25599,25 @@ _wrap_add_lsq_match (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s
 
 
 static SCM
+_wrap_add_lsq_atom_pair_scm (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "add-lsq-atom-pair-scm"
+  SCM arg1 ;
+  SCM arg2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  arg1=s_0;
+  arg2=s_1;
+  add_lsq_atom_pair_scm(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_apply_lsq_matches (SCM s_0, SCM s_1)
 {
 #define FUNC_NAME "apply-lsq-matches"
@@ -25550,6 +25998,28 @@ _wrap_povray (SCM s_0)
 
 
 static SCM
+_wrap_renderman (SCM s_0)
+{
+#define FUNC_NAME "renderman"
+  char *arg1 = (char *) 0 ;
+  int must_free1 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (char *)SWIG_scm2str(s_0);
+    must_free1 = 1;
+  }
+  renderman((char const *)arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free1 && arg1) SWIG_free(arg1);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_make_image_raster3d (SCM s_0)
 {
 #define FUNC_NAME "make-image-raster3d"
@@ -25681,6 +26151,25 @@ _wrap_set_raster3d_bone_thickness (SCM s_0)
     arg1 = (float) scm_num2dbl(s_0, FUNC_NAME);
   }
   set_raster3d_bone_thickness(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_raster3d_shadows_enabled (SCM s_0)
+{
+#define FUNC_NAME "set-raster3d-shadows-enabled"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_raster3d_shadows_enabled(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
@@ -26656,6 +27145,66 @@ _wrap_ncs_ghosts_scm (SCM s_0)
 
 
 static SCM
+_wrap_FIND_SECSTRUC_NORMAL(SCM s_0)
+{
+#define FUNC_NAME "FIND-SECSTRUC-NORMAL"
+  SCM gswig_result;
+  
+  {
+    gswig_result = scm_long2num(gswig_const_FIND_SECSTRUC_NORMAL);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_FIND_SECSTRUC_STRICT(SCM s_0)
+{
+#define FUNC_NAME "FIND-SECSTRUC-STRICT"
+  SCM gswig_result;
+  
+  {
+    gswig_result = scm_long2num(gswig_const_FIND_SECSTRUC_STRICT);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_FIND_SECSTRUC_HI_RES(SCM s_0)
+{
+#define FUNC_NAME "FIND-SECSTRUC-HI-RES"
+  SCM gswig_result;
+  
+  {
+    gswig_result = scm_long2num(gswig_const_FIND_SECSTRUC_HI_RES);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_FIND_SECSTRUC_LO_RES(SCM s_0)
+{
+#define FUNC_NAME "FIND-SECSTRUC-LO-RES"
+  SCM gswig_result;
+  
+  {
+    gswig_result = scm_long2num(gswig_const_FIND_SECSTRUC_LO_RES);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_place_helix_here ()
 {
 #define FUNC_NAME "place-helix-here"
@@ -26726,6 +27275,94 @@ _wrap_find_strands ()
   int result;
   
   result = (int)find_strands();
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_find_secondary_structure (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5)
+{
+#define FUNC_NAME "find-secondary-structure"
+  short arg1 ;
+  int arg2 ;
+  int arg3 ;
+  short arg4 ;
+  int arg5 ;
+  int arg6 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (short) scm_num2short(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (int) scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = (short) scm_num2short(s_3, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg5 = (int) scm_num2int(s_4, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg6 = (int) scm_num2int(s_5, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)find_secondary_structure(arg1,arg2,arg3,arg4,arg5,arg6);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_find_secondary_structure_local (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6)
+{
+#define FUNC_NAME "find-secondary-structure-local"
+  short arg1 ;
+  int arg2 ;
+  int arg3 ;
+  short arg4 ;
+  int arg5 ;
+  int arg6 ;
+  float arg7 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (short) scm_num2short(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (int) scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = (short) scm_num2short(s_3, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg5 = (int) scm_num2int(s_4, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg6 = (int) scm_num2int(s_5, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg7 = (float) scm_num2dbl(s_6, FUNC_NAME);
+  }
+  result = (int)find_secondary_structure_local(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   {
     gswig_result = scm_long2num(result);
   }
@@ -27006,6 +27643,58 @@ _wrap_pucker_info_scm (SCM s_0, SCM s_1, SCM s_2)
   }
   result = (SCM)pucker_info_scm(arg1,arg2,arg3);
   gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_watson_crick_pair (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "watson-crick-pair"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  int must_free2 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)watson_crick_pair(arg1,(char const *)arg2,arg3);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free2 && arg2) SWIG_free(arg2);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_setup_base_pairing (SCM s_0)
+{
+#define FUNC_NAME "setup-base-pairing"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  setup_base_pairing(arg1);
+  gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
 #undef FUNC_NAME
@@ -28016,6 +28705,64 @@ _wrap_to_generic_object_add_line (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, S
 
 
 static SCM
+_wrap_to_generic_object_add_dashed_line (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6, SCM s_7, SCM s_8, SCM s_9)
+{
+#define FUNC_NAME "to-generic-object-add-dashed-line"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  float arg4 ;
+  float arg5 ;
+  float arg6 ;
+  float arg7 ;
+  float arg8 ;
+  float arg9 ;
+  float arg10 ;
+  int must_free2 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = (float) scm_num2dbl(s_3, FUNC_NAME);
+  }
+  {
+    arg5 = (float) scm_num2dbl(s_4, FUNC_NAME);
+  }
+  {
+    arg6 = (float) scm_num2dbl(s_5, FUNC_NAME);
+  }
+  {
+    arg7 = (float) scm_num2dbl(s_6, FUNC_NAME);
+  }
+  {
+    arg8 = (float) scm_num2dbl(s_7, FUNC_NAME);
+  }
+  {
+    arg9 = (float) scm_num2dbl(s_8, FUNC_NAME);
+  }
+  {
+    arg10 = (float) scm_num2dbl(s_9, FUNC_NAME);
+  }
+  to_generic_object_add_dashed_line(arg1,(char const *)arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free2 && arg2) SWIG_free(arg2);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_to_generic_object_add_point (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5)
 {
 #define FUNC_NAME "to-generic-object-add-point"
@@ -28260,6 +29007,25 @@ _wrap_is_closed_generic_object_p (SCM s_0)
   {
     gswig_result = scm_long2num(result);
   }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_generic_object_clear (SCM s_0)
+{
+#define FUNC_NAME "generic-object-clear"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  generic_object_clear(arg1);
+  gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
 #undef FUNC_NAME
@@ -28522,6 +29288,123 @@ _wrap_sharpen (SCM s_0, SCM s_1)
     arg2 = (float) scm_num2dbl(s_1, FUNC_NAME);
   }
   sharpen(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_wrapped_create_map_shapening_dialog ()
+{
+#define FUNC_NAME "wrapped-create-map-shapening-dialog"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  GtkWidget *result = 0 ;
+  
+  result = (GtkWidget *)wrapped_create_map_shapening_dialog();
+  {
+    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_GtkWidget, 0);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_map_sharpening_map_select (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "map-sharpening-map-select"
+  GtkWidget *arg1 = (GtkWidget *) 0 ;
+  GtkPositionType arg2 ;
+  GtkPositionType *argp2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
+  }
+  {
+    argp2 = (GtkPositionType *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_GtkPositionType, 2, 0);
+    arg2 = *argp2;
+  }
+  map_sharpening_map_select(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_map_sharpening_value_changed (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "map-sharpening-value-changed"
+  GtkAdjustment *arg1 = (GtkAdjustment *) 0 ;
+  GtkWidget *arg2 = (GtkWidget *) 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkAdjustment *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkAdjustment, 1, 0);
+  }
+  {
+    arg2 = (GtkWidget *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_GtkWidget, 2, 0);
+  }
+  map_sharpening_value_changed(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_fill_option_menu_with_map_options (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "fill-option-menu-with-map-options"
+  GtkWidget *arg1 = (GtkWidget *) 0 ;
+  GtkSignalFunc arg2 ;
+  GtkSignalFunc *argp2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
+  }
+  {
+    argp2 = (GtkSignalFunc *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_GtkSignalFunc, 2, 0);
+    arg2 = *argp2;
+  }
+  result = (int)fill_option_menu_with_map_options(arg1,arg2);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_map_sharpening_scale_limit (SCM s_0)
+{
+#define FUNC_NAME "set-map-sharpening-scale-limit"
+  float arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (float) scm_num2dbl(s_0, FUNC_NAME);
+  }
+  set_map_sharpening_scale_limit(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
@@ -28828,43 +29711,6 @@ _wrap_get_atom_colour_from_mol_no (SCM s_0, SCM s_1)
 
 
 static SCM
-_wrap_add_dipole (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
-{
-#define FUNC_NAME "add-dipole"
-  int arg1 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char *arg4 = (char *) 0 ;
-  int must_free2 = 0 ;
-  int must_free4 = 0 ;
-  SCM gswig_result;
-  SWIGUNUSED int gswig_list_p = 0;
-  
-  {
-    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
-  }
-  {
-    arg2 = (char *)SWIG_scm2str(s_1);
-    must_free2 = 1;
-  }
-  {
-    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
-  }
-  {
-    arg4 = (char *)SWIG_scm2str(s_3);
-    must_free4 = 1;
-  }
-  add_dipole(arg1,(char const *)arg2,arg3,(char const *)arg4);
-  gswig_result = SCM_UNSPECIFIED;
-  if (must_free2 && arg2) SWIG_free(arg2);
-  if (must_free4 && arg4) SWIG_free(arg4);
-  
-  return gswig_result;
-#undef FUNC_NAME
-}
-
-
-static SCM
 _wrap_delete_dipole (SCM s_0, SCM s_1)
 {
 #define FUNC_NAME "delete-dipole"
@@ -28881,6 +29727,66 @@ _wrap_delete_dipole (SCM s_0, SCM s_1)
   }
   delete_dipole(arg1,arg2);
   gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_add_dipole_for_residues_scm (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "add-dipole-for-residues-scm"
+  int arg1 ;
+  SCM arg2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  arg2=s_1;
+  result = (SCM)add_dipole_for_residues_scm(arg1,arg2);
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_add_dipole_scm (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
+{
+#define FUNC_NAME "add-dipole-scm"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  int must_free2 = 0 ;
+  int must_free4 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = (char *)SWIG_scm2str(s_3);
+    must_free4 = 1;
+  }
+  result = (SCM)add_dipole_scm(arg1,(char const *)arg2,arg3,(char const *)arg4);
+  gswig_result=result;
+  if (must_free2 && arg2) SWIG_free(arg2);
+  if (must_free4 && arg4) SWIG_free(arg4);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -29022,6 +29928,157 @@ _wrap_remove_text (SCM s_0)
 
 
 static SCM
+_wrap_pisa_interaction (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "pisa-interaction"
+  int arg1 ;
+  int arg2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (int) scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  pisa_interaction(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_toolbar_multi_refine_stop ()
+{
+#define FUNC_NAME "toolbar-multi-refine-stop"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  toolbar_multi_refine_stop();
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_toolbar_multi_refine_continue ()
+{
+#define FUNC_NAME "toolbar-multi-refine-continue"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  toolbar_multi_refine_continue();
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_toolbar_multi_refine_cancel ()
+{
+#define FUNC_NAME "toolbar-multi-refine-cancel"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  toolbar_multi_refine_cancel();
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_visible_toolbar_multi_refine_stop_button (SCM s_0)
+{
+#define FUNC_NAME "set-visible-toolbar-multi-refine-stop-button"
+  short arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (short) scm_num2short(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_visible_toolbar_multi_refine_stop_button(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_visible_toolbar_multi_refine_continue_button (SCM s_0)
+{
+#define FUNC_NAME "set-visible-toolbar-multi-refine-continue-button"
+  short arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (short) scm_num2short(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_visible_toolbar_multi_refine_continue_button(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_visible_toolbar_multi_refine_cancel_button (SCM s_0)
+{
+#define FUNC_NAME "set-visible-toolbar-multi-refine-cancel-button"
+  short arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (short) scm_num2short(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_visible_toolbar_multi_refine_cancel_button(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_toolbar_multi_refine_button_set_sensitive (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "toolbar-multi-refine-button-set-sensitive"
+  char *arg1 = (char *) 0 ;
+  short arg2 ;
+  int must_free1 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (char *)SWIG_scm2str(s_0);
+    must_free1 = 1;
+  }
+  {
+    arg2 = (short) scm_num2short(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  toolbar_multi_refine_button_set_sensitive((char const *)arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free1 && arg1) SWIG_free(arg1);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_nsv (SCM s_0)
 {
 #define FUNC_NAME "nsv"
@@ -29033,6 +30090,46 @@ _wrap_nsv (SCM s_0)
     arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
   }
   nsv(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_sequence_view_old_style (SCM s_0)
+{
+#define FUNC_NAME "sequence-view-old-style"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  sequence_view_old_style(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_user_defined_click_scm (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "user-defined-click-scm"
+  int arg1 ;
+  SCM arg2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  arg2=s_1;
+  user_defined_click_scm(arg1,arg2);
   gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
@@ -31044,6 +32141,28 @@ _wrap_set_monomer_restraints (SCM s_0, SCM s_1)
 
 
 static SCM
+_wrap_dipole_to_scm (SCM s_0)
+{
+#define FUNC_NAME "dipole-to-scm"
+  std::pair< coot::dipole,int > arg1 ;
+  std::pair< coot::dipole,int > *argp1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    argp1 = (std::pair< coot::dipole,int > *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_std__pairT_coot__dipole_int_t, 1, 0);
+    arg1 = *argp1;
+  }
+  result = (SCM)dipole_to_scm(arg1);
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_safe_scheme_command_test (SCM s_0)
 {
 #define FUNC_NAME "safe-scheme-command-test"
@@ -31139,6 +32258,31 @@ _wrap_run_python_command (SCM s_0)
   }
   result = (SCM)run_python_command((char const *)arg1);
   gswig_result=result;
+  if (must_free1 && arg1) SWIG_free(arg1);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_pyrun_simple_string (SCM s_0)
+{
+#define FUNC_NAME "pyrun-simple-string"
+  char *arg1 = (char *) 0 ;
+  int must_free1 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (char *)SWIG_scm2str(s_0);
+    must_free1 = 1;
+  }
+  result = (int)pyrun_simple_string((char const *)arg1);
+  {
+    gswig_result = scm_long2num(result);
+  }
   if (must_free1 && arg1) SWIG_free(arg1);
   
   return gswig_result;
@@ -32106,13 +33250,13 @@ static swig_type_info _swigt__p_GdkEventButton = {"_p_GdkEventButton", "GdkEvent
 static swig_type_info _swigt__p_GdkEventKey = {"_p_GdkEventKey", "GdkEventKey *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkAdjustment = {"_p_GtkAdjustment", "GtkAdjustment *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkButton = {"_p_GtkButton", "GtkButton *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_GtkCList = {"_p_GtkCList", "GtkCList *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkEntry = {"_p_GtkEntry", "GtkEntry *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkList = {"_p_GtkList", "GtkList *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkMenuItem = {"_p_GtkMenuItem", "GtkMenuItem *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkPositionType = {"_p_GtkPositionType", "GtkPositionType *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkSignalFunc = {"_p_GtkSignalFunc", "GtkSignalFunc *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkToggleButton = {"_p_GtkToggleButton", "GtkToggleButton *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_GtkToolButton = {"_p_GtkToolButton", "GtkToolButton *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkToolbar = {"_p_GtkToolbar", "GtkToolbar *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkWidget = {"_p_GtkWidget", "GtkWidget *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_clipper__RTop_orth = {"_p_clipper__RTop_orth", "clipper::RTop_orth *", 0, 0, (void*)0, 0};
@@ -32129,8 +33273,8 @@ static swig_type_info _swigt__p_gboolean = {"_p_gboolean", "gboolean *", 0, 0, (
 static swig_type_info _swigt__p_gchar = {"_p_gchar", "gchar *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_gdouble = {"_p_gdouble", "gdouble *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_gpointer = {"_p_gpointer", "gpointer *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_p_GSList = {"_p_p_GSList", "GSList **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__pairT_bool_std__pairT_int_coot__atom_spec_t_t_t = {"_p_std__pairT_bool_std__pairT_int_coot__atom_spec_t_t_t", "std::pair< bool,std::pair< int,coot::atom_spec_t > > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__pairT_coot__dipole_int_t = {"_p_std__pairT_coot__dipole_int_t", "std::pair< coot::dipole,int > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__pairT_int_int_t = {"_p_std__pairT_int_int_t", "std::pair< int,int > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__pairT_int_std__vectorT_std__string_t_t = {"_p_std__pairT_int_std__vectorT_std__string_t_t", "std::pair< int,std::vector< std::string > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__pairT_short_float_t = {"_p_std__pairT_short_float_t", "std::pair< short,float > *", 0, 0, (void*)0, 0};
@@ -32151,13 +33295,13 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_GdkEventKey,
   &_swigt__p_GtkAdjustment,
   &_swigt__p_GtkButton,
+  &_swigt__p_GtkCList,
   &_swigt__p_GtkEntry,
   &_swigt__p_GtkList,
   &_swigt__p_GtkMenuItem,
   &_swigt__p_GtkPositionType,
   &_swigt__p_GtkSignalFunc,
   &_swigt__p_GtkToggleButton,
-  &_swigt__p_GtkToolButton,
   &_swigt__p_GtkToolbar,
   &_swigt__p_GtkWidget,
   &_swigt__p_clipper__RTop_orth,
@@ -32174,8 +33318,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_gchar,
   &_swigt__p_gdouble,
   &_swigt__p_gpointer,
-  &_swigt__p_p_GSList,
   &_swigt__p_std__pairT_bool_std__pairT_int_coot__atom_spec_t_t_t,
+  &_swigt__p_std__pairT_coot__dipole_int_t,
   &_swigt__p_std__pairT_int_int_t,
   &_swigt__p_std__pairT_int_std__vectorT_std__string_t_t,
   &_swigt__p_std__pairT_short_float_t,
@@ -32196,13 +33340,13 @@ static swig_cast_info _swigc__p_GdkEventButton[] = {  {&_swigt__p_GdkEventButton
 static swig_cast_info _swigc__p_GdkEventKey[] = {  {&_swigt__p_GdkEventKey, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkAdjustment[] = {  {&_swigt__p_GtkAdjustment, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkButton[] = {  {&_swigt__p_GtkButton, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_GtkCList[] = {  {&_swigt__p_GtkCList, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkEntry[] = {  {&_swigt__p_GtkEntry, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkList[] = {  {&_swigt__p_GtkList, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkMenuItem[] = {  {&_swigt__p_GtkMenuItem, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkPositionType[] = {  {&_swigt__p_GtkPositionType, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkSignalFunc[] = {  {&_swigt__p_GtkSignalFunc, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkToggleButton[] = {  {&_swigt__p_GtkToggleButton, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_GtkToolButton[] = {  {&_swigt__p_GtkToolButton, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkToolbar[] = {  {&_swigt__p_GtkToolbar, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkWidget[] = {  {&_swigt__p_GtkWidget, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_clipper__RTop_orth[] = {  {&_swigt__p_clipper__RTop_orth, 0, 0, 0},{0, 0, 0, 0}};
@@ -32219,8 +33363,8 @@ static swig_cast_info _swigc__p_gboolean[] = {  {&_swigt__p_gboolean, 0, 0, 0},{
 static swig_cast_info _swigc__p_gchar[] = {  {&_swigt__p_gchar, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_gdouble[] = {  {&_swigt__p_gdouble, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_gpointer[] = {  {&_swigt__p_gpointer, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_p_GSList[] = {  {&_swigt__p_p_GSList, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__pairT_bool_std__pairT_int_coot__atom_spec_t_t_t[] = {  {&_swigt__p_std__pairT_bool_std__pairT_int_coot__atom_spec_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__pairT_coot__dipole_int_t[] = {  {&_swigt__p_std__pairT_coot__dipole_int_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__pairT_int_int_t[] = {  {&_swigt__p_std__pairT_int_int_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__pairT_int_std__vectorT_std__string_t_t[] = {  {&_swigt__p_std__pairT_int_std__vectorT_std__string_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__pairT_short_float_t[] = {  {&_swigt__p_std__pairT_short_float_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -32241,13 +33385,13 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_GdkEventKey,
   _swigc__p_GtkAdjustment,
   _swigc__p_GtkButton,
+  _swigc__p_GtkCList,
   _swigc__p_GtkEntry,
   _swigc__p_GtkList,
   _swigc__p_GtkMenuItem,
   _swigc__p_GtkPositionType,
   _swigc__p_GtkSignalFunc,
   _swigc__p_GtkToggleButton,
-  _swigc__p_GtkToolButton,
   _swigc__p_GtkToolbar,
   _swigc__p_GtkWidget,
   _swigc__p_clipper__RTop_orth,
@@ -32264,8 +33408,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_gchar,
   _swigc__p_gdouble,
   _swigc__p_gpointer,
-  _swigc__p_p_GSList,
   _swigc__p_std__pairT_bool_std__pairT_int_coot__atom_spec_t_t_t,
+  _swigc__p_std__pairT_coot__dipole_int_t,
   _swigc__p_std__pairT_int_int_t,
   _swigc__p_std__pairT_int_std__vectorT_std__string_t_t,
   _swigc__p_std__pairT_short_float_t,
@@ -32534,7 +33678,6 @@ SWIG_init(void)
   scm_c_define_gsubr("make-directory-maybe", 1, 0, 0, (swig_guile_proc) _wrap_make_directory_maybe);
   scm_c_define_gsubr("set-show-paths-in-display-manager", 1, 0, 0, (swig_guile_proc) _wrap_set_show_paths_in_display_manager);
   scm_c_define_gsubr("show-paths-in-display-manager-state", 0, 0, 0, (swig_guile_proc) _wrap_show_paths_in_display_manager_state);
-  scm_c_define_gsubr("gslist-for-scroll-in-display-manager-p", 0, 0, 0, (swig_guile_proc) _wrap_gslist_for_scroll_in_display_manager_p);
   scm_c_define_gsubr("add-coordinates-glob-extension", 1, 0, 0, (swig_guile_proc) _wrap_add_coordinates_glob_extension);
   scm_c_define_gsubr("add-data-glob-extension", 1, 0, 0, (swig_guile_proc) _wrap_add_data_glob_extension);
   scm_c_define_gsubr("add-dictionary-glob-extension", 1, 0, 0, (swig_guile_proc) _wrap_add_dictionary_glob_extension);
@@ -32548,13 +33691,12 @@ SWIG_init(void)
   scm_c_define_gsubr("set-filter-fileselection-filenames", 1, 0, 0, (swig_guile_proc) _wrap_set_filter_fileselection_filenames);
   scm_c_define_gsubr("set-file-selection-dialog-size", 1, 0, 0, (swig_guile_proc) _wrap_set_file_selection_dialog_size);
   scm_c_define_gsubr("filter-fileselection-filenames-state", 0, 0, 0, (swig_guile_proc) _wrap_filter_fileselection_filenames_state);
-  scm_c_define_gsubr("on-filename-filter-toggle-button-toggled", 2, 0, 0, (swig_guile_proc) _wrap_on_filename_filter_toggle_button_toggled);
+  scm_c_define_gsubr("on-filename-filter-toggle-button-toggled-gtk1", 2, 0, 0, (swig_guile_proc) _wrap_on_filename_filter_toggle_button_toggled_gtk1);
   scm_c_define_gsubr("add-filename-filter", 1, 0, 0, (swig_guile_proc) _wrap_add_filename_filter);
   scm_c_define_gsubr("add-filename-filter-button", 2, 0, 0, (swig_guile_proc) _wrap_add_filename_filter_button);
-  scm_c_define_gsubr("add-filechooser-filter-button", 2, 0, 0, (swig_guile_proc) _wrap_add_filechooser_filter_button);
-  scm_c_define_gsubr("add-filechooser-extra-filter-button", 3, 0, 0, (swig_guile_proc) _wrap_add_filechooser_extra_filter_button);
   scm_c_define_gsubr("on-filename-filter-key-press-event", 3, 0, 0, (swig_guile_proc) _wrap_on_filename_filter_key_press_event);
   scm_c_define_gsubr("fill-option-menu-with-coordinates-options", 3, 0, 0, (swig_guile_proc) _wrap_fill_option_menu_with_coordinates_options);
+  scm_c_define_gsubr("fill-option-menu-with-coordinates-options-unsaved-first", 3, 0, 0, (swig_guile_proc) _wrap_fill_option_menu_with_coordinates_options_unsaved_first);
   scm_c_define_gsubr("coot-file-chooser", 0, 0, 0, (swig_guile_proc) _wrap_coot_file_chooser);
   scm_c_define_gsubr("coot-dataset-chooser", 0, 0, 0, (swig_guile_proc) _wrap_coot_dataset_chooser);
   scm_c_define_gsubr("coot-map-name-chooser", 0, 0, 0, (swig_guile_proc) _wrap_coot_map_name_chooser);
@@ -32567,17 +33709,10 @@ SWIG_init(void)
   scm_c_define_gsubr("set-directory-for-coot-file-chooser", 1, 0, 0, (swig_guile_proc) _wrap_set_directory_for_coot_file_chooser);
   scm_c_define_gsubr("coot-file-chooser-file-name", 1, 0, 0, (swig_guile_proc) _wrap_coot_file_chooser_file_name);
   scm_c_define_gsubr("set-filename-for-filechooserselection", 2, 0, 0, (swig_guile_proc) _wrap_set_filename_for_filechooserselection);
-  scm_c_define_gsubr("set-file-chooser-selector", 1, 0, 0, (swig_guile_proc) _wrap_set_file_chooser_selector);
-  scm_c_define_gsubr("file-chooser-selector-state", 0, 0, 0, (swig_guile_proc) _wrap_file_chooser_selector_state);
-  scm_c_define_gsubr("set-file-chooser-overwrite", 1, 0, 0, (swig_guile_proc) _wrap_set_file_chooser_overwrite);
-  scm_c_define_gsubr("file-chooser-overwrite-state", 0, 0, 0, (swig_guile_proc) _wrap_file_chooser_overwrite_state);
   scm_c_define_gsubr("get-positive-float-from-entry", 1, 0, 0, (swig_guile_proc) _wrap_get_positive_float_from_entry);
-  scm_c_define_gsubr("handle-filename-filter-gtk2", 1, 0, 0, (swig_guile_proc) _wrap_handle_filename_filter_gtk2);
+  scm_c_define_gsubr("handle-filename-filter-gtk1", 1, 0, 0, (swig_guile_proc) _wrap_handle_filename_filter_gtk1);
   scm_c_define_gsubr("set-transient-and-position", 2, 0, 0, (swig_guile_proc) _wrap_set_transient_and_position);
   scm_c_define_gsubr("info-dialog", 1, 0, 0, (swig_guile_proc) _wrap_info_dialog);
-  scm_c_define_gsubr("main-menubar", 0, 0, 0, (swig_guile_proc) _wrap_main_menubar);
-  scm_c_define_gsubr("main-statusbar", 0, 0, 0, (swig_guile_proc) _wrap_main_statusbar);
-  scm_c_define_gsubr("main-toolbar", 0, 0, 0, (swig_guile_proc) _wrap_main_toolbar);
   scm_c_define_gsubr("manage-column-selector", 1, 0, 0, (swig_guile_proc) _wrap_manage_column_selector);
   scm_c_define_gsubr("manage-refmac-column-selection", 1, 0, 0, (swig_guile_proc) _wrap_manage_refmac_column_selection);
   scm_c_define_gsubr("fill-f-optionmenu-with-expert-options", 1, 0, 0, (swig_guile_proc) _wrap_fill_f_optionmenu_with_expert_options);
@@ -32591,12 +33726,14 @@ SWIG_init(void)
   scm_c_define_gsubr("chain-id", 2, 0, 0, (swig_guile_proc) _wrap_chain_id);
   scm_c_define_gsubr("n-chains", 1, 0, 0, (swig_guile_proc) _wrap_n_chains);
   scm_c_define_gsubr("is-solvent-chain-p", 2, 0, 0, (swig_guile_proc) _wrap_is_solvent_chain_p);
+  scm_c_define_gsubr("sort-chains", 1, 0, 0, (swig_guile_proc) _wrap_sort_chains);
   scm_c_define_gsubr("copy-molecule", 1, 0, 0, (swig_guile_proc) _wrap_copy_molecule);
   scm_c_define_gsubr("exchange-chain-ids-for-seg-ids", 1, 0, 0, (swig_guile_proc) _wrap_exchange_chain_ids_for_seg_ids);
   scm_c_define_gsubr("coot-version", 0, 0, 0, (swig_guile_proc) _wrap_coot_version);
+  scm_c_define_gsubr("coot-sys-build-type-scm", 0, 0, 0, (swig_guile_proc) _wrap_coot_sys_build_type_scm);
+  scm_c_define_gsubr("svn-revision", 0, 0, 0, (swig_guile_proc) _wrap_svn_revision);
   scm_c_define_gsubr("molecule-name", 1, 0, 0, (swig_guile_proc) _wrap_molecule_name);
   scm_c_define_gsubr("set-molecule-name", 2, 0, 0, (swig_guile_proc) _wrap_set_molecule_name);
-  scm_c_define_gsubr("main-window", 0, 0, 0, (swig_guile_proc) _wrap_main_window);
   scm_c_define_gsubr("coot-checked-exit", 1, 0, 0, (swig_guile_proc) _wrap_coot_checked_exit);
   scm_c_define_gsubr("coot-real-exit", 1, 0, 0, (swig_guile_proc) _wrap_coot_real_exit);
   scm_c_define_gsubr("coot-clear-backup-or-real-exit", 1, 0, 0, (swig_guile_proc) _wrap_coot_clear_backup_or_real_exit);
@@ -32604,8 +33741,8 @@ SWIG_init(void)
   scm_c_define_gsubr("fill-about-window", 1, 0, 0, (swig_guile_proc) _wrap_fill_about_window);
   scm_c_define_gsubr("add-coot-references-button", 1, 0, 0, (swig_guile_proc) _wrap_add_coot_references_button);
   scm_c_define_gsubr("wrapped-create-coot-references-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_coot_references_dialog);
-  scm_c_define_gsubr("fill-references-notebook", 2, 0, 0, (swig_guile_proc) _wrap_fill_references_notebook);
   scm_c_define_gsubr("first-coords-imol", 0, 0, 0, (swig_guile_proc) _wrap_first_coords_imol);
+  scm_c_define_gsubr("first-unsaved-coords-imol", 0, 0, 0, (swig_guile_proc) _wrap_first_unsaved_coords_imol);
   scm_c_define_gsubr("set-do-anti-aliasing", 1, 0, 0, (swig_guile_proc) _wrap_set_do_anti_aliasing);
   scm_c_define_gsubr("do-anti-aliasing-state", 0, 0, 0, (swig_guile_proc) _wrap_do_anti_aliasing_state);
   scm_c_define_gsubr("set-do-GL-lighting", 1, 0, 0, (swig_guile_proc) _wrap_set_do_GL_lighting);
@@ -32623,6 +33760,7 @@ SWIG_init(void)
   scm_c_define_gsubr("handle-read-draw-molecule-with-recentre", 2, 0, 0, (swig_guile_proc) _wrap_handle_read_draw_molecule_with_recentre);
   scm_c_define_gsubr("handle-read-draw-molecule-and-move-molecule-here", 1, 0, 0, (swig_guile_proc) _wrap_handle_read_draw_molecule_and_move_molecule_here);
   scm_c_define_gsubr("read-pdb", 1, 0, 0, (swig_guile_proc) _wrap_read_pdb);
+  scm_c_define_gsubr("assign-hetatms", 1, 0, 0, (swig_guile_proc) _wrap_assign_hetatms);
   scm_c_define_gsubr("replace-fragment", 3, 0, 0, (swig_guile_proc) _wrap_replace_fragment);
   scm_c_define_gsubr("clear-and-update-model-molecule-from-file", 2, 0, 0, (swig_guile_proc) _wrap_clear_and_update_model_molecule_from_file);
   scm_c_define_gsubr("screendump-image", 1, 0, 0, (swig_guile_proc) _wrap_screendump_image);
@@ -32631,6 +33769,7 @@ SWIG_init(void)
   scm_c_define_gsubr("add-recentre-on-read-pdb-checkbutton", 1, 0, 0, (swig_guile_proc) _wrap_add_recentre_on_read_pdb_checkbutton);
   scm_c_define_gsubr("on-recentre-on-read-pdb-toggle-button-toggled", 2, 0, 0, (swig_guile_proc) _wrap_on_recentre_on_read_pdb_toggle_button_toggled);
   scm_c_define_gsubr("test-internal-scm", 0, 0, 0, (swig_guile_proc) _wrap_test_internal_scm);
+  scm_c_define_gsubr("test-internal-single-scm", 0, 0, 0, (swig_guile_proc) _wrap_test_internal_single_scm);
   scm_c_define_gsubr("set-scroll-by-wheel-mouse", 1, 0, 0, (swig_guile_proc) _wrap_set_scroll_by_wheel_mouse);
   scm_c_define_gsubr("scroll-by-wheel-mouse-state", 0, 0, 0, (swig_guile_proc) _wrap_scroll_by_wheel_mouse_state);
   scm_c_define_gsubr("set-default-initial-contour-level-for-map", 1, 0, 0, (swig_guile_proc) _wrap_set_default_initial_contour_level_for_map);
@@ -32680,6 +33819,8 @@ SWIG_init(void)
   scm_c_define_gsubr("set-pick-cursor-index", 1, 0, 0, (swig_guile_proc) _wrap_set_pick_cursor_index);
   scm_c_define_gsubr("post-model-fit-refine-dialog", 0, 0, 0, (swig_guile_proc) _wrap_post_model_fit_refine_dialog);
   scm_c_define_gsubr("wrapped-create-model-fit-refine-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_model_fit_refine_dialog);
+  scm_c_define_gsubr("update-model-fit-refine-dialog-menu", 1, 0, 0, (swig_guile_proc) _wrap_update_model_fit_refine_dialog_menu);
+  scm_c_define_gsubr("update-model-fit-refine-dialog-buttons", 1, 0, 0, (swig_guile_proc) _wrap_update_model_fit_refine_dialog_buttons);
   scm_c_define_gsubr("unset-model-fit-refine-dialog", 0, 0, 0, (swig_guile_proc) _wrap_unset_model_fit_refine_dialog);
   scm_c_define_gsubr("unset-refine-params-dialog", 0, 0, 0, (swig_guile_proc) _wrap_unset_refine_params_dialog);
   scm_c_define_gsubr("show-select-map-dialog", 0, 0, 0, (swig_guile_proc) _wrap_show_select_map_dialog);
@@ -32690,6 +33831,7 @@ SWIG_init(void)
   scm_c_define_gsubr("post-other-modelling-tools-dialog", 0, 0, 0, (swig_guile_proc) _wrap_post_other_modelling_tools_dialog);
   scm_c_define_gsubr("set-refinement-move-atoms-with-zero-occupancy", 1, 0, 0, (swig_guile_proc) _wrap_set_refinement_move_atoms_with_zero_occupancy);
   scm_c_define_gsubr("refinement-move-atoms-with-zero-occupancy-state", 0, 0, 0, (swig_guile_proc) _wrap_refinement_move_atoms_with_zero_occupancy_state);
+  scm_c_define_gsubr("wrapped-create-fast-ss-search-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_fast_ss_search_dialog);
   scm_c_define_gsubr("make-backup", 1, 0, 0, (swig_guile_proc) _wrap_make_backup);
   scm_c_define_gsubr("turn-off-backup", 1, 0, 0, (swig_guile_proc) _wrap_turn_off_backup);
   scm_c_define_gsubr("turn-on-backup", 1, 0, 0, (swig_guile_proc) _wrap_turn_on_backup);
@@ -32770,6 +33912,7 @@ SWIG_init(void)
   scm_c_define_gsubr("valid-labels", 5, 0, 0, (swig_guile_proc) _wrap_valid_labels);
   scm_c_define_gsubr("mtz-file-has-phases-p", 1, 0, 0, (swig_guile_proc) _wrap_mtz_file_has_phases_p);
   scm_c_define_gsubr("is-mtz-file-p", 1, 0, 0, (swig_guile_proc) _wrap_is_mtz_file_p);
+  scm_c_define_gsubr("cns-file-has-phases-p", 1, 0, 0, (swig_guile_proc) _wrap_cns_file_has_phases_p);
   scm_c_define_gsubr("auto-read-make-and-draw-maps", 1, 0, 0, (swig_guile_proc) _wrap_auto_read_make_and_draw_maps);
   scm_c_define_gsubr("set-auto-read-do-difference-map-too", 1, 0, 0, (swig_guile_proc) _wrap_set_auto_read_do_difference_map_too);
   scm_c_define_gsubr("auto-read-do-difference-map-too-state", 0, 0, 0, (swig_guile_proc) _wrap_auto_read_do_difference_map_too_state);
@@ -32867,8 +34010,10 @@ SWIG_init(void)
   scm_c_define_gsubr("wrapped-create-show-symmetry-window", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_show_symmetry_window);
   scm_c_define_gsubr("symmetry-colour-adjustment-changed", 2, 0, 0, (swig_guile_proc) _wrap_symmetry_colour_adjustment_changed);
   scm_c_define_gsubr("symmetry-molecule-controller-dialog", 0, 0, 0, (swig_guile_proc) _wrap_symmetry_molecule_controller_dialog);
+  scm_c_define_gsubr("set-symmetry-controller-dialog-widget", 1, 0, 0, (swig_guile_proc) _wrap_set_symmetry_controller_dialog_widget);
   scm_c_define_gsubr("has-unit-cell-state", 1, 0, 0, (swig_guile_proc) _wrap_has_unit_cell_state);
   scm_c_define_gsubr("save-symmetry-coords", 9, 0, 0, (swig_guile_proc) _wrap_save_symmetry_coords);
+  scm_c_define_gsubr("new-molecule-by-symmetry", 0, 0, 1, (swig_guile_proc) _wrap_new_molecule_by_symmetry_rest);
   scm_c_define_gsubr("setup-save-symmetry-coords", 0, 0, 0, (swig_guile_proc) _wrap_setup_save_symmetry_coords);
   scm_c_define_gsubr("save-symmetry-coords-from-fileselection", 1, 0, 0, (swig_guile_proc) _wrap_save_symmetry_coords_from_fileselection);
   scm_c_define_gsubr("set-space-group", 2, 0, 0, (swig_guile_proc) _wrap_set_space_group);
@@ -32877,9 +34022,6 @@ SWIG_init(void)
   scm_c_define_gsubr("save-directory-from-fileselection", 1, 0, 0, (swig_guile_proc) _wrap_save_directory_from_fileselection);
   scm_c_define_gsubr("save-directory-for-saving-from-fileselection", 1, 0, 0, (swig_guile_proc) _wrap_save_directory_for_saving_from_fileselection);
   scm_c_define_gsubr("set-file-for-save-fileselection", 1, 0, 0, (swig_guile_proc) _wrap_set_file_for_save_fileselection);
-  scm_c_define_gsubr("set-directory-for-filechooser", 1, 0, 0, (swig_guile_proc) _wrap_set_directory_for_filechooser);
-  scm_c_define_gsubr("save-directory-from-filechooser", 1, 0, 0, (swig_guile_proc) _wrap_save_directory_from_filechooser);
-  scm_c_define_gsubr("save-directory-for-saving-from-filechooser", 1, 0, 0, (swig_guile_proc) _wrap_save_directory_for_saving_from_filechooser);
   scm_c_define_gsubr("add-sort-button-fileselection", 1, 0, 0, (swig_guile_proc) _wrap_add_sort_button_fileselection);
   scm_c_define_gsubr("add-ccp4i-project-optionmenu", 2, 0, 0, (swig_guile_proc) _wrap_add_ccp4i_project_optionmenu);
   scm_c_define_gsubr("add-ccp4i-projects-to-optionmenu", 3, 0, 0, (swig_guile_proc) _wrap_add_ccp4i_projects_to_optionmenu);
@@ -32888,7 +34030,7 @@ SWIG_init(void)
   scm_c_define_gsubr("run-refmac-ccp4i-option-menu-signal-func", 2, 0, 0, (swig_guile_proc) _wrap_run_refmac_ccp4i_option_menu_signal_func);
   scm_c_define_gsubr("clear-refmac-ccp4i-project", 0, 0, 0, (swig_guile_proc) _wrap_clear_refmac_ccp4i_project);
   scm_c_define_gsubr("lookup-file-selection-widgets", 2, 0, 0, (swig_guile_proc) _wrap_lookup_file_selection_widgets);
-  scm_c_define_gsubr("fileselection-sort-button-clicked", 2, 0, 0, (swig_guile_proc) _wrap_fileselection_sort_button_clicked);
+  scm_c_define_gsubr("fileselection-sort-button-clicked-gtk1", 2, 0, 0, (swig_guile_proc) _wrap_fileselection_sort_button_clicked_gtk1);
   scm_c_define_gsubr("push-the-buttons-on-fileselection", 3, 0, 0, (swig_guile_proc) _wrap_push_the_buttons_on_fileselection);
   scm_c_define_gsubr("print-all-history-in-scheme", 0, 0, 0, (swig_guile_proc) _wrap_print_all_history_in_scheme);
   scm_c_define_gsubr("print-all-history-in-python", 0, 0, 0, (swig_guile_proc) _wrap_print_all_history_in_python);
@@ -32942,6 +34084,7 @@ SWIG_init(void)
   scm_c_define_gsubr("store-window-position", 2, 0, 0, (swig_guile_proc) _wrap_store_window_position);
   scm_c_define_gsubr("store-window-size", 2, 0, 0, (swig_guile_proc) _wrap_store_window_size);
   scm_c_define_gsubr("graphics-draw", 0, 0, 0, (swig_guile_proc) _wrap_graphics_draw);
+  scm_c_define_gsubr("zalman-stereo-mode", 0, 0, 0, (swig_guile_proc) _wrap_zalman_stereo_mode);
   scm_c_define_gsubr("hardware-stereo-mode", 0, 0, 0, (swig_guile_proc) _wrap_hardware_stereo_mode);
   scm_c_define_gsubr("stereo-mode-state", 0, 0, 0, (swig_guile_proc) _wrap_stereo_mode_state);
   scm_c_define_gsubr("mono-mode", 0, 0, 0, (swig_guile_proc) _wrap_mono_mode);
@@ -33059,6 +34202,9 @@ SWIG_init(void)
   scm_c_define_gsubr("clear-atom-list", 1, 0, 0, (swig_guile_proc) _wrap_clear_atom_list);
   scm_c_define_gsubr("apply-go-to-atom-from-widget", 1, 0, 0, (swig_guile_proc) _wrap_apply_go_to_atom_from_widget);
   scm_c_define_gsubr("on-go-to-atom-residue-list-select-child", 3, 0, 0, (swig_guile_proc) _wrap_on_go_to_atom_residue_list_select_child);
+  scm_c_define_gsubr("on-go-to-atom-residue-tree-selection-changed-gtk1", 2, 0, 0, (swig_guile_proc) _wrap_on_go_to_atom_residue_tree_selection_changed_gtk1);
+  scm_c_define_gsubr("on-go-to-atom-atom-list-selection-changed-gtk1", 2, 0, 0, (swig_guile_proc) _wrap_on_go_to_atom_atom_list_selection_changed_gtk1);
+  scm_c_define_gsubr("on-go-to-atom-residue-list-unselect-child", 3, 0, 0, (swig_guile_proc) _wrap_on_go_to_atom_residue_list_unselect_child);
   scm_c_define_gsubr("autobuild-ca-off", 0, 0, 0, (swig_guile_proc) _wrap_autobuild_ca_off);
   scm_c_define_gsubr("test-fragment", 0, 0, 0, (swig_guile_proc) _wrap_test_fragment);
   scm_c_define_gsubr("do-skeleton-prune", 0, 0, 0, (swig_guile_proc) _wrap_do_skeleton_prune);
@@ -33121,6 +34267,7 @@ SWIG_init(void)
   scm_c_define_gsubr("set-found-coot-gui", 0, 0, 0, (swig_guile_proc) _wrap_set_found_coot_gui);
   scm_c_define_gsubr("set-found-coot-python-gui", 0, 0, 0, (swig_guile_proc) _wrap_set_found_coot_python_gui);
   scm_c_define_gsubr("handle-get-accession-code", 1, 0, 0, (swig_guile_proc) _wrap_handle_get_accession_code);
+  scm_c_define_gsubr("wrapped-create-libcheck-monomer-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_libcheck_monomer_dialog);
   scm_c_define_gsubr("handle-get-libcheck-monomer-code", 1, 0, 0, (swig_guile_proc) _wrap_handle_get_libcheck_monomer_code);
   scm_c_define_gsubr("get-monomer", 1, 0, 0, (swig_guile_proc) _wrap_get_monomer);
   scm_c_define_gsubr("get-monomer-from-dictionary", 2, 0, 0, (swig_guile_proc) _wrap_get_monomer_from_dictionary);
@@ -33128,6 +34275,7 @@ SWIG_init(void)
   scm_c_define_gsubr("run-script", 1, 0, 0, (swig_guile_proc) _wrap_run_script);
   scm_c_define_gsubr("run-guile-script", 1, 0, 0, (swig_guile_proc) _wrap_run_guile_script);
   scm_c_define_gsubr("run-python-script", 1, 0, 0, (swig_guile_proc) _wrap_run_python_script);
+  scm_c_define_gsubr("import-python-module", 2, 0, 0, (swig_guile_proc) _wrap_import_python_module);
   scm_c_define_gsubr("do-regularize", 1, 0, 0, (swig_guile_proc) _wrap_do_regularize);
   scm_c_define_gsubr("do-refine", 1, 0, 0, (swig_guile_proc) _wrap_do_refine);
   scm_c_define_gsubr("do-regularize-kill-delete-dialog", 0, 0, 0, (swig_guile_proc) _wrap_do_regularize_kill_delete_dialog);
@@ -33146,6 +34294,7 @@ SWIG_init(void)
   scm_c_define_gsubr("wrapped-create-refine-params-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_refine_params_dialog);
   scm_c_define_gsubr("do-torsions-toggle", 1, 0, 0, (swig_guile_proc) _wrap_do_torsions_toggle);
   scm_c_define_gsubr("refine-residues-scm", 2, 0, 0, (swig_guile_proc) _wrap_refine_residues_scm);
+  scm_c_define_gsubr("refine-residues-with-alt-conf-scm", 3, 0, 0, (swig_guile_proc) _wrap_refine_residues_with_alt_conf_scm);
   scm_c_define_gsubr("set-refine-with-torsion-restraints", 1, 0, 0, (swig_guile_proc) _wrap_set_refine_with_torsion_restraints);
   scm_c_define_gsubr("refine-with-torsion-restraints-state", 0, 0, 0, (swig_guile_proc) _wrap_refine_with_torsion_restraints_state);
   scm_c_define_gsubr("set-refine-params-toggle-buttons", 1, 0, 0, (swig_guile_proc) _wrap_set_refine_params_toggle_buttons);
@@ -33238,7 +34387,7 @@ SWIG_init(void)
   scm_c_define_gsubr("write-connectivity", 2, 0, 0, (swig_guile_proc) _wrap_write_connectivity);
   scm_c_define_gsubr("non-standard-residue-names-scm", 1, 0, 0, (swig_guile_proc) _wrap_non_standard_residue_names_scm);
   scm_c_define_gsubr("import-all-refmac-cifs", 0, 0, 0, (swig_guile_proc) _wrap_import_all_refmac_cifs);
-  scm_c_define_gsubr("read-shelx-ins-file", 1, 0, 0, (swig_guile_proc) _wrap_read_shelx_ins_file);
+  scm_c_define_gsubr("read-shelx-ins-file", 2, 0, 0, (swig_guile_proc) _wrap_read_shelx_ins_file);
   scm_c_define_gsubr("write-shelx-ins-file", 2, 0, 0, (swig_guile_proc) _wrap_write_shelx_ins_file);
   scm_c_define_gsubr("handle-shelx-fcf-file-internal", 1, 0, 0, (swig_guile_proc) _wrap_handle_shelx_fcf_file_internal);
   scm_c_define_gsubr("chain-id-for-shelxl-residue-number", 2, 0, 0, (swig_guile_proc) _wrap_chain_id_for_shelxl_residue_number);
@@ -33265,6 +34414,9 @@ SWIG_init(void)
   scm_c_define_gsubr("clear-diff-map-peaks", 0, 0, 0, (swig_guile_proc) _wrap_clear_diff_map_peaks);
   scm_c_define_gsubr("wrapped-create-generate-diff-map-peaks-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_generate_diff_map_peaks_dialog);
   scm_c_define_gsubr("gln-asn-b-factor-outliers", 1, 0, 0, (swig_guile_proc) _wrap_gln_asn_b_factor_outliers);
+  scm_c_define_gsubr("map-peaks-scm", 2, 0, 0, (swig_guile_proc) _wrap_map_peaks_scm);
+  scm_c_define_gsubr("map-peaks-near-point-scm", 6, 0, 0, (swig_guile_proc) _wrap_map_peaks_near_point_scm);
+  scm_c_define_gsubr("get-torsion-scm", 5, 0, 0, (swig_guile_proc) _wrap_get_torsion_scm);
   scm_c_define_gsubr("do-ramachandran-plot", 1, 0, 0, (swig_guile_proc) _wrap_do_ramachandran_plot);
   scm_c_define_gsubr("set-kleywegt-plot-n-diffs", 1, 0, 0, (swig_guile_proc) _wrap_set_kleywegt_plot_n_diffs);
   scm_c_define_gsubr("add-on-rama-choices", 0, 0, 0, (swig_guile_proc) _wrap_add_on_rama_choices);
@@ -33336,6 +34488,7 @@ SWIG_init(void)
   scm_c_define_gsubr("movie-frame-number", 0, 0, 0, (swig_guile_proc) _wrap_movie_frame_number);
   scm_c_define_gsubr("set-make-movie-mode", 1, 0, 0, (swig_guile_proc) _wrap_set_make_movie_mode);
   scm_c_define_gsubr("set-background-colour", 3, 0, 0, (swig_guile_proc) _wrap_set_background_colour);
+  scm_c_define_gsubr("redraw-background", 0, 0, 0, (swig_guile_proc) _wrap_redraw_background);
   scm_c_define_gsubr("background-is-black-p", 0, 0, 0, (swig_guile_proc) _wrap_background_is_black_p);
   scm_c_define_gsubr("set-ligand-acceptable-fit-fraction", 1, 0, 0, (swig_guile_proc) _wrap_set_ligand_acceptable_fit_fraction);
   scm_c_define_gsubr("set-ligand-cluster-sigma-level", 1, 0, 0, (swig_guile_proc) _wrap_set_ligand_cluster_sigma_level);
@@ -33370,6 +34523,7 @@ SWIG_init(void)
   scm_c_define_gsubr("free-blob-dialog-memory", 1, 0, 0, (swig_guile_proc) _wrap_free_blob_dialog_memory);
   scm_c_define_gsubr("flip-ligand", 3, 0, 0, (swig_guile_proc) _wrap_flip_ligand);
   scm_c_define_gsubr("renumber-waters", 1, 0, 0, (swig_guile_proc) _wrap_renumber_waters);
+  scm_c_define_gsubr("wrapped-create-find-waters-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_find_waters_dialog);
   scm_c_define_gsubr("fill-find-waters-dialog", 1, 0, 0, (swig_guile_proc) _wrap_fill_find_waters_dialog);
   scm_c_define_gsubr("execute-find-waters", 1, 0, 0, (swig_guile_proc) _wrap_execute_find_waters);
   scm_c_define_gsubr("execute-find-waters-real", 4, 0, 0, (swig_guile_proc) _wrap_execute_find_waters_real);
@@ -33420,7 +34574,7 @@ SWIG_init(void)
   scm_c_define_gsubr("clear-dots", 2, 0, 0, (swig_guile_proc) _wrap_clear_dots);
   scm_c_define_gsubr("n-dots-sets", 1, 0, 0, (swig_guile_proc) _wrap_n_dots_sets);
   scm_c_define_gsubr("do-pepflip", 1, 0, 0, (swig_guile_proc) _wrap_do_pepflip);
-  scm_c_define_gsubr("pepflip", 4, 0, 0, (swig_guile_proc) _wrap_pepflip);
+  scm_c_define_gsubr("pepflip", 5, 0, 0, (swig_guile_proc) _wrap_pepflip);
   scm_c_define_gsubr("do-rigid-body-refine", 1, 0, 0, (swig_guile_proc) _wrap_do_rigid_body_refine);
   scm_c_define_gsubr("rigid-body-refine-zone", 4, 0, 0, (swig_guile_proc) _wrap_rigid_body_refine_zone);
   scm_c_define_gsubr("rigid-body-refine-by-atom-selection", 2, 0, 0, (swig_guile_proc) _wrap_rigid_body_refine_by_atom_selection);
@@ -33480,6 +34634,7 @@ SWIG_init(void)
   scm_c_define_gsubr("rot-trans-reset-previous", 0, 0, 0, (swig_guile_proc) _wrap_rot_trans_reset_previous);
   scm_c_define_gsubr("set-rotate-translate-zone-rotates-about-zone-centre", 1, 0, 0, (swig_guile_proc) _wrap_set_rotate_translate_zone_rotates_about_zone_centre);
   scm_c_define_gsubr("set-rot-trans-object-type", 1, 0, 0, (swig_guile_proc) _wrap_set_rot_trans_object_type);
+  scm_c_define_gsubr("get-rot-trans-object-type", 0, 0, 0, (swig_guile_proc) _wrap_get_rot_trans_object_type);
   scm_c_define_gsubr("do-cis-trans-conversion-setup", 1, 0, 0, (swig_guile_proc) _wrap_do_cis_trans_conversion_setup);
   scm_c_define_gsubr("cis-trans-convert", 4, 0, 0, (swig_guile_proc) _wrap_cis_trans_convert);
   scm_c_define_gsubr("cis-peptides", 1, 0, 0, (swig_guile_proc) _wrap_cis_peptides);
@@ -33515,6 +34670,7 @@ SWIG_init(void)
   scm_c_define_gsubr("do-mutation", 2, 0, 0, (swig_guile_proc) _wrap_do_mutation);
   scm_c_define_gsubr("progressive-residues-in-chain-check", 2, 0, 0, (swig_guile_proc) _wrap_progressive_residues_in_chain_check);
   scm_c_define_gsubr("mutate", 5, 0, 0, (swig_guile_proc) _wrap_mutate);
+  scm_c_define_gsubr("mutate-base", 5, 0, 0, (swig_guile_proc) _wrap_mutate_base);
   scm_c_define_gsubr("set-mutate-auto-fit-do-post-refine", 1, 0, 0, (swig_guile_proc) _wrap_set_mutate_auto_fit_do_post_refine);
   scm_c_define_gsubr("mutate-auto-fit-do-post-refine-state", 0, 0, 0, (swig_guile_proc) _wrap_mutate_auto_fit_do_post_refine_state);
   scm_c_define_gsubr("set-rotamer-auto-fit-do-post-refine", 1, 0, 0, (swig_guile_proc) _wrap_set_rotamer_auto_fit_do_post_refine);
@@ -33552,6 +34708,7 @@ SWIG_init(void)
   scm_c_define_gsubr("lengthen-baton", 0, 0, 0, (swig_guile_proc) _wrap_lengthen_baton);
   scm_c_define_gsubr("baton-build-delete-last-residue", 0, 0, 0, (swig_guile_proc) _wrap_baton_build_delete_last_residue);
   scm_c_define_gsubr("set-baton-build-params", 3, 0, 0, (swig_guile_proc) _wrap_set_baton_build_params);
+  scm_c_define_gsubr("set-baton-build-params-from-widget", 1, 0, 0, (swig_guile_proc) _wrap_set_baton_build_params_from_widget);
   scm_c_define_gsubr("baton-mode-calculate-skeleton", 1, 0, 0, (swig_guile_proc) _wrap_baton_mode_calculate_skeleton);
   scm_c_define_gsubr("reverse-direction-of-fragment", 3, 0, 0, (swig_guile_proc) _wrap_reverse_direction_of_fragment);
   scm_c_define_gsubr("setup-reverse-direction", 1, 0, 0, (swig_guile_proc) _wrap_setup_reverse_direction);
@@ -33591,6 +34748,7 @@ SWIG_init(void)
   scm_c_define_gsubr("set-check-waters-by-difference-map-sigma-level", 1, 0, 0, (swig_guile_proc) _wrap_set_check_waters_by_difference_map_sigma_level);
   scm_c_define_gsubr("clear-lsq-matches", 0, 0, 0, (swig_guile_proc) _wrap_clear_lsq_matches);
   scm_c_define_gsubr("add-lsq-match", 7, 0, 0, (swig_guile_proc) _wrap_add_lsq_match);
+  scm_c_define_gsubr("add-lsq-atom-pair-scm", 2, 0, 0, (swig_guile_proc) _wrap_add_lsq_atom_pair_scm);
   scm_c_define_gsubr("apply-lsq-matches", 2, 0, 0, (swig_guile_proc) _wrap_apply_lsq_matches);
   scm_c_define_gsubr("apply-lsq-matches-simple", 2, 0, 0, (swig_guile_proc) _wrap_apply_lsq_matches_simple);
   scm_c_define_gsubr("setup-lsq-deviation", 1, 0, 0, (swig_guile_proc) _wrap_setup_lsq_deviation);
@@ -33608,6 +34766,7 @@ SWIG_init(void)
   scm_c_define_gsubr("trim-molecule-by-map", 4, 0, 0, (swig_guile_proc) _wrap_trim_molecule_by_map);
   scm_c_define_gsubr("raster3d", 1, 0, 0, (swig_guile_proc) _wrap_raster3d);
   scm_c_define_gsubr("povray", 1, 0, 0, (swig_guile_proc) _wrap_povray);
+  scm_c_define_gsubr("renderman", 1, 0, 0, (swig_guile_proc) _wrap_renderman);
   scm_c_define_gsubr("make-image-raster3d", 1, 0, 0, (swig_guile_proc) _wrap_make_image_raster3d);
   scm_c_define_gsubr("make-image-povray", 1, 0, 0, (swig_guile_proc) _wrap_make_image_povray);
   scm_c_define_gsubr("set-raster3d-bond-thickness", 1, 0, 0, (swig_guile_proc) _wrap_set_raster3d_bond_thickness);
@@ -33615,6 +34774,7 @@ SWIG_init(void)
   scm_c_define_gsubr("set-raster3d-density-thickness", 1, 0, 0, (swig_guile_proc) _wrap_set_raster3d_density_thickness);
   scm_c_define_gsubr("set-renderer-show-atoms", 1, 0, 0, (swig_guile_proc) _wrap_set_renderer_show_atoms);
   scm_c_define_gsubr("set-raster3d-bone-thickness", 1, 0, 0, (swig_guile_proc) _wrap_set_raster3d_bone_thickness);
+  scm_c_define_gsubr("set-raster3d-shadows-enabled", 1, 0, 0, (swig_guile_proc) _wrap_set_raster3d_shadows_enabled);
   scm_c_define_gsubr("raster-screen-shot", 0, 0, 0, (swig_guile_proc) _wrap_raster_screen_shot);
   scm_c_define_gsubr("citation-notice-off", 0, 0, 0, (swig_guile_proc) _wrap_citation_notice_off);
   scm_c_define_gsubr("superpose", 3, 0, 0, (swig_guile_proc) _wrap_superpose);
@@ -33650,10 +34810,16 @@ SWIG_init(void)
   scm_c_define_gsubr("ncs-chain-differences-scm", 2, 0, 0, (swig_guile_proc) _wrap_ncs_chain_differences_scm);
   scm_c_define_gsubr("ncs-chain-ids-scm", 1, 0, 0, (swig_guile_proc) _wrap_ncs_chain_ids_scm);
   scm_c_define_gsubr("ncs-ghosts-scm", 1, 0, 0, (swig_guile_proc) _wrap_ncs_ghosts_scm);
+  scm_c_define_gsubr("FIND-SECSTRUC-NORMAL", 0, 0, 0, (swig_guile_proc) _wrap_FIND_SECSTRUC_NORMAL);
+  scm_c_define_gsubr("FIND-SECSTRUC-STRICT", 0, 0, 0, (swig_guile_proc) _wrap_FIND_SECSTRUC_STRICT);
+  scm_c_define_gsubr("FIND-SECSTRUC-HI-RES", 0, 0, 0, (swig_guile_proc) _wrap_FIND_SECSTRUC_HI_RES);
+  scm_c_define_gsubr("FIND-SECSTRUC-LO-RES", 0, 0, 0, (swig_guile_proc) _wrap_FIND_SECSTRUC_LO_RES);
   scm_c_define_gsubr("place-helix-here", 0, 0, 0, (swig_guile_proc) _wrap_place_helix_here);
   scm_c_define_gsubr("place-strand-here", 2, 0, 0, (swig_guile_proc) _wrap_place_strand_here);
   scm_c_define_gsubr("find-helices", 0, 0, 0, (swig_guile_proc) _wrap_find_helices);
   scm_c_define_gsubr("find-strands", 0, 0, 0, (swig_guile_proc) _wrap_find_strands);
+  scm_c_define_gsubr("find-secondary-structure", 6, 0, 0, (swig_guile_proc) _wrap_find_secondary_structure);
+  scm_c_define_gsubr("find-secondary-structure-local", 7, 0, 0, (swig_guile_proc) _wrap_find_secondary_structure_local);
   scm_c_define_gsubr("new-molecule-by-residue-type-selection", 2, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_residue_type_selection);
   scm_c_define_gsubr("new-molecule-by-atom-selection", 2, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_atom_selection);
   scm_c_define_gsubr("new-molecule-by-sphere-selection", 6, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_sphere_selection);
@@ -33663,6 +34829,8 @@ SWIG_init(void)
   scm_c_define_gsubr("wrapped-nucleotide-builder-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_nucleotide_builder_dialog);
   scm_c_define_gsubr("ideal-nucleic-acid-by-widget", 1, 0, 0, (swig_guile_proc) _wrap_ideal_nucleic_acid_by_widget);
   scm_c_define_gsubr("pucker-info-scm", 3, 0, 0, (swig_guile_proc) _wrap_pucker_info_scm);
+  scm_c_define_gsubr("watson-crick-pair", 3, 0, 0, (swig_guile_proc) _wrap_watson_crick_pair);
+  scm_c_define_gsubr("setup-base-pairing", 1, 0, 0, (swig_guile_proc) _wrap_setup_base_pairing);
   scm_c_define_gsubr("print-sequence-chain", 2, 0, 0, (swig_guile_proc) _wrap_print_sequence_chain);
   scm_c_define_gsubr("assign-fasta-sequence", 3, 0, 0, (swig_guile_proc) _wrap_assign_fasta_sequence);
   scm_c_define_gsubr("assign-pir-sequence", 3, 0, 0, (swig_guile_proc) _wrap_assign_pir_sequence);
@@ -33709,6 +34877,7 @@ SWIG_init(void)
   scm_c_define_gsubr("handle-online-coot-search-request", 1, 0, 0, (swig_guile_proc) _wrap_handle_online_coot_search_request);
   scm_c_define_gsubr("new-generic-object-number", 1, 0, 0, (swig_guile_proc) _wrap_new_generic_object_number);
   scm_c_define_gsubr("to-generic-object-add-line", 9, 0, 0, (swig_guile_proc) _wrap_to_generic_object_add_line);
+  scm_c_define_gsubr("to-generic-object-add-dashed-line", 10, 0, 0, (swig_guile_proc) _wrap_to_generic_object_add_dashed_line);
   scm_c_define_gsubr("to-generic-object-add-point", 6, 0, 0, (swig_guile_proc) _wrap_to_generic_object_add_point);
   scm_c_define_gsubr("to-generic-object-add-display-list-handle", 2, 0, 0, (swig_guile_proc) _wrap_to_generic_object_add_display_list_handle);
   scm_c_define_gsubr("set-display-generic-object", 2, 0, 0, (swig_guile_proc) _wrap_set_display_generic_object);
@@ -33720,6 +34889,7 @@ SWIG_init(void)
   scm_c_define_gsubr("generic-object-has-objects-p", 1, 0, 0, (swig_guile_proc) _wrap_generic_object_has_objects_p);
   scm_c_define_gsubr("close-generic-object", 1, 0, 0, (swig_guile_proc) _wrap_close_generic_object);
   scm_c_define_gsubr("is-closed-generic-object-p", 1, 0, 0, (swig_guile_proc) _wrap_is_closed_generic_object_p);
+  scm_c_define_gsubr("generic-object-clear", 1, 0, 0, (swig_guile_proc) _wrap_generic_object_clear);
   scm_c_define_gsubr("generic-objects-gui-wrapper", 0, 0, 0, (swig_guile_proc) _wrap_generic_objects_gui_wrapper);
   scm_c_define_gsubr("handle-read-draw-probe-dots", 1, 0, 0, (swig_guile_proc) _wrap_handle_read_draw_probe_dots);
   scm_c_define_gsubr("handle-read-draw-probe-dots-unformatted", 3, 0, 0, (swig_guile_proc) _wrap_handle_read_draw_probe_dots_unformatted);
@@ -33733,6 +34903,11 @@ SWIG_init(void)
   scm_c_define_gsubr("probe-available-p", 0, 0, 0, (swig_guile_proc) _wrap_probe_available_p);
   scm_c_define_gsubr("set-dti-stereo-mode", 1, 0, 0, (swig_guile_proc) _wrap_set_dti_stereo_mode);
   scm_c_define_gsubr("sharpen", 2, 0, 0, (swig_guile_proc) _wrap_sharpen);
+  scm_c_define_gsubr("wrapped-create-map-shapening-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_map_shapening_dialog);
+  scm_c_define_gsubr("map-sharpening-map-select", 2, 0, 0, (swig_guile_proc) _wrap_map_sharpening_map_select);
+  scm_c_define_gsubr("map-sharpening-value-changed", 2, 0, 0, (swig_guile_proc) _wrap_map_sharpening_value_changed);
+  scm_c_define_gsubr("fill-option-menu-with-map-options", 2, 0, 0, (swig_guile_proc) _wrap_fill_option_menu_with_map_options);
+  scm_c_define_gsubr("set-map-sharpening-scale-limit", 1, 0, 0, (swig_guile_proc) _wrap_set_map_sharpening_scale_limit);
   scm_c_define_gsubr("drag-intermediate-atom-scm", 2, 0, 0, (swig_guile_proc) _wrap_drag_intermediate_atom_scm);
   scm_c_define_gsubr("mark-atom-as-fixed-scm", 3, 0, 0, (swig_guile_proc) _wrap_mark_atom_as_fixed_scm);
   scm_c_define_gsubr("setup-fixed-atom-pick", 2, 0, 0, (swig_guile_proc) _wrap_setup_fixed_atom_pick);
@@ -33746,15 +34921,26 @@ SWIG_init(void)
   scm_c_define_gsubr("ccp4i-projects-scm", 0, 0, 0, (swig_guile_proc) _wrap_ccp4i_projects_scm);
   scm_c_define_gsubr("write-ccp4mg-picture-description", 1, 0, 0, (swig_guile_proc) _wrap_write_ccp4mg_picture_description);
   scm_c_define_gsubr("get-atom-colour-from-mol-no", 2, 0, 0, (swig_guile_proc) _wrap_get_atom_colour_from_mol_no);
-  scm_c_define_gsubr("add-dipole", 4, 0, 0, (swig_guile_proc) _wrap_add_dipole);
   scm_c_define_gsubr("delete-dipole", 2, 0, 0, (swig_guile_proc) _wrap_delete_dipole);
+  scm_c_define_gsubr("add-dipole-for-residues-scm", 2, 0, 0, (swig_guile_proc) _wrap_add_dipole_for_residues_scm);
+  scm_c_define_gsubr("add-dipole-scm", 4, 0, 0, (swig_guile_proc) _wrap_add_dipole_scm);
   scm_c_define_gsubr("laplacian", 1, 0, 0, (swig_guile_proc) _wrap_laplacian);
   scm_c_define_gsubr("do-smiles-gui", 0, 0, 0, (swig_guile_proc) _wrap_do_smiles_gui);
   scm_c_define_gsubr("do-tw", 0, 0, 0, (swig_guile_proc) _wrap_do_tw);
   scm_c_define_gsubr("set-button-label-for-external-refinement", 1, 0, 0, (swig_guile_proc) _wrap_set_button_label_for_external_refinement);
   scm_c_define_gsubr("place-text", 5, 0, 0, (swig_guile_proc) _wrap_place_text);
   scm_c_define_gsubr("remove-text", 1, 0, 0, (swig_guile_proc) _wrap_remove_text);
+  scm_c_define_gsubr("pisa-interaction", 2, 0, 0, (swig_guile_proc) _wrap_pisa_interaction);
+  scm_c_define_gsubr("toolbar-multi-refine-stop", 0, 0, 0, (swig_guile_proc) _wrap_toolbar_multi_refine_stop);
+  scm_c_define_gsubr("toolbar-multi-refine-continue", 0, 0, 0, (swig_guile_proc) _wrap_toolbar_multi_refine_continue);
+  scm_c_define_gsubr("toolbar-multi-refine-cancel", 0, 0, 0, (swig_guile_proc) _wrap_toolbar_multi_refine_cancel);
+  scm_c_define_gsubr("set-visible-toolbar-multi-refine-stop-button", 1, 0, 0, (swig_guile_proc) _wrap_set_visible_toolbar_multi_refine_stop_button);
+  scm_c_define_gsubr("set-visible-toolbar-multi-refine-continue-button", 1, 0, 0, (swig_guile_proc) _wrap_set_visible_toolbar_multi_refine_continue_button);
+  scm_c_define_gsubr("set-visible-toolbar-multi-refine-cancel-button", 1, 0, 0, (swig_guile_proc) _wrap_set_visible_toolbar_multi_refine_cancel_button);
+  scm_c_define_gsubr("toolbar-multi-refine-button-set-sensitive", 2, 0, 0, (swig_guile_proc) _wrap_toolbar_multi_refine_button_set_sensitive);
   scm_c_define_gsubr("nsv", 1, 0, 0, (swig_guile_proc) _wrap_nsv);
+  scm_c_define_gsubr("sequence-view-old-style", 1, 0, 0, (swig_guile_proc) _wrap_sequence_view_old_style);
+  scm_c_define_gsubr("user-defined-click-scm", 2, 0, 0, (swig_guile_proc) _wrap_user_defined_click_scm);
   SWIG_TypeClientData(SWIGTYPE_p_coot__alias_path_t, (void *) &_swig_guile_clientdataalias_path_t);
   scm_c_define_gsubr("alias-path-t-index-set", 2, 0, 0, (swig_guile_proc) _wrap_alias_path_t_index_set);
   scm_c_define_gsubr("alias-path-t-index-get", 1, 0, 0, (swig_guile_proc) _wrap_alias_path_t_index_get);
@@ -33832,11 +35018,13 @@ SWIG_init(void)
   scm_c_define_gsubr("dictionaries-read", 0, 0, 0, (swig_guile_proc) _wrap_dictionaries_read);
   scm_c_define_gsubr("monomer-restraints", 1, 0, 0, (swig_guile_proc) _wrap_monomer_restraints);
   scm_c_define_gsubr("set-monomer-restraints", 2, 0, 0, (swig_guile_proc) _wrap_set_monomer_restraints);
+  scm_c_define_gsubr("dipole-to-scm", 1, 0, 0, (swig_guile_proc) _wrap_dipole_to_scm);
   scm_c_define_gsubr("safe-scheme-command-test", 1, 0, 0, (swig_guile_proc) _wrap_safe_scheme_command_test);
   scm_c_define_gsubr("safe-scheme-command", 1, 0, 0, (swig_guile_proc) _wrap_safe_scheme_command);
   scm_c_define_gsubr("run-generic-script", 1, 0, 0, (swig_guile_proc) _wrap_run_generic_script);
   scm_c_define_gsubr("coot-has-python-p", 0, 0, 0, (swig_guile_proc) _wrap_coot_has_python_p);
   scm_c_define_gsubr("run-python-command", 1, 0, 0, (swig_guile_proc) _wrap_run_python_command);
+  scm_c_define_gsubr("pyrun-simple-string", 1, 0, 0, (swig_guile_proc) _wrap_pyrun_simple_string);
   scm_c_define_gsubr("scm-residue", 1, 0, 0, (swig_guile_proc) _wrap_scm_residue);
   scm_c_define_gsubr("residue-spec-from-scm", 1, 0, 0, (swig_guile_proc) _wrap_residue_spec_from_scm);
   scm_c_define_gsubr("atom-info-string-scm", 6, 0, 0, (swig_guile_proc) _wrap_atom_info_string_scm);

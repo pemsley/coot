@@ -410,6 +410,8 @@ Punted from 0.6:
    o Fixing atoms does not stop them from moving with
      rotate/translate.  Should it?  Yes, I think ::: 1
 
+   o RNA/DNA backbone in symmetry.
+
 
 
  0.7 Priorities:
