@@ -23,12 +23,8 @@
    o Fix ligand chi angles. ::: 1
 
 
-   o Add terminal residue has disconnected atoms.  Why? This is an
-     extremely deeply-buried problem. ::: 4
-
-
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
-     interface with molprobity dots. ::: 8
+     interface with molprobity dots.  pisa-interaction ::: 8
 
 
    o multiple residue ranges, glycosylation, covalent bond entities,
@@ -987,5 +983,12 @@ c-interface clear_up_moving_atoms...
    o Move Koala to gcc 4.1.2 20080704 (RH 4.1.2-44) or better.  See
      Esser build log problems.  ::: 2
 
+* Not fully done, but Lothar can build coot now.
+
+
+   o Add terminal residue has disconnected atoms.  Why? This is an
+     extremely deeply-buried problem. ::: 4
+
+ * Done by Bernhard (and Eugene).
 
 -----
