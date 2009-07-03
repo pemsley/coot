@@ -628,6 +628,16 @@
 	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
 	      #f #t)
 
+	(list "binary-Linux-i386-fedora-8-python-gtk2"
+	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-8/gtk2"
+ 	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	      #t #t)
+
+	(list "binary-Linux-i386-fedora-10-python-gtk2"
+	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-8/gtk2"
+ 	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	      #t #t)
+
 	(list "binary-Linux-i386-centos-4-gtk2"
 	      "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"
 	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
