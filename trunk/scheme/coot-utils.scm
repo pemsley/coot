@@ -1976,15 +1976,15 @@
 					(let ((pucker-atom (car (cdr pi))))
 					  ; (format #t " ~s ~s~%" residue-spec pi)
 					  (if (and (> (abs (car pi)) crit-d)
-						   (string=? pucker-atom " C3'"))
-					      (add-questionable
-					       (list pucker-atom residue-spec
-						     "Inconsistent phosphate distance for C3' pucker")))
-					  (if (and (< (abs (car pi)) crit-d)
-						       (string=? pucker-atom" C2'"))
+						   (string=? pucker-atom " C2'"))
 					      (add-questionable
 					       (list pucker-atom residue-spec
 						     "Inconsistent phosphate distance for C2' pucker")))
+					  (if (and (< (abs (car pi)) crit-d)
+						       (string=? pucker-atom" C3'"))
+					      (add-questionable
+					       (list pucker-atom residue-spec
+						     "Inconsistent phosphate distance for C3' pucker")))
 					  (if (not (or (string=? pucker-atom " C2'")
 						       (string=? pucker-atom " C3'")))
 					      (add-questionable
