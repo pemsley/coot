@@ -226,7 +226,8 @@
 # 2.58 20090627 Use pre_release_server_dir to set coot_version
 # 2.59 20090628 Don't delete build-status on my_exit.
 # 2.60 20090704 gtk1- prefix for the compilers dir
-script_version=2.60
+# 2.61 20090704 mmdb-1.21 from York
+script_version=2.61
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1712,7 +1713,12 @@ mmdb_version=1.21
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # this patch is badly formed.
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
-${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
+
+# ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
+# for now get mmdb-1.21 from york, the ebi one has out of date files causing 
+# problems on make 
+${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
+
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
