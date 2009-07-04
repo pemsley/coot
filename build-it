@@ -225,7 +225,8 @@
 # 2.57 20090624 Make pre_release_server_dir be biop.ox
 # 2.58 20090627 Use pre_release_server_dir to set coot_version
 # 2.59 20090628 Don't delete build-status on my_exit.
-script_version=2.58
+# 2.60 20090704 gtk1- prefix for the compilers dir
+script_version=2.60
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -882,7 +883,7 @@ fi
 v_fid=`echo $v | sed 's/ /_/g'`
 w_fid=`echo $w | sed 's/ /_/g'`
 
-compilers_dir=${v_fid}_and_${w_fid}
+compilers_dir=gtk1-${v_fid}_and_${w_fid}
 HOSTLOGDIR=$LOGS/$compilers_dir
 if [ ! -e $HOSTLOGDIR ] ; then 
   mkdir -p $HOSTLOGDIR
