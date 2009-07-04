@@ -276,7 +276,8 @@
 #               file.
 # 4.50 20090628 Change the GSL version to 1.12
 # 4.51 20090703 check exit status of wget for coot source tar file.
-script_version=4.51
+# 4.52 20090704 mmdb-1.21 from York
+script_version=4.52
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1945,7 +1946,10 @@ mmdb_version=1.21
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # this patch is badly formed.
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
-${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
+# ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
+# for now get mmdb-1.21 from york, the ebi one has out of date files causing 
+# problems on make 
+${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
