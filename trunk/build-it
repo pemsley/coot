@@ -2553,15 +2553,27 @@ echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT >&2
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
+   if [ ! $? = 0 ] ; then
+      echo failed to wget http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz   
+      my_exit 2 wget-fail-coot-source
+   fi
    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
 else 
    # If we are building pre-release coot_source_tar_file is set only if we can find 
    # a pre-release source tar in the pre-release directory, otherwise it is not set
    if [ -n "$coot_source_tar_file" ] ; then 
       ${WGET} $coot_source_tar_file
+      if [ ! $? = 0 ] ; then
+         echo failed to wget $coot_source_tar_file
+         my_exit 2 wget-fail-coot-source
+      fi 
    else 
       # compile release code then:
       ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
+      if [ ! $? = 0 ] ; then
+         echo failed to wget http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz   
+         my_exit 2 wget-fail-coot-source
+      fi
    fi 
    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
 fi

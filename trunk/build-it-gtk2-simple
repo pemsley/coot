@@ -275,7 +275,8 @@
 # 4.49 20090628 On my_exit, remove the test-status file, not the build-status 
 #               file.
 # 4.50 20090628 Change the GSL version to 1.12
-script_version=4.50
+# 4.51 20090703 check exit status of wget for coot source tar file.
+script_version=4.51
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2632,15 +2633,27 @@ echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
+   if [ ! $? = 0 ] ; then
+      echo failed to wget http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz   
+      my_exit 2 wget-fail-coot-source
+   fi 
    # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
 else 
    # If we are building pre-release coot_source_tar_file is set only if we can find 
    # a pre-release source tar in the pre-release directory, otherwise it is not set
    if [ -n "$coot_source_tar_file" ] ; then 
       ${WGET} $coot_source_tar_file
+      if [ ! $? = 0 ] ; then
+         echo failed to wget $coot_source_tar_file
+         my_exit 2 wget-fail-coot-source
+      fi 
    else 
       # compile release code then:
       ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
+      if [ ! $? = 0 ] ; then
+         echo failed to wget http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz   
+         my_exit 2 wget-fail-coot-source
+      fi 
    fi
    coot_revision=`echo $coot_version | awk '{a=$1; i=index(a,"revision"); print substr(a,i)}'`
    # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
