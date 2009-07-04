@@ -673,22 +673,22 @@
  	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
  	      #t #t)
 
- 	(list "binary-Linux-i686-ubuntu-8.04.2" 
+ 	(list "binary-Linux-i686-ubuntu-8.04.3"
  	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk1" 
  	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
  	      #f #f)
 
- 	(list "binary-Linux-i686-ubuntu-8.04.2-python" 
+ 	(list "binary-Linux-i686-ubuntu-8.04.3-python" 
  	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk1" 
  	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
  	      #t #f)
 
- 	(list "binary-Linux-i686-ubuntu-8.04.2-python-gtk2"
+ 	(list "binary-Linux-i686-ubuntu-8.04.3-python-gtk2"
  	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk2" 
  	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
  	      #t #t)
 
- 	(list "binary-Linux-i686-ubuntu-8.04.2-gtk2"
+ 	(list "binary-Linux-i686-ubuntu-8.04.3-gtk2"
  	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk2"
  	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
  	      #f #t)
