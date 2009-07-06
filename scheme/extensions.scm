@@ -1090,13 +1090,15 @@
 
 ;; This is not working right.
 ;;                           
-;(let ((menu (coot-menubar-menu "Validate")))
+(let ((menu (coot-menubar-menu "Validate")))
+  
+  (add-simple-coot-menu-menuitem 
+   menu "Pukka Puckers...?"
+   (lambda()
+     (molecule-chooser-gui "Choose a molecule for ribose pucker analysis"
+			   (lambda (imol)
+			     (pukka-puckers? imol))))))
 
-;  (add-simple-coot-menu-menuitem 
-;   menu "Pukka Puckers...?"
-;   (lambda()
-;     (molecule-chooser-gui "Choose a molecule for ribose pucker analysis"
-;			   (lambda (imol)
-;			     (pukka-puckers? imol))))))
+
 
   
