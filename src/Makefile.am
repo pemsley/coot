@@ -36,7 +36,7 @@ endif
 if COOT_USE_PYTHON
 # COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/coot_wrap_python_pre.cc
 # does this help?
-COOT_WRAP_PYTHON_TEMPLATE=coot_wrap_python_pre.cc
+COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/coot_wrap_python_pre.cc
 COOT_WRAP_PYTHON_LIBS=libcoot-wrap-python.la
 else
 COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/blank.cc
