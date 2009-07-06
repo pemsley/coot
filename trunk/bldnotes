@@ -9,7 +9,10 @@ tests   rev 2080
 
    o rigid body fit per residues
 
-   o add the binary_tyep_latest to the WinCoot installer script
+   o add the binary_type_latest to the WinCoot installer script 
+
+     [And the rest of the phone home system: updates are available?
+     download, install, restart (just like firefox) :)]
 
    o optional tooltips for main toolbar buttons
 
@@ -17,7 +20,7 @@ tests   rev 2080
 
    o make md5sum note on WinCoot website
 
-   o update WinCoot to guile 1.8.6 (if possible; not yet)
+   o update WinCoot to guile 1.8.6 (if possible; not yet).  [PE Note: try 1.9?]
 
    o fix addition of guile and python keybindings (translation of lambda functions?)
 
