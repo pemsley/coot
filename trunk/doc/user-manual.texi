@@ -86,6 +86,7 @@ Paul Emsley
 * Hints and Usage Tips::
 * Other Programs::
 * Scripting Functions::
+* Scheme Scripting Functions::
 * Index::   Complete index.
 @end menu
      
@@ -4326,8 +4327,10 @@ One uses @code{findligand} like this:
 are given at the end of the command line.
 
 @c % -----------------------------------------------------------
+@c % -----------------------------------------------------------
 @node    Scripting Functions
 @chapter Scripting Functions
+@c % -----------------------------------------------------------
 @c % -----------------------------------------------------------
 
 @c integrating HTML documentation.  Not good.
@@ -4345,12 +4348,23 @@ are given at the end of the command line.
 @c xsltproc ../../coot/doc/xml2texi.xsl ../../coot/src/doxygen/xml/c-interface_8h.xml > c-interface.h.texi
 @include c-interface_8h.texi
 
+
+@c % -----------------------------------------------------------
+@c % -----------------------------------------------------------
+@node    Scheme Scripting Functions
+@chapter Scheme Scripting Functions
+@c % -----------------------------------------------------------
+@c % -----------------------------------------------------------
+
 @c The documentation from snarfing scheme docs.
 @c
-@c Lets not include this yet, there are problems with dupicate
+@c Lets not include this yet, there are problems with duplicate
 @c nodes (mutate, povray) and (e.g.) `tips-gui', but has no menu entry for this node
 @c
-@c @include ../../coot/scheme/coot-scheme-functions.texi
+
+@include ../../coot/scheme/coot-scheme-functions.texi
+
+
 
 
 @node Index
