@@ -276,8 +276,9 @@
 #               file.
 # 4.50 20090628 Change the GSL version to 1.12
 # 4.51 20090703 check exit status of wget for coot source tar file.
-# 4.52 20090704 mmdb-1.21 from York
-script_version=4.52
+# 4.52 20090704 mmdb-1.21 from York.
+# 4.53 20090706 check build dependencies when on ubuntu
+script_version=4.53
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -867,6 +868,45 @@ echo systype: $systype
 
 echo update_libtool: $update_libtool
 echo update_config_guess_sub: $update_config_guess_sub
+
+
+# check dependencies for Ubuntu.
+case $systype in 
+   *ubuntu*)
+      dep_list='
+       patch
+       m4
+       swig
+       g++
+       libxext-dev
+       libxt-dev
+       libc6-dev
+       libglu1-mesa-dev 
+       mesa-common-dev
+       libgtk2.0-dev
+       libgnomecanvas2-dev'
+
+      for dep in $dep_list 
+      do 
+         echo $dep
+         if dpkg-query --status $dep > /dev/null ; then
+            echo system has $dep
+         else
+            echo ======== $dep is missing ======
+            missing_list="$missing_list $dep"
+         fi
+      done
+      if [ "$missing_list" != '' ] ; then
+         echo " "
+         echo " "
+         echo install these packages: $missing_list
+         echo then re-run
+         echo " "
+         echo " "
+         my_exit 2
+      fi
+      ;;
+esac
 
 
 # give us some diagnostic shell information:
