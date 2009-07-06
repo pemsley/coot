@@ -66,6 +66,14 @@
 		#f))
 	  #f))))
 
+
+
+;; texi2html on user-manual.texi with coot-scheme-functions.texi included gives:
+;; 
+;; *** Duplicate node found: mutate (in ./../../coot/scheme/coot-scheme-functions.texi l. 42)
+;; *** Duplicate node found: povray (in ./../../coot/scheme/coot-scheme-functions.texi l. 341)
+;;*** Duplicate node found: raster3d (in ./../../coot/scheme/coot-scheme-functions.texi l. 361)
+;; 
 (let* ((source-files (glob "*.scm" ".")))
 
   (map (lambda (source-file)
@@ -73,27 +81,32 @@
      (let* ((doc-file
 	     (string-append 
 	      (strip-extension source-file) ".texi"))
-	    (tmp-file (string-append doc-file ".tmp")))
+	    (tmp-file-1 (string-append doc-file ".tmp")))
        
        ;; problems snarfing coot docs?  check that the function-name
        ;; and args are define all on one line.
-       (format #t "running goosh-command guile-tools tmp-file: ~s source-file ~s ~%" 
-	       tmp-file source-file)
-       (goosh-command "guile-tools" 
-		      (list "doc-snarf"
+       (format #t "running goosh-command guile-tools with args tmp-file-1: ~s source-file ~s ~%" 
+	       tmp-file-1 source-file)
+       (let ((args (list "doc-snarf"
 			    "--texinfo"
 			    "-o"
-			    tmp-file
-			    source-file)
-		      '() "snarf-log" #t)
-       (format #t "   done goosh-command guile-tools~%")
-       (goosh-command "grep" (list "-v" "^" tmp-file) '() doc-file #f)
-       (if (file-exists? tmp-file)
-	   (delete-file tmp-file)
+			    tmp-file-1
+			    source-file)))
+	 (goosh-command "guile-tools" args '() "snarf-log" #t)
+	 (if (file-exists? tmp-file-1) 
+	     (format #t "=========== exist: ~s ============~%" tmp-file-1)
+	     (format #t "=========== NOT exist: ~s !!!!!!!!! ============~%" tmp-file-1))
+	 (format #t "   done goosh-command guile-tools ~s~%" args)
+	 (goosh-command "grep" (list "-v" "^" tmp-file-1) '() doc-file #f))
+
+       (if (file-exists? tmp-file-1)
+	   (begin
+	     (delete-file tmp-file-1))
 	   (begin
 	     (format #t "OOPS: Problem snarfing ~s~%" source-file)
-	     (format #t "OOPS: ~s does not exist - not deleting~%" tmp-file)))))
-   source-files))
+	     (format #t "OOPS: ~s does not exist - not deleting~%" tmp-file-1)))))
+
+       source-files))
   
 (define add-to-list-section-texis
   (lambda (texi-list)
@@ -118,7 +131,7 @@
 
 (delete-section-texi-files)
 (let ((all-raw-texi-files (glob "*.texi" ".")))
-
+  
   (let ((non-empty-texis
 	 (let f ((ls all-raw-texi-files)
 		 (non-null-list '()))
@@ -147,15 +160,21 @@
 	(for-each (lambda (file)
 		    (format #t "processing ~s~%" file)
 		    (let* ((stub (strip-extension file))
+			   (node-name (cond
+				  ((string=? stub "mutate") "mutate-in-scheme")
+				  ((string=? stub "povray") "mutate-from-scheme")
+				  ((string=? stub "raster3d") "raster3d-from-scheme")
+				  (else
+				   stub)))
 			   (section-name (string-append stub "-section.texi")))
 
-		      (format menu-port "* ~a::~%" stub)
+		      (format menu-port "* ~a::~%" node-name)
 		      
 		      (call-with-output-file section-name
 			(lambda (port)
 			  
-			  (format port "@node    ~a ~%" stub)
-			  (format port "@section ~a ~%" stub)
+			  (format port "@node    ~a ~%" node-name)
+			  (format port "@section ~a ~%" node-name)
 			  ;; (format port "@cindex  ~a ~%" stub) not cindex
 			  ))))
 		  non-empty-texis)
@@ -167,4 +186,5 @@
 
       (format #f "all-useful-texis: ~s~%" all-useful-texis)
       (goosh-command "cat" all-useful-texis '() "coot-scheme-functions.texi" #f))))
+
 
