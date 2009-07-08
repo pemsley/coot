@@ -58,7 +58,6 @@ exptl::nsv::nsv(CMMDBManager *mol,
    gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, FALSE, 1);
    GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 1);
-
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					 GTK_WIDGET(canvas));
    
@@ -179,8 +178,10 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	 gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+n_limited_chains));
 	 // the size of the canvas (e.g. long chain, we see only part
 	 // of it at one time).
-	 std::cout << "DEBUG:: in setup_canvas(), total_res_range: " << total_res_range
-		   << " canvas_x_size " << canvas_x_size << std::endl;
+// 	 std::cout << "DEBUG:: in setup_canvas(), total_res_range: " << total_res_range
+// 		   << " canvas_x_size " << canvas_x_size << " and canvas_y_size "
+// 		   << canvas_y_size << std::endl;
+// 	 std::cout << "DEBUG:: n_limited_chains: " << n_limited_chains << std::endl;
 	 gtk_widget_set_usize(GTK_WIDGET(canvas), canvas_x_size, canvas_y_size);
 
 	 double left_limit = 0.0;
@@ -201,10 +202,23 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 
 	 // for scroll_height, -100 is good for 2 chains, -150 is good
 	 // for 4 chains.
+
+	 // the casting of canvas_y_size is needed!  Without it
+	 // scroll_height is 4.3e9.  Why!? canvas_y_size is an int.
+	 // 
+	 scroll_height = double(canvas_y_size) - 50 - 25 * rcv.size();
+	 scroll_width  = double(canvas_x_size) - 130 - left_limit ; // -130 for fat font on jackal
+
+
+	 if (0) { 
+	    std::cout << "DEBUG:: rcv.size(): " << rcv.size() << std::endl;
+	    std::cout << "DEBUG:: canvas_y_size: " << canvas_y_size << std::endl;
+	    std::cout << "DEBUG:: scroll_height: " << scroll_height << std::endl;
+	    std::cout << "DEBUG:: gtk_canvas_set_scroll_region "
+		      << left_limit << " " << upper_limit << " "
+		      << scroll_width << " " << scroll_height << std::endl;
+	 }
 	 
-	 scroll_height = canvas_y_size - 50 - 25 * rcv.size();
-	 scroll_width = canvas_x_size  - 130 - left_limit ; // -130 for fat font on jackal
-   
  	 gtk_canvas_set_scroll_region(canvas, left_limit, upper_limit,
  				      scroll_width, scroll_height);
 
@@ -462,10 +476,6 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
    GtkCanvasPoints *points = gtk_canvas_points_new(2);
    float font_scaler = pixels_per_letter;
 
-   if (0) { 
-      std::cout << "DEBUG:: in draw_axes() ticks stop at " << brn << std::endl;
-      std::cout << "DEBUG:: in draw_axes() lrn is " << lrn << std::endl;
-   }
 
    // ticks and text
    int irn_start = tick_start_number(lrn);
@@ -521,6 +531,11 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 	 
 	 double x = (irn-lrn)*font_scaler -3.0; // x for resno label
 	 std::string lab = coot::util::int_to_string(irn);
+	 std::cout << "adding tick "
+		   << points->coords[0] << " "
+		   << points->coords[1] << " " 
+		   << points->coords[2] << " "
+		   << points->coords[3] << std::endl;
 	 item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 				    GTK_CANVAS_TYPE_CANVAS_LINE,
 				    "width_pixels", 1,
