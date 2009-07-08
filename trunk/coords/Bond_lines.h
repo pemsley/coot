@@ -294,6 +294,10 @@ class Bond_lines_container {
    std::vector<coot::Cartesian>  atom_centres;
    std::vector<int>        atom_centres_colour;
    void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second);
+   void add_dashed_bond(int col,
+			const coot::Cartesian &start,
+			const coot::Cartesian &end,
+			bool is_half_bond_flag);
    void addAtom(int colour, const coot::Cartesian &pos);
    int atom_colour(CAtom *at, int bond_colour_type);
    void bonds_size_colour_check(int icol) {

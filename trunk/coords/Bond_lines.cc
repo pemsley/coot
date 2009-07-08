@@ -433,13 +433,13 @@ Bond_lines_container::construct_from_model_links(CModel *model_p,
 	    std::string ele_2 = atom_2->element;
 	    if (ele_1 == ele_2) {
 	       int col = atom_colour(atom_1, atom_colour_type);
-	       addBond(col, pos_1, pos_2);
+	       add_dashed_bond(col, pos_1, pos_2, 0);
 	    } else {
 	       coot::Cartesian bond_mid_point = pos_1.mid_point(pos_2);
 	       int col = atom_colour(atom_1, atom_colour_type);
-	       addBond(col, pos_1, bond_mid_point);
+	       add_dashed_bond(col, pos_1, bond_mid_point, 1);
 	       col = atom_colour(atom_2, atom_colour_type);
-	       addBond(col, pos_2, bond_mid_point);
+	       add_dashed_bond(col, bond_mid_point, pos_2, 1);
 	    } 
 	 }
       }
@@ -1982,6 +1982,27 @@ Bond_lines_container::addBond(int col,
 
    coot::CartesianPair pair(start,end);
    bonds[col].add_bond(pair);
+}
+
+//
+void
+Bond_lines_container::add_dashed_bond(int col,
+				      const coot::Cartesian &start,
+				      const coot::Cartesian &end,
+				      bool is_half_bond_flag) {
+
+   int n_dash = 16;
+   if (is_half_bond_flag)
+      n_dash = 8;
+
+   for (int idash=0; idash<n_dash; idash+=2) {
+      float frac_1 = float(idash  )/float(n_dash);
+      float frac_2 = float(idash+1)/float(n_dash);
+      coot::Cartesian this_start(start + (end-start).by_scalar(frac_1));
+      coot::Cartesian this_end(  start + (end-start).by_scalar(frac_2));
+      coot::CartesianPair pair(this_start,this_end);
+      bonds[col].add_bond(pair);
+   } 
 }
 
 //
