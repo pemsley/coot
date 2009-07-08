@@ -1007,15 +1007,15 @@ def graphics_general_key_press_hook(key):
 # def read_vu_file(filename, obj_name):
 # BL says:: should do that at some point.
 
-# residue-test-function is a function that takes 4 arguments, the
-# chain-id, resno, inscode and residue-serial-number (should it be
+# residue_test_func is a function that takes 4 arguments, the
+# chain_id, resno, inscode and residue_serial_number (should it be
 # needed) and returns either False or return something interesting
 # (e.g. text for a button label).
 #
 # Return a list of residues, each of which has a return value at the
 # start, ie. [return_value, chain_id, res_no, ins_code]
 #
-def residue_matching_criteria(imol, residue_test_func):
+def residues_matching_criteria(imol, residue_test_func):
 
     chain_list = chain_ids(imol)
     seq_residue_list = []
@@ -1032,6 +1032,11 @@ def residue_matching_criteria(imol, residue_test_func):
         return seq_residue_list
     else:
         return False
+
+# Return residue specs for all residues in imol (each spec is preceeded by True)
+#
+def all_residues(imol):
+    return residues_matching_criteria(imol, lambda chain_id, resno, ins_code, serial: True)
 
 # Return a list of all residues that have alt confs: where a residue
 # is specified thusly: [[chain_id, resno, ins_code], [...] ]
@@ -1573,21 +1578,28 @@ highlight_binding_site = hilight_binding_site  # typo?
 
 # Function based on Davis et al. (2007) Molprobity: all atom contacts
 # and structure validation for proteins and nucleic acids, Nucleic
-# Acids Research 35, W375-W383.  
+# Acids Research 35, W375-W383.
+#
+#    "RNA sugar puckers (C3'endo or C2'endo) is strongly correlated
+#    to the perpendicular distance between the following (3')
+#    phosphate and either the plane of the base or the C1'-N1/9
+#    glycosidic bond vector. [] .. a sugar pucker is very difficult
+#    to determine directly from the electron density at resolutions
+#    typical for RNAs."
 #
 # To paraphrase:
-# The distance of the plane of the ribose of the following phosphate
+# The distance of the plane of the base to the following phosphate
 # is highly correlated to the pucker of the ribose. 
 # 
 # An analysis of the structures in RNADB2005 shows that a critical
-# distance of 1.2A provides a partition function to separate C2' from
+# distance of 3.3A provides a partition function to separate C2' from
 # C3' endo puckering.  Not all ribose follow this rule.  There may be
 # some errors in the models comprising RNADB2005. So we check the
 # distance of the following phosphate to the plane of the ribose and
 # record the riboses that are inconsitent.  We also report puckers
 # that are not C2' or C3'.  The puckers are determined by the most
 # out-of-plane atom of the ribose (the rms deviation of the 4 atoms
-# in the plane is calculated, but not used to determinte the
+# in the plane is calculated, but not used to determine the
 # puckering atom).
 #
 def pukka_puckers_qm(imol):
@@ -1595,7 +1607,7 @@ def pukka_puckers_qm(imol):
     import types
 
     residue_list = []
-    crit_d = 1.2
+    crit_d = 3.3
 
     def add_questionable(r):
         residue_list.append(r)
@@ -1627,13 +1639,13 @@ def pukka_puckers_qm(imol):
                             if (len(pi) == 4):
                                 pucker_atom = pi[1]
                                 if ((abs(pi[0]) > crit_d) and
-                                    (pucker_atom == " C3'")):
-                                    add_questionable([pucker_atom, residue_spec,
-                                                      "Inconsistent phosphate distance for C3' pucker"])
-                                if ((abs(pi[0]) < crit_d) and
                                     (pucker_atom == " C2'")):
                                     add_questionable([pucker_atom, residue_spec,
                                                       "Inconsistent phosphate distance for C2' pucker"])
+                                if ((abs(pi[0]) < crit_d) and
+                                    (pucker_atom == " C3'")):
+                                    add_questionable([pucker_atom, residue_spec,
+                                                      "Inconsistent phosphate distance for C3' pucker"])
                                 if not ((pucker_atom == " C2'") or
                                         (pucker_atom == " C3'")):
                                     add_questionable([pucker_atom, residue_spec,

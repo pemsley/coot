@@ -1103,14 +1103,14 @@ if (have_coot_python):
        lambda func: key_bindings_gui())
 
 
-# Doesnt seem to be working right currently, so comment out
+# Doesnt seem to be working right currently, so comment out?! Not any more?!
      # add to validate menu
-#     menu = coot_menubar_menu("Validate")
-#
-#     add_simple_coot_menu_menuitem(menu, "Pukka Puckers...?",
-#                                   lambda func: molecule_chooser_gui(
-#       "Choose a molecule for ribose pucker analysis",
-#       lambda imol: pukka_puckers_qm(imol)))
+     menu = coot_menubar_menu("Validate")
+
+     add_simple_coot_menu_menuitem(menu, "Pukka Puckers...?",
+                                   lambda func: molecule_chooser_gui(
+       "Choose a molecule for ribose pucker analysis",
+       lambda imol: pukka_puckers_qm(imol)))
 
   else:
 	print "BL WARNING:: could not find the main_menubar! Sorry, no extensions menu!"
