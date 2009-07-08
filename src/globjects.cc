@@ -1355,6 +1355,29 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 	     GDK_GL_MODE_DOUBLE);
       }
    }
+
+
+   if (try_stereo_flag == coot::ZALMAN_STEREO) {
+     mode = static_cast<GdkGLConfigMode>
+       (GDK_GL_MODE_RGB    |
+	GDK_GL_MODE_DEPTH  |
+	// GDK_GL_MODE_MULTISAMPLE |
+	GDK_GL_MODE_STENCIL |
+	GDK_GL_MODE_DOUBLE
+	);
+      /* Try stencil buffer */
+      glconfig = gdk_gl_config_new_by_mode(mode);
+      if (glconfig == NULL) {
+	g_print ("\n*** Cannot use stencil buffer.\n");
+	g_print ("\n*** Sorry no Zalman setting possible.\n");
+	mode = static_cast<GdkGLConfigMode>
+	  (GDK_GL_MODE_RGB    |
+	   GDK_GL_MODE_DEPTH  |
+	   GDK_GL_MODE_DOUBLE);
+      }
+   }
+
+
    
    /* Try double-buffered visual */
    glconfig = gdk_gl_config_new_by_mode(mode);
@@ -1374,6 +1397,13 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
       }
    }
 
+   // BL debugging
+   //if (gdk_gl_config_has_stencil_buffer(glconfig)) {
+   //  g_print("BL DEBUG:: have stencil\n");
+   //} else {
+   //  g_print("BL DEBUG:: dont have stencil\n");
+   //}
+
   /*
    * Drawing area to draw OpenGL scene.
    */
@@ -1386,12 +1416,6 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
      n_contexts = 2;
      graphics_info_t::display_mode = try_stereo_flag;
   }
-
-   if (try_stereo_flag == coot::ZALMAN_STEREO) {
-     // BL asks: should be here?!
-     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_SINGLE | GLUT_STENCIL);
-
-   }
 
   int context_count = 0;
   
@@ -1795,6 +1819,66 @@ gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event) {
    float tbs =  g.get_trackball_size(); 
    float spin_quat[4];
    // 0.0174 = 1/(2*pi)
+   if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
+     GLint viewport[4];
+     glGetIntegerv(GL_VIEWPORT,viewport);
+    
+     glPushAttrib(GL_ENABLE_BIT);
+     glMatrixMode(GL_PROJECTION);
+     glPushMatrix();
+     glLoadIdentity();
+     glOrtho(0,viewport[2],0,viewport[3],-10.0,10.0);
+     glMatrixMode(GL_MODELVIEW);
+     glPushMatrix();
+     glLoadIdentity();
+     glTranslatef(0.33F,0.33F,0.0F); 
+     glDisable(GL_STENCIL_TEST);
+     /* We/you may not need all of these... FIXME*/
+
+     glDisable(GL_ALPHA_TEST);
+     glDisable(GL_LIGHTING);
+     glDisable(GL_FOG);
+     glDisable(GL_NORMALIZE);
+     glDisable(GL_DEPTH_TEST);
+     glDisable(GL_COLOR_MATERIAL);
+     glDisable(GL_LINE_SMOOTH);
+     glDisable(GL_DITHER);
+     glDisable(GL_BLEND);
+     glShadeModel(GL_SMOOTH);
+     //glDisable(0x809D); /* GL_MULTISAMPLE_ARB */ 
+     glDisable(0x809D); /* GL_MULTISAMPLE_ARB */ 
+
+     //glDisable(GL_STENCIL_TEST);
+     glClearStencil(0);
+     glColorMask(false,false,false,false);
+     glDepthMask(false);
+     glClear(GL_STENCIL_BUFFER_BIT);
+
+     glEnable(GL_STENCIL_TEST);
+     glStencilFunc(GL_ALWAYS, 1, 1);
+     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+     glLineWidth(1.0);
+     glBegin(GL_LINES);
+     int h = viewport[3], w=viewport[2];
+     int y;
+     for(y=0;y<h;y+=2) {
+       glVertex2i(0,y);
+       glVertex2i(w,y);
+     }
+     glEnd();
+
+     glColorMask(true,true,true,true);
+     glDepthMask(true);
+
+     glMatrixMode(GL_MODELVIEW);
+     glPopMatrix();
+     glMatrixMode(GL_PROJECTION);
+     glPopMatrix();
+     //
+     glPopAttrib();
+   }
+
    trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 
@@ -1867,7 +1951,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // BL says:: another hack!? FIXME
       // dont clear when we want to draw the 2 Zalman views
       if (in_stereo_flag != 6) 
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+      	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
 
       // From Bernhard
 #if (GTK_MAJOR_VERSION > 1) 
@@ -1882,6 +1967,43 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 
       // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+
+      // BL:: this is code for Zalman monitor. Maybe can be somewhere else!?
+      // Zalman works here?! but crap lighting!?
+      if (in_stereo_flag == 5) {
+	// draws one Zalman lines
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_EQUAL, 1, 1);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	glEnable(GL_STENCIL_TEST);
+
+	/* red triangle for testing*/
+	//glColor3ub(200, 0, 0);
+	//glBegin(GL_POLYGON);
+	//glVertex3i(-4, -4, 0);
+	//glVertex3i(4, -4, 0);
+	//glVertex3i(0, 4, 0);
+	//glEnd();
+
+	//glDisable(GL_STENCIL_TEST);
+      }
+
+      if (in_stereo_flag == 6) {
+	// g_print("BL DEBUG:: now draw 'right'\n");
+	// draws the other Zalman lines
+	glStencilFunc(GL_EQUAL, 0, 1);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	glEnable(GL_STENCIL_TEST);
+	/* green square for testing */
+	//glColor3ub(0, 200, 0);
+	//glBegin(GL_POLYGON);
+	//glVertex3i(3, 3, 0);
+	//glVertex3i(-3, 3, 0);
+	//glVertex3i(-3, -3, 0);
+	//glVertex3i(3, -3, 0);
+	//glEnd();
+      }
+
 
       glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
@@ -1916,6 +2038,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       glFogf(GL_FOG_END,    0.3*graphics_info_t::zoom*(graphics_info_t::clipping_back* -0.1 + 1.0));
       // 	 else
       // 	    glFogf(GL_FOG_END,    0.3*info.zoom*info.clipping_back);
+
 
 
       // Scene Rotation
@@ -2079,79 +2202,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 // 	 glPopMatrix();
 //       }
 
-      // BL:: this is code for Zalman monitor. Maybe can be somewhere else!?
-      if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT,viewport);
-    
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0,viewport[2],0,viewport[3],-10.0,10.0);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	glTranslatef(0.33F,0.33F,0.0F); 
-
-	/* We/you may not need all of these... FIXME*/
-
-	glDisable(GL_ALPHA_TEST);
-	glDisable(GL_LIGHTING);
-	glDisable(GL_FOG);
-	glDisable(GL_NORMALIZE);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_COLOR_MATERIAL);
-	glDisable(GL_LINE_SMOOTH);
-	glDisable(GL_DITHER);
-	glDisable(GL_BLEND);
-	glShadeModel(GL_SMOOTH);
-	//glDisable(0x809D); /* GL_MULTISAMPLE_ARB */ 
-
-	glDisable(GL_STENCIL_TEST);
-	glClearStencil(0);
-	glColorMask(false,false,false,false);
-	glDepthMask(false);
-	glClear(GL_STENCIL_BUFFER_BIT);
-
-	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_ALWAYS, 1, 1);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-	{
-	  int h = viewport[3], w=viewport[2];
-	  int y;
-	  glLineWidth(1.0);
-	  glBegin(GL_LINES);
-	  for(y=0;y<h;y+=2) {
-	    glVertex2i(0,y);
-	    glVertex2i(w,y);
-	  }
-	  glEnd();
-	}
-
-	glColorMask(true,true,true,true);
-	glDepthMask(true);
-
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-
-	if (in_stereo_flag == 5) {
-	  // draws one Zalman lines
-	  glStencilFunc(GL_EQUAL, 1, 1);
-	  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	  glEnable(GL_STENCIL_TEST);
-	  //glDisable(GL_STENCIL_TEST);
-	}
-
-	if (in_stereo_flag == 6) {
-	  // draws the other Zalman lines
-	  glStencilFunc(GL_EQUAL, 0, 1);
-	  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	  //glEnable(GL_STENCIL_TEST);
-	}
-      }
       graphics_info_t::draw_generic_objects();
       graphics_info_t::draw_generic_text();
 
@@ -2172,7 +2222,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 #endif
          graphics_info_t::Increment_Frames();
       }
-      
+
+      if (graphics_info_t::display_mode == coot::ZALMAN_STEREO)
+	glDisable(GL_STENCIL_TEST);
+  
    } // gtkgl make area current test
 
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
