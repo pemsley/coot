@@ -193,6 +193,47 @@
    (else 
     #f)))
 
+
+(define (mutate-nucleotide-range imol chain-id resno-start resno-end sequence)
+
+  ;; return #f on unknown letter
+  ;; 
+  (define (nucleotide-letter->3-letter-code letter)
+    (cond 
+     ((not (char? letter)) #f)
+     ((eq? letter #\a) "A")
+     ((eq? letter #\c) "C")
+     ((eq? letter #\g) "G")
+     ((eq? letter #\t) "T")
+     ((eq? letter #\u) "U")
+     (else 
+      #f)))
+
+  ;; main line
+  (if (not (string? sequence))
+      (let ((s "sequence must be a string"))
+	(info-dialog s)
+	(format #t "~s~%" s))
+      (let ((residue-range-length (+ (- resno-end resno-start) 1))
+	    (seq-length (string-length sequence)))
+
+	(if (not (= residue-range-length seq-length))
+	    (let ((s "residue range must equal sequence length"))
+	      (info-dialog s)
+	      (format #t "~s~%" s))
+	    (let ((residue-types 
+		   (map nucleotide-letter->3-letter-code 
+			(string->list sequence))))
+
+	      (map (lambda (res-no res-type)
+		     (if (string? res-type) 
+			 (begin
+			   (mutate-base imol chain-id res-no "" res-type))))
+		     (range resno-start (+ resno-end 1))
+		     residue-types))))))
+
+
+
 ;; a wrapper for mutate-single-residue-by-seqno (which uses slightly
 ;; inconvenient single letter code)
 ;; 
