@@ -748,17 +748,22 @@ int blob_under_pointer_to_screen_centre() {
       coot::Cartesian front = unproject(0.0);
       coot::Cartesian back  = unproject(1.0);
       clipper::Coord_orth p1(front.x(), front.y(), front.z());
-      clipper::Coord_orth p2( back.x(),  back.y(),  back.z()); 
-      clipper::Coord_orth blob =
-	 graphics_info_t::molecules[imol_map].find_peak_along_line(p1, p2);
-      coot::Cartesian cc(blob.x(), blob.y(), blob.z());
-      graphics_info_t g;
-      g.setRotationCentre(cc);
-      for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
-	 graphics_info_t::molecules[ii].update_map();
-	 graphics_info_t::molecules[ii].update_symmetry();
+      clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
+      try { 
+	 clipper::Coord_orth blob =
+	    graphics_info_t::molecules[imol_map].find_peak_along_line_favour_front(p1, p2);
+	 coot::Cartesian cc(blob.x(), blob.y(), blob.z());
+	 graphics_info_t g;
+	 g.setRotationCentre(cc);
+	 for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
+	    graphics_info_t::molecules[ii].update_map();
+	    graphics_info_t::molecules[ii].update_symmetry();
+	 }
+	 graphics_draw();
       }
-      graphics_draw();
+      catch (std::runtime_error mess) {
+	 std::cout << mess.what() << std::endl;
+      }
    } else {
       std::string s = "Refinement map not selected - no action";
       std::cout << s << std::endl;

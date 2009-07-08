@@ -6757,9 +6757,6 @@ molecule_class_info_t::make_map_from_cns_data(const clipper::Spacegroup &sg,
    return imol_no;
 }
 
-// This seems to pick the front edge of the blob of density.  Why is
-// that?
-// 
 clipper::Coord_orth
 molecule_class_info_t::find_peak_along_line(const clipper::Coord_orth &p1,
 					    const clipper::Coord_orth &p2) const {
@@ -6781,6 +6778,60 @@ molecule_class_info_t::find_peak_along_line(const clipper::Coord_orth &p1,
    return pbest;
 }
 
+// Throw an exception if there is no point about the contour level of this map.
+// 
+// This is a different algorithm to above.  Here we find the first
+// blob about the contor level of the map.  The actual peak height
+// does not matter.  (i.e. low level peaks at front will win over big
+// peaks behind (no matter what the big peak density level is).
+//
+// So now we find the first peak about the contour level and find the
+// highest point in that peak.  When that peak goes below the contour
+// level we stop searching for the higest peak along the line.
+//
+clipper::Coord_orth
+molecule_class_info_t::find_peak_along_line_favour_front(const clipper::Coord_orth &p1,
+							 const clipper::Coord_orth &p2) const {
+
+   float best_score = -9999999.9;
+   clipper::Coord_orth pbest;
+   int istep_max = 500;
+   bool point_set = 0;
+   float contour_lev = contour_level[0];
+
+   for (int istep=0; istep<=istep_max; istep++) {
+      float fr = float(istep)/float(istep_max);
+      clipper::Coord_orth pc = p1 + fr*(p2-p1);
+      float d = density_at_point(pc);
+      if (d > contour_lev) {
+	 // OK, so the point we want is somewhere in this peak
+	 for (int jstep=istep; jstep<=istep_max; jstep++) {
+	    fr = float(jstep)/float(istep_max);
+	    pc = p1 + fr*(p2-p1);
+	    d = density_at_point(pc);
+	    if (d > contour_lev) {
+	       if (d> best_score) {
+		  best_score = d;
+		  pbest = pc;
+		  point_set = 1;
+	       }
+	    } else {
+	       // the front peak is over (now below the contour level), we have the pbest.
+	       break;
+	    } 
+	 }
+	 break;
+      }
+   }
+      
+   if (! point_set) {
+      std::string mess("No peak above ");
+      mess += coot::util::float_to_string(contour_lev);
+      mess += " found.";
+      throw std::runtime_error(mess);
+   } 
+   return pbest;
+}
 
 // replace molecule
 int

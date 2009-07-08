@@ -8,15 +8,6 @@
   though.  We should have both, I suppose.
 
 
-   o Tweak the go-to-blob algorithm to much favour blobs at the front.
-     Especially those above the displayed contour level. Does this
-     work with the refinement map?  What happens when the refinement
-     map is not defined?  ::: 1
-
- 
-   o Fix Pukka Puckers ::: 4
-
-
    o Torsion general is broken? Yes (argh!) ::: 2
 
 
@@ -990,5 +981,18 @@ c-interface clear_up_moving_atoms...
      extremely deeply-buried problem. ::: 4
 
  * Done by Bernhard (and Eugene).
+
+   o Fix Pukka Puckers ::: 4
+
+* Done.
+
+   o Tweak the go-to-blob algorithm to much favour blobs at the front.
+     Especially those above the displayed contour level. Does this
+     work with the refinement map?  What happens when the refinement
+     map is not defined?  ::: 1
+
+* Done.
+
+
 
 -----
