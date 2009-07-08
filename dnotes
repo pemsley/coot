@@ -4370,4 +4370,12 @@ WARNING:: failed to get AFIX handle for  <DA> HIS  CG  ,
     create_xxx_dialog function to add-c-extern.sh
 
 
+----
+Mon Jul  6 20:04:39 BST 2009
+
+    What's the Ubuntu way of checking for dependencies?  (i.e. those
+    in the README file)?
+
+
+
 ------

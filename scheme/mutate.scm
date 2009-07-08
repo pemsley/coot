@@ -196,7 +196,10 @@
 
 (define (mutate-nucleotide-range imol chain-id resno-start resno-end sequence)
 
-  ;; return #f on unknown letter
+  ;; Return #f on unknown letter.  We don't need to be specific about
+  ;; RNA/DNA here because mutate-base uses canonical_base_name() to
+  ;; set the base name according to the residue type before it was
+  ;; mutated.
   ;; 
   (define (nucleotide-letter->3-letter-code letter)
     (cond 

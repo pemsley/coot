@@ -2359,6 +2359,9 @@ class molecule_class_info_t {
    // 
    clipper::Coord_orth find_peak_along_line(const clipper::Coord_orth &p1,
 					    const clipper::Coord_orth &p2) const;
+   //  Throw an exception if peak not found (about the contour level for this map)
+   clipper::Coord_orth find_peak_along_line_favour_front(const clipper::Coord_orth &p1,
+							 const clipper::Coord_orth &p2) const;
 
    coot::minimol::molecule eigen_flip_residue(const std::string &chain_id, int resno); 
 
