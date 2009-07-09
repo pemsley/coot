@@ -417,8 +417,12 @@ Punted from 0.6:
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.  ::: 2
 
-*  You need to supply a RTop, not a string symmetry operator
-  though.  We should have both, I suppose.  Punt.
+*  You need to supply a RTop, not a string symmetry operator though.
+   We should have both, I suppose.  Punt.  Look at the
+   symm_card_composition_t class in coot-shelx.hh.  Call it with the 
+   passed string, and the loot at x_element, y_element, z_element (and 
+   the frac_trans) to make a fractional matrix, which can be used in 
+   new-molecule-by-symmetry.
 
 
 
