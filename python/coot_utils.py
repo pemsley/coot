@@ -954,7 +954,9 @@ def decode_key(key_val_name):
         # on some windows: special characters seem to have high value,
         # so need to convert these properly too 
         if (not key_value or key_value >= 100000):
-            key_value = int(gtk.gdk.unicode_to_keyval(ord(key_val_name)))
+            # new python needs a long there!? I hope it wont harm old!?
+            new_val = long(ord(key_val_name))
+            key_value = int(gtk.gdk.unicode_to_keyval(new_val))
         return key_value
     except:
         return key_sym_code(key_val_name)

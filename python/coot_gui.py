@@ -2809,7 +2809,16 @@ def key_bindings_gui():
          #al.add(label)
          binding_hbox.pack_start(button, True, True, 0)
          inside_vbox.pack_start(binding_hbox, False, False, 0)
-         button.connect("clicked", lambda *args: apply(item[3]))
+         binding_func = item[3]
+         if not (callable(binding_func)):
+            s  = "Cannot call given function with button,\n"
+            s += "probably a scheme function.\n"
+            s += "The shortcut should still work though."
+            def binding_func():
+               info_dialog(s)
+               print "INFO::", s
+         
+         button.connect("clicked", lambda func: apply(binding_func))
          
       else:
          binding_hbox.pack_start(key_label, False, False, 2)
@@ -2851,16 +2860,17 @@ def key_bindings_gui():
       scm_key_bindings = run_scheme_command("*key-bindings*")
       # filter out doublicates
       for item in scm_key_bindings:
-         print "BL DEBUG:: item", item
          scm_code, scm_key, text, tmp = item
          py_keys  = [elem[1] for elem in py_and_scm_keybindings]
          py_codes = [elem[0] for elem in py_and_scm_keybindings]
-         print "BL DEBUG:: py_keys and py_codes", py_keys, py_codes
          if ((not scm_code in py_codes) and (not scm_key in py_keys)):
+            item[2] = item[2] + " (scm)"
             py_and_scm_keybindings.append(item)
-
-      py_and_scm_keybindings += scm_key_bindings
-      
+         else:
+            item[2] = item[2] + " (scm + doublicate key)"
+            py_and_scm_keybindings.append(item)
+            
+       
    for items in py_and_scm_keybindings:
       box_for_binding(items, usr_frame_vbox, True)
 

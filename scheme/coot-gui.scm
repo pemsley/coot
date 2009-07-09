@@ -2191,6 +2191,14 @@
 
 (define (key-bindings-gui)
 
+  (define (dummy-func)
+    (let ((s (string-append
+	      "Cannot call given function with button,\n"
+	      "probably a scheme function.\n"
+	      "The shortcut should still work though.")))
+      (info-dialog s)
+      (format #t "INFO:: ~s ~%" s)))
+
   (define (box-for-binding item inside-vbox buttonize-flag)
     (let ((binding-hbox (gtk-hbox-new #f 2)))
       (let* ((txt (if (string? (car (cdr item)))
@@ -2286,6 +2294,11 @@
 	(cond 
 	 ((null? items) 'done)
 	 (else 
+	  (if (string? (list-ref (car items) 3)) 
+	      (begin
+		; BL says:: maybe should check for doublicate keys and make info
+		(list-set! (car items) 2 (string-append (list-ref (car items) 2) " (py)"))
+		(list-set! (car items) 3 dummy-func)))
 	  (box-for-binding (car items) usr-frame-vbox #t)
 	  (loop (cdr items)))))
       

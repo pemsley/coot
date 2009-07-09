@@ -1,5 +1,5 @@
 # mutate.py
-# Copyright 2005, 2006 by Bernhard Lohkamp
+# Copyright 2005, 2006, 2009 by Bernhard Lohkamp
 # Copyright 2004, 2005, 2006 by Paul Emsley, The University of York
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -130,6 +130,44 @@ def three_letter_code2single_letter(residue_type):
        # if not standard aa then set it to Ala
        res_type_1lc = "A"
     return res_type_1lc
+
+
+def mutate_nucleotide_range(imol, chain_id, resno_start, resno_end, sequence):
+
+   from types import StringType
+   # return False on unknown letter
+   # RNA/DNA here because mutate-base uses canonical_base_name() to
+   # set the base name according to the residue type before it was
+   # mutated.
+   #
+   def nucleotide_letter2three_letter_code(letter):
+      # not entirely sure what should happening here,
+      # only upper case conversion!?
+      nt = ["A", "C", "G", "T", "U"]
+      up = letter.upper()
+      if up in nt:
+         return up
+      else:
+         return False
+
+   # main line
+   if (type(sequence) is not StringType):
+      s = "sequence must be a string"
+      info_dialog(s)
+      print s
+   else:
+      residue_range_length = resno_end - resno_start + 1
+      seq_length = len(sequence)
+
+      if not (residue_range_length == seq_length):
+         s = "residue range must equal sequence length"
+         info_dialog(s)
+         print s
+      else:
+         residue_types = map(nucleotide_letter2three_letter_code, sequence)
+         for res_no, res_type in map(None, range(resno_start, resno_end + 1), residue_types):
+            if res_type:
+               mutate_base(imol, chain_id, res_no, "", res_type)
 
 # a wrapper for mutate_single_residue_by_seqno (which uses slightly
 # inconvenient single letter code)
