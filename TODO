@@ -432,6 +432,8 @@ Punted from 0.6:
    o CA (or CA + ligs?) mode, edit bond colours -> Changes the colour
      of the first chain only.   ::: 1
 
+   o Rotation for add terminal residue.  hari jayaram & Donald Raymond
+   ::: 2
 
  ------
     
