@@ -412,6 +412,14 @@ Punted from 0.6:
 
    o RNA/DNA backbone in symmetry.
 
+   o For spin-searching the carbohydrate you need to give an atom spec for the spin vector atoms.
+
+   o *create* a molecule by symmetry, not (just) write it out.
+      Consider a dialog to Write/Create a symmetry molecule.  ::: 2
+
+*  You need to supply a RTop, not a string symmetry operator
+  though.  We should have both, I suppose.  Punt.
+
 
 
  0.7 Priorities:

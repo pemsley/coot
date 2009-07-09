@@ -1,11 +1,5 @@
 
-   23 items
-
-   o *create* a molecule by symmetry, not (just) write it out.
-      Consider a dialog to Write/Create a symmetry molecule.  ::: 2
-
-* Done.  You need to supply a RTop, not a string symmetry operator
-  though.  We should have both, I suppose.
+   13 items
 
 
    o Torsion general is broken? Yes (argh!) ::: 2
@@ -50,16 +44,6 @@
      this? Synthetic map?  How does it work when we do this for an alt
      conf too?  ::: 10
 
-
-   o Integrate scripting functions into main documentation somehow.
-     Well, you can look at this, if it is hard, punt it.  
-     ::: 2
-
-* It looks like it can be done using @html, @end html stripping out the
-  body etc tags. Ugly though.  Include files need to be in source doc
-  directory.  Call it xxx.html.texi and add @html tags in there.
-
-  Actually, there is a better way, use the JED conversion script.
 
 
    o Make sure that .coot.py keybindings appear in the keybindings
@@ -992,6 +976,19 @@ c-interface clear_up_moving_atoms...
      map is not defined?  ::: 1
 
 * Done.
+
+
+   o Integrate scripting functions into main documentation somehow.
+     Well, you can look at this, if it is hard, punt it.  
+     ::: 3
+
+* It looks like it can be done using @html, @end html stripping out the
+  body etc tags. Ugly though.  Include files need to be in source doc
+  directory.  Call it xxx.html.texi and add @html tags in there.
+
+  Actually, there is a better way, use the JED conversion script.
+
+  Done.  At last.  What an effort.
 
 
 
