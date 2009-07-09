@@ -278,7 +278,7 @@ namespace coot {
    };
 
    class dots_representation_info_t {
-      short int is_closed;
+      bool is_closed;
    public:
       std::vector<clipper::Coord_orth> points;
       dots_representation_info_t(const std::vector<clipper::Coord_orth> &points_in) {
@@ -289,7 +289,7 @@ namespace coot {
 	 points.clear();
 	 is_closed = 1;
       }
-      int is_open_p() const {
+      bool is_open_p() const {
 	 int r = 1 - is_closed;
 	 return r;
       }
@@ -1182,7 +1182,8 @@ class molecule_class_info_t {
    void draw_map_unit_cell(const coot::colour_holder &cell_colour);
    void draw_unit_cell_internal(float rsc[8][3]);
    void draw_dots();
-   void clear_dots(int dots_handle);
+   // return the status of whether or not the dots were cleared.
+   bool clear_dots(int dots_handle);
    int  make_dots(const std::string &atom_selection_str,
 		  float dot_density, float atom_radius_scale);
    int n_dots_sets() const {  // return the number of sets of dots.

@@ -3093,8 +3093,9 @@ int dots(int imol,
 void clear_dots(int imol, int dots_handle) {
 
    if ((imol >= 0) && (imol < graphics_info_t::n_molecules())) { 
-      graphics_info_t::molecules[imol].clear_dots(dots_handle);
-      graphics_draw();
+      bool cleared_p = graphics_info_t::molecules[imol].clear_dots(dots_handle);
+      if (cleared_p)
+	 graphics_draw();
    }
 }
 

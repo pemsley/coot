@@ -6505,15 +6505,21 @@ molecule_class_info_t::draw_dots() {
    }
 }
 
-void
+// return the status of whether or not the dots were cleared.
+bool
 molecule_class_info_t::clear_dots(int dots_handle) {
 
-   if ((dots_handle >= 0) && (dots_handle < int(dots.size()))) { 
-      dots[dots_handle].close_yourself();
+   bool r = 0;
+   if ((dots_handle >= 0) && (dots_handle < int(dots.size()))) {
+      if (dots[dots_handle].is_open_p()) { 
+	 dots[dots_handle].close_yourself();
+	 r = 1;
+      }
    } else {
       std::cout << "WARNING:: bad dots_handle in clear_dots: "
 		<< dots_handle << " " << dots.size() << std::endl;
-   } 
+   }
+   return r;
 }
 
 
