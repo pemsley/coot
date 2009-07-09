@@ -16,12 +16,10 @@ user-manual.pdf: user-manual.ps
 
 user-manual.html: $(top_srcdir)/doc/user-manual.texi
 	texi2html $^
-	mkdir -p chapters ; \
-	cd chapters ; \
 	splitstr='-split_chapter' ; \
 	texi2html --version ; \
 	if [ $$? = 0 ] ; then splitstr='-split=chapter' ; fi ; \
-	texi2html $$splitstr ../$^ ; \
+	texi2html $$splitstr $^ ; \
 	cd ..
 
 coot.dvi: $(top_srcdir)/doc/coot.tex
