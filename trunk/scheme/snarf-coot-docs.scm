@@ -85,18 +85,12 @@
        
        ;; problems snarfing coot docs?  check that the function-name
        ;; and args are define all on one line.
-       (format #t "running goosh-command guile-tools with args tmp-file-1: ~s source-file ~s ~%" 
-	       tmp-file-1 source-file)
        (let ((args (list "doc-snarf"
 			    "--texinfo"
 			    "-o"
 			    tmp-file-1
 			    source-file)))
 	 (goosh-command "guile-tools" args '() "snarf-log" #t)
-	 (if (file-exists? tmp-file-1) 
-	     (format #t "=========== exist: ~s ============~%" tmp-file-1)
-	     (format #t "=========== NOT exist: ~s !!!!!!!!! ============~%" tmp-file-1))
-	 (format #t "   done goosh-command guile-tools ~s~%" args)
 	 (goosh-command "grep" (list "-v" "^" tmp-file-1) '() doc-file #f))
 
        (if (file-exists? tmp-file-1)
