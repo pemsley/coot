@@ -4376,6 +4376,13 @@ Mon Jul  6 20:04:39 BST 2009
     What's the Ubuntu way of checking for dependencies?  (i.e. those
     in the README file)?
 
+* dpkg-query. Done.
 
+
+
+----
+Wed Jul  8 23:29:46 BST 2009
+
+	 the tick marks for crashes-on-sphere-refine-maybe.pdb are not good.
 
 ------
