@@ -6514,7 +6514,6 @@ molecule_class_info_t::clear_dots(int dots_handle) {
       std::cout << "WARNING:: bad dots_handle in clear_dots: "
 		<< dots_handle << " " << dots.size() << std::endl;
    } 
-
 }
 
 
