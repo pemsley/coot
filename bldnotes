@@ -8,6 +8,8 @@ build-it-win rev 2122
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+   o simplify Windows installer script (use /r)
+
    o rigid body fit per residues
 
    o add the binary_type_latest to the WinCoot installer script 
@@ -45,6 +47,7 @@ build-it-win rev 2122
    o WinCoot:
         - update dictionaries!!
 	- update to python 2.6 (now with pygtk etc)
+* Done
 	- before stable release copy python over
 	- silent python installation? Possible? (http://www.autoitscript.com/autoit3/)
 

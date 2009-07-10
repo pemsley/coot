@@ -566,8 +566,6 @@ if test "$run_tests" = true ; then
    rm coot-backup/*
    # for python build we need to set COOT_PYTHON_DIR and COOT_HOME
    COOT_PYTHON_DIR=$install_top_dir/share/coot/python
-   PYTHONPATH=$COOT_PYTHON_DIR
-   PYTHONHOME=$install_top_dir/bin
    COOT_HOME=$HOME
    PYTHONPATH=$COOT_PYTHON_DIR
    PYTHONHOME=$install_top_dir/bin
@@ -575,13 +573,12 @@ if test "$run_tests" = true ; then
    export PYTHONHOME
    export COOT_PYTHON_DIR
    export COOT_HOME
-   export PYTHONPATH
-   export PYTHONHOME
    
    echo $coot_binary --no-graphics --script python-tests/coot_unittest.py
         $coot_binary --no-graphics --script python-tests/coot_unittest.py
 
    status=$?
+   echo BL DEBUG status of tests is $status
    if [ $status = 0 ] ; then
       echo test_coot_python: coot test passed
       return 0
@@ -1156,10 +1153,11 @@ else
 fi
 # we shall include python here too
 # but first define the versions
-python_version=python2.5
-pver=2.5.2
-#python_version=python2.6
-#pver=2.6.1
+#python_version=python2.5
+#pver=2.5.2
+python_version=python2.6
+pver=2.6.2
+pver_short=${pver%.*}
 
 PATH=$install_top_dir/bin:$install_top_dir/${python_version}:$PATH
 echo the path before testing for installed modules is $PATH
@@ -1280,8 +1278,8 @@ fi
 
 # Hope this doesnt mess things on windows?!
 # clean up old test status:
-echo build-in-progress    > $LOGS/$build_type-build-status
-echo waiting for build... > $LOGS/$build_type-test-status
+echo build-in-progress    > $LOGS/gtk2$build_type-build-status
+echo waiting for build... > $LOGS/gtk2$build_type-test-status
 
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
@@ -2515,14 +2513,13 @@ fi
 if test -n "$build_pygobject" ; then 
    echo BUILDING pygobject:
    #
-   #pygobject_version=2.14.2-2
-   pygobject_version=2.14.1-1
-   #${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/2.14/pygobject-$pygobject_version.win32-py2.6.exe
-   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/2.14/pygobject-$pygobject_version.win32-py2.5.exe
+   pygobject_version=2.14.2-2
+   #${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/2.14/pygobject-$pygobject_version.win32-py2.5.exe
+   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/2.14/pygobject-$pygobject_version.win32-py$pver_short.exe
    (
    date
-   #${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.win32-py2.6.exe
-   ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.win32-py2.5.exe
+   #${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.win32-py2.5.exe
+   ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.win32-py$pver_short.exe
    # copy pkgconfig and include files
    mkdir $install_top_dir/include/pygtk-2.0
    cp    $install_top_dir/$python_version/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0
@@ -2536,14 +2533,14 @@ fi
 if test -n "$build_pycairo" ; then 
    echo BUILDING pycairo:
    #
-   #pycairo_version=1.4.12-2
-   pycairo_version=1.4.12-1
-   #${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/1.4/pycairo-$pycairo_version.win32-py2.6.exe
-   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/1.4/pycairo-$pycairo_version.win32-py2.5.exe
+   #pycairo_version=1.4.12-1
+   pycairo_version=1.4.12-2
+   #${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/1.4/pycairo-$pycairo_version.win32-py2.5.exe
+   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/1.4/pycairo-$pycairo_version.win32-py$pver_short.exe
    (
    date
-   #${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.win32-py2.6.exe
-   ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.win32-py2.5.exe
+   #${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.win32-py2.5.exe
+   ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.win32-py$pver_short.exe
    # copy pkgconfig and include files
    cp -r $install_top_dir/$python_version/include/pycairo $install_top_dir/include/
    cp    $install_top_dir/$python_version/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
@@ -2558,14 +2555,14 @@ fi
 if test -n "$build_pygtk" ; then 
    echo BUILDING pygtk:
    #
-   py_gtk_version=2.12.1-2
-   #py_gtk_version=2.12.1-3
-   #${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.12/pygtk-$py_gtk_version.win32-py2.6.exe
-   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.12/pygtk-$py_gtk_version.win32-py2.5.exe
+   #py_gtk_version=2.12.1-2
+   py_gtk_version=2.12.1-3
+   #${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.12/pygtk-$py_gtk_version.win32-py2.5.exe
+   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.12/pygtk-$py_gtk_version.win32-py$pver_short.exe
    (
    date
-   #${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py2.6.exe
-   ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py2.5.exe
+   #${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py2.5.exe
+   ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
    # copy pkgconfig and include files
    cp -r $install_top_dir/$python_version/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
    cp    $install_top_dir/$python_version/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
