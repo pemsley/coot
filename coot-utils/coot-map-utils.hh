@@ -157,7 +157,73 @@ namespace coot {
       // 
       clipper::Xmap<float> reinterp_map_fine_gridding(const clipper::Xmap<float> &xmap);
   
+      // 
+      //
+      class residue_triple_t {
+      public:
+	 CResidue *this_residue;
+	 CResidue *next_residue;
+	 CResidue *prev_residue;
+	 std::string alt_conf;
+	 residue_triple_t() {
+	    this_residue = 0; 
+	    prev_residue = 0; 
+	    next_residue = 0;
+	 }
+	 residue_triple_t(CResidue *this_residue_in,
+			  CResidue *prev_residue_in,
+			  CResidue *next_residue_in,
+			  std::string alt_conf_in) {
+	    alt_conf = alt_conf_in;
+	    this_residue = this_residue_in;
+	    prev_residue = prev_residue_in;
+	    next_residue = next_residue_in;
+	 }
+	 ~residue_triple_t() {
+	    delete this_residue;
+	    delete next_residue;
+	    delete prev_residue;
+	 }
+	 residue_triple_t deep_copy() {
+	    CResidue *this_residue_cp = deep_copy_this_residue(this_residue, alt_conf, 1);
+	    CResidue *prev_residue_cp = deep_copy_this_residue(this_residue, alt_conf, 1);
+	    CResidue *next_residue_cp = deep_copy_this_residue(this_residue, alt_conf, 1);
+	    return residue_triple_t(this_residue_cp,
+				    prev_residue_cp,
+				    next_residue_cp,
+				    alt_conf);
+	 }
+      };
 
+      class backrub_residue_triple_t : public residue_triple_t {
+
+      public:
+	 //  Note to self, the residue copy may need the deep_copy
+	 //  that does the atom index transfer too.
+	 
+	 backrub_residue_triple_t(CResidue *this_residue_in,
+				  CResidue *prev_residue_in,
+				  CResidue *next_residue_in,
+				  std::string alt_conf_in) : residue_triple_t(this_residue_in,
+									      prev_residue_in,
+									      next_residue_in,
+									      alt_conf_in) {
+	    trim_this_residue_atoms();
+	    trim_prev_residue_atoms();
+	    trim_next_residue_atoms();
+	 }
+
+	 // Delete atoms that don't have this alt conf (or "" alt conf).
+	 void trim_this_residue_atoms();
+	 // As above, and also delete all atoms that are not C or O
+	 void trim_prev_residue_atoms();
+	 // As trim_this_residue_atoms, and also delete all atoms that are not N or H.
+	 void trim_next_residue_atoms();
+	 void trim_residue_atoms_generic(CResidue *residue_p,
+					 std::vector<std::string> keep_atom_vector,
+					 bool use_keep_atom_vector);
+	 
+      }; 
    }
 }
 
