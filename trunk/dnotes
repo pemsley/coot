@@ -4370,6 +4370,20 @@ WARNING:: failed to get AFIX handle for  <DA> HIS  CG  ,
     create_xxx_dialog function to add-c-extern.sh
 
 
+---
+Wed Jul  8 12:44:43 BST 2009
+
+	links should be dashed.  1ehz.
+
+* Done.
+
+----
+Wed Jul  8 12:45:53 BST 2009
+
+   sequence view problems 1ehz
+
+* Fixed.
+
 ----
 Mon Jul  6 20:04:39 BST 2009
 
@@ -4377,7 +4391,6 @@ Mon Jul  6 20:04:39 BST 2009
     in the README file)?
 
 * dpkg-query. Done.
-
 
 
 ----

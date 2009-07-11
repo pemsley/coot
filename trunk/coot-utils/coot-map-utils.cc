@@ -502,3 +502,82 @@ coot::util::difference_map(const clipper::Xmap<float> &xmap_in_1,
     }
    return std::pair<clipper::Xmap<float>, float> (r, std_dev); 
 }
+
+// Delete atoms that don't have this alt conf (or "" alt conf).
+void
+coot::util::backrub_residue_triple_t::trim_this_residue_atoms() {
+
+   std::vector<std::string> vec;
+   trim_residue_atoms_generic(this_residue, vec, 0);
+}
+
+void
+coot::util::backrub_residue_triple_t::trim_residue_atoms_generic(CResidue *residue_p,
+								 std::vector<std::string> keep_atom_vector,
+								 bool use_keep_atom_vector) {
+
+   // Hmmm... in other places, I don't go round the houses (make the
+   // vector, then delete).  I just DeleteAtom(), so it may not be
+   // necessary here.
+   
+   if (residue_p) {
+      std::vector<int> delete_atom_index_vec;
+      PPCAtom residue_atoms;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int i=0; i<n_residue_atoms; i++) {
+	 std::string atom_name(residue_atoms[i]->name);
+	 std::string atom_alt_conf(residue_atoms[i]->altLoc);
+
+	 bool delete_this_atom_flag = 1; 
+	 if (use_keep_atom_vector) {
+	    for (unsigned int ikeep=0; ikeep<keep_atom_vector.size(); ikeep++) {
+	       if (atom_name == keep_atom_vector[ikeep]) {
+		  delete_this_atom_flag = 0;
+		  break;
+	       }
+	    }
+	 } else {
+	    // i.e. is the this_residue, keep all of these atoms
+	    delete_this_atom_flag = 0;
+	 }
+	 if (delete_this_atom_flag) { 
+	    delete_atom_index_vec.push_back(i);
+	 } else {
+	    if ((atom_alt_conf != alt_conf) &&
+		(atom_alt_conf != "")) {
+	       delete_atom_index_vec.push_back(i);
+	    }
+	 }
+      }
+
+      if (delete_atom_index_vec.size() > 0) {
+	 for (unsigned int i=0; i<delete_atom_index_vec.size(); i++)
+	    residue_p->DeleteAtom(i);
+	 residue_p->TrimAtomTable();
+      }
+   }
+}
+
+
+
+// As above, and also delete all atoms that are not C or O
+void
+coot::util::backrub_residue_triple_t::trim_prev_residue_atoms() {
+
+   std::vector<std::string> vec;
+   vec.push_back(" C  ");
+   vec.push_back(" O  ");
+   trim_residue_atoms_generic(this_residue, vec, 0);
+}
+
+   // As trim_this_residue_atoms, and also delete all atoms that are not N.
+void
+coot::util::backrub_residue_triple_t::trim_next_residue_atoms() {
+
+   std::vector<std::string> vec;
+   vec.push_back(" N  ");
+   vec.push_back(" H  ");
+   trim_residue_atoms_generic(this_residue, vec, 0);
+}
+

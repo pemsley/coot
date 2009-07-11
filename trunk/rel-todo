@@ -8,10 +8,6 @@
    o Fix ligand chi angles. ::: 1
 
 
-   o Communication with PISA.  Get PISA on jackal.  I'd like show the
-     interface with molprobity dots.  pisa-interaction ::: 8
-
-
    o multiple residue ranges, glycosylation, covalent bond entities,
      make sure it works with alt confs and residues with TER atoms.  
 
@@ -40,9 +36,15 @@
     ::: 3
 
 
+
    o Backrub-based auto-fit rotamer search.  Question: how do I test
      this? Synthetic map?  How does it work when we do this for an alt
      conf too?  ::: 10
+
+
+
+   o Communication with PISA.  Get PISA on jackal.  I'd like show the
+     interface with molprobity dots.  pisa-interaction ::: 8
 
 
 

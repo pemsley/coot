@@ -346,6 +346,10 @@
     o EJD: I want the Ramachandran plot to be marked up if the atoms
       have zero occupancy.
 
+    o Rebecca Vorhees(?) multiple residue ranges for the atom
+      selection for rotate/translate (first) and rigid body fit.  And a
+      GUI to make the ranges.
+
 
 Punted from 0.6:
 
