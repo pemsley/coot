@@ -1374,6 +1374,8 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 	  (GDK_GL_MODE_RGB    |
 	   GDK_GL_MODE_DEPTH  |
 	   GDK_GL_MODE_DOUBLE);
+      } else {
+        graphics_info_t::display_mode = coot::ZALMAN_STEREO;
       }
    }
 

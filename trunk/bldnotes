@@ -8,10 +8,6 @@ build-it-win rev 2122
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
-   o simplify Windows installer script (use /r)
-
-   o rigid body fit per residues
-
    o add the binary_type_latest to the WinCoot installer script 
 
      [And the rest of the phone home system: updates are available?
@@ -19,30 +15,13 @@ build-it-win rev 2122
 
    o optional tooltips for main toolbar buttons
 
-   o interface to thomas schneider superposition program
-
    o make md5sum note on WinCoot website
-
-   o update WinCoot to guile 1.8.6 (if possible; not yet).  [PE Note: try 1.9?] 
-                                                            [BL tried a while ago but not successfull]
 
    o simple guile implementation in WinCoot
 
    o update python WIKI scripts
 
-   o ccp4mg ellipsoids
-
-   o revisit refinement convergence of alt conf refinement
-
-   o add all GtkWidget and similar functions as ignore to coot.i (script)
-
-   o simulate middle mouse with Alt left ?!
-
-   o running shelx should be 'threaded'
-
    o labelling with 'l' doesnt show status bar info (feature/bug?)
-
-   o refinement weighting by occupancy
 
    o WinCoot:
         - update dictionaries!!
@@ -84,8 +63,27 @@ build-it-win rev 2122
 * TO DO THINGS *
 ---------------
 
+   o refinement weighting by occupancy
+
+   o running shelx should be 'threaded'
+
+   o add all GtkWidget and similar functions as ignore to coot.i (script)
+
+   o simulate middle mouse with Alt left ?!
+
+   o revisit refinement convergence of alt conf refinement
+
+   o update WinCoot to guile 1.8.6 (if possible; not yet).  [PE Note: try 1.9?] 
+                                                            [BL tried a while ago but not successfull]
+
+   o ccp4mg ellipsoids
+
+   o interface to thomas schneider superposition program
+
+   o rigid body fit per residues
+
    o fix OXT refinement
-     (maybe not now, as it may be fixed with MODRES etc...)
+     (maybe not now, as it may be fixed with MODRES etc... certainly already better)
 
    o density histogram graph?!
 
@@ -93,6 +91,8 @@ build-it-win rev 2122
 	bond thickness 0 doesnt work. hiding seems tricky!?
 
    o revisit python sockets
+
+* Done?!
 
    o merge build-it-win with buid-it-gtk2-simple?!
 
@@ -124,8 +124,6 @@ build-it-win rev 2122
    o fragment fitting/search
 
    o rsync builds to Paul's dir
-
-   o fix threading in python 'Coot News'
 
    o How about interfacing to a Wii?
 
@@ -286,6 +284,18 @@ build-it-win rev 2122
 * Done
 
    o key code for ( and ) not recognised (on FC10 e.g.)
+
+* Done
+
+   o fix zalman command line switch
+
+* Done
+
+   o simplify Windows installer script (use /r)
+
+* Done
+
+   o fix threading in python 'Coot News'
 
 * Done
 
