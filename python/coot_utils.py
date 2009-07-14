@@ -1057,7 +1057,7 @@ def residues_with_alt_confs(imol):
                 break
         return r
 
-    return residue_matching_criteria(imol, lambda chain_id, res_no, ins_code, res_serial_no: alt_func1(chain_id, res_no, ins_code, res_serial_no))
+    return residues_matching_criteria(imol, lambda chain_id, res_no, ins_code, res_serial_no: alt_func1(chain_id, res_no, ins_code, res_serial_no))
 
 # Return a list of all the altconfs in the residue. 
 # Typically this will return [""] or ["A", "B"]
