@@ -2209,7 +2209,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // BL says:: not sure if we dont need to do this for 2nd Zalman view
       //      if (! in_stereo_flag) {
-      if (in_stereo_flag != 1 || in_stereo_flag != 5) {
+      if (in_stereo_flag != 1 && in_stereo_flag != 5) {
          /* Swap backbuffer to front */
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
          gtk_gl_area_swapbuffers(GTK_GL_AREA(widget));
