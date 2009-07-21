@@ -22,8 +22,8 @@
 	     (ice-9 string-fun)
 	     (ice-9 format)
 	     (ice-9 rdelim))
-(use-modules (goosh)) 
 ;; (use-modules (goosh goosh))
+(use-modules (goosh)) 
 
 ;; 3D annotations - a bit of a hack currently
 (define *annotations* '())
@@ -68,6 +68,10 @@
 (define user-defined-click user-defined-click-scm)
 (define add-lsq-atom-pair add-lsq-atom-pair-scm)
 (define coot-sys-build-type coot-sys-build-type-scm)
+(define add-alt-conf add-alt-conf-scm)
+(define origin-pre-shift origin-pre-shift-scm)
+(define alignment-mismatches alignment-mismatches-scm)
+(define rigid-body-refine-by-residue-ranges rigid-body-refine-by-residue-ranges-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a
@@ -1228,12 +1232,27 @@
 (define (valid-map-molecule? imol)
   (= (is-valid-map-molecule imol) 1))
 
+
+;; convenience function (slightly less typing).  
+;;
+;; Return #t or #f
+;; 
+(define (valid-refinement-map?)
+  (valid-map-molecule? (imol-refinement-map)))
+
+
 ;; schemey interface to shelx molecule test
+;; 
+;; Return #t or #f.
+;; 
 (define (shelx-molecule? imol)
   (= (is-shelx-molecule imol) 1))
 
 ;; schemey interface to the function that returns whether or not a map
-;; is a difference map.  Return #t or #f.
+;; is a difference map.  
+;;
+;; Return #t or #f.
+;; 
 (define (is-difference-map? imol-map)
   (if (not (is-valid-map-molecule? imol-map))
       #f
@@ -1244,6 +1263,7 @@
 ;; and in molecule number imol exist?  
 ;; 
 ;; Return #t or #f.
+;; 
 (define (residue-exists? imol chain-id resno ins-code)
 
   (= 1 (does-residue-exist-p imol chain-id resno ins-code)))
@@ -1294,7 +1314,22 @@
 	 (print-sequence-chain imol chain))
        (chain-ids imol))
   'done) ; return value
-       
+
+;; simple utility function to return the contents of a file as a string.
+;; 
+(define (pir-file-name->pir-sequence pir-file-name)
+  (if (not (file-exists? pir-file-name))
+      #f
+      (call-with-input-file pir-file-name
+	(lambda (port)
+	  (let loop  ((lines '())
+		      (line (read-line port)))
+	    (cond
+	     ((eof-object? line) 
+	      (string-append-with-string (reverse lines) "\n"))
+	     (else
+	      (loop (cons line lines) (read-line port)))))))))
+
 
 ;; comma key hook
 (define graphics-comma-key-pressed-hook

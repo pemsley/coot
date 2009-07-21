@@ -56,6 +56,7 @@ int test_dipole();
 int test_segid_exchange();
 int test_ligand_fit_from_given_point();
 int test_peaksearch_non_close_peaks();
+int test_symop_card();
 
 class residue_selection_t {
 public:

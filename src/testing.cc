@@ -45,8 +45,17 @@
 #include "coot-utils.hh" // usually include from simple-restraint.hh
 #endif
 
+#include "coot-shelx.hh"
+#include "coot-coord-utils.hh"
+
 #include "coot-map-utils.hh"
 #include "dipole.hh"
+
+bool close_float_p(float f1, float f2) {
+
+   return (fabs(f1-f2) < 0.0001);
+
+} 
 
 class testing_data {
 public:
@@ -148,6 +157,8 @@ int test_internal() {
    functions.push_back(named_func(test_peaksearch_non_close_peaks,
 				  "test peak search non-close"));
 
+   functions.push_back(named_func(test_symop_card, "test symop card"));
+
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
       try { 
@@ -171,7 +182,7 @@ int test_internal() {
 int test_internal_single() {
    int status = 0;
    try { 
-      status = test_ligand_conformer_torsion_angles();
+      status = test_symop_card();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -1292,6 +1303,37 @@ int test_peaksearch_non_close_peaks() {
    
 } 
 
+int test_symop_card() {
+
+   int r = 0;
+
+   std::string symop_string = "X-1,Y,Z";
+   coot::symm_card_composition_t sc(symop_string);
+   std::cout << sc;
+
+   float rev[9] = {1,0,0,0,1,0,0,0,1};
+   float tev[3] = {-1,0,0};
+
+   if ((close_float_p(sc.x_element[0], rev[0])) && 
+       (close_float_p(sc.x_element[1], rev[1])) && 
+       (close_float_p(sc.x_element[2], rev[2]))) {
+      if ((close_float_p(sc.y_element[0], rev[3])) && 
+	  (close_float_p(sc.y_element[1], rev[4])) && 
+	  (close_float_p(sc.y_element[2], rev[5]))) {
+	 if ((close_float_p(sc.z_element[0], rev[6])) && 
+	     (close_float_p(sc.z_element[1], rev[7])) && 
+	     (close_float_p(sc.z_element[2], rev[8]))) {
+	    if ((close_float_p(sc.trans_frac(0), tev[0])) && 
+		(close_float_p(sc.trans_frac(1), tev[1])) && 
+		(close_float_p(sc.trans_frac(2), tev[2]))) {
+	       r = 1;
+	    }
+	 }
+      }
+   }
+
+   return r;
+} 
 
 #endif // BUILT_IN_TESTING
 

@@ -636,6 +636,45 @@
 		 #t)))))))
 
 
+(greg-testcase "Sphere Refine" #t
+   (lambda () 
+
+     (define (sphere-refine-here)
+       (let ((active-atom (active-residue)))
+	 (if (not (list? active-atom))
+	     (begin 
+	       (format #t "No active atom~%")
+	       (throw 'fail)))
+	 (let* ((centred-residue (list-head (cdr active-atom) 3))
+		(imol (car active-atom))
+		(other-residues (residues-near-residue imol 
+						       centred-residue 3.2))
+		(all-residues (if (list? other-residues)
+				  (cons centred-residue other-residues)
+				  (list centred-residue))))
+	   
+	   (format #t "imol: ~s residues: ~s~%" imol all-residues)
+	   (refine-residues imol all-residues))))
+
+     (let ((imol (greg-pdb "tutorial-add-terminal-1-test.pdb")))
+       (if (not (valid-model-molecule? imol))
+	   (begin
+	     (format #t "   molecule pdb not found~%")
+	     (throw 'fail)))
+
+       (let ((new-alt-conf (add-alt-conf imol "A" 93 "" "" 0)))
+	 
+	 (set-go-to-atom-molecule imol)
+	 (let ((success (set-go-to-atom-chain-residue-atom-name  "A" 93 " CA ")))
+	   (if (= success 0)
+	       (begin
+		 (format #t "   failed to go to A93 CA atom~%")
+		 (throw 'fail)))
+
+	   (sphere-refine-here)
+	   #t)))))
+
+
 
 (greg-testcase "Rigid Body Refine Alt Conf Waters" #t
    (lambda ()
@@ -758,6 +797,83 @@
 	      (format #t "   No matching post CB (unaltconfed) - failing.~%")
 	      (throw 'fail)))
 	#t)))
+
+
+(greg-testcase "Backrub rotamer" #t
+   (lambda ()
+
+     ;; 
+     (define (get-mover-list imol-1 imol-2 res-no)
+       (let ((atoms-1 (residue-info imol-1 "A" res-no ""))
+	     (atoms-2 (residue-info imol-2 "A" res-no "")))
+	 (let loop ((atoms-1 atoms-1)
+		    (atoms-2 atoms-2)
+		    (mover-list '()))
+	   (cond 
+	    ((null? atoms-1) (sort mover-list string<?))
+	    (else 
+	     (let ((pos-1 (list-ref (car atoms-1) 2))
+		   (pos-2 (list-ref (car atoms-2) 2)))
+	       (if (all-true? (map close-float? pos-1 pos-2))
+		   ;; the atom did not move
+		   (loop (cdr atoms-1) (cdr atoms-2) mover-list)
+		   
+		   ;; did move
+		   (loop (cdr atoms-1) (cdr atoms-2) (cons (car (car (car atoms-1)))
+							   mover-list)))))))))
+       
+     ;; main line
+     (set-imol-refinement-map imol-rnase-map)
+     (let* ((imol (handle-read-draw-molecule-with-recentre "backrub-fragment.pdb" 0))
+	    (imol-copy (copy-molecule imol)))
+		  
+       (let ((status (backrub-rotamer imol-copy "A" 37 "" "")))
+
+	 (if (not (= status 1))
+	     (begin
+	       (format #t "backrub-rotamer status failure~%")
+	       (throw 'fail)))
+
+	 ;; Now, N should have moved in 38 (nothing else)
+	 ;; 
+	 ;; C and O should have moved in 36 (nothing else)
+	 ;; 
+	 ;; all atoms in 37.
+	 ;; 
+
+	 (let* ((atoms-37 (residue-info imol "A" 37 ""))
+		(calc-37-movers-pre (map car (map car atoms-37)))
+		(calc-37-movers (sort calc-37-movers-pre string<?))
+		(calc-38-movers (list " N  "))
+		(calc-36-movers (list " C  " " O  ")))
+	   
+	   (let ((36-movers (get-mover-list imol imol-copy 36))
+		 (37-movers (get-mover-list imol imol-copy 37))
+		 (38-movers (get-mover-list imol imol-copy 38)))
+
+;	     (format #t "calc-37-movers: ~s~%" calc-36-movers)
+;	     (format #t " obs-37-movers: ~s~%"      36-movers)
+;	     (format #t "calc-38-movers: ~s~%" calc-37-movers)
+;	     (format #t " obs-38-movers: ~s~%"      37-movers)
+;	     (format #t "calc-39-movers: ~s~%" calc-38-movers)
+;	     (format #t " obs-39-movers: ~s~%"      38-movers)
+
+	     (if (not (equal? 36-movers calc-36-movers))
+		 (begin
+		   (format "  fail on 36 movers similar~%")
+		   (throw 'fail)))
+	     
+	     (if (not (equal? 37-movers calc-37-movers))
+		 (begin
+		   (format "  fail on 37 movers similar~%")
+		   (throw 'fail)))
+	     
+	     (if (not (equal? 38-movers calc-38-movers))
+		 (begin
+		   (format "  fail on 38 movers similar~%")
+		   (throw 'fail)))
+	     
+	     #t))))))
 
 	   
 
@@ -1720,6 +1836,46 @@
 		 #f ;; fail!
 		 )
 		(else (loop (read-line port)))))))))))
+
+
+(greg-testcase "Arrange waters round protein" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "water-test-no-cell.pdb")))
+       (if (not (valid-model-molecule? imol))
+	   (begin
+	     (format #t "ERROR:: water-test-no-cell not found~%")
+	     (throw 'fail)))
+
+       (let ((status (move-waters-to-around-protein imol)))
+	 (if (not (= status 0))
+	   (begin
+	     (format #t "ERROR:: failure with water-test-no-cell~%")
+	     (throw 'fail)))))
+
+     (let ((imol (greg-pdb "pathological-water-test.pdb")))
+       (if (not (valid-model-molecule? imol))
+	   (begin
+	     (format #t "ERROR:: pathological-waters pdb not found~%")
+	     (throw 'fail)))
+
+       (let ((status (move-waters-to-around-protein imol)))
+	 (write-pdb-file imol "waters-moved-failure.pdb")
+	 (if (not (= status 181))
+	   (begin
+	     (format #t "ERROR:: failure with pathological-waters moved ~s~%" status)
+	     (throw 'fail)))
+
+	 (let ((v (max-water-distance imol)))
+
+	   (if (not (< v 5.0))
+	       (begin
+		 (format #t "ERROR:: failure to move waters close ~s~%" v)
+		 (throw 'fail))
+
+	       #t))))))
+
+
 	     
 
 (greg-testcase "Correct Segid After Add Terminal Residue" #t 

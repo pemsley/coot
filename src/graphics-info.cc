@@ -1594,7 +1594,9 @@ graphics_info_t::display_geometry_distance() {
 	     << atom2->GetSeqNum()   << "/"
 	     << atom2->GetResName() << std::endl;
 
-   std::pair<clipper::Coord_orth, clipper::Coord_orth> p(p1, p2);
+   // std::pair<clipper::Coord_orth, clipper::Coord_orth> p(p1, p2);
+   coot::simple_distance_object_t p(geometry_atom_index_1_mol_no, p1,
+				    geometry_atom_index_2_mol_no, p2);
    distance_object_vec->push_back(p);
    graphics_draw();
 
@@ -1606,10 +1608,11 @@ graphics_info_t::display_geometry_distance() {
 }
 
 void 
-graphics_info_t::display_geometry_distance_symm(const coot::Cartesian &p1, const coot::Cartesian &p2) { 
+graphics_info_t::display_geometry_distance_symm(int imol1, const coot::Cartesian &p1,
+						int imol2, const coot::Cartesian &p2) { 
 
-   std::pair<clipper::Coord_orth, clipper::Coord_orth> p(clipper::Coord_orth(p1.x(), p1.y(), p1.z()), 
-							 clipper::Coord_orth(p2.x(), p2.y(), p2.z()));
+   coot::simple_distance_object_t p(imol1, clipper::Coord_orth(p1.x(), p1.y(), p1.z()),
+				    imol2, clipper::Coord_orth(p2.x(), p2.y(), p2.z()));
    distance_object_vec->push_back(p);
    graphics_draw();
 
@@ -3324,6 +3327,11 @@ graphics_info_t::set_last_map_sigma_step(float f) {
 void
 graphics_info_t::geometry_objects() {
 
+   // 20090715 We change the type of distance_object_vec, and attach a
+   // molecule from which the distance was made.  Don't display the
+   // distance if the molecule corresponding to the start or end point
+   // is not displayed.
+
    int ndist = distance_object_vec->size();
    double dist;
    clipper::Coord_orth text_pos;
@@ -3335,21 +3343,31 @@ graphics_info_t::geometry_objects() {
       glColor3f(0.5, 0.8, 0.6);
 
       for (int i=0; i<ndist; i++) {
-	 glBegin(GL_LINES);
-	 glVertex3d( (*distance_object_vec)[i].first.x(),
-		     (*distance_object_vec)[i].first.y(),
-		     (*distance_object_vec)[i].first.z());
-	 glVertex3d( (*distance_object_vec)[i].second.x(),
-		     (*distance_object_vec)[i].second.y(),
-		     (*distance_object_vec)[i].second.z());
-	 glEnd();
-	 text_pos = (*distance_object_vec)[i].first + 
-	    0.5 * ( (*distance_object_vec)[i].second - (*distance_object_vec)[i].first + 
-		   clipper::Coord_orth(0.0, 0.1, 0.1));
-	 glRasterPos3d(text_pos.x(), text_pos.y(), text_pos.z());
-	 dist = clipper::Coord_orth::length( (*distance_object_vec)[i].first, (*distance_object_vec)[i].second);
-	 printString(float_to_string(dist));
-
+	 if (is_valid_model_molecule((*distance_object_vec)[i].imol_start)) { 
+	    if (is_valid_model_molecule((*distance_object_vec)[i].imol_end)) {
+	       if (molecules[(*distance_object_vec)[i].imol_start].is_displayed_p()) { 
+		  if (molecules[(*distance_object_vec)[i].imol_end].is_displayed_p()) { 
+		     
+		     glBegin(GL_LINES);
+		     glVertex3d( (*distance_object_vec)[i].start_pos.x(),
+				 (*distance_object_vec)[i].start_pos.y(),
+				 (*distance_object_vec)[i].start_pos.z());
+		     glVertex3d( (*distance_object_vec)[i].end_pos.x(),
+				 (*distance_object_vec)[i].end_pos.y(),
+				 (*distance_object_vec)[i].end_pos.z());
+		     text_pos = (*distance_object_vec)[i].start_pos + 
+			0.5 * ( (*distance_object_vec)[i].end_pos -
+				(*distance_object_vec)[i].start_pos + 
+				clipper::Coord_orth(0.0, 0.1, 0.1));
+		     glEnd();
+		     glRasterPos3d(text_pos.x(), text_pos.y(), text_pos.z());
+		     dist = clipper::Coord_orth::length( (*distance_object_vec)[i].start_pos,
+							 (*distance_object_vec)[i].end_pos);
+		     printString(float_to_string(dist));
+		  }
+	       }
+	    }
+	 }
       }
       glDisable(GL_LINE_STIPPLE);
    }
@@ -3483,7 +3501,7 @@ graphics_info_t::clear_pointer_distances() {
 void
 graphics_info_t::clear_simple_distances() {
 
-   distance_object_vec->resize(0);
+   distance_object_vec->clear();
    graphics_draw();
 }
 
@@ -3492,7 +3510,11 @@ graphics_info_t::clear_last_simple_distance() {
 
    int n = distance_object_vec->size();
    if (n > 0) {
-      distance_object_vec->resize(n-1);
+      // distance_object_vec->resize(n-1); old style.  Can't do with
+      // with new simple_distance_object_t
+      std::vector<coot::simple_distance_object_t>::iterator it =
+	 distance_object_vec->end();
+	 distance_object_vec->erase(it);
       graphics_draw();
    }
 }

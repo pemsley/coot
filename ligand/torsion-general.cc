@@ -103,9 +103,19 @@ coot::torsion_general::change_by(double diff, Tree *tree) {
 
       
       TreeVertex *tv = tree->GetCoord(clicked_atom_indices[1]);
+
+      if (0) // debugging
+	 std::cout << "children of tree vertex of clicked atom[1] "
+		   << tv->GetNumberOfChildren() << std::endl;
+      
       if (tv->GetNumberOfChildren() > 0) {
 	 TreeVertex *tvc0 = tv->GetChild(0);
 	 float tors = clipper::Util::d2rad(diff);
+
+	 if (0) // debugging
+	    std::cout << " rotating about " << clicked_atom_indices[1] << " "
+		      << clicked_atom_indices[2] << " by " << tors << std::endl;
+	 
 	 tree->RotateAboutBond(clicked_atom_indices[1],
 			       clicked_atom_indices[2], tors);
       

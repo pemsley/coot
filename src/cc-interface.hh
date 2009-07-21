@@ -26,6 +26,7 @@
 #include "coot-coord-utils.hh"
 
 #include "dipole.hh"
+#include "sequence-assignment.hh" // for residue_range_t 
 
 namespace coot {
 
@@ -510,14 +511,21 @@ PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 #endif // USE_PYTHON
 
 /*  ----------------------------------------------------------------------- */
+/*                  rigid body fitting (multiple residue ranges)            */
+/*  ----------------------------------------------------------------------- */
+// return 0 on fail to refine (no sensible place to put atoms) and 1
+// on fitting happened.
+int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue_range_t> &ranges);
+
+/*  ----------------------------------------------------------------------- */
 /*                  water chain                                             */
 /*  ----------------------------------------------------------------------- */
 
 #ifdef USE_GUILE
-/*! return the chain id of the water chain from a shelx molecule.  Raw interface
+/*! \brief return the chain id of the water chain from a shelx molecule.  Raw interface
   Return #f if no chain or bad imol*/
 SCM water_chain_from_shelx_ins_scm(int imol); 
-/*! return the chain id of the water chain. Raw interface */
+/*! brief return the chain id of the water chain. Raw interface */
 SCM water_chain_scm(int imol);
 #endif 
 

@@ -4987,14 +4987,19 @@ coot::mol_by_symmetry(CMMDBManager *mol,
   
    CMMDBManager *mol2 = new CMMDBManager;
    mol2->Copy(mol, MMDBFCM_All);
-   
-   mat44 mat_origin_shift;
+
+   // Usually gets filled by GetTMatrix().
+   mat44 mat_origin_shift; // shift needed to get close to the origin.
+   for (int i=0; i<4; i++) 
+      for (int j=0; j<4; j++) 
+	 mat_origin_shift[i][j] = 0.0;
+   for (int i=0; i<4; i++) mat_origin_shift[i][i] = 1.0;
    
    if (pre_shift_to_origin_abc.size() == 3) { 
       mol2->GetTMatrix(mat_origin_shift, 0,
-		       -pre_shift_to_origin_abc[0],
-		       -pre_shift_to_origin_abc[1],
-		       -pre_shift_to_origin_abc[2]);
+		       pre_shift_to_origin_abc[0],
+		       pre_shift_to_origin_abc[1],
+		       pre_shift_to_origin_abc[2]);
    }
       
    // mol2->GetTMatrix(mat, symop_no, shift_a, shift_b, shift_c);
@@ -5215,3 +5220,263 @@ coot::close_residues_from_different_molecules_t::close_residues(CMMDBManager *mo
    return std::pair<std::vector<CResidue *>, std::vector<CResidue *> > (v1, v2);
 }
 
+
+// move waters round protein, fiddle with mol.
+// return the number of moved waters.
+int
+coot::util::move_waters_around_protein(CMMDBManager *mol) {
+
+   int n_moved = 0;
+   std::vector<clipper::Coord_orth> protein_coords;
+   std::vector<CAtom*> water_atoms;
+
+   // First we fill protein_atoms and water_atoms (water atoms are not
+   // part of protein atoms)
+
+   if (mol) { 
+      int imod = 1;
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) {
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    std::string residue_name(residue_p->name);
+	    if (residue_name == "WAT" ||
+		residue_name == "HOH") {
+
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  if (! at->isTer()) { 
+		     at = residue_p->GetAtom(iat);
+		     water_atoms.push_back(at);
+		  }
+	       }
+	    } else {
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  at = residue_p->GetAtom(iat);
+		  if (! at->isTer()) {
+		     std::string ele(at->element);
+		     if (ele  != " C") { 
+			clipper::Coord_orth pt(at->x, at->y, at->z);
+			protein_coords.push_back(pt);
+		     }
+		  }
+	       }
+	    } 
+	 }
+      }
+   }
+
+   // OK, so waters_atoms and protein atoms are filled.
+
+   try { 
+      // Now clipperize the variables.
+      std::pair<clipper::Cell,clipper::Spacegroup> csp = get_cell_symm(mol);
+      clipper::Cell cell = csp.first;
+      clipper::Spacegroup spacegroup = csp.second;
+
+      clipper::Coord_frac pre_shift_frac = coot::util::shift_to_origin(mol);
+      clipper::Coord_orth pre_shift_orth = pre_shift_frac.coord_orth(cell);
+
+      if (0) 
+	 std::cout << "DEBUG:: pre_shift_frac " << pre_shift_frac.format()
+		   << " pre_shift_orth " << pre_shift_orth.format()
+		   << std::endl;
+
+      // create shifted protein coords
+      std::vector<clipper::Coord_orth> protein_coords_origin_shifted(protein_coords.size());
+      for (unsigned int ip=0; ip<protein_coords.size(); ip++) { 
+	 protein_coords_origin_shifted[ip] =
+	    protein_coords[ip] + pre_shift_orth;
+// 	 if (ip < 20)
+// 	    std::cout << "  shifting "
+// 		      << protein_coords[ip].format() << " by "
+// 		      << pre_shift_orth.format() << " gives "
+// 		      << protein_coords_origin_shifted[ip].format()
+// 		      << std::endl;
+      }
+
+      // Do the cell shift search
+      int n = spacegroup.num_symops();
+      clipper::Coord_frac cell_shift; 
+      for (unsigned int iw=0; iw<water_atoms.size(); iw++) {
+	 clipper::Coord_orth water_pos_pre(water_atoms[iw]->x,
+					   water_atoms[iw]->y,
+					   water_atoms[iw]->z);
+	 clipper::Coord_orth water_pos = translate_close_to_origin(water_pos_pre, cell);
+
+	 // std::cout << " water_pos " << water_pos.format() << std::endl;
+	 double d_best = 99999999.9;
+	 clipper::RTop_orth rtop_best;
+	 // 
+	 for (int isym=0; isym<n; isym++) {
+	    for (int x_shift = -1; x_shift<2; x_shift++) { 
+	       for (int y_shift = -1; y_shift<2; y_shift++) { 
+		  for (int z_shift = -1; z_shift<2; z_shift++) {
+		     cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift); 
+		     clipper::RTop_orth orthop = clipper::RTop_frac(spacegroup.symop(isym).rot(), spacegroup.symop(isym).trn() + cell_shift).rtop_orth(cell);
+		     clipper::Coord_orth t_point = water_pos.transform(orthop);
+		     double t_dist = coot::util::min_dist_to_points(t_point, protein_coords_origin_shifted);
+		     if (t_dist < d_best) {
+			// std::cout << " better dist " << t_dist << std::endl;
+			d_best = t_dist;
+			rtop_best = orthop;
+		     }
+		  }
+	       }
+	    }
+	 }
+
+	 // Apply the transformation then.
+	 clipper::Coord_orth t_point = water_pos.transform(rtop_best);
+	 water_atoms[iw]->x = t_point.x() - pre_shift_orth.x();
+	 water_atoms[iw]->y = t_point.y() - pre_shift_orth.y();
+	 water_atoms[iw]->z = t_point.z() - pre_shift_orth.z();
+	 n_moved++;
+      }
+   }
+
+   catch (std::runtime_error rte) {
+      std::cout << rte.what() << std::endl;
+   } 
+	       
+   return n_moved;
+} 
+
+
+// throw an exception on not-able-to-extract-cell/symm-info
+std::pair<clipper::Cell, clipper::Spacegroup>
+coot::util::get_cell_symm(CMMDBManager *mol) {
+
+   // Now clipperize the variables.
+
+   mat44 my_matt;
+   int err = mol->GetTMatrix(my_matt, 0, 0, 0, 0);
+   if (err != 0) {
+      std::string mess = "No symmetry available";
+      throw std::runtime_error(mess);
+   } else { 
+
+      clipper::Spgr_descr spgr_descr(mol->GetSpaceGroup());
+      realtype mmdb_cell[6];
+      realtype vol;
+      int orthcode;
+
+      mol->GetCell(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
+		   mmdb_cell[3], mmdb_cell[4], mmdb_cell[5], vol, orthcode);
+   
+      clipper::Spacegroup spacegroup(spgr_descr);
+      clipper::Cell_descr cell_d(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
+				 clipper::Util::d2rad(mmdb_cell[3]),
+				 clipper::Util::d2rad(mmdb_cell[4]),
+				 clipper::Util::d2rad(mmdb_cell[5]));
+      clipper::Cell cell(cell_d);
+
+      return std::pair<clipper::Cell, clipper::Spacegroup> (cell, spacegroup);
+   }
+} 
+
+
+// caller must check that others has some points in it.
+// 
+double
+coot::util::min_dist_to_points(const clipper::Coord_orth &pt,
+				      const std::vector<clipper::Coord_orth> &others) {
+
+   double best_dist = 9999999.9;
+   for (unsigned int i=0; i<others.size(); i++) {
+      double d = (pt - others[i]).lengthsq();
+      if (d<best_dist) {
+	 best_dist = d;
+      }
+   }
+
+   return sqrt(best_dist);
+}
+
+
+// Return the fractional shift needed to translate the protein
+// as close as possible to the origin (do not apply the shift).
+// 
+//
+// Throw an exception (e.g. no cell or symmetry).
+// 
+clipper::Coord_frac
+coot::util::shift_to_origin(CMMDBManager *mol) {
+
+   // Throw an exception on no cell or symmetry.
+   std::pair<clipper::Cell, clipper::Spacegroup> csp = get_cell_symm(mol);
+   clipper::Cell cell = csp.first;
+   clipper::Spacegroup spacegroup = csp.second;
+
+   // Throws an exception
+   clipper::Coord_orth median_pos = median_position(mol);
+
+   clipper::Coord_frac mpf = median_pos.coord_frac(cell);
+   clipper::Coord_frac rf (round(-mpf.u()), round(-mpf.v()), round(-mpf.w()));
+   return rf;
+}
+
+clipper::Coord_orth
+coot::util::median_position(CMMDBManager *mol) {
+
+   std::vector<float> pts_x;
+   std::vector<float> pts_y;
+   std::vector<float> pts_z;
+
+   // for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+   int imod = 1;
+   CModel *model_p = mol->GetModel(imod);
+   CChain *chain_p;
+   // run over chains of the existing mol
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      CResidue *residue_p;
+      CAtom *at;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 int n_atoms = residue_p->GetNumberOfAtoms();
+	 
+	 for (int iat=0; iat<n_atoms; iat++) {
+	    at = residue_p->GetAtom(iat);
+	    if (! at->isTer()) {
+	       pts_x.push_back(at->x);
+	       pts_y.push_back(at->y);
+	       pts_z.push_back(at->z);
+	    }
+	 }
+      }
+   }
+
+   if (pts_x.size() == 0) {
+      std::string message = "No atoms in molecule - no mediain position";
+      throw std::runtime_error(message);
+   }
+
+   std::sort(pts_x.begin(), pts_x.end());
+   std::sort(pts_y.begin(), pts_y.end());
+   std::sort(pts_z.begin(), pts_z.end());
+   unsigned int mid_index = pts_x.size()/2;
+
+   return clipper::Coord_orth(pts_x[mid_index], pts_y[mid_index], pts_z[mid_index]);
+} 
+
+
+
+//
+clipper::Coord_orth
+coot::util::translate_close_to_origin(const clipper::Coord_orth pos,
+				      const clipper::Cell &cell) {
+
+   clipper::Coord_frac cf = pos.coord_frac(cell);
+   clipper::Coord_frac cfi(round(-cf.u()), round(-cf.v()), round(-cf.w()));
+   return pos + cfi.coord_orth(cell);
+} 

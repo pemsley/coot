@@ -22,6 +22,8 @@ Pre-release 0.6
   o FEATURE: Baton build parameters (e.g. "backwards") now have a GUI 
     [Phil Evans] 
 
+  o FEATURE: Move waters to surround protein [Garib Murshudov]
+
   o CHANGE: partial charges added to electrostatic surface calculation.
 
   o CHANGE: shift-click and ctrl-click in the file selectors now work
@@ -38,6 +40,9 @@ Pre-release 0.6
 
   o CHANGE: "Go To Blob" now goes to the front blob, no matter what
     the density level of blobs/density behind it is [JED].
+
+  o Don't display the geometry distance if the molecule corresponding
+    to the start or end point is not displayed [JED].
 
   o BUG-FIX: TER records are removed on addition of waters [Herb Klei].
 

@@ -388,6 +388,39 @@ coot::minimol::residue::residue(const CResidue* residue_p) {
    }
 }
 
+// 
+coot::minimol::residue::residue(const CResidue *residue_p,
+				const std::vector<std::string> &keep_only_these_atoms) {
+
+   CResidue *tres = (CResidue *) residue_p; // casting horriblness.
+   seqnum = tres->seqNum;
+   ins_code = tres->GetInsCode();
+   name = tres->name;
+   int nResidueAtoms;
+   PPCAtom residue_atoms;
+   tres->GetAtomTable(residue_atoms, nResidueAtoms);
+   for (int i=0; i<nResidueAtoms; i++) {
+      std::string atom_name = residue_atoms[i]->name;
+      bool add_it = 0;
+      for (unsigned int ikeep=0; ikeep<keep_only_these_atoms.size(); ikeep++) {
+	 if (atom_name == keep_only_these_atoms[ikeep]) {
+	    add_it = 1;
+	    break;
+	 }
+      }
+      if (add_it) { 
+	 addatom(atom_name,
+		 std::string(residue_atoms[i]->element),
+		 residue_atoms[i]->x,
+		 residue_atoms[i]->y,
+		 residue_atoms[i]->z,
+		 std::string(residue_atoms[i]->altLoc),
+		 residue_atoms[i]->tempFactor);
+      }
+   }
+}
+
+
 bool
 coot::minimol::atom::is_hydrogen_p() const {
 

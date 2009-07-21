@@ -314,6 +314,7 @@ coot_real_SOURCES = \
 	restraints-editor.hh     \
 	restraints-editor-c.h    \
 	rotate-translate-modes.hh \
+	rotamer-search-modes.hh  \
 	support.c support.h 	 \
 	support-gtk2-extras.c    \
 	testing.cc testing.hh    \

@@ -334,6 +334,23 @@
 							  (rotation-centre) 
 							  (list radius)))))))))
 
+	(add-simple-coot-menu-menuitem submenu-models "New Molecule from Symmetry Op..."
+				       (lambda ()
+					 (generic-chooser-and-entry
+					  "Molecule from which to generate a symmetry copy"
+					  "SymOp" "X,Y,Z"
+					  (lambda (imol text)
+					    (let ((pre-shift (origin-pre-shift imol)))
+					      (if (not (list? pre-shift))
+						  (format #t "bad pre-shift aborting")
+						  
+						  (new-molecule-by-symop
+						   imol text 
+						   (inexact->exact (list-ref pre-shift 0))
+						   (inexact->exact (list-ref pre-shift 1))
+						   (inexact->exact (list-ref pre-shift 2)))))))))
+
+
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Replace Fragment..."
 	 (lambda ()
@@ -369,13 +386,6 @@
 				 (lambda (imol)
 				   (fix-nomenclature-errors imol)))))
 
-	(add-simple-coot-menu-menuitem 
-	 submenu-models "Merge Water Chains..."
-	 (lambda ()
-	   (molecule-chooser-gui "Merge Water Chains in molecule: " 
-				 (lambda (imol)
-				   (merge-solvent-chains imol)))))
-				    
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Add Strand Here..."
 	 (lambda ()
@@ -416,27 +426,7 @@
 	  (add-simple-coot-menu-menuitem
 	   submenu "Associate Sequence...."
 	   (lambda ()
-	     (generic-chooser-entry-and-file-selector 
-	      "Associate Sequence to Model: "
-	      valid-model-molecule?
-	      "Chain ID"
-	      ""
-	      "Select PIR file"
-	      (lambda (imol chain-id pir-file-name)
-		(format #t "assoc seq: ~s ~s ~s~%" imol chain-id pir-file-name)
-		(if (file-exists? pir-file-name)
-		    (let ((seq-text 
-			   (call-with-input-file pir-file-name
-			     (lambda (port)
-			       (let loop  ((lines '())
-					   (line (read-line port)))
-				 (cond
-				  ((eof-object? line) 
-				   (string-append-with-string (reverse lines) "\n"))
-				  (else
-				   (loop (cons line lines) (read-line port)))))))))
-		      
-		      (assign-pir-sequence imol chain-id seq-text)))))))
+	     (associate-pir-with-molecule-gui)))
 
 	  ;; only add this to the GUI if the python version is not available.
 	  (if (not (coot-has-pygtk?))
@@ -447,7 +437,20 @@
 				       (lambda (imol)
 					 (cootaneer-gui imol)))))))
 
+	(add-simple-coot-menu-menuitem 
+	 submenu-models "Rigid Body Fit Residue Ranges..."
+	 (lambda ()
+	   (let ((func (lambda (imol ls) 
+			 (rigid-body-refine-by-residue-ranges imol ls))))
+	     (residue-range-gui func "Rigid Body Refine" "  Fit  "))))
+      
 
+	(add-simple-coot-menu-menuitem 
+	 submenu-models "Merge Water Chains..."
+	 (lambda ()
+	   (molecule-chooser-gui "Merge Water Chains in molecule: " 
+				 (lambda (imol)
+				   (merge-solvent-chains imol)))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Renumber Waters..."
@@ -457,7 +460,13 @@
 	    (lambda (imol)
 	      (renumber-waters imol)))))
 
-
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Arrange Waters Around Protein..."
+	 (lambda ()
+	   (molecule-chooser-gui "Arrange waters in molecule: "
+				 (lambda (imol)
+				   (move-waters-to-around-protein imol)))))
+				    
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Residues with Alt Confs..."
 	 (lambda ()
@@ -1088,7 +1097,6 @@
 	))) ;  finish let and if
 
 
-;; This is not working right.
 ;;                           
 (let ((menu (coot-menubar-menu "Validate")))
   
@@ -1097,8 +1105,11 @@
    (lambda()
      (molecule-chooser-gui "Choose a molecule for ribose pucker analysis"
 			   (lambda (imol)
-			     (pukka-puckers? imol))))))
+			     (pukka-puckers? imol)))))
 
-
-
-  
+  (add-simple-coot-menu-menuitem
+   menu "Alignment vs PIR..."
+   (lambda ()
+     (molecule-chooser-gui "Alignment vs PIR info for molecule:"
+			   (lambda (imol)
+			     (wrapper-alignment-mismatches-gui imol))))))

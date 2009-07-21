@@ -818,6 +818,8 @@ namespace coot {
 
 
       // Rotate position round vector, return a position.
+      //
+      // Note that angle is in radians.
       // 
       clipper::Coord_orth rotate_round_vector(const clipper::Coord_orth &direction,
 					      const clipper::Coord_orth &position,
@@ -960,6 +962,37 @@ namespace coot {
       // remove wrong cis_peptides
       void remove_wrong_cis_peptides(CMMDBManager *mol);
 
+      // move waters round protein, fiddle with mol.
+      // return the number of moved waters.
+      int move_waters_around_protein(CMMDBManager *mol);
+
+
+      // throw an exception on not-able-to-extract-cell/symm-info
+      std::pair<clipper::Cell, clipper::Spacegroup> get_cell_symm(CMMDBManager *mol);
+
+      // caller must check that others has some points in it.
+      // 
+      double min_dist_to_points(const clipper::Coord_orth &pt,
+				const std::vector<clipper::Coord_orth> &others);
+
+      // Return the fractional shift needed to translate the protein
+      // as close as possible to the origin (do not apply the shift).
+      //
+      // Throw an exception (e.g. no cell or symmetry).
+      // 
+      clipper::Coord_frac shift_to_origin(CMMDBManager *mol);
+
+      // Return the median position.  Throw an exception on failure
+      // (e.g no atoms).
+      // 
+      clipper::Coord_orth median_position(CMMDBManager *mol);
+
+      //
+      clipper::Coord_orth
+      translate_close_to_origin(const clipper::Coord_orth water_pos_pre,
+				const clipper::Cell &cell);
+
+      
    }
    std::ostream&  operator<<(std::ostream&  s, const util::quaternion &q);
    std::ofstream& operator<<(std::ofstream& s, const util::quaternion &q);

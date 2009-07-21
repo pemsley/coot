@@ -360,6 +360,9 @@ coot::progressive_residues_in_chain_check(const CChain *chain_p) {
 coot::contact_info
 coot::getcontacts(const atom_selection_container_t &asc) {
 
+   // back here again, eh? :)
+   // std::cout << "DEBUG:: getcontacts() in mmdb-extras" << std::endl;
+
    PSContact pscontact = NULL;
    int n_contacts;
    float min_dist = 0.1;

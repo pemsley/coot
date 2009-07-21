@@ -207,7 +207,8 @@ graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_
       if (imol_map >= 0) {
 	    
 	 // float f =
-	 molecules[mutate_auto_fit_residue_imol].auto_fit_best_rotamer(mutate_auto_fit_residue_atom_index, imol_map, rotamer_fit_clash_flag, rotamer_lowest_probability);
+	 int mode = graphics_info_t::rotamer_search_mode;
+	 molecules[mutate_auto_fit_residue_imol].auto_fit_best_rotamer(mode,mutate_auto_fit_residue_atom_index, imol_map, rotamer_fit_clash_flag, rotamer_lowest_probability);
 
 	 if (mutate_auto_fit_do_post_refine_flag) {
 	    // Run refine zone with autoaccept, autorange on

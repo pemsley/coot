@@ -593,8 +593,44 @@ molecule_class_info_t::make_model_string_for_alignment(PCResidue *SelResidues,
    std::vector<std::pair<CResidue *, int> > vseq =
       coot::util::sort_residues_by_seqno(SelResidues, nSelResidues);
    return coot::util::model_sequence(vseq);
-
 }
+
+
+std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > 
+molecule_class_info_t::residue_mismatches() const {
+
+   std::vector<coot::chain_mutation_info_container_t> ar;
+   bool status = 0;
+   std::vector<coot::residue_spec_t> v;
+   if (input_sequence.size() > 0) {
+
+      int imod = 1;
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 std::string chain_id = chain_p->GetChainID();
+	 for (unsigned int ich=0; ich<input_sequence.size(); ich++) { 
+	    if (input_sequence[ich].first == chain_id) {
+	       status = 1;
+	       PPCResidue SelResidues = 0;
+	       int n_residues = 0;
+	       chain_p->GetResidueTable(SelResidues, n_residues);
+	       coot::chain_mutation_info_container_t ali =
+		  align_on_chain(chain_id, SelResidues, n_residues,
+				 input_sequence[ich].second);
+	       ali.print();
+	       ar.push_back(ali);
+	    }
+	 }
+      }
+   }
+   return std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > (status, ar);
+}
+
+
 
 std::pair<bool, std::string>
 molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, int resno) const {

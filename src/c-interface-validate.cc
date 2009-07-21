@@ -1491,7 +1491,109 @@ int get_mol_from_dynarama(GtkWidget *window) {
 #endif // HAVE_GTK_CANVAS   
    return imol; 
 }
+
+
+// ----------------------------------------------------------------------------------
+//                            Alignment
+// ----------------------------------------------------------------------------------
+/*! \brief do a internal alignment of all the assigned sequences,
+  return a list of mismatches.
+
+Return scheme false on failure to align (e.g. not assigned sequence)
+and the empty list on no alignment mismatches.
+
+If there are any differences of any kind, return a list of 3 list:
+mutations deletions insertions.
+
+*/
+
+#ifdef USE_GUILE
+SCM alignment_mismatches_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   std::vector<std::pair<coot::residue_spec_t,std::string> > mutations;
+   std::vector<std::pair<coot::residue_spec_t,std::string> > insertions;
+   std::vector<std::pair<coot::residue_spec_t,std::string> > deletions;
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > ar = 
+      	 graphics_info_t::molecules[imol].residue_mismatches();
+      if (ar.first)
+	 r = SCM_EOL;
+      for (unsigned int ir=0; ir<ar.second.size(); ir++) {
+	 for (unsigned int im=0; im<ar.second[ir].mutations.size(); im++) {
+	    mutations.push_back(ar.second[ir].mutations[im]);
+	 }
+	 for (unsigned int is=0; is<ar.second[ir].single_insertions.size(); is++) {
+	    insertions.push_back(ar.second[ir].single_insertions[is]);
+	 }
+	 for (unsigned int id=0; id<ar.second[ir].deletions.size(); id++) {
+	    coot::residue_spec_t del = ar.second[ir].deletions[id];
+	    std::pair<coot::residue_spec_t, std::string> d(del, "Delete");
+	    deletions.push_back(d);
+	 }
+      }
+   }
+
+   if ((mutations.size() > 0) || (insertions.size() > 0) || (deletions.size() > 0)) {
+      SCM insertions_scm = SCM_EOL;
+      SCM deletions_scm = SCM_EOL;
+      SCM mutations_scm = SCM_EOL;
+      for (unsigned int i=0; i<mutations.size(); i++) {
+	 SCM rs_scm = scm_residue(mutations[i].first);
+	 SCM str = scm_makfrom0str(mutations[i].second.c_str());
+	 SCM c = SCM_EOL;
+	 c = scm_cons(str, c);
+	 c = scm_cons(str, rs_scm);
+	 mutations_scm = scm_cons(c, mutations_scm);
+      }
+      for (unsigned int i=0; i<insertions.size(); i++) {
+	 SCM rs_scm = scm_residue(insertions[i].first);
+	 SCM str = scm_makfrom0str(insertions[i].second.c_str());
+	 SCM c = SCM_EOL;
+	 c = scm_cons(str, c);
+	 c = scm_cons(str, rs_scm);
+	 insertions_scm = scm_cons(c, insertions_scm);
+      }
+      for (unsigned int i=0; i<deletions.size(); i++) {
+	 SCM rs_scm = scm_residue(deletions[i].first);
+	 SCM str = scm_makfrom0str(deletions[i].second.c_str());
+	 SCM c = SCM_EOL;
+	 c = scm_cons(str, c);
+	 c = scm_cons(str, rs_scm);
+	 deletions_scm = scm_cons(c, deletions_scm);
+      }
+      r = SCM_EOL;
+      // These are reversed so that the residue numbers come out in
+      // numerical order (not backwards) and the returned list is
+      // (list mutations deletions insertions).
+      r = scm_cons(scm_reverse(insertions_scm), r);
+      r = scm_cons(scm_reverse(deletions_scm),  r);
+      r = scm_cons(scm_reverse(mutations_scm),  r);
+   } 
+   return r;
+}
+#endif // USE_GUILE
+
+
+/*! \brief do a internal alignment of all the assigned sequences,
+  return a list of mismatches that need to be made to model number
+  imol to match the input sequence.
+
+Return a list of mutations deletions insetions.
+Return  False on failure to align (e.g. not assigned sequence)
+and the empty list on no alignment mismatches.*/
+#ifdef USE_PYTHON
+PyObject *alignment_mismatches_py(int imol) {
+
+   // FIXMEBERNIE
    
+   PyObject *r = Py_False;
+
+   return r;
+}
+#endif // USE_PYTHON
+
 
 // ----------------------------------------------------------------------------------
 //                            LSQ

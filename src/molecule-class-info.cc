@@ -2957,16 +2957,24 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 						    const std::string &alt_conf) const {
 
    int iatom_index = -1; 
+
+   // some protection for null molecule.
+   if (! atom_sel.mol) {
+      std::cout << "ERROR:: null molecule " << imol_no << " " << atom_sel.mol
+		<< " (in full_atom_spec_to_atom_index)" << std::endl;
+      return -1;
+   }
+
    int selHnd = atom_sel.mol->NewSelection();
    int idx = 0;
 
    atom_sel.mol->SelectAtoms(selHnd, 0, (char *) chain.c_str(), 
-			    resno, (char *) insertion_code.c_str(), // start, insertion code
-			    resno, (char *) insertion_code.c_str(), // end, insertion code
+			    resno, insertion_code.c_str(), // start, insertion code
+			    resno, insertion_code.c_str(), // end, insertion code
 			    "*", // residue name
-			    (char *) atom_name.c_str(),
+			    atom_name.c_str(),
 			    "*", // elements
-			    (char *) alt_conf.c_str()); // alt locs
+			    alt_conf.c_str()); // alt locs
 
    int nSelAtoms;
    PPCAtom local_SelAtom; 
@@ -2986,7 +2994,7 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
       int selHnd2 = atom_sel.mol->NewSelection();
       
       atom_sel.mol->SelectAtoms(selHnd2, 0, 
-				(char *) chain.c_str(),
+				chain.c_str(),
 				resno, "*", // start, insertion code
 				resno, "*", // end, insertion code
 				"*", // residue name
@@ -3323,19 +3331,24 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 
 	    // don't change alt confs.
 
+	    // 	    std::cout << "DEBUG:: no change of alt conf occs for atom index "
+	    // 		      << idx << std::endl;
+
 	    if (idx != -1 ) {  // enable this text when fixed.
 	       CAtom *mol_atom = atom_sel.atom_selection[idx];
-	       if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
+	       if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag)) { 
 		  mol_atom->SetCoordinates(atom->x,
 					   atom->y,
 					   atom->z,
 					   mol_atom->occupancy,
 					   mol_atom->tempFactor);
+		  n_atom++;
+	       }
 	    }
 	 }
       }
    }
-   std::cout << n_atom << " atoms updated." << std::endl;
+   std::cout << "INFO:: replace_coords: " << n_atom << " atoms updated." << std::endl;
    have_unsaved_changes_flag = 1; 
 
    make_bonds_type_checked();
@@ -6918,3 +6931,66 @@ molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bo
       }
    }
 }
+
+
+int
+molecule_class_info_t::move_waters_to_around_protein() {
+
+   make_backup();
+   int r = coot::util::move_waters_around_protein(atom_sel.mol);
+   have_unsaved_changes_flag = 1; 
+   make_bonds_type_checked();
+   return r;
+} 
+
+
+
+// Return the maximum minimum distance of waters to protein atoms.
+// return something negative when we can't do above (no protein
+// atoms or no water atoms).
+float
+molecule_class_info_t::max_water_distance() {
+
+   // Do not account for alt confs of the water positions. That
+   // sophistication can ome later if we use this function for
+   // something other than testing a greg-test.
+
+   float f = -1.0;
+
+   std::vector<clipper::Coord_orth> protein_positions;
+   std::vector<clipper::Coord_orth> water_positions;
+
+   for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
+      clipper::Coord_orth pt(atom_sel.atom_selection[iat]->x,
+			     atom_sel.atom_selection[iat]->y,
+			     atom_sel.atom_selection[iat]->z);
+      std::string res_name(atom_sel.atom_selection[iat]->GetResName());
+      if (res_name == "HOH" || res_name == "WAT") {
+	 water_positions.push_back(pt);
+      } else {
+	 protein_positions.push_back(pt);
+      }
+   }
+
+   // now protein_positions and water_positions are filled.
+   if (protein_positions.size() > 0) { 
+      if (water_positions.size() > 0) {
+	 double max_water_dist_2 = -1.0;
+	 for (unsigned int iw=0; iw<water_positions.size(); iw++) { 
+	    double best_dist_2 = 999999999.9;
+	    for (unsigned int ip=0; ip<protein_positions.size(); ip++) {
+	       double d2 = (water_positions[iw]-protein_positions[ip]).lengthsq();
+	       if (d2 < best_dist_2) {
+		  best_dist_2 = d2;
+	       }
+	    }
+	    if (best_dist_2 > max_water_dist_2) {
+	       max_water_dist_2 = best_dist_2;
+	    } 
+	 }
+	 if (max_water_dist_2 > 0.0)
+	    f = sqrt(max_water_dist_2);
+      }
+   }
+   return f;
+} 

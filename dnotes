@@ -3776,6 +3776,8 @@ Mon Oct  6 13:56:44 BST 2008
    check the torsions of the best fitting (hopefully correctly
    fitting) model.
 
+   
+
 ---- Wed Oct 8 14:11:40 BST 2008
 
    coot-shelx-ins.cc
@@ -4026,9 +4028,11 @@ Tue 20 Jan 2009 10:13:19 EST
 -----
 Fri 23 Jan 2009 17:31:50 EST
 
-  Paul Hubbard:  I awant to do rigid body refinement on the fragment
+  Paul Hubbard:  I want to do rigid body refinement on the fragment
    of the active residue - don't make me click 2 residues to define
    the fragment - find it yourself 
+
+* You can do this now with "X" key binding (laertes)
 
 
 ----
@@ -4127,6 +4131,7 @@ Fri Apr 17 17:38:02 BST 2009
 
 ---
 Sat 16 May 2009 12:40:38 BST
+
 	It would be nice if when batton building, Coot realized that
 	the maps was not sufficiently smoothly sampled and suggested
 	to resample it.
@@ -4305,7 +4310,7 @@ Tue Jun  9 06:30:49 BST 2009
     Think about "undo" on delete molecule form the display manager
 
     validation -> check waters or density fit window, there are
-    multiple copies of these that fail behind the main window
+    multiple copies of these that fall behind the main window
 
    Using GNOME suse 11?
 
@@ -4313,9 +4318,13 @@ Tue Jun  9 06:30:49 BST 2009
 
    Nick: compare pdb file to original sequence.  As a validation tool
 
+* Done.
+
 ----
 
-   easy way to make the baton build build backwards.
+   Easy way to make the baton build build backwards.
+
+* Done.
 
 ---
 
@@ -4397,5 +4406,62 @@ Mon Jul  6 20:04:39 BST 2009
 Wed Jul  8 23:29:46 BST 2009
 
 	 the tick marks for crashes-on-sphere-refine-maybe.pdb are not good.
+
+
+----
+Sun Jul 12 12:07:56 BST 2009
+
+	how does add_alt_conf residue range work?
+
+   It doesn't!  The function is not filled.
+
+
+----
+Mon Jul 13 09:16:18 CDT 2009
+
+   Project for summer student:
+
+   improve b-factor validation test by finding the proper distribution
+   of b-factors for residues (and include as a function of resolution)
+   (and refinement program for amusement).
+
+
+----
+Mon Jul 13 11:42:00 CDT 2009
+
+   molecule_class_info_t's get_residue() function has arguments in the wrong order.
+
+
+----
+Tue Jul 14 15:11:53 CDT 2009
+
+  distances should make reference to the molecule from which them came
+  and should go away when molecule is undisplayed or deleted.
+
+
+---
+Tue Jul 14 19:19:07 CDT 2009
+
+	in backrubbing 
+float 
+molecule_class_info_t::backrub_rotamer(const std::string &...
+  
+    can we (should we) delete the fragment_asc?
+
+
+---
+Thu Jul 16 09:21:32 CDT 2009
+
+   what is 'errat' (validation of protein structures)?
+
+   what is 'modloop' - modelling of loops in protein structures.
+
+---
+Thu Jul 16 13:57:19 CDT 2009
+
+   The ligand fitting dialog in windows (i.e. the dialog of fitting
+   ligand positions after the ligand fitting has completed) is
+   missing.
+
 
 ------

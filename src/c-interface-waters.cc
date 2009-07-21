@@ -833,3 +833,31 @@ PyObject *water_chain_py(int imol) {
    return r;
 }
 #endif 
+
+/*! \brief move waters of molecule number imol so that they are around the protein.
+
+@return the number of moved waters. */
+int move_waters_to_around_protein(int imol) {
+
+   int r = 0;
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].move_waters_to_around_protein();
+      std::cout << "INFO:: moved " << r << " water molecules" << std::endl;
+      graphics_draw();
+   } 
+   return r;
+}
+
+/*! \brief return the maximum minimum distance of any water atom to
+  any protein atom - used in validation of
+  move_waters_to_around_protein() funtion.*/
+float max_water_distance(int imol) {
+
+   float f = -1;
+
+   if (is_valid_model_molecule(imol)) {
+      f = graphics_info_t::molecules[imol].max_water_distance();
+   } 
+   return f;
+} 
+
