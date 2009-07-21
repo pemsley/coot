@@ -2541,13 +2541,14 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
 #define SWIGTYPE_p_std__pairT_std__string_std__string_t swig_types[37]
 #define SWIGTYPE_p_std__string swig_types[38]
 #define SWIGTYPE_p_std__vectorT_coot__command_arg_t_t swig_types[39]
-#define SWIGTYPE_p_std__vectorT_coot__str_mtime_t swig_types[40]
-#define SWIGTYPE_p_std__vectorT_int_t swig_types[41]
-#define SWIGTYPE_p_std__vectorT_std__pairT_std__string_std__string_t_t swig_types[42]
-#define SWIGTYPE_p_std__vectorT_std__string_t swig_types[43]
-#define SWIGTYPE_p_time_t swig_types[44]
-static swig_type_info *swig_types[46];
-static swig_module_info swig_module = {swig_types, 45, 0, 0, 0, 0};
+#define SWIGTYPE_p_std__vectorT_coot__residue_range_t_t swig_types[40]
+#define SWIGTYPE_p_std__vectorT_coot__str_mtime_t swig_types[41]
+#define SWIGTYPE_p_std__vectorT_int_t swig_types[42]
+#define SWIGTYPE_p_std__vectorT_std__pairT_std__string_std__string_t_t swig_types[43]
+#define SWIGTYPE_p_std__vectorT_std__string_t swig_types[44]
+#define SWIGTYPE_p_time_t swig_types[45]
+static swig_type_info *swig_types[47];
+static swig_module_info swig_module = {swig_types, 46, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -2656,6 +2657,7 @@ namespace swig {
 #include "c-interface-database.hh"
 #include "c-interface-python.hh"
 #include "manipulation-modes.hh"
+#include "rotamer-search-modes.hh"
 
 
 SWIGINTERN swig_type_info*
@@ -11225,7 +11227,7 @@ fail:
 SWIGINTERN PyObject *_wrap_new_molecule_by_symmetry(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
-  double arg2 ;
+  char *arg2 = (char *) 0 ;
   double arg3 ;
   double arg4 ;
   double arg5 ;
@@ -11237,13 +11239,15 @@ SWIGINTERN PyObject *_wrap_new_molecule_by_symmetry(PyObject *SWIGUNUSEDPARM(sel
   double arg11 ;
   double arg12 ;
   double arg13 ;
-  int arg14 ;
+  double arg14 ;
   int arg15 ;
   int arg16 ;
+  int arg17 ;
   int val1 ;
   int ecode1 = 0 ;
-  double val2 ;
-  int ecode2 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
   double val3 ;
   int ecode3 = 0 ;
   double val4 ;
@@ -11266,12 +11270,14 @@ SWIGINTERN PyObject *_wrap_new_molecule_by_symmetry(PyObject *SWIGUNUSEDPARM(sel
   int ecode12 = 0 ;
   double val13 ;
   int ecode13 = 0 ;
-  int val14 ;
+  double val14 ;
   int ecode14 = 0 ;
   int val15 ;
   int ecode15 = 0 ;
   int val16 ;
   int ecode16 = 0 ;
+  int val17 ;
+  int ecode17 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -11288,19 +11294,20 @@ SWIGINTERN PyObject *_wrap_new_molecule_by_symmetry(PyObject *SWIGUNUSEDPARM(sel
   PyObject * obj13 = 0 ;
   PyObject * obj14 = 0 ;
   PyObject * obj15 = 0 ;
+  PyObject * obj16 = 0 ;
   int result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOO:new_molecule_by_symmetry",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOOO:new_molecule_by_symmetry",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16)) SWIG_fail;
   ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
     SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_molecule_by_symmetry" "', argument " "1"" of type '" "int""'");
   } 
   arg1 = static_cast< int >(val1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_molecule_by_symmetry" "', argument " "2"" of type '" "double""'");
-  } 
-  arg2 = static_cast< double >(val2);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_molecule_by_symmetry" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
   ecode3 = SWIG_AsVal_double(obj2, &val3);
   if (!SWIG_IsOK(ecode3)) {
     SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_molecule_by_symmetry" "', argument " "3"" of type '" "double""'");
@@ -11356,11 +11363,11 @@ SWIGINTERN PyObject *_wrap_new_molecule_by_symmetry(PyObject *SWIGUNUSEDPARM(sel
     SWIG_exception_fail(SWIG_ArgError(ecode13), "in method '" "new_molecule_by_symmetry" "', argument " "13"" of type '" "double""'");
   } 
   arg13 = static_cast< double >(val13);
-  ecode14 = SWIG_AsVal_int(obj13, &val14);
+  ecode14 = SWIG_AsVal_double(obj13, &val14);
   if (!SWIG_IsOK(ecode14)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode14), "in method '" "new_molecule_by_symmetry" "', argument " "14"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode14), "in method '" "new_molecule_by_symmetry" "', argument " "14"" of type '" "double""'");
   } 
-  arg14 = static_cast< int >(val14);
+  arg14 = static_cast< double >(val14);
   ecode15 = SWIG_AsVal_int(obj14, &val15);
   if (!SWIG_IsOK(ecode15)) {
     SWIG_exception_fail(SWIG_ArgError(ecode15), "in method '" "new_molecule_by_symmetry" "', argument " "15"" of type '" "int""'");
@@ -11371,10 +11378,78 @@ SWIGINTERN PyObject *_wrap_new_molecule_by_symmetry(PyObject *SWIGUNUSEDPARM(sel
     SWIG_exception_fail(SWIG_ArgError(ecode16), "in method '" "new_molecule_by_symmetry" "', argument " "16"" of type '" "int""'");
   } 
   arg16 = static_cast< int >(val16);
-  result = (int)new_molecule_by_symmetry(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16);
+  ecode17 = SWIG_AsVal_int(obj16, &val17);
+  if (!SWIG_IsOK(ecode17)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode17), "in method '" "new_molecule_by_symmetry" "', argument " "17"" of type '" "int""'");
+  } 
+  arg17 = static_cast< int >(val17);
+  result = (int)new_molecule_by_symmetry(arg1,(char const *)arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return resultobj;
 fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_molecule_by_symop(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  int arg4 ;
+  int arg5 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:new_molecule_by_symop",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_molecule_by_symop" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_molecule_by_symop" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_molecule_by_symop" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  ecode4 = SWIG_AsVal_int(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "new_molecule_by_symop" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
+  ecode5 = SWIG_AsVal_int(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "new_molecule_by_symop" "', argument " "5"" of type '" "int""'");
+  } 
+  arg5 = static_cast< int >(val5);
+  result = (int)new_molecule_by_symop(arg1,(char const *)arg2,arg3,arg4,arg5);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return NULL;
 }
 
@@ -24567,6 +24642,50 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_move_waters_to_around_protein(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:move_waters_to_around_protein",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "move_waters_to_around_protein" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  result = (int)move_waters_to_around_protein(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_max_water_distance(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  float result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:max_water_distance",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "max_water_distance" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  result = (float)max_water_distance(arg1);
+  resultobj = SWIG_From_float(static_cast< float >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_get_text_for_find_waters_sigma_cut_off(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *result = 0 ;
@@ -25989,6 +26108,30 @@ SWIGINTERN PyObject *_wrap_rigid_body_refine_by_atom_selection(PyObject *SWIGUNU
   return resultobj;
 fail:
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_rigid_body_refine_by_residue_ranges_py(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  PyObject *arg2 = (PyObject *) 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:rigid_body_refine_by_residue_ranges_py",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "rigid_body_refine_by_residue_ranges_py" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  arg2 = obj1;
+  rigid_body_refine_by_residue_ranges_py(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
   return NULL;
 }
 
@@ -27634,6 +27777,27 @@ SWIGINTERN PyObject *_wrap_wrapped_create_new_close_molecules_dialog(PyObject *S
   if (!PyArg_ParseTuple(args,(char *)":wrapped_create_new_close_molecules_dialog")) SWIG_fail;
   result = (GtkWidget *)wrapped_create_new_close_molecules_dialog();
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_GtkWidget, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_rotamer_search_mode(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:set_rotamer_search_mode",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_rotamer_search_mode" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  set_rotamer_search_mode(arg1);
+  resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
   return NULL;
@@ -29968,6 +30132,73 @@ SWIGINTERN PyObject *_wrap_toggle_torsion_general_reverse(PyObject *SWIGUNUSEDPA
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_backrub_rotamer(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int res5 ;
+  char *buf5 = 0 ;
+  int alloc5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:backrub_rotamer",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "backrub_rotamer" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "backrub_rotamer" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "backrub_rotamer" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "backrub_rotamer" "', argument " "4"" of type '" "char const *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
+  if (!SWIG_IsOK(res5)) {
+    SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "backrub_rotamer" "', argument " "5"" of type '" "char const *""'");
+  }
+  arg5 = reinterpret_cast< char * >(buf5);
+  result = (int)backrub_rotamer(arg1,(char const *)arg2,arg3,(char const *)arg4,(char const *)arg5);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
   return NULL;
 }
 
@@ -33604,6 +33835,28 @@ SWIGINTERN PyObject *_wrap_sequence_info_py(PyObject *SWIGUNUSEDPARM(self), PyOb
   } 
   arg1 = static_cast< int >(val1);
   result = (PyObject *)sequence_info_py(arg1);
+  resultobj = result;
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_alignment_mismatches_py(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:alignment_mismatches_py",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "alignment_mismatches_py" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  result = (PyObject *)alignment_mismatches_py(arg1);
   resultobj = result;
   return resultobj;
 fail:
@@ -39192,6 +39445,40 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_rigid_body_fit_with_residue_ranges(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  std::vector< coot::residue_range_t > *arg2 = 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:rigid_body_fit_with_residue_ranges",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "rigid_body_fit_with_residue_ranges" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__vectorT_coot__residue_range_t_t,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "rigid_body_fit_with_residue_ranges" "', argument " "2"" of type '" "std::vector< coot::residue_range_t > const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "rigid_body_fit_with_residue_ranges" "', argument " "2"" of type '" "std::vector< coot::residue_range_t > const &""'"); 
+  }
+  arg2 = reinterpret_cast< std::vector< coot::residue_range_t > * >(argp2);
+  result = (int)rigid_body_fit_with_residue_ranges(arg1,(std::vector< coot::residue_range_t > const &)*arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_water_chain_from_shelx_ins_py(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -40318,6 +40605,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"has_unit_cell_state", _wrap_has_unit_cell_state, METH_VARARGS, NULL},
 	 { (char *)"save_symmetry_coords", _wrap_save_symmetry_coords, METH_VARARGS, NULL},
 	 { (char *)"new_molecule_by_symmetry", _wrap_new_molecule_by_symmetry, METH_VARARGS, NULL},
+	 { (char *)"new_molecule_by_symop", _wrap_new_molecule_by_symop, METH_VARARGS, NULL},
 	 { (char *)"setup_save_symmetry_coords", _wrap_setup_save_symmetry_coords, METH_VARARGS, NULL},
 	 { (char *)"save_symmetry_coords_from_fileselection", _wrap_save_symmetry_coords_from_fileselection, METH_VARARGS, NULL},
 	 { (char *)"set_space_group", _wrap_set_space_group, METH_VARARGS, NULL},
@@ -40834,6 +41122,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"execute_find_waters", _wrap_execute_find_waters, METH_VARARGS, NULL},
 	 { (char *)"execute_find_waters_real", _wrap_execute_find_waters_real, METH_VARARGS, NULL},
 	 { (char *)"find_waters", _wrap_find_waters, METH_VARARGS, NULL},
+	 { (char *)"move_waters_to_around_protein", _wrap_move_waters_to_around_protein, METH_VARARGS, NULL},
+	 { (char *)"max_water_distance", _wrap_max_water_distance, METH_VARARGS, NULL},
 	 { (char *)"get_text_for_find_waters_sigma_cut_off", _wrap_get_text_for_find_waters_sigma_cut_off, METH_VARARGS, NULL},
 	 { (char *)"set_value_for_find_waters_sigma_cut_off", _wrap_set_value_for_find_waters_sigma_cut_off, METH_VARARGS, NULL},
 	 { (char *)"on_big_blob_button_clicked", _wrap_on_big_blob_button_clicked, METH_VARARGS, NULL},
@@ -40884,6 +41174,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"do_rigid_body_refine", _wrap_do_rigid_body_refine, METH_VARARGS, NULL},
 	 { (char *)"rigid_body_refine_zone", _wrap_rigid_body_refine_zone, METH_VARARGS, NULL},
 	 { (char *)"rigid_body_refine_by_atom_selection", _wrap_rigid_body_refine_by_atom_selection, METH_VARARGS, NULL},
+	 { (char *)"rigid_body_refine_by_residue_ranges_py", _wrap_rigid_body_refine_by_residue_ranges_py, METH_VARARGS, NULL},
 	 { (char *)"execute_rigid_body_refine", _wrap_execute_rigid_body_refine, METH_VARARGS, NULL},
 	 { (char *)"set_rigid_body_fit_acceptable_fit_fraction", _wrap_set_rigid_body_fit_acceptable_fit_fraction, METH_VARARGS, NULL},
 	 { (char *)"toggle_dynamic_map_display_size", _wrap_toggle_dynamic_map_display_size, METH_VARARGS, NULL},
@@ -40952,6 +41243,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"close_molecule_item_select", _wrap_close_molecule_item_select, METH_VARARGS, NULL},
 	 { (char *)"new_close_molecules", _wrap_new_close_molecules, METH_VARARGS, NULL},
 	 { (char *)"wrapped_create_new_close_molecules_dialog", _wrap_wrapped_create_new_close_molecules_dialog, METH_VARARGS, NULL},
+	 { (char *)"set_rotamer_search_mode", _wrap_set_rotamer_search_mode, METH_VARARGS, NULL},
 	 { (char *)"setup_rotamers", _wrap_setup_rotamers, METH_VARARGS, NULL},
 	 { (char *)"do_rotamers", _wrap_do_rotamers, METH_VARARGS, NULL},
 	 { (char *)"show_rotamers_dialog", _wrap_show_rotamers_dialog, METH_VARARGS, NULL},
@@ -41033,6 +41325,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"fill_chi_angles_vbox", _wrap_fill_chi_angles_vbox, METH_VARARGS, NULL},
 	 { (char *)"setup_torsion_general", _wrap_setup_torsion_general, METH_VARARGS, NULL},
 	 { (char *)"toggle_torsion_general_reverse", _wrap_toggle_torsion_general_reverse, METH_VARARGS, NULL},
+	 { (char *)"backrub_rotamer", _wrap_backrub_rotamer, METH_VARARGS, NULL},
 	 { (char *)"mask_map_by_molecule", _wrap_mask_map_by_molecule, METH_VARARGS, NULL},
 	 { (char *)"mask_map_by_atom_selection", _wrap_mask_map_by_atom_selection, METH_VARARGS, NULL},
 	 { (char *)"set_map_mask_atom_radius", _wrap_set_map_mask_atom_radius, METH_VARARGS, NULL},
@@ -41145,6 +41438,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_all_sequences_from_molecule", _wrap_delete_all_sequences_from_molecule, METH_VARARGS, NULL},
 	 { (char *)"delete_sequence_by_chain_id", _wrap_delete_sequence_by_chain_id, METH_VARARGS, NULL},
 	 { (char *)"sequence_info_py", _wrap_sequence_info_py, METH_VARARGS, NULL},
+	 { (char *)"alignment_mismatches_py", _wrap_alignment_mismatches_py, METH_VARARGS, NULL},
 	 { (char *)"do_surface", _wrap_do_surface, METH_VARARGS, NULL},
 	 { (char *)"fffear_search", _wrap_fffear_search, METH_VARARGS, NULL},
 	 { (char *)"set_fffear_angular_resolution", _wrap_set_fffear_angular_resolution, METH_VARARGS, NULL},
@@ -41340,6 +41634,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"closest_atom_py", _wrap_closest_atom_py, METH_VARARGS, NULL},
 	 { (char *)"residues_near_residue_py", _wrap_residues_near_residue_py, METH_VARARGS, NULL},
 	 { (char *)"residues_near_position_py", _wrap_residues_near_position_py, METH_VARARGS, NULL},
+	 { (char *)"rigid_body_fit_with_residue_ranges", _wrap_rigid_body_fit_with_residue_ranges, METH_VARARGS, NULL},
 	 { (char *)"water_chain_from_shelx_ins_py", _wrap_water_chain_from_shelx_ins_py, METH_VARARGS, NULL},
 	 { (char *)"water_chain_py", _wrap_water_chain_py, METH_VARARGS, NULL},
 	 { (char *)"spin_search_by_atom_vectors", _wrap_spin_search_by_atom_vectors, METH_VARARGS, NULL},
@@ -41411,6 +41706,7 @@ static swig_type_info _swigt__p_std__pairT_short_std__string_t = {"_p_std__pairT
 static swig_type_info _swigt__p_std__pairT_std__string_std__string_t = {"_p_std__pairT_std__string_std__string_t", "std::pair< std::string,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_coot__command_arg_t_t = {"_p_std__vectorT_coot__command_arg_t_t", "std::vector< coot::command_arg_t > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__vectorT_coot__residue_range_t_t = {"_p_std__vectorT_coot__residue_range_t_t", "std::vector< coot::residue_range_t > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_coot__str_mtime_t = {"_p_std__vectorT_coot__str_mtime_t", "std::vector< coot::str_mtime > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_int_t = {"_p_std__vectorT_int_t", "std::vector< int > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_std__pairT_std__string_std__string_t_t = {"_p_std__vectorT_std__pairT_std__string_std__string_t_t", "std::vector< std::pair< std::string,std::string > > *", 0, 0, (void*)0, 0};
@@ -41458,6 +41754,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_std__pairT_std__string_std__string_t,
   &_swigt__p_std__string,
   &_swigt__p_std__vectorT_coot__command_arg_t_t,
+  &_swigt__p_std__vectorT_coot__residue_range_t_t,
   &_swigt__p_std__vectorT_coot__str_mtime_t,
   &_swigt__p_std__vectorT_int_t,
   &_swigt__p_std__vectorT_std__pairT_std__string_std__string_t_t,
@@ -41505,6 +41802,7 @@ static swig_cast_info _swigc__p_std__pairT_short_std__string_t[] = {  {&_swigt__
 static swig_cast_info _swigc__p_std__pairT_std__string_std__string_t[] = {  {&_swigt__p_std__pairT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_coot__command_arg_t_t[] = {  {&_swigt__p_std__vectorT_coot__command_arg_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__vectorT_coot__residue_range_t_t[] = {  {&_swigt__p_std__vectorT_coot__residue_range_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_coot__str_mtime_t[] = {  {&_swigt__p_std__vectorT_coot__str_mtime_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_int_t[] = {  {&_swigt__p_std__vectorT_int_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_std__pairT_std__string_std__string_t_t[] = {  {&_swigt__p_std__vectorT_std__pairT_std__string_std__string_t_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -41552,6 +41850,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_std__pairT_std__string_std__string_t,
   _swigc__p_std__string,
   _swigc__p_std__vectorT_coot__command_arg_t_t,
+  _swigc__p_std__vectorT_coot__residue_range_t_t,
   _swigc__p_std__vectorT_coot__str_mtime_t,
   _swigc__p_std__vectorT_int_t,
   _swigc__p_std__vectorT_std__pairT_std__string_std__string_t_t,
@@ -42099,5 +42398,8 @@ SWIGEXPORT void SWIG_init(void) {
   SWIG_Python_SetConstant(d, "DELETED",SWIG_From_int(static_cast< int >(2)));
   SWIG_Python_SetConstant(d, "MUTATED",SWIG_From_int(static_cast< int >(3)));
   SWIG_Python_SetConstant(d, "MOVINGATOMS",SWIG_From_int(static_cast< int >(4)));
+  SWIG_Python_SetConstant(d, "ROTAMERSEARCHAUTOMATIC",SWIG_From_int(static_cast< int >(0)));
+  SWIG_Python_SetConstant(d, "ROTAMERSEARCHHIGHRES",SWIG_From_int(static_cast< int >(1)));
+  SWIG_Python_SetConstant(d, "ROTAMERSEARCHLOWRES",SWIG_From_int(static_cast< int >(2)));
 }
 
