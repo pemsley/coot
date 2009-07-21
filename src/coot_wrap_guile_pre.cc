@@ -1273,14 +1273,15 @@ static swig_guile_clientdata _swig_guile_clientdatacommand_arg_t = { NULL, SCM_E
 #define SWIGTYPE_p_std__pairT_std__string_std__string_t swig_types[34]
 #define SWIGTYPE_p_std__string swig_types[35]
 #define SWIGTYPE_p_std__vectorT_coot__command_arg_t_t swig_types[36]
-#define SWIGTYPE_p_std__vectorT_coot__str_mtime_t swig_types[37]
-#define SWIGTYPE_p_std__vectorT_int_t swig_types[38]
-#define SWIGTYPE_p_std__vectorT_std__pairT_std__string_std__string_t_t swig_types[39]
-#define SWIGTYPE_p_std__vectorT_std__string_t swig_types[40]
-#define SWIGTYPE_p_time_t swig_types[41]
-#define SWIGTYPE_p_unsigned_long swig_types[42]
-static swig_type_info *swig_types[44];
-static swig_module_info swig_module = {swig_types, 43, 0, 0, 0, 0};
+#define SWIGTYPE_p_std__vectorT_coot__residue_range_t_t swig_types[37]
+#define SWIGTYPE_p_std__vectorT_coot__str_mtime_t swig_types[38]
+#define SWIGTYPE_p_std__vectorT_int_t swig_types[39]
+#define SWIGTYPE_p_std__vectorT_std__pairT_std__string_std__string_t_t swig_types[40]
+#define SWIGTYPE_p_std__vectorT_std__string_t swig_types[41]
+#define SWIGTYPE_p_time_t swig_types[42]
+#define SWIGTYPE_p_unsigned_long swig_types[43]
+static swig_type_info *swig_types[45];
+static swig_module_info swig_module = {swig_types, 44, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -1304,6 +1305,7 @@ static swig_module_info swig_module = {swig_types, 43, 0, 0, 0, 0};
 #include "c-interface-database.hh"
 #include "c-interface-python.hh"
 #include "manipulation-modes.hh"
+#include "rotamer-search-modes.hh"
 
 static char *gswig_const_COOT_SCHEME_DIR = "COOT_SCHEME_DIR";
 static int gswig_const_VT_FLAT = 1;
@@ -1318,6 +1320,9 @@ static int gswig_const_command_arg_t_STRING = coot::command_arg_t::STRING;
 static int gswig_const_DELETED = 2;
 static int gswig_const_MUTATED = 3;
 static int gswig_const_MOVINGATOMS = 4;
+static int gswig_const_ROTAMERSEARCHAUTOMATIC = 0;
+static int gswig_const_ROTAMERSEARCHHIGHRES = 1;
+static int gswig_const_ROTAMERSEARCHLOWRES = 2;
 static SCM
 _wrap_COOT_SCHEME_DIR(SCM s_0)
 {
@@ -8849,11 +8854,11 @@ _wrap_save_symmetry_coords (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5
 
 
 static SCM
-_wrap_new_molecule_by_symmetry (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6, SCM s_7, SCM s_8, SCM s_9, SCM s_10, SCM s_11, SCM s_12, SCM s_13, SCM s_14, SCM s_15)
+_wrap_new_molecule_by_symmetry (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6, SCM s_7, SCM s_8, SCM s_9, SCM s_10, SCM s_11, SCM s_12, SCM s_13, SCM s_14, SCM s_15, SCM s_16)
 {
 #define FUNC_NAME "new-molecule-by-symmetry"
   int arg1 ;
-  double arg2 ;
+  char *arg2 = (char *) 0 ;
   double arg3 ;
   double arg4 ;
   double arg5 ;
@@ -8865,9 +8870,11 @@ _wrap_new_molecule_by_symmetry (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM
   double arg11 ;
   double arg12 ;
   double arg13 ;
-  int arg14 ;
+  double arg14 ;
   int arg15 ;
   int arg16 ;
+  int arg17 ;
+  int must_free2 = 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
   int result;
@@ -8876,7 +8883,8 @@ _wrap_new_molecule_by_symmetry (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM
     arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
   }
   {
-    arg2 = (double) scm_num2dbl(s_1, FUNC_NAME);
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
   }
   {
     arg3 = (double) scm_num2dbl(s_2, FUNC_NAME);
@@ -8912,7 +8920,7 @@ _wrap_new_molecule_by_symmetry (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM
     arg13 = (double) scm_num2dbl(s_12, FUNC_NAME);
   }
   {
-    arg14 = (int) scm_num2int(s_13, SCM_ARG1, FUNC_NAME);
+    arg14 = (double) scm_num2dbl(s_13, FUNC_NAME);
   }
   {
     arg15 = (int) scm_num2int(s_14, SCM_ARG1, FUNC_NAME);
@@ -8920,10 +8928,14 @@ _wrap_new_molecule_by_symmetry (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM
   {
     arg16 = (int) scm_num2int(s_15, SCM_ARG1, FUNC_NAME);
   }
-  result = (int)new_molecule_by_symmetry(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16);
+  {
+    arg17 = (int) scm_num2int(s_16, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)new_molecule_by_symmetry(arg1,(char const *)arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17);
   {
     gswig_result = scm_long2num(result);
   }
+  if (must_free2 && arg2) SWIG_free(arg2);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -8933,10 +8945,71 @@ _wrap_new_molecule_by_symmetry (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM
 static SCM
 _wrap_new_molecule_by_symmetry_rest (SCM rest)
 {
-SCM arg[16];
-SWIG_Guile_GetArgs (arg, rest, 16, 0, "new-molecule-by-symmetry");
-return _wrap_new_molecule_by_symmetry(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6], arg[7], arg[8], arg[9], arg[10], arg[11], arg[12], arg[13], arg[14], arg[15]);
+SCM arg[17];
+SWIG_Guile_GetArgs (arg, rest, 17, 0, "new-molecule-by-symmetry");
+return _wrap_new_molecule_by_symmetry(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6], arg[7], arg[8], arg[9], arg[10], arg[11], arg[12], arg[13], arg[14], arg[15], arg[16]);
 }
+static SCM
+_wrap_new_molecule_by_symop (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4)
+{
+#define FUNC_NAME "new-molecule-by-symop"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  int arg4 ;
+  int arg5 ;
+  int must_free2 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = (int) scm_num2int(s_3, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg5 = (int) scm_num2int(s_4, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)new_molecule_by_symop(arg1,(char const *)arg2,arg3,arg4,arg5);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free2 && arg2) SWIG_free(arg2);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_origin_pre_shift_scm (SCM s_0)
+{
+#define FUNC_NAME "origin-pre-shift-scm"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (SCM)origin_pre_shift_scm(arg1);
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
 static SCM
 _wrap_setup_save_symmetry_coords ()
 {
@@ -20479,6 +20552,50 @@ _wrap_find_waters (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4)
 
 
 static SCM
+_wrap_move_waters_to_around_protein (SCM s_0)
+{
+#define FUNC_NAME "move-waters-to-around-protein"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)move_waters_to_around_protein(arg1);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_max_water_distance (SCM s_0)
+{
+#define FUNC_NAME "max-water-distance"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  float result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (float)max_water_distance(arg1);
+  {
+    gswig_result = scm_make_real(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_get_text_for_find_waters_sigma_cut_off ()
 {
 #define FUNC_NAME "get-text-for-find-waters-sigma-cut-off"
@@ -21644,6 +21761,28 @@ _wrap_rigid_body_refine_by_atom_selection (SCM s_0, SCM s_1)
   rigid_body_refine_by_atom_selection(arg1,(char const *)arg2);
   gswig_result = SCM_UNSPECIFIED;
   if (must_free2 && arg2) SWIG_free(arg2);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_rigid_body_refine_by_residue_ranges_scm (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "rigid-body-refine-by-residue-ranges-scm"
+  int arg1 ;
+  SCM arg2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  arg2=s_1;
+  result = (SCM)rigid_body_refine_by_residue_ranges_scm(arg1,arg2);
+  gswig_result=result;
   
   return gswig_result;
 #undef FUNC_NAME
@@ -23122,6 +23261,25 @@ _wrap_wrapped_create_new_close_molecules_dialog ()
 
 
 static SCM
+_wrap_set_rotamer_search_mode (SCM s_0)
+{
+#define FUNC_NAME "set-rotamer-search-mode"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_rotamer_search_mode(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_setup_rotamers (SCM s_0)
 {
 #define FUNC_NAME "setup-rotamers"
@@ -24104,6 +24262,55 @@ _wrap_set_add_alt_conf_split_type_number (SCM s_0)
 
 
 static SCM
+_wrap_add_alt_conf_scm (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5)
+{
+#define FUNC_NAME "add-alt-conf-scm"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  int arg6 ;
+  int must_free2 = 0 ;
+  int must_free4 = 0 ;
+  int must_free5 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = (char *)SWIG_scm2str(s_3);
+    must_free4 = 1;
+  }
+  {
+    arg5 = (char *)SWIG_scm2str(s_4);
+    must_free5 = 1;
+  }
+  {
+    arg6 = (int) scm_num2int(s_5, SCM_ARG1, FUNC_NAME);
+  }
+  result = (SCM)add_alt_conf_scm(arg1,(char const *)arg2,arg3,(char const *)arg4,(char const *)arg5,arg6);
+  gswig_result=result;
+  if (must_free2 && arg2) SWIG_free(arg2);
+  if (must_free4 && arg4) SWIG_free(arg4);
+  if (must_free5 && arg5) SWIG_free(arg5);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_setup_alt_conf_with_dialog (SCM s_0)
 {
 #define FUNC_NAME "setup-alt-conf-with-dialog"
@@ -25065,6 +25272,53 @@ _wrap_toggle_torsion_general_reverse ()
   
   toggle_torsion_general_reverse();
   gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_backrub_rotamer (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4)
+{
+#define FUNC_NAME "backrub-rotamer"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  int must_free2 = 0 ;
+  int must_free4 = 0 ;
+  int must_free5 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = (int) scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = (char *)SWIG_scm2str(s_3);
+    must_free4 = 1;
+  }
+  {
+    arg5 = (char *)SWIG_scm2str(s_4);
+    must_free5 = 1;
+  }
+  result = (int)backrub_rotamer(arg1,(char const *)arg2,arg3,(char const *)arg4,(char const *)arg5);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free2 && arg2) SWIG_free(arg2);
+  if (must_free4 && arg4) SWIG_free(arg4);
+  if (must_free5 && arg5) SWIG_free(arg5);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -27940,6 +28194,26 @@ _wrap_sequence_info (SCM s_0)
     arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
   }
   result = (SCM)sequence_info(arg1);
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_alignment_mismatches_scm (SCM s_0)
+{
+#define FUNC_NAME "alignment-mismatches-scm"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  SCM result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (SCM)alignment_mismatches_scm(arg1);
   gswig_result=result;
   
   return gswig_result;
@@ -32601,6 +32875,33 @@ _wrap_residues_near_position_scm (SCM s_0, SCM s_1, SCM s_2)
 
 
 static SCM
+_wrap_rigid_body_fit_with_residue_ranges (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "rigid-body-fit-with-residue-ranges"
+  int arg1 ;
+  std::vector< coot::residue_range_t > *arg2 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  int result;
+  
+  {
+    arg1 = (int) scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (std::vector< coot::residue_range_t > *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_std__vectorT_coot__residue_range_t_t, 2, 0);
+  }
+  result = (int)rigid_body_fit_with_residue_ranges(arg1,(std::vector< coot::residue_range_t > const &)*arg2);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_water_chain_from_shelx_ins_scm (SCM s_0)
 {
 #define FUNC_NAME "water-chain-from-shelx-ins-scm"
@@ -33240,6 +33541,51 @@ _wrap_MOVINGATOMS(SCM s_0)
 }
 
 
+static SCM
+_wrap_ROTAMERSEARCHAUTOMATIC(SCM s_0)
+{
+#define FUNC_NAME "ROTAMERSEARCHAUTOMATIC"
+  SCM gswig_result;
+  
+  {
+    gswig_result = scm_long2num(gswig_const_ROTAMERSEARCHAUTOMATIC);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_ROTAMERSEARCHHIGHRES(SCM s_0)
+{
+#define FUNC_NAME "ROTAMERSEARCHHIGHRES"
+  SCM gswig_result;
+  
+  {
+    gswig_result = scm_long2num(gswig_const_ROTAMERSEARCHHIGHRES);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_ROTAMERSEARCHLOWRES(SCM s_0)
+{
+#define FUNC_NAME "ROTAMERSEARCHLOWRES"
+  SCM gswig_result;
+  
+  {
+    gswig_result = scm_long2num(gswig_const_ROTAMERSEARCHLOWRES);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -33283,6 +33629,7 @@ static swig_type_info _swigt__p_std__pairT_short_std__string_t = {"_p_std__pairT
 static swig_type_info _swigt__p_std__pairT_std__string_std__string_t = {"_p_std__pairT_std__string_std__string_t", "std::pair< std::string,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_coot__command_arg_t_t = {"_p_std__vectorT_coot__command_arg_t_t", "std::vector< coot::command_arg_t > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__vectorT_coot__residue_range_t_t = {"_p_std__vectorT_coot__residue_range_t_t", "std::vector< coot::residue_range_t > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_coot__str_mtime_t = {"_p_std__vectorT_coot__str_mtime_t", "std::vector< coot::str_mtime > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_int_t = {"_p_std__vectorT_int_t", "std::vector< int > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_std__pairT_std__string_std__string_t_t = {"_p_std__vectorT_std__pairT_std__string_std__string_t_t", "std::vector< std::pair< std::string,std::string > > *", 0, 0, (void*)0, 0};
@@ -33328,6 +33675,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_std__pairT_std__string_std__string_t,
   &_swigt__p_std__string,
   &_swigt__p_std__vectorT_coot__command_arg_t_t,
+  &_swigt__p_std__vectorT_coot__residue_range_t_t,
   &_swigt__p_std__vectorT_coot__str_mtime_t,
   &_swigt__p_std__vectorT_int_t,
   &_swigt__p_std__vectorT_std__pairT_std__string_std__string_t_t,
@@ -33373,6 +33721,7 @@ static swig_cast_info _swigc__p_std__pairT_short_std__string_t[] = {  {&_swigt__
 static swig_cast_info _swigc__p_std__pairT_std__string_std__string_t[] = {  {&_swigt__p_std__pairT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_coot__command_arg_t_t[] = {  {&_swigt__p_std__vectorT_coot__command_arg_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__vectorT_coot__residue_range_t_t[] = {  {&_swigt__p_std__vectorT_coot__residue_range_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_coot__str_mtime_t[] = {  {&_swigt__p_std__vectorT_coot__str_mtime_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_int_t[] = {  {&_swigt__p_std__vectorT_int_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_std__pairT_std__string_std__string_t_t[] = {  {&_swigt__p_std__vectorT_std__pairT_std__string_std__string_t_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -33418,6 +33767,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_std__pairT_std__string_std__string_t,
   _swigc__p_std__string,
   _swigc__p_std__vectorT_coot__command_arg_t_t,
+  _swigc__p_std__vectorT_coot__residue_range_t_t,
   _swigc__p_std__vectorT_coot__str_mtime_t,
   _swigc__p_std__vectorT_int_t,
   _swigc__p_std__vectorT_std__pairT_std__string_std__string_t_t,
@@ -34014,6 +34364,8 @@ SWIG_init(void)
   scm_c_define_gsubr("has-unit-cell-state", 1, 0, 0, (swig_guile_proc) _wrap_has_unit_cell_state);
   scm_c_define_gsubr("save-symmetry-coords", 9, 0, 0, (swig_guile_proc) _wrap_save_symmetry_coords);
   scm_c_define_gsubr("new-molecule-by-symmetry", 0, 0, 1, (swig_guile_proc) _wrap_new_molecule_by_symmetry_rest);
+  scm_c_define_gsubr("new-molecule-by-symop", 5, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_symop);
+  scm_c_define_gsubr("origin-pre-shift-scm", 1, 0, 0, (swig_guile_proc) _wrap_origin_pre_shift_scm);
   scm_c_define_gsubr("setup-save-symmetry-coords", 0, 0, 0, (swig_guile_proc) _wrap_setup_save_symmetry_coords);
   scm_c_define_gsubr("save-symmetry-coords-from-fileselection", 1, 0, 0, (swig_guile_proc) _wrap_save_symmetry_coords_from_fileselection);
   scm_c_define_gsubr("set-space-group", 2, 0, 0, (swig_guile_proc) _wrap_set_space_group);
@@ -34528,6 +34880,8 @@ SWIG_init(void)
   scm_c_define_gsubr("execute-find-waters", 1, 0, 0, (swig_guile_proc) _wrap_execute_find_waters);
   scm_c_define_gsubr("execute-find-waters-real", 4, 0, 0, (swig_guile_proc) _wrap_execute_find_waters_real);
   scm_c_define_gsubr("find-waters", 5, 0, 0, (swig_guile_proc) _wrap_find_waters);
+  scm_c_define_gsubr("move-waters-to-around-protein", 1, 0, 0, (swig_guile_proc) _wrap_move_waters_to_around_protein);
+  scm_c_define_gsubr("max-water-distance", 1, 0, 0, (swig_guile_proc) _wrap_max_water_distance);
   scm_c_define_gsubr("get-text-for-find-waters-sigma-cut-off", 0, 0, 0, (swig_guile_proc) _wrap_get_text_for_find_waters_sigma_cut_off);
   scm_c_define_gsubr("set-value-for-find-waters-sigma-cut-off", 1, 0, 0, (swig_guile_proc) _wrap_set_value_for_find_waters_sigma_cut_off);
   scm_c_define_gsubr("on-big-blob-button-clicked", 2, 0, 0, (swig_guile_proc) _wrap_on_big_blob_button_clicked);
@@ -34578,6 +34932,7 @@ SWIG_init(void)
   scm_c_define_gsubr("do-rigid-body-refine", 1, 0, 0, (swig_guile_proc) _wrap_do_rigid_body_refine);
   scm_c_define_gsubr("rigid-body-refine-zone", 4, 0, 0, (swig_guile_proc) _wrap_rigid_body_refine_zone);
   scm_c_define_gsubr("rigid-body-refine-by-atom-selection", 2, 0, 0, (swig_guile_proc) _wrap_rigid_body_refine_by_atom_selection);
+  scm_c_define_gsubr("rigid-body-refine-by-residue-ranges-scm", 2, 0, 0, (swig_guile_proc) _wrap_rigid_body_refine_by_residue_ranges_scm);
   scm_c_define_gsubr("execute-rigid-body-refine", 1, 0, 0, (swig_guile_proc) _wrap_execute_rigid_body_refine);
   scm_c_define_gsubr("set-rigid-body-fit-acceptable-fit-fraction", 1, 0, 0, (swig_guile_proc) _wrap_set_rigid_body_fit_acceptable_fit_fraction);
   scm_c_define_gsubr("toggle-dynamic-map-display-size", 0, 0, 0, (swig_guile_proc) _wrap_toggle_dynamic_map_display_size);
@@ -34646,6 +35001,7 @@ SWIG_init(void)
   scm_c_define_gsubr("close-molecule-item-select", 2, 0, 0, (swig_guile_proc) _wrap_close_molecule_item_select);
   scm_c_define_gsubr("new-close-molecules", 1, 0, 0, (swig_guile_proc) _wrap_new_close_molecules);
   scm_c_define_gsubr("wrapped-create-new-close-molecules-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_new_close_molecules_dialog);
+  scm_c_define_gsubr("set-rotamer-search-mode", 1, 0, 0, (swig_guile_proc) _wrap_set_rotamer_search_mode);
   scm_c_define_gsubr("setup-rotamers", 1, 0, 0, (swig_guile_proc) _wrap_setup_rotamers);
   scm_c_define_gsubr("do-rotamers", 2, 0, 0, (swig_guile_proc) _wrap_do_rotamers);
   scm_c_define_gsubr("show-rotamers-dialog", 5, 0, 0, (swig_guile_proc) _wrap_show_rotamers_dialog);
@@ -34681,6 +35037,7 @@ SWIG_init(void)
   scm_c_define_gsubr("set-residue-type-chooser-stub-state", 1, 0, 0, (swig_guile_proc) _wrap_set_residue_type_chooser_stub_state);
   scm_c_define_gsubr("alt-conf-split-type-number", 0, 0, 0, (swig_guile_proc) _wrap_alt_conf_split_type_number);
   scm_c_define_gsubr("set-add-alt-conf-split-type-number", 1, 0, 0, (swig_guile_proc) _wrap_set_add_alt_conf_split_type_number);
+  scm_c_define_gsubr("add-alt-conf-scm", 6, 0, 0, (swig_guile_proc) _wrap_add_alt_conf_scm);
   scm_c_define_gsubr("setup-alt-conf-with-dialog", 1, 0, 0, (swig_guile_proc) _wrap_setup_alt_conf_with_dialog);
   scm_c_define_gsubr("unset-add-alt-conf-dialog", 0, 0, 0, (swig_guile_proc) _wrap_unset_add_alt_conf_dialog);
   scm_c_define_gsubr("unset-add-alt-conf-define", 0, 0, 0, (swig_guile_proc) _wrap_unset_add_alt_conf_define);
@@ -34727,6 +35084,7 @@ SWIG_init(void)
   scm_c_define_gsubr("fill-chi-angles-vbox", 1, 0, 0, (swig_guile_proc) _wrap_fill_chi_angles_vbox);
   scm_c_define_gsubr("setup-torsion-general", 1, 0, 0, (swig_guile_proc) _wrap_setup_torsion_general);
   scm_c_define_gsubr("toggle-torsion-general-reverse", 0, 0, 0, (swig_guile_proc) _wrap_toggle_torsion_general_reverse);
+  scm_c_define_gsubr("backrub-rotamer", 5, 0, 0, (swig_guile_proc) _wrap_backrub_rotamer);
   scm_c_define_gsubr("mask-map-by-molecule", 3, 0, 0, (swig_guile_proc) _wrap_mask_map_by_molecule);
   scm_c_define_gsubr("mask-map-by-atom-selection", 4, 0, 0, (swig_guile_proc) _wrap_mask_map_by_atom_selection);
   scm_c_define_gsubr("set-map-mask-atom-radius", 1, 0, 0, (swig_guile_proc) _wrap_set_map_mask_atom_radius);
@@ -34840,6 +35198,7 @@ SWIG_init(void)
   scm_c_define_gsubr("delete-all-sequences-from-molecule", 1, 0, 0, (swig_guile_proc) _wrap_delete_all_sequences_from_molecule);
   scm_c_define_gsubr("delete-sequence-by-chain-id", 2, 0, 0, (swig_guile_proc) _wrap_delete_sequence_by_chain_id);
   scm_c_define_gsubr("sequence-info", 1, 0, 0, (swig_guile_proc) _wrap_sequence_info);
+  scm_c_define_gsubr("alignment-mismatches-scm", 1, 0, 0, (swig_guile_proc) _wrap_alignment_mismatches_scm);
   scm_c_define_gsubr("do-surface", 2, 0, 0, (swig_guile_proc) _wrap_do_surface);
   scm_c_define_gsubr("fffear-search", 2, 0, 0, (swig_guile_proc) _wrap_fffear_search);
   scm_c_define_gsubr("set-fffear-angular-resolution", 1, 0, 0, (swig_guile_proc) _wrap_set_fffear_angular_resolution);
@@ -35036,6 +35395,7 @@ SWIG_init(void)
   scm_c_define_gsubr("closest-atom", 1, 0, 0, (swig_guile_proc) _wrap_closest_atom);
   scm_c_define_gsubr("residues-near-residue", 3, 0, 0, (swig_guile_proc) _wrap_residues_near_residue);
   scm_c_define_gsubr("residues-near-position-scm", 3, 0, 0, (swig_guile_proc) _wrap_residues_near_position_scm);
+  scm_c_define_gsubr("rigid-body-fit-with-residue-ranges", 2, 0, 0, (swig_guile_proc) _wrap_rigid_body_fit_with_residue_ranges);
   scm_c_define_gsubr("water-chain-from-shelx-ins-scm", 1, 0, 0, (swig_guile_proc) _wrap_water_chain_from_shelx_ins_scm);
   scm_c_define_gsubr("water-chain-scm", 1, 0, 0, (swig_guile_proc) _wrap_water_chain_scm);
   scm_c_define_gsubr("spin-search-by-atom-vectors", 7, 0, 0, (swig_guile_proc) _wrap_spin_search_by_atom_vectors);
@@ -35061,6 +35421,9 @@ SWIG_init(void)
   scm_c_define_gsubr("DELETED", 0, 0, 0, (swig_guile_proc) _wrap_DELETED);
   scm_c_define_gsubr("MUTATED", 0, 0, 0, (swig_guile_proc) _wrap_MUTATED);
   scm_c_define_gsubr("MOVINGATOMS", 0, 0, 0, (swig_guile_proc) _wrap_MOVINGATOMS);
+  scm_c_define_gsubr("ROTAMERSEARCHAUTOMATIC", 0, 0, 0, (swig_guile_proc) _wrap_ROTAMERSEARCHAUTOMATIC);
+  scm_c_define_gsubr("ROTAMERSEARCHHIGHRES", 0, 0, 0, (swig_guile_proc) _wrap_ROTAMERSEARCHHIGHRES);
+  scm_c_define_gsubr("ROTAMERSEARCHLOWRES", 0, 0, 0, (swig_guile_proc) _wrap_ROTAMERSEARCHLOWRES);
 }
 
 #ifdef __cplusplus
