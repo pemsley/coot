@@ -80,10 +80,13 @@
 #include "coot-coord-utils.hh" // check_dictionary_for_residue
 #include "coot-map-heavy.hh"   // situation's heavy... [simplex]
 #include "pepflip.hh"
+#include "backrub-rotamer.hh"
 
 #include "coot-nomenclature.hh"
 
 #include "GL/glu.h"
+
+#include "rotamer-search-modes.hh"
 
 void
 molecule_class_info_t::debug_selection() const { 
@@ -1288,10 +1291,53 @@ molecule_class_info_t::delete_atoms(const std::vector<coot::atom_spec_t> &atom_s
 
 // best fit rotamer stuff
 float
+molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
+					     int resno,
+					     const std::string &altloc,
+					     const std::string &insertion_code, 
+					     const std::string &chain_id,
+					     int imol_map,
+					     int clash_flag, float lowest_prob) {
+
+   // 20090714 We decide here if we go into auto_fit_best_rotamer
+   // (conventional mode with rigid body fitting) or backrub rotamers
+   //
+   float backrub_reso_limit = 2.3; // resolutions worse than this go
+				   // into backrub mode if automatic
+				   // is selected.
+
+   bool do_backrub = 0;
+   if (rotamer_search_mode == ROTAMERSEARCHLOWRES)
+      do_backrub = 1;
+
+   if (rotamer_search_mode == ROTAMERSEARCHAUTOMATIC) {
+      if (imol_map >= 0) {
+	 if (imol_map < graphics_info_t::molecules.size()) {
+	    if (graphics_info_t::molecules[imol_map].has_map()) {
+	       float r = graphics_info_t::molecules[imol_map].data_resolution();
+	       if (r > backrub_reso_limit) 
+		  do_backrub = 1;
+	    }
+	 }
+      }
+   }
+
+   if (do_backrub) {
+      return backrub_rotamer(chain_id, resno, insertion_code, altloc);
+   } else {
+      return auto_fit_best_rotamer(resno, altloc, insertion_code, chain_id, imol_map,
+				   clash_flag, lowest_prob);
+   }
+}
+
+
+// best fit rotamer stuff
+float
 molecule_class_info_t::auto_fit_best_rotamer(int resno,
 					     const std::string &altloc,
 					     const std::string &insertion_code, 
-					     const std::string &chain_id, int imol_map,
+					     const std::string &chain_id,
+					     int imol_map,
 					     int clash_flag, float lowest_prob) {
 
    // First we will get the CResidue for the residue that we are
@@ -1472,7 +1518,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 
 // interface from atom picking:
 float 
-molecule_class_info_t::auto_fit_best_rotamer(int atom_index, int imol_map, int clash_flag,
+molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
+					     int atom_index, int imol_map, int clash_flag,
 					     float lowest_probability) { 
 
    int resno = atom_sel.atom_selection[atom_index]->GetSeqNum();
@@ -1480,9 +1527,55 @@ molecule_class_info_t::auto_fit_best_rotamer(int atom_index, int imol_map, int c
    std::string chain_id = atom_sel.atom_selection[atom_index]->GetChainID();
    std::string altloc(atom_sel.atom_selection[atom_index]->altLoc);
 
-   return auto_fit_best_rotamer(resno, altloc, insertion_code, chain_id, imol_map, clash_flag, lowest_probability);
+   return auto_fit_best_rotamer(rotamer_search_mode,
+				resno, altloc, insertion_code, chain_id, imol_map,
+				clash_flag, lowest_probability);
 
 }
+
+// internal.
+float 
+molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no, 
+				       const std::string &ins_code, const std::string &alt_conf) {
+
+   float score = -1;
+   graphics_info_t g;
+   int imol_map = g.Imol_Refinement_Map();
+   if (imol_map >= 0) {
+      if (imol_map < graphics_info_t::molecules.size()) {
+	 if (graphics_info_t::molecules[imol_map].has_map()) {
+	    CResidue *res = get_residue(res_no, ins_code, chain_id);
+	    if (! res) {
+	       std::cout << "   WARNING:: residue in molecule :" << chain_id << ": "
+			 << res_no << " inscode :" << ins_code << ": altconf :" << alt_conf << ":"
+			 << std::endl;
+	    } else { 
+	       try {
+		  make_backup();
+		  CResidue *prev_res = coot::util::previous_residue(res);
+		  CResidue *next_res = coot::util::next_residue(res);
+		  CMMDBManager *mol = atom_sel.mol;
+		  coot::backrub br(chain_id, res, prev_res, next_res, alt_conf, mol,
+				   g.molecules[imol_map].xmap_list[0]);
+		  std::pair<coot::minimol::molecule,float> m = br.search();
+		  score = m.second;
+		  atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
+		  bool mzo = g.refinement_move_atoms_with_zero_occupancy_flag;
+		  replace_coords(fragment_asc, 0, mzo);
+	       }
+	       catch (std::runtime_error rte) {
+		  std::cout << rte.what() << std::endl;
+	       }
+	    }
+	 } else {
+	    std::cout << "   WARNING:: " << imol_map << " is not a valid map molecule"
+		      << std::endl;
+	 }
+      }
+   }
+   return score;
+}
+
 
 int
 molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_spec, int rotamer_number) {
@@ -3056,6 +3149,7 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
 }
 
 
+
 bool
 molecule_class_info_t::is_fasta_aa(const std::string &a) const { 
 
@@ -3366,12 +3460,13 @@ molecule_class_info_t::fit_residue_range_to_map_by_simplex(int resno1, int resno
 }
 
 
-
-
-
-void
+// Return a pair, the first if the split was done correctly or not and
+// the second is the string of the new alt conf.
+// 
+std::pair<bool,std::string>
 molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) { 
 
+   std::pair<bool,std::string> pr(0, "");
    if (atom_index < atom_sel.n_selected_atoms) {
       int do_intermediate_atoms = 0;
       CResidue *res = atom_sel.atom_selection[atom_index]->residue;
@@ -3383,9 +3478,6 @@ molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) {
       int udd_afix_handle = -1; // don't use value
       if (is_from_shelx_ins_flag)
 	 udd_afix_handle = atom_sel.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
-
-//       std::cout << " ==================== in split_residue ===================== " << std::endl;
-//       std::cout << " ============== udd_afix_handle " << udd_afix_handle << " ======== " << std::endl;
 
       std::pair<CResidue *, atom_selection_container_t> p =
 	 coot::deep_copy_this_residue_and_make_asc(atom_sel.mol, res, altconf, 1,
@@ -3514,12 +3606,13 @@ molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) {
 	 
 	 res_copy->TrimAtomTable();
 	 atom_selection_container_t asc_dummy;
-	 std::cout << "Calling  -------------- split_residue_internal ---------------------------\n";
-	 split_residue_internal(res_copy, altconf, residue_alt_confs, p.second, 1);
+	 std::cout << "Calling  -------- split_residue_internal ---------------------\n";
+	 pr = split_residue_internal(res_copy, altconf, residue_alt_confs, p.second, 1);
       }
    } else {
       std::cout << "WARNING:: split_residue: bad atom index.\n";
    }
+   return pr;
 }
 
 // change asc.
@@ -3605,18 +3698,19 @@ molecule_class_info_t::make_new_alt_conf(const std::vector<std::string> &residue
 
 
 // This is a molecule-class-info function.  
-void 
+std::pair<bool, std::string>
 molecule_class_info_t::split_residue_internal(CResidue *residue, const std::string &altconf, 
 					      const std::vector<std::string> &all_residue_altconfs,
 					      atom_selection_container_t residue_mol,
 					      short int use_residue_mol_flag) {
 
+   std::pair<bool,std::string> p(0,"");
    PCResidue *SelResidues = new PCResidue;
    std::string ch(residue->GetChainID());
    
    SelResidues = &residue; // just one
 
-   std::cout << "==================== in split_residue_internal ============= " << std::endl;
+   // std::cout << "==================== in split_residue_internal ============= " << std::endl;
 
    atom_selection_container_t asc;
    if (!use_residue_mol_flag) { 
@@ -3648,6 +3742,8 @@ molecule_class_info_t::split_residue_internal(CResidue *residue, const std::stri
    // std::cout << "  :" << all_residue_altconfs[ii] << ":  ";
    // }
    std::cout << std::endl;
+   p.first = 1;
+   p.second = new_alt_conf;
 
    CAtom *at;
    for (int i=0; i<asc.n_selected_atoms; i++) { 
@@ -3691,6 +3787,7 @@ molecule_class_info_t::split_residue_internal(CResidue *residue, const std::stri
 //    std::cout << "Post new bonds we have " << nbonds << " bonds lines\n";
 
    do_accept_reject_dialog("Alt Conf Split", coot::refinement_results_t());
+   return p;
 }
 
 // We don't create an intermediate atom.
@@ -6532,7 +6629,7 @@ molecule_class_info_t::make_dots(const std::string &atom_selection_str,
    if (has_model()) {
       int SelHnd = atom_sel.mol->NewSelection();
       atom_sel.mol->Select(SelHnd, STYPE_ATOM,
-			   (char *) atom_selection_str.c_str(), // sigh...
+			   atom_selection_str.c_str(),
 			   SKEY_OR);
       int n_selected_atoms;
       PPCAtom atom_selection = NULL;

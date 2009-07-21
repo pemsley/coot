@@ -110,7 +110,12 @@
 #include "dunbrack.hh"
 #else 
 #include "richardson-rotamer.hh"
-#endif 
+#endif
+
+#include "backrub-rotamer.hh"
+#include "rotamer-search-modes.hh"
+
+
 /*  ------------------------------------------------------------------------ */
 /*                   Maps - (somewhere else?):                               */
 /*  ------------------------------------------------------------------------ */
@@ -1627,15 +1632,18 @@ auto_fit_best_rotamer(int resno,
 	 // if (graphics_info_t::molecules[imol_map].has_map()) {
 	 std::string ins(insertion_code);
 	 std::string chain(chain_id);
+	 int mode = graphics_info_t::rotamer_search_mode;
 	 if (imol_map < 0 ) {
 	    std::cout << "INFO:: fitting rotamers by clash score only " << std::endl;
-	    f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(resno, altloc, ins,
+	    f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
+									      resno, altloc, ins,
 									      chain, imol_map,
 									      1,
 									      lowest_probability);
 	 } else {
 	    if (graphics_info_t::molecules[imol_map].has_map()) {
-	       f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(resno, altloc, ins,
+	       f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
+										 resno, altloc, ins,
 										 chain, imol_map,
 										 clash_flag,
 										 lowest_probability);
@@ -3947,6 +3955,7 @@ expansion is apllied.
 
 Return -1 on failure. */ 
 int new_molecule_by_symmetry(int imol,
+			     const char *name_in,
 			     double m11, double m12, double m13, 
 			     double m21, double m22, double m23, 
 			     double m31, double m32, double m33, 
@@ -3969,6 +3978,8 @@ int new_molecule_by_symmetry(int imol,
 	 atom_selection_container_t asc = make_asc(new_mol);
 	 std::string name = "Symmetry copy of ";
 	 name += coot::util::int_to_string(imol);
+	 if (std::string(name_in) != "")
+	    name = name_in;
 	 graphics_info_t::molecules[imol_new].install_model(imol_new, asc, name, 1);
 	 update_go_to_atom_window_on_new_mol();
 	 graphics_draw();
@@ -3985,6 +3996,70 @@ int new_molecule_by_symmetry(int imol,
 } 
 
 
+
+int new_molecule_by_symop(int imol, const char *symop_string, 
+			  int pre_shift_to_origin_na,
+			  int pre_shift_to_origin_nb,
+			  int pre_shift_to_origin_nc) {
+
+   coot::symm_card_composition_t sc(symop_string);
+   std::cout << symop_string << " ->\n" 
+	     << sc.x_element[0] << " " << sc.y_element[0] << " " << sc.z_element[0] << "\n"
+	     << sc.x_element[1] << " " << sc.y_element[1] << " " << sc.z_element[1] << "\n"
+	     << sc.x_element[2] << " " << sc.y_element[2] << " " << sc.z_element[2] << "\n"
+	     << "translations: "
+	     << sc.trans_frac(0) << " "
+	     << sc.trans_frac(1) << " "
+	     << sc.trans_frac(2) << std::endl;
+   std::cout << "pre-trans: "
+	     << pre_shift_to_origin_na << " "
+	     << pre_shift_to_origin_nb << " " 
+	     << pre_shift_to_origin_nc << std::endl;
+
+   std::string new_mol_name = "SymOp ";
+   new_mol_name += symop_string;
+   new_mol_name += " Copy of ";
+   new_mol_name += coot::util::int_to_string(imol);
+   int imol_new =  new_molecule_by_symmetry(imol,
+					    new_mol_name.c_str(),
+					    sc.x_element[0], sc.y_element[0], sc.z_element[0], 
+					    sc.x_element[1], sc.y_element[1], sc.z_element[1], 
+					    sc.x_element[2], sc.y_element[2], sc.z_element[2],
+					    sc.trans_frac(0),
+					    sc.trans_frac(1),
+					    sc.trans_frac(2),
+					    pre_shift_to_origin_na,
+					    pre_shift_to_origin_nb,
+					    pre_shift_to_origin_nc);
+
+   return imol_new;
+} 
+
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return the pre-shift as a list of fraction or scheme false
+  on failure  */
+SCM origin_pre_shift_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      try { 
+	 clipper::Coord_frac cf = coot::util::shift_to_origin(mol);
+	 r = SCM_EOL;
+	 r = scm_cons(SCM_MAKINUM(int(round(cf.w()))), r);
+	 r = scm_cons(SCM_MAKINUM(int(round(cf.v()))), r);
+	 r = scm_cons(SCM_MAKINUM(int(round(cf.u()))), r);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << rte.what() << std::endl;
+      } 
+   } 
+   return r;
+} 
+#endif  /* USE_GUILE */
+#endif 
 
 
 
@@ -4734,14 +4809,138 @@ rigid_body_refine_by_atom_selection(int imol,
 	 std::string atom_selection_str(atom_selection_string);
 	 std::pair<coot::minimol::molecule, coot::minimol::molecule> p = 
 	    coot::make_mols_from_atom_selection_string(mol, atom_selection_str, fill_mask);
-   
+
+	 g.imol_rigid_body_refine = imol;
 	 g.rigid_body_fit(p.first,   // without selected region.
 			  p.second,  // selected region.
 			  imol_ref_map,
 			  mask_waters_flag);
+      } else {
+	 std::cout << "WARNING:: model molecule " << imol << " is not valid " << std::endl;
+      } 
+   } else {
+      std::cout << "WARNING:: refinement map not defined. " << std::endl;
+   } 
+}
+
+
+#ifdef USE_GUILE
+/* ! \brief rigid body refine using residue ranges.  residue_ranges is
+   a list of residue ranges.  A residue range is (list chain-id
+   resno-start resno-end). */
+SCM
+rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges) {
+
+   SCM ret_val = SCM_BOOL_F;
+   std::vector<coot::residue_range_t> res_ranges;
+   if (scm_is_true(scm_list_p(residue_ranges))) { 
+      SCM rr_length_scm = scm_length(residue_ranges);
+      int rr_length = scm_to_int(rr_length_scm);
+      if (rr_length > 0) {
+	 for (unsigned int irange=0; irange<rr_length; irange++) {
+	    SCM range_scm = scm_list_ref(residue_ranges, SCM_MAKINUM(irange));
+	    if (scm_is_true(scm_list_p(range_scm))) {
+	       SCM range_length_scm = scm_length(range_scm);
+	       int range_length = scm_to_int(range_length_scm);
+	       if (range_length == 3) {
+		  SCM chain_id_scm    = scm_list_ref(range_scm, SCM_MAKINUM(0));
+		  SCM resno_start_scm = scm_list_ref(range_scm, SCM_MAKINUM(1));
+		  SCM resno_end_scm   = scm_list_ref(range_scm, SCM_MAKINUM(2));
+		  if (scm_is_string(chain_id_scm)) {
+		     std::string chain_id = scm_to_locale_string(chain_id_scm);
+		     if (scm_is_true(scm_number_p(resno_start_scm))) {
+			int resno_start = scm_to_int(resno_start_scm);
+			if (scm_is_true(scm_number_p(resno_end_scm))) {
+			   int resno_end = scm_to_int(resno_end_scm);
+			   // recall that mmdb does crazy things with
+			   // the residue selection if the second
+			   // residue is before the first residue in
+			   // the chain.  So, check and swap if needed.
+			   if (resno_end < resno_start)
+			      std::swap<int>(resno_start, resno_end);
+			   coot::residue_range_t rr(chain_id, resno_start, resno_end);
+			   res_ranges.push_back(rr);
+			}
+		     }
+		  } 
+	       } 
+	    } 
+	 }
+	 int status = rigid_body_fit_with_residue_ranges(imol, res_ranges); // test for res_ranges
+	                                                                    // length in here.
+	 if (status == 1) // good
+	    ret_val = SCM_BOOL_T;
+      } else {
+	 std::cout << "incomprehensible input to rigid_body_refine_by_residue_ranges_scm"
+		   << " null list" << std::endl;
+      } 
+   } else {
+      std::cout << "incomprehensible input to rigid_body_refine_by_residue_ranges_scm"
+		<< " not a list" << std::endl;
+   }
+   return ret_val;
+}
+#endif 
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  rigid body fitting (multiple residue ranges)            */
+/*  ----------------------------------------------------------------------- */
+int rigid_body_fit_with_residue_ranges(int imol,
+					const std::vector<coot::residue_range_t> &residue_ranges) {
+
+   int success = 0;
+   graphics_info_t g;
+   int imol_ref_map = g.Imol_Refinement_Map();
+   if (is_valid_map_molecule(imol_ref_map)) {
+      if (is_valid_model_molecule(imol)) {
+
+	 if (residue_ranges.size()) { 
+	    bool mask_waters_flag = 0;
+
+	    CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	    int SelHnd = mol->NewSelection();
+
+	    for (unsigned int ir=0; ir<residue_ranges.size(); ir++) {
+	       mol->SelectAtoms(SelHnd, 0,
+				residue_ranges[ir].chain_id.c_str(),
+				residue_ranges[ir].start_resno, "*",
+				residue_ranges[ir].end_resno, "*",
+				"*","*","*","*",SKEY_OR);
+	    }
+
+	    CMMDBManager *mol_from_selected =
+	       coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd);
+	    // atom selection in mol gets inverted by this function:
+	    CMMDBManager *mol_from_non_selected =
+	       coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd, 1);
+	 
+	    coot::minimol::molecule range_mol  = coot::minimol::molecule(mol_from_selected);
+	    coot::minimol::molecule masked_mol = coot::minimol::molecule(mol_from_non_selected);
+	    delete mol_from_selected;
+	    delete mol_from_non_selected;
+	    mol->DeleteSelection(SelHnd);
+	    g.imol_rigid_body_refine = imol;
+	    success = g.rigid_body_fit(masked_mol,   // without selected region.
+				       range_mol,  // selected region.
+				       imol_ref_map,
+				       mask_waters_flag);
+	 }
       }
    }
-}
+   return success;
+} 
+
+
+#ifdef USE_PYTHON
+void 
+/* Only a stub */
+rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges) {
+
+   // FIXMEBERNIE
+
+} 
+#endif 
 
 
 /*  ----------------------------------------------------------------------- */
@@ -5759,3 +5958,83 @@ show_partial_charge_info(int imol, const char *chain_id, int resno, const char *
       }
    }
 }
+
+// -----------------------------------------
+//
+// -----------------------------------------
+/*! \brief add an alternative conformer to a residue.  Add it in
+  conformation rotamer number rotamer_number.  
+
+Return #f on fail, the altconf string on success */
+SCM add_alt_conf_scm(int imol, const char*chain_id, int res_no, const char *ins_code,
+		     const char *alt_conf, int rotamer_number) {
+
+   SCM r=SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      // returns a bool,string pair (done-correct-flag, new atoms alt conf string)
+      std::pair<bool, std::string> p =
+	 g.split_residue(imol, std::string(chain_id), res_no,
+			 std::string(ins_code), std::string(alt_conf));
+      if (p.first) {
+	 r = scm_makfrom0str(p.second.c_str());
+      }
+   }
+   return r;
+} 
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  Backrub                                                 */
+/*  ----------------------------------------------------------------------- */
+
+/*! \brief set the mode of rotamer search, options are (ROTAMERSEARCHAUTOMATIC),  
+  (ROTAMERSEARCHLOWRES) (aka. "backrub rotamers), 
+  (ROTAMERSEARCHHIGHRES) (with rigid body fitting) */
+void set_rotamer_search_mode(int mode) {
+
+   if ((mode == ROTAMERSEARCHAUTOMATIC) || 
+       (mode == ROTAMERSEARCHLOWRES) ||
+       (mode == ROTAMERSEARCHHIGHRES)) { 
+      graphics_info_t::rotamer_search_mode = mode;
+   } else {
+      std::string m = "Rotamer Mode ";
+      m += coot::util::int_to_string(mode);
+      m += " not found";
+      add_status_bar_text(m.c_str());
+      std::cout << m << std::endl;
+   }
+}
+
+
+/*! \name Backrubbing function */
+/*! \{ */
+/* \brief do a back-rub rotamer search (with autoaccept) */
+int backrub_rotamer(int imol, const char *chain_id, int res_no, 
+		    const char *ins_code, const char *alt_conf) {
+
+  int status = 0;
+
+  if (is_valid_model_molecule(imol)) {
+     graphics_info_t g;
+     int imol_map = g.Imol_Refinement_Map();
+     if (is_valid_map_molecule(imol_map)) {
+
+	float s = graphics_info_t::molecules[imol].backrub_rotamer(chain_id, res_no,
+								   ins_code, alt_conf);
+	if (s> 0)
+	   status = 1;
+
+	graphics_draw();
+	
+     } else {
+	std::cout << "   WARNING:: " << imol_map << " is not a valid map molecule"
+		  << std::endl;
+     } 
+  } else {
+     std::cout << "   WARNING:: " << imol << " is not a valid model molecule"
+	       << std::endl;
+  } 
+  return status;
+} 
+/*! \} */

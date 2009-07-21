@@ -19,6 +19,9 @@
  */
 
 
+#ifndef HAVE_SEQUENCE_ASSIGNMENT_HH
+#define HAVE_SEQUENCE_ASSIGNMENT_HH
+
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
 #include <vector>
@@ -34,6 +37,26 @@
 
 namespace coot {
 
+   // We get a vector of these things, they are info where there is
+   // structure (poly-ala) but no assigned sequence - they refer to
+   // the structure.
+   // 
+   class residue_range_t {
+   public:
+      std::string chain_id;
+      int chain_id_index;
+      int start_resno;
+      int end_resno; // inclusive
+      residue_range_t(const std::string &chain_id_in,
+		      int start_resno_in,
+		      int end_resno_in) {
+	 chain_id = chain_id_in;
+	 start_resno = start_resno_in;
+	 end_resno = end_resno_in;
+      }
+      int length() const { return end_resno - start_resno + 1; }
+   };
+
    namespace sequence_assignment { 
 
       enum side_chain_name_index { GLY, ALA, SER, VAL, THR, PRO, ASN, ASP, CYS,
@@ -41,26 +64,6 @@ namespace coot {
 				   TRP, ARG};
 
       std::string side_chain_name_index_to_name(const side_chain_name_index &idx);
-
-      // We get a vector of these things, they are info where there is
-      // structure (poly-ala) but no assigned sequence - they refer to
-      // the structure.
-      // 
-      class residue_range_t {
-      public:
-	 std::string chain_id;
-	 int chain_id_index;
-	 int start_resno;
-	 int end_resno; // inclusive
-	 residue_range_t(const std::string &chain_id_in,
-			 int start_resno_in,
-			 int end_resno_in) {
-	    chain_id = chain_id_in;
-	    start_resno = start_resno_in;
-	    end_resno = end_resno_in;
-	 }
-	 int length() const { return end_resno - start_resno + 1; }
-      };
 
       // We get a vector of these things which are info about a range
       // of sequence that has not been associcated with structure
@@ -217,3 +220,5 @@ namespace coot {
       };
    }
 }
+
+#endif // HAVE_SEQUENCE_ASSIGNMENT_HH

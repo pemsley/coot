@@ -75,6 +75,8 @@ namespace coot {
 	    name = resname;
 	    ins_code = "";}
 	 residue(const CResidue *residue_p);
+	 residue(const CResidue *residue_p,
+		 const std::vector<std::string> &keep_only_these_atoms);
 	 residue(){}; // for resizing the residues in fragment
 	 int seqnum;
 	 std::string ins_code;

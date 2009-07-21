@@ -1168,6 +1168,7 @@ coot::ligand::make_sample_protein_coords() const {
 
    std::vector <clipper::Coord_orth> sample;
    int atom_count = 0;
+   int max_atom_loop_count = 4;
 
    // std::cout << "protein_mmdb has " << protein_atoms.fragments.size() << " fragments\n";
    for(unsigned int ifrag=0; ifrag<protein_atoms.fragments.size(); ifrag++) {
@@ -1186,7 +1187,7 @@ coot::ligand::make_sample_protein_coords() const {
 // 		   << protein_atoms[ifrag].max_residue_number() << "\n";
 	 for (unsigned int iat=0; iat<protein_atoms[ifrag][ires].atoms.size(); iat++) {
 	    atom_count++;
-	    if (atom_count == 10) {
+	    if (atom_count == max_atom_loop_count) {
 	       atom_count = 0;
 	       sample.push_back(protein_atoms[ifrag][ires][iat].pos);
 	    }
@@ -1504,8 +1505,8 @@ coot::ligand::move_ligand_site_close_to_protein_using_shape (int iclust,
 					  clipper::Coord_orth(0,0,0));  // was unset
 
   
-   int n = sampled_protein_coords.size();
-   if (n > 0) { 
+   int n_sampled = sampled_protein_coords.size();
+   if (n_sampled > 0) { 
       int n = xmap_pristine.spacegroup().num_symops();
       clipper::Coord_frac cell_shift; 
       for (int isym=0; isym<n; isym++) {

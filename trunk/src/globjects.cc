@@ -82,6 +82,7 @@
 #include "coot-database.hh"
 
 #include "rotate-translate-modes.hh"
+#include "rotamer-search-modes.hh"
 
 std::vector<molecule_class_info_t> graphics_info_t::molecules;
 
@@ -604,7 +605,7 @@ coot::db_main graphics_info_t::main_chain;
 coot::fixed_atom_pick_state_t graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
 GtkWidget *graphics_info_t::fixed_atom_dialog = 0; 
 
-std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > *graphics_info_t::distance_object_vec = NULL;
+std::vector<coot::simple_distance_object_t> *graphics_info_t::distance_object_vec = NULL;
 std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > *graphics_info_t::pointer_distances_object_vec = NULL;
 std::vector<coot::coord_orth_triple> *graphics_info_t::angle_object_vec = NULL;
 
@@ -736,6 +737,7 @@ coot::protein_geometry *graphics_info_t::geom_p = NULL;
 
 
 // rotamer probabilities
+int graphics_info_t::rotamer_search_mode = ROTAMERSEARCHAUTOMATIC;
 coot::rotamer_probability_tables graphics_info_t::rot_prob_tables;
 float graphics_info_t::rotamer_distortion_scale = 0.3;
 
@@ -2587,6 +2589,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 		     // intermediate atoms when they are a rotamer:
 		     // 
 		     if (! info.rotamer_dialog) {
+			// e.g. translate an added peptide fragment.
 			info.move_moving_atoms_by_simple_translation(x_as_int,
 								     y_as_int);
 		     }

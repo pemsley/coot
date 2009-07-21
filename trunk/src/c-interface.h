@@ -882,10 +882,12 @@ int  unpathed_backup_file_names_state();
 /* \{ */
 /*! \brief recover session
 
-   After a crash (shock horror!) we provide this convenient interface
-   to restore the session.  It runs through all the molecules with
-   models and looks at the coot backup directory looking for related
-   backup files that are more recent that the read file. */
+   After a crash, we provide this convenient interface to restore the
+   session.  It runs through all the molecules with models and looks
+   at the coot backup directory looking for related backup files that
+   are more recent that the read file. (Not very good, because you
+   need to remember which files you read in before the crash - should
+   be improved.) */
 void recover_session();
 void execute_recover_session(GtkWidget *w);
 /* \} */
@@ -921,7 +923,9 @@ int map_from_mtz_by_calc_phases(const char *mtz_file_name,
 				int imol_coords);
 
 gdouble* get_map_colour(int imol);
+
 void add_on_map_colour_choices(GtkWidget *w);
+
 /* the callback set on the submenu items in the above function */
 void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,
 				       gpointer         user_data);
@@ -1543,10 +1547,13 @@ The rotation/translation matrix components are given in *fractional*
 coordinates.
 
 Allow a shift of the coordinates to the origin before symmetry
-expansion is aplied.
+expansion is aplied.  
+
+Pass "" as the name-in and a name will be constructed for you.
 
 Return -1 on failure. */ 
 int new_molecule_by_symmetry(int imol,
+			     const char *name,
 			     double m11, double m12, double m13, 
 			     double m21, double m22, double m23, 
 			     double m31, double m32, double m33, 
@@ -1554,6 +1561,23 @@ int new_molecule_by_symmetry(int imol,
 			     int pre_shift_to_origin_na,
 			     int pre_shift_to_origin_nb,
 			     int pre_shift_to_origin_nc);
+
+/*! \brief create a new molecule (molecule number is the return value)
+  from imol.  
+*/
+int new_molecule_by_symop(int imol, const char *symop_string,
+			  int pre_shift_to_origin_na,
+			  int pre_shift_to_origin_nb,
+			  int pre_shift_to_origin_nc);
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return the pre-shift (the shift that translates the centre
+  of the molecule as close as possible to the origin) as a list of
+  ints or scheme false on failure  */
+SCM origin_pre_shift_scm(int imol);
+#endif  /* USE_GUILE */
+#endif 
 
 void setup_save_symmetry_coords();
 
@@ -2311,7 +2335,10 @@ char *go_to_atom_alt_conf();
 
    It seems important for swig that the char * arguments are const
    char *, not const gchar * (or else we get wrong type of argument
-   error on (say) "A"*/
+   error on (say) "A"
+
+@return the success status of the go to.  0 for fail, 1 for success.
+*/
 int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno, 
 					   const char *t3_atom_name);
 int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3, 
@@ -3654,6 +3681,18 @@ void find_waters(int imol_for_map,
 		 float sigma_cut_off,
 		 short int show_blobs_dialog);
 
+
+/*! \brief move waters of molecule number imol so that they are around the protein.
+
+@return the number of moved waters. */
+int move_waters_to_around_protein(int imol);
+
+
+/*! \brief return the maximum minimum distance of any water atom to
+  any protein atom - used in validation of
+  move_waters_to_around_protein() funtion.*/
+float max_water_distance(int imol);
+
 char *get_text_for_find_waters_sigma_cut_off();
 void set_value_for_find_waters_sigma_cut_off(float f); 
 /* #ifdef __cplusplus */
@@ -3858,8 +3897,24 @@ void
 rigid_body_refine_by_atom_selection(int imol, 
 				    const char *atom_selection_string);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/* ! \brief rigid body refine using residue ranges.  residue_ranges is
+   a list of residue ranges.  A residue range is (list chain-id
+   resno-start resno-end). */
+SCM
+rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges); 
+#endif 
+#ifdef USE_PYTHON
+void 
+/* Only a stub */
+rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges); 
+#endif 
+#endif 
+
 void execute_rigid_body_refine(short int auto_range_flag); /* atom picking has happened.
 				     Actually do it */
+
 
 /*! \brief set rigid body fraction of atoms in positive density
 
@@ -4067,6 +4122,11 @@ GtkWidget *wrapped_create_new_close_molecules_dialog();
 
 /* functions defined in c-interface-build */
 
+/*! \brief set the mode of rotamer search, options are (ROTAMERSEARCHAUTOMATIC),  
+  (ROTAMERSEARCHLOWRES) (aka. "backrub rotamers), 
+  (ROTAMERSEARCHHIGHRES) (with rigid body fitting) */
+void set_rotamer_search_mode(int mode);
+
 void setup_rotamers(short int state);
 
 /*  display the rotamer option and display the most likely in the graphics as a */
@@ -4263,6 +4323,18 @@ void set_residue_type_chooser_stub_state(short int istat);
 
 short int alt_conf_split_type_number();
 void set_add_alt_conf_split_type_number(short int i);
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief add an alternative conformer to a residue.  Add it in
+  conformation rotamer number rotamer_number.  
+
+Return the new alt_conf chain_id on sucess, scheme false on fail */
+SCM add_alt_conf_scm(int imol, const char*chain_id, int res_no, const char *ins_code, 
+		     const char *alt_conf, int rotamer_number);
+#endif	/* USE_GUILE */
+#endif 
+
 void setup_alt_conf_with_dialog(GtkWidget *dialog); 
 void unset_add_alt_conf_dialog(); /* set the static dialog holder in
 				     graphics info to NULL */
@@ -4411,6 +4483,19 @@ void setup_torsion_general(short int state);
 void toggle_torsion_general_reverse();
 
 /* \} */
+
+/*  ----------------------------------------------------------------------- */
+/*                  Backrub                                                 */
+/*  ----------------------------------------------------------------------- */
+/*! \name Backrubbing function */
+/*! \{ */
+/* \brief Do a back-rub rotamer search (with autoaccept). 
+
+@return the success status, 0 for fail, 1 for successful fit.  */
+int backrub_rotamer(int imol, const char *chain_id, int res_no, 
+		    const char *ins_code, const char *alt_conf);
+/*! \} */
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Mask                                                    */
@@ -4963,12 +5048,34 @@ void delete_sequence_by_chain_id(int imol, const char *chain_id_in);
   number imol. return as a list of dotted pairs (list (cons chain-id
   seq)).  To be used in constructing the cootaneer gui. */
 SCM sequence_info(int imol);
+
+/*! \brief do a internal alignment of all the assigned sequences,
+  return a list of mismatches that need to be made to model number
+  imol to match the input sequence.
+
+Return a list of mutations deletions insetions.
+Return scheme false on failure to align (e.g. not assigned sequence)
+and the empty list on no alignment mismatches.*/
+SCM alignment_mismatches_scm(int imol);
 #endif 
+
 #ifdef USE_PYTHON
 /*! \brief return the sequence info that has been assigned to molecule
   number imol. return as a list of dotted pairs [[chain-id,
   seq]].  To be used in constructing the cootaneer gui. */
 PyObject *sequence_info_py(int imol);
+/*! \brief 
+
+  NOTE only a stub
+
+  do a internal alignment of all the assigned sequences,
+  return a list of mismatches that need to be made to model number
+  imol to match the input sequence.
+
+Return a list of mutations deletions insetions.
+Return  False on failure to align (e.g. not assigned sequence)
+and the empty list on no alignment mismatches.*/
+PyObject *alignment_mismatches_py(int imol);
 #endif 
 #endif /* C++ */
 /* \} */

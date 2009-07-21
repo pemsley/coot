@@ -1,28 +1,37 @@
 
-   13 items
+   10 items
 
 
-   o Torsion general is broken? Yes (argh!) ::: 2
+   o Regularize monomer-3GP. Turn on torsion angle restraints.
+     Regularize again. Look at above var_2 torsion.  After
+     minimization, torsion is 171.09 degrees.  Wrong.  The minimizer
+     doesn't terminate though. Use libcheck_3GP-torsion-filtered.cif 
+     ::: 4
 
 
-   o Fix ligand chi angles. ::: 1
+   o Why is the brief text for have_unsaved_changes_p() not showing in
+     the on-line documentation? 
+
+     Why are the descriptions for the function params not showing?
+     (e.g. set_smooth_scroll_flag()).
+
+     ::: 1 
 
 
-   o multiple residue ranges, glycosylation, covalent bond entities,
-     make sure it works with alt confs and residues with TER atoms.  
+   o Geometric distortions graph for alt confs - currently broken? ::: 4
 
-     Sphere refinement on N-linked NAG glycans work fine (e.g. 1pp4).
 
-     OK, sphere refinement on a residue next to a residue with an alt
-     conf fails (E_NOPROGRESS).  
+   o File differences mentioned by Bill?  ::: 0.5
 
-     Sphere refinement on a resiude with an alt conf ignores the
-     centre residue and refines the residues around it). Hard.
 
-     ::: 10
+   o Torsion general is broken? Yes (argh!)
+     Am I using the right version of mgtree?
+     ::: 2
 
-* What else is there to do here?  Write a test.
-
+   o symmetry molecule by symop.  Check that pre_shift_to_origin_abc
+     is applied the right way (currently I think that it is not (not
+     at least with the new-molecule-by-symop usage in
+     extensions)). ::: 1
 
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
     make_link_restraints_by_linear() has
@@ -36,15 +45,19 @@
     ::: 3
 
 
-
-   o Backrub-based auto-fit rotamer search.  Question: how do I test
-     this? Synthetic map?  How does it work when we do this for an alt
-     conf too?  ::: 10
-
-
-
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
      interface with molprobity dots.  pisa-interaction ::: 8
+
+
+   o Fix this: 
+
+** (coot-real:16099): WARNING **: Widget not found: preferences_font_size_small_radionbutton
+
+(coot-real:16099): Gtk-CRITICAL **: gtk_toggle_button_set_active: assertion `GTK_IS_TOGGLE_BUTTON (toggle_button)' failed
+
+    ::: 0.5
+
+   o Move "Add strand here" next to "add Helix here" ::: 0.5
 
 
 
@@ -58,12 +71,6 @@
      if not, we can run the python function [JED]. ::: 1
 
 
-   o get-monomer fails for JED.  Why? ::: 1
-
-
-   o Geometric distortions graph for alt confs - currently broken? ::: 4
-
-
    o Stereo (hardware, side by side) Add-reps.  Need to update the
      display list objects when the GL context changes. Need to store a
      GL display list number for the alternate GL context in side by
@@ -74,11 +81,10 @@
      ::: 3
 
 
-   o Regularize monomer-3GP. Turn on torsion angle restraints.
-     Regularize again. Look at above var_2 torsion.  After
-     minimization, torsion is 171.09 degrees.  Wrong.  The minimizer
-     doesn't terminate though. Use libcheck_3GP-torsion-filtered.cif 
-     ::: 4
+   o Fix ligand chi angles. ::: 1
+
+* Seems OK?
+
 
 
 
@@ -991,6 +997,33 @@ c-interface clear_up_moving_atoms...
   Actually, there is a better way, use the JED conversion script.
 
   Done.  At last.  What an effort.
+
+
+   o Backrub-based auto-fit rotamer search.  Question: how do I test
+     this? Synthetic map?  How does it work when we do this for an alt
+     conf too?  ::: 5
+
+* Done.  Actually quite easy.
+
+
+   o get-monomer fails for JED.  Why? ::: 1
+
+* It apparently no longer does.  Yeay.
+
+   o multiple residue ranges, glycosylation, covalent bond entities,
+     make sure it works with alt confs and residues with TER atoms.  
+
+     Sphere refinement on N-linked NAG glycans work fine (e.g. 1pp4).
+
+     OK, sphere refinement on a residue next to a residue with an alt
+     conf fails (E_NOPROGRESS).  
+
+     Sphere refinement on a resiude with an alt conf ignores the
+     centre residue and refines the residues around it). Hard.
+
+     ::: 10
+
+* What else is there to do here?  Write a test.
 
 
 

@@ -429,7 +429,8 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 	    CAtom *atom1 = molecules[im].atom_sel.atom_selection[geometry_atom_index_2];
 	    coot::Cartesian pos2 = coot::Cartesian(atom1->x, atom1->y, atom1->z);
 
-	    display_geometry_distance_symm(distance_pos_1, pos2);
+	    display_geometry_distance_symm(geometry_atom_index_1_mol_no, distance_pos_1,
+					   geometry_atom_index_2_mol_no, pos2);
 
 	    unset_geometry_dialog_distance_togglebutton();
 	    in_distance_define = 0;  // clear flag
@@ -460,7 +461,8 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 
 	       // in_distance_define == 2
 	       coot::Cartesian pos2 = symm_nearest_atom_index_info.hybrid_atom.pos;
-	       display_geometry_distance_symm(distance_pos_1, pos2);
+	       display_geometry_distance_symm(geometry_atom_index_1_mol_no, distance_pos_1,
+					      geometry_atom_index_2_mol_no, pos2);
 	       unset_geometry_dialog_distance_togglebutton();
 	       in_distance_define = 0;
 	       pick_pending_flag = 0;
@@ -1270,7 +1272,7 @@ graphics_info_t::check_if_in_auto_fit_define(GdkEventButton *event) {
 	    std::string chain(atom_p->GetChainID());
 	    std::string altloc(atom_p->altLoc);
 	    
-	    float f = molecules[imol].auto_fit_best_rotamer(resno, altloc, inscode, chain, imol_map, graphics_info_t::rotamer_fit_clash_flag, graphics_info_t::rotamer_lowest_probability);
+	    float f = molecules[imol].auto_fit_best_rotamer(rotamer_search_mode, resno, altloc, inscode, chain, imol_map, graphics_info_t::rotamer_fit_clash_flag, graphics_info_t::rotamer_lowest_probability);
 	    if (rotamer_auto_fit_do_post_refine_flag) {
 	      // Run refine zone with autoaccept, autorange on
 	      // the "clicked" atom:

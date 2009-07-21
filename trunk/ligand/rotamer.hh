@@ -174,13 +174,13 @@ namespace coot {
       int optimize_rotamer_by_atom_names();
 
       rotamer_probability_info_t probability_of_this_rotamer(); // can't const - mmdb
-                                                               // CResidue issues...
+                                                                // CResidue issues...
 
+      // return a manipulated deep copy of input residue.
       CResidue *GetResidue(int i_rot) const; // rotamer/button number
       std::vector<coot::simple_rotamer> rotamers(const std::string &res_type, float prob_cut) const; 
       float Chi1(int i) const; // chi1 for the ith rotamer
       std::string rotamer_name(int irot);
-
    };
 }
 

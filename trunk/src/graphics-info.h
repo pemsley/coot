@@ -201,6 +201,24 @@ namespace coot {
       clipper::Coord_orth p3;
    };
 
+   // was:
+   // std::pair<clipper::Coord_orth, clipper::Coord_orth> 
+   class simple_distance_object_t {
+   public:
+     clipper::Coord_orth start_pos;
+     clipper::Coord_orth end_pos;
+     int imol_start;
+     int imol_end;
+     simple_distance_object_t(int imol1,
+			      const clipper::Coord_orth &start,
+			      int imol2,
+			      const clipper::Coord_orth &end) { 
+       start_pos = start;
+       end_pos = end;
+       imol_start = imol1;
+       imol_end = imol2;
+     } 
+   };
 
 
    class intermediate_atom_distance_t {
@@ -612,7 +630,7 @@ class graphics_info_t {
 #endif // GTK_MAJOR_VERSION
 
    // distance object vector, and angle
-   static std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > *distance_object_vec;
+   static std::vector<coot::simple_distance_object_t> *distance_object_vec;
    static std::vector<coot::coord_orth_triple> *angle_object_vec;
 
    static int moving_atoms_dragged_atom_index;
@@ -849,7 +867,7 @@ public:
       residue_info_edits = new std::vector<coot::select_atom_info>;
 
       // display distances
-      distance_object_vec = new std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >;
+      distance_object_vec = new std::vector<coot::simple_distance_object_t>;
 
       // pointer distances
       pointer_distances_object_vec = new std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >;
@@ -1845,7 +1863,10 @@ public:
 				       int imol);
    void execute_rigid_body_refine(short int auto_range_flag);
    // called by above:
-   void rigid_body_fit(const coot::minimol::molecule &mol_without_moving_zone,
+   // return the sucess status (0 for fail).
+   // Replacing atom positions in imol_rigid_body_refine, so make sure
+   // that you set that correctly before calling this function.
+   bool rigid_body_fit(const coot::minimol::molecule &mol_without_moving_zone,
 		       const coot::minimol::molecule &range_mol,
 		       int imol_ref_map,
 		       bool mask_water_flag);
@@ -2245,7 +2266,8 @@ public:
    void display_geometry_angle() const;
    double get_geometry_torsion() const;
    void display_geometry_torsion() const;
-   void display_geometry_distance_symm(const coot::Cartesian &p1, const coot::Cartesian &p2);
+   void display_geometry_distance_symm(int imol1, const coot::Cartesian &p1, 
+				       int imol2, const coot::Cartesian &p2);
    //
    void pepflip();
 
@@ -2468,6 +2490,7 @@ public:
 
    static int max_skeleton_search_depth;
    // Rotamer stuff
+   static int rotamer_search_mode; 
    static float rotamer_lowest_probability;  // Expressed as a percentage (2.0 default).
                                       // This is the P_r1_r2_r3_r4 probability, no bayesian 
                                       // stuff involved, currently.
@@ -2706,8 +2729,8 @@ public:
    static short int in_add_alt_conf_define;
    static int add_alt_conf_atom_index;
    static int add_alt_conf_imol; 
-   void split_residue(int imol, int atom_index); 
-   void split_residue(int imol, std::string &chain_id, int resno, std::string &altconf);
+   std::pair<bool,std::string> split_residue(int imol, int atom_index); 
+   std::pair<bool,std::string> split_residue(int imol, const std::string &chain_id, int resno, const std::string &ins_code, const std::string &altconf);
    void split_residue_range(int imol, int index_1, int index2);
    // we add altconf because we want to triple-split a residue
    // sometimes (which we do by splitting one of the already existing

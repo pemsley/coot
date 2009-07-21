@@ -12,19 +12,24 @@
    Top commitments:
 
   o Edit a SHELXL file before refinement
+* Done.
   o backrub on rotamer search
+* Done.
   o Helix fitting overshoots
   o PISA output display
   o In the restraints editor, the volume sign should be displayed as 
     a string (generated from volume_string_int)
   o Make ligand fitting work from a given position (find the blob
     centre close and do the orientation search there)
+* Done.
   o P backbone mode
+* Done.
 
   Like to do:
   o redo sequence view
-  o 
+* Done.
   o Fix 64-bit coot problem(s)
+* Done.
 
    o Add "centre molecule here" check button for reading coordinates
      Kevin M.
@@ -46,10 +51,16 @@
       These might not always be correct, but they should be 99+% of
       the time.
 
+* Done.
+
    o enable --splash-screen
+
+* Done.
 
    o "CA mode" for nucleic acids should draw a P and C1' trace. [VR]
      Priority: 10, Difficulty: 4
+
+* Done.
 
    o Does the window stay constant size (on something other than a
      laptop) on start, exit, start exit cycling?
@@ -58,6 +69,7 @@
    o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim Fenn.
  
 *  Let's hear from Tim Fenn.  OK, he replied.  Non-trivial.  OK, Punt to 0.6
+   Done.
 
    o update map without generating a new molecule.
      Perhaps the NCS maps, or read a new map from MTZ updating a
@@ -69,10 +81,14 @@
     something, e.g. we could then use the "B" and "S" keys, because they
     are not often used.  Maybe "A" too. Punt.
 
+* Done.
+
   o Check out the virtualbox page on the ubuntu wiki for info about how
     to set it up. Punt.
 
   o What's crashing on using NCS in Bill's 0.5 build?  No idea.
+
+* Problem gone now, I think.
 
    o Mails from Phil Evans, Stephen Graham, Early April 2008 about SEG
      ids.  Doing a NCS loop with Seg ids.  Doing a mutation with Segids
@@ -80,27 +96,37 @@
      inherited from those of the rest of the residue (if they are
      consistent).
 
+* Done.
+
    o Give the user a chance to edit the ins file before it is sent off
      for refinement [Tobias Beck].  Not doing so, as currently,
      practically makes the shelxl refine in Coot useless if the user
      needs to modify the file.  Fire up a text widget with the .ins file
      in it.
 
+* Done.
+
    o Rotamer plots need to update on multiple do/undos.
 
    o in coot_toolbuttons.py Bernhard registers the icons.  Does that
      make them smooth?
 
+* Not relevant now.
+
    o Phil Evans wants colour by chain as the default.  Can you make
      this the default at coordinates read time (similarly, others want
-     CA mode).  
+     CA mode).
 
    o Put globularize protein into Coot.  Make it a bit more clever?
 
    o Garib wants a function to move waters close to the protein.
 
+* Done.
+
    o Do the tutorial.  Are the blob numbers correct? (EJD 1008 May 23
      suggests not).
+
+* Seems fine
 
    o check the "movie" interface
 
@@ -114,13 +140,21 @@
      forget to also rotate the mainchain hydrogens.  Does
      is_mainchain_atom() working for mainchain hydrogens?
 
+* Done.
+
    o Investigate interupting long fitting/Post MR tools [JED request]
+
+* Done.
 
    o add a mechanism where we can register functions to run after
      refinement and/or regularization. 
+
+* Done.
   
      or deleting things says JED.  In fact, a funtion to run that is
       attached to a molecule (somehow) on any update/change/manipulation.
+
+* Done.
 
    o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
 
@@ -131,6 +165,8 @@
 
      It would be great to be able to click on a nucleotide base in a
      single strand of DNA or RNA and generate its W/C partner...
+
+* Done.
 
    o Fix up mini-RSR so that it compiles properly.
 
@@ -149,10 +185,16 @@
 
    o multiple residue ranges, glycosylation, covalent bond entities
   
+* Done.
+
    o Redo sequence view 
+
+* Done.
 
    o check that the puckers of the ideal RNA/DNA is correct for A form
      and B form.  Try to find matrix example nucs for Z form.
+
+* Done.
 
    o Centos/RHEL 4.6, has gtk2 version 2.4.13, fails to compile
      guile-gtk-2.1 out of the box. It didn't know about GtkAboutDialog,
@@ -161,7 +203,9 @@
     
      Not going to get the hardware in before 0.5 is released.  Punt for 0.6.
 
-   o Hydrogens from a SHELXL molecule
+* Done.
+
+   o Hydrogens from a SHELXL molecule.  [What does this mean?]
 
    o Mouse bindings, consistency with MG.  Can we drag using middle
      mouse, instead of ctrl left mouse?  Needs abstraction of state in
@@ -216,6 +260,8 @@
 
    o rotamer-score function needs to be filled
 
+* Done.
+
    o "Find Waters" sometimes does not to put waters in what seems sensible
      places - why is that?
 
@@ -231,6 +277,8 @@
 
    o "Fit ligand here" which gets a monomer then does a ligand search
      based on the blob at the current position.
+
+* Done.
 
    o Non-bonded contacts.  Can they be speeded up.  What about nbcs
      with Hydrogens.  Are they good?  Refine 50 residues and profile.
@@ -250,11 +298,15 @@
 
    o Display ligand diapoles using charges from cif file.
 
+* Done.
+
    o consider a function generator for dialog box of buttons.  Because
      we need a function that accepts args for close-dialog and one
      that does not.  A macro maybe.
 
    o Rotate/Translate a whole protein (many chains)
+
+* Done.
 
    o When there is a non-square GL context, the axes become skewed.
      Needs othogonalizing.
@@ -289,7 +341,11 @@
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.
 
+* Done.
+
    o RNA backbone plot by connecting phosphates
+
+* Done.
 
    o NCS bone skeleton search - like ncs6d?.  Can be punted, if needed.
 
@@ -416,7 +472,8 @@ Punted from 0.6:
 
    o RNA/DNA backbone in symmetry.
 
-   o For spin-searching the carbohydrate you need to give an atom spec for the spin vector atoms.
+   o For spin-searching the carbohydrate you need to give an atom spec
+     for the spin vector atoms.
 
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.  ::: 2
@@ -428,6 +485,19 @@ Punted from 0.6:
    the frac_trans) to make a fractional matrix, which can be used in 
    new-molecule-by-symmetry.
 
+
+   o How about a "recover" .coot-recover file that contains the view
+     the saved pdb file, the molecule name (and whatever else is needed)
+     so that on a crash, coot can elegantly recover.  That would be cool.
+
+
+   o ROT_TRANS_TYPE_MULTI_RANGE, so that we can make a "setup" of
+     rigid body refine at the scritping layer (currently rot/trans setup
+     is only done by clicking).
+     SCM rotate_translate_residue_ranges(int imol, SCM residue_ranges)
+
+
+   o Put "Set Matrix" under the R/RC button dialog.
 
 
  0.7 Priorities:
@@ -458,6 +528,8 @@ Punted from 0.6:
 
    o User pickable atoms.
 
+* Done.
+
    o sort out the problem with the color wheel colour chooser from the
      colour-picker/patch widget for maps.  This needs to update the map 
      colour dynamically.
@@ -476,9 +548,15 @@ Punted from 0.6:
 
    o mutate residue range for bases
 
+* Done.
+
    o Fix leak and deprecated functions message.
 
+* Half done
+
    o Bring partial charges to electrostatic surface
+
+* Done.
 
    o Activate molecule_class_info_t deconstuctor.  
 
@@ -531,6 +609,7 @@ Punted from 0.6:
 
    o read multiple files from shift and ctrl clicking in the file selection.
 
+* Done.
 
 -----
  

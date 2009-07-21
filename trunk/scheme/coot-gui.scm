@@ -482,23 +482,24 @@
 ;; old coot test
 (define (old-coot?)
 
-  ;; when making a new date, recall that localtime has months that are
-  ;; 0-indexed
-  ;; 
-  (let* ( ; (new-release-time 1200000000) ; 10 Jan 2008
-	  ; (new-release-time 1205678900) ; 16 Mar 2008 0.3.3
-	  ; (new-release-time 1222222222) ; 24 Jul 2008 0.4
-	  ; (new-release-time 1237270000) ; 17 March 2009   
-	 (new-release-time 1250000000) ; 11 Aug 2009 : 0.5
-	 (time-diff (- (current-time) new-release-time)))
-    (if (> time-diff 0)
-	(let ((s (if (> time-diff 86000)
-		     "This is an Old Coot!\n\nIt's time to upgrade."
-		     (if (= (random 10) 0)
-			 ;; Jorge Garcia:
-			 "(Nothing says \"patriotism\" like an Ireland shirt...)\n"
-			 "This is an Old Coot!\n\nIt's time to upgrade."))))
-	  (info-dialog s)))))
+  (if (= (random 10) 0)
+      ;; when making a new date, recall that localtime has months that are
+      ;; 0-indexed
+      ;; 
+      (let* (;; (new-release-time 1200000000) ; 10 Jan 2008
+	     ;; (new-release-time 1205678900) ; 16 Mar 2008 0.3.3
+	     ;; (new-release-time 1222222222) ; 24 Jul 2008 0.4
+	     ;; (new-release-time 1237270000) ; 17 March 2009   
+	     (new-release-time 1250000000) ; 11 Aug 2009 : 0.5
+	     (time-diff (- (current-time) new-release-time)))
+	(if (> time-diff 0)
+	    (let ((s (if (> time-diff 8600000) ;; 100 days
+			 "This is an Old Coot!\n\nIt's time to upgrade."
+			 (if (= (random 10) 0)
+			     ;; Jorge Garcia:
+			     "(Nothing says \"patriotism\" like an Ireland shirt...)\n"
+			     "This is an Old Coot!\n\nIt's time to upgrade."))))
+	      (info-dialog s))))))
 
 (old-coot?)
 
@@ -2524,8 +2525,350 @@
     (gtk-widget-show-all window)))
 
 
+;; Associate the contents of a PIR file with a molecule.
+;; 
+(define (associate-pir-with-molecule-gui)
+  (generic-chooser-entry-and-file-selector 
+   "Associate Sequence to Model: "
+   valid-model-molecule?
+   "Chain ID"
+   ""
+   "Select PIR file"
+   (lambda (imol chain-id pir-file-name)
+     (format #t "assoc seq: ~s ~s ~s~%" imol chain-id pir-file-name)
+     (if (file-exists? pir-file-name)
+	 (let ((seq-text 
+		(call-with-input-file pir-file-name
+		  (lambda (port)
+		    (let loop  ((lines '())
+				(line (read-line port)))
+		      (cond
+		       ((eof-object? line) 
+			(string-append-with-string (reverse lines) "\n"))
+		       (else
+			(loop (cons line lines) (read-line port)))))))))
+	   
+	   (assign-pir-sequence imol chain-id seq-text))))))
 
-; let the c++ part of mapview know that this file was loaded:
+;; Make a box-of-buttons GUI for the various modifications that need
+;; to be made to match the model sequence to the assigned sequence(s).
+;; 
+;; Call this when the associated sequence(s) have been read in already.
+;; 
+(define (alignment-mismatches-gui imol)
+
+  (let ((am (alignment-mismatches imol)))
+
+    (cond
+     ((not am) (info-dialog "Sequence not associated - no alignment"))
+     ((null? am) (info-dialog "No sequence mismatches"))
+     (else 
+
+      ;; (format #t "mutations: ~s~%" (list-ref am 0))
+      ;; (format #t "deletions: ~s~%" (list-ref am 1))
+      ;; (format #t "insertions: ~s~%"(list-ref am 2))
+
+      ;; a button is a (list button-label button-action)
+      (let ((mutate-buttons 
+	     (map (lambda (res-info)
+		    (let* ((chain-id (list-ref res-info 2))
+			   (res-no   (list-ref res-info 3))
+			   (ins-code (list-ref res-info 4))
+			   (button-1-label 
+			    (string-append "Mutate "
+					   (list-ref res-info 2)
+					   " "
+					   (number->string (list-ref res-info 3))
+					   " " 
+					   (residue-name imol chain-id res-no ins-code)
+					   " to " 
+					   (car res-info)))
+			   (button-1-action
+			    (lambda ()
+			      (set-go-to-atom-molecule imol)
+			      (set-go-to-atom-chain-residue-atom-name chain-id res-no " CA "))))
+		      (list button-1-label button-1-action)))
+		  (list-ref am 0)))
+
+	    (delete-buttons
+	     (map (lambda (res-info)
+		    (let* ((chain-id (list-ref res-info 2))
+			   (res-no   (list-ref res-info 3))
+			   (ins-code (list-ref res-info 4))
+			   (button-1-label 
+			    (string-append "Delete "
+					   chain-id
+					   " "
+					   (number->string res-no)))
+			   (button-1-action
+			    (lambda ()
+			      (set-go-to-atom-molecule imol)
+			      (set-go-to-atom-chain-residue-atom-name chain-id res-no " CA "))))
+		      (list button-1-label button-1-action)))
+		  (list-ref am 1)))
+
+	    (insert-buttons 
+	     (map (lambda (res-info)
+		    (let* ((chain-id (list-ref res-info 2))
+			   (res-no   (list-ref res-info 3))
+			   (ins-code (list-ref res-info 4))
+			   (button-1-label 
+			    (string-append "Insert "
+					   (list-ref res-info 2)
+					   " "
+					   (number->string (list-ref res-info 3))))
+			   (button-1-action
+			    (lambda () 
+			      (info-dialog button-1-label))))
+		      (list button-1-label button-1-action)))
+		  (list-ref am 2))))
+
+	(let ((buttons (append delete-buttons mutate-buttons insert-buttons)))
+	  
+	  (dialog-box-of-buttons "Residue mismatches"
+				 (cons 300 300)
+				 buttons "  Close  ")))))))
+
+
+
+;; Wrapper in that we test if there have been sequence(s) assigned to
+;; imol before we look for the sequence mismatches
+
+(define (wrapper-alignment-mismatches-gui imol)
+  
+  (let ((seq-info (sequence-info imol)))
+    (if (null? seq-info)
+	(associate-pir-with-molecule-gui)
+	(alignment-mismatches-gui imol))))
+
+
+;; Multiple residue ranges gui
+;; 
+;; Create a new top level window that contains a residue-range-vbox
+;; which contains a set of hboxes that contain (or allow the user to
+;; enter) a residue range (chain-id resno-start resno-end).
+;; 
+;; The '+' and '-' buttons on the right allow the addition of extra
+;; residue ranges (and remove them of course).  The residue ranges are
+;; added to residue-range-widgets in a somewhat ugly manner.  Note
+;; also that fill-residue-range-widgets-previous-data generates
+;; residue range widgets and adds them to residue-range-widgets.
+;; 
+;; The interesting function is make-residue-range-frame which returns
+;; the outside vbox (that contains the frame and + and - buttons, so
+;; it is not a great name for the function) and each of the entries -
+;; so that they can be decoded (gtk-entry-get-text) when the "Go"
+;; button is pressed.
+;;
+;; Using the variable saved-residue-ranges, the GUI can restore itself
+;; from previous (saved) residue ranges.
+;;
+;; (Notice that we are not dealing with insertion codes).
+;; 
+(define residue-range-gui 
+  (let ((residue-range-widgets '())
+	(saved-residue-ranges '()))
+    (lambda (func function-text go-button-label)
+
+      ;; 
+      (define (n-residue-range-vboxes residue-range-widgets-vbox)
+	;; 20090718 WARNING to self, in new version of guile-gnome
+	;; gtk-container-children is likely to be
+	;; gtk-container-get-children.
+	(let ((ls (gtk-container-children residue-range-widgets-vbox)))
+	  (length ls)))
+
+      ;; Remove widget from residue-range-widgets (on '-' button
+      ;; pressed)
+      ;; 
+      (define (remove-from-residue-range-widget widget)
+	(let loop ((ls residue-range-widgets)
+		   (new-list '()))
+	  (cond 
+	   ((null? ls) (set! residue-range-widgets filtered-list))
+	   ((equal? widget (car (car ls)))
+	    (loop (cdr ls) new-list))
+	   (else 
+	    (loop (cdr ls)
+		  (cons (car ls) new-list))))))
+
+      ;; 
+      (define (make-residue-range-frame residue-range-vbox)
+	(let ((frame (gtk-frame-new ""))
+	      (outside-hbox (gtk-hbox-new #f 2))
+	      (hbox (gtk-hbox-new #f 2))
+	      (text-1 (gtk-label-new "  Chain-ID:"))
+	      (text-2 (gtk-label-new "  Resno Start:"))
+	      (text-3 (gtk-label-new "  Resno End:"))
+	      (entry-1 (gtk-entry-new))
+	      (entry-2 (gtk-entry-new))
+	      (entry-3 (gtk-entry-new))
+	      ( plus-button (gtk-button-new-with-label "+"))
+	      (minus-button (gtk-button-new-with-label " - ")))
+
+	  (gtk-box-pack-start hbox text-1  #f #f 0)
+	  (gtk-box-pack-start hbox entry-1 #f #f 0)
+	  (gtk-box-pack-start hbox text-2  #f #f 0)
+	  (gtk-box-pack-start hbox entry-2 #f #f 0)
+	  (gtk-box-pack-start hbox text-3  #f #f 0)
+	  (gtk-box-pack-start hbox entry-3 #f #f 0)
+
+	  (gtk-box-pack-start outside-hbox frame #f #f 2)
+	  (gtk-container-add frame hbox)
+	  (gtk-box-pack-start outside-hbox  plus-button #f #f 2)
+	  (gtk-box-pack-start outside-hbox minus-button #f #f 2)
+
+	  (gtk-signal-connect  plus-button "clicked"
+			       (lambda ()
+				 ;; we need to add a new residue-range
+				 ;; outside-hbox into the residue-range-widgets-vbox
+				 (let ((rr-frame (make-residue-range-frame residue-range-vbox)))
+				   (gtk-box-pack-start residue-range-vbox (car rr-frame) #f #f 2)
+				   (gtk-widget-show (car rr-frame))
+				   (set! residue-range-widgets
+					 (cons rr-frame residue-range-widgets)))))
+	  
+	  (gtk-signal-connect minus-button "clicked"
+			      (lambda ()
+				(let ((n (n-residue-range-vboxes residue-range-vbox)))
+				  (if (> n 1)
+				      (begin 
+					(remove-from-residue-range-widget outside-hbox)
+					(gtk-widget-destroy outside-hbox))))))
+
+	  (map gtk-widget-show (list frame outside-hbox hbox text-1 text-2 text-3
+				     entry-1 entry-2 entry-3 plus-button minus-button))
+
+	  ;; return the thing that we need to pack and the entries we
+	  ;; need to read.
+	  (list outside-hbox entry-1 entry-2 entry-3)))
+
+      ;; 
+      (define (make-residue-ranges residue-range-widgets)
+	(reverse (map make-residue-range residue-range-widgets)))
+
+      ;; Return a list (list "A" 2 3) or #f on failure to decode entries.
+      ;; 
+      (define (make-residue-range residue-range-widget)
+	;; (format #t "make a residue range using ~s~%"  residue-range-widget)
+	(let* ((entry-1 (list-ref residue-range-widget 1))
+	       (entry-2 (list-ref residue-range-widget 2))
+	       (entry-3 (list-ref residue-range-widget 3))
+	       (chain-id (gtk-entry-get-text entry-1))
+	       (res-no-1 (string->number (gtk-entry-get-text entry-2)))
+	       (res-no-2 (string->number (gtk-entry-get-text entry-3))))
+	  (if (and (number? res-no-1)
+		   (number? res-no-2))
+	      (list chain-id res-no-1 res-no-2)
+	      (begin
+		(format #t "did not understand ~s and ~s as numbers - fail resiude range~%"
+			(gtk-entry-get-text entry-2)
+			(gtk-entry-get-text entry-3))
+		#f))))
+
+      ;; 
+      (define (save-ranges! residue-range-widgets)
+	(let ((residue-ranges (reverse 
+	       (map (lambda (residue-range-widget)
+		      (make-residue-range residue-range-widget))
+		    residue-range-widgets))))
+	  (set! saved-residue-ranges residue-ranges)))
+
+      
+      ;; range-info is (list chain-id res-no-1 res-no-2)
+      ;; 
+      (define (fill-with-previous-range range-info vbox-info)
+	(format #t "fill-with-previous-range using ~s~%" range-info)
+	(let* ((entry-1 (list-ref vbox-info 1))
+	       (entry-2 (list-ref vbox-info 2))
+	       (entry-3 (list-ref vbox-info 3))
+	       (chain-id (list-ref range-info 0))
+	       (resno-1  (list-ref range-info 1))
+	       (resno-2  (list-ref range-info 2)))
+
+	  (gtk-entry-set-text entry-1 chain-id)
+	  (gtk-entry-set-text entry-2 (number->string resno-1))
+	  (gtk-entry-set-text entry-3 (number->string resno-2))))
+
+      ;; 
+      (define (fill-residue-range-widgets-previous-data previous-ranges
+							first-vbox-info
+							residue-range-vbox)
+	(format #t "first one ~s~%" (car previous-ranges))
+	(if (not (null? previous-ranges))
+	    (if (not (eq? #f (car previous-ranges)))
+		(fill-with-previous-range (car previous-ranges) first-vbox-info)))
+
+	(if (not (null? (cdr previous-ranges)))
+	    (map (lambda (range)
+		   (if (not (eq? #f range))
+		       (let ((vbox-info (make-residue-range-frame residue-range-vbox)))
+			 (gtk-box-pack-start residue-range-vbox (car vbox-info) #f #f 2)
+			 (format #t "next one ~s~%" range)
+			 (set! residue-range-widgets
+			       (cons vbox-info residue-range-widgets))
+			 (fill-with-previous-range range vbox-info))))
+		 (cdr previous-ranges))))
+      
+      
+      ;; main line
+      ;; 
+      (let* ((window (gtk-window-new 'toplevel))
+	     (vbox (gtk-vbox-new #f 0))
+	     (residue-range-vbox (gtk-vbox-new #t 2))
+	     (residue-range-widget-info (make-residue-range-frame residue-range-vbox))
+	     (hbox-buttons (gtk-hbox-new #f 0))
+	     (function-label (gtk-label-new function-text))
+	     (cancel-button (gtk-button-new-with-label "  Cancel  "))
+	     (go-button (gtk-button-new-with-label go-button-label))
+	     (h-sep (gtk-hseparator-new))
+	     ;; the first residue range
+	     (outside-vbox-residue-range (car residue-range-widget-info)))
+	
+	(set! residue-range-widgets (list residue-range-widget-info))
+
+	;; buttons
+	(gtk-box-pack-end hbox-buttons cancel-button #f #f 6)
+	(gtk-box-pack-end hbox-buttons     go-button #f #f 6)
+	
+	;; the vbox of residue ranges
+	(gtk-box-pack-start residue-range-vbox outside-vbox-residue-range #f #f 0)
+
+	(if (not (null? saved-residue-ranges))
+	    (fill-residue-range-widgets-previous-data saved-residue-ranges
+						      residue-range-widget-info
+						      residue-range-vbox))
+
+	;; main vbox
+	(gtk-box-pack-start vbox function-label #f #f 0)
+	(let ((mc-opt-menu+model-list (generic-molecule-chooser vbox "Molecule for Ranges:")))
+	  (gtk-box-pack-start vbox residue-range-vbox #f #f 2)
+	  (gtk-box-pack-start vbox h-sep #t #t 6)
+	  (gtk-box-pack-start vbox hbox-buttons #f #f 0)
+	  
+	  (gtk-container-add window vbox)
+	  (gtk-container-border-width vbox 6)
+	  
+	  (gtk-signal-connect cancel-button "clicked"
+			      (lambda ()
+				(save-ranges! residue-range-widgets)
+				(gtk-widget-destroy window)))
+	  (gtk-signal-connect go-button "clicked"
+			      (lambda()
+				(save-ranges! residue-range-widgets)
+				(let ((residue-ranges (make-residue-ranges residue-range-widgets))
+				      (imol (apply get-option-menu-active-molecule 
+						   mc-opt-menu+model-list)))
+				     (if (number? imol)
+					 (func imol residue-ranges))
+				  (gtk-widget-destroy window))))
+
+	  (gtk-widget-show-all window))))))
+
+
+
+
+;; let the c++ part of coot know that this file was loaded:
 (set-found-coot-gui)
 	 
 ;;; Local Variables:

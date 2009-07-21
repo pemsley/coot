@@ -95,10 +95,15 @@ namespace coot {
       void add_centering_frac(int x_element_in,
 			      int y_element_in,
 			      int z_element_in);
-      void invert(); 
+      void invert();
+      float trans_frac(unsigned int index) const {
+	 return frac_trans[index]/12.0;
+      } 
       std::vector<std::string> symm_cards_from_lat(int latt);
       std::string symm_card() const;
+      friend std::ostream & operator<<(std::ostream &s, const symm_card_composition_t &sc);
    };
+   std::ostream & operator<<(std::ostream &s, const symm_card_composition_t &sc);
 
    class shelx_rtab_chi_info_t {
    public:

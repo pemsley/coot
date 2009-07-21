@@ -41,14 +41,14 @@ include_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh \
 	chi-angles.hh dunbrack.hh helix-placement.hh fast-ss-search.hh        \
 	rigid-body.hh ideal-rna.hh rotamer.hh richardson-rotamer.hh           \
 	torsion-general.hh primitive-chi-angles.hh dipole.hh    \
-	base-pairing.hh
+	base-pairing.hh backrub-rotamer.hh
 
 libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	wiggly-ligand.cc monomer-utils.cc dunbrack.cc chi-angles-autogen.cc   \
 	chi-angles.cc helix-placement.cc fast-ss-search.cc rigid-body.cc      \
 	ideal-rna.cc richardson-rotamers.cc richardson-rotamer.cc rotamer.cc  \
 	torsion-general.cc rotamer-tables.cc primitive-chi-angles.cc dipole.cc\
-        base-pairing.cc
+        base-pairing.cc backrub-rotamer.cc
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \

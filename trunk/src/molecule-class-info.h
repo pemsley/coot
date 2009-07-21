@@ -464,7 +464,6 @@ namespace coot {
        display_list_handle = handle;
      } 
    };
-
 }
 
 
@@ -1714,6 +1713,10 @@ class molecule_class_info_t {
 					  CChain *clicked_residue_chain_p, 
 					  short int is_n_term_addition) const;
 
+   // return a status flag (alignments done)
+   std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > 
+   residue_mismatches() const;
+
    
    void make_backup_from_outside(); // when we have a multi mutate, we
 				    // want the wrapper to make a
@@ -1937,14 +1940,33 @@ class molecule_class_info_t {
 
    // (best fit) rotamer stuff:
    //
+   // This is the generic interface.  Inside auto_fit_best_rotamer, we
+   // look at the rotamer_seach_mode and decide there if we want to
+   // call the function that runs the backrub_rotamer mode.
+   //
+   float auto_fit_best_rotamer(int rotamer_seach_mode,
+			       int resno,
+			       const std::string &altloc,
+			       const std::string &insertion_code,
+			       const std::string &chain_id, int imol_map, int clash_flag,
+			       float lowest_probability);
+   // (best fit) rotamer stuff:
+   //
    float auto_fit_best_rotamer(int resno,
 			       const std::string &altloc,
 			       const std::string &insertion_code,
 			       const std::string &chain_id, int imol_map, int clash_flag,
 			       float lowest_probability);
-   // interface from atom picking:
-   float auto_fit_best_rotamer(int atom_index, int imol_map, int clash_flag,
+   // interface from atom picking (which simply gets the resno, altloc
+   // etc form the atom_index and calls the above function.
+   float auto_fit_best_rotamer(int rotamer_search_mode,
+			       int atom_index, int imol_map, int clash_flag,
 			       float lowest_probability);
+
+   // internal.
+   float backrub_rotamer(const std::string &chain_id, int res_no, 
+			 const std::string &ins_code, const std::string &alt_conf);
+
 
    int set_residue_to_rotamer_number(coot::residue_spec_t res_spec, int rotamer_number);
 
@@ -2117,13 +2139,15 @@ class molecule_class_info_t {
 					    std::string chain_id, int imol_for_map);
 
    // residue splitting (add alt conf)
-   void split_residue(int atom_index, int alt_conf_split_type);
+   std::pair<bool,std::string> split_residue(int atom_index, int alt_conf_split_type);
 
    // internal (private) functions:
-   void split_residue_internal(CResidue *residue, const std::string &altconf, 
-			       const std::vector<std::string> &all_altconfs,
-			       atom_selection_container_t residue_mol,
-			       short int use_residue_mol_flag);
+   std::pair<bool,std::string>
+   split_residue_internal(CResidue *residue,
+			  const std::string &altconf, 
+			  const std::vector<std::string> &all_altconfs,
+			  atom_selection_container_t residue_mol,
+			  short int use_residue_mol_flag);
    void split_residue_then_rotamer(CResidue *residue, const std::string &altconf, 
 				   const std::vector<std::string> &all_altconfs,
 				   atom_selection_container_t residue_mol,
@@ -2213,7 +2237,7 @@ class molecule_class_info_t {
    
    short int show_strict_ncs_flag;
 
-   // not const because we can do a fill_ghost_info if the ncs ghosts
+   // Not 'const' because we can do a fill_ghost_info if the NCS ghosts
    // do not have rtops.
    coot::ncs_differences_t ncs_chain_differences(std::string master_chain_id, 
 						 float main_chain_weight);
@@ -2431,6 +2455,16 @@ class molecule_class_info_t {
 
    // return the number of new hetatoms
    int assign_hetatms();
+
+   // move waters so that they are around H-bonders (non-C) in protein.
+   // return the number of moved atoms
+   int move_waters_to_around_protein();
+
+
+   // Return the maximum minimum distance of waters to protein atoms.
+   // return something negative when we can't do above (no protein
+   // atoms or no water atoms).
+   float max_water_distance();
 
 };
 

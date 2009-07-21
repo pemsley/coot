@@ -19,6 +19,7 @@
 #include "c-interface-database.hh"
 #include "c-interface-python.hh"
 #include "manipulation-modes.hh"
+#include "rotamer-search-modes.hh"
 %}
 
 
@@ -34,4 +35,5 @@
 %include "c-interface-database.hh"
 %include "c-interface-python.hh"
 %include "manipulation-modes.hh"
+%include "rotamer-search-modes.hh"
 

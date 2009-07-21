@@ -641,140 +641,147 @@ coot::rotamer::GetResidue(int i_rot) const {
       res_asc.mol = (MyCMMDBManager *) stored_mol;
       res_asc.n_selected_atoms = nResidueAtoms;
       res_asc.atom_selection = ordered_residue_atoms_ppcatom;
-      // mmdb_extras function
-      contact_info contact = getcontacts(res_asc);
 
-      std::vector<std::vector<int> > contact_indices(nResidueAtoms);
-      // std::cout << "Found " << contact_indices.size() << " atoms" << std::endl;
 
-      int in;
-      for (int i=0; i<contact.n_contacts(); i++) {
- 	 in = contact.contacts[i].id1;
- 	 contact_indices[contact.contacts[i].id2].push_back(in);
-      }
-      // std::cout << "filled " << contact_indices.size() << " contact_indices" << std::endl;
+      if (! res_asc.mol) {
+	 std::cout << "WARNING NULL stored_mol in GetResidue() " << std::endl;
 
-      // debugging
-      if (0) { 
-	 std::cout << " -----------  coords ---------------- " << std::endl;
-	 for(int i=0; i<coords.size(); i++)
-	    std::cout << i << " " << ordered_residue_atoms_ppcatom[i]->GetAtomName()
-		      << " " << coords[i] << std::endl;
+      } else { 
+
+	 // mmdb_extras function
+	 contact_info contact = getcontacts(res_asc);
+
+	 std::vector<std::vector<int> > contact_indices(nResidueAtoms);
+	 // std::cout << "Found " << contact_indices.size() << " atoms" << std::endl;
+
+	 int in;
+	 for (int i=0; i<contact.n_contacts(); i++) {
+	    in = contact.contacts[i].id1;
+	    contact_indices[contact.contacts[i].id2].push_back(in);
+	 }
+	 // std::cout << "filled " << contact_indices.size() << " contact_indices" << std::endl;
+
+	 // debugging
+	 if (0) { 
+	    std::cout << " -----------  coords ---------------- " << std::endl;
+	    for(int i=0; i<coords.size(); i++)
+	       std::cout << i << " " << ordered_residue_atoms_ppcatom[i]->GetAtomName()
+			 << " " << coords[i] << std::endl;
 	 
-	 // display contact indices here:
-	 //
-	 std::cout << " ---------------- contact indices ----------------------\n" ;
-	 for (int ic=0; ic<contact_indices.size(); ic++) {
-	    for (int jc=0; jc<contact_indices[ic].size(); jc++) {
-	       std::cout << " contact " << ic << " "
-			 << contact_indices[ic][jc] << std::endl;
+	    // display contact indices here:
+	    //
+	    std::cout << " ---------------- contact indices ----------------------\n" ;
+	    for (int ic=0; ic<contact_indices.size(); ic++) {
+	       for (int jc=0; jc<contact_indices[ic].size(); jc++) {
+		  std::cout << " contact " << ic << " "
+			    << contact_indices[ic][jc] << std::endl;
+	       }
 	    }
 	 }
-      }
 
-      //
-      float tors;
-      Tree tree;
-      tree.SetCoords(coords, 0, contact_indices);
+	 //
+	 float tors;
+	 Tree tree;
+	 tree.SetCoords(coords, 0, contact_indices);
 	 
-      // test that the atom indices are sensible?
-      //
-      for(unsigned int ibond=0; ibond<atom_index_quads.size(); ibond++) { 
+	 // test that the atom indices are sensible?
+	 //
+	 for(unsigned int ibond=0; ibond<atom_index_quads.size(); ibond++) { 
 	    
-	 tors = clipper::Util::d2rad(this_rot[ibond]);
+	    tors = clipper::Util::d2rad(this_rot[ibond]);
 
-	 if (tree.GetCoord(atom_index_pairs[ibond].index2)->GetNumberOfChildren() == 0) { 
-	    std::cout << "WARNING: Can't torsion this bond - atom number " 
-		      << atom_index_pairs[ibond].index2 << " " 
-		      << ordered_residue_atoms_ppcatom[atom_index_pairs[ibond].index2] 
-		      << " has 0 children" << std::endl;
-	 } else { 
-	    double ctors = tree.GetCoord(atom_index_pairs[ibond].index2)->GetChild(0)->GetParentDihedralAngle();
-	    ::Cartesian child_0_coord = tree.GetCoord(atom_index_pairs[ibond].index2)->GetChild(0)->GetCoord();
+	    if (tree.GetCoord(atom_index_pairs[ibond].index2)->GetNumberOfChildren() == 0) { 
+	       std::cout << "WARNING: Can't torsion this bond - atom number " 
+			 << atom_index_pairs[ibond].index2 << " " 
+			 << ordered_residue_atoms_ppcatom[atom_index_pairs[ibond].index2] 
+			 << " has 0 children" << std::endl;
+	    } else { 
+	       double ctors = tree.GetCoord(atom_index_pairs[ibond].index2)->GetChild(0)->GetParentDihedralAngle();
+	       ::Cartesian child_0_coord = tree.GetCoord(atom_index_pairs[ibond].index2)->GetChild(0)->GetCoord();
 
-// 	    std::cout << "DEBUG:: current " << ibond << " tors is: " << ctors 
-// 		      << " (rads) " << clipper::Util::rad2d(ctors) << "  (degrees)" 
-// 		      << " for child at "  << child_0_coord;
+	       // 	    std::cout << "DEBUG:: current " << ibond << " tors is: " << ctors 
+	       // 		      << " (rads) " << clipper::Util::rad2d(ctors) << "  (degrees)" 
+	       // 		      << " for child at "  << child_0_coord;
 
-// 	    double dih1 = DihedralAngle(coords[0],
-// 					coords[3],
-// 					coords[2],
-// 					coords[1]);
-// 	    double dih2 = DihedralAngle(coords[6],
-// 					coords[3],
-// 					coords[2],
-// 					coords[6]);
+	       // 	    double dih1 = DihedralAngle(coords[0],
+	       // 					coords[3],
+	       // 					coords[2],
+	       // 					coords[1]);
+	       // 	    double dih2 = DihedralAngle(coords[6],
+	       // 					coords[3],
+	       // 					coords[2],
+	       // 					coords[6]);
 
-// 	    std::cout << "   Hand calculation of dihedrals: (pre-rotation) CG1: "
-// 		      << clipper::Util::rad2d(dih1) << " CG2: " 
-// 		      << clipper::Util::rad2d(dih2) << std::endl;
+	       // 	    std::cout << "   Hand calculation of dihedrals: (pre-rotation) CG1: "
+	       // 		      << clipper::Util::rad2d(dih1) << " CG2: " 
+	       // 		      << clipper::Util::rad2d(dih2) << std::endl;
 	    
-// 	    std::cout << ":::: rotamer " << i_rot << " rotating "
-// 		      << this_rot[ibond] << " for Chi_" << ibond+1
-// 		      << " atom numbers: "
-// 		      << atom_index_pairs[ibond].index1 << " "
-// 		      << atom_index_pairs[ibond].index2 << std::endl;
+	       // 	    std::cout << ":::: rotamer " << i_rot << " rotating "
+	       // 		      << this_rot[ibond] << " for Chi_" << ibond+1
+	       // 		      << " atom numbers: "
+	       // 		      << atom_index_pairs[ibond].index1 << " "
+	       // 		      << atom_index_pairs[ibond].index2 << std::endl;
 
 
-// old style	    
-// 	    tree.RotateAboutBond(atom_index_pairs[ibond].index1,
-// 				 atom_index_pairs[ibond].index2, tors);
+	       // old style	    
+	       // 	    tree.RotateAboutBond(atom_index_pairs[ibond].index1,
+	       // 				 atom_index_pairs[ibond].index2, tors);
 
-// 2-atom style
-// 	    tree.SetDihedralAngle(atom_index_pairs[ibond].index1,
-//				  atom_index_pairs[ibond].index2, tors);
+	       // 2-atom style
+	       // 	    tree.SetDihedralAngle(atom_index_pairs[ibond].index1,
+	       //				  atom_index_pairs[ibond].index2, tors);
 
-// 20090213
-	    tree.SetDihedralAngle(atom_index_quads[ibond].index1,
-				  atom_index_quads[ibond].index2,
-				  atom_index_quads[ibond].index3,
-				  atom_index_quads[ibond].index4,
-				  tors);
+	       // 20090213
+	       tree.SetDihedralAngle(atom_index_quads[ibond].index1,
+				     atom_index_quads[ibond].index2,
+				     atom_index_quads[ibond].index3,
+				     atom_index_quads[ibond].index4,
+				     tors);
 
-	    ctors = tree.GetCoord(atom_index_pairs[ibond].index2)->GetChild(0)->GetParentDihedralAngle();
-	    child_0_coord = tree.GetCoord(atom_index_pairs[ibond].index2)->GetChild(0)->GetCoord();
-// 	    std::cout << "DEBUG:: post rot " << ibond << " tors is: " << ctors 
-// 		      << " " << clipper::Util::rad2d(ctors) << std::endl
-// 		      << "     for child at " << child_0_coord;
+	       ctors = tree.GetCoord(atom_index_pairs[ibond].index2)->GetChild(0)->GetParentDihedralAngle();
+	       child_0_coord = tree.GetCoord(atom_index_pairs[ibond].index2)->GetChild(0)->GetCoord();
+	       // 	    std::cout << "DEBUG:: post rot " << ibond << " tors is: " << ctors 
+	       // 		      << " " << clipper::Util::rad2d(ctors) << std::endl
+	       // 		      << "     for child at " << child_0_coord;
 
+	    }
 	 }
-      }
 	 
-      std::vector< ::Cartesian > coords_rotated =
-	 tree.GetAllCartesians();
+	 std::vector< ::Cartesian > coords_rotated =
+	    tree.GetAllCartesians();
 
-//       double dih1 = DihedralAngle(coords_rotated[0],
-// 				  coords_rotated[3],
-// 				  coords_rotated[2],
-// 				  coords_rotated[1]);
-//       double dih2 = DihedralAngle(coords_rotated[0],
-// 				  coords_rotated[3],
-// 				  coords_rotated[2],
-// 				  coords_rotated[6]);
+	 //       double dih1 = DihedralAngle(coords_rotated[0],
+	 // 				  coords_rotated[3],
+	 // 				  coords_rotated[2],
+	 // 				  coords_rotated[1]);
+	 //       double dih2 = DihedralAngle(coords_rotated[0],
+	 // 				  coords_rotated[3],
+	 // 				  coords_rotated[2],
+	 // 				  coords_rotated[6]);
       
-//       std::cout << "   Hand calculation of dihedrals: (post-rotation) CG1: "
-// 		<< clipper::Util::rad2d(dih1) << " CG2: " 
-// 		<< clipper::Util::rad2d(dih2) << std::endl;
+	 //       std::cout << "   Hand calculation of dihedrals: (post-rotation) CG1: "
+	 // 		<< clipper::Util::rad2d(dih1) << " CG2: " 
+	 // 		<< clipper::Util::rad2d(dih2) << std::endl;
       
 
 	 
-      // debugging
-//        for(int i=0; i<coords_rotated.size(); i++)
-// 	  std::cout << i << " " << ordered_residue_atoms_ppcatom[i]->GetAtomName()
-// 		    << " " << coords_rotated[i];
+	 // debugging
+	 //        for(int i=0; i<coords_rotated.size(); i++)
+	 // 	  std::cout << i << " " << ordered_residue_atoms_ppcatom[i]->GetAtomName()
+	 // 		    << " " << coords_rotated[i];
 	 
-      if (int(coords_rotated.size()) != nResidueAtoms) {
-	 std::cout << "disaster in atom selection, trees, dunbrack\n";
-      } else {
-	 for (int iat=0; iat<nResidueAtoms; iat++) {
-	    ordered_residue_atoms_ppcatom[iat]->x = coords_rotated[iat].get_x();
-	    ordered_residue_atoms_ppcatom[iat]->y = coords_rotated[iat].get_y();
-	    ordered_residue_atoms_ppcatom[iat]->z = coords_rotated[iat].get_z();
+	 if (int(coords_rotated.size()) != nResidueAtoms) {
+	    std::cout << "disaster in atom selection, trees, dunbrack\n";
+	 } else {
+	    for (int iat=0; iat<nResidueAtoms; iat++) {
+	       ordered_residue_atoms_ppcatom[iat]->x = coords_rotated[iat].get_x();
+	       ordered_residue_atoms_ppcatom[iat]->y = coords_rotated[iat].get_y();
+	       ordered_residue_atoms_ppcatom[iat]->z = coords_rotated[iat].get_z();
+	    }
 	 }
+	 delete [] ordered_residue_atoms_ppcatom;
       }
-      delete [] ordered_residue_atoms_ppcatom;
    }
-
    return rres;
 }
 

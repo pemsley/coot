@@ -217,6 +217,7 @@ SCM sequence_info(int imol) {
 } 
 #endif // USE_GUILE
 
+
 #ifdef USE_PYTHON
 PyObject *sequence_info_py(int imol) {
 

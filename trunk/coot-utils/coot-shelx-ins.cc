@@ -1406,6 +1406,7 @@ coot::symm_card_composition_t::symm_card_composition_t(const std::string &symm_c
    // 
    // Then see if it is 2, 3, 4, 6 or - those numbers,
    // if it isn't then throw hands up in air and grown loadly.
+   // (These days, I guess, an exception should be thrown).
 
 //    std::cout << "\nconstructing symm_card_composition_t from "
 // 	     << symm_card << std::endl << std::endl;
@@ -1643,22 +1644,20 @@ coot::symm_card_composition_t::symm_card_composition_t(const std::string &symm_c
 
 	    // no slash
 	    float f = atof(substituted.c_str());
-
 	    double ff = f*12;
-	    if (ff < 0)
-	       ff -= 0.5;
-	    if (ff > 0)
-	       ff += 0.5;
-	    frac_trans[iele] = int(floor(ff));
-// 	    std::cout << "floating trans: " << f << " " << frac_trans[iele]
-// 		      << std::endl;
-	    
+	    frac_trans[iele] = int(round(ff));
+	    if (0) { 
+	       std::cout << "DEBUG:: no slash substitued string "
+			 << substituted << ": -> " << f << std::endl;
+	       std::cout << "floating trans: " << f << " " << frac_trans[iele]
+			 << std::endl;
+	    }
 	 }
       }
    }
 
    // debugging stuff:
-   if (0) 
+   if (0)
       std::cout << "  x/y/z eles: (["
 		<< x_element[0] << " "
 		<< x_element[1] << " "
@@ -2108,3 +2107,18 @@ coot::reshelx(CMMDBManager *mol) {
    shelx_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
    return shelx_mol;
 }
+
+
+std::ostream &
+coot::operator<<(std::ostream &s, const symm_card_composition_t &sc) {
+
+   s << sc.x_element[0] << " " << sc.y_element[0] << " " << sc.z_element[0] << "\n"
+     << sc.x_element[1] << " " << sc.y_element[1] << " " << sc.z_element[1] << "\n"
+     << sc.x_element[2] << " " << sc.y_element[2] << " " << sc.z_element[2] << "\n"
+     << "translations: "
+     << sc.trans_frac(0) << " "
+     << sc.trans_frac(1) << " "
+     << sc.trans_frac(2) << std::endl;
+
+   return s;
+} 

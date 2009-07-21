@@ -46,8 +46,10 @@
 (define user-defined-click-scm #f)
 (define add-lsq-atom-pair-scm #f)
 (define coot-sys-build-type-scm #f)
-
-
+(define add-alt-conf-scm #f)
+(define origin-pre-shift-scm #f)
+(define alignment-mismatches-scm #f)
+(define rigid-body-refine-by-residue-ranges #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")

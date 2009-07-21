@@ -1525,16 +1525,26 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
    } // valid map test
 }
 
-
-void
+// replacing atom positions in imol_rigid_body_refine, so make sure
+// that you set that correctly before calling this function.
+bool
 graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_moving_zone,
 				const coot::minimol::molecule &range_mol,
 				int imol_ref_map,
 				bool mask_water_flag) {
-					
+
+   bool success = 0; // fail initially
+   
    std::vector<coot::minimol::atom *> range_atoms = range_mol.select_atoms_serial();
    //       std::cout << "There are " << range_atoms.size() << " atoms from initial ligand "
    // 		<< std::endl;
+
+
+   // debugging
+   if (1) {
+      range_mol.write_file("rigid-body-range-mol.pdb", 44);
+      mol_without_moving_zone.write_file("rigid-body-without-moving-zone.pdb", 44);
+   } 
    
    coot::ligand lig;
    lig.import_map_from(molecules[imol_ref_map].xmap_list[0], 
@@ -1585,7 +1595,8 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
       // 	 rigid_body_asc.mol->GetSelIndex(SelHnd,
       // 					 rigid_body_asc.atom_selection,
       // 					 rigid_body_asc.n_selected_atoms);
-	 
+
+      success = 1;
       rigid_body_asc = make_asc(moved_mol.pcmmdbmanager());
 
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
@@ -1607,7 +1618,8 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
 	 GtkWidget *w = create_rigid_body_refinement_failed_dialog();
 	 gtk_widget_show(w);
       }
-   } 
+   }
+   return success;
 }
 
 // set residue_range_atom_index_1 and residue_range_atom_index_2.
@@ -3163,9 +3175,10 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
    std::vector<coot::atom_spec_t> specs_local =
       graphics_info_t::torsion_general_atom_specs;
    
-   if (torsion_general_reverse_flag)
+   if (torsion_general_reverse_flag) {
       std::reverse(specs_local.begin(),
 		   specs_local.end());
+   }
 
    short int istat = 1; // failure
    if (! moving_atoms_asc) {
@@ -3173,8 +3186,12 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
    } else {
       CResidue *residue_p = get_first_res_of_moving_atoms();
       if (residue_p) {
-	 coot::torsion_general tg(residue_p, moving_atoms_asc->mol,
-				  specs_local);
+
+	 if (0) { // debugging that the reverse works.
+	    for (unsigned int i=0; i<specs_local.size(); i++)
+	       std::cout << "local specs " << i << " " << specs_local[i] << std::endl;
+	 }
+	 coot::torsion_general tg(residue_p, moving_atoms_asc->mol, specs_local);
 	 istat = tg.change_by(diff, &torsion_general_tree); // fiddle with the tree
       }
    }
@@ -3231,9 +3248,10 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
 // This is a molecule-class-info function.  What is it doing here?
 // It's not here any more.  This is just a wrapper.
 // 
-void 
+std::pair<bool,std::string>
 graphics_info_t::split_residue(int imol, int atom_index) {
 
+   std::pair<bool, std::string> p(0,"");
    // do moving molecule atoms:
    // short int do_intermediate_atoms = 0;
 
@@ -3249,7 +3267,7 @@ graphics_info_t::split_residue(int imol, int atom_index) {
 
    if (imol<n_molecules()) { 
       if (molecules[imol].has_model()) {
-	 graphics_info_t::molecules[imol].split_residue(atom_index, alt_conf_split_type);
+	 p = graphics_info_t::molecules[imol].split_residue(atom_index, alt_conf_split_type);
 	 graphics_draw();
       } else {
 	 std::cout << "WARNING:: split_residue: molecule has no model.\n";
@@ -3257,13 +3275,47 @@ graphics_info_t::split_residue(int imol, int atom_index) {
    } else {
       std::cout << "WARNING:: split_residue: no such molecule.\n";
    }
+   return p;
 }
 
-void 
-graphics_info_t::split_residue(int imol, std::string &chain_id, 
-			       int resno, 
-			       std::string &altconf) { 
 
+
+// a wrapper to the lower-level split_residue() that uses an atom index
+std::pair<bool,std::string>
+graphics_info_t::split_residue(int imol, const std::string &chain_id, 
+			       int resno,
+			       const std::string &ins_code,
+			       const std::string &altconf) {
+
+   std::pair<bool, std::string> p(0, "");
+   
+   CResidue *r = molecules[imol].get_residue(resno, ins_code, chain_id);
+   if (!r) {
+      std::cout << "residue not found" << std::endl;
+   } else {
+      PPCAtom residue_atoms;
+      int n_residue_atoms;
+      for (int i=0; i<n_residue_atoms; i++) {
+	 std::string atom_name(residue_atoms[i]->name);
+	 std::string atom_alt_conf(residue_atoms[i]->name);
+	 if (atom_alt_conf == altconf) {
+	    CAtom *at = residue_atoms[i];
+	    int atom_index_udd = molecules[imol].atom_sel.UDDAtomIndexHandle;
+	    int at_index;
+	    int n_atoms = molecules[imol].atom_sel.n_selected_atoms;
+	    at->GetUDData(atom_index_udd, at_index);
+	    if (at_index >= 0 && at_index < n_atoms) {
+	       p = split_residue(imol, at_index);
+	    } else {
+	       std::cout << " atom without atom index in molecule "
+			 << imol << " resno " << resno << " inscode "
+			 << ins_code << " altconf " << altconf
+			 << std::endl;
+	    }
+	 }
+      } 
+   }
+   return p;
 } 
 
 void

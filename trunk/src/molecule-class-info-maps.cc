@@ -590,11 +590,13 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 if (use_reso_limits) {
 	    fft_reso = user_resolution;
 	    filter_by_resolution(&fphidata, low_reso_limit, high_reso_limit);
+	    data_resolution_ = high_reso_limit;
 	 } else {
 	    // fft_reso = myhkl.resolution();
 	    // Kevin says do this instead:
 	    //fft_reso = clipper::Resolution(1.0/sqrt(fphidata.invresolsq_range().max()));
 	    fft_reso = fphidata.resolution();
+	    data_resolution_ = 1.0/sqrt(fft_reso.invresolsq_limit());
 	 }
       
 	 if (is_anomalous_flag) {
