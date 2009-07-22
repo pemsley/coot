@@ -15,7 +15,7 @@
 from pychart import *
 theme.get_options()
 theme.output_format="png"
-theme.scale_factor=4.2
+theme.scale_factor=10
 theme.default_font_size=6
 theme.reinitialize()
 
@@ -31,7 +31,7 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 220
+x_day_range = 240
 
 x_tick_interval = 2
 if (x_day_range > 40):
@@ -40,6 +40,8 @@ if (x_day_range > 80):
    x_tick_interval = 10
 if (x_day_range > 120):
    x_tick_interval = 20
+if (x_day_range > 220):
+   x_tick_interval = 25
 
 xaxis = axis.X(tic_interval = x_tick_interval, label="Days (since pre-release start)")
 yaxis = axis.Y(tic_interval = 20, label="Dev Points")
@@ -82,32 +84,57 @@ def describeEvent(days, label, off):
     tb.add_arrow((x1, 0))
     tb.draw()
     
-describeEvent(5, "Christmas\nholidays start", -10)
+describeEvent(5, "Christmas\nholidays start", -20)
 
-xpscale = 0.75
+xpscale = 0.6
 
-tb = text_box.T(loc=(21*xpscale, 43), text="Boston", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(21*xpscale, 43), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
 # tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "cb")
 tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(40*xpscale, 73), text="Papers & Happy", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(35*xpscale, 73), text="Papers & Happy", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[74][0]), ar.y_pos(data[74][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(72*xpscale, 60), text="CCP4 Dev", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(72*xpscale, 60), text="CCP4 Dev", shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
 tb.add_arrow((ar.x_pos(data[115][0]), ar.y_pos(data[115][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(70*xpscale, 18), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(70*xpscale, 18), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[122][0]), ar.y_pos(data[122][1])), "tc")
 tb.draw()
 
-tb = text_box.T(loc=(110*xpscale, 72), text="NIH & MAMCM", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(110*xpscale, 72), text="NIH & MAMCM", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[160][0]), ar.y_pos(data[160][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(130*xpscale, 32), text="Paper Submitted", shadow=(1,-1,fill_style.gray70))
+tb = text_box.T(loc=(130*xpscale, 32), text="Paper Submitted", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+
 tb.add_arrow((ar.x_pos(data[206][0]), ar.y_pos(data[206][1])), "tc")
 tb.draw()
+
+#tb = text_box.T(loc=(170*xpscale, 45), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3, bg_style=fill_style.gray90)
+tb = text_box.T(loc=(175*xpscale, 45), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb.add_arrow((ar.x_pos(data[262][0]), ar.y_pos(data[262][1])), "tc")
+tb.draw()
+
+# take-home:
+#   Max sustainable rate: 2.2 dev-pts/day
+#  Real (long-term) rate: 0.7 dev-pts/day
+# Unmassaged scope creep: 0.8 dev-pts/day
+#  -> Oh dear.
+#
+# Lessons:
+#
+# for 100-day release and same scope creep
+#    -> impossible
+# for 100-day release cycle and no scope creep
+#    -> spec for 70 dev points
+# for 100-day release cycle and 50% reduction in scope creep
+#    -> spec for 30 dev points
+#
+#
+# given that, 160 points (even cut down to 120 pts) was laughable.
+
 
