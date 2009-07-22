@@ -635,7 +635,6 @@
 		   (throw 'fail))
 		 #t)))))))
 
-
 (greg-testcase "Sphere Refine" #t
    (lambda () 
 
@@ -1820,11 +1819,16 @@
 		(else (loop (read-line port)))))))))))
 
 
-
 (greg-testcase "TER on water chain is removed on adding waters automatically" #t 
    (lambda ()
      
      (let ((imol-model (greg-pdb "tm+some-waters.pdb")))
+       
+       (if (not (valid-model-molecule? imol-model))
+	   (begin
+	     (format #t "tm+some-waters.pdb not found~%")
+	     (throw 'fail)))
+
        (find-waters imol-rnase-map imol-model 0 2.0 0)
        (write-pdb-file imol-model "auto-waters.pdb")
 
@@ -1884,7 +1888,6 @@
 		 (throw 'fail))
 
 	       #t))))))
-
 
 	     
 

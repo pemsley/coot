@@ -1302,7 +1302,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
    // 20090714 We decide here if we go into auto_fit_best_rotamer
    // (conventional mode with rigid body fitting) or backrub rotamers
    //
-   float backrub_reso_limit = 2.3; // resolutions worse than this go
+   float backrub_reso_limit = 2.9; // resolutions worse than this go
 				   // into backrub mode if automatic
 				   // is selected.
 
@@ -1323,7 +1323,12 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
    }
 
    if (do_backrub) {
-      return backrub_rotamer(chain_id, resno, insertion_code, altloc);
+      std::pair<bool,float> br_score = backrub_rotamer(chain_id, resno, insertion_code, altloc);
+      if (br_score.first)
+	 return br_score.second;
+      else 
+	 return auto_fit_best_rotamer(resno, altloc, insertion_code, chain_id, imol_map,
+				      clash_flag, lowest_prob);
    } else {
       return auto_fit_best_rotamer(resno, altloc, insertion_code, chain_id, imol_map,
 				   clash_flag, lowest_prob);
@@ -1534,10 +1539,11 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
 }
 
 // internal.
-float 
+std::pair<bool,float>
 molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no, 
 				       const std::string &ins_code, const std::string &alt_conf) {
 
+   bool status = 0;
    float score = -1;
    graphics_info_t g;
    int imol_map = g.Imol_Refinement_Map();
@@ -1547,8 +1553,8 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 	    CResidue *res = get_residue(res_no, ins_code, chain_id);
 	    if (! res) {
 	       std::cout << "   WARNING:: residue in molecule :" << chain_id << ": "
-			 << res_no << " inscode :" << ins_code << ": altconf :" << alt_conf << ":"
-			 << std::endl;
+			 << res_no << " inscode :" << ins_code << ": altconf :"
+			 << alt_conf << ":" << std::endl;
 	    } else { 
 	       try {
 		  make_backup();
@@ -1559,12 +1565,13 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 				   g.molecules[imol_map].xmap_list[0]);
 		  std::pair<coot::minimol::molecule,float> m = br.search();
 		  score = m.second;
+		  status = 1;
 		  atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
 		  bool mzo = g.refinement_move_atoms_with_zero_occupancy_flag;
 		  replace_coords(fragment_asc, 0, mzo);
 	       }
 	       catch (std::runtime_error rte) {
-		  std::cout << rte.what() << std::endl;
+		  std::cout << "WARNING:: thrown " << rte.what() << std::endl;
 	       }
 	    }
 	 } else {
@@ -1573,7 +1580,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 	 }
       }
    }
-   return score;
+   return std::pair<bool,float>(status,score);
 }
 
 

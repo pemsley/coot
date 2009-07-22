@@ -1963,9 +1963,13 @@ class molecule_class_info_t {
 			       int atom_index, int imol_map, int clash_flag,
 			       float lowest_probability);
 
-   // internal.
-   float backrub_rotamer(const std::string &chain_id, int res_no, 
-			 const std::string &ins_code, const std::string &alt_conf);
+   // Internal.  Return succes status and score (we need status
+   // because on failure, we should fall back to conventional rotamer
+   // search).
+   std::pair<bool,float> backrub_rotamer(const std::string &chain_id,
+					 int res_no, 
+					 const std::string &ins_code,
+					 const std::string &alt_conf);
 
 
    int set_residue_to_rotamer_number(coot::residue_spec_t res_spec, int rotamer_number);
