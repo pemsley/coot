@@ -2730,7 +2730,7 @@ if [ $coot_build_status != 0 ] ; then
 else 
     echo coot build was good.
     echo coot build was good. >&2
-    echo pass-build > $LOGS/$build_type-build-status
+    echo pass-build $coot_version > $LOGS/$build_type-build-status
 fi
 echo done coot build. 
 echo done coot build. >&2
