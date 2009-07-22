@@ -9,15 +9,6 @@
      ::: 4
 
 
-   o Why is the brief text for have_unsaved_changes_p() not showing in
-     the on-line documentation? 
-
-     Why are the descriptions for the function params not showing?
-     (e.g. set_smooth_scroll_flag()).
-
-     ::: 1 
-
-
    o Geometric distortions graph for alt confs - currently broken? ::: 4
 
 
@@ -1027,6 +1018,17 @@ c-interface clear_up_moving_atoms...
      ::: 10
 
 * What else is there to do here?  Write a test.
+
+
+   o Why is the brief text for have_unsaved_changes_p() not showing in
+     the on-line documentation? 
+
+     Why are the descriptions for the function params not showing?
+     (e.g. set_smooth_scroll_flag()).
+
+     ::: 1 
+
+* Because it was including the wrong file.
 
 
 

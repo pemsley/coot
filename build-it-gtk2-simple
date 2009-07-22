@@ -278,6 +278,7 @@
 # 4.51 20090703 check exit status of wget for coot source tar file.
 # 4.52 20090704 mmdb-1.21 from York.
 # 4.53 20090706 check build dependencies when on ubuntu
+# 4.54 20090722 fix coot_revision typo for build status.
 script_version=4.53
 
 # :: NOTE:: 
@@ -2868,7 +2869,7 @@ if [ $coot_build_status != 0 ] ; then
     my_exit 2 $coot_revision
 else 
     echo coot build was good.
-    echo pass-build $coot_revsion > $LOGS/$build_type-build-status
+    echo pass-build $coot_revision > $LOGS/$build_type-build-status
 fi
 echo done coot build. 
 
