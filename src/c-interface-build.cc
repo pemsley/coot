@@ -6010,11 +6010,10 @@ int backrub_rotamer(int imol, const char *chain_id, int res_no,
      int imol_map = g.Imol_Refinement_Map();
      if (is_valid_map_molecule(imol_map)) {
 
-	float s = graphics_info_t::molecules[imol].backrub_rotamer(chain_id, res_no,
-								   ins_code, alt_conf);
-	if (s> 0)
-	   status = 1;
-
+	std::pair<bool,float> brs  =
+	   graphics_info_t::molecules[imol].backrub_rotamer(chain_id, res_no,
+							    ins_code, alt_conf);
+	status = brs.first;
 	graphics_draw();
 	
      } else {

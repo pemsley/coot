@@ -520,6 +520,11 @@ Punted from 0.6:
    o Use libglade.
 
 
+   o make minimol's addresidue() work with inscodes.  e.g. the 52A PRO
+   in "Autofit Rotamer on Residues with Insertion codes" test. (see
+   that an exception is thrown in backrub_rotamer search().)
+
+
    o 	We need to activate this: graphics_info_t::execute_add_terminal_residue
         // just shove it on without a map (i.e. add a residue with no map)
 

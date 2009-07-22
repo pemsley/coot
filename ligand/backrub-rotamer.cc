@@ -1,3 +1,23 @@
+/* ligand/backrub-rotamer.cc
+ * 
+ * Copyright 2009 by The University of Oxford.
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ */
 
 
 #include <stdexcept>
@@ -5,6 +25,7 @@
 #include <vector>
 
 #include "richardson-rotamer.hh"
+#include "coot-utils.hh"
 #include "coot-map-utils.hh"
 #include "backrub-rotamer.hh"
 
@@ -48,6 +69,8 @@ coot::backrub::search() {
 
 
 // rotation angles in degrees
+//
+// Throws an exception if fragment does not have 3 residues.
 // 
 coot::minimol::fragment
 coot::backrub::make_test_fragment(CResidue *r, double rotation_angle) const {
@@ -61,11 +84,33 @@ coot::backrub::make_test_fragment(CResidue *r, double rotation_angle) const {
    next_res_atoms.push_back(" N  ");
    next_res_atoms.push_back(" H  ");
 
+   if (0) { // debug 
+      std::cout << "DEBUG:: orig_prev_residue " << orig_prev_residue << std::endl;
+      std::cout << "DEBUG:: orig_next_residue " << orig_next_residue << std::endl;
+      if (orig_prev_residue)
+	 std::cout << "DEBUG:: orig_prev_residue "
+		   << orig_prev_residue->GetChainID() << " " 
+		   << orig_prev_residue->GetSeqNum() << " :" 
+		   << orig_prev_residue->GetInsCode() << ":" 
+		   << std::endl;
+      if (orig_next_residue)
+	 std::cout << "DEBUG:: orig_prev_residue "
+		   << orig_next_residue->GetChainID() << " " 
+		   << orig_next_residue->GetSeqNum() << " :" 
+		   << orig_next_residue->GetInsCode() << ":" 
+		   << std::endl;
+   }
+
+
    coot::minimol::residue this_residue(r);
    coot::minimol::residue prev_residue =
       make_residue_include_only(orig_prev_residue, prev_res_atoms);
    coot::minimol::residue next_residue =
       make_residue_include_only(orig_next_residue, next_res_atoms);
+
+   // addresidue() fails when adding residues with the same residue
+   // number (the ins code is ignored).  Urgh.
+   // 
    f.addresidue(prev_residue, 0);
    f.addresidue(r, 0);
    f.addresidue(next_residue, 0);
@@ -84,6 +129,17 @@ coot::backrub::make_test_fragment(CResidue *r, double rotation_angle) const {
       } 
    }
 
+   if (f.n_filled_residues() != 3) {
+      std::string mess = "  Failed to get 3 residues with atoms in test fragment. Got ";
+      mess += coot::util::int_to_string(f.n_filled_residues());
+      if (0) { 
+	 // debug frag
+	 coot::minimol::molecule mol_for_frag;
+	 mol_for_frag.fragments.push_back(f);
+	 mol_for_frag.write_file("test-frag.pdb", 0);
+      }
+      throw std::runtime_error(mess);
+   }
    return f;
 }
 
