@@ -3295,6 +3295,7 @@ graphics_info_t::split_residue(int imol, const std::string &chain_id,
    } else {
       PPCAtom residue_atoms;
       int n_residue_atoms;
+      r->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
 	 std::string atom_name(residue_atoms[i]->name);
 	 std::string atom_alt_conf(residue_atoms[i]->name);
