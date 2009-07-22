@@ -2656,59 +2656,62 @@ graphics_info_t::execute_db_main(int imol,
 
 void
 graphics_info_t::do_rotamers(int atom_index, int imol) {
-   
-   // display the buttons for the rotamer options and display
-   // the most likely in the graphics as a
-   // moving_atoms_asc.
 
-   rotamer_residue_atom_index = atom_index;  // save for button
-					     // callbacks, so that we
-					     // can get the residue.
-   rotamer_residue_imol = imol;
-   std::string altconf = molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
-   
-   GtkWidget *window = create_rotamer_selection_dialog();
-   set_transient_and_position(COOT_ROTAMER_SELECTION_DIALOG, window);
-   rotamer_dialog = window;
 
-   // Test if this was an alt confed atom.
-   // If it was, then we should set up the hscale.
-   // It it was not, then we should destroy the hscale
-   if (altconf.length() > 0) {
-      GtkWidget *hscale = lookup_widget(window, "new_alt_conf_occ_hscale");
-      float v = add_alt_conf_new_atoms_occupancy;
-     // The max value is 3rd arg - 6th arg (here 2 and 1 is the same as 1 and 0)
-      GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(v, 0.0, 2.0, 0.01, 0.1, 1.0));
-      gtk_range_set_adjustment(GTK_RANGE(hscale), GTK_ADJUSTMENT(adj));
-      gtk_signal_connect(GTK_OBJECT(adj), 
-			 "value_changed",
-			 GTK_SIGNAL_FUNC(graphics_info_t::new_alt_conf_occ_adjustment_changed), 
-			 NULL);
+   if (use_graphics_interface_flag) { 
+      // display the buttons for the rotamer options and display
+      // the most likely in the graphics as a
+      // moving_atoms_asc.
+
+      rotamer_residue_atom_index = atom_index;  // save for button
+      // callbacks, so that we
+      // can get the residue.
+      rotamer_residue_imol = imol;
+      std::string altconf = molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
+   
+      GtkWidget *window = create_rotamer_selection_dialog();
+      set_transient_and_position(COOT_ROTAMER_SELECTION_DIALOG, window);
+      rotamer_dialog = window;
+
+      // Test if this was an alt confed atom.
+      // If it was, then we should set up the hscale.
+      // It it was not, then we should destroy the hscale
+      if (altconf.length() > 0) {
+	 GtkWidget *hscale = lookup_widget(window, "new_alt_conf_occ_hscale");
+	 float v = add_alt_conf_new_atoms_occupancy;
+	 // The max value is 3rd arg - 6th arg (here 2 and 1 is the same as 1 and 0)
+	 GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(v, 0.0, 2.0, 0.01, 0.1, 1.0));
+	 gtk_range_set_adjustment(GTK_RANGE(hscale), GTK_ADJUSTMENT(adj));
+	 gtk_signal_connect(GTK_OBJECT(adj), 
+			    "value_changed",
+			    GTK_SIGNAL_FUNC(graphics_info_t::new_alt_conf_occ_adjustment_changed), 
+			    NULL);
       
-   } else {
-      GtkWidget *frame = lookup_widget(window, "new_alt_conf_occ_frame");
-      gtk_widget_destroy(frame);
+      } else {
+	 GtkWidget *frame = lookup_widget(window, "new_alt_conf_occ_frame");
+	 gtk_widget_destroy(frame);
+      }
+
+   
+      /* Events for widget must be set before X Window is created */
+      gtk_widget_set_events(GTK_WIDGET(window),
+			    GDK_KEY_PRESS_MASK);
+      /* Capture keypress events */
+      //    rotamer_key_press_event is not defined (yet)
+      //    gtk_signal_connect(GTK_OBJECT(window), "key_press_event",
+      // 		      GTK_SIGNAL_FUNC(rotamer_key_press_event), NULL);
+      /* set focus to glarea widget - we need this to get key presses. */
+      GTK_WIDGET_SET_FLAGS(window, GTK_CAN_FOCUS);
+      gtk_widget_grab_focus(GTK_WIDGET(glarea)); // but set focus to the graphics.
+   
+      fill_rotamer_selection_buttons(window, atom_index, imol);
+
+      // act as if the button for the first rotamer was pressed
+      short int stat = generate_moving_atoms_from_rotamer(0);
+
+      if (stat)
+	 gtk_widget_show(window);
    }
-
-   
-   /* Events for widget must be set before X Window is created */
-   gtk_widget_set_events(GTK_WIDGET(window),
-			 GDK_KEY_PRESS_MASK);
-   /* Capture keypress events */
-//    rotamer_key_press_event is not defined (yet)
-//    gtk_signal_connect(GTK_OBJECT(window), "key_press_event",
-// 		      GTK_SIGNAL_FUNC(rotamer_key_press_event), NULL);
-   /* set focus to glarea widget - we need this to get key presses. */
-   GTK_WIDGET_SET_FLAGS(window, GTK_CAN_FOCUS);
-   gtk_widget_grab_focus(GTK_WIDGET(glarea)); // but set focus to the graphics.
-   
-   fill_rotamer_selection_buttons(window, atom_index, imol);
-
-   // act as if the button for the first rotamer was pressed
-   short int stat = generate_moving_atoms_from_rotamer(0);
-
-   if (stat)
-      gtk_widget_show(window);
 }
 
 
