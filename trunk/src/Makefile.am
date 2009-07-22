@@ -36,7 +36,17 @@ endif
 if COOT_USE_PYTHON
 # COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/coot_wrap_python_pre.cc
 # does this help?
-COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/coot_wrap_python_pre.cc
+# 20090721: No, it doesn't.
+#           The source tar currently distributes coot_wrap_*cc files for GTK1
+#           so usually we will need to generate the GTK2 versions (say on the
+#           integration build on cycle).  Where do those GTK2 wrap*cc files 
+#           go?  If in this directory then, $(srcdir)/coot_wrap_python_pre.cc
+#           is wrong for COOT_WRAP_PYTHON_TEMPLATE coot_wrap_python.cc is 
+#           generated from the wrong file.  However, it can't be in the 
+#           src directory either because that would overwrite the GTK1 files 
+#           needed for the source tar. Hmm... A dilemma.
+# COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/coot_wrap_python_pre.cc
+COOT_WRAP_PYTHON_TEMPLATE=coot_wrap_python_pre.cc
 COOT_WRAP_PYTHON_LIBS=libcoot-wrap-python.la
 else
 COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/blank.cc

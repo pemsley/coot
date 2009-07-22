@@ -1,5 +1,5 @@
 
-   10 items
+   13 items
 
 
    o Regularize monomer-3GP. Turn on torsion angle restraints.
@@ -19,6 +19,9 @@
 
 
    o Geometric distortions graph for alt confs - currently broken? ::: 4
+
+
+   o Tim Fenn library thing ::: 1
 
 
    o File differences mentioned by Bill?  ::: 0.5

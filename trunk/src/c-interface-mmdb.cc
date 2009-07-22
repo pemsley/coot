@@ -31,19 +31,9 @@
 
 #include "c-interface-mmdb.hh"
 
-#ifdef USE_GUILE
+#include "guile-fixups.h"
 
-   // Instead of cut and pasting here, perhaps I should have done a typedef?
-   
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
-// no fix up needed 
-#else    
-#define scm_to_int gh_scm2int
-#define scm_to_locale_string SCM_STRING_CHARS
-#define scm_to_double  gh_scm2double
-#define  scm_is_true gh_scm2bool
-#define  scm_is_string gh_string_p
-#endif // SCM version
+#ifdef USE_GUILE
 
 CMMDBManager *
 mmdb_manager_from_scheme_expression(SCM molecule_expression) {
