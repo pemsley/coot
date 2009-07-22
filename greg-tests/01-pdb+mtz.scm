@@ -799,6 +799,7 @@
 	#t)))
 
 
+       
 (greg-testcase "Backrub rotamer" #t
    (lambda ()
 
@@ -821,11 +822,18 @@
 		   ;; did move
 		   (loop (cdr atoms-1) (cdr atoms-2) (cons (car (car (car atoms-1)))
 							   mover-list)))))))))
-       
+
      ;; main line
      (set-imol-refinement-map imol-rnase-map)
-     (let* ((imol (handle-read-draw-molecule-with-recentre "backrub-fragment.pdb" 0))
+
+     (let* ((imol (handle-read-draw-molecule-with-recentre 
+		   (append-dir-file greg-data-dir "backrub-fragment.pdb") 0))
 	    (imol-copy (copy-molecule imol)))
+
+       (if (not (valid-model-molecule? imol))
+	   (begin
+	     (format #t "backrub-rotamer backrub-fragment.pdb not found it seems~%")
+	     (throw 'fail)))
 		  
        (let ((status (backrub-rotamer imol-copy "A" 37 "" "")))
 
@@ -1674,7 +1682,9 @@
 
 		   (if (< d-pro 0.05)
 		       (begin 
-			 (format #t "   Failure: PRO 52A not moved enough~%")
+			 (format #t "   Failure: PRO 52A not moved enough: ~s~%" d-pro)
+			 (map (lambda (a) (format #t "   PRO-atoms 1: ~s~%" a)) pro-atoms-1)
+			 (map (lambda (a) (format #t "   PRO-atoms 2: ~s~%" a)) pro-atoms-2)
 			 (throw 'fail)))
 		   
 		   ;; rotamer 4 is out of range.
