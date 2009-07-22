@@ -4345,8 +4345,11 @@ are given at the end of the command line.
 @c from the source src directory:
 @c doxygen coot-dox.cfg
 @c from the build doc directory:
-@c xsltproc ../../coot/doc/xml2texi.xsl ../../coot/src/doxygen/xml/c-interface_8h.xml > c-interface.h.texi
-@include c-interface_8h.texi
+@c xsltproc ../../coot/doc/xml2texi.xsl ../../coot/src/doxygen/xml/c-interface_8h.xml > ../../coot/doc/c-interface.h.texi
+@c note that texi2html requires that this c-interface texi file be in the 
+@c same directory as this file (user-manual.texi) NOT the directory that 
+@c texi2html is run in.
+@include c-interface.h.texi
 
 
 @c % -----------------------------------------------------------
