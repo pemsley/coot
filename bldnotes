@@ -11,7 +11,8 @@ build-it-win rev 2122
    o add the binary_type_latest to the WinCoot installer script 
 
      [And the rest of the phone home system: updates are available?
-     download, install, restart (just like firefox) :)]
+     download, install, restart (just like firefox) - 20090711-PE OK,
+     it's not sensible to schedule this for 0.6.]
 
    o optional tooltips for main toolbar buttons
 
