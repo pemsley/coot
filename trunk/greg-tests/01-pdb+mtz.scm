@@ -1608,6 +1608,8 @@
 		(list #f imol "A" 94 "")
 		))))))))
 
+
+;; 
 (greg-testcase "Autofit Rotamer on Residues with Insertion codes" #t 
    (lambda ()
 
@@ -1620,10 +1622,16 @@
 	    (/ (apply + ls) (length ls)))
 	  (transpose-mat (map (lambda (x) (list-ref x 2)) mat))))
      
+   ;; 
    (let* ((imol (greg-pdb "pdb3hfl.ent"))
 	  (mtz-file-name (append-dir-file greg-data-dir "3hfl_sigmaa.mtz"))
 	  (imol-map (make-and-draw-map mtz-file-name
 				       "2FOFCWT" "PH2FOFCWT" "" 0 0)))
+
+     (if (not (valid-model-molecule? imol))
+	 (begin
+	   (format #t " ERROR:: pdb3hfl.ent nto found~%")
+	   (throw 'fail)))
 
      (if (not (valid-map-molecule? imol-map))
 	 (begin
