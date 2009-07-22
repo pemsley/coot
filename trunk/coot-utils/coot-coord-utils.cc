@@ -5313,7 +5313,11 @@ coot::util::move_waters_around_protein(CMMDBManager *mol) {
 
 	 // std::cout << " water_pos " << water_pos.format() << std::endl;
 	 double d_best = 99999999.9;
-	 clipper::RTop_orth rtop_best;
+	 // The compiler doesn't like rtop_best being used below
+	 // without being initialized properly here.
+	 // clipper::RTop_orth rtop_best; // old
+	 clipper::RTop_orth rtop_best(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), clipper::Coord_orth(0,0,0));
+	 bool improved = 0;
 	 // 
 	 for (int isym=0; isym<n; isym++) {
 	    for (int x_shift = -1; x_shift<2; x_shift++) { 
@@ -5327,18 +5331,21 @@ coot::util::move_waters_around_protein(CMMDBManager *mol) {
 			// std::cout << " better dist " << t_dist << std::endl;
 			d_best = t_dist;
 			rtop_best = orthop;
+			improved = 1;
 		     }
 		  }
 	       }
 	    }
 	 }
 
-	 // Apply the transformation then.
-	 clipper::Coord_orth t_point = water_pos.transform(rtop_best);
-	 water_atoms[iw]->x = t_point.x() - pre_shift_orth.x();
-	 water_atoms[iw]->y = t_point.y() - pre_shift_orth.y();
-	 water_atoms[iw]->z = t_point.z() - pre_shift_orth.z();
-	 n_moved++;
+	 if (improved) { 
+	    // Apply the transformation then.
+	    clipper::Coord_orth t_point = water_pos.transform(rtop_best);
+	    water_atoms[iw]->x = t_point.x() - pre_shift_orth.x();
+	    water_atoms[iw]->y = t_point.y() - pre_shift_orth.y();
+	    water_atoms[iw]->z = t_point.z() - pre_shift_orth.z();
+	    n_moved++;
+	 }
       }
    }
 
