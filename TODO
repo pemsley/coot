@@ -499,6 +499,9 @@ Punted from 0.6:
 
    o Put "Set Matrix" under the R/RC button dialog.
 
+   o Env distances should have an "molecule number" attribute - when
+     that molecule is not displayed, not show the env distances.
+
 
  0.7 Priorities:
 

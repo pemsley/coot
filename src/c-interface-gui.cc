@@ -2370,6 +2370,138 @@ void fill_chiral_volume_molecule_option_menu(GtkWidget *w) {
 
 }
 
+
+/*  ------------------------------------------------------------------------ */
+//            enviromnent and other distances
+/*  ------------------------------------------------------------------------ */
+//
+
+
+void toggle_environment_show_distances(GtkToggleButton *button) {
+
+   graphics_info_t g;
+
+   //    if (g.environment_show_distances == 0) {
+   
+   GtkWidget *hbox = lookup_widget(GTK_WIDGET(button),
+				   "environment_distance_distances_frame");
+   GtkWidget *label_atom_check_button =
+      lookup_widget(GTK_WIDGET(button),
+		    "environment_distance_label_atom_checkbutton");
+   
+   if (button->active) { 
+      // std::cout << "toggled evironment distances on" << std::endl;
+      g.environment_show_distances = 1;
+      gtk_widget_set_sensitive(hbox, TRUE);
+      gtk_widget_set_sensitive(label_atom_check_button, TRUE);
+
+      //
+      std::pair<int, int> r =  g.get_closest_atom();
+//       std::cout << "DEBUG:: got close info: " 
+// 		<< r.first << " " << r.second << std::endl;
+      if (r.first >= 0) {
+	 g.mol_no_for_environment_distances = r.second;
+	 g.update_environment_distances_maybe(r.first, r.second);
+	 graphics_draw();
+      }
+      
+   } else {
+      // std::cout << "toggled evironment distances off" << std::endl;
+      g.environment_show_distances = 0;
+      gtk_widget_set_sensitive(hbox, FALSE);
+      gtk_widget_set_sensitive(label_atom_check_button, FALSE);
+   }
+}
+
+/* a graphics_info_t function wrapper: */
+void residue_info_release_memory(GtkWidget *widget) { 
+
+   graphics_info_t g;
+   g.residue_info_release_memory(widget);
+
+}
+
+void unset_residue_info_widget() { 
+   graphics_info_t g;
+   g.residue_info_dialog = NULL; 
+} 
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  pointer distances                                      */
+/*  ----------------------------------------------------------------------- */
+void fill_pointer_distances_widget(GtkWidget *widget) {
+
+   GtkWidget *min_entry   = lookup_widget(widget, "pointer_distances_min_dist_entry");
+   GtkWidget *max_entry   = lookup_widget(widget, "pointer_distances_max_dist_entry");
+   GtkWidget *checkbutton = lookup_widget(widget, "pointer_distances_checkbutton");
+   GtkWidget *frame       = lookup_widget(widget, "pointer_distances_frame");
+
+   float min_dist = graphics_info_t::pointer_min_dist;
+   float max_dist = graphics_info_t::pointer_max_dist;
+   
+   gtk_entry_set_text(GTK_ENTRY(min_entry),
+		      graphics_info_t::float_to_string(min_dist).c_str());
+   gtk_entry_set_text(GTK_ENTRY(max_entry),
+		      graphics_info_t::float_to_string(max_dist).c_str());
+
+   if (graphics_info_t::show_pointer_distances_flag) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+      gtk_widget_set_sensitive(frame, TRUE);
+   } else {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
+      gtk_widget_set_sensitive(frame, FALSE);
+   }
+
+}
+
+void execute_pointer_distances_settings(GtkWidget *widget) {
+
+   GtkWidget *min_entry   = lookup_widget(widget, "pointer_distances_min_dist_entry");
+   GtkWidget *max_entry   = lookup_widget(widget, "pointer_distances_max_dist_entry");
+   // GtkWidget *checkbutton = lookup_widget(widget, "pointer_distances_checkbutton");
+
+   float min_dist = 0.0;
+   float max_dist = 0.0;
+
+   float t;
+
+   const gchar *tt = gtk_entry_get_text(GTK_ENTRY(min_entry));
+   t = atof(tt);
+
+   if ((t >= 0.0) && (t < 999.9))
+      min_dist = t;
+
+   tt = gtk_entry_get_text(GTK_ENTRY(max_entry));
+   t = atof(tt);
+
+   if ((t >= 0.0) && (t < 999.9))
+      max_dist = t;
+
+   graphics_info_t::pointer_max_dist = max_dist;
+   graphics_info_t::pointer_min_dist = min_dist;
+
+   
+}
+
+
+void toggle_pointer_distances_show_distances(GtkToggleButton *togglebutton) {
+
+   GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton),
+				    "pointer_distances_frame");
+   if (togglebutton->active) {
+      set_show_pointer_distances(1);
+      gtk_widget_set_sensitive(frame, TRUE);
+   } else {
+      set_show_pointer_distances(0);
+      gtk_widget_set_sensitive(frame, FALSE);
+   }
+   
+}
+
+
+
+
 /*  ------------------------------------------------------------------------ */
 //            model_toolbar things
 /*  ------------------------------------------------------------------------ */

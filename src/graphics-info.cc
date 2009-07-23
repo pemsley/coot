@@ -1432,9 +1432,13 @@ void
 graphics_info_t::environment_graphics_object() {
 
    graphics_info_t g;
-   g.environment_graphics_object_internal(environment_object_bonds_box);
-   if (g.show_symmetry)
-      g.environment_graphics_object_internal(symmetry_environment_object_bonds_box);
+   if (is_valid_model_molecule(mol_no_for_environment_distances)) {
+      if (g.molecules[mol_no_for_environment_distances].is_displayed_p()) { 
+	 g.environment_graphics_object_internal(environment_object_bonds_box);
+	 if (g.show_symmetry)
+	    g.environment_graphics_object_internal(symmetry_environment_object_bonds_box);
+      } 
+   } 
 }
 
 // static
