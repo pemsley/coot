@@ -978,6 +978,7 @@ c-interface clear_up_moving_atoms...
 
 * It apparently no longer does.  Yeay.
 
+
    o multiple residue ranges, glycosylation, covalent bond entities,
      make sure it works with alt confs and residues with TER atoms.  
 
@@ -1049,12 +1050,9 @@ c-interface clear_up_moving_atoms...
 * Can't find it if it is.
 
 
-=======
    o Environment distances should go off when the molecule to which
      the relate is undisplayed. ::: 1
 
 * Done.
 
-
->>>>>>> .r2152
 -----
