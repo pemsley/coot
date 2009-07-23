@@ -1030,6 +1030,15 @@ c-interface clear_up_moving_atoms...
 
 * Because it was including the wrong file.
 
+   o Distances should undisplay when the molecule to which they relate
+   (either of them) is undisplayed.  ::: 1 
+
+* Done.
+
+   o Environment distances should go off when the molecule to which
+     the relate is undisplayed. ::: 1
+
+* Done.
 
 
 -----

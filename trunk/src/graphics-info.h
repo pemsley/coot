@@ -496,6 +496,7 @@ class graphics_info_t {
    static GtkWidget *display_control_window_;
 
    //
+   // static int mol_no_for_environment_distances is public
    static graphical_bonds_container regularize_object_bonds_box;
    static graphical_bonds_container environment_object_bonds_box;
    static graphical_bonds_container symmetry_environment_object_bonds_box;
@@ -2015,6 +2016,7 @@ public:
    // Display the graphical object of the regularization
    static void moving_atoms_graphics_object(); // filled by flash_selection
 
+   static int mol_no_for_environment_distances;
    static void environment_graphics_object();
    // void symmetry_environment_graphics_object() const;
 
