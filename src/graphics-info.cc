@@ -3056,7 +3056,6 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
    draw_chi_angle_flash_bond_flag = 0; // member data item
 
    // std::cout << "flash bond ibond_user: " << ibond_user << std::endl;
-
    // std::cout << "highlight ligand bond " << bond << std::endl;
 
    // get the residue type and from that the atom name pairs:

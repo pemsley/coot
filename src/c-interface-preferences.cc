@@ -512,7 +512,7 @@ void update_preference_gui() {
     case PREFERENCES_FONT_SIZE:
       ivalue = g.preferences_internal[i].ivalue1;
       if (ivalue < 2) {
-	w = lookup_widget(dialog, "preferences_font_size_small_radionbutton");
+	w = lookup_widget(dialog, "preferences_font_size_small_radiobutton");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else if (ivalue == 2) {
 	w = lookup_widget(dialog, "preferences_font_size_medium_radiobutton");

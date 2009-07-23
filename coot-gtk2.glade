@@ -35566,7 +35566,7 @@ View Mode</property>
 	      <child>
 		<widget class="GtkLabel" id="label224">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">Dialogs</property>
+		  <property name="label" translatable="yes">  Dialogs  </property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -36236,7 +36236,7 @@ View Mode</property>
 	      <child>
 		<widget class="GtkLabel" id="label476">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">HID</property>
+		  <property name="label" translatable="yes">    HID    </property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -43865,7 +43865,7 @@ distances more than:</property>
 		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Reverse direction of fragment, leaving only CAs</property>
 		  <property name="can_focus">True</property>
-		  <property name="label" translatable="yes">Reverse Direction</property>
+		  <property name="label" translatable="yes">Reverse Direction...</property>
 		  <property name="use_underline">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>
@@ -43900,6 +43900,24 @@ distances more than:</property>
 	      </child>
 
 	      <child>
+		<widget class="GtkButton" id="other_tools_place_strand_here_button">
+		  <property name="border_width">1</property>
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Place Strand Here</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <signal name="clicked" handler="on_other_tools_place_strand_here_button_clicked" last_modification_time="Wed, 22 Jul 2009 21:18:04 GMT"/>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
 		<widget class="GtkButton" id="other_tools_RNA_button">
 		  <property name="border_width">1</property>
 		  <property name="visible">True</property>
@@ -43919,6 +43937,7 @@ distances more than:</property>
 
 	      <child>
 		<widget class="GtkToggleButton" id="other_tools_base_pair_toggle_button">
+		  <property name="border_width">1</property>
 		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Click on an atom in a base to generate the base pairing partner</property>
 		  <property name="can_focus">True</property>
@@ -43939,6 +43958,7 @@ distances more than:</property>
 
 	      <child>
 		<widget class="GtkButton" id="set_undo_molecule_button">
+		  <property name="border_width">1</property>
 		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Choose the molecule number to which &quot;Undo&quot; actions occur.</property>
 		  <property name="can_focus">True</property>
