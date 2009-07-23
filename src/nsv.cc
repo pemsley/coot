@@ -394,8 +394,9 @@ exptl::nsv::rect_event (GtkObject *obj,
 			gpointer data) {
    
    exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
-   if (event->motion.state & GDK_BUTTON1_MASK) {
-      std::cout << "box clicked" << std::endl;
+   // if (event->motion.state & GDK_BUTTON1_MASK) {
+   if (event->type == GDK_BUTTON_RELEASE) {
+      // std::cout << "box clicked" << std::endl;
       set_go_to_atom_molecule(spec_obj.mol_no);
       set_go_to_atom_from_spec(spec_obj.atom_spec);
       
@@ -531,11 +532,6 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 	 
 	 double x = (irn-lrn)*font_scaler -3.0; // x for resno label
 	 std::string lab = coot::util::int_to_string(irn);
-	 std::cout << "adding tick "
-		   << points->coords[0] << " "
-		   << points->coords[1] << " " 
-		   << points->coords[2] << " "
-		   << points->coords[3] << std::endl;
 	 item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 				    GTK_CANVAS_TYPE_CANVAS_LINE,
 				    "width_pixels", 1,
