@@ -1983,6 +1983,28 @@ create_skeleton_colour_selection_window() {
 
 }
 
+/*! \brief show the strand placement gui.
+
+  Choose the python version in there, if needed.  Call scripting
+  function, display it in place, don't return a widget. */
+void   place_strand_here_dialog() {
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      if (graphics_info_t::prefer_python) {
+#ifdef USE_PYTHON
+	 std::cout << "safe python commaond place_strand_here_gui()"
+		   << std::endl;
+	 safe_python_command("place_strand_here_gui()");
+#endif // PYTHON
+      } else {
+#ifdef USE_GUILE
+	 safe_scheme_command("(place-strand-here-gui)");
+#endif 	 
+      } 
+   } 
+}
+
+
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 /*                               fast secondary structure search            */

@@ -38,13 +38,23 @@ INCLUDES = \
 	$(CLIPPER_CXXFLAGS)        \
 	$(MMDB_CXXFLAGS)
 
-AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS) $(COOT_WINDOWS_CFLAGS)
+AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS) $(COOT_WINDOWS_CFLAGS) \
+     $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_GSL_FLAGS) 
+AM_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
+
+
+#libcoot_ideal_la_LIBADD = ../coot-utils/libcoot-utils.la                       \
+#	../coot-utils/libcoot-coord-utils.la                                   \
+#	../coot-utils/libcoot-coord-extras.la ../mini-mol/libcoot-mini-mol.la  \
+#	../geometry/libcoot-geometry.la
 
 # Tim Fenn suggest.  Not sure what it does.
 # libcoot_ideal_la_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 # libcoot_ideal_la_LIBADD = ../geometry/libcoot-geometry.la
 
+
 libcoot_ideal_la_SOURCES = simple-restraint.cc  pepflip.cc regularize-minimol.cc lograma.cpp
+
 
 noinst_PROGRAMS = test-indexing with-geometry with-map logramatest
 # bin_PROGRAMS = 

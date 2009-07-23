@@ -198,6 +198,16 @@ PyObject *coot_sys_build_type_py() {
 } 
 #endif // USE_PYTHON
 
+/*!  \brief tell coot that you prefer to run python scripts if/when
+  there is an option to do so. */
+void set_prefer_python() {
+
+#ifdef USE_PYTHON
+   graphics_info_t::prefer_python = 1;
+#endif // USE_PYTHON   
+} 
+
+
 
 /*  -------------------------------------------------------------------- */
 /*                     Testing Interface:                                */

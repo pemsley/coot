@@ -3026,6 +3026,11 @@ on_place_helix_here_button_clicked     (GtkButton       *button,
                                         gpointer         user_data);
 
 void
+on_other_tools_place_strand_here_button_clicked     (GtkButton       *button,
+                                        gpointer         user_data);
+
+
+void
 on_diff_map_peaks_dialog_destroy       (GtkObject       *object,
                                         gpointer         user_data);
 

@@ -2,30 +2,26 @@
    13 items
 
 
-   o Regularize monomer-3GP. Turn on torsion angle restraints.
-     Regularize again. Look at above var_2 torsion.  After
-     minimization, torsion is 171.09 degrees.  Wrong.  The minimizer
-     doesn't terminate though. Use libcheck_3GP-torsion-filtered.cif 
-     ::: 4
-
-
-   o Geometric distortions graph for alt confs - currently broken? ::: 4
-
-
-   o Tim Fenn library thing ::: 1
-
-
-   o File differences mentioned by Bill?  ::: 0.5
-
-
    o Torsion general is broken? Yes (argh!)
      Am I using the right version of mgtree?
      ::: 2
 
-   o symmetry molecule by symop.  Check that pre_shift_to_origin_abc
-     is applied the right way (currently I think that it is not (not
-     at least with the new-molecule-by-symop usage in
-     extensions)). ::: 1
+
+   o Regularize monomer-3GP. Turn on torsion angle restraints.
+     Regularize again. Look at above var_2 torsion.  After
+     minimization, torsion is 171.09 degrees.  Wrong.  The minimizer
+     doesn't terminate though. Use libcheck_3GP-torsion-filtered.cif 
+
+     20090723 on trying again torsion is -115.  [Target is -78].
+     Still doesn't terminate properly though.
+     chisq torsions: 45.3986 Hmm.
+
+     On using torsion in refinement and using just the N9-C1 torsion,
+     and 6 or so rounds, it terminates correctly.  However, torsion is
+     -157.9 and chi-sq 24.6.
+
+     ::: 4
+
 
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
     make_link_restraints_by_linear() has
@@ -41,28 +37,6 @@
 
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
      interface with molprobity dots.  pisa-interaction ::: 8
-
-
-   o Fix this: 
-
-** (coot-real:16099): WARNING **: Widget not found: preferences_font_size_small_radionbutton
-
-(coot-real:16099): Gtk-CRITICAL **: gtk_toggle_button_set_active: assertion `GTK_IS_TOGGLE_BUTTON (toggle_button)' failed
-
-    ::: 0.5
-
-   o Move "Add strand here" next to "add Helix here" ::: 0.5
-
-
-
-   o Make sure that .coot.py keybindings appear in the keybindings
-     GUI. ::: 1
-
-
-   o What about if there are python and scheme bindings to a
-     particular key?  graphics-general-key-press-hook should return the
-     status of the key being found and the binding function used.  Then
-     if not, we can run the python function [JED]. ::: 1
 
 
    o Stereo (hardware, side by side) Add-reps.  Need to update the
@@ -1019,14 +993,13 @@ c-interface clear_up_moving_atoms...
 
 * What else is there to do here?  Write a test.
 
+   o File differences mentioned by Bill?  
+
+* Not need now
+
 
    o Why is the brief text for have_unsaved_changes_p() not showing in
-     the on-line documentation? 
-
-     Why are the descriptions for the function params not showing?
-     (e.g. set_smooth_scroll_flag()).
-
-     ::: 1 
+     the on-line documentation?  ::: 0.5
 
 * Because it was including the wrong file.
 
@@ -1035,10 +1008,53 @@ c-interface clear_up_moving_atoms...
 
 * Done.
 
+
+   o symmetry molecule by symop.  Check that pre_shift_to_origin_abc
+     is applied the right way (currently I think that it is not (not
+     at least with the new-molecule-by-symop usage in
+     extensions)). ::: 1
+
+* Seems OK now.
+
+
+   o Move "Add strand here" next to "add Helix here" ::: 0.5
+
+* Done.
+
+   o Fix this: 
+
+** (coot-real:16099): WARNING **: Widget not found: preferences_font_size_small_radionbutton
+
+(coot-real:16099): Gtk-CRITICAL **: gtk_toggle_button_set_active: assertion `GTK_IS_TOGGLE_BUTTON (toggle_button)' failed
+
+    ::: 0.5
+
+* Done.  typo.
+
+
+   o What about if there are python and scheme bindings to a
+     particular key?  graphics-general-key-press-hook should return the
+     status of the key being found and the binding function used.  Then
+     if not, we can run the python function [JED]. ::: 0.5
+
+* No, I am not going to do that, key bindings are either all python or all scheme.
+
+   o Make sure that .coot.py keybindings appear in the keybindings
+     GUI. Get Python working first. Hmm. ::: 0.1
+
+* No.
+
+   o Geometric distortions graph for alt confs - currently broken? ::: 1
+ 
+* Can't find it if it is.
+
+
+=======
    o Environment distances should go off when the molecule to which
      the relate is undisplayed. ::: 1
 
 * Done.
 
 
+>>>>>>> .r2152
 -----

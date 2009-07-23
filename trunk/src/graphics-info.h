@@ -1090,6 +1090,8 @@ public:
       preset_number_refmac_cycles->push_back(50);
    }
 
+   static bool prefer_python;
+
    static bool do_expose_swap_buffers_flag;
    
    static void graphics_draw() {

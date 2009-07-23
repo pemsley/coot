@@ -4578,8 +4578,6 @@ int place_strand_here(int n_residues, int n_sample_strands) {
       g.show_select_map_dialog();
       return -1;
    }
-   
-
 } 
 
 

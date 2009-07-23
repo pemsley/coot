@@ -2681,7 +2681,10 @@ This imports a model residue for the new residue type and overlays it on
 to the given residue by using graph-matching to determine the equivalent
 atoms.
 
-There is no GUI interface to this function yet.
+The GUI for this can be found under @command{Extensions -> Modelling
+-> Replace Residue...} (for this to work, you need to be centred on
+the residue you wish to replace).
+
 
 @subsection Mutate and Autofit
 The function combines Mutation and Auto Fit Rotamer and is the easiest

@@ -108,6 +108,10 @@ void try_load_scheme_extras_dir();
 void try_load_python_extras_dir();
 #endif // USE_PYTHON
 
+/*!  \brief tell coot that you prefer to run python scripts if/when
+  there is an option to do so. */
+void set_prefer_python();
+
 /*  ------------------------------------------------------------------------ */
 /*                         File system Functions:                            */
 /*  ------------------------------------------------------------------------ */
@@ -4884,6 +4888,14 @@ int place_helix_here();
 
    @return the index of the new molecule.*/
 int place_strand_here(int n_residues, int n_sample_strands);
+
+
+/*! \brief show the strand placement gui.
+
+  Choose the python version in there, if needed.  Call scripting
+  function, display it in place, don't return a widget. */
+void   place_strand_here_dialog(); 
+
 
 /*! \brief autobuild helices
 
