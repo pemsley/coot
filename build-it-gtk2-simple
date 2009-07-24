@@ -279,7 +279,9 @@
 # 4.52 20090704 mmdb-1.21 from York.
 # 4.53 20090706 check build dependencies when on ubuntu
 # 4.54 20090722 fix coot_revision typo for build status.
-script_version=4.53
+# 4.55 20090724 make compilers_dir depend on build_type (python build logs 
+#               split out)
+script_version=4.55
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1013,7 +1015,7 @@ fi
 v_fid=`echo $v | sed 's/ /_/g'`
 w_fid=`echo $w | sed 's/ /_/g'`
 
-compilers_dir=gtk2-${v_fid}_and_${w_fid}
+compilers_dir=$build_type-${v_fid}_and_${w_fid}
 HOSTLOGDIR=$LOGS/$compilers_dir
 if [ ! -e $HOSTLOGDIR ] ; then 
   mkdir -p $HOSTLOGDIR
