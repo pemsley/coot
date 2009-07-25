@@ -1192,20 +1192,23 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
    if (diff < -180.0) { 
       diff += 360.; 
    } else { 
-      if (diff > 360.0) { 
+      if (diff > 180.0) { 
 	 diff -= 360.0; 
       }
    }
 
+//    std::cout << "distortion score torsion "
+// 	     << diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma) << " ";
 
-//     cout << "distortion_torsion theta (calc): " << theta 
-//  	<< " periodicity " << torsion_restraint.periodicity
-//  	<< " target "      << torsion_restraint.target_value
-//  	<< " diff: " << diff << endl ;
+//      cout << "distortion_torsion theta (calc): " << theta 
+//   	<< " periodicity " << torsion_restraint.periodicity
+//   	<< " target "      << torsion_restraint.target_value
+//   	<< " diff: " << diff << endl ;
 
-//    std::cout << "in distortion_torsion: sigma = " << torsion_restraint.sigma
-// 	     << ", weight=" << pow(torsion_restraint.sigma,-2.0)
-// 	     << " and diff is " << diff << std::endl;
+//     std::cout << "in distortion_torsion: sigma = " << torsion_restraint.sigma
+//  	     << ", weight=" << pow(torsion_restraint.sigma,-2.0)
+//  	     << " and diff is " << diff << std::endl;
+   
       
    return diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma);
 
@@ -2738,7 +2741,7 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 	       if (diff < -180.0) { 
 		  diff += 360.; 
 	       } else { 
-		  if (diff > 360.0) { 
+		  if (diff > 180.0) { 
 		     diff -= 360.0; 
 		  }
 	       }
