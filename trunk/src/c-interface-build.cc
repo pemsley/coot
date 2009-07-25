@@ -5953,8 +5953,8 @@ show_partial_charge_info(int imol, const char *chain_id, int resno, const char *
 /*! \brief add an alternative conformer to a residue.  Add it in
   conformation rotamer number rotamer_number.  
 
+ Return #f on fail, the altconf string on success */
 #ifdef USE_GUILE  
-Return #f on fail, the altconf string on success */
 SCM add_alt_conf_scm(int imol, const char*chain_id, int res_no, const char *ins_code,
 		     const char *alt_conf, int rotamer_number) {
 
