@@ -121,6 +121,22 @@
        (else 
 	(loop (cdr bits)))))))
 
+;; Return the date the file was made from the tar file name
+;; or #f
+;;
+(define (get-date-from-tar source-tar-file-name)
+  (let ((full-path (string-append source-tar-dir source-tar-file-name)))
+
+    (if (file-exists? full-path)
+	(let ((mtime (stat:mtime (stat full-path))))
+	  ;; (format #t "~s mtime ~s~%" full-path mtime)
+	  (strftime "%a %d %b %H:%M:%S %G %Z" (localtime mtime)))
+	(begin 
+	  (format #t "source tar ~s not found" full-path)
+	  #f))))
+
+
+
 
 ;; Return the url and the revision number (multiple values) of the
 ;; latest file in the http directory that matches build-info.  Return
@@ -351,24 +367,31 @@
 	    (pair-up records)))))
   
 
-(define (make-builds-table-from-records records source-code-revision-number)
 
-  ;; colour up the text in a manner that depends on the text (and bold
-  ;; the text).
-  (define (colourize text)
-    ;; (format #t "text: ~s~%" text)
-    (cond
-     ((not (string? text)) 	"status not found")
-     ((string-match "404 Not Found" text)
-      `(b (font (@ color "#991111")) "Not Found"))
-     ((string-match "pass" text)
-      `(b (font (@ color "#119911")) ,text))
-     ((string-match "fail" text)
-      `(b (font (@ color "#991111")) ,text))
-     ((string-match "progress" text)
-      `(b (font (@ color "#444444")) ,text))
-     (else 
-      `(b ,text))))
+;; colour up the text in a manner that depends on the text (and bold
+;; the text).  This used to be a part of
+;; make-builds-table-from-records, but it is useful to colour up the
+;; results of the source code build too.
+
+(define (colourize text)
+
+  (cond
+   ((not (string? text)) 	"status not found")
+   ((string-match "404 Not Found" text)
+    `(b (font (@ color "#991111") "Not Found")))
+   ((string-match "pass" text)
+    `(b (font (@ color "#119911") ,text)))
+   ((string-match "fail" text)
+    `(b (font (@ color "#991111") ,text)))
+   ((string-match "progress" text)
+    `(b (font (@ color "#444444") ,text)))
+   ((string-match "waiting" text)
+    `(b (font (@ color "#444444") ,text)))
+   (else 
+    `(b ,text))))
+
+
+(define (make-builds-table-from-records records source-code-revision-number)
 	
   ;; 
   (define (format-binary-cell binary-record now-time)
@@ -413,7 +436,7 @@
 
 
 ;; return values: the source code url, a file-name (for the link) and
-;; a revision number (a number).
+;; a revision number (a number) and a date (string) for the tar file.
 ;; 
 ;; This is based on analysis of the file system.  
 ;; 
@@ -425,7 +448,8 @@
   (let ((files (directory-files source-tar-dir)))
     (let loop ((files files)
 	       (latest-file #f)
-	       (latest-revision-number #f))
+	       (latest-revision-number #f)
+	       (tar-file-date #f))
 
       (cond
        ((null? files)
@@ -434,20 +458,23 @@
 	    (values #f #f #f)
 	    (values (string-append web-source-tar-dir latest-file)
 		    latest-file
-		    latest-revision-number)))
+		    latest-revision-number
+		    tar-file-date)))
        ((string-match "md5sum" (car files))
-	(loop (cdr files) latest-file latest-revision-number))
+	(loop (cdr files) latest-file latest-revision-number tar-file-date))
        ((string-match "coot" (car files))
 	(if (not (string-match ".tar.gz" (car files)))
-	    (loop (cdr files) latest-file latest-revision-number)
-	    (let ((rev (get-revision-from-tar (car files))))
+	    (loop (cdr files) latest-file latest-revision-number tar-file-date)
+	    (let ((rev (get-revision-from-tar (car files)))
+		  (date (get-date-from-tar (car files))))
 	      (if (not (number? rev))
-		  (loop (cdr files) latest-file latest-revision-number)
-		  (loop (cdr files) (car files) rev)))))
+		  (loop (cdr files) latest-file latest-revision-number date)
+		  (loop (cdr files) (car files) rev date)))))
        (else 
-	(loop (cdr files) latest-file latest-revision-number))))))
+	(loop (cdr files) latest-file latest-revision-number tar-file-date))))))
   
 
+;; return a sxml paragraph
 ;; 
 (define (source-code-details)
 
@@ -462,7 +489,7 @@
   
   ;; main line of source-code-details
   `(p 
-    ,(receive (source-code-url source-code-file-name revision-number)
+    ,(receive (source-code-url source-code-file-name revision-number source-tar-date)
  	      (source-code-url-info)
 	      `("Source code: "
 		(a (@ href ,source-code-url) ,source-code-file-name)
@@ -471,10 +498,15 @@
 		" "
 		,(let ((s (get-running-status-contents)))
 		   (if (string? s)
-		       s 
+		       (colourize s)
 		       ""))
 		" "
-		,revision-number))))
+		,revision-number
+		(br)
+		,(if (string? source-tar-date)
+		     source-tar-date
+		     "")
+		))))
 
 ;; 
 (define (burn-up-chart)
@@ -567,7 +599,7 @@
     
     (format #t "records: ~s~%" records)
     (format #t "getting source code info...~%")
-    (receive (source-code-url source-code-file-name source-code-revision-number)
+    (receive (source-code-url source-code-file-name source-code-revision-number source-code-date)
 	     (source-code-url-info)    
 	     (write-sxml
 	      `(html (head (title "Coot Build Summary Page")
