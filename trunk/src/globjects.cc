@@ -93,9 +93,6 @@ std::vector<molecule_class_info_t> graphics_info_t::molecules;
 bool graphics_info_t::prefer_python = 0; // prefer python scripts when
 					 // scripting (if we have a
 					 // choice). Default: no.
-#ifdef WINDOWS_MINGW
-graphics_info_t::prefer_python = 1;
-#endif 
 
 int graphics_info_t::show_paths_in_display_manager_flag = 0;
 std::vector<std::string> *graphics_info_t::command_line_scripts;
