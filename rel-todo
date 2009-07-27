@@ -7,22 +7,6 @@
      ::: 2
 
 
-   o Regularize monomer-3GP. Turn on torsion angle restraints.
-     Regularize again. Look at above var_2 torsion.  After
-     minimization, torsion is 171.09 degrees.  Wrong.  The minimizer
-     doesn't terminate though. Use libcheck_3GP-torsion-filtered.cif 
-
-     20090723 on trying again torsion is -115.  [Target is -78].
-     Still doesn't terminate properly though.
-     chisq torsions: 45.3986 Hmm.
-
-     On using torsion in refinement and using just the N9-C1 torsion,
-     and 6 or so rounds, it terminates correctly.  However, torsion is
-     -157.9 and chi-sq 24.6.
-
-     ::: 4
-
-
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
     make_link_restraints_by_linear() has
     if (do_rama_plot_restraints)
@@ -49,9 +33,13 @@
      ::: 3
 
 
-   o Fix ligand chi angles. ::: 1
+   o Fix ligand chi angles.  
 
-* Seems OK?
+     Try rotating round CA-CB in a modified CYS (after clicking on a
+     CA). [Ian Tickle]
+
+     ::: 4
+
 
 
 
@@ -1054,5 +1042,23 @@ c-interface clear_up_moving_atoms...
      the relate is undisplayed. ::: 1
 
 * Done.
+
+   o Regularize monomer-3GP. Turn on torsion angle restraints.
+     Regularize again. Look at above var_2 torsion.  After
+     minimization, torsion is 171.09 degrees.  Wrong.  The minimizer
+     doesn't terminate though. Use libcheck_3GP-torsion-filtered.cif 
+
+     20090723 on trying again torsion is -115.  [Target is -78].
+     Still doesn't terminate properly though.
+     chisq torsions: 45.3986 Hmm.
+
+     On using torsion in refinement and using just the N9-C1 torsion,
+     and 6 or so rounds, it terminates correctly.  However, torsion is
+     -157.9 and chi-sq 24.6.
+
+     ::: 4
+
+* Fixed.  It was a circular symmetry bug.
+
 
 -----
