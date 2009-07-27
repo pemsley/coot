@@ -3080,7 +3080,10 @@ void set_environment_distances_distance_limits(float min_dist, float max_dist);
 void fill_pointer_distances_widget(GtkWidget *widget);
 void execute_pointer_distances_settings(GtkWidget *widget);
 void toggle_pointer_distances_show_distances(GtkToggleButton *button); 
+/*! \brief turn off (on) the pointer distance by passing 1 (0). */
 void set_show_pointer_distances(int istate);
+/*! \brief show the state of display of the  pointer distances  */
+int  show_pointer_distances_state();
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

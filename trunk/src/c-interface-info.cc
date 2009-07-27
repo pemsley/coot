@@ -1898,6 +1898,14 @@ void set_show_pointer_distances(int istate) {
 }
 
 
+/*! \brief show the state of display of the  pointer distances  */
+int  show_pointer_distances_state() {
+
+   return graphics_info_t::show_pointer_distances_flag;
+}
+
+
+
 void fill_single_map_properties_dialog(GtkWidget *window, int imol) { 
 
    GtkWidget *cell_text = lookup_widget(window, "single_map_properties_cell_text");
