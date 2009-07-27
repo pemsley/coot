@@ -89,8 +89,11 @@
 			    (cadr (assoc sym ass-symbols)))
 			  symbols)))
 		(format #t "mat:::: ~s~%" mat)
-		(apply new-molecule-by-symmetry imol
-		       (append mat (list 0 0 0))))))))
+		(format "currently ~s molecules~%" (graphics-n-molecules))
+		(let ((new-mol-no (apply new-molecule-by-symmetry imol
+					 ""
+					 (append mat (list 0 0 0)))))
+		  (format #t "created molecule number ~s~%" new-mol-no)))))))
 
 
     (define (handle-assembly assembly)
@@ -132,4 +135,13 @@
     (add-simple-coot-menu-menuitem
      menu "PISA..."
      (lambda ()
-       (pisa-xml (read-pdb "coot-download/pdb3lz2.ent") "pisa.xml"))))
+       (pisa-xml (read-pdb "coot-download/pdb3lz2.ent") "pisa.xml")))
+
+    (add-simple-coot-menu-menuitem
+     menu "entry code..."
+     (lambda ()
+       (generic-chooser-and-entry "PISA xml for" " XML file-name:" "" 
+			     (lambda (imol text)
+			       (pisa-xml imol text))))))
+
+
