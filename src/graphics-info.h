@@ -784,6 +784,10 @@ public:
      for (int i=0; i<4; i++) 
        background_colour[i] = 0.0;
 
+#ifdef WINDOWS_MINGW
+     prefer_python = 1;
+#endif 
+
      find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
      // find_ligand_wiggly_ligands_ = new std::vector<short int>; // now incorporated above
       geom_p = new coot::protein_geometry;
