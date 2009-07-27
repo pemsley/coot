@@ -281,7 +281,8 @@
 # 4.54 20090722 fix coot_revision typo for build status.
 # 4.55 20090724 make compilers_dir depend on build_type (python build logs 
 #               split out)
-script_version=4.55
+# 4.56 20090727 Add a date for build-in-progress status
+script_version=4.56
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1396,8 +1397,8 @@ else
 fi
 
 # clean up old test status:
-echo build-in-progress    > $LOGS/$build_type-build-status
-echo waiting for build... > $LOGS/$build_type-test-status
+echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/$build_type-build-status
+echo waiting for build @`date +"%a_%d_%b_%H:%M"` > $LOGS/$build_type-test-status
 
 
 
