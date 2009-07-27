@@ -1,5 +1,5 @@
 
-   13 items
+   6 items
 
 
    o Torsion general is broken? Yes (argh!)
@@ -1040,6 +1040,13 @@ c-interface clear_up_moving_atoms...
 
    o Environment distances should go off when the molecule to which
      the relate is undisplayed. ::: 1
+
+* Done.
+
+
+   o pir sequence assignment should overwrite the seqence (if
+     possible) not add to the sequences.  
+     ::: 1
 
 * Done.
 
