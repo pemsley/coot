@@ -499,10 +499,6 @@ Punted from 0.6:
 
    o Put "Set Matrix" under the R/RC button dialog.
 
-   o mutate-by-overlap: if you have already loaded a molecule with a
-     single residue with name XXX and you have read in a dictionary
-     entry for XXX, then coot should use that. [ Tickle, 20090723]
-
    o Env distances should have an "molecule number" attribute - when
      that molecule is not displayed, not show the env distances.
 
@@ -523,6 +519,11 @@ Punted from 0.6:
 
    o Rotation for add terminal residue.  hari jayaram & Donald Raymond
    ::: 2
+
+   o mutate-by-overlap: if you have already loaded a molecule with a
+     single residue with name XXX and you have read in a dictionary
+     entry for XXX, then coot should use that. [ Tickle, 20090723]  ::: 3
+
 
  ------
     
