@@ -144,7 +144,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
       }
       int total_res_range = biggest_res_number - lowest_resno;
 
-      if (0) {
+      if (1) {
 	 std::cout << "debug resnos: biggest_res_number "
 		   << biggest_res_number << " lowest_resno: "
 		   << lowest_resno << " total_res_range: " << total_res_range << std::endl;
@@ -188,6 +188,9 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	 double upper_limit = 0.0;
 	 double scroll_width;   // right 
 	 double scroll_height;  // lower
+	 double scroll_width_max = 32700;  // not sure this is needed
+					   // (I guess that it is
+					   // though)
 
 	 left_limit =    biggest_res_count * 10;
 	 upper_limit =   0.0;
@@ -219,10 +222,13 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 		      << scroll_width << " " << scroll_height << std::endl;
 	 }
 	 
+	 if (scroll_width > scroll_width_max) {
+	    // std::cout << "setting scroll width max to " << scroll_width_max << std::endl;
+	    scroll_width= scroll_width_max;
+	 }
+	 
  	 gtk_canvas_set_scroll_region(canvas, left_limit, upper_limit,
  				      scroll_width, scroll_height);
-
-
 	 origin_marker();
 	 draw_axes(rcv, lowest_resno, biggest_res_number);
 	 mol_to_canvas(mol, lowest_resno);
@@ -321,33 +327,36 @@ exptl::nsv::add_text_and_rect(const coot::residue_spec_t &res_spec,
       double y2 = y1 - 11; // pixels_per_letter;
       std::string rect_colour = "grey85";
 
-      GtkCanvasItem *rect_item;
-      rect_item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-				      GTK_CANVAS_TYPE_CANVAS_RECT,
-				      "x1", x1,
-				      "y1", y1,
-				      "x2", x2,
-				      "y2", y2,
-				      "fill_color", rect_colour.c_str(),
-				      "width_pixels", 1,
-				      NULL);
-      so->obj = rect_item;
-      canvas_item_vec.push_back(rect_item);
-      gtk_signal_connect(GTK_OBJECT(rect_item), "event",
-			 GTK_SIGNAL_FUNC(rect_event), so);
+      double x1_max = 22500; // magic number
+      if (x1 < x1_max) { 
+	 GtkCanvasItem *rect_item;
+	 rect_item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+					 GTK_CANVAS_TYPE_CANVAS_RECT,
+					 "x1", x1,
+					 "y1", y1,
+					 "x2", x2,
+					 "y2", y2,
+					 "fill_color", rect_colour.c_str(),
+					 "width_pixels", 1,
+					 NULL);
+	 so->obj = rect_item;
+	 canvas_item_vec.push_back(rect_item);
+	 gtk_signal_connect(GTK_OBJECT(rect_item), "event",
+			    GTK_SIGNAL_FUNC(rect_event), so);
 
-      GtkCanvasItem *text_item;
-      text_item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-				      GTK_CANVAS_TYPE_CANVAS_TEXT,
-				      "text", res_code.c_str(),
-				      "x", x,
-				      "y", y,
-				      "anchor", GTK_ANCHOR_WEST,
-				      "font", fixed_font_str.c_str(),
-				      NULL);
-       gtk_signal_connect(GTK_OBJECT(text_item), "event",
-			  GTK_SIGNAL_FUNC(letter_event), so);
-      canvas_item_vec.push_back(text_item);
+	 GtkCanvasItem *text_item;
+	 text_item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+					 GTK_CANVAS_TYPE_CANVAS_TEXT,
+					 "text", res_code.c_str(),
+					 "x", x,
+					 "y", y,
+					 "anchor", GTK_ANCHOR_WEST,
+					 "font", fixed_font_str.c_str(),
+					 NULL);
+	 gtk_signal_connect(GTK_OBJECT(text_item), "event",
+			    GTK_SIGNAL_FUNC(letter_event), so);
+	 canvas_item_vec.push_back(text_item);
+      }
    }
 }
 
@@ -500,6 +509,13 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       points->coords[2] = (brn-lrn)*font_scaler;
       points->coords[3] = y_value;
 
+      double points_max = 22500; // 23000 too many (strangely)
+      if (points->coords[2] > points_max)
+	 points->coords[2] = points_max;
+      
+      
+      std::cout << "DEUBG:: points->coords[2] " << points->coords[2] << std::endl;
+
       double tick_length = 3.0;
       if (i_ax_pos == 1)
 	 tick_length = -3.0;
@@ -519,38 +535,36 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       // tick marks and tick labels
       for (int irn=irn_start; irn<brn; irn+=5) {
 
-	 // old values, badd with offset resnos
-	 points->coords[0] = irn*font_scaler;
+	 points->coords[0] = (irn-lrn+1)*font_scaler;
 	 points->coords[1] = y_value;
-	 points->coords[2] = irn*font_scaler;
+	 points->coords[2] = (irn-lrn+1)*font_scaler;
 	 points->coords[3] = double(y_value + tick_length);
 
- 	 points->coords[0] = (irn-lrn+1)*font_scaler;
- 	 points->coords[1] = y_value;
- 	 points->coords[2] = (irn-lrn+1)*font_scaler;
- 	 points->coords[3] = double(y_value + tick_length);
-	 
-	 double x = (irn-lrn)*font_scaler -3.0; // x for resno label
-	 std::string lab = coot::util::int_to_string(irn);
-	 item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-				    GTK_CANVAS_TYPE_CANVAS_LINE,
-				    "width_pixels", 1,
-				    "points", points,
-				    "fill_color", "black",
-				    NULL);
-	 canvas_item_vec.push_back(item);
-	 item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-				    GTK_CANVAS_TYPE_CANVAS_TEXT,
-				    "text", lab.c_str(),
-				    "x", x,
-				    "y", y_for_text,
-				    "anchor", GTK_ANCHOR_WEST,
-				    "font", fixed_font_str.c_str(),
-				    "fill_color", "black",
-				    NULL);
-	 canvas_item_vec.push_back(item);
+	 // Don't draw things that are too wide (i.e. to much x) for X to handle.
+	 if (points->coords[2] < points_max) { 
+	       
+	    double x = (irn-lrn)*font_scaler -3.0; // x for resno label
+	    std::string lab = coot::util::int_to_string(irn);
+	    item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+				       GTK_CANVAS_TYPE_CANVAS_LINE,
+				       "width_pixels", 1,
+				       "points", points,
+				       "fill_color", "black",
+				       NULL);
+	    canvas_item_vec.push_back(item);
+	    item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+				       GTK_CANVAS_TYPE_CANVAS_TEXT,
+				       "text", lab.c_str(),
+				       "x", x,
+				       "y", y_for_text,
+				       "anchor", GTK_ANCHOR_WEST,
+				       "font", fixed_font_str.c_str(),
+				       "fill_color", "black",
+				       NULL);
+	    canvas_item_vec.push_back(item);
+	 }
       }
-   } 
+   }
 
 }
 
