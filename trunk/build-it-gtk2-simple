@@ -283,7 +283,8 @@
 #               split out)
 # 4.56 20090727 Add a date for build-in-progress status
 # 4.57 20090728 gtk2 -> $build_type fixups for status
-script_version=4.57
+# 4.58 20090730 remove swig from package list tested on ubuntu.
+script_version=4.58
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -881,7 +882,6 @@ case $systype in
       dep_list='
        patch
        m4
-       swig
        g++
        libxext-dev
        libxt-dev
@@ -910,6 +910,9 @@ case $systype in
          echo " "
          my_exit 2
       fi
+      # swig is special.  On 6.06 it is not new enough.  So Kevin compiled his own.
+      # swig is tested for later separately.
+
       ;;
 esac
 
