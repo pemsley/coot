@@ -666,7 +666,7 @@
 	      #t #t)
 
 	(list "binary-Linux-i386-fedora-10-python-gtk2"
-	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-8/gtk2"
+	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-10/gtk2"
  	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 	      #t #t)
 
