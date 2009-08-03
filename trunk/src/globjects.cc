@@ -3005,6 +3005,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_Escape:
 
+      // std::cout << " escape key pressed" << std::endl;
+
       if (graphics_info_t::accept_reject_dialog) {
 	 clear_up_moving_atoms();
 	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
