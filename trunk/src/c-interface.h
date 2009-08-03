@@ -1547,7 +1547,7 @@ void save_symmetry_coords(int imol,
 /*! \brief create a new molecule (molecule number is the return value)
   from imol.  
 
-The rotation/translation matrix components are given in *fractional*
+The rotation/translation matrix components are given in *orthogonal*
 coordinates.
 
 Allow a shift of the coordinates to the origin before symmetry
@@ -1565,6 +1565,33 @@ int new_molecule_by_symmetry(int imol,
 			     int pre_shift_to_origin_na,
 			     int pre_shift_to_origin_nb,
 			     int pre_shift_to_origin_nc);
+
+
+
+/*! \brief create a new molecule (molecule number is the return value)
+  from imol, but only for atom that match the
+  mmdb_atom_selection_string.
+
+The rotation/translation matrix components are given in *orthogonal*
+coordinates.
+
+Allow a shift of the coordinates to the origin before symmetry
+expansion is aplied.  
+
+Pass "" as the name-in and a name will be constructed for you.
+
+Return -1 on failure. */ 
+int new_molecule_by_symmetry_with_atom_selection(int imol, 
+						 const char *name,
+						 const char *mmdb_atom_selection_string,
+						 double m11, double m12, double m13, 
+						 double m21, double m22, double m23, 
+						 double m31, double m32, double m33, 
+						 double tx, double ty, double tz,
+						 int pre_shift_to_origin_na,
+						 int pre_shift_to_origin_nb,
+						 int pre_shift_to_origin_nc);
+			     
 
 /*! \brief create a new molecule (molecule number is the return value)
   from imol.  

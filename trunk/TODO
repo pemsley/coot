@@ -504,6 +504,10 @@ Punted from 0.6:
 
    o Tim Fenn library thing. 
      Actually, this looks horrific
+ 
+   o Add a residue at residue number 2300 say and see if the sequence
+     view behaves OK.
+
 
 
 

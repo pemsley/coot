@@ -629,8 +629,21 @@ PyObject *inverse_rtop_py(PyObject *rtop_py);
 coot::atom_spec_t atom_spec_from_python_expression(PyObject *expr);
 #endif // PYTHON
 
-
 void set_display_control_button_state(int imol, const std::string &button_type, int state);
+
+/*  ----------------------------------------------------------------------- */
+/*                  Abstraction of New molecule by symmetry functions       */
+/*  ----------------------------------------------------------------------- */
+
+CMMDBManager *new_molecule_by_symmetry_matrix_from_molecule(CMMDBManager *mol,
+							    double m11, double m12, double m13, 
+							    double m21, double m22, double m23, 
+							    double m31, double m32, double m33, 
+							    double tx, double ty, double tz,
+							    int pre_shift_to_origin_na,
+							    int pre_shift_to_origin_nb,
+							    int pre_shift_to_origin_nc);
+
 
 
 /*  ----------------------------------------------------------------------- */
