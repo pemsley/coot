@@ -3086,15 +3086,19 @@ void store_geometry_dialog(GtkWidget *w);
 /*                  residue enviroment                                      */
 /*  ----------------------------------------------------------------------- */
 /* section Residue Environment Functions */
+/*! \name Pointer Functions */
+/* \{ */
 void fill_environment_widget(GtkWidget *widget);
 void execute_environment_settings(GtkWidget *widget);
 void toggle_environment_show_distances(GtkToggleButton *button); 
 /*! \brief show environment distances.  If state is 0, distances are
   turned off, otherwise distances are turned on. */
 void set_show_environment_distances(int state);
+/*! \brief show the state of display of the  environment distances  */
 int show_environment_distances_state();
 /*! \brief min and max distances for the environment distances */
 void set_environment_distances_distance_limits(float min_dist, float max_dist);
+/* \} */
 
 
 
@@ -3107,7 +3111,7 @@ void set_environment_distances_distance_limits(float min_dist, float max_dist);
 void fill_pointer_distances_widget(GtkWidget *widget);
 void execute_pointer_distances_settings(GtkWidget *widget);
 void toggle_pointer_distances_show_distances(GtkToggleButton *button); 
-/*! \brief turn off (on) the pointer distance by passing 1 (0). */
+/*! \brief turn on (or off) the pointer distance by passing 1 (or 0). */
 void set_show_pointer_distances(int istate);
 /*! \brief show the state of display of the  pointer distances  */
 int  show_pointer_distances_state();
@@ -5070,7 +5074,9 @@ void setup_base_pairing(int state);
 void print_sequence_chain(int imol, const char *chain_id);
 /*! \brief Assign a FASTA sequence to a given chain in the  molecule */
 void assign_fasta_sequence(int imol, const char *chain_id_in, const char *seq);
-/*! \brief Assign a PIR sequence to a given chain in the molecule */
+/*! \brief Assign a PIR sequence to a given chain in the molecule.  If
+  the chain of the molecule already had a chain assigned to it, then
+  this will overwrite that old assignment with the new one. */
 void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq);
 /* I don't know what this does. */
 void assign_sequence(int imol_model, int imol_map, const char *chain_id);

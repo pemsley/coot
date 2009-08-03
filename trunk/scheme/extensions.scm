@@ -377,7 +377,7 @@
 	 (lambda () 
 	   (molecule-chooser-gui "Sort Chain IDs in molecule:"
 				 (lambda (imol)
-				   (sort-chains imol)))))
+				   (sort-chains imol))))) ;; an internal function
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Fix Nomenclature Errors..."

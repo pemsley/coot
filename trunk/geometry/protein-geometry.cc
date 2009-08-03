@@ -536,14 +536,20 @@ coot::dict_atom::add_pos(int pos_type,
 
 void
 coot::protein_geometry::mon_lib_add_tree(std::string comp_id,
-				   std::string atom_id,
-				   std::string atom_back,
-				   std::string atom_forward,
-				   std::string connect_type) {
-
-//    std::cout << "adding tree for " << comp_id << " " << atom_id
-// 	     << std::endl;
-} 
+					 std::string atom_id,
+					 std::string atom_back,
+					 std::string atom_forward,
+					 std::string connect_type) {
+   bool ifound = 0;
+   coot::dict_chem_comp_tree_t ac(atom_id, atom_back, atom_forward, connect_type);
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      if (dict_res_restraints[i].comp_id == comp_id) {
+	 ifound = 1;
+	 dict_res_restraints[i].tree.push_back(ac);
+	 break;
+      }
+   }
+}
 
 void
 coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
@@ -574,7 +580,7 @@ coot::protein_geometry::add_restraint(std::string comp_id, const dict_bond_restr
    // if not, then push back a dict_bond_restraint_t for it, passing
    // the comp_id. 
 
-   short int ifound = 0;
+   bool ifound = 0;
 
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) { 
       if (dict_res_restraints[i].comp_id == comp_id) { 
@@ -853,7 +859,7 @@ std::ostream& coot::operator<<(std::ostream&s, coot::dict_plane_restraint_t rest
 }
 
 std::ostream&
-coot::operator<<(std::ostream &s, dict_torsion_restraint_t &rest) {
+coot::operator<<(std::ostream &s, const coot::dict_torsion_restraint_t &rest) {
    s << "[torsion-restraint: " << rest.id() << " "
      << rest.atom_id_1_4c() << " "
      << rest.atom_id_2_4c() <<  " "
@@ -1158,8 +1164,17 @@ coot::protein_geometry::comp_tree(PCMMCIFLoop mmCIFLoop) {
    int ierr;
    int ierr_tot = 0; 
 
-   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
+      // reset them for next round, we don't want the to keep the old values if
+      // they were not set.
+      
+      comp_id = "";
+      atom_id = "";
+      atom_back = "";
+      atom_forward = "";
+      connect_type = "";
+      
       // modify a reference (ierr)
       // 
       s = mmCIFLoop->GetString("comp_id",j,ierr);

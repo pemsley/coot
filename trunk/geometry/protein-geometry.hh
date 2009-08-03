@@ -93,6 +93,7 @@ namespace coot {
       }
    };
 
+
    class basic_dict_restraint_t {
       std::string atom_id_1_;
       std::string atom_id_2_;
@@ -225,9 +226,9 @@ namespace coot {
       int periodicity() const { return period; }
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}
-      friend std::ostream& operator<<(std::ostream &s, dict_torsion_restraint_t &rest); 
+      friend std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest); 
    };
-   std::ostream& operator<<(std::ostream &s, dict_torsion_restraint_t &rest); 
+   std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest); 
 
    // ------------------------------------------------------------------------
    // class dict_plane_restraint_t 
@@ -358,6 +359,26 @@ namespace coot {
    };
 
    // ------------------------------------------------------------------------
+   // class dict_chem_comp_tree_t
+   // ------------------------------------------------------------------------
+   // 
+   class dict_chem_comp_tree_t  : public basic_dict_restraint_t {
+   public:
+      std::string atom_id;
+      std::string atom_back;
+      std::string atom_forward;
+      std::string connect_type;
+      dict_chem_comp_tree_t(const std::string &atom_id_in, const std::string &atom_back_in,
+			    const std::string &atom_forward_in, const std::string &connect_type_in) {
+	 atom_id = atom_id_mmdb_expand(atom_id_in);
+	 atom_back = atom_id_mmdb_expand(atom_back_in);
+	 atom_forward = atom_id_mmdb_expand(atom_forward_in);
+	 connect_type = connect_type_in;
+      }
+      dict_chem_comp_tree_t() {}
+   };
+
+   // ------------------------------------------------------------------------
    // class dictionary_residue_restraints_t
    // ------------------------------------------------------------------------
    // 
@@ -374,6 +395,7 @@ namespace coot {
       dict_chem_comp_t residue_info;
       std::vector <dict_atom> atom_info;
       std::string comp_id; // i.e. residue type name
+      std::vector <dict_chem_comp_tree_t> tree;
       int read_number; 
       std::vector    <dict_bond_restraint_t>    bond_restraint;
       std::vector   <dict_angle_restraint_t>   angle_restraint;

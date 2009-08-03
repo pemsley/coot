@@ -14,6 +14,8 @@ int
 try_read_cif_file(const char *filename) { 
 
    char *f_pt; 
+
+/*    printf("DEBUG::: ========= in try_read_cif_file() ===============\n"); */
    f_pt = strrchr(filename, '.');
    if (f_pt != NULL) { 
       if (! (strncmp(f_pt, ".fcf", 4))) { 

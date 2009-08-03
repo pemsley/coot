@@ -184,6 +184,7 @@ char *coot_revision() {
 SCM coot_sys_build_type_scm() {
 
    std::string sb = COOT_SYS_BUILD_TYPE;
+   std::cout << sb << std::endl;
    SCM r = scm_makfrom0str(sb.c_str());
    return r;
 } 
@@ -7091,8 +7092,6 @@ int read_cif_data_with_phases_sigmaa(const char *filename) {
       return -1; // which is status in an error
    } else {
       
-      std::cout << "Reading cif file: " << filename << std::endl; 
-
       // This function is the .cif equivalent of
       // c.f. read_phs_and_coords_and_make_map or make_and_draw_map,
       // map_fill_from_mtz.
@@ -7101,6 +7100,7 @@ int read_cif_data_with_phases_sigmaa(const char *filename) {
       int istat = g.molecules[imol].make_map_from_cif(imol, fn);
       if (istat != -1) {
 	 g.scroll_wheel_map = imol;
+	 g.activate_scroll_radio_button_in_display_manager(imol);
 	 graphics_draw();
       } else {
 	 g.erase_last_molecule();
@@ -7129,7 +7129,7 @@ int read_cif_data_with_phases_diff_sigmaa(const char *filename) {
       return -1; // which is status in an error
    } else {
       
-      std::cout << "Reading cif file: " << filename << std::endl; 
+      std::cout << "Reading cif file (with phases - diff) : " << filename << std::endl; 
 
       // This function is the .cif equivalent of
       // c.f. read_phs_and_coords_and_make_map or make_and_draw_map,
@@ -7139,6 +7139,7 @@ int read_cif_data_with_phases_diff_sigmaa(const char *filename) {
       int istat = g.molecules[imol].make_map_from_cif_diff_sigmaa(imol, fn);
       if (istat != -1) {
 	 g.scroll_wheel_map = imol;
+	 g.activate_scroll_radio_button_in_display_manager(imol);
 	 graphics_draw();
       } else {
 	 g.erase_last_molecule();

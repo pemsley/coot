@@ -4463,5 +4463,17 @@ Thu Jul 16 13:57:19 CDT 2009
    ligand positions after the ligand fitting has completed) is
    missing.
 
+---
+Sun Aug  2 21:52:04 BST 2009
+
+   Use scm_from_locale_string() not scm_makfrom0str().
+
+
+----
+Mon Aug  3 12:29:37 BST 2009
+
+   Show (4 sigma by default) outliers in the geometry analysis. 
+
+
 
 ------

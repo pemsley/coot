@@ -1608,6 +1608,7 @@ graphics_info_t::display_geometry_distance_symm(int imol1, const coot::Cartesian
 				    imol2, clipper::Coord_orth(p2.x(), p2.y(), p2.z()));
    distance_object_vec->push_back(p);
    graphics_draw();
+   std::cout << "Distance: " << (p1-p2).length() << std::endl;
 
 } 
 
@@ -3055,8 +3056,8 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
    // turn it off first, only enable it if we find a pair:
    draw_chi_angle_flash_bond_flag = 0; // member data item
 
-   // std::cout << "flash bond ibond_user: " << ibond_user << std::endl;
-   // std::cout << "highlight ligand bond " << bond << std::endl;
+//    std::cout << "flash bond ibond_user: " << ibond_user << std::endl;
+//    std::cout << "highlight ligand bond " << bond << std::endl;
 
    // get the residue type and from that the atom name pairs:
    // 
@@ -3170,6 +3171,13 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
 			      for (int iat2=0; iat2<nResidueAtoms; iat2++) {
 				 std::string ra2=residue_atoms[iat2]->name;
 				 if (ra2 == atom_names.second) {
+
+				    if (0) {
+				       std::cout << " atom names "
+						 << ":" << ra1 << ": " 
+						 << ":" << ra2 << ": indexes "
+						 << iat1 << " " << iat2 << std::endl;
+				    }
 				    
 				    draw_chi_angle_flash_bond_flag = 1;
 				    clipper::Coord_orth p1(residue_atoms[iat1]->x,
@@ -3178,6 +3186,13 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
 				    clipper::Coord_orth p2(residue_atoms[iat2]->x,
 							   residue_atoms[iat2]->y,
 							   residue_atoms[iat2]->z);
+
+				    if (0) { 
+				       std::cout << "  " << p1.format() << "  " << p2.format()
+						 << std::endl;
+				       std::cout << "  at1 " << residue_atoms[iat1] << std::endl;
+				       std::cout << "  at2 " << residue_atoms[iat2] << std::endl;
+				    }
 
 				    std::pair<clipper::Coord_orth, clipper::Coord_orth> cp(p1, p2);
 

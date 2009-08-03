@@ -4786,7 +4786,7 @@ coot::util::residue_has_hydrogens_p(CResidue *res) {
    return result;
 }
 
-
+// angle in radians.
 clipper::Coord_orth
 coot::util::rotate_round_vector(const clipper::Coord_orth &direction,
 				const clipper::Coord_orth &position,
@@ -4804,7 +4804,7 @@ coot::util::rotate_round_vector(const clipper::Coord_orth &direction,
    double nn = n*n;
    double cosk = cos(angle);
    double sink = sin(angle);
-   double I_cosk = 1 - cosk;
+   double I_cosk = 1.0 - cosk;
    
    // The Rotation matrix angle w about vector with direction cosines l,m,n.
    // 

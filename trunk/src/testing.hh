@@ -26,6 +26,8 @@
 #include "mmdb-extras.h"
 #include "mmdb.h"
 
+#include "protein-geometry.hh"
+
 #define BUILT_IN_TESTING
 
 std::string stringify(double x);
@@ -57,6 +59,23 @@ int test_segid_exchange();
 int test_ligand_fit_from_given_point();
 int test_peaksearch_non_close_peaks();
 int test_symop_card();
+int test_coot_atom_tree();
+int test_rotate_round_vector();
+
+CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id, int resno);
+bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,
+			CResidue *res,
+			const std::string &rotate_atom_1,
+			const std::string &rotate_atom_2,
+			bool reverse_flag);
+bool
+test_rotate_atom_angle(const std::string &atom_name,
+		       const clipper::Coord_orth &r_pt_1,
+		       const clipper::Coord_orth &r_pt_2,
+		       const clipper::Coord_orth &before_pos,
+		       const clipper::Coord_orth &after_pos,
+		       double test_angle);
+
 
 class residue_selection_t {
 public:

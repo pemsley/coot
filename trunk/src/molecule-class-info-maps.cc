@@ -1872,8 +1872,9 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
    cif.import_hkl_data(fc); 
 
    cif.close_read(); 
-      
-   std::cout << "Read " << mydata.num_reflections() << " from CIF file." 
+
+   // std::cout << "DEBUG:: make_map_from_cif_sigmaa" << std::endl;
+   std::cout << "Read " << mydata.num_reflections() << " from CIF file (sigmaa)." 
 	     << std::endl; 
 
    if (mydata.num_reflections() == 0) {

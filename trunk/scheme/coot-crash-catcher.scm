@@ -282,7 +282,7 @@
 
     (format #t "coot-exe: ~s~%" coot-exe)
     (format #t "coot-version: ~%" )
-    (run-command/strings coot-exe (list "--version") '())
+    (run-command/strings coot-exe (list "--version-full") '())
     (format #t "platform: ~%" )
     (run-command/strings "uname" (list "-a") '())
     

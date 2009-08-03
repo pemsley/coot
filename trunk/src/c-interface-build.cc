@@ -150,44 +150,46 @@ int map_from_mtz_by_calc_phases(const char *mtz_file_name,
   map_from_mtz_by_refmac_calc_phases() */
 void calc_phases_generic(const char *mtz_file_name) {
 
-   graphics_info_t g;
-   coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
-   if (r.f_cols.size() == 0) {
-      std::cout << "No Fobs found in " << mtz_file_name << std::endl;
-      std::string s =  "No Fobs found in ";
-      s += mtz_file_name;
-      g.statusbar_text(s);
-   } else { 
-      if (r.sigf_cols.size() == 0) {
-	 std::cout << "No SigFobs found in " << mtz_file_name << std::endl;
-	 std::string s =  "No SigFobs found in ";
+   if (coot::file_exists(mtz_file_name)) { 
+      graphics_info_t g;
+      coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
+      if (r.f_cols.size() == 0) {
+	 std::cout << "No Fobs found in " << mtz_file_name << std::endl;
+	 std::string s =  "No Fobs found in ";
 	 s += mtz_file_name;
 	 g.statusbar_text(s);
-      } else {
-	 // normal path:
-	 std::string f_obs_col = r.f_cols[0].column_label;
-	 std::string sigfobs_col = r.sigf_cols[0].column_label;
-	 std::vector<std::string> v;
-	 v.push_back("refmac-for-phases-and-make-map");
-// BL says:: dunno if we need the backslashing here, but just do it in case
-	 v.push_back(coot::util::single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
-	 v.push_back(coot::util::single_quote(f_obs_col));
-	 v.push_back(coot::util::single_quote(sigfobs_col));
-	 std::string c = languagize_command(v);
-	 std::cout << "command: " << c << std::endl;
+      } else { 
+	 if (r.sigf_cols.size() == 0) {
+	    std::cout << "No SigFobs found in " << mtz_file_name << std::endl;
+	    std::string s =  "No SigFobs found in ";
+	    s += mtz_file_name;
+	    g.statusbar_text(s);
+	 } else {
+	    // normal path:
+	    std::string f_obs_col = r.f_cols[0].column_label;
+	    std::string sigfobs_col = r.sigf_cols[0].column_label;
+	    std::vector<std::string> v;
+	    v.push_back("refmac-for-phases-and-make-map");
+	    // BL says:: dunno if we need the backslashing here, but just do it in case
+	    v.push_back(coot::util::single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
+	    v.push_back(coot::util::single_quote(f_obs_col));
+	    v.push_back(coot::util::single_quote(sigfobs_col));
+	    std::string c = languagize_command(v);
+	    std::cout << "command: " << c << std::endl;
 #ifdef USE_GUILE
-	 safe_scheme_command(c);
+	    safe_scheme_command(c);
 #else
 #ifdef USE_PYTHON
-	 safe_python_command(c);
+	    safe_python_command(c);
 #endif
 #endif
+	 }
       }
+      std::vector<std::string> command_strings;
+      command_strings.push_back("calc-phases-generic");
+      command_strings.push_back(mtz_file_name);
+      add_to_history(command_strings);
    }
-   std::vector<std::string> command_strings;
-   command_strings.push_back("calc-phases-generic");
-   command_strings.push_back(mtz_file_name);
-   add_to_history(command_strings);
 }
 
 /*! \brief Calculate SFs (using refmac optionally) from an MTZ file

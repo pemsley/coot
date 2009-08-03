@@ -496,9 +496,6 @@ Punted from 0.6:
      is only done by clicking).
      SCM rotate_translate_residue_ranges(int imol, SCM residue_ranges)
 
-
-   o Put "Set Matrix" under the R/RC button dialog.
-
    o Env distances should have an "molecule number" attribute - when
      that molecule is not displayed, not show the env distances.
 
@@ -508,7 +505,33 @@ Punted from 0.6:
    o Add a residue at residue number 2300 say and see if the sequence
      view behaves OK.
 
+   o Phil Evans: can I set the NCS peer molecules myself so that NCS
+     modificiations are not set to molecules to which I think they don't
+     apply?
 
+   o make sure that PDB cif r2wousf.ent.gz (or some such, that you get
+     from the PDB works slickly as a cif file with sigmma maps).
+
+
+
+0.6.1 
+
+   o sphere-refine:  turn on rama restraints for restraints from residue_vec.
+    make_link_restraints_by_linear() has
+    if (do_rama_plot_restraints)
+      add_rama_links(selHnd, geom);
+
+    make_link_restraints_from_res_vec() has
+    add_rama_links_from_res_vec(), but that is not filled.
+    need something like bonded_residues_from_res_vec(), but for
+    residue triples - returning 3 residues.
+    ::: 3
+
+
+   o Put "Set Matrix" under the R/RC button dialog.
+
+
+ ------
 
 
  0.7 Priorities:
@@ -527,6 +550,7 @@ Punted from 0.6:
    o mutate-by-overlap: if you have already loaded a molecule with a
      single residue with name XXX and you have read in a dictionary
      entry for XXX, then coot should use that. [ Tickle, 20090723]  ::: 3
+
 
 
  ------
@@ -608,13 +632,15 @@ Punted from 0.6:
 
    Release 0.9, Facelift-release [Dec 2009]
 
-   o Oxidized cysine - with a modification
+   o Handle Oxidized cysine - with a modification
 
    o Alex Luso: Thu 14 May 01:42:09 2009 BST
-   I wonder if adding the function as buttons on the
-   baton window would be useful? (i.e. "Build Backwards" and "Build
-   Forwards" - perhaps asking for user input as to the relevant
-   res-num or guessing it). I think O does that. Just a thought.
+     I wonder if adding the function as buttons on the
+     baton window would be useful? (i.e. "Build Backwards" and "Build
+     Forwards" - perhaps asking for user input as to the relevant
+     res-num or guessing it). I think O does that. Just a thought.
+
+* Done.
 
    o Clean up menu items, use Preferences.
 
