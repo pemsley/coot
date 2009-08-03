@@ -1541,7 +1541,7 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
 
 
    // debugging
-   if (1) {
+   if (0) {
       range_mol.write_file("rigid-body-range-mol.pdb", 44);
       mol_without_moving_zone.write_file("rigid-body-without-moving-zone.pdb", 44);
    } 
