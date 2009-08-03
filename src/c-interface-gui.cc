@@ -3224,26 +3224,37 @@ int is_mtz_file_p(const char *mtz_file_name) {
    // Let's say that we have to find some F columns in an file for it
    // to be counted as an mtz file.
    //
-   coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
-   if (r.f_cols.size() > 0)
-      return 1;
-   else
+   if (coot::file_exists(mtz_file_name)) { 
+      
+      coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
+      if (r.f_cols.size() > 0)
+	 return 1;
+      else
+	 return 0;
+   } else {
       return 0;
+   } 
 }
 
 
 int cns_file_has_phases_p(const char *cns_file_name) {
-   FILE* file = fopen( cns_file_name, "r" );
-   char buf[4096];
-   for ( int i = 0; i < 4096; i++ ) buf[i] = toupper(fgetc(file));
-   fclose( file );
-   buf[4095] = 0;
-   if ( strstr( buf, "ALPHA" ) != NULL && strstr( buf, "BETA"  ) != NULL &&
-	strstr( buf, "GAMMA" ) != NULL && strstr( buf, "SYMOP" ) != NULL &&
-	strstr( buf, " F1="  ) != NULL && strstr( buf, " F2="  ) != NULL )
-      return 1;
-   else
+
+   std::cout << "cns_file_has_phases_p called " << std::endl;
+   if (coot::file_exists(cns_file_name)) { 
+      FILE* file = fopen( cns_file_name, "r" );
+      char buf[4096];
+      for ( int i = 0; i < 4096; i++ ) buf[i] = toupper(fgetc(file));
+      fclose( file );
+      buf[4095] = 0;
+      if ( strstr( buf, "ALPHA" ) != NULL && strstr( buf, "BETA"  ) != NULL &&
+	   strstr( buf, "GAMMA" ) != NULL && strstr( buf, "SYMOP" ) != NULL &&
+	   strstr( buf, " F1="  ) != NULL && strstr( buf, " F2="  ) != NULL )
+	 return 1;
+      else
+	 return 0;
+   } else {
       return 0;
+   } 
 }
 
 

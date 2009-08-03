@@ -6,9 +6,11 @@ Pre-release 0.6
   o FEATURE: SHELXL interfaces allows the user to modify the input before
     running the SHELXL executable [Tobias Beck].
 
+  o FEATURE: Now compatible with Zalman M220W.
+
   o FEATURE: Post-manipulation function hook added [JED].
 
-  o FEATURE: "Sphere" (residue selection) refinement - experimental.
+  o FEATURE: "Sphere" (residue selection) refinement.
 
   o FEATURE: function to (re-)calculate probe dots around a give point
     [Joel Bard].
@@ -26,9 +28,10 @@ Pre-release 0.6
 
   o FEATURE: Move waters to surround protein [Garib Murshudov]
 
-  o FEATURE: Rigig body refinement by residue range.
+  o FEATURE: rotate/translate zone by residue ranges
 
-  o FEATURE: Rotate/translate zone by residue range
+  o FEATURE: Rigid-body fit by residue ranges.
+
 
   o CHANGE: partial charges added to electrostatic surface calculation.
 
@@ -37,6 +40,8 @@ Pre-release 0.6
 
   o CHANGE: SEGIDs are more intelligently inherited [Steven Sheriff,
     Bob Nolte]
+
+  o CHANGE: Pukka-puckers? fixed and re-enabled.
 
   o CHANGE: Ramachandran Plots now have molecule name labels [Wendy Offen].
 
@@ -47,8 +52,8 @@ Pre-release 0.6
   o CHANGE: "Go To Blob" now goes to the front blob, no matter what
     the density level of blobs/density behind it is [JED].
 
-  o Don't display the geometry distance if the molecule corresponding
-    to the start or end point is not displayed [JED].
+  o CHANGE: Don't display the geometry distance if the molecule
+    corresponding to the start or end point is not displayed [JED].
 
   o BUG-FIX: TER records are removed on addition of waters [Herb Klei].
 
@@ -65,8 +70,11 @@ Pre-release 0.6
 
   o BUG-FIX: The Chain Reordering function in Extensions has been fixed.
 
+  o BUG-FIX: Torsion angle refinement convergence improved [JED].
+
   o BUG-FIX: Limit the sequence view canvas X parameters, so that we
     don't get X11 errors and crash [Felix Frolow].
+
 
 -----
 

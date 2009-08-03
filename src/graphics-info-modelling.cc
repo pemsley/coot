@@ -3078,6 +3078,16 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
 
    if (istat.first) { // failure
 
+      if (1) {
+	 PPCAtom residue_atoms;
+	 int n_residue_atoms;
+	 
+	 residue->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int i=0; i<n_residue_atoms; i++) {
+	    std::cout << "before " << i << " " << residue_atoms[i] << std::endl;
+	 }
+      }
+
       // std::cout << "DEBUG:: Simple chi change failed" << std::endl;
 
       // Hack, hack.  See comments on get_contact_indices_from_restraints.
@@ -3088,6 +3098,15 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
       istat = chi_ang.change_by(nth_chi, diff, contact_indices, geom_p,
 				chi_angles_clicked_atom_spec,
 				find_hydrogen_torsions);
+      if (1) {
+	 PPCAtom residue_atoms;
+	 int n_residue_atoms;
+	 
+	 residue->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int i=0; i<n_residue_atoms; i++) {
+	    std::cout << "after  " << i << " " << residue_atoms[i] << std::endl;
+	 }
+      }
    }
 
    setup_flash_bond_internal(nth_chi);

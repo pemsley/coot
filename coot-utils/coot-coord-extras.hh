@@ -1,6 +1,7 @@
 /* coot-utils/coot-coord-extras.cc
  * 
  * Copyright 2004, 2005, 2006, 2007 by The University of York
+ * Copyright 2009 by the University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -22,7 +23,10 @@
 #ifndef HAVE_COOT_COORD_EXTRAS_HH
 #define HAVE_COOT_COORD_EXTRAS_HH
 
+#include <map>
 #include "protein-geometry.hh"
+#include "atom-quads.hh"
+
 
 namespace coot {
 
@@ -99,6 +103,101 @@ namespace coot {
       short int is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, coot::protein_geometry *geom_p);
       short int is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geometry &geom);
    }
+
+   class atom_vertex {
+
+   public:
+      enum connection_type_t { START, END, STANDARD, NONE };
+      connection_type_t connection_type;
+      std::vector<int> forward;
+      std::vector<int> backward;
+      std::pair<bool,atom_index_quad> torsion_quad;
+      atom_vertex() {
+	 connection_type = NONE;
+	 torsion_quad.first = 0;
+      }
+   }; 
+
+   class atom_tree_t {
+      
+      class atom_tree_index_t {
+	 int index_;
+      public:
+	 enum index_type { UNASSIGNED = -1 };
+	 atom_tree_index_t() { index_ = UNASSIGNED; }
+	 atom_tree_index_t(int i) { index_ = i; }
+	 int index() const { return index_; }
+	 bool is_assigned() { return (index_ != UNASSIGNED); }
+	 bool operator==(const atom_tree_index_t &ti) const {
+	    return (ti.index() == index_);
+	 }
+      };
+
+      CResidue *residue;
+      std::vector<std::pair<int, int> > bonds;
+      std::vector<coot::atom_vertex> atom_vertex_vec;
+      std::map<std::string, atom_tree_index_t, std::less<std::string> > name_to_index;
+      bool fill_atom_vertex_vec(const dictionary_residue_restraints_t &rest, CResidue *res,
+				const std::string &altconf);
+      bool fill_torsions(const dictionary_residue_restraints_t &rest, CResidue *res,
+			 const std::string &altconf);
+      // Throw an exception on not able to fill.
+      atom_index_quad get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
+					  CResidue *res, const std::string &altconf) const;
+      std::vector<atom_tree_index_t> get_back_atoms(const atom_tree_index_t &index2) const;
+      std::vector<atom_tree_index_t> get_forward_atoms(const atom_tree_index_t &index2) const;
+      std::vector<coot::atom_tree_t::atom_tree_index_t>
+      uniquify_atom_indices(const std::vector<coot::atom_tree_t::atom_tree_index_t> &vin) const;
+
+      // Return the complementary indices c.f. the moving atom set,
+      // but do not include index2 or index3 in the returned set (they
+      // do not move even with the reverse flag (of course)).
+      std::vector<atom_tree_index_t> 
+      complementary_indices(const std::vector<atom_tree_index_t> &moving_atom_indices,
+			    const atom_tree_index_t &index2,
+			    const atom_tree_index_t &index3) const;
+
+      // add forward_atom_index as a forward atom of this_index - but
+      // only if forward_atom_index is not already a forward atom of
+      // this_index.
+      void add_unique_forward_atom(int this_index, int forward_atom_index);
+
+      // so now we have a set of moving and non-moving atoms:
+      void rotate_internal(std::vector<coot::atom_tree_t::atom_tree_index_t> moving_atom_indices,
+			   const clipper::Coord_orth &dir,
+			   const clipper::Coord_orth &base_atom_pos,
+			   double angle);
+
+      
+   public:
+      // the constructor can throw an exception if there is no tree in the restraints.
+      atom_tree_t(const dictionary_residue_restraints_t &rest, CResidue *res,
+		  const std::string &altconf);
+
+      // the constructor, given a list of bonds and a base atom index.
+      // Used perhaps as the fallback when the above raises an
+      // exception.
+      atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
+		  int base_atom_index, 
+		  CResidue *res,
+		  const std::string &alconf); 
+
+      // Rotate round the 2 middle atoms of the torsion by angle (in
+      // degress).  This is a relative rotation - not setting the torsion angle.
+      // The atoms of the CResidue residue are manipulated.
+      //
+      // The reversed flag (being true) allows the rotation of the
+      // base, rather than the branch (dog wags rather than tail).
+      // atom1 and atom2 can be passed in either way round, this
+      // function will sort out the position in the tree.  The
+      // fragment rotation is reversed by setting the reversed_flag
+      // (not the atom order).
+      // 
+      void rotate_about(const std::string &atom1, const std::string &atom2,
+			double angle,
+			bool reversed_flag);
+
+   };
 
 }
 

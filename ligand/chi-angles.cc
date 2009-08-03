@@ -685,6 +685,8 @@ coot::chi_angles::change_by_internal(int ichi,
 				     int nResidueAtoms,
 				     const coot::atom_spec_t &tree_base_atom) {
 
+   // std::cout << "change_by_internal()..." << std::endl;
+   
    std::pair<short int, float> p(0, 0.0);
    
    // Let's make the coordinates:
@@ -776,9 +778,11 @@ coot::chi_angles::change_by_internal(int ichi,
 //  		<< atom_index_pairs[ibond].index2 << " "
 //  		<< atom_index_pairs[ibond].index1 << "\n";
 
+
+// 20090724
       tree.RotateAboutBond(atom_index_pairs[ibond].index2,
-			   atom_index_pairs[ibond].index1, tors);
-      
+ 			   atom_index_pairs[ibond].index1, tors);
+
       std::vector< ::Cartesian > coords_rotatated =
 	 tree.GetAllCartesians();
       
@@ -787,14 +791,16 @@ coot::chi_angles::change_by_internal(int ichi,
 	 p.first = 3;
       } else {
 	 for (int iat=0; iat<nResidueAtoms; iat++) {
-// 	    std::cout  << " From ("
-// 		       << residue_atoms[iat]->x << ", "
-// 		       << residue_atoms[iat]->y << ", "
-// 		       << residue_atoms[iat]->z << ") to ("
-// 		       << coords_rotatated[iat].get_x() << ", "
-// 		       << coords_rotatated[iat].get_y() << ", "
-// 		       << coords_rotatated[iat].get_z() << ")"
-// 		       << std::endl;
+	    if (0) { 
+	       std::cout  << " From ("
+			  << residue_atoms[iat]->x << ", "
+			  << residue_atoms[iat]->y << ", "
+			  << residue_atoms[iat]->z << ") to ("
+			  << coords_rotatated[iat].get_x() << ", "
+			  << coords_rotatated[iat].get_y() << ", "
+			  << coords_rotatated[iat].get_z() << ")"
+			  << std::endl;
+	    }
 	    residue_atoms[iat]->x = coords_rotatated[iat].get_x();
 	    residue_atoms[iat]->y = coords_rotatated[iat].get_y();
 	    residue_atoms[iat]->z = coords_rotatated[iat].get_z();
@@ -812,6 +818,10 @@ coot::chi_angles::change_by_internal(int ichi,
       p.first = 1;
    } 
 
+   if (0) { 
+      std::cout << "change_by_internal()... returns " << p.first << " "
+		<< p.second << std::endl;
+   }
    return p;
 }
 

@@ -32,6 +32,7 @@
 #include "clipper/core/ramachandran.h"
 
 #include "coot-coord-utils.hh"
+#include "coot-coord-extras.hh"
 #include "coot-rama.hh"
 #include "primitive-chi-angles.hh"
 
@@ -158,6 +159,7 @@ int test_internal() {
 				  "test peak search non-close"));
 
    functions.push_back(named_func(test_symop_card, "test symop card"));
+   functions.push_back(named_func(test_rotate_round_vector, "test rotate round vector"));
 
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
@@ -182,7 +184,9 @@ int test_internal() {
 int test_internal_single() {
    int status = 0;
    try { 
-      status = test_symop_card();
+      // status = test_symop_card();
+      // status = test_rotate_round_vector();
+      status = test_coot_atom_tree();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -1333,7 +1337,447 @@ int test_symop_card() {
    }
 
    return r;
+}
+
+int test_coot_atom_tree() {
+
+   std::cout << "Atom tree test" << std::endl;
+   int r = 0;
+   coot::dictionary_residue_restraints_t rest("XXX",0);
+   CResidue *res = 0;
+
+   // test that the exception is thrown by setting b = 1 there, don't continue if not
+   bool b = 0;
+   try { 
+      coot::atom_tree_t tree(rest, res, "");
+   }
+   catch (std::runtime_error rte) {
+      std::cout << rte.what() << std::endl;
+      b = 1;
+   } 
+   if (b == 0) { 
+      std::cout << "No throw on null res" << std::endl;
+      return 0;
+   } 
+
+   // Now test that the exception is thrown when there is no atom tree
+   // (this test might not be necessary later).
+   //
+   b = 0;
+   res = new CResidue;
+   try { 
+      coot::atom_tree_t tree(rest, res, "");
+   }
+   catch (std::runtime_error rte) {
+      std::cout << rte.what() << std::endl;
+      b = 1;
+   } 
+   if (b == 0) { 
+      std::cout << "No throw on no tree" << std::endl;
+      return 0;
+   } 
+
+   delete res; // clear up first
+   
+   // OK give it something correct then
+
+   // setup the restraints (p.second). Reading from a file in this
+   // directory.  That should be fixed at some stage.
+   
+   std::string cif_file_name = "libcheck_ASP.cif";
+   coot::protein_geometry geom;
+   int geom_stat = geom.init_refmac_mon_lib(cif_file_name, 0);
+   std::pair<short int, coot::dictionary_residue_restraints_t> p = 
+      geom.get_monomer_restraints("ASP");
+
+   if (!p.first) {
+      std::cout << "No ASP in dictionary" << std::endl;
+      return 0;
+   } 
+
+   // Now get a residue
+   std::string filename = greg_test("tutorial-modern.pdb");
+   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   bool ifound = 0;
+
+   int imod = 1;
+   res = test_get_residue(atom_sel.mol, "B", 1);
+
+   if (0) {
+      try {
+	 r = test_tree_rotation(p.second, res, " CB ", " CG ", 0);
+	 if (r) 
+	    r = test_tree_rotation(p.second, res, " CB ", " CG ", 1);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << rte.what() << std::endl;
+      }
+   }
+
+   if (1) {
+      try {
+	 filename = "monomer-3GP.pdb";
+	 atom_selection_container_t atom_sel = get_atom_selection(filename);
+	 CResidue *res = test_get_residue(atom_sel.mol, "A", 1);
+	 if (res) {
+	    geom_stat = geom.init_refmac_mon_lib("libcheck_3GP.cif", 0);
+	    std::pair<short int, coot::dictionary_residue_restraints_t> p = 
+	       geom.get_monomer_restraints("3GP");
+	    if (p.first) { 
+	       bool test1 = test_tree_rotation(p.second, res, " N9 ", " C1*", 0);
+	       atom_sel.mol->WritePDBASCII("3GP-test1.pdb");
+	       bool test2 = test_tree_rotation(p.second, res, " N9 ", " C1*", 1);
+	       atom_sel.mol->WritePDBASCII("3GP-test2.pdb");
+	       if (test1 && test2)
+		  r = 1;
+	    } else { 
+	       std::cout << "Getting restraints for 3GP failed" << std::endl;
+	    } 
+	 } 
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << rte.what() << std::endl;
+	 r = 0; 
+      }
+   }
+   
+   return r;
+}
+
+// can return null;
+CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id_ref, int resno_ref) {
+
+   CResidue *residue_p = 0;
+   
+   int imod = 1;
+   CResidue *res = 0;
+
+   CModel *model_p = mol->GetModel(imod);
+   CChain *chain_p;
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      std::string chain_id = chain_p->GetChainID();
+      if (chain_id == chain_id_ref) {
+	 int nres = chain_p->GetNumberOfResidues();
+	 PCResidue res;
+	 for (int ires=0; ires<nres; ires++) { 
+	    res = chain_p->GetResidue(ires);
+	    int resno = res->GetSeqNum();
+	    if (resno == resno_ref) {
+	       residue_p = res;
+	       break;
+	    }
+	 }
+      }
+      if (residue_p)
+	 break;
+   }
+   return residue_p;
 } 
+
+
+bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,
+			CResidue *res,
+			const std::string &rotate_atom_1,
+			const std::string &rotate_atom_2,
+			bool reverse_flag) {
+
+
+   
+   bool r = 0;
+   coot::atom_tree_t tree(rest, res, "");
+   PPCAtom residue_atoms;
+   int n_residue_atoms;
+   res->GetAtomTable(residue_atoms, n_residue_atoms);
+   std::vector<clipper::Coord_orth> before_pos(n_residue_atoms);
+   std::vector<clipper::Coord_orth>  after_pos(n_residue_atoms);
+   for (int iat=0; iat<n_residue_atoms; iat++)
+      before_pos[iat]=clipper::Coord_orth(residue_atoms[iat]->x,
+					  residue_atoms[iat]->y,
+					  residue_atoms[iat]->z);
+   if (0) 
+      for (int i=0; i<n_residue_atoms; i++)
+	 std::cout << "   Before atom " << residue_atoms[i] << std::endl;
+
+   double test_angle = 3.0; // degress
+   double tar = (M_PI/180.0)* test_angle;
+   
+   tree.rotate_about(rotate_atom_1, rotate_atom_2, tar, reverse_flag);
+   std::cout << std::endl; // separator
+   for (int iat=0; iat<n_residue_atoms; iat++)
+      after_pos[iat]=clipper::Coord_orth(residue_atoms[iat]->x,
+					 residue_atoms[iat]->y,
+					 residue_atoms[iat]->z);
+   if (0) 
+      for (int i=0; i<n_residue_atoms; i++)
+	 std::cout << "    After atom " << residue_atoms[i] << std::endl;
+      
+   double dist = 0.0;
+   for (int i=0; i<n_residue_atoms; i++) { 
+      double d = clipper::Coord_orth::length(before_pos[i],after_pos[i]);
+      if (d > 0.0001)
+	 std::cout << "atom " << residue_atoms[i]->name << " moved" << std::endl;
+      else 
+	 std::cout << "atom " << residue_atoms[i]->name << " static" << std::endl;
+      dist += d;
+   }
+
+   // Test that the moving atoms rotated the correct amount.
+   //
+   // First we need to find the rotate positions for the give atoms names.
+   //
+
+   clipper::Coord_orth r_pt_1;
+   clipper::Coord_orth r_pt_2;
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      std::string at_name(residue_atoms[iat]->name);
+      if (at_name == rotate_atom_1)
+	 r_pt_1 = clipper::Coord_orth(residue_atoms[iat]->x,
+				      residue_atoms[iat]->y,
+				      residue_atoms[iat]->z);
+      if (at_name == rotate_atom_2)
+	 r_pt_2 = clipper::Coord_orth(residue_atoms[iat]->x,
+				      residue_atoms[iat]->y,
+				      residue_atoms[iat]->z);
+   }
+
+   r = 1; // intially success
+   for (int i=0; i<n_residue_atoms; i++) { 
+      double d = clipper::Coord_orth::length(before_pos[i], after_pos[i]);
+      if (d > 0.0001) {
+	 std::string at_name(residue_atoms[i]->name);
+	 bool v = test_rotate_atom_angle(at_name,
+					 r_pt_1, r_pt_2, before_pos[i], after_pos[i], test_angle);
+	 if (v == 0) {
+	    std::cout << " fail in test_rotate_atom_angle " << i << " "
+		      << residue_atoms[i]->name << std::endl;
+	    r = 0;
+	    break;
+	 }
+      }
+   }
+
+   return r;
+
+}
+
+
+int 
+test_rotate_round_vector() {
+
+   int r = 0;
+   
+   std::string filename = "monomer-3GP.pdb";
+   atom_selection_container_t atom_sel = get_atom_selection(filename);
+
+   std::string rotate_atom_1 = " N9 ";
+   std::string rotate_atom_2 = " C1*";
+
+   CResidue *residue_p = test_get_residue(atom_sel.mol, "A", 1);
+
+   if (! residue_p) {
+      std::cout << "residue not found for test_rotate_round_vector()" << std::endl;
+   } else {
+      int found_n_rotate_pts = 0;
+      std::vector<int> exclude_atoms;
+      clipper::Coord_orth rotate_pt_1;
+      clipper::Coord_orth rotate_pt_2;
+      PPCAtom residue_atoms;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+	 std::string at_name(residue_atoms[iat]->name);
+	 if (at_name == rotate_atom_1) {
+	    found_n_rotate_pts++;
+	    rotate_pt_1 = clipper::Coord_orth(residue_atoms[iat]->x,
+					      residue_atoms[iat]->y,
+					      residue_atoms[iat]->z);
+	    exclude_atoms.push_back(iat);
+	 } 
+	 if (at_name == rotate_atom_2) {
+	    found_n_rotate_pts++;
+	    rotate_pt_2 = clipper::Coord_orth(residue_atoms[iat]->x,
+					      residue_atoms[iat]->y,
+					      residue_atoms[iat]->z);
+	    exclude_atoms.push_back(iat);
+	 } 
+      }
+
+      if (found_n_rotate_pts != 2) {
+	 std::cout << "rotate atoms not found for test_rotate_round_vector()" << std::endl;
+      } else {
+	 bool correct_rotation = 1; // success initially.
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    bool exclude = 0;
+	    for (unsigned int iex=0; iex<exclude_atoms.size(); iex++) {
+	       if (iat == exclude_atoms[iex]) {
+		  exclude = 1;
+		  break;
+	       }
+	    }
+
+	    // We want point D.  Then we can measure CDC' for all
+	    // rotated atoms. (C' is where C moves to after rotation).
+	    //
+	    //  \A
+	    //   \\                                  ~
+	    //    \  \                               ~
+	    //     \   \                             ~
+	    //      \    \                           ~
+	    //       \     \                         ~
+	    //        \      \                       ~
+	    //         \ b     \                     ~
+	    //        B \-------- C
+	    //           .      /
+	    //            .   /
+	    //              /
+	    //            D .         Angle BDC is 90 degrees.
+	    //               .        BC is the hypotenuse of the BCD triangle.
+	    //                .
+
+	    if (0) {
+	       rotate_pt_1 = clipper::Coord_orth(-1.0, 0.0, 0.0);
+	       rotate_pt_2 = clipper::Coord_orth( 0.0, 0.0, 0.0);
+	    }
+	    
+	    if (! exclude) {
+	       clipper::Coord_orth C_pt(residue_atoms[iat]->x,
+					residue_atoms[iat]->y,
+					residue_atoms[iat]->z);
+
+	       clipper::Coord_orth ab(rotate_pt_2-rotate_pt_1);
+	       clipper::Coord_orth ba(rotate_pt_1-rotate_pt_2);
+	       clipper::Coord_orth bc(C_pt-rotate_pt_2);
+	       clipper::Coord_orth ab_unit(ab.unit());
+	       double bclen = clipper::Coord_orth::length(rotate_pt_2, C_pt);
+	       double ablen = clipper::Coord_orth::length(rotate_pt_1, rotate_pt_2);
+	       double cos_b = clipper::Coord_orth::dot(ba, bc)/(ablen*bclen);
+	       double bdlen = bclen * cos(M_PI-acos(cos_b));
+	       clipper::Coord_orth D_pt = rotate_pt_2 + bdlen * ab_unit;
+
+	       // Print angle at BDC:
+	       clipper::Coord_orth cd(D_pt - C_pt);
+	       clipper::Coord_orth bd(D_pt - rotate_pt_2);
+	       double bdlen2 = clipper::Coord_orth::length(D_pt, rotate_pt_2);
+	       double cdlen = clipper::Coord_orth::length(D_pt, C_pt);
+
+	       if (0) { 
+		  std::cout << "   D: " << D_pt.format() << " BD "<< bd.format() << " bdlen: "
+			    << bdlen << " " << bdlen2 << " " << bc.format() << " " << cdlen
+			    << " " << clipper::Coord_orth::dot(cd, bd) << " -> "
+			    << (180.0/M_PI)*acos(clipper::Coord_orth::dot(cd, bd)/(bdlen*cdlen))
+			    << " degrees " << std::endl;
+		  std::cout << "   ab " << ab.format() << std::endl;
+		  std::cout << "   ab_unit " << ab_unit.format() << std::endl;
+		  std::cout << "   bclen " << bclen << std::endl;
+		  std::cout << "   ablen " << ablen << std::endl;
+		  std::cout << "   dot prod " << clipper::Coord_orth::dot(ab, bc) << std::endl;
+		  std::cout << "   cos_b " << cos_b << std::endl;
+		  std::cout << "   b     " << acos(cos_b) << std::endl;
+		  std::cout << "   bdlen " << bdlen << std::endl;
+		  std::cout << "   D_pt " << D_pt.format() << std::endl;
+		  // Make sure that D_pt does not move when rotated:
+		  for (double a=0; a<7.0; a+=1.0) {
+		     clipper::Coord_orth D_pt_r =  coot::util::rotate_round_vector(ab, D_pt, rotate_pt_2, a);
+		     std::cout << "   " << a << " " << D_pt_r.format() << std::endl;
+		  }
+	       }
+
+	       double test_angle = 20.0; // degrees
+
+	       clipper::Coord_orth C_prime_pt =
+		  coot::util::rotate_round_vector(ab, C_pt, rotate_pt_2, (M_PI/180.0)*test_angle);
+
+	       clipper::Coord_orth dc(C_pt-D_pt);
+	       clipper::Coord_orth dc_prime(C_prime_pt-D_pt);
+	       double dc_len = clipper::Coord_orth::length(C_pt,D_pt);
+	       double dc_prime_len = clipper::Coord_orth::length(C_prime_pt,D_pt);
+
+	       if (0) { 
+		  std::cout << "   dc       " << dc.format() << std::endl;
+		  std::cout << "   dc_prime " << dc_prime.format() << std::endl;
+		  std::cout << "   dc_len   " << dc_len << std::endl;
+		  std::cout << "   dc_prime_len " << dc_prime_len << std::endl;
+		  std::cout << "   dot_prod " << clipper::Coord_orth::dot(dc, dc_prime) << std::endl;
+	       }
+	       
+
+	       double cos_theta = clipper::Coord_orth::dot(dc, dc_prime)/(dc_len * dc_prime_len);
+
+	       if (0) { 
+
+		  std::cout << "   AB.DC " << clipper::Coord_orth::dot(ab,dc);
+		  std::cout << "   AB.DC'" << clipper::Coord_orth::dot(ab,dc_prime) << std::endl;
+		  
+		  std::cout << "   AB.DC  angle " << (180.0/M_PI)*clipper::Coord_orth::dot(ab,dc)/(ablen * dc_len);
+		  std::cout << "   AB.DC' angle " << (180.0/M_PI)*clipper::Coord_orth::dot(ab,dc_prime)/(ablen * dc_prime_len);
+		  std::cout << std::endl;
+	       }
+	       
+	       std::cout << "   " << iat << " " << residue_atoms[iat]->name << " "
+			 << cos_theta << " -> " << acos(cos_theta)*180.0/M_PI << " degrees" << std::endl;
+
+	       double real_rotation_angle = acos(cos_theta)*180.0/M_PI;
+	       if (! close_float_p(test_angle, real_rotation_angle))
+		  correct_rotation = 0;
+	       
+	       residue_atoms[iat]->x = C_prime_pt.x();
+	       residue_atoms[iat]->y = C_prime_pt.y();
+	       residue_atoms[iat]->z = C_prime_pt.z();
+	    }
+	 }
+	 atom_sel.mol->WritePDBASCII("3gp-rotated.pdb");
+	 r = correct_rotation;
+      }
+   }
+
+   return r;
+}
+
+// Is the angle that after_pos is rotated round the r_pt_1 and r_pt_2
+// vector the same as test_angle?
+// 
+bool
+test_rotate_atom_angle(const std::string &atom_name,
+		       const clipper::Coord_orth &rotate_pt_1,
+		       const clipper::Coord_orth &rotate_pt_2,
+		       const clipper::Coord_orth &C_pt,
+		       const clipper::Coord_orth &C_prime_pt,
+		       double test_angle) {
+   bool r = 0;
+
+   clipper::Coord_orth ab(rotate_pt_2-rotate_pt_1);
+   clipper::Coord_orth bc(C_pt-rotate_pt_2);
+   clipper::Coord_orth ab_unit(ab.unit());
+   double bclen = clipper::Coord_orth::length(rotate_pt_2, C_pt);
+   double ablen = clipper::Coord_orth::length(rotate_pt_1, rotate_pt_2);
+   double cos_b = clipper::Coord_orth::dot(ab, bc)/(ablen*bclen);
+   double bdlen = bclen * cos(M_PI-acos(cos_b));
+   clipper::Coord_orth D_pt = rotate_pt_2 - bdlen * ab_unit;
+
+   // Print angle at BDC:
+   clipper::Coord_orth cd(D_pt - C_pt);
+   clipper::Coord_orth bd(D_pt - rotate_pt_2);
+   double bdlen2 = clipper::Coord_orth::length(D_pt, rotate_pt_2);
+   double cdlen = clipper::Coord_orth::length(D_pt, C_pt);
+   clipper::Coord_orth dc(C_pt-D_pt);
+   clipper::Coord_orth dc_prime(C_prime_pt-D_pt);
+   double dc_len = clipper::Coord_orth::length(C_pt,D_pt);
+   double dc_prime_len = clipper::Coord_orth::length(C_prime_pt,D_pt);
+   double cos_theta = clipper::Coord_orth::dot(dc, dc_prime)/(dc_len * dc_prime_len);
+   double real_angle = acos(cos_theta)*180.0/M_PI;
+   std::cout << "  " << atom_name << " " << cos_theta << " -> "
+	     << real_angle << " degrees" << std::endl;
+   if (close_float_p(real_angle, test_angle)) { 
+      r = 1;
+   } else {
+      std::cout << "   Ooops " << real_angle << " not close to " << test_angle << std::endl;
+   } 
+   return r;
+} 
+
+
 
 #endif // BUILT_IN_TESTING
 

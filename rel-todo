@@ -1,22 +1,10 @@
 
-   6 items
+   7 items
 
 
    o Torsion general is broken? Yes (argh!)
      Am I using the right version of mgtree?
      ::: 2
-
-
-   o sphere-refine:  turn on rama restraints for restraints from residue_vec.
-    make_link_restraints_by_linear() has
-    if (do_rama_plot_restraints)
-      add_rama_links(selHnd, geom);
-
-    make_link_restraints_from_res_vec() has
-    add_rama_links_from_res_vec(), but that is not filled.
-    need something like bonded_residues_from_res_vec(), but for
-    residue triples - returning 3 residues.
-    ::: 3
 
 
    o Communication with PISA.  Get PISA on jackal.  I'd like show the
@@ -41,6 +29,8 @@
      ::: 4
 
 
+   o Can you fix the geometry analysis plot so that the correct
+     largest geometric outlier is shown? (puntable) ::: 1 
 
 
 
@@ -1066,6 +1056,11 @@ c-interface clear_up_moving_atoms...
      ::: 4
 
 * Fixed.  It was a circular symmetry bug.
+
+
+   o JED data mmCIF data file, scroll button is wrong ::: 1
+
+* Done.
 
 
 -----
