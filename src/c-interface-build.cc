@@ -3952,24 +3952,29 @@ int new_molecule_by_symmetry(int imol,
 			     double tx, double ty, double tz,
 			     int pre_shift_to_origin_na,
 			     int pre_shift_to_origin_nb,
-			     int pre_shift_to_origin_nc) { 
+			     int pre_shift_to_origin_nc) {
    int istate = -1;
    if (is_valid_model_molecule(imol)) { 
       std::pair<bool, clipper::Cell> cell_info = graphics_info_t::molecules[imol].cell();
-      if (cell_info.first) { 
-	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	 std::vector<int> pre_shift;
-	 clipper::Mat33<double> mat(m11, m12, m13, m21, m22, m23, m31, m32, m33);
-	 // clipper::Mat33<double> mat(m11, m21, m31, m12, m22, m32, m13, m23, m33);
-	 clipper::Vec3<double> vec(tx, ty, tz);
-	 clipper::RTop_frac rtop_frac(mat, vec);
-	 CMMDBManager *new_mol = coot::mol_by_symmetry(mol, cell_info.second, rtop_frac, pre_shift);
+
+      CMMDBManager *mol_orig = graphics_info_t::molecules[imol].atom_sel.mol;
+      // test if returend molecule is non-null
+      std::string name = "Symmetry copy of ";
+      name += coot::util::int_to_string(imol);
+      if (std::string(name_in) != "")
+	 name = name_in;
+      CMMDBManager *mol_symm = new_molecule_by_symmetry_matrix_from_molecule(mol_orig,
+									     m11, m12, m13,
+									     m21, m22, m23,
+									     m31, m32, m33,
+									     tx, ty, tz,
+									     pre_shift_to_origin_na,
+									     pre_shift_to_origin_nb,
+									     pre_shift_to_origin_nc);
+
+      if (mol_symm) { 
 	 int imol_new = graphics_info_t::create_molecule(); 
-	 atom_selection_container_t asc = make_asc(new_mol);
-	 std::string name = "Symmetry copy of ";
-	 name += coot::util::int_to_string(imol);
-	 if (std::string(name_in) != "")
-	    name = name_in;
+	 atom_selection_container_t asc = make_asc(mol_symm);
 	 graphics_info_t::molecules[imol_new].install_model(imol_new, asc, name, 1);
 	 update_go_to_atom_window_on_new_mol();
 	 graphics_draw();
@@ -3992,38 +3997,130 @@ int new_molecule_by_symop(int imol, const char *symop_string,
 			  int pre_shift_to_origin_nb,
 			  int pre_shift_to_origin_nc) {
 
-   coot::symm_card_composition_t sc(symop_string);
-   std::cout << symop_string << " ->\n" 
-	     << sc.x_element[0] << " " << sc.y_element[0] << " " << sc.z_element[0] << "\n"
-	     << sc.x_element[1] << " " << sc.y_element[1] << " " << sc.z_element[1] << "\n"
-	     << sc.x_element[2] << " " << sc.y_element[2] << " " << sc.z_element[2] << "\n"
-	     << "translations: "
-	     << sc.trans_frac(0) << " "
-	     << sc.trans_frac(1) << " "
-	     << sc.trans_frac(2) << std::endl;
-   std::cout << "pre-trans: "
-	     << pre_shift_to_origin_na << " "
-	     << pre_shift_to_origin_nb << " " 
-	     << pre_shift_to_origin_nc << std::endl;
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) { 
+      std::pair<bool, clipper::Cell> cell_info = graphics_info_t::molecules[imol].cell();
+      if (cell_info.first) { 
+	 coot::symm_card_composition_t sc(symop_string);
+	 std::cout << symop_string << " ->\n" 
+		   << sc.x_element[0] << " " << sc.y_element[0] << " " << sc.z_element[0] << "\n"
+		   << sc.x_element[1] << " " << sc.y_element[1] << " " << sc.z_element[1] << "\n"
+		   << sc.x_element[2] << " " << sc.y_element[2] << " " << sc.z_element[2] << "\n"
+		   << "translations: "
+		   << sc.trans_frac(0) << " "
+		   << sc.trans_frac(1) << " "
+		   << sc.trans_frac(2) << std::endl;
+	 std::cout << "pre-trans: "
+		   << pre_shift_to_origin_na << " "
+		   << pre_shift_to_origin_nb << " " 
+		   << pre_shift_to_origin_nc << std::endl;
 
-   std::string new_mol_name = "SymOp ";
-   new_mol_name += symop_string;
-   new_mol_name += " Copy of ";
-   new_mol_name += coot::util::int_to_string(imol);
-   int imol_new =  new_molecule_by_symmetry(imol,
-					    new_mol_name.c_str(),
-					    sc.x_element[0], sc.y_element[0], sc.z_element[0], 
-					    sc.x_element[1], sc.y_element[1], sc.z_element[1], 
-					    sc.x_element[2], sc.y_element[2], sc.z_element[2],
-					    sc.trans_frac(0),
-					    sc.trans_frac(1),
-					    sc.trans_frac(2),
-					    pre_shift_to_origin_na,
-					    pre_shift_to_origin_nb,
-					    pre_shift_to_origin_nc);
+	 // those matrix elements are in fractional coordinates.  We want to
+	 // pass a components for an rtop_orth.
 
+	 clipper::Mat33<double> mat(sc.x_element[0], sc.y_element[0], sc.z_element[0], 
+				    sc.x_element[1], sc.y_element[1], sc.z_element[1], 
+				    sc.x_element[2], sc.y_element[2], sc.z_element[2]);
+
+	 clipper::Vec3<double> vec(sc.trans_frac(0),
+				   sc.trans_frac(1),
+				   sc.trans_frac(2));
+
+	 clipper::RTop_orth rtop_frac(mat, vec);
+	 clipper::RTop_frac rtop_orth = rtop_frac.rtop_frac(cell_info.second);
+	 clipper::Mat33<double> orth_mat = rtop_orth.rot();
+	 clipper::Coord_orth    orth_trn(rtop_orth.trn());
+   
+	 
+	 std::string new_mol_name = "SymOp ";
+	 new_mol_name += symop_string;
+	 new_mol_name += " Copy of ";
+	 new_mol_name += coot::util::int_to_string(imol);
+	 imol_new =  new_molecule_by_symmetry(imol,
+					      new_mol_name.c_str(),
+					      orth_mat(0,0), orth_mat(0,1), orth_mat(0,2), 
+					      orth_mat(1,0), orth_mat(1,1), orth_mat(1,2), 
+					      orth_mat(2,0), orth_mat(2,1), orth_mat(3,2), 
+					      orth_trn.x(), orth_trn.y(), orth_trn.z(),
+					      pre_shift_to_origin_na,
+					      pre_shift_to_origin_nb,
+					      pre_shift_to_origin_nc);
+      }
+   }
    return imol_new;
-} 
+}
+
+
+int
+new_molecule_by_symmetry_with_atom_selection(int imol, 
+					     const char *name,
+					     const char *mmdb_atom_selection_string,
+					     double m11, double m12, double m13, 
+					     double m21, double m22, double m23, 
+					     double m31, double m32, double m33, 
+					     double tx, double ty, double tz,
+					     int pre_shift_to_origin_na,
+					     int pre_shift_to_origin_nb,
+					     int pre_shift_to_origin_nc) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol_orig = graphics_info_t::molecules[imol].atom_sel.mol;
+      int SelectionHandle = mol_orig->NewSelection();
+      mol_orig->Select(SelectionHandle, STYPE_ATOM,
+		       mmdb_atom_selection_string,
+		       SKEY_OR);
+      CMMDBManager *mol = coot::util::create_mmdbmanager_from_atom_selection(mol_orig,
+									     SelectionHandle);
+      CMMDBManager *new_mol = new_molecule_by_symmetry_matrix_from_molecule(mol,
+									    m11, m12, m13,
+									    m21, m22, m23,
+									    m31, m32, m33,
+									    tx, ty, tz,
+									    pre_shift_to_origin_na,
+									    pre_shift_to_origin_nb,
+									    pre_shift_to_origin_nc);
+      delete mol; // done with it
+      if (new_mol) {
+	 imol_new = graphics_info_t::create_molecule();
+	 atom_selection_container_t asc = make_asc(new_mol);
+	 graphics_info_t::molecules[imol_new].install_model(imol_new, asc, name, 1);
+	 update_go_to_atom_window_on_new_mol();
+	 graphics_draw();
+      }
+   }
+   return imol_new;
+}
+
+CMMDBManager *new_molecule_by_symmetry_matrix_from_molecule(CMMDBManager *mol,
+							    double m11, double m12, double m13, 
+							    double m21, double m22, double m23, 
+							    double m31, double m32, double m33, 
+							    double tx, double ty, double tz,
+							    int pre_shift_to_origin_na,
+							    int pre_shift_to_origin_nb,
+							    int pre_shift_to_origin_nc) {
+   CMMDBManager *new_mol = 0;
+
+   try {
+      std::pair<clipper::Cell, clipper::Spacegroup> cell_info = coot::util::get_cell_symm(mol);
+      std::vector<int> pre_shift(3);
+      pre_shift[0] = pre_shift_to_origin_na;
+      pre_shift[1] = pre_shift_to_origin_nb;
+      pre_shift[2] = pre_shift_to_origin_nc;
+      clipper::Mat33<double> mat(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+      clipper::Vec3<double> vec(tx, ty, tz);
+      clipper::RTop_orth rtop_orth(mat, vec);
+      clipper::RTop_frac rtop_frac = rtop_orth.rtop_frac(cell_info.first);
+      new_mol = coot::mol_by_symmetry(mol, cell_info.first, rtop_frac, pre_shift);
+   }
+   catch (std::runtime_error rte) {
+      std::cout << rte.what() << std::endl;
+   } 
+   return new_mol;
+}
+
+
 
 
 #ifdef __cplusplus
@@ -5299,7 +5396,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
       CMMDBManager *mol_orig = graphics_info_t::molecules[imol_orig].atom_sel.mol;
       int SelectionHandle = mol_orig->NewSelection();
       mol_orig->Select(SelectionHandle, STYPE_ATOM,
-		       (char *) atom_selection_str, 
+		       atom_selection_str, 
 		       SKEY_OR);
       CMMDBManager *mol =
 	 coot::util::create_mmdbmanager_from_atom_selection(mol_orig,

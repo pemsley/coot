@@ -19,10 +19,16 @@ Pre-release 0.6
 
   o FEATURE: LINK bonds are are now represented.
 
+  o FEATURE: "Backrub rotamers" at low (2.7 or worse) resolution.
+
   o FEATURE: Baton build parameters (e.g. "backwards") now have a GUI 
     [Phil Evans] 
 
   o FEATURE: Move waters to surround protein [Garib Murshudov]
+
+  o FEATURE: Rigig body refinement by residue range.
+
+  o FEATURE: Rotate/translate zone by residue range
 
   o CHANGE: partial charges added to electrostatic surface calculation.
 
@@ -58,6 +64,9 @@ Pre-release 0.6
   o BUG-FIX: NCS chain jumping now works on heterodimers [Jianghai Zhu].
 
   o BUG-FIX: The Chain Reordering function in Extensions has been fixed.
+
+  o BUG-FIX: Limit the sequence view canvas X parameters, so that we
+    don't get X11 errors and crash [Felix Frolow].
 
 -----
 

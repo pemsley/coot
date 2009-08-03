@@ -63,24 +63,74 @@
   
 (define parse-pisa
   (lambda (imol entity)
+
+    ;; was it a chain? (or residue selection disguised as
+    ;; a chain?)
+    ;; 
+    (define (make-atom-selection-string chain-id-raw)
+
+      ;; first try to split the chain-id-raw on a "]".  If there was
+      ;; no "]" then we had a simple chain-id.  If there was a "]"
+      ;; then we have something like "[CL]D:32", from which we need to
+      ;; extract a residue number and a chain id.  Split on ":" and
+      ;; construct the left and right hand sides of s.  Then use those
+      ;; together to make an mmdb selection string.
+      ;; 
+      (let ((match-info (string-match "]" chain-id-raw)))
+			 
+	(if match-info
+	    (begin
+	      ;; (format #t "found a residue selection chain_id ~s ~s ~%" chain-id-raw match-info)
+	      (let* ((l (string-length chain-id-raw))
+		     (s (substring chain-id-raw (match:end match-info) l)) ; e.g. "D:32"
+		     (ls (string-length s))
+		     (s-match-info (string-match ":" s)))
+		(if s-match-info
+		    (let ((residue-string (substring s (match:end s-match-info) ls))
+			  (chain-string (substring s 0 (match:start s-match-info))))
+		      ;; (print-var residue-string)
+		      ;; (print-var chain-string)
+		      (string-append "//" chain-string "/" residue-string))
+		    s)))
+	    (begin
+	      ;; (format #t "found a simple chain_id ~s~%" chain-id-raw)
+	      (string-append "//" chain-id-raw)))))
+
     
+    ;; 
     (define (handle-molecule molecule)
       (let ((symbols (list 'rxx 'rxy 'rxz 'ryx 'ryy 'ryz 'rzx 'rzy 'rzz 'tx 'ty 'tz)))
 
-	(let ((ass-symbols '()))
+	(let ((ass-symbols '())
+	      (atom-selection-string "//") ;; default, everything
+	      (symm-name-part "")) ;; the atom selection info without
+				   ;; "/" because that would chop the
+				   ;; name in the display manager.
 	  (for-each
 	   (lambda (mol-ele)
 	     ;; (format #t "mol-ele: ~s~%" mol-ele)
-	     (if (list? mol-ele) 
-		 (for-each 
-		  (lambda (symbol)
-		    (if (eq? (car mol-ele) symbol)
-			(let ((n (string->number (cadr mol-ele))))
-			  ;; (format #t "~s: ~s~%" symbol n)
-			  (set! ass-symbols 
-				(cons (list symbol n)
-				      ass-symbols)))))
-		  symbols)))
+	     (if (list? mol-ele)
+		 (begin
+		   
+		   (if (eq? (car mol-ele) 'chain_id)
+		       (let* ((chain-id-raw (cadr mol-ele)))
+			 (set! atom-selection-string 
+			       (make-atom-selection-string chain-id-raw))
+			 (if (string=? chain-id-raw atom-selection-string)
+			     (set! symm-name-part (string-append "chain " chain-id-raw))
+			     (set! symm-name-part chain-id-raw))))
+		 
+		   ;; was it one of the rotation or translation symbols?
+		   (for-each 
+		    (lambda (symbol)
+		      (if (eq? (car mol-ele) symbol)
+			  (let ((n (string->number (cadr mol-ele))))
+			    ;; (format #t "~s: ~s~%" symbol n)
+			    (set! ass-symbols 
+				  (cons (list symbol n)
+					ass-symbols)))))
+		   
+		    symbols))))
 	   molecule)
 	
 	  (if (= (length ass-symbols) 12)
@@ -88,14 +138,19 @@
 		     (map (lambda (sym)
 			    (cadr (assoc sym ass-symbols)))
 			  symbols)))
-		(format #t "mat:::: ~s~%" mat)
+		;; (format #t "mat:::: ~s~%" mat)
 		(format "currently ~s molecules~%" (graphics-n-molecules))
-		(let ((new-mol-no (apply new-molecule-by-symmetry imol
-					 ""
+		(let* ((new-molecule-name (string-append "Symmetry copy of "
+							 (number->string imol)
+							 " using " symm-name-part))
+		       (new-mol-no (apply new-molecule-by-symmetry-with-atom-selection
+					 imol
+					 new-molecule-name
+					 atom-selection-string
 					 (append mat (list 0 0 0)))))
 		  (format #t "created molecule number ~s~%" new-mol-no)))))))
 
-
+    ;;
     (define (handle-assembly assembly)
       
       (for-each
@@ -104,7 +159,7 @@
 	 (if (list? ele) 
 	     (if (eq? (car ele) 'molecule)
 		 (begin
-		   (format #t "molecule: ~s~%" ele)
+		   ;; (format #t "molecule: ~s~%" ele)
 		   (handle-molecule ele)))))
        assembly))
 
