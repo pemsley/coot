@@ -9,7 +9,7 @@
 	(call-with-input-file file-name
 	  (lambda (port)
 	    (let ((sm (xml->sxml port)))
-	      (format #t "sm: ~s~%" sm)
+	      ;; (format #t "sm: ~s~%" sm)
 	      (parse-pisa imol sm)))))))
 
 
@@ -97,9 +97,11 @@
 	      (string-append "//" chain-id-raw)))))
 
     
+    ;; Return a molecule number or #f
     ;; 
     (define (handle-molecule molecule)
-      (let ((symbols (list 'rxx 'rxy 'rxz 'ryx 'ryy 'ryz 'rzx 'rzy 'rzz 'tx 'ty 'tz)))
+      (let ((symbols (list 'rxx 'rxy 'rxz 'ryx 'ryy 'ryz 'rzx 'rzy 'rzz 'tx 'ty 'tz))) ;; orthogonal 
+                                                                                       ;; matrix elements.
 
 	(let ((ass-symbols '())
 	      (atom-selection-string "//") ;; default, everything
@@ -148,31 +150,124 @@
 					 new-molecule-name
 					 atom-selection-string
 					 (append mat (list 0 0 0)))))
-		  (format #t "created molecule number ~s~%" new-mol-no)))))))
+		  ;; (format #t "created molecule number ~s~%" new-mol-no)
+		  new-mol-no))
+	      #f ;; ass-symbols were not all set
+	      ))))
+
+    ;; Return the model number of the new assembly molecule
+    ;; 
+    (define (create-assembly-molecule assembly-molecule-numbers)
+      (if (null? assembly-molecule-numbers)
+	  #f
+	  (let ((first-copy (copy-molecule (car assembly-molecule-numbers))))
+	    (if (not (valid-model-molecule? first-copy))
+		#f
+		(let ((rest (cdr assembly-molecule-numbers)))
+		  (merge-molecules rest first-copy)
+		  (set-molecule-name first-copy "An Assemby")
+		  first-copy)))))
 
     ;;
     (define (handle-assembly assembly)
       
-      (for-each
-       (lambda (ele)
-	 ;; (format #t "ele: ~s~%" ele)
-	 (if (list? ele) 
-	     (if (eq? (car ele) 'molecule)
-		 (begin
-		   ;; (format #t "molecule: ~s~%" ele)
-		   (handle-molecule ele)))))
-       assembly))
+      (let ((assembly-molecule-numbers '())
+	    (assembly-size #f)
+	    (assembly-mmsize #f) 
+	    (assembly-id #f)
+	    (assembly-symm-number #f)
+	    (assembly-n-uc #f)
+	    (assembly-n-diss #f)
+	    (assembly-asa #f)
+	    (assembly-bsa #f)
+	    (assembly-diss-energy #f)
+	    (assembly-diss-area #f)
+	    (assembly-entropy #f)
+	    (assembly-int-energy #f))
+	
+	(for-each
+	 (lambda (ele)
+	   ;; (format #t "ele: ~s~%" ele)
+	   (if (not (list? ele))
+	       (format #t "=== ele: ~s not list~%" ele)
+	       (cond 
+		((eq? (car ele) 'molecule)
+		 (let ((mol-no (handle-molecule ele)))
+		   (set! assembly-molecule-numbers 
+			 (append assembly-molecule-numbers (list mol-no)))))
+		((eq? (car ele) 'symNumber)
+		 (set! assembly-symm-number (cadr ele)))
+		((eq? (car ele) 'size)
+		 (set! assembly-size (string->number (cadr ele))))
+		((eq? (car ele) 'mmsize)
+		 (set! assembly-mmsize (string->number (cadr ele))))
+		((eq? (car ele) 'id)
+		 (set! assembly-id (cadr ele)))
+		((eq? (car ele) 'asa)
+		 (set! assembly-asa (string->number (cadr ele))))
+		((eq? (car ele) 'bsa)
+		 (set! assembly-bsa (string->number (cadr ele))))
+		((eq? (car ele) 'diss_energy)
+		 (set! assembly-diss-energy (string->number (cadr ele))))
+		((eq? (car ele) 'diss_area)
+		 (set! assembly-diss-area (string->number (cadr ele))))
+		((eq? (car ele) 'entropy)
+		 (set! assembly-entropy (string->number (cadr ele))))
+		((eq? (car ele) 'int_energy)
+		 (set! assembly-int-energy (string->number (cadr ele))))
+		((eq? (car ele) 'n_diss)
+		 (set! assembly-n-diss (string->number (cadr ele))))
+		((eq? (car ele) 'n_uc)
+		 (set! assembly-n-diss (string->number (cadr ele))))
+		(else 
+		 (format #t "unhandled ele: ~s~%" ele)))))
+	 
+	 assembly)
+
+	;; use an assembly record here?
+	(format #t "make an assembly from ~s~%" assembly-molecule-numbers)
+	(map (lambda (mol-no)
+	       (if (valid-model-molecule? mol-no)
+		   (set-mol-displayed mol-no 0)))
+	     assembly-molecule-numbers)
+	(create-assembly-molecule assembly-molecule-numbers)))
 
     
+    ;; handle assembly-set
+    (define (handle-assembly-set assembly-set)
+      
+      (let ((assembly-set-molecules '()))
+	(for-each (lambda (assembly-set-part)
+		    (if (list? assembly-set-part)
+			(if (eq? 'assembly (car assembly-set-part))
+			    (let ((assembly (handle-assembly assembly-set-part)))
+			      (set! assembly-set-molecules
+				    (append assembly-set-molecules (list assembly)))))))
+		  assembly-set)
+
+	(format #t "do something with this assembly-set molecule list: ~s~%" 
+		assembly-set-molecules)))
+
+		  
+
+      
+
+    
+
+
     ;; main line
     (let loop ((entity entity))
       (cond
        ((list? entity) (if (not (null? entity))
 			   (begin
-			     (if (eq? 'assembly (car entity))
-				 (begin 
-				   (handle-assembly entity))
+			     (if (eq? 'asm_set (car entity))
+				 (begin
+				   (handle-assembly-set entity))
 				 (map loop entity)))))
+; 			     (if (eq? 'assembly (car entity))
+; 				 (begin 
+; 				   (handle-assembly entity))
+; 				 (map loop entity)))))
        (else 
 	#f)))))
      
