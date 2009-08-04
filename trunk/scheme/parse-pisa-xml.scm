@@ -157,16 +157,21 @@
 
     ;; Return the model number of the new assembly molecule
     ;; 
-    (define (create-assembly-molecule assembly-molecule-numbers)
-      (if (null? assembly-molecule-numbers)
+    (define (create-assembly-set-molecule assembly-set-molecule-numbers)
+      (if (null? assembly-set-molecule-numbers)
 	  #f
-	  (let ((first-copy (copy-molecule (car assembly-molecule-numbers))))
+	  (let ((first-copy (copy-molecule (car assembly-set-molecule-numbers))))
 	    (if (not (valid-model-molecule? first-copy))
 		#f
-		(let ((rest (cdr assembly-molecule-numbers)))
+		(let ((rest (cdr assembly-set-molecule-numbers)))
 		  (merge-molecules rest first-copy)
-		  (set-molecule-name first-copy "An Assemby")
+		  (set-molecule-name first-copy "An Assembly Set")
 		  first-copy)))))
+
+    ;; Return a list of model numbers
+    ;; 
+    (define (create-assembly-molecule assembly-molecule-numbers)
+      assembly-molecule-numbers)
 
     ;;
     (define (handle-assembly assembly)
@@ -225,12 +230,11 @@
 	 assembly)
 
 	;; use an assembly record here?
-	(format #t "make an assembly from ~s~%" assembly-molecule-numbers)
 	(map (lambda (mol-no)
 	       (if (valid-model-molecule? mol-no)
 		   (set-mol-displayed mol-no 0)))
 	     assembly-molecule-numbers)
-	(create-assembly-molecule assembly-molecule-numbers)))
+	assembly-molecule-numbers))
 
     
     ;; handle assembly-set
@@ -246,9 +250,9 @@
 		  assembly-set)
 
 	(format #t "do something with this assembly-set molecule list: ~s~%" 
-		assembly-set-molecules)))
+		assembly-set-molecules)
 
-		  
+	(create-assembly-set-molecule (apply append assembly-set-molecules))))
 
       
 
