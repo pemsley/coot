@@ -1,5 +1,6 @@
 
-(use-modules (sxml simple))
+(use-modules (sxml simple)
+	     (ice-9 receive))
 
 
 (define (pisa-xml imol file-name)
@@ -168,14 +169,30 @@
 		  (set-molecule-name first-copy "An Assembly Set")
 		  first-copy)))))
 
+    ;; 
+    (define (print-assembly record port)
+      (let ((rec-type (record-type-descriptor record)))
+	(format port "assembly id: ~s~%"          ((record-accessor rec-type 'id)          record))
+	(format port "assembly size: ~s~%"        ((record-accessor rec-type 'size)        record))
+	(format port "assembly symm-number: ~s~%" ((record-accessor rec-type 'symm-number) record))
+	(format port "assembly asa: ~s~%"         ((record-accessor rec-type 'asa)         record))
+	(format port "assembly bsa: ~s~%"         ((record-accessor rec-type 'bsa)         record))
+	(format port "assembly diss-energy: ~s~%" ((record-accessor rec-type 'diss-energy) record))
+	(format port "assembly entropy: ~s~%"     ((record-accessor rec-type 'entropy)     record))
+	(format port "assembly diss-area: ~s~%"   ((record-accessor rec-type 'diss-area)   record))
+	(format port "assembly int-energy: ~s~%"  ((record-accessor rec-type 'int-energy)  record))
+	(format port "assembly components: ~s~%"  ((record-accessor rec-type 'molecule-numbers) record))))
+	
+
     ;; Return a list of model numbers
     ;; 
     (define (create-assembly-molecule assembly-molecule-numbers)
       assembly-molecule-numbers)
 
-    ;;
-    (define (handle-assembly assembly)
-      
+    ;; Return an assembly record
+    ;; 
+    (define (handle-assembly assembly make-assembly-record)
+
       (let ((assembly-molecule-numbers '())
 	    (assembly-size #f)
 	    (assembly-mmsize #f) 
@@ -194,14 +211,14 @@
 	 (lambda (ele)
 	   ;; (format #t "ele: ~s~%" ele)
 	   (if (not (list? ele))
-	       (format #t "=== ele: ~s not list~%" ele)
+	       (format #t "ele not list: ~s~%" ele) ; caution when deleting
 	       (cond 
 		((eq? (car ele) 'molecule)
 		 (let ((mol-no (handle-molecule ele)))
 		   (set! assembly-molecule-numbers 
 			 (append assembly-molecule-numbers (list mol-no)))))
 		((eq? (car ele) 'symNumber)
-		 (set! assembly-symm-number (cadr ele)))
+		 (set! assembly-symm-number (string->number (cadr ele))))
 		((eq? (car ele) 'size)
 		 (set! assembly-size (string->number (cadr ele))))
 		((eq? (car ele) 'mmsize)
@@ -234,45 +251,71 @@
 	       (if (valid-model-molecule? mol-no)
 		   (set-mol-displayed mol-no 0)))
 	     assembly-molecule-numbers)
-	assembly-molecule-numbers))
+
+	;; assembly-molecule-numbers ;; return this
+	(make-assembly-record assembly-id assembly-size assembly-symm-number assembly-asa assembly-bsa
+			      assembly-diss-energy assembly-entropy assembly-diss-area 
+			      assembly-int-energy assembly-molecule-numbers)))
 
     
     ;; handle assembly-set.
     ;; 
-    ;; return #f or the molecule number of the assembly-set molecule.
+    ;; return values [#f or the molecule number list of the
+    ;; assembly-set] and the assembly-record-set
     ;; 
-    (define (handle-assembly-set assembly-set)
+    (define (handle-assembly-set assembly-set make-assembly-record record-type)
       
-      (let ((assembly-set-molecules '()))
+      (let ((assembly-set-molecules '())
+	    (assembly-records '()))
 	(for-each (lambda (assembly-set-part)
 		    (if (list? assembly-set-part)
 			(if (eq? 'assembly (car assembly-set-part))
-			    (let ((assembly (handle-assembly assembly-set-part)))
+			    (let* ((assembly-record (handle-assembly assembly-set-part make-assembly-record))
+				   (assembly-molecules-numbers (lambda (assembly-record)
+								 ((record-accessor record-type 'molecule-numbers)
+								  assembly-record)))
+				   (assembly-molecules (assembly-molecules-numbers assembly-record)))
+			      (set! assembly-records 
+				    (append assembly-records (list assembly-record)))
 			      (set! assembly-set-molecules
-				    (append assembly-set-molecules (list assembly)))))))
+				    (append assembly-set-molecules (list assembly-molecules)))))))
 		  assembly-set)
 
-	(format #t "do something with this assembly-set molecule list: ~s~%" 
-		assembly-set-molecules)
-
-	(create-assembly-set-molecule (apply append assembly-set-molecules))))
+	(let ((new-mol 
+	       (create-assembly-set-molecule (apply append assembly-set-molecules))))
+	  (values new-mol assembly-records))))
 
       
 
     ;; main line
-    (let ((first-assembly-set-is-displayed-already? #f))
-      (let loop ((entity entity))
-	(cond
-	 ((list? entity) (if (not (null? entity))
-			     (begin
-			       (if (eq? 'asm_set (car entity))
-				   (let ((molecule-number (handle-assembly-set entity)))
-				     (if first-assembly-set-is-displayed-already?
-					 (set-mol-displayed molecule-number 0)
-					 (set! first-assembly-set-is-displayed-already? #t)))
-				   (map loop entity)))))
-	 (else 
-	  #f))))))
+    ;; 
+    ;; first set up the assembly record:
+    ;; 
+    (let* ((rt (make-record-type "assembly" '(id size symm-number asa bsa diss-energy entropy diss-area
+						int-energy molecule-numbers) print-assembly))
+	   (make-assembly-record (record-constructor rt)))
+      ;; 
+      (let ((first-assembly-set-is-displayed-already? #f)
+	    (top-assembly-set #f))
+	(let loop ((entity entity))
+	  (cond
+	   ((list? entity) (if (not (null? entity))
+			       (begin
+				 (if (eq? 'asm_set (car entity))
+				     (receive (molecule-number assembly-record-set)
+					      (handle-assembly-set entity make-assembly-record rt)
+					      (if (not top-assembly-set)
+						  (set! top-assembly-set assembly-record-set))
+					      (if first-assembly-set-is-displayed-already?
+						  (set-mol-displayed molecule-number 0)
+						  (set! first-assembly-set-is-displayed-already? #t)))
+				     (map loop entity)))))
+	   (else 
+	    #f)))
+
+	(format #t "top assembly-set:~% ~s~%" top-assembly-set)
+	(let ((s (format #f "top assembly-set:~% ~s~%" top-assembly-set)))
+	  (info-dialog s))))))
      
 
 
@@ -284,7 +327,6 @@
   ;; 
   (define (make-stubbed-name imol)
     (strip-extension (basename (molecule-name imol))))
-
 
   ;; 
   (define (make-pisa-config pisa-coot-dir config-file-name)
@@ -298,7 +340,8 @@
 			  (display (cdr item-pair) port)
 			  (newline port))
 			(list (cons "DATA_ROOT"  (append-dir-file s "share/pisa"))
-			      (cons "WORK_ROOT"  (append-dir-file s "share/pisa"))
+			      ;; (cons "WORK_ROOT"  (append-dir-file s "share/pisa"))
+			      (cons "WORK_ROOT"  pisa-coot-dir)
 			      (cons "SBASE_DIR"  (append-dir-file s "share/sbase"))
 			      ;; that we need these next 3 is ridiculous
 			      (cons "MOLREF_DIR" (append-dir-file s "share/pisa/molref"))
@@ -331,10 +374,6 @@
 		      (if (= status 0)
 			  (pisa-xml imol pisa-xml-file-name))))))))))
   
-
-
-(define (t)
-  (pisa-xml (read-pdb "coot-download/3FCS.pdb") "pisa.xml"))
 
 
 
