@@ -3078,7 +3078,7 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
 
    if (istat.first) { // failure
 
-      if (1) {
+      if (0) {
 	 PPCAtom residue_atoms;
 	 int n_residue_atoms;
 	 
@@ -3098,7 +3098,7 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
       istat = chi_ang.change_by(nth_chi, diff, contact_indices, geom_p,
 				chi_angles_clicked_atom_spec,
 				find_hydrogen_torsions);
-      if (1) {
+      if (0) {
 	 PPCAtom residue_atoms;
 	 int n_residue_atoms;
 	 
