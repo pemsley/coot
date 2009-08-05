@@ -237,7 +237,10 @@
 	assembly-molecule-numbers))
 
     
-    ;; handle assembly-set
+    ;; handle assembly-set.
+    ;; 
+    ;; return #f or the molecule number of the assembly-set molecule.
+    ;; 
     (define (handle-assembly-set assembly-set)
       
       (let ((assembly-set-molecules '()))
@@ -256,28 +259,79 @@
 
       
 
-    
-
-
     ;; main line
-    (let loop ((entity entity))
-      (cond
-       ((list? entity) (if (not (null? entity))
-			   (begin
-			     (if (eq? 'asm_set (car entity))
-				 (begin
-				   (handle-assembly-set entity))
-				 (map loop entity)))))
-; 			     (if (eq? 'assembly (car entity))
-; 				 (begin 
-; 				   (handle-assembly entity))
-; 				 (map loop entity)))))
-       (else 
-	#f)))))
+    (let ((first-assembly-set-is-displayed-already? #f))
+      (let loop ((entity entity))
+	(cond
+	 ((list? entity) (if (not (null? entity))
+			     (begin
+			       (if (eq? 'asm_set (car entity))
+				   (let ((molecule-number (handle-assembly-set entity)))
+				     (if first-assembly-set-is-displayed-already?
+					 (set-mol-displayed molecule-number 0)
+					 (set! first-assembly-set-is-displayed-already? #t)))
+				   (map loop entity)))))
+	 (else 
+	  #f))))))
      
 
 
 ;;(pisa-xml "pisa.xml")
+
+
+(define (pisa-assemblies imol)
+
+  ;; 
+  (define (make-stubbed-name imol)
+    (strip-extension (basename (molecule-name imol))))
+
+
+  ;; 
+  (define (make-pisa-config pisa-coot-dir config-file-name)
+    (call-with-output-file config-file-name
+      (lambda (port)
+	(let ((s (getenv "CCP4")))
+	  (if (file-exists? s)
+	      (for-each (lambda (item-pair)
+			  (display (car item-pair) port)
+			  (newline port)
+			  (display (cdr item-pair) port)
+			  (newline port))
+			(list (cons "DATA_ROOT"  (append-dir-file s "share/pisa"))
+			      (cons "WORK_ROOT"  (append-dir-file s "share/pisa"))
+			      (cons "SBASE_DIR"  (append-dir-file s "share/sbase"))
+			      ;; that we need these next 3 is ridiculous
+			      (cons "MOLREF_DIR" (append-dir-file s "share/pisa/molref"))
+			      (cons "RASMOL_COM" (append-dir-file s "bin/rasmol"))
+			      (cons "CCP4MG_COM" (append-dir-file s "bin/ccp4mg"))
+			      (cons "SESSION_PREFIX" "pisa_"))))))))
+
+	
+  
+  ;; main line
+  (if (valid-model-molecule? imol) 
+      (let* ((pisa-coot-dir "coot-pisa")
+	     (stubbed-name (make-stubbed-name imol))
+	     (pdb-file-name (append-dir-file pisa-coot-dir (string-append stubbed-name ".pdb")))
+	     (pisa-config (append-dir-file pisa-coot-dir (string-append stubbed-name "-pisa.cfg")))
+	     (pisa-xml-file-name (append-dir-file pisa-coot-dir (string-append stubbed-name ".xml"))))
+	
+	(make-directory-maybe pisa-coot-dir)
+	(make-pisa-config pisa-coot-dir pisa-config)
+	(write-pdb-file imol pdb-file-name)
+	(if (file-exists? pdb-file-name)
+
+	    (begin
+	      (format #t "pisa args ~s~%" (list "pisa" "-analyse" pdb-file-name pisa-config))
+	      (let ((status (goosh-command "pisa" (list "pisa" "-analyse" pdb-file-name pisa-config) 
+					   '() "pisa.log" #f)))
+		(if (= status 0) ;; good
+		    (let ((status-2 (goosh-command "pisa" (list "pisa" "-xml" pisa-config) '() 
+						   pisa-xml-file-name #f)))
+		      (if (= status 0)
+			  (pisa-xml imol pisa-xml-file-name))))))))))
+  
+
 
 (define (t)
   (pisa-xml (read-pdb "coot-download/3FCS.pdb") "pisa.xml"))
@@ -287,15 +341,11 @@
 (let ((menu (coot-menubar-menu "PISA")))
 
     (add-simple-coot-menu-menuitem
-     menu "PISA..."
+     menu "PISA assemblies..." 
      (lambda ()
-       (pisa-xml (read-pdb "coot-download/pdb3lz2.ent") "pisa.xml")))
+       (molecule-chooser-gui "Run PISA Assemblies on "
+			     (lambda (imol)
+			       (pisa-assemblies imol))))))
 
-    (add-simple-coot-menu-menuitem
-     menu "entry code..."
-     (lambda ()
-       (generic-chooser-and-entry "PISA xml for" " XML file-name:" "" 
-			     (lambda (imol text)
-			       (pisa-xml imol text))))))
 
 
