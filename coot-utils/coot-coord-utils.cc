@@ -4984,7 +4984,9 @@ coot::mol_by_symmetry(CMMDBManager *mol,
 		      clipper::Cell cell, 
 		      clipper::RTop_frac rtop_frac,
 		      std::vector<int> pre_shift_to_origin_abc) {
-  
+
+   bool verbose_output = 0; // should be a passed param?
+   
    CMMDBManager *mol2 = new CMMDBManager;
    mol2->Copy(mol, MMDBFCM_All);
 
@@ -5037,8 +5039,11 @@ coot::mol_by_symmetry(CMMDBManager *mol,
 	 }
       }
    }
-   std::cout << "symmetry rtop_orth:\n" << rtop.format() << std::endl;
-   std::cout << "symmetry rtop_frac:\n" << rtop_frac.format() << std::endl;
+
+   if (verbose_output) { 
+      std::cout << "symmetry rtop_orth:\n" << rtop.format() << std::endl;
+      std::cout << "symmetry rtop_frac:\n" << rtop_frac.format() << std::endl;
+   }
    
    return mol2;
 } 

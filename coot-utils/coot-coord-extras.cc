@@ -311,6 +311,24 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
 
 }
 
+// the constructor, given a list of bonds and a base atom index.
+// Used perhaps as the fallback when the above raises an
+// exception.
+coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
+			       int base_atom_index, 
+			       CResidue *res,
+			       const std::string &alconf) {
+   if (! res) {
+      std::string mess = "null residue in alternate atom_tree_t constructor";
+      throw std::runtime_error(mess);
+   } else { 
+      residue = res;
+      fill_atom_vertex_vec_using_contacts(contact_indices, base_atom_index);
+   } 
+
+}
+
+
 bool
 coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &rest, CResidue *res,
 				 const std::string &altconf) {
@@ -369,6 +387,22 @@ coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &re
    std::cout << "DEBUG:: inserted " << n_torsions_inserted << " torsions" << std::endl;
    return r;
 }
+
+bool
+coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::vector<int> > &contact_indices,
+						       int base_atom_index) {
+
+   bool r=0;
+
+   PPCAtom residue_atoms;
+   int n_residue_atoms;
+   residue->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   atom_vertex_vec.resize(n_residue_atoms);
+
+   return r;
+} 
+
 
 // Throw an exception on not able to fill.
 // 

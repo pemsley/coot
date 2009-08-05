@@ -139,6 +139,8 @@ namespace coot {
       std::map<std::string, atom_tree_index_t, std::less<std::string> > name_to_index;
       bool fill_atom_vertex_vec(const dictionary_residue_restraints_t &rest, CResidue *res,
 				const std::string &altconf);
+      bool fill_atom_vertex_vec_using_contacts(const std::vector<std::vector<int> > &contact_indices,
+					       int base_atom_index);
       bool fill_torsions(const dictionary_residue_restraints_t &rest, CResidue *res,
 			 const std::string &altconf);
       // Throw an exception on not able to fill.
