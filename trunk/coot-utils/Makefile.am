@@ -36,6 +36,7 @@ INCLUDES = \
 	-I$(top_srcdir)/coords  	\
 	-I$(top_srcdir)/geometry	\
 	-I$(top_srcdir)/compat		\
+	-I$(top_srcdir)/mini-mol	\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\
