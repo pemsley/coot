@@ -5650,12 +5650,14 @@ GtkWidget *wrapped_create_map_shapening_dialog() {
    int imol = fill_option_menu_with_map_options(option_menu, signal_func);
    graphics_info_t::imol_map_sharpening = imol;
 
-   std::cout << "DEBUG:: imol from fill_option_menu_with_map_options() " << imol << std::endl;
+   std::cout << "DEBUG:: imol from fill_option_menu_with_map_options() "
+	     << imol << std::endl;
 
    GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
    //GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
    // 0.05, 2, 30.1);
-   GtkObject *adj = gtk_adjustment_new(0.0, -30, 60, 0.05, 0.2, 30.1);
+   GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
+				       0.05, 0.2, (sharpening_limit+0.1));
    gtk_range_set_adjustment(GTK_RANGE(h_scale), GTK_ADJUSTMENT(adj));
 
    gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
