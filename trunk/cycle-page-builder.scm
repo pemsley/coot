@@ -510,7 +510,7 @@
 
 ;; 
 (define (burn-up-chart)
-  '(p (a (@ href "burn-up.png") "Burn-up Chart")))
+  '(p "Burn-up graph " (br) (a (@ href "burn-up.png") (image (@ src "burn-up-icon.png")))))
 
 
 ;; 
