@@ -3530,21 +3530,6 @@ SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state) {
 
 
 #ifdef USE_PYTHON
-PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state) {
-   PyObject *retval = Py_False;
-   std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec);
-   if (p.first) {
-      graphics_info_t::mark_atom_as_fixed(imol, p.second, state);
-      graphics_draw();
-      retval = Py_True; // Shall we return True if atom got marked?
-   }
-   Py_INCREF(retval);
-   return retval;
-}
-#endif // USE_PYTHON 
-
-
-#ifdef USE_PYTHON
 PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
 // e.g. atom_spec: ["A", 81, "", " CA ", ""]
 //      position   [2.3, 3.4, 5.6]
@@ -3572,6 +3557,21 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
    return retval;
 }
 #endif // USE_PYTHON
+
+
+#ifdef USE_PYTHON
+PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state) {
+   PyObject *retval = Py_False;
+   std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec);
+   if (p.first) {
+      graphics_info_t::mark_atom_as_fixed(imol, p.second, state);
+      graphics_draw();
+      retval = Py_True; // Shall we return True if atom got marked?
+   }
+   Py_INCREF(retval);
+   return retval;
+}
+#endif // USE_PYTHON 
 
 
 
@@ -4148,6 +4148,33 @@ SCM origin_pre_shift_scm(int imol) {
    return r;
 } 
 #endif  /* USE_GUILE */
+
+#ifdef USE_PYTHON
+/*! \brief return the pre-shift as a list of fraction or python false
+  on failure  */
+PyObject *origin_pre_shift_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      try { 
+	 clipper::Coord_frac cf = coot::util::shift_to_origin(mol);
+	 r = PyList_New(0);
+	 PyList_Append(r, PyInt_FromLong(int(round(cf.u()))));
+	 PyList_Append(r, PyInt_FromLong(int(round(cf.v()))));
+	 PyList_Append(r, PyInt_FromLong(int(round(cf.w()))));
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << rte.what() << std::endl;
+      } 
+   } 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+} 
+#endif  /* USE_PYTHON */
+
 #endif 
 
 
@@ -4490,7 +4517,6 @@ PyObject *missing_atom_info_py(int imol) {
 	 PyList_Append(l, PyString_FromString(inscode.c_str()));
 	 PyList_Append(r, l);
       }
-      //r = scm_reverse(r);
    }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
@@ -4967,7 +4993,66 @@ rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges) {
    }
    return ret_val;
 }
-#endif 
+#endif /* USE_GUILE */
+
+#ifdef USE_PYTHON
+/* ! \brief rigid body refine using residue ranges.  residue_ranges is
+   a list of residue ranges.  A residue range is [chain-id,
+   resno-start, resno-end]. */
+PyObject *
+rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges) {
+
+   PyObject *ret_val = Py_False;
+   std::vector<coot::residue_range_t> res_ranges;
+   if (PyList_Check(residue_ranges)) { 
+      int rr_length = PyObject_Length(residue_ranges);
+      if (rr_length > 0) {
+	 for (unsigned int irange=0; irange<rr_length; irange++) {
+	   PyObject *range_py = PyList_GetItem(residue_ranges, irange);
+	   if (PyList_Check(range_py)) {
+	     int range_length = PyObject_Length(range_py);
+	     if (range_length == 3) {
+	       PyObject *chain_id_py    = PyList_GetItem(range_py, 0);
+	       PyObject *resno_start_py = PyList_GetItem(range_py, 1);
+	       PyObject *resno_end_py   = PyList_GetItem(range_py, 2);
+	       if (PyString_Check(chain_id_py)) {
+		 std::string chain_id = PyString_AsString(chain_id_py);
+		 if (PyInt_Check(resno_start_py)) {
+		   int resno_start = PyInt_AsLong(resno_start_py);
+		   if (PyInt_Check(resno_end_py)) {
+		     int resno_end = PyInt_AsLong(resno_end_py);
+		     // recall that mmdb does crazy things with
+		     // the residue selection if the second
+		     // residue is before the first residue in
+		     // the chain.  So, check and swap if needed.
+		     if (resno_end < resno_start)
+		       std::swap<int>(resno_start, resno_end);
+		     coot::residue_range_t rr(chain_id, resno_start, resno_end);
+		     res_ranges.push_back(rr);
+		   }
+		 }
+	       } 
+	     } 
+	   } 
+	 }
+	 int status = rigid_body_fit_with_residue_ranges(imol, res_ranges); // test for res_ranges
+	                                                                    // length in here.
+	 if (status == 1) // good
+	   ret_val = Py_True;
+      } else {
+	std::cout << "incomprehensible input to rigid_body_refine_by_residue_ranges_scm"
+		  << " null list" << std::endl;
+      } 
+   } else {
+     std::cout << "incomprehensible input to rigid_body_refine_by_residue_ranges_scm"
+	       << " not a list" << std::endl;
+   }
+   if (PyBool_Check(ret_val)) {
+     Py_INCREF(ret_val);
+   }
+   return ret_val;
+}
+#endif /* USE_PYTHON */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -5018,16 +5103,6 @@ int rigid_body_fit_with_residue_ranges(int imol,
    return success;
 } 
 
-
-#ifdef USE_PYTHON
-void 
-/* Only a stub */
-rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges) {
-
-   // FIXMEBERNIE
-
-} 
-#endif 
 
 
 /*  ----------------------------------------------------------------------- */
@@ -6071,6 +6146,28 @@ SCM add_alt_conf_scm(int imol, const char*chain_id, int res_no, const char *ins_
    return r;
 } 
 #endif // USE_GUILE
+
+#ifdef USE_PYTHON  
+PyObject *add_alt_conf_py(int imol, const char*chain_id, int res_no, const char *ins_code,
+			  const char *alt_conf, int rotamer_number) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      // returns a bool,string pair (done-correct-flag, new atoms alt conf string)
+      std::pair<bool, std::string> p =
+	 g.split_residue(imol, std::string(chain_id), res_no,
+			 std::string(ins_code), std::string(alt_conf));
+      if (p.first) {
+	 r = PyString_FromString(p.second.c_str());
+      }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+} 
+#endif // USE_PYTHON
 
 
 /*  ----------------------------------------------------------------------- */

@@ -335,7 +335,14 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
 
 # example usage:
 # popen_command("mtzdump",["HKLIN","a.mtz"],["HEAD","END"],"test.log",0)
-  
+
+# Crude test to see of 2 floats are the same (more or less).
+# Used in a unit test after setting the atom position.
+#
+def close_float_qm(x1, x2):
+
+    return (abs(x1 - x2) < 0.001)
+
 # "a.b.res" -> "a.b"
 # file_name_sans_extension
 def strip_extension(s):
@@ -853,8 +860,23 @@ def valid_map_molecule_qm(imol):
     if (is_valid_map_molecule(imol)==1): return True
     else: return False
 
+# convenience function (slightly less typing).  
+#
+# Return True or False
+#
+def valid_refinement_map_qm():
+    return valid_map_molecule_qm(imol_refinement_map())
+
+# python (schemeyish) interface to shelx molecule test
+#
+# Return True or False
+#
+def shelx_molecule_qm(imol):
+    return is_shelx_molecule(imol) == 1
+
 # python (schemeyish) interface to the function that returns whether or not a map
 # is a difference map.
+#
 # Return True or False.
 #
 def is_difference_map_qm(imol_map):
@@ -928,6 +950,22 @@ def print_sequence(imol):
     
     for chain in chain_ids(imol):
        print_sequence_chain(imol,chain)
+
+# simple utility function to return the contents of a file as a string.
+#
+def pir_file_name2pir_sequence(pir_file_name):
+    import os
+    if (not os.path.isfile(pir_file_name)):
+        return False
+    else:
+        try:
+            fin = open(pir_file_name, 'r')
+            str = fin.read()
+            fin.close()
+            return str
+        except:
+            return False
+        
 
 # comma key hook
 def graphics_comma_key_pressed_hook():
@@ -1188,13 +1226,7 @@ def delete_atom_by_active_residue():
 def mutate_by_overlap(imol, chain_id, resno, tlc):
 
 	def mutate_it():
-		# BL says:: currently we dont get an imol back from get_monomer (python thing)
-		# so we run get_monomer and use the last imol as a ligand imol (may work..)
 		imol_ligand = get_monomer(tlc)
-		mol_ls = molecule_number_list()
-		imol_ligand = mol_ls[len(mol_ls)-1]
-		while imol_ligand == -1:
- 			print "BL DEBUG:: still waitin", imol_ligand
 		if not valid_model_molecule_qm(imol_ligand):
 			s = " Oops.  Failed to get monomer " + str(tlc)
 			add_status_bar_text(s)
@@ -1741,6 +1773,7 @@ map_sigma              = map_sigma_py
 map_parameters         = map_parameters_py
 map_cell               = map_cell_py
 get_refmac_sad_atom_info = get_refmac_sad_atom_info_py
+origin_pre_shift       = origin_pre_shift_py
 save_state_file_name   = save_state_file_name_py
 run_state_file         = run_state_file_py
 wrapped_create_run_state_file_dialog =  wrapped_create_run_state_file_dialog_py
@@ -1765,11 +1798,13 @@ execute_ligand_search  = execute_ligand_search_py
 overlap_ligands        = overlap_ligands_py
 analyse_ligand_differences = analyse_ligand_differences_py
 additional_representation_info = additional_representation_info_py
+rigid_body_refine_by_residue_ranges = rigid_body_refine_by_residue_ranges_py
 find_terminal_residue_type = find_terminal_residue_type_py
 cis_peptides           = cis_peptides_py
 get_rotamer_name       = get_rotamer_name_py
 missing_atom_info      = missing_atom_info_py
 rotamer_graphs         = rotamer_graphs_py
+add_alt_conf           = add_alt_conf_py
 add_lsq_atom_pair      = add_lsq_atom_pair_py
 apply_lsq_matches      = apply_lsq_matches_py
 make_image_raster3d    = make_image_raster3d_py
@@ -1780,6 +1815,7 @@ ncs_chain_ids          = ncs_chain_ids_py
 ncs_ghosts             = ncs_ghosts_py
 pucker_info            = pucker_info_py
 sequence_info          = sequence_info_py
+alignment_mismatches   = alignment_mismatches_py
 generic_object_name    = generic_object_name_py
 probe_available_p      = probe_available_p_py
 drag_intermediate_atom = drag_intermediate_atom_py

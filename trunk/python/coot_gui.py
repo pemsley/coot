@@ -757,7 +757,8 @@ def old_coot_qm():
    # new_release_time = 1205622000 # 16 Mar 2008 0.3.3
    # new_release_time = 1216854000 # 24 Jul 2008 0.4
    # new_release_time = 1237244400 # 17 March 2009
-   new_release_time = 1249945200 # 11 August 2009 : 0.5
+   #new_release_time = 1249945200 # 11 August 2009 : 0.5
+   new_release_time = 1279926000 # 24 July 2010 : 0.6
    current_time = int(time.time())
    time_diff = current_time - new_release_time
    if (time_diff > 0):
@@ -3730,6 +3731,334 @@ def map_sharpening_gui(imol):
    adj.connect("value_changed", lambda func: sharpen(imol, adj.value))
    
    window.show_all()
+
+
+# Associate the contents of a PIR file with a molecule.
+#
+def associate_pir_with_molecule_gui():
+   def associate_func(imol, chain_id, pir_file_name):
+      print "assoc seq:", imol, chain_id, pir_file_name
+      import os
+      if os.path.isfile(pir_file_name):
+         seq_text = pir_file_name2pir_sequence(pir_file_name)
+         assign_pir_sequence(imol, chain_id, seq_text)
+         return
+      else:
+         print "BL INFO:: no file found", pir_file_name
+         return
+      
+   generic_chooser_entry_and_file_selector(
+      "Associate Sequence to Model: ",
+      valid_model_molecule_qm,
+      "Chain ID",
+      "",
+      "Select PIR file",
+      lambda imol, chain_id, pir_file_name:
+      associate_func(imol, chain_id, pir_file_name))
+
+
+# Make a box-of-buttons GUI for the various modifications that need
+# to be made to match the model sequence to the assigned sequence(s).
+# 
+# Call this when the associated sequence(s) have been read in already.
+#
+def alignment_mismatches_gui(imol):
+
+   am = alignment_mismatches(imol)
+
+   if (am == []):
+      info_dialog("No sequence mismatches")
+   else:
+      if not am:
+         info_dialog("Sequence not associated - no alignment")
+      else:
+         #print "mutations", am[0]
+         #print "deletions", am[1]
+         #print "insertions", am[2]
+
+         # a button is a list [button_label, button_action]
+         def mutate_buttons():
+            ret_buttons = []
+            for res_info in am[0]:
+               chain_id = res_info[2]
+               res_no   = res_info[3]
+               ins_code = res_info[4]
+               button_1_label = "Mutate " + chain_id + \
+                                " " + str(res_no) + \
+                                " " + residue_name(imol, chain_id, res_no, ins_code) + \
+                                " to " + res_info[0]
+               button_1_action = ["set_go_to_atom_molecule(" + str(imol) + ")",
+                                  "set_go_to_atom_chain_residue_atom_name(\'" + chain_id + "\', " + str(res_no) + ", " + "\' CA \')"]
+               ret_buttons.append([button_1_label, button_1_action])
+            return ret_buttons
+
+         def delete_buttons():
+            ret_buttons = []
+            for res_info in am[1]:
+               chain_id = res_info[2]
+               res_no   = res_info[3]
+               ins_code = res_info[4]
+               button_1_label = "Delete " + chain_id + \
+                                " " + str(res_no)
+               button_1_action = ["set_go_to_atom_molecule(" + str(imol) + ")",
+                                  "set_go_to_atom_chain_residue_atom_name(\'" + chain_id + "\', " + str(res_no) + ", " + "\' CA \')"]
+               ret_buttons.append([button_1_label, button_1_action])
+            return ret_buttons
+
+         def insert_buttons():
+            ret_buttons = []
+            for res_info in am[2]:
+               chain_id = res_info[2]
+               res_no   = res_info[3]
+               ins_code = res_info[4]
+               button_1_label = "Insert " + chain_id + \
+                                " " + str(res_no)
+               button_1_action = "info_dialog(" + button_1_label + ")"
+               ret_buttons.append([button_1_label, button_1_action])
+            return ret_buttons
+
+         buttons  = delete_buttons()
+         buttons += mutate_buttons()
+         buttons += insert_buttons()
+
+         dialog_box_of_buttons("Residue mismatches", [300, 300],
+                               buttons, "  Close  ")
+
+# Wrapper in that we test if there have been sequence(s) assigned to
+# imol before we look for the sequence mismatches
+#
+def wrapper_alignment_mismatches_gui(imol):
+   
+   seq_info = sequence_info(imol)
+   if not seq_info:
+      associate_pir_with_molecule_gui()
+   else:
+      alignment_mismatches_gui(imol)
+
+
+# Multiple residue ranges gui
+# 
+# Create a new top level window that contains a residue-range-vbox
+# which contains a set of hboxes that contain (or allow the user to
+# enter) a residue range (chain-id resno-start resno-end).
+# 
+# The '+' and '-' buttons on the right allow the addition of extra
+# residue ranges (and remove them of course).  The residue ranges are
+# added to residue-range-widgets in a somewhat ugly manner.  Note
+# also that fill-residue-range-widgets-previous-data generates
+# residue range widgets and adds them to residue-range-widgets.
+# 
+# The interesting function is make-residue-range-frame which returns
+# the outside vbox (that contains the frame and + and - buttons, so
+# it is not a great name for the function) and each of the entries -
+# so that they can be decoded (gtk-entry-get-text) when the "Go"
+# button is pressed.
+#
+# Using the variable saved-residue-ranges, the GUI can restore itself
+# from previous (saved) residue ranges.
+#
+# (Notice that we are not dealing with insertion codes).
+#
+global saved_residue_ranges
+saved_residue_ranges = []
+def residue_range_gui(func, function_text, go_button_label):
+
+   global saved_residue_ranges
+   residue_range_widgets = []
+   #
+   def n_residue_range_vboxes(residue_range_widgets_vbox):
+      ls = residue_range_widgets_vbox.get_children()
+      length = len(ls)
+      return length
+
+   # Remove widget from residue-range-widgets (on '-' button
+   # pressed)
+   def remove_from_residue_range_widget(widget):
+      for ls in residue_range_widgets:
+	 if (widget == ls[0]):
+		 rem = ls
+		 break
+      residue_range_widgets.remove(rem)
+
+   #
+   def make_residue_range_frame(residue_range_vbox):
+
+      def plus_button_cb(*args):
+         # we need to add a new residue-range
+         # outside-hbox into the residue-range-widgets-vbox
+         rr_frame = make_residue_range_frame(residue_range_vbox)
+         residue_range_vbox.pack_start(rr_frame[0], False, False, 2)
+         rr_frame[0].show()
+         residue_range_widgets.append(rr_frame)
+
+      def minus_button_cb(*args):
+         n = n_residue_range_vboxes(residue_range_vbox)
+         if (n > 1):
+            remove_from_residue_range_widget(outside_hbox)
+            outside_hbox.destroy()
+      
+      frame = gtk.Frame()
+      outside_hbox = gtk.HBox(False, 2)
+      hbox = gtk.HBox(False, 2)
+      text_1 = gtk.Label("  Chain-ID:")
+      text_2 = gtk.Label("  Resno Start:")
+      text_3 = gtk.Label("  Resno End:")
+      entry_1 = gtk.Entry()
+      entry_2 = gtk.Entry()
+      entry_3 = gtk.Entry()
+      plus_button  = gtk.Button("+")
+      minus_button = gtk.Button(" - ")
+
+      hbox.pack_start(text_1,  False, False, 0)
+      hbox.pack_start(entry_1, False, False, 0)
+      hbox.pack_start(text_2,  False, False, 0)
+      hbox.pack_start(entry_2, False, False, 0)
+      hbox.pack_start(text_3,  False, False, 0)
+      hbox.pack_start(entry_3, False, False, 0)
+
+      outside_hbox.pack_start(frame, False, False, 2)
+      frame.add(hbox)
+      outside_hbox.pack_start(plus_button,  False, False, 2)
+      outside_hbox.pack_start(minus_button, False, False, 2)
+
+      plus_button.connect("clicked", plus_button_cb)
+      
+      minus_button.connect("clicked", minus_button_cb)
+
+      map(lambda x: x.show(), [frame, outside_hbox, hbox, text_1, text_2, text_3,
+                               entry_1, entry_2, entry_3, plus_button, minus_button])
+
+      # return the thing that we need to pack and the entries we
+      # need to read.
+      return [outside_hbox, entry_1, entry_2, entry_3]
+
+   #
+   def make_residue_ranges():
+      ls = map(make_residue_range, residue_range_widgets)
+      return ls
+
+   # Return a list ["A", 2, 3] or False on failure to decose entries
+   #
+   def make_residue_range(residue_range_widget):
+      # print "make a residue range using", residue_range_widget
+      entry_1 = residue_range_widget[1]
+      entry_2 = residue_range_widget[2]
+      entry_3 = residue_range_widget[3]
+      chain_id = entry_1.get_text()
+      res_no_1_txt = entry_2.get_text()
+      res_no_2_txt = entry_3.get_text()
+      try:
+         res_no_1 = int(res_no_1_txt)
+         res_no_2 = int(res_no_2_txt)
+         return [chain_id, res_no_1, res_no_2]
+      except:
+         print "did not understand %s and %s as numbers - fail residue range" %(res_no_1_txt, res_no_2_txt)
+         return False
+
+   #
+   def save_ranges(residue_range_widgets):
+      global saved_residue_ranges
+      residue_ranges = []
+      for residue_range_widget in residue_range_widgets:
+         ls = make_residue_range(residue_range_widget)
+	 residue_ranges.append(ls)
+      saved_residue_ranges = residue_ranges
+
+   # range_info is list [chain_id, res_no_1, res_no_2]
+   #
+   def fill_with_previous_range(range_info, vbox_info):
+      print "fill_with_previous_range using", range_info
+      entry_1 = vbox_info[1]
+      entry_2 = vbox_info[2]
+      entry_3 = vbox_info[3]
+      chain_id = range_info[0]
+      resno_1  = range_info[1]
+      resno_2  = range_info[2]
+
+      entry_1.set_text(chain_id)
+      entry_2.set_text(str(resno_1))
+      entry_3.set_text(str(resno_2))
+      
+   #
+   def fill_residue_range_widgets_previous_data(previous_ranges,
+                                                first_vbox_info,
+                                                residue_range_vbox):
+      print "first one", previous_ranges[0]
+      if previous_ranges:
+         if previous_ranges[0]:
+            fill_with_previous_range(previous_ranges[0], first_vbox_info)
+      if (len(previous_ranges) > 1):
+         for rang in previous_ranges[1:]:
+            if rang:
+               vbox_info = make_residue_range_frame(residue_range_vbox)
+               residue_range_vbox.pack_start(vbox_info[0], False, False, 2)
+               print "next one", rang
+               residue_range_widgets.append(vbox_info)
+               fill_with_previous_range(rang, vbox_info)
+
+   # main line
+   #
+   def cancel_button_cb(*args):
+      save_ranges(residue_range_widgets)
+      window.destroy()
+      return False
+
+   def go_button_cb(*args):
+      from types import IntType
+      save_ranges(residue_range_widgets)
+      residue_ranges = make_residue_ranges()
+      imol = get_option_menu_active_molecule(*mc_opt_menu_model_list)
+      if (type(imol) is IntType):
+         func(imol, residue_ranges)
+      else:
+         print "BL INFO:: couldn't get valid imol!!"
+      window.destroy()
+      return False
+      
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   vbox = gtk.VBox(False, 0)
+   residue_range_vbox = gtk.VBox(True, 2)
+   residue_range_widget_info = make_residue_range_frame(residue_range_vbox)
+   hbox_buttons = gtk.HBox(False, 0)
+   function_label = gtk.Label(function_text)
+   cancel_button = gtk.Button("  Cancel  ")
+   go_button = gtk.Button(go_button_label)
+   h_sep = gtk.HSeparator()
+   # the first residue range
+   outside_vbox_residue_range = residue_range_widget_info[0]
+
+   residue_range_widgets = [residue_range_widget_info] #?
+
+   # buttons
+   hbox_buttons.pack_start(cancel_button, False, False, 6)
+   hbox_buttons.pack_start(    go_button, False, False, 6)
+
+   # the vbox of residue ranges
+   residue_range_vbox.pack_start(outside_vbox_residue_range, False, False, 0)
+
+   if saved_residue_ranges:
+      fill_residue_range_widgets_previous_data(saved_residue_ranges,
+                                               residue_range_widget_info,
+                                               residue_range_vbox)
+      
+   # main vbox
+   vbox.pack_start(function_label, False, False, 0)
+   mc_opt_menu_model_list = generic_molecule_chooser(vbox,
+                                                     "Molecule for Ranges:")
+   vbox.pack_start(residue_range_vbox, False, False, 2)
+   vbox.pack_start(h_sep, True, True, 6)
+   vbox.pack_start(hbox_buttons, False, False, 0)
+
+   window.add(vbox)
+   vbox.set_border_width(6)
+
+   cancel_button.connect("clicked", cancel_button_cb)
+
+   go_button.connect("clicked", go_button_cb)
+
+   window.show_all()
+            
+            
 
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()
