@@ -358,6 +358,25 @@ if (have_coot_python):
           lambda imol, text: new_mol_sphere_func1(imol, text)))
 
 
+     def new_mol_sym_func1(imol, text):
+       from types import ListType
+       pre_shift = origin_pre_shift(imol)
+       if (type(pre_shift) is not ListType):
+         print "bad pre-shift aborting"
+       else:
+         new_molecule_by_symop(imol, text,
+                               pre_shift[0],
+                               pre_shift[1],
+                               pre_shift[2])
+       
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "New Molecule from Symmetry Op...",
+       lambda func: generic_chooser_and_entry(
+          "Molecule from which to generate a symmetry copy",
+          "SymOp", "X,Y,Z",
+          lambda imol, text: new_mol_sym_func1(imol, text)))
+
 # BL says:: may work, not sure about function entirely
      add_simple_coot_menu_menuitem(
        submenu_models,
@@ -383,7 +402,7 @@ if (have_coot_python):
        submenu_models,
        "Reorder Chains...",
        lambda func: molecule_chooser_gui("Sort Chain IDs in molecule:",
-                                         lambda imol: sort_chains(imol)))
+                                         lambda imol: sort_chains(imol))) # an internal function
 
 
      add_simple_coot_menu_menuitem(
@@ -391,13 +410,6 @@ if (have_coot_python):
        "Fix Nomenclature Errors...",
        lambda func: molecule_chooser_gui("Fix Nomenclature Error in molecule:",
                                          lambda imol: fix_nomenclature_errors(imol)))
-
-
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Merge Water Chains...",
-       lambda func: molecule_chooser_gui("Merge Water Chains in molecule:",
-                                         lambda imol: merge_solvent_chains(imol)))
 
 
      add_simple_coot_menu_menuitem(
@@ -450,17 +462,38 @@ if (have_coot_python):
          assign_pir_sequence(imol, chain_id, seq_text)
        else:
          print "BL WARNING:: could not find", pir_file
-     
+
+     # old
+     #add_simple_coot_menu_menuitem(
+     #  submenu,
+     #  "Associate Sequence...",
+     #  lambda func: generic_chooser_entry_and_file_selector(
+     #    "Associate Sequence to Model: ",
+     #    valid_model_molecule_qm,
+     #    "Chain ID",
+     #    "",
+     #    "Select PIR file",
+     #    lambda imol, chain_id, seq_file_name: associate_seq_func(imol, chain_id, seq_file_name)))
      add_simple_coot_menu_menuitem(
        submenu,
        "Associate Sequence...",
-       lambda func: generic_chooser_entry_and_file_selector(
-         "Associate Sequence to Model: ",
-         valid_model_molecule_qm,
-         "Chain ID",
-         "",
-         "Select PIR file",
-         lambda imol, chain_id, seq_file_name: associate_seq_func(imol, chain_id, seq_file_name)))
+       lambda func: associate_pir_with_molecule_gui())
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Rigid Body Fit Residue Ranges...",
+       lambda func:
+       residue_range_gui(lambda imol, ls: rigid_body_refine_by_residue_ranges(imol, ls),
+                         "Rigid Body Refine",
+                         "  Fit  "))
+     
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Merge Water Chains...",
+       lambda func: molecule_chooser_gui("Merge Water Chains in molecule:",
+                                         lambda imol: merge_solvent_chains(imol)))
 
 
      add_simple_coot_menu_menuitem(
@@ -470,6 +503,14 @@ if (have_coot_python):
           "Renumber waters of which molecule?",
           lambda imol: renumber_waters(imol)))
 
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Arrange Waters Around Protein...",
+       lambda func: molecule_chooser_gui(
+          "Arrange waters in molecule: ",
+          lambda imol: move_waters_to_around_protein(imol)))
+     
 
      add_simple_coot_menu_menuitem(
        submenu_models,
@@ -1103,7 +1144,7 @@ if (have_coot_python):
        lambda func: key_bindings_gui())
 
 
-# Doesnt seem to be working right currently, so comment out?! Not any more?!
+     # Doesnt seem to be working right currently, so comment out?! Not any more?!
      # add to validate menu
      menu = coot_menubar_menu("Validate")
 
@@ -1111,6 +1152,13 @@ if (have_coot_python):
                                    lambda func: molecule_chooser_gui(
        "Choose a molecule for ribose pucker analysis",
        lambda imol: pukka_puckers_qm(imol)))
+
+     add_simple_coot_menu_menuitem(
+       menu,
+       "Alignment vs PIR...",
+       lambda func: molecule_chooser_gui("Alignment vs PIR info for molecule:",
+                                         lambda imol: wrapper_aligment_mismatches_gui(imol)))
+          
 
   else:
 	print "BL WARNING:: could not find the main_menubar! Sorry, no extensions menu!"

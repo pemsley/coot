@@ -1586,10 +1586,65 @@ and the empty list on no alignment mismatches.*/
 #ifdef USE_PYTHON
 PyObject *alignment_mismatches_py(int imol) {
 
-   // FIXMEBERNIE
-   
    PyObject *r = Py_False;
 
+   std::vector<std::pair<coot::residue_spec_t,std::string> > mutations;
+   std::vector<std::pair<coot::residue_spec_t,std::string> > insertions;
+   std::vector<std::pair<coot::residue_spec_t,std::string> > deletions;
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > ar = 
+      	 graphics_info_t::molecules[imol].residue_mismatches();
+      if (ar.first)
+	r = PyList_New(0);
+      for (unsigned int ir=0; ir<ar.second.size(); ir++) {
+	 for (unsigned int im=0; im<ar.second[ir].mutations.size(); im++) {
+	    mutations.push_back(ar.second[ir].mutations[im]);
+	 }
+	 for (unsigned int is=0; is<ar.second[ir].single_insertions.size(); is++) {
+	    insertions.push_back(ar.second[ir].single_insertions[is]);
+	 }
+	 for (unsigned int id=0; id<ar.second[ir].deletions.size(); id++) {
+	    coot::residue_spec_t del = ar.second[ir].deletions[id];
+	    std::pair<coot::residue_spec_t, std::string> d(del, "Delete");
+	    deletions.push_back(d);
+	 }
+      }
+   }
+
+   if ((mutations.size() > 0) || (insertions.size() > 0) || (deletions.size() > 0)) {
+     PyObject *insertions_py = PyList_New(0);
+     PyObject *deletions_py = PyList_New(0);
+     PyObject * mutations_py = PyList_New(0);
+     for (unsigned int i=0; i<mutations.size(); i++) {
+	 PyObject *rs_py = py_residue(mutations[i].first);
+	 PyObject *str = PyString_FromString(mutations[i].second.c_str());
+	 PyList_Insert(rs_py, 0, str);
+	 PyList_Append(mutations_py, rs_py);
+      }
+      for (unsigned int i=0; i<insertions.size(); i++) {
+	 PyObject *rs_py = py_residue(insertions[i].first);
+	 PyObject *str = PyString_FromString(insertions[i].second.c_str());
+	 PyList_Insert(rs_py, 0, str);
+	 PyList_Append(insertions_py, rs_py);
+      }
+      for (unsigned int i=0; i<deletions.size(); i++) {
+	 PyObject *rs_py = py_residue(deletions[i].first);
+	 PyObject *str = PyString_FromString(deletions[i].second.c_str());
+	 PyList_Insert(rs_py, 0, str);
+	 PyList_Append(deletions_py, rs_py);
+      }
+      r = PyList_New(0);
+      // These are reversed so that the residue numbers come out in
+      // numerical order (not backwards) and the returned list is
+      // [mutations, deletions, insertions].
+      PyList_Append(r, mutations_py);
+      PyList_Append(r, deletions_py);
+      PyList_Append(r, insertions_py);
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 #endif // USE_PYTHON

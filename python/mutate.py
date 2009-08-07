@@ -135,7 +135,7 @@ def three_letter_code2single_letter(residue_type):
 def mutate_nucleotide_range(imol, chain_id, resno_start, resno_end, sequence):
 
    from types import StringType
-   # return False on unknown letter
+   # return False on unknown letter. We don't need to be specific about
    # RNA/DNA here because mutate-base uses canonical_base_name() to
    # set the base name according to the residue type before it was
    # mutated.

@@ -1608,6 +1608,12 @@ int new_molecule_by_symop(int imol, const char *symop_string,
   ints or scheme false on failure  */
 SCM origin_pre_shift_scm(int imol);
 #endif  /* USE_GUILE */
+#ifdef USE_PYTHON
+/*! \brief return the pre-shift (the shift that translates the centre
+  of the molecule as close as possible to the origin) as a list of
+  ints or python false on failure  */
+PyObject *origin_pre_shift_py(int imol);
+#endif  /* USE_PYTHON */
 #endif 
 
 void setup_save_symmetry_coords();
@@ -3944,8 +3950,7 @@ SCM
 rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges); 
 #endif 
 #ifdef USE_PYTHON
-void 
-/* Only a stub */
+PyObject * 
 rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges); 
 #endif 
 #endif 
@@ -4371,6 +4376,14 @@ Return the new alt_conf chain_id on sucess, scheme false on fail */
 SCM add_alt_conf_scm(int imol, const char*chain_id, int res_no, const char *ins_code, 
 		     const char *alt_conf, int rotamer_number);
 #endif	/* USE_GUILE */
+#ifdef USE_PYTHON
+/*! \brief add an alternative conformer to a residue.  Add it in
+  conformation rotamer number rotamer_number.  
+
+Return the new alt_conf chain_id on sucess, python false on fail */
+PyObject *add_alt_conf_py(int imol, const char*chain_id, int res_no, const char *ins_code, 
+		     const char *alt_conf, int rotamer_number);
+#endif	/* USE_PYTHON */
 #endif 
 
 void setup_alt_conf_with_dialog(GtkWidget *dialog); 
@@ -5113,8 +5126,6 @@ SCM alignment_mismatches_scm(int imol);
   seq]].  To be used in constructing the cootaneer gui. */
 PyObject *sequence_info_py(int imol);
 /*! \brief 
-
-  NOTE only a stub
 
   do a internal alignment of all the assigned sequences,
   return a list of mismatches that need to be made to model number

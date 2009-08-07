@@ -104,7 +104,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessEqual(pre_n_molecules, post_n_molecules, "fail on non-matching n molecules (=)")
 
 
-    def test04_1(self):
+    def test05_0(self):
 	    """ins code change and Goto atom over an ins code break"""
 
 	    def matches_attributes(atts_obs, atts_ref):
@@ -146,7 +146,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		    print "   pass: ", expected_result
 
 
-    def test05_0(self):
+    def test06_0(self):
 	    """Read a bogus map"""
 	    pre_n_molecules = graphics_n_molecules()
 	    imol = handle_read_ccp4_map("bogus.map", 0)
@@ -155,7 +155,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessEqual(now_n_molecules, pre_n_molecules, "bogus ccp4 map creates extra map %s %s " %(pre_n_molecules, now_n_molecules))
 	    
 
-    def test06_0(self):
+    def test07_0(self):
 	    """Read MTZ test"""
 
 	    global imol_rnase_map
@@ -176,7 +176,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(valid_map_molecule_qm(imol_map))
 
 
-    def test06_1(self):
+    def test08_0(self):
 	    """Map Sigma """
 
 	    global imol_rnase_map
@@ -188,13 +188,13 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    print "INFO:: map sigmas", v, v2
 	    self.failIf(v2)
 
-    def test07_0(self):
+    def test09_0(self):
 	    """Another Level Test"""
 	    imol_map_2 = another_level()
 	    self.failUnless(valid_map_molecule_qm(imol_map_2))
 
 	    
-    def test08_0(self):
+    def test10_0(self):
 	    """Set Atom Atribute Test"""
 	    atom_ls = []
 	    global imol_rnase
@@ -209,7 +209,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		    self.failUnlessAlmostEqual(x, 64.5)
 
 
-    def test09_0(self):
+    def test11_0(self):
 	"""Add Terminal Residue Test"""
 	import types
 
@@ -277,7 +277,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	map(lambda atom: self.failUnlessAlmostEqual(atom[1][1], 45, 1, "Fail b-factor test %s" %new_atoms), new_atoms)
 
 
-    def test10_0(self):
+    def test12_0(self):
 	    """Select by Sphere"""
 
 	    global imol_rnase
@@ -302,7 +302,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessEqual(n_atoms, 20)
 			
 
-    def test11_0(self):
+    def test13_0(self):
 	"""Test Views"""
 	view_number = add_view([32.0488, 21.6531, 13.7343],
 			       [-0.12784, -0.491866, -0.702983, -0.497535],
@@ -312,7 +312,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	# test for something??
 
 
-    def test12_0(self):
+    def test14_0(self):
 	"""Label Atoms and Delete"""
 
 	imol_frag = new_molecule_by_atom_selection(imol_rnase, "//B/10-12")
@@ -326,7 +326,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	# ???? what do we sheck for?
 
 
-    def test13_0(self):
+    def test15_0(self):
 	    """Rotamer outliers"""
 
 	    # pre-setup so that residues 1 and 2 are not rotamers "t" but 3
@@ -365,7 +365,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
     # Don't reset the occupancies of the other parts of the residue
     # on regularization using alt confs
     #
-    def test14_0(self):
+    def test16_0(self):
 	    """Alt Conf Occ Sum Reset"""
 
 	    def get_occ_sum(imol_frag):
@@ -406,7 +406,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessAlmostEqual(occ_sum_pre, occ_sum_post, 1, "   test for closeness: %s %s" %(occ_sum_pre, occ_sum_post))
 
 
-    def test14_1(self):
+    def test17_0(self):
 	    """Pepflip flips the correct alt confed atoms"""
 
 	    imol = unittest_pdb("alt-conf-pepflip-test.pdb")
@@ -449,7 +449,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
     # This test we expect to fail until the CISPEP correction code is in
     # place (using mmdb-1.10+).
     # 
-    def test15_0(self):
+    def test18_0(self):
 	    """Correction of CISPEP test"""
 
 	    # In this test the cis-pep-12A has indeed a CIS pep and has been
@@ -533,7 +533,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    #self.failUnlessEqual("3", parts)   # this is once MMDB works properly with CIS
 	    
 
-    def test15_1(self):
+    def test19_0(self):
 	    """Refine Zone with Alt conf"""
 
 	    imol = unittest_pdb("tutorial-modern.pdb")
@@ -548,9 +548,39 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    # the atom should move in the refinement
 	    print "   refined moved: d=", d
 	    self.failIf(d < 0.4, "   refined atom failed to move: d=%s" %d)
+
+
+    def test20_0(self):
+	    """Sphere Refine"""
+
+	    def sphere_refine_here():
+		    from types import ListType
+		    active_atom = active_residue()
+		    self.failUnless(type(active_atom) is ListType)
+		    centred_residue = active_atom[1:4]
+		    imol = active_atom[0]
+		    other_residues = residues_near_residue(imol,
+							   centred_residue,
+							   3.2)
+		    all_residues = [centred_residue]
+		    if other_residues:
+			    all_residues += other_residues
+		    print "imol: %s residues: %s" %(imol, all_residues)
+		    refine_residues(imol, all_residues)
+
+	    imol = unittest_pdb("tutorial-add-terminal-1-test.pdb")
+	    self.failUnless(valid_model_molecule_qm(imol),
+			    "   molecule pdb not found")
+
+	    new_alt_conf = add_alt_conf(imol, "A", 93, "", "", 0)
+
+	    set_go_to_atom_molecule(imol)
+	    success = set_go_to_atom_chain_residue_atom_name("A", 93, " CA ")
+	    self.failIf(success == 0, "   failed to go to A93 CA atom")
+	    sphere_refine_here()
 	    
 
-    def test16_0(self):
+    def test21_0(self):
 	    """Rigid Body Refine Alt Conf Waters"""
 
 	    imol_alt_conf_waters = read_pdb(os.path.join(unittest_data_dir, "alt-conf-waters.pdb"))
@@ -565,7 +595,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    # what do we check for?!
 
 	    
-    def test17_0(self):
+    def test227_0(self):
 	    """Setting multiple atom attributes"""
 
 	    global imol_rnase
@@ -600,7 +630,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    self.failUnlessAlmostEqual(b, b_test_val, 1, "Error in setting multiple atom: These are not close %s %s" %(b, b_test_val))
 
 
-    def test18_0(self):
+    def test23_0(self):
 	    """Tweak Alt Confs on Active Residue"""
 	    
 	    global imol_rnase
@@ -633,7 +663,75 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    "   No matching post CB (unaltconfed) - failing.")
 
 
-    def test19_0(self):
+    def test24_0(self):
+	    """Backrub rotamer"""
+
+	    global imol_rnase_map
+	    #
+	    def get_mover_list(imol_1, imol_2, res_no):
+		    atoms_1 = residue_info(imol_1, "A", res_no, "")
+		    atoms_2 = residue_info(imol_2, "A", res_no, "")
+		    mover_list = []
+		    for atom_1, atom_2 in zip(atoms_1, atoms_2):
+			    pos_1 = atom_1[2]
+			    pos_2 = atom_2[2]
+			    ls = map(close_float_qm, pos_1, pos_2)
+			    if not all(ls):
+				    # did move
+				    mover_list.append(atom_1[0][0])
+		    mover_list.sort()
+		    return mover_list
+
+	    # main line
+	    set_imol_refinement_map(imol_rnase_map)
+
+	    imol = handle_read_draw_molecule_with_recentre(os.path.join(unittest_data_dir,
+									"backrub-fragment.pdb"),
+							   0)
+	    imol_copy = copy_molecule(imol)
+
+	    self.failUnless(valid_model_molecule_qm(imol),
+			    "backrub-rotamer backrub-fragment.pdb not found it seems")
+
+	    status = backrub_rotamer(imol_copy, "A", 37, "", "")
+
+	    self.failUnless(status == 1, "backrub-rotamer status failure")
+
+	    # Now, N should have moved in 38 (nothing else)
+	    #
+	    # C and O should have moved in 36 (nothing else)
+	    # 
+	    # all atoms in 37.
+	    # 
+
+	    atoms_37 = residue_info(imol, "A", 37, "")
+	    calc_37_movers = [atom[0][0] for atom in atoms_37]
+	    calc_37_movers.sort()
+	    calc_38_movers = [" N  "]
+	    calc_36_movers = [" C  ", " O  "]
+
+	    movers_36 = get_mover_list(imol, imol_copy, 36)
+	    movers_37 = get_mover_list(imol, imol_copy, 37)
+	    movers_38 = get_mover_list(imol, imol_copy, 38)
+
+	    #print "calc_36_movers:", calc_36_movers
+	    #print " obs_36_movers:",         movers_36
+	    #print "calc_37_movers:", calc_37_movers
+	    #print " obs_37_movers:",         movers_37
+	    #print "calc_38_movers:", calc_38_movers
+	    #print " obs_38_movers:",         movers_38
+
+	    self.failUnlessEqual(movers_36, calc_36_movers,
+				 "  fail on 36 movers similar")
+
+	    self.failUnlessEqual(movers_37, calc_37_movers,
+				 "  fail on 37 movers similar")
+
+	    self.failUnlessEqual(movers_38, calc_38_movers,
+				 "  fail on 36 movers similar")
+    
+
+    def test25_0(self):
 	    """Libcif horne"""
 
 	    if (have_test_skip):
@@ -670,7 +768,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(cent[0] < 2000, "Position fail 2000 test: %s in %s" %(cent[0], cent))
 
 
-    def test20_0(self):
+    def test26_0(self):
 	    """Refmac Parameters Storage"""
 
 	    arg_list = [rnase_mtz, "/RNASE3GMP/COMPLEX/FWT", "/RNASE3GMP/COMPLEX/PHWT", "", 0, 0, 1, 
@@ -686,7 +784,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessEqual(refmac_params, arg_list, "        non matching refmac params")
 
 
-    def test21_0(self):
+    def test27_0(self):
 	    """The position of the oxygen after a mutation"""
 
 	    import operator
@@ -724,7 +822,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessEqual(o_pos, 4,"   found O atom at %s (not 4)" %o_pos) 
 
 	    
-    def test22_0(self):
+    def test28_0(self):
 	    """Deleting (non-existing) Alt conf and Go To Atom [JED]"""
 
 	    global imol_rnase
@@ -735,7 +833,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    # test for what?? (no crash??)
 
 
-    def test23_0(self):
+    def test29_0(self):
 	    """Mask and difference map"""
 
 	    def get_ca_coords(imol_model, resno_1, resno_2):
@@ -796,7 +894,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless((sum(diff_low_values) < -5), "Bad diff high values")
 	    
 
-    def test24_0(self):
+    def test30_0(self):
 	    """Make a glycosidic linkage"""
 
 	    carbo = "multi-carbo-coot-2.pdb"
@@ -825,7 +923,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    print "bond-length: ", bond_length(atom_1[2], atom_2[2])
 
-    def test25_0(self):
+    def test31_0(self):
 	    """Test for flying hydrogens on undo"""
 
 	    from types import ListType
@@ -849,7 +947,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    "   flying hydrogen failure, bond length %s, should be 0.96" %bond_length_from_atoms(atom_1, atom_2))
 
 
-    def test25_1(self):
+    def test32_0(self):
 	    """Test for mangling of hydrogen names from a PDB v 3.0"""
 
 	    imol = unittest_pdb("3ins-6B-3.0.pdb")
@@ -868,7 +966,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(all(map(lambda atom_1, atom_2: bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), atoms_1, atoms_2)), "Hydrogen names mangled from PDB")
 
 
-    def test26_0(self):
+    def test33_0(self):
 	    """Update monomer restraints"""
 
 	    atom_pair = [" CB ", " CG "]
@@ -909,7 +1007,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    "fail 1.512 tolerance test")
 	    
 
-    def test26_1(self):
+    def test34_0(self):
 	    """Refinement OK with zero bond esd"""
 	    
 	    # return the restraints as passed (in r_list) except for a bond
@@ -956,7 +1054,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    # didn't crash?!
 	    
 
-    def test27_0(self):
+    def test35_0(self):
 	    """Change Chain IDs and Chain Sorting"""
 
 	    def chains_in_order_qm(chain_list):
@@ -987,7 +1085,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(chains_in_order_qm(c))
 
 
-    def test28_0(self):
+    def test36_0(self):
 	    """Replace Fragment"""
 
 	    atom_sel_str = "//A70-80"
@@ -1017,7 +1115,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 
 
-    def test29_0(self):
+    def test37_0(self):
 	    """Residues in Region of Residue"""
 
 	    for dist, n_neighbours in zip([4,0], [6,0]):
@@ -1026,7 +1124,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		    print "found %s neighbours %s" %(len(rs), rs)
 	    
 
-    def test29_1(self):
+    def test38_0(self):
 	    """Residues in region of a point"""
 
 	    imol = unittest_pdb("tutorial-modern.pdb")
@@ -1038,7 +1136,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(len(residues_2) == 3, "  Fail 3, got residues-2: %s" %residues_2) #its neighbours too.
 	    
 
-    def test30_0(self):
+    def test39_0(self):
 	    """Empty molecule on type selection"""
 
 	    global imol_rnase
@@ -1048,7 +1146,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessEqual(imol2, -1, "failed on empty selection 2 gives not imol -1")
 
 
-    def test31_0(self):
+    def test40_0(self):
 	    """Set Rotamer"""
 
 	    chain_id = "A"
@@ -1078,7 +1176,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(all(map(lambda d: d >= 0.0, dists)))
 	    
 
-    def test31_1(self):
+    def test41_0(self):
 	    """Rotamer names and scores are correct"""
 
 	    imol = unittest_pdb("tutorial-modern.pdb")
@@ -1101,7 +1199,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    turn_on_backup(imol)
 
 
-    def test32_0(self):
+    def test42_0(self):
 	    """Align and mutate a model with deletions"""
 
 	    def residue_in_molecule_qm(imol, chain_id, resno, ins_code):
@@ -1149,22 +1247,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(all(map(lambda res: compare_res_spec(res), ls)))
 
 
-    def test33_0(self):
-	    """Read/write gz coordinate files"""
-
-	    # this is mainly an mmdb test for windows
-
-	    # first write a gz file
-	    gz_state = write_pdb_file(imol_rnase, "rnase_zip_test.pdb.gz")
-	    self.failIf(gz_state == 1)
-	    self.failUnless(os.path.isfile("rnase_zip_test.pdb.gz"))
-	    
-	    # now unzip and read the file
-	    gz_imol = handle_read_draw_molecule("rnase_zip_test.pdb.gz")
-	    self.failUnless(valid_model_molecule_qm(gz_imol))
-		  
-
-    def test34_0(self):
+    def test43_0(self):
 	    """Autofit Rotamer on Residue with Insertion codes"""
 
 	    # we need to check that H52 LEU and H53 GLY do not move and H52A does move
@@ -1174,12 +1257,17 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		    centre = map(lambda ls: sum(ls)/len(ls), tm)
 		    return centre
 
+	    #
 	    imol = unittest_pdb("pdb3hfl.ent")
 	    mtz_file_name = os.path.join(unittest_data_dir, "3hfl_sigmaa.mtz")
 	    imol_map = make_and_draw_map(mtz_file_name,
 					 "2FOFCWT", "PH2FOFCWT", "", 0, 0)
 
-	    self.failUnless(valid_map_molecule_qm(imol_map), "   no map from 3hfl_sigmaa.mtz")
+	    self.failUnless(valid_model_molecule_qm(imol),
+			    " ERROR:: pdb3hfl.ent not found")
+
+	    self.failUnless(valid_map_molecule_qm(imol_map),
+			    "   no map from 3hfl_sigmaa.mtz")
 
 	    leu_atoms_1 = residue_info(imol, "H", 52, "")
 	    leu_resname = residue_name(imol, "H", 52, "")
@@ -1220,13 +1308,18 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessAlmostEqual(d_gly, 0.0, 1,
 				       "   Failure: GLY 53 moved")
 	    
-	    self.failIf(d_pro < 0.05, "   Failure: PRO 52A not moved enough")
+	    self.failIf(d_pro < 0.05,
+			"""   Failure: PRO 52A not moved enough %s\n 
+			PRO-atoms 1: %s\n
+			PRO-atoms 2: %s\n""" %(d_pro, pro_atoms_1, pro_atoms_2,))
+	    # in theory (greg-tests) there should extra output for each atom
+	    # in pro-x
 
 	    # rotamer 4 is out of range.
 	    set_residue_to_rotamer_number(imol, "H", 52, "A", 4) # crash!!?
 
 
-    def test35_0(self):
+    def test44_0(self):
 	    """RNA base has correct residue type after mutation"""
 
 	    rna_mol = ideal_nucleic_acid("RNA", "A", 0, "GACUCUAG")
@@ -1238,7 +1331,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(rn == "Cr")
 
 
-    def test36_0(self):
+    def test45_0(self):
 	    """DNA bases are the correct residue type after mutation"""
 
 	    def correct_base_type_qm(rna_mol, target_base_type):
@@ -1255,7 +1348,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(all(res))
 	    
 
-    def test37_0(self):
+    def test46_0(self):
 	    """SegIDs are correct after mutate"""
 
 	    # main line
@@ -1295,7 +1388,84 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    "wrong seg-id %s should be %s" %(atoms, "A"))
 
 
-    def test38_0(self):
+    def test47_0(self):
+	    """TER on water chain is removed on adding a water by hand"""
+
+	    imol = unittest_pdb("some-waters-with-ter.pdb")
+
+	    self.failUnless(valid_model_molecule_qm(imol),
+			    "bad read of some-waters-with-ter.pdb")
+
+	    set_rotation_centre(3, 4, 5)
+	    set_pointer_atom_molecule(imol)
+	    place_typed_atom_at_pointer("Water")
+
+	    # OK let's write out that molecule now as a PDB file and look
+	    # to see if the PDB file contains a TER record - it should
+	    # not.
+	    #
+	    opdb = "tmp-with-new-water.pdb"
+	    write_pdb_file(imol, opdb)
+	    fin = open(opdb, 'r')
+	    lines = fin.readlines()
+	    fin.close()
+	    found_ter = False
+	    for line in lines:
+		    self.failIf("TER" in line,
+				"   TER card found: %s" %line)
+
+		    
+    def test48_0(self):
+	    """TER on water chain is removed on adding waters automatically"""
+
+	    global imol_rnase_map
+	    imol_model = unittest_pdb("tm+some-waters.pdb")
+	    self.failUnless(valid_model_molecule_qm(imol_model),
+			    "tm+some-waters.pdb not found")
+	    find_waters(imol_rnase_map, imol_model, 0, 0.2, 0)
+
+	    # OK let's write out that molecule now as a PDB file and look
+	    # to see if the PDB file contains a TER record - it should
+	    # not.
+	    #
+	    opdb = "auto-waters.pdb"
+	    write_pdb_file(imol_model, opdb)
+	    fin = open(opdb, 'r')
+	    lines = fin.readlines()
+	    fin.close()
+	    found_ter = False
+	    for line in lines:
+		    self.failIf("TER" in line,
+				"   TER card found: %s" %line)
+
+
+    def test49_0(self):
+	    """Arrange waters round protein"""
+
+	    imol = unittest_pdb("water-test-no-cell.pdb")
+	    self.failUnless(valid_model_molecule_qm(imol),
+			    "ERROR:: water-test-no-cell not found")
+
+	    status = move_waters_to_around_protein(imol)
+	    self.failUnless(status == 0,
+			    "ERROR:: failure with water-test-no-cell")
+
+	    imol = unittest_pdb("pathological-water-test.pdb")
+	    self.failUnless(valid_model_molecule_qm(imol),
+			    "ERROR:: pathological-waters pdb not found")
+
+	    status = move_waters_to_around_protein(imol)
+	    write_pdb_file(imol, "waters-moved-failure.pdb")
+	    self.failUnless(status == 181,
+			    "ERROR:: failure with pathological-waters moved %s" %(status))
+
+	    v = max_water_distance(imol)
+
+	    self.failIf(v > 5.0,
+			"ERROR:: failure to move waters close %s" %v)
+
+
+    def test50_0(self):
 	    """Correct Segid After Add Terminal Residue"""
 
 	    global imol_rnase
@@ -1320,7 +1490,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    "wrong seg-id %s should be %s" %(atoms, "A"))
 
 	    	    
-    def test39_0(self):
+    def test51_0(self):
 	    """Correct Segid after NCS residue range copy"""
 
 	    def convert_residue_seg_ids(imol, chain_id, resno, seg_id):
@@ -1350,61 +1520,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 				    "wrong seg-id %s should be %s" %(atoms, "X"))
 
 
-    # these are earlier in greg test but should be here to keep the
-    # segid tests grouped!?
-
-    def test40_0(self):
-	    """TER on water chain is removed on adding a water by hand"""
-
-	    imol = unittest_pdb("some-waters-with-ter.pdb")
-
-	    self.failUnless(valid_model_molecule_qm(imol),
-			    "bad read of some-waters-with-ter.pdb")
-
-	    set_rotation_centre(3, 4, 5)
-	    set_pointer_atom_molecule(imol)
-	    place_typed_atom_at_pointer("Water")
-
-	    # OK let's write out that molecule now as a PDB file and look
-	    # to see if the PDB file contains a TER record - it should
-	    # not.
-	    #
-	    opdb = "tmp-with-new-water.pdb"
-	    write_pdb_file(imol, opdb)
-	    fin = open(opdb, 'r')
-	    lines = fin.readlines()
-	    fin.close()
-	    found_ter = False
-	    for line in lines:
-		    self.failIf("TER" in line,
-				"   TER card found: %s" %line)
-
-		    
-    def test41_0(self):
-	    """TER on water chain is removed on adding waters automatically"""
-
-	    global imol_rnase_map
-	    imol_model = unittest_pdb("tm+some-waters.pdb")
-	    self.failUnless(valid_model_molecule_qm(imol_model),
-			    "bad read of tm+some-waters.pdb")
-	    find_waters(imol_rnase_map, imol_model, 0, 0.2, 0)
-
-	    # OK let's write out that molecule now as a PDB file and look
-	    # to see if the PDB file contains a TER record - it should
-	    # not.
-	    #
-	    opdb = "auto-waters.pdb"
-	    write_pdb_file(imol_model, opdb)
-	    fin = open(opdb, 'r')
-	    lines = fin.readlines()
-	    fin.close()
-	    found_ter = False
-	    for line in lines:
-		    self.failIf("TER" in line,
-				"   TER card found: %s" %line)
-
-		    
-    def test42_0(self):
+	    
+    def test52_0(self):
 	    """Merge Water Chains"""
 
 	    def create_water_chain(imol, from_chain_id, chain_id, n_waters,
@@ -1449,7 +1566,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(r15 == 15, "  wrong residue number r15 %s" %r15)
 
 		    
-    def test43_0(self):
+    def test53_0(self):
 	    """LSQ by atom"""
 
 	    global imol_rnase
@@ -1476,8 +1593,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    b = bond_length_from_atoms(c_1, c_2)
 
 	    self.failUnless(bond_length_within_tolerance_qm(c_1, c_2, 0.0, 0.2))
+
 	    
-    def test44_0(self):
+    def test98_0(self):
 	    """Hundreds of Ramachandran refinements (post_manipulation_hook_py test)"""
 
 	    # doesnt test for anything just crash
@@ -1491,6 +1609,18 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    turn_on_backup(imol)
 	    
-		    
 
+    def test99_0(self):
+	    """Read/write gz coordinate files"""
 
+	    # this is mainly an mmdb test for windows
+
+	    # first write a gz file
+	    gz_state = write_pdb_file(imol_rnase, "rnase_zip_test.pdb.gz")
+	    self.failIf(gz_state == 1)
+	    self.failUnless(os.path.isfile("rnase_zip_test.pdb.gz"))
+	    
+	    # now unzip and read the file
+	    gz_imol = handle_read_draw_molecule("rnase_zip_test.pdb.gz")
+	    self.failUnless(valid_model_molecule_qm(gz_imol))
+		  
