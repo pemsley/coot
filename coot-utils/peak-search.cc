@@ -479,7 +479,7 @@ coot::peak_search::find_protein_to_origin_translations(const std::vector<clipper
       int cur_z = 0;
       while (was_shifted) {
 	 was_shifted = 0;
-	 std::cout << "shifted loop " << min_distance_to_origin << std::endl;
+	 // std::cout << "shifted loop " << min_distance_to_origin << std::endl;
 	 int start_cur_x = cur_x;
 	 int start_cur_y = cur_y;
 	 int start_cur_z = cur_z;
