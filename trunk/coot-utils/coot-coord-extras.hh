@@ -133,16 +133,20 @@ namespace coot {
 	 }
       };
 
+   protected: 
       CResidue *residue;
       std::vector<std::pair<int, int> > bonds;
       std::vector<coot::atom_vertex> atom_vertex_vec;
       std::map<std::string, atom_tree_index_t, std::less<std::string> > name_to_index;
+   private: 
       bool fill_atom_vertex_vec(const dictionary_residue_restraints_t &rest, CResidue *res,
 				const std::string &altconf);
       bool fill_atom_vertex_vec_using_contacts(const std::vector<std::vector<int> > &contact_indices,
 					       int base_atom_index);
       bool fill_torsions(const dictionary_residue_restraints_t &rest, CResidue *res,
 			 const std::string &altconf);
+      void fill_name_map(const std::string &altconf);
+
       // Throw an exception on not able to fill.
       atom_index_quad get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
 					  CResidue *res, const std::string &altconf) const;

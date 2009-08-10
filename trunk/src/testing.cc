@@ -32,7 +32,6 @@
 #include "clipper/core/ramachandran.h"
 
 #include "coot-coord-utils.hh"
-#include "coot-coord-extras.hh"
 #include "coot-rama.hh"
 #include "primitive-chi-angles.hh"
 
@@ -186,7 +185,8 @@ int test_internal_single() {
    try { 
       // status = test_symop_card();
       // status = test_rotate_round_vector();
-      status = test_coot_atom_tree();
+      // status = test_coot_atom_tree();
+      status = test_coot_atom_tree_2();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -1440,9 +1440,87 @@ int test_coot_atom_tree() {
 	 r = 0; 
       }
    }
-   
+
    return r;
 }
+
+
+
+bool
+test_atom_tree_t::test_atom_vec(const std::vector<std::vector<int> > &contact_indices) const {
+
+   bool r = 0;
+
+   for (unsigned int iav=0; iav<atom_vertex_vec.size(); iav++) {
+      std::cout << " vertex number: " << iav << " back [";
+      for (unsigned int ib=0; ib<atom_vertex_vec[iav].backward.size(); ib++) {
+	 std::cout << atom_vertex_vec[iav].backward[ib] << ","; 
+      }
+      std::cout << "] "; // end of backatom list
+
+      std::cout << "forward ["; 
+      for (unsigned int ifo=0; ifo<atom_vertex_vec[iav].forward.size(); ifo++) {
+	 std::cout << atom_vertex_vec[iav].forward[ifo] << ","; 
+      }
+      std::cout << "] " << std::endl; // end of forward atom list
+   }
+   return r;
+}
+
+int
+test_coot_atom_tree_2() {
+
+   //                    o 4 
+   //                   /
+   //     0          1 /
+   //     o --------- o                 0: NE1 (at origin)
+   //     |           |                 1: CD
+   //     |           |                 2: CE2
+   //     |           |                 3: CZ
+   //     o --------- o                 4: CG
+   //     3           2
+   // 
+   int r = 0;
+
+   std::vector<std::pair<std::string, clipper::Coord_orth> > names;
+   names.push_back(std::pair<std::string, clipper::Coord_orth> (" NE1", clipper::Coord_orth(0,0,0)));
+   names.push_back(std::pair<std::string, clipper::Coord_orth> (" CD ", clipper::Coord_orth(1,0,0)));
+   names.push_back(std::pair<std::string, clipper::Coord_orth> (" CE2", clipper::Coord_orth(1,-1,0)));
+   names.push_back(std::pair<std::string, clipper::Coord_orth> (" CZ ", clipper::Coord_orth(0,-1,0)));
+   names.push_back(std::pair<std::string, clipper::Coord_orth> (" CG ", clipper::Coord_orth(0.5,1.5,0)));
+		   
+   CResidue *residue_p = new CResidue;
+   for (int i=0; i<5; i++) {
+      CAtom *at = new CAtom();
+      at->SetAtomName(names[i].first.c_str());
+      at->SetCoordinates(names[i].second.x(), names[i].second.y(), names[i].second.z(), 1.0, 20.0);
+      residue_p->AddAtom(at);
+   } 
+   
+   std::vector<std::vector<int> > contact_indices(5);
+   contact_indices[0].push_back(1);
+   contact_indices[0].push_back(3);
+   contact_indices[1].push_back(0);
+   contact_indices[1].push_back(2);
+   contact_indices[1].push_back(4);
+   contact_indices[2].push_back(1);
+   contact_indices[2].push_back(3);
+   contact_indices[3].push_back(0);
+   contact_indices[3].push_back(2);
+   contact_indices[4].push_back(1);
+
+   test_atom_tree_t tat(contact_indices, 2, residue_p, "");
+   bool tat_result = tat.test_atom_vec(contact_indices);
+
+   double test_angle = 30.0; // degress
+   double tar = (M_PI/180.0)* test_angle;
+   bool reverse_flag = 0;
+   
+   tat.rotate_about(" CZ ", " CE2", tar, reverse_flag);
+   
+   delete residue_p;
+   return r;
+} 
 
 // can return null;
 CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id_ref, int resno_ref) {
