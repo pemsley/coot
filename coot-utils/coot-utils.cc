@@ -25,6 +25,7 @@
 
 #include <stdexcept> // for string_to_int.
 #include <sstream>   // ditto.
+#include <cstdio>    // 20090806 Justin Lecher says we need this on Gentoo 
 
 #include "coot-sysdep.h"
 #if defined _MSC_VER

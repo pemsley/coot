@@ -27,6 +27,8 @@
 #include "mmdb.h"
 
 #include "protein-geometry.hh"
+#include "coot-coord-extras.hh"
+
 
 #define BUILT_IN_TESTING
 
@@ -60,6 +62,7 @@ int test_ligand_fit_from_given_point();
 int test_peaksearch_non_close_peaks();
 int test_symop_card();
 int test_coot_atom_tree();
+int test_coot_atom_tree_2();
 int test_rotate_round_vector();
 
 CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id, int resno);
@@ -75,6 +78,17 @@ test_rotate_atom_angle(const std::string &atom_name,
 		       const clipper::Coord_orth &before_pos,
 		       const clipper::Coord_orth &after_pos,
 		       double test_angle);
+
+class test_atom_tree_t : public coot::atom_tree_t {
+
+public:
+   test_atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
+		    int base_atom_index, 
+		    CResidue *res,
+		    const std::string &alconf) :
+      coot::atom_tree_t(contact_indices, base_atom_index, res, alconf) {}
+   bool test_atom_vec(const std::vector<std::vector<int> > &contact_indices) const;
+};
 
 
 class residue_selection_t {

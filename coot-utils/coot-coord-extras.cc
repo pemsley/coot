@@ -23,6 +23,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <queue>
 
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
@@ -296,14 +297,7 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
 	 bonds.push_back(std::pair<int,int>(idx1, idx2));
    }
 
-   // atom-name -> index
-   // std::map<std::string, int, std::less<std::string> > name_to_index;
-   for (int iat=0; iat<n_residue_atoms; iat++) {
-      std::string atom_name(residue_atoms[iat]->name);
-      std::string atom_altl = residue_atoms[iat]->altLoc;
-      if (atom_altl == "" || atom_altl == altconf)
-	 name_to_index[atom_name] = iat;
-   } 
+   fill_name_map(altconf);
 
    bool success_vertex = fill_atom_vertex_vec(rest, res, altconf);
 
@@ -311,18 +305,37 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
 
 }
 
+void
+coot::atom_tree_t::fill_name_map(const std::string &altconf) {
+   
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   // atom-name -> index
+   // std::map<std::string, int, std::less<std::string> > name_to_index;
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      std::string atom_name(residue_atoms[iat]->name);
+      std::string atom_altl = residue_atoms[iat]->altLoc;
+      if (atom_altl == "" || atom_altl == altconf)
+	 name_to_index[atom_name] = iat;
+   }
+}
+
+
 // the constructor, given a list of bonds and a base atom index.
 // Used perhaps as the fallback when the above raises an
 // exception.
 coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
 			       int base_atom_index, 
 			       CResidue *res,
-			       const std::string &alconf) {
+			       const std::string &altconf) {
    if (! res) {
       std::string mess = "null residue in alternate atom_tree_t constructor";
       throw std::runtime_error(mess);
    } else { 
       residue = res;
+      fill_name_map(altconf);
       fill_atom_vertex_vec_using_contacts(contact_indices, base_atom_index);
    } 
 
@@ -397,9 +410,69 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
    PPCAtom residue_atoms;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
-
    atom_vertex_vec.resize(n_residue_atoms);
 
+   coot::atom_vertex av;
+   av.connection_type = coot::atom_vertex::START;
+   atom_vertex_vec[base_atom_index] = av;
+
+
+   std::queue<int> q;
+   q.push(base_atom_index);
+   std::vector<int> done; // things that were in the queue that are
+			  // not done (on poping). So that we don't
+			  // loop endlessly doing atom indices that we
+			  // have already considered.
+
+   while (q.size()) {
+      int this_base_atom = q.front();
+      // now what are the forward atoms of av?
+      std::vector<int> av_contacts = contact_indices[this_base_atom];
+      
+      for (unsigned int iav=0; iav<av_contacts.size(); iav++) {
+
+	 int i_forward = av_contacts[iav];
+
+	 // Add the contact as a forward atom of this_base_atom but
+	 // only if the forward atom does not have a forward atom
+	 // which is this_base_atom (and this keeps the tree going in
+	 // up and not back again).
+	 bool ifound_forward_forward = 0;
+	 for (unsigned int ifo=0; ifo<atom_vertex_vec[i_forward].forward.size(); ifo++) {
+	    if (atom_vertex_vec[i_forward].forward[ifo] == this_base_atom) {
+	       ifound_forward_forward = 1;
+	       break;
+	    }
+	 }
+	 if (!ifound_forward_forward) 
+	    atom_vertex_vec[this_base_atom].forward.push_back(av_contacts[iav]);
+
+	 // add the forward atoms to the queue if they are not already
+	 // in the done list.
+	 bool in_done = 0;
+	 for (unsigned int idone=0; idone<done.size(); idone++) {
+	    if (done[idone] == av_contacts[iav]) {
+	       in_done = 1;
+	       break;
+	    } 
+	 }
+	 if (!in_done)
+	    q.push(av_contacts[iav]);
+      }
+      
+      // if the forward atoms of this_atom_index do not have a back
+      // atom, add one (but not, of course, if forward atom is the
+      // start point of the tree).
+      for (unsigned int iav=0; iav<av_contacts.size(); iav++) {
+	 if (atom_vertex_vec[av_contacts[iav]].backward.size() == 0) {
+	    if (atom_vertex_vec[av_contacts[iav]].connection_type != coot::atom_vertex::START) 
+	       atom_vertex_vec[av_contacts[iav]].backward.push_back(this_base_atom);
+	 }
+      }
+      q.pop();
+      done.push_back(this_base_atom);
+   }
+   
    return r;
 } 
 
