@@ -8,7 +8,7 @@
 
 @dircategory The molecular graphics application Coot
 @direntry
-* Coot: (coot).  The Coot User Manual.
+* Coot: (coot-user-manual).  The Coot User Manual.
 @end direntry
 
 
@@ -41,7 +41,7 @@
 
 @flushright
 Paul Emsley 
-@email{paul.emsley@@bioch.ox.ac.uk}
+@email{paul dot emsley at bioch dot ox dot ac dot uk}
 @end flushright
 
 @vskip 10mm
@@ -559,13 +559,15 @@ describing the particular features and are documented in Chapter
 * The Modelling Toolbar::
 * The file selector::
 * Scripting::
-* Scheme::
 * Backups and Undo::
+* View Matrix::
+* Space Group and Symmetry::
 * Recentring View::
-* clipping manipulation::
+* Clipping Manipulation::
 * Background colour::
 * Unit Cell::
 * Rotation Centre Pointer::
+* Pointer Distances::
 * Crosshairs::
 * 3D Annotations::
 * Frame Rate::
@@ -631,8 +633,8 @@ OpenGL.  It is considerably smoother (i.e. more frames/sec) when using a
 The view is orthographic (@emph{i.e.} the back is the same size as the
 front).  The default clipping is about right for viewing coordinate
 data, but is often a little too ``thick'' for viewing electron
-density.  It is easily changed (see Section @ref{clipping
-  manipulation}).
+density.  It is easily changed (see Section @ref{Clipping
+ Manipulation}).
 
 Depth-cueing
 @cindex depth-cueing 
@@ -993,6 +995,12 @@ more examples.
 @section Backups and Undo
 @cindex backups
 @cindex undo
+
+@menu
+ * Redo::
+ * Restoring from Backup::
+@end menu
+
 By default, each time a modification is made to a model, the old
 coordinates are written out @footnote{this might be initially surprising
 since this could chew up a lot of disk space.  However, disk space is
@@ -1049,6 +1057,7 @@ file in the backup directory.
 
 See also Section @ref{Crash}.
 
+@node View Matrix
 @section View Matrix
 @cindex view matrix 
 It is sometimes useful to use this to orient the
@@ -1072,6 +1081,7 @@ So the usage of these functions would be something like:
    (apply set-view-quaternion v))
 @end verbatim
 
+@node Space Group and Symmetry 
 @section Space Group and Symmetry 
 Occasionally you may want to know the space group of a particular
 molecule.  Interactively (for maps) you can see it using the Map
@@ -1126,8 +1136,8 @@ If you don't want smooth recentring (sliding)
 can also use this dialog to speed it up a bit (by decreasing the
 number of steps instead of turning it off).
 
-@node clipping manipulation
-@section Clipping manipulation
+@node Clipping Manipulation
+@section Clipping Manipulation
 @cindex clipping
 The clipping planes (a.k.a. ``slab''
 @cindex slab 
@@ -1171,7 +1181,8 @@ The size of the pointer can be changed using @command{Edit
   -> Pink Pointer Size@dots{}} or using scripting commands:
 @code{(set-rotation-centre-size 0.3)}.
 
-@subsection Pointer Distances
+@node Pointer Distances
+@section Pointer Distances
 The Rotation Centre Pointer is sometimes called simply ``Pointer''.
 One can find distances to the pointer from any active set of atoms
 using ``Pointer Distances'' (under Measures).  If you move the Pointer
@@ -3344,6 +3355,7 @@ and
 * Dragged Map::
 * Dynamic Map Sampling and Display Size::
 * Skeletonization::
+* Map Sharpening::
 * masks::
 * Trimming Atoms::
 * Map Transformation::
@@ -3647,6 +3659,19 @@ not always since it can be an irritatingly slow calculation.
 If you want to force a regeneration of
 the displayed skeleton, simply centre on an atom (using the middle
 mouse button) or press the @key{S} key.
+
+@node Map Sharpening
+@section Map Sharpening
+@cindex sharpening, map
+
+Sometime it can be educational (even useful) to sharpen or blur a map.
+This can be achieved with the sharpening tool @command{Calculate ->
+Map Sharpening@dots{}}.  The maximun and minimum sharpness by default
+is +/- 30@AA{}, this can be changed (in this case to 80) using:
+
+@command{(set-map-sharpening-scale-limit 80)}
+
+
 
 @node masks
 @section Masks
