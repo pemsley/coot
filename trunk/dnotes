@@ -4475,5 +4475,11 @@ Mon Aug  3 12:29:37 BST 2009
    Show (4 sigma by default) outliers in the geometry analysis. 
 
 
+---
+Mon Aug 10 14:18:16 BST 2009
+
+   FYI: install coot (autobuilder) dependencies on Ubuntu 9.04: -> 76
+   packages.
+
 
 ------

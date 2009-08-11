@@ -56,6 +56,9 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
    int nearest_atom_index = -1;
    float dist = -999.9;
    pick_info p_i;
+   p_i.min_dist = 0; // keep compiler happy
+   p_i.atom_index = -1; // ditto
+   p_i.imol = -1; // ditto
    p_i.success = GL_FALSE; 
    for (int i=0; i< SelAtom.n_selected_atoms; i++) {
 
@@ -115,6 +118,9 @@ atom_pick(GdkEventButton *event) {
    //cout << "back:  " << back  << endl;
 
    pick_info p_i;
+   p_i.min_dist = 0; // keep compiler happy
+   p_i.atom_index = -1; // ditto
+   p_i.imol = -1; // ditto
    p_i.success = GL_FALSE; 
 
 //     std::cout << "There are " << graphics_info_t::n_molecules << " molecules"

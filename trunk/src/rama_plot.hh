@@ -81,6 +81,11 @@ namespace coot {
    
    class mouse_util_t {
    public:
+      mouse_util_t() { 
+	set_smallest_diff_flag = 0;
+	ichain = 0;
+	smallest_diff_i = 0;
+      }
       short int set_smallest_diff_flag;
       int smallest_diff_i;
       int ichain; // the chain of the smallest diff

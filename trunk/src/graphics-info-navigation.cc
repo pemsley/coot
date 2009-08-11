@@ -445,6 +445,9 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 
    pick_info pi; 
 
+   pi.min_dist = 0; // keep compiler happy
+   pi.atom_index = -1; // ditto
+   pi.imol = -1; // ditto
    pi.success = GL_FALSE; 
 
    // actually, try ignoring the atom_string argument and consider

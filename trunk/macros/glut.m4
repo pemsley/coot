@@ -95,6 +95,15 @@ if test x$glut_prefix != x ; then
 
 	esac
 
+        # as above, but on Ubuntu 64-bit, we dont have Xmu (and we dont
+        # have ac_cv_build_alias either!)
+	#
+        case "$ac_cv_build" in 
+           x86_64-unknown-linux-gnu)
+  	   GLUT_LDOPTS="-L$glut_prefix/lib -lglut -L/usr/X11R6/lib $GL_LIBS"
+	   break;;
+        esac
+
 
 dnl Recall that on cygwin we need 
 dnl GLUT_LDOPTS="-L$glut_prefix/lib" -lglut -L/usr/X11R6/lib $GL_LIBS -lXxf86vm -lXext -lX11" 

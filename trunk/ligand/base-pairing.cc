@@ -184,7 +184,9 @@ coot::base_pair_match_matix(CResidue *res_ref, CResidue *res_mov) {
    if (is_purine)
       base_atom_names = purine_atom_names;
 
-   clipper::RTop_orth rtop;
+   clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
+   clipper::Coord_orth pt_dum(0,0,0);
+   clipper::RTop_orth rtop(m_dum, pt_dum);
    bool rtop_is_good = 0;
    if (base_atom_names.size() == 0) {
       std::cout << "  Oops neither pyrimidine nor purine" << std::endl;

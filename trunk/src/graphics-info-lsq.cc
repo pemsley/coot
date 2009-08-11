@@ -58,7 +58,9 @@ graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
 			   const std::vector<coot::lsq_range_match_info_t> &matches) {
 
    int status = 0;
-   clipper::RTop_orth rtop_r;
+   clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
+   clipper::Coord_orth pt_dum(0,0,0);
+   clipper::RTop_orth rtop_r(m_dum, pt_dum);
    if (imol_ref < n_molecules()) {
       if (molecules[imol_ref].has_model()) {
 	 if (imol_moving < n_molecules()) {
