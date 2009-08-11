@@ -261,7 +261,9 @@ coot::db_strands::trim_to_mainchain(CMMDBManager *mol) const {
 std::pair<bool, clipper::RTop_orth>
 coot::db_strands::orient_strand_on_z(int SelHnd, CMMDBManager *mol) const {
 
-   clipper::RTop_orth rtop;
+   clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
+   clipper::Coord_orth pt_dum(0,0,0);
+   clipper::RTop_orth rtop(m_dum, pt_dum);
    bool stat = 0;
    int nSelResidues = 0;
    PPCResidue SelResidues;

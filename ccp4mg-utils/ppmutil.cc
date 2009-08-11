@@ -2548,7 +2548,7 @@ void image_info::writewbmp(const char *filename) const {
   wbh.height = tmp.get_height();
   size_t nmemb;
   if((nmemb=fwrite( &wbh, sizeof(WAPBMPHEADER),1,fp)) != 1) { 
-    printf("Couldn't write WBMP-Header %ld %u in image_info::writewbmp\n",long(nmemb),sizeof(WAPBMPHEADER));
+    printf("Couldn't write WBMP-Header %ld %lu in image_info::writewbmp\n",long(nmemb),sizeof(WAPBMPHEADER));
     fclose(fp);
     return;
   }

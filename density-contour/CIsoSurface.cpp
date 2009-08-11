@@ -804,6 +804,7 @@ template <class T> POINT3DID CIsoSurface<T>::CalculateIntersection(unsigned int 
 template <class T> POINT3DID CIsoSurface<T>::Interpolate(float fX1, float fY1, float fZ1, float fX2, float fY2, float fZ2, T tVal1, T tVal2)
 {
 	POINT3DID interpolation;
+	interpolation.newID = 0;
 	float mu;
 
 	mu = float((m_tIsoLevel - tVal1))/(tVal2 - tVal1);

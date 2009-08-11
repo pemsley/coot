@@ -456,7 +456,9 @@ coot::CalphaBuild::search_for_skeleton_near(const clipper::Coord_orth &co,
 					    const clipper::Xmap<int> &skel,
 					    const clipper::Xmap<SkeletonTreeNode> &treenodemap) const {
 
-   std::pair<short int, clipper::Coord_grid> r;
+ 
+   clipper::Coord_grid grid_dummy(0,0,0); 
+   std::pair<short int, clipper::Coord_grid> r(0, grid_dummy); // make the compiler happy
    r.first = 0;
 
    clipper::Coord_orth centre = co;

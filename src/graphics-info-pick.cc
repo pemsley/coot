@@ -416,8 +416,10 @@ pick_info
 graphics_info_t::moving_atoms_atom_pick() const {
    
    pick_info p_i;
+   p_i.min_dist = 0; // keep compiler happy
+   p_i.atom_index = -1; // ditto
+   p_i.imol = -1; // ditto
    p_i.success = GL_FALSE;
-   p_i.imol = -1;
    coot::Cartesian front = unproject(0.0);
    coot::Cartesian back  = unproject(1.0);
    float dist, min_dist = 0.4;

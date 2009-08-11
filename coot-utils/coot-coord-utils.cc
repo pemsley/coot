@@ -1516,7 +1516,9 @@ coot::graph_match(CResidue *res_moving,
 		  CResidue *res_reference,
 		  bool apply_rtop_flag) {
 
-   clipper::RTop_orth rtop;
+  clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
+  clipper::Coord_orth pt_dum(0,0,0);
+  clipper::RTop_orth rtop(m_dum, pt_dum);
    bool success = 0;
    std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > best_matching_atoms;
 
@@ -1581,7 +1583,9 @@ coot::graph_match(CResidue *res_moving,
 	 // match.PrintMatches();
 
 	 int best_match = -1;
-	 clipper::RTop_orth best_rtop;
+	 clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
+	 clipper::Coord_orth pt_dum(0,0,0);
+	 clipper::RTop_orth best_rtop(m_dum, pt_dum);
 	 for (int imatch=0; imatch<n_match; imatch++) {
 	    std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matching_atoms; 
 	    int n;
@@ -3588,7 +3592,10 @@ std::pair<bool, clipper::RTop_orth> coot::util::base_to_base(CResidue *residue,
 							     CResidue *std_base) {
 
    bool good_rtop_flag = 0;
-   clipper::RTop_orth rtop;
+
+   clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
+   clipper::Coord_orth pt_dum(0,0,0);
+   clipper::RTop_orth rtop(m_dum, pt_dum);
    
    std::vector<std::string> adenine;  // Pirimidine
    adenine.push_back(" N9 ");
