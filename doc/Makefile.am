@@ -23,8 +23,8 @@ user-manual.html: $(top_srcdir)/doc/user-manual.texi
 	cd ..
 
 coot.html: $(top_srcdir)/doc/user-manual.texi
-	makeinfo --html --no-split --force user-manual.texi
-	makeinfo --html            --force user-manual.texi
+	makeinfo --html --no-split --force $^
+	makeinfo --html            --force $^
 
 coot.dvi: $(top_srcdir)/doc/coot.tex
 	if [ ! -e coot-plain-2.ps ] ; then cp $(top_srcdir)/doc/coot-plain-2.ps . ; fi
