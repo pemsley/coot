@@ -6,11 +6,6 @@
      Am I using the right version of mgtree?
      ::: 2
 
-
-   o Communication with PISA.  Get PISA on jackal.  I'd like show the
-     interface with molprobity dots.  pisa-interaction ::: 8
-
-
    o Stereo (hardware, side by side) Add-reps.  Need to update the
      display list objects when the GL context changes. Need to store a
      GL display list number for the alternate GL context in side by
@@ -1062,5 +1057,13 @@ c-interface clear_up_moving_atoms...
 
 * Done.
 
+
+   o Communication with PISA.  Get PISA on jackal.  I'd like show the
+     interface with molprobity dots.  pisa-interaction ::: 8
+
+
+* Done.  Well pisa-interaction (which is interfaces) not done
+  properly, but what I have (the assemblies interface) I like now.
+  Could do with more feedback, perhaps.
 
 -----
