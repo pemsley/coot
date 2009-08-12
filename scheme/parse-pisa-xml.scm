@@ -292,7 +292,7 @@
     ;; first set up the assembly record:
     ;; 
     (let* ((rt (make-record-type "assembly" '(id size symm-number asa bsa diss-energy entropy diss-area
-						int-energy molecule-numbers) print-assembly))
+						 int-energy molecule-numbers) print-assembly))
 	   (make-assembly-record (record-constructor rt)))
       ;; 
       (let ((first-assembly-set-is-displayed-already? #f)
