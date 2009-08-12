@@ -4474,12 +4474,23 @@ Mon Aug  3 12:29:37 BST 2009
 
    Show (4 sigma by default) outliers in the geometry analysis. 
 
+----
+Wed Aug  5 18:28:07 BST 2009
+
+   INFO: install coot (autobuilder) dependencies on Ubuntu 9.04: -> 76
+   packages.
 
 ---
 Mon Aug 10 14:18:16 BST 2009
 
-   FYI: install coot (autobuilder) dependencies on Ubuntu 9.04: -> 76
-   packages.
+   Why does Ca + Ligands show the SAH in 1o9s, but not the SAM in in
+   1nw3? [Steve Bellon]
+
+
+---
+Tue Aug  4 13:04:58 BST 2009
+
+   side-chain weighting (slider?), useful for low-res refinement.
 
 
 ------

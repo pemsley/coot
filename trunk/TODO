@@ -512,6 +512,8 @@ Punted from 0.6:
    o make sure that PDB cif r2wousf.ent.gz (or some such, that you get
      from the PDB works slickly as a cif file with sigmma maps).
 
+   o Need to fix up the baton build interface to add start up only
+     when there is a skeleton (of offer to do it).
 
 
 0.6.1 
@@ -529,6 +531,11 @@ Punted from 0.6:
 
 
    o Put "Set Matrix" under the R/RC button dialog.
+
+
+   o consider applying 0001-Replace-goosh-module-with-os-process-from-guile-lib.patch
+
+   o consider guile-lib's unit test, not greg.
 
 
  ------
