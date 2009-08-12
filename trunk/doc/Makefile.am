@@ -22,6 +22,10 @@ user-manual.html: $(top_srcdir)/doc/user-manual.texi
 	texi2html $$splitstr $^ ; \
 	cd ..
 
+coot.html: $(top_srcdir)/doc/user-manual.texi
+	makeinfo --html --no-split --force user-manual.texi
+	makeinfo --html            --force user-manual.texi
+
 coot.dvi: $(top_srcdir)/doc/coot.tex
 	if [ ! -e coot-plain-2.ps ] ; then cp $(top_srcdir)/doc/coot-plain-2.ps . ; fi
 	-latex -interaction=nonstopmode $^
