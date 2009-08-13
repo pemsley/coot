@@ -3044,10 +3044,8 @@ int move_molecule_to_screen_centre_internal(int imol);
 /*! \name Atom Info  Interface */
 /* \{ */
 
-/*! \brief output Atom Info for the give atom specs
-
-   Actually I want to return a scheme object with occ, pos, b-factor
-   info */
+/*! \brief output to the terminal the Atom Info for the give atom specs
+ */
 void
 output_atom_info_as_text(int imol, const char *chain_id, int resno,
 			 const char *ins_code, const char *atname,
@@ -3092,7 +3090,7 @@ void store_geometry_dialog(GtkWidget *w);
 /*                  residue enviroment                                      */
 /*  ----------------------------------------------------------------------- */
 /* section Residue Environment Functions */
-/*! \name Pointer Functions */
+/*! \name Residue Environment Functions */
 /* \{ */
 void fill_environment_widget(GtkWidget *widget);
 void execute_environment_settings(GtkWidget *widget);
@@ -3950,7 +3948,7 @@ SCM
 rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges); 
 #endif 
 #ifdef USE_PYTHON
-PyObject * 
+PyObject *
 rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges); 
 #endif 
 #endif 
@@ -5428,7 +5426,7 @@ GtkWidget *wrapped_create_map_shapening_dialog();
 void map_sharpening_map_select(GtkWidget *item, GtkPositionType pos);
 void map_sharpening_value_changed (GtkAdjustment *adj, GtkWidget *window);
 int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
-/*! \brief set the limit of the b-factor sharpening slider (default 30) */
+/*! \brief set the limit of the b-factor map sharpening slider (default 30) */
 void set_map_sharpening_scale_limit(float f);
 /*! \} */
 
@@ -5622,7 +5620,9 @@ void remove_text(int text_handle);
 /*  ----------------------------------------------------------------------- */
 /*! \name PISA Interaction */
 /* \{ */
-void pisa_interaction(int imol_1, int imol_2);
+/*! \brief return the molecule number of the interacting
+  residues. Return -1 if no new model was created.  */
+int pisa_interaction(int imol_1, int imol_2);
 /* \} */
 
 
