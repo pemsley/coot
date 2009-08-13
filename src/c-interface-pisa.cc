@@ -28,7 +28,10 @@
 /*                  PISA Interface                                      */
 /*  ----------------------------------------------------------------------- */
 
-void pisa_interaction(int imol_1, int imol_2) {
+// return the new model_number or -1; 
+int pisa_interaction(int imol_1, int imol_2) {
+
+   int imodel_new = -1;
 
    float dist = 4.0;
    if (is_valid_model_molecule(imol_1)) { 
@@ -50,6 +53,7 @@ void pisa_interaction(int imol_1, int imol_2) {
 	       std::string name = "interacting residues from ";
 	       name += coot::util::int_to_string(imol_1);
 	       graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+	       imodel_new = imol;
 	    } else {
 	       std::cout << "WARNING:: no molecule from create_mmdbmanager_from_residue_vector"
 			 << std::endl;
@@ -74,5 +78,6 @@ void pisa_interaction(int imol_1, int imol_2) {
 	 cr.clean_up();
 	 graphics_draw();
       }
-   } 
+   }
+   return imodel_new;
 } 
