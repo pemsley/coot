@@ -948,6 +948,38 @@
 	     #t)))))
 
 
+(greg-testcase "OXT is added before TER record"  #t
+   (lambda () 
+
+     (let ((imol (greg-pdb "test-TER-OXT.pdb"))
+	   (opdb "test-TER-OXT-added.pdb"))
+
+       (add-OXT-to-residue imol 14 "" "A")
+       (write-pdb-file imol opdb)
+       (call-with-input-file opdb
+	 (lambda (port)
+	   (let loop ((line (read-line port))
+		      (count 0)
+		      (ter-line #f)
+		      (oxt-line #f))
+
+	     (cond
+	      ((eof-object? line) #f) ; should not have got here!
+	      ((string=? (substring line 0 3) "END")
+	       #f)  ; should not have got here!
+	      ((string=? (substring line 0 3) "TER")
+	         (format #t "found TER ~s~%" line)
+		 (if (number? oxt-line)
+		     #t; TER happens after OXT line
+		     (loop (read-line port) (+ count 1) count oxt-line)))
+	      ((string=? (substring line 13 16) "OXT")
+	       (if (number? ter-line)
+		   #f ; fail because TER has already happened!
+		   (loop (read-line port) (+ count 1) ter-line count)))
+	      (else 
+	       (loop (read-line port) (+ count 1) ter-line oxt-line)))))))))
+
+
 
 (greg-testcase "The position of the oxygen after a mutation" #t
    (lambda ()
