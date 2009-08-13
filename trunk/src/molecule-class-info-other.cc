@@ -1887,7 +1887,7 @@ molecule_class_info_t::add_OXT_to_residue(CResidue *residue) {
    short int istatus = 0; // fail
    if (!residue) {
       std::cout << "WARNING: NULL residue, no atom added." << std::endl;
-   } else { 
+   } else {
       residue->GetAtomTable(residue_atoms, nResidueAtoms);
       if (nResidueAtoms == 0) {
 	 std::cout << "WARNING: no atoms in this residue" << std::endl;
@@ -1956,6 +1956,28 @@ molecule_class_info_t::add_OXT_to_residue(CResidue *residue) {
 
 	    atom_sel.mol->FinishStructEdit();
 	    atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+
+	    // Now handle the TER atom.
+	    // 
+	    CAtom *ter_atom = NULL;
+	    int ter_index = -1;
+	    for (int iat=0; iat<nResidueAtoms; iat++) { 
+	       if (residue_atoms[iat]->isTer()) { 
+		  ter_atom = residue_atoms[iat];
+		  ter_index = iat;
+	       }
+	    } 
+	    if (ter_atom) {
+	       residue->DeleteAtom(ter_index);
+	       // create a new TER atom
+	       CAtom *new_ter_atom = new CAtom;
+	       new_ter_atom->Copy(new_oxt_atom);
+	       new_ter_atom->MakeTer();
+	       residue->AddAtom(new_ter_atom);
+	    }
+	    atom_sel.mol->FinishStructEdit();
+
+	    
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1;
 	    makebonds(); // not type checked, so that we can see the atom.
