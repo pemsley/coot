@@ -186,7 +186,8 @@ int test_internal_single() {
       // status = test_symop_card();
       // status = test_rotate_round_vector();
       // status = test_coot_atom_tree();
-      status = test_coot_atom_tree_2();
+      // status = test_coot_atom_tree_2();
+      status = test_coot_atom_tree_proline();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -1418,22 +1419,26 @@ int test_coot_atom_tree() {
       try {
 	 filename = "monomer-3GP.pdb";
 	 atom_selection_container_t atom_sel = get_atom_selection(filename);
-	 CResidue *res = test_get_residue(atom_sel.mol, "A", 1);
-	 if (res) {
-	    geom_stat = geom.init_refmac_mon_lib("libcheck_3GP.cif", 0);
-	    std::pair<short int, coot::dictionary_residue_restraints_t> p = 
-	       geom.get_monomer_restraints("3GP");
-	    if (p.first) { 
-	       bool test1 = test_tree_rotation(p.second, res, " N9 ", " C1*", 0);
-	       atom_sel.mol->WritePDBASCII("3GP-test1.pdb");
-	       bool test2 = test_tree_rotation(p.second, res, " N9 ", " C1*", 1);
-	       atom_sel.mol->WritePDBASCII("3GP-test2.pdb");
-	       if (test1 && test2)
-		  r = 1;
-	    } else { 
-	       std::cout << "Getting restraints for 3GP failed" << std::endl;
-	    } 
-	 } 
+	 if (!atom_sel.read_success) {
+	    std::cout << "monomer-3GP.pdb not read successfully." << std::endl;
+	 } else { 
+	    CResidue *res = test_get_residue(atom_sel.mol, "A", 1);
+	    if (res) {
+	       geom_stat = geom.init_refmac_mon_lib("libcheck_3GP.cif", 0);
+	       std::pair<short int, coot::dictionary_residue_restraints_t> p = 
+		  geom.get_monomer_restraints("3GP");
+	       if (p.first) { 
+		  bool test1 = test_tree_rotation(p.second, res, " N9 ", " C1*", 0);
+		  atom_sel.mol->WritePDBASCII("3GP-test1.pdb");
+		  bool test2 = test_tree_rotation(p.second, res, " N9 ", " C1*", 1);
+		  atom_sel.mol->WritePDBASCII("3GP-test2.pdb");
+		  if (test1 && test2)
+		     r = 1;
+	       } else { 
+		  std::cout << "Getting restraints for 3GP failed" << std::endl;
+	       } 
+	    }
+	 }
       }
       catch (std::runtime_error rte) {
 	 std::cout << rte.what() << std::endl;
@@ -1515,12 +1520,64 @@ test_coot_atom_tree_2() {
    double test_angle = 30.0; // degress
    double tar = (M_PI/180.0)* test_angle;
    bool reverse_flag = 0;
-   
+   tat.rotate_about(" CZ ", " CE2", tar, reverse_flag);
+   reverse_flag = 1;
    tat.rotate_about(" CZ ", " CE2", tar, reverse_flag);
    
    delete residue_p;
    return r;
-} 
+}
+
+int
+test_coot_atom_tree_proline() {
+
+   int r = 0; 
+   std::string filename = greg_test("tutorial-modern.pdb");
+   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   CResidue *res_pro = test_get_residue(atom_sel.mol, "A", 12);
+   if (res_pro) {
+      coot::protein_geometry geom;
+      geom.init_standard();
+      PPCAtom residue_atoms;
+      int n_residue_atoms;
+      res_pro->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::vector<clipper::Coord_orth> before_pos(n_residue_atoms);
+      std::vector<clipper::Coord_orth>  after_pos(n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++)
+	 before_pos[iat]=clipper::Coord_orth(residue_atoms[iat]->x,
+					     residue_atoms[iat]->y,
+					     residue_atoms[iat]->z);
+      for (int iat=0; iat<n_residue_atoms; iat++) 
+	 std::cout << "Atom Table " << iat << " " << residue_atoms[iat]->name << std::endl;
+      std::vector<std::vector<int> > contact_indices =
+	 coot::util::get_contact_indices_for_PRO_residue(residue_atoms,
+							 n_residue_atoms,
+							 &geom);
+
+      int base_atom_index = 0;
+      test_atom_tree_t tat(contact_indices, base_atom_index, res_pro, "");
+      bool reverse_flag = 0;
+      double test_angle = 30.0; // degress
+      double tar = (M_PI/180.0)* test_angle;
+      //      tat.rotate_about(" N  ", " CA ", tar, reverse_flag);
+      tat.rotate_about(" CA ", " CB ", tar, reverse_flag);
+      //      tat.rotate_about(" CB ", " CG ", tar, reverse_flag);
+
+      for (int iat=0; iat<n_residue_atoms; iat++)
+	 after_pos[iat]=clipper::Coord_orth(residue_atoms[iat]->x,
+					    residue_atoms[iat]->y,
+					    residue_atoms[iat]->z);
+      for (int i=0; i<n_residue_atoms; i++) { 
+	 double d = clipper::Coord_orth::length(before_pos[i],after_pos[i]);
+	 if (d > 0.0001)
+	    std::cout << "test: atom " << i << " " << residue_atoms[i]->name << " moved" << std::endl;
+	 else 
+	    std::cout << "test: atom " << i << " " << residue_atoms[i]->name << " static" << std::endl;
+      }
+   }
+   return r;
+}
+
 
 // can return null;
 CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id_ref, int resno_ref) {
@@ -1576,7 +1633,7 @@ bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,
 					  residue_atoms[iat]->z);
    if (0) 
       for (int i=0; i<n_residue_atoms; i++)
-	 std::cout << "   Before atom " << residue_atoms[i] << std::endl;
+	 std::cout << "   Test Before atom " << residue_atoms[i] << std::endl;
 
    double test_angle = 3.0; // degress
    double tar = (M_PI/180.0)* test_angle;
@@ -1589,15 +1646,15 @@ bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,
 					 residue_atoms[iat]->z);
    if (0) 
       for (int i=0; i<n_residue_atoms; i++)
-	 std::cout << "    After atom " << residue_atoms[i] << std::endl;
+	 std::cout << "    Test After atom " << residue_atoms[i] << std::endl;
       
    double dist = 0.0;
    for (int i=0; i<n_residue_atoms; i++) { 
       double d = clipper::Coord_orth::length(before_pos[i],after_pos[i]);
       if (d > 0.0001)
-	 std::cout << "atom " << residue_atoms[i]->name << " moved" << std::endl;
+	 std::cout << "test: atom " << i << " " << residue_atoms[i]->name << " moved" << std::endl;
       else 
-	 std::cout << "atom " << residue_atoms[i]->name << " static" << std::endl;
+	 std::cout << "test: atom " << i << " " << residue_atoms[i]->name << " static" << std::endl;
       dist += d;
    }
 

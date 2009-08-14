@@ -63,6 +63,7 @@ int test_peaksearch_non_close_peaks();
 int test_symop_card();
 int test_coot_atom_tree();
 int test_coot_atom_tree_2();
+int test_coot_atom_tree_proline();
 int test_rotate_round_vector();
 
 CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id, int resno);

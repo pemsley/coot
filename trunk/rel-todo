@@ -27,6 +27,9 @@
    o Can you fix the geometry analysis plot so that the correct
      largest geometric outlier is shown? (puntable) ::: 1 
 
+   o Fix the documentation generation - coot.html ::: 2 
+
+   o OXT atoms are added after TER atoms? ::: 1
 
 
 ------
