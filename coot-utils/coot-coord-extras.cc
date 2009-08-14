@@ -652,6 +652,7 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    }
 	 }
 
+	 std::cout << "forwards:::: index3_is_forward " << index3_is_forward << std::endl;
 	 if (! index3_is_forward) {
 	    // perhaps index2 is the forward atom of index3?
 	    bool index2_is_forward = 0;
@@ -667,16 +668,21 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    // 
 	    if (index2_is_forward) {
 	       std::swap(index2, index3);
-	       index3_is_forward = 1; 
+	       index3_is_forward = 1;
 	    }
-
 	 }
 
 	 // OK, try again
 	 if (index3_is_forward) {
-	    
+
 	    std::vector<coot::atom_tree_t::atom_tree_index_t> moving_atom_indices =
 	       get_forward_atoms(index3);
+
+	    std::cout << " moving atom indices based on " << index3.index() << std::endl;
+	    for (unsigned int imov=0; imov<moving_atom_indices.size(); imov++) {
+	       std::cout << "   debug: moving atom " << moving_atom_indices[imov].index()
+			 << std::endl;
+	    } 
 
 	    // Maybe a synthetic forward atom was made, and later on
 	    // in the dictionary, it was a real (normal) forward atom
@@ -688,9 +694,24 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	       uniquify_atom_indices(moving_atom_indices);
 	    
 
-	    if (reversed_flag)
-	       moving_atom_indices = complementary_indices(unique_moving_atom_indices,
-							   index2, index3);
+	    if (reversed_flag) {
+	       std::cout << "reseting moving atoms " << std::endl;
+	       for (unsigned int imov=0; imov<moving_atom_indices.size(); imov++) {
+		  std::cout << "prev moving atom " << moving_atom_indices[imov].index()
+			    << std::endl;
+	       } 
+	       unique_moving_atom_indices = complementary_indices(unique_moving_atom_indices,
+							     index2, index3);
+	       for (unsigned int imov=0; imov<moving_atom_indices.size(); imov++) {
+		  std::cout << "now  moving atom " << moving_atom_indices[imov].index()
+			    << std::endl;
+	       } 
+	    } else {
+	       for (unsigned int imov=0; imov<moving_atom_indices.size(); imov++) {
+		  std::cout << "unmodified  moving atom " << moving_atom_indices[imov].index()
+			    << std::endl;
+	       } 
+	    } 
 
 	    // so now we have a set of moving atoms:
 	    // set up the coordinates for the rotation, and rotate
@@ -840,8 +861,8 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::atom_tree_t::atom_tree_inde
 				   const clipper::Coord_orth &base_atom_pos,
 				   double angle) {
 
-   std::cout << "in rotate_internal with " << moving_atom_indices.size() << " moving atoms "
-	     << std::endl;
+//    std::cout << "in rotate_internal with " << moving_atom_indices.size() << " moving atoms "
+// 	     << std::endl;
    PPCAtom residue_atoms = 0;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -849,11 +870,11 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::atom_tree_t::atom_tree_inde
    for (unsigned int im=0; im<moving_atom_indices.size(); im++) {
       int idx = moving_atom_indices[im].index();
       CAtom *at = residue_atoms[idx];
-      std::cout << " moving atom number " << im << " " << at->name << std::endl;
+      // std::cout << " rotate_internal() moving atom number " << im << " " << at->name << std::endl;
       clipper::Coord_orth po(at->x, at->y, at->z);
       clipper::Coord_orth pt = coot::util::rotate_round_vector(dir, po, base_atom_pos, angle);
       at->x = pt.x(); 
       at->y = pt.y(); 
       at->z = pt.z(); 
    } 
-} 
+}
