@@ -595,7 +595,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    # what do we check for?!
 
 	    
-    def test227_0(self):
+    def test22_0(self):
 	    """Setting multiple atom attributes"""
 
 	    global imol_rnase
@@ -783,6 +783,38 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    self.failUnlessEqual(refmac_params, arg_list, "        non matching refmac params")
 
+
+    def test26_1(self):
+	    """OXT is added before TER record"""
+
+	    imol = unittest_pdb("test-TER-OXT.pdb")
+	    opdb = "test-TER-OXT-added.pdb"
+
+	    add_OXT_to_residue(imol, 14, "", "A")
+	    write_pdb_file(imol, opdb)
+	    self.failUnless(os.path.isfile(opdb),
+			    "Failed to find test-TER-OXT-added.pdb")
+	    fin = open(opdb, 'r')
+	    lines = fin.readlines()
+	    fin.close()
+	    count = 0
+	    ter_line = False
+	    oxt_line = False
+	    for line in lines:
+		    self.failIf(line == lines[-1],
+				"EOF and no TER and OXT")
+		    self.failIf(line[0:3] == "END",
+				"Found END before TER and OXT")
+		    if (line[0:3] == "TER"):
+			    print "found TER", line
+			    ter_line = True
+			    self.failUnless(oxt_line)   # TER happens after OXT line
+			    break # pass (have TER after OXT)
+		    if (line[13:16] == "OXT"):
+			    self.failIf(ter_line)  # fail because TER has already happened
+			                           # should never happen
+			    oxt_line = True
+	    
 
     def test27_0(self):
 	    """The position of the oxygen after a mutation"""
