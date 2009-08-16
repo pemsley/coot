@@ -1627,18 +1627,22 @@ auto_fit_best_rotamer(int resno,
 	 int mode = graphics_info_t::rotamer_search_mode;
 	 if (imol_map < 0 ) {
 	    std::cout << "INFO:: fitting rotamers by clash score only " << std::endl;
+	    graphics_info_t g;
 	    f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
 									      resno, altloc, ins,
 									      chain, imol_map,
 									      1,
-									      lowest_probability);
+									      lowest_probability,
+									      *g.Geom_p());
 	 } else {
 	    if (graphics_info_t::molecules[imol_map].has_map()) {
+	       graphics_info_t g;
 	       f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
 										 resno, altloc, ins,
 										 chain, imol_map,
 										 clash_flag,
-										 lowest_probability);
+										 lowest_probability,
+										 *g.Geom_p());
 
 	       // first do real space refine if requested
 	       if (graphics_info_t::rotamer_auto_fit_do_post_refine_flag) {
@@ -1654,7 +1658,6 @@ auto_fit_best_rotamer(int resno,
 	       CResidue *residue_p =
 		  graphics_info_t::molecules[imol_coords].get_residue(resno, ins, chain);
 	       if (residue_p) {
-		  graphics_info_t g;
 		  g.update_geometry_graphs(&residue_p, 1, imol_coords, imol_map);
 	       }
 	       std::cout << "Fitting score for best rotamer: " << f << std::endl;
@@ -1764,7 +1767,8 @@ int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, con
    if (is_valid_model_molecule(imol)) {
       int n = rotamer_number;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
-      i_done = graphics_info_t::molecules[imol].set_residue_to_rotamer_number(res_spec, n);
+      graphics_info_t g;
+      i_done = g.molecules[imol].set_residue_to_rotamer_number(res_spec, n, *g.Geom_p());
       graphics_draw();
    }
    return i_done; 
@@ -6211,9 +6215,10 @@ int backrub_rotamer(int imol, const char *chain_id, int res_no,
      int imol_map = g.Imol_Refinement_Map();
      if (is_valid_map_molecule(imol_map)) {
 
+	graphics_info_t g;
 	std::pair<bool,float> brs  =
-	   graphics_info_t::molecules[imol].backrub_rotamer(chain_id, res_no,
-							    ins_code, alt_conf);
+	   g.molecules[imol].backrub_rotamer(chain_id, res_no, ins_code, alt_conf,
+					     *g.Geom_p());
 	status = brs.first;
 	graphics_draw();
 	

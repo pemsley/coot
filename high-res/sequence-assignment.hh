@@ -34,6 +34,7 @@
 
 #include "clipper/core/xmap.h"
 #include "mmdb_manager.h"
+#include "protein-geometry.hh"
 
 namespace coot {
 
@@ -167,6 +168,7 @@ namespace coot {
 	 
 	 float auto_fit_score(CResidue *res, // current res used to fit new one.
 			      const side_chain_name_index &idx,
+			      const coot::dictionary_residue_restraints_t &rest,
 			      const clipper::Xmap<float> &xmap);
 
 	 short int cache_standard_residues();
@@ -175,7 +177,9 @@ namespace coot {
 	 void move_std_res_to_this_res_pos(const clipper::RTop_orth &rtop,
 					   CResidue *std_res); // move std_res atoms
 
-	 float best_rotamer_score(const clipper::Xmap<float> &xmap, CResidue *res) const;
+	 float best_rotamer_score(const clipper::Xmap<float> &xmap,
+				  const dictionary_residue_restraints_t &rest,
+				  CResidue *res) const;
 
 	 // not const because it adds UDD data to mol
 	 std::vector<residue_range_t> find_unassigned_regions(float pr_cut);

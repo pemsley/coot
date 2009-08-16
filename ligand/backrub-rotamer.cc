@@ -31,7 +31,7 @@
 
 // thow an exception on failure to get a good result.
 std::pair<coot::minimol::molecule,float>
-coot::backrub::search() {
+coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
 
    coot::minimol::molecule mol;
    int n_vr = 100;                     // totat is 2*n_vr+2
@@ -44,7 +44,7 @@ coot::backrub::search() {
    int n_rotatmers = pr.size();
 
    for (unsigned int irot=0; irot<n_rotatmers; irot++) {
-      CResidue *r = r_rotamer.GetResidue(irot);
+      CResidue *r = r_rotamer.GetResidue(rest, irot);
       for (int ivr=-n_vr; ivr<=n_vr; ivr++) {
 	 double rotation_angle = vector_rotation_range * double(ivr)/double(n_vr);
 	 coot::minimol::fragment frag = make_test_fragment(r, rotation_angle);

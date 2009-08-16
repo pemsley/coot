@@ -932,6 +932,8 @@ coot::atom_tree_t::complementary_indices(const std::vector<coot::atom_tree_t::at
 
 
 // so now we have a set of moving and non-moving atoms:
+//
+// the angle is in radians. 
 void
 coot::atom_tree_t::rotate_internal(std::vector<coot::atom_tree_t::atom_tree_index_t> moving_atom_indices,
 				   const clipper::Coord_orth &dir,
@@ -979,7 +981,8 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 	    diff -= 360.0;
 	 if (diff < -360.0)
 	    diff += 360.0;
-	 rotate_about(atom2, atom3, diff, 0);
+	 rotate_about(atom2, atom3, clipper::Util::d2rad(diff), 0);
+	 dihedral_angle = quad_to_torsion(i2);
       } else {
 	 std::string mess = "Torsion for ";
 	 mess += atom2;

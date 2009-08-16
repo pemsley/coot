@@ -954,6 +954,11 @@
      (let ((imol (greg-pdb "test-TER-OXT.pdb"))
 	   (opdb "test-TER-OXT-added.pdb"))
 
+       (if (not (valid-model-molecule? imol))
+	   (begin 
+	     (format #t "Failed to read test-TER-OXT.pdb")
+	     (throw 'fail)))
+	   
        (add-OXT-to-residue imol 14 "" "A")
        (write-pdb-file imol opdb)
        (call-with-input-file opdb

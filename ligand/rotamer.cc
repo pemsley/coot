@@ -29,6 +29,7 @@
 #include "mgtree.h"
 
 #include "coot-utils.hh"
+#include "coot-coord-extras.hh"
 
 #include "coot-sysdep.h"
 
@@ -541,11 +542,59 @@ coot::rotamer::get_all_rotamers(const std::string &res_type) const {
 
 }
 
+// Return NULL if no residues available for this residue type
+// 
+CResidue *
+coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
+			   int i_rot) const {
+
+   std::string altconf = "";  // Fixme
+   CResidue *rres = deep_copy_residue(Residue());
+   std::string rt = Residue_Type();
+   if (rt == "MSE")
+      rt = "MET";
+   std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
+
+   if ((rots.size() == 0) ||
+       (i_rot >= rots.size())) { 
+      return rres; // or should this be null? 
+   }
+   coot::simple_rotamer this_rot = rots[i_rot];
+   std::vector<coot::atom_name_quad> atom_name_quads = atom_name_quad_list(rt);
+
+   if (0) { 
+      for (unsigned int ichi=0; ichi<atom_name_quads.size(); ichi++) {
+	 std::cout << "Quad " << ichi << " "
+		   << atom_name_quads[ichi].atom1 << " "
+		   << atom_name_quads[ichi].atom2 << " "
+		   << atom_name_quads[ichi].atom3 << " "
+		   << atom_name_quads[ichi].atom4 << " "
+		   << std::endl;
+      }
+   }
+
+   for (unsigned int ichi=0; ichi<atom_name_quads.size(); ichi++) {
+      double tors = this_rot[ichi];
+      try { 
+	 coot::atom_tree_t t(rest, rres, altconf);
+	 t.set_dihedral(atom_name_quads[ichi].atom1,
+			atom_name_quads[ichi].atom2,
+			atom_name_quads[ichi].atom3,
+			atom_name_quads[ichi].atom4,
+			tors);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "oops! in rotamer::GetResidue() " << rte.what() << std::endl;
+      } 
+   }
+   
+   return rres;
+}
 
 // Return NULL if no residues available for this residue type
 // 
 CResidue *
-coot::rotamer::GetResidue(int i_rot) const {
+coot::rotamer::GetResidue_old(int i_rot) const {
 
    CResidue *rres = deep_copy_residue(Residue());
 

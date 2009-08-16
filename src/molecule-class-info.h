@@ -1949,19 +1949,22 @@ class molecule_class_info_t {
 			       const std::string &altloc,
 			       const std::string &insertion_code,
 			       const std::string &chain_id, int imol_map, int clash_flag,
-			       float lowest_probability);
+			       float lowest_probability,
+			       const coot::protein_geometry &pg);
    // (best fit) rotamer stuff:
    //
    float auto_fit_best_rotamer(int resno,
 			       const std::string &altloc,
 			       const std::string &insertion_code,
 			       const std::string &chain_id, int imol_map, int clash_flag,
-			       float lowest_probability);
+			       float lowest_probability,
+			       const coot::protein_geometry &pg);
    // interface from atom picking (which simply gets the resno, altloc
    // etc form the atom_index and calls the above function.
    float auto_fit_best_rotamer(int rotamer_search_mode,
 			       int atom_index, int imol_map, int clash_flag,
-			       float lowest_probability);
+			       float lowest_probability,
+			       const coot::protein_geometry &pg);
 
    // Internal.  Return succes status and score (we need status
    // because on failure, we should fall back to conventional rotamer
@@ -1969,10 +1972,12 @@ class molecule_class_info_t {
    std::pair<bool,float> backrub_rotamer(const std::string &chain_id,
 					 int res_no, 
 					 const std::string &ins_code,
-					 const std::string &alt_conf);
+					 const std::string &alt_conf,
+					 const coot::protein_geometry &pg);
 
 
-   int set_residue_to_rotamer_number(coot::residue_spec_t res_spec, int rotamer_number);
+   int set_residue_to_rotamer_number(coot::residue_spec_t res_spec, int rotamer_number,
+				     const coot::protein_geometry &pg);
 
    // Add OXT atom:  Return status, 0 = fail, 1 = worked.
    // (use get_residue() to get the residue for this);
@@ -2406,7 +2411,8 @@ class molecule_class_info_t {
    apply_sequence(int imol_map, CMMDBManager *mol,
 		  std::vector<coot::residue_spec_t> mmdb_residues,
 		  std::string best_seq, std::string chain_id,
-		  int resno_offset);
+		  int resno_offset,
+		  const coot::protein_geometry &pg);
 
    int delete_all_except_res(CResidue *res);
 

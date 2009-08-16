@@ -169,6 +169,8 @@ namespace coot {
       void add_unique_forward_atom(int this_index, int forward_atom_index);
 
       // so now we have a set of moving and non-moving atoms:
+      //
+      // Note: the angle is in radians. 
       void rotate_internal(std::vector<coot::atom_tree_t::atom_tree_index_t> moving_atom_indices,
 			   const clipper::Coord_orth &dir,
 			   const clipper::Coord_orth &base_atom_pos,

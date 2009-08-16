@@ -69,7 +69,7 @@ namespace coot {
       }
 
       // throw an exception on failure to get a good search result.
-      std::pair<coot::minimol::molecule, float> search();
+      std::pair<coot::minimol::molecule, float> search(const dictionary_residue_restraints_t &rest);
    };
 
 }
