@@ -485,11 +485,9 @@ Punted from 0.6:
    the frac_trans) to make a fractional matrix, which can be used in 
    new-molecule-by-symmetry.
 
-
    o How about a "recover" .coot-recover file that contains the view
      the saved pdb file, the molecule name (and whatever else is needed)
      so that on a crash, coot can elegantly recover.  That would be cool.
-
 
    o ROT_TRANS_TYPE_MULTI_RANGE, so that we can make a "setup" of
      rigid body refine at the scritping layer (currently rot/trans setup
@@ -515,13 +513,16 @@ Punted from 0.6:
    o Need to fix up the baton build interface to add start up only
      when there is a skeleton (of offer to do it).
 
+   o Put guile-gui and net-http into main Coot package - this makes the 
+     Ubuntu/Fedora packaging a lot easier.
+
 
 0.6.1 
 
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
-    make_link_restraints_by_linear() has
-    if (do_rama_plot_restraints)
-      add_rama_links(selHnd, geom);
+     make_link_restraints_by_linear() has
+     if (do_rama_plot_restraints)
+       add_rama_links(selHnd, geom);
 
     make_link_restraints_from_res_vec() has
     add_rama_links_from_res_vec(), but that is not filled.
@@ -545,14 +546,22 @@ Punted from 0.6:
 
    o Rotate/Translate on dsDNA (for example)
 
+* Done.
+
    o Move (symmetry-related) waters around protein (or has this been
      done by now?)
+
+* Done.
 
    o CA (or CA + ligs?) mode, edit bond colours -> Changes the colour
      of the first chain only.   ::: 1
 
+* Done.
+
    o Rotation for add terminal residue.  hari jayaram & Donald Raymond
    ::: 2
+
+* Bleugh
 
    o mutate-by-overlap: if you have already loaded a molecule with a
      single residue with name XXX and you have read in a dictionary

@@ -2,10 +2,6 @@
    7 items
 
 
-   o Torsion general is broken? Yes (argh!)
-     Am I using the right version of mgtree?
-     ::: 2
-
    o Stereo (hardware, side by side) Add-reps.  Need to update the
      display list objects when the GL context changes. Need to store a
      GL display list number for the alternate GL context in side by
@@ -26,11 +22,6 @@
 
    o Can you fix the geometry analysis plot so that the correct
      largest geometric outlier is shown? (puntable) ::: 1 
-
-   o Fix the documentation generation - coot.html ::: 2 
-
-   o OXT atoms are added after TER atoms? ::: 1
-
 
 ------
 
@@ -888,7 +879,7 @@ c-interface clear_up_moving_atoms...
 
 
    o Some tests for rigid body fitting many residue.  Consider
-     residues with TERs and alt confs. ::: 2 [Bob Nolte]
+     residues with TERs and alt confs. [Bob Nolte] ::: 2 
 
 * I did it by hand.  TERs are excluded in construction of a minimol
   molecule from a CMMDBManager now.  rigid body fitting an alt conf
@@ -1068,5 +1059,14 @@ c-interface clear_up_moving_atoms...
 * Done.  Well pisa-interaction (which is interfaces) not done
   properly, but what I have (the assemblies interface) I like now.
   Could do with more feedback, perhaps.
+
+   o Torsion general is broken? Yes (argh!)
+     Am I using the right version of mgtree?
+     ::: 8
+
+   o Fix the documentation generation - coot.html ::: 2 
+
+   o OXT atoms are added after TER atoms? ::: 1
+
 
 -----
