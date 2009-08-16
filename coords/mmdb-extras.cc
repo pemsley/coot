@@ -394,6 +394,27 @@ coot::getcontacts(const atom_selection_container_t &asc) {
    return ci;
 }
 
+std::vector<std::vector<int> >
+coot::contact_info::get_contact_indices() const {
+   
+   std::vector<std::vector<int> > v;
+   int max_index = 0; 
+   for (unsigned int i=0; i<contacts.size(); i++) {
+      if (contacts[i].id1 > max_index)
+	 max_index = contacts[i].id1;
+      if (contacts[i].id2 > max_index)
+	 max_index = contacts[i].id2;
+   }
+   if (max_index > 0) { 
+      v.resize(max_index+1);
+      for (unsigned int i=0; i<contacts.size(); i++) {
+	 v[contacts[i].id1].push_back(contacts[i].id2);
+      } 
+   } 
+   return v;
+} 
+
+
 void
 coot::contact_info::add_MSE_Se_bonds(const atom_selection_container_t &asc) {
 

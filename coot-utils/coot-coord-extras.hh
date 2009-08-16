@@ -199,9 +199,12 @@ namespace coot {
       // fragment rotation is reversed by setting the reversed_flag
       // (not the atom order).
       // 
-      void rotate_about(const std::string &atom1, const std::string &atom2,
-			double angle,
-			bool reversed_flag);
+      // Return the new torsion angle (use the embedded torsion on index2 if you can)
+      // Otherwise return -1.0;
+      // 
+      double rotate_about(const std::string &atom1, const std::string &atom2,
+			  double angle,
+			  bool reversed_flag);
 
    };
 

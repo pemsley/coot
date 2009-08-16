@@ -410,6 +410,7 @@ namespace coot {
       void set_has_partial_charges(bool state) {
 	 has_partial_charges_flag = state;
       }
+      std::vector<dict_torsion_restraint_t> get_non_const_torsions(bool include_hydrogen_torsions_flag) const;
       void write_cif(const std::string &filename) const; 
    };
 

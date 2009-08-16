@@ -2947,6 +2947,10 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
    // check that we have chis for this residue:
    int n_chis = molecules[imol].N_chis(atom_index);
 
+   // set the static variable for the alt conf of this atom: used when
+   // we actually move the atoms.
+   chi_angle_alt_conf = molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
+
    if (n_chis) {
 
       std::string res_type(molecules[imol].atom_sel.atom_selection[atom_index]->residue->GetResName());
@@ -2966,7 +2970,7 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
 
       // belt and braces:
       if ( (res_type == "GLY") || (res_type == "ALA") ) {
-	 std::cout << "This residue does not have chi angles." << std::endl;
+	 std::cout << "This residue does not have chi angles (GLY/ALA)." << std::endl;
       } else { 
 
 	 // copy the residue, just like we do in execute_edit_phi_psi:
@@ -3002,6 +3006,9 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
    } else {
       std::cout << "This residue does not have chi angles." << std::endl;
       std::cout << "Missing dictionary, perhaps? " << std::endl;
+      std::string s = "This residue does not have assigned torsions/chi angles.\n";
+      s += "Missing dictionary, perhaps?\n";
+      info_dialog(s); // checks use_graphics_interface_flag
    }
 }
 
