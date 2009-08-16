@@ -1795,6 +1795,7 @@ public:
    static std::vector<coot::atom_spec_t> torsion_general_atom_specs;
    static bool torsion_general_reverse_flag;
    static Tree torsion_general_tree;
+   static std::vector<std::vector<int> > torsion_general_contact_indices;
 
    // 
    static int imol_pepflip;
@@ -2776,6 +2777,7 @@ public:
    // used by above:
    int fill_chi_angles_vbox(GtkWidget *vbox, std::string res_type);
    void clear_out_container(GtkWidget *vbox);
+   static std::string chi_angle_alt_conf;
 
 
    // real values start at 1:
@@ -2812,8 +2814,19 @@ public:
    short int update_residue_by_chi_change(CResidue *residue,
 					  atom_selection_container_t &asc,
 					  int chi, double diff);
+   // temporary storage, during the change-over
+   short int update_residue_by_chi_change_old(CResidue *residue,
+					  atom_selection_container_t &asc,
+					  int chi, double diff);
+   // this can throw an exception.
+   std::pair<std::string, std::string> get_chi_atom_names(CResidue *residue,
+							  const coot::dictionary_residue_restraints_t &rest,
+							  int nth_chi) const;
 
-   std::vector<std::vector<int> > get_contact_indices_from_restraints(CResidue *residue, const atom_selection_container_t &asc, short int is_regular_residue_flag) const;
+
+   std::vector<std::vector<int> > get_contact_indices_from_restraints(CResidue *residue, 
+								      const atom_selection_container_t &asc, 
+								      short int is_regular_residue_flag) const;
 
    // Do 180 degree sidechain flip stuff
    //

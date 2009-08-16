@@ -579,6 +579,7 @@ short int graphics_info_t::in_edit_torsion_general_flag = 0;
 std::vector<coot::atom_spec_t> graphics_info_t::torsion_general_atom_specs;
 bool graphics_info_t::torsion_general_reverse_flag = 0;
 Tree graphics_info_t::torsion_general_tree; 
+std::vector<std::vector<int> > graphics_info_t::torsion_general_contact_indices;
 
 
 
@@ -894,6 +895,7 @@ short int graphics_info_t::in_edit_chi_mode_flag = 0;
 short int graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
 short int graphics_info_t::moving_atoms_move_chis_flag = 0;
 coot::atom_spec_t graphics_info_t::chi_angles_clicked_atom_spec;
+std::string graphics_info_t::chi_angle_alt_conf = "";
 
 // 180 degree flip
 short int graphics_info_t::in_180_degree_flip_define = 0;

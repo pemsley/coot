@@ -358,7 +358,9 @@ coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &re
 	    quads.push_back(quad);
 	 }
 	 catch (std::runtime_error rte) {
-	    std::cout << rte.what() << std::endl;
+	    // We don't want to know that we can't fill hydrogen
+	    // torsions when there are no hydrogens in the model.
+	    // std::cout << rte.what() << std::endl;
 	 }
       }
 
@@ -367,7 +369,7 @@ coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &re
       // torsion (the position of the first atom in the rotation
       // vector).
 
-      std::cout << " debug:: " << quads.size() << " quads" << std::endl;
+      // std::cout << " debug:: " << quads.size() << " quads" << std::endl;
       for (unsigned int iquad=0; iquad<quads.size(); iquad++) {
 	 bool inserted = 0;
 	 for (unsigned int iv=0; iv<atom_vertex_vec.size(); iv++) {
@@ -382,8 +384,10 @@ coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &re
 			if (atom_vertex_vec[this_forward].forward[ifo2] == quads[iquad].index4) {
 			   atom_vertex_vec[iv].torsion_quad.first = 1;
 			   atom_vertex_vec[iv].torsion_quad.second = quads[iquad];
-			   std::cout << "            DEBUG:: inserting torsion " << iquad
-				     << " into vertex " << iv << std::endl;
+			   if (0) {
+			      std::cout << "            DEBUG:: inserting torsion " << iquad
+					<< " into vertex " << iv << std::endl;
+			   }
 			   r = 1;
 			   inserted = 1;
 			   n_torsions_inserted++;
@@ -397,7 +401,7 @@ coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &re
 	 }
       } 
    }
-   std::cout << "DEBUG:: inserted " << n_torsions_inserted << " torsions" << std::endl;
+   // std::cout << "DEBUG:: inserted " << n_torsions_inserted << " torsions" << std::endl;
    return r;
 }
 
@@ -473,6 +477,14 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
       done.push_back(this_base_atom);
    }
    
+   // print out the name_to_index map
+   if (0) {
+      std::cout << "==== atom indexes ===\n";
+      for(std::map<std::string, coot::atom_tree_t::atom_tree_index_t>::const_iterator it = name_to_index.begin();
+	  it != name_to_index.end(); ++it)
+	 std::cout << "Atom :" << it->first << ": Index: " << it->second.index() << '\n';
+   }
+   
    return r;
 } 
 
@@ -532,12 +544,14 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
       }
    }
 
-   std::cout << "==== atom indexes ===\n";
-   for(std::map<std::string, coot::atom_tree_t::atom_tree_index_t>::const_iterator it = name_to_index.begin();
-       it != name_to_index.end(); ++it)
-      std::cout << "Atom :" << it->first << ": Index: " << it->second.index() << '\n';
+   // print out the name_to_index map
+   if (0) {
+      std::cout << "==== atom indexes ===\n";
+      for(std::map<std::string, coot::atom_tree_t::atom_tree_index_t>::const_iterator it = name_to_index.begin();
+	  it != name_to_index.end(); ++it)
+	 std::cout << "Atom :" << it->first << ": Index: " << it->second.index() << '\n';
+   }
  
-
 
    if (found_start) {
 
@@ -563,8 +577,10 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
 		  // 
 		  // make a synthetic forward atom
 		  add_unique_forward_atom(atom_back_index.index(), idx);
-		  std::cout << "   making synthetic forward atom for index "
-			    << atom_back_index.index() << " as " << idx << std::endl;
+// 		  if (1) { 
+// 		     std::cout << "   making synthetic forward atom for index "
+// 			       << atom_back_index.index() << " as " << idx << std::endl;
+// 		  }
 	       }
 	    }
 	       
@@ -595,6 +611,7 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
       }
    }
 
+   // print out the atom tree
    if (0) { 
       for (unsigned int iv=0; iv<atom_vertex_vec.size(); iv++) {
 	 std::cout << "atom_vertex_vec[" << iv << "] forward atom ";
@@ -623,17 +640,45 @@ coot::atom_tree_t::add_unique_forward_atom(int this_index, int forward_atom_inde
       }
    }
 
-   if (ifound == 0) 
+   std::vector<coot::atom_tree_t::atom_tree_index_t> forward_atoms_of_forward_atom_index = 
+      get_forward_atoms(forward_atom_index);
+   
+   if (0) { 
+      std::cout << "debug:: forward atoms of " << forward_atom_index << ":"; 
+      for (unsigned int i=0; i<forward_atoms_of_forward_atom_index.size(); i++)
+	 std::cout << " " << forward_atoms_of_forward_atom_index[i].index();
+      std::cout << std::endl;
+   }
+
+   for (unsigned int i=0; i<forward_atoms_of_forward_atom_index.size(); i++)
+      if (this_index == forward_atoms_of_forward_atom_index[i].index()) {
+	 ifound = 1;
+	 if (0) { 
+	    std::cout << " reject this attempt to add synthetic forward atom because "
+		      << this_index << " is a forward atom of " << forward_atom_index
+		      << std::endl;
+	 }
+      }
+
+   if (ifound == 0) {
+//       std::cout << "So, new forward: to this_index " << this_index << " added forward "
+// 		<< forward_atom_index << std::endl;
       atom_vertex_vec[this_index].forward.push_back(forward_atom_index);
+   } 
 
 } 
 
 
 // Throw exception on able to rotate atoms.
-void
+//
+// Return the new torsion angle (use the embedded torsion on index2 if you can)
+// Otherwise return -1.0;
+// 
+double
 coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &atom2,
 				double angle, bool reversed_flag) {
 
+   double new_torsion = 0.0;
    
    coot::atom_tree_t::atom_tree_index_t index2 = name_to_index[atom1];
    coot::atom_tree_t::atom_tree_index_t index3 = name_to_index[atom2];
@@ -652,7 +697,6 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    }
 	 }
 
-	 std::cout << "forwards:::: index3_is_forward " << index3_is_forward << std::endl;
 	 if (! index3_is_forward) {
 	    // perhaps index2 is the forward atom of index3?
 	    bool index2_is_forward = 0;
@@ -678,12 +722,6 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    std::vector<coot::atom_tree_t::atom_tree_index_t> moving_atom_indices =
 	       get_forward_atoms(index3);
 
-	    std::cout << " moving atom indices based on " << index3.index() << std::endl;
-	    for (unsigned int imov=0; imov<moving_atom_indices.size(); imov++) {
-	       std::cout << "   debug: moving atom " << moving_atom_indices[imov].index()
-			 << std::endl;
-	    } 
-
 	    // Maybe a synthetic forward atom was made, and later on
 	    // in the dictionary, it was a real (normal) forward atom
 	    // of a different atom.  In that case there can be 2
@@ -692,25 +730,20 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    // 
 	    std::vector<coot::atom_tree_t::atom_tree_index_t> unique_moving_atom_indices =
 	       uniquify_atom_indices(moving_atom_indices);
+
+	    if (0) {
+	       std::cout << "number of moving atoms based on atom index " << index3.index()
+			 << " is " << moving_atom_indices.size() << std::endl;
+	       for (unsigned int imov=0; imov<unique_moving_atom_indices.size(); imov++) {
+		  std::cout << "now  moving atom[" << imov << "] is "
+			    << unique_moving_atom_indices[imov].index() << std::endl;
+	       }
+	    }
 	    
 
 	    if (reversed_flag) {
-	       std::cout << "reseting moving atoms " << std::endl;
-	       for (unsigned int imov=0; imov<moving_atom_indices.size(); imov++) {
-		  std::cout << "prev moving atom " << moving_atom_indices[imov].index()
-			    << std::endl;
-	       } 
 	       unique_moving_atom_indices = complementary_indices(unique_moving_atom_indices,
-							     index2, index3);
-	       for (unsigned int imov=0; imov<moving_atom_indices.size(); imov++) {
-		  std::cout << "now  moving atom " << moving_atom_indices[imov].index()
-			    << std::endl;
-	       } 
-	    } else {
-	       for (unsigned int imov=0; imov<moving_atom_indices.size(); imov++) {
-		  std::cout << "unmodified  moving atom " << moving_atom_indices[imov].index()
-			    << std::endl;
-	       } 
+								  index2, index3);
 	    } 
 
 	    // so now we have a set of moving atoms:
@@ -725,9 +758,33 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    clipper::Coord_orth direction = third_atom - base_atom_pos;
 	    rotate_internal(unique_moving_atom_indices, direction, base_atom_pos, angle);
 
+	    if (atom_vertex_vec[index2.index()].torsion_quad.first) {
+	       // std::cout << " this bond has a chi angle assigned" << std::endl;
+	       coot::atom_index_quad quad = atom_vertex_vec[index2.index()].torsion_quad.second;
+	       clipper::Coord_orth co[4];
+	       PPCAtom residue_atoms;
+	       int n_residue_atoms;
+	       residue->GetAtomTable(residue_atoms, n_residue_atoms);
+	       co[0] = clipper::Coord_orth(residue_atoms[quad.index1]->x,
+					   residue_atoms[quad.index1]->y,
+					   residue_atoms[quad.index1]->z);
+	       co[1] = clipper::Coord_orth(residue_atoms[quad.index2]->x,
+					   residue_atoms[quad.index2]->y,
+					   residue_atoms[quad.index2]->z);
+	       co[2] = clipper::Coord_orth(residue_atoms[quad.index3]->x,
+					   residue_atoms[quad.index3]->y,
+					   residue_atoms[quad.index3]->z);
+	       co[3] = clipper::Coord_orth(residue_atoms[quad.index4]->x,
+					   residue_atoms[quad.index4]->y,
+					   residue_atoms[quad.index4]->z);
+	       double ar = clipper::Coord_orth::torsion(co[0], co[1], co[2], co[3]);
+	       new_torsion = clipper::Util::rad2d(ar);
+	    } 
 	 } 
       }
    }
+
+   return new_torsion;
 } 
 
 // Back atoms, not very useful - is is only a single path.
@@ -767,24 +824,35 @@ coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t 
    
    // how can this happen?
    if (atom_vertex_vec[index.index()].connection_type == coot::atom_vertex::START) {
-      std::cout << " in get_forward_atoms index " <<  index.index() << " at start" << std::endl;
+      // std::cout << " in get_forward_atoms index " <<  index.index() << " at start" << std::endl;
       return v;
    } 
 
-   if (atom_vertex_vec[index.index()].connection_type == coot::atom_vertex::END) { 
-      std::cout << " in get_forward_atoms index " <<  index.index() << " at end" << std::endl;
-      return v;
-   } 
+   // Bizarre atom trees in the refmac dictionary - the END atom is
+   // marks the C atom - not the O.  How can that be sane?
+   // 
+//    if (atom_vertex_vec[index.index()].connection_type == coot::atom_vertex::END) { 
+//       // std::cout << " in get_forward_atoms index " <<  index.index() << " at end" << std::endl;
+//       return v;
+//    } 
    
    // all of these
-
-   if (0) { 
-      std::cout << "get_forward_atoms of " << index.index() << " has "
+   // 
+   if (0) {
+      std::cout << "DEBUG::get_forward_atoms of " << index.index() << " has "
 		<< atom_vertex_vec[index.index()].forward.size()
-		<< " forward atoms " << std::endl;
+		<< " forward atoms ";
+      for (unsigned int ifo=0; ifo<atom_vertex_vec[index.index()].forward.size(); ifo++)
+	 std::cout << " " << atom_vertex_vec[index.index()].forward[ifo];
+      std::cout << std::endl;
    }
+   
    for (unsigned int ifo=0; ifo<atom_vertex_vec[index.index()].forward.size(); ifo++) { 
       v.push_back(atom_vertex_vec[index.index()].forward[ifo]);
+      if (0) 
+	 std::cout << " adding to forward atoms " << atom_vertex_vec[index.index()].forward[ifo]
+		   << " which is atom_vertex_vec[" << index.index() << "].forward[" << ifo << "]"
+		   << std::endl;
    }
 
    // and the forward atoms of the forward atoms
@@ -793,8 +861,9 @@ coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t 
       coot::atom_tree_t::atom_tree_index_t forward_index(index_forward);
       std::vector<coot::atom_tree_t::atom_tree_index_t> nv = 
 	 coot::atom_tree_t::get_forward_atoms(forward_index);
-      for (unsigned int inv=0; inv<nv.size(); inv++)
+      for (unsigned int inv=0; inv<nv.size(); inv++) { 
 	 v.push_back(nv[inv]);
+      }
    }
 
 
@@ -870,9 +939,12 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::atom_tree_t::atom_tree_inde
    for (unsigned int im=0; im<moving_atom_indices.size(); im++) {
       int idx = moving_atom_indices[im].index();
       CAtom *at = residue_atoms[idx];
-      // std::cout << " rotate_internal() moving atom number " << im << " " << at->name << std::endl;
       clipper::Coord_orth po(at->x, at->y, at->z);
       clipper::Coord_orth pt = coot::util::rotate_round_vector(dir, po, base_atom_pos, angle);
+      if (0)
+	 std::cout << " rotate_internal() moving atom number " << im << " " << at->name
+		   << " from " << at->x << "," << at->y << "," << at->z << " "
+		   << pt.format() << std::endl;
       at->x = pt.x(); 
       at->y = pt.y(); 
       at->z = pt.z(); 

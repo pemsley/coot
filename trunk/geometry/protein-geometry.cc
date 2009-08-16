@@ -624,6 +624,26 @@ coot::protein_geometry::add_restraint(std::string comp_id, const dict_angle_rest
    }
 }
 
+
+std::vector<coot::dict_torsion_restraint_t>
+coot::dictionary_residue_restraints_t::get_non_const_torsions(bool include_hydrogen_torsions_flag) const {
+
+   std::vector<coot::dict_torsion_restraint_t> v;
+   for (unsigned int i=0; i<torsion_restraint.size(); i++) {
+      if (! torsion_restraint[i].is_const()) {
+	 if (include_hydrogen_torsions_flag) { 
+	    v.push_back(torsion_restraint[i]);
+	 } else {
+	    // only add this torsion if neither of end atoms of the torsion are hydrogen.
+	    if (!is_hydrogen(torsion_restraint[i].atom_id_1()))
+	       if (!is_hydrogen(torsion_restraint[i].atom_id_4()))
+		  v.push_back(torsion_restraint[i]);
+	 }
+      }
+   }
+   return v;
+}
+
 bool
 coot::dict_torsion_restraint_t::is_const() const {
 

@@ -70,6 +70,7 @@
 #include "interface.h"
 
 #include "molecule-class-info.h"
+#include "coot-coord-extras.hh"
 
 
 #include "globjects.h"
@@ -2309,9 +2310,17 @@ graphics_info_t::execute_torsion_general() {
 				    graphics_draw();
 				    torsion_general_reverse_flag = 0;
 				    CResidue *res_local = get_first_res_of_moving_atoms();
-				    if (res_local) { 
-				       coot::torsion_general tg(res_local, moving_atoms_asc->mol, as);
-				       torsion_general_tree = tg.GetTree();
+				    if (res_local) {
+
+				       // old style:
+				       // coot::torsion_general tg(res_local, moving_atoms_asc->mol, as);
+				       // torsion_general_tree = tg.GetTree();
+
+				       // save them for later usage (when the mouse is moved)
+				       coot::contact_info contact = coot::getcontacts(*moving_atoms_asc);
+				       torsion_general_contact_indices = contact.get_contact_indices();
+				       chi_angle_alt_conf = atom_4->altLoc;
+				       
 				       coot::refinement_results_t dummy;
 				       if (use_graphics_interface_flag)
 					  do_accept_reject_dialog("Torsion General", dummy);
@@ -3054,11 +3063,88 @@ graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
 // Return 1 on success.
 // We need to pass the asc for the mol because we need it for seekcontacts()
 // Of course the asc that is passed is the moving atoms asc.
+//
+// nth_chi is 1-based (i.e. rotating about CA-CB, nth_chi is 1).
 // 
 short int 
 graphics_info_t::update_residue_by_chi_change(CResidue *residue,
 					      atom_selection_container_t &asc,
 					      int nth_chi, double diff) {
+   short int istat = 0;
+
+   try {
+      std::string monomer_type = residue->GetResName();
+      // this can throw an exception
+      std::pair<short int, coot::dictionary_residue_restraints_t> p =
+	 Geom_p()->get_monomer_restraints(monomer_type);
+      
+      if (p.first) {
+	 std::string alt_conf = chi_angle_alt_conf;
+	 coot::atom_tree_t tree(p.second, residue, alt_conf);
+	 // this can throw an exception
+	 std::pair<std::string, std::string> atom_names = get_chi_atom_names(residue, p.second, nth_chi);
+	 // std::cout << "========= rotating round atom names :" << atom_names.first << ":  :"
+	 // << atom_names.second << ":" << std::endl;
+	 double angle = diff/60.0;
+	 double new_torsion = tree.rotate_about(atom_names.first, atom_names.second, angle, 0);
+	 display_density_level_this_image = 1;
+	 display_density_level_screen_string = "  Chi ";
+	 display_density_level_screen_string += int_to_string(nth_chi);
+	 display_density_level_screen_string += "  =  ";
+	 display_density_level_screen_string += float_to_string(new_torsion);
+	 statusbar_text(display_density_level_screen_string);
+      } else {
+
+	 // chi angles with no dictionary torsions.
+	 
+
+      } 
+   }
+   catch (std::runtime_error rte) {
+      std::cout << rte.what() << std::endl;
+   } 
+
+   return istat;
+}
+
+// this can throw an exception.
+std::pair<std::string, std::string>
+graphics_info_t::get_chi_atom_names(CResidue *residue,
+				    const coot::dictionary_residue_restraints_t &rest,
+				    int nth_chi) const {
+
+   std::pair<std::string, std::string> r(" CA ", " CB ");
+   int torsion_index = nth_chi -1;
+   bool include_hydrogen_torsions_flag = 0;
+   std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
+      rest.get_non_const_torsions(include_hydrogen_torsions_flag);
+   
+   if ((torsion_index >=0) && (torsion_index < torsion_restraints.size())) {
+      r = std::pair<std::string, std::string> (torsion_restraints[torsion_index].atom_id_2(),
+					       torsion_restraints[torsion_index].atom_id_3());
+   } else {
+      std::string mess = "No torsion found with index ";
+      mess += coot::util::int_to_string(torsion_index);
+      mess += " in ";
+      mess += rest.residue_info.three_letter_code;
+      std::runtime_error rte(mess);      
+      throw rte;
+   } 
+   return r;
+} 
+
+
+
+
+// Tinker with the atom positions of residue
+// Return 1 on success.
+// We need to pass the asc for the mol because we need it for seekcontacts()
+// Of course the asc that is passed is the moving atoms asc.
+// 
+short int 
+graphics_info_t::update_residue_by_chi_change_old(CResidue *residue,
+						  atom_selection_container_t &asc,
+						  int nth_chi, double diff) {
 
    // add phi/try rotamers? no.
    coot::chi_angles chi_ang(residue, 0);
@@ -3213,16 +3299,61 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
 	    for (unsigned int i=0; i<specs_local.size(); i++)
 	       std::cout << "local specs " << i << " " << specs_local[i] << std::endl;
 	 }
-	 coot::torsion_general tg(residue_p, moving_atoms_asc->mol, specs_local);
-	 istat = tg.change_by(diff, &torsion_general_tree); // fiddle with the tree
+// 	 old style 20090815
+// 	 coot::torsion_general tg(residue_p, moving_atoms_asc->mol, specs_local);
+// 	 istat = tg.change_by(diff, &torsion_general_tree); // fiddle with the tree
+	 std::string altconf = chi_angle_alt_conf;
+	 bool fail_with_dictionary = 0; // initiall no fail
+	 try {
+	    std::string monomer_type(residue_p->GetResName());
+	    std::pair<short int, coot::dictionary_residue_restraints_t> p =
+	       Geom_p()->get_monomer_restraints(monomer_type);
+	    
+	    if (p.first) {
+// 	       std::cout << "rotating tree about " << specs_local[1] << " to "
+// 			 << specs_local[2] << std::endl;
+	       coot::atom_tree_t tree(p.second, residue_p, altconf);
+	       tree.rotate_about(specs_local[1].atom_name, specs_local[2].atom_name,
+				 diff*0.04, torsion_general_reverse_flag);
+	       regularize_object_bonds_box.clear_up();
+	       make_moving_atoms_graphics_object(*moving_atoms_asc);
+	       graphics_draw();
+	    } else {
+	       // std::cout << "No restraints" << std::endl;
+	       fail_with_dictionary = 1;
+	    }
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << rte.what() << std::endl;
+	    fail_with_dictionary = 1; 
+	 }
+
+	 if (fail_with_dictionary) {
+	    // OK then, lets try with contact indices
+	    try {
+	       // use class variable (previous saved)
+	       int base_atom_index = 0;
+	       coot::atom_tree_t tree(torsion_general_contact_indices, base_atom_index, residue_p, altconf);
+	       tree.rotate_about(specs_local[1].atom_name, specs_local[2].atom_name,
+				 diff*0.04, torsion_general_reverse_flag);
+	       regularize_object_bonds_box.clear_up();
+	       make_moving_atoms_graphics_object(*moving_atoms_asc);
+	       graphics_draw();
+	    }
+	    catch (std::runtime_error rte) {
+	       std::cout << rte.what() << std::endl;
+	    } 
+
+	 } 
       }
    }
 
-   if (istat == 0) {
-      regularize_object_bonds_box.clear_up();
-      make_moving_atoms_graphics_object(*moving_atoms_asc);
-      graphics_draw();
-   }
+   // old style 
+//    if (istat == 0) {
+//       regularize_object_bonds_box.clear_up();
+//       make_moving_atoms_graphics_object(*moving_atoms_asc);
+//       graphics_draw();
+//    }
 }
 
 

@@ -3246,6 +3246,11 @@ int edit_chi_angles(int imol, const char *chain_id, int resno,
       // type void
       int atom_index = atom_index_first_atom_in_residue(imol, chain_id, resno, ins_code);
       if (atom_index > -1) {
+	 // 20090815
+	 // Do I want this?
+	 // g.chi_angle_alt_conf = molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
+	 // or this?
+	 g.chi_angle_alt_conf = altconf;
 	 g.execute_edit_chi_angles(atom_index, imol);
 	 status = 1;
       }

@@ -147,8 +147,8 @@ namespace coot {
     }
 
     void add_MSE_Se_bonds(const atom_selection_container_t &asc);
-
     int n_contacts() const { return contacts.size(); } 
+    std::vector<std::vector<int> > get_contact_indices() const;
   };
   contact_info getcontacts(const atom_selection_container_t &asc); 
 
