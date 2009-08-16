@@ -2917,6 +2917,10 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
       }
       tres->TrimAtomTable();
 
+      std::string monomer_type = tres->GetResName();
+      std::pair<short int, coot::dictionary_residue_restraints_t> p =
+	 Geom_p()->get_monomer_restraints(monomer_type);
+
 #ifdef USE_DUNBRACK_ROTAMERS			
       coot::dunbrack d(tres, molecules[imol].atom_sel.mol,
 		       rotamer_lowest_probability, 0);
@@ -2925,57 +2929,59 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 				 rotamer_lowest_probability, 0);
 #endif // USE_DUNBRACK_ROTAMERS
 
-      // std::cout << "generate_moving_atoms_from_rotamer " << irot << std::endl;
+      if (p.first) { 
+	 // std::cout << "generate_moving_atoms_from_rotamer " << irot << std::endl;
+	 // The magic happens here:
+	 CResidue *moving_res = d.GetResidue(p.second, irot);
 
-      // The magic happens here:
-      CResidue *moving_res = d.GetResidue(irot);
+	 //
+	 if (moving_res == NULL) {
+	    std::cout << "Failure to find rotamer for residue type: "
+		      << residue->name << std::endl;
+	    return 0;
+	 } else { 
 
-      //
-      if (moving_res == NULL) {
-	 std::cout << "Failure to find rotamer for residue type: "
-		   << residue->name << std::endl;
-	 return 0;
-      } else { 
-
-	 MyCMMDBManager *mol = new MyCMMDBManager;
-	 CModel *model_p = new CModel;
-	 CChain *chain_p = new CChain;
-	 CResidue *res_p = new CResidue;
-	 res_p->SetResID(residue->GetResName(),
-			 residue->GetSeqNum(),
-			 residue->GetInsCode());
+	    MyCMMDBManager *mol = new MyCMMDBManager;
+	    CModel *model_p = new CModel;
+	    CChain *chain_p = new CChain;
+	    CResidue *res_p = new CResidue;
+	    res_p->SetResID(residue->GetResName(),
+			    residue->GetSeqNum(),
+			    residue->GetInsCode());
    
-	 PPCAtom residue_atoms_2;
-	 int nResidueAtoms_2;
-	 ((CResidue *)moving_res)->GetAtomTable(residue_atoms_2, nResidueAtoms_2);
-	 CAtom *atom_p;
-	 int i_add;
-	 for(int iat=0; iat<nResidueAtoms_2; iat++) {
-	    atom_p = new CAtom;
-	    atom_p->Copy(residue_atoms_2[iat]);
-	    i_add = res_p->AddAtom(atom_p);
-	 }
-	 chain_p->AddResidue(res_p);
-	 chain_p->SetChainID(residue->GetChainID());
-	 model_p->AddChain(chain_p);
-	 mol->AddModel(model_p);
-	 mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
-	 mol->FinishStructEdit();
+	    PPCAtom residue_atoms_2;
+	    int nResidueAtoms_2;
+	    ((CResidue *)moving_res)->GetAtomTable(residue_atoms_2, nResidueAtoms_2);
+	    CAtom *atom_p;
+	    int i_add;
+	    for(int iat=0; iat<nResidueAtoms_2; iat++) {
+	       atom_p = new CAtom;
+	       atom_p->Copy(residue_atoms_2[iat]);
+	       i_add = res_p->AddAtom(atom_p);
+	    }
+	    chain_p->AddResidue(res_p);
+	    chain_p->SetChainID(residue->GetChainID());
+	    model_p->AddChain(chain_p);
+	    mol->AddModel(model_p);
+	    mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	    mol->FinishStructEdit();
 
-	 imol_moving_atoms = imol;
-	 *moving_atoms_asc = make_asc(mol);
-	 //    std::cout << "there are " << moving_atoms_asc->n_selected_atoms
-	 // 	     << " selected atoms in the moving_atoms_asc" << std::endl;
+	    imol_moving_atoms = imol;
+	    *moving_atoms_asc = make_asc(mol);
+	    //    std::cout << "there are " << moving_atoms_asc->n_selected_atoms
+	    // 	     << " selected atoms in the moving_atoms_asc" << std::endl;
 
-	 moving_atoms_asc_type = coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF;
-	 make_moving_atoms_graphics_object(*moving_atoms_asc);
-	 if (do_probe_dots_on_rotamers_and_chis_flag) {
-	    setup_for_probe_dots_on_chis_molprobity(imol);
+	    moving_atoms_asc_type = coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF;
+	    make_moving_atoms_graphics_object(*moving_atoms_asc);
+	    if (do_probe_dots_on_rotamers_and_chis_flag) {
+	       setup_for_probe_dots_on_chis_molprobity(imol);
+	    }
+	    graphics_draw();
+	    return 1;
 	 }
-	 graphics_draw();
-	 return 1;
       }
    }
+   return 0;
 }
 
 coot::rotamer_probability_info_t

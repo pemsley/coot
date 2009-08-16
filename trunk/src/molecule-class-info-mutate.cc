@@ -996,7 +996,8 @@ int
 molecule_class_info_t::apply_sequence(int imol_map, CMMDBManager *poly_ala_mol,
 				      std::vector<coot::residue_spec_t> mmdb_residues,
 				      std::string best_seq, std::string chain_id,
-				      int resno_offset) {
+				      int resno_offset,
+				      const coot::protein_geometry &pg) {
 
    int istat = 0;
    short int have_changes = 0;
@@ -1090,6 +1091,7 @@ molecule_class_info_t::apply_sequence(int imol_map, CMMDBManager *poly_ala_mol,
       CModel *poly_ala_model_p = poly_ala_mol->GetModel(imod);
       CChain *poly_ala_chain_p;
       int nchains = poly_ala_model_p->GetNumberOfChains();
+      graphics_info_t g;
       for (int ichain=0; ichain<nchains; ichain++) {
 	 poly_ala_chain_p = poly_ala_model_p->GetChain(ichain);
 	 int nres = poly_ala_chain_p->GetNumberOfResidues();
@@ -1100,8 +1102,9 @@ molecule_class_info_t::apply_sequence(int imol_map, CMMDBManager *poly_ala_mol,
  				  poly_ala_residue_p->GetInsCode(),
  				  poly_ala_residue_p->GetChainID(),
  				  imol_map,
- 				  graphics_info_t::rotamer_fit_clash_flag,
- 				  graphics_info_t::rotamer_lowest_probability);
+ 				  g.rotamer_fit_clash_flag,
+ 				  g.rotamer_lowest_probability,
+				  *g.Geom_p());
 	 }
       }
       if (bs)

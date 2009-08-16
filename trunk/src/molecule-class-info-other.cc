@@ -1297,7 +1297,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
 					     const std::string &insertion_code, 
 					     const std::string &chain_id,
 					     int imol_map,
-					     int clash_flag, float lowest_prob) {
+					     int clash_flag, float lowest_prob,
+					     const coot::protein_geometry &pg) {
 
    // 20090714 We decide here if we go into auto_fit_best_rotamer
    // (conventional mode with rigid body fitting) or backrub rotamers
@@ -1323,15 +1324,15 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
    }
 
    if (do_backrub) {
-      std::pair<bool,float> br_score = backrub_rotamer(chain_id, resno, insertion_code, altloc);
+      std::pair<bool,float> br_score = backrub_rotamer(chain_id, resno, insertion_code, altloc, pg);
       if (br_score.first)
 	 return br_score.second;
       else 
 	 return auto_fit_best_rotamer(resno, altloc, insertion_code, chain_id, imol_map,
-				      clash_flag, lowest_prob);
+				      clash_flag, lowest_prob, pg);
    } else {
       return auto_fit_best_rotamer(resno, altloc, insertion_code, chain_id, imol_map,
-				   clash_flag, lowest_prob);
+				   clash_flag, lowest_prob, pg);
    }
 }
 
@@ -1343,7 +1344,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 					     const std::string &insertion_code, 
 					     const std::string &chain_id,
 					     int imol_map,
-					     int clash_flag, float lowest_prob) {
+					     int clash_flag, float lowest_prob,
+					     const coot::protein_geometry &pg) {
 
    // First we will get the CResidue for the residue that we are
    // trying to fit.
@@ -1405,89 +1407,98 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	    CResidue *rotamer_res;
 	    double best_score = -99.9;
 	    coot::minimol::molecule best_rotamer_mol;
-	    if (have_map_flag) { 
-	       for (unsigned int i=0; i<probabilities.size(); i++) {
-		  // std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
-		  rotamer_res = d.GetResidue(i);
 
-		  // 	 std::cout << " atom info: " << std::endl;
-		  // 	 int nResidueAtoms;
-		  // 	 PPCAtom residue_atoms;
-		  // 	 rotamer_res->GetAtomTable(residue_atoms, nResidueAtoms);
-		  // 	 for (int iat=0; iat<nResidueAtoms; iat++) {
-		  // 	    std::cout << residue_atoms[iat] << std::endl;
-		  // 	 }
+	    std::string monomer_type = res->GetResName();
+	    std::pair<short int, coot::dictionary_residue_restraints_t> p =
+	       pg.get_monomer_restraints(monomer_type);
 
-		  // first make a minimol molecule for the residue so that we
-		  // can install it into lig.
-		  //
-		  coot::minimol::residue  residue_res(rotamer_res);
-		  coot::minimol::molecule residue_mol;
-		  coot::minimol::fragment frag;
-		  int ifrag = residue_mol.fragment_for_chain(chain_id);
-		  residue_mol[ifrag].addresidue(residue_res, 0);
+	    if (p.first) { 
+	       coot::dictionary_residue_restraints_t rest = p.second;
+	    
+	       if (have_map_flag) { 
+		  for (unsigned int i=0; i<probabilities.size(); i++) {
+		     // std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
+		     rotamer_res = d.GetResidue(rest, i);
 
-		  // now do "ligand" fitting setup and run:
-		  coot::ligand lig;
-		  lig.import_map_from(graphics_info_t::molecules[imol_map].xmap_list[0]);
-		  // short int mask_water_flag = 0;
-		  lig.set_acceptable_fit_fraction(0.5);  // at least half of the atoms
-		  // have to be fitted into
-		  // positive density, otherwise
-		  // the fit failed, and we leave
-		  // the atom positions as they
-		  // are (presumably in an even
-		  // worse position?)
-		  lig.install_ligand(residue_mol);
-		  lig.set_dont_write_solutions();
-		  lig.find_centre_by_ligand(0);
-		  lig.set_dont_test_rotations();
-		  lig.fit_ligands_to_clusters(1);
-		  // so we have the solution from lig, what was its score?
-		  //
-		  coot::ligand_score_card score_card = lig.get_solution_score(0);
-		  coot::minimol::molecule moved_mol = lig.get_solution(0);
-		  float clash_score = 0.0;
-		  // std::cout << "debug INFO:: density score: " << score_card.score << "\n";
-		  if (clash_flag) { 
-		     clash_score = get_clash_score(moved_mol); // clash on atom_sel.mol
-		     // std::cout << "INFO:: clash score: " << clash_score << "\n";
-		  }
-		  if (clash_score < clash_score_limit) { // This value may
-		     // need to be
-		     // exported to the
-		     // user interface
-		     if (score_card.score > best_score) {
-			best_score = score_card.score;
-			// 20081120 best_rotamer_mol loses the insertion
-			// code for the residue.  Must fix.
-			best_rotamer_mol = moved_mol;
+		     // 	 std::cout << " atom info: " << std::endl;
+		     // 	 int nResidueAtoms;
+		     // 	 PPCAtom residue_atoms;
+		     // 	 rotamer_res->GetAtomTable(residue_atoms, nResidueAtoms);
+		     // 	 for (int iat=0; iat<nResidueAtoms; iat++) {
+		     // 	    std::cout << residue_atoms[iat] << std::endl;
+		     // 	 }
+
+		     // first make a minimol molecule for the residue so that we
+		     // can install it into lig.
+		     //
+		     coot::minimol::residue  residue_res(rotamer_res);
+		     coot::minimol::molecule residue_mol;
+		     coot::minimol::fragment frag;
+		     int ifrag = residue_mol.fragment_for_chain(chain_id);
+		     residue_mol[ifrag].addresidue(residue_res, 0);
+
+		     // now do "ligand" fitting setup and run:
+		     coot::ligand lig;
+		     lig.import_map_from(graphics_info_t::molecules[imol_map].xmap_list[0]);
+		     // short int mask_water_flag = 0;
+		     lig.set_acceptable_fit_fraction(0.5);  // at least half of the atoms
+		     // have to be fitted into
+		     // positive density, otherwise
+		     // the fit failed, and we leave
+		     // the atom positions as they
+		     // are (presumably in an even
+		     // worse position?)
+		     lig.install_ligand(residue_mol);
+		     lig.set_dont_write_solutions();
+		     lig.find_centre_by_ligand(0);
+		     lig.set_dont_test_rotations();
+		     lig.fit_ligands_to_clusters(1);
+		     // so we have the solution from lig, what was its score?
+		     //
+		     coot::ligand_score_card score_card = lig.get_solution_score(0);
+		     coot::minimol::molecule moved_mol = lig.get_solution(0);
+		     float clash_score = 0.0;
+		     // std::cout << "debug INFO:: density score: " << score_card.score << "\n";
+		     if (clash_flag) { 
+			clash_score = get_clash_score(moved_mol); // clash on atom_sel.mol
+			// std::cout << "INFO:: clash score: " << clash_score << "\n";
+		     }
+		     if (clash_score < clash_score_limit) { // This value may
+			// need to be
+			// exported to the
+			// user interface
+			if (score_card.score > best_score) {
+			   best_score = score_card.score;
+			   // 20081120 best_rotamer_mol loses the insertion
+			   // code for the residue.  Must fix.
+			   best_rotamer_mol = moved_mol;
+			}
 		     }
 		  }
-	       }
-	    } else {
-	       // we don't have a map, like KD suggests:
-	       float clash_score;
-	       best_score = -99.9; // clash score are better when lower,
-	       // but we should stay consistent with
-	       // the map based scoring which is the
-	       // other way round.
-	       for (unsigned int i=0; i<probabilities.size(); i++) {
-		  // std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
-		  // std::cout << "Getting rotamered residue... " << std::endl;
-		  rotamer_res = d.GetResidue(i);
-		  // std::cout << "Got rotamered residue... " << std::endl;
-		  coot::minimol::residue  residue_res(rotamer_res);
-		  coot::minimol::molecule residue_mol;
-		  int ifrag = residue_mol.fragment_for_chain(chain_id);
-		  residue_mol[ifrag].addresidue(residue_res, 0);
-		  coot::minimol::molecule moved_mol = residue_mol;
-		  // std::cout << "Getting clash score... " << std::endl;
-		  clash_score = -get_clash_score(moved_mol); // clash on atom_sel.mol
-		  // std::cout << "INFO:: clash score: " << clash_score << "\n";
-		  if (clash_score > best_score) {
-		     best_score = clash_score;
-		     best_rotamer_mol = moved_mol;
+	       } else {
+		  // we don't have a map, like KD suggests:
+		  float clash_score;
+		  best_score = -99.9; // clash score are better when lower,
+		  // but we should stay consistent with
+		  // the map based scoring which is the
+		  // other way round.
+		  for (unsigned int i=0; i<probabilities.size(); i++) {
+		     // std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
+		     // std::cout << "Getting rotamered residue... " << std::endl;
+		     rotamer_res = d.GetResidue(rest, i);
+		     // std::cout << "Got rotamered residue... " << std::endl;
+		     coot::minimol::residue  residue_res(rotamer_res);
+		     coot::minimol::molecule residue_mol;
+		     int ifrag = residue_mol.fragment_for_chain(chain_id);
+		     residue_mol[ifrag].addresidue(residue_res, 0);
+		     coot::minimol::molecule moved_mol = residue_mol;
+		     // std::cout << "Getting clash score... " << std::endl;
+		     clash_score = -get_clash_score(moved_mol); // clash on atom_sel.mol
+		     // std::cout << "INFO:: clash score: " << clash_score << "\n";
+		     if (clash_score > best_score) {
+			best_score = clash_score;
+			best_rotamer_mol = moved_mol;
+		     }
 		  }
 	       }
 	    }
@@ -1525,7 +1536,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 float 
 molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
 					     int atom_index, int imol_map, int clash_flag,
-					     float lowest_probability) { 
+					     float lowest_probability,
+					     const coot::protein_geometry &pg) { 
 
    int resno = atom_sel.atom_selection[atom_index]->GetSeqNum();
    std::string insertion_code = atom_sel.atom_selection[atom_index]->GetInsCode();
@@ -1534,14 +1546,15 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
 
    return auto_fit_best_rotamer(rotamer_search_mode,
 				resno, altloc, insertion_code, chain_id, imol_map,
-				clash_flag, lowest_probability);
+				clash_flag, lowest_probability, pg);
 
 }
 
 // internal.
 std::pair<bool,float>
 molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no, 
-				       const std::string &ins_code, const std::string &alt_conf) {
+				       const std::string &ins_code, const std::string &alt_conf,
+				       const coot::protein_geometry &pg) {
 
    bool status = 0;
    float score = -1;
@@ -1556,23 +1569,33 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 			 << res_no << " inscode :" << ins_code << ": altconf :"
 			 << alt_conf << ":" << std::endl;
 	    } else { 
-	       try {
-		  make_backup();
-		  CResidue *prev_res = coot::util::previous_residue(res);
-		  CResidue *next_res = coot::util::next_residue(res);
-		  CMMDBManager *mol = atom_sel.mol;
-		  coot::backrub br(chain_id, res, prev_res, next_res, alt_conf, mol,
-				   g.molecules[imol_map].xmap_list[0]);
-		  std::pair<coot::minimol::molecule,float> m = br.search();
-		  score = m.second;
-		  status = 1;
-		  atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
-		  bool mzo = g.refinement_move_atoms_with_zero_occupancy_flag;
-		  replace_coords(fragment_asc, 0, mzo);
-	       }
-	       catch (std::runtime_error rte) {
-		  std::cout << "WARNING:: thrown " << rte.what() << std::endl;
-	       }
+	       std::string monomer_type = res->GetResName();
+	       std::pair<short int, coot::dictionary_residue_restraints_t> p =
+		  pg.get_monomer_restraints(monomer_type);
+	       coot::dictionary_residue_restraints_t rest = p.second;
+
+	       if (p.first) { 
+		  try {
+		  
+		     make_backup();
+		     CResidue *prev_res = coot::util::previous_residue(res);
+		     CResidue *next_res = coot::util::next_residue(res);
+		     CMMDBManager *mol = atom_sel.mol;
+		     coot::backrub br(chain_id, res, prev_res, next_res, alt_conf, mol,
+				      g.molecules[imol_map].xmap_list[0]);
+		     std::pair<coot::minimol::molecule,float> m = br.search(rest);
+		     score = m.second;
+		     status = 1;
+		     atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
+		     bool mzo = g.refinement_move_atoms_with_zero_occupancy_flag;
+		     replace_coords(fragment_asc, 0, mzo);
+		  }
+		  catch (std::runtime_error rte) {
+		     std::cout << "WARNING:: thrown " << rte.what() << std::endl;
+		  }
+	       } else {
+		  std::cout << " No restraints found for " << monomer_type << std::endl;
+	       } 
 	    }
 	 } else {
 	    std::cout << "   WARNING:: " << imol_map << " is not a valid map molecule"
@@ -1585,7 +1608,8 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 
 
 int
-molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_spec, int rotamer_number) {
+molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_spec, int rotamer_number,
+						     const coot::protein_geometry &pg) {
 
    int i_done = 0;
    CResidue *res = get_residue(res_spec);
@@ -1597,30 +1621,37 @@ molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_sp
 #else			
       coot::richardson_rotamer d(res, atom_sel.mol, 0.01, 0);
 #endif // USE_DUNBRACK_ROTAMERS
-      CResidue *moving_res = d.GetResidue(rotamer_number);
+      std::string monomer_type = res->GetResName();
+      std::pair<short int, coot::dictionary_residue_restraints_t> p =
+	 pg.get_monomer_restraints(monomer_type);
+      
+      if (p.first) { 
+	 coot::dictionary_residue_restraints_t rest = p.second;
+	 CResidue *moving_res = d.GetResidue(rest, rotamer_number);
 
-      int n_ref_atoms;
-      PPCAtom ref_residue_atoms = 0;
-      int n_mov_atoms;
-      PPCAtom mov_residue_atoms= 0;
+	 int n_ref_atoms;
+	 PPCAtom ref_residue_atoms = 0;
+	 int n_mov_atoms;
+	 PPCAtom mov_residue_atoms= 0;
 
-             res->GetAtomTable(ref_residue_atoms, n_ref_atoms);
-      moving_res->GetAtomTable(mov_residue_atoms, n_mov_atoms);
+	 res->GetAtomTable(ref_residue_atoms, n_ref_atoms);
+	 moving_res->GetAtomTable(mov_residue_atoms, n_mov_atoms);
 
-      int n_atoms = 0; 
-      for (int imov=0; imov<n_mov_atoms; imov++) {
-	 std::string atom_name_mov(mov_residue_atoms[imov]->name);
-	 std::string alt_loc_mov(mov_residue_atoms[imov]->altLoc);
-	 for (int iref=0; iref<n_ref_atoms; iref++) {
-	    std::string atom_name_ref(ref_residue_atoms[iref]->name);
-	    std::string alt_loc_ref(ref_residue_atoms[iref]->altLoc);
-	    if (atom_name_mov == atom_name_ref) {
-	       if (alt_loc_mov == alt_loc_ref) {
-		  ref_residue_atoms[iref]->x = mov_residue_atoms[imov]->x;
-		  ref_residue_atoms[iref]->y = mov_residue_atoms[imov]->y;
-		  ref_residue_atoms[iref]->z = mov_residue_atoms[imov]->z;
-		  n_atoms++;
-		  i_done = 1;
+	 int n_atoms = 0; 
+	 for (int imov=0; imov<n_mov_atoms; imov++) {
+	    std::string atom_name_mov(mov_residue_atoms[imov]->name);
+	    std::string alt_loc_mov(mov_residue_atoms[imov]->altLoc);
+	    for (int iref=0; iref<n_ref_atoms; iref++) {
+	       std::string atom_name_ref(ref_residue_atoms[iref]->name);
+	       std::string alt_loc_ref(ref_residue_atoms[iref]->altLoc);
+	       if (atom_name_mov == atom_name_ref) {
+		  if (alt_loc_mov == alt_loc_ref) {
+		     ref_residue_atoms[iref]->x = mov_residue_atoms[imov]->x;
+		     ref_residue_atoms[iref]->y = mov_residue_atoms[imov]->y;
+		     ref_residue_atoms[iref]->z = mov_residue_atoms[imov]->z;
+		     n_atoms++;
+		     i_done = 1;
+		  }
 	       }
 	    }
 	 }
@@ -6576,7 +6607,7 @@ molecule_class_info_t::fill_partial_residues(coot::protein_geometry *geom_p,
 	    if (refinement_map_number >= 0)
 	       auto_fit_best_rotamer(resno, altloc, inscode, chain_id,
 				     refinement_map_number, clash_flag,
-				     lowest_probability);
+				     lowest_probability, *geom_p);
 
 	    // we could do refinement here, possibly, but instead,
 	    // return the missing atom info after this function is
@@ -6614,7 +6645,7 @@ molecule_class_info_t::fill_partial_residue(coot::residue_spec_t &residue_spec,
       if (refinement_map_number >= 0)
 	 auto_fit_best_rotamer(resno, altloc, inscode, chain_id,
 			       refinement_map_number, clash_flag,
-			       lowest_probability);
+			       lowest_probability, *geom_p);
    }
    return 0;
 }

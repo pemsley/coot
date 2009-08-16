@@ -584,6 +584,7 @@ coot::sequence_assignment::side_chain_score_t::auto_fit_score(const std::string 
 float
 coot::sequence_assignment::side_chain_score_t::auto_fit_score(CResidue *current_ala_res,
 							      const coot::sequence_assignment::side_chain_name_index &idx,
+							      const coot::dictionary_residue_restraints_t &rest,
 							      const clipper::Xmap<float> &xmap) {
 
    // Find reference points in res (CA, N, C) used to make the fit.
@@ -612,7 +613,7 @@ coot::sequence_assignment::side_chain_score_t::auto_fit_score(CResidue *current_
    // return the score of the best rotamer for this residue type
    // (idx).
 
-   return best_rotamer_score(xmap, rot_res);
+   return best_rotamer_score(xmap, rest, rot_res);
    
 }
 
@@ -966,6 +967,7 @@ coot::sequence_assignment::side_chain_score_t::test_residue_range_marking() {
 // molecule_class_info_t).
 float
 coot::sequence_assignment::side_chain_score_t::best_rotamer_score(const clipper::Xmap<float> &xmap,
+								  const coot::dictionary_residue_restraints_t &rest,
 								  CResidue *res) const {
 
    float best_score = 0.0;
@@ -979,7 +981,7 @@ coot::sequence_assignment::side_chain_score_t::best_rotamer_score(const clipper:
    if (probabilities.size() > 0) {
       for (unsigned int i=0; i<probabilities.size(); i++) {
 	 std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
-	 rotamer_res = d.GetResidue(i);
+	 rotamer_res = d.GetResidue(rest, i);
 	 int n_selected_atoms;
 	 PCAtom *residue_atoms;
 	 rotamer_res->GetAtomTable(residue_atoms, n_selected_atoms);

@@ -242,10 +242,12 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 		       // fragment here!!
 		       //			std::string chain_id = seq[chnnum].first;
 			std::vector<coot::residue_spec_t> mmdb_residues = mmdb_info.second;
+			graphics_info_t g;
 			int istat = 
-			   graphics_info_t::molecules[imol_model].apply_sequence(imol_map,
-										 mmdb_info.first, mmdb_residues, bestseq,
-										 chain_id, chnoff+1);
+			   g.molecules[imol_model].apply_sequence(imol_map,
+								  mmdb_info.first, mmdb_residues, bestseq,
+								  chain_id, chnoff+1,
+								  *g.Geom_p());
 		     }
 		  }
 	       } else {

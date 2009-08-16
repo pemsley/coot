@@ -177,7 +177,9 @@ namespace coot {
                                                                 // CResidue issues...
 
       // return a manipulated deep copy of input residue.
-      CResidue *GetResidue(int i_rot) const; // rotamer/button number
+      CResidue *GetResidue(const dictionary_residue_restraints_t &rest,
+			   int i_rot) const; // rotamer/button number
+      CResidue *GetResidue_old(int i_rot) const; // for transitioning.  Delete later
       std::vector<coot::simple_rotamer> rotamers(const std::string &res_type, float prob_cut) const; 
       float Chi1(int i) const; // chi1 for the ith rotamer
       std::string rotamer_name(int irot);
