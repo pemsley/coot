@@ -173,7 +173,7 @@ namespace coot {
 			   const clipper::Coord_orth &dir,
 			   const clipper::Coord_orth &base_atom_pos,
 			   double angle);
-
+      double quad_to_torsion(const atom_tree_index_t &index2) const;
       
    public:
       // the constructor can throw an exception if there is no tree in the restraints.
@@ -205,6 +205,11 @@ namespace coot {
       double rotate_about(const std::string &atom1, const std::string &atom2,
 			  double angle,
 			  bool reversed_flag);
+
+      // this can throw an exception
+      double set_dihedral(const std::string &atom1, const std::string &atom2,
+			  const std::string &atom3, const std::string &atom4,
+			  double angle);
 
    };
 
