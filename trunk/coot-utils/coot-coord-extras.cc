@@ -620,7 +620,6 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
 	 std::cout << std::endl;
       }
    }
-
    return retval;
 }
 
@@ -758,32 +757,41 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    clipper::Coord_orth direction = third_atom - base_atom_pos;
 	    rotate_internal(unique_moving_atom_indices, direction, base_atom_pos, angle);
 
+	    // set the new_torsion (return value) if possible.
+	    // 
 	    if (atom_vertex_vec[index2.index()].torsion_quad.first) {
-	       // std::cout << " this bond has a chi angle assigned" << std::endl;
-	       coot::atom_index_quad quad = atom_vertex_vec[index2.index()].torsion_quad.second;
-	       clipper::Coord_orth co[4];
-	       PPCAtom residue_atoms;
-	       int n_residue_atoms;
-	       residue->GetAtomTable(residue_atoms, n_residue_atoms);
-	       co[0] = clipper::Coord_orth(residue_atoms[quad.index1]->x,
-					   residue_atoms[quad.index1]->y,
-					   residue_atoms[quad.index1]->z);
-	       co[1] = clipper::Coord_orth(residue_atoms[quad.index2]->x,
-					   residue_atoms[quad.index2]->y,
-					   residue_atoms[quad.index2]->z);
-	       co[2] = clipper::Coord_orth(residue_atoms[quad.index3]->x,
-					   residue_atoms[quad.index3]->y,
-					   residue_atoms[quad.index3]->z);
-	       co[3] = clipper::Coord_orth(residue_atoms[quad.index4]->x,
-					   residue_atoms[quad.index4]->y,
-					   residue_atoms[quad.index4]->z);
-	       double ar = clipper::Coord_orth::torsion(co[0], co[1], co[2], co[3]);
-	       new_torsion = clipper::Util::rad2d(ar);
+	       new_torsion = quad_to_torsion(index2);
 	    } 
-	 } 
+	 }
       }
    }
+   return new_torsion;
+}
 
+
+double
+coot::atom_tree_t::quad_to_torsion(const coot::atom_tree_t::atom_tree_index_t &index2) const {
+
+   // std::cout << " this bond has a chi angle assigned" << std::endl;
+   coot::atom_index_quad quad = atom_vertex_vec[index2.index()].torsion_quad.second;
+   clipper::Coord_orth co[4];
+   PPCAtom residue_atoms;
+   int n_residue_atoms;
+   residue->GetAtomTable(residue_atoms, n_residue_atoms);
+   co[0] = clipper::Coord_orth(residue_atoms[quad.index1]->x,
+			       residue_atoms[quad.index1]->y,
+			       residue_atoms[quad.index1]->z);
+   co[1] = clipper::Coord_orth(residue_atoms[quad.index2]->x,
+			       residue_atoms[quad.index2]->y,
+			       residue_atoms[quad.index2]->z);
+   co[2] = clipper::Coord_orth(residue_atoms[quad.index3]->x,
+			       residue_atoms[quad.index3]->y,
+			       residue_atoms[quad.index3]->z);
+   co[3] = clipper::Coord_orth(residue_atoms[quad.index4]->x,
+			       residue_atoms[quad.index4]->y,
+			       residue_atoms[quad.index4]->z);
+   double ar = clipper::Coord_orth::torsion(co[0], co[1], co[2], co[3]);
+   double new_torsion = clipper::Util::rad2d(ar);
    return new_torsion;
 } 
 
@@ -950,3 +958,40 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::atom_tree_t::atom_tree_inde
       at->z = pt.z(); 
    } 
 }
+
+// can throw an exception
+double
+coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &atom2,
+				const std::string &atom3, const std::string &atom4,
+				double angle) {
+
+   double dihedral_angle = 0.0;
+   coot::atom_tree_t::atom_tree_index_t i1 = name_to_index[atom1];
+   coot::atom_tree_t::atom_tree_index_t i2 = name_to_index[atom2];
+   coot::atom_tree_t::atom_tree_index_t i3 = name_to_index[atom3];
+   coot::atom_tree_t::atom_tree_index_t i4 = name_to_index[atom4];
+
+   if (i1.is_assigned() && i2.is_assigned() && i3.is_assigned() && i4.is_assigned()) {
+      if (atom_vertex_vec[i2.index()].torsion_quad.first) { 
+	 double current_dihedral_angle = quad_to_torsion(i2);
+	 double diff = angle - current_dihedral_angle;
+	 if (diff > 360.0)
+	    diff -= 360.0;
+	 if (diff < -360.0)
+	    diff += 360.0;
+	 rotate_about(atom2, atom3, diff, 0);
+      } else {
+	 std::string mess = "Torsion for ";
+	 mess += atom2;
+	 mess += " to ";
+	 mess += atom3;
+	 mess += " not found ";
+	 throw std::runtime_error(mess);
+      } 
+   } else {
+      std::string mess = "Atom name(s) not found in residue ";
+      throw std::runtime_error(mess);
+   }
+   return dihedral_angle;
+}
+
