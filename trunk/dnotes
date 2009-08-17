@@ -4477,8 +4477,20 @@ Mon Aug  3 12:29:37 BST 2009
 ----
 Wed Aug  5 18:28:07 BST 2009
 
+   side-chain weighting (slider?), useful for low-res refinement.
+
+---
+Tue Aug  4 13:04:58 BST 2009
+
    INFO: install coot (autobuilder) dependencies on Ubuntu 9.04: -> 76
    packages.
+
+
+---
+Sat Aug  8 09:10:22 BST 2009
+
+openexr fink on mac uses OpenGL and frameworks.  
+
 
 ---
 Mon Aug 10 14:18:16 BST 2009
