@@ -2090,18 +2090,19 @@ public:
    std::vector<coot::geometry_graph_block_info_generic>
      rotamers_from_residue_selection(PCResidue *SelResidues,
 				   int nSelResidues, int imol); 
-   // now used for residue_score (from c-interface.h)
-   coot::rotamer_probability_info_t get_rotamer_probability(CResidue *res,
-							    CMMDBManager *mol,
-							    float lowest_probability,
-							    short int add_extra_PHE_and_TYR_rotamers_flag);
-
 
    std::vector<coot::geometry_graph_block_info_generic> ncs_diffs_from_mol(int imol);
    std::vector<coot::geometry_graph_block_info_generic> ncs_diffs(int imol, 
 								  const coot::ncs_chain_difference_t &d);
 #endif   
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
+   // now used for rotamer_score (from c-interface.h), so it is now not GTK2-only 20090817
+   coot::rotamer_probability_info_t get_rotamer_probability(CResidue *res,
+							    CMMDBManager *mol,
+							    float lowest_probability,
+							    short int add_extra_PHE_and_TYR_rotamers_flag);
+
    static float residue_density_fit_scale_factor; // 1.0 usually, adjustable for CNS/mapman map users.
 
    // shall we recentre when a new molecule is added (default no)

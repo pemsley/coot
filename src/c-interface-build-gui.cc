@@ -2038,5 +2038,8 @@ wrapped_create_fast_ss_search_dialog() {
   gtk_combo_box_set_active(GTK_COMBO_BOX(radius_combobox),1);
 
   return dialog;
+#else
+  GtkWidget *w = 0;
+  return w;
 #endif // GTK_MAJOR_VERSION
 }

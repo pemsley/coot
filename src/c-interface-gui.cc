@@ -559,6 +559,9 @@ GtkWidget *wrapped_create_coot_references_dialog() {
   g_signal_emit_by_name(G_OBJECT(coot_reference_button), "clicked");
   gtk_widget_show(references_dialog);
   return references_dialog;
+#else
+  GtkWidget *w = 0;
+  return w;
 #endif // GTK_MAJOR_VERSION
 
 }
@@ -2510,7 +2513,7 @@ void toggle_pointer_distances_show_distances(GtkToggleButton *togglebutton) {
 /*! \brief hide the vertical modelling toolbar in the GTK2 version */
 void hide_modelling_toolbar() {
    if (graphics_info_t::use_graphics_interface_flag) { 
-      GtkWidget *w;
+      GtkWidget *w = 0;
       GtkWidget *handle_box = lookup_widget(graphics_info_t::glarea,
 					"model_fit_refine_toolbar_handlebox");
 #if (GTK_MAJOR_VERSION > 1)
@@ -2535,7 +2538,7 @@ void hide_modelling_toolbar() {
   (the toolbar is shown by default) */
 void show_modelling_toolbar() {
    if (graphics_info_t::use_graphics_interface_flag) { 
-      GtkWidget *w;
+      GtkWidget *w = 0;
       GtkWidget *handle_box = lookup_widget(graphics_info_t::glarea,
 					    "model_fit_refine_toolbar_handlebox");
 
@@ -5318,6 +5321,7 @@ void show_restraints_editor(const char *monomer_type) {
 
 void nsv(int imol) {
 
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    if (is_valid_model_molecule(imol)) {
       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
       if (w) {
@@ -5359,6 +5363,7 @@ void nsv(int imol) {
 	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
       }
    }
+#endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 }
 
 
