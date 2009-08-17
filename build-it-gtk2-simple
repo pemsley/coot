@@ -2018,10 +2018,6 @@ touch Makefile.in
 ./configure $generic_prefix
 $MAKE
 $MAKE install
-# now remove the mmdb binaries!
-rm $install_top_dir/bin/mwater
-rm $install_top_dir/bin/ncont
-rm $install_top_dir/bin/pdbcur
 ) > $HOSTLOGDIR/02-mmdb.txt 2>&1
 else
    echo not building mmdb:
