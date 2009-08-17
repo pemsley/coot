@@ -1678,6 +1678,9 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    if (find_hydrogen_torsions)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
 
+   // "Reverse Fragment" button
+   edit_chi_angles_reverse_fragment = 0; // reset the static
+
    return n_boxes;
 }
 

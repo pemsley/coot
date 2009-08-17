@@ -893,6 +893,7 @@ short int graphics_info_t::in_edit_chi_angles_define = 0;
 int       graphics_info_t::edit_chi_current_chi = 0; // real values start at 1.
 short int graphics_info_t::in_edit_chi_mode_flag = 0;
 short int graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
+bool      graphics_info_t::edit_chi_angles_reverse_fragment = 0;
 short int graphics_info_t::moving_atoms_move_chis_flag = 0;
 coot::atom_spec_t graphics_info_t::chi_angles_clicked_atom_spec;
 std::string graphics_info_t::chi_angle_alt_conf = "";

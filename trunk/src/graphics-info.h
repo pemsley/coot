@@ -2771,6 +2771,7 @@ public:
    static short int in_edit_chi_angles_define;
    static short int in_edit_chi_mode_flag; // c.f. in baton_mode
    static short int in_edit_chi_mode_view_rotate_mode;
+   static bool      edit_chi_angles_reverse_fragment; 
    static coot::atom_spec_t chi_angles_clicked_atom_spec;
    void execute_edit_chi_angles(int atom_index, int imol);
    int wrapped_create_edit_chi_angles_dialog(const std::string &res_type);

@@ -538,6 +538,8 @@ Punted from 0.6:
 
    o consider guile-lib's unit test, not greg.
 
+   o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach convergence.
+
 
  ------
 
