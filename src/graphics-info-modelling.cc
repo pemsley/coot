@@ -3092,7 +3092,8 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
 	 // std::cout << "========= rotating round atom names :" << atom_names.first << ":  :"
 	 // << atom_names.second << ":" << std::endl;
 	 double angle = diff/60.0;
-	 double new_torsion = tree.rotate_about(atom_names.first, atom_names.second, angle, 0);
+	 bool reverse = edit_chi_angles_reverse_fragment; 
+	 double new_torsion = tree.rotate_about(atom_names.first, atom_names.second, angle, reverse);
 	 display_density_level_this_image = 1;
 	 display_density_level_screen_string = "  Chi ";
 	 display_density_level_screen_string += int_to_string(nth_chi);

@@ -4157,3 +4157,7 @@ void
 on_baton_build_set_params_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
+void
+on_edit_chi_angles_reverse_fragment_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);

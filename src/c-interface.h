@@ -4524,6 +4524,10 @@ int set_show_chi_angle_bond(int imode);
    and calls the graphics_info_t function. */
 void fill_chi_angles_vbox(GtkWidget *vbox);
 
+/* a callback from the callbacks.c, setting the state of
+   graphics_info_t::edit_chi_angles_reverse_fragment flag */
+void set_edit_chi_angles_reverse_fragment_state(short int istate);
+
 /* No need for this to be exported to scripting */
 /*! \brief beloved torsion general at last makes an entrance onto the
   Coot scene...  */

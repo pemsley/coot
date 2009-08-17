@@ -4680,6 +4680,19 @@ on_model_refine_dialog_edit_chi_angles_togglebutton_toggled (GtkToggleButton *to
 }
 
 
+void
+on_edit_chi_angles_reverse_fragment_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active)
+    set_edit_chi_angles_reverse_fragment_state(1);
+  else
+    set_edit_chi_angles_reverse_fragment_state(0);
+}
+
+
+
 
 
 gboolean

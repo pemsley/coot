@@ -3211,6 +3211,14 @@ int set_show_chi_angle_bond(int imode) {
 } 
 
 
+/* a callback from the callbacks.c, setting the state of
+   graphics_info_t::edit_chi_angles_reverse_fragment flag */
+void set_edit_chi_angles_reverse_fragment_state(short int istate) {
+
+   graphics_info_t::edit_chi_angles_reverse_fragment = istate;
+
+} 
+
 
 // Set a flag: Should torsions that move hydrogens be
 // considered/displayed in button box?
