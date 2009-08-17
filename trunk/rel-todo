@@ -1,5 +1,5 @@
 
-   7 items
+   2 items
 
 
    o Stereo (hardware, side by side) Add-reps.  Need to update the
@@ -12,16 +12,9 @@
      ::: 3
 
 
-   o Fix ligand chi angles.  
-
-     Try rotating round CA-CB in a modified CYS (after clicking on a
-     CA). [Ian Tickle]
-
-     ::: 4
-
-
    o Can you fix the geometry analysis plot so that the correct
      largest geometric outlier is shown? (puntable) ::: 1 
+
 
 ------
 
@@ -1064,9 +1057,24 @@ c-interface clear_up_moving_atoms...
      Am I using the right version of mgtree?
      ::: 8
 
+* Done - yay!
+
    o Fix the documentation generation - coot.html ::: 2 
 
+* Done - now part of the source bulid.
+
    o OXT atoms are added after TER atoms? ::: 1
+
+* Done.
+
+   o Fix ligand chi angles.  
+
+     Try rotating round CA-CB in a modified CYS (after clicking on a
+     CA). [Ian Tickle]
+
+     ::: 4
+
+* Done - works fine.
 
 
 -----
