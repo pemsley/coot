@@ -3330,7 +3330,7 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
 	    }
 	 }
 	 catch (std::runtime_error rte) {
-	    std::cout << rte.what() << std::endl;
+	    // std::cout << rte.what() << std::endl; -> "No tree in restraint" everytime the mouse moves
 	    fail_with_dictionary = 1; 
 	 }
 
