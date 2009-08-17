@@ -1731,9 +1731,6 @@ cd  mmdb-$mmdb_version
 $MAKE
 $MAKE install
 # now remove the mmdb binaries!
-rm $install_top_dir/bin/mwater
-rm $install_top_dir/bin/ncont
-rm $install_top_dir/bin/pdbcur
 ) 2>&1 > $HOSTLOGDIR/02-mmdb.txt 
 else
    echo not building mmdb:
