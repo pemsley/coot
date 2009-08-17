@@ -1305,7 +1305,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 	/* vendor dependent version info string */
 #if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
 	info_str = gdk_gl_get_info();
-	g_print(info_str);
+	g_print("%s\n", info_str);
 	g_free(info_str);
 #endif
      } else {
