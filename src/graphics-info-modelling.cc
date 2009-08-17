@@ -3077,22 +3077,20 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
 					      atom_selection_container_t &asc,
 					      int nth_chi, double diff) {
    short int istat = 0;
+   double angle = diff/60.0;
+   bool reverse = edit_chi_angles_reverse_fragment; 
 
-   try {
-      std::string monomer_type = residue->GetResName();
-      // this can throw an exception
-      std::pair<short int, coot::dictionary_residue_restraints_t> p =
-	 Geom_p()->get_monomer_restraints(monomer_type);
-      
-      if (p.first) {
-	 std::string alt_conf = chi_angle_alt_conf;
+   std::string monomer_type = residue->GetResName();
+   // this can throw an exception
+   std::pair<short int, coot::dictionary_residue_restraints_t> p =
+      Geom_p()->get_monomer_restraints(monomer_type);
+   
+   if (p.first) {
+      std::pair<std::string, std::string> atom_names = get_chi_atom_names(residue, p.second, nth_chi);
+      std::string alt_conf = chi_angle_alt_conf;
+      try {
 	 coot::atom_tree_t tree(p.second, residue, alt_conf);
 	 // this can throw an exception
-	 std::pair<std::string, std::string> atom_names = get_chi_atom_names(residue, p.second, nth_chi);
-	 // std::cout << "========= rotating round atom names :" << atom_names.first << ":  :"
-	 // << atom_names.second << ":" << std::endl;
-	 double angle = diff/60.0;
-	 bool reverse = edit_chi_angles_reverse_fragment; 
 	 double new_torsion = tree.rotate_about(atom_names.first, atom_names.second, angle, reverse);
 	 display_density_level_this_image = 1;
 	 display_density_level_screen_string = "  Chi ";
@@ -3100,16 +3098,32 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
 	 display_density_level_screen_string += "  =  ";
 	 display_density_level_screen_string += float_to_string(new_torsion);
 	 statusbar_text(display_density_level_screen_string);
-      } else {
-
-	 // chi angles with no dictionary torsions.
-	 
-
+      }
+      catch (std::runtime_error rte) {
+	 // std::cout << rte.what() << std::endl;
+	 int base_atom_index = 0;
+	 coot::contact_info contact = coot::getcontacts(*moving_atoms_asc);
+	 std::vector<std::vector<int> > contact_indices = contact.get_contact_indices();
+	 try {
+	    coot::atom_tree_t tree(contact_indices, base_atom_index, residue, alt_conf);
+	    // this can throw an exception
+	    double new_torsion = tree.rotate_about(atom_names.first, atom_names.second, angle, reverse);
+	    display_density_level_this_image = 1;
+	    display_density_level_screen_string = "  Chi ";
+	    display_density_level_screen_string += int_to_string(nth_chi);
+	    display_density_level_screen_string += "  =  ";
+	    display_density_level_screen_string += float_to_string(new_torsion);
+	    statusbar_text(display_density_level_screen_string);
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << "Update chi - contact fall-back fails - " << rte.what() << std::endl;
+	 }
       } 
+   } else {
+      
+      // chi angles with no dictionary torsions.  No thanks.
+      
    }
-   catch (std::runtime_error rte) {
-      std::cout << rte.what() << std::endl;
-   } 
 
    return istat;
 }
@@ -3348,9 +3362,8 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
 	       graphics_draw();
 	    }
 	    catch (std::runtime_error rte) {
-	       std::cout << rte.what() << std::endl;
-	    } 
-
+	       std::cout << "INFO:: tree by contacts failed too - " << rte.what() << std::endl;
+	    }
 	 } 
       }
    }

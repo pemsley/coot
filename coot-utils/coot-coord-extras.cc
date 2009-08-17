@@ -300,6 +300,10 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
    fill_name_map(altconf);
 
    bool success_vertex = fill_atom_vertex_vec(rest, res, altconf);
+   if (! success_vertex) {
+      std::string mess = "Failed to fill atom vector from cif atom tree - bad tree?";
+      throw std::runtime_error(mess);
+   }
 
    bool success_torsion = fill_torsions(rest, res, altconf);
 
@@ -475,6 +479,7 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
       }
       q.pop();
       done.push_back(this_base_atom);
+      r = 1; // return success
    }
    
    // print out the name_to_index map
@@ -484,7 +489,19 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
 	  it != name_to_index.end(); ++it)
 	 std::cout << "Atom :" << it->first << ": Index: " << it->second.index() << '\n';
    }
-   
+
+   // print out the atom tree
+   if (0) {
+      std::cout << "debug:: ==== atom_vertex_vec === from fill_atom_vertex_vec_using_contacts "
+		<< std::endl;
+      for (unsigned int iv=0; iv<atom_vertex_vec.size(); iv++) {
+	 std::cout << "   atom_vertex_vec[" << iv << "] forward atom ";
+	 for (unsigned int ifo=0; ifo<atom_vertex_vec[iv].forward.size(); ifo++) 
+	    std::cout << atom_vertex_vec[iv].forward[ifo] << " ";
+	 std::cout << std::endl;
+      }
+   }
+
    return r;
 } 
 
@@ -612,9 +629,10 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
    }
 
    // print out the atom tree
-   if (0) { 
+   if (0) {
+      std::cout << "debug:: ==== atom_vertex_vec === from fill_atom_vertex_vec " << std::endl;
       for (unsigned int iv=0; iv<atom_vertex_vec.size(); iv++) {
-	 std::cout << "atom_vertex_vec[" << iv << "] forward atom ";
+	 std::cout << "   atom_vertex_vec[" << iv << "] forward atom ";
 	 for (unsigned int ifo=0; ifo<atom_vertex_vec[iv].forward.size(); ifo++) 
 	    std::cout << atom_vertex_vec[iv].forward[ifo] << " ";
 	 std::cout << std::endl;
@@ -829,7 +847,13 @@ std::vector<coot::atom_tree_t::atom_tree_index_t>
 coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t &index) const {
 
    std::vector<coot::atom_tree_t::atom_tree_index_t> v;
-   
+
+   // If atom_vertex_vec was not filled, then we should not index into
+   // it with index.index():  Stops a crash, at least.
+   // 
+   if (index.index() >= atom_vertex_vec.size())
+      return v; 
+
    // how can this happen?
    if (atom_vertex_vec[index.index()].connection_type == coot::atom_vertex::START) {
       // std::cout << " in get_forward_atoms index " <<  index.index() << " at start" << std::endl;
@@ -873,7 +897,6 @@ coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t 
 	 v.push_back(nv[inv]);
       }
    }
-
 
    return v;
 }
