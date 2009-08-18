@@ -280,10 +280,12 @@
 ;;
 (define (print-build-info record port)
   (let ((rec-type (record-type-descriptor record)))
-    (format port "\nbinary-type:      ~s~%" ((record-accessor rec-type 'binary-type)      record))
+    (format port "\nbinary-type:      ~s~%" ((record-accessor rec-type 'binary-type)    record))
     (format port "binary-http-dir:  ~s~%" ((record-accessor rec-type 'binary-http-dir)  record))
     (format port "build-log-prefix: ~s~%" ((record-accessor rec-type 'build-log-prefix) record))
     (format port "binary-url:       ~s~%" ((record-accessor rec-type 'binary-url)       record))
+    (format port "build-status:     ~s~%" ((record-accessor rec-type 'build-status)     record))
+    (format port "test-status:      ~s~%" ((record-accessor rec-type 'test-status)      record))
     (format port "latest-bin-rev:   ~s~%" ((record-accessor rec-type 'latest-binary-revision) record))))
 
 ;; return a list (pair) of lists of whateverever is in ls.  Fill last
@@ -379,6 +381,8 @@
    ((not (string? text)) 	"status not found")
    ((string-match "404 Not Found" text)
     `(b (font (@ color "#991111") "Not Found")))
+   ((string-match "Object not found!" text)
+    `(b (font (@ color "#991111") "")))
    ((string-match "pass" text)
     `(b (font (@ color "#119911") ,text)))
    ((string-match "fail" text)
@@ -409,7 +413,7 @@
 		 ,((record-accessor rec-type 'binary-type) binary-record))
 	      " " 
 	      ,(colourize ((record-accessor rec-type 'build-status) binary-record))
-	      " " 
+	      " "
 	      ,(colourize ((record-accessor rec-type 'test-status) binary-record))))))
 		 
 
@@ -564,6 +568,8 @@
 				    tar-file))
 		       (build-status (get-url build-status-link))
 		       ( test-status (get-url  test-status-link)))
+
+		   (format #t "test-status for ~s is ~s~%" test-status-link test-status)
 
 		   ;; build-status is e.g. "passed build" or #f
 		   ;;  test-status is e.g. "passed test" or #f
