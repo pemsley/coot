@@ -691,10 +691,12 @@ coot::atom_tree_t::add_unique_forward_atom(int this_index, int forward_atom_inde
 
    std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> >
       forward_atoms_of_forward_atom_index_pair = get_forward_atoms(forward_atom_index);
-   std::cout << " in add_unique_forward_atom get_forward_atoms called "
-	     << forward_atoms_of_forward_atom_index_pair.first 
-	     << " times - indices size: "
-	     << forward_atoms_of_forward_atom_index_pair.second.size() << std::endl;
+
+   if (0) 
+      std::cout << " in add_unique_forward_atom get_forward_atoms called "
+		<< forward_atoms_of_forward_atom_index_pair.first 
+		<< " times - indices size: "
+		<< forward_atoms_of_forward_atom_index_pair.second.size() << std::endl;
    
    if (0) { 
       std::cout << "debug:: forward atoms of " << forward_atom_index << ":"; 
