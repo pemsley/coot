@@ -4505,4 +4505,12 @@ Tue Aug  4 13:04:58 BST 2009
    side-chain weighting (slider?), useful for low-res refinement.
 
 
+---
+Tue Aug 18 08:42:28 BST 2009
+
+   When adding waters, do a sphericity test.  You need to know the
+   resolution of the data and have pre-calculated tables of sphericity
+   at various resolutions.  So that requires a search of PDB data.
+
+
 ------

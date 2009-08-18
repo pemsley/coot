@@ -316,7 +316,7 @@ coot::atom_tree_t::fill_name_map(const std::string &altconf) {
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
 
-   // atom-name -> index
+   // atom-name -> index, now class variable
    // std::map<std::string, int, std::less<std::string> > name_to_index;
    for (int iat=0; iat<n_residue_atoms; iat++) {
       std::string atom_name(residue_atoms[iat]->name);
@@ -549,6 +549,15 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
 					CResidue *res,
 					const std::string &altconf) {
 
+   // Note that we add an extra check on the forward and back atom
+   // indices before adding them.  This is a sanity check - if we come
+   // here with a big tree but a small residue, then the forward and
+   // back atom indices could go beyond the limits of the size of the
+   // atom_vertex_vec.  Which would be badness.  Hmm.. I am not sure
+   // about this now. The indices are into the residue table, are they
+   // not?  And the residue table corresponds here to residue_atoms
+   // and n_residue_atoms. Hmm.. maybe that was not the problem.
+
    bool retval = 0; // fail initially.
 
    bool found_start = 0;
@@ -589,15 +598,13 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
 	    if (rest.tree[itree].atom_back != "") { 
 	       // if connect_type is START then the back atom is n/a -> UNASSIGNED
 	       if (atom_back_index.is_assigned()) { 
-		  // there should be only one back atom for each vertex
-		  atom_vertex_vec[idx].backward.push_back(atom_back_index.index());
-		  // 
-		  // make a synthetic forward atom
-		  add_unique_forward_atom(atom_back_index.index(), idx);
-// 		  if (1) { 
-// 		     std::cout << "   making synthetic forward atom for index "
-// 			       << atom_back_index.index() << " as " << idx << std::endl;
-// 		  }
+		  if (atom_back_index.index() < n_residue_atoms) { 
+		     // there should be only one back atom for each vertex
+		     atom_vertex_vec[idx].backward.push_back(atom_back_index.index());
+		     // 
+		     // make a synthetic forward atom
+		     add_unique_forward_atom(atom_back_index.index(), idx);
+		  }
 	       }
 	    }
 	       
@@ -605,7 +612,8 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
 	       name_to_index[rest.tree[itree].atom_forward];
 
 	    if (atom_forward_index.is_assigned()) {
-	       add_unique_forward_atom(idx, atom_forward_index.index());
+	       if (atom_forward_index.index() < n_residue_atoms)
+		  add_unique_forward_atom(idx, atom_forward_index.index());
 	    }
 
 	    if (0) { 
