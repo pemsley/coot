@@ -2852,11 +2852,16 @@ This function can easily be bound to a key.
 @node Find Waters
 @section Find Waters
 @cindex waters, finding
-As with finding ligands, you are given a chose
-of maps, protein (masking) atoms. A final selection has to be made for
-the cut-off level, note that this value is the number of standard
-deviation of the density of the map @emph{before} the map has been
-masked.  Then the map is masked by the masking atoms and a search is
+As with finding ligands, you are given a chose of maps, protein
+(masking) atoms. A final selection has to be made for the cut-off level,
+note that this value is the number of standard deviation of the density
+of the map @emph{before} the map has been masked.  The default sigma
+level (water positions must have density above this level) is set for a
+``2Fo-Fc''-style map.  If you want to use a difference map, you must
+change the sigma level (typically to 3 sigma) otherwise you run the risk
+of fitting waters to difference map noise peaks.
+
+Then the map is masked by the masking atoms and a search is
 made of features in the map about the electron density cut-off value.
 Waters are added if the feature is approximately water-sized and can
 make sensible hydrogen bonds to the protein atoms.  The new waters are
