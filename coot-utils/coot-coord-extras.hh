@@ -104,6 +104,19 @@ namespace coot {
       short int is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geometry &geom);
    }
 
+   class recursive_forwards_container_t {
+   public:
+      bool done;
+      std::vector<int> forwards;
+      recursive_forwards_container_t(bool done_in, const std::vector<int> &forwards_in) {
+	 done = done_in;
+	 forwards = forwards_in;
+      }
+      recursive_forwards_container_t() {
+	 done = 0;
+      } 
+   };
+
    class atom_vertex {
 
    public:
@@ -151,7 +164,7 @@ namespace coot {
       atom_index_quad get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
 					  CResidue *res, const std::string &altconf) const;
       std::vector<atom_tree_index_t> get_back_atoms(const atom_tree_index_t &index2) const;
-      std::vector<atom_tree_index_t> get_forward_atoms(const atom_tree_index_t &index2) const;
+      std::pair<int, std::vector<atom_tree_index_t> > get_forward_atoms(const atom_tree_index_t &index2) const;
       std::vector<coot::atom_tree_t::atom_tree_index_t>
       uniquify_atom_indices(const std::vector<coot::atom_tree_t::atom_tree_index_t> &vin) const;
 
