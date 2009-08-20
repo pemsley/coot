@@ -790,6 +790,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    imol = unittest_pdb("test-TER-OXT.pdb")
 	    opdb = "test-TER-OXT-added.pdb"
 
+	    self.failUnless(valid_model_molecule_qm(imol),
+			    "Failed to read test-TER-OXT.pdb")
+
 	    add_OXT_to_residue(imol, 14, "", "A")
 	    write_pdb_file(imol, opdb)
 	    self.failUnless(os.path.isfile(opdb),

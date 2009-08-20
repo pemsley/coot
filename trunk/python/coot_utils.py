@@ -2209,6 +2209,17 @@ def side_by_side_stereo_mono_toggle():
     else:
         mono_mode()
 
+def zalman_stereo_mono_toggle():
+    display_state = stereo_mode_state()
+    if (display_state == 0):
+        zalman_stereo_mode()
+    else:
+        mono_mode()
+
+def switch_stereo_sides():
+    factor = -1. * hardware_stereo_angle_factor_state()
+    set_hardware_stereo_angle_factor(factor)
+
 # helper function to test for a number
 # returns True if number, otherwise False
 def isNumber(num):

@@ -530,6 +530,8 @@ def list_of_toolbar_functions():
   ls = [["Display",
          ["Stereo/Mono", "stereo_mono_toggle()", "Toggle between Stereo and Mono view", "stereo-view.svg"],
          ["Side-by-side/Mono", "side_by_side_stereo_mono_toggle()", "Toggle between Side-by-Side Stereo and Mono view", "stereo-view.svg"],
+         ["Zalman Stereo/mono", "zalman_stereo_mono_toggle()", "Toggle between Zalman Stereo and Mono view", "stereo-view.svg"],
+         ["Swap Stereo", "switch_stereo_sides()", "Toggle between Zalman Stereo and Mono view", "undo-1.svg"],
          ["Test", "rotation_centre()", "test function"]],
         ["Refinement",
          ["Refine residue", "refine_active_residue()", "RSR active residue"],
