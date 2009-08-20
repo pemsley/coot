@@ -2162,6 +2162,11 @@ on_stereo_dialog_hardware_stereo_radiobutton_toggled
                                         gpointer         user_data);
 
 void
+on_stereo_dialog_zalman_stereo_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
 on_residue_type_chooser_MSE_clicked    (GtkButton       *button,
                                         gpointer         user_data);
 

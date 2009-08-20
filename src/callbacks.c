@@ -6300,6 +6300,10 @@ on_stereo1_activate                    (GtkMenuItem     *menuitem,
     checkbutton = lookup_widget(w, "stereo_dialog_dti_side_by_side_stereo_radiobutton");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
   }
+  if (stereo_mode_state() == 5) { /* coot::ZALMAN_STEREO */
+    checkbutton = lookup_widget(w, "stereo_dialog_zalman_stereo_radiobutton");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+  }
   gtk_widget_show(w);
 }
 
@@ -6366,6 +6370,17 @@ on_stereo_dialog_side_by_side_stereo_walleyed_radiobutton_toggled
   if (togglebutton->active) {
     side_by_side_stereo_mode(1); /* passed used_wall_eye flag */
   }
+}
+
+void
+on_stereo_dialog_zalman_stereo_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    zalman_stereo_mode();
+  }
+
 }
 
 /* Preference section */
