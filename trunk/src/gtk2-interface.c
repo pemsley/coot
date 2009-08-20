@@ -19599,6 +19599,7 @@ create_stereo_dialog (void)
   GtkWidget *stereo_dialog_hardware_stereo_radiobutton;
   GtkWidget *stereo_dialog_side_by_side_stereo_crosseyed_radiobutton;
   GtkWidget *stereo_dialog_side_by_side_stereo_walleyed_radiobutton;
+  GtkWidget *stereo_dialog_zalman_stereo_radiobutton;
   GtkWidget *dialog_action_area75;
   GtkWidget *stereo_dialog_ok_button;
 
@@ -19668,6 +19669,13 @@ create_stereo_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (stereo_dialog_side_by_side_stereo_walleyed_radiobutton), stereo_dialog_mono_radiobutton_group);
   stereo_dialog_mono_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (stereo_dialog_side_by_side_stereo_walleyed_radiobutton));
 
+  stereo_dialog_zalman_stereo_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Zalman Stereo"));
+  gtk_widget_set_name (stereo_dialog_zalman_stereo_radiobutton, "stereo_dialog_zalman_stereo_radiobutton");
+  gtk_widget_show (stereo_dialog_zalman_stereo_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox138), stereo_dialog_zalman_stereo_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (stereo_dialog_zalman_stereo_radiobutton), stereo_dialog_mono_radiobutton_group);
+  stereo_dialog_mono_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (stereo_dialog_zalman_stereo_radiobutton));
+
   dialog_action_area75 = GTK_DIALOG (stereo_dialog)->action_area;
   gtk_widget_set_name (dialog_action_area75, "dialog_action_area75");
   gtk_widget_show (dialog_action_area75);
@@ -19691,6 +19699,9 @@ create_stereo_dialog (void)
   g_signal_connect ((gpointer) stereo_dialog_side_by_side_stereo_walleyed_radiobutton, "toggled",
                     G_CALLBACK (on_stereo_dialog_side_by_side_stereo_walleyed_radiobutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) stereo_dialog_zalman_stereo_radiobutton, "toggled",
+                    G_CALLBACK (on_stereo_dialog_zalman_stereo_radiobutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) stereo_dialog_ok_button, "clicked",
                     G_CALLBACK (on_stereo_dialog_ok_button_clicked),
                     NULL);
@@ -19707,6 +19718,7 @@ create_stereo_dialog (void)
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_hardware_stereo_radiobutton, "stereo_dialog_hardware_stereo_radiobutton");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_side_by_side_stereo_crosseyed_radiobutton, "stereo_dialog_side_by_side_stereo_crosseyed_radiobutton");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_side_by_side_stereo_walleyed_radiobutton, "stereo_dialog_side_by_side_stereo_walleyed_radiobutton");
+  GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_zalman_stereo_radiobutton, "stereo_dialog_zalman_stereo_radiobutton");
   GLADE_HOOKUP_OBJECT_NO_REF (stereo_dialog, dialog_action_area75, "dialog_action_area75");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_ok_button, "stereo_dialog_ok_button");
 
