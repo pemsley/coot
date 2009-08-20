@@ -98,6 +98,7 @@ def parse_pisa(imol, entity):
 
         chain_id_raw = mol_dic["chain_id"]
         atom_selection_string = make_atom_selection_string(chain_id_raw)
+        print "BL DEBUG:: chain_id_raw and atom_selection strin", chain_id_raw, atom_selection_string
         if (chain_id_raw == atom_selection_string):
             symm_name_part = "chain " + chain_id_raw
         else:
@@ -124,7 +125,8 @@ def parse_pisa(imol, entity):
 
     # Return the model number of the new assembly molecule
     #
-    def create_assembly_set_molecule(assembly_set_molecule_numbers):
+    def create_assembly_set_molecule(assembly_set_molecule_numbers,
+                                     assembly_set_number = ""):
         if not assembly_set_molecule_numbers:
             return False
         else:
@@ -134,7 +136,7 @@ def parse_pisa(imol, entity):
             else:
                 rest = assembly_set_molecule_numbers[1:]
                 merge_molecules(rest, first_copy)
-                set_molecule_name(first_copy, "An Assembly Set")
+                set_molecule_name(first_copy, "Assembly Set " + assembly_set_number)
                 return first_copy
 
     ( STRING,
@@ -247,7 +249,7 @@ def pisa_assemblies(imol):
         s = os.getenv("CCP4")
         # may need a normpath somehwere too?! FIXME
         ls = [["DATA_ROOT", os.path.join(s, "share/pisa")],
-              ["WORK_ROOT", pisa_coot_dir],
+              ["PISA_WORK_ROOT", pisa_coot_dir],
               ["SBASE_DIR", os.path.join(s, "share/sbase")],
               # according to Paule (and I agree):
               # that we need these next 3 is ridiculous
@@ -255,7 +257,7 @@ def pisa_assemblies(imol):
               ["MOLREF_DIR", os.path.join(s, "share/pisa/molref")],
               ["RASMOL_COM", os.path.join(s, "bin/rasmol")],
               ["CCP4MG_COM", os.path.join(s, "bin/ccp4mg")],
-              ["SESSION_PREFIX", os.path.join(s, "share/sbase")],
+              ["SESSION_PREFIX", "pisa1_"],
               ]
         if (os.path.isdir(s)):
             fin = open(config_file_name, 'w')
@@ -268,9 +270,10 @@ def pisa_assemblies(imol):
     if valid_model_molecule_qm(imol):
         pisa_coot_dir = "coot-pisa"
         stubbed_name = make_stubbed_name(imol)
-        pdb_file_name        = os.path.join(pisa_coot_dir, stubbed_name + ".pdb")
-        pisa_config          = os.path.join(pisa_coot_dir, stubbed_name + "-pisa.cfg")
-        pisa_xml_file_name   = os.path.join(pisa_coot_dir, stubbed_name + ".xml")
+        pdb_file_name      = os.path.join(pisa_coot_dir, stubbed_name + ".pdb")
+        pisa_config        = os.path.join(pisa_coot_dir, stubbed_name + "-pisa.cfg")
+        pisa_xml_file_name = os.path.join(pisa_coot_dir, stubbed_name + ".xml")
+        pisa_project_name  = os.path.join(stubbed_name)
 
         make_directory_maybe(pisa_coot_dir)
         make_pisa_config(pisa_coot_dir, pisa_config)
@@ -279,13 +282,15 @@ def pisa_assemblies(imol):
 
             # "pisa" should be pisa_exe or somthign like this (need absolute path...)
             # FIXME
-            print "pisa args:", ["pisa", "-analyse", pdb_file_name, pisa_config]
+            print "pisa args:", [pisa_project_name, "-analyse", pdb_file_name, pisa_config]
             status = popen_command("pisa",
-                                   ["pisa", "-analyse", pdb_file_name, pisa_config],
-                                   [], "pisa.log", False)
+                                   [pisa_project_name, "-analyse", pdb_file_name, pisa_config],
+                                   [], "pisa.log", True)
+#                                   [], "pisa.log", False)
             if (status == 0):  #good
-                status_2 = popen_command("pisa", ["pisa", "-xml", pisa_config],
-                                         [], pisa_xml_file_name, False)
+                status_2 = popen_command("pisa", [pisa_project_name, "-xml", pisa_config],
+                                         [], pisa_xml_file_name, True)
+#                                         [], pisa_xml_file_name, False)
                 if (status_2 == 0):
                     pisa_xml(imol, pisa_xml_file_name)
                 
