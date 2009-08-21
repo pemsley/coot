@@ -58,7 +58,8 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
 
 # for non-simple coordinates things
-libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc
+libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
+	coot-tree-extras.cc
 
 # for (map) things that need to link mmdb and clipper:
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc trim.cc xmap-stats.cc

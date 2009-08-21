@@ -26,6 +26,7 @@
 #include <map>
 #include "protein-geometry.hh"
 #include "atom-quads.hh"
+#include "mini-mol.hh"
 
 
 namespace coot {
@@ -146,10 +147,25 @@ namespace coot {
 	 }
       };
 
+      class tree_dihedral_info_t {
+      public:
+	 atom_name_quad quad;
+	 double dihedral_angle; // in radians
+	 tree_dihedral_info_t(const atom_name_quad quad_in, double ang_in) {
+	    quad = quad_in;
+	    dihedral_angle = ang_in;
+	 }
+	 tree_dihedral_info_t() {}
+      };
+
    protected: 
       CResidue *residue;
+      bool made_from_minimol_residue_flag; 
       std::vector<std::pair<int, int> > bonds;
       std::vector<coot::atom_vertex> atom_vertex_vec;
+      void construct_internal(const dictionary_residue_restraints_t &rest,
+			      CResidue *res,
+			      const std::string &altconf);
       std::map<std::string, atom_tree_index_t, std::less<std::string> > name_to_index;
    private: 
       bool fill_atom_vertex_vec(const dictionary_residue_restraints_t &rest, CResidue *res,
@@ -191,21 +207,47 @@ namespace coot {
       double quad_to_torsion(const atom_tree_index_t &index2) const;
       
    public:
-      // the constructor can throw an exception if there is no tree in the restraints.
+      // the constructor throws an exception if there is no tree in
+      // the restraints.
+      // 
+      // FIXME.  In fact, we can handle there being no tree.  We
+      // should fall back to using the bonds in the restraint. And
+      // throw an exception if there are no bonds.
+      //
       atom_tree_t(const dictionary_residue_restraints_t &rest, CResidue *res,
 		  const std::string &altconf);
 
       // the constructor, given a list of bonds and a base atom index.
       // Used perhaps as the fallback when the above raises an
       // exception.
+      // 
       atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
 		  int base_atom_index, 
 		  CResidue *res,
-		  const std::string &alconf); 
+		  const std::string &alconf);
+
+      // constructor can throw an exception
+      // 
+      // the constructor should not throw an exception if there are no
+      // tree in the restraints.  It should instead try the bonds in
+      // the restraints.  If there are no bonds then it throws an
+      // exception.
+      // 
+      atom_tree_t(const dictionary_residue_restraints_t &rest,
+		  const minimol::residue &res_in,
+		  const std::string &altconf);
+
+      ~atom_tree_t() {
+	 if (made_from_minimol_residue_flag)
+	    // question: does this delete the atoms in the residue too?
+	    delete residue; 
+      }
+
 
       // Rotate round the 2 middle atoms of the torsion by angle (in
-      // degress).  This is a relative rotation - not setting the torsion angle.
-      // The atoms of the CResidue residue are manipulated.
+      // degress).  This is a relative rotation - not setting the
+      // torsion angle.  The atoms of the CResidue residue are
+      // manipulated.
       //
       // The reversed flag (being true) allows the rotation of the
       // base, rather than the branch (dog wags rather than tail).
@@ -214,8 +256,8 @@ namespace coot {
       // fragment rotation is reversed by setting the reversed_flag
       // (not the atom order).
       // 
-      // Return the new torsion angle (use the embedded torsion on index2 if you can)
-      // Otherwise return -1.0;
+      // Return the new torsion angle (use the embedded torsion on
+      // index2 if you can) Otherwise return -1.0;
       // 
       double rotate_about(const std::string &atom1, const std::string &atom2,
 			  double angle,
@@ -225,6 +267,17 @@ namespace coot {
       double set_dihedral(const std::string &atom1, const std::string &atom2,
 			  const std::string &atom3, const std::string &atom4,
 			  double angle);
+
+      // this can throw an exception
+      // 
+      // return the set of angles - should be the same that they were
+      // set to (for validation).
+      std::vector<double> set_dihedral_multi(const std::vector<tree_dihedral_info_t> &di);
+      //
+      minimol::residue GetResidue() const; // for use with above
+					   // function, where the
+					   // class constructor is
+					   // made with a minimol::residue.
 
    };
 

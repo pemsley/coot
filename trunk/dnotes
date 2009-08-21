@@ -4512,5 +4512,108 @@ Tue Aug 18 08:42:28 BST 2009
    resolution of the data and have pre-calculated tables of sphericity
    at various resolutions.  So that requires a search of PDB data.
 
+---
+Thu 20 Aug 2009 10:13:21 EDT
+
+   JB et al: 
+
+   Copy fragment 2bz1 //B/1-305  -> no atoms selected 
+
+   Make the image type png
+
+   Don't display bumps - in the environment distances (so that
+   biologist see the hydrogen bonds - but not the bumps (the are not
+   interested in them)).
+
+   Unphosphorylate (change the residue type)
+
+   Add a key binding to cut side changes (shift K, perhaps).
+
+   Perhaps the hydrogens on a ligand from probe is not working as
+   you'd hoped.  Try with several different ligands.  See "Use
+   write_connectivity to generate ligand hydrogens" in the rel-todo.
+
+   Then you will need to use the hydrogen conn file when running
+   reduce.
+
+   It is reasable for me to say he period is 0 and the sd is 0 on a
+   rotatable bond.  So coot should deal with that.   
+
+      i.e. if the sd is 0, then no torsion restraint on that tor.
+       also if the period is 0, there souold ben no torsion
+       restraints.
+
+   The weight matrix refinement control dialog needs to be read/set.
+
+   We want button in the main toolbar to open a coordinaes file (so
+   that we dont have to click and hold and select a menu item on the
+   file men (Word does it).  Same for cif and mtz.  We need to make
+   the open_coords_dialog() acceccesable from scripting.
+
+   split residue (his) and rotamers (try both from CA, and all). 
+
+   Try rotamers on a alt confed residue.
+
+   Delete a water (shift W).
+
+   On adding a water, it defaults to adding to "Waters molecule" or
+   something - stop doing that and if it is default/not assigned, then
+   give me a dialog to assign it
+
+   Somehow go to reside "GTY" (let me type a triple letter).
+
+   The sequence alignemnt seems to fail, because lets say the protein
+   starts with residue 11, the sequence alignemnt should be for the
+   model, not eh sequence.  Needs investigating.
+
+   Shift W - delete water.
+
+   Residues with missing atoms: I want to use the . and , key on the
+   generated list.
+
+   Same goes for the list from Find Waters.  I want a list of waters
+   in a dialog that I can use . and , with. Like questionable waters.
+
+   Backrub rotamer search on a PHE in a helix.  -> terrible solution.
+   Need to include clash terms. 
+
+   User-define-click resets the cursor after it has run the
+   function. This can be inconvenient, when user-defined-click calls
+   itself at the end (e.g. we don't know how many times
+   user-defined-click needs to be called - so we use it in one-by-one
+   mode)
+
+   Try sphere refinement with hydrogens on. Check that convergence
+   happens.
+
+   "SSM all" to this: give me a dialog, with an "all on" button.  
+
+   chains ligands
+   A        D
+   B        E
+   C        F
+
+   SSM-all should copy across the ligands too - that is what we are
+   most interested in. You will have to find which ligands should come
+   with which chains.
+
+   NCS ghosts don't work with ligands/cofacors.  Can you make it work
+   with those too?
+
+   There should be quick way to undo/undisplay "highight intereting
+   residue"
+
+   Make and uberfile with views, maps proteins in.
+
+   align vs pir sequence failed to do anything obvious.
+   We then dis alignment-mismatches-gui by hand and it gave us a gui.
+
+   An "Insert residue" should take you to the nearest residue.
+  
+   But the residue number is wrong for insertions.
+   Mutations look fine.
+
+   In the colour map rotation for maps, let there be "an allowed range"
+   on the colour wheel).
 
 ------
