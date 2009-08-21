@@ -3303,11 +3303,12 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
 
    std::vector<coot::atom_spec_t> specs_local =
       graphics_info_t::torsion_general_atom_specs;
-   
-   if (torsion_general_reverse_flag) {
-      std::reverse(specs_local.begin(),
-		   specs_local.end());
-   }
+
+   // 20090819 The reverse is done in the atom_tree code now.   
+//    if (torsion_general_reverse_flag) {
+//       std::reverse(specs_local.begin(),
+// 		   specs_local.end());
+//    }
 
    short int istat = 1; // failure
    if (! moving_atoms_asc) {

@@ -32,6 +32,7 @@ Pre-release 0.6
 
   o FEATURE: Rigid-body fit by residue ranges.
 
+  o FEATURE: Multi-select on reading coordinates is enabled.
 
   o CHANGE: partial charges added to electrostatic surface calculation.
 
@@ -54,6 +55,8 @@ Pre-release 0.6
 
   o CHANGE: Don't display the geometry distance if the molecule
     corresponding to the start or end point is not displayed [JED].
+
+  o CHANGE: Chi angles rotation now include a "reverse fragment" option.
 
   o BUG-FIX: TER records are removed on addition of waters [Herb Klei].
 

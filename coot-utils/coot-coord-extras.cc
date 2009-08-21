@@ -255,9 +255,20 @@ coot::util::is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geome
 }
 
 
-
-coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest, CResidue *res,
+// can throw an exception.
+coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest,
+			       CResidue *res,
 			       const std::string &altconf) {
+
+   made_from_minimol_residue_flag = 0;
+   construct_internal(rest, res, altconf);
+
+}   
+
+void 
+coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_t &rest,
+				       CResidue *res,
+				       const std::string &altconf) {
 
    if (! res) {
       std::string mess = "Null residue in atom tree constructor";
@@ -269,7 +280,7 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
    if (rest.tree.size() == 0) {
       std::string mess = "No tree in restraint";
       throw std::runtime_error(mess);
-   } 
+   }
 
    // Fill bonds
    PPCAtom residue_atoms = 0;
@@ -334,6 +345,7 @@ coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_ind
 			       int base_atom_index, 
 			       CResidue *res,
 			       const std::string &altconf) {
+   made_from_minimol_residue_flag = 0;
    if (! res) {
       std::string mess = "null residue in alternate atom_tree_t constructor";
       throw std::runtime_error(mess);
@@ -734,6 +746,14 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 				double angle, bool reversed_flag) {
 
    double new_torsion = 0.0;
+   // OK, so when the user clicks atom2 then atom1 (as the middle 2
+   // atoms), then they implictly want the fragment revsersed,
+   // relative to the atom order internally.  In that case, se
+   // internal_reversed, and only if it is not set and the
+   // reversed_flag flag *is* set, do the reversal (if both are set
+   // they cancel each other out).  Now we do not pre-reverse the
+   // indices in the calling function. The revere is done here.
+   bool internal_reversed = 0;
    
    coot::atom_tree_t::atom_tree_index_t index2 = name_to_index[atom1];
    coot::atom_tree_t::atom_tree_index_t index3 = name_to_index[atom2];
@@ -768,6 +788,7 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    if (index2_is_forward) {
 	       std::swap(index2, index3);
 	       index3_is_forward = 1;
+	       internal_reversed = 1;
 	    }
 	 }
 
@@ -798,9 +819,15 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 			    << unique_moving_atom_indices[imov].index() << std::endl;
 	       }
 	    }
-	    
 
-	    if (reversed_flag) {
+	    // internal_reversed reversed_flag   action
+	    //      0                0             -
+	    //      0                1          complementary_indices
+	    //      1                0          complementary_indices
+	    //      1                1             -
+
+	    bool xorv = reversed_flag ^ internal_reversed;
+	    if (xorv) {
 	       unique_moving_atom_indices = complementary_indices(unique_moving_atom_indices,
 								  index2, index3);
 	    } 
