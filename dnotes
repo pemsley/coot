@@ -4536,7 +4536,7 @@ Thu 20 Aug 2009 10:13:21 EDT
    Then you will need to use the hydrogen conn file when running
    reduce.
 
-   It is reasable for me to say he period is 0 and the sd is 0 on a
+   It is reasonble for me to say he period is 0 and the sd is 0 on a
    rotatable bond.  So coot should deal with that.   
 
       i.e. if the sd is 0, then no torsion restraint on that tor.
@@ -4616,4 +4616,27 @@ Thu 20 Aug 2009 10:13:21 EDT
    In the colour map rotation for maps, let there be "an allowed range"
    on the colour wheel).
 
+----
+
+      In baton build, make it work better/more clearly when starting
+      with no skeleton.
+      ->  ask me to make a skeleton
+
+     Doing go to blob when the refiement map has not been set, 
+     needs better feedback.
+
+     Sharpening a map, read in from a map:  -> crash.
+
+     I want a function to set the refinment weight for me, 
+     i.e.  it should do a triple refine and look at the chi squareds.
+     Keep doing that with different weights until we get to 1.0.
+
+     The very low level map from phenix, makes refinement fail to 
+     converge without setting the map weight to 3000!
+
+     How about doing ramachandran refinement with optional sphere refinement.
+
+
+
 ------
+

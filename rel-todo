@@ -1,6 +1,5 @@
 
-   2 items
-
+   3 items
 
    o Stereo (hardware, side by side) Add-reps.  Need to update the
      display list objects when the GL context changes. Need to store a
@@ -11,9 +10,10 @@
      to run update_additional_representations() for each model molecule.
      ::: 3
 
-
    o Can you fix the geometry analysis plot so that the correct
      largest geometric outlier is shown? (puntable) ::: 1 
+
+   o Addition representations: "All off" button needed.  ::: 1
 
 
 ------
@@ -1075,6 +1075,10 @@ c-interface clear_up_moving_atoms...
      ::: 4
 
 * Done - works fine.
+
+   o Read a map, Sharpen map -> crash ::: 1
+
+* Fixed.
 
 
 -----

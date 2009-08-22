@@ -776,6 +776,7 @@ class molecule_class_info_t {
    // sharpen the map:
    // uncommenting the following line causes a crash in the multi-molecule
    // (expand molecule space) test.
+   bool original_fphis_filled;
    clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
 
 
@@ -908,8 +909,11 @@ class molecule_class_info_t {
       // 
       colour_skeleton_by_random = 0;
 
+      // original Fs saved? (could be from map)
+      original_fphis_filled = 0;
+
       //  bond width (now changeable).
-      bond_width = 3.0; 
+      bond_width = 3.0;
 
       // 
       rotate_colour_map_for_difference_map = 240.0; // degrees
