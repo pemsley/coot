@@ -516,6 +516,20 @@ Punted from 0.6:
    o Put guile-gui and net-http into main Coot package - this makes the 
      Ubuntu/Fedora packaging a lot easier.
 
+   o Add an option to do sphere refinement in all molecule
+     Ramachandran refinement
+
+   o KH:
+     I want a function to set the refinment weight for me, 
+     i.e.  it should do a triple refine and look at the chi squareds.
+     Keep doing that with different weights until we get to 1.0.
+
+   o KH:
+      In baton build, make it work more clearly when starting
+      with no skeleton.
+      ->  ask me to make a skeleton
+
+
 
 0.6.1 
 
@@ -569,7 +583,8 @@ Punted from 0.6:
      single residue with name XXX and you have read in a dictionary
      entry for XXX, then coot should use that. [ Tickle, 20090723]  ::: 3
 
-
+   o to make the rotamer probabilites smooth, FFT them like
+     Otwinovski's Ramachachandran plots.  FFTW in mult-dimentions.  Hmm.
 
  ------
     

@@ -767,7 +767,8 @@ int blob_under_pointer_to_screen_centre() {
    } else {
       std::string s = "Refinement map not selected - no action";
       std::cout << s << std::endl;
-      add_status_bar_text(s.c_str());
+      // add_status_bar_text(s.c_str());
+      info_dialog(s.c_str());
    }
    return r;
 }

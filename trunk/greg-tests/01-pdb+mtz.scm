@@ -173,7 +173,6 @@
 		    (throw 'fail))
 		  #t))))))
 
-
 (greg-testcase "Read MTZ test" #t 
    (lambda ()
 
@@ -218,6 +217,29 @@
    (lambda ()
      (let ((imol-map-2 (another-level)))
        (valid-map-molecule? imol-map-2))))
+
+
+(greg-testcase "Sharpen map from map" #t
+   (lambda ()
+     ;; don't crash
+     (let* ((mtz-file-name (append-dir-file greg-data-dir "3hfl_sigmaa.mtz"))
+	    (imol-map (make-and-draw-map mtz-file-name
+					 "2FOFCWT" "PH2FOFCWT" "" 0 0)))
+       (if (not (valid-map-molecule? imol-map))
+	   (begin
+	     (format #t "fail to get map from 3hfl_sigmaa.mtz~%")
+	     (throw 'fail)))
+
+       (export-map imol-map "test-3hfl.map")
+       (let ((new-mol (handle-read-ccp4-map "test-3hfl.map" 0)))
+	 (if (not (valid-map-molecule? imol-map))
+	     (begin
+	       (format #t "fail to get map from 3hfl map~%")
+	       (throw 'fail)))
+	 (sharpen new-mol 5.0)
+	 #t ; didn't crash
+	 ))))
+
 
 
 (greg-testcase "Set Atom Attribute Test" #t

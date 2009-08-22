@@ -75,11 +75,11 @@ molecule_class_info_t::sharpen(float b_factor) {
    int n_count = 0;
    bool debugging = 0;
 
-   if (debugging) 
-      std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
-		<< " original data " << std::endl;
+   if (original_fphis_filled) { 
+      if (debugging) 
+	 std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
+		   << " original data " << std::endl;
 
-   if (original_fphis.num_obs() > 0) { 
       clipper::HKL_info::HKL_reference_index hri;
       for (hri = original_fphis.first(); !hri.last(); hri.next()) {
 
@@ -670,6 +670,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 map_max_   = mv.max_density;
 	 map_min_   = mv.min_density;
 
+	 original_fphis_filled = 1;
 	 original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
 	 original_fphis = fphidata;
 
