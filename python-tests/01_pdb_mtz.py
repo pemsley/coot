@@ -114,7 +114,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    return False
 
 	    # main line
-	    self.failUnless(os.path.isfile(ins_code_frag_pdb), "   WARNING:: file not found: %s" %ins_code_frag_pdb)
+	    self.failUnless(os.path.isfile(ins_code_frag_pdb),
+			    "   WARNING:: file not found: %s" %ins_code_frag_pdb)
 	    frag_pdb = handle_read_draw_molecule_with_recentre(ins_code_frag_pdb, 0)
 	    set_go_to_atom_molecule(frag_pdb)
 	    set_go_to_atom_chain_residue_atom_name("A", 68, " CA ")
@@ -193,6 +194,22 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    imol_map_2 = another_level()
 	    self.failUnless(valid_map_molecule_qm(imol_map_2))
 
+
+    def test09_1(self):
+	    """Sharpen map from map"""
+	    mtz_file_name = os.path.join(unittest_data_dir, "3hfl_sigmaa.mtz")
+	    imol_map = make_and_draw_map(mtz_file_name,
+					 "2FOFCWT", "PH2FOFCWT", "", 0, 0)
+
+	    self.failUnless(valid_map_molecule_qm(imol_map),
+			    "fail to get map from 3hfl_sigmaa.mtz")
+
+	    export_map(imol_map, "test-3hfl.map")
+	    new_mol = handle_read_ccp4_map("test-3hfl.map", 0)
+	    self.failUnless(valid_map_molecule_qm(new_mol),
+			    "fail to get map from 3hfl map")
+	    sharpen(new_mol, 5.0)
+	    # didn't crash
 	    
     def test10_0(self):
 	    """Set Atom Atribute Test"""

@@ -1,6 +1,6 @@
 
 #include "coot-coord-extras.hh"
-
+#include <string.h>
 
 // constructor can throw an exception
 // 

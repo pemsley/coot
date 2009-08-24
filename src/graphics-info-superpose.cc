@@ -251,32 +251,6 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	       imol2 = imol2_new;
 	    }
 	    
-	    graphics_info_t::molecules[imol2].transform_by(SSMAlign->TMatrix);
-	    graphics_info_t::molecules[imol2].set_show_symmetry(0); 
-	    // 
-	    // ivector Ca1, Ca2;
-	    // rvector dist1;
-	    // int nCa1, nCa2;
-	    // mat44 tmat;
-	    // realtype rmsdAchieved, seqIdentity, nCombs;
-	    // int nAligned, nGaps, nMisD;
-	    // CSuperpose Superpose;  type in class CSSMAlign
-	    // 
-	    // Superpose->GetSuperposition(Ca1, dist1, nCa1, Ca2,
-	    // nCa2, tmat, rmsdAchieved, nAligned, nGaps, seqIdentity,
-	    // nMisD, nCombs);
-	    //
-	    std::cout << "INFO: core rmsd achieved: " << SSMAlign->rmsd << " Angstroems\n"
-		      << "      number of residues in reference structure: " << SSMAlign->nres2 << "\n"
-		      << "      number of residues in moving structure:    " << SSMAlign->nres1 << "\n"
-		      << "      number of residues in aligned sections (reference):  " << SSMAlign->nsel2 << "\n"
-		      << "      number of residues in aligned sections (moving):     " << SSMAlign->nsel1 << "\n"
-		      << "      number of aligned residues:  " << SSMAlign->nalgn << "\n"
-		      << "      number of gaps:              " << SSMAlign->ngaps << "\n"
-		      << "      number of misdirections:     " << SSMAlign->nmd << "\n"
-		      << "      number of SSE combinations:  " << SSMAlign->ncombs << "\n"
-		      << "      sequence identity:           " << SSMAlign->seqIdentity*100.0 << "%\n";
-
 	    // OK, let's get a consistent naming system:  1 is moving: 2 is reference
 
 	    PCAtom *atom_selection1 = NULL;
@@ -309,6 +283,33 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 					 atom_selection1, atom_selection2,
 					 n_selected_atoms_1, n_selected_atoms_2,
 					 move_copy_of_imol2_flag);
+
+	    graphics_info_t::molecules[imol2].transform_by(SSMAlign->TMatrix);
+	    graphics_info_t::molecules[imol2].set_show_symmetry(0); 
+	    // 
+	    // ivector Ca1, Ca2;
+	    // rvector dist1;
+	    // int nCa1, nCa2;
+	    // mat44 tmat;
+	    // realtype rmsdAchieved, seqIdentity, nCombs;
+	    // int nAligned, nGaps, nMisD;
+	    // CSuperpose Superpose;  type in class CSSMAlign
+	    // 
+	    // Superpose->GetSuperposition(Ca1, dist1, nCa1, Ca2,
+	    // nCa2, tmat, rmsdAchieved, nAligned, nGaps, seqIdentity,
+	    // nMisD, nCombs);
+	    //
+	    std::cout << "INFO: core rmsd achieved: " << SSMAlign->rmsd << " Angstroems\n"
+		      << "      number of residues in reference structure: " << SSMAlign->nres2 << "\n"
+		      << "      number of residues in moving structure:    " << SSMAlign->nres1 << "\n"
+		      << "      number of residues in aligned sections (reference):  " << SSMAlign->nsel2 << "\n"
+		      << "      number of residues in aligned sections (moving):     " << SSMAlign->nsel1 << "\n"
+		      << "      number of aligned residues:  " << SSMAlign->nalgn << "\n"
+		      << "      number of gaps:              " << SSMAlign->ngaps << "\n"
+		      << "      number of misdirections:     " << SSMAlign->nmd << "\n"
+		      << "      number of SSE combinations:  " << SSMAlign->ncombs << "\n"
+		      << "      sequence identity:           " << SSMAlign->seqIdentity*100.0 << "%\n";
+
 	    graphics_draw();
 	 }
 	 delete SSMAlign;
