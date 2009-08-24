@@ -232,7 +232,7 @@
 
        (export-map imol-map "test-3hfl.map")
        (let ((new-mol (handle-read-ccp4-map "test-3hfl.map" 0)))
-	 (if (not (valid-map-molecule? imol-map))
+	 (if (not (valid-map-molecule? new-mol))
 	     (begin
 	       (format #t "fail to get map from 3hfl map~%")
 	       (throw 'fail)))
