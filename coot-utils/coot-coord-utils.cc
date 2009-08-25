@@ -5369,7 +5369,10 @@ coot::util::move_waters_around_protein(CMMDBManager *mol) {
 } 
 
 
-// throw an exception on not-able-to-extract-cell/symm-info
+// Throw an std::runtime_error exception on
+// not-able-to-extract-cell/symm-info.  (In such a case, we convert a
+// clipper::Message_base to a std::runtime_error).
+// 
 std::pair<clipper::Cell, clipper::Spacegroup>
 coot::util::get_cell_symm(CMMDBManager *mol) {
 
@@ -5389,15 +5392,21 @@ coot::util::get_cell_symm(CMMDBManager *mol) {
 
       mol->GetCell(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
 		   mmdb_cell[3], mmdb_cell[4], mmdb_cell[5], vol, orthcode);
-   
-      clipper::Spacegroup spacegroup(spgr_descr);
-      clipper::Cell_descr cell_d(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
-				 clipper::Util::d2rad(mmdb_cell[3]),
-				 clipper::Util::d2rad(mmdb_cell[4]),
-				 clipper::Util::d2rad(mmdb_cell[5]));
-      clipper::Cell cell(cell_d);
 
-      return std::pair<clipper::Cell, clipper::Spacegroup> (cell, spacegroup);
+      try { 
+	 clipper::Spacegroup spacegroup(spgr_descr);
+	 clipper::Cell_descr cell_d(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
+				    clipper::Util::d2rad(mmdb_cell[3]),
+				    clipper::Util::d2rad(mmdb_cell[4]),
+				    clipper::Util::d2rad(mmdb_cell[5]));
+	 clipper::Cell cell(cell_d);
+	 return std::pair<clipper::Cell, clipper::Spacegroup> (cell, spacegroup);
+      }
+      catch (clipper::Message_base except) {
+	 std::string message = "Fail to make clipper::Spacegroup from ";
+	 message += mol->GetSpaceGroup();
+	 throw std::runtime_error(message);
+      }
    }
 } 
 
@@ -5415,7 +5424,6 @@ coot::util::min_dist_to_points(const clipper::Coord_orth &pt,
 	 best_dist = d;
       }
    }
-
    return sqrt(best_dist);
 }
 
@@ -5424,12 +5432,14 @@ coot::util::min_dist_to_points(const clipper::Coord_orth &pt,
 // as close as possible to the origin (do not apply the shift).
 // 
 //
-// Throw an exception (e.g. no cell or symmetry).
+// Throw a clipper::Message_base exception (e.g. no cell or symmetry).
+//
+// Can throw a std::runtime_error other times.
 // 
 clipper::Coord_frac
 coot::util::shift_to_origin(CMMDBManager *mol) {
 
-   // Throw an exception on no cell or symmetry.
+   // Throw a clipper::Message_base exception on no cell or symmetry.
    std::pair<clipper::Cell, clipper::Spacegroup> csp = get_cell_symm(mol);
    clipper::Cell cell = csp.first;
    clipper::Spacegroup spacegroup = csp.second;
@@ -5442,6 +5452,8 @@ coot::util::shift_to_origin(CMMDBManager *mol) {
    return rf;
 }
 
+// Can throw a std::runtime_error
+// 
 clipper::Coord_orth
 coot::util::median_position(CMMDBManager *mol) {
 

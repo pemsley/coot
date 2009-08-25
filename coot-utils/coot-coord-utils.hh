@@ -966,8 +966,10 @@ namespace coot {
       // return the number of moved waters.
       int move_waters_around_protein(CMMDBManager *mol);
 
-
-      // throw an exception on not-able-to-extract-cell/symm-info
+      // Throw an std::runtime_error exception on
+      // not-able-to-extract-cell/symm-info.  (In such a case, we convert a
+      // clipper::Message_base to a std::runtime_error).
+      // 
       std::pair<clipper::Cell, clipper::Spacegroup> get_cell_symm(CMMDBManager *mol);
 
       // caller must check that others has some points in it.
