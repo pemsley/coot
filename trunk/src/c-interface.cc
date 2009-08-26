@@ -861,7 +861,7 @@ int stereo_mode_state() {
 
 void set_hardware_stereo_angle_factor(float f) {
    graphics_info_t::hardware_stereo_angle_factor = f;
-   std::string cmd = "set-hardware-stereo-angel-factor";
+   std::string cmd = "set-hardware-stereo-angle-factor";
    std::vector<coot::command_arg_t> args;
    args.push_back(f);
    add_to_history_typed(cmd, args);
