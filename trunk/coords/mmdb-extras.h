@@ -73,6 +73,11 @@ class atom_selection_container_t {
     atom_selection = 0;
     mol = 0; 
   } 
+  void delete_atom_selection() { 
+    mol->DeleteSelection(SelectionHandle);
+    n_selected_atoms = 0;
+    atom_selection = 0;
+  } 
 };
 
 // debug this struct
