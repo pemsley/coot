@@ -4616,33 +4616,6 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
    }
 } 
 
-clipper::Spacegroup
-coot::util::get_spacegroup_from_symops(CMMDBManager *mol) {
-
-   mat44 my_matt;
-   clipper::Spacegroup sgp; // initially null.
-   clipper::Spgr_descr sgd;
-   int ierr = mol->GetTMatrix(my_matt, 0, 0, 0, 0);
-   if (ierr == 0) {
-      // Good, we have symm info
-      std::string symmetry_ops("");
-      std::string s = "";
-      for ( int i = 0; i < mol->GetNumberOfSymOps(); i++ ) {
-	 char* symop_str = mol->GetSymOp(i); // shallow copy, I think
-	 s += std::string( symop_str );
-	 s += ";";
-      }
-      short int spacegroup_ok = 1; // set OK initially, then try:
-      try {
-	 sgd = clipper::Spgr_descr(s, clipper::Spgr_descr::Symops);
-	 sgp.init(sgd);
-      } catch ( clipper::Message_base exc ) {
-	 spacegroup_ok = 0;
-      }
-   }
-   return sgp;
-} 
-
 std::vector<std::pair<coot::atom_spec_t, std::string> >
 coot::util::gln_asn_b_factor_outliers(CMMDBManager *mol) {
 
