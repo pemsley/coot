@@ -624,6 +624,14 @@ void hardware_stereo_mode() {
 	       if (graphics_info_t::i_fn_token) { 
 		  toggle_idle_spin_function(); // turn it off;
 	       }
+// BL says:: maybe we should set the set_display_lists_for_maps here for
+// windows, actually Mac as well if I remember correctly
+// well, it seems actually to be a GTK2 (or gtkglext) thing!!
+// or not? So just for windows at the moment
+#ifdef WINDOWS_MINGW
+//	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
+             set_display_lists_for_maps(0);
+#endif // WINDOWS_MINGW
 	       gtk_widget_destroy(graphics_info_t::glarea);
 	       graphics_info_t::glarea = glarea;
 	       gtk_widget_show(glarea);
@@ -792,14 +800,6 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 	    g.draw_anti_aliasing();
 	    redraw_background();
 	    graphics_draw();
-// BL says:: maybe we should set the set_display_lists_for_maps here for
-// windows, actually Mac as well if I remember correctly
-// well, it seems actually to be a GTK2 (or gtkglext) thing!!
-// or not? So just for windows at the moment
-#ifdef WINDOWS_MINGW
-//	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
-             set_display_lists_for_maps(0);
-#endif // WINDOWS_MINGW
 	 } else {
 	    std::cout << "WARNING:: switch to side by side mode failed!\n";
 	 } 
