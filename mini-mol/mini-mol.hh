@@ -158,6 +158,8 @@ namespace coot {
 		  const std::string &residue_type, std::string atom_name,
 		  std::string chain_id);
 	 molecule(CMMDBManager *mmdb_mol_in);
+	 molecule(const fragment &frag);
+	 
 	 short int init(CMMDBManager *mmdb_mol_in) {return setup(mmdb_mol_in);}
 
 	 // for setting the mmdb cell and symm
@@ -244,6 +246,12 @@ namespace coot {
 
 	 // sorting chains lexographically.
 	 void sort_chains();
+
+	 // Return a negative value in the pair.first if there were no atoms in a_rotamer.
+	 // Also, print an error message because (AFAICS) it should never happen.
+	 // 
+	 std::pair<double, clipper::Coord_orth> get_pos() const; 
+	 
 
       };
       std::ostream& operator<<(std::ostream& s, coot::minimol::atom at);

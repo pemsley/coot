@@ -59,6 +59,13 @@ coot::minimol::molecule::molecule(const std::vector<clipper::Coord_orth> &atom_l
    have_spacegroup = 0;
 }
 
+coot::minimol::molecule::molecule(const coot::minimol::fragment &frag) {
+
+   fragments.push_back(frag);
+   have_cell = 0;
+   have_spacegroup = 0;
+} 
+
 // Return status.  If good, return 0 else (if bad) return 1.
 //
 short int
@@ -1125,3 +1132,49 @@ coot::minimol::residue::get_torsion(coot::atom_name_quad &quad) const {
    double t = clipper::Coord_orth::torsion(pos1, pos2, pos3, pos4);
    return clipper::Util::rad2d(t);
 } 
+
+
+// Return a negative value in the pair.first if there were no atoms in a_rotamer.
+// Also, print an error message because (AFAICS) it should never happen.
+// 
+std::pair<double, clipper::Coord_orth>
+coot::minimol::molecule::get_pos() const {
+
+   std::pair<double, clipper::Coord_orth> r;
+   double max_dev_residue_pos = -9999999.9;
+   clipper::Coord_orth running_pos(0.0, 0.0, 0.0);
+   float n_atom = 0.0;
+   
+   for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
+      for (int ires=(*this)[ifrag].min_res_no(); ires<=(*this)[ifrag].max_residue_number(); ires++) {
+	 for (int iat=0; iat<(*this)[ifrag][ires].n_atoms(); iat++) {
+	    
+	    running_pos += (*this)[ifrag][ires][iat].pos;
+	    n_atom += 1.0;
+	    
+	 }
+      }
+   }
+
+   if (n_atom > 0.0) { 
+      clipper::Coord_orth residue_centre = clipper::Coord_orth(running_pos.x()/n_atom,
+							       running_pos.y()/n_atom,
+							       running_pos.z()/n_atom);
+      double devi;
+      for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
+	 for (int ires=(*this)[ifrag].min_res_no(); ires<=(*this)[ifrag].max_residue_number(); ires++) {
+	    for (int iat=0; iat<(*this)[ifrag][ires].n_atoms(); iat++) {
+	       devi = clipper::Coord_orth::length((*this)[ifrag][ires][iat].pos, residue_centre);
+	       if (devi > max_dev_residue_pos) {
+		  max_dev_residue_pos = devi;
+	       } 
+	    }
+	 }
+      }
+      r.first =  max_dev_residue_pos;
+      r.second = residue_centre;
+   } else {
+      std::cout << "ERROR: minimol pos: there are no atoms in the residue" << std::endl;
+   }
+   return r;
+}
