@@ -942,8 +942,6 @@ namespace coot {
       interesting_things_list_with_fix_py(const std::vector<atom_spec_and_button_info_t> &v,
 				          const std::string error_type);
 
-      // 
-      clipper::Spacegroup get_spacegroup_from_symops(CMMDBManager *mol);
 
       // return a set of residue specifiers and a string to put on the
       // button.  Atsushi Nakagawa told me about the problem of these

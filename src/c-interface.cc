@@ -4665,25 +4665,30 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
 
    clipper::Spacegroup spacegroup; 
    clipper::Cell cell;
-   short int done_flag = 0;
+   short int got_cell_symm_flag = 0;
    int istat = -1; // returned value
 
-   if (g.molecules[imol_ref].have_unit_cell) {
-      std::pair<clipper::Cell,clipper::Spacegroup> xtal =
-	 coot::util::get_cell_symm( g.molecules[imol_ref].atom_sel.mol );
-      cell = xtal.first;
-      spacegroup = xtal.second;
-      done_flag = 1;
-   } else {
-      // no conversion needed, just get from map
-      if (g.molecules[imol_ref].has_map()) {
-	 cell.init(g.molecules[imol_ref].xmap_list[0].cell().descr());
-	 spacegroup.init(g.molecules[imol_ref].xmap_list[0].spacegroup().descr()); 
-	 done_flag = 1;
-      } 
+   if (is_valid_model_molecule(imol_ref) || is_valid_map_molecule(imol_ref)) {
+      if (g.molecules[imol_ref].have_unit_cell) { 
+	 try {
+	    std::pair<clipper::Cell,clipper::Spacegroup> xtal =
+	       coot::util::get_cell_symm( g.molecules[imol_ref].atom_sel.mol );
+	    cell = xtal.first;
+	    spacegroup = xtal.second;
+	    got_cell_symm_flag = 1;
+	 } catch ( std::runtime_error except ) {
+	    std::cout << "WARNING:: Cant get spacegroup from coordinates!\n";
+	    // get the cell/symm from a map:
+	    if (g.molecules[imol_ref].has_map()) {
+	       cell = g.molecules[imol_ref].xmap_list[0].cell();
+	       spacegroup = g.molecules[imol_ref].xmap_list[0].spacegroup(); 
+	       got_cell_symm_flag = 1;
+	    }
+	 }
+      }
    }
 
-   if (done_flag) { 
+   if (got_cell_symm_flag) { 
 
       // don't forget that this is a map.
       //
@@ -4744,20 +4749,21 @@ read_phs_and_make_map_using_cell_symm_from_mol(const char *phs_filename_str, int
 
    if (is_valid_model_molecule(imol_ref) || is_valid_map_molecule(imol_ref)) {
       if (g.molecules[imol_ref].have_unit_cell) { 
-	 std::pair<clipper::Cell,clipper::Spacegroup> xtal =
-	    coot::util::get_cell_symm( g.molecules[imol_ref].atom_sel.mol );
-	 cell = xtal.first;
-	 spacegroup = xtal.second;
-	 got_cell_symm_flag = 1;
-      } else {
-	 // get the cell/symm from a map:
-	 if (g.molecules[imol_ref].has_map()) {
-	    cell.init(g.molecules[imol_ref].xmap_list[0].cell().descr());
-	    spacegroup.init(g.molecules[imol_ref].xmap_list[0].spacegroup().descr()); 
+	 try {
+	    std::pair<clipper::Cell,clipper::Spacegroup> xtal =
+	       coot::util::get_cell_symm( g.molecules[imol_ref].atom_sel.mol );
+	    cell = xtal.first;
+	    spacegroup = xtal.second;
 	    got_cell_symm_flag = 1;
-	 } else { 
-
-	 } 
+	 } catch ( std::runtime_error except ) {
+	    std::cout << "WARNING:: Cant get spacegroup from coordinates!\n";
+	    // get the cell/symm from a map:
+	    if (g.molecules[imol_ref].has_map()) {
+	       cell = g.molecules[imol_ref].xmap_list[0].cell();
+	       spacegroup = g.molecules[imol_ref].xmap_list[0].spacegroup(); 
+	       got_cell_symm_flag = 1;
+	    }
+	 }
       }
 
       if (got_cell_symm_flag) {
@@ -4778,7 +4784,7 @@ read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(int i
 
    clipper::Spacegroup spacegroup; 
    clipper::Cell cell;
-   short int done_flag = 0;
+   short int got_cell_symm_flag = 0;
    int imol = -1; // bad molecule
    
    graphics_info_t g; 
@@ -4792,37 +4798,25 @@ read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(int i
 // 		<< std::endl;
 
    if (is_valid_model_molecule(imol_ref) || is_valid_map_molecule(imol_ref)) { 
-
       if (g.molecules[imol_ref].have_unit_cell) {
-	 // Coordinates block:
-	 MyCMMDBManager *mol = g.molecules[imol_ref].atom_sel.mol;;
-	 clipper::Spacegroup t_spgr = coot::util::get_spacegroup_from_symops(mol);
-	 if (t_spgr.is_null()) {
+	 try {
+	    std::pair<clipper::Cell,clipper::Spacegroup> xtal =
+	       coot::util::get_cell_symm( g.molecules[imol_ref].atom_sel.mol );
+	    cell = xtal.first;
+	    spacegroup = xtal.second;
+	    got_cell_symm_flag = 1;
+	 } catch ( std::runtime_error except ) {
 	    std::cout << "WARNING:: Cant get spacegroup from coordinates!\n";
-	 } else {
-	    spacegroup = t_spgr; 
-	    // If you don't want to use get_cell, use mol->GetCell();
-	    clipper::Cell_descr cell_d(mol->get_cell().a,
-				       mol->get_cell().b,
-				       mol->get_cell().c,
-				       clipper::Util::d2rad(mol->get_cell().alpha),
-				       clipper::Util::d2rad(mol->get_cell().beta),
-				       clipper::Util::d2rad(mol->get_cell().gamma));
-   
-	    cell.init(cell_d);
-	    done_flag = 1;
-	 }
-
-      } else {
-	 // Map block
-	 if (g.molecules[imol_ref].has_map()) {
-	    cell.init(g.molecules[imol_ref].xmap_list[0].cell().descr());
-	    spacegroup.init(g.molecules[imol_ref].xmap_list[0].spacegroup().descr()); 
-	    done_flag = 1;
+	    // get the cell/symm from a map:
+	    if (g.molecules[imol_ref].has_map()) {
+	       cell = g.molecules[imol_ref].xmap_list[0].cell();
+	       spacegroup = g.molecules[imol_ref].xmap_list[0].spacegroup(); 
+	       got_cell_symm_flag = 1;
+	    }
 	 }
       }
 
-      if (done_flag) {
+      if (got_cell_symm_flag) {
 	 std::string phs_filename(graphics_get_phs_filename()); 
 
 	 imol = g.create_molecule();
