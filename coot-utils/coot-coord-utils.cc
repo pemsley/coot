@@ -33,6 +33,8 @@
 
 #include "coot-sysdep.h"
 
+#include "clipper/mmdb/clipper_mmdb.h"
+
 std::vector<std::string>
 coot::util::residue_types_in_molecule(CMMDBManager *mol) { 
 
@@ -5384,23 +5386,11 @@ coot::util::get_cell_symm(CMMDBManager *mol) {
       std::string mess = "No symmetry available";
       throw std::runtime_error(mess);
    } else { 
-
-      clipper::Spgr_descr spgr_descr(mol->GetSpaceGroup());
-      realtype mmdb_cell[6];
-      realtype vol;
-      int orthcode;
-
-      mol->GetCell(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
-		   mmdb_cell[3], mmdb_cell[4], mmdb_cell[5], vol, orthcode);
-
       try { 
-	 clipper::Spacegroup spacegroup(spgr_descr);
-	 clipper::Cell_descr cell_d(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
-				    clipper::Util::d2rad(mmdb_cell[3]),
-				    clipper::Util::d2rad(mmdb_cell[4]),
-				    clipper::Util::d2rad(mmdb_cell[5]));
-	 clipper::Cell cell(cell_d);
-	 return std::pair<clipper::Cell, clipper::Spacegroup> (cell, spacegroup);
+	 const clipper::MMDBManager* pcmmdb =
+	    static_cast<const clipper::MMDBManager*>( mol );
+	 return std::pair<clipper::Cell, clipper::Spacegroup>
+	    (pcmmdb->cell(),pcmmdb->spacegroup());
       }
       catch (clipper::Message_base except) {
 	 std::string message = "Fail to make clipper::Spacegroup from ";

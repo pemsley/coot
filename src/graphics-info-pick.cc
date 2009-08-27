@@ -90,62 +90,22 @@ graphics_info_t::symmetry_atom_pick() const {
 	       if (!spacegroup_str) {
 		  std::cout << "ERROR:: null spacegroup_str in symmetry pick\n";
 	       } else {
-		  std::string s( spacegroup_str );
-		  // delete[] spacegroup_str; // no! crash - it's mmdb's I guess.
-
-		  // we need to use init() because the compiler will
-		  // choke on fill_hybrid_atoms if we don't (for some
-		  // reason).
 		  clipper::Spacegroup spg;
-		  clipper::Spgr_descr sgd;
-		  short int spacegroup_ok = 1;
-// 		  std::cout << "DEBUG:: Initing Spgr_desc(\"" << s
-// 			    << "\", type=HM)" << std::endl;
+		  clipper::Cell cell;
+		  short int spacegroup_ok = 0;
 		  try {
-		     sgd = clipper::Spgr_descr(s, clipper::Spgr_descr::HM);
-		  } catch ( clipper::Message_base exc ) {
-		     std::cout << "Oops, trouble.  No such spacegroup\n";
-		     spacegroup_ok = 0;
-		  }
-		  if (spacegroup_ok == 0) {
-
-		     // OK, Let's try to feed clipper strings:
-		     s = "";
-		     for ( int i = 0; i < atom_sel.mol->GetNumberOfSymOps(); i++ ) {
-			char* symop_str = atom_sel.mol->GetSymOp(i);
-			s += std::string( symop_str );
-			s += ";";
-			// delete[] symop_str; is mmdb just giving us
-			// a pointer, not copying? comment out for
-			// safety for now.
-		     }
+		     std::pair<clipper::Cell,clipper::Spacegroup> xtal =
+		        coot::util::get_cell_symm( atom_sel.mol );
+		     cell = xtal.first;
+		     spg  = xtal.second;
 		     spacegroup_ok = 1;
-		     try {
-			sgd = clipper::Spgr_descr(s, clipper::Spgr_descr::Symops);
-		     } catch ( clipper::Message_base exc ) {
-			std::cout << "Oops-we're in double trouble.  No spacegroup found from symops "
-				  << s << std::endl;
-			spacegroup_ok = 0;
-		     }
-		     
-		     if (spacegroup_ok == 0) {
-			std::string sbt = "WARNING:: Trouble! No such spacegroup as \"";
-			sbt += s;
-			sbt += "\"";
-			statusbar_text(sbt);
-		     }
+		  } catch ( std::runtime_error except ) {
+		     cout << "!! get_cell_symm() fails in symmetry_atom_pick"
+			  << endl;
 		  }
 		  if (spacegroup_ok == 1) { 
 // 		     std::cout << "DEBUG:: Initing clipper::Spacegroup: "
 // 			       << spg.symbol_hm() << std::endl;
-		     spg.init(sgd);
-		     // spg.debug();
-		     clipper::Cell cell(clipper::Cell_descr(atom_sel.mol->get_cell().a,
-							    atom_sel.mol->get_cell().b,
-							    atom_sel.mol->get_cell().c,
-							    atom_sel.mol->get_cell().alpha,
-							    atom_sel.mol->get_cell().beta,
-							    atom_sel.mol->get_cell().gamma)); 
 
 		     // we want to generate all the symmetry atoms for each box
 		     // and find the atom with the closest approach.
