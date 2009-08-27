@@ -37,6 +37,7 @@
 #include "Cartesian.h"
 #include "mmdb-crystal.h"
 #include "molecule-class-info.h"
+#include "coot-coord-utils.hh"
 #include "CIsoSurface.h"
 
 #include "clipper/ccp4/ccp4_mtz_io.h"
@@ -1355,38 +1356,15 @@ molecule_class_info_t::make_map_from_phs(std::string pdb_filename,
    atom_selection_container_t SelAtom = get_atom_selection(pdb_filename);
 
    if (SelAtom.read_success == 1) { // success
-      mat44 my_matt;
-
-      int err = SelAtom.mol->GetTMatrix(my_matt, 0,0,0,0);
-      if (err != 0) {
-         cout << "!! Cryst::GetTMatrix() fails in make_map_from_phs"
-              << endl;
-      } else { // success
-         cout << "Cryst::GetTMatrix() is good in make_map_from_phs"
-              << endl;
-
-         // we get to the cell and symmetry thusly:
-         
-         cout << "PHS Cell:  "
-              << SelAtom.mol->get_cell().a << " "
-              << SelAtom.mol->get_cell().b << " "
-              << SelAtom.mol->get_cell().c << " "
-              << SelAtom.mol->get_cell().alpha << " "
-              << SelAtom.mol->get_cell().beta << " "
-              << SelAtom.mol->get_cell().gamma << " "
-              << endl;
-
-         cout << "PHS Spacegroup: " << SelAtom.mol->GetSpaceGroup() << endl; 
-
-	 clipper::Spacegroup spacegroup(clipper::Spgr_descr(SelAtom.mol->GetSpaceGroup()));
-	 clipper::Cell cell(clipper::Cell_descr(SelAtom.mol->get_cell().a,
-						SelAtom.mol->get_cell().b,
-						SelAtom.mol->get_cell().c,
-						clipper::Util::d2rad(SelAtom.mol->get_cell().alpha),
-						clipper::Util::d2rad(SelAtom.mol->get_cell().beta),
-						clipper::Util::d2rad(SelAtom.mol->get_cell().gamma))); 
-
-	 iret = make_map_from_phs(spacegroup, cell, phs_filename);
+      try {
+	 std::pair<clipper::Cell,clipper::Spacegroup> xtal =
+	    coot::util::get_cell_symm( SelAtom.mol );
+	 cout << "get_cell_symm() is good in make_map_from_phs"
+	      << endl;
+	 iret = make_map_from_phs(xtal.second, xtal.first, phs_filename);
+      } catch ( std::runtime_error except ) {
+	 cout << "!! get_cell_symm() fails in make_map_from_phs"
+	      << endl;
       }
    }
    return iret;

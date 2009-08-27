@@ -4669,18 +4669,10 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
    int istat = -1; // returned value
 
    if (g.molecules[imol_ref].have_unit_cell) {
-      // convert from a set of coordinates
-
-      spacegroup.init(clipper::Spgr_descr(g.molecules[imol_ref].atom_sel.mol->GetSpaceGroup()));
-
-      clipper::Cell_descr cell_d(g.molecules[imol_ref].atom_sel.mol->get_cell().a,
-				 g.molecules[imol_ref].atom_sel.mol->get_cell().b,
-				 g.molecules[imol_ref].atom_sel.mol->get_cell().c,
-				 clipper::Util::d2rad(g.molecules[imol_ref].atom_sel.mol->get_cell().alpha),
-				 clipper::Util::d2rad(g.molecules[imol_ref].atom_sel.mol->get_cell().beta),
-				 clipper::Util::d2rad(g.molecules[imol_ref].atom_sel.mol->get_cell().gamma));
-
-      cell.init(cell_d);
+      std::pair<clipper::Cell,clipper::Spacegroup> xtal =
+	 coot::util::get_cell_symm( g.molecules[imol_ref].atom_sel.mol );
+      cell = xtal.first;
+      spacegroup = xtal.second;
       done_flag = 1;
    } else {
       // no conversion needed, just get from map
@@ -4752,25 +4744,10 @@ read_phs_and_make_map_using_cell_symm_from_mol(const char *phs_filename_str, int
 
    if (is_valid_model_molecule(imol_ref) || is_valid_map_molecule(imol_ref)) {
       if (g.molecules[imol_ref].have_unit_cell) { 
-
-	 std::string s(g.molecules[imol_ref].atom_sel.mol->GetSpaceGroup());
-	 if (s == "R 3") {
-	    std::cout << "debug --------- symbol transformation ------\n";
-	    s = "P 3*";
-	 }
-	 std::cout << "------------- :" << s << ":\n";
-	 s = "P 3*";
-	 clipper::Spgr_descr sgd(s);
-	 spacegroup.init(sgd);
-
-	 clipper::Cell_descr cell_d(g.molecules[imol_ref].atom_sel.mol->get_cell().a,
-				    g.molecules[imol_ref].atom_sel.mol->get_cell().b,
-				    g.molecules[imol_ref].atom_sel.mol->get_cell().c,
-				    clipper::Util::d2rad(g.molecules[imol_ref].atom_sel.mol->get_cell().alpha),
-				    clipper::Util::d2rad(g.molecules[imol_ref].atom_sel.mol->get_cell().beta),
-				    clipper::Util::d2rad(g.molecules[imol_ref].atom_sel.mol->get_cell().gamma));
-
-	 cell.init(cell_d);
+	 std::pair<clipper::Cell,clipper::Spacegroup> xtal =
+	    coot::util::get_cell_symm( g.molecules[imol_ref].atom_sel.mol );
+	 cell = xtal.first;
+	 spacegroup = xtal.second;
 	 got_cell_symm_flag = 1;
       } else {
 	 // get the cell/symm from a map:
