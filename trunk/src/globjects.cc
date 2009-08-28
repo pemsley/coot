@@ -3501,7 +3501,6 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 
       if (graphics_info_t::control_key_for_rotate_flag) {
 	 if (graphics_info_t::pick_pending_flag) {
-	    std::cout << " pick_cursor_maybe!" << std::endl;
 	    pick_cursor_maybe();
 	 } else {
 	    normal_cursor();
