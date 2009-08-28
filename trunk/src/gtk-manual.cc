@@ -913,22 +913,37 @@ void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32) {
 
 } 
 
+// Create a "All On" check button that acts on all add reps of this molecule.
+// Underneath that, create a frame and in it put a vbox.
+// 
 void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
 				 GtkWidget *hbox_for_single_molecule, int imol_no,
 				 bool show_add_reps_frame_flag) {
 
    GtkWidget *frame = gtk_frame_new("Additional Representations");
    GtkWidget *v = gtk_vbox_new(FALSE, 0);
-   gtk_container_add(GTK_CONTAINER(hbox_for_single_molecule), frame);
-   gtk_container_add(GTK_CONTAINER(frame), v);
    // show the frame if there were additional representations
    if (show_add_reps_frame_flag)
       gtk_widget_show(frame);
    gtk_widget_ref (v);
    gtk_widget_ref (frame);
 
+   std::string arl = "   Show Additional Representations  ";
+   GtkWidget *all_on_check_button = gtk_check_button_new_with_label(arl.c_str());
+   gtk_widget_show(all_on_check_button);
+   gtk_box_pack_start(GTK_BOX(hbox_for_single_molecule), all_on_check_button, FALSE, FALSE, 2);
+   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(all_on_check_button), TRUE);
+   std::string widget_name = "add_rep_all_on_check_button_";
+   widget_name += coot::util::int_to_string(imol_no);
+   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), 
+			     widget_name.c_str(),
+			     all_on_check_button, NULL);
+   gtk_signal_connect(GTK_OBJECT (all_on_check_button),  "toggled",
+		      GTK_SIGNAL_FUNC (on_add_rep_all_on_check_button_toggled),
+		      GINT_TO_POINTER(imol_no));
+
    // set the name so that it can be looked up.
-   std::string widget_name = "add_rep_display_control_frame_vbox_";
+   widget_name = "add_rep_display_control_frame_vbox_";
    widget_name += coot::util::int_to_string(imol_no);
    gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), 
 			     widget_name.c_str(),
@@ -942,22 +957,9 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
 			     frame,
 			     (GtkDestroyNotify) gtk_widget_unref);
    
-//    std::cout <<"DEBUG:: added set_data_full for " << v << " on to " << display_control_window_glade
-// 	     << " " << widget_name << std::endl;
-
-   std::string arl = "   Show Additional Representations  ";
-   GtkWidget *all_on_check_button = gtk_check_button_new_with_label(arl.c_str());
-   gtk_widget_show(all_on_check_button);
-   gtk_box_pack_start(GTK_BOX(v), all_on_check_button, FALSE, FALSE, 2);
-   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(all_on_check_button), TRUE);
-   widget_name = "add_rep_all_on_check_button_";
-   widget_name += coot::util::int_to_string(imol_no);
-   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), 
-			     widget_name.c_str(),
-			     all_on_check_button, NULL);
-   gtk_signal_connect(GTK_OBJECT (all_on_check_button),  "toggled",
-		      GTK_SIGNAL_FUNC (on_add_rep_all_on_check_button_toggled),
-		      GINT_TO_POINTER(imol_no));
+   gtk_container_add(GTK_CONTAINER(hbox_for_single_molecule), frame);
+   gtk_container_add(GTK_CONTAINER(frame), v);
+   
 } 
 
 
