@@ -2349,8 +2349,13 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_strand_rest_radiobutton), TRUE);
    if (graphics_info_t::do_rama_restraints)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rama_button), TRUE);
-#endif // HAVE_GSL   
+#endif // HAVE_GSL
 
+   GtkWidget *refinement_weight_entry = lookup_widget(button, "refine_params_weight_matrix_entry");
+   if (refinement_weight_entry) {
+      gtk_entry_set_text(GTK_ENTRY(refinement_weight_entry),
+			 coot::util::float_to_string(g.geometry_vs_map_weight).c_str());
+   } 
 } 
 
 void fill_chiral_volume_molecule_option_menu(GtkWidget *w) { 

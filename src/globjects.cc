@@ -3038,6 +3038,9 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_i:
       // throw away i key pressed (we act on i key released).
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "i";
+      }
       handled = TRUE; 
       break;
 
@@ -3045,7 +3048,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
       if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
 	 graphics_info_t::go_to_residue_keyboarding_string += "A";
-	 
       } else { 
 
 	 if (graphics_info_t::in_range_define_for_refine == 2) {
@@ -3126,18 +3128,26 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_n:
       
-      for (int i=0; i<5; i++) {
-	 graphics_info_t::zoom *= 1.01;
-	 graphics_info_t::graphics_draw();
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "n";
+      } else { 
+	 for (int i=0; i<5; i++) {
+	    graphics_info_t::zoom *= 1.01;
+	    graphics_info_t::graphics_draw();
+	 }
       }
       handled = TRUE; 
       break;
 
    case GDK_m:
 
-      for (int i=0; i<5; i++) {
-	 graphics_info_t::zoom *= 0.99;
-	 graphics_info_t::graphics_draw();
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "m";
+      } else { 
+	 for (int i=0; i<5; i++) {
+	    graphics_info_t::zoom *= 0.99;
+	    graphics_info_t::graphics_draw();
+	 }
       }
       handled = TRUE; 
       break;
@@ -3255,24 +3265,31 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_l:
       {
-	 graphics_info_t g;
-	 std::pair<int, int> cl_at = g.get_closest_atom();
-	 if (is_valid_model_molecule(cl_at.second)) {
-	    g.molecules[cl_at.second].add_to_labelled_atom_list(cl_at.first);
+	 if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	    graphics_info_t::go_to_residue_keyboarding_string += "l";
+	 } else { 
+	    graphics_info_t g;
+	    std::pair<int, int> cl_at = g.get_closest_atom();
+	    if (is_valid_model_molecule(cl_at.second)) {
+	       g.molecules[cl_at.second].add_to_labelled_atom_list(cl_at.first);
+	    }
+	    graphics_info_t::graphics_draw();
 	 }
-	 graphics_info_t::graphics_draw();
-      } 
+      }
       handled = TRUE; 
       break;
 
    case GDK_z:
-      graphics_info_t::z_is_pressed = 1;
-      if (graphics_info_t::control_is_pressed) { 
-	 if (graphics_info_t::draw_baton_flag)
-	    baton_build_delete_last_residue();
-	 else 
-	    apply_undo();
-	 handled = TRUE; 
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "z";
+	 graphics_info_t::z_is_pressed = 1;
+	 if (graphics_info_t::control_is_pressed) { 
+	    if (graphics_info_t::draw_baton_flag)
+	       baton_build_delete_last_residue();
+	    else 
+	       apply_undo();
+	    handled = TRUE; 
+	 }
       }
       break;
    case GDK_F5:
@@ -3598,9 +3615,11 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_i:
    case GDK_I:
-      // toggle the idle function using the I key.
-      // 
-      toggle_idle_spin_function(); 
+      if (! graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 // toggle the idle function using the I key.
+	 // 
+	 toggle_idle_spin_function();
+      }
       break; 
       
    case GDK_l:

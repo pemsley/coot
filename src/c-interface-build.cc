@@ -1228,6 +1228,23 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
 		 const char *at_name, const char *altLoc) {
 
    graphics_info_t g;
+
+   if (! chain_id) {
+      std::cout << "ERROR:: in delete_atom() trapped null chain_id\n";
+      return; 
+   } 
+   if (! ins_code) {
+      std::cout << "ERROR:: in delete_atom() trapped null ins_code\n";
+      return; 
+   } 
+   if (! at_name) {
+      std::cout << "ERROR:: in delete_atom() trapped null at_name\n";
+      return; 
+   } 
+   if (! altLoc) {
+      std::cout << "ERROR:: in delete_atom() trapped null altLoc\n";
+      return; 
+   }
    short int istat = g.molecules[imol].delete_atom(chain_id, resno, ins_code, at_name, altLoc);
    if (istat) { 
       // now if the go to atom widget was being displayed, we need to
@@ -1369,22 +1386,23 @@ short int delete_item_mode_is_sidechain_p() {
 void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog) {
    graphics_info_t g;
 
-   std::string atom_name = g.molecules[imol].atom_sel.atom_selection[index]->name;
-   std::string chain_id  = g.molecules[imol].atom_sel.atom_selection[index]->GetChainID();
-   int resno             = g.molecules[imol].atom_sel.atom_selection[index]->GetSeqNum();
-   std::string altconf   = g.molecules[imol].atom_sel.atom_selection[index]->altLoc;
-   char *ins_code        = g.molecules[imol].atom_sel.atom_selection[index]->GetInsCode();
+   if (index < g.molecules[imol].atom_sel.n_selected_atoms) { 
+      const char *atom_name = g.molecules[imol].atom_sel.atom_selection[index]->name;
+      const char *chain_id  = g.molecules[imol].atom_sel.atom_selection[index]->GetChainID();
+      const char *altconf   = g.molecules[imol].atom_sel.atom_selection[index]->altLoc;
+      const char *ins_code  = g.molecules[imol].atom_sel.atom_selection[index]->GetInsCode();
+      int resno             = g.molecules[imol].atom_sel.atom_selection[index]->GetSeqNum();
 
-   CResidue *residue_p =
-      graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
-   if (residue_p) {
-      graphics_info_t g;
-      coot::residue_spec_t spec(residue_p);
-      g.delete_residue_from_geometry_graphs(imol, spec);
+      CResidue *residue_p =
+	 graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+      if (residue_p) {
+	 coot::residue_spec_t spec(residue_p);
+	 g.delete_residue_from_geometry_graphs(imol, spec);
+      }
+
+      delete_atom(imol, chain_id, resno, ins_code, atom_name, altconf);
+      delete_object_handle_delete_dialog(do_delete_dialog);
    }
-
-   delete_atom(imol, chain_id.c_str(), resno, ins_code, atom_name.c_str(), altconf.c_str());
-   delete_object_handle_delete_dialog(do_delete_dialog);
 
    // no need for this, the called delete_atom() does it.
 //    std::string cmd = "delete-atom-by-atom-index";

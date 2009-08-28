@@ -2863,6 +2863,10 @@ void set_matrix(float f);
 /*! \brief return the relative weight of the geometric terms to the map terms. */
 float matrix_state();
 
+/* Now the refinement weight can be set from an entry in the refine_params_dialog. */
+void set_refinemenent_weight_from_entry(GtkWidget *entry);
+
+
 /*! \brief change the +/- step for autoranging (default is 1)
 
 Auto-ranging alow you to select a range from one button press, this
