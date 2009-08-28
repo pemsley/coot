@@ -147,17 +147,6 @@ namespace coot {
 	 }
       };
 
-      class tree_dihedral_info_t {
-      public:
-	 atom_name_quad quad;
-	 double dihedral_angle; // in radians
-	 tree_dihedral_info_t(const atom_name_quad quad_in, double ang_in) {
-	    quad = quad_in;
-	    dihedral_angle = ang_in;
-	 }
-	 tree_dihedral_info_t() {}
-      };
-
    protected: 
       CResidue *residue;
       bool made_from_minimol_residue_flag; 
@@ -207,6 +196,21 @@ namespace coot {
       double quad_to_torsion(const atom_tree_index_t &index2) const;
       
    public:
+
+      // The angles are in degrees (they get converted to radians in
+      // set_dihedral()).
+      // 
+      class tree_dihedral_info_t {
+      public:
+	 atom_name_quad quad;
+	 double dihedral_angle;
+	 tree_dihedral_info_t(const atom_name_quad quad_in, double ang_in) {
+	    quad = quad_in;
+	    dihedral_angle = ang_in;
+	 }
+	 tree_dihedral_info_t() {}
+      };
+
       // the constructor throws an exception if there is no tree in
       // the restraints.
       // 
@@ -264,6 +268,8 @@ namespace coot {
 			  bool reversed_flag);
 
       // this can throw an exception
+      //
+      // angle in degrees
       double set_dihedral(const std::string &atom1, const std::string &atom2,
 			  const std::string &atom3, const std::string &atom4,
 			  double angle);
@@ -272,6 +278,8 @@ namespace coot {
       // 
       // return the set of angles - should be the same that they were
       // set to (for validation).
+      //
+      // angle in degrees
       std::vector<double> set_dihedral_multi(const std::vector<tree_dihedral_info_t> &di);
       //
       minimol::residue GetResidue() const; // for use with above

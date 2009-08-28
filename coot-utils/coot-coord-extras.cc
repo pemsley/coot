@@ -624,6 +624,9 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
 
       // atom vertex is based on residue atoms (not dict).
       int n_residue_atoms = res->GetNumberOfAtoms();
+      if (debug)
+	 std::cout << "in fill_atom_vertex_vec(), residue has " << n_residue_atoms
+		   << " atoms " << std::endl;
       atom_vertex_vec.resize(n_residue_atoms);
 
       // fill atom_vertex_vec, converting dictionary atom names to
@@ -689,8 +692,8 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
 
    // print out the atom tree
    if (debug) {
-      std::cout << "debug:: ==== atom_vertex_vec === from fill_atom_vertex_vec "
-		<< std::endl;
+      std::cout << "debug:: ==== atom_vertex_vec (atom_tree) === from fill_atom_vertex_vec "
+		<< "======== size " <<  atom_vertex_vec.size() << std::endl;
       for (unsigned int iv=0; iv<atom_vertex_vec.size(); iv++) {
 	 std::cout << "   atom_vertex_vec[" << iv << "] forward atoms ("
 		   << atom_vertex_vec[iv].forward.size() << ") ";
