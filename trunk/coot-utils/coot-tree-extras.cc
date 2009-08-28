@@ -20,7 +20,7 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
    std::string residue_name = res_in.name; 
    int seqnum = res_in.seqnum; 
    std::string ins_code = res_in.ins_code;
-   residue->SetResID(residue_name.c_str(),  seqnum, ins_code.c_str());
+   residue_p->SetResID(residue_name.c_str(),  seqnum, ins_code.c_str());
 
    for (unsigned int i=0; i<res_in.atoms.size(); i++) {
       coot::minimol::atom mat = res_in.atoms[i];
@@ -32,7 +32,7 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
       int new_length = mat.altLoc.length() +1;
       char *new_alt_loc = new char [new_length];
       strncpy(at->altLoc, mat.altLoc.c_str(), new_length);
-      residue->AddAtom(at);
+      residue_p->AddAtom(at);
    }
 
    construct_internal(rest, residue_p, altconf);

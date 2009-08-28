@@ -23,7 +23,8 @@
 #include <stdexcept>
 #include "coot-utils.hh"  // needed, it seems for the case where GSL
 			  // is not defined.
-#include "mgtree.h"
+
+#include "coot-coord-extras.hh"
 
 #include "wligand.hh"
 #include "regularize-minimol.hh"
@@ -46,6 +47,8 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 					     bool optimize_geometry_flag,
 					     bool fill_returned_molecules_vector_flag) {
 
+   std::string alt_conf = ""; // should this be passed?
+   
    std::vector<coot::installed_wiggly_ligand_info_t> returned_tors_molecules_info;
    short int istat = 0;
    std::string m = ""; 
@@ -118,121 +121,70 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
    for (int isample=0; isample<n_samples; isample++) {
 
       coot::minimol::molecule ligand = ligand_in; // local changable copy
-      
-      // Let's make the coordinates:
-      // 
-      std::vector< ::Cartesian> coords;
-      for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
-	 for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++) {
-	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) {
-	       // coords.push_back(coord_orth_to_cartesian(ligand[ifrag][ires][iat].pos));
-	       coords.push_back( ::Cartesian(ligand[ifrag][ires][iat].pos.x(),
-					     ligand[ifrag][ires][iat].pos.y(),
-					     ligand[ifrag][ires][iat].pos.z()));
+      // the coot::atom_tree_t is constructed from a residue, not a molecule.
+      coot::minimol::residue ligand_residue = ligand[0][ligand[0].min_res_no()];
+      std::string ligand_chain_id = ligand[0].fragment_id;
+
+      if (1) {
+	 std::cout << "debug ligand input has " << ligand.fragments.size() << " fragments "
+		   << std::endl;
+	 for (unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
+	    for (unsigned int ires=ligand.fragments[ifrag].min_res_no();
+		 ires<=ligand.fragments[ifrag].max_residue_number();
+		 ires++) {
+	       std::cout << "deubg frgagment: " << ifrag << " " << ires << " "
+			 << ligand.fragments[ifrag][ires] << std::endl;
 	    }
 	 }
       }
-	 
+
+      std::cout << "DEBUG:: ligand_residue: " << ligand_residue << std::endl;
+      
       //  Rotatable bonds -> coord indices
       // 
       std::vector<coot::atom_name_quad> atom_name_quads =
 	 get_torsion_bonds_atom_quads(monomer_type, non_const_torsions);
 
-      std::vector<coot::atom_index_quad> atom_index_quads =
-	 get_atom_index_quads(atom_name_quads, ligand);
-
-      if (atom_name_quads.size() != atom_index_quads.size()) { 
-	 std::cout << "DISASTER:: atom_name_pairs.size() != atom_index_pairs.size()\n";
-	 std::cout << "atom_name_pairs.size()   " << atom_name_quads.size()  << std::endl;
-	 std::cout << "atom_index_pairs.size()  " << atom_index_quads.size() << std::endl;
-      }
-
-      std::vector<std::vector<int> > contacts;
-      if (monomer_restraints.first) 
-	 contacts = getcontacts(ligand, monomer_restraints.second); // get bonding from dictionary.
-      else 
-	 contacts = getcontacts(ligand);
-
-      if (0)
-	 for (unsigned int i=0; i<contacts.size(); i++)
-	    for (unsigned int j=0; j<contacts[i].size(); j++)
-	       std::cout << "DEBUG:: contacts " << i << " to " << contacts[i][j] << std::endl;
-
-      Tree tree;
-      // std::cout << "Filling tree with " << coords.size() << " coordinates \n";
-
-      tree.SetCoords(coords, 0, contacts); // compile XXX
-
+      coot::atom_tree_t tree(monomer_restraints.second, ligand_residue, alt_conf);
+      // angles in degrees.
       std::vector<float> torsion_set = get_torsions_by_random(non_const_torsions);
 
-      if (debug_wiggly_ligands) { 
+      std::vector<coot::atom_tree_t::tree_dihedral_info_t> v;
+      if (torsion_set.size() == atom_name_quads.size()) { 
+	 for (unsigned int it=0; it<torsion_set.size(); it++) {
+	    coot::atom_tree_t::tree_dihedral_info_t di(atom_name_quads[it], torsion_set[it]);
+	    v.push_back(di);
+	 }
+      }
+      tree.set_dihedral_multi(v);
+
+      if (debug_wiggly_ligands) {
 	 std::cout << "get_torsions by random returns : " << torsion_set.size()
 		   << " random torsion angles from " << non_const_torsions.size()
 		   << " non-const dictionary torsions." << std::endl;
 	 for(unsigned int itor=0; itor<torsion_set.size(); itor++)
 	    std::cout << "    " << itor << " of " << torsion_set.size() << " "
-		      <<  torsion_set[itor] << std::endl;
+		      << non_const_torsions[itor] << " set with angle " 
+		      << torsion_set[itor] << std::endl;
       }
 
 
-      // Here: check that torsion_set, atom_index_pairs and
-      // atom_name_pairs all have the same size.
-      
-//       std::cout << " There are " << atom_index_pairs.size() 
-// 	        << " atom_index_pairs" << std::endl;
-      for (unsigned int ibond=0; ibond< atom_index_quads.size(); ibond++) {
-         if (! non_const_torsions[ibond].is_const())  {
-	    if (debug_wiggly_ligands)
-	       std::cout << "rotating to " << torsion_set[ibond] << " round "
-			 << atom_index_quads[ibond].index1 << " "
-			 << atom_index_quads[ibond].index2 << " "
-			 << atom_index_quads[ibond].index3 << " "
-			 << atom_index_quads[ibond].index4 << "\n";
-
-	    // new version of mgtree, doesn't work	    
-	    //tree.SetDihedralAngle(atom_index_quads[ibond].index1,
-	    //			  atom_index_quads[ibond].index2,
-	    //			  atom_index_quads[ibond].index3,
-	    //			  atom_index_quads[ibond].index4,
-	    //			  clipper::Util::d2rad(torsion_set[ibond]));
-	    
-	    // 
-	    tree.SetDihedralAngle(atom_index_quads[ibond].index2,
-				  atom_index_quads[ibond].index3,
-				  clipper::Util::d2rad(torsion_set[ibond]));
-         }
-      }
-
-      int ncoord = 0;
-      std::vector< ::Cartesian > rotated_coords = tree.GetAllCartesians();
-      for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
-	 for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++) {
-	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) {
- 	       if (debug_wiggly_ligands)
- 		  std::cout << "DEBUG:: updating position from "
- 			    << ligand[ifrag][ires][iat].pos.format()
- 			    << " to "
- 			    << rotated_coords[ncoord] << std::endl;
-	       ligand[ifrag][ires][iat].pos =
-		  clipper::Coord_orth(rotated_coords[ncoord].get_x(),
-				      rotated_coords[ncoord].get_y(),
-				      rotated_coords[ncoord].get_z());
-	       ncoord++;
-	    }
-	 }
-      }
-
+      coot::minimol::residue wiggled_ligand_residue = tree.GetResidue();
+      // now make a molecule of that (my son)
+      coot::minimol::fragment wiggled_ligand_frag(ligand_chain_id);
+      wiggled_ligand_frag.addresidue(wiggled_ligand_residue, 0);
+      coot::minimol::molecule wiggled_ligand(wiggled_ligand_frag);
 
       if (debug_wiggly_ligands) {  // debugging wiggly ligands
 	 std::string filename = "wligand-";
 	 filename += int_to_string(isample);
 	 filename += ".pdb";
-	 ligand.write_file(filename, default_b_factor);
+	 wiggled_ligand.write_file(filename, default_b_factor);
       }
       
 #ifdef HAVE_GSL
       if (optimize_geometry_flag) { 
-	 coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(ligand, *pg);
+	 coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(wiggled_ligand, *pg);
 	 install_ligand(reg_ligand);
 	 if (fill_returned_molecules_vector_flag) {
 	    coot::installed_wiggly_ligand_info_t l;
@@ -241,7 +193,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	    returned_tors_molecules_info.push_back(l);
 	 } 
       } else {
-	 install_ligand(ligand);
+	 install_ligand(wiggled_ligand);
 	 if (fill_returned_molecules_vector_flag) { 
 	    coot::installed_wiggly_ligand_info_t l;
 	    l.mol = ligand;
@@ -250,7 +202,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	 } 
       }
 #else
-      install_ligand(ligand);
+      install_ligand(wiggled_ligand);
       if (fill_returned_molecules_vector_flag) { 
 	 coot::installed_wiggly_ligand_info_t l;
 	 l.mol = ligand_in;
@@ -339,7 +291,7 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
 
    float non_rotating_torsion_cut_off = 11.0;
 
-   if (1) {
+   if (0) {
       for(unsigned int itor=0; itor<m_torsions.size(); itor++) {
 	 std::cout << "DEBUG get_torsions_by_random: input torsion: " << itor << " "
 		   << m_torsions[itor].atom_id_2_4c() << " "
