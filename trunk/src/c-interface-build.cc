@@ -1810,7 +1810,10 @@ PyObject *get_rotamer_name_py(int imol, const char *chain_id, int resno, const c
       if (res) {
 #ifdef USE_DUNBRACK_ROTAMERS
 #else
-	 coot::richardson_rotamer d(res, graphics_info_t::molecules[imol].atom_sel.mol, 0.0, 1);
+	 // we are not passed an alt conf.  We should be, shouldn't we?
+	 std::string alt_conf = "";
+	 coot::richardson_rotamer d(res, alt_conf, graphics_info_t::molecules[imol].atom_sel.mol,
+				    0.0, 1);
 	 coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
 	 r = PyString_FromString(prob.rotamer_name.c_str());
 #endif      
