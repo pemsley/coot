@@ -332,6 +332,9 @@ coot::atom_tree_t::fill_name_map(const std::string &altconf) {
    for (int iat=0; iat<n_residue_atoms; iat++) {
       std::string atom_name(residue_atoms[iat]->name);
       std::string atom_altl = residue_atoms[iat]->altLoc;
+      if (0)
+	 std::cout << "debug:: comparing altconf of this atom :" << atom_altl
+		   << ": to (passed arg) :" << altconf << ": or blank" << std::endl; 
       if (atom_altl == "" || atom_altl == altconf)
 	 name_to_index[atom_name] = iat;
    }
@@ -585,6 +588,8 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
 					CResidue *res,
 					const std::string &altconf) {
 
+   bool debug = 0;
+
    // Note that we add an extra check on the forward and back atom
    // indices before adding them.  This is a sanity check - if we come
    // here with a big tree but a small residue, then the forward and
@@ -607,7 +612,7 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
    }
 
    // print out the name_to_index map
-   if (0) {
+   if (debug) {
       std::cout << "==== atom indexes ===\n";
       for(std::map<std::string, coot::atom_tree_t::atom_tree_index_t>::const_iterator it = name_to_index.begin();
 	  it != name_to_index.end(); ++it)
@@ -668,20 +673,34 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
 	       atom_vertex_vec[idx].connection_type = coot::atom_vertex::START;
 	    if (rest.tree[itree].connect_type == "END")
 	       atom_vertex_vec[idx].connection_type = coot::atom_vertex::END;
-	 }
+	 } else {
+	    if (debug)
+	       std::cout << "DEBUG:: in fill_atom_vertex_vec() "
+			 << " no index assignment for "
+			 << rest.tree[itree].atom_id 
+			 << std::endl;
+	 } 
       }
-   }
+   } else {
+      if (debug)
+	 std::cout << "DEBUG:: in fill_atom_vertex_vec() no found start"
+		   << std::endl;
+   } 
 
    // print out the atom tree
-   if (0) {
-      std::cout << "debug:: ==== atom_vertex_vec === from fill_atom_vertex_vec " << std::endl;
+   if (debug) {
+      std::cout << "debug:: ==== atom_vertex_vec === from fill_atom_vertex_vec "
+		<< std::endl;
       for (unsigned int iv=0; iv<atom_vertex_vec.size(); iv++) {
-	 std::cout << "   atom_vertex_vec[" << iv << "] forward atom ";
+	 std::cout << "   atom_vertex_vec[" << iv << "] forward atoms ("
+		   << atom_vertex_vec[iv].forward.size() << ") ";
 	 for (unsigned int ifo=0; ifo<atom_vertex_vec[iv].forward.size(); ifo++) 
 	    std::cout << atom_vertex_vec[iv].forward[ifo] << " ";
 	 std::cout << std::endl;
       }
    }
+   if (debug)
+      std::cout << "fill_atom_vertex_vec() returns " << retval << std::endl;
    return retval;
 }
 

@@ -1597,6 +1597,8 @@
 	imol 
 	
 	(let* ((residue-attributes (list "A" 28 ""))
+	       (alt-conf "")
+	       (residue-attributes-with-alt-conf (append residue-attributes (list alt-conf)))
 	       (results 
 	  
 		(map
@@ -1604,7 +1606,7 @@
 		   (apply set-residue-to-rotamer-number imol 
 			  (append residue-attributes (list rotamer-number)))
 		   (let ((rotamer-name (apply get-rotamer-name imol residue-attributes))
-			 (rotamer-prob (apply rotamer-score imol residue-attributes)))
+			 (rotamer-prob (apply rotamer-score imol residue-attributes-with-alt-conf)))
 		     (format #t " Rotamer ~s : ~s ~s ~%" 
 			     rotamer-number rotamer-name rotamer-prob)
 		     (if (not (close-float? correct-prob rotamer-prob))

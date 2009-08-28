@@ -2905,7 +2905,8 @@ int make_ball_and_stick(int imol,
 }
 
 
-int clear_ball_and_stick(int imol) {
+int
+clear_ball_and_stick(int imol) {
 
   if (graphics_info_t::use_graphics_interface_flag) { 
     if (is_valid_model_molecule(imol)) {
@@ -2918,14 +2919,27 @@ int clear_ball_and_stick(int imol) {
 }
 
 /* clear the given additional representation  */
-void set_show_additional_representation(int imol, int representation_number, int on_off_flag) {
+void
+set_show_additional_representation(int imol, int representation_number, int on_off_flag) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].set_show_additional_representation(representation_number,
 									  on_off_flag);
    }
    graphics_draw();
+}
+
+/* \brief display/undisplay all the additional representations for the given molecule  */
+void
+set_show_all_additional_representations(int imol, int on_off_flag) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_show_all_additional_representations(on_off_flag);
+   }
+   graphics_draw();
 } 
+
+
 
 /* delete the given additional representation  */
 void delete_additional_representation(int imol, int representation_number) {

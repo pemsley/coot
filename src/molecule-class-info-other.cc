@@ -1394,7 +1394,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 #ifdef USE_DUNBRACK_ROTAMERS			
 	 coot::dunbrack d(copied_res, atom_sel.mol, lowest_prob, 0);
 #else			
-	 coot::richardson_rotamer d(copied_res, atom_sel.mol, lowest_prob, 0);
+	 coot::richardson_rotamer d(copied_res, altloc, atom_sel.mol, lowest_prob, 0);
 #endif // USE_DUNBRACK_ROTAMERS
       
 	 std::vector<float> probabilities = d.probabilities();
@@ -1456,7 +1456,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 		     // so we have the solution from lig, what was its score?
 		     //
 		     coot::ligand_score_card score_card = lig.get_solution_score(0);
-		     coot::minimol::molecule moved_mol = lig.get_solution(0);
+		     coot::minimol::molecule moved_mol  = lig.get_solution(0);
 		     float clash_score = 0.0;
 		     // std::cout << "debug INFO:: density score: " << score_card.score << "\n";
 		     if (clash_flag) { 
@@ -1608,7 +1608,8 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 
 
 int
-molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_spec, int rotamer_number,
+molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_spec,
+						     int rotamer_number,
 						     const coot::protein_geometry &pg) {
 
    int i_done = 0;
@@ -1618,8 +1619,9 @@ molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_sp
       make_backup();
 #ifdef USE_DUNBRACK_ROTAMERS			
       coot::dunbrack d(res, atom_sel.mol, 0.01, 0);
-#else			
-      coot::richardson_rotamer d(res, atom_sel.mol, 0.01, 0);
+#else
+      std::string alt_conf = ""; // fixme?
+      coot::richardson_rotamer d(res, alt_conf, atom_sel.mol, 0.01, 0);
 #endif // USE_DUNBRACK_ROTAMERS
       std::string monomer_type = res->GetResName();
       std::pair<short int, coot::dictionary_residue_restraints_t> p =
@@ -2595,43 +2597,7 @@ molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer)
 std::pair<double, clipper::Coord_orth>
 molecule_class_info_t::get_minimol_pos(const coot::minimol::molecule &a_rotamer) const {
 
-   std::pair<double, clipper::Coord_orth> r;
-   double max_dev_residue_pos = -9999999.9;
-   clipper::Coord_orth running_pos(0.0, 0.0, 0.0);
-   float n_atom = 0.0;
-   
-   for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
-      for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
-	 for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
-	    
-	    running_pos += a_rotamer[ifrag][ires][iat].pos;
-	    n_atom += 1.0;
-	    
-	 }
-      }
-   }
-
-   if (n_atom > 0.0) { 
-      clipper::Coord_orth residue_centre = clipper::Coord_orth(running_pos.x()/n_atom,
-							       running_pos.y()/n_atom,
-							       running_pos.z()/n_atom);
-      double devi;
-      for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
-	 for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
-	    for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
-	       devi = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos, residue_centre);
-	       if (devi > max_dev_residue_pos) {
-		  max_dev_residue_pos = devi;
-	       } 
-	    }
-	 }
-      }
-      r.first =  max_dev_residue_pos;
-      r.second = residue_centre;
-   } else {
-      std::cout << "ERROR: minimol pos: there are no atoms in the residue" << std::endl;
-   }
-   return r;
+   return a_rotamer.get_pos(); 
 } 
 
 // We have name_.  We use that to find backup files in coot-backup
@@ -3945,6 +3911,8 @@ molecule_class_info_t::split_residue_then_rotamer(CResidue *residue, const std::
 						 new_altconf);
 
    if (atom_index >= 0) {
+
+      // std::cout << "DEBUG:: in split_residue_then_rotamer() " << std::endl;
       graphics_info_t g;
       g.do_rotamers(atom_index, imol_no); // this imol, obviously.
    } else {

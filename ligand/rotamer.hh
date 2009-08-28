@@ -154,11 +154,15 @@ namespace coot {
       CMMDBManager *stored_mol;
       float Probability_limit() const { return probability_limit; }
       void set_probability_limit(float lim) { probability_limit = lim;}
+      std::string alt_conf;
       
    public:
 
-      rotamer(CResidue *res, short int add_extra_PHE_and_TYR_rotamers_flag ) :
+      rotamer(CResidue *res,
+	      const std::string &alt_conf_in,
+	      short int add_extra_PHE_and_TYR_rotamers_flag ) :
 	 chi_angles(res, add_extra_PHE_and_TYR_rotamers_flag) {
+	 alt_conf = alt_conf_in;
       }
 
       // For use with Z-score (which is analysis only: we don't move anything)

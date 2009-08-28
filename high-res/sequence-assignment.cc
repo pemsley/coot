@@ -975,7 +975,8 @@ coot::sequence_assignment::side_chain_score_t::best_rotamer_score(const clipper:
    
    // c.f. molecule_class_info_t molecule-class-info-other.cc: auto_fit_best_rotamer
    //
-   coot::dunbrack d(res);
+   const std::string alt_conf = ""; // needs fixing?
+   coot::dunbrack d(res, alt_conf);
    CResidue *rotamer_res;
    std::vector<float> probabilities = d.probabilities();
    if (probabilities.size() > 0) {

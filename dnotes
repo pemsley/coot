@@ -4625,18 +4625,203 @@ Thu 20 Aug 2009 10:13:21 EDT
      Doing go to blob when the refiement map has not been set, 
      needs better feedback.
 
+* Done.
+
      Sharpening a map, read in from a map:  -> crash.
+
+* Fixed
 
      I want a function to set the refinment weight for me, 
      i.e.  it should do a triple refine and look at the chi squareds.
      Keep doing that with different weights until we get to 1.0.
 
+* Scheduled.
+
      The very low level map from phenix, makes refinement fail to 
      converge without setting the map weight to 3000!
 
-     How about doing ramachandran refinement with optional sphere refinement.
+     How about doing Ramachandran refinement with optional sphere refinement.
+
+---
+Sun Aug 23 16:43:37 EDT 2009
+
+    make_asc(CMMDBManager *mol) should be (also?) a constructor of an asc.
+
+----
+Mon Aug 24 16:57:58 EDT 2009
+
+    When doing add strand here, make the residues ALA
+
+----
+Mon Aug 24 16:58:02 EDT 2009
+
+   quit with no save state.
+
+----
+Mon Aug 24 17:02:29 EDT 2009
+
+   3 molecules loaded,  0 3 and 7
+
+   post-go-to-atom-window starts up showing 0.
+
+   Use the option menu to change to 3.
+
+   -> fails to update the residue list
+
+   Use the option menu to change to 0.
+   Use the option menu to change to 3.
+	
+   -> updates the residue list.
+
+    Probably due to this: 
+
+    set-go-to-atom-molecule 3 (before post-go-to-atom-window)
+ 
+    but go to atom dialog starts up showing molecule 0.
+
+ 
+----
+Mon Aug 24 17:17:35 EDT 2009
+  
+    how do I start up coot and force it to read the state script? 
+
+---
+Mon Aug 24 17:17:40 EDT 2009
+
+   can you make the display manager start up the "correct" size?
+   (is it saved in the state script?)
+
+----
+Mon Aug 24 17:24:50 EDT 2009
+
+   Difference map peaks with a nice ligand, completely connected at 5
+   sigma, there are 10 "peaks" on the ligand! when we peak search
+   difference map.
+
+----
+
+   simple average of maps, many maps, something like difference-map function.
+
+---
+
+   set map is *not* difference map!  need this function
+
+---
+Mon Aug 24 17:42:55 EDT 2009
+
+   "library of things in crystallization: what is this blob: let me
+   trivially select."
+
+   cryo-solvent molecule dialog:  Where is this?
 
 
+----
+Mon Aug 24 17:52:10 EDT 2009
+
+   Close the application with the X, don't save the state. 
+
+   Perhaps, needs thinking about.
+
+
+---
+Mon Aug 24 17:53:32 EDT 2009
+
+   On exit (or optional exit) save all modified moelcules with default
+   save names.
+  
+
+---
+Tue Aug 25 10:09:07 EDT 2009
+
+  check the Chi-2 on a leucine.  The dictionary is CA-CB-CG-CG2, but
+  built-in is...?  And how does that work with molprobity rotamers?
+
+  These also may be suspicious:
+  THR VAL LEU ASP ASN GLU GLN ILE
+
+
+---
+Tue Aug 25 10:54:57 EDT 2009
+
+    Pukka puckers?  Dont use the out of plane distance, use the N1/9
+    C1' vector and find the distance of the Phosphate from teh
+    extension of that line.  It is more sensitive than the out of
+    plane distance.
+
+    > 3.0A -> C3' says Jeff.
+
+
+ Change the probe radius you can see potential interactions at longer distnaces.
+ Jeremy: Try changing this at quarter angstrom increments.
+
+ David: how about looking at a "packing moment" - perhaps having to
+ move a block first.  Looking athe the dots along the edge of range of
+ residues, moving the range of reisdues by a rotation/trans operator
+ derives from the dots.
+
+----
+Tue Aug 25 14:30:19 EDT 2009
+
+    2b4j: do a sequence association and add terminal residue (either
+    at end or a test deleted residue)
+
+
+    set-hardware-stereo-angel-factor : typo somewhere?  preferences?
+
+* Done. c-interface.cc
+
+----
+parse-pisa-xml.scm :371 should check for #f in status
+
+
+148  in coot-utils.scm   
+
+0 "E" -10000 #f 
+
+wrong type in position 1: #f 
+
+----
+Wed Aug 26 05:00:42 EDT 2009
+
+   Align & Mutate changes the residue numbers 
+      
+   Align & Mutate seems to do a rotamer fit of all residues, I didn't ask for that
+ 
+   In Align & Mutate, if I do not click the "autofit residues" nothing
+      seems to happen, the sequence is not mutated.  Oh, or possibly
+      it mutated residues in the wrong place.
+
+
+----
+Wed Aug 26 10:28:45 EDT 2009
+
+ with spw:
+
+  Allow me to have more cycles before saying "Time's Up"
+
+  Allow me to interupt a bad refinement with "Esc" key.
+
+
+---
+Wed Aug 26 17:12:43 EDT 2009
+
+   get_rotamer_name_scm() needs to be passed an alt_conf?
+
+
+----
+Wed Aug 26 17:18:58 EDT 2009
+
+   fix_nomenclature_errors() works on residues with alt confs?
+
+* Punt.
+
+   rotamer_graphs() for residues with altconfs.
+
+* Seems OK.
+
+   molecule-info-class's set_residue_to_rotamer_number() works with altconfs?
+
+* No.  The alt conf is not specified in the c-interface.h function (even).
 
 ------
 

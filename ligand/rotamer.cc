@@ -548,12 +548,22 @@ CResidue *
 coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
 			   int i_rot) const {
 
-   std::string altconf = "";  // Fixme
-   CResidue *rres = deep_copy_residue(Residue());
+   // std::cout << "rotamer::GetResidue alt_conf is :" << alt_conf << ":" << std::endl;
+   CResidue *rres = deep_copy_residue(Residue()); 
    std::string rt = Residue_Type();
    if (rt == "MSE")
       rt = "MET";
    std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
+
+   if (0) { // debug
+      PPCAtom residue_atoms;
+      int n_residue_atoms;
+      Residue()->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+	 std::cout << "debug in rotamer::GetResidue(): " << iat << " "
+		   << residue_atoms[iat] << std::endl;
+      }
+   } 
 
    if ((rots.size() == 0) ||
        (i_rot >= rots.size())) { 
@@ -575,8 +585,8 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
 
    for (unsigned int ichi=0; ichi<atom_name_quads.size(); ichi++) {
       double tors = this_rot[ichi];
-      try { 
-	 coot::atom_tree_t t(rest, rres, altconf);
+      try {
+	 coot::atom_tree_t t(rest, rres, alt_conf);
 	 t.set_dihedral(atom_name_quads[ichi].atom1,
 			atom_name_quads[ichi].atom2,
 			atom_name_quads[ichi].atom3,

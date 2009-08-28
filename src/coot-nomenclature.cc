@@ -86,7 +86,8 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 #ifdef USE_DUNBRACK_ROTAMERS			
 			coot::dunbrack d(residue_p);
 #else
-			coot::richardson_rotamer d(residue_p);
+			const std::string &alt_conf = "";
+			coot::richardson_rotamer d(residue_p, alt_conf);
 #endif // USE_DUNBRACK_ROTAMERS			
 
 			int swapped = d.optimize_rotamer_by_atom_names();

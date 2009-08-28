@@ -520,11 +520,6 @@ Punted from 0.6:
      Ramachandran refinement
 
    o KH:
-     I want a function to set the refinment weight for me, 
-     i.e.  it should do a triple refine and look at the chi squareds.
-     Keep doing that with different weights until we get to 1.0.
-
-   o KH:
       In baton build, make it work more clearly when starting
       with no skeleton.
       ->  ask me to make a skeleton
@@ -545,14 +540,21 @@ Punted from 0.6:
     ::: 3
 
 
-   o Put "Set Matrix" under the R/RC button dialog.
-
-
    o consider applying 0001-Replace-goosh-module-with-os-process-from-guile-lib.patch
 
    o consider guile-lib's unit test, not greg.
 
    o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach convergence.
+
+   o the get_clash_score() in backrub_rotamer should work with a
+     (pre-generated) selection of residues - rather than the whole
+     molecule - which should speed things up a lot (especially for large
+     molecules).
+
+   o HK: I want a function to set the refinment weight for me, 
+     i.e.  it should do a triple refine and look at the chi squareds.
+     Keep doing that with different weights until we get to 1.0.
+
 
 
  ------

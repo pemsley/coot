@@ -29,6 +29,10 @@
 
 namespace coot {
 
+   // not just for backrubbing.
+   float get_clash_score(const coot::minimol::molecule &a_rotamer,
+			 atom_selection_container_t asc);
+
    class backrub {
       CResidue *orig_this_residue;
       CResidue *orig_prev_residue;

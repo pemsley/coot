@@ -945,8 +945,35 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
 //    std::cout <<"DEBUG:: added set_data_full for " << v << " on to " << display_control_window_glade
 // 	     << " " << widget_name << std::endl;
 
+   std::string arl = "   Show Additional Representations  ";
+   GtkWidget *all_on_check_button = gtk_check_button_new_with_label(arl.c_str());
+   gtk_widget_show(all_on_check_button);
+   gtk_box_pack_start(GTK_BOX(v), all_on_check_button, FALSE, FALSE, 2);
+   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(all_on_check_button), TRUE);
+   widget_name = "add_rep_all_on_check_button_";
+   widget_name += coot::util::int_to_string(imol_no);
+   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), 
+			     widget_name.c_str(),
+			     all_on_check_button, NULL);
+   gtk_signal_connect(GTK_OBJECT (all_on_check_button),  "toggled",
+		      GTK_SIGNAL_FUNC (on_add_rep_all_on_check_button_toggled),
+		      GINT_TO_POINTER(imol_no));
 } 
 
+
+void
+on_add_rep_all_on_check_button_toggled   (GtkToggleButton       *button,
+					  gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+   if (button->active) {
+      // std::cout << "Turn on all add reps of " << imol << std::endl;
+      set_show_all_additional_representations(imol, 1);
+   } else {
+      // std::cout << "Turn off all add reps of " << imol << std::endl;
+      set_show_all_additional_representations(imol, 0);
+   }
+}
 
 
 void 

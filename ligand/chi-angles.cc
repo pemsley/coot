@@ -170,7 +170,6 @@ coot::chi_angles::add_IUPAC_extras_PHE_and_TYR_rotamers() {
 	 }
       }
    }
-   
 }
 
 

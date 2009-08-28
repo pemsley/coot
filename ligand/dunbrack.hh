@@ -58,9 +58,10 @@ namespace coot {
       // that does not need a CMMDBManager... Grumble grumble...
       //
       dunbrack(CResidue *residue,
+	       const std::string &alt_conf_in,
 	       CMMDBManager *mol,
 	       float lowest_probability) :
-	 rotamer(residue, 0) {
+	 rotamer(residue, alt_conf_in, 0) {
 	 set_probability_limit(lowest_probability);
 	 stored_mol = mol;
       	 // add_all_rotamers();
@@ -70,10 +71,11 @@ namespace coot {
       }
 
       dunbrack(CResidue *residue,
+	       const std::string &alt_conf_in,
 	       CMMDBManager *mol,
 	       float lowest_probability,
 	       short int add_extra_PHE_and_TYR_rotamers_flag) :
-	 rotamer(residue, add_extra_PHE_and_TYR_rotamers_flag) {
+	 rotamer(residue, alt_conf_in, add_extra_PHE_and_TYR_rotamers_flag) {
 	 set_probability_limit(lowest_probability);
 	 stored_mol = mol;
       	 // add_all_rotamers();
@@ -86,7 +88,8 @@ namespace coot {
 
       // For use with Z-score (which is analysis only: we don't move anything)
       // 
-      dunbrack(CResidue *residue) : rotamer(residue, 0) {}
+      dunbrack(CResidue *residue, const std::string &alt_conf_in) :
+	 rotamer(residue, alt_conf_in, 0) {}
       
       // Return NULL if no residues available for this residue type
       // 

@@ -785,6 +785,7 @@ graphics_info_t::rotamer_graphs(int imol) {
 			   if (nSelResidues > 0) {
 			      int max_resno = -9999;
 
+			      std::string altconf = ""; // fixme, I guess
 			      std::vector<coot::geometry_graph_block_info_generic> v;
 			      for (int ir=0; ir<nSelResidues; ir++) {
 				 int this_resno = SelResidues[ir]->GetSeqNum();
@@ -792,7 +793,7 @@ graphics_info_t::rotamer_graphs(int imol) {
 				 if (this_resno > max_resno)
 				    max_resno = this_resno;
 				 coot::rotamer_probability_info_t d_score = 
-				    get_rotamer_probability(SelResidues[ir], mol,
+				    get_rotamer_probability(SelResidues[ir], altconf, mol,
 							    rotamer_lowest_probability, 1);
 				 
 				 double distortion = 0.0;
@@ -923,8 +924,9 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 		  int this_resno = SelResidues[ir]->GetSeqNum();
 		  if (this_resno > max_resno)
 		     max_resno = this_resno;
+		  std::string altconf = "";
 		  coot::rotamer_probability_info_t d_score = 
-		     get_rotamer_probability(SelResidues[ir], mol,
+		     get_rotamer_probability(SelResidues[ir], altconf, mol,
 					     rotamer_lowest_probability, 1);
 		  double distortion = 0.0;
 		  std::string str = int_to_string(this_resno);
@@ -991,8 +993,10 @@ graphics_info_t::rotamers_from_residue_selection(PCResidue *SelResidues,
    for (int ires=0; ires<nSelResidues; ires++) {
       int this_resno = SelResidues[ires]->GetSeqNum();
       std::string chain_id = SelResidues[ires]->GetChainID();
-      coot::rotamer_probability_info_t d_score = get_rotamer_probability(SelResidues[ires], 0, // 0? woo..
-									 rotamer_lowest_probability, 1);
+      std::string alt_conf = ""; // fixme?
+      coot::rotamer_probability_info_t d_score =
+	 get_rotamer_probability(SelResidues[ires], alt_conf, 0, // 0? woo..
+				 rotamer_lowest_probability, 1);
       double distortion = 0.0;
       std::string str = int_to_string(this_resno);
       str += chain_id;

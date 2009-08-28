@@ -2185,6 +2185,9 @@ if [ "$build_gtkglext" = 1 ] ; then
      if [ "$update_libtool" = 1 ] ; then
         cp $install_top_dir/bin/libtool .
      fi
+     # do this on 64 bit systems. FIXME
+     # Use uname -p being x84_64
+     #      sed -i 's#sys_lib_search_path_spec="#sys_lib_search_path_spec="/usr/lib64#' libtool
      $MAKE
     status=$?
     if [ "$status" != 0 ] ; then
@@ -2334,6 +2337,14 @@ if test -n "$build_pygtk" ; then
    #      GTK... Requested 'gtk+-2.0 >= 2.8.0' but version of GTK+ is 2.6.7
    #      GLIB - version >= 2.8.0
    pygtk_version=2.6.3
+
+   # FIXME
+   # 20090824
+   # 2.6.3 is too hight for CentOS 4 series, because it complains that 
+   #       GLIB2 needs to be 2.6.0 or greater and (system) is only 2.4.2
+   # Red Hat Enterprise Linux was released 2005-02-15.  Find a version of pygtk that
+   # is compatible with that.
+
    ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.6/pygtk-$pygtk_version.tar.gz
    (
    date
