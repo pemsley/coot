@@ -1,16 +1,10 @@
 
    11 items
 
-   o Water removing problem from Takaaki Fukami ::: 1
-
-   o ^G I1  -> spins instead ::: 1
-
    o Add clash score to backrub rotamer - consider making dist_crit
      smaller. Test with residue A19 in low res map ::: 2
   
    o Get News seems to be failing for me -> nothing. ::: 1
-
-   o Put "Set Matrix" under the R/RC button dialog. ::: 1
 
    o Can you fix the bonding of the oxygens in tlc 2AB? ::: 1
 
@@ -1117,5 +1111,16 @@ c-interface clear_up_moving_atoms...
 * Done.
 
    o Addition representations: "All off" button needed.  ::: 1
+
+   o Water removing problem from Takaaki Fukami ::: 1
+
+* Can't reproduce.  Added index protection.
+
+   o ^G I1  -> spins instead ::: 0.5
+
+   o Put "Set Matrix" under the R/RC button dialog. ::: 0.5
+
+* Done
+
 
 -----

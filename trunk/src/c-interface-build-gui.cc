@@ -309,6 +309,19 @@ void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu) {
 			    menu);
 }
 
+/* Now the refinement weight can be set from an entry in the refine_params_dialog. */
+void set_refinemenent_weight_from_entry(GtkWidget *entry) {
+
+   const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
+   try {
+      float f = coot::util::string_to_float(text);
+      graphics_info_t::geometry_vs_map_weight = f;
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "in set_refinemenent_weight_from_entry " << rte.what() << std::endl;
+   } 
+} 
+
 void place_atom_at_pointer_by_window() { 
 
    // put up a widget which has a OK callback button which does a 

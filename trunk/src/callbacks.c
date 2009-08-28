@@ -2348,6 +2348,11 @@ on_refine_params_dialog_ok_button_clicked
 {
   GtkWidget *widget = lookup_widget(GTK_WIDGET(button),
 				    "refine_params_dialog");
+  GtkWidget *entry = lookup_widget(GTK_WIDGET(button), 
+				   "refine_params_weight_matrix_entry");
+  if (entry) { 
+    set_refinemenent_weight_from_entry(entry);
+  }
 
   gtk_widget_destroy(widget);
 }

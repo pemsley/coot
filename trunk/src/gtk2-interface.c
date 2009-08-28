@@ -8819,12 +8819,14 @@ create_refine_params_dialog (void)
   GtkWidget *refine_params_use_planar_peptides_checkbutton;
   GtkWidget *refine_params_use_ramachandran_goodness_torsions_checkbutton;
   GtkWidget *refine_params_use_initial_pos_checkbutton;
-  GtkWidget *frame174;
+  GtkWidget *frame292;
+  GtkWidget *alignment150;
   GtkWidget *sec_struct_restraints_vbox;
   GtkWidget *sec_str_rest_no_rest_radiobutton;
   GSList *sec_str_rest_no_rest_radiobutton_group = NULL;
   GtkWidget *sec_str_rest_helix_rest_radiobutton;
   GtkWidget *sec_str_rest_strand_rest_radiobutton;
+  GtkWidget *label742;
   GtkWidget *frame280;
   GtkWidget *vbox291;
   GtkWidget *refine_params_reset_b_value_checkbutton;
@@ -8879,10 +8881,11 @@ create_refine_params_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox52), label281, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label281), GTK_JUSTIFY_CENTER);
 
-  label79 = gtk_label_new (_("For Regularization and Refinement:"));
+  label79 = gtk_label_new (_("<b>For Regularization and Refinement:</b>"));
   gtk_widget_set_name (label79, "label79");
   gtk_widget_show (label79);
   gtk_box_pack_start (GTK_BOX (vbox52), label79, FALSE, FALSE, 4);
+  gtk_label_set_use_markup (GTK_LABEL (label79), TRUE);
   gtk_misc_set_alignment (GTK_MISC (label79), 0, 0.5);
 
   vbox60 = gtk_vbox_new (FALSE, 0);
@@ -9003,15 +9006,22 @@ create_refine_params_dialog (void)
   gtk_widget_set_sensitive (refine_params_use_initial_pos_checkbutton, FALSE);
   gtk_tooltips_set_tip (tooltips, refine_params_use_initial_pos_checkbutton, _("Stops regularization wandering off [non-active]"), NULL);
 
-  frame174 = gtk_frame_new (NULL);
-  gtk_widget_set_name (frame174, "frame174");
-  gtk_widget_show (frame174);
-  gtk_box_pack_start (GTK_BOX (vbox60), frame174, TRUE, TRUE, 0);
+  frame292 = gtk_frame_new (NULL);
+  gtk_widget_set_name (frame292, "frame292");
+  gtk_widget_show (frame292);
+  gtk_box_pack_start (GTK_BOX (vbox60), frame292, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame292), 4);
+
+  alignment150 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_set_name (alignment150, "alignment150");
+  gtk_widget_show (alignment150);
+  gtk_container_add (GTK_CONTAINER (frame292), alignment150);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment150), 0, 0, 12, 0);
 
   sec_struct_restraints_vbox = gtk_vbox_new (FALSE, 0);
   gtk_widget_set_name (sec_struct_restraints_vbox, "sec_struct_restraints_vbox");
   gtk_widget_show (sec_struct_restraints_vbox);
-  gtk_container_add (GTK_CONTAINER (frame174), sec_struct_restraints_vbox);
+  gtk_container_add (GTK_CONTAINER (alignment150), sec_struct_restraints_vbox);
 
   sec_str_rest_no_rest_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No Secondary Structure Restraints"));
   gtk_widget_set_name (sec_str_rest_no_rest_radiobutton, "sec_str_rest_no_rest_radiobutton");
@@ -9033,6 +9043,12 @@ create_refine_params_dialog (void)
   gtk_box_pack_start (GTK_BOX (sec_struct_restraints_vbox), sec_str_rest_strand_rest_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (sec_str_rest_strand_rest_radiobutton), sec_str_rest_no_rest_radiobutton_group);
   sec_str_rest_no_rest_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (sec_str_rest_strand_rest_radiobutton));
+
+  label742 = gtk_label_new (_("<b>Mainchain Restraints</b>"));
+  gtk_widget_set_name (label742, "label742");
+  gtk_widget_show (label742);
+  gtk_frame_set_label_widget (GTK_FRAME (frame292), label742);
+  gtk_label_set_use_markup (GTK_LABEL (label742), TRUE);
 
   frame280 = gtk_frame_new (NULL);
   gtk_widget_set_name (frame280, "frame280");
@@ -9074,7 +9090,7 @@ create_refine_params_dialog (void)
   gtk_widget_set_name (refine_params_weight_matrix_frame, "refine_params_weight_matrix_frame");
   gtk_widget_show (refine_params_weight_matrix_frame);
   gtk_box_pack_start (GTK_BOX (vbox60), refine_params_weight_matrix_frame, TRUE, TRUE, 0);
-  gtk_frame_set_shadow_type (GTK_FRAME (refine_params_weight_matrix_frame), GTK_SHADOW_NONE);
+  gtk_container_set_border_width (GTK_CONTAINER (refine_params_weight_matrix_frame), 4);
 
   alignment146 = gtk_alignment_new (0.5, 0.5, 1, 1);
   gtk_widget_set_name (alignment146, "alignment146");
@@ -9205,11 +9221,13 @@ create_refine_params_dialog (void)
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_use_planar_peptides_checkbutton, "refine_params_use_planar_peptides_checkbutton");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_use_ramachandran_goodness_torsions_checkbutton, "refine_params_use_ramachandran_goodness_torsions_checkbutton");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_use_initial_pos_checkbutton, "refine_params_use_initial_pos_checkbutton");
-  GLADE_HOOKUP_OBJECT (refine_params_dialog, frame174, "frame174");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, frame292, "frame292");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, alignment150, "alignment150");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, sec_struct_restraints_vbox, "sec_struct_restraints_vbox");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, sec_str_rest_no_rest_radiobutton, "sec_str_rest_no_rest_radiobutton");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, sec_str_rest_helix_rest_radiobutton, "sec_str_rest_helix_rest_radiobutton");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, sec_str_rest_strand_rest_radiobutton, "sec_str_rest_strand_rest_radiobutton");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, label742, "label742");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, frame280, "frame280");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, vbox291, "vbox291");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_reset_b_value_checkbutton, "refine_params_reset_b_value_checkbutton");
