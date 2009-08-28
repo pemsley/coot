@@ -3843,7 +3843,9 @@ std::pair<bool, clipper::RTop_orth> coot::util::nucleotide_to_nucleotide(CResidu
 									 CResidue *std_base) {
 
    bool good_rtop_flag = 0;
-   clipper::RTop_orth rtop;
+   clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
+   clipper::Coord_orth pt_dum(0,0,0);
+   clipper::RTop_orth rtop(m_dum, pt_dum);
    
    std::vector<std::string> adenine;  // Pirimidine
    adenine.push_back(" N9 ");
@@ -5378,7 +5380,7 @@ coot::util::get_cell_symm(CMMDBManager *mol) {
 // 
 double
 coot::util::min_dist_to_points(const clipper::Coord_orth &pt,
-				      const std::vector<clipper::Coord_orth> &others) {
+			       const std::vector<clipper::Coord_orth> &others) {
 
    double best_dist = 9999999.9;
    for (unsigned int i=0; i<others.size(); i++) {

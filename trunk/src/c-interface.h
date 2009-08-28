@@ -3841,8 +3841,11 @@ int make_ball_and_stick(int imol,
 /*! \brief clear ball and stick representation of molecule number imol */
 int clear_ball_and_stick(int imol);
 
-/* clear the given additional representation  */
+/* \brief display/undisplay the given additional representation  */
 void set_show_additional_representation(int imol, int representation_number, int on_off_flag);
+
+/* \brief display/undisplay all the additional representations for the given molecule  */
+void set_show_all_additional_representations(int imol, int on_off_flag);
 
 /* delete a given additional representation */
 void delete_additional_representation(int imol, int representation_number);
@@ -4203,7 +4206,8 @@ float auto_fit_best_rotamer(int resno,
    function). 0 off, 1 on.*/
 void set_auto_fit_best_rotamer_clash_flag(int i); /*  */
 /* currently stub function only */
-float rotamer_score(int imol, const char *chain_id, int res_no, const char *insertion_code);
+float rotamer_score(int imol, const char *chain_id, int res_no, const char *insertion_code, 
+		    const char *alt_conf);
 void setup_auto_fit_rotamer(short int state);	/* called by the Auto Fit button call
 				   back, set's in_auto_fit_define. */
 

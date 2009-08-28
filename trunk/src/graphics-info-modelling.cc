@@ -2677,6 +2677,9 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       // can get the residue.
       rotamer_residue_imol = imol;
       std::string altconf = molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
+
+//       std::cout << "DEBUG:: in do_rotamers() atom_index is " << atom_index
+// 		<< " and alconf is :" <<  altconf << ":" << std::endl;
    
       GtkWidget *window = create_rotamer_selection_dialog();
       set_transient_and_position(COOT_ROTAMER_SELECTION_DIALOG, window);
@@ -2801,20 +2804,22 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
 
    // for each rotamer do this:
 
+   GSList *gr_group = NULL;
    GtkWidget *rotamer_selection_radio_button;
    GtkWidget *rotamer_selection_dialog = window;
-   GtkWidget *rotamer_selection_button_vbox = lookup_widget(window,
-							    "rotamer_selection_button_vbox");
-   GSList *gr_group = NULL;
-
+   GtkWidget *rotamer_selection_button_vbox =
+      lookup_widget(window, "rotamer_selection_button_vbox");
    graphics_info_t g;
+   std::string alt_conf = g.molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
    CResidue *residue = g.molecules[imol].atom_sel.atom_selection[atom_index]->residue;
-   
       
 #ifdef USE_DUNBRACK_ROTAMERS			
       coot::dunbrack d(residue, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
-#else			
-      coot::richardson_rotamer d(residue, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
+#else
+      std::cout << " in fill_rotamer_selection_buttons altconf is :" << alt_conf << ":"
+		<< std::endl;
+      coot::richardson_rotamer d(residue, alt_conf,
+				 g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
 #endif // USE_DUNBRACK_ROTAMERS
 
    std::vector<float> probabilities = d.probabilities();
@@ -2887,6 +2892,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
    CAtom    *at_rot   = molecules[imol].atom_sel.atom_selection[atom_index];
    CResidue *residue  = molecules[imol].atom_sel.atom_selection[atom_index]->residue;
    int atom_index_udd = molecules[imol].atom_sel.UDDAtomIndexHandle;
+   std::string altconf = at_rot->altLoc;
 
    if (std::string(residue->name) == "GLY" ||
        std::string(residue->name) == "ALA") {
@@ -2924,8 +2930,8 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 #ifdef USE_DUNBRACK_ROTAMERS			
       coot::dunbrack d(tres, molecules[imol].atom_sel.mol,
 		       rotamer_lowest_probability, 0);
-#else			
-      coot::richardson_rotamer d(tres, molecules[imol].atom_sel.mol,
+#else
+      coot::richardson_rotamer d(tres, altconf, molecules[imol].atom_sel.mol,
 				 rotamer_lowest_probability, 0);
 #endif // USE_DUNBRACK_ROTAMERS
 
@@ -2986,6 +2992,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 
 coot::rotamer_probability_info_t
 graphics_info_t::get_rotamer_probability(CResidue *res,
+					 const std::string &altconf,
 					 CMMDBManager *mol,
 					 float lowest_probability,
 					 short int add_extra_PHE_and_TYR_rotamers_flag) {
@@ -3011,7 +3018,7 @@ graphics_info_t::get_rotamer_probability(CResidue *res,
 	 std::cout << "get_rotamer_probability: caught: " << e.what() << std::endl;
       } 
    } else {
-      coot::richardson_rotamer d(res, mol, rotamer_lowest_probability, 1);
+      coot::richardson_rotamer d(res, altconf, mol, rotamer_lowest_probability, 1);
       r  = d.probability_of_this_rotamer();
    } 
 #endif // USE_DUNBRACK_ROTAMERS

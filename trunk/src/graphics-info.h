@@ -2099,6 +2099,7 @@ public:
 
    // now used for rotamer_score (from c-interface.h), so it is now not GTK2-only 20090817
    coot::rotamer_probability_info_t get_rotamer_probability(CResidue *res,
+							    const std::string &alt_conf,
 							    CMMDBManager *mol,
 							    float lowest_probability,
 							    short int add_extra_PHE_and_TYR_rotamers_flag);

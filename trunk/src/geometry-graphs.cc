@@ -264,6 +264,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 // 		   << dc.geometry_distortion[i].distortion_score << "\n";
 	 
 	 double extra = dc.geometry_distortion[i].distortion_score;
+	 // std::cout << "Bond restraint extra " << extra << std::endl;
 	 if (extra > distortion_worst[this_resno1 - min_resno]) {
 	    info  = info_stub;
 	    info += " Bond: ";
@@ -272,6 +273,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	    info += dc.atom[idx2]->name;
 	    info += " z score: ";
 	    info += coot::util::float_to_string(sqrt(extra));
+	    std::cout << "new worst " << info << std::endl;
 	    atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->name;
 // 	    std::cout << "DEBUG::  BOND_RESTRAINT setting resi_of_distortion["
 // 		      << this_resno1 - min_resno << "] to " << dc.atom[idx1]->GetSeqNum()
@@ -299,12 +301,14 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	 info_stub += " ";
 	 info_stub += dc.atom[idx1]->GetResName();
 	 double extra = dc.geometry_distortion[i].distortion_score;
+	 // std::cout << "Angle restraint extra " << extra << std::endl;
 	 if (extra > distortion_worst[this_resno1 - min_resno]) {
 	    info  = info_stub;
 	    info += " Angle at: ";
 	    info += dc.atom[idx2]->name;
 	    info += " z score: ";
 	    info += coot::util::float_to_string(sqrt(extra));
+	    std::cout << "new worst " << info << std::endl;
 	    distortion_string[this_resno1 - min_resno] = info;
 	    atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx2]->name;
 	    distortion_worst[this_resno1 - min_resno] = extra;
@@ -326,6 +330,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	       info_stub += " ";
 	       info_stub += dc.atom[idx1]->GetResName();
 	       double extra = dc.geometry_distortion[i].distortion_score;
+	       // std::cout << "Plane restraint extra " << extra << std::endl;
 	       if (extra > distortion_worst[this_resno1 - min_resno]) {
 		  info = info_stub;
 		  info += " Plane distortion at: ";
@@ -333,6 +338,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 		  info += coot::util::int_to_string(dc.atom[idx1]->GetSeqNum());
 		  info += " z score: ";
 		  info += coot::util::float_to_string(sqrt(extra));
+		  std::cout << "new worst " << info << std::endl;
 		  distortion_string[this_resno1 - min_resno] = info;
 		  atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->name;
 		  distortion_worst[this_resno1 - min_resno] = extra;

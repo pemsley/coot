@@ -1,5 +1,10 @@
 
-   3 items
+   11 items
+
+   o Water removing problem from Takaaki Fukami ::: 1
+
+   o Try different rotamers on Add Alt Conf. Ashley Pike and others
+     ::: 1
 
    o Stereo (hardware, side by side) Add-reps.  Need to update the
      display list objects when the GL context changes. Need to store a
@@ -10,14 +15,37 @@
      to run update_additional_representations() for each model molecule.
      ::: 3
 
-   o Can you fix the geometry analysis plot so that the correct
-     largest geometric outlier is shown? (puntable) ::: 1 
-
-
    o ^G I1  -> spins instead ::: 1
 
    o Addition representations: "All off" button needed.  ::: 1
 
+   o Add clash score to backrub rotamer - consider making dist_crit
+     smaller. Test with residue A19 in low res map ::: 2
+  
+   o Put "Set Matrix" under the R/RC button dialog. ::: 1
+
+   o Can you fix the bonding of the oxygens in tlc 2AB? ::: 1
+
+   o Fix problem of Go To Atom dialog displaying the wrong molecule
+     number on post-go-to-atom-window (see dnotes).  ::: 2 
+ 
+   o Difference map peak in large continuous ligand needs filtering,
+     if possible (making clusters?) - puntable ::: 2
+ 
+   o Add maps function (take a list of maps). ::: 1
+ 
+   o Need to fix up assign sequence and add-terminal-residue so that
+     the sequence offset is taken into account properly. ::: 2 
+ 
+   o As above, with align and mutate. ::: 3
+ 
+   o In Align vs PIR, the resulting dialogs tries to go to the CA atom
+     of the residue, this doesn't work for phosphates, waters etc.  Do
+     better at getting a sensible atom name to go to.
+
+   o Get News seems to be failing for me -> nothing. ::: 1
+
+   o Does PISA (interface) work on various computers? ::: 2
 
 ------
 
@@ -1082,6 +1110,11 @@ c-interface clear_up_moving_atoms...
    o Read a map, Sharpen map -> crash ::: 1
 
 * Fixed.
+
+   o Can you fix the geometry analysis plot so that the correct
+     largest geometric outlier is shown? (puntable) ::: 1 
+
+* Looks OK, after some consideration.
 
 
 -----

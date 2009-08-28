@@ -1709,7 +1709,8 @@ setup_auto_fit_rotamer(short int state) {
 
 // FIXME  (autofit rotamer seems to return a score OK).
 float
-rotamer_score(int imol, const char *chain_id, int res_no, const char *insertion_code) {
+rotamer_score(int imol, const char *chain_id, int res_no, const char *insertion_code,
+	      const char *alt_conf) {
 
    float f = 0;
 
@@ -1721,7 +1722,7 @@ rotamer_score(int imol, const char *chain_id, int res_no, const char *insertion_
 	 float lp = graphics_info_t::rotamer_lowest_probability;
 	 graphics_info_t g;
 	 coot::rotamer_probability_info_t d_score = 
-	    g.get_rotamer_probability(residue_p, mol, lp, 1);
+	    g.get_rotamer_probability(residue_p, alt_conf, mol, lp, 1);
 	 if (d_score.state == coot::rotamer_probability_info_t::OK) 
 	    f = d_score.probability;
       }
@@ -1747,10 +1748,12 @@ int n_rotamers(int imol, const char *chain_id, int resno, const char *ins_code) 
       CResidue *res = graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
       if (res) {
 	 graphics_info_t g;
-#ifdef USE_DUNBRACK_ROTAMERS			
+#ifdef USE_DUNBRACK_ROTAMERS
 	 coot::dunbrack d(res, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
 #else			
-	 coot::richardson_rotamer d(res, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
+	 std::string alt_conf = "";
+	 coot::richardson_rotamer d(res, alt_conf, g.molecules[imol].atom_sel.mol,
+				    g.rotamer_lowest_probability, 0);
 #endif // USE_DUNBRACK_ROTAMERS
 	 
 	 std::vector<float> probabilities = d.probabilities();
@@ -1784,7 +1787,10 @@ SCM get_rotamer_name_scm(int imol, const char *chain_id, int resno, const char *
       if (res) {
 #ifdef USE_DUNBRACK_ROTAMERS
 #else
-	 coot::richardson_rotamer d(res, graphics_info_t::molecules[imol].atom_sel.mol, 0.0, 1);
+	 // we are not passed an alt conf.  We should be, shouldn't we?
+	 std::string alt_conf = "";
+	 coot::richardson_rotamer d(res, alt_conf, graphics_info_t::molecules[imol].atom_sel.mol,
+				    0.0, 1);
 	 coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
 	 r = scm_makfrom0str(prob.rotamer_name.c_str());
 #endif      

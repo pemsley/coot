@@ -28,14 +28,15 @@ namespace coot {
 
    class richardson_rotamer : public rotamer {
    public:
-      richardson_rotamer(CResidue *res) : 
-	 rotamer(res, 0) {};
+      richardson_rotamer(CResidue *res, const std::string &alt_conf_in) : 
+	 rotamer(res, alt_conf_in, 0) {};
       
       richardson_rotamer(CResidue *res,
+			 const std::string &alt_conf,
 			 CMMDBManager *mol,
 			 float lowest_probability,
 			 short int add_extra_PHE_and_TYR_rotamers_flag) :
-	 rotamer(res, add_extra_PHE_and_TYR_rotamers_flag) {
+	 rotamer(res, alt_conf, add_extra_PHE_and_TYR_rotamers_flag) {
 	 set_probability_limit(lowest_probability);
 	 stored_mol = mol;
       }

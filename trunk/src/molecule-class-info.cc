@@ -2249,6 +2249,14 @@ molecule_class_info_t::set_show_additional_representation(int representation_num
    }
 }
 
+void
+molecule_class_info_t::set_show_all_additional_representations(bool on_off_flag) {
+   int n_reps = add_reps.size();
+   for (unsigned int i=0; i<n_reps; i++)
+      set_show_additional_representation(i, on_off_flag);
+} 
+
+
 
 // Return a pair.
 // 

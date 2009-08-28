@@ -1242,7 +1242,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		       [100, 90.16684, 50.707787, 21.423154, 21.423154]):
 		    set_residue_to_rotamer_number(imol, *(residue_attributes + [rotamer_number]))
 		    rotamer_name = get_rotamer_name(imol, *residue_attributes)
-		    rotamer_prob = rotamer_score(imol, *residue_attributes)
+		    rotamer_prob = rotamer_score(imol, *(residue_attributes + [""]))
 		    print " Rotamer %s : %s %s" %(rotamer_number, rotamer_name, rotamer_prob)
 		    self.failUnlessAlmostEqual(rotamer_prob, correct_prob, 3,
 					       "fail on rotamer probability: result: %s %s" %(rotamer_prob, correct_prob)),

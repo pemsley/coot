@@ -226,6 +226,10 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 				   GSList *phs_cell_group); 
 
 
+void
+on_add_rep_all_on_check_button_toggled   (GtkToggleButton       *button,
+					  gpointer         user_data);
+
 
 
 /* ------------------------------------------------------------------------------ */
