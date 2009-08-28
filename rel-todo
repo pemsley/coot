@@ -3,25 +3,13 @@
 
    o Water removing problem from Takaaki Fukami ::: 1
 
-   o Try different rotamers on Add Alt Conf. Ashley Pike and others
-     ::: 1
-
-   o Stereo (hardware, side by side) Add-reps.  Need to update the
-     display list objects when the GL context changes. Need to store a
-     GL display list number for the alternate GL context in side by
-     side mode? 
-
-     When switching stereo contexts creating a new GL context, we need
-     to run update_additional_representations() for each model molecule.
-     ::: 3
-
    o ^G I1  -> spins instead ::: 1
-
-   o Addition representations: "All off" button needed.  ::: 1
 
    o Add clash score to backrub rotamer - consider making dist_crit
      smaller. Test with residue A19 in low res map ::: 2
   
+   o Get News seems to be failing for me -> nothing. ::: 1
+
    o Put "Set Matrix" under the R/RC button dialog. ::: 1
 
    o Can you fix the bonding of the oxygens in tlc 2AB? ::: 1
@@ -43,9 +31,16 @@
      of the residue, this doesn't work for phosphates, waters etc.  Do
      better at getting a sensible atom name to go to.
 
-   o Get News seems to be failing for me -> nothing. ::: 1
-
    o Does PISA (interface) work on various computers? ::: 2
+
+   o Stereo (hardware, side by side) Add-reps.  Need to update the
+     display list objects when the GL context changes. Need to store a
+     GL display list number for the alternate GL context in side by
+     side mode? 
+
+     When switching stereo contexts creating a new GL context, we need
+     to run update_additional_representations() for each model molecule.
+     ::: 3
 
 ------
 
@@ -1116,5 +1111,11 @@ c-interface clear_up_moving_atoms...
 
 * Looks OK, after some consideration.
 
+   o Try different rotamers on Add Alt Conf. Ashley Pike and others
+     ::: 1
+
+* Done.
+
+   o Addition representations: "All off" button needed.  ::: 1
 
 -----
