@@ -564,13 +564,6 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    //    int n_non_H();
    // }
    
-
-   // old
-   // PPCAtom     Hydrogen_atoms = new PCAtom[n_H];
-   // PPCAtom non_Hydrogen_atoms = new PCAtom[n_non_H];
-   //    int iH=0;
-   //    int inH=0;
-
    int imodel; 
    int n_models = SelAtom.mol->GetNumberOfModels(); // models start at number 1
    std::vector<coot::model_bond_atom_info_t> atom_stuff_vec(n_models+1);
