@@ -4823,5 +4823,13 @@ Wed Aug 26 17:18:58 EDT 2009
 
 * No.  The alt conf is not specified in the c-interface.h function (even).
 
+
+----
+Sat Aug 29 06:47:18 BST 2009
+
+   get rid of GTK_ENABLE_BROKEN
+
+
+
 ------
 

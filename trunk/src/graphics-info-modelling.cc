@@ -2312,10 +2312,6 @@ graphics_info_t::execute_torsion_general() {
 				    CResidue *res_local = get_first_res_of_moving_atoms();
 				    if (res_local) {
 
-				       // old style:
-				       // coot::torsion_general tg(res_local, moving_atoms_asc->mol, as);
-				       // torsion_general_tree = tg.GetTree();
-
 				       // save them for later usage (when the mouse is moved)
 				       coot::contact_info contact = coot::getcontacts(*moving_atoms_asc);
 				       torsion_general_contact_indices = contact.get_contact_indices();
@@ -3305,17 +3301,9 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
    mouse_current_y = y;
    double diff = mouse_current_x - GetMouseBeginX();
    diff += mouse_current_y - GetMouseBeginY();
-
    diff *= 0.5;
 
-   std::vector<coot::atom_spec_t> specs_local =
-      graphics_info_t::torsion_general_atom_specs;
-
-   // 20090819 The reverse is done in the atom_tree code now.   
-//    if (torsion_general_reverse_flag) {
-//       std::reverse(specs_local.begin(),
-// 		   specs_local.end());
-//    }
+   std::vector<coot::atom_spec_t> specs_local = graphics_info_t::torsion_general_atom_specs;
 
    short int istat = 1; // failure
    if (! moving_atoms_asc) {
@@ -3324,64 +3312,22 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
       CResidue *residue_p = get_first_res_of_moving_atoms();
       if (residue_p) {
 
-	 if (0) { // debugging that the reverse works.
-	    for (unsigned int i=0; i<specs_local.size(); i++)
-	       std::cout << "local specs " << i << " " << specs_local[i] << std::endl;
-	 }
-// 	 old style 20090815
-// 	 coot::torsion_general tg(residue_p, moving_atoms_asc->mol, specs_local);
-// 	 istat = tg.change_by(diff, &torsion_general_tree); // fiddle with the tree
 	 std::string altconf = chi_angle_alt_conf;
-	 bool fail_with_dictionary = 0; // initiall no fail
 	 try {
-	    std::string monomer_type(residue_p->GetResName());
-	    std::pair<short int, coot::dictionary_residue_restraints_t> p =
-	       Geom_p()->get_monomer_restraints(monomer_type);
-	    
-	    if (p.first) {
-// 	       std::cout << "rotating tree about " << specs_local[1] << " to "
-// 			 << specs_local[2] << std::endl;
-	       coot::atom_tree_t tree(p.second, residue_p, altconf);
-	       tree.rotate_about(specs_local[1].atom_name, specs_local[2].atom_name,
-				 diff*0.04, torsion_general_reverse_flag);
-	       regularize_object_bonds_box.clear_up();
-	       make_moving_atoms_graphics_object(*moving_atoms_asc);
-	       graphics_draw();
-	    } else {
-	       // std::cout << "No restraints" << std::endl;
-	       fail_with_dictionary = 1;
-	    }
+	    // use class variable (previous saved)
+	    int base_atom_index = 0;
+	    coot::atom_tree_t tree(torsion_general_contact_indices, base_atom_index, residue_p, altconf);
+	    tree.rotate_about(specs_local[1].atom_name, specs_local[2].atom_name,
+			      diff*0.04, torsion_general_reverse_flag);
+	    regularize_object_bonds_box.clear_up();
+	    make_moving_atoms_graphics_object(*moving_atoms_asc);
+	    graphics_draw();
 	 }
 	 catch (std::runtime_error rte) {
-	    // std::cout << rte.what() << std::endl; -> "No tree in restraint" everytime the mouse moves
-	    fail_with_dictionary = 1; 
-	 }
-
-	 if (fail_with_dictionary) {
-	    // OK then, lets try with contact indices
-	    try {
-	       // use class variable (previous saved)
-	       int base_atom_index = 0;
-	       coot::atom_tree_t tree(torsion_general_contact_indices, base_atom_index, residue_p, altconf);
-	       tree.rotate_about(specs_local[1].atom_name, specs_local[2].atom_name,
-				 diff*0.04, torsion_general_reverse_flag);
-	       regularize_object_bonds_box.clear_up();
-	       make_moving_atoms_graphics_object(*moving_atoms_asc);
-	       graphics_draw();
-	    }
-	    catch (std::runtime_error rte) {
-	       std::cout << "INFO:: tree by contacts failed too - " << rte.what() << std::endl;
-	    }
+	    std::cout << "INFO:: tree by contacts failed " << rte.what() << std::endl;
 	 } 
       }
    }
-
-   // old style 
-//    if (istat == 0) {
-//       regularize_object_bonds_box.clear_up();
-//       make_moving_atoms_graphics_object(*moving_atoms_asc);
-//       graphics_draw();
-//    }
 }
 
 

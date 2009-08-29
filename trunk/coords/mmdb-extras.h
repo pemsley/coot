@@ -40,6 +40,8 @@
 
 using namespace std;  // ugh.  This should not be here.  FIXME
 
+#include "math.h"
+
 #ifndef MMDB_MANAGER_H
 #define MMDB_MANAGER_H
 #include "mmdb_manager.h"
@@ -142,12 +144,32 @@ namespace coot {
 	id2 = id2_in;
       }
     }; 
-
+    std::vector<std::pair<std::string, realtype> > atom_radii;
+    void setup_atom_radii();
+    realtype get_radius(const std::string &element) const;
   public:
     std::vector<contacts_pair> contacts;
     contact_info(PSContact con_in, int nc) {
       for (int i=0; i<nc; i++) { 
 	contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
+      }
+    }
+    contact_info(PPCAtom atom_selection, PSContact con_in, int nc) {
+      setup_atom_radii();
+      for (int i=0; i<nc; i++) { 
+	CAtom *at_1 = atom_selection[con_in[i].id1];
+	CAtom *at_2 = atom_selection[con_in[i].id2];
+	std::string ele_1 = at_1->element;
+	std::string ele_2 = at_2->element;
+	realtype dx = at_1->x - at_2->x;
+	realtype dy = at_1->y - at_2->y;
+	realtype dz = at_1->z - at_2->z;
+	realtype dist_2 = dx*dx + dy*dy + dz*dz;
+	realtype dist = sqrt(dist_2);
+	realtype r1 = get_radius(ele_1);
+	realtype r2 = get_radius(ele_2);
+	if (dist < (r1 + r2 + 0.1))
+	  contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
       }
     }
 

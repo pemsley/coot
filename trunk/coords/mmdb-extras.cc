@@ -382,7 +382,7 @@ coot::getcontacts(const atom_selection_container_t &asc) {
 			 pscontact, n_contacts,
 			 0, &my_matt, i_contact_group);
 
-   coot::contact_info ci(pscontact, n_contacts);
+   coot::contact_info ci(asc.atom_selection, pscontact, n_contacts);
 
    // Now, do we need to handle MSE extra bonds?
    // 
@@ -435,7 +435,37 @@ coot::contact_info::add_MSE_Se_bonds(const atom_selection_container_t &asc) {
 	 }
       }
    }
+}
+
+void
+coot::contact_info::setup_atom_radii() {
+
+   atom_radii.resize(10);
+   atom_radii[0] = std::pair<std::string, realtype> (" C", 0.9);
+   atom_radii[1] = std::pair<std::string, realtype> (" N", 0.8);
+   atom_radii[2] = std::pair<std::string, realtype> (" O", 0.8);
+   atom_radii[3] = std::pair<std::string, realtype> (" S", 1.0);
+   atom_radii[4] = std::pair<std::string, realtype> ("SE", 1.0);
+   atom_radii[5] = std::pair<std::string, realtype> ("BR", 1.0);
+   atom_radii[6] = std::pair<std::string, realtype> ("CL", 1.0);
+   atom_radii[7] = std::pair<std::string, realtype> ("AS", 1.3);
+   atom_radii[8] = std::pair<std::string, realtype> ("AU", 1.2);
+   atom_radii[9] = std::pair<std::string, realtype> ("BE", 1.2);
+}
+
+realtype
+coot::contact_info::get_radius(const std::string &element) const {
+
+   realtype r = 0.9;
+   for (unsigned int i=0; i<atom_radii.size(); i++) {
+      if (atom_radii[i].first == element) {
+	 r = atom_radii[i].second;
+	 break;
+      } 
+   } 
+   return r;
 } 
+
 
 
 
