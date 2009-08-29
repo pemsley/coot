@@ -652,24 +652,13 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 		     if ((is_from_symmetry_flag == 0) &&
 			 (resname == "MSE" || resname == "MET" || resname == "MSO"
 			  || resname == "CYS" )) {
-			handle_MET_or_MSE_case(non_Hydrogen_atoms[i],
-					       atom_colour_type);
+			handle_MET_or_MSE_case(non_Hydrogen_atoms[i], uddHnd, atom_colour_type);
 		     } else {
 			std::string ele = non_Hydrogen_atoms[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
 			    || ele == "Cl" || ele == "Br" 
 			    || ele == "AS" || ele == " P" || ele == "AU") {
-			   handle_long_bonded_atom(non_Hydrogen_atoms[i],
-						   atom_colour_type);
-			} else { 
-			   col = atom_colour(non_Hydrogen_atoms[i], atom_colour_type);
-			   coot::Cartesian atom(non_Hydrogen_atoms[i]->x,
-						non_Hydrogen_atoms[i]->y,
-						non_Hydrogen_atoms[i]->z);
-	       
-			   addBond(col, atom+small_vec_x, atom-small_vec_x);
-			   addBond(col, atom+small_vec_y, atom-small_vec_y);
-			   addBond(col, atom+small_vec_z, atom-small_vec_z);
+			   handle_long_bonded_atom(non_Hydrogen_atoms[i], uddHnd, atom_colour_type);
 			}
 		     }
 		  } else {
@@ -682,6 +671,26 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 			 << non_Hydrogen_atoms[i] << "\n";
 	    }
 	 }
+
+
+	 // Make the stars...
+	 // 
+	 for (int i=0; i<n_non_H; i++) {
+	    if (non_Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
+	       if (ic == 0) {
+		  // no contact found
+		  col = atom_colour(non_Hydrogen_atoms[i], atom_colour_type);
+		  coot::Cartesian atom(non_Hydrogen_atoms[i]->x,
+				       non_Hydrogen_atoms[i]->y,
+				       non_Hydrogen_atoms[i]->z);
+		  
+		  addBond(col, atom+small_vec_x, atom-small_vec_x);
+		  addBond(col, atom+small_vec_y, atom-small_vec_y);
+		  addBond(col, atom+small_vec_z, atom-small_vec_z);
+	       }
+	    }
+	 }
+
 
 	 if (do_bonds_to_hydrogens && (n_H > 0)) {
 	    for (int i=0; i<n_H; i++) {
@@ -713,6 +722,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
 void
 Bond_lines_container::handle_MET_or_MSE_case(PCAtom mse_atom,
+					     int udd_handle, 
 					     int atom_colour_type) {
 
    // std::cout << "Handling MET/MSE case for atom " << mse_atom << std::endl;
@@ -747,6 +757,9 @@ Bond_lines_container::handle_MET_or_MSE_case(PCAtom mse_atom,
 		  if (bond_length < 3.0) { // surely not longer than this?
 		     addBond(col,  cart_at1, bond_mid_point);
 		     addBond(colc, bond_mid_point, cart_at2);
+		     // mark atom as bonded.
+		     residue_atoms[i]->PutUDData(udd_handle, 1);
+		     mse_atom->PutUDData(udd_handle, 1);
 		  }
 	       }
 	    }
@@ -774,6 +787,9 @@ Bond_lines_container::handle_MET_or_MSE_case(PCAtom mse_atom,
 	       int colc = atom_colour(residue_atoms[i], atom_colour_type);
 	       addBond(col,  cart_at1, bond_mid_point);
 	       addBond(colc, bond_mid_point, cart_at2);
+	       // mark atom as bonded.
+	       residue_atoms[i]->PutUDData(udd_handle, 1);
+	       mse_atom->PutUDData(udd_handle, 1);
 	    }
 	 }
       }
@@ -782,6 +798,7 @@ Bond_lines_container::handle_MET_or_MSE_case(PCAtom mse_atom,
 
 void
 Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
+					      int udd_handle,
 					      int atom_colour_type) {
 
    float bond_limit = 2.1; // A
@@ -828,6 +845,9 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
 		  addBond(col,  atom_pos, bond_mid_point);
 		  addBond(colc, bond_mid_point, res_atom_pos);
 		  bond_added_flag = 1;
+		  // mark the atom as bonded.
+		  atom->PutUDData(udd_handle, 1);
+		  residue_atoms[i]->PutUDData(udd_handle, 1);
 	       }
 	    }
 	 }

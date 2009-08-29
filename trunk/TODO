@@ -539,7 +539,6 @@ Punted from 0.6:
     residue triples - returning 3 residues.
     ::: 3
 
-
    o consider applying 0001-Replace-goosh-module-with-os-process-from-guile-lib.patch
 
    o consider guile-lib's unit test, not greg.
@@ -555,6 +554,7 @@ Punted from 0.6:
      i.e.  it should do a triple refine and look at the chi squareds.
      Keep doing that with different weights until we get to 1.0.
 
+   o Find Waters: why does it miss some nice densities sometimes?
 
 
  ------

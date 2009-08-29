@@ -272,8 +272,8 @@ class Bond_lines_container {
 				      int udd_handle);
    void construct_from_model_links(CModel *model, int atom_colour_type);
 
-   void handle_MET_or_MSE_case (PCAtom mse_atom, int atom_colour_type);
-   void handle_long_bonded_atom(PCAtom     atom, int atom_colour_type);
+   void handle_MET_or_MSE_case (PCAtom mse_atom, int udd_handle, int atom_colour_type);
+   void handle_long_bonded_atom(PCAtom     atom, int udd_handle, int atom_colour_type);
 
    // void check_atom_limits(atom_selection_container_t SelAtoms) const;
    
