@@ -440,18 +440,26 @@ coot::contact_info::add_MSE_Se_bonds(const atom_selection_container_t &asc) {
 void
 coot::contact_info::setup_atom_radii() {
 
-   atom_radii.resize(10);
-   atom_radii[0] = std::pair<std::string, realtype> (" C", 0.9);
-   atom_radii[1] = std::pair<std::string, realtype> (" N", 0.8);
-   atom_radii[2] = std::pair<std::string, realtype> (" O", 0.8);
-   atom_radii[3] = std::pair<std::string, realtype> (" S", 1.0);
-   atom_radii[3] = std::pair<std::string, realtype> (" P", 1.0);
-   atom_radii[4] = std::pair<std::string, realtype> ("SE", 1.0);
-   atom_radii[5] = std::pair<std::string, realtype> ("BR", 1.0);
-   atom_radii[6] = std::pair<std::string, realtype> ("CL", 1.0);
-   atom_radii[7] = std::pair<std::string, realtype> ("AS", 1.3);
-   atom_radii[8] = std::pair<std::string, realtype> ("AU", 1.2);
-   atom_radii[9] = std::pair<std::string, realtype> ("BE", 1.2);
+   atom_radii.resize(19);
+   atom_radii[ 0] = std::pair<std::string, realtype> (" C", 0.7);
+   atom_radii[ 1] = std::pair<std::string, realtype> (" N", 0.65);
+   atom_radii[ 2] = std::pair<std::string, realtype> (" O", 0.6);
+   atom_radii[ 3] = std::pair<std::string, realtype> (" H", 0.35);
+   atom_radii[ 4] = std::pair<std::string, realtype> (" S", 0.9);
+   atom_radii[ 5] = std::pair<std::string, realtype> (" P", 1.0);
+   atom_radii[ 6] = std::pair<std::string, realtype> ("SE", 1.15);
+   atom_radii[ 7] = std::pair<std::string, realtype> ("BR", 1.15);
+   atom_radii[ 8] = std::pair<std::string, realtype> ("CL", 1.0);
+   atom_radii[ 9] = std::pair<std::string, realtype> (" I", 1.4);
+   atom_radii[10] = std::pair<std::string, realtype> (" F", 0.5);
+   atom_radii[11] = std::pair<std::string, realtype> (" K", 2.2);
+   atom_radii[12] = std::pair<std::string, realtype> ("AS", 1.3);
+   atom_radii[13] = std::pair<std::string, realtype> ("NA", 1.8);
+   atom_radii[14] = std::pair<std::string, realtype> ("MG", 1.5);
+   atom_radii[15] = std::pair<std::string, realtype> ("AU", 1.4);
+   atom_radii[16] = std::pair<std::string, realtype> ("BE", 1.05);
+   atom_radii[17] = std::pair<std::string, realtype> ("FE", 1.4);
+   atom_radii[18] = std::pair<std::string, realtype> ("ZN", 1.35);
 }
 
 realtype
