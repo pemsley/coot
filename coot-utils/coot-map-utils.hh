@@ -144,6 +144,10 @@ namespace coot {
 		     const clipper::Xmap<float> &xmap_in_2,
 		     float map_scale);
 
+      // like above, but average
+      clipper::Xmap<float>
+      average_map(const std::vector<std::pair<clipper::Xmap<float>, float> > &maps_and_scales_vec);
+
       // Spin the torsioned atom round the rotatable bond and find the
       // orientation (in degrees) from the current position that is in
       // the highest density.

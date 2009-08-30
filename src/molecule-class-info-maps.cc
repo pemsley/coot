@@ -1551,16 +1551,22 @@ molecule_class_info_t::make_map_from_cif_generic(int imol_in,
    
    cif.import_hkl_data(myfsigf);
    cif.close_read();
+   clipper::Spacegroup sg = myfsigf.spacegroup();
+   if (! sg.is_null()) { 
 
-   std::cout << "make_map_from_cif: Read " << mydata.num_reflections()
-	     << " from CIF file." << std::endl;
+      std::cout << "make_map_from_cif: Read " << mydata.num_reflections()
+		<< " from CIF file." << std::endl;
 
-   if (mydata.num_reflections() == 0) {
-      std::cout << "Error reading cif file, can't make a map" << std::endl;
-      return -1; // Error
+      if (mydata.num_reflections() == 0) {
+	 std::cout << "Error reading cif file, can't make a map" << std::endl;
+	 return -1; // Error
+      }
+      return calculate_sfs_and_make_map(imol_in, cif_file_name, myfsigf,
+					SelAtom, is_2fofc_type);
+   } else {
+      std::cout << "ERROR:: null space group in make_map_from_cif_generic() " << std::endl;
+      return -1;
    }
-   return calculate_sfs_and_make_map(imol_in, cif_file_name, myfsigf,
-				     SelAtom, is_2fofc_type);
 }
    
 int
@@ -1585,7 +1591,14 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 
    // Calculated structure factors go here:
    const clipper::HKL_info& hkls = myfsigf.hkl_info();
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(myfsigf.spacegroup(),myfsigf.cell(),myfsigf.hkl_sampling());
+   clipper::Spacegroup sg = myfsigf.spacegroup();
+   if (sg.is_null()) { 
+      std::cout << "ERROR:: spacegroup from cif data is null" << std::endl;
+      return -1;
+   } 
+      
+   
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(sg, myfsigf.cell(),myfsigf.hkl_sampling());
    // map coefficients ((combined Fo and scaled Fc) and calc phi) go here:
 
    clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(myfsigf.spacegroup(),myfsigf.cell(),myfsigf.hkl_sampling());

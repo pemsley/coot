@@ -4830,6 +4830,13 @@ Sat Aug 29 06:47:18 BST 2009
    get rid of GTK_ENABLE_BROKEN
 
 
+---
+Sun Aug 30 10:21:50 BST 2009
+
+   JED request:
+   extend the output capabilities of export-map so that it covers a
+   molecule (say).  "auto-extend".
+
 
 ------
 

@@ -1013,6 +1013,23 @@ int rotate_map_round_screen_axis_z(float r_degrees);
   Return -1 on failure. */
 int difference_map(int imol1, int imol2, float map_scale);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief make an average map from the map_number_and_scales (which
+  is a list of pairs (list map-number scale-factor)) (the scale
+  factors are typically 1.0 of course). The output map is in the same
+  grid as the first (valid) map.  Return -1 on failure to make an
+  averaged map, otherwise return the new map molecule number. */
+int average_map_scm(SCM map_number_and_scales);
+#endif 
+#ifdef USE_PYTHON
+/*! \brief make an average map from the map_number_and_scales (which
+  is a list of pairs (list map-number scale-factor)) (the scale factors
+  are typically 1.0 of course). */
+int average_map_py(PyObject *map_number_and_scales);
+#endif 
+#endif 
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

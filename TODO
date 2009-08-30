@@ -556,6 +556,8 @@ Punted from 0.6:
 
    o Find Waters: why does it miss some nice densities sometimes?
 
+   o Use libcurl to get URLs.  It does proxies.  Stop using nethttp.
+
 
  ------
 

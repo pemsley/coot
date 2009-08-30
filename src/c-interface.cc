@@ -5943,6 +5943,66 @@ int difference_map(int imol1, int imol2, float map_scale) {
    return r;
 }
 
+#ifdef USE_GUILE
+/*! \brief make an average map from the map_number_and_scales (which
+  is a list of pairs (list map-number scale-factor)) (the scale factor
+  are typically 1.0 of course). */
+int average_map_scm(SCM map_number_and_scales) {
+
+   int r = -1;
+   SCM n_scm = scm_length(map_number_and_scales);
+   int n = scm_to_int(n_scm);
+   std::vector<std::pair<clipper::Xmap<float>, float> > maps_and_scales_vec;
+   for (unsigned int i=0; i<n; i++) {
+      SCM number_and_scale = scm_list_ref(map_number_and_scales, SCM_MAKINUM(i));
+      SCM ns_scm = scm_length(number_and_scale);
+      int ns = scm_to_int(ns_scm);
+      if (ns == 2) {
+	 SCM map_number_scm = scm_list_ref(number_and_scale, SCM_MAKINUM(0));
+	 SCM map_scale_scm  = scm_list_ref(number_and_scale, SCM_MAKINUM(1));
+	 if (scm_is_true(scm_integer_p(map_number_scm))) {
+	    if (scm_is_true(scm_number_p(map_scale_scm))) {
+	       int map_number = scm_to_int(map_number_scm);
+	       if (is_valid_map_molecule(map_number)) {
+		  float scale = scm_to_double(map_scale_scm);
+		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap_list[0], scale);
+		  maps_and_scales_vec.push_back(p);
+	       } else {
+		  std::cout << "Invalid map number " << map_number << std::endl;
+	       } 
+	    } else {
+	       std::cout << "Bad scale" << scm_to_locale_string(display_scm(map_scale_scm))
+			 << std::endl;
+	    }
+	 } else {
+	    std::cout << "Bad map number " << scm_to_locale_string(display_scm(map_number_scm))
+		      << std::endl;
+	 } 
+      }
+   }
+   if (maps_and_scales_vec.size() > 0) {
+      clipper::Xmap<float> average_map = coot::util::average_map(maps_and_scales_vec);
+      int imol = graphics_info_t::create_molecule();
+      std::string name = "averaged-map";
+      graphics_info_t::molecules[imol].new_map(average_map, name);
+      r = imol;
+      graphics_draw();
+   } 
+   return r;
+}
+#endif
+
+
+#ifdef USE_PYTHON
+/*! \brief make an average map from the map_number_and_scales (which
+  is a list of pairs (list map-number scale-factor)) (the scale factors
+  are typically 1.0 of course). */
+int average_map_py(PyObject *map_number_and_scales) {
+   int r = -1;
+   return r;
+} 
+#endif 
+
 
 
 
@@ -6955,7 +7015,10 @@ int read_cif_data(const char *filename, int imol_coordinates) {
       // std::cout << "DEBUG:: in read_cif_data, istat is " << istat << std::endl;
       if (istat != -1) { 
 	 graphics_draw();
-      }
+      } else {
+	 g.erase_last_molecule();
+	 imol = -1;
+      } 
       return imol;
    }
    return -1; // which is status in an error
@@ -6968,6 +7031,7 @@ int read_cif_data(const char *filename, int imol_coordinates) {
 // 
 int read_cif_data_2fofc_map(const char *filename, int imol_coordinates) {
 
+   int imol = -1; 
       // This function is the .cif equivalent of
       // c.f. read_phs_and_coords_and_make_map or make_and_draw_map,
       // map_fill_from_mtz.
@@ -6990,17 +7054,19 @@ int read_cif_data_2fofc_map(const char *filename, int imol_coordinates) {
 
       graphics_info_t g; 
 
-      int imol = g.create_molecule();
+      imol = g.create_molecule();
       int istat = g.molecules[imol].make_map_from_cif_2fofc(imol,
 							    std::string(filename),
 							    imol_coordinates);
 
       if (istat != -1) { 
 	 graphics_draw();
-	 return imol;
-      }
-      return -1; // an error
+      } else {
+	 g.erase_last_molecule();
+	 imol = -1; 
+      } 
    }
+   return imol;
 }
 
 
