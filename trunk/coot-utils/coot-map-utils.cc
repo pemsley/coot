@@ -503,6 +503,44 @@ coot::util::difference_map(const clipper::Xmap<float> &xmap_in_1,
    return std::pair<clipper::Xmap<float>, float> (r, std_dev); 
 }
 
+clipper::Xmap<float>
+coot::util::average_map(const std::vector<std::pair<clipper::Xmap<float>, float> > &maps_and_scales_vec) {
+   clipper::Xmap<float> rmap;
+
+   if (maps_and_scales_vec.size() > 0) {
+      // set the first map
+      rmap = maps_and_scales_vec[0].first;
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = rmap.first(); !ix.last(); ix.next())  {
+	 rmap[ix] *= maps_and_scales_vec[0].second;
+      }
+      for (unsigned int iothers=1; iothers<maps_and_scales_vec.size(); iothers++) {
+	 for (ix = rmap.first(); !ix.last(); ix.next())  {
+	    clipper::Coord_map  cm1 = ix.coord().coord_map();
+	    clipper::Coord_frac cf1 = cm1.coord_frac(rmap.grid_sampling());
+	    clipper::Coord_orth co  = cf1.coord_orth(rmap.cell());
+	    clipper::Coord_frac cf2 =  co.coord_frac(maps_and_scales_vec[iothers].first.cell());
+	    clipper::Coord_map  cm2 = cf2.coord_map(maps_and_scales_vec[iothers].first.grid_sampling());
+	    float map_2_val;
+	    clipper::Interp_cubic::interp(maps_and_scales_vec[iothers].first, cm2, map_2_val);
+	    rmap[ix] += map_2_val * maps_and_scales_vec[iothers].second;
+	 }
+      }
+      float scale_sum = 0.0;
+      for (unsigned int i=0; i<maps_and_scales_vec.size(); i++) {
+	 scale_sum += maps_and_scales_vec[i].second;
+      }
+      if (scale_sum != 0.0) { 
+	 float sf = 1.0/scale_sum;
+	 for (ix = rmap.first(); !ix.last(); ix.next())  {
+	    rmap[ix] *= sf;
+	 }
+      }
+   }
+   return rmap;
+} 
+
+
 // Delete atoms that don't have this alt conf (or "" alt conf).
 void
 coot::util::backrub_residue_triple_t::trim_this_residue_atoms() {
