@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <iostream>
 #include "catcheck.hh"
+#include <algorithm> // for sort
 
 int main(int argc, char **argv) {
 
