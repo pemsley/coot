@@ -1989,6 +1989,7 @@ class molecule_class_info_t {
    short int add_OXT_to_residue(CResidue *residue);
    short int add_OXT_to_residue(int reso, const std::string &insertion_code,
 				const std::string &chain_id); // external usage
+   bool residue_has_oxt_p(CResidue *residue) const; // used by above.  Dont add if returns true.
 
    std::pair<short int, int>  last_residue_in_chain(const std::string &chain_id) const;
    std::pair<short int, int> first_residue_in_chain(const std::string &chain_id) const;

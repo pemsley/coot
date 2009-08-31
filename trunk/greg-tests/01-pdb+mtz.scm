@@ -970,7 +970,7 @@
 	     #t)))))
 
 
-(greg-testcase "OXT is added before TER record"  #t
+(greg-testcase "OXT is added before TER record - add only one"  #t
    (lambda () 
 
      (let ((imol (greg-pdb "test-TER-OXT.pdb"))
@@ -981,30 +981,51 @@
 	     (format #t "Failed to read test-TER-OXT.pdb")
 	     (throw 'fail)))
 	   
-       (add-OXT-to-residue imol 14 "" "A")
-       (write-pdb-file imol opdb)
-       (call-with-input-file opdb
-	 (lambda (port)
-	   (let loop ((line (read-line port))
-		      (count 0)
-		      (ter-line #f)
-		      (oxt-line #f))
+       (let ((add-status-1 (add-OXT-to-residue imol 14 "" "A"))
+	     (add-status-2 (add-OXT-to-residue imol 14 "" "A")))
 
-	     (cond
-	      ((eof-object? line) #f) ; should not have got here!
-	      ((string=? (substring line 0 3) "END")
-	       #f)  ; should not have got here!
-	      ((string=? (substring line 0 3) "TER")
-	         (format #t "found TER ~s~%" line)
+	 ;; The second add should be ignored, only 1 OXT allowed
+	 ;; per residue.
+
+	 (if (not (= add-status-1 1))
+	     (begin 
+	       (format #t "   add-status-1 not success - fail~%")
+	       (throw 'fail)))
+
+	 (if (not (= add-status-2 0))
+	     (begin 
+	       (format #t "   add-status-2 was success - fail~%")
+	       (throw 'fail)))
+
+
+	 (write-pdb-file imol opdb)
+	 (call-with-input-file opdb
+	   (lambda (port)
+	     (let loop ((line (read-line port))
+			(count 0)
+			(ter-line #f)
+			(oxt-line #f))
+
+	       (cond
+		((eof-object? line) #f) ; should not have got here!
+		((string=? (substring line 0 3) "END")
+		 #f)  ; should not have got here!
+		((string=? (substring line 0 3) "TER")
+		 (format #t "found TER ~s~%" line)
 		 (if (number? oxt-line)
 		     #t; TER happens after OXT line
 		     (loop (read-line port) (+ count 1) count oxt-line)))
-	      ((string=? (substring line 13 16) "OXT")
-	       (if (number? ter-line)
-		   #f ; fail because TER has already happened!
-		   (loop (read-line port) (+ count 1) ter-line count)))
-	      (else 
-	       (loop (read-line port) (+ count 1) ter-line oxt-line)))))))))
+		((string=? (substring line 13 16) "OXT")
+		 (if (number? ter-line)
+		     #f ; fail because TER has already happened!
+		     (if (number? oxt-line)
+			 (begin
+			   (format #t "   Encountered another OXT! - fail~%")
+			   #f) ; Fail because there an OXT was encountered before this one!
+			 (loop (read-line port) (+ count 1) ter-line count))))
+		(else 
+		 (loop (read-line port) (+ count 1) ter-line oxt-line))))))))))
+
 
 
 

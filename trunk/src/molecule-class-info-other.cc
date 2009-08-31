@@ -1926,6 +1926,12 @@ molecule_class_info_t::add_OXT_to_residue(CResidue *residue) {
 	 std::cout << "WARNING: no atoms in this residue" << std::endl;
       } else {
 
+	 bool has_already = residue_has_oxt_p(residue);
+	 if (has_already) {
+	    std::cout << "WARNING:: This residue already has an OXT - aborting\n";
+	    return 0;
+	 }
+
 	 CAtom *n_atom = NULL;  
 	 CAtom *c_atom = NULL; 
 	 CAtom *ca_atom = NULL; 
@@ -2020,7 +2026,29 @@ molecule_class_info_t::add_OXT_to_residue(CResidue *residue) {
       }
    }
    return istatus;
+}
+
+// used by above.  Dont add if returns true.
+bool
+molecule_class_info_t::residue_has_oxt_p(CResidue *residue) const {
+
+   bool r = 0;
+
+   if (residue) {
+      PPCAtom residue_atoms;
+      int n_residue_atoms;
+      residue->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int i=0; i<n_residue_atoms; i++) {
+	 std::string atname(residue_atoms[i]->name);
+	 if (atname == " OXT") {
+	    r = 1;
+	    break;
+	 } 
+      } 
+   } 
+   return r;
 } 
+
 
 
 int
