@@ -3282,6 +3282,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_z:
       if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
 	 graphics_info_t::go_to_residue_keyboarding_string += "z";
+      } else { 
 	 graphics_info_t::z_is_pressed = 1;
 	 if (graphics_info_t::control_is_pressed) { 
 	    if (graphics_info_t::draw_baton_flag)
