@@ -3366,6 +3366,7 @@ and
 * Difference Map Colouring::
 * Map Sampling::
 * Make a Difference Map::
+* Make an Averaged Map::
 * Dragged Map::
 * Dynamic Map Sampling and Display Size::
 * Skeletonization::
@@ -3604,8 +3605,24 @@ scheme on ``Edit -> Map Colour''.
 
 Using the ``Make a Difference Map'' function in the Extensions menu, one
 can make a difference from two arbitrary maps.  The maps need not be on
-the same griding, or in the same group even.  The resulting map will be
-on the same griding and space group as the ``Reference'' map.
+the same griding, or in the same space group even.  The resulting map
+will be on the same griding and space group as the ``Reference'' map.
+
+@node    Make an Averaged Map
+@section Make an Averaged Map
+@cindex average map
+
+There is a scripting interface to the generation of map averages.  As
+above, the maps need not be on the same grid or in the same space group.
+The resulting map will have the same gridding and space group as the
+first map in the list.  Typical usage:
+
+@code{(average-map '((1 1.0) (2 1.0))))}
+
+The arguement to @code{(average-map} is a list of lists, each list
+element is a list of the map number and a weighting factor (1.0 in this
+case).
+
 
 @node    Map Sampling
 @section Map Sampling

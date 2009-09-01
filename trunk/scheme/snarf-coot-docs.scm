@@ -50,6 +50,7 @@
 (define origin-pre-shift-scm #f)
 (define alignment-mismatches-scm #f)
 (define rigid-body-refine-by-residue-ranges-scm #f)
+(define average-map-scm #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")
