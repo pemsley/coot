@@ -11,6 +11,12 @@
  
    o Difference map peak in large continuous ligand needs filtering,
      if possible (making clusters?) - puntable ::: 2
+
+   o All molecule refinement falls over at the end sometimes - missing
+     residue? ::: 1
+
+   o Random-looking crash on multi-refine with Ramachandran
+     optimisation. ::: 2 
  
    o Get News seems to be failing for me -> nothing. ::: 1
 
@@ -22,6 +28,7 @@
    o In Align vs PIR, the resulting dialogs tries to go to the CA atom
      of the residue to delete, this doesn't work for phosphates,
      waters etc.  Do better at getting a sensible atom name to go to.
+     ::: 2
 
    o Does PISA (interface) work on various computers? ::: 2
 

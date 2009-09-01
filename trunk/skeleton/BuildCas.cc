@@ -25,7 +25,7 @@
 //#endif
 #include "coot-sysdep.h"
 #include "clipper/mmdb/clipper_mmdb.h" // for clipper mmdb stuff (obviously)
-                                       // convert_to_atoms_internal().
+                               // convert_to_atoms_internal().
 
 #include "BuildCas.h"  // contains Cartesian.h needed by graphical_skel.h
 
