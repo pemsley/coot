@@ -43,6 +43,22 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
    std::vector<float> pr = r_rotamer.probabilities();
    int n_rotatmers = pr.size();
 
+
+   // First, where about in space is this residue centred?  Let's use
+   // that to do an atom selection and a generation of the molecule
+   // for a sphere of residues/atoms.  We can then use these sphere atoms to score the clashes 
+
+   
+   clipper::Coord_orth rc = rotamer_residue_centre();
+   float rr = residue_radius(rc);
+   float rrr = rr + 6.0; // guess
+   int SelectionHandle = stored_mol->NewSelection();
+   
+   stored_mol->SelectSphere(SelectionHandle, STYPE_ATOM, rc.x(), rc.y(), rc.z(), rrr, SKEY_OR);
+   PPCAtom sphere_atoms = 0;
+   int n_sphere_atoms = 0;
+   stored_mol->GetSelIndex(SelectionHandle, sphere_atoms, n_sphere_atoms);
+
    atom_selection_container_t stored_mol_asc = make_asc(stored_mol);
    for (unsigned int irot=0; irot<n_rotatmers; irot++) {
       // std::cout << "rotamer number " << irot << std::endl;
@@ -51,15 +67,18 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
 	 double rotation_angle = vector_rotation_range * double(ivr)/double(n_vr);
 	 coot::minimol::fragment frag = make_test_fragment(r, rotation_angle);
 	 float f = score_fragment(frag);
-	 float cs = coot::get_clash_score(frag, stored_mol_asc);
+	 // float cs = coot::get_clash_score(frag, stored_mol_asc);
+	 float cs = get_clash_score(frag, sphere_atoms, n_sphere_atoms);
 
-	 // the clash score is large and positive for big clashes.  1/240 bring
+	 // the clash score is large and positive for big clashes.  
 	 // clash score on to the same scale as density fit.
-	 float total_score =  0.1 * -0.00417 * cs + f;
-// 	 std::cout << "   angle: " << rotation_angle << " density score " << f
-// 		   << "  clash score " << cs << " total " << total_score << std::endl;
+	 float total_score =  -0.02 * cs + f;
+//  	 std::cout << "   angle: " << rotation_angle << " density score " << f
+//  		   << "  clash score " << cs << " total " << total_score << std::endl;
 	 if (total_score > best_score) {
-	    // std::cout << "       that was a better score " << std::endl;
+// 	    std::cout << "       that was a better score " << std::endl;
+// 	    std::cout << "   better score density-score: " << f << "  clash-score: "
+// 		      << cs << "  total: " << total_score << std::endl;
 	    best_score = total_score;
 	    best_frag  = frag;
 	 }
@@ -74,7 +93,8 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
    } else {
       std::string mess = "  Failed to get a good fitting result";
       throw std::runtime_error(mess);
-   } 
+   }
+
    return std::pair<coot::minimol::molecule, float> (mol, best_score);
 }
 
@@ -86,7 +106,7 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
 coot::minimol::fragment
 coot::backrub::make_test_fragment(CResidue *r, double rotation_angle) const {
 
-   coot::minimol::fragment f;
+   coot::minimol::fragment f(chain_id);
    std::vector<std::string> prev_res_atoms;
    std::vector<std::string> next_res_atoms;
 
@@ -153,6 +173,52 @@ coot::backrub::make_test_fragment(CResidue *r, double rotation_angle) const {
    }
    return f;
 }
+
+clipper::Coord_orth
+coot::backrub::rotamer_residue_centre() const {
+
+   PPCAtom residue_atoms;
+   int n_residue_atoms;
+   orig_this_residue->GetAtomTable(residue_atoms, n_residue_atoms);
+   float sum_x=0, sum_y=0, sum_z=0;
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      sum_x += residue_atoms[iat]->x;
+      sum_y += residue_atoms[iat]->y;
+      sum_z += residue_atoms[iat]->z;
+   }
+   if (n_residue_atoms > 0) {
+      float inv = 1.0/float(n_residue_atoms);
+      clipper::Coord_orth pt(sum_x*inv, sum_y*inv, sum_z*inv);
+      return pt;
+   } else {
+      return clipper::Coord_orth(0,0,0);
+   }
+} 
+
+float
+coot::backrub::residue_radius(const clipper::Coord_orth &rc) {
+
+   float r = 0; 
+
+   PPCAtom residue_atoms;
+   int n_residue_atoms;
+   orig_this_residue->GetAtomTable(residue_atoms, n_residue_atoms);
+   float sum_x=0, sum_y=0, sum_z=0;
+   float longest_length = 0.0;
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      clipper::Coord_orth pt(residue_atoms[iat]->x - rc.x(),
+			     residue_atoms[iat]->y - rc.y(),
+			     residue_atoms[iat]->z - rc.z());
+      float this_length_sq = pt.lengthsq();
+      if (this_length_sq > longest_length) {
+	 longest_length = this_length_sq;
+	 r = sqrt(longest_length);
+      } 
+   }
+
+   return r;
+} 
+
 
 
 float
@@ -267,7 +333,7 @@ coot::get_clash_score(const coot::minimol::molecule &a_rotamer,
 
    float score = 0;
    // float dist_crit = 2.7;
-   float dist_crit = 3.0;
+   float dist_crit = 2.1;
 
    // First, where is the middle of the rotamer residue atoms and what
    // is the mean and maximum distance of coordinates from that point?
@@ -302,20 +368,26 @@ coot::get_clash_score(const coot::minimol::molecule &a_rotamer,
 	       for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
 		  for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
 		     d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos,atom_sel_atom);
+		     std::cout << "  d_atom " << d_atom << "\n";
 		     if (d_atom < dist_crit) {
 			int atom_sel_atom_resno = asc.atom_selection[i]->GetSeqNum();
 			std::string atom_sel_atom_chain(asc.atom_selection[i]->GetChainID());
 
+			std::cout << "comparing rotamer chain :" << a_rotamer[ifrag].fragment_id << ": this res chain "
+				  << atom_sel_atom_chain << " and resnos "
+				  << ires << " with this resno " << atom_sel_atom_resno << std::endl;
 			if (! ((ires == atom_sel_atom_resno) &&
 			       (a_rotamer[ifrag].fragment_id == atom_sel_atom_chain)) ) {
 			   if ( (a_rotamer[ifrag][ires][iat].name != " N  ") &&
 				(a_rotamer[ifrag][ires][iat].name != " C  ") &&
 				(a_rotamer[ifrag][ires][iat].name != " CA ") &&
 				(a_rotamer[ifrag][ires][iat].name != " O  ") &&
-				(a_rotamer[ifrag][ires][iat].name != " H  ") ) { 
+				(a_rotamer[ifrag][ires][iat].name != " H  ") ) {
 			      badness = 100.0 * (1.0/d_atom - 1.0/dist_crit);
-			      if (badness > 100.0)
-				 badness = 100.0;
+			      std::cout << "adding badness " << badness << " for "
+					<<  asc.atom_selection[i] << "\n";
+ 			      if (badness > 100.0)
+ 				 badness = 100.0;
 			      score += badness;
 			   }
 			}
@@ -328,3 +400,80 @@ coot::get_clash_score(const coot::minimol::molecule &a_rotamer,
    }
    return score;
 } 
+
+
+// How are clashes scored?  Hmmm... well, I think no clashes at all should have a score
+// of 0.0 (c.f. auto_best_fit_rotamer()).  I think a badly crashing residue should have a
+// score of around 1000.  A single 2.0A crash will have a score of 16.7 and a 1.0A crash
+// 66.7.
+//
+//
+// Uses class data orig_next_residue etc.
+//
+float
+coot::backrub::get_clash_score(const coot::minimol::molecule &a_rotamer,
+			       PPCAtom atom_selection, int n_sphere_atoms) const {
+
+   // Clashes to that are to H bonders have a different dist_crit
+   // (smaller).  Tested on both atoms not being carbon (for now).
+   // 
+   float clash_score = 0.0;
+   double dist_crit = 3.2;
+   double dist_crit_H_bonder = 2.5; 
+   double dist_crit_sq = dist_crit * dist_crit;
+   double dist_crit_H_bonder_sq = dist_crit_H_bonder * dist_crit_H_bonder;
+   std::pair<double, clipper::Coord_orth> rotamer_info = a_rotamer.get_pos();
+   double max_dev_residue_pos = rotamer_info.first;
+   clipper::Coord_orth mean_residue_pos = rotamer_info.second;
+   int resno_1 = orig_prev_residue->GetSeqNum();
+   int resno_2 = orig_this_residue->GetSeqNum();
+   int resno_3 = orig_next_residue->GetSeqNum();
+   if (rotamer_info.first < 0.0) {
+      // there were no atoms then
+      std::cout << "ERROR: clash score: there are no atoms in the residue" << std::endl;
+   } else {
+      
+      for (int i=0; i<n_sphere_atoms; i++) {
+	 clipper::Coord_orth atom_sel_atom_pos(atom_selection[i]->x,
+					       atom_selection[i]->y,
+					       atom_selection[i]->z);
+	 int atom_sel_resno = atom_selection[i]->GetSeqNum();
+	 std::string atom_sel_atom_chain(atom_selection[i]->GetChainID());
+	 std::string atom_sel_ele = atom_selection[i]->element;
+	 bool count_it = 1;
+	 if (chain_id == atom_sel_atom_chain) {
+	    if (atom_sel_resno==resno_1 || atom_sel_resno==resno_2 || atom_sel_resno==resno_3) {
+	       count_it = 0;
+	    }
+	 }
+	 if (count_it) {
+	    for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
+	       for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
+		  for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
+		     double dlsq = (a_rotamer[ifrag][ires][iat].pos-atom_sel_atom_pos).lengthsq();
+		     if (dlsq <= 0.0)
+			dlsq == 0.001; 
+		     if (dlsq < dist_crit_sq) {
+			// We take off  1.0/dist_crit_sq so that the clash score goes to 0 at dist_crit.
+			float extra_clash_score = 100 * (1.0/dlsq - 1.0/dist_crit_sq);
+			if (atom_sel_ele != " C" && a_rotamer[ifrag][ires][iat].element != " C") {
+			   if (dlsq > dist_crit_H_bonder_sq)
+			      extra_clash_score = 0.0;
+			   else
+			      extra_clash_score = 100 * (1.0/dlsq - 1.0/dist_crit_H_bonder_sq);
+			}
+			clash_score += extra_clash_score;
+			if (0) 
+			   std::cout << "   really adding badness " << extra_clash_score << " for distance "
+				     << sqrt(dlsq) << " \t" << atom_selection[i] << " to "
+				     << ires << " " << a_rotamer[ifrag][ires][iat].name
+				     << std::endl;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return clash_score;
+}

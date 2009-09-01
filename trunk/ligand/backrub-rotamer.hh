@@ -33,6 +33,7 @@ namespace coot {
    float get_clash_score(const coot::minimol::molecule &a_rotamer,
 			 atom_selection_container_t asc);
 
+
    class backrub {
       CResidue *orig_this_residue;
       CResidue *orig_prev_residue;
@@ -50,6 +51,15 @@ namespace coot {
       minimol::residue
       make_residue_include_only(CResidue *orig_prev_residue,
 				const std::vector<std::string> &prev_res_atoms) const;
+      clipper::Coord_orth rotamer_residue_centre() const;
+      float residue_radius(const clipper::Coord_orth &rc);
+
+      // do a check of the residue numbers and chaid id so that "same
+      // residue" clashes are not counted.
+      float get_clash_score(const coot::minimol::molecule &a_rotamer,
+			    PPCAtom sphere_atoms, int n_sphere_atoms) const;
+
+      
       
    public:
 
