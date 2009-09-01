@@ -368,23 +368,28 @@
 	      (format #t "pisa args ~s~%" (list "pisa" "-analyse" pdb-file-name pisa-config))
 	      (let ((status (goosh-command "pisa" (list "pisa" "-analyse" pdb-file-name pisa-config) 
 					   '() "pisa.log" #f)))
-		(if (= status 0) ;; good
-		    (let ((status-2 (goosh-command "pisa" (list "pisa" "-xml" pisa-config) '() 
-						   pisa-xml-file-name #f)))
-		      (if (= status 0)
-			  (pisa-xml imol pisa-xml-file-name))))))))))
+		(if (not (number? status))
+		    (info-dialog "Ooops PISA failed to deliver the goods!\n\n(Go for a curry instead?)")
+		    (if (= status 0) ;; good
+			(let ((status-2 (goosh-command "pisa" (list "pisa" "-xml" pisa-config) '() 
+						       pisa-xml-file-name #f)))
+			  (if (= status 0)
+			      (pisa-xml imol pisa-xml-file-name)))))))))))
   
 
 
 
-(let ((menu (coot-menubar-menu "PISA")))
-
-    (add-simple-coot-menu-menuitem
-     menu "PISA assemblies..." 
-     (lambda ()
-       (molecule-chooser-gui "Run PISA Assemblies on "
-			     (lambda (imol)
-			       (pisa-assemblies imol))))))
+;;; Put this in Extensions when ready?
+;;; 
+(if (defined? 'coot-main-menubar)
+    (let ((menu (coot-menubar-menu "PISA")))
+      
+      (add-simple-coot-menu-menuitem
+       menu "PISA assemblies..." 
+       (lambda ()
+	 (molecule-chooser-gui "Choose molecule for PISA assembly analysis"
+			       (lambda (imol)
+				 (pisa-assemblies imol)))))))
 
 
 

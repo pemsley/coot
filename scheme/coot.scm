@@ -77,6 +77,7 @@
 			   "generic-objects.scm"
 			   "fascinating-things.scm"
 			   "ncs.scm"
+			   "parse-pisa-xml.scm"
 			   "cns2coot.scm"
 			   "clear-backup.scm"
 			   "tips.scm"

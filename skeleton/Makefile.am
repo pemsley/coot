@@ -21,8 +21,8 @@
 
 lib_LTLIBRARIES=libcoot-skeleton.la
 
-INCLUDES =-I$(top_srcdir)/coords -I$(top_srcdir)/angles 	\
-	 -I$(top_srcdir)/atom-utils  -I$(top_srcdir)/compat	\
+INCLUDES =-I$(top_srcdir)/coords     -I$(top_srcdir)/angles 	\
+	  -I$(top_srcdir)/atom-utils -I$(top_srcdir)/compat	\
 	 $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) 
 
 AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS)
