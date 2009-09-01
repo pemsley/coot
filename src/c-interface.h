@@ -3323,6 +3323,10 @@ PyObject *map_peaks_py(int imol_map, float n_sigma);
 PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y, float z, float radius);
 #endif /*  USE_PYTHON */ 
 #ifdef USE_GUILE
+/*! \brief return a list of map peaks of molecule number imol_map
+  above n_sigma.  There will be cluster filtering of the map peaks.
+  Return a list of 3d cartestian coordinates or scheme false if
+  imol_map is not suitable for peak pickig. */
 SCM map_peaks_scm(int imol_map, float n_sigma);
 SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, float z, float radius);
 #endif

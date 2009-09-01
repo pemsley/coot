@@ -1200,6 +1200,46 @@
 	      #t))))))))
 
 
+(greg-testcase "Simple Averaged maps" #t 
+   (lambda ()
+
+     (let ((imol-map-1 (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0))
+	   (novalue-1 (set-map-sampling-rate 2.5))
+	   (imol-map-2 (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0))
+	   (novalue-2 (set-map-sampling-rate 1.5))) ;; reset it
+
+       (let ((new-map (average-map (list (list imol-map-1 1)
+					 (list imol-map-2 1)))))
+	 (if (not (valid-map-molecule? new-map))
+	     (begin 
+	       (format #t " average map fail~%")
+	       (throw 'fail)))
+
+	 ;; the difference map should be nearly flat (0.0)
+	 ;; 
+	 (let ((diff-map (difference-map imol-map-1 new-map 1.0)))
+	   
+	   (let ((rms-1 (map-sigma  new-map))
+		 (rms-2 (map-sigma diff-map)))
+
+	     (format #t "  INFO:: map sigmas: normal ~s and diff-map: ~s~%" 
+		     rms-1 rms-2)
+
+	     (if (not (> rms-1 0.3))
+		 (begin 
+		   (format #t " map sigma 1 fail~%")
+		   (throw 'fail)))
+
+	     (if (not (< rms-2 0.003))
+		 (begin 
+		   (format #t " map sigma for diff average map fail~%")
+		   (throw 'fail)))
+
+	     #t))))))
+
+
+
+
 (greg-testcase "Make a glycosidic linkage" #t 
    (lambda ()
 

@@ -1,22 +1,19 @@
 
    10 items
 
-   o Average maps function (take a list of maps). ::: 1
- 
    o Add clash score to backrub rotamer - consider making dist_crit
      smaller. Test with residue A19 in low res map ::: 2
   
    o Fix problem of Go To Atom dialog displaying the wrong molecule
      number on post-go-to-atom-window (see dnotes).  ::: 2 
  
-   o Difference map peak in large continuous ligand needs filtering,
-     if possible (making clusters?) - puntable ::: 2
-
    o All molecule refinement falls over at the end sometimes - missing
      residue? ::: 1
 
    o Random-looking crash on multi-refine with Ramachandran
      optimisation. ::: 2 
+
+   o "make check" should be clean. ::: 2
  
    o Get News seems to be failing for me -> nothing. ::: 1
 
@@ -1133,5 +1130,14 @@ c-interface clear_up_moving_atoms...
 
 * Yes.  Not too hard.
 
+   o Difference map peak in large continuous ligand needs filtering,
+     if possible (making clusters?) - puntable ::: 2
+
+* Done - It is much better now. It does seem to fail a bit, but not
+  much (2 peaks in the ligands site).
+
+   o Average maps function (take a list of maps). ::: 1
+
+* Done.  In scripting anyway.
 
 -----

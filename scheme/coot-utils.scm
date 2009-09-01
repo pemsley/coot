@@ -72,6 +72,7 @@
 (define origin-pre-shift origin-pre-shift-scm)
 (define alignment-mismatches alignment-mismatches-scm)
 (define rigid-body-refine-by-residue-ranges rigid-body-refine-by-residue-ranges-scm)
+(define average-map average-map-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a
