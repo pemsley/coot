@@ -1,6 +1,8 @@
 /* coot-utils/peak-search.cc
  * 
- * Copyright 2005, 2006 by Paul Emsley, The University of York
+ * Copyright 2005, 2006 by The University of York
+ * Copyright 2009 by The University of Oxford
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +21,7 @@
  */
 
 #include <string>
+#include <queue>
 
 #include "peak-search.hh"
 #include "clipper/core/map_interp.h"
@@ -127,6 +130,19 @@ coot::peak_search::get_peak_grid_points(const clipper::Xmap<float> &xmap,
 } 
 
 
+// We introduce now (20090901) peak search filtering, i.e. if there
+// are a cluster of points above the n_sigma level, then aggregate the
+// peaks of the cluster and return only 1 (the highest of the peaks).
+//
+// (previously we were not doing clustering and that lead to
+// several/many peaks in the map that were in the same peak
+// (e.g. ligand cluster points) and that was undesirable - just one
+// point in that cluster was neeeded.
+//
+//
+// Note that you can mess with marked_map, but end up with 2 at the
+// peaks.  We come here with marked_map having all 0s.
+// 
 void
 coot::peak_search::peak_search_0(const clipper::Xmap<float> &xmap,
 				 clipper::Xmap<short int> *marked_map_p,
@@ -137,7 +153,8 @@ coot::peak_search::peak_search_0(const clipper::Xmap<float> &xmap,
    clipper::Coord_grid c_g;
    int is_peak;
    float v;
-   float cut_off = map_rms * n_sigma; 
+   float cut_off = map_rms * n_sigma;
+   short int IN_CLUSTER = 3; 
    
    std::cout << "map rms: " << map_rms << ", peak cut-off: " << cut_off << "\n";
    
@@ -147,18 +164,51 @@ coot::peak_search::peak_search_0(const clipper::Xmap<float> &xmap,
 //    }
 
    for (ix = marked_map_p->first(); !ix.last(); ix.next())  { // iterator index.
-      v = xmap[ix];
-      if (v > cut_off) {
-	 is_peak = 1;
-	 for (int i=0; i<neighb.size(); i++) {
-	    c_g = ix.coord() + neighb[i];
-	    if (v < xmap.get_data(c_g)) {
-	       is_peak = 0;
-	       break;
+      if ((*marked_map_p)[ix] == 0) { 
+	 v = xmap[ix];
+	 if (v > cut_off) {
+	    is_peak = 1;
+	    for (int i=0; i<neighb.size(); i++) {
+	       c_g = ix.coord() + neighb[i];
+	       if (v < xmap.get_data(c_g)) {
+		  is_peak = 0;
+		  break;
+	       }
+	    }
+	    if (is_peak) {
+	       // Instead of 
+	       // (*marked_map_p)[ix] = 2;
+	       //
+	       // we now search around the ix point and find those
+	       // that are above cut_off, but in the same cluster and
+	       // mark them as IN_CLUSTER
+	       //
+	       std::queue<clipper::Coord_grid> q;
+	       q.push(ix.coord());
+	       clipper::Coord_grid best_highest_peak_grid = ix.coord(); // updates
+	       float best_highest_peak = xmap[ix];
+	       while (q.size()) {
+		  clipper::Coord_grid c_g_start = q.front();
+		  q.pop();
+		  for (unsigned int i=0; i<neighb.size(); i++) {
+		     c_g = c_g_start + neighb[i];
+		     if (marked_map_p->get_data(c_g) == 0) { 
+			marked_map_p->set_data(c_g, IN_CLUSTER);
+			float density_level = xmap.get_data(c_g);
+			if (density_level > cut_off) {
+			   q.push(c_g);
+			   if (density_level > best_highest_peak) {
+			      best_highest_peak = density_level;
+			      best_highest_peak_grid = c_g;
+			   }
+			}
+		     }
+		  }
+	       }
+	       // mark this as the peak then.
+	       marked_map_p->set_data(best_highest_peak_grid, 2);
 	    }
 	 }
-	 if (is_peak) 
-	    (*marked_map_p)[ix] = 2;
       }
    }
 }
