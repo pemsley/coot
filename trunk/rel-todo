@@ -10,7 +10,8 @@
    o Random-looking crash on multi-refine with Ramachandran
      optimisation. ::: 2 
 
-   o Get News seems to be failing for me -> nothing. ::: 1
+   o Pukka-puckers? should now use the N1/9-C1* bond not the base plane. 
+     ::: 2
 
    o Need to fix up assign sequence and add-terminal-residue so that
      the sequence offset is taken into account properly. ::: 2 
@@ -1145,5 +1146,16 @@ c-interface clear_up_moving_atoms...
 
 * Done.
  
+   o Get News seems to be failing for me -> nothing. ::: 1
+
+* Done.
+
+   o Insert reference into docs: "The Backrub Motion: How Protein Backbone Shrugs
+     When a Sidechain Dances" Structure, Volume 14, Issue 2, Pages
+     265-274 I. Davis, W. Arendall III, D. Richardson, J. Richardson
+     ::: 0.2
+
+* Done.
+
 
 -----

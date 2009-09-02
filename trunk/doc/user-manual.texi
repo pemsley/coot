@@ -2419,28 +2419,17 @@ more than one residue.
 
 @node Rotamers
 @section Rotamers
-@cindex Dunbrack, Roland
 @cindex rotamers 
 
-Using the default build, the rotamers are generated @footnote{since
-version 0.4} from the backbone independent sidechain library of the
-Richardsons group @footnote{SC Lovell, JM Word, JS Richardson and DC
-Richardson (2000) "The Penultimate Rotamer Library" Proteins: Structure
-Function and Genetics 40: 389-408.  You can get the paper from
+The rotamers are generated @footnote{since version 0.4} from the
+backbone independent sidechain library of the Richardsons group
+@footnote{SC Lovell, JM Word, JS Richardson and DC Richardson (2000)
+"The Penultimate Rotamer Library" Proteins: Structure Function and
+Genetics 40: 389-408.  You can get the paper from
 @url{http://kinemage.biochem.duke.edu/databases/rotamer.php}}.
 
 The m, t and p stand for ``minus (-60)'', ``trans (180)'' and ``plus
 (+60)''.  There is one letter per @math{\chi} angle.
-
-
-@c ------------------ Olden coot -----------------
-@c To change the probability lower limit for the rotamer selection use
-@c @emph{e.g.}: 
-
-@c @code{(set-rotamer-lowest-probability 0.5)}
-
-@c (note that this is a percentage, therefore 0.5% is quite low and will
-@c allow the choice of more rotamers than the default).
 
 Use keyboard @key{.} and @key{,} to cycle round the rotamers.
 
@@ -2460,6 +2449,14 @@ restriction from the other atoms as to the position of this residue -
 the default is ``are sensible'', which means that the algorithm is
 prevented from finding solutions that are too close to the atoms of
 other residues. @code{(set-rotamer-check-clashes 0)} will stop this.
+
+By default, Auto Fit Rotamer will switch to ``Backrub Rotamer''
+@footnote{"The Backrub Motion: How Protein Backbone Shrugs
+     When a Sidechain Dances" @emph{Structure}, Volume @b{14}, Issue 2, Pages
+     265-274 I. Davis, W. Arendall III, D. Richardson, J. Richardson}
+mode when fitting against a map of worse than 2.7@AA{}.  This
+search mode moves the some atoms of the mainchain of the
+neighbouring residues.
 
 There is a scripting interface to auto-fitting rotamers:
 
@@ -2488,6 +2485,8 @@ other atoms gets marked as bad/unlikely)
 @code{@emph{lowest-rotamer-probability}}: some rotamers of some side
 chains are so unlikely that they shouldn't be considered - typically
 0.01 (1%).
+
+
 
 @subsection De-clashing residues
 Sometimes you don't have a map @footnote{for example, in preparation of
