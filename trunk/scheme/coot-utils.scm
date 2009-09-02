@@ -1845,20 +1845,23 @@
   
 (define (save-dialog-positions-to-init-file)
 
+  ;; return #f on failure to find ~/.coot
   (define (dump-positions-to-init-file positions)
     (let ((init-file (string-append (getenv "HOME") "/.coot")))
-      (let ((port (open-file init-file "a")))
-	(format port "; ----------------------------------------------------------~%")
-	(format port "; the following were written by extraction from a state file~%")
-	(format port "; ----------------------------------------------------------~%")
-	(let loop ((positions positions))
-	  (cond
-	   ((null? positions) 'done)
-	   (else 
-            (format port "~a~%" (car positions))
-	    (loop (cdr positions)))))
-	(format port "; -------------------------~%")
-	(close port))))	
+      (if (not (file-exists? init-file))
+	  #f
+	  (let ((port (open-file init-file "a")))
+	    (format port "; ----------------------------------------------------------~%")
+	    (format port "; the following were written by extraction from a state file~%")
+	    (format port "; ----------------------------------------------------------~%")
+	    (let loop ((positions positions))
+	      (cond
+	       ((null? positions) 'done)
+	       (else 
+		(format port "~a~%" (car positions))
+		(loop (cdr positions)))))
+	    (format port "; -------------------------~%")
+	    (close port)))))
 
   ;; main line
   (save-state)
