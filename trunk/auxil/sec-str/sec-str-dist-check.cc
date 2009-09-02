@@ -54,8 +54,8 @@ distance_checks(CModel *model_p) {
 	    if (residue_p_1->GetSeqNum() == (residue_p_2->GetSeqNum()-1)) {
 	       int sse_1 = SSE(residue_p_1);
 	       int sse_2 = SSE(residue_p_2);
-	       if ((sse_1 == SSE_Strand) && (sse_2 == SSE_Strand) ||
-		   (sse_1 == SSE_Helix)  && (sse_2 == SSE_Helix)) {
+	       if (((sse_1 == SSE_Strand) && (sse_2 == SSE_Strand)) ||
+		   ((sse_1 == SSE_Helix)  && (sse_2 == SSE_Helix))) {
 		  float d = oxygen_check(residue_p_1, residue_p_2);
 		  if (d > 0) {
 		     std::string ss("Helix ");

@@ -7013,6 +7013,8 @@ int read_cif_data(const char *filename, int imol_coordinates) {
       int istat = g.molecules[imol].make_map_from_cif(imol,
 						      std::string(filename), imol_coordinates);
 
+      std::cout << "DEBUG in read_cif_data() istat is " << istat << std::endl;
+
       // std::cout << "DEBUG:: in read_cif_data, istat is " << istat << std::endl;
       if (istat != -1) { 
 	 graphics_draw();
