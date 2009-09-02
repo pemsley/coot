@@ -1865,22 +1865,25 @@
 
   ;; main line
   (save-state)
-  (call-with-input-file "0-coot.state.scm"
-    (lambda (port)
-      (let loop ((line (read-line port))
-		 (positions '()))
-	(cond
-	 ((eof-object? line) (dump-positions-to-init-file positions))
-	 ((string-match "-dialog-position" line)
-	  (format #t " Adding dialog position: ~a~%" line)
-	  (loop (read-line port)
-		(cons line positions)))
-	 ((string-match "set-go-to-atom-window-position" line)
-	  (format #t " Adding dialog position: ~a~%" line)
-	  (loop (read-line port)
-		(cons line positions)))
-	 (else 
-	  (loop (read-line port) positions)))))))
+  (let ((state-file  "0-coot.state.scm"))
+    (if (not (file-exists? state-file))
+	(format #t "Ooops ~s does not exist~%" state-file)
+	(call-with-input-file "0-coot.state.scm"
+	  (lambda (port)
+	    (let loop ((line (read-line port))
+		       (positions '()))
+	      (cond
+	       ((eof-object? line) (dump-positions-to-init-file positions))
+	       ((string-match "-dialog-position" line)
+		(format #t " Adding dialog position: ~a~%" line)
+		(loop (read-line port)
+		      (cons line positions)))
+	       ((string-match "set-go-to-atom-window-position" line)
+		(format #t " Adding dialog position: ~a~%" line)
+		(loop (read-line port)
+		      (cons line positions)))
+	       (else 
+		(loop (read-line port) positions)))))))))
 
 
 ;; multiple maps of varying colour from a given map.
