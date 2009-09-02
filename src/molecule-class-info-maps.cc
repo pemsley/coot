@@ -1542,25 +1542,15 @@ molecule_class_info_t::make_map_from_cif_generic(int imol_in,
 						 atom_selection_container_t SelAtom,
 						 short int is_2fofc_type) {
 
-   clipper::HKL_info mydata;
-   clipper::CIFfile cif; 
-      
-   cif.open_read ( cif_file_name ); 
-   cif.import_hkl_info(mydata); // set spacegroup, cell and get hkl list. 
-   clipper::HKL_data< clipper::datatypes::F_sigF<float> > myfsigf(mydata);
-   
-   cif.import_hkl_data(myfsigf);
+   clipper::HKL_data< clipper::datatypes::F_sigF<float> > myfsigf;
+   clipper::CIFfile cif;
+   cif.open_read ( cif_file_name );
+   cif.import_hkl_data( myfsigf );
    cif.close_read();
+   
    clipper::Spacegroup sg = myfsigf.spacegroup();
-   if (! sg.is_null()) { 
-
-      std::cout << "make_map_from_cif: Read " << mydata.num_reflections()
-		<< " from CIF file." << std::endl;
-
-      if (mydata.num_reflections() == 0) {
-	 std::cout << "Error reading cif file, can't make a map" << std::endl;
-	 return -1; // Error
-      }
+   if (! sg.is_null()) {
+      std::cout << "DEBUG in make_map_from_cif_generic imol_in " << imol_in << std::endl;
       return calculate_sfs_and_make_map(imol_in, cif_file_name, myfsigf,
 					SelAtom, is_2fofc_type);
    } else {
@@ -1612,10 +1602,8 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
    std::cout << "done iso fft..." << std::endl;
 
    // debug:: examine fphidata and myfsigf:
-   std::cout << "DEBUG:: myfsigf  has " <<  myfsigf.data_size() << " data"
-	     << std::endl;
-   std::cout << "DEBUG:: fphidata has " << fphidata.data_size() << " data"
-	     << std::endl;
+   std::cout << "INFO:: myfsigf  has " <<  myfsigf.data_size() << " data" << std::endl;
+   std::cout << "INFO:: fphidata has " << fphidata.data_size() << " data" << std::endl;
 
    if (0) { // debug
       float sum_fo = 0;
@@ -1685,8 +1673,8 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 	    map_fphidata[ih].f() = multiplier*myfsigf[ih].f() -
 	       fphidata[ih].f()*sqrt(fscale.f(ih));
 	    float top_tmp = fabs(myfsigf[ih].f() - fphidata[ih].f()*sqrt(fscale.f(ih)));
-	    if (0) { 
-	       std::cout << "debug:: fobs: " << myfsigf[ih].f() << " fscale: "
+	    if (0) { // debug
+	       std::cout << "debug:: fobs: " << myfsigf[ih].f() << " fcalc: "
 			 << fphidata[ih].f() << " scale: " << fscale.f(ih)
 			 << std::endl;
 	    }
@@ -1753,7 +1741,6 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 
 	 // Bug! 20071218 Kevin fixes it.
 // 	 int n_refln = mydata.num_reflections();
-// 	 int n_param = 10;
 	 int n_refln = 1000;
 	 int n_param = 20;
 	 clipper::SFweight_spline<float> sfw( n_refln, n_param );
@@ -1763,28 +1750,29 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 	 // sigmaa, one for difference map.  Let's just use the "best"
 	 // map for now.
 	 map_fphidata = fb;
+	 
       }
    } // is 2fofc else sigmaa style check
 
-   std::cout << "DEBUG:: rdiffsum/rsum: " << r_top << "/" << r_bot << std::endl;
-   if (r_bot>0.0) { 
-      std::cout << "Isotropic R-factor: " << 100.0*r_top/r_bot << "%"
-		<< " for " << n_data  << " reflections" <<  std::endl;
-      std::cout << "DEBUG:: sums: fo: " << sum_fo/float(n_data) << " fc: "
-		<< sum_fc/n_data << " scale: " << sum_scale/n_data << " with "
-		<< n_data << " data" << std::endl;
-   } else {
-      std::cout << "Problem with structure factors, no structure factor sum!?"
-		<< std::endl;
-   } 
-   cout << "initializing map..."; 
+   // std::cout << "DEBUG:: rdiffsum/rsum: " << r_top << "/" << r_bot << std::endl;
+   if (is_2fofc_type != molecule_map_type::TYPE_SIGMAA) {
+      if (r_bot>0.0) { 
+	 std::cout << "Isotropic R-factor: " << 100.0*r_top/r_bot << "%"
+		   << " for " << n_data  << " reflections" <<  std::endl;
+	 std::cout << "DEBUG:: sums: fo: " << sum_fo/float(n_data) << " fc: "
+		   << sum_fc/n_data << " scale: " << sum_scale/n_data << " with "
+		   << n_data << " data" << std::endl;
+      } else {
+	 std::cout << "Problem with structure factors, no structure factor sum!?"
+		   << std::endl;
+      }
+   }
+   std::cout << "Initializing map..."; 
    xmap_list[0].init(map_fphidata.spacegroup(), map_fphidata.cell(), 
 		     clipper::Grid_sampling(map_fphidata.spacegroup(),
 					    map_fphidata.cell(), 
 					    map_fphidata.resolution()));
    cout << "done."<< endl; 
-
-
    cout << "doing fft..." ; 
    xmap_list[0].fft_from( map_fphidata ); // generate map
    cout << "done." << endl;
@@ -1817,7 +1805,6 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
    int imol = imol_no_in;
    update_map(); 
    return imol;
-
 }
 
 // This needs to be rationalized with the version that *does* pass the

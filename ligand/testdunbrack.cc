@@ -25,7 +25,7 @@
 int main(int argc, char **argv) {
 
    CResidue *r = 0; 
-   coot::dunbrack d(r);
+   coot::dunbrack d(r, "FRE");
 
 //    std::string test_string = "45%";
 //    std::vector<std::string> parts = coot::util::split_string(test_string, "%");

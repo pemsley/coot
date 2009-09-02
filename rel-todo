@@ -1,20 +1,15 @@
 
    10 items
 
-   o Add clash score to backrub rotamer - consider making dist_crit
-     smaller. Test with residue A19 in low res map ::: 2
-  
    o Fix problem of Go To Atom dialog displaying the wrong molecule
      number on post-go-to-atom-window (see dnotes).  ::: 2 
  
-   o All molecule refinement falls over at the end sometimes - missing
+   o Multi-refinement falls over at the end sometimes - missing
      residue? ::: 1
 
    o Random-looking crash on multi-refine with Ramachandran
      optimisation. ::: 2 
 
-   o "make check" should be clean. ::: 2
- 
    o Get News seems to be failing for me -> nothing. ::: 1
 
    o Need to fix up assign sequence and add-terminal-residue so that
@@ -1139,5 +1134,16 @@ c-interface clear_up_moving_atoms...
    o Average maps function (take a list of maps). ::: 1
 
 * Done.  In scripting anyway.
+
+
+   o Add clash score to backrub rotamer - consider making dist_crit
+     smaller. Test with residue A19 in low res map ::: 2
+
+* Done.
+
+   o "make check" should be clean. ::: 1
+
+* Done.
+ 
 
 -----
