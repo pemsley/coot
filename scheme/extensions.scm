@@ -1024,7 +1024,7 @@
 
 
 	(add-simple-coot-menu-menuitem 
-	 submenu-representation "Set Spin Speed..."
+	 submenu-settings "Set Spin Speed..."
 	 (lambda ()
 	   (generic-single-entry "Set Spin Speed (smaller is slower)"
 				 (number->string (idle-function-rotate-angle))

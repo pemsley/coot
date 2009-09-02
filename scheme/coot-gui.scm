@@ -2328,7 +2328,7 @@
 	(thread #f)
 	(url (string-append "http:"
 			    "//www.biop.ox.ac.uk/coot/software"
-			    "/source/pre-releases/release-notes")))
+			    "/source/pre-releases/RELEASE-NOTES")))
     (lambda args
 
       (define (test-string) 
@@ -2346,6 +2346,7 @@
 
       (define (stop)
 	'nothing)
+
       ;; Return (cons pre-release-news-string std-release-news-string)
       ;;
       (define (trim-news s)
@@ -2439,7 +2440,7 @@
 				   (/ (* count ms-step) 1000))) "s")))
 	      (gtk-misc-set-alignment timer-label 0.96 0.5)
 	      (gtk-label-set-text timer-label timer-string))
-	    ; (display count)
+	    ;; (format #t "check-for-new-news: count ~s~%" count)
 	    (if (> count 100)
 		(begin
 		  (gtk-label-set-text timer-label "Timeout")
