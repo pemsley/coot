@@ -360,7 +360,7 @@ execute_ligand_search_internal() {
    // debugging, output the post-conformer generation ligands wligand-*.pdb
    // (but pre-idealized).
 
-   wlig.set_debug_wiggly_ligands(); 
+   // wlig.set_debug_wiggly_ligands(); 
 
    for(unsigned int i=0; i<ligands.size(); i++) {
 
