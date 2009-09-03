@@ -1331,6 +1331,15 @@
 	     (else
 	      (loop (cons line lines) (read-line port)))))))))
 
+;; Associate the contents of a PIR file with a molecule.
+;; 
+(define (associate-pir-file imol chain-id pir-file-name)
+  (let ((seq-text (pir-file-name->pir-sequence pir-file-name)))
+    (if seq-text
+	(assign-pir-sequence imol chain-id seq-text)
+	(format #t "WARNING:: associate-pir-file: bad text for ~s~%" pir-file-name))))
+
+
 
 ;; comma key hook
 (define graphics-comma-key-pressed-hook

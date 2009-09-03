@@ -57,21 +57,23 @@
 			  (let ((res-name (resname-from-serial-number imol chain-id serial-number))
 				(res-no   (seqnum-from-serial-number  imol chain-id serial-number))
 				(ins-code (insertion-code-from-serial-number imol chain-id serial-number)))
-			    (if (not (string=? res-name "HOH"))
-				(map (lambda (alt-conf) 
-				       (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
-				       (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-				       (rotate-y-scene 30 0.3) ; n-frames frame-interval(degrees)
-				       (if (string=? alt-conf "")
-					   (auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol 
-								  imol-map 1 0.1))
-				       (if (>= imol-map 0)
-					   (begin
-					     ;; (refine-auto-range imol chain-id res-no "")
-					     (refine-zone imol chain-id res-no res-no alt-conf)
-					     (accept-regularizement)))
-				       (rotate-y-scene 30 0.3))
-				     (residue-alt-confs imol chain-id res-no ins-code)))))
+			    
+			    (if ins-code 
+				(if (not (string=? res-name "HOH"))
+				    (map (lambda (alt-conf) 
+					   (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+					   (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+					   (rotate-y-scene 30 0.3) ; n-frames frame-interval(degrees)
+					   (if (string=? alt-conf "")
+					       (auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol 
+								      imol-map 1 0.1))
+					   (if (>= imol-map 0)
+					       (begin
+						 ;; (refine-auto-range imol chain-id res-no "")
+						 (refine-zone imol chain-id res-no res-no alt-conf)
+						 (accept-regularizement)))
+					   (rotate-y-scene 30 0.3))
+					 (residue-alt-confs imol chain-id res-no ins-code))))))
 			(number-list 0 (- n-residues 1))))))
 	       (chain-ids imol))
 	  
@@ -127,9 +129,11 @@
 								   (car serial-number-list)))
 		      (ins-code (insertion-code-from-serial-number imol (car chain-list) 
 								   (car serial-number-list))))
-		  
-		  (loop chain-list (cdr serial-number-list)
-			(cons (list imol (car chain-list) res-no ins-code) spec-list))))))))))
+		  (if ins-code
+		      (loop chain-list (cdr serial-number-list)
+			    (cons (list imol (car chain-list) res-no ins-code) spec-list))
+		      ;; bad ins-code mean no such residue 
+		      (loop chain-list (cdr serial-number-list) spec-list))))))))))
 
     
 (define (fit-protein-fit-function res-spec imol-map)
@@ -144,17 +148,18 @@
 	    (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
 	    
 	    (let ((res-name (residue-name imol chain-id res-no ins-code)))
-	      (if (not (string=? res-name "HOH"))
-		  (begin
-		    (if (string=? alt-conf "")
-			(auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol 
-					       imol-map 1 0.1))
-		    (if (>= imol-map 0)
-			(begin
-			  ;; (refine-auto-range imol chain-id res-no "")
-			  (refine-zone imol chain-id res-no res-no alt-conf)
-			  (accept-regularizement)))
-		    (rotate-y-scene 10 0.3))))))
+	      (if (string? res-name)
+		  (if (not (string=? res-name "HOH"))
+		      (begin
+			(if (string=? alt-conf "")
+			    (auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol 
+						   imol-map 1 0.1))
+			(if (>= imol-map 0)
+			    (begin
+			      ;; (refine-auto-range imol chain-id res-no "")
+			      (refine-zone imol chain-id res-no res-no alt-conf)
+			      (accept-regularizement)))
+			(rotate-y-scene 10 0.3)))))))
 	 (residue-alt-confs imol chain-id res-no ins-code))))
 
 
@@ -165,15 +170,18 @@
 	(ins-code (list-ref res-spec 3)))
     (let ((current-steps/frame (dragged-refinement-steps-per-frame))
 	  (current-rama-state (refine-ramachandran-angles-state)))
-      (map (lambda (alt-conf)
-	     (with-auto-accept
-	      (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
-	      (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-	      (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
-	      (refine-auto-range imol chain-id res-no alt-conf)
-	      (accept-regularizement)
-	      (rotate-y-scene 10 0.3)))
-	   (residue-alt-confs imol chain-id res-no ins-code)))))
+      (let ((res-name (residue-name imol chain-id res-no ins-code)))
+	(if (string? res-name)
+	    (if (not (string=? res-name "HOH"))
+		(map (lambda (alt-conf)
+		       (with-auto-accept
+			(format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+			(set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+			(rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
+			(refine-auto-range imol chain-id res-no alt-conf)
+			(accept-regularizement)
+			(rotate-y-scene 10 0.3)))
+		     (residue-alt-confs imol chain-id res-no ins-code))))))))
     
 
 (define (fit-protein-rama-fit-function res-spec imol-map)
@@ -215,6 +223,7 @@
 		       (begin
 			 (set-visible-toolbar-multi-refine-stop-button 0)
 			 (set-visible-toolbar-multi-refine-continue-button 0)
+			 (set-visible-toolbar-multi-refine-cancel-button 0)
 			 #f)
 		       (if *continue-multi-refine*
 			   (let ((imol-map (imol-refinement-map)))
@@ -252,13 +261,15 @@
 	     (let ((res-name (resname-from-serial-number imol chain-id serial-number))
 		   (res-no   (seqnum-from-serial-number  imol chain-id serial-number))
 		   (ins-code (insertion-code-from-serial-number imol chain-id serial-number)))
-	       (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
-	       (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-	       (auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol imol-map 1 0.1)
-	       (if (>= imol-map 0)
+	       (if ins-code
 		   (begin
-		     (refine-zone imol chain-id res-no res-no alt-conf)
-		     (accept-regularizement)))))
+		     (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+		     (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+		     (auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol imol-map 1 0.1)
+		     (if (>= imol-map 0)
+			 (begin
+			   (refine-zone imol chain-id res-no res-no alt-conf)
+			   (accept-regularizement)))))))
 	   (number-list 0 (- n-residues 1)))))
     
     (if (= replacement-state 0)
@@ -447,9 +458,12 @@
 			(let ((res-name (resname-from-serial-number imol chain-id serial-number))
 			      (res-no   (seqnum-from-serial-number  imol chain-id serial-number))
 			      (ins-code (insertion-code-from-serial-number imol chain-id serial-number)))
-			  (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
 			  
-			  (refine-func chain-id res-no)))
+			  ;; bad (#f, non-string) ins-code means no such residue
+			  (if ins-code
+			      (begin
+				(format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+				(refine-func chain-id res-no)))))
 
 		      (every-nth (range n-residues) res-step))))
 		 (chain-ids imol))
