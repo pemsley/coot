@@ -2269,7 +2269,9 @@ char *resname_from_serial_number(int imol, const char *chain_id, int serial_num)
 // Return < -9999 on failure
 int  seqnum_from_serial_number(int imol, const char *chain_id, int serial_num) {
 
-   int iseqnum = -10000;
+   int UNSET_SERIAL_NUMBER = -10000;
+   int iseqnum = UNSET_SERIAL_NUMBER;
+   
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int nchains = mol->GetNumberOfChains(1);
@@ -2284,10 +2286,21 @@ int  seqnum_from_serial_number(int imol, const char *chain_id, int serial_num) {
 	       chain_p->GetResidueTable(residues, ch_n_res);
 	       CResidue *this_res = residues[serial_num];
 	       iseqnum = this_res->GetSeqNum();
+	    } else {
+	       std::cout << "WARNING:: seqnum_from_serial_number: requested residue with serial_num "
+			 << serial_num << " but only " << nres << " residues in chain "
+			 << mol_chain_id << std::endl;
 	    }
 	 }
       }
-   }
+      if (iseqnum == UNSET_SERIAL_NUMBER) {
+	 std::cout << "WARNING: seqnum_from_serial_number: returning UNSET serial number "
+		   << std::endl;
+      } 
+   } else {
+      std::cout << "WARNING molecule number " << imol << " is not a valid model molecule "
+		<< std::endl;
+   } 
    std::string cmd = "setnum-from-serial-number";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);

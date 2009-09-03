@@ -329,7 +329,7 @@
 						   #f)
 						 
 						 #t)))))))))))))))))
-						       
+
 				       
 (greg-testcase "Select by Sphere" #t
    (lambda ()

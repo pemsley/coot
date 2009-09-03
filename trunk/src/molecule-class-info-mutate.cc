@@ -421,8 +421,7 @@ molecule_class_info_t::align_and_mutate(const std::string chain_id,
 	 // I don't know if we can do this here, but I do know we
 	 // mol->DeleteSelection(selHnd); // can't DeleteSelection after mods.
 	 mutate_chain(chain_id,
-		      align_on_chain(chain_id, SelResidues,
-				     nSelResidues, target),
+		      align_on_chain(chain_id, SelResidues, nSelResidues, target),
 		      SelResidues, nSelResidues);
       }
    } else {
@@ -459,7 +458,7 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    // 
    // align.SetScores(0.5, -0.2);; // 2.0, -1 are the defaults.
    
-   align.Align((char *)model.c_str(), (char *)target.c_str());
+   align.Align(model.c_str(), target.c_str());
 
    ch_info.alignedS = align.GetAlignedS();
    ch_info.alignedT = align.GetAlignedT();
@@ -523,16 +522,22 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
       
 //       std::cout << "DEBUG:: s.length() " << s.length() << std::endl;
 //       std::cout << "DEBUG:: nSelResidues " << nSelResidues << std::endl;
+
       std::string inscode("");
       int ires = 0;
+      int ires_running = 0;
       
       for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) {
+
+	 if (s[iseq_indx] != '-') { 
+	    ires_running = SelResidues[selindex[iseq_indx]]->GetSeqNum();
+	    if (0)
+	       std::cout << "DEBUG:: outer: ===  just set ires to " << ires << " because "
+			 << "s[" << iseq_indx << "] was " << s[iseq_indx] << std::endl;
+	 }
+	 
 	 if (s[iseq_indx] != t[iseq_indx]) {
 
-// 	    std::cout << "DEBUG:: iseq_indx: " << iseq_indx 
-// 		      << " selindex[" << iseq_indx << "]="
-// 		      << selindex[iseq_indx] << std::endl;
-	    
 	    // These only make sense when the aligned residue (in s) was not "-"
 	    if (s[iseq_indx] != '-') { 
 	       ires            = SelResidues[selindex[iseq_indx]]->GetSeqNum();
@@ -557,9 +562,11 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 // 	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
 // 		  resno_offsets[i] -= 1;
 	       
-// 	       std::cout << "Delete residue number " << iseq_indx << " "
-// 			 << s[iseq_indx] << std::endl;
 	       coot::residue_spec_t res_spec(ires);
+	       if (0)
+		  std::cout << "DEBUG:: Delete residue number " << iseq_indx << " "
+			    << s[iseq_indx] << " " << res_spec << std::endl;
+	       
 	       ch_info.add_deletion(res_spec);
 	    }
 
@@ -569,13 +576,19 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 // 		  resno_offsets[i] += 1;
 	       // ires will be for the previous residue.  It was not
 	       // set for this one.
-	       coot::residue_spec_t res_spec(iseq_indx+1);
+	       
+	       // 20090902
+	       coot::residue_spec_t res_spec(ires_running+1);
+	       ires_running++; // for next insertion
+	       
 	       std::string target_type =
 		  coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
 	       ch_info.add_insertion(res_spec, target_type);
-//  	       std::cout << "DEBUG:: Insert residue  " << res_spec << " " << target_type
-// 			 << " " << iseq_indx << " " << t[iseq_indx] << std::endl;
-	    }
+	       if (0) 
+		  std::cout << "DEBUG:: Insert residue  " << res_spec << " " << target_type
+			    << " " << iseq_indx << " " << t[iseq_indx]
+			    << " with ires " << ires << std::endl;
+	    } 
 	 }
       }
    }
@@ -635,6 +648,10 @@ molecule_class_info_t::residue_mismatches() const {
 std::pair<bool, std::string>
 molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, int resno) const {
 
+
+   std::cout << "DEBUG:: ==== finding terminal residue type of chaind " << chain_id << " with resno "
+	     << resno << std::endl;
+
    bool found = 0;
    std::string type = "None";
    std::string target = "";
@@ -668,7 +685,7 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
 	 if (nSelResidues > 0) {
 
 	    coot::chain_mutation_info_container_t mi =
-	       align_on_chain(chain_id, SelResidues, nSelResidues, target);
+	       align_on_chain(chain_id, SelResidues, nSelResidues, target); 
 	    mi.print();
 
 	    coot::residue_spec_t search_spec(chain_id, resno);
@@ -683,6 +700,9 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
 	 }
       }
    }
+
+   std::cout << "DEBUG:: ==== finding terminal residue type returns " << found << " with type "
+	     << type << std::endl;
    return std::pair<bool, std::string> (found, type);
 }
 

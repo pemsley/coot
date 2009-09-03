@@ -89,8 +89,10 @@ coot::chain_mutation_info_container_t::rationalize_insertions() {
 
 
 void
-coot::chain_mutation_info_container_t::print() const { 
+coot::chain_mutation_info_container_t::print() const {
+   
    std::cout << "The alignment resulted in the following" << std::endl;
+   
    std::cout << "   Insertions (coalesced):" << std::endl;
    for (unsigned int i_ins=0; i_ins<insertions.size(); i_ins++) {
       std::cout << "       from " << insertions[i_ins].start_resno << " to "
@@ -102,7 +104,7 @@ coot::chain_mutation_info_container_t::print() const {
    }
    std::cout << "   Insertions (singles):" << std::endl;
    for (unsigned int i_ins=0; i_ins<single_insertions.size(); i_ins++) {
-      std::cout << "    " << single_insertions[i_ins].first << " -> "
+      std::cout << "      " << single_insertions[i_ins].first << " -> "
 		<< single_insertions[i_ins].second << std::endl;
    }
 	 

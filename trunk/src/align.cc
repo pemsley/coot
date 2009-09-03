@@ -204,11 +204,13 @@ std::string make_model_string(PCResidue *SelResidues, int nSelResidues) {
       
       this_residue = "X";
       pstr rn = SelResidues[i]->GetResName();
+      std::string residue_name(rn);
       Get1LetterCode(rn, r);
       this_residue = r[0];
-      s += this_residue;
-   } 
+      if (residue_name != "HOH") 
+	 s += this_residue;
+   }
+
+   std::cout << "DEBUG:: make_model_string returns " << s << std::endl;
    return s;
 }
-
-   
