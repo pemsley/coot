@@ -125,21 +125,19 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       coot::minimol::residue ligand_residue = ligand[0][ligand[0].min_res_no()];
       std::string ligand_chain_id = ligand[0].fragment_id;
 
-      if (1) {
-	 std::cout << "debug ligand input has " << ligand.fragments.size() << " fragments "
+      if (0) {
+	 std::cout << "DEBUG:: ligand input has " << ligand.fragments.size() << " fragments "
 		   << std::endl;
 	 for (unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
 	    for (unsigned int ires=ligand.fragments[ifrag].min_res_no();
 		 ires<=ligand.fragments[ifrag].max_residue_number();
 		 ires++) {
-	       std::cout << "deubg frgagment: " << ifrag << " " << ires << " "
+	       std::cout << "DEBUG:: fragment: " << ifrag << " " << ires << " "
 			 << ligand.fragments[ifrag][ires] << std::endl;
 	    }
 	 }
       }
 
-      std::cout << "DEBUG:: ligand_residue: " << ligand_residue << std::endl;
-      
       //  Rotatable bonds -> coord indices
       // 
       std::vector<coot::atom_name_quad> atom_name_quads =
