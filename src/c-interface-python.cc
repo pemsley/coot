@@ -23,22 +23,25 @@
 #include <vector>
 
 #include "coot-utils.hh"
-#include "c-interface-python.hh"
 
 #ifdef USE_PYTHON
+#include "c-interface-python.hh"
 
 // This is a common denominator really.  It does not depend on mmdb,
 // but it can't be declared in c-interface.h because then we'd have to
 // include c-interface.h which would cause (resolvable, I think, not
 // checked) problems.
+// BL says:: not sure about this, guess/hope it's ok as is!?
 // 
-// return a scm string, decode to c++ using scm_to_locale_string();
-//SCM display_scm(SCM o) {
+// return a python string, decode to c++ using PyString_AsString
 
-//   SCM dest = SCM_BOOL_F;
-//   SCM mess = scm_makfrom0str("object: ~s\n");
-//   return scm_simple_format(dest, mess, scm_list_1(o));
-//}
+PyObject * display_python(PyObject *o) {
+
+   PyObject *dest;
+   const char *mess = "object: %s\n";
+   dest = PyString_FromString(mess);
+   return PyString_Format(dest, o);
+}
 
 
 // e.g. ["B", 41, "", " CA ", ""]

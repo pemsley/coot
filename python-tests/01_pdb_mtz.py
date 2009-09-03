@@ -946,6 +946,36 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless((sum(diff_low_values) < -5), "Bad diff high values")
 	    
 
+    def test29_1(self):
+	    """Simple Averaged maps"""
+
+	    global rnase_mtz
+	    imol_map_1 = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+	    novalue_1  = set_map_sampling_rate(2.5)
+	    imol_map_2 = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+	    novalue_2  = set_map_sampling_rate(1.5) # reset it
+
+	    new_map = average_map([[imol_map_1, 1],
+				   [imol_map_2, 1]])
+
+	    self.failUnless(valid_map_molecule_qm(new_map),
+			    " average map fail")
+
+	    # the differnce map shoudl be nearly flat (0.0)
+	    #
+	    diff_map = difference_map(imol_map_1, new_map, 1.0)
+
+	    rms_1 = map_sigma(new_map)
+	    rms_2 = map_sigma(diff_map)
+
+	    print "  INFO:: map sigmas: normal %s and diff-map: %s" %(rms_1, rms_2)
+	    self.failUnless(rms_1 > 0.3,
+			    " map sigma 1 fail")
+
+	    self.failUnless(rms_2 < 0.003,
+			    " map sigma for diff average map fail")
+	    
+
     def test30_0(self):
 	    """Make a glycosidic linkage"""
 

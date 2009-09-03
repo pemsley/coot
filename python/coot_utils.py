@@ -1768,6 +1768,7 @@ def load_annotations(file_name):
 coot_sys_build_type    = coot_sys_build_type_py
 run_clear_backups      = run_clear_backups_py
 test_internal          = test_internal_py
+average_map            = average_map_py
 refmac_parameters      = refmac_parameters_py
 map_sigma              = map_sigma_py
 map_parameters         = map_parameters_py

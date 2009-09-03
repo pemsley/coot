@@ -31,6 +31,8 @@
 
 #include "c-interface-mmdb.hh"
 
+#include "c-interface-python.hh"
+
 #include "guile-fixups.h"
 
 #ifdef USE_GUILE
@@ -410,21 +412,6 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
    return mol;
 } 
 
-// This is a common denominator really.  It does not depend on mmdb,
-// but it can't be declared in c-interface.h because then we'd have to
-// include c-interface.h which would cause (resolvable, I think, not
-// checked) problems.
-// 
-// return a python string, decode to c++ using PyString_FromFormat();
-// keep it here for now. Maybe should go in something like c-interface-python.cc ....
-PyObject * display_python(PyObject *o) {
-
-   PyObject *dest;
-   dest = Py_False;
-   const char *mess = "object: %s\n";
-   Py_XDECREF(dest);
-   return PyString_FromFormat(mess, o);
-}
 
 #endif // USE_PYTHON
 
