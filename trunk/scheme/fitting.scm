@@ -191,18 +191,22 @@
 	(ins-code (list-ref res-spec 3)))
     (let ((current-steps/frame (dragged-refinement-steps-per-frame))
 	  (current-rama-state (refine-ramachandran-angles-state)))
-      (map (lambda (alt-conf)
-	     (set-refine-ramachandran-angles 1)
-	     (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
-	     (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-	     (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
-	     (with-auto-accept
-	      (refine-auto-range imol chain-id res-no alt-conf)
-	      (accept-regularizement)
-	      (rotate-y-scene 10 0.3)))
-	   (residue-alt-confs imol chain-id res-no ins-code))
-      (set-refine-ramachandran-angles current-rama-state)
-      (set-dragged-refinement-steps-per-frame current-steps/frame))))
+      (let ((res-name (residue-name imol chain-id res-no ins-code)))
+	(if (string? res-name)
+	    (if (not (string=? res-name "HOH"))
+		(begin
+		  (map (lambda (alt-conf)
+			 (set-refine-ramachandran-angles 1)
+			 (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+			 (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+			 (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
+			 (with-auto-accept
+			  (refine-auto-range imol chain-id res-no alt-conf)
+			  (accept-regularizement)
+			  (rotate-y-scene 10 0.3)))
+		       (residue-alt-confs imol chain-id res-no ins-code))
+		  (set-refine-ramachandran-angles current-rama-state)
+		  (set-dragged-refinement-steps-per-frame current-steps/frame))))))))
 
     
 
