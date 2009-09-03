@@ -2528,7 +2528,8 @@
     (gtk-widget-show-all window)))
 
 
-;; Associate the contents of a PIR file with a molecule.
+
+;; Associate the contents of a PIR file with a molecule.  Select file from a GUI.
 ;; 
 (define (associate-pir-with-molecule-gui)
   (generic-chooser-entry-and-file-selector 
@@ -2537,21 +2538,9 @@
    "Chain ID"
    ""
    "Select PIR file"
-   (lambda (imol chain-id pir-file-name)
-     (format #t "assoc seq: ~s ~s ~s~%" imol chain-id pir-file-name)
-     (if (file-exists? pir-file-name)
-	 (let ((seq-text 
-		(call-with-input-file pir-file-name
-		  (lambda (port)
-		    (let loop  ((lines '())
-				(line (read-line port)))
-		      (cond
-		       ((eof-object? line) 
-			(string-append-with-string (reverse lines) "\n"))
-		       (else
-			(loop (cons line lines) (read-line port)))))))))
+   (lambda (imol chain-id file-name)                  ;; can be better formatted?
+     (associate-pir-file imol chain-id file-name)))) ;;
 	   
-	   (assign-pir-sequence imol chain-id seq-text))))))
 
 ;; Make a box-of-buttons GUI for the various modifications that need
 ;; to be made to match the model sequence to the assigned sequence(s).
