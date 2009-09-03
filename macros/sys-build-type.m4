@@ -58,9 +58,18 @@ if test $OS = Linux ; then
       systype=${architecture}-${dist_name}-${dist_ver}
     ;;
     * )
+      # echo going the star path in dist_name case
       if test -r /etc/issue; then
-        dist_name=`awk 'NR==1{print tolower($1)}' /etc/issue`
-        dist_ver=`awk 'NR==1{print tolower($2)}' /etc/issue`
+
+dnl     $1 and $2 were being substituted to "" (nothing) and I
+dnl     couldn't see how to protect them.  So use cut, tr and head
+dnl     instead.
+dnl         dist_name=`awk 'NR==1{print tolower($1)}' /etc/issue`
+dnl         dist_ver=`awk 'NR==1{print tolower($2)}' /etc/issue`
+	dist_name=`cut -d" " -f 1 /etc/issue | tr A-Z a-z | head -1`
+	dist_ver=` cut -d" " -f 2 /etc/issue | tr A-Z a-z | head -1`
+dnl         echo dist_name $dist_name
+dnl         echo dist_ver $dist_ver
         systype=${architecture}-${dist_name}-${dist_ver}
       else
         systype=${architecture}-unknown-Linux
@@ -87,7 +96,6 @@ else
 fi
 
 COOT_SYS_BUILD_TYPE=${OS}-${systype}${python_tag}${gtk2}
-
 
 AC_MSG_RESULT([$COOT_SYS_BUILD_TYPE])
 AC_SUBST(COOT_SYS_BUILD_TYPE)
