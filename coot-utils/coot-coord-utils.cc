@@ -2958,9 +2958,12 @@ coot::util::model_sequence(const std::vector<std::pair<CResidue *, int> > &sa) {
    char r[10];
    for (unsigned int i=0; i<sa.size(); i++) {
       std::string this_residue = "X";
-      Get1LetterCode(sa[i].first->GetResName(), r);
-      this_residue = r[0];
-      s += this_residue;
+      std::string res_name = sa[i].first->GetResName();
+      if (res_name != "HOH") { 
+	 Get1LetterCode(res_name.c_str(), r);
+	 this_residue = r[0];
+	 s += this_residue;
+      }
    }
    return s;
 }

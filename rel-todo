@@ -1,5 +1,5 @@
 
-   10 items
+   9 items
 
    o Fix problem of Go To Atom dialog displaying the wrong molecule
      number on post-go-to-atom-window (see dnotes).  ::: 2 
@@ -13,9 +13,6 @@
    o Pukka-puckers? should now use the N1/9-C1* bond not the base plane. 
      ::: 2
 
-   o Need to fix up assign sequence and add-terminal-residue so that
-     the sequence offset is taken into account properly. ::: 2 
- 
    o As above, with align and mutate. ::: 3
  
    o In Align vs PIR, the resulting dialogs tries to go to the CA atom
@@ -33,6 +30,7 @@
      When switching stereo contexts creating a new GL context, we need
      to run update_additional_representations() for each model molecule.
      ::: 3
+
 
 ------
 
@@ -1157,5 +1155,13 @@ c-interface clear_up_moving_atoms...
 
 * Done.
 
+   o COOT_SYS_BUILD_TYPE is wrong on Ubuntu 64 ::: 1
+
+* Done.
+
+   o Need to fix up assign sequence and add-terminal-residue so that
+     the sequence offset is taken into account properly. ::: 2 
+ 
+* Done.  Using running sequence number.
 
 -----
