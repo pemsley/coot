@@ -48,6 +48,10 @@
 #include "guile-fixups.h"
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+#include "c-interface-python.hh"
+#endif // USE_PYTHON
+
 
 #if defined(_MSC_VER)
 #define usleep(x) Sleep(x/1000)
@@ -5996,10 +6000,47 @@ int average_map_scm(SCM map_number_and_scales) {
 
 #ifdef USE_PYTHON
 /*! \brief make an average map from the map_number_and_scales (which
-  is a list of pairs (list map-number scale-factor)) (the scale factors
+  is a list of pairs [map-number, scale-factor]) (the scale factors
   are typically 1.0 of course). */
 int average_map_py(PyObject *map_number_and_scales) {
+
    int r = -1;
+   int n = PyObject_Length(map_number_and_scales);
+   std::vector<std::pair<clipper::Xmap<float>, float> > maps_and_scales_vec;
+   for (unsigned int i=0; i<n; i++) {
+      PyObject *number_and_scale = PyList_GetItem(map_number_and_scales, i);
+      int ns = PyObject_Length(number_and_scale);
+      if (ns == 2) {
+	 PyObject *map_number_py = PyList_GetItem(number_and_scale, 0);
+	 PyObject *map_scale_py  = PyList_GetItem(number_and_scale, 1);
+	 if (PyInt_Check(map_number_py)) {
+	   if (PyFloat_Check(map_scale_py) || PyInt_Check(map_scale_py)) {
+	       int map_number = PyInt_AsLong(map_number_py);
+	       if (is_valid_map_molecule(map_number)) {
+		  float scale = PyFloat_AsDouble(map_scale_py);
+		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap_list[0], scale);
+		  maps_and_scales_vec.push_back(p);
+	       } else {
+		  std::cout << "Invalid map number " << map_number << std::endl;
+	       } 
+	    } else {
+	     std::cout << "Bad scale " << PyString_AsString(display_python(map_scale_py))   // FIXME
+	     		 << std::endl;
+	    }
+	 } else {
+	   std::cout << "Bad map number " << PyString_AsString(display_python(map_number_py))  // FIXME
+	         << std::endl;
+	 } 
+      }
+   }
+   if (maps_and_scales_vec.size() > 0) {
+      clipper::Xmap<float> average_map = coot::util::average_map(maps_and_scales_vec);
+      int imol = graphics_info_t::create_molecule();
+      std::string name = "averaged-map";
+      graphics_info_t::molecules[imol].new_map(average_map, name);
+      r = imol;
+      graphics_draw();
+   } 
    return r;
 } 
 #endif 

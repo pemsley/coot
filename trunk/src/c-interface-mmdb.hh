@@ -37,10 +37,10 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression);
 SCM display_scm(SCM o);
 
 #endif // USE_GUILE
+
 #ifdef USE_PYTHON
 #include "Python.h"
 CMMDBManager * mmdb_manager_from_python_expression(PyObject *molecule_expression);
-PyObject *display_python(PyObject *o);
 #endif // PYTHON
 #endif 
 
