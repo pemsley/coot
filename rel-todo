@@ -1,19 +1,24 @@
 
-   9 items
+   7 items
 
    o Fix problem of Go To Atom dialog displaying the wrong molecule
      number on post-go-to-atom-window (see dnotes).  ::: 2 
  
-   o Multi-refinement falls over at the end sometimes - missing
-     residue? ::: 1
-
    o Random-looking crash on multi-refine with Ramachandran
      optimisation. ::: 2 
 
    o Pukka-puckers? should now use the N1/9-C1* bond not the base plane. 
      ::: 2
 
-   o As above, with align and mutate. ::: 3
+   o With align and mutate so that the sequence offset is taken into
+     account properly.  Check that the subsequent refinement of
+     residues only refines the insertions and mutations, not the whole
+     structure - consider using interruptible-fit-protein or something
+     like that were the specs are passed (interruptible-fit-protein
+     may need to be refactored). ::: 3
+
+* Mostly done now that the insertions are correct for
+  add-terminal-residue?
  
    o In Align vs PIR, the resulting dialogs tries to go to the CA atom
      of the residue to delete, this doesn't work for phosphates,
@@ -1163,5 +1168,10 @@ c-interface clear_up_moving_atoms...
      the sequence offset is taken into account properly. ::: 2 
  
 * Done.  Using running sequence number.
+
+   o Multi-refinement falls over at the end sometimes - missing
+     residue? ::: 1
+
+* Done.
 
 -----
