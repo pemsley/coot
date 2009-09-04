@@ -1072,7 +1072,7 @@ if (have_coot_python):
 
      # BL says:: maybe check if number at some point
      add_simple_coot_menu_menuitem(
-       submenu_representation,
+       submenu_settings,
        "Set Spin Speed",
        lambda func: generic_single_entry("Set Spin Speed (smaller is slower)",
 			str(idle_function_rotate_angle()), "Set it",

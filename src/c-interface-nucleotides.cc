@@ -125,9 +125,9 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
       if (res_p) {
 	 try {
 	    coot::pucker_analysis_info_t pi(res_p, altconf);
+	    CResidue *following_res =
+	      graphics_info_t::molecules[imol].get_following_residue(residue_spec);
 	    if (do_pukka_pucker_check) {
-	       CResidue *following_res =
-		  graphics_info_t::molecules[imol].get_following_residue(residue_spec);
 	       if (following_res) {
 // 		  std::cout << "   DEBUG:: " << coot::residue_spec_t(following_res)
 // 			    << " follows " << residue_spec << std::endl;
@@ -138,6 +138,7 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
 		     PyList_Append(r, PyString_FromString(pi.puckered_atom().c_str()));
 		     PyList_Append(r, PyFloat_FromDouble(pi.out_of_plane_distance));
 		     PyList_Append(r, PyFloat_FromDouble(pi.plane_distortion));
+
 		     // double dist_crit = 1.2;
 		     // If C2', phosphate oop dist should be > dist_crit
 		     // If C3', phosphate oop dist should be < dist_crit
@@ -151,14 +152,20 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
 		  
 	       } else {
 		 r = PyList_New(0);
-		  // r = scm_cons(scm_double2num(pi.plane_distortion), r);
-		  // r = scm_cons(scm_double2num(pi.out_of_plane_distance), r);
 	       } 
 	    } else { 
+	       // no pucker check
 	       r = PyList_New(0);
 	       PyList_Append(r, PyString_FromString(pi.puckered_atom().c_str()));
 	       PyList_Append(r, PyFloat_FromDouble(pi.out_of_plane_distance));
 	       PyList_Append(r, PyFloat_FromDouble(pi.plane_distortion));
+	       if (following_res) {
+		 try {
+		   double phosphate_d = pi.phosphate_distance(following_res);
+		   PyList_Insert(r, 0, PyFloat_FromDouble(phosphate_d));
+		 }
+		 catch (std::runtime_error phos_mess) { }
+	       }
 	    }
 	 }
 	 catch (std::runtime_error mess) {

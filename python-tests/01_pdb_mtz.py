@@ -802,7 +802,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 
     def test26_1(self):
-	    """OXT is added before TER record"""
+	    """OXT is added before TER record - add only one"""
 
 	    imol = unittest_pdb("test-TER-OXT.pdb")
 	    opdb = "test-TER-OXT-added.pdb"
@@ -810,7 +810,18 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(valid_model_molecule_qm(imol),
 			    "Failed to read test-TER-OXT.pdb")
 
-	    add_OXT_to_residue(imol, 14, "", "A")
+	    add_status_1 = add_OXT_to_residue(imol, 14, "", "A")
+	    add_status_2 = add_OXT_to_residue(imol, 14, "", "A")
+
+	    # the second add should be ignored, only 1 OXT allowed
+	    # per residue.
+
+	    self.failUnless(add_status_1 == 1,
+			    "   add-status-1 not success - fail")
+
+	    self.failUnless(add_status_2 == 0,
+			    "   add-status-2 was success - fail")
+	    
 	    write_pdb_file(imol, opdb)
 	    self.failUnless(os.path.isfile(opdb),
 			    "Failed to find test-TER-OXT-added.pdb")
@@ -1676,6 +1687,24 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    self.failUnless(bond_length_within_tolerance_qm(c_1, c_2, 0.0, 0.2))
 
+
+    def test54_0(self):
+	    """Phosphate distance in pucker analysis is sane"""
+
+	    imol = unittest_pdb("2goz-manip.pdb")
+	    self.failUnless(valid_model_molecule_qm(imol),
+			    "failed to find 2goz-manip.pdb")
+
+	    pi = pucker_info(imol, ["B", 14, ""], 0)
+	    phosphate_distance = pi[0]
+	    self.failIf(phosphate_distance > 0.2,
+			"  Bad phosphate distance on 14 %s" %phosphate_distance)
+
+	    pi = pucker_info(imol, ["B", 15, ""], 0)
+	    phosphate_distance = pi[0]
+	    self.failIf(phosphate_distance < 2.0,
+			"  Bad phosphate distance on 15 %s" %phosphate_distance)
+	    
 	    
     def test98_0(self):
 	    """Hundreds of Ramachandran refinements (post_manipulation_hook_py test)"""
