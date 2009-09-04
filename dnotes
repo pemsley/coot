@@ -4851,6 +4851,12 @@ Tue Sep  1 19:17:15 BST 2009
    Put phosphate backbone mode into symmetry.
 
 
+----
+Fri Sep  4 13:40:49 BST 2009
+
+   It would be nice if the alignment results (e.g Validate vs PIR or
+   Align & Mutate) came up in a slider
+
 
 ------
 

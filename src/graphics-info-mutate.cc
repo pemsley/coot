@@ -55,6 +55,7 @@
 
 #include "interface.h"
 
+#include "coot-coord-utils.hh"
 #include "molecule-class-info.h"
 
 #include "coot-sysdep.h"
@@ -292,14 +293,75 @@ graphics_info_t::read_standard_residues() {
 
 void
 graphics_info_t::mutate_chain(int imol, const std::string &chain_id,
-			      const std::string &seq) {
+			      const std::string &seq,
+			      bool do_auto_fit_flag) {
 
    if (imol < n_molecules()) { 
       if (imol >= 0) { 
 	 if (molecules[imol].has_model()) {
 	    std::cout << "INFO:: aligning to mol number " << imol << "chain: "
 		      << chain_id << std::endl;
-	    molecules[imol].align_and_mutate(chain_id, coot::fasta(seq));
+	    coot::chain_mutation_info_container_t mutation_info = 
+	       molecules[imol].align_and_mutate(chain_id, coot::fasta(seq));
+	    if (do_auto_fit_flag) {
+	       int imol_map = Imol_Refinement_Map();
+	       if (is_valid_map_molecule(imol_map)) {
+
+
+		  // For now let's refine the whole chain
+		  //		  
+                  std::vector<std::string> s;
+                  s.push_back("fit-chain");
+                  s.push_back(coot::util::int_to_string(imol));
+                  s.push_back(coot::util::single_quote(chain_id));
+#ifdef USE_GUILE
+                  safe_scheme_command(schemize_command_strings(s));
+#endif // USE_GUILE
+		  
+
+		  // This doesn't work (yet) because after alignment,
+		  // the residue numbers of the mutations do not
+		  // correspond the structure (because of insertions
+		  // and deletions).
+		  // 
+		  // =============================================
+		  if (0) { 
+		     if (mutation_info.mutations.size()) {
+			int replacement_state = refinement_immediate_replacement_flag;
+			refinement_immediate_replacement_flag = 1;
+			for (unsigned int i=0; i<mutation_info.mutations.size(); i++) { 
+			   coot::residue_spec_t res_spec = mutation_info.mutations[i].first;
+			   // now autofit rotamer on res_spec.
+			
+			   int mode = graphics_info_t::rotamer_search_mode;
+			   int clash_flag = 1;
+			   float lowest_probability = 0.01;
+			   std::string altloc = "";
+			   molecules[imol].auto_fit_best_rotamer(mode,
+								 res_spec.resno,
+								 altloc,
+								 res_spec.insertion_code,
+								 res_spec.chain,
+								 imol_map,
+								 clash_flag,
+								 lowest_probability,
+								 *Geom_p());
+			   short int auto_range = 1;
+			   refine_residue_range(imol,
+						res_spec.chain, res_spec.chain,
+						res_spec.resno, res_spec.insertion_code,
+						res_spec.resno, res_spec.insertion_code,
+						altloc, 0);
+		  
+			}
+			refinement_immediate_replacement_flag = replacement_state;
+		     }
+		  } // end non-working block. =====================
+		  
+	       } else {
+		  std::cout << "WARNING:: refinement map set " << std::endl;
+	       } 
+	    } 
 	 }
       }
    }

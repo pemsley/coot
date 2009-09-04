@@ -5070,16 +5070,7 @@ int do_align_mutate_sequence(GtkWidget *w) {
 
 	    if (is_valid_model_molecule(imol)) {
 	       graphics_info_t g;
-	       g.mutate_chain(imol, chain_id, sequence);
-	       if (do_auto_fit) {
-		  std::vector<std::string> s;
-		  s.push_back("fit-chain");
-		  s.push_back(coot::util::int_to_string(imol));
-		  s.push_back(single_quote(chain_id));
-		  //#ifdef USE_GUILE
-		  safe_scheme_command(languagize_command(s));
-		  //#endif // USE_GUILE		  
-	       }
+	       g.mutate_chain(imol, chain_id, sequence, do_auto_fit);
 	       graphics_draw();
 	    }
 	 }

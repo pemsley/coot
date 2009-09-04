@@ -1704,13 +1704,18 @@ class molecule_class_info_t {
 
    // and the biggie: lots of mutations/deletions/insertions from an
    // alignment:
-   void align_and_mutate(const std::string chain_id,
-			 const coot::fasta &seq);
+   // 
+   // We return a mutation container so that the calling function can
+   // do a autofit rotamer on the mutated residues.
+   //
+   coot::chain_mutation_info_container_t align_and_mutate(const std::string chain_id,
+							  const coot::fasta &seq);
    
    void mutate_chain(const std::string &chain_id,
 		     const coot::chain_mutation_info_container_t &mut_cont_info,
 		     PCResidue *SelResidues,
-		     int nSelResidues);
+		     int nSelResidues,
+		     bool renumber_residues_flag);
 
    std::pair<bool, std::string>
    residue_type_next_residue_by_alignment(const coot::residue_spec_t &clicked_residue,
