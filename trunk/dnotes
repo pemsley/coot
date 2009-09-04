@@ -4858,5 +4858,27 @@ Fri Sep  4 13:40:49 BST 2009
    Align & Mutate) came up in a slider
 
 
+---
+Fri Sep  4 16:18:20 BST 2009
+
+	Project student idea: In refining RNA, it would be nice to
+	have extra restraints to keep the base planes aligned.  This
+	could be done with a combination of angle and plane (pseudo)
+	restraints as a mmCIF link.  Write a program to generate these
+	from a PDB file.  You'll need a wiggle-room factor.  Maybe
+	generate an intermediate representation/file that the user can
+	optionally edit and generate the dictionary from that.
+
+
+----
+Fri Sep  4 16:59:29 BST 2009
+
+   It would be nice if coot::util::model_sequence() (or its argument -
+   vseq) only allowed residues that were protein amino acids - thus we
+   would not get problems of trying to mutate a SO4 into an ALA in
+   Aligment vs PIR.  (Yes, it is a stupid idea to put phosphates into
+   protein chain, but some people do it).
+
+
 ------
 

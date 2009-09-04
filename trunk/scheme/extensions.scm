@@ -426,7 +426,7 @@
 	  (add-simple-coot-menu-menuitem
 	   submenu "Associate Sequence...."
 	   (lambda ()
-	     (associate-pir-with-molecule-gui)))
+	     (associate-pir-with-molecule-gui #f))) ;; don't do alignement gui on OK press
 
 	  ;; only add this to the GUI if the python version is not available.
 	  (if (not (coot-has-pygtk?))
