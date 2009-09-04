@@ -61,9 +61,9 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
       if (res_p) {
 	 try {
 	    coot::pucker_analysis_info_t pi(res_p, altconf);
+	    CResidue *following_res =
+	       graphics_info_t::molecules[imol].get_following_residue(residue_spec);
 	    if (do_pukka_pucker_check) {
-	       CResidue *following_res =
-		  graphics_info_t::molecules[imol].get_following_residue(residue_spec);
 	       if (following_res) {
 // 		  std::cout << "   DEBUG:: " << coot::residue_spec_t(following_res)
 // 			    << " follows " << residue_spec << std::endl;
@@ -75,7 +75,6 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 		     r = scm_cons(scm_makfrom0str(pi.puckered_atom().c_str()), r);
 		     r = scm_cons(scm_double2num(phosphate_d), r);
 
-		     
 		     // double dist_crit = xxx
 		     // If C2', phosphate oop dist should be > dist_crit
 		     // If C3', phosphate oop dist should be < dist_crit
@@ -89,14 +88,20 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 		  
 	       } else {
 		  r = SCM_EOL;
-		  // r = scm_cons(scm_double2num(pi.plane_distortion), r);
-		  // r = scm_cons(scm_double2num(pi.out_of_plane_distance), r);
 	       } 
-	    } else { 
+	    } else {
+	       // no pucker check
 	       r = SCM_EOL;
 	       r = scm_cons(scm_double2num(pi.plane_distortion), r);
 	       r = scm_cons(scm_double2num(pi.out_of_plane_distance), r);
 	       r = scm_cons(scm_makfrom0str(pi.puckered_atom().c_str()), r);
+	       if (following_res) {
+		  try {
+		     double phosphate_d = pi.phosphate_distance(following_res);
+		     r = scm_cons(scm_double2num(phosphate_d), r);
+		  }
+		  catch (std::runtime_error phos_mess) { }
+	       }
 	    }
 	 }
 	 catch (std::runtime_error mess) {

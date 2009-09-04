@@ -4702,6 +4702,8 @@ Mon Aug 24 17:24:50 EDT 2009
 
    simple average of maps, many maps, something like difference-map function.
 
+* Done.
+
 ---
 
    set map is *not* difference map!  need this function
@@ -4744,7 +4746,7 @@ Tue Aug 25 10:09:07 EDT 2009
 Tue Aug 25 10:54:57 EDT 2009
 
     Pukka puckers?  Dont use the out of plane distance, use the N1/9
-    C1' vector and find the distance of the Phosphate from teh
+    C1' vector and find the distance of the Phosphate from the
     extension of that line.  It is more sensitive than the out of
     plane distance.
 
@@ -4759,11 +4761,16 @@ Tue Aug 25 10:54:57 EDT 2009
  residues, moving the range of reisdues by a rotation/trans operator
  derives from the dots.
 
+
 ----
 Tue Aug 25 14:30:19 EDT 2009
 
     2b4j: do a sequence association and add terminal residue (either
     at end or a test deleted residue)
+
+
+----
+Tue Aug 25 14:30:19 EDT 2009
 
 
     set-hardware-stereo-angel-factor : typo somewhere?  preferences?

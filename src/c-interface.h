@@ -5138,7 +5138,8 @@ void delete_sequence_by_chain_id(int imol, const char *chain_id_in);
 #ifdef USE_GUILE
 /*! \brief return the sequence info that has been assigned to molecule
   number imol. return as a list of dotted pairs (list (cons chain-id
-  seq)).  To be used in constructing the cootaneer gui. */
+  seq)).  To be used in constructing the cootaneer gui.  Return Scheme
+  False when no sequence has been assigned to imol. */
 SCM sequence_info(int imol);
 
 /*! \brief do a internal alignment of all the assigned sequences,
@@ -5153,8 +5154,9 @@ SCM alignment_mismatches_scm(int imol);
 
 #ifdef USE_PYTHON
 /*! \brief return the sequence info that has been assigned to molecule
-  number imol. return as a list of dotted pairs [[chain-id,
-  seq]].  To be used in constructing the cootaneer gui. */
+  number imol. return as a list of dotted pairs [[chain-id, seq]].  To
+  be used in constructing the cootaneer gui.  Return False when no
+  sequence has been assigned. */
 PyObject *sequence_info_py(int imol);
 /*! \brief 
 

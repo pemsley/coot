@@ -2179,3 +2179,25 @@
 	     
 	     (bond-length-within-tolerance? c-1 c-2 0.0 0.2)))))))
 
+
+
+(greg-testcase "Phosphate distance in pucker analysis is sane" #t 
+   (lambda () 
+
+     (let ((imol (greg-pdb "2goz-manip.pdb")))
+       (let ((pi (pucker-info imol (list "B" 14 "") 0)))
+	 (let ((phosphate-distance (car pi)))
+	   (if (> phosphate-distance 0.2)
+	       (begin
+		 (format #t "  Bad phosphate distance on 14 ~s~%" phosphate-distance)
+		 (throw 'fail)))))
+
+       (let ((pi (pucker-info imol (list "B" 15 "") 0)))
+	 (let ((phosphate-distance (car pi)))
+	   (if (< phosphate-distance 2.0)
+	       (begin
+		 (format #t "  Bad phosphate distance on 15 ~s~%" phosphate-distance)
+		 (throw 'fail)))))
+
+       #t)))
+

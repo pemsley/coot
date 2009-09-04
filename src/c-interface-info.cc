@@ -182,13 +182,14 @@ void do_residue_info_dialog() {
 #ifdef USE_GUILE
 SCM sequence_info(int imol) {
 
-   SCM r = SCM_EOL;
+   SCM r = SCM_BOOL_F;
 
    if (is_valid_model_molecule(imol)) { 
       std::vector<std::pair<std::string, std::string> > seq =
 	 graphics_info_t::molecules[imol].sequence_info();
       
       if (seq.size() > 0) {
+	 r = SCM_EOL;
 	 // unsigned int does't work here because then the termination
 	 // condition never fails.
 	 for (int iv=int(seq.size()-1); iv>=0; iv--) {
@@ -210,8 +211,7 @@ SCM sequence_info(int imol) {
 #ifdef USE_PYTHON
 PyObject *sequence_info_py(int imol) {
 
-   PyObject *r;
-   r = PyList_New(0);
+   PyObject *r = Py_False;
 
    if (is_valid_model_molecule(imol)) { 
       
@@ -220,6 +220,7 @@ PyObject *sequence_info_py(int imol) {
 
 
       if (seq.size() > 0) {
+	 r = PyList_New(0);
 	 // unsigned int does't work here because then the termination
 	 // condition never fails.
          r = PyList_New(seq.size());

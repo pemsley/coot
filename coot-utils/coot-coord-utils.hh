@@ -414,6 +414,8 @@ namespace coot {
       PUCKERED_ATOM_T puckered_atom_;
       std::string altconf;
       void assign_base_atom_coords(CResidue *residue_p);
+      CAtom *N1_or_9;
+      CAtom *C1_prime; 
    public:
       float plane_distortion;
       float out_of_plane_distance;
@@ -431,6 +433,7 @@ namespace coot {
       // have been 3' or 2'.  Check vs the actual puckering.
       // 
       float phosphate_distance(CResidue *following_res);
+      float phosphate_distance_to_base_plane(CResidue *following_res);
       std::string puckered_atom() const;
    };
 
