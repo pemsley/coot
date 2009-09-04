@@ -31,11 +31,14 @@
 coot::pucker_analysis_info_t::pucker_analysis_info_t(CResidue *res_p,
 						     std::string altconf_in) {
 
-   assign_base_atom_coords(res_p);
-
+   C1_prime = 0;
+   N1_or_9 = 0;
    // The atoms are in the following order C1' C2' C3' C4' O4
    //
    altconf = altconf_in; // save for phosphate distance (if needed).
+   
+   assign_base_atom_coords(res_p); // and C1_prime and N1_or_9 if possible
+
    
    std::vector<CAtom *> atoms(5);
    std::vector<coot::pucker_analysis_info_t::PUCKERED_ATOM_T> possible_puckers;
@@ -182,6 +185,22 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(CResidue *residue_p) {
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
+   // Assign N1_or_9 and C1_prime
+   for (unsigned int i=0; i<n_residue_atoms; i++) { 
+      std::string atom_name(residue_atoms[i]->name);
+      std::string alt_name(residue_atoms[i]->altLoc);
+      if (alt_name == altconf) { 
+	 if (atom_name == " N1 ")
+	    N1_or_9 = residue_atoms[i];
+	 if (atom_name == " N9 ")
+	    N1_or_9 = residue_atoms[i];
+	 if (atom_name == " C1*")
+	    C1_prime = residue_atoms[i];
+	 if (atom_name == " C1'")
+	    C1_prime = residue_atoms[i];
+      }
+   }
+
    // Fill base_names according to residue type/name.  If base_name is
    // empty after setting, just fall out (an exception is thrown in
    // the constructor if there are not enough base name atoms.
@@ -232,12 +251,13 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(CResidue *residue_p) {
 // Throw an exception if we can't do this.
 // 
 float 
-coot::pucker_analysis_info_t::phosphate_distance(CResidue *following_res) {
+coot::pucker_analysis_info_t::phosphate_distance_to_base_plane(CResidue *following_res) {
 
    float oop = 0.0;
    PPCAtom residue_atoms = NULL;
    int n_residue_atoms;
    bool found = 0;
+
    following_res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int i=0; i<n_residue_atoms; i++) {
       std::string atm_name(residue_atoms[i]->name);
@@ -273,6 +293,79 @@ coot::pucker_analysis_info_t::phosphate_distance(CResidue *following_res) {
    } 
    return oop;
 }
+
+// Throw an exception if the reference atoms are not found.
+float 
+coot::pucker_analysis_info_t::phosphate_distance(CResidue *following_res) {
+
+   if (! C1_prime) { 
+      std::string mess = "C1*/C1' not found in this residue";
+      throw std::runtime_error(mess);
+   }
+   if (! N1_or_9) { 
+      std::string mess = "N1/N9 not found in this residue";
+      throw std::runtime_error(mess);
+   }
+
+   //                     X             
+   //                    / \  90 degrees       ;
+   //                 d / X \                  ;
+   //                  /     \                 ;
+   //                 /       \	               ;
+   //                /         \               ; 
+   //               /   pi-alpha\              ;
+   //              --------------\C1'	       ;
+   //            P           alpha\            ; 
+   //                              \           ;
+   //                               \          ; 
+   //                                \         ;
+   //                                 \	       ;
+   //                                  \       ; 
+   //                                   \ N1   ;
+   
+   
+   float d = 0.0;
+   PPCAtom residue_atoms = NULL;
+   int n_residue_atoms;
+   bool found = 0;
+   following_res->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      std::string atm_name(residue_atoms[i]->name);
+      std::string alt_name(residue_atoms[i]->altLoc);
+      if (atm_name == " P  ") { 
+	 if (altconf == alt_name) {
+	    clipper::Coord_orth P_pt(residue_atoms[i]->x,
+				     residue_atoms[i]->y,
+				     residue_atoms[i]->z);
+	    clipper::Coord_orth N_pt( N1_or_9->x,  N1_or_9->y,  N1_or_9->z);
+	    clipper::Coord_orth C_pt(C1_prime->x, C1_prime->y, C1_prime->z);
+	    clipper::Coord_orth CN = N_pt - C_pt;
+	    clipper::Coord_orth CP = P_pt - C_pt;
+
+	    double CN_d = clipper::Coord_orth::length(N_pt, C_pt);
+	    double CP_d = clipper::Coord_orth::length(P_pt, C_pt);
+
+	    if (CN_d > 0.0) { 
+	       if (CP_d > 0.0) { 
+		  found = 1;
+		  double cos_alpha = clipper::Coord_orth::dot(CN, CP)/(CN_d*CP_d);
+		  
+		  double alpha = acos(cos_alpha);
+		  double sin_pi_minus_alpha = sin(M_PI - alpha);
+		  d = sin_pi_minus_alpha * CP_d;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (! found) {
+      std::string mess = "P not found in this residue";
+      throw std::runtime_error(mess);
+   }
+   return d;
+} 
+
 
 std::string
 coot::pucker_analysis_info_t::puckered_atom() const {

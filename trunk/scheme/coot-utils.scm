@@ -1993,11 +1993,13 @@
 (define (pukka-puckers? imol)
 
   (let ((residue-list '())
-	(crit-d 3.3))
+	(crit-d 3.0)) ;; Richardson's grup value to partition C2'-endo from C3'-endo
 
+    ;; 
     (define (add-questionable r)
       (set! residue-list (cons r residue-list)))
 
+    ;;
     (define (get-ribose-residue-atom-name imol residue-spec pucker-atom)
       (let ((r-info (apply residue-info (cons imol residue-spec)))
 	    (t-pucker-atom (string-append (substring pucker-atom 0 3) "*")))
@@ -2006,6 +2008,7 @@
 	 pucker-atom
 	 t-pucker-atom)))
 
+    ;; main line
     (map (lambda (chain-id)
            (if (not (is-solvent-chain? imol chain-id))
                (let ((n-residues (chain-n-residues chain-id imol)))
@@ -2070,8 +2073,8 @@
 				 buttons
 				 "  Close  ")))))
 
-;; ---------- annotations ---------------------
 
+;; ---------- annotations ---------------------
 
 (define (add-annotation-here text)
   (let ((rc (rotation-centre))
