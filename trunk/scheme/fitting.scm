@@ -266,14 +266,15 @@
 		   (res-no   (seqnum-from-serial-number  imol chain-id serial-number))
 		   (ins-code (insertion-code-from-serial-number imol chain-id serial-number)))
 	       (if ins-code
-		   (begin
-		     (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
-		     (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-		     (auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol imol-map 1 0.1)
-		     (if (>= imol-map 0)
-			 (begin
-			   (refine-zone imol chain-id res-no res-no alt-conf)
-			   (accept-regularizement)))))))
+		   (if (not (string=? res-name "HOH"))
+		       (begin
+			 (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+			 (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+			 (auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol imol-map 1 0.1)
+			 (if (>= imol-map 0)
+			     (begin
+			       (refine-zone imol chain-id res-no res-no alt-conf)
+			       (accept-regularizement))))))))
 	   (number-list 0 (- n-residues 1)))))
     
     (if (= replacement-state 0)

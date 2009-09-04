@@ -230,7 +230,8 @@ void
 molecule_class_info_t::mutate_chain(const std::string &chain_id,
 				    const coot::chain_mutation_info_container_t &mutation_info,
 				    PCResidue *SelResidues,
-				    int nSelResidues) {
+				    int nSelResidues,
+				    bool renumber_residues_flag) {
 
    if (mutation_info.insertions.size() > 0 ||
        mutation_info.deletions.size() > 0 ||
@@ -251,14 +252,16 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 
       mutation_info.print();
 
-      int imod=1;
-      CModel *model_p = atom_sel.mol->GetModel(imod);
-      int n_chains = model_p->GetNumberOfChains();
-      for (int ich=0; ich<n_chains; ich++) {
-	 CChain *chain_p = model_p->GetChain(ich);
-	 std::string chain_chain_id = chain_p->GetChainID();
-	 if (chain_chain_id == chain_id) {
-	    simplify_numbering_internal(chain_p);
+      if (renumber_residues_flag) { 
+	 int imod=1;
+	 CModel *model_p = atom_sel.mol->GetModel(imod);
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ich=0; ich<n_chains; ich++) {
+	    CChain *chain_p = model_p->GetChain(ich);
+	    std::string chain_chain_id = chain_p->GetChainID();
+	    if (chain_chain_id == chain_id) {
+	       simplify_numbering_internal(chain_p);
+	    }
 	 }
       }
 
@@ -269,6 +272,7 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
       // deletions
       // insertions
       int n_mutations  = 0;
+      int n_mutations_failed = 0; 
       int n_deletions  = 0;
       int n_insertions = 0;
 
@@ -277,8 +281,10 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
       for (int i=0; i<nSelResidues; i++)
 	 original_seqnums[i] = SelResidues[i]->GetSeqNum();
 
+
       // --------------- mutations ----------------
       for (unsigned int i=0; i<mutation_info.mutations.size(); i++) {
+
 	 std::string target_type = mutation_info.mutations[i].second;
 	 coot::residue_spec_t rs = mutation_info.mutations[i].first;
 	 // std::cout << "DEBUG:: chains: " << chain_id << " " << rs.chain << std::endl;
@@ -286,14 +292,19 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	 PCResidue *local_residues;
 	 int local_n_selected_residues;
 	 atom_sel.mol->Select(SelectionHandle, STYPE_RESIDUE, 0,
-			      (char *) chain_id.c_str(),
-			      rs.resno, (char *) rs.insertion_code.c_str(),
-			      rs.resno, (char *) rs.insertion_code.c_str(),
+			      chain_id.c_str(),
+			      rs.resno, rs.insertion_code.c_str(),
+			      rs.resno, rs.insertion_code.c_str(),
 			      "*", "*", "*", "*",
 			      SKEY_NEW
 			      );
 	 atom_sel.mol->GetSelIndex(SelectionHandle, local_residues,
 				   local_n_selected_residues);
+	 // We save the local residues so that we can do a deletion of
+	 // the atom selection before making the mutation. We can't do
+	 // a DeleteSelection after a mutation (crash) and if we do it
+	 // before, then we lose the selected residues!  So make a
+	 // vector to keep them in.  Lovely mmdb.
 	 std::vector<CResidue *> residues_vec(local_n_selected_residues);
 	 for (int i=0; i<local_n_selected_residues; i++)
 	    residues_vec[i] = local_residues[i];
@@ -302,13 +313,37 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	    mutate(residues_vec[0], target_type);
 	    n_mutations++;
 	 } else {
-	    std::cout << "ERROR:: bad select in mutations " << chain_id
-		      << " " << rs.resno << " " << rs.insertion_code << std::endl;
+	    std::cout << "ERROR:: No residue selected for  mutation " << chain_id
+		      << " " << rs.resno << " " << rs.insertion_code << " -> "
+		      << target_type << std::endl;
+	    n_mutations_failed++;
 	 }
 
 	 // Nope.... Can't DeleteSelection after mods.
 	 // atom_sel.mol->DeleteSelection(SelectionHandle);
       }
+
+      if (n_mutations_failed > 0) {
+	 // Why did the mutations go wrong?  Let's see the residues fo atom_sel.mol:
+	 int SelectionHandle = atom_sel.mol->NewSelection();
+	 PCResidue *local_residues;
+	 int local_n_selected_residues;
+	 atom_sel.mol->Select(SelectionHandle, STYPE_RESIDUE, 0,
+			      chain_id.c_str(),
+			      ANY_RES, "*",
+			      ANY_RES, "*",
+			      "*", "*", "*", "*",
+			      SKEY_NEW
+			      );
+	 atom_sel.mol->GetSelIndex(SelectionHandle, local_residues,
+				   local_n_selected_residues);
+	 std::cout << "=== Residues currently in molecule === " << std::endl;
+	 for (int ires=0; ires<local_n_selected_residues; ires++)
+	    std::cout << local_residues[ires]->GetChainID() << " "
+		      << local_residues[ires]->GetSeqNum() << " "
+		      << local_residues[ires]->GetInsCode() << " "
+		      << local_residues[ires]->GetResName() << "\n";
+      } 
 
 
       // --------------- insertions ----------------
@@ -330,6 +365,7 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
       }
       atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
+      
 
       // --------------- deletions ----------------
       std::vector<std::pair<CResidue *, int> > residues_for_deletion;
@@ -360,13 +396,19 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	    residues_for_deletion.push_back(std::pair<CResidue *, int> (local_residues[0], rs.resno));
 	 }
 	 atom_sel.mol->DeleteSelection(SelectionHandle);
-
       }
 
       for (unsigned int ird=0; ird<residues_for_deletion.size(); ird++) {
-	 delete residues_for_deletion[ird].first;
-	 residues_for_deletion[ird].first = NULL;
-	 // now renumber:
+	 // delete residues_for_deletion[ird].first;
+	 CResidue *residue_p = residues_for_deletion[ird].first;
+	 if (residue_p) {
+	    int seqnum = residue_p->GetSeqNum();
+	    pstr inscode = residue_p->GetInsCode();
+	    residue_p->chain->DeleteResidue(seqnum, inscode);
+	    residues_for_deletion[ird].first = NULL;
+	 } 
+	 // Now renumber the followig residues because they should
+	 // have a seqNum of 1 less than they had before the deletion.
 	 for (int ires=0; ires<nSelResidues; ires++) {
 	    if (SelResidues[ires]) {
 	       if (original_seqnums[ires] > residues_for_deletion[ird].second) {
@@ -389,14 +431,15 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
       update_molecule_after_additions();
       backup_this_molecule = save_backup_state;
    }
-
 }
 
 
-void
+
+coot::chain_mutation_info_container_t
 molecule_class_info_t::align_and_mutate(const std::string chain_id,
 					const coot::fasta &fasta_seq) {
 
+   coot::chain_mutation_info_container_t mutation_info;
    std::string target = fasta_seq.sequence;
 
    CMMDBManager *mol = atom_sel.mol;
@@ -420,13 +463,17 @@ molecule_class_info_t::align_and_mutate(const std::string chain_id,
 
 	 // I don't know if we can do this here, but I do know we
 	 // mol->DeleteSelection(selHnd); // can't DeleteSelection after mods.
+	 bool renumber_residues_flag = 0;
+	 mutation_info = align_on_chain(chain_id, SelResidues, nSelResidues, target); 
 	 mutate_chain(chain_id,
-		      align_on_chain(chain_id, SelResidues, nSelResidues, target),
-		      SelResidues, nSelResidues);
+		      mutation_info,
+		      SelResidues, nSelResidues,
+		      renumber_residues_flag);
       }
    } else {
       std::cout << "ERROR:: null mol in align_and_mutate" << std::endl;
    }
+   return mutation_info;
 }
 
 coot::chain_mutation_info_container_t
@@ -448,7 +495,8 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    // std::string model = make_model_string_for_alignment(SelResidues, nSelResidues);
    // new style
    std::string model = coot::util::model_sequence(vseq);
-   // std::cout << "INFO:: " << model << std::endl;
+   std::cout << "INFO:: input model  sequence:" << model  << std::endl;
+   std::cout << "INFO:: input target sequence:" << target  << std::endl;
 
    CAlignment align;
 

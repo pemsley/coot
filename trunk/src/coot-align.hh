@@ -30,6 +30,7 @@ namespace coot {
       chain_mutation_info_container_t(const std::string &chain_id_in) {
 	 chain_id = chain_id_in;
       }
+      chain_mutation_info_container_t() { }
       void add_deletion(const residue_spec_t &res_spec) {
 	 residue_spec_t r = res_spec;
 	 r.chain = chain_id; // in case it was not set by the function

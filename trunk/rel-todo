@@ -1,20 +1,8 @@
 
    7 items
 
-
-   o Align and mutate is crashing: 
-
-#6  0x00000000006cf4a4 in molecule_class_info_t::align_and_mutate (this=0x1a3, chain_id=
-        {static npos = 18446744073709551615, _M_dataplus = {<std::allocator<char>> = {<__gnu_cxx::new_allocator<char>> = {<No data fields>}, <No data fields>}, _M_p = 0x1a989f0 "P%G�%@>\222|\177"}}, fasta_seq=<value optimized out>)
-    at ../../coot/src/molecule-class-info-mutate.cc:425
-#7  0x00000000005d5a7e in graphics_info_t::mutate_chain (this=<value optimized out>, imol=<value optimized out>, 
-    chain_id=@0x7fffa0e7b110, seq=@0x7fffa0e7b0f0) at ../../coot/src/graphics-info-mutate.cc:302
-#8  0x0000000000503726 in do_align_mutate_sequence (w=0xe56430) at ../../coot/src/c-interface-gui.cc:5073
-#9  0x000000000055250d in on_align_and_mutate_ok_button_clicked (button=<value optimized out>, user_data=<value optimized out>)
-    at ../../coot/src/callbacks.c:7977
-#10 0x00007f7c8e0ab27d in g_closure_invoke () from /usr/lib/libgobject-2.0.so.0
-#11 0x00007f7c8e0c0e3b in ?? () from /usr/lib/libgobject-2.0.so.0
-
+   o Autofit rotamers for Leucines is doing the right thing?  Test on
+     2dk2-overlayed-fix-up-mutated-close.pdb.  It seems not.  ::: 1
 
    o Fix problem of Go To Atom dialog displaying the wrong molecule
      number on post-go-to-atom-window (see dnotes).  ::: 2 
@@ -32,7 +20,7 @@
      residues only refines the insertions and mutations, not the whole
      structure - consider using interruptible-fit-protein or something
      like that were the specs are passed (interruptible-fit-protein
-     may need to be refactored). ::: 3
+     may need to be refactored). ::: 5
 
 * Mostly done now that the insertions are correct for
   add-terminal-residue?
@@ -1190,5 +1178,24 @@ c-interface clear_up_moving_atoms...
      residue? ::: 1
 
 * Done.
+
+
+   o Align and mutate is crashing: 
+
+#6  0x00000000006cf4a4 in molecule_class_info_t::align_and_mutate (this=0x1a3, chain_id=
+        {static npos = 18446744073709551615, _M_dataplus = {<std::allocator<char>> = {<__gnu_cxx::new_allocator<char>> = {<No data fields>}, <No data fields>}, _M_p = 0x1a989f0 "P%G�%@>\222|\177"}}, fasta_seq=<value optimized out>)
+    at ../../coot/src/molecule-class-info-mutate.cc:425
+#7  0x00000000005d5a7e in graphics_info_t::mutate_chain (this=<value optimized out>, imol=<value optimized out>, 
+    chain_id=@0x7fffa0e7b110, seq=@0x7fffa0e7b0f0) at ../../coot/src/graphics-info-mutate.cc:302
+#8  0x0000000000503726 in do_align_mutate_sequence (w=0xe56430) at ../../coot/src/c-interface-gui.cc:5073
+#9  0x000000000055250d in on_align_and_mutate_ok_button_clicked (button=<value optimized out>, user_data=<value optimized out>)
+    at ../../coot/src/callbacks.c:7977
+#10 0x00007f7c8e0ab27d in g_closure_invoke () from /usr/lib/libgobject-2.0.so.0
+#11 0x00007f7c8e0c0e3b in ?? () from /usr/lib/libgobject-2.0.so.0
+
+    ::: 0.5 
+
+* Fixed.
+
 
 -----

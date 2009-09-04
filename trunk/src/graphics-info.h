@@ -2550,7 +2550,7 @@ public:
    static std::string align_and_mutate_chain_from_optionmenu;
 
    void mutate_chain(int imol, const std::string &chain_id,
-		     const std::string &seq);
+		     const std::string &seq, bool do_auto_fit_flag);
 
    // save molecule [option menu usage]
    static int save_imol;

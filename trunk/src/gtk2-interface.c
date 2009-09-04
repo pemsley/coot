@@ -23223,10 +23223,11 @@ create_align_and_mutate_dialog (void)
   gtk_container_add (GTK_CONTAINER (scrolledwindow19), align_and_mutate_sequence_text);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (align_and_mutate_sequence_text), GTK_WRAP_WORD);
 
-  align_and_mutate_autofit_checkbutton = gtk_check_button_new_with_mnemonic (_(" Autofit the mutated residues?"));
+  align_and_mutate_autofit_checkbutton = gtk_check_button_new_with_mnemonic (_("Autofit chain after alignment and mutations? "));
   gtk_widget_set_name (align_and_mutate_autofit_checkbutton, "align_and_mutate_autofit_checkbutton");
   gtk_widget_show (align_and_mutate_autofit_checkbutton);
-  gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_autofit_checkbutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_autofit_checkbutton, FALSE, FALSE, 4);
+  gtk_container_set_border_width (GTK_CONTAINER (align_and_mutate_autofit_checkbutton), 4);
 
   dialog_action_area81 = GTK_DIALOG (align_and_mutate_dialog)->action_area;
   gtk_widget_set_name (dialog_action_area81, "dialog_action_area81");
