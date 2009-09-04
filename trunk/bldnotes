@@ -1,7 +1,7 @@
  -*-text-*-
 
-scripts      rev 2185 
-tests        rev 2185
+scripts      rev 2265 (except pisa, update)
+tests        rev 2263
 build-it-win rev 2122
 
 ---------------

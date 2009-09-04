@@ -757,8 +757,9 @@ def old_coot_qm():
    # new_release_time = 1205622000 # 16 Mar 2008 0.3.3
    # new_release_time = 1216854000 # 24 Jul 2008 0.4
    # new_release_time = 1237244400 # 17 March 2009
-   #new_release_time = 1249945200 # 11 August 2009 : 0.5
-   new_release_time = 1279926000 # 24 July 2010 : 0.6
+   # new_release_time = 1249945200 # 11 August 2009 : 0.5
+   # new_release_time = 1279926000 # 24 July 2010 : --
+   new_release_time = 1310000000 #  7 July 2011 : 0.6
    current_time = int(time.time())
    time_diff = current_time - new_release_time
    if (time_diff > 0):
@@ -2909,7 +2910,7 @@ def coot_news_info(*args):
    global text_1, text_2
    url = "http:" + \
          "//www.biop.ox.ac.uk/coot/software" + \
-         "/source/pre-releases/release-notes"
+         "/source/pre-releases/RELEASE-NOTES"
 
    def test_string():
       import time
@@ -3018,8 +3019,7 @@ def whats_new_dialog():
       timer_string = str(count * ms_step / 1000.) + "s"
       timer_label.set_alignment(0.96, 0.5)
       timer_label.set_text(timer_string)
-      #if (count > 100):
-      if (count > 20):
+      if (count > 100):
          timer_label.set_text("Timeout")
          coot_news_info(INSERT_NO_NEWS)
          return False  # turn off the gtk timeout function ?!
@@ -3733,9 +3733,10 @@ def map_sharpening_gui(imol):
    window.show_all()
 
 
-# Associate the contents of a PIR file with a molecule.
+# Associate the contents of a PIR file with a molecule. Select file from a GUI.
 #
 def associate_pir_with_molecule_gui():
+   # redundant helper function. remove at some point FIXME!
    def associate_func(imol, chain_id, pir_file_name):
       print "assoc seq:", imol, chain_id, pir_file_name
       import os
@@ -3754,7 +3755,7 @@ def associate_pir_with_molecule_gui():
       "",
       "Select PIR file",
       lambda imol, chain_id, pir_file_name:
-      associate_func(imol, chain_id, pir_file_name))
+      associate_pir_file(imol, chain_id, pir_file_name))
 
 
 # Make a box-of-buttons GUI for the various modifications that need

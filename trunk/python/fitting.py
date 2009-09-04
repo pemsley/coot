@@ -56,22 +56,20 @@ def fit_protein(imol):
                 res_name = resname_from_serial_number(imol,chain_id,serial_number)
                 res_no = seqnum_from_serial_number(imol,chain_id,serial_number)
                 ins_code = insertion_code_from_serial_number(imol,chain_id,serial_number)
-	  	alt_conf = residue_alt_confs(imol, chain_id, res_no, ins_code)
-                if (not res_name=="HOH"):
-                   print "centering on ",chain_id,res_no," CA"
-                   set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
-                   rotate_y_scene(30,0.3) # n-frames frame-interval(degrees)
-		   if alt_conf == []:
-			alt_conf = ""
-	                auto_fit_best_rotamer(res_no,alt_conf,ins_code,chain_id,imol,imol_map,1,0.1)
-                   if (imol_map >= 0):
-			if (len(alt_conf)>0):
-			  for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
-	 			refine_zone(imol,chain_id,res_no,res_no,alt_conf)
-			else:
-	 			refine_zone(imol,chain_id,res_no,res_no,alt_conf)
-			accept_regularizement()
-                   rotate_y_scene(30,0.3)
+                
+                if (ins_code is not None):
+                    if (not res_name=="HOH"):
+                        for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
+                            print "centering on ",chain_id,res_no," CA"
+                            set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
+                            rotate_y_scene(30,0.3) # n-frames frame-interval(degrees)
+                            if (alt_conf == ""):
+                                auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
+                                                      imol_map, 1, 0.1)
+                            if (imol_map >= 0):
+	 			refine_zone(imol, chain_id, res_no, res_no, alt_conf)
+                                accept_regularizement()
+                            rotate_y_scene(30,0.3)
       
     if (replacement_state == 0):
 	  set_refinement_immediate_replacement(0)
@@ -128,11 +126,15 @@ def fit_protein_make_specs(imol, chain_specifier):
                                                    serial_number)
                 ins_code = insertion_code_from_serial_number(imol, chain_id,
                                                              serial_number)
-                spec_list.append([imol, chain_id, res_no, ins_code])
+                if ins_code is not None:
+                    spec_list.append([imol, chain_id, res_no, ins_code])
+                else:
+                    # bad ins_code mean no such residue -> pass
+                    pass
         return spec_list
 
 def fit_protein_fit_function(res_spec, imol_map):
-    
+
     imol     = res_spec[0]
     chain_id = res_spec[1]
     res_no   = res_spec[2]
@@ -146,13 +148,16 @@ def fit_protein_fit_function(res_spec, imol_map):
         print "centering on", chain_id, res_no, "CA"
         set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
         rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
-        if (alt_conf == ""):
-            auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
-                                  imol_map, 1, 0.1)
-        if (imol_map >= 0):
-            refine_zone(imol, chain_id, res_no, res_no, alt_conf)
-            accept_regularizement()
-        rotate_y_scene(10, 0.3)
+
+        res_name = residue_name(imol, chain_id, res_no, ins_code)
+        if (not res_name == "HOH"):
+            if (alt_conf == ""):
+                auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
+                                      imol_map, 1, 0.1)
+            if (imol_map >= 0):
+                refine_zone(imol, chain_id, res_no, res_no, alt_conf)
+                accept_regularizement()
+            rotate_y_scene(10, 0.3)
 
     if (replace_state == 0):
         set_refinement_immediate_replacement(0)
@@ -173,12 +178,14 @@ def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
     for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
         if use_rama:
             set_refine_ramachandran_angles(1)
-        print "centering on", chain_id, res_no, "CA"
-        set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
-        rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
-        refine_auto_range(imol, chain_id, res_no, alt_conf)
-        accept_regularizement()
-        rotate_y_scene(10, 0.3)    
+        res_name = residue_name(imol, chain_id, res_no, ins_code)
+        if (not res_name == "HOH"):
+            print "centering on", chain_id, res_no, "CA"
+            set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+            rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
+            refine_auto_range(imol, chain_id, res_no, alt_conf)
+            accept_regularizement()
+            rotate_y_scene(10, 0.3)    
 
     set_refine_ramachandran_angles(current_rama_state)
     set_dragged_refinement_steps_per_frame(current_steps_per_frame)
@@ -202,7 +209,7 @@ def interruptible_fit_protein(imol, func):
     global multi_refine_stop_button
     specs = fit_protein_make_specs(imol, 'all-chains')
     if specs:
-        multi_refine_stop_button = coot_toolbar_button("Stop2", "stop_interruptible_fit_protein()", "gtk-stop")
+        multi_refine_stop_button = coot_toolbar_button("Stop", "stop_interruptible_fit_protein()", "gtk-stop")
         multi_refine_spec_list = specs
         def idle_func():
             global multi_refine_spec_list
@@ -236,10 +243,10 @@ def stop_interruptible_fit_protein():
     
     continue_multi_refine = False
 
-    multi_refine_cancel_button = coot_toolbar_button("Cancel2",
+    multi_refine_cancel_button = coot_toolbar_button("Cancel",
                                                      "cancel_interruptible_fit_protein()",
                                                      "gtk-cancel")
-    multi_refine_continue_button = coot_toolbar_button("Continue2",
+    multi_refine_continue_button = coot_toolbar_button("Continue",
                                                      "continue_interruptible_fit_protein()",
                                                      "gtk-apply")
     
@@ -305,12 +312,15 @@ def fit_chain(imol,chain_id):
            res_name = resname_from_serial_number(imol,chain_id,serial_number)
            res_no = seqnum_from_serial_number(imol,chain_id,serial_number)
            ins_code = insertion_code_from_serial_number(imol,chain_id,serial_number)
-           print "centering on ", chain_id, res_no, " CA"
-           set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
-           auto_fit_best_rotamer(res_no,alt_conf,ins_code,chain_id,imol,imol_map,1,0.1)
-           if (imol_map >= 1):
-              refine_zone(imol,chain_id,res_no,res_no,alt_conf)
-              accept_regularizement()
+           if ins_code is not None:
+               if (not res_name == "HOH"):
+                   print "centering on ", chain_id, res_no, " CA"
+                   set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
+                   auto_fit_best_rotamer(res_no,alt_conf,ins_code,chain_id,imol,imol_map,1,0.1)
+                   if (imol_map >= 1):
+                       refine_zone(imol,chain_id,res_no,res_no,alt_conf)
+                       accept_regularizement()
+                   
     if (replacement_state == 0):
           set_refinement_immediate_replacement(0)
     if (backup_mode == 1):
@@ -503,9 +513,9 @@ def stepped_refine_protein_with_refine_func(imol, refine_func, res_step):
                 res_name = resname_from_serial_number(imol, chain_id, serial_number)
                 res_no = seqnum_from_serial_number(imol, chain_id, serial_number)
                 ins_code = insertion_code_from_serial_number(imol, chain_id, serial_number)
-                print "centering on ", chain_id, res_no, " CA"
-                
-                refine_func(chain_id, res_no)
+                if ins_code is not None:
+                    print "centering on ", chain_id, res_no, " CA"
+                    refine_func(chain_id, res_no)
                 
         if (replacement_state == 0):
             set_refinement_immediate_replacement(0)

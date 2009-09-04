@@ -966,6 +966,15 @@ def pir_file_name2pir_sequence(pir_file_name):
         except:
             return False
         
+# Associate the contents of a PIR file with a molecule.
+#
+def associate_pir_file(imol, chain_id, pir_file_name):
+    seq_text = pir_file_name2pir_sequence(pir_file_name)
+    if seq_text:
+        assign_pir_sequence(imol, chain_id, seq_text)
+    else:
+        print "WARNING:: associate-pir-file: bad text for", pir_file_name
+
 
 # comma key hook
 def graphics_comma_key_pressed_hook():
@@ -1440,37 +1449,67 @@ def print_molecule_names():
 #
 def save_dialog_positions_to_init_file():
 
-    def dump_positions_to_init_file(positions):
+    import os
+    # return False on failure to find .coot.py (or .coot-preferences)
+    def dump_positions_to_file(positions, preferences=False):
         home = 'HOME'
+        port = False
         if (os.name == 'nt'):
             home = 'COOT_HOME'
-        init_file = os.path.join(os.getenv(home), ".coot-preferences", "coot_dialog_positions.py")
-        port = open(init_file, 'a')
-        port.write("# ----------------------------------------------------------")
-	port.write("# the following were written by extraction from a state file")
-        port.write("# ----------------------------------------------------------")
-        for position in positions:
-            port.write(position)
-        port.write("# -------------------------")
-        port.close()
+        if preferences:
+            init_dir  = os.path.join(os.getenv(home),
+                                     ".coot-preferences")
+            init_file = os.path.join(init_dir,
+                                     "saved_dialog_positions.py")
+            if (not os.path.isfile(init_dir)):
+                return False
+            port = open(init_file, 'w')
+            print "BL INFO:: writing dialog positions to .coot-preferences/saved_dialog_positions.py"
+        else:
+            init_file = os.path.join(os.getenv(home),
+                                     ".coot.py")
+            if (not os.path.isfile(init_file)):
+                return False
+            port = open(init_file, 'a')
+            print "BL INFO:: writing dialog positions to .coot.py"
+            
+        if port:
+
+            port.write("# ----------------------------------------------------------")
+            port.write("# the following were written by extraction from a state file")
+            port.write("# ----------------------------------------------------------")
+            for position in positions:
+                port.write(position)
+            port.write("# -------------------------")
+            port.close()
+        else:
+            print "BL ERROR:: no valid port to write to!"
 
     # main line
-    save_state_file("0-coot.state.py")
-    port = open("0-coot.state.py", 'r')
-    try:
-        lines = port.readlines()
-    except:
-        lines = []
-    positions =[]
-    for line in lines:
-        if ("_dialog_position" in line):
-            print " Adding dialog position: ", line
-            positions.append(line)
-        elif ("set_go_to_atom_window_position" in line):
-            print " Adding dialog position: ", line
-            positions.append(line)
-    port.close()
-    dump_positions_to_preferences_file(positions)
+    state_file = "0-coot.state.py"
+    save_state()
+    if (not os.path.isfile(state_file)):
+        print "Ooops %s does not exist (either guile enabled or problem writing the file" %state_file
+    else:
+        port = open("0-coot.state.py", 'r')
+        try:
+            lines = port.readlines()
+        except:
+            lines = []
+        positions =[]
+        for line in lines:
+            if ("_dialog_position" in line):
+                print " Adding dialog position: ", line
+                positions.append(line)
+            elif ("set_go_to_atom_window_position" in line):
+                print " Adding dialog position: ", line
+                positions.append(line)
+        port.close()
+
+        write_init_status = dump_positions_to_file(positions)
+        if (write_init_status == False):
+            # try to write a file to preferences
+            dump_positions_to_file(positions, preferences=True)
         
 # saves a string to a file!
 # if the string is already present dont do anything
@@ -1641,7 +1680,7 @@ def pukka_puckers_qm(imol):
     import types
 
     residue_list = []
-    crit_d = 3.3
+    crit_d = 3.0  # Richardson's grup value to partition C2'-endo from C3'-endo
 
     def add_questionable(r):
         residue_list.append(r)
@@ -1654,6 +1693,7 @@ def pukka_puckers_qm(imol):
         else:
             return t_pucker_atom
 
+    # main line
     for chain_id in chain_ids(imol):
         if (not is_solvent_chain_qm(imol, chain_id)):
             n_residues = chain_n_residues(chain_id, imol)
