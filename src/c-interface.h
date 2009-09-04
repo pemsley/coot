@@ -2632,6 +2632,8 @@ void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
 
 void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe);
 
+
+/* What are these functions?  consider deleting them - we have alignment_mismatches_* . */
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 SCM alignment_results_scm(int imol, const char* chain_id, const char *seq); 

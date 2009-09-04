@@ -1,5 +1,5 @@
 
-   7 items
+   6 items
 
    o Autofit rotamers for Leucines is doing the right thing?  Test on
      2dk2-overlayed-fix-up-mutated-close.pdb.  It seems not.  ::: 1
@@ -9,26 +9,6 @@
  
    o Random-looking crash on multi-refine with Ramachandran
      optimisation. ::: 2 
-
-   o Pukka-puckers? should now use the N1/9-C1* bond not the base plane. 
-     What is the critical distance, now that we are not using
-     out-of-plane distance? 3.0 says Jeff.
-     ::: 2
-
-   o With align and mutate so that the sequence offset is taken into
-     account properly.  Check that the subsequent refinement of
-     residues only refines the insertions and mutations, not the whole
-     structure - consider using interruptible-fit-protein or something
-     like that were the specs are passed (interruptible-fit-protein
-     may need to be refactored). ::: 5
-
-* Mostly done now that the insertions are correct for
-  add-terminal-residue?
- 
-   o In Align vs PIR, the resulting dialogs tries to go to the CA atom
-     of the residue to delete, this doesn't work for phosphates,
-     waters etc.  Do better at getting a sensible atom name to go to.
-     ::: 2
 
    o Does PISA (interface) work on various computers? ::: 2
 
@@ -1196,6 +1176,29 @@ c-interface clear_up_moving_atoms...
     ::: 0.5 
 
 * Fixed.
+
+   o Pukka-puckers? should now use the N1/9-C1* bond not the base plane. 
+     What is the critical distance, now that we are not using
+     out-of-plane distance? 3.0 says Jeff.
+     ::: 2
+
+
+   o With align and mutate so that the sequence offset is taken into
+     account properly.  Check that the subsequent refinement of
+     residues only refines the insertions and mutations, not the whole
+     structure - consider using interruptible-fit-protein or something
+     like that were the specs are passed (interruptible-fit-protein
+     may need to be refactored). ::: 4
+
+* Done.  Harder that I thought.
+ 
+
+   o In Align vs PIR, the resulting dialogs tries to go to the CA atom
+     of the residue to delete, this doesn't work for phosphates,
+     waters etc.  Do better at getting a sensible atom name to go to.
+     ::: 1
+
+* Done.
 
 
 -----

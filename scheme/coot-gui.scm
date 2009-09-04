@@ -2531,15 +2531,19 @@
 
 ;; Associate the contents of a PIR file with a molecule.  Select file from a GUI.
 ;; 
-(define (associate-pir-with-molecule-gui)
+(define (associate-pir-with-molecule-gui do-alignment?)
+
+  (format #t "in associate-pir-with-molecule-gui~%") 
   (generic-chooser-entry-and-file-selector 
    "Associate Sequence to Model: "
    valid-model-molecule?
    "Chain ID"
    ""
    "Select PIR file"
-   (lambda (imol chain-id file-name)                  ;; can be better formatted?
-     (associate-pir-file imol chain-id file-name)))) ;;
+   (lambda (imol chain-id file-name)
+     (associate-pir-file imol chain-id file-name)
+     (if do-alignment?
+	 (alignment-mismatches-gui imol)))))
 	   
 
 ;; Make a box-of-buttons GUI for the various modifications that need
@@ -2548,7 +2552,26 @@
 ;; Call this when the associated sequence(s) have been read in already.
 ;; 
 (define (alignment-mismatches-gui imol)
+  
+  ;; Return CA if there is such an atom in the residue, else return
+  ;; the first atom in the residue.
+  ;; 
+  (define (get-sensible-atom-name res-info)
+    (let* ((chain-id (list-ref res-info 2))
+	   (res-no   (list-ref res-info 3))
+	   (ins-code (list-ref res-info 4)))
+      (let ((residue-atoms (residue-info imol chain-id res-no ins-code)))
+	(if (null? residue-atoms) 
+	    " CA " ;; won't work of course
+	    (let loop ((atoms residue-atoms))
+	      (cond 
+	       ((null? atoms) (car (car (car residue-atoms))))
+	       ((string=? (car (car (car atoms))) " CA ")
+		       " CA ")
+	       (else (loop (cdr atoms)))))))))
+	   
 
+  ;; main line
   (let ((am (alignment-mismatches imol)))
 
     (cond
@@ -2578,7 +2601,8 @@
 			   (button-1-action
 			    (lambda ()
 			      (set-go-to-atom-molecule imol)
-			      (set-go-to-atom-chain-residue-atom-name chain-id res-no " CA "))))
+			      (set-go-to-atom-chain-residue-atom-name chain-id res-no 
+								      (get-sensible-atom-name res-info)))))
 		      (list button-1-label button-1-action)))
 		  (list-ref am 0)))
 
@@ -2594,8 +2618,9 @@
 					   (number->string res-no)))
 			   (button-1-action
 			    (lambda ()
-			      (set-go-to-atom-molecule imol)
-			      (set-go-to-atom-chain-residue-atom-name chain-id res-no " CA "))))
+			      (let ((atom-name (get-sensible-atom-name res-info)))
+				(set-go-to-atom-molecule imol)
+				(set-go-to-atom-chain-residue-atom-name chain-id res-no atom-name)))))
 		      (list button-1-label button-1-action)))
 		  (list-ref am 1)))
 
@@ -2629,9 +2654,12 @@
 (define (wrapper-alignment-mismatches-gui imol)
   
   (let ((seq-info (sequence-info imol)))
-    (if (null? seq-info)
-	(associate-pir-with-molecule-gui)
-	(alignment-mismatches-gui imol))))
+    (format #t "DEBUG:: sequence-info: ~s~%" seq-info)
+    (if seq-info
+	(if (null? seq-info)
+	    (associate-pir-with-molecule-gui #t)
+	    (alignment-mismatches-gui imol))
+	(associate-pir-with-molecule-gui #t))))
 
 
 ;; Multiple residue ranges gui
