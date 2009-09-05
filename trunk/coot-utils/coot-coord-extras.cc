@@ -878,6 +878,7 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 }
 
 
+// return the torsion angle in degrees.
 double
 coot::atom_tree_t::quad_to_torsion(const coot::atom_tree_t::atom_tree_index_t &index2) const {
 
@@ -1098,15 +1099,25 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
    coot::atom_tree_t::atom_tree_index_t i4 = name_to_index[atom4];
 
    if (i1.is_assigned() && i2.is_assigned() && i3.is_assigned() && i4.is_assigned()) {
-      if (atom_vertex_vec[i2.index()].torsion_quad.first) { 
-	 double current_dihedral_angle = quad_to_torsion(i2);
-	 double diff = angle - current_dihedral_angle;
-	 if (diff > 360.0)
-	    diff -= 360.0;
-	 if (diff < -360.0)
-	    diff += 360.0;
-	 rotate_about(atom2, atom3, clipper::Util::d2rad(diff), 0);
-	 dihedral_angle = quad_to_torsion(i2);
+      if (atom_vertex_vec[i2.index()].torsion_quad.first) {
+	 try {
+	    coot::atom_index_quad iq(i1.index(), i2.index(), i3.index(), i4.index());
+	    double current_dihedral_angle_prev = quad_to_torsion(i2);
+	    double current_dihedral_angle = iq.torsion(residue);
+	    double diff = angle - current_dihedral_angle;
+	    if (diff > 360.0)
+	       diff -= 360.0;
+	    if (diff < -360.0)
+	       diff += 360.0;
+	    rotate_about(atom2, atom3, clipper::Util::d2rad(diff), 0);
+
+	    dihedral_angle = iq.torsion(i2);
+// 	    std::cout << "previous dihedral: " << current_dihedral_angle_prev << std::endl;
+// 	    std::cout << "     now dihedral: " << current_dihedral_angle      << std::endl;
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << rte.what() << std::endl;
+	 } 
       } else {
 	 std::string mess = "Torsion for ";
 	 mess += atom2;

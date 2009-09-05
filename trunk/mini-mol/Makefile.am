@@ -34,7 +34,7 @@ noinst_PROGRAMS = testminimol
 
 testminimol_SOURCES = testminimol.cc
 
-libcoot_mini_mol_la_SOURCES =  mini-mol.cc mini-mol-utils.cc
+libcoot_mini_mol_la_SOURCES =  mini-mol.cc mini-mol-utils.cc atom-quads.cc
 
 testminimol_LDADD = libcoot-mini-mol.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
