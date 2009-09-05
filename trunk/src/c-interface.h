@@ -2630,7 +2630,7 @@ void align_and_mutate_molecule_menu_item_activate(GtkWidget *item,
 void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
 						       GtkPositionType pos);
 
-void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe);
+void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, short int renumber_residues_flag);
 
 
 /* What are these functions?  consider deleting them - we have alignment_mismatches_* . */

@@ -1704,9 +1704,9 @@
 	   (begin
 	     (format #t "   Missing file rnase-A-needs-an-insertion.pdb~%")
 	     (throw 'fail))
-	   (begin
+	   (let ((renumber? 1))
 
-	     (align-and-mutate imol "A" rnase-seq-string)
+	     (align-and-mutate imol "A" rnase-seq-string renumber?)
 	     (write-pdb-file imol "mutated.pdb")
 
 	     (all-true? 

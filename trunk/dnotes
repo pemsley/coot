@@ -4869,6 +4869,30 @@ Fri Sep  4 16:18:20 BST 2009
 	generate an intermediate representation/file that the user can
 	optionally edit and generate the dictionary from that.
 
+Garib: 08/01/09
+
+
+  If top/par file could be converted to the following type of
+  instructions then you do not need to define everything in cif file
+  (these are for torsion angles, all other restraints can be defined
+  similarly)
+
+  General torsion angle restraints for any quartet of atoms:
+
+  external torsion first chain [ch] residue [res] insertion [ins] atom
+  [n] [altecode [a]] next chain [ch] residue [res] insertion [ins]
+  atom [n] [altecode [a] ] [symm y/n] next chain [ch] residue [res]
+  insertion [ins] atom [n] [altecode [a] ] next chain [ch] residue
+  [res] insertion [ins] atom [n] [altecode [a] ]
+ [symm y/n] value <v> sigma <s> period> <p>
+
+  Exampl
+
+  external torsion first chain A residue 220 atom C next chain A
+  residue 220 atom CA next chain A residue 220 atom C next chain A
+  residue 221 atom N value -60 sigma 10 period 1
+
+
 
 ----
 Fri Sep  4 16:59:29 BST 2009
@@ -4878,6 +4902,16 @@ Fri Sep  4 16:59:29 BST 2009
    would not get problems of trying to mutate a SO4 into an ALA in
    Aligment vs PIR.  (Yes, it is a stupid idea to put phosphates into
    protein chain, but some people do it).
+
+
+---
+Sat Sep  5 10:17:51 BST 2009
+
+   in molecule-class-info-mutate.cc, align_and_mutate()
+
+   bool renumber_residues_flag = 0; // make this derived from the GUI one day
+
+
 
 
 ------
