@@ -1111,7 +1111,7 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 	       diff += 360.0;
 	    rotate_about(atom2, atom3, clipper::Util::d2rad(diff), 0);
 
-	    dihedral_angle = iq.torsion(i2);
+	    dihedral_angle = iq.torsion(residue);
 // 	    std::cout << "previous dihedral: " << current_dihedral_angle_prev << std::endl;
 // 	    std::cout << "     now dihedral: " << current_dihedral_angle      << std::endl;
 	 }
