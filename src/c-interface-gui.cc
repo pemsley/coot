@@ -5021,6 +5021,8 @@ int do_align_mutate_sequence(GtkWidget *w) {
 
    //
    int handled_state = 0;  // initially unhandled (return value).
+
+   bool renumber_residues_flag = 0; // make this derived from the GUI one day
    int imol = graphics_info_t::align_and_mutate_imol;
    std::string chain_id = graphics_info_t::align_and_mutate_chain_from_optionmenu;
    GtkWidget *autofit_checkbutton = lookup_widget(w, "align_and_mutate_autofit_checkbutton");
@@ -5070,7 +5072,7 @@ int do_align_mutate_sequence(GtkWidget *w) {
 
 	    if (is_valid_model_molecule(imol)) {
 	       graphics_info_t g;
-	       g.mutate_chain(imol, chain_id, sequence, do_auto_fit);
+	       g.mutate_chain(imol, chain_id, sequence, do_auto_fit, renumber_residues_flag);
 	       graphics_draw();
 	    }
 	 }

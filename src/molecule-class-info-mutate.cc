@@ -437,7 +437,8 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 
 coot::chain_mutation_info_container_t
 molecule_class_info_t::align_and_mutate(const std::string chain_id,
-					const coot::fasta &fasta_seq) {
+					const coot::fasta &fasta_seq,
+					bool renumber_residues_flag) {
 
    coot::chain_mutation_info_container_t mutation_info;
    std::string target = fasta_seq.sequence;
@@ -463,7 +464,6 @@ molecule_class_info_t::align_and_mutate(const std::string chain_id,
 
 	 // I don't know if we can do this here, but I do know we
 	 // mol->DeleteSelection(selHnd); // can't DeleteSelection after mods.
-	 bool renumber_residues_flag = 0;
 	 mutation_info = align_on_chain(chain_id, SelResidues, nSelResidues, target); 
 	 mutate_chain(chain_id,
 		      mutation_info,

@@ -1316,8 +1316,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			return
 	    rnase_seq_string = file2string(rnase_seq)
 	    self.failUnless(valid_model_molecule_qm(imol), "   Missing file rnase-A-needs-an-insertion.pdb")
+	    renumber = 1
 
-	    align_and_mutate(imol, "A", rnase_seq_string)
+	    align_and_mutate(imol, "A", rnase_seq_string, renumber)
 	    write_pdb_file(imol, "mutated.pdb")
 
 	    ls = [[False, imol, "A",  1, ""],

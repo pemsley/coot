@@ -303,14 +303,14 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
 #endif // PYTHON
 
 
-void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe) {
+void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, short int renumber_residues_flag) {
 
    bool auto_fit = 0; // allow this to be a passed variable at some stage.
    
    if (is_valid_model_molecule(imol)) {
       if (chain_id) { 
 	 graphics_info_t g;
-	 g.mutate_chain(imol, std::string(chain_id), std::string(fasta_maybe), auto_fit);
+	 g.mutate_chain(imol, std::string(chain_id), std::string(fasta_maybe), auto_fit, renumber_residues_flag);
 	 graphics_draw();
 	 g.update_go_to_atom_window_on_changed_mol(imol);
       } else {
