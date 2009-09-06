@@ -50,7 +50,9 @@ namespace coot {
          atom3 = atom_name_3;
          atom4 = atom_name_4;
       }
+      friend std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);
    };
+   std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);
 
    class atom_index_quad {
    public:
@@ -77,7 +79,9 @@ namespace coot {
       // Can throw an exception on not all indices found
       // 
       double torsion(CResidue *res) const;
+      friend std::ostream& operator<<(std::ostream &o, const atom_index_quad &q);
    };
+   std::ostream& operator<<(std::ostream &o, const atom_index_quad &q);
 
 }
 
