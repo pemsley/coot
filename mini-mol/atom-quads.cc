@@ -25,6 +25,20 @@
 
 #include "atom-quads.hh"
 
+std::ostream&
+coot::operator<<(std::ostream &o, const coot::atom_name_quad &q) {
+
+   o << "(" << q.atom1 << " " << q.atom2 << " " << q.atom3 << " " << q.atom4 << ")";
+   return o;
+}
+
+
+std::ostream&
+coot::operator<<(std::ostream &o, const coot::atom_index_quad &q) {
+
+   o << "(" << q.index1 << " " << q.index2 << " " << q.index3 << " " << q.index4 << ")";
+   return o;
+}
 
 // can throw an exception
 double 

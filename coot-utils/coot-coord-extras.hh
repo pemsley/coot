@@ -23,7 +23,9 @@
 #ifndef HAVE_COOT_COORD_EXTRAS_HH
 #define HAVE_COOT_COORD_EXTRAS_HH
 
+#include <iostream>
 #include <map>
+
 #include "protein-geometry.hh"
 #include "atom-quads.hh"
 #include "mini-mol.hh"
@@ -209,8 +211,9 @@ namespace coot {
 	    dihedral_angle = ang_in;
 	 }
 	 tree_dihedral_info_t() {}
+	 friend std::ostream& operator<<(std::ostream &o, tree_dihedral_info_t t);
       };
-
+      
       // the constructor throws an exception if there is no tree in
       // the restraints.
       // 
@@ -288,6 +291,7 @@ namespace coot {
 					   // made with a minimol::residue.
 
    };
+   std::ostream& operator<<(std::ostream &o, atom_tree_t::tree_dihedral_info_t t);
 
 }
 

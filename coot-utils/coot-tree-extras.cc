@@ -64,3 +64,12 @@ coot::atom_tree_t::GetResidue() const {
 
    return coot::minimol::residue(residue);
 }
+
+std::ostream&
+coot::operator<<(std::ostream &o, coot::atom_tree_t::tree_dihedral_info_t t) { 
+
+   o << "[dihedral-info: " << t.quad << " " << t.dihedral_angle << "]";
+   return o;
+}
+
+
