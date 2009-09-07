@@ -2,10 +2,7 @@
    5 items
 
    o On refining (Key T) the green spot disappears from the Rama plot.
-     ::: 1
-
-   o On update the rotamer plot with waters in the chain (e.g. 2qlu)
-     lots of text complaints in the terminal about quads for waters. :: 0.5
+     Also disappears on click click refinement. ::: 1
 
    o Does PISA (interface) work on various computers? ::: 2
 
@@ -1227,10 +1224,16 @@ src/gtk-manual.cc:                done
 
 
    o Random-looking crash on multi-refine with Ramachandran
-     optimisation. ::: 2 
+     optimisation. ::: 1
 
 * Can't reproduce.
+
  
+   o On update the rotamer plot with waters in the chain (e.g. 2qlu)
+     lots of text complaints in the terminal about quads for waters. :: 0.5
+
+* Done
+
 
 
 -----

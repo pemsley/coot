@@ -341,7 +341,7 @@
 			  (newline port))
 			(list (cons "DATA_ROOT"  (append-dir-file s "share/pisa"))
 			      ;; (cons "WORK_ROOT"  (append-dir-file s "share/pisa"))
-			      (cons "WORK_ROOT"  pisa-coot-dir)
+			      (cons "PISA_WORK_ROOT"  pisa-coot-dir)
 			      (cons "SBASE_DIR"  (append-dir-file s "share/sbase"))
 			      ;; that we need these next 3 is ridiculous
 			      (cons "MOLREF_DIR" (append-dir-file s "share/pisa/molref"))

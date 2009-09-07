@@ -247,7 +247,7 @@ def pisa_assemblies(imol):
     #
     def make_pisa_config(pisa_coot_dir, config_file_name):
         s = os.getenv("CCP4")
-        # may need a normpath somehwere too?! FIXME
+        # may need a normpath somewhere too?! FIXME
         ls = [["DATA_ROOT", os.path.join(s, "share/pisa")],
               ["PISA_WORK_ROOT", pisa_coot_dir],
               ["SBASE_DIR", os.path.join(s, "share/sbase")],
