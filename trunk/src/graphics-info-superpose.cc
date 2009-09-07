@@ -103,14 +103,12 @@ void graphics_info_t::fill_superpose_option_menu_with_chain_options(GtkWidget *c
 // static
 void
 graphics_info_t::superpose_reference_chain_option_menu_item_activate (GtkWidget *item,
-								      GtkPositionType pos) { 
-
-   char *data = NULL;
-   data = (char *)pos;
-   // this can fail when more than one sequence mutate is used at the same time:
-   if (data) 
-      graphics_info_t::superpose_imol1_chain = data;
+								      GtkPositionType pos) {
+   std::string s = graphics_info_t::menu_item_label(item);
+   graphics_info_t::superpose_imol1_chain = s;
 }
+
+
 
 // This does a redraw
 // 
@@ -119,13 +117,7 @@ void
 graphics_info_t::superpose_moving_chain_option_menu_item_activate (GtkWidget *item,
 								   GtkPositionType pos) { 
 
-   char *data = NULL;
-   data = (char *)pos;
-//    std::cout << "INFO:: superpose_moving_chain_option_menu_item_activate "
-// 	     << " got data: " << data << std::endl;
-   // this can fail when more than one sequence mutate is used at the same time:
-   if (data) 
-      graphics_info_t::superpose_imol2_chain = data;
+   graphics_info_t::superpose_imol2_chain = menu_item_label(item);
 }
 
 

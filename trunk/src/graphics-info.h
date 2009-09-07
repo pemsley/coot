@@ -1207,6 +1207,12 @@ public:
    static void statusbar_ctrl_key_info(); // Ctrl to rotate or pick?
    // -------------------------------------------------
 
+
+   // To be used to (typically) get the menu item text label from chain
+   // option menus (rather than the ugly/broken casting of
+   // GtkPositionType data.  
+   static std::string menu_item_label(GtkWidget *menu_item);
+
    // accept/reject window, now controlled by keyboarding in main window.
    static GtkWidget *accept_reject_dialog;
    static GtkWidget *refine_params_dialog;

@@ -717,27 +717,12 @@ fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
 
 void lsq_reference_chain_option_menu_item_activate(GtkWidget *item,
 						   GtkPositionType pos) {
-
-   char *data = NULL;
-   data = (char *)pos;
-//    std::cout << "INFO:: lsq_reference_chain_option_menu_item_activate "
-// 	     << " got data: " << data << std::endl;
-   // this can fail when more than one sequence mutate is used at the same time:
-   if (data) 
-      graphics_info_t::lsq_match_chain_id_ref = data;
-
+   graphics_info_t::lsq_match_chain_id_ref = menu_item_label(item);
 }
 
 void lsq_moving_chain_option_menu_item_activate(GtkWidget *item,
 						GtkPositionType pos) {
-   char *data = NULL;
-   data = (char *)pos;
-//    std::cout << "INFO:: lsq_moving_chain_option_menu_item_activate "
-// 	     << " got data: " << data << std::endl;
-   // this can fail when more than one sequence mutate is used at the same time:
-   if (data) 
-      graphics_info_t::lsq_match_chain_id_mov = data;
-
+   graphics_info_t::lsq_match_chain_id_mov = menu_item_label(item);
 } 
 
 

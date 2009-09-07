@@ -1429,13 +1429,7 @@ void mutate_sequence_molecule_menu_item_activate(GtkWidget *item,
 void mutate_sequence_chain_option_menu_item_activate (GtkWidget *item,
 						      GtkPositionType pos) { 
 
-   char *data = NULL;
-   data = (char *)pos;
-   std::cout << "INFO:: mutate_sequence_chain_option_menu_item_activate "
-	     << " got data: " << data << std::endl;
-   // this can fail when more than one sequence mutate is used at the same time:
-   if (data) 
-      graphics_info_t::mutate_sequence_chain_from_optionmenu = data;
+   graphics_info_t::mutate_sequence_chain_from_optionmenu = menu_item_label(item);
 }
 
 
@@ -1848,13 +1842,7 @@ change_chain_ids_mol_option_menu_item_activate(GtkWidget *item,
 void
 change_chain_ids_chain_menu_item_activate(GtkWidget *item,
 					  GtkPositionType pos) {
-
-   char *data = (char *)pos;
-
-   // this can fail when more than one sequence mutate is used at the same time:
-   if (data) 
-      graphics_info_t::change_chain_id_from_chain = data; // a static std::string
-
+   graphics_info_t::change_chain_id_from_chain = menu_item_label(item);
 }
 
 

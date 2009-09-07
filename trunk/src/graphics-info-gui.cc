@@ -348,6 +348,31 @@ graphics_info_t::info_dialog(const std::string &s) {
    }
 }
 
+// To be used to (typically) get the menu item text label from chain
+// option menus (rather than the ugly/broken casting of
+// GtkPositionType data.  
+// static
+std::string
+graphics_info_t::menu_item_label(GtkWidget *menu_item) {
+   
+   gchar *text = 0;
+   if (GTK_BIN (menu_item)->child) {
+      GtkWidget *child = GTK_BIN (menu_item)->child;
+      if (GTK_IS_LABEL (child)) {
+	 gtk_label_get (GTK_LABEL (child), &text);
+	 g_print ("menu item text: %s\n", text);
+      }
+   }
+
+   if (text) {
+      std::string s(text);
+      return s;
+   } else { 
+      return std::string("");
+   }
+}
+
+
 
 // static 
 void
@@ -3109,7 +3134,7 @@ graphics_info_t::fill_chain_option_menu(GtkWidget *chain_option_menu, int imol,
 	       char *v = new char[ l + 1];
 	       for (int ii=0; ii<=l; ii++)
 		 v[ii] = 0;
-	       strncpy(v, chains[i].c_str(), l);
+	       strncpy(v, chains[i].c_str(), l+1);
 	       gtk_signal_connect(GTK_OBJECT(menu_item), "activate", signal_func, v);
 	       gtk_menu_append(GTK_MENU(menu), menu_item);
 	       gtk_widget_show(menu_item);

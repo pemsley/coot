@@ -9,10 +9,12 @@
      optimisation. ::: 2 
 
 * Can't reproduce.
+ 
 
    o Does PISA (interface) work on various computers? ::: 2
 
 * Needs bug fix.
+
 
    o Fix problem of Go To Atom dialog displaying the wrong molecule
      number on post-go-to-atom-window (see dnotes).  ::: 2 
@@ -1204,6 +1206,22 @@ c-interface clear_up_moving_atoms...
      ::: 1
 
 * Done.
+
+   o audit strncpy()s. ::: 1
+
+   o audit GtkPositionType usage for use with strings.
+
+src/c-interface-build-gui.cc      done
+src/c-interface.cc:               done moved to -gui.cc
+src/c-interface-gui.cc            done
+src/c-interface-superpose.cc:     done
+src/c-interface-validate.cc:	  done
+src/cmtz-interface.cc:            done - hideous code.
+src/graphics-info.cc:             done
+src/graphics-info-modelling.cc:   done
+src/graphics-info-refmac.cc:      done
+src/graphics-info-superpose.cc:   done
+src/gtk-manual.cc:                done
 
 
 -----

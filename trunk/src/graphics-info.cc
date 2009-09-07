@@ -3929,7 +3929,7 @@ void graphics_info_t::bond_parameters_molecule_menu_item_select(GtkWidget *item,
    graphics_info_t g;
    g.bond_parameters_molecule = pos;
    GtkWidget *w = lookup_widget(GTK_WIDGET(item), "bond_parameters_dialog");
-   fill_bond_parameters_internals(w, pos);
+   fill_bond_parameters_internals(w, pos); // pos is imol
 
 } 
 

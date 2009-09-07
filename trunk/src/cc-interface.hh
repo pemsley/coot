@@ -68,6 +68,12 @@ void create_initial_validation_graph_submenu_generic(GtkWidget *window1,
 
 std::string probe_dots_short_contact_name_to_expanded_name(const std::string &short_name);
 
+// To be used to (typically) get the menu item text label from chain
+// option menus (rather than the ugly/broken casting of
+// GtkPositionType data.  A wrapper to a static graphics_info_t
+// function.
+std::string menu_item_label(GtkWidget *menu_item);
+
 
 /*  ---------------------------------------------------------------------- */
 /*                       go to atom   :                                    */
