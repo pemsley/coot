@@ -4587,7 +4587,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
 			   at->SetElementName(ele.c_str());
 			   std::string new_alt_conf("");
 			   // force it down the atom's throat :) [is there a better way?]
-			   strncpy(at->altLoc, new_alt_conf.c_str(), 1);
+			   strncpy(at->altLoc, new_alt_conf.c_str(), 2);
 			   residue->AddAtom(at);
 			   if (use_old_seg_id)
 			      strcpy(at->segID, old_seg_id_for_residue_atoms.c_str());

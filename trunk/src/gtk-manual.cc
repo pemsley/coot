@@ -298,11 +298,6 @@ update_map_scroll_wheel_menu_manual(int imol, const char *name) {
    map_scroll_wheel_data->imol = imol; 
    map_scroll_wheel_data->imap = 0; 
 
-   // text = (char *) malloc(200); 
-   // strncpy(text, name, 199);
-   // text = name;
-   
-   
    window1 = GTK_WIDGET(lookup_widget(main_window(), "window1")); 
 
    mapscroll_wheelmap1 = gtk_menu_item_new_with_label (name);
@@ -366,10 +361,6 @@ update_ramachandran_plot_menu_manual(int imol, const char *name) {
    GtkWidget *window1; 
    GtkWidget *rama_plot_menu; 
    char *text; 
-
-   // text = (char *) malloc(200); 
-   // strncpy(text, name, 199);
-   // text = name;
 
    window1 = GTK_WIDGET(lookup_widget(main_window(), "window1")); 
 
@@ -439,10 +430,6 @@ void update_sequence_view_menu_manual(int imol, const char *name) {
    GtkWidget *seq_view_menu = lookup_widget(window1, "seq_view_menu");
    GtkWidget *menu_item;
    
-   // text = (char *) malloc(200);
-   // strncpy(text, name, 199);
-   // text = name;
-
    menu_item = gtk_menu_item_new_with_label (name);
    gtk_widget_ref(menu_item);
    gtk_object_set_data_full (GTK_OBJECT(window1), "seq_view_menu_item",
