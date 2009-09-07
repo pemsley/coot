@@ -138,15 +138,10 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	 }
       }
 
-      //  Rotatable bonds -> coord indices
-      // 
+      std::vector<float> torsion_set = get_torsions_by_random(non_const_torsions);
       std::vector<coot::atom_name_quad> atom_name_quads =
 	 get_torsion_bonds_atom_quads(monomer_type, non_const_torsions);
-
-      coot::atom_tree_t tree(monomer_restraints.second, ligand_residue, alt_conf);
-      // angles in degrees.
-      std::vector<float> torsion_set = get_torsions_by_random(non_const_torsions);
-
+      // the vector of rotation torsions. 
       std::vector<coot::atom_tree_t::tree_dihedral_info_t> v;
       if (torsion_set.size() == atom_name_quads.size()) { 
 	 for (unsigned int it=0; it<torsion_set.size(); it++) {
@@ -154,63 +149,108 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	    v.push_back(di);
 	 }
       }
-      tree.set_dihedral_multi(v);
 
-      if (debug_wiggly_ligands) {
-	 std::cout << "get_torsions by random returns : " << torsion_set.size()
-		   << " random torsion angles from " << non_const_torsions.size()
-		   << " non-const dictionary torsions." << std::endl;
-	 for(unsigned int itor=0; itor<torsion_set.size(); itor++)
-	    std::cout << "    " << itor << " of " << torsion_set.size() << " "
-		      << non_const_torsions[itor] << " set with angle " 
-		      << torsion_set[itor] << std::endl;
+
+      try { 
+	 coot::atom_tree_t tree(monomer_restraints.second, ligand_residue, alt_conf);
+	 // angles in degrees.
+	 tree.set_dihedral_multi(v);
+	 coot::minimol::residue wiggled_ligand_residue = tree.GetResidue();
+	 returned_tors_molecules_info.push_back(optimize_and_install(wiggled_ligand_residue,
+								     pg, non_const_torsions,
+								     torsion_set, ligand_chain_id,
+								     isample, optimize_geometry_flag,
+								     fill_returned_molecules_vector_flag));
       }
+      catch (std::runtime_error rte) {
+	 try { 
+	    CResidue *r = coot::GetResidue(ligand_residue);
+	    bool add_reverse_contacts = 1;
+	    std::vector<std::vector<int> > contact_indices =
+	       coot::util::get_contact_indices_from_restraints(r, pg, 1, add_reverse_contacts);
 
-
-      coot::minimol::residue wiggled_ligand_residue = tree.GetResidue();
-      // now make a molecule of that (my son)
-      coot::minimol::fragment wiggled_ligand_frag(ligand_chain_id);
-      wiggled_ligand_frag.addresidue(wiggled_ligand_residue, 0);
-      coot::minimol::molecule wiggled_ligand(wiggled_ligand_frag);
-
-      if (debug_wiggly_ligands) {  // debugging wiggly ligands
-	 std::string filename = "wligand-";
-	 filename += int_to_string(isample);
-	 filename += ".pdb";
-	 wiggled_ligand.write_file(filename, default_b_factor);
-      }
-      
-#ifdef HAVE_GSL
-      if (optimize_geometry_flag) { 
-	 coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(wiggled_ligand, *pg);
-	 install_ligand(reg_ligand);
-	 if (fill_returned_molecules_vector_flag) {
-	    coot::installed_wiggly_ligand_info_t l;
-	    l.mol = reg_ligand;
-	    l.add_torsions(non_const_torsions, torsion_set);
-	    returned_tors_molecules_info.push_back(l);
+	    if (0) 
+	       for (unsigned int i=0; i<contact_indices.size(); i++) { 
+		  std::cout << "contacts " << i << " has " << contact_indices[i].size() << " contacts: ";
+		  for (unsigned int j=0; j<contact_indices[i].size(); j++) { 
+		     std::cout << contact_indices[i][j] << " ";
+		  }
+		  std::cout << std::endl;
+	       }
+	    
+	    int base_atom_index = 0; // hopefully this will work
+	    coot::atom_tree_t tree(monomer_restraints.second,
+				   contact_indices, base_atom_index, ligand_residue, alt_conf);
+	    tree.set_dihedral_multi(v);
+	    coot::minimol::residue wiggled_ligand_residue = tree.GetResidue();
+	    returned_tors_molecules_info.push_back(optimize_and_install(wiggled_ligand_residue,
+									pg, non_const_torsions,
+									torsion_set, ligand_chain_id,
+									isample, optimize_geometry_flag,
+									fill_returned_molecules_vector_flag));
+	    delete r;
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << "ERROR: in install_simple_wiggly_ligands() " << rte.what() << std::endl;
 	 } 
-      } else {
-	 install_ligand(wiggled_ligand);
-	 if (fill_returned_molecules_vector_flag) { 
-	    coot::installed_wiggly_ligand_info_t l;
-	    l.mol = ligand;
-	    l.add_torsions(non_const_torsions, torsion_set);
-	    returned_tors_molecules_info.push_back(l);
-	 } 
-      }
-#else
-      install_ligand(wiggled_ligand);
-      if (fill_returned_molecules_vector_flag) { 
-	 coot::installed_wiggly_ligand_info_t l;
-	 l.mol = ligand_in;
-	 returned_tors_molecules_info.push_back(l);
-      }
-#endif
-   }
-   // return std::pair<short int, std::string> (istat, m); old
+      } 
+   } // samples for loop
+   
    return returned_tors_molecules_info;
 }
+
+coot::installed_wiggly_ligand_info_t
+coot::wligand::optimize_and_install(const coot::minimol::residue &wiggled_ligand_residue,
+				    coot::protein_geometry *pg,
+				    const std::vector <dict_torsion_restraint_t> &non_const_torsions,
+				    const std::vector<float> &torsion_set,
+				    const std::string &ligand_chain_id,
+				    int isample,
+				    bool optimize_geometry_flag,
+				    bool fill_returned_molecules_vector_flag) {
+
+   coot::installed_wiggly_ligand_info_t l;  // returned object
+   
+   // now make a molecule of that (my son)
+   coot::minimol::fragment wiggled_ligand_frag(ligand_chain_id);
+   wiggled_ligand_frag.addresidue(wiggled_ligand_residue, 0);
+   coot::minimol::molecule wiggled_ligand(wiggled_ligand_frag);
+
+   if (debug_wiggly_ligands) {  // debugging wiggly ligands
+      std::string filename = "wligand-";
+      filename += int_to_string(isample);
+      filename += ".pdb";
+      wiggled_ligand.write_file(filename, default_b_factor);
+   }
+      
+#ifdef HAVE_GSL
+   if (optimize_geometry_flag) { 
+      coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(wiggled_ligand, *pg);
+      install_ligand(reg_ligand);
+      if (fill_returned_molecules_vector_flag) {
+	 l.mol = reg_ligand;
+	 l.add_torsions(non_const_torsions, torsion_set);
+      } 
+   } else {
+      install_ligand(wiggled_ligand);
+      if (fill_returned_molecules_vector_flag) { 
+	 l.mol = wiggled_ligand;
+	 l.add_torsions(non_const_torsions, torsion_set);
+      } 
+   }
+#else
+   install_ligand(wiggled_ligand);
+   if (fill_returned_molecules_vector_flag) { 
+      l.mol = ligand_in;
+      return l;
+   }
+#endif
+   return l;
+}
+
+
+
+   
 
 std::string
 coot::wligand::get_monomer_type_from_mol(const coot::minimol::molecule &mol) const {

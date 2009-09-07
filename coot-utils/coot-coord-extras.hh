@@ -51,7 +51,8 @@ namespace coot {
       std::vector<std::vector<int> >
       get_contact_indices_from_restraints(CResidue *residue,
 					  protein_geometry *geom_p,
-					  short int regular_residue_flag);
+					  bool regular_residue_flag,
+					  bool add_reverse_contacts);
 
       std::vector<std::vector<int> >
       get_contact_indices_for_PRO_residue(PPCAtom residue_atom,
@@ -106,6 +107,14 @@ namespace coot {
       short int is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, coot::protein_geometry *geom_p);
       short int is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geometry &geom);
    }
+
+   CResidue *GetResidue(const minimol::residue &r); // For use with wiggly
+					   // ligands, constructed from
+					   // a minimol residue, the
+					   // get_contact_indices_from_restraints()
+					   // needs a CResidue *.  Caller disposes.
+      
+
 
    class recursive_forwards_container_t {
    public:
@@ -244,6 +253,12 @@ namespace coot {
 		  const minimol::residue &res_in,
 		  const std::string &altconf);
 
+      atom_tree_t(const dictionary_residue_restraints_t &rest,
+		  const std::vector<std::vector<int> > &contact_indices,
+		  int base_atom_index,
+		  const minimol::residue &res_in,
+		  const std::string &altconf);
+
       ~atom_tree_t() {
 	 if (made_from_minimol_residue_flag)
 	    // question: does this delete the atoms in the residue too?
@@ -289,6 +304,7 @@ namespace coot {
 					   // function, where the
 					   // class constructor is
 					   // made with a minimol::residue.
+
 
    };
    std::ostream& operator<<(std::ostream &o, atom_tree_t::tree_dihedral_info_t t);

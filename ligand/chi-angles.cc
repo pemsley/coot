@@ -422,8 +422,9 @@ std::pair<short int, float>
 coot::chi_angles::change_by(int ichi, double diff, coot::protein_geometry* geom_p) {
 
 
+   bool add_reverse_contacts = 0;
    std::vector<std::vector<int> > contact_indices =
-      coot::util::get_contact_indices_from_restraints(residue, geom_p, 1);
+      coot::util::get_contact_indices_from_restraints(residue, geom_p, 1, add_reverse_contacts);
 
    std::string resname(residue->GetResName());
 

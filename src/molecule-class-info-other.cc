@@ -6399,7 +6399,9 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
 	    
 	    coot::chi_angles chi_ang(residue_copy, 0);
 	    std::vector<std::vector<int> > contact_indices(n_atom_residue_copy);
-	    contact_indices = coot::util::get_contact_indices_from_restraints(residue_copy, geom_p, 1);
+	    bool add_reverse_contacts = 0;
+	    contact_indices = coot::util::get_contact_indices_from_restraints(residue_copy, geom_p, 1,
+									      add_reverse_contacts);
 	    std::pair<short int, float> istat = chi_ang.change_by(nth_chi, diff, contact_indices);
       
 	    if (istat.first) { // failure
