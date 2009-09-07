@@ -90,6 +90,23 @@ set_graphics_rotamer_dialog(GtkWidget *w) {
 
 
 
+// To be used to (typically) get the menu item text label from chain
+// option menus (rather than the ugly/broken casting of
+// GtkPositionType data.  A wrapper to a static graphics_info_t
+// function.
+std::string menu_item_label(GtkWidget *menu_item) {
+
+
+//    char *data = NULL;
+//    data = (char *)pos;
+//    // this can fail when more than one sequence mutate is used at the same time:
+//    if (data) 
+//       graphics_info_t::superpose_imol1_chain = data;
+
+   return graphics_info_t::menu_item_label(menu_item);
+
+}
+
 
 
 /*! \brief show the Undo Molecule chooser - i.e. choose the molecule
@@ -3266,6 +3283,42 @@ int cns_file_has_phases_p(const char *cns_file_name) {
 }
 
 
+
+
+/*  ----------------------------------------------------------------------- */
+/*                        go to atom widget                                 */
+/*  ----------------------------------------------------------------------- */
+
+// return -1 on error
+//
+int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget) { 
+
+   graphics_info_t g;
+   return g.go_to_atom_molecule_optionmenu_active_molecule(widget);
+}
+
+
+void save_go_to_atom_widget(GtkWidget *widget) { /* store in a static */
+   graphics_info_t::go_to_atom_window = widget;
+}
+
+void unset_go_to_atom_widget() {
+   graphics_info_t::go_to_atom_window = NULL;
+} 
+
+
+// not really a button select, its a menu item select
+void
+save_molecule_coords_button_select(GtkWidget *item, GtkPositionType pos) { 
+
+   // graphics_info_t g;
+   // std::cout << "INFO:: Save coords molecule now: " << pos << std::endl;
+   graphics_info_t::save_imol = pos;
+}
+
+
+
+
 /* a c callable wrapper to the graphics_info_t function */
 void fill_option_menu_with_coordinates_options(GtkWidget *option_menu, 
 					       GtkSignalFunc signal_func,
@@ -5093,16 +5146,12 @@ void align_and_mutate_molecule_menu_item_activate(GtkWidget *item,
    int imol = pos;
    std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_optionmenu, imol,
 								   chain_callback);
-   
 }
 
 void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
 						       GtkPositionType pos) {
 
-   char *data = NULL;
-   data = (char *)pos;
-   if (data)
-      graphics_info_t::align_and_mutate_chain_from_optionmenu = data;
+   graphics_info_t::align_and_mutate_chain_from_optionmenu = menu_item_label(item);
    std::cout << "align_and_mutate_chain_from_optionmenu is now "
 	     << graphics_info_t::align_and_mutate_chain_from_optionmenu
 	     << std::endl;
@@ -5692,7 +5741,6 @@ void
 map_sharpening_map_select(GtkWidget *item, GtkPositionType pos) {
 
    graphics_info_t::imol_map_sharpening = pos;
-
 }
 
 void map_sharpening_value_changed (GtkAdjustment *adj, 

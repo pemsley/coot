@@ -1229,24 +1229,12 @@ void ramachandran_plot_differences_mol_option_menu_activate_second(GtkWidget *it
 
 void ramachandran_plot_differences_chain_option_menu_activate_first(GtkWidget *item, GtkPositionType pos){
 
-   char *data = NULL;
-   data = (char *)pos;
-//    std::cout << "INFO:: ramachandran_plot_differences_chain_option_menu_activate_first "
-// 	     << " got data: " << data << std::endl;
-   // this can fail when more than one sequence mutate is used at the same time:
-   if (data) 
-      graphics_info_t::ramachandran_plot_differences_imol1_chain = data;
+   graphics_info_t::ramachandran_plot_differences_imol1_chain = menu_item_label(item);
 }
 
 void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *item, GtkPositionType pos){
 
-   char *data = NULL;
-   data = (char *)pos;
-//    std::cout << "INFO:: ramachandran_plot_differences_chain_option_menu_activate_second "
-// 	     << " got data: " << data << std::endl;
-   // this can fail when more than one sequence mutate is used at the same time:
-   if (data) 
-      graphics_info_t::ramachandran_plot_differences_imol2_chain = data;
+      graphics_info_t::ramachandran_plot_differences_imol2_chain = menu_item_label(item);
 }
 
 void do_ramachandran_plot(int imol) {
