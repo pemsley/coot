@@ -3201,8 +3201,10 @@ graphics_info_t::update_residue_by_chi_change_old(CResidue *residue,
       // std::cout << "DEBUG:: Simple chi change failed" << std::endl;
 
       // Hack, hack.  See comments on get_contact_indices_from_restraints.
-      // 
-      contact_indices = coot::util::get_contact_indices_from_restraints(residue, geom_p, 0);
+      //
+      bool add_reverse_contacts = 0;
+      contact_indices = coot::util::get_contact_indices_from_restraints(residue, geom_p, 0,
+									add_reverse_contacts);
       // try looking up the residue in
 
       istat = chi_ang.change_by(nth_chi, diff, contact_indices, geom_p,

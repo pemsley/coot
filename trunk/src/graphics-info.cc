@@ -3082,8 +3082,9 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
 	       if (residue_p) {
 
 		  std::string residue_type(residue_p->GetResName());
+		  bool add_reverse_contacts = 0;
 		  std::vector<std::vector<int> > contact_indices =
-		     coot::util::get_contact_indices_from_restraints(residue_p, geom_p, 0);
+		     coot::util::get_contact_indices_from_restraints(residue_p, geom_p, 0, add_reverse_contacts);
 		  coot::chi_angles c(residue_p, 0);
 
 		  std::pair<std::string, std::string> atom_names;
