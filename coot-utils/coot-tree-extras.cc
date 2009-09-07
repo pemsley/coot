@@ -31,6 +31,9 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
 			 mat.occupancy, mat.temperature_factor);
       int new_length = mat.altLoc.length() +1;
       char *new_alt_loc = new char [new_length];
+      // reset new_alt_loc
+      for (unsigned int ic=0; ic<new_length; ic++)
+	 new_alt_loc[ic] = 0;
       strncpy(at->altLoc, mat.altLoc.c_str(), new_length);
       residue_p->AddAtom(at);
    }

@@ -1542,10 +1542,11 @@ char *unmangle_hydrogen_name(const char *pdb_hydrogen_name) {
 	 new_atom_name += atom_name.substr(1,2) + atom_name[0];
       }
    }
-   
-   char *s = new char[5];
-   for (int i=0; i<5; i++) s[i] = 0;
-   strncpy(s, new_atom_name.c_str(), 4);
+
+   int new_length = strlen(pdb_hydrogen_name) + 1;
+   char *s = new char[new_length];
+   for (int i=0; i<new_length; i++) s[i] = 0;
+   strncpy(s, new_atom_name.c_str(), new_length);
 
 //    std::cout << "mangle debug:: :" << pdb_hydrogen_name << ": to :" << s << ":" << std::endl;
    return s;

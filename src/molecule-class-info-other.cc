@@ -360,7 +360,7 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 		     at->SetElementName(v[iv].attribute_value.s.c_str());
 		  }
 		  if (v[iv].attribute_name == "segid") {
-		     strncpy(at->segID, v[iv].attribute_value.s.c_str(), 4);
+		     strncpy(at->segID, v[iv].attribute_value.s.c_str(), 5);
 		  }
 	       }
 	       if (v[iv].attribute_value.type == coot::atom_attribute_setting_help_t::IS_FLOAT) {
@@ -4391,6 +4391,16 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 		  if (inscode == current_inscode_str) {
 		     residue_p->seqNum = new_resno;
 		     strncpy(residue_p->insCode, new_inscode_str.c_str(), 2);
+		     residue_p->insCode[1] = 0; // just to be sure
+						// that the new
+						// inscode is not more
+						// than 1 char, null
+						// terminated.  We can
+						// do this because
+						// residue_p->insCode
+						// is allocated
+						// (elsewhere) (to be
+						// size 4, I think).
 		     done_it = 1;
 		  }
 	       }

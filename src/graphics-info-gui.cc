@@ -1690,7 +1690,7 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    int NCHAR = 100;
    char *s = new char[NCHAR];
    for (int i=0; i<NCHAR; i++) s[i] = 0;
-   strncpy(s, res_type.c_str(), NCHAR-1);
+   strncpy(s, res_type.c_str(), NCHAR);
    gtk_object_set_user_data(GTK_OBJECT(vbox), s);
    // we get this in c-interface-gui.cc's fill_chi_angles_vbox();
 

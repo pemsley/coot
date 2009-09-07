@@ -188,7 +188,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 					     }
 					     strncpy(atom->altLoc, alt_conf.c_str(), 2);
 					     if (have_segid)
-						strncpy(atom->segID, segid.c_str(), 4);
+						strncpy(atom->segID, segid.c_str(), 5);
 					     residue_p->AddAtom(atom);
 					     
 					     // std::cout << "DEBUG:: adding mmdb atom " << atom << std::endl;
@@ -366,7 +366,7 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                              atom->SetElementName(ele.c_str());
                                              strncpy(atom->altLoc, alt_conf.c_str(), 2);
 					     if (have_segid)
-						strncpy(atom->segID, segid.c_str(), 4);
+						strncpy(atom->segID, segid.c_str(), 5);
                                              residue_p->AddAtom(atom);
 					     
                                              // std::cout << "DEBUG:: adding atom " << atom << std::endl;
