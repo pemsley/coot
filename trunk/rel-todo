@@ -1,20 +1,15 @@
 
    5 items
 
-   o Autofit rotamers for Leucines is doing the right thing?  Test on
-     2dk2-overlayed-fix-up-mutated-close.pdb.  It seems not.  Other
-     residue types suspicious ::: 2
+   o On refining (Key T) the green spot disappears from the Rama plot.
+     ::: 1
 
-   o Random-looking crash on multi-refine with Ramachandran
-     optimisation. ::: 2 
-
-* Can't reproduce.
- 
+   o On update the rotamer plot with waters in the chain (e.g. 2qlu)
+     lots of text complaints in the terminal about quads for waters. :: 0.5
 
    o Does PISA (interface) work on various computers? ::: 2
 
 * Needs bug fix.
-
 
    o Fix problem of Go To Atom dialog displaying the wrong molecule
      number on post-go-to-atom-window (see dnotes).  ::: 2 
@@ -30,6 +25,7 @@
 
 
 ------
+
 
    o Does is_mainchain_atom() working for mainchain hydrogens?  
      You mean is_main_chain_p().  Yes it is.
@@ -1222,6 +1218,19 @@ src/graphics-info-modelling.cc:   done
 src/graphics-info-refmac.cc:      done
 src/graphics-info-superpose.cc:   done
 src/gtk-manual.cc:                done
+
+   o Autofit rotamers for Leucines is doing the right thing?  Test on
+     2dk2-overlayed-fix-up-mutated-close.pdb.  It seems not.  Other
+     residue types suspicious ::: 2
+
+* Done
+
+
+   o Random-looking crash on multi-refine with Ramachandran
+     optimisation. ::: 2 
+
+* Can't reproduce.
+ 
 
 
 -----
