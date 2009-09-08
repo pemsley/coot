@@ -1035,6 +1035,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog),
 			     widget_name.c_str(), residue_info_occ_entry,
 			     (GtkDestroyNotify) gtk_widget_unref);
+   gtk_widget_set_size_request(residue_info_occ_entry, 90, -1);
    gtk_widget_show (residue_info_occ_entry);
    gtk_object_set_user_data(GTK_OBJECT(residue_info_occ_entry), ai);
    gtk_entry_set_text(GTK_ENTRY(residue_info_occ_entry),
@@ -1061,6 +1062,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog),
 			     widget_name.c_str(), residue_info_b_factor_entry,
 			     (GtkDestroyNotify) gtk_widget_unref);
+   gtk_widget_set_size_request(residue_info_b_factor_entry, 90, -1);
    gtk_widget_show (residue_info_b_factor_entry);
    gtk_entry_set_text(GTK_ENTRY(residue_info_b_factor_entry),
 		      graphics_info_t::float_to_string(atom->tempFactor).c_str());
@@ -1072,6 +1074,45 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    gtk_table_attach(GTK_TABLE(table), residue_info_b_factor_entry,
 		    left_attach, right_attach, top_attach, bottom_attach,
 		    xopt, yopt, xpad, ypad);
+
+
+   // Alt Conf label:
+   GtkWidget *alt_conf_label = gtk_label_new("  Alt-conf: ");
+   gtk_widget_show(alt_conf_label);
+   left_attach = 3;
+   right_attach = left_attach + 1;
+   gtk_table_attach(GTK_TABLE(table), alt_conf_label,
+		    left_attach, right_attach, top_attach, bottom_attach,
+		    xopt, yopt, xpad, ypad);
+
+
+   // The Alt Conf entry:
+   left_attach = 4;
+   right_attach = left_attach + 1;
+   ai = new coot::select_atom_info;
+   *ai = coot::select_atom_info(iatom, imol, 
+				std::string(atom->GetChainID()), 
+				atom->GetSeqNum(),
+				std::string(atom->GetInsCode()),
+				std::string(atom->name),
+				std::string(atom->altLoc));
+   widget_name = "residue_info_altloc_entry_";
+   widget_name += int_to_string(iatom);
+   // 
+   GtkWidget *residue_info_altloc_entry = gtk_entry_new ();
+   gtk_widget_ref (residue_info_altloc_entry);
+   gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog),
+			     widget_name.c_str(), residue_info_altloc_entry,
+			     (GtkDestroyNotify) gtk_widget_unref);
+   gtk_widget_set_size_request(residue_info_altloc_entry, 60, -1);
+   gtk_widget_show (residue_info_altloc_entry);
+   gtk_object_set_user_data(GTK_OBJECT(residue_info_altloc_entry), ai);
+   gtk_entry_set_text(GTK_ENTRY(residue_info_altloc_entry), atom->altLoc);
+   gtk_table_attach(GTK_TABLE(table), residue_info_altloc_entry,
+		    left_attach, right_attach, top_attach, bottom_attach,
+		    xopt, yopt, xpad, ypad);
+   
+
 
 }
 
@@ -1244,10 +1285,13 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
    // consing onto a list as we added widgets to the table.
    // 
    int len = g_list_length(container_list);
-   for(int i=0; i < len; i+=3) {
-      if (i+1<len) { 
-	 GtkWidget *widget_b = (GtkWidget*) g_list_nth_data(container_list, i);
-	 GtkWidget *widget_o = (GtkWidget*) g_list_nth_data(container_list, i+1);
+   std::cout << "=== The table has " << len << " elements" << std::endl;
+   
+   for(int i=0; i < len; i+=5) {
+      if ((i+1) < len) { 
+	 GtkWidget *widget_alt = (GtkWidget*) g_list_nth_data(container_list, i);
+	 GtkWidget *widget_b   = (GtkWidget*) g_list_nth_data(container_list, i+2);
+	 GtkWidget *widget_o   = (GtkWidget*) g_list_nth_data(container_list, i+3);
 	 std::string b_text = gtk_entry_get_text(GTK_ENTRY(widget_b));
 	 std::string o_text = gtk_entry_get_text(GTK_ENTRY(widget_o));
 // 	 std::cout << "b_text :" <<b_text << std::endl;
@@ -1297,7 +1341,19 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 	       }
 	    }
 	 }
-	 
+
+	 // HANDLE Alt-conf edits
+	 ai = (coot::select_atom_info *) gtk_object_get_user_data(GTK_OBJECT(widget_alt));
+	 if (ai) {
+	    imol = ai->molecule_number;  // hehe
+	    CAtom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
+	    std::string entry_text = gtk_entry_get_text(GTK_ENTRY(widget_alt));
+	    if (at) { 
+	       coot::select_atom_info local_at = *ai;
+	       local_at.add_altloc_edit(entry_text);
+	       local_atom_edits.push_back(local_at);
+	    }
+	 }
       } else {
 	 std::cout << "Programmer error in decoding table." << std::endl;
 	 std::cout << "  Residue Edits not applied!" << std::endl;

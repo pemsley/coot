@@ -5,8 +5,9 @@
 namespace coot { 
 
    class select_atom_info { 
-      short int b_factor_editted;
-      short int occ_editted;
+      bool b_factor_editted;
+      bool occ_editted;
+      bool altloc_edited; 
    public:
       int udd;
       int molecule_number;
@@ -17,6 +18,7 @@ namespace coot {
       std::string altconf;
       float b_factor;
       float occ;
+      std::string altloc_new; // the new altloc
       select_atom_info(int udd_in, 
 		       int molecule_number_in, 
 		       const std::string &chain_id_in, 
@@ -33,7 +35,8 @@ namespace coot {
 	altconf = altconf_in;
 	//
 	occ_editted = 0;
-	b_factor_editted = 0; 
+	b_factor_editted = 0;
+	altloc_edited = 0;
       }
       select_atom_info() {}
       
@@ -49,8 +52,13 @@ namespace coot {
 	 else 
 	    occ = occ_in;
       }
-      short int has_b_factor_edit() const { return b_factor_editted; } 
-      short int has_occ_edit() const { return occ_editted; }
+      void add_altloc_edit(const std::string &s) {
+	 altloc_edited = 1;
+	 altloc_new = s;
+      }
+      bool has_b_factor_edit() const { return b_factor_editted; } 
+      bool has_occ_edit() const { return occ_editted; }
+      bool has_altloc_edit() const { return altloc_edited; }
       // return NULL on atom not found:
       CAtom *get_atom(CMMDBManager *mol) const {
 	 CAtom *at = NULL;
@@ -59,12 +67,12 @@ namespace coot {
 	    int n_atoms;
 	    PCAtom *atoms;
 	    mol->SelectAtoms(SelectionHandle, 0,
-			     (char *) chain_id.c_str(),
-			     residue_number, (char *) insertion_code.c_str(),
-			     residue_number, (char *) insertion_code.c_str(),
+			     chain_id.c_str(),
+			     residue_number, insertion_code.c_str(),
+			     residue_number, insertion_code.c_str(),
 			     "*",
-			     (char *) atom_name.c_str(), "*",
-			     (char *) altconf.c_str());
+			     atom_name.c_str(), "*",
+			     altconf.c_str());
 	    mol->GetSelIndex(SelectionHandle, atoms, n_atoms);
 	    if (n_atoms > 0)
 	       at = atoms[0];

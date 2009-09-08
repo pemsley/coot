@@ -1,5 +1,7 @@
 
-   2 items
+   3 items
+
+   o sulfur-sulfur bonding  ::: 1
 
    o Fix problem of Go To Atom dialog displaying the wrong molecule
      number on post-go-to-atom-window (see dnotes).  ::: 2 
