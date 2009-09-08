@@ -250,6 +250,13 @@ coot::remove_member(std::vector<int> *v_p, const int &a) {
 	 v_p->resize(vsize-1);
       }
    }
+}
+
+bool
+coot::util::even_p(int ii) {
+
+   bool r = ((ii%2)==0);
+   return r;
 } 
 
 

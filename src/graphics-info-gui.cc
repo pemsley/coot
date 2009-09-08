@@ -889,7 +889,7 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
 	 plot->draw_it(molecules[imol_moving_atoms].atom_sel.mol);
       } 
    } else {
-      std::cout << "ERROR:: (trapped) in accept_moving_atoms attempt to draw to null plot\n";
+      std::cout << "ERROR:: (trapped) in handle_rama_plot_update() attempt to draw to null plot\n";
    } 
 }
 #endif // HAVE_GNOME_CANVAS or HAVE_GTK_CANVAS

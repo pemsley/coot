@@ -1,12 +1,5 @@
 
-   5 items
-
-   o On refining (Key T) the green spot disappears from the Rama plot.
-     Also disappears on click click refinement. ::: 1
-
-   o Does PISA (interface) work on various computers? ::: 2
-
-* Needs bug fix.
+   2 items
 
    o Fix problem of Go To Atom dialog displaying the wrong molecule
      number on post-go-to-atom-window (see dnotes).  ::: 2 
@@ -1234,6 +1227,15 @@ src/gtk-manual.cc:                done
 
 * Done
 
+
+   o On refining (Key T) the green spot disappears from the Rama plot.
+     Also disappears on click click refinement. ::: 1
+
+* Done.
+
+   o Does PISA (interface) work on various computers? ::: 2
+
+* Needs bug fix.  OK, now need moving to Extensions.
 
 
 -----

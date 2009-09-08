@@ -55,6 +55,8 @@
 	    (menuitem-6 (gtk-menu-item-new-with-label "Representation..."))
 	    (submenu-settings (gtk-menu-new))
 	    (menuitem-7 (gtk-menu-item-new-with-label "Settings..."))
+	    (submenu-pisa (gtk-menu-new))
+	    (menuitem-pisa (gtk-menu-item-new-with-label "PISA Assemblies..."))
 	    (submenu-ncs (gtk-menu-new))
 	    (menuitem-ncs (gtk-menu-item-new-with-label "NCS...")))
 
@@ -82,10 +84,13 @@
 	(gtk-menu-append menu menuitem-6)
 	(gtk-widget-show menuitem-6)
 
+	(gtk-menu-item-set-submenu menuitem-pisa submenu-pisa)
+	(gtk-menu-append menu menuitem-pisa)
+	(gtk-widget-show menuitem-pisa)
+
 	(gtk-menu-item-set-submenu menuitem-7 submenu-settings)
 	(gtk-menu-append menu menuitem-7)
 	(gtk-widget-show menuitem-7)
-
 
 
 
@@ -998,6 +1003,23 @@
 	     (write-ccp4mg-picture-description pd-file-name)
 	     (if (command-in-path? "ccp4mg")
 		 (run-concurrently "ccp4mg" "-pict" pd-file-name)))))
+
+
+
+
+	;; ---------------------------------------------------------------------
+	;;     PISA Interface
+	;; ---------------------------------------------------------------------
+
+
+      
+	(add-simple-coot-menu-menuitem
+	 submenu-pisa "PISA assemblies..." 
+	 (lambda ()
+	   (molecule-chooser-gui "Choose molecule for PISA assembly analysis"
+				 (lambda (imol)
+				   (pisa-assemblies imol)))))
+
 
 
 	;; ---------------------------------------------------------------------

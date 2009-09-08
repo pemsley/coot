@@ -1465,6 +1465,11 @@ public:
 
    void update_things_on_move();
    void update_things_on_move_and_redraw();
+   void update_ramachandran_plot_point_maybe(int imol, CAtom *atom);
+   void update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec);
+   void update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms);
+   
+
 
    float X(void) { return rotation_centre_x; };
    float Y(void) { return rotation_centre_y; };

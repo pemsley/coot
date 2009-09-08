@@ -5236,7 +5236,7 @@ void refine_zone_with_full_residue_spec(int imol, const char *chain_id,
 
 	 short int auto_range = 0;
 	 if (index1 >= 0) {
-	    if (index2 >= 0) { 
+	    if (index2 >= 0) {
 	       g.refine(imol, auto_range, index1, index2);
 	    } else {
 	       std::cout << "WARNING:: refine_zone: Can't get index for resno2: "

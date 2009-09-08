@@ -98,8 +98,6 @@ void initialize_graphics_molecules() {
 // static
 int graphics_info_t::create_molecule() { 
    int imol = molecules.size();
-//    std::cout << "========================== creating molecule number " 
-// 	     << imol << " ===========" << std::endl;
    molecules.push_back(molecule_class_info_t(imol));
    return imol;
 }
@@ -452,19 +450,7 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 //    std::cout << "DEBUG:: dynarama_is_displayed[" << imol << "] is "
 // 	     << dynarama_is_displayed[imol] << std::endl;
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-   GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
-   if (w) {
-      coot::rama_plot *plot = (coot::rama_plot *)
-	 gtk_object_get_user_data(GTK_OBJECT(w));
-      int ires = atom->GetSeqNum();
-      std::string chainid(atom->GetChainID());
-//       std::cout << "DEBUG:: about to plot big square " << plot
-//   		<< " with ires=" << ires << " chain: " << chainid << std::endl;
-      std::string ins_code(atom->GetInsCode());
-      plot->big_square(ires, ins_code, chainid);
-   } 
-#endif // HAVE_GTK_CANVAS      
+   update_ramachandran_plot_point_maybe(imol, atom);
 
    if (environment_show_distances) { 
       update_environment_graphics_object(index, imol);
@@ -483,6 +469,45 @@ graphics_info_t::setRotationCentre(int index, int imol) {
       }
    }
 }
+
+// update the green square, where we are.
+void
+graphics_info_t::update_ramachandran_plot_point_maybe(int imol, CAtom *atom) {
+
+   coot::residue_spec_t r(atom->residue);
+   update_ramachandran_plot_point_maybe(imol, r);
+}
+
+void
+graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec) {
+
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
+   if (w) {
+      coot::rama_plot *plot = (coot::rama_plot *)
+	 gtk_object_get_user_data(GTK_OBJECT(w));
+
+      plot->big_square(res_spec.resno, res_spec.insertion_code, res_spec.chain);
+   } 
+#endif // HAVE_GTK_CANVAS      
+
+}
+
+// called from accept_moving_atoms()
+void 
+graphics_info_t::update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms) {
+
+   // get the centre residue from moving atoms when 1 or 3 residue are
+   // being refined and call update_ramachandran_plot_point_maybe()
+   // with the residue spec.
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
+   if (aa_spec_pair.first) {
+      coot::residue_spec_t r(aa_spec_pair.second.second);
+      update_ramachandran_plot_point_maybe(imol, r);
+   } 
+} 
+
+
 
 // We need to know the atom index and imol of the last centred atom
 // before this gets activated. The atom index and imol must be right
@@ -1051,7 +1076,6 @@ graphics_info_t::accept_moving_atoms() {
    if (do_probe_dots_post_refine_flag) {
       setup_for_probe_dots_on_chis_molprobity(imol_moving_atoms);
    }
-   clear_up_moving_atoms();
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    GtkWidget *w = coot::get_validation_graph(imol_moving_atoms, coot::RAMACHANDRAN_PLOT);
@@ -1060,9 +1084,11 @@ graphics_info_t::accept_moving_atoms() {
 	 gtk_object_get_user_data(GTK_OBJECT(w));
       // std::cout << "updating rama plot for " << imol_moving_atoms << std::endl;
       handle_rama_plot_update(plot);
+      update_ramachandran_plot_point_maybe(imol_moving_atoms, *moving_atoms_asc);
    }
 #endif // HAVE_GTK_CANVAS || HAVE_GNOME_CANVAS
 
+   clear_up_moving_atoms();
    update_environment_distances_by_rotation_centre_maybe(imol_moving_atoms);
 
    normal_cursor(); // we may have had fleur cursor.

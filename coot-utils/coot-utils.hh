@@ -101,6 +101,8 @@ namespace coot {
 
       bool is_number(char c);
       bool is_letter(char c);
+
+      bool even_p(int ii);
       
 
    } // end of util name space

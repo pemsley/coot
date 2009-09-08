@@ -644,7 +644,7 @@ coot::rama_plot::draw_phi_psi_point_internal(int i,
 
    int region = coot::rama_plot::RAMA_UNKNOWN; // initially unset
    
-   std::string outline_color("black"); 
+   std::string outline_color("black");
 
    if (box_size == 4) {
       draw_green_box((*phi_psi_vec)[i].phi(), (*phi_psi_vec)[i].psi());
@@ -735,7 +735,7 @@ void
 coot::rama_plot::draw_green_box(double phi, double psi) {
 
 
-   // std::cout << "adding box at " << phi << " " << psi << std::endl;
+   // std::cout << "============ adding green box at " << phi << " " << psi << std::endl;
    std::string colour = "green";
    std::string outline_color = "black";
    int box_size = 4;
