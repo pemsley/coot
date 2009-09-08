@@ -2125,6 +2125,10 @@ molecule_class_info_t::apply_atom_edits(const std::vector<coot::select_atom_info
 	    at->occupancy = saiv[i].occ;
 	    made_edit = 1;
 	 }
+	 if (saiv[i].has_altloc_edit()) {
+	    strncpy(at->altLoc, saiv[i].altloc_new.c_str(), 2);
+	    made_edit = 1;
+	 }
       }
    }
 
