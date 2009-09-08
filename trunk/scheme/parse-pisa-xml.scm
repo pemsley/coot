@@ -189,6 +189,16 @@
     (define (create-assembly-molecule assembly-molecule-numbers)
       assembly-molecule-numbers)
 
+
+    ;; If the molecule does not "complexate in solution" then we get
+    ;; "0" for total_asm element.
+    ;;
+    (define (check-there-are-assemblies? entity)
+      (if (string=? (list-ref entity 1) "0")
+	  (info-dialog "This molecule does not form a complex in solution\n(most probably)")))
+
+
+
     ;; Return an assembly record
     ;; 
     (define (handle-assembly assembly make-assembly-record)
@@ -301,6 +311,8 @@
 	  (cond
 	   ((list? entity) (if (not (null? entity))
 			       (begin
+				 (if (eq? 'total_asm (car entity))
+				     (check-there-are-assemblies? entity))
 				 (if (eq? 'asm_set (car entity))
 				     (receive (molecule-number assembly-record-set)
 					      (handle-assembly-set entity make-assembly-record rt)
@@ -314,8 +326,13 @@
 	    #f)))
 
 	(format #t "top assembly-set:~% ~s~%" top-assembly-set)
-	(let ((s (format #f "top assembly-set:~% ~s~%" top-assembly-set)))
-	  (info-dialog s))))))
+	;; it is ugly if we get a dialog saying that the
+	;; top-assembly-set is #f.  So inhibit the dialog in that case
+	;; (we already check above and give a dialog if total_asm is
+	;; 0).
+	(if top-assembly-set
+	    (let ((s (format #f "top assembly-set:~% ~s~%" top-assembly-set)))
+	      (info-dialog s)))))))
      
 
 
@@ -340,7 +357,6 @@
 			  (display (cdr item-pair) port)
 			  (newline port))
 			(list (cons "DATA_ROOT"  (append-dir-file s "share/pisa"))
-			      ;; (cons "WORK_ROOT"  (append-dir-file s "share/pisa"))
 			      (cons "PISA_WORK_ROOT"  pisa-coot-dir)
 			      (cons "SBASE_DIR"  (append-dir-file s "share/sbase"))
 			      ;; that we need these next 3 is ridiculous
@@ -376,20 +392,5 @@
 			  (if (= status 0)
 			      (pisa-xml imol pisa-xml-file-name)))))))))))
   
-
-
-
-;;; Put this in Extensions when ready?
-;;; 
-(if (defined? 'coot-main-menubar)
-    (let ((menu (coot-menubar-menu "PISA")))
-      
-      (add-simple-coot-menu-menuitem
-       menu "PISA assemblies..." 
-       (lambda ()
-	 (molecule-chooser-gui "Choose molecule for PISA assembly analysis"
-			       (lambda (imol)
-				 (pisa-assemblies imol)))))))
-
 
 
