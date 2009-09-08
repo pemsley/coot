@@ -88,6 +88,12 @@ describeEvent(5, "Christmas\nholidays start", -20)
 
 xpscale = 0.6
 
+# crisis:
+can.line(line_style.black_dash1, 62, ybot, 62, ytip)
+tb = text_box.T(text="Crisis!", loc=(30, 110), shadow=(2,-2,fill_style.gray70), bottom_fudge=2)
+tb.add_arrow((62, ytip))
+tb.draw()
+    
 tb = text_box.T(loc=(21*xpscale, 43), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
 # tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "cb")
 tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "c")
@@ -117,6 +123,14 @@ tb.draw()
 #tb = text_box.T(loc=(170*xpscale, 45), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3, bg_style=fill_style.gray90)
 tb = text_box.T(loc=(175*xpscale, 45), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[262][0]), ar.y_pos(data[262][1])), "tc")
+tb.draw()
+
+tb = text_box.T(loc=(200*xpscale, 65), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb.add_arrow((ar.x_pos(data[343][0]), ar.y_pos(data[343][1])), "tc")
+tb.draw()
+
+tb = text_box.T(loc=(120*xpscale, 110), text="User Feedback", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb.add_arrow((ar.x_pos(data[366][0]), ar.y_pos(data[366][1])), "c")
 tb.draw()
 
 # take-home:
