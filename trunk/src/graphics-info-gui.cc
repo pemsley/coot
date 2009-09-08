@@ -1035,7 +1035,9 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog),
 			     widget_name.c_str(), residue_info_occ_entry,
 			     (GtkDestroyNotify) gtk_widget_unref);
+#if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 6))
    gtk_widget_set_size_request(residue_info_occ_entry, 90, -1);
+#endif
    gtk_widget_show (residue_info_occ_entry);
    gtk_object_set_user_data(GTK_OBJECT(residue_info_occ_entry), ai);
    gtk_entry_set_text(GTK_ENTRY(residue_info_occ_entry),
