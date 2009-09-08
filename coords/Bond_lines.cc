@@ -801,8 +801,9 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
 					      int udd_handle,
 					      int atom_colour_type) {
 
-   float bond_limit = 2.1; // A
-
+   float bond_limit = 2.16; // A S-S bonds are 2.05A.  So we've added
+			    // some wiggle room (2.1 was too short for
+			    // some dictionary S-S).
    
    std::string atom_name(atom->name);
    std::string residue_name(atom->GetResName());
@@ -833,9 +834,11 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
 	    coot::Cartesian res_atom_pos(residue_atoms[i]->x,
 					 residue_atoms[i]->y,
 					 residue_atoms[i]->z);
+
+	    // We compared squard bond distances (so that we don't
+	    // have to take the square root for everything of course).
+	    // 
 	    float len2 = (atom_pos - res_atom_pos).amplitude_squared();
-	    // std::cout << "long bonds: comparing " << sqrt(len2) << " and "
-	    // << sqrt(bl2) << std::endl;
 	    if (len2 < bl2) {
 	       std::string altconf1 = atom->altLoc;
 	       std::string altconf2 = residue_atoms[i]->altLoc;
