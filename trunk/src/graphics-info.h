@@ -2585,7 +2585,10 @@ public:
    static short int pointer_atom_is_dummy; // force dummy atom, no atom type choice.
    void place_dummy_atom_at_pointer();
    void place_typed_atom_at_pointer(const std::string &type);
-   int pointer_atom_molecule() const;
+   int create_pointer_atom_molecule_maybe() const; // create a pointer atoms molecule if it 
+                                                   // does not exist, otherwise return the 
+                                                   // molecule number of the already existing 
+                                                   // pointer atoms molecule.
    static int user_pointer_atom_molecule; // set to -1;
 
    // save state, return success status of writing
