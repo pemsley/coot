@@ -3042,7 +3042,7 @@ graphics_info_t::get_monomer_torsions_from_geometry(const std::string &monomer_t
 void
 graphics_info_t::place_dummy_atom_at_pointer() {
 
-   int imol = pointer_atom_molecule();
+   int imol = create_pointer_atom_molecule_maybe();
    molecules[imol].add_pointer_atom(RotationCentre()); // update bonds
    graphics_draw();
 
@@ -3051,7 +3051,7 @@ graphics_info_t::place_dummy_atom_at_pointer() {
 void 
 graphics_info_t::place_typed_atom_at_pointer(const std::string &type) { 
 
-   int imol = pointer_atom_molecule();
+   int imol = create_pointer_atom_molecule_maybe();
    if (imol >= 0 && imol < n_molecules()) {
       if (molecules[imol].open_molecule_p()) { 
 	 molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds

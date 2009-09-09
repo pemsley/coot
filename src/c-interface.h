@@ -4447,7 +4447,11 @@ void set_pointer_atom_is_dummy(int i);
 void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu);
 void display_where_is_pointer(); /* print the coordinates of the
 				    pointer to the console */
-int pointer_atom_molecule();
+/*! \brief Return the current pointer atom molecule, create a pointer
+  atom molecule if necessary (i.e. when the user has not set it).  */
+int create_pointer_atom_molecule_maybe(); 
+/*! \brief Return the current pointer atom molecule */
+int pointer_atom_molecule(); 
 void set_pointer_atom_molecule(int imol);
 
 /*! \} */

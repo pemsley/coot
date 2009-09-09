@@ -1969,8 +1969,12 @@ place_atom_at_pointer() {
 
 
 int pointer_atom_molecule() {
+   return graphics_info_t::user_pointer_atom_molecule;
+}
+
+int create_pointer_atom_molecule_maybe() {
    graphics_info_t g;
-   return g.pointer_atom_molecule();
+   return g.create_pointer_atom_molecule_maybe();
 }
 
 void

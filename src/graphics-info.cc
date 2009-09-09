@@ -1971,16 +1971,14 @@ graphics_info_t::rotate_round_vector(const clipper::Coord_orth &direction,
 
 int
 graphics_info_t::load_db_main() { 
-   
    return 1;
-
 }
 
 
 
 // 
 int
-graphics_info_t::pointer_atom_molecule() const {
+graphics_info_t::create_pointer_atom_molecule_maybe() const {
 
    int i = -1; // must be changed by this function.
 
