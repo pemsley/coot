@@ -917,7 +917,8 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
 
    std::string arl = "   Show Additional Representations  ";
    GtkWidget *all_on_check_button = gtk_check_button_new_with_label(arl.c_str());
-   gtk_widget_show(all_on_check_button);
+   if (show_add_reps_frame_flag)
+      gtk_widget_show(all_on_check_button);
    gtk_box_pack_start(GTK_BOX(hbox_for_single_molecule), all_on_check_button, FALSE, FALSE, 2);
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(all_on_check_button), TRUE);
    std::string widget_name = "add_rep_all_on_check_button_";
@@ -1820,7 +1821,22 @@ display_control_add_reps_frame(GtkWidget *display_control_window_glade,
    return w;
 }
 
-
+GtkWidget *
+display_control_add_reps_all_on_check_button(GtkWidget *display_control_window_glade,
+			       int imol_no) {
+   GtkWidget *w = NULL;
+   if (display_control_window_glade) {
+      std::string name = "add_rep_all_on_check_button_";
+      name += coot::util::int_to_string(imol_no);
+      GtkWidget *t = lookup_widget(display_control_window_glade, name.c_str());
+      if (t)
+	 w = t;
+      else
+	 std::cout << "ERROR:: in display_control_add_reps_container failed to lookup "
+		   << name << " widget" << std::endl;
+   }
+   return w;
+}
 
 void display_control_add_reps(GtkWidget *display_control_window_glade,
 			      int imol_no, int add_rep_no,
@@ -1830,6 +1846,9 @@ void display_control_add_reps(GtkWidget *display_control_window_glade,
    if (display_control_window_glade) { 
       GtkWidget *add_rep_vbox  = display_control_add_reps_container(display_control_window_glade, imol_no);
       GtkWidget *add_rep_frame = display_control_add_reps_frame(    display_control_window_glade, imol_no);
+      GtkWidget *add_rep_all_on_checkbutton =
+	 display_control_add_reps_all_on_check_button(display_control_window_glade, imol_no);
+	 
 //       std::cout <<  "DEBUG::  add_rep_vbox is " << add_rep_vbox  << std::endl;
 //       std::cout <<  "DEBUG:: add_rep_frame is " << add_rep_frame << std::endl;
 
@@ -1839,8 +1858,12 @@ void display_control_add_reps(GtkWidget *display_control_window_glade,
       std::string label = name;
       GtkWidget *toggle_button_show_it = gtk_check_button_new_with_label(label.c_str());
       gtk_widget_ref (toggle_button_show_it);
-      if (show_it)
+      if (show_it) { 
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button_show_it), TRUE);
+	 gtk_widget_show(add_rep_all_on_checkbutton);
+      } else {
+	 gtk_widget_hide(add_rep_all_on_checkbutton);
+      } 
       int cc = encode_ints(imol_no, add_rep_no);
       gtk_signal_connect(GTK_OBJECT(toggle_button_show_it), "toggled",
 			 GTK_SIGNAL_FUNC(add_rep_toggle_button_toggled),
