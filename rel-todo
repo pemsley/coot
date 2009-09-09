@@ -1,7 +1,5 @@
 
-   3 items
-
-   o sulfur-sulfur bonding  ::: 1
+   2 items
 
    o In the Display Manager "Show Additional Representations" needs to
      be hidden when the addition representation vbox is hidden (and
@@ -1243,5 +1241,8 @@ src/gtk-manual.cc:                done
 
 * Needs bug fix.  OK, now need moving to Extensions.
 
+   o sulfur-sulfur bonding  ::: 0.5
+
+* Done. 
 
 -----
