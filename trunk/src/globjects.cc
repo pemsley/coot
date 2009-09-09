@@ -1158,6 +1158,20 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
      attrlist = hardware_attrlist;
   }
 
+   if (try_stereo_flag == coot::ZALMAN_STEREO) { 
+     int hardware_attrlist[] = {
+	GDK_GL_RGBA,
+	GDK_GL_RED_SIZE,   1,
+	GDK_GL_GREEN_SIZE, 1,
+	GDK_GL_BLUE_SIZE,  1,
+	GDK_GL_DEPTH_SIZE, 1,
+	GDK_GL_STENCIL_SIZE, 1,  // BL test this
+	GDK_GL_DOUBLEBUFFER,
+	GDK_GL_NONE
+     };
+     attrlist = hardware_attrlist;
+  }
+
 
   /* Check if OpenGL is supported. */
   if (gdk_gl_query() == FALSE) {
@@ -1220,6 +1234,12 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 	   std::cout << "INFO:: Hardware stereo widget opened successfully"
 		     << std::endl;
 	   graphics_info_t::display_mode = coot::HARDWARE_STEREO_MODE;
+	}
+
+	if (try_stereo_flag == coot::ZALMAN_STEREO) {
+	   std::cout << "INFO:: Zalman stereo widget opened successfully?!"
+		     << std::endl;
+	   graphics_info_t::display_mode = coot::ZALMAN_STEREO;
 	}
 
 	/* Events for widget must be set before X Window is created */

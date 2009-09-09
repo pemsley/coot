@@ -228,9 +228,9 @@ PyObject *sequence_info_py(int imol) {
 	 PyObject *b;
 	 PyObject *ls;
 	 for (int iv=int(seq.size()-1); iv>=0; iv--) {
-	    std::cout << "iv: " << iv << " seq.size: " << seq.size() << std::endl;
-	    std::cout << "debug pythoning " << seq[iv].first.c_str()
-		      << " and " << seq[iv].second.c_str() << std::endl;
+	    //std::cout << "iv: " << iv << " seq.size: " << seq.size() << std::endl;
+	    //std::cout << "debug pythoning " << seq[iv].first.c_str()
+	    //	      << " and " << seq[iv].second.c_str() << std::endl;
 	    a = PyString_FromString(seq[iv].first.c_str());
 	    b = PyString_FromString(seq[iv].second.c_str());
 	    ls = PyList_New(2);
@@ -239,6 +239,9 @@ PyObject *sequence_info_py(int imol) {
             PyList_SetItem(r, iv, ls);
 	 }
       }
+   }
+   if (PyBool_Check(r)) {
+      Py_INCREF(r);
    }
    return r;
 } 

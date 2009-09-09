@@ -477,7 +477,7 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(
        submenu,
        "Associate Sequence...",
-       lambda func: associate_pir_with_molecule_gui())
+       lambda func: associate_pir_with_molecule_gui()) # no alignment on OK press
 
 
      add_simple_coot_menu_menuitem(

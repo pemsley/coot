@@ -3735,18 +3735,13 @@ def map_sharpening_gui(imol):
 
 # Associate the contents of a PIR file with a molecule. Select file from a GUI.
 #
-def associate_pir_with_molecule_gui():
-   # redundant helper function. remove at some point FIXME!
+def associate_pir_with_molecule_gui(do_alignment=False):
+
    def associate_func(imol, chain_id, pir_file_name):
-      print "assoc seq:", imol, chain_id, pir_file_name
-      import os
-      if os.path.isfile(pir_file_name):
-         seq_text = pir_file_name2pir_sequence(pir_file_name)
-         assign_pir_sequence(imol, chain_id, seq_text)
-         return
-      else:
-         print "BL INFO:: no file found", pir_file_name
-         return
+      #print "assoc seq:", imol, chain_id, pir_file_name
+      associate_pir_sequence(imol, chain_id, seq_text)
+      if do_alignment:
+         alignment_mismatches_gui(imol)
       
    generic_chooser_entry_and_file_selector(
       "Associate Sequence to Model: ",
@@ -3755,7 +3750,7 @@ def associate_pir_with_molecule_gui():
       "",
       "Select PIR file",
       lambda imol, chain_id, pir_file_name:
-      associate_pir_file(imol, chain_id, pir_file_name))
+      associate_func(imol, chain_id, pir_file_name))
 
 
 # Make a box-of-buttons GUI for the various modifications that need
@@ -3765,6 +3760,23 @@ def associate_pir_with_molecule_gui():
 #
 def alignment_mismatches_gui(imol):
 
+   # Return CA if there is such an atom in the residue, else return
+   # the first atom in the residue.
+   #
+   def get_sensible_atom_name(res_info):
+      chain_id = res_info[2]
+      res_no   = res_info[3]
+      ins_code = res_info[4]
+      residue_atoms = residue_info(imol, chain_id, res_no, ins_code)
+      if not residue_atoms:
+         return " CA "  # wont work of course
+      else:
+         for atoms in residue_atoms:
+            if (atoms == " CA "):
+               return " CA "
+         return residue_atoms[0]
+      
+   # main line
    am = alignment_mismatches(imol)
 
    if (am == []):
@@ -3789,7 +3801,10 @@ def alignment_mismatches_gui(imol):
                                 " " + residue_name(imol, chain_id, res_no, ins_code) + \
                                 " to " + res_info[0]
                button_1_action = ["set_go_to_atom_molecule(" + str(imol) + ")",
-                                  "set_go_to_atom_chain_residue_atom_name(\'" + chain_id + "\', " + str(res_no) + ", " + "\' CA \')"]
+                                  "set_go_to_atom_chain_residue_atom_name(\'" + \
+                                  chain_id + "\', " + \
+                                  str(res_no) + ", " + \
+                                  "\'" + get_sensible_atom_name(res_info) + "\'"]
                ret_buttons.append([button_1_label, button_1_action])
             return ret_buttons
 
@@ -3802,7 +3817,10 @@ def alignment_mismatches_gui(imol):
                button_1_label = "Delete " + chain_id + \
                                 " " + str(res_no)
                button_1_action = ["set_go_to_atom_molecule(" + str(imol) + ")",
-                                  "set_go_to_atom_chain_residue_atom_name(\'" + chain_id + "\', " + str(res_no) + ", " + "\' CA \')"]
+                                  "set_go_to_atom_chain_residue_atom_name(\'" + \
+                                  chain_id + "\', " + \
+                                  str(res_no) + ", " + \
+                                  "\'" + get_sensible_atom_name(res_info) + "\'"]
                ret_buttons.append([button_1_label, button_1_action])
             return ret_buttons
 
@@ -3829,12 +3847,13 @@ def alignment_mismatches_gui(imol):
 # imol before we look for the sequence mismatches
 #
 def wrapper_alignment_mismatches_gui(imol):
-   
+
    seq_info = sequence_info(imol)
-   if not seq_info:
-      associate_pir_with_molecule_gui()
-   else:
+   print "BL DEBUG:: sequence_info", seq_info
+   if seq_info:
       alignment_mismatches_gui(imol)
+   else:
+      associate_pir_with_molecule_gui(True)
 
 
 # Multiple residue ranges gui
