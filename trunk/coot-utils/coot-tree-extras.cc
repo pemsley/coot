@@ -242,9 +242,12 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
    av.connection_type = coot::atom_vertex::START;
    atom_vertex_vec[base_atom_index] = av;
 
+   // fail to set up
+   if (contact_indices.size() == 0)
+      return 0;
 
    if (0) { 
-      std::cout << " debug:: =========== contact indices in -======= " << std::endl;
+      std::cout << " debug:: =========== contact indices ======= " << std::endl;
       for (unsigned int ic1=0; ic1<contact_indices.size(); ic1++) {
 	 std::cout << " index " << ic1 << " : ";
 	 for (unsigned int ic2=0; ic2<contact_indices[ic1].size(); ic2++)
@@ -252,6 +255,7 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
 	 std::cout << std::endl;
       }
    }
+
 
 
    std::queue<int> q;
@@ -264,7 +268,7 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
    while (q.size()) {
       int this_base_atom = q.front();
       // now what are the forward atoms of av?
-      std::vector<int> av_contacts = contact_indices[this_base_atom];
+      std::vector<int> av_contacts = contact_indices[this_base_atom]; // size check above
       
       for (unsigned int iav=0; iav<av_contacts.size(); iav++) {
 
