@@ -143,10 +143,12 @@ namespace coot {
 	id1 = id1_in; 
 	id2 = id2_in;
       }
-    }; 
+    };
+
     std::vector<std::pair<std::string, realtype> > atom_radii;
     void setup_atom_radii();
     realtype get_radius(const std::string &element) const;
+
   public:
     std::vector<contacts_pair> contacts;
     contact_info(PSContact con_in, int nc) {
@@ -176,6 +178,7 @@ namespace coot {
     void add_MSE_Se_bonds(const atom_selection_container_t &asc);
     int n_contacts() const { return contacts.size(); } 
     std::vector<std::vector<int> > get_contact_indices() const;
+    void print() const; // debug info
   };
   contact_info getcontacts(const atom_selection_container_t &asc); 
 
@@ -186,6 +189,7 @@ namespace coot {
 
   // tinker with asc
   void add_atom_index_udd_as_old(atom_selection_container_t asc);
+
 
 }
 

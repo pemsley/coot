@@ -366,7 +366,7 @@ coot::getcontacts(const atom_selection_container_t &asc) {
    PSContact pscontact = NULL;
    int n_contacts;
    float min_dist = 0.1;
-   float max_dist = 1.9; // CB->SG CYS 1.8A
+   float max_dist = 2.4; // long!  Filtered later.
    long i_contact_group = 1;
    mat44 my_matt;
    CSymOps symm;
@@ -445,7 +445,8 @@ coot::contact_info::setup_atom_radii() {
    atom_radii[ 1] = std::pair<std::string, realtype> (" N", 0.65);
    atom_radii[ 2] = std::pair<std::string, realtype> (" O", 0.6);
    atom_radii[ 3] = std::pair<std::string, realtype> (" H", 0.35);
-   atom_radii[ 4] = std::pair<std::string, realtype> (" S", 0.9);
+   // atom_radii[ 4] = std::pair<std::string, realtype> (" S", 0.9);
+   atom_radii[ 4] = std::pair<std::string, realtype> (" S", 1.1); // S-S bonds 2.16A?
    atom_radii[ 5] = std::pair<std::string, realtype> (" P", 1.0);
    atom_radii[ 6] = std::pair<std::string, realtype> ("SE", 1.15);
    atom_radii[ 7] = std::pair<std::string, realtype> ("BR", 1.15);
@@ -473,7 +474,26 @@ coot::contact_info::get_radius(const std::string &element) const {
       } 
    } 
    return r;
-} 
+}
+
+void
+coot::contact_info::print() const {
+
+   std::vector<std::vector<int> > v = get_contact_indices();
+   std::cout << " ===================================== " << std::endl;
+   std::cout << " ======= size: " << v.size() << " ======== " << std::endl;
+   std::cout << " ===================================== " << std::endl;
+
+   for (unsigned int ic1=0; ic1<v.size(); ic1++) {
+      std::cout << "  index " << ic1 << " : ";
+      for (unsigned int ic2=0; ic2<v[ic1].size(); ic2++)
+	 std::cout << v[ic1][ic2] << " ";
+      std::cout << std::endl;
+   }
+   std::cout << "===" << std::endl;
+
+}
+
 
 
 

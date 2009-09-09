@@ -2314,6 +2314,7 @@ graphics_info_t::execute_torsion_general() {
 
 				       // save them for later usage (when the mouse is moved)
 				       coot::contact_info contact = coot::getcontacts(*moving_atoms_asc);
+				       // contact.print(); // debug
 				       torsion_general_contact_indices = contact.get_contact_indices();
 				       chi_angle_alt_conf = atom_4->altLoc;
 				       
