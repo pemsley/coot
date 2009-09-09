@@ -16,6 +16,12 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
 GtkWidget *display_control_add_reps_container(GtkWidget *display_control_window_glade,
 					      int imol_no);
+
+GtkWidget *
+display_control_add_reps_all_on_check_button(GtkWidget *display_control_window_glade,
+					     int imol_no);
+
+
 void display_control_add_reps(GtkWidget *add_reps_vbox,
 			      int imol_no, int add_rep_no, 
 			      bool show_it,
