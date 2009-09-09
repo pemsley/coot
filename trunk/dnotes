@@ -4912,7 +4912,12 @@ Sat Sep  5 10:17:51 BST 2009
    bool renumber_residues_flag = 0; // make this derived from the GUI one day
 
 
+---
+Tue Sep  8 21:14:49 BST 2009
 
+    Summer student project: Use PDB to find distribution of B-factors
+    around centre residue atoms.  Find outliers.  Make validation
+    tool.
 
 ------
 
