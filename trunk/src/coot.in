@@ -4,6 +4,11 @@
 # Copyright 2004, 2005, 2006, 2007 University of York
 # written by Paul Emsley
 
+# Magic (eh?).  Stops bash doing the word spliting expansion on the
+# command line arguments.
+IFS=$'\t\n'
+
+
 #
 current_exe_dir=`dirname $0`
 # echo current_exe_dir is $current_exe_dir
@@ -140,7 +145,7 @@ export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
 echo $coot_real $*
-$coot_real "$*"
+$coot_real $*
 status=$?
 
 if [ $status != 0 ] ; then
