@@ -140,7 +140,7 @@ export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
 echo $coot_real $*
-$coot_real $*
+$coot_real "$*"
 status=$?
 
 if [ $status != 0 ] ; then
