@@ -2619,7 +2619,7 @@ SCM cell_scm(int imol) {
 
 #ifdef USE_PYTHON
 // return False or [45, 46, 47, 90, 90, 120), angles in degrees.
-PyObject *map_cell_py(int imol) {
+PyObject *cell_py(int imol) {
    PyObject *r = Py_False;
    if (is_valid_map_molecule(imol) || (is_valid_model_molecule(imol))) {
       std::pair<bool, clipper::Cell> cell = graphics_info_t::molecules[imol].cell();
