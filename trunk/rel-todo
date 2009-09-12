@@ -1,9 +1,5 @@
 
-   3 items
-
-   o In the Display Manager "Show Additional Representations" needs to
-     be hidden when the addition representation vbox is hidden (and
-     shown when the vbox is shown)  ::: 0.5
+   2 items
 
    o Fix problem of Go To Atom dialog displaying the wrong molecule
      number on post-go-to-atom-window (see dnotes).  ::: 2 
@@ -1244,5 +1240,11 @@ src/gtk-manual.cc:                done
    o sulfur-sulfur bonding  ::: 0.5
 
 * Done. 
+
+   o In the Display Manager "Show Additional Representations" needs to
+     be hidden when the addition representation vbox is hidden (and
+     shown when the vbox is shown)  ::: 0.5
+
+* Done.
 
 -----
