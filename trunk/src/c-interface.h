@@ -994,14 +994,20 @@ void solid_surface(int imap, short int on_off_flag);
   Return 0 on failure, 1 on success. */
 int export_map(int imol, const char *filename);
 
-/* return the new molecule number */
+/* return the new molecule number. The cell is given in Angstroms and
+   the angles in degrees.  The ref_space_group can be a H-M symbol or
+   a colon-separated string of symmetry operators.
+*/
 int transform_map_raw(int imol, 
 		      double r00, double r01, double r02, 
 		      double r10, double r11, double r12, 
 		      double r20, double r21, double r22, 
 		      double t0, double t1, double t2, 
 		      double pt0, double pt1, double pt2, 
-		      double box_half_size);
+		      double box_half_size, 		     
+		      const char *ref_space_group,
+		      double cell_a, double cell_b, double cell_c,
+		      double alpha, double beta, double gamma);
 
 /* return the new molecule number (or should I do it in place?) */
 int rotate_map_round_screen_axis_x(float r_degrees); 
@@ -1348,7 +1354,9 @@ short int mtz_use_weight_for_map(int imol_map);
 SCM map_parameters_scm(int imol);
 /*! \brief return the parameter that made the map, #f or something
   like (45 46 47 90 90 120), angles in degress */
-SCM map_cell_scm(int imol);
+SCM cell_scm(int imol);
+/*! \brief return the parameter of the molecule, something 
+  like (45 46 47 90 90 120), angles in degress */
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
 /*! \brief return the parameter that made the map, False or something
@@ -1356,7 +1364,7 @@ SCM map_cell_scm(int imol);
 PyObject *map_parameters_py(int imol);
 /*! \brief return the parameter that made the map, False or something
   like [45, 46, 47, 90, 90, 120], angles in degress */
-PyObject *map_cell_py(int imol);
+PyObject *cell_py(int imol);
 #endif /* USE_PYTHON */
 #endif
 /*! \} */
@@ -1641,8 +1649,8 @@ void save_symmetry_coords_from_fileselection(GtkWidget *fileselection);
 
  for shelx FA pdb files, there is no space group.  So allow the user
    to set it.  This can be initted with a HM symbol or a symm list for
-   clipper */
-void set_space_group(int imol, const char *spg);
+   clipper.  Return the succes status of the setting. */
+short int set_space_group(int imol, const char *spg);
 
 /*! \brief set the cell shift search size for symmetry searching.
 
@@ -2569,6 +2577,26 @@ void set_all_models_displayed_and_active(int on_or_off);
 @return "No Spacegroup" when the spacegroup of a molecule has not been
 set.*/
 char *show_spacegroup(int imol);
+
+
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+/*! \brief return a list of symmetry operators as strings - or scheme false if
+  that is not possible. */
+SCM symmetry_operators_scm(int imol);
+/* take the return value from above and return a xHM symbol (for
+   testing currently) */
+SCM symmetry_operators_to_xHM_scm(SCM symmetry_operators);
+#endif 
+
+#ifdef USE_PYTHON
+/*! \brief return a list of symmetry operators as a list of strings -
+  or python False if that is not possible. */
+PyObject *symmetry_operators_py(int imol);
+PyObject *symmetry_operators_to_xHM_py(PyObject *symmetry_operators);
+#endif 
+#endif 
+
 
 /* \} */
 

@@ -672,4 +672,12 @@ SCM py_to_scm(PyObject *o);
 #endif // USE_GUILE
 #endif // USE_PYTHON
 
+#ifdef USE_GUILE
+clipper::Spacegroup scm_symop_strings_to_space_group(SCM symop_string_list);
+#endif 
+
+#ifdef USE_PYTHON
+clipper::Spacegroup py_symop_strings_to_space_group(PyObject *symop_string_list);
+#endif 
+
 #endif // CC_INTERFACE_HH

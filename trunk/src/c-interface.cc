@@ -5720,6 +5720,82 @@ char *show_spacegroup(int imol) {
 }
 
 
+
+#ifdef USE_GUILE
+/*! \brief return a list of symmetry operators as strings - or scheme false if
+  that is not possible. */
+SCM symmetry_operators_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) { 
+      std::pair<bool, clipper::Spacegroup> sg =
+	 graphics_info_t::molecules[imol].space_group();
+      if (! sg.second.is_null()) {
+	 r = SCM_EOL;
+	 std::vector<std::string> sv =
+	    graphics_info_t::molecules[imol].get_symop_strings();
+	 for (unsigned int i=0; i<sv.size(); i++) {
+	    SCM s = scm_from_locale_string(sv[i].c_str());
+	    r = scm_cons(s, r);
+	 }
+	 r = scm_reverse(r);
+      } else {
+	 std::cout << "WARNING:: in symmetry_operators_scm() null space group " << std::endl;
+      } 
+   }
+   return r;
+} 
+#endif
+
+
+#ifdef USE_PYTHON
+/*! \brief return a list of symmetry operators as strings - or python false if
+  that is not possible. */
+PyObject *symmetry_operators_py(int imol) {
+
+   PyObject *o = Py_False;
+   if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) { 
+      std::pair<bool, clipper::Spacegroup> sg =
+	 graphics_info_t::molecules[imol].space_group();
+      if (! sg.second.is_null()) {
+	 o = PyList_New(sv.size());
+	 std::vector<std::string> sv =
+	    graphics_info_t::molecules[imol].get_symop_strings();
+	 for (unsigned int i=0; i<sv.size(); i++) {
+	    PyList_SetItem(o, i, PyString_FromString(sv[i].c_str()));
+	 }
+      }
+   }
+   return o;
+} 
+#endif 
+
+
+#ifdef USE_GUILE
+SCM
+symmetry_operators_to_xHM_scm(SCM symmetry_operators) {
+   SCM r = SCM_BOOL_F;
+   clipper::Spacegroup sg = scm_symop_strings_to_space_group(symmetry_operators);
+   if (! sg.is_null())
+      r = scm_from_locale_string(sg.symbol_hm().c_str()); 
+   return r;
+}
+#endif 
+
+#ifdef USE_PYTHON
+PyObject *
+symmetry_operators_to_xHM_py(PyObject *symmetry_operators) {
+   PyObject *o = Py_False;
+   clipper::Spacegroup sg = scm_symop_strings_to_space_group(symmetry_operators);
+   if (! sg.is_null())
+      o = PyString_FromString(sg.symbol_hm().c_str()); 
+   return o;
+}
+#endif 
+
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  zoom                                                    */
 /*  ----------------------------------------------------------------------- */
@@ -5853,12 +5929,16 @@ int export_map(int imol, const char *filename) {
    return rv; 
 }
 
+// the cell is given in Angstroms and the angles in degrees.
 int transform_map_raw(int imol, 
 		      double r00, double r01, double r02, 
 		      double r10, double r11, double r12, 
 		      double r20, double r21, double r22, 
 		      double t0, double t1, double t2,
-		      double pt1, double pt2, double pt3, double box_size) {
+		      double pt1, double pt2, double pt3, double box_size,
+		      const char *ref_space_group,
+		      double cell_a, double cell_b, double cell_c,
+		      double alpha, double beta, double gamma) {
 
    int imol_new = -1;
    if (is_valid_map_molecule(imol)) {
@@ -5868,10 +5948,22 @@ int transform_map_raw(int imol,
       // clipper::RTop_orth rtop_inv = rtop.inverse();
       clipper::Coord_orth pt(pt1, pt2, pt3);
 
-      std::cout << "DEBUG:: in transform_map_raw pt is " << pt.format() << std::endl;
+      std::cout << "INFO:: in transforming map around target point "
+		<< pt.format() << std::endl;
+
+      clipper::Spgr_descr sg_descr(ref_space_group);
+      clipper::Spacegroup new_space_group(sg_descr);
+      
+      clipper::Cell_descr cell_d(cell_a, cell_b, cell_c,
+				 clipper::Util::d2rad(alpha),
+				 clipper::Util::d2rad(beta),
+				 clipper::Util::d2rad(gamma));
+      clipper::Cell new_cell(cell_d);
+	 
       
       clipper::Xmap<float> new_map =
 	 coot::util::transform_map(graphics_info_t::molecules[imol].xmap_list[0],
+				   new_space_group, new_cell,
 				   rtop, pt, box_size);
 
       const coot::ghost_molecule_display_t ghost_info;

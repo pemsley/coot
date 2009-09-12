@@ -27,6 +27,7 @@
 (define pucker-info-scm #f)
 (define map-parameters-scm #f)
 (define map-cell-scm #f)
+(define cell-scm #f)
 (define ccp4i-projects-scm #f)
 (define get-rotamer-name-scm #f)
 (define test-internal-scm #f)

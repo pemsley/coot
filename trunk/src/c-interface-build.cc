@@ -1245,6 +1245,7 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
       std::cout << "ERROR:: in delete_atom() trapped null altLoc\n";
       return; 
    }
+
    short int istat = g.molecules[imol].delete_atom(chain_id, resno, ins_code, at_name, altLoc);
    if (istat) { 
       // now if the go to atom widget was being displayed, we need to
@@ -1265,10 +1266,10 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
    std::string cmd = "delete-atom";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
-   args.push_back(chain_id);
+   args.push_back(coot::util::single_quote(chain_id));
    args.push_back(resno);
-   args.push_back(at_name);
-   args.push_back(altLoc);
+   args.push_back(coot::util::single_quote(at_name));
+   args.push_back(coot::util::single_quote(altLoc));
    add_to_history_typed(cmd, args);
 
 } 
@@ -1383,6 +1384,17 @@ short int delete_item_mode_is_sidechain_p() {
    return v;
 }
 
+// 20090911 Dangerous?  This used to be called by
+// check_if_in_delete_item_define water mode.  But it caused a crash.
+// It seemed to be accessing bad memory for the atom name.  That was
+// because we were doing a delete_residue_hydrogens() between getting
+// the atom index from the pick and calling this function.  Therefore
+// the atom index/selection was out of date when we got here.  That
+// has been fixed now, but it is a concern for other function that
+// might want to do something similar.
+//
+// Delete this function when doing a cleanup.
+//
 void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog) {
    graphics_info_t g;
 
@@ -1400,6 +1412,10 @@ void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog) 
 	 g.delete_residue_from_geometry_graphs(imol, spec);
       }
 
+      std::cout << "calling delete_atom() with args chain_id :"
+		<< chain_id << ": resno " << resno << " inscode :"
+		<< ins_code << ": atom-name " << atom_name << ": altconf :"
+		<< altconf << ":" << std::endl;
       delete_atom(imol, chain_id, resno, ins_code, atom_name, altconf);
       delete_object_handle_delete_dialog(do_delete_dialog);
    }
@@ -3886,14 +3902,18 @@ int add_molecule_py(PyObject *molecule_expression, const char *name) {
 /* for shelx FA pdb files, there is no space group.  So allow the user
    to set it.  This can be initted with a HM symbol or a symm list for
    clipper */
-void set_space_group(int imol, const char *spg) {
+short int set_space_group(int imol, const char *spg) {
+
+   short int r = 0;
 
    // we should test that this is a clipper string here...
    // does it contain X Y and Z chars?
    // 
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].set_mmdb_symm(spg);
+      r = graphics_info_t::molecules[imol].set_mmdb_symm(spg);
    }
+
+   return r; 
 }
 
 

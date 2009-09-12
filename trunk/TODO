@@ -406,6 +406,12 @@
       selection for rotate/translate (first) and rigid body fit.  And a
       GUI to make the ranges.
 
+    o why is 'doc/c-interface_8h.texi' in the repository?  It should
+      be generated.
+
+    o Make the Go To Atom button be in the toolbar [Maia Cherney]
+
+
 
 Punted from 0.6:
 

@@ -754,21 +754,24 @@ def transform_coords_molecule(imol, rtop):
 def transform_map(*args):
 
     ret = None
-    def tf(imol, mat, trans, about_pt, radius):
+    def tf(imol, mat, trans, about_pt, radius, space_group, cell):
         return transform_map_raw(imol,mat[0],mat[1],mat[2],
                                  mat[3],mat[4],mat[5],
                                  mat[6],mat[7],mat[8],
                                  trans[0],trans[1],trans[2],
                                  about_pt[0],about_pt[1],about_pt[2],
+                                 space_group,
+                                 cell[0], cell[1], cell[2],
+                                 cell[3], cell[4], cell[5],
                                  radius)
-    if (len(args)==5):
-       ret = tf(args[0],args[1],args[2],args[3],args[4])
+    if (len(args)==7):
+       ret = tf(args[0],args[1],args[2],args[3],args[4],args[5],args[6])
 #no matrix specified:
     elif (len(args)==4):
-       ret = tf(args[0],identity_matrix(),args[1],args[2],args[3])
+       ret = tf(args[0],identity_matrix(),args[1],args[2],args[3], show_spacegroup(imol), cell(imol))
 #no matrix or about point specified:
     elif (len(args)==3):
-       ret = tf(args[0],identity_matrix(),args[1],rotation_centre(),args[2])
+       ret = tf(args[0],identity_matrix(),args[1],rotation_centre(),args[2], show_spacegroup(imol), cell(imol)))
     else:
        print "arguments to transform-map incomprehensible: args: ",args
     return ret
@@ -1812,7 +1815,8 @@ average_map            = average_map_py
 refmac_parameters      = refmac_parameters_py
 map_sigma              = map_sigma_py
 map_parameters         = map_parameters_py
-map_cell               = map_cell_py
+cell                   = cell_py
+map_cell               = cell_py
 get_refmac_sad_atom_info = get_refmac_sad_atom_info_py
 origin_pre_shift       = origin_pre_shift_py
 save_state_file_name   = save_state_file_name_py

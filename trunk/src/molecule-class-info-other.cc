@@ -773,40 +773,67 @@ molecule_class_info_t::delete_residue_hydrogens(const std::string &chain_id, int
 	    if (res) {
 	       if (res->GetSeqNum() == resno) {
 
-		  // so we have a matching residue:
-		  make_backup();
-		  atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
-		  delete_ghost_selections();
-		  was_deleted = 1; // This is moved here because we
-				   // don't want to DeleteSelection on
-				   // multiple atom delete, so we set
-				   // it before the delete actually
-				   // happens - it does mean that in
-				   // the pathological case
-				   // was_deleted is set but no atoms
-				   // get deleted - which is harmless
-				   // (I think).
+		  std::string local_ins_code = res->GetInsCode();
+		  if (local_ins_code == ins_code) {
 
-		  // getatom table here and check the elements in the lst
-
-		  PPCAtom residue_atoms;
-		  int nResidueAtoms;
-
-		  res->GetAtomTable(residue_atoms, nResidueAtoms);
-		  if (nResidueAtoms == 0) {
-		     std::cout << "WARNING:: No atoms in residue (strange!)\n";
-		  } else {
-		     for (int i=0; i<nResidueAtoms; i++) {
-			std::string element(residue_atoms[i]->element);
-			if (element == " H" || element == " D") {
-			   res->DeleteAtom(i);
-			   // was_deleted = 1; // done upstairs
-			}
+		     // Only make a backup, delete the atom selection
+		     // (and proceed with the attempted deletion) if
+		     // the residue has hydrogens.  And this should
+		     // fix the esoteric crash that we get when
+		     // deleting waters (because running this function
+		     // meant that the atom selection was going out of
+		     // date by the time it got to the
+		     // delete_atom_by_atom_index() function.
+		     // 
+		     bool residue_has_hydrogens = 0;
+		     PPCAtom residue_atoms;
+		     int nResidueAtoms;
+		     res->GetAtomTable(residue_atoms, nResidueAtoms);
+		     for (unsigned int iat=0; iat<nResidueAtoms; iat++) {
+			std::string ele(residue_atoms[iat]->element);
+			if (ele == " H") {
+			   residue_has_hydrogens = 1;
+			   break;
+			} 
+			if (ele == " D") {
+			   residue_has_hydrogens = 1;
+			   break;
+			} 
 		     }
-		     if (was_deleted)
-			res->TrimAtomTable();
-		  } 
-		  break;
+		     
+		     if (residue_has_hydrogens) {
+
+			// so we have a matching residue:
+			make_backup();
+			atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+			delete_ghost_selections();
+			was_deleted = 1; // This is moved here because we
+			// don't want to DeleteSelection on
+			// multiple atom delete, so we set
+			// it before the delete actually
+			// happens - it does mean that in
+			// the pathological case
+			// was_deleted is set but no atoms
+			// get deleted - which is harmless
+			// (I think).
+
+			// getatom table here and check the elements in the lst
+
+			if (nResidueAtoms == 0) {
+			   std::cout << "WARNING:: No atoms in residue (strange!)\n";
+			} else {
+			   for (int i=0; i<nResidueAtoms; i++) {
+			      std::string element(residue_atoms[i]->element);
+			      if (element == " H" || element == " D") {
+				 res->DeleteAtom(i);
+				 // was_deleted = 1; // done upstairs
+			      }
+			   }
+			   if (was_deleted)
+			      res->TrimAtomTable();
+			} 
+		     }
+		  }
 	       }
 	    }
 	 }
@@ -1201,6 +1228,9 @@ molecule_class_info_t::delete_atom(const std::string &chain_id,
    if (was_deleted) { 
       atom_sel.mol->FinishStructEdit();
 
+
+      // Now reset/recalculate the occupancy and the altLoc of the
+      // remaining atoms in the residue with the same atom name.
       //
       PPCAtom atoms = NULL;
       int n_atoms;
@@ -1232,8 +1262,6 @@ molecule_class_info_t::delete_atom(const std::string &chain_id,
       update_symmetry();
    }
    return was_deleted;
-
-   
 }
 
 
