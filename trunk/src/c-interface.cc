@@ -5759,9 +5759,9 @@ PyObject *symmetry_operators_py(int imol) {
       std::pair<bool, clipper::Spacegroup> sg =
 	 graphics_info_t::molecules[imol].space_group();
       if (! sg.second.is_null()) {
-	 o = PyList_New(sv.size());
 	 std::vector<std::string> sv =
 	    graphics_info_t::molecules[imol].get_symop_strings();
+	 o = PyList_New(sv.size());
 	 for (unsigned int i=0; i<sv.size(); i++) {
 	    PyList_SetItem(o, i, PyString_FromString(sv[i].c_str()));
 	 }
@@ -5787,7 +5787,7 @@ symmetry_operators_to_xHM_scm(SCM symmetry_operators) {
 PyObject *
 symmetry_operators_to_xHM_py(PyObject *symmetry_operators) {
    PyObject *o = Py_False;
-   clipper::Spacegroup sg = scm_symop_strings_to_space_group(symmetry_operators);
+   clipper::Spacegroup sg = py_symop_strings_to_space_group(symmetry_operators);
    if (! sg.is_null())
       o = PyString_FromString(sg.symbol_hm().c_str()); 
    return o;
