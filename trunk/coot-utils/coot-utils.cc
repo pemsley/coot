@@ -393,6 +393,18 @@ coot::util::plain_text_to_sequence(const std::string &s) {
    return r;
 }
 
+std::string
+coot::util::plain_text_to_pir(const std::string &title, const std::string &sequence) {
+
+   std::string r = "> ";
+   r += title;
+   r += "\n";
+   r += "\n";
+   r += sequence;
+   r += "*";
+   return r;
+}
+
 
 
 short int

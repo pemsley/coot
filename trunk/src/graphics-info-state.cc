@@ -385,6 +385,23 @@ graphics_info_t::save_state_file(const std::string &filename) {
 		     }
 		  } 
 	       }
+
+	       // Is there a sequence associated with this model?
+	       if (molecules[i].input_sequence.size() > 0) {
+		  for (unsigned int iseq=0; iseq<molecules[i].input_sequence.size(); iseq++) {
+		     active_strings.clear();
+		     active_strings.push_back("assign-pir-sequence");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     active_strings.push_back(single_quote(molecules[i].input_sequence[iseq].first));
+		     std::string title = molecules[i].dotted_chopped_name();
+		     title += " chain ";
+		     title += molecules[i].input_sequence[iseq].first;
+		     std::string pir_seq = coot::util::plain_text_to_pir(title,
+									 molecules[i].input_sequence[iseq].second);
+		     active_strings.push_back(single_quote(pir_seq));
+		     commands.push_back(state_command(active_strings, il));
+		  }
+	       }
 	    }
 
 	    // Maps:
