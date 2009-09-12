@@ -3248,8 +3248,14 @@ public:
    static short int do_tip_of_the_day_flag; 
    
    // --------- LSQing ---------------
+   // 
+   // if cell and space group are both not null then change the cell
+   // and space group of the moving molecule to that of the reference
+   // (presumably).
    std::pair<int, clipper::RTop_orth> apply_lsq(int imol_ref, int imol_moving,
-		 const std::vector<coot::lsq_range_match_info_t> &matches);
+						const std::vector<coot::lsq_range_match_info_t> &matches,
+						const clipper::Spacegroup &new_space_group, 
+						const clipper::Cell &new_cell);
    static std::vector<coot::lsq_range_match_info_t> *lsq_matchers;
    // the simple widget for LSQing: (perhaps these should be vectors of strings 
    // in the general case (more complex widget)?)

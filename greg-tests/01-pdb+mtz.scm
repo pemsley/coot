@@ -2180,6 +2180,43 @@
 	     (bond-length-within-tolerance? c-1 c-2 0.0 0.2)))))))
 
 
+(greg-testcase "LSQing changes the space-group and cell to that of the reference molecule" #t
+   (lambda ()
+
+     (let ((imol-mov (greg-pdb "tutorial-modern.pdb"))
+	   (imol-ref (greg-pdb "pdb1py3.ent")))
+
+       (let ((sg-mov-orig (show-spacegroup imol-mov))
+	     (sg-ref-orig (show-spacegroup imol-ref))
+	     (cell-mov-orig (cell imol-mov))
+	     (cell-ref-orig (cell imol-ref)))
+
+       (clear-lsq-matches)
+       (add-lsq-match 10 50 "A" 8 48 "B" 1)
+       (let ((rtop (apply-lsq-matches imol-ref imol-mov)))
+	 (let ((sg-mov-curr (show-spacegroup imol-mov))
+	       (cell-mov-curr (cell imol-mov)))
+
+	   (if (not (string=? sg-mov-curr sg-ref-orig))
+	       (begin
+		 (format #t "   fail on matching spacegroups: ~s and ~s~%" 
+			 sg-mov-curr sg-ref-orig)
+		 (throw 'fail)))
+
+	   (let ((r (all-true? (map close-float? cell-ref-orig cell-mov-curr))))
+	     (if (not r)
+	       (begin
+		 (format #t "   fail on matching cells: ~s and ~s~%" 
+			 cell-ref-orig cell-mov-curr)
+		 (throw 'fail)))
+
+	     #t)))))))
+		 
+	   
+
+
+
+
 
 (greg-testcase "Phosphate distance in pucker analysis is sane" #t 
    (lambda () 

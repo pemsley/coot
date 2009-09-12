@@ -453,8 +453,11 @@ apply_lsq_matches(int imol_reference, int imol_moving) {
 	 graphics_info_t g;
 	 std::cout << "INFO:: Matching/moving molecule number " << imol_moving << " to "
 		   << imol_reference << std::endl;
+	 clipper::Spacegroup new_space_group = g.molecules[imol_reference].space_group().second;
+	 clipper::Cell new_cell = g.molecules[imol_reference].cell().second;
 	 std::pair<int, clipper::RTop_orth> status_and_rtop =
-	    g.apply_lsq(imol_reference, imol_moving, *graphics_info_t::lsq_matchers);
+	    g.apply_lsq(imol_reference, imol_moving, *graphics_info_t::lsq_matchers,
+			new_space_group, new_cell);
 	 if (status_and_rtop.first) {
 	    scm_status = rtop_to_scm(status_and_rtop.second);
 	 }
@@ -478,8 +481,11 @@ PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving) {
          graphics_info_t g;
          std::cout << "INFO:: Matching/moving molecule number " << imol_moving << " to "
                    << imol_reference << std::endl;
+	 clipper::Spacegroup new_space_group = g.molecules[imol_reference].space_group().second;
+	 clipper::Cell new_cell = g.molecules[imol_reference].cell().second;
          std::pair<int, clipper::RTop_orth> status_and_rtop =
-            g.apply_lsq(imol_reference, imol_moving, *graphics_info_t::lsq_matchers);
+            g.apply_lsq(imol_reference, imol_moving, *graphics_info_t::lsq_matchers,
+			new_space_group, new_cell);
          if (status_and_rtop.first) {
             python_status = rtop_to_python(status_and_rtop.second);
          }
@@ -504,10 +510,13 @@ apply_lsq_matches_simple(int imol_reference, int imol_moving) {
    if (is_valid_model_molecule(imol_reference)) {
       if (is_valid_model_molecule(imol_moving)) {
 	 graphics_info_t g;
+	 clipper::Spacegroup new_space_group = g.molecules[imol_reference].space_group().second;
+	 clipper::Cell new_cell = g.molecules[imol_reference].cell().second;
 	 std::cout << "INFO:: Matching/moving molecule number " << imol_moving << " to "
 		   << imol_reference << std::endl;
 	 std::pair<int, clipper::RTop_orth> statuspair = g.apply_lsq(imol_reference, imol_moving,
-								     *graphics_info_t::lsq_matchers);
+								     *graphics_info_t::lsq_matchers,
+								     new_space_group, new_cell);
 	 status = statuspair.first;
       } else {
 	 std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
