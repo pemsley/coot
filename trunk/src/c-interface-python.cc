@@ -109,7 +109,7 @@ py_symop_strings_to_space_group(PyObject *symop_string_list) {
       int n = PyObject_Length(symop_string_list);
       std::string sgo;
       for (unsigned int i=0; i<n; i++) {
-	 std::string se = PyList_GetItem(symop_string_list, i);
+	 std::string se = PyString_AsString(PyList_GetItem(symop_string_list, i));
 	 sgo += se;
 	 sgo += " ; ";
       }

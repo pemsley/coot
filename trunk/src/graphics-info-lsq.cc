@@ -55,7 +55,9 @@
 // --------- LSQing ---------------
 std::pair<int, clipper::RTop_orth>
 graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
-			   const std::vector<coot::lsq_range_match_info_t> &matches) {
+			   const std::vector<coot::lsq_range_match_info_t> &matches,
+			   const clipper::Spacegroup &new_space_group, 
+			   const clipper::Cell &new_cell) {
 
    int status = 0;
    clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
@@ -93,6 +95,19 @@ graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
 		  
 
 		  molecules[imol_moving].transform_by(rtop_info.second);
+
+		  if (!new_cell.is_null() && !new_space_group.is_null()) { 
+		     std::pair<std::vector<float>, std::string> cell_spgr;
+		     cell_spgr.first.resize(6);
+		     cell_spgr.first[0] = new_cell.a();
+		     cell_spgr.first[1] = new_cell.b();
+		     cell_spgr.first[2] = new_cell.c();
+		     cell_spgr.first[3] = clipper::Util::rad2d(new_cell.alpha());
+		     cell_spgr.first[4] = clipper::Util::rad2d(new_cell.beta());
+		     cell_spgr.first[5] = clipper::Util::rad2d(new_cell.gamma());
+		     cell_spgr.second = new_space_group.symbol_hm();
+		     molecules[imol_moving].set_mmdb_cell_and_symm(cell_spgr);
+		  }
 		  rtop_r = rtop_info.second;
 		  graphics_draw();
 		  status = 1; // done good (used to dismiss/destroy the widget)
