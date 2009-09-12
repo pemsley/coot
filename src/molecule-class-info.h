@@ -637,14 +637,6 @@ class molecule_class_info_t {
 
    std::vector<coot::dipole> dipoles;
 
-   // we may decide in future that sequence can be more sophisticated
-   // than a simple string.
-   // 
-   // pair: chain_id sequence
-   std::vector<std::pair<std::string, std::string> > input_sequence;
-   bool is_fasta_aa(const std::string &a) const;
-   bool is_pir_aa  (const std::string &a) const;
-
    // make fphidata lie within the resolution limits of reso.  Do we
    // need a cell to do this?
    // 
@@ -2128,6 +2120,15 @@ class molecule_class_info_t {
    std::vector<clipper::Coord_orth> distances_to_point(const clipper::Coord_orth &pt,
 						       double min_dist,
 						       double max_dist);
+
+   // we may decide in future that sequence can be more sophisticated
+   // than a simple string.
+   // 
+   // pair: chain_id sequence.  We need public access to these now
+   // that they are going into the state script.
+   std::vector<std::pair<std::string, std::string> > input_sequence;
+   bool is_fasta_aa(const std::string &a) const;
+   bool is_pir_aa  (const std::string &a) const;
 
    // sequence [a -other function]
    void assign_fasta_sequence(const std::string &chain_id, const std::string &seq);
