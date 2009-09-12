@@ -2013,7 +2013,8 @@ class molecule_class_info_t {
    std::pair<std::vector<float>, std::string> get_cell_and_symm() const;
    // 
    void set_mmdb_cell_and_symm(std::pair<std::vector<float>, std::string>);
-   void set_mmdb_symm(const std::string &s);
+   // return the success status of the set
+   bool set_mmdb_symm(const std::string &s);
 
    //
    void set_bond_thickness(float t) { bond_width = t; }

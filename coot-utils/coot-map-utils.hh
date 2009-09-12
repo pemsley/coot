@@ -131,9 +131,16 @@ namespace coot {
 				       float sharpen_factor);
       
       clipper::Xmap<float> transform_map(const clipper::Xmap<float> &xmap_in,
+					 const clipper::Spacegroup &new_space_group,
+					 const clipper::Cell &new_cell,
 					 const clipper::RTop_orth &rtop,
 					 const clipper::Coord_orth &about_pt,
 					 float box_size);
+
+      clipper::Grid_sampling suggested_grid_sampling(const clipper::Grid_sampling &orig_sampling,
+						     const clipper::Cell &orig_cell,
+						     const clipper::Spacegroup &new_space_group,
+						     const clipper::Cell &new_cell);
 
       clipper::Xmap<float> laplacian_transform(const clipper::Xmap<float> &xmap_in);
 

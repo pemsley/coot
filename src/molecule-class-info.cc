@@ -259,12 +259,28 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    }
 }
 
-// cleaner interface to molecule's attributes:
+// Cleaner interface to molecule's attributes:
 std::pair<bool, clipper::Spacegroup>
 molecule_class_info_t::space_group() const {
 
    clipper::Spacegroup sg;
    std::pair<bool, clipper::Spacegroup> p(0, sg);
+
+   if (has_model()) {
+      // I want just the symmetry
+      
+      try { // for now
+	 std::pair<clipper::Cell, clipper::Spacegroup> cell_sg =
+	    coot::util::get_cell_symm(atom_sel.mol);
+	 if (!cell_sg.second.is_null()) { 
+	    p.first = 1;
+	    p.second = cell_sg.second;
+	 }
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      }
+   }
    return p;
 }
 
@@ -6292,11 +6308,15 @@ molecule_class_info_t::set_mmdb_cell_and_symm(std::pair<std::vector<float>, std:
    } 
 }
 
-void
+bool 
 molecule_class_info_t::set_mmdb_symm(const std::string &spg) {
 
-   atom_sel.mol->SetSpaceGroup((char *)spg.c_str());
-
+   atom_sel.mol->SetSpaceGroup(spg.c_str());
+   std::string new_sg;
+   const char *new_sg_chars = atom_sel.mol->GetSpaceGroup();
+   if (new_sg_chars)
+      new_sg = new_sg_chars;
+   return (new_sg == spg);
 } 
 
 // Return atom_index of -1 when no nearest atom.

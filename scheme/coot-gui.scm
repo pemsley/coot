@@ -1936,7 +1936,11 @@
 			  
 			      (gtk-widget-destroy window)))))
     
-    (gtk-widget-show-all window)))
+    (gtk-widget-show-all window)
+    (if (not (valid-map-molecule? (imol-refinement-map)))
+	(show-select-map-dialog))))
+
+
 
 		      
 

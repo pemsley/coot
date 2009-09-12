@@ -47,7 +47,8 @@
 (define map-sigma map-sigma-scm)
 (define pucker-info pucker-info-scm)
 (define map-parameters map-parameters-scm)
-(define map-cell map-cell-scm)
+(define cell cell-scm)
+(define map-cell cell)
 (define ccp4i-projects ccp4i-projects-scm)
 (define map-sigma map-sigma-scm)
 (define get-rotamer-name get-rotamer-name-scm)
@@ -73,6 +74,8 @@
 (define alignment-mismatches alignment-mismatches-scm)
 (define rigid-body-refine-by-residue-ranges rigid-body-refine-by-residue-ranges-scm)
 (define average-map average-map-scm)
+(define symmetry-operators symmetry-operators-scm)
+(define symmetry-operators->xHM symmetry-operators-to-xHM-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a
@@ -1093,7 +1096,10 @@
 
 
 
-;; @code{(transform-map imol mat trans about-pt radius)}
+;; @code{(transform-map imol mat trans about-pt radius space-group cell)}
+;; 
+;; where space-group is a HM-symbol and cell is a list of 6
+;; parameters, where the cell angles are in degrees.
 ;; 
 ;; or @code{(transform-map imol trans about-pt radius)} for a simple translation
 ;; 
@@ -1104,7 +1110,7 @@
   (lambda args
 
     (define tf
-      (lambda (imol mat trans about-pt radius)
+      (lambda (imol mat trans about-pt radius space-group cell)
 
 	(transform-map-raw imol 
 			   (list-ref mat 0) 
@@ -1122,30 +1128,43 @@
 			   (list-ref about-pt 0)
 			   (list-ref about-pt 1)
 			   (list-ref about-pt 2)
-			   radius)))
+			   radius
+			   space-group
+			   (list-ref cell 0) 
+			   (list-ref cell 1) 
+			   (list-ref cell 2) 
+			   (list-ref cell 3) 
+			   (list-ref cell 4) 
+			   (list-ref cell 5))))
 
     (cond 
-     ((= (length args) 5)
+     ((= (length args) 7)
       (tf (list-ref args 0)
 	  (list-ref args 1)
 	  (list-ref args 2)
 	  (list-ref args 3)
-	  (list-ref args 4)))
+	  (list-ref args 4)
+	  (list-ref args 5)
+	  (list-ref args 6)))
      ((= (length args) 4) ; no matrix specified
       (tf (list-ref args 0)
 	  (identity-matrix)
 	  (list-ref args 1)
 	  (list-ref args 2)
-	  (list-ref args 3)))
+	  (list-ref args 3)
+	  (symmetry-operators->xHM (symmetry-operators imol))
+	  (cell imol)))
      ((= (length args) 3) ; no matrix or about point specified
       (tf (list-ref args 0)
 	  (identity-matrix)
 	  (list-ref args 1)
 	  (rotation-centre)
-	  (list-ref args 2)))
-      (else
-       (format #t "arguments to transform-map incomprehensible: args: ~s~%" args)
-       #f))))
+	  (list-ref args 2)
+	  (symmetry-operators->xHM (symmetry-operators imol))
+	  (cell imol)))
+     (else
+      (format #t "arguments to transform-map incomprehensible: args: ~s~%" args)
+      #f))))
 	 
      
 ;; Define a map transformation function that obeys Lapthorn's Law of
@@ -1161,8 +1180,16 @@
   (clear-lsq-matches)
   (add-lsq-match ref-resno-start ref-resno-end ref-chain 
 		 mov-resno-start mov-resno-end mov-chain 1)
-  (let ((rtop (apply-lsq-matches imol-ref imol-mov)))
-    (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius)))
+  (let ((space-group (symmetry-operators->xHM 
+		      (symmetry-operators imol-ref)))
+	(cell-params (cell imol-ref)))
+    
+    (if (not (and space-group cell-params))
+	(let ((message (format #f "Bad cell or symmetry for molecule ~s~%"
+			       cell space-group imol-ref))))
+
+	(let ((rtop (apply-lsq-matches imol-ref imol-mov)))
+	  (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius space-group cell-params)))))
 
 
 ;; Make the imol-th map brighter.

@@ -109,5 +109,38 @@ int key_sym_code_scm(SCM s_scm) {
    return r;
 }
 
+// Convert a scheme list of strings to a clipper::Spacegroup.  return
+// a Spacegroup that is_null() on failure.
+// 
+clipper::Spacegroup
+scm_symop_strings_to_space_group(SCM symop_string_list) {
+
+   clipper::Spacegroup sg;
+   if (scm_is_true(scm_list_p(symop_string_list))) {
+      SCM n_scm = scm_length(symop_string_list);
+      int n = scm_to_int(n_scm);
+      std::string sgo;
+      for (unsigned int i=0; i<n; i++) {
+	 SCM s = scm_list_ref(symop_string_list, SCM_MAKINUM(i));
+	 std::string se = scm_to_locale_string(s);
+	 sgo += se;
+	 sgo += " ; ";
+      }
+      if (sgo.length() > 0) {
+	 try {
+	    sg.init(clipper::Spgr_descr(sgo, clipper::Spgr_descr::Symops));
+	 } catch ( clipper::Message_base exc ) {
+	    std::string mess = "Can't make spacegroup from ";
+	    mess += sgo;
+	    std::cout << "WARNING:: " << mess << std::endl;
+	 }
+      } 
+   } else {
+      std::cout << "WARNING:: " << scm_to_locale_string(display_scm(symop_string_list))
+		<< " is not a list" << std::endl;
+   } 
+   return sg;
+} 
+
 #endif // USE_GUILE
 

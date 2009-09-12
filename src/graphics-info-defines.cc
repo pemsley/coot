@@ -784,9 +784,13 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       int resno = res->GetSeqNum();
 	       std::string altloc(at->altLoc);
 	       std::string inscode(at->GetInsCode());
+	       std::string atom_name(at->name);
 	       graphics_info_t::molecules[naii.imol].delete_residue_hydrogens(chain_id, resno, inscode, altloc);
-	       delete_atom_by_atom_index(naii.imol, naii.atom_index,
-					 destroy_delete_dialog_flag_by_ctrl_press);
+	       
+	       delete_atom(naii.imol, chain_id.c_str(), resno, inscode.c_str(),
+			   atom_name.c_str(), altloc.c_str());
+	       delete_object_handle_delete_dialog(destroy_delete_dialog_flag_by_ctrl_press);
+
 	       pick_pending_flag = 0;
 	       run_post_manipulation_hook(naii.imol, DELETED);
 	    }
@@ -800,7 +804,10 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		  int index = symm_nearest_atom_index_info.atom_index;
 		  CResidue *res = molecules[im].atom_sel.atom_selection[index]->residue;
 		  std::string resname(res->name);
-		  if (resname == "WAT" || resname == "HOH") { 
+		  if (resname == "WAT" || resname == "HOH") {
+		     // Note of course if we don't delete residue
+		     // hydrogens as we do above, then the atom_index
+		     // doesn't go out of date, so delete_atom_by_atom_index() is fine.
 		     delete_atom_by_atom_index(im, index,
 					       destroy_delete_dialog_flag_by_ctrl_press);
 		     normal_cursor();

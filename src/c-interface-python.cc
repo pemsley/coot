@@ -101,4 +101,31 @@ int key_sym_code_py(PyObject *po) {
 }
 
 
+clipper::Spacegroup
+py_symop_strings_to_space_group(PyObject *symop_string_list) {
+
+   clipper::Spacegroup sg;
+   if (PyList_Check(symop_string_list)) {
+      int n = PyObject_Length(symop_string_list);
+      std::string sgo;
+      for (unsigned int i=0; i<n; i++) {
+	 std::string se = PyList_GetItem(symop_string_list, i);
+	 sgo += se;
+	 sgo += " ; ";
+      }
+      if (sgo.length() > 0) {
+	 try {
+	    sg.init(clipper::Spgr_descr(sgo, clipper::Spgr_descr::Symops));
+	 } catch ( clipper::Message_base exc ) {
+	    std::string mess = "Can't make spacegroup from ";
+	    mess += sgo;
+	    std::cout << "WARNING:: " << mess << std::endl;
+	 }
+      }
+   }
+   return sg;
+} 
+
+
+
 #endif // USE_PYTHON

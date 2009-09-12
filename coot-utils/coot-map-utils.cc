@@ -349,6 +349,8 @@ coot::util::sharpen_map(const clipper::Xmap<float> &xmap_in, float sharpen_facto
 
 clipper::Xmap<float>
 coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
+			  const clipper::Spacegroup &new_space_group,
+			  const clipper::Cell &new_cell,
 			  const clipper::RTop_orth &rtop,
 			  const clipper::Coord_orth &to_pt,
 			  float box_size) {
@@ -357,15 +359,25 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
    clipper::Coord_orth about_pt = to_pt.transform(rtop.inverse());
 
    clipper::Xmap<float> xmap;
-   xmap.init(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
+   clipper::Grid_sampling new_gs = coot::util::suggested_grid_sampling(xmap_in.grid_sampling(),
+								       xmap_in.cell(),
+								       new_space_group,
+								       new_cell);
+
+   std::cout << "INFO:: creating new map for transformed map with spacegroup: " << new_space_group.symbol_hm()
+	     << " cell: " << new_cell.format() << " grid-sampling " << new_gs.format()
+	     << std::endl;
+   
+   xmap.init(new_space_group, new_cell, new_gs);
+   
    clipper::Coord_orth pt_new_centre = about_pt.transform(rtop);
    clipper::Grid_sampling grid = xmap.grid_sampling();
-   clipper::Grid_range gr(xmap_in.cell(), xmap_in.grid_sampling(), 2*box_size);
+   clipper::Grid_range gr(xmap.cell(), xmap.grid_sampling(), 2*box_size);
    clipper::Coord_grid g, g0, g1;
    clipper::RTop_orth rtop_inv = rtop.inverse();
    typedef clipper::Xmap<float>::Map_reference_coord MRC;
    MRC i0, iu, iv, iw;
-   g = pt_new_centre.coord_frac(xmap_in.cell()).coord_grid(xmap_in.grid_sampling());
+   g = pt_new_centre.coord_frac(new_cell).coord_grid(new_gs);
 
    std::cout << "DEBUG:: pulling map from point:   " << about_pt.format() << std::endl;
    std::cout << "DEBUG:: creating map about point: " << pt_new_centre.format() << std::endl;
@@ -376,12 +388,35 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
    for ( iu = i0; iu.coord().u() <= g1.u(); iu.next_u() )
       for ( iv = iu; iv.coord().v() <= g1.v(); iv.next_v() )
 	 for ( iw = iv; iw.coord().w() <= g1.w(); iw.next_w() ) {
-	    clipper::Coord_orth dpt = iw.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap_in.cell()).transform(rtop_inv);
+	    clipper::Coord_orth dpt = iw.coord().coord_frac(grid).coord_orth(xmap.cell()).transform(rtop_inv);
 	    xmap[iw] = coot::util::density_at_point(xmap_in, dpt);
 	 }
    
    return xmap;
 }
+
+
+clipper::Grid_sampling
+coot::util::suggested_grid_sampling(const clipper::Grid_sampling &orig_sampling,
+				    const clipper::Cell &orig_cell,
+				    const clipper::Spacegroup &new_space_group,
+				    const clipper::Cell &new_cell) {
+
+   float sampling_a = orig_cell.a()/float(orig_sampling.nu());
+   float sampling_b = orig_cell.b()/float(orig_sampling.nv());
+   float sampling_c = orig_cell.c()/float(orig_sampling.nw());
+
+   float best_sampling = sampling_a;
+   if (sampling_b < best_sampling)
+      best_sampling = sampling_b;
+   if (sampling_c < best_sampling)
+      best_sampling = sampling_c;
+
+   clipper::Resolution resolution(best_sampling * 3.0);
+
+   return clipper::Grid_sampling(new_space_group, new_cell, resolution, 2.0);
+} 
+
 
 
 std::pair<float, float>

@@ -1,6 +1,11 @@
 
    2 items
 
+   o transformed maps take on the cell+symmetry of the reference
+     coordinates.  If reference coords do not have cell and symmetry,
+     stop.  Needs symmetry operators to symbol interconversions.
+     ::: 2
+
    o Fix problem of Go To Atom dialog displaying the wrong molecule
      number on post-go-to-atom-window (see dnotes).  ::: 2 
  
@@ -1246,5 +1251,10 @@ src/gtk-manual.cc:                done
      shown when the vbox is shown)  ::: 0.5
 
 * Done.
+
+   o binary in output on many delete waters. ::: 1
+
+* Done.
+
 
 -----

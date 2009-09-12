@@ -2597,7 +2597,7 @@ PyObject *map_parameters_py(int imol) {
 
 #ifdef USE_GUILE
 // return #f or (45 46 47 90 90 120), angles in degrees.
-SCM map_cell_scm(int imol) {
+SCM cell_scm(int imol) {
    SCM r = SCM_BOOL_F;
    if (is_valid_map_molecule(imol) || (is_valid_model_molecule(imol))) {
       std::pair<bool, clipper::Cell> cell = graphics_info_t::molecules[imol].cell();
@@ -2614,6 +2614,8 @@ SCM map_cell_scm(int imol) {
    return r;
 } 
 #endif // USE_GUILE
+
+
 
 #ifdef USE_PYTHON
 // return False or [45, 46, 47, 90, 90, 120), angles in degrees.
@@ -3064,7 +3066,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 
    SCM retval = SCM_BOOL_F;
 
-   if (!scm_list_p(restraints)) {
+   if (!scm_is_true(scm_list_p(restraints))) {
       std::cout << " Failed to read restraints - not a list" << std::endl;
    } else {
 
@@ -3081,7 +3083,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
       if (restraints_length > 0) {
 	 for (int i_rest_type=0; i_rest_type<restraints_length; i_rest_type++) {
 	    SCM rest_container = scm_list_ref(restraints, SCM_MAKINUM(i_rest_type));
-	    if (scm_list_p(rest_container)) {
+	    if (scm_is_true(scm_list_p(rest_container))) {
 	       SCM rest_container_length_scm = scm_length(rest_container);
 	       int rest_container_length = scm_to_int(rest_container_length_scm);
 	       if (rest_container_length > 1) {
@@ -3886,7 +3888,7 @@ int refmac_runs_with_nolabels() {
  
 #ifdef USE_GUILE
   SCM refmac_version = safe_scheme_command("(get-refmac-version)");
-  if (scm_list_p(refmac_version)) {
+  if (scm_is_true(scm_list_p(refmac_version))) {
      int major = scm_to_int(scm_list_ref(refmac_version, SCM_MAKINUM(0)));
      int minor = scm_to_int(scm_list_ref(refmac_version, SCM_MAKINUM(1)));
      if ((major == 5 && minor >= 4) || (major > 5)) {
