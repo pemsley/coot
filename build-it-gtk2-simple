@@ -284,7 +284,8 @@
 # 4.56 20090727 Add a date for build-in-progress status
 # 4.57 20090728 gtk2 -> $build_type fixups for status
 # 4.58 20090730 remove swig from package list tested on ubuntu.
-script_version=4.58
+# 4.59 20090913 Add a date to the fail status message
+script_version=4.59
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2998,7 +2999,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
             echo ========================
             echo second coot test failed
             echo ========================
-            echo fail-second-test > $LOGS/$build_type-test-status
+            echo fail-second-test $date > $LOGS/$build_type-test-status
          fi
   
 
@@ -3015,7 +3016,7 @@ else
    echo ========================
    echo greg test status: $r
    echo python test status: $rp
-   echo fail-test > $LOGS/$build_type-test-status
+   echo fail-test $date > $LOGS/$build_type-test-status
 fi
 
 

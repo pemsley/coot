@@ -229,7 +229,8 @@
 # 2.61 20090704 mmdb-1.21 from York
 # 2.62 20090724 make compilers_dir depend on build_type (python build logs 
 #               split out)
-script_version=2.62
+# 2.63 20090913 add a date to the fail status message
+script_version=2.63
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2831,7 +2832,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
             echo ========================
             echo second coot test failed
             echo ========================
-            echo fail-second-test > $LOGS/$build_type-test-status
+            echo fail-second-test $date > $LOGS/$build_type-test-status
          fi
 
       else 
@@ -2846,7 +2847,7 @@ else
       echo ========================
       echo '  ' first coot test failed
       echo ========================
-      echo fail-test > $LOGS/$build_type-test-status
+      echo fail-test $date > $LOGS/$build_type-test-status
    else 
       echo coot not tested.
       echo not-tested > $LOGS/$build_type-test-status
