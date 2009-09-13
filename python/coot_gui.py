@@ -2464,8 +2464,10 @@ def transform_map_using_lsq_matrix_gui():
            print "Must set the refinement map"
         else:
            imol_copy = copy_molecule(active_mol_mov)
-           new_map_number = transform_map_using_lsq_matrix(active_mol_ref, chain_id_ref, resno_1_ref, resno_2_ref,
-                                                           imol_copy, chain_id_mov, resno_1_mov, resno_2_mov,
+           new_map_number = transform_map_using_lsq_matrix(active_mol_ref, chain_id_ref,
+                                                           resno_1_ref, resno_2_ref,
+                                                           imol_copy, chain_id_mov,
+                                                           resno_1_mov, resno_2_mov,
                                                            imol_map, rotation_centre(), radius)
            set_molecule_name(imol_copy,
                              "Transformed copy of " + strip_path(molecule_name(active_mol_mov)))
@@ -2517,7 +2519,7 @@ def transform_map_using_lsq_matrix_gui():
   cancel_button = gtk.Button("  Cancel  ")
   ok_button = gtk.Button("  Transform  ")
   usage = "Note that this will transform the current refinement map " + \
-          "about the screen centre"
+          "to around the screen centre"
   usage_label = gtk.Label(usage)
   h_sep = gtk.HSeparator()
   frame_info_ref = atom_sel_frame("Reference")
@@ -2555,6 +2557,9 @@ def transform_map_using_lsq_matrix_gui():
   ok_button.connect("clicked",on_ok_button_clicked)
 
   window.show_all()
+  if (not valid_map_molecule_qm(imol_refinement_map())):
+     show_select_map_dialog()
+
 
 def ncs_ligand_gui():
    

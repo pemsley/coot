@@ -5765,7 +5765,12 @@ PyObject *symmetry_operators_py(int imol) {
 	 for (unsigned int i=0; i<sv.size(); i++) {
 	    PyList_SetItem(o, i, PyString_FromString(sv[i].c_str()));
 	 }
+      } else {
+	 std::cout << "WARNING:: in symmetry_operators_py() null space group " << std::endl;
       }
+   }
+   if PyBool_Check(o) {
+     Py_INCREF(o);
    }
    return o;
 } 
@@ -5790,6 +5795,9 @@ symmetry_operators_to_xHM_py(PyObject *symmetry_operators) {
    clipper::Spacegroup sg = py_symop_strings_to_space_group(symmetry_operators);
    if (! sg.is_null())
       o = PyString_FromString(sg.symbol_hm().c_str()); 
+   if PyBool_Check(o) {
+     Py_INCREF(o);
+   }
    return o;
 }
 #endif 
