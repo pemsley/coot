@@ -6,7 +6,13 @@
 
 # Magic (eh?).  Stops bash doing the word spliting expansion on the
 # command line arguments.
-IFS=$'\t\n'
+#
+# Note: setting IFS in a dash script causes problems (it splits on ts
+# and ns! (disaster)).
+#
+if [ -n "$BASH" ] ; then
+   IFS=$'\t\n'
+fi
 
 
 #

@@ -771,7 +771,7 @@ def transform_map(*args):
        ret = tf(args[0],identity_matrix(),args[1],args[2],args[3], show_spacegroup(imol), cell(imol))
 #no matrix or about point specified:
     elif (len(args)==3):
-       ret = tf(args[0],identity_matrix(),args[1],rotation_centre(),args[2], show_spacegroup(imol), cell(imol)))
+       ret = tf(args[0],identity_matrix(),args[1],rotation_centre(),args[2], show_spacegroup(imol), cell(imol))
     else:
        print "arguments to transform-map incomprehensible: args: ",args
     return ret

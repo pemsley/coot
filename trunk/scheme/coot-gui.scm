@@ -1845,7 +1845,7 @@
 	 (cancel-button (gtk-button-new-with-label "  Cancel  "))
 	 (ok-button (gtk-button-new-with-label "  Transform  "))
 	 (usage (string-append "Note that this will transform the current refinement map "
-			       "about the screen centre"))
+			       "to around the screen centre"))
 	 (usage-label (gtk-label-new usage))
 	 (h-sep (gtk-hseparator-new))
 	 (frame-info-ref (atom-sel-frame 'Reference))
