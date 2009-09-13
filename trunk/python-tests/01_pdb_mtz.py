@@ -1689,6 +1689,32 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(bond_length_within_tolerance_qm(c_1, c_2, 0.0, 0.2))
 
 
+    def test53_1(self):
+	    """LSQing changes the space-group and cell to that of the reference molecule"""
+
+	    imol_mov = unittest_pdb("tutorial-modern.pdb")
+	    imol_ref = unittest_pdb("pdb1py3.ent")
+
+	    sg_mov_orig = show_spacegroup(imol_mov)
+	    sg_ref_orig = show_spacegroup(imol_ref)
+	    cell_mov_orig = cell(imol_mov)
+	    cell_ref_orig = cell(imol_ref)
+
+	    clear_lsq_matches()
+	    add_lsq_match(10, 50, "A", 8, 48, "B", 1)
+	    rtop = apply_lsq_matches(imol_ref, imol_mov)
+	    sg_mov_curr = show_spacegroup(imol_mov)
+	    cell_mov_curr = cell(imol_mov)
+
+	    self.failUnless(sg_mov_curr == sg_ref_orig,
+			    "   fail on matching spacegroups: %s and %s" \
+			    %(sg_mov_curr, sg_ref_orig))
+
+	    self.failUnless(all(map(close_float_qm, cell_ref_orig, cell_mov_curr)),
+			    "   fail on matching cells: %s and %s" \
+			    %(cell_ref_orig, cell_mov_curr))
+
+
     def test54_0(self):
 	    """Phosphate distance in pucker analysis is sane"""
 

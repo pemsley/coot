@@ -742,11 +742,14 @@ def transform_coords_molecule(imol, rtop):
 
     transform_molecule_by(imol, *ls)
 
-# @code{transform_map(imol,mat,trans,about_pt,radius)}
+# @code{transform_map(imol, mat, trans, about_pt, radius, space_group, cell)}
 #
-# or @code{transform_map(imol,trans,about_pt,radius)} for a simple translation
+# where space_group is a HM-symbol and cell is a list of 6
+# parameters, where the cell angles are in degrees.
 #
-# or @code{transform_map(imol,trans,radius)} when using the default 
+# or @code{transform_map(imol, trans, about_pt, radius)} for a simple translation
+#
+# or @code{transform_map(imol, trans, radius)} when using the default 
 # rotation-centre as the about-pt
 #
 # returns new map mol number or None if no map could be transformed/created
@@ -755,23 +758,26 @@ def transform_map(*args):
 
     ret = None
     def tf(imol, mat, trans, about_pt, radius, space_group, cell):
-        return transform_map_raw(imol,mat[0],mat[1],mat[2],
-                                 mat[3],mat[4],mat[5],
-                                 mat[6],mat[7],mat[8],
-                                 trans[0],trans[1],trans[2],
-                                 about_pt[0],about_pt[1],about_pt[2],
+        return transform_map_raw(imol,
+                                 mat[0], mat[1], mat[2],
+                                 mat[3], mat[4], mat[5],
+                                 mat[6], mat[7], mat[8],
+                                 trans[0], trans[1], trans[2],
+                                 about_pt[0], about_pt[1], about_pt[2],
+                                 radius,
                                  space_group,
                                  cell[0], cell[1], cell[2],
-                                 cell[3], cell[4], cell[5],
-                                 radius)
+                                 cell[3], cell[4], cell[5])
     if (len(args)==7):
-       ret = tf(args[0],args[1],args[2],args[3],args[4],args[5],args[6])
-#no matrix specified:
+       ret = tf(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
+    # no matrix specified:
     elif (len(args)==4):
-       ret = tf(args[0],identity_matrix(),args[1],args[2],args[3], show_spacegroup(imol), cell(imol))
-#no matrix or about point specified:
+       ret = tf(args[0], identity_matrix(), args[1], args[2], args[3],
+                show_spacegroup(imol), cell(imol))
+    # no matrix or about point specified:
     elif (len(args)==3):
-       ret = tf(args[0],identity_matrix(),args[1],rotation_centre(),args[2], show_spacegroup(imol), cell(imol))
+       ret = tf(args[0], identity_matrix(), args[1], rotation_centre(),
+                args[2], show_spacegroup(imol), cell(imol))
     else:
        print "arguments to transform-map incomprehensible: args: ",args
     return ret
@@ -788,12 +794,22 @@ def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_res
                                    imol_mov, mov_chain, mov_resno_start, mov_resno_end,
                                    imol_map, about_pt, radius):
 
-	clear_lsq_matches()
-	add_lsq_match(ref_resno_start, ref_resno_end, ref_chain,
-		      mov_resno_start, mov_resno_end, mov_chain, 1)
-	rtop = apply_lsq_matches(imol_ref, imol_mov)
-	ret = transform_map(imol_map, rtop[0], rtop[1], about_pt, radius)
-        return ret
+    clear_lsq_matches()
+    add_lsq_match(ref_resno_start, ref_resno_end, ref_chain,
+                  mov_resno_start, mov_resno_end, mov_chain, 1)
+    space_group = symmetry_operators_to_xHM(symmetry_operators(imol_ref))
+    cell_params = cell(imol_ref)
+
+    if not (space_group and cell):
+        message = "Bad cell or symmetry for molecule" + str(cell) + str(space_group) + str(imol_ref)
+        print "Bad cell or symmetry for molecule", message
+        ret = -1           # invalid mol!
+        
+    else:
+        rtop = apply_lsq_matches(imol_ref, imol_mov)
+        ret = transform_map(imol_map, rtop[0], rtop[1], about_pt, radius,
+                            space_group, cell_params)
+    return ret
 
 # Make the imol-th map brighter.
 #
@@ -1824,6 +1840,8 @@ run_state_file         = run_state_file_py
 wrapped_create_run_state_file_dialog =  wrapped_create_run_state_file_dialog_py
 centre_of_mass_string  = centre_of_mass_string_py
 set_atom_attributes    = set_atom_attributes_py
+symmetry_operators     = symmetry_operators_py
+symmetry_operators_to_xHM = symmetry_operators_to_xHM_py
 merge_molecules        = merge_molecules_py
 alignment_results      = alignment_results_py
 refine_residues        = refine_residues_py
