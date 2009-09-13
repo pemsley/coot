@@ -34,7 +34,8 @@
 #include "coot-utils.hh"
 
 
-// Return succes status
+// Return success status
+//
 // il - interface language
 //  2 - python
 //  1 - guile
@@ -299,14 +300,14 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 
    if (f) {
       for (unsigned int i=0; i<commands.size(); i++) {
-	//std::cout<<"DEBUG:: commands " << commands[i] <<std::endl;
-	f << commands[i] << std::endl;
+	 //std::cout<<"DEBUG:: commands " << commands[i] <<std::endl;
+	 f << commands[i] << "\n";
       }
       f.close();
       std::cout << "Preference file " << filename << " written." << std::endl;
 
    } else {
-      std::cout << "WARNING: couldn't write to preference file " << filename
+      std::cout << "WARNING:: couldn't write to preference file " << filename
 		<< std::endl;
       istat = 0;
    } 
