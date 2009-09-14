@@ -116,7 +116,8 @@ int graphics_info_t::go_to_atom_residue() {
 
 	       go_to_atom_residue_ = molecules[imol].atom_sel.atom_selection[0]->GetSeqNum();
 	       go_to_atom_chain_   = std::string(molecules[imol].atom_sel.atom_selection[0]->GetChainID());
-	       go_to_atom_molecule_ = imol;
+	       if (! is_valid_model_molecule(go_to_atom_molecule()))
+		  set_go_to_atom_molecule(imol);
 
 	       // and set the atom name by intelligent atom:
 	       //
@@ -152,10 +153,7 @@ graphics_info_t::go_to_atom_alt_conf() {
 
 void 
 graphics_info_t::set_go_to_atom_molecule(int pos) { 
-
-   // 
    go_to_atom_molecule_ = pos;
-
 }
 
 int

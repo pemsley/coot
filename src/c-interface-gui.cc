@@ -4488,6 +4488,8 @@ GtkWidget *wrapped_create_goto_atom_window() {
 
 
 void post_go_to_atom_window() {
+
+   std::cout << "DEBUG:: post_go_to_atom_window()" << std::endl;
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *widget = wrapped_create_goto_atom_window();
       gtk_widget_show(widget);
@@ -4571,7 +4573,7 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 				     "go_to_atom_residue_scrolledwindow");
      residue_gtklist=gtk_list_new();
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 
      GtkWidget *residue_tree = gtk_tree_new();
      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),

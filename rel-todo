@@ -1,9 +1,6 @@
 
    2 items
 
-   o Fix problem of Go To Atom dialog displaying the wrong molecule
-     number on post-go-to-atom-window (see dnotes).  ::: 2 
- 
    o Stereo (hardware, side by side) Add-reps.  Need to update the
      display list objects when the GL context changes. Need to store a
      GL display list number for the alternate GL context in side by
@@ -1258,5 +1255,20 @@ src/gtk-manual.cc:                done
 
 * Done.
 
+   o transformed maps take on the symmetry of the reference coordinates 
+     ::: 1
+
+   o Crash on Mac on closing 
+     (set-go-to-atom-molecule 4) after the (post-go-to-atom-window)
+     should change the Go To atom dialog.
+     ::: 2
+
+* Done. Yay!
+
+   o Fix problem of Go To Atom dialog displaying the wrong molecule
+     number on post-go-to-atom-window (see dnotes).  ::: 1
+
+* Done. I hope.
+ 
 
 -----

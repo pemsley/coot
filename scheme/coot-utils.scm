@@ -1399,7 +1399,7 @@
   (let ((field (assoc key *key-bindings*)))
     ;; (format #t "Field: ~s~%" field)
     (if (not field)
-	(format #t "~s not found in ~s~%" key *key-bindings*)
+	(format #t "Key ~s not found in bindings~%" key)
 	(begin
 	  ((car (cdr (cdr (cdr field)))))))))
 

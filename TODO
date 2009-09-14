@@ -534,6 +534,8 @@ Punted from 0.6:
 
 0.6.1 
 
+   o Make python coot work on CentOS 4.
+
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
      make_link_restraints_by_linear() has
      if (do_rama_plot_restraints)
