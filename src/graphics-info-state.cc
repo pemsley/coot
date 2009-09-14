@@ -792,7 +792,21 @@ graphics_info_t::write_state(const std::vector<std::string> &commands,
 	 f << commands[i] << std::endl;
       }
       f.flush();  // fixes valgrind problem?
-      f.close();
+      
+      // f.close(); 20090914-PE comment out because it causes a crash
+      // on Mac OS X (these days) (it didn't before I recently updated
+      // the coot dependencies with fink).  However, given the above
+      // uncertain remark about valgrind problems, I think that this
+      // is only a temporary solution to deeper issue.  I think that
+      // there is a memory problem elsewhere that is causing this
+      // f.close() to give a problem.  Sounds pretty hellish to track
+      // down until the problem exhibits itself on something where we
+      // can run valgrind (if indeed even that will do any good).
+      //
+      // Note, of course, that the close() here is not necessary as
+      // the ofstream f will get a flush() and close() when it goes
+      // out of scope at the end of this function.
+      
       std::cout << "State file " << filename << " written." << std::endl;
 
    } else {
