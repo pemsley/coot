@@ -1403,7 +1403,7 @@ fi
 
 # clean up old test status:
 echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/$build_type-build-status
-echo waiting for build @`date +"%a_%d_%b_%H:%M"` > $LOGS/$build_type-test-status
+echo waiting for build > $LOGS/$build_type-test-status
 
 
 

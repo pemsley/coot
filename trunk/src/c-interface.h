@@ -2454,7 +2454,7 @@ void update_go_to_atom_window_on_other_molecule_chosen(int imol);
 
 /*! \brief set the molecule for the Go To Atom
 
-   For dynarama callback sake. The widget/class knows which mapview
+   For dynarama callback sake. The widget/class knows which
    molecule that it was generated from, so in order to go to the
    molecule from dynarama, we first need to the the molecule - because
    set_go_to_atom_chain_residue_atom_name() does not mention the
@@ -2463,7 +2463,15 @@ void update_go_to_atom_window_on_other_molecule_chosen(int imol);
    name.
 
    Also used in scripting, where go-to-atom-chain-residue-atom-name
-   does not mention the molecule number. */
+   does not mention the molecule number. 
+
+   20090914-PE set-go-to-atom-molecule can be used in a script and it
+   should change the go-to-atom-molecule in the Go To Atom dialog (if
+   it is being displayed).  This does mean, of course that using the
+   ramachandran plot to centre on atoms will change the Go To Atom
+   dialog.  Maybe that is surprising (maybe not).
+
+*/
 void set_go_to_atom_molecule(int imol); 
 
 int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget); 

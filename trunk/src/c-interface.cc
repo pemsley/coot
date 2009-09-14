@@ -5172,7 +5172,10 @@ goto_previous_atom_maybe_new(GtkWidget *goto_atom_window) {
 void set_go_to_atom_molecule(int imol) {
 
    graphics_info_t g;
-   g.set_go_to_atom_molecule(imol); 
+   int current_go_to_atom_molecule = g.go_to_atom_molecule();
+   g.set_go_to_atom_molecule(imol);
+   if (current_go_to_atom_molecule != imol)
+      update_go_to_atom_window_on_other_molecule_chosen(imol);
    std::vector<std::string> command_strings;
    command_strings.push_back("set-go-to-atom-molecule");
    command_strings.push_back(graphics_info_t::int_to_string(imol));
