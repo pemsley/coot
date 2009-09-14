@@ -2611,6 +2611,10 @@ public:
    // 
    short int write_state(const std::vector<std::string> &commands,
 			 const std::string &filename) const; 
+   // 20090914 (crazy) attempt to get Coot to build on 32-bit MacOSX.
+   // 
+   short int write_state_c_mode(const std::vector<std::string> &commands,
+				const std::string &filename) const; 
 
    //
    int check_for_unsaved_changes() const; // in state
