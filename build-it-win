@@ -3118,7 +3118,7 @@ else
     echo '!define WinCootVersion "'${wincoot_version}'"' >$install_top_dir/coot-version
 
     echo coot build was good.
-    echo pass-build $coot_revsion > $LOGS/gtk2${build_type}-build-status
+    echo pass-build $coot_revision > $LOGS/gtk2${build_type}-build-status
 fi
 echo done coot build. 
 
@@ -3200,7 +3200,7 @@ else
    echo ========================
    echo '  ' coot test failed
    echo ========================
-   echo fail-test > $LOGS/gtk2${build_type}-test-status
+   echo fail-test $coot_revision > $LOGS/gtk2${build_type}-test-status
 fi
 
 # now copy the log files
