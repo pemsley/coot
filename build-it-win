@@ -1277,8 +1277,9 @@ else
 fi
 
 # Hope this doesnt mess things on windows?!
-# clean up old test status:
-echo build-in-progress    > $LOGS/gtk2$build_type-build-status
+# clean up old test status
+date_str=`date +"%a_%d_%b_%H:%M"`
+echo build-in-progress @$date_str > $LOGS/gtk2$build_type-build-status
 echo waiting for build... > $LOGS/gtk2$build_type-test-status
 
 # ----------------------------------------------------------------------------
@@ -2923,6 +2924,8 @@ else
       fi
    fi 
    coot_revision=`echo $coot_version | awk '{a=$1; i=index(a,"revision"); print substr(a,i)}'`
+   echo coot_version set to $coot_version
+   echo coot_revision set to $coot_revision
    # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
 fi
 

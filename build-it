@@ -1223,8 +1223,8 @@ echo ccp4_system_type $ccp4_system_type
 
 # clean up old status:
 if [ -e $LOGS/$build_type-test-status ] ; then
-   echo build-in-progress > $LOGS/$build_type-test-status
-   echo in-progress > $LOGS/$build_type-build-status
+   echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/$build_type-test-status
+   echo waiting for build > $LOGS/$build_type-build-status
 fi
 
 
