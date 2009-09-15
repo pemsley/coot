@@ -17383,7 +17383,7 @@ Do you want to continue?
 		      </child>
 
 		      <child>
-			<widget class="GtkEntry" id="find_waters_max_dist_to_protein_entry">
+			<widget class="GtkEntry" id="find_waters_min_dist_to_protein_entry">
 			  <property name="width_request">113</property>
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
@@ -17405,7 +17405,7 @@ Do you want to continue?
 		      </child>
 
 		      <child>
-			<widget class="GtkEntry" id="find_waters_min_dist_to_protein_entry">
+			<widget class="GtkEntry" id="find_waters_max_dist_to_protein_entry">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="editable">True</property>

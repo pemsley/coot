@@ -8,20 +8,16 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifndef _MSC_VER
 #include <unistd.h>
-#endif
 #include <string.h>
 #include <stdio.h>
 
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION > 1)
-
-#include "callbacks.h"
-#include "interface.h"
-#include "support.h"
+#include "callbacks.h.gtk2"
+#include "interface.h.gtk2"
+#include "support.h.gtk2"
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
   g_object_set_data_full (G_OBJECT (component), name, \
@@ -470,7 +466,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), get_monomer1);
   gtk_tooltips_set_tip (tooltips, get_monomer1, _("Give a 3-letter code and use libcheck to generate coordinates from REFMAC monomer library"), NULL);
 
-  image6822 = gtk_image_new_from_stock ("connect-to-ccp4.svg", GTK_ICON_SIZE_MENU);
+  image6822 = create_pixmap (window1, "connect-to-ccp4.svg");
   gtk_widget_set_name (image6822, "image6822");
   gtk_widget_show (image6822);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_monomer1), image6822);
@@ -491,7 +487,7 @@ create_window1 (void)
   gtk_widget_show (smiles1);
   gtk_container_add (GTK_CONTAINER (file1_menu), smiles1);
 
-  image6824 = gtk_image_new_from_stock ("smiles.png", GTK_ICON_SIZE_MENU);
+  image6824 = create_pixmap (window1, "smiles.png");
   gtk_widget_set_name (image6824, "image6824");
   gtk_widget_show (image6824);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (smiles1), image6824);
@@ -502,7 +498,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_using_code1);
   gtk_tooltips_set_tip (tooltips, get_pdb_using_code1, _("Get PDB Coordinates file from server using accession code"), NULL);
 
-  image6825 = gtk_image_new_from_stock ("connect-to-oca.svg", GTK_ICON_SIZE_MENU);
+  image6825 = create_pixmap (window1, "connect-to-oca.svg");
   gtk_widget_set_name (image6825, "image6825");
   gtk_widget_show (image6825);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_using_code1), image6825);
@@ -513,7 +509,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_and_map_using_eds1);
   gtk_tooltips_set_tip (tooltips, get_pdb_and_map_using_eds1, _("Use the Electron Density Server at Uppsala University to get coords and map... (Long live the EDS!)"), NULL);
 
-  image6826 = gtk_image_new_from_stock ("connect-to-usf.svg", GTK_ICON_SIZE_MENU);
+  image6826 = create_pixmap (window1, "connect-to-usf.svg");
   gtk_widget_set_name (image6826, "image6826");
   gtk_widget_show (image6826);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_and_map_using_eds1), image6826);
@@ -533,7 +529,7 @@ create_window1 (void)
   gtk_widget_show (save_symmetry_coordinates1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_symmetry_coordinates1);
 
-  image6828 = gtk_image_new_from_stock ("coot-save-symm.png", GTK_ICON_SIZE_MENU);
+  image6828 = create_pixmap (window1, "coot-save-symm.png");
   gtk_widget_set_name (image6828, "image6828");
   gtk_widget_show (image6828);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_symmetry_coordinates1), image6828);
@@ -543,7 +539,7 @@ create_window1 (void)
   gtk_widget_show (save_state1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_state1);
 
-  image6829 = gtk_image_new_from_stock ("coot-save.png", GTK_ICON_SIZE_MENU);
+  image6829 = create_pixmap (window1, "coot-save.png");
   gtk_widget_set_name (image6829, "image6829");
   gtk_widget_show (image6829);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_state1), image6829);
@@ -623,7 +619,7 @@ create_window1 (void)
   gtk_widget_show (restraints1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), restraints1);
 
-  image6836 = gtk_image_new_from_stock ("radacina_handcuffs-small.svg", GTK_ICON_SIZE_MENU);
+  image6836 = create_pixmap (window1, "radacina_handcuffs-small.svg");
   gtk_widget_set_name (image6836, "image6836");
   gtk_widget_show (image6836);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (restraints1), image6836);
@@ -667,7 +663,7 @@ create_window1 (void)
   gtk_widget_show (residue_info2);
   gtk_container_add (GTK_CONTAINER (edit1_menu), residue_info2);
 
-  image6839 = gtk_image_new_from_stock ("residue-info.png", GTK_ICON_SIZE_MENU);
+  image6839 = create_pixmap (window1, "residue-info.png");
   gtk_widget_set_name (image6839, "image6839");
   gtk_widget_show (image6839);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info2), image6839);
@@ -676,7 +672,7 @@ create_window1 (void)
   gtk_widget_set_name (font_size1, "font_size1");
   gtk_container_add (GTK_CONTAINER (edit1_menu), font_size1);
 
-  image6840 = gtk_image_new_from_stock ("gtk-font.png", GTK_ICON_SIZE_MENU);
+  image6840 = create_pixmap (window1, "gtk-font.png");
   gtk_widget_set_name (image6840, "image6840");
   gtk_widget_show (image6840);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (font_size1), image6840);
@@ -685,7 +681,7 @@ create_window1 (void)
   gtk_widget_set_name (pink_pointer_size1, "pink_pointer_size1");
   gtk_container_add (GTK_CONTAINER (edit1_menu), pink_pointer_size1);
 
-  image6841 = gtk_image_new_from_stock ("pink-pointer.png", GTK_ICON_SIZE_MENU);
+  image6841 = create_pixmap (window1, "pink-pointer.png");
   gtk_widget_set_name (image6841, "image6841");
   gtk_widget_show (image6841);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pink_pointer_size1), image6841);
@@ -752,7 +748,7 @@ create_window1 (void)
   gtk_widget_show (other_modelling_tools1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), other_modelling_tools1);
 
-  image6845 = gtk_image_new_from_stock ("gnome-run.png", GTK_ICON_SIZE_MENU);
+  image6845 = create_pixmap (window1, "gnome-run.png");
   gtk_widget_set_name (image6845, "image6845");
   gtk_widget_show (image6845);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (other_modelling_tools1), image6845);
@@ -773,7 +769,7 @@ create_window1 (void)
   gtk_widget_show (merge_molecules1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), merge_molecules1);
 
-  image6846 = gtk_image_new_from_stock ("merge-molecules.svg", GTK_ICON_SIZE_MENU);
+  image6846 = create_pixmap (window1, "merge-molecules.svg");
   gtk_widget_set_name (image6846, "image6846");
   gtk_widget_show (image6846);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (merge_molecules1), image6846);
@@ -793,7 +789,7 @@ create_window1 (void)
   gtk_widget_show (renumber_residues1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), renumber_residues1);
 
-  image6847 = gtk_image_new_from_stock ("renumber-residues.svg", GTK_ICON_SIZE_MENU);
+  image6847 = create_pixmap (window1, "renumber-residues.svg");
   gtk_widget_set_name (image6847, "image6847");
   gtk_widget_show (image6847);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (renumber_residues1), image6847);
@@ -803,7 +799,7 @@ create_window1 (void)
   gtk_widget_show (change_chain_ids2);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), change_chain_ids2);
 
-  image6848 = gtk_image_new_from_stock ("change-chain-id.svg", GTK_ICON_SIZE_MENU);
+  image6848 = create_pixmap (window1, "change-chain-id.svg");
   gtk_widget_set_name (image6848, "image6848");
   gtk_widget_show (image6848);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (change_chain_ids2), image6848);
@@ -833,7 +829,7 @@ create_window1 (void)
   gtk_widget_show (ncs_maps1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), ncs_maps1);
 
-  image6849 = gtk_image_new_from_stock ("calculate-ghosts.svg", GTK_ICON_SIZE_MENU);
+  image6849 = create_pixmap (window1, "calculate-ghosts.svg");
   gtk_widget_set_name (image6849, "image6849");
   gtk_widget_show (image6849);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_maps1), image6849);
@@ -843,7 +839,7 @@ create_window1 (void)
   gtk_widget_show (frames_sec1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), frames_sec1);
 
-  image6850 = gtk_image_new_from_stock ("appointment-new.png", GTK_ICON_SIZE_MENU);
+  image6850 = create_pixmap (window1, "appointment-new.png");
   gtk_widget_set_name (image6850, "image6850");
   gtk_widget_show (image6850);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (frames_sec1), image6850);
@@ -907,7 +903,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (draw1_menu), map_and_mol_control1);
   gtk_tooltips_set_tip (tooltips, map_and_mol_control1, _("Control display and activity of maps and molecules"), NULL);
 
-  image6854 = gtk_image_new_from_stock ("display-manager.png", GTK_ICON_SIZE_MENU);
+  image6854 = create_pixmap (window1, "display-manager.png");
   gtk_widget_set_name (image6854, "image6854");
   gtk_widget_show (image6854);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (map_and_mol_control1), image6854);
@@ -937,7 +933,7 @@ create_window1 (void)
   gtk_widget_show (sequence_view1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), sequence_view1);
 
-  image6857 = gtk_image_new_from_stock ("sequence-view.png", GTK_ICON_SIZE_MENU);
+  image6857 = create_pixmap (window1, "sequence-view.png");
   gtk_widget_set_name (image6857, "image6857");
   gtk_widget_show (image6857);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (sequence_view1), image6857);
@@ -947,7 +943,7 @@ create_window1 (void)
   gtk_widget_show (anisotropic_atoms1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), anisotropic_atoms1);
 
-  image6858 = gtk_image_new_from_stock ("aniso-atom.png", GTK_ICON_SIZE_MENU);
+  image6858 = create_pixmap (window1, "aniso-atom.png");
   gtk_widget_set_name (image6858, "image6858");
   gtk_widget_show (image6858);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (anisotropic_atoms1), image6858);
@@ -957,7 +953,7 @@ create_window1 (void)
   gtk_widget_show (show_symmetry1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), show_symmetry1);
 
-  image6859 = gtk_image_new_from_stock ("cell+symm.png", GTK_ICON_SIZE_MENU);
+  image6859 = create_pixmap (window1, "cell+symm.png");
   gtk_widget_set_name (image6859, "image6859");
   gtk_widget_show (image6859);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (show_symmetry1), image6859);
@@ -973,7 +969,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (draw1_menu), ncs_ghost_control1);
   gtk_tooltips_set_tip (tooltips, ncs_ghost_control1, _("Non-crystallographic Ghost Controller"), NULL);
 
-  image6860 = gtk_image_new_from_stock ("ghosts.png", GTK_ICON_SIZE_MENU);
+  image6860 = create_pixmap (window1, "ghosts.png");
   gtk_widget_set_name (image6860, "image6860");
   gtk_widget_show (image6860);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_ghost_control1), image6860);
@@ -983,7 +979,7 @@ create_window1 (void)
   gtk_widget_show (spin_view_on_off1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), spin_view_on_off1);
 
-  image6861 = gtk_image_new_from_stock ("spin-view.png", GTK_ICON_SIZE_MENU);
+  image6861 = create_pixmap (window1, "spin-view.png");
   gtk_widget_set_name (image6861, "image6861");
   gtk_widget_show (image6861);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (spin_view_on_off1), image6861);
@@ -993,7 +989,7 @@ create_window1 (void)
   gtk_widget_show (screenshot1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), screenshot1);
 
-  image6862 = gtk_image_new_from_stock ("panel-screenshot.png", GTK_ICON_SIZE_MENU);
+  image6862 = create_pixmap (window1, "panel-screenshot.png");
   gtk_widget_set_name (image6862, "image6862");
   gtk_widget_show (image6862);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (screenshot1), image6862);
@@ -1022,7 +1018,7 @@ create_window1 (void)
   gtk_widget_show (generic_display_objects1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), generic_display_objects1);
 
-  image6863 = gtk_image_new_from_stock ("generic-display-objects.svg", GTK_ICON_SIZE_MENU);
+  image6863 = create_pixmap (window1, "generic-display-objects.svg");
   gtk_widget_set_name (image6863, "image6863");
   gtk_widget_show (image6863);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (generic_display_objects1), image6863);
@@ -1031,7 +1027,7 @@ create_window1 (void)
   gtk_widget_set_name (antialiasing1, "antialiasing1");
   gtk_container_add (GTK_CONTAINER (draw1_menu), antialiasing1);
 
-  image6864 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_MENU);
+  image6864 = create_pixmap (window1, "add-peptide-1.svg");
   gtk_widget_set_name (image6864, "image6864");
   gtk_widget_show (image6864);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (antialiasing1), image6864);
@@ -1041,7 +1037,7 @@ create_window1 (void)
   gtk_widget_show (stereo1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), stereo1);
 
-  image6865 = gtk_image_new_from_stock ("stereo-view.svg", GTK_ICON_SIZE_MENU);
+  image6865 = create_pixmap (window1, "stereo-view.svg");
   gtk_widget_set_name (image6865, "image6865");
   gtk_widget_show (image6865);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (stereo1), image6865);
@@ -1056,7 +1052,7 @@ create_window1 (void)
   gtk_widget_show (crosshairs1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), crosshairs1);
 
-  image6866 = gtk_image_new_from_stock ("crosshairs.png", GTK_ICON_SIZE_MENU);
+  image6866 = create_pixmap (window1, "crosshairs.png");
   gtk_widget_set_name (image6866, "image6866");
   gtk_widget_show (image6866);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (crosshairs1), image6866);
@@ -1098,7 +1094,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), residue_info1);
   gtk_tooltips_set_tip (tooltips, residue_info1, _("Display atom names, temperature factors and occupances of all atoms in the residue"), NULL);
 
-  image6868 = gtk_image_new_from_stock ("residue-info.png", GTK_ICON_SIZE_MENU);
+  image6868 = create_pixmap (window1, "residue-info.png");
   gtk_widget_set_name (image6868, "image6868");
   gtk_widget_show (image6868);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info1), image6868);
@@ -1118,7 +1114,7 @@ create_window1 (void)
   gtk_widget_show (environment_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), environment_distances1);
 
-  image6870 = gtk_image_new_from_stock ("env-distances.png", GTK_ICON_SIZE_MENU);
+  image6870 = create_pixmap (window1, "env-distances.png");
   gtk_widget_set_name (image6870, "image6870");
   gtk_widget_show (image6870);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (environment_distances1), image6870);
@@ -1128,7 +1124,7 @@ create_window1 (void)
   gtk_widget_show (plane_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), plane_distances1);
 
-  image6871 = gtk_image_new_from_stock ("plane-distances.png", GTK_ICON_SIZE_MENU);
+  image6871 = create_pixmap (window1, "plane-distances.png");
   gtk_widget_set_name (image6871, "image6871");
   gtk_widget_show (image6871);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (plane_distances1), image6871);
@@ -1138,7 +1134,7 @@ create_window1 (void)
   gtk_widget_show (pointer_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), pointer_distances1);
 
-  image6872 = gtk_image_new_from_stock ("pointer-distances.png", GTK_ICON_SIZE_MENU);
+  image6872 = create_pixmap (window1, "pointer-distances.png");
   gtk_widget_set_name (image6872, "image6872");
   gtk_widget_show (image6872);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pointer_distances1), image6872);
@@ -1167,7 +1163,7 @@ create_window1 (void)
   gtk_widget_show (ramachandran_plot1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), ramachandran_plot1);
 
-  image6874 = gtk_image_new_from_stock ("ramachandran.png", GTK_ICON_SIZE_MENU);
+  image6874 = create_pixmap (window1, "ramachandran.png");
   gtk_widget_set_name (image6874, "image6874");
   gtk_widget_show (image6874);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_plot1), image6874);
@@ -1178,7 +1174,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), ramachandran_differences_plot1);
   gtk_tooltips_set_tip (tooltips, ramachandran_differences_plot1, _("Ramachandran Difference Plot"), NULL);
 
-  image6875 = gtk_image_new_from_stock ("kleywegt.svg", GTK_ICON_SIZE_MENU);
+  image6875 = create_pixmap (window1, "kleywegt.svg");
   gtk_widget_set_name (image6875, "image6875");
   gtk_widget_show (image6875);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_differences_plot1), image6875);
@@ -1188,7 +1184,7 @@ create_window1 (void)
   gtk_widget_show (incorrect_chiral_volumes1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), incorrect_chiral_volumes1);
 
-  image6876 = gtk_image_new_from_stock ("chiral.png", GTK_ICON_SIZE_MENU);
+  image6876 = create_pixmap (window1, "chiral.png");
   gtk_widget_set_name (image6876, "image6876");
   gtk_widget_show (image6876);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (incorrect_chiral_volumes1), image6876);
@@ -1198,7 +1194,7 @@ create_window1 (void)
   gtk_widget_show (unmodelled_blobs1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), unmodelled_blobs1);
 
-  image6877 = gtk_image_new_from_stock ("unknown-blob.svg", GTK_ICON_SIZE_MENU);
+  image6877 = create_pixmap (window1, "unknown-blob.svg");
   gtk_widget_set_name (image6877, "image6877");
   gtk_widget_show (image6877);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (unmodelled_blobs1), image6877);
@@ -1208,7 +1204,7 @@ create_window1 (void)
   gtk_widget_show (difference_map_peaks1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), difference_map_peaks1);
 
-  image6878 = gtk_image_new_from_stock ("diff-map.svg", GTK_ICON_SIZE_MENU);
+  image6878 = create_pixmap (window1, "diff-map.svg");
   gtk_widget_set_name (image6878, "image6878");
   gtk_widget_show (image6878);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (difference_map_peaks1), image6878);
@@ -1218,7 +1214,7 @@ create_window1 (void)
   gtk_widget_show (check_waters1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), check_waters1);
 
-  image6879 = gtk_image_new_from_stock ("water-drop.svg", GTK_ICON_SIZE_MENU);
+  image6879 = create_pixmap (window1, "water-drop.svg");
   gtk_widget_set_name (image6879, "image6879");
   gtk_widget_show (image6879);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (check_waters1), image6879);
@@ -1228,7 +1224,7 @@ create_window1 (void)
   gtk_widget_show (check_waters_by_difference_map_variance1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), check_waters_by_difference_map_variance1);
 
-  image6880 = gtk_image_new_from_stock ("water-diff-map.svg", GTK_ICON_SIZE_MENU);
+  image6880 = create_pixmap (window1, "water-diff-map.svg");
   gtk_widget_set_name (image6880, "image6880");
   gtk_widget_show (image6880);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (check_waters_by_difference_map_variance1), image6880);
@@ -1239,7 +1235,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), geometry_analysis1);
   gtk_tooltips_set_tip (tooltips, geometry_analysis1, _("Flags distortions in Bond, Angles and Planes"), NULL);
 
-  image6881 = gtk_image_new_from_stock ("geom.svg", GTK_ICON_SIZE_MENU);
+  image6881 = create_pixmap (window1, "geom.svg");
   gtk_widget_set_name (image6881, "image6881");
   gtk_widget_show (image6881);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (geometry_analysis1), image6881);
@@ -1250,7 +1246,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), peptide_omega_analysis1);
   gtk_tooltips_set_tip (tooltips, peptide_omega_analysis1, _("Flags deviations from Trans Peptide"), NULL);
 
-  image6882 = gtk_image_new_from_stock ("peptide-omega.svg", GTK_ICON_SIZE_MENU);
+  image6882 = create_pixmap (window1, "peptide-omega.svg");
   gtk_widget_set_name (image6882, "image6882");
   gtk_widget_show (image6882);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (peptide_omega_analysis1), image6882);
@@ -1261,7 +1257,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), temp_fact_variance_analysis1);
   gtk_tooltips_set_tip (tooltips, temp_fact_variance_analysis1, _("Flags Residues with Large Variance in Atom B factors"), NULL);
 
-  image6883 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
+  image6883 = create_pixmap (window1, "temperature.svg");
   gtk_widget_set_name (image6883, "image6883");
   gtk_widget_show (image6883);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (temp_fact_variance_analysis1), image6883);
@@ -1272,7 +1268,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), gln_and_asn_b_factor_outliers1);
   gtk_tooltips_set_tip (tooltips, gln_and_asn_b_factor_outliers1, _("Nakagawa's Bees (probable flips):  identify OE1 and NE2 B-factor outliers in GLNs (similarly ASNs are analysed)"), NULL);
 
-  image6884 = gtk_image_new_from_stock ("gln-asn-b-factors.svg", GTK_ICON_SIZE_MENU);
+  image6884 = create_pixmap (window1, "gln-asn-b-factors.svg");
   gtk_widget_set_name (image6884, "image6884");
   gtk_widget_show (image6884);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (gln_and_asn_b_factor_outliers1), image6884);
@@ -1283,7 +1279,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), rotamer_analysis1);
   gtk_tooltips_set_tip (tooltips, rotamer_analysis1, _("Flags Unusual Rotamers, Missing Atoms and Nomenclature Errors"), NULL);
 
-  image6885 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_MENU);
+  image6885 = create_pixmap (window1, "rotamers.svg");
   gtk_widget_set_name (image6885, "image6885");
   gtk_widget_show (image6885);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (rotamer_analysis1), image6885);
@@ -1293,7 +1289,7 @@ create_window1 (void)
   gtk_widget_show (density_fit_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), density_fit_analysis1);
 
-  image6886 = gtk_image_new_from_stock ("density-fit.svg", GTK_ICON_SIZE_MENU);
+  image6886 = create_pixmap (window1, "density-fit.svg");
   gtk_widget_set_name (image6886, "image6886");
   gtk_widget_show (image6886);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (density_fit_analysis1), image6886);
@@ -1303,7 +1299,7 @@ create_window1 (void)
   gtk_widget_show (probe_clashes1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), probe_clashes1);
 
-  image6887 = gtk_image_new_from_stock ("probe-clash.svg", GTK_ICON_SIZE_MENU);
+  image6887 = create_pixmap (window1, "probe-clash.svg");
   gtk_widget_set_name (image6887, "image6887");
   gtk_widget_show (image6887);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (probe_clashes1), image6887);
@@ -1338,7 +1334,7 @@ create_window1 (void)
   gtk_widget_show (scrollwheel1);
   gtk_container_add (GTK_CONTAINER (hid1_menu), scrollwheel1);
 
-  image6889 = gtk_image_new_from_stock ("scroll-wheel.svg", GTK_ICON_SIZE_MENU);
+  image6889 = create_pixmap (window1, "scroll-wheel.svg");
   gtk_widget_set_name (image6889, "image6889");
   gtk_widget_show (image6889);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (scrollwheel1), image6889);
@@ -1842,7 +1838,7 @@ create_window1 (void)
 
   model_toolbar_refine_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_refine_togglebutton), _("Real Space Refine Zone"));
-  tmp_image = gtk_image_new_from_stock ("refine-1.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "refine-1.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_refine_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_refine_togglebutton, "model_toolbar_refine_togglebutton");
@@ -1853,7 +1849,7 @@ create_window1 (void)
 
   model_toolbar_regularize_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_regularize_togglebutton), _("Regularize Zone"));
-  tmp_image = gtk_image_new_from_stock ("regularize-1.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "regularize-1.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_regularize_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_regularize_togglebutton, "model_toolbar_regularize_togglebutton");
@@ -1862,7 +1858,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), tooltips, _("Send in the Bond Angels!    Ahem, I mean \"Regularize Zone (click 2 atoms)\""), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), TRUE);
 
-  tmp_image = gtk_image_new_from_stock ("anchor.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "anchor.svg");
   gtk_widget_show (tmp_image);
   model_toolbar_fixed_atoms_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Fixed Atoms..."));
   gtk_widget_set_name (model_toolbar_fixed_atoms_button, "model_toolbar_fixed_atoms_button");
@@ -1872,7 +1868,7 @@ create_window1 (void)
 
   model_toolbar_rigid_body_fit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), _("Rigid Body Fit Zone"));
-  tmp_image = gtk_image_new_from_stock ("rigid-body.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "rigid-body.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_rigid_body_fit_togglebutton, "model_toolbar_rigid_body_fit_togglebutton");
@@ -1880,20 +1876,17 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rigid_body_fit_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), tooltips, _("Rigid Body Fit Zone (click on 2 atoms)"), NULL);
 
-  #ifdef GTK_TYPE_MENU_TOOL_BUTTON
-  tmp_image = gtk_image_new_from_stock ("rtz.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "rtz.svg");
   gtk_widget_show (tmp_image);
   model_toolbar_rot_trans_toolbutton = (GtkWidget*) gtk_menu_tool_button_new (tmp_image, _("Rotate Translate"));
   gtk_widget_set_name (model_toolbar_rot_trans_toolbutton, "model_toolbar_rot_trans_toolbutton");
   gtk_widget_show (model_toolbar_rot_trans_toolbutton);
   gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), FALSE);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rot_trans_toolbutton);
-#endif
-
 
   model_toolbar_auto_fit_rotamer_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), _("Auto Fit Rotamer"));
-  tmp_image = gtk_image_new_from_stock ("auto-fit-rotamer.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "auto-fit-rotamer.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_auto_fit_rotamer_togglebutton, "model_toolbar_auto_fit_rotamer_togglebutton");
@@ -1903,7 +1896,7 @@ create_window1 (void)
 
   model_toolbar_rotamers_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rotamers_togglebutton), _("Rotamers..."));
-  tmp_image = gtk_image_new_from_stock ("rotamers.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "rotamers.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rotamers_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_rotamers_togglebutton, "model_toolbar_rotamers_togglebutton");
@@ -1913,7 +1906,7 @@ create_window1 (void)
 
   model_toolbar_edit_chi_angles_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_edit_chi_angles_togglebutton), _("Edit Chi Angles"));
-  tmp_image = gtk_image_new_from_stock ("edit-chi.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "edit-chi.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_edit_chi_angles_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_edit_chi_angles_togglebutton, "model_toolbar_edit_chi_angles_togglebutton");
@@ -1923,7 +1916,7 @@ create_window1 (void)
 
   model_toolbar_torsion_general_toggletoolbutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_torsion_general_toggletoolbutton), _("Torsion General"));
-  tmp_image = gtk_image_new_from_stock ("torsion-general.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "torsion-general.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_torsion_general_toggletoolbutton), tmp_image);
   gtk_widget_set_name (model_toolbar_torsion_general_toggletoolbutton, "model_toolbar_torsion_general_toggletoolbutton");
@@ -1933,7 +1926,7 @@ create_window1 (void)
 
   model_toolbar_flip_peptide_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_flip_peptide_togglebutton), _("Flip Peptide"));
-  tmp_image = gtk_image_new_from_stock ("flip-peptide.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "flip-peptide.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_flip_peptide_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_flip_peptide_togglebutton, "model_toolbar_flip_peptide_togglebutton");
@@ -1943,7 +1936,7 @@ create_window1 (void)
 
   model_toolbar_sidechain_180_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), _(" Sidechain 180 Degree Flip"));
-  tmp_image = gtk_image_new_from_stock ("side-chain-180.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "side-chain-180.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_sidechain_180_togglebutton, "model_toolbar_sidechain_180_togglebutton");
@@ -1953,7 +1946,7 @@ create_window1 (void)
 
   model_toolbar_edit_backbone_torsions_toggletoolbutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_edit_backbone_torsions_toggletoolbutton), _("Edit Backbone Torsions"));
-  tmp_image = gtk_image_new_from_stock ("edit-backbone.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "edit-backbone.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_edit_backbone_torsions_toggletoolbutton), tmp_image);
   gtk_widget_set_name (model_toolbar_edit_backbone_torsions_toggletoolbutton, "model_toolbar_edit_backbone_torsions_toggletoolbutton");
@@ -1983,7 +1976,7 @@ create_window1 (void)
 
   model_toolbar_mutate_and_autofit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), _("Mutate & Auto Fit..."));
-  tmp_image = gtk_image_new_from_stock ("mutate-auto-fit.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "mutate-auto-fit.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_mutate_and_autofit_togglebutton, "model_toolbar_mutate_and_autofit_togglebutton");
@@ -1993,7 +1986,7 @@ create_window1 (void)
 
   model_toolbar_simple_mutate_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_simple_mutate_togglebutton), _("Simple Mutate..."));
-  tmp_image = gtk_image_new_from_stock ("mutate.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "mutate.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_simple_mutate_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_simple_mutate_togglebutton, "model_toolbar_simple_mutate_togglebutton");
@@ -2001,7 +1994,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_simple_mutate_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_simple_mutate_togglebutton), tooltips, _("Simple Mutate (mutates amino acid residues and nucleic acids) A simple modelling tool - no map fitting happens"), NULL);
 
-  tmp_image = gtk_image_new_from_stock ("add-water.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "add-water.svg");
   gtk_widget_show (tmp_image);
   model_toolbar_find_water_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Find Waters..."));
   gtk_widget_set_name (model_toolbar_find_water_button, "model_toolbar_find_water_button");
@@ -2011,7 +2004,7 @@ create_window1 (void)
 
   model_toolbar_add_terminal_residue_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_add_terminal_residue_togglebutton), _("Add Terminal Residue..."));
-  tmp_image = gtk_image_new_from_stock ("add-peptide-1.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "add-peptide-1.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_add_terminal_residue_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_add_terminal_residue_togglebutton, "model_toolbar_add_terminal_residue_togglebutton");
@@ -2019,7 +2012,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_add_terminal_residue_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_terminal_residue_togglebutton), tooltips, _("Add Residue..."), NULL);
 
-  tmp_image = gtk_image_new_from_stock ("add-alt-conf.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "add-alt-conf.svg");
   gtk_widget_show (tmp_image);
   model_toolbar_add_alt_conf_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Add Alt Conf..."));
   gtk_widget_set_name (model_toolbar_add_alt_conf_toolbutton, "model_toolbar_add_alt_conf_toolbutton");
@@ -2028,7 +2021,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_alt_conf_toolbutton), tooltips, _("Add Alternate (Alternative) Conformation to a Residue"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_add_alt_conf_toolbutton), TRUE);
 
-  tmp_image = gtk_image_new_from_stock ("atom-at-pointer.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "atom-at-pointer.svg");
   gtk_widget_show (tmp_image);
   model_toolbar_add_atom_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Place Atom At Pointer"));
   gtk_widget_set_name (model_toolbar_add_atom_button, "model_toolbar_add_atom_button");
@@ -2088,7 +2081,7 @@ create_window1 (void)
   gtk_widget_show (vseparator2);
   gtk_container_add (GTK_CONTAINER (model_toolbar_vsep_toolitem2), vseparator2);
 
-  tmp_image = gtk_image_new_from_stock ("azerbaijan.svg", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "azerbaijan.svg");
   gtk_widget_show (tmp_image);
   model_toolbar_refmac_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Run Refmac..."));
   gtk_widget_set_name (model_toolbar_refmac_button, "model_toolbar_refmac_button");
@@ -2560,16 +2553,12 @@ create_window1 (void)
   g_signal_connect ((gpointer) model_toolbar_rigid_body_fit_togglebutton, "toggled",
                     G_CALLBACK (on_model_toolbar_rigid_body_fit_togglebutton_toggled),
                     NULL);
-#ifdef GTK_TYPE_MENU_TOOL_BUTTON
   g_signal_connect ((gpointer) model_toolbar_rot_trans_toolbutton, "show_menu",
                     G_CALLBACK (on_model_toolbar_rot_trans_toolbutton_show_menu),
                     NULL);
-#endif
-#ifdef GTK_TYPE_MENU_TOOL_BUTTON
   g_signal_connect ((gpointer) model_toolbar_rot_trans_toolbutton, "clicked",
                     G_CALLBACK (on_model_toolbar_rot_trans_toolbutton_clicked),
                     NULL);
-#endif
   g_signal_connect ((gpointer) model_toolbar_auto_fit_rotamer_togglebutton, "toggled",
                     G_CALLBACK (on_model_toolbar_auto_fit_rotamer_togglebutton_toggled),
                     NULL);
@@ -2930,9 +2919,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_regularize_togglebutton, "model_toolbar_regularize_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_fixed_atoms_button, "model_toolbar_fixed_atoms_button");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rigid_body_fit_togglebutton, "model_toolbar_rigid_body_fit_togglebutton");
-#ifdef GTK_TYPE_MENU_TOOL_BUTTON
-    GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_toolbutton, "model_toolbar_rot_trans_toolbutton");
-#endif
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_toolbutton, "model_toolbar_rot_trans_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_auto_fit_rotamer_togglebutton, "model_toolbar_auto_fit_rotamer_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rotamers_togglebutton, "model_toolbar_rotamers_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_edit_chi_angles_togglebutton, "model_toolbar_edit_chi_angles_togglebutton");
@@ -7581,7 +7568,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox154);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_refine_togglebutton), hbox154);
 
-  image3 = gtk_image_new_from_stock ("refine-1.svg", GTK_ICON_SIZE_BUTTON);
+  image3 = create_pixmap (model_refine_dialog, "refine-1.svg");
   gtk_widget_set_name (image3, "image3");
   gtk_widget_show (image3);
   gtk_box_pack_start (GTK_BOX (hbox154), image3, FALSE, FALSE, 0);
@@ -7604,7 +7591,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox155);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_regularize_zone_togglebutton), hbox155);
 
-  image4 = gtk_image_new_from_stock ("regularize-1.svg", GTK_ICON_SIZE_BUTTON);
+  image4 = create_pixmap (model_refine_dialog, "regularize-1.svg");
   gtk_widget_set_name (image4, "image4");
   gtk_widget_show (image4);
   gtk_box_pack_start (GTK_BOX (hbox155), image4, FALSE, FALSE, 0);
@@ -7626,7 +7613,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox378);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_fixed_atoms_button), hbox378);
 
-  image6805 = gtk_image_new_from_stock ("anchor.svg", GTK_ICON_SIZE_BUTTON);
+  image6805 = create_pixmap (model_refine_dialog, "anchor.svg");
   gtk_widget_set_name (image6805, "image6805");
   gtk_widget_show (image6805);
   gtk_box_pack_start (GTK_BOX (hbox378), image6805, FALSE, FALSE, 0);
@@ -7648,7 +7635,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox216);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_rigid_body_togglebutton), hbox216);
 
-  image1826 = gtk_image_new_from_stock ("rigid-body.svg", GTK_ICON_SIZE_BUTTON);
+  image1826 = create_pixmap (model_refine_dialog, "rigid-body.svg");
   gtk_widget_set_name (image1826, "image1826");
   gtk_widget_show (image1826);
   gtk_box_pack_start (GTK_BOX (hbox216), image1826, FALSE, FALSE, 0);
@@ -7675,7 +7662,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox385);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton), hbox385);
 
-  image6808 = gtk_image_new_from_stock ("rtz.svg", GTK_ICON_SIZE_BUTTON);
+  image6808 = create_pixmap (model_refine_dialog, "rtz.svg");
   gtk_widget_set_name (image6808, "image6808");
   gtk_widget_show (image6808);
   gtk_box_pack_start (GTK_BOX (hbox385), image6808, FALSE, FALSE, 0);
@@ -7734,7 +7721,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox156);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton1), hbox156);
 
-  image5 = gtk_image_new_from_stock ("rtz.svg", GTK_ICON_SIZE_BUTTON);
+  image5 = create_pixmap (model_refine_dialog, "rtz.svg");
   gtk_widget_set_name (image5, "image5");
   gtk_widget_show (image5);
   gtk_box_pack_start (GTK_BOX (hbox156), image5, FALSE, FALSE, 0);
@@ -7756,7 +7743,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox157);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_auto_fit_rotamer_togglebutton), hbox157);
 
-  image6 = gtk_image_new_from_stock ("auto-fit-rotamer.svg", GTK_ICON_SIZE_BUTTON);
+  image6 = create_pixmap (model_refine_dialog, "auto-fit-rotamer.svg");
   gtk_widget_set_name (image6, "image6");
   gtk_widget_show (image6);
   gtk_box_pack_start (GTK_BOX (hbox157), image6, FALSE, FALSE, 0);
@@ -7778,7 +7765,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox217);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_rotamer_togglebutton), hbox217);
 
-  image1827 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_BUTTON);
+  image1827 = create_pixmap (model_refine_dialog, "rotamers.svg");
   gtk_widget_set_name (image1827, "image1827");
   gtk_widget_show (image1827);
   gtk_box_pack_start (GTK_BOX (hbox217), image1827, FALSE, FALSE, 0);
@@ -7800,7 +7787,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox158);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_edit_chi_angles_togglebutton), hbox158);
 
-  image7 = gtk_image_new_from_stock ("edit-chi.svg", GTK_ICON_SIZE_BUTTON);
+  image7 = create_pixmap (model_refine_dialog, "edit-chi.svg");
   gtk_widget_set_name (image7, "image7");
   gtk_widget_show (image7);
   gtk_box_pack_start (GTK_BOX (hbox158), image7, FALSE, FALSE, 0);
@@ -7823,7 +7810,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox271);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_torsion_general_togglebutton), hbox271);
 
-  image6022 = gtk_image_new_from_stock ("torsion-general.svg", GTK_ICON_SIZE_BUTTON);
+  image6022 = create_pixmap (model_refine_dialog, "torsion-general.svg");
   gtk_widget_set_name (image6022, "image6022");
   gtk_widget_show (image6022);
   gtk_box_pack_start (GTK_BOX (hbox271), image6022, FALSE, FALSE, 0);
@@ -7845,7 +7832,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox159);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_pepflip_togglebutton), hbox159);
 
-  image8 = gtk_image_new_from_stock ("flip-peptide.svg", GTK_ICON_SIZE_BUTTON);
+  image8 = create_pixmap (model_refine_dialog, "flip-peptide.svg");
   gtk_widget_set_name (image8, "image8");
   gtk_widget_show (image8);
   gtk_box_pack_start (GTK_BOX (hbox159), image8, FALSE, FALSE, 0);
@@ -7867,7 +7854,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox160);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_do_180_degree_sidechain_flip_togglebutton), hbox160);
 
-  image9 = gtk_image_new_from_stock ("side-chain-180.svg", GTK_ICON_SIZE_BUTTON);
+  image9 = create_pixmap (model_refine_dialog, "side-chain-180.svg");
   gtk_widget_set_name (image9, "image9");
   gtk_widget_show (image9);
   gtk_box_pack_start (GTK_BOX (hbox160), image9, FALSE, FALSE, 0);
@@ -7894,7 +7881,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox373);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_edit_backbone_torsions_togglebutton), hbox373);
 
-  image6800 = gtk_image_new_from_stock ("edit-backbone.svg", GTK_ICON_SIZE_BUTTON);
+  image6800 = create_pixmap (model_refine_dialog, "edit-backbone.svg");
   gtk_widget_set_name (image6800, "image6800");
   gtk_widget_show (image6800);
   gtk_box_pack_start (GTK_BOX (hbox373), image6800, FALSE, FALSE, 0);
@@ -7921,7 +7908,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox374);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_mutate_auto_fit_togglebutton), hbox374);
 
-  image6801 = gtk_image_new_from_stock ("mutate-auto-fit.svg", GTK_ICON_SIZE_BUTTON);
+  image6801 = create_pixmap (model_refine_dialog, "mutate-auto-fit.svg");
   gtk_widget_set_name (image6801, "image6801");
   gtk_widget_show (image6801);
   gtk_box_pack_start (GTK_BOX (hbox374), image6801, FALSE, FALSE, 0);
@@ -7943,7 +7930,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox375);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_mutate_togglebutton), hbox375);
 
-  image6802 = gtk_image_new_from_stock ("mutate.svg", GTK_ICON_SIZE_BUTTON);
+  image6802 = create_pixmap (model_refine_dialog, "mutate.svg");
   gtk_widget_set_name (image6802, "image6802");
   gtk_widget_show (image6802);
   gtk_box_pack_start (GTK_BOX (hbox375), image6802, FALSE, FALSE, 0);
@@ -7965,7 +7952,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox161);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_fit_terminal_residue_togglebutton), hbox161);
 
-  image10 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_BUTTON);
+  image10 = create_pixmap (model_refine_dialog, "add-peptide-1.svg");
   gtk_widget_set_name (image10, "image10");
   gtk_widget_show (image10);
   gtk_box_pack_start (GTK_BOX (hbox161), image10, FALSE, FALSE, 0);
@@ -7987,7 +7974,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox171);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_add_alt_conf_button), hbox171);
 
-  image926 = gtk_image_new_from_stock ("add-alt-conf.svg", GTK_ICON_SIZE_BUTTON);
+  image926 = create_pixmap (model_refine_dialog, "add-alt-conf.svg");
   gtk_widget_set_name (image926, "image926");
   gtk_widget_show (image926);
   gtk_box_pack_start (GTK_BOX (hbox171), image926, FALSE, FALSE, 0);
@@ -8009,7 +7996,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox162);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_pointer_atom_button), hbox162);
 
-  image11 = gtk_image_new_from_stock ("atom-at-pointer.svg", GTK_ICON_SIZE_BUTTON);
+  image11 = create_pixmap (model_refine_dialog, "atom-at-pointer.svg");
   gtk_widget_set_name (image11, "image11");
   gtk_widget_show (image11);
   gtk_box_pack_start (GTK_BOX (hbox162), image11, FALSE, FALSE, 0);
@@ -8126,7 +8113,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox377);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_refmac_button), hbox377);
 
-  image6804 = gtk_image_new_from_stock ("azerbaijan.svg", GTK_ICON_SIZE_BUTTON);
+  image6804 = create_pixmap (model_refine_dialog, "azerbaijan.svg");
   gtk_widget_set_name (image6804, "image6804");
   gtk_widget_show (image6804);
   gtk_box_pack_start (GTK_BOX (hbox377), image6804, FALSE, FALSE, 0);
@@ -9774,8 +9761,8 @@ create_find_waters_dialog (void)
   GtkWidget *table6;
   GtkWidget *label702;
   GtkWidget *label703;
-  GtkWidget *find_waters_max_dist_to_protein_entry;
   GtkWidget *find_waters_min_dist_to_protein_entry;
+  GtkWidget *find_waters_max_dist_to_protein_entry;
   GtkWidget *label701;
   GtkWidget *frame63;
   GtkWidget *vbox80;
@@ -9916,18 +9903,18 @@ create_find_waters_dialog (void)
                     (GtkAttachOptions) (0), 0, 0);
   gtk_misc_set_alignment (GTK_MISC (label703), 0, 0.5);
 
-  find_waters_max_dist_to_protein_entry = gtk_entry_new ();
-  gtk_widget_set_name (find_waters_max_dist_to_protein_entry, "find_waters_max_dist_to_protein_entry");
-  gtk_widget_show (find_waters_max_dist_to_protein_entry);
-  gtk_table_attach (GTK_TABLE (table6), find_waters_max_dist_to_protein_entry, 1, 2, 0, 1,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (0), 0, 0);
-  gtk_widget_set_size_request (find_waters_max_dist_to_protein_entry, 113, -1);
-
   find_waters_min_dist_to_protein_entry = gtk_entry_new ();
   gtk_widget_set_name (find_waters_min_dist_to_protein_entry, "find_waters_min_dist_to_protein_entry");
   gtk_widget_show (find_waters_min_dist_to_protein_entry);
-  gtk_table_attach (GTK_TABLE (table6), find_waters_min_dist_to_protein_entry, 1, 2, 1, 2,
+  gtk_table_attach (GTK_TABLE (table6), find_waters_min_dist_to_protein_entry, 1, 2, 0, 1,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_widget_set_size_request (find_waters_min_dist_to_protein_entry, 113, -1);
+
+  find_waters_max_dist_to_protein_entry = gtk_entry_new ();
+  gtk_widget_set_name (find_waters_max_dist_to_protein_entry, "find_waters_max_dist_to_protein_entry");
+  gtk_widget_show (find_waters_max_dist_to_protein_entry);
+  gtk_table_attach (GTK_TABLE (table6), find_waters_max_dist_to_protein_entry, 1, 2, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
 
@@ -10062,8 +10049,8 @@ create_find_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (find_waters_dialog, table6, "table6");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, label702, "label702");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, label703, "label703");
-  GLADE_HOOKUP_OBJECT (find_waters_dialog, find_waters_max_dist_to_protein_entry, "find_waters_max_dist_to_protein_entry");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, find_waters_min_dist_to_protein_entry, "find_waters_min_dist_to_protein_entry");
+  GLADE_HOOKUP_OBJECT (find_waters_dialog, find_waters_max_dist_to_protein_entry, "find_waters_max_dist_to_protein_entry");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, label701, "label701");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, frame63, "frame63");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, vbox80, "vbox80");
@@ -20124,7 +20111,7 @@ create_preferences (void)
 
   preferences_map_radiotoolbutton = (GtkWidget*) gtk_radio_tool_button_new (NULL);
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (preferences_map_radiotoolbutton), _("Maps"));
-  tmp_image = gtk_image_new_from_stock ("map.svg", GTK_ICON_SIZE_BUTTON);
+  tmp_image = create_pixmap (preferences, "map.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (preferences_map_radiotoolbutton), tmp_image);
   gtk_widget_set_name (preferences_map_radiotoolbutton, "preferences_map_radiotoolbutton");
@@ -26693,7 +26680,6 @@ create_sft_dialog (void)
   return sft_dialog;
 }
 
-#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
 GtkWidget*
 create_aboutdialog (void)
 {
@@ -26743,7 +26729,7 @@ create_aboutdialog (void)
   gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (aboutdialog), VERSION);
   gtk_about_dialog_set_name (GTK_ABOUT_DIALOG (aboutdialog), _("Coot"));
   gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), _("Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,2009 by The University of York\nCopyright 2007, 2008, 2009 by The University of Oxford\nCopyright 2001, 2007 by Paul Emsley"));
-  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _(g_strconcat("Durham", coot_revision(), NULL)));
+  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _("Durham"));
   gtk_about_dialog_set_license (GTK_ABOUT_DIALOG (aboutdialog), _("GNU GPL"));
   gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (aboutdialog), "http://www.ysbl.york.ac.uk/~emsley/coot");
   gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG (aboutdialog), _("Coot Website"));
@@ -26766,7 +26752,6 @@ create_aboutdialog (void)
 
   return aboutdialog;
 }
-#endif /* GTK2 version */
 
 GtkWidget*
 create_globularize_dialog (void)
@@ -26966,7 +26951,7 @@ create_coords_filechooserdialog1 (void)
   GtkWidget *button5;
   GtkWidget *button6;
 
-  coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
   gtk_widget_set_name (coords_filechooserdialog1, "coords_filechooserdialog1");
   gtk_container_set_border_width (GTK_CONTAINER (coords_filechooserdialog1), 10);
   gtk_window_set_type_hint (GTK_WINDOW (coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -27051,7 +27036,7 @@ create_dataset_filechooserdialog1 (void)
   GtkWidget *button7;
   GtkWidget *button8;
 
-  dataset_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Dataset File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  dataset_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Dataset File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
   gtk_widget_set_name (dataset_filechooserdialog1, "dataset_filechooserdialog1");
   gtk_container_set_border_width (GTK_CONTAINER (dataset_filechooserdialog1), 10);
   gtk_window_set_type_hint (GTK_WINDOW (dataset_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -27108,7 +27093,7 @@ create_map_name_filechooserdialog1 (void)
   GtkWidget *button9;
   GtkWidget *button10;
 
-  map_name_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Map..."), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  map_name_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Map..."), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
   gtk_widget_set_name (map_name_filechooserdialog1, "map_name_filechooserdialog1");
   gtk_container_set_border_width (GTK_CONTAINER (map_name_filechooserdialog1), 10);
   gtk_window_set_type_hint (GTK_WINDOW (map_name_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -27190,7 +27175,7 @@ create_phs_coordinates_filechooserdialog1 (void)
   GtkWidget *button11;
   GtkWidget *button12;
 
-  phs_coordinates_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File for .phs symm/cell"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  phs_coordinates_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File for .phs symm/cell"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
   gtk_widget_set_name (phs_coordinates_filechooserdialog1, "phs_coordinates_filechooserdialog1");
   gtk_container_set_border_width (GTK_CONTAINER (phs_coordinates_filechooserdialog1), 10);
   gtk_window_set_type_hint (GTK_WINDOW (phs_coordinates_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -27246,7 +27231,7 @@ create_save_coords_filechooserdialog1 (void)
 
   tooltips = gtk_tooltips_new ();
 
-  save_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Filename for Saved Coordinates "), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Filename for Saved Coordinates "), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
   gtk_widget_set_name (save_coords_filechooserdialog1, "save_coords_filechooserdialog1");
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_filechooserdialog1), 10);
   gtk_tooltips_set_tip (tooltips, save_coords_filechooserdialog1, _("Saved File type: By extension"), NULL);
@@ -27273,12 +27258,9 @@ create_save_coords_filechooserdialog1 (void)
   gtk_dialog_add_action_widget (GTK_DIALOG (save_coords_filechooserdialog1), button14, GTK_RESPONSE_OK);
   GTK_WIDGET_SET_FLAGS (button14, GTK_CAN_DEFAULT);
 
-#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_coords_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_save_coords_filechooserdialog1_confirm_overwrite),
                     NULL);
-#endif /* (GTK_MINOR_VERSION > 9) */
-
   g_signal_connect ((gpointer) save_coords_filechooserdialog1, "response",
                     G_CALLBACK (on_save_coords_filechooserdialog1_response),
                     NULL);
@@ -27307,7 +27289,7 @@ create_cif_dictionary_filechooserdialog1 (void)
   GtkWidget *button15;
   GtkWidget *button16;
 
-  cif_dictionary_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Cif Dictionary File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  cif_dictionary_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Cif Dictionary File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
   gtk_widget_set_name (cif_dictionary_filechooserdialog1, "cif_dictionary_filechooserdialog1");
   gtk_container_set_border_width (GTK_CONTAINER (cif_dictionary_filechooserdialog1), 10);
   gtk_window_set_type_hint (GTK_WINDOW (cif_dictionary_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -27360,7 +27342,7 @@ create_run_script_filechooserdialog1 (void)
   GtkWidget *button17;
   GtkWidget *button18;
 
-  run_script_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Scripting File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  run_script_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Scripting File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
   gtk_widget_set_name (run_script_filechooserdialog1, "run_script_filechooserdialog1");
   gtk_container_set_border_width (GTK_CONTAINER (run_script_filechooserdialog1), 10);
   gtk_window_set_type_hint (GTK_WINDOW (run_script_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -27413,7 +27395,7 @@ create_save_symmetry_coords_filechooserdialog1 (void)
   GtkWidget *button19;
   GtkWidget *button20;
 
-  save_symmetry_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_symmetry_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
   gtk_widget_set_name (save_symmetry_coords_filechooserdialog1, "save_symmetry_coords_filechooserdialog1");
   gtk_container_set_border_width (GTK_CONTAINER (save_symmetry_coords_filechooserdialog1), 10);
   gtk_window_set_resizable (GTK_WINDOW (save_symmetry_coords_filechooserdialog1), FALSE);
@@ -27440,12 +27422,9 @@ create_save_symmetry_coords_filechooserdialog1 (void)
   gtk_dialog_add_action_widget (GTK_DIALOG (save_symmetry_coords_filechooserdialog1), button20, GTK_RESPONSE_OK);
   GTK_WIDGET_SET_FLAGS (button20, GTK_CAN_DEFAULT);
 
-#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_symmetry_coords_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_save_symmetry_coords_filechooserdialog1_confirm_overwrite),
                     NULL);
-#endif /* (GTK_MINOR_VERSION > 9) */
-
   g_signal_connect ((gpointer) save_symmetry_coords_filechooserdialog1, "response",
                     G_CALLBACK (on_save_symmetry_coords_filechooserdialog1_response),
                     NULL);
@@ -27473,7 +27452,7 @@ create_save_state_filechooserdialog1 (void)
   GtkWidget *button21;
   GtkWidget *button22;
 
-  save_state_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File-name for State File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_state_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File-name for State File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
   gtk_widget_set_name (save_state_filechooserdialog1, "save_state_filechooserdialog1");
   gtk_container_set_border_width (GTK_CONTAINER (save_state_filechooserdialog1), 10);
   gtk_window_set_resizable (GTK_WINDOW (save_state_filechooserdialog1), FALSE);
@@ -27500,12 +27479,9 @@ create_save_state_filechooserdialog1 (void)
   gtk_dialog_add_action_widget (GTK_DIALOG (save_state_filechooserdialog1), button22, GTK_RESPONSE_OK);
   GTK_WIDGET_SET_FLAGS (button22, GTK_CAN_DEFAULT);
 
-#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_state_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_save_state_filechooserdialog1_confirm_overwrite),
                     NULL);
-#endif /* (GTK_MINOR_VERSION > 9) */
-
   g_signal_connect ((gpointer) save_state_filechooserdialog1, "response",
                     G_CALLBACK (on_save_state_filechooserdialog1_response),
                     NULL);
@@ -27533,7 +27509,7 @@ create_screendump_filechooserdialog1 (void)
   GtkWidget *button23;
   GtkWidget *button24;
 
-  screendump_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  screendump_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
   gtk_widget_set_name (screendump_filechooserdialog1, "screendump_filechooserdialog1");
   gtk_container_set_border_width (GTK_CONTAINER (screendump_filechooserdialog1), 10);
   gtk_window_set_type_hint (GTK_WINDOW (screendump_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -27559,12 +27535,9 @@ create_screendump_filechooserdialog1 (void)
   gtk_dialog_add_action_widget (GTK_DIALOG (screendump_filechooserdialog1), button24, GTK_RESPONSE_OK);
   GTK_WIDGET_SET_FLAGS (button24, GTK_CAN_DEFAULT);
 
-#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) screendump_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_screendump_filechooserdialog1_confirm_overwrite),
                     NULL);
-#endif /* (GTK_MINOR_VERSION > 9) */
-
   g_signal_connect ((gpointer) screendump_filechooserdialog1, "response",
                     G_CALLBACK (on_screendump_filechooserdialog1_response),
                     NULL);
@@ -28882,7 +28855,7 @@ create_save_restraint_chooserdialog (void)
   GtkWidget *button27;
   GtkWidget *button28;
 
-  save_restraint_chooserdialog = gtk_file_chooser_dialog_new (_("Save Restraints as mmCIF"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_restraint_chooserdialog = gtk_file_chooser_dialog_new (_("Save Restraints as mmCIF"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
   gtk_widget_set_name (save_restraint_chooserdialog, "save_restraint_chooserdialog");
   gtk_container_set_border_width (GTK_CONTAINER (save_restraint_chooserdialog), 5);
   gtk_window_set_type_hint (GTK_WINDOW (save_restraint_chooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -28908,12 +28881,9 @@ create_save_restraint_chooserdialog (void)
   gtk_dialog_add_action_widget (GTK_DIALOG (save_restraint_chooserdialog), button28, GTK_RESPONSE_OK);
   GTK_WIDGET_SET_FLAGS (button28, GTK_CAN_DEFAULT);
 
-#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_restraint_chooserdialog, "confirm_overwrite",
                     G_CALLBACK (on_save_restraint_chooserdialog_confirm_overwrite),
                     NULL);
-#endif /* (GTK_MINOR_VERSION > 9) */
-
   g_signal_connect ((gpointer) save_restraint_chooserdialog, "response",
                     G_CALLBACK (on_save_restraint_chooserdialog_response),
                     NULL);
@@ -29328,7 +29298,7 @@ create_run_refmac_mtz_filechooserdialog (void)
   GtkWidget *button30;
   GtkWidget *button31;
 
-  run_refmac_mtz_filechooserdialog = gtk_file_chooser_dialog_new (_("Select Dataset for Twin Refmac"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  run_refmac_mtz_filechooserdialog = gtk_file_chooser_dialog_new (_("Select Dataset for Twin Refmac"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
   gtk_widget_set_name (run_refmac_mtz_filechooserdialog, "run_refmac_mtz_filechooserdialog");
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_mtz_filechooserdialog), 5);
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_mtz_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -29874,4 +29844,3 @@ create_baton_build_params_dialog (void)
   return baton_build_params_dialog;
 }
 
-#endif /* (GTK_MAJOR_VERSION > 1) */
