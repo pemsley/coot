@@ -789,40 +789,56 @@ graphics_info_t::write_state(const std::vector<std::string> &commands,
    if (do_c_mode) { 
       istat = write_state_c_mode(commands, filename);
    } else { 
-   
-      // std::cout << "writing state" << std::endl;
-      std::ofstream f(filename.c_str());
-
-      if (f) {
-	 for (unsigned int i=0; i<commands.size(); i++) {
-	    f << commands[i] << std::endl;
-	 }
-	 f.flush();  // fixes valgrind problem?
-      
-	 // f.close(); 20090914-PE comment out because it causes a crash
-	 // on Mac OS X (these days) (it didn't before I recently updated
-	 // the coot dependencies with fink).  However, given the above
-	 // uncertain remark about valgrind problems, I think that this
-	 // is only a temporary solution to deeper issue.  I think that
-	 // there is a memory problem elsewhere that is causing this
-	 // f.close() to give a problem.  Sounds pretty hellish to track
-	 // down until the problem exhibits itself on something where we
-	 // can run valgrind (if indeed even that will do any good).
-	 //
-	 // Note, of course, that the close() here is not necessary as
-	 // the ofstream f will get a flush() and close() when it goes
-	 // out of scope at the end of this function.
-      
-	 std::cout << "State file " << filename << " written." << std::endl;
-
-      } else {
-	 std::cout << "WARNING: couldn't write to state file " << filename
-		   << std::endl;
-	 istat = 0;
-      } 
+      istat = write_state_fstream_mode(commands, filename);
    }
    return istat;
 }
+
+// 20090914-PE: this has been optioned out.  It was causing a crash on
+// Mac OSX (of some kind - not all). I suspect a deeper issue.  The
+// code seems clean to me.
+// 
+// Return success status.
+// 
+short int 
+graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &commands,
+					  const std::string &filename) const {
+
+   short int istat = 1;
+   
+   // std::cout << "writing state" << std::endl;
+   std::ofstream f(filename.c_str());
+
+   if (f) {
+      for (unsigned int i=0; i<commands.size(); i++) {
+	 f << commands[i] << std::endl;
+      }
+      f.flush();  // fixes valgrind problem?
+      
+      // f.close(); 20090914-PE comment out because it causes a crash
+      // on Mac OS X (these days) (it didn't before I recently updated
+      // the coot dependencies with fink).  However, given the above
+      // uncertain remark about valgrind problems, I think that this
+      // is only a temporary solution to deeper issue.  I think that
+      // there is a memory problem elsewhere that is causing this
+      // f.close() to give a problem.  Sounds pretty hellish to track
+      // down until the problem exhibits itself on something where we
+      // can run valgrind (if indeed even that will do any good).
+      //
+      // Note, of course, that the close() here is not necessary as
+      // the ofstream f will get a flush() and close() when it goes
+      // out of scope at the end of this function.
+      
+      std::cout << "State file " << filename << " written." << std::endl;
+
+   } else {
+      std::cout << "WARNING: couldn't write to state file " << filename
+		<< std::endl;
+      istat = 0;
+   }
+   return istat;
+}
+
 
 // Return success status.
 // 

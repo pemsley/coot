@@ -3821,7 +3821,7 @@ float rad_50_and_prob_to_radius(float rad_50, float prob) {
 
 }
 
-// This function is way too long.  When you are bored, split it into
+// This function is way too long.  It needs to be split it into
 // internal bits.
 // 
 gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
@@ -3892,8 +3892,6 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 if ( nearest_atom_index_info.success == GL_TRUE ) {
 	    
 	    int im = nearest_atom_index_info.imol; 
-	    std::cout << "clicked on imol:\n ";
-	    
 	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
 	    info.graphics_draw();
 
@@ -3928,29 +3926,23 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
 	 // Left mouse, but not shift-left-mouse:
 
-	 if (1) {
-
-	    if (1) {
-
-	       // (this is the conventional case)
-	       // 
-	       // and if so, do the regularization or refinement
-	       // or angle and distance geometries.
-	       //
-	       int iv = info.check_if_in_range_defines(event, state);
-	       if (! iv) 
-		  info.check_if_moving_atom_pull(); // and if so, set it up (it
-	       // executes on *motion* not a
-	       // button press event).
-	       // Also, remove any on-going 
-	       // drag-refine-idle-function.
-	       //
-	       // check_if_moving_atom_pull sets
-	       // in_moving_atoms_drag_atom_mode_flag.
-	    }
-	 }
-      }    // "l" is pressed
-   }       // button 1
+	 // (this is the conventional case)
+	 // 
+	 // and if so, do the regularization or refinement
+	 // or angle and distance geometries.
+	 //
+	 int iv = info.check_if_in_range_defines(event, state);
+	 if (! iv) 
+	    info.check_if_moving_atom_pull(); // and if so, set it up (it
+	 
+	 // executes on *motion* not a button press event).  Also,
+	 // remove any on-going drag-refine-idle-function.
+	 //
+	 // check_if_moving_atom_pull sets
+	 // in_moving_atoms_drag_atom_mode_flag.
+	 
+      }  // shift is pressed
+   }     // button 1
 
    if (state & my_button2_mask) {
 

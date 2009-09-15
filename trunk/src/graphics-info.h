@@ -2615,6 +2615,8 @@ public:
    // 
    short int write_state_c_mode(const std::vector<std::string> &commands,
 				const std::string &filename) const; 
+   short int write_state_fstream_mode(const std::vector<std::string> &commands,
+				      const std::string &filename) const; 
 
    //
    int check_for_unsaved_changes() const; // in state
