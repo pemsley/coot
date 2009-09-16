@@ -22,7 +22,9 @@
 
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
+#include "clipper/core/rotation.h"
 
+#include "coot-utils.hh"
 #include "coot-map-heavy.hh"
 #include "coot-map-utils.hh"
 #include "coot-coord-utils.hh"
@@ -227,3 +229,118 @@ coot::util::my_f_simplex_internal (const gsl_vector *v,
 
 #endif // HAVE_GSL
 
+float
+coot::util::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
+					int n_atoms,
+					const clipper::Xmap<float> &xmap,
+					int n_trials, 
+					float jiggle_scale_factor) {
+
+   float v = 0;
+   std::vector<std::pair<std::string, int> > atom_numbers = coot::util::atomic_number_atom_list();
+   std::vector<CAtom *> atoms(n_atoms);
+   
+   // best score is the inital score (without the atoms being jiggled) (could be a good score!)
+   // 
+   float initial_score = z_weighted_density_score(atoms, atom_numbers, xmap);
+   float best_score = initial_score;
+   bool  bested = 0;
+   std::vector<CAtom *> best_atoms;
+
+   // first, find the centre point.  We do that because otherwise we
+   // do it lots of times in jiggle_atoms.  Inefficient.
+   std::vector<double> p(3, 0.0);
+   for (int iat=0; iat<n_atoms; iat++) { 
+      p[0] += atom_selection[iat]->x;
+      p[1] += atom_selection[iat]->y;
+      p[2] += atom_selection[iat]->z;
+   }
+   double fact = 1.0;
+   if (n_atoms)
+      fact = 1.0/float(n_atoms);
+   clipper::Coord_orth centre_pt(p[0]*fact, p[1]*fact, p[2]*fact);
+
+   
+   for (int itrial=0; itrial<n_trials; itrial++) {
+      for (int iat=0; iat<n_atoms; iat++)
+	 atoms[iat] = atom_selection[iat];
+      
+      std::vector<CAtom *> jiggled_atoms = jiggle_atoms(atoms, centre_pt, jiggle_scale_factor);
+      float this_score = z_weighted_density_score(jiggled_atoms, atom_numbers, xmap);
+      if (this_score > best_score) {
+	 best_score = this_score;
+	 best_atoms = jiggled_atoms;
+	 bested = 1;
+      } 
+   }
+
+   // If we got a better score, transfer the positions from atoms back
+   // to the atom_selection
+   //
+   if (bested) {
+      std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl; 
+      for (int iat=0; iat<n_atoms; iat++) {
+	 atom_selection[iat]->x = atoms[iat]->x;
+	 atom_selection[iat]->y = atoms[iat]->y;
+	 atom_selection[iat]->z = atoms[iat]->z;
+      }
+   }
+   return v;
+}
+
+float
+coot::util::z_weighted_density_at_point(CAtom *at,
+					const std::vector<std::pair<std::string, int> > &atom_number_list,
+					const clipper::Xmap<float> &map_in) { 
+
+   clipper::Coord_orth co(at->x, at->y, at->z);
+   float d = density_at_point(map_in, co);
+   float z = coot::util::atomic_number(at->element, atom_number_list);
+   if (z< 0.0)
+      z = 6; // carbon, say
+   return d*z;
+}
+
+float
+coot::util::z_weighted_density_score(std::vector<CAtom *> atoms,
+				     const std::vector<std::pair<std::string, int> > &atom_number_list,
+				     const clipper::Xmap<float> &map) {
+   float sum_d = 0;
+   for (unsigned int iat=0; iat<atoms.size(); iat++) {
+      float d = coot::util::z_weighted_density_at_point(atoms[iat], atom_number_list, map);
+      sum_d += d;
+   }
+   return  sum_d;
+}
+
+std::vector<CAtom *>
+coot::util::jiggle_atoms(const std::vector<CAtom *> &atoms,
+			 const clipper::Coord_orth &centre_pt,
+			 float jiggle_scale_factor) {
+
+   std::vector<CAtom *> new_atoms = atoms;
+   float rmi = 1.0/float(RAND_MAX);
+   double rand_ang_1 = 2* M_PI * coot::util::random() * rmi;
+   double rand_ang_2 = 2* M_PI * coot::util::random() * rmi;
+   double rand_ang_3 = 2* M_PI * coot::util::random() * rmi;
+   double rand_pos_1 = coot::util::random() * rmi;
+   double rand_pos_2 = coot::util::random() * rmi;
+   double rand_pos_3 = coot::util::random() * rmi;
+   clipper::Euler<clipper::Rotation::EulerXYZr> e(rand_ang_1, rand_ang_2, rand_ang_3);
+   clipper::Mat33<double> r = e.rotation().matrix();
+   clipper::Coord_orth shift(rand_pos_1, rand_pos_2, rand_pos_3);
+   clipper::RTop_orth rtop(r, shift);
+   // now apply rtop to atoms (shift the atoms relative to the
+   // centre_pt before doing the wiggle
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      clipper::Coord_orth pt_rel(atoms[i]->x - centre_pt.x(),
+				 atoms[i]->y - centre_pt.y(),
+				 atoms[i]->z - centre_pt.z());
+      clipper::Coord_orth new_pt = pt_rel.transform(rtop);
+      new_pt += centre_pt;
+      atoms[i]->x = new_pt.x();
+      atoms[i]->y = new_pt.y();
+      atoms[i]->z = new_pt.z();
+   }
+   return atoms;
+}

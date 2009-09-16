@@ -5704,6 +5704,21 @@ int pisa_interaction(int imol_1, int imol_2);
 
 
 /*  ----------------------------------------------------------------------- */
+/*                  PISA Interface                                      */
+/*  ----------------------------------------------------------------------- */
+/*! \name Jiggle Fit */
+/* \{ */
+/*!  jiggle fit to the current refinment map.  return < -100 if
+  not possible, else return the new best fit for this residue.  */
+/* float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
+				  int n_trials,
+				  float jiggle_scale_factor);
+*/ 
+/* \} */
+
+
+
+/*  ----------------------------------------------------------------------- */
 /* Multirefine interface (because in guile-gtk there is no way to
 		    insert toolbuttons into the toolbar) so this
 		    rather kludgy interface.  It should go when we
