@@ -2553,3 +2553,14 @@ molecule_class_info_t::set_contour_by_sigma_step(float v, short int state) {
 }
 
 
+// jiggle residue
+float
+molecule_class_info_t::fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
+						   const clipper::Xmap<float> &xmap,
+						   int n_trials,
+						   float jiggle_scale_factor) {
+
+   float v = 0.0;
+
+   return v;
+}

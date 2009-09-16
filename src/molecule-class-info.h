@@ -2490,6 +2490,12 @@ class molecule_class_info_t {
    // atoms or no water atoms).
    float max_water_distance();
 
+   // jiggle residue
+   float fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
+				     const clipper::Xmap<float> &xmap,
+				     int n_trials,
+				     float jiggle_scale_factor);
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

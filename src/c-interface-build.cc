@@ -6305,3 +6305,17 @@ int backrub_rotamer(int imol, const char *chain_id, int res_no,
   return status;
 } 
 /*! \} */
+
+// --------------------------------------------------------------------------
+//                   jiggle fit
+// --------------------------------------------------------------------------
+// 
+// float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
+// 				  int n_trials,
+// 				  float jiggle_scale_factor) {
+//  float val = -101.0;
+// if (is_valid_model_molecule(imol)) {
+// }
+//  return val;
+// }
+
