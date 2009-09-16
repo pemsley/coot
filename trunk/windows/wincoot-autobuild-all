@@ -8,11 +8,12 @@
 BINARY_DIR=/c/msys/home/bernhard/public_html/software/binaries/nightlies/pre-release
 PRE_BINARY_DIR=/c/msys/home/bernhard/public_html/software/binaries/nightlies/pre-release
 # test if there is enough disk space first
+(
 fsutil.exe volume diskfree c: > ${HOME}/diskspace.tmp
 free_line=`grep 'avail' ${HOME}/diskspace.tmp`
 free_space=${free_line:30}
 set -- ${free_space}
-if [ $1 -gt 350000000 ] ; then
+if [ $1 -gt 500000000 ] ; then
    echo enough disk space $free_space, continue
 else
    echo delete windows files with cleanmgr
@@ -22,6 +23,10 @@ else
    sh ${HOME}/remove_binaries.sh $PRE_BINARY_DIR
 fi
 rm ${HOME}/diskspace.tmp
+) 2>&1 > $HOME/disk-space-status
+OS=`uname`
+HOST=`hostname`
+cp disk-space-status /z/build-logs/${OS}-${HOST}/disk-space-status
 
 # location of the build-it script
 build_it=${HOME}/Projects/coot/build-it-win
@@ -33,8 +38,7 @@ makensis="/c/Program Files/NSIS/makensis.exe"
 wincoot_installer_script=${HOME}/installer/WinCoot_install_masta.nsi
 
 # coot_version file for python and guile+python build
-OS=`uname`
-HOST=`hostname`
+LOCAL_HTML_LOGS=$HOME/public_html/build-logs/${OS}-${HOST}
 PUBLIC_HTML_LOGS=/z/build-logs/${OS}-${HOST}
 PUBLIC_STABLE_DEST_DIR=${PUBLIC_STABLE_DEST_DIR:=/z/software/binaries/stable}
 PUBLIC_NIGHTLY_DEST_DIR=${PUBLIC_NIGHTLY_DEST_DIR:=/z/software/binaries/nightlies/pre-release}
@@ -142,12 +146,12 @@ fi
 # now see if the tests passed
 if [ "$coot_test_status" = "1" ] ; then 
    # we have failed python test, dont build installer
-   echo fail-test       > $PUBLIC_HTML_LOGS/gtk2-test-status
+   cp $LOCAL_HTML_LOGS/gtk2-test-status $PUBLIC_HTML_LOGS/gtk2-test-status
    build_installer=1
    echo python test failed, so not building installer
 else
    # passed python test, but passed guile&python test?
-   echo pass-test       > $PUBLIC_HTML_LOGS/gtk2-test-status
+   cp $LOCAL_HTML_LOGS/gtk2-test-status $PUBLIC_HTML_LOGS/gtk2-test-status
    diff ${PUBLIC_HTML_LOGS}/gtk2-test-status ${PUBLIC_HTML_LOGS}/gtk2-guile-test-status 
    test_diff=$?
    if [ "test_diff" = "1" ] ; then
@@ -165,6 +169,10 @@ if [ "$build_installer" = "0" ] ; then
    wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~emsley/coot/coot-manual.pdf 
    wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~emsley/coot/coot-keys-and-buttons.pdf
    wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~emsley/coot/tutorial-2.pdf
+   # and download the bat run files
+   wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot.bat
+   wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot_ccp4.bat
+   wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot_ccp4_vista.bat
    # now make the installer
    echo installer-progress > $PUBLIC_HTML_LOGS/gtk2-build-status
    echo making WinCoot installer
@@ -178,10 +186,15 @@ if [ "$build_installer" = "0" ] ; then
  	echo make md5sum from ${BINARY_DIR}/${wincoot_exe} to ${BINARY_DIR}/${wincoot_exe}.md5sum
 	md5sum ${BINARY_DIR}/${wincoot_exe} > ${BINARY_DIR}/${wincoot_exe}.md5sum
 	/bin/ls -l ${BINARY_DIR}/${wincoot_exe}>> ${BINARY_DIR}/${wincoot_exe}.md5sum
+        # now update the binary_type_latest stuff 
+        echo write wincoot_version ${wincoot_version} to file ${BINARY_DIR}/${binary_type_latest}
+        echo $wincoot_version > ${BINARY_DIR}/$binary_type_latest
+        # finally copy files and update the build-status
 	echo copy files from ${BINARY_DIR} to ${PUBLIC_BINARY_DIR}
         cp ${BINARY_DIR}/${wincoot_exe} ${PUBLIC_BINARY_DIR}
         cp ${BINARY_DIR}/${wincoot_exe}.md5sum ${PUBLIC_BINARY_DIR}
-        echo pass-build > $PUBLIC_HTML_LOGS/gtk2-build-status
+        cp ${BINARY_DIR}/${binary_type_latest} ${PUBLIC_BINARY_DIR}
+        cp $LOCAL_HTML_LOGS/gtk2-build-status $PUBLIC_HTML_LOGS/gtk2-build-status
 
    else
 	echo Installer script failed! No windows installer made!
@@ -193,11 +206,13 @@ else
    else
    	echo Not making installer since inconsistent versions/or build errors
         echo or failed tests
-        if [ "$coot_build_status" = "0" ] ; then
-            echo pass-build > $PUBLIC_HTML_LOGS/gtk2-build-status
-        else
-            echo fail-build > $PUBLIC_HTML_LOGS/gtk2-build-status
-        fi
+        #if [ "$coot_build_status" = "0" ] ; then
+        #    echo pass-build > $PUBLIC_HTML_LOGS/gtk2-build-status
+        #else
+        #    echo fail-build > $PUBLIC_HTML_LOGS/gtk2-build-status
+        #fi
+	# maybe just copy status?
+	cp $LOCAL_HTML_LOGS/gtk2-build-status $PUBLIC_HTML_LOGS/gtk2-build-status
    fi
 fi
 ) 2>&1 > $HOME/20-wincoot-autobuild-all.txt
