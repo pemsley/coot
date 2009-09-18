@@ -471,6 +471,11 @@
 	   (molecule-chooser-gui "Arrange waters in molecule: "
 				 (lambda (imol)
 				   (move-waters-to-around-protein imol)))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Add Other Solvent Molecules..."
+	 (lambda ()
+	   (new-solvent-ligands-gui)))
 				    
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Residues with Alt Confs..."

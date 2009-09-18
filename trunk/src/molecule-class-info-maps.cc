@@ -2624,11 +2624,13 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
       fact = 1.0/float(n_atoms);
    clipper::Coord_orth centre_pt(p[0]*fact, p[1]*fact, p[2]*fact);
    std::cout << "DEUBG:: centre_pt: " << centre_pt.format() << std::endl;
+   std::cout << "DEUBG:: initial score: " << initial_score << std::endl;
 
    
    for (int itrial=0; itrial<n_trials; itrial++) {
 
-      std::vector<CAtom> jiggled_atoms = coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
+      std::vector<CAtom> jiggled_atoms = coot::util::jiggle_atoms(initial_atoms, centre_pt,
+								  jiggle_scale_factor);
       coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms);
       coot::minimol::molecule fitted_mol = rigid_body_fit(jiggled_mol, xmap, map_sigma);
       float this_score = coot::util::z_weighted_density_score(fitted_mol, atom_numbers, xmap);
@@ -2646,14 +2648,36 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
    if (bested) {
       make_backup();
       std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
-      replace_coords(make_asc(best_molecule.pcmmdbmanager()), bool(0), bool(0));
-      have_unsaved_changes_flag = 1; 
-      make_bonds_type_checked();
+      if (! best_molecule.is_empty()) {
+	 CMMDBManager *mol = best_molecule.pcmmdbmanager();
+	 if (mol) {
+
+	    atom_selection_container_t asc_ligand = make_asc(mol);
+
+	    if (0) { // debug
+	       std::cout << "===== initial positions: =====" << std::endl;
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  std::cout << "   " << atom_selection[iat] << std::endl;
+	       } 
+	       std::cout << "===== moved to: =====" << std::endl;
+	       for (int iat=0; iat<asc_ligand.n_selected_atoms; iat++) {
+		  std::cout << "   " << asc_ligand.atom_selection[iat] << std::endl;
+	       }
+	    }
+
+	    replace_coords(asc_ligand, bool(0), bool(0));
+	    have_unsaved_changes_flag = 1; 
+	    make_bonds_type_checked();
+	 } else {
+	    std::cout << "ERROR:: fit_to_map_by_random_jiggle(): mol is null! " << std::endl;
+	 } 
+      } else {
+	 std::cout << "ERROR:: fit_to_map_by_random_jiggle(): best_molecule is empty!" << std::endl;
+      } 
    } else {
-      std::cout << " nothting better found " << std::endl;
+      std::cout << " nothing better found " << std::endl;
    } 
    return v;
-
 } 
 
 // return a fitted molecule
