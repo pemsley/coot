@@ -5262,11 +5262,12 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 					 aas.second.second.resno,
 					 aas.second.second.resno,
 					 aas.second.second.insertion_code);
+	 gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
 	 g.molecules[imol_active].add_additional_representation(representation_type,
 								bonds_box_type,
 								bond_width,
 								draw_H_flag,
-								asi, dcw);
+								asi, dcw, glci);
       } 
    } 
    if (GTK_TOGGLE_BUTTON(resno_radiobutton)->active) {
@@ -5279,22 +5280,24 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 	 int resno_1 = atoi(resno_1s.c_str());
 	 int resno_2 = atoi(resno_2s.c_str());
 	 coot::atom_selection_info_t asi(chain_id, resno_1, resno_2, ins_code);
+	 gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
 	 graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 									bonds_box_type,
 									bond_width,
 									draw_H_flag,
-									asi, dcw);
+									asi, dcw, glci);
       } 
    } 
    if (GTK_TOGGLE_BUTTON(selection_string_radiobutton)->active) {
       // std::cout << "By selection string" << std::endl;
       std::string s = gtk_entry_get_text(GTK_ENTRY(string_selection_entry));
       coot::atom_selection_info_t asi(s);
+      gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
       graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 								     bonds_box_type,
 								     bond_width,
 								     draw_H_flag,
-								     asi, dcw);
+								     asi, dcw, glci);
    }
    graphics_draw();
 } 

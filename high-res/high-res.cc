@@ -176,7 +176,7 @@ coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol,
 // 					     one_over_n_atoms * sum_atoms.z());
 //  	    std::cout << "TARGET pos       " <<  target_pos.x() << " "
 //  		      << target_pos.y() << " " << target_pos.z() << "\n";
-	    residue.addatom(" C  ", " C", t, "", 30.0);
+	    residue.addatom(" C  ", " C", t, "", 1.0, 30.0);
 	 }
 	 // 	 globular_molecule[igfrag].addresidue(residue, 0);
       }
@@ -600,7 +600,7 @@ coot::high_res::add_cbetas() {
 	       std::pair<short int, clipper::Coord_orth> p =
 		  coot::cbeta_position(globular_molecule[ifrag][ires]);
 	       if (p.first == 1)
-		  globular_molecule[ifrag][ires].addatom(" CB ", " C", p.second, "", 30.0);
+		  globular_molecule[ifrag][ires].addatom(" CB ", " C", p.second, "", 1.0, 30.0);
 	    }
 	 }
       }

@@ -53,7 +53,9 @@ coot::minimol::molecule::molecule(const std::vector<clipper::Coord_orth> &atom_l
 				atom_list[i].x(),
 				atom_list[i].y(),
 				atom_list[i].z(), std::string(""),
+				1.0,
 				30.0); // pass this? 20090201
+				
    }
    have_cell = 0;
    have_spacegroup = 0;
@@ -64,7 +66,70 @@ coot::minimol::molecule::molecule(const coot::minimol::fragment &frag) {
    fragments.push_back(frag);
    have_cell = 0;
    have_spacegroup = 0;
+}
+
+
+// Ridiculous synthetic constructor.  Use the atom selection
+// to generate the molecule hierachy, but use the atom vector
+// to set the positions of the atoms.  Used in rigid body
+// fitting of atoms moved with an atom selection (jiggle_fit)
+// 
+coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
+				  const std::vector<CAtom> &atoms) {
+
+   if (atoms.size() != n_residues_atoms) {
+      std::cout << "ERROR inconsistence size in minimol molecule constructor" << std::endl;
+      return;
+   }
+
+   for (int iat=0; iat<n_residues_atoms; iat++) {
+      CAtom *at = atom_selection[iat];
+      CResidue *residue_p = at->residue;
+      CChain *chain_p = at->GetChain();
+      int resno = residue_p->GetSeqNum();
+      std::string chain_id = chain_p->GetChainID();
+
+      // now we have the properties of the atom, lets find where it
+      // goes in the minimol.  First we need to find the chain, then
+      // residue.  Then add the atom to the residue.
+      
+      bool found_fragment = 0;
+      int ifrag_atom = -1;
+      for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
+	 if (fragments[ifrag].fragment_id == chain_id) {
+	    found_fragment = 1;
+	    ifrag_atom = ifrag;
+	 }
+      }
+      
+      if (!found_fragment) {
+	 coot::minimol::fragment frag(chain_id);
+	 fragments.push_back(frag);
+	 ifrag_atom = 0;
+      }
+
+      // now find the residue, or add one.
+      bool found_residue = 0;
+      if (resno <= fragments[ifrag_atom].max_residue_number()) {
+	 if (resno >= fragments[ifrag_atom].min_res_no()) {
+	    found_residue = 1;
+	 }
+      }
+
+      if (! found_residue) {
+	 coot::minimol::residue res(resno);
+	 coot::minimol::atom minimol_atom(at);
+	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x, atoms[iat].y, atoms[iat].z);
+	 res.addatom(minimol_atom);
+	 fragments[ifrag_atom].addresidue(res,1);
+      } else {
+	 coot::minimol::atom minimol_atom(at);
+	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x, atoms[iat].y, atoms[iat].z);
+	 fragments[ifrag_atom][resno].addatom(minimol_atom);
+      } 
+   }
 } 
+
 
 // Return status.  If good, return 0 else (if bad) return 1.
 //
@@ -375,15 +440,14 @@ coot::minimol::molecule::fragment_for_chain(const std::string &chain_id) {
 
 // Make a residue from a CResidue *:
 // 
-coot::minimol::residue::residue(const CResidue* residue_p) {
+coot::minimol::residue::residue(CResidue* residue_p) {
 
-   CResidue *tres = (CResidue *) residue_p; // casting horriblness.
-   seqnum = tres->seqNum;
-   ins_code = tres->GetInsCode();
-   name = tres->name;
+   seqnum = residue_p->seqNum;
+   ins_code = residue_p->GetInsCode();
+   name = residue_p->name;
    int nResidueAtoms;
    PPCAtom residue_atoms;
-   tres->GetAtomTable(residue_atoms, nResidueAtoms);
+   residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int i=0; i<nResidueAtoms; i++) {
       addatom(std::string(residue_atoms[i]->name),
 	      std::string(residue_atoms[i]->element),
@@ -391,21 +455,21 @@ coot::minimol::residue::residue(const CResidue* residue_p) {
 	      residue_atoms[i]->y,
 	      residue_atoms[i]->z,
 	      std::string(residue_atoms[i]->altLoc),
+	      residue_atoms[i]->occupancy,
 	      residue_atoms[i]->tempFactor);
    }
 }
 
 // 
-coot::minimol::residue::residue(const CResidue *residue_p,
+coot::minimol::residue::residue(CResidue *residue_p,
 				const std::vector<std::string> &keep_only_these_atoms) {
 
-   CResidue *tres = (CResidue *) residue_p; // casting horriblness.
-   seqnum = tres->seqNum;
-   ins_code = tres->GetInsCode();
-   name = tres->name;
+   seqnum = residue_p->seqNum;
+   ins_code = residue_p->GetInsCode();
+   name = residue_p->name;
    int nResidueAtoms;
    PPCAtom residue_atoms;
-   tres->GetAtomTable(residue_atoms, nResidueAtoms);
+   residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int i=0; i<nResidueAtoms; i++) {
       std::string atom_name = residue_atoms[i]->name;
       bool add_it = 0;
@@ -422,6 +486,7 @@ coot::minimol::residue::residue(const CResidue *residue_p,
 		 residue_atoms[i]->y,
 		 residue_atoms[i]->z,
 		 std::string(residue_atoms[i]->altLoc),
+		 residue_atoms[i]->occupancy,
 		 residue_atoms[i]->tempFactor);
       }
    }
@@ -570,15 +635,16 @@ void
 coot::minimol::residue::addatom(std::string atom_name,
 				std::string element,
 				float x, float y, float z, const std::string &altloc,
+				float occupancy,
 				float bf) {
-   atoms.push_back(atom(atom_name, element, x, y, z, altloc, bf));
+   atoms.push_back(atom(atom_name, element, x, y, z, altloc, occupancy, bf));
 }
 
 
 void 
 coot::minimol::residue::addatom(std::string atom_name, std::string element,
-				const clipper::Coord_orth &pos, const std::string &altloc, float bf) { 
-   atoms.push_back(atom(atom_name, element, pos.x(), pos.y(), pos.z(), altloc, bf));
+				const clipper::Coord_orth &pos, const std::string &altloc, float occupancy, float bf) {
+   atoms.push_back(atom(atom_name, element, pos.x(), pos.y(), pos.z(), altloc, occupancy, bf));
 }
 
 
@@ -598,12 +664,12 @@ coot::minimol::residue::addatom(const atom &at) {
 } 
 
 coot::minimol::atom::atom(std::string atom_name,
-			  std::string ele, float x, float y, float z, const std::string &altloc, float dbf) {
+			  std::string ele, float x, float y, float z, const std::string &altloc, float occupancy_in, float dbf) {
    name = atom_name;
    element = ele;
    altLoc = altloc;
    pos = clipper::Coord_orth(x,y,z);
-   occupancy = 1.0;
+   occupancy = occupancy_in;
    temperature_factor = dbf;
 } 
 
@@ -629,6 +695,15 @@ coot::minimol::atom::atom(std::string atom_name,
    altLoc = altloc;
    occupancy = occupancy_in;
    temperature_factor = dbf;
+}
+
+coot::minimol::atom::atom(CAtom *at) {
+   name = at->name;
+   element = at->element;
+   pos = clipper::Coord_orth(at->x, at->y, at->z);
+   altLoc = at->altLoc;
+   occupancy = at->occupancy;
+   temperature_factor = at->tempFactor;
 } 
 
 void
@@ -845,7 +920,7 @@ coot::minimol::fragment::select_atoms_serial() const {
 std::ostream&
 coot::minimol::operator<<(std::ostream& s, coot::minimol::atom at) {
 
-   s << at.name << " :" << at.altLoc << ": " << at.pos.format();
+   s << at.name << " :" << at.altLoc << ": " << at.pos.format() << " occ: " << at.occupancy;
    return s;
 }
 

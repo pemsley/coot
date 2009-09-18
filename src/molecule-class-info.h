@@ -468,7 +468,9 @@ namespace coot {
 
 
 // Forward declaration
-class graphics_info_t; 
+class graphics_info_t;
+
+#include "gl-bits.hh"
 
 // should be arrays so that we can store lots of molecule
 // informations.
@@ -1076,7 +1078,7 @@ class molecule_class_info_t {
    std::vector<coot::atom_spec_t> fixed_atom_specs;
    std::vector<coot::Cartesian>   fixed_atom_positions; // updated on make_bonds_type_checked()
    void update_fixed_atom_positions();
-   void update_additional_representations();
+   void update_additional_representations(const gl_context_info_t &gl_info);
    void update_mols_in_additional_representations(); //uses atom_sel.mol
    void draw_fixed_atom_positions() const;
    void clear_all_fixed_atoms();
@@ -1323,7 +1325,7 @@ class molecule_class_info_t {
    // return the display list tag
    int make_ball_and_stick(const std::string &atom_selection_str,
 			   float bond_thickness, float sphere_size,
-			   short int do_spheres_flag);
+			   bool do_spheres_flag, gl_context_info_t gl_info);
    void clear_display_list_object(GLuint tag);
 
    // the charges for the surface come from the dictionary.
@@ -2444,7 +2446,8 @@ class molecule_class_info_t {
 				     float bonds_width,
 				     bool draw_hydrogens_flag,
 				     const coot::atom_selection_info_t &info,
-				     GtkWidget *display_control_window); 
+				     GtkWidget *display_control_window,
+				     const gl_context_info_t &glci); 
 
    int adjust_additional_representation(int represenation_number, 
 					const int &bonds_box_type_in, 
@@ -2490,11 +2493,37 @@ class molecule_class_info_t {
    // atoms or no water atoms).
    float max_water_distance();
 
-   // jiggle residue
+   // jiggle residue (a specific, useful/typical interface to jiggling).
    float fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
 				     const clipper::Xmap<float> &xmap,
+				     float map_sigma,
 				     int n_trials,
 				     float jiggle_scale_factor);
+
+   // Random rotation and translation (translations scaled by
+   // jiggle_scale_factor).
+   //
+   // return the z-weighted fit to density score of the atom
+   // selection.
+   // 
+   // called by above
+   float fit_to_map_by_random_jiggle(PPCAtom atom_selection,
+				     int n_atoms,
+				     const clipper::Xmap<float> &xmap,
+				     float map_sigma,
+				     int n_trials,
+				     float jiggle_scale_factor);
+
+
+   // return a fitted molecule
+   coot::minimol::molecule rigid_body_fit(const coot::minimol::molecule &mol_in,
+					  const clipper::Xmap<float> &xmap,
+					  float map_sigma) const;
+
+   // ---- utility function --- (so that we know to delete hydrogens
+   // from HETATM molecule before merging with this one
+   //
+   bool molecule_has_hydrogens() const;
 
 };
 

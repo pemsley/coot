@@ -6310,12 +6310,26 @@ int backrub_rotamer(int imol, const char *chain_id, int res_no,
 //                   jiggle fit
 // --------------------------------------------------------------------------
 // 
-// float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
-// 				  int n_trials,
-// 				  float jiggle_scale_factor) {
-//  float val = -101.0;
-// if (is_valid_model_molecule(imol)) {
-// }
-//  return val;
-// }
+float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
+				  int n_trials,
+				  float jiggle_scale_factor) {
+   float val = -101.0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      int imol_map = g.Imol_Refinement_Map();
+      if (is_valid_map_molecule(imol_map)) { 
+	 coot::residue_spec_t rs(chain_id, resno, ins_code);
+	 float map_sigma = g.molecules[imol_map].map_sigma();
+	 g.molecules[imol].fit_to_map_by_random_jiggle(rs,
+						       g.molecules[imol_map].xmap_list[0],
+						       map_sigma,
+						       n_trials, jiggle_scale_factor);
+	 graphics_draw();
+      } else {
+	 std::cout << "WARNING:: Refinement map not set" << std::endl;
+	 add_status_bar_text("Refinement map not set.");
+      } 
+   }
+   return val;
+}
 

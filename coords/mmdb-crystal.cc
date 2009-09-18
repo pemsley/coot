@@ -181,7 +181,7 @@ molecule_extents_t::molecule_extents_t(atom_selection_container_t selection,
       coot::minimol::atom at(" CA ", " C",
 			     extents_selection[i]->x,
 			     extents_selection[i]->y,
-			     extents_selection[i]->z, "", 10.0);
+			     extents_selection[i]->z, "", 10.0, 1.0);
       res.addatom(at);
    }
 

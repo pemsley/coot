@@ -100,6 +100,11 @@ def using_active_atom(funcs):
                 args.append(extra_arg)
             func(*args)
 
+# Pythonize function: return a python boolean.
+#
+def molecule_has_hydrogens(imol):
+    return (molecule_has_hydrogens_raw(imol) == 1)
+
 # set this to a function accepting two argument (the molecule number
 # and the manipulation mode) and it will be run after a model
 # manipulation.

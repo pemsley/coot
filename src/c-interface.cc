@@ -2901,9 +2901,11 @@ int make_ball_and_stick(int imol,
 
    int i = imol;
    if (is_valid_model_molecule(imol)) {
+      gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
       graphics_info_t::molecules[imol].make_ball_and_stick(std::string(atom_selection_str),
 							   bond_thickness,
-							   sphere_size, do_spheres_flag);
+							   sphere_size, do_spheres_flag,
+							   glci);
       graphics_draw();
    }
    return i;
@@ -2966,11 +2968,12 @@ int additional_representation_by_string(int imol,  const char *atom_selection_st
       coot::atom_selection_info_t info(atom_selection_str);
       graphics_info_t g;
       GtkWidget *dcw = g.display_control_window();
+      gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 									 bonds_box_type,
 									 bond_width,
 									 draw_hydrogens_flag,
-									 info, dcw);
+									 info, dcw, glci);
    }
    graphics_draw();
    return r;
@@ -2990,11 +2993,12 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
       graphics_info_t g;
       GtkWidget *dcw = g.display_control_window();
       coot::atom_selection_info_t info(chain_id, resno_start, resno_end, ins_code);
+      gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 									 bonds_box_type,
 									 bond_width,
 									 draw_hydrogens_flag,
-									 info, dcw);
+									 info, dcw, glci);
    }
    graphics_draw();
    return r;
@@ -3495,6 +3499,18 @@ GtkWidget *main_window() {
 int graphics_n_molecules() {
    return graphics_info_t::n_molecules();
 }
+
+/* return either 1 (yes, there is at least one hydrogen) or 0 (no
+   hydrogens, or no such molecule) */
+int molecule_has_hydrogens_raw(int imol) {
+
+   int r = 0;
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].molecule_has_hydrogens();
+   } 
+   return r;
+} 
+
 
 
 /* a testing/debugging function.  Used in a test to make sure that the
@@ -6282,8 +6298,9 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 	} else {
 	  pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, globals, globals);
 
-	  std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
-		    << pValue << std::endl;
+	  if (0) // debugging
+	     std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
+		       << pValue << std::endl;
 
 	  if (pValue != NULL)
 	    {
@@ -6344,9 +6361,6 @@ PyObject *safe_python_command_test(const char *cmd) {
 
 void safe_python_command_by_char_star(const char *python_cmd) {
 
-   std::cout <<  "DEBUG in safe_python_command_by_char_star: running: "
-	     << python_cmd << std::endl;
-   
 #ifdef USE_PYTHON
    PyRun_SimpleString((char *)python_cmd);
 #endif   

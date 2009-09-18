@@ -441,10 +441,11 @@ namespace coot {
     } 
   }; 
   
-} 
+} // namespace coot
+
 
 #include "select-atom-info.hh"
-
+#include "gl-bits.hh"
 
 class graphics_info_t {
 

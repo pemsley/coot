@@ -140,6 +140,12 @@
   (let ((s (format #f "~s" var)))
     `(format #t "DEBUG:: ~a is ~s~%" ,s ,var)))
 
+;; schemify function
+;;
+(define (molecule-has-hydrogens? imol)
+  (= (molecule-has-hydrogens-raw imol) 1))
+
+
 ;; set this to a function accepting two argument (the molecule number
 ;; and the manipulation mode) and it will be run after a model
 ;; manipulation.

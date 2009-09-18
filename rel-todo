@@ -1,6 +1,16 @@
 
    2 items
 
+   o Add jiggle-fit for ligands ::: 3
+
+   o auto-fit-best-rotamer needs its arguments rearranged.  Fix up
+     tests and other scripting usage ::: 1
+
+   o delete_atom() needs investigating.  Spews binary? ::: 1
+
+   o dictionary for LEU, chi angles wrong, chiral centre for CG should
+     be negative, not both. Check other residues. ::: 2
+
    o Stereo (hardware, side by side) Add-reps.  Need to update the
      display list objects when the GL context changes. Need to store a
      GL display list number for the alternate GL context in side by
@@ -1270,5 +1280,7 @@ src/gtk-manual.cc:                done
 
 * Done. I hope.
  
+   o Occupances on alt confed residues are wrong.  Make a test ::: 2
+
 
 -----

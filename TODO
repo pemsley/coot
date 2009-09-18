@@ -530,6 +530,15 @@ Punted from 0.6:
       with no skeleton.
       ->  ask me to make a skeleton
 
+   o Stephen Graham: the NCS Master chain id on the NCS edits is
+     confusing.  see email 2009/09/16
+
+   o Validate ligand corresponds to dictionary.  Are supposedly bonded
+     atoms within 3A or each other?  Do the atom names match?
+
+   o in graphics_info_t::refine_residue() (or something) there is a
+     copy of the xmap out of the imol-refinement-map.  Use a
+     reference. ::: 1
 
 
 0.6.1 
@@ -566,6 +575,11 @@ Punted from 0.6:
 
    o Use libcurl to get URLs.  It does proxies.  Stop using nethttp.
 
+   o Residue Info window is not updated when ab alt-conformation is
+     added [Miguel]
+
+
+
 
  ------
 
@@ -596,14 +610,18 @@ Punted from 0.6:
      entry for XXX, then coot should use that. [ Tickle, 20090723]  ::: 3
 
    o to make the rotamer probabilites smooth, FFT them like
-     Otwinovski's Ramachachandran plots.  FFTW in mult-dimentions.  Hmm.
+     Otwinowski's Ramachachandran plots.  FFTW in mult-dimentions.  Hmm.
+
+    
+   o (consider) Luca Jovine: I want to do sphere regularization
+
+
 
  ------
     
     Release 0.8 [Sept 2009]
 
    o Use libglade.
-
 
    o make minimol's addresidue() work with inscodes.  e.g. the 52A PRO
    in "Autofit Rotamer on Residues with Insertion codes" test. (see
