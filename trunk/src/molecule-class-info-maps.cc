@@ -67,6 +67,9 @@
 
 #include "mmdb.h"
 
+// for jiggle_fit
+#include "coot-map-heavy.hh"
+#include "ligand.hh"
 
 void
 molecule_class_info_t::sharpen(float b_factor) {
@@ -2557,10 +2560,117 @@ molecule_class_info_t::set_contour_by_sigma_step(float v, short int state) {
 float
 molecule_class_info_t::fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
 						   const clipper::Xmap<float> &xmap,
+						   float map_sigma,
 						   int n_trials,
 						   float jiggle_scale_factor) {
 
-   float v = 0.0;
-
+   float v = -101.0;
+   CResidue *residue_p = get_residue(spec);
+   if (residue_p) {
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      v = fit_to_map_by_random_jiggle(residue_atoms, n_residue_atoms, xmap, map_sigma,
+				      n_trials, jiggle_scale_factor);
+   } else {
+      std::cout << "WARNING:: residue " << spec << " not found" << std::endl;
+   } 
    return v;
 }
+
+
+// called by above
+float
+molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
+						   int n_atoms,
+						   const clipper::Xmap<float> &xmap,
+						   float map_sigma,
+						   int n_trials,
+						   float jiggle_scale_factor) {
+   float v = 0;
+   std::vector<std::pair<std::string, int> > atom_numbers = coot::util::atomic_number_atom_list();
+
+   // set atoms so that we can get an initial score.
+   std::vector<CAtom *> initial_atoms(n_atoms);
+   std::vector<CAtom> direct_initial_atoms(n_atoms);
+   for (int iat=0; iat<n_atoms; iat++)
+      initial_atoms[iat] = atom_selection[iat];
+
+   // We have to make a copy because direct_initial_atoms goes out of
+   // scope and destroys the CAtoms (we don't want to take the
+   // contects of the atom_selection out when we do that).
+   // 
+   for (int iat=0; iat<n_atoms; iat++)
+      direct_initial_atoms[iat].Copy(atom_selection[iat]);
+   coot::minimol::molecule direct_mol(atom_selection, n_atoms, direct_initial_atoms);
+   
+   // best score is the inital score (without the atoms being jiggled) (could be a good score!)
+   // 
+   float initial_score = coot::util::z_weighted_density_score(direct_mol, atom_numbers, xmap);
+   float best_score = initial_score;
+   bool  bested = 0;
+   coot::minimol::molecule best_molecule;
+
+   // first, find the centre point.  We do that because otherwise we
+   // do it lots of times in jiggle_atoms.  Inefficient.
+   std::vector<double> p(3, 0.0);
+   for (int iat=0; iat<n_atoms; iat++) { 
+      p[0] += atom_selection[iat]->x;
+      p[1] += atom_selection[iat]->y;
+      p[2] += atom_selection[iat]->z;
+   }
+   double fact = 1.0;
+   if (n_atoms)
+      fact = 1.0/float(n_atoms);
+   clipper::Coord_orth centre_pt(p[0]*fact, p[1]*fact, p[2]*fact);
+   std::cout << "DEUBG:: centre_pt: " << centre_pt.format() << std::endl;
+
+   
+   for (int itrial=0; itrial<n_trials; itrial++) {
+
+      std::vector<CAtom> jiggled_atoms = coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
+      coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms);
+      coot::minimol::molecule fitted_mol = rigid_body_fit(jiggled_mol, xmap, map_sigma);
+      float this_score = coot::util::z_weighted_density_score(fitted_mol, atom_numbers, xmap);
+      // std::cout << " comparing scores " << this_score << " vs " << best_score << std::endl;
+      if (this_score > best_score) {
+	 best_score = this_score;
+	 best_molecule = fitted_mol;
+	 bested = 1;
+      } 
+   }
+
+   // If we got a better score, transfer the positions from atoms back
+   // to the atom_selection
+   //
+   if (bested) {
+      make_backup();
+      std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
+      replace_coords(make_asc(best_molecule.pcmmdbmanager()), bool(0), bool(0));
+      have_unsaved_changes_flag = 1; 
+      make_bonds_type_checked();
+   } else {
+      std::cout << " nothting better found " << std::endl;
+   } 
+   return v;
+
+} 
+
+// return a fitted molecule
+coot::minimol::molecule
+molecule_class_info_t::rigid_body_fit(const coot::minimol::molecule &mol_in,
+				      const clipper::Xmap<float> &xmap,
+				      float map_sigma) const {
+
+   coot::ligand lig;
+   lig.import_map_from(xmap, map_sigma);
+   lig.install_ligand(mol_in);
+   lig.find_centre_by_ligand(0); // don't test ligand size
+   lig.set_map_atom_mask_radius(0.5);
+   lig.set_dont_write_solutions();
+   lig.set_dont_test_rotations();
+   lig.set_acceptable_fit_fraction(0.1);
+   lig.fit_ligands_to_clusters(1);
+   coot::minimol::molecule moved_mol = lig.get_solution(0);
+   return moved_mol;
+} 

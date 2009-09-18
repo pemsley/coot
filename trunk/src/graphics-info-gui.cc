@@ -995,9 +995,11 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    label_str += atom->GetResName();
    label_str += "/";
    label_str += atom->name;
-   if (std::string(atom->altLoc) != std::string("")) {
-      label_str += ",";
-      label_str += atom->altLoc;
+   if (0) { // do alt locs in the atom label (20090914, not now that we have altloc entries)
+      if (std::string(atom->altLoc) != std::string("")) {
+	 label_str += ",";
+	 label_str += atom->altLoc;
+      }
    }
    if (std::string(atom->segID) != std::string("")) {
       label_str += " ";

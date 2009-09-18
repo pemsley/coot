@@ -31,7 +31,7 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 270
+x_day_range = 285
 
 x_tick_interval = 2
 if (x_day_range > 40):
@@ -89,9 +89,10 @@ describeEvent(5, "Christmas\nholidays start", -20)
 xpscale = 0.6
 
 # crisis:
-can.line(line_style.black_dash1, 62, ybot, 62, ytip)
-tb = text_box.T(text="Crisis!", loc=(30, 110), shadow=(2,-2,fill_style.gray70), bottom_fudge=2)
-tb.add_arrow((62, ytip))
+crisis_pt=59
+can.line(line_style.black_dash1, crisis_pt, ybot, crisis_pt, ytip)
+tb = text_box.T(text="Crisis!", loc=(25, 110), shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
+tb.add_arrow((crisis_pt, ytip))
 tb.draw()
     
 tb = text_box.T(loc=(21*xpscale, 43), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=2)

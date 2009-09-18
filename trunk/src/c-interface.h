@@ -526,6 +526,12 @@ int reset_view();
   @return the number of molecules (closed molecules are not counted) */
 int graphics_n_molecules(); 
 
+/* return either 1 (yes, there is at least one hydrogen) or 0 (no
+   hydrogens, or no such molecule).  The scripting interface to this
+   does not have the _raw suffix and returns a scheme or python
+   boolean True or False.  */
+int molecule_has_hydrogens_raw(int imol); 
+
 /* a testing/debugging function.  Used in a test to make sure that the
    outside number of a molecule (the vector index) is the same as that
    embedded in the molecule description object.  Return -1 on
@@ -5710,10 +5716,9 @@ int pisa_interaction(int imol_1, int imol_2);
 /* \{ */
 /*!  jiggle fit to the current refinment map.  return < -100 if
   not possible, else return the new best fit for this residue.  */
-/* float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
+float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
 				  int n_trials,
 				  float jiggle_scale_factor);
-*/ 
 /* \} */
 
 

@@ -52,10 +52,10 @@ namespace coot {
 
       class atom { 
       public:
-	 atom(std::string atom_name, std::string ele, float x, float y, float z, const std::string &altloc, float dbf);
+	 atom(std::string atom_name, std::string ele, float x, float y, float z, const std::string &altloc, float occupancy, float dbf);
 	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float dbf);
-	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float occupancy,
-	      float b_factor);
+	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float occupancy, float b_factor);
+	 atom(CAtom *at);
 	 atom() {}
 	 std::string altLoc;
 	 float occupancy;
@@ -74,8 +74,8 @@ namespace coot {
 	    seqnum = i;
 	    name = resname;
 	    ins_code = "";}
-	 residue(const CResidue *residue_p);
-	 residue(const CResidue *residue_p,
+	 residue(CResidue *residue_p);
+	 residue(CResidue *residue_p,
 		 const std::vector<std::string> &keep_only_these_atoms);
 	 residue(){}; // for resizing the residues in fragment
 	 int seqnum;
@@ -88,9 +88,9 @@ namespace coot {
                                             	 // with name "FAIL" if the atom is not there.
 	 atom&       operator[](int i) {return atoms[i];}
 	 void addatom(std::string atom_name, std::string element,
-		      float x, float y, float z, const std::string &altloc, float bf);
+		      float x, float y, float z, const std::string &altloc, float bf, float occupancy);
 	 void addatom(std::string atom_name, std::string element,
-		      const clipper::Coord_orth &pos, const std::string &altloc, float bf);
+		      const clipper::Coord_orth &pos, const std::string &altloc, float bf, float occupancy);
 	 void addatom(const atom &at); 
 	 friend std::ostream&  operator<<(std::ostream&, residue);
 	 int n_atoms() const { return atoms.size(); }
@@ -159,6 +159,13 @@ namespace coot {
 		  std::string chain_id);
 	 molecule(CMMDBManager *mmdb_mol_in);
 	 molecule(const fragment &frag);
+
+	 // Ridiculous synthetic constructor.  Use the atom selection
+	 // to generate the molecule hierachy, but use the atom vector
+	 // to set the positions of the atoms.  Used in rigid body
+	 // fitting of atoms moved with an atom selection (jiggle_fit)
+	 molecule(PPCAtom atom_selection, int n_residues_atoms, const std::vector<CAtom> &atoms);
+	 
 	 
 	 short int init(CMMDBManager *mmdb_mol_in) {return setup(mmdb_mol_in);}
 

@@ -2206,7 +2206,8 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 						     float bonds_width,
 						     bool draw_hydrogens_flag,
 						     const coot::atom_selection_info_t &info,
-						     GtkWidget *display_control_window) {
+						     GtkWidget *display_control_window,
+						     const gl_context_info_t &glci) {
 
    coot::additional_representations_t rep(atom_sel.mol,
 					  representation_type,
@@ -2218,7 +2219,7 @@ molecule_class_info_t::add_additional_representation(int representation_type,
    GtkWidget *vbox = display_control_add_reps_container(display_control_window, imol_no);
    display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
    if (representation_type == coot::BALL_AND_STICK) {
-      int display_list_handle_index = make_ball_and_stick(info.mmdb_string(), 0.12, 0.28, 1);
+      int display_list_handle_index = make_ball_and_stick(info.mmdb_string(), 0.12, 0.28, 1, glci);
       if ((display_list_handle_index >= 0) && (display_list_handle_index < display_list_tags.size())) {
 	 add_reps[n_rep].add_display_list_handle(display_list_handle_index);
       } 
@@ -2657,12 +2658,19 @@ molecule_class_info_t::make_bonds_type_checked() {
    if (bonds_box_type == coot::COLOUR_BY_B_FACTOR_BONDS)
       b_factor_representation();
 
-   update_additional_representations();
+   // bleugh. But if we don't do this here, where *do* we do it?
+   // Should the glci be passed to make_bonds_type_checked()?  Urgh.
+   // That is called from many places....
+   // 
+   gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+   
+   update_additional_representations(glci);
    update_fixed_atom_positions();
    update_ghosts();
 }
 
-void molecule_class_info_t::update_additional_representations() {
+void
+molecule_class_info_t::update_additional_representations(const gl_context_info_t &gl_info) {
 
    for (unsigned int i=0; i<add_reps.size(); i++) {
       // make_ball_and_stick is not available from inside an add_rep,
@@ -2675,7 +2683,7 @@ void molecule_class_info_t::update_additional_representations() {
 	 
 	 int old_handle = add_reps[i].display_list_handle;
 	 remove_display_list_object_with_handle(old_handle);
-	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(), 0.11, 0.24, 1);
+	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(), 0.11, 0.24, 1, gl_info);
 
 	 std::cout << " update a ball and stick rep " << i << " "
 		   << add_reps[i].show_it << std::endl;
@@ -3225,7 +3233,6 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 
    make_backup();
 
-
    // debug::
    if (0) { 
       std::cout << "DEBUG:: --------------- replace_coords replacing "
@@ -3233,13 +3240,14 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
       for (int i=0; i<asc.n_selected_atoms; i++) {
 	 CAtom *atom = asc.atom_selection[i];
 	 bool is_ter_state = atom->isTer();
-	 std::cout << "DEBUG:: intermediate atom on replace coords: chain-id :"
+	 std::cout << "DEBUG:: in replace_coords, intermediate atom: chain-id :"
 		   << atom->residue->GetChainID() <<  ": "
 		   << atom->residue->seqNum << " inscode :" 
 		   << atom->GetInsCode() << ": name :" 
 		   << atom->name << ": altloc :"
-		   << atom->altLoc << ":"
-		   << " ter state: " << is_ter_state << "." << std::endl;
+		   << atom->altLoc << ": occupancy: "
+		   << atom->occupancy << " :"
+		   << " ter state: " << is_ter_state << std::endl;
       }
    }
 
@@ -3344,8 +3352,9 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 	       }
 
 	       // similarly we adjust occupancy if this is not a shelx molecule
-	       if (! is_from_shelx_ins_flag) 
+	       if (! is_from_shelx_ins_flag) { 
 		  adjust_occupancy_other_residue_atoms(mol_atom, mol_atom->residue, 0);
+	       } 
 	       // std::cout << atom << " coords replace " << idx << " " << mol_atom << std::endl;
 	    } else {
 	       std::cout << "ERROR:: bad atom index in replace_coords replacing atom: "
@@ -7021,4 +7030,26 @@ molecule_class_info_t::max_water_distance() {
       }
    }
    return f;
+} 
+
+
+// ---- utility function --- (so that we know to delete hydrogens
+// from HETATM molecule before merging with this one
+//
+bool
+molecule_class_info_t::molecule_has_hydrogens() const {
+
+   bool r = 0;
+   for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+      std::string ele(atom_sel.atom_selection[i]->element);
+      if (ele == " H") {
+	 r = 1;
+	 break;
+      } 
+      if (ele == " D") {
+	 r = 1;
+	 break;
+      }
+   }
+   return r;
 } 

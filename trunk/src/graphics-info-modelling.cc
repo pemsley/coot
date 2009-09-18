@@ -3421,7 +3421,8 @@ graphics_info_t::split_residue(int imol, const std::string &chain_id,
    
    CResidue *r = molecules[imol].get_residue(resno, ins_code, chain_id);
    if (!r) {
-      std::cout << "residue not found" << std::endl;
+      std::cout << "WARNING:: Residue " << " chain-id :" << chain_id << ":  resno: " << resno
+		<< " inscode :" << ins_code << ": not found" << std::endl;
    } else {
       PPCAtom residue_atoms;
       int n_residue_atoms;
@@ -3429,7 +3430,8 @@ graphics_info_t::split_residue(int imol, const std::string &chain_id,
       r->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
 	 std::string atom_name(residue_atoms[i]->name);
-	 std::string atom_alt_conf(residue_atoms[i]->name);
+	 std::string atom_alt_conf(residue_atoms[i]->altLoc);
+	 std::cout << "   " << i << " " << atom_name << " :" << atom_alt_conf << ":" << std::endl;
 	 if (atom_alt_conf == altconf) {
 	    CAtom *at = residue_atoms[i];
 	    int atom_index_udd = molecules[imol].atom_sel.UDDAtomIndexHandle;
@@ -3444,9 +3446,9 @@ graphics_info_t::split_residue(int imol, const std::string &chain_id,
       if (at_index != -1) { 
 	 p = split_residue(imol, at_index);
       } else {
-	 std::cout << " atom without atom index in molecule "
-			 << imol << " resno " << resno << " inscode "
-		   << ins_code << " altconf " << altconf
+	 std::cout << "WARNING:: atom without atom index in molecule: "
+		   << imol << " chain-id :" << chain_id << ":  resno: " << resno << " inscode :"
+		   << ins_code << ": altconf :" << altconf << ":"
 		   << std::endl;
       }
    }

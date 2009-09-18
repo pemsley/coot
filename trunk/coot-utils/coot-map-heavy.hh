@@ -26,6 +26,7 @@
 #include "gsl/gsl_multimin.h"
 #endif // HAVE_GSL
 #include "clipper/core/nxmap.h"
+#include "mini-mol.hh"
 
 namespace coot {
 
@@ -60,29 +61,22 @@ namespace coot {
       void simplex_apply_shifts_internal(gsl_vector *s,
 					 simplex_param_t &par);
 
-      // Random rotation and translation (translations scaled by
-      // jiggle_scale_factor).
-      //
-      // return the z-weighted fit to density score of the atom
-      // selection.
-      // 
-      float fit_to_map_by_random_jiggle(PPCAtom atom_selection,
-					int n_atoms,
-					const clipper::Xmap<float> &xmap,
-					int n_trials, 
-					float jiggle_scale_factor);
-
-      float z_weighted_density_at_point(CAtom *at,
+      float z_weighted_density_at_point(const clipper::Coord_orth &pt,
+					const std::string &ele,
 					const std::vector<std::pair<std::string, int> > &atom_number_list,
 					const clipper::Xmap<float> &map_in);
 
-      float z_weighted_density_score(std::vector<CAtom *> atoms,
+      float z_weighted_density_score(const std::vector<CAtom> &atoms,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
 				     const clipper::Xmap<float> &map);
 
-      std::vector<CAtom *> jiggle_atoms(const std::vector<CAtom *> &atoms,
-					const clipper::Coord_orth &centre_pt,
-					float jiggle_scale_factor);
+      float z_weighted_density_score(const minimol::molecule &mol,
+				     const std::vector<std::pair<std::string, int> > &atom_number_list,
+				     const clipper::Xmap<float> &map);
+
+      std::vector<CAtom> jiggle_atoms(const std::vector<CAtom *> &atoms,
+				      const clipper::Coord_orth &centre_pt,
+				      float jiggle_scale_factor);
 
 #endif // HAVE_GSL      
 

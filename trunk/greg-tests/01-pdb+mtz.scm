@@ -510,6 +510,45 @@
 		 (close-float? occ-sum-pre occ-sum-post))))))))
 
 
+(greg-testcase "Correct Occupances after auto-fit rotamer on alt-confed residue" #t
+   (lambda ()
+
+     (let* ((imol (greg-pdb "tutorial-modern.pdb"))
+	    (imol-map (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0))
+	    (new-alt-conf (add-alt-conf imol "A" 93 "" "" 0)))
+
+       (accept-regularizement) ;; Presses the OK button for the alt conf
+
+       (auto-fit-best-rotamer 93 "A" "" "A" imol imol-map 1 0.01) 
+       
+       ;; Now test the ocupancies.  The problem was that we had been
+       ;; ending up with atoms in the residue with occupancies of 0.0.
+       ;; (They should be 0.8 and 0.2 - for me at least).  So test
+       ;; that the atoms have occupancies of greater than 0.1 (I
+       ;; suppose also test for occs > 0.85 would be good too).
+       ;; 
+       (let ((atoms (residue-info imol "A" 93 "")))
+	 (map (lambda (atom)
+		(let ((occupancy (car (list-ref atom 1)))
+		      (alt-conf  (cadr (car atom))))
+		  ;;(format #t "alt-conf: ~s occupancy: ~s   in atom ~s~%" 
+		  ;; alt-conf occupancy atom)
+		  (if (< occupancy 0.1)
+		      (begin
+			(format #t "bad occupancy in atom: ~s~%" atom)
+			(throw 'fail)))
+		  (if (> occupancy 0.85)
+		      (begin
+			(format #t "bad occupancy in atom: ~s~%" atom)
+			(throw 'fail)))))
+	      atoms))
+       #t ; no fail -> success
+       )))
+	 
+       
+
+
+
 (greg-testcase "Pepflip flips the correct alt confed atoms" #t
    (lambda () 
 

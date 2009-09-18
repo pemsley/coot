@@ -1082,7 +1082,7 @@ coot::helix_placement::build_on_N_end(coot::minimol::fragment *f,
 	 // Add on the C-Beta and add the residue to the fragment
 	 std::pair<short int, clipper::Coord_orth> cbeta_info = coot::cbeta_position(r);
 	 if (cbeta_info.first)
-	    r.addatom(" CB ", " C", cbeta_info.second, "", 30.0);
+	    r.addatom(" CB ", " C", cbeta_info.second, "", 1.0, 30.0);
 	 f->addresidue(r, 0);
 	 std::cout << "INFO build of N terminal residue " << ires_current_last-1
 		   << " success" << std::endl;
@@ -1141,7 +1141,7 @@ coot::helix_placement::build_on_C_end(coot::minimol::fragment *f,
 	 // Add on the C-Beta and add the residue to the fragment
 	 std::pair<short int, clipper::Coord_orth> cbeta_info = coot::cbeta_position(r);
 	 if (cbeta_info.first)
-	    r.addatom(" CB ", " C", cbeta_info.second, "", 30.0);
+	    r.addatom(" CB ", " C", cbeta_info.second, "", 1.0, 30.0);
 	 f->addresidue(r, 0);
 	 std::cout << "INFO build of N terminal residue " << ires_current_last-1
 		   << " success" << std::endl;

@@ -4919,5 +4919,13 @@ Tue Sep  8 21:14:49 BST 2009
     around centre residue atoms.  Find outliers.  Make validation
     tool.
 
+
+---
+Tue Sep 15 11:55:50 BST 2009
+
+   It would be nice to add the Ramachandran angles to the residue info
+   dialog and a colour patch (like refinement dialog).
+
+
 ------
 

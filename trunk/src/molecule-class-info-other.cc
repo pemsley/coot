@@ -1365,7 +1365,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
 }
 
 
-// best fit rotamer stuff
+// best fit rotamer
 float
 molecule_class_info_t::auto_fit_best_rotamer(int resno,
 					     const std::string &altloc,
@@ -1411,7 +1411,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
       if (coot::util::residue_has_hydrogens_p(res))
 	 clash_score_limit = 500; // be more generous... lots of hydrogen contacts
       
-      // std::cout << "found residue" << std::endl;
+      std::cout << "DEBUG:: found residue" << std::endl;
       std::string res_type(res->name);
       CResidue *copied_res = coot::deep_copy_this_residue(res, altloc, 0,
 							  atom_sel.UDDAtomIndexHandle);
@@ -1424,12 +1424,12 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 #else			
 	 coot::richardson_rotamer d(copied_res, altloc, atom_sel.mol, lowest_prob, 0);
 #endif // USE_DUNBRACK_ROTAMERS
-      
+
 	 std::vector<float> probabilities = d.probabilities();
 	 //       std::cout << "debug afbr probabilities.size() " << probabilities.size()
 	 // 		<< " " << have_map_flag << std::endl;
 	 if (probabilities.size() == 0) {
-	    std::cout << "WARNING:: no rotamers probabilityes for residue type "
+	    std::cout << "WARNING:: no rotamers probabilities for residue type "
 		      << res_type << std::endl;
 	 } else { 
 	    CResidue *rotamer_res;
@@ -1448,20 +1448,13 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 		     // std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
 		     rotamer_res = d.GetResidue(rest, i);
 
-		     // 	 std::cout << " atom info: " << std::endl;
-		     // 	 int nResidueAtoms;
-		     // 	 PPCAtom residue_atoms;
-		     // 	 rotamer_res->GetAtomTable(residue_atoms, nResidueAtoms);
-		     // 	 for (int iat=0; iat<nResidueAtoms; iat++) {
-		     // 	    std::cout << residue_atoms[iat] << std::endl;
-		     // 	 }
-
 		     // first make a minimol molecule for the residue so that we
 		     // can install it into lig.
 		     //
 		     coot::minimol::residue  residue_res(rotamer_res);
 		     coot::minimol::molecule residue_mol;
 		     coot::minimol::fragment frag;
+		     
 		     int ifrag = residue_mol.fragment_for_chain(chain_id);
 		     residue_mol[ifrag].addresidue(residue_res, 0);
 
@@ -1485,6 +1478,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 		     //
 		     coot::ligand_score_card score_card = lig.get_solution_score(0);
 		     coot::minimol::molecule moved_mol  = lig.get_solution(0);
+
 		     float clash_score = 0.0;
 		     // std::cout << "debug INFO:: density score: " << score_card.score << "\n";
 		     if (clash_flag) { 
@@ -3619,7 +3613,7 @@ molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) {
       
       // We can't do a rotamer fit if we don't have C and N atoms:
       // 
-      // Also, we don't want to do a rotamer fit of the user has
+      // Also, we don't want to do a rotamer fit if the user has
       // turned this option off:
       // 
       if (!graphics_info_t::show_alt_conf_intermediate_atoms_flag &&
@@ -3709,6 +3703,8 @@ molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) {
    } else {
       std::cout << "WARNING:: split_residue: bad atom index.\n";
    }
+   std::cout << "split_residue(int atom_index, int alt_conf_split_type) returns "
+	     << pr.first << " " << pr.second << std::endl;
    return pr;
 }
 
@@ -3884,6 +3880,8 @@ molecule_class_info_t::split_residue_internal(CResidue *residue, const std::stri
 //    std::cout << "Post new bonds we have " << nbonds << " bonds lines\n";
 
    do_accept_reject_dialog("Alt Conf Split", coot::refinement_results_t());
+   std::cout << "split_residue(int atom_index, int alt_conf_split_type) returns "
+	     << p.first << " " << p.second << std::endl;
    return p;
 }
 
@@ -4023,9 +4021,10 @@ molecule_class_info_t::adjust_occupancy_other_residue_atoms(CAtom *at,
 	    float remainder = 1.0 - new_atom_occ;
 	    float f = remainder/other_atom_occ_sum;
 	    for (unsigned int i=0; i<same_name_atoms.size(); i++) {
-// 	       std::cout << "debug " << same_name_atoms[i]
-// 			 << " mulitplying occ " << same_name_atoms[i]->occupancy
-// 			 << " by " << remainder << "/" << other_atom_occ_sum << "\n";
+	       if (0) // debug 
+		  std::cout << "debug " << same_name_atoms[i]
+			    << " mulitplying occ " << same_name_atoms[i]->occupancy
+			    << " by " << remainder << "/" << other_atom_occ_sum << "\n";
 	       same_name_atoms[i]->occupancy *= f;
 	    }
 	 }
@@ -5126,7 +5125,7 @@ molecule_class_info_t::draw_display_list_objects() {
 int
 molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str,
 					   float bond_thickness, float sphere_size,
-					   short int do_spheres_flag) {
+					   bool do_spheres_flag, gl_context_info_t gl_info) {
 
    // Use draw hydrogens flag that has been set already for this molecule.
    

@@ -1273,22 +1273,20 @@ graphics_info_t::check_if_in_auto_fit_define(GdkEventButton *event) {
 	 } else {
 
 	    CAtom *atom_p = molecules[imol].atom_sel.atom_selection[naii.atom_index];
-	    
 	    int resno = atom_p->GetSeqNum();
 	    std::string inscode(atom_p->GetInsCode());
 	    std::string chain(atom_p->GetChainID());
 	    std::string altloc(atom_p->altLoc);
 	    
-	    float f = molecules[imol].auto_fit_best_rotamer(rotamer_search_mode, resno, altloc, inscode, chain, imol_map, graphics_info_t::rotamer_fit_clash_flag, graphics_info_t::rotamer_lowest_probability, *Geom_p());
+	    float f = molecules[imol].auto_fit_best_rotamer(rotamer_search_mode, resno, altloc, inscode, chain,
+							    imol_map, rotamer_fit_clash_flag,
+							    rotamer_lowest_probability, *Geom_p());
 	    if (rotamer_auto_fit_do_post_refine_flag) {
-	      // Run refine zone with autoaccept, autorange on
-	      // the "clicked" atom:
-	      refine_auto_range(naii.imol, chain.c_str(), resno,
-				altloc.c_str());
+	      // Run refine zone with autoaccept, autorange on the "clicked" atom:
+	      refine_auto_range(naii.imol, chain.c_str(), resno, altloc.c_str());
 	    }
 	    if (graphics_info_t::reset_b_factor_moved_atoms_flag) {
-	      reset_b_factor_residue_range(naii.imol, chain.c_str(),
-					   resno, resno);
+	      reset_b_factor_residue_range(naii.imol, chain.c_str(), resno, resno);
 	    }
 	    update_geometry_graphs(&atom_p->residue, 1, imol, imol_map);
 	    std::cout << "Fitting score for best rotamer: " << f << std::endl;

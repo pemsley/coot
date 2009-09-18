@@ -1773,35 +1773,32 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
    if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
       draw_hardware_stereo(widget, event);
    } else {
-     if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
-       draw_zalman_stereo(widget, event);
-     } else {
-       if (graphics_info_t::display_mode_use_secondary_p()) { 
-	 if (widget == graphics_info_t::glarea_2) {
-	   // std::cout << "DEBUG:: draw other window" << std::endl;
-	   graphics_info_t g; // is this a slow thing?
-	   float tbs =  g.get_trackball_size(); 
-	   float spin_quat[4];
-	   // 0.0174 = 1/(2*pi)
-	   float eye_fac = 1.0;
-	   // 	    if (graphics_info_t::in_wall_eyed_side_by_side_stereo_mode)
-	   // 	       eye_fac = -1.0;
-	   if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE)
-	     eye_fac = -1.0;
-	   trackball(spin_quat, 0, 0, eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
-	   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-	   draw_mono(widget, event, 0);
-	   // reset the viewing angle:
-	   trackball(spin_quat, 0, 0, -eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
-	   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-	 } else {
-	   // std::cout << "draw main window" << std::endl;
-	   draw_mono(widget, event, 0);
+      if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
+	 draw_zalman_stereo(widget, event);
+      } else {
+	 if (graphics_info_t::display_mode_use_secondary_p()) { 
+	    if (widget == graphics_info_t::glarea_2) {
+	       // std::cout << "DEBUG:: draw other window" << std::endl;
+	       graphics_info_t g; // is this a slow thing?
+	       float tbs =  g.get_trackball_size(); 
+	       float spin_quat[4];
+	       // 0.0174 = 1/(2*pi)
+	       float eye_fac = 1.0;
+	       if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE)
+		  eye_fac = -1.0;
+	       trackball(spin_quat, 0, 0, eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
+	       add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
+	       draw_mono(widget, event, 0);
+	       // reset the viewing angle:
+	       trackball(spin_quat, 0, 0, -eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
+	       add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
+	    } else {
+	       draw_mono(widget, event, 0);
+	    }
+	 } else { 
+	    draw_mono(widget, event, 0);
 	 }
-       } else { 
-	 draw_mono(widget, event, 0);
-       }
-     }
+      }
    }
    return TRUE;
 }
@@ -1944,6 +1941,9 @@ void gdkglext_finish_frame(GtkWidget *widget) {
 
 gint
 draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
+
+
+   // std::cout << "draw_mono() with widget " << widget << std::endl;
 
    if ((event-1) != 0) { 
       /* Draw only last expose. */
