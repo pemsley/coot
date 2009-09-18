@@ -2908,8 +2908,8 @@
 	  (begin
 	    ;; delete hydrogens from the ligand if the master molecule
 	    ;; does not have hydrogens.
-;; 	    (if (not (molecule-has-hydrogens? imol))
-;; 		(delete-residue-hydrogens imol-ligand "A" 1 "" ""))
+ 	    (if (not (molecule-has-hydrogens? imol))
+ 		(delete-residue-hydrogens imol-ligand "A" 1 "" ""))
 	    (if (valid-map-molecule? (imol-refinement-map))
 		(begin
 		  (format #t "========  jigging!  ======== ~%")
