@@ -1,13 +1,6 @@
 
    2 items
 
-   o Add jiggle-fit for ligands ::: 3
-
-   o auto-fit-best-rotamer needs its arguments rearranged.  Fix up
-     tests and other scripting usage ::: 1
-
-   o delete_atom() needs investigating.  Spews binary? ::: 1
-
    o dictionary for LEU, chi angles wrong, chiral centre for CG should
      be negative, not both. Check other residues. ::: 2
 
@@ -1281,6 +1274,16 @@ src/gtk-manual.cc:                done
 * Done. I hope.
  
    o Occupances on alt confed residues are wrong.  Make a test ::: 2
+
+* Done.
+
+   o Add jiggle-fit for ligands ::: 3
+
+* Done.
+
+   o delete_atom() needs investigating.  Spews binary? ::: 1
+
+* Fixed.  Was dereferencing out out date char * pointers.
 
 
 -----

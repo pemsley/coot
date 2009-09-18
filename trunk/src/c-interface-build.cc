@@ -1227,6 +1227,10 @@ void update_go_to_atom_window_on_other_molecule_chosen(int imol) {
 void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code,
 		 const char *at_name, const char *altLoc) {
 
+
+   // after the atom is deleted from the molecule then the calling
+   // char * pointers are out of date!  We can't use them.  So, save
+   // them as strings before writing the history.
    graphics_info_t g;
 
    if (! chain_id) {
@@ -1245,6 +1249,13 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
       std::cout << "ERROR:: in delete_atom() trapped null altLoc\n";
       return; 
    }
+
+   //
+   std::string chain_id_string = chain_id;
+   std::string ins_code_string = ins_code;
+   std::string atom_name_string = at_name;
+   std::string altloc_string = altLoc;
+   
 
    short int istat = g.molecules[imol].delete_atom(chain_id, resno, ins_code, at_name, altLoc);
    if (istat) { 
@@ -1266,10 +1277,10 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
    std::string cmd = "delete-atom";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
-   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(coot::util::single_quote(chain_id_string));
    args.push_back(resno);
-   args.push_back(coot::util::single_quote(at_name));
-   args.push_back(coot::util::single_quote(altLoc));
+   args.push_back(coot::util::single_quote(atom_name_string));
+   args.push_back(coot::util::single_quote(altloc_string));
    add_to_history_typed(cmd, args);
 
 } 
