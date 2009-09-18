@@ -128,6 +128,9 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
 	 fragments[ifrag_atom][resno].addatom(minimol_atom);
       } 
    }
+
+   have_cell = 0;
+   have_spacegroup = 0;
 } 
 
 
@@ -792,10 +795,12 @@ coot::minimol::molecule::pcmmdbmanager() const {
    mol->AddModel(model_p);
    
    if (have_cell) { 
-      // std::cout << "DEBUG:: pcmmdbmanager: using cell "
-      //       << mmdb_cell[0] << " " << mmdb_cell[1]
-      //    		<< " " << mmdb_cell[2] << " " << mmdb_cell[3]
-      //    		<< " " << mmdb_cell[4] << " " << mmdb_cell[4] << "\n";
+      std::cout << "DEBUG:: pcmmdbmanager: have cell " << std::endl;
+      std::cout << "DEBUG:: pcmmdbmanager: using cell "
+		<< mmdb_cell[0] << " " << mmdb_cell[1]
+		<< " " << mmdb_cell[2] << " " << mmdb_cell[3]
+		<< " " << mmdb_cell[4] << " " << mmdb_cell[4] << std::endl;
+      
       mol->SetCell(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
 		   mmdb_cell[3], mmdb_cell[4], mmdb_cell[5], 1);
       realtype cell[6];

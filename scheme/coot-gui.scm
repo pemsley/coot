@@ -2891,6 +2891,81 @@
 
 
 
+(define *additional-solvent-ligands* '())
+
+(define *solvent-ligand-list* 
+  (append (list "EDO" "GOL" "ACT" "MPD" "CIT" "SO4" "PO4" "TAM")
+	  *additional-solvent-ligands*))
+
+;; add solvent molecules 
+(define (new-solvent-ligands-gui)
+
+  ;; 
+  (define (add-ligand-func imol tlc)
+    (format #t "Add a ~s to molecule ~s here ~%" tlc imol)
+    (let ((imol-ligand (get-monomer tlc)))
+      (if (valid-model-molecule? imol-ligand)
+	  (begin
+	    ;; delete hydrogens from the ligand if the master molecule
+	    ;; does not have hydrogens.
+;; 	    (if (not (molecule-has-hydrogens? imol))
+;; 		(delete-residue-hydrogens imol-ligand "A" 1 "" ""))
+	    (if (valid-map-molecule? (imol-refinement-map))
+		(begin
+		  (format #t "========  jigging!  ======== ~%")
+		  (fit-to-map-by-random-jiggle imol-ligand "A" 1 "" 100 2.0)
+		  (with-auto-accept
+		   (refine-zone imol-ligand "A" 1 1 "")))
+		(format #t "======== not jigging - no map ======== ~%"))
+	    (merge-molecules (list imol-ligand) imol)
+	    (set-mol-displayed imol-ligand 0)))))
+    
+  ;; main 
+  (let* ((window (gtk-window-new 'toplevel))
+	 (scrolled-win (gtk-scrolled-window-new))
+	 (outside-vbox (gtk-vbox-new #f 2))
+	 (inside-vbox  (gtk-vbox-new #f 2))
+	 (label (gtk-label-new "\nSolvent molecules added to molecule: "))
+	 (menu (gtk-menu-new))
+	 (frame-for-option-menu (gtk-frame-new ""))
+	 (vbox-for-option-menu (gtk-vbox-new #f 2))
+	 (molecule-option-menu (gtk-option-menu-new))
+	 (model-list (fill-option-menu-with-coordinates-mol-options menu))
+	 (close-button (gtk-button-new-with-label "  Close  ")))
+    
+    (gtk-window-set-default-size window 200 260)
+    (gtk-window-set-title window "Solvent Ligands")
+    (gtk-container-border-width window 2)
+    (gtk-container-add window outside-vbox)
+    (gtk-box-pack-start outside-vbox label #f #f 2)
+    (gtk-container-add frame-for-option-menu vbox-for-option-menu)
+    (gtk-box-pack-start vbox-for-option-menu molecule-option-menu #f #f 2)
+    (gtk-container-border-width frame-for-option-menu 4)
+    (gtk-box-pack-start outside-vbox frame-for-option-menu #f #f 2)
+    (gtk-box-pack-start outside-vbox scrolled-win #t #t 0)
+    (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
+    (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+    (gtk-box-pack-start outside-vbox close-button #f #f 2)
+    (gtk-option-menu-set-menu molecule-option-menu menu)
+    
+    (map (lambda (button-label)
+	   (let ((button (gtk-button-new-with-label button-label)))
+	     (gtk-box-pack-start inside-vbox button #f #f 1)
+	     (gtk-signal-connect button "clicked"
+				 (lambda ()
+				   (let ((imol (get-option-menu-active-molecule
+						molecule-option-menu model-list)))
+				     (add-ligand-func imol button-label))))))
+	 *solvent-ligand-list*)
+
+    (gtk-signal-connect close-button "clicked"
+			(lambda () 
+			  (gtk-widget-destroy window)))
+		      
+    (gtk-widget-show-all window)))
+
+
+
 
 ;; let the c++ part of coot know that this file was loaded:
 (set-found-coot-gui)
