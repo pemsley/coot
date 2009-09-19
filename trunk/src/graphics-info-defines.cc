@@ -779,14 +779,19 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       // Delete (any) hydrogens in the residue, then delete
 	       // the atom.
 	       // What if they click on a hydrogen in the residue?
-	       // The oxygen gets left. 
+	       // The oxygen gets left.
+	       //
+	       //   So, we should check the element and if it is a
+	       //      hydrogen, we should delete the residue.
+	       //   else
+	       //      do what we do now
+	       //  
 	       std::string chain_id(res->GetChainID());
 	       int resno = res->GetSeqNum();
 	       std::string altloc(at->altLoc);
 	       std::string inscode(at->GetInsCode());
 	       std::string atom_name(at->name);
-	       graphics_info_t::molecules[naii.imol].delete_residue_hydrogens(chain_id, resno, inscode, altloc);
-	       
+	       molecules[naii.imol].delete_residue_hydrogens(chain_id, resno, inscode, altloc);
 	       delete_atom(naii.imol, chain_id.c_str(), resno, inscode.c_str(),
 			   atom_name.c_str(), altloc.c_str());
 	       delete_object_handle_delete_dialog(destroy_delete_dialog_flag_by_ctrl_press);
