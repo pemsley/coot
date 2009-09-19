@@ -2898,7 +2898,7 @@
 	  *additional-solvent-ligands*))
 
 ;; add solvent molecules 
-(define (new-solvent-ligands-gui)
+(define (solvent-ligands-gui)
 
   ;; 
   (define (add-ligand-func imol tlc)
@@ -2926,6 +2926,7 @@
   (define (add-solvent-button button-label inside-vbox molecule-option-menu model-list)
     (let ((button (gtk-button-new-with-label button-label)))
       (gtk-box-pack-start inside-vbox button #f #f 1)
+      (gtk-widget-show button)
       (gtk-signal-connect button "clicked"
 			  (lambda ()
 			    (let ((imol (get-option-menu-active-molecule
@@ -2945,11 +2946,12 @@
 	 (molecule-option-menu (gtk-option-menu-new))
 	 (model-list (fill-option-menu-with-coordinates-mol-options menu))
 	 (add-new-button (gtk-button-new-with-label "  Add a new Residue Type..."))
+	 (h-sep (gtk-hseparator-new))
 	 (close-button (gtk-button-new-with-label "  Close  ")))
     
     (gtk-window-set-default-size window 200 260)
     (gtk-window-set-title window "Solvent Ligands")
-    (gtk-container-border-width window 2)
+    (gtk-container-border-width window 8)
     (gtk-container-add window outside-vbox)
     (gtk-box-pack-start outside-vbox label #f #f 2)
     (gtk-container-add frame-for-option-menu vbox-for-option-menu)
@@ -2960,6 +2962,7 @@
     (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
     (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
     (gtk-box-pack-start outside-vbox add-new-button #f #f 6)
+    (gtk-box-pack-start outside-vbox h-sep #f #f 2)
     (gtk-box-pack-start outside-vbox close-button #f #f 2)
     (gtk-option-menu-set-menu molecule-option-menu menu)
     
