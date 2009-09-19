@@ -2912,13 +2912,26 @@
  		(delete-residue-hydrogens imol-ligand "A" 1 "" ""))
 	    (if (valid-map-molecule? (imol-refinement-map))
 		(begin
-		  (format #t "========  jigging!  ======== ~%")
+		  (format #t "========  jiggling!  ======== ~%")
 		  (fit-to-map-by-random-jiggle imol-ligand "A" 1 "" 100 2.0)
 		  (with-auto-accept
 		   (refine-zone imol-ligand "A" 1 1 "")))
-		(format #t "======== not jigging - no map ======== ~%"))
+		(format #t "======== not jiggling - no map ======== ~%"))
 	    (merge-molecules (list imol-ligand) imol)
 	    (set-mol-displayed imol-ligand 0)))))
+  
+  ;; add a button for a 3-letter-code to the scrolled vbox that runs
+  ;; add-ligand-func when clicked.
+  ;; 
+  (define (add-solvent-button button-label inside-vbox molecule-option-menu model-list)
+    (let ((button (gtk-button-new-with-label button-label)))
+      (gtk-box-pack-start inside-vbox button #f #f 1)
+      (gtk-signal-connect button "clicked"
+			  (lambda ()
+			    (let ((imol (get-option-menu-active-molecule
+					 molecule-option-menu model-list)))
+			      (add-ligand-func imol button-label))))))
+
     
   ;; main 
   (let* ((window (gtk-window-new 'toplevel))
@@ -2931,6 +2944,7 @@
 	 (vbox-for-option-menu (gtk-vbox-new #f 2))
 	 (molecule-option-menu (gtk-option-menu-new))
 	 (model-list (fill-option-menu-with-coordinates-mol-options menu))
+	 (add-new-button (gtk-button-new-with-label "  Add a new Residue Type..."))
 	 (close-button (gtk-button-new-with-label "  Close  ")))
     
     (gtk-window-set-default-size window 200 260)
@@ -2945,25 +2959,30 @@
     (gtk-box-pack-start outside-vbox scrolled-win #t #t 0)
     (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
     (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+    (gtk-box-pack-start outside-vbox add-new-button #f #f 6)
     (gtk-box-pack-start outside-vbox close-button #f #f 2)
     (gtk-option-menu-set-menu molecule-option-menu menu)
     
     (map (lambda (button-label)
-	   (let ((button (gtk-button-new-with-label button-label)))
-	     (gtk-box-pack-start inside-vbox button #f #f 1)
-	     (gtk-signal-connect button "clicked"
-				 (lambda ()
-				   (let ((imol (get-option-menu-active-molecule
-						molecule-option-menu model-list)))
-				     (add-ligand-func imol button-label))))))
-	 *solvent-ligand-list*)
+	   (add-solvent-button button-label inside-vbox molecule-option-menu model-list))
+	 (append *solvent-ligand-list* *additional-solvent-ligands*))
 
+    (gtk-signal-connect add-new-button "clicked"
+       (lambda ()
+	 (generic-single-entry "Add new three-letter-code"
+			       ""  "  Add  "
+			       (lambda (txt)
+				 (set! *additional-solvent-ligands*
+				       (cons txt *additional-solvent-ligands*))
+				 (add-solvent-button txt inside-vbox 
+						     molecule-option-menu 
+						     model-list)))))
+	 
     (gtk-signal-connect close-button "clicked"
 			(lambda () 
 			  (gtk-widget-destroy window)))
 		      
     (gtk-widget-show-all window)))
-
 
 
 
