@@ -183,8 +183,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    PCResidue *residue_first = NULL;
    mol->Select(SelHnd_first, STYPE_RESIDUE, 0,
 	       chain_id_1.c_str(),
-	       resno_1, (char *) inscode_1.c_str(),
-	       resno_1, (char *) inscode_1.c_str(),
+	       resno_1, inscode_1.c_str(),
+	       resno_1, inscode_1.c_str(),
 	       "*",  // residue name
 	       "*",  // Residue must contain this atom name?
 	       "*",  // Residue must contain this Element?
