@@ -4083,7 +4083,106 @@ def residue_range_gui(func, function_text, go_button_label):
 
    window.show_all()
             
-            
+
+global additional_solvent_ligands
+additional_solvent_ligands = []
+
+def solvent_ligand_list():
+   global additional_solvent_ligands
+   return (["EDO", "GOL", "ACT", "MPD", "CIT", "SO4", "PO4", "TAM"] +
+           additional_solvent_ligands)
+
+# add solvent molecules
+#
+def solvent_ligands_gui():
+
+   #
+   def add_ligand_func(imol, tlc):
+      print "Add a %s to molecule %s here" %(tlc, imol)
+      imol_ligand = get_monomer(tlc)
+      if (valid_model_molecule_qm(imol_ligand)):
+         # delete hydrogens from the ligand if the master molecule
+         # does not have hydrogens.
+         if (not molecule_has_hydrogens(imol)):
+            delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
+         if (valid_map_molecule_qm(imol_refinement_map())):
+            print "========  jiggling!  ======== "
+            fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "", 100, 2.0)
+            with_auto_accept([refine_zone, imol_ligand, "A", 1, 1, ""])
+         else:
+            print "======== not jiggling - no map ======== "
+         merge_molecules([imol_ligand], imol)
+         set_mol_displayed(imol_ligand, 0)
+   
+   # add a button for a 3-letter-code to the scrolled vbox that runs
+   # add-ligand-func when clicked.
+   #
+   def add_solvent_button(button_label, inside_vbox,
+                          molecule_option_menu, model_list):
+      def button_cb(*args):
+         imol = get_option_menu_active_molecule(molecule_option_menu, model_list)
+         add_ligand_func(imol, button_label)
+
+      button = gtk.Button(button_label)
+      inside_vbox.pack_start(button, False, False, 1)
+      button.show()
+      button.connect("clicked", button_cb)
+
+   def delete_event(*args):
+      window.destroy()
+      return False
+
+   def add_new_button_cb(*args):
+      global additional_solvent_ligands
+      def add_button_func(txt):
+         additional_solvent_ligands.append(txt)
+         add_solvent_button(txt, inside_vbox,
+                            molecule_option_menu,
+                            model_list)
+      generic_single_entry("Add new three-letter-code",
+                           "", "  Add  ",
+                           lambda txt:
+                              add_button_func(txt))
+
+   # main
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   scrolled_win = gtk.ScrolledWindow()
+   outside_vbox = gtk.VBox(False, 2)
+   inside_vbox  = gtk.VBox(False, 2)
+   label = gtk.Label("\nSolvent molecules added to molecule: ")
+   frame_for_option_menu = gtk.Frame()
+   vbox_for_option_menu = gtk.VBox(False, 2)
+   molecule_option_menu = gtk.combo_box_new_text()
+   model_list = fill_option_menu_with_coordinates_mol_options(molecule_option_menu)
+   add_new_button = gtk.Button("  Add a new Residue Type...")
+   h_sep = gtk.HSeparator()
+   close_button = gtk.Button("  Close  ")
+
+   window.set_default_size(200, 360)
+   window.set_title("Solvent Ligands")
+   window.set_border_width(8)
+   window.add(outside_vbox)
+   outside_vbox.pack_start(label, False, False, 2)
+   frame_for_option_menu.add(vbox_for_option_menu)
+   vbox_for_option_menu.pack_start(molecule_option_menu, False, False, 2)
+   frame_for_option_menu.set_border_width(4)
+   outside_vbox.pack_start(frame_for_option_menu, False, False, 2)
+   outside_vbox.pack_start(scrolled_win, True, True, 0)
+   scrolled_win.add_with_viewport(inside_vbox)
+   scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+   outside_vbox.pack_start(add_new_button, False, False, 6)
+   outside_vbox.pack_start(h_sep, False, False, 2)
+   outside_vbox.pack_start(close_button, False, False, 2)
+
+   for button_label in solvent_ligand_list():
+      add_solvent_button(button_label, inside_vbox,
+                         molecule_option_menu, model_list)
+
+   add_new_button.connect("clicked", add_new_button_cb)
+   close_button.connect("clicked", delete_event)
+
+   window.show_all()
+
 
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()
