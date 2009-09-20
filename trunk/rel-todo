@@ -1,6 +1,10 @@
 
    2 items
 
+   o If you set a view name it gets ignored in the current views panel
+     (but the name is OK if the views panel is closed and re-opened) 
+     ::: 1
+
    o dictionary for LEU, chi angles wrong, chiral centre for CG should
      be negative, not both. Check other residues. ::: 2
 

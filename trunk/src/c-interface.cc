@@ -3473,7 +3473,8 @@ void change_contour_level(short int is_increment) { // else is decrement.
    graphics_info_t g; 
    int s = g.scroll_wheel_map;
 
-   if (g.molecules[s].max_xmaps > 0) {
+   if (is_valid_map_molecule(s)) {
+      
       if (g.molecules[s].is_difference_map_p()) {
 	 g.molecules[s].contour_level[0] +=
 	    g.diff_map_iso_level_increment;
@@ -5709,33 +5710,25 @@ void set_all_models_displayed_and_active(int on_or_off) {
    graphics_draw();
 }
 
+// Bleugh.
+char *
+show_spacegroup(int imol) { 
 
-char *show_spacegroup(int imol) { 
+   if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
+      std::string spg =  graphics_info_t::molecules[imol].show_spacegroup();
+      std::cout << "INFO:: spacegroup: " << spg << std::endl;
+      unsigned int l = spg.length();
+      char *s = new char[l+1];
+      strncpy(s, spg.c_str(), l+1);
+      return s;
+   } else { 
 
-   if (imol < graphics_info_t::n_molecules()) {
-      if (graphics_info_t::molecules[imol].has_map() || 
-	  graphics_info_t::molecules[imol].has_model()) { 
-	 std::string spg =  graphics_info_t::molecules[imol].show_spacegroup();
-	 std::cout << "INFO:: spacegroup: " << spg << std::endl;
-	 unsigned int l = spg.length();
-	 char *s = new char[l+1];
-	 strncpy(s, spg.c_str(), l+1);
-	 return s;
-      } else { 
-	 std::string spg("No spacegroup for this molecule");
-	 std::cout << "INFO:: spacegroup: " << spg << std::endl;
-	 unsigned int l = spg.length();
-	 char *s = new char[spg.length()+1];
-	 strncpy(s, spg.c_str(), l+1);
-	 return s;
-      }
+      // If it was a bad molecule, return pointer to null.
+      std::cout << "Unknown molecule " << imol << std::endl;
+      char *s = new char[1];
+      s[0] = 0;
+      return s;
    }
-
-   // If it was a bad molecule, return pointer to null.
-   std::cout << "Unknown molecule " << imol << std::endl;
-   char *s = new char[1];
-   s[0] = 0;
-   return s;
 }
 
 
