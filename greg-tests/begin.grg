@@ -12,9 +12,13 @@
 ; cut and paste this:
 ; (define imol-rnase (greg-pdb "tutorial-modern.pdb"))
 
-(define greg-data-dir (append-dir-dir (append-dir-dir (getenv "HOME")
-						      "data")
-				      "greg-data"))
+(define greg-data-dir
+  (let ((d (getenv "COOT_TEST_DATA_DIR")))
+    (if d
+	d
+	(append-dir-dir (append-dir-dir (getenv "HOME")
+					"data")
+			"greg-data"))))
 
 (define (greg-pdb file-name)
   (read-pdb (append-dir-file greg-data-dir file-name)))
