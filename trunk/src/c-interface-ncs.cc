@@ -262,7 +262,7 @@ void ncs_control_change_ncs_master_to_chain(int imol, int ichain) {
       std::vector<std::string> chain_ids =
 	 coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
       if (ichain < int(chain_ids.size()))
-	 graphics_info_t::molecules[imol].set_ncs_master_chain(chain_ids[ichain]);
+	 graphics_info_t::molecules[imol].set_ncs_master_chain(chain_ids[ichain], graphics_info_t::ncs_homology_level);
       graphics_draw();
    } 
 }
@@ -276,7 +276,7 @@ void ncs_control_change_ncs_master_to_chain_id(int imol, const char *chain_id) {
        coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
      std::vector<std::string>::iterator match = find(chain_ids.begin(), chain_ids.end(), chain_id);
      if (match != chain_ids.end())
-      graphics_info_t::molecules[imol].set_ncs_master_chain(chain_id);
+	graphics_info_t::molecules[imol].set_ncs_master_chain(chain_id, graphics_info_t::ncs_homology_level);
      graphics_draw();
    }
 }
@@ -324,10 +324,9 @@ make_ncs_ghosts_maybe(int imol) {
    if (is_valid_model_molecule(imol)) {  // it should be!
       if (graphics_info_t::molecules[imol].has_ncs_p()) {
 	 if (graphics_info_t::molecules[imol].ncs_ghosts_have_rtops_p() == 0) {
-	    std::cout << "%%%%%%%%% calling fill_ghost_info from c-interfac.cc make_ncs_ghosts_maybe"
+	    std::cout << "%%%%%%%%% calling fill_ghost_info() from c-interface.cc make_ncs_ghosts_maybe()"
 		      << std::endl;
 	    graphics_info_t::molecules[imol].fill_ghost_info(1, graphics_info_t::ncs_homology_level);
-	    // gtk_widget_destroy(w);
 	 }
       }
    } 
