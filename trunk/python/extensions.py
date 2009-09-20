@@ -510,6 +510,12 @@ if (have_coot_python):
        lambda func: molecule_chooser_gui(
           "Arrange waters in molecule: ",
           lambda imol: move_waters_to_around_protein(imol)))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Add Other Solvent Molecules...",
+       lambda func: solvent_ligands_gui())
      
 
      add_simple_coot_menu_menuitem(
