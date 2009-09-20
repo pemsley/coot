@@ -38,8 +38,16 @@ if (not home):
     # badness we dont have a home dir
     print "ERROR:: Cannot find a HOME directory"
 
+
+def get_unittest_data_dir():
+    d = os.getenv("COOT_TEST_DATA_DIR")
+    if (not d):
+        d = os.path.normpath(os.path.join(home, "data", "greg-data"))
+    return d
+
 global unittest_data_dir
-unittest_data_dir = os.path.normpath(os.path.join(home, "data", "greg-data"))
+unittest_data_dir = get_unittest_data_dir()   # too lazy to convert all
+                                              # occurences of unittest_data_dir
 
 ####
 # some functions

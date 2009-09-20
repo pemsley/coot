@@ -423,6 +423,35 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessAlmostEqual(occ_sum_pre, occ_sum_post, 1, "   test for closeness: %s %s" %(occ_sum_pre, occ_sum_post))
 
 
+    def test16_1(self):
+	    """Correct occupancies after auto-fit rotamer on alt-confed residue"""
+
+	    global rnase_mtz
+	    imol = unittest_pdb("tutorial-modern.pdb")
+	    imol_map = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+	    new_alt_conf = add_alt_conf(imol, "A", 93, "", "", 0)
+
+	    accept_regularizement()  # Presses the OK button for the alt conf
+
+	    auto_fit_best_rotamer(93, "A", "", "A", imol, imol_map, 1, 0.01)
+
+	    # Now test the ocupancies.  The problem was that we had been
+	    # ending up with atoms in the residue with occupancies of 0.0.
+	    # (They should be 0.8 and 0.2 - for me at least).  So test
+	    # that the atoms have occupancies of greater than 0.1 (I
+	    # suppose also test for occs > 0.85 would be good too).
+	    #
+	    atoms = residue_info(imol, "A", 93, "")
+	    for atom in atoms:
+		    occupancy = atom[1][0]
+		    alt_conf  = atom[0][1]
+		    # print "BL DEBUG:: alt_conf: %s occupancy: %s in atom %s" %(alt_conf, occupancy, atom)
+		    self.failIf(occupancy < 0.1,
+				"bad occupancy in atom: %s" %atom)
+		    self.failIf(occupancy > 0.85,
+				"bad occupancy in atom: %s" %atom)
+    
+
     def test17_0(self):
 	    """Pepflip flips the correct alt confed atoms"""
 
