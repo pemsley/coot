@@ -874,7 +874,7 @@ int graphics_info_t::add_alt_conf_atom_index = -1;
 int graphics_info_t::add_alt_conf_imol = -1;
 float graphics_info_t::add_alt_conf_new_atoms_occupancy = 0.5;
 short int graphics_info_t::show_alt_conf_intermediate_atoms_flag = 0;
-float graphics_info_t::ncs_homology_level = 0.8;
+float graphics_info_t::ncs_homology_level = 0.7;
 
 // edit phi/psi
 short int graphics_info_t::in_edit_phi_psi_define = 0;

@@ -2348,7 +2348,7 @@ class molecule_class_info_t {
 							       int residue_range_2);
    int copy_residue_range_from_ncs_master_to_others(const std::string &master_chain_id,
 						    int resno_start, int resno_end);
-   int set_ncs_master_chain(const std::string &new_master_chain_id);
+   int set_ncs_master_chain(const std::string &new_master_chain_id, float homology_lev);
    // add ghosts
    void add_ncs_ghosts_no_explicit_master(const std::vector<std::string> &chain_ids,
 					  const std::vector<std::vector<std::pair<std::string, int> > > &residue_types,
@@ -2360,7 +2360,8 @@ class molecule_class_info_t {
    void add_ncs_ghosts_using_ncs_master(const std::string &master_chain_id,
 					const std::vector<std::string> &chain_ids,
 					const std::vector<std::vector<std::pair<std::string, int> > > &residue_types,
-					const std::vector<int> &chain_atom_selection_handles);
+					const std::vector<int> &chain_atom_selection_handles,
+					float homology_lev);
 
    // symmetry control
    // 
