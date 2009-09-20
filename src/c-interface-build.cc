@@ -715,28 +715,31 @@ void delete_residue_hydrogens(int imol,
 } 
 
 
-void delete_residue_with_altconf(int imol,
+void
+delete_residue_with_altconf(int imol,
 				 const char *chain_id,
 				 int resno,
 				 const char *inscode,
 				 const char *altloc) {
-   std::string altconf(altloc);
    graphics_info_t g;
-   short int istat =
-      g.molecules[imol].delete_residue_with_altconf(chain_id, resno, inscode, altconf);
+   if (is_valid_model_molecule(imol)) {
+      std::string altconf(altloc);
+      short int istat =
+	 g.molecules[imol].delete_residue_with_altconf(chain_id, resno, inscode, altconf);
    
-   if (istat) { 
-      // now if the go to atom widget was being displayed, we need to
-      // redraw the residue list and atom list (if the molecule of the
-      // residue and atom list is the molecule that has just been
-      // deleted)
-      // 
-      g.update_go_to_atom_window_on_changed_mol(imol);
+      if (istat) { 
+	 // now if the go to atom widget was being displayed, we need to
+	 // redraw the residue list and atom list (if the molecule of the
+	 // residue and atom list is the molecule that has just been
+	 // deleted)
+	 // 
+	 g.update_go_to_atom_window_on_changed_mol(imol);
 
-      graphics_draw();
-   } else { 
-      std::cout << "failed to delete residue atoms " << chain_id 
-		<< " " << resno << " :" << altconf << ":\n";
+	 graphics_draw();
+      } else { 
+	 std::cout << "failed to delete residue atoms " << chain_id 
+		   << " " << resno << " :" << altconf << ":\n";
+      }
    }
    std::vector<std::string> command_strings;
    command_strings.push_back("delete-residue-with-altconf");
@@ -1664,52 +1667,46 @@ auto_fit_best_rotamer(int resno,
 
    float f = -999.9;
 
-   if (imol_coords < graphics_n_molecules()) {
-      if (imol_map < graphics_n_molecules()) {
-	 // if (graphics_info_t::molecules[imol_map].has_map()) {
-	 std::string ins(insertion_code);
-	 std::string chain(chain_id);
-	 int mode = graphics_info_t::rotamer_search_mode;
-	 if (imol_map < 0 ) {
-	    std::cout << "INFO:: fitting rotamers by clash score only " << std::endl;
-	    graphics_info_t g;
-	    f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
-									      resno, altloc, ins,
-									      chain, imol_map,
-									      1,
-									      lowest_probability,
-									      *g.Geom_p());
-	 } else {
-	    if (graphics_info_t::molecules[imol_map].has_map()) {
-	       graphics_info_t g;
-	       f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
-										 resno, altloc, ins,
-										 chain, imol_map,
-										 clash_flag,
-										 lowest_probability,
-										 *g.Geom_p());
+   if (is_valid_model_molecule(imol_coords)) {
 
-	       // first do real space refine if requested
-	       if (graphics_info_t::rotamer_auto_fit_do_post_refine_flag) {
-		 // Run refine zone with autoaccept, autorange on
-		 // the "clicked" atom:
-		 // BL says:: dont think we do autoaccept!?
-		 short int auto_range = 1;
-		 refine_auto_range(imol_coords, chain_id, resno,
-				   altloc);
-	       }
+      std::string ins(insertion_code);
+      std::string chain(chain_id);
+      int mode = graphics_info_t::rotamer_search_mode;
+      if (! is_valid_map_molecule(imol_map)) {
+	 std::cout << "INFO:: fitting rotamers by clash score only " << std::endl;
+	 graphics_info_t g;
+	 f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
+									   resno, altloc, ins,
+									   chain, imol_map,
+									   1,
+									   lowest_probability,
+									   *g.Geom_p());
+      } else {
+	 graphics_info_t g;
+	 f = g.molecules[imol_coords].auto_fit_best_rotamer(mode,
+							    resno, altloc, ins,
+							    chain, imol_map,
+							    clash_flag,
+							    lowest_probability,
+							    *g.Geom_p());
 
-	       // get the residue so that it can update the geometry graph
-	       CResidue *residue_p =
-		  graphics_info_t::molecules[imol_coords].get_residue(resno, ins, chain);
-	       if (residue_p) {
-		  g.update_geometry_graphs(&residue_p, 1, imol_coords, imol_map);
-	       }
-	       std::cout << "Fitting score for best rotamer: " << f << std::endl;
-	    }
+	 // first do real space refine if requested
+	 if (g.rotamer_auto_fit_do_post_refine_flag) {
+	    // Run refine zone with autoaccept, autorange on
+	    // the "clicked" atom:
+	    // BL says:: dont think we do autoaccept!?
+	    short int auto_range = 1;
+	    refine_auto_range(imol_coords, chain_id, resno, altloc);
 	 }
-	 graphics_draw();
+
+	 // get the residue so that it can update the geometry graph
+	 CResidue *residue_p = g.molecules[imol_coords].get_residue(resno, ins, chain);
+	 if (residue_p) {
+	    g.update_geometry_graphs(&residue_p, 1, imol_coords, imol_map);
+	 }
+	 std::cout << "Fitting score for best rotamer: " << f << std::endl;
       }
+      graphics_draw();
    }
    std::string cmd = "auto-fit-best-rotamer";
    std::vector<coot::command_arg_t> args;
@@ -2252,7 +2249,7 @@ int mutate_single_residue_by_seqno(int ires, const char *inscode,
 int chain_n_residues(const char *chain_id, int imol) {
 
    graphics_info_t g;
-   if (imol < graphics_n_molecules()) {
+   if (is_valid_model_molecule(imol)) {
       return g.molecules[imol].chain_n_residues(chain_id);
    } else { 
       return -1;
@@ -4328,28 +4325,32 @@ void do_base_mutation(const char *type) {
 void change_chain_id(int imol, const char *from_chain_id, const char *to_chain_id, 
 		     short int use_res_range_flag, int from_resno, int to_resno) {
 
-   std::pair<int, std::string> r = 
-      graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
-						       to_chain_id,
-						       use_res_range_flag,
-						       from_resno,
-						       to_resno);
+   if (is_valid_model_molecule(imol)) { 
+      std::pair<int, std::string> r = 
+	 graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
+							  to_chain_id,
+							  use_res_range_flag,
+							  from_resno,
+							  to_resno);
+   }
 } 
 
 #ifdef USE_GUILE
 SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const char *to_chain_id,
 				    short int use_res_range_flag, int from_resno, int to_resno){
+
    SCM r = SCM_EOL;
-   std::pair<int, std::string> p = 
-      graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
-						       to_chain_id,
-						       use_res_range_flag,
-						       from_resno,
-						       to_resno);
-
-   r = scm_cons(scm_makfrom0str(p.second.c_str()), r);
-   r = scm_cons(SCM_MAKINUM(p.first), r);
-
+   if (is_valid_model_molecule(imol)) { 
+      std::pair<int, std::string> p = 
+	 graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
+							  to_chain_id,
+							  use_res_range_flag,
+							  from_resno,
+							  to_resno);
+      
+      r = scm_cons(scm_makfrom0str(p.second.c_str()), r);
+      r = scm_cons(SCM_MAKINUM(p.first), r);
+   }
    return r;
 }
 #endif // USE_GUILE
@@ -4359,20 +4360,20 @@ SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const c
 PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, const char *to_chain_id, 
 					 short int use_res_range_flag, int from_resno, int to_resno){
 
-   std::pair<int, std::string> r = 
-      graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
-						       to_chain_id,
-						       use_res_range_flag,
-						       from_resno,
-						       to_resno);
+   PyObject *v = Py_False;
+   if (is_valid_model_molecule(imol)) { 
+      std::pair<int, std::string> r = 
+	 graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
+							  to_chain_id,
+							  use_res_range_flag,
+							  from_resno,
+							  to_resno);
    
-   PyObject *v;
-   v = PyList_New(2);
-   PyList_SetItem(v, 0, PyInt_FromLong(r.first));
-   PyList_SetItem(v, 1, PyString_FromString(r.second.c_str()));
-
+      v = PyList_New(2);
+      PyList_SetItem(v, 0, PyInt_FromLong(r.first));
+      PyList_SetItem(v, 1, PyString_FromString(r.second.c_str()));
+   }
    return v;
-
 }
 #endif // USE_PYTHON
 

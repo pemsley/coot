@@ -543,7 +543,7 @@ Punted from 0.6:
 
 0.6.1 
 
-   o Make python coot work on CentOS 4.
+   o Make python coot work on CentOS 4.  It does?  Needs testing.
 
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
      make_link_restraints_by_linear() has
@@ -577,6 +577,10 @@ Punted from 0.6:
 
    o Residue Info window is not updated when ab alt-conformation is
      added [Miguel]
+
+   o auto-fit-best-rotamer needs its arguments rearranged.  Fix up
+     tests and other scripting usage ::: 1
+
 
 
 

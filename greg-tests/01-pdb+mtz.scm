@@ -510,7 +510,7 @@
 		 (close-float? occ-sum-pre occ-sum-post))))))))
 
 
-(greg-testcase "Correct Occupances after auto-fit rotamer on alt-confed residue" #t
+(greg-testcase "Correct occupancies after auto-fit rotamer on alt-confed residue" #t
    (lambda ()
 
      (let* ((imol (greg-pdb "tutorial-modern.pdb"))

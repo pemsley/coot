@@ -4927,5 +4927,20 @@ Tue Sep 15 11:55:50 BST 2009
    dialog and a colour patch (like refinement dialog).
 
 
+----
+Sat Sep 19 18:11:45 BST 2009
+
+	box-pack-end the "Play Views" button to the vbox (it's
+	returned), rather than add it as a normal button (and
+	currently new views go after the "Play Views" button which is
+	ugly.
+
+
+----
+Sat Sep 19 18:36:06 BST 2009
+	
+    The bond parameters and bond colours dialogs need to be consolidated.
+
+
 ------
 
