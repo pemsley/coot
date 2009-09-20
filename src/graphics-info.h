@@ -798,13 +798,20 @@ public:
       // rotamer probabilitiles
       // guess we shall rather use COOT_DATA_DIR and only as fallback PKGDATADIR?!
       // maybe only for windows!?
+      //
+      // 20090920-PE, no, not only windows.  If they set
+      // COOT_DATA_DIR, let's use that instead of PKGDATADIR (useful
+      // for Justin Lecher and Gentoo who test before installing (and
+      // they need a way to specify the data dir (before installing
+      // it's not in PKGDATADIR)).
+      // 
       std::string tables_dir = PKGDATADIR;
-#ifdef WINDOWS_MINGW
+
       char *data_dir = getenv("COOT_DATA_DIR");
       if (data_dir) {
 	tables_dir = data_dir;
       }
-#endif // MINGW
+
       tables_dir += "/rama-data";
       rot_prob_tables.set_tables_dir(tables_dir);
 
