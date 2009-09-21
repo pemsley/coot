@@ -1430,11 +1430,13 @@
 	       (else
 		(iloop (+ jview 1)))))))))
 
+    ;; main line
+    ;; 
     (let ((view-name (local-view-name)))
       (generic-single-entry "View Name: " view-name " Add View " 
 			    (lambda (text)
 			      (let ((new-view-number (add-view-here text)))
-				(add-view-to-views-panel view-name new-view-number)))))))
+				(add-view-to-views-panel text new-view-number)))))))
 				
 
 ;; 

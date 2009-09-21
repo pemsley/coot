@@ -6,7 +6,11 @@
      ::: 1
 
    o dictionary for LEU, chi angles wrong, chiral centre for CG should
-     be negative, not both. Check other residues. ::: 2
+     be negative, not both. Check other residues,
+     THR VAL LEU ASP ASN GLU GLN ILE ::: 2
+
+     Done: LEU THR VAL ASP ASN GLU GLN ILE
+
 
    o Stereo (hardware, side by side) Add-reps.  Need to update the
      display list objects when the GL context changes. Need to store a
