@@ -2899,6 +2899,8 @@
   (append (list "EDO" "GOL" "ACT" "MPD" "CIT" "SO4" "PO4" "TAM")
 	  *additional-solvent-ligands*))
 
+(define *random-jiggle-n-trials* 50)
+
 ;; add solvent molecules 
 (define (solvent-ligands-gui)
 
@@ -2910,17 +2912,20 @@
 	  (begin
 	    ;; delete hydrogens from the ligand if the master molecule
 	    ;; does not have hydrogens.
- 	    (if (not (molecule-has-hydrogens? imol))
- 		(delete-residue-hydrogens imol-ligand "A" 1 "" ""))
+	    (if (valid-model-molecule? imol)
+		(if (not (molecule-has-hydrogens? imol))
+		    (delete-residue-hydrogens imol-ligand "A" 1 "" "")))
 	    (if (valid-map-molecule? (imol-refinement-map))
 		(begin
 		  (format #t "========  jiggling!  ======== ~%")
-		  (fit-to-map-by-random-jiggle imol-ligand "A" 1 "" 100 2.0)
+		  (fit-to-map-by-random-jiggle imol-ligand "A" 1 "" *random-jiggle-n-trials* 1.0)
 		  (with-auto-accept
 		   (refine-zone imol-ligand "A" 1 1 "")))
 		(format #t "======== not jiggling - no map ======== ~%"))
-	    (merge-molecules (list imol-ligand) imol)
-	    (set-mol-displayed imol-ligand 0)))))
+	    (if (valid-model-molecule? imol)
+		(begin
+		  (merge-molecules (list imol-ligand) imol)
+		  (set-mol-displayed imol-ligand 0)))))))
   
   ;; add a button for a 3-letter-code to the scrolled vbox that runs
   ;; add-ligand-func when clicked.
