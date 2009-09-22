@@ -36,6 +36,12 @@
 
 GtkWidget* gl_extras(GtkWidget* window, short int try_hardware_stero); 
 
+enum { IN_STEREO_MONO = 0, 
+       IN_STEREO_HARDWARE_STEREO=1, 
+       IN_STEREO_ZALMAN_RIGHT=5, 
+       IN_STEREO_ZALMAN_LEFT=6, 
+       IN_STEREO_SIDE_BY_SIDE_LEFT=10,
+       IN_STEREO_SIDE_BY_SIDE_RIGHT=11};
 
 gint init(GtkWidget *widget); 
 gint init_gl_widget(GtkWidget *widget);

@@ -395,8 +395,7 @@ namespace coot {
       std::pair<std::vector<CResidue *>, std::vector<CResidue *> >
 	 close_residues(CMMDBManager *mol1, CMMDBManager *mol2, float dist);
       void clean_up() { delete combined_mol; } 
-   }; 
-
+   };
 
 
    // Fiddle with mol. 
@@ -995,6 +994,8 @@ namespace coot {
       translate_close_to_origin(const clipper::Coord_orth water_pos_pre,
 				const clipper::Cell &cell);
 
+      // Print secondary structure info:
+      void print_secondary_structure_info(CModel *model_p);
       
    }
    std::ostream&  operator<<(std::ostream&  s, const util::quaternion &q);

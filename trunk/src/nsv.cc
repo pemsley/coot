@@ -246,6 +246,7 @@ exptl::nsv::mol_to_canvas(CMMDBManager *mol, int lowest_resno) {
 
    int imod = 1;
    CModel *model_p = mol->GetModel(imod);
+   int ss_status = model_p->CalcSecStructure(1);
    CChain *chain_p;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
@@ -264,8 +265,7 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number, int lowest_res
 
    for (int ires=0; ires<nres; ires++) {
       CResidue *residue_p = chain_p->GetResidue(ires);
-      coot::residue_spec_t res_spec(residue_p);
-      add_text_and_rect(res_spec, position_number, lowest_resno);  // adds items to canvas_item_vec
+      add_text_and_rect(residue_p, position_number, lowest_resno);  // adds items to canvas_item_vec
    }
 
    // now the chain label:
@@ -289,11 +289,9 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number, int lowest_res
 
 
 void
-exptl::nsv::add_text_and_rect(const coot::residue_spec_t &res_spec,
+exptl::nsv::add_text_and_rect(CResidue *residue_p,
 			      int position_number,
 			      int lowest_resno) {
-
-   CResidue *residue_p = get_residue(molecule_number, res_spec);
 
    if (residue_p) { 
       CAtom *at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
@@ -345,12 +343,14 @@ exptl::nsv::add_text_and_rect(const coot::residue_spec_t &res_spec,
 			    GTK_SIGNAL_FUNC(rect_event), so);
 
 	 GtkCanvasItem *text_item;
+	 std::string colour = colour_by_secstr(residue_p);
 	 text_item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 					 GTK_CANVAS_TYPE_CANVAS_TEXT,
 					 "text", res_code.c_str(),
 					 "x", x,
 					 "y", y,
 					 "anchor", GTK_ANCHOR_WEST,
+					 "fill_color", colour.c_str(),
 					 "font", fixed_font_str.c_str(),
 					 NULL);
 	 gtk_signal_connect(GTK_OBJECT(text_item), "event",
@@ -513,9 +513,6 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       if (points->coords[2] > points_max)
 	 points->coords[2] = points_max;
       
-      
-      std::cout << "DEUBG:: points->coords[2] " << points->coords[2] << std::endl;
-
       double tick_length = 3.0;
       if (i_ax_pos == 1)
 	 tick_length = -3.0;
@@ -601,5 +598,25 @@ exptl::nsv::origin_marker() {
 				 NULL);
    }
 }
+
+
+std::string
+exptl::nsv::colour_by_secstr(CResidue *residue_p) const {
+
+   std::string s("black");
+
+   switch (residue_p->SSE)  {
+
+   case SSE_Strand : s = "firebrick3";  break;
+   case SSE_Bulge  : s = "firebrick1";  break;
+   case SSE_3Turn  : s = "MediumBlue";  break;
+   case SSE_4Turn  : s = "SteelBlue4";  break;
+   case SSE_5Turn  : s = "DodgerBlue4"; break;
+   case SSE_Helix  : s = "navy";        break;
+   case SSE_None   : s = "black";       break;
+   } 
+   return s;
+}
+
 
 #endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)

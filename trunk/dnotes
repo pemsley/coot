@@ -4941,6 +4941,16 @@ Sat Sep 19 18:36:06 BST 2009
 	
     The bond parameters and bond colours dialogs need to be consolidated.
 
+----
+Mon Sep 21 15:43:47 BST 2009
+
+     student project:
+
+     In jiggle-fitting ligands, mask the density by the surrounding
+     atoms of the molecule that it will be merged into.  (and/or use
+     them to make a bump/clash score).
+
+     Go through the ligands of the PDB, how well does this method work?
 
 ------
 

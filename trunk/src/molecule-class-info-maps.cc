@@ -297,10 +297,14 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 	 if (display_lists_for_maps_flag_local) {
 
 	    GLuint display_list_index = 0; // bad
-	    if (main_or_secondary == SIDE_BY_SIDE_MAIN)
+
+	    // These conditions have been validated by reversing them.
+	    if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_LEFT ||
+		main_or_secondary == IN_STEREO_MONO)
 	       display_list_index = theMapContours.first;
-	    if (main_or_secondary == SIDE_BY_SIDE_SECONDARY)
+	    if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_RIGHT)
 	       display_list_index = theMapContours.second;
+	    
 	    if (display_list_index > 0) {
 // 	       std::cout << "OK:: using display list " << display_list_index
 // 			 << " when main_or_secondary is " << main_or_secondary << std::endl;

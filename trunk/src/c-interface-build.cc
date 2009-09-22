@@ -2435,6 +2435,17 @@ void sort_chains(int imol) {
 }
 
 
+/*! \brief simply print secondardy structure info to the
+  terminal/console.  In future, this could/should return the info.  */
+void print_header_secondary_structure_info(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].print_secondary_structure_info();
+   } 
+}
+
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                         Renumber residue range                           */
