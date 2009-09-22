@@ -5479,3 +5479,49 @@ coot::util::translate_close_to_origin(const clipper::Coord_orth pos,
    clipper::Coord_frac cfi(round(-cf.u()), round(-cf.v()), round(-cf.w()));
    return pos + cfi.coord_orth(cell);
 } 
+
+void
+coot::util::print_secondary_structure_info(CModel *model_p) {
+   
+   // secondary structure information
+   //
+   int nhelix = model_p->GetNumberOfHelices();
+   int nsheet = model_p->GetNumberOfSheets();
+   std::cout << "INFO:: There are " << nhelix << " helices and "
+	     << nsheet << " sheets\n";
+   PCHelix helix_p;
+   PCSheet sheet_p;
+   PCStrand strand_p;
+
+   std::cout << "               Helix info: " << std::endl;
+   std::cout << "------------------------------------------------\n";
+   for (int ih=1; ih<=nhelix; ih++) {
+      helix_p = model_p->GetHelix(ih);
+      if (helix_p) { 
+      std::cout << helix_p->serNum << " " << helix_p->helixID << " "
+		<< helix_p->initChainID << " " << helix_p->initSeqNum
+		<< " " << helix_p->endChainID << " " << helix_p->endSeqNum
+		<< helix_p->length << " " << helix_p->comment << std::endl;
+      } else {
+	 std::cout << "ERROR: no helix!?" << std::endl;
+      }
+   }
+   std::cout << "               Sheet info: " << std::endl;
+   std::cout << "------------------------------------------------\n";
+   for (int is=1; is<=nsheet; is++) {
+      sheet_p = model_p->GetSheet(is);
+
+      int nstrand = sheet_p->nStrands;
+      for (int istrand=0; istrand<nstrand; istrand++) {
+	 strand_p = sheet_p->Strand[istrand];
+	 if (strand_p) { 
+	    std::cout << strand_p->sheetID << " " << strand_p->strandNo << " "
+		      << strand_p->initChainID << " " << strand_p->initSeqNum
+		      << " " << strand_p->endChainID << " " << strand_p->endSeqNum
+		      << std::endl;
+	 }
+      }
+   }
+   std::cout << "------------------------------------------------\n";
+}
+   

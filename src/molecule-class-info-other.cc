@@ -5100,7 +5100,7 @@ molecule_class_info_t::has_display_list_objects() {
 
 
 int 
-molecule_class_info_t::draw_display_list_objects() {
+molecule_class_info_t::draw_display_list_objects(int GL_context) {
 
    int n_objects = 0;
    if (drawit) { 
@@ -5111,7 +5111,18 @@ molecule_class_info_t::draw_display_list_objects() {
 	    if (! it->is_closed) { 
 	       if (it->display_it) { 
 		  n_objects++;
-		  glCallList(it->tag);
+                  if (GL_context == GL_CONTEXT_MAIN) { 
+                     glCallList(it->tag_1);
+		     if (0) 
+			std::cout << "drawing display_list for main context, tag: "
+				  << it->tag_1 <<  std::endl;
+		  }
+                  if (GL_context == GL_CONTEXT_SECONDARY) {
+		     if  (0) 
+			std::cout << "drawing display_list for secondary context, tag: "
+				  << it->tag_2 << std::endl;
+                     glCallList(it->tag_2);
+		  }
 	       }
 	    }
 	 }
@@ -5126,6 +5137,40 @@ int
 molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str,
 					   float bond_thickness, float sphere_size,
 					   bool do_spheres_flag, gl_context_info_t gl_info) {
+
+   coot::display_list_object_info dloi;
+   // modify a copy of dloi and return it
+   coot::display_list_object_info dloi_1 = make_ball_and_stick(atom_selection_str, bond_thickness,
+							       sphere_size,
+							       do_spheres_flag, 0, dloi);
+
+   if (gl_info.widget_2) {
+      // modify a copy of dloi_2 and return it
+      coot::display_list_object_info dloi_2 = make_ball_and_stick(atom_selection_str, bond_thickness,
+								  sphere_size,
+								  do_spheres_flag, 1, dloi_1);
+
+      if (0)
+	 std::cout << "pushing back dloi (2 contexts) to display_list_tags: with tag_1 = "
+		   << dloi_2.tag_1 << " and tag_2 = " << dloi_2.tag_2 << std::endl;
+      display_list_tags.push_back(dloi_2);
+   } else {
+      if (0) 
+	 std::cout << "pushing back dloi (1 context)  to display_list_tags: with tag_1 = "
+		   << dloi_1.tag_1 << " and tag_2 = " << dloi_1.tag_2 << std::endl;
+      display_list_tags.push_back(dloi_1);
+   }
+
+   return (display_list_tags.size() - 1);
+}
+
+
+// return the display list tag
+coot::display_list_object_info
+molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str,
+					   float bond_thickness, float sphere_size,
+					   bool do_spheres_flag, bool is_second_context,
+					   coot::display_list_object_info dloi) {
 
    // Use draw hydrogens flag that has been set already for this molecule.
    
@@ -5149,12 +5194,18 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       Bond_lines_container bonds(asc, min_dist, max_dist);
       graphical_bonds_container bonds_box_local = bonds.make_graphical_bonds();
       Lines_list ll;
+
       // start display list object
       GLuint bonds_tag = glGenLists(1);
       glNewList(bonds_tag, GL_COMPILE);
-      coot::display_list_object_info dloi;
-      dloi.tag = bonds_tag;
-      display_list_tags.push_back(dloi);
+      if (is_second_context) { 
+	 dloi.tag_2 = bonds_tag;
+	 // std::cout << "debug:: adding second context tag to dloi " << bonds_tag << std::endl;
+      } else { 
+	 dloi.tag_1 = bonds_tag;
+	 // std::cout << "debug:: adding first  context tag to dloi " << bonds_tag << std::endl;
+      } 
+      
 
       GLfloat bgcolor[4]={1.0, 1.0, 0.3, 1.0};
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -5277,7 +5328,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       bonds_box_local.clear_up();
       atom_sel.mol->DeleteSelection(SelHnd);
    }
-   return (display_list_tags.size() - 1);
+   return dloi;
 }
 
 void

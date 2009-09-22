@@ -260,17 +260,20 @@ namespace coot {
    class display_list_object_info {
    public:
       bool is_closed;
-      GLuint tag;
+      GLuint tag_1;
+      GLuint tag_2;
       int type;
       std::string atom_selection;
       int atom_selection_handle;
       bool display_it;
       bool operator==(const display_list_object_info &dloi) const {
-	 return (dloi.tag == tag);
+	 return (dloi.tag_1 == tag_1);
       }
       display_list_object_info() { 
 	 display_it = 1;
 	 is_closed = 0;
+	 tag_1 = 0;
+	 tag_2 = 0;
       }
       void close_yourself() {
 	 is_closed = 1;
@@ -1321,11 +1324,17 @@ class molecule_class_info_t {
    void draw_surface();
    void draw_dipoles() const;
    bool has_display_list_objects();
-   int draw_display_list_objects(); // return number of display list objects to be drawn
+   int draw_display_list_objects(int GL_context); // return number of display list objects drawn
    // return the display list tag
    int make_ball_and_stick(const std::string &atom_selection_str,
-			   float bond_thickness, float sphere_size,
-			   bool do_spheres_flag, gl_context_info_t gl_info);
+ 			   float bond_thickness, float sphere_size,
+ 			   bool do_spheres_flag, gl_context_info_t gl_info);
+   // return the display list tag
+   coot::display_list_object_info
+   make_ball_and_stick(const std::string &atom_selection_str,
+		       float bond_thickness, float sphere_size,
+		       bool do_spheres_flag, bool is_second_context,
+		       coot::display_list_object_info dloi);
    void clear_display_list_object(GLuint tag);
 
    // the charges for the surface come from the dictionary.
@@ -2525,6 +2534,9 @@ class molecule_class_info_t {
    // from HETATM molecule before merging with this one
    //
    bool molecule_has_hydrogens() const;
+
+   // -------- simply print it (at the moment) --------------
+   void print_secondary_structure_info();
 
 };
 

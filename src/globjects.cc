@@ -33,12 +33,12 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 #include <gtkgl/gtkglarea.h>
 #else
 #include <gdk/gdkglconfig.h>
 #include <gtk/gtkgl.h>
-#endif // (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#endif // (GTK_MAJOR_VERSION == 1)
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -1114,7 +1114,7 @@ GdkCursorType graphics_info_t::pick_cursor_index = GDK_CROSSHAIR;
 
 // surface
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 
 GtkWidget*
 gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
@@ -1565,10 +1565,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
   return drawing_area;
    
 }
-
-#endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
-
+#endif // #if (GTK_MAJOR_VERSION == 1)
 
 
 gint
@@ -1591,7 +1588,7 @@ init(GtkWidget *widget)
    // now that we have run this
    cos_sin cos_sin_table(1000);
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
    
    /* Check if OpenGL (GLX extension) is supported. */
    if (gdk_gl_query() == FALSE) {
@@ -1714,7 +1711,7 @@ setup_lighting(short int do_lighting_flag) {
 
 gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
    
    /* OpenGL functions can be called only if make_current returns true */
 
@@ -1788,15 +1785,15 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 		  eye_fac = -1.0;
 	       trackball(spin_quat, 0, 0, eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
 	       add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-	       draw_mono(widget, event, 0);
+	       draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
 	       // reset the viewing angle:
 	       trackball(spin_quat, 0, 0, -eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
 	       add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 	    } else {
-	       draw_mono(widget, event, 0);
+	       draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
 	    }
 	 } else { 
-	    draw_mono(widget, event, 0);
+	    draw_mono(widget, event, IN_STEREO_MONO);
 	 }
       }
    }
@@ -1817,21 +1814,21 @@ gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
 
    // draw right:
    glDrawBuffer(GL_BACK_RIGHT);
-   draw_mono(widget, event, 1);
+   draw_mono(widget, event, IN_STEREO_HARDWARE_STEREO);
    
    trackball(spin_quat, 0, 0, 2.0*g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 
    // draw left:
    glDrawBuffer(GL_BACK_LEFT);
-   draw_mono(widget, event, 1);
+   draw_mono(widget, event, IN_STEREO_HARDWARE_STEREO);
 
    // reset the viewing angle:
    trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 
    // draw it
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
    gtk_gl_area_swapbuffers(GTK_GL_AREA(widget));
 #else
    GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
@@ -1912,13 +1909,13 @@ gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event) {
    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 
    // draw right (should maybe be left)??:
-   draw_mono(widget, event, 5); // 5 for right
+   draw_mono(widget, event, IN_STEREO_ZALMAN_RIGHT); // 5 for right
    
    trackball(spin_quat, 0, 0, 2.0*g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 
    // draw left (should maybe be right)??:
-   draw_mono(widget, event, 6); // 6 for left
+   draw_mono(widget, event, IN_STEREO_ZALMAN_LEFT); // 6 for left
 
    // reset the viewing angle:
    trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
@@ -1960,7 +1957,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    if (graphics_info_t::GetFPSFlag()) {
       graphics_info_t::ShowFPS();
    }
-   
+
+   // GLCONTEXT
+   int gl_context = GL_CONTEXT_MAIN;
+   if (in_stereo_flag == IN_STEREO_SIDE_BY_SIDE_RIGHT)
+      gl_context = GL_CONTEXT_SECONDARY;
+
 // void glDepthRange(GLclampd near, GLclampd far); Defines an encoding
 // for z coordinates that's performed during the viewport
 // transformation. The near and far values represent adjustments to the
@@ -1982,7 +1984,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // 
       // BL says:: another hack!? FIXME
       // dont clear when we want to draw the 2 Zalman views
-      if (in_stereo_flag != 6) 
+      if (in_stereo_flag != IN_STEREO_ZALMAN_LEFT) 
       	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
 
@@ -2002,7 +2004,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // BL:: this is code for Zalman monitor. Maybe can be somewhere else!?
       // Zalman works here?! but crap lighting!?
-      if (in_stereo_flag == 5) {
+      if (in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
 	// draws one Zalman lines
 	glEnable(GL_STENCIL_TEST);
 	glStencilFunc(GL_EQUAL, 1, 1);
@@ -2020,7 +2022,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	//glDisable(GL_STENCIL_TEST);
       }
 
-      if (in_stereo_flag == 6) {
+      if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT) {
 	// g_print("BL DEBUG:: now draw 'right'\n");
 	// draws the other Zalman lines
 	glStencilFunc(GL_EQUAL, 0, 1);
@@ -2103,7 +2105,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 if (graphics_info_t::molecules[ii].has_display_list_objects()) {
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
-	    n_display_list_objects += graphics_info_t::molecules[ii].draw_display_list_objects();
+	    if (0) 
+	       std::cout << "calling draw_display_list_objects(" << ii << ") with context "
+			 << gl_context << " in_stereo_flag " << in_stereo_flag << std::endl;
+	    n_display_list_objects += graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
 	    glDisable(GL_LIGHT0);
 	    glDisable(GL_LIGHTING);
 	 }
@@ -2116,7 +2121,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // used we use the correct part of theMapContours.
 	 //
          // BL says:: bad hack FIXME
-         if (in_stereo_flag == 5 || in_stereo_flag == 6) {
+         if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT || in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
 	 graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
 							 0);
          } else {
@@ -2239,9 +2244,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // BL says:: not sure if we dont need to do this for 2nd Zalman view
       //      if (! in_stereo_flag) {
-      if (in_stereo_flag != 1 && in_stereo_flag != 5) {
+      if (in_stereo_flag != IN_STEREO_HARDWARE_STEREO && in_stereo_flag != IN_STEREO_ZALMAN_RIGHT) {
          /* Swap backbuffer to front */
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
          gtk_gl_area_swapbuffers(GTK_GL_AREA(widget));
 #else
          GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
@@ -2260,7 +2265,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
   
    } // gtkgl make area current test
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 #else
    gdkglext_finish_frame(widget);
 #endif    

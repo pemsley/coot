@@ -385,6 +385,11 @@ int is_solvent_chain_p(int imol, const char *chain_id);
 void sort_chains(int imol);	
 
 
+/*! \brief simply print secondardy structure info to the
+  terminal/console.  In future, this could/should return the info.  */
+void print_header_secondary_structure_info(int imol);
+
+
 /*! \brief copy molecule imol
 
 @return the new molecule number.
@@ -475,7 +480,7 @@ int first_unsaved_coords_imol();
 /* \} */
 
 /*  -------------------------------------------------------------------- */
-/*                     Library/Utility Functions:                        */
+/*                    More Library/Utility Functions:                    */
 /*  -------------------------------------------------------------------- */
 /* section Graphics Utility Functions */
 /*! \name Graphics Utility Functions */

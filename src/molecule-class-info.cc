@@ -7034,7 +7034,7 @@ molecule_class_info_t::max_water_distance() {
 
 
 // ---- utility function --- (so that we know to delete hydrogens
-// from HETATM molecule before merging with this one
+// from HETATM molecule before merging with this one)
 //
 bool
 molecule_class_info_t::molecule_has_hydrogens() const {
@@ -7052,4 +7052,16 @@ molecule_class_info_t::molecule_has_hydrogens() const {
       }
    }
    return r;
-} 
+}
+
+// -------- simply print it (at the moment) --------------
+void
+molecule_class_info_t::print_secondary_structure_info() {
+
+   int n_models = atom_sel.mol->GetNumberOfModels();
+   for (int imod=1; imod<=n_models; imod++) { 
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      coot::util::print_secondary_structure_info(model_p);
+   }
+}
+
