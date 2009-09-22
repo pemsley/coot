@@ -2709,14 +2709,14 @@
       ;; 
       (define (remove-from-residue-range-widget widget)
 	(let loop ((ls residue-range-widgets)
-		   (new-list '()))
+		   (filtered-list '()))
 	  (cond 
 	   ((null? ls) (set! residue-range-widgets filtered-list))
 	   ((equal? widget (car (car ls)))
-	    (loop (cdr ls) new-list))
+	    (loop (cdr ls) filtered-list))
 	   (else 
 	    (loop (cdr ls)
-		  (cons (car ls) new-list))))))
+		  (cons (car ls) filtered-list))))))
 
       ;; 
       (define (make-residue-range-frame residue-range-vbox)
@@ -2902,6 +2902,13 @@
 (define *random-jiggle-n-trials* 50)
 
 ;; add solvent molecules 
+;;
+;; Change the translation jiggle-factor to 1.0, so the ligand doesn't
+;; move so far and get sucked into protein density (this is just a
+;; temporary hack, it would be better to mask the enviroment of the
+;; ligand by the surrounding atoms of the molecule to which the ligand
+;; is added - that is much harder).
+;;
 (define (solvent-ligands-gui)
 
   ;; 
