@@ -132,7 +132,7 @@ PyObject *
 atom_spec_to_py(const coot::atom_spec_t &spec) {
 
    graphics_info_t g;
-   return atom_spec_to_py(spec);
+   return g.atom_spec_to_py(spec);
 }
 
 
