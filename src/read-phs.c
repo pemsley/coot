@@ -78,20 +78,27 @@ void do_phs_cell_choice_window() {
   GtkWidget *window; 
   GtkEntry  *entry; 
   int i; 
+  int ii;
   gchar *txt; 
   GSList *phs_cell_group = NULL;
   GtkWidget *toggle_button;
 
 
 /* messing about with string variables */
-  gchar *entry_name; 
-  gchar *widget_name;  		/* for the radiobutton */
+  gchar entry_name[100]; 
+  gchar widget_name[100];  		/* for the radiobutton */
   gchar *tmp_name; 
   int mol_count = 0; 
   int mol_with_cell = -1; /* unset */
+
+  for (ii=0; ii<100; ii++) { 
+     entry_name[ii] = 0;
+    widget_name[ii] = 0;
+  }
+    
   
-  entry_name = (gchar *) malloc(100);
-  widget_name = (gchar *) malloc(25); 
+/*   entry_name = (gchar *) malloc(100); */
+/*   widget_name = (gchar *) malloc(25);  */
 
   window = create_phs_cell_choice_window(); 
 
