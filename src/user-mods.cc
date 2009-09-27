@@ -7,6 +7,9 @@
 #include "coot-coord-utils.hh"
 
 #include "user-mods.hh"
+#include "guile-fixups.h"
+
+
 
 // cc-interface.hh has lots of dependenciees
 
