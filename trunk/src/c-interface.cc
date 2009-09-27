@@ -7007,7 +7007,7 @@ void do_sequence_view(int imol) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<CResidue *> r = coot::util::residues_with_insertion_codes(mol);
       if (r.size() > 0) {
-	 do_sequence_view(imol);
+	 sequence_view_old_style(imol);
       } else {
 	 nsv(imol);
       } 
