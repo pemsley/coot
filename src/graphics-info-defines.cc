@@ -785,19 +785,27 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       //      hydrogen, we should delete the residue.
 	       //   else
 	       //      do what we do now
-	       //  
+	       //        (i.e. delete residue hydrogens,
+	       //         delete_atom())
+	       // OK.
+
 	       std::string chain_id(res->GetChainID());
 	       int resno = res->GetSeqNum();
 	       std::string altloc(at->altLoc);
 	       std::string inscode(at->GetInsCode());
 	       std::string atom_name(at->name);
-	       molecules[naii.imol].delete_residue_hydrogens(chain_id, resno, inscode, altloc);
-	       delete_atom(naii.imol, chain_id.c_str(), resno, inscode.c_str(),
-			   atom_name.c_str(), altloc.c_str());
-	       delete_object_handle_delete_dialog(destroy_delete_dialog_flag_by_ctrl_press);
-
-	       pick_pending_flag = 0;
-	       run_post_manipulation_hook(naii.imol, DELETED);
+	       std::string ele = at->element;
+	       if (ele == " H") {
+		  delete_residue_with_altconf(naii.imol, chain_id.c_str(), resno,
+					      inscode.c_str(), altloc.c_str());
+	       } else { 
+		  molecules[naii.imol].delete_residue_hydrogens(chain_id, resno, inscode, altloc);
+		  delete_atom(naii.imol, chain_id.c_str(), resno, inscode.c_str(),
+			      atom_name.c_str(), altloc.c_str());
+		  delete_object_handle_delete_dialog(destroy_delete_dialog_flag_by_ctrl_press);
+		  pick_pending_flag = 0;
+		  run_post_manipulation_hook(naii.imol, DELETED);
+	       }
 	    }
 	 } else { 
 
