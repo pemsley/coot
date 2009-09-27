@@ -1992,6 +1992,11 @@ void mono_mode();
 /*! \brief turn on side bye side stereo mode */
 void side_by_side_stereo_mode(short int use_wall_eye_mode);
 
+/* DTI stereo mode - undocumented, secret interface for testing, currently. 
+state should be 0 or 1. */
+/* when it works, call it dti_side_by_side_stereo_mode() */
+void set_dti_stereo_mode(short int state);
+
 /*! \brief how much should the eyes be separated in stereo mode? 
 
    @param f the angular difference (in multiples of 4.5 degrees) */
@@ -2743,6 +2748,15 @@ PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, co
 
 /*! \name Scripting Interface */
 /* \{ */
+
+/*! \brief Can we run probe (was the executable variable set
+  properly?) (predicate).
+
+@return 1 for yes, 2 for no  */
+int probe_available_p();
+#ifdef USE_PYTHON
+int probe_available_p_py();
+#endif
 
 /*! \brief do nothing - compatibility function */
 void post_scripting_window(); 
@@ -5482,23 +5496,18 @@ void set_interactive_probe_dots_molprobity_radius(float r);
 */
 float interactive_probe_dots_molprobity_radius();
 
-
-/*! \brief Can we run probe (was the executable variable set
-  properly?) (predicate).
-
-@return 1 for yes, 2 for no  */
-int probe_available_p();
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return the parsed user mod fields from the PDB file
+  file_name (output by reduce most likely) */
+SCM user_mods_scm(const char *file_name);
+#endif // USE_GUILE
 #ifdef USE_PYTHON
-int probe_available_p_py();
-#endif
+SCM user_mods_py(const char *file_name);
+#endif // USE_PYTHON
+#endif	/* c++ */
 
 /* \} */
-
-/* DTI stereo mode - undocumented, secret interface for testing, currently. 
-
-state should be 0 or 1. */
-/* when it works, call it dti_side_by_side_stereo_mode() */
-void set_dti_stereo_mode(short int state);
 
 
 /*  ----------------------------------------------------------------------- */

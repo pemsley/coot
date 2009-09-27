@@ -70,6 +70,7 @@
 #include "ligand.hh"
 
 #include "peak-search.hh"
+#include "user-mods.hh"
 
 /*  ----------------------------------------------------------------------- */
 /*                  check waters interface                                  */
@@ -1896,3 +1897,24 @@ PyObject *get_torsion_py(int imol, PyObject *atom_spec_1, PyObject *atom_spec_2,
 } 
 #endif /* USE_PYTHON */
 
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return the parsed user mod fields from the PDB file
+  file_name (output by reduce most likely) */
+SCM user_mods_scm(const char *file_name) {
+
+   coot::flips_container f(file_name);
+   return f.user_mods();
+}
+
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+SCM user_mods_py(const char *file_name) {
+
+   PyObject *r = Py_False;
+
+   return r;
+}
+#endif // USE_PYTHON
+#endif	/* c++ */

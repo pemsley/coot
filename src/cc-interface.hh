@@ -622,17 +622,17 @@ std::vector<std::string> generic_list_to_string_vector_internal(SCM l);
 SCM rtop_to_scm(const clipper::RTop_orth &rtop);
 SCM inverse_rtop_scm(SCM rtop_scm);
 coot::atom_spec_t atom_spec_from_scm_expression(SCM expr);
+SCM atom_spec_to_scm(const coot::atom_spec_t &spec);
 #endif	/* USE_GUILE */
 
 #ifdef USE_PYTHON
-/* Bernhard, I suppose that there should be python equivalents of the above. */
-/* BL says:: here they are: */
 PyObject *generic_string_vector_to_list_internal_py(const std::vector<std::string>&v);
 PyObject *generic_int_vector_to_list_internal_py(const std::vector<int> &v);
 std::vector<std::string> generic_list_to_string_vector_internal_py(PyObject *l);
 PyObject *rtop_to_python(const clipper::RTop_orth &rtop);
 PyObject *inverse_rtop_py(PyObject *rtop_py);
 coot::atom_spec_t atom_spec_from_python_expression(PyObject *expr);
+PyObject *atom_spec_to_py(const coot::atom_spec_t &spec);
 #endif // PYTHON
 
 void set_display_control_button_state(int imol, const std::string &button_type, int state);

@@ -1075,7 +1075,7 @@ Thu Dec 13 17:48:24 GMT 2007
 -----
 Sat Dec 15 12:18:46 GMT 2007
 
-   1OHY is good for displaying NCS skipping
+   1OHY is good for displaying NCS skipping NCS jumping
 
 -----
 Sat Dec 15 13:12:08 GMT 2007
@@ -4425,6 +4425,17 @@ Mon Jul 13 09:16:18 CDT 2009
    of b-factors for residues (and include as a function of resolution)
    (and refinement program for amusement).
 
+  Another:
+
+   Code up Otwinowski and Richardson distributions for use in
+   Ramachandran refinements.  Compare and contrast.  Do it well, and
+   there could be a paper in this.
+
+  Another:
+ 
+   Add Pre-pro to Rama plot possibilities (may need to enhance
+   clipper).
+
 
 ----
 Mon Jul 13 11:42:00 CDT 2009
@@ -4951,6 +4962,23 @@ Mon Sep 21 15:43:47 BST 2009
      them to make a bump/clash score).
 
      Go through the ligands of the PDB, how well does this method work?
+
+
+---
+Wed 23 Sep 2009 22:08:41 BST
+
+   check the fps of rnase coords, say, when it is molecule 0 and when
+   it is molecule 10, with the others closed or undisplayed.
+
+
+----
+Thu 24 Sep 2009 18:07:02 BST
+   
+   Student project:
+   The use of sound as a form of user-feedback in molecular
+   model-building
+
+
 
 ------
 
