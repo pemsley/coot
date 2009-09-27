@@ -27,6 +27,8 @@
 #ifdef USE_PYTHON
 #include "c-interface-python.hh"
 
+#include "graphics-info.h"
+
 // This is a common denominator really.  It does not depend on mmdb,
 // but it can't be declared in c-interface.h because then we'd have to
 // include c-interface.h which would cause (resolvable, I think, not

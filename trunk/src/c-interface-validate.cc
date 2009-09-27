@@ -1910,7 +1910,7 @@ SCM user_mods_scm(const char *file_name) {
 
 #endif // USE_GUILE
 #ifdef USE_PYTHON
-SCM user_mods_py(const char *file_name) {
+PyObject *user_mods_py(const char *file_name) {
 
    PyObject *r = Py_False;
 

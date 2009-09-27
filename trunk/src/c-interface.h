@@ -5503,7 +5503,7 @@ float interactive_probe_dots_molprobity_radius();
 SCM user_mods_scm(const char *file_name);
 #endif // USE_GUILE
 #ifdef USE_PYTHON
-SCM user_mods_py(const char *file_name);
+PyObject *user_mods_py(const char *file_name);
 #endif // USE_PYTHON
 #endif	/* c++ */
 

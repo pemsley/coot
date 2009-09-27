@@ -266,7 +266,7 @@ coot::flips_container::user_mods_py() const {
       // make a list e.g.
       // (list atom_spec residue-type info-string set-string score)
       // 
-      PyObject flip_py = PyList_New(5);
+      PyObject *flip_py = PyList_New(5);
       PyObject *atom_spec_py = atom_spec_to_py(flips[iflip].atom_spec);
       PyList_SetItem(flip_py, 0, atom_spec_py);
       PyList_SetItem(flip_py, 1, PyString_FromString(flips[iflip].residue_type.c_str()));
@@ -274,7 +274,18 @@ coot::flips_container::user_mods_py() const {
       PyList_SetItem(flip_py, 3, PyString_FromString(flips[iflip].set_string.c_str()));
       PyList_SetItem(flip_py, 4, PyFloat_FromDouble(flips[iflip].score));
    }
+   // An adjustment is 2 items: first is a list of atom specs, second is a info-string
    for (unsigned int ina=0; ina<no_adjustments.size(); ina++) {
+      PyObject *no_adjust_py = PyList_New(2);
+      PyObject *info_string_py = PyString_FromString(no_adjustments[ina].info_string().c_str());
+      PyObject *no_adjust_atom_spec_list_py = PyList_New(no_adjustments[ina].atom_specs.size());
+      for (unsigned int ispec=0; ispec<no_adjustments[ina].atom_specs.size(); ispec++) {
+	 PyObject *atom_spec_py = atom_spec_to_py(no_adjustments[ina].atom_specs[ispec]);
+	 PyList_SetItem(no_adjust_atom_spec_list_py, ispec, atom_spec_py);
+      }
+      PyList_SetItem(no_adjust_py, 0, no_adjust_atom_spec_list_py);
+      PyList_SetItem(no_adjust_py, 1, info_string_py);
+      
    }
    PyList_SetItem(r, 0, flips_list);
    PyList_SetItem(r, 1, no_adj_list);

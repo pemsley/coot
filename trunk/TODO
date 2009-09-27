@@ -583,10 +583,12 @@ Punted from 0.6:
    o Can baton mode work when the skeleton runs out? (consider
      punting) ::: 3
 
-   o USER MODS -> dialog about reduce modifications/suggestion ::: 3
+   o fit-waters should have a mode where bumps to protein atoms are
+     considered (not sphere refine - we don't want to move the protein
+     atoms).
 
-   o auto-fit-best-rotamer needs its arguments rearranged.  Fix up
-     tests and other scripting usage ::: 1
+   o Put libcheck output in coot-ccp4 (or coot-libcheck).
+
 
 
  ------
@@ -622,7 +624,8 @@ Punted from 0.6:
    o Rotation for add terminal residue.  hari jayaram & Donald Raymond
    ::: 2
 
-* Bleugh
+* Bleugh.  How about a keybinding that fires up the R/T dialog mode
+  for the newly added residue?
 
    o mutate-by-overlap: if you have already loaded a molecule with a
      single residue with name XXX and you have read in a dictionary
@@ -630,8 +633,7 @@ Punted from 0.6:
 
    o to make the rotamer probabilites smooth, FFT them like
      Otwinowski's Ramachachandran plots.  FFTW in mult-dimentions.  Hmm.
-
-    
+   
    o (consider) Luca Jovine: I want to do sphere regularization
 
    o (consider) Add/generate HELIX and SHEET PDB header info.
@@ -700,6 +702,9 @@ Punted from 0.6:
 
    o RNA rotamer analysis "What is the rotamer of this suite here?"
 
+   o modelling operations should preserve view and a text
+     description. Undo should go to view and give a dialog about the
+     operation.
 
    o Maia Cherney: 
  
