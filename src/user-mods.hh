@@ -11,6 +11,11 @@
 #endif // SCM version
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+#include "c-interface-python.hh"
+#endif 
+
+
 namespace coot { 
 
    class flips_container {
