@@ -126,6 +126,12 @@ py_symop_strings_to_space_group(PyObject *symop_string_list) {
    return sg;
 } 
 
+PyObject *
+atom_spec_to_py(const coot::atom_spec_t &spec) {
+
+   graphics_info_t g;
+   return atom_spec_to_py(spec);
+}
 
 
 #endif // USE_PYTHON

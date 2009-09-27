@@ -1458,6 +1458,20 @@
 ;; a button is a list of (label callback-thunk text-description)
 ;; 
 (define (dialog-box-of-buttons window-name geometry buttons close-button-label)
+  (dialog-box-of-buttons-with-check-button window-name geometry 
+					   buttons close-button-label
+					   #f #f #f))
+
+;; geometry is an improper list of ints.
+;; 
+;; return the h-box of the buttons.
+;;
+;; a button is a list of (label callback-thunk text-description)
+;;
+;; If check-button-label is #f, don't make one, otherwise create with with
+;; the given label and "on" state.
+;; 
+(define (dialog-box-of-buttons-with-check-button window-name geometry buttons close-button-label check-button-label check-button-func check-button-is-initially-on-flag)
 
   (define (add-text-to-text-widget text-box description)
     (gtk-text-insert text-box #f "black" "#c0e6c0" description -1))
@@ -1466,37 +1480,35 @@
   (let* ((window (gtk-window-new 'toplevel))
 	 (scrolled-win (gtk-scrolled-window-new))
 	 (outside-vbox (gtk-vbox-new #f 2))
+	 (h-sep (gtk-hseparator-new))
 	 (inside-vbox (gtk-vbox-new #f 0)))
     
     (gtk-window-set-default-size window (car geometry) (cdr geometry))
     (gtk-window-set-title window window-name)
     (gtk-container-border-width inside-vbox 2)
     (gtk-container-add window outside-vbox)
+
+    (if (string? check-button-label)
+	(begin
+	  (let ((check-button (gtk-check-button-new-with-label 
+			       check-button-label)))
+	    (gtk-signal-connect check-button "toggled" 
+				(lambda ()
+				  (check-button-func check-button inside-vbox)))
+	    (if check-button-is-initially-on-flag
+		(gtk-toggle-button-set-active check-button #t))
+	    (gtk-box-pack-start outside-vbox check-button #f #f 2))))
+
     (gtk-box-pack-start outside-vbox scrolled-win #t #t 0) ; expand fill padding
     (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
     (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
 
     (map (lambda (button-info)
-	   (let* ((buton-label (car button-info))
-		  (callback (car (cdr button-info)))
-		  (description (if (= (length button-info) 2)
-				   #f ; it doesn't have one
-				   (list-ref button-info 2)))
-		  (button (gtk-button-new-with-label buton-label)))
-	     (gtk-signal-connect button "clicked" callback)
-
-	     (if (string? description)
-		 (let ((text-box (gtk-text-new #f #f)))
-		   (add-text-to-text-widget text-box description)
-		   (gtk-box-pack-start inside-vbox text-box #f #f 2)
-
-		   (gtk-widget-realize text-box)
-		   (gtk-text-thaw text-box)))
-
-	     (gtk-box-pack-start inside-vbox button #f #f 2)))
+	   (add-button-info-to-box-of-buttons-vbox button-info inside-vbox))
 	 buttons)
 
     (gtk-container-border-width outside-vbox 2)
+    (gtk-box-pack-start outside-vbox h-sep #f #f 2)
     (let ((ok-button (gtk-button-new-with-label close-button-label)))
       (gtk-box-pack-end outside-vbox ok-button #f #f 0)
 
@@ -1513,6 +1525,31 @@
 			    (set! inside-vbox #f)))
       (gtk-widget-show-all window)
       inside-vbox))
+
+;; This is exported outside of the box-of-buttons gui because the
+;; clear-and-add-back function (e.g. from using the check button)
+;; needs to add buttons - let's not dupicate that code.
+;;
+(define (add-button-info-to-box-of-buttons-vbox button-info vbox)
+  (let* ((buton-label (car button-info))
+	 (callback (car (cdr button-info)))
+	 (description (if (= (length button-info) 2)
+			  #f ; it doesn't have one
+			  (list-ref button-info 2)))
+	 (button (gtk-button-new-with-label buton-label)))
+    (gtk-signal-connect button "clicked" callback)
+
+    (if (string? description)
+	(let ((text-box (gtk-text-new #f #f)))
+	  (add-text-to-text-widget text-box description)
+	  (gtk-box-pack-start inside-vbox text-box #f #f 2)
+
+	  (gtk-widget-realize text-box)
+	  (gtk-text-thaw text-box)))
+
+    (gtk-box-pack-start vbox button #f #f 2)
+    (gtk-widget-show button)))
+
 
 ;; geometry is an improper list of ints
 ;; buttons is a list of: (list (list button-1-label button-1-action
@@ -3000,6 +3037,131 @@
 			  (gtk-widget-destroy window)))
 		      
     (gtk-widget-show-all window)))
+
+
+(define (user-mods-gui imol pdb-file-name)
+  
+  ;; no alt conf, no inscode
+  (define (atom-spec->string atom-spec)
+    (let ((chain-id  (list-ref atom-spec 1))
+	  (res-no    (list-ref atom-spec 2))
+	  (ins-code  (list-ref atom-spec 3))
+	  (atom-name (list-ref atom-spec 4))
+	  (alt-conf  (list-ref atom-spec 5)))
+      (format #f "~a ~a ~a" chain-id res-no atom-name)))
+
+  ;; 
+  (define (make-flip-buttons flip-list)
+    (map (lambda (flip)
+	   (let 
+	       ((atom-spec    (list-ref flip 0))
+		(residue-type (list-ref flip 1))
+		(info-string  (list-ref flip 2))
+		(set-string   (list-ref flip 3))
+		(score        (list-ref flip 4)))
+	     (let ((chain-id  (list-ref atom-spec 1))
+		   (res-no    (list-ref atom-spec 2))
+		   (ins-code  (list-ref atom-spec 3))
+		   (atom-name (list-ref atom-spec 4))
+		   (alt-conf  (list-ref atom-spec 5)))
+	       (let ((label (string-append 
+			     set-string
+			     " "
+			     chain-id " " (number->string res-no)
+			     atom-name " : "
+			     info-string " " 
+			     " score " 
+			     (format #f "~2,2f" score)))
+		     (func (lambda ()
+			     (set-go-to-atom-molecule imol)
+			     (set-go-to-atom-chain-residue-atom-name 
+			      chain-id res-no atom-name))))
+	       (list label func)))))
+	   flip-list))
+
+  ;; 
+  (define (make-no-adj-buttons no-flip-list)
+    (map (lambda (no-flip-item)
+	   (let ((specs (car no-flip-item))
+		 (info-string (car (cdr no-flip-item))))
+	     (let ((label (string-append
+			   "No Adjustment "
+			   (string-append-with-spaces 
+			    (map atom-spec->string specs))
+			   " " 
+			   info-string))
+		   (func (lambda ()
+			   (let ((atom-spec (car specs)))
+		 	     (let ((chain-id  (list-ref atom-spec 1))
+				   (res-no    (list-ref atom-spec 2))
+				   (ins-code  (list-ref atom-spec 3))
+				   (atom-name (list-ref atom-spec 4))
+				   (alt-conf  (list-ref atom-spec 5)))
+			       (set-go-to-atom-molecule imol)
+			       (set-go-to-atom-chain-residue-atom-name 
+				chain-id res-no atom-name))))))
+	       (list label func))))
+	 no-flip-list))
+
+  ;; Return a list of buttons that are (in this case, (only) clashes,
+  ;; unknown/problems and flips.
+  ;; 
+  (define (filter-buttons flip-list)
+    (let loop ((ls flip-list))
+      (cond
+       ((null? ls) '())
+       ((let* ((flip (car ls))
+	       (atom-spec    (list-ref flip 0))
+	       (residue-type (list-ref flip 1))
+	       (info-string  (list-ref flip 2))
+	       (set-string   (list-ref flip 3))
+	       (score        (list-ref flip 4)))
+	  (if (< (string-length info-string) 3)
+	      #f
+	      ;; keep-letter: K is for keep, 
+	      ;; C is clash, X is "not sure"
+	      ;; F is flip.
+	      (let ((keep-letter (substring info-string 2 3)))
+		(or (string=? keep-letter "X")
+		    (string=? keep-letter "F")
+		    (string=? keep-letter "C")))))
+	(cons (car ls) (loop (cdr ls))))
+       (else 
+	(loop (cdr ls))))))
+
+  ;; filter flag is #t or #f
+  (define (clear-and-add-back vbox flip-list no-adj-list filter-flag)    
+    ;; clear
+    (let ((children (gtk-container-children vbox)))
+      (map gtk-widget-destroy children))
+    ;; add back
+    (let ((buttons (if (not filter-flag)
+		       (append (make-no-adj-buttons no-adj-list)
+			       (make-flip-buttons flip-list))
+		       ;; filter
+		       (make-flip-buttons (filter-buttons flip-list)))))
+      (map (lambda (button-info)
+	     (add-button-info-to-box-of-buttons-vbox button-info vbox))
+	   buttons)))
+
+
+  ;; main line
+  ;; 
+  ;; user mods will return a pair of lists.
+  (let* ((flips (user-mods pdb-file-name))
+	 (flip-buttons (make-flip-buttons (car flips)))
+	 (no-adj-buttons (make-no-adj-buttons (car (cdr flips))))
+	 (all-buttons (append no-adj-buttons flip-buttons)))
+    ;; (format #t "flip-buttons: ~s~%" flip-buttons)
+    ;; (format #t "no-flip-buttons: ~s~%" no-flip-buttons)
+    (dialog-box-of-buttons-with-check-button 
+     "  Flips " (cons 300 300) all-buttons "  Close  "
+     "Clashes, Problems and Flips only"
+     (lambda (check-button vbox)
+       (if (gtk-toggle-button-get-active check-button)
+	   (clear-and-add-back vbox (car flips) (cadr flips) #t)
+	   (clear-and-add-back vbox (car flips) (cadr flips) #f)))
+     #f)))
 
 
 

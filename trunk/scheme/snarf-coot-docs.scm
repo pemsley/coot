@@ -52,6 +52,7 @@
 (define alignment-mismatches-scm #f)
 (define rigid-body-refine-by-residue-ranges-scm #f)
 (define average-map-scm #f)
+(define user-mods-scm #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")

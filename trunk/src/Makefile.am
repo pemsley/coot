@@ -332,6 +332,7 @@ coot_real_SOURCES = \
 	trackball.c trackball.h  \
 	triangle-extras.h 	 \
 	select-atom-info.hh      \
+	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
 	xmap-utils.cc 		 \
 	xmap-utils.h		 

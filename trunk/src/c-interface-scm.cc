@@ -140,7 +140,15 @@ scm_symop_strings_to_space_group(SCM symop_string_list) {
 		<< " is not a list" << std::endl;
    } 
    return sg;
-} 
+}
+
+SCM
+atom_spec_to_scm(const coot::atom_spec_t &spec) {
+
+   graphics_info_t g;
+   return g.atom_spec_to_scm(spec);
+}
+
 
 #endif // USE_GUILE
 

@@ -76,6 +76,7 @@
 (define average-map average-map-scm)
 (define symmetry-operators symmetry-operators-scm)
 (define symmetry-operators->xHM symmetry-operators-to-xHM-scm)
+(define user-mods user-mods-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a
