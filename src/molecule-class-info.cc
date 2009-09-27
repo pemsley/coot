@@ -5232,7 +5232,8 @@ molecule_class_info_t::make_backup() { // changes history details
 	       istat = write_atom_selection_file(atom_sel, backup_file_name, gz);
 	       // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
 	       if (istat) { 
-		  std::cout<< "WARNING:: WritePDBASCII failed! Return status " << istat << std::endl;
+		  std::cout<< "WARNING:: WritePDBASCII failed! Return status "
+			   << istat << std::endl;
 	       }
 	    } else { 
 	       std::pair<int, std::string> p = write_shelx_ins_file(backup_file_name);
@@ -5656,7 +5657,6 @@ molecule_class_info_t::make_backup_from_outside() {  // when we have a multi mut
 				    // Rather crap that this needs to
 				    // be done externally, I think.
 
-   std::cout << " calling make_backup from make_backup_from_outside" << std::endl;
    make_backup();
 }
 
