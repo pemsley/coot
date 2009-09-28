@@ -2444,6 +2444,35 @@ void print_header_secondary_structure_info(int imol) {
    } 
 }
 
+// Placeholder only.  Not documented, it doesn't work yet, because
+// CalcSecStructure() creates SS type on the residues, it does not
+// build and store CHelix, CStrand, CSheet records.
+// 
+void write_header_secondary_structure_info(int imol, const char *file_name) {
+
+   if (is_valid_model_molecule(imol)) { 
+      CFile f;
+      Boolean Text = True;
+      f.assign(file_name, Text);
+      if (f.rewrite()) { 
+	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 int n_models = mol->GetNumberOfModels();
+	 int imod = 1;
+	 CModel *model_p = mol->GetModel(imod);
+	 int ss_status = model_p->CalcSecStructure(1);
+	 
+	 // now do something clever with the residues of model_p to
+	 // build mmdb sheet and strand objects and attach them to the
+	 // model (should be part of mmdb).
+	 
+	 if (ss_status == SSERC_Ok) {
+	    std::cout << "INFO:: SSE status was OK\n";
+	    model_p->PDBASCIIDumpPS(f); // dump CHelix and CStrand records.
+	 }
+      }
+   } 
+} 
+
 
 
 

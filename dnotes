@@ -4964,6 +4964,13 @@ Mon Sep 21 15:43:47 BST 2009
      Go through the ligands of the PDB, how well does this method work?
 
 
+----
+Tue Sep 22 17:24:48 BST 2009
+
+     http://www.chembiogrid.org/index.html 
+     What services do they provide that we can use?  SMILES->3D?
+
+
 ---
 Wed 23 Sep 2009 22:08:41 BST
 
@@ -4978,7 +4985,12 @@ Thu 24 Sep 2009 18:07:02 BST
    The use of sound as a form of user-feedback in molecular
    model-building
 
+---
+Mon Sep 28 14:26:25 BST 2009
 
+   molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const;
+   does not pass the graphics_info_t::ncs_matrix_flag.  It should (and
+   should not use it statically).
 
 ------
 

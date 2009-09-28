@@ -5112,16 +5112,10 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
 	       if (it->display_it) { 
 		  n_objects++;
                   if (GL_context == GL_CONTEXT_MAIN) { 
-                     glCallList(it->tag_1);
-		     if (0) 
-			std::cout << "drawing display_list for main context, tag: "
-				  << it->tag_1 <<  std::endl;
+		     glCallList(it->tag_1);
 		  }
                   if (GL_context == GL_CONTEXT_SECONDARY) {
-		     if  (0) 
-			std::cout << "drawing display_list for secondary context, tag: "
-				  << it->tag_2 << std::endl;
-                     glCallList(it->tag_2);
+		     glCallList(it->tag_2);
 		  }
 	       }
 	    }
@@ -5140,12 +5134,14 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 
    coot::display_list_object_info dloi;
    // modify a copy of dloi and return it
+   graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
    coot::display_list_object_info dloi_1 = make_ball_and_stick(atom_selection_str, bond_thickness,
 							       sphere_size,
 							       do_spheres_flag, 0, dloi);
 
    if (gl_info.widget_2) {
-      // modify a copy of dloi_2 and return it
+      graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
+      // modify a copy of dloi_1 and return it
       coot::display_list_object_info dloi_2 = make_ball_and_stick(atom_selection_str, bond_thickness,
 								  sphere_size,
 								  do_spheres_flag, 1, dloi_1);
@@ -5154,6 +5150,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 std::cout << "pushing back dloi (2 contexts) to display_list_tags: with tag_1 = "
 		   << dloi_2.tag_1 << " and tag_2 = " << dloi_2.tag_2 << std::endl;
       display_list_tags.push_back(dloi_2);
+      graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
    } else {
       if (0) 
 	 std::cout << "pushing back dloi (1 context)  to display_list_tags: with tag_1 = "

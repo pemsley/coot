@@ -390,6 +390,14 @@ void sort_chains(int imol);
 void print_header_secondary_structure_info(int imol);
 
 
+/*  Placeholder only.
+
+    not documented, it doesn't work yet, because CalcSecStructure()
+    creates SS type on the residues, it does not build and store
+    CHelix, CStrand, CSheet records. */
+void write_header_secondary_structure_info(int imol, const char *file_name);
+
+
 /*! \brief copy molecule imol
 
 @return the new molecule number.

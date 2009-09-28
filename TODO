@@ -500,8 +500,12 @@ Punted from 0.6:
      is only done by clicking).
      SCM rotate_translate_residue_ranges(int imol, SCM residue_ranges)
 
+* Done.
+
    o Env distances should have an "molecule number" attribute - when
      that molecule is not displayed, not show the env distances.
+
+* Done.
 
    o Tim Fenn library thing. 
      Actually, this looks horrific
@@ -512,6 +516,9 @@ Punted from 0.6:
    o Phil Evans: can I set the NCS peer molecules myself so that NCS
      modificiations are not set to molecules to which I think they don't
      apply?
+
+* I suppose so. clear-ncs-ghost-matrices and add-ncs-matrix.  Or
+  simply change the homology_level (bad name for variable).
 
    o make sure that PDB cif r2wousf.ent.gz (or some such, that you get
      from the PDB works slickly as a cif file with sigmma maps).

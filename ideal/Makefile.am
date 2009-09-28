@@ -48,9 +48,17 @@ AM_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 #	../coot-utils/libcoot-coord-extras.la ../mini-mol/libcoot-mini-mol.la  \
 #	../geometry/libcoot-geometry.la
 
-# Tim Fenn suggest.  Not sure what it does.
-# libcoot_ideal_la_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
-# libcoot_ideal_la_LIBADD = ../geometry/libcoot-geometry.la
+# Tim Fenn suggestion to clear up the undefined-non-weak-symbols.
+#
+# From the book, libxxx_LDFLAGS is for extra objects passed to the linker
+#                libxxx_LIBADD as above, but for the static lib target
+#                libxxx_LDFLAGS extra flags passed to the linker
+# 
+# However, for me, it doesn't change the unresolved symbols (it does
+# change dependency_libs in the .la file though).
+# 
+libcoot_ideal_la_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
+libcoot_ideal_la_LIBADD = ../geometry/libcoot-geometry.la $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 
 
 libcoot_ideal_la_SOURCES = simple-restraint.cc  pepflip.cc regularize-minimol.cc lograma.cpp

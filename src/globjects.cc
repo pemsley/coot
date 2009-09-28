@@ -1785,11 +1785,13 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 		  eye_fac = -1.0;
 	       trackball(spin_quat, 0, 0, eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
 	       add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
+	       // std::cout << "drawing gl_area_2 (right)" << std::endl;
 	       draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
 	       // reset the viewing angle:
 	       trackball(spin_quat, 0, 0, -eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
 	       add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 	    } else {
+	       // std::cout << "drawing regular gl_area (left) " << std::endl;
 	       draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
 	    }
 	 } else { 
@@ -2105,10 +2107,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 if (graphics_info_t::molecules[ii].has_display_list_objects()) {
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
-	    if (0) 
-	       std::cout << "calling draw_display_list_objects(" << ii << ") with context "
-			 << gl_context << " in_stereo_flag " << in_stereo_flag << std::endl;
-	    n_display_list_objects += graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
+	    n_display_list_objects +=
+	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
 	    glDisable(GL_LIGHT0);
 	    glDisable(GL_LIGHTING);
 	 }
@@ -2122,11 +2122,11 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 //
          // BL says:: bad hack FIXME
          if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT || in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
-	 graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-							 0);
+	    graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
+							    0);
          } else {
-	 graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-							 in_stereo_flag);
+	    graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
+							    in_stereo_flag);
          }
 
 	 // Turn the light(s) on and after off, if needed.
