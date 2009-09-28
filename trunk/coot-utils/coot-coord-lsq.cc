@@ -61,8 +61,8 @@ coot::util::get_lsq_matrix(CMMDBManager *mol1,
       }
    }
 
-   // Now convert v1 and v2 to Coord_orth vectors and call clippers
-   // lsq function.
+   // Now convert v1 and v2 to Coord_orth vectors and call Clipper's
+   // LSQ function.
    //
    if (co1v.size() > 0) {
       if (co1v.size() > 2) {
@@ -105,7 +105,8 @@ coot::util::get_lsq_matrix(CMMDBManager *mol1,
    } else {
       std::cout << "WARNING:: no points to do matching" << std::endl;
    }
-      
+   mol1->DeleteSelection(SelHnd1);
+   mol2->DeleteSelection(SelHnd2);
    return std::pair<short int, clipper::RTop_orth> (istat, rtop);
 }
 
