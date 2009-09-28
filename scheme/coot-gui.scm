@@ -3039,6 +3039,9 @@
     (gtk-widget-show-all window)))
 
 
+
+;; USER MODS gui
+;; 
 (define (user-mods-gui imol pdb-file-name)
   
   ;; no alt conf, no inscode
@@ -3147,21 +3150,20 @@
 
   ;; main line
   ;; 
-  ;; user mods will return a pair of lists.
-  (let* ((flips (user-mods pdb-file-name))
-	 (flip-buttons (make-flip-buttons (car flips)))
-	 (no-adj-buttons (make-no-adj-buttons (car (cdr flips))))
-	 (all-buttons (append no-adj-buttons flip-buttons)))
-    ;; (format #t "flip-buttons: ~s~%" flip-buttons)
-    ;; (format #t "no-flip-buttons: ~s~%" no-flip-buttons)
-    (dialog-box-of-buttons-with-check-button 
-     "  Flips " (cons 300 300) all-buttons "  Close  "
-     "Clashes, Problems and Flips only"
-     (lambda (check-button vbox)
-       (if (gtk-toggle-button-get-active check-button)
-	   (clear-and-add-back vbox (car flips) (cadr flips) #t)
-	   (clear-and-add-back vbox (car flips) (cadr flips) #f)))
-     #f)))
+  (if (using-gui?) 
+      ;; user mods will return a pair of lists.
+      (let* ((flips (user-mods pdb-file-name))
+	     (flip-buttons (make-flip-buttons (car flips)))
+	     (no-adj-buttons (make-no-adj-buttons (car (cdr flips))))
+	     (all-buttons (append no-adj-buttons flip-buttons)))
+	(dialog-box-of-buttons-with-check-button 
+	 "  Flips " (cons 300 300) all-buttons "  Close  "
+	 "Clashes, Problems and Flips only"
+	 (lambda (check-button vbox)
+	   (if (gtk-toggle-button-get-active check-button)
+	       (clear-and-add-back vbox (car flips) (cadr flips) #t)
+	       (clear-and-add-back vbox (car flips) (cadr flips) #f)))
+	 #f))))
 
 
 
