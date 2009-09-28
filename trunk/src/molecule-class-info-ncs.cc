@@ -346,60 +346,65 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
    // std::cout << "DEBUG:: Checking chains for NCS.. (no explicit master)" << std::endl;
    // So now let's check the chains against each other:
    for (unsigned int ifirst=0; ifirst<(chain_ids.size()-1); ifirst++) {
-      if (first_chain_of_this_type[ifirst]) { // trickiness
-	 for (unsigned int isec=(ifirst+1); isec<chain_ids.size(); isec++) {
-	    if (0) 
-	       std::cout << "DEBUG:: checking chains numbers "
-			 << ifirst << " (" << chain_ids[ifirst] << ") and "
-			 << isec << " (" << chain_ids[isec] << ") with homology_level "
-			 << homology_level << std::endl;
-	    if (ncs_chains_match_p(residue_types[ifirst],
-				   residue_types[isec],
-				   homology_level,
-				   allow_offset_flag)) {
-
+      try { 
+	 if (first_chain_of_this_type[ifirst]) { // trickiness
+	    for (unsigned int isec=(ifirst+1); isec<chain_ids.size(); isec++) {
 	       if (0) 
-		  std::cout << "DEBUG:: ncs_chains match! =================  "
+		  std::cout << "DEBUG:: checking chains numbers "
 			    << ifirst << " (" << chain_ids[ifirst] << ") and "
-			    << isec << " (" << chain_ids[isec] << ")" << std::endl;
-	    
-	       first_chain_of_this_type[isec] = 0; // trickiness
-	       coot::ghost_molecule_display_t ghost;
-	       // slow...
-	       if (do_rtops_flag) {
-		  if (0) 
-		     std::cout << "DEBUG:: add_ncs_ghosts_no_explicit_master: first: "
-			       << ifirst << " " << chain_atom_selection_handles[ifirst]
-			       << " and isec: " << isec << " " << chain_atom_selection_handles[isec]
-			       << std::endl;
+			    << isec << " (" << chain_ids[isec] << ") with homology_level "
+			    << homology_level << std::endl;
+	       if (ncs_chains_match_p(residue_types[ifirst],
+				      residue_types[isec],
+				      homology_level,
+				      allow_offset_flag)) {
 
-		  coot::ncs_matrix_info_t ghost_info = 
-		     find_ncs_matrix(chain_atom_selection_handles[ifirst],
-				     chain_atom_selection_handles[isec]);
-		  if (ghost_info.state) { 
-		     ghost.rtop = ghost_info.rtop;
-		     ghost.display_it_flag = 1;
-		     ghost.residue_matches = ghost_info.residue_matches;
-		  }
+		  if (0) 
+		     std::cout << "DEBUG:: ncs_chains match! =================  "
+			       << ifirst << " (" << chain_ids[ifirst] << ") and "
+			       << isec << " (" << chain_ids[isec] << ")" << std::endl;
+	    
+		  first_chain_of_this_type[isec] = 0; // trickiness
+		  coot::ghost_molecule_display_t ghost;
+		  // slow...
+		  if (do_rtops_flag) {
+		     if (0) 
+			std::cout << "DEBUG:: add_ncs_ghosts_no_explicit_master: first: "
+				  << ifirst << " " << chain_atom_selection_handles[ifirst]
+				  << " and isec: " << isec << " " << chain_atom_selection_handles[isec]
+				  << std::endl;
+
+		     coot::ncs_matrix_info_t ghost_info = 
+			find_ncs_matrix(chain_atom_selection_handles[ifirst],
+					chain_atom_selection_handles[isec]);
+		     if (ghost_info.state) { 
+			ghost.rtop = ghost_info.rtop;
+			ghost.display_it_flag = 1;
+			ghost.residue_matches = ghost_info.residue_matches;
+		     }
+		  } 
+		  ghost.SelectionHandle = chain_atom_selection_handles[isec];
+		  ghost.target_chain_id = chain_ids[ifirst];
+		  ghost.chain_id = chain_ids[isec];
+		  ghost.name = "NCS found from ";
+		  ghost.name += "matching Chain ";
+		  ghost.name += chain_ids[isec];
+		  ghost.name += " onto Chain ";
+		  ghost.name += chain_ids[ifirst];
+		  // ghost.bonds_box filled by update_ghosts().
+		  ncs_ghosts.push_back(ghost);
+	       } else {
+		  if (0)
+		     std::cout << "DEBUG:: ncs_chains NO MATCH =================  "
+			       << ifirst << " (" << chain_ids[ifirst] << ") and "
+			       << isec << " (" << chain_ids[isec] << ")" << std::endl;
 	       } 
-	       ghost.SelectionHandle = chain_atom_selection_handles[isec];
-	       ghost.target_chain_id = chain_ids[ifirst];
-	       ghost.chain_id = chain_ids[isec];
-	       ghost.name = "NCS found from ";
-	       ghost.name += "matching Chain ";
-	       ghost.name += chain_ids[isec];
-	       ghost.name += " onto Chain ";
-	       ghost.name += chain_ids[ifirst];
-	       // ghost.bonds_box filled by update_ghosts().
-	       ncs_ghosts.push_back(ghost);
-	    } else {
-	       if (0)
-		  std::cout << "DEBUG:: ncs_chains NO MATCH =================  "
-			    << ifirst << " (" << chain_ids[ifirst] << ") and "
-			    << isec << " (" << chain_ids[isec] << ")" << std::endl;
-	    } 
+	    }
 	 }
       }
+      catch (std::runtime_error rte) {
+	 std::cout << rte.what() << std::endl;
+      } 
    }
 
 };
@@ -429,31 +434,36 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
    if (imaster != -1) {
       std::cout << "   Checking chains for NCS matching to chain " << master_chain_id << std::endl;
       for (unsigned int ichain=0; ichain<chain_ids.size(); ichain++) {
-	 if (chain_ids[ichain] != chain_ids[imaster]) {
-	    if (ncs_chains_match_p(residue_types[imaster],
-				   residue_types[ichain],
-				   homology_level,
-				   allow_offset_flag)) {
-	       coot::ghost_molecule_display_t ghost;
-	       coot::ncs_matrix_info_t ghost_info = 
-		  find_ncs_matrix(chain_atom_selection_handles[imaster],
-				  chain_atom_selection_handles[ichain]);
-	       if (ghost_info.state) { 
-		  ghost.rtop = ghost_info.rtop;
-		  ghost.SelectionHandle = chain_atom_selection_handles[ichain];
-		  ghost.target_chain_id = master_chain_id;
-		  ghost.chain_id = chain_ids[ichain];
-		  ghost.name = "NCS found from matching Chain ";
-		  ghost.name += chain_ids[ichain];
-		  ghost.name += " onto Chain ";
-		  ghost.name += master_chain_id;
-		  ghost.display_it_flag = 1;
-		  std::cout << "   Adding ghost with name: " << ghost.name << std::endl;
-		  ncs_ghosts.push_back(ghost);
-		  ncs_ghosts_have_rtops_flag = 1;
+	 try { 
+	    if (chain_ids[ichain] != chain_ids[imaster]) {
+	       if (ncs_chains_match_p(residue_types[imaster],
+				      residue_types[ichain],
+				      homology_level,
+				      allow_offset_flag)) {
+		  coot::ghost_molecule_display_t ghost;
+		  coot::ncs_matrix_info_t ghost_info = 
+		     find_ncs_matrix(chain_atom_selection_handles[imaster],
+				     chain_atom_selection_handles[ichain]);
+		  if (ghost_info.state) { 
+		     ghost.rtop = ghost_info.rtop;
+		     ghost.SelectionHandle = chain_atom_selection_handles[ichain];
+		     ghost.target_chain_id = master_chain_id;
+		     ghost.chain_id = chain_ids[ichain];
+		     ghost.name = "NCS found from matching Chain ";
+		     ghost.name += chain_ids[ichain];
+		     ghost.name += " onto Chain ";
+		     ghost.name += master_chain_id;
+		     ghost.display_it_flag = 1;
+		     std::cout << "   Adding ghost with name: " << ghost.name << std::endl;
+		     ncs_ghosts.push_back(ghost);
+		     ncs_ghosts_have_rtops_flag = 1;
+		  }
 	       }
 	    }
 	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << rte.what() << std::endl;
+	 } 
       }
    }
 }
@@ -469,6 +479,8 @@ molecule_class_info_t::set_show_ghosts(short int state) {
 }
 
 
+// Throw an exception when the matrix is not good.
+//
 // was std::pair<bool, clipper::RTop_orth>
 coot::ncs_matrix_info_t
 molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
@@ -513,14 +525,14 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 	 }
       } else  {
 
+	 PPCAtom selatoms_1 = NULL;
+	 int n_sel_atoms_1; 
+	 atom_sel.mol->GetSelIndex(SelHandle1, selatoms_1, n_sel_atoms_1);
+	 PPCAtom selatoms_2 = NULL;
+	 int n_sel_atoms_2; 
+	 atom_sel.mol->GetSelIndex(SelHandle2, selatoms_2, n_sel_atoms_2);
 	 // debugging the atom selection
 	 if (1) { 
-	    PPCAtom selatoms_1 = NULL;
-	    int n_sel_atoms_1; 
-	    atom_sel.mol->GetSelIndex(SelHandle1, selatoms_1, n_sel_atoms_1);
-	    PPCAtom selatoms_2 = NULL;
-	    int n_sel_atoms_2; 
-	    atom_sel.mol->GetSelIndex(SelHandle2, selatoms_2, n_sel_atoms_2);
 	    std::cout << "First atom of " << n_sel_atoms_1 << " in first  selection "
 		      << selatoms_1[0] << std::endl;
 	    std::cout << "First atom of " << n_sel_atoms_2 << " in second selection "
@@ -555,27 +567,33 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
       }
 
       std::cout << "   find_ncs_matrix returns (SSM) ";
-      if (! rtop_is_good)
+      if (! rtop_is_good) {
 	 std::cout << "junk";
+	 delete SSMAlign;
+	 SSMAlign = 0;
+	 std::string mess = "No NCS matrix defined";
+	 throw std::runtime_error(mess);
+      }
       std::cout << "\n" << rtop.format() << std::endl;
       delete SSMAlign; // added 071101
+      SSMAlign = 0;
 
 #endif // HAVE_SSMLIB
    } else {
       // debugging the atom selection
-      //      if (1) { 
-	 PPCAtom selatoms_1 = NULL;
-	 int n_sel_atoms_1; 
-	 atom_sel.mol->GetSelIndex(SelHandle1, selatoms_1, n_sel_atoms_1);
-	 PPCAtom selatoms_2 = NULL;
-	 int n_sel_atoms_2; 
-	 atom_sel.mol->GetSelIndex(SelHandle2, selatoms_2, n_sel_atoms_2);
+      PPCAtom selatoms_1 = NULL;
+      int n_sel_atoms_1; 
+      atom_sel.mol->GetSelIndex(SelHandle1, selatoms_1, n_sel_atoms_1);
+      PPCAtom selatoms_2 = NULL;
+      int n_sel_atoms_2; 
+      atom_sel.mol->GetSelIndex(SelHandle2, selatoms_2, n_sel_atoms_2);
+      if (1) { 
 	 std::cout << "First atom of " << n_sel_atoms_1 << " in first  selection "
 		   << selatoms_1[0] << std::endl;
 	 std::cout << "First atom of " << n_sel_atoms_2 << " in second selection "
 		   << selatoms_2[0] << std::endl;
-	 //}
-      //      g_print
+      }
+
       int match_type = 2; // CA
       char *chain_id_reference = selatoms_1[0]->GetChainID();
       char *chain_id_moving    = selatoms_2[0]->GetChainID();
@@ -624,11 +642,12 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
       rtop_is_good = rtop_info.first;
 
       std::cout << "   find_ncs_matrix returns (LSQ) ";
-      if (! rtop_is_good)
-	 std::cout << "junk";
       std::cout << "\n" << rtop.format() << std::endl;
-
-//      g_print("BL DEBUG:: rtop_good is %i\n", rtop_is_good);
+      if (! rtop_is_good) { 
+	 std::cout << "WARNING:: Junk NCS matrix" << std::endl;
+	 std::string mess = "No NCS matrix defined";
+	 throw std::runtime_error(mess);
+      }
    }
    return coot::ncs_matrix_info_t(rtop_is_good, rtop, residue_matches);
 }
