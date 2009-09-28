@@ -23,6 +23,7 @@
 #ifndef CC_INTERFACE_HH
 #define CC_INTERFACE_HH
 
+#include "coot-utils.hh"
 #include "coot-coord-utils.hh"
 
 #include "dipole.hh"
@@ -235,13 +236,13 @@ namespace coot {
       coot_script_arg_type type;
       float f;
       int i;
-      clipper::String s;
+      std::string s;
       std::string as_string() const {
 	 std::string os("unknown-arg-type");
 	 if (type == INT)
-	    os = clipper::String(i);
+	    os = coot::util::int_to_string(i);
 	 if (type == FLOAT)
-	    os = clipper::String(f);
+	    os = coot::util::float_to_string(i);
 	 if (type == STRING)
 	    os = s;
 	 return os;
