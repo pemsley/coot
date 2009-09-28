@@ -237,11 +237,11 @@ coot::util::dict_residue_atom_info_t::dict_residue_atom_info_t(const std::string
 
 // This one we can do a dynamic add.
 // 
-short int
+bool
 coot::util::is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, coot::protein_geometry *geom_p) {
 
-   short int is_nuc = 0;
-   short int ifound = 0;
+   bool is_nuc = 0;
+   bool ifound = 0;
    std::string residue_name = residue_p->GetResName();
 
    int n_restr = geom_p->size();
@@ -268,17 +268,16 @@ coot::util::is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, coot::protein
 	 is_nuc = is_nucleotide_by_dict_dynamic_add(residue_p, geom_p);
       } 
    }
-
    return is_nuc;
 }
 
 
 // This one we can NOT do a dynamic add.
 //
-short int
+bool
 coot::util::is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geometry &geom) {
 
-   short int is_nuc = 0;
+   bool is_nuc = 0;
    std::string residue_name = residue_p->GetResName();
 
    int n_restr = geom.size();
