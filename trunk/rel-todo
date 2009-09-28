@@ -1,25 +1,10 @@
 
-   2 items
-
-   o If you set a view name it gets ignored in the current views panel
-     (but the name is OK if the views panel is closed and re-opened) 
-     ::: 1
+   1 item
 
    o dictionary for LEU, chi angles wrong, chiral centre for CG should
      be negative, not both. Check other residues,
      THR VAL LEU ASP ASN GLU GLN ILE ::: 2
 
-     Done: LEU THR VAL ASP ASN GLU GLN ILE
-
-
-   o Stereo (hardware, side by side) Add-reps.  Need to update the
-     display list objects when the GL context changes. Need to store a
-     GL display list number for the alternate GL context in side by
-     side mode? 
-
-     When switching stereo contexts creating a new GL context, we need
-     to run update_additional_representations() for each model molecule.
-     ::: 3
 
 
 ------
@@ -1292,6 +1277,25 @@ src/gtk-manual.cc:                done
    o delete_atom() needs investigating.  Spews binary? ::: 1
 
 * Fixed.  Was dereferencing out out date char * pointers.
+
+   o If you set a view name it gets ignored in the current views panel
+     (but the name is OK if the views panel is closed and re-opened) 
+     ::: 1
+
+* Done. One liner (typo, probably).
+
+
+   o Stereo (hardware, side by side) Add-reps.  Need to update the
+     display list objects when the GL context changes. Need to store a
+     GL display list number for the alternate GL context in side by
+     side mode? 
+
+     When switching stereo contexts creating a new GL context, we need
+     to run update_additional_representations() for each model molecule.
+     ::: 3
+
+* I won't waste time fixing this exactly.  I am happy that we get 2
+  representations of ball-and-stick objects in side-by-side stereo now.
 
 
 -----
