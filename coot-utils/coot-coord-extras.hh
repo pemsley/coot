@@ -104,8 +104,8 @@ namespace coot {
       };
 
       // do we need to pass read number to this function too?
-      short int is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, coot::protein_geometry *geom_p);
-      short int is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geometry &geom);
+      bool is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, coot::protein_geometry *geom_p);
+      bool is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geometry &geom);
    }
 
    CResidue *GetResidue(const minimol::residue &r); // For use with wiggly
