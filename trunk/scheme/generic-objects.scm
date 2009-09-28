@@ -45,68 +45,69 @@
 (define generic-objects-gui
   (lambda ()
     
-    (let ((n-objects (number-of-generic-objects)))
+    (if (using-gui?) 
+	(let ((n-objects (number-of-generic-objects)))
 
-      (if (> n-objects 0)
-	  (begin
+	  (if (> n-objects 0)
+	      (begin
 
-	    (let* ((window (gtk-window-new 'toplevel))
-		   (vbox (gtk-vbox-new #f 10))
-		   (label (gtk-label-new " Generic Objects ")))
+		(let* ((window (gtk-window-new 'toplevel))
+		       (vbox (gtk-vbox-new #f 10))
+		       (label (gtk-label-new " Generic Objects ")))
 
-	      (gtk-container-add vbox label)
-	      (gtk-widget-show label)
+		  (gtk-container-add vbox label)
+		  (gtk-widget-show label)
 
-	      (for-each 
-	       (lambda (generic-object-number)
+		  (for-each 
+		   (lambda (generic-object-number)
 
-		 (format #t "~s ~s ~s~%" generic-object-number (generic-object-name generic-object-number)
-			 (is-closed-generic-object? generic-object-number))
+		     (format #t "~s ~s ~s~%" generic-object-number (generic-object-name generic-object-number)
+			     (is-closed-generic-object? generic-object-number))
 
-		 (if (= (is-closed-generic-object? generic-object-number) 0)
-		     (let ((name (generic-object-name generic-object-number)))
-		       
-		       (if name 
-			   (let* ((label (string-append 
-					  (number->string generic-object-number)
-					  "  "
-					  name))
-				  (frame (gtk-frame-new #f))
-				  (check-button (gtk-check-button-new-with-label label)))
-			     
+		     (if (= (is-closed-generic-object? generic-object-number) 0)
+			 (let ((name (generic-object-name generic-object-number)))
+			   
+			   (if name 
+			       (let* ((label (string-append 
+					      (number->string generic-object-number)
+					      "  "
+					      name))
+				      (frame (gtk-frame-new #f))
+				      (check-button (gtk-check-button-new-with-label label)))
+				 
 					; this callback gets called by the
 					; gtk-toggle-button-set-active just below,
 					; which is why we need the state and active
 					; test.
-			     (gtk-signal-connect check-button "toggled" 
-						 (lambda () 
-						   (let ((button-state (gtk-toggle-button-active check-button))
-							 (object-state (generic-object-is-displayed? 
-									generic-object-number)))
-						     (if (and (eq? button-state #t)
-							      (= object-state 0))
-							 (set-display-generic-object generic-object-number 1))
-						     (if (and (eq? button-state #f)
-							      (= object-state 1))
-							 (set-display-generic-object generic-object-number 0)))))
-			     
-			     (let ((current-state 
-				    (generic-object-is-displayed? 
-				     generic-object-number)))
-			       (if (= current-state 1)
-				   (gtk-toggle-button-set-active check-button #t)))
-			     
-			     (gtk-container-add vbox frame)
-			     (gtk-container-add frame check-button)
-			     (gtk-widget-show frame)
-			     (gtk-widget-show check-button))))))
-		 
-	       (number-list 0 (- n-objects 1)))
+				 (gtk-signal-connect check-button "toggled" 
+						     (lambda () 
+						       (let ((button-state (gtk-toggle-button-active check-button))
+							     (object-state (generic-object-is-displayed? 
+									    generic-object-number)))
+							 (if (and (eq? button-state #t)
+								  (= object-state 0))
+							     (set-display-generic-object generic-object-number 1))
+							 (if (and (eq? button-state #f)
+								  (= object-state 1))
+							     (set-display-generic-object generic-object-number 0)))))
+				 
+				 (let ((current-state 
+					(generic-object-is-displayed? 
+					 generic-object-number)))
+				   (if (= current-state 1)
+				       (gtk-toggle-button-set-active check-button #t)))
+				 
+				 (gtk-container-add vbox frame)
+				 (gtk-container-add frame check-button)
+				 (gtk-widget-show frame)
+				 (gtk-widget-show check-button))))))
+		   
+		   (number-list 0 (- n-objects 1)))
 
-	      (gtk-widget-show vbox)
-	      (gtk-container-add window vbox)
-	      (gtk-container-border-width window 10)
-	      (gtk-widget-show window)))))))
+		  (gtk-widget-show vbox)
+		  (gtk-container-add window vbox)
+		  (gtk-container-border-width window 10)
+		  (gtk-widget-show window))))))))
 
 
 
@@ -158,6 +159,11 @@
 				    imol))))
 			(if (= 1 recentre-status)
 			    (set-recentre-on-read-pdb 1))
+			
+			;; show the GUI for the USER MODS
+			(if (using-gui?)
+			    (user-mods-gui imol-probe reduce-out-pdb-file))
+
 			; (toggle-active-mol imol-probe) let's not do
 			; that actually.  I no longer think that the
 			; new probe molecule should not be clickable
@@ -166,7 +172,6 @@
 			; for the molecules, which means that after
 			; several probes, the wrong molecule is
 			; getting refined).
-			
 			(handle-read-draw-probe-dots-unformatted probe-out imol-probe 1)
 			(generic-objects-gui)
 			(graphics-draw))))))))))

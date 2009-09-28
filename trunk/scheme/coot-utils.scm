@@ -84,6 +84,10 @@
 ;; 
 (define find-aligned-residue-type find-terminal-residue-type)
 
+(define (using-gui?)
+  (defined? 'coot-main-menubar))
+
+
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.
 ;;
