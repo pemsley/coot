@@ -794,12 +794,14 @@ coot::minimol::molecule::pcmmdbmanager() const {
 	 
    mol->AddModel(model_p);
    
-   if (have_cell) { 
-      std::cout << "DEBUG:: pcmmdbmanager: have cell " << std::endl;
-      std::cout << "DEBUG:: pcmmdbmanager: using cell "
-		<< mmdb_cell[0] << " " << mmdb_cell[1]
-		<< " " << mmdb_cell[2] << " " << mmdb_cell[3]
-		<< " " << mmdb_cell[4] << " " << mmdb_cell[4] << std::endl;
+   if (have_cell) {
+      if (0) { 
+	 std::cout << "DEBUG:: pcmmdbmanager: have cell " << std::endl;
+	 std::cout << "DEBUG:: pcmmdbmanager: using cell "
+		   << mmdb_cell[0] << " " << mmdb_cell[1]
+		   << " " << mmdb_cell[2] << " " << mmdb_cell[3]
+		   << " " << mmdb_cell[4] << " " << mmdb_cell[4] << std::endl;
+      }
       
       mol->SetCell(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
 		   mmdb_cell[3], mmdb_cell[4], mmdb_cell[5], 1);
