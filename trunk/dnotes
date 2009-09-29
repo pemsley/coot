@@ -4992,5 +4992,14 @@ Mon Sep 28 14:26:25 BST 2009
    does not pass the graphics_info_t::ncs_matrix_flag.  It should (and
    should not use it statically).
 
+
+---
+Tue Sep 29 11:39:05 BST 2009
+
+   Doing a rotamer search should first to an automatic nomenclature
+   check (and correction if necessary), e.g. 105A in 1a0j.
+
+
+
 ------
 
