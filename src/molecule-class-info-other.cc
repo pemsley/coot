@@ -4374,6 +4374,7 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 	 std::string mol_chain(chain_p->GetChainID());
 	 if (mol_chain == chain_id) {
 	    // std::cout << "DEBUG:: Found chain_id " << chain_id << std::endl;
+	    make_backup();
 	    int nres = chain_p->GetNumberOfResidues();
 	    CResidue *residue_p;
 	    for (int ires=0; ires<nres; ires++) { // ires is a serial number
@@ -4414,6 +4415,7 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 	 if (mol_chain == chain_id) {
 	    std::cout << "DEBUG:: Found chain_id " << chain_id << std::endl;
 	    int nres = chain_p->GetNumberOfResidues();
+	    make_backup();
 	    CResidue *residue_p;
 	    for (int ires=0; ires<nres; ires++) { // ires is a serial number
 	       residue_p = chain_p->GetResidue(ires);

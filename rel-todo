@@ -1,11 +1,8 @@
 
-   1 item
+   1 items
 
-   o dictionary for LEU, chi angles wrong, chiral centre for CG should
-     be negative, not both. Check other residues,
-     THR VAL LEU ASP ASN GLU GLN ILE ::: 2
-
-
+   o Pierre Aller rotamer bug.  who knows how long this will take?
+     Horrific. :: 1
 
 ------
 
@@ -1296,6 +1293,12 @@ src/gtk-manual.cc:                done
 
 * I won't waste time fixing this exactly.  I am happy that we get 2
   representations of ball-and-stick objects in side-by-side stereo now.
+
+   o dictionary for LEU, chi angles wrong, chiral centre for CG should
+     be negative, not both. Check other residues,
+     THR VAL LEU ASP ASN GLU GLN ILE ::: 2
+
+* Done.
 
 
 -----
