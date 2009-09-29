@@ -27,3 +27,7 @@ lib_LTLIBRARIES = libcoot-isosurface.la
 include_HEADERS = Vectors.h CIsoSurface.h
 
 libcoot_isosurface_la_SOURCES = Vectors.cpp CIsoSurface.cpp
+
+libcoot_isosurface_la_LIBADD = \
+	$(top_builddir)/coords/libcoot-coords.la \
+        $(CLIPPER_LIBS)
