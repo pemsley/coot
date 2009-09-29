@@ -14,6 +14,12 @@ include_HEADERS = db-main.hh db-strands.hh
 
 libcoot_db_main_la_SOURCES  = db-main.cc db-strands.cc
 
+libcoot_db_main_la_LIBADD  = \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coot-utils/libcoot-utils.la \
+        $(CLIPPER_LIBS) $(MMDB_LIBS)
+
 noinst_PROGRAMS = testdbmain train-pepflip
 
 testdbmain_SOURCES = testdbmain.cc
