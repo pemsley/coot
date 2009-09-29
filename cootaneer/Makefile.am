@@ -35,5 +35,7 @@ libcootaneer_la_SOURCES =  buccaneer-lib.cpp buccaneer-prot.cpp \
 	buccaneer-lib.h buccaneer-prot.h \
 	buccaneer-sequence.h cootaneer-sequence.h
 
+libcootaneer_la_LIBADD = $(CLIPPER_LIBS)
+
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = cootaneer-llk-2.40.dat 
