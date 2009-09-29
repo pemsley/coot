@@ -36,6 +36,13 @@ testminimol_SOURCES = testminimol.cc
 
 libcoot_mini_mol_la_SOURCES =  mini-mol.cc mini-mol-utils.cc atom-quads.cc
 
+# Oh, oops, there is a circular dependency, minimol uses coot-util's
+# min_resno_in_chain().  OK, so minimol should go into coot utils and
+# coot-utils becomes one big utils lib.
+#
+libcoot_mini_mol_la_LIBADD = \
+ $(MMDB_LIBS) $(CLIPPER_LIBS) 
+
 testminimol_LDADD = libcoot-mini-mol.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/coot-utils/libcoot-utils.la \

@@ -4999,6 +4999,10 @@ Tue Sep 29 11:39:05 BST 2009
    Doing a rotamer search should first to an automatic nomenclature
    check (and correction if necessary), e.g. 105A in 1a0j.
 
+---
+Tue Sep 29 13:18:33 BST 2009
+
+   move minimol into coot-utils and make that just one coot-utils lib.
 
 
 ------
