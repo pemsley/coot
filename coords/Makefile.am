@@ -40,3 +40,9 @@ libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
 		 Bond_lines_ext.cc coot-close.cc
 
+libcoot_coords_la_LIBADD = \
+   ../coot-utils/libcoot-shelx.la \
+   ../coot-utils/libcoot-coord-utils.la \
+   ../coot-utils/libcoot-utils.la \
+   ../mini-mol/libcoot-mini-mol.la \
+   $(MMDB_LIBS)
