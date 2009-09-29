@@ -65,7 +65,7 @@ def generic_objects_gui():
     except:
       print "BL WARNING:: no pygtk2. Function wont work!!!"
 	  
-    if (pygtk_flag):
+    if (pygtk_flag and using_gui()):
       # Now we run the gui
       def delete_event(*args):
 	# BL says: first we shall close the generic objects
@@ -230,6 +230,11 @@ def probe(imol):
 
 		  if recentre_status == 1:
 		     set_recentre_on_read_pdb(1)
+
+                  # show the GUI for USER MODS
+                  if using_gui():
+                    user_mods_gui(imol_probe, reduce_out_pdb_file)
+                    
 		  # toggle_active_mol(imol_probe) let's not do
 		  # that actually.  I no longer think that the
 		  # new probe molecule should not be clickable

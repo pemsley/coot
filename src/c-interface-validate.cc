@@ -1912,9 +1912,9 @@ SCM user_mods_scm(const char *file_name) {
 #ifdef USE_PYTHON
 PyObject *user_mods_py(const char *file_name) {
 
-   PyObject *r = Py_False;
+   coot::flips_container f(file_name);
 
-   return r;
+   return f.user_mods_py();
 }
 #endif // USE_PYTHON
 #endif	/* c++ */
