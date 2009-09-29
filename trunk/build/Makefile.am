@@ -33,6 +33,8 @@ testcabuild_SOURCES = testcabuild.cc
 
 libcoot_cabuild_la_SOURCES = CalphaBuild.cc
 
+libcoot_cabuild_la_LIBADD = ($CLIPPER_LIBS)
+
 testcabuild_LDADD = \
 	./libcoot-cabuild.la \
 	$(top_builddir)/angles/libcoot-AngleInfo.la \
