@@ -36,6 +36,8 @@ AM_CXXFLAGS = \
 
 libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc 
 
+libcoot_geometry_la_LIBADD = $(MMDB_LIBS) $(CLIPPER_LIBS)
+
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
 noinst_PROGRAMS = test-geometry test-read-components
