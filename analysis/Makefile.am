@@ -11,7 +11,7 @@ INCLUDES = \
 libcoot_analysis_la_SOURCES = bfkurt.cc
 
 libcoot_analysis_la_LIBADD = \
-   ../coot-utils/coot-coord-utils.la \
+   ../coot-utils/libcoot-coord-utils.la \
    $(MMDB_LIBS) 
 
 bin_PROGRAMS = bfactan
