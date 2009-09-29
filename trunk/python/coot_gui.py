@@ -1861,17 +1861,32 @@ def view_saver_gui():
 	generic_single_entry("View Name: ", local_view_name(), " Add View ",
 		lambda text: add_view_here(text))
 
+# a button is a list of [label, callback, text_description]
+#
+def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
+   return dialog_box_of_buttons_with_check_button(window_name, geometry,
+                                                  buttons, close_button_label,
+                                                  False, False, False)
+
 # geometry is an improper list of ints
 #
 # return the h_box of the buttons
 #
-# a button is a list of [label, callback, text_description]
+# a button is a list of [label, callback, text_description] where callback
+# is a string or list of strings to be evaluated
+#
+# If check_button_label is False, don't make one, otherwise create with
+# the given label and "on" state
 #
 # Note:
 #  - if label is "HSep" a horizontal separator is inserted instead of a button
 #  - the description is optional
 #
-def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
+def dialog_box_of_buttons_with_check_button(window_name, geometry,
+                                            buttons, close_button_label,
+                                            check_button_label,
+                                            check_button_func,
+                                            check_button_is_initially_on_flag):
    
 
    def add_text_to_text_widget(text_box, description):
@@ -1885,50 +1900,72 @@ def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    scrolled_win = gtk.ScrolledWindow()
    outside_vbox = gtk.VBox(False, 2)
+   h_sep = gtk.HSeparator()
    inside_vbox = gtk.VBox(False, 0)
    
    window.set_default_size(geometry[0], geometry[1])
    window.set_title(window_name)
    inside_vbox.set_border_width(2)
    window.add(outside_vbox)
+
+   if check_button_label:
+      check_button = gtk.CheckButton(check_button_label)
+      check_button.connect("toggled", lambda func:
+                           check_button_func(check_button, inside_vbox))
+      if check_button_is_initially_on_flag:
+         check_button.set_active(True)
+      outside_vbox.pack_start(check_button, False, False, 2)
+   
    outside_vbox.pack_start(scrolled_win, True, True, 0) # expand fill padding
    scrolled_win.add_with_viewport(inside_vbox)
    scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
    
    for button_info in buttons:
-      button_label = button_info[0]
-      if ((button_label == "HSep") and (len(button_info) == 1)):
-         # insert a HSeparator rather than a button
-         button = gtk.HSeparator()
-      else:
-         callback = button_info[1]
-         if (len(button_info) == 2):
-            description = False
-         else:
-            description = button_info[2]
-         button = gtk.Button(button_label)
-
-         # BL says:: in python we should pass the callback as a string
-         if type(callback) is StringType:
-            def callback_func(button, call):
-               eval(call)
-            button.connect("clicked", callback_func, callback)
-         elif (type(callback) is ListType):
-            def callback_func(button, call):
-               for item in call:
-                  eval(item)
-            button.connect("clicked", callback_func, callback)                   
-         else:
-            button.connect("clicked", callback)
-
-      inside_vbox.pack_start(button, False, False, 2)
-
+      add_button_info_to_box_of_buttons_vbox(button_info, inside_vbox)
+      
    outside_vbox.set_border_width(2)
+   outside_vbox.pack_start(h_sep, False, False, 2)
    ok_button = gtk.Button(close_button_label)
    outside_vbox.pack_end(ok_button, False, False, 0)
    ok_button.connect("clicked", lambda w: window.destroy())
 	
    window.show_all()
+   return inside_vbox
+
+# This is exported outside of the box-of-buttons gui because the
+# clear_and_add_back function (e.g. from using the check button)
+# needs to add buttons - let's not dupicate that code.
+#
+def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
+   
+   button_label = button_info[0]
+   if ((button_label == "HSep") and (len(button_info) == 1)):
+      # insert a HSeparator rather than a button
+      button = gtk.HSeparator()
+   else:
+      callback = button_info[1]
+      if (len(button_info) == 2):
+         description = False
+      else:
+         description = button_info[2]
+      button = gtk.Button(button_label)
+
+      # BL says:: in python we should pass the callback as a string
+      if type(callback) is StringType:
+         def callback_func(button, call):
+            eval(call)
+         button.connect("clicked", callback_func, callback)
+      elif (type(callback) is ListType):
+         def callback_func(button, call):
+            for item in call:
+               eval(item)
+         button.connect("clicked", callback_func, callback)                   
+      else:
+         button.connect("clicked", callback)
+
+   vbox.pack_start(button, False, False, 2)
+   button.show()
+
 
 # geometry is an improper list of ints
 # buttons is a list of: [[["button_1_label, button_1_action],
@@ -4183,6 +4220,120 @@ def solvent_ligands_gui():
 
    window.show_all()
 
+
+# USER MODS gui
+#
+def user_mods_gui(imol, pdb_file_name):
+
+   # no alt conf, no inscode
+   def atom_spec2string(atom_spec):
+      chain_id  = atom_spec[1]
+      res_no    = atom_spec[2]
+      ins_code  = atom_spec[3]
+      atom_name = atom_spec[4]
+      alt_conf  = atom_spec[5]
+      return chain_id + str(res_no) + atom_name
+
+   #
+   def make_flip_buttons(flip_list):
+      ret = []
+      for flip in flip_list:
+         atom_spec    = flip[0]
+         residue_type = flip[1]
+         info_string  = flip[2]
+         set_string   = flip[3]
+         score        = flip[4]
+         chain_id  = atom_spec[1]
+         res_no    = atom_spec[2]
+         ins_code  = atom_spec[3]
+         atom_name = atom_spec[4]
+         alt_conf  = atom_spec[5]
+         label = set_string + " " + \
+                 chain_id + " " + str(res_no) + \
+                 atom_name + " : " + \
+                 info_string + " " + \
+                 " score %2.2f" % score
+         func = [cmd2str(set_go_to_atom_molecule, imol),
+                 cmd2str(set_go_to_atom_chain_residue_atom_name,
+                         chain_id, res_no, atom_name)]
+         ret.append([label, func])
+      return ret
+
+   #
+   def make_no_adj_buttons(no_flip_list):
+      ret = []
+      for no_flip_item in no_flip_list:
+         specs = no_flip_item[0]
+         info_string = no_flip_item[1]
+         label = "No Adjustment " + \
+                 " ".join(map(atom_spec2string, specs)) + \
+                 " " + \
+                 info_string
+         atom_specs = specs[0]
+         chain_id  = atom_spec[1]
+         res_no    = atom_spec[2]
+         ins_code  = atom_spec[3]
+         atom_name = atom_spec[4]
+         alt_conf  = atom_spec[5]
+         func = [cmd2str(set_go_to_atom_molecule, imol),
+                 cmd2str(set_go_to_atom_chain_residue_atom_name,
+                         chain_id, res_no, atom_name)]
+         ret.append(label, func)
+      return ret
+   
+   # Return a list of buttons that are (in this case, (only) clashes,
+   # unknown/problems and flips.
+   #
+   def filter_buttons(flip_list):
+      ret = []
+      for flip in flip_list:
+         atom_spec    = flip[0]
+         residue_type = flip[1]
+         info_string  = flip[2]
+         set_string   = flip[3]
+         score        = flip[4]
+         if len(info_string) < 3:
+            pass
+         else:
+            # keep-letter: K is for keep, 
+            # is clash, X is "not sure"
+            # is flip.
+            keep_letter = info_string[2:3]
+            if keep_letter in "XFC":
+               ret.append(flip)
+      return ret
+
+   # filter flag is True or False
+   def clear_and_add_back(vbox, flip_list, no_adj_list, filter_flag):
+      # clear
+      children = vbox.get_children()
+      map(lambda c: c.destroy(), children)
+      # add back
+      if not filter_flag:
+         buttons = make_no_adj_buttons(no_adj_list) + \
+                  make_flip_buttons(flip_list)
+      else:
+         # filter
+         buttons = make_flip_buttons(filter_buttons(flip_list))
+      map(lambda button_info: add_button_info_to_box_of_buttons_vbox(button_info, vbox),
+          buttons)
+
+   # main line
+   #
+   # user mods will return a pair of lists.
+   if using_gui():
+      flips = user_mods(pdb_file_name)
+      flip_buttons = make_flip_buttons(flips[0])
+      no_adj_buttons = make_no_adj_buttons(flips[1])
+      all_buttons = no_adj_buttons + flip_buttons
+      dialog_box_of_buttons_with_check_button(
+         "  Flips ", [300, 300], all_buttons, "  Close  ",
+         "Clashes, Problems and Flips only",
+         lambda check_button, vbox: clear_and_add_back(vbox, flips[0], flips[1], True)
+                                    if check_button.get_active() else
+                                    clear_and_add_back(vbox, flips[0], flips[1], False),
+         False)
+      
 
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()

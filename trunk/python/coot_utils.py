@@ -1885,6 +1885,7 @@ pucker_info            = pucker_info_py
 sequence_info          = sequence_info_py
 alignment_mismatches   = alignment_mismatches_py
 generic_object_name    = generic_object_name_py
+user_mods              = user_mods_py
 probe_available_p      = probe_available_p_py
 drag_intermediate_atom = drag_intermediate_atom_py
 mark_atom_as_fixed     = mark_atom_as_fixed_py
@@ -1940,6 +1941,15 @@ set_find_hydrogen_torsion = set_find_hydrogen_torsions
 # residue in the middle of the chain that is modelled as an ALA, say.
  
 find_aligned_residue_type = find_terminal_residue_type
+
+def using_gui():
+    # we shall see if coot_main_mnubar is defined in guile or python
+    ret = False
+    if coot_has_guile():
+        ret = run_scheme_command("(defined? 'coot-main-menubar)")
+    if not ret:
+        ret = globals().has_key("coot_python")  # coot_main_menubar is not a global var
+    return ret
 
 ############################################################################################
 # end of Paul's scripting
@@ -2324,6 +2334,25 @@ def merge_solvent_chains(imol):
                             new_start, new_end)
             last_prev_water = new_end
             
+
+# helper to comvert functions to strings
+def cmd2str(*args):
+    from types import StringType
+    func = args[0]
+    if callable(func):
+        ret = args[0].__name__
+    else:
+        ret = str(func)
+    ret += "("
+    for arg in args[1:]:
+        if type(arg) is StringType:
+            ret += "\"" + arg + "\""
+        else:
+            ret += str(arg)
+        if not arg == args[-1]:
+            ret += ", "
+    ret += ")"
+    return ret
 
 # acronym
 merge_water_chains = merge_solvent_chains
