@@ -22,23 +22,23 @@
 lib_LTLIBRARIES=libcoot-skeleton.la
 
 INCLUDES =-I$(top_srcdir)/coords     -I$(top_srcdir)/angles 	\
-	  -I$(top_srcdir)/atom-utils -I$(top_srcdir)/compat	\
+	  -I$(top_srcdir)/compat	\
 	 $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) 
 
 AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS)
 
 include_HEADERS = graphical_skel.h dm-utils.h BuildCas.h
 
-libskeleton_a_sources =  \
+libcoot_skeleton_la_SOURCES =  \
 	dm-utils.cc \
 	graphical_skel.cc \
 	BuildCas.cc
 
-# No more fc_skeleton
-#	fc_skeleton.cc fc_skeleton.h
+libcoot_skeleton_la_LIBADD = \
+   $(top_builddir)/angles/libcoot-AngleInfo.la \
+   $(top_builddir)/coords/libcoot-coords.la \
+   $(CLIPPER_LIBS) $(MMDB_LIBS)
 
-
-libcoot_skeleton_la_SOURCES = $(libskeleton_a_sources)
 
 
 # bin_PROGRAMS = ncssearch test_various test_torsion test_theta_2
