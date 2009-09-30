@@ -36,6 +36,7 @@ AM_CXXFLAGS = \
 
 libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc 
 
+# and coot-utils, hmm.
 libcoot_geometry_la_LIBADD = $(MMDB_LIBS) $(CLIPPER_LIBS)
 
 # libcoot_geometry_la_CXXFLAGS = -g -O1
