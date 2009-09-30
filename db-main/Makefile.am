@@ -1,9 +1,6 @@
 
 lib_LTLIBRARIES=libcoot-db-main.la
 
-# why doesn't this work?
-# INCLUDES = -I${top_scrdir}/mini-mol $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS)
-
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DDATADIR='"$(datadir)"'

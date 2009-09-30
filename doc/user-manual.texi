@@ -3618,7 +3618,7 @@ first map in the list.  Typical usage:
 
 @code{(average-map '((1 1.0) (2 1.0))))}
 
-The arguement to @code{(average-map} is a list of lists, each list
+The argument to @code{(average-map} is a list of lists, each list
 element is a list of the map number and a weighting factor (1.0 in this
 case).
 
