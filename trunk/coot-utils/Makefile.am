@@ -54,18 +54,45 @@ libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc
 
+# clean
+libcoot_coord_utils_la_LIBADD = libcoot-utils.la \
+    $(CLIPPER_LIBS) $(MMDB_LIBS)
+
 # shelx
 libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
+
+# clean
+libcoot_shelx_la_LIBADD = \
+    libcoot-coord-utils.la \
+    libcoot-utils.la \
+    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 # for non-simple coordinates things
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
 	coot-tree-extras.cc
 
+# needs more, mini-mol, geometry
+libcoot_coord_extras_la_LIBADD = \
+   libcoot-coord-utils.la \
+   $(CLIPPER_LIBS) $(MMDB_LIBS)
+
 # for (map) things that need to link mmdb and clipper:
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc trim.cc xmap-stats.cc
 
+# clean
+libcoot_map_utils_la_LIBADD = \
+   libcoot-coord-utils.la \
+   $(CLIPPER_LIBS) $(MMDB_LIBS)
+
 # for map things that need mmdb, clipper, gsl and other things
 libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc
+
+# and mini-mol (just one).
+libcoot_map_heavy_la_LIBADD = \
+   libcoot-map-utils.la \
+   libcoot-coord-utils.la \
+   libcoot-utils.la \
+   $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 noinst_PROGRAMS = testshelxreader testcootutils
 
