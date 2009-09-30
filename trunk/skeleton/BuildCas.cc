@@ -29,7 +29,6 @@
 
 #include "BuildCas.h"  // contains Cartesian.h needed by graphical_skel.h
 
-#include "atom-utils.h"
 #include "graphical_skel.h"
 
 
@@ -3228,21 +3227,6 @@ BuildCas::recursive_build(const TreeNode *node, int ith_res, int depth) {
       }
 
 
-      if (ith_res == 30) { 
-	 
-	 for (unsigned int i=0; i< fourth_set_grids.size(); i++) { 
-	    cout << "fourth grid convert_to_atoms: " << fourth_set_grids[i] << endl; 
-	 } 
-
-	 atom_selection_container_t asc = convert_to_atoms(fourth_set, "fourth"); 
-	 export_coordinates(asc, "fourth-possibles.pdb"); 
-
-	 asc_to_graphics(asc, "fourth"); 
-	 asc_to_graphics(convert_to_atoms(fourth_set_grids, "fourth grids"), 
-			 "fourth grids"); 
-      }
-
-      
       for (unsigned int i=0; i< new_node.size(); i++) { 
 	 if (treenodemap.get_data(new_node[i].near_grid_point).neighbs.size() == 0) { 
 	    cout << "woops! in recursive_build: new node messed up: " 
