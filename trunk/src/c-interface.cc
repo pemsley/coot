@@ -3059,7 +3059,7 @@ PyObject *additional_representation_info_py(int imol) {
    if (is_valid_model_molecule(imol)) {
       r = PyList_New(0);
       for (int ir=0; ir<graphics_info_t::molecules[imol].add_reps.size(); ir++) {
-	 PyObject *l = PyList_New(0);
+	 PyObject *l = PyList_New(4);
 	 std::string s = graphics_info_t::molecules[imol].add_reps[ir].info_string();
 	 PyObject *is_show_flag_py = Py_False;
 	 if (graphics_info_t::molecules[imol].add_reps[ir].show_it)
@@ -3076,24 +3076,25 @@ PyObject *additional_representation_info_py(int imol) {
 	       = PyString_FromString(rep.atom_sel_info.atom_selection_str.c_str());
 	 else
 	    if (type == coot::atom_selection_info_t::BY_ATTRIBUTES) { 
-	       atom_spec_py = PyList_New(0);
+	       atom_spec_py = PyList_New(4);
 	       PyObject *chain_id_py    = PyString_FromString(rep.atom_sel_info.chain_id.c_str());
 	       PyObject *resno_start_py = PyInt_FromLong(rep.atom_sel_info.resno_start);
 	       PyObject *resno_end_py   = PyInt_FromLong(rep.atom_sel_info.resno_end);
 	       PyObject *ins_code_py    = PyString_FromString(rep.atom_sel_info.ins_code.c_str());
-	       PyList_Append(atom_spec_py, chain_id_py);
-	       PyList_Append(atom_spec_py, resno_start_py);
-	       PyList_Append(atom_spec_py, resno_end_py);
-	       PyList_Append(atom_spec_py, ins_code_py);
+	       PyList_SetItem(atom_spec_py, 0, chain_id_py);
+	       PyList_SetItem(atom_spec_py, 1, resno_start_py);
+	       PyList_SetItem(atom_spec_py, 2, resno_end_py);
+	       PyList_SetItem(atom_spec_py, 3, ins_code_py);
 	    }
 	 // we dont use the atom_spec_py!? -> decref
 	 Py_XDECREF(atom_spec_py);
 
-	 PyList_Append(l, PyInt_FromLong(ir));
-	 PyList_Append(l, PyString_FromString(s.c_str()));
-	 PyList_Append(l, is_show_flag_py);
-	 PyList_Append(l, bond_width_py);
+	 PyList_SetItem(l, 0, PyInt_FromLong(ir));
+	 PyList_SetItem(l, 1, PyString_FromString(s.c_str()));
+	 PyList_SetItem(l, 2, is_show_flag_py);
+	 PyList_SetItem(l, 3, bond_width_py);
 	 PyList_Append(r, l);
+	 Py_XDECREF(l);
       }
    } 
    if (PyBool_Check(r)) {
@@ -6207,6 +6208,7 @@ PyObject *py_clean_internal(PyObject *o) {
 	   PyErr_Print();
 	 }
 	 PyList_Append(ret, py_item);
+	 Py_XDECREF(py_item);
       }
    } else {
       if (PyBool_Check(o)) {
@@ -6422,16 +6424,15 @@ SCM scm_residue(const coot::residue_spec_t &res) {
 // return a null list on problem
 PyObject *py_residue(const coot::residue_spec_t &res) {
    PyObject *r;
-   r = PyList_New(0);
+   r = PyList_New(4);
 
 //    std::cout <<  "py_residue on: " << res.chain << " " << res.resno << " "
 // 	     << res.insertion_code  << std::endl;
-   PyList_Append(r,  PyString_FromString(res.insertion_code.c_str()));
-   PyList_Append(r,  PyInt_FromLong(res.resno));
-   PyList_Append(r,  PyString_FromString(res.chain.c_str()));
-   PyList_Append(r,  Py_True);
-   PyList_Reverse(r);
-   // int len = PyList_Size(r);
+   PyList_SetItem(r, 0, Py_True);
+   PyList_SetItem(r, 1, PyString_FromString(res.chain.c_str()));
+   PyList_SetItem(r, 2, PyInt_FromLong(res.resno));
+   PyList_SetItem(r, 3, PyString_FromString(res.insertion_code.c_str()));
+
    return r;
 }
 #endif // USE_PYTHON
@@ -6516,6 +6517,7 @@ PyObject *cis_peptides_py(int imol) {
 
 	 // add py_residue_info to r
 	 PyList_Append(r, py_residue_info);
+	 Py_XDECREF(py_residue_info);
 
       }
    }

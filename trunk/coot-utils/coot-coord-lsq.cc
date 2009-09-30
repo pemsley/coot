@@ -226,34 +226,31 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 
 	 if (match.match_type_flag == COOT_LSQ_CA) {
 
+	    // CA/P names
+	    std::string ca_name;
 
 	    CAtom *at1 = NULL;
 	    CAtom *at2 = NULL;
 	    if (SelResidue_1[0]->isAminoacid()) {
-		   at1 = SelResidue_1[0]->GetAtom(" CA ");
-		   at2 = SelResidue_2[0]->GetAtom(" CA ");
-
-		   if (at1 == NULL) {
-		      std::cout << "WARNING:: no CA in this reference residue " << ires
-				<< std::endl;
-		   }
-		   if (at2 == NULL) {
-		      std::cout << "WARNING:: no CA in this moving residue " << ires_matcher
-				<< std::endl;
-		   }
+	      ca_name = " CA ";
+	    } else {
+	      if (SelResidue_1[0]->isNucleotide()) {
+		ca_name = " P  ";
+	      } else {
+		ca_name = " P  ";
+		std::cout << "WARNING:: residue is not amino acid or nucleotide! Assuming non-standard nucleotide." << std::endl;
+	      }
 	    }
-	    if (SelResidue_1[0]->isNucleotide()) {
-		   at1 = SelResidue_1[0]->GetAtom(" P  ");
-		   at2 = SelResidue_2[0]->GetAtom(" P  ");
+	    at1 = SelResidue_1[0]->GetAtom(ca_name.c_str());
+	    at2 = SelResidue_2[0]->GetAtom(ca_name.c_str());
 
-		   if (at1 == NULL) {
-		      std::cout << "WARNING:: no P in this reference residue " << ires
-				<< std::endl;
-		   }
-		   if (at2 == NULL) {
-		      std::cout << "WARNING:: no P in this moving residue " << ires_matcher
-				<< std::endl;
-		   }
+	    if (at1 == NULL) {
+	      std::cout << "WARNING:: no " << ca_name << " in this reference residue " << ires
+			<< std::endl;
+	    }
+	    if (at2 == NULL) {
+	      std::cout << "WARNING:: no " << ca_name << " in this reference residue " << ires
+			<< std::endl;
 	    }
 	    if (at1 && at2) {
 	       v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));

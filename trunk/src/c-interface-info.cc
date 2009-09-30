@@ -220,7 +220,6 @@ PyObject *sequence_info_py(int imol) {
 
 
       if (seq.size() > 0) {
-	 r = PyList_New(0);
 	 // unsigned int does't work here because then the termination
 	 // condition never fails.
          r = PyList_New(seq.size());
@@ -770,11 +769,12 @@ PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius)
       std::vector<coot::residue_spec_t> v =
 	 graphics_info_t::molecules[imol].residues_near_residue(rspec, radius);
       for (unsigned int i=0; i<v.size(); i++) {
-	 PyObject *res_spec = PyList_New(0);
-	 PyList_Append(res_spec, PyString_FromString(v[i].chain.c_str()));
-	 PyList_Append(res_spec, PyInt_FromLong(v[i].resno));
-	 PyList_Append(res_spec, PyString_FromString(v[i].insertion_code.c_str()));
+	 PyObject *res_spec = PyList_New(3);
+	 PyList_SetItem(res_spec, 0, PyString_FromString(v[i].chain.c_str()));
+	 PyList_SetItem(res_spec, 1, PyInt_FromLong(v[i].resno));
+	 PyList_SetItem(res_spec, 2, PyString_FromString(v[i].insertion_code.c_str()));
 	 PyList_Append(r, res_spec);
+	 Py_XDECREF(res_spec);
       }
    } 
    return r;
@@ -837,6 +837,7 @@ PyObject *residues_near_position_py(int imol, PyObject *pt_in_py, float radius) 
 	for (unsigned int i=0; i<v.size(); i++) {
 	  PyObject *r_py = py_residue(coot::residue_spec_t(v[i]));
 	  PyList_Append(r, r_py);
+	  Py_XDECREF(r_py);
 	}
       }
    }
@@ -1006,14 +1007,14 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
 
 			at_b = at_biso;
 			if (at->WhatIsSet & ASET_Anis_tFac) {
-			   at_b = PyList_New(0);
-			   PyList_Append(at_b, at_biso);
-			   PyList_Append(at_b, PyFloat_FromDouble(at->u11));
-			   PyList_Append(at_b, PyFloat_FromDouble(at->u22));
-			   PyList_Append(at_b, PyFloat_FromDouble(at->u33));
-			   PyList_Append(at_b, PyFloat_FromDouble(at->u12));
-			   PyList_Append(at_b, PyFloat_FromDouble(at->u13));
-			   PyList_Append(at_b, PyFloat_FromDouble(at->u23));
+			   at_b = PyList_New(7);
+			   PyList_SetItem(at_b, 0, at_biso);
+			   PyList_SetItem(at_b, 1, PyFloat_FromDouble(at->u11));
+			   PyList_SetItem(at_b, 2, PyFloat_FromDouble(at->u22));
+			   PyList_SetItem(at_b, 3, PyFloat_FromDouble(at->u33));
+			   PyList_SetItem(at_b, 4, PyFloat_FromDouble(at->u12));
+			   PyList_SetItem(at_b, 5, PyFloat_FromDouble(at->u13));
+			   PyList_SetItem(at_b, 6, PyFloat_FromDouble(at->u23));
 			}
 
                         compound_name = PyList_New(2);
@@ -1228,11 +1229,11 @@ PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *i
 	 int next_residue_number    = next_atom->GetSeqNum();
 	 std::string next_ins_code  = next_atom->GetInsCode();
 
-	 r = PyList_New(0);
-	 PyList_Append(r, PyString_FromString(next_chain_id.c_str()));
-	 PyList_Append(r, PyInt_FromLong(next_residue_number));
-	 PyList_Append(r, PyString_FromString(next_ins_code.c_str()));
-	 PyList_Append(r, PyString_FromString(next_atom_name.c_str()));
+	 r = PyList_New(4);
+	 PyList_SetItem(r, 0, PyString_FromString(next_chain_id.c_str()));
+	 PyList_SetItem(r, 1, PyInt_FromLong(next_residue_number));
+	 PyList_SetItem(r, 2, PyString_FromString(next_ins_code.c_str()));
+	 PyList_SetItem(r, 3, PyString_FromString(next_atom_name.c_str()));
       }
    }
    if (PyBool_Check(r)) {
@@ -1262,11 +1263,11 @@ PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *i
 	 int next_residue_number    = next_atom->GetSeqNum();
 	 std::string next_ins_code  = next_atom->GetInsCode();
 
-	 r = PyList_New(0);
-	 PyList_Append(r, PyString_FromString(next_chain_id.c_str()));
-	 PyList_Append(r, PyInt_FromLong(next_residue_number));
-	 PyList_Append(r, PyString_FromString(next_ins_code.c_str()));
-	 PyList_Append(r, PyString_FromString(next_atom_name.c_str()));
+	 r = PyList_New(4);
+	 PyList_SetItem(r, 0, PyString_FromString(next_chain_id.c_str()));
+	 PyList_SetItem(r, 1, PyInt_FromLong(next_residue_number));
+	 PyList_SetItem(r, 2, PyString_FromString(next_ins_code.c_str()));
+	 PyList_SetItem(r, 3, PyString_FromString(next_atom_name.c_str()));
       }
    }
    if (PyBool_Check(r)) {
@@ -1386,15 +1387,15 @@ PyObject *closest_atom_py(int imol) {
 	 graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
       if (at_info.atom) {
          r = PyList_New(9);
-	 PyList_SetItem(r, 8, PyFloat_FromDouble(at_info.atom->z));
-	 PyList_SetItem(r, 7, PyFloat_FromDouble(at_info.atom->y));
-	 PyList_SetItem(r, 6, PyFloat_FromDouble(at_info.atom->x));
-	 PyList_SetItem(r, 5, PyString_FromString(at_info.atom->altLoc));
-	 PyList_SetItem(r, 4, PyString_FromString(at_info.atom->name));
-	 PyList_SetItem(r, 3, PyString_FromString(at_info.atom->GetInsCode()));
-	 PyList_SetItem(r, 2, PyInt_FromLong(at_info.atom->GetSeqNum()));
-	 PyList_SetItem(r, 1, PyString_FromString(at_info.atom->GetChainID()));
 	 PyList_SetItem(r, 0, PyInt_FromLong(imol));
+	 PyList_SetItem(r, 1, PyString_FromString(at_info.atom->GetChainID()));
+	 PyList_SetItem(r, 2, PyInt_FromLong(at_info.atom->GetSeqNum()));
+	 PyList_SetItem(r, 3, PyString_FromString(at_info.atom->GetInsCode()));
+	 PyList_SetItem(r, 4, PyString_FromString(at_info.atom->name));
+	 PyList_SetItem(r, 5, PyString_FromString(at_info.atom->altLoc));
+	 PyList_SetItem(r, 6, PyFloat_FromDouble(at_info.atom->x));
+	 PyList_SetItem(r, 7, PyFloat_FromDouble(at_info.atom->y));
+	 PyList_SetItem(r, 8, PyFloat_FromDouble(at_info.atom->z));
       }
    }
    if (PyBool_Check(r)) {
@@ -2578,15 +2579,15 @@ PyObject *map_parameters_py(int imol) {
 
    PyObject *r = Py_False;
    if (is_valid_map_molecule(imol)) {
-      r = PyList_New(0);
-      PyList_Append(r, PyString_FromString(graphics_info_t::molecules[imol].save_mtz_file_name.c_str()));
-      PyList_Append(r, PyString_FromString(graphics_info_t::molecules[imol].save_f_col.c_str()));
-      PyList_Append(r, PyString_FromString(graphics_info_t::molecules[imol].save_phi_col.c_str()));
-      PyList_Append(r, PyString_FromString(graphics_info_t::molecules[imol].save_weight_col.c_str()));
+      r = PyList_New(5);
+      PyList_SetItem(r, 0, PyString_FromString(graphics_info_t::molecules[imol].save_mtz_file_name.c_str()));
+      PyList_SetItem(r, 1, PyString_FromString(graphics_info_t::molecules[imol].save_f_col.c_str()));
+      PyList_SetItem(r, 2, PyString_FromString(graphics_info_t::molecules[imol].save_phi_col.c_str()));
+      PyList_SetItem(r, 3, PyString_FromString(graphics_info_t::molecules[imol].save_weight_col.c_str()));
       if (graphics_info_t::molecules[imol].save_use_weights)
-	PyList_Append(r, Py_True);
+	PyList_SetItem(r, 4, Py_True);
       else 
-	PyList_Append(r, Py_False);
+	PyList_SetItem(r, 4, Py_False);
    }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
@@ -2624,13 +2625,13 @@ PyObject *cell_py(int imol) {
    if (is_valid_map_molecule(imol) || (is_valid_model_molecule(imol))) {
       std::pair<bool, clipper::Cell> cell = graphics_info_t::molecules[imol].cell();
       if (cell.first) { 
-	 r = PyList_New(0);
-	 PyList_Append(r, PyFloat_FromDouble(cell.second.descr().a()));
-	 PyList_Append(r, PyFloat_FromDouble(cell.second.descr().b()));
-	 PyList_Append(r, PyFloat_FromDouble(cell.second.descr().c()));
-	 PyList_Append(r, PyFloat_FromDouble(clipper::Util::rad2d(cell.second.descr().alpha())));
-	 PyList_Append(r, PyFloat_FromDouble(clipper::Util::rad2d(cell.second.descr().beta())));
-	 PyList_Append(r, PyFloat_FromDouble(clipper::Util::rad2d(cell.second.descr().gamma())));
+	 r = PyList_New(6);
+	 PyList_SetItem(r, 0, PyFloat_FromDouble(cell.second.descr().a()));
+	 PyList_SetItem(r, 1, PyFloat_FromDouble(cell.second.descr().b()));
+	 PyList_SetItem(r, 2, PyFloat_FromDouble(cell.second.descr().c()));
+	 PyList_SetItem(r, 3, PyFloat_FromDouble(clipper::Util::rad2d(cell.second.descr().alpha())));
+	 PyList_SetItem(r, 4, PyFloat_FromDouble(clipper::Util::rad2d(cell.second.descr().beta())));
+	 PyList_SetItem(r, 5, PyFloat_FromDouble(clipper::Util::rad2d(cell.second.descr().gamma())));
       }
    } 
    if (PyBool_Check(r)) {
@@ -3948,10 +3949,11 @@ PyObject *ccp4i_projects_py() {
    std::vector<std::pair<std::string, std::string> > project_pairs =
       parse_ccp4i_defs(ccp4_defs_file_name);
    for (unsigned int i=0; i<project_pairs.size(); i++) {
-      PyObject *p = PyList_New(0);
-      PyList_Append(p, PyString_FromString(project_pairs[i].first.c_str()));
-      PyList_Append(p, PyString_FromString(project_pairs[i].second.c_str()));
+      PyObject *p = PyList_New(2);
+      PyList_SetItem(p, 0, PyString_FromString(project_pairs[i].first.c_str()));
+      PyList_SetItem(p, 1, PyString_FromString(project_pairs[i].second.c_str()));
       PyList_Append(r, p);
+      Py_XDECREF(p);
    }
    return r;
 } 

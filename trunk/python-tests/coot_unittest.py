@@ -60,10 +60,30 @@ else:
             print "   ", test
         print "\n"
 
+
+# some garbage collection. Not sure if this will really shed light into
+# reference counting e.g.
+print "\nFINALLY collect some GARBAGE\n"
+import gc
+import inspect
+gc.enable()
+gc.set_debug(gc.DEBUG_LEAK)
+print "BL INFO:: no of collected carbage items%s\n" %gc.collect()
+all_garbage = gc.garbage
+print "BL DEBUG:: list of garbage items:\n"
+for garb in all_garbage:
+    print "    ", garb
+print "\nDetailed information for functions:\n"
+for garb in all_garbage:
+    if inspect.isfunction(garb) and not inspect.isbuiltin(garb):
+        print "  BL INFO:: garbage item and location:"
+        print "    %s" %garb
+        print "    %s" %gc.get_referents(garb)[0]
+        print
+
 # cheating?! We only exit Coot if we are not in graphics mode
 if (use_graphics_interface_state() == 0):
     if (result.wasSuccessful()):
         coot_real_exit(0)
     else:
         coot_real_exit(1)
-
