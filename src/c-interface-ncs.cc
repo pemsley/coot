@@ -47,7 +47,7 @@
 #include "mmdb-crystal.h"
 
 #include "graphics-info.h"
-#include "atom-utils.h" // asc_to_graphics
+// #include "atom-utils.h" // asc_to_graphics
 
 #include "c-interface.h"
 #include "cc-interface.hh"
