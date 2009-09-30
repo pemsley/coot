@@ -25,3 +25,7 @@ lib_LTLIBRARIES = libcoot-surface.la
 
 libcoot_surface_la_SOURCES = \
 	 coot-surface.cc coot-surface.hh rgbreps.cc rgbreps.h
+
+libcoot_surface_la_LIBADD = \
+	$(top_builddir)/surface/libccp4mg-surface.la \
+	$(GLUT_LIBS) $(CLIPPER_LIBS) $(MMDB_LIBS) 
