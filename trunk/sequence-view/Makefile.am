@@ -69,6 +69,11 @@ AM_CXXFLAGS = 	-DPKGDATADIR='"$(pkgdatadir)"' \
 
 libcoot_sequence_view_la_SOURCES = sequence-view.cc  seq-view-interface.c
 
+# hmm... still a few undefined symbols from src/ code.
+libcoot_sequence_view_la_LIBADD = \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+   $(MMDB_LIBS) $(CANVAS_LIBS) $(GTK_LIBS)
+
 # bin_PROGRAMS = testsequenceview
 
 # testsequenceview_SOURCES = testsequenceview.cc
