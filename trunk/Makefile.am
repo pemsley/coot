@@ -25,10 +25,10 @@ ACLOCAL_AMFLAGS=-I macros
 
 # see configure.in for po intl 
 SUBDIRS = auxil scheme python macros compat coot-utils surface coot-surface \
-	skeleton ccp4mg-utils mini-mol coords density-contour angles \
+	mini-mol coords angles skeleton ccp4mg-utils density-contour \
 	db-main  geometry  \
 	ideal ligand high-res build greg-tests python-tests \
-	analysis sequence-view tw atom-utils cootaneer src rama-data doc 
+	analysis sequence-view tw cootaneer src rama-data doc 
 
 # po, no po today.
 

@@ -57,11 +57,7 @@
 #include "Cartesian.h"
 #include "Bond_lines.h"
 
-// #include "xmap-interface.h"
 #include "graphics-info.h"
-
-// #include "atom-utils.h" // asc_to_graphics
-// #include "db-main.h" not yet
 
 #include "coot-coord-utils.hh"
 #include "coot-fasta.hh"

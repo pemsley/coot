@@ -69,7 +69,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/build/libcoot-cabuild.la		\
 	$(top_builddir)/skeleton/libcoot-skeleton.la    	\
 	$(top_builddir)/angles/libcoot-AngleInfo.la   		\
-	$(top_builddir)/atom-utils/libcoot-atomutils.la		\
 	$(top_builddir)/db-main/libcoot-db-main.la     		\
 	$(top_builddir)/sequence-view/libcoot-sequence-view.la  \
 	$(top_builddir)/high-res/libcoot-high-res.la  		\
@@ -168,7 +167,6 @@ INCLUDES = \
 	-I$(top_srcdir)/intl 		\
 	-I$(top_srcdir)/skeleton	\
 	-I$(top_srcdir)/angles		\
-	-I$(top_srcdir)/atom-utils	\
 	-I$(top_srcdir)/db-main		\
 	-I$(top_srcdir)/mini-mol	\
 	-I$(top_srcdir)/ligand		\
