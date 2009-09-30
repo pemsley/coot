@@ -107,8 +107,6 @@
 // #include "xmap-interface.h"
 #include "graphics-info.h"
 
-#include "atom-utils.h" // asc_to_graphics
-
 #include "BuildCas.h"
 
 #include "trackball.h" // adding exportable rotate interface
