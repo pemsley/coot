@@ -39,6 +39,11 @@ INCLUDES = \
 
 libcoot_high_res_la_SOURCES = high-res.cc coot-atom-graph.cc residue-distortions.cc \
 	sequence-assignment.cc
+libcoot_high_res_la_LIBADD = \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+   $(top_builddir)/ligand/libcoot-ligand.la \
+   $(CLIPPER_LIBS) $(MMDB_LIBS)
+
 
 check_PROGRAMS = testatomgraph tracehighres testseqalign testseqassignment globularize_protein
 
