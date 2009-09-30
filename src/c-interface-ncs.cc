@@ -589,15 +589,17 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
 
 		  // res_l list seems only to have one element in Paul's scm code
 		  // currently?! Correct?!
-		  PyObject *res_l = PyList_New(0);
-		  PyList_Append(res_l, thisr);
-		  PyList_Append(res_l, masta);
-		  PyList_Append(res_l, PyFloat_FromDouble(cd.residue_info[iresinf].mean_diff));
+		  PyObject *res_l = PyList_New(3);
+		  PyList_SetItem(res_l, 0, thisr);
+		  PyList_SetItem(res_l, 1, masta);
+		  PyList_SetItem(res_l, 2, PyFloat_FromDouble(cd.residue_info[iresinf].mean_diff));
 		  PyList_Append(l_residue_data, res_l);
+		  Py_XDECREF(res_l);
 	       }
 	       PyList_Append(r, PyString_FromString(cd.peer_chain_id.c_str()));
 	       PyList_Append(r, PyString_FromString(diffs.target_chain_id.c_str()));
-	       PyList_Append(r, l_residue_data); 
+	       PyList_Append(r, l_residue_data);
+	       Py_XDECREF(l_residue_data);
 	    }
 	 }
       }
@@ -712,7 +714,7 @@ PyObject *ncs_ghosts_py(int imol) {
      std::vector<coot::ghost_molecule_display_t> ncs_ghosts =
        graphics_info_t::molecules[imol].NCS_ghosts();
      for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-       PyObject *ghost_py = PyList_New(0);
+       PyObject *ghost_py = PyList_New(5);
        PyObject *display_it_flag_py = Py_False;
        if (ncs_ghosts[ighost].display_it_flag)
 	 display_it_flag_py = Py_True;
@@ -724,12 +726,13 @@ PyObject *ncs_ghosts_py(int imol) {
        PyObject *chain_id_py = PyString_FromString(ncs_ghosts[ighost].chain_id.c_str());
        PyObject *name_py = PyString_FromString(ncs_ghosts[ighost].name.c_str());
 
-       PyList_Append(ghost_py, name_py);
-       PyList_Append(ghost_py, chain_id_py);
-       PyList_Append(ghost_py, target_chain_id_py);
-       PyList_Append(ghost_py, rtop_py);
-       PyList_Append(ghost_py, display_it_flag_py);
+       PyList_SetItem(ghost_py, 0, name_py);
+       PyList_SetItem(ghost_py, 1, chain_id_py);
+       PyList_SetItem(ghost_py, 2, target_chain_id_py);
+       PyList_SetItem(ghost_py, 3, rtop_py);
+       PyList_SetItem(ghost_py, 4, display_it_flag_py);
        PyList_Append(r, ghost_py);
+       Py_XDECREF(ghost_py);
      }
    }
    if (PyBool_Check(r)) {

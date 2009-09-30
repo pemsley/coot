@@ -4277,13 +4277,13 @@ PyObject *
 graphics_info_t::atom_spec_to_py(const coot::atom_spec_t &spec) const {
 
   //  PyObject *r = PyTuple_New(6);
-  PyObject *r = PyList_New(0);
-  PyList_Append(r, PyInt_FromLong(spec.int_user_data));
-  PyList_Append(r, PyString_FromString(spec.chain.c_str()));
-  PyList_Append(r, PyInt_FromLong(spec.resno));
-  PyList_Append(r, PyString_FromString(spec.insertion_code.c_str()));
-  PyList_Append(r, PyString_FromString(spec.atom_name.c_str()));
-  PyList_Append(r, PyString_FromString(spec.alt_conf.c_str()));
+  PyObject *r = PyList_New(6);
+  PyList_SetItem(r, 0, PyInt_FromLong(spec.int_user_data));
+  PyList_SetItem(r, 1, PyString_FromString(spec.chain.c_str()));
+  PyList_SetItem(r, 2, PyInt_FromLong(spec.resno));
+  PyList_SetItem(r, 3, PyString_FromString(spec.insertion_code.c_str()));
+  PyList_SetItem(r, 4, PyString_FromString(spec.atom_name.c_str()));
+  PyList_SetItem(r, 5, PyString_FromString(spec.alt_conf.c_str()));
 
   return r;
 } 

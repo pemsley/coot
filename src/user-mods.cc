@@ -277,6 +277,7 @@ coot::flips_container::user_mods_py() const {
       PyList_SetItem(flip_py, 3, PyString_FromString(flips[iflip].set_string.c_str()));
       PyList_SetItem(flip_py, 4, PyFloat_FromDouble(flips[iflip].score));
       PyList_Append(flips_list, flip_py);
+      Py_XDECREF(flip_py);
    }
    // An adjustment is 2 items: first is a list of atom specs, second is a info-string
    for (unsigned int ina=0; ina<no_adjustments.size(); ina++) {
@@ -290,6 +291,7 @@ coot::flips_container::user_mods_py() const {
       PyList_SetItem(no_adjust_py, 0, no_adjust_atom_spec_list_py);
       PyList_SetItem(no_adjust_py, 1, info_string_py);
       PyList_Append(no_adj_list, no_adjust_py);
+      Py_XDECREF(no_adjust_py);
    }
    PyList_SetItem(r, 0, flips_list);
    PyList_SetItem(r, 1, no_adj_list);

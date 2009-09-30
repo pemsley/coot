@@ -133,11 +133,11 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
 // 			    << " follows " << residue_spec << std::endl;
 		  try {
 		     double phosphate_d = pi.phosphate_distance(following_res);
-		     r = PyList_New(0);
-		     PyList_Append(r, PyFloat_FromDouble(phosphate_d));
-		     PyList_Append(r, PyString_FromString(pi.puckered_atom().c_str()));
-		     PyList_Append(r, PyFloat_FromDouble(pi.out_of_plane_distance));
-		     PyList_Append(r, PyFloat_FromDouble(pi.plane_distortion));
+		     r = PyList_New(4);
+		     PyList_SetItem(r, 0, PyFloat_FromDouble(phosphate_d));
+		     PyList_SetItem(r, 1, PyString_FromString(pi.puckered_atom().c_str()));
+		     PyList_SetItem(r, 2, PyFloat_FromDouble(pi.out_of_plane_distance));
+		     PyList_SetItem(r, 3, PyFloat_FromDouble(pi.plane_distortion));
 
 		     // double dist_crit = 1.2;
 		     // If C2', phosphate oop dist should be > dist_crit
@@ -155,10 +155,10 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
 	       } 
 	    } else { 
 	       // no pucker check
-	       r = PyList_New(0);
-	       PyList_Append(r, PyString_FromString(pi.puckered_atom().c_str()));
-	       PyList_Append(r, PyFloat_FromDouble(pi.out_of_plane_distance));
-	       PyList_Append(r, PyFloat_FromDouble(pi.plane_distortion));
+	       r = PyList_New(3);
+	       PyList_SetItem(r, 0, PyString_FromString(pi.puckered_atom().c_str()));
+	       PyList_SetItem(r, 1, PyFloat_FromDouble(pi.out_of_plane_distance));
+	       PyList_SetItem(r, 2, PyFloat_FromDouble(pi.plane_distortion));
 	       if (following_res) {
 		 try {
 		   double phosphate_d = pi.phosphate_distance(following_res);

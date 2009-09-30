@@ -1610,26 +1610,32 @@ PyObject *alignment_mismatches_py(int imol) {
 	 PyObject *str = PyString_FromString(mutations[i].second.c_str());
 	 PyList_Insert(rs_py, 0, str);
 	 PyList_Append(mutations_py, rs_py);
+	 Py_XDECREF(str);
+	 Py_XDECREF(rs_py);
       }
       for (unsigned int i=0; i<insertions.size(); i++) {
 	 PyObject *rs_py = py_residue(insertions[i].first);
 	 PyObject *str = PyString_FromString(insertions[i].second.c_str());
 	 PyList_Insert(rs_py, 0, str);
 	 PyList_Append(insertions_py, rs_py);
+	 Py_XDECREF(str);
+	 Py_XDECREF(rs_py);
       }
       for (unsigned int i=0; i<deletions.size(); i++) {
 	 PyObject *rs_py = py_residue(deletions[i].first);
 	 PyObject *str = PyString_FromString(deletions[i].second.c_str());
 	 PyList_Insert(rs_py, 0, str);
 	 PyList_Append(deletions_py, rs_py);
+	 Py_XDECREF(str);
+	 Py_XDECREF(rs_py);
       }
-      r = PyList_New(0);
+      r = PyList_New(3);
       // These are reversed so that the residue numbers come out in
       // numerical order (not backwards) and the returned list is
       // [mutations, deletions, insertions].
-      PyList_Append(r, mutations_py);
-      PyList_Append(r, deletions_py);
-      PyList_Append(r, insertions_py);
+      PyList_SetItem(r, 0, mutations_py);
+      PyList_SetItem(r, 1, deletions_py);
+      PyList_SetItem(r, 2, insertions_py);
    }
    if (PyBool_Check(r)) {
      Py_INCREF(r);

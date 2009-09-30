@@ -3019,6 +3019,7 @@ PyObject *get_refmac_sad_atom_info_py() {
       PyList_Append(ls, PyFloat_FromDouble(lambda));
     }
     PyList_Append(r, ls);
+    Py_XDECREF(ls);
   }
   return r;
 }
@@ -4282,7 +4283,7 @@ SCM origin_pre_shift_scm(int imol) {
 /*! \brief return the pre-shift as a list of fraction or python false
   on failure  */
 PyObject *origin_pre_shift_py(int imol) {
-
+   
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
@@ -4649,6 +4650,7 @@ PyObject *missing_atom_info_py(int imol) {
 	 PyList_Append(l, PyInt_FromLong(resno));
 	 PyList_Append(l, PyString_FromString(inscode.c_str()));
 	 PyList_Append(r, l);
+	 Py_XDECREF(l);
       }
    }
    if (PyBool_Check(r)) {

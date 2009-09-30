@@ -947,15 +947,15 @@ PyObject *add_dipole_py(int imol, const char* chain_id, int res_no, const char *
 #ifdef USE_PYTHON
 PyObject *dipole_to_py(std::pair<coot::dipole, int> dp) {
 
-  PyObject *r = PyList_New(0);
+  PyObject *r = PyList_New(2);
 
   clipper::Coord_orth co = dp.first.get_dipole();
-  PyObject *co_py = PyList_New(0);
-  PyList_Append(co_py, PyFloat_FromDouble(co.x()));
-  PyList_Append(co_py, PyFloat_FromDouble(co.y()));
-  PyList_Append(co_py, PyFloat_FromDouble(co.z()));
-  PyList_Append(r, PyInt_FromLong(dp.second));
-  PyList_Append(r, co_py);
+  PyObject *co_py = PyList_New(3);
+  PyList_SetItem(co_py, 0, PyFloat_FromDouble(co.x()));
+  PyList_SetItem(co_py, 1, PyFloat_FromDouble(co.y()));
+  PyList_SetItem(co_py, 2, PyFloat_FromDouble(co.z()));
+  PyList_SetItem(r, 0, PyInt_FromLong(dp.second));
+  PyList_SetItem(r, 1, co_py);
   return r;
 }
 #endif

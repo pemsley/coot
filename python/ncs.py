@@ -60,7 +60,7 @@ def skip_to_next_ncs_chain():
       # 
       chain_guess = skip_to_chain_internal(this_chain_id, chain_id_list)
 
-      if ((not type(chain_guess) is StringType)):
+      if ((not type(chain_guess) is types.StringType)):
           return chain_guess
       elif (is_solvent_chain_qm(imol, chain_guess)):
           skip_to_chain(imol, chain_guess, chain_id_list)
@@ -122,7 +122,7 @@ def skip_to_next_ncs_chain():
               # otherwise all was hunkey-dorey
               # set the orientation
               apply_ncs_to_view_orientation_and_screen_centre(imol, this_chain_id, next_chain)
-              return True
+              break
   
             
 
