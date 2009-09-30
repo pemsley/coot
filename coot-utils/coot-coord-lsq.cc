@@ -238,7 +238,8 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 		ca_name = " P  ";
 	      } else {
 		ca_name = " P  ";
-		std::cout << "WARNING:: residue is not amino acid or nucleotide! Assuming non-standard nucleotide." << std::endl;
+		std::cout << "WARNING:: residue is not amino acid or nucleotide! "
+			  << "Assuming non-standard nucleotide." << std::endl;
 	      }
 	    }
 	    at1 = SelResidue_1[0]->GetAtom(ca_name.c_str());
