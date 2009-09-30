@@ -5005,5 +5005,15 @@ Tue Sep 29 13:18:33 BST 2009
    move minimol into coot-utils and make that just one coot-utils lib.
 
 
+----
+Wed Sep 30 14:55:21 BST 2009
+
+    Several tool bar function (autofit rotamer, rotamers, edit chi
+    angles, pepflip, side-chain-180, edit-backbone,
+    mutate&auto-fit-rotamer, simple-mutate, add-peptide, add-alt-conf)
+    might work better using active-atom.
+
+    Big change.
+
 ------
 
