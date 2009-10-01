@@ -28,10 +28,9 @@ ACLOCAL_AMFLAGS=-I macros
 # coot-utils depends on mini-mol.
 # geometry depends on utils
 #
-SUBDIRS = auxil scheme python macros compat utils mini-mol coot-utils surface coot-surface \
+SUBDIRS = auxil scheme python macros compat utils geometry mini-mol coot-utils surface coot-surface \
 	coords angles skeleton ccp4mg-utils density-contour \
-	db-main  geometry  \
-	ideal ligand high-res build greg-tests python-tests \
+	db-main ideal ligand high-res build greg-tests python-tests \
 	analysis  tw cootaneer src rama-data doc 
 
 # po, no po today.
