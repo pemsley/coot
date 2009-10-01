@@ -18,9 +18,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-if COOT_USE_GUILE
-WITH_GUILE_CFLAGS=-DUSE_GUILE
-endif
+
+WITH_GUILE_CFLAGS=$(COOT_USE_GUILE)
+
 if COOT_USE_PYTHON
 WITH_PYTHON_CFLAGS=-DUSE_PYTHON
 endif
