@@ -92,17 +92,12 @@
 // BL says:: and (2.3 - dewinter), i.e. is a Mac - Python issue
 // since the follwing two include python graphics-info.h is moved up
 //
-// usleep has to be moved here for python and new compilers
 #if defined (WINDOWS_MINGW)
 #ifdef DATADIR
 #undef DATADIR
 #endif // DATADIR
-#ifndef usleep
-#include <windows.h>
-#define sleep(t) Sleep(1000*t)
-#define usleep(t) Sleep(t/1000)
-#endif /* usleep */
 #endif
+#include "sleep-fixups.h"
 
 #include "c-interface.h"
 #include "cc-interface.hh"

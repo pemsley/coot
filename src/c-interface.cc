@@ -47,15 +47,8 @@
 #ifdef DATADIR
 #undef DATADIR
 #endif // DATADIR
-#include <windows.h>
-#define sleep(t) Sleep(1000*t);
-#define usleep(t) Sleep(t/1000);
-#endif
-
-#if defined(_MSC_VER)
-#define usleep(x) Sleep(x/1000)
-#include <windows.h>
-#endif
+#endif /* MINGW */
+#include "sleep-fixups.h"
 
 // Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)
 // Now we don't want to enable broken stuff.  That is not the way.
@@ -72,7 +65,6 @@
 #define S_IXUSR S_IEXEC
 #define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
-#define sleep Sleep
 #define snprintf _snprintf
 #include <windows.h>
 #include <direct.h>

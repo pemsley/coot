@@ -40,7 +40,6 @@
 #define S_IRUSR S_IREAD
 #define S_IWUSR S_IWRITE
 #define S_IXUSR S_IEXEC
-#define sleep Sleep
 #define snprintf _snprintf
 #include <windows.h>
 #include <direct.h>
