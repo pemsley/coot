@@ -60,9 +60,9 @@
 WITH_GUILE_CFLAGS=$(COOT_STDTYPES) -DUSE_GUILE
 #endif
 
-MAKE_COOT_WRAP_GUILE=sh $(top_srcdir)/src/post-process-coot-wrap-guile.sh `$(GUILE_CONFIG) --version 2>&1 | awk '{print $$NF}'`
+MAKE_COOT_WRAP_GUILE=bash $(top_srcdir)/src/post-process-coot-wrap-guile.sh `$(GUILE_CONFIG) --version 2>&1 | awk '{print $$NF}'`
 
-MAKE_COOT_WRAP_PYTHON_XXX=sh $(top_srcdir)/src/post-process-coot-wrap-python.sh 
+MAKE_COOT_WRAP_PYTHON_XXX=bash $(top_srcdir)/src/post-process-coot-wrap-python.sh 
 
 
 ##########################################################################
