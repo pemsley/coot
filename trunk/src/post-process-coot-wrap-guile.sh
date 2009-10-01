@@ -30,24 +30,47 @@ fi
 pre="$3"
 post="$4"
 
-guile_version=$1
+guile_config=$1
 gtk2=$2 
 
-case $guile_version in
+guile_version=`$guile_config --version 2>&1`
 
-   1.6*) 
-   echo sed -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' $pre $post
-        sed -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' $pre > $pre.tmp
-   add_ifdefs $pre.tmp $post
-   ;; 
+echo guile_config:  $guile_config
+echo guile_version: $guile_version
+echo gtk2: $gtk2
+
+# if guile_config was blank (as can be the case when we compile
+# without guile, then we want a new blank file for $post.
+# Otherwise, do the filtering and addtion of the ifdefs
+#
+if [ -z "$guile_config" ] ; then 
+   if [ -e "$post" ] ; then 
+      rm -f "$post"
+   fi
+   touch "$post"
+
+else 
+
+
+   case $guile_version in
+
+      *1.6*) 
+      echo =============== 1.6 path ===================
+      echo sed -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' $pre $post
+           sed -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' $pre > $pre.tmp
+      add_ifdefs $pre.tmp $post
+      ;; 
    
-   1.8*)
-   echo sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' $pre ..to.. $post
-        sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' $pre > $pre.tmp
-   add_ifdefs $pre $post
-   ;; 
+      *1.8*)
+      echo =============== 1.8 path ===================
+      echo sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' $pre ..to.. $post
+           sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' $pre > $pre.tmp
+      add_ifdefs $pre.tmp $post
+      ;; 
+   esac
 
-esac
+fi
+
 
 
 

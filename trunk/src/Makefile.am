@@ -18,49 +18,20 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-## Process this file with automake to produce Makefile.in
-#if COOT_USE_GUILE
-#COOT_WRAP_GUILE_LIBS=libcoot-wrap-guile.la
-#WITH_GUILE_CFLAGS=$(COOT_STDTYPES) -DUSE_GUILE
-## COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/coot_wrap_guile_pre.cc
-## does this help?
-#COOT_WRAP_GUILE_TEMPLATE=coot_wrap_guile_pre.cc
-#MAKE_COOT_WRAP_GUILE=sh $(top_srcdir)/src/post-process-coot-wrap-guile.sh `$(GUILE_CONFIG) --version 2>&1 | awk '{print $$NF}'`
-#else
-#COOT_WRAP_GUILE_LIBS=
-#WITH_GUILE_CFLAGS=
-#COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/blank.cc
-#MAKE_COOT_WRAP_GUILE=cp
-#endif
-
-#if COOT_USE_PYTHON
-# COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/coot_wrap_python_pre.cc
-# does this help?
-# 20090721: No, it doesn't.
-#           The source tar currently distributes coot_wrap_*cc files for GTK1
-#           so usually we will need to generate the GTK2 versions (say on the
-#           integration build on cycle).  Where do those GTK2 wrap*cc files 
-#           go?  If in this directory then, $(srcdir)/coot_wrap_python_pre.cc
-#           is wrong for COOT_WRAP_PYTHON_TEMPLATE coot_wrap_python.cc is 
-#           generated from the wrong file.  However, it can't be in the 
-#           src directory either because that would overwrite the GTK1 files 
-#           needed for the source tar. Hmm... A dilemma.
-# COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/coot_wrap_python_pre.cc
-# COOT_WRAP_PYTHON_TEMPLATE=coot_wrap_python_pre.cc
-# COOT_WRAP_PYTHON_LIBS=libcoot-wrap-python.la
-#else
-#COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/blank.cc
-#COOT_WRAP_PYTHON_LIBS=
-#endif
 
 ######## 20091001 ########################################################
 
-#if COOT_USE_GUILE
-# COOT_STDTYPES is something like: DHAVE_SYS_STDTYPES_H=1
-WITH_GUILE_CFLAGS=$(COOT_STDTYPES) -DUSE_GUILE
-#endif
 
-MAKE_COOT_WRAP_GUILE=bash $(top_srcdir)/src/post-process-coot-wrap-guile.sh `$(GUILE_CONFIG) --version 2>&1 | awk '{print $$NF}'`
+# COOT_STDTYPES is something like: DHAVE_SYS_STDTYPES_H=1
+
+# USE_GUILE_DIRECTIVE=`if [ -z "$(COOT_USE_GUILE)"]; then echo ""; else echo -DUSE_GUILE; fi`
+
+WITH_GUILE_CFLAGS=$(COOT_STDTYPES) $(COOT_USE_GUILE)
+
+
+# GUILE_VERSION=$(GUILE_CONFIG)
+
+MAKE_COOT_WRAP_GUILE=bash $(top_srcdir)/src/post-process-coot-wrap-guile.sh "$(GUILE_CONFIG)"
 
 MAKE_COOT_WRAP_PYTHON_XXX=bash $(top_srcdir)/src/post-process-coot-wrap-python.sh 
 

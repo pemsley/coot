@@ -3696,6 +3696,8 @@ char *centre_of_mass_string(int imol) {
       return s;
    }
    return s;
+#else
+   return 0;
 #endif // PYTHON
 #endif // GUILE
 }
@@ -6804,6 +6806,8 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
 // BL says:: we might want to have it in python too
 #ifdef USE_PYTHON
    std::string filename("0-coot.state.py");
+#else
+   std::string filename("0-coot.state.scm"); // unusual
 #endif // python
 #endif // USE_GUILE
    short int il = 1;

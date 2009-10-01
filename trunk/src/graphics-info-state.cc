@@ -38,7 +38,7 @@ graphics_info_t::save_state_file(const std::string &filename) {
 
    // std::cout << "saving state" << std::endl;
    std::vector<std::string> commands;
-   short int il; // il: interface language
+   short int il = -1; // il: interface language, with some initial bogus value
 
 #ifdef USE_PYTHON
    il = 2;

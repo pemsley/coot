@@ -40,6 +40,12 @@ else
    coot_guile=false
 fi
 
-AM_CONDITIONAL(COOT_USE_GUILE, test x$coot_guile = xtrue)
+if test x$coot_guile = xtrue ; then
+   COOT_USE_GUILE=-DUSE_GUILE
+else 
+   COOT_USE_GUILE=""
+fi
+
+AC_SUBST(COOT_USE_GUILE)
 ])
 
