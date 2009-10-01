@@ -285,7 +285,8 @@
 # 4.57 20090728 gtk2 -> $build_type fixups for status
 # 4.58 20090730 remove swig from package list tested on ubuntu.
 # 4.59 20090913 Add a date to the fail status message
-script_version=4.59
+# 4.60 20091001 comment out the deletion of the coot_wrap files.
+script_version=4.60
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2789,12 +2790,13 @@ else
 fi
 (
 
-if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
-   echo INFO:: not a pythonized build
-   cp src/blank.cc src/coot_wrap_python.cc
-else 
-   echo INFO:: A pythonized build
-fi
+# 20091001 should not be needed.
+# if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
+#    echo INFO:: not a pythonized build
+#    cp src/blank.cc src/coot_wrap_python.cc
+# else 
+#    echo INFO:: A pythonized build
+# fi
 
 #      CXXFLAGS="-g -O"
 # consider getting rid of $shared_static_flag, which does a --disable-shared.
@@ -2851,8 +2853,9 @@ else
    echo NO need to update libtool $PWD
 fi
 
-rm src/coot_wrap_guile_pre.cc
-rm src/coot_wrap_python_pre.cc
+# 20091001 should not be needed
+# rm src/coot_wrap_guile_pre.cc
+# rm src/coot_wrap_python_pre.cc
 
 $MAKE
 status=$?
