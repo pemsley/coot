@@ -3361,7 +3361,10 @@ coot::util::interesting_things_list(const std::vector<atom_spec_t> &v) {
 
    r += "]";
    return r;
+#else    
+   return "";
 #endif // PYTHON
+   
 #endif // GUILE
 }
 
@@ -3530,6 +3533,8 @@ coot::util::interesting_things_list_with_fix(const std::vector<coot::util::atom_
 
    r += "]";
    return r;
+#else
+   return "";
 #endif // PYTHON
 #endif // GUILE
 }
