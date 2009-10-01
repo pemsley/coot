@@ -1,6 +1,6 @@
-# build/Makefile.am
+# coot-utils/Makefile.am
 # 
-# Copyright 2001, 2002, 2003, 2006 The University of York
+# Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
 # Author: Paul Emsley
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -18,28 +18,18 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-lib_LTLIBRARIES=libcoot-cabuild.la
+INCLUDES = \
+	-I$(top_srcdir)/compat		
 
-include_HEADERS = CalphaBuild.hh
+AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS) \
+	-DPKGDATADIR='"$(pkgdatadir)"'
 
-INCLUDES =  \
-	-I$(top_srcdir)/angles \
-	$(CLIPPER_CXXFLAGS) \
-	$(MMDB_CXXFLAGS)
+lib_LTLIBRARIES=libcoot-utils.la
 
-noinst_PROGRAMS = testcabuild
+include_HEADERS = coot-utils.hh coot-fasta.hh
 
-testcabuild_SOURCES = testcabuild.cc
 
-libcoot_cabuild_la_SOURCES = CalphaBuild.cc
+# for simple things:
+libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
+	gdk-keysyms.cc
 
-libcoot_cabuild_la_LIBADD =  \
-	$(top_builddir)/angles/libcoot-AngleInfo.la \
-        $(CLIPPER_LIBS)
-
-testcabuild_LDADD = \
-	./libcoot-cabuild.la \
-	$(top_builddir)/angles/libcoot-AngleInfo.la \
-	$(CLIPPER_LIBS) $(MMDB_LIBS)
-
-EXTRA_DIST = build.txt

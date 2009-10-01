@@ -25,7 +25,7 @@ include_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 	coot-close.hh
 
 INCLUDES = \
-	-I$(top_builddir)/skeleton \
+	-I$(top_srcdir)/skeleton \
 	-I$(top_srcdir)/coot-utils \
 	-I$(top_srcdir)/mini-mol \
 	-I$(top_srcdir)/compat \
@@ -43,6 +43,6 @@ libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 libcoot_coords_la_LIBADD = \
    ../coot-utils/libcoot-shelx.la \
    ../coot-utils/libcoot-coord-utils.la \
-   ../coot-utils/libcoot-utils.la \
+   ../utils/libcoot-utils.la \
    ../mini-mol/libcoot-mini-mol.la \
    $(MMDB_LIBS)

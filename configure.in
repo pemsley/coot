@@ -222,6 +222,7 @@ macros/Makefile
 scheme/Makefile
 python/Makefile
 compat/Makefile
+utils/Makefile
 coot-utils/Makefile
 ccp4mg-utils/Makefile
 coords/Makefile
@@ -230,7 +231,6 @@ density-contour/Makefile
 surface/Makefile
 coot-surface/Makefile
 angles/Makefile
-atom-utils/Makefile
 mini-mol/Makefile
 skeleton/Makefile
 ligand/Makefile

@@ -32,6 +32,7 @@ include_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-mi
 INCLUDES = \
 	-I$(top_srcdir)/compat     \
 	-I$(top_srcdir)/coords     \
+	-I$(top_srcdir)/utils      \
 	-I$(top_srcdir)/coot-utils \
 	-I$(top_srcdir)/mini-mol   \
 	-I$(top_srcdir)/geometry   \
@@ -63,7 +64,7 @@ libcoot_ideal_la_LIBADD = \
    ../geometry/libcoot-geometry.la \
    ../coot-utils/libcoot-coord-extras.la  \
    ../coot-utils/libcoot-coord-utils.la  \
-   ../coot-utils/libcoot-utils.la  \
+   ../utils/libcoot-utils.la  \
    ../mini-mol/libcoot-mini-mol.la  \
    $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 
@@ -93,7 +94,7 @@ with_geometry_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-shelx.la       \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(top_builddir)/utils/libcoot-utils.la       \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
@@ -106,7 +107,7 @@ with_map_LDADD =  \
 	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
-	$(top_builddir)/coot-utils/libcoot-utils.la        \
+	$(top_builddir)/utils/libcoot-utils.la        \
         $(top_builddir)/compat/libcoot-compat.la           \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
@@ -117,7 +118,7 @@ test_indexing_LDADD = \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(top_builddir)/utils/libcoot-utils.la       \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # Why do I need all these libraries to simply link a trivial test program?
@@ -128,5 +129,5 @@ logramatest_LDADD = \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(top_builddir)/utils/libcoot-utils.la       \
 	$(CLIPPER_LIBS) $(GSL_LIBS)

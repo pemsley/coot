@@ -24,7 +24,7 @@ EXTRA_DIST = read-sbase.cc read-sbase.hh notes Makefile.simple
 
 include_HEADERS =  protein-geometry.hh
 
-INCLUDES = -I$(top_srcdir)/coords -I$(top_srcdir)/coot-utils 	\
+INCLUDES = -I$(top_srcdir)/coords -I$(top_srcdir)/utils -I$(top_srcdir)/coot-utils 	\
 	 -I$(top_srcdir)/compat $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = \
@@ -37,7 +37,9 @@ AM_CXXFLAGS = \
 libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc 
 
 # and coot-utils, hmm.
-libcoot_geometry_la_LIBADD = $(MMDB_LIBS) $(CLIPPER_LIBS)
+libcoot_geometry_la_LIBADD = \
+        $(top_builddir)/utils/libcoot-utils.la \
+        $(MMDB_LIBS) $(CLIPPER_LIBS)
 
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
@@ -48,11 +50,11 @@ test_geometry_SOURCES = test-geometry.cc
 test_read_components_SOURCES = test-read-components.cc test-read-components.hh
 
 test_geometry_LDADD = ./libcoot-geometry.la         \
-        $(top_builddir)/coot-utils/libcoot-utils.la \
+        $(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS)
 
 test_read_components_LDADD =  \
 	./libcoot-geometry.la \
-        $(top_builddir)/coot-utils/libcoot-utils.la   \
+        $(top_builddir)/utils/libcoot-utils.la   \
 	$(CLIPPER_LIBS) $(MMDB_LIBS)
 
