@@ -47,7 +47,10 @@ if test x$glut_prefix != x ; then
         # but there is no libXmu on Darwin... argh!
 
         # special case:
-        case $ac_cv_build_alias in
+	# BL: workaround needed for new MinGW
+	ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
+	
+	case $ac_cv_build_alias in
 
 	powerpc-apple-darwin*)
 	   GLUT_LDOPTS="-L/usr/X11R6/$acl_libdirstem -L$glut_prefix/$acl_libdirstem -lglut $GL_LIBS"
@@ -81,7 +84,12 @@ if test x$glut_prefix != x ; then
 	*-mingw*)
 	   # BL says:: this is for MinGW Windows
 	   # for now we try just with GL_LIBS may have to be GTK_LIBS
-	   GLUT_LDOPTS="-L$glut_prefix/lib -lglut32 $GL_LIBS"
+	   # we have freeglut on windows now, so test for this		
+	   if test -e $glut_prefix/GL/include/freeglut.h ; then
+	      GLUT_LDOPTS="-L$glut_prefix/lib -lfreeglut $GL_LIBS"
+	   else
+	      GLUT_LDOPTS="-L$glut_prefix/lib -lglut32 $GL_LIBS"
+	   fi
 	   break;;
 
 	mips-sgi-irix6*)

@@ -83,6 +83,9 @@ if test x$with_python != x; then
    # config.guess returns e.g. i686-pc-linux-gnu, powerpc-apple-darwin7.0.0
    #
    UTIL_LIB="-lutil"
+   # BL: workaround needed for new MinGW
+   ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
+
    case	$ac_cv_build_alias in
 	*apple-darwin*)
 		UTIL_LIB=""

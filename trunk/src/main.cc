@@ -40,14 +40,6 @@
 // #endif
 // #ifdef DATADIR
 // #endif // DATADIR
-#if defined (WINDOWS_MINGW)
-#ifdef DATADIR
-#undef DATADIR
-#endif // DATADIR
-#include <windows.h>
-#define sleep(t) Sleep(1000*t)
-#define usleep(t) Sleep(t/1000)
-#endif
 
 #include <gtk/gtk.h>
 
@@ -72,7 +64,7 @@
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 
-#ifndef _MSC_VER
+#ifndef _MSC_VER 
 #include <unistd.h>
 #else
 #define PKGDATADIR "C:/coot/share"
@@ -99,6 +91,19 @@
 // ssm_superpose.h) to be 0x00004000 (Grrr).
 // BL says:: and (2.3 - dewinter), i.e. is a Mac - Python issue
 // since the follwing two include python graphics-info.h is moved up
+//
+// usleep has to be moved here for python and new compilers
+#if defined (WINDOWS_MINGW)
+#ifdef DATADIR
+#undef DATADIR
+#endif // DATADIR
+#ifndef usleep
+#include <windows.h>
+#define sleep(t) Sleep(1000*t)
+#define usleep(t) Sleep(t/1000)
+#endif /* usleep */
+#endif
+
 #include "c-interface.h"
 #include "cc-interface.hh"
 
@@ -226,11 +231,7 @@ main (int argc, char *argv[]) {
   
      while(gtk_main_iteration() == FALSE);
      while (gtk_events_pending()) {
-#if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
 	usleep(10000);
-#else
-	usleep(10000);
-#endif
 	gtk_main_iteration();
      }
   }

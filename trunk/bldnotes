@@ -18,6 +18,18 @@ build-it-win rev 2122
 
    o make md5sum note on WinCoot website
 
+   o update WinCoot to guile 1.8.6 (if possible)
+
+   o fix addition of guile and python keybindings (translation of lambda functions?)
+
+   o key code for ( and ) not recognised (on FC10 e.g.)
+
+   o fix toolbuttons (upon loading with 'new' python import module)
+
+   o website guile comment
+
+* Done
+
    o simple guile implementation in WinCoot
 
    o update python WIKI scripts
