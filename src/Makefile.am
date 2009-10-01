@@ -19,21 +19,21 @@
 # 02110-1301, USA
 
 ## Process this file with automake to produce Makefile.in
-if COOT_USE_GUILE
-COOT_WRAP_GUILE_LIBS=libcoot-wrap-guile.la
-WITH_GUILE_CFLAGS=$(COOT_STDTYPES) -DUSE_GUILE
-# COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/coot_wrap_guile_pre.cc
-# does this help?
-COOT_WRAP_GUILE_TEMPLATE=coot_wrap_guile_pre.cc
-MAKE_COOT_WRAP_GUILE=sh $(top_srcdir)/src/post-process-coot-wrap-guile.sh `$(GUILE_CONFIG) --version 2>&1 | awk '{print $$NF}'`
-else
-COOT_WRAP_GUILE_LIBS=
-WITH_GUILE_CFLAGS=
-COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/blank.cc
-MAKE_COOT_WRAP_GUILE=cp
-endif
+#if COOT_USE_GUILE
+#COOT_WRAP_GUILE_LIBS=libcoot-wrap-guile.la
+#WITH_GUILE_CFLAGS=$(COOT_STDTYPES) -DUSE_GUILE
+## COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/coot_wrap_guile_pre.cc
+## does this help?
+#COOT_WRAP_GUILE_TEMPLATE=coot_wrap_guile_pre.cc
+#MAKE_COOT_WRAP_GUILE=sh $(top_srcdir)/src/post-process-coot-wrap-guile.sh `$(GUILE_CONFIG) --version 2>&1 | awk '{print $$NF}'`
+#else
+#COOT_WRAP_GUILE_LIBS=
+#WITH_GUILE_CFLAGS=
+#COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/blank.cc
+#MAKE_COOT_WRAP_GUILE=cp
+#endif
 
-if COOT_USE_PYTHON
+#if COOT_USE_PYTHON
 # COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/coot_wrap_python_pre.cc
 # does this help?
 # 20090721: No, it doesn't.
@@ -46,12 +46,27 @@ if COOT_USE_PYTHON
 #           src directory either because that would overwrite the GTK1 files 
 #           needed for the source tar. Hmm... A dilemma.
 # COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/coot_wrap_python_pre.cc
-COOT_WRAP_PYTHON_TEMPLATE=coot_wrap_python_pre.cc
-COOT_WRAP_PYTHON_LIBS=libcoot-wrap-python.la
-else
-COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/blank.cc
-COOT_WRAP_PYTHON_LIBS=
-endif
+# COOT_WRAP_PYTHON_TEMPLATE=coot_wrap_python_pre.cc
+# COOT_WRAP_PYTHON_LIBS=libcoot-wrap-python.la
+#else
+#COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/blank.cc
+#COOT_WRAP_PYTHON_LIBS=
+#endif
+
+######## 20091001 ########################################################
+
+#if COOT_USE_GUILE
+# COOT_STDTYPES is something like: DHAVE_SYS_STDTYPES_H=1
+WITH_GUILE_CFLAGS=$(COOT_STDTYPES) -DUSE_GUILE
+#endif
+
+MAKE_COOT_WRAP_GUILE=sh $(top_srcdir)/src/post-process-coot-wrap-guile.sh `$(GUILE_CONFIG) --version 2>&1 | awk '{print $$NF}'`
+
+MAKE_COOT_WRAP_PYTHON_XXX=sh $(top_srcdir)/src/post-process-coot-wrap-python.sh 
+
+
+##########################################################################
+
 
 CANVAS_CFLAGS = $(GTKCANVAS_CFLAGS) $(GNOME_CANVAS_CFLAGS)
 CANVAS_LIBS   = $(GTKCANVAS_LIBS) $(GNOME_CANVAS_LIBS)
@@ -87,43 +102,49 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/analysis/libcoot-analysis.la 		\
 	$(top_builddir)/cootaneer/libcootaneer.la 		\
-	$(top_builddir)/compat/libcoot-compat.la  		\
-	$(COOT_WRAP_GUILE_LIBS)  $(COOT_WRAP_PYTHON_LIBS)
+	$(top_builddir)/compat/libcoot-compat.la  		
+
 
 
 # Remember to regenerate coot_wrap_python_pre.cc before making dist, eh?
 #
 EXTRA_DIST = \
 	coot.i post-glade add-c-extern.sh blank.cc fix-gettext.sh \
-	coot_wrap_python_pre.cc coot_wrap_guile_pre.cc mol-hierachy.cc \
+	mol-hierachy.cc \
 	coot.py junk.cc coot.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh
 
 
 
-coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ $(SWIG_FLAGS) $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
-
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
-coot_wrap_guile_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@  $(SWIG_FLAGS) $(WITH_GUILE_CFLAGS) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
+# SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage
+#
+coot_wrap_guile_pre_gtk1.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
+	swig -o $@ $(WITH_GUILE_CFLAGS) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
 
-coot_wrap_guile.cc: $(COOT_WRAP_GUILE_TEMPLATE)
-	$(MAKE_COOT_WRAP_GUILE) $(COOT_WRAP_GUILE_TEMPLATE) $@
+coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
+	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(WITH_GUILE_CFLAGS) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
 
-coot_wrap_python.cc: $(COOT_WRAP_PYTHON_TEMPLATE)
-	cp $(COOT_WRAP_PYTHON_TEMPLATE) $@
+coot_wrap_guile_gtk2.cc: coot_wrap_guile_pre_gtk2.cc
+	$(MAKE_COOT_WRAP_GUILE) gtk2 $^ $@
 
+coot_wrap_guile_gtk1.cc: coot_wrap_guile_pre_gtk1.cc
+	$(MAKE_COOT_WRAP_GUILE) gtk1 $^ $@
 
-lib_LTLIBRARIES=libcoot-wrap-python.la libcoot-wrap-guile.la
+# python
 
-libcoot_wrap_python_la_SOURCES = \
-	coot_wrap_python.cc
+coot_wrap_python_pre_gtk1.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
+	swig -o $@ $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
 
-libcoot_wrap_guile_la_SOURCES = \
-	coot_wrap_guile.cc
+coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
+	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
 
+coot_wrap_python_gtk1.cc: coot_wrap_python_pre_gtk1.cc
+	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk1 $^ $@
+
+coot_wrap_python_gtk2.cc: coot_wrap_python_pre_gtk2.cc
+	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
 
 
 #libcoot_wrap.so: coot_wrap.o
@@ -264,6 +285,10 @@ coot_real_SOURCES = \
 	coot_pythonmodule.cc     \
 	coot-preferences.h       \
 	coot-references.h        \
+	coot_wrap_guile_gtk1.cc  \
+	coot_wrap_guile_gtk2.cc  \
+	coot_wrap_python_gtk1.cc \
+	coot_wrap_python_gtk2.cc \
 	generic-display-object.hh\
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
