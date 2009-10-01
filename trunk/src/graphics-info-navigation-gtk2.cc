@@ -32,7 +32,6 @@
 #define S_IRUSR S_IREAD
 #define S_IWUSR S_IWRITE
 #define S_IXUSR S_IEXEC
-#define sleep Sleep
 #include <windows.h>
 #include <direct.h>
 #endif // _MSC_VER
