@@ -85,7 +85,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/skeleton/libcoot-skeleton.la    	\
 	$(top_builddir)/angles/libcoot-AngleInfo.la   		\
 	$(top_builddir)/db-main/libcoot-db-main.la     		\
-	$(top_builddir)/sequence-view/libcoot-sequence-view.la  \
 	$(top_builddir)/high-res/libcoot-high-res.la  		\
 	$(top_builddir)/ideal/libcoot-ideal.la    		\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
@@ -192,7 +191,6 @@ INCLUDES = \
 	-I$(top_srcdir)/db-main		\
 	-I$(top_srcdir)/mini-mol	\
 	-I$(top_srcdir)/ligand		\
-	-I$(top_srcdir)/sequence-view   \
 	-I$(top_srcdir)/geometry	\
 	-I$(top_srcdir)/ideal   	\
 	-I$(top_srcdir)/coot-surface	\
@@ -356,6 +354,10 @@ coot_real_SOURCES = \
 	trackball.c trackball.h  \
 	triangle-extras.h 	 \
 	select-atom-info.hh      \
+	sequence-view.hh         \
+	sequence-view.cc         \
+	seq-view-interface.c     \
+	seq-view-interface.h     \
 	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
 	xmap-utils.cc 		 \
