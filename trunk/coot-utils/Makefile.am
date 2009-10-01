@@ -33,6 +33,7 @@ include_HEADERS = peak-search.hh coot-trim.hh \
 	coot-rama.hh xmap-stats.hh
 
 INCLUDES = \
+	-I$(top_srcdir)/utils	        \
 	-I$(top_srcdir)/coords  	\
 	-I$(top_srcdir)/geometry	\
 	-I$(top_srcdir)/compat		\
