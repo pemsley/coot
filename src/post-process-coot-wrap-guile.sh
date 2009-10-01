@@ -55,14 +55,12 @@ else
    case $guile_version in
 
       *1.6*) 
-      echo =============== 1.6 path ===================
       echo sed -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' $pre $post
            sed -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' $pre > $pre.tmp
       add_ifdefs $pre.tmp $post
       ;; 
    
       *1.8*)
-      echo =============== 1.8 path ===================
       echo sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' $pre ..to.. $post
            sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' $pre > $pre.tmp
       add_ifdefs $pre.tmp $post
