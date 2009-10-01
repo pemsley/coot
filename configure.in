@@ -239,7 +239,6 @@ ideal/Makefile
 build/Makefile
 analysis/Makefile
 high-res/Makefile
-sequence-view/Makefile	
 tw/Makefile
 cootaneer/Makefile
 greg-tests/Makefile

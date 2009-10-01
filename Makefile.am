@@ -32,7 +32,7 @@ SUBDIRS = auxil scheme python macros compat utils mini-mol coot-utils surface co
 	coords angles skeleton ccp4mg-utils density-contour \
 	db-main  geometry  \
 	ideal ligand high-res build greg-tests python-tests \
-	analysis sequence-view tw cootaneer src rama-data doc 
+	analysis  tw cootaneer src rama-data doc 
 
 # po, no po today.
 
