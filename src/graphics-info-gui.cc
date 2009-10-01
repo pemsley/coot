@@ -42,7 +42,7 @@
 #if !defined _MSC_VER && !defined WINDOWS_MINGW
 #include <unistd.h>
 #else
-//#include "coot-sysdep.h"
+#include "coot-sysdep.h"
 #endif
 
 #include "mmdb_manager.h"

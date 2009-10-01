@@ -66,8 +66,6 @@ do
   echo writing progress status to public html $PUBLIC_HTML_LOGS
   echo build-in-progress > $PUBLIC_HTML_LOGS/gtk2-build-status
   echo in-progress       > $PUBLIC_HTML_LOGS/gtk2-test-status
-  echo public html in the beginning $PUBLIC_HTML_LOGG > x.txt
-  ls -lt $PUBLIC_HTML_LOGS >> x.txt
   echo BUILDING:: python WinCoot
   $build_it
   python_build_status=$?

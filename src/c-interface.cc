@@ -33,15 +33,6 @@
 #include <glob.h> // for globbing.  Needed here?
 #endif
 
-#if defined (WINDOWS_MINGW)
-#ifdef DATADIR
-#undef DATADIR
-#endif // DATADIR
-#include <windows.h>
-#define sleep(t) Sleep(1000*t);
-#define usleep(t) Sleep(t/1000);
-#endif
-
 #ifdef USE_GUILE
 #include <guile/gh.h>
 #include "c-interface-scm.hh"
@@ -52,6 +43,14 @@
 #include "c-interface-python.hh"
 #endif // USE_PYTHON
 
+#if defined (WINDOWS_MINGW)
+#ifdef DATADIR
+#undef DATADIR
+#endif // DATADIR
+#include <windows.h>
+#define sleep(t) Sleep(1000*t);
+#define usleep(t) Sleep(t/1000);
+#endif
 
 #if defined(_MSC_VER)
 #define usleep(x) Sleep(x/1000)

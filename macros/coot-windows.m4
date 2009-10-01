@@ -27,6 +27,9 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
  COOT_WINDOWS_CFLAGS=""
  have_windows_mingw=no
 
+ # BL: workaround needed for new MinGW
+ ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
+
  case $ac_cv_build_alias in 
 
   *-mingw*)

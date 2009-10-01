@@ -75,6 +75,9 @@ else
  CLIPPER_LDOPTS="-lclipper-ccp4 -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-minimol -lclipper-cns -lclipper-core -lccp4c $MMDB_LIBS -lrfftw -lfftw -lz -lm"
 fi
 
+# BL: workaround needed for new MinGW
+ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
+
 # we dont want pthreads in windows 
 case $ac_cv_build_alias in
         # BL says:: same as for cygwin in mingw
