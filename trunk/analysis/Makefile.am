@@ -21,8 +21,8 @@ bfactan_SOURCES = bfactan.cc
 bfactan_LDADD = \
 	libcoot-analysis.la 					\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la 	\
-	$(top_builddir)/coot-utils/libcoot-utils.la 		\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
+	$(top_builddir)/utils/libcoot-utils.la 		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)
 

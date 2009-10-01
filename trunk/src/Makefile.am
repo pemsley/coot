@@ -98,7 +98,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-shelx.la	  	\
-	$(top_builddir)/coot-utils/libcoot-utils.la  		\
+	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/analysis/libcoot-analysis.la 		\
 	$(top_builddir)/cootaneer/libcootaneer.la 		\
@@ -184,6 +184,7 @@ INCLUDES = \
 	-I$(top_srcdir)/compat 		\
 	-I$(top_srcdir)/coords 		\
 	-I$(top_srcdir)/ccp4mg-utils	\
+	-I$(top_srcdir)/utils	        \
 	-I$(top_srcdir)/coot-utils	\
 	-I$(top_srcdir)/intl 		\
 	-I$(top_srcdir)/skeleton	\
@@ -379,8 +380,8 @@ fix_nomenclature_errors_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la		\
-	$(top_builddir)/coot-utils/libcoot-utils.la	  	\
 	$(top_builddir)/coot-utils/libcoot-shelx.la	  	\
+	$(top_builddir)/utils/libcoot-utils.la	  	        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
 	$(GSL_LIBS)		\
 	$(CLIPPER_LIBS) 	\
@@ -418,7 +419,7 @@ test_chol_LDADD =	\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/coot-utils/libcoot-shelx.la \
-	$(top_builddir)/coot-utils/libcoot-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la      \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # testmap_SOURCES = testmap.cc xmap-interface.cc
@@ -441,7 +442,7 @@ test_coot_align_LDADD =	\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la 	\
 	$(top_builddir)/coot-utils/libcoot-shelx.la  		\
-	$(top_builddir)/coot-utils/libcoot-utils.la  		\
+	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)
 
@@ -454,7 +455,7 @@ density_score_by_residue_real_LDADD  =	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-shelx.la  		\
-	$(top_builddir)/coot-utils/libcoot-utils.la  		\
+	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/compat/libcoot-compat.la  		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		\

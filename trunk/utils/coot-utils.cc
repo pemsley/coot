@@ -23,6 +23,8 @@
 // Portability (to Windows, particularly) functions go here.
 // 
 
+#include <iostream>
+
 #include <stdexcept> // for string_to_int.
 #include <sstream>   // ditto.
 #include <cstdio>    // 20090806 Justin Lecher says we need this on Gentoo 
@@ -49,7 +51,8 @@
 #include <unistd.h>   // BL says: in windows needed for mkdir
 #endif // MINGW
 
-#include "clipper/core/hkl_compute.h"
+// #include "clipper/core/hkl_compute.h"
+
 #include "coot-utils.hh"
 
 

@@ -44,6 +44,4 @@ libcoot_mini_mol_la_LIBADD = \
  $(MMDB_LIBS) $(CLIPPER_LIBS) 
 
 testminimol_LDADD = libcoot-mini-mol.la \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS)

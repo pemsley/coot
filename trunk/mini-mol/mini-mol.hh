@@ -150,6 +150,7 @@ namespace coot {
 	 short int setup(CMMDBManager *mmdb_mol_in);
 	 short int have_spacegroup;
 	 short int have_cell;
+	 std::pair<bool, int> min_resno_in_chain(CChain *chain_p) const; 
       public:
 	 molecule() {have_cell = 0; have_spacegroup = 0;};
 	 // 

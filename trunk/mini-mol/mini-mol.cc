@@ -133,6 +133,38 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
    have_spacegroup = 0;
 } 
 
+// This is like the coot utils function, but it is here because
+// coot-coord utils depends on minimol, so minimol can't depend on
+// coot-coord-utils.
+// 
+std::pair<bool, int>
+coot::minimol::molecule::min_resno_in_chain(CChain *chain_p) const {
+
+   bool found_residues = 0;
+   int min_resno = 99999999;
+   
+   if (chain_p == NULL) {  
+      // This should not be necessary. It seem to be a
+      // result of mmdb corruption elsewhere - possibly
+      // DeleteChain in update_molecule_to().
+      std::cout << "NULL chain in residues_in_molecule: "
+		<< std::endl;
+   } else { 
+      int nres = chain_p->GetNumberOfResidues();
+      CResidue *residue_p;
+      int resno;
+      for (int ires=0; ires<nres; ires++) {
+	 residue_p = chain_p->GetResidue(ires);
+	 resno = residue_p->seqNum;
+	 if (resno < min_resno) {
+	    min_resno = resno;
+	    found_residues = 1;
+	 }
+      }
+   }
+   return std::pair<bool, int>(found_residues, min_resno);
+}
+
 
 // Return status.  If good, return 0 else (if bad) return 1.
 //
@@ -182,8 +214,7 @@ coot::minimol::molecule::setup(CMMDBManager *mol) {
 		  std::cout << "NULL chain in ... minimol setup" << std::endl;
 	       } else { 
 		  int nres = chain_p->GetNumberOfResidues();
-		  std::pair<short int, int> min_info =
-		     coot::util::min_resno_in_chain(chain_p);
+		  std::pair<short int, int> min_info = min_resno_in_chain(chain_p);
 		  if (min_info.first) { 
 		     fragments[ifrag].resize_for(nres, min_info.second);
 		     PCResidue residue_p;
