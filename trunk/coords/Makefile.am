@@ -26,6 +26,7 @@ include_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 
 INCLUDES = \
 	-I$(top_srcdir)/skeleton \
+	-I$(top_srcdir)/utils \
 	-I$(top_srcdir)/coot-utils \
 	-I$(top_srcdir)/mini-mol \
 	-I$(top_srcdir)/compat \
