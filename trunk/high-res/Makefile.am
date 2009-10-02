@@ -32,6 +32,7 @@ INCLUDES = \
 	-I$(top_srcdir)/ccp4mg-utils \
 	-I$(top_srcdir)/mini-mol     \
 	-I$(top_srcdir)/ligand       \
+	-I$(top_srcdir)/utils   \
 	-I$(top_srcdir)/coot-utils   \
 	-I$(top_srcdir)/compat       \
 	$(MMDB_CXXFLAGS)  \
@@ -60,7 +61,7 @@ testatomgraph_LDADD =  libcoot-high-res.la                \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
 	$(top_builddir)/coot-utils/libcoot-shelx.la       \
-	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(top_builddir)/utils/libcoot-utils.la       \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
 	$(top_builddir)/compat/libcoot-compat.la          \
 	$(GSL_LIBS)			                  \
@@ -78,7 +79,7 @@ testseqassignment_LDADD = libcoot-high-res.la             \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/coot-utils/libcoot-shelx.la       \
-	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(top_builddir)/utils/libcoot-utils.la       \
 	$(top_builddir)/compat/libcoot-compat.la          \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
 	$(GSL_LIBS)				          \
@@ -97,7 +98,7 @@ tracehighres_LDADD = libcoot-high-res.la                  \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/coot-utils/libcoot-shelx.la       \
-	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(top_builddir)/utils/libcoot-utils.la       \
 	$(top_builddir)/compat/libcoot-compat.la          \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
 	$(GSL_LIBS)				          \
@@ -118,7 +119,7 @@ testseqalign_LDADD = libcoot-high-res.la                  \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/coot-utils/libcoot-shelx.la       \
-	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(top_builddir)/utils/libcoot-utils.la       \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
 	$(top_builddir)/compat/libcoot-compat.la          \
 	$(GSL_LIBS)				          \
@@ -138,7 +139,7 @@ globularize_protein_LDADD = libcoot-high-res.la           \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/coot-utils/libcoot-shelx.la       \
-	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(top_builddir)/utils/libcoot-utils.la       \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
 	$(top_builddir)/compat/libcoot-compat.la          \
 	$(GSL_LIBS)				          \
