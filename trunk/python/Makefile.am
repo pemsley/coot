@@ -20,7 +20,7 @@
 
 pythondir = $(pkgdatadir)/python
 
-python_DATA =  $(EXTRA_DIST) coot_load_modules.py
+python_DATA = $(EXTRA_DIST)
 
 if COOT_USE_PYTHON
 TEXI_FILE =  coot-python-functions.texi
