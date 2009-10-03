@@ -1,9 +1,7 @@
 
 schemedir = $(pkgdatadir)/scheme
 
-scheme_DATA =  $(EXTRA_DIST)
-
-EXTRA_DIST =                 \
+dist_scheme_DATA = \
 0-auto-rot.scm       coot-utils.scm       get-ebi.scm     mutate.scm       \
 background-demo.scm  demo-script.scm      gtkin.scm       my-readline.scm  \
 bit.scm              extra-top-level.scm  hello.scm       raster3d.scm     \
@@ -17,15 +15,4 @@ extensions.scm       ncs.scm create-server.scsh coot-crash-catcher.scm     \
 snarf-coot-docs.scm  clear-backup.scm     bones-reader.scm matrices.scm    \
 fascinating-things.scm shelx-extensions.scm parse-pisa-xml.scm
 
-
-
-
-
-
-
-
-
-
-
-
-
+# scheme_TEXINFOS = ... something generated?  More reading needed.

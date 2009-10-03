@@ -20,7 +20,6 @@
 
 pythondir = $(pkgdatadir)/python
 
-python_DATA = $(EXTRA_DIST)
 
 if COOT_USE_PYTHON
 TEXI_FILE =  coot-python-functions.texi
@@ -28,10 +27,9 @@ coot-python-functions.texi:
 	python $(top_srcdir)/python/python_coot_docs.py 
 endif
 
-EXTRA_DIST =    \
+dist_python_DATA = \
                      coot_utils.py        get_ebi.py      mutate.py        \
-background_demo.py                                                         \
-                                          hello.py        raster3d.py      \
+background_demo.py   hello.py             raster3d.py                      \
 brute_lsqman.py                                           refmac.py        \
 coot_gui.py          filter.py            libcheck.py                      \
 coot_load_modules.py                      local_code.py                    \
@@ -43,4 +41,5 @@ python_coot_docs.py  clear_backup.py      bones_reader.py                  \
                      shelx_extensions.py  parse_pisa_xml.py                \
 coot_toolbuttons.py		                                           \
 ../src/coot.py $(TEXI_FILE)
+
 
