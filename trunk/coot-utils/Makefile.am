@@ -25,7 +25,7 @@ if COOT_USE_PYTHON
 WITH_PYTHON_CFLAGS=-DUSE_PYTHON
 endif
 
-lib_LTLIBRARIES=libcoot-map-utils.la libcoot-coord-utils.la  libcoot-coord-extras.la libcoot-map-heavy.la libcoot-shelx.la
+lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-shelx.la libcoot-coord-extras.la libcoot-map-utils.la libcoot-map-heavy.la
 
 include_HEADERS = peak-search.hh coot-trim.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
