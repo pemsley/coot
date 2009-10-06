@@ -1,4 +1,3 @@
-
 def pisa_xml(imol, file_name):
 
     from xml.etree.ElementTree import ElementTree
@@ -288,7 +287,9 @@ def pisa_assemblies(imol):
                                    [], "pisa.log", True)
 #                                   [], "pisa.log", False)
             if (status == 0):  #good
-                status_2 = popen_command("pisa", [pisa_project_name, "-xml", pisa_config],
+                print "BL DEBUG:: 2nd pisa args", [pisa_project_name, "-xml", pisa_config]
+                status_2 = popen_command("pisa",
+                                         [pisa_project_name, "-xml", pisa_config],
                                          [], pisa_xml_file_name, True)
 #                                         [], pisa_xml_file_name, False)
                 if (status_2 == 0):
