@@ -80,6 +80,9 @@
 #include "mmdb.h"
 #include "mmdb-crystal.h"
 
+#include "clipper/core/test_core.h"
+#include "clipper/contrib/test_contrib.h"
+
 #include "Cartesian.h"
 #include "Bond_lines.h"
 
@@ -187,6 +190,16 @@ main (int argc, char *argv[]) {
   command_line_data cld = parse_command_line(argc, argv);
 
   cld.handle_immediate_settings();
+
+  if (cld.run_internal_tests_and_exit) {
+    // do self tests
+    std::cout << "Running internal self tests" << std::endl;
+    clipper::Test_core test_core;       bool result_core    = test_core();
+    clipper::Test_contrib test_contrib; bool result_contrib = test_contrib();
+    std::cout<<" Clipper core   : "<<(result_core   ?"OK":"FAIL")<<std::endl;
+    std::cout<<" Clipper contrib: "<<(result_contrib?"OK":"FAIL")<<std::endl;
+    return (result_core&&result_contrib) ? 1 : 0;
+  }
   
   if (graphics_info_t::show_citation_notice == 1) { 
      show_citation_request();

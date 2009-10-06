@@ -24,6 +24,7 @@ public:
    bool disable_state_script_writing;
    bool use_splash_screen;
    std::string alternate_splash_screen_file_name; 
+   bool run_internal_tests_and_exit;
    command_line_data() { 
      hardware_stereo_flag = 0; // default off
      port = 0;
@@ -35,6 +36,7 @@ public:
      small_screen_display  = 0; // default is no small screen
      use_splash_screen = 1;
      alternate_splash_screen_file_name = ""; // unset, tested vs blank.
+     run_internal_tests_and_exit = 0;
    }
    void handle_immediate_settings(); 
 };
