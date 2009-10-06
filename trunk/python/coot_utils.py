@@ -1074,7 +1074,7 @@ def graphics_general_key_press_hook(key):
         #print "BL DEBUG:: index and executing:", index, func
         apply(func)
     else:
-        print "%s not found in key_bindings" %key
+        print "Key %s not found in bindings" %key
 
 
 # def read_vu_file(filename, obj_name):

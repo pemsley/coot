@@ -1839,27 +1839,38 @@ def cootaneer_gui(imol):
 #
 def view_saver_gui():
 
-	def local_view_name():
-		view_count = 0
-		while view_count or view_count == 0:
-			strr = "View"
-			if view_count > 0:
-				strr = strr + "-" + str(view_count)
-			# now is a view already called str?
-			jview = 0
-			while jview or jview == 0:
-				jview_name = view_name(jview)
-				if jview >= n_views(): return strr
-				elif jview_name == False: return strr
-				elif strr == jview_name:
-					view_count += 1
-					break
-				else:
-					jview +=1
-		return strr
+   def local_view_name():
+      view_count = 0
+      while view_count or view_count == 0:
+         strr = "View"
+         if view_count > 0:
+            strr = strr + "-" + str(view_count)
+         # now is a view already called str?
+         jview = 0
+         while jview or jview == 0:
+            jview_name = view_name(jview)
+            if jview >= n_views(): return strr
+            elif jview_name == False: return strr
+            elif strr == jview_name:
+               view_count += 1
+               break
+            else:
+               jview +=1
+      return strr
 
-	generic_single_entry("View Name: ", local_view_name(), " Add View ",
-		lambda text: add_view_here(text))
+   def add_view_local_func(text):
+      new_view_number = add_view_here(text)
+      add_view_to_views_panel(text, new_view_number)
+   generic_single_entry("View Name: ", local_view_name(), " Add View ",
+                        lambda text: add_view_local_func(text))
+
+def add_view_to_views_panel(view_name, view_number):
+   global views_dialog_vbox
+   if (views_dialog_vbox):
+      button = gtk.Button(view_name)
+      button.connect("clicked", lambda func: go_to_view_number(view_number, 0))
+      views_dialog_vbox.pack_start(button, False, False, 2)
+      button.show()
 
 # a button is a list of [label, callback, text_description]
 #
@@ -2171,29 +2182,33 @@ def dialog_box_of_radiobuttons(window_name, geometry, buttons,
 
    window.show_all()
 
+global views_dialog_vbox
+views_dialog_vbox = False
 # A gui showing views
 #
 def views_panel_gui():
 
-	number_of_views = n_views()
-	buttons = []
+   global views_dialog_vbox
+   number_of_views = n_views()
+   buttons = []
 
-	for button_number in range(number_of_views):
-		button_label = view_name(button_number)
-		desciption = view_description(button_number)
+   for button_number in range(number_of_views):
+      button_label = view_name(button_number)
+      desciption = view_description(button_number)
 # BL says:: add the decisption condition!!
-		buttons.append([button_label, "go_to_view_number(" + str(button_number) + ",0)", desciption])
+      buttons.append([button_label, "go_to_view_number(" + str(button_number) + ",0)", desciption])
 
-	if len(buttons) > 1:
-		def view_button_func():
-			import time
-			go_to_first_view(1)
-			time.sleep(1)
-			play_views()
-		view_button = ["  Play Views ", lambda func: view_button_func()]
-		buttons.insert(0,view_button)
+      if len(buttons) > 1:
+         def view_button_func():
+            import time
+            go_to_first_view(1)
+            time.sleep(1)
+            play_views()
+         view_button = ["  Play Views ", lambda func: view_button_func()]
+         buttons.insert(0,view_button)
 
-	dialog_box_of_buttons("Views", [200,140], buttons, "  Close  ")
+   views_vbox = dialog_box_of_buttons("Views", [200,140], buttons, "  Close  ")
+   views_dialog_vbox = views_vbox
 
 # nudge screen centre box.  Useful when Ctrl left-mouse has been
 # taken over by another function.
@@ -4124,6 +4139,9 @@ def residue_range_gui(func, function_text, go_button_label):
 global additional_solvent_ligands
 additional_solvent_ligands = []
 
+global random_jiggle_n_trials
+random_jiggle_n_trials = 50
+
 def solvent_ligand_list():
    global additional_solvent_ligands
    return (["EDO", "GOL", "ACT", "MPD", "CIT", "SO4", "PO4", "TAM"] +
@@ -4131,8 +4149,15 @@ def solvent_ligand_list():
 
 # add solvent molecules
 #
+# Change the translation jiggle-factor to 1.0, so the ligand doesn't
+# move so far and get sucked into protein density (this is just a
+# temporary hack, it would be better to mask the enviroment of the
+# ligand by the surrounding atoms of the molecule to which the ligand
+# is added - that is much harder).
+#
 def solvent_ligands_gui():
 
+   global random_jiggle_n_trials
    #
    def add_ligand_func(imol, tlc):
       print "Add a %s to molecule %s here" %(tlc, imol)
@@ -4140,16 +4165,19 @@ def solvent_ligands_gui():
       if (valid_model_molecule_qm(imol_ligand)):
          # delete hydrogens from the ligand if the master molecule
          # does not have hydrogens.
-         if (not molecule_has_hydrogens(imol)):
-            delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
+         if (valid_model_molecule_qm(imol)):
+            if (not molecule_has_hydrogens(imol)):
+               delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
          if (valid_map_molecule_qm(imol_refinement_map())):
             print "========  jiggling!  ======== "
-            fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "", 100, 2.0)
+            fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "",
+                                        random_jiggle_n_trials, 1.0)
             with_auto_accept([refine_zone, imol_ligand, "A", 1, 1, ""])
          else:
             print "======== not jiggling - no map ======== "
-         merge_molecules([imol_ligand], imol)
-         set_mol_displayed(imol_ligand, 0)
+         if valid_model_molecule_qm(imol):
+            merge_molecules([imol_ligand], imol)
+            set_mol_displayed(imol_ligand, 0)
    
    # add a button for a 3-letter-code to the scrolled vbox that runs
    # add-ligand-func when clicked.
