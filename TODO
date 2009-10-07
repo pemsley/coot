@@ -552,6 +552,15 @@ Punted from 0.6:
      copy of the xmap out of the imol-refinement-map.  Use a
      reference. ::: 1
 
+   o JED: You should do RSR refinement on ligand fitting results to
+     make the score more meaningful. [Do it for the top n fits? ] ::: 6
+
+   o Make sulfurs yellow.  At least optionally.
+
+   o Consider a "Validate" mode [checkbutton?] on reading coordinates
+     (or command line option).  That displays Ramachandran plot, rotamer
+     analysis for the given molecule.
+
 
 0.6.1 
 

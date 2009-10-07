@@ -5015,5 +5015,19 @@ Wed Sep 30 14:55:21 BST 2009
 
     Big change.
 
+
+----
+Wed Oct  7 15:44:59 BST 2009
+   
+   Ingo K: if you try to add a c-terminal residue, coot does recognize
+   the residue number correctly, but will not do any real space
+   refinement. if you output the coordinates, you will see that the
+   new residue is attached to the end of the B chain, i.e. BEHIND the
+   waters.  i would guess that this breaks real space refinement in
+   coot. i would guess ... (it asks to increase
+   max_number_refine_residues or so)
+
+
+
 ------
 
