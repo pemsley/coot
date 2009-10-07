@@ -246,8 +246,6 @@ python-tests/Makefile
 doc/Makefile
 src/Makefile
 src/coot
-setup/coot.sh	
-setup/coot.csh
 python/coot_load_modules.py
 rama-data/Makefile
 auxil/Makefile
