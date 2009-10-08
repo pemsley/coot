@@ -174,16 +174,10 @@ coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &re
    if (rest.torsion_restraint.size() > 0) {
       std::vector<coot::atom_index_quad> quads;
       for (unsigned int itr=0; itr<rest.torsion_restraint.size(); itr++) { 
-	 try {
-	    coot::dict_torsion_restraint_t tr = rest.torsion_restraint[itr];
-	    coot::atom_index_quad quad = get_atom_index_quad(tr, res, altconf);
-	    quads.push_back(quad);
-	 }
-	 catch (std::runtime_error rte) {
-	    // We don't want to know that we can't fill hydrogen
-	    // torsions when there are no hydrogens in the model.
-	    // std::cout << rte.what() << std::endl;
-	 }
+	 coot::dict_torsion_restraint_t tr = rest.torsion_restraint[itr];
+	 std::pair<bool,coot::atom_index_quad> quad_pair = get_atom_index_quad(tr, res, altconf);
+	 if (quad_pair.first)
+	    quads.push_back(quad_pair.second);
       }
 
       // Now we have a set of atom index quads, put them in the
@@ -351,13 +345,16 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
    return r;
 } 
 
-
-// Throw an exception on not able to fill.
+// This used to throw an exception.  But now it does not because the
+// catcher was empty (we don't want to know about unfilled hydrogen
+// torsions).  And an empty catch is bad.  So now we return a pair,
+// the first of which defines whether the torsion is good or not.
 // 
-coot::atom_index_quad
+std::pair<bool,coot::atom_index_quad>
 coot::atom_tree_t::get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
 				       CResidue *res,
 				       const std::string &altconf) const {
+   bool success = 0;
    coot::atom_index_quad quad(-1,-1,-1,-1);
    PPCAtom residue_atoms = 0;
    int n_residue_atoms;
@@ -380,18 +377,11 @@ coot::atom_tree_t::get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
    }
    if ((quad.index1 == -1) || (quad.index2 == -1) ||
        (quad.index3 == -1) || (quad.index4 == -1)) {
-      std::string mess = "Can't fill atom_quad with indices ";
-
-      // Fails on mac sometimes, python-related?
-      // std::ostringstream o;
-      // o << tr;
-      // mess += o.str();
-
-      // 20091008
-      mess += tr.format();
-      throw std::runtime_error(mess);
-   } 
-   return quad;
+      success = 0;
+   } else {
+      success = 1;
+   }
+   return std::pair<bool,coot::atom_index_quad> (success,quad);
 }
 
 
