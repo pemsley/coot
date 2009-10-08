@@ -610,6 +610,9 @@
 	     (write-sxml
 	      `(html (head (title "Coot Build Summary Page")
 			   (meta (@ (http-equiv refresh) (content 600))))
+		     (link (@ (rel "icon")
+			      (type "image/png")
+			      (href "../coot-favicon.png")))
 		     (body 
 		      (h2 "Coot SVN and Build Summary")
 		      (p ("Generated " ,(strftime "%a %d %b %H:%M:%S %G %Z" (localtime (current-time)))))
