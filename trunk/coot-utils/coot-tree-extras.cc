@@ -381,9 +381,14 @@ coot::atom_tree_t::get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
    if ((quad.index1 == -1) || (quad.index2 == -1) ||
        (quad.index3 == -1) || (quad.index4 == -1)) {
       std::string mess = "Can't fill atom_quad with indices ";
-      std::ostringstream o;
-      o << tr;
-      mess += o.str();
+
+      // Fails on mac sometimes, python-related?
+      // std::ostringstream o;
+      // o << tr;
+      // mess += o.str();
+
+      // 20091008
+      mess += tr.format();
       throw std::runtime_error(mess);
    } 
    return quad;
