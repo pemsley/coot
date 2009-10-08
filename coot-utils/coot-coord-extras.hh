@@ -176,9 +176,12 @@ namespace coot {
 			 const std::string &altconf);
       void fill_name_map(const std::string &altconf);
 
-      // Throw an exception on not able to fill.
-      atom_index_quad get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
-					  CResidue *res, const std::string &altconf) const;
+      // return bool of 0 on not able to fill (not an exception).
+      // 
+      std::pair<bool, atom_index_quad>
+      get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
+			  CResidue *res, const std::string &altconf) const;
+      
       std::vector<atom_tree_index_t> get_back_atoms(const atom_tree_index_t &index2) const;
       std::pair<int, std::vector<atom_tree_index_t> > get_forward_atoms(const atom_tree_index_t &index2) const;
       std::vector<coot::atom_tree_t::atom_tree_index_t>
