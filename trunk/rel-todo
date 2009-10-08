@@ -1,8 +1,8 @@
 
    1 items
 
-   o Pierre Aller rotamer bug.  who knows how long this will take?
-     Horrific. ::: 1
+   o Put the GNU GPLv3 in the GUI ::: 0.5
+ 
 
 ------
 
@@ -1299,6 +1299,11 @@ src/gtk-manual.cc:                done
      THR VAL LEU ASP ASN GLU GLN ILE ::: 2
 
 * Done.
+
+   o Pierre Aller rotamer bug.  who knows how long this will take?
+     Horrific. ::: 1
+
+* Gone away.
 
 
 -----

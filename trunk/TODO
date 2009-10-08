@@ -561,6 +561,9 @@ Punted from 0.6:
      (or command line option).  That displays Ramachandran plot, rotamer
      analysis for the given molecule.
 
+   o "Fast Save" - save all models that have been changed to the
+     default name.  ::: 2
+
 
 0.6.1 
 
