@@ -892,7 +892,35 @@ coot::operator<<(std::ostream &s, const coot::dict_torsion_restraint_t &rest) {
       s << " CONST ";
    s << "]";
    return s;
-} 
+}
+
+// hack for mac, ostream problems
+std::string
+coot::dict_torsion_restraint_t::format() const {
+
+   std::string s = "[torsion-restraint: ";
+   s +=  id();
+   s += " ";
+   s +=  atom_id_1_4c();
+   s +=  " ";
+   s +=  atom_id_2_4c();
+   s +=   " ";
+   s +=  atom_id_3_4c();
+   s +=   " ";
+   s +=  atom_id_4_4c();
+   s +=   " ";
+   s +=  angle();
+   s +=  " " ;
+   s +=  esd();
+   s +=  " ";
+   s +=  periodicity();
+   if (is_const())
+      s +=  " CONST ";
+   s +=  "]";
+   return s;
+}
+
+
 
 
 // We currently want to stop adding chem comp info
