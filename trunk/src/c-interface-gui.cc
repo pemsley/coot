@@ -82,6 +82,55 @@ int show_paths_in_display_manager_state() {
    return graphics_info_t::show_paths_in_display_manager_flag;
 }
 
+
+/*! \brief display the open coordinates dialog */
+void open_coords_dialog() {
+
+
+   if (graphics_info_t::use_graphics_interface_flag) { 
+   
+#if (GTK_MAJOR_VERSION == 1)
+
+      GtkWidget *coords_fileselection1 = coot_file_chooser();
+      GtkWidget *file_filter_button;
+      GtkWidget *sort_button;
+      add_ccp4i_project_optionmenu(coords_fileselection1, COOT_COORDS_FILE_SELECTION);
+
+      file_filter_button = add_filename_filter_button(coords_fileselection1, 
+						      COOT_COORDS_FILE_SELECTION);
+      sort_button = add_sort_button_fileselection(coords_fileselection1);
+      add_recentre_on_read_pdb_checkbutton(coords_fileselection1);
+      set_directory_for_fileselection(coords_fileselection1);
+      push_the_buttons_on_fileselection(file_filter_button, sort_button, 
+					coords_fileselection1);
+      set_file_selection_dialog_size(coords_fileselection1);
+      gtk_widget_show (coords_fileselection1);
+
+#else
+
+      /* This split was here because the buttons don't work. They act on the
+	 file list, using the file list as a CList.  And CList is deprecated
+	 in GTk+2.  So the button-press callback code needs to be adjusted. */
+      GtkWidget *file_filter_button;
+      GtkWidget *sort_button;
+      GtkWidget *coords_fileselection1 = coot_file_chooser(); // a chooser or selector, depends.
+      add_ccp4i_project_optionmenu(coords_fileselection1, COOT_COORDS_FILE_SELECTION);
+      file_filter_button = add_filename_filter_button(coords_fileselection1, 
+						      COOT_COORDS_FILE_SELECTION);
+      sort_button = add_sort_button_fileselection(coords_fileselection1); 
+      add_recentre_on_read_pdb_checkbutton(coords_fileselection1);
+      set_directory_for_coot_file_chooser(coords_fileselection1);
+      set_file_selection_dialog_size(coords_fileselection1);
+      gtk_widget_show (coords_fileselection1);
+      /* in gtk2 we have to push the buttons after we show the selection */
+      push_the_buttons_on_fileselection(file_filter_button, sort_button, 
+					coords_fileselection1);
+#endif
+   }
+}
+  
+
+
 void
 set_graphics_rotamer_dialog(GtkWidget *w) {
    graphics_info_t::rotamer_dialog = w;

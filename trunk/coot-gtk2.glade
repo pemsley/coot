@@ -2037,6 +2037,24 @@
 	      <property name="show_arrow">False</property>
 
 	      <child>
+		<widget class="GtkToolButton" id="coords_toolbutton">
+		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">Open Coordinates File...</property>
+		  <property name="label" translatable="yes">Open Coords...</property>
+		  <property name="use_underline">True</property>
+		  <property name="stock_id">gtk-open</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		  <property name="is_important">False</property>
+		  <signal name="clicked" handler="on_coords_toolbutton_clicked" last_modification_time="Fri, 09 Oct 2009 13:35:33 GMT"/>
+		</widget>
+		<packing>
+		  <property name="expand">False</property>
+		  <property name="homogeneous">True</property>
+		</packing>
+	      </child>
+
+	      <child>
 		<widget class="GtkToolButton" id="reset_view_toolbutton">
 		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Usage Note: click again to centre on a different molecule</property>
@@ -2070,10 +2088,6 @@
 		  <property name="expand">False</property>
 		  <property name="homogeneous">True</property>
 		</packing>
-	      </child>
-
-	      <child>
-		<placeholder/>
 	      </child>
 
 	      <child>

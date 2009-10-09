@@ -246,6 +246,7 @@ create_window1 (void)
   GtkWidget *toolbar1;
   GtkIconSize tmp_toolbar_icon_size;
   GtkWidget *tmp_image;
+  GtkWidget *coords_toolbutton;
   GtkWidget *reset_view_toolbutton;
   GtkWidget *display_manager_toolbutton;
   GtkWidget *toolitem30;
@@ -1421,6 +1422,14 @@ create_window1 (void)
   gtk_toolbar_set_show_arrow (GTK_TOOLBAR (toolbar1), FALSE);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (toolbar1));
 
+  tmp_image = gtk_image_new_from_stock ("gtk-open", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  coords_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Open Coords..."));
+  gtk_widget_set_name (coords_toolbutton, "coords_toolbutton");
+  gtk_widget_show (coords_toolbutton);
+  gtk_container_add (GTK_CONTAINER (toolbar1), coords_toolbutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (coords_toolbutton), tooltips, _("Open Coordinates File..."), NULL);
+
   tmp_image = gtk_image_new_from_stock ("gtk-zoom-fit", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   reset_view_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _(" Reset View"));
@@ -2503,6 +2512,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) hints1, "activate",
                     G_CALLBACK (on_hints1_activate),
                     NULL);
+  g_signal_connect ((gpointer) coords_toolbutton, "clicked",
+                    G_CALLBACK (on_coords_toolbutton_clicked),
+                    NULL);
   g_signal_connect ((gpointer) reset_view_toolbutton, "clicked",
                     G_CALLBACK (on_reset_view_toolbutton_clicked),
                     NULL);
@@ -2856,6 +2868,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, hints1, "hints1");
   GLADE_HOOKUP_OBJECT (window1, image7051, "image7051");
   GLADE_HOOKUP_OBJECT (window1, toolbar1, "toolbar1");
+  GLADE_HOOKUP_OBJECT (window1, coords_toolbutton, "coords_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, reset_view_toolbutton, "reset_view_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, display_manager_toolbutton, "display_manager_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, toolitem30, "toolitem30");
