@@ -205,6 +205,10 @@ void set_file_selection_dialog_size(GtkWidget *w);
 /*! \brief, return the state of the above variable */
 int filter_fileselection_filenames_state();
 
+
+/*! \brief display the open coordinates dialog */
+void open_coords_dialog();
+
 #ifdef COOT_USE_GTK2_INTERFACE
 void on_filename_filter_toggle_button_toggled (GtkButton       *button,
 					      gpointer         user_data);
