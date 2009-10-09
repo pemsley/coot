@@ -612,6 +612,8 @@ Punted from 0.6:
      where?  Now do the same, but go through the waters backwards using
      "shift space" - Ingo Korndoerfer ::: 1
 
+   o coordinates from cif dictionary (e.g. nad_exp.cif from Garib to
+     ccp4bb).   ::: 1
 
 
  ------
