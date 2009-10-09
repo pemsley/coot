@@ -909,11 +909,11 @@ coot::dict_torsion_restraint_t::format() const {
    s +=   " ";
    s +=  atom_id_4_4c();
    s +=   " ";
-   s +=  angle();
+   s +=  coot::util::float_to_string(angle());
    s +=  " " ;
-   s +=  esd();
+   s +=  coot::util::float_to_string(esd());
    s +=  " ";
-   s +=  periodicity();
+   s +=  coot::util::int_to_string(periodicity());
    if (is_const())
       s +=  " CONST ";
    s +=  "]";

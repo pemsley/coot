@@ -3999,9 +3999,10 @@ may be interesting to use an anomalous map to do this analysis.
 @cindex  probe
 @cindex  reduce
 
-The molprobity tools @file{probe} and @file{reduce} have been interfaced
-into Coot (currently, the interface is not slick).  However, the tools
-are useful and can be used in the following way:
+The molprobity tools @file{probe} and @file{reduce} have been
+interfaced into Coot (currently, the interface is not as slick as it
+might be).  However, the tools are useful and can be used in the
+following way:
 
 first we need to tell Coot where to find the relevant executables
 (typically you would add the following lines to you @file{~/.coot}
