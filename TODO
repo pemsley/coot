@@ -604,9 +604,13 @@ Punted from 0.6:
 
    o fit-waters should have a mode where bumps to protein atoms are
      considered (not sphere refine - we don't want to move the protein
-     atoms).
+     atoms).  ::: 1
 
-   o Put libcheck output in coot-ccp4 (or coot-libcheck).
+   o Put libcheck output in coot-ccp4 (or coot-libcheck).  ::: 0.5
+
+   o "Space" through waters.  Delete a water.  "space" recentres
+     where?  Now do the same, but go through the waters backwards using
+     "shift space" - Ingo Korndoerfer ::: 1
 
 
 
@@ -653,9 +657,9 @@ Punted from 0.6:
    o to make the rotamer probabilites smooth, FFT them like
      Otwinowski's Ramachachandran plots.  FFTW in mult-dimentions.  Hmm.
    
-   o (consider) Luca Jovine: I want to do sphere regularization
+   o (consider) Luca Jovine: I want to do sphere regularization  ::: 2
 
-   o (consider) Add/generate HELIX and SHEET PDB header info.
+   o (consider) Add/generate HELIX and SHEET PDB header info.  ::: 3
 
 
  ------
