@@ -1133,6 +1133,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 }
 
 	 realtype x,y,z;
+	 pdbx_model_Cartn_ideal.first = 0;
 	 int ierr_optional_x = mmCIFLoop->GetReal(x, "pdbx_model_Cartn_x_ideal", j);
 	 int ierr_optional_y = mmCIFLoop->GetReal(y, "pdbx_model_Cartn_y_ideal", j);
 	 int ierr_optional_z = mmCIFLoop->GetReal(z, "pdbx_model_Cartn_z_ideal", j);
@@ -1140,7 +1141,8 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	    if (ierr_optional_y == 0)
 	       if (ierr_optional_z == 0)
 		  pdbx_model_Cartn_ideal = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
-	 
+
+	 model_Cartn.first = 0;
 	 ierr_optional_x = mmCIFLoop->GetReal(x, "model_Cartn_x", j);
 	 ierr_optional_y = mmCIFLoop->GetReal(y, "model_Cartn_y", j);
 	 ierr_optional_z = mmCIFLoop->GetReal(z, "model_Cartn_z", j);
@@ -1149,9 +1151,22 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	       if (ierr_optional_z == 0)
 		  model_Cartn = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
 
+	 // Try simple x, y, z (like the refmac dictionary that Garib sent has)
+	 // 
+	 if (model_Cartn.first == 0) {
+	    ierr_optional_x = mmCIFLoop->GetReal(x, "x", j);
+	    ierr_optional_y = mmCIFLoop->GetReal(y, "y", j);
+	    ierr_optional_z = mmCIFLoop->GetReal(z, "z", j);
+	    if (ierr_optional_x == 0)
+	       if (ierr_optional_y == 0)
+		  if (ierr_optional_z == 0) {
+		     std::cout << "adding position " << clipper::Coord_orth(x,y,z).format() << std::endl;
+		     model_Cartn = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
+		  } 
+	 }
 
-	 // They can possibly not have this data type, so don't fail if
-	 // we can't read it.
+	 // It's possible that this data type is not in the cif file,
+	 // so don't fail if we can't read it.
 
 	 realtype tmp_var;
 	 ierr = mmCIFLoop->GetReal(tmp_var, "partial_charge", j);

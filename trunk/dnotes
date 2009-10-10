@@ -392,7 +392,9 @@ Tue Aug 21 16:50:52 BST 2007
   e.g. WASP
   Reference: Nayal, M., & Di Cera, E. (1996) J. Mol. Biol. 256: 228-234
 
-Nayal M and Di Cera E. Valence screening of water in protein crystals reveals potential Na+ binding sites. J Mol Biol 256: 228–234, 1996
+  Nayal M and Di Cera E. Valence screening of water in protein
+  crystals reveals potential Na+ binding sites. J Mol Biol 256:
+  228–234, 1996
 
   Looks straightforward.  Except symmetry must be used to find neighbours.
 
@@ -5027,7 +5029,13 @@ Wed Oct  7 15:44:59 BST 2009
    coot. i would guess ... (it asks to increase
    max_number_refine_residues or so)
 
+----
+Sat Oct 10 08:36:45 BST 2009
 
+   Student project.  Add metal distances (water validation).
+   consolidate water validation.  Run difference map water validation
+   across all structures in the PDB with anomalous data. See "metal
+   distances" above.
 
 ------
 
