@@ -376,6 +376,21 @@
 				   (using-active-atom 
 				    (mutate-by-overlap aa-imol aa-chain-id aa-res-no text))))))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Monomer from Dictionary..."
+	 (lambda ()
+	   (generic-single-entry "Pull coordinates from CIF dictionary for 3-letter-code:" "" 
+				 " Get Coords " 
+				 (lambda (text) 
+				   (let ((idealized? 0))
+				     (let ((new-model (get-monomer-from-dictionary text idealized?)))
+				       (if (valid-model-molecule? new-model)
+					   new-model
+					   ;; 
+					   (get-monomer text))))))))
+
+	
+
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Reorder Chains..."

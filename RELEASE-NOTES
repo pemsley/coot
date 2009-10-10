@@ -34,6 +34,9 @@ Pre-release 0.6
 
   o FEATURE: Multi-select on reading coordinates is enabled.
 
+  o FEATURE: Immediate access to coordinates from CIF dictionaries
+    that contain coordinates (no need for LIBCHECK in such cases).
+
   o CHANGE: partial charges added to electrostatic surface calculation.
 
   o CHANGE: shift-click and ctrl-click in the file selectors now work
@@ -41,6 +44,9 @@ Pre-release 0.6
 
   o CHANGE: SEGIDs are more intelligently inherited [Steven Sheriff,
     Bob Nolte]
+ 
+  o CHANGE: Transformed make take the cell and symmetry of the
+   reference coordinates.
 
   o CHANGE: Transformed maps take on the cell and spacegroup of the
     reference coordinates.
@@ -62,9 +68,15 @@ Pre-release 0.6
   o CHANGE: Don't display the geometry distance if the molecule
     corresponding to the start or end point is not displayed [JED].
 
+  o CHANGE: Additional representations now have an "All off" button.
+
   o CHANGE: Chi angles rotation now include a "reverse fragment" option.
 
+  o CHANGE: "Add strand here" moved next to "Add Helix Here".
+
   o BUG-FIX: TER records are removed on addition of waters [Herb Klei].
+
+  o BUG-FIX: Align vs PIR file improved.
 
   o BUG-FIX: Single HETATMs now are refined by rigid body (as waters
     are) when using Refine Zone.
@@ -81,9 +93,15 @@ Pre-release 0.6
 
   o BUG-FIX: Torsion angle refinement convergence improved [JED].
 
+  o BUG-FIX: Ramachandran Green spot no longer disappers on refinement.
+
   o BUG-FIX: Limit the sequence view canvas X parameters, so that we
     don't get X11 errors and crash [Felix Frolow].
 
+  o BUG-FIX: Additional representations appear in both "eyes" in
+    side-by-side mode.
+
+  o BUG-FIX: Delete-atom spewing binary fixed [JED].
 
 -----
 

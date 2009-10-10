@@ -12,6 +12,7 @@
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
+
 from pychart import *
 theme.get_options()
 theme.output_format="png"
@@ -91,13 +92,14 @@ describeEvent(5, "Christmas\nholidays start", -20)
 xpscale = 0.6
 
 # crisis:
-crisis_pt=59
+# crisis_pt=59 280 days?
+crisis_pt=57
 can.line(line_style.black_dash1, crisis_pt, ybot, crisis_pt, ytip)
 tb = text_box.T(text="Crisis!", loc=(25, 110), shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
 tb.add_arrow((crisis_pt, ytip))
 tb.draw()
     
-tb = text_box.T(loc=(21*xpscale, 43), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
+tb = text_box.T(loc=(18*xpscale, 43), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
 # tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "cb")
 tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "c")
 tb.draw()
@@ -106,35 +108,40 @@ tb = text_box.T(loc=(35*xpscale, 73), text="Papers & Happy", shadow=(1,-1,fill_s
 tb.add_arrow((ar.x_pos(data[74][0]), ar.y_pos(data[74][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(72*xpscale, 60), text="CCP4 Dev", shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
+tb = text_box.T(loc=(68*xpscale, 60), text="CCP4 Dev", shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
 tb.add_arrow((ar.x_pos(data[115][0]), ar.y_pos(data[115][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(70*xpscale, 18), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb = text_box.T(loc=(50*xpscale, 8), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[122][0]), ar.y_pos(data[122][1])), "tc")
 tb.draw()
 
-tb = text_box.T(loc=(110*xpscale, 72), text="NIH & MAMCM", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
-tb.add_arrow((ar.x_pos(data[160][0]), ar.y_pos(data[160][1])), "c")
+tb = text_box.T(loc=(100*xpscale, 20), text="NIH & MAMCM", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb.add_arrow((ar.x_pos(data[160][0]), ar.y_pos(data[160][1])), "tc")
 tb.draw()
 
-tb = text_box.T(loc=(130*xpscale, 32), text="Paper Submitted", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb = text_box.T(loc=(130*xpscale, 31), text="Paper Submitted", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 
 tb.add_arrow((ar.x_pos(data[206][0]), ar.y_pos(data[206][1])), "tc")
 tb.draw()
 
 #tb = text_box.T(loc=(170*xpscale, 45), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3, bg_style=fill_style.gray90)
-tb = text_box.T(loc=(175*xpscale, 45), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb = text_box.T(loc=(155*xpscale, 45), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[262][0]), ar.y_pos(data[262][1])), "tc")
 tb.draw()
 
-tb = text_box.T(loc=(200*xpscale, 65), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb = text_box.T(loc=(185*xpscale, 58), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[343][0]), ar.y_pos(data[343][1])), "tc")
 tb.draw()
 
 tb = text_box.T(loc=(120*xpscale, 110), text="User Feedback", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[366][0]), ar.y_pos(data[366][1])), "c")
 tb.draw()
+
+tb = text_box.T(loc=(205*xpscale, 80), text="HEC-2009", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb.add_arrow((ar.x_pos(data[414][0]), ar.y_pos(data[414][1])), "tc")
+tb.draw()
+
 
 # take-home:
 #   Max sustainable rate: 2.2 dev-pts/day
