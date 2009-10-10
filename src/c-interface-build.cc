@@ -2427,6 +2427,12 @@ void sort_chains(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].sort_chains();
+      if (graphics_info_t::use_graphics_interface_flag) {
+	 graphics_info_t g;
+	 if (g.go_to_atom_window) {
+	    g.update_go_to_atom_window_on_changed_mol(imol);
+	 }
+      }
    }
 }
 
