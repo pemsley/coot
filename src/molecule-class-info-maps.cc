@@ -702,7 +702,6 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
 	 // save state strings
 
-
 	 if (have_sensible_refmac_params) { 
 	    save_state_command_strings_.push_back("make-and-draw-map-with-refmac-params");
 	    save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
@@ -716,14 +715,33 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	    save_state_command_strings_.push_back(single_quote(refmac_sigfobs_col));
 	    save_state_command_strings_.push_back(single_quote(refmac_r_free_col));
 	    save_state_command_strings_.push_back(g.int_to_string(refmac_r_free_flag_sensible));
-	 } else { 
-	    save_state_command_strings_.push_back("make-and-draw-map");
-	    save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
-	    save_state_command_strings_.push_back(single_quote(f_col));
-	    save_state_command_strings_.push_back(single_quote(phi_col));
-	    save_state_command_strings_.push_back(single_quote(weight_col));
-	    save_state_command_strings_.push_back(g.int_to_string(use_weights));
-	    save_state_command_strings_.push_back(g.int_to_string(is_diff_map));
+	 } else {
+	    if (save_use_reso_limits) { 
+	       save_state_command_strings_.push_back("make-and-draw-map-with-reso-with-refmac-params");
+	       save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
+	       save_state_command_strings_.push_back(single_quote(f_col));
+	       save_state_command_strings_.push_back(single_quote(phi_col));
+	       save_state_command_strings_.push_back(single_quote(weight_col));
+	       save_state_command_strings_.push_back(g.int_to_string(use_weights));
+	       save_state_command_strings_.push_back(g.int_to_string(is_diff_map));
+	       save_state_command_strings_.push_back(g.int_to_string(0)); // have refmac params
+	       save_state_command_strings_.push_back(single_quote(""));
+	       save_state_command_strings_.push_back(single_quote(""));
+	       save_state_command_strings_.push_back(single_quote(""));
+	       save_state_command_strings_.push_back(g.int_to_string(0)); // sensible r-free
+	       save_state_command_strings_.push_back(g.int_to_string(is_anomalous_flag)); 
+	       save_state_command_strings_.push_back(g.int_to_string(save_use_reso_limits));
+	       save_state_command_strings_.push_back(g.float_to_string( low_reso_limit));
+	       save_state_command_strings_.push_back(g.float_to_string(high_reso_limit));
+	    } else {
+	       save_state_command_strings_.push_back("make-and-draw-map");
+	       save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
+	       save_state_command_strings_.push_back(single_quote(f_col));
+	       save_state_command_strings_.push_back(single_quote(phi_col));
+	       save_state_command_strings_.push_back(single_quote(weight_col));
+	       save_state_command_strings_.push_back(g.int_to_string(use_weights));
+	       save_state_command_strings_.push_back(g.int_to_string(is_diff_map));
+	    } 
 	 }
       }
    }
