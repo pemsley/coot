@@ -1159,10 +1159,8 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	    ierr_optional_z = mmCIFLoop->GetReal(z, "z", j);
 	    if (ierr_optional_x == 0)
 	       if (ierr_optional_y == 0)
-		  if (ierr_optional_z == 0) {
-		     std::cout << "adding position " << clipper::Coord_orth(x,y,z).format() << std::endl;
+		  if (ierr_optional_z == 0)
 		     model_Cartn = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
-		  } 
 	 }
 
 	 // It's possible that this data type is not in the cif file,
