@@ -92,8 +92,23 @@
 				extension)))
 	    (rename-file file-name new-file-name)))))
 
+  ;; the exe and log-file-name (and command-lines-args perhaps)
+  ;; relative to dir (not the calling dir)
+  ;; 
+  (define (run-command-in-dir dir exe-name command-lines-args data-lines log-file-name to-screen-flag)
+    (let ((current (getcwd)))
+      (chdir dir)
+      (let ((status 
+	     (goosh-command exe-name command-lines-args data-lines log-file-name to-screen-flag)))
+	(chdir current)
+	status)))
+
   (define (libcheck-monomer-gui dir-prefix code-str cif-file-name 
 				pdb-file-name post-refmac-pdb-file-name)
+
+    (format #t "================= debug: libcheck-monomer-gui: dir-prefix: ~s   code-str: ~s   cif-file-name: ~s   pdb-file-name: ~s   post-refmac-pdb-file-name: ~s~%"
+	    dir-prefix code-str cif-file-name 
+	    pdb-file-name post-refmac-pdb-file-name)
 
     (let* ((libcheck-input 
 	    (if (= (string-length dict-cif-libin) 0)
@@ -113,8 +128,9 @@
 		 (string-append "FILE_CIF " dict-cif-libin)
 		 (string-append "MON " code-str)
 		 "")))
-	   (log-file-name (string-append dir-prefix "coot-libcheck-"
+	   (log-file-name (string-append "coot-libcheck-"
 					 code-str ".log"))
+	   (log-file-name-in-dir (append-dir-file dir-prefix log-file-name))
 	   (refmac-input (list "MODE NEWENTRY" "END"))
 
 	   (refmac-log-file-name  (string-append dir-prefix "coot-libcheck-refmac-"
@@ -122,9 +138,10 @@
 	   (refmac-command-line (list "LIBIN" cif-file-name "XYZIN" pdb-file-name 
 				      "XYZOUT" post-refmac-pdb-file-name)))
 
-      (move-aside "libcheck.lib")
+      (move-aside (append-dir-file dir-prefix "libcheck.lib"))
       (let ((nov (format #t "passing libcheck these data lines: ~s~%" libcheck-input))
-	    (libstatus (goosh-command libcheck-exe '() libcheck-input log-file-name #t)))
+	    (libstatus (run-command-in-dir dir-prefix libcheck-exe '() libcheck-input
+					   log-file-name #t)))
 	
 	(format #t "INFO:: libcheck status: ~s~%" libstatus)
 	
@@ -146,7 +163,7 @@
 
 		    ;; OK, now let's run refmac:
 		    ;; 
-		    (let ((libcheck-minimal-desc-status (libcheck-minimal? log-file-name))
+		    (let ((libcheck-minimal-desc-status (libcheck-minimal? log-file-name-in-dir))
 			  (refmac-status (goosh-command refmac-exe
 							refmac-command-line
 							refmac-input
@@ -163,7 +180,9 @@
 				;; if there was a minimal description,
 				;; we get the real cif file in
 				;; libcheck.lib.
-				(let ((libcheck-lib "libcheck.lib"))
+				(let ((libcheck-lib (append-dir-file dir-prefix "libcheck.lib")))
+				  (format #t "------------- about to copy file ~s to ~s in dir ~s" 
+					  libcheck-lib cif-file-name (getcwd))
 				  (if (file-exists? libcheck-lib)
 				      (copy-file libcheck-lib cif-file-name)))
 				(handle-libcheck-cif-and-pdb cif-file-name
@@ -171,6 +190,9 @@
 							     post-refmac-pdb-file-name)))))))))))
   
   (define (handle-libcheck-cif-and-pdb cif-file-name pdb-file-name post-refmac-pdb-file-name)
+    
+    (format #t "================= debug:: handle-libcheck-cif-and-pdb: cif-file-name: ~s pdb-file-name: ~s post-refmac-pdb-file-name: ~s~%" 
+	    cif-file-name pdb-file-name post-refmac-pdb-file-name)
 
       (if (and (file-exists? post-refmac-pdb-file-name)
 	       (file-exists? cif-file-name))
@@ -195,7 +217,10 @@
 	;; do the files exist already?  If so, just read them in.
 	(let* ((dir-prefix 
 	       (cond
-		((null? ccp4i-project-dir) "")
+		((null? ccp4i-project-dir)
+		 (let ((dir-name "coot-ccp4"))
+		   (make-directory-maybe dir-name)
+		   (string-append dir-name "/")))
 		(else 
 		 (string-append 
 		  (car ccp4i-project-dir) "/"))))
