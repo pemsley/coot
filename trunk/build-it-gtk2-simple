@@ -288,6 +288,12 @@
 # 4.60 20091001 comment out the deletion of the coot_wrap files.
 script_version=4.60
 
+
+# get libcurl from here: 
+# libcurl_version=7.19.6
+# http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+#
+
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
 # variable x only if it has not previously been defined.

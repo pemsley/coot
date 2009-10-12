@@ -249,6 +249,7 @@ doc/Makefile
 src/Makefile
 src/coot
 python/coot_load_modules.py
+data/Makefile
 rama-data/Makefile
 auxil/Makefile
 auxil/catcheck/Makefile	
