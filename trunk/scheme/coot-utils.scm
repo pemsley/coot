@@ -756,7 +756,9 @@
 ;;;
 (define (append-dir-file dir-name file-name)
 
-  (string-append (directory-as-file-name dir-name) "/" file-name))
+  (if (> (string-length dir-name) 0)
+      (string-append (directory-as-file-name dir-name) "/" file-name)
+      file-name))
 
 ;;; similarly attempting to minimise system dependence.
 (define (append-dir-dir dir-name sub-dir-name)
