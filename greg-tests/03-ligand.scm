@@ -11,11 +11,13 @@
 	 (begin
 	   (format #t "No CCP4 - Copying in test files~%")
 	   (map (lambda (file)
-		  (let ((f-full (append-dir-file greg-data-dir file)))
+		  (let ((f-full (append-dir-file greg-data-dir file))
+			(t-file (append-dir-file "coot-ccp4" file)))
 		    (if (file-exists? f-full)
 			(begin
-			  (format #t "   copy-file ~s ~s~%" f-full file)
-			  (copy-file f-full file))
+			  (make-directory-maybe "coot-ccp4")
+			  (format #t "   copy-file ~s ~s~%" f-full t-file)
+			  (copy-file f-full t-file))
 			(format #t "Ooops file not found ~s~%" f-full))))
 			
 		'("monomer-3GP.pdb" "libcheck_3GP.cif"))))
@@ -116,12 +118,12 @@
 (greg-testcase "flip residue (around eigen vectors)" #t 
    (lambda ()
 
-     (if (not (file-exists? "monomer-3GP.pdb"))
+     (if (not (file-exists? "coot-ccp4/monomer-3GP.pdb"))
 	 (begin 
-	     (format #t "  Oops! file not found! monomer-3GP.pdb~%")
+	     (format #t "  Oops! file not found! coot-ccp4/monomer-3GP.pdb~%")
 	     (throw 'fail)))
 
-     (let* ((imol-orig (read-pdb "monomer-3GP.pdb"))
+     (let* ((imol-orig (read-pdb "coot-ccp4/monomer-3GP.pdb"))
 	    (imol-copy (copy-molecule imol-orig)))
        
        (if (not (valid-model-molecule? imol-orig))

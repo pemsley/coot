@@ -103,6 +103,8 @@
 	(chdir current)
 	status)))
 
+  ;; This gets called in non-graphics mode too.
+  ;; 
   (define (libcheck-monomer-gui dir-prefix code-str cif-file-name 
 				pdb-file-name post-refmac-pdb-file-name)
 
