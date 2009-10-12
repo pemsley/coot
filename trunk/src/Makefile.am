@@ -18,6 +18,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
+if COOT_USE_PYTHON
+pythondir = $(pkgdatadir)/python
+python_SCRIPTS = coot.py
+endif
+
 
 ######## 20091001 ########################################################
 
@@ -37,7 +42,6 @@ MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-pyth
 
 
 ##########################################################################
-
 
 CANVAS_CFLAGS = $(GTKCANVAS_CFLAGS) $(GNOME_CANVAS_CFLAGS)
 CANVAS_LIBS   = $(GTKCANVAS_LIBS) $(GNOME_CANVAS_LIBS)
@@ -106,15 +110,23 @@ coot_wrap_guile_gtk1.cc: coot_wrap_guile_pre_gtk1.cc
 
 coot_wrap_python_pre_gtk1.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
 	swig -o $@ $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
+	mv coot.py coot_gtk1.py
 
 coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
+	mv coot.py coot_gtk2.py
 
 coot_wrap_python_gtk1.cc: coot_wrap_python_pre_gtk1.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk1 $^ $@
 
 coot_wrap_python_gtk2.cc: coot_wrap_python_pre_gtk2.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
+
+# Do differentiate the GTK1 and GTK2 builds we use SWIG_FLAGS, (which
+# is blank for the GTK1 version).
+#
+coot.py: coot_gtk1.py coot_gtk2.py
+	if test -z "$(SWIG_FLAGS)" ; then cp coot_gtk1.py coot.py ; else cp coot_gtk2.py coot.py ; fi
 
 
 #libcoot_wrap.so: coot_wrap.o
