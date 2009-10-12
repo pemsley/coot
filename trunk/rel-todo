@@ -1,8 +1,5 @@
 
-   1 items
-
-   o Put the GNU GPLv3 in the GUI ::: 0.5
- 
+   0 items
 
 ------
 
@@ -1305,5 +1302,9 @@ src/gtk-manual.cc:                done
 
 * Gone away.
 
+
+   o Put the GNU GPLv3 in the GUI ::: 0.5
+ 
+* Done.
 
 -----
