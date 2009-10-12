@@ -4,4 +4,4 @@ sleep 180
 REM C:\msys\bin\sh --login C:\msys\home\bernhard\make_wincoot_installer.bat
 C:\msys\bin\sh --login C:\msys\home\bernhard\Projects\coot\windows\wincoot-autobuild-all
 REM shutdown -i -s
-shutdown -s
+shutdown -s -f

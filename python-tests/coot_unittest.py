@@ -68,7 +68,7 @@ import gc
 import inspect
 gc.enable()
 gc.set_debug(gc.DEBUG_LEAK)
-print "BL INFO:: no of collected carbage items%s\n" %gc.collect()
+print "BL INFO:: no of collected carbage items %s\n" %gc.collect()
 all_garbage = gc.garbage
 print "BL DEBUG:: list of garbage items:\n"
 for garb in all_garbage:

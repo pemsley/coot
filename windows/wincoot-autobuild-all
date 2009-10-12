@@ -64,14 +64,22 @@ while [ $coot_version_status != 0 ]
 do
   # build a python version
   echo writing progress status to public html $PUBLIC_HTML_LOGS
-  echo build-in-progress > $PUBLIC_HTML_LOGS/gtk2-build-status
-  echo in-progress       > $PUBLIC_HTML_LOGS/gtk2-test-status
+  echo write to file build-in-progress @`date +"%a_%d_%b_%H:%M"`
+  echo build-in-progress @`date +"%a_%d_%b_%H:%M"`> $PUBLIC_HTML_LOGS/gtk2-build-status
+  echo waiting for build       > $PUBLIC_HTML_LOGS/gtk2-test-status
   echo BUILDING:: python WinCoot
   $build_it
   python_build_status=$?
   echo python build status $python_build_status
   # read in variables from install run
   . ${HOME}/wincoot-installer-variables
+
+  # copy log files from local to public html
+  cp $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS
+  cp $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS/gtk2-python-build.log
+  cp -r $LOCAL_HTML_LOGS/$HOSTLOG_STUB  $PUBLIC_HTML_LOGS
+  cp $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS
+  cp $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS/gtk2-python-test.log
 
   if [ "$build_coot_prerelease" = "0" ] ; then
     install_top_dir=${HOME}/autobuild/${OS}-${HOST}-gtk2
@@ -85,10 +93,15 @@ do
   # build a guile version but only if python build ok
   # dont build for now at all
   if [ "$coot_build_status" = "0" ] ; then
-    echo build-in-progress > $PUBLIC_HTML_LOGS/gtk2-build-status
-    echo in-progress-guile > $PUBLIC_HTML_LOGS/gtk2-test-status
+    echo waiting for guile build       > $PUBLIC_HTML_LOGS/gtk2-test-status
     echo BUILDING:: python+guile WinCoot
     $build_it guile
+
+    # copy log files from local to public html
+    cp $LOCAL_HTML_LOGS/gtk2-guile-build.log $PUBLIC_HTML_LOGS
+    cp -r $LOCAL_HTML_LOGS/${HOSTLOG_STUB}-guile  $PUBLIC_HTML_LOGS
+    cp $LOCAL_HTML_LOGS/gtk2-guile-test.log  $PUBLIC_HTML_LOGS
+
     diff ${COOT_PYTHON_VERSION} ${COOT_GUILE_VERSION} 
     coot_version_status=$?
     if [ "$coot_version_status" = "1" ] ; then
@@ -213,5 +226,14 @@ else
 	cp $LOCAL_HTML_LOGS/gtk2-build-status $PUBLIC_HTML_LOGS/gtk2-build-status
    fi
 fi
+
+# finally chmod of public dirs (not all necessary I think)
+chmod 755 /z/build-logs/MINGW32_NT-5.1-sarabellum
+chmod 744 /z/build-logs/MINGW32_NT-5.1-sarabellum/*
+chmod 744 /z/software/binaries/nightlies/pre-release/*
+chmod 744 /z/software/binaries/stable/*
+chmod 755 /z/build-logs/MINGW32_NT-5.1-sarabellum/*
+chmod 744 /z/build-logs/MINGW32_NT-5.1-sarabellum/*/*
 ) 2>&1 > $HOME/20-wincoot-autobuild-all.txt
 cp ${HOME}/20-wincoot-autobuild-all.txt ${PUBLIC_HTML_LOGS}
+

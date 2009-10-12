@@ -3014,14 +3014,20 @@ fi
 
 if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
    echo INFO:: not a pythonized build
-   cp src/blank.cc src/coot_wrap_python.cc
+   cp src/blank.cc src/coot_wrap_python_gkt1.cc
+   cp src/blank.cc src/coot_wrap_python_gkt2.cc
+   # only gtk2 on windows
+   cp src/blank.cc src/coot_wrap_guile_gtk1.cc
 else 
    echo INFO:: A pythonized build
 fi
 
 if [ "$ENABLE_GUILE_COOT" = "no" ] ; then 
    echo INFO:: not a guilized build
-   cp src/blank.cc src/coot_wrap_guile.cc
+   cp src/blank.cc src/coot_wrap_guile_gtk1.cc
+   cp src/blank.cc src/coot_wrap_guile_gtk2.cc
+   # only gtk2 on windows
+   cp src/blank.cc src/coot_wrap_python_gkt1.cc
 else 
    echo INFO:: A guilized build
 fi
@@ -3081,8 +3087,10 @@ else
    echo NO need to update libtool $PWD
 fi
 
-rm src/coot_wrap_guile_pre.cc
-rm src/coot_wrap_python_pre.cc
+rm src/coot_wrap_guile_pre_gtk1.cc
+rm src/coot_wrap_guile_pre_gtk2.cc
+rm src/coot_wrap_python_pre_gtk1.cc
+rm src/coot_wrap_python_pre_gtk2.cc
 
 $MAKE
 status=$?
@@ -3228,5 +3236,6 @@ echo build_coot_prerelease=$build_coot_prerelease >> $var_file
 echo coot_build_status=$coot_build_status   >> $var_file
 echo coot_test_status=$coot_test_status     >> $var_file
 echo binary_type_latest=$binary_type_latest >> $var_file
+echo HOSTLOG_STUB=$compilers_dir${build_type} >> $var_file
 
 echo finished.
