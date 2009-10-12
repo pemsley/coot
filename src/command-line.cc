@@ -101,7 +101,7 @@ parse_command_line(int argc, char ** argv ) {
       {"help",       0, 0, 0},
       {"python",     0, 0, 0},
       {"splash-screen", 1, 0, 0}, // alternate splash screen
-      {"test",       0, 0, 0},
+      {"self-test",     0, 0, 0},
       {"no-state-script",    0, 0, 0},
       {"no-graphics",        0, 0, 0},
       {"no-splash-screen",        0, 0, 0},
@@ -210,7 +210,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--side-by-side]\n"
 			       << "            [--version]"
 			       << "            [--version-full]"
-			       << "            [--test]"
+			       << "            [--self-test]"
 			       << std::endl;
 		     exit(0);
 		  } else {
@@ -249,7 +249,7 @@ parse_command_line(int argc, char ** argv ) {
 					     if (arg_str == "no-splash-screen") {
 						cld.use_splash_screen = 0;
 					     } else {
-					        if (arg_str == "test") {
+					        if (arg_str == "self-test") {
 						   cld.run_internal_tests_and_exit = 1;
 					        } else {
 						   std::cout << "WARNING! Malformed option - needs an argument: " 
