@@ -6204,7 +6204,7 @@ int get_monomer(const char *three_letter_code) {
 int get_monomer_from_dictionary(const char *three_letter_code,
 				int idealised_flag) {
 
-   int istat = 0;
+   int istat = -1; // unfound molecule
    graphics_info_t g;
    CMMDBManager *mol = g.Geom_p()->mol_from_dictionary(three_letter_code, idealised_flag);
    if (mol) {
