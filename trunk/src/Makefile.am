@@ -122,6 +122,10 @@ coot_wrap_python_gtk1.cc: coot_wrap_python_pre_gtk1.cc
 coot_wrap_python_gtk2.cc: coot_wrap_python_pre_gtk2.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
 
+coot_gtk1.py: coot_wrap_python_pre_gtk1.cc
+
+coot_gtk2.py: coot_wrap_python_pre_gtk2.cc
+
 # Do differentiate the GTK1 and GTK2 builds we use SWIG_FLAGS, (which
 # is blank for the GTK1 version).
 #
