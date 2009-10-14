@@ -18,10 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-if (os.name == 'nt'):
+home_dir = os.getenv('HOME')
+if (not home_dir and os.name == 'nt'):
         home_dir = os.getenv('COOT_HOME')
-else:
-        home_dir = os.getenv('HOME')
+
 project_dir = os.path.join(home_dir, "Projects", "coot", "python-tests")
 unittest_filename = os.path.join(project_dir, "coot_unittest.py")
 begin_filename = os.path.join(project_dir, "begin.py")
