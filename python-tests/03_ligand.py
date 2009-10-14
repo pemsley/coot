@@ -34,10 +34,12 @@ class LigandTestFunctions(unittest.TestCase):
             print "No CCP4 - Copying in test files"
             for file_name in ["monomer-3GP.pdb", "libcheck_3GP.cif"]:
                 f_full = os.path.join(unittest_data_dir, file_name)
+                t_file = os.path.join("coot-ccp4", file_name)
                 if (os.path.isfile(f_full)):
                     import shutil
-                    print "   copy-file", f_full, file_name
-                    shutil.copyfile(f_full, file_name)
+                    make_directory_maybe("coot-ccp4")
+                    print "   copy-file", f_full, t_file
+                    shutil.copyfile(f_full, t_file)
                 else:
                     if (have_skip_test):
                         self.skip("Cannot find file %s, skipping test" %f_full)
@@ -139,10 +141,12 @@ class LigandTestFunctions(unittest.TestCase):
         
     def test05_0(self):
         """flip residue (around eigen vectors)"""
-        
-        self.failIf(not os.path.isfile("monomer-3GP.pdb"), "  Oops! file not found! monomer-3GP.pdb")
 
-        imol_orig = read_pdb("monomer-3GP.pdb")
+        mon_file = os.path.join("coot-ccp4", "monomer-3GP.pdb")
+        self.failIf(not os.path.isfile(mon_file),
+                    "  Oops! file not found! coot-ccp4/monomer-3GP.pdb")
+
+        imol_orig = read_pdb(mon_file)
         imol_copy = copy_molecule(imol_orig)
 
         self.failIf(not valid_model_molecule_qm(imol_orig), "not valid molecule for monomer-3GP.pdb")

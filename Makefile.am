@@ -55,6 +55,7 @@ EXTRA_DIST = 		\
 	TODO 		\
 	count-loc 	\
 	syminfo.lib	\
+	windows/syminfo.lib	\
 	colours.def	\
 	function-notes	\
 	my.supp		\
@@ -79,6 +80,11 @@ install-data-local:
 	    fi \
 	  done \
 	fi
+	if test -z "$(COOT_WINDOWS_CFLAGS)" ; then \
+	  $(INSTALL_DATA) $(srcdir)/syminfo.lib $(DESTDIR)$(pkgdatadir); \
+	  else \
+	  $(INSTALL_DATA) $(srcdir)/windows/syminfo.lib $(DESTDIR)$(pkgdatadir); \
+	fi
 
 dist-hook:
 	if test -d $(srcdir)/pixmaps; then \
@@ -91,7 +97,7 @@ dist-hook:
 	fi
 
 subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = cootrc standard-residues.pdb syminfo.lib colours.def \
+subpkgdata_DATA = cootrc standard-residues.pdb colours.def \
 	mtrix-to-ncs-matrix.awk theor-helix-70.pdb
 
 

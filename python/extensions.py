@@ -398,6 +398,22 @@ if (have_coot_python):
                                                                           ["aa_imol", "aa_chain_id", "aa_res_no"],
                                                                           [text]]])))
 
+
+     def mon_dict_func(text):
+       idealized = 0
+       new_model = get_monomer_from_dictionary(text, idealized)
+       if not valid_model_molecule_qm(new_model):
+         get_monomer(text)
+         
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Monomer from Dictionary",
+       lambda func:
+         generic_single_entry("Pull coordinates from CIF dictionary for 3-letter-code:", "",
+                              " Get Coords ",
+                              lambda text: mon_dict_func(text)))
+                              
+       
      add_simple_coot_menu_menuitem(
        submenu_models,
        "Reorder Chains...",

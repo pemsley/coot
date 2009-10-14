@@ -2930,7 +2930,8 @@ else
 fi
 
 # we shall get the syminfo.lib for windows too
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/syminfo_win.lib
+# not needed any more
+#${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/syminfo_win.lib
 
 echo using coot version $coot_version
 ls -ls ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
@@ -2951,9 +2952,10 @@ cd $coot_dir_name
 
 #now that we are in coot build dir we overwrite syminfo.lib with the windows
 #one
-echo replacing syminfo.lib with windows version
-mv syminfo.lib syminfo.lib.orig
-cp ${AUTOBUILD_SOURCES}/syminfo_win.lib syminfo.lib
+# not needed any more
+#echo replacing syminfo.lib with windows version
+#mv syminfo.lib syminfo.lib.orig
+#cp ${AUTOBUILD_SOURCES}/syminfo_win.lib syminfo.lib
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"

@@ -85,81 +85,100 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
           os.rename(file_name, new_file_name)
         except:
           print "BL WARNING:: could not rename file %s to %s" %(file_name, new_file_name)
-      
+
+  # the exe and log_file_name (and command_lines_args perhaps)
+  # relative to dir (not the calling dir)
+  # BL says:: maybe this should be in coot_utils.py
+  def run_command_in_dir(run_dir, exe_name, command_line_args, data_lines, log_file_name, to_screen_flag):
+    import os
+    current = os.getcwd()
+    norm_dir = os.path.normpath(run_dir)
+    os.chdir(norm_dir)
+    status = popen_command(exe_name, command_line_args, data_lines, log_file_name, to_screen_flag)
+    os.chdir(current)
+    return status
+
+  # This gets called in non-graphics mode too.
+  #
   def libcheck_monomer_gui(dir_prefix, code_str, cif_file_name,
                            pdb_file_name, post_refmac_pdb_file_name):
 
-       if (len(dict_cif_libin) == 0):
-         libcheck_input = ["N", "MON " + code_str[0:3], ""]
-       else:
-         # BL says:: Paul's code says FILE_CIF as argument, but I beleave this should be 
-         # FILE_L. FILE_CIF is for coordinate cif files and not dictionary cif file (which is
-         # what we have here, I think)
-         #      libcheck_input = ["N","FILE_CIF " + dict_cif_libin,"MON " + code_str,""]
-         libcheck_input = ["N", "FILE_L " + dict_cif_libin,
-                           "MON " + code_str, ""]
+    print "================= debug: libcheck_monomer_gui: dir_prefix: %s   code_str: %s   cif_file_name: %s   pdb_file_name: %s   post_refmac_pdb_file_name: %s" %(dir_prefix, code_str, cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
+    
+    if (len(dict_cif_libin) == 0):
+      libcheck_input = ["N", "MON " + code_str[0:3], ""]
+    else:
+      # BL says:: Paul's code says FILE_CIF as argument, but I beleave this should be 
+      # FILE_L. FILE_CIF is for coordinate cif files and not dictionary cif file (which is
+      # what we have here, I think)
+      #      libcheck_input = ["N","FILE_CIF " + dict_cif_libin,"MON " + code_str,""]
+      libcheck_input = ["N", "FILE_L " + dict_cif_libin,
+                        "MON " + code_str, ""]
 
-       log_file_name = os.path.join(dir_prefix, "coot-libcheck-"  + code_str + ".log")
-       refmac_input = ["MODE NEWENTRY", "END"]
-       
-       refmac_log_file_name = os.path.join(dir_prefix, "coot-libcheck-refmac-" + code_str + ".log")
-       refmac_command_line = ["LIBIN", cif_file_name, "XYZIN", pdb_file_name,
-                              "XYZOUT", post_refmac_pdb_file_name]
+    log_file_name = "coot-libcheck-"  + code_str + ".log"
+    log_file_name_in_dir = os.path.join(dir_prefix, log_file_name)
+    refmac_input = ["MODE NEWENTRY", "END"]
 
-       move_aside("libcheck.lib")
-       print "passing libcheck these data lines:", libcheck_input
-       
-       libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
-       if (libcheck_exe_file):
-         libstatus = popen_command(libcheck_exe_file, [], libcheck_input, log_file_name)
+    refmac_log_file_name = os.path.join(dir_prefix, "coot-libcheck-refmac-" + code_str + ".log")
+    refmac_command_line = ["LIBIN", cif_file_name, "XYZIN", pdb_file_name,
+                           "XYZOUT", post_refmac_pdb_file_name]
 
-         print "BL INFO:: libcheck status:", libstatus
+    move_aside(os.path.join(dir_prefix, "libcheck.lib"))
+    print "passing libcheck these data lines:", libcheck_input
 
-         if (not isNumber(libstatus)):
-           return -3
-         else:
-           if (libstatus == 0):
-             # we assume libcheck run ok
-             #
-             # But I now find that libcheck can run OK, but
-             # not produce an output file (using dict .cif
-             # file from PRODRG).
-             #
-             # So we first need to check that the output of
-             # libcheck exists.
-             # 
-             if (not os.path.isfile(cif_file_name)):
-               print "libcheck failed to write the output cif file."
-               
-             else:
-               # OK, now let's run refmac:
-               #
-               libcheck_minimal_desc_status = libcheck_minimal_qm(log_file_name)
-               refmac_exe = find_exe("refmac5", "CCP4_BIN", "PATH")
-               refmac_status = popen_command(refmac_exe, refmac_command_line, refmac_input, refmac_log_file_name)
-               
-               print "DEBUG:: libcheck-minimal? returns ", libcheck_minimal_desc_status
+    libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
+    if (libcheck_exe_file):
+      libstatus = run_command_in_dir(dir_prefix, libcheck_exe_file, [], libcheck_input, log_file_name, True)
 
-               if (not isNumber(refmac_status)):
-                 return -4 # refmac fails
-               else:
-                 if (not refmac_status == 0):
-                   return -4 # refmac fails elsewhere
-                 else:
-                   # refmac run ok
-                   #
-                   # if there was a minimal description,
-                   # we get the real cif file in
-                   # libcheck.lib.
-                   libcheck_lib = "libcheck.lib"
-                   if (os.path.isfile(libcheck_lib)):
-                     shutil.copyfile(libcheck_lib, cif_file_name)
-                   return handle_libcheck_cif_and_pdb(cif_file_name,
-                                                      pdb_file_name,
-                                                      post_refmac_pdb_file_name)
+      print "BL INFO:: libcheck status:", libstatus
+
+      if (not isNumber(libstatus)):
+        return -3
+      else:
+        if (libstatus == 0):
+          # we assume libcheck run ok
+          #
+          # But I now find that libcheck can run OK, but
+          # not produce an output file (using dict .cif
+          # file from PRODRG).
+          #
+          # So we first need to check that the output of
+          # libcheck exists.
+          # 
+          if (not os.path.isfile(cif_file_name)):
+            print "libcheck failed to write the output cif file."
+
+          else:
+            # OK, now let's run refmac:
+            #
+            libcheck_minimal_desc_status = libcheck_minimal_qm(log_file_name_in_dir)
+            refmac_exe = find_exe("refmac5", "CCP4_BIN", "PATH")
+            refmac_status = popen_command(refmac_exe, refmac_command_line, refmac_input, refmac_log_file_name)
+
+            print "DEBUG:: libcheck-minimal? returns ", libcheck_minimal_desc_status
+
+            if (not isNumber(refmac_status)):
+              return -4 # refmac fails
+            else:
+              if (not refmac_status == 0):
+                return -4 # refmac fails elsewhere
+              else:
+                # refmac run ok
+                #
+                # if there was a minimal description,
+                # we get the real cif file in
+                # libcheck.lib.
+                libcheck_lib = os.path.join(dir_prefix, "libcheck.lib")
+                print "------------- about to copy file %s to %s in dir %s" %(libcheck_lib, cif_file_name, os.getcwd())
+                if (os.path.isfile(libcheck_lib)):
+                  shutil.copyfile(libcheck_lib, cif_file_name)
+                return handle_libcheck_cif_and_pdb(cif_file_name,
+                                                   pdb_file_name,
+                                                   post_refmac_pdb_file_name)
                    
   def handle_libcheck_cif_and_pdb(cif_file_name, pdb_file_name, post_refmac_pdb_file_name):
 
+    print "================= debug:: handle-libcheck-cif-and-pdb: cif-file-name: %s pdb-file-name: %s post-refmac-pdb-file-name: %s" %(cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
     if (os.path.isfile(post_refmac_pdb_file_name) and
         os.path.isfile(cif_file_name)):
       pdb_status = handle_read_draw_molecule_with_recentre(
@@ -180,7 +199,9 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
 
     # do the files exist already?  If so, just read them in.
     if (ccp4i_project_dir == ""):
-      dir_prefix = ccp4i_project_dir
+      dir_name = "coot-ccp4"
+      make_directory_maybe(dir_name)
+      dir_prefix = os.path.normpath(dir_name)
     else:
       dir_prefix = os.path.normpath(ccp4i_project_dir)
     #print "BL DEBUG:: dir prefix", dir_prefix
