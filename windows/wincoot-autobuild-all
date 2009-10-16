@@ -228,12 +228,13 @@ else
 fi
 
 # finally chmod of public dirs (not all necessary I think)
-chmod 755 /z/build-logs/MINGW32_NT-5.1-sarabellum
-chmod 744 /z/build-logs/MINGW32_NT-5.1-sarabellum/*
-chmod 744 /z/software/binaries/nightlies/pre-release/*
-chmod 744 /z/software/binaries/stable/*
-chmod 755 /z/build-logs/MINGW32_NT-5.1-sarabellum/*
-chmod 744 /z/build-logs/MINGW32_NT-5.1-sarabellum/*/*
+# not really working on msys right now
+#chmod 755 /z/build-logs/MINGW32_NT-5.1-sarabellum
+#chmod 744 /z/build-logs/MINGW32_NT-5.1-sarabellum/*
+#chmod 744 /z/software/binaries/nightlies/pre-release/*
+#chmod 744 /z/software/binaries/stable/*
+#chmod 755 /z/build-logs/MINGW32_NT-5.1-sarabellum/*
+#chmod 744 /z/build-logs/MINGW32_NT-5.1-sarabellum/*/*
 ) 2>&1 > $HOME/20-wincoot-autobuild-all.txt
 cp ${HOME}/20-wincoot-autobuild-all.txt ${PUBLIC_HTML_LOGS}
 
