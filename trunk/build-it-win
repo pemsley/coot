@@ -465,6 +465,9 @@ function my_exit {
    echo wincoot_version=$wincoot_version     >> $var_file
    echo build_coot_prerelease=$build_coot_prerelease   >> $var_file
    echo coot_build_status=$coot_build_status >> $var_file
+   echo coot_test_status=$coot_test_status     >> $var_file
+   echo binary_type_latest=$binary_type_latest >> $var_file
+   echo HOSTLOG_STUB=$compilers_dir${build_type} >> $var_file
 
    echo fail-build $extra_args > $LOGS/gtk2${build_type}-test-status
    if [ -e $LOGS/gtk2${build_type}-build-status ] ; then
@@ -2950,12 +2953,12 @@ gzip -dc ${AUTOBUILD_SOURCES}/$coot_version.tar.gz | tar xf -
 coot_dir_name=`echo $coot_version | sed 's/-revision.*//'`
 cd $coot_dir_name
 
-#now that we are in coot build dir we overwrite syminfo.lib with the windows
-#one
-# not needed any more
-#echo replacing syminfo.lib with windows version
-#mv syminfo.lib syminfo.lib.orig
-#cp ${AUTOBUILD_SOURCES}/syminfo_win.lib syminfo.lib
+# now that we are in coot build dir we overwrite syminfo.lib with the windows
+# one
+# Change: replace it with internal one. Cant have 'wrong' one in root dir
+echo replacing syminfo.lib with windows version
+mv syminfo.lib syminfo.lib.orig
+cp windows/syminfo.lib syminfo.lib
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"
@@ -3014,26 +3017,26 @@ else
 fi
 (
 
-if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
-   echo INFO:: not a pythonized build
-   cp src/blank.cc src/coot_wrap_python_gkt1.cc
-   cp src/blank.cc src/coot_wrap_python_gkt2.cc
-   # only gtk2 on windows
-   cp src/blank.cc src/coot_wrap_guile_gtk1.cc
-else 
-   echo INFO:: A pythonized build
-fi
+#if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
+#   echo INFO:: not a pythonized build
+#   cp src/blank.cc src/coot_wrap_python_gkt1.cc
+#   cp src/blank.cc src/coot_wrap_python_gkt2.cc
+#   # only gtk2 on windows
+#   cp src/blank.cc src/coot_wrap_guile_gtk1.cc
+#else 
+#   echo INFO:: A pythonized build
+#fi
 
-if [ "$ENABLE_GUILE_COOT" = "no" ] ; then 
-   echo INFO:: not a guilized build
-   cp src/blank.cc src/coot_wrap_guile_gtk1.cc
-   cp src/blank.cc src/coot_wrap_guile_gtk2.cc
-   # only gtk2 on windows
-   cp src/blank.cc src/coot_wrap_python_gkt1.cc
-else 
-   echo INFO:: A guilized build
-fi
-
+#if [ "$ENABLE_GUILE_COOT" = "no" ] ; then 
+#   echo INFO:: not a guilized build
+#   cp src/blank.cc src/coot_wrap_guile_gtk1.cc
+#   cp src/blank.cc src/coot_wrap_guile_gtk2.cc
+#   # only gtk2 on windows
+#   cp src/blank.cc src/coot_wrap_python_gkt1.cc
+#else 
+#   echo INFO:: A guilized build
+#fi
+#
 #      CXXFLAGS="-g -O"
 # consider getting rid of $shared_static_flag, which does a --disable-shared.
 # i.e. we should keep and use shared libs
