@@ -1362,7 +1362,7 @@
 	       (inside-vbox (gtk-vbox-new #f 2))
 	       (h-sep (gtk-hseparator-new))
 	       (buttons-hbox (gtk-hbox-new #t 2))
-	       (go-button (gtk-button-new-with-label "  Dock Sequnce!  "))
+	       (go-button (gtk-button-new-with-label "  Dock Sequence!  "))
 	       (cancel-button (gtk-button-new-with-label "  Cancel  ")))
 
 	  (let ((seq-info-ls (sequence-info imol)))
