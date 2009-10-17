@@ -1531,6 +1531,10 @@
 ;; needs to add buttons - let's not dupicate that code.
 ;;
 (define (add-button-info-to-box-of-buttons-vbox button-info vbox)
+
+  (define (add-text-to-text-widget text-box description)
+    (gtk-text-insert text-box #f "black" "#c0e6c0" description -1))
+
   (let* ((buton-label (car button-info))
 	 (callback (car (cdr button-info)))
 	 (description (if (= (length button-info) 2)
@@ -1542,7 +1546,7 @@
     (if (string? description)
 	(let ((text-box (gtk-text-new #f #f)))
 	  (add-text-to-text-widget text-box description)
-	  (gtk-box-pack-start inside-vbox text-box #f #f 2)
+	  (gtk-box-pack-start vbox text-box #f #f 2)
 
 	  (gtk-widget-realize text-box)
 	  (gtk-text-thaw text-box)))
