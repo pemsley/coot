@@ -2487,6 +2487,17 @@ chains are so unlikely that they shouldn't be considered - typically
 0.01 (1%).
 
 
+You can change the auto-fit rotamer fitting algorithms using
+
+@code{(set-rotamer-search-mode @emph{mode})}
+ 
+where @code{@emph{mode}} is one of @code{(ROTAMERSEARCHAUTOMATIC)},
+  @code{(ROTAMERSEARCHLOWRES)} (@emph{i.e.} "Backrub Rotamers") or
+  @code{(ROTAMERSEARCHHIGHRES)} (the conventional/high-resolution method
+  using rigid-body fitting).
+
+By default, the auto-fit rotamer method is @code{(ROTAMERSEARCHAUTOMATIC)}.
+
 
 @subsection De-clashing residues
 Sometimes you don't have a map @footnote{for example, in preparation of
