@@ -126,6 +126,8 @@ namespace coot {
       std::pair<bool, coot::dict_chem_comp_t> get_residue_info() const;
       GtkTreeStore *get_tree_store_by_notebook_page(gint current_page_index) const;
       GtkTreeView *get_tree_view_by_notebook_page(gint current_page_index) const;
+      std::string make_chiral_volume_string(int chiral_sign) const;
+      int chiral_volume_string_to_chiral_sign(const std::string &chiral_vol_string) const;
       
    };
 }
