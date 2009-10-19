@@ -3435,6 +3435,7 @@ void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq) {
    }
    std::vector<std::string> command_strings;
    command_strings.push_back("assign-pir-sequence");
+   command_strings.push_back(coot::util::int_to_string(imol));
    command_strings.push_back(single_quote(chain_id_in));
    command_strings.push_back(single_quote(seq));
    add_to_history(command_strings);
