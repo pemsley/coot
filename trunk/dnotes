@@ -5037,5 +5037,42 @@ Sat Oct 10 08:36:45 BST 2009
    across all structures in the PDB with anomalous data. See "metal
    distances" above.
 
+----
+Wed Oct 14 11:05:03 BST 2009
+ 
+
+   student project: implement hole:
+
+    O.S. Smart, J.M. Goodfellow and B.A. Wallace (1993) 
+    The Pore Dimensions of Gramicidin A 
+    Biophysical Journal 65:2455-2460. 
+
+http://d2o.bioch.ox.ac.uk:38080/doc/index.html
+http://d2o.bioch.ox.ac.uk:38080/
+
+
+----
+
+    student project:
+
+  o nucleic acid analog of Ramachandran plot (theta, eta), see message
+    from Bill Scott:
+    http://www.csb.yale.edu/people/pyle/software/index.html 
+
+
+----
+
+     student projects:
+
+  o NOE violations (or successes)
+
+
+----
+Fri Oct 16 14:38:00 BST 2009
+
+  o INFO:: mac compile problems: 
+    check out the static analyser:
+    http://arstechnica.com/apple/reviews/2009/08/mac-os-x-10-6.ars/9
+
 ------
 

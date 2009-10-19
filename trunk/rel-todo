@@ -1,5 +1,19 @@
 
-   0 items
+   5 items
+ 
+  o Use positive/negative/both or whatever (what is -2?) in edit restraints
+    chirality [Andrew Leslie]
+
+  o add the alignment for post-ssm superposition - put it in a gui too?
+
+  o where are the links in 1e3z.pdb?  do we get links from 1OHY.pdb?
+    mmdb version problem perhaps.
+
+  o I am looking at a symmetry-related part of the molecule. Take me
+    to the main molecule (try unapplying symmetry to get there).
+
+  o add-view-description fails.  Needs fixing. ::: 0.3
+
 
 ------
 
