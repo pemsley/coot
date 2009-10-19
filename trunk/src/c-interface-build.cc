@@ -4323,6 +4323,12 @@ void assign_sequence(int imol_coords, int imol_map, const char *chain_id) {
       if (is_valid_map_molecule(imol_map))
 	 graphics_info_t::molecules[imol_coords].assign_sequence(graphics_info_t::molecules[imol_map].xmap_list[0], std::string(chain_id));
 
+  std::string cmd = "assign-sequence";
+  std::vector<coot::command_arg_t> args;
+  args.push_back(imol_coords);
+  args.push_back(imol_map);
+  args.push_back(single_quote(chain_id));
+  add_to_history_typed(cmd, args);
 }
 
 
