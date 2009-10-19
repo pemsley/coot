@@ -219,7 +219,9 @@ coot::restraints_editor::get_column_type(int tree_type, int column_number, int m
    if (tree_type == coot::restraints_editor::TREE_TYPE_CHIRALS) {
       switch(column_number) {
       case(5):
-	 r = G_TYPE_INT;
+	 // r = G_TYPE_INT; // 20091019 chiral entity is now a string,
+	 // from Andrew Leslie comment.
+	 r = G_TYPE_STRING;
 	 break;
       default:
 	 r = G_TYPE_STRING;
@@ -299,7 +301,7 @@ void coot::restraints_editor::fill_angle_tree_data(GtkWidget *restraints_editor_
 			 1, restraints.angle_restraint[i].atom_id_2_4c().c_str(),
 			 2, restraints.angle_restraint[i].atom_id_3_4c().c_str(),
 			 3, restraints.angle_restraint[i].angle(),
-			4, restraints.angle_restraint[i].esd(),
+			 4, restraints.angle_restraint[i].esd(),
 			 -1);
    }
 
@@ -447,7 +449,7 @@ coot::restraints_editor::fill_chiral_tree_data(GtkWidget *restraints_editor_dial
    GtkTreeStore *tree_store_chirals =
       gtk_tree_store_new (6, G_TYPE_STRING,
 			  G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-			  G_TYPE_INT);
+			  G_TYPE_STRING);
    view_and_store_chirals.view = tv_chirals;
    view_and_store_chirals.store = tree_store_chirals;
    
@@ -455,6 +457,8 @@ coot::restraints_editor::fill_chiral_tree_data(GtkWidget *restraints_editor_dial
    gtk_tree_view_set_model(tv_chirals, GTK_TREE_MODEL(tree_store_chirals));
 
    for (unsigned int i=0; i<restraints.chiral_restraint.size(); i++) { 
+      std::string chiral_volume_string = 
+	  make_chiral_volume_string(restraints.chiral_restraint[i].volume_sign);
       gtk_tree_store_append(tree_store_chirals, &toplevel, NULL);
       gtk_tree_store_set(tree_store_chirals, &toplevel,
 			 0, restraints.chiral_restraint[i].Chiral_Id().c_str(),
@@ -462,7 +466,7 @@ coot::restraints_editor::fill_chiral_tree_data(GtkWidget *restraints_editor_dial
 			 2, restraints.chiral_restraint[i].atom_id_1_4c().c_str(),
 			 3, restraints.chiral_restraint[i].atom_id_2_4c().c_str(),
 			 4, restraints.chiral_restraint[i].atom_id_3_4c().c_str(),
-			 coot::restraints_editor::CHIRAL_COL_SIGN, restraints.chiral_restraint[i].volume_sign,
+			 coot::restraints_editor::CHIRAL_COL_SIGN, chiral_volume_string.c_str(),
 			 -1);
    }
 
@@ -1033,13 +1037,9 @@ coot::restraints_editor::get_chiral_restraints() const {
 	       atom2 = place_string_here;
 	    if (col_no == 4)
 	       atom3 = place_string_here;
-	 }
-	 // FIXME.  SHOULD be encoded as a string/ e.g negative positive
-	 if (col_type == G_TYPE_INT) {
-	    int ii;
-	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_chirals.store), &iter, col_no, &ii, -1);
+	    // new style string (not int) 20091019
 	    if (col_no == coot::restraints_editor::CHIRAL_COL_SIGN)
-	       sign = ii;
+	       sign = chiral_volume_string_to_chiral_sign(place_string_here);
 	 }
       }
       v = gtk_tree_model_iter_next (GTK_TREE_MODEL(view_and_store_chirals.store), &iter);
@@ -1061,6 +1061,21 @@ coot::restraints_editor::get_chiral_restraints() const {
 
    return r;
 }
+
+std::string
+coot::restraints_editor::make_chiral_volume_string(int chiral_sign) const {
+  
+  std::string s = coot::protein_geometry::make_chiral_volume_string(chiral_sign);
+  return s;
+}
+ 
+int 
+coot::restraints_editor::chiral_volume_string_to_chiral_sign(const std::string &chiral_vol_string) const {
+
+  int i = coot::protein_geometry::chiral_volume_string_to_chiral_sign(chiral_vol_string);
+  return i;
+}
+
 
 std::pair<bool, std::vector <coot::dict_atom> >
 coot::restraints_editor::get_atom_info() const {
