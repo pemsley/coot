@@ -892,6 +892,7 @@ case $systype in
        m4
        g++
        libxext-dev
+       libxmu-dev
        libxt-dev
        libc6-dev
        libglu1-mesa-dev 
