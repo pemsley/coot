@@ -288,7 +288,7 @@ namespace coot {
    public:
       int volume_sign;  // +/- 1, checked by is_bad_chiral_atom_p and
 			// set by nomenclature checking
-      enum { CHIRAL_RESTAINT_BOTH = -2};
+      enum { CHIRAL_RESTRAINT_BOTH = -2};
       dict_chiral_restraint_t() {};
       dict_chiral_restraint_t(const std::string &chiral_id_in,
 			      const std::string &atom_id_centre_in,
@@ -306,7 +306,7 @@ namespace coot {
 	 target_volume_ = -999.9;  // unassigned
 	 volume_sigma_  = -999.9;
 	 is_both_flag = 0;
-	 if (volume_sign_in == CHIRAL_RESTAINT_BOTH) { 
+	 if (volume_sign_in == CHIRAL_RESTRAINT_BOTH) { 
 	    is_both_flag = 1;
 	    volume_sigma_ = 1.0 ; // mark as assigned
 	 } 
@@ -976,7 +976,9 @@ namespace coot {
 				     const std::string &group_2) const;
 
       void print_chem_links() const;
-      
+      static int chiral_volume_string_to_chiral_sign(const std::string &chiral_vol_string);
+      static std::string make_chiral_volume_string(int chiral_sign);
+
    };
 
 } // namespace coot

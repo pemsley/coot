@@ -761,19 +761,12 @@ coot::protein_geometry::mon_lib_add_torsion(std::string comp_id,
 
 }
 
-void
-coot::protein_geometry::mon_lib_add_chiral(std::string comp_id,
-				     std::string id,
-				     std::string atom_id_centre,
-				     std::string atom_id_1,
-				     std::string atom_id_2,
-				     std::string atom_id_3,
-				     std::string volume_sign) {
+// static int
+int
+coot::protein_geometry::chiral_volume_string_to_chiral_sign(const std::string &volume_sign) {
 
-    
-    int volume_sign_int = 0;
-
-    if (volume_sign.length() > 3) { 
+   int volume_sign_int = -3; // unassigned
+   if (volume_sign.length() > 3) { 
 
        if (volume_sign.substr(0,3) == "pos") { 
 	  volume_sign_int = 1;
@@ -788,9 +781,45 @@ coot::protein_geometry::mon_lib_add_chiral(std::string comp_id,
 	  volume_sign_int = -1;
        }
        if (volume_sign == "both" || volume_sign == "BOTH") { 
-	  volume_sign_int = coot::dict_chiral_restraint_t::CHIRAL_RESTAINT_BOTH;
+	  volume_sign_int = coot::dict_chiral_restraint_t::CHIRAL_RESTRAINT_BOTH;
        }
     }
+    return volume_sign_int;
+}
+
+
+// and the reverse 
+//
+// static 
+std::string 
+coot::protein_geometry::make_chiral_volume_string(int chiral_sign) { 
+
+  std::string s;
+
+  if (chiral_sign == -1) 
+    s = "negative";
+  if (chiral_sign == 1) 
+    s = "positive";
+  if (chiral_sign == coot::dict_chiral_restraint_t::CHIRAL_RESTRAINT_BOTH)
+    s = "both";
+  return s;
+}
+
+
+
+void
+coot::protein_geometry::mon_lib_add_chiral(std::string comp_id,
+				     std::string id,
+				     std::string atom_id_centre,
+				     std::string atom_id_1,
+				     std::string atom_id_2,
+				     std::string atom_id_3,
+				     std::string volume_sign) {
+
+    
+    int volume_sign_int = 0;
+
+    volume_sign_int = coot::protein_geometry::chiral_volume_string_to_chiral_sign(volume_sign);
 
 //     std::cout << "DEBUG:: " << comp_id << " " << atom_id_centre << " " << volume_sign
 // 	      << " " << volume_sign_int << std::endl;
