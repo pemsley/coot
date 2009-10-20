@@ -68,6 +68,10 @@ Pre-release 0.6
   o CHANGE: Don't display the geometry distance if the molecule
     corresponding to the start or end point is not displayed [JED].
 
+  o CHANGE: the restraints editor now uses strings
+    (positive/negative/both) rather than number to represent the sign
+    for chiral volumes [Andrew Leslie]
+
   o CHANGE: Additional representations now have an "All off" button.
 
   o CHANGE: Chi angles rotation now include a "reverse fragment" option.
@@ -76,7 +80,7 @@ Pre-release 0.6
 
   o BUG-FIX: TER records are removed on addition of waters [Herb Klei].
 
-  o BUG-FIX: Align vs PIR file improved.
+  o BUG-FIX: Align vs PIR file improved [Bob Nolte]
 
   o BUG-FIX: Single HETATMs now are refined by rigid body (as waters
     are) when using Refine Zone.
