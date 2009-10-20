@@ -1,18 +1,20 @@
 
    5 items
  
-  o Use positive/negative/both or whatever (what is -2?) in edit restraints
-    chirality [Andrew Leslie]
+  o Think about how to expose the SHELX interface ::: 1
 
-  o add the alignment for post-ssm superposition - put it in a gui too?
+  o add the alignment for post-ssm superposition - put it in a gui
+    too?  ::: 3
 
-  o where are the links in 1e3z.pdb?  do we get links from 1OHY.pdb?
-    mmdb version problem perhaps.
+  o Try: All Molecule -> Stepped refine on a CA-only molecule ::: 1
 
   o I am looking at a symmetry-related part of the molecule. Take me
-    to the main molecule (try unapplying symmetry to get there).
+    to the main molecule (try unapplying symmetry to get there). ::: 2
 
-  o add-view-description fails.  Needs fixing. ::: 0.3
+  o Fix refmac interface crash (needs python, I guess): 
+    In run refmac:
+    Choose MTZ file for Refmac -> dialog -> open -> crash.
+    (maybe fixed now)  ::: 2
 
 
 ------
@@ -1320,5 +1322,32 @@ src/gtk-manual.cc:                done
    o Put the GNU GPLv3 in the GUI ::: 0.5
  
 * Done.
+
+  o add-view-description fails.  Needs fixing. ::: 0.3
+
+* Done.
+
+  o assign-pir-sequence: does it say to which molecule it has been
+    assigned?
+
+* Done
+
+    assign_sequence() needs to be in the history 
+
+* Done.
+   
+    ::: 0.3
+
+
+  o Use positive/negative/both or whatever (what is -2?) in edit restraints
+    chirality [Andrew Leslie]
+
+   ::: 0.5
+
+  o where are the links in 1e3z.pdb?  do we get links from 1OHY.pdb?
+    mmdb version problem perhaps.
+
+    Fine, it seems like an mmdb bug.  ::: 0.2
+
 
 -----

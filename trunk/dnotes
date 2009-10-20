@@ -5037,6 +5037,18 @@ Sat Oct 10 08:36:45 BST 2009
    across all structures in the PDB with anomalous data. See "metal
    distances" above.
 
+
+---
+Sat Oct 17 05:43:53 EDT 2009
+
+    on starting up fresh coot:
+
+(set-default-initial-contour-level-for-difference-map -1075912448.00)
+(set-idle-function-rotate-angle -1075912448.00)
+
+set-default-bond-thickness needs to be added to the history
+
+
 ----
 Wed Oct 14 11:05:03 BST 2009
  
@@ -5066,6 +5078,14 @@ http://d2o.bioch.ox.ac.uk:38080/
 
   o NOE violations (or successes)
 
+----
+Mon Oct 19 10:09:42 EDT 2009
+
+   o maybe base-pair alignment (and preparation of pseudo-restraints)
+    is a student project.
+
+   o use the sphere tool (interactive position and radius) to select a
+     set of residues - then use those for rigid-body refinement.
 
 ----
 Fri Oct 16 14:38:00 BST 2009
@@ -5073,6 +5093,25 @@ Fri Oct 16 14:38:00 BST 2009
   o INFO:: mac compile problems: 
     check out the static analyser:
     http://arstechnica.com/apple/reviews/2009/08/mac-os-x-10-6.ars/9
+
+
+----
+Mon Oct 19 10:39:58 EDT 2009
+
+    The baton build problem: 
+
+
+   Produce like this (not verified):  
+   Calc -> Map Skeleton -> On
+
+   Ca Baton mode mode, open, close, open, undo, close
+   [candidate positions displayed]
+   Ca mode, 
+   Undo 
+   Accept 
+   Undo 
+   Accept -> Now the baton positions atoms are gone.
+
 
 ------
 
