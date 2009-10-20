@@ -306,7 +306,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                             post_run_refmac,
                             imol_refmac_count, swap_map_colours_post_refmac_p,
                             show_diff_map_flag,
-                            pdb_out_filename, mtz_out_filename,
+                            pdb_out_filename, mtz_out_filename, mtz_in_filename,
                             refmac_log_file_name,
                             phib_fom_pair, f_col, sig_f_col, r_free_col,
                             phase_combine_flag,
@@ -318,7 +318,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
         # pass refmac_status as refmac_process!?
         post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
                         show_diff_map_flag,
-                        pdb_out_filename, mtz_out_filename,
+                        pdb_out_filename, mtz_out_filename, mtz_in_filename,
                         refmac_log_file_name,
                         phib_fom_pair, f_col, sig_f_col, r_free_col,
                         phase_combine_flag, refmac_status)
@@ -326,7 +326,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 
 def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
                     show_diff_map_flag,
-                    pdb_out_filename, mtz_out_filename,
+                    pdb_out_filename, mtz_out_filename, mtz_in_filename,
                     refmac_log_file_name,
                     phib_fom_pair, f_col, sig_f_col, r_free_col,
                     phase_combine_flag,
