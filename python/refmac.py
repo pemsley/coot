@@ -546,14 +546,27 @@ def read_refmac_log(imol, refmac_log_file):
     
     import os
     import re
+
+    # return the 'next' line containing the residue information,
+    # otherwise False
+    # try next 5 lines
+    def get_next_line(pos):
+        for j in range(1,6):
+            next_line = lines[pos+j]
+            if "ch:" in next_line:
+                return next_line
+        return False
+        
     
     def get_warning(i):
         this_line = lines[i]
-        next_line = lines[i+1]
-        if   ("CIS" in this_line):
+        next_line = get_next_line(i)
+        if   (("CIS" in this_line) and next_line):
             # CIS peptide found
             # we ignore multiple conformations for now...
             # e.g.            ch:AA   res:  40  ARG      -->  41  GLU
+            if not "ch:" in next_line:
+                next_line = lines[i+2]
             item_ls   = split_clean(next_line)
             chain     = item_ls[1]
             chain_id  = chain[-1]
@@ -576,7 +589,7 @@ def read_refmac_log(imol, refmac_log_file):
             warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", "",
                                       ["dummy"], "", tooltip]) # first 2 are dummies for tooltip to work
             
-        elif ("gap" in this_line):
+        elif (("gap" in this_line) and next_line):
             # gap-link
             chain     = this_line[30:32]       # this is e.g. "AA"
             chain_id  = chain[1]
@@ -598,7 +611,7 @@ def read_refmac_log(imol, refmac_log_file):
             warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", "",
                                       ["dummy"], "", tooltip])
 
-        elif ("big distance" in this_line):
+        elif (("big distance" in this_line) and next_line):
             # large distance
             # e.g. "            ch:AA   res:  71  ILE     -->  72  CYS      ideal_dist=     1.329"
             item_ls = split_clean(next_line)
@@ -617,7 +630,7 @@ def read_refmac_log(imol, refmac_log_file):
             warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", "",
                                       ["dummy"], "", tooltip])
 
-        elif ("link" in this_line):
+        elif (("link" in this_line) and next_line):
             # link usually SS
             # e.g. "           ch:BB   res:   7  CYS      at:SG  .->BB   res:  96  CYS      at:SG  ."
             item_ls    = split_clean(next_line)
@@ -654,8 +667,8 @@ def read_refmac_log(imol, refmac_log_file):
 
     def get_info(i):
         this_line = lines[i]
-        next_line = lines[i+1]
-        if   ("link is found" in this_line):
+        next_line = get_next_line(i)
+        if (("link is found" in this_line) and next_line):
             # link found but not used
             # we ignore multiple conformations for now...
             # e.g.             ch:AA   res:   2  VAL      at:CA  .->ch:AA   res:  89  PHE      at:CZ  .
