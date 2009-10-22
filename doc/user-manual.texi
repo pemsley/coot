@@ -3708,7 +3708,7 @@ mouse button) or press the @key{S} key.
 Sometime it can be educational (even useful) to sharpen or blur a map.
 This can be achieved with the sharpening tool @command{Calculate ->
 Map Sharpening@dots{}}.  By default, the maximum and minimum sharpness 
-is +/- 30@AA{}, this can be changed (in this case to 80) using:
+is +/- @math{30@AA{}^2}, this can be changed (in this case to 80) using:
 
 @command{(set-map-sharpening-scale-limit 80)}
 
