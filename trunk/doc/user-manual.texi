@@ -3705,10 +3705,11 @@ mouse button) or press the @key{S} key.
 @section Map Sharpening
 @cindex sharpening, map
 
-Sometime it can be educational (even useful) to sharpen or blur a map.
-This can be achieved with the sharpening tool @command{Calculate ->
-Map Sharpening@dots{}}.  By default, the maximum and minimum sharpness 
-is +/- @math{30@AA{}^2}, this can be changed (in this case to 80) using:
+It can be educational (even useful at lower resolutions)
+to sharpen or blur a map.  This can be achieved with the sharpening
+tool @command{Calculate -> Map Sharpening@dots{}}.  By default, the
+maximum and minimum sharpness is +/- @math{30@AA{}^2}, this can be
+changed (in this case to 80) using:
 
 @command{(set-map-sharpening-scale-limit 80)}
 
