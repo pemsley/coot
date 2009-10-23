@@ -1916,8 +1916,8 @@ mmdb_version=1.19
 mmdb_version=1.21
 #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
-# this patch is not needed any more (BL)
-#${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb_file_.cpp.patch
+# we need this patch for gzip on Windows (actually revert!?)
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.21_file_.cpp.patch
 # but we need this one now
 ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb_title.cpp.patch
 # this patch is badly formed.
@@ -1929,6 +1929,8 @@ echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz
 cd  mmdb-$mmdb_version
 pwd
 patch -p0 < ${AUTOBUILD_SOURCES}/mmdb_title.cpp.patch
+# gzip stuff
+patch -p0 < ${AUTOBUILD_SOURCES}/mmdb-1.21_file_.cpp.patch
 # patch to read long lines in a cif file
 #patch -p0 < ../mmdb-mmcif-long-line.patch
 # FIXME (temp, BL)
