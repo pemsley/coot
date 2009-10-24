@@ -24,6 +24,8 @@
 #include <string>
 #include <vector> // for Cartesian.h
 
+#include "string.h"
+
 #include "mmdb_manager.h"
 
 #include "mmdb-extras.h"
@@ -260,7 +262,7 @@ int fix_nucleic_acid_residue_name(CResidue *r) {
 
    PCAtom *residue_atoms;
    int n_residue_atoms;
-   short int found_o2_star = 0;
+   bool found_o2_star = 0;
 
    r->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int i=0; i<n_residue_atoms; i++) {
@@ -277,6 +279,9 @@ int fix_nucleic_acid_residue_name(CResidue *r) {
 	 break;
       }
    }
+
+   convert_to_old_nucleotide_atom_names(r);
+   
    std::string new_name_stub = std::string(r->name).substr(0,1);
    if (n_residue_atoms > 0)
       istat = 1;
@@ -291,6 +296,53 @@ int fix_nucleic_acid_residue_name(CResidue *r) {
    }
    return istat;
 }
+
+// " H5'" -> " H5*"
+// "H5''" -> "H5*2"
+// " H5'" -> "H5*1"
+void
+convert_to_old_nucleotide_atom_names(CResidue *r) {
+
+   PCAtom *residue_atoms;
+   int n_residue_atoms;
+   r->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      std::string atom_name(residue_atoms[i]->name);
+      std::string name_orig = atom_name;
+      std::string ele(residue_atoms[i]->element);
+      char c3 = atom_name[2]; // 3rd char
+      char c4 = atom_name[3]; // 4th char
+      if (ele == " H") {
+	 if (c3 == '\'') {
+	    atom_name[2] = '*';
+	    if (c4 == '\'')
+	       atom_name[3] = '2';
+	    else 
+	       atom_name[3] = '1';
+	 } 
+	 strncpy(residue_atoms[i]->name, atom_name.c_str(),5);
+      } else {
+	 // if it is not a hydrogen, simply change the prime to a star
+	 if (c4 == '\'') {
+	    atom_name[3] = '*';
+	    strncpy(residue_atoms[i]->name, atom_name.c_str(),5);
+	 }
+
+	 if (atom_name == " OP1") {
+	    atom_name = " O1P";
+	    strncpy(residue_atoms[i]->name, atom_name.c_str(),5);
+	 }
+	 if (atom_name == " OP2") {
+	    atom_name = " O2P";
+	    strncpy(residue_atoms[i]->name, atom_name.c_str(),5);
+	 }
+      }
+      // debug
+      // std::cout << "from :" << name_orig << ": to :"
+      // << atom_name << ":" << std::endl;
+   }
+}
+
 
 int
 fix_away_atoms(atom_selection_container_t asc) {
