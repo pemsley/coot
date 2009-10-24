@@ -297,9 +297,9 @@ int fix_nucleic_acid_residue_name(CResidue *r) {
    return istat;
 }
 
-// " H5'" -> " H5*"
-// "H5''" -> "H5*2"
 // " H5'" -> "H5*1"
+// " H5'" -> "H5*1"
+// "H5''" -> "H5*2"
 void
 convert_to_old_nucleotide_atom_names(CResidue *r) {
 
@@ -319,7 +319,14 @@ convert_to_old_nucleotide_atom_names(CResidue *r) {
 	       atom_name[3] = '2';
 	    else 
 	       atom_name[3] = '1';
-	 } 
+	 } else {
+	    if (c4 == '\'') {
+	       if (atom_name == " H5'")
+		  atom_name = "H5*1";
+	       else 
+		  atom_name[3] = '*';
+	    }
+	 }
 	 strncpy(residue_atoms[i]->name, atom_name.c_str(),5);
       } else {
 	 // if it is not a hydrogen, simply change the prime to a star
