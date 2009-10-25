@@ -770,7 +770,12 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
    
    std::string mol_name = cns_file_name + " "; 
    mol_name += f_col; 
-   
+
+   original_fphis_filled = 1;
+   original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
+   original_fphis = fphidata;
+
+	 
    initialize_map_things_on_read_molecule(mol_name,
 					  is_diff_map,
 					  g.swap_difference_map_colours);
