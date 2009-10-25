@@ -200,17 +200,18 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--hklin mtz-file-name]\n"
 			       << "            [--auto mtz-file-name]\n"
 			       << "            [--script script-file-name]\n"
-			       << "            [--no-state-script]\n"
-			       << "            [--no-splash-screen]\n"
-			       << "            [--no-graphics]\n"
-			       << "            [--no-guano]\n"
 			       << "            [--small-screen]\n"
+			       << "            [--splash-screen]\n"
 			       << "            [--stereo]\n"
 			       << "            [--zalman-stereo]\n"
 			       << "            [--side-by-side]\n"
 			       << "            [--version]"
 			       << "            [--version-full]"
 			       << "            [--self-test]"
+			       << "            [--no-state-script]\n"
+			       << "            [--no-splash-screen]\n"
+			       << "            [--no-graphics]\n"
+			       << "            [--no-guano]\n"
 			       << std::endl;
 		     exit(0);
 		  } else {
