@@ -65,8 +65,8 @@ main(int argc, char **argv) {
 		<< "           --flexible means use torsional conformation ligand search\n"
 		<< "           --dictionary file containing the CIF ligand dictionary description\n"
 		<< "           nsamples is the number of flexible conformation samples [default 30]\n"
-		<< "           frac is the minimum fraction of atoms in density allowed after fit [default 0.75]"
-		<< "           script-file-name is a file name of helper script suitable for use in Coot"
+		<< "           frac is the minimum fraction of atoms in density allowed after fit [default 0.75]\n"
+		<< "           script-file-name is a file name of helper script suitable for use in Coot\n"
 		<< "               (default: coot-ligands.scm)."
 		<< std::endl;
 

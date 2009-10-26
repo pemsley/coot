@@ -5098,7 +5098,7 @@ Fri Oct 16 14:38:00 BST 2009
 ----
 Mon Oct 19 10:39:58 EDT 2009
 
-    The baton build problem: 
+    The baton build problem:  Gina
 
 
    Produce like this (not verified):  
@@ -5112,6 +5112,72 @@ Mon Oct 19 10:39:58 EDT 2009
    Undo 
    Accept -> Now the baton positions atoms are gone.
 
+
+----
+Tue Oct 20 11:29:07 EDT 2009
+
+   Need to add Pre-PRO to clipper.
+ 
+
+---
+
+   consider looking for unsatified H-bond donors and acceptors, for
+   NMR structures in particular c.f. cing? 
+
+
+----
+Wed Oct 21 13:56:38 EDT 2009
+
+   For VTF: Talk with Kevin about running sequins on the Chang
+   structures (backwards and forwards).
+
+
+----
+Wed Oct 21 16:49:43 EDT 2009
+
+   For VTF: make sure that the findligand is usable with absolute
+   levels of density.
+
+
+ 
+----
+
+    Jane: some comment about someone who made a server? program that
+    searches for (general?) active sites in proteins.
+   
+    Find out more.
+
+
+---
+Sat Oct 24 00:30:39 EDT 2009
+
+    Filling density with close dummy atoms and then refining them: 
+
+    Acta Cryst. (1997). D53, 540-543  
+    Local Improvement of Electron-Density Maps
+    A. G. Urzhumtsev
+
+    Improves weak loop density?
+
+
+----
+Sun Oct 25 17:54:59 EDT 2009
+
+	
+(from Garib)
+>
+> libcheck
+>
+> file_l <dicntionary_file>
+> mon <monomoer_you_want>
+> nodist y
+
+
+----
+
+   Friesner, R. A et al Glide: a new approach for rapid, accurate
+   docking and scoring, 1. Method and assessment of docking accuracy
+   J. Med. Chem 2004, 47, 1739-1749
 
 ------
 
