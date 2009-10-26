@@ -381,7 +381,7 @@ semicolon) "hello.scm" in the
 It's somewhat involved, but hopefully straightforward if you
 follow the autobuilder:
 
-@url{http://www.ysbl.york.ac.uk/~emsley/build-logs/build-it} 
+@url{http://coot.googlecode.com/svn/trunk/build-it-gtk2-simple} 
 
 Coot
 requires mmdb, clipper, glut, gtk, gtkglarea.  gtkglarea requires gtk

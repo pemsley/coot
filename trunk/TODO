@@ -614,6 +614,11 @@ Punted from 0.6:
      where?  Now do the same, but go through the waters backwards using
      "shift space" - Ingo Korndoerfer ::: 1
 
+   o Hydrogens should have thinner bonds.  (Not half bonds - all grey
+     - more like molprobity/KING)
+
+  o the chi-squared dialog should have "the worst geometric feature"
+    in the local refinement.  Punt.
 
  ------
 
