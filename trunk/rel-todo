@@ -1,49 +1,45 @@
 
-   5 items
+   12 items
 
   o Fix NAN crash in Refinement of AUC in gold-lysozyme. Rick comment.
-    Data on stick.
-    ::: 4
+    Data on stick. ::: 4
 
   o Environment distances: examine the residue type, look it up in the
     dictionary: only if this residue and that residue are not a
     polymer should you not draw the lines (don't rely on the residue
     numbering).  JED ::: 1
 
-  o Fix refmac interface crash (needs python, I guess): 
-    In run refmac:
-    Choose MTZ file for Refmac -> dialog -> open -> crash.
+  o Fix refmac interface crash (needs python, I guess) on Bill's
+    stand-alone Coot 0.6-pre build:
+    In run refmac: Choose MTZ file for Refmac -> dialog -> open -> crash.
     ::: 2
 
 * Bernhard has fixed this already?  Probably not, he says.
 
   o Kevin Keating map peak position problem :: 2
+
+  o Gap penalty too low in alignment?  Bob Nolte problem. ::: 2
+
+  o Backrub rotamers compensatory peptide rotation ::: 2
  
-  o Check waters by difference map fails on Misty's waters.  Data on
-    stick ::: 3
-
-  o Think about how to expose the SHELX interface ::: 1
-
-0  o Add the alignment for post-ssm superposition - put it in a gui
+  o Add the alignment for post-ssm superposition - put it in a gui
     too?  ::: 3
 
-  o Try: All Molecule -> Stepped refine on a CA-only molecule ::: 1
+  o Try: All Molecule -> Stepped refine on a CA-only molecule.  That
+    seems OK, how about "Fit Protein"? ::: 1
 
   o I am looking at a symmetry-related part of the molecule. Take me
-    to the main molecule (try unapplying symmetry to get there). ::: 2
+    to the main molecule (try unapplying symmetry to get there). Punt 
+    ::: 2
 
   o Change the reference on the splash screen. ::: 0.2
 
   o Add in Dale's BCL dictionary.  ::: 0.2
 
-  o Wiggly ligands for succrose in the CSH lysozyme data. Data on
-    stick. ::: 2
-
-  o Need a keybinding for "regularize these 3 residues" ::: 0.5
-
   o nudge monomer/residue (Ctrl-arrow keys) to move residue at centre
-    up/down left/right. Has to be down internally, I think, but
-    compare with function in nudge-screen-centre-gui.  ::: 1
+    up/down left/right. Has to be done internally, I think, but
+    compare with function in nudge-screen-centre-gui.  Puntable, but
+    cool. ::: 1
 
 
 ------

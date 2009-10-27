@@ -508,6 +508,14 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    
    align.Align(model.c_str(), target.c_str());
 
+   // It seems to me now that it is the gap (and space) penalty that
+   // is the important issue.
+   // 
+   // default values (it seems)
+   realtype wgap = 0.0;
+   realtype wspace = -1.0;
+   // align.SetAffineModel(wgap, wspace);
+
    ch_info.alignedS = align.GetAlignedS();
    ch_info.alignedT = align.GetAlignedT();
 

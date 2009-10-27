@@ -620,6 +620,18 @@ Punted from 0.6:
   o the chi-squared dialog should have "the worst geometric feature"
     in the local refinement.  Punt.
 
+  o Check waters by difference map fails on Misty's waters.  Data on
+    stick.  Punt! ::: 3
+
+  o Think about how to expose the SHELX interface. Punt ::: 1
+
+  o Need a keybinding for "regularize these 3 residues". Punt ::: 0.5
+
+  o Wiggly ligands for succrose in the CSH lysozyme data. Data on
+    stick. Punt. ::: 2
+
+
+
  ------
 
 

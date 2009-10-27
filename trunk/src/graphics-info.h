@@ -3051,6 +3051,22 @@ public:
 				     int n_selected_atoms_1, int n_selected_atoms_2, 
 				     short int move_copy_of_imol2_flag);
 
+   void print_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+						atom_selection_container_t asc_ref,
+						atom_selection_container_t asc_mov,
+						PCAtom *atom_selection1, 
+						PCAtom *atom_selection2, 
+						int n_selected_atoms_1, int n_selected_atoms_2, 
+						short int move_copy_of_imol2_flag) const;
+
+   std::pair<std::string, std::string>
+     get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+					   atom_selection_container_t asc_ref,
+					   atom_selection_container_t asc_mov,
+					   PCAtom *atom_selection1, PCAtom *atom_selection2,
+					   int n_selected_atoms_1, int n_selected_atoms_2) const;
+
+
    // widget stuff:
 
    static std::pair<short int, float> float_from_entry(GtkWidget *entry);
