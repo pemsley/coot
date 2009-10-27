@@ -316,6 +316,36 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 
 
 void
+graphics_info_t::print_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+							 atom_selection_container_t asc_ref,
+							 atom_selection_container_t asc_mov,
+							 PCAtom *atom_selection1, PCAtom *atom_selection2,
+							 int n_selected_atoms_1, int n_selected_atoms_2,
+							 short int move_copy_of_imol2_flag) const {
+
+   std::pair<std::string, std::string> aligned_sequences =
+      get_horizontal_ssm_sequence_alignment(SSMAlign, asc_ref, asc_mov,
+					    atom_selection1, atom_selection2,
+					    n_selected_atoms_1, n_selected_atoms_2);
+
+}
+
+
+std::pair<std::string, std::string>
+graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+						       atom_selection_container_t asc_ref,
+						       atom_selection_container_t asc_mov,
+						       PCAtom *atom_selection1, PCAtom *atom_selection2,
+						       int n_selected_atoms_1, int n_selected_atoms_2) const {
+
+   std::string s;
+   std::string t;
+
+   return std::pair<std::string, std::string> (s,t);
+}
+
+
+void
 graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 					      atom_selection_container_t asc_ref,
 					      atom_selection_container_t asc_mov,

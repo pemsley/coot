@@ -123,6 +123,12 @@ align_on_chain(CChain *chain_p, PCResidue *SelResidues, int nSelResidues,
 
 
    CAlignment align;
+
+   // default values (it seems)
+   realtype wgap = 0.0;
+   realtype wspace = -1.0;
+   // align.SetAffineModel(wgap, wspace);
+   
    align.Align((char *)model.c_str(), (char *)target.c_str());
 
    std::cout << "model : " << align.GetAlignedS() << std::endl;
