@@ -506,7 +506,6 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    // 
    // align.SetScores(0.5, -0.2);; // 2.0, -1 are the defaults.
    
-   align.Align(model.c_str(), target.c_str());
 
    // It seems to me now that it is the gap (and space) penalty that
    // is the important issue.
@@ -514,7 +513,12 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    // default values (it seems)
    realtype wgap = 0.0;
    realtype wspace = -1.0;
-   // align.SetAffineModel(wgap, wspace);
+   wgap = -3.0;
+   wspace = -0.4;
+   std::cout << "INFO:: align with gap penalty: " << wgap << " and extension penalty: "
+	     << wspace << std::endl;
+   align.SetAffineModel(wgap, wspace);
+   align.Align(model.c_str(), target.c_str());
 
    ch_info.alignedS = align.GetAlignedS();
    ch_info.alignedT = align.GetAlignedT();
@@ -525,9 +529,12 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    std::cout << "> target seq: \n" << align.GetAlignedT() << std::endl;
    std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
 
-   // get something like:
+   // Before the use of SetAffineModel()
+   // we got something like:
    // DVSGTVCLSALPPEATDTLNLIASDGPFPYSQD----F--------Q-------NRESVLPTQSYGYYHEYTVITP
    // DTSGTVCLS-LPPEA------IASDGPFPYSQDGTERFDSCVNCAWQRTGVVFQNRESVLPTQSYGYYHEYTVITP
+   // (bleugh).
+   // 20091028: Now I don't know what alignment we will get.
 
    // Consider
    // pdb seq: "AVSGTVCLSA"
