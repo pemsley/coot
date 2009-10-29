@@ -1072,7 +1072,7 @@ PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y,
 
       graphics_info_t g;
       CMMDBManager *mol = coot::util::create_mmdbmanager_from_atom(at);
-      mol.SetSpaceGroup(g.molecules[imol_map].xmap_list[0].spacegroup.symbol_hm());
+      mol->SetSpaceGroup(g.molecules[imol_map].xmap_list[0].spacegroup.symbol_hm());
       coot::util::set_mol_cell(mol, g.molecules[imol_map].xmap_list[0].cell);
       
       const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
