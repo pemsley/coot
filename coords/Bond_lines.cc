@@ -930,11 +930,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    
    if (ncontacts > 0) {
       for (int i=0; i<ncontacts; i++) {
-	 std::string ch1(residue_atoms[ contact[i].id1 ]->GetChainID());
-	 std::string ch2(SelAtom.atom_selection[ contact[i].id2 ]->GetChainID());
-	 if ( (abs(residue_atoms[ contact[i].id1 ]->GetSeqNum() -
-		   SelAtom.atom_selection[ contact[i].id2 ]->GetSeqNum()) > 1)
-	      || (ch1 != ch2)
+	 // std::string ch1(residue_atoms[ contact[i].id1 ]->GetChainID());
+	 // std::string ch2(SelAtom.atom_selection[ contact[i].id2 ]->GetChainID());
+	 if ( draw_these_residue_contacts(residue_atoms[contact[i].id1]->GetResidue(),
+					  SelAtom.atom_selection[contact[i].id2]->GetResidue())
 	      || residue_is_water_flag) {
 	    
 	    coot::Cartesian atom_1(residue_atoms[ contact[i].id1 ]->x,
@@ -961,6 +960,20 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
       delete [] contact;
    }
 }
+
+bool
+Bond_lines_container::draw_these_residue_contacts(CResidue *this_residue,
+						  CResidue *env_residue) const {
+
+   std::string ch1(this_residue->GetChainID());
+   std::string ch2(env_residue->GetChainID());
+   if ((abs(this_residue->GetSeqNum() - env_residue->GetSeqNum()) > 1)
+       || (ch1 != ch2))
+      return 1;
+   else
+      return 0;
+}
+
 
 
 // This finds bonds between a residue and the protein (in SelAtom).
