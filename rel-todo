@@ -1,8 +1,24 @@
 
    12 items
 
+  o Distances in the SSM align output are wrong.  e.g. Frank's test.
+    ::: 2
+
+* Done.
+
+  o Gap penalty too low in alignment?  OK, I can't seem to change the
+    results, no matter what gap penalty and extension penalty I
+    use.  ::: 2
+
+* Done, it seems to me.  Needs testing with Bob example, I think.
+
+  o Kevin Keating map peak position problem :: 2
+
+* Done? Needs testing.
+
   o Fix NAN crash in Refinement of AUC in gold-lysozyme. Rick comment.
-    Data on stick. ::: 4
+    Data on stick (Icanmakecootcrash). Not reproducable on ubuntu
+    laptop.  Needs Bill's standalone Mac binary::: 4
 
   o Environment distances: examine the residue type, look it up in the
     dictionary: only if this residue and that residue are not a
@@ -16,10 +32,6 @@
 
 * Bernhard has fixed this already?  Probably not, he says.
 
-  o Kevin Keating map peak position problem :: 2
-
-  o Gap penalty too low in alignment?  Bob Nolte problem. ::: 2
-
   o Backrub rotamers compensatory peptide rotation ::: 2
  
   o Add the alignment for post-ssm superposition - put it in a gui
@@ -27,10 +39,6 @@
 
   o Try: All Molecule -> Stepped refine on a CA-only molecule.  That
     seems OK, how about "Fit Protein"? ::: 1
-
-  o I am looking at a symmetry-related part of the molecule. Take me
-    to the main molecule (try unapplying symmetry to get there). Punt 
-    ::: 2
 
   o Change the reference on the splash screen. ::: 0.2
 
