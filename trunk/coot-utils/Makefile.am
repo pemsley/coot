@@ -34,7 +34,6 @@ include_HEADERS = peak-search.hh coot-trim.hh \
 
 INCLUDES = \
 	-I$(top_srcdir)/utils	        \
-	-I$(top_srcdir)/coords  	\
 	-I$(top_srcdir)/geometry	\
 	-I$(top_srcdir)/compat		\
 	-I$(top_srcdir)/mini-mol	\

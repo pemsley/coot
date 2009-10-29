@@ -314,7 +314,7 @@ main(int argc, char **argv) {
 		  short int remove_or_zero_occ_flag = coot::util::TRIM_BY_MAP_DELETE;
 		  clipper::Map_stats stats(xmap);
 		  float map_level = stats.mean() + input_sigma_level * stats.std_dev();
-		  int n_atoms = coot::util::trim_molecule_by_map(asc, xmap, map_level,
+		  int n_atoms = coot::util::trim_molecule_by_map(asc.mol, xmap, map_level,
 								 remove_or_zero_occ_flag,
 								 waters_only_flag);
 		  std::cout << "INFO:: " << n_atoms << " waters removed" << std::endl;

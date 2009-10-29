@@ -575,8 +575,6 @@ Punted from 0.6:
    o consider applying 0001-Replace-goosh-module-with-os-process-from-guile-lib.patch
      ::: 1
 
-   o Put libcheck output in coot-ccp4 (or coot-libcheck).  ::: 0.5
-
 * Done.
 
    o Use libcurl to get URLs.  It does proxies.  Stop using nethttp.

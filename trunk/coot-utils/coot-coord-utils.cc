@@ -5240,7 +5240,7 @@ coot::util::move_waters_around_protein(CMMDBManager *mol) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
 	 CResidue *residue_p;
-	 CAtom *at;
+	 CAtom *at = 0;
 	 for (int ires=0; ires<nres; ires++) {
 	    residue_p = chain_p->GetResidue(ires);
 	    int n_atoms = residue_p->GetNumberOfAtoms();
