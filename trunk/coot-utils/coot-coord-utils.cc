@@ -5225,7 +5225,7 @@ coot::util::move_waters_around_protein(CMMDBManager *mol) {
 
    int n_moved = 0;
    std::vector<clipper::Coord_orth> protein_coords;
-   std::vector<CAtom*> water_atoms;
+   std::vector<std::pair<CAtom*, clipper::Coord_orth> > water_atoms;
 
    // First we fill protein_atoms and water_atoms (water atoms are not
    // part of protein atoms)
@@ -5251,7 +5251,9 @@ coot::util::move_waters_around_protein(CMMDBManager *mol) {
 	       for (int iat=0; iat<n_atoms; iat++) {
 		  if (! at->isTer()) { 
 		     at = residue_p->GetAtom(iat);
-		     water_atoms.push_back(at);
+		     clipper::Coord_orth c(at->x, at->y, at->z);
+		     std::pair <CAtom *, clipper::Coord_orth> pair(at, c);
+		     water_atoms.push_back(pair);
 		  }
 	       }
 	    } else {
@@ -5278,80 +5280,113 @@ coot::util::move_waters_around_protein(CMMDBManager *mol) {
       clipper::Cell cell = csp.first;
       clipper::Spacegroup spacegroup = csp.second;
 
-      clipper::Coord_frac pre_shift_frac = coot::util::shift_to_origin(mol);
-      clipper::Coord_orth pre_shift_orth = pre_shift_frac.coord_orth(cell);
+      if (cell.is_null()) {
+	 std::cout << "WARNING:: null cell in move_waters_around_protein" << std::endl;
+      } else {
+	 if (spacegroup.is_null()) { 
+	    std::cout << "WARNING:: null spgr in move_waters_around_protein" << std::endl;
+	 } else {
 
-      if (0) 
-	 std::cout << "DEBUG:: pre_shift_frac " << pre_shift_frac.format()
-		   << " pre_shift_orth " << pre_shift_orth.format()
-		   << std::endl;
+	    std::vector<std::pair<CAtom*, clipper::Coord_orth> > water_atoms_moved =
+	       symmetry_move_atoms(protein_coords, water_atoms, cell, spacegroup);
 
-      // create shifted protein coords
-      std::vector<clipper::Coord_orth> protein_coords_origin_shifted(protein_coords.size());
-      for (unsigned int ip=0; ip<protein_coords.size(); ip++) { 
-	 protein_coords_origin_shifted[ip] =
-	    protein_coords[ip] + pre_shift_orth;
-// 	 if (ip < 20)
-// 	    std::cout << "  shifting "
-// 		      << protein_coords[ip].format() << " by "
-// 		      << pre_shift_orth.format() << " gives "
-// 		      << protein_coords_origin_shifted[ip].format()
-// 		      << std::endl;
+	    for (unsigned int iw=0; iw<water_atoms_moved.size(); iw++) {
+	       if (water_atoms_moved[iw].first) {
+		  water_atoms_moved[iw].first->x = water_atoms_moved[iw].second.x();
+		  water_atoms_moved[iw].first->y = water_atoms_moved[iw].second.y();
+		  water_atoms_moved[iw].first->z = water_atoms_moved[iw].second.z();
+		  n_moved++;
+	       }
+	    }
+	 }
       }
+   }
+   catch (std::runtime_error rte) {
+      std::cout << rte.what() << std::endl;
+   }
 
-      // Do the cell shift search
-      int n = spacegroup.num_symops();
-      clipper::Coord_frac cell_shift; 
-      for (unsigned int iw=0; iw<water_atoms.size(); iw++) {
-	 clipper::Coord_orth water_pos_pre(water_atoms[iw]->x,
-					   water_atoms[iw]->y,
-					   water_atoms[iw]->z);
-	 clipper::Coord_orth water_pos = translate_close_to_origin(water_pos_pre, cell);
+   return n_moved;
+}
 
-	 // std::cout << " water_pos " << water_pos.format() << std::endl;
-	 double d_best = 99999999.9;
-	 // The compiler doesn't like rtop_best being used below
-	 // without being initialized properly here.
-	 // clipper::RTop_orth rtop_best; // old
-	 clipper::RTop_orth rtop_best(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), clipper::Coord_orth(0,0,0));
-	 bool improved = 0;
-	 // 
-	 for (int isym=0; isym<n; isym++) {
-	    for (int x_shift = -1; x_shift<2; x_shift++) { 
-	       for (int y_shift = -1; y_shift<2; y_shift++) { 
-		  for (int z_shift = -1; z_shift<2; z_shift++) {
-		     cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift); 
-		     clipper::RTop_orth orthop = clipper::RTop_frac(spacegroup.symop(isym).rot(), spacegroup.symop(isym).trn() + cell_shift).rtop_orth(cell);
-		     clipper::Coord_orth t_point = water_pos.transform(orthop);
-		     double t_dist = coot::util::min_dist_to_points(t_point, protein_coords_origin_shifted);
-		     if (t_dist < d_best) {
-			// std::cout << " better dist " << t_dist << std::endl;
-			d_best = t_dist;
-			rtop_best = orthop;
-			improved = 1;
-		     }
+// Return waters atoms of the same size as the input, except if the
+// first is NULL, then the atom need not move, if it is not null, then
+// the water atom (first) should be moved to the second position.
+// 
+std::vector<std::pair<CAtom *, clipper::Coord_orth> >
+coot::util::symmetry_move_atoms(const std::vector<clipper::Coord_orth> &protein_coords,
+				const std::vector<std::pair<CAtom*, clipper::Coord_orth> > &water_atoms_in,
+				clipper::Cell cell,
+				clipper::Spacegroup spacegroup) {
+
+
+   clipper::Coord_frac pre_shift_frac = coot::util::shift_to_origin(protein_coords, cell, spacegroup);
+   clipper::Coord_orth pre_shift_orth = pre_shift_frac.coord_orth(cell);
+
+   std::vector<std::pair<CAtom*, clipper::Coord_orth> > water_atoms = water_atoms_in;
+   
+   if (0) 
+      std::cout << "DEBUG:: pre_shift_frac " << pre_shift_frac.format()
+		<< " pre_shift_orth " << pre_shift_orth.format()
+		<< std::endl;
+
+   // create shifted protein coords
+   std::vector<clipper::Coord_orth> protein_coords_origin_shifted(protein_coords.size());
+   for (unsigned int ip=0; ip<protein_coords.size(); ip++) { 
+      protein_coords_origin_shifted[ip] =
+	 protein_coords[ip] + pre_shift_orth;
+      // 	 if (ip < 20)
+      // 	    std::cout << "  shifting "
+      // 		      << protein_coords[ip].format() << " by "
+      // 		      << pre_shift_orth.format() << " gives "
+      // 		      << protein_coords_origin_shifted[ip].format()
+      // 		      << std::endl;
+   }
+
+   // Do the cell shift search
+   int n = spacegroup.num_symops();
+   clipper::Coord_frac cell_shift; 
+   for (unsigned int iw=0; iw<water_atoms.size(); iw++) {
+      clipper::Coord_orth water_pos_pre(water_atoms[iw].second);
+      clipper::Coord_orth water_pos = translate_close_to_origin(water_pos_pre, cell);
+
+      // std::cout << " water_pos " << water_pos.format() << std::endl;
+      double d_best = 99999999.9;
+      // The compiler doesn't like rtop_best being used below
+      // without being initialized properly here.
+      // clipper::RTop_orth rtop_best; // old
+      clipper::RTop_orth rtop_best(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), clipper::Coord_orth(0,0,0));
+      bool improved = 0;
+      // 
+      for (int isym=0; isym<n; isym++) {
+	 for (int x_shift = -1; x_shift<2; x_shift++) { 
+	    for (int y_shift = -1; y_shift<2; y_shift++) { 
+	       for (int z_shift = -1; z_shift<2; z_shift++) {
+		  cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift); 
+		  clipper::RTop_orth orthop = clipper::RTop_frac(spacegroup.symop(isym).rot(), spacegroup.symop(isym).trn() + cell_shift).rtop_orth(cell);
+		  clipper::Coord_orth t_point = water_pos.transform(orthop);
+		  double t_dist = coot::util::min_dist_to_points(t_point, protein_coords_origin_shifted);
+		  if (t_dist < d_best) {
+		     // std::cout << " better dist " << t_dist << std::endl;
+		     d_best = t_dist;
+		     rtop_best = orthop;
+		     improved = 1;
 		  }
 	       }
 	    }
 	 }
+      }
 
-	 if (improved) { 
-	    // Apply the transformation then.
-	    clipper::Coord_orth t_point = water_pos.transform(rtop_best);
-	    water_atoms[iw]->x = t_point.x() - pre_shift_orth.x();
-	    water_atoms[iw]->y = t_point.y() - pre_shift_orth.y();
-	    water_atoms[iw]->z = t_point.z() - pre_shift_orth.z();
-	    n_moved++;
-	 }
+      if (improved) { 
+	 // Apply the transformation then.
+	 clipper::Coord_orth t_point = water_pos.transform(rtop_best);
+	 water_atoms[iw].second = t_point - pre_shift_orth;
+      } else {
+	 water_atoms[iw].first = 0; // NULL, don't move it.
       }
    }
+   return water_atoms;
+}
 
-   catch (std::runtime_error rte) {
-      std::cout << rte.what() << std::endl;
-   } 
-	       
-   return n_moved;
-} 
 
 
 // Throw an std::runtime_error exception on
@@ -5372,8 +5407,15 @@ coot::util::get_cell_symm(CMMDBManager *mol) {
       try { 
 	 const clipper::MMDBManager* pcmmdb =
 	    static_cast<const clipper::MMDBManager*>( mol );
-	 return std::pair<clipper::Cell, clipper::Spacegroup>
-	    (pcmmdb->cell(),pcmmdb->spacegroup());
+
+	 clipper::Spacegroup spacegroup(pcmmdb->spacegroup());
+	 clipper::Cell cell(pcmmdb->cell());
+	 if (spacegroup.is_null())
+	    std::cout << "Null clipper spacegroup from " << mol->GetSpaceGroup()
+		      << std::endl;
+	 if (cell.is_null())
+	    std::cout << "Null clipper cell  " << std::endl;
+	 return std::pair<clipper::Cell, clipper::Spacegroup> (cell, spacegroup);
       }
       catch (clipper::Message_base except) {
 	 std::string message = "Fail to make clipper::Spacegroup from ";
@@ -5381,7 +5423,23 @@ coot::util::get_cell_symm(CMMDBManager *mol) {
 	 throw std::runtime_error(message);
       }
    }
-} 
+   std::cout << "got to here - bad! in get_cell_symm()"
+	     << std::endl;
+}
+
+
+// shove a cell from a clipper cell into the passed mol.
+void
+coot::util::set_mol_cell(CMMDBManager *mol, clipper::Cell cell_local) {
+
+   mol->SetCell(cell_local.a(), cell_local.b(), cell_local.c(),
+		clipper::Util::rad2d(cell_local.alpha()),
+		clipper::Util::rad2d(cell_local.beta()),
+		clipper::Util::rad2d(cell_local.gamma()));
+   
+
+}
+
 
 
 // caller must check that others has some points in it.
@@ -5424,6 +5482,45 @@ coot::util::shift_to_origin(CMMDBManager *mol) {
    clipper::Coord_frac rf (round(-mpf.u()), round(-mpf.v()), round(-mpf.w()));
    return rf;
 }
+
+clipper::Coord_frac
+coot::util::shift_to_origin(const std::vector<clipper::Coord_orth> &protein_coords,
+			    clipper::Cell cell,
+			    clipper::Spacegroup spacegroup) {
+
+   clipper::Coord_orth median_pos = median_position(protein_coords);
+   clipper::Coord_frac mpf = median_pos.coord_frac(cell);
+   clipper::Coord_frac rf (round(-mpf.u()), round(-mpf.v()), round(-mpf.w()));
+   return rf;
+}
+
+
+// Can throw a std::runtime_error
+// 
+clipper::Coord_orth
+coot::util::median_position(const std::vector<clipper::Coord_orth> &pts) {
+
+   if (pts.size() == 0 ) {
+      std::string message = "No atoms in molecule - no mediain position";
+      throw std::runtime_error(message);
+   }
+   
+   std::vector<float> pts_x;
+   std::vector<float> pts_y;
+   std::vector<float> pts_z;
+   for (unsigned int i=0; i<pts.size(); i++) {
+      pts_x.push_back(pts[i].x());
+      pts_y.push_back(pts[i].y());
+      pts_z.push_back(pts[i].z());
+   }
+   std::sort(pts_x.begin(), pts_x.end());
+   std::sort(pts_y.begin(), pts_y.end());
+   std::sort(pts_z.begin(), pts_z.end());
+   unsigned int mid_index = pts_x.size()/2;
+   return clipper::Coord_orth(pts_x[mid_index], pts_y[mid_index], pts_z[mid_index]);
+}
+
+
 
 // Can throw a std::runtime_error
 // 

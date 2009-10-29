@@ -965,12 +965,24 @@ namespace coot {
       // move waters round protein, fiddle with mol.
       // return the number of moved waters.
       int move_waters_around_protein(CMMDBManager *mol);
+      // above uses this more primitive interface
+      // 
+      std::vector<std::pair<CAtom *, clipper::Coord_orth> >
+      symmetry_move_atoms(const std::vector<clipper::Coord_orth> &protein_coords,
+			  const std::vector<std::pair<CAtom*, clipper::Coord_orth> > &water_atoms,
+			  clipper::Cell cell,
+			  clipper::Spacegroup spacegroup);
+	 
 
       // Throw an std::runtime_error exception on
       // not-able-to-extract-cell/symm-info.  (In such a case, we convert a
       // clipper::Message_base to a std::runtime_error).
       // 
       std::pair<clipper::Cell, clipper::Spacegroup> get_cell_symm(CMMDBManager *mol);
+
+      // shove a cell from a clipper cell into the passed mol.
+      void set_mol_cell(CMMDBManager *mol, clipper::Cell cell);
+
 
       // caller must check that others has some points in it.
       // 
@@ -983,12 +995,16 @@ namespace coot {
       // Throw an exception (e.g. no cell or symmetry).
       // 
       clipper::Coord_frac shift_to_origin(CMMDBManager *mol);
+      clipper::Coord_frac shift_to_origin(const std::vector<clipper::Coord_orth> &protein_coords,
+					  clipper::Cell cell,
+					  clipper::Spacegroup spacegroup);
 
       // Return the median position.  Throw an exception on failure
       // (e.g no atoms).
       // 
       clipper::Coord_orth median_position(CMMDBManager *mol);
-
+      // also throws an exception
+      clipper::Coord_orth median_position(const std::vector<clipper::Coord_orth> &pts);
       //
       clipper::Coord_orth
       translate_close_to_origin(const clipper::Coord_orth water_pos_pre,
