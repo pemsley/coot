@@ -1066,11 +1066,14 @@ PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y,
    if (is_valid_map_molecule(imol_map)) {
 
       CAtom *at = new CAtom;
-      at->SetCoordinates(x,y,z,1.0,10.0);
+      at->SetCoordinates(x,y,z, 1.0, 10.0);
       at->SetAtomName(" CA ");
       at->SetElementName(" C");
 
+      graphics_info_t g;
       CMMDBManager *mol = coot::util::create_mmdbmanager_from_atom(at);
+      mol.SetSpaceGroup(g.molecules[imol_map].xmap_list[0].spacegroup.symbol_hm());
+      coot::util::set_mol_cell(mol, g.molecules[imol_map].xmap_list[0].cell);
       
       const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
       int do_positive_levels_flag = 1;
