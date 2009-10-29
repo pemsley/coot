@@ -320,13 +320,16 @@ graphics_info_t::print_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 							 atom_selection_container_t asc_ref,
 							 atom_selection_container_t asc_mov,
 							 PCAtom *atom_selection1, PCAtom *atom_selection2,
-							 int n_selected_atoms_1, int n_selected_atoms_2,
-							 short int move_copy_of_imol2_flag) const {
+							 int n_selected_atoms_1, int n_selected_atoms_2) const {
 
    std::pair<std::string, std::string> aligned_sequences =
       get_horizontal_ssm_sequence_alignment(SSMAlign, asc_ref, asc_mov,
 					    atom_selection1, atom_selection2,
 					    n_selected_atoms_1, n_selected_atoms_2);
+
+   // tmp
+   std::cout << ":" << aligned_sequences.first  << ":" << std::endl;
+   std::cout << ":" << aligned_sequences.second << ":" << std::endl;
 
 }
 
@@ -340,7 +343,45 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 
    std::string s;
    std::string t;
+   int previous_t_index = -1;
+   int previous_s_index = -1;
+   bool debug = 0;
 
+   if (debug) {
+      for (unsigned int i1=0; i1<SSMAlign->nsel1; i1++) {
+	 std::cout << SSMAlign->Ca1[i1] << " " ;
+      }
+      std::cout << std::endl;
+      for (unsigned int i2=0; i2<SSMAlign->nsel2; i2++) {
+	 std::cout << SSMAlign->Ca2[i2] << " " ;
+      }
+      std::cout << std::endl;
+   }
+
+   for (unsigned int i1=0; i1<SSMAlign->nsel1; i1++) {
+      int t_index = SSMAlign->Ca1[i1];
+      if (SSMAlign->Ca1[i1] == -1) {
+	 s += coot::util::three_letter_to_one_letter(atom_selection1[i1]->GetResName());
+	 t += "-";
+      } else {
+	 int t_index = SSMAlign->Ca1[i1];
+	 int s_index = SSMAlign->Ca2[t_index];
+
+	 if (t_index != (previous_t_index + 1)) {
+	    t += coot::util::three_letter_to_one_letter(atom_selection2[t_index]->GetResName());
+	    s += "."; // there was (at least) one extra residue in t sequence
+	 }
+	 
+	 if (s_index == i1) { 
+	    s += coot::util::three_letter_to_one_letter(atom_selection1[i1]->GetResName());
+	    t += coot::util::three_letter_to_one_letter(atom_selection2[t_index]->GetResName());
+	 }
+
+	 // for next round
+	 previous_t_index = t_index;
+      }
+   }
+   std::cout << std::endl;
    return std::pair<std::string, std::string> (s,t);
 }
 
@@ -353,6 +394,10 @@ graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 					      int n_selected_atoms_1, int n_selected_atoms_2,
 					      short int move_copy_of_imol2_flag) {
 
+   print_horizontal_ssm_sequence_alignment(SSMAlign, asc_ref, asc_mov,
+					   atom_selection1, atom_selection2,
+					   n_selected_atoms_1, n_selected_atoms_2);
+   
    std::cout << "Another Go...\n\n";
 
    CChain *moving_chain_p = 0;
@@ -385,33 +430,24 @@ graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
       // print_alignment_table (not sequence)
       // 
       if (n_selected_atoms_1 > 0) {
+	 clipper::RTop_orth ssm_matrix = coot::util::matrix_convert(SSMAlign->TMatrix);
+	 std::cout << "ssm_matrix: \n" << ssm_matrix.format() << std::endl;
 	 std::cout << "      Moving  Reference   Distance" << std::endl;
 	 for (int ires=0; ires<n_selected_atoms_1; ires++) {
 	    if (ires < SSMAlign->nalgn) { 
 	       CAtom *mov_at = atom_selection1[ires];
 	    
 	       int mov_index = SSMAlign->Ca1[ires];
-//  	       std::cout << " ires: " << ires << " of " << n_selected_atoms_1
-//  			 << "   mov_index: " << mov_index << std::endl;
 	       std::cout << "      " << mov_at->GetChainID() << " " << mov_at->GetSeqNum();
 	       if ((mov_index > -1) && (mov_index < n_selected_atoms_1)) { 
 		  CAtom *ref_at = atom_selection2[mov_index];
-		  clipper::Coord_orth pos1(mov_at->x, mov_at->y, mov_at->z);
 		  if (ref_at) {
-// 		     std::cout << "DEBUG:: mov_index: " << mov_index << std::endl;
-// 		     std::cout << "DEBUG::  ref_at " << ref_at << ":" << std::endl;
+		     clipper::Coord_orth pos1(mov_at->x, mov_at->y, mov_at->z);
 		     clipper::Coord_orth pos2(ref_at->x, ref_at->y, ref_at->z);
-		     double d = clipper::Coord_orth::length(pos1, pos2);
-		     if (move_copy_of_imol2_flag) { 
-			clipper::Coord_orth pos3 =
-			   pos1.transform(coot::util::matrix_convert(SSMAlign->TMatrix));
-		     d = clipper::Coord_orth::length(pos3, pos2);
-		     }
+		     clipper::Coord_orth pos3 = pos1.transform(ssm_matrix);
+		     double d = clipper::Coord_orth::length(pos3, pos2);
 		     std::cout << " <---> " << ref_at->GetChainID() << " "
 			       << ref_at->GetSeqNum() << "  : " << d << "  "
-			// 				  << pos1.format() << "   "
-			// 				  << pos2.format() << "   "
-			// 				  << pos3.format() << "   "
 			       << " A\n";
 		  }
 	       } else {
