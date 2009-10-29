@@ -68,6 +68,10 @@ Pre-release 0.6
   o CHANGE: Don't display the geometry distance if the molecule
     corresponding to the start or end point is not displayed [JED].
 
+  o CHANGE: Using the internal alignment, the weights of the affine
+    gap penalty have been changed to favour mutations and larger gaps
+    rather than several small gaps.
+
   o CHANGE: the restraints editor now uses strings
     (positive/negative/both) rather than number to represent the sign
     for chiral volumes [Andrew Leslie]
