@@ -3380,7 +3380,7 @@ molecule_class_info_t::trim_by_map(const clipper::Xmap<float> &xmap_in,
    // 20050610: I laugh at that.
    
    short int waters_only_flag = 0;
-   int i = coot::util::trim_molecule_by_map(atom_sel, xmap_in, map_level, 
+   int i = coot::util::trim_molecule_by_map(atom_sel.mol, xmap_in, map_level, 
 					    delete_or_zero_occ_flag,
 					    waters_only_flag);
 
