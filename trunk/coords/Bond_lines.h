@@ -287,6 +287,9 @@ class Bond_lines_container {
    int add_ligand_bonds(const atom_selection_container_t &SelAtom, 
 			PPCAtom ligand_atoms_selection,
 			int n_ligand_atoms);
+
+   bool draw_these_residue_contacts(CResidue *this_residue, CResidue *env_residue) const;
+
                            
  protected:
    std::vector<Bond_lines> bonds; 
