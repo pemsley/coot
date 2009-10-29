@@ -5249,6 +5249,7 @@ coot::util::move_waters_around_protein(CMMDBManager *mol) {
 		residue_name == "HOH") {
 
 	       for (int iat=0; iat<n_atoms; iat++) {
+		  at = residue_p->GetAtom(iat);
 		  if (! at->isTer()) { 
 		     at = residue_p->GetAtom(iat);
 		     clipper::Coord_orth c(at->x, at->y, at->z);
