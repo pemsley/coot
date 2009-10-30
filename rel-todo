@@ -12,6 +12,9 @@
 
 * Done, it seems to me.  Needs testing with Bob example, I think.
 
+  o Add the alignment for post-ssm superposition - put it in a gui
+    too?  ::: 3
+
   o Kevin Keating map peak position problem :: 2
 
 * Done? Needs testing.
@@ -34,9 +37,6 @@
 
   o Backrub rotamers compensatory peptide rotation ::: 2
  
-  o Add the alignment for post-ssm superposition - put it in a gui
-    too?  ::: 3
-
   o Try: All Molecule -> Stepped refine on a CA-only molecule.  That
     seems OK, how about "Fit Protein"? ::: 1
 

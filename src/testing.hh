@@ -65,6 +65,7 @@ int test_coot_atom_tree();
 int test_coot_atom_tree_2();
 int test_coot_atom_tree_proline();
 int test_rotate_round_vector();
+int test_ssm_sequence_formatting();
 
 CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id, int resno);
 bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,

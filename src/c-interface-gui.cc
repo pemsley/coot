@@ -3312,6 +3312,7 @@ int is_mtz_file_p(const char *mtz_file_name) {
 
 int cns_file_has_phases_p(const char *cns_file_name) {
 
+   int r = 0; 
    std::cout << "cns_file_has_phases_p called " << std::endl;
    if (coot::file_exists(cns_file_name)) { 
       FILE* file = fopen( cns_file_name, "r" );
@@ -3322,12 +3323,14 @@ int cns_file_has_phases_p(const char *cns_file_name) {
       if ( strstr( buf, "ALPHA" ) != NULL && strstr( buf, "BETA"  ) != NULL &&
 	   strstr( buf, "GAMMA" ) != NULL && strstr( buf, "SYMOP" ) != NULL &&
 	   strstr( buf, " F1="  ) != NULL && strstr( buf, " F2="  ) != NULL )
-	 return 1;
+	 r = 1;
       else
-	 return 0;
+	 r = 0; 
    } else {
-      return 0;
-   } 
+      r = 0;
+   }
+   std::cout << "cns_file_has_phases_p returns " << r << std::endl;
+   return r;
 }
 
 

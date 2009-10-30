@@ -51,6 +51,8 @@
 #include "coot-map-utils.hh"
 #include "dipole.hh"
 
+#include "graphics-info.h"
+
 bool close_float_p(float f1, float f2) {
 
    return (fabs(f1-f2) < 0.0001);
@@ -187,7 +189,8 @@ int test_internal_single() {
       // status = test_rotate_round_vector();
       // status = test_coot_atom_tree();
       // status = test_coot_atom_tree_2();
-      status = test_coot_atom_tree_proline();
+      // status = test_coot_atom_tree_proline();
+      status = test_ssm_sequence_formatting();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -1910,6 +1913,42 @@ test_rotate_atom_angle(const std::string &atom_name,
       std::cout << "   Ooops " << real_angle << " not close to " << test_angle << std::endl;
    } 
    return r;
+} 
+
+int test_ssm_sequence_formatting() {
+
+   graphics_info_t g;
+   std::pair<std::string, std::string> aligned_sequences;
+
+   std::string s;
+   std::string t;
+   aligned_sequences.first = s;
+   aligned_sequences.second = t;
+   g.print_horizontal_ssm_sequence_alignment(aligned_sequences);
+   std::cout << "--" << std::endl;
+
+   s = "DVSGTVCLSALPPEATDTLNLIASDGPFPYSQDGVVFQNR--ESVLPTQSYG";
+   s += "YYHEYTVITP--GARTRGTRRI.ICGEATQEDY..YTGDHYATFSLIDQTC";
+   t = "---SGTVCLSALPPEATDTLNLIASDGPFPYSQDG";
+   aligned_sequences.first = s;
+   aligned_sequences.second = t;
+   g.print_horizontal_ssm_sequence_alignment(aligned_sequences);
+   std::cout << "--" << std::endl;
+
+   s = "D";
+   t = "--SGTVCLSALPPEATDTLNLIASDGPFPYSQDG";
+   aligned_sequences.first = s;
+   aligned_sequences.second = t;
+   g.print_horizontal_ssm_sequence_alignment(aligned_sequences);
+   std::cout << "--" << std::endl;
+   
+   s = "DVSGTVCLSALPPEATDTLNIASDGPFPYSQDGVVFQNR--ESVLPQSYG";
+   t = "--SGTVCLSALPPEATDTLNIASDGPFPYSQDXXxxxxxxxxxxxxxxxG";
+   aligned_sequences.first = s;
+   aligned_sequences.second = t;
+   g.print_horizontal_ssm_sequence_alignment(aligned_sequences);
+   std::cout << "--" << std::endl;
+   return 1;
 } 
 
 
