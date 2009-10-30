@@ -360,21 +360,28 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 
    for (unsigned int i1=0; i1<SSMAlign->nsel1; i1++) {
       int t_index = SSMAlign->Ca1[i1];
-      if (SSMAlign->Ca1[i1] == -1) {
+      if (debug) 
+	 std::cout << "debug i1: " << i1 << " t_index is " << t_index << " and range is "
+		   << SSMAlign->nsel2 << std::endl;
+      if (t_index == -1) {
 	 s += coot::util::three_letter_to_one_letter(atom_selection1[i1]->GetResName());
 	 t += "-";
       } else {
-	 int t_index = SSMAlign->Ca1[i1];
-	 int s_index = SSMAlign->Ca2[t_index];
-
-	 if (t_index != (previous_t_index + 1)) {
-	    t += coot::util::three_letter_to_one_letter(atom_selection2[t_index]->GetResName());
-	    s += "."; // there was (at least) one extra residue in t sequence
-	 }
-	 
-	 if (s_index == i1) { 
-	    s += coot::util::three_letter_to_one_letter(atom_selection1[i1]->GetResName());
-	    t += coot::util::three_letter_to_one_letter(atom_selection2[t_index]->GetResName());
+	 // was t_index sensible?
+	 if (t_index < SSMAlign->nsel2) { 
+	    int s_index = SSMAlign->Ca2[t_index];
+	    if (t_index != (previous_t_index + 1)) {
+	       CAtom *at = atom_selection2[t_index];
+	       t += coot::util::three_letter_to_one_letter(at->GetResName());
+	       s += "."; // there was (at least) one extra residue in t sequence
+	    }
+	    if (s_index == i1) { 
+	       s += coot::util::three_letter_to_one_letter(atom_selection1[i1]->GetResName());
+	       t += coot::util::three_letter_to_one_letter(atom_selection2[t_index]->GetResName());
+	    }
+	 } else {
+	    t += "^";
+	    s += "^";
 	 }
 
 	 // for next round
