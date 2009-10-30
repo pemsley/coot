@@ -21,6 +21,9 @@
  */
 
 
+#ifndef COOT_RAMA_HH
+#define COOT_RAMA_HH
+
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>
@@ -96,3 +99,6 @@ namespace coot {
       };
    }
 }
+
+#endif // COOT_RAMA_HH
+
