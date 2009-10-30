@@ -19,6 +19,9 @@
  * 02110-1301, USA
  */
 
+#ifndef COOT_SHELX_HH
+#define COOT_SHELX_HH
+
 #ifndef HAVE_STRING
 #include <string>
 #define HAVE_STRING
@@ -264,3 +267,5 @@ namespace coot {
    CMMDBManager *reshelx(CMMDBManager *mol);
 
 }
+
+#endif // COOT_SHELX_HH
