@@ -5038,6 +5038,14 @@ Sat Oct 10 08:36:45 BST 2009
    distances" above.
 
 
+----
+Mon Oct 12 19:07:07 BST 2009
+
+   Get real-space R factors (or correlations) per residue for many
+   structures in the PDB (as a function of resolution say).  Use these
+   to validate *this* structure.
+
+
 ---
 Sat Oct 17 05:43:53 EDT 2009
 
@@ -5099,7 +5107,6 @@ Fri Oct 16 14:38:00 BST 2009
 Mon Oct 19 10:39:58 EDT 2009
 
     The baton build problem:  Gina
-
 
    Produce like this (not verified):  
    Calc -> Map Skeleton -> On

@@ -316,7 +316,7 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 
 
 void
-graphics_info_t::print_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+graphics_info_t::make_and_print_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 							 atom_selection_container_t asc_ref,
 							 atom_selection_container_t asc_mov,
 							 PCAtom *atom_selection1, PCAtom *atom_selection2,
@@ -327,9 +327,47 @@ graphics_info_t::print_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 					    atom_selection1, atom_selection2,
 					    n_selected_atoms_1, n_selected_atoms_2);
 
+   print_horizontal_ssm_sequence_alignment(aligned_sequences);
+}
+
+void
+graphics_info_t::print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const {
+
    // tmp
-   std::cout << ":" << aligned_sequences.first  << ":" << std::endl;
-   std::cout << ":" << aligned_sequences.second << ":" << std::endl;
+   bool debug = 0;
+   
+   if (debug) { 
+      std::cout << "DEBUG:: moving :" << aligned_sequences.first  << ":" << std::endl;
+      std::cout << "DEBUG:: target :" << aligned_sequences.second << ":" << std::endl;
+   }
+
+   int chars_per_line = 50;
+   int lf = aligned_sequences.first.length();
+   int ls = aligned_sequences.second.length();
+   int l = lf;
+   if (ls > l)
+      l = ls;
+   int n_lines = 1 + l/chars_per_line;
+   // std::cout << "DEUBG:: n_lines: " << n_lines << " " << lf << " " << ls << std::endl;
+
+   for (unsigned int i=0; i<n_lines; i++) {
+      int f_start = i*chars_per_line;
+      int f_end = chars_per_line;
+      if (f_end > lf)
+	 f_end = lf - f_start;
+      // std::cout << "DEBUG:: comparing  first " << f_start << " with " << lf << std::endl;
+      if (f_start < lf)
+	 std::cout << " Moving: " << aligned_sequences.first.substr(f_start, f_end) << std::endl;
+      
+      int s_start = i*chars_per_line;
+      int s_end = chars_per_line;
+      if (s_end > ls)
+	 s_end = ls - s_start;
+      // std::cout << "DEBUG:: comparing second " << s_start << " with " << ls << std::endl;
+      if (s_start < ls)
+	 std::cout << "Target: " << aligned_sequences.second.substr(s_start, s_end) << std::endl;
+      
+   } 
 
 }
 
@@ -345,13 +383,18 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
    std::string t;
    int previous_t_index = -1;
    int previous_s_index = -1;
-   bool debug = 0;
+   bool debug = 1;
 
+   // Talk to Eugene about this: turn on debugging and run Alice
+   // Dawson test.
+   //
    if (debug) {
+      std::cout << "DEBUG:: t_indexes: ";
       for (unsigned int i1=0; i1<SSMAlign->nsel1; i1++) {
 	 std::cout << SSMAlign->Ca1[i1] << " " ;
       }
       std::cout << std::endl;
+      std::cout << "DEBUG:: s_indexes: ";
       for (unsigned int i2=0; i2<SSMAlign->nsel2; i2++) {
 	 std::cout << SSMAlign->Ca2[i2] << " " ;
       }
@@ -360,7 +403,7 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 
    for (unsigned int i1=0; i1<SSMAlign->nsel1; i1++) {
       int t_index = SSMAlign->Ca1[i1];
-      if (debug) 
+      if (0)
 	 std::cout << "debug i1: " << i1 << " t_index is " << t_index << " and range is "
 		   << SSMAlign->nsel2 << std::endl;
       if (t_index == -1) {
@@ -368,11 +411,11 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 	 t += "-";
       } else {
 	 // was t_index sensible?
-	 if (t_index < SSMAlign->nsel2) { 
+	 if (t_index < SSMAlign->nsel2) {
 	    int s_index = SSMAlign->Ca2[t_index];
 	    if (t_index != (previous_t_index + 1)) {
 	       CAtom *at = atom_selection2[t_index];
-	       t += coot::util::three_letter_to_one_letter(at->GetResName());
+	       t += coot::util::three_letter_to_one_letter(atom_selection2[previous_t_index + 1]->GetResName());
 	       s += "."; // there was (at least) one extra residue in t sequence
 	    }
 	    if (s_index == i1) { 
@@ -401,9 +444,9 @@ graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 					      int n_selected_atoms_1, int n_selected_atoms_2,
 					      short int move_copy_of_imol2_flag) {
 
-   print_horizontal_ssm_sequence_alignment(SSMAlign, asc_ref, asc_mov,
-					   atom_selection1, atom_selection2,
-					   n_selected_atoms_1, n_selected_atoms_2);
+   make_and_print_horizontal_ssm_sequence_alignment(SSMAlign, asc_ref, asc_mov,
+						    atom_selection1, atom_selection2,
+						    n_selected_atoms_1, n_selected_atoms_2);
    
    std::cout << "Another Go...\n\n";
 
