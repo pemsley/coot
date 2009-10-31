@@ -276,6 +276,10 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 					 n_selected_atoms_1, n_selected_atoms_2,
 					 move_copy_of_imol2_flag);
 
+	    make_and_print_horizontal_ssm_sequence_alignment(SSMAlign, asc_ref, asc_mov,
+							     atom_selection1, atom_selection2,
+							     n_selected_atoms_1, n_selected_atoms_2);
+
 	    graphics_info_t::molecules[imol2].transform_by(SSMAlign->TMatrix);
 	    graphics_info_t::molecules[imol2].set_show_symmetry(0); 
 	    // 
@@ -333,7 +337,6 @@ graphics_info_t::make_and_print_horizontal_ssm_sequence_alignment(CSSMAlign *SSM
 void
 graphics_info_t::print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const {
 
-   // tmp
    bool debug = 0;
    
    if (debug) { 
@@ -341,7 +344,7 @@ graphics_info_t::print_horizontal_ssm_sequence_alignment(std::pair<std::string, 
       std::cout << "DEBUG:: target :" << aligned_sequences.second << ":" << std::endl;
    }
 
-   int chars_per_line = 50;
+   int chars_per_line = 70;
    int lf = aligned_sequences.first.length();
    int ls = aligned_sequences.second.length();
    int l = lf;
@@ -365,10 +368,9 @@ graphics_info_t::print_horizontal_ssm_sequence_alignment(std::pair<std::string, 
 	 s_end = ls - s_start;
       // std::cout << "DEBUG:: comparing second " << s_start << " with " << ls << std::endl;
       if (s_start < ls)
-	 std::cout << "Target: " << aligned_sequences.second.substr(s_start, s_end) << std::endl;
-      
+	 std::cout << " Target: " << aligned_sequences.second.substr(s_start, s_end) << std::endl;
+      std::cout << std::endl; // for neatness
    } 
-
 }
 
 
@@ -383,7 +385,7 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
    std::string t;
    int previous_t_index = -1;
    int previous_s_index = -1;
-   bool debug = 1;
+   bool debug = 0;
 
    // Talk to Eugene about this: turn on debugging and run Alice
    // Dawson test.
@@ -444,10 +446,6 @@ graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 					      int n_selected_atoms_1, int n_selected_atoms_2,
 					      short int move_copy_of_imol2_flag) {
 
-   make_and_print_horizontal_ssm_sequence_alignment(SSMAlign, asc_ref, asc_mov,
-						    atom_selection1, atom_selection2,
-						    n_selected_atoms_1, n_selected_atoms_2);
-   
    std::cout << "Another Go...\n\n";
 
    CChain *moving_chain_p = 0;
@@ -480,8 +478,9 @@ graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
       // print_alignment_table (not sequence)
       // 
       if (n_selected_atoms_1 > 0) {
-	 clipper::RTop_orth ssm_matrix = coot::util::matrix_convert(SSMAlign->TMatrix);
-	 std::cout << "ssm_matrix: \n" << ssm_matrix.format() << std::endl;
+ 	 clipper::RTop_orth ssm_matrix = coot::util::matrix_convert(SSMAlign->TMatrix);
+//       this is output later, no need to reproduce it here.
+// 	 std::cout << "ssm_matrix: \n" << ssm_matrix.format() << std::endl;
 	 std::cout << "      Moving  Reference   Distance" << std::endl;
 	 for (int ires=0; ires<n_selected_atoms_1; ires++) {
 	    if (ires < SSMAlign->nalgn) { 

@@ -161,6 +161,7 @@ int test_internal() {
 
    functions.push_back(named_func(test_symop_card, "test symop card"));
    functions.push_back(named_func(test_rotate_round_vector, "test rotate round vector"));
+   functions.push_back(named_func(test_ssm_sequence_formatting, "SSM sequence alignment output"));
 
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
