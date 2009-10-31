@@ -1,19 +1,16 @@
 
    12 items
 
-  o Distances in the SSM align output are wrong.  e.g. Frank's test.
-    ::: 2
-
-* Done.
+  o Environment distances: examine the residue type, look it up in the
+    dictionary: only if this residue and that residue are not a
+    polymer should you not draw the lines (don't rely on the residue
+    numbering).  JED ::: 1
 
   o Gap penalty too low in alignment?  OK, I can't seem to change the
     results, no matter what gap penalty and extension penalty I
     use.  ::: 2
 
 * Done, it seems to me.  Needs testing with Bob example, I think.
-
-  o Add the alignment for post-ssm superposition - put it in a gui
-    too?  ::: 3
 
   o Kevin Keating map peak position problem :: 2
 
@@ -22,11 +19,6 @@
   o Fix NAN crash in Refinement of AUC in gold-lysozyme. Rick comment.
     Data on stick (Icanmakecootcrash). Not reproducable on ubuntu
     laptop.  Needs Bill's standalone Mac binary::: 4
-
-  o Environment distances: examine the residue type, look it up in the
-    dictionary: only if this residue and that residue are not a
-    polymer should you not draw the lines (don't rely on the residue
-    numbering).  JED ::: 1
 
   o Fix refmac interface crash (needs python, I guess) on Bill's
     stand-alone Coot 0.6-pre build:
@@ -1382,5 +1374,14 @@ src/gtk-manual.cc:                done
 
     Fine, it seems like an mmdb bug.  ::: 0.2
 
+  o Distances in the SSM align output are wrong.  e.g. Frank's test.
+    ::: 2
+
+* Done.
+
+  o Add the alignment for post-ssm superposition - put it in a gui
+    too?  ::: 3
+
+* Done.  Not a GUI atm.
 
 -----
