@@ -3376,7 +3376,7 @@ molecule_class_info_t::trim_by_map(const clipper::Xmap<float> &xmap_in,
 				   float map_level, short int delete_or_zero_occ_flag) { 
 
    
-   // "Trim of the bits we don't need":
+   // "Trim off the bits we don't need":
    // 20050610: I laugh at that.
    
    short int waters_only_flag = 0;
