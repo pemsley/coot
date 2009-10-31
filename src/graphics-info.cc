@@ -1493,7 +1493,7 @@ void
 graphics_info_t::environment_graphics_object_internal(const graphical_bonds_container &env_bonds_box) const {
 
    if (environment_show_distances == 1) {
-      
+
       if (env_bonds_box.num_colours > 0) {
 	 
 	 coot::CartesianPair pair;
@@ -1544,14 +1544,14 @@ void
 graphics_info_t::update_environment_graphics_object(int atom_index, int imol) {
 
    environment_object_bonds_box =
-      molecules[imol].make_environment_bonds_box(atom_index);
+      molecules[imol].make_environment_bonds_box(atom_index, geom_p);
 }
 
 void
 graphics_info_t::update_symmetry_environment_graphics_object(int atom_index, int imol) {
 
    symmetry_environment_object_bonds_box =
-      molecules[imol].make_symmetry_environment_bonds_box(atom_index);
+      molecules[imol].make_symmetry_environment_bonds_box(atom_index, geom_p);
 } 
 
 // Just a stub.  Not used currently.

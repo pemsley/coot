@@ -1596,8 +1596,10 @@ class molecule_class_info_t {
    // is only one environment bonds box, no matter how many molecules. Hmm.
    // The symmetry version is now added 030624 - PE.
    //
-   graphical_bonds_container make_environment_bonds_box(int atom_index) const;
-   graphical_bonds_container make_symmetry_environment_bonds_box(int atom_index) const;
+   graphical_bonds_container make_environment_bonds_box(int atom_index,
+							coot::protein_geometry *protein_geom_p) const;
+   graphical_bonds_container make_symmetry_environment_bonds_box(int atom_index,
+								 coot::protein_geometry *protein_geom_p) const;
 
    // instead of using xmap_is_filled[0] and atom_sel.n_selected_atoms
    // directly, lets provide these functions:

@@ -30,6 +30,8 @@
 #include <vector>
 #include <string>
 
+#include "protein-geometry.hh"
+
 namespace coot { 
 
    static std::string b_factor_bonds_scale_handle_name;
@@ -288,7 +290,8 @@ class Bond_lines_container {
 			PPCAtom ligand_atoms_selection,
 			int n_ligand_atoms);
 
-   bool draw_these_residue_contacts(CResidue *this_residue, CResidue *env_residue) const;
+   bool draw_these_residue_contacts(CResidue *this_residue, CResidue *env_residue,
+				    coot::protein_geometry *protein_geom);
 
                            
  protected:
@@ -339,6 +342,7 @@ public:
    Bond_lines_container(const atom_selection_container_t &SelAtom,
 			PPCAtom residue_atoms,
 			int n_residue_atoms,
+			coot::protein_geometry *protein_geom, // modifiable, currently
 			short int residue_is_water_flag,
 			float min_dist,
 			float max_dist);

@@ -885,11 +885,12 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   PPCAtom residue_atoms,
 					   int n_residue_atoms,
+					   coot::protein_geometry *protein_geom_p, // modifiable
 					   short int residue_is_water_flag,
 					   float min_dist,
 					   float max_dist) {
 
-   // std::cout << "Environment distances NO symm" << std::endl;
+   std::cout << "Environment distances NO symm" << std::endl;
    do_bonds_to_hydrogens = 1;  // added 20070629
    
    b_factor_scale = 1.0;
@@ -930,10 +931,9 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    
    if (ncontacts > 0) {
       for (int i=0; i<ncontacts; i++) {
-	 // std::string ch1(residue_atoms[ contact[i].id1 ]->GetChainID());
-	 // std::string ch2(SelAtom.atom_selection[ contact[i].id2 ]->GetChainID());
 	 if ( draw_these_residue_contacts(residue_atoms[contact[i].id1]->GetResidue(),
-					  SelAtom.atom_selection[contact[i].id2]->GetResidue())
+					  SelAtom.atom_selection[contact[i].id2]->GetResidue(),
+					  protein_geom_p)
 	      || residue_is_water_flag) {
 	    
 	    coot::Cartesian atom_1(residue_atoms[ contact[i].id1 ]->x,
@@ -961,17 +961,39 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    }
 }
 
+// Shall we draw environment bonds between this_residue and env_residue?
+//
+// No, if the residues are next to each other in sequence in the same
+// chain and are a polymer.
+//     
+// Otherwise, yes.
+// 
 bool
 Bond_lines_container::draw_these_residue_contacts(CResidue *this_residue,
-						  CResidue *env_residue) const {
+						  CResidue *env_residue,
+						  coot::protein_geometry *protein_geom_p // modifiable
+						  ) {
 
-   std::string ch1(this_residue->GetChainID());
-   std::string ch2(env_residue->GetChainID());
-   if ((abs(this_residue->GetSeqNum() - env_residue->GetSeqNum()) > 1)
-       || (ch1 != ch2))
-      return 1;
-   else
+   if (this_residue != env_residue) { 
+      std::string ch1(this_residue->GetChainID());
+      std::string ch2(env_residue->GetChainID());
+      if ((abs(this_residue->GetSeqNum() - env_residue->GetSeqNum()) > 1)
+	  || (ch1 != ch2)) {
+	 return 1;
+      } else {
+	 // are we in a polymer? if so, no draw.
+	 //
+	 std::string this_res_type = this_residue->GetResName();
+	 std::string env_residue_res_type = env_residue->GetResName();
+	 if (protein_geom_p->linkable_residue_types_p(this_res_type, env_residue_res_type)) {
+	    return 0;
+	 } else {
+	    return 1;
+	 }
+      }
+   } else {
       return 0;
+   } 
 }
 
 

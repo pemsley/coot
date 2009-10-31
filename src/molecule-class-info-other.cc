@@ -439,7 +439,8 @@ molecule_class_info_t::pepflip_residue(const std::string &chain_id,
 
 
 graphical_bonds_container
-molecule_class_info_t::make_environment_bonds_box(int atom_index) const {
+molecule_class_info_t::make_environment_bonds_box(int atom_index,
+						  coot::protein_geometry *protein_geom_p) const {
 
    graphics_info_t g;
    graphical_bonds_container bonds_box;
@@ -486,6 +487,7 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index) const {
 	 if (residue_name == "HOH" || residue_name == "WAT")
 	    residue_is_water_flag = 1;
 	 Bond_lines_container bonds(atom_sel,residue_atoms, nResidueAtoms,
+				    protein_geom_p,
 				    residue_is_water_flag,
 				    g.environment_min_distance,
 				    g.environment_max_distance);
@@ -497,7 +499,8 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index) const {
 } 
 
 graphical_bonds_container
-molecule_class_info_t:: make_symmetry_environment_bonds_box(int atom_index) const {
+molecule_class_info_t:: make_symmetry_environment_bonds_box(int atom_index,
+							    coot::protein_geometry *protein_geom_p) const {
    graphical_bonds_container bonds_box;
 
    // std::cout << ":: entering make_symmetry_environment_bonds_box" << std::endl;
