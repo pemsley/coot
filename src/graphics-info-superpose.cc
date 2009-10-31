@@ -334,6 +334,9 @@ graphics_info_t::make_and_print_horizontal_ssm_sequence_alignment(CSSMAlign *SSM
    print_horizontal_ssm_sequence_alignment(aligned_sequences);
 }
 
+// To make a GUI dialog with the alignment, we need this function to
+// generate a string, rather than print to the screen.  Easily converted.
+//
 void
 graphics_info_t::print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const {
 
