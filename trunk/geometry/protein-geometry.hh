@@ -979,6 +979,9 @@ namespace coot {
       static int chiral_volume_string_to_chiral_sign(const std::string &chiral_vol_string);
       static std::string make_chiral_volume_string(int chiral_sign);
 
+      bool linkable_residue_types_p(const std::string &this_res_type,
+				    const std::string &env_residue_res_type);
+
    };
 
 } // namespace coot

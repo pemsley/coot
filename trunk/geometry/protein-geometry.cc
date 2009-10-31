@@ -3967,3 +3967,21 @@ coot::protein_geometry::delete_mon_lib(std::string comp_id) {
 
 } 
 
+bool
+coot::protein_geometry::linkable_residue_types_p(const std::string &this_res_type,
+						 const std::string &env_res_type) {
+
+   std::pair<short int, coot::dictionary_residue_restraints_t> r1 = get_monomer_restraints(this_res_type);
+   std::pair<short int, coot::dictionary_residue_restraints_t> r2 = get_monomer_restraints(env_res_type);
+
+   bool r = 0;
+   if (r1.first) {
+      if (r1.second.residue_info.group != "non-polymer")
+	 r = 1;
+   }
+   if (r2.first) {
+      if (r2.second.residue_info.group != "non-polymer")
+	 r = 1;
+   }
+   return r;
+} 

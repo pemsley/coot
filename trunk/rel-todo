@@ -1,10 +1,12 @@
 
    12 items
 
-  o Environment distances: examine the residue type, look it up in the
-    dictionary: only if this residue and that residue are not a
-    polymer should you not draw the lines (don't rely on the residue
-    numbering).  JED ::: 1
+  o Test CNS data sharpening ::: 1
+
+  o Try: All Molecule -> Stepped refine on a CA-only molecule.  That
+    seems OK, how about "Fit Protein"? ::: 1
+
+  o Replace with new dictionary. ::: 0.2
 
   o Gap penalty too low in alignment?  OK, I can't seem to change the
     results, no matter what gap penalty and extension penalty I
@@ -29,9 +31,6 @@
 
   o Backrub rotamers compensatory peptide rotation ::: 2
  
-  o Try: All Molecule -> Stepped refine on a CA-only molecule.  That
-    seems OK, how about "Fit Protein"? ::: 1
-
   o Change the reference on the splash screen. ::: 0.2
 
   o Add in Dale's BCL dictionary.  ::: 0.2
@@ -1383,5 +1382,13 @@ src/gtk-manual.cc:                done
     too?  ::: 3
 
 * Done.  Not a GUI atm.
+
+  o Environment distances: examine the residue type, look it up in the
+    dictionary: only if this residue and that residue are not a
+    polymer should you not draw the lines (don't rely on the residue
+    numbering).  JED ::: 1
+
+* Done.
+
 
 -----
