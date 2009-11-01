@@ -242,7 +242,7 @@ namespace coot {
 	 if (type == INT)
 	    os = coot::util::int_to_string(i);
 	 if (type == FLOAT)
-	    os = coot::util::float_to_string(i);
+	    os = coot::util::float_to_string(f);
 	 if (type == STRING)
 	    os = s;
 	 return os;
