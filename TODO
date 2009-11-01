@@ -645,6 +645,8 @@ Punted from 0.6:
     to the main molecule (try unapplying symmetry to get there). 
     ::: 2
 
+  o check that the rama plot plots residues with alt confs. :::  2
+
 
  ------
 

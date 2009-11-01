@@ -1,9 +1,5 @@
 
-   7 items
-
-  o Kevin Keating map peak position problem :: 2
-
-* Done? Needs testing.
+   6 items
 
   o Fix NAN crash in Refinement of AUC in gold-lysozyme. Rick comment.
     Data on stick (Icanmakecootcrash). Not reproducable on ubuntu
@@ -1397,6 +1393,10 @@ src/gtk-manual.cc:                done
   o Replace with new dictionary. ::: 0.2
 
 * Done.
+
+  o Kevin Keating map peak position problem :: 2
+
+* Done? Needs testing.
 
 
 -----
