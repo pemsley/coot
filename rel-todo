@@ -1,7 +1,5 @@
 
-   10 items
-
-  o Replace with new dictionary. ::: 0.2
+   7 items
 
   o Kevin Keating map peak position problem :: 2
 
@@ -1395,5 +1393,10 @@ src/gtk-manual.cc:                done
 
 * Done.  Check that there are more than 3 atoms in the residue before
   trying to rotamer and refine it.
+
+  o Replace with new dictionary. ::: 0.2
+
+* Done.
+
 
 -----
