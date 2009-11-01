@@ -32,7 +32,7 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 320
+x_day_range = 340
 
 x_tick_interval = 2
 if (x_day_range > 40):
@@ -53,7 +53,7 @@ yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 # is 0, but the Y maximum is to be computed automatically. Without
 # y_ranges, Pychart will pick the minimum Y value among the samples,
 # i.e., 20, as the base value of Y axis.
-ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,265))
+ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,280))
 
 # The first plot extracts Y values from the 2nd column
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
@@ -93,7 +93,8 @@ xpscale = 0.6
 
 # crisis:
 # crisis_pt=59 280 days?
-crisis_pt=57
+# crisis_pt=57
+crisis_pt=50
 can.line(line_style.black_dash1, crisis_pt, ybot, crisis_pt, ytip)
 tb = text_box.T(text="Crisis!", loc=(25, 110), shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
 tb.add_arrow((crisis_pt, ytip))
@@ -126,20 +127,24 @@ tb.add_arrow((ar.x_pos(data[206][0]), ar.y_pos(data[206][1])), "tc")
 tb.draw()
 
 #tb = text_box.T(loc=(170*xpscale, 45), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3, bg_style=fill_style.gray90)
-tb = text_box.T(loc=(155*xpscale, 45), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb = text_box.T(loc=(155*xpscale, 42), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[262][0]), ar.y_pos(data[262][1])), "tc")
 tb.draw()
 
-tb = text_box.T(loc=(185*xpscale, 58), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb = text_box.T(loc=(168*xpscale, 54), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[343][0]), ar.y_pos(data[343][1])), "tc")
 tb.draw()
 
-tb = text_box.T(loc=(120*xpscale, 110), text="User Feedback", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb = text_box.T(loc=(110*xpscale, 110), text="User Feedback", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[366][0]), ar.y_pos(data[366][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(205*xpscale, 80), text="HEC-2009", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb = text_box.T(loc=(186*xpscale, 63), text="HEC-2009", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[414][0]), ar.y_pos(data[414][1])), "tc")
+tb.draw()
+
+tb = text_box.T(loc=(201*xpscale, 72), text="CSH-2009", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb.add_arrow((ar.x_pos(data[440][0]), ar.y_pos(data[440][1])), "tc")
 tb.draw()
 
 
