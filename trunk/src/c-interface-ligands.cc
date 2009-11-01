@@ -1169,7 +1169,15 @@ SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, floa
 	 if (clipper::Coord_orth::length(ref_pt, peaks[i].first) < radius) {
 	    close_peaks.push_back(peaks[i]);
 	 }
+      }
+
+      if (1) { // debug
+	 for (unsigned int i=0; i<close_peaks.size(); i++) {
+	    std::cout << "close peak " << i << " " << close_peaks[i].first.format() << "   "
+		      << close_peaks[i].second << std::endl;
+	 }
       } 
+      
       for (unsigned int i=0; i<close_peaks.size(); i++) {
 	 SCM pt = SCM_EOL;
 	 SCM d     = scm_double2num(close_peaks[i].second);
@@ -1183,6 +1191,7 @@ SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, floa
 	 pt = scm_reverse(pt);
 	 r = scm_cons(pt, r);
       }
+      r = scm_reverse(r);
       delete mol;
    }
    return r;
