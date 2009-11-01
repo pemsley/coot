@@ -2903,12 +2903,15 @@ echo done coot build.
 # library and the reference structures?
 
 extra_dir=http://www.ysbl.york.ac.uk/~emsley/software/extras
-if [ -e $install_top_dir/share/coot/lib/data ] ; then
+extra_dir=http://www.biop.ox.ac.uk/coot/software/dependencies
+refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
+
+if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
 else 
     echo INSTALLING refmac monomer library...
-    $WGET $extra_dir/refmac-lib-data-monomers.tar.gz
-    tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/refmac-lib-data-monomers.tar.gz
+    $WGET $extra_dir/$refmac_mon_lib
+    tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/$refmac_mon_lib
 fi 
 if [ -e $install_top_dir/share/coot/reference-structures ] ; then
     echo INFO:: installation has reference structures
