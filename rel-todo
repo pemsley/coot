@@ -1,18 +1,7 @@
 
-   12 items
-
-  o Test CNS data sharpening ::: 1
-
-  o Try: All Molecule -> Stepped refine on a CA-only molecule.  That
-    seems OK, how about "Fit Protein"? ::: 1
+   10 items
 
   o Replace with new dictionary. ::: 0.2
-
-  o Gap penalty too low in alignment?  OK, I can't seem to change the
-    results, no matter what gap penalty and extension penalty I
-    use.  ::: 2
-
-* Done, it seems to me.  Needs testing with Bob example, I think.
 
   o Kevin Keating map peak position problem :: 2
 
@@ -1390,5 +1379,21 @@ src/gtk-manual.cc:                done
 
 * Done.
 
+  o Test CNS data sharpening ::: 1
+
+* Done.
+
+  o Gap penalty too low in alignment?  OK, I can't seem to change the
+    results, no matter what gap penalty and extension penalty I
+    use.  ::: 2
+
+* Done, it seems to me.  Bob's example now looks good.
+
+  o Try: All Molecule -> Stepped refine on a CA-only molecule.  That
+    seems OK, how about "Fit Protein"? OK, it's Fit Protein that is
+    the problem ::: 0.5
+
+* Done.  Check that there are more than 3 atoms in the residue before
+  trying to rotamer and refine it.
 
 -----
