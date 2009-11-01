@@ -30,12 +30,13 @@
 #include <vector>
 #endif
 
+#include <iostream>
 #include <stdexcept>
 
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 #include <GL/glut.h>  // for some reason...  // Eh?
 
-#include <iostream>
+#include <gdk/gdkkeysyms.h> // for keyboarding (in this case nudge_active_residue) added 20091101
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
@@ -2381,7 +2382,26 @@ graphics_info_t::do_rot_trans_adjustments(GtkWidget *dialog) {
 			 GTK_SIGNAL_FUNC(graphics_info_t::rot_trans_adjustment_changed), 
 			 GINT_TO_POINTER(i));
    }
-} 
+}
+
+
+coot::ScreenVectors::ScreenVectors() {
+   
+   coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
+   coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
+   coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
+   coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
+
+   screen_x = (right - centre);
+   screen_y = (top   - centre);
+   screen_z = (front - centre);
+
+   screen_x.unit_vector_yourself();
+   screen_y.unit_vector_yourself();
+   screen_z.unit_vector_yourself();
+   
+}
+
 
 // static 
 void 
@@ -2408,37 +2428,26 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
    // std::cout << "using  " << x_diff << "  " << v << "  " 
    //      << previous_rot_trans_adjustment[i_hscale] << std::endl;
 
-   coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
-   coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
-   coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
-   coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
-
-   coot::Cartesian screen_x = (right - centre);
-   coot::Cartesian screen_y = (top   - centre);
-   coot::Cartesian screen_z = (front - centre);
-
-   screen_x.unit_vector_yourself();
-   screen_y.unit_vector_yourself();
-   screen_z.unit_vector_yourself();
+   coot::ScreenVectors screen_vectors;
 
    float x_add = 0.0;
    float y_add = 0.0;
    float z_add = 0.0;
 
    if (i_hscale == 0) { 
-      x_add = screen_x.x() * x_diff * 0.002 * zoom;
-      y_add = screen_x.y() * x_diff * 0.002 * zoom;
-      z_add = screen_x.z() * x_diff * 0.002 * zoom;
+      x_add = screen_vectors.screen_x.x() * x_diff * 0.002 * zoom;
+      y_add = screen_vectors.screen_x.y() * x_diff * 0.002 * zoom;
+      z_add = screen_vectors.screen_x.z() * x_diff * 0.002 * zoom;
    }
    if (i_hscale == 1) { 
-      x_add = screen_y.x() * x_diff * -0.002 * zoom;
-      y_add = screen_y.y() * x_diff * -0.002 * zoom;
-      z_add = screen_y.z() * x_diff * -0.002 * zoom;
+      x_add = screen_vectors.screen_y.x() * x_diff * -0.002 * zoom;
+      y_add = screen_vectors.screen_y.y() * x_diff * -0.002 * zoom;
+      z_add = screen_vectors.screen_y.z() * x_diff * -0.002 * zoom;
    }
    if (i_hscale == 2) { 
-      x_add = screen_z.x() * x_diff * 0.002 * zoom;
-      y_add = screen_z.y() * x_diff * 0.002 * zoom;
-      z_add = screen_z.z() * x_diff * 0.002 * zoom;
+      x_add = screen_vectors.screen_z.x() * x_diff * 0.002 * zoom;
+      y_add = screen_vectors.screen_z.y() * x_diff * 0.002 * zoom;
+      z_add = screen_vectors.screen_z.z() * x_diff * 0.002 * zoom;
    }
 
    if (do_rotation) { 
@@ -2446,21 +2455,21 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       clipper::Coord_orth screen_vector; // the vector to rotate about
       if (i_hscale == 3) {
 	 do_rotation = 1;
-	 screen_vector = clipper::Coord_orth(screen_x.x(), 
-					     screen_x.y(), 
-					     screen_x.z());
+	 screen_vector = clipper::Coord_orth(screen_vectors.screen_x.x(), 
+					     screen_vectors.screen_x.y(), 
+					     screen_vectors.screen_x.z());
       }
       if (i_hscale == 4) {
 	 do_rotation = 1;
-	 screen_vector = clipper::Coord_orth(screen_y.x(), 
-					     screen_y.y(), 
-					     screen_y.z());
+	 screen_vector = clipper::Coord_orth(screen_vectors.screen_y.x(), 
+					     screen_vectors.screen_y.y(), 
+					     screen_vectors.screen_y.z());
       }
       if (i_hscale == 5) {
 	 do_rotation = 1;
-	 screen_vector = clipper::Coord_orth(screen_z.x(), 
-					     screen_z.y(), 
-					     screen_z.z());
+	 screen_vector = clipper::Coord_orth(screen_vectors.screen_z.x(), 
+					     screen_vectors.screen_z.y(), 
+					     screen_vectors.screen_z.z());
       }
    
 
@@ -2520,29 +2529,67 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       regularize_object_bonds_box = bonds.make_graphical_bonds();
    }
    graphics_draw();
-} 
-
-
-// Old style buttons for rotate/translate
-// 
-// Delete me (and in graphics-info.h of course).
-void 
-graphics_info_t::setup_rotate_translate_buttons(GtkWidget *window) { 
-
-   std::vector<std::string> butts;
-   butts.push_back("rotate_translate_obj_xtrans_button");
-   butts.push_back("rotate_translate_obj_ytrans_button");
-   butts.push_back("rotate_translate_obj_ztrans_button");
-   butts.push_back("rotate_translate_obj_xrot_button");
-   butts.push_back("rotate_translate_obj_yrot_button");
-   butts.push_back("rotate_translate_obj_zrot_button");
-
-//    for (int i=0; i<butts.size(); i++) {
-//       button = lookup_widget(GTK_WIDGET(window), butts[i].c_str());
-//       coot::rottrans_buttons::setup_button(button, butts[i]);
-//    }
-
 }
+
+
+// --- nudge active residue
+// static
+void
+graphics_info_t::nudge_active_residue(guint direction) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
+   if (active_atom.first) {
+      clipper::Coord_orth shift(0,0,0);
+      clipper::Mat33<double> mat(1,0,0,0,1,0,0,0,1);
+      double shift_scale_factor = 0.01 * zoom; // needs to be 0.04 for funny mode?
+      coot::ScreenVectors screen_vectors;
+
+      if (direction == GDK_Left) { 
+	 // std::cout << "Left nudge residue" << std::endl;
+	 shift = clipper::Coord_orth(-shift_scale_factor * screen_vectors.screen_x.x(),
+				     -shift_scale_factor * screen_vectors.screen_x.y(),
+				     -shift_scale_factor * screen_vectors.screen_x.z());
+      } 
+      if (direction == GDK_Right) { 
+	 // std::cout << "Right nudge residue" << std::endl;
+	 shift = clipper::Coord_orth(shift_scale_factor * screen_vectors.screen_x.x(),
+				     shift_scale_factor * screen_vectors.screen_x.y(),
+				     shift_scale_factor * screen_vectors.screen_x.z());
+      } 
+      if (direction == GDK_Up) { 
+	 // std::cout << "Up nudge residue" << std::endl;
+	 shift = clipper::Coord_orth(-shift_scale_factor * screen_vectors.screen_y.x(),
+				     -shift_scale_factor * screen_vectors.screen_y.y(),
+				     -shift_scale_factor * screen_vectors.screen_y.z());
+      } 
+      if (direction == GDK_Down) { 
+	 // std::cout << "Down nudge residue" << std::endl;
+	 shift = clipper::Coord_orth(shift_scale_factor * screen_vectors.screen_y.x(),
+				     shift_scale_factor * screen_vectors.screen_y.y(),
+				     shift_scale_factor * screen_vectors.screen_y.z());
+      } 
+
+      // all constructed.  Apply it
+      clipper::RTop_orth rtop(mat, shift);
+      int imol = active_atom.second.first;
+      graphics_info_t::molecules[imol].transform_zone_by(active_atom.second.second.chain,
+							 active_atom.second.second.resno,
+							 active_atom.second.second.resno,
+							 active_atom.second.second.insertion_code,
+							 rtop, 1);
+      graphics_info_t g;
+
+      // If this shift is not added to the rotation centre, we get
+      // amusing action when this keypress is repeated.  That should
+      // be exported to the scripting layer as an easter egg.
+      // 
+      coot::Cartesian shift_cart(shift.x(), shift.y(), shift.z());
+      g.add_vector_to_RotationCentre(shift_cart);
+      graphics_draw();
+   } 
+}
+ 
+
 
 void
 graphics_info_t::execute_db_main() { 

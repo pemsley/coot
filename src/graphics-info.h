@@ -440,6 +440,15 @@ namespace coot {
       is_python = 0;
     } 
   }; 
+
+
+  class ScreenVectors { 
+  public:
+    ScreenVectors();
+    Cartesian screen_x;
+    Cartesian screen_y;
+    Cartesian screen_z;
+  };
   
 } // namespace coot
 
@@ -1863,7 +1872,6 @@ public:
 
 
    void execute_rotate_translate_ready(); // manual movement
-   void setup_rotate_translate_buttons(GtkWidget *window);
    void unsetup_rotate_translate_buttons(GtkWidget *window); /* delete the user data */
    void do_rot_trans_adjustments(GtkWidget *dialog);
    static void rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_data);
@@ -3419,6 +3427,9 @@ public:
 
    // --- user defined picks
    static std::vector<coot::atom_spec_t> user_defined_atom_pick_specs;
+
+   // --- nudge active residue
+   static void nudge_active_residue(guint direction);
    
 #ifdef USE_GUILE
    static SCM user_defined_click_scm_func;

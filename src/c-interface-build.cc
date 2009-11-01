@@ -3415,6 +3415,47 @@ void transform_molecule_by(int imol,
 
 }
 
+void transform_zone(int imol, const char *chain_id, int resno_start, int resno_end, const char *ins_code,
+		    float m11, float m12, float m13,
+		    float m21, float m22, float m23,
+		    float m31, float m32, float m33,
+		    float x, float y, float z) {
+
+   if (is_valid_model_molecule(imol)) {
+
+      clipper::Mat33<double> clipper_mat(m11, m12, m13,
+					 m21, m22, m23,
+					 m31, m32, m33);
+      clipper::Coord_orth cco(x,y,z);
+      clipper::RTop_orth rtop(clipper_mat, cco);
+      bool do_backup = 1;
+      graphics_info_t::molecules[imol].transform_zone_by(chain_id, resno_start, resno_end, ins_code, rtop,
+							 do_backup);
+      
+      std::string cmd = "transform-zone";
+      std::vector<coot::command_arg_t> args;
+      args.push_back(imol);
+      args.push_back(chain_id);
+      args.push_back(resno_start);
+      args.push_back(resno_end);
+      args.push_back(ins_code);
+      args.push_back(m11);
+      args.push_back(m12);
+      args.push_back(m13);
+      args.push_back(m21);
+      args.push_back(m22);
+      args.push_back(m23);
+      args.push_back(m31);
+      args.push_back(m32);
+      args.push_back(m33);
+      args.push_back(x);
+      args.push_back(y);
+      args.push_back(z);
+      add_to_history_typed(cmd, args);
+   }
+} 
+
+
 
 // Sequenc utils
 

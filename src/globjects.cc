@@ -3412,6 +3412,32 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_equal:
       handled = TRUE; 
       break;
+
+   case GDK_Left:
+      if (graphics_info_t::control_is_pressed) {
+	 graphics_info_t::nudge_active_residue(GDK_Left);
+	 handled = TRUE;
+	 break;
+      } 
+   case GDK_Right:
+      if (graphics_info_t::control_is_pressed) {
+	 graphics_info_t::nudge_active_residue(GDK_Right);
+	 handled = TRUE;
+	 break;
+      } 
+   case GDK_Up:
+      if (graphics_info_t::control_is_pressed) {
+	 graphics_info_t::nudge_active_residue(GDK_Up);
+	 handled = TRUE;
+	 break;
+      } 
+   case GDK_Down:
+      if (graphics_info_t::control_is_pressed) {
+	 graphics_info_t::nudge_active_residue(GDK_Down);
+	 handled = TRUE;
+	 break;
+      }
+      
    }
 
    // Now to test event->keyval against dynamic "reprogramable" key
@@ -3680,9 +3706,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       } else {
 	 g.intelligent_next_atom_centring(g.go_to_atom_window);
       }
-
       break;
-
    }
    
    /* prevent the default handler from being run */
@@ -3709,7 +3733,6 @@ animate_idle(GtkWidget *widget) {
 
    return 1; 
 }
-
 
 
 void

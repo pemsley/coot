@@ -2395,6 +2395,13 @@ void transform_molecule_by(int imol,
 			   float m21, float m22, float m23,
 			   float m31, float m32, float m33,
 			   float x, float y, float z);
+
+void transform_zone(int imol, const char *chain_id, int resno_start, int resno_end, const char *ins_code,
+		    float m11, float m12, float m13,
+		    float m21, float m22, float m23,
+		    float m31, float m32, float m33,
+		    float x, float y, float z);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
