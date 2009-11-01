@@ -6649,10 +6649,23 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop, CResidue *re
    make_backup();
    std::cout << "INFO:: coordinates transformed_by: \n"
 	     << rtop.format() << std::endl;
-   clipper::Coord_orth co;
-   clipper::Coord_orth trans_pos; 
    if (has_model()) {
+      transform_by_internal(rtop, residue_moving);
+      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked();
+   }
+}
 
+
+
+void
+molecule_class_info_t::transform_by_internal(const clipper::RTop_orth &rtop, CResidue *residue_moving) {
+
+   if (has_model()) {
+      clipper::Coord_orth co;
+      clipper::Coord_orth trans_pos; 
       PPCAtom residue_atoms;
       int n_residue_atoms;
       residue_moving->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -6665,13 +6678,56 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop, CResidue *re
 	 residue_atoms[iatom]->y = p2.y();
 	 residue_atoms[iatom]->z = p2.z();
       }
+   }
+}
+
+
+void
+molecule_class_info_t::transform_zone_by(const std::string &chain_id, int resno_start, int resno_end,
+					 const std::string &ins_code,
+					 const clipper::RTop_orth &rtop,
+					 bool make_backup_flag) {
+
+   if (make_backup_flag)
+      make_backup();
+   
+   bool transformed_something = 0;
+   if (resno_end < resno_start)
+      std::swap(resno_end, resno_start);
+
+   int imod = 1;
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   // run over chains of the existing mol
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      if (chain_id == chain_p->GetChainID()) { 
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int this_resno = residue_p->GetSeqNum();
+	    std::string this_ins_code = residue_p->GetInsCode();
+	    if ((this_resno >= resno_start) &&
+		(this_resno <= resno_end)) { 
+	       if (this_ins_code == ins_code) {
+		  transform_by_internal(rtop, residue_p);
+		  transformed_something = 1;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (transformed_something) {
       atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
-   }
-}
-
+   } 
+} 
 
 
 

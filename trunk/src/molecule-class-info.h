@@ -2079,6 +2079,13 @@ class molecule_class_info_t {
    void transform_by(mat44 mat); // can't make this const: mmdb probs.
    void transform_by(const clipper::RTop_orth &rtop);
    void transform_by(const clipper::RTop_orth &rtop, CResidue *res);
+   // called by above (no backup or bonds update here in internal function).
+   void transform_by_internal(const clipper::RTop_orth &rtop, CResidue *res);
+   // we add the arg make_backup_flag so that "splinter mode" doesn't do backups.
+   void transform_zone_by(const std::string &chain_id, int resno_start, int resno_end,
+			  const std::string &ins_code,
+			  const clipper::RTop_orth &rtop,
+			  bool make_backup_flag);
 
    //
    std::string name_for_display_manager() const; // stripped of path maybe
