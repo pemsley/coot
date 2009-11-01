@@ -416,6 +416,12 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
    std::vector<int> iprotein_trans =
       find_protein_to_origin_translations(sampled_protein_coords, xmap);
 
+   //
+   if (0) 
+      std::cout << "DEBUG:: iprotein_trans: "
+		<< iprotein_trans[0] << " "
+		<< iprotein_trans[1] << " "
+		<< iprotein_trans[2] << std::endl;
 
    // move sampled protein by this translation then:
    //
@@ -594,6 +600,7 @@ coot::peak_search::move_point_close_to_protein(const clipper::Coord_orth &pt,
    // to the origin, so we need to apply the reverse of those shifts
    // when we make r.
    
+   int shift_range = 2; // was 1, changed 20091101, Kevin Keating bug (P212121).
    clipper::Coord_orth r = pt; 
    int n = sampled_protein_coords.size();
    if (n > 0) {
@@ -601,9 +608,9 @@ coot::peak_search::move_point_close_to_protein(const clipper::Coord_orth &pt,
       clipper::Coord_frac cell_shift;
       double min_dist = 9999999999.9;
       for (int isym=0; isym<nsyms; isym++) {
-	 for (int x_shift = -1; x_shift<2; x_shift++) { 
-	    for (int y_shift = -1; y_shift<2; y_shift++) { 
-	       for (int z_shift = -1; z_shift<2; z_shift++) {
+	 for (int x_shift = -shift_range; x_shift<=shift_range; x_shift++) { 
+	    for (int y_shift = -shift_range; y_shift<=shift_range; y_shift++) { 
+	       for (int z_shift = -shift_range; z_shift<=shift_range; z_shift++) {
 		  cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift);
 		  clipper::RTop_orth orthop =
 		     clipper::RTop_frac(xmap.spacegroup().symop(isym).rot(),
