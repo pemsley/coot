@@ -21,8 +21,11 @@
 
 lib_LTLIBRARIES=libcoot-skeleton.la
 
-INCLUDES =-I$(top_srcdir)/coords     -I$(top_srcdir)/angles 	\
-	  -I$(top_srcdir)/compat	\
+INCLUDES = \
+	  -I$(top_srcdir)/geometry   \
+          -I$(top_srcdir)/coords     \
+          -I$(top_srcdir)/angles     \
+	  -I$(top_srcdir)/compat     \
 	 $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) 
 
 AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS)
@@ -36,6 +39,7 @@ libcoot_skeleton_la_SOURCES =  \
 
 libcoot_skeleton_la_LIBADD = \
    $(top_builddir)/angles/libcoot-AngleInfo.la \
+   $(top_builddir)/geometry/libcoot-geometry.la \
    $(top_builddir)/coords/libcoot-coords.la \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
