@@ -53,12 +53,14 @@ def fit_protein(imol):
 	       
 	     for serial_number in range(n_residues):
 		  
-                res_name = resname_from_serial_number(imol,chain_id,serial_number)
-                res_no = seqnum_from_serial_number(imol,chain_id,serial_number)
-                ins_code = insertion_code_from_serial_number(imol,chain_id,serial_number)
+                res_name = resname_from_serial_number(imol, chain_id, serial_number)
+                res_no = seqnum_from_serial_number(imol, chain_id, serial_number)
+                ins_code = insertion_code_from_serial_number(imol, chain_id, serial_number)
+                res_atoms = residue_info(imol, chain_id, res_no, ins_code)
                 
                 if (ins_code is not None):
-                    if (not res_name=="HOH"):
+                    if (len(res_atoms) > 3):
+                    #if (not res_name=="HOH"): not needed if only refining 3 or  more atoms
                         for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
                             print "centering on ",chain_id,res_no," CA"
                             set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
@@ -67,7 +69,7 @@ def fit_protein(imol):
                                 auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
                                                       imol_map, 1, 0.1)
                             if (imol_map >= 0):
-	 			refine_zone(imol, chain_id, res_no, res_no, alt_conf)
+                                refine_zone(imol, chain_id, res_no, res_no, alt_conf)
                                 accept_regularizement()
                             rotate_y_scene(30,0.3)
       
@@ -150,7 +152,10 @@ def fit_protein_fit_function(res_spec, imol_map):
         rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
 
         res_name = residue_name(imol, chain_id, res_no, ins_code)
-        if (not res_name == "HOH"):
+        res_atoms = residue_info(imol, chain_id, res_no, ins_code)
+
+        if (len(res_atoms) > 3):
+            # if (not res_name == "HOH"): # not needed as we only refine more than 3 atom res
             if (alt_conf == ""):
                 auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
                                       imol_map, 1, 0.1)
@@ -313,13 +318,16 @@ def fit_chain(imol,chain_id):
            res_no = seqnum_from_serial_number(imol,chain_id,serial_number)
            ins_code = insertion_code_from_serial_number(imol,chain_id,serial_number)
            if ins_code is not None:
-               if (not res_name == "HOH"):
-                   print "centering on ", chain_id, res_no, " CA"
-                   set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
-                   auto_fit_best_rotamer(res_no,alt_conf,ins_code,chain_id,imol,imol_map,1,0.1)
-                   if (imol_map >= 1):
-                       refine_zone(imol,chain_id,res_no,res_no,alt_conf)
-                       accept_regularizement()
+               res_atoms = residue_info(imol, chain_id, res_no, ins_code)
+               if (len(res_atoms) > 3):  # actually then we dont need the water check any more?!
+                   #if (not res_name == "HOH"):
+                       print "centering on ", chain_id, res_no, " CA"
+                       set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
+                       auto_fit_best_rotamer(res_no, alt_conf, ins_code,
+                                             chain_id, imol, imol_map, 1, 0.1)
+                       if (imol_map >= 1):
+                           refine_zone(imol,chain_id,res_no,res_no,alt_conf)
+                           accept_regularizement()
                    
     if (replacement_state == 0):
           set_refinement_immediate_replacement(0)
@@ -343,13 +351,16 @@ def fit_residue_range(imol, chain_id, resno_start, resno_end):
     else:
        n_residues = chain_n_residues(chain_id,imol)
        ins_code = ""
-       for res_no in number_list(resno_start,resno_end):
+       for res_no in number_list(resno_start, resno_end):
            print "centering on ", chain_id, res_no, " CA"
-           set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
-           auto_fit_best_rotamer(res_no,alt_conf,ins_code,chain_id,imol,imol_map,1,0.1)
-           if (imol_map >= 1):
-              refine_zone(imol,chain_id,res_no,res_no,alt_conf)
-              accept_regularizement()
+           set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+           res_atoms = residue_info(imol, chain_id, res_no, ins_code)
+           if (len(res_atoms) > 3):
+               auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id,
+                                     imol, imol_map, 1, 0.1)
+               if (imol_map >= 1):
+                   refine_zone(imol,chain_id,res_no,res_no,alt_conf)
+                   accept_regularizement()
 
     if (replacement_state == 0):
           set_refinement_immediate_replacement(0)
@@ -393,7 +404,7 @@ def fit_waters(imol, animate_qm = False):
                             atom = res_info[0]
                             atom_name = atom[0]
                             set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
-                            refine_zone(imol,chain_id,res_no,res_no,alt_conf)
+                            refine_zone(imol, chain_id, res_no, res_no, alt_conf)
                             rotate_y_scene(30, 0.6)	# n-frames frame-interval(degrees)
                     else:
                         refine_zone(imol,chain_id,res_no,res_no,alt_conf)

@@ -10,10 +10,21 @@ def phone_home_cmd():
     full_name = os.path.join(home, os.path.normpath(file_name))
     return full_name
 
-def get_revision_from_string(str):
+# The file name of the phone home script, executed with python
+# FIXME
+def download_bin_cmd():
+    if (os.name == 'nt'):
+        home = os.getenv('COOT_HOME')
+    else:
+        home = os.getenv('HOME')
+    file_name = "Projects/coot/update-binary/download_binary_cmd.py"
+    full_name = os.path.join(home, os.path.normpath(file_name))
+    return full_name
+
+def get_revision_from_string(stri):
     # e.g. str is "coot-0.6-pre-1-revision-2060" (with a newline at the
     # end too).  We want to return 2060 (a number) from here (or False).
-    s, tmp = str.rsplit("\n")
+    s, tmp = stri.rsplit("\n")
     ls = s.split("-")
     try:
         return int(ls[-1])
@@ -40,7 +51,7 @@ def new_version_on_server(str, is_pre_release):
         #
         server_rev = get_revision_from_string(str)
         if server_rev:
-            return server_rev > svn_revision
+            return server_rev > svn_revision()
     else:
         # For a stable release: 
         #
@@ -52,11 +63,10 @@ def new_version_on_server(str, is_pre_release):
         if (server_version is StringType):
             return server_version > this_build_version
 
-def notify_of_new_version(str):
-    ls  = str.split("c") # ??? FIXME
-    ls2 = ls[-1].split()    # ??? FIXME
+def notify_of_new_version(stri):
+    ls2 = stri[stri.find("c"):-1]
 
-    download_binary_dialog(ls2[0])
+    download_binary_dialog(ls2)
 
 # version_string is something like: "coot-0.6-pre-1-revision-2060"
 def download_binary_dialog(version_string):
@@ -71,14 +81,18 @@ def download_binary_dialog(version_string):
         return False
 
     def ok_button_event(*args):
-        args = [download_bin_cmd, "binary", coot_sys_build_type()]
-        st = coot_version
+        args = [download_bin_cmd(), "binary", coot_sys_build_type()]
+        st = coot_version()
         if "-pre-" in st:
             args.append("pre-release")
         args.extend(["version", version_string])
-        print "BL DEBUG:: args are", args
-        popen_commmand("python", args, "tmp_coot_download_cmd.log", False)
-
+        popen_command("python", args, [], "tmp_coot_download_cmd.log", False)
+        # close after download?
+        # I think download should be threaded, but then how do we know when it's
+        # finished?
+        # download md5sum too and check?
+        window.destroy()
+        return False
 
     s = "New revision available " + \
         "for this binary type:\n" + \
@@ -103,7 +117,7 @@ def download_binary_dialog(version_string):
     buttons_hbox.pack_start(cancel_button, True, False, 6)
 
     main_vbox.pack_start(info_string,  True, False, 6)
-    main_vbox.pack_start(hsep,         True, False, 6)
+    main_vbox.pack_start(h_sep,        True, False, 6)
     main_vbox.pack_start(buttons_hbox, True, False, 6)
 
     window.add(main_vbox)
@@ -119,8 +133,11 @@ def check_for_updates():
     from types import StringType
     import time
     global count
-    server_info_status = 'pending'
+    global server_info_status
+    #server_info_status = 'pending'
+    server_info_status = False
     def update_info_thread():
+        global server_info_status
         print "get updates info thread"
         # here we construct args to popen_command,
         # adding in "pre-release" if this binary is a
@@ -131,15 +148,13 @@ def check_for_updates():
         # "command-line", "/home/xx/coot/bin/coot"]
         update_coot_log = "tmp-update-coot.log"
         args = ["binary", coot_sys_build_type(),
-                "command-line", "somthing"]
+                "command-line", sys.argv[0]]
         if ("-pre-" in coot_version()):
             args.append("pre-release")
         args.insert(0, phone_home_cmd())
         if (os.path.isfile(update_coot_log)):
             os.remove(update_coot_log)
-        print "BL DEBUG:: args are", args
         status = popen_command("python", args, [], update_coot_log, False)
-        print "BL DEBUG:: status is", status
         if (os.path.isfile(update_coot_log)):
             # OK, so the server said something
             # Set the status here, so that the
@@ -160,11 +175,12 @@ def check_for_updates():
     count = 0
     def timeout_count():
         global count
+        global server_info_status
         if (count > 2000):  # try for 20 seconds, otherwise timeout.
             # fail_with_timeout
             print "final fail: server_info_status:", server_info_status
             return False  # stop running this idle function
-        elif (server_info_status is StringType):
+        elif (type(server_info_status) is StringType):
             if (new_version_on_server(server_info_status, is_pre_release)):
                 notify_of_new_version(server_info_status)
             else:

@@ -404,6 +404,7 @@ main (int argc, char *argv[]) {
 #else  
   Py_Initialize(); // otherwise it core dumps saying python
   // interpreter not initialized (or something).
+  PySys_SetArgv(argc, argv);
 #endif     
 
   // Now we want to import coot.py/_coot.so (coot load _coot)

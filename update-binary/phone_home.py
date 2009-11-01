@@ -62,8 +62,9 @@ web_name = "emsley"
 #   print "pre-release:", pre_release_flag
 #   print "binary-type:", binary_type
 
-print "BL DEBUG:: binary_type", binary_type
-print "BL DEBUG:: pre-release", pre_release_flag
+# for testing
+#binary_type = "Linux-i386-fedora-10-python-gtk2"
+
 if binary_type:
 
     if pre_release_flag:
@@ -81,8 +82,9 @@ if binary_type:
                     binary_type + \
                     "-latest.txt"
 
-    # print "Now get:", check_url
-    print "BL DEBUG:: Now get:", check_url
+    # print "BL DEBUG:: Now get:", check_url
     s = get_url_as_string(check_url)
 
     print "LATEST-BUILD-ON-SERVER:", s
+
+print command_line

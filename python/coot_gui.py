@@ -1948,6 +1948,12 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
 # needs to add buttons - let's not dupicate that code.
 #
 def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
+
+   def add_text_to_text_buffer(text_buffer, description):
+      start = text_buffer.get_start_iter()
+      text_buffer.create_tag("tag", foreground="black", 
+                          background = "#c0e6c0")
+      text_buffer.insert_with_tags_by_name(start, description, "tag")
    
    button_label = button_info[0]
    if ((button_label == "HSep") and (len(button_info) == 1)):
@@ -1974,6 +1980,13 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
       else:
          button.connect("clicked", callback)
 
+      if (description):
+         text_view = gtk.TextView()
+         text_view.set_editable(False)
+         buff = text_view.get_buffer()
+         add_text_to_text_buffer(buff, description)
+         vbox.pack_start(text_view, False, False, 2)
+      
    vbox.pack_start(button, False, False, 2)
    button.show()
 
