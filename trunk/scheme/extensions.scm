@@ -57,6 +57,8 @@
 	    (menuitem-7 (gtk-menu-item-new-with-label "Settings..."))
 	    (submenu-pisa (gtk-menu-new))
 	    (menuitem-pisa (gtk-menu-item-new-with-label "PISA Assemblies..."))
+	    (submenu-plugins (gtk-menu-new))
+	    (menuitem-plugins (gtk-menu-item-new-with-label "Plug-ins..."))
 	    (submenu-ncs (gtk-menu-new))
 	    (menuitem-ncs (gtk-menu-item-new-with-label "NCS...")))
 
@@ -91,6 +93,10 @@
 	(gtk-menu-item-set-submenu menuitem-7 submenu-settings)
 	(gtk-menu-append menu menuitem-7)
 	(gtk-widget-show menuitem-7)
+
+	(gtk-menu-item-set-submenu menuitem-plugins submenu-plugins)
+	(gtk-menu-append menu menuitem-plugins)
+	(gtk-widget-show menuitem-plugins)
 
 
 
@@ -1039,6 +1045,17 @@
 	   (molecule-chooser-gui "Choose molecule for PISA assembly analysis"
 				 (lambda (imol)
 				   (pisa-assemblies imol)))))
+
+
+	;; ---------------------------------------------------------------------
+	;;     Plugins
+	;; ---------------------------------------------------------------------
+
+
+	(add-simple-coot-menu-menuitem
+	 submenu-plugins "SHELX..." 
+	 (lambda ()
+	   (add-plugin-shelx)))
 
 
 

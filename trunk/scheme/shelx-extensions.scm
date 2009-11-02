@@ -17,97 +17,101 @@
 ;;;; Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 ;;;; 02110-1301, USA
 
-(if (defined? 'coot-main-menubar)
 
-    (let ((menu (coot-menubar-menu "SHELX")))
+(define (add-plugin-shelx)
 
-      (add-simple-coot-menu-menuitem
-       menu "SHELXL Refine..."
-       (lambda ()
+  (if (defined? 'coot-main-menubar)
 
-	 (let ((window (gtk-window-new 'toplevel))
-	       (hbox (gtk-vbox-new #f 0))
-	       (vbox (gtk-hbox-new #f 0))
-	       (go-button (gtk-button-new-with-label "  Refine...  "))
-	       (cancel-button (gtk-button-new-with-label "  Cancel  "))
-	       (entry-hint-text "HKL data filename \n(leave blank for default)")
-	       (chooser-hint-text " Choose molecule for SHELX refinement  ")
-	       (h-sep (gtk-hseparator-new)))
+      (let ((menu (coot-menubar-menu "SHELX")))
 
-	   (gtk-container-add window hbox)
-	   (let ((option-menu-mol-list-pair (generic-molecule-chooser 
-					     hbox chooser-hint-text))
-		 (entry (file-selector-entry hbox entry-hint-text)))
-	     (gtk-signal-connect go-button "clicked"
-				 (lambda () 
-				   (let ((txt (gtk-entry-get-text entry))
-					 (imol (apply get-option-menu-active-molecule 
-						      option-menu-mol-list-pair)))
-				     (if (number? imol)
-					 (editable-shelx-gui imol txt))
-				     (gtk-widget-destroy window))))
-	     (gtk-signal-connect cancel-button "clicked"
-				 (lambda ()
-				   (gtk-widget-destroy window)))
+	(add-simple-coot-menu-menuitem
+	 menu "SHELXL Refine..."
+	 (lambda ()
 
-	     (gtk-box-pack-start hbox h-sep #f #f 2)
-	     (gtk-box-pack-start hbox vbox #f #f 2)
-	     (gtk-box-pack-start vbox go-button #t #f 0)
-	     (gtk-box-pack-start vbox cancel-button #t #f 0)
-	     (gtk-widget-show-all window)))))
+	   (let ((window (gtk-window-new 'toplevel))
+		 (hbox (gtk-vbox-new #f 0))
+		 (vbox (gtk-hbox-new #f 0))
+		 (go-button (gtk-button-new-with-label "  Refine...  "))
+		 (cancel-button (gtk-button-new-with-label "  Cancel  "))
+		 (entry-hint-text "HKL data filename \n(leave blank for default)")
+		 (chooser-hint-text " Choose molecule for SHELX refinement  ")
+		 (h-sep (gtk-hseparator-new)))
 
-      (add-simple-coot-menu-menuitem
-       menu "Read SHELX Project..."
-       (lambda ()
-	 (let* ((window (gtk-window-new 'toplevel))
-		(vbox (gtk-vbox-new #f 2))
-		(hbox (gtk-hbox-new #t 2))
-		(h-sep (gtk-hseparator-new))
-		(go-button (gtk-button-new-with-label "  Read Project   "))
-		(cancel-button (gtk-button-new-with-label "  Cancel   ")))
+	     (gtk-container-add window hbox)
+	     (let ((option-menu-mol-list-pair (generic-molecule-chooser 
+					       hbox chooser-hint-text))
+		   (entry (file-selector-entry hbox entry-hint-text)))
+	       (gtk-signal-connect go-button "clicked"
+				   (lambda () 
+				     (let ((txt (gtk-entry-get-text entry))
+					   (imol (apply get-option-menu-active-molecule 
+							option-menu-mol-list-pair)))
+				       (if (number? imol)
+					   (editable-shelx-gui imol txt))
+				       (gtk-widget-destroy window))))
+	       (gtk-signal-connect cancel-button "clicked"
+				   (lambda ()
+				     (gtk-widget-destroy window)))
 
-	   (let ((entry (file-selector-entry vbox " Project Name: ")))
+	       (gtk-box-pack-start hbox h-sep #f #f 2)
+	       (gtk-box-pack-start hbox vbox #f #f 2)
+	       (gtk-box-pack-start vbox go-button #t #f 0)
+	       (gtk-box-pack-start vbox cancel-button #t #f 0)
+	       (gtk-widget-show-all window)))))
 
-	     (gtk-signal-connect cancel-button "clicked"
-				 (lambda ()
-				   (gtk-widget-destroy window)))
-	     (gtk-signal-connect go-button "clicked"
-				 (lambda ()
-				   (let ((file-name (gtk-entry-get-text entry)))
-				     (read-shelx-project file-name)
-				     (gtk-widget-destroy window))))
-	   
-	     (gtk-container-add window vbox)
-	     
-	     (gtk-box-pack-start hbox go-button #f #f)
-	     (gtk-box-pack-start hbox cancel-button #f #f)
-	     (gtk-box-pack-start vbox h-sep  #f #f)
-	     (gtk-box-pack-start vbox hbox  #f #f)
-	     (gtk-widget-show-all window)))))
+	(add-simple-coot-menu-menuitem
+	 menu "Read SHELX Project..."
+	 (lambda ()
+	   (let* ((window (gtk-window-new 'toplevel))
+		  (vbox (gtk-vbox-new #f 2))
+		  (hbox (gtk-hbox-new #t 2))
+		  (h-sep (gtk-hseparator-new))
+		  (go-button (gtk-button-new-with-label "  Read Project   "))
+		  (cancel-button (gtk-button-new-with-label "  Cancel   ")))
 
+	     (let ((entry (file-selector-entry vbox " Project Name: ")))
 
-      (add-simple-coot-menu-menuitem
-       menu "Read LST file..."
-       (lambda ()
-	 (generic-chooser-and-file-selector 
-	  "Model Corresponding to LST file: "
-	  valid-model-molecule?
-	  "LST file"
-	  ""
-	  (lambda (imol lst-file-name)
-	    (read-shelx-lst-file lst-file-name imol)))))
+	       (gtk-signal-connect cancel-button "clicked"
+				   (lambda ()
+				     (gtk-widget-destroy window)))
+	       (gtk-signal-connect go-button "clicked"
+				   (lambda ()
+				     (let ((file-name (gtk-entry-get-text entry)))
+				       (read-shelx-project file-name)
+				       (gtk-widget-destroy window))))
+	       
+	       (gtk-container-add window vbox)
+	       
+	       (gtk-box-pack-start hbox go-button #f #f)
+	       (gtk-box-pack-start hbox cancel-button #f #f)
+	       (gtk-box-pack-start vbox h-sep  #f #f)
+	       (gtk-box-pack-start vbox hbox  #f #f)
+	       (gtk-widget-show-all window)))))
 
 
-     (add-simple-coot-menu-menuitem
-      menu "Add SHELXL instruction..."
-      (lambda ()
-        (generic-chooser-and-entry
-                     "Add new SHELXL command to model:"
-                     "SHELX instruction:"
-                     ""
-             (lambda (imol text)
-                        (add-shelx-string-to-molecule imol text)))))
-))
+	(add-simple-coot-menu-menuitem
+	 menu "Read LST file..."
+	 (lambda ()
+	   (generic-chooser-and-file-selector 
+	    "Model Corresponding to LST file: "
+	    valid-model-molecule?
+	    "LST file"
+	    ""
+	    (lambda (imol lst-file-name)
+	      (read-shelx-lst-file lst-file-name imol)))))
+
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add SHELXL instruction..."
+	 (lambda ()
+	   (generic-chooser-and-entry
+	    "Add new SHELXL command to model:"
+	    "SHELX instruction:"
+	    ""
+	    (lambda (imol text)
+	      (add-shelx-string-to-molecule imol text)))))
+	)))
+
 
 (define (shelx-ins-strings imol)      
 
