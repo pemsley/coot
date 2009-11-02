@@ -82,6 +82,7 @@
 			   "clear-backup.scm"
 			   "tips.scm"
 			   "americanisms.scm"
+			   "shelx-extensions.scm"
 			   "group-settings.scm")))
 
       (let ((scheme-list 
