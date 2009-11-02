@@ -93,8 +93,11 @@ molecule_class_info_t::sharpen(float b_factor) {
 	 n_count++;
 	 if (n_count == 50)
 	    break;
-      } 
-      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(original_fphis.spacegroup(),original_fphis.cell(),original_fphis.hkl_sampling());
+      }
+
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(original_fphis.spacegroup(),
+								  original_fphis.cell(),
+								  original_fphis.hkl_sampling());
       fphis = original_fphis;
    
       n_count = 0;
@@ -1974,6 +1977,15 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	 } else { 
 	    map_fphidata = fb;
 	 }
+
+
+	 // 20091101 This fails to give a sensible cell, spacegroup
+	 // and sampling for original_fphis.  Needs Kevin.
+	 //
+	 // original_fphis_filled = 1;
+	 // original_fphis.init(map_fphidata.spacegroup(), map_fphidata.cell(), map_fphidata.hkl_sampling());
+	 // original_fphis = map_fphidata;
+
 	 
 	 // back to old code 
 	 //
