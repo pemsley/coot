@@ -1,5 +1,5 @@
 
-   6 items
+   5 items
 
   o Fix NAN crash in Refinement of AUC in gold-lysozyme. Rick comment.
     Data on stick (Icanmakecootcrash). Not reproducable on ubuntu
@@ -17,11 +17,6 @@
   o Change the reference on the splash screen. ::: 0.2
 
   o Add in Dale's BCL dictionary.  ::: 0.2
-
-  o nudge monomer/residue (Ctrl-arrow keys) to move residue at centre
-    up/down left/right. Has to be done internally, I think, but
-    compare with function in nudge-screen-centre-gui.  Puntable, but
-    cool. ::: 1
 
 
 ------
@@ -1398,5 +1393,11 @@ src/gtk-manual.cc:                done
 
 * Done? Needs testing.
 
+  o nudge monomer/residue (Ctrl-arrow keys) to move residue at centre
+    up/down left/right. Has to be done internally, I think, but
+    compare with function in nudge-screen-centre-gui.  Puntable, but
+    cool. ::: 1
+
+* Done.  It is cool.
 
 -----

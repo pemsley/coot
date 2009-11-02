@@ -37,6 +37,8 @@ Pre-release 0.6
   o FEATURE: Immediate access to coordinates from CIF dictionaries
     that contain coordinates (no need for LIBCHECK in such cases).
 
+  o FEATURE: Nudge-residue (bound to Ctrl-arrow keys).
+
   o CHANGE: partial charges added to electrostatic surface calculation.
 
   o CHANGE: shift-click and ctrl-click in the file selectors now work

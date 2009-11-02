@@ -647,6 +647,9 @@ Punted from 0.6:
 
   o check that the rama plot plots residues with alt confs. :::  2
 
+  o sort chains should create a model by copying chains.  that way
+    headers don't get lost. [JED bug]  ::: 2
+
 
  ------
 
@@ -694,6 +697,7 @@ Punted from 0.6:
    o (consider) Luca Jovine: I want to do sphere regularization  ::: 2
 
    o (consider) Add/generate HELIX and SHEET PDB header info.  ::: 3
+
 
 
  ------
