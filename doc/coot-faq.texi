@@ -201,7 +201,7 @@ Nancy Vogelaar used the RedHat 8 binary distribution and needed to do
 some extra fiddling - documented here:
 
 @itemize
-@item @url{nancy-slackware.txt}
+@item @url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/nancy-slackware.txt}
 @end itemize
 
 
@@ -212,7 +212,7 @@ Raji Edayathumangalam used the RedHat 7.2 binary distribution on
 Mandrake Linux 8.2 and needed to do some extra fiddling, documented
 here:
 
-@url{raji-mandrake.txt}
+@url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/raji-mandrake.txt}
 
 @node Additional Note for Fedora Core 4 users
 @subsection Additional Note for Fedora Core 4 users
@@ -485,6 +485,7 @@ work try also:
 * How do I change the contour level without a scroll-wheel mouse?::
 * I can't get the "Add Terminal Residue" function to work on my sgi::
 * Where has my screen text (or labels) gone?::
+* How can I speed up moving betwee residues using ``Space''?::
 * How do I make the dialogs be in the right place?::
 * Does it work in hardware stereo?::
 * Does Coot work in side-by-side stereo mode?::
@@ -501,6 +502,8 @@ work try also:
 * Can I make the spin mode rotate slower?::
 * Does Coot use CONNECT records?::
 * Does Coot use LINK records?::
+* How do I read many PDB files on the command line?::
+* How do I setup auto-completion of command line options?::
 * How do 2 people use Coot with the same structure?::
 @end menu
 
@@ -609,6 +612,12 @@ turn the screenbackground white you might be able to see the text.
 
 If you bring the atom to the centre of the screen, the atom label
 becomes more readable.
+
+@node How can I speed up moving betwee residues using ``Space''?
+@section How can I speed up moving betwee residues using ``Space''?
+
+@code{Edit -> Preferences -> Smooth Recentering -> Number of Steps -> 10}
+
 
 @node How do I make the dialogs be in the right place?
 @section How do I make the dialogs be in the right place?
@@ -788,6 +797,28 @@ No.
 @section Does Coot use LINK records?
 
 Yes. 
+
+
+@node How do I read many PDB files on the command line?
+@section How do I read many PDB files on the command line?
+
+@t{$ coot --pdb pdb-1.pdb --pdb pdb-2.pdb --pdb pdb-3.pdb} @emph{etc.}
+
+@node How do I setup auto-completion of command line options?
+@section How do I setup auto-completion of command line options?
+
+For tcsh, add this to you @t{$HOME/.tcshrc} (or @t{$HOME/.cshrc} file, if that's what you use):
+
+@verbatim
+set noglob
+  complete coot  \
+        n/--coords/f:*{.pdb,.res,.brk,.brk.gz,.ent,.ent.gz,.pdb.gz}/ \
+        n/--data/f:*{.mtz,.cif,.fcf}/ \
+        n/--auto/f:*.mtz/ \
+        n/--script/f:*{.scm,.py}/ \
+        c/--/"(data auto coords script small no-graphics no-state-script)"/
+unset noglob
+@end verbatim
 
 
 @node How do 2 people use Coot with the same structure?
