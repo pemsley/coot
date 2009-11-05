@@ -25,6 +25,12 @@
 global annotations
 annotations = []
 
+# for mingw debug
+global have_mingw
+have_mingw = False
+if  os.getenv("MSYSTEM"):
+    have_mingw = True
+
 # not sure if the implementation of the macros will work
 
 # 'Macro' to tidy up a a setup of functions to be run with no backup
@@ -2357,4 +2363,4 @@ def cmd2str(*args):
 # acronym
 merge_water_chains = merge_solvent_chains
 
-    
+

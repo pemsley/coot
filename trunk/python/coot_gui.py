@@ -264,6 +264,11 @@ def coot_gui():
        entry.set_text("")
        entry_text = ""
        insert_prompt()
+       # BL for debug on mingw
+       global have_mingw
+       if have_mingw:
+          sys.stderr.flush()
+          sys.stdout.flush()
        
 
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
