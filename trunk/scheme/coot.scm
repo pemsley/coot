@@ -82,14 +82,15 @@
 			   "clear-backup.scm"
 			   "tips.scm"
 			   "americanisms.scm"
-			   "shelx-extensions.scm"
 			   "group-settings.scm")))
 
       (let ((scheme-list 
 	     (cond 
 	      ((eq? #t use-gui?) 
 	       (append pre-list (list "coot-gui.scm") post-list (list "tips-gui.scm"
-								      "extensions.scm")))
+								      "extensions.scm"
+								      "shelx-extensions.scm"
+								      )))
 	      (else 
 	       (append pre-list post-list)))))
 	      
