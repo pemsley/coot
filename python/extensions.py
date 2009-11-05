@@ -66,6 +66,10 @@ if (have_coot_python):
      menuitem_6 = gtk.MenuItem("Representations")
      submenu_settings = gtk.Menu()
      menuitem_7 = gtk.MenuItem("Settings...")
+     #submenu_pisa = gtk.Menu()
+     #menuitem_pisa = gtk.MenuItem("PISA Assemblies...")
+     submenu_plugins = gtk.Menu()
+     menuitem_plugins = gtk.MenuItem("Plug-ins...")
      submenu_ncs = gtk.Menu()
      menuitem_ncs = gtk.MenuItem("NCS...")
 
@@ -96,6 +100,10 @@ if (have_coot_python):
      menuitem_7.set_submenu(submenu_settings)
      menu.append(menuitem_7)
      menuitem_7.show()
+
+     menuitem_plugins.set_submenu(submenu_plugins)
+     menu.append(menuitem_plugins)
+     menuitem_plugins.show()
      
 
      #---------------------------------------------------------------------
@@ -1071,9 +1079,17 @@ if (have_coot_python):
 
 
      # ---------------------------------------------------------------------
+     #     Plugins
+     # ---------------------------------------------------------------------
+
+     add_simple_coot_menu_menuitem(
+       submenu_plugins, "SHELX...",
+       lambda func: add_plugin_shelx())
+
+
+     # ---------------------------------------------------------------------
      #     Settings
      # ---------------------------------------------------------------------
-     #
 
      submenu = gtk.Menu()
      menuitem2 = gtk.MenuItem("Rotate Translate Zone Mode...")
