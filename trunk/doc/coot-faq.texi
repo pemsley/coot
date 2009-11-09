@@ -88,6 +88,7 @@ Using Coot
 * How do I "grab" just one atom in Real Space Refinement/Regularization?::
 * How do I bind a function to a key?::
 * I can't mutate my broken residue::
+* How do I get rid of the ``Old Coot'' dialog?::
 * Can I make the spin mode rotate slower?::
 * Does Coot use CONNECT records?::
 * Does Coot use LINK records?::
@@ -499,6 +500,7 @@ work try also:
 * How do I "grab" just one atom in Real Space Refinement/Regularization?::
 * How do I bind a function to a key?::
 * I can't mutate my broken residue::
+* How do I get rid of the ``Old Coot'' dialog?::
 * Can I make the spin mode rotate slower?::
 * Does Coot use CONNECT records?::
 * Does Coot use LINK records?::
@@ -628,7 +630,9 @@ becomes more readable.
 You can use the "Position Dialogs" function in the Extensions ->
 Settings menu.
 
-For a more manual way, try @url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/position-dialogs.txt}.
+For a more manual way, try
+
+@url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/position-dialogs.txt}.
 
 @node Does it work in hardware stereo?
 @section Does it work in hardware stereo?
@@ -654,12 +658,14 @@ Yes.
 system (not the more usual "full-screen" stereo) to even begin
 thinking about it].
 
-Sue Roberts has some useful advice @url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/s-roberts.txt}.
+Sue Roberts has some useful advice
 
-So does Dirk Kostrewa: @url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/dirk-k-irix-stero.txt"}.
+ @url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/s-roberts.txt}.
 
+So does Dirk Kostrewa:
 
-@c bae and huang? for torsion dynamics
+ @url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/dirk-k-irix-stero.txt}.
+
 
 @node    I have problems reading a CNS map (or mask) into Coot
 @section I have problems reading a CNS map (or mask) into Coot
@@ -781,6 +787,18 @@ is what I do in such a case: first delete the residue, then add a new
 one with "Add Terminal Residue..." then "Mutate -> Auto Fit..." to the
 required type, then Refine Zone.
 @end quotation
+
+@node How do I get rid of the ``Old Coot'' dialog?
+@section How do I get rid of the ``Old Coot'' dialog?
+
+You can also remove it by hand: edit @t{xxx/share/coot/scheme/coot-gui.scm}
+and comment out (with a "@t{;}") the "@t{(old-coot?)}" line.
+
+You can also remove the old coot warning by running this script:
+
+@url{http://www.biop.ox.ac.uk/coot/extras/remove-old-coot-warning.sh}
+
+
 
 
 @node Can I make the spin mode rotate slower?
