@@ -651,6 +651,21 @@ Yes.
 
 Yes.
 
+@quotation Warren DeLano
+   A line width of 2 pixels wide or greater is essential for achieving
+a good stereo effort with electron density meshes, "wire" bonds, etc.
+@end quotation
+
+You can achieve this in Coot using:
+
+@code{(set-map-line-width 2)}
+
+You might like also to turn on antialiasing using @t{nvidia-settings}
+
+@code{Antialiasing Settings -> Override Application Setting,  16x Antialiasing}  (on the slider)
+
+
+
 @node Stereo on a sgi?
 @section Stereo on a sgi?
 
