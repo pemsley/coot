@@ -3288,7 +3288,7 @@ This will fix atoms nomenclature problems in molecule number
 @footnote{R.W.W. Hooft, G. Vriend, C. Sander, E.E. Abola, Errors in
 protein structures.  @emph{Nature} (1996) @strong{381}, 272-272.}
 @emph{e.g.} Chi-2 for Phe, Tyr, Asp, and Glu should be between -90 and
-90 degrees.
+90 degrees.  Note that Val and Leu nomenclature errors are also corrected.
 
 
 @node    Rotamer Fix Whole Protein
