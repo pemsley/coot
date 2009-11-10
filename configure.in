@@ -143,7 +143,6 @@ coot_guile=true
 AM_WITH_GUILE(, [echo optional guile\?],,)
 if test x$coot_guile = xtrue ; then
    GUILE_FLAGS
-   AM_GUILE_GOOSH
    AM_GUILE_NET_HTTP
    AM_GUILE_LIB
    AM_GUILE_GUI

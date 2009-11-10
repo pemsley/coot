@@ -22,8 +22,7 @@
 	     (ice-9 string-fun)
 	     (ice-9 format)
 	     (ice-9 rdelim))
-;; (use-modules (goosh goosh))
-(use-modules (goosh)) 
+(use-modules (os process)) 
 
 ;; 3D annotations - a bit of a hack currently
 (define *annotations* '())
