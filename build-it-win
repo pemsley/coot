@@ -2431,11 +2431,12 @@ cd ${AUTOBUILD_SOURCES}
 if test -n "$build_libgnomecanvas" ; then
     echo BUILDING libgnomecanvas:
     # we need gail and libartlgpl for gnomecanvas 
-    libgnomecanvas_version=2.14.0
+    libgnomecanvas_major_version=2.20
+    libgnomecanvas_version=2.20.1
     gail_version=1.9.3
     libart_version=2.3.19
-    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgnomecanvas/2.14/libgnomecanvas-$libgnomecanvas_version.zip
-    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgnomecanvas/2.14/libgnomecanvas-dev-$libgnomecanvas_version.zip
+    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgnomecanvas/$libgnomecanvas_major_version/libgnomecanvas-$libgnomecanvas_version.zip
+    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgnomecanvas/$libgnomecanvas_major_version/libgnomecanvas-dev-$libgnomecanvas_version.zip
     ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gail/1.9/gail-$gail_version.zip
     ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libart_lgpl/2.3/libart_lgpl-$libart_version.zip
     ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libart_lgpl/2.3/libart_lgpl-dev-$libart_version.zip
