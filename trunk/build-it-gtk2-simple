@@ -286,7 +286,8 @@
 # 4.58 20090730 remove swig from package list tested on ubuntu.
 # 4.59 20090913 Add a date to the fail status message
 # 4.60 20091001 comment out the deletion of the coot_wrap files.
-script_version=4.60
+# 4.61 20091117 update the version of clipper.
+script_version=4.61
 
 
 # get libcurl from here: 
@@ -2014,6 +2015,8 @@ echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz
 cd  mmdb-$mmdb_version
 pwd
 # patch to read long lines in a cif file
+# 20091110 this patch is not available, above says that it is badly formed.  
+#   Needs fixing.
 patch -p0 < ../mmdb-mmcif-long-line.patch
 # add the following 2 touches because centos 4.6 jackal gives LIBTOOL 
 # problems on `make'.
@@ -2089,6 +2092,7 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1-081201-ac
     clipper_version=2.1-090210-ac
     clipper_version=2.1-090522-ac
+    clipper_version=2.1-090826-ac
     clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
