@@ -1,5 +1,7 @@
 
-   5 items
+   6 items
+
+  o density-fit graph should update on deleting a residue (and water)
 
   o Fix NAN crash in Refinement of AUC in gold-lysozyme. Rick comment.
     Data on stick (Icanmakecootcrash). Not reproducable on ubuntu
@@ -13,10 +15,10 @@
 * Bernhard has fixed this already?  Probably not, he says.
 
   o Backrub rotamers compensatory peptide rotation ::: 2
- 
-  o Change the reference on the splash screen. ::: 0.2
 
   o Add in Dale's BCL dictionary.  ::: 0.2
+
+  o GTT dict from Adrian? ::: 0.2
 
 
 ------
