@@ -5182,9 +5182,17 @@ Sun Oct 25 17:54:59 EDT 2009
 
 ----
 
-   Friesner, R. A et al Glide: a new approach for rapid, accurate
-   docking and scoring, 1. Method and assessment of docking accuracy
-   J. Med. Chem 2004, 47, 1739-1749
+   INFO:: Friesner, R. A et al Glide: a new approach for rapid,
+   accurate docking and scoring, 1. Method and assessment of docking
+   accuracy J. Med. Chem 2004, 47, 1739-1749
+
+
+----
+Sat Nov 14 12:56:21 GMT 2009
+
+   take a shelx molecule and add 10 to the coords (means fixed).  Now
+   display symmetry.  Fail.  See message from Z Dauter.
+
 
 ------
 
