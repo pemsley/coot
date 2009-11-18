@@ -1,8 +1,11 @@
 
 # -*-shell-script-*-s
-# Prerequisites: sed, GNU make, libtool, wget
 #
-# (and for autogening: GNU m4, GNU autoconf, GNU automake)
+#
+#  For instructions, read below, starting at :: NOTE :: 
+#
+#
+# Prerequisites: sed, GNU make, libtool, wget
 #
 # libz is optional for the moment
 
@@ -2920,9 +2923,14 @@ fi
 if [ -e $install_top_dir/share/coot/reference-structures ] ; then
     echo INFO:: installation has reference structures
 else 
-    echo INSTALLING reference structures...
+    echo GETTING reference structures tar...
     $WGET $extra_dir/reference-structures.tar.gz
-    tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/reference-structures.tar.gz
+    if [ -e $AUTOBUILD_SOURCES/reference-structures.tar.gz ] ; then
+       echo INSTALLING reference structures...
+       tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/reference-structures.tar.gz
+    else 
+       echo FAIL wget for reference-structures.tar.gz failed.
+    fi
 fi
 
 # clear up the library dependencies
