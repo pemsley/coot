@@ -411,6 +411,9 @@
 
     o Make the Go To Atom button be in the toolbar [Maia Cherney]
 
+    o The Download from EDS needs an abort button (and thus downloaded
+      in a thread).
+
 
 
 Punted from 0.6:
@@ -650,6 +653,8 @@ Punted from 0.6:
   o sort chains should create a model by copying chains.  that way
     headers don't get lost. [JED bug]  ::: 2
 
+  o rework clipper.m4 so that it uses clipper-config, once
+    clipper-config is in place.  ::: 2
 
  ------
 

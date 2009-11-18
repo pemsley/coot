@@ -85,8 +85,8 @@ Building Automatically
  I'd say that the easiest way to try to build coot is to use the
  auto-builder:
 
- GTK+-2 version 
- http://www.ysbl.york.ac.uk/~emsley/build-logs/build-it-gtk-simple
+ GTK+-2 version (the standard version)
+ http://coot.googlecode.com/svn/trunk/build-it-gtk2-simple
 
  GTK+-1 version (getting old and less well supported)
  http://www.ysbl.york.ac.uk/~emsley/build-logs/build-it
@@ -527,5 +527,6 @@ Code Thanks...
 Thanks for using coot.
 
 Paul Emsley
-emsley@ysbl.york.ac.uk
+Now in Oxford: paul dot emsley at bioch dot ox dot ac dot uk
+
 
