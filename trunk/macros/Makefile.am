@@ -19,6 +19,12 @@
 # 02110-1301, USA
 
 ## Please update this variable if any new macros are created
+
+# 20091111 Actually, probably not necessary, neither MACROS or
+# EXTRA_DIST because there are rules when Makefile (or Makefile.in is
+# built that finds .m4 files and puts them in the
+# dist). c.f. clipper's config/Makefile.am
+
 MACROS=						\
   aclocal-include.m4				\
   compiler-flags.m4				\

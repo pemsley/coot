@@ -53,6 +53,9 @@ if test x$clipper_prefix != x; then
  # should ideally be CLIPPER_CFLAGS="-I$clipper_prefix/include", and the like
  # when clipper and dependencies get installed.
  #  
+ #
+ # should use clipper-config --cflags
+ #
  CLIPPER_CXXFLAGS="-I$clipper_prefix/include"
 # -I$clipper_prefix/cctbx
  
