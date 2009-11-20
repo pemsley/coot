@@ -1256,6 +1256,13 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
    std::string altloc_string = altLoc;
    
 
+   CResidue *residue_p =
+      graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+   if (residue_p) {
+      coot::residue_spec_t spec(residue_p);
+      g.delete_residue_from_geometry_graphs(imol, spec);
+   }
+
    short int istat = g.molecules[imol].delete_atom(chain_id, resno, ins_code, at_name, altLoc);
    if (istat) { 
       // now if the go to atom widget was being displayed, we need to
