@@ -1,7 +1,7 @@
 
    6 items
 
-  o density-fit graph should update on deleting a residue (and water)
+  o Deleting molecules and running refmac somehow causes a crash? ::: 2
 
   o Fix NAN crash in Refinement of AUC in gold-lysozyme. Rick comment.
     Data on stick (Icanmakecootcrash). Not reproducable on ubuntu
@@ -1401,5 +1401,9 @@ src/gtk-manual.cc:                done
     cool. ::: 1
 
 * Done.  It is cool.
+
+  o density-fit graph should update on deleting a residue (and water) ::: 1
+
+* Done
 
 -----
