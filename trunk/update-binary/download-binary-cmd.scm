@@ -13,7 +13,7 @@
       (loop (cdr ls))))))
 
 
-;; Return the argument after interesting-string, or null if no such
+;; Return the argument after interesting-string, or #f if no such
 ;; arg.
 (define (extract-next-arg-from-command-line interesting-string cla)
   (let loop ((ls cla))
@@ -45,6 +45,7 @@
       (binary-type      (extract-binary-type  (command-line)))
       (pre-release-flag (extract-pre-release-flag (command-line))))
 
+  ;; debug
   (format #t "vers: ~s~%" vers) 
   (format #t "binary-type: ~s~%" binary-type) 
   (format #t "pre-release-flag: ~s~%" pre-release-flag)

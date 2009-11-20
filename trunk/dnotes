@@ -5186,6 +5186,26 @@ Sun Oct 25 17:54:59 EDT 2009
    accurate docking and scoring, 1. Method and assessment of docking
    accuracy J. Med. Chem 2004, 47, 1739-1749
 
+----
+Sat Nov 14 19:58:48 GMT 2009
+
+   needs cleanup:
+
+   in several of the delete_x() functions,
+   e.g. delete_atom_by_atom_index, delete_atom, delete_residue, we
+   have:
+
+   CResidue *residue_p =
+      graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+   if (residue_p) {
+      coot::residue_spec_t spec(residue_p);
+      g.delete_residue_from_geometry_graphs(imol, spec);
+   }
+
+   This needs to be rationalised into (perhaps) 
+   delete_residue_from_geometry_graphs_maybe(chain_id, resno, ins_code);
+
+
 
 ----
 Sat Nov 14 12:56:21 GMT 2009
