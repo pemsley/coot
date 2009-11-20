@@ -4,7 +4,7 @@
 def extract_pre_release_flag(cla):
     return "pre-release" in cla
 
-# Return the argument after interesting-string, or null if no such
+# Return the argument after interesting-string, or False if no such
 # arg.
 def extract_next_arg_from_command_line(interesting_string, cla):
     pos = cla.index(interesting_string)
