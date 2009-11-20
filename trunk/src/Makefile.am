@@ -86,7 +86,7 @@ EXTRA_DIST = \
 	coot.i post-glade add-c-extern.sh blank.cc fix-gettext.sh \
 	mol-hierachy.cc \
 	coot.py coot_gtk1.py coot_gtk2.py \
-    	junk.cc coot.defs coot-dox.cfg post-gtk2-glade.sh \
+	junk.cc coot.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh
 
@@ -110,12 +110,10 @@ coot_wrap_guile_gtk1.cc: coot_wrap_guile_pre_gtk1.cc
 # python
 
 coot_wrap_python_pre_gtk1.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
-	mv coot.py coot_gtk1.py
+	swig -o $@ $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk1.py
 
 coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
-	mv coot.py coot_gtk2.py
+	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
 
 coot_wrap_python_gtk1.cc: coot_wrap_python_pre_gtk1.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk1 $^ $@
