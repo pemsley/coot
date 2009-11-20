@@ -35,7 +35,7 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
 
    coot::minimol::molecule mol;
    int n_vr = 20;                     // total is 2*n_vr+2
-   double vector_rotation_range = 40; // degrees either side of the starting position.
+   double vector_rotation_range = 20; // degrees either side of the starting position.
 
    float best_score = -9999;
    coot::minimol::fragment best_frag;
@@ -60,25 +60,31 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
    stored_mol->GetSelIndex(SelectionHandle, sphere_atoms, n_sphere_atoms);
 
    atom_selection_container_t stored_mol_asc = make_asc(stored_mol);
+
    for (unsigned int irot=0; irot<n_rotatmers; irot++) {
-      // std::cout << "rotamer number " << irot << std::endl;
       CResidue *r = r_rotamer.GetResidue(rest, irot);
+
       for (int ivr=-n_vr; ivr<=n_vr; ivr++) {
+      
 	 double rotation_angle = vector_rotation_range * double(ivr)/double(n_vr);
+	 if (0) { 
+	    std::cout << "DEBUG:: rotamer " << irot << " rotation_angle " << rotation_angle
+		      << " from "
+		      << vector_rotation_range << "*"  << double(ivr) << "/" << double(n_vr)
+		      << std::endl;
+	 }
 	 coot::minimol::fragment frag = make_test_fragment(r, rotation_angle);
 	 float f = score_fragment(frag);
-	 // float cs = coot::get_clash_score(frag, stored_mol_asc);
 	 float cs = get_clash_score(frag, sphere_atoms, n_sphere_atoms);
 
 	 // the clash score is large and positive for big clashes.  
 	 // clash score on to the same scale as density fit.
 	 float total_score =  -0.02 * cs + f;
-//  	 std::cout << "   angle: " << rotation_angle << " density score " << f
-//  		   << "  clash score " << cs << " total " << total_score << std::endl;
+	 if (0) { 
+	    std::cout << "   angle: " << rotation_angle << " density score " << f
+		      << "  clash score " << cs << " total " << total_score << std::endl;
+	 }
 	 if (total_score > best_score) {
-// 	    std::cout << "       that was a better score " << std::endl;
-// 	    std::cout << "   better score density-score: " << f << "  clash-score: "
-// 		      << cs << "  total: " << total_score << std::endl;
 	    best_score = total_score;
 	    best_frag  = frag;
 	 }
@@ -147,18 +153,20 @@ coot::backrub::make_test_fragment(CResidue *r, double rotation_angle) const {
    f.addresidue(next_residue, 0);
 
    // now rotate fragment around the ca_prev -> ca_next vector
+   clipper::Coord_orth dir = ca_next - ca_prev;
 
    for (unsigned int ires=f.min_res_no(); ires<=f.max_residue_number(); ires++) {
       for (unsigned int iat=0; iat<f[ires].n_atoms(); iat++) {
 	 clipper::Coord_orth pt(f[ires][iat].pos);
 	 // rotate pt
-	 clipper::Coord_orth dir = ca_next - ca_prev;
 	 double ra = M_PI*rotation_angle/180.0;
 	 clipper::Coord_orth pt_new =
 	    coot::util::rotate_round_vector(dir, pt, ca_prev, ra);
 	 f[ires][iat].pos = pt_new;
-      } 
+      }
    }
+
+   rotate_individual_peptides_back_best(r, rotation_angle, &f);
 
    if (f.n_filled_residues() != 3) {
       std::string mess = "  Failed to get 3 residues with atoms in test fragment. Got ";
@@ -248,7 +256,7 @@ coot::backrub::make_residue_include_only(CResidue *orig_prev_residue,
 // 
 // throw an exception on failure to find CA of prev or next.
 void
-coot::backrub::setup_prev_next_ca_positions() {
+coot::backrub::setup_this_and_prev_next_ca_positions() {
 
    // run through the atoms of both orig_prev_residue and
    // orig_next_residue looking for the CA atom in the same alt conf
@@ -274,8 +282,29 @@ coot::backrub::setup_prev_next_ca_positions() {
    if (! orig_next_residue) {
       std::string mess(" Null next residue ");
       throw std::runtime_error(mess);
-   } 
+   }
+
+   orig_this_residue->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      std::string atom_name(residue_atoms[iat]->name);
+      std::string atom_alt_conf(residue_atoms[iat]->altLoc);
+      if (atom_name == " CA " ) {
+	 if (atom_alt_conf == alt_conf) {
+	    found = 1;
+	    ca_this = clipper::Coord_orth(residue_atoms[iat]->x,
+					  residue_atoms[iat]->y,
+					  residue_atoms[iat]->z);
+	 }
+      }
+   }
    
+   if (! found) {
+      std::string mess(" CA atom of this residue in alt conf \"");
+      mess += alt_conf;
+      mess += "\" not found";
+      throw std::runtime_error(mess);
+   }
+
    orig_prev_residue->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       std::string atom_name(residue_atoms[iat]->name);
@@ -291,9 +320,9 @@ coot::backrub::setup_prev_next_ca_positions() {
    }
 
    if (! found) {
-      std::string mess(" CA atom of previous residue in alt conf ");
+      std::string mess(" CA atom of previous residue in alt conf \"");
       mess += alt_conf;
-      mess += " not found";
+      mess += "\" not found";
       throw std::runtime_error(mess);
    }
 
@@ -314,12 +343,210 @@ coot::backrub::setup_prev_next_ca_positions() {
    }
 
    if (! found) {
-      std::string mess(" CA atom of next residue in alt conf ");
+      std::string mess(" CA atom of next residue in alt conf \"");
       mess += alt_conf;
-      mess += " not found";
+      mess += "\" not found";
       throw std::runtime_error(mess);
    } 
-} 
+}
+
+
+// const because we are fiddling with f, not data members.
+// 
+void
+coot::backrub::rotate_individual_peptides_back_best(CResidue *r, double rotation_angle,
+						    coot::minimol::fragment *f) const {
+
+   // Simple-minded optimisation.  Do a grid-search.  Pick the
+   // smallest.  Could be speeded up with better optimisation.  The
+   // function is 1-D and smooth.
+   // 
+   double best_back_rotation_leading =
+      sample_individual_peptide(r, rotation_angle, f, orig_prev_residue, orig_this_residue, 1);
+   double best_back_rotation_trailing = 
+      sample_individual_peptide(r, rotation_angle, f, orig_this_residue, orig_next_residue, 0);
+
+//    std::cout << "best_back_rotations: main: " << rotation_angle << " leading "
+// 	     << best_back_rotation_leading << " trailing "
+// 	     << best_back_rotation_trailing << std::endl;
+
+   apply_back_rotation(f, 1, best_back_rotation_leading);
+   apply_back_rotation(f, 0, best_back_rotation_trailing);
+}
+
+// This function is just to test that the back rotation of the
+// individual peptide atoms.  The rotation angle is the angle around
+// the major backrub vector (not the one to be applied to individual
+// peptides).
+//
+// 
+double
+coot::backrub::sample_individual_peptide(CResidue *r, double rotation_angle,
+					 coot::minimol::fragment *f,
+					 CResidue *residue_front,
+					 CResidue *residue_back,
+					 bool is_leading_peptide_flag) const {
+
+   // So f has had the big rotation applied.  Now we want to apply
+   // compensating rotation of previous->this peptide.  What is the
+   // best rotation given the rotation_angle?
+   // 
+   // Let's only consider the position of the O when doing that.
+   //
+   
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   clipper::Coord_orth O_pos;
+   bool found_O_pos = 0;
+   double best_back_rotation_angle = 0.0;
+   
+   residue_front->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      std::string atom_name(residue_atoms[iat]->name);
+      std::string atom_alt_conf(residue_atoms[iat]->altLoc);
+      if (atom_name == " O  " ) {
+	 O_pos = clipper::Coord_orth(residue_atoms[iat]->x, 
+				     residue_atoms[iat]->y,
+				     residue_atoms[iat]->z);
+	 found_O_pos = 1;
+      }
+   }
+   
+   if (found_O_pos) { 
+
+      int prev_resno = orig_prev_residue->GetSeqNum();
+      int this_resno = orig_this_residue->GetSeqNum();
+      int next_resno = orig_next_residue->GetSeqNum();
+
+      // trailing peptide initially:
+      clipper::Coord_orth ca_ref_rot = ca_this;
+      clipper::Coord_orth dir = ca_next - ca_this;
+      int res_offset = 1;
+      int resno_for_CO = this_resno;
+      int resno_for_N  = next_resno;
+      if (is_leading_peptide_flag) { 
+	 ca_ref_rot = ca_prev;
+	 dir = ca_this - ca_prev;
+	 res_offset = 2;
+	 resno_for_CO = prev_resno;
+	 resno_for_N  = this_resno;
+      } 
+      
+      double rar = 2 * abs(rotation_angle); // rotation angle range
+      double best_sum_dist = 9999999.9;
+      for (double sample_rotation_angle=-rar;
+	   sample_rotation_angle<=rar;
+	   sample_rotation_angle += (rar*0.02 + 0.0001)) {
+	 double sum_dist = 0.0;
+	 for (unsigned int ires=(f->max_residue_number()-res_offset);
+	      ires<=(f->max_residue_number()+1-res_offset);
+	      ires++) {
+	    for (unsigned int iat=0; iat<(*f)[ires].n_atoms(); iat++) {
+	       if (ires == resno_for_CO) {
+		  if ((*f)[ires][iat].name == " O  ") {
+		     clipper::Coord_orth pt((*f)[ires][iat].pos);
+		     // rotate pt
+		     double ra = M_PI*sample_rotation_angle/180.0;
+		     clipper::Coord_orth pt_new =
+			coot::util::rotate_round_vector(dir, pt, ca_ref_rot, ra);
+		     double d =  clipper::Coord_orth::length(O_pos, pt_new);
+		     sum_dist += d;
+		  }
+	       }
+	    }
+	 }
+
+	 if (sum_dist < best_sum_dist) {
+	    best_sum_dist = sum_dist;
+	    best_back_rotation_angle = sample_rotation_angle;
+	 }
+      }
+
+      if (0) {
+	 // This is for generation of the correlation of the out of
+	 // plane distance and the best back rotation.  There is no
+	 // useful correlation, it turns out.
+	 
+	 // What is the distance of CA-this to the CA-prev->CA-next
+	 // vector, and how does it correlate with the gradient
+	 // of the best peptide rotate_angle vs major (backrub) rotation
+	 // angle?
+	 //
+	 // Let's call the CA vector distance d_out.
+	 // A = CA_this - CA_prev
+	 // B = CA_next - CA_prev
+	 // cos(theta) = A.B/(|A||B|)
+	 // d = |A|sin(theta)
+
+	 clipper::Coord_orth A = ca_this - ca_prev;
+	 clipper::Coord_orth B = ca_next - ca_prev;
+	 double A_length = sqrt(A.lengthsq());
+	 double B_length = sqrt(B.lengthsq());
+	 double cos_theta = clipper::Coord_orth::dot(A,B)/(A_length*B_length);
+	 double theta = acos(cos_theta);
+	 double d_out = A_length * sin(theta);
+		     
+	 std::cout << "DEBUG:: best_sum_dist " << best_sum_dist << " with d_out "
+		   << d_out << std::endl;
+      }
+   }
+   return best_back_rotation_angle;
+}
+
+
+void
+coot::backrub::apply_back_rotation(coot::minimol::fragment *f,
+				   bool is_leading_peptide_flag,
+				   double best_back_rotation_angle) const {
+
+   int prev_resno = orig_prev_residue->GetSeqNum();
+   int this_resno = orig_this_residue->GetSeqNum();
+   int next_resno = orig_next_residue->GetSeqNum();
+   
+   // trailing peptide initially:
+   clipper::Coord_orth ca_ref_rot = ca_this;
+   clipper::Coord_orth dir = ca_next - ca_this;
+   int res_offset = 1;
+   int resno_for_CO = this_resno;
+   int resno_for_N  = next_resno;
+   if (is_leading_peptide_flag) { 
+      ca_ref_rot = ca_prev;
+      dir = ca_this - ca_prev;
+      res_offset = 2;
+      resno_for_CO = prev_resno;
+      resno_for_N  = this_resno;
+   }
+   
+   for (unsigned int ires=(f->max_residue_number()-res_offset);
+	ires<=(f->max_residue_number()+1-res_offset);
+	ires++) {
+      for (unsigned int iat=0; iat<(*f)[ires].n_atoms(); iat++) {
+	 bool rotate_it = 0; 
+	 if (ires == resno_for_CO) {
+	    if (((*f)[ires][iat].name == " C  ") ||
+		((*f)[ires][iat].name == " O  ")) {
+	       rotate_it = 1;
+	    }
+	 }
+	 if (ires == resno_for_N) {
+	    if (((*f)[ires][iat].name == " N  ") ||
+		((*f)[ires][iat].name == " H  ")) {
+	       rotate_it = 1;
+	    }
+	 }
+	 if (rotate_it) {
+	    clipper::Coord_orth pt((*f)[ires][iat].pos);
+	    // rotate pt
+	    double ra = M_PI*best_back_rotation_angle/180.0;
+	    clipper::Coord_orth pt_new =
+	       coot::util::rotate_round_vector(dir, pt, ca_ref_rot, ra);
+	    (*f)[ires][iat].pos = pt_new;
+	 } 
+      }
+   }
+}
+
+
 
 
 // How are clashes scored?  Hmmm... well, I think no clashes at all should have a score
