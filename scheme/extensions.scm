@@ -250,6 +250,10 @@
 	(add-simple-coot-menu-menuitem
 	 submenu-maps "Transform map by LSQ model fit..."
 	 (lambda () (transform-map-using-lsq-matrix-gui)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-maps "Average Maps..."
+	 average-map-gui)
 	
 
 	(add-simple-coot-menu-menuitem

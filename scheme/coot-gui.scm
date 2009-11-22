@@ -78,7 +78,7 @@
 
     (gtk-signal-connect text "key-press-event"
 			(lambda args
-			  ; (format #t "text key press ~s~%" args)))
+			  ;; (format #t "text key press ~s~%" args)))
 			  (format #t "Don't type here.  Type in the white entry bar.~%")
 			  #f))
 
@@ -649,7 +649,8 @@
 		    (let* ((mlabel-str (string-append 
 					(number->string (car mol-no-ls)) " " label-str))
 			   (menuitem (gtk-menu-item-new-with-label mlabel-str)))
-		      (gtk-menu-append menu menuitem))
+		      (gtk-menu-append menu menuitem)
+		      (gtk-widget-show menuitem))
 		    (loop (cdr mol-no-ls) (cons (car mol-no-ls) rlist)))
 		  
 		  (begin
@@ -3168,6 +3169,150 @@
 	       (clear-and-add-back vbox (car flips) (cadr flips) #t)
 	       (clear-and-add-back vbox (car flips) (cadr flips) #f)))
 	 #f))))
+
+
+
+
+(define average-map-gui
+
+  ;; mav-widgets (mav is "map average") is something like a
+  ;; (local-to-the-function) "static" - it can be refered to in the
+  ;; call-backs.  Presumably, if you refactor this as a class, it can
+  ;; be a class data item.
+  ;; 
+  (let ((mav-widgets '()))
+    (lambda ()
+
+      ;; On pressing the - button, delete the widget from the
+      ;; mav-widgets store.  The widget is actually gtk-widget-deleted
+      ;; elsewhere.
+      ;; 
+      (define (remove-from-mav-widgets widget)
+	(let loop ((ls mav-widgets)
+		   (filtered-list '()))
+	  (cond 
+	   ((null? ls) (set! mav-widgets filtered-list))
+	   ((equal? widget (car (car ls)))
+	    (loop (cdr ls) filtered-list))
+	   (else 
+	    (loop (cdr ls)
+		  (cons (car ls) filtered-list))))))
+	   
+      ;; Return a list of the hbox the optionmenu the model-mol-list
+      ;; and the entry
+      ;; 
+      (define (add-average-molecule-widget maps-vbox)
+	(let* ((frame (gtk-frame-new #f))
+	       (hbox (gtk-hbox-new #f 2))
+	       (label (gtk-label-new "Weight:  "))
+	       (entry (gtk-entry-new))
+	       ;; fill-option-menu-with-map-mol-options
+	       (menu (gtk-menu-new))
+	       (map-mol-list (fill-option-menu-with-map-mol-options menu))
+	       (optionmenu (gtk-option-menu-new))
+	       ( plus-button (gtk-button-new-with-label "+"))
+	       (minus-button (gtk-button-new-with-label " - ")))
+	  (gtk-box-pack-start hbox optionmenu #f #f 2)
+	  (gtk-box-pack-start hbox label #f #f 2)
+	  (gtk-box-pack-start hbox entry #f #f 2)
+	  (gtk-box-pack-start hbox  plus-button #f #f 2)
+	  (gtk-box-pack-start hbox minus-button #f #f 2)
+	  (gtk-option-menu-set-menu optionmenu menu)
+          (gtk-widget-set-usize entry 40 -1)
+	  (gtk-entry-set-text entry "1.0")
+
+	  (gtk-signal-connect 
+	   plus-button "clicked"
+	   (lambda ()
+	     (let ((mav-bits (add-average-molecule-widget maps-vbox)))
+	       (gtk-widget-show (car mav-bits))
+	       (set! mav-widgets (cons mav-bits mav-widgets)))))
+
+	  ;; when the - button is clicked, delete the hbox and
+	  ;; everything in it.  Except if it was the only hbox/line,
+	  ;; and in that case, don't do anything.
+	  (gtk-signal-connect
+	   minus-button "clicked"
+	   (lambda ()
+	     (let ((n (n-mav-vboxes maps-vbox)))
+	       (if (> n 1)
+		   (begin (remove-from-mav-widgets hbox)
+			  (gtk-widget-destroy hbox))))))
+
+	  (gtk-box-pack-start maps-vbox hbox #f #f 2)
+	  ;; show everything we just created.
+	  (map gtk-widget-show 
+	       (list frame hbox label entry menu optionmenu 
+		     plus-button minus-button))
+	  
+	  ;; (format #t "saving map-mol-list: ~s~%" map-mol-list)
+	  (list hbox optionmenu map-mol-list entry)))
+
+	  
+      ;; main line,
+      ;; 
+      ;; create the usual outside vbox for everything, and the
+      ;; inner-vbox which is for the map hboxes.
+      ;; 
+      (let* ((window (gtk-window-new 'toplevel))
+	     (outer-vbox (gtk-vbox-new #f 0))
+	     (inner-vbox (gtk-vbox-new #f 0))
+	     (title (gtk-label-new "Average Maps"))
+	     (h-sep (gtk-hseparator-new))
+	     (buttons-hbox (gtk-hbox-new #f 2))
+	     (mav-widget (add-average-molecule-widget inner-vbox))
+	     (cancel-button (gtk-button-new-with-label "  Cancel  "))
+	     (ok-button (gtk-button-new-with-label "  Average Maps  ")))
+	
+	(gtk-container-add window outer-vbox)
+	(gtk-box-pack-start outer-vbox title #f #f 2)
+	(gtk-box-pack-start outer-vbox inner-vbox #f #f 2)
+	(gtk-box-pack-start outer-vbox h-sep #f #f 2)
+	(gtk-box-pack-start outer-vbox buttons-hbox #f #f 6)
+	(gtk-box-pack-end buttons-hbox     ok-button  #f #f 6)
+	(gtk-box-pack-end buttons-hbox cancel-button  #f #f 6)
+
+	;; reset mav-widget when we start a new dialog (otherwise, it
+	;; retains the old mav-widgets, which is confusing/wrong.
+	;; 
+	(set! mav-widgets (list mav-widget))
+
+
+	(gtk-signal-connect cancel-button "clicked"
+			    (lambda ()
+			      (gtk-widget-destroy window)))
+
+	;; On clicking "Average Maps", we get a list of maps to
+	;; average by looking at the widgets (the option menu and the
+	;; entry) for each mav-bits (i.e. each widget list that is
+	;; returned by add-average-molecule-widget).
+	;; 
+	(gtk-signal-connect 
+	 ok-button "clicked"
+	 (lambda ()
+	   ;; 
+	   (let ((maps-to-average-list 
+		  (map 
+		   (lambda (mav-bits)
+		     (let* ((option-menu  (list-ref mav-bits 1))
+			    (map-mol-list (list-ref mav-bits 2))
+			    (entry        (list-ref mav-bits 3))
+			    (nov (format #t "map-mol-list: ~s~%" 
+					 map-mol-list))
+			    (map-selected
+			     (get-option-menu-active-molecule
+			      option-menu map-mol-list))
+			    (text (gtk-entry-get-text entry))
+			    (weight (string->number text)))
+		       (list map-selected weight)))
+		   mav-widgets)))
+	     (format #t "maps to average: ~s~%" 
+		     maps-to-average-list)
+	     (average-map maps-to-average-list)
+	     (gtk-widget-destroy window))))
+	
+	;; 
+	(gtk-widget-show-all window)))))
 
 
 
