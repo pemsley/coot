@@ -6049,7 +6049,10 @@ int average_map_scm(SCM map_number_and_scales) {
 		  std::cout << "Invalid map number " << map_number << std::endl;
 	       } 
 	    } else {
-	       std::cout << "Bad scale" << scm_to_locale_string(display_scm(map_scale_scm))
+	       std::cout << "Bad scale "
+			 << scm_to_locale_string(display_scm(map_scale_scm))
+			 << " ignoring map " 
+			 << scm_to_locale_string(display_scm(map_number_scm))
 			 << std::endl;
 	    }
 	 } else {
