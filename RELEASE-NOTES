@@ -78,6 +78,9 @@ Pre-release 0.6
     (positive/negative/both) rather than number to represent the sign
     for chiral volumes [Andrew Leslie]
 
+  o CHANGE: the restraints editor now adds a new entry to the
+    dictionary when the comp-id is changed.
+
   o CHANGE: Additional representations now have an "All off" button.
 
   o CHANGE: Chi angles rotation now include a "reverse fragment" option.

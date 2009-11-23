@@ -3839,6 +3839,8 @@ coot::simple_cif_reader::has_restraints_for(const std::string &res_type) {
    return r;
 }
 
+// replace (return 1)  or add (if not replacable) (return 0).
+// 
 bool
 coot::protein_geometry::replace_monomer_restraints(std::string monomer_type,
 						   const coot::dictionary_residue_restraints_t &mon_res_in) {
@@ -3849,6 +3851,10 @@ coot::protein_geometry::replace_monomer_restraints(std::string monomer_type,
 	 s = 1;
       }
    }
+
+   if (s == 0) {
+      dict_res_restraints.push_back(mon_res_in);
+   } 
    return s;
 }
 

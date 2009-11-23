@@ -1231,10 +1231,9 @@ void apply_restraint_by_widget(GtkWidget *w) {
       if (v)
 	 std::cout << "INFO:: restraints for :" << type << ": were replaced" << std::endl;
       else
-	 std::cout << "WARNING:: failed to replace restraints for :" << type << ":" << std::endl;
-	 
+	 std::cout << "INFO:: restraints for :" << type << ": were added " << std::endl;
    }
-} 
+}
 
 void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
 
