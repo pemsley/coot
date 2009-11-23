@@ -1130,7 +1130,9 @@
 
 
 ;; transform a coordinates molecule by a coot-rtop (which is a SCM
-;; expression of a clipper::RTop)
+;; expression of a clipper::RTop), i.e. a list of a 9-element list and
+;; a 3 element list. e.g. (list (list 1 0 0 0 1 0 0 0 1) (list 4.5 0.4
+;; 1.2)).
 ;; 
 (define (transform-coords-molecule imol rtop)
   (apply transform-molecule-by imol
