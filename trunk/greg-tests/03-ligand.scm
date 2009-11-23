@@ -235,7 +235,7 @@
                              #f))))))))))
 
 
-(greg-testcase "Reading new dictionary replaces" ;; not adds
+(greg-testcase "Reading new dictionary restraints replaces" ;; not adds
    #t
    (lambda ()
 

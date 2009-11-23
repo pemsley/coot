@@ -920,6 +920,10 @@ namespace coot {
       std::pair<short int, dictionary_residue_restraints_t>
       get_monomer_restraints(const std::string &monomer_type) const;
 
+      // If monomer_type is not in dict_res_restraints, then add a new
+      // item to the dict_res_restraints and add mon_res_in.  Return 1
+      // for replaced 0 for added.
+      // 
       bool replace_monomer_restraints(std::string monomer_type,
 				      const dictionary_residue_restraints_t &mon_res_in);
 

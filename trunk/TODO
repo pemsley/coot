@@ -17,8 +17,10 @@
 * Done.
   o Helix fitting overshoots
   o PISA output display
+* Done
   o In the restraints editor, the volume sign should be displayed as 
     a string (generated from volume_string_int)
+* Done
   o Make ligand fitting work from a given position (find the blob
     centre close and do the orientation search there)
 * Done.
@@ -356,7 +358,11 @@
    o Add to scripting layer: add-alt-conf that will work on the active
      residue.  Not sure if it should auto-accept.  I guess not. 
 
+
    o rsync to bubbles test data.
+
+* No need.
+
 
    o "Add a NAG/XXX?" to this ASN. look at using spin-search.  OK, a
      new spin-search is needed, where we spin all of a given residue
@@ -364,8 +370,8 @@
      code refactoring.   ::: 4
 
 
-   o Can we have a regularize-residues function?  That would be cool
-     for fixing molecular models. ::: 2
+   o Can we have a regularize-residues (as in "sphere") function?
+     That would be cool for fixing molecular models. ::: 2
 
 
    o Gtk2 coot: set the colour patch in the map properties and
@@ -405,6 +411,8 @@
     o Rebecca Vorhees(?) multiple residue ranges for the atom
       selection for rotate/translate (first) and rigid body fit.  And a
       GUI to make the ranges.
+
+* Done
 
     o why is 'doc/c-interface_8h.texi' in the repository?  It should
       be generated.
@@ -471,6 +479,7 @@ Punted from 0.6:
    o Garib wants a function to move (symmetry-related) waters close to
      the protein. ::: 4
 
+* Done.
 
    o Put the scripting window into the state file. How do we know if
      the scripting window is open at end time? ::: 1
@@ -570,6 +579,15 @@ Punted from 0.6:
    o SBASE or split up chemical component library and use (something
      like?) get-monomer-from-dictionary()
 
+   o Steven Sheriff: PHE and TYR swaps (test_and_fix_PHE_TYR_nomenclature_errors()) 
+     should be written to console.
+
+   o put a "fix nomenclature errors" button in the rotamer graph.
+
+   o Steven Sheriff:: COOT is putting LINK records followed by SSBOND
+     records. The PDB standard is SSBOND records followed by LINK
+     records.
+ 
 
 0.6.1 
 
