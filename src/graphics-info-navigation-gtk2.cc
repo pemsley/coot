@@ -92,14 +92,11 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(int imol, GtkWidget *gtktree)
    std::string button_string;
    graphics_info_t g;
 
-//    std::cout << "DEBUG:: fill_go_to_atom_residue_tree_gtk2() using mol "
-// 	     << imol << std::endl;
-
    g.go_to_atom_residue(); // sets values of unset (magic -1) go to
 			   // atom residue number.
 
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
 
       std::vector<coot::model_view_atom_tree_chain_t> residue_chains = 
 	 molecules[imol].model_view_residue_tree_labels();
@@ -197,8 +194,8 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
 	     // that!?  Check the level, is how I did it in gtk1...
 	     graphics_info_t g;
 	     int go_to_imol = g.go_to_atom_molecule();
-	     if (go_to_imol<n_molecules()) {
-		gpointer residue_data;
+	     if (is_valid_model_molecule(go_to_imol)) {
+		gpointer residue_data = 0;
 		gtk_tree_model_get(model, &iter, RESIDUE_COL, &residue_data, -1);
 		if (!residue_data) {
 		   // This was a "Outer" chain row click (there was no residue)
@@ -208,8 +205,8 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
 		   CResidue *res = (CResidue *) residue_data;
 		   CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
 		   if (!at) {
-		      std::cout << "ERROR:: failed to get atom in intelligent_this_residue_mmdb_atom"
-				<< go_to_imol << " " << res << std::endl;
+		      std::cout << "ERROR:: failed to get atom in intelligent_this_residue_mmdb_atom: "
+				<< go_to_imol << " " << res << " (tree selected)" << std::endl;
 		   } else { 
 		      // this does simple setting, nothing else
 		      g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
@@ -259,7 +256,7 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
        if (1) {
 	  graphics_info_t g;
 	  int go_to_imol = g.go_to_atom_molecule();
-	  if (go_to_imol< n_molecules()) {
+	  if (is_valid_model_molecule(go_to_imol)) {
 	     gpointer residue_data;
 	     gtk_tree_model_get(model, &iter, RESIDUE_COL, &residue_data, -1);
 	     if (!residue_data) {
@@ -271,8 +268,8 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
 		CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
 		// this does simple setting, nothing else
 		if (!at) {
-		   std::cout << "ERROR:: failed to get atom in intelligent_this_residue_mmdb_atom"
-			     << go_to_imol << " " << res << std::endl;
+		   std::cout << "ERROR:: failed to get atom in intelligent_this_residue_mmdb_atom: "
+			     << go_to_imol << " " << res << " (row_activated)" << std::endl;
 		} else { 
 		   g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
 							    at->GetSeqNum(),
