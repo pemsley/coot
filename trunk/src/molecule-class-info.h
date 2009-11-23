@@ -2416,6 +2416,8 @@ class molecule_class_info_t {
 
    int set_atom_attributes(const std::vector<coot::atom_attribute_setting_t> &v);
 
+   void set_residue_name(std::string chain_id, int res_no, std::string ins_code, std::string new_name);
+
 
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt) const;
 
