@@ -3313,7 +3313,7 @@ on_delete_item_water_radiobutton_toggled
 }
 
 
-
+/* Old unused function, see new_close_molecules_dialog(), new_close_molecules() */
 void
 on_close_molecule1_activate            (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -3330,6 +3330,7 @@ on_close_molecule1_activate            (GtkMenuItem     *menuitem,
 }
 
 
+/* Old unused function, see new_close_molecules_dialog() */
 void
 on_close_molecule_close_button_clicked (GtkButton       *button,
                                         gpointer         user_data)
@@ -5886,8 +5887,7 @@ on_new_delete_molecules_ok_button_clicked
 
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "new_close_molecules_dialog");
   new_close_molecules(w);
-  gtk_widget_destroy(w);
-
+/*   gtk_widget_destroy(w); */
 }
 
 

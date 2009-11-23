@@ -4939,7 +4939,7 @@ create_aniso_window (void)
   gtk_widget_show (image1498);
   gtk_box_pack_start (GTK_BOX (hbox180), image1498, FALSE, FALSE, 0);
 
-  label354 = gtk_label_new_with_mnemonic (_("   Appy   "));
+  label354 = gtk_label_new_with_mnemonic (_("   Apply   "));
   gtk_widget_set_name (label354, "label354");
   gtk_widget_show (label354);
   gtk_box_pack_start (GTK_BOX (hbox180), label354, FALSE, FALSE, 0);
@@ -18620,7 +18620,7 @@ create_new_close_molecules_dialog (void)
   gtk_widget_show (label424);
   gtk_box_pack_start (GTK_BOX (hbox255), label424, FALSE, FALSE, 0);
 
-  new_delete_molecules_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
+  new_delete_molecules_cancel_button = gtk_button_new_from_stock ("gtk-close");
   gtk_widget_set_name (new_delete_molecules_cancel_button, "new_delete_molecules_cancel_button");
   gtk_widget_show (new_delete_molecules_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox108), new_delete_molecules_cancel_button, FALSE, FALSE, 0);

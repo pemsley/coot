@@ -3499,7 +3499,8 @@ new_close_molecules(GtkWidget *window) {
 		  }
 	       } 
 #endif
-	       graphics_info_t::molecules[imol].close_yourself();
+	       //graphics_info_t::molecules[imol].close_yourself();
+	       close_molecule(imol);
 	       closed_something_flag = 1;
 	    }
 	 }
@@ -3586,19 +3587,20 @@ close_molecule_by_widget(GtkWidget *optionmenu) {
    GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
 
    if (active_item) { 
-      int *imol = (int *) gtk_object_get_user_data(GTK_OBJECT(active_item));
+      int *imol_p = (int *) gtk_object_get_user_data(GTK_OBJECT(active_item));
 
-      if (imol) { 
+      if (imol_p) { 
 
-	 std::cout << " Closing molecule number " << *imol << std::endl;
+	 std::cout << " Closing molecule number " << *imol_p << std::endl;
 	 graphics_info_t g;
-	 if ((*imol >= 0) && (*imol < g.n_molecules())) { 
-	    g.molecules[*imol].close_yourself();
+	 if (is_valid_model_molecule(*imol_p) || is_valid_map_molecule(*imol_p)) { 
+	    // g.molecules[*imol_p].close_yourself();
+	    close_molecule(*imol_p);
 	    fill_close_option_menu_with_all_molecule_options(optionmenu);
 	    graphics_draw();
 	 
 	 } else { 
-	    std::cout << "ERROR: Closing invalid molecule number" << *imol 
+	    std::cout << "ERROR: Closing invalid molecule number" << *imol_p
 		      << std::endl;
 	 }
       } else { 
@@ -3614,15 +3616,18 @@ close_molecule_by_widget(GtkWidget *optionmenu) {
 void close_molecule(int imol) {
 
 
+   graphics_info_t g;
+   int old_go_to_atom_molecule = g.go_to_atom_molecule();
    if (is_valid_model_molecule(imol) ||
        is_valid_map_molecule(imol)) {
       graphics_info_t::molecules[imol].close_yourself();
    }
+   int go_to_atom_imol_new = g.update_go_to_atom_molecule_on_go_to_atom_molecule_deleted();
    if (graphics_info_t::go_to_atom_window) {
       // std::cout << ".....re fill go to atom window here" << std::endl;
-      graphics_info_t g;
-      if (imol == g.go_to_atom_molecule()) {
-	 g.update_go_to_atom_window_on_new_mol();
+      if (imol == old_go_to_atom_molecule) {
+	 g.update_go_to_atom_window_on_other_molecule_chosen(go_to_atom_imol_new);
+	 g.update_go_to_atom_window_on_changed_mol(go_to_atom_imol_new);
       } 
    }
    graphics_draw();

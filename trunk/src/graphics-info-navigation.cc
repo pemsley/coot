@@ -637,8 +637,6 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
 #if (GTK_MAJOR_VERSION == 1)
 	 graphics_info_t::fill_go_to_atom_residue_list_gtk1(gtktree);
 #else
-	 std::cout << "DEBUG:: update_go_to_atom_window_on_changed_mol() for imol "
-		   << imol << std::endl;
 	 graphics_info_t::fill_go_to_atom_residue_tree_gtk2(imol, gtktree);
 #endif	 
       }
@@ -799,7 +797,28 @@ graphics_info_t::update_go_to_atom_window_on_other_molecule_chosen(int imol) {
 
       update_go_to_atom_window_on_changed_mol(imol);
    }
+}
+
+int 
+graphics_info_t::update_go_to_atom_molecule_on_go_to_atom_molecule_deleted() {
+
+   // Choose the first valid molecule
+   // 
+   int mol_no= -1;
+   std::vector<int> imols_existing;
+   for (int imol=0; imol<n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+	 mol_no = imol;
+	 break;
+      }
+   }
+   if (mol_no != -1) {
+      go_to_atom_molecule_ = mol_no;
+      update_go_to_atom_window_on_changed_mol(mol_no);
+   }
+   return mol_no;
 } 
+
 
 
 
