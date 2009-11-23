@@ -197,6 +197,36 @@
 		 (else 
 		  (loop (cdr r) (- count 1)))))))))
 
+;; Find the most recently created file from the given glob and dir
+;;
+;; return #f on no-such-file
+;; 
+(define most-recently-created-file
+  (lambda (glob-str dir)
+
+    (define add-dir-prefix
+      (lambda (file)
+	(if (string? file)
+	    (append-dir-file dir file)
+	    file)))
+
+    (let ((files (glob glob-str dir)))
+
+      (let loop ((files files)
+                 (latest-file #f)
+                 (latest-mtime 0))
+        (cond
+         ((null? files) (add-dir-prefix latest-file))
+         (else 
+          (let ((this-mtime (stat:mtime (stat (add-dir-prefix (car files))))))
+            (if (> this-mtime latest-mtime)
+                (loop (cdr files)
+                      (car files)
+                      this-mtime)
+                (loop (cdr files)
+                      latest-file
+                      latest-mtime)))))))))
+
 		
 
 ;; Convert a residue-spec to an mmdb atom selection string.
