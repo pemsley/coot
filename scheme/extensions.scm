@@ -365,6 +365,11 @@
 						   (inexact->exact (list-ref pre-shift 1))
 						   (inexact->exact (list-ref pre-shift 2)))))))))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Rename Residue..."
+	 (lambda ()
+	   (rename-residue-gui)))
+
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Replace Fragment..."

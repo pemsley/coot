@@ -3,7 +3,8 @@
 
   o Fix NAN crash in Refinement of AUC in gold-lysozyme. Rick comment.
     Data on stick (Icanmakecootcrash). Not reproducable on ubuntu
-    laptop.  Needs Bill's standalone Mac binary::: 4
+    laptop. Not reproducable on 64 bit ubuntu either. Needs Bill's
+    standalone Mac binary ::: 4
 
   o Add in Dale's BCL dictionary.  ::: 0.2
 

@@ -3314,6 +3314,26 @@
 	;; 
 	(gtk-widget-show-all window)))))
 
+;; simple rename residue GUI
+(define (rename-residue-gui)
+  (let ((active-atom (active-residue)))
+    (if (not active-atom)
+	(info-dialog "No Residue Here")
+	(let* ((aa-imol      (list-ref active-atom 0))
+	       (aa-chain-id  (list-ref active-atom 1))
+	       (aa-res-no    (list-ref active-atom 2))
+	       (aa-ins-code  (list-ref active-atom 3))
+	       (label (string-append "Rename Residue [in molecule "
+				     (number->string aa-imol)
+				     "]: "
+				     aa-chain-id
+				     (number->string aa-res-no)
+				     aa-ins-code
+				     " to: ")))
+	  (generic-single-entry label "ALA" "Rename Residue"
+				(lambda (text)
+				  (set-residue-name aa-imol aa-chain-id aa-res-no aa-ins-code text)))))))
+
 
 
 ;; let the c++ part of coot know that this file was loaded:

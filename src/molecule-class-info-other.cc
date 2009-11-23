@@ -387,6 +387,34 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
    return istate;
 }
 
+void
+molecule_class_info_t::set_residue_name(std::string chain_id, int res_no, std::string ins_code,
+					std::string new_name) {
+
+   make_backup();
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    if (res_no == residue_p->GetSeqNum()) {
+	       if (ins_code == residue_p->GetInsCode()) {
+		  residue_p->SetResName(new_name.c_str());
+	       }
+	    }
+	 }
+      }
+   }
+   have_unsaved_changes_flag = 1;
+} 
+
+
 
 // -----------------------------------------------------------------------------
 //                     pepflip

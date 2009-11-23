@@ -2186,6 +2186,8 @@ int set_atom_attributes_py(PyObject *attribute_expression_list);
 #endif 
 #endif // __cplusplus
 
+void set_residue_name(int imol, const char *chain_id, int res_no, const char *ins_code, const char *new_residue_name);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

@@ -1031,6 +1031,26 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 #endif // USE_PYTHON
 
 
+
+void set_residue_name(int imol, const char *chain_id, int res_no, const char *ins_code, const char *new_residue_name) {
+
+   if (chain_id && ins_code && new_residue_name) { 
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t::molecules[imol].set_residue_name(chain_id, res_no, ins_code, new_residue_name);
+      }
+      std::string cmd = "set-residue-name";
+      std::vector<coot::command_arg_t> args;
+      args.push_back(imol);
+      args.push_back(coot::util::single_quote(chain_id));
+      args.push_back(res_no);
+      args.push_back(coot::util::single_quote(ins_code));
+      args.push_back(coot::util::single_quote(new_residue_name));
+      add_to_history_typed(cmd, args);
+   }
+} 
+
+
+
 #ifdef USE_GUILE
 // return a list of refmac parameters.  Used so that we can test that
 // the save state of a refmac map works correctly.
