@@ -272,8 +272,6 @@ coot_real_SOURCES = \
 	coot-references.h        \
 	coot_wrap_guile_gtk1.cc  \
 	coot_wrap_guile_gtk2.cc  \
-	coot_wrap_python_gtk1.cc \
-	coot_wrap_python_gtk2.cc \
 	generic-display-object.hh\
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
@@ -348,6 +346,15 @@ coot_real_SOURCES = \
 	validation-graphs.hh	 \
 	xmap-utils.cc 		 \
 	xmap-utils.h		 
+
+if COOT_USE_PYTHON
+if USING_GTK2_VERSION
+   coot_real_SOURCES += coot_wrap_python_gtk1.cc
+else
+   coot_real_SOURCES += coot_wrap_python_gtk2.c
+endif
+endif
+
 
 # testcartesian_SOURCES = testcartesian.cc
 
