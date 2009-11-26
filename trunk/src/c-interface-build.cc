@@ -1037,6 +1037,7 @@ void set_residue_name(int imol, const char *chain_id, int res_no, const char *in
    if (chain_id && ins_code && new_residue_name) { 
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t::molecules[imol].set_residue_name(chain_id, res_no, ins_code, new_residue_name);
+	 graphics_draw();
       }
       std::string cmd = "set-residue-name";
       std::vector<coot::command_arg_t> args;
