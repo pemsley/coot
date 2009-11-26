@@ -1433,7 +1433,8 @@
   (if (string? key)
       (let ((code (key-sym-code key)))
 	(if (not (= code -1))
-	    (set! *key-bindings* (cons (list code key name thunk) *key-bindings*))))))
+	    (set! *key-bindings* (cons (list code key name thunk) *key-bindings*))
+	    (format #t "WARNING:: could not find key-sym-code for ~s~%" key)))))
 
 
 ;; general key press hook
