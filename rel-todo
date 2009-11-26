@@ -1,17 +1,8 @@
 
    6 items
 
-  o Fix NAN crash in Refinement of AUC in gold-lysozyme. Rick comment.
-    Data on stick (Icanmakecootcrash). Not reproducable on ubuntu
-    laptop. Not reproducable on 64 bit ubuntu either. Needs Bill's
-    standalone Mac binary ::: 4
-
   o Add in Dale's BCL dictionary.  ::: 0.2
 
-  o GTT dict from Adrian? ::: 0.2
-
-  o A function that associates the current chain with the lastest pir
-    file. ::: 0.5
 
 ------
 
@@ -1431,5 +1422,29 @@ src/gtk-manual.cc:                done
 * Bernhard has fixed this already?  Probably not, he says.  Can't
   reproduce.  Shelving for now.
 
+  o In editing the comp-id (or 3letter code) in the restraints editor,
+    we should generate a new dictionary entry, not the same as we
+    started with. ::: 1
+
+* Done.
+
+  o GTT dict from Adrian?  I am confused.  The current dictionary for
+    GTT has the same chiral centre sign as LYS has at CA1.  Keep the 
+    original one for now. ::: 0.2
+
+* Considered.  Nothing changed currently.
+
+
+  o A function that associates the current chain with the lastest pir
+    file. ::: 0.5  
+
+* Done.  Sent.
+
+  o Fix NAN crash in Refinement of AUC in gold-lysozyme. Rick comment.
+    Data on stick (Icanmakecootcrash). Not reproducable on ubuntu
+    laptop. Not reproducable on 64 bit ubuntu either. Needs Bill's
+    standalone Mac binary ::: 4
+
+* Not fixing this now.
 
 -----
