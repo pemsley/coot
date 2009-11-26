@@ -70,7 +70,7 @@ pre_list = ["coot_utils.py",
 	    "group_settings.py"]
 post_list = ["coot_gui.py",
              "extensions.py",
-             "shelx_extensions.py", # think should be in post list
+             "shelx_extensions.py",
              "tips_gui.py",
              "clear_backup.py",
              "coot_toolbuttons.py"]

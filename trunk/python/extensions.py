@@ -385,6 +385,11 @@ if (have_coot_python):
           "SymOp", "X,Y,Z",
           lambda imol, text: new_mol_sym_func1(imol, text)))
 
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Rename Residue...",
+       lambda func: rename_residue_gui())
+
 # BL says:: may work, not sure about function entirely
      add_simple_coot_menu_menuitem(
        submenu_models,

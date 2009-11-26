@@ -4379,6 +4379,18 @@ def user_mods_gui(imol, pdb_file_name):
                                     if check_button.get_active() else
                                     clear_and_add_back(vbox, flips[0], flips[1], False),
          False)
+
+def rename_residue_gui():
+   active_atom = active_residue()
+   if (not active_atom):
+      info_dialog("No Residue Here")
+   else:
+      print active_atom
+      generic_single_entry("Rename this residue", "", "Rename",
+                           lambda text: using_active_atom([[set_residue_name,
+                                                            ["aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"],
+                                                            [text]]])
+                           
       
 
 # let the c++ part of mapview know that this file was loaded:
