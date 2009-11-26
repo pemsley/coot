@@ -125,11 +125,16 @@ coot_gtk1.py: coot_wrap_python_pre_gtk1.cc
 
 coot_gtk2.py: coot_wrap_python_pre_gtk2.cc
 
-# Do differentiate the GTK1 and GTK2 builds we use SWIG_FLAGS, (which
-# is blank for the GTK1 version).
+# coot.py is different for the GTK1 and GTK2 versions.
 #
-coot.py: coot_gtk1.py coot_gtk2.py
-	if test -z "$(SWIG_FLAGS)" ; then cp coot_gtk1.py coot.py ; else cp coot_gtk2.py coot.py ; fi
+if USING_GTK2_VERSION
+coot.py: coot_gtk2.py
+	cp coot_gtk2.py coot.py
+else
+coot.py: coot_gtk1.py
+	cp coot_gtk1.py coot.py
+endif
+
 
 
 #libcoot_wrap.so: coot_wrap.o
