@@ -283,6 +283,11 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_maps,
+       "Average Maps...",
+       lambda func: average_map_gui())
+
+     add_simple_coot_menu_menuitem(
+       submenu_maps,
        "Export map...",
        lambda func: generic_chooser_and_file_selector("Export Map: ",
                 valid_map_molecule_qm, "File_name: ", "",

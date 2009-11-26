@@ -4380,18 +4380,173 @@ def user_mods_gui(imol, pdb_file_name):
                                     clear_and_add_back(vbox, flips[0], flips[1], False),
          False)
 
-def rename_residue_gui():
+def rename_residue_gui_simple():
    active_atom = active_residue()
    if (not active_atom):
       info_dialog("No Residue Here")
    else:
       print active_atom
-      generic_single_entry("Rename this residue", "", "Rename",
+      generic_single_entry("Rename this residue", "ALA", "Rename",
                            lambda text: using_active_atom([[set_residue_name,
                                                             ["aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"],
-                                                            [text]]])
-                           
+                                                            [text]]]))
+
+def average_map_gui():
+   
+   # mav-widgets (mav is "map average") is something like a
+   # (local-to-the-function) "static" - it can be refered to in the
+   # call-backs.  Presumably, if you refactor this as a class, it can
+   # be a class data item.
+   #
+   # BL syas:  ok, lets make a class, just for the sake of it
+   class mav:
+      def __init__(self):
+         self.mav_widgets = []
       
+      # On pressing the - button, delete the widget from the
+      # mav-widgets store.  The widget is actually gtk-widget-deleted
+      # elsewhere.
+      #
+      def remove_from_mav_widgets(self, widget):
+         to_be_removed = False
+         for item in self.mav_widgets:
+            if (item[0] == widget):
+               to_be_removed = item
+               break
+         if to_be_removed:
+            self.mav_widgets.remove(to_be_removed)
+
+      # Return a list of the hbox the optionmenu the model-mol-list
+      # and the entry
+      def add_average_molecule_widget(self, maps_vbox):
+
+         def plus_button_cb(*args):
+            mav_bits = self.add_average_molecule_widget(maps_vbox)
+            mav_bits[0].show()
+            self.mav_widgets.append(mav_bits)
+
+         def minus_button_cb(*args):
+            if len(self.mav_widgets) > 1:
+               self.remove_from_mav_widgets(hbox)
+               hbox.destroy()
+            
+         frame = gtk.Frame(False)
+         hbox = gtk.HBox(False, 2)
+         label = gtk.Label("Weight:  ")
+         entry = gtk.Entry()
+         optionmenu = gtk.combo_box_new_text()
+         map_mol_list = fill_option_menu_with_map_mol_options(optionmenu)
+         plus_button  = gtk.Button("+")
+         minus_button = gtk.Button(" - ")
+         hbox.pack_start(optionmenu, False, False, 2)
+         hbox.pack_start(label, False, False, 2)
+         hbox.pack_start(entry, False, False, 2)
+         hbox.pack_start( plus_button, False, False, 2)
+         hbox.pack_start(minus_button, False, False, 2)
+         entry.set_size_request(40, -1)
+         entry.set_text("1.0")
+
+         plus_button.connect("clicked", plus_button_cb)
+
+         # when the - button is clicked, delete the hbox and
+         # everything in it.  Except if it was the only hbox/line,
+         # and in that case, don't do anything.
+         minus_button.connect("clicked", minus_button_cb)
+
+         maps_vbox.pack_start(hbox, False, False, 2)
+         # show everything we just created
+         map(lambda x: x.show(), [frame, hbox, label, entry, optionmenu,
+                                  plus_button, minus_button])
+
+         # print "saving map_mol_list", map_mol_list
+         return [hbox, optionmenu, map_mol_list, entry]
+
+      # main line
+      #
+      # create the usual outside vbox for everything, and the
+      # inner-vbox which is for the map hboxes.
+      #
+      def main_line(self):
+         
+         def cancel_button_cb(*args):
+            window.destroy()
+            return False
+         
+         def ok_button_cb(*args):
+            maps_to_average_list = []
+            for mav_bits in self.mav_widgets:
+               option_menu  = mav_bits[1]
+               map_mol_list = mav_bits[2]
+               entry        = mav_bits[3]
+               print "map_mol_list", map_mol_list
+               map_selected = get_option_menu_active_molecule(option_menu, map_mol_list)
+               text = entry.get_text()
+               weight = float(text)   # try?! FIXME
+               maps_to_average_list.append([map_selected, weight])
+            print "maps to average", maps_to_average_list
+            average_map(maps_to_average_list)
+            window.destroy()
+            return False
+            
+         window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+         outer_vbox = gtk.VBox(False, 0)
+         inner_vbox = gtk.VBox(False, 0)
+         title = gtk.Label("Average Maps")
+         h_sep = gtk.HSeparator()
+         buttons_hbox = gtk.HBox(False, 2)
+         mav_widget = self.add_average_molecule_widget(inner_vbox)
+         cancel_button = gtk.Button("  Cancel  ")
+         ok_button = gtk.Button("  Average Maps  ")
+
+         window.add(outer_vbox)
+         outer_vbox.pack_start(title, False, False, 2)
+         outer_vbox.pack_start(inner_vbox, False, False, 2)
+         outer_vbox.pack_start(h_sep, False, False, 2)
+         outer_vbox.pack_start(buttons_hbox, False, False, 6)
+         buttons_hbox.pack_end(ok_button, False, False, 6)
+         buttons_hbox.pack_end(cancel_button, False, False, 6)
+
+         # reset mav-widget when we start a new dialog (otherwise, it
+         # retains the old mav-widgets, which is confusing/wrong.
+         #
+         self.mav_widgets = [mav_widget]
+
+         cancel_button.connect("clicked", cancel_button_cb)
+
+         # On clicking "Average Maps", we get a list of maps to
+         # average by looking at the widgets (the option menu and the
+         # entry) for each mav-bits (i.e. each widget list that is
+         # returned by add-average-molecule-widget).
+         #
+         ok_button.connect("clicked", ok_button_cb)
+         window.show_all()
+         
+   gui = mav()
+   gui.main_line()
+
+
+# simple rename residue GUI
+#
+def rename_residue_gui():
+   active_atom = active_residue()
+   if not active_atom:
+      info_dialog("No Residue Here")
+   else:
+      aa_imol     = active_atom[0]
+      aa_chain_id = active_atom[1]
+      aa_res_no   = active_atom[2]
+      aa_ins_code = active_atom[3]
+      label = "Rename Residue [in molecule " + \
+              str(aa_imol) + \
+              "]: " + \
+              aa_chain_id + \
+              str(aa_res_no) + \
+              aa_ins_code + \
+              " to: "
+      generic_single_entry(label, "ALA", "Rename Residue",
+                           lambda text: set_residue_name(aa_imol, aa_chain_id,
+                                                         aa_res_no, aa_ins_code,
+                                                         text))
 
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()
