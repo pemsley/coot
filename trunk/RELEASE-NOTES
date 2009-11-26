@@ -17,14 +17,14 @@ Pre-release 0.6
 
   o FEATURE: monomer and residue selection dipoles.
 
-  o FEATURE: Interactive map sharpening [Randy Read, Alex Brunger]
+  o FEATURE: Interactive map sharpening [Randy Read, Alex Brunger].
 
   o FEATURE: LINK bonds are are now represented.
 
   o FEATURE: "Backrub rotamers" at low (2.7 or worse) resolution.
 
   o FEATURE: Baton build parameters (e.g. "backwards") now have a GUI 
-    [Phil Evans] 
+    [Phil Evans].
 
   o FEATURE: Move waters to surround protein [Garib Murshudov]
 
@@ -39,16 +39,18 @@ Pre-release 0.6
 
   o FEATURE: Nudge-residue (bound to Ctrl-arrow keys).
 
+  o FEATURE: Rename residue [Alexander Schiffer].
+
   o CHANGE: partial charges added to electrostatic surface calculation.
 
   o CHANGE: shift-click and ctrl-click in the file selectors now work
     for reading in several coordinates files [Roberto Steiner].
 
   o CHANGE: SEGIDs are more intelligently inherited [Steven Sheriff,
-    Bob Nolte]
+    Bob Nolte].
  
   o CHANGE: Transformed make take the cell and symmetry of the
-   reference coordinates.
+    reference coordinates.
 
   o CHANGE: Transformed maps take on the cell and spacegroup of the
     reference coordinates.
