@@ -285,11 +285,11 @@ c_inner_main(void *closure, int argc, char** argv) {
 /* for now, make the user start the listener explictly. */
 /*   make_socket_listener_maybe(); */
 
-  /* tips gui? (only for non-Windows systems)*/
-#ifndef WINDOWS_MINGW
+  /* tips gui? (only for builds that have guile-gtk)*/
+#ifdef USE_GUILE_GTK
   if (gui_lib) {
     if (use_graphics_flag) { 
-      thunk_str = "(lambda () (tips-gui))";
+      thunk_str = "(lambda () (if defined? 'tips-gui (tips-gui)))";
       thunk = scm_c_eval_string(thunk_str); 
       scm_catch(SCM_BOOL_T, thunk, handler);
     }
