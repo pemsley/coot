@@ -2456,7 +2456,11 @@ By default, Auto Fit Rotamer will switch to ``Backrub Rotamer''
      265-274 I. Davis, W. Arendall III, D. Richardson, J. Richardson}
 mode when fitting against a map of worse than 2.7@AA{}.  This
 search mode moves the some atoms of the mainchain of the
-neighbouring residues.
+neighbouring residues.  After rotation of the central residue and 
+neighbouring atoms around the ``backrub vector'', the 
+individual peptides are back-rotated (along the peptide axis) so that the
+carbonyl oxygen are placed as near as possible to their original position.  
+The Ramachandran plot is not used in this fitting algorithm.
 
 There is a scripting interface to auto-fitting rotamers:
 
