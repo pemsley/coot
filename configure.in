@@ -173,8 +173,7 @@ fi
 dnl echo ....... SWIG_FLAGS=$SWIG_FLAGS
 AC_SUBST(SWIG_FLAGS)
 
-AM_CONDITIONAL(USING_GTK2_VERSION, "$SWIG_FLAGS")
-
+AM_CONDITIONAL(USING_GTK2_VERSION, test x$coot_gtk2 = xTRUE)
 
 dnl check for guile modules www and gtk here.
 
