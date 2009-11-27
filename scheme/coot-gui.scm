@@ -3197,6 +3197,13 @@
 	   (else 
 	    (loop (cdr ls)
 		  (cons (car ls) filtered-list))))))
+
+      (define (n-mav-vboxes maps-vbox)
+	;; 20090718 WARNING to self, in new version of guile-gnome
+	;; gtk-container-children is likely to be
+	;; gtk-container-get-children.
+	(let ((ls (gtk-container-children maps-vbox)))
+	  (length ls)))
 	   
       ;; Return a list of the hbox the optionmenu the model-mol-list
       ;; and the entry
