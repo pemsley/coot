@@ -66,8 +66,8 @@ if (have_coot_python):
      menuitem_6 = gtk.MenuItem("Representations")
      submenu_settings = gtk.Menu()
      menuitem_7 = gtk.MenuItem("Settings...")
-     #submenu_pisa = gtk.Menu()
-     #menuitem_pisa = gtk.MenuItem("PISA Assemblies...")
+     submenu_pisa = gtk.Menu()
+     menuitem_pisa = gtk.MenuItem("PISA Assemblies...")
      submenu_plugins = gtk.Menu()
      menuitem_plugins = gtk.MenuItem("Plug-ins...")
      submenu_ncs = gtk.Menu()
@@ -96,6 +96,10 @@ if (have_coot_python):
      menuitem_6.set_submenu(submenu_representation)
      menu.append(menuitem_6)
      menuitem_6.show()
+     
+     menuitem_pisa.set_submenu(submenu_pisa)
+     menu.append(menuitem_pisa)
+     menuitem_pisa.show()
      
      menuitem_7.set_submenu(submenu_settings)
      menu.append(menuitem_7)
@@ -1086,6 +1090,18 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(
        submenu_representation, "CCP4MG...",
        lambda func: ccp4mg_func1())
+
+
+     # ---------------------------------------------------------------------
+     #     PISA Interface
+     # ---------------------------------------------------------------------
+
+     add_simple_coot_menu_menuitem(
+       submenu_pisa, "PISA assemblies...",
+       lambda func:
+          molecule_chooser_gui("Choose molecule for PISA assembly analysis",
+                               lambda imol:
+                                 pisa_assemblies(imol)))
 
 
      # ---------------------------------------------------------------------

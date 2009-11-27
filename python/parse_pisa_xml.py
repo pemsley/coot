@@ -6,8 +6,42 @@ def pisa_xml(imol, file_name):
     if (os.path.isfile(file_name)):
         print "opened", file_name
         sm = ElementTree()
-        sm.parse(file_name)
-        parse_pisa(imol, sm)
+        #sm.parse(file_name)
+        xml_file = clean_xml_file(file_name)
+        if xml_file:
+            sm.parse(xml_file)
+            parse_pisa(imol, sm)
+            # rm xml_file
+
+# return a filename which is clean (pisa) xml or False if there was problems
+def clean_xml_file(filename):
+    
+    if (os.path.isfile(filename)):
+        fin = open(filename, 'r')
+        lines = fin.readlines()
+        fin.close()
+        new_lines = []
+        start_write = 0
+        for line in lines:
+            if "pisa_results" in line:
+                start_write += 1
+            if (start_write == 1):
+                new_lines.append(line)
+            if (start_write == 2):
+                new_lines.append(line)
+                break
+        if new_lines:
+            tmp_file = "xml-tmp.xml"
+            fout = open(tmp_file, 'w')
+            fout.writelines(new_lines)
+            fout.close()
+            return tmp_file
+        else:
+            return False
+            
+    else:
+        return False
+    
 
 # pisa results
 #    name
@@ -97,7 +131,6 @@ def parse_pisa(imol, entity):
 
         chain_id_raw = mol_dic["chain_id"]
         atom_selection_string = make_atom_selection_string(chain_id_raw)
-        print "BL DEBUG:: chain_id_raw and atom_selection strin", chain_id_raw, atom_selection_string
         if (chain_id_raw == atom_selection_string):
             symm_name_part = "chain " + chain_id_raw
         else:
@@ -145,7 +178,8 @@ def parse_pisa(imol, entity):
     #
     def print_assembly(record, port):
         # first make a dictionary
-        rec_dic = dict((ele.tag, ele.text) for ele in record)
+        #rec_dic = dict((ele.tag, ele.text) for ele in record)
+        rec_dic = record
         # now either print to stdout or write to string (which will
         # be returned - otherwise return None, False on error)
         ret = None
@@ -157,17 +191,17 @@ def parse_pisa(imol, entity):
             out = sys.stdout
         else:
             return False
-        print "BL DEBUG:: rec_dic", rec_dic
-        out.write("assembly id:   %s\n" %rec_dic['id'])
+        
+        out.write("assembly id: %s\n" %rec_dic['id'])
         out.write("assembly size: %s\n" %rec_dic['size'])
         out.write("assembly symm-number: %s\n" %rec_dic['symNumber'])
-        out.write("assembly asa:  %s\n" %rec_dic['asa'])
-        out.write("assembly bsa:  %s\n" %rec_dic['bsa'])
+        out.write("assembly asa: %s\n" %rec_dic['asa'])
+        out.write("assembly bsa: %s\n" %rec_dic['bsa'])
         out.write("assembly diss_energy: %s\n" %rec_dic['diss_energy'])
-        out.write("assembly entropy:     %s\n" %rec_dic['entropy'])
-        out.write("assembly diss_area:   %s\n" %rec_dic['diss_area'])
-        out.write("assembly int_energy:  %s\n" %rec_dic['int_energy'])
-        out.write("assembly components:  %s\n" %rec_dic['molecule'])
+        out.write("assembly entropy: %s\n" %rec_dic['entropy'])
+        out.write("assembly diss_area: %s\n" %rec_dic['diss_area'])
+        out.write("assembly int_energy: %s\n" %rec_dic['int_energy'])
+        out.write("assembly components: %s\n" %rec_dic['molecule'])
         if (port == STRING):
             ret = out.getvalue()
             out.close()
@@ -191,23 +225,26 @@ def parse_pisa(imol, entity):
             mol_no = handle_molecule(molecule)
             assembly_molecule_numbers.append(mol_no)
         assembly_dic["molecule"] = assembly_molecule_numbers
+        for mol_no in assembly_molecule_numbers:
+            if (valid_model_molecule_qm(mol_no)):
+                set_mol_displayed(mol_no, 0)
         return assembly_dic
 
 
-    # handle assembly-set (the xml tree element for asm_set.
-    #)
-    # return values [False or the molecule number (list?) of the
-    # assembly-set] and the assembly-record-set (which is an xml
-    # tree element for the assembly-set, from 'assembly')
+    # handle assembly-set (the xml tree element for asm_set.)
+    #
+    # return values [False or the molecule number of the
+    # assembly-set] and the assembly-record-set (in dictionary
+    # format - which includes the assembly set molecules list!!
     #
     def handle_assembly_set(assembly_set):
-        assembly_set_molecules = []
         assembly_records = assembly_set.find("assembly")
         assembly_record = handle_assembly(assembly_records)
         assembly_set_molecules = assembly_record["molecule"]
-        new_mol = create_assembly_set_molecule(assembly_set_molecules)
+        new_mol = create_assembly_set_molecule(assembly_set_molecules,
+                                               assembly_record["id"])
 
-        return new_mol, assembly_records
+        return new_mol, assembly_record
 
     # main line
     #
@@ -227,10 +264,13 @@ def parse_pisa(imol, entity):
         else:
             first_assembly_set_is_displayed_already_qm = True
 
-    
-    print "top assembly-set:\n", top_assembly_set
-    s = "top assembly-set: \n\n" + top_assembly_set
-    info_dialog(s)     
+
+    if top_assembly_set:
+        print "top assembly-set:\n", top_assembly_set
+        s = "top assembly-set: \n\n" + top_assembly_set
+    else:
+        s = "no assembly-sets found"
+    info_dialog(s)
             
     
 #
@@ -246,17 +286,17 @@ def pisa_assemblies(imol):
     #
     def make_pisa_config(pisa_coot_dir, config_file_name):
         s = os.getenv("CCP4")
-        # may need a normpath somewhere too?! FIXME
-        ls = [["DATA_ROOT", os.path.join(s, "share/pisa")],
+        ls = [["DATA_ROOT", os.path.join(s, "share", "pisa")],
               ["PISA_WORK_ROOT", pisa_coot_dir],
-              ["SBASE_DIR", os.path.join(s, "share/sbase")],
+              ["SBASE_DIR", os.path.join(s, "share", "sbase")],
               # according to Paule (and I agree):
               # that we need these next 3 is ridiculous
               # BL:: hope not really needed (as for Win exe is missing)
-              ["MOLREF_DIR", os.path.join(s, "share/pisa/molref")],
-              ["RASMOL_COM", os.path.join(s, "bin/rasmol")],
-              ["CCP4MG_COM", os.path.join(s, "bin/ccp4mg")],
-              ["SESSION_PREFIX", "pisa1_"],
+              # maybe already fixed!?
+              ["MOLREF_DIR", os.path.join(s, "share", "pisa", "molref")],
+              ["RASMOL_COM", os.path.join(s, "bin", "rasmol")],
+              ["CCP4MG_COM", os.path.join(s, "bin", "ccp4mg")],
+              ["SESSION_PREFIX", "pisa_"],
               ]
         if (os.path.isdir(s)):
             fin = open(config_file_name, 'w')
@@ -278,21 +318,24 @@ def pisa_assemblies(imol):
         make_pisa_config(pisa_coot_dir, pisa_config)
         write_pdb_file(imol, pdb_file_name)
         if (os.path.isfile(pdb_file_name)):
+            pisa_exe = find_exe("pisa")
+            if not pisa_exe:
+                info_dialog("Sorry, no PISA found. Cannot make assemblies!")
+            else:
 
-            # "pisa" should be pisa_exe or somthign like this (need absolute path...)
-            # FIXME
-            print "pisa args:", [pisa_project_name, "-analyse", pdb_file_name, pisa_config]
-            status = popen_command("pisa",
-                                   [pisa_project_name, "-analyse", pdb_file_name, pisa_config],
-                                   [], "pisa.log", True)
-#                                   [], "pisa.log", False)
-            if (status == 0):  #good
-                print "BL DEBUG:: 2nd pisa args", [pisa_project_name, "-xml", pisa_config]
-                status_2 = popen_command("pisa",
-                                         [pisa_project_name, "-xml", pisa_config],
-                                         [], pisa_xml_file_name, True)
-#                                         [], pisa_xml_file_name, False)
-                if (status_2 == 0):
-                    pisa_xml(imol, pisa_xml_file_name)
-                
-                
+                print "pisa args:", [pisa_project_name, "-analyse", pdb_file_name, pisa_config]
+                status = popen_command(pisa_exe,
+                                       [pisa_project_name, "-analyse", pdb_file_name, pisa_config],
+                                       [], "pisa.log", False)
+
+                if (status != 0):  # bad
+                    info_dialog("Ooops PISA failed to deliver the goods!\n\n(Go for a curry instead?)")
+                else:
+                    # good
+                    print "BL DEBUG:: 2nd pisa args", [pisa_project_name, "-xml", pisa_config]
+                    status_2 = popen_command(pisa_exe,
+                                             [pisa_project_name, "-xml", pisa_config],
+                                             [], pisa_xml_file_name, False)
+                    if (status_2 == 0):
+                        pisa_xml(imol, pisa_xml_file_name)
+
