@@ -229,7 +229,7 @@ class LigandTestFunctions(unittest.TestCase):
 
         
     def test06_0(self):
-        """Reading new dictionary replaces"""
+        """Reading new dictionary restraints replaces"""
 
         def get_torsions(r):
             return r["_chem_comp_tor"]

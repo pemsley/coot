@@ -140,6 +140,29 @@ def molecule_number_list():
             ret.append(mol_no)
     return ret
 
+# Find the most recently created file from the given glob and dir
+#
+# return False on no-such-file
+#
+def most_recently_created_file(glob_str, dir):
+
+    import glob, time
+    
+    patt = os.path.join(dir, glob_str)
+    files = glob.glob(patt)
+
+    latest_file = False
+    latest_mtime = 0
+
+    for file_ in files:
+        this_mtime = os.path.getmtime(file_)
+        if this_mtime > latest_mtime:
+            latest_file = file_
+            latest_mtime = this_mtime
+
+    return latest_file
+            
+
 # Convert a residue_spec to an mmdb atom selection string.
 # FIXME:: to be tested
 #
@@ -472,6 +495,7 @@ def residue_info_dialog_displayed_qm():
 # directory @code{@emph{dir}}.  Typical usage of this might be:
 # @code{multi_read_pdb("a*.pdb",".")}
 # BL says: in windows dir needs the 'C:/' pattern, '/c/'won't work
+#
 def multi_read_pdb(glob_pattern, dir):
     import glob, os
     patt = os.path.normpath(dir+'/*.'+glob_pattern)
@@ -742,7 +766,8 @@ def reorder_chains(imol):
 
 
 # transform a coordinates molecule by a coot-rtop (which is a Python
-# expression of a clipper::RTop)
+# expression of a clipper::RTop), i.e. a list of a 9-element list and
+# a 3 element list, e.g. [[1, 0, 0, 0, 1, 0, 0, 0, 1], [4.5, 0.4, 1.2]]
 #
 def transform_coords_molecule(imol, rtop):
 
