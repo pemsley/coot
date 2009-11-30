@@ -5210,8 +5210,15 @@ Sat Nov 14 19:58:48 GMT 2009
 ----
 Sat Nov 14 12:56:21 GMT 2009
 
-   take a shelx molecule and add 10 to the coords (means fixed).  Now
+   Take a shelx molecule and add 10 to the coords (means fixed).  Now
    display symmetry.  Fail.  See message from Z Dauter.
+
+----
+Mon Nov 30 10:23:48 GMT 2009
+
+   check that users of the fill_chain_option_menu function work
+   nicely.  They now should use menu_item_label(item) in the callback,
+   not the horrible casting of pointer to user_data to char *s.
 
 
 ------
