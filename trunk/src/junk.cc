@@ -1821,3 +1821,13 @@ pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
 
 #endif // GTK_MAJOR_VERSION
 
+
+
+
+   m = GL_matrix(mat);
+
+   glPopMatrix();
+   glLoadIdentity();
+   m.print_matrix();
+   glMultMatrixf(m.get());
+

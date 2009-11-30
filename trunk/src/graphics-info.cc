@@ -447,8 +447,19 @@ graphics_info_t::setRotationCentre(int index, int imol) {
    rotation_centre_y = y; 
    rotation_centre_z = z;
 
-//    std::cout << "DEBUG:: dynarama_is_displayed[" << imol << "] is "
-// 	     << dynarama_is_displayed[imol] << std::endl;
+   if (0) {  // Felix test/play code to orient the residue up the
+	     // screen on moving to next residue.
+       
+      GL_matrix m;
+      clipper::Mat33<double> mat_in = m.to_clipper_mat();
+      clipper::Mat33<double> mat = coot::util::residue_orientation(atom->residue, mat_in);
+      coot::util::quaternion q(mat.inverse());
+      quat[0] = q.q0;
+      quat[1] = q.q1;
+      quat[2] = q.q2;
+      quat[3] = q.q3;
+   }
+   
 
    update_ramachandran_plot_point_maybe(imol, atom);
 

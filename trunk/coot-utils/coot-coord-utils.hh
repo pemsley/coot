@@ -999,6 +999,12 @@ namespace coot {
 					  clipper::Cell cell,
 					  clipper::Spacegroup spacegroup);
 
+      //
+      clipper::Mat33<double> residue_orientation(CResidue *residue_p,
+						 const clipper::Mat33<double> &orientation_in);
+
+      clipper::Coord_orth average_position(std::vector<clipper::Coord_orth> &pts);
+
       // Return the median position.  Throw an exception on failure
       // (e.g no atoms).
       // 

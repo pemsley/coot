@@ -2079,10 +2079,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // Scene Rotation
       GL_matrix m;
-
       m.from_quaternion(graphics_info_t::quat); // consider a constructor.
-
       glMultMatrixf(m.get());
+      
 
       // Translate the scene to the the view centre
       // i.e. the screenrotation center is at (X(), Y(), Z())
