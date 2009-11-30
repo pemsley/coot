@@ -39,6 +39,8 @@ Pre-release 0.6
 
   o FEATURE: Nudge-residue (bound to Ctrl-arrow keys).
 
+  o FEATURE: A dialog has been added from map averaging [Bob Nolte].
+
   o FEATURE: Rename residue [Alexander Schiffer].
 
   o CHANGE: partial charges added to electrostatic surface calculation.
