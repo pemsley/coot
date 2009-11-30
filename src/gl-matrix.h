@@ -1,3 +1,23 @@
+/* src/gl-matrix.h
+ * 
+ * Copyright 2002,  by The University of York
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #ifndef HAVE_GL_MATRIX
 #define HAVE_GL_MATRIX
@@ -8,6 +28,7 @@ enum { TRANSPOSE };
 #include "gsl/gsl_linalg.h"
 #endif
 
+#include <clipper/core/coords.h>
 #include "Cartesian.h"
 
 class GL_matrix { 
@@ -20,8 +41,11 @@ class GL_matrix {
    GL_matrix(float m11, float m12, float m13,
 	     float m21, float m22, float m23,
 	     float m31, float m32, float m33);
+   GL_matrix(const clipper::Mat33<double> &m);
    
    GL_matrix( GL_matrix, int manip);  
+
+   clipper::Mat33<double> to_clipper_mat() const;
 
    float* operator()(void) const;
 

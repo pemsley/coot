@@ -21,6 +21,29 @@ GL_matrix::GL_matrix() {
    }
 }
 
+GL_matrix::GL_matrix(const clipper::Mat33<double> &m) {
+
+   mat[0] = m(0,0);
+   mat[1] = m(0,1);
+   mat[2] = m(0,2);
+   mat[3] = 0;
+   mat[4] = m(1,0);
+   mat[5] = m(1,1);
+   mat[6] = m(1,2);
+   mat[7] = 0;
+   mat[8] = m(1,0);
+   mat[9] = m(2,1);
+   mat[10] = m(2,2);
+   mat[11] = 0;
+   mat[12] = m(3,0);
+   mat[13] = m(3,1);
+   mat[14] = m(3,2);
+   mat[15] = 1;
+
+}
+
+
+
 GL_matrix::GL_matrix(float m11, float m12, float m13,
 		     float m21, float m22, float m23,
 		     float m31, float m32, float m33){
@@ -58,6 +81,27 @@ GL_matrix::from_quaternion(float q[4]) { // quaternion q
    mat[14] = 0.0;
    mat[15] = 1.0;
 }
+
+clipper::Mat33<double>
+GL_matrix::to_clipper_mat() const {
+
+   clipper::Mat33<double> m;
+
+   m(0,0) = mat[0];
+   m(0,1) = mat[1];
+   m(0,2) = mat[2];
+
+   m(1,0) = mat[4];
+   m(2,1) = mat[5];
+   m(3,2) = mat[6];
+
+   m(2,0) = mat[8];
+   m(2,1) = mat[9];
+   m(2,2) = mat[10];
+
+   return m;
+}
+
 
 void 
 GL_matrix::rotate_X(float theta) {

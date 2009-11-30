@@ -5441,6 +5441,89 @@ coot::util::set_mol_cell(CMMDBManager *mol, clipper::Cell cell_local) {
 
 }
 
+//
+clipper::Mat33<double>
+coot::util::residue_orientation(CResidue *residue_p, const clipper::Mat33<double> &orientation_in) {
+
+   std::vector<clipper::Coord_orth> pts;
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   clipper::Mat33<double> r = orientation_in;
+   clipper::Coord_orth n_vec(0,0,1);
+   CAtom *ca = 0;
+   CAtom *n = 0;
+   
+   if (residue_p) { 
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int i=0; i<n_residue_atoms; i++) {
+	 if (!is_main_chain_p(residue_atoms[i])) {
+	    pts.push_back(clipper::Coord_orth(residue_atoms[i]->x,
+					      residue_atoms[i]->y,
+					      residue_atoms[i]->z));
+	 } else {
+	    std::string atom_name(residue_atoms[i]->name);
+	    if (atom_name == " CA ")
+	       ca = residue_atoms[i];
+	    if (atom_name == " N  ")
+	       n = residue_atoms[i];
+	 } 
+      }
+      
+      if (pts.size() > 0) {
+
+	 if (ca) { 
+	    clipper::Coord_orth ca_pos(ca->x, ca->y, ca->z);
+	    clipper::Coord_orth average_pos = coot::util::average_position(pts);
+	    clipper::Coord_orth u((average_pos-ca_pos).unit());
+
+	    // reset n_vect to something sensible, if we have the CA and N.
+	    if (ca && n) {
+	       clipper::Coord_orth  n_pos( n->x,  n->y,  n->z);
+	       n_vec = n_pos - ca_pos;
+	    }
+	 
+	    // now make a mat...
+	    //
+	    clipper::Coord_orth n_vec_unit(n_vec.unit());
+	    
+	    clipper::Coord_orth p1(clipper::Coord_orth::cross(n_vec_unit, u).unit());
+	    clipper::Coord_orth p2(clipper::Coord_orth::cross( p1, u).unit());
+	    clipper::Coord_orth p3 = u;
+
+	    std::cout << "primary sidechain direction: " << u.format() << std::endl;
+	    r = clipper::Mat33<double> (p1.x(), p1.y(), p1.z(),
+					p2.x(), p2.y(), p2.z(),
+					p3.x(), p3.y(), p3.z());
+	    std::cout << r.format() << std::endl;
+	    std::cout << "determinant: " << r.det() << std::endl;
+	    
+	 }
+      }
+   }
+   return r;
+} 
+
+
+// 
+clipper::Coord_orth
+coot::util::average_position(std::vector<clipper::Coord_orth> &pts) {
+   
+   if (pts.size() > 0) {
+      double xsum = 0.0;
+      double ysum = 0.0;
+      double zsum = 0.0;
+      for (unsigned int i=0; i<pts.size(); i++) { 
+	 xsum += pts[i].x();
+	 ysum += pts[i].y();
+	 zsum += pts[i].z();
+      }
+      double denom=1.0/double(pts.size());
+      return clipper::Coord_orth(denom*xsum, denom*ysum, denom*zsum);
+   } else {
+      return clipper::Coord_orth(0,0,0);
+   }
+}
+
 
 
 // caller must check that others has some points in it.
