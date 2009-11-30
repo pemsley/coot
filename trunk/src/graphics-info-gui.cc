@@ -360,7 +360,7 @@ graphics_info_t::menu_item_label(GtkWidget *menu_item) {
       GtkWidget *child = GTK_BIN (menu_item)->child;
       if (GTK_IS_LABEL (child)) {
 	 gtk_label_get (GTK_LABEL (child), &text);
-	 g_print ("menu item text: %s\n", text);
+	 // g_print ("menu item text: %s\n", text);
       }
    }
 
@@ -3278,10 +3278,7 @@ void
 graphics_info_t::renumber_residue_range_chain_menu_item_select(GtkWidget *item,
 					        	       GtkPositionType pos) {
 
-   char *data = NULL;
-   data = (char *)pos;
-   if (data)
-      graphics_info_t::renumber_residue_range_chain = std::string(data);
+   graphics_info_t::renumber_residue_range_chain = menu_item_label(item);
 }
 
 
