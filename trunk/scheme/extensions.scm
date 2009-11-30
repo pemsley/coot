@@ -162,7 +162,7 @@
 	(add-simple-coot-menu-menuitem
 	 submenu-all-molecule "Stepped Refine..." 
 	 (lambda ()
-	   (molecule-chooser-gui "Fit Protein using Rotamer Search"
+	   (molecule-chooser-gui "Fit Protein using Real-Space Refinement"
 				 (lambda (imol)
 				   (if (not (= (imol-refinement-map) -1))
 				       (begin
