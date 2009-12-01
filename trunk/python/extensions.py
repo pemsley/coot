@@ -177,7 +177,7 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(
        submenu_all_molecule,
        "Stepped Refine...",
-       lambda func: molecule_chooser_gui("Fit protein with Stepped Refine: ",
+       lambda func: molecule_chooser_gui("Fit Protein using Real-Space Refinement",
 		lambda imol: fit_protein_func2(imol)))
 
 
