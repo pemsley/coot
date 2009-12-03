@@ -9548,7 +9548,7 @@ create_splash_screen_window (void)
   gtk_window_set_title (GTK_WINDOW (splash_screen_window), _("Coot"));
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
 
-  pixmap3 = create_pixmap (splash_screen_window, "coot-0.6-pre-1.xpm");
+  pixmap3 = create_pixmap (splash_screen_window, "coot-0.6.xpm");
   gtk_widget_ref (pixmap3);
   gtk_object_set_data_full (GTK_OBJECT (splash_screen_window), "pixmap3", pixmap3,
                             (GtkDestroyNotify) gtk_widget_unref);

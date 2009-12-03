@@ -64,28 +64,29 @@
 (let ((pre-release-flag (extract-pre-release-flag (command-line)))
       (binary-type (extract-binary-type (command-line))))
 
+(set! binary-type "Linux-i386-centos-4-python-gtk2")
 
-;;   (format #t "pre-release: ~s~%" pre-release-flag)
-;;   (format #t "binary-type: ~s~%" binary-type)
+(format #t "pre-release: ~s~%" pre-release-flag)
+(format #t "binary-type: ~s~%" binary-type)
 
   (if (string? binary-type)
       
       (let ((check-url 
 	     (if pre-release-flag
 		 (string-append
-		  "http://www.ysbl.york.ac.uk/"
-		  "~emsley/software/binaries/nightlies/pre-release/"
+		  "http://www.biop.ox.ac.uk/"
+		  "coot/software/binaries/pre-releases/"
 		  "type-binary-"
 		  binary-type
 		  "-latest.txt")
 		 (string-append
-		  "http://www.ysbl.york.ac.uk/"
-		  "~emsley/software/binaries/release/"
+		  "http://www.biop.ox.ac.uk/"
+		  "coot/software/binaries/release/"
 		  "type-binary-"
 		  binary-type
 		  "-latest.txt"))))
 
-	;; (format #t "Now get: ~s~%" check-url)
+	(format #t "Now get: ~s~%" check-url)
 	
 	(let ((s (get-url-as-string check-url)))
 
