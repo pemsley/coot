@@ -230,7 +230,8 @@
 # 2.62 20090724 make compilers_dir depend on build_type (python build logs 
 #               split out)
 # 2.63 20090913 add a date to the fail status message
-script_version=2.63
+# 2.64 20091203 release server is now in oxford.
+script_version=2.64
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -967,8 +968,10 @@ coot_version=$fallback_coot_version
 
 pre_release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
 pre_release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/pre-releases/
+release_sever_dir=http://www.ysbl.york.ac.uk/~emsley/software/
+release_sever_dir=http://www.biop.ox.ac.uk/coot/software/source/releases/
 
-${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log http://www.ysbl.york.ac.uk/~emsley/software/
+${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_sever_dir
 ${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
 pre_release_files_html=""
 if [ $build_coot_prerelease = 1 ]  ; then 
