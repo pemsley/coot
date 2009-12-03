@@ -2561,10 +2561,10 @@ on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
   }
 
 
-  g_print("BL DEBUG:: run fast secondary structure search with params:\n");
-  g_print("BL DEBUG:: helix: %i %i %i\n", use_helix, helix_length, helix_target);
-  g_print("BL DEBUG:: strand: %i %i %i\n", use_strand, strand_length, strand_target);
-  g_print("BL DEBUG:: radius: %f \n", radius);
+  //g_print("INFO:: run fast secondary structure search with params:\n");
+  //g_print("INFO:: helix: %i %i %i\n", use_helix, helix_length, helix_target);
+  //g_print("INFO:: strand: %i %i %i\n", use_strand, strand_length, strand_target);
+  //g_print("INFO:: radius: %f \n", radius);
 
   find_secondary_structure_local(use_helix, helix_length, helix_target,
 				 use_strand, strand_length, strand_target,
@@ -2587,7 +2587,7 @@ on_fast_sss_dialog_citation_button_clicked
   toolbutton = lookup_widget(dialog, "coot_references_buccaneer_toolbutton");
   fill_references_notebook(GTK_TOOL_BUTTON(toolbutton), COOT_REFERENCE_BUCCANEER);
 #else
-  g_print("BL DEBUG:: sorry not in GTK+ 1.2\n");
+  g_print("INFO:: sorry not in GTK+ 1.2\n");
 #endif /* GTK_MAJOR_VERSION */
 
 }
