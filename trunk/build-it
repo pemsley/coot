@@ -2745,6 +2745,7 @@ echo done coot build. >&2
 extra_dir=http://www.ysbl.york.ac.uk/~emsley/software/extras
 extra_dir=http://www.biop.ox.ac.uk/coot/software/dependencies
 refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
+refmac_mon_lib=refmac-monomer-library-20091203.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
