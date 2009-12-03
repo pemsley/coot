@@ -1,7 +1,4 @@
 
-   6 items
-
-  o Add in Dale's BCL dictionary.  ::: 0.2
 
 
 ------
@@ -1446,5 +1443,9 @@ src/gtk-manual.cc:                done
     standalone Mac binary ::: 4
 
 * Not fixing this now.
+
+  o Add in Dale's BCL dictionary.  ::: 0.2
+
+* Done.
 
 -----

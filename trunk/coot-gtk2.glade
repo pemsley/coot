@@ -24111,9 +24111,9 @@ programs to which you may be more accustomed.
   <property name="urgency_hint">False</property>
 
   <child>
-    <widget class="GtkImage" id="image6807">
+    <widget class="GtkImage" id="image7052">
       <property name="visible">True</property>
-      <property name="pixbuf">coot-0.6-pre-1.xpm</property>
+      <property name="pixbuf">coot-0.6.png</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>
@@ -48513,7 +48513,7 @@ Move Molecule Here:</property>
   <property name="copyright" translatable="yes">Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 by The University of York
 Copyright 2007, 2008, 2009 by The University of Oxford
 Copyright 2001, 2007 by Paul Emsley</property>
-  <property name="comments" translatable="yes">Durham</property>
+  <property name="comments" translatable="yes">Miramar</property>
   <property name="license" translatable="yes">                    GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 

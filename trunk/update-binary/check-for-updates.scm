@@ -97,25 +97,45 @@
 
       (gtk-signal-connect ok-button "clicked"
 			  (lambda () 
-			    (let* ((args-1 (list "-s" 
-						 download-bin-cmd
-						 "binary" (coot-sys-build-type)))
-				   (st (coot-version))
-				   (args-2 (if (string-match "-pre-" st)
-					       (append args-1
-						       (list "pre-release"))
-					       args-1))
-				   (args (append 
-					  args-2
-					  (list "version" version-string))))
-			      
-			      (goosh-command "guile" args '() 
-					     "tmp-coot-download-cmd.log" #f))))
+			    (run-download-curl)))
 
       (gtk-widget-show-all window))))
 	  
 
+(define (run-download-curl)
+  (let* ((install-prefix "something") ;; to get curl binary
+	 (pre-release-flag (string-match "-pre-") (coot-version))
+	 (host-dir "www.biop.ox.ac.uk/coot/software/binaries/pre-releases")
+	 (url (if pre-release-flag
+		  (string-append
+		   "http://" 
+		   host-dir "/"
+		   "coot-"
+		   version
+		   "-"
+		   revision
+		   "-binary-"
+		   binary-type
+		   ".tar.gz")
 
+		  ;; stable
+		  (string-append
+		   "http://" 
+		   host-dir
+		   new-version
+		   "-binary-"
+		   binary-type
+		   ".tar.gz"))))
+
+    (format #t "url for curl: ~s~%" url)
+	 
+    (goosh-command (string-append install-prefix "/bin/curl")
+		   (list url)
+		   '() #t "tmp-download-coot.log")))
+				  
+	      
+  
+;; http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/coot-0.6-pre-1-revision-2535-binary-Linux-i386-centos-4-gtk2.tar.gz
 
 
 (let ((menu (coot-menubar-menu "Updates")))
@@ -145,7 +165,9 @@
 				       (list "-s" phone-home-cmd) args-2)))
 			 (if (file-exists? update-coot-log)
 			     (delete-file update-coot-log))
+			 (format #t "about to: guile ~s~%" args-3)
 			 (goosh-command "guile" args-3 '() update-coot-log #f)
+			 (format #t "done: guile ~s~%" args-3)
 			 (if (file-exists? update-coot-log)
 			     (begin
 			       ;; OK, so the server said something.

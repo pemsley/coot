@@ -683,20 +683,37 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
 
   if (reference_id == COOT_REFERENCE_COOT) {
 
-    ref_description = "If you have found this software to be useful, you are requested to cite:\n\n";
+     if (0) { 
+	ref_description = "If you have found this software to be useful, you are requested to cite:\n\n";
+	
+	title       = "Coot: model-building tools for molecular graphics";
+	author      = "Emsley P, Cowtan K";
+	journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
+	year        = "2004";
+	volume      = "60";
+	pages       = "2126-2132";
+	number      = "Part 12 Sp. Iss. 1 DEC";
+	
+	bib_type = "Article";
+	bib_id   = "emsley04:coot";
+	bib_author = "Paul Emsley and Kevin Cowtan";
+	bib_journal = "Acta Crystallographica Section D - Biological Crystallography";
+     }
 
-    title       = "Coot: model-building tools for molecular graphics";
-    author      = "Emsley P, Cowtan K";
-    journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
-    year        = "2004";
-    volume      = "60";
-    pages       = "2126-2132";
-    number      = "Part 12 Sp. Iss. 1 DEC";
-
-    bib_type = "Article";
-    bib_id   = "emsley04:coot";
-    bib_author = "Paul Emsley and Kevin Cowtan";
-    bib_journal = "Acta Crystallographica Section D - Biological Crystallography";
+     ref_description = "If you have found this software to be useful, you are requested to cite:\n\n";
+     title       = "Features and Development of Coot";
+     author      = "Emsley P, Lohkamp B, Scott W, Cowtan K";
+     journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
+     year        = "2010";
+     volume      = "";
+     pages       = "in press";
+     number      = "";
+     
+     bib_type = "Article";
+     bib_id   = "emsley10:coot";
+     bib_author = "Paul Emsley, Bernhard Lohkamp, William Scott and Kevin Cowtan";
+     bib_journal = "Acta Crystallographica Section D - Biological Crystallography";
+     
   }
 
   if (reference_id == COOT_REFERENCE_WINCOOT) {
