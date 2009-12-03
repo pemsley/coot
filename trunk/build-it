@@ -2564,7 +2564,7 @@ if [ "$build_coot_prerelease" != 1 ] ; then
    # normal release coot
    ${WGET} $release_server_dir/$coot_version.tar.gz 
    if [ ! $? = 0 ] ; then
-      echo failed to wget http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz   
+      echo failed to wget $release_server_dir/$coot_version.tar.gz
       my_exit 2 wget-fail-coot-source
    fi
    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
@@ -2579,9 +2579,9 @@ else
       fi 
    else 
       # compile release code then:
-      ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
+      ${WGET} $release_server_dir/$coot_version.tar.gz
       if [ ! $? = 0 ] ; then
-         echo failed to wget http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz   
+         echo failed to wget $release_server_dir/$coot_version.tar.gz
          my_exit 2 wget-fail-coot-source
       fi
    fi 
