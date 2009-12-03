@@ -164,10 +164,10 @@ you can download the paper from there - it's Open Access.
 @node I have Mac OS X. How do I get coot?
 @section I have Mac OS X. How do I get coot?
 
-See Bill Scott's Coot Page
+See Bill Scott's Coot Page:
 
 @itemize
-@item @url{http://xanana.ucsc.edu/xtal/coot}
+@item @url{http://sage.ucsc.edu/~wgscott/xtal/wiki/index.php/Installing_Coot_on_OS_X}
 @end itemize
 
 
