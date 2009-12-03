@@ -332,8 +332,8 @@ fi
 # Set the host and the OS.
 # Fairly fundamental.
 #
-OS=`uname`
-HOST=`hostname`
+OS=$(uname)
+HOST=$(hostname)
 
 # Do we need to use a proxy server to get documents from the web? (set
 # to 1 if we do)
@@ -480,7 +480,7 @@ function post_install_slim {
     echo rsyncing... 
     for file in $file_list ;
     do
-       dn=`dirname $file`
+       dn=$(dirname $file)
        if [ -e $fat_dir/$file ] ; then
           # echo rsync -axr $fat_dir/$file $cleaned_dir/$dn
           rsync -axr $fat_dir/$file $cleaned_dir/$dn
@@ -750,14 +750,14 @@ if test "$OS" = "Darwin" ; then
    shared_lib_ext=dylib
    need_readline_patch=1
    # uname -a gives processor type in last field on Darwin
-   processor=`uname -a | awk '{print $(NF)}'`
+   processor=$(uname -a | awk '{print $(NF)}')
    need_gtk_imlib_libtool_fix=1
    if test "$processor" = "i386" ; then
       need_glib_getpwuid_fix=1
       need_glib_poll_fix=1
       need_gtk_canvas_patch=1
    fi
-   osversion=`sw_vers -productVersion`
+   osversion=$(sw_vers -productVersion)
    systype=MacOSX-${osversion}-${processor}
 fi
 
@@ -790,24 +790,24 @@ fi
 
 #initially unset:
 if test $OS = Linux ; then
-  architecture=`uname -i`
+  architecture=$(uname -i)
   # uname -i and uname -p (strangely) return unknown on my ubuntu
   if test $architecture = unknown ; then
-     architecture=`uname -m`
+     architecture=$(uname -m)
   fi
 fi
 # now architecture is something like i386 or x86_64
 
 # now test for 64 bit Linux:
 if test "$OS" = "Linux" ; then
-   processor=`uname -a | awk '{print $NF}'`
+   processor=$(uname -a | awk '{print $NF}')
    # on my Redhat i386, uname returns: 
    # Linux kalypso 2.6.12-1.1398_FC4 #1 Fri Jul 15 00:52:32 EDT 2005 i686 athlon i386 GNU/Linux
    # 64 bit Ubuntu:
    # Linux kalypso 2.6.22-14-generic #1 SMP Sun Oct 14 21:45:15 GMT 2007 x86_64 GNU/Linux
    # from that I presume we need $(NF-2) to get the arch (not NF-1).  Eh?
    # arch=`uname -a | awk '{print $(NF-1)}'`
-   arch=`uname -a | awk '{print $(NF-1)}'`
+   arch=$(uname -a | awk '{print $(NF-1)}')
    echo currently architecture is $architecture
    if test "$architecture" = x86_64 -o "$architecture" = ia64 ; then
       update_libtool=1
@@ -842,7 +842,7 @@ if test $OS = Linux ; then
         systype=${architecture}-redhat-${dist_ver}
       ;;
       * )
-        systype=${architecture}-rhel-`echo ${dist_ver} | sed s/[A-Za-z]//g`
+        systype=${architecture}-rhel-$(echo ${dist_ver} | sed s/[A-Za-z]//g)
         if [ $arch = x86_64 ] ; then 
 	   if [ $dist_ver = 4WS ] ; then
 	      echo RedHat 4 Linux x86_64 detected. need to update libtool
