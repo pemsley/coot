@@ -1123,10 +1123,10 @@ coot_version=$fallback_coot_version
 
 pre_release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
 pre_release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/pre-releases/
-release_sever_dir=http://www.ysbl.york.ac.uk/~emsley/software/
-release_sever_dir=http://www.biop.ox.ac.uk/coot/software/source/releases/
+release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/
+release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/releases/
 
-${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_sever_dir
+${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
 ${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
 pre_release_files_html=""
 if [ $build_coot_prerelease = 1 ]  ; then 
@@ -2710,7 +2710,7 @@ fi
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
-   ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
+   ${WGET} $release_server_dir/$coot_version.tar.gz 
    if [ ! $? = 0 ] ; then
       echo failed to wget http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz   
       my_exit 2 wget-fail-coot-source
