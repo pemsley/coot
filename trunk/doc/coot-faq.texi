@@ -124,17 +124,17 @@ into EndNote)... format as you please:
 
 @cindex citation
 @verbatim
-@Article{emsley04:coot,
-  author =    {Paul Emsley and Kevin Cowtan},
-  title =     {Coot: Model-Building Tools for Molecular Graphics},
+@Article{emsley2010:coot,
+  author =    {Paul Emsley and Bernhard Lohkamp and William G. Scott and Kevin Cowtan},
+  title =     {Features and Development of Coot},
   journal =   {Acta Crystallographica Section D - Biological Crystallography},
-  year =      2004,
-  volume =    60,
-  pages  =    2126-2132
+  year =      2010,
+  volume =    66,
+  pages  =    ??-?? (in press)
 }
 @end verbatim
 
-Coot was published in the proceedings of the 2003 CCP4 Study Weekend
+The Coot paper will be published in the proceedings of the 2009 CCP4 Study Weekend.
 
 @itemize
 @item @url{http://journals.iucr.org/d/issues/2004/12/01/isscontsbdy.html}
