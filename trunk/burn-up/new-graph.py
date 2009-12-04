@@ -16,7 +16,7 @@
 from pychart import *
 theme.get_options()
 theme.output_format="png"
-theme.scale_factor=10
+theme.scale_factor=5
 theme.default_font_size=6
 theme.reinitialize()
 
@@ -32,7 +32,7 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 340
+x_day_range = 355
 
 x_tick_interval = 2
 if (x_day_range > 40):
@@ -105,7 +105,7 @@ tb = text_box.T(loc=(18*xpscale, 43), text="Boston", shadow=(1,-1,fill_style.gra
 tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "c")
 tb.draw()
 
-tb = text_box.T(loc=(35*xpscale, 73), text="Papers & Happy", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
+tb = text_box.T(loc=(20*xpscale, 90), text="Papers & Happy", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
 tb.add_arrow((ar.x_pos(data[74][0]), ar.y_pos(data[74][1])), "c")
 tb.draw()
 
