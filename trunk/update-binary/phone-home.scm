@@ -1,4 +1,12 @@
 
+
+;; phone-home.scm is a stand-alone executable script run from coot's
+;; guile.  It needs to access the web, so we currently use net http,
+;; but in future should use libcurl (more tricky).
+;;
+;; phone-home.scm prints a string that is interpretted by a function
+;; in download-bin-cmd (and that is run inside Coot).
+
 (use-modules (oop goops) (oop goops describe) (net http))
 
 ;;; We are given the binary sys type from the command line, and also

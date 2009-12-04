@@ -58,6 +58,7 @@
 
 
 (define (notify-of-new-version str)
+  (format #t "notify-of-new-version give string str: ~s~%" str)
   (let* ((ls (split-before-char #\c str list))
 	 (ls2 (split-before-char #\" (car (reverse ls)) list)))
 
@@ -67,8 +68,8 @@
 (define (download-binary-dialog version-string)
 
 
-  (let ((s (string-append "New revision available " 
-			  "for this binary type:\n"
+  (let ((s (string-append "   New revision available " 
+			  "for this binary type:   \n"
 			  (coot-sys-build-type)
 			  "\n"
 			  version-string)))
@@ -85,9 +86,10 @@
       (gtk-box-pack-start buttons-hbox ok-button #t #f 6)
       (gtk-box-pack-start buttons-hbox cancel-button #t #f 6)
 
-      (gtk-box-pack-start main-vbox info-string  #t #f 6)
+      (gtk-box-pack-start main-vbox info-string  #t #f 6) ;; not x padding, it is y padding
       (gtk-box-pack-start main-vbox h-sep        #t #f 6)
       (gtk-box-pack-start main-vbox buttons-hbox #t #f 6)
+      (gtk-container-border-width main-vbox 6)
       
       (gtk-container-add window main-vbox)
 
