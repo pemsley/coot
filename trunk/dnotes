@@ -5221,5 +5221,19 @@ Mon Nov 30 10:23:48 GMT 2009
    not the horrible casting of pointer to user_data to char *s.
 
 
+---
+Tue Nov 24 17:07:20 GMT 2009
+
+    An extension to backrub rotamer: 
+
+    For each rotamer: try chi-by-chi to improve the fit to the density
+    of the side chain.  It will probably only need 2 rounds.  Needs
+    non-trivial minimiser though (having said that, it's only a series
+    of 1-d functions).
+
+    Hmmm... what to do about clash_score...?  The variation in clash
+    score wil be relatively low and ignorable?
+
+
 ------
 
