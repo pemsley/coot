@@ -1446,15 +1446,16 @@ create_window1 (void)
   gtk_widget_set_name (display_manager_toolbutton, "display_manager_toolbutton");
   gtk_widget_show (display_manager_toolbutton);
   gtk_container_add (GTK_CONTAINER (toolbar1), display_manager_toolbutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (display_manager_toolbutton), tooltips, _("Display the dialog for displaying and undisplaying molecules and changing their representation"), NULL);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (display_manager_toolbutton), tooltips, _("Display the dialog for displaying and undisplaying molecules and changing their representation (F7)"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (display_manager_toolbutton), TRUE);
 
   tmp_image = create_pixmap (window1, "go-to-atom.svg");
   gtk_widget_show (tmp_image);
-  go_to_atom_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Go To Atom"));
+  go_to_atom_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Go To Atom..."));
   gtk_widget_set_name (go_to_atom_toolbutton, "go_to_atom_toolbutton");
   gtk_widget_show (go_to_atom_toolbutton);
   gtk_container_add (GTK_CONTAINER (toolbar1), go_to_atom_toolbutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (go_to_atom_toolbutton), tooltips, _("Go To Atom... (F6)"), NULL);
 
   toolitem30 = (GtkWidget*) gtk_tool_item_new ();
   gtk_widget_set_name (toolitem30, "toolitem30");

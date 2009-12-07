@@ -2075,7 +2075,7 @@
 	      <child>
 		<widget class="GtkToolButton" id="display_manager_toolbutton">
 		  <property name="visible">True</property>
-		  <property name="tooltip" translatable="yes">Display the dialog for displaying and undisplaying molecules and changing their representation</property>
+		  <property name="tooltip" translatable="yes">Display the dialog for displaying and undisplaying molecules and changing their representation (F7)</property>
 		  <property name="label" translatable="yes"> Display Manager</property>
 		  <property name="use_underline">True</property>
 		  <property name="icon">display-manager.png</property>
@@ -2093,7 +2093,8 @@
 	      <child>
 		<widget class="GtkToolButton" id="go_to_atom_toolbutton">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">Go To Atom</property>
+		  <property name="tooltip" translatable="yes">Go To Atom... (F6)</property>
+		  <property name="label" translatable="yes">Go To Atom...</property>
 		  <property name="use_underline">True</property>
 		  <property name="icon">go-to-atom.svg</property>
 		  <property name="visible_horizontal">True</property>
