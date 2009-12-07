@@ -249,6 +249,7 @@ create_window1 (void)
   GtkWidget *coords_toolbutton;
   GtkWidget *reset_view_toolbutton;
   GtkWidget *display_manager_toolbutton;
+  GtkWidget *go_to_atom_toolbutton;
   GtkWidget *toolitem30;
   GtkWidget *hbox398;
   GtkWidget *toolbar_multi_refine_stop_button;
@@ -1448,6 +1449,13 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (display_manager_toolbutton), tooltips, _("Display the dialog for displaying and undisplaying molecules and changing their representation"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (display_manager_toolbutton), TRUE);
 
+  tmp_image = create_pixmap (window1, "go-to-atom.svg");
+  gtk_widget_show (tmp_image);
+  go_to_atom_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Go To Atom"));
+  gtk_widget_set_name (go_to_atom_toolbutton, "go_to_atom_toolbutton");
+  gtk_widget_show (go_to_atom_toolbutton);
+  gtk_container_add (GTK_CONTAINER (toolbar1), go_to_atom_toolbutton);
+
   toolitem30 = (GtkWidget*) gtk_tool_item_new ();
   gtk_widget_set_name (toolitem30, "toolitem30");
   gtk_widget_show (toolitem30);
@@ -2521,6 +2529,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) display_manager_toolbutton, "clicked",
                     G_CALLBACK (on_display_manager_toolbutton_clicked),
                     NULL);
+  g_signal_connect ((gpointer) go_to_atom_toolbutton, "clicked",
+                    G_CALLBACK (on_go_to_atom_toolbutton_clicked),
+                    NULL);
   g_signal_connect ((gpointer) toolbar_multi_refine_stop_button, "clicked",
                     G_CALLBACK (on_toolbar_multi_refine_stop_button_clicked),
                     NULL);
@@ -2871,6 +2882,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, coords_toolbutton, "coords_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, reset_view_toolbutton, "reset_view_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, display_manager_toolbutton, "display_manager_toolbutton");
+  GLADE_HOOKUP_OBJECT (window1, go_to_atom_toolbutton, "go_to_atom_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, toolitem30, "toolitem30");
   GLADE_HOOKUP_OBJECT (window1, hbox398, "hbox398");
   GLADE_HOOKUP_OBJECT (window1, toolbar_multi_refine_stop_button, "toolbar_multi_refine_stop_button");

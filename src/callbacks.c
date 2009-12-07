@@ -11581,3 +11581,12 @@ on_coords_toolbutton_clicked           (GtkToolButton   *toolbutton,
 }
 #endif /* GTK_MAJOR_VERSION */
 
+
+void
+on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
+                                        gpointer         user_data) { 
+  
+  GtkWidget *widget = wrapped_create_goto_atom_window(); 
+  gtk_widget_show(widget); 
+}
+
