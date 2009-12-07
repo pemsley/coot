@@ -4106,6 +4106,11 @@ on_toolbar_multi_refine_cancel_button_clicked
 void on_coords_toolbutton_clicked (GtkToolButton   *toolbutton,
 				   gpointer         user_data);
 
+void
+on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+
 #endif /* GTK_MAJOR_VERSION */
 
 void
