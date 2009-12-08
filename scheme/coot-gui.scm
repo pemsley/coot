@@ -2412,9 +2412,7 @@
 			  (substring post-pre 0 (car (vector-ref sm-std 1)))))))))
 
       (define (get-news-thread)
-	(let ((s (with-output-to-string (lambda () (http-get url)))))
-	  ;; (test-string)))
-	  ;; (format #t "http-get on ~s returned ~s~%" url s)
+	(let ((s (coot-get-url-as-string url)))
 	  (let ((both-news (trim-news s)))
 	    ;; trim-news returns (cons pre-release-news-string
 	    ;;                         std-release-news-string)
