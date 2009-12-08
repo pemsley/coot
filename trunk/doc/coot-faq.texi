@@ -136,11 +136,12 @@ into EndNote)... format as you please:
 
 The Coot paper will be published in the proceedings of the 2009 CCP4 Study Weekend.
 
+You can download the 2004 paper here:
+
 @itemize
 @item @url{http://journals.iucr.org/d/issues/2004/12/01/isscontsbdy.html}
 @end itemize
 
-you can download the paper from there - it's Open Access.
 
 @c --------------------------------------------
 @comment  node-name,  next,  previous,  up
