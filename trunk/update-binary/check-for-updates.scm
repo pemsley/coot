@@ -9,12 +9,6 @@
   (string-append (getenv "HOME")
 		 "/Projects/coot/update-binary/phone-home.scm"))
 
-;; The file name of the phone home script, executed with guile -s
-;; FIXME
-;; 
-(define download-bin-cmd
-  (string-append (getenv "HOME")
-		 "/Projects/coot/update-binary/download-binary-cmd.scm"))
 
 (define (get-revision-from-string str)
   ;; e.g. str is "coot-0.6-pre-1-revision-2060" (with a newline at the
@@ -58,7 +52,7 @@
 
 
 (define (notify-of-new-version str)
-  (format #t "notify-of-new-version give string str: ~s~%" str)
+  (format #t "notify-of-new-version given string str: ~s~%" str)
   (let* ((ls (split-before-char #\c str list))
 	 (ls2 (split-before-char #\" (car (reverse ls)) list)))
 
@@ -70,13 +64,14 @@
 ;; version-string is something like: "coot-0.6-pre-1-revision-2060"
 (define (download-binary-dialog version-string)
 
-  (format #t "running download-binary-dialog with arg: ~s~%" version-string)
+  (format #t "running download-binary-dialog with version-string arg: ~s~%" version-string)
 
   (let ((s (string-append "   New revision available " 
 			  "for this binary type:   \n"
 			  (coot-sys-build-type)
 			  "\n"
-			  version-string)))
+			  version-string))
+	(revision (get-revision-from-string version-string)))
 
     (let ((window (gtk-window-new 'toplevel))
 	  (dialog-name "Download binary")
@@ -103,16 +98,17 @@
 
       (gtk-signal-connect ok-button "clicked"
 			  (lambda () 
-			    (run-download-curl)))
+			    (run-download-binary-curl revision)))
 
       (gtk-widget-show-all window))))
   
-
-(define (run-download-curl)
-  (format #t "::::: run-download-curl....~%")
+;; get the binary
+(define (run-download-binary-curl revision)
+  (format #t "::::: run-download-binary-curl....~%")
   (let* ((install-prefix "something") ;; to get curl binary
 	 (pre-release-flag (string-match "-pre-" (coot-version)))
 	 (host-dir "www.biop.ox.ac.uk/coot/software/binaries/")
+	 (binary-type (coot-sys-build-type))
 	 (url (if pre-release-flag
 		  (string-append
 		   "http://" 
@@ -145,64 +141,65 @@
   
 ;; http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/coot-0.6-pre-1-revision-2535-binary-Linux-i386-centos-4-gtk2.tar.gz
 
-(define (get-server-info-status-thread)
-
-  (let* ((server-info-status 'pending)
-	 (thread (call-with-new-thread
-		  (lambda ()
-		    (format #t "get updates info thread~%")
-		    ;; here we construct args to goosh-command,
-		    ;; adding in "pre-release" if this binary is a
-		    ;; pre-release.
-		    ;; args ends up as something like:
-		    ;; ("-s" "xxx/phone-home.scm" "pre-release" 
-		    ;;  "binary" "Linux-1386-fedora-10-python-gtk2"
-		    ;;  "command-line" "/home/xx/coot/bin/coot")
-		    (let* ((update-coot-log "tmp-update-coot.log")
-			   (args-1 (list "binary" (coot-sys-build-type)
-					 "command-line" (car (command-line))))
-			   (st (coot-version))
-			   (args-2 (if (string-match "-pre-" st)
-				       (cons "pre-release" args-1)
-				       args-1))
-			   (args-3 (append 
-				    (list "-s" phone-home-cmd) args-2)))
-		      (if (file-exists? update-coot-log)
-			  (delete-file update-coot-log))
-		      (format #t "about to: guile ~s~%" args-3)
-		      (goosh-command "guile" args-3 '() update-coot-log #f)
-		      (format #t "done: guile ~s~%" args-3)
-		      (if (file-exists? update-coot-log)
-			  (begin
-			    ;; OK, so the server said something.
-			    ;; Set the status here, so that the
-			    ;; function that looks to see whether
-			    ;; or not the server responded is
-			    ;; notified.
-			    ;; 
-			    (call-with-input-file update-coot-log
-			      (lambda (port)
-				(let ((line (read-line port)))
-				  (format #t "got line ~s from ~s~%" line update-coot-log)
-				  ;; recall that we can't do GUI
-				  ;; things in a sub-thread.
-				  (format #t "setting server-info-status to ~s~%" line)
-				  (set! server-info-status line))))
-			    ;; x(delete-file update-coot-log)
-			    ))))
-                               ;;; thread ends here.
-		  
-		  coot-updates-error-handler)))
-
-    server-info-status))
-
 
 
 (let ((menu (coot-menubar-menu "Updates")))
   (add-simple-coot-menu-menuitem
    menu "Check for updates..."
-   (lambda ()
-     (let ((server-info-status (get-server-info-status-thread)))
+   (let ((server-info-status #f))
+
+
+     (define (get-server-info-status-thread)
+       (call-with-new-thread
+	(lambda ()
+	  (format #t "get updates info thread~%")
+	  ;; here we construct args to goosh-command,
+	  ;; adding in "pre-release" if this binary is a
+	  ;; pre-release.
+	  ;; args ends up as something like:
+	  ;; ("-s" "xxx/phone-home.scm" "pre-release" 
+	  ;;  "binary" "Linux-1386-fedora-10-python-gtk2"
+	  ;;  "command-line" "/home/xx/coot/bin/coot")
+	  (let* ((update-coot-log "tmp-update-coot.log")
+		 (args-1 (list "binary" (coot-sys-build-type)
+			       "command-line" (car (command-line))))
+		 (st (coot-version))
+		 (args-2 (if (string-match "-pre-" st)
+			     (cons "pre-release" args-1)
+			     args-1))
+		 (args-3 (append 
+			  (list "-s" phone-home-cmd) args-2)))
+	    (if (file-exists? update-coot-log)
+		(delete-file update-coot-log))
+	    (format #t "about to: guile ~s~%" args-3)
+	    (goosh-command "guile" args-3 '() update-coot-log #f)
+	    (format #t "done: guile ~s~%" args-3)
+	    (if (file-exists? update-coot-log)
+		(begin
+		  ;; OK, so the server said something.
+		  ;; Set the status here, so that the
+		  ;; function that looks to see whether
+		  ;; or not the server responded is
+		  ;; notified.
+		  ;; 
+		  (call-with-input-file update-coot-log
+		    (lambda (port)
+		      (let ((line (read-line port)))
+			(format #t "got line ~s from ~s~%" line update-coot-log)
+			;; recall that we can't do GUI
+			;; things in a sub-thread.
+			(format #t "setting server-info-status to ~s~%" line)
+			(set! server-info-status line))))
+		  ;; x(delete-file update-coot-log)
+		  ))))
+                               ;;; thread ends here.
+	
+	coot-updates-error-handler))
+
+
+     (lambda ()
+
+       (get-server-info-status-thread)
 
        (let ((is-pre-release? (string-match "-pre-" (coot-version))))
 	 (let ((count 0))
