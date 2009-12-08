@@ -593,10 +593,10 @@ Punted from 0.6:
 
    27.5 dev points
 
-   o consider applying 0001-Replace-goosh-module-with-os-process-from-guile-lib.patch
-     ::: 1
+   o Check waters by difference map fails on Misty's waters.  Data on
+     stick.   ::: 3
 
-* Done.
+   o update guile :: 0.4
 
    o Use libcurl to get URLs.  It does proxies.  Stop using nethttp.
      ::: 3
@@ -607,6 +607,8 @@ Punted from 0.6:
    o consider guile-lib's unit test, not greg.
      ::: 1
 
+   o Need a keybinding for "regularize these 3 residues". ::: 0.5
+
    o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
      convergence. ::: 3
 
@@ -614,6 +616,8 @@ Punted from 0.6:
      skeleton.   ::: 1
 
    o Can baton mode work when the skeleton runs out? ::: 3
+
+   o Fix they built-in help.  ::: 1
 
    o Find Waters: why does it miss some nice densities sometimes?  ::: 4
 
@@ -634,6 +638,10 @@ Punted from 0.6:
 
    o Make python coot work on CentOS 4.  It does?  Needs testing.  ::: 2
 
+   o I am looking at a symmetry-related part of the molecule. Take me
+     to the main molecule (try unapplying symmetry to get there). 
+     ::: 2
+
    o "Space" through waters.  Delete a water.  "space" recentres
      where?  Now do the same, but go through the waters backwards using
      "shift space" - Ingo Korndoerfer ::: 1
@@ -643,13 +651,6 @@ Punted from 0.6:
 
   o the chi-squared dialog should have "the worst geometric feature"
     in the local refinement.  
-
-  o Check waters by difference map fails on Misty's waters.  Data on
-    stick.   ::: 3
-
-  o Think about how to expose the SHELX interface.  ::: 1
-
-  o Need a keybinding for "regularize these 3 residues". ::: 0.5
 
   o Wiggly ligands for succrose in the CSH lysozyme data. Data on
     stick. Maybe a dictionary issue ::: 2
@@ -661,10 +662,6 @@ Punted from 0.6:
   o extend ^g mechanism to comprehend a 3-letter triple e.g. AGL (or lower
     case) which refers to a position in the sequence.  Look in displayed
     molecules and go to the first one found. ::: 1
-
-  o I am looking at a symmetry-related part of the molecule. Take me
-    to the main molecule (try unapplying symmetry to get there). 
-    ::: 2
 
   o check that the rama plot plots residues with alt confs. :::  2
 

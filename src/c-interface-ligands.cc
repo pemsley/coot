@@ -1056,6 +1056,7 @@ PyObject *map_peaks_py(int imol_map, float n_sigma) {
 
    return r;
 }
+#endif 
 
 #ifdef USE_PYTHON
 PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y, float z,
@@ -1109,7 +1110,6 @@ PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y,
 #endif 
 
 
-#endif 
 #ifdef USE_GUILE
 SCM map_peaks_scm(int imol_map, float n_sigma) {
 

@@ -115,7 +115,7 @@
 
   o BUG-FIX: Torsion angle refinement convergence improved [JED].
 
-  o BUG-FIX: Ramachandran Green spot no longer disappers on refinement.
+  o BUG-FIX: Ramachandran Green spot no longer disappears on refinement.
 
   o BUG-FIX: Limit the sequence view canvas X parameters, so that we
     don't get X11 errors and crash [Felix Frolow].

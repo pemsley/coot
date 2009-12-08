@@ -1678,15 +1678,6 @@ else
 fi
 
 
-# net http:
-if test -f $install_top_dir/share/guile/site/net/http/server.scm ; then
-   echo installation has net-http:
-   build_net_http=
-else 
-   echo net-http needs to be installed
-   build_net_http=1
-fi
-
 
 # do we have greg? 
 
@@ -2511,28 +2502,6 @@ else
     echo not building guile:
 fi
 
-
-if test -n "$build_net_http" ; then 
-   echo BUILDING net http for guile
-#
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/net-http-0.3.1.tar.gz
-( 
-date
-pwd
-gzip -dc ${AUTOBUILD_SOURCES}/net-http-0.3.1.tar.gz | tar xf -
-cd net-http
-pwd
-echo ./configure $generic_prefix
-./configure $generic_prefix
-# fiddle with the Makefile - to install it in the right (coot) place
-sed 's?^GUILE_SITEDIR.*?GUILE_SITEDIR=$(install_top_dir)/share/guile/site?' Makefile > Makefile.tmp
-mv Makefile.tmp Makefile
-# note, no make (author "humour")
-$MAKE install 
-) > $HOSTLOGDIR/11b-guile-net-http.txt
-else 
-   echo not building net-http:
-fi
 
 if test -n "$build_greg" ; then 
     echo building greg:
