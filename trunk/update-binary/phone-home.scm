@@ -89,7 +89,7 @@
 		  "-latest.txt")
 		 (string-append
 		  "http://www.biop.ox.ac.uk/"
-		  "coot/software/binaries/release/"
+		  "coot/software/binaries/releases/"
 		  "type-binary-"
 		  binary-type
 		  "-latest.txt"))))

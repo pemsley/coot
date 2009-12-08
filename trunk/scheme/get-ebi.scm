@@ -1,5 +1,5 @@
 
-(use-modules (oop goops) (oop goops describe) (net http))
+(use-modules (oop goops) (oop goops describe))
 
 ;;; Allow the user to set these variables in their .mapview file if
 ;;; they want some server other than the default choice.  (These
@@ -52,20 +52,9 @@
 ;
 
 
-;; write the message body output of the url to filename 
-;; using (net-http)
-;; 
-(define net-get-url
-  (lambda (my-url file-name)
-    
-    (call-with-output-file file-name
-      (lambda (port)
+(define (net-get-url my-url file-name)
+  (coot-get-url my-url file-name))
 
-	(let ((initial-output-port (current-output-port)))
-
-	  (set-current-output-port port)
-	  (http-get my-url)
-	  (set-current-output-port initial-output-port))))))
 
 ;; check the directory and get url url-string.
 ;; 

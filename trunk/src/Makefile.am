@@ -96,10 +96,10 @@ EXTRA_DIST = \
 # SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage
 #
 coot_wrap_guile_pre_gtk1.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ $(WITH_GUILE_CFLAGS) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
+	swig -o $@ $(WITH_GUILE_CFLAGS) $(USE_LIBCURL) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(WITH_GUILE_CFLAGS) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
+	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_guile_gtk2.cc: coot_wrap_guile_pre_gtk2.cc
 	$(MAKE_COOT_WRAP_GUILE) gtk2 $^ $@
@@ -110,10 +110,10 @@ coot_wrap_guile_gtk1.cc: coot_wrap_guile_pre_gtk1.cc
 # python
 
 coot_wrap_python_pre_gtk1.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk1.py
+	swig -o $@ $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk1.py
 
 coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
+	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
 
 coot_wrap_python_gtk1.cc: coot_wrap_python_pre_gtk1.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk1 $^ $@
@@ -158,6 +158,7 @@ AM_CXXFLAGS = \
 	-DPACKAGE_LOCALE_DIR='"$(pkgdatadir)/locale"' \
 	-DDATADIR='"$(datadir)"'    \
         -DCOOT_SYS_BUILD_TYPE='"$(COOT_SYS_BUILD_TYPE)"' \
+	$(USE_LIBCURL) 	        \
 	$(WITH_GUILE_CFLAGS)	\
 	$(USE_GUILE_GTK) 	\
 	$(GUILE_CFLAGS)		\
@@ -205,7 +206,8 @@ INCLUDES = \
 	$(MMDB_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\
 	$(CLIPPER_CXXFLAGS) 		\
-	$(PYGTK_CFLAGS)
+	$(PYGTK_CFLAGS)                 \
+	$(CURL_CFLAGS)                 
 
 #	$(WITH_SCRIPT_CFLAGS) 
 
@@ -246,6 +248,7 @@ coot_real_SOURCES = \
 	c-interface-mmdb.hh      \
 	c-interface-mutate.cc    \
 	c-interface-ncs.cc	 \
+	c-interface-network.cc	 \
 	c-interface-nucleotides.cc \
 	c-interface-python.cc	 \
 	c-interface-preferences.cc \
@@ -403,6 +406,7 @@ coot_real_LDADD = $(COOT_EXTRA_LIBS)    \
 		$(CANVAS_LIBS) 		\
 		$(GSL_LIBS)		\
 		$(MYSQL_LIBS)		\
+		$(CURL_LIBS)		\
 		$(LIBGLADE_LIBS)	\
 		@GTK_LIBS@	
 
