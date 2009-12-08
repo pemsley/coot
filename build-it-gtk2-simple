@@ -291,7 +291,8 @@
 # 4.60 20091001 comment out the deletion of the coot_wrap files.
 # 4.61 20091117 update the version of clipper.
 # 4.62 20091203 release server is now in oxford.
-script_version=4.62
+# 4.63 20091208 Add curl to the build system
+script_version=4.63
 
 
 
