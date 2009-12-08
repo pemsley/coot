@@ -294,10 +294,6 @@
 script_version=4.62
 
 
-# get libcurl from here: 
-# libcurl_version=7.19.6
-# http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
-#
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1456,6 +1452,8 @@ build_gtkglext=
 build_freeglut=0
 build_glib=
 build_readline=
+build_curl=
+
 
 
 # In Gtk2, we presume that glib, gtk2 and gnomecanvas are available.  
@@ -1483,6 +1481,14 @@ if test -n "$build_fftw" ; then
    echo fftw should be built
    build_fftw=1
 fi
+
+
+if [ -e $install_top_dir/include/curl/curl.h ] ; then
+   echo installation has curl/libcurl 
+else
+   build_curl=1
+fi
+ 
 
 # test for pkg-config
 if pkg-config --atleast-pkgconfig-version 0.16 ; then
@@ -2212,6 +2218,8 @@ fi
 
 
 
+
+
 ###############################################################################
 ##########         build python and friends                       #############
 ###############################################################################
@@ -2640,8 +2648,36 @@ fi
 
 
 
+###############################################################################
+##########         build curl                                     #############
+###############################################################################
+#
+
+if test -n "$build_" ; then 
+(
+   # get libcurl from here: 
+   libcurl_version=7.19.7
+   ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+
+   gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tgz | tar xf -
+   cd curl-$libcurl_version
+  
+   ./configure  $generic_prefix
+   if make ; then
+      make install
+   fi
+) > $HOSTLOGDIR/15-b-curl.txt
+else
+    echo not building curl:
+fi
 
 
+
+
+###############################################################################
+##########         build gsl                                      #############
+###############################################################################
+#
 
 if test -n "$build_gsl" ; then 
     echo BUILDING gsl:
