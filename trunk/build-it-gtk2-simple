@@ -293,7 +293,8 @@
 # 4.62 20091203 release server is now in oxford.
 # 4.63 20091208 Add curl to the build system
 # 4.64 20091209 Fix typo in untaring curl tar file.
-script_version=4.64
+# 4.65 20091209 Add libidn to build (for curl).
+script_version=4.65
 
 
 
@@ -1455,6 +1456,7 @@ build_freeglut=0
 build_glib=
 build_readline=
 build_curl=
+build_libidn=
 
 
 
@@ -1489,6 +1491,12 @@ if [ -e $install_top_dir/include/curl/curl.h ] ; then
    echo installation has curl/libcurl 
 else
    build_curl=1
+fi
+
+if [ -e /usr/lib/libidn.so ] ; then
+   echo system has libidn devel
+else
+   build_libidn=1
 fi
  
 
@@ -2651,11 +2659,41 @@ fi
 
 
 ###############################################################################
+##########         build idn                                      #############
+###############################################################################
+
+# we build libidn for libcurl.  libcurl needs it on RHEL4 because
+# there is no /usr/lib/libidn.so.  There is a rpm devel package, of
+# course, but that is more pain to install than compiling it from
+# scratch for coot install.
+
+if test -n "$build_libidn" ; then 
+   echo BUILDING libidn:
+(
+   # get libcurl from here: 
+   libidn_version=1.15
+   ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
+
+   gzip -dc ${AUTOBUILD_SOURCES}/libidn-$libidn_version.tar.gz | tar xf -
+   cd libidn-$libcurl_version
+  
+   ./configure  $generic_prefix
+   if $MAKE ; then
+      $MAKE install
+   fi
+) > $HOSTLOGDIR/15-a-libidn.txt
+else
+    echo not building libidn:
+fi
+
+#
+###############################################################################
 ##########         build curl                                     #############
 ###############################################################################
 #
 
 if test -n "$build_curl" ; then 
+   echo BUILDING curl:
 (
    # get libcurl from here: 
    libcurl_version=7.19.7
@@ -2664,9 +2702,9 @@ if test -n "$build_curl" ; then
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
    cd curl-$libcurl_version
   
-   ./configure  $generic_prefix
-   if make ; then
-      make install
+   ./configure  $generic_prefix --with-libidn=$install_top_dir
+   if $MAKE ; then
+      $MAKE install
    fi
 ) > $HOSTLOGDIR/15-b-curl.txt
 else
@@ -2970,7 +3008,7 @@ fi
 # run test
 test_coot > $LOGS/$build_type-test.log 2>&1
 r=$?
-# run python tests too, maybe (i.e. if we buld with python)
+# run python tests too, maybe (i.e. if we build with python)
 if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
     test_coot_python > $LOGS/$build_type-test-python.log 2>&1
     rp=$?
