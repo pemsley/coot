@@ -294,8 +294,9 @@
 # 4.63 20091208 Add curl to the build system
 # 4.64 20091209 Fix typo in untaring curl tar file.
 # 4.65 20091209 Add libidn to build (for curl).
-# 4.66 20091209 Test for holding dir in making tar file
-script_version=4.66
+# 4.66 20091209 Test for holding dir in making tar file.
+# 4.67 20091209 Add LDFLAGS to args for libcurl configure.
+script_version=4.67
 
 
 
@@ -2704,7 +2705,12 @@ if test -n "$build_curl" ; then
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
    cd curl-$libcurl_version
   
-   ./configure  $generic_prefix --with-libidn=$install_top_dir
+   # libcurl has problems with putting the libraries ine right order when we specify 
+   # --with-libidn (it puts the libidn prefix libs at the end of LDFLAGS. So here
+   # we force the libidn libs at the front of LDFLAGS
+   #
+
+   ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    if $MAKE ; then
       $MAKE install
    fi
