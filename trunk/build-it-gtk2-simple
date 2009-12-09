@@ -2677,7 +2677,7 @@ if test -n "$build_libidn" ; then
    ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/libidn-$libidn_version.tar.gz | tar xf -
-   cd libidn-$libcurl_version
+   cd libidn-$libidn_version
   
    ./configure  $generic_prefix
    if $MAKE ; then
