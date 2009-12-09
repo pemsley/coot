@@ -294,7 +294,8 @@
 # 4.63 20091208 Add curl to the build system
 # 4.64 20091209 Fix typo in untaring curl tar file.
 # 4.65 20091209 Add libidn to build (for curl).
-script_version=4.65
+# 4.66 20091209 Test for holding dir in making tar file
+script_version=4.66
 
 
 
@@ -504,7 +505,8 @@ function make_tar {
        tar czf $tar_file_name $tar_dir
        status=$?
        if [ "$status" != 0 ] ; then 
-	  echo ERROR:: tar czf $tar_file_name $tar_dir failed!
+	  echo ERROR:: tar czf $tar_file_name $tar_dir failed.
+          echo ERROR:: while in directory $(pwd)
 	  echo ERROR:: tar failed > $tar_file_name.md5sum
 	  rm $tar_file_name
        else 
@@ -3024,60 +3026,65 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
    if test "$do_nightlies" = "1" ; then 
       if [ -d $BINARY_TAR_DEST_DIR ] ; then 
 
-         # original full fat:
-         # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}${gtk2}.tar.gz
-         # slimmed:
-         bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
-         holding_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+         if [ ! -d $BINARY_TAR_DEST_DIR/holding ] ; then 
+            echo WARNING:: holding directory $BINARY_TAR_DEST_DIR/holding does not exist.
+         else 
+            # regular path
 
-	 make_tar `basename $slim_dir` $holding_tar_file
+            # original full fat:
+            # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+            # slimmed:
+            bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+            holding_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
 
-	 # Now test the tar file by un-taring it and running the
-	 # tests.  Only if this test passes can we move tar file
-	 # from holding to the binary pre-release dir.
+  	    make_tar `basename $slim_dir` $holding_tar_file
 
-         cd "$build_dir"
-	 mkdir test-tar
-	 cd test-tar
-	 tar xzf $holding_tar_file
-	 echo cding into `basename $slim_dir`  from `pwd`
-         cd `basename $slim_dir` 
-	 ln -s ../../$coot_dir_name/greg-tests .
-	 test_coot bin/coot > $LOGS/$build_type-test-2.log 2>&1
-         test2_status=$?
-         if [ $test2_status = 0 ] ; then
-            echo ========================
-            echo second coot test passed
-            echo ========================
-            echo pass-second-test > $LOGS/$build_type-test-status
-            # copy over to York if we are in biop
+	    # Now test the tar file by un-taring it and running the
+   	    # tests.  Only if this test passes can we move tar file
+	    # from holding to the binary pre-release dir.
 
-	    mv $holding_tar_file $bin_tar_file
-	    mv $holding_tar_file.md5sum $bin_tar_file.md5sum
-            # copy file to pre-release dir if needed
-            ssh_copy $bin_tar_file
-
-            # update the description of the latest binary tar file for
-            # this build-type.
-            binary_type_latest=$BINARY_TAR_DEST_DIR/type-binary-${OS}-${systype}${python_tag}${gtk2}-latest.txt
-	    echo $coot_version > $binary_type_latest
-            ssh_copy $binary_type_latest
-
-            # update the ChangeLog, README and RELEASE-NOTES
             cd "$build_dir"
-            cd $coot_dir_name
-            echo INFO:: in "$build_dir"/$coot_dir_name and about to copy over README and RELEASE-NOTES to $BINARY_TAR_DEST_DIR
-            cp ChangeLog $BINARY_TAR_DEST_DIR
-            cp README    $BINARY_TAR_DEST_DIR/coot-README
-            cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
-	    echo done copy of README and RELEASE-NOTES
-	 else 
-            echo ========================
-            echo second coot test failed
-            echo ========================
-            echo fail-second-test $date > $LOGS/$build_type-test-status
+	    mkdir test-tar
+	    cd test-tar
+	    tar xzf $holding_tar_file
+	    echo cding into `basename $slim_dir`  from `pwd`
+            cd `basename $slim_dir` 
+	    ln -s ../../$coot_dir_name/greg-tests .
+	    test_coot bin/coot > $LOGS/$build_type-test-2.log 2>&1
+            test2_status=$?
+            if [ $test2_status = 0 ] ; then
+               echo ========================
+               echo second coot test passed
+               echo ========================
+               echo pass-second-test > $LOGS/$build_type-test-status
+               # copy over to York if we are in biop
+
+	       mv $holding_tar_file $bin_tar_file
+	       mv $holding_tar_file.md5sum $bin_tar_file.md5sum
+               # copy file to pre-release dir if needed
+               ssh_copy $bin_tar_file
+
+               # update the description of the latest binary tar file for
+               # this build-type.
+               binary_type_latest=$BINARY_TAR_DEST_DIR/type-binary-${OS}-${systype}${python_tag}${gtk2}-latest.txt
+	       echo $coot_version > $binary_type_latest
+               ssh_copy $binary_type_latest
+
+               # update the ChangeLog, README and RELEASE-NOTES
+               cd "$build_dir"
+               cd $coot_dir_name
+               echo INFO:: in "$build_dir"/$coot_dir_name and about to copy over README and RELEASE-NOTES to $BINARY_TAR_DEST_DIR
+               cp ChangeLog $BINARY_TAR_DEST_DIR
+              cp README    $BINARY_TAR_DEST_DIR/coot-README
+               cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
+	       echo done copy of README and RELEASE-NOTES
+	    else 
+               echo ========================
+               echo second coot test failed
+               echo ========================
+               echo fail-second-test $date > $LOGS/$build_type-test-status
+            fi
          fi
-  
 
       else 
          echo Directory for binaries $BINARY_TAR_DEST_DIR does not exist. 
