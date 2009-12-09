@@ -292,7 +292,8 @@
 # 4.61 20091117 update the version of clipper.
 # 4.62 20091203 release server is now in oxford.
 # 4.63 20091208 Add curl to the build system
-script_version=4.63
+# 4.64 20091209 Fix typo in untaring curl tar file.
+script_version=4.64
 
 
 
@@ -2660,7 +2661,7 @@ if test -n "$build_curl" ; then
    libcurl_version=7.19.7
    ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
 
-   gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tgz | tar xf -
+   gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
    cd curl-$libcurl_version
   
    ./configure  $generic_prefix
