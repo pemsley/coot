@@ -23,7 +23,10 @@
 #include <stdio.h>
 
 #include <gtk/gtk.h>
+
+#ifdef USE_LIBCURL
 #include <curl/curl.h>
+#endif
 
 #include "guile-fixups.h"
 #include "cc-interface.hh"
