@@ -566,7 +566,7 @@
 	       (label (car (car baddie-items)))
 	       (button (gtk-button-new-with-label label)))
 
-					; (gtk-box-pack-start inside-vbox button #f #f 2) no buttons hbox
+	  ;; (gtk-box-pack-start inside-vbox button #f #f 2) no buttons hbox
 	  (gtk-box-pack-start inside-vbox hbox #f #f 2)
 	  (gtk-box-pack-start hbox button #f #f 2)
 	  
@@ -2088,7 +2088,7 @@
 						  resno-end-t
 						  resno-start)))
 
-			      ; (format #t "resnos: ~s ~s~%" resno-start resno-end)
+			      ;; (format #t "resnos: ~s ~s~%" resno-start resno-end)
 					
 			      (if (number? resno-start)
 				  (if (number? resno-end)
@@ -2219,7 +2219,7 @@
 				   (resno-mov
 				    (string->number (gtk-entry-get-text resno-mov-entry))))
 
-			      ; (format #t "resnos: ~s ~s~%" resno-start resno-end)
+			      ;; (format #t "resnos: ~s ~s~%" resno-start resno-end)
 					
 			      (if (number? resno-ref)
 				  (if (number? resno-mov)
