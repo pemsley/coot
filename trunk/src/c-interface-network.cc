@@ -74,7 +74,7 @@ SCM coot_get_url_as_string(const char *url) {
 }
 #endif /* USE_GUILE */
 
-#ifdef USE_GUILE
+#ifdef USE_PYTHON
 PyObject *coot_get_url_as_string_py(const char *url) {
    PyObject *r  = Py_False;
    std::string s = coot_get_url_as_string_internal(url);
