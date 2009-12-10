@@ -1511,7 +1511,12 @@ fi
 if [ -e /usr/lib/libidn.so ] ; then
    echo system has libidn devel
 else
-   build_libidn=1
+   if [ -e $install_top_dir/lib/libidn.so ] ; then
+      echo installation has libidn devel
+   else
+      # set it up for building then
+      build_libidn=1
+   fi
 fi
  
 
@@ -3084,6 +3089,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 	    echo cding into `basename $slim_dir`  from `pwd`
             cd `basename $slim_dir` 
 	    ln -s ../../$coot_dir_name/greg-tests .
+            echo second coot test...
 	    test_coot bin/coot > $LOGS/$build_type-test-2.log 2>&1
             test2_status=$?
             if [ $test2_status = 0 ] ; then
