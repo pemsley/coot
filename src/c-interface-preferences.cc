@@ -815,6 +815,13 @@ void set_ramachandran_plot_dialog_position(int x_pos, int y_pos) {
    graphics_info_t::ramachandran_plot_y_position = y_pos;
 }
 
+/*! \brief set edit chi angles dialog position */
+void set_edit_chi_angles_dialog_position(int x_pos, int y_pos) {
+
+   graphics_info_t::edit_chi_angles_dialog_x_position = x_pos;
+   graphics_info_t::edit_chi_angles_dialog_y_position = y_pos;
+}
+
 
 
 

@@ -2030,6 +2030,8 @@ void set_rotate_translate_dialog_position(int x_pos, int y_pos);
 void set_accept_reject_dialog_position(int x_pos, int y_pos);
 /*! \brief set position of the Ramachadran Plot dialog */
 void set_ramachandran_plot_dialog_position(int x_pos, int y_pos);
+/*! \brief set edit chi angles dialog position */
+void set_edit_chi_angles_dialog_position(int x_pos, int y_pos);
 
 /* \} */
 
