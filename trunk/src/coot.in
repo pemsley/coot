@@ -14,6 +14,37 @@ if [ -n "$BASH" ] ; then
    IFS=$'\t\n'
 fi
 
+function apply_pending_install { 
+   dir_list="bin info man share include lib"
+
+   if [ -d $COOT_PREFIX/"old" ] ; then
+       rm -rf $COOT_PREFIX/"old"
+   fi 
+
+   if [ ! -e $COOT_PREFIX/"old" ] ; then
+      mdir $COOT_PREFIX/"old"
+
+      if [ -d $COOT_PREFIX/"old" ] ; then
+         # move aside current dirs
+         for dir in $dir_list
+         do
+           mv $COOT_PREFIX/$dir $COOT_PREFIX/old/$dir
+         done
+
+	 # move in the new ones
+         for dir in $dir_list
+         do
+           mv $COOT_PREFIX/pending-install/$dir $COOT_PREFIX/$dir
+         done
+
+      else 
+         echo WARNING:: $COOT_PREFIX/"old" could not be created.
+      fi 
+   else 
+       echo WARNING:: $COOT_PREFIX/"old" could not be removed, aborting new binary install
+   fi
+}
+
 
 #
 current_exe_dir=`dirname $0`
@@ -149,6 +180,12 @@ export GUILE_LOAD_PATH
 export DYLD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
+
+# if a pending binary install exists, apply it before starting coot
+if [ -e $COOT_PREFIX/pending-install ] ; then
+   apply_pending_install
+fi
+  
 
 echo $coot_real $*
 $coot_real $*
