@@ -73,6 +73,18 @@ SCM coot_get_url_as_string(const char *url) {
    return r;
 }
 #endif /* USE_GUILE */
+
+#ifdef USE_GUILE
+PyObject *coot_get_url_as_string_py(const char *url) {
+   PyObject *r  = Py_False;
+   std::string s = coot_get_url_as_string_internal(url);
+   r = PyString_FromString(s.c_str());
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+}
+#endif /* USE_PYTHON */
 #endif /* USE_LIBCURL */
 
 
