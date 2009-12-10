@@ -104,6 +104,10 @@ graphics_info_t::save_state_file(const std::string &filename) {
       commands.push_back(state_command("set-ramachandran-plot-dialog-position",
 				       ramachandran_plot_x_position,
 				       ramachandran_plot_y_position, il));
+   if (graphics_info_t::edit_chi_angles_dialog_x_position > -1)
+      commands.push_back(state_command("set-edit-chi-angles-dialog-position",
+				       edit_chi_angles_dialog_x_position,
+				       edit_chi_angles_dialog_y_position, il));
 
    // Virtual trackball
    if (vt_surface_status() == 1)
