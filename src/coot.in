@@ -14,7 +14,9 @@ if [ -n "$BASH" ] ; then
    IFS=$'\t\n'
 fi
 
-function apply_pending_install { 
+function apply_pending_install $1 { 
+
+   COOT_PREFIX="$1"
    dir_list="bin info man share include lib"
 
    if [ -d $COOT_PREFIX/"old" ] ; then
@@ -22,7 +24,7 @@ function apply_pending_install {
    fi 
 
    if [ ! -e $COOT_PREFIX/"old" ] ; then
-      mdir $COOT_PREFIX/"old"
+      mkdir $COOT_PREFIX/"old"
 
       if [ -d $COOT_PREFIX/"old" ] ; then
          # move aside current dirs
@@ -183,7 +185,7 @@ export LD_LIBRARYN32_PATH
 
 # if a pending binary install exists, apply it before starting coot
 if [ -e $COOT_PREFIX/pending-install ] ; then
-   apply_pending_install
+   apply_pending_install $COOT_PREFIX
 fi
   
 
