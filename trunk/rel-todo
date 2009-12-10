@@ -1,9 +1,9 @@
 0.6.1 
 
-   34 dev points -> March 18th
+   35 dev points -> March 19th
 
    o Use libcurl to get URLs.  It does proxies.  Stop using nethttp.
-     ::: 3
+     ::: 4
 
    o Keating code :: 2
 
@@ -15,8 +15,6 @@
    o Quicksave: save all molecules (if they need saving) to default
      names and save state. ::: 1
 
-   o Need a keybinding for "regularize these 3 residues". ::: 0.5
-
    o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
      convergence. ::: 3
 
@@ -24,8 +22,6 @@
      skeleton.   ::: 1
 
    o Can baton mode work when the skeleton runs out? ::: 3
-
-   o Move-aside (like other dialog) the edit-chi angles dialog ::: 1
 
    o Fix the built-in help.  ::: 1
 
@@ -46,3 +42,13 @@
 
 
 -----
+
+   o Need a keybinding for "regularize these 3 residues". ::: 0.5
+
+* Done.  Added to Wiki - shift B
+
+   o Move-aside (like other dialog) the edit-chi angles dialog ::: 0.5
+
+* Done.
+
+
