@@ -2706,10 +2706,11 @@ if test -n "$build_curl" ; then
    cd curl-$libcurl_version
   
    # libcurl has problems with putting the libraries ine right order when we specify 
-   # --with-libidn (it puts the libidn prefix libs at the end of LDFLAGS. So here
-   # we force the libidn libs at the front of LDFLAGS
+   # --with-libidn (it puts the libidn prefix libs at the end of its LDFLAGS and that 
+   # is bad because /usr/lib gets in front, and /usr/lib/libidn.so is missing). So here
+   # we force the libidn libs at the front of LDFLAGS.  Problem found on RHEL4-64bit 
+   # (lemur).
    #
-
    ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    if $MAKE ; then
       $MAKE install
