@@ -14,7 +14,7 @@ if [ -n "$BASH" ] ; then
    IFS=$'\t\n'
 fi
 
-function apply_pending_install $1 { 
+function apply_pending_install { 
 
    COOT_PREFIX="$1"
    dir_list="bin info man share include lib"
