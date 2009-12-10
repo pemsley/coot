@@ -1320,6 +1320,7 @@ build_gtkglext=0
 #build_freeglut=0
 build_glib=
 #build_readline=
+build_curl=
 #gnome_canvas????
 
 
@@ -1348,6 +1349,15 @@ if test -n "$build_fftw" ; then
    echo fftw should be built
    build_fftw=1
 fi
+
+
+if [ -e $install_top_dir/include/curl/curl.h ] ; then
+   echo installation has curl/libcurl 
+else
+   build_curl=1
+fi
+
+
 
 # test for pkg-config
 which pkg-config
@@ -2867,6 +2877,31 @@ else
    echo not building GUILE things
 fi
 
+
+if test -n "$build_curl" ; then 
+   echo BUILDING curl:
+(
+   # get libcurl from here: 
+   libcurl_version=7.19.7
+   ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+
+   gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
+   cd curl-$libcurl_version
+  
+   # libcurl has problems with putting the libraries ine right order when we specify 
+   # --with-libidn (it puts the libidn prefix libs at the end of its LDFLAGS and that 
+   # is bad because /usr/lib gets in front, and /usr/lib/libidn.so is missing). So here
+   # we force the libidn libs at the front of LDFLAGS.  Problem found on RHEL4-64bit 
+   # (lemur).
+   #
+   ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   if $MAKE ; then
+      $MAKE install
+   fi
+) > $HOSTLOGDIR/15-b-curl.txt
+else
+    echo not building curl:
+fi
 
 
 if test -n "$build_gsl" ; then 

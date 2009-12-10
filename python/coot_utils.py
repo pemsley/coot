@@ -1959,6 +1959,7 @@ generic_list_to_string_vector_internal = generic_list_to_string_vector_internal_
 generic_int_vector_to_list_internal = generic_int_vector_to_list_internal_py
 inverse_rtop           = inverse_rtop_py
 key_sym_code           = key_sym_code_py
+coot_get_url_as_string = coot_get_url_as_string_py
 
 
 # and some acronyms

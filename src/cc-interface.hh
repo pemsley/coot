@@ -661,6 +661,10 @@ int coot_get_url(const char *url, const char *file_name);
 // this handles URLs that are strings, not binaries. 
 SCM coot_get_url_as_string(const char *url);
 #endif /* USE_GUILE */
+#ifdef USE_PYTHON
+// this handles URLs that are strings, not binaries. 
+PyObject *coot_get_url_as_string_py(const char *url);
+#endif /* USE_PYTHON */
 // internal use
 size_t write_coot_curl_data(void *buffer, size_t size, size_t nmemb, void *userp);
 // internal use
