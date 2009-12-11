@@ -1943,6 +1943,7 @@ molecules and can be found under @command{Calculate ->
 
 @menu
 * Dictionary::
+* Sphere Refinement::
 * Refining Carbohydrates::
 * Planar Peptide Restraints::
 * The UNK residue type::
@@ -2068,6 +2069,35 @@ method if you want to read the file on more than one occasion).
 Note: the dictionary also provides the description of the ligand's
 torsions.
 
+@node       Sphere Refinement
+@subsection Sphere Refinement
+@cindex sphere refinement
+
+Sphere refinement selects residues within a certain distance of the
+residue at the centre of the screen and includes them for real space
+refinement.  In this way, one can select residues that are not in a
+linear range.  This technique is useful for refining disulfide bonds and
+glycosidic linkages.
+
+The following adds a key binding (Shift-R) that refines resides that are
+within 3.5@AA{} of the residue at the centre of the screen:
+
+@verbatim
+(add-key-binding "Refine residues in a sphere" "R"
+    (lambda ()
+      (let ((active-atom (active-residue)))
+        (if (list? active-atom))
+            (let* ((centred-residue (list-head (cdr active-atom) 3))
+                   (imol (car active-atom))
+                   (other-residues (residues-near-residue 
+                                    imol centred-residue 3.5))
+                   (all-residues (if (list? other-residues)
+                                     (cons centred-residue other-residues)
+                                     (list centred-residue))))
+              (refine-residues imol all-residues))))))
+@end verbatim
+
+
 @node       Refining Carbohydrates
 @subsection Refining Carbohydrates
 @cindex carbohydrates
@@ -2084,24 +2114,24 @@ are are furanose or pyranose in the dictionary, and if the are both one
 or the other, then it tries to see if there are any of the 11 link types
 (BETA1-4, BETA2-3, ALPHA1-2 and so on) specified in the dictionary.  It
 does this by a distance check of the potentially bonding atoms.  If the
-distance is less than 3.0@AA{} (2.0@AA{} in 0.4.x and before, I think),
-then a glycosidic bond is made and used in the refinement.
+distance is less than 3.0@AA{}, then a glycosidic bond is made and used
+in the refinement.
 
-Bonds between protein and carbohydrate and branched carbohydrates are
-not yet understood.
+Bonds between protein and carbohydrate and branched carbohydrates can be
+refined using ``Sphere Refinement''.
 
-LINK and LNKR cards are not used.
+LINK and LNKR cards are not used to determine the geometry of the
+restraints.
 
 @node Planar Peptide Restraints
 @subsection Planar Peptide Restraints
 @cindex planar peptide restraints
 @cindex peptide restraints, planar
 
-There is a new mechanism (as of 0.1.1) to introduce 5 atom (CA-1, C-1,
-O-1, N-2, CA-2) planar peptide restraints.  These restraints should help
-in low resolution fitting (the main-chains becomes less distorted),
-reduce accidental cis-peptides and may help ``clean up'' Ramachandran
-plots.
+By default, Coot uses a 5 atom (CA-1, C-1, O-1, N-2, CA-2) planar
+peptide restraints.  These restraints should help in low resolution
+fitting (the main-chains becomes less distorted), reduce accidental
+cis-peptides and may help ``clean up'' Ramachandran plots.
 
 @code{(add-planar-peptide-restraints)}
 
@@ -2109,8 +2139,10 @@ And similarly they can be removed:
 
 @code{(remove-planar-peptide-restraints)}
 
-The old way used to be to edit the Refmac
-@file{monomers/list/mon_lib_list.cif} by hand.
+There is also a GUI to add and remove these restraints in
+@code{Extensions -> Refine@dots{} -> Peptide Restraints@ldots{}} 
+
+
 
 
 @node The UNK residue type
