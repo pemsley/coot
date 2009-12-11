@@ -231,7 +231,8 @@
 #               split out)
 # 2.63 20090913 add a date to the fail status message
 # 2.64 20091203 release server is now in oxford.
-script_version=2.64
+# 2.65 20091211 add libcurl to the build
+script_version=2.65
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1287,6 +1288,26 @@ if test -n "$build_fftw" ; then
    echo fftw should be built
    build_fftw=1
 fi
+
+
+
+if [ -e $install_top_dir/include/curl/curl.h ] ; then
+   echo installation has curl/libcurl 
+else
+   build_curl=1
+fi
+
+if [ -e /usr/lib/libidn.so ] ; then
+   echo system has libidn devel
+else
+   if [ -e $install_top_dir/lib/libidn.so ] ; then
+      echo installation has libidn devel
+   else
+      # set it up for building then
+      build_libidn=1
+   fi
+fi
+ 
 
 # glib
 echo INFO:: running ${installed_check_maybe_prefix}glib-config --prefix
@@ -2525,6 +2546,90 @@ fi
 
 
 
+
+
+
+###############################################################################
+##########         build idn                                      #############
+###############################################################################
+
+# we build libidn for libcurl.  libcurl needs it on RHEL4 because
+# there is no /usr/lib/libidn.so.  There is a rpm devel package, of
+# course, but that is more pain to install than compiling it from
+# scratch for coot install.
+
+if test -n "$build_libidn" ; then 
+   echo BUILDING libidn:
+(
+   # get libcurl from here: 
+   libidn_version=1.15
+   ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
+
+   gzip -dc ${AUTOBUILD_SOURCES}/libidn-$libidn_version.tar.gz | tar xf -
+   cd libidn-$libidn_version
+  
+   ./configure  $generic_prefix
+   if $MAKE ; then
+      $MAKE install
+   fi
+) > $HOSTLOGDIR/15-a-libidn.txt
+else
+    echo not building libidn:
+fi
+
+#
+###############################################################################
+##########         build curl                                     #############
+###############################################################################
+#
+
+if test -n "$build_curl" ; then 
+   echo BUILDING curl:
+(
+   # get libcurl from here: 
+   libcurl_version=7.19.7
+   ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+
+   gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
+   cd curl-$libcurl_version
+  
+   # libcurl has problems with putting the libraries ine right order when we specify 
+   # --with-libidn (it puts the libidn prefix libs at the end of its LDFLAGS and that 
+   # is bad because /usr/lib gets in front, and /usr/lib/libidn.so is missing). So here
+   # we force the libidn libs at the front of LDFLAGS.  Problem found on RHEL4-64bit 
+   # (lemur).
+   #
+   ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   if $MAKE ; then
+      if [ -n $post_process_libcurl ] ; then 
+         fixup_libcurl
+      fi
+      $MAKE install
+      # argh! This is such a hack! `make install' installs a broken (see post_process_libcurl 
+      # comments) even though it is fixed by the sed in fixup_libcurl.  So *after* the install
+      # let's install the corrected libcurl.la.  Wonderful stuff.
+      #
+      if [ -n $post_process_libcurl ] ; then 
+         /usr/bin/install -c 'libcurl.la' $top_install_dir/lib/libcurl.la
+      fi
+   fi
+
+
+   /usr/bin/install -c 'libcurl.la' '/home/emsley/autobuild/Linux-lemur-pre-release-gtk2-python/lib/libcurl.la'
+
+
+) > $HOSTLOGDIR/15-b-curl.txt
+else
+    echo not building curl:
+fi
+
+
+
+
+###############################################################################
+##########         build gsl                                      #############
+###############################################################################
+#
 
 if test -n "$build_gsl" ; then 
     echo BUILDING gsl:
