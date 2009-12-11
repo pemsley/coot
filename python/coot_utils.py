@@ -1963,7 +1963,7 @@ key_sym_code           = key_sym_code_py
 # curl and hence coot_get_url_as_string are conditionally compiled.
 try:
     coot_get_url_as_string = coot_get_url_as_string_py
-else:
+except:
     pass # or print a message
 
 
