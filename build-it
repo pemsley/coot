@@ -1454,7 +1454,7 @@ fi
 # do we have greg? 
 
 # LD_LIBRARY_PATH has been set by now
-$install_top_dir/guile -c '(use-modules (ice-9 greg))'
+$install_top_dir/bin/guile -c '(use-modules (ice-9 greg))'
 status=$?
 if test $status = 0 ; then
    echo installation has greg
