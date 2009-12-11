@@ -2140,7 +2140,7 @@ And similarly they can be removed:
 @code{(remove-planar-peptide-restraints)}
 
 There is also a GUI to add and remove these restraints in
-@code{Extensions -> Refine@dots{} -> Peptide Restraints@ldots{}} 
+@code{Extensions -> Refine@dots{} -> Peptide Restraints@dots{}} 
 
 
 
