@@ -1856,7 +1856,8 @@ class molecule_class_info_t {
 
    // save yourself and update have_unsaved_changes_flag status
    // 
-   int save_coordinates(const std::string filename); 
+   int save_coordinates(const std::string filename);
+   int quick_save(); // save to default file name if has unsaved changes.  Return non-zero on problem.
    std::string stripped_save_name_suggestion(); // sets coot_save_index maybe
    int Have_unsaved_changes_p() const;
    short int Have_modifications_p() const { return history_index > 0 ? 1 : 0;}

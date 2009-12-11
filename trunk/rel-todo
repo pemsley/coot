@@ -2,8 +2,7 @@
 
    35 dev points -> March 19th
 
-   o Use libcurl to get URLs.  It does proxies.  Stop using nethttp.
-     ::: 4
+   o Fix the built-in help.  ::: 1
 
    o Keating code :: 2
 
@@ -12,9 +11,6 @@
 
    o search for, download, update binary.  Needs libcurl ::: 4
 
-   o Quicksave: save all molecules (if they need saving) to default
-     names and save state. ::: 1
-
    o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
      convergence. ::: 3
 
@@ -22,8 +18,6 @@
      skeleton.   ::: 1
 
    o Can baton mode work when the skeleton runs out? ::: 3
-
-   o Fix the built-in help.  ::: 1
 
    o Find Waters: why does it miss some nice densities sometimes?  ::: 4
 
@@ -55,3 +49,14 @@
    o Better documentation for Sphere Refinement ::: 0.5
 
 * Done.
+
+   o Use libcurl to get URLs.  It does proxies.  Stop using nethttp.
+     ::: 4
+
+* Done.
+
+   o Quicksave: save all molecules (if they need saving) to default
+     names and save state. ::: 1
+
+* Done.
+

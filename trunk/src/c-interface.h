@@ -1410,6 +1410,10 @@ int write_pdb_file(int imol, const char *file_name);
 int write_residue_range_to_pdb_file(int imol, const char *chainid, 
 				    int resno_start, int resno_end, 
 				    const char *filename);
+
+/*! \brief save all modified coordinates molecules to the default
+  names and save the state too. */
+int quick_save(); 
 /*! \} */
 
 
@@ -1706,6 +1710,18 @@ void set_directory_for_filechooser(GtkWidget *coords_fileselection1);
 void save_directory_from_filechooser(const GtkWidget *fileselection);
 void save_directory_for_saving_from_filechooser(const GtkWidget *fileselection);
 #endif
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/* Return the default file name suggestion (that would come up in the
+   save coordinates dialog) or scheme faalse if imol is not a valid
+   model molecule. */
+SCM save_coords_name_suggestion_scm(int imol); 
+#endif /*  USE_GUILE */
+#ifdef USE_PYTHON
+PyObject *save_coords_name_suggestion_py(int imol); 
+#endif /*  USE_PYTHON */
+#endif /*  __cplusplus */
 
 /* Eleanor likes to sort her files by date when selecting a file */
 

@@ -2682,7 +2682,20 @@ write_residue_range_to_pdb_file(int imol, const char *chain_id,
    args.push_back(resno_end);
    add_to_history_typed(cmd, args);
    return istat;
-} 
+}
+
+/*! \brief save all modified coordinates molecules to the default
+  names and save the state too. */
+int quick_save() {
+
+   std::cout << "Quick save..." << std::endl;
+   for (unsigned int imol=0; imol<graphics_n_molecules(); imol++) {
+      graphics_info_t::molecules[imol].quick_save();
+   }
+   save_state_file(graphics_info_t::save_state_file_name.c_str());
+   return 0;
+}
+
 
 
 

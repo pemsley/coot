@@ -4598,6 +4598,18 @@ int save_coordinates(int imol, const char *filename) {
    return ierr;
 }
 
+// save to default file name if has unsaved changes.  Return non-zero on problem.
+int
+molecule_class_info_t::quick_save() {
+
+   if (Have_unsaved_changes_p()) {
+      std::string s = stripped_save_name_suggestion();
+      save_coordinates(s);
+   }
+   return 0;
+}
+
+
 void set_save_coordinates_in_original_directory(int i) {
 
    // not used now, I think.

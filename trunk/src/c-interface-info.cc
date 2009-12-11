@@ -2399,6 +2399,38 @@ save_state_file(const char *filename) {
 }
 
 
+#ifdef USE_GUILE
+/* Return the default file name suggestion (that would come up in the
+   save coordinates dialog) or scheme faalse if imol is not a valid
+   model molecule. */
+SCM save_coords_name_suggestion_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol)) {
+      std::string s = graphics_info_t::molecules[imol].stripped_save_name_suggestion();
+      r = scm_from_locale_string(s.c_str());
+   }
+   return r;
+} 
+#endif /*  USE_GUILE */
+
+
+#ifdef USE_PYTHON
+PyObject *save_coords_name_suggestion_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      std::string s = graphics_info_t::molecules[imol].stripped_save_name_suggestion();
+      r = PyString_FromString(s.c_str());
+   }
+
+   return r;
+} 
+#endif /*  USE_PYTHON */
+
+
+
 /*  ------------------------------------------------------------------------ */
 /*                     resolution                                            */
 /*  ------------------------------------------------------------------------ */
