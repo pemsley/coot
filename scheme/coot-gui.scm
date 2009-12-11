@@ -2297,6 +2297,7 @@
 	 (std-key-bindings
 	  (list 
 	   '("^g" "keyboard-go-to-residue")
+	   '("^s" "quick-save")
 	   '("a" "refine with auto-zone")
 	   '("b" "toggle baton swivel")
 	   '("c" "toggle cross-hairs")

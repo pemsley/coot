@@ -3116,6 +3116,13 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
+   case GDK_s:
+      if (graphics_info_t::control_is_pressed) {
+	 quick_save();
+	 handled = TRUE;
+      }
+      break;
+
    case GDK_d:
       
       if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
@@ -3659,9 +3666,14 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_s:
    case GDK_S:
-      for (int ii = 0; ii< graphics_info_t::n_molecules(); ii++)
-	 graphics_info_t::molecules[ii].update_clipper_skeleton();
-      g.graphics_draw();
+      if (graphics_info_t::control_is_pressed) {
+	 // nothing yet
+      } else {
+	 // as it used to be
+	 for (int ii = 0; ii< graphics_info_t::n_molecules(); ii++)
+	    graphics_info_t::molecules[ii].update_clipper_skeleton();
+	 g.graphics_draw();
+      }
       break;
       
    case GDK_i:

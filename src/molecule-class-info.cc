@@ -6492,8 +6492,6 @@ molecule_class_info_t::stripped_save_name_suggestion() {
    std::string::size_type ipdbgz = stripped_name1.rfind(".pdb.gz");
    std::string::size_type icoot  = stripped_name1.rfind("-coot-");
 
-   // std::cout << "DEBUG:: icoot: " << icoot << " ipdb " << ipdb << std::endl;
-   
    std::string stripped_name2;
    if (icoot == std::string::npos) { 
       if (ibrk == std::string::npos) { 
@@ -6541,7 +6539,7 @@ molecule_class_info_t::stripped_save_name_suggestion() {
 int 
 molecule_class_info_t::set_coot_save_index(const std::string &filename) { 
 
-   std::cout << "extracting from :" << filename << std::endl;
+   // std::cout << "extracting from :" << filename << std::endl;
 
    // filename is something like: "-coot-12.pdb".
    // 
