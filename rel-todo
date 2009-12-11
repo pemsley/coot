@@ -5,8 +5,6 @@
    o Use libcurl to get URLs.  It does proxies.  Stop using nethttp.
      ::: 4
 
-   o Better documentation for Sphere Refinement ::: 0.5
-
    o Keating code :: 2
 
    o Check waters by difference map fails on Misty's waters.  Data on
@@ -54,4 +52,6 @@
 
 * Done.
 
+   o Better documentation for Sphere Refinement ::: 0.5
 
+* Done.
