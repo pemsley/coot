@@ -2890,7 +2890,7 @@ fi
 # run test
 test_coot > $LOGS/$build_type-test.log
 r=$?
-# run python tests too, maybe (i.e. if we buld with python)
+# run python tests too, maybe (i.e. if we build with python)
 if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
     test_coot_python > $LOGS/$build_type-test-python.log 2>&1
     rp=$?
