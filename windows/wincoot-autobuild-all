@@ -186,8 +186,11 @@ if [ "$build_installer" = "0" ] ; then
    wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot_ccp4_vista.bat
    # now make the installer
    echo installer-progress > $PUBLIC_HTML_LOGS/gtk2-build-status
+   echo
    echo making WinCoot installer
-   echo with command $makensis ${makensis_flag} ${src_dir} $wincoot_installer_script
+   echo in dir `pwd` with command:
+   echo $makensis ${makensis_flag} ${src_dir} $wincoot_installer_script
+   echo
    "$makensis" ${makensis_flag} ${src_dir} $wincoot_installer_script
    nsis_status=$?
    if [ "$nsis_status" = "0" ] ; then
