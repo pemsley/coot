@@ -1,12 +1,16 @@
  -*-text-*-
 
-scripts      rev 2534
+scripts      rev 2598
 tests        rev 2527
 build-it-win rev 2122
 
 ---------------
-* THINGS TO DO BEFORE 0.6 RELEASE *
+* THINGS TO DO BEFORE 0.6.1 RELEASE *
 ---------------
+
+   o make md5sum note on WinCoot website
+
+   o in INstaller SetOutPath before FINISH_PAGE_RUN (but where? test!?)
 
    o add the binary_type_latest to the WinCoot installer script 
 
@@ -15,8 +19,6 @@ build-it-win rev 2122
      it's not sensible to schedule this for 0.6.]
 
    o optional tooltips for main toolbar buttons
-
-   o make md5sum note on WinCoot website
 
    o update WinCoot to guile 1.8.6 (if possible)
 
@@ -312,3 +314,6 @@ build-it-win rev 2122
 
 * Done
 
+   o stop tests when problem loading modules
+
+* Done
