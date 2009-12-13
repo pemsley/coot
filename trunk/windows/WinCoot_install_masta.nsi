@@ -72,6 +72,7 @@ FunctionEnd
 !define MUI_FINISHPAGE_RUN "$INSTDIR\runwincoot.bat"
 ;!define MUI_FINISHPAGE_RUN_PARAMETERS '/c "$INSTDIR\runwincoot.bat"'
 !define MUI_FINISHPAGE_TITLE_3LINES
+  SetOutPath "$INSTDIR\examples"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -201,6 +202,7 @@ Section "!WinCoot" SEC01
   File "${src_dir}\bin\libatk-1.0-0.dll"
   File "${src_dir}\bin\libcairo-2.dll"
   File "${src_dir}\bin\libcroco-0.6-3.dll"
+  File "${src_dir}\bin\libcurl-4.dll"
   File "${src_dir}\bin\libexpat.dll"
   File "${src_dir}\bin\libfontconfig-1.dll"
   File "${src_dir}\bin\libgailutil-18.dll"
@@ -846,6 +848,7 @@ Section Uninstall
   Delete "$INSTDIR\bin\libatk-1.0-0.dll"
   Delete "$INSTDIR\bin\libcairo-2.dll"
   Delete "$INSTDIR\bin\libcroco-0.6-3.dll"
+  Delete "$INSTDIR\bin\libcurl-4.dll"
   Delete "$INSTDIR\bin\libexpat.dll"
   Delete "$INSTDIR\bin\libfontconfig-1.dll"
   Delete "$INSTDIR\bin\libgailutil-18.dll"
