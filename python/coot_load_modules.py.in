@@ -21,8 +21,10 @@
 # load coot python modules (including gui s)
 
 import os
+import sys
+import traceback
 
-# globals
+# define some globals
 
 # This is full pathname of molprobity's probe program
 # deftexi probe_command
@@ -83,6 +85,13 @@ python_list = pre_list
 if (os.name !='nt'):
     python_list += non_win_list
 
+# are we running unittesting?
+coot_unittesting = False
+for arg in sys.argv:
+    if "coot_unittest.py" in arg:
+	coot_unittesting = True
+	break
+
 if use_gui_qm:
     try:
 	# we only append the graphics modules if we have pygtk 2
@@ -120,9 +129,10 @@ for name in python_list:
             # and set PYTHONPATH to point to COOT_PYTHON_DIR
             execfile(filename)
         except:
-            import traceback
             traceback.print_exc()
             print "BL ERROR: couldn't load ", name
+	    if coot_unittesting:
+		coot_real_exit(1)
     else:
         print "ERROR: cannot find", name
 

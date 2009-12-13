@@ -1354,6 +1354,7 @@ fi
 if [ -e $install_top_dir/include/curl/curl.h ] ; then
    echo installation has curl/libcurl 
 else
+   echo curl/libcurl should be build
    build_curl=1
 fi
 
