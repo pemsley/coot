@@ -2,14 +2,12 @@
 
    35 dev points -> March 19th
 
-   o Fix the built-in help.  ::: 1
-
    o Keating code :: 2
 
-   o Check waters by difference map fails on Misty's waters.  Data on
-     stick.   ::: 3
-
    o search for, download, update binary.  Needs libcurl ::: 4
+
+   o torsion generals fail on gleevec-torsion-general-fails.pdb.  So
+     does edit chi angles ::: 4
 
    o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
      convergence. ::: 3
@@ -33,6 +31,8 @@
    o I am looking at a symmetry-related part of the molecule. Take me
      to the main molecule (try unapplying symmetry to get there). 
      ::: 2
+
+   o Empty macros/Makefile.am?
 
 
 ------
@@ -59,4 +59,18 @@
      names and save state. ::: 1
 
 * Done.
+
+   o Fix the built-in help.  ::: 0.5
+
+* Done.
+
+   o Fix Coot News ::: 0.5
+
+* Done.
+
+   o Check waters by difference map fails on Misty's waters.  Data on
+     stick.  Where is the stick?  ::: 3
+
+* Done.
+
 
