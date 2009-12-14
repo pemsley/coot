@@ -3438,7 +3438,7 @@ molecule_class_info_t::check_waters_by_difference_map(const clipper::Xmap<float>
 
    for (int i=0; i<atom_sel.n_selected_atoms; i++) {
       std::string resname = atom_sel.atom_selection[i]->residue->name;
-      if (atom_sel.atom_selection[i]->isTer()) { 
+      if (! atom_sel.atom_selection[i]->isTer()) { 
 	 if (resname == "WAT" || resname == "HOH") {
 	    clipper::Coord_orth p(atom_sel.atom_selection[i]->x,
 				  atom_sel.atom_selection[i]->y,
@@ -3449,7 +3449,6 @@ molecule_class_info_t::check_waters_by_difference_map(const clipper::Xmap<float>
 				      atom_sel.atom_selection[i]->GetAtomName(),
 				      atom_sel.atom_selection[i]->altLoc);
 	    pair = std::pair<coot::util::density_stats_info_t, coot::atom_spec_t>(coot::util::density_around_point(p, xmap, 1.5), at_spec);
-	    
 	    dsi.push_back(pair);
 	 }
       }
