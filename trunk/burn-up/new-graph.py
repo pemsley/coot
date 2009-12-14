@@ -32,7 +32,7 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 355
+x_day_range = 20
 
 x_tick_interval = 2
 if (x_day_range > 40):
@@ -53,14 +53,14 @@ yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 # is 0, but the Y maximum is to be computed automatically. Without
 # y_ranges, Pychart will pick the minimum Y value among the samples,
 # i.e., 20, as the base value of Y axis.
-ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,280))
+ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,75))
 
 # The first plot extracts Y values from the 2nd column
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
 # column, which is the default.
 plot = line_plot.T(label="Done", data=data, ycol=1)
 # plot2 = line_plot.T(label="Total", data=data, ycol=2, tick_mark=tick_mark.square)
-plot2 = line_plot.T(label="Total Scope for 0.6", data=data, ycol=2)
+plot2 = line_plot.T(label="Total Scope for 0.6.1", data=data, ycol=2)
 
 ar.add_plot(plot, plot2)
 
@@ -87,66 +87,6 @@ def describeEvent(days, label, off):
     tb.add_arrow((x1, 0))
     tb.draw()
     
-describeEvent(5, "Christmas\nholidays start", -20)
-
-xpscale = 0.6
-
-# crisis:
-# crisis_pt=59 280 days?
-# crisis_pt=57
-crisis_pt=50
-can.line(line_style.black_dash1, crisis_pt, ybot, crisis_pt, ytip)
-tb = text_box.T(text="Crisis!", loc=(25, 110), shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
-tb.add_arrow((crisis_pt, ytip))
-tb.draw()
-    
-tb = text_box.T(loc=(18*xpscale, 43), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
-# tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "cb")
-tb.add_arrow((ar.x_pos(data[33][0]), ar.y_pos(data[33][1])), "c")
-tb.draw()
-
-tb = text_box.T(loc=(20*xpscale, 90), text="Papers & Happy", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
-tb.add_arrow((ar.x_pos(data[74][0]), ar.y_pos(data[74][1])), "c")
-tb.draw()
-
-tb = text_box.T(loc=(68*xpscale, 60), text="CCP4 Dev", shadow=(1,-1,fill_style.gray70), bottom_fudge=2)
-tb.add_arrow((ar.x_pos(data[115][0]), ar.y_pos(data[115][1])), "c")
-tb.draw()
-
-tb = text_box.T(loc=(50*xpscale, 8), text="Dutch Meeting", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
-tb.add_arrow((ar.x_pos(data[122][0]), ar.y_pos(data[122][1])), "tc")
-tb.draw()
-
-tb = text_box.T(loc=(100*xpscale, 20), text="NIH & MAMCM", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
-tb.add_arrow((ar.x_pos(data[160][0]), ar.y_pos(data[160][1])), "tc")
-tb.draw()
-
-tb = text_box.T(loc=(130*xpscale, 31), text="Paper Submitted", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
-
-tb.add_arrow((ar.x_pos(data[206][0]), ar.y_pos(data[206][1])), "tc")
-tb.draw()
-
-#tb = text_box.T(loc=(170*xpscale, 45), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3, bg_style=fill_style.gray90)
-tb = text_box.T(loc=(155*xpscale, 42), text="Havana", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
-tb.add_arrow((ar.x_pos(data[262][0]), ar.y_pos(data[262][1])), "tc")
-tb.draw()
-
-tb = text_box.T(loc=(168*xpscale, 54), text="Boston", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
-tb.add_arrow((ar.x_pos(data[343][0]), ar.y_pos(data[343][1])), "tc")
-tb.draw()
-
-tb = text_box.T(loc=(110*xpscale, 110), text="User Feedback", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
-tb.add_arrow((ar.x_pos(data[366][0]), ar.y_pos(data[366][1])), "c")
-tb.draw()
-
-tb = text_box.T(loc=(186*xpscale, 63), text="HEC-2009", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
-tb.add_arrow((ar.x_pos(data[414][0]), ar.y_pos(data[414][1])), "tc")
-tb.draw()
-
-tb = text_box.T(loc=(201*xpscale, 72), text="CSH-2009", shadow=(1,-1,fill_style.gray70), bottom_fudge=3)
-tb.add_arrow((ar.x_pos(data[440][0]), ar.y_pos(data[440][1])), "tc")
-tb.draw()
-
 
 # take-home:
 #   Max sustainable rate: 2.2 dev-pts/day
