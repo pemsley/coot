@@ -7881,9 +7881,9 @@ void browser_url(const char *url) {
       commands.push_back("system");
       std::string s = graphics_info_t::browser_open_command;
       if (s == "firefox" || s == "mozilla" || s == "netscape") { 
-	 s += " -remote 'openURL(\\\"";
+	 s += " -remote 'openURL(";
 	 s += u;
-	 s += "\\\",new-window)'";
+	 s += ",new-window)'";
 	 commands.push_back(single_quote(s));
       } else {
 	 if (s == "open") {
@@ -7930,7 +7930,8 @@ void handle_online_coot_search_request(const char *entry_text) {
 	    s += "+";
 	    s += bits[i];
 	 }
-	 s += "+coot+site%3Awww.ysbl.york.ac.uk";
+	 // s += "+coot+site%3Awww.ysbl.york.ac.uk";
+	 s += "+coot+site%3Awww.biop.ox.ac.uk";
 	 browser_url(s.c_str());
       }
    } 
