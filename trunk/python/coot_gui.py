@@ -2986,7 +2986,7 @@ def coot_news_info(*args):
    global text_1, text_2
    url = "http:" + \
          "//www.biop.ox.ac.uk/coot/software" + \
-         "/source/pre-releases/RELEASE-NOTES"
+         "/binaries/pre-releases/PRE-RELEASE-NOTES"
 
    def test_string():
       import time
