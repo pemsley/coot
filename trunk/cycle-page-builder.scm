@@ -439,7 +439,7 @@
        (a (@ href ,svn-log-page) "svn log"))))
 
 
-;; return values: the source code url, a file-name (for the link) and
+;; Return values: the source code url, a file-name (for the link) and
 ;; a revision number (a number) and a date (string) for the tar file.
 ;; 
 ;; This is based on analysis of the file system.  
