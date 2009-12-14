@@ -2377,7 +2377,7 @@
 	(thread #f)
 	(url (string-append "http:"
 			    "//www.biop.ox.ac.uk/coot/software"
-			    "/source/pre-releases/RELEASE-NOTES")))
+			    "/binaries/pre-releases/PRE-RELEASE-NOTES")))
     (lambda args
 
       (define (test-string) 
