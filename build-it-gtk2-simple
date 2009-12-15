@@ -1510,13 +1510,30 @@ else
 fi
 
 if [ -e /usr/lib/libidn.so ] ; then
-   echo system has libidn devel
+   if [ -e /usr/lib/libidn.la ] ; then
+      echo system has libidn devel
+   else
+      if [ -e $top_install_dir/lib/libidn.la ] ; then 
+         echo installation has libidn.la
+      else 
+         echo neither system nor installation has libidn.la, libcurl should be built also
+         build_libidn=1
+         build_curl=1
+      fi
+   fi
 else
    if [ -e $install_top_dir/lib/libidn.so ] ; then
       echo installation has libidn devel
    else
       # set it up for building then
-      build_libidn=1
+      echo system does not have libidn.so, libcurl should be built also
+      if [ -e $top_install_dir/lib/libidn.so ] ; then 
+         echo installation has libidn.so
+      else 
+         echo installation does not have libidn.so, libcurl should be built also
+         build_libidn=1
+         build_curl=1
+      fi
    fi
 fi
  
