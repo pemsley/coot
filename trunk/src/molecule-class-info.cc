@@ -4966,10 +4966,11 @@ molecule_class_info_t::next_ca_by_skel(const std::vector<clipper::Coord_orth> &p
    std::vector<coot::scored_skel_coord> t; 
    coot::CalphaBuild buildca(max_skeleton_search_depth);
 
-//    std::cout << "DEBUG:: "
-// 	     << "in molecule_class_info_t::next_ca_by_skel skeleton_treenodemap_is_filled is "
-// 	     << skeleton_treenodemap_is_filled << " for molecule " << imol_no << std::endl;
+    std::cout << "DEBUG:: ------ "
+ 	     << "in molecule_class_info_t::next_ca_by_skel skeleton_treenodemap_is_filled is "
+	      << skeleton_treenodemap_is_filled << " for molecule " << imol_no << std::endl;
 
+    
    if (skeleton_treenodemap_is_filled) { 
       t = buildca.next_ca_by_skel(previous_ca_positions,
 				  coord_grid_start,
@@ -6154,6 +6155,9 @@ molecule_class_info_t::name_sans_extension(short int include_path_flag) const {
 void
 molecule_class_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &pos_position) {
 
+   std::cout << "DEBUG:: molecule_class_info_t update_molecule_to() with " << pos_position.size()
+	     << " skeleton positions" << std::endl;
+
    if (has_model()) {
       CModel *model_p = atom_sel.mol->GetModel(1); 
       
@@ -6176,6 +6180,8 @@ molecule_class_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &
 	    std::cout << "ERROR:: creating chain in mol::update_molecule_to" << std::endl;
 	 }
       }
+   } else {
+      std::cout << "WARNING:: strange! This is not a valid model molecule. " << std::endl;
    }
 }
 

@@ -15,8 +15,6 @@
    o Baton-build mode needs to work better when starting with no
      skeleton.   ::: 1
 
-   o Can baton mode work when the skeleton runs out? ::: 3
-
    o Find Waters: why does it miss some nice densities sometimes?  ::: 4
 
    o HK: I want a function to set the refinement weight for me, 
@@ -73,4 +71,6 @@
 
 * Done.
 
+   o Can baton mode work when the skeleton runs out? ::: 2
 
+* Done.

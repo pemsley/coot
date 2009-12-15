@@ -2080,6 +2080,12 @@ graphics_info_t::start_baton_here() {
    }
 }
 
+// Fill baton_next_ca_options, used in accept_baton_position() and
+// several other functions.  
+// 
+// Generate the "Atom Guide Points" molecule (based on
+// baton_next_ca_options) and display it.
+// 
 void
 graphics_info_t::baton_next_directions(int imol_for_skel, const CAtom *latest_atom,
 				       const coot::Cartesian &baton_root,
@@ -2126,11 +2132,11 @@ graphics_info_t::baton_next_directions(int imol_for_skel, const CAtom *latest_at
    // Graphics the baton_next_ca_options
    // 
    std::string molname("Baton Atom Guide Points");
-   if (baton_tmp_atoms_to_new_molecule)
+   if (baton_tmp_atoms_to_new_molecule) {
       create_molecule_and_display(*baton_next_ca_options, molname);
-   else 
+   } else {
       update_molecule_to(*baton_next_ca_options, molname);
-
+   }
 }
 
 
@@ -2186,7 +2192,6 @@ graphics_info_t::baton_build_atoms_molecule() const {
    // from the skeleton map.
    //
    int  imol_for_skel = imol_for_skeleton();
-   std::cout << "DEBUG:: imol_for_skeleton in baton_build_atoms_molecule is " << imol_for_skel << std::endl;
    if (imol_for_skel >= 0) {
       // CMMDBCryst *cryst = new CMMDBCryst;
       MMDBManager->SetCell(molecules[imol_for_skel].xskel_cowtan.cell().descr().a(),
@@ -2197,14 +2202,12 @@ graphics_info_t::baton_build_atoms_molecule() const {
 			   clipper::Util::rad2d(molecules[imol_for_skel].xskel_cowtan.cell().descr().gamma()), 1);
 
       std::string spacegroup = molecules[imol_for_skel].xskel_cowtan.spacegroup().symbol_hm();
-      std::cout << "DEBUG got spacegroup " << spacegroup << std::endl;
 
       std::cout << "setting spacegroup of Baton Atoms to be: " << spacegroup << std::endl;
       std::cout << "setting cell of Baton Atoms to be: "
 		<< molecules[imol_for_skel].xskel_cowtan.cell().format() << std::endl;
       
       int istat_spgr = MMDBManager->SetSpaceGroup((char *)spacegroup.c_str()); // bleugh!
-      std::cout << "DEBUG:: status from SetSpaceGroup: " << istat_spgr << std::endl;
       if (istat_spgr != 0) {
 	 std::cout << "Problem:: mmdb does not understand space group: " << spacegroup << std::endl;
       }  
@@ -2268,12 +2271,19 @@ graphics_info_t::accept_baton_position() {
       std::cout << "Ooops:: must have a skeleton first" << std::endl;
    } else {
       short int use_cg = 1;
-      clipper::Coord_grid cg = (*baton_next_ca_options)[baton_next_ca_options_index].near_grid_pos;
-      baton_next_directions(imol_for_skel, baton_atom, baton_tip, cg, use_cg); // old tip
+      std::cout << "DEBUG:: accept_baton_position: " << baton_next_ca_options->size() << " "
+		<< baton_next_ca_options_index << std::endl;
+      if (baton_next_ca_options->size() > 0) { 
+	 clipper::Coord_grid cg = (*baton_next_ca_options)[baton_next_ca_options_index].near_grid_pos;
+	 baton_next_directions(imol_for_skel, baton_atom, baton_tip, cg, use_cg); // old tip
+      } else {
+	 clipper::Coord_grid cg;
+	 use_cg = 0;
+	 baton_next_directions(imol_for_skel, baton_atom, baton_tip, cg, use_cg);
+      } 
    }
 						   
    // Now set the baton tip to the next point:
-
    
    // set these for redraw
    baton_root = baton_tip;
@@ -2283,7 +2293,6 @@ graphics_info_t::accept_baton_position() {
    baton_tip = baton_tip_by_ca_option(baton_next_ca_options_index);
       
    graphics_draw();
-
 }
 
 
@@ -2300,6 +2309,7 @@ graphics_info_t::baton_tip_by_ca_option(int index) const {
       if (uindex >= baton_next_ca_options->size()) {
 	 if ((uindex == 0) && (baton_next_ca_options->size() == 0)) {
 	    std::cout << "INFO:: no baton next positions from here\n";
+	    tip_pos = non_skeleton_tip_pos();
 	 } else { 
 	    std::cout << "ERROR: bad baton_next_ca_options index: "
 		      << index << " size " << baton_next_ca_options->size()
@@ -2323,7 +2333,17 @@ graphics_info_t::baton_tip_by_ca_option(int index) const {
       }
    }
    return tip_pos;
-} 
+}
+
+coot::Cartesian
+graphics_info_t::non_skeleton_tip_pos() const {
+
+   double l=1.56;
+   coot::Cartesian new_tip_pos = baton_root + coot::Cartesian(l,l,l);
+   // consider using baton_previous_ca_positions, if/when it get set properly.
+   return new_tip_pos;
+}
+
 
 
 // Gawd, Kevin's having an effect on me.. (my programming at least...)
@@ -2490,15 +2510,16 @@ graphics_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &pos_po
 
    int imol = lookup_molecule_name(molname);
 
-   if (imol >= 0) {
-      if (pos_position.size() > 0) 
+   if (pos_position.size() > 0) { 
+      if (is_valid_model_molecule(imol)) {
 	 graphics_info_t::molecules[imol].update_molecule_to(pos_position);
-      else
-	 std::cout << "WARNING:: No atoms guide points in update_molecule_to."
-		   << "  Not updating guide points molecule" << std::endl;
+      } else { 
+	 create_molecule_and_display(pos_position, molname);
+      }
    } else {
-      create_molecule_and_display(pos_position, molname);
-   } 
+      std::cout << "WARNING:: No atoms guide points in update_molecule_to."
+		<< "  Not updating guide points molecule" << std::endl;
+   }
 }
 
 // return -1 on error
