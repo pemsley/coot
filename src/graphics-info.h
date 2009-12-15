@@ -586,6 +586,7 @@ class graphics_info_t {
    // baton_previous_ca_positions->back() is the point closest to the new
    // baton tip (is the baton root)
    static std::vector<clipper::Coord_orth> *baton_previous_ca_positions; // up to 3.
+   coot::Cartesian non_skeleton_tip_pos() const; 
    void baton_next_directions(int imol_for_skel, const CAtom *atom, const coot::Cartesian& pos,
 			      const clipper::Coord_grid &cg_start,
 			      short int use_cg_start);
