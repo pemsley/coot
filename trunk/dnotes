@@ -5239,5 +5239,41 @@ Tue Nov 24 17:07:20 GMT 2009
     score wil be relatively low and ignorable?
 
 
+---
+Mon Dec  7 16:32:38 GMT 2009
+
+Ed Pozharski:
+
+   Coot severely slows down the system when I try to generate the
+   density fit graph using multi-model (NMR-style) pdb file.  First,
+   it apparently generates as many dialogs as there are models, yet
+   every graph has multiple bars (which is not very useful since they
+   are overlapping).  Computer becomes unresponsive for some time, but
+   when it comes back everything is very slow (except that I can
+   rotate and zoom in smoothly, things get slow if I re-centre).
+
+   The problem appears to be that coot eats a lot of RAM under these
+   circumstances.  I have 4Gb here and it's still not enough so
+   machine starts using the swap and thus gets very-very slow.
+   Interestingly, most of the extra RAM is owned by Xorg, not coot,
+   and is not freed even when I exit (but it is when I log out).
+
+   If I load the same number of models as individual pdb-files, I can
+   generate multiple density fit graphs with virtually undetectable
+   increase in memory use.
+
+
+---
+Mon Dec  7 17:39:09 GMT 2009
+
+   do the 1 2 3 4 keys work for edit chi angles?
+
+
+----
+Mon Dec  7 17:43:08 GMT 2009
+
+   rotate peptide to optimise a combination of the density fit of
+   mainchain (3) atoms and the ramachandran plot.
+
 ------
 
