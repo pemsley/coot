@@ -30,13 +30,17 @@
      to the main molecule (try unapplying symmetry to get there). 
      ::: 2
 
-   o Empty macros/Makefile.am?  ::: 0.5
+   o Empty macros/Makefile.am? ::: 0.5
+
+   o Documentation and interface (when docing fails) for docking sidechains 
+     ::: 1
 
    o guile warn deprecated:
      SCM_STRINGP is deprecated.  Use scm_is_string instead.
      SCM_STRING_LENGTH is deprecated.  Use scm_c_string_length instead.
      scm_must_malloc is deprecated.  Use scm_gc_malloc and scm_gc_free instead.
      ::: 0.5
+
 
 
 ------

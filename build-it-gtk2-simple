@@ -297,7 +297,8 @@
 # 4.66 20091209 Test for holding dir in making tar file.
 # 4.67 20091209 Add LDFLAGS to args for libcurl configure.
 # 4.68 20091210 Add post-process-libcurl logic
-script_version=4.68
+# 4.69 20091216 Don't delete bin/curl, we need it for updates.
+script_version=4.69
 
 
 
@@ -470,7 +471,7 @@ function post_install_slim {
     file_list="etc info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
 	bin/guile bin/density-score-by-residue bin/density-score-by-residue-real \
-        $keep_lib_archs"
+        $keep_lib_archs bin/curl"
 
 
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then

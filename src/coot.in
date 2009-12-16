@@ -20,7 +20,13 @@ fi
 function apply_pending_install { 
 
    COOT_PREFIX="$1"
-   dir_list="bin info man share include lib"
+   dir_list="
+bin
+info
+man
+share
+include
+lib"
 
    if [ -d $COOT_PREFIX/"old" ] ; then
        rm -rf $COOT_PREFIX/"old"
@@ -30,24 +36,59 @@ function apply_pending_install {
       mkdir $COOT_PREFIX/"old"
 
       if [ -d $COOT_PREFIX/"old" ] ; then
-         # move aside current dirs
-         for dir in $dir_list
-         do
-           mv $COOT_PREFIX/$dir $COOT_PREFIX/old/$dir
-         done
 
-	 # move in the new ones
-         for dir in $dir_list
-         do
-           mv $COOT_PREFIX/pending-install/$dir $COOT_PREFIX/$dir
-         done
+         t=$(echo $COOT_PREFIX/pending-install/coot*)
+         if [ -e "$t" ] ; then 
+            coot_bin_dir=$t
+            echo set coot_bin_dir to $coot_bin_dir
+            echo coot_bin_dir is now 1 $coot_bin_dir
+         else 
+            echo situation too complicated to install - clean up pending installs.
+         fi
 
+         echo coot_bin_dir is now 2 $coot_bin_dir
+
+
+         if [ -z "$coot_bin_dir" ] ; then 
+           echo coot_bin_dir not set.
+         else 
+            # continue, it's good
+
+            # move aside current dirs
+            for dir in $dir_list
+            do
+	      if [ -e "$COOT_PREFIX/$dir" ] ; then 
+                 # echo move out $COOT_PREFIX/$dir $COOT_PREFIX/old/$dir
+                 mv $COOT_PREFIX/$dir $COOT_PREFIX/old/$dir
+              else 
+                 echo on move-out: "$COOT_PREFIX/$dir" does not exist.
+              fi
+            done
+
+           echo apply_pending_install 6
+
+   	    # move in the new ones
+            for dir in $dir_list
+            do 
+	      # echo debug:: moving in $dir
+	      if [ -e "$coot_bin_dir/$dir" ] ; then 
+                 # echo move-in "$coot_bin_dir/$dir" $COOT_PREFIX/$dir
+                 mv "$coot_bin_dir/$dir" $COOT_PREFIX/$dir
+              else 
+                 echo on move-in: "$coot_bin_dir/$dir" does not exist.
+              fi
+            done
+         fi
       else 
          echo WARNING:: $COOT_PREFIX/"old" could not be created.
       fi 
    else 
        echo WARNING:: $COOT_PREFIX/"old" could not be removed, aborting new binary install
    fi
+
+   echo  removing pending-install...
+   rm -rf $COOT_PREFIX/pending-install
+
 }
 
 
