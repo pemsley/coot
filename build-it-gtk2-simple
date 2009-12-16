@@ -525,6 +525,10 @@ function ssh_copy {
 
     bin_tar_file=$1
     if [ "$domainname" = "biop" ] ; then
+       do_ssh_copy=true
+    fi
+
+    if [ "$do_ssh_copy" = true ] ; then 
        echo copying over files...
        $HOME/bin/sput-with-dir $bin_tar_file        public_html/software/binaries/nightlies/pre-release/
        if [ -e $bin_tar_file.md5sum ] ; then 
@@ -534,6 +538,33 @@ function ssh_copy {
        echo Not copying file to York, $domainname
     fi    
 }
+
+function ssh_copy_to_biop { 
+
+    bin_tar_file=$1
+
+    if [ "$do_ssh_biop_copy" = true ] ; then 
+       echo copying over files to Biop...
+       target_dir=public_html/coot/software/binaries/pre-releases/
+       $HOME/bin/sput-with-dir $bin_tar_file $target_dir
+       if [ -e $bin_tar_file.md5sum ] ; then 
+          $HOME/bin/sput-with-dir $bin_tar_file.md5sum $target_dir
+       fi
+    else 
+       echo Not copying file to biop
+    fi    
+}
+
+function ssh_copy_logs_to_biop { 
+
+    local_log_dir=$1
+    if [ "$do_ssh_biop_copy" = true ] ; then 
+       echo copying over log files to Biop...
+       target_dir=$2
+       $HOME/bin/sput-with-dir $bin_tar_file $target_dir
+    else 
+       echo Not copying log files to biop
+    fi    
 
 function setup_ccp4 {
 
@@ -3121,6 +3152,8 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 	       mv $holding_tar_file.md5sum $bin_tar_file.md5sum
                # copy file to pre-release dir if needed
                ssh_copy $bin_tar_file
+               ssh_copy_to_biop $bin_tar_file
+               ssh_copy_logs_to_biop $HOME/public_html/build-logs/$OS-$HOST/ public_html/emsley/build-logs
 
                # update the description of the latest binary tar file for
                # this build-type.
