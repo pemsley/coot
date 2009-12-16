@@ -38,8 +38,6 @@
      scm_must_malloc is deprecated.  Use scm_gc_malloc and scm_gc_free instead.
      ::: 0.5
 
-   o Ubuntu binary builds transfered from home
-
 
 ------
 
@@ -80,5 +78,9 @@
 * Done.
 
    o Can baton mode work when the skeleton runs out? ::: 2
+
+* Done.
+
+   o Ubuntu binary builds transfered from home ::: 0.5
 
 * Done.
