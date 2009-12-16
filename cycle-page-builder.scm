@@ -734,6 +734,11 @@
  	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
  	      #f #t)
 
+ 	(list "binary-Linux-x86_64-ubuntu-9.04-gtk2"
+	      "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
+	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+ 	      #f #t)
+
 	(list "WinCoot" 
 	      "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-5.1-sarabellum/gtk2" 
 	      "http://www.ysbl.york.ac.uk/~lohkamp/software/binaries/nightlies/pre-release/"
