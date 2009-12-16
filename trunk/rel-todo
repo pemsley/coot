@@ -1,6 +1,6 @@
 0.6.1 
 
-   35 dev points -> March 19th
+   36 dev points -> March 20th
 
    o Keating code :: 2
 
@@ -30,7 +30,15 @@
      to the main molecule (try unapplying symmetry to get there). 
      ::: 2
 
-   o Empty macros/Makefile.am?
+   o Empty macros/Makefile.am?  ::: 0.5
+
+   o guile warn deprecated:
+     SCM_STRINGP is deprecated.  Use scm_is_string instead.
+     SCM_STRING_LENGTH is deprecated.  Use scm_c_string_length instead.
+     scm_must_malloc is deprecated.  Use scm_gc_malloc and scm_gc_free instead.
+     ::: 0.5
+
+   o Ubuntu binary builds transfered from home
 
 
 ------
@@ -67,7 +75,7 @@
 * Done.
 
    o Check waters by difference map fails on Misty's waters.  Data on
-     stick.  Where is the stick?  ::: 3
+     stick.  Where is the stick?  ::: 1
 
 * Done.
 
