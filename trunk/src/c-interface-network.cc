@@ -42,8 +42,8 @@ int coot_get_url(const char *url, const char *file_name) {
       curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data_to_file);
       curl_easy_setopt(c, CURLOPT_WRITEDATA, f);
       CURLcode success = curl_easy_perform(c);
-      curl_easy_cleanup(c);
       fclose(f);
+      curl_easy_cleanup(c);
       return success;
    } else {
       return 2; // file not opened.
@@ -117,9 +117,11 @@ write_coot_curl_data_to_file(void *buffer, size_t size, size_t nmemb, void *user
       const char *s = static_cast<const char *> (buffer);
       for (size_t i=0; i<nmemb; i++) 
 	 fputc(s[i], f);
-   }
-   return nmemb; // slightly naughty, we should return the size of the
-		 // data that we actually delt with.
+      return nmemb; // slightly naughty, we should return the size of the
+	    	    // data that we actually delt with.
+   } else {
+      return size_t(0);
+   } 
 }
 #endif /* USE_LIBCURL */
 

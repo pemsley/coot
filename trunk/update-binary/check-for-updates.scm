@@ -97,55 +97,135 @@
 	 (ls-2 (split-before-char #\" (car (reverse ls)) list))
 	 (ls-3 (split-before-char #\newline (car ls-2) list)))
 
-    (format #t "notify-of-new-version str: ~s~%" str)
-    (format #t "ls: ~s~%" ls)
-    (format #t "ls-2: ~s~%" ls-2)
-    (format #t "ls-3: ~s~%" ls-3)
+;     (format #t "notify-of-new-version str: ~s~%" str)
+;     (format #t "ls: ~s~%" ls)
+;     (format #t "ls-2: ~s~%" ls-2)
+;     (format #t "ls-3: ~s~%" ls-3)
     (download-binary-dialog (car ls-3))))
 
 ;; version-string is something like: "coot-0.6-pre-1-revision-2060"
-(define (download-binary-dialog version-string)
+(define download-binary-dialog 
+  (let ((pending-install-in-place #f))
+    (lambda (version-string)
 
-  (format #t "running download-binary-dialog with version-string arg: ~s~%" version-string)
+      ;; get the binary, the action that happens when the download button is pressed.
+      ;; 
+      ;; 
+      (define (run-download-binary-curl revision version-string)
+	(format #t "::::: run-download-binary-curl.... with revision ~s with version-string ~s~%" 
+		revision version-string)
+	(let ((prefix (getenv "COOT_PREFIX")))
+	  (format #t "::::: run-download-binary-curl.... prefix is ~s~%" prefix)
+	  (if (not (string? prefix))
+	      (format #t "OOps! Can't find COOT_PREFIX~%")
+	      (let* ((curl-exe (string-append prefix "/bin/curl")) ;; to get curl binary
+		     (pre-release-flag (string-match "-pre" (coot-version)))
+		     (binary-type (coot-sys-build-type))
+		     (host-dir "www.biop.ox.ac.uk/coot/software/binaries/")
+		     (tar-file-name (string-append 
+				     (if pre-release-flag
+					 version-string
+					 (string-append "coot-" new-version))
+				     "-binary-"
+				     binary-type
+				     ".tar.gz"))
+		     (url (if pre-release-flag 
+			      (string-append "http://" host-dir "pre-releases/" tar-file-name)
+			      (string-append "http://" host-dir "releases/"     tar-file-name)))
+		     (md5-url (string-append url ".md5sum"))
+		     (md5-tar-file-name (string-append tar-file-name ".md5sum")))
 
-  (let ((s (string-append "   New revision available " 
-			  "for this binary type:   \n"
-			  (coot-sys-build-type)
-			  "\n"
-			  "\n"
-			  version-string))
-	(revision (get-revision-from-string version-string)))
+		(format #t "md5sum url for curl: ~s~%" md5-url)
+		(format #t "url for curl: ~s~%" url)
 
-    (let ((window (gtk-window-new 'toplevel))
-	  (dialog-name "Download binary")
-	  (main-vbox (gtk-vbox-new #f 6))
-	  (cancel-button (gtk-button-new-with-label "  Cancel  "))
-	  (ok-button (gtk-button-new-with-label "  Download  "))
-	  (buttons-hbox (gtk-hbox-new #f 6))
-	  (h-sep (gtk-hseparator-new))
-	  (info-string (gtk-label-new s)))
+		;; writing to standard out like this tickles a guile/goosh
+		;; bug, it seems to me.  In a big binary file there is a
+		;; problem with the penultimate byte (or something like
+		;; that).
+		;; 
+		;; (goosh-command curl-exe (list md5-url) '() md5-tar-file-name #f)
+		;; (goosh-command curl-exe (list url) '() tar-file-name #f)
+		
+		(goosh-command curl-exe (list md5-url "-o" md5-tar-file-name) '() "tmp-coot-get-md5-url.log" #f)
+		(goosh-command curl-exe (list url "-o" tar-file-name) '() "tmp-coot-get-url.log" #f)
 
-      (gtk-window-set-title window dialog-name)
-      (gtk-box-pack-start buttons-hbox ok-button #t #f 6)
-      (gtk-box-pack-start buttons-hbox cancel-button #t #f 6)
-
-      (gtk-box-pack-start main-vbox info-string  #t #f 6) ;; not x padding, it is y padding
-      (gtk-box-pack-start main-vbox h-sep        #t #f 6)
-      (gtk-box-pack-start main-vbox buttons-hbox #t #f 6)
-      (gtk-container-border-width main-vbox 6)
+		(if (not (file-exists? tar-file-name))
+		    (begin
+		      (format #t "Ooops: ~s does not exist after attempted download~%" tar-file-name)
+		      #f)
+		    (if (not (file-exists? md5-tar-file-name))
+			(begin
+			  (format #t "Ooops: ~s does not exist after attempted download~%" md5-tar-file-name)
+			  #f)
+			(if (not (match-md5sums tar-file-name md5-tar-file-name))
+			    #f 
+			    (let ((success (install-coot-tar-file tar-file-name)))
+			      (if success 
+				  (begin
+				    (set! pending-install-in-place #t)
+				    #t)
+				  #f)))))))))
       
-      (gtk-container-add window main-vbox)
-      (gtk-container-border-width window 6)
 
-      (gtk-signal-connect cancel-button "clicked"
-			  (lambda ()
-			    (gtk-widget-destroy window)))
+      ;; 
+      ;; (format #t "running download-binary-dialog with version-string arg: ~s~%" version-string)
+      ;; 
+      (let ((s (string-append "   New revision available " 
+			      "for this binary type:   \n"
+			      (coot-sys-build-type)
+			      "\n"
+			      "\n"
+			      version-string))
+	    (revision (get-revision-from-string version-string)))
 
-      (gtk-signal-connect ok-button "clicked"
-			  (lambda () 
-			    (run-download-binary-curl revision version-string)))
+	(let ((window (gtk-window-new 'toplevel))
+	      (dialog-name "Download binary")
+	      (main-vbox (gtk-vbox-new #f 6))
+	      (cancel-button (gtk-button-new-with-label "  Cancel  "))
+	      (ok-button (gtk-button-new-with-label "  Download  "))
+	      (buttons-hbox (gtk-hbox-new #f 6))
+	      (h-sep (gtk-hseparator-new))
+	      (info-string (gtk-label-new s)))
 
-      (gtk-widget-show-all window))))
+	  (gtk-window-set-title window dialog-name)
+	  (gtk-box-pack-start buttons-hbox ok-button #t #f 6)
+	  (gtk-box-pack-start buttons-hbox cancel-button #t #f 6)
+
+	  (gtk-box-pack-start main-vbox info-string  #t #f 6) ;; not x padding, it is y padding
+	  (gtk-box-pack-start main-vbox h-sep        #t #f 6)
+	  (gtk-box-pack-start main-vbox buttons-hbox #t #f 6)
+	  (gtk-container-border-width main-vbox 6)
+	  
+	  (gtk-container-add window main-vbox)
+	  (gtk-container-border-width window 6)
+
+	  (gtk-signal-connect cancel-button "clicked"
+			      (lambda ()
+				(gtk-widget-destroy window)))
+
+	  (gtk-signal-connect ok-button "clicked"
+			      (lambda () 
+				(call-with-new-thread
+				 (lambda ()
+				   (if (not (run-download-binary-curl revision version-string))
+				       (info-dialog "Failure to download binary")))
+				 coot-updates-error-handler)
+
+ 				;; now the timer that waits for the binary...
+ 				(gtk-idle-add
+ 				 (lambda ()
+				   (usleep 10000)
+ 				   (if pending-install-in-place
+ 				       (begin
+ 					 (gtk-widget-destroy window)
+					 (restart-dialog)
+					 #f ;; stop running, idle function
+					 )
+				       #t)))))
+					 
+
+
+	  (gtk-widget-show-all window))))))
 
 
 ;; return success status as a boolean
@@ -259,49 +339,9 @@
 
 
 
-  
-;; get the binary
-;; 
-;; 
-(define (run-download-binary-curl revision version-string)
-  (format #t "::::: run-download-binary-curl.... with revision ~s with version-string ~s~%" 
-	  revision version-string)
-  (let ((prefix (getenv "COOT_PREFIX")))
-    (if (not (string? prefix))
-	(format #t "OOps! Can't find COOT_PREFIX~%")
-	(let* ((curl-exe (string-append prefix "/bin/curl")) ;; to get curl binary
-	       (pre-release-flag (string-match "-pre" (coot-version)))
-	       (host-dir "www.biop.ox.ac.uk/coot/software/binaries/")
-	       (binary-type (coot-sys-build-type))
-	       (tar-file-name (string-append 
-			       (if pre-release-flag
-				   version-string
-				   (string-append "coot-" new-version))
-			       "-binary-"
-			       binary-type
-			       ".tar.gz"))
-	       (url (if pre-release-flag 
-			(string-append "http://" host-dir "pre-releases/" tar-file-name)
-			(string-append "http://" host-dir "releases/"     tar-file-name)))
-	       (md5-url (string-append url ".md5sum"))
-	       (md5-tar-file-name (string-append tar-file-name ".md5sum")))
 
-	  (format #t "url for curl: ~s~%" url)
-	  (format #t "md5sum url for curl: ~s~%" md5-url)
-	  (goosh-command curl-exe (list md5-url) '() "tmp-download-coot-md5sum.log" #t)
-	  (goosh-command curl-exe (list url) '() "tmp-download-coot.log" #t)
-	  (if (not (file-exists? tar-file-name))
-	      (begin
-		(format #t "Ooops: ~s does not exist after attempted download~%" tar-file-name)
-		#f)
-	      (if (not (file-exists? md5-tar-file-name))
-		  (begin
-		    (format #t "Ooops: ~s does not exist after attempted download~%" md5-tar-file-name)
-		    #f)
-		  (if (match-md5sums tar-file-name md5-tar-file-name)
-		      (let ((success (install-coot-tar-file tar-file-name)))
-			(if success
-			    (restart-dialog))))))))))
+; 			(if success
+; 			    (restart-dialog))))))))))
 				  
 	      
 ;; http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/coot-0.6-pre-1-revision-2535-binary-Linux-i386-centos-4-gtk2.tar.gz
@@ -341,7 +381,7 @@
 	     
 	     ;; hack!
 	     ;; 
-	     (set! build-type "Linux-i386-centos-4-gtk2")
+	     ;; (set! build-type "Linux-i386-centos-4-gtk2")
 
 	     (string-append 
 	      "http://www.biop.ox.ac.uk/coot/software/binaries/"
@@ -357,7 +397,7 @@
 	   (call-with-new-thread
 	    (lambda ()
 	      (let* ((url (make-latest-version-url))
-		     (nov (format #t "DEBUG:: attempting to get URL ~s~%" url))
+		     (nov (format #t "INFO:: get URL ~s~%" url))
 		     (latest-version-server-response (coot-get-url-as-string url)))
 		(handle-latest-version-server-response latest-version-server-response)))
 	    ;; the error handler
