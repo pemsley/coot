@@ -6,7 +6,7 @@
 
 # 20091210 /bin/sh changed to /bin/bash, because /bin/sh is dash on ubuntu and 
 # it doesn't do functions.  Pathetic. 
-#
+
 # Magic (eh?).  Stops bash doing the word spliting expansion on the
 # command line arguments.
 #
@@ -232,9 +232,11 @@ if [ -e $COOT_PREFIX/pending-install ] ; then
    apply_pending_install $COOT_PREFIX
 fi
   
-
-echo $coot_real $*
-$coot_real $*
+# "Use $@ to stop word splitting" from Ben Eisenbraun.  But it doesn't work for me.  
+# this shell does not see the arguments as split, but coot does. Don't understand. Grrr.  
+# So the IFS up top stays.
+echo $coot_real $@
+$coot_real $@
 status=$?
 
 if [ $status != 0 ] ; then
