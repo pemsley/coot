@@ -38,12 +38,6 @@
    o Documentation and interface (when docing fails) for docking sidechains 
      ::: 1
 
-   o guile warn deprecated:
-     SCM_STRINGP is deprecated.  Use scm_is_string instead.
-     SCM_STRING_LENGTH is deprecated.  Use scm_c_string_length instead.
-     scm_must_malloc is deprecated.  Use scm_gc_malloc and scm_gc_free instead.
-     ::: 0.5
-
    o function documentation from cc-interface.hh
 
 ------
@@ -91,3 +85,15 @@
    o Ubuntu binary builds transfered from home ::: 0.5
 
 * Done.
+
+   o guile warn deprecated:
+     SCM_STRINGP is deprecated.  Use scm_is_string instead.
+     -> only used in coot_wrap_guile.cc
+     SCM_STRING_LENGTH is deprecated.  Use scm_c_string_length instead.
+     -> only used in coot_wrap_guile.cc
+     scm_must_malloc is deprecated.  Use scm_gc_malloc and scm_gc_free instead.
+     -> only used in coot_wrap_guile.cc
+     ::: 0.5
+
+* Done, except scm_must_malloc not done.  The solution is too deeply
+  buried in SWIG.
