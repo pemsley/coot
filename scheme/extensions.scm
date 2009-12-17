@@ -24,15 +24,21 @@
 
 (if (defined? 'coot-main-menubar)
 
-    ;; ---------------------------------------------
-    ;;           coot news dialog
-    ;; ---------------------------------------------
+    ;; --------------------------------------------------
+    ;;           coot news dialog and updates dialog
+    ;; --------------------------------------------------
     (let ((menu (coot-menubar-menu "About")))
       (if menu
-	  (add-simple-coot-menu-menuitem
-	   menu "Coot News..."
-	   (lambda ()
-	     (whats-new-dialog))))))
+	  (begin
+	    (add-simple-coot-menu-menuitem
+	     menu "Coot News..."
+	     (lambda ()
+	       (whats-new-dialog)))
+	    (add-simple-coot-menu-menuitem
+	     menu "Check for Updates..."
+	     (lambda () 
+	       (format #t "checking for updates....~%")
+	       (check-for-updates-gui)))))))
 
 
 (if (defined? 'coot-main-menubar)

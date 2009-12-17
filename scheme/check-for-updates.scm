@@ -92,7 +92,6 @@
 ;; return a string with no trailing newline.
 ;; 
 (define (notify-of-new-version str)
-  (format #t "notify-of-new-version given string str: ~s~%" str)
   (let* ((ls (split-before-char #\c str list))
 	 (ls-2 (split-before-char #\" (car (reverse ls)) list))
 	 (ls-3 (split-before-char #\newline (car ls-2) list)))
@@ -108,16 +107,21 @@
   (let ((pending-install-in-place #f))
     (lambda (version-string)
 
-      ;; get the binary, the action that happens when the download button is pressed.
+      ;; Get the binary (i.e. the action that happens when the download
+      ;; button is pressed).  This is run in a thread, so it can't do
+      ;; any graphics stuff. 
       ;; 
+      ;; return #t if tar file was successfully downloaded and untared
+      ;; and #f if not.
       ;; 
       (define (run-download-binary-curl revision version-string)
-	(format #t "::::: run-download-binary-curl.... with revision ~s with version-string ~s~%" 
+	(format #t "INFO:: run-download-binary-curl.... with revision ~s with version-string ~s~%" 
 		revision version-string)
 	(let ((prefix (getenv "COOT_PREFIX")))
-	  (format #t "::::: run-download-binary-curl.... prefix is ~s~%" prefix)
 	  (if (not (string? prefix))
-	      (format #t "OOps! Can't find COOT_PREFIX~%")
+	      (begin
+		(format #t "OOps! Can't find COOT_PREFIX~%")
+		#f)
 	      (let* ((curl-exe (string-append prefix "/bin/curl")) ;; to get curl binary
 		     (pre-release-flag (string-match "-pre" (coot-version)))
 		     (binary-type (coot-sys-build-type))
@@ -164,7 +168,9 @@
 				  (begin
 				    (set! pending-install-in-place #t)
 				    #t)
-				  #f)))))))))
+				  (begin 
+				    (format #t "Ooops: untar of ~s failed~%" tar-file-name)
+				    #f))))))))))
       
 
       ;; 
@@ -182,7 +188,7 @@
 	      (dialog-name "Download binary")
 	      (main-vbox (gtk-vbox-new #f 6))
 	      (cancel-button (gtk-button-new-with-label "  Cancel  "))
-	      (ok-button (gtk-button-new-with-label "  Download  "))
+	      (ok-button (gtk-button-new-with-label "  Download and Pre-install "))
 	      (buttons-hbox (gtk-hbox-new #f 6))
 	      (h-sep (gtk-hseparator-new))
 	      (info-string (gtk-label-new s)))
@@ -208,23 +214,29 @@
 				(call-with-new-thread
 				 (lambda ()
 				   (if (not (run-download-binary-curl revision version-string))
-				       (info-dialog "Failure to download binary")))
-				 coot-updates-error-handler)
+				       (begin
+					 (format #t "run-download-binary-curl failed~%")
+					 (set! pending-install-in-place 'fail))))
+				 coot-updates-error-handler)))
 
- 				;; now the timer that waits for the binary...
- 				(gtk-idle-add
- 				 (lambda ()
-				   (usleep 10000)
- 				   (if pending-install-in-place
- 				       (begin
- 					 (gtk-widget-destroy window)
-					 (restart-dialog)
-					 #f ;; stop running, idle function
-					 )
-				       #t)))))
+	  ;; now the timer that waits for the binary...
+	  (gtk-idle-add
+	   (lambda ()
+	     (usleep 10000)
+	     (cond
+	      ((eq? pending-install-in-place 'fail)
+	       (gtk-widget-destroy window)
+	       (info-dialog "Failure to download binary")
+	       #f)  ;; stop running, idle function
+	      
+	      (pending-install-in-place
+	       (gtk-widget-destroy window)
+	       (restart-dialog)
+	       #f ;; stop running, idle function
+	       )
+	      (else 
+	       #t)))) ;; continue running.
 					 
-
-
 	  (gtk-widget-show-all window))))))
 
 
@@ -306,11 +318,11 @@
 (define (restart-dialog)
 
   (let ((window (gtk-window-new 'toplevel))
-	(dialog-name "Restart Required")
+	(dialog-name "Restart Required to complete installation")
 	(main-vbox (gtk-vbox-new #f 6))
 	(cancel-button (gtk-button-new-with-label "  Later  "))
-	(ok-button (gtk-button-new-with-label "  Restart "))
-	(label (gtk-label-new "  Restart Required  "))
+	(ok-button (gtk-button-new-with-label "  Restart Now "))
+	(label (gtk-label-new "  Restart required to complete install "))
 	(buttons-hbox (gtk-hbox-new #f 6))
 	(h-sep (gtk-hseparator-new)))
     
@@ -347,96 +359,94 @@
 ;; http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/coot-0.6-pre-1-revision-2535-binary-Linux-i386-centos-4-gtk2.tar.gz
 
 
-(if (defined? 'coot-main-menubar)
-    (let ((menu (coot-menubar-menu "Updates")))
-      (add-simple-coot-menu-menuitem
-       menu "Check for updates..."
-       (let ((server-info-status #f))
 
-	 ;; return a boolean
-	 (define (pre-release?)
-	   (string-match "-pre" (coot-version)))
+(define check-for-updates-gui
+  (let ((server-info-status #f))
 
-	 (define (handle-latest-version-server-response txt-from-server)
-	   ;; OK, so the server said something.
-	   ;; Set the status here, so that the
-	   ;; function that looks to see whether
-	   ;; or not the server responded is
-	   ;; notified.
-	   ;; 
-	   (if (string-match "The requested URL was not found on this server" txt-from-server)
-	       (set! server-info-status 'file-not-found)
-	       (set! server-info-status txt-from-server)))
+    ;; return a boolean
+    (define (pre-release?)
+      (string-match "-pre" (coot-version)))
 
-	 ;; here we construct args to goosh-command,
-	 ;; adding in "pre-release" if this binary is a
-	 ;; pre-release.
-	 ;; args ends up as something like:
-	 ;; ("-s" "xxx/phone-home.scm" "pre-release" 
-	 ;;  "binary" "Linux-1386-fedora-10-python-gtk2"
-	 ;;  "command-line" "/home/xx/coot/bin/coot")
-	 ;; 
-	 (define (make-latest-version-url)
-	   (let ((build-type (coot-sys-build-type)))
-	     
-	     ;; hack!
-	     ;; 
-	     ;; (set! build-type "Linux-i386-centos-4-gtk2")
+    (define (handle-latest-version-server-response txt-from-server)
+      ;; OK, so the server said something.
+      ;; Set the status here, so that the
+      ;; function that looks to see whether
+      ;; or not the server responded is
+      ;; notified.
+      ;; 
+      (if (string-match "The requested URL was not found on this server" txt-from-server)
+	  (set! server-info-status 'file-not-found)
+	  (set! server-info-status txt-from-server)))
 
-	     (string-append 
-	      "http://www.biop.ox.ac.uk/coot/software/binaries/"
-	      (if (pre-release?)
-		  "pre-releases"
-		  "releases")
-	      "/"
-	      "type-binary-"
-	      build-type
-	      "-latest.txt")))
+    ;; here we construct args to goosh-command,
+    ;; adding in "pre-release" if this binary is a
+    ;; pre-release.
+    ;; args ends up as something like:
+    ;; ("-s" "xxx/phone-home.scm" "pre-release" 
+    ;;  "binary" "Linux-1386-fedora-10-python-gtk2"
+    ;;  "command-line" "/home/xx/coot/bin/coot")
+    ;; 
+    (define (make-latest-version-url)
+      (let ((build-type (coot-sys-build-type)))
+	
+	;; hack!
+	;; 
+	;; (set! build-type "Linux-i386-centos-4-gtk2")
 
-	 (define (get-server-info-status-thread)
-	   (call-with-new-thread
-	    (lambda ()
-	      (let* ((url (make-latest-version-url))
-		     (nov (format #t "INFO:: get URL ~s~%" url))
-		     (latest-version-server-response (coot-get-url-as-string url)))
-		(handle-latest-version-server-response latest-version-server-response)))
-	    ;; the error handler
-	    coot-updates-error-handler))
+	(string-append 
+	 "http://www.biop.ox.ac.uk/coot/software/binaries/"
+	 (if (pre-release?)
+	     "pre-releases"
+	     "releases")
+	 "/"
+	 "type-binary-"
+	 build-type
+	 "-latest.txt")))
+
+    (define (get-server-info-status-thread)
+      (call-with-new-thread
+       (lambda ()
+	 (let* ((url (make-latest-version-url))
+		(nov (format #t "INFO:: get URL ~s~%" url))
+		(latest-version-server-response (coot-get-url-as-string url)))
+	   (handle-latest-version-server-response latest-version-server-response)))
+       ;; the error handler
+       coot-updates-error-handler))
 
 
-	 (lambda ()
+    ;; main line
+    ;; 
+    (lambda ()
 
-	   (get-server-info-status-thread)
+      (get-server-info-status-thread)
+      (let ((is-pre-release? (pre-release?)))
+	(let ((count 0))
+	  (gtk-idle-add
+	   (lambda ()
+	     (cond
+	      ((> count 2000) ;; try for 20 seconds, otherwise timeout.
+	       ;; fail-with-timeout
+	       (format #t "final fail: server-info-status: ~s~%" server-info-status)
+	       #f) ;; stop running this idle function
+	      ((eq? server-info-status 'file-not-found)
+	       (let ((s (string-append "No " 
+				       (if is-pre-release? "pre-release" "release")
+				       " binary for this system ("
+				       (coot-sys-build-type) 
+				       ") on the binary server")))
+		 (info-dialog s)
+		 #f)) ;; stop running this idle function
+	      ((string? server-info-status)
+	       (if (new-version-on-server? server-info-status is-pre-release?)
+		   (notify-of-new-version server-info-status)
+		   (let ((s (string-append "No version newer than this revision ("
+					   (number->string (svn-revision))
+					   ").")))
+		     (info-dialog s)))
+	       #f) ;; stop running idle function
+	      (else 
+	       (usleep 10000) 
+	       ;; (format #t "server-info-status: ~s~%" server-info-status)
+	       (set! count (+ count 1))
+	       #t)))))))))
 
-	   (let ((is-pre-release? (pre-release?)))
-	     (let ((count 0))
-	       (gtk-idle-add
-		(lambda ()
-		  (cond
-		   ((> count 2000) ;; try for 20 seconds, otherwise timeout.
-		    ;; fail-with-timeout
-		    (format #t "final fail: server-info-status: ~s~%" server-info-status)
-		    #f) ;; stop running this idle function
-		   ((eq? server-info-status 'file-not-found)
-		    (let ((s (string-append "No " 
-					    (if is-pre-release? "pre-release" "release")
-					    " binary for this system ("
-					    (coot-sys-build-type) 
-					    ") on the binary server")))
-		      (info-dialog s)
-		      #f)) ;; stop running this idle function
-		   ((string? server-info-status)
-		    (if (new-version-on-server? server-info-status is-pre-release?)
-			(notify-of-new-version server-info-status)
-			(let ((s (string-append "No version newer than this revision ("
-						(number->string (svn-revision))
-						").")))
-			  (info-dialog s)))
-		    #f) ;; stop running idle function
-		   (else 
-		    (usleep 10000) 
-		    ;; (format #t "server-info-status: ~s~%" server-info-status)
-		    (set! count (+ count 1))
-		    #t)))))))))))
-
-	  
