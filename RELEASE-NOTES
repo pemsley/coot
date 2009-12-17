@@ -1,8 +1,19 @@
 
   Pre-release 0.6.1
 
+  o FEATURE: Quick-save - bound to Ctrl-S.
+
+  o FEATURE: Binary updates (pre-releases) now available. 
+
   o CHANGE: "Save dialog positions" now also saves the Edit Chi Angles
     dialog position [Markus Rudolph].
+
+  o CHANGE: Coot can now go through proxies (http_proxy environment variable)
+    to get News and Updates.
+
+  o CHANGE: Baton manipulation is now possible when the skeleton runs out.
+
+  o BUG-FIX: Check waters by difference map now works again [Misty X].
 
 -----
 
