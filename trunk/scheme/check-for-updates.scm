@@ -122,7 +122,10 @@
 	      (begin
 		(format #t "OOps! Can't find COOT_PREFIX~%")
 		#f)
-	      (let* ((curl-exe (string-append prefix "/bin/curl")) ;; to get curl binary
+	      (let* ((curl-exe (let ((test-curl-exe (string-append prefix "/bin/curl"))) ;; to get curl binary
+				 (if (file-exists? test-curl-exe)
+				     test-curl-exe
+				     "curl")))
 		     (pre-release-flag (string-match "-pre" (coot-version)))
 		     (binary-type (coot-sys-build-type))
 		     (host-dir "www.biop.ox.ac.uk/coot/software/binaries/")
