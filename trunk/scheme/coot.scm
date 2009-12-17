@@ -88,6 +88,7 @@
 	     (cond 
 	      ((eq? #t use-gui?) 
 	       (append pre-list (list "coot-gui.scm") post-list (list "tips-gui.scm"
+								      "check-for-updates.scm"
 								      "extensions.scm"
 								      "shelx-extensions.scm"
 								      )))
