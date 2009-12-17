@@ -32,10 +32,10 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 20
+x_day_range = 40
 
 x_tick_interval = 2
-if (x_day_range > 40):
+if (x_day_range >= 40):
    x_tick_interval = 5
 if (x_day_range > 80):
    x_tick_interval = 10

@@ -2,6 +2,9 @@
 
    36 dev points -> March 20th
 
+   o Baton-build mode needs to work better when starting with no
+     skeleton.   ::: 1
+
    o Keating code :: 2
 
    o search for, download, update binary.  Needs libcurl ::: 4
@@ -12,10 +15,10 @@
    o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
      convergence. ::: 3
 
-   o Baton-build mode needs to work better when starting with no
-     skeleton.   ::: 1
-
-   o Find Waters: why does it miss some nice densities sometimes?  ::: 4
+   o Find Waters: why does it miss some nice densities sometimes?  
+     Actually it looks OK now (that I did the fix for KK, presumably).
+     Have a look at something other than RNase.
+     ::: 4
 
    o HK: I want a function to set the refinement weight for me, 
      i.e.  it should do a triple refine and look at the chi squareds.
@@ -41,7 +44,7 @@
      scm_must_malloc is deprecated.  Use scm_gc_malloc and scm_gc_free instead.
      ::: 0.5
 
-
+   o function documentation from cc-interface.hh
 
 ------
 

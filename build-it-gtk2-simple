@@ -471,7 +471,7 @@ function post_install_slim {
     file_list="etc info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
 	bin/guile bin/density-score-by-residue bin/density-score-by-residue-real \
-        $keep_lib_archs bin/curl"
+        bin/curl $keep_lib_archs"
 
 
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
@@ -565,7 +565,8 @@ function ssh_copy_logs_to_biop {
        $HOME/bin/sput-with-dir $bin_tar_file $target_dir
     else 
        echo Not copying log files to biop
-    fi    
+    fi
+}
 
 function setup_ccp4 {
 
@@ -3146,7 +3147,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
                echo ========================
                echo second coot test passed
                echo ========================
-               echo pass-second-test > $LOGS/$build_type-test-status
+               echo pass-2nd-test > $LOGS/$build_type-test-status
                # copy over to York if we are in biop
 
 	       mv $holding_tar_file $bin_tar_file
@@ -3175,7 +3176,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
                echo ========================
                echo second coot test failed
                echo ========================
-               echo fail-second-test $date > $LOGS/$build_type-test-status
+               echo fail-2nd-test $date > $LOGS/$build_type-test-status
             fi
          fi
 
