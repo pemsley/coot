@@ -21,7 +21,7 @@ echo "#endif // USE_GUILE" >> $post
 #####  start ################
 
 if [ $# != 4 ] ; then
-   echo must provide guile-version gtk2-flag and 2 file arguments
+   echo must provide path-to-guile-config gtk2-flag and 2 file arguments
    echo we got: $*
    exit 2
 fi
@@ -61,8 +61,20 @@ else
       ;; 
    
       *1.8*)
-      echo sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' $pre ..to.. $post
-           sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' $pre > $pre.tmp
+      # SCM_MUST_MALLOC to be replaced by scm_gc_malloc is more complicated.  scm_gc_malloc takes 2 args and 
+      # SCM_MUST_MALLOC takes one.  Leave it to be fixed in SWIG.
+      echo sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/'  \
+               -e 's/SCM_STRINGP/scm_is_string/'              \
+               -e 's/SCM_STRING_LENGTH/scm_c_string_length/'  \
+               -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' \
+               -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' \
+               $pre ..to.. $post
+           sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/'      \
+               -e 's/SCM_STRINGP/scm_is_string/'                  \
+               -e 's/SCM_STRING_LENGTH/scm_c_string_length/'      \
+               -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' \
+               -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' \
+               $pre > $pre.tmp
       add_ifdefs $pre.tmp $post
       ;; 
    esac
