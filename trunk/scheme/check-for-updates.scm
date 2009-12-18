@@ -132,7 +132,8 @@
 		     (tar-file-name (string-append 
 				     (if pre-release-flag
 					 version-string
-					 (string-append "coot-" new-version))
+					 (let ((new-version "0.6.1")) ;; should be computed
+					   (string-append "coot-" new-version)))
 				     "-binary-"
 				     binary-type
 				     ".tar.gz"))
