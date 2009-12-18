@@ -15,11 +15,6 @@
    o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
      convergence. ::: 3
 
-   o Find Waters: why does it miss some nice densities sometimes?  
-     Actually it looks OK now (that I did the fix for KK, presumably).
-     Have a look at something other than RNase.
-     ::: 4
-
    o HK: I want a function to set the refinement weight for me, 
      i.e.  it should do a triple refine and look at the chi squareds.
      Keep doing that with different weights until we get to 1.0.  ::: 2
@@ -97,3 +92,11 @@
 
 * Done, except scm_must_malloc not done.  The solution is too deeply
   buried in SWIG.
+
+   o Find Waters: why does it miss some nice densities sometimes?  
+     Actually it looks OK (now that I did the fix for KK, presumably).
+     Have a look at something other than RNase.
+     ::: 4
+
+* Looks fine now.  Tested with 2htq.
+

@@ -2223,6 +2223,8 @@ void skel_foadi_off();
 void skeletonize_map_by_optionmenu(GtkWidget *optionmenu);
 void skeletonize_map_single_map_maybe(GtkWidget *window, int imol); 
 
+GtkWidget *wrapped_create_skeleton_dialog();
+
 /*! \brief skeletonize molecule number imol
 
    the prune_flag should almost  always be 0.  */

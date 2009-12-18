@@ -1258,6 +1258,9 @@ public:
    static short int do_lighting_flag; 
    static short int in_wall_eyed_side_by_side_stereo_mode;
 
+   // return a vector of the current valid map molecules
+   std::vector<int> valid_map_molecules() const;
+
    // return the new molecule number
    static int create_molecule();
 
@@ -2450,6 +2453,7 @@ public:
    int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func); 
    void fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func,
 					  int imol_active_position); 
+   GtkWidget *wrapped_create_skeleton_dialog();
    void set_on_off_skeleton_radio_buttons(GtkWidget *skeleton_frame); 
    void set_on_off_single_map_skeleton_radio_buttons(GtkWidget *skeleton_frame, 
 						     int i); 
