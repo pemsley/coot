@@ -2454,6 +2454,7 @@ public:
    void fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func,
 					  int imol_active_position); 
    GtkWidget *wrapped_create_skeleton_dialog();
+   void fill_option_menu_with_skeleton_options(GtkWidget *option_menu);  /* a wrapper */
    void set_on_off_skeleton_radio_buttons(GtkWidget *skeleton_frame); 
    void set_on_off_single_map_skeleton_radio_buttons(GtkWidget *skeleton_frame, 
 						     int i); 

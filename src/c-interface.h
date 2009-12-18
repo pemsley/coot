@@ -2233,8 +2233,6 @@ int skeletonize_map(int prune_flag, int imol);
 /*! \brief undisplay the skeleton on molecule number imol */
 int unskeletonize_map(int imol); 
 
-
-void fill_option_menu_with_skeleton_options(GtkWidget *option_menu); /* a wrapper */
 void set_initial_map_for_skeletonize(); /* set graphics_info variable
 					   for use in callbacks.c */
 
