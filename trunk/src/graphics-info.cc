@@ -2063,7 +2063,8 @@ graphics_info_t::update_things_on_move() {
    }
 } 
 
-void
+// return the state whether to really show the baton.
+bool
 graphics_info_t::start_baton_here() {
 
    baton_root = RotationCentre();
@@ -2076,11 +2077,14 @@ graphics_info_t::start_baton_here() {
       std::cout << "WARNING: no skeleton found " << std::endl;
 
       std::vector<int> map_molecules = valid_map_molecules();
+      std::cout << " there were " << map_molecules.size() << " valid maps " << std::endl;
 
       if (map_molecules.size() > 0) {
 
+	 std::cout << "This path.............." << std::endl;
 	 GtkWidget *w = wrapped_create_skeleton_dialog();
 	 gtk_widget_show(w);
+	 return 0;
 
       } else {
 
@@ -2091,6 +2095,7 @@ graphics_info_t::start_baton_here() {
 	 *imol_copy = imol_for_skel;
 	 gtk_object_set_user_data(GTK_OBJECT(w), (char *)imol_copy);
 	 gtk_widget_show(w);
+	 return 0;
       }
 
    } else {
@@ -2101,6 +2106,7 @@ graphics_info_t::start_baton_here() {
       baton_next_directions(imol_for_skel, NULL, baton_root, dummy_cg, use_dummy_cg);
       baton_next_ca_options_index = 0; 
       baton_tip = baton_tip_by_ca_option(baton_next_ca_options_index);
+      return 1;
    }
 }
 

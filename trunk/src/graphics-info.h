@@ -2690,7 +2690,10 @@ public:
    static short int baton_mode; // if set, rotation moves the baton, not the view
    static short int baton_tmp_atoms_to_new_molecule; 
    static void baton_object();
-   void start_baton_here(); // modify baton root and tip
+   // return a boolean, shall we really draw the baton or not (for
+   // example, we don't want to do that if there is no skeletonized
+   // map
+   bool start_baton_here(); // modify baton root and tip.  
    void accept_baton_position(); /* put an atom at the tip and move baton */
    int baton_build_atoms_molecule() const; // -1 on no such molecule
 					   // with name "Baton Atoms"

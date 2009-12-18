@@ -3608,7 +3608,7 @@ on_baton_dialog_ok_button_clicked      (GtkButton       *button,
 {
   GtkWidget *widget = lookup_widget(GTK_WIDGET(button),
 				    "baton_dialog");
-  set_draw_baton(0);
+  try_set_draw_baton(0);
   set_baton_mode(0);		/* if you can't see it, there's no
 				   point in trying to move it */
   gtk_widget_destroy(widget);
@@ -3619,9 +3619,15 @@ on_baton_dialog_ok_button_clicked      (GtkButton       *button,
 void on_model_refine_dialog_baton_button_clicked (GtkButton       *button,
 						  gpointer         user_data)
 {
-  GtkWidget *widget = create_baton_dialog();
-  set_draw_baton(1);
-  gtk_widget_show(widget);
+  GtkWidget *widget;
+  /* return whether the baton was drawn or not, We don't want a baton
+     dialog if the baton is not drawn (e.g. when there is no
+     skeletonized map). */
+  int state = try_set_draw_baton(1);
+  if (state) { 
+    widget = create_baton_dialog();
+    gtk_widget_show(widget);
+  }
 }
 
 
