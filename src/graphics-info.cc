@@ -94,6 +94,18 @@ void initialize_graphics_molecules() {
   g.initialize_molecules(); 
 }
 
+// return a vector of the current valid map molecules
+std::vector<int>
+graphics_info_t::valid_map_molecules() const {
+   
+   std::vector<int> v;
+   for (unsigned int i=0; i<molecules.size(); i++)
+      if (is_valid_map_molecule(i))
+	 v.push_back(i);
+   return v;
+}
+
+
 // return the new molecule number
 // static
 int graphics_info_t::create_molecule() { 
@@ -2063,11 +2075,23 @@ graphics_info_t::start_baton_here() {
 
       std::cout << "WARNING: no skeleton found " << std::endl;
 
-      GtkWidget *w = create_baton_mode_make_skeleton_dialog();
-      int *imol_copy = new int;
-      *imol_copy = imol_for_skel;
-      gtk_object_set_user_data(GTK_OBJECT(w), (char *)imol_copy);
-      gtk_widget_show(w);
+      std::vector<int> map_molecules = valid_map_molecules();
+
+      if (map_molecules.size() > 0) {
+
+	 GtkWidget *w = wrapped_create_skeleton_dialog();
+	 gtk_widget_show(w);
+
+      } else {
+
+	 // 20091218 It is as it was - No map.
+	 // 
+	 GtkWidget *w = create_baton_mode_make_skeleton_dialog();
+	 int *imol_copy = new int;
+	 *imol_copy = imol_for_skel;
+	 gtk_object_set_user_data(GTK_OBJECT(w), (char *)imol_copy);
+	 gtk_widget_show(w);
+      }
 
    } else {
 

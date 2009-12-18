@@ -4386,16 +4386,8 @@ on_skeleton1_activate                  (GtkMenuItem     *menuitem,
 {
 
    /* we need to fill the optionmenu.  Make it a graphics_info_t this time. */
-  GtkWidget *window = create_skeleton_dialog();
-
-  GtkWidget *option_menu = lookup_widget(window, "skeleton_map_optionmenu");
-  GtkWidget *frame = lookup_widget(window, "skeleton_dialog_on_off_frame");
-  
-  set_initial_map_for_skeletonize();
-  fill_option_menu_with_skeleton_options(option_menu);
-  set_on_off_skeleton_radio_buttons(frame);
-  gtk_widget_show(window);
-
+  GtkWidget *w = wrapped_create_skeleton_dialog();
+  gtk_widget_show(w);
 }
 
 

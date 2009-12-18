@@ -4458,6 +4458,15 @@ void set_file_for_save_fileselection(GtkWidget *fileselection) {
    }
 }
 
+
+
+GtkWidget *wrapped_create_skeleton_dialog() { 
+
+   graphics_info_t g;
+   return g.wrapped_create_skeleton_dialog();
+}
+
+
 void save_coordinates_using_widget(GtkWidget *widget) {
 
    // the widget that we get passed is the fileselection widget

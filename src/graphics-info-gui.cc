@@ -703,7 +703,23 @@ graphics_info_t::show_select_map_dialog() {
       std::cout << "No graphics!  Can't make Map Selection dialog.\n";
    } 
    
-} 
+}
+
+
+
+GtkWidget *
+graphics_info_t::wrapped_create_skeleton_dialog() { 
+
+   GtkWidget *w = create_skeleton_dialog();
+   GtkWidget *option_menu = lookup_widget(w, "skeleton_map_optionmenu");
+   GtkWidget *frame = lookup_widget(w, "skeleton_dialog_on_off_frame");
+   
+   set_initial_map_for_skeletonize();
+   // fill_option_menu_with_skeleton_options(option_menu);
+   set_on_off_skeleton_radio_buttons(frame);
+   return w;
+}
+
 
 // static
 void
