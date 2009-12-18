@@ -1997,14 +1997,6 @@ int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc sign
    return g.fill_option_menu_with_map_options(option_menu, signalfunc);
 }
 
-void fill_option_menu_with_skeleton_options(GtkWidget *option_menu) {  /* a wrapper */
-
-   graphics_info_t g;
-   GtkSignalFunc signalfunc = GTK_SIGNAL_FUNC(graphics_info_t::skeleton_map_select);
-   g.fill_option_menu_with_map_options(option_menu, signalfunc,
-				       graphics_info_t::map_for_skeletonize);
-
-}
 
 void set_on_off_single_map_skeleton_radio_buttons(GtkWidget *skeleton_frame, 
 						  int imol) { 

@@ -715,11 +715,21 @@ graphics_info_t::wrapped_create_skeleton_dialog() {
    GtkWidget *frame = lookup_widget(w, "skeleton_dialog_on_off_frame");
    
    set_initial_map_for_skeletonize();
-   // fill_option_menu_with_skeleton_options(option_menu);
+   fill_option_menu_with_skeleton_options(option_menu);
    set_on_off_skeleton_radio_buttons(frame);
    return w;
 }
 
+
+void
+graphics_info_t::fill_option_menu_with_skeleton_options(GtkWidget *option_menu) {  /* a wrapper */
+
+   graphics_info_t g;
+   GtkSignalFunc signalfunc = GTK_SIGNAL_FUNC(graphics_info_t::skeleton_map_select);
+   g.fill_option_menu_with_map_options(option_menu, signalfunc,
+				       graphics_info_t::map_for_skeletonize);
+
+}
 
 // static
 void
