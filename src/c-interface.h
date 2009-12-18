@@ -4566,7 +4566,7 @@ void set_pointer_atom_molecule(int imol);
 /*! \brief toggle so that mouse movement moves the baton not rotates the view. */
 void set_baton_mode(short int i); /* Mouse movement moves the baton not the view? */
 /*! \brief draw the baton or not */
-void set_draw_baton(short int i); /* draw the baton or not */
+int try_set_draw_baton(short int i); /* draw the baton or not */
 /*! \brief accept the baton tip position - a prime candidate for a key binding */
 void accept_baton_position();	/* put an atom at the tip */
 /*! \brief move the baton tip position - another prime candidate for a key binding */
