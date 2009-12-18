@@ -127,7 +127,7 @@
 				     test-curl-exe
 				     "curl")))
 		     (pre-release-flag (string-match "-pre" (coot-version)))
-		     (ys "http://www.ysbl.york.ac.uk/~emsley/software/binaries")
+		     (ys "www.ysbl.york.ac.uk/~emsley/software/binaries")
 		     (binary-type (coot-sys-build-type))
 		     (host-dir (cond 
 				((string=? binary-type "binary-Linux-i386-fedora-3") ys)
