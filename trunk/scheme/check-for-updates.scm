@@ -252,7 +252,7 @@
 	(begin
 	  (format #t "OOps could not get COOT_PREFIX~%")
 	  #f)
-	(if (directory-is-modifiable? prefix-dir)
+	(if (not (directory-is-modifiable? prefix-dir))
 	    (begin
 	      (format #t "OOps directory ~s is not modifiable~%")
 	      #f)
@@ -276,7 +276,7 @@
 	
 ;; 
 (define (directory-is-modifiable? prefix-dir)
-  #f)
+  #t)
 
 ;; return as a string, or #f
 (define (get-target-md5-string file-name)
