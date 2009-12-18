@@ -283,7 +283,7 @@
 		      (format #t "now current-dir is ~s~%" (getcwd))))))))))
 		    
 	
-;; Test for prefix-dir 1) existing 2) being a directory 3) modifiable by user
+;; Test for prefix-dir 1) existing 2) being a directory 3) modifiable by user (ie. u+rwx)
 ;; 
 ;; Return #t or #f.
 ;; 
@@ -296,8 +296,9 @@
 	    #f ; not a directory
 	    (let ((p (stat:perms s)))
 	      ;; test the file permissions for rwx for user using bitwise logical 
-	      ;; operator on p (permissions). 224 is 128 + 64 + 32
-	      (= 224 (logand p 224)))))))
+	      ;; operator on p (permissions). 448 is 256 + 128 + 64
+	      (let ((b #b111000000))
+		(= b (logand p b))))))))
 
   
 
