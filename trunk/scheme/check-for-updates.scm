@@ -127,8 +127,19 @@
 				     test-curl-exe
 				     "curl")))
 		     (pre-release-flag (string-match "-pre" (coot-version)))
+		     (ys "http://www.ysbl.york.ac.uk/~emsley/software/binaries")
 		     (binary-type (coot-sys-build-type))
-		     (host-dir "www.biop.ox.ac.uk/coot/software/binaries/")
+		     (host-dir (cond 
+				((string=? binary-type "binary-Linux-i386-fedora-3") ys)
+				((string=? binary-type "binary-Linux-i386-fedora-3-python") ys)
+				((string=? binary-type "binary-Linux-i386-fedora-8-python-gtk2") ys)
+				((string=? binary-type "binary-Linux-i386-fedora-8-gtk2") ys)
+				((string=? binary-type "binary-Linux-i386-fedora-10-python-gtk2") ys)
+				((string=? binary-type "binary-Linux-i386-fedora-10-gtk2") ys)
+				((string=? binary-type "binary-Linux-i686-ubuntu-8.04.3") ys)
+				((string=? binary-type "binary-Linux-i686-ubuntu-8.04.3-python") ys)
+				(else 
+				 "www.biop.ox.ac.uk/coot/software/binaries/")))
 		     (tar-file-name (string-append 
 				     (if pre-release-flag
 					 version-string
