@@ -89,7 +89,7 @@
 	    (string>? server-version this-build-version)))))
 
 
-;; return a string with no trailing newline.
+;; first generate a version string with no trailing newline.
 ;; 
 (define (notify-of-new-version str)
   (let* ((ls (split-before-char #\c str list))
@@ -140,17 +140,15 @@
 				((string=? binary-type "binary-Linux-i686-ubuntu-8.04.3-python") ys)
 				(else 
 				 "www.biop.ox.ac.uk/coot/software/binaries/")))
-		     (tar-file-name (string-append 
-				     (if pre-release-flag
-					 version-string
-					 (let ((new-version "0.6.1")) ;; should be computed
-					   (string-append "coot-" new-version)))
-				     "-binary-"
-				     binary-type
-				     ".tar.gz"))
-		     (url (if pre-release-flag 
+		     (tar-file-name (string-append version-string "-binary-" binary-type ".tar.gz"))
+		     (url 
+		      (if (string-match "ysbl.york.ac.uk" host-dir)
+			  (if pre-release-flag 
+			      (string-append "http://" host-dir "nightlies/pre-release/" tar-file-name)
+			      (string-append "http://" host-dir "stable/"     tar-file-name))
+			  (if pre-release-flag 
 			      (string-append "http://" host-dir "pre-releases/" tar-file-name)
-			      (string-append "http://" host-dir "releases/"     tar-file-name)))
+			      (string-append "http://" host-dir "releases/"     tar-file-name))))
 		     (md5-url (string-append url ".md5sum"))
 		     (md5-tar-file-name (string-append tar-file-name ".md5sum")))
 
@@ -241,7 +239,7 @@
 	     (cond
 	      ((eq? pending-install-in-place 'fail)
 	       (gtk-widget-destroy window)
-	       (info-dialog "Failure to download binary")
+	       (info-dialog "Failure to download and install binary")
 	       #f)  ;; stop running, idle function
 	      
 	      (pending-install-in-place
@@ -265,7 +263,7 @@
 	  #f)
 	(if (not (directory-is-modifiable? prefix-dir))
 	    (begin
-	      (format #t "OOps directory ~s is not modifiable~%")
+	      (format #t "OOps directory ~s is not modifiable~%" prefix-dir)
 	      #f)
 	    (let ((pending-dir (append-dir-file prefix-dir "pending-install")))
 	      (if (not (file-exists? pending-dir))
@@ -285,9 +283,23 @@
 		      (format #t "now current-dir is ~s~%" (getcwd))))))))))
 		    
 	
+;; Test for prefix-dir 1) existing 2) being a directory 3) modifiable by user
+;; 
+;; Return #t or #f.
 ;; 
 (define (directory-is-modifiable? prefix-dir)
-  #t)
+  (if (not (file-exists? prefix-dir))
+      #f 
+      (let* ((s (stat prefix-dir))
+	     (t (stat:type s)))
+	(if (not (eq? t 'directory))
+	    #f ; not a directory
+	    (let ((p (stat:perms s)))
+	      ;; test the file permissions for rwx for user using bitwise logical 
+	      ;; operator on p (permissions). 224 is 128 + 64 + 32
+	      (= 224 (logand p 224)))))))
+
+  
 
 ;; return as a string, or #f
 (define (get-target-md5-string file-name)
