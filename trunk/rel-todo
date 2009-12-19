@@ -2,12 +2,7 @@
 
    36 dev points -> March 20th
 
-   o Baton-build mode needs to work better when starting with no
-     skeleton.   ::: 1
-
    o Keating code :: 2
-
-   o search for, download, update binary.  Needs libcurl ::: 4
 
    o torsion generals fail on gleevec-torsion-general-fails.pdb.  So
      does edit chi angles ::: 4
@@ -100,3 +95,11 @@
 
 * Looks fine now.  Tested with 2htq.
 
+   o Baton-build mode needs to work better when starting with no
+     skeleton.   ::: 1
+
+* Done.  Nice.
+
+   o search for, download, update binary.  Needs libcurl ::: 4
+
+* Done.  Needs python code.
