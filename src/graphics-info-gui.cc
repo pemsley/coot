@@ -724,9 +724,11 @@ graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_lab
       show_baton_dialog = 1;
    }
 
-   g_signal_connect ((gpointer) ok_button, "clicked",
-		     G_CALLBACK (on_skeleton_ok_button_dynamic_clicked),
-		     GINT_TO_POINTER(show_baton_dialog));
+   gtk_signal_connect(GTK_OBJECT(ok_button),
+		      "clicked",
+		      GTK_SIGNAL_FUNC (on_skeleton_ok_button_dynamic_clicked),
+		      GINT_TO_POINTER(show_baton_dialog));
+		      
    
    if (show_ca_mode_needs_skel_label) {
       gtk_widget_show(label);
