@@ -708,17 +708,109 @@ graphics_info_t::show_select_map_dialog() {
 
 
 GtkWidget *
-graphics_info_t::wrapped_create_skeleton_dialog() { 
+graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label) { 
 
    GtkWidget *w = create_skeleton_dialog();
    GtkWidget *option_menu = lookup_widget(w, "skeleton_map_optionmenu");
    GtkWidget *frame = lookup_widget(w, "skeleton_dialog_on_off_frame");
+   GtkWidget *label = lookup_widget(w, "ca_baton_mode_needs_skel_label");
+   GtkWidget *ok_button = lookup_widget(w, "skeleton_ok_button");
+
+   // add user data to the OK button, we use it to determine if we go
+   // on to display the baton dialog
+   int show_baton_dialog = 0;
    
+   if (show_ca_mode_needs_skel_label) {
+      show_baton_dialog = 1;
+   }
+
+   g_signal_connect ((gpointer) ok_button, "clicked",
+		     G_CALLBACK (on_skeleton_ok_button_dynamic_clicked),
+		     GINT_TO_POINTER(show_baton_dialog));
+   
+   if (show_ca_mode_needs_skel_label) {
+      gtk_widget_show(label);
+   } 
    set_initial_map_for_skeletonize();
    fill_option_menu_with_skeleton_options(option_menu);
    set_on_off_skeleton_radio_buttons(frame);
    return w;
 }
+
+
+// static
+void
+graphics_info_t::on_skeleton_ok_button_dynamic_clicked (GtkButton       *button,
+							gpointer         user_data)
+{
+  GtkWidget *window = lookup_widget(GTK_WIDGET(button),
+				    "skeleton_dialog");
+  GtkWidget *optionmenu = lookup_widget(window, "skeleton_map_optionmenu");
+  int do_baton_mode = GPOINTER_TO_INT(user_data);
+
+  std::cout << "do_baton_mode:: " << do_baton_mode << std::endl;
+
+  graphics_info_t g;
+  g.skeletonize_map_by_optionmenu(optionmenu);
+  gtk_widget_destroy(window);
+  if (do_baton_mode) {
+     int state = g.try_set_draw_baton(1);
+     if (state) {
+	GtkWidget *w = create_baton_dialog();
+	gtk_widget_show(w);
+     } 
+  }
+
+}
+
+void
+graphics_info_t::skeletonize_map_by_optionmenu(GtkWidget *optionmenu) { 
+
+   GtkWidget *window = lookup_widget(GTK_WIDGET(optionmenu), "skeleton_dialog");
+
+   GtkWidget *on_radio_button;
+   GtkWidget *prune_check_button;
+
+   on_radio_button = lookup_widget(window, "skeleton_on_radiobutton");
+
+   short int do_it = 0; 
+   short int prune_it = 0;
+   if (! is_valid_map_molecule(graphics_info_t::map_for_skeletonize)) {
+      std::cout << "ERROR:: Trapped a bad map for skeletoning!" << std::endl;
+   } else {
+      if (GTK_TOGGLE_BUTTON(on_radio_button)->active) { 
+	 do_it = 1;
+      }
+      prune_check_button = lookup_widget(window,"skeleton_prune_and_colour_checkbutton");
+      if (GTK_TOGGLE_BUTTON(prune_check_button)->active) { 
+	 prune_it = 1;
+      }
+
+      if (do_it)
+	 graphics_info_t::skeletonize_map(prune_it, graphics_info_t::map_for_skeletonize);
+      else {
+	 std::cout << "INFO:: unskeletonizing map number "
+		   << graphics_info_t::map_for_skeletonize << std::endl;
+	 graphics_info_t::unskeletonize_map(graphics_info_t::map_for_skeletonize);
+      }
+   }
+} 
+
+
+int
+graphics_info_t::try_set_draw_baton(short int i) { 
+   graphics_info_t g;
+   if (i) { 
+      bool have_skeled_map_state = g.start_baton_here();
+      if (have_skeled_map_state)
+	 g.draw_baton_flag = 1;
+   } else {
+      g.draw_baton_flag = 0;
+   } 
+   graphics_draw();
+   return g.draw_baton_flag;
+}
+
 
 
 void

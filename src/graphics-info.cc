@@ -2077,12 +2077,9 @@ graphics_info_t::start_baton_here() {
       std::cout << "WARNING: no skeleton found " << std::endl;
 
       std::vector<int> map_molecules = valid_map_molecules();
-      std::cout << " there were " << map_molecules.size() << " valid maps " << std::endl;
 
       if (map_molecules.size() > 0) {
-
-	 std::cout << "This path.............." << std::endl;
-	 GtkWidget *w = wrapped_create_skeleton_dialog();
+	 GtkWidget *w = wrapped_create_skeleton_dialog(1);
 	 gtk_widget_show(w);
 	 return 0;
 

@@ -4387,37 +4387,12 @@ void apply_bond_parameters(GtkWidget *w) {
    graphics_draw();
 }
 
-void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) { 
+void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
 
-   GtkWidget *window = lookup_widget(GTK_WIDGET(optionmenu), "skeleton_dialog");
+   graphics_info_t g;
+   g.skeletonize_map_by_optionmenu(optionmenu);
 
-   GtkWidget *on_radio_button;
-   GtkWidget *prune_check_button;
-
-   on_radio_button = lookup_widget(window, "skeleton_on_radiobutton");
-
-   short int do_it = 0; 
-   short int prune_it = 0;
-   if (! is_valid_map_molecule(graphics_info_t::map_for_skeletonize)) {
-      std::cout << "ERROR:: Trapped a bad map for skeletoning!" << std::endl;
-   } else {
-      if (GTK_TOGGLE_BUTTON(on_radio_button)->active) { 
-	 do_it = 1;
-      }
-      prune_check_button = lookup_widget(window,"skeleton_prune_and_colour_checkbutton");
-      if (GTK_TOGGLE_BUTTON(prune_check_button)->active) { 
-	 prune_it = 1;
-      }
-
-      if (do_it)
-	 graphics_info_t::skeletonize_map(prune_it, graphics_info_t::map_for_skeletonize);
-      else {
-	 std::cout << "INFO:: unskeletonizing map number "
-		   << graphics_info_t::map_for_skeletonize << std::endl;
-	 graphics_info_t::unskeletonize_map(graphics_info_t::map_for_skeletonize);
-      }
-   }
-} 
+}
 
 void
 skeletonize_map_single_map_maybe(GtkWidget *window, int imol) { 
@@ -4454,8 +4429,10 @@ void set_file_for_save_fileselection(GtkWidget *fileselection) {
 
 GtkWidget *wrapped_create_skeleton_dialog() { 
 
+   // from the menu item callback, we don't need to display the ca_mode label.
+   bool display_ca_model_label = 0;
    graphics_info_t g;
-   return g.wrapped_create_skeleton_dialog();
+   return g.wrapped_create_skeleton_dialog(display_ca_model_label);
 }
 
 
