@@ -13480,6 +13480,7 @@ create_skeleton_dialog (void)
   GtkWidget *skeleton_dialog;
   GtkWidget *dialog_vbox25;
   GtkWidget *vbox84;
+  GtkWidget *ca_baton_mode_needs_skel_label;
   GtkWidget *label117;
   GtkWidget *frame71;
   GtkWidget *skeleton_map_optionmenu;
@@ -13510,6 +13511,11 @@ create_skeleton_dialog (void)
   gtk_widget_set_name (vbox84, "vbox84");
   gtk_widget_show (vbox84);
   gtk_box_pack_start (GTK_BOX (dialog_vbox25), vbox84, TRUE, TRUE, 0);
+
+  ca_baton_mode_needs_skel_label = gtk_label_new (_("CA-Baton mode needs a skeleton"));
+  gtk_widget_set_name (ca_baton_mode_needs_skel_label, "ca_baton_mode_needs_skel_label");
+  gtk_box_pack_start (GTK_BOX (vbox84), ca_baton_mode_needs_skel_label, FALSE, FALSE, 8);
+  gtk_misc_set_padding (GTK_MISC (ca_baton_mode_needs_skel_label), 0, 2);
 
   label117 = gtk_label_new (_("Skeletonize Map:"));
   gtk_widget_set_name (label117, "label117");
@@ -13583,9 +13589,6 @@ create_skeleton_dialog (void)
   gtk_widget_show (skeleton_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox59), skeleton_cancel_button, TRUE, TRUE, 3);
 
-  g_signal_connect ((gpointer) skeleton_ok_button, "clicked",
-                    G_CALLBACK (on_skeleton_ok_button_clicked),
-                    NULL);
   g_signal_connect ((gpointer) skeleton_cancel_button, "clicked",
                     G_CALLBACK (on_skeleton_cancel_button_clicked),
                     NULL);
@@ -13594,6 +13597,7 @@ create_skeleton_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (skeleton_dialog, skeleton_dialog, "skeleton_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (skeleton_dialog, dialog_vbox25, "dialog_vbox25");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, vbox84, "vbox84");
+  GLADE_HOOKUP_OBJECT (skeleton_dialog, ca_baton_mode_needs_skel_label, "ca_baton_mode_needs_skel_label");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, label117, "label117");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, frame71, "frame71");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_map_optionmenu, "skeleton_map_optionmenu");

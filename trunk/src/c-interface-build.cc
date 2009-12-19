@@ -2060,15 +2060,9 @@ void display_where_is_pointer() {
 
 // draw the baton?
 int try_set_draw_baton(short int i) {
+
    graphics_info_t g;
-   if (i) { 
-      bool have_skeled_map_state = g.start_baton_here();
-      if (have_skeled_map_state)
-	 g.draw_baton_flag = 1;
-   } else {
-      g.draw_baton_flag = 0;
-   } 
-   graphics_draw();
+   g.try_set_draw_baton(i);
    std::string cmd = "set-draw-baton";
    std::vector<coot::command_arg_t> args;
    args.push_back(i);
