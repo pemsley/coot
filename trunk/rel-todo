@@ -2,10 +2,10 @@
 
    36 dev points -> March 20th
 
-   o Keating code ::: 1
-
    o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
-     convergence. ::: 3
+     convergence. (Note, only when OXT is not in the
+     atom-list/restraints need you do something special with OXT) 
+     ::: 3
 
    o torsion generals fail on gleevec-torsion-general-fails.pdb.  So
      does edit chi angles ::: 4
@@ -25,7 +25,7 @@
 
    o Empty macros/Makefile.am? ::: 0.5
 
-   o Documentation and interface (when docing fails) for docking sidechains 
+   o Documentation and interface (when docking fails) for docking sidechains 
      ::: 1
 
    o function documentation from cc-interface.hh
@@ -103,3 +103,7 @@
    o search for, download, update binary.  Needs libcurl ::: 4
 
 * Done.  Needs python code.
+
+   o Keating code ::: 1
+
+* Done.
