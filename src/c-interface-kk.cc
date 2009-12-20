@@ -19,7 +19,13 @@
  * 02110-1301, USA
  */
 
-#include <gtk/gtk.h>
+
+#include <clipper/core/coords.h>
+#include <clipper/core/xmap.h>
+#include "peak-search.hh"
+
+
+#include "graphics-info.h"
 #include "c-interface.h"
   
 #ifdef USE_PYTHON
@@ -58,7 +64,6 @@ PyObject *map_peaks_near_point_from_list_py(int imol_map, PyObject *peak_list, f
 	 PyList_SetItem(coords, 2, PyFloat_FromDouble(close_peaks[i].z()));
 	 PyList_SetItem(r, i, coords);
       }
-         
    }
      
    if (PyBool_Check(r)) {
