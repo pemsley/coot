@@ -81,7 +81,16 @@ namespace coot {
 				float d) const;
       float max_closeness; // don't allow "smaller" peaks that are
                            // within max_closeness of a larger one.
-      
+
+      // kk elision
+      std::pair<bool, clipper::Coord_orth> sym_shift_test(const clipper::Coord_orth &pt,
+							  clipper::Spacegroup spacegroup,
+							  clipper::Cell cell,
+							  const clipper::Coord_orth &center,
+							  float radius,
+							  const std::vector<int> &iprotein_trans,
+							  const clipper::Coord_orth &translated_center,
+							  const clipper::RTop_orth &orthop_rev) const;
 
    public:
       peak_search(const clipper::Xmap<float> &xmap);
@@ -111,6 +120,13 @@ namespace coot {
 		float n_sigma,
 		int do_positive_levels_flag,
 		int also_negative_levels_flag);
+
+      
+      std::vector<clipper::Coord_orth>
+      get_peaks_from_list(const clipper::Xmap<float> &xmap,
+			  const clipper::Coord_orth &center,
+			  float radius,
+			  const std::vector<clipper::Coord_orth> &peaks);
       
       void mask_map(clipper::Xmap<float> *xmap,
 		    const std::vector<clipper::Coord_orth> &ps_peaks) const;

@@ -242,6 +242,7 @@ coot_real_SOURCES = \
 	c-interface-gui.cc	 \
 	c-interface-gtk2.cc	 \
 	c-interface-info.cc	 \
+	c-interface-kk.cc	 \
 	c-interface-ligands.cc   \
 	c-interface-ligands-gui.cc \
 	c-interface-mmdb.cc	 \

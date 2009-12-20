@@ -520,7 +520,7 @@ coot::peak_search::find_protein_to_origin_translations(const std::vector<clipper
       running += sampled_protein_coords[i];
 
    if (sampled_protein_coords.size() > 0) {
-      double frac = 1/double(sampled_protein_coords.size());
+      double frac = 1.0/double(sampled_protein_coords.size());
       clipper::Coord_orth centre(running.x()*frac,
 				 running.y()*frac,
 				 running.z()*frac);
@@ -549,7 +549,7 @@ coot::peak_search::find_protein_to_origin_translations(const std::vector<clipper
 		  clipper::RTop_orth orthop = rtf.rtop_orth(xmap.cell());
 		  clipper::Coord_orth t_point = centre.transform(orthop);
 		  double d = clipper::Coord_orth::length(t_point, origin);
-		  // the 000.1 added to ameliorate numerical
+		  // the 0.001 added to ameliorate numerical
 		  // instabilility (bizarrely enough).
 		  if (d < (min_distance_to_origin - 0.001)) {
 // 		     std::cout << "hit " << d << " < " << min_distance_to_origin << std::endl;

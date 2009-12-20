@@ -2,13 +2,13 @@
 
    36 dev points -> March 20th
 
-   o Keating code :: 2
-
-   o torsion generals fail on gleevec-torsion-general-fails.pdb.  So
-     does edit chi angles ::: 4
+   o Keating code ::: 1
 
    o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
      convergence. ::: 3
+
+   o torsion generals fail on gleevec-torsion-general-fails.pdb.  So
+     does edit chi angles ::: 4
 
    o HK: I want a function to set the refinement weight for me, 
      i.e.  it should do a triple refine and look at the chi squareds.
