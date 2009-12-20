@@ -3423,6 +3423,7 @@ void gln_asn_b_factor_outliers_py(int imol);
 #ifdef USE_PYTHON 
 PyObject *map_peaks_py(int imol_map, float n_sigma);
 PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y, float z, float radius);
+PyObject *map_peaks_near_point_from_list_py(int imol_map, PyObject *peak_list, float x, float y, float z, float radius);
 #endif /*  USE_PYTHON */ 
 #ifdef USE_GUILE
 /*! \brief return a list of map peaks of molecule number imol_map

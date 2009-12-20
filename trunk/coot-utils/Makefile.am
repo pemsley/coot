@@ -78,7 +78,7 @@ libcoot_coord_extras_la_LIBADD = \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 # for (map) things that need to link mmdb and clipper:
-libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc trim.cc xmap-stats.cc
+libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc xmap-stats.cc
 
 # clean
 libcoot_map_utils_la_LIBADD = \
