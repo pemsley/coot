@@ -396,12 +396,12 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
    if (debug) {
       std::cout << "DEBUG:: t_indexes: ";
       for (unsigned int i1=0; i1<SSMAlign->nsel1; i1++) {
-	 std::cout << SSMAlign->Ca1[i1] << " " ;
+	 std::cout << "[" << i1 << " " << SSMAlign->Ca1[i1] << "] " ;
       }
       std::cout << std::endl;
       std::cout << "DEBUG:: s_indexes: ";
       for (unsigned int i2=0; i2<SSMAlign->nsel2; i2++) {
-	 std::cout << SSMAlign->Ca2[i2] << " " ;
+	 std::cout << "[" << i2 << " " << SSMAlign->Ca2[i2] << "] " ;
       }
       std::cout << std::endl;
    }
@@ -419,9 +419,26 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 	 if (t_index < SSMAlign->nsel2) {
 	    int s_index = SSMAlign->Ca2[t_index];
 	    if (t_index != (previous_t_index + 1)) {
-	       CAtom *at = atom_selection2[t_index];
-	       t += coot::util::three_letter_to_one_letter(atom_selection2[previous_t_index + 1]->GetResName());
-	       s += "."; // there was (at least) one extra residue in t sequence
+	       // this path rarely happens?
+	       int atom_sel2_index = previous_t_index + 1;
+	       if (atom_sel2_index < SSMAlign->nsel2) { 
+		  CAtom *at = atom_selection2[t_index];
+		  CAtom *ti_at = atom_selection2[atom_sel2_index];
+		  if (debug) { 
+		     std::cout << "t_index: " << t_index << std::endl;
+		     std::cout << "atom_sel2_index: " << atom_sel2_index << std::endl;
+		     std::cout << "at:    " << at << std::endl;
+		     std::cout << "ti_at: " << ti_at << std::endl;
+		  }
+		  t += coot::util::three_letter_to_one_letter(ti_at->GetResName());
+		  s += "."; // there was (at least) one extra residue in t sequence
+	       } else {
+		  // 20091221 confusion over what to do here
+		  // atom_sel2_index is out of bounds (adding the test
+		  // for it fixes a crash). Let's add nothing.
+		  t += "";
+		  s += ""; // there was (at least) one extra residue in t sequence
+	       } 
 	    }
 	    if (s_index == i1) { 
 	       s += coot::util::three_letter_to_one_letter(atom_selection1[i1]->GetResName());
