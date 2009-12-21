@@ -2,8 +2,6 @@
 
    36 dev points -> March 20th
 
-   o SSM alignment crash, Ed Pozharski ::: 2
-
    o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
      convergence. (Note, only when OXT is not in the
      atom-list/restraints need you do something special with OXT) 
@@ -107,5 +105,9 @@
 * Done.  Needs python code.
 
    o Keating code ::: 1
+
+* Done.
+
+   o SSM alignment crash, Ed Pozharski ::: 2
 
 * Done.
