@@ -1516,7 +1516,7 @@ def save_dialog_positions_to_init_file():
                                      ".coot-preferences")
             init_file = os.path.join(init_dir,
                                      "saved_dialog_positions.py")
-            if (not os.path.isfile(init_dir)):
+            if (not os.path.isdir(init_dir)):
                 return False
             port = open(init_file, 'w')
             print "BL INFO:: writing dialog positions to .coot-preferences/saved_dialog_positions.py"
@@ -2143,7 +2143,7 @@ def find_exe(*args):
         # search the extra Paths
         for search_path in path_ls:
             
-            if (os.path.isfile(search_path)):
+            if (os.path.isdir(search_path)):
                 # we have a single file name, not environ var
                 program_exe = os.path.join(search_path, program_name)
                 if (os.path.isfile(program_exe)):
@@ -2221,7 +2221,7 @@ def printl(ls):
 #
 # uses os.spawn if python version < 2.4 otherwise subprocess
 # 
-def run_concurrently(cmd, args, data_list=None, logfile=None, screen_flag=False):
+def run_concurrently(cmd, args=[], data_list=None, logfile=None, screen_flag=False):
     import sys, string, os
 
     major, minor, micro, releaselevel, serial = sys.version_info

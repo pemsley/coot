@@ -8,9 +8,11 @@ build-it-win rev 2122
 * THINGS TO DO BEFORE 0.6.1 RELEASE *
 ---------------
 
-   o make md5sum note on WinCoot website
+   o doublication of find strand/find ss (Extensions, Other tools)
 
-   o in INstaller SetOutPath before FINISH_PAGE_RUN (but where? test!?)
+   o Installer needs to set affinity for Windows 7 too?!? (OrIf, WindowsName = 7)
+
+   o make md5sum note on WinCoot website
 
    o add the binary_type_latest to the WinCoot installer script 
 
@@ -19,6 +21,10 @@ build-it-win rev 2122
      it's not sensible to schedule this for 0.6.]
 
    o optional tooltips for main toolbar buttons
+
+   o DNA/RNA backbone is not displayed for symmetry (CA mode)
+
+   o glycosylate residue
 
    o update WinCoot to guile 1.8.6 (if possible)
 
@@ -317,3 +323,13 @@ build-it-win rev 2122
    o stop tests when problem loading modules
 
 * Done
+
+   o in INstaller SetOutPath before FINISH_PAGE_RUN (but where? test!?)
+
+* Done
+
+   o Uninstall properly based on all/single user (SetShellVarContext)
+
+* Done
+
+
