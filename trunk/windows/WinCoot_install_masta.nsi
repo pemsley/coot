@@ -72,7 +72,6 @@ FunctionEnd
 !define MUI_FINISHPAGE_RUN "$INSTDIR\runwincoot.bat"
 ;!define MUI_FINISHPAGE_RUN_PARAMETERS '/c "$INSTDIR\runwincoot.bat"'
 !define MUI_FINISHPAGE_TITLE_3LINES
-  SetOutPath "$INSTDIR\examples"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -117,22 +116,24 @@ ShowUnInstDetails show
 Section "!WinCoot" SEC01
   SectionIn RO
   ; first check for Admin rights and if we shall install for all users
-  userInfo::getAccountType
-  pop $0
-  StrCmp $0 "Admin" +2
-  Goto install_single_user
-
+  ; change logic here. Install for everyone if possible otherwise only
+  ; for current user. Done later in Shortcut section. Based on LilyPond
+  ;Var /GLOBAL install_all_users
+  ;StrCpy $install_all_users "False"
+  ;userInfo::getAccountType
+  ;pop $0
+  ;StrCmp $0 "Admin" +2
+  ;Goto install_single_user
   ; if silent installer, install for all
-  IfSilent install_all_users
-  messageBox MB_ICONQUESTION|MB_YESNO "Detected Administrator rights.$\nDo you want to install WinCoot for all Users?" IDYES install_all_users IDNO install_single_user
-  
-  install_all_users:
-    SetShellVarContext all
-    Goto continue_user
-  install_single_user:
-    SetShellVarContext current
-    
-  continue_user:
+  ;IfSilent install_all_users
+  ;messageBox MB_ICONQUESTION|MB_YESNO "Detected Administrator rights.$\nDo you want to install WinCoot for all Users?" IDYES install_all_users IDNO install_single_user
+  ;install_all_users:
+  ;  SetShellVarContext all
+  ;  StrCpy $install_all_users "True"
+  ;  Goto continue_user
+  ;install_single_user:
+  ;  SetShellVarContext current
+  ;continue_user:
   
 ;  !insertmacro BIMAGE "C:\msys\home\bernhard\installer\coot_pic.bmp" /RESIZETOFIT
   SetOverwrite ifnewer
@@ -162,6 +163,7 @@ Section "!WinCoot" SEC01
   SetOverwrite on
   File "${src_dir}\bin\coot-real.exe"
   SetOverwrite ifnewer
+  File "${src_dir}\bin\curl.exe"
   File "${src_dir}\bin\density-score-by-residue.exe"
   File "${src_dir}\bin\density-score-by-residue-real.exe"
   File "${src_dir}\bin\djpeg.exe"
@@ -566,16 +568,7 @@ Section "!WinCoot" SEC01
   SetOutPath "$INSTDIR\coot-backup"
   ; set outpath to $INSTDIR so that shortcuts are started in $INSTDIR
   SetOutPath "$INSTDIR"
-
-; Shortcuts
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-  CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-  SetOutPath "$STARTDIR"
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\runwincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
-  CreateShortCut "$QUICKLAUNCH\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\runwincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
-  CreateShortCut "$DESKTOP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\runwincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
-  !insertmacro MUI_STARTMENU_WRITE_END
-  SetOutPath "$INSTDIR"
+  
 SectionEnd
 
 ; we dont want guile for now
@@ -628,11 +621,43 @@ Function FinishPagePreFunction
 
   ${EndIf}
 ;  ExecWait 'cmd /c ""$INSTDIR\bin\gdk-pixbuf-query-loaders.exe" > "$INSTDIR\etc\gtk-2.0\gdk-pixbuf.loaders""'
+  ; set outpath to run where we want to
+  SetOutPath "$STARTDIR"
 FunctionEnd
 
-Section -AdditionalIcons
-  SetOutPath $INSTDIR
+Section -AddIcons
+  ;; First install for all users, if anything fails, install
+  ;; for current user only.
+  ClearErrors
+  
+  SetShellVarContext all
+  ; let's see what happens when we try for all
+  Call MakeIcons
+
+  ; if error delete what may be there (but there shouldnt be anything?)
+  IfErrors 0 exit
+  SetShellVarContext current
+  Call MakeIcons
+
+ exit:
+   SetShellVarContext current
+  ; in case we want to install silently (no user intervention)
+  ; we have to call the finish page function, otherwise runwincoot.bat
+  ; won't be edited.
+  IfSilent 0 +2
+    Call FinishPagePreFunction
+SectionEnd
+
+Function MakeIcons
+  SetOutPath "$INSTDIR"
+; Shortcuts
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+  CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
+  SetOutPath "$STARTDIR"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\runwincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
+  CreateShortCut "$QUICKLAUNCH\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\runwincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
+  CreateShortCut "$DESKTOP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\runwincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
+  SetOutPath "$INSTDIR"
   WriteIniStr "$INSTDIR\WinCoot.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   WriteIniStr "$INSTDIR\Coot.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE_2}"
   CreateShortCut "$SMPROGRAMS\WinCoot\WinCoot Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
@@ -642,12 +667,8 @@ Section -AdditionalIcons
   CreateShortCut "$SMPROGRAMS\WinCoot\Coot Keys and Buttons.lnk" "$INSTDIR\doc\coot-keys-and-buttons.pdf"
   CreateShortCut "$SMPROGRAMS\WinCoot\Coot Tutorial.lnk" "$INSTDIR\doc\tutorial.pdf"
   !insertmacro MUI_STARTMENU_WRITE_END
-  ; in case we want to install silently (no user intervention)
-  ; we have to call the finish page function, otherwise runwincoot.bat
-  ; won't be edited.
-  IfSilent 0 +2
-    Call FinishPagePreFunction
-SectionEnd
+  SetOutPath "$INSTDIR"
+FunctionEnd
 
 
 Section -Post
@@ -680,7 +701,6 @@ Function un.onInit
 FunctionEnd
 
 Section Uninstall
-  !insertmacro MUI_STARTMENU_GETFOLDER "Application" $ICONS_GROUP
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\share\coot\*"
@@ -808,6 +828,7 @@ Section Uninstall
   Delete "$INSTDIR\bin\cjpeg.exe"
   Delete "$INSTDIR\bin\coot"
   Delete "$INSTDIR\bin\coot-real.exe"
+  Delete "$INSTDIR\bin\curl.exe"
   Delete "$INSTDIR\bin\density-score-by-residue.exe"
   Delete "$INSTDIR\bin\density-score-by-residue-real.exe"
   Delete "$INSTDIR\bin\djpeg.exe"
@@ -944,17 +965,18 @@ Section Uninstall
   Delete "$INSTDIR\runwincoot.bat"
   Delete "$INSTDIR\Coot.url"
 
-  Delete "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk"
-  Delete "$SMPROGRAMS\$ICONS_GROUP\WinCoot Website.lnk"
-  Delete "$SMPROGRAMS\$ICONS_GROUP\Coot Website.lnk"
-  Delete "$SMPROGRAMS\$ICONS_GROUP\Coot Manual.lnk"
-  Delete "$SMPROGRAMS\$ICONS_GROUP\Coot Keys and Buttons.lnk"
-  Delete "$SMPROGRAMS\$ICONS_GROUP\Coot Tutorial.lnk"
+  !insertmacro MUI_STARTMENU_GETFOLDER "Application" $ICONS_GROUP
+  SetShellVarContext all
+  Delete "$SMPROGRAMS\$ICONS_GROUP\*"
   Delete "$DESKTOP\WinCoot.lnk"
   Delete "$QUICKLAUNCH\WinCoot.lnk"
-  Delete "$SMPROGRAMS\$ICONS_GROUP\WinCoot.lnk"
-
   RMDir "$SMPROGRAMS\$ICONS_GROUP"
+  SetShellVarContext current
+  Delete "$SMPROGRAMS\$ICONS_GROUP\*"
+  Delete "$DESKTOP\WinCoot.lnk"
+  Delete "$QUICKLAUNCH\WinCoot.lnk"
+  RMDir "$SMPROGRAMS\$ICONS_GROUP"
+
   RMDir "$INSTDIR\share\coot\scheme"
   RMDir "$INSTDIR\share\coot\reference-structures"
   RMDir "$INSTDIR\share\coot\rama-data"
