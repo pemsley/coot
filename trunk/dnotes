@@ -5275,5 +5275,14 @@ Mon Dec  7 17:43:08 GMT 2009
    rotate peptide to optimise a combination of the density fit of
    mainchain (3) atoms and the ramachandran plot.
 
+----
+Mon Dec 21 11:14:22 GMT 2009
+
+    In the Go To Atom, rightmouse should activate a pop-up, 
+
+    Highlight "MET"s  (for example) taking the residue type of the residue label we clicked on
+    Highlight type -> entry
+
+
 ------
 
