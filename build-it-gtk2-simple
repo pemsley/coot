@@ -559,10 +559,11 @@ function ssh_copy_to_biop {
 function ssh_copy_logs_to_biop { 
 
     local_log_dir=$1
+    target_dir=$2
     if [ "$do_ssh_biop_copy" = true ] ; then 
        echo copying over log files to Biop...
        target_dir=$2
-       $HOME/bin/sput-with-dir $bin_tar_file $target_dir
+       $HOME/bin/sput-with-dir $local_log_dir $target_dir
     else 
        echo Not copying log files to biop
     fi
