@@ -7,9 +7,6 @@
      atom-list/restraints need you do something special with OXT) 
      ::: 3
 
-   o torsion generals fail on gleevec-torsion-general-fails.pdb.  So
-     does edit chi angles ::: 4
-
    o HK: I want a function to set the refinement weight for me, 
      i.e.  it should do a triple refine and look at the chi squareds.
      Keep doing that with different weights until we get to 1.0.  ::: 2
@@ -28,7 +25,9 @@
    o Documentation and interface (when docking fails) for docking sidechains 
      ::: 1
 
-   o function documentation from cc-interface.hh
+   o function documentation from cc-interface.hh ::: 2
+
+   o consider changing auto-open behaviour, as Randy Read suggests ::: 2
 
 ------
 
@@ -109,5 +108,12 @@
 * Done.
 
    o SSM alignment crash, Ed Pozharski ::: 2
+
+* Done.
+
+   o torsion generals fails on gleevec-torsion-general-fails.pdb.  So
+     does edit chi angles.  
+
+     Not an issue.  Broken PDB files, atom names not distinguished.
 
 * Done.

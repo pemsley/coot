@@ -5283,6 +5283,13 @@ Mon Dec 21 11:14:22 GMT 2009
     Highlight "MET"s  (for example) taking the residue type of the residue label we clicked on
     Highlight type -> entry
 
+---
+Tue Dec 22 08:03:46 GMT 2009
+
+   o (set-find-hydrogen-torsion 1) and edit chi angles on a SMILES
+     CCCCCC.  The torsions are in the wrong order.  ::: 4
+
+
 
 ------
 
