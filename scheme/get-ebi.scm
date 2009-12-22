@@ -53,6 +53,7 @@
 
 
 (define (net-get-url my-url file-name)
+  ;; (format #t "URL:: ~s~%" my-url)
   (coot-get-url my-url file-name))
 
 
@@ -153,9 +154,24 @@
   ;;
   ;; - model = http://eds.bmc.uu.se/eds/sfd/1cbs/pdb1cbs.ent
   ;; - mtz   = http://eds.bmc.uu.se/eds/sfd/1cbs/1cbs_sigmaa.mtz
+  ;;
+  ;; 20091222
+  ;; - newprefix: http://eds.bmc.uu.se/eds/dfs/cb/1cbs/
+  ;; 
+  ;; URL::       "http://eds.bmc.uu.se/eds/sfd/sa/2sar/pdb2sar.ent"
+  ;; URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/2sar_sigmaa.mtz"
+
+
 
   (define eds-site "http://eds.bmc.uu.se/eds")
 
+  ;; "1cbds" -> "cb/"
+  (define (mid-chars id-code)
+    (if (not (string? id-code))
+	"//fail//"
+	(if (not (= (string-length id-code) 4))
+	    "/FAIL/"
+	    (string-append (substring id-code 1 3) "/"))))
 
   (let ((r (coot-mkdir coot-tmp-dir)))
 
@@ -163,13 +179,14 @@
 	(format #t "Can't make directory ~s~%" coot-tmp-dir)
 	
 	(let* ((down-id (string-downcase id))
-	       (eds-url (string-append eds-site "/sfd/"))
+	       (eds-url (string-append eds-site "/dfs/"))
 	       (target-pdb-file (string-append "pdb" down-id ".ent"))
 	       (dir-target-pdb-file (string-append coot-tmp-dir "/" target-pdb-file))
-	       (model-url (string-append eds-url down-id "/" target-pdb-file))
+	       (mc (mid-chars id))
+	       (model-url (string-append eds-url mc down-id "/" target-pdb-file))
 	       (target-mtz-file (string-append down-id "_sigmaa.mtz"))
 	       (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
-	       (mtz-url (string-append eds-url down-id "/" target-mtz-file)))
+	       (mtz-url (string-append eds-url mc down-id "/" target-mtz-file)))
 	  
 	  (let ((s1 (net-get-url model-url dir-target-pdb-file))
 		(s2 (net-get-url mtz-url   dir-target-mtz-file)))
