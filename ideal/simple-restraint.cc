@@ -3467,7 +3467,7 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 
    int iret = 0;
    restraints_usage_flag = flags_in; // also set in minimize() and geometric_distortions()
-   mark_OXT();
+   mark_OXT(geom);
    iret += make_monomer_restraints(geom, do_residue_internal_torsions);
 
    iret += make_link_restraints(geom, do_rama_plot_restraints);
@@ -3496,7 +3496,7 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 // reference atoms (which is reasonable (I hope)).
 // 
 void 
-coot::restraints_container_t::mark_OXT() { 
+coot::restraints_container_t::mark_OXT(const coot::protein_geometry &geom) { 
 
    std::string oxt(" OXT");
    for (int i=0; i<n_atoms; i++) { 
@@ -3507,23 +3507,29 @@ coot::restraints_container_t::mark_OXT() {
 	 
 	 CResidue *residue = atom[i]->residue;
 	 CAtom *res_atom = NULL;
-	 if (residue) { 
-	    res_atom = residue->GetAtom(" N  ");
-	    if (res_atom) 
-	       oxt_reference_atom_pos.push_back(clipper::Coord_orth(res_atom->x, res_atom->y, res_atom->z));
-	    res_atom = residue->GetAtom(" CA ");
-	    if (res_atom) 
-	       oxt_reference_atom_pos.push_back(clipper::Coord_orth(res_atom->x, res_atom->y, res_atom->z));
-	    res_atom = residue->GetAtom(" C  ");
-	    if (res_atom) 
-	       oxt_reference_atom_pos.push_back(clipper::Coord_orth(res_atom->x, res_atom->y, res_atom->z));
-	    res_atom = residue->GetAtom(" O  ");
-	    if (res_atom) 
-	       oxt_reference_atom_pos.push_back(clipper::Coord_orth(res_atom->x, res_atom->y, res_atom->z));
+	 if (residue) {
 
-	    have_oxt_flag = 1;
-	    oxt_index = i;
-	    break;
+	    std::string residue_type(residue->GetResName());
+	    if (! geom.OXT_in_residue_restraints_p(residue_type)) { 
+
+	    
+	       res_atom = residue->GetAtom(" N  ");
+	       if (res_atom) 
+		  oxt_reference_atom_pos.push_back(clipper::Coord_orth(res_atom->x, res_atom->y, res_atom->z));
+	       res_atom = residue->GetAtom(" CA ");
+	       if (res_atom) 
+		  oxt_reference_atom_pos.push_back(clipper::Coord_orth(res_atom->x, res_atom->y, res_atom->z));
+	       res_atom = residue->GetAtom(" C  ");
+	       if (res_atom) 
+		  oxt_reference_atom_pos.push_back(clipper::Coord_orth(res_atom->x, res_atom->y, res_atom->z));
+	       res_atom = residue->GetAtom(" O  ");
+	       if (res_atom) 
+		  oxt_reference_atom_pos.push_back(clipper::Coord_orth(res_atom->x, res_atom->y, res_atom->z));
+
+	       have_oxt_flag = 1;
+	       oxt_index = i;
+	       break;
+	    }
 	 }
       }
    }

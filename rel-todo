@@ -2,14 +2,10 @@
 
    36 dev points -> March 20th
 
-   o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
-     convergence. (Note, only when OXT is not in the
-     atom-list/restraints need you do something special with OXT) 
-     ::: 3
-
    o HK: I want a function to set the refinement weight for me, 
      i.e.  it should do a triple refine and look at the chi squareds.
-     Keep doing that with different weights until we get to 1.0.  ::: 2
+     Keep doing that with different weights until we get to 1.0.  Needs
+     refinement function to return SCM refinement results. ::: 2
 
    o Make python coot work on CentOS 4.  It does?  Needs testing.  ::: 2
 
@@ -115,5 +111,12 @@
      does edit chi angles.  
 
      Not an issue.  Broken PDB files, atom names not distinguished.
+
+* Done.
+
+   o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
+     convergence. (Note, only when OXT is not in the
+     atom-list/restraints need you do something special with OXT) 
+     ::: 3
 
 * Done.

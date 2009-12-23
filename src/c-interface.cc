@@ -214,7 +214,7 @@ SCM test_internal_scm() {
    SCM r = SCM_BOOL_T;
 
 #ifdef BUILT_IN_TESTING   
-   int status = test_internal();
+   int status = greg_internal_tests();
    if (!status)
       r = SCM_BOOL_F;
 #endif   

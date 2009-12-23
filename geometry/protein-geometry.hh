@@ -917,7 +917,7 @@ namespace coot {
       // a whole residue's restraints so that we can use it to test if
       // an atom is a hydrogen.
       // 
-      std::pair<short int, dictionary_residue_restraints_t>
+      std::pair<bool, dictionary_residue_restraints_t>
       get_monomer_restraints(const std::string &monomer_type) const;
 
       // If monomer_type is not in dict_res_restraints, then add a new
@@ -985,6 +985,8 @@ namespace coot {
 
       bool linkable_residue_types_p(const std::string &this_res_type,
 				    const std::string &env_residue_res_type);
+
+      bool OXT_in_residue_restraints_p(const std::string &residue_type) const;
 
    };
 

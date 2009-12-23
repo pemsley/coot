@@ -2189,7 +2189,7 @@ second atom that you click will be the local rotation centre for the
 zone.  The atoms selected in the moving fragment have the same
 alternate conformation code as the first atom you click.  To actuate a
 transformation, click and drag horizontally across the relevant button
-in the newly-created ``Rotation \& Translation'' dialog. The axis
+in the newly-created ``Rotation & Translation'' dialog. The axis
 system of the rotations and translations are the screen coordinates.
 Alternatively  @footnote{like Refinement and Regularization}, you can
 click using left-mouse on an atom in the fragment and drag the

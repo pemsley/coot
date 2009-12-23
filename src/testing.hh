@@ -43,7 +43,9 @@ typedef std::pair<int(*)(), std::string> named_func;
 void add_test(int(*)(), const std::string &test_name, std::vector<named_func> *functions);
 
 int test_internal();
+int greg_internal_tests(); // portal to internal tests from greg
 int test_internal_single();
+int run_internal_tests(std::vector<named_func> functions);
 
 int test_alt_conf_rotamers();
 int test_ligand_conformer_torsion_angles();
@@ -66,6 +68,8 @@ int test_coot_atom_tree_2();
 int test_coot_atom_tree_proline();
 int test_rotate_round_vector();
 int test_ssm_sequence_formatting();
+int test_OXT_in_restraints();
+
 
 CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id, int resno);
 bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,

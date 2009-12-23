@@ -446,7 +446,7 @@ coot::protein_geometry::simple_mon_lib_add_chem_comp(const std::string &comp_id,
    coot::dict_chem_comp_t ri(comp_id, three_letter_code, name, group, number_atoms_all,
 			     number_atoms_nh, description_level);
    
-   short int ifound = 0;
+   bool ifound = 0;
 
    for (unsigned int i=0; i<simple_monomer_descriptions.size(); i++) {
       if (simple_monomer_descriptions[i].comp_id == comp_id) {
@@ -3085,11 +3085,11 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
 
 
 
-std::pair<short int, coot::dictionary_residue_restraints_t>
+std::pair<bool, coot::dictionary_residue_restraints_t>
 coot::protein_geometry::get_monomer_restraints(const std::string &monomer_type) const {
 
    coot::dictionary_residue_restraints_t t(std::string("(null)"), 0);
-   std::pair<short int, coot::dictionary_residue_restraints_t> r(0,t);
+   std::pair<bool, coot::dictionary_residue_restraints_t> r(0,t);
 
    int nrest = dict_res_restraints.size();
    for (int i=0; i<nrest; i++) {
@@ -3991,3 +3991,23 @@ coot::protein_geometry::linkable_residue_types_p(const std::string &this_res_typ
    }
    return r;
 } 
+
+bool
+coot::protein_geometry::OXT_in_residue_restraints_p(const std::string &residue_type) const {
+
+   bool r = 0;
+   std::pair<bool, coot::dictionary_residue_restraints_t> p = get_monomer_restraints(residue_type);
+   if (p.first) {
+      for (unsigned int i=0; i<p.second.atom_info.size(); i++) {
+	 if (p.second.atom_info[i].atom_id_4c == " OXT") {
+	    r = 1;
+	    break;
+	 }
+      }
+   } else {
+      if (0) 
+	 std::cout << "INFO:: residue type :" << residue_type << ": not found in dictionary"
+		   << std::endl;
+   } 
+   return r;
+}
