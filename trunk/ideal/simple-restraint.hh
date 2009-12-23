@@ -1027,9 +1027,9 @@ namespace coot {
 
       //! Set a flag that we have an OXT and we need to position it
       //after the refinement.
-      void mark_OXT();
+      void mark_OXT(const coot::protein_geometry &geom);
       void position_OXT(); // called from update atoms if we have an OXT.
-      short int have_oxt_flag;
+      bool have_oxt_flag;
       int oxt_index;
       // these are in the order N, CA, C, O
       std::vector<clipper::Coord_orth> oxt_reference_atom_pos;

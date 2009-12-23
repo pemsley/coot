@@ -162,7 +162,41 @@ int test_internal() {
    functions.push_back(named_func(test_symop_card, "test symop card"));
    functions.push_back(named_func(test_rotate_round_vector, "test rotate round vector"));
    functions.push_back(named_func(test_ssm_sequence_formatting, "SSM sequence alignment output"));
+   status = run_internal_tests(functions);
+   return status;
+   
+}
 
+int greg_internal_tests() {
+   int status = 1;
+   std::vector<named_func> functions;
+   functions.push_back(named_func(test_OXT_in_restraints, "OXT in restraints?"));
+
+   status = run_internal_tests(functions);
+   return status;
+} 
+
+int test_internal_single() {
+   int status = 0;
+   try { 
+      // status = test_symop_card();
+      // status = test_rotate_round_vector();
+      // status = test_coot_atom_tree();
+      // status = test_coot_atom_tree_2();
+      // status = test_coot_atom_tree_proline();
+      status = test_ssm_sequence_formatting();
+   }
+   catch (std::runtime_error mess) {
+      std::cout << "FAIL: " << " " << mess.what() << std::endl;
+   }
+   return status;
+}
+
+// return 1 on successful completion of tests.
+int
+run_internal_tests(std::vector<named_func> functions) {
+
+   int status = 1;
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
       try { 
@@ -180,24 +214,9 @@ int test_internal() {
 	 break;
       }
    } 
-   return status; 
-}
-
-int test_internal_single() {
-   int status = 0;
-   try { 
-      // status = test_symop_card();
-      // status = test_rotate_round_vector();
-      // status = test_coot_atom_tree();
-      // status = test_coot_atom_tree_2();
-      // status = test_coot_atom_tree_proline();
-      status = test_ssm_sequence_formatting();
-   }
-   catch (std::runtime_error mess) {
-      std::cout << "FAIL: " << " " << mess.what() << std::endl;
-   }
    return status;
 }
+
       
 
       
@@ -1952,6 +1971,28 @@ int test_ssm_sequence_formatting() {
    return 1;
 } 
 
+int test_OXT_in_restraints() {
+
+   int r = 0; // initially fail.
+   coot::protein_geometry geom;
+   geom.init_standard();
+   std::string cif_file_name = greg_test("libcheck_BCS.cif");
+   int geom_stat = geom.init_refmac_mon_lib(cif_file_name, 0);
+   if (! geom_stat) {
+      std::cout << "Fail to get good status from reading " << cif_file_name << std::endl;
+   } else { 
+      bool v1 = geom.OXT_in_residue_restraints_p("TRP");
+      bool v2 = geom.OXT_in_residue_restraints_p("BCS");
+      if (v1 == 0)
+	 if (v2 == 1)
+	    r = 1;
+	 else
+	    std::cout << "fail to find OXT in BSC" << std::endl;
+      else
+	 std::cout << "Fail to not find OXT in TRP" << std::endl;
+   }
+   return r; 
+} 
 
 
 #endif // BUILT_IN_TESTING
