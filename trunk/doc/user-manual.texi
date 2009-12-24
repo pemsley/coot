@@ -855,10 +855,8 @@ future you will be able to use both in the same executable.  The binary
 distribution of Coot are linked with guile, others with python.
 
 Hundreds of commands are made available for use in scripting by using
-SWIG, some of which are documented here. Other functions are are
-currently not well documented but can be found in the Coot Reference
-Manual, the scripting interface description linked from the Coot web
-page or the source code (@file{c-interface.h}).
+SWIG, some of which are documented here. Other functions documented less
+well, but descriptions for them can be found at the end of this manual.
 
 Commands described throughout this manual (such as @code{(vt-surface
   1))} can be evaluated
@@ -4457,6 +4455,7 @@ are given at the end of the command line.
 @c same directory as this file (user-manual.texi) NOT the directory that 
 @c texi2html is run in.
 @include c-interface.h.texi
+@include cc-interface.hh.texi
 
 
 
