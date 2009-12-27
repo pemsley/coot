@@ -45,9 +45,7 @@
 #include <unistd.h>
 #endif
 
-#ifdef USE_GUILE
-#include <guile/gh.h>
-#endif
+#include "guile-fixups.h"
 
 #include "coot-sysdep.h"
 
