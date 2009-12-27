@@ -3643,6 +3643,12 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
 	    for (int iat=0; iat<nSelAtoms; iat++) {
 	       // local_SelAtom[0]->occupancy = 1.0 - occ; // complemetary (1+1 atom case)
 	       local_SelAtom[iat]->occupancy -= occ/float(nSelAtoms); // complemetary (general case)
+
+	       // 20091227 But don't add atoms with negative
+	       // occupancy, e.g. the residue before the split was at
+	       // zero occupancy. 
+	       if (local_SelAtom[iat]->occupancy < 0.0)
+		  local_SelAtom[iat]->occupancy = 0.0;
 	    }
 
 	 } else {

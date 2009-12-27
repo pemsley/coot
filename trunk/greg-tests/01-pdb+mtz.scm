@@ -543,7 +543,44 @@
        #t ; no fail -> success
        )))
 	 
-       
+
+
+(greg-testcase "Splitting residue leaves no atoms with negative occupancy" #t 
+   (lambda ()
+
+     ;; return #f if there are negative occupancies
+     ;; 
+     (define (check-for-negative-occs occs)
+       (if (not (list? occs))
+	   #f
+	   (let loop ((occs occs))
+	     (cond
+	      ((null? occs) #t)
+	      ((< (car occs) 0.0) #f)
+	      (else
+	       (loop (cdr occs)))))))
+	       
+     (let* ((imol (greg-pdb "tutorial-modern.pdb"))
+	    (mtz-file-name (append-dir-file
+			    greg-data-dir
+			    "rnasa-1.8-all_refmac1.mtz"))
+	   (imol-map (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)))
+
+       (zero-occupancy-residue-range imol "A" 37 37)
+       (let* ((new-alt-conf (add-alt-conf imol "A" 37 "" "" 0))
+	      (atoms (residue-info imol "A" 37 ""))
+	      (occs (map (lambda (atom) (car (list-ref atom 1))) atoms)))
+	 
+	 (if (< (length occs) 5)
+	     #f ;; too few atoms
+
+	     (let ((occs-ok-status (check-for-negative-occs occs)))
+	       (if (not occs-ok-status)
+		   (format #t "Ooops: bad occupancies: ~s~%" occs))
+	       (close-molecule imol)
+	       (close-molecule imol-map)
+	       occs-ok-status))))))
+
 
 
 
