@@ -39,8 +39,6 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
-#include <gtk/gtkgl.h>
-
 #include "c-interface.h"
 #include "cc-interface.hh"
 
