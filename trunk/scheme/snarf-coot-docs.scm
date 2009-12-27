@@ -54,6 +54,7 @@
 (define symmetry-operators-scm #f)
 (define symmetry-operators-to-xHM-scm #f)
 (define user-mods-scm #f)
+(define refine-residue-range-with-full-residue-spec-scm #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")

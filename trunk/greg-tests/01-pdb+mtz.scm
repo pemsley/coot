@@ -19,8 +19,6 @@
 ;; provides read-line:
 (use-modules (ice-9 rdelim))
 
-(define rnase-pdb (append-dir-file greg-data-dir "tutorial-modern.pdb"))
-(define rnase-mtz (append-dir-file greg-data-dir "rnasa-1.8-all_refmac1.mtz"))
 (define terminal-residue-test-pdb (append-dir-file greg-data-dir "tutorial-add-terminal-1-test.pdb"))
 (define base-imol (graphics-n-molecules))
 (define rnase-seq     (append-dir-file greg-data-dir "rnase.seq"))
@@ -650,13 +648,12 @@
 		(begin
 		  (mutate cis-pep-mol chain-id resno "" "GLY")
 		  (with-auto-accept
-		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) "")
-		   (accept-regularizement)
-		   (mutate cis-pep-mol chain-id resno "" res-type)
-		   (auto-fit-best-rotamer resno "" ins-code chain-id cis-pep-mol 
-					  (imol-refinement-map) 1 1)
-		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) "")
-		   (accept-regularizement))
+		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) ""))
+		  (mutate cis-pep-mol chain-id resno "" res-type)
+		  (auto-fit-best-rotamer resno "" ins-code chain-id cis-pep-mol 
+					 (imol-refinement-map) 1 1)
+		  (with-auto-accept
+		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) ""))
 		  ;; should be repaired now.  Write it out.
 		  
 		  (let ((tmp-file "tmp-fixed-cis.pdb"))
@@ -733,6 +730,53 @@
 
 	   (sphere-refine-here)
 	   #t)))))
+
+
+(greg-testcase "Refinement gives useful results" #t 
+   (lambda () 
+
+     ;; 
+     (define (no-non-bonded ls)
+       (cond 
+	((null? ls) '())
+	((string=? (car (car ls)) "Non-bonded")
+	 (no-non-bonded (cdr ls)))
+	(else 
+	 (cons (car ls) (no-non-bonded (cdr ls))))))
+	
+
+     ;; return #f or a number, which is the current overweighting of
+     ;; the density terms.  When not overweighted, the geometric chi
+     ;; squareds will be 1.0.
+     ;; 
+     (define (weight-scale-from-refinement-results rr)
+       (if (not (list? rr))
+	   #f
+	   (let* ((nnb-list (no-non-bonded (list-ref rr 2)))
+		  (chi-squares (map (lambda (x) (list-ref x 2)) nnb-list))
+		  (n (length chi-squares))
+		  (sum (apply + chi-squares)))
+	     (/ sum n))))
+	     
+		
+     (let ((imol (greg-pdb "tutorial-modern.pdb"))
+	   (imol-map (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
+       (set-imol-refinement-map imol-map)
+
+       (let loop ((results (refine-zone-with-full-residue-spec imol "A" 40 "" 43 "" "")))
+	 (format #t "refinement results: ~s~%" results)
+	 (let ((ow (weight-scale-from-refinement-results results)))
+	   (format #t "ow factor: ~s~%" ow)
+	   (if (and (< ow 1.1)
+		    (> ow 0.9))
+	       #t
+	       (let ((new-weight (/ (matrix-state) (* ow ow))))
+		 (format #t "INFO:: setting refinement weight to ~s~%" new-weight)
+		 (set-matrix new-weight)
+		 (loop (refine-zone-with-full-residue-spec imol "A" 40 "" 43 "" "")))))))))
+
+
+
 
 
 

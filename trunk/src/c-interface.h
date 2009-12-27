@@ -3009,16 +3009,6 @@ void refine_zone_atom_index_define(int imol, int ind1, int ind2);
  presumes that imol_Refinement_Map has been set */
 void refine_zone(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
 
-/*! \brief refine a zone, allowing the specification of insertion codes for the residues too.
-
- presumes that imol_Refinement_Map has been set */
-void refine_zone_with_full_residue_spec(int imol, const char *chain_id,
-					int resno1,
-					const char*inscode_1,
-					int resno2,
-					const char*inscode_2,
-					const char *altconf);
-
 /*! \brief refine a zone using auto-range
 
  presumes that imol_Refinement_Map has been set */
@@ -5703,7 +5693,7 @@ int laplacian (int imol);
 /*  ----------------------------------------------------------------------- */
 /*                  PKGDATADIR                                              */
 /*  ----------------------------------------------------------------------- */
-/*! \name retrieve the PKGDATADIR for scripting */
+/*! \name PKGDATADIR */
 /* \{ */
 #ifdef __cplusplus
 #ifdef USE_PYTHON
@@ -5768,7 +5758,7 @@ int pisa_interaction(int imol_1, int imol_2);
 /*  ----------------------------------------------------------------------- */
 /*! \name Jiggle Fit */
 /* \{ */
-/*!  jiggle fit to the current refinment map.  return < -100 if
+/*!  \brief jiggle fit to the current refinment map.  return < -100 if
   not possible, else return the new best fit for this residue.  */
 float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
 				  int n_trials,

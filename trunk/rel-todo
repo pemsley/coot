@@ -2,11 +2,6 @@
 
    36 dev points -> March 20th
 
-   o HK: I want a function to set the refinement weight for me, 
-     i.e.  it should do a triple refine and look at the chi squareds.
-     Keep doing that with different weights until we get to 1.0.  Needs
-     refinement function to return SCM refinement results. ::: 2
-
    o Make python coot work on CentOS 4.  It does?  Needs testing.  ::: 2
 
    o Hydrogens should have thinner bonds.  (Not half bonds - all grey
@@ -23,7 +18,17 @@
 
    o function documentation from cc-interface.hh ::: 2
 
-   o consider changing auto-open behaviour, as Randy Read suggests ::: 2
+   o consider changing auto-open behaviour, as Randy Read suggests.
+     Or perhaps like Kevin suggests:  prefix.F and prefix.phi
+      ::: 3
+
+   o Takaaki Fukami: set occs to zero for a residue.  Add an alt conf problem:
+  
+     Set occ=0.0 for atoms NZ, CE, CD  (in "Residue Info..." dialog)
+     Add alternate to the Lys (by "Add Alternate Conformation" button)
+     Now, occ=-0.5 for the atoms NZ, CE, CD.
+
+     ::: 2
 
 ------
 
@@ -120,3 +125,12 @@
      ::: 3
 
 * Done.
+
+   o HK: I want a function to set the refinement weight for me, 
+     i.e.  it should do a triple refine and look at the chi squareds.
+     Keep doing that with different weights until we get to 1.0.  Needs
+     refinement function to return SCM refinement results. ::: 2
+
+* Done - Cool.
+
+

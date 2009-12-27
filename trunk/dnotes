@@ -5290,6 +5290,13 @@ Tue Dec 22 08:03:46 GMT 2009
      CCCCCC.  The torsions are in the wrong order.  ::: 4
 
 
+---
+Sun Dec 27 02:09:22 GMT 2009
+
+   o the arguments of molecule_info_class_t get_residue() are the
+   wrong way round.
+
 
 ------
+
 

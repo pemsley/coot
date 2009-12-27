@@ -518,6 +518,33 @@ PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 #endif // USE_PYTHON
 
 /*  ----------------------------------------------------------------------- */
+/*                  Refinement                                              */
+/*  ----------------------------------------------------------------------- */
+
+/*! \brief refine a zone, allowing the specification of insertion
+  codes for the residues too.
+
+presumes that imol_Refinement_Map has been set */
+#ifdef USE_GUILE
+SCM refine_zone_with_full_residue_spec_scm(int imol, const char *chain_id,
+					   int resno1,
+					   const char*inscode_1,
+					   int resno2,
+					   const char*inscode_2,
+					   const char *altconf);
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
+					   int resno1,
+					   const char*inscode_1,
+					   int resno2,
+					   const char*inscode_2,
+					   const char *altconf);
+#endif // USE_PYTHON
+
+
+/*  ----------------------------------------------------------------------- */
 /*                  rigid body fitting (multiple residue ranges)            */
 /*  ----------------------------------------------------------------------- */
 // return 0 on fail to refine (no sensible place to put atoms) and 1

@@ -90,9 +90,6 @@
 
 #ifdef HAVE_GSL
 #else
-// fake in refinement_results_t
-// BL says:: probably shouldnt be here as already defined in ../ideal/simple-restraints.hh
-// FIXME
 namespace coot { 
    enum geometry_graph_type {GEOMETRY_GRAPH_GEOMETRY,
                              GEOMETRY_GRAPH_B_FACTOR,
@@ -103,17 +100,6 @@ namespace coot {
                              SEQUENCE_VIEW,
                              RAMACHANDRAN_PLOT
    };
-//  class refinement_results_t {
-//  public:
-//      short int found_restraints_flag; // 0 or 1 (if we found restraints or not).
-//      int progress; // GSL_ENOPROG, GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
-//      std::string info;
-//      refinement_results_t(short int frf, int prog_in, std::string info_in) {
-//         found_restraints_flag = frf;
-//         info = info_in;
-//         progress = prog_in;
-//     }
- // };
 }
 #endif // HAVE_GSL
 
@@ -661,7 +647,6 @@ class graphics_info_t {
    void run_post_manipulation_hook_py(int imol, int mode);
 #endif
 
-
    // edit ramachandran store:
    static coot::ramachandran_points_container_t rama_points;
    std::pair<std::pair<double, double>, std::pair<double, double> >
@@ -740,6 +725,8 @@ class graphics_info_t {
    static std::vector<std::string> model_fit_refine_button_name_list();
    static std::vector<std::string> other_modelling_tools_toggle_button_name_list();
    static std::vector<std::string> other_modelling_tools_button_name_list();
+
+   // refinement_results_t is in ideal/simple-restraints.hh
 
    // rename me
    coot::refinement_results_t
@@ -1592,6 +1579,14 @@ public:
    static void add_drag_refine_idle_function();
    static gint drag_refine_refine_intermediate_atoms();
    static coot::refinement_results_t saved_dragged_refinement_results;
+#ifdef USE_GUILE
+   SCM refinement_results_to_scm(coot::refinement_results_t &rr);
+#endif    
+#ifdef USE_PYTHON
+   PyObject *refinement_results_to_py(coot::refinement_results_t &rr);
+#endif    
+
+
 
    // now that the refinement goes via the idle function callback
    // (which gets called several times) we need to external control of
@@ -1940,18 +1935,18 @@ public:
    static bool do_rama_restraints; 
    static bool do_numerical_gradients; // for debugging
 
-   void regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end); 
-   void refine    (int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);
+   coot::refinement_results_t regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end); 
+   coot::refinement_results_t refine    (int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);
    // a more modern interface to refine:
-   void refine_residue_range(int imol,
-			     const std::string &chain_id1,
-			     const std::string &chain_id2,
-			     int resno_1,
-			     const std::string &ins_code_1,
-			     int resno_2,
-			     const std::string &ins_code_2,
-			     const std::string &altconf,
-			     short int is_water_flag);
+   coot::refinement_results_t refine_residue_range(int imol,
+						   const std::string &chain_id1,
+						   const std::string &chain_id2,
+						   int resno_1,
+						   const std::string &ins_code_1,
+						   int resno_2,
+						   const std::string &ins_code_2,
+						   const std::string &altconf,
+						   short int is_water_flag);
    
    // used by above:
    void flash_selection(int imol, int resno_1, 
@@ -2037,10 +2032,11 @@ public:
 				  const char *alt_conf,
 				  CMMDBManager *mol);
 
-   void refine_residues_vec(int imol, 
-			    const std::vector<CResidue *> &residues,
-			    const char *alt_conf,
-			    CMMDBManager *mol);
+   coot::refinement_results_t
+     refine_residues_vec(int imol, 
+			 const std::vector<CResidue *> &residues,
+			 const char *alt_conf,
+			 CMMDBManager *mol);
 			       
 
    // on reading a pdb file, we get a list of residues, use these to

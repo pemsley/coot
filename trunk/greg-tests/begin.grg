@@ -23,6 +23,9 @@
 (define (greg-pdb file-name)
   (read-pdb (append-dir-file greg-data-dir file-name)))
 
+(define rnase-pdb (append-dir-file greg-data-dir "tutorial-modern.pdb"))
+(define rnase-mtz (append-dir-file greg-data-dir "rnasa-1.8-all_refmac1.mtz"))
+
 ; How fast does the graphics rotate things (relative to kalypso)
 (define rotate-speed 1)
 
