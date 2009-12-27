@@ -795,6 +795,10 @@
 	     (format #t "Default Speed...~%")
 	     (set-dragged-refinement-steps-per-frame 50))))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-refine "Auto-weight refinement"
+	 auto-weight-for-refinement)
+
 
 	(add-simple-coot-menu-menuitem
 	 submenu-refine "Set Undo Molecule..."

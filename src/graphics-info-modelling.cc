@@ -482,7 +482,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 
 
 
-void
+coot::refinement_results_t 
 graphics_info_t::refine_residues_vec(int imol, 
 				     const std::vector<CResidue *> &residues,
 				     const char *alt_conf, 
@@ -498,7 +498,8 @@ graphics_info_t::refine_residues_vec(int imol,
 	    check_and_warn_bad_chirals_and_cis_peptides();
 	 }
       }
-   } 
+   }
+   return rr;
 }
 
 
@@ -965,7 +966,7 @@ graphics_info_t::load_needed_monomers(const std::vector<std::string> &pdb_residu
 
 
 
-void
+coot::refinement_results_t
 graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1, int i_atom_no_2) { 
 
    // What are we going to do here:
@@ -983,6 +984,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
    // simple-restraints)
    // 
 
+   coot::refinement_results_t rr;
    int tmp; 
    if (i_atom_no_1 > i_atom_no_2) { 
       tmp = i_atom_no_1; 
@@ -1035,8 +1037,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
       cout << "Picked atoms are not in the same chain.  Failure" << endl; 
    } else { 
       flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
-      coot::refinement_results_t rr = 
-	 copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
+       rr = copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       short int istat = rr.found_restraints_flag;
       if (istat) { 
 	 graphics_draw();
@@ -1051,6 +1052,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
 	 std::cout << "No restraints: regularize()\n";
       } 
    } // same chains test
+   return rr; 
 }
 
 std::pair<int, int> 
@@ -1085,7 +1087,47 @@ graphics_info_t::auto_range_residues(int atom_index, int imol) const {
    }
    
    return r;
+}
+
+#ifdef USE_GUILE
+SCM
+graphics_info_t::refinement_results_to_scm(coot::refinement_results_t &rr) {
+
+   SCM r = SCM_BOOL_F;
+
+   if (rr.found_restraints_flag) {
+      SCM lights_scm = SCM_EOL;
+      SCM progress_scm = SCM_MAKINUM(rr.progress);
+      SCM info_scm = scm_from_locale_string(rr.info.c_str());
+      for (int il=rr.lights.size()-1; il>=0; il--) {
+	 SCM light_scm = SCM_EOL;
+	 SCM value_scm = scm_double2num(rr.lights[il].value);
+	 SCM label_scm = scm_from_locale_string(rr.lights[il].label.c_str());
+ 	 SCM  name_scm = scm_from_locale_string(rr.lights[il].name.c_str());
+	 
+	 light_scm = scm_cons(value_scm, light_scm);
+	 light_scm = scm_cons(label_scm, light_scm);
+	 light_scm = scm_cons( name_scm, light_scm);
+
+	 lights_scm = scm_cons(light_scm, lights_scm);
+      } 
+      r = SCM_EOL;
+      r = scm_cons(lights_scm,r);
+      r = scm_cons(progress_scm,r);
+      r = scm_cons(info_scm,r);
+   }
+   return r;
+}
+#endif    
+
+#ifdef USE_PYTHON
+PyObject *
+graphics_info_t::refinement_results_to_py(coot::refinement_results_t &rr) {
+   PyObject *r = Py_False;
+   return r;
 } 
+#endif    
+
 
 
 void
@@ -1171,8 +1213,12 @@ graphics_info_t::flash_position(const clipper::Coord_orth &pos) {
    }
 }
 
-void
+
+coot::refinement_results_t
 graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, int i_atom_no_2) {
+
+   coot::refinement_results_t rr;
+
    int tmp; 
    if (i_atom_no_1 > i_atom_no_2) { 
       tmp = i_atom_no_1; 
@@ -1234,9 +1280,10 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
       if (! is_water_like_flag)
 	 if (SelAtom[i_atom_no_1]->GetResidue() == SelAtom[i_atom_no_2]->GetResidue())
 	    is_water_like_flag = check_for_single_hetatom(SelAtom[i_atom_no_2]->GetResidue());
-      refine_residue_range(imol, chain_id_1, chain_id_2, resno_1, inscode_1,
-			   resno_2, inscode_2, altconf, is_water_like_flag);
+      rr = refine_residue_range(imol, chain_id_1, chain_id_2, resno_1, inscode_1,
+				resno_2, inscode_2, altconf, is_water_like_flag);
    }
+   return rr;
 }
 
 // I mean things like HOH, CL, BR etc
@@ -1295,7 +1342,7 @@ graphics_info_t::check_for_single_hetatom(CResidue *res_p) const {
 // and the auto_range is determined by the calling function.  Here we
 // are passed the results of any auto_range calculation.
 // 
-void
+coot::refinement_results_t
 graphics_info_t::refine_residue_range(int imol,
 				      const std::string &chain_id_1,
 				      const std::string &chain_id_2,
@@ -1312,6 +1359,8 @@ graphics_info_t::refine_residue_range(int imol,
 //  	     << " " <<  resno_2 << ":" << ins_code_2 << ":"
 //  	     << " " << ":" << altconf << ": " << is_water_like_flag << std::endl;
 
+   coot::refinement_results_t rr;
+   
    int imol_map = Imol_Refinement_Map();
    if (imol_map == -1) { // magic number check,
       // if not -1, then it has been set by user
@@ -1363,9 +1412,8 @@ graphics_info_t::refine_residue_range(int imol,
 	    if (!simple_water) { 
 	       flash_selection(imol, resno_1, ins_code_1, resno_2, ins_code_2, altconf, chain_id_1);
 	       long t0 = glutGet(GLUT_ELAPSED_TIME);
-	       coot::refinement_results_t rr = 
-		  copy_mol_and_refine(imol, imol_map, resno_1, ins_code_1, resno_2, ins_code_2,
-				      altconf, chain_id_1);
+	       rr = copy_mol_and_refine(imol, imol_map, resno_1, ins_code_1, resno_2, ins_code_2,
+					altconf, chain_id_1);
 	       short int istat = rr.found_restraints_flag;
 	       long t1 = glutGet(GLUT_ELAPSED_TIME);
 	       std::cout << "Refinement elapsed time: " << float(t1-t0)/1000.0 << std::endl;
@@ -1386,6 +1434,7 @@ graphics_info_t::refine_residue_range(int imol,
 	 } 
       }
    } // same chains test
+   return rr;
 }
 
 

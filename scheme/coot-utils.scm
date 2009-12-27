@@ -76,6 +76,7 @@
 (define symmetry-operators symmetry-operators-scm)
 (define symmetry-operators->xHM symmetry-operators-to-xHM-scm)
 (define user-mods user-mods-scm)
+(define refine-zone-with-full-residue-spec refine-zone-with-full-residue-spec-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a
@@ -112,10 +113,11 @@
   `(begin
      (let ((replace-state (refinement-immediate-replacement-state)))
        (set-refinement-immediate-replacement 1)
-       ,@funcs
-       (accept-regularizement)
-       (if (= replace-state 0)
-	   (set-refinement-immediate-replacement 0)))))
+       (let ((val ,@funcs))
+	 (accept-regularizement)
+	 (if (= replace-state 0)
+	     (set-refinement-immediate-replacement 0))
+	 val))))
 
 ;; 
 (defmacro using-active-atom funcs
@@ -1374,6 +1376,91 @@
      ((= (map-is-difference-map (car map-list)) 0) (car map-list))
      (else 
       (loop (cdr map-list))))))
+
+
+;; Set the refinement weight (matrix) by iterating the refinement and
+;; varying the weight until the chi squares (not including the
+;; non-bonded terms) reach 1.0 =/- 10%.  It uses sphere refinement.
+;; The refinement map must be set.  At the end show the new weight in
+;; the status bar.  Seems to take about 5 rounds.
+;; 
+(define (auto-weight-for-refinement)
+
+  ;; return a pair of the imol and a list of residue specs.
+  ;; or #f if that is not possible
+  ;; 
+  (define (sphere-residues radius)
+    (let ((active-atom (active-residue)))
+        (if (not (list? active-atom))
+	    (begin
+	      (format #t "No active atom~%")
+	      #f)
+            (let* ((centred-residue (list-head (cdr active-atom) 3))
+                   (imol (car active-atom))
+                   (other-residues (residues-near-residue imol centred-residue radius))
+                   (all-residues (if (list? other-residues)
+                                     (cons centred-residue other-residues)
+                                     (list centred-residue))))
+	      (list imol all-residues)))))
+
+  ;; the refinent function that is run and returns nice refinement
+  ;; results.
+  ;; 
+  (define (refinement-func)
+    (let ((sr (sphere-residues 3.5)))
+      (if sr
+	  (with-auto-accept
+	   (apply refine-residues sr)))))
+
+  ;; get rid of non-bonded chi-squared results from the input list ls.
+  ;; 
+  (define (no-non-bonded ls)
+    (cond 
+     ((null? ls) '())
+     ((string=? (car (car ls)) "Non-bonded")
+      (no-non-bonded (cdr ls)))
+     (else 
+      (cons (car ls) (no-non-bonded (cdr ls))))))
+  
+
+  ;; return #f or a number, which is the current overweighting of the
+  ;; density terms.  (of course, when not overweighted, the geometric
+  ;; chi squareds will be about 1.0).
+  ;; 
+  (define (weight-scale-from-refinement-results rr)
+    (if (not (list? rr))
+	#f
+	(let* ((nnb-list (no-non-bonded (list-ref rr 2)))
+	       (chi-squares (map (lambda (x) (list-ref x 2)) nnb-list))
+	       (n (length chi-squares))
+	       (sum (apply + chi-squares)))
+	  (if (= n 0)
+	      #f
+	      (/ sum n)))))
+
+  
+  ;; main body
+  ;; 
+  (let loop ((results (refinement-func)))
+    (let ((ow (weight-scale-from-refinement-results results)))
+      (format #t "Overweight factor: ~s~%" ow)
+      (if (not (number? ow))
+	  #f 
+	  (if (and (< ow 1.1)
+		   (> ow 0.9))
+	      ;; done
+	      (let ((s (string-append 
+			"Set weight matrix to "
+			(number->string (matrix-state)))))
+		(add-status-bar-text s))
+	      ;; more refinement required
+	      (let ((new-weight (/ (matrix-state) (expt ow 1.2)))) ;; squared causes ringing, 
+                                                                   ;; as does 1.5.
+		                                                   ;; Simple is overdamped.
+		(format #t "INFO:: setting refinement weight to ~s~%" new-weight)
+		(set-matrix new-weight)
+		(loop (refinement-func))))))))
+
 
 
 ;; Print the sequence of molecule number @var{imol}
