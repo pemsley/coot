@@ -2,14 +2,6 @@
 
    36 dev points -> March 20th
 
-   o Takaaki Fukami: set occs to zero for a residue.  Add an alt conf problem:
-  
-     Set occ=0.0 for atoms NZ, CE, CD  (in "Residue Info..." dialog)
-     Add alternate to the Lys (by "Add Alternate Conformation" button)
-     Now, occ=-0.5 for the atoms NZ, CE, CD.
-
-     ::: 2
-
    o Hydrogens should have thinner bonds.  (Not half bonds - all grey
      - more like molprobity/KING) ::: 2
 
@@ -136,3 +128,12 @@
 * Done.
 
 
+   o Takaaki Fukami: set occs to zero for a residue.  Add an alt conf problem:
+  
+     Set occ=0.0 for atoms NZ, CE, CD  (in "Residue Info..." dialog)
+     Add alternate to the Lys (by "Add Alternate Conformation" button)
+     Now, occ=-0.5 for the atoms NZ, CE, CD.
+
+     ::: 0.5
+
+* Done.

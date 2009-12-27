@@ -5,6 +5,9 @@
 
   o FEATURE: Binary updates (pre-releases) now available. 
 
+  o FEATURE: A means to set the refinement weight so that the
+    resulting chi squareds are 1.0 (or close) [Katya Heldwein]
+
   o CHANGE: "Save dialog positions" now also saves the Edit Chi Angles
     dialog position [Markus Rudolph].
 

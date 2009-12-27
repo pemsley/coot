@@ -3583,9 +3583,12 @@ molecule_class_info_t::fit_residue_range_to_map_by_simplex(int resno1, int resno
 
 // Return a pair, the first if the split was done correctly or not and
 // the second is the string of the new alt conf.
+//
+// If this is not a shelxl molecule, don't add change the remaining
+// atoms to negative occupancy, set them to zero.
 // 
 std::pair<bool,std::string>
-molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) { 
+molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) {
 
    std::pair<bool,std::string> pr(0, "");
    if (atom_index < atom_sel.n_selected_atoms) {
@@ -3820,7 +3823,10 @@ molecule_class_info_t::make_new_alt_conf(const std::vector<std::string> &residue
 }
 
 
-// This is a molecule-class-info function.  
+// This is a molecule-class-info function.
+// 
+// It calls do_accept_reject_dialog().  That is bad and should be cleaned up.
+// 
 std::pair<bool, std::string>
 molecule_class_info_t::split_residue_internal(CResidue *residue, const std::string &altconf, 
 					      const std::vector<std::string> &all_residue_altconfs,
@@ -3910,8 +3916,6 @@ molecule_class_info_t::split_residue_internal(CResidue *residue, const std::stri
 //    std::cout << "Post new bonds we have " << nbonds << " bonds lines\n";
 
    do_accept_reject_dialog("Alt Conf Split", coot::refinement_results_t());
-   std::cout << "split_residue(int atom_index, int alt_conf_split_type) returns "
-	     << p.first << " " << p.second << std::endl;
    return p;
 }
 
