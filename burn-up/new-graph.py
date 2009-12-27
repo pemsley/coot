@@ -17,8 +17,6 @@ from pychart import *
 from datetime import date
 from datetime import timedelta
 
-
-
 def describeEvent(days, label, off):
     x1 = ar.x_pos(days)
     # can.line(line_style.black_dash1, x1, ybot, x1, ytip)
@@ -42,7 +40,48 @@ def predict_release(data):
         return [X_pred, Y_pred_1, X_today]
     else:
         return False
-    
+
+def x_ticks(x_day_range):
+   x_tick_interval = 2
+   if (x_day_range >= 40):
+      x_tick_interval = 5
+   if (x_day_range > 80):
+      x_tick_interval = 10
+   if (x_day_range > 120):
+      x_tick_interval = 20
+   if (x_day_range > 220):
+      x_tick_interval = 25
+   if (x_day_range > 280):
+      x_tick_interval = 50
+   return x_tick_interval
+
+def draw_prediction_on_canvas(pr, can):
+
+   if pr:
+      X_pred = pr[0]
+      Y_pred = pr[1]
+      X_today = pr[2]
+      t_delta = timedelta(days=X_pred-X_today)
+      now = date.today()
+      pred_date = now + t_delta
+      pred_date_str = pred_date.strftime("%A %d %b %Y")
+      
+      s = "/4/oProjected Release: Day "
+      int_X_pred = int(X_pred+1)
+      s += str(int_X_pred)
+      s += ",\n"
+      s += pred_date_str
+      can.show(70,78, s)
+      
+      #   print "X_pred: :", X_pred, "Y_pred: :", Y_pred
+      can.rectangle(line_style.default, fill_style.default,
+                    x1=ar.x_pos(int_X_pred-0.3), x2=ar.x_pos(int_X_pred+0.3),
+                    y1=ar.y_pos(Y_pred-0.5), y2=ar.y_pos(Y_pred+0.5))
+      can.line(line_style.black_dash1, ar.x_pos(int_X_pred), 0,
+               ar.x_pos(int_X_pred), ar.y_pos(Y_pred))
+
+
+#############################################################################
 
 theme.get_options()
 theme.output_format="png"
@@ -66,17 +105,7 @@ x_label = "Days (since pre-release start)"
 
 x_day_range = 40
 
-x_tick_interval = 2
-if (x_day_range >= 40):
-   x_tick_interval = 5
-if (x_day_range > 80):
-   x_tick_interval = 10
-if (x_day_range > 120):
-   x_tick_interval = 20
-if (x_day_range > 220):
-   x_tick_interval = 25
-if (x_day_range > 280):
-   x_tick_interval = 50
+x_tick_interval = x_ticks(x_day_range)
 
 xaxis = axis.X(tic_interval = x_tick_interval, label=x_label)
 yaxis = axis.Y(tic_interval = 20, label="Dev Points")
@@ -98,36 +127,12 @@ ar.add_plot(plot, plot2)
 
 
 pr = predict_release(data)
-if pr:
-   X_pred = pr[0]
-   Y_pred = pr[1]
-   X_today = pr[2]
-   t_delta = timedelta(days=X_pred-X_today)
-   now = date.today()
-   pred_date = now + t_delta
-   pred_date_str = pred_date.strftime("%A %d %b %Y")
-
-   s = "/4/oProjected Release: Day "
-   int_X_pred = int(X_pred+1)
-   s += str(int_X_pred)
-   s += ",\n"
-   s += pred_date_str
-   can.show(70,78, s)
-
-   #   print "X_pred: :", X_pred, "Y_pred: :", Y_pred
-   can.rectangle(line_style.default, fill_style.default,
-                 x1=ar.x_pos(int_X_pred-0.3), x2=ar.x_pos(int_X_pred+0.3),
-                 y1=ar.y_pos(Y_pred-0.5), y2=ar.y_pos(Y_pred+0.5))
-   can.line(line_style.black_dash1, ar.x_pos(int_X_pred), 0, ar.x_pos(int_X_pred), ar.y_pos(Y_pred))
-
-   
-   ar.draw()
+draw_prediction_on_canvas(pr, can)
 
 # The call to ar.draw() usually comes at the end of a program.  It
 # draws the axes, the plots, and the legend (if any).
-
+#
 ar.draw()
-
 
 yloc = ar.loc[1] + ar.size[1] + 50
 ytip = ar.loc[1] + ar.size[1]
@@ -136,7 +141,6 @@ ybot = ar.loc[1]
 yloc = 20
 ybot = 0
 theme.default_font_size=4
-
 
 
 # take-home:
