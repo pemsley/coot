@@ -2,7 +2,13 @@
 
    36 dev points -> March 20th
 
-   o Make python coot work on CentOS 4.  It does?  Needs testing.  ::: 2
+   o Takaaki Fukami: set occs to zero for a residue.  Add an alt conf problem:
+  
+     Set occ=0.0 for atoms NZ, CE, CD  (in "Residue Info..." dialog)
+     Add alternate to the Lys (by "Add Alternate Conformation" button)
+     Now, occ=-0.5 for the atoms NZ, CE, CD.
+
+     ::: 2
 
    o Hydrogens should have thinner bonds.  (Not half bonds - all grey
      - more like molprobity/KING) ::: 2
@@ -10,8 +16,6 @@
    o I am looking at a symmetry-related part of the molecule. Take me
      to the main molecule (try unapplying symmetry to get there). 
      ::: 2
-
-   o Empty macros/Makefile.am? ::: 0.5
 
    o Documentation and interface (when docking fails) for docking sidechains 
      ::: 1
@@ -22,13 +26,7 @@
      Or perhaps like Kevin suggests:  prefix.F and prefix.phi
       ::: 3
 
-   o Takaaki Fukami: set occs to zero for a residue.  Add an alt conf problem:
-  
-     Set occ=0.0 for atoms NZ, CE, CD  (in "Residue Info..." dialog)
-     Add alternate to the Lys (by "Add Alternate Conformation" button)
-     Now, occ=-0.5 for the atoms NZ, CE, CD.
-
-     ::: 2
+   o Make python coot work on CentOS 4.  It does?  Needs testing.  ::: 2
 
 ------
 
@@ -132,5 +130,9 @@
      refinement function to return SCM refinement results. ::: 2
 
 * Done - Cool.
+
+   o Empty macros/Makefile.am? ::: 0.5
+
+* Done.
 
 
