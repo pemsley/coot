@@ -14,6 +14,36 @@
 #
 
 from pychart import *
+from datetime import date
+from datetime import timedelta
+
+
+
+def describeEvent(days, label, off):
+    x1 = ar.x_pos(days)
+    # can.line(line_style.black_dash1, x1, ybot, x1, ytip)
+    # can.line(line_style.black_dash1, x1, ybot, x1, 2)
+    tb = text_box.T(text=label, loc=(x1+off, yloc), shadow=(1,-1,fill_style.gray70))
+    tb.add_arrow((x1, 0))
+    tb.draw()
+    
+
+def predict_release(data):
+    last = len(data) -1
+    if (last > 1):
+        c1 = data[0][1]
+        c2 = data[0][2]
+        X_today = data[last][0]
+        m1 = (data[last][1] - c1)/X_today
+        m2 = (data[last][2] - c2)/X_today
+        X_pred = (c2-c1)/(m1-m2) + 1
+        Y_pred_1 = m1 * X_pred + c1
+        Y_pred_2 = m2 * X_pred + c2
+        return [X_pred, Y_pred_1, X_today]
+    else:
+        return False
+    
+
 theme.get_options()
 theme.output_format="png"
 theme.scale_factor=5
@@ -26,6 +56,8 @@ can = canvas.default_canvas()
 # the X value, and subsequent values are Y values for different lines.
 #
 data = chart_data.read_csv("burn-up.tab", delim=" ")
+x_label = "Days (since pre-release start)"
+
 
 # The format attribute specifies the text to be drawn at each tick mark.
 # Here, texts are rotated -60 degrees ("/a-60"), left-aligned ("/hL"),
@@ -46,7 +78,7 @@ if (x_day_range > 220):
 if (x_day_range > 280):
    x_tick_interval = 50
 
-xaxis = axis.X(tic_interval = x_tick_interval, label="Days (since pre-release start)")
+xaxis = axis.X(tic_interval = x_tick_interval, label=x_label)
 yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 
 # Define the drawing area. "y_range=(0,None)" tells that the Y minimum
@@ -64,6 +96,33 @@ plot2 = line_plot.T(label="Total Scope for 0.6.1", data=data, ycol=2)
 
 ar.add_plot(plot, plot2)
 
+
+pr = predict_release(data)
+if pr:
+   X_pred = pr[0]
+   Y_pred = pr[1]
+   X_today = pr[2]
+   t_delta = timedelta(days=X_pred-X_today)
+   now = date.today()
+   pred_date = now + t_delta
+   pred_date_str = pred_date.strftime("%A %d %b %Y")
+
+   s = "/4/oProjected Release: Day "
+   int_X_pred = int(X_pred+1)
+   s += str(int_X_pred)
+   s += ",\n"
+   s += pred_date_str
+   can.show(70,78, s)
+
+   #   print "X_pred: :", X_pred, "Y_pred: :", Y_pred
+   can.rectangle(line_style.default, fill_style.default,
+                 x1=ar.x_pos(int_X_pred-0.3), x2=ar.x_pos(int_X_pred+0.3),
+                 y1=ar.y_pos(Y_pred-0.5), y2=ar.y_pos(Y_pred+0.5))
+   can.line(line_style.black_dash1, ar.x_pos(int_X_pred), 0, ar.x_pos(int_X_pred), ar.y_pos(Y_pred))
+
+   
+   ar.draw()
+
 # The call to ar.draw() usually comes at the end of a program.  It
 # draws the axes, the plots, and the legend (if any).
 
@@ -79,14 +138,6 @@ ybot = 0
 theme.default_font_size=4
 
 
-def describeEvent(days, label, off):
-    x1 = ar.x_pos(days)
-    # can.line(line_style.black_dash1, x1, ybot, x1, ytip)
-    # can.line(line_style.black_dash1, x1, ybot, x1, 2)
-    tb = text_box.T(text=label, loc=(x1+off, yloc), shadow=(1,-1,fill_style.gray70))
-    tb.add_arrow((x1, 0))
-    tb.draw()
-    
 
 # take-home:
 #   Max sustainable rate: 2.2 dev-pts/day
