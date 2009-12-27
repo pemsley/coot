@@ -24,21 +24,3 @@
 # EXTRA_DIST because there are rules when Makefile (or Makefile.in is
 # built that finds .m4 files and puts them in the
 # dist). c.f. clipper's config/Makefile.am
-
-MACROS=						\
-  aclocal-include.m4				\
-  compiler-flags.m4				\
-  gtkgl.m4					\
-  gtk-canvas.m4					\
-  clipper.m4					\
-  clipper.m4.old				\
-  mmdb.m4					\
-  mmdb-ssm.m4					\
-  with-guile.m4					\
-  with-python.m4				\
-  guile.m4					\
-  coot-windows.m4				\
-  lib-prefix.m4					\
-  glut.m4				
-
-EXTRA_DIST=$(MACROS)
