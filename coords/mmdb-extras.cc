@@ -46,25 +46,25 @@ int
 atom_colour(const std::string &element) {
 
    if (element == " C") {
-      return yellow;
+      return YELLOW_BOND;
    } else {
       if (element == " N") {
-	 return blue;
+	 return BLUE_BOND;
       } else {
 	 if (element == " O") {
-	    return red;
+	    return RED_BOND;
 	 } else {
 	    if (element == " S") {
-	       return green;
+	       return GREEN_BOND;
 	    } else {
 	       if (element == " H") {
-		  return grey;
+		  return HYDROGEN_GREY_BOND;
 	       }
 	    }
 	 }
       }
    }
-   return 5;
+   return GREY_BOND;
 }
 
 

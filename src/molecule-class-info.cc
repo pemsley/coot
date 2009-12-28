@@ -688,32 +688,35 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i) {
 	 rotation_size -= 1.0;
       } 
       switch (i) {
-      case yellow: 
+      case YELLOW_BOND: 
 	  rgb[0] = 0.8; rgb[1] =  0.8; rgb[2] =  0.3;
 	 break;
-      case blue: 
+      case BLUE_BOND: 
 	  rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
 	 break;
-      case red: 
+      case RED_BOND: 
 	  rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
 	 break;
-      case green:
+      case GREEN_BOND:
 	 rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
 	 break;
-      case grey: 
+      case GREY_BOND: 
 	 rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
+	 break;
+      case HYDROGEN_GREY_BOND: 
+	 rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
 	 break;
 // replaced in mmdb-extras.h
 //       case white:   
 // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
 // 	 break;
-      case magenta:
+      case MAGENTA_BOND:
 	 rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
 	 break;
-      case orange:
+      case ORANGE_BOND:
 	 rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
 	 break;
-      case cyan:
+      case CYAN_BOND:
 	 rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
 	 break;
       
@@ -729,7 +732,7 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i) {
       rgb = rotate_rgb(rgb, float(1.0 - 21.0/360.0));
 
       if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-	 if (i == yellow) { 
+	 if (i == YELLOW_BOND) { 
 	    std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
 	    bond_colour_internal = rgb_new;
 	    glColor3f(rgb_new[0],rgb_new[1], rgb_new[2]);
@@ -1086,22 +1089,22 @@ void
 molecule_class_info_t::set_symm_bond_colour_mol(int icol) {
 
    switch (icol) {
-      case green:
+      case GREEN_BOND:
 	 glColor3f (combine_colour(0.1,0),
 		    combine_colour(0.8,1),
 		    combine_colour(0.1,2));
 	 break;
-      case blue: 
+      case BLUE_BOND: 
 	 glColor3f (combine_colour(0.2,0),
 		    combine_colour(0.2,1),
 		    combine_colour(0.8,2));
 	 break;
-      case red: 
+      case RED_BOND: 
 	 glColor3f (combine_colour(0.8,0),
 		    combine_colour(0.1,1),
 		    combine_colour(0.1,2));
 	 break;
-      case yellow: 
+      case YELLOW_BOND: 
 	 glColor3f (combine_colour(0.7,0),
 		    combine_colour(0.7,1),
 		    combine_colour(0.0,2));
@@ -1143,28 +1146,28 @@ molecule_class_info_t::set_symm_bond_colour_mol_rotate_colour_map(int icol, int 
    std::vector<float> t_colours(3);
 
    switch (icol) {
-   case green:
+   case GREEN_BOND:
       t_colours[0] = combine_colour(0.1, 0);
       t_colours[1] = combine_colour(0.8, 1);
       t_colours[2] = combine_colour(0.1, 2);
       rgb_new = rotate_rgb(t_colours, rotation_size);
       glColor3f (rgb_new[0], rgb_new[1], rgb_new[2]);
       break;
-   case blue: 
+   case BLUE_BOND: 
       t_colours[0] = combine_colour(0.2, 0);
       t_colours[1] = combine_colour(0.2, 1);
       t_colours[2] = combine_colour(0.8, 2);
       rgb_new = rotate_rgb(t_colours, rotation_size);
       glColor3f (rgb_new[0], rgb_new[1], rgb_new[2]);
       break;
-   case red: 
+   case RED_BOND: 
       t_colours[0] = combine_colour(0.8, 0);
       t_colours[1] = combine_colour(0.1, 1);
       t_colours[2] = combine_colour(0.1, 2);
       rgb_new = rotate_rgb(t_colours, rotation_size);
       glColor3f (rgb_new[0], rgb_new[1], rgb_new[2]);
       break;
-   case yellow: 
+   case YELLOW_BOND: 
       t_colours[0] = combine_colour(0.7, 0);
       t_colours[1] = combine_colour(0.7, 1);
       t_colours[2] = combine_colour(0.0, 2);
@@ -1759,6 +1762,14 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       ll = bonds_box.bonds_[i];
       //cout << "j range: for i = " << i << " is "
       //	   << bonds_box.bonds_[i].num_lines << endl;
+
+//       std::cout << "DEBUG:: bonds_index: " << i << " has " << bonds_box.bonds_[i].num_lines
+// 		<< " lines, thin_flag:  " << bonds_box.bonds_[i].thin_lines_flag  << std::endl;
+
+      if (bonds_box.bonds_[i].thin_lines_flag)
+ 	 glLineWidth(p_bond_width/2.0);
+      else 
+ 	 glLineWidth(p_bond_width);
 
       if ( bonds_box.bonds_[i].num_lines > 512000) {
 	 std::cout << "Fencepost heuristic failure bonds_box.bonds_[i].num_lines "

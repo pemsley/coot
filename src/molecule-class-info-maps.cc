@@ -983,7 +983,7 @@ molecule_class_info_t::draw_skeleton() {
 
       coot::CartesianPair pair;
 
-      set_bond_colour(grey);
+      set_bond_colour(GREY_BOND);
       glLineWidth(2.0);
 
       if (greer_skeleton_draw_on == 1) {

@@ -3823,28 +3823,31 @@ char *get_atom_colour_from_mol_no(int imol, const char *element) {
    int i_element;
    i_element = atom_colour(element);
    switch (i_element) {
-   case yellow: 
+   case YELLOW_BOND: 
       rgb[0] = 0.8; rgb[1] =  0.8; rgb[2] =  0.3;
       break;
-   case blue: 
+   case BLUE_BOND: 
       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
       break;
-   case red: 
+   case RED_BOND: 
       rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
       break;
-   case green:
+   case GREEN_BOND:
       rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
       break;
-   case grey: 
+   case GREY_BOND: 
       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
       break;
-   case magenta:
+   case HYDROGEN_GREY_BOND: 
+      rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+      break;
+   case MAGENTA_BOND:
       rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
       break;
-   case orange:
+   case ORANGE_BOND:
       rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
       break;
-   case cyan:
+   case CYAN_BOND:
       rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
       break;
       
@@ -3858,7 +3861,7 @@ char *get_atom_colour_from_mol_no(int imol, const char *element) {
    // 21. is the default colour map rotation
    rgb = rotate_rgb(rgb, float(1.0 - 21.0/360.0));
    if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-      if (i_element == yellow) { 
+      if (i_element == YELLOW_BOND) { 
 	 rgb = rotate_rgb(rgb, rotation_size);
       } 
    } else {
