@@ -3005,7 +3005,7 @@ molecule_class_info_t::assign_fasta_sequence(const std::string &chain_id, const 
    
    if (seq.length() > 0) { 
       std::cout << "storing sequence: " << seq << " for chain id: " << chain_id
-		<< std::endl;
+		<< " in molecule number " << imol_no << std::endl;
       input_sequence.push_back(std::pair<std::string, std::string> (chain_id,seq));
    } else { 
       std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
@@ -3060,7 +3060,7 @@ molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const st
    
    if (seq.length() > 0) { 
       std::cout << "storing sequence: " << seq << " for chain id: " << chain_id
-		<< std::endl;
+		<< " in molecule number " << imol_no << std::endl;
       // replace the sequence assigned to chain_id is possible
       bool found_chain = 0;
       for (unsigned int ich=0; ich<input_sequence.size(); ich++) {
@@ -3136,7 +3136,7 @@ molecule_class_info_t::assign_sequence_from_string(const std::string &chain_id, 
    std::string seq = seq_in;
    if (seq.length() > 0) { 
       std::cout << "storing sequence: " << seq << " for chain id: " << chain_id
-		<< std::endl;
+		<< " in molecule number " << imol_no << std::endl;
       input_sequence.push_back(std::pair<std::string, std::string> (chain_id, seq));
    } else { 
       std::cout << "WARNING:: no sequence found or improper string\n";

@@ -2,14 +2,14 @@
 
    36 dev points: 8 left.
 
-   o I am looking at a symmetry-related part of the molecule. Take me
-     to the main molecule (try unapplying symmetry to get there). 
-     ::: 2
-
    o Documentation and interface (when docking fails) for docking sidechains 
      ::: 1
 
-   o function documentation from cc-interface.hh ::: 2
+   o load tutorial data from an extension.
+
+   o I am looking at a symmetry-related part of the molecule. Take me
+     to the main molecule (try unapplying symmetry to get there). 
+     ::: 2
 
    o consider changing auto-open behaviour, as Randy Read suggests.
      Or perhaps like Kevin suggests:  prefix.F and prefix.phi
@@ -140,3 +140,7 @@
 
 
 * Done.
+
+   o function documentation from cc-interface.hh ::: 2
+
+* Done - for now.
