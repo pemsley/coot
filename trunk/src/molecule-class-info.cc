@@ -3507,16 +3507,18 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 		     coot::copy_segid(serial_number.second, res);
 		     inserted = 1;
 		  } else { 
+
 		     std::cout << "DEBUG:: insert_coords_internal() add residue\n";
 		     CResidue *last_residue = last_residue_in_chain(chain);
 		     if (last_residue) { 
-			
-			// debug::
-			int nat = last_residue->GetNumberOfAtoms();
-			for (int iat=0; iat<nat; iat++) {
-			   std::cout << iat << " of " << nat << " "
-				     << last_residue->GetAtom(iat) << std::endl;
-			} 
+
+			if (0) {   // debug::
+			   int nat = last_residue->GetNumberOfAtoms();
+			   for (int iat=0; iat<nat; iat++) {
+			      std::cout << iat << " of " << nat << " "
+					<< last_residue->GetAtom(iat) << std::endl;
+			   }
+			}
 			
 			chain->AddResidue(res);
 			coot::copy_segid(last_residue, res);

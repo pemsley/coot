@@ -1368,45 +1368,61 @@
 
 	  (let ((seq-info-ls (sequence-info imol)))
 	    
-	    (map (lambda (seq-info)
-		   (let ((seq-widgets (entry-text-pair-frame seq-info)))
-		     (gtk-box-pack-start inside-vbox (car seq-widgets) #f #f 2)))
-		 seq-info-ls)
+	    (if (not seq-info-ls)
+		(begin
+		  (let ((s (format #f "No sequence assigned for molecule number ~s" imol)))
+		    (format #t "~s~%"s)
+		    (info-dialog s)))
+		(begin
+		  (map (lambda (seq-info)
+			 (let ((seq-widgets (entry-text-pair-frame seq-info)))
+			   (gtk-box-pack-start inside-vbox (car seq-widgets) #f #f 2)))
+		       seq-info-ls)
 
-	    (gtk-box-pack-start outside-vbox inside-vbox #f #f 2)
-	    (gtk-box-pack-start outside-vbox h-sep #f #f 2)
-	    (gtk-box-pack-start outside-vbox buttons-hbox #t #f 2)
-	    (gtk-box-pack-start buttons-hbox go-button #t #f 6)
-	    (gtk-box-pack-start buttons-hbox cancel-button #t #f 6)
+		  (gtk-box-pack-start outside-vbox inside-vbox #f #f 2)
+		  (gtk-box-pack-start outside-vbox h-sep #f #f 2)
+		  (gtk-box-pack-start outside-vbox buttons-hbox #t #f 2)
+		  (gtk-box-pack-start buttons-hbox go-button #t #f 6)
+		  (gtk-box-pack-start buttons-hbox cancel-button #t #f 6)
 
-	    (gtk-signal-connect cancel-button "clicked"
-				(lambda ()
-				  (gtk-widget-destroy window)))
-	    
-	    (gtk-signal-connect go-button "clicked"
-				(lambda ()
-				  (format #t "apply the sequence info here\n")
-				  (format #t "then dock sequence\n")
+		  (gtk-signal-connect cancel-button "clicked"
+				      (lambda ()
+					(gtk-widget-destroy window)))
+		  
+		  (gtk-signal-connect 
+		   go-button "clicked"
+		   (lambda ()
+		     (format #t "================= apply the sequence info here\n")
+		     (format #t "then dock sequence\n")
 
-				  ;; no active atom won't do.  We need
-				  ;; to find the nearest atom in imol to (rotation-centre).
-				  ;;
-				  ;; if it is too far away, give a
-				  ;; warning and do't do anything.
+		     ;; no active atom won't do.  We need
+		     ;; to find the nearest atom in imol to (rotation-centre).
+		     ;;
+		     ;; if it is too far away, give a
+		     ;; warning and do't do anything.
 
-				  (let ((n-atom (closest-atom imol)))
-				    (if n-atom
-					(let ((imol     (list-ref n-atom 0))
-					      (chain-id (list-ref n-atom 1))
-					      (resno    (list-ref n-atom 2))
-					      (inscode  (list-ref n-atom 3))
-					      (at-name  (list-ref n-atom 4))
-					      (alt-conf (list-ref n-atom 5)))
-					  (cootaneer imol-map imol (list chain-id resno inscode 
-									 at-name alt-conf)))))))
-				   
-	    (gtk-container-add window outside-vbox)
-	    (gtk-widget-show-all window))))))
+		     (let ((n-atom (closest-atom imol)))
+		       (if n-atom
+			   (let ((imol     (list-ref n-atom 0))
+				 (chain-id (list-ref n-atom 1))
+				 (resno    (list-ref n-atom 2))
+				 (inscode  (list-ref n-atom 3))
+				 (at-name  (list-ref n-atom 4))
+				 (alt-conf (list-ref n-atom 5)))
+			     (let ((cootaneer-results
+				    (cootaneer imol-map imol (list chain-id resno inscode 
+								   at-name alt-conf))))
+			       (format #t "Cootaneering status: ~s~%" cootaneer-results)
+			       (if (= cootaneer-results 0)
+				   (let ((s (string-append
+					     "Insufficiently confident in alignment to make a fit."
+					     "\n"
+					     "Perhaps you could improve or extend this fragment.")))
+				     (gtk-widget-destroy window)
+				     (info-dialog s)))))))))
+		     
+		  (gtk-container-add window outside-vbox)
+		  (gtk-widget-show-all window))))))))
     
 
 ;; The gui for saving views
