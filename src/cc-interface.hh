@@ -114,9 +114,14 @@ std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
 //
 #ifdef USE_GUILE
 
-/*! \brief Return as a list of strings the symmetry operators of the
-  given molecule. If imol is a not a valid molecule, return an empty
-  list.*/
+//! \name  More Symmetry Functions
+//! \{
+
+//! \brief return the symmetry of the imolth molecule
+//! 
+//!   Return as a list of strings the symmetry operators of the
+//!   given molecule. If imol is a not a valid molecule, return an empty
+//!   list.*/
 SCM get_symmetry(int imol);
 #endif // USE_GUILE
 
@@ -124,10 +129,14 @@ SCM get_symmetry(int imol);
 // return a python object as a list (or some other python container)
 PyObject *get_symmetry_py(int imol);
 #endif // USE_PYTHON
+//! \}
 
 /*  ---------------------------------------------------------------------- */
 /*                       map functions:                                    */
 /*  ---------------------------------------------------------------------- */
+//! \name Extra Map Functions
+//! \{
+
 void add_map_colour_mol_menu_item(int imol, const std::string &name,
 				  GtkWidget *sub_menu, GtkSignalFunc callback);
 /* Actually this function is generic and could be renamed so. */
@@ -136,24 +145,31 @@ void add_map_scroll_wheel_mol_menu_item(int imol,
 					GtkWidget *menu, 
 					GtkSignalFunc callback);
 
-//! \brief return the colour of the imolth map (e.g.: (list 0.4 0.6
-//0.8). If invalid imol return #f.
-// 
+//! \brief return the colour triple of the imolth map
+//! 
+//! (e.g.: (list 0.4 0.6 0.8). If invalid imol return scheme false.
+//! 
 #ifdef USE_GUILE
 SCM map_colour_components(int imol);
 #endif // GUILE
 
 #ifdef USE_PYTHON
-// \brief return the colour of the imolth map (e.g.: [0.4, 0.6,
-// 0.8]. If invalid imol return Py_False.
+//! \brief return the colour triple of the imolth map
+//
+//! e.g.: [0.4, 0.6, 0.8]. If invalid imol return Py_False.
 //
 PyObject *map_colour_components_py(int imol);
 #endif // PYTHON
+//! \}
 
 /*  ------------------------------------------------------------------------ */
 /*                         refmac stuff                                      */
 /*  ------------------------------------------------------------------------ */
-// if swap_map_colours_post_refmac_flag is not 1 thenn imol_refmac_map is ignored.
+//! \name Execute Refmac
+//! \{
+//! \brief execute refmac
+// 
+//! if swap_map_colours_post_refmac_flag is not 1 thenn imol_refmac_map is ignored.
 // 
 void
 execute_refmac_real(std::string pdb_in_filename,
@@ -173,6 +189,8 @@ execute_refmac_real(std::string pdb_in_filename,
 		    std::string phib_string,
 		    std::string fom_string,
 		    std::string ccp4i_project_dir);
+//! \}
+
 
 /*  ------------------------------------------------------------------- */
 /*                    file selection                                    */
@@ -271,6 +289,8 @@ std::pair<int, std::vector<std::string> > merge_molecules_by_vector(const std::v
 /*  ----------------------------------------------------------------------- */
 /*                         Dictionaries                                     */
 /*  ----------------------------------------------------------------------- */
+//! \name Dictionary Functions
+//! \{
 /*! \brief return a list of all the dictionaries read */
 #ifdef USE_GUILE
 SCM dictionaries_read();
@@ -279,20 +299,23 @@ SCM dictionaries_read();
 #ifdef USE_PYTHON
 PyObject *dictionaries_read_py();
 #endif // PYTHON
+//! \}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                         Restraints                                       */
 /*  ----------------------------------------------------------------------- */
 #ifdef USE_GUILE
-/*! \name  Restraints Interface */
-/* \{ */
-/*!  \brief return the monomer restraints for the given monomer_type,
-  return scheme false on "restraints for monomer not found" */
+//! \name  Restraints Interface
+/// \{
+//! \brief return the monomer restraints for the given monomer_type,
+//!       return scheme false on "restraints for monomer not found"
 SCM monomer_restraints(const char *monomer_type);
-/*!  \brief set the monomer restraints of the given monomer_type.
 
-  @return scheme false or true for success or failure to set the
-  restrains for monomer_type */
+//! \brief set the monomer restraints of the given monomer_type
+//!
+//!  @return scheme false or true for success or failure to set the
+//!  restrains for monomer_type */
 SCM set_monomer_restraints(const char *monomer_type, SCM restraints);
 #endif // USE_GUILE
 
@@ -301,7 +324,7 @@ PyObject *monomer_restraints_py(const char *monomer_type);
 PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints);
 #endif // USE_PYTHON
 
-/* \} */
+//! \}
 
 /*  ----------------------------------------------------------------------- */
 /*                  dipole                                                  */
@@ -391,11 +414,13 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in);
 /*               Atom info                                                  */
 /*  ----------------------------------------------------------------------- */
 
-/*! \brief output atom info in a scheme list for use in scripting:
-
-in this format (list occ temp-factor element x y z).  Return empty
-list if atom not found. */
 #ifdef USE_GUILE
+//! \name Atom Information functions
+//! \{
+//! \brief output atom info in a scheme list for use in scripting
+//!
+//! in this format (list occ temp-factor element x y z).  Return empty
+//! list if atom not found. */
 SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 			 const char *ins_code, const char *atname,
 			 const char *altconf);
@@ -403,81 +428,96 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 
 
 #ifdef USE_GUILE
-//! \brief
-// Return a list of atom info for each atom in the specified residue:
-// 
-// output is like this:
-// (list
-//    (list (list atom-name alt-conf)
-//          (list occ temp-fact element)
-//          (list x y z)))
-// 
+//! \brief Return a list of atom info for each atom in the specified residue
+//! 
+//! output is like this:
+//! (list
+//!    (list (list atom-name alt-conf)
+//!          (list occ temp-fact element)
+//!          (list x y z)))
+//! 
 SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code);
 SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code);
 
-// And going the other way, given an s-expression, update
-// molecule_number by the given molecule.  Clear what's currently
-// there first though.
-//
-int clear_and_update_molecule(int molecule_number, SCM molecule_expression);
-// return a molecule number, -1 on error
+//! \brief generate a molecule from an s-expression
+//! 
+//! return a molecule number, -1 on error
 int add_molecule(SCM molecule_expression, const char *name);
 
-//! \brief 
-// Return a list of (list imol chain-id resno ins-code atom-name
-// alt-conf) for atom that is closest to the screen centre in any
-// displayed molecule.  If there are multiple models with the same
-// coordinates at the screen centre, return the attributes of the atom
-// in the highest number molecule number.
-//
-// return #f if no active residue
-// 
+
+//! \brief update a molecule from a s-expression
+//!
+//! And going the other way, given an s-expression, update
+//! molecule_number by the given molecule.  Clear what's currently
+//! there first though.
+//!
+int clear_and_update_molecule(int molecule_number, SCM molecule_expression);
+
+//! \brief return specs of the atom close to screen centre
+//! 
+//! Return a list of (list imol chain-id resno ins-code atom-name
+//! alt-conf) for atom that is closest to the screen centre in any
+//! displayed molecule.  If there are multiple models with the same
+//! coordinates at the screen centre, return the attributes of the atom
+//! in the highest number molecule number.
+//!
+//! return scheme false if no active residue
+//! 
 SCM active_residue();
 
-//! \brief
-// 
-// Return a list of (list imol chain-id resno ins-code atom-name
-// alt-conf (list x y z)) for atom that is closest to the screen
-// centre in the given molecule (unlike active-residue, no account is
-// taken of the displayed state of the molecule).  If there is no
-// atom, or if imol is not a valid model molecule, return #f.
-// 
+//! \brief return the specs of the closest atom in imolth molecule
+//!
+//! Return a list of (list imol chain-id resno ins-code atom-name
+//! alt-conf (list x y z)) for atom that is closest to the screen
+//! centre in the given molecule (unlike active-residue, no account is
+//! taken of the displayed state of the molecule).  If there is no
+//! atom, or if imol is not a valid model molecule, return scheme false.
+//! 
 SCM closest_atom(int imol);
 
-// Return residue specs for residues that have atoms that are
-// closer than radius Angstroems to any atom in the residue
-// specified by res_in.
-// 
+//! \brief return residues near residue
+//! 
+//! Return residue specs for residues that have atoms that are
+//! closer than radius Angstroems to any atom in the residue
+//! specified by res_in.
+//! 
 SCM residues_near_residue(int imol, SCM residue_in, float radius);
 
-// Return a list of pairs of (imol, residue_spec).
-// pos is a list of 3 numbers.  (get imol from active-atom)
-// 
+//! return residues within radius of pos (x,y,z) position
+//! 
+//! Return a list of pairs of (imol, residue_spec).
+//! pos is a list of 3 numbers.  (get imol from active-atom)
+//! 
 SCM residues_near_position_scm(int imol, SCM pos, float radius);
 
 #endif	/* USE_GUILE */
 
 /* Here the Python code for ATOM INFO */
 
-/*! \brief output atom info in a python list for use in scripting:
-
-in this format [occ, temp_factor, element, x, y, z].  Return empty
-list if atom not found. */
+//! \brief output atom info in a python list for use in scripting:
+//! 
+//! in this format [occ, temp_factor, element, x, y, z].  Return empty
+//! list if atom not found. */
 #ifdef USE_PYTHON
 PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 			      const char *ins_code, const char *atname,
 			      const char *altconf);
 //! \brief
-// Return a list of atom info for each atom in the specified residue:
+//! Return a list of atom info for each atom in the specified residue:
 //
-// output is like this:
-// [
-//     [[atom-name,alt-conf]
-//      [occ,temp_fact,element]
-//      [x,y,z]]]
-//
+//! output is like this:
+//! [
+//!     [[atom-name,alt-conf]
+//!      [occ,temp_fact,element]
+//!      [x,y,z]]]
+//!
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code);
 PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code);
+
+//! \}
+
+//! \name Using S-expression molecules
+//! \{
 
 // And going the other way, given an python-expression, update
 // molecule_number by the given molecule.  Clear what's currently
@@ -488,23 +528,23 @@ int clear_and_update_molecule_py(int molecule_number, PyObject *molecule_express
 int add_molecule_py(PyObject *molecule_expression, const char *name);
 
 //! \brief
-// Return a list of [imol, chain-id, resno, ins-code, atom-name,
-// alt-conf] for atom that is closest to the screen centre.  If there
-// are multiple models with the same coordinates at the screen centre,
-// return the attributes of the atom in the highest number molecule
-// number.
+//! Return a list of [imol, chain-id, resno, ins-code, atom-name,
+//! alt-conf] for atom that is closest to the screen centre.  If there
+//! are multiple models with the same coordinates at the screen centre,
+//! return the attributes of the atom in the highest number molecule
+//! number.
 //
-// return False if no active residue
+//! return False if no active residue
 //
 PyObject *active_residue_py();
 
-//! \brief
+//! \brief return closest atom in imolth molecule
 // 
-// Return a list of [imol, chain-id, resno, ins-code, atom-name,
-// alt-conf, [x, y, z]] for atom that is closest to the screen
-// centre in the given molecule (unlike active-residue, no account is
-// taken of the displayed state of the molecule).  If there is no
-// atom, or if imol is not a valid model molecule, return #f.
+//! Return a list of [imol, chain-id, resno, ins-code, atom-name,
+//! alt-conf, [x, y, z]] for atom that is closest to the screen
+//! centre in the given molecule (unlike active-residue, no account is
+//! taken of the displayed state of the molecule).  If there is no
+//! atom, or if imol is not a valid model molecule, return #f.
 // 
 PyObject *closest_atom_py(int imol);
 
@@ -517,14 +557,21 @@ PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 
 #endif // USE_PYTHON
 
+//! \}
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  Refinement                                              */
 /*  ----------------------------------------------------------------------- */
 
-/*! \brief refine a zone, allowing the specification of insertion
-  codes for the residues too.
+//! \name Refinement with specs
+//! \{
 
-presumes that imol_Refinement_Map has been set */
+
+//! \brief refine a zone, allowing the specification of insertion
+//!  codes for the residues too.
+//! 
+//! presumes that imol_Refinement_Map has been set
 #ifdef USE_GUILE
 SCM refine_zone_with_full_residue_spec_scm(int imol, const char *chain_id,
 					   int resno1,
@@ -543,6 +590,8 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 					   const char *altconf);
 #endif // USE_PYTHON
 
+//! \}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  rigid body fitting (multiple residue ranges)            */
@@ -555,43 +604,54 @@ int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue
 /*                  water chain                                             */
 /*  ----------------------------------------------------------------------- */
 
+//! \name Water Chain Functions
+//! \{
+
 #ifdef USE_GUILE
-/*! \brief return the chain id of the water chain from a shelx molecule.  Raw interface
-  Return #f if no chain or bad imol*/
+//! \brief return the chain id of the water chain from a shelx molecule.  Raw interface
+//! 
+//!  @return scheme false if no chain or bad imol
 SCM water_chain_from_shelx_ins_scm(int imol); 
-/*! brief return the chain id of the water chain. Raw interface */
+/*! \brief return the chain id of the water chain. Raw interface */
 SCM water_chain_scm(int imol);
 #endif 
 
 #ifdef USE_PYTHON
-/*! return the chain id of the water chain from a shelx molecule.  Raw interface.
+/* return the chain id of the water chain from a shelx molecule.  Raw interface.
 
 Return False if no chain or bad imol*/
 PyObject *water_chain_from_shelx_ins_py(int imol); 
-/*! return the chain id of the water chain. Raw interface */
+/* return the chain id of the water chain. Raw interface */
 PyObject *water_chain_py(int imol);
 #endif 
+
+//! \}
 
 
 /*  ----------------------------------------------------------------------- */
 /*                  spin search                                             */
 /*  ----------------------------------------------------------------------- */
+//! \name Spin Search Functions
+//! \{
+
 void spin_search_by_atom_vectors(int imol_map, int imol, const std::string &chain_id, int resno, const std::string &ins_code, const std::pair<std::string, std::string> &direction_atoms_list, const std::vector<std::string> &moving_atoms_list);
 #ifdef USE_GUILE
-/*! \brief for the given residue, spin the atoms in moving_atom_list
-  around the bond defined by direction_atoms_list looking for the best
-  fit to density of imol_map map of the first atom in
-  moving_atom_list.  Works (only) with atoms in altconf "" */
+//! \brief for the given residue, spin the atoms in moving_atom_list
+//!   around the bond defined by direction_atoms_list looking for the best
+//!   fit to density of imol_map map of the first atom in
+//!   moving_atom_list.  Works (only) with atoms in altconf "" 
 void spin_search(int imol_map, int imol, const char *chain_id, int resno, const char *ins_code, SCM direction_atoms_list, SCM moving_atoms_list);
 #endif
 
 #ifdef USE_PYTHON
-/*! \brief for the given residue, spin the atoms in moving_atom_list
-  around the bond defined by direction_atoms_list looking for the best
-  fit to density of imom_map map of the first atom in
-  moving_atom_list.  Works (only) with atoms in altconf "" */
+//! \brief for the given residue, spin the atoms in moving_atom_list
+//!   around the bond defined by direction_atoms_list looking for the best
+//!   fit to density of imom_map map of the first atom in
+//!   moving_atom_list.  Works (only) with atoms in altconf ""
 void spin_search_py(int imol_map, int imol, const char *chain_id, int resno, const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
-#endif 
+#endif
+//! \}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  monomer lib                                             */

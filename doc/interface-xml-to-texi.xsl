@@ -12,8 +12,7 @@
       <xsl:value-of select="substring-before($string, $replace)"/>
       <xsl:value-of select="$by"/>
       <xsl:call-template name="string-replace-all">
-        <xsl:with-param name="string" select="substring-after($string,
-$replace)"/>
+        <xsl:with-param name="string" select="substring-after($string,$replace)"/>
         <xsl:with-param name="replace" select="$replace"/>
         <xsl:with-param name="by" select="$by"/>
       </xsl:call-template>
@@ -68,43 +67,62 @@ $replace)"/>
   <!-- generate menu-->
   <xsl:text>@menu&#xa;</xsl:text>
   <xsl:for-each select="child::*/child::sectiondef">
-    <xsl:if test="@kind='user-defined'">
+    <xsl:if test="@kind='user-defined' and
+                  count(child::memberdef/child::briefdescription/child::para)&gt;0">
       <xsl:text>* </xsl:text>
       <xsl:value-of select="header"/><xsl:text>::&#xa;</xsl:text>
+    </xsl:if>
+    <xsl:if test="@kind='func' and
+                  count(child::memberdef/child::briefdescription/child::para)&gt;0">
+       <xsl:text>* Sectionless functions</xsl:text><xsl:text>::&#xa;</xsl:text>
     </xsl:if>
   </xsl:for-each>
   <xsl:text>@end menu&#xa;&#xa;</xsl:text>
 
   <!-- find sections -->
   <xsl:for-each select="child::*/child::sectiondef">
-    <xsl:if test="@kind='user-defined'">
-
-      <xsl:text>@node </xsl:text>
-      <xsl:value-of select="header"/><xsl:text>&#xa;</xsl:text>
-      <xsl:text>@section </xsl:text>
-      <xsl:value-of select="header"/><xsl:text>&#xa;&#xa;</xsl:text>
-      <xsl:text>@menu</xsl:text>
-      <xsl:text>&#xa;</xsl:text>
+    <xsl:if test="(@kind='user-defined' or @kind='func') and
+                  count(child::memberdef/child::briefdescription/child::para)&gt;0">
+                      
+      <xsl:if test="@kind='user-defined'">
+        <xsl:text>@node </xsl:text>
+        <xsl:value-of select="header"/><xsl:text>&#xa;</xsl:text>
+        <xsl:text>@section </xsl:text>
+        <xsl:value-of select="header"/><xsl:text>&#xa;&#xa;</xsl:text>
+        <xsl:text>@menu</xsl:text>
+        <xsl:text>&#xa;</xsl:text>
+      </xsl:if>
+      <xsl:if test="@kind='func'">
+        <xsl:text>@node Sectionless functions&#xa;</xsl:text>
+        <xsl:text>@section Sectionless functions&#xa;</xsl:text>
+        <xsl:text>@menu</xsl:text>
+        <xsl:text>&#xa;</xsl:text>
+      </xsl:if>
 
       <!-- generate menu for functions -->
       <xsl:for-each select="child::memberdef">
-        <xsl:variable name="FunctionName">
-          <xsl:value-of select="name"/>
-        </xsl:variable>
+        <xsl:if test="@kind='function' and
+                      count(child::briefdescription/child::para)&gt;0">
+          <xsl:variable name="FunctionName">
+            <xsl:value-of select="name"/>
+          </xsl:variable>
 
-        <xsl:text>* </xsl:text>
-        <xsl:call-template name="string-replace-all">
-          <xsl:with-param name="string" select="$FunctionName"/>
-          <xsl:with-param name="replace" select="'_'"/>
-          <xsl:with-param name="by" select="'-'"/>
-        </xsl:call-template>
-        <xsl:text>::&#xa;</xsl:text>
+          <xsl:text>* </xsl:text>
+          <xsl:call-template name="string-replace-all">
+            <xsl:with-param name="string" select="$FunctionName"/>
+            <xsl:with-param name="replace" select="'_'"/>
+            <xsl:with-param name="by" select="'-'"/>
+          </xsl:call-template>
+          <xsl:text>::&#xa;</xsl:text>
+        </xsl:if>
       </xsl:for-each>
       <xsl:text>@end menu</xsl:text>
       <xsl:text>&#xa;&#xa;</xsl:text>
 
       <!-- find functions-->
       <xsl:for-each select="child::memberdef">
+      <xsl:if test="@kind='function' and
+                   count(child::briefdescription/child::para)&gt;0">
         <xsl:variable name="FunctionName">
           <xsl:value-of select="name"/>
         </xsl:variable>
@@ -181,8 +199,7 @@ $replace)"/>
            <xsl:text>&#xa;&#xa;</xsl:text>
         </xsl:for-each>
 
-        <xsl:for-each
-select="detaileddescription/para/simplesect/para/child::text()">
+        <xsl:for-each select="detaileddescription/para/simplesect/para/child::text()">
            <xsl:text>Returns: </xsl:text>
            <xsl:value-of select="."/>
            <xsl:text>&#xa;&#xa;</xsl:text>
@@ -195,6 +212,7 @@ select="detaileddescription/para/simplesect/para/child::text()">
 
         <xsl:text>@end deffn&#xa;&#xa;</xsl:text>
 
+      </xsl:if> <!-- widget function filtering -->
       </xsl:for-each>   <!--function-->
 
     </xsl:if>
