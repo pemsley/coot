@@ -1392,8 +1392,6 @@
 		  (gtk-signal-connect 
 		   go-button "clicked"
 		   (lambda ()
-		     (format #t "================= apply the sequence info here\n")
-		     (format #t "then dock sequence\n")
 
 		     ;; no active atom won't do.  We need
 		     ;; to find the nearest atom in imol to (rotation-centre).
