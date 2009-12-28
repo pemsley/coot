@@ -77,6 +77,7 @@
 (define symmetry-operators->xHM symmetry-operators-to-xHM-scm)
 (define user-mods user-mods-scm)
 (define refine-zone-with-full-residue-spec refine-zone-with-full-residue-spec-scm)
+(define pkgdatadir get-pkgdatadir-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a

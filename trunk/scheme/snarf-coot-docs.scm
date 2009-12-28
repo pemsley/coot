@@ -55,6 +55,7 @@
 (define symmetry-operators-to-xHM-scm #f)
 (define user-mods-scm #f)
 (define refine-zone-with-full-residue-spec-scm #f)
+(define get-pkgdatadir-scm #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")
