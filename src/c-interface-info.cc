@@ -3908,6 +3908,15 @@ PyObject *get_pkgdatadir_py() {
 }
 #endif
 
+#ifdef USE_GUILE
+SCM get_pkgdatadir_scm() {
+
+   std::string pkgdatadir = PKGDATADIR;
+   return scm_from_locale_string(pkgdatadir.c_str());
+} 
+#endif
+
+
 /* refmac version */
 /* returns:
    1 if 5.4 or newer

@@ -855,6 +855,24 @@
 	
 
 	;; ---------------------------------------------------------------------
+	;;     Tutorial data
+	;; ---------------------------------------------------------------------
+	;; 
+	(add-simple-coot-menu-menuitem 
+	 menu "Load tutorial model and data"
+	 (lambda ()
+	   (let* ((prefix-dir (getenv "COOT_PREFIX")))
+	     (if (string? prefix-dir)
+		 (let* ((pkg-data-dir (append-dir-dir (append-dir-dir prefix-dir "share") "coot"))
+			(data-dir (append-dir-dir (pkgdatadir) "data"))
+			(pdb-file-name (append-dir-file data-dir "tutorial-modern.pdb"))
+			(mtz-file-name (append-dir-file data-dir "rnasa-1.8-all_refmac1.mtz")))
+
+		   (read-pdb pdb-file-name)
+		   (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)
+		   (make-and-draw-map mtz-file-name "DELFWT" "PHDELWT" "" 0 1))))))
+
+	;; ---------------------------------------------------------------------
 	;;     Views/Representations
 	;; ---------------------------------------------------------------------
 	;; 

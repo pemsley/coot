@@ -5699,6 +5699,9 @@ int laplacian (int imol);
 #ifdef USE_PYTHON
 PyObject *get_pkgdatadir_py();
 #endif
+#ifdef USE_GUILE
+SCM get_pkgdatadir_scm();
+#endif
 #endif /*  __cplusplus */
 /* \} */
 
