@@ -80,6 +80,7 @@ Using Coot
 * Does it work in hardware stereo?::
 * Does Coot work in side-by-side stereo mode?::
 * Does Coot work with a Zalman stereo monitor?::
+* How do you make the antialiasing work better?::
 * Stereo on a sgi?::
 * I have problems reading a CNS map (or mask) into Coot::
 * What are the colours of the difference map and can I "invert" them?::
@@ -498,6 +499,7 @@ work try also:
 * Does it work in hardware stereo?::
 * Does Coot work in side-by-side stereo mode?::
 * Does Coot work with a Zalman stereo monitor?::
+* How do you make the antialiasing work better?::
 * Stereo on a sgi?::
 * I have problems reading a CNS map (or mask) into Coot::
 * What are the colours of the difference map and can I "invert" them?::
@@ -514,6 +516,7 @@ work try also:
 * How do I read many PDB files on the command line?::
 * How do I setup auto-completion of command line options?::
 * How do 2 people use Coot with the same structure?::
+* How do I find CIS-peptides in my structure?::
 @end menu
 
 @node How does it look when Coot starts properly?

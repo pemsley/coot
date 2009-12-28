@@ -1896,6 +1896,7 @@ endresno pdb-file-name})}
 * Reversing Direction of Fragment::
 * C-alpha -> Mainchain::
 * Backbone Torsion Angles::
+* Docking Sidechains::
 * Rotamers::
 * Editing Chi Angles::
 * Torsion General::
@@ -2448,6 +2449,28 @@ that making these modifications alter the @math{\phi/\psi} angles of
 more than one residue.
 
 
+@node Docking Sidechains
+@section Docking Sidechains
+@cindex docking sidechains
+@cindex sidechains
+
+Docking sidechains means adding sidechains to a model or fragment that
+has currently only poly-Ala, where the sequence assignment is unknown.
+The algorithm is basically the same as in Cowtan's Buccaneer, but with
+some corners cut to make things (more or less) interactive.  The
+algorithm uses the shape of the density around the C-beta position to
+estimate the probability of each sidechain type at that position.
+
+The function is accessed via the @command{Extensions -> Dock Sequence}
+menu item.  First, a sequence should be assigned from a PIR file to a
+particular chain-id and model number.  Secondly @command{Extensions ->
+Dock Sequence -> Dock Sequence on this fragment@dots{}}.  Choose the
+model to build on and then @command{Dock Sequence!} If all goes well,
+the model will be updated with mutated residues and undergo rotamer
+seach for each of the new residues.  If the sequence alignment is not
+sufficiently clear, then you will get a dialog suggesting that you
+extend or improve the fragment.
+
 @node Rotamers
 @section Rotamers
 @cindex rotamers 
@@ -2971,7 +2994,7 @@ is selected using ``Refine/Regularize Control''} and the best one
 selected.  It is probably a good idea to run ``Refine Zone'' on these
 new residues.
 
-If you use the Extensions (@command{Dock Sidechains... -> Associate
+If you use the Extensions (@command{Dock Sequence... -> Associate
 Sequence with Model}) to apply a PIR sequence file to a model then
 @command{Add Terminal Residue} will use the sequence alignment to
 determine the residue type of the added residue.
