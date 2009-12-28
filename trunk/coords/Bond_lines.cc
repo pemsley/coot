@@ -35,13 +35,6 @@
 #include "Bond_lines.h"
 #include "coot-coord-utils.hh"
 
-// Initialise the statics
-//
-
-//int         graphical_bonds_container::num_colours     = 0;
-//Lines_list *graphical_bonds_container::bonds_          = NULL; 
-//Lines_list *graphical_bonds_container::symmetry_bonds_ = NULL; 
-//int         graphical_bonds_container::symmetry_has_been_created = 0;
 
 static std::string b_factor_bonds_scale_handle_name = "B-factor-bonds-scale";
 
@@ -305,13 +298,22 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		  
 			   // Bonded to different atom elements.
 			   //
-			   coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
-		  
-			   col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
-			   addBond(col, atom_1, bond_mid_point);
-		  
-			   col = atom_colour(atom_selection_2[ contact[i].id2 ], atom_colour_type);
-			   addBond(col, bond_mid_point, atom_2);
+
+			   if ((element_1 != " H") && (element_2 != " H")) { 
+			      coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
+			      col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
+			      addBond(col, atom_1, bond_mid_point);
+			      
+			      col = atom_colour(atom_selection_2[ contact[i].id2 ], atom_colour_type);
+			      addBond(col, bond_mid_point, atom_2);
+
+			   } else {
+
+			      // Bonds to hydrogens are one colour -
+			      // HYDROGEN_GREY_BOND, not half-bonds.
+			      // 
+			      addBond(HYDROGEN_GREY_BOND, atom_1, atom_2);
+			   } 
 		  
 			} else {
 		  
@@ -1845,8 +1847,6 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
 // 
 void Bond_lines_container::no_symmetry_bonds() {
 
-   // graphical_bonds_container box;
-   
 }
 
 
@@ -1890,8 +1890,11 @@ Bond_lines_container::make_graphical_bonds() const {
 
       box.bonds_[i].num_lines = bonds[i].size();
       box.bonds_[i].pair_list = new coot::CartesianPair[bonds[i].size()];
-      for (int j=0; j<bonds[i].size(); j++)
+      for (int j=0; j<bonds[i].size(); j++) { 
 	 box.bonds_[i].pair_list[j] = bonds[i][j];
+	 if (j == HYDROGEN_GREY_BOND)
+	    box.bonds_[j].thin_lines_flag = 1;
+      }
    }
    box.add_zero_occ_spots(zero_occ_spot);
    box.add_atom_centres(atom_centres, atom_centres_colour);
@@ -2376,46 +2379,46 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type) {
 	    std::string element = at->element;
 
 	    if (element == " C") {
-	       return yellow;
+	       return YELLOW_BOND;
 	    } else {
 	       if (element == " N") {
-		  return blue;
+		  return BLUE_BOND;
 	       } else {
 		  if (element == " O") {
-		     return red;
+		     return RED_BOND;
 		  } else {
 		     if (element == " S") {
-			return green;
+			return GREEN_BOND;
 		     } else {
 			if (element == " H") {
-			   return grey;
+			   return HYDROGEN_GREY_BOND;
 			}
 		     }
 		  }
 	       }
 	    }
-	    return 5;
+	    return GREY_BOND;
 	 } else { 
 	    if (bond_colour_type == coot::DISULFIDE_COLOUR) {
-	       return green;
+	       return GREEN_BOND;
 	    } else {
 	       if (bond_colour_type == coot::COLOUR_BY_OCCUPANCY) {
 		  if (at->occupancy > 0.95) {
-		     return blue;
+		     return BLUE_BOND;
 		  } else {
 		     if (at->occupancy < 0.05) {
-			return red;
+			return RED_BOND;
 		     } else {
 			if (at->occupancy > 0.7) {
-			   return cyan;
+			   return CYAN_BOND;
 			} else {
 			   if (at->occupancy > 0.45) {
-			      return green;
+			      return GREEN_BOND;
 			   } else { 
 			      if (at->occupancy > 0.25) {
-				 return yellow;
+				 return YELLOW_BOND;
 			      } else {
-				 return orange;
+				 return ORANGE_BOND;
 			      }
 			   }
 			}
@@ -2425,22 +2428,22 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type) {
 		  if (bond_colour_type == coot::COLOUR_BY_B_FACTOR) {
 		     float scaled_b = at->tempFactor*b_factor_scale;
 		     if (scaled_b < 10.0) {
-			return blue;
+			return BLUE_BOND;
 		     } else {
 			if (scaled_b > 80.0) {
-			   return red;
+			   return RED_BOND;
 			} else {
 			   if (scaled_b < 22.0) {
-			      return cyan;
+			      return CYAN_BOND;
 			   } else {
 			      if (scaled_b < 36.0) {
-				 return green;
+				 return GREEN_BOND;
 			      } else {
 				 if (scaled_b < 48.0) {
-				    return yellow;
+				    return YELLOW_BOND;
 				 } else {
 				    if (scaled_b < 62.0) {
-				       return orange;
+				       return ORANGE_BOND;
 				    }
 				 }
 			      }

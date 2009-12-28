@@ -1446,10 +1446,10 @@ graphics_info_t::moving_atoms_graphics_object() {
       for (int i=0; i< graphics_info_t::regularize_object_bonds_box.num_colours; i++) {
 
 	 switch(i) {
-	 case blue:
+	 case BLUE_BOND:
 	    glColor3f (0.60, 0.6, 0.99);
 	    break;
-	 case red:
+	 case RED_BOND:
 	    glColor3f (0.95, 0.65, 0.65);
 	    break;
 	 default:

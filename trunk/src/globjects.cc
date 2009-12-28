@@ -4170,9 +4170,9 @@ void test_object() {
    float f = 1.0;
 
    std::vector<int> colours;
-   colours.push_back(green);
-   colours.push_back(blue);
-   colours.push_back(grey);
+   colours.push_back(GREEN_BOND);
+   colours.push_back(BLUE_BOND);
+   colours.push_back(GREY_BOND);
 
    for (unsigned int ic=0; ic<colours.size(); ic++) {
       set_bond_colour(colours[ic]);
@@ -4197,23 +4197,26 @@ void
 set_bond_colour(int i) {
 
    switch (i) {
-   case green:
+   case GREEN_BOND:
       glColor3f (0.1, 0.8, 0.1);
       break;
-   case blue: 
+   case BLUE_BOND: 
       glColor3f (0.2, 0.2, 0.8);
       break;
-   case red: 
+   case RED_BOND: 
       glColor3f (0.8, 0.1, 0.1);
       break;
-   case yellow: 
+   case YELLOW_BOND: 
       glColor3f (0.7, 0.7, 0.0);
       break;
-   case grey: 
+   case GREY_BOND: 
       glColor3f (0.7, 0.7, 0.7);
       break;
-   case magenta: 
-      glColor3f (0.99, 0.99, 0.99);
+   case HYDROGEN_GREY_BOND: 
+      glColor3f (0.6, 0.6, 0.6);
+      break;
+   case MAGENTA_BOND: 
+      glColor3f (0.99, 0.2, 0.99);
       break;
       
    default:

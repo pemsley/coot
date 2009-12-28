@@ -20,9 +20,17 @@
  * 02110-1301, USA
  */
 
-//#include "mmdb_manager.h" 
-//#include "mmdb-extras.h"
-//#include "Cartesian.h"
+
+// OK, the thinking here is that molecule_class_info_t functions
+// create Bond_lines_containers via various constructors and perhaps
+// other manipulations.  These then get converted to a
+// graphical_bonds_container, and the drawing routine knows how to
+// iterate through that to make the right coloured lines - that
+// routine uses display_bonds(), which operates on a
+// graphical_bonds_container bonds_box (the drawing function also
+// takes a bond_width)
+// 
+// 
 
 #ifndef BOND_LINES_H
 #define BOND_LINES_H
@@ -95,10 +103,12 @@ class Lines_list {
  public:   
    // contain a number of elements
    int num_lines; 
-   coot::CartesianPair *pair_list; 
+   coot::CartesianPair *pair_list;
+   bool thin_lines_flag;
    
    Lines_list() { 
-      pair_list = NULL; 
+      pair_list = NULL;
+      thin_lines_flag = 0;
    }
    
 };
@@ -300,6 +310,7 @@ class Bond_lines_container {
    std::vector<coot::Cartesian>  atom_centres;
    std::vector<int>        atom_centres_colour;
    void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second);
+   void addBondtoHydrogen(const coot::Cartesian &first, const coot::Cartesian &second);
    void add_dashed_bond(int col,
 			const coot::Cartesian &start,
 			const coot::Cartesian &end,

@@ -1,9 +1,6 @@
 0.6.1 
 
-   36 dev points -> March 20th
-
-   o Hydrogens should have thinner bonds.  (Not half bonds - all grey
-     - more like molprobity/KING) ::: 2
+   36 dev points: 8 left.
 
    o I am looking at a symmetry-related part of the molecule. Take me
      to the main molecule (try unapplying symmetry to get there). 
@@ -135,5 +132,11 @@
      Now, occ=-0.5 for the atoms NZ, CE, CD.
 
      ::: 0.5
+
+* Done.
+
+   o Hydrogens should have thinner bonds.  (Not half bonds - all grey
+     - more like molprobity/KING) ::: 3
+
 
 * Done.
