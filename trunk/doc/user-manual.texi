@@ -86,6 +86,7 @@ Paul Emsley
 * Hints and Usage Tips::
 * Other Programs::
 * Scripting Functions::
+* More Scripting Functions::
 * Scheme Scripting Functions::
 * Index::   Complete index.
 @end menu
@@ -317,7 +318,7 @@ So, for example, one might use:
 Coot has a web page:
 
 @itemize
-@item @url{http://www.ysbl.york.ac.uk/~emsley/coot}
+@item @url{http://www.biop.ox.ac.uk/coot}
 @end itemize
 
 There you can read more about the CCP4 molecular graphics project in
@@ -4211,8 +4212,8 @@ degrees is suspicicous.  Unexpected CIS peptide bonds show up red.
 
 This manual is on the web where it can be searched:
 @itemize
-@item @url{http://www.ysbl.york.ac.uk/~emsley/coot/doc/user-manual.html} monolithic version
-@item @url{http://www.ysbl.york.ac.uk/~emsley/coot/doc/chapters/user-manual_toc.html} which is 
+@item @url{http://www.biop.ox.ac.uk/coot/doc/user-manual.html} monolithic version
+@item @url{http://www.biop.ox.ac.uk/coot/doc/chapters/user-manual_toc.html} which is 
         split into sections
 @end itemize
 
@@ -4437,14 +4438,6 @@ are given at the end of the command line.
 @c % -----------------------------------------------------------
 @c % -----------------------------------------------------------
 
-@c integrating HTML documentation.  Not good.
-@c @include dox/c-interface_8h.html.texi
-
-@c integrating doxygen->xml->texi documentation.  Quite good.  No
-@c menus for the node/sections though.  Output needs to be formalised.
-@c 
-@c @include ../src/test-it.texi
-
 @c the documentation from doxygen in c-interface.h
 @c from the source src directory:
 @c doxygen coot-dox.cfg
@@ -4455,6 +4448,8 @@ are given at the end of the command line.
 @c same directory as this file (user-manual.texi) NOT the directory that 
 @c texi2html is run in.
 @include c-interface.h.texi
+@node    More Scripting Functions
+@chapter More Scripting Functions
 @include cc-interface.hh.texi
 
 
