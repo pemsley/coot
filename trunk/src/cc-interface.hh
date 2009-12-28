@@ -683,6 +683,8 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
 int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spec);
 
 #ifdef USE_GUILE
+//! \name Dock Sidechains
+//! \{
 //! \brief cootaneer (i.e. dock sidechains onto mainchain model)
 //! 
 //! atom_in_fragment_atom_spec is any atom spec in the fragment that should be
@@ -696,6 +698,7 @@ int cootaneer(int imol_map, int imol_model, SCM atom_in_fragment_atom_spec);
 int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_spec);
 #endif
 
+//! \}
 
 /*  ----------------------------------------------------------------------- */
 /*                  Generic Objects                                         */
