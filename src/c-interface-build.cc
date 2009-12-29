@@ -755,7 +755,7 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
 
    if (is_valid_model_molecule(imol)) { 
       CResidue *residue_p =
-	 graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+	 graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
       if (residue_p) {
 	 graphics_info_t g;
 	 coot::residue_spec_t spec(residue_p);
@@ -1280,7 +1280,7 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
    
 
    CResidue *residue_p =
-      graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+      graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
    if (residue_p) {
       coot::residue_spec_t spec(residue_p);
       g.delete_residue_from_geometry_graphs(imol, spec);
@@ -1446,7 +1446,7 @@ void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog) 
       int resno             = g.molecules[imol].atom_sel.atom_selection[index]->GetSeqNum();
 
       CResidue *residue_p =
-	 graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+	 graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
       if (residue_p) {
 	 coot::residue_spec_t spec(residue_p);
 	 g.delete_residue_from_geometry_graphs(imol, spec);
@@ -1483,7 +1483,7 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
    // There are other places where we do this too (to delete a residue
    // from the geometry graphs).
    CResidue *residue_p =
-      graphics_info_t::molecules[imol].get_residue(resno, inscode, chain_id);
+      graphics_info_t::molecules[imol].get_residue(chain_id, resno, inscode);
    if (residue_p) {
       graphics_info_t g;
       coot::residue_spec_t spec(residue_p);
@@ -1726,7 +1726,7 @@ auto_fit_best_rotamer(int resno,
 	 }
 
 	 // get the residue so that it can update the geometry graph
-	 CResidue *residue_p = g.molecules[imol_coords].get_residue(resno, ins, chain);
+	 CResidue *residue_p = g.molecules[imol_coords].get_residue(chain, resno, ins);
 	 if (residue_p) {
 	    g.update_geometry_graphs(&residue_p, 1, imol_coords, imol_map);
 	 }
@@ -1785,7 +1785,7 @@ rotamer_score(int imol, const char *chain_id, int res_no, const char *insertion_
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       CResidue *residue_p =
-	 graphics_info_t::molecules[imol].get_residue(res_no, insertion_code, chain_id);
+	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, insertion_code);
       if (residue_p) {
 	 float lp = graphics_info_t::rotamer_lowest_probability;
 	 graphics_info_t g;
@@ -1813,7 +1813,7 @@ int n_rotamers(int imol, const char *chain_id, int resno, const char *ins_code) 
 
    int r = -1; 
    if (is_valid_model_molecule(imol)) { 
-      CResidue *res = graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+      CResidue *res = graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
       if (res) {
 	 graphics_info_t g;
 #ifdef USE_DUNBRACK_ROTAMERS
@@ -6093,7 +6093,7 @@ show_partial_charge_info(int imol, const char *chain_id, int resno, const char *
 
    if (is_valid_model_molecule(imol)) {
       CResidue *residue =
-	 graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+	 graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
       if (residue) {
 	 std::string resname = residue->GetResName();
 	 int read_number = graphics_info_t::cif_dictionary_read_number;

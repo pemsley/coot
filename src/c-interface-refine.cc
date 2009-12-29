@@ -96,8 +96,8 @@ void refine_zone(int imol, const char *chain_id,
 
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
-      CResidue *res_1 = g.molecules[imol].get_residue(resno1, "", chain_id);
-      CResidue *res_2 = g.molecules[imol].get_residue(resno2, "", chain_id);
+      CResidue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
+      CResidue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");
       if (res_1 && res_2) { 
 	 std::string resname_1(res_1->GetResName());
 	 std::string resname_2(res_2->GetResName());
@@ -127,7 +127,8 @@ void refine_auto_range(int imol, const char *chain_id, int resno1, const char *a
 
 /*! \brief regularize a zone
   */
-void regularize_zone(int imol, const char *chain_id, int resno1, int resno2, const char *altconf) {
+int regularize_zone(int imol, const char *chain_id, int resno1, int resno2, const char *altconf) {
+   int status = 0;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       // the "" is the insertion code (not passed to this function (yet)
@@ -136,7 +137,14 @@ void regularize_zone(int imol, const char *chain_id, int resno1, int resno2, con
       short int auto_range = 0;
       if (index1 >= 0) {
 	 if (index2 >= 0) { 
-	    g.regularize(imol, auto_range, index1, index2);
+	    coot::refinement_results_t rr = g.regularize(imol, auto_range, index1, index2);
+	    std::cout << "debug:: restraints results " << rr.found_restraints_flag << " "
+		      << rr.lights.size() << " " << rr.info << std::endl;
+	    if (rr.lights.size() > 0)
+	       status = 1;
+	    if (rr.found_restraints_flag)
+	       status = 1;
+	    
 	 } else {
 	    std::cout << "WARNING:: regularize_zone: Can't get index for resno2: "
 		      << resno2 << std::endl;
@@ -148,6 +156,7 @@ void regularize_zone(int imol, const char *chain_id, int resno1, int resno2, con
    } else {
       std::cout << "Not a valid model molecule" << std::endl;
    }
+   return status;
 } 
 
 
@@ -271,8 +280,8 @@ SCM refine_zone_with_full_residue_spec_scm(int imol, const char *chain_id,
    SCM r = SCM_BOOL_F;
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
-      CResidue *res_1 = g.molecules[imol].get_residue(resno1, inscode_1, chain_id);
-      CResidue *res_2 = g.molecules[imol].get_residue(resno2, inscode_2, chain_id);
+      CResidue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, inscode_1);
+      CResidue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, inscode_2);
       if (res_1 && res_2) { 
 	 std::string resname_1(res_1->GetResName());
 	 std::string resname_2(res_2->GetResName());
@@ -300,8 +309,8 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
    PyObject *r = Py_False;
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
-      CResidue *res_1 = g.molecules[imol].get_residue(resno1, inscode_1, chain_id);
-      CResidue *res_2 = g.molecules[imol].get_residue(resno2, inscode_2, chain_id);
+      CResidue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, inscode_1);
+      CResidue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, inscode_2);
       if (res_1 && res_2) { 
 	 std::string resname_1(res_1->GetResName());
 	 std::string resname_2(res_2->GetResName());

@@ -3519,7 +3519,7 @@ graphics_info_t::split_residue(int imol, const std::string &chain_id,
 
    std::pair<bool, std::string> p(0, "");
    
-   CResidue *r = molecules[imol].get_residue(resno, ins_code, chain_id);
+   CResidue *r = molecules[imol].get_residue(chain_id, resno, ins_code);
    if (!r) {
       std::cout << "WARNING:: Residue " << " chain-id :" << chain_id << ":  resno: " << resno
 		<< " inscode :" << ins_code << ": not found" << std::endl;

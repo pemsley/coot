@@ -278,7 +278,7 @@ int watson_crick_pair(int imol, const char *chain_id, int resno) {
    int imol_return = -1;
 
    if (is_valid_model_molecule(imol)) {
-      CResidue *res = graphics_info_t::molecules[imol].get_residue(resno, "", chain_id);
+      CResidue *res = graphics_info_t::molecules[imol].get_residue(chain_id, resno, "");
       if (!res) {
 	 std::cout << "Residue not found in " << imol << " " << chain_id << " " << resno
 		   << std::endl;

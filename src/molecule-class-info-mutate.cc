@@ -974,7 +974,7 @@ molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
 				   const std::pair<std::string, std::string> &direction_atoms,
 				   const std::vector<std::string> &moving_atoms_list) {
 
-   CResidue *res = get_residue(resno, ins_code, chain_id);
+   CResidue *res = get_residue(chain_id, resno, ins_code);
 	 
    if (res) {
       // the first atom spec is not used in spin_search, so just bodge one in.

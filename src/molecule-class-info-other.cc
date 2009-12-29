@@ -1429,7 +1429,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 				   // tested).
    
 
-   CResidue *res = get_residue(resno, std::string(insertion_code), std::string(chain_id));
+   CResidue *res = get_residue(std::string(chain_id), resno, std::string(insertion_code));
 
    if (res) {
       std::cout << " ==== fitting residue " << res->GetSeqNum() << res->GetInsCode()
@@ -1616,7 +1616,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
    if (imol_map >= 0) {
       if (imol_map < graphics_info_t::molecules.size()) {
 	 if (graphics_info_t::molecules[imol_map].has_map()) {
-	    CResidue *res = get_residue(res_no, ins_code, chain_id);
+	    CResidue *res = get_residue(chain_id, res_no, ins_code);
 	    if (! res) {
 	       std::cout << "   WARNING:: residue in molecule :" << chain_id << ": "
 			 << res_no << " inscode :" << ins_code << ": altconf :"
@@ -1730,12 +1730,12 @@ molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_sp
 // Return NULL on residue not found in this molecule.
 // 
 CResidue *
-molecule_class_info_t::get_residue(int resno, const std::string &insertion_code,
-				   const std::string &chain_id) const {
+molecule_class_info_t::get_residue(const std::string &chain_id,
+				   int resno, const std::string &insertion_code) const {
 
    CResidue *res = NULL;
    if (atom_sel.n_selected_atoms > 0) {
-      res = coot::util::get_residue(resno, insertion_code, chain_id, atom_sel.mol);
+      res = coot::util::get_residue(chain_id, resno, insertion_code, atom_sel.mol);
    }
    return res;
 }
@@ -1743,9 +1743,9 @@ molecule_class_info_t::get_residue(int resno, const std::string &insertion_code,
 CResidue *
 molecule_class_info_t::get_residue(const coot::residue_spec_t &residue_spec) const { 
    
-   CResidue *res = res = get_residue(residue_spec.resno,
-				     residue_spec.insertion_code,
-				     residue_spec.chain);
+   CResidue *res = res = get_residue(residue_spec.chain,
+				     residue_spec.resno,
+				     residue_spec.insertion_code);
    return res;
 }
 
@@ -1773,7 +1773,7 @@ CResidue *
 molecule_class_info_t::residue_from_external(int resno, const std::string &insertion_code,
 					     const std::string &chain_id) const {
 
-   return get_residue(resno, insertion_code, chain_id);
+   return get_residue(chain_id, resno, insertion_code);
 
 }
 
@@ -1786,7 +1786,7 @@ molecule_class_info_t::get_atom(const std::string &go_to_residue_string,
    coot::go_to_residue_string_info_t si(go_to_residue_string, atom_sel.mol);
    if (si.chain_id_is_set) {
       if (si.resno_is_set) {
-	 CResidue *res_p = get_residue(si.resno, "", si.chain_id);
+	 CResidue *res_p = get_residue(si.chain_id, si.resno, "");
 	 if (res_p) { 
 	    CAtom *int_at = intelligent_this_residue_mmdb_atom(res_p);
 	    if (int_at) {
@@ -1802,7 +1802,7 @@ molecule_class_info_t::get_atom(const std::string &go_to_residue_string,
    } else {
       // use the chain_id from the active_atom_spec.chain then
       if (si.resno_is_set) {
-	 CResidue *res_p = get_residue(si.resno, "", active_atom_spec.chain);
+	 CResidue *res_p = get_residue(active_atom_spec.chain, si.resno, "");
 	 if (res_p) { 
 	    CAtom *int_at = intelligent_this_residue_mmdb_atom(res_p);
 	    if (int_at) {
@@ -1820,7 +1820,7 @@ CAtom *
 molecule_class_info_t::get_atom(const coot::atom_spec_t &atom_spec) const {
 
    CAtom *at = NULL;
-   CResidue *res = get_residue(atom_spec.resno, atom_spec.insertion_code, atom_spec.chain);
+   CResidue *res = get_residue(atom_spec.chain, atom_spec.resno, atom_spec.insertion_code);
    if (res) {
       PPCAtom residue_atoms;
       int nResidueAtoms;
@@ -1960,7 +1960,7 @@ short int
 molecule_class_info_t::add_OXT_to_residue(int reso, const std::string &insertion_code,
 					  const std::string &chain_id) {
 
-   CResidue *residue = get_residue(reso, insertion_code, chain_id);
+   CResidue *residue = get_residue(chain_id, reso, insertion_code);
    return add_OXT_to_residue(residue);  // check for null residue
 
 } 
@@ -2109,7 +2109,7 @@ molecule_class_info_t::residue_serial_number(int resno, const std::string &inser
 					     const std::string &chain_id) const {
 
    int iserial = -1;
-   CResidue *res = get_residue(resno, insertion_code, chain_id);
+   CResidue *res = get_residue(chain_id, resno, insertion_code);
    if (res) {
       std::cout << "DEBUG:: residue_serial_number residue " << resno << " found " << std::endl;
       iserial = res->index;
@@ -6761,7 +6761,7 @@ molecule_class_info_t::fill_partial_residue(coot::residue_spec_t &residue_spec,
    float lowest_probability = 0.8;
    int clash_flag = 1;
       
-   CResidue *residue_p = get_residue(resno, inscode, chain_id);
+   CResidue *residue_p = get_residue(chain_id, resno, inscode);
    if (residue_p) { 
       std::string residue_type = residue_p->GetResName();
       mutate(resno, inscode, chain_id, residue_type); // fill missing atoms

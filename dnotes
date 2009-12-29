@@ -5294,7 +5294,7 @@ Tue Dec 22 08:03:46 GMT 2009
 Sun Dec 27 02:09:22 GMT 2009
 
    o the arguments of molecule_info_class_t get_residue() are the
-   wrong way round.
+     wrong way round.
 
 
 ---
@@ -5305,6 +5305,12 @@ Mon Dec 28 02:23:49 GMT 2009
    Try refining a post-reduced model (e.g. tutorial-modern.pdb)
    reidues 1A, what is happening to the hydrogens?
 
+---
+Tue Dec 29 14:44:49 GMT 2009
+
+   Improve the NBC restraints so that regularization doesn't cause
+   clashes.  eg. regularize A 45-47 with
+   (set-do-probe-dots-post-refine 1)
 
 
 ------

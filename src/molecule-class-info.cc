@@ -6440,7 +6440,7 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
 
    coot::minimol::molecule m;
    
-   CResidue *res = get_residue(resno, "", chain_id);
+   CResidue *res = get_residue(chain_id, resno, "");
    if (!res) {
       std::cout << "DEBUG:: residue not found " << chain_id << " " << resno
 		<< " in molecule number " << MoleculeNumber()

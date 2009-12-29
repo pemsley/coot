@@ -1111,8 +1111,9 @@ class molecule_class_info_t {
    // Return a copy of the pointer (only).  Return NULL on residue not
    // found.
    // 
-   CResidue *get_residue(int reso, const std::string &insertion_code,
-			 const std::string &chain_id) const;
+   CResidue *get_residue(const std::string &chain_id,
+			 int reso,
+			 const std::string &insertion_code) const;
 
    // Return a copy of the pointer (only).  Return NULL on residue not
    // found.

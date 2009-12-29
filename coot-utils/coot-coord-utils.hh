@@ -660,8 +660,8 @@ namespace coot {
 
       // Return NULL on residue not found in this molecule.
       // 
-      CResidue *get_residue(int reso, const std::string &insertion_code,
-			    const std::string &chain_id, CMMDBManager *mol);
+      CResidue *get_residue(const std::string &chain_id, int reso, const std::string &insertion_code,
+			    CMMDBManager *mol);
 
       // Return NULL on residue not found in this molecule.
       // 

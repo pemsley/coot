@@ -3026,8 +3026,10 @@ void refine_zone(int imol, const char *chain_id, int resno1, int resno2, const c
 void refine_auto_range(int imol, const char *chain_id, int resno1, const char *altconf);
 
 /*! \brief regularize a zone
+
+@return a status, whether the regularisation was done or not.  0 for no, 1 for yes.
   */
-void regularize_zone(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
+int regularize_zone(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
 
 /*! \brief set the number of refinement steps applied to the
   intermediate atoms each frame of graphics.
