@@ -3454,6 +3454,16 @@ public:
 #endif
    void run_user_defined_click_func();
 
+   // --- unapply symmetry to current view, (we are looking at
+   // symmetry and we want to get back to the main molecule,
+   // preserving the orientation, if possible.
+   // 
+   // pre_translation is the translation that needed to be applied to
+   // the molecule so that it was close to the origin (from there we
+   // do the symmetry expansion, and it seems that st generates the
+   // symmetry-related molecule that we are looking at now).
+   int unapply_symmetry_to_view(int imol, const std::vector<std::pair<clipper::RTop_orth, clipper::Coord_orth> > &symm_mat_and_pre_shift);
+
 
 #ifdef USE_MYSQL_DATABASE
    // MYSQL database

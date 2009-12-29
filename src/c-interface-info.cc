@@ -59,6 +59,8 @@
 #include "mmdb.h"
 #include "mmdb-crystal.h"
 
+#include "coot-map-utils.hh" // for make_rtop_orth_from()
+
 #include "Cartesian.h"
 #include "Bond_lines.h"
 
@@ -1685,6 +1687,75 @@ PyObject *get_symmetry_py(int imol) {
    return r;
 }
 #endif //PYTHON
+
+
+/*! \brief Undo symmetry view. Translate back to main molecule from
+  this symmetry position.  */
+int undo_symmetry_view() {
+
+   int r=0;
+
+   int imol = first_molecule_with_symmetry_displayed();
+
+   if (is_valid_model_molecule(imol)) {
+
+      graphics_info_t g;
+      atom_selection_container_t atom_sel = g.molecules[imol].atom_sel;
+      CMMDBManager *mol = atom_sel.mol;
+      float symmetry_search_radius = 1;
+      coot::Cartesian screen_centre = g.RotationCentre();
+      molecule_extents_t mol_extents(atom_sel, symmetry_search_radius);
+      std::vector<std::pair<symm_trans_t, Cell_Translation> > boxes =
+	 mol_extents.which_boxes(screen_centre, atom_sel);
+      if (boxes.size() > 0) {
+	 std::vector<std::pair<clipper::RTop_orth, clipper::Coord_orth> > symm_mat_and_pre_shift_vec;
+	 for (unsigned int ibox=0; ibox<boxes.size(); ibox++) {
+	    symm_trans_t st = boxes[0].first;
+	    Cell_Translation pre_shift = boxes[0].second;
+	    mat44 my_matt;
+	    int err = atom_sel.mol->GetTMatrix(my_matt, st.isym(), st.x(), st.y(), st.z());
+	    if (err == SYMOP_Ok) {
+	       clipper::RTop_orth rtop_symm = coot::util::make_rtop_orth_from(my_matt);
+	       // and we also need an RTop for the pre-shift
+	       clipper::Coord_frac pre_shift_cf(pre_shift.us, pre_shift.vs, pre_shift.ws);
+	       std::pair<clipper::Cell, clipper::Spacegroup> cs = coot::util::get_cell_symm(mol);
+	       clipper::Coord_orth pre_shift_co = pre_shift_cf.coord_orth(cs.first);
+	       std::pair<const clipper::RTop_orth, clipper::Coord_orth> p(rtop_symm, pre_shift_co);
+	       symm_mat_and_pre_shift_vec.push_back(p);
+	    }
+	 }
+	 // so we have a set of matrices and origins shifts, find the
+	 // one that brings us closest to an atom in imol
+	 // 
+	 g.unapply_symmetry_to_view(imol, symm_mat_and_pre_shift_vec);
+      }
+   } else {
+      std::cout << "WARNING:: No molecule found that was displaying symmetry"
+		<< std::endl;
+   }
+   return r;
+}
+
+
+int first_molecule_with_symmetry_displayed() {
+
+   int imol = -1; // unset
+   int n = graphics_n_molecules();
+   graphics_info_t g;
+   for (int i=0; i<n; i++) {
+      if (is_valid_model_molecule(i)) {
+	 std::pair<std::vector<float>, std::string> cv =
+	    g.molecules[i].get_cell_and_symm();
+	 if (cv.first.size() == 6) {
+	    if (g.molecules[i].show_symmetry) {
+	       imol = i;
+	       break;
+	    }
+	 }
+      }
+   }
+   return imol;
+}
 
 
 void residue_info_apply_all_checkbutton_toggled() {
