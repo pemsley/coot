@@ -1017,6 +1017,12 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
       clipper::Coord_orth pt_1 = centre_pt.transform(rtop_symm.inverse());
       clipper::Coord_orth pt_2 = pt_1 + pre_shift;
 
+      if (0) { 
+	 std::cout << "box =================== " << i << " ======================= " << std::endl;
+	 std::cout << "rtop_symm:\n" << rtop_symm.format() << std::endl;
+	 std::cout << "pre_shift: " << pre_shift.format() << std::endl;
+      }
+
       // Now, is pt_2 close to an atom in the imolth molecule?  If so, what is the distance?
       // that function uses a coot::Cartesian
       // 
