@@ -121,7 +121,7 @@ namespace coot {
    
    class refinement_results_t { 
    public:
-      short int found_restraints_flag; // 0 or 1 (if we found restraints or not).
+      bool found_restraints_flag; // if we found restraints or not.
       int progress; // GSL_ENOPROG, GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
       std::string info;
       std::vector<refinement_lights_info_t> lights;      

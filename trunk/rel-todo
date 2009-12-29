@@ -2,6 +2,9 @@
 
    36 dev points: 5 left.
 
+   o Edit Restraints, change compid and 3letter code, but new
+     restraints are not made.
+
    o consider changing auto-open behaviour, as Randy Read suggests.
      Or perhaps like Kevin suggests:  prefix.F and prefix.phi
       ::: 3

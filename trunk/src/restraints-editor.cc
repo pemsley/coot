@@ -1223,7 +1223,7 @@ void apply_restraint_by_widget(GtkWidget *w) {
    if (re.is_valid()) {
       coot::dictionary_residue_restraints_t r = re.make_restraint();
       // do something with r.
-      std::string filename = "restraint.cif";
+      std::string filename = "restraints.cif";
       r.write_cif(filename);
       coot::protein_geometry *pg = g.Geom_p();
       std::string type = r.residue_info.comp_id;
@@ -1243,8 +1243,8 @@ void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
       GtkWidget *w = create_save_restraint_chooserdialog();
       coot::dictionary_residue_restraints_t r = re.make_restraint();
       std::string filename = "monomer-";
-//       std::cout << "DEBUG:: save restraint for " << r.residue_info.comp_id
-// 		<< " here " << std::endl;
+//        std::cout << "DEBUG:: save restraint for " << r.residue_info.comp_id
+// 		 << " here " << std::endl;
       filename += r.residue_info.comp_id;
       filename += ".cif";
 #if (GTK_MAJOR_VERSION == 1) || ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10))

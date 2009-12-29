@@ -235,7 +235,7 @@ coot::residues_near_residue(const coot::residue_spec_t &rs,
 
    std::vector<coot::residue_spec_t> r;
 
-   CResidue *res_p = coot::util::get_residue(rs.resno, rs.insertion_code, rs.chain, mol);
+   CResidue *res_p = coot::util::get_residue(rs.chain, rs.resno, rs.insertion_code, mol);
    if (!res_p) {
       std::cout << "OOps failed to find " << rs << " in molecule\n";
    } else {
@@ -1732,8 +1732,9 @@ coot::util::average_temperature_factor(PPCAtom atom_selection,
 // Return NULL on residue not found in this molecule.
 // 
 CResidue *
-coot::util::get_residue(int reso, const std::string &insertion_code,
-			const std::string &chain_id, CMMDBManager *mol) {
+coot::util::get_residue(const std::string &chain_id,
+			int reso, const std::string &insertion_code,
+			CMMDBManager *mol) {
 
    CResidue *res = NULL;
    bool found_res = 0;

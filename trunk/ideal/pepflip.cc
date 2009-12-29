@@ -66,7 +66,7 @@ coot::pepflip(CMMDBManager *mol,
    CAtom *ca1 = NULL;
    CAtom *ca2 = NULL;
 
-   CResidue *first_res = coot::util::get_residue(resno, ins_code, chain_id, mol);
+   CResidue *first_res = coot::util::get_residue(chain_id, resno, ins_code, mol);
    std::vector<CAtom *> flipping_atoms;
    if (first_res) {
       coot::residue_spec_t rs(first_res);

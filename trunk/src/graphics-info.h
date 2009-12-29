@@ -3492,29 +3492,25 @@ string   static std::string sessionid;
    coot::restraints_editor get_restraints_editor(GtkWidget *w) { 
      coot::restraints_editor r;
      int found_index = -1;
+
+     if (0) // debug
+       for (unsigned int i=0; i<restraints_editors.size(); i++) 
+	 if (restraints_editors[i].is_valid()) 
+	   std::cout << " debug:: testing restraints editor number "
+		     << i << " of " << restraints_editors.size() << " "
+		     << restraints_editors[i].get_dialog() << std::endl;
+
+
      for (unsigned int i=0; i<restraints_editors.size(); i++) { 
        if (restraints_editors[i].is_valid()) { 
-	 std::cout << " debug:: testing restraints editor number "
-		   << i << " of " << restraints_editors.size() << " "
-		   << restraints_editors[i].get_dialog() << std::endl;
-       }
-     }
-     for (unsigned int i=0; i<restraints_editors.size(); i++) { 
-       if (restraints_editors[i].is_valid()) { 
-/* 	 std::cout << " debug:: testing restraints editor number " */
-/* 		   << i << " of " << restraints_editors.size() << std::endl; */
          if (restraints_editors[i].matches_dialog(w)) { 
            found_index = i;
-	   // std::cout << "restraints editor index " << i << " matches" << std::endl;
            break;
          }
        }
      }
      if (found_index != -1)
        r = restraints_editors[found_index];
-/*      std::cout << "Returing restraints editor with dialog " << r.get_dialog()  */
-/* 	       << " from get_restraints_editor() from dialog "  */
-/* 	       << w  << std::endl; */
      return r;
    } 
 #endif //GTK_MAJOR_VERSION
