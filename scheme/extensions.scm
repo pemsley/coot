@@ -878,6 +878,9 @@
 	;; 
 
 	(add-simple-coot-menu-menuitem
+	 submenu-representation "Undo Symmetry View" undo-symmetry-view)
+
+	(add-simple-coot-menu-menuitem
 	 submenu-representation "Ball & Stick..."
 	 (lambda ()
 	   (generic-chooser-and-entry "Ball & Stick"

@@ -1710,8 +1710,8 @@ int undo_symmetry_view() {
       if (boxes.size() > 0) {
 	 std::vector<std::pair<clipper::RTop_orth, clipper::Coord_orth> > symm_mat_and_pre_shift_vec;
 	 for (unsigned int ibox=0; ibox<boxes.size(); ibox++) {
-	    symm_trans_t st = boxes[0].first;
-	    Cell_Translation pre_shift = boxes[0].second;
+	    symm_trans_t st = boxes[ibox].first;
+	    Cell_Translation pre_shift = boxes[ibox].second;
 	    mat44 my_matt;
 	    int err = atom_sel.mol->GetTMatrix(my_matt, st.isym(), st.x(), st.y(), st.z());
 	    if (err == SYMOP_Ok) {
