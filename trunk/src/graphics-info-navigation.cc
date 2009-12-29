@@ -990,3 +990,65 @@ graphics_info_t::rotate_intermediate_atoms_maybe(short int axis, double angle) {
 
    return handled_flag;
 }
+
+
+// --- unapply symmetry to current view, (we are looking at
+// symmetry and we want to get back to the main molecule,
+// preserving the orientation, if possible.
+// 
+// pre_translation is the translation that needed to be applied to
+// the molecule so that it was close to the origin (from there we
+// do the symmetry expansion, and it seems that st generates the
+// symmetry-related molecule that we are looking at now).
+int
+graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<clipper::RTop_orth, clipper::Coord_orth> > &symm_mat_and_pre_shift) {
+
+   int r=0; // a symm was found and used
+   float min_dist = 99999999999.9;
+   coot::Cartesian rc = RotationCentre();
+   clipper::Coord_orth centre_pt(rc.x(), rc.y(), rc.z());
+   clipper::RTop_orth  best_rtop_symm;
+   clipper::Coord_orth best_molecule_centre(0,0,0);
+   for (unsigned int i=0; i<symm_mat_and_pre_shift.size(); i++) {
+
+      clipper::RTop_orth  rtop_symm = symm_mat_and_pre_shift[i].first;
+      clipper::Coord_orth pre_shift = symm_mat_and_pre_shift[i].second;
+      
+      clipper::Coord_orth pt_1 = centre_pt.transform(rtop_symm.inverse());
+      clipper::Coord_orth pt_2 = pt_1 + pre_shift;
+
+      // Now, is pt_2 close to an atom in the imolth molecule?  If so, what is the distance?
+      // that function uses a coot::Cartesian
+      // 
+      coot::Cartesian pt_2c(pt_2.x(), pt_2.y(), pt_2.z());
+      std::pair<float, int> na = molecules[imol].nearest_atom(pt_2c);
+      if (na.second >= 0) {
+	 if (na.first < min_dist) {
+	    min_dist = na.first;
+	    best_rtop_symm = rtop_symm;
+	    best_molecule_centre = pt_2;
+	    r = 1;
+	 }
+      }
+   }
+
+
+   if (r) { 
+      coot::Cartesian nrc(best_molecule_centre.x(), best_molecule_centre.y(), best_molecule_centre.z());
+      coot::util::quaternion q(quat[0],quat[1],quat[2],quat[3]);
+      clipper::Mat33<double> current_view_mat = q.matrix();
+      clipper::Mat33<double>     new_view_mat = best_rtop_symm.inverse().rot() * current_view_mat;
+      coot::util::quaternion vq(new_view_mat);
+      quat[0] = vq.q0;
+      quat[1] = vq.q1;
+      quat[2] = vq.q2;
+      quat[3] = vq.q3;
+      setRotationCentre(nrc);
+      update_things_on_move_and_redraw();
+      
+      graphics_draw();
+   }
+   return r;
+} 
+
+

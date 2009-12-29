@@ -682,6 +682,7 @@ void set_view_quaternion(float i, float j, float k, float l);
   operator that maps current_chain on to next_ncs_chain, so that the
   relative view is preserved.  For NCS skipping. */
 void apply_ncs_to_view_orientation(int imol, const char *current_chain, const char *next_ncs_chain);
+/*! \brief as above, but shift the screen centre also.  */
 void apply_ncs_to_view_orientation_and_screen_centre(int imol, 
 						     const char *current_chain, 
 						     const char *next_ncs_chain);
@@ -1579,6 +1580,16 @@ void set_symmetry_controller_dialog_widget(GtkWidget *w);
 
    @return 1 on "yes, it has a cell", 0 for "no" */
 int has_unit_cell_state(int imol); 
+
+
+/*! \brief Undo symmetry view. Translate back to main molecule from
+  this symmetry position.  */
+int undo_symmetry_view();
+
+/*! \brief return the molecule number.
+
+@return -1 if there is no molecule with symmetry displayed.  */
+int first_molecule_with_symmetry_displayed();
 
 /*! \brief save the symmetry coordinates of molecule number imol to
   filename 
