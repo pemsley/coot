@@ -1,10 +1,6 @@
 0.6.1 
 
-   36 dev points: 8 left.
-
-   o I am looking at a symmetry-related part of the molecule. Take me
-     to the main molecule (try unapplying symmetry to get there). 
-     ::: 2
+   36 dev points: 5 left.
 
    o consider changing auto-open behaviour, as Randy Read suggests.
      Or perhaps like Kevin suggests:  prefix.F and prefix.phi
@@ -146,5 +142,11 @@
 * Done.
 
    o load tutorial data from an Extension menu item ::: 0.5
+
+* Done.
+
+   o I am looking at a symmetry-related part of the molecule. Take me
+     to the main molecule (try unapplying symmetry to get there). 
+     ::: 2
 
 * Done.
