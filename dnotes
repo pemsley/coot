@@ -4544,7 +4544,9 @@ Thu 20 Aug 2009 10:13:21 EDT
 
    Unphosphorylate (change the residue type)
 
-   Add a key binding to cut side changes (shift K, perhaps).
+   Add a key binding to cut side chains (shift K, perhaps).
+
+* Done.
 
    Perhaps the hydrogens on a ligand from probe is not working as
    you'd hoped.  Try with several different ligands.  See "Use
@@ -4579,11 +4581,9 @@ Thu 20 Aug 2009 10:13:21 EDT
 
    Somehow go to reside "GTY" (let me type a triple letter).
 
-   The sequence alignemnt seems to fail, because lets say the protein
+   The sequence alignement seems to fail, because lets say the protein
    starts with residue 11, the sequence alignemnt should be for the
-   model, not eh sequence.  Needs investigating.
-
-   Shift W - delete water.
+   model, not the sequence.  Needs investigating.
 
    Residues with missing atoms: I want to use the . and , key on the
    generated list.
@@ -4638,6 +4638,8 @@ Thu 20 Aug 2009 10:13:21 EDT
       In baton build, make it work better/more clearly when starting
       with no skeleton.
       ->  ask me to make a skeleton
+
+* Done.
 
      Doing go to blob when the refiement map has not been set, 
      needs better feedback.
@@ -5295,6 +5297,8 @@ Sun Dec 27 02:09:22 GMT 2009
 
    o the arguments of molecule_info_class_t get_residue() are the
      wrong way round.
+
+* Done.
 
 
 ---

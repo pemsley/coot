@@ -1,15 +1,31 @@
 0.6.1 
 
-   36 dev points: 5 left.
+   36 dev points: 6 left.
 
-   o Edit Restraints, change compid and 3letter code, but new
-     restraints are not made.
+   o Consider relative (basename?) filenames for state file if
+     current working dir string is part of full-filename string. [Andre White]  
+     ::: 1
 
-   o consider changing auto-open behaviour, as Randy Read suggests.
-     Or perhaps like Kevin suggests:  prefix.F and prefix.phi
-      ::: 3
+   o "Space" through waters.  Delete a water.  "space" recentres
+     where?  Now do the same, but go through the waters backwards using
+     "shift space" - Ingo Korndoerfer ::: 1
+   
+   o Make the screenshot image type be png.[JB] ::: 1
+
+   o Check that ligand with hydrogens give good clashes [JB] ::: 2
+
+   o In ligand torsions, a period of 0 and sd of 0 on a rotatable
+     bond.
+       i.e. if the sd is 0, then no torsion restraint on that tor.
+       also if the period is 0, there should be no torsion
+       restraints. 
+       i.e. don't add a torsion restraint if the sd is 0 or the period
+       is 0 
+
+      ::: 1
 
    o Make python coot work on CentOS 4.  It does?  Needs testing.  ::: 2
+
 
 ------
 

@@ -5,6 +5,8 @@
 
   o FEATURE: Binary updates (pre-releases) now available. 
 
+  o FEATURE: tutorial data can be loaded from a Extensions menu item
+
   o FEATURE: A means to set the refinement weight so that the
     resulting chi squareds are 1.0 (or close) [Katya Heldwein]
 
@@ -16,9 +18,18 @@
 
   o CHANGE: Baton manipulation is now possible when the skeleton runs out.
 
+  o CHANGE: Hydrogen representation now thin and grey monotone.
+
+  o CHANGE: Interface to sidechain docking improved [Phil Evans]
+
+  o CHANGE: Updates to sync with new EDS (Electron Density Server).
+
   o BUG-FIX: Check waters by difference map now works again [Misty X].
 
   o BUG-FIX: SSM alignment crash fixed [Ed Pozharski]
+
+  o BUG-FIX: Splitting a sidechain with zero occupancy no longer
+    leaves atoms with negative occupancy [Takaaki Fukami].
 
 -----
 
