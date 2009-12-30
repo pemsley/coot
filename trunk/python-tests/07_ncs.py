@@ -41,7 +41,7 @@ class NcsTestFunctions(unittest.TestCase):
 
 	    n_mols = graphics_n_molecules()
 	    # try to make it trip up by doing it twice:
-	    imol_map_2 = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0 ,0)
+	    imol_map_2 = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0 ,0)
 	    make_dynamically_transformed_ncs_maps(imol_rnase, imol_rnase_map, 0)
 	    make_dynamically_transformed_ncs_maps(imol_rnase, imol_map_2, 0)
 	    # 2*2 + 1 new maps should have been made
@@ -105,8 +105,8 @@ class NcsTestFunctions(unittest.TestCase):
                 return False
 
         # prepare the input
-        imol = read_pdb(rnase_pdb)
-        self.failUnless(valid_model_molecule_qm(imol), "fail to read %s" %rnase_pdb)
+        imol = read_pdb(rnase_pdb())
+        self.failUnless(valid_model_molecule_qm(imol), "fail to read %s" %rnase_pdb())
         for r in range(1, 4):
             delete_residue(imol, "B", r, "")
         # make ghosts

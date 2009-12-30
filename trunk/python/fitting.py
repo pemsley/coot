@@ -157,11 +157,12 @@ def fit_protein_fit_function(res_spec, imol_map):
         if (len(res_atoms) > 3):
             # if (not res_name == "HOH"): # not needed as we only refine more than 3 atom res
             if (alt_conf == ""):
+                # with_auto_accept ?
                 auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
                                       imol_map, 1, 0.1)
-            if (imol_map >= 0):
+            if (valid_map_molecule_qm(imol_map)):
+                # with_auto_accept ?
                 refine_zone(imol, chain_id, res_no, res_no, alt_conf)
-                accept_regularizement()
             rotate_y_scene(10, 0.3)
 
     if (replace_state == 0):
@@ -188,6 +189,7 @@ def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
             print "centering on", chain_id, res_no, "CA"
             set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
             rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
+            # with_auto_accept ?
             refine_auto_range(imol, chain_id, res_no, alt_conf)
             accept_regularizement()
             rotate_y_scene(10, 0.3)    

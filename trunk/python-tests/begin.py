@@ -49,13 +49,20 @@ global unittest_data_dir
 unittest_data_dir = get_unittest_data_dir()   # too lazy to convert all
                                               # occurences of unittest_data_dir
 
-####
+################
 # some functions
-##
+################
 
 def unittest_pdb(file_name):
     ret = read_pdb(os.path.join(unittest_data_dir, file_name))
     return ret
+
+# use functions rather than variables which would have to be globals
+def rnase_pdb():
+    return os.path.join(unittest_data_dir, "tutorial-modern.pdb")
+
+def rnase_mtz():
+    return os.path.join(unittest_data_dir, "rnasa-1.8-all_refmac1.mtz")
 
 def rotate_n_frames(n):
     rotate_speed = 1
@@ -209,9 +216,9 @@ def atoms_have_correct_seg_id_qm(atoms, seg_id):
     return True
 
 
-########################
+###############################
 # NOW DEFINE THE ACTUAL TESTS
-########################
+###############################
 
 
 def get_this_dir():
@@ -224,7 +231,8 @@ test_file_list = ["01_pdb_mtz.py",
                   "05_rna_ghosts.py",
                   "06_ssm.py",
                   "07_ncs.py",
-                  "08_utils.py"]
+                  "08_utils.py",
+                  "09_internal.py"]
 
 
 # get directory of this file and execute tests found in this dir
@@ -240,7 +248,8 @@ for test_file in test_file_list:
 test_list = [PdbMtzTestFunctions, ShelxTestFunctions,
              LigandTestFunctions, CootaneerTestFunctions,
              RnaGhostsTestFunctions, SsmTestFunctions,
-             NcsTestFunctions, UtilTestFunctions]
+             NcsTestFunctions, UtilTestFunctions,
+             InternalTestFunctions]
 
 suite = unittest.TestSuite()
 for test in test_list:

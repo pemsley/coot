@@ -68,7 +68,7 @@ class CootaneerTestFunctions(unittest.TestCase):
     def test02_0(self):
         """Cootaneer Beta Strand"""
         imol_model = read_pdb(poly_ala_frag)
-        imol_map = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+        imol_map = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
 
         self.failUnless(os.path.isfile(rnase_pir), "missing rnase pir file")
 

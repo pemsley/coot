@@ -154,20 +154,36 @@ def get_eds_pdb_and_mtz(id):
     #
     # - model = http://eds.bmc.uu.se/eds/sfd/1cbs/pdb1cbs.ent
     # - mtz   = http://eds.bmc.uu.se/eds/sfd/1cbs/1cbs_sigmaa.mtz
+    #
+    # 20091222
+    # - newprefix: http://eds.bmc.uu.se/eds/dfs/cb/1cbs/
+    # 
+    # URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/pdb2sar.ent"
+    # URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/2sar_sigmaa.mtz"
 
     eds_site = "http://eds.bmc.uu.se/eds"
+
+    # "1cbds" -> "cb/"
+    def mid_chars(id_code):
+        if not id_code:  # check for string?
+            return "//fail//"
+        if not (len(id_code) == 4):
+            return "/FAIL/"
+        else:
+            return id_code[1:3] + "/"
 
     r = coot_mkdir(coot_tmp_dir)
   
     if (r):
       down_id = string.lower(id)
-      eds_url = eds_site + "/sfd/"
+      eds_url = eds_site + "/dfs/"
       target_pdb_file = "pdb" + down_id + ".ent"
       dir_target_pdb_file = coot_tmp_dir + "/" + target_pdb_file
-      model_url = eds_url + down_id + "/" + target_pdb_file
+      mc = mid_chars(id)
+      model_url = eds_url + mc + down_id + "/" + target_pdb_file
       target_mtz_file = down_id + "_sigmaa.mtz"
       dir_target_mtz_file = coot_tmp_dir + "/" + target_mtz_file
-      mtz_url = eds_url + down_id + "/" + target_mtz_file
+      mtz_url = eds_url + mc +down_id + "/" + target_mtz_file
 
       try:
         s1 = urllib.urlretrieve(model_url, dir_target_pdb_file)

@@ -70,7 +70,7 @@
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif /*  PYTHON */
-#endif 
+#endif /* c++ */
 
 #ifndef BEGIN_C_DECLS
 
@@ -441,7 +441,7 @@ SCM coot_sys_build_type_scm();
 #ifdef USE_PYTHON
 PyObject *coot_sys_build_type_py();
 #endif /* USE_PYTHON */
-#endif
+#endif /* c++ */
 
 /*! \brief return the subversion revision number of this build.
  
@@ -470,7 +470,7 @@ void run_clear_backups(int retval);
 #ifdef USE_PYTHON
 void run_clear_backups_py(int retval);
 #endif /* USE_PYTHON */
-#endif
+#endif  /* c++ */
 
 void fill_about_window(GtkWidget *widget);
 void add_coot_references_button(GtkWidget *widget);
@@ -1054,11 +1054,13 @@ int average_map_scm(SCM map_number_and_scales);
 #endif 
 #ifdef USE_PYTHON
 /*! \brief make an average map from the map_number_and_scales (which
-  is a list of pairs (list map-number scale-factor)) (the scale factors
-  are typically 1.0 of course). */
+  is a list of pairs [map_number, scale_factor] (the scale factors
+  are typically 1.0 of course). The output map is in the same
+  grid as the first (valid) map.  Return -1 on failure to make an
+  averaged map, otherwise return the new map molecule number. */
 int average_map_py(PyObject *map_number_and_scales);
-#endif 
-#endif 
+#endif /* USE_PYTHON */
+#endif /* c++ */
 
 /* \} */
 
@@ -1323,9 +1325,11 @@ float density_at_point(int imol, float x, float y, float z);
 SCM map_sigma_scm(int imol);
 #endif
 #ifdef USE_PYTHON
+/*! \brief return sigma for the given map.  Return Python False if not
+  a valid map molecule number. */
 PyObject *map_sigma_py(int imol);
-#endif
-#endif
+#endif /*USE_PYTHON */
+#endif  /* c++ */
 
 /* \} */
  
@@ -1390,7 +1394,7 @@ PyObject *map_parameters_py(int imol);
   like [45, 46, 47, 90, 90, 120], angles in degress */
 PyObject *cell_py(int imol);
 #endif /* USE_PYTHON */
-#endif
+#endif /* c++ */
 /*! \} */
 
 
@@ -1674,7 +1678,7 @@ SCM origin_pre_shift_scm(int imol);
 #ifdef USE_PYTHON
 /*! \brief return the pre-shift (the shift that translates the centre
   of the molecule as close as possible to the origin) as a list of
-  ints or python false on failure  */
+  ints or Python false on failure  */
 PyObject *origin_pre_shift_py(int imol);
 #endif  /* USE_PYTHON */
 #endif 
@@ -1725,11 +1729,14 @@ void save_directory_for_saving_from_filechooser(const GtkWidget *fileselection);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 /* Return the default file name suggestion (that would come up in the
-   save coordinates dialog) or scheme faalse if imol is not a valid
+   save coordinates dialog) or scheme false if imol is not a valid
    model molecule. */
 SCM save_coords_name_suggestion_scm(int imol); 
 #endif /*  USE_GUILE */
 #ifdef USE_PYTHON
+/* Return the default file name suggestion (that would come up in the
+   save coordinates dialog) or Python false if imol is not a valid
+   model molecule. */
 PyObject *save_coords_name_suggestion_py(int imol); 
 #endif /*  USE_PYTHON */
 #endif /*  __cplusplus */
@@ -1824,7 +1831,7 @@ SCM save_state_file_name_scm();
 
   @return the save state file name*/
 PyObject *save_state_file_name_py();
-#endif
+#endif /* USE_PYTHON */
 #endif	/* c++ */
 
 /* only to be used in callbacks.c, don't export */
@@ -2664,12 +2671,14 @@ SCM symmetry_operators_to_xHM_scm(SCM symmetry_operators);
 #endif 
 
 #ifdef USE_PYTHON
-/*! \brief return a list of symmetry operators as a list of strings -
-  or python False if that is not possible. */
+/*! \brief return a list of symmetry operators as strings - or Python False if
+  that is not possible. */
 PyObject *symmetry_operators_py(int imol);
+/* take the return value from above and return a xHM symbol (for
+   testing currently) */
 PyObject *symmetry_operators_to_xHM_py(PyObject *symmetry_operators);
-#endif 
-#endif 
+#endif /* USE_PYTHON */
+#endif /* c++ */
 
 
 /* \} */
@@ -2695,7 +2704,7 @@ SCM merge_molecules(SCM add_molecules, int imol);
 
 #ifdef USE_PYTHON
 PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
-#endif // PYTHON
+#endif /* PYTHON */
 #endif	/* c++ */
 
 
@@ -2965,7 +2974,7 @@ SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); /*
 PyObject *refine_residues_py(int imol, PyObject *r);  /* to be renamed later. */
 PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf);  /* to be renamed later. */
 #endif /* PYTHON */
-#endif
+#endif /* c++ */
 
 /*! \brief turn on (or off) torsion restraints 
 
@@ -3323,8 +3332,8 @@ SCM non_standard_residue_names_scm(int imol);
 #endif
 #ifdef USE_PYTHON
 PyObject *non_standard_residue_names_py(int imol);
-#endif
-#endif
+#endif /* USE_PYTHON */
+#endif /* c++ */
 
 /* Use the environment variable COOT_REFMAC_LIB_DIR to find cif files
    in subdirectories and import them all. */
@@ -3348,18 +3357,18 @@ int handle_shelx_fcf_file_internal(const char *filename);
 /*! \brief @return the chain id for the given residue.  Return #f if
   can't do it/fail. */
 SCM chain_id_for_shelxl_residue_number(int imol, int resno);
+#endif /* USE_GUILE */
 /* return 1 for yes, 0 for invalid imol or no. */
-#endif 
 int is_shelx_molecule(int imol);
 
 #ifdef USE_PYTHON
 /*! \brief @return the chain id for the given residue.  Return Py_False if
   can't do it/fail. */
 PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno);
-#endif 
+#endif /* USE_PYTHON */
 
 void add_shelx_string_to_molecule(int imol, const char *string);
-#endif 
+#endif /* c++ */
 
 /* \} */
 /*  ------------------------------------------------------------------------ */
@@ -3424,30 +3433,33 @@ void gln_asn_b_factor_outliers_py(int imol);
 
 #ifdef __cplusplus 
 #ifdef USE_PYTHON 
+/*! \brief return a list of map peaks of molecule number imol_map
+  above n_sigma.  There will be cluster filtering of the map peaks.
+  Return a list of 3d cartestian coordinates or Python False if
+  imol_map is not suitable for peak picking. */
 PyObject *map_peaks_py(int imol_map, float n_sigma);
 PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y, float z, float radius);
 PyObject *map_peaks_near_point_from_list_py(int imol_map, PyObject *peak_list, float x, float y, float z, float radius);
-#endif /*  USE_PYTHON */ 
+#endif /*  USE_PYTHON */
+
 #ifdef USE_GUILE
 /*! \brief return a list of map peaks of molecule number imol_map
   above n_sigma.  There will be cluster filtering of the map peaks.
   Return a list of 3d cartestian coordinates or scheme false if
-  imol_map is not suitable for peak pickig. */
+  imol_map is not suitable for peak picking. */
 SCM map_peaks_scm(int imol_map, float n_sigma);
 SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, float z, float radius);
-#endif
+#endif  /* USE_GUILE */
 
 
 /* does this live here really? */
-#ifdef __cplusplus 
 #ifdef USE_GUILE
 SCM get_torsion_scm(int imol, SCM atom_spec_1, SCM atom_spec_2, SCM atom_spec_3, SCM atom_spec_4);
-#endif
+#endif  /* USE_GUILE */
+
 #ifdef USE_PYTHON
 PyObject *get_torsion_py(int imol, PyObject *atom_spec_1, PyObject *atom_spec_2, PyObject *atom_spec_3, PyObject *atom_spec_4);
-#endif
-#endif
-
+#endif  /* USE_PYTHON */
 
 
 #endif /* __cplusplus  */
@@ -3656,12 +3668,16 @@ SCM view_name(int view_number);
 SCM view_description(int view_number);
 void go_to_view(SCM view);
 #endif	/* USE_GUILE */
+
 #ifdef USE_PYTHON
+/*! \brief return the name of the given view, if view_number does not
+  specify a view return Python value False */
 PyObject *view_name_py(int view_number);
 PyObject *view_description_py(int view_number);
 void go_to_view_py(PyObject *view);
-#endif // PYTHON
+#endif /* USE_PYTHON */
 #endif	/* __cplusplus */
+
 /*! \brief Clear the view list */
 void clear_all_views();
 
@@ -3674,8 +3690,8 @@ SCM movie_file_name_prefix();
 #endif
 #ifdef USE_PYTHON
 PyObject *movie_file_name_prefix_py();
-#endif // PYTHON
-#endif
+#endif /* USE_PYTHON */
+#endif /* c++ */
 int movie_frame_number();
 void set_make_movie_mode(int make_movies_flag);
 
@@ -3759,8 +3775,8 @@ SCM execute_ligand_search();
 #endif
 #ifdef USE_PYTHON
 PyObject *execute_ligand_search_py();  
-#endif
-#endif // __cplusplus
+#endif /* USE_PYTHON */
+#endif /* __cplusplus */
 void free_ligand_search_user_data(GtkWidget *button); 
 void add_ligand_clear_ligands(); 
 
@@ -3807,7 +3823,7 @@ otherwise return the RT operator */
 SCM overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
 SCM analyse_ligand_differences(int imol_ligand, int imol_ref, const char *chain_id_ref,
 			       int resno_ref);
-#endif 
+#endif /* USE_GUILE */
 #ifdef USE_PYTHON
 PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
 PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
@@ -4003,13 +4019,15 @@ void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType 
 
 
 #ifdef __cplusplus
+
 #ifdef USE_GUILE
 SCM additional_representation_info_scm(int imol); 
-
 #endif	/* USE_GUILE */
+
 #ifdef USE_PYTHON
 PyObject *additional_representation_info_py(int imol); 
 #endif	/* USE_PYTHON */
+
 #endif	/* __cplusplus */
 
 
@@ -4080,12 +4098,12 @@ rigid_body_refine_by_atom_selection(int imol,
    resno-start resno-end). */
 SCM
 rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges); 
-#endif 
+#endif /* USE_GUILE */
 #ifdef USE_PYTHON
 PyObject *
 rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges); 
-#endif 
-#endif 
+#endif /* USE_PYTHON */
+#endif /* __cplusplus */
 
 void execute_rigid_body_refine(short int auto_range_flag); /* atom picking has happened.
 				     Actually do it */
@@ -4163,7 +4181,7 @@ SCM find_terminal_residue_type(int imol, const char *chain_id, int resno);
 #ifdef USE_PYTHON
 PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resno);
 #endif /* PYTHON */
-#endif
+#endif /* c++ */
 
 /* \} */
 
@@ -4246,6 +4264,9 @@ Return a SCM list object of (residue1 residue2 omega) */
 SCM cis_peptides(int imol);
 #endif // GUILE
 #ifdef USE_PYTHON
+/*! \brief return cis_peptide info for imol.
+
+Return a Python list object of [residue1, residue2, omega] */
 PyObject *cis_peptides_py(int imol);
 #endif // PYTHON
 #endif 
@@ -4354,8 +4375,8 @@ SCM get_rotamer_name_scm(int imol, const char *chain_id, int resno, const char *
 #endif 
 #ifdef USE_PYTHON
 PyObject *get_rotamer_name_py(int imol, const char *chain_id, int resno, const char *ins_code);
-#endif 
-#endif 
+#endif /* USE_GUILE */
+#endif /* c++ */
 
 
 /*! \brief fill all the residues of molecule number imol that have
@@ -4369,10 +4390,10 @@ void fill_partial_residue(int imol, const char *chain_id, int resno, const char*
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM missing_atom_info_scm(int imol);
-#endif // USE_GUILE
+#endif /* USE_GUILE */
 #ifdef USE_PYTHON
 PyObject *missing_atom_info_py(int imol);
-#endif // USE_PYTHON
+#endif /* USE_PYTHON */
 #endif /* __cplusplus */
 
 
@@ -4389,9 +4410,12 @@ Return rotamer info - function used in testing.  */
 SCM rotamer_graphs(int imol);
 #endif // USE_GUILE
 #ifdef USE_PYTHON
+/*! \brief Activate rotamer graph analysis for molecule number imol.  
+
+Return rotamer info - function used in testing.  */
 PyObject *rotamer_graphs_py(int imol);
-#endif // USE_PYTHON
-#endif 
+#endif /* USE_PYTHON */
+#endif /* c++ */
 
 /* \} */
 
@@ -4513,11 +4537,11 @@ SCM add_alt_conf_scm(int imol, const char*chain_id, int res_no, const char *ins_
 /*! \brief add an alternative conformer to a residue.  Add it in
   conformation rotamer number rotamer_number.  
 
-Return the new alt_conf chain_id on sucess, python false on fail */
+Return the new alt_conf chain_id on sucess, python False on fail */
 PyObject *add_alt_conf_py(int imol, const char*chain_id, int res_no, const char *ins_code, 
 		     const char *alt_conf, int rotamer_number);
 #endif	/* USE_PYTHON */
-#endif 
+#endif /* __cplusplus */
 
 void setup_alt_conf_with_dialog(GtkWidget *dialog); 
 void unset_add_alt_conf_dialog(); /* set the static dialog holder in
@@ -4781,17 +4805,18 @@ void add_lsq_atom_pair_scm(SCM atom_spec_ref, SCM atom_spec_moving);
 #ifdef USE_PYTHON
 void add_lsq_atom_pair_py(PyObject *atom_spec_ref, PyObject *atom_spec_moving);
 #endif
-#endif
+#endif /* __cplusplus */
 
-/* Return an rtop pair (proper list) on good match, else #f */
 #ifdef __cplusplus	/* need this wrapper, else gmp.h problems in callback.c */
 #ifdef USE_GUILE
+/* Return an rtop pair (proper list) on good match, else #f */
 SCM apply_lsq_matches(int imol_reference, int imol_moving);
 #endif
 #ifdef USE_PYTHON
+/* Return an rtop pair (proper list) on good match, else False */
 PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving);
 #endif // PYTHON
-#endif
+#endif /* __cplusplus */
 
 /* poor old python programmers... */
 int apply_lsq_matches_simple(int imol_reference, int imol_moving);
@@ -4850,7 +4875,7 @@ void make_image_povray(const char *filename);
 #ifdef USE_PYTHON
 void make_image_raster3d_py(const char *filename);
 void make_image_povray_py(const char *filename);
-#endif // USE_PYTHON
+#endif /* USE_PYTHON */
 
 /*! \brief set the bond thickness for the Raster3D representation  */
 void set_raster3d_bond_thickness(float f);
@@ -5203,6 +5228,14 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog);
 SCM pucker_info_scm(int imol, SCM residue_spec, int do_pukka_pucker_check);
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
+/*! \brief return False if residue not found,  otherwise
+ [[phosphate_distance, puckered_atom, out_of_plane_distance, plane_distortion], chain_id, resno, ins_code]
+
+ (where plane_distortion is for the other 4 atoms in the plane (I think)).
+ 
+ and if there is no following residue, then the phosphate distance
+ cannot be calculated, so the (inner) list is null (not filled).
+*/
 PyObject *pucker_info_py(int imol, PyObject *residue_spec, int do_pukka_pucker_check);
 #endif /* USE_PYTHON */
 #endif /*  __cplusplus */
@@ -5260,7 +5293,7 @@ Return a list of mutations deletions insetions.
 Return scheme false on failure to align (e.g. not assigned sequence)
 and the empty list on no alignment mismatches.*/
 SCM alignment_mismatches_scm(int imol);
-#endif 
+#endif /* USE_GUILE */
 
 #ifdef USE_PYTHON
 /*! \brief return the sequence info that has been assigned to molecule
@@ -5278,7 +5311,7 @@ Return a list of mutations deletions insetions.
 Return  False on failure to align (e.g. not assigned sequence)
 and the empty list on no alignment mismatches.*/
 PyObject *alignment_mismatches_py(int imol);
-#endif 
+#endif /* USE_PYTHON */
 #endif /* C++ */
 /* \} */
  
@@ -5546,6 +5579,8 @@ float interactive_probe_dots_molprobity_radius();
 SCM user_mods_scm(const char *file_name);
 #endif // USE_GUILE
 #ifdef USE_PYTHON
+/*! \brief return the parsed user mod fields from the PDB file
+  file_name (output by reduce most likely) */
 PyObject *user_mods_py(const char *file_name);
 #endif // USE_PYTHON
 #endif	/* c++ */
@@ -5584,7 +5619,7 @@ SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position);
 #ifdef USE_PYTHON
 PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
 #endif 
-#endif 
+#endif /* c++ */
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -5600,7 +5635,7 @@ SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state);
 #ifdef USE_PYTHON
 PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state);
 #endif 
-#endif 
+#endif /* c++ */
 
 void setup_fixed_atom_pick(short int ipick, short int is_unpick);
 
@@ -5653,7 +5688,7 @@ SCM ccp4i_projects_scm();
   the directory.  Include aliases. */
 PyObject *ccp4i_projects_py();
 #endif /* USE_PYTHON */
-#endif
+#endif /* c++ */
 
 /*! \brief write a ccp4mg picture description file */
 void write_ccp4mg_picture_description(const char *filename);
@@ -5684,7 +5719,7 @@ PyObject *add_dipole_py(int imol, const char* chain_id, int res_no,
   description. */
 PyObject *add_dipole_for_residues_py(int imol, PyObject *residue_specs);
 #endif /* USE_PYTHON */
-#endif
+#endif /* c++ */
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -5711,7 +5746,7 @@ int laplacian (int imol);
 #ifdef __cplusplus
 #ifdef USE_PYTHON
 PyObject *get_pkgdatadir_py();
-#endif
+#endif /* USE_PYTHON */
 #ifdef USE_GUILE
 SCM get_pkgdatadir_scm();
 #endif
@@ -5812,7 +5847,7 @@ void user_defined_click_scm(int n_clicks, SCM func);
 #ifdef USE_PYTHON
 void user_defined_click_py(int n_clicks, PyObject *func);
 #endif /* PYTHON */
-#endif
+#endif /* c++ */
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS

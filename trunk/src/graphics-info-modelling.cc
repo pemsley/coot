@@ -1122,6 +1122,34 @@ graphics_info_t::refinement_results_to_scm(coot::refinement_results_t &rr) {
 PyObject *
 graphics_info_t::refinement_results_to_py(coot::refinement_results_t &rr) {
    PyObject *r = Py_False;
+
+   if (rr.found_restraints_flag) {
+      PyObject *lights_py = Py_False;
+      PyObject *progress_py = PyInt_FromLong(rr.progress);
+      PyObject *info_py = PyString_FromString(rr.info.c_str());
+      if (rr.lights.size())
+	lights_py = PyList_New(rr.lights.size());
+      for (int il=0; il<rr.lights.size(); il++) {
+	PyObject *light_py = PyList_New(3);
+	PyObject *value_py = PyFloat_FromDouble(rr.lights[il].value);
+	PyObject *label_py = PyString_FromString(rr.lights[il].label.c_str());
+	PyObject *name_py  = PyString_FromString(rr.lights[il].name.c_str());
+	
+	PyList_SetItem(light_py, 0, name_py);
+	PyList_SetItem(light_py, 1, label_py);
+	PyList_SetItem(light_py, 2, value_py);
+
+	PyList_SetItem(lights_py, il, light_py);
+      } 
+      r = PyList_New(3);
+      PyList_SetItem(r, 0, info_py);
+      PyList_SetItem(r, 1, progress_py);
+      PyList_SetItem(r, 2, lights_py);
+   }
+
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 } 
 #endif    
