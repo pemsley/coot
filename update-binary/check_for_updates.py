@@ -85,18 +85,28 @@ def notify_of_new_version(stri):
 
     download_binary_dialog(ls2)
 
+global pending_install_in_place
+pending_install_in_place = False
+
 # version_string is something like: "coot-0.6-pre-1-revision-2060"
 def download_binary_dialog(version_string):
 
     import os
     global pending_install_in_place
-    pending_install_in_place = False
+    global stop_download
+    stop_download = False
 
+    print "BL DEBUG:: in download binary with version", version_string
+    print "BL DEBUG:: pending_install_in_place", pending_install_in_place
     is_windows = False
     if (os.name == 'nt'):
         is_windows = True
 
     def delete_event(*args):
+        # FIXME this is not cancelling the download,
+        # but just killing the window!
+        global stop_download
+        stop_download = True
         window.destroy()
         return False
 
@@ -104,9 +114,12 @@ def download_binary_dialog(version_string):
         # BL comment:: think about thread return values/variables
         # FIXME:: what shall happen with the dialog/button? How do we
         # know it's downloading?! a progress bar?!
+        ok_button.set_sensitive(False)
+        align.show()
         def threaded_func():
+            global stop_download
             ret = run_download_binary_curl(revision, version_string)
-            if not ret:
+            if (not ret) and (not stop_download):
                 global pending_install_in_place
                 print "run_download_binary_curl failed"
                 pending_install_in_place = "fail"
@@ -181,13 +194,26 @@ def download_binary_dialog(version_string):
             else:
                 # this is for pythonic urllib
                 import urllib
+                def progress_function(count, blockSize, totalSize):
+                    global stop_download
+                    percent = int(count*blockSize*100/totalSize)
+                    sys.stdout.write("\rDownloading " + tar_file_name + "...  %d%%" % percent)  # FIXME
+                    #sys.stdout.write("\rDownloading " + tar_file_name + "...  %d%% %s" %(percent, stop_download))  # FIXME
+                    sys.stdout.flush()
+                    pbar.set_text("Downloading %s %%" %percent)
+                    pbar.set_fraction(percent/100.)
+                    if stop_download:
+                        # Brute force exit of thread!
+                        print "\nBL INFO:: stopping download"
+                        sys.exit()
                 try:
                     md5_url_local_file_name, md5_url_info =  urllib.urlretrieve(md5_url, md5_tar_file_name)
                 except:
                     print "BL ERROR:: could not download", md5_url
                     return False
+                print "BL DEBUG:: stop download", stop_download
                 try:
-                    url_local_file_name, url_info =  urllib.urlretrieve(url, tar_file_name)
+                    url_local_file_name, url_info =  urllib.urlretrieve(url, tar_file_name, progress_function)
                 except:
                     print "BL ERROR:: could not download", url
                     return False
@@ -221,7 +247,7 @@ def download_binary_dialog(version_string):
         "\n"                      + \
         version_string
     revision = get_revision_from_string(version_string)
-
+ 
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     dialog_name = "Download "
     if is_windows:
@@ -230,10 +256,14 @@ def download_binary_dialog(version_string):
         dialog_name += "binary"
     main_vbox = gtk.VBox(False, 6)
     cancel_button = gtk.Button("  Cancel  ")
-    ok_button = gtk.Button("  Download  ")
+    ok_button = gtk.Button("  Download and Pre-install ")
     buttons_hbox = gtk.HBox(False, 6)
     h_sep = gtk.HSeparator()
     info_string = gtk.Label(s)
+
+    align = gtk.Alignment(0.5, 0.5, 0, 0)
+    pbar = gtk.ProgressBar()
+    align.add(pbar)
 
     window.set_title(dialog_name)
     buttons_hbox.pack_start(ok_button, True, False, 6)
@@ -242,6 +272,7 @@ def download_binary_dialog(version_string):
     main_vbox.pack_start(info_string,  True, False, 6)
     main_vbox.pack_start(h_sep,        True, False, 6)
     main_vbox.pack_start(buttons_hbox, True, False, 6)
+    main_vbox.pack_start(align,        True, False, 6)
     main_vbox.set_border_width(6)
 
     window.add(main_vbox)
@@ -268,6 +299,7 @@ def download_binary_dialog(version_string):
     gobject.idle_add(idle_func)
 
     window.show_all()
+    align.hide()
 
 
 # return success status as a boolean

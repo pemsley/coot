@@ -55,6 +55,7 @@ def with_no_backups(imol, *funcs):
 
 # 'Macro' to tidy up a set of functions to be run with automatic
 # accepting of the refinement
+# returns the result of last function run...
 # 
 # funcs is a normal set of functions (not a thunk), here i.e. a list of
 # functions with function as a list with func name and args,
@@ -68,12 +69,13 @@ def with_auto_accept(*funcs):
         func = f[0]
         args = f[1:len(f)]
         #print "BL DEBUG:: func %s and args %s" %(func, args)
-        func(*args)
+        ret = func(*args)
         accept_regularizement()
     
     if (replace_state == 0):
         set_refinement_immediate_replacement(0)
 
+    return ret   # returns result of last functions!!!!
 
 # 'Macro' to run funcs on an active atom
 # funcs is a list of functions, active_atom specifiers and extra args
@@ -991,11 +993,98 @@ def guess_refinement_map():
         for map_mol in map_list:
             if map_is_difference_map(map_mol) == 0:
                 return map_mol
-            else:
-                pass
         print "BL WARNING:: we couldnt find a non difference map for fitting!"
         return -1
+
+
+# Set the refinement weight (matrix) by iterating the refinement and
+# varying the weight until the chi squares (not including the
+# non-bonded terms) reach 1.0 =/- 10%.  It uses sphere refinement.
+# The refinement map must be set!!  At the end show the new weight in
+# the status bar.  Seems to take about 5 rounds.
+#
+def auto_weight_for_refinement():
+
+    # return a pair of the imol and a list of residue specs.
+    # or False if that is not possible
+    def sphere_residues(radius):
+        from types import ListType
+        active_atom = active_residue()
+        if not active_atom:    # check for list?
+            print "No active atom"
+            return False
+        else:
+            centred_residue = active_atom[1:4]
+            imol = active_atom[0]
+            other_residues = residues_near_residue(imol, centred_residue, radius)
+            all_residues = centred_residue
+            if (type(other_residues) is ListType):
+                all_residues += other_residues
+            return [imol, all_residues]
         
+    # the refinement function that is run and returns nice refinement
+    # results
+    #
+    def refinement_func():
+        sr = sphere_residues(3.5)
+        if sr:
+            ret = with_auto_accept([refine_residues, sr[0], sr[1]])
+            return ret
+            #return with_auto_accept([refine_residues, sr[0], sr[1]])
+        else:
+            return False
+
+    # get rid of non-bonded chi-squared results from the input list ls.
+    #
+    def no_non_bonded(ls):
+        ret = []
+        for item in ls:
+            if not (item[0] == "Non-bonded"):
+                ret.append(item)
+        return ret
+
+    # return False or a number, which is the current overweighting of the
+    # density terms.  (of course, when not overweighted, the geometric
+    # chi squareds will be about 1.0).
+    #
+    def weight_scale_from_refinement_results(rr):
+        if not rr:   # check for list?
+            return False
+        else:
+            nnb_list = no_non_bonded(rr[2])
+            chi_squares = [x[2] for x in nnb_list]
+            n = len(chi_squares)
+            summ = sum(chi_squares)
+            if n == 0:
+                return False
+            else:
+                return summ/n
+
+    # main body
+    #
+    results = refinement_func()
+    while results:
+        ow = weight_scale_from_refinement_results(results)
+        print "Overweight factor:", ow
+        if not ow:   # check for number?
+            return False
+        else:
+            if (ow < 1.1 and ow > 0.9):
+                # done
+                s = "Set weight matrix to " + str(matrix_state())
+                add_status_bar_text(s)
+                break
+            else:
+                # more refinement required
+                new_weight = matrix_state() / (ow ** 1.2)
+                # squared causes ringing, 
+                # as does 1.5.
+                # Simple is overdamped.
+                print "INFO:: setting refinement weight to", new_weight
+                set_matrix(new_weight)
+                results = refinement_func()
+
+    return True   # return successful termination...
 
 # Print the sequence of molecule number @var{imol}
 #
@@ -1924,6 +2013,7 @@ ccp4i_projects         = ccp4i_projects_py
 add_dipole             = add_dipole_py
 add_dipole_for_residues = add_dipole_for_residues_py
 get_pkgdatadir         = get_pkgdatadir_py
+pkgdatadir             = get_pkgdatadir_py
 user_defined_click     = user_defined_click_py
 get_torsion            = get_torsion_py
 
@@ -1950,6 +2040,7 @@ active_residue         = active_residue_py
 closest_atom           = closest_atom_py
 residues_near_residue  = residues_near_residue_py
 residues_near_position = residues_near_position_py
+refine_zone_with_full_residue_spec = refine_zone_with_full_residue_spec_py
 water_chain_from_shelx_ins = water_chain_from_shelx_ins_py
 water_chain            = water_chain_py
 spin_search            = spin_search_py

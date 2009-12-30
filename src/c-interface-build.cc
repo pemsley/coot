@@ -1191,8 +1191,9 @@ PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *al
 	    int imol_map = g.Imol_Refinement_Map();
 	    if (is_valid_map_molecule(imol_map)) { 
 	       CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
-	       g.refine_residues_vec(imol, residues, alt_conf, mol);
-               rv = Py_True;  // success?? we could refine
+	       coot::refinement_results_t rr =
+		  g.refine_residues_vec(imol, residues, alt_conf, mol);
+	       rv = g.refinement_results_to_py(rr);
 	    }
 	 } 
       } else {

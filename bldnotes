@@ -1,12 +1,14 @@
  -*-text-*-
 
-scripts      rev 2598
-tests        rev 2527
+scripts      rev 2665
+tests        rev 2665
 build-it-win rev 2122
 
 ---------------
 * THINGS TO DO BEFORE 0.6.1 RELEASE *
 ---------------
+
+   o tutorial data in share/coot/data for WinCoot !?
 
    o doublication of find strand/find ss (Extensions, Other tools)
 
@@ -46,6 +48,7 @@ build-it-win rev 2122
 
    o WinCoot:
         - update dictionaries!!
+* Done
 	- update to python 2.6 (now with pygtk etc)
 * Done
 	- before stable release copy python over
@@ -332,4 +335,7 @@ build-it-win rev 2122
 
 * Done
 
+   o fix python ebi download
+
+* Done
 

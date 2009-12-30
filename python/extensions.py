@@ -38,13 +38,18 @@ Some things, esp. extensions, may be crippled!"""
 if (have_coot_python):
   if coot_python.main_menubar():
 
-     # ---------------------------------------------
-     #           coot news dialog
-     # ---------------------------------------------
+     # --------------------------------------------------
+     #           coot news dialog and updates dialog
+     # --------------------------------------------------
      menu = coot_menubar_menu("About")
      if (menu):
        add_simple_coot_menu_menuitem(menu, "Coot News...",
                                      lambda func: whats_new_dialog())
+
+       # not ready as yet
+       #add_simple_coot_menu_menuitem(menu, "Check for Updates...",
+       #                              lambda func: (printf("checking for updates"),
+       #                                            check_for_updates_gui()))
 
      
      # ---------------------------------------------
@@ -838,6 +843,12 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_refine,
+       "Auto-weight refinement",
+       lambda func: auto_weight_for_refinement())
+     
+
+     add_simple_coot_menu_menuitem(
+       submenu_refine,
        "Set Undo Molecule...",
        lambda func: molecule_chooser_gui("Set the Molecule for 'Undo' Operations",
                     lambda imol: set_undo_molecule(imol)))
@@ -889,9 +900,47 @@ if (have_coot_python):
 
 
      # ---------------------------------------------------------------------
+     #     Tutorial data
+     # ---------------------------------------------------------------------
+     #
+     def load_tutorial_data_func():
+       data_dir = False
+       prefix_dir = os.getenv("COOT_PREFIX")
+       if prefix_dir:  # check for string?
+         prefix_data_dir = os.path.join(prefix_dir, "share", "coot", "data")
+         if os.path.isdir(prefix_data_dir):
+           data_dir = prefix_data_dir
+       pkg_data_dir = os.path.join(pkgdatadir(), "data")
+       if os.path.isdir(pkg_data_dir):
+         # pkgdatadir overwrites coot_prefix?! Good thing?
+         data_dir = pkg_data_dir
+       if data_dir:
+         pdb_file_name = os.path.join(data_dir, "tutorial-modern.pdb")
+         mtz_file_name = os.path.join(data_dir, "rnasa-1.8-all_refmac1.mtz")
+
+         if os.path.isfile(pdb_file_name):
+           read_pdb(pdb_file_name)
+         if os.path.isfile(mtz_file_name):
+           make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
+           make_and_draw_map(mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
+       
+     add_simple_coot_menu_menuitem(
+       menu,
+       "Load tutorial model and data",
+       lambda func: load_tutorial_data_func()
+       )
+
+
+     # ---------------------------------------------------------------------
      #     Views/Representations
      # ---------------------------------------------------------------------
      #
+
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Undo Symmetry View",
+       lambda func: undo_symmetry_view())
+
 
      def make_ball_n_stick_func(imol, text):
        bns_handle = make_ball_and_stick(imol, text, 0.18, 0.3, 1)

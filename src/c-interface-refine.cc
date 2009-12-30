@@ -301,10 +301,10 @@ SCM refine_zone_with_full_residue_spec_scm(int imol, const char *chain_id,
 
 #ifdef USE_PYTHON
 PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
-					   int resno1,
-					   const char*inscode_1,
-					   int resno2,
-					   const char*inscode_2,
+						int resno1,
+						const char*inscode_1,
+						int resno2,
+						const char*inscode_2,
 						const char *altconf) {
    PyObject *r = Py_False;
    graphics_info_t g;
@@ -322,6 +322,9 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
       }
    }
 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 #endif // USE_PYTHON

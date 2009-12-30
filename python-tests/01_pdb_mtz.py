@@ -24,10 +24,6 @@ import os
 # and test that gobject is in place.  
 #import gobject
 
-global rnase_pdb
-rnase_pdb = os.path.join(unittest_data_dir, "tutorial-modern.pdb")
-global rnase_mtz
-rnase_mtz = os.path.join(unittest_data_dir, "rnasa-1.8-all_refmac1.mtz")
 global terminal_residue_test_pdb
 terminal_residue_test_pdb = os.path.join(unittest_data_dir, "tutorial-add-terminal-1-test.pdb")
 base_imol = graphics_n_molecules()
@@ -79,7 +75,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test02_0(self):
 	    """Read coordinates test"""
 	    global imol_rnase
-	    imol = read_pdb(rnase_pdb)
+	    imol = read_pdb(rnase_pdb())
 	    imol_rnase = imol
 	    self.failUnless(valid_model_molecule_qm(imol))
 
@@ -168,7 +164,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessEqual(now_n_molecules, pre_n_molecules, "   bogus MTZ creates extra map %s %s" %(pre_n_molecules, now_n_molecules))
 	    
 	    # correct mtz test
-	    imol_map = make_and_draw_map(rnase_mtz, "FWT","PHWT","",0,0)
+	    imol_map = make_and_draw_map(rnase_mtz(), "FWT","PHWT","",0,0)
 	    change_contour_level(0)
 	    change_contour_level(0)
 	    change_contour_level(0)
@@ -426,9 +422,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test16_1(self):
 	    """Correct occupancies after auto-fit rotamer on alt-confed residue"""
 
-	    global rnase_mtz
 	    imol = unittest_pdb("tutorial-modern.pdb")
-	    imol_map = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+	    imol_map = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
 	    new_alt_conf = add_alt_conf(imol, "A", 93, "", "", 0)
 
 	    accept_regularizement()  # Presses the OK button for the alt conf
@@ -451,6 +446,36 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		    self.failIf(occupancy > 0.85,
 				"bad occupancy in atom: %s" %atom)
     
+
+    def test16_2(self):
+        """Splitting residue leaves no atoms with negative occupancy"""
+
+        # return False if there are negative occupancies
+        #
+        def check_for_negative_occs(occs):
+            if not occs:    # check for list?
+                return False
+            for occ in occs:
+                if occ < 0.0:
+                    return False
+            return True
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        mtz_file_name = rnase_mtz()
+        imol_map = make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
+
+        zero_occupancy_residue_range(imol, "A", 37, 37)
+        new_alt_conf = add_alt_conf(imol, "A", 37, "", "", 0)
+        atoms = residue_info(imol, "A", 37, "")
+        occs = [atom[1][0] for atom in atoms]
+        if (len(occs) < 5):
+            return False # too few atoms
+        else:
+            occs_ok_status = check_for_negative_occs(occs)
+            self.failUnless(occs_ok_status, "Ooops: bad occupancies: %s" %occs)
+            close_molecule(imol)
+            close_molecule(imol_map)
+            
 
     def test17_0(self):
 	    """Pepflip flips the correct alt confed atoms"""
@@ -535,12 +560,12 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    mutate(cis_pep_mol, chain_id, resno, "", "GLY")
 	    with_auto_accept(
 		    [refine_zone, cis_pep_mol, chain_id, resno, (resno + 1), ""],
-		    [accept_regularizement],
+		    #[accept_regularizement],
 		    [mutate, cis_pep_mol, chain_id, resno, "", res_type],
 		    [auto_fit_best_rotamer, resno, "", ins_code, chain_id, cis_pep_mol,
 		     imol_refinement_map(), 1, 1],
-		    [refine_zone, cis_pep_mol, chain_id, resno, (resno + 1), ""],
-		    [accept_regularizement]
+            [with_auto_accept, [refine_zone, cis_pep_mol, chain_id, resno, (resno + 1), ""]]
+		    #[accept_regularizement]
 		    )
 	    
 	    tmp_file = "tmp-fixed-cis.pdb"
@@ -625,6 +650,52 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failIf(success == 0, "   failed to go to A93 CA atom")
 	    sphere_refine_here()
 	    
+
+    def test20_1(self):
+        """Refinement gives useful results"""
+
+        #
+        def no_non_bonded(ls):
+            ret = []
+            for item in ls:
+                if not (item[0] == "Non-bonded"):
+                    ret.append(item)
+            return ret
+
+        # return False or a number, which is the current overweighting of
+        # the density terms.  When not overweighted, the geometric chi
+        # squareds will be 1.0.
+        #
+        def weight_scale_from_refinement_results(rr):
+            self.failUnless(rr, "refinement returned False")
+            nnb_list = no_non_bonded(rr[2])
+            chi_squares = [x[2] for x in nnb_list]
+            n = len(chi_squares)
+            summ = sum(chi_squares)
+            return summ / n
+
+        imol = read_pdb(rnase_pdb())
+        imol_map = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
+        set_imol_refinement_map(imol_map)
+
+        # not convinced this should be an 'indefinite' loop,
+        # so we just try 5 times (wild guess for now)
+        failed = True
+        for idum in range(5):
+            results = refine_zone_with_full_residue_spec(imol, "A", 40, "", 43, "", "")
+            print "refinement results:", results
+            ow = weight_scale_from_refinement_results(results)
+            print "ow factor", ow
+            if (ow < 1.1 and ow > 0.9):
+                failed = False
+                break
+            else:
+                new_weight = matrix_state() / (ow * ow)
+                print "INFO:: setting refinement weight to", new_weight
+                set_matrix(new_weight)
+
+        self.failIf(failed, "Refinement didnt 'converge' in 5 rounds")
+            
 
     def test21_0(self):
 	    """Rigid Body Refine Alt Conf Waters"""
@@ -817,12 +888,12 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test26_0(self):
 	    """Refmac Parameters Storage"""
 
-	    arg_list = [rnase_mtz, "/RNASE3GMP/COMPLEX/FWT", "/RNASE3GMP/COMPLEX/PHWT", "", 0, 0, 1, 
+	    arg_list = [rnase_mtz(), "/RNASE3GMP/COMPLEX/FWT", "/RNASE3GMP/COMPLEX/PHWT", "", 0, 0, 1, 
 			"/RNASE3GMP/COMPLEX/FGMP18", "/RNASE3GMP/COMPLEX/SIGFGMP18",
 			"/RNASE/NATIVE/FreeR_flag", 1]
 	    imol = make_and_draw_map_with_refmac_params(*arg_list)
 	    
-	    self.failUnless(valid_map_molecule_qm(imol),"  Can't get valid refmac map molecule from %s" %rnase_mtz)
+	    self.failUnless(valid_map_molecule_qm(imol),"  Can't get valid refmac map molecule from %s" %rnase_mtz())
 
 	    refmac_params = refmac_parameters(imol)
 	    refmac_params[0] = os.path.normpath(refmac_params[0])
@@ -942,12 +1013,12 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessEqual(d_1, -1, "failed on bad d_1")
 	    self.failUnlessEqual(d_2, -1, "failed on bad d_1")
 
-	    imol_map_nrml_res = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+	    imol_map_nrml_res = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
 	    prev_sampling_rate = get_map_sampling_rate()
 	    nov_1 = set_map_sampling_rate(2.2)
-	    imol_map_high_res = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+	    imol_map_high_res = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
 	    nov_2 = set_map_sampling_rate(prev_sampling_rate)
-	    imol_model = handle_read_draw_molecule_with_recentre(rnase_pdb, 0)
+	    imol_model = handle_read_draw_molecule_with_recentre(rnase_pdb(), 0)
 
 	    imol_masked = mask_map_by_atom_selection(imol_map_nrml_res, imol_model,
 						     "//A/1-10", 0)
@@ -989,10 +1060,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test29_1(self):
 	    """Simple Averaged maps"""
 
-	    global rnase_mtz
-	    imol_map_1 = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+	    imol_map_1 = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
 	    novalue_1  = set_map_sampling_rate(2.5)
-	    imol_map_2 = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+	    imol_map_2 = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
 	    novalue_2  = set_map_sampling_rate(1.5) # reset it
 
 	    new_map = average_map([[imol_map_1, 1],
@@ -1592,11 +1662,10 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    """Correct Segid After Add Terminal Residue"""
 
 	    global imol_rnase
-	    global rnase_mtz
 	    imol = copy_molecule(imol_rnase)
-	    imol_map = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+	    imol_map = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
 
-	    # now convert taht residue to segid "A"
+	    # now convert that residue to segid "A"
 	    #
 	    attribs = map(lambda atom: [imol, "A", 93, "",
 					atom[0][0],
