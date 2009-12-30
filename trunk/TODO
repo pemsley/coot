@@ -718,6 +718,9 @@ Punted from 0.6:
 
    o (consider) Add/generate HELIX and SHEET PDB header info.  ::: 3
 
+   o consider changing auto-open behaviour, as Randy Read suggests.
+     Or perhaps like Kevin suggests:  prefix.F and prefix.phi
+      ::: 3
 
 
  ------
