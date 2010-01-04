@@ -2482,6 +2482,10 @@ def cmd2str(*args):
     ret += ")"
     return ret
 
+# simplyfy check for windows
+def is_windows():
+    return os.name == 'nt'
+
 # acronym
 merge_water_chains = merge_solvent_chains
 

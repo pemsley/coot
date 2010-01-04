@@ -41,6 +41,6 @@ dist_python_DATA = \
    extensions.py        ncs.py               create_server.py                 \
    python_coot_docs.py  clear_backup.py      bones_reader.py                  \
                      shelx_extensions.py  parse_pisa_xml.py                   \
-   coot_toolbuttons.py		                                              \
+   check_for_updates.py coot_toolbuttons.py		                                              \
    $(TEXI_FILE)
 

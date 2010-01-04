@@ -46,10 +46,10 @@ if (have_coot_python):
        add_simple_coot_menu_menuitem(menu, "Coot News...",
                                      lambda func: whats_new_dialog())
 
-       # not ready as yet
-       #add_simple_coot_menu_menuitem(menu, "Check for Updates...",
-       #                              lambda func: (printf("checking for updates"),
-       #                                            check_for_updates_gui()))
+
+       add_simple_coot_menu_menuitem(menu, "Check for Updates...",
+                                     lambda func: (printf("checking for updates"),
+                                                   check_for_updates_gui()))
 
      
      # ---------------------------------------------
