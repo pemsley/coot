@@ -27,10 +27,13 @@ EXTRA_DIST = convert.sh get-new-utils.sh
 INCLUDES =  \
 	$(MMDB_CXXFLAGS)
 
-# for ppmutil.cc compilation
-# CXXFLAGS = -DUSE_LIBPNG -I/sw/include
+# for ppmutil.cc png compilation
+CXXFLAGS = -DUSE_LIBPNG
 
 libccp4mg_utils_la_SOURCES = geomutil.cc mgtree.cc cartesian.cc \
 	matrix.cc quat.cc ppmutil.cc
 
+
+libccp4mg_utils_la_LIBADD = \
+   -lpng
 

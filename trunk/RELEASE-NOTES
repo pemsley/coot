@@ -20,13 +20,18 @@
 
   o CHANGE: Hydrogen representation now thin and grey monotone.
 
-  o CHANGE: Interface to sidechain docking improved [Phil Evans]
+  o CHANGE: Interface to sidechain docking improved [Phil Evans].
 
   o CHANGE: Updates to sync with new EDS (Electron Density Server).
 
+  o CHANGE: Filenames of mtzs and pdb in the current directory are now store 
+    as relatvie in the state file [Andre White].
+
+  o CHANGE: Default image type now PNG [Joel Bard].
+
   o BUG-FIX: Check waters by difference map now works again [Misty X].
 
-  o BUG-FIX: SSM alignment crash fixed [Ed Pozharski]
+  o BUG-FIX: SSM alignment crash fixed [Ed Pozharski].
 
   o BUG-FIX: Splitting a sidechain with zero occupancy no longer
     leaves atoms with negative occupancy [Takaaki Fukami].
