@@ -1190,7 +1190,7 @@
 	 submenu-settings "Key Bindings..."
 	 (lambda ()
 	   (key-bindings-gui)))
-	
+
 
 	
 	))) ;  finish let and if

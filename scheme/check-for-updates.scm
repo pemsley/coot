@@ -104,7 +104,9 @@
 
 ;; version-string is something like: "coot-0.6-pre-1-revision-2060"
 (define download-binary-dialog 
-  (let ((pending-install-in-place #f))
+  (let ((pending-install-in-place #f)
+	(md5sum-curl-pid #f)
+	(binary-tar-curl-pid #f))
     (lambda (version-string)
 
       ;; Get the binary (i.e. the action that happens when the download
@@ -163,8 +165,26 @@
 		;; (goosh-command curl-exe (list md5-url) '() md5-tar-file-name #f)
 		;; (goosh-command curl-exe (list url) '() tar-file-name #f)
 		
-		(goosh-command curl-exe (list md5-url "-o" md5-tar-file-name) '() "tmp-coot-get-md5-url.log" #f)
-		(goosh-command curl-exe (list url "-o" tar-file-name) '() "tmp-coot-get-url.log" #f)
+		;; (goosh-command curl-exe (list md5-url "-o" md5-tar-file-name) '() 
+		;; "tmp-coot-get-md5-url.log" #f)
+		;; (goosh-command curl-exe (list url "-o" tar-file-name) '() 
+		;; "tmp-coot-get-url.log" #f)
+
+		(let ((cmd-ports (run-concurrently curl-exe md5-url "-o" md5-tar-file-name)))
+		  (format #t "got cmd-ports: ~s~%" cmd-ports)
+		  (set! md5sum-curl-pid cmd-ports))
+
+		(format #t "debug:: waiting for pid: ~s~%" md5sum-curl-pid)
+		(waitpid md5sum-curl-pid)
+		(set! md5sum-curl-pid #f)
+
+		(let ((cmd-ports (run-concurrently curl-exe url "-o" tar-file-name)))
+		  (format #t "got cmd-ports: ~s~%" cmd-ports)
+		  (set! binary-tar-curl-pid cmd-ports))
+
+		(format #t "debug:: waiting for pid: ~s~%" binary-tar-curl-pid)
+		(waitpid binary-tar-curl-pid)
+		(set! binary-tar-curl-pid #f) ;; not running, binary-tar-curl-pid is used for killing
 
 		(if (not (file-exists? tar-file-name))
 		    (begin
@@ -220,6 +240,11 @@
 
 	  (gtk-signal-connect cancel-button "clicked"
 			      (lambda ()
+				;; stop the download process(es) if
+				;; they were running (they get set to
+				;; #f when they are not running)
+				(if md5sum-curl-pid (kill md5sum-curl-pid SIGINT))
+				(if binary-tar-curl-pid (kill binary-tar-curl-pid SIGINT))
 				(gtk-widget-destroy window)))
 
 	  (gtk-signal-connect ok-button "clicked"
