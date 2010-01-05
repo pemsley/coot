@@ -8582,9 +8582,7 @@ on_simple1_activate                    (GtkMenuItem     *menuitem,
    GtkWidget *fileselection = coot_screendump_chooser();
    gtk_object_set_user_data(GTK_OBJECT(fileselection), GINT_TO_POINTER(COOT_SCREENDUMP_SIMPLE));
    set_filename_for_filechooserselection(fileselection,
-					 "coot.ppm");
-   /*   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection), 
-	"coot.ppm");*/
+					 "coot.png");
    set_file_selection_dialog_size(fileselection);
    gtk_widget_show(fileselection);
 

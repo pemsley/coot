@@ -2,16 +2,10 @@
 
    36 dev points: 6 left.
 
-   o Consider relative (basename?) filenames for state file if
-     current working dir string is part of full-filename string. [Andre White]  
-     ::: 1
-
    o "Space" through waters.  Delete a water.  "space" recentres
      where?  Now do the same, but go through the waters backwards using
      "shift space" - Ingo Korndoerfer ::: 1
    
-   o Make the screenshot image type be png.[JB] ::: 1
-
    o Check that ligand with hydrogens give good clashes [JB] ::: 2
 
    o In ligand torsions, a period of 0 and sd of 0 on a rotatable
@@ -169,3 +163,12 @@
      ::: 2
 
 * Done.
+
+   o Consider relative (basename?) filenames for state file if
+     current working dir string is part of full-filename string. [Andre White]  
+     ::: 1
+
+* Done.
+
+   o Make the screenshot image type be png.[JB] ::: 1
+
