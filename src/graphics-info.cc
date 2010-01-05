@@ -2621,9 +2621,10 @@ graphics_info_t::apply_undo() {
 		   << "that can be undone" << std::endl;
       } else {
 
+	 std::string cwd = coot::util::current_working_dir();
 	 if (molecules[umol].Have_modifications_p()) { 
 	    if (molecules[umol].is_displayed_p()) { 
-	       molecules[umol].apply_undo();
+	       molecules[umol].apply_undo(cwd);
 	       if (use_graphics_interface_flag) { 
 		  graphics_draw();
 		  
@@ -2688,7 +2689,8 @@ graphics_info_t::apply_redo() {
 
 	 if (molecules[umol].Have_redoable_modifications_p()) {
 	    // std::cout << "DEBUG:: applying redo" << std::endl;
-	    molecules[umol].apply_redo();
+	    std::string cwd = coot::util::current_working_dir();
+	    molecules[umol].apply_redo(cwd);
 	    graphics_draw();
 	    
 	    // need to update the atom and residue list in Go To Atom widget

@@ -69,6 +69,7 @@ int test_coot_atom_tree_proline();
 int test_rotate_round_vector();
 int test_ssm_sequence_formatting();
 int test_OXT_in_restraints();
+int test_relativise_file_name();
 
 
 CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id, int resno);

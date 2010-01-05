@@ -33,7 +33,7 @@ namespace coot {
    // PKGDATADIR.  
    //
    // Use this to find things in $prefix/share/coot
-   std::string package_data_dir(); 
+   std::string package_data_dir();
 
    namespace sequence {
 
@@ -51,8 +51,14 @@ namespace coot {
 
    namespace util { 
 
+      std::string current_working_dir(); 
       std::string append_dir_dir (const std::string &s1, const std::string &dir);
       std::string append_dir_file(const std::string &s1, const std::string &file);
+
+      // If cwd is a substring of f, then return the basename of f (i.e. cwd
+      // stripped from f).  If cwd is not a substring of f, then return f;
+      // 
+      std::string relativise_file_name(const std::string &f, const std::string &cwd);
       std::string Upper(const std::string &s);
       std::string remove_leading_spaces(const std::string &s);
       std::string int_to_string(int i);

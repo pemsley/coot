@@ -1221,8 +1221,9 @@ void execute_recover_session(GtkWidget *widget) {
    if (info) { 
       
       graphics_info_t g;
-      if (info->imol >= 0 && info->imol < g.n_molecules()) { 
-	 g.molecules[info->imol].execute_restore_from_recent_backup(info->backup_file_name);
+      if (info->imol >= 0 && info->imol < g.n_molecules()) {
+	 std::string cwd = coot::util::current_working_dir();
+	 g.molecules[info->imol].execute_restore_from_recent_backup(info->backup_file_name, cwd);
 	 graphics_draw();
       }
    } else { 

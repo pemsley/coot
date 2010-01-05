@@ -552,7 +552,7 @@ class molecule_class_info_t {
    void save_history_file_name(const std::string &file);
    std::vector<std::string> history_filename_vec;
    std::string save_time_string;
-   void restore_from_backup(int history_offset);
+   void restore_from_backup(int history_offset, const std::string &cwd);
 
    void set_initial_contour_level(); // tinker with the class data.
 				     // Must be called after sigma_
@@ -961,6 +961,7 @@ class molecule_class_info_t {
 
    int handle_read_draw_molecule(int imol_no_in,
 				 std::string filename,
+				 std::string cwd,
 				 short int recentre_rotation_centre,
 				 short int is_undo_or_redo, 
 				 float bond_width_in);
@@ -1002,6 +1003,7 @@ class molecule_class_info_t {
    int save_use_reso_limits;
 
    void map_fill_from_mtz(std::string mtz_file_name,
+			  std::string cwd,
 			  std::string f_col,
 			  std::string phi_col,
 			  std::string weight_col,
@@ -1010,6 +1012,7 @@ class molecule_class_info_t {
 			  float map_sampling_rate);
 
    void map_fill_from_mtz_with_reso_limits(std::string mtz_file_name,
+					   std::string cwd,
 					   std::string f_col,
 					   std::string phi_col,
 					   std::string weight_col,
@@ -1865,14 +1868,15 @@ class molecule_class_info_t {
    short int Have_redoable_modifications_p() const ;
    void turn_off_backup() { backup_this_molecule = 0; }
    void turn_on_backup()  { backup_this_molecule = 1; }
-   void apply_undo();
-   void apply_redo();
+   void apply_undo(const std::string &cwd);
+   void apply_redo(const std::string &cwd);
    // Called from outside, if there is a backup file more recent
    // than the file name_ then restore from it.
    // 
    // Return 1 if the restore happened, 0 if not.
    // 
-   short int execute_restore_from_recent_backup(std::string backup_file_name);
+   short int execute_restore_from_recent_backup(std::string backup_file_name,
+						std::string cwd);
    coot::backup_file_info recent_backup_file_info() const;
    
    // For model view (go to atom)

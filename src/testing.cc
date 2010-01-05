@@ -171,6 +171,7 @@ int greg_internal_tests() {
    int status = 1;
    std::vector<named_func> functions;
    functions.push_back(named_func(test_OXT_in_restraints, "OXT in restraints?"));
+   functions.push_back(named_func(test_relativise_file_name, "Relative file name"));
 
    status = run_internal_tests(functions);
    return status;
@@ -1994,6 +1995,37 @@ int test_OXT_in_restraints() {
    return r; 
 } 
 
+int test_relativise_file_name () {
+
+   std::string f1 = "/a/b";
+   std::string f2 = "/c/a/b";
+   std::string f3 = "/c/b";
+   std::string f4 = "/a";
+   std::string  c = "/a";
+
+   std::string r1 = coot::util::relativise_file_name(f1, c);
+   if (r1 != "b") {
+      std::cout << "FAIL: relativise_file_name(" << f1 << ", " << c << ") gives " << r1 << "\n";
+      return 0;
+   }
+   std::string r2 = coot::util::relativise_file_name(f2, c);
+   if (r2 != f2) {
+      std::cout << "FAIL: relativise_file_name(" << f2 << ", " << c << ") gives " << r2 << "\n";
+      return 0;
+   }
+   std::string r3 = coot::util::relativise_file_name(f3, c);
+   if (r3 != f3) {
+      std::cout << "FAIL: relativise_file_name(" << f3 << ", " << c << ") gives " << r3 << "\n";
+      return 0;
+   }
+   std::string r4 = coot::util::relativise_file_name(f4, c);
+   if (r4 != f4) {
+      std::cout << "FAIL: relativise_file_name(" << f4 << ", " << c << ") gives " << r4 << "\n";
+      return 0;
+   }
+
+   return 1;
+}
 
 #endif // BUILT_IN_TESTING
 
