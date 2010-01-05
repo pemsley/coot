@@ -1143,15 +1143,15 @@ Function .onGUIEnd
      Exec 'cmd /c del "$INSTDIR\runwincoot.bat.tmp"'
   cont:
 
-  ; delete the installer^M
-  ${If} $delete_installer = 1^M
-   !insertmacro StrStr $0 "$EXEDIR" "pending-install"^M
-   ${If} $0 == ""^M
-    Exec 'cmd /c del "$EXEDIR\${PRODUCT_NAME}-${PRODUCT_VERSION}.exe"'^M
-   ${Else}^M
-    Exec 'cmd /c rmdir /s /q "$EXEDIR"'^M
-   ${EndIf}^M
-  ${EndIf}^M
+  ; delete the installer
+  ${If} $delete_installer = 1
+   !insertmacro StrStr $0 "$EXEDIR" "pending-install"
+   ${If} $0 == ""
+    Exec 'cmd /c del "$EXEDIR\${PRODUCT_NAME}-${PRODUCT_VERSION}.exe"'
+   ${Else}
+    Exec 'cmd /c rmdir /s /q "$EXEDIR"'
+   ${EndIf}
+  ${EndIf}
   
   ; Finally if run then start WinCoot in StartDir
   ${If} $start_coot = 1
