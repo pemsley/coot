@@ -95,6 +95,7 @@
 int
 molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 						 std::string filename,
+						 std::string cwd,
 						 short int reset_rotation_centre,
 						 short int is_undo_or_redo,
 						 float bond_width_in) {
@@ -236,20 +237,9 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 
       // save state strings
       save_state_command_strings_.push_back("handle-read-draw-molecule");
-      save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
-
-      // We don't need any of this!  We have try_dynamic_add already (I'd forgotten!)
-      // 
-//       // 
-//       std::vector<std::string> residues_types 
-//               = coot::util::residues_in_molecule(atom_sel.mol);
-//       for(int i=0; i<residues_types.size(); i++) { 
-// 	 std::cout << i << " " << residues_types[i] << std::endl;
-//       }
-//       g.load_needed_monomers(residues_types);
-
-      // we force a draw after we have updated the number of
-      // molecules, n_molecules.
+      std::string f1 = coot::util::intelligent_debackslash(filename);
+      std::string f2 = coot::util::relativise_file_name(f1, cwd);
+      save_state_command_strings_.push_back(single_quote(f2));
 
       return 1;
 
@@ -5299,7 +5289,7 @@ molecule_class_info_t::save_history_file_name(const std::string &file) {
 
 // restore from (previous) backup
 void
-molecule_class_info_t::restore_from_backup(int history_offset) {
+molecule_class_info_t::restore_from_backup(int history_offset, const std::string &cwd) {
 
    int hist_vec_index = history_index + history_offset;
    if (int(history_filename_vec.size()) > hist_vec_index) {
@@ -5319,7 +5309,7 @@ molecule_class_info_t::restore_from_backup(int history_offset) {
 	 // don't want that either:
 	 std::vector<std::string> save_save_state = save_state_command_strings_;
 	 short int is_undo_or_redo = 1;
-	 handle_read_draw_molecule(imol_no, filename, reset_rotation_centre, is_undo_or_redo,
+	 handle_read_draw_molecule(imol_no, filename, cwd, reset_rotation_centre, is_undo_or_redo,
 				   bond_width);
 	 save_state_command_strings_ = save_save_state;
 	 imol_no = save_imol; 
@@ -5386,7 +5376,7 @@ molecule_class_info_t::restore_from_backup(int history_offset) {
 
 // restore from (next) backup
 void
-molecule_class_info_t::apply_undo() {
+molecule_class_info_t::apply_undo(const std::string &cwd) {
 
 //    std::cout << std::endl << "DEBUG:: in apply undo start hist_index: "
 // 	     << history_index
@@ -5398,7 +5388,7 @@ molecule_class_info_t::apply_undo() {
 	 make_backup(); // increments history_index
 	 offset--;
       }
-      restore_from_backup(offset);
+      restore_from_backup(offset, cwd);
       history_index += offset;
 
       // So that we don't get asked to save the molecule on exist when
@@ -5415,7 +5405,7 @@ molecule_class_info_t::apply_undo() {
 }
 
 void
-molecule_class_info_t::apply_redo() {
+molecule_class_info_t::apply_redo(const std::string &cwd) {
 
    if (history_index < max_history_index) {
       std::cout << "DEBUG:: molecule applying redo " << history_index << std::endl;
@@ -5424,7 +5414,7 @@ molecule_class_info_t::apply_redo() {
       // we don't want to restore from history_filename_vec[3]:
       // 
       if (int(history_filename_vec.size()) > (history_index + 1)) { 
-	 restore_from_backup(+1); 
+	 restore_from_backup(+1, cwd); 
 	 history_index++; 
 	 have_unsaved_changes_flag = 1;
       } else {

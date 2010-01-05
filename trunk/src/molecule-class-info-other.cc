@@ -2800,7 +2800,8 @@ molecule_class_info_t::recent_backup_file_info() const {
 
 
 short int
-molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_file_name) {
+molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_file_name,
+							  std::string cwd) {
 
    // std::cout << "Recovering from file: " << backup_file_name << std::endl;
 
@@ -2810,8 +2811,10 @@ molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_fil
    // don't want that either:
    std::vector<std::string> save_save_state = save_state_command_strings_;
    short int is_undo_or_redo = 1;
-   short int reset_rotation_centre = 0;
-   handle_read_draw_molecule(imol_no, backup_file_name, reset_rotation_centre,
+   short int reset_rotation_centre_flag = 0;
+   handle_read_draw_molecule(imol_no, backup_file_name,
+			     cwd, 
+			     reset_rotation_centre_flag,
 			     is_undo_or_redo, bond_width);
    save_state_command_strings_ = save_save_state;
    imol_no = save_imol; 

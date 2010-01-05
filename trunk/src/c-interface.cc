@@ -465,7 +465,8 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 // 		<< imol << std::endl;
 //       std::cout << " DEBUG:: created placeholder molecule number " << imol << std::endl;
       float bw = graphics_info_t::default_bond_width;
-      istat = g.molecules[imol].handle_read_draw_molecule(imol, f, recentre_on_read_pdb_flag, 0, bw);
+      istat = g.molecules[imol].handle_read_draw_molecule(imol, f, coot::util::current_working_dir(),
+							  recentre_on_read_pdb_flag, 0, bw);
 
       if (istat == 1) {
 	 std::cout << "Molecule " << imol << " read successfully\n";
@@ -1143,6 +1144,15 @@ int make_and_draw_map(const char* mtz_file_name,
       }
    } else {
 
+      std::cout << "valid_labels(" << mtz_file_name << ","
+		<< f_col << "," 
+		<< phi_col << "," 
+		<< weight_col << "," 
+		<< use_weights << ") returns "
+		<< valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)
+		<< std::endl;
+	 
+
       if (valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)) { 
       
 	 std::vector<std::string> command_strings;
@@ -1157,7 +1167,9 @@ int make_and_draw_map(const char* mtz_file_name,
 
 	 std::cout << "INFO:: making map from mtz filename " << mtz_file_name << std::endl;
 	 imol = g.create_molecule();
+	 std::string cwd = coot::util::current_working_dir();
 	 g.molecules[imol].map_fill_from_mtz(std::string(mtz_file_name),
+					     cwd,
 					     f_col_str,
 					     phi_col_str,
 					     weight_col_str,
@@ -1255,7 +1267,9 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 	    weight_col_str = std::string(weight_col);
 	 imol = g.create_molecule();
 	 float msr = graphics_info_t::map_sampling_rate;
+	 std::string cwd = coot::util::current_working_dir();
 	 g.molecules[imol].map_fill_from_mtz_with_reso_limits(std::string(mtz_file_name),
+							      cwd,
 							      std::string(f_col),
 							      std::string(phi_col),
 							      weight_col_str,

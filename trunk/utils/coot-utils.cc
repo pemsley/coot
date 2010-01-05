@@ -532,6 +532,37 @@ std::string coot::util::file_name_directory(const std::string &file_name) {
 }
 
 std::string
+coot::util::current_working_dir() {
+   std::string s = "";
+   unsigned long l = 2480;
+   char b[l];
+   char *x = getcwd(b,l);
+   if (x)
+      s = std::string(b);
+   return s;
+}
+
+// If cwd is a substring of f (starting at 0), then return the
+// basename of f (i.e. cwd stripped from f).  If cwd is not a
+// substring of f, then return f;
+// 
+std::string
+coot::util::relativise_file_name(const std::string &f, const std::string &cwd) {
+
+   std::string r = f;
+
+   std::string::size_type pos = f.find(cwd);
+   if (pos == 0) {
+      // found it
+      if (f.length() > cwd.length()) // sanity check
+	 r = f.substr(cwd.length()+1);
+   }
+   return r;
+}
+
+    
+
+std::string
 coot::util::file_name_non_directory(const std::string &file_name) {
 
    int slash_char = -1;
@@ -540,17 +571,20 @@ coot::util::file_name_non_directory(const std::string &file_name) {
    for (int i=file_name.length()-1; i>=0; i--) {
 #ifdef WINDOWS_MINGW
       if (file_name[i] == '/' || file_name[i] == '\\') {
-#else
-      if (file_name[i] == '/') {
-#endif // MINGW
 	 slash_char = i;
 	 break;
       }
+#else
+      if (file_name[i] == '/') {
+	 slash_char = i;
+	 break;
+      }
+#endif // MINGW
    }
 
    if (slash_char != -1) 
       rstring = file_name.substr(slash_char+1);
-
+   
    // std::cout << "DEBUG:: non-directory of " << file_name << " is " << rstring << std::endl;
    return rstring;
 }
@@ -630,9 +664,9 @@ coot::package_data_dir() {
    if (env)
       pkgdatadir = std::string(env);
    return pkgdatadir;
-} 
-
-
+}
+ 
+ 
 std::pair<std::string, std::string>
 coot::util::split_string_on_last_slash(const std::string &string_in) {
 
@@ -717,7 +751,8 @@ coot::util::random() {
 #endif
 }
 
-bool
+    
+ bool
 coot::file_exists(const std::string &filename) {
 
    struct stat s;
@@ -799,3 +834,6 @@ coot::util::is_standard_residue_name(const std::string &residue_name) {
    return 0;
 
 } 
+
+
+
