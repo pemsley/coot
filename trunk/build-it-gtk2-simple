@@ -3156,6 +3156,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
                # copy file to pre-release dir if needed
                ssh_copy $bin_tar_file
                ssh_copy_to_biop $bin_tar_file
+               ssh_copy_to_biop $bin_tar_file
                ssh_copy_logs_to_biop $HOME/public_html/build-logs/$OS-$HOST/ public_html/emsley/build-logs
 
                # update the description of the latest binary tar file for
@@ -3163,6 +3164,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
                binary_type_latest=$BINARY_TAR_DEST_DIR/type-binary-${OS}-${systype}${python_tag}${gtk2}-latest.txt
 	       echo $coot_version > $binary_type_latest
                ssh_copy $binary_type_latest
+               ssh_copy_to_biop $binary_type_latest
 
                # update the ChangeLog, README and RELEASE-NOTES
                cd "$build_dir"
