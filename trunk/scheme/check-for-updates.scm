@@ -109,6 +109,8 @@
 	(binary-tar-curl-pid #f))
     (lambda (version-string)
 
+      (define tmp-coot-download-binary-log-file-name "tmp-coot-download-binary.log")
+
       ;; Get the binary (i.e. the action that happens when the download
       ;; button is pressed).  This is run in a thread, so it can't do
       ;; any graphics stuff. 
@@ -178,7 +180,8 @@
 		(waitpid md5sum-curl-pid)
 		(set! md5sum-curl-pid #f)
 
-		(let ((cmd-ports (run-concurrently curl-exe url "-o" tar-file-name)))
+		(let ((cmd-ports (run-concurrently curl-exe url "-o" tar-file-name "-#"
+						   "--stderr" tmp-coot-download-binary-log-file-name)))
 		  (format #t "got cmd-ports: ~s~%" cmd-ports)
 		  (set! binary-tar-curl-pid cmd-ports))
 
@@ -204,7 +207,19 @@
 				  (begin 
 				    (format #t "Ooops: untar of ~s failed~%" tar-file-name)
 				    #f))))))))))
-      
+
+      ;; 
+      (define (update-progress-bar progress-bar)
+	(format #t "starting update-progress-bar...~%")
+	(if (file-exists? tmp-coot-download-binary-log-file-name)
+	    (let ((ifrac (parse-curl-progress-log tmp-coot-download-binary-log-file-name)))
+	      (if (not (= ifrac -1))
+		  (let ((f (/ ifrac 10000)))
+		    ;; (gtk-progress-bar-set-fraction progress-bar f) ;; guile-gnome
+		    (gtk-progress-bar-update progress-bar f)
+		    (gtk-progress-set-show-text progress-bar #t)))))
+	(format #t "done update-progress-bar...~%")
+	(flush-all-ports))
 
       ;; 
       ;; (format #t "running download-binary-dialog with version-string arg: ~s~%" version-string)
@@ -223,6 +238,7 @@
 	      (cancel-button (gtk-button-new-with-label "  Cancel  "))
 	      (ok-button (gtk-button-new-with-label "  Download and Pre-install "))
 	      (buttons-hbox (gtk-hbox-new #f 6))
+	      (progress-bar (gtk-progress-bar-new))
 	      (h-sep (gtk-hseparator-new))
 	      (info-string (gtk-label-new s)))
 
@@ -233,6 +249,7 @@
 	  (gtk-box-pack-start main-vbox info-string  #t #f 6) ;; not x padding, it is y padding
 	  (gtk-box-pack-start main-vbox h-sep        #t #f 6)
 	  (gtk-box-pack-start main-vbox buttons-hbox #t #f 6)
+	  (gtk-box-pack-start main-vbox progress-bar #t #t 6)
 	  (gtk-container-border-width main-vbox 6)
 	  
 	  (gtk-container-add window main-vbox)
@@ -257,10 +274,21 @@
 					 (set! pending-install-in-place 'fail))))
 				 coot-updates-error-handler)))
 
+	  ;; delete the (running/status) file that curling the binary
+	  ;; tar file writes too. We don't want to see old status when
+	  ;; we start a new progress bar.
+	  ;; 
+	  (if (file-exists? tmp-coot-download-binary-log-file-name)
+	      (begin 
+		(format #t "deleting ~s~%" tmp-coot-download-binary-log-file-name)
+		(delete-file tmp-coot-download-binary-log-file-name)))
+
+
 	  ;; now the timer that waits for the binary...
 	  (gtk-idle-add
 	   (lambda ()
-	     (usleep 10000)
+	     (format #t "Run idle function...~%")
+	     (usleep 100000)
 	     (cond
 	      ((eq? pending-install-in-place 'fail)
 	       (gtk-widget-destroy window)
@@ -273,6 +301,7 @@
 	       #f ;; stop running, idle function
 	       )
 	      (else 
+	       ;; (update-progress-bar progress-bar) ;; still hangs!
 	       #t)))) ;; continue running.
 					 
 	  (gtk-widget-show-all window))))))
