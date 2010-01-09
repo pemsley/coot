@@ -20,6 +20,8 @@
  */
 
 #include <iostream>
+#include <stdexcept>
+
 #include <stdio.h>
 
 #include <gtk/gtk.h>
@@ -126,3 +128,40 @@ write_coot_curl_data_to_file(void *buffer, size_t size, size_t nmemb, void *user
 #endif /* USE_LIBCURL */
 
 
+
+//! internal use: return an int in 10000ths (converted from a
+//percentage).  Return -1 if not able to parse.
+int parse_curl_progress_log(const char *curl_log_file_name) {
+
+   int ifrac = -1;
+   FILE *file = fopen(curl_log_file_name, "r");
+   bool done = 0;
+   std::string rstring = "";
+   if (file) {
+      while (!done) {
+	 int c = getc(file);
+	 if (c == EOF) { 
+	    done = 1;
+	    break;
+	 } 
+	 if (isspace(c)) {
+	    rstring = "";
+	 }
+	 if (isdigit(c) || ispunct(c)) {
+	    if (c != '%')
+	       rstring += c;
+	 }
+      }
+   } else {
+      std::cout << "failed to open " << curl_log_file_name << std::endl;
+   }
+   if (done)
+      try {
+	 ifrac = int(coot::util::string_to_float(rstring) * 100 + 0.5);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << rte.what() << std::endl;
+      }
+   std::cout << "parse_curl_progress_log: returning " << ifrac << std::endl;
+   return ifrac;
+}

@@ -1,6 +1,6 @@
 0.6.1 
 
-   36 dev points: 6 left.
+   36 dev points: 5 left.
 
    o "Space" through waters.  Delete a water.  "space" recentres
      where?  Now do the same, but go through the waters backwards using
@@ -17,8 +17,6 @@
        is 0 
 
       ::: 1
-
-   o Make python coot work on CentOS 4.  It does?  Needs testing.  ::: 2
 
 
 ------
@@ -171,4 +169,12 @@
 * Done.
 
    o Make the screenshot image type be png.[JB] ::: 1
+
+* Done.
+
+   o Make python coot work on CentOS 4.  It does?  Needs testing.  ::: 2
+
+* It's fine.
+
+
 

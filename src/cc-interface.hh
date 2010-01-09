@@ -767,6 +767,9 @@ size_t write_coot_curl_data(void *buffer, size_t size, size_t nmemb, void *userp
 size_t write_coot_curl_data_to_file(void *buffer, size_t size, size_t nmemb, void *userp);
 // internal use (strings, not binaries).
 std::string coot_get_url_as_string_internal(const char *url);
+//! internal use: return an int in 10000ths.  Return -1 if not able to parse
+//! Not sure this is even needed.  Consider removing this and its definition.
+int parse_curl_progress_log(const char *curl_log_file_name);
 #endif /* USE_LIBCURL */
 
 /*  ----------------------------------------------------------------------- */
