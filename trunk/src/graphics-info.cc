@@ -4280,8 +4280,12 @@ void graphics_info_t::run_user_defined_click_func() {
 
 #ifdef USE_PYTHON
 
-   if (user_defined_click_py_func) { 
+   if (user_defined_click_py_func) {
 
+     if (!PyCallable_Check(user_defined_click_py_func)) {
+       std::cout<<"(PYTHON) ERROR:: user_defined_click function must be callable, is "
+		<< user_defined_click_py_func->ob_type->tp_name<<std::endl;
+     } else {
       // what are we running? Print it out.
       std::cout << "INFO applying > " 
 		<< PyEval_GetFuncName(user_defined_click_py_func)
@@ -4310,6 +4314,7 @@ void graphics_info_t::run_user_defined_click_func() {
 	Py_DECREF(arg_list_py);
 	std::cout<<"ERROR:: executing user_defined_click" <<std::endl;
       }      
+     }
    }
 
 #endif // USE_PYTHON
