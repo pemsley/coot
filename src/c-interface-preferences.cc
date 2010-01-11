@@ -853,6 +853,7 @@ void user_defined_click_py(int n_clicks, PyObject *func) {
     g.user_defined_atom_pick_specs.clear();
     g.in_user_defined_define = n_clicks;
     g.user_defined_click_py_func = func;
+    Py_XINCREF(g.user_defined_click_py_func);
     g.pick_cursor_maybe();
   } else {
     std::cout<<"INFO:: number of clicks less than 1, cannot define user click"<<std::endl;
