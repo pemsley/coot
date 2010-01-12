@@ -3768,14 +3768,14 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
 	 colour.blue = 0.6;
       } else {
 	 if (c == "green") {
-	    colour.red   = 0.1; 
+	    colour.red   = 0.05; 
 	    colour.green = 0.8; 
-	    colour.blue  = 0.1;
+	    colour.blue  = 0.05;
 	 } else {
 	    if (c == "greentint") {
-	       colour.red = 0.4; 
-	       colour.green = 0.65; 
-	       colour.blue = 0.4;
+	       colour.red = 0.45; 
+	       colour.green = 0.63; 
+	       colour.blue = 0.45;
 	    } else { 
 	       if (c == "sea") {
 		  colour.red = 0.1; 
@@ -4305,14 +4305,19 @@ void graphics_info_t::run_user_defined_click_func() {
       std::cout<< "" <<std::endl; // end ouput
       
       if (PyTuple_Check(arg_list_py)) {
-	PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
-	Py_DECREF(arg_list_py);
-	if (result) {
-	  Py_DECREF(result);
-	}
+	 if (!PyCallable_Check(user_defined_click_py_func)) {
+	    std::cout << "WARNING:: python user click function should have been callable." << std::endl;
+	    std::cout << "WARNING:: Ignoring it." << std::endl;
+            return;
+        }
+	 PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
+	 Py_DECREF(arg_list_py);
+	 if (result) {
+	    Py_DECREF(result);
+	 }
       } else {
-	Py_DECREF(arg_list_py);
-	std::cout<<"ERROR:: executing user_defined_click" <<std::endl;
+	 Py_DECREF(arg_list_py);
+	 std::cout<<"ERROR:: executing user_defined_click" <<std::endl;
       }      
      }
    }

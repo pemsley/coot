@@ -2,6 +2,8 @@
 
    36 dev points: 5 left.
 
+   o stalling on updating progress bar in guile-gtk.
+
    o "Space" through waters.  Delete a water.  "space" recentres
      where?  Now do the same, but go through the waters backwards using
      "shift space" - Ingo Korndoerfer ::: 1
@@ -17,6 +19,9 @@
        is 0 
 
       ::: 1
+
+   o Seleno-methione rotamers and edit chis.  Do they work? No 
+     [Clemens] ::: 4
 
 
 ------

@@ -27,15 +27,30 @@
 #include <gtk/gtk.h>
 
 #ifdef USE_LIBCURL
+#ifndef HAVE_CURL_H
+#define HAVE_CURL_H
 #include <curl/curl.h>
+#endif // HAVE_CURL_H
 #endif
 
 #include "guile-fixups.h"
 #include "cc-interface.hh"
 
+#include "graphics-info.h" // because that is where the curl handlers and filenames vector is stored
+
 // return 0 on success
 #ifdef USE_LIBCURL
 int coot_get_url(const char *url, const char *file_name) {
+
+   return coot_get_url_and_activate_curl_hook(url, file_name, 0);
+
+}
+#endif /* USE_LIBCURL */
+
+   
+#ifdef USE_LIBCURL
+int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
+					short int activate_curl_hook_flag) {
 
    FILE *f = fopen(file_name, "w");
    if (f) { 
@@ -43,7 +58,17 @@ int coot_get_url(const char *url, const char *file_name) {
       curl_easy_setopt(c, CURLOPT_URL, url);
       curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data_to_file);
       curl_easy_setopt(c, CURLOPT_WRITEDATA, f);
-      CURLcode success = curl_easy_perform(c);
+      std::pair <CURL *, std::string> p(c,file_name);
+      CURLcode success;
+      if (activate_curl_hook_flag) { 
+	 graphics_info_t g;
+	 g.add_curl_handle_and_file_name(p);
+	 success = curl_easy_perform(c);
+	 g.remove_curl_handle_with_file_name(file_name);
+      } else {
+	 success = curl_easy_perform(c);
+      } 
+      
       fclose(f);
       curl_easy_cleanup(c);
       return success;
@@ -165,3 +190,40 @@ int parse_curl_progress_log(const char *curl_log_file_name) {
    std::cout << "parse_curl_progress_log: returning " << ifrac << std::endl;
    return ifrac;
 }
+
+
+#ifdef USE_LIBCURL
+SCM curl_progress_info(const char *file_name) {
+
+   SCM r = SCM_BOOL_F;
+   graphics_info_t g;
+   std::string f(file_name);
+   CURLINFO info;
+   double dv;
+   long int liv;
+   CURL *c = g.get_curl_handle_for_file_name(f);
+
+   if (c) { 
+
+      r = SCM_EOL;
+      info = CURLINFO_CONTENT_LENGTH_DOWNLOAD;
+      CURLcode status = curl_easy_getinfo(c, info, &dv);
+      if (status == CURLE_OK) {
+	 SCM scm_v   = scm_double2num(dv);
+	 SCM scm_sym = scm_str2symbol("content-length-download");
+	 r = scm_cons(scm_cons(scm_sym, scm_v), r);
+      }
+
+      info = CURLINFO_SIZE_DOWNLOAD;
+      status = curl_easy_getinfo(c, info, &dv);
+      if (status == CURLE_OK) {
+	 SCM scm_v   = scm_double2num(dv);
+	 SCM scm_sym = scm_str2symbol("size-download");
+	 r = scm_cons(scm_cons(scm_sym, scm_v), r);
+      }
+   } else {
+      std::cout << "Found no CURL handle for  " << f << std::endl;
+   } 
+   return r;
+}
+#endif /* USE_LIBCURL */

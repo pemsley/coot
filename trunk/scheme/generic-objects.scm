@@ -309,7 +309,7 @@
   
     ;; Let's add on the connectivity cards of the residues that
     ;; molprobity doesn't know about (which I presume are all
-    ;; non-standard residues).  Cut of (filter) files that didn't
+    ;; non-standard residues).  Cut out (filter) files that didn't
     ;; write properly.
     ;;
     (let ((con-file-names 
