@@ -300,6 +300,7 @@ coot_real_SOURCES = \
 	graphics-info-navigation-gtk1.cc\
 	graphics-info-navigation-gtk2.cc\
 	graphics-info-preferences.cc	\
+	graphics-info-network.cc \
 	graphics-info-mutate.cc	 \
 	graphics-info-lsq.cc	 \
 	graphics-info-pick.cc	 \

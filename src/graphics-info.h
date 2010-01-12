@@ -77,6 +77,13 @@
 
 #include "coot-database.hh"
 
+#ifdef USE_LIBCURL
+#ifndef HAVE_CURL_H
+#define HAVE_CURL_H
+#include <curl/curl.h>
+#endif // HAVE_CURL_H
+#endif 
+
 #if (GTK_MAJOR_VERSION > 1) 
 #include "restraints-editor.hh"
 #endif 
@@ -3443,7 +3450,16 @@ public:
 
    // --- nudge active residue
    static void nudge_active_residue(guint direction);
-   
+
+   // --- curl handlers
+#ifdef USE_LIBCURL
+   static std::vector<std::pair<CURL *, std::string> > curl_handlers;
+   void add_curl_handle_and_file_name(std::pair<CURL *, std::string> p);
+   void remove_curl_handle_with_file_name(std::string file_name);
+   // return NULL on no such filename being transfered.
+   CURL *get_curl_handle_for_file_name(const std::string &filename) const;
+#endif    
+
 #ifdef USE_GUILE
    static SCM user_defined_click_scm_func;
    SCM atom_spec_to_scm(const coot::atom_spec_t &spec) const; 

@@ -106,6 +106,7 @@
 (define download-binary-dialog 
   (let ((pending-install-in-place #f)
 	(md5sum-curl-pid #f)
+	(file-name-for-progress-bar #f)
 	(binary-tar-curl-pid #f))
     (lambda (version-string)
 
@@ -156,6 +157,7 @@
 		     (md5-url (string-append url ".md5sum"))
 		     (md5-tar-file-name (string-append tar-file-name ".md5sum")))
 
+		(set! file-name-for-progress-bar tar-file-name)
 		(format #t "md5sum url for curl: ~s~%" md5-url)
 		(format #t "url for curl: ~s~%" url)
 
@@ -180,14 +182,16 @@
 		(waitpid md5sum-curl-pid)
 		(set! md5sum-curl-pid #f)
 
-		(let ((cmd-ports (run-concurrently curl-exe url "-o" tar-file-name "-#"
-						   "--stderr" tmp-coot-download-binary-log-file-name)))
-		  (format #t "got cmd-ports: ~s~%" cmd-ports)
-		  (set! binary-tar-curl-pid cmd-ports))
+;		(let ((cmd-ports (run-concurrently curl-exe url "-o" tar-file-name "-#"
+;						   "--stderr" tmp-coot-download-binary-log-file-name)))
+;		  (format #t "got cmd-ports: ~s~%" cmd-ports)
+;		  (set! binary-tar-curl-pid cmd-ports))
 
-		(format #t "debug:: waiting for pid: ~s~%" binary-tar-curl-pid)
-		(waitpid binary-tar-curl-pid)
-		(set! binary-tar-curl-pid #f) ;; not running, binary-tar-curl-pid is used for killing
+;		(format #t "debug:: waiting for pid: ~s~%" binary-tar-curl-pid)
+;		(waitpid binary-tar-curl-pid)
+;		(set! binary-tar-curl-pid #f) ;; not running, binary-tar-curl-pid is used for killing
+
+		(coot-get-url-and-activate-curl-hook url tar-file-name 1)
 
 		(if (not (file-exists? tar-file-name))
 		    (begin
@@ -208,18 +212,27 @@
 				    (format #t "Ooops: untar of ~s failed~%" tar-file-name)
 				    #f))))))))))
 
+
       ;; 
-      (define (update-progress-bar progress-bar)
-	(format #t "starting update-progress-bar...~%")
-	(if (file-exists? tmp-coot-download-binary-log-file-name)
-	    (let ((ifrac (parse-curl-progress-log tmp-coot-download-binary-log-file-name)))
-	      (if (not (= ifrac -1))
-		  (let ((f (/ ifrac 10000)))
-		    ;; (gtk-progress-bar-set-fraction progress-bar f) ;; guile-gnome
-		    (gtk-progress-bar-update progress-bar f)
-		    (gtk-progress-set-show-text progress-bar #t)))))
-	(format #t "done update-progress-bar...~%")
-	(flush-all-ports))
+      (define update-progress-bar
+	(let ((count 0)
+	      (active-count 0))
+	(lambda (progress-bar)
+	  (set! count (+ count 1))
+	  (if (string? file-name-for-progress-bar)
+	      (let ((curl-info (curl-progress-info file-name-for-progress-bar)))
+		(set! active-count (+ active-count 1))
+		(format #t "got curl-info: ~s for ~s ~%" curl-info file-name-for-progress-bar)
+		(if curl-info
+		    (let ((v1 (assoc 'content-length-download curl-info))
+			  (v2 (assoc 'size-download           curl-info)))
+		      (format #t "v1: ~s v2: ~s~%" v1 v2)
+		      (if (list v1)
+			  (if (list v2)
+			      (let ((f (/ (cdr v2) (cdr v1))))
+				(format #t "count ~s, active-count ~s, f: ~s~%" count active-count f)
+				(gtk-progress-bar-update progress-bar f)))))))))))
+
 
       ;; 
       ;; (format #t "running download-binary-dialog with version-string arg: ~s~%" version-string)
@@ -266,6 +279,7 @@
 
 	  (gtk-signal-connect ok-button "clicked"
 			      (lambda () 
+				(gtk-progress-set-show-text progress-bar #t)
 				(call-with-new-thread
 				 (lambda ()
 				   (if (not (run-download-binary-curl revision version-string))
@@ -283,26 +297,25 @@
 		(format #t "deleting ~s~%" tmp-coot-download-binary-log-file-name)
 		(delete-file tmp-coot-download-binary-log-file-name)))
 
-
-	  ;; now the timer that waits for the binary...
-	  (gtk-idle-add
-	   (lambda ()
-	     (format #t "Run idle function...~%")
-	     (usleep 100000)
-	     (cond
-	      ((eq? pending-install-in-place 'fail)
-	       (gtk-widget-destroy window)
-	       (info-dialog "Failure to download and install binary")
-	       #f)  ;; stop running, idle function
-	      
-	      (pending-install-in-place
-	       (gtk-widget-destroy window)
-	       (restart-dialog)
-	       #f ;; stop running, idle function
-	       )
-	      (else 
-	       ;; (update-progress-bar progress-bar) ;; still hangs!
-	       #t)))) ;; continue running.
+	  
+	  ;; Ideally, this should be added on pressing the "Download
+	  ;; button, not here.
+	  ;; 
+	  (gtk-timeout-add 
+	   50  (lambda ()
+		 (format #t "Run timeout function...~%")
+		 (cond
+		  ((eq? pending-install-in-place 'fail)
+		   (gtk-widget-destroy window)
+		   (info-dialog "Failure to download and install binary")
+		   #f)
+		  (pending-install-in-place
+		   (gtk-widget-destroy window)
+		   (restart-dialog)
+		   #f)
+		  (else
+		   ;; (update-progress-bar progress-bar) ;; still hangs, thread problem
+		   #t))))
 					 
 	  (gtk-widget-show-all window))))))
 

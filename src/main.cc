@@ -186,6 +186,10 @@ main (int argc, char *argv[]) {
   textdomain (PACKAGE);
 #endif
 
+#ifdef USE_LIBCURL
+  curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
+#endif  
+
   // command line
   command_line_data cld = parse_command_line(argc, argv);
 
