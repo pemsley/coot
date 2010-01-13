@@ -185,7 +185,8 @@ int test_internal_single() {
       // status = test_coot_atom_tree();
       // status = test_coot_atom_tree_2();
       // status = test_coot_atom_tree_proline();
-      status = test_ssm_sequence_formatting();
+      // status = test_ssm_sequence_formatting();
+      status = test_previous_water();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2026,6 +2027,26 @@ int test_relativise_file_name () {
 
    return 1;
 }
+
+int test_previous_water() {
+
+   int status = 0;
+   molecule_class_info_t mci;
+   mci.handle_read_draw_molecule(1,
+				 greg_test("pathological-water-test.pdb"),
+				 coot::util::current_working_dir(), 0, 0, 1);
+   mci.delete_atom("D", 162, "", " O  ", "");
+   int iprev = mci.intelligent_previous_atom("D", 162, " O  ", "");
+   CAtom *at = mci.atom_sel.atom_selection[iprev];
+   std::cout << "previous atom: " << at << std::endl;
+   if (std::string(at->GetChainID()) == "D")
+      if (at->GetSeqNum() == 161)
+	 status = 1;
+   
+   std::cout << "returning " << status << std::endl;
+   return status;
+
+} 
 
 #endif // BUILT_IN_TESTING
 

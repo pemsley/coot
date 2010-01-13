@@ -298,7 +298,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 
    } else {
 
-      if (direction == "next") { 
+      if (direction == "next") {
 	 atom_index = molecules[imol].intelligent_next_atom(chain, resno, atom_name, ins_code);
       } else { // "previous"
 	 atom_index = molecules[imol].intelligent_previous_atom(chain, resno, atom_name, ins_code);

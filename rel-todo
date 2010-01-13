@@ -2,26 +2,12 @@
 
    36 dev points: 5 left.
 
-   o stalling on updating progress bar in guile-gtk.
-
-   o "Space" through waters.  Delete a water.  "space" recentres
-     where?  Now do the same, but go through the waters backwards using
-     "shift space" - Ingo Korndoerfer ::: 1
-   
    o Check that ligand with hydrogens give good clashes [JB] ::: 2
-
-   o In ligand torsions, a period of 0 and sd of 0 on a rotatable
-     bond.
-       i.e. if the sd is 0, then no torsion restraint on that tor.
-       also if the period is 0, there should be no torsion
-       restraints. 
-       i.e. don't add a torsion restraint if the sd is 0 or the period
-       is 0 
-
-      ::: 1
 
    o Seleno-methione rotamers and edit chis.  Do they work? No 
      [Clemens] ::: 4
+
+   o stalling on updating progress bar in guile-gtk. ::: 3
 
 
 ------
@@ -182,4 +168,21 @@
 * It's fine.
 
 
+   o In ligand torsions, a period of 0 and sd of 0 on a rotatable
+     bond.
+       i.e. if the sd is 0, then no torsion restraint on that tor.
+       also if the period is 0, there should be no torsion
+       restraints. 
+       i.e. don't add a torsion restraint if the sd is 0 or the period
+       is 0 
+
+      ::: 1
+
+* Done (for monomer torsion restraints).
+
+
+   o "Space" through waters.  Delete a water.  "space" recentres
+     where?  Now do the same, but go through the waters backwards using
+     "shift space" - Ingo Korndoerfer ::: 1
+   
 

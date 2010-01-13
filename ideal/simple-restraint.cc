@@ -5526,61 +5526,69 @@ coot::restraints_container_t::add_torsions(int idr, PPCAtom res_selection,
    int n_torsion_restr = 0; 
 
    for (unsigned int ib=0; ib<geom[idr].torsion_restraint.size(); ib++) {
-      for (int iat=0; iat<i_no_res_atoms; iat++) {
-	 std::string pdb_atom_name1(res_selection[iat]->name);
 
-	 if (pdb_atom_name1 == geom[idr].torsion_restraint[ib].atom_id_1_4c()) {
-	    for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
+      // Joel Bard fix: Don't add torsion restraints for torsion that
+      // have either s.d. or period 0
 
-	       std::string pdb_atom_name2(res_selection[iat2]->name);
-	       if (pdb_atom_name2 == geom[idr].torsion_restraint[ib].atom_id_2_4c()) {
+      if (geom[idr].torsion_restraint[ib].periodicity() > 0) { // we had this test most inner
+	 if (geom[idr].torsion_restraint[ib].esd() > 0.000001) { // new test
+	 
+	    // now find the atoms
+	    for (int iat=0; iat<i_no_res_atoms; iat++) {
+	       std::string pdb_atom_name1(res_selection[iat]->name);
+
+	       if (pdb_atom_name1 == geom[idr].torsion_restraint[ib].atom_id_1_4c()) {
+		  for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
+
+		     std::string pdb_atom_name2(res_selection[iat2]->name);
+		     if (pdb_atom_name2 == geom[idr].torsion_restraint[ib].atom_id_2_4c()) {
 				    
-// 		  std::cout << "atom match 1 " << pdb_atom_name1;
-// 		  std::cout << " atom match 2 " << pdb_atom_name2
-// 			    << std::endl;
+			// 		  std::cout << "atom match 1 " << pdb_atom_name1;
+			// 		  std::cout << " atom match 2 " << pdb_atom_name2
+			// 			    << std::endl;
 
-		  for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
+			for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
 		     
-		     std::string pdb_atom_name3(res_selection[iat3]->name);
-		     if (pdb_atom_name3 == geom[idr].torsion_restraint[ib].atom_id_3_4c()) {
+			   std::string pdb_atom_name3(res_selection[iat3]->name);
+			   if (pdb_atom_name3 == geom[idr].torsion_restraint[ib].atom_id_3_4c()) {
 		  
-			for (int iat4=0; iat4<i_no_res_atoms; iat4++) {
+			      for (int iat4=0; iat4<i_no_res_atoms; iat4++) {
 		     
-			   std::string pdb_atom_name4(res_selection[iat4]->name);
-			   if (pdb_atom_name4 == geom[idr].torsion_restraint[ib].atom_id_4_4c()) {
+				 std::string pdb_atom_name4(res_selection[iat4]->name);
+				 if (pdb_atom_name4 == geom[idr].torsion_restraint[ib].atom_id_4_4c()) {
 		  
 
-			      // now we need the indices of
-			      // pdb_atom_name1 and
-			      // pdb_atom_name2 in asc.atom_selection:
+				    // now we need the indices of
+				    // pdb_atom_name1 and
+				    // pdb_atom_name2 in asc.atom_selection:
 
-			      int index1 = get_asc_index(res_selection[iat]->name,
-							 SelRes->seqNum,
-							 SelRes->GetInsCode(),
-							 SelRes->GetChainID());
-			      int index2 = get_asc_index(res_selection[iat2]->name,
-							 SelRes->seqNum,
-							 SelRes->GetInsCode(),
-							 SelRes->GetChainID());
-			      int index3 = get_asc_index(res_selection[iat3]->name,
-							 SelRes->seqNum,
-							 SelRes->GetInsCode(),
-							 SelRes->GetChainID());
-			      int index4 = get_asc_index(res_selection[iat4]->name,
-							 SelRes->seqNum,
-							 SelRes->GetInsCode(),
-							 SelRes->GetChainID());
+				    int index1 = get_asc_index(res_selection[iat]->name,
+							       SelRes->seqNum,
+							       SelRes->GetInsCode(),
+							       SelRes->GetChainID());
+				    int index2 = get_asc_index(res_selection[iat2]->name,
+							       SelRes->seqNum,
+							       SelRes->GetInsCode(),
+							       SelRes->GetChainID());
+				    int index3 = get_asc_index(res_selection[iat3]->name,
+							       SelRes->seqNum,
+							       SelRes->GetInsCode(),
+							       SelRes->GetChainID());
+				    int index4 = get_asc_index(res_selection[iat4]->name,
+							       SelRes->seqNum,
+							       SelRes->GetInsCode(),
+							       SelRes->GetChainID());
 
-			      std::vector<bool> fixed_flags =
-				 make_fixed_flags(index1, index2, index3, index4);
-			      if (geom[idr].torsion_restraint[ib].periodicity() > 0) { 
-				 add(TORSION_RESTRAINT, index1, index2, index3, index4,
-				     fixed_flags,
-				     geom[idr].torsion_restraint[ib].angle(),
-				     geom[idr].torsion_restraint[ib].esd(),
-				     1.2,  // junk value
-				     geom[idr].torsion_restraint[ib].periodicity());
-				 n_torsion_restr++;
+				    std::vector<bool> fixed_flags =
+				       make_fixed_flags(index1, index2, index3, index4);
+				    add(TORSION_RESTRAINT, index1, index2, index3, index4,
+					fixed_flags,
+					geom[idr].torsion_restraint[ib].angle(),
+					geom[idr].torsion_restraint[ib].esd(),
+					1.2,  // junk value
+					geom[idr].torsion_restraint[ib].periodicity());
+				    n_torsion_restr++;
+				 }
 			      }
 			   }
 			}
