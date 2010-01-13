@@ -193,6 +193,7 @@ int parse_curl_progress_log(const char *curl_log_file_name) {
 
 
 #ifdef USE_LIBCURL
+#ifdef USE_GUILE
 SCM curl_progress_info(const char *file_name) {
 
    SCM r = SCM_BOOL_F;
@@ -226,4 +227,5 @@ SCM curl_progress_info(const char *file_name) {
    } 
    return r;
 }
+#endif // USE_GUILE
 #endif /* USE_LIBCURL */
