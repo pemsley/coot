@@ -4138,7 +4138,7 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
 } 
 
 
-// Return the atom index of the "next" atom
+// Return the atom index of the "previous" atom
 // -1 on failure.
 int
 molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
@@ -4191,6 +4191,33 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
 	 }
 	 if (prev_residue)
 	    break;
+      }
+
+      // OK, we can get here by going backward through the chain
+      // (Shift Spacing) and have just deleted the atom we are centred
+      // on.
+      // 
+      // So, in the chain of the atom we just deleted, find the first
+      // residue that is more than the seqnum of the atom we just
+      // deleted, and the residue before that (prev_residue_candidate)
+      // 
+      if (!found_this_residue) {
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    if (chain_id == chain_p->GetChainID()) {
+	       int nres = chain_p->GetNumberOfResidues();
+	       PCResidue residue_p;
+	       for (int ires=0; ires<nres; ires++) { 
+		  residue_p = chain_p->GetResidue(ires);
+		  if (residue_p->GetSeqNum() > resno) { 
+		     if (prev_residue_candidate)
+			prev_residue = prev_residue_candidate;
+		     break;
+		  } 
+		  prev_residue_candidate = residue_p;
+	       }
+	    }
+	 }
       }
 
       // Handle the case where we are on first atom of water chain and

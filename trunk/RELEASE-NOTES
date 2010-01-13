@@ -35,6 +35,12 @@
 
   o BUG-FIX: Splitting a sidechain with zero occupancy no longer
     leaves atoms with negative occupancy [Takaaki Fukami].
+  
+  o BUG-FIX: Shift-spacing through waters, deleting active water now
+    goes to previous atom [Ingo Korndoerfer].
+
+  o BUG-FIX: No torsion restraints added when the esd of the torsion
+    is 0 (Phenix compatibility) [Joel Bard].
 
 -----
 
