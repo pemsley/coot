@@ -43782,7 +43782,7 @@ distances more than:</property>
 		  <property name="editable">False</property>
 		  <property name="visibility">True</property>
 		  <property name="max_length">0</property>
-		  <property name="text" translatable="yes">http://www.ysbl.york.ac.uk/~emsley/coot/doc/chapters/user-manual_toc.html</property>
+		  <property name="text" translatable="yes">http://www.biop.ox.ac.uk/coot/doc/coot/index.html</property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char">*</property>
 		  <property name="activates_default">False</property>
@@ -43803,7 +43803,7 @@ distances more than:</property>
 		  <property name="editable">False</property>
 		  <property name="visibility">True</property>
 		  <property name="max_length">0</property>
-		  <property name="text" translatable="yes">http://www.ysbl.york.ac.uk/~emsley/coot/doc/user-manual.html</property>
+		  <property name="text" translatable="yes">http://www.biop.ox.ac.uk/coot/doc/coot.html</property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char">*</property>
 		  <property name="activates_default">False</property>

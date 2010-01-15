@@ -24178,7 +24178,7 @@ create_doc_urls_dialog (void)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
   gtk_editable_set_editable (GTK_EDITABLE (doc_2_entry), FALSE);
-  gtk_entry_set_text (GTK_ENTRY (doc_2_entry), _("http://www.ysbl.york.ac.uk/~emsley/coot/doc/chapters/user-manual_toc.html"));
+  gtk_entry_set_text (GTK_ENTRY (doc_2_entry), _("http://www.biop.ox.ac.uk/coot/doc/coot/index.html"));
 
   doc_1_entry = gtk_entry_new ();
   gtk_widget_set_name (doc_1_entry, "doc_1_entry");
@@ -24187,7 +24187,7 @@ create_doc_urls_dialog (void)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
   gtk_editable_set_editable (GTK_EDITABLE (doc_1_entry), FALSE);
-  gtk_entry_set_text (GTK_ENTRY (doc_1_entry), _("http://www.ysbl.york.ac.uk/~emsley/coot/doc/user-manual.html"));
+  gtk_entry_set_text (GTK_ENTRY (doc_1_entry), _("http://www.biop.ox.ac.uk/coot/doc/coot.html"));
 
   label255 = gtk_label_new (_("   Sectioned   "));
   gtk_widget_set_name (label255, "label255");
