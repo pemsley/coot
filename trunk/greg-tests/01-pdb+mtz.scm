@@ -544,6 +544,26 @@
        )))
 	 
 
+(greg-testcase "Rotamers work on MSE" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "pdb3knw.ent")))
+
+       (let ((se-1 (get-atom imol "A" 89 "" "SE  ")))
+
+	 (set-residue-to-rotamer-number imol "A" 89 "" 3)
+
+	 (let ((se-2 (get-atom imol "A" 89 "" "SE  ")))
+
+	   (format #t "    se-1: ~s~%" se-1)
+	   (format #t "    se-2: ~s~%" se-2)
+
+ 	   (if (atoms-match? se-1 se-2) 
+ 	       #f
+ 	       #t ;; the SE moved, test passes
+ 	       ))))))
+
+
 
 (greg-testcase "Splitting residue leaves no atoms with negative occupancy" #t 
    (lambda ()

@@ -475,9 +475,9 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 
    // debugging
    if (0) { 
-     std::cout << "   mon_lib_add_atom  " << comp_id << " " << atom_id << " "
-	       << type_symbol << " " << type_energy << " (" << partial_charge.first
-	       << "," << partial_charge.second << ")" << std::endl;
+      std::cout << "   mon_lib_add_atom  " << comp_id << " :" << atom_id << ": :"
+		<< atom_id_4c << ": " << type_symbol << " " << type_energy << " ("
+		<< partial_charge.first << "," << partial_charge.second << ")" << std::endl;
    } 
 
    coot::dict_atom at_info(atom_id, atom_id_4c, type_symbol, type_energy, partial_charge);
@@ -542,6 +542,7 @@ coot::protein_geometry::mon_lib_add_tree(std::string comp_id,
 					 std::string connect_type) {
    bool ifound = 0;
    coot::dict_chem_comp_tree_t ac(atom_id, atom_back, atom_forward, connect_type);
+   // std::cout << "mon_lib_add_tree atom :" << atom_id << ":" << std::endl;
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].comp_id == comp_id) {
 	 ifound = 1;
@@ -657,6 +658,21 @@ coot::dict_torsion_restraint_t::is_const() const {
    }
    return const_flag;
 }
+
+
+std::string
+coot::dictionary_residue_restraints_t::atom_name_for_tree_4c(const std::string &atom_id) const {
+
+   std::string r = atom_id;
+   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+      if (atom_info[iat].atom_id == atom_id) {
+	 r = atom_info[iat].atom_id_4c;
+      }
+   }
+   return r;
+}
+
+
 
 
 void 
@@ -1293,11 +1309,30 @@ coot::protein_geometry::comp_tree(PCMMCIFLoop mmCIFLoop) {
 	 connect_type = s;
 
       if (ierr == 0) {
-	 mon_lib_add_tree(comp_id, atom_id, atom_back, atom_forward,
-			  connect_type); 
+	 std::string padded_name_atom_id = atom_name_for_tree_4c(comp_id, atom_id);
+	 std::string padded_name_atom_back = atom_name_for_tree_4c(comp_id, atom_back);
+	 std::string padded_name_atom_forward = atom_name_for_tree_4c(comp_id, atom_forward);
+	 mon_lib_add_tree(comp_id, padded_name_atom_id, padded_name_atom_back,
+			  padded_name_atom_forward, connect_type); 
       } 
    }
 }
+
+// look up atom_id in the atom atom_info (dict_atom vector) of the comp_id restraint
+// 
+std::string
+coot::protein_geometry::atom_name_for_tree_4c(const std::string &comp_id, const std::string &atom_id) const {
+
+   std::string r = atom_id;
+   for (int id=(dict_res_restraints.size()-1); id >=0; id--) {
+      if (dict_res_restraints[id].comp_id == comp_id) {
+	 r = dict_res_restraints[id].atom_name_for_tree_4c(atom_id);
+	 break;
+      }
+   }
+   return r;
+}
+
 
 int
 coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
