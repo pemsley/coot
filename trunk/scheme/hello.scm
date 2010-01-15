@@ -48,8 +48,8 @@
 		      ((< hour 12) "Good morning")
 		      ((< hour 18) "Good afternoon")
 		      (else "Good evening"))))
-	 (hello-str (format #f "~a ~a. Welcome to Coot." 
-			    time-str user)))
+	 (hello-str (format #f "~a ~a. Welcome to Coot ~a." 
+			    time-str user (coot-version))))
 
     (let* ((name-strings (string-split user #\space))
 	   (first-name (car name-strings))
