@@ -4381,6 +4381,7 @@ void apply_bond_parameters(GtkWidget *w) {
 	    } else {
 	       set_draw_hydrogens(imol, 0);
 	    }
+	    g.update_environment_distances_by_rotation_centre_maybe(imol);
 	 }
       }
    }

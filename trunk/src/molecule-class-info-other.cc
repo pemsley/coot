@@ -511,12 +511,14 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index,
       } else {
 
 	 short int residue_is_water_flag = 0;
+	 bool draw_bonds_to_hydrogens_flag = draw_hydrogens_flag; // class var
 	 std::string residue_name = point_atom_p->GetResName();
 	 if (residue_name == "HOH" || residue_name == "WAT")
 	    residue_is_water_flag = 1;
 	 Bond_lines_container bonds(atom_sel,residue_atoms, nResidueAtoms,
 				    protein_geom_p,
 				    residue_is_water_flag,
+				    draw_bonds_to_hydrogens_flag,
 				    g.environment_min_distance,
 				    g.environment_max_distance);
 	 bonds_box = bonds.make_graphical_bonds();
@@ -573,9 +575,11 @@ molecule_class_info_t:: make_symmetry_environment_bonds_box(int atom_index,
 
 	    short int do_symmetry = 1;
 	    // std::cout << "... calling Bond_lines_container constructor" << std::endl;
+	    bool draw_bonds_to_hydrogens_flag = draw_hydrogens_flag; // class var
 	    Bond_lines_container bonds(atom_sel, residue_atoms, nResidueAtoms,
 				       g.environment_max_distance,
 				       g.environment_min_distance,
+				       draw_bonds_to_hydrogens_flag,
 				       do_symmetry);
 	    bonds_box = bonds.make_graphical_bonds();
 	 }
