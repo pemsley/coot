@@ -4,9 +4,6 @@
 
    o Check that ligand with hydrogens give good clashes [JB] ::: 2
 
-   o Seleno-methione rotamers and edit chis.  Do they work? No 
-     [Clemens] ::: 4
-
    o rigid_body_refine_by_residue_ranges_scm() should be in
      documentation.  ::: 1
 
@@ -191,5 +188,9 @@
 
    o stalling on updating progress bar in guile-gtk. ::: 3
 
-*Done.  Thanks Andy Wingo.
+* Done.  Thanks Andy Wingo.
 
+   o Seleno-methione rotamers and edit chis.  Do they work? No 
+     [Clemens] ::: 4
+
+* Done.
