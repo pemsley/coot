@@ -42,6 +42,8 @@
   o BUG-FIX: No torsion restraints added when the esd of the torsion
     is 0 (Phenix compatibility) [Joel Bard].
 
+  o BUG-FIX: Rotamers and Edit Chi now works for MSEs [Clemens Vonrhein].
+
 -----
 
   Release 0.6
