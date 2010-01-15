@@ -1,13 +1,14 @@
 0.6.1 
 
-   36 dev points: 5 left.
+   points: 7 left.
 
    o Check that ligand with hydrogens give good clashes [JB] ::: 2
 
    o Seleno-methione rotamers and edit chis.  Do they work? No 
      [Clemens] ::: 4
 
-   o stalling on updating progress bar in guile-gtk. ::: 3
+   o rigid_body_refine_by_residue_ranges_scm() should be in
+     documentation.  ::: 1
 
 
 ------
@@ -184,5 +185,11 @@
    o "Space" through waters.  Delete a water.  "space" recentres
      where?  Now do the same, but go through the waters backwards using
      "shift space" - Ingo Korndoerfer ::: 1
+
+* Done. Nice, with test.
    
+
+   o stalling on updating progress bar in guile-gtk. ::: 3
+
+*Done.  Thanks Andy Wingo.
 

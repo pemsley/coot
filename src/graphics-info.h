@@ -442,6 +442,26 @@ namespace coot {
     Cartesian screen_y;
     Cartesian screen_z;
   };
+
+
+  class simple_curl_handler_t { 
+  public:
+    CURL * c;
+    std::string file_name;
+    bool stop_it;
+    simple_curl_handler_t(CURL *cin, std::string f) {
+      file_name = f;
+      c = cin;
+      stop_it=0;
+    }
+    bool stop_is_set() { 
+      return stop_it;
+    }
+    void set_stop() {
+      stop_it = 1;
+    }
+  };
+
   
 } // namespace coot
 
@@ -3453,11 +3473,13 @@ public:
 
    // --- curl handlers
 #ifdef USE_LIBCURL
-   static std::vector<std::pair<CURL *, std::string> > curl_handlers;
+   static std::vector<coot::simple_curl_handler_t> curl_handlers;
    void add_curl_handle_and_file_name(std::pair<CURL *, std::string> p);
    void remove_curl_handle_with_file_name(std::string file_name);
    // return NULL on no such filename being transfered.
    CURL *get_curl_handle_for_file_name(const std::string &filename) const;
+   static bool curl_handler_stop_it_flag_set(CURL *c);
+   static void set_stop_curl_download_flag(const std::string &file_name);
 #endif    
 
 #ifdef USE_GUILE

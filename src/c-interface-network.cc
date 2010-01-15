@@ -52,18 +52,35 @@ int coot_get_url(const char *url, const char *file_name) {
 int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 					short int activate_curl_hook_flag) {
 
+   // This can take a while to download files - i.e. can block.  If
+   // this is called in a guile thread, then that is bad because it
+   // stops the syncing of guile threads (1.8 behavour). See "Blocking
+   // in Guile Mode" in the Guile Reference Manual.  Apparently 1.9
+   // does not have this issue.  Anyway, with 1.8 we need to not run a
+   // long lived thread in guile-mode, i.e. we need to exit guile-mode
+   // and that is done with scm_without_guile(), and we pass the
+   // long-lived function to that.
+   //
+   // Thanks to Andy Wingo for help here.
+
    FILE *f = fopen(file_name, "w");
    if (f) { 
       CURL *c = curl_easy_init();
+      std::pair<FILE *, CURL *> p_for_write(f,c);
       curl_easy_setopt(c, CURLOPT_URL, url);
       curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data_to_file);
-      curl_easy_setopt(c, CURLOPT_WRITEDATA, f);
+      curl_easy_setopt(c, CURLOPT_WRITEDATA, &p_for_write);
       std::pair <CURL *, std::string> p(c,file_name);
-      CURLcode success;
+      CURLcode success = CURLcode(-1);
       if (activate_curl_hook_flag) { 
 	 graphics_info_t g;
 	 g.add_curl_handle_and_file_name(p);
+#ifdef USE_GUILE
+	 // good return values (same as the non-wrapped function call)
+	 success = CURLcode(GPOINTER_TO_INT(scm_without_guile(wrapped_curl_easy_perform, c)));
+#else
 	 success = curl_easy_perform(c);
+#endif	 
 	 g.remove_curl_handle_with_file_name(file_name);
       } else {
 	 success = curl_easy_perform(c);
@@ -77,6 +94,15 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
    } 
 }
 #endif /* USE_LIBCURL */
+
+#ifdef USE_LIBCURL
+void *wrapped_curl_easy_perform(void *data) {
+
+   CURL *c = (CURL *) data;
+   int i = curl_easy_perform(c);
+   return GINT_TO_POINTER(i);
+}
+#endif
 
 #ifdef USE_LIBCURL
 std::string coot_get_url_as_string_internal(const char *url) {
@@ -139,57 +165,32 @@ write_coot_curl_data(void *buffer, size_t size, size_t nmemb, void *userp) {
 size_t
 write_coot_curl_data_to_file(void *buffer, size_t size, size_t nmemb, void *userp) {
 
-   if (buffer) {
-      FILE *f = static_cast<FILE *> (userp);
-      const char *s = static_cast<const char *> (buffer);
-      for (size_t i=0; i<nmemb; i++) 
-	 fputc(s[i], f);
-      return nmemb; // slightly naughty, we should return the size of the
-	    	    // data that we actually delt with.
-   } else {
+   // Wow, userp is complicated.  We need to know if the Cancel
+   // button of the download GUI has been pressed.  Doing so sets the
+   // stop boolean for the approriate curl_handler.
+   // 
+   // Here we lookup the curl handler and see if the stop flag has
+   // been set.  If so, don't do anything and return 0.
+
+   std::pair<FILE *, CURL *> *p = static_cast<std::pair<FILE *, CURL *> *> (userp);
+
+   if (graphics_info_t::curl_handler_stop_it_flag_set(p->second)) {
+      // signal an error to the libcurl so that it will abort the transfer.
       return size_t(0);
-   } 
+   } else { 
+      if (buffer) {
+	 const char *s = static_cast<const char *> (buffer);
+	 for (size_t i=0; i<nmemb; i++) 
+	    fputc(s[i], p->first);
+	 return nmemb; // slightly naughty, we should return the size of the
+	 // data that we actually delt with.
+      } else {
+	 return size_t(0);
+      }
+   }
 }
 #endif /* USE_LIBCURL */
 
-
-
-//! internal use: return an int in 10000ths (converted from a
-//percentage).  Return -1 if not able to parse.
-int parse_curl_progress_log(const char *curl_log_file_name) {
-
-   int ifrac = -1;
-   FILE *file = fopen(curl_log_file_name, "r");
-   bool done = 0;
-   std::string rstring = "";
-   if (file) {
-      while (!done) {
-	 int c = getc(file);
-	 if (c == EOF) { 
-	    done = 1;
-	    break;
-	 } 
-	 if (isspace(c)) {
-	    rstring = "";
-	 }
-	 if (isdigit(c) || ispunct(c)) {
-	    if (c != '%')
-	       rstring += c;
-	 }
-      }
-   } else {
-      std::cout << "failed to open " << curl_log_file_name << std::endl;
-   }
-   if (done)
-      try {
-	 ifrac = int(coot::util::string_to_float(rstring) * 100 + 0.5);
-      }
-      catch (std::runtime_error rte) {
-	 std::cout << rte.what() << std::endl;
-      }
-   std::cout << "parse_curl_progress_log: returning " << ifrac << std::endl;
-   return ifrac;
-}
 
 
 #ifdef USE_LIBCURL
@@ -229,3 +230,13 @@ SCM curl_progress_info(const char *file_name) {
 }
 #endif // USE_GUILE
 #endif /* USE_LIBCURL */
+
+
+#ifdef USE_LIBCURL
+void stop_curl_download(const char *file_name) {  // stop curling the to file_name;
+
+   graphics_info_t g;
+   g.set_stop_curl_download_flag(file_name);
+
+} 
+#endif // USE_LIBCURL

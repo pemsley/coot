@@ -105,12 +105,8 @@
 ;; version-string is something like: "coot-0.6-pre-1-revision-2060"
 (define download-binary-dialog 
   (let ((pending-install-in-place #f)
-	(md5sum-curl-pid #f)
-	(file-name-for-progress-bar #f)
-	(binary-tar-curl-pid #f))
+	(file-name-for-progress-bar #f))
     (lambda (version-string)
-
-      (define tmp-coot-download-binary-log-file-name "tmp-coot-download-binary.log")
 
       ;; Get the binary (i.e. the action that happens when the download
       ;; button is pressed).  This is run in a thread, so it can't do
@@ -127,11 +123,7 @@
 	      (begin
 		(format #t "OOps! Can't find COOT_PREFIX~%")
 		#f)
-	      (let* ((curl-exe (let ((test-curl-exe (string-append prefix "/bin/curl"))) ;; to get curl binary
-				 (if (file-exists? test-curl-exe)
-				     test-curl-exe
-				     "curl")))
-		     (pre-release-flag (string-match "-pre" (coot-version)))
+	      (let* ((pre-release-flag (string-match "-pre" (coot-version)))
 		     (ys "www.ysbl.york.ac.uk/~emsley/software/binaries")
 		     (binary-type (coot-sys-build-type))
 		     (host-dir (cond 
@@ -140,7 +132,6 @@
 				((string=? binary-type "binary-Linux-i386-fedora-8-python-gtk2") ys)
 				((string=? binary-type "binary-Linux-i386-fedora-8-gtk2") ys)
 				((string=? binary-type "binary-Linux-i386-fedora-10-python-gtk2") ys)
-				((string=? binary-type "binary-Linux-i386-fedora-10-gtk2") ys)
 				((string=? binary-type "binary-Linux-i686-ubuntu-8.04.3") ys)
 				((string=? binary-type "binary-Linux-i686-ubuntu-8.04.3-python") ys)
 				(else 
@@ -161,36 +152,7 @@
 		(format #t "md5sum url for curl: ~s~%" md5-url)
 		(format #t "url for curl: ~s~%" url)
 
-		;; writing to standard out like this tickles a guile/goosh
-		;; bug, it seems to me.  In a big binary file there is a
-		;; problem with the penultimate byte (or something like
-		;; that).
-		;; 
-		;; (goosh-command curl-exe (list md5-url) '() md5-tar-file-name #f)
-		;; (goosh-command curl-exe (list url) '() tar-file-name #f)
-		
-		;; (goosh-command curl-exe (list md5-url "-o" md5-tar-file-name) '() 
-		;; "tmp-coot-get-md5-url.log" #f)
-		;; (goosh-command curl-exe (list url "-o" tar-file-name) '() 
-		;; "tmp-coot-get-url.log" #f)
-
-		(let ((cmd-ports (run-concurrently curl-exe md5-url "-o" md5-tar-file-name)))
-		  (format #t "got cmd-ports: ~s~%" cmd-ports)
-		  (set! md5sum-curl-pid cmd-ports))
-
-		(format #t "debug:: waiting for pid: ~s~%" md5sum-curl-pid)
-		(waitpid md5sum-curl-pid)
-		(set! md5sum-curl-pid #f)
-
-;		(let ((cmd-ports (run-concurrently curl-exe url "-o" tar-file-name "-#"
-;						   "--stderr" tmp-coot-download-binary-log-file-name)))
-;		  (format #t "got cmd-ports: ~s~%" cmd-ports)
-;		  (set! binary-tar-curl-pid cmd-ports))
-
-;		(format #t "debug:: waiting for pid: ~s~%" binary-tar-curl-pid)
-;		(waitpid binary-tar-curl-pid)
-;		(set! binary-tar-curl-pid #f) ;; not running, binary-tar-curl-pid is used for killing
-
+		(coot-get-url-and-activate-curl-hook md5-url md5-tar-file-name 1)
 		(coot-get-url-and-activate-curl-hook url tar-file-name 1)
 
 		(if (not (file-exists? tar-file-name))
@@ -222,15 +184,15 @@
 	  (if (string? file-name-for-progress-bar)
 	      (let ((curl-info (curl-progress-info file-name-for-progress-bar)))
 		(set! active-count (+ active-count 1))
-		(format #t "got curl-info: ~s for ~s ~%" curl-info file-name-for-progress-bar)
+		;; (format #t "got curl-info: ~s for ~s ~%" curl-info file-name-for-progress-bar)
 		(if curl-info
 		    (let ((v1 (assoc 'content-length-download curl-info))
 			  (v2 (assoc 'size-download           curl-info)))
-		      (format #t "v1: ~s v2: ~s~%" v1 v2)
+		      ;; (format #t "v1: ~s v2: ~s~%" v1 v2)
 		      (if (list v1)
 			  (if (list v2)
 			      (let ((f (/ (cdr v2) (cdr v1))))
-				(format #t "count ~s, active-count ~s, f: ~s~%" count active-count f)
+				;; (format #t "count ~s, active-count ~s, f: ~s~%" count active-count f)
 				(gtk-progress-bar-update progress-bar f)))))))))))
 
 
@@ -273,8 +235,8 @@
 				;; stop the download process(es) if
 				;; they were running (they get set to
 				;; #f when they are not running)
-				(if md5sum-curl-pid (kill md5sum-curl-pid SIGINT))
-				(if binary-tar-curl-pid (kill binary-tar-curl-pid SIGINT))
+				(stop-curl-download file-name-for-progress-bar) 
+				(set! pending-install-in-place 'cancelled) ;; not fail
 				(gtk-widget-destroy window)))
 
 	  (gtk-signal-connect ok-button "clicked"
@@ -284,39 +246,28 @@
 				 (lambda ()
 				   (if (not (run-download-binary-curl revision version-string))
 				       (begin
-					 (format #t "run-download-binary-curl failed~%")
-					 (set! pending-install-in-place 'fail))))
-				 coot-updates-error-handler)))
+					 (if (not (eq? pending-install-in-place 'cancelled))
+					     (set! pending-install-in-place 'fail)))))
+				 coot-updates-error-handler)
+				       
+				;; and a timeout checking the progress of the download:
+				(gtk-timeout-add 
+				 1000  (lambda ()
+					 (cond
+					  ((eq? pending-install-in-place 'fail)
+					   (gtk-widget-destroy window)
+					   (info-dialog "Failure to download and install binary")
+					   #f)
+					  ((eq? pending-install-in-place 'cancelled)
+					   #f) ; do nothing and stop timeout
+					  (pending-install-in-place
+					   (gtk-widget-destroy window)
+					   (restart-dialog)
+					   #f)
+					  (else
+					   (update-progress-bar progress-bar)
+					   #t))))))
 
-	  ;; delete the (running/status) file that curling the binary
-	  ;; tar file writes too. We don't want to see old status when
-	  ;; we start a new progress bar.
-	  ;; 
-	  (if (file-exists? tmp-coot-download-binary-log-file-name)
-	      (begin 
-		(format #t "deleting ~s~%" tmp-coot-download-binary-log-file-name)
-		(delete-file tmp-coot-download-binary-log-file-name)))
-
-	  
-	  ;; Ideally, this should be added on pressing the "Download
-	  ;; button, not here.
-	  ;; 
-	  (gtk-timeout-add 
-	   50  (lambda ()
-		 (format #t "Run timeout function...~%")
-		 (cond
-		  ((eq? pending-install-in-place 'fail)
-		   (gtk-widget-destroy window)
-		   (info-dialog "Failure to download and install binary")
-		   #f)
-		  (pending-install-in-place
-		   (gtk-widget-destroy window)
-		   (restart-dialog)
-		   #f)
-		  (else
-		   ;; (update-progress-bar progress-bar) ;; still hangs, thread problem
-		   #t))))
-					 
 	  (gtk-widget-show-all window))))))
 
 

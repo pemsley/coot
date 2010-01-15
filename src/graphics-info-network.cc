@@ -3,14 +3,15 @@
 
 #ifdef USE_LIBCURL
 // define the static
-std::vector<std::pair<CURL *, std::string> > graphics_info_t::curl_handlers;
+std::vector<coot::simple_curl_handler_t> graphics_info_t::curl_handlers;
 #endif
 
 #ifdef USE_LIBCURL
 void
 graphics_info_t::add_curl_handle_and_file_name(std::pair<CURL *, std::string> p) {
 
-   curl_handlers.push_back(p);
+   coot::simple_curl_handler_t sch(p.first, p.second);
+   curl_handlers.push_back(sch);
 
 }
 #endif
@@ -22,11 +23,11 @@ void
 graphics_info_t::remove_curl_handle_with_file_name(std::string file_name) {
 
    bool done = 0;
-   std::vector<std::pair<CURL *, std::string> >::iterator it;
+   std::vector<coot::simple_curl_handler_t>::iterator it;
    while (!done) {
       done = 1;
       for (it=curl_handlers.begin(); it!=curl_handlers.end(); it++) {
-	 if (it->second == file_name) { 
+	 if (it->file_name == file_name) { 
 	    curl_handlers.erase(it);
 	    done = 0;
 	    break;
@@ -44,10 +45,38 @@ graphics_info_t::get_curl_handle_for_file_name(const std::string &filename) cons
 
    CURL *c = NULL;
    for (unsigned int i=0; i<curl_handlers.size(); i++) {
-      if (curl_handlers[i].second == filename) {
-	 return curl_handlers[i].first;
+      if (curl_handlers[i].file_name == filename) {
+	 return curl_handlers[i].c;
       }
    }
    return c;
 }
 #endif
+
+// static
+bool
+graphics_info_t::curl_handler_stop_it_flag_set(CURL *c) {
+
+   bool r = 0;
+   std::vector<coot::simple_curl_handler_t>::iterator it;
+   for (it=curl_handlers.begin(); it!=curl_handlers.end(); it++) {
+      if (it->stop_is_set()) {
+	 r = 1;
+	 break;
+      } else {
+      }
+   }
+   return r;
+} 
+
+// static 
+void
+graphics_info_t::set_stop_curl_download_flag(const std::string &file_name) {
+
+   for (unsigned int i=0; i<curl_handlers.size(); i++) {
+      if (curl_handlers[i].file_name == file_name) {
+	 curl_handlers[i].set_stop();
+	 break;
+      }
+   }
+}
