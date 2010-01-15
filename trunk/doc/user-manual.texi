@@ -2507,7 +2507,7 @@ other residues. @code{(set-rotamer-check-clashes 0)} will stop this.
 By default, Auto Fit Rotamer will switch to ``Backrub Rotamer''
 @footnote{"The Backrub Motion: How Protein Backbone Shrugs
      When a Sidechain Dances" @emph{Structure}, Volume @b{14}, Issue 2, Pages
-     265-274 I. Davis, W. Arendall III, D. Richardson, J. Richardson}
+     265-274 I. Davis, W. Bryan Arendall III, D. Richardson, J. Richardson}
 mode when fitting against a map of worse than 2.7@AA{}.  This
 search mode moves the some atoms of the mainchain of the
 neighbouring residues.  After rotation of the central residue and 
