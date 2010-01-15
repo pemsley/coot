@@ -76,8 +76,12 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 	 graphics_info_t g;
 	 g.add_curl_handle_and_file_name(p);
 #ifdef USE_GUILE
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7) 
 	 // good return values (same as the non-wrapped function call)
 	 success = CURLcode(GPOINTER_TO_INT(scm_without_guile(wrapped_curl_easy_perform, c)));
+#else
+	 std::cout << "Can do this with this old guile" << std::endl;
+#endif 	 
 #else
 	 success = curl_easy_perform(c);
 #endif	 
