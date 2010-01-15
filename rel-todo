@@ -194,3 +194,11 @@
      [Clemens] ::: 4
 
 * Done.
+
+   o Hydrogen environment distances are show even when hydrogens are
+     not show.  Hydrogen-Hydrogen or Hydrogen-Carbon are bumps not
+     hydrogen bonds. [JED] ::: 1
+
+* Done.
+
+

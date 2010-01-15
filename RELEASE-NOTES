@@ -44,6 +44,9 @@
 
   o BUG-FIX: Rotamers and Edit Chi now works for MSEs [Clemens Vonrhein].
 
+  o BUG-FIX: Hydrogen environment distances now are synchronised with
+    the display of hydrogens [JED].
+
 -----
 
   Release 0.6

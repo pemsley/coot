@@ -889,10 +889,12 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   int n_residue_atoms,
 					   coot::protein_geometry *protein_geom_p, // modifiable
 					   short int residue_is_water_flag,
+					   bool draw_env_distances_to_hydrogens_flag,
 					   float min_dist,
 					   float max_dist) {
 
-   std::cout << "Environment distances NO symm" << std::endl;
+   if (0) 
+      std::cout << "Environment distances NO symm" << std::endl;
    do_bonds_to_hydrogens = 1;  // added 20070629
    
    b_factor_scale = 1.0;
@@ -953,10 +955,22 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 			 << SelAtom.atom_selection[ contact[i].id2 ]
 			 << std::endl;
 	    }
-	    if (ele1 == " C" || ele2 == " C")
-	       addBond(0, atom_1, atom_2);
-	    else 
-	       addBond(1, atom_1, atom_2);
+	    if (draw_env_distances_to_hydrogens_flag ||
+		((ele1 != " H") && (ele2 != " H"))) { 
+	       if (ele1 == " C")
+		  addBond(0, atom_1, atom_2);
+	       else {
+		  if (ele2 == " C") { 
+		     addBond(0, atom_1, atom_2);
+		  } else { 
+		     if (ele1 == " H" && ele2 == " H") { 
+			addBond(0, atom_1, atom_2);
+		     } else { 
+			addBond(1, atom_1, atom_2);
+		     }
+		  }
+	       }
+	    }
 	 } 
       }
       delete [] contact;
@@ -1012,6 +1026,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   int nResidueAtoms,
 					   float min_dist,
 					   float max_dist,
+					   bool draw_env_distances_to_hydrogens_flag,
 					   short int do_symm) {
 
    // std::cout << "Environment distances with symm" << std::endl;
@@ -1059,10 +1074,22 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	       std::cout << "adding bond: " << residue_atoms[iresatom] << " -> "
 			 << translated[it] << std::endl;
 
-	       if (ele1 == " C" || ele2 == " C")
-		  addBond(0, symm_atom, res_atom_pos);
-	       else 
-		  addBond(1, symm_atom, res_atom_pos);
+	       if (draw_env_distances_to_hydrogens_flag ||
+		   ((ele1 != " H") && (ele2 != " H"))) { 
+		  if (ele1 == " C")
+		     addBond(0, symm_atom, res_atom_pos);
+		  else {
+		     if (ele2 == " C") { 
+			addBond(0, symm_atom, res_atom_pos);
+		     } else { 
+			if (ele1 == " H" && ele2 == " H") { 
+			   addBond(0, symm_atom, res_atom_pos);
+			} else { 
+			   addBond(1, symm_atom, res_atom_pos);
+			}
+		     }
+		  }
+	       }
 	    }
 	 }
 	 // valgrind suggestion: 050803 - deleting translated[i] too.
