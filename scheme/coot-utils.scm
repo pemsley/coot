@@ -1971,7 +1971,8 @@
 			       atom-attribute-settings))
 		   (set! atom-attribute-settings
 			 (cons (list imol chain-id resno inscode atom-name alt-conf
-				     "occ" (shelx-molecule? imol) 11.0 1.0))))))))
+				     "occ" (if (shelx-molecule? imol) 11.0 1.0))
+			       atom-attribute-settings)))))))
      atom-ls)
     ; (format #t "DEBUG:: atom-attribute-settings: ~s~%" atom-attribute-settings)
     (if (not (null? atom-attribute-settings))
