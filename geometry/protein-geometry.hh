@@ -414,6 +414,8 @@ namespace coot {
       }
       std::vector<dict_torsion_restraint_t> get_non_const_torsions(bool include_hydrogen_torsions_flag) const;
       void write_cif(const std::string &filename) const;
+      // look up the atom id in the atom_info (dict_atom vector)
+      std::string atom_name_for_tree_4c(const std::string &atom_id) const;
    };
 
    // ------------------------------------------------------------------------
@@ -726,7 +728,6 @@ namespace coot {
 			    const std::pair<bool, clipper::Coord_orth> &model_pos,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
 			    
-
       void mon_lib_add_tree(std::string comp_id,
 			    std::string atom_id,
 			    std::string atom_back,
@@ -774,6 +775,12 @@ namespace coot {
       void add_restraint(std::string comp_id, const dict_angle_restraint_t &restr);
       void add_restraint(std::string comp_id, const dict_torsion_restraint_t &restr);
       void add_restraint(std::string comp_id, const dict_chiral_restraint_t &rest);
+
+      // comp_tree need to convert unquoted atom_ids to 4char atom
+      // names.  So we look them up in the atom table.  If name not
+      // found, return the input string
+      //
+      std::string atom_name_for_tree_4c(const std::string &comp_id, const std::string &atom_id) const;
 
       // for simple monomer descriptions:
       void simple_mon_lib_chem_comp   (PCMMCIFLoop mmCIFLoop);

@@ -223,8 +223,6 @@ coot::rotamer::probability_of_this_rotamer() {
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
    std::vector<std::vector<std::string> > rotamer_ats = rotamer_atoms(residue_name);
-   if (residue_name == "MSE")
-      residue_name = "MET";
 
    if (rotamer_ats.size() == 0)
       return coot::rotamer_probability_info_t(-2, 0.0, "none"); // no chi-squared value for 
@@ -551,8 +549,7 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
    // std::cout << "rotamer::GetResidue alt_conf is :" << alt_conf << ":" << std::endl;
    CResidue *rres = deep_copy_residue(Residue()); 
    std::string rt = Residue_Type();
-   if (rt == "MSE")
-      rt = "MET";
+
    std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
 
    if (0) { // debug
@@ -1061,8 +1058,6 @@ coot::rotamer::Chi1(int irot) const {
 
    for (unsigned int i=0; i<typed_rotamers.size(); i++) {
       std::string rt = Residue_Type();
-      if (rt == "MSE")
-	 rt = "MET";
       if (typed_rotamers[i].Type() == rt) {
 	 if (irot<int(rotamers(rt, Probability_limit()).size())) { 
 	    v = rotamers(rt, Probability_limit())[irot].Chi1();
@@ -1084,8 +1079,6 @@ coot::rotamer::rotamer_name(int irot) {
 
    for (unsigned int i=0; i<typed_rotamers.size(); i++) {
       std::string rt = Residue_Type();
-      if (rt == "MSE")
-	 rt = "MET";
       if (typed_rotamers[i].Type() == rt) {
 	 if (irot<int(rotamers(rt, Probability_limit()).size())) { 
 	    n = rotamers(rt, Probability_limit())[irot].rotamer_name();

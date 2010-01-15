@@ -23,6 +23,7 @@
 #include <sstream>
 #include <string.h>
 
+#include "coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh"
 
@@ -72,6 +73,7 @@ coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_ind
 			       int base_atom_index, 
 			       CResidue *res,
 			       const std::string &altconf) {
+
    made_from_minimol_residue_flag = 0;
    if (! res) {
       std::string mess = "null residue in alternate atom_tree_t constructor";
@@ -114,6 +116,8 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
       for (int iat=0; iat<n_residue_atoms; iat++) {
 	 std::string atom_name = residue_atoms[iat]->name;
 	 std::string atom_altl = residue_atoms[iat]->altLoc;
+// 	 std::cout << "comparing :" << atom_name << ": with :" << rest.bond_restraint[i].atom_id_1()
+// 		   << ":" << std::endl;
 	 if (atom_name == rest.bond_restraint[i].atom_id_1())
 	    if (atom_altl == "" || atom_altl == altconf)
 	       idx1 = iat;
@@ -125,8 +129,9 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
 	    break;
       }
 
-      if ((idx1 != -1) && (idx2 != -1))
+      if ((idx1 != -1) && (idx2 != -1)) {
 	 bonds.push_back(std::pair<int,int>(idx1, idx2));
+      }
    }
 
    fill_name_map(altconf);
@@ -139,6 +144,7 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
 
    bool success_torsion = fill_torsions(rest, res, altconf);
 
+   // if you want print out the atom tree, do it in fill_atom_vertex_vec()
 }
 
 
@@ -462,7 +468,7 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
 		  add_unique_forward_atom(idx, atom_forward_index.index());
 	    }
 
-	    if (0) { 
+	    if (debug) { 
 	       std::cout << "   itree " << itree << " :"
 			 << rest.tree[itree].atom_id << ": :"
 		      << rest.tree[itree].atom_back << ": :"
@@ -584,7 +590,12 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 
    if ((atom_vertex_vec[index2.index()].forward.size() == 0) && 
        (atom_vertex_vec[index3.index()].forward.size() == 0)) {
-      throw std::runtime_error("Neither index2 nor index3 has forward atoms!");
+      std::string s = "Neither index2 ";
+      s += coot::util::int_to_string(index2.index());
+      s += " nor index3 ";
+      s += coot::util::int_to_string(index3.index());
+      s += " has forward atoms!";
+      throw std::runtime_error(s);
    } 
        
    if (index2.is_assigned()) { 
@@ -921,7 +932,6 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 	    diff += 360.0;
 	 // take out this try/catch when done.
 	 rotate_about(atom2, atom3, clipper::Util::d2rad(diff), 0);
-
 	 dihedral_angle = iq.torsion(residue);
       }
       catch (std::runtime_error rte) {
@@ -934,7 +944,7 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 	 mess += atom3;
 	 mess += " to ";
 	 mess += atom4;
-	 mess += ". No unassigned atoms";
+	 mess += ": rotate_about() fails.";
 	 throw std::runtime_error(mess);
       }
    } else {
