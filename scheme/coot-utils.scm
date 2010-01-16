@@ -54,7 +54,7 @@
 (define test-internal test-internal-scm)
 (define atom-info-string atom-info-string-scm)
 (define get-refmac-sad-atom-info get-refmac-sad-atom-info-scm)
-;; fix typo
+;; fix typo of set-find-hydrogen-torsions (backward compatibility in case anyone was using that)
 (define set-find-hydrogen-torsion set-find-hydrogen-torsions)
 (define residues-near-position residues-near-position-scm)
 (define non-standard-residue-names non-standard-residue-names-scm)
@@ -71,13 +71,22 @@
 (define add-alt-conf add-alt-conf-scm)
 (define origin-pre-shift origin-pre-shift-scm)
 (define alignment-mismatches alignment-mismatches-scm)
-(define rigid-body-refine-by-residue-ranges rigid-body-refine-by-residue-ranges-scm)
 (define average-map average-map-scm)
 (define symmetry-operators symmetry-operators-scm)
 (define symmetry-operators->xHM symmetry-operators-to-xHM-scm)
 (define user-mods user-mods-scm)
 (define refine-zone-with-full-residue-spec refine-zone-with-full-residue-spec-scm)
 (define pkgdatadir get-pkgdatadir-scm)
+
+;; documented functions
+
+
+;; rigid body refine using residue ranges.  Takes 2 arguments, the
+;; first is the molecule number, the second is a list of
+;; residue-ranges.  A residue range is 
+;; @code{(list @emph{chain-id resno-start resno-end})}.
+;; 
+(define rigid-body-refine-by-residue-ranges rigid-body-refine-by-residue-ranges-scm)
 
 ;; add terminal residue is the normal thing we do with an aligned
 ;; sequence, but also we can try ton find the residue type of a
