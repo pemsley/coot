@@ -821,6 +821,8 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
       bond_limit = 2.4;
    if (element == "AS")
       bond_limit = 2.4;
+   if (element == " I")
+      bond_limit = 2.3; // C-I is 2.13 according to wikipedia
    float  bl2 = bond_limit * bond_limit;
    short int bond_added_flag = 0;
 
