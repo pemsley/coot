@@ -73,31 +73,31 @@ main(int argc, char **argv) {
 
    // Does mmdb unmangle hydrogen names?  No, it turns out.
    // 
-   if (0) { 
-      CMMDBManager *mol = new CMMDBManager;
-      mol->ReadCoorFile("prodrg.pdb");
-      int imod = 1;
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
-      // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 CAtom *at;
-	 for (int ires=0; ires<nres; ires++) { 
-	    residue_p = chain_p->GetResidue(ires);
-	    int n_atoms = residue_p->GetNumberOfAtoms();
+//    if (0) { 
+//       CMMDBManager *mol = new CMMDBManager;
+//       mol->ReadCoorFile("prodrg.pdb");
+//       int imod = 1;
+//       CModel *model_p = mol->GetModel(imod);
+//       CChain *chain_p;
+//       // run over chains of the existing mol
+//       int nchains = model_p->GetNumberOfChains();
+//       for (int ichain=0; ichain<nchains; ichain++) {
+// 	 chain_p = model_p->GetChain(ichain);
+// 	 int nres = chain_p->GetNumberOfResidues();
+// 	 CResidue *residue_p;
+// 	 CAtom *at;
+// 	 for (int ires=0; ires<nres; ires++) { 
+// 	    residue_p = chain_p->GetResidue(ires);
+// 	    int n_atoms = residue_p->GetNumberOfAtoms();
 	 
-	    for (int iat=0; iat<n_atoms; iat++) {
-	       at = residue_p->GetAtom(iat);
-	       std::cout << chain_p->GetChainID() << " " << residue_p->GetSeqNum() << " "
-			 << at->GetAtomName() << std::endl;
-	    }
-	 }
-      }
-   }
+// 	    for (int iat=0; iat<n_atoms; iat++) {
+// 	       at = residue_p->GetAtom(iat);
+// 	       std::cout << chain_p->GetChainID() << " " << residue_p->GetSeqNum() << " "
+// 			 << at->GetAtomName() << std::endl;
+// 	    }
+// 	 }
+//       }
+//    }
    
    
    return 0;
