@@ -1,11 +1,10 @@
 0.6.1 
 
-   points: 7 left.
+   points: 3 left.
 
    o Check that ligand with hydrogens give good clashes [JB] ::: 2
 
-   o rigid_body_refine_by_residue_ranges_scm() should be in
-     documentation.  ::: 1
+   o Fix the green fish ::: 0.5
 
 
 ------
@@ -202,3 +201,7 @@
 * Done.
 
 
+   o rigid_body_refine_by_residue_ranges_scm() should be in
+     documentation.  ::: 0.5
+
+* Done

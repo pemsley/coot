@@ -5317,6 +5317,16 @@ Tue Dec 29 14:44:49 GMT 2009
    (set-do-probe-dots-post-refine 1)
 
 
+---
+Fri Jan 15 21:06:12 GMT 2010
+
+   double-clicking on go to atom residue, elg. E2B from 3hb5, should
+   take you to the atom closest the the centre of the residue, not the
+   first residue (it doesn't have a CA of course).
+
+
+
+
 ------
 
 
