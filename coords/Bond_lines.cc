@@ -1459,7 +1459,8 @@ Bond_lines_container::addSymmetry_calphas(const atom_selection_container_t &SelA
 	       res1->GetAtomTable(residue_atoms, n_residue_atoms);
 	       for (int iat=0; iat<n_residue_atoms; iat++) {
 		  if (residue_atoms[iat]) { 
-		     if (std::string(residue_atoms[iat]->name) == " CA ") {
+		     if (std::string(residue_atoms[iat]->name) == " CA " ||
+			 std::string(residue_atoms[iat]->name) == " P  ") {
 			ca_this.push_back(residue_atoms[iat]);
 		     }
 		  }
@@ -1467,7 +1468,8 @@ Bond_lines_container::addSymmetry_calphas(const atom_selection_container_t &SelA
 	       res2->GetAtomTable(residue_atoms, n_residue_atoms);
 	       for (int iat=0; iat<n_residue_atoms; iat++) {
 		  if (residue_atoms[iat]) { 
-		     if (std::string(residue_atoms[iat]->name) == " CA ") {
+		     if (std::string(residue_atoms[iat]->name) == " CA " ||
+			 std::string(residue_atoms[iat]->name) == " P  ") {
 			ca_next.push_back(residue_atoms[iat]);
 		     }
 		  }
@@ -1493,7 +1495,9 @@ Bond_lines_container::addSymmetry_calphas(const atom_selection_container_t &SelA
 						   ca_next[jat]->z);
 
 			      double len = (ca_1 - ca_2).amplitude();
-			      if ((len < 4.7) && (len > 2.4)) {
+			      // CA-CA or P-P
+			      if (((len < 4.7) && (len > 2.4)) ||
+				  ((len<8) && (len>5))) {
 				 
 				 t_atom1.Copy(ca_this[iat]);
 				 t_atom2.Copy(ca_next[jat]);
