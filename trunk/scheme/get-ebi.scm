@@ -161,6 +161,32 @@
   ;; URL::       "http://eds.bmc.uu.se/eds/sfd/sa/2sar/pdb2sar.ent"
   ;; URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/2sar_sigmaa.mtz"
 
+  ;; Return a list of 3 molecule numbers or #f.
+  ;; 
+  (define (get-cached-eds-files accession-code)
+    
+    (let* ((down-code (string-downcase accession-code))
+	   (pdb-file-name (append-dir-file "coot-download"
+					   (string-append "pdb" down-code ".ent")))
+	   (mtz-file-name (append-dir-file "coot-download"
+					   (string-append down-code "_sigmaa.mtz"))))
+      
+      (if (not (file-exists? pdb-file-name))
+	  #f
+	  (if (not (file-exists? mtz-file-name))
+	      #f
+	      (let ((imol (read-pdb pdb-file-name))
+		    (imol-map (make-and-draw-map mtz-file-name "2FOFCWT" "PH2FOFCWT" "" 0 0))
+		    (imol-map-d (make-and-draw-map mtz-file-name "FOFCWT"  "PHFOFCWT" "" 0 1)))
+		(if (not (and (valid-model-molecule? imol)
+			      (valid-map-molecule? imol-map)
+			      (valid-map-molecule? imol-map-d)))
+		    (begin
+		      (close-molecule imol)
+		      (close-molecule imol-map)
+		      (close-molecule imol-map-d)
+		      #f)
+		    (list imol imol-map imol-map-d)))))))
 
 
   (define eds-site "http://eds.bmc.uu.se/eds")
@@ -173,34 +199,38 @@
 	    "/FAIL/"
 	    (string-append (substring id-code 1 3) "/"))))
 
-  (let ((r (coot-mkdir coot-tmp-dir)))
+  ;; main line
+  ;; 
+  (let ((cached-status (get-cached-eds-files id)))
+    (if (not cached-status)
+	(let ((r (coot-mkdir coot-tmp-dir)))
 
-    (if (eq? #f r)
-	(format #t "Can't make directory ~s~%" coot-tmp-dir)
-	
-	(let* ((down-id (string-downcase id))
-	       (eds-url (string-append eds-site "/dfs/"))
-	       (target-pdb-file (string-append "pdb" down-id ".ent"))
-	       (dir-target-pdb-file (string-append coot-tmp-dir "/" target-pdb-file))
-	       (mc (mid-chars down-id))
-	       (model-url (string-append eds-url mc down-id "/" target-pdb-file))
-	       (target-mtz-file (string-append down-id "_sigmaa.mtz"))
-	       (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
-	       (mtz-url (string-append eds-url mc down-id "/" target-mtz-file)))
-	  
-	  (let ((s1 (net-get-url model-url dir-target-pdb-file))
-		(s2 (net-get-url mtz-url   dir-target-mtz-file)))
-	    
-	    (format #t "INFO:: read model status: ~s~%" s1)
-	    (format #t "INFO:: read mtz   status: ~s~%" s2)
-	    
-	    (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file))
-		  (sc-map (make-and-draw-map dir-target-mtz-file "2FOFCWT" "PH2FOFCWT" "" 0 0)))
-	      (make-and-draw-map dir-target-mtz-file  "FOFCWT"  "PHFOFCWT" "" 0 1)
-	      (set-scrollable-map sc-map)
-	      (if (valid-model-molecule? r-imol)
-		  r-imol
-		  #f)))))))
+	  (if (eq? #f r)
+	      (format #t "Can't make directory ~s~%" coot-tmp-dir)
+	      
+	      (let* ((down-id (string-downcase id))
+		     (eds-url (string-append eds-site "/dfs/"))
+		     (target-pdb-file (string-append "pdb" down-id ".ent"))
+		     (dir-target-pdb-file (string-append coot-tmp-dir "/" target-pdb-file))
+		     (mc (mid-chars down-id))
+		     (model-url (string-append eds-url mc down-id "/" target-pdb-file))
+		     (target-mtz-file (string-append down-id "_sigmaa.mtz"))
+		     (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
+		     (mtz-url (string-append eds-url mc down-id "/" target-mtz-file)))
+		
+		(let ((s1 (net-get-url model-url dir-target-pdb-file))
+		      (s2 (net-get-url mtz-url   dir-target-mtz-file)))
+		  
+		  (format #t "INFO:: read model status: ~s~%" s1)
+		  (format #t "INFO:: read mtz   status: ~s~%" s2)
+		  
+		  (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file))
+			(sc-map (make-and-draw-map dir-target-mtz-file "2FOFCWT" "PH2FOFCWT" "" 0 0)))
+		    (make-and-draw-map dir-target-mtz-file  "FOFCWT"  "PHFOFCWT" "" 0 1)
+		    (set-scrollable-map sc-map)
+		    (if (valid-model-molecule? r-imol)
+			r-imol
+			#f)))))))))
 
 
 
