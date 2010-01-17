@@ -1,9 +1,6 @@
 0.6.1 
 
-   points: 7 left.
-
-   o After mutation of DNA bases the sequence does not get updated in
-     the "Go to Atom" window until you close it and reopen it [MOL] ::: 1
+   points: 5 left.
 
    o read in coot-ccp4/monomer-BIP.pdb and regularize.  -> No restraints 
      ::: 1
@@ -11,10 +8,6 @@
    o Check that ligand with hydrogens give good clashes [JB] ::: 2
 
    o Jiggle fit doesn't work ::: 2
-
-   o Update probe dots, delete the sphere selection molecule after it is used
-     to make the dots - don't leave it in the display manager.   ::: 0.5 
-
 
 ------
 
@@ -228,5 +221,14 @@
    o Try to EDS download 1QEX (not 1qex). Does it work?  How about the
      python version? ::: 0.5
 
+* Done.
 
+   o After mutation of DNA bases the sequence does not get updated in
+     the "Go to Atom" window until you close it and reopen it [MOL] ::: 1
 
+* Done.
+
+   o Update probe dots, delete the sphere selection molecule after it is used
+     to make the dots - don't leave it in the display manager.   ::: 0.5 
+
+* Done.

@@ -53,6 +53,9 @@
 
   o BUG-FIX: Carbon-Iodine bond length limit lengthened.
 
+  o BUG-FIX: Go To Atom dialog is updated after simple mutation of a
+    base.
+
 -----
 
   Release 0.6
