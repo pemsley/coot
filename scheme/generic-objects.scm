@@ -276,7 +276,11 @@
 	(graphics-draw))))
 
 
-;;
+;; Update the generic objects probe dots from residues within radius
+;; of the screen centre.
+;; 
+;; Return nothing interesting.
+;; 
 (define (probe-local-sphere imol radius)
 
   ;; We need to select more atoms than we probe because if the atom
@@ -294,7 +298,8 @@
       (make-directory-maybe "coot-molprobity")
       (write-pdb-file-for-molprobity imol-new pdb-name)
       
-      (get-probe-dots-from pdb-name pt radius))))
+      (get-probe-dots-from pdb-name pt radius)
+      (close-molecule imol-new))))
 
 
 ;; add in the conn files by concatting.
