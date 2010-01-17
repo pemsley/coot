@@ -182,7 +182,7 @@
 	       (eds-url (string-append eds-site "/dfs/"))
 	       (target-pdb-file (string-append "pdb" down-id ".ent"))
 	       (dir-target-pdb-file (string-append coot-tmp-dir "/" target-pdb-file))
-	       (mc (mid-chars id))
+	       (mc (mid-chars down-id))
 	       (model-url (string-append eds-url mc down-id "/" target-pdb-file))
 	       (target-mtz-file (string-append down-id "_sigmaa.mtz"))
 	       (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
