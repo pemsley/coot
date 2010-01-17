@@ -46,18 +46,12 @@ class ShelxTestFunctions(unittest.TestCase):
     def test01_0(self):
         """Read small molecule .res file"""
 
-        if (have_test_skip):
-            self.skipIf(not type(hof_res) is StringType, "hof-res not defined - skipping test")
-            self.skipIf(not os.path.isfile(hof_res), "%s does not exist - skipping test" %hof_res)
-        else:
-            if (not type(hof_res) is StringType):
-                print "hof-res not defined - skipping test (actually passing!)"
-                skipped_tests.append("Read small molecule .res file")
-                return
-            if (not os.path.isfile(hof_res)):
-                print "%s does not exist - skipping test (actually passing!)" %hof_res
-                skipped_tests.append("Read small molecule .res file")
-                return
+        if self.skip_test(not type(hof_res) is StringType,
+                          "hof-res not defined - skipping test"):
+            return
+        if self.skip_test(not os.path.isfile(hof_res),
+                          "%s does not exist - skipping test" %hof_res):
+            return
             
         imol = read_pdb(hof_res)
         self.failUnless(valid_model_molecule_qm(imol))
@@ -67,18 +61,16 @@ class ShelxTestFunctions(unittest.TestCase):
     def test02_0(self):
         """Read hollander small molecule .res file"""
 
-        if (have_test_skip):
-            self.skipIf(not os.path.isfile(hollander_ins), "%s  does not exist - skipping test" %hollander_ins)
-        else:
-            if (not os.path.isfile(hollander_ins)):
-                print "%s  does not exist - skipping test (actually passing)" %hollander_ins
-                skipped_tests.append("Read hollander small molecule .res file")
-                return
+        if self.skip_test(not os.path.isfile(hollander_ins),
+                          "%s  does not exist - skipping test" %hollander_ins):
+            return
 
         imol = read_pdb(hollander_ins)
-        self.failUnless(valid_model_molecule_qm(imol), "   fail: bad molecule for %s" %hollander_ins)
+        self.failUnless(valid_model_molecule_qm(imol),
+                        "   fail: bad molecule for %s" %hollander_ins)
         spg = show_spacegroup(imol)
-        self.failUnlessEqual(spg, "I 41 2 2", "   fail: wrong spacegroup for %s %s" %(hollander_ins, spg))
+        self.failUnlessEqual(spg, "I 41 2 2",
+                             "   fail: wrong spacegroup for %s %s" %(hollander_ins, spg))
         
 
     def test03_0(self):
@@ -88,20 +80,24 @@ class ShelxTestFunctions(unittest.TestCase):
         global imol_insulin_map
         
         imol_insulin_res_local = handle_read_draw_molecule_with_recentre(insulin_res(), 1)
-        self.failUnless(valid_model_molecule_qm(imol_insulin_res_local), "   Bad insulin.res: %s for %s" %(insulin_res, imol_insulin_res_local))
+        self.failUnless(valid_model_molecule_qm(imol_insulin_res_local),
+                        "   Bad insulin.res: %s for %s" %(insulin_res, imol_insulin_res_local))
 
         imol_insulin_res = imol_insulin_res_local  # used in water addition test
         imol = handle_shelx_fcf_file(insulin_fcf)
-        self.failUnless(valid_map_molecule_qm(imol), "    Bad read of %s %s" %(insulin_fcf, imol))
+        self.failUnless(valid_map_molecule_qm(imol),
+                        "    Bad read of %s %s" %(insulin_fcf, imol))
         name = molecule_name(imol)
         cif_name = insulin_fcf + ".cif SigmaA"
-        self.failUnlessEqual(name, cif_name, "   Bad name match %s != %s" %(name, cif_name))
+        self.failUnlessEqual(name, cif_name,
+                             "   Bad name match %s != %s" %(name, cif_name))
 
         self.failUnlessEqual(show_spacegroup(imol), show_spacegroup(imol_insulin_res_local),
                              "   Mismatch spacegroups %s %s" %(show_spacegroup(imol),
                                                                show_spacegroup(imol_insulin_res_local)))
 
-        self.failUnlessEqual(show_spacegroup(imol), "I 21 3", "   Bad spacegroups %s" %(show_spacegroup(imol)))
+        self.failUnlessEqual(show_spacegroup(imol), "I 21 3",
+                             "   Bad spacegroups %s" %(show_spacegroup(imol)))
 
         # good then
         imol_insulin_map = imol
@@ -117,14 +113,17 @@ class ShelxTestFunctions(unittest.TestCase):
 
         # First, check return status on a bogus molecule
         status = write_shelx_ins_file(204050, "no_molecule.ins")
-        self.failUnlessEqual(status, 0, "bad exit status from write_shelx_ins_file on bogus molecule %s" %status)
+        self.failUnlessEqual(status, 0,
+                             "bad exit status from write_shelx_ins_file on bogus molecule %s" %status)
 
         # Now check return status on a bogus molecule.  The Happy Path.
         #
-        self.failUnless(valid_model_molecule_qm(imol_rnase), "   imol-rnase not valid.")
+        self.failUnless(valid_model_molecule_qm(imol_rnase),
+                        "   imol-rnase not valid.")
         rnase_ins = "rnase.ins"
         status = write_shelx_ins_file(imol_rnase, rnase_ins)
-        self.failUnlessEqual(status, 1, "   failure to write INS file %s from PDB: status %s" %(rnase_ins, status))
+        self.failUnlessEqual(status, 1,
+                             "   failure to write INS file %s from PDB: status %s" %(rnase_ins, status))
 
 
     def test05_0(self):
@@ -167,7 +166,8 @@ class ShelxTestFunctions(unittest.TestCase):
         """Add water to SHELX molecule"""
 
         global imol_insulin_res
-        self.failUnless(valid_model_molecule_qm(imol_insulin_res),"   failed to get a valid imol_insulin_res")
+        self.failUnless(valid_model_molecule_qm(imol_insulin_res),
+                        "   failed to get a valid imol_insulin_res")
         
         set_pointer_atom_molecule(imol_insulin_res)
         set_rotation_centre(3, -1, 60)
@@ -180,12 +180,14 @@ class ShelxTestFunctions(unittest.TestCase):
     def test08_0(self):
         """Find Waters for a SHELXL molecule"""
 
-        self.failUnless(valid_model_molecule_qm(imol_insulin_res),"   failed to get a valid imol_insulin_res")
+        self.failUnless(valid_model_molecule_qm(imol_insulin_res),
+                        "   failed to get a valid imol_insulin_res")
 
         n_chains_pre = n_chains(imol_insulin_res)
         find_waters(imol_insulin_map, imol_insulin_res, 0, 0.6, 1)
         n_chains_post = n_chains(imol_insulin_res)
-        self.failUnless(n_chains_pre == n_chains_post, "Find waters on a shelx molecule created a new chain %s %s"
+        self.failUnless(n_chains_pre == n_chains_post,
+                        "Find waters on a shelx molecule created a new chain %s %s"
                         %(n_chains_pre, n_chains_post))
         shelx_waters_all_good_occ_qm(self, imol_insulin_res)
         
@@ -228,7 +230,8 @@ class ShelxTestFunctions(unittest.TestCase):
             return occ_etc[1]
 
         imol = unittest_pdb("horma-p21.res")
-        self.failUnless(valid_model_molecule_qm(imol), "  failed to get a valid imoll from horma-p21.res")
+        self.failUnless(valid_model_molecule_qm(imol),
+                        "  failed to get a valid imoll from horma-p21.res")
         write_shelx_ins_file(imol, "new-horma.ins")
         imol_2 = read_pdb("new-horma.ins")
         at_1 = get_atom(imol   , "A", 4, "", " N1 ")
