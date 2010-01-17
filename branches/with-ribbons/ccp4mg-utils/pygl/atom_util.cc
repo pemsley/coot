@@ -186,57 +186,64 @@ double *AtomColourVector::GetRGB ( int i ) {
   float fColour;
  
   //std::cout << "GetRGB interpolation_mode " << interpolation_mode << std::endl;
-  std::cout << "GetRGB interpolation_mode " << interpolation_mode << std::endl;
-  std::cout << "BL DEBUG:: colour_mode is " <<colour_mode<<std::endl;
 
   if ( colour_mode == ACV_COLOUR_MODE_ICOLOUR) {
-
-    return  RGBReps::GetColourP(icolour[i]);
-
+    if(i>=icolour.size())
+      return  RGBReps::GetColourP(0);
+    else
+      return  RGBReps::GetColourP(icolour[i]);
 
   } else {
   
     if (colours.size()<=0) UpdateColours();
 
+    
+    double prop = 0.0;
+    if(i<property.size())
+       prop = property[i];
     double *col = new double[4];
+    col[0] = 0.0;
+    col[1] = 0.0;
+    col[2] = 0.0;
     col[3] = 1.0;
-    if (property[i] < 0.0) {
+    if (prop < 0.0&& colours.size()>0) {
       for (j=0;j<3;j++) col[j]= colours[0][j];
-    } else if ( interpolation_mode == NOCOLOURREP ) {
-      if ( property[i] >max_cutoff ) {
+    } else if ( interpolation_mode == NOCOLOURREP && (nColours-2)<colours.size()) {
+      if ( prop >max_cutoff  ) {
         for (j=0;j<3;j++) {col[j] =  colours[nColours-2][j]; }
-      } else {    
-        ir = int(property[i]);
-        //std::cout << property[i]<< " " << ir << std::endl;
-        std::cout << property[i]<< " " << ir << std::endl;
-        for (j=0;j<3;j++) {col[j] =  colours[ir+1][j]; }
+      } else if((ir+1)<colours.size()){    
+        ir = int(prop);
+        //std::cout << prop<< " " << ir << std::endl;
+        for (j=0;j<3;j++) {
+          col[j] =  colours[ir+1][j];
+        }
       }
-    } else if ( property[i] >max_cutoff ) {
-      for (j=0;j<3;j++) col[j]= colours[nColours-1][j];
-    } else if ( interpolation_mode == RGBCOLOURREP ) {
-      ir = int(property[i]);
-      fColour=property[i]-float(ir);
+    } else if ( prop >max_cutoff &&(nColours-1)<colours.size()) {
+      for (j=0;j<3;j++) {
+        col[j]= colours[nColours-1][j];
+      }
+    } else if ( interpolation_mode == RGBCOLOURREP &&(ir+2)<colours.size()) {
+      ir = int(prop);
+      fColour=prop-float(ir);
       for (j=0;j<3;j++) {
         col[j] =  fColour * colours[ir+2][j] +
 	    (1-fColour) * colours[ir+1][j];
       }
     } else {
-      ir = int(property[i]);
-      fColour=property[i]-float(ir);
-      //std::cout << "GetRGB " << i << " " << property[i] << " " << ir << " " << fColour << " " << colour_wheel_direction[ir+1] <<  std::endl;
+      ir = int(prop);
+      fColour=prop-float(ir);
+      //std::cout << "GetRGB " << i << " " << prop << " " << ir << " " << fColour << " " << colour_wheel_direction[ir+1] <<  std::endl;
       //std::cout << fColour << " " << ir << " " << colour_wheel_direction[ir+1];
-      std::cout << "GetRGB " << i << " " << property[i] << " " << ir << " " << fColour << " " << colour_wheel_direction[ir+1] <<  std::endl;
-      std::cout << fColour << " " << ir << " " << colour_wheel_direction[ir+1];
       // dir is the direction round the wheel that we will get if
       // we do the simplest interpolation 
       int dir = COLOUR_WHEEL_CLOCK;
       if (colours[ir+2][0] < colours[ir+1][0]) dir = COLOUR_WHEEL_ANTICLOCK;
 
-      if ( colour_wheel_direction[ir+1] == dir ) {
+      if ( colour_wheel_direction[ir+1] == dir &&(ir+2)<colours.size()) {
           for (j=0;j<3;j++) {
           col[j] =  fColour * colours[ir+2][j] +
 	    (1-fColour) * colours[ir+1][j]; }
-      } else {
+      } else if((ir+2)<colours.size()){
         if ( colours[ir+1][0] > colours[ir+2][0] ) {
           col[0] =  fColour * colours[ir+2][0] +
             (1-fColour) * ( colours[ir+1][0] - 360.0);
@@ -253,7 +260,6 @@ double *AtomColourVector::GetRGB ( int i ) {
       }
     }
     //std::cout << " " << col[0] << " " << col[1] << " " << col[2];
-    std::cout << " " << col[0] << " " << col[1] << " " << col[2];
     //double *col1 = new double[4];
     //col1 = RGBReps::hsvtorgb(col);
     //std::cout << " : " <<  col1[0] << " " << col1[1] << " " << col1[2]<< " " << col1[3] << std::endl;

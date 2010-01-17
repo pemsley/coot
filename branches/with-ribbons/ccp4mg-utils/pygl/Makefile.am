@@ -84,7 +84,7 @@ libccp4mg_psutil_la_SOURCES = \
 	psutil.cc zsortps.cc psutil.h 
 
 libccp4mg_ppmutil_la_SOURCES = \
-	ppmutil.cc
+	ppmutil.cc ppmutil.h
 
 
 # must have GUILE and GUILE_GTK flags before $(INCLUDES), and this 

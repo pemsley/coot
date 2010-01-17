@@ -37,7 +37,6 @@ cp $CCP4MGHOME/mmut/mman_base.cc  \
    $CCP4MGHOME/mmut/mman_manager.cc    \
    $CCP4MGHOME/mmut/mmut_basepairs.cc    \
    $CCP4MGHOME/mmut/mmut_bonds.cc    \
-   $CCP4MGHOME/mmut/mmut_colour.cc    \
    $CCP4MGHOME/mmut/mmut_connectivity.cc    \
    $CCP4MGHOME/mmut/mmut_contact.cc    \
    $CCP4MGHOME/mmut/mmut_hbond.cc    \
@@ -55,7 +54,6 @@ cp $CCP4MGHOME/mmut/mman_base.h  \
    $CCP4MGHOME/mmut/mman_manager.h    \
    $CCP4MGHOME/mmut/mmut_basepairs.h    \
    $CCP4MGHOME/mmut/mmut_bonds.h    \
-   $CCP4MGHOME/mmut/mmut_colour.h    \
    $CCP4MGHOME/mmut/mmut_connectivity.h    \
    $CCP4MGHOME/mmut/mmut_contact.h    \
    $CCP4MGHOME/mmut/mmut_hbond.h    \
@@ -68,7 +66,7 @@ cp $CCP4MGHOME/mmut/mman_base.h  \
    $CCP4MGHOME/mmut/mmut_secstr.h    \
    $CCP4MGHOME/mmut/mmut_util.h \
    $CCP4MGHOME/mmut/splineinfo.h mmut/
-
+ 
 # fix mmut/mmut_sbase.h/cc
 cp mmut/mmut_sbase.h  mmut/mmut_sbase.h.orig
 cp mmut/mmut_sbase.cc mmut/mmut_sbase.cc.orig
@@ -85,8 +83,8 @@ cp $CCP4MGHOME/pygl/atom_util.cc  \
    $CCP4MGHOME/pygl/cprimitive.cc    \
    $CCP4MGHOME/pygl/font_info.cc    \
    $CCP4MGHOME/pygl/font_util.cc    \
-   $CCP4MGHOME/pygl/freetype_font.cc    \
    $CCP4MGHOME/pygl/freetype_dl.c    \
+   $CCP4MGHOME/pygl/freetype_font.cc    \
    $CCP4MGHOME/pygl/help.cc    \
    $CCP4MGHOME/pygl/lincrv.cc    \
    $CCP4MGHOME/pygl/ppmutil.cc    \
@@ -132,3 +130,13 @@ cp $CCP4MGHOME/pygl/atom_util.h  \
    $CCP4MGHOME/pygl/win_font.h    \
    $CCP4MGHOME/pygl/x11_font.h pygl/ 
 
+# 4.) dir mgapp
+cp $CCP4MGHOME/mgapp/mgapp_base.cc  \
+   $CCP4MGHOME/mgapp/mg_colour.cc mgapp/ 
+
+cp $CCP4MGHOME/mgapp/mgapp_base.h  \
+   $CCP4MGHOME/mgapp/mg_colour.h mgapp/ 
+
+# insert lines in mg_colour.h
+cp mgapp/mg_colour.h mgapp/mg_colour.h.orig
+sed -e 's/#include "atom_util.h"/#include "atom_util.h"\n\/\/ BL says:: this is in mmdb_atom.h in MG\n#define SSE_Bridge        7\n#define SSE_Bend          8/' mgapp/mg_colour.h.orig  > mgapp/mg_colour.h

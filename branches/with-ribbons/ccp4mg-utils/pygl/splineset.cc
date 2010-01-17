@@ -35,6 +35,26 @@
 #endif
 #define PIBY2 (M_PI * 2)
 
+bool GetFaceOne(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pvpr){
+  bool face_one = true;
+  if(spline.size()>3){
+  unsigned idx = spline.size()/2;
+  Cartesian p_t = spline[idx+1] + spline[idx-1] - 2*spline[idx];
+  while(fabs(p_t.length())<1e-8&&idx>spline.size()+1){
+    idx--;
+    p_t = spline[idx+1] + spline[idx-1] - 2*spline[idx];
+  }
+  if(fabs(p_t.length())>1e-8){
+    p_t.normalize();
+    Cartesian pvpr_t = pvpr[idx];
+    pvpr_t.normalize();
+
+    face_one = Cartesian::DotProduct(p_t,pvpr_t)>0.0;
+  }
+  }
+  return face_one;
+}
+
 void draw_ellipse_point(double theta, const Cartesian &pv, const Cartesian &pvpr, const Cartesian &spline);
 
 std::vector<Cartesian> get_v_and_vpr(const Cartesian &sp1, const Cartesian &sp2, const Cartesian &ovec){
@@ -64,13 +84,7 @@ void draw_flat_rounded_ribbon(const std::vector<Cartesian> &spline, const std::v
 
   double frac=0.0;
 
-  int idx = spline.size()/2;
-  Cartesian p_t = spline[idx+1] + spline[idx-1] - 2*spline[idx];
-  p_t.normalize();
-  Cartesian pvpr_t = pvpr[idx];
-  pvpr_t.normalize();
-
-  bool face_one = Cartesian::DotProduct(p_t,pvpr_t)>0.0;
+  bool face_one = GetFaceOne(spline,pvpr);
 
   double thickness = pvpr[0].length(); // Assume constant thickness.
 
@@ -221,13 +235,7 @@ void draw_fancy_ribbon(const std::vector<Cartesian> &spline, const std::vector<C
 
   double thickness = pvpr[0].length(); // Assume constant thickness.
 
-  int idx = spline.size()/2;
-  Cartesian p_t = spline[idx+1] + spline[idx-1] - 2*spline[idx];
-  p_t.normalize();
-  Cartesian pvpr_t = pvpr[idx];
-  pvpr_t.normalize();
-
-  bool face_one = Cartesian::DotProduct(p_t,pvpr_t)>0.0;
+  bool face_one = GetFaceOne(spline,pvpr);
 
   glBegin(GL_TRIANGLE_STRIP);
   if(face_one&&two_colour){
@@ -375,13 +383,7 @@ void draw_flat_ribbon(const std::vector<Cartesian> &spline, const std::vector<Ca
 
   double frac=0.0;
 
-  int idx = spline.size()/2;
-  Cartesian p_t = spline[idx+1] + spline[idx-1] - 2*spline[idx];
-  p_t.normalize();
-  Cartesian pvpr_t = pvpr[idx];
-  pvpr_t.normalize();
-
-  bool face_one = Cartesian::DotProduct(p_t,pvpr_t)>0.0;
+  bool face_one = GetFaceOne(spline,pvpr);
 
   if(multicolour){
     GLfloat colour[4] = {colour_vector[0].get_x(),colour_vector[0].get_y(),colour_vector[0].get_z(),colour_vector[0].get_a()};
@@ -590,19 +592,13 @@ void draw_elliptical_ribbon(const std::vector<Cartesian> &spline, const std::vec
   glEnd();
   }
 
-  int idx = spline.size()/2;
-  Cartesian p_t = spline[idx+1] + spline[idx-1] - 2*spline[idx];
-  p_t.normalize();
-  Cartesian pvpr_t = pvpr[idx];
-  pvpr_t.normalize();
+  bool face_one = GetFaceOne(spline,pvpr);
 
-  bool face_one = Cartesian::DotProduct(p_t,pvpr_t)>0.0;
-
+  GLfloat grey[4] = {0.6,0.6,0.6,1.0};
   for(int i=0;i<360;i=i+360/nsectors){
     theta = (double)i/360.0 * PIBY2;
     theta2 = (double)(i-360.0/nsectors)/360.0 * PIBY2;
     glBegin(GL_TRIANGLE_STRIP);
-    GLfloat grey[4] = {0.6,0.6,0.6,1.0};
     if(two_colour) glColor4fv(grey);
     for(unsigned int j=0;j<spline.size();j++){
       if(multicolour&&(!two_colour||(face_one&&((i-360/nsectors)>=90&&(i-360/nsectors)<270))||(!face_one&&((i-360/nsectors)<90||(i-360/nsectors)>=270)))){
@@ -696,13 +692,7 @@ void draw_elliptical_ribbon_vertex_arrays(const std::vector<Cartesian> &spline, 
   glEnd();
   }
 
-  int idx = spline.size()/2;
-  Cartesian p_t = spline[idx+1] + spline[idx-1] - 2*spline[idx];
-  p_t.normalize();
-  Cartesian pvpr_t = pvpr[idx];
-  pvpr_t.normalize();
-
-  bool face_one = Cartesian::DotProduct(p_t,pvpr_t)>0.0;
+  bool face_one = GetFaceOne(spline,pvpr);
 
   GLfloat *colourPointer = new GLfloat[2*spline.size()*4];
   GLfloat *normalPointer = new GLfloat[2*spline.size()*3];
@@ -714,11 +704,11 @@ void draw_elliptical_ribbon_vertex_arrays(const std::vector<Cartesian> &spline, 
   for(unsigned int j=0;j<2*spline.size();j++){ 
 	  vindices_1[j] = j;
   }
+  GLfloat grey[4] = {0.6,0.6,0.6,1.0};
   for(int i=0;i<360;i=i+360/nsectors){
     theta = (double)i/360.0 * PIBY2;
     theta2 = (double)(i-360.0/nsectors)/360.0 * PIBY2;
     //glBegin(GL_TRIANGLE_STRIP);
-    GLfloat grey[4] = {0.6,0.6,0.6,1.0};
     if(two_colour) glColor4fv(grey);
     for(unsigned int j=0;j<spline.size();j++){
       if(multicolour&&(!two_colour||(face_one&&((i-360/nsectors)>=90&&(i-360/nsectors)<270))||(!face_one&&((i-360/nsectors)<90||(i-360/nsectors)>=270)))){

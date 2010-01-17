@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "cartesian.h"
+#include "matrix.h"
 #include "geomutil.h"
 
 Cartesian Mean(const std::vector<Cartesian> &v){

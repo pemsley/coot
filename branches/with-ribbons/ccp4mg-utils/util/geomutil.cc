@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "cartesian.h"
+#include "matrix.h"
 #include "geomutil.h"
 
 Cartesian Mean(const std::vector<Cartesian> &v){
@@ -328,12 +329,15 @@ std::vector<double> LeastSquares2D(const std::vector<Cartesian> &p){
   rhs(0,0) = sumxy;
   rhs(1,0) = sumy;
 
+  /*
   std::vector<int> perm;
   int parity;
 
   matrix lu = matrix::LUDecomposition(lhs,perm,parity);
-
   matrix abmat = matrix::LUSubstitution(lu,rhs,perm);
+  */
+
+  matrix abmat = matrix::SolveLinearEquations(lhs,rhs);
   std::vector<double> ab(2);
   ab[0] = abmat(0,0);
   ab[1] = abmat(1,0);
@@ -602,3 +606,75 @@ std::vector<double> LeastSquaresCubicFit3D(const std::vector<Cartesian> &carts){
   return b;
 
 }
+
+GetAxisAndPointFromMatrix::GetAxisAndPointFromMatrix(const matrix &mat){
+
+	_mat = mat;
+	Cartesian bvec = Cartesian(mat(0,3),mat(1,3),mat(2,3));
+	Cartesian axis = mat.GetRotationAxis();
+	double proj = Cartesian::DotProduct(bvec,axis);
+
+	if(fabs(proj)>1e-7){
+		matrix a4 = matrix(4,4);
+		for(int i=0;i<4;i++){
+			for(int j=0;j<4;j++){
+				a4(i,j) = mat(i,j);
+			}
+		}
+		// Shifts to avoid numerical instability in Gauss elimination.
+		a4(0,0) = mat(0,0)-1.0000001;
+		a4(1,1) = mat(1,1)-1.0000001;
+		a4(2,2) = mat(2,2)-1.0000001;
+		a4 = a4 /proj;
+		a4(3,3) = 1; // ???
+		matrix axisMat = matrix(4,1);
+		axisMat(0,0) = axis.get_x();
+		axisMat(1,0) = axis.get_y();
+		axisMat(2,0) = axis.get_z();
+		axisMat(3,0) = axis.get_a();
+
+
+		matrix x = a4.SolveLinearEquations(a4,axisMat);
+		Cartesian ctest = Cartesian(x(0,0),x(1,0),x(2,0),1);
+
+		_projection = proj;
+		_point = ctest;
+		_axis = axis;
+		return;
+	}
+
+	double amatvals[] = {
+	mat(0,0)-1, mat(0,1),   mat(0,2),
+	mat(1,0),   mat(1,1)-1, mat(1,2),
+	mat(2,0),   mat(2,1),   mat(2,2)-1,
+	};
+	double bmatvals[] = {-mat(0,3),-mat(1,3),-mat(2,3)};
+
+	matrix a = matrix(3,3,amatvals);
+	matrix b = matrix(3,1,bmatvals);
+
+	matrix x = matrix::SolveLinearEquations(a,b);
+	Cartesian ctest = Cartesian(x(0,0),x(1,0),x(2,0),1);
+	_projection = proj;
+	_point = ctest;
+	_axis = axis;
+	
+
+}
+
+bool GetAxisAndPointFromMatrix::CheckIsValid() const {
+  Cartesian req = axis() * projection();
+  Cartesian obtained = mat()*point()-point();
+  double l = (req-obtained).length();
+  if(fabs(l)>1e-5){
+    std::cerr << "Problem in obtaining axis/point from matrix\n";
+    std::cerr << mat() << "\n\n";
+    std::cerr << axis() << "\n\n";
+    std::cerr << point() << "\n\n";
+    std::cerr << projection() << "\n\n";
+    std::cerr << l << "\n\n";
+    return false;
+  }
+  return true;
+}
+

@@ -1,6 +1,7 @@
 /*
      mmut/mman_manager.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -121,17 +122,17 @@ class CMMANManager : public CMMUTManager  {
     std::vector<float> GetTransform();
     std::string GetTransformString();
     bool GetIsTransformed() { return isTransformed; }
+    double AtomicRMSDistance( PPCAtom A1, int nA, PPCAtom A2);
     int TransformToSuperposeAtoms (  PPCAtom A1, int nA, PPCAtom A2 );
-    double DeltaResidueOrientation (PCResidue pRes, PCResidue pResFx);
     int TransformToSuperposeCloseAtoms(PCMMANManager fxMolHnd, int fxSelHnd , realtype central_cutoff, realtype cutoff, int mvSuperposeHnd,int fxSuperposeHnd);
+    double DeltaResidueOrientation (PCResidue pRes, PCResidue pResFx);
     int CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel=1);
     int LoadSerial(const PCMMDBManager fromMolHnd );
     int LoadSerialFromDifferentModel(const PCMMDBManager fromMolHnd , int uddSerial);
     bool GetUnremediated() { return unremediated; };
     std::string PrintSecStructure (void);
     int GetLibTMatrix(mat44 &TMatrix,int nsym,int i,int j,int k);
-
-  private:
+ private:
     
     // SAS
     PCSASArea p_sas;

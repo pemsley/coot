@@ -1911,7 +1911,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
          // ribbons
          graphics_info_t::molecules[ii].draw_ribbons();
 
-         // ribbons
+         // solid ccp4mg ellipsoids
          graphics_info_t::molecules[ii].draw_aniso_spheroids();
 
 	 // Label the atoms in the atoms label list.

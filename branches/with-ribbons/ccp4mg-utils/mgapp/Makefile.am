@@ -27,22 +27,13 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la 
 
-lib_LTLIBRARIES=libccp4mg-mmut.la
+lib_LTLIBRARIES=libccp4mg-mgapp.la
 
-include_HEADERS=splineinfo.h
 
-libccp4mg_mmut_la_SOURCES = \
-	mmut_manager.cc mmut_util.cc mman_manager.cc	\
-	mmut_manager.h mmut_util.h mman_manager.h	\
-	mman_base.cc mmut_secstr.cc mmut_bonds.cc	\
-	mman_base.h mmut_secstr.h mmut_bonds.h		\
-	mmut_sbase.cc mmut_sasarea.cc mmut_connectivity.cc	\
-	mmut_sbase.h mmut_sasarea.h mmut_connectivity.h	\
-	mmut_hbond.cc mmut_contact.cc mmut_basepairs.cc	\
-	mmut_hbond.h mmut_contact.h mmut_basepairs.h	\
-	mmut_spline.cc mmut_lipids.cc mmut_morph.cc	\
-	mmut_lipids.h mmut_morph.h	\
-	mmut_nma.cc mmut_nma.h
+libccp4mg_mgapp_la_SOURCES = \
+	mgapp_base.cc mgapp_base.h mg_colour.cc mg_colour.h
+
+libccp4mg_mgapp_la_LDFLAGS = -L../util -lccp4mg-pygl_coord
 
 
 # must have GUILE and GUILE_GTK flags before $(INCLUDES), and this 
@@ -65,6 +56,7 @@ INCLUDES = \
 	-I$(top_srcdir)/ccp4mg-utils/util	\
 	-I$(top_srcdir)/ccp4mg-utils/mmut	\
 	-I$(top_srcdir)/ccp4mg-utils/pygl	\
+	-I$(top_srcdir)/ccp4mg-utils/mgapp	\
 	-I$(top_srcdir)/ccp4mg-utils	\
 	$(GTKGL_CONTEXT_CFLAGS)		\
 	$(LIBGLADE_CFLAGS)		\

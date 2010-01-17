@@ -23,6 +23,7 @@
 #include "cartesian.h"
 #include "quat.h"
 #include <string>
+class matrix;
 Cartesian GetCartFrom3Carts(const Cartesian &Atom1, double blength, const Cartesian &Atom2, double angle1, const Cartesian &Atom3, double angle2, int chiral=0);
 double LineLength(const Cartesian &at1,  const Cartesian &at2);
 double DihedralAngle(const Cartesian &at1,  const Cartesian &at2,  const Cartesian &at3,  const Cartesian &at4);
@@ -36,4 +37,17 @@ Quat GetStandardRotation(const std::string &s);
 std::vector<double> LeastSquaresPolyFit(const std::vector<double> &xs, std::vector<double> &ys, const int order=1);
 std::vector<double> LeastSquaresQuadraticFit3D(const std::vector<Cartesian> &carts);
 std::vector<double> LeastSquaresCubicFit3D(const std::vector<Cartesian> &carts);
+class GetAxisAndPointFromMatrix {
+  Cartesian _axis;
+  Cartesian _point;
+  matrix _mat;
+  double _projection;
+ public:
+  GetAxisAndPointFromMatrix(const matrix &mat);
+  const Cartesian &axis() const {return _axis;};
+  const Cartesian &point() const {return _point;};
+  double projection() const { return _projection;};
+  const matrix &mat() const { return _mat;};
+  bool CheckIsValid() const;
+};
 #endif

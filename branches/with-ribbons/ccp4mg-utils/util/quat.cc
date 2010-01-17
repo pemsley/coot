@@ -33,6 +33,21 @@ std::ostream& operator<<(std::ostream& c, Quat a){
   return c;
 }
 
+const std::vector<double> &Quat::dvals() const {
+  return dval;
+} 
+
+Cartesian Quat::GetRotationAxis() const {
+  double angle = 2*acos(dval[0]);
+  double sina = sin(angle/2.);
+  double x = dval[1]/sina;
+  double y = dval[2]/sina;
+  double z = dval[3]/sina;
+  Cartesian rotAxis(x,y,z);
+
+  return rotAxis;
+}
+
 const double* Quat::Getdval(void) const{
   double *retdval = new double[4];
   retdval[0] = dval[0];

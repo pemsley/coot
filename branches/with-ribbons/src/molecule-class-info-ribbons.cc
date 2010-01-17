@@ -41,12 +41,13 @@
 #include "cdisplayobject.h"
 
 #include "CParamsManager.h"
-#include "mmut_colour.h"
-
+#include "mg_colour.h"
+#include "mmut_connectivity.h"
 
 #include "graphics-info.h"
 
 #include "molecule-class-info.h"
+#include "sphere.h"
 
 
 void
@@ -121,31 +122,15 @@ molecule_class_info_t::make_ribbons() {
 
   molHnd->GetSelIndex(selHnd,selAtoms,nSelAtoms);
 
-
   AtomColourVector* cv = new AtomColourVector();
-  //std::cout<< "BL DEBUG::setting colour names?!"<<std::endl;
-  //CColours();
-  //std::cout<< "BL DEBUG::done setting colour names?!"<<std::endl;
-  //PCColourSchemes schemes = new CColourSchemes();
-  //PCColourSchemes schemes;
-  //schemes->AtomType;
-  //CMolColour cmc = CMolColour(molHnd, selHnd, schemes);
-  //cmc.SetMode(2);
-  //cmc.GetAtomColourVector(nSelAtoms, (int*)cv);
 
-  int *colours = new int[nSelAtoms];
-  //cmc.GetAtomColourVector(nSelAtoms, colours);
-  int is, j;
-  for(int i=0;i<nSelAtoms;i++) {
-     colours[i] = 3;
-  }
-
-  cv->SetAtomColours(nSelAtoms,colours);
-
-  //cmc.SetMode(2);
-
-  //  cmc->SetMode(SECSTR);
-  //std:: cout << "BL DEBUG:: nSelAtoms " << nSelAtoms <<std::endl;
+  PCColourSchemes schemes = new CColourSchemes();
+  CMolColour cmc = CMolColour(molHnd, -1, schemes);
+  cmc.SetMode (1, SECSTR, SECSTR, -1, 0);
+  //cmc.SetMode (1, BYATOMTYPE, BYATOMTYPE, -1, 0);
+  //cmc.SetOneColour (5);
+  //cmc.SetMode (1, ONECOLOUR, ONECOLOUR, -1, 0);
+  cv = cmc.GetAtomColourVector();
 
   int spline_accu = 4 + ccp4mg_global_params.GetInt("solid_quality") * 4;
   SplineInfo sinfo = GetSplineInfo(molHnd, selHnd, cv,
@@ -166,6 +151,23 @@ molecule_class_info_t::draw_ribbons() {
  if (cootribbons) {
 //   Ribbons.set_transparent(1);
 //   Ribbons.SetAlpha(0.5);
+   // Maybe should be somewhere else?!
+   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+   glEnable(GL_NORMALIZE);
+   glEnable(GL_LIGHTING);
+   glShadeModel(GL_SMOOTH);
+   glEnable(GL_DEPTH_TEST);
+   glPolygonMode(GL_FRONT, GL_FILL);
+   glPolygonMode(GL_BACK,GL_FILL);
+   glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+   glEnable(GL_COLOR_MATERIAL);
+   glEnable(GL_LINE_SMOOTH);
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+   glHint(GL_FOG_HINT, GL_NICEST);
+
+
    Ribbons.draw_solids();
    glDisable(GL_LIGHTING);
  }
@@ -264,6 +266,7 @@ molecule_class_info_t::make_aniso_spheroids() {
     std::cout << "BL INFO:: couldnt find elements.cif, ribbons may not work but should [SMc]" <<std::endl;
   }
 
+  AnisoSpheroids.clear_prims();
   CMMANManager* molHnd=0;
   CMGSBase *s_base = new CMGSBase((char *)mon_lib_dir.c_str(),
                                   (char *)mon_lib_dir.c_str(),
@@ -277,31 +280,52 @@ molecule_class_info_t::make_aniso_spheroids() {
   molHnd = new CMMANManager(s_base, bond_params);
   g_print("BL DEBUG:: reading file %s\n", name_.c_str());
   molHnd->ReadCoorFile(name_.c_str());
+  //molHnd = (CMMANManager*)atom_sel.mol;
   int selHnd = molHnd->NewSelection();
 
   molHnd->SelectAtoms(selHnd, 0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_OR );
-  molHnd->GetMolBonds();
-  molHnd->GetModel(1)->CalcSecStructure(0);
   int nSelAtoms;
   PPCAtom selAtoms=0;
 
   molHnd->GetSelIndex(selHnd,selAtoms,nSelAtoms);
 
+  AtomColourVector* cv;
 
-  AtomColourVector* cv = new AtomColourVector();
-  int *colours = new int[nSelAtoms];
+  PCColourSchemes schemes = new CColourSchemes();
+  CMolColour cmc = CMolColour(molHnd, selHnd, schemes);
+  //cmc.SetMode (1, BYATOMTYPE, BYATOMTYPE,-1,0);
+  //cmc.SetMode (1, BYRESTYPE, BYRESTYPE,-1,0);
+  int RC;
+  CColourScheme *AtomType = new CColourScheme();
+  char *atmtyps[7] = {"*"," C"," O", " N", " S"," H"," P" };
+  char *atmcols[7] = { "grey","yellow", "red", "blue" , "green", "grey","magenta" };
+  AtomType->SetSchemeString(7, atmtyps, atmcols);
+  cmc.SetMode (1, BYATOMTYPE, BYATOMTYPE,-1,0);
+
+  std::vector<double> atom_radii;
+  atom_radii = std::vector<double> (nSelAtoms);
   for(int i=0;i<nSelAtoms;i++)
-     colours[i] = 0;
+    atom_radii[i] = 1;
+  //atom_radii = molHnd->GetAtomRadii(selHnd, VDWRADIUS, 1.);
+  cv = cmc.GetAtomColourVector();
 
-  cv->SetAtomColours(nSelAtoms,colours);
+  // 1.2 is arbitrary scale, appears to be needed to get to same level... FIXME
+  float spheroid_scale = graphics_info_t::show_aniso_atoms_probability / 50. * 1.2;
+  
+  g_print ("BL DEBUG:: no of atoms: %i\n", nSelAtoms);
+  int aniso_style;
+  aniso_style = SPHEROID_SOLID;
+  //aniso_style = SPHEROID_AXES;
+  //aniso_style = SPHEROID_SOLIDAXES;
 
-  float spheroid_scale = 100. / graphics_info_t::show_aniso_atoms_probability;
-  AnisoSpheroids.clear_prims();
+  std::cout<<"BL DEBUG:: solid_quality for aniso is " << ccp4mg_global_params.GetInt("solid_quality") <<std::endl;
+
   DrawAnisoU(AnisoSpheroids,
 	     selHnd, selAtoms, nSelAtoms,
-	     cv,
-	     SPHEROID_SOLID, spheroid_scale,
+	     cv, atom_radii,
+	     aniso_style, spheroid_scale,
 	     ccp4mg_global_params);
+
 
 }
 
@@ -309,6 +333,22 @@ void
 molecule_class_info_t::draw_aniso_spheroids() {
 
  if (cootanisospheroids) {
+   // Maybe should be somewhere else?!
+   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+   glEnable(GL_NORMALIZE);
+   glEnable(GL_LIGHTING);
+   glShadeModel(GL_SMOOTH);
+   glEnable(GL_DEPTH_TEST);
+   glEnable(GL_COLOR_MATERIAL);
+   glEnable(GL_LINE_SMOOTH);
+   glEnable(GL_BLEND);
+   glPolygonMode(GL_FRONT, GL_FILL);
+   glPolygonMode(GL_BACK,GL_FILL);
+   glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+   glHint(GL_FOG_HINT, GL_NICEST);
+   glEnable(GL_LIGHT0);
    AnisoSpheroids.draw_solids();
    glDisable(GL_LIGHTING);
  }

@@ -65,6 +65,9 @@ class CMMUTManager : public CMMDBManager  {
     realtype  MolWeightWithH(int selHnd);
     realtype *GetBValues(int selHnd);
     realtype *CentreOfMass(int selHnd);
+    realtype  Mass(int selHnd);
+    realtype *CentreOfCoordinates(int selHnd);
+    int  NumberOfAtoms(int selHnd);
     realtype *Extent(int selHnd);
 
     Boolean isMainChain(PCAtom p_atom);

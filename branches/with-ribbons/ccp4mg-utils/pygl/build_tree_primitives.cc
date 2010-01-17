@@ -1,6 +1,7 @@
 /*
      pygl/build_tree_primitives.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -53,6 +54,10 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643
+#endif
 
 enum enum_SecStr { NOSECSTR, BETA, BULGE, TURN3, TURN4, TURN5, ALPHA }; // We want a #include enum_secstr from mmut_sec ....
 
@@ -136,7 +141,7 @@ ClickedLine FindLine(Displayobject &obj, const std::vector<Cartesian> &primorigi
       }
       if(in_clip_planes0||in_clip_planes1){
 	std::vector<double> linedist = DistanceBetweenTwoLines(front,back,prim0,prim1);
-	double dist = linedist[0];
+	double dist = fabs(linedist[0]);
 	double u = linedist[2];
         if(dist<1.5){
         }
@@ -174,10 +179,11 @@ ClickedLine FindLine(Displayobject &obj, const std::vector<Cartesian> &primorigi
       prim = T*prim;
     }
     std::vector<double> linedisttmp = DistanceBetweenTwoLines(front,back,prim,prim);
-    if(linedisttmp[0]<mindist){
+    double dist = fabs(linedisttmp[0]);
+    if(dist<mindist){
       lines[0] = unconnected_map[nearprim.first];
       lines[1] = -1;
-      mindist  = linedisttmp[0];
+      mindist  = dist;
       clicked_symm = nearprim.symm;
     }
   }
@@ -292,10 +298,13 @@ ClickedLine FindLine(Displayobject &obj, const std::vector<SimpleConnection> &co
 
 
 
-void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection> &conn, const std::vector<double> &colour, int style, int width, int labelstyle, std::string labelcolour){
+void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection> &conn, const std::vector<double> &colour, int style, int width, int labelstyle, const std::string &labelcolour,
+  const std::string &family,  const std::string &weight, 
+  const std::string &slant, const std::string &size){
   double col[3] ={double(colour[0]),double(colour[1]),double(colour[2])};
   double alpha = double(colour[3]);
   int cylinders_accu = 8;
+  double cylinder_radius_scale = 0.02;
 
   std::string label;
   std::vector<Cartesian> carts(2);
@@ -337,7 +346,7 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
     }
     if(style==DASHCYLINDER){
       DashCylinderElement *line;
-      line = new DashCylinderElement(carts,col,carts[0],0.1,
+      line = new DashCylinderElement(carts,col,carts[0],double(width)*cylinder_radius_scale,
                                   alpha,cylinders_accu);
       line->SetDashLength(0.2);
       line->SetDashEnd(1);
@@ -346,7 +355,7 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
     }
     if(style==CYLINDER){
       Cylinder *line;
-      line = new Cylinder(carts,col,carts[0],0.2,cylinders_accu);
+      line = new Cylinder(carts,col,carts[0],double(width)*cylinder_radius_scale,cylinders_accu);
       polys->add_primitive(line);
       have_polys=true;
     }
@@ -355,12 +364,12 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
       Cartesian p0 = carts[0];
       carts[0] = p;
       Cone *cone;
-      cone = new Cone(carts,col,carts[0],0.4,alpha,cylinders_accu);
+      cone = new Cone(carts,col,carts[0],double(width)*cylinder_radius_scale*2.0,alpha,cylinders_accu);
       polys->add_primitive(cone);
       carts[0] = p0;
       carts[1] = p;
       Cylinder *line;
-      line = new Cylinder(carts,col,carts[0],0.2,alpha,cylinders_accu);
+      line = new Cylinder(carts,col,carts[0],double(width)*cylinder_radius_scale,alpha,cylinders_accu);
       polys->add_primitive(line);
       have_polys=true;
     }
@@ -377,10 +386,11 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
   i = conn.begin();
 
   while(i!=conn.end()){
-    //if (labelcolour != "") 
-      //label = "<colour=\""+labelcolour+"\">"+ i->label+"</colour>";
-    // label =  i->label;
-    //else
+    if (labelcolour != "") 
+    /*
+     label = "<colour=\""+labelcolour+"\">"+ i->label+"</colour>";
+    else
+    */
       label =  i->label;
     if ( labelstyle == LABELLEDCENTRE )
       text = new Text ( i->first.MidPoint(i->first,i->second) , label,
@@ -393,7 +403,17 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
       text = new Text ( i->first , label,i->first);
 
     text->SetFontSize(18);
-    text->initialize();
+    if(family!="") text->SetFontFamily(family);
+    if(weight!="") text->SetFontWeight(weight);
+    if(slant!="") text->SetFontSlant(slant);
+    if(size!="") text->SetFontSize(atoi(size.c_str()));
+    if(labelcolour!=""&&labelcolour!="default"&&labelcolour!="complement"){
+       std::vector<double> defcol = RGBReps::GetColour(labelcolour);
+       text->SetColour(defcol[0],defcol[1],defcol[2],1.0);
+    } else {
+       text->SetDefaultColour();
+    }
+    //text->initialize();
     obj.add_text_primitive(text);
     i++;
   }
@@ -403,14 +423,15 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
 void DrawSimpleConnection(Displayobject &obj,
   const std::vector<SimpleConnection> &conn,
   const std::vector<double> &colour, int style, int width,
-  int labelstyle, std::string labelcolour,
-  const std::string family,  const std::string weight, 
-  const std::string slant, const std::string size,
+  int labelstyle, const std::string &labelcolour,
+  const std::string &family,  const std::string &weight, 
+  const std::string &slant, const std::string &size,
   const std::vector<int> &tags,const std::vector<int> &selTags){
 
   double col[3] ={double(colour[0]),double(colour[1]),double(colour[2])};
   double alpha = double(colour[3]);
   int cylinders_accu = 8;
+  double cylinder_radius_scale = 0.02;
   bool apply_selection = false;
   std::string label;
   std::vector<Cartesian> carts(2);
@@ -445,9 +466,20 @@ void DrawSimpleConnection(Displayobject &obj,
         line = new DashArrow(carts,col,carts[0],double(width),alpha);
         obj.add_primitive(line);
       }
+
+      if(style==DASHCYLINDER){
+        DashCylinderElement *line;
+        line = new DashCylinderElement(carts,col,carts[0],double(width)*cylinder_radius_scale,
+                                  alpha,cylinders_accu);
+        line->SetDashLength(0.2);
+        line->SetDashEnd(1);
+        obj.add_primitive(line);
+      }
+ 
+
       if(style==CYLINDER){
         Cylinder *line;
-        line = new Cylinder(carts,col,carts[0],0.2,alpha,cylinders_accu);
+        line = new Cylinder(carts,col,carts[0],double(width)*cylinder_radius_scale,alpha,cylinders_accu);
         obj.add_primitive(line);
       }
       if(style==CYLINDERARROW){
@@ -455,12 +487,12 @@ void DrawSimpleConnection(Displayobject &obj,
         Cartesian p0 = carts[0];
         carts[0] = p;
         Cone *cone;
-        cone = new Cone(carts,col,carts[0],0.4,alpha,cylinders_accu);
+        cone = new Cone(carts,col,carts[0],double(width)*cylinder_radius_scale*2.0,alpha,cylinders_accu);
         obj.add_primitive(cone);
         carts[0] = p0;
         carts[1] = p;
         Cylinder *line;
-        line = new Cylinder(carts,col,carts[0],0.2,alpha,cylinders_accu);
+        line = new Cylinder(carts,col,carts[0],double(width)*cylinder_radius_scale,alpha,cylinders_accu);
         obj.add_primitive(line);
       }
     }
@@ -857,7 +889,6 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
         //std::cout << (*secstr_iter)[0] << " to " << (*(secstr_iter+1))[0] << "\n";
         int begin = (*secstr_iter)[0]*spline_accu;
         int end = (*(secstr_iter+1))[0]*spline_accu;
-        //std::cout << begin << " to " << end << "(" << end-begin << ")\n";
         for(int i=begin;i<=end&&spline_iter!=(*splines_iter).end();i++){ 
 	  cartesians.push_back(*spline_iter);
 	  n1_cartesians.push_back(*n1_spline_iter);
@@ -867,6 +898,13 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
 	  n2_spline_iter++;
 	  spline_iter++;
 	  if(multicolour) colour_vec++;
+        }
+        bool doOneMore = (spline_iter+1==(*splines_iter).end()||(spline_iter+2!=(*splines_iter).end()&&(*(spline_iter+2)-*(spline_iter+2)).length()>15./spline_accu));
+	if(doOneMore&&spline_iter!=(*splines_iter).end()&&n1_spline_iter!=(*n1_splines_iter).end()&&n2_spline_iter!=(*n2_splines_iter).end()){
+	  cartesians.push_back(*spline_iter);
+	  n1_cartesians.push_back(*n1_spline_iter);
+	  n2_cartesians.push_back(*n2_spline_iter);
+	  if(multicolour&&(colour_vec!=(*colour_vecs).end())) colours_vec.push_back(*colour_vec);
         }
         //std::cout << "cartesians.size() " << cartesians.size() << "\n"; std::cout.flush();
         totalpoints++;
@@ -909,8 +947,10 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
         int two_colour_ribbon = params.GetInt("two_colour_ribbon");
         float alpha_helix_width;
         float beta_sheet_width;
+	float helix_tube_diameter;
         if (mode == SPLINE || mode == FATWORM) {
           alpha_helix_width = params.GetFloat("alpha_helix_width");
+          helix_tube_diameter =  params.GetFloat("helix_tube_diameter");
           beta_sheet_width = params.GetFloat("alpha_helix_width");
           //beta_sheet_width = params.GetFloat("beta_sheet_width");
         } else {
@@ -946,7 +986,7 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
             std::vector<Cartesian> n1_main(n1_cartesians.begin()+1*spline_accu-1,n1_cartesians.end()-2*spline_accu+1);
             std::vector<Cartesian> n2_main(n2_cartesians.begin()+1*spline_accu-1,n2_cartesians.end()-2*spline_accu+1);
             std::vector<Cartesian> cols_main(colours_vec.begin()+1*spline_accu-1,colours_vec.end()-2*spline_accu+1);
-	    ribbon = new Worm(main,n1_main,n2_main,col_tmp,cartesians[0],cols_main,2.2,2.2,2.2,1.0,ribbon_accu*2,spline_accu);
+	    ribbon = new Worm(main,n1_main,n2_main,col_tmp,cartesians[0],cols_main,helix_tube_diameter,helix_tube_diameter,helix_tube_diameter,1.0,ribbon_accu*2,spline_accu);
 	    obj.add_primitive(ribbon);
             std::vector<Cartesian> lead_out(cartesians.end()-2*spline_accu,cartesians.end());
             std::vector<Cartesian> n1_lead_out(n1_cartesians.end()-2*spline_accu,n1_cartesians.end());
@@ -996,20 +1036,20 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
 ConnectivityDraw::ConnectivityDraw(){
 }
 
-void ConnectivityDraw::SetParametersAndCalculate(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, AtomColourVector *atom_colour_vector, std::vector<double> atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm){
+void ConnectivityDraw::SetParametersAndCalculate(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, AtomColourVector *atom_colour_vector, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm, int bonds_mode){
   molhnd = molhnd_in;
   connectivity = connectivity_in;
-  RedrawPrimitives(obj,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm);
+  RedrawPrimitives(obj,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm,bonds_mode);
 }
 
-ConnectivityDraw::ConnectivityDraw(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, AtomColourVector *atom_colour_vector, std::vector<double> atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm){
+ConnectivityDraw::ConnectivityDraw(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, AtomColourVector *atom_colour_vector, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm,int bonds_mode ){
 
   molhnd = molhnd_in;
   connectivity = connectivity_in;
-  RedrawPrimitives(obj,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm);
+  RedrawPrimitives(obj,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm,bonds_mode);
 }
 
-void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms,  AtomColourVector *atom_colour_vector, std::vector<double> atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour , int side_to_ribbon, int side_to_worm){
+void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms,  AtomColourVector *atom_colour_vector, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour , int side_to_ribbon, int side_to_worm, int bonds_mode){
 
   double width=1.0;
   LineCollection *lines = new LineCollection();
@@ -1026,6 +1066,8 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
   bool dashed = params.GetInt("dashed_bonds"); 
   double dash_length = params.GetFloat("dashed_bond_length"); 
 
+  //std::cout << "RedrawPrimitives " << bonds_mode << " " << side_to_ribbon << std::endl;
+
   std::vector <int> catom_indices = connectivity.GetCAtomIndex();
 
   if(mode==SPHERES){
@@ -1037,12 +1079,12 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
     spheres_size = 0.6;
     cylinders_size = params.GetFloat("ballstick_stick");
     spheres_accu = global_params.GetInt("solid_quality");
-    cylinders_accu = 8;
+    cylinders_accu = 8+8*global_params.GetInt("solid_quality");
   }
   if(mode==CYLINDERS){
     spheres_size = cylinders_size;
     spheres_accu = global_params.GetInt("solid_quality");
-    cylinders_accu = 8;
+    cylinders_accu = 8+8*global_params.GetInt("solid_quality");
   }
   if(mode==BONDS)
     width = params.GetInt("bond_width");
@@ -1082,6 +1124,8 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
     midpoint_frac1 = 1.0;
     //std::cout << "Setting midpoint to external cart\n";
   }
+
+  if (bonds_mode != DRAW_INTERNAL_BONDS) {
 
   for(unsigned i=0;i<ext_conn_lists.size();i++){
     colour_array = atom_colour_vector->GetRGB(i);
@@ -1150,6 +1194,9 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
     }
     if(colour_array) delete [] colour_array;
   }
+  }
+
+  if (bonds_mode != DRAW_EXTERNAL_BONDS) {
 
   for(unsigned i=0;i<conn_lists.size();i++){
     colour_array = atom_colour_vector->GetRGB(i);
@@ -1294,6 +1341,7 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
       }
     }
     if(colour_array) delete [] colour_array;
+  }
   }
 
   lines->SetSize(width);
@@ -1479,7 +1527,8 @@ std::vector<Cartesian> GetBasePairEnds(PCResidue res1, PCResidue res2, const Spl
 
 void DrawBaseBlock(PolyCollection *polys, PCResidue res1, double *col1, const CParamsManager &params ){
 
-    float thickness = params.GetFloat("cylinder_width")-0.02;
+    //float thickness = params.GetFloat("cylinder_width")-0.02;
+    float thickness = params.GetFloat("base_block_thickness")-0.02;
     if (thickness<0.02)thickness=0.1;
  
     PCAtom n1 = res1->GetAtom("N1");
@@ -1655,13 +1704,13 @@ void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, PPCAto
 //-----------------------------------------------------------------
 void DrawAnisoU(Displayobject &obj,
      int selHndin, PPCAtom selAtoms, int nSelAtoms, 
-     AtomColourVector *atom_colour_vector,
+     AtomColourVector *atom_colour_vector, const std::vector<double> &atomRadii,
      int style, double scale, 
      const CParamsManager &global_params) {
 //-----------------------------------------------------------------
 
   std::string label;
-  Spheroid *elipse;
+  Spheroid *ellipse;
   double a,b,c;
   Cartesian a_axis,b_axis,c_axis;
 
@@ -1674,42 +1723,44 @@ void DrawAnisoU(Displayobject &obj,
     show_solid=1;
   }
 
+  PolyCollection *polys = new PolyCollection();
   for ( int i = 0; i < nSelAtoms; i++ ) {
     Cartesian vertex = Cartesian(selAtoms[i]->x, 
                              selAtoms[i]->y,selAtoms[i]->z);
+    double *col = atom_colour_vector->GetRGB(i);
     if (selAtoms[i]->WhatIsSet&ASET_Anis_tFac) {
       double array[9] = { 
 	  selAtoms[i]->u11,selAtoms[i]->u12, selAtoms[i]->u13, 
 	  selAtoms[i]->u12,selAtoms[i]->u22, selAtoms[i]->u23, 
 	  selAtoms[i]->u13,selAtoms[i]->u23, selAtoms[i]->u33 };
-      matrix us(3,3,array);
-      std::vector<matrix>  eigen = us.Eigen();
-      //cout << "eigen vectors" << eigen[0] << endl;
-      //cout << "eigen values" << eigen[1] << endl;
-      a =  eigen[1](0,0);
-      b =  eigen[1](1,0);
-      c =  eigen[1](2,0);
-      a_axis = Cartesian (eigen[0](0,0),eigen[0](1,0),eigen[0](2,0));
-      b_axis = Cartesian (eigen[0](0,1),eigen[0](1,1),eigen[0](2,1));
-      c_axis = Cartesian (eigen[0](0,2),eigen[0](1,2),eigen[0](2,2));
-      //cout << "a_axis " << a_axis << endl;
-      //cout << "b_axis " << b_axis << endl;
-      //cout << "c_axis " << c_axis << endl;
-      //cout << "a,b,c " << a << " " << b << " " << c << endl;
+      matrix U(3,3,array);
+      matrix A = atomRadii[i]*scale*U.Cholesky();
+      matrix B(4,4);
+      B(0,0) = A(0,0);
+      B(1,0) = A(1,0);
+      B(1,1) = A(1,1);
+      B(2,0) = A(2,0);
+      B(2,1) = A(2,1);
+      B(2,2) = A(2,2);
+      B(3,3) = 1.0;
+      ellipse = new Spheroid(vertex, col, vertex,
+		    B,
+         	    1.0, accu , show_axes, show_solid );
+      polys->add_primitive(ellipse);
     } else {
-      a =b= c = 0.01 * selAtoms[i]->tempFactor ;
-      a_axis = Cartesian (1.0,0.0,0.0);
-      b_axis = Cartesian (0.0,1.0,0.0);
-      c_axis = Cartesian (0.0,0.0,1.0);
+      matrix B(4,4);
+      double Bfac = atomRadii[i]*scale * selAtoms[i]->tempFactor/(8*M_PI*M_PI) ;
+      B(0,0) = B(1,1) = B(2,2) = Bfac;
+      B(3,3) = 1.0;
+      ellipse = new Spheroid(vertex, col, vertex,
+		    B,
+         	    1.0, accu , show_axes, show_solid );
+      polys->add_primitive(ellipse);
       
     }
-    double *col = atom_colour_vector->GetRGB(i);
-    elipse = new Spheroid(vertex, col, vertex,
-		   a*scale, b*scale, c*scale, a_axis, b_axis, c_axis,
-         	    1.0, accu , show_axes, show_solid );
     delete [] col;
-    obj.add_primitive(elipse);
   }
+  obj.add_primitive(polys);
 
 }
 

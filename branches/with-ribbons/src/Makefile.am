@@ -82,6 +82,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/ccp4mg-utils/util/libccp4mg-mgutil.la 	\
 	$(top_builddir)/ccp4mg-utils/util/libccp4mg-paramsmanager.la 	\
 	$(top_builddir)/ccp4mg-utils/util/libccp4mg-redirect.la 	\
+	$(top_builddir)/ccp4mg-utils/mgapp/libccp4mg-mgapp.la 	\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
@@ -168,6 +169,7 @@ INCLUDES = \
 	-I$(top_srcdir)/ccp4mg-utils/util	\
 	-I$(top_srcdir)/ccp4mg-utils/mmut	\
 	-I$(top_srcdir)/ccp4mg-utils/pygl	\
+	-I$(top_srcdir)/ccp4mg-utils/mgapp	\
 	-I$(top_srcdir)/coot-utils	\
 	-I$(top_srcdir)/intl 		\
 	-I$(top_srcdir)/skeleton	\

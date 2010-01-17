@@ -1,6 +1,7 @@
 /*
      util/cartesian.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -63,9 +64,9 @@ Cartesian operator*(const matrix &objrotmat, const Cartesian &prim){
   double result[4];
   double input[4] = {prim.get_x(), prim.get_y(), prim.get_z(), prim.get_a()};
 
-  for(int i=0;i<4;i++){
+  for(int i=0;i<objrotmat.get_columns();i++){
     result[i] = 0.0;
-    for(int j=0;j<4;j++){
+    for(int j=0;j<objrotmat.get_rows();j++){
       result[i] += input[j]*objrotmat(i,j);
     }
   }
@@ -110,7 +111,7 @@ Cartesian::Cartesian(){
   a = 1.0;
 }
 
-Cartesian::Cartesian(double *coords_in){
+Cartesian::Cartesian(const double *coords_in){
   x = coords_in[0];
   y = coords_in[1];
   z = coords_in[2];
@@ -141,7 +142,7 @@ double *Cartesian::getxyza(void) const{
   return result;
 }
 
-void Cartesian::setxyza(double *coords_in){
+void Cartesian::setxyza(const double *coords_in){
   x = coords_in[0];
   y = coords_in[1];
   z = coords_in[2];
