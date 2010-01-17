@@ -22,14 +22,6 @@ class LigandTestFunctions(unittest.TestCase):
     def test01_0(self):
         """Get monomer test"""
 
-#        if (have_test_skip):
-#            self.skipIf(not have_ccp4_qm, "CCP4 not set up - skipping 3GP test")
-#        else:
-#            if (not have_ccp4_qm):
-#                print "CCP4 not set up - skipping 3GP test (actually passing!)"
-#                skipped_tests.append("Get monomer test (no CCP4)")
-#                return
-
         if (not have_ccp4_qm):
             print "No CCP4 - Copying in test files"
             for file_name in ["monomer-3GP.pdb", "libcheck_3GP.cif"]:
@@ -41,11 +33,7 @@ class LigandTestFunctions(unittest.TestCase):
                     print "   copy-file", f_full, t_file
                     shutil.copyfile(f_full, t_file)
                 else:
-                    if (have_skip_test):
-                        self.skip("Cannot find file %s, skipping test" %f_full)
-                    else:
-                        print "Cannot find file %s, skipping test" %f_full
-                        skipped_tests.append("Get monomer test (no CCP4 and file %s not found %f_full)")
+                    if self.skip_test(True, "Cannot find file %s, skipping test" %f_full):
                         return
                 
 	imol = monomer_molecule_from_3_let_code("3GP", "")
@@ -58,13 +46,9 @@ class LigandTestFunctions(unittest.TestCase):
     def test02_0(self):
 	"""Set Bond thickness test"""
 
-        if (have_test_skip):
-            self.skipIf(not valid_model_molecule_qm(imol_ligand), "   No ligand molecule - Skipping bond thickness test")
-        else:
-            if (not valid_model_molecule_qm(imol_ligand)):
-                print "   No ligand molecule - Skipping bond thickness test (actually passing!)"
-                skipped_tests.append("Set Bond thickness test")
-                return
+        if self.skip_test(not valid_model_molecule_qm(imol_ligand),
+                          "   No ligand molecule - Skipping bond thickness test"):
+            return
             
 	set_bond_thickness(imol_ligand, 5)
 
@@ -73,13 +57,9 @@ class LigandTestFunctions(unittest.TestCase):
 	"""Move and Refine Ligand test"""
         
 	new_rc = [55.3, 9.1, 20.6]
-        if (have_test_skip):
-            self.skipIf(not valid_model_molecule_qm(imol_ligand), "no ligand - skipping test")
-        else:
-            if (not valid_model_molecule_qm(imol_ligand)):
-                print "no ligand (skipping - actually passing test!)"
-                skipped_tests.append("Move and Refine Ligand test")
-                return
+        if self.skip_test(not valid_model_molecule_qm(imol_ligand),
+                          "no ligand - skipping test"):
+            return
 
 	# set the view
 	view_number = add_view([54.5698,8.7148,20.5308],
@@ -159,13 +139,9 @@ class LigandTestFunctions(unittest.TestCase):
         set_go_to_atom_chain_residue_atom_name("A", 1, " C8 ")
         # end BL etxra
         active_atom = active_residue()
-        if (have_test_skip):
-            self.skipIf(not active_atom, "No active atom found - skipping flip residue test")
-        else:
-            if (not active_atom):
-                print "No active atom - skipping flip residue test (actually passing!)"
-                skipped_tests.append("flip residue test (no active atom)")
-                return
+        if self.skip_test(not active_atom,
+                          "No active atom found - skipping flip residue test"):
+            return
         imol      = active_atom[0]
         chain_id  = active_atom[1]
         res_no    = active_atom[2]

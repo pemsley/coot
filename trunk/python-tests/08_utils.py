@@ -41,19 +41,16 @@ class UtilTestFunctions(unittest.TestCase):
                      ]
 
         for code, result in test_list:
-            self.failUnlessEqual(code, result, " fail on key_sym_code, %s is not equal to %s " %(code, result))
+            self.failUnlessEqual(code, result,
+                                 " fail on key_sym_code, %s is not equal to %s " %(code, result))
 
 
     def test02_0(self):
         """Test running a scheme function"""
 
-        if (have_test_skip):
-            self.skipIf(not coot_has_guile(), "Skipping guile test (no guile)")
-        else:
-            if (not coot_has_guile()):
-                print "Skipping guile test (actually passing!)"
-                skipped_tests.append("Test running scheme function")
-                return
+        if self.skip_test(not coot_has_guile(),
+                          "Skipping guile test (no guile)"):
+            return
 
         tot = run_scheme_command("(+ 2 4)")
         self.failUnlessEqual(tot, 6)
@@ -219,13 +216,9 @@ class UtilTestFunctions(unittest.TestCase):
 	    pygtk.require("2.0")
 	    have_pygtk2 = True
 	except:
-            if (have_test_skip):
-                self.skipIf(not have_pygtk2, "Dont have pygtk 2.0, skipping import gobject test")
-            else:
-                if (not have_pygtk2):
-                    print "Dont have pygtk 2.0, skipping import gobject test"
-                    skipped_tests.append("Import gobject Test")
-                    return
+            if self.skip_test(not have_pygtk2,
+                              "Dont have pygtk 2.0, skipping import gobject test"):
+                return
         try:
             import gobject
             imported = True

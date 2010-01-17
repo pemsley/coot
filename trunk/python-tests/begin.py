@@ -20,6 +20,7 @@ print "==============================================================="
 
 import unittest, os
 import inspect
+
 global have_test_skip
 global skipped_tests
 
@@ -215,6 +216,26 @@ def atoms_have_correct_seg_id_qm(atoms, seg_id):
             return False
     return True
 
+
+#################################
+# SOME MORE FUNCTIONS ONLY PYTHON
+#################################
+
+def skip_test(self, skip_query, skip_msg):
+    global have_test_skip
+    global skipped_tests
+
+    if have_test_skip:
+        self.skipIf(skip_query, skip_msg)
+    else:
+        if skip_query:
+            skipped_tests.append(self.shortDescription())
+            # no way so far to exit the test from here
+            # either work with return value or Exceptions
+            # former for now
+            return True
+        
+unittest.TestCase.skip_test = skip_test
 
 ###############################
 # NOW DEFINE THE ACTUAL TESTS
