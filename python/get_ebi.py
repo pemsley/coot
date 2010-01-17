@@ -179,7 +179,7 @@ def get_eds_pdb_and_mtz(id):
       eds_url = eds_site + "/dfs/"
       target_pdb_file = "pdb" + down_id + ".ent"
       dir_target_pdb_file = coot_tmp_dir + "/" + target_pdb_file
-      mc = mid_chars(id)
+      mc = mid_chars(down_id)
       model_url = eds_url + mc + down_id + "/" + target_pdb_file
       target_mtz_file = down_id + "_sigmaa.mtz"
       dir_target_mtz_file = coot_tmp_dir + "/" + target_mtz_file
