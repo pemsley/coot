@@ -1219,7 +1219,16 @@ graphics_info_t::check_if_in_mutate_define(GdkEventButton *event) {
 	 g.mutate_residue_imol = naii.imol;
 	 g.mutate_residue_atom_index = naii.atom_index;
 	 CResidue *r = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
-	 if (coot::util::is_nucleotide_by_dict_dynamic_add(r, Geom_p())) {
+
+	 // is it sensible to do it two ways like this?  I'm not sure.
+	 // Perhaps there should be one function that wraps both
+	 // methods?
+	 bool is_nuc = 0;
+	 is_nuc = coot::util::is_nucleotide_by_dict_dynamic_add(r, Geom_p());
+	 if (! is_nuc)
+	    is_nuc = coot::util::is_nucleotide(r);
+	 
+	 if (is_nuc) {
 	    GtkWidget *w = create_nucleic_acid_base_chooser_dialog();
 	    gtk_widget_show(w);
 	 } else { 

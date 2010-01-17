@@ -1,8 +1,19 @@
 0.6.1 
 
-   points: 2 left.
+   points: 7 left.
+
+   o After mutation of DNA bases the sequence does not get updated in
+     the "Go to Atom" window until you close it and reopen it [MOL] ::: 1
+
+   o read in coot-ccp4/monomer-BIP.pdb and regularize.  -> No restraints 
+     ::: 1
 
    o Check that ligand with hydrogens give good clashes [JB] ::: 2
+
+   o Jiggle fit doesn't work ::: 2
+
+   o Update probe dots, delete the sphere selection molecule after it is used
+     to make the dots - don't leave it in the display manager.   ::: 0.5 
 
 
 ------
@@ -182,7 +193,6 @@
 
 * Done. Nice, with test.
    
-
    o stalling on updating progress bar in guile-gtk. ::: 3
 
 * Done.  Thanks Andy Wingo.
@@ -198,14 +208,25 @@
 
 * Done.
 
-
    o rigid_body_refine_by_residue_ranges_scm() should be in
      documentation.  ::: 0.5
 
 * Done.
 
-
    o Fix the green fish ::: 0.5
 
 * Done. Bernie patch.
+
+   o P Backbone mode for symmetry ::: 0.5
+
+* Done. Bernie patch.
+
+   o Bonding of BIP is wrong. ::: 0.5
+
+* Done.
+
+   o Try to EDS download 1QEX (not 1qex). Does it work?  How about the
+     python version? ::: 0.5
+
+
 

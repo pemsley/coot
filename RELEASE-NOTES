@@ -13,10 +13,11 @@
   o CHANGE: "Save dialog positions" now also saves the Edit Chi Angles
     dialog position [Markus Rudolph].
 
-  o CHANGE: Coot can now go through proxies (http_proxy environment variable)
-    to get News and Updates.
+  o CHANGE: Coot can now go through proxies (http_proxy environment
+    variable) to get News and Updates.
 
-  o CHANGE: Baton manipulation is now possible when the skeleton runs out.
+  o CHANGE: Baton manipulation is now possible when the skeleton runs
+    out.
 
   o CHANGE: Hydrogen representation now thin and grey monotone.
 
@@ -24,8 +25,8 @@
 
   o CHANGE: Updates to sync with new EDS (Electron Density Server).
 
-  o CHANGE: Filenames of mtzs and pdb in the current directory are now store 
-    as relatvie in the state file [Andre White].
+  o CHANGE: Filenames of mtzs and pdb in the current directory are now
+    stored as relative in the state file [Andre White].
 
   o CHANGE: Default image type now PNG [Joel Bard].
 
@@ -46,6 +47,11 @@
 
   o BUG-FIX: Hydrogen environment distances now are synchronised with
     the display of hydrogens [JED].
+
+  o BUG-FIX: Phosphate-backbone mode enabled for symmetry [Miguel
+    Ortiz Lombardia].
+
+  o BUG-FIX: Carbon-Iodine bond length limit lengthened.
 
 -----
 

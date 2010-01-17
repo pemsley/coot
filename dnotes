@@ -888,7 +888,6 @@ Tue Oct 30 15:52:39 GMT 2007
    reading in a new map.
 
    
-
 ----
 Tue Oct 30 15:53:49 GMT 2007
 
@@ -5325,6 +5324,18 @@ Fri Jan 15 21:06:12 GMT 2010
    first residue (it doesn't have a CA of course).
 
 
+----
+Sat Jan 16 09:16:32 GMT 2010
+
+   tutorial example 
+
+   1bav, Difference map peaks, Bad rotamers, missing NCS waters
+
+
+---
+Sun Jan 17 12:51:25 GMT 2010
+
+   Simple mutate base in 1v15.  This has PDB standard base names?
 
 
 ------
