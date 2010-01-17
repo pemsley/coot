@@ -1,6 +1,7 @@
 /*
      util/cartesian.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -32,11 +33,11 @@ class Cartesian{
   static std::vector<Cartesian> PrincipalComponentAnalysis(const std::vector<double> &X, const std::vector<double> &Y, const std::vector<double> &Z);
  public:
   Cartesian();
-  Cartesian(double *coords_in);
+  Cartesian(const double *coords_in);
   Cartesian(const std::vector<double> &coords_in);
   Cartesian(double x_in, double y_in, double z_in, double a_in=1.0);
   double *getxyza(void) const;
-  void setxyza(double *coords_in);
+  void setxyza(const double *coords_in);
   std::vector<double> getxyza_vec(void) const;
   void setxyza_vec(const std::vector<double> &coords_in);
   inline double get_x(void) const {return x;};

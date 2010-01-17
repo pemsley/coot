@@ -1,6 +1,7 @@
 /*
      mmut/mmut_spline.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -69,12 +70,171 @@ void Replace(std::vector<Cartesian> &old_vec, const std::vector<Cartesian> &new_
 
 std::vector<Cartesian> GetBasePairEnds(PCResidue res1, PCResidue res2);
 
-SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVector *atom_colour_vector,int spline_accu, int udd_chain, int udd_CA, int flatten_beta_sheet, int flatten_loop,int smooth_helix){
+int GetCAFromSelection(CMMANManager *molH, int atom_selHnd_in){
 
   //std::cout << "GetSplineInfo spline_accu " << spline_accu << "\n";
   //std::cout << "GetSplineInfo udd_CA " << udd_CA  << "\n";
   //std::cout << "GetSplineInfo udd_chain " << udd_chain  << "\n";
 
+
+  int CAselHnd;
+
+  int atom_selHnd = molH->NewSelection();
+  molH->Select(atom_selHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
+  molH->Select(atom_selHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+
+  // Find all CA - to use as quick check if atom is in this set
+
+  int CALocAselHnd = molH->NewSelection();
+  molH->Select(CALocAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","CA","C","A",SKEY_NEW);
+  molH->Select(CALocAselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  int CALocBselHnd = molH->NewSelection();
+  molH->Select(CALocBselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","CA","C","B",SKEY_NEW);
+  molH->Select(CALocBselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  int CALocCselHnd = molH->NewSelection();
+  molH->Select(CALocCselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","CA","C","C",SKEY_NEW);
+  molH->Select(CALocCselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  
+  PPCAtom CALocAAtomTable;
+  int nCALocAAtoms;
+  PPCAtom CALocBAtomTable;
+  int nCALocBAtoms;
+  PPCAtom CALocCAtomTable;
+  int nCALocCAtoms;
+
+  molH->GetSelIndex ( CALocAselHnd, CALocAAtomTable, nCALocAAtoms );
+  molH->GetSelIndex ( CALocBselHnd, CALocBAtomTable, nCALocBAtoms );
+  molH->GetSelIndex ( CALocCselHnd, CALocCAtomTable, nCALocCAtoms );
+
+  CAselHnd = molH->NewSelection();
+  molH->Select(CAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","CA","C","*",SKEY_NEW);
+  molH->Select(CAselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+
+  for(int ia=0;ia<nCALocAAtoms;ia++){
+	  for(int ib=0;ib<nCALocBAtoms;ib++){
+		  if(CALocAAtomTable[ia]->isInSelection(CAselHnd)&&CALocBAtomTable[ib]->isInSelection(CAselHnd)&&CALocAAtomTable[ia]->residue==CALocBAtomTable[ib]->residue){
+			  // Exclude one of them!
+			  molH->SelectAtom(CAselHnd,CALocBAtomTable[ib],SKEY_XOR,False);
+		  }
+	  }
+  }
+  for(int ia=0;ia<nCALocAAtoms;ia++){
+	  for(int ib=0;ib<nCALocCAtoms;ib++){
+		  if(CALocAAtomTable[ia]->isInSelection(CAselHnd)&&CALocCAtomTable[ib]->isInSelection(CAselHnd)&&CALocAAtomTable[ia]->residue==CALocCAtomTable[ib]->residue){
+			  // Exclude one of them!
+			  molH->SelectAtom(CAselHnd,CALocCAtomTable[ib],SKEY_XOR,False);
+		  }
+	  }
+  }
+  for(int ia=0;ia<nCALocCAtoms;ia++){
+	  for(int ib=0;ib<nCALocBAtoms;ib++){
+		  if(CALocCAtomTable[ia]->isInSelection(CAselHnd)&&CALocBAtomTable[ib]->isInSelection(CAselHnd)&&CALocCAtomTable[ia]->residue==CALocBAtomTable[ib]->residue){
+			  // Exclude one of them!
+			  molH->SelectAtom(CAselHnd,CALocBAtomTable[ib],SKEY_XOR,False);
+		  }
+	  }
+  }
+
+  molH->ExcludeOverlappedAtoms(CAselHnd,0.8); // Final catchall
+
+  int NAselHnd; // nucleic selection
+
+  int NALocAselHnd = molH->NewSelection();
+  //molH->SelectProperty(NALocAselHnd,SELPROP_Nucleotide,STYPE_RESIDUE,SKEY_NEW);
+  //molH->Select(NALocAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","A",SKEY_AND);
+  molH->Select(NALocAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5*'","C","*",SKEY_NEW);
+  molH->Select(NALocAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5\'","C","*",SKEY_OR);
+  molH->Select(NALocAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C3*'","C","*",SKEY_OR);
+  molH->Select(NALocAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C3\'","C","*",SKEY_OR);
+  molH->Select(NALocAselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  int NALocBselHnd = molH->NewSelection();
+  //molH->SelectProperty(NALocBselHnd,SELPROP_Nucleotide,STYPE_RESIDUE,SKEY_NEW);
+  //molH->Select(NALocBselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","B",SKEY_AND);
+  molH->Select(NALocBselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5*'","C","*",SKEY_NEW);
+  molH->Select(NALocBselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5\'","C","*",SKEY_OR);
+  molH->Select(NALocBselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C3*'","C","*",SKEY_OR);
+  molH->Select(NALocBselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C3\'","C","*",SKEY_OR);
+  molH->Select(NALocBselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  int NALocCselHnd = molH->NewSelection();
+  //molH->SelectProperty(NALocCselHnd,SELPROP_Nucleotide,STYPE_RESIDUE,SKEY_NEW);
+  //molH->Select(NALocCselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","C",SKEY_AND);
+  molH->Select(NALocCselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5*'","C","*",SKEY_NEW);
+  molH->Select(NALocCselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5\'","C","*",SKEY_OR);
+  molH->Select(NALocCselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C3*'","C","*",SKEY_OR);
+  molH->Select(NALocCselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C3\'","C","*",SKEY_OR);
+  molH->Select(NALocCselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+
+  PPCAtom NALocAAtomTable;
+  int nNALocAAtoms;
+  PPCAtom NALocBAtomTable;
+  int nNALocBAtoms;
+  PPCAtom NALocCAtomTable;
+  int nNALocCAtoms;
+
+  molH->GetSelIndex ( NALocAselHnd, NALocAAtomTable, nNALocAAtoms );
+  molH->GetSelIndex ( NALocBselHnd, NALocBAtomTable, nNALocBAtoms );
+  molH->GetSelIndex ( NALocCselHnd, NALocCAtomTable, nNALocCAtoms );
+
+  NAselHnd = molH->NewSelection();
+  //molH->SelectProperty(NAselHnd,SELPROP_Nucleotide,STYPE_RESIDUE,SKEY_NEW);
+  //molH->Select(NAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_AND);
+  molH->Select(NAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5*'","C","*",SKEY_NEW);
+  molH->Select(NAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5\'","C","*",SKEY_OR);
+  molH->Select(NAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C3*'","C","*",SKEY_OR);
+  molH->Select(NAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C3\'","C","*",SKEY_OR);
+  molH->Select(NAselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+
+  for(int ia=0;ia<nNALocAAtoms;ia++){
+	  for(int ib=0;ib<nNALocBAtoms;ib++){
+		  if(NALocAAtomTable[ia]->isInSelection(NAselHnd)&&NALocBAtomTable[ib]->isInSelection(NAselHnd)&&NALocAAtomTable[ia]->residue==NALocBAtomTable[ib]->residue){
+			  // Exclude one of them!
+			  molH->SelectAtom(NAselHnd,NALocBAtomTable[ib],SKEY_XOR,False);
+		  }
+	  }
+  }
+  for(int ia=0;ia<nNALocAAtoms;ia++){
+	  for(int ib=0;ib<nNALocCAtoms;ib++){
+		  if(NALocAAtomTable[ia]->isInSelection(NAselHnd)&&NALocCAtomTable[ib]->isInSelection(NAselHnd)&&NALocAAtomTable[ia]->residue==NALocCAtomTable[ib]->residue){
+			  // Exclude one of them!
+			  molH->SelectAtom(NAselHnd,NALocCAtomTable[ib],SKEY_XOR,False);
+		  }
+	  }
+  }
+  for(int ia=0;ia<nNALocCAtoms;ia++){
+	  for(int ib=0;ib<nNALocBAtoms;ib++){
+		  if(NALocCAtomTable[ia]->isInSelection(NAselHnd)&&NALocBAtomTable[ib]->isInSelection(NAselHnd)&&NALocCAtomTable[ia]->residue==NALocBAtomTable[ib]->residue){
+			  // Exclude one of them!
+			  molH->SelectAtom(NAselHnd,NALocBAtomTable[ib],SKEY_XOR,False);
+		  }
+	  }
+  }
+
+  /*
+  PPCAtom NAAtomTable; 
+  int nNAAtoms;
+  molH->GetSelIndex ( NAselHnd, NAAtomTable, nNAAtoms );
+  std::cout << nNAAtoms << "\n"; std::cout.flush();
+  */
+
+  //molH->MakeSelIndex(NAselHnd);
+  molH->Select(CAselHnd,STYPE_ATOM,NAselHnd,SKEY_OR);
+  molH->MakeSelIndex(CAselHnd);
+  
+  molH->DeleteSelection(CALocAselHnd);  
+  molH->DeleteSelection(CALocBselHnd);  
+  molH->DeleteSelection(CALocCselHnd);  
+  molH->DeleteSelection(NALocAselHnd);  
+  molH->DeleteSelection(NALocBselHnd);  
+  molH->DeleteSelection(NALocCselHnd);
+  
+  return CAselHnd;
+}
+
+SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVector *atom_colour_vector,int spline_accu, int udd_chain, int udd_CA, int flatten_beta_sheet, int flatten_loop,int smooth_helix){
+
+  //std::cout << "GetSplineInfo spline_accu " << spline_accu << "\n";
+  //std::cout << "GetSplineInfo udd_CA " << udd_CA  << "\n";
+  //std::cout << "GetSplineInfo udd_chain " << udd_chain  << "\n";
 
   int CAselHnd;
   PPCAtom atomTable;
@@ -83,6 +243,8 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
   PCAtom pCAprev,pCA;
   float dist2;
   int newchain;
+
+  molH->GetSelIndex ( atom_selHnd_in, atomTable, nAtoms );
 
   SplineInfo splineinfo;
   std::vector<std::vector<PCAtom> > cavertices;
@@ -98,14 +260,71 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
 
 
   int atom_selHnd = molH->NewSelection();
+  if(nAtoms>0){
   molH->Select(atom_selHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
   molH->Select(atom_selHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  }
+
+  molH->GetSelIndex ( atom_selHnd, atomTable, nAtoms );
 
   // Find all CA - to use as quick check if atom is in this set
+
+  int CALocAselHnd = molH->NewSelection();
+  molH->Select(CALocAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","CA","C","A",SKEY_NEW);
+  molH->Select(CALocAselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  //molH->ExcludeOverlappedAtoms(CALocAselHnd,0.8);
+  int CALocBselHnd = molH->NewSelection();
+  molH->Select(CALocBselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","CA","C","B",SKEY_NEW);
+  molH->Select(CALocBselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  //molH->ExcludeOverlappedAtoms(CALocBselHnd,0.8);
+  int CALocCselHnd = molH->NewSelection();
+  molH->Select(CALocCselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","CA","C","C",SKEY_NEW);
+  molH->Select(CALocCselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  //molH->ExcludeOverlappedAtoms(CALocCselHnd,0.8);
+  
+  PPCAtom CALocAAtomTable;
+  int nCALocAAtoms;
+  PPCAtom CALocBAtomTable;
+  int nCALocBAtoms;
+  PPCAtom CALocCAtomTable;
+  int nCALocCAtoms;
+
+  molH->GetSelIndex ( CALocAselHnd, CALocAAtomTable, nCALocAAtoms );
+  molH->GetSelIndex ( CALocBselHnd, CALocBAtomTable, nCALocBAtoms );
+  molH->GetSelIndex ( CALocCselHnd, CALocCAtomTable, nCALocCAtoms );
+
   CAselHnd = molH->NewSelection();
   molH->Select(CAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","CA","C","*",SKEY_NEW);
   molH->Select(CAselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
-  molH->ExcludeOverlappedAtoms(CAselHnd,0.8);
+
+  for(int ia=0;ia<nCALocAAtoms;ia++){
+	  for(int ib=0;ib<nCALocBAtoms;ib++){
+		  if(CALocAAtomTable[ia]->isInSelection(CAselHnd)&&CALocBAtomTable[ib]->isInSelection(CAselHnd)&&CALocAAtomTable[ia]->residue==CALocBAtomTable[ib]->residue){
+			  // Exclude one of them!
+			  molH->SelectAtom(CAselHnd,CALocBAtomTable[ib],SKEY_XOR,False);
+		  }
+	  }
+  }
+  for(int ia=0;ia<nCALocAAtoms;ia++){
+	  for(int ib=0;ib<nCALocCAtoms;ib++){
+		  if(CALocAAtomTable[ia]->isInSelection(CAselHnd)&&CALocCAtomTable[ib]->isInSelection(CAselHnd)&&CALocAAtomTable[ia]->residue==CALocCAtomTable[ib]->residue){
+			  // Exclude one of them!
+			  molH->SelectAtom(CAselHnd,CALocCAtomTable[ib],SKEY_XOR,False);
+		  }
+	  }
+  }
+  for(int ia=0;ia<nCALocCAtoms;ia++){
+	  for(int ib=0;ib<nCALocBAtoms;ib++){
+		  if(CALocCAtomTable[ia]->isInSelection(CAselHnd)&&CALocBAtomTable[ib]->isInSelection(CAselHnd)&&CALocCAtomTable[ia]->residue==CALocBAtomTable[ib]->residue){
+			  // Exclude one of them!
+			  molH->SelectAtom(CAselHnd,CALocBAtomTable[ib],SKEY_XOR,False);
+		  }
+	  }
+  }
+  molH->MakeSelIndex(CAselHnd);
+
+
+  molH->ExcludeOverlappedAtoms(CAselHnd,0.8); // Final catchall
 
   //if (atom_colour_vector)
   //  int rv = atom_colour_vector->SetupResidueColourVector( molH,atom_selHnd );
@@ -162,15 +381,8 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
         // On first pass through (newchain=1) this should not
         // test the secstr_indices, right?
         if ( atom_colour_vector ){
-	  std::cout << "BL DEBUG:: have colour vector" << std::endl;
 	  if(j==0||newchain){
             double * atcol = atom_colour_vector->GetRGB(j);
-	    std::cout <<"BL DEBUG:: atcol1 is " 
-		      << atcol[0] << " "
-		      << atcol[1] << " "
-		      << atcol[2] << " "
-		      << atcol[3] << " "
-		      << std::endl;
             splineinfo.colours.back().push_back(Cartesian(atcol));
 	    delete [] atcol;
 	  } else {
@@ -184,35 +396,17 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
                 double * atcol1 = atom_colour_vector->GetRGB(j-1);
                 splineinfo.colours.back().push_back(Cartesian(atcol1));
 	        //delete [] atcol;
-	    std::cout <<"BL DEBUG:: atcol2 is " 
-		      << atcol1[0] << " "
-		      << atcol1[1] << " "
-		      << atcol1[2] << " "
-		      << atcol1[3] << " "
-		      << std::endl;
 	        delete [] atcol1;
 	      } else {
                 double * atcol = atom_colour_vector->GetRGB(j);
                 splineinfo.colours.back().pop_back();
                 splineinfo.colours.back().push_back(Cartesian(atcol));
                 splineinfo.colours.back().push_back(Cartesian(atcol));
-	    std::cout <<"BL DEBUG:: atcol3 is " 
-		      << atcol[0] << " "
-		      << atcol[1] << " "
-		      << atcol[2] << " "
-		      << atcol[3] << " "
-		      << std::endl;
 	        delete [] atcol;
 	      }
 	    } else {
               double * atcol = atom_colour_vector->GetRGB(j);
               splineinfo.colours.back().push_back(Cartesian(atcol));
-	    std::cout <<"BL DEBUG:: atcol4 is " 
-		      << atcol[0] << " "
-		      << atcol[1] << " "
-		      << atcol[2] << " "
-		      << atcol[3] << " "
-		      << std::endl;
 	      delete [] atcol;
 	    }
           }
@@ -457,35 +651,35 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
            Cartesian v2 = n1_cart - c4_cart;
            v1.normalize();
            v2.normalize();
-           Cartesian n1 = Cartesian::CrossProduct(v1,v2); // Normal 1 not N1, Oh dear.
+           Cartesian norm1 = Cartesian::CrossProduct(v1,v2); // Normal 1 not N1, Oh dear.
            if(strncmp((*l)->GetResidue()->name,"PSU",3)==0){
              PCAtom c1p = (*l)->GetResidue()->GetAtom("C1\'");
              if(!c1p) c1p = (*l)->GetResidue()->GetAtom("C1*");
              PCAtom c2p = (*l)->GetResidue()->GetAtom("C2\'");
              if(!c2p) c2p = (*l)->GetResidue()->GetAtom("C2*");
              Cartesian c1c2 = AtToCart(c1p) - AtToCart(c2p);
-             if(Cartesian::DotProduct(c1c2,n1)>0.0) reverse = true;
+             if(Cartesian::DotProduct(c1c2,norm1)>0.0) reverse = true;
            }
            if(reverse)
-             n1 = -n1;
+             norm1 = -norm1;
            if(l<(*mna).end()-1&&l>=(*mna).begin()+1){
              Cartesian pmm = posp1 - posm1;
              pmm.normalize();
-             Cartesian n2_temp = Cartesian::CrossProduct(pmm,n1);
-             n1 = Cartesian::CrossProduct(pmm,n2_temp);
+             Cartesian n2_temp = Cartesian::CrossProduct(pmm,norm1);
+             norm1 = Cartesian::CrossProduct(pmm,n2_temp);
            } else if(l<(*mna).end()-1&&l==(*mna).begin()) {
              Cartesian pmm = posp1 - pos;
              pmm.normalize();
-             Cartesian n2_temp = Cartesian::CrossProduct(pmm,n1);
-             n1 = Cartesian::CrossProduct(pmm,n2_temp);
+             Cartesian n2_temp = Cartesian::CrossProduct(pmm,norm1);
+             norm1 = Cartesian::CrossProduct(pmm,n2_temp);
            } else if(l==(*mna).end()-1&&l>=(*mna).begin()+1) {
              Cartesian pmm = pos - posm1;
              pmm.normalize();
-             Cartesian n2_temp = Cartesian::CrossProduct(pmm,n1);
-             n1 = Cartesian::CrossProduct(pmm,n2_temp);
+             Cartesian n2_temp = Cartesian::CrossProduct(pmm,norm1);
+             norm1 = Cartesian::CrossProduct(pmm,n2_temp);
            }
-           //if(n1_ctrlpoints.size()>0&&Cartesian::DotProduct(n1,n1_ctrlpoints.back())<0.0)
-           n1_ctrlpoints.push_back(n1);
+           //if(n1_ctrlpoints.size()>0&&Cartesian::DotProduct(norm1,n1_ctrlpoints.back())<0.0)
+           n1_ctrlpoints.push_back(norm1);
            ctrlpoints.push_back(pos);
 	   //near_atom = (n1_cart + c2_cart + n3_cart + c4_cart + c5_cart + c6_cart)/6.0;
 	   //at_to_near = near_atom-pos;
@@ -509,9 +703,9 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
         }else if(l==(*mna).end()-1){
           n1_ctrlpoints.push_back(n1_ctrlpoints.back());
 
-          if(Cartesian::DotProduct(n1,n1_ctrlpoints.back())<0.0)
-            n1 = -n1;
-          n1_ctrlpoints.push_back(n1);
+          if(Cartesian::DotProduct(norm1,n1_ctrlpoints.back())<0.0)
+            norm1 = -norm1;
+          n1_ctrlpoints.push_back(norm1);
 
           n1_ctrlpoints.back().normalize();
 
@@ -944,19 +1138,75 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
         n2_spline.push_back(n2_spline.back());
       }
 
+      //std::cout << "Spline points: " << spline.size() << "\n";
+      //std::cout << "First spline point: " << spline[0] << "\n";
       if(next_atoms[ichain]>0&&int(ctrlpoints.size())>next_atoms[ichain]+1){
-
          spline.resize((ctrlpoints.size()-1-next_atoms[ichain])*spline_accu+1);
+         //std::cout << ctrlpoints[ctrlpoints.size()-1-next_atoms[ichain]] << "\n";
          n1_spline.resize((ctrlpoints.size()-1-next_atoms[ichain])*spline_accu+1);
          n2_spline.resize((ctrlpoints.size()-1-next_atoms[ichain])*spline_accu+1);
-	 //splineinfo.secstr_indices.back().back().push_back(splineinfo.secstr_indices.back().back().back());
+         //std::cout << "This(End): " << ctrlpoints[ctrlpoints.size()-1-next_atoms[ichain]] << "\n";
+         //std::cout << "Previous(End): " << ctrlpoints[ctrlpoints.size()-2-next_atoms[ichain]] << "\n";
+         //std::cout << "Next(Begin): " << ctrlpoints[ctrlpoints.size()-next_atoms[ichain]] << "\n";
+         //std::cout << "This(N): " << n1_ctrlpoints[ctrlpoints.size()-1-next_atoms[ichain]] << "\n";
+         //std::cout << "Next(N): " << n1_ctrlpoints[ctrlpoints.size()-next_atoms[ichain]] << "\n";
+         if((!flatten_loop)&&ctrlpoints.size()>3){
+           spline[spline.size()-1] = ctrlpoints[ctrlpoints.size()-1-next_atoms[ichain]];
+           n1_spline[spline.size()-1] = n1_ctrlpoints[ctrlpoints.size()-1-next_atoms[ichain]];
+           if(Cartesian::DotProduct(n1_spline[spline.size()-2],n1_spline[spline.size()-1])<0.0)
+             n1_spline[spline.size()-1] = -n1_spline[spline.size()-1];
+	   Cartesian diff = ctrlpoints[ctrlpoints.size()-1-next_atoms[ichain]+1]-ctrlpoints[ctrlpoints.size()-2-next_atoms[ichain]];
+           diff.normalize();
+           n2_spline[spline.size()-1] = Cartesian::CrossProduct(diff,n1_spline[spline.size()-1]);
+           if(Cartesian::DotProduct(n2_spline[spline.size()-2],n2_spline[spline.size()-1])<0.0)
+             n2_spline[spline.size()-1] = -n2_spline[spline.size()-1];
+         }
+         //std::cout << "End: " << n1_spline[spline.size()-1] << "\n";
 
       }
+      //std::cout << "Spline(2) points: " << spline.size() << "\n";
+      //std::cout << "First spline point: " << spline[0] << "\n";
       if(prev_atoms[ichain]>0&&(int)spline.size()>=prev_atoms[ichain]*spline_accu&&(int)n1_spline.size()>=prev_atoms[ichain]*spline_accu){
-         spline.erase(spline.begin(),spline.begin()+prev_atoms[ichain]*spline_accu);
-         n1_spline.erase(n1_spline.begin(),n1_spline.begin()+prev_atoms[ichain]*spline_accu);
-         n2_spline.erase(n2_spline.begin(),n2_spline.begin()+prev_atoms[ichain]*spline_accu);
+         if(flatten_loop){
+           int extraCut = 1;
+           int prev_idx = prev_atoms[ichain];
+           // Are we in a flattenned loop?
+           for(unsigned iloop=0; iloop<loop_indices.size(); iloop++){
+             int start_loop = loop_indices[iloop][0];
+             int end_loop   = loop_indices[iloop][1];
+             if(prev_idx>=start_loop&&prev_idx<=end_loop){
+               //std::cout << prev_idx << " in loop " << start_loop << ", " << end_loop << "\n";
+               extraCut = 0;
+               break;
+             }
+           }
+           spline.erase(spline.begin(),spline.begin()+prev_atoms[ichain]*spline_accu+extraCut);
+           n1_spline.erase(n1_spline.begin(),n1_spline.begin()+prev_atoms[ichain]*spline_accu+extraCut);
+           n2_spline.erase(n2_spline.begin(),n2_spline.begin()+prev_atoms[ichain]*spline_accu+extraCut);
+         }else{
+           spline.erase(spline.begin(),spline.begin()+prev_atoms[ichain]*spline_accu+1);
+           n1_spline.erase(n1_spline.begin(),n1_spline.begin()+prev_atoms[ichain]*spline_accu+1);
+           n2_spline.erase(n2_spline.begin(),n2_spline.begin()+prev_atoms[ichain]*spline_accu+1);
+         }
+         //std::cout << "This(Begin): " << ctrlpoints[prev_atoms[ichain]] << "\n";
+         //std::cout << "Previous(Begin): " << ctrlpoints[prev_atoms[ichain]-1] << "\n";
+         //std::cout << "This(N): " << n1_ctrlpoints[prev_atoms[ichain]] << "\n";
+         if((!flatten_loop)&&ctrlpoints.size()>3&&prev_atoms[ichain]+1<ctrlpoints.size()){
+           Cartesian diff = ctrlpoints[prev_atoms[ichain]+1] - ctrlpoints[prev_atoms[ichain]-1];
+           n1_spline[0] = n1_ctrlpoints[prev_atoms[ichain]];
+           if(Cartesian::DotProduct(n1_spline[0],n1_spline[1])<0.0)
+             n1_spline[0] = -n1_spline[0];
+           diff.normalize();
+           n2_spline[0] = Cartesian::CrossProduct(diff,n1_spline[0]);
+           if(Cartesian::DotProduct(n2_spline[0],n2_spline[1])<0.0)
+             n2_spline[0] = -n2_spline[0];
+         }
+         //std::cout << "Previous(N): " << n1_ctrlpoints[prev_atoms[ichain]-1] << "\n";
+         //std::cout << "Begin: " << n1_spline[0] << "\n";
       }
+      //std::cout << "Spline(3) points: " << spline.size() << "\n";
+      //std::cout << "First spline point: " << spline[0] << "\n";
+      //std::cout << "Last spline point: " << spline[spline.size()-1] << "\n";
 
       //std::cout << spline.size() << " " << n1_spline.size() << " " << n2_spline.size() << "\n";
       //std::cout << "first spline point: " <<  spline[0] << "\n";
@@ -970,17 +1220,22 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
       // probably because not all vectors are the same length
       // SJM 19/08/05
       // YES? - If we extend n1 and n2 as well? 
+      /*
       if (spline.size()>0 && (*m).size()>1 && next_atoms[ichain]<1){
         spline.push_back(AtToCart((*m)[(*m).size()-1]));
         n1_spline.push_back(n1_spline.back());
         n2_spline.push_back(n2_spline.back());
-      }
+      }*/
+      //std::cout << "Last spline point: " << spline[spline.size()-1] << "\n";
       //std::cout << "First spline point: " << spline[0] << "\n";
       //std::cout << "First control point: " << AtToCart((*m)[prev_atoms[ichain]]) << "\n";
       if(spline.size()>0&&n1_spline.size()>0&&n2_spline.size()>0&&(spline[0]-AtToCart((*m)[prev_atoms[ichain]])).length()>1e-3){
+        //std::cout << "Inserting at beginning\n";
+        if(!flatten_loop){
         spline.insert(spline.begin(),AtToCart((*m)[prev_atoms[ichain]]));
         n1_spline.insert(n1_spline.begin(),n1_spline[0]);
         n2_spline.insert(n2_spline.begin(),n2_spline[0]);
+        }
       }
       //std::cout << "Extended\n"; std::cout.flush();
 
@@ -990,7 +1245,7 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
       if(ctrlpoints.size()>0){
       for(unsigned int ii=0;ii<ctrlpoints.size()-1;ii++){
 	double length = (ctrlpoints[ii+1]-ctrlpoints[ii]).length();
-	if(length>8.0){
+	if(length>15.0){
           std::cout << "Potentially bad CA-CA distance" << length << "\n";
           std::cout << "Most likely due to beta-sheet flattening" << length << "\n";
         }
@@ -1016,6 +1271,9 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
   }
 
   // Clean up the selection handle 
+  molH->DeleteSelection(CALocAselHnd);
+  molH->DeleteSelection(CALocBselHnd);
+  molH->DeleteSelection(CALocCselHnd);
   molH->DeleteSelection(CAselHnd);
   molH->DeleteSelection(atom_selHnd);
 

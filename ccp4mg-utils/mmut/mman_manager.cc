@@ -1,6 +1,7 @@
 /*
      mmut/mman_manager.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -481,6 +482,7 @@ int CMMANManager::GetAtomHBondType1(PCAtom p_atom) {
   int atomOrd;
   std::string name;
   p_atom->GetUDData(udd_atomEnergyType, atomOrd);
+  if(atomOrd<0) return HBTYPE_UNKNOWN;
   //name = AtomLabel(p_atom);
   return p_sbase->libAtom[atomOrd].hbType;
 }
@@ -917,11 +919,13 @@ int CMMANManager::TestBonding ( PCAtom patom1, PCAtom patom2, int max ) {
         hbtype1 = GetAtomHBondType1(patom1);
         hbtype2 = GetAtomHBondType1(patom2);
         //cout << "hbtypes " << hbtype1 << " " << hbtype2 << endl;
+        if (hbtype1!=HBTYPE_UNKNOWN&&hbtype2!=HBTYPE_UNKNOWN){
         if ( hbtype1 >= HBTYPE_HYDROGEN && hbtype2 >= HBTYPE_HYDROGEN ) {
           if ( (hbtype1 <= HBTYPE_BOTH && hbtype2 >= HBTYPE_BOTH) ||
 	        (hbtype2 <= HBTYPE_BOTH && hbtype1 >= HBTYPE_BOTH) ) 
             ret = 5;
         }
+       }
       }
     }
   }
@@ -1194,6 +1198,14 @@ int CMMANManager::GenerateTransformedModel(int model,realtype *vmat) {
 
   new_model =  CopyModel(model);
   p_model = GetModel(new_model);
+  if (!p_model) {
+    if(GetNumberOfModels()>0){
+        p_model = GetModel(1);
+        if (!p_model) {
+	  return -1;
+        }
+      }
+  }
   int kk = 0;
   for (int ii = 0;ii<4;ii++) {
     for (int jj = 0;jj<4;jj++) {
@@ -1210,6 +1222,17 @@ int CMMANManager::ApplyTransformtoModel(int model,realtype *vmat,Boolean undo) {
 //------------------------------------------------------------------------
   mat44 TMatrix,invTMatrix;
   PCModel p_model = GetModel(model);
+  //std::cout << "model num: " << model << "\n";
+  //std::cout << "model: " << p_model << "\n";
+  //std::cout << "number of models: " << GetNumberOfModels() << "\n";
+  if (!p_model) {
+    if(GetNumberOfModels()>0){
+        p_model = GetModel(1);
+        if (!p_model) {
+	  return 1;
+        }
+      }
+  }
   int kk = 0;
   for (int ii = 0;ii<4;ii++) {
     for (int jj = 0;jj<4;jj++) {
@@ -1217,7 +1240,7 @@ int CMMANManager::ApplyTransformtoModel(int model,realtype *vmat,Boolean undo) {
       kk++;
     }
   }
-
+  
   if (undo) {
     Mat4Inverse (TMatrix,invTMatrix);
     p_model->ApplyTransform (invTMatrix);
@@ -1230,15 +1253,35 @@ int CMMANManager::ApplyTransformtoModel(int model,realtype *vmat,Boolean undo) {
 int CMMANManager::GetLibTMatrix(mat44 &TMatrix,int nsym,int i,int j,int k) {
 //------------------------------------------------------------------------
   CSymOps SymOps;
-  mat44 transmat,rotmat;
+  //mat44 transmat,rotmat;
+  int rv = 0;
   //cout << "GetLibTMatrix " << nsym << " " << i << " " << j << " " << k << endl;
+  
+  /*
+  This uses symops from syminfo but does not seem to get the translation
+  component correct
   SymOps.SetGroup(GetSpaceGroup());
-  int rv = SymOps.GetTMatrix(rotmat,nsym);
-  GetTMatrix(transmat,0,i,j,k);
-  Mat4Mult(TMatrix,rotmat,transmat);
+  cout << "GetLibTMatrix SymOps " << SymOps.GetSymOp(nsym) <<endl;
+  rv = SymOps.GetTMatrix(rotmat,nsym);
+
+  GetTMatrix(transmat,0,i,j,k);  
+  cout << "transmat" << endl;
+  for (int ii=0;ii<4;ii++) 
+    cout << transmat[0][ii] << " " <<  transmat[1][ii] << " "  << transmat[2][ii] << " " << transmat[3][ii] << endl;
+  Mat4Mult(TMatrix,transmat,rotmat);
+  */
+  
+  
+  GetTMatrix(TMatrix,nsym,i,j,k);
+  /* cout << "Tmatrix" << endl;
+  for (int ii=0;ii<4;ii++) 
+    cout << TMatrix[0][ii] << " " <<  TMatrix[1][ii] << " "  << TMatrix[2][ii] << " " << TMatrix[3][ii] << endl;
+  */
+  rv = 0;
+  
+
   return rv;
 }
-  
 
 //------------------------------------------------------------------------
 int CMMANManager::GenerateSymmetryModel(int model,int nsym,int i,int j,int k) {
@@ -1250,6 +1293,9 @@ int CMMANManager::GenerateSymmetryModel(int model,int nsym,int i,int j,int k) {
 
   new_model =  CopyModel(model);
   p_model = GetModel(new_model);
+  if (!p_model) {
+	  return -1;
+  }
   GetLibTMatrix(TMatrix,nsym,i,j,k);
   p_model->ApplyTransform (TMatrix);
   return new_model;
@@ -1326,7 +1372,7 @@ int CMMANManager::CopyModel(int model) {
   new_model->Copy(GetModel(model));
   AddModel(new_model);
   PDBCleanup(PDBCLEAN_SERIAL);
-  //cout << "serNum " << new_model->GetSerNum();
+  //cout << "CopyModel serNum " << new_model->GetSerNum() <<endl;
 
   // Copy atom types and bonds
   int selHnd1,selHnd2;
@@ -1339,18 +1385,19 @@ int CMMANManager::CopyModel(int model) {
   selHnd1 = NewSelection();
   selHnd2 = NewSelection();
 
-  // Copy residue UDD
   Select(selHnd1,STYPE_RESIDUE,model,"*",ANY_RES, 
        "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
   Select(selHnd2,STYPE_RESIDUE,new_model->GetSerNum(),"*",ANY_RES, 
        "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
   GetSelIndex(selHnd1, p_res1, nat1);
   GetSelIndex(selHnd2, p_res2, nat2);
+  // Copy residue UDD
   for ( int ia=0;ia<nat1;ia++) {
     p_res1[ia]->GetUDData(udd_sbaseCompoundID, eType);
     RC = p_res2[ia]->PutUDData(udd_sbaseCompoundID, eType);
   }  
 
+  // Copy atom UDD
   Select(selHnd1,STYPE_ATOM,model,"*",ANY_RES, 
        "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
   Select(selHnd2,STYPE_ATOM,new_model->GetSerNum(),"*",ANY_RES, 
@@ -1406,8 +1453,10 @@ int CMMANManager::CopyModel(int model) {
       //cout << endl;
     }
   }
+  //cout << "CopyModel before DeleteSelection" << endl;
   DeleteSelection(selHnd1);
   DeleteSelection(selHnd2);
+  //cout << "CopyModel after DeleteSelection" << endl;
 
   return GetNumberOfModels();
   
@@ -1665,12 +1714,13 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
   int iser1,iser2;
   int ndel = 0;
 
+
   tmpHnd1 = NewSelection();
   tmpHnd2 = NewSelection();
-
   int nmodels = GetNumberOfModels();
   for(int imodel=1;imodel<=nmodels;imodel++){
  
+
     // Copy the selection
     Select(tmpHnd1,STYPE_ATOM,imodel,"*", ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
     Select(tmpHnd1,STYPE_ATOM,selHnd,SKEY_AND);
@@ -1694,12 +1744,12 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
       for (int i=0;i<ncontacts;i++) {
         iser1 = selAtoms1[contacts[i].id1]->serNum;
         iser2 = selAtoms2[contacts[i].id2]->serNum;
-        // cout << i << "(" << ncontacts << ")" << ", iser1,iser2 " << iser1 << " " << iser2 << endl;
+        //cout << i << "(" << ncontacts << ")" << ", iser1,iser2 " << iser1 << " " << iser2 << endl;
         // Arbitrarilly exclude the atom with higher serial number
         // beware each contact listed twice
         if ( iser1 > iser2 ) {
           iser2 = iser1;
-          SelectAtoms(selHnd,iser1,iser2,SKEY_XOR);
+          SelectAtoms(selHnd,iser1,iser2,SKEY_CLR);
           ndel++;
         }
       } }
@@ -1911,7 +1961,9 @@ int CMMANManager::TransformToSuperposeAtoms (  PPCAtom A1, int nA, PPCAtom A2) {
   This method avoids need to pass a mat44 to Python
   */
   mat44 TMatrix;
+  //cout << "TransformToSuperposeAtoms nA " << nA << endl;
   int rv = SuperposeAtoms ( TMatrix, A1, nA, A2 );
+  //cout << "TransformToSuperposeAtoms rv " << rv <<  endl;
   if (rv == SPOSEAT_Ok) {
     SetTransform (TMatrix,0);
   }
@@ -1946,131 +1998,21 @@ double CMMANManager::DeltaResidueOrientation (PCResidue pRes,PCResidue pResFx) {
 }
 
 //------------------------------------------------------------------------
-int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd, 
-         int fxSelHnd , realtype central_cutoff, realtype cutoff ,
-         int mvSuperposeHnd,int fxSuperposeHnd ) {
+double CMMANManager::AtomicRMSDistance( PPCAtom A1, int nA, PPCAtom A2) {
 //------------------------------------------------------------------------
-  PPCAtom fxSelAtoms = NULL;
-  int fxNAtoms;
-  int fxResHnd;
-  PPCResidue fxRes = NULL;
-  int fxNRes;
+  double dd,ddtot = 0.0;
 
-  // Max possible number of superposed atoms
-  fxMolHnd->GetSelIndex(fxSelHnd,fxSelAtoms,fxNAtoms);
-  if (fxNAtoms<=0) return -1;
-
-  
-  //Get list of target residues
-  fxResHnd = fxMolHnd->NewSelection();
-  fxMolHnd->Select(fxResHnd,STYPE_RESIDUE,fxSelHnd,SKEY_NEW);
-  fxMolHnd->GetSelIndex(fxResHnd,fxRes,fxNRes);
-  //cout << "fxNAtoms,fxNRes " << fxNAtoms << " " << fxNRes << endl;
-  if (fxNRes<=0) {
-    fxMolHnd->DeleteSelection(fxResHnd);
-    return -1;
-  }
- 
-  // Create selection of atoms that will be superposed
-  //mvSuperposeHnd = NewSelection();
-  //fxSuperposeHnd = fxMolHnd->NewSelection();
-  PPCAtom fxSuperpose = NULL;
-  PPCAtom mvSuperpose = NULL;
-  int fxNSuperpose,mvNSuperpose;
-
-
-  //Get the 'central' atoms in the moving model
-  int centralHnd = NewSelection();
-  PPCAtom centralAtoms;
-  int centralNAtoms;
-  Select(centralHnd,STYPE_ATOM,0,"*",ANY_RES,
-       "*",ANY_RES, "*","*","CA","C","*",SKEY_NEW);
-  GetSelIndex(centralHnd,centralAtoms,centralNAtoms);
-  //cout << "centralNAtoms " << centralNAtoms << endl;
-
-  // Loop over residues in fixed model
-
-  PCAtom pCentralAtom;
-  PCResidue closeRes;
-  PCAtom fxAtom,closeAtom;
-  int ncontacts,best_match;
-  double score,best_score;
-
-  for (int ir=0; ir<fxNRes; ir++) {
-    // Find the 'central' atoms in moving object that
-    // are close to the central atom of fixed residue
-    // -- there should just be one!
-
-    pCentralAtom = fxRes[ir]->GetAtom("CA","*","*");
-    if (pCentralAtom) {
-      PSContact contact= NULL;
-      ncontacts = 0;
-      SeekContacts (pCentralAtom,centralAtoms,centralNAtoms,
-		    0.0, central_cutoff,0,contact,ncontacts,-1);
-      best_match=-1;
-      best_score=central_cutoff;
-      if (ncontacts ==1 ) {
-        best_match=0;
-      } else if (ncontacts>1) {
-        //cout <<  pCentralAtom->residue->seqNum << "ncontacts " << ncontacts << endl;
-      
-        for (int nc=0;nc<ncontacts;nc++) {
-          score=contact[nc].dist -
-           DeltaResidueOrientation(centralAtoms[contact[nc].id2]->residue,fxRes[ir]);
-          if(score<best_score && score <central_cutoff-1.5 ) {
-            best_score=score;
-            best_match=nc;
-          }
-        }
-        //cout << "best " << best_match << " " << best_score << endl;
-      }
-      
-
-      // -- there should be just one close residue!
-      if (best_match >=0 ) {
-        closeRes = centralAtoms[contact[best_match].id2]->residue;
-        // Loop over atoms in the fixed residue
-        // Is the atom in the original selection 
-        for (int ia=0;ia<fxRes[ir]->GetNumberOfAtoms();ia++) {
-          fxAtom = fxRes[ir]->GetAtom(ia);
-          if ( fxAtom && fxAtom->isInSelection(fxSelHnd) ) {
-	    // Is there an atom with same name in the close moving residue
-	     closeAtom= closeRes->GetAtom(fxAtom->name,fxAtom->element,"*");
-             if ( closeAtom && BondLength(fxAtom,closeAtom)<=cutoff) {
-               SelectAtoms(mvSuperposeHnd,closeAtom->serNum,closeAtom->serNum,SKEY_OR);
-               fxMolHnd->SelectAtoms(fxSuperposeHnd,fxAtom->serNum,fxAtom->serNum,SKEY_OR);
-               
-             }
-          }
-        }
-      }
-      if (contact) delete contact;
+  for (int n=0;n<nA;n++) {
+    dd =  (A1[n]->x-A2[n]->x)*(A1[n]->x-A2[n]->x) +  
+          (A1[n]->y-A2[n]->y)*(A1[n]->y-A2[n]->y) + 
+          (A1[n]->z-A2[n]->z)*(A1[n]->z-A2[n]->z);
+    //cout << n << " " << dd << endl;
+    ddtot = ddtot+dd;
     }
-  }
+  ddtot = sqrt(ddtot/nA);
+  return ddtot;
+    }
 
-  // Cleanup
-  fxMolHnd->DeleteSelection(fxResHnd);
-  DeleteSelection(centralHnd);
-
-
-  //Get the list of selected atoms to superpose and do the
-  // superposition and transform
-  GetSelIndex(mvSuperposeHnd,mvSuperpose,mvNSuperpose);
-  fxMolHnd->GetSelIndex(fxSuperposeHnd,fxSuperpose,fxNSuperpose);
-  //cout << "mvNSuperpose,fxNSuperpose " << mvNSuperpose << " " << fxNSuperpose << endl;
-
-  if (mvNSuperpose != fxNSuperpose ) {
-    return -2;
-  } else if ( mvNSuperpose<3 ) {
-    return -3;
-  }
-  int rv = TransformToSuperposeAtoms(mvSuperpose,mvNSuperpose,fxSuperpose);
-  if (rv != SPOSEAT_Ok) {
-   return -4;  
-  } else {
-    return mvNSuperpose;
-  }
-}
 
 int CMMANManager::CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel) {
   /*
@@ -2248,4 +2190,132 @@ std::string CMMANManager::PrintSecStructure (void) {
     }
     output << std::endl; 
     return output.str();
+}
+
+
+//------------------------------------------------------------------------
+int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd, 
+         int fxSelHnd , realtype central_cutoff, realtype cutoff ,
+         int mvSuperposeHnd,int fxSuperposeHnd ) {
+//------------------------------------------------------------------------
+  PPCAtom fxSelAtoms = NULL;
+  int fxNAtoms;
+  int fxResHnd;
+  PPCResidue fxRes = NULL;
+  int fxNRes;
+
+  // Max possible number of superposed atoms
+  fxMolHnd->GetSelIndex(fxSelHnd,fxSelAtoms,fxNAtoms);
+  if (fxNAtoms<=0) return -1;
+
+  
+  //Get list of target residues
+  fxResHnd = fxMolHnd->NewSelection();
+  fxMolHnd->Select(fxResHnd,STYPE_RESIDUE,fxSelHnd,SKEY_NEW);
+  fxMolHnd->GetSelIndex(fxResHnd,fxRes,fxNRes);
+  //cout << "fxNAtoms,fxNRes " << fxNAtoms << " " << fxNRes << endl;
+  if (fxNRes<=0) {
+    fxMolHnd->DeleteSelection(fxResHnd);
+    return -1;
+  }
+ 
+  // Create selection of atoms that will be superposed
+  //mvSuperposeHnd = NewSelection();
+  //fxSuperposeHnd = fxMolHnd->NewSelection();
+  PPCAtom fxSuperpose = NULL;
+  PPCAtom mvSuperpose = NULL;
+  int fxNSuperpose,mvNSuperpose;
+
+
+  //Get the 'central' atoms in the moving model
+  int centralHnd = NewSelection();
+  PPCAtom centralAtoms;
+  int centralNAtoms;
+  Select(centralHnd,STYPE_ATOM,0,"*",ANY_RES,
+       "*",ANY_RES, "*","*","CA","C","*",SKEY_NEW);
+  GetSelIndex(centralHnd,centralAtoms,centralNAtoms);
+  //cout << "centralNAtoms " << centralNAtoms << endl;
+
+  // Loop over residues in fixed model
+
+  PCAtom pCentralAtom;
+  PCResidue closeRes;
+  PCAtom fxAtom,closeAtom;
+  int ncontacts,best_match;
+  double score,best_score;
+
+  for (int ir=0; ir<fxNRes; ir++) {
+    // Find the 'central' atoms in moving object that
+    // are close to the central atom of fixed residue
+    // -- there should just be one!
+
+    pCentralAtom = fxRes[ir]->GetAtom("CA","*","*");
+    if (pCentralAtom) {
+      PSContact contact= NULL;
+      ncontacts = 0;
+      SeekContacts (pCentralAtom,centralAtoms,centralNAtoms,
+		    0.0, central_cutoff,0,contact,ncontacts,-1);
+      best_match=-1;
+      best_score=central_cutoff;
+      if (ncontacts ==1 ) {
+        best_match=0;
+      } else if (ncontacts>1) {
+        //cout <<  pCentralAtom->residue->seqNum << "ncontacts " << ncontacts << endl;
+      
+        for (int nc=0;nc<ncontacts;nc++) {
+          score=contact[nc].dist -
+           DeltaResidueOrientation(centralAtoms[contact[nc].id2]->residue,fxRes[ir]);
+          if(score<best_score && score <central_cutoff-1.5 ) {
+            best_score=score;
+            best_match=nc;
+          }
+        }
+        //cout << "best " << best_match << " " << best_score << endl;
+      }
+      
+
+      // -- there should be just one close residue!
+      if (best_match >=0 ) {
+        closeRes = centralAtoms[contact[best_match].id2]->residue;
+        // Loop over atoms in the fixed residue
+        // Is the atom in the original selection 
+        for (int ia=0;ia<fxRes[ir]->GetNumberOfAtoms();ia++) {
+          fxAtom = fxRes[ir]->GetAtom(ia);
+          if ( fxAtom && fxAtom->isInSelection(fxSelHnd) ) {
+	    // Is there an atom with same name in the close moving residue
+	     closeAtom= closeRes->GetAtom(fxAtom->name,fxAtom->element,"*");
+             if ( closeAtom && BondLength(fxAtom,closeAtom)<=cutoff) {
+               SelectAtoms(mvSuperposeHnd,closeAtom->serNum,closeAtom->serNum,SKEY_OR);
+               fxMolHnd->SelectAtoms(fxSuperposeHnd,fxAtom->serNum,fxAtom->serNum,SKEY_OR);
+               
+             }
+          }
+        }
+      }
+      if (contact) delete contact;
+    }
+  }
+
+  // Cleanup
+  fxMolHnd->DeleteSelection(fxResHnd);
+  DeleteSelection(centralHnd);
+
+
+  //Get the list of selected atoms to superpose and do the
+  // superposition and transform
+  GetSelIndex(mvSuperposeHnd,mvSuperpose,mvNSuperpose);
+  fxMolHnd->GetSelIndex(fxSuperposeHnd,fxSuperpose,fxNSuperpose);
+  //cout << "mvNSuperpose,fxNSuperpose " << mvNSuperpose << " " << fxNSuperpose << endl;
+
+  if (mvNSuperpose != fxNSuperpose ) {
+    return -2;
+  } else if ( mvNSuperpose<3 ) {
+    return -3;
+  }
+  int rv = TransformToSuperposeAtoms(mvSuperpose,mvNSuperpose,fxSuperpose);
+  if (rv != SPOSEAT_Ok) {
+   return -4;  
+  } else {
+    return mvNSuperpose;
+  }
 }

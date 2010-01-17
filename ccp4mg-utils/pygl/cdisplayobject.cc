@@ -1,6 +1,7 @@
 /*
      pygl/cdisplayobject.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -82,7 +83,7 @@ const std::vector<SimpleText*> &Displayobject::GetTextPrimitives() const {
 
 void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int acsize, double xoff, double yoff, std::vector<std::vector<double> > jarray, std::vector<Cartesian> axes, bool antialias, bool rebuilt){
 
-  //clock_t t1 = clock();
+  clock_t t1 = clock();
   Volume clip_vol = GetFrontAndBackClippingPlanes();
 
   glEnable(GL_LIGHTING);
@@ -140,8 +141,8 @@ void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int
     obj_iter++; i++;
   }
   }
-  //clock_t t4 = clock();
-  //std::cout << "Time for GetPrimitives" << ((t4-t3)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+  clock_t t4 = clock();
+  std::cout << "Time for GetPrimitives" << ((t4-t3)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
   i=0;
   obj_iter = objs.begin();
   while(obj_iter!=objs.end()){
@@ -160,11 +161,11 @@ void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int
     obj_iter++; i++;
   }
 
-  //clock_t t5 = clock();
-  //std::cout << "Time for setup sort" << ((t5-t4)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+  clock_t t5 = clock();
+  std::cout << "Time for setup sort" << ((t5-t4)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
   std::sort(transformed_prims.begin(),transformed_prims.end(),sort_primitives());
-  //clock_t t6 = clock();
-  //std::cout << "Time for sort" << ((t6-t5)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+  clock_t t6 = clock();
+  std::cout << "Time for sort" << ((t6-t5)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
 
   std::vector<struct ZSortPrimitive>::iterator k = transformed_prims.begin();
   glPolygonMode(GL_FRONT,GL_FILL);
@@ -187,9 +188,9 @@ void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int
       }
       k++;
   }
-  //clock_t t7 = clock();
-  //std::cout << "Time for draw" << ((t7-t6)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
-  //std::cout << "Time for transparency" << ((t7-t1)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+  clock_t t7 = clock();
+  std::cout << "Time for draw" << ((t7-t6)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+  std::cout << "Time for transparency" << ((t7-t1)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
   glDepthMask(GL_TRUE);
 
 }
@@ -803,10 +804,8 @@ void Displayobject::move_origin(const Cartesian &origin_in){
 
 
 void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, double oy, double oz){
-#ifdef __APPLE_CC__
-  //GLboolean clip_test = glIsEnabled(GL_CLIP_PLANE0);
+  GLboolean clip_test = glIsEnabled(GL_CLIP_PLANE0);
   Volume v = GetClippingPlanes();
-#endif
 
   GLdouble projMatrix[16];
   glGetDoublev(GL_PROJECTION_MATRIX,projMatrix);
@@ -826,26 +825,35 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
   GLdouble* matinv = (GLdouble*)quat_in.getInvMatrix().to_dp();
   std::vector<SimpleText*>::const_iterator k = text_prims.begin();
 
+  GLfloat params[4];
+  glGetFloatv(GL_COLOR_CLEAR_VALUE,params);
+  GLdouble y = params[0]*0.299 + params[1]*0.587 + params[2]*0.114;
+
+  glColor4f(1.0,1.0,1.0,1.0);
   //if(k!=text_prims.end()) (*k)->SetDefaultColour();
+  if(k!=text_prims.end()){
+     if(clip_test){
+        if((*k)->IsBillBoard()){
+           glDisable(GL_CLIP_PLANE0);
+           glDisable(GL_CLIP_PLANE1);
+         } else {
+           glEnable(GL_CLIP_PLANE0);
+           glEnable(GL_CLIP_PLANE1);
+         }
+      }
+  }
   while(k!=text_prims.end()){
     if(!(*k)->isMultiColoured()){
-#ifdef __APPLE_CC__
-    //if(clip_test){
-      //if((*k)->IsBillBoard()||(v.PointInVolume(get_rotation_matrix()*((*k)->GetVertices()[0]+origin)))){
-        //glDisable(GL_CLIP_PLANE0);
-        //glDisable(GL_CLIP_PLANE1);
-        //(*k)->draw();
-        //glEnable(GL_CLIP_PLANE0);
-        //glEnable(GL_CLIP_PLANE1);
-      //}
-    //}else{
-#endif
       glPushMatrix();
       Cartesian v = (*k)->GetVertices()[0]; 
       glTranslatef(v.get_x(),v.get_y(),v.get_z());
       glMultMatrixd(matinv);
       if( (*k)->GetTextureID()==0) (*k)->initialize();
-      glBindTexture( GL_TEXTURE_2D, (*k)->GetTextureID() );
+      if(y<0.5)
+        glBindTexture( GL_TEXTURE_2D, (*k)->GetTextureID() );
+      else
+        glBindTexture( GL_TEXTURE_2D, (*k)->GetTextureID_B() );
+      //glBindTexture( GL_TEXTURE_2D, (*k)->GetTextureID() );
       double pix_w= (*k)->GetTexture().get_width();
       double pix_h= (*k)->GetTexture().get_height();
       double size = fabs(win_h*pix_h/view_h*radius/60.0);
@@ -872,9 +880,6 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
   }
 
   glColor4f(1.0,1.0,1.0,1.0);
-  GLfloat params[4];
-  glGetFloatv(GL_COLOR_CLEAR_VALUE,params);
-  GLdouble y = params[0]*0.299 + params[1]*0.587 + params[2]*0.114;
   k = text_prims.begin();
   while(k!=text_prims.end()){
     if((*k)->isMultiColoured()){
@@ -885,6 +890,12 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
         glBindTexture( GL_TEXTURE_2D, (*k)->GetTextureID_B() );
       glPushMatrix();
       Cartesian v = (*k)->GetVertices()[0]; 
+      double x_cent_off = 0;
+      double y_cent_off = 0;
+      if((*k)->GetCentered()){
+         x_cent_off = -fabs(win_h*(*k)->GetTextWidth()/view_h*radius/60.0);
+         y_cent_off = -fabs(win_h*(*k)->GetTextHeight()/2.0/view_h*radius/60.0);
+      }
       double pix_w= (*k)->GetTexture().get_width();
       double pix_h= (*k)->GetTexture().get_height();
       double size = fabs(win_h*pix_h/view_h*radius/60.0);
@@ -905,13 +916,13 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
       //glDisable(GL_TEXTURE_2D); glColor4f(0,0,0,1);
       glBegin(GL_QUADS);
       glTexCoord2f(0,0);
-      glVertex3f(0,size_offset,0);
+      glVertex3f(x_cent_off,y_cent_off+size_offset,0);
       glTexCoord2f(1,0);
-      glVertex3f(2*size*ratio,size_offset,0);
+      glVertex3f(x_cent_off+2*size*ratio,y_cent_off+size_offset,0);
       glTexCoord2f(1,1);
-      glVertex3f(2*size*ratio,2*size+size_offset,0);
+      glVertex3f(x_cent_off+2*size*ratio,y_cent_off+2*size+size_offset,0);
       glTexCoord2f(0,1);
-      glVertex3f(0,2*size+size_offset,0);
+      glVertex3f(x_cent_off,y_cent_off+2*size+size_offset,0);
       //(*k)->draw();
       glEnd();
       glPopMatrix();
@@ -919,12 +930,10 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
     k++;
   }
   delete [] matinv;
-#ifdef __APPLE_CC__
-  //if(clip_test){
-    //glEnable(GL_CLIP_PLANE0);
-    //glEnable(GL_CLIP_PLANE1);
-  //}
-#endif
+  if(clip_test){
+    glEnable(GL_CLIP_PLANE0);
+    glEnable(GL_CLIP_PLANE1);
+  }
 }
 
 void Displayobject::draw_images(void){
@@ -1025,6 +1034,64 @@ void Displayobject::set_transparent(int trans){
     (*k)->SetAlpha(alpha);
     k++;
   }
+}
+
+void Displayobject::draw_prims(double *override_colour, int transparent_in, int selective_override) const {
+  GLfloat col[4];
+  GLfloat *colp=0;
+
+  glMaterialfv(GL_FRONT, GL_SPECULAR,  lighting.specular);
+  glMaterialfv(GL_FRONT, GL_EMISSION,  lighting.emission);
+  glMaterialf(GL_FRONT, GL_SHININESS, lighting.shininess);
+
+  std::vector<Primitive*>::const_iterator k;
+  k = prims.begin();
+  while(k!=prims.end()){
+    if((*k)->get_transparent()==transparent_in&&!(*k)->isLine()){
+      if(override_colour){
+        if(selective_override==0||(selective_override==1&&(*k)->GetColourOverride())){
+	  col[0] = override_colour[0];
+	  col[1] = override_colour[1];
+	  col[2] = override_colour[2];
+	  col[3] = override_colour[3];
+	  colp = col;
+        }
+      }
+      (*k)->set_draw_colour(colp);
+      (*k)->draw(override_colour, selective_override);
+    }
+    k++;
+  }
+
+}
+
+void Displayobject::draw_surf_prims(double *override_colour, int transparent_in, int selective_override) const {
+  GLfloat col[4];
+  GLfloat *colp=0;
+
+  glMaterialfv(GL_FRONT, GL_SPECULAR,  lighting.specular);
+  glMaterialfv(GL_FRONT, GL_EMISSION,  lighting.emission);
+  glMaterialf(GL_FRONT, GL_SHININESS, lighting.shininess);
+
+  std::vector<Primitive*>::const_iterator k;
+  k = surf_prims.begin();
+  while(k!=surf_prims.end()){
+    if((*k)->get_transparent()==transparent_in&&!(*k)->isLine()){
+      if(override_colour){
+        if(selective_override==0||(selective_override==1&&(*k)->GetColourOverride())){
+	  col[0] = override_colour[0];
+	  col[1] = override_colour[1];
+	  col[2] = override_colour[2];
+	  col[3] = override_colour[3];
+	  colp = col;
+        }
+      }
+      (*k)->set_draw_colour(colp);
+      (*k)->draw(override_colour, selective_override);
+    }
+    k++;
+  }
+
 }
 
 void Displayobject::draw_solids(double *override_colour, int transparent_in, int selective_override) const {

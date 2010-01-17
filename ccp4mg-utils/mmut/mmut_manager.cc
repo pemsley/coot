@@ -142,6 +142,34 @@ int CMMUTManager::NumberOfHydrogens(int selHnd){
 }
 
 //----------------------------------------------------------------------------
+int CMMUTManager::NumberOfAtoms(int selHnd) {
+//----------------------------------------------------------------------------
+
+  PPCAtom selected_atoms;
+  int natoms_sel;
+  GetSelIndex ( selHnd, selected_atoms, natoms_sel);
+
+  return natoms_sel;
+}
+
+//----------------------------------------------------------------------------
+realtype CMMUTManager::Mass(int selHnd) {
+//----------------------------------------------------------------------------
+
+  PPCAtom selected_atoms;
+  int natoms_sel;
+  GetSelIndex ( selHnd, selected_atoms, natoms_sel);
+
+  int l;
+  realtype weight = 0.0;
+  for(l=0;l<natoms_sel;l++){
+    weight += MolecWeight[getElementNo((selected_atoms[l])->element)];
+  }
+
+  return weight;
+}
+
+//----------------------------------------------------------------------------
 realtype* CMMUTManager::CentreOfMass(int selHnd) {
 //----------------------------------------------------------------------------
 
@@ -154,7 +182,6 @@ realtype* CMMUTManager::CentreOfMass(int selHnd) {
   realtype atweight;
   realtype weight;
 
-  //weight=MolWeight(selHnd);
   weight = 0.0;
   com = new realtype[3];
 
@@ -162,12 +189,46 @@ realtype* CMMUTManager::CentreOfMass(int selHnd) {
   com[1] = 0.0;
   com[2] = 0.0;
 
-  atweight = 1.0;
   for(l=0;l<natoms_sel;l++){
-    //atweight = MolecWeight[getElementNo((selected_atoms[l])->element)];
+    atweight = MolecWeight[getElementNo((selected_atoms[l])->element)];
     com[0] +=  atweight * (selected_atoms[l])->x;
     com[1] +=  atweight * (selected_atoms[l])->y;
     com[2] +=  atweight * (selected_atoms[l])->z;
+    weight += atweight;
+  }
+
+  com[0] = com[0]/weight;
+  com[1] = com[1]/weight;
+  com[2] = com[2]/weight;
+
+  return com;
+
+}
+
+//----------------------------------------------------------------------------
+realtype* CMMUTManager::CentreOfCoordinates(int selHnd) {
+//----------------------------------------------------------------------------
+
+  PPCAtom selected_atoms;
+  int natoms_sel;
+  GetSelIndex ( selHnd, selected_atoms, natoms_sel);
+
+  int l;
+  realtype *com;
+  realtype atweight;
+  realtype weight;
+
+  weight = 0.0;
+  com = new realtype[3];
+
+  com[0] = 0.0;
+  com[1] = 0.0;
+  com[2] = 0.0;
+
+  for(l=0;l<natoms_sel;l++){
+    com[0] +=  (selected_atoms[l])->x;
+    com[1] +=  (selected_atoms[l])->y;
+    com[2] +=  (selected_atoms[l])->z;
     weight += 1.0;
   }
 
@@ -178,6 +239,7 @@ realtype* CMMUTManager::CentreOfMass(int selHnd) {
   return com;
 
 }
+
 
 //-------------------------------------------------------------------------
 realtype* CMMUTManager::Extent(int selHnd) {

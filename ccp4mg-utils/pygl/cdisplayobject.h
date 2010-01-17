@@ -1,6 +1,7 @@
 /*
      pygl/cdisplayobject.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -100,6 +101,8 @@ class Displayobject{
   matrix get_rotation_matrix() const;
   void draw_lines(double *override_colour=0, int transparent=0,int selective_override=0) const ;
   void draw_solids(double *override_colour=0, int transparent=0,int selective_override=0) const ;
+  void draw_prims(double *override_colour=0, int transparent=0,int selective_override=0) const ;
+  void draw_surf_prims(double *override_colour=0, int transparent=0,int selective_override=0) const ;
   void draw(double *override_colour=0, int transparent=0,int selective_override=0) const ;
   std::vector<Primitive *> GetTransparentPrimitives();
   void draw_text(const Quat &quat_in, double radius, double ox, double oy, double oz);
@@ -162,6 +165,7 @@ class Displayobject{
   int get_transparent() const {return transparent;} ;
   int reInitializeTextPrims();
   const std::vector<Cartesian> &GetUnitCell() const {return unit_cell;};
+  const std::vector<matrix> &GetSymmetryMatrices() const {return symm_mat;};
 };
 
 void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int acsize, double xoff, double yoff, std::vector<std::vector<double> > jarray, std::vector<Cartesian> axes, bool antialias, bool rebuilt);

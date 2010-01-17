@@ -1,6 +1,7 @@
 /*
      util/mgtree.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -1741,7 +1742,7 @@ void Tree::PrintZMatrix(std::ostream &c, const std::vector<std::string> &labels,
 }
 
 TreeVertex* Tree::GetCoord(int i, bool permuted) const {
-  if(start>0&&permuted)
+  if(start>0&&(!permuted))
     return coords[permutation[i]];
   return coords[i];
 }
@@ -1822,7 +1823,7 @@ Tree::Tree(const Tree &t){
 
 std::vector <TreeVertex*> Tree::GetCoords(bool permuted) const {
 
-  if(start>0&&permuted){
+  if(start>0&&(!permuted)){
     std::vector<TreeVertex*> perm_coords;
     for(int i=0;i<GetNumberOfVertices();i++){
        perm_coords.push_back(coords[permutation[i]]);
@@ -1859,7 +1860,7 @@ std::vector<Cartesian> Tree::GetAllCartesians(bool permuted) const {
     k++;
   }
 
-  if(start>0&&permuted){
+  if(start>0&&(!permuted)){
     std::vector<Cartesian> perm_carts;
     for(int i=0;i<GetNumberOfVertices();i++){
        perm_carts.push_back(cartesians[permutation[i]]);
@@ -1874,7 +1875,7 @@ void Tree::RotateAboutBond(int atom_in, int child_in, double TorsionAngle, bool 
   int atom = atom_in;
   int child = child_in;
   
-  if(start>0&&permuted){
+  if(start>0&&(!permuted)){
     atom = permutation[atom];
     child = permutation[child];
   }
@@ -1917,7 +1918,7 @@ void Tree::SetDihedralAngle(int atom_in, int child_in, double TorsionAngle, bool
   int atom = atom_in;
   int child = child_in;
   
-  if(start>0&&permuted){
+  if(start>0&&(!permuted)){
     atom = permutation[atom];
     child = permutation[child];
   }

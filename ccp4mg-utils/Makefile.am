@@ -20,7 +20,7 @@
 
 #SUBDIRS = util mmut pygl
 
-lib_LTLIBRARIES=libccp4mg-utils.la
+#lib_LTLIBRARIES=libccp4mg-utils.la
 
 include_HEADERS = geomutil.h mgtree.h cartesian.h quat.h ppmutil.h
 

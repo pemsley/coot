@@ -1,6 +1,7 @@
 /*
      pygl/cprimitive.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -105,7 +106,7 @@ int SimpleBillBoard::GetMagnification(){
   return scale;
 }
 
-void draw_quadstrip_textured(double *vertices, int nvertices, int textured){
+void draw_quadstrip_textured(const double *vertices, int nvertices, int textured){
   int i,k=0;
   double frac=0.0;
 
@@ -127,7 +128,7 @@ void draw_quadstrip_textured(double *vertices, int nvertices, int textured){
   glDisable(GL_TEXTURE_2D);
 }
 
-void draw_quadstrip_outline(double *vertices, int nvertices){
+void draw_quadstrip_outline(const double *vertices, int nvertices){
   int i,k;
 
   k=0;
@@ -144,41 +145,6 @@ void draw_quadstrip_outline(double *vertices, int nvertices){
   glEnd();
   glPolygonMode(GL_FRONT,GL_FILL);
 
-}
-
-void draw_quadstrip(double *vertices, int nvertices, int textured){
-  int i,k;
-  Cartesian v,v1,v2;
-
-  if(textured>0){
-    draw_quadstrip_textured(vertices, nvertices, textured);
-    return;
-  }
-
-
-  k=0;
-  glBegin(GL_QUAD_STRIP);
-
-  for(i=0;i<nvertices;i++){
-
-    if(i%2 == 0){ 
-      if(i < nvertices-4){
-        v1 = Cartesian(vertices+k+9) - Cartesian(vertices+k);
-        v1 = Cartesian(vertices+k) - Cartesian(vertices+k+3);
-        v1.normalize();
-        v2.normalize();
-	v = v.CrossProduct(v1,v2);
-        v.normalize();
-      }
-    }
-
-    double *dp = v.to_dp();
-    glNormal3dv(dp);
-    delete [] dp;
-    glVertex3f(vertices[k],vertices[k+1],vertices[k+2]);
-    k = k + 3;
-  }
-  glEnd();
 }
 
 std::vector<std::vector<Cartesian> > GetPolyCylinderAB(const std::vector<Cartesian> &vertices, double size){
@@ -275,7 +241,7 @@ void draw_cylinder(const std::vector<Cartesian> &vertices, double size, int accu
   static GLuint listid_cap_32;
 
   int accu;
-  if(RenderQuality::GetRenderQuality())
+  if(RenderQuality::GetRenderQuality()&&0)
     accu = 32;
   else
     accu = accu_in;
@@ -554,7 +520,7 @@ void draw_line(double v11, double v12, double v13, double v21, double v22, doubl
 
 void draw_sphere(double v1, double v2, double v3, int accu_in, double size){
   int accu;
-  if(RenderQuality::GetRenderQuality())
+  if(RenderQuality::GetRenderQuality()&&0)
     accu = 4;
   else
     accu = accu_in;
@@ -616,14 +582,18 @@ Ribbon::Ribbon() : Primitive(){}
 Worm::Worm() : Ribbon(){}
 ArrowHeadRibbon::ArrowHeadRibbon() : Ribbon(){}
 BillBoard::BillBoard() : Primitive(){}
-SimpleText::SimpleText() : Primitive(){}
+SimpleText::SimpleText() : Primitive(){
+  text_height=0;
+  text_width=0;
+  centered = false;
+}
 Text::Text() : SimpleText(){}
 BillBoardText::BillBoardText() : SimpleText(){}
 
-void Primitive::set_origin(double *origin_in){
+void Primitive::set_origin(const double *origin_in){
   set_origin(Cartesian(origin_in));
 }
-void Primitive::set_origin(Cartesian origin_in){
+void Primitive::set_origin(const Cartesian &origin_in){
   origin = origin_in; 
   vertices[0] = origin_in;
 }
@@ -642,15 +612,18 @@ void Primitive::set_draw_colour_line(void){
   glColor4d(colour[0],colour[1],colour[2],1.0);
 }
 
-void Primitive::set_draw_colour_poly_override(GLfloat *col){
+void Primitive::set_draw_colour_poly_override(const GLfloat *col){
 
   glColor4d(col[0],col[1],col[2], alpha );
 
 }
 
-void Primitive::set_draw_colour_line_override(GLfloat *col){
-  col[3] = alpha;
-  glColor4fv(col);
+void Primitive::set_draw_colour_line_override(const GLfloat *col){
+	/* This method seems not to be used anymore. But I have made potentially
+	 * expensive fix for const correctness. SJM 16/6/2009
+	 */
+  GLfloat coltmp[4] = {col[0],col[1],col[2],GetAlpha()};
+  glColor4fv(coltmp);
 }
 
 void Primitive::initialize_lighting(void){
@@ -662,10 +635,10 @@ void Primitive::apply_textures(void){
 void Primitive::unbind_textures(void){
 }
 
-PointElement::PointElement(const Cartesian &vertex, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Point(vertex,colour_in,origin_in,size_in,alpha_in){
+PointElement::PointElement(const Cartesian &vertex, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Point(vertex,colour_in,origin_in,size_in,alpha_in){
 }
 
-Point::Point(const Cartesian &vertex, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Primitive(){
+Point::Point(const Cartesian &vertex, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Primitive(){
   size = size_in;
   alpha = alpha_in;
   vertices.push_back(vertex);
@@ -678,7 +651,7 @@ Point::Point(const Cartesian &vertex, double *colour_in, const Cartesian &origin
 Point::~Point(){
 }
 
-Line::Line(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Primitive(){
+Line::Line(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Primitive(){
 
   size = size_in;
   alpha = alpha_in;
@@ -694,7 +667,7 @@ Line::Line(const std::vector<Cartesian> &vertices_in, double *colour_in, const C
 Line::~Line(){
 }
 
-LineStrip::LineStrip(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Primitive(){
+LineStrip::LineStrip(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Primitive(){
   size = size_in;
   alpha = alpha_in;
   colour[0] = colour_in[0];
@@ -708,7 +681,7 @@ LineStrip::LineStrip(const std::vector<Cartesian> &vertices_in, double *colour_i
 LineStrip::~LineStrip(){
 }
 
-DashLine::DashLine(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Primitive(){
+DashLine::DashLine(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Primitive(){
   size = size_in;
   alpha = alpha_in;
   colour[0] = colour_in[0];
@@ -723,7 +696,7 @@ DashLine::DashLine(const std::vector<Cartesian> &vertices_in, double *colour_in,
 DashLine::~DashLine(){
 }
 
-Circle::Circle(const Cartesian &vertex, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int textured_in) : Primitive(){
+Circle::Circle(const Cartesian &vertex, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int textured_in) : Primitive(){
   size = size_in;
   alpha = alpha_in;
   vertices.clear();
@@ -738,7 +711,7 @@ Circle::Circle(const Cartesian &vertex, double *colour_in, const Cartesian &orig
 Circle::~Circle(){
 }
 
-TriangleElement::TriangleElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
+TriangleElement::TriangleElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
   alpha = alpha_in;
   colour[0] = colour_in[0];
   colour[1] = colour_in[1];
@@ -753,7 +726,7 @@ TriangleElement::TriangleElement(const std::vector<Cartesian> &vertices_in, doub
   normals.push_back(normal);
 }
 
-PolygonElement::PolygonElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
+PolygonElement::PolygonElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
   alpha = alpha_in;
   colour[0] = colour_in[0];
   colour[1] = colour_in[1];
@@ -770,7 +743,7 @@ TriangleElement::~TriangleElement(){
 PolygonElement::~PolygonElement(){
 }
 
-TriangleFanElement::TriangleFanElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
+TriangleFanElement::TriangleFanElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
   alpha = alpha_in;
   colour[0] = colour_in[0];
   colour[1] = colour_in[1];
@@ -784,7 +757,7 @@ TriangleFanElement::TriangleFanElement(const std::vector<Cartesian> &vertices_in
 TriangleFanElement::~TriangleFanElement(){
 }
 
-TriangleStripElement::TriangleStripElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
+TriangleStripElement::TriangleStripElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
   alpha = alpha_in;
   colour[0] = colour_in[0];
   colour[1] = colour_in[1];
@@ -798,7 +771,7 @@ TriangleStripElement::TriangleStripElement(const std::vector<Cartesian> &vertice
 TriangleStripElement::~TriangleStripElement(){
 }
 
-QuadElement::QuadElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
+QuadElement::QuadElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
   alpha = alpha_in;
   colour[0] = colour_in[0];
   colour[1] = colour_in[1];
@@ -817,7 +790,7 @@ QuadElement::QuadElement(const std::vector<Cartesian> &vertices_in, double *colo
 QuadElement::~QuadElement(){
 }
 
-QuadStripElement::QuadStripElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
+QuadStripElement::QuadStripElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : Primitive(){
   alpha = alpha_in;
   colour[0] = colour_in[0];
   colour[1] = colour_in[1];
@@ -837,7 +810,7 @@ DashCylinderElement::~DashCylinderElement(){
 DashCylinderElement::DashCylinderElement() : CylinderElement(){
 }
 
-DashCylinderElement::DashCylinderElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : CylinderElement(vertices_in, colour_in, origin_in, size_in, alpha_in, accu_in,textured_in){
+DashCylinderElement::DashCylinderElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : CylinderElement(vertices_in, colour_in, origin_in, size_in, alpha_in, accu_in,textured_in){
   textured = textured_in;
   dash_length = 0.5;
   dash_end = 1;
@@ -849,16 +822,16 @@ ConeElement::~ConeElement(){
 ConeElement::ConeElement() : CylinderElement(){
 }
 
-ConeElement::ConeElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : CylinderElement(vertices_in, colour_in, origin_in, size_in, alpha_in, accu_in,textured_in){
+ConeElement::ConeElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : CylinderElement(vertices_in, colour_in, origin_in, size_in, alpha_in, accu_in,textured_in){
   textured = textured_in;
 }
 
 
-void ConeElement::draw(double *override_colour, int selective_override){
+void ConeElement::draw(const double *override_colour, int selective_override){
   draw_cone(vertices[0],vertices[1],size,accu,textured);
 }
 
-CylinderElement::CylinderElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : Primitive(){
+CylinderElement::CylinderElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : Primitive(){
   size = size_in;
   alpha = alpha_in;
   accu = accu_in;
@@ -875,7 +848,7 @@ CylinderElement::CylinderElement(const std::vector<Cartesian> &vertices_in, doub
 CylinderElement::~CylinderElement(){
 }
 
-PolyCylinder::PolyCylinder(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, const std::vector<Cartesian> &colour_vector_in, double size_in, double alpha_in, int accu_in, int textured_in) : Primitive(){
+PolyCylinder::PolyCylinder(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, const std::vector<Cartesian> &colour_vector_in, double size_in, double alpha_in, int accu_in, int textured_in) : Primitive(){
   size = size_in;
   alpha = alpha_in;
   accu = accu_in;
@@ -899,7 +872,24 @@ SpheroidElement::SpheroidElement() : Primitive(){
   show_solid = 1;
 }
 
-SpheroidElement::SpheroidElement(const Cartesian &vertex, double *colour_in, const Cartesian &origin_in, double a_in, double b_in, double c_in, const Cartesian& xaxis_in, const Cartesian& yaxis_in, const Cartesian& zaxis_in, double alpha_in, int accu_in, int show_axes_in, int show_solid_in, int textured_in) : Primitive(){
+Spheroid::Spheroid(const Cartesian &vertex, const double *colour_in, const Cartesian &origin_in, const matrix &mat_in, double alpha_in, int accu_in, int show_axes_in, int show_solid_in, int textured_in) : SpheroidElement(vertex, colour_in, origin_in, mat_in, alpha_in, accu_in, show_axes_in, show_solid_in, textured_in){
+}
+
+SpheroidElement::SpheroidElement(const Cartesian &vertex, const double *colour_in, const Cartesian &origin_in, const matrix &mat_in, double alpha_in, int accu_in, int show_axes_in, int show_solid_in, int textured_in) : Primitive(){
+  accu = accu_in;
+  vertices.clear();
+  vertices.push_back(vertex);
+  colour[0] = colour_in[0];
+  colour[1] = colour_in[1];
+  colour[2] = colour_in[2];
+  origin = origin_in;
+  mat = mat_in;
+  show_axes = show_axes_in;
+  show_solid = show_solid_in;
+  textured = textured_in;
+}
+
+SpheroidElement::SpheroidElement(const Cartesian &vertex, const double *colour_in, const Cartesian &origin_in, double a_in, double b_in, double c_in, const Cartesian& xaxis_in, const Cartesian& yaxis_in, const Cartesian& zaxis_in, double alpha_in, int accu_in, int show_axes_in, int show_solid_in, int textured_in) : Primitive(){
   a = a_in;
   b = b_in;
   c = c_in;
@@ -916,6 +906,7 @@ SpheroidElement::SpheroidElement(const Cartesian &vertex, double *colour_in, con
   xaxis.normalize();
   yaxis.normalize();
   zaxis.normalize();
+  mat = matrix();
   /*
     std::cout << "Normalized: " << xaxis << "\n";
     std::cout << "Normalized: " << yaxis << "\n";
@@ -941,7 +932,70 @@ void SpheroidElement::HideAxes(){
   show_axes = 0;
 }
 
-void SpheroidElement::draw(double *override_colour, int selective_override){
+void SpheroidElement::draw(const double *override_colour, int selective_override){
+
+  if(mat.get_rows()==4&&mat.get_columns()==4){
+    GLboolean normalize;
+    glGetBooleanv(GL_NORMALIZE,&normalize);
+    glEnable(GL_NORMALIZE);
+
+    glPushMatrix();
+    glTranslatef(vertices[0].get_x(),vertices[0].get_y(),vertices[0].get_z());
+
+    double *mdp = mat.to_dp();
+
+    glMultMatrixd(mdp);
+
+  if(show_axes){
+    glDisable(GL_LIGHTING);
+    if(show_solid) {
+      GLfloat *params = new GLfloat[4];
+      glGetFloatv(GL_COLOR_CLEAR_VALUE,params);
+      GLfloat colour[4] = {1.0-params[0], 1.0-params[1], 1.0-params[2], 1.0};
+      set_line_colour(colour[0],colour[1],colour[2],colour[3]);
+    } else {
+      set_line_colour(colour[0],colour[1],colour[2],1.0);
+    }
+    glBegin(GL_LINE_STRIP);
+    for(int i=0;i<=360;i+=10){
+      double theta = (double)i/360.0 * PIBY2;
+      double x = cos(theta);
+      double y = sin(theta);
+      glVertex3f(x,y,0);
+    }    
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+    for(int i=0;i<=360;i+=10){
+      double theta = (double)i/360.0 * PIBY2;
+      double x = cos(theta);
+      double y = sin(theta);
+      glVertex3f(0,x,y);
+    }    
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+    for(int i=0;i<=360;i+=10){
+      double theta = (double)i/360.0 * PIBY2;
+      double x = cos(theta);
+      double y = sin(theta);
+      glVertex3f(x,0,y);
+    }    
+    glEnd();
+    set_draw_colour();
+    glPolygonOffset(1.0,1.0);
+  }
+
+    if(show_solid){
+      glEnable(GL_LIGHTING);
+      int my_accu;
+      if(RenderQuality::GetRenderQuality()&&0)
+        my_accu = 4;
+      else
+        my_accu = accu;
+        sphere(my_accu,1.0);
+    }
+    glPopMatrix();
+    return;
+  }
 
   Cartesian cartx = Cartesian(1,0,0);
   Cartesian carty = Cartesian(0,1,0);
@@ -1022,7 +1076,7 @@ void SpheroidElement::draw(double *override_colour, int selective_override){
   if(show_solid){
     glEnable(GL_LIGHTING);
     int my_accu;
-    if(RenderQuality::GetRenderQuality())
+    if(RenderQuality::GetRenderQuality()&&0)
       my_accu = 4;
     else
       my_accu = accu;
@@ -1040,7 +1094,7 @@ void SpheroidElement::draw(double *override_colour, int selective_override){
 SpheroidElement::~SpheroidElement(){
 }
 
-SphereElement::SphereElement(const Cartesian &vertex, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : Primitive(){
+SphereElement::SphereElement(const Cartesian &vertex, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : Primitive(){
   size = size_in;
   alpha = alpha_in;
   accu = accu_in;
@@ -1070,126 +1124,126 @@ void BillBoard::SetScale(double scale_w_in, double scale_h_in){
   scale_h = scale_h_in;
 }
 
-void BillBoard::set_draw_colour(GLfloat *col){
+void BillBoard::set_draw_colour(const GLfloat *col){
 }
 
-void Point::set_draw_colour(GLfloat *col){
+void Point::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_line_override(col);
   else
     set_draw_colour_line();
 }
 
-void Line::set_draw_colour(GLfloat *col){
+void Line::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_line_override(col);
   else
     set_draw_colour_line();
 }
 
-void LineStrip::set_draw_colour(GLfloat *col){
+void LineStrip::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_line_override(col);
   else
     set_draw_colour_line();
 }
 
-void DashLine::set_draw_colour(GLfloat *col){
+void DashLine::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_line_override(col);
   else
     set_draw_colour_line();
 }
 
-void Circle::set_draw_colour(GLfloat *col){
+void Circle::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void TriangleElement::set_draw_colour(GLfloat *col){
+void TriangleElement::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void PolygonElement::set_draw_colour(GLfloat *col){
+void PolygonElement::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void QuadElement::set_draw_colour(GLfloat *col){
+void QuadElement::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void QuadStripElement::set_draw_colour(GLfloat *col){
+void QuadStripElement::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void TriangleStripElement::set_draw_colour(GLfloat *col){
+void TriangleStripElement::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void TriangleFanElement::set_draw_colour(GLfloat *col){
+void TriangleFanElement::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void CylinderElement::set_draw_colour(GLfloat *col){
+void CylinderElement::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void PolyCylinder::set_draw_colour(GLfloat *col){
+void PolyCylinder::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void SphereElement::set_draw_colour(GLfloat *col){
+void SphereElement::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void SpheroidElement::set_draw_colour(GLfloat *col){
+void SpheroidElement::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void ArrowHeadRibbon::set_draw_colour(GLfloat *col){
+void ArrowHeadRibbon::set_draw_colour(const GLfloat *col){
   Ribbon::set_draw_colour(col);
 }
 
-void Ribbon::set_draw_colour(GLfloat *col){
+void Ribbon::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-void Point::draw(double *override_colour, int selective_override){
+void Point::draw(const double *override_colour, int selective_override){
   glPointSize(size);
   glBegin(GL_POINTS);
   glVertex3f(vertices[0].get_x(),vertices[0].get_y(),vertices[0].get_z());
@@ -1203,7 +1257,7 @@ DashArrowElement::~DashArrowElement(){
 DashArrowElement::DashArrowElement() : LineElement(){
 }
 
-DashArrowElement::DashArrowElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in,int arrow_head_in) : LineElement(vertices_in, colour_in, origin_in, size_in, alpha_in){
+DashArrowElement::DashArrowElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in,int arrow_head_in) : LineElement(vertices_in, colour_in, origin_in, size_in, alpha_in){
   arrow_head = arrow_head_in;
   dash_length = 0.2;
 }
@@ -1214,7 +1268,7 @@ DashArrow::~DashArrow(){
 DashArrow::DashArrow() : DashArrowElement(){
 }
 
-DashArrow::DashArrow(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in,int arrow_head_in) : DashArrowElement(vertices_in, colour_in, origin_in, size_in, alpha_in){
+DashArrow::DashArrow(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in,int arrow_head_in) : DashArrowElement(vertices_in, colour_in, origin_in, size_in, alpha_in){
   arrow_head = arrow_head_in;
   dash_length = 0.2;
   
@@ -1228,7 +1282,7 @@ ArrowElement::~ArrowElement(){
 ArrowElement::ArrowElement() : LineElement(){
 }
 
-ArrowElement::ArrowElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in,int arrow_head_in) : LineElement(vertices_in, colour_in, origin_in, size_in, alpha_in){
+ArrowElement::ArrowElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in,int arrow_head_in) : LineElement(vertices_in, colour_in, origin_in, size_in, alpha_in){
   arrow_head = arrow_head_in;
 }
 
@@ -1238,11 +1292,11 @@ Arrow::~Arrow(){
 Arrow::Arrow() : ArrowElement(){
 }
 
-Arrow::Arrow(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in,int arrow_head_in) : ArrowElement(vertices_in, colour_in, origin_in, size_in, alpha_in){
+Arrow::Arrow(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in,int arrow_head_in) : ArrowElement(vertices_in, colour_in, origin_in, size_in, alpha_in){
   arrow_head = arrow_head_in;
 }
 
-void Arrow::draw(double *override_colour, int selective_override){
+void Arrow::draw(const double *override_colour, int selective_override){
   glLineWidth(size);
   glBegin(GL_LINES);
   ArrowElement::draw(override_colour,selective_override);
@@ -1250,7 +1304,7 @@ void Arrow::draw(double *override_colour, int selective_override){
 }
 
 
-void ArrowElement::draw(double *override_colour, int selective_override){
+void ArrowElement::draw(const double *override_colour, int selective_override){
   Cartesian vec = vertices[1] - vertices[0];
   Cartesian atmp,btmp;
   Cartesian xaxis(1,0,0);
@@ -1304,14 +1358,14 @@ void ArrowElement::draw(double *override_colour, int selective_override){
 
 }
 
-void DashArrow::draw(double *override_colour, int selective_override){
+void DashArrow::draw(const double *override_colour, int selective_override){
   glLineWidth(size);
   glBegin(GL_LINES);
   DashArrowElement::draw(override_colour,selective_override);
   glEnd();
 }
 
-void DashArrowElement::draw(double *override_colour, int selective_override){
+void DashArrowElement::draw(const double *override_colour, int selective_override){
   Cartesian vec = vertices[1] - vertices[0];
   Cartesian atmp,btmp;
   Cartesian xaxis(1,0,0);
@@ -1391,70 +1445,70 @@ Cylinder::Cylinder() : CylinderElement(){}
 Cone::Cone() : ConeElement(){}
 DashCylinder::DashCylinder() : DashCylinderElement(){}
 
-TriangleStrip::TriangleStrip(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : TriangleStripElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
+TriangleStrip::TriangleStrip(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : TriangleStripElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
 
-TriangleFan::TriangleFan(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : TriangleFanElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
+TriangleFan::TriangleFan(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : TriangleFanElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
 
-QuadStrip::QuadStrip(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : QuadStripElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
+QuadStrip::QuadStrip(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : QuadStripElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
 
-Triangle::Triangle(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : TriangleElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
+Triangle::Triangle(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : TriangleElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
 
-MGPolygon::MGPolygon(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : PolygonElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
+MGPolygon::MGPolygon(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : PolygonElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
 
-Quad::Quad(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : QuadElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
+Quad::Quad(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in,  double alpha_in, int textured_in) : QuadElement(vertices_in, colour_in, origin_in, alpha_in, textured_in){};
 
-Sphere::Sphere(const Cartesian &vertex, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : SphereElement(vertex, colour_in, origin_in, size_in, alpha_in, accu_in, textured_in){};
+Sphere::Sphere(const Cartesian &vertex, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : SphereElement(vertex, colour_in, origin_in, size_in, alpha_in, accu_in, textured_in){};
 
-Spheroid::Spheroid(const Cartesian &vertex, double *colour_in, const Cartesian &origin_in, double a_in, double b_in, double c_in, const Cartesian& xaxis_in, const Cartesian& yaxis_in, const Cartesian& zaxis_in, double alpha_in, int accu_in, int show_axes, int show_solid, int textured_in) : SpheroidElement(vertex, colour_in, origin_in, a_in, b_in, c_in, xaxis_in, yaxis_in, zaxis_in, alpha_in, accu_in, show_axes, show_solid, textured_in){};
+Spheroid::Spheroid(const Cartesian &vertex, const double *colour_in, const Cartesian &origin_in, double a_in, double b_in, double c_in, const Cartesian& xaxis_in, const Cartesian& yaxis_in, const Cartesian& zaxis_in, double alpha_in, int accu_in, int show_axes, int show_solid, int textured_in) : SpheroidElement(vertex, colour_in, origin_in, a_in, b_in, c_in, xaxis_in, yaxis_in, zaxis_in, alpha_in, accu_in, show_axes, show_solid, textured_in){};
 
-Cylinder::Cylinder(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : CylinderElement(vertices_in, colour_in, origin_in, size_in, alpha_in, accu_in, textured_in){};
+Cylinder::Cylinder(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : CylinderElement(vertices_in, colour_in, origin_in, size_in, alpha_in, accu_in, textured_in){};
 
-Cone::Cone(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : ConeElement(vertices_in, colour_in, origin_in, size_in, alpha_in, accu_in, textured_in){};
+Cone::Cone(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : ConeElement(vertices_in, colour_in, origin_in, size_in, alpha_in, accu_in, textured_in){};
 
-DashCylinder::DashCylinder(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : DashCylinderElement(vertices_in, colour_in, origin_in, size_in, alpha_in, accu_in, textured_in){};
+DashCylinder::DashCylinder(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in, int accu_in, int textured_in) : DashCylinderElement(vertices_in, colour_in, origin_in, size_in, alpha_in, accu_in, textured_in){};
 
-void TriangleStrip::draw(double *override_colour, int selective_override){
+void TriangleStrip::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   TriangleStripElement::draw(override_colour,selective_override);
 }
-void TriangleFan::draw(double *override_colour, int selective_override){
+void TriangleFan::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   TriangleFanElement::draw(override_colour,selective_override);
 }
-void QuadStrip::draw(double *override_colour, int selective_override){
+void QuadStrip::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   QuadStripElement::draw(override_colour,selective_override);
 }
-void Triangle::draw(double *override_colour, int selective_override){
+void Triangle::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   TriangleElement::draw(override_colour,selective_override);
 }
-void MGPolygon::draw(double *override_colour, int selective_override){
+void MGPolygon::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   PolygonElement::draw(override_colour,selective_override);
 }
 
-void Quad::draw(double *override_colour, int selective_override){
+void Quad::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   QuadElement::draw(override_colour,selective_override);
 }
 
-void Sphere::draw(double *override_colour, int selective_override){
+void Sphere::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   SphereElement::draw(override_colour,selective_override);
 }
 
-void Spheroid::draw(double *override_colour, int selective_override){
+void Spheroid::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   SpheroidElement::draw(override_colour,selective_override);
 }
 
-void Cylinder::draw(double *override_colour, int selective_override){
+void Cylinder::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   CylinderElement::draw(override_colour,selective_override);
 }
 
-void Cone::draw(double *override_colour, int selective_override){
+void Cone::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   ConeElement::draw(override_colour,selective_override);
 }
@@ -1465,12 +1519,12 @@ DashLineElement::DashLineElement() : LineElement(){}
 LineElement::~LineElement(){}
 PointElement::~PointElement(){}
 DashLineElement::~DashLineElement(){}
-LineElement::LineElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Line(vertices_in,colour_in,origin_in,size_in){}
-DashLineElement::DashLineElement(const std::vector<Cartesian> &vertices_in, double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : LineElement(vertices_in,colour_in,origin_in,size_in){
+LineElement::LineElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : Line(vertices_in,colour_in,origin_in,size_in){}
+DashLineElement::DashLineElement(const std::vector<Cartesian> &vertices_in, const double *colour_in, const Cartesian &origin_in, double size_in, double alpha_in) : LineElement(vertices_in,colour_in,origin_in,size_in){
   dash_length = 0.2;
 }
 
-void LineCollection::draw(double *override_colour, int selective_override){
+void LineCollection::draw(const double *override_colour, int selective_override){
   glLineWidth(size);
   glDisable(GL_LIGHTING);
   
@@ -1534,7 +1588,7 @@ void LineCollection::draw(double *override_colour, int selective_override){
   //glDisable(GL_BLEND);
 
 }
-void PointCollection::draw(double *override_colour, int selective_override){
+void PointCollection::draw(const double *override_colour, int selective_override){
   glPointSize(size);
   glDisable(GL_LIGHTING);
   
@@ -1618,7 +1672,7 @@ void PolyCollection::set_transparent(int trans){
   }
 }
 
-void PolyCollection::draw(double *override_colour, int selective_override){
+void PolyCollection::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   std::vector<Primitive*>::const_iterator k = prims.begin();
 
@@ -1700,11 +1754,11 @@ PolyCollection::~PolyCollection(){
   }
 }
 
-void PointCollection::set_draw_colour(GLfloat *col){
+void PointCollection::set_draw_colour(const GLfloat *col){
 }
-void LineCollection::set_draw_colour(GLfloat *col){
+void LineCollection::set_draw_colour(const GLfloat *col){
 }
-void PolyCollection::set_draw_colour(GLfloat *col){
+void PolyCollection::set_draw_colour(const GLfloat *col){
 }
 
 void LineCollection::add_primitive(Primitive *line){
@@ -1718,7 +1772,7 @@ void PolyCollection::add_primitive(Primitive *line){
   prims.push_back(line);
 }
 
-void Line::draw(double *override_colour, int selective_override){
+void Line::draw(const double *override_colour, int selective_override){
 
   glBegin(GL_LINES);
   glVertex3f(vertices[0].get_x(),vertices[0].get_y(),vertices[0].get_z());
@@ -1727,20 +1781,20 @@ void Line::draw(double *override_colour, int selective_override){
 
 }
 
-void PointElement::draw(double *override_colour, int selective_override){
+void PointElement::draw(const double *override_colour, int selective_override){
 
   glVertex3f(vertices[0].get_x(),vertices[0].get_y(),vertices[0].get_z());
 
 }
 
-void LineElement::draw(double *override_colour, int selective_override){
+void LineElement::draw(const double *override_colour, int selective_override){
 
   glVertex3f(vertices[0].get_x(),vertices[0].get_y(),vertices[0].get_z());
   glVertex3f(vertices[1].get_x(),vertices[1].get_y(),vertices[1].get_z());
 
 }
 
-void LineStrip::draw(double *override_colour, int selective_override){
+void LineStrip::draw(const double *override_colour, int selective_override){
   std::vector<Cartesian>::const_iterator k = vertices.begin();
 
 
@@ -1761,7 +1815,7 @@ void LineStrip::draw(double *override_colour, int selective_override){
 
 }
 
-void DashLine::draw(double *override_colour, int selective_override){
+void DashLine::draw(const double *override_colour, int selective_override){
   glDisable(GL_LIGHTING);
   glLineWidth(size);
   double length = sqrt((vertices[1].get_x() - vertices[0].get_x()) * (vertices[1].get_x() - vertices[0].get_x()) +
@@ -1795,7 +1849,7 @@ void DashLine::draw(double *override_colour, int selective_override){
   glEnd();
 }
 
-std::vector<Primitive*> DashLineElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> DashLineElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   //std::cout << "DashLineElement::GetSimplePrimitives\n";
   std::vector<Primitive*> a;
   std::vector<Cartesian> carts(2);
@@ -1808,7 +1862,7 @@ std::vector<Primitive*> DashLineElement::GetSimplePrimitives(const Volume &clip_
   double frac2 =0.5/(double)nsegments;
   carts[0] = frac*vertices[1] + (1-frac)*vertices[0];
   carts[1] = frac2*vertices[1] + (1-frac2)*vertices[0];
-  Line *line = new Line(carts,colour,carts[0],size,alpha);
+  Line *line = new Line(carts,GetColour(),carts[0],GetSize(),GetAlpha());
   std::vector<Primitive*> b = line->GetSimplePrimitives(clip_vol,objrotmatrix,objorigin);
   a.insert(a.end(),b.begin(),b.end());
   for(int i=1;i<nsegments;i++){
@@ -1826,7 +1880,7 @@ std::vector<Primitive*> DashLineElement::GetSimplePrimitives(const Volume &clip_
   return a;
 }
 
-void DashLineElement::draw(double *override_colour, int selective_override){
+void DashLineElement::draw(const double *override_colour, int selective_override){
   double length = sqrt((vertices[1].get_x() - vertices[0].get_x()) * (vertices[1].get_x() - vertices[0].get_x()) +
 		       (vertices[1].get_y() - vertices[0].get_y()) * (vertices[1].get_y() - vertices[0].get_y()) +
 		       (vertices[1].get_z() - vertices[0].get_z()) * (vertices[1].get_z() - vertices[0].get_z()));
@@ -1855,14 +1909,14 @@ void DashLineElement::draw(double *override_colour, int selective_override){
   }
 }
 
-void Circle::draw(double *override_colour, int selective_override){
+void Circle::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   GLUquadric *qobj = gluNewQuadric();
   glTranslatef(vertices[0].get_x(),vertices[0].get_y(),vertices[0].get_z());
   gluDisk(qobj,0.0,size,16,16);
 }
 
-void TriangleElement::draw(double *override_colour, int selective_override){
+void TriangleElement::draw(const double *override_colour, int selective_override){
   std::vector<Cartesian>::const_iterator k = vertices.begin();
   unsigned i=0;
   glBegin(GL_TRIANGLES);
@@ -1877,7 +1931,7 @@ void TriangleElement::draw(double *override_colour, int selective_override){
   glEnd();
 }
 
-void PolygonElement::draw(double *override_colour, int selective_override){
+void PolygonElement::draw(const double *override_colour, int selective_override){
   std::vector<Cartesian>::const_iterator k = vertices.begin();
   glBegin(GL_POLYGON);
   Cartesian normal = Cartesian::CrossProduct(vertices[0]-vertices[1],vertices[1]-vertices[2]);
@@ -1889,7 +1943,7 @@ void PolygonElement::draw(double *override_colour, int selective_override){
   glEnd();
 }
 
-void TriangleStripElement::draw(double *override_colour, int selective_override){
+void TriangleStripElement::draw(const double *override_colour, int selective_override){
   std::vector<Cartesian>::const_iterator k = vertices.begin();
   glBegin(GL_TRIANGLE_STRIP);
   unsigned int i = 0;
@@ -1906,7 +1960,7 @@ void TriangleStripElement::draw(double *override_colour, int selective_override)
   glEnd();
 }
 
-void TriangleFanElement::draw(double *override_colour, int selective_override){
+void TriangleFanElement::draw(const double *override_colour, int selective_override){
   if(vertices.size()<3) return;
   std::vector<Cartesian>::const_iterator k = vertices.begin();
   glBegin(GL_TRIANGLE_FAN);
@@ -1940,7 +1994,7 @@ void TriangleFanElement::draw(double *override_colour, int selective_override){
   glEnd();
 }
 
-void QuadElement::draw(double *override_colour, int selective_override){
+void QuadElement::draw(const double *override_colour, int selective_override){
   std::vector<Cartesian>::const_iterator k = vertices.begin();
   unsigned i=0;
   glBegin(GL_QUADS);
@@ -1952,7 +2006,7 @@ void QuadElement::draw(double *override_colour, int selective_override){
   glEnd();
 }
 
-void QuadStripElement::draw(double *override_colour, int selective_override){
+void QuadStripElement::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   std::vector<Cartesian>::const_iterator k = vertices.begin();
   glBegin(GL_QUAD_STRIP);
@@ -1970,11 +2024,11 @@ void QuadStripElement::draw(double *override_colour, int selective_override){
   glEnd();
 }
 
-void CylinderElement::draw(double *override_colour, int selective_override){
+void CylinderElement::draw(const double *override_colour, int selective_override){
   draw_cylinder(vertices,size,accu,textured);
 }
 
-void PolyCylinder::draw(double *override_colour, int selective_override){
+void PolyCylinder::draw(const double *override_colour, int selective_override){
   if(vertices.size()<2) return;
   glEnable(GL_LIGHTING);
 
@@ -1994,20 +2048,19 @@ void PolyCylinder::draw(double *override_colour, int selective_override){
 
 }
 
-void SphereElement::draw(double *override_colour, int selective_override){
+void SphereElement::draw(const double *override_colour, int selective_override){
   draw_sphere(vertices[0].get_x(),vertices[0].get_y(),vertices[0].get_z(),accu,size);
 }
 
-ArrowHeadRibbon::ArrowHeadRibbon(const std::vector<Cartesian> &vertices_in, const std::vector<Cartesian> &n1_vertices_in, const std::vector<Cartesian> &n2_vertices_in, double *colour_in, const Cartesian &origin_in, const std::vector<Cartesian> &colour_vector_in, double minsize_in, double maxsize_in, double thickness_in, double arrow_length_in, double arrow_width_in, double alpha_in, int accu_in, int scale_steps_in, int textured_in) : Ribbon(vertices_in,n1_vertices_in,n2_vertices_in,colour_in,origin_in,colour_vector_in,minsize_in,maxsize_in,thickness_in,alpha_in,accu_in,scale_steps_in,textured_in){
+ArrowHeadRibbon::ArrowHeadRibbon(const std::vector<Cartesian> &vertices_in, const std::vector<Cartesian> &n1_vertices_in, const std::vector<Cartesian> &n2_vertices_in, const double *colour_in, const Cartesian &origin_in, const std::vector<Cartesian> &colour_vector_in, double minsize_in, double maxsize_in, double thickness_in, double arrow_length_in, double arrow_width_in, double alpha_in, int accu_in, int scale_steps_in, int textured_in) : Ribbon(vertices_in,n1_vertices_in,n2_vertices_in,colour_in,origin_in,colour_vector_in,minsize_in,maxsize_in,thickness_in,alpha_in,accu_in,scale_steps_in,textured_in){
   arrow_length = arrow_length_in;
   arrow_width = arrow_width_in;
-  insert_at_vertex = -1;
 }
 
-Worm::Worm(const std::vector<Cartesian> &vertices_in, const std::vector<Cartesian> &n1_vertices_in, const std::vector<Cartesian> &n2_vertices_in, double *colour_in, const Cartesian &origin_in, const std::vector<Cartesian> &colour_vector_in, double minsize_in, double maxsize_in, double thickness_in, double alpha_in, int accu_in, int scale_steps_in, int textured_in) : Ribbon(vertices_in,n1_vertices_in,n2_vertices_in,colour_in,origin_in,colour_vector_in,minsize_in,maxsize_in,thickness_in,alpha_in,accu_in,scale_steps_in,textured_in){
+Worm::Worm(const std::vector<Cartesian> &vertices_in, const std::vector<Cartesian> &n1_vertices_in, const std::vector<Cartesian> &n2_vertices_in, const double *colour_in, const Cartesian &origin_in, const std::vector<Cartesian> &colour_vector_in, double minsize_in, double maxsize_in, double thickness_in, double alpha_in, int accu_in, int scale_steps_in, int textured_in) : Ribbon(vertices_in,n1_vertices_in,n2_vertices_in,colour_in,origin_in,colour_vector_in,minsize_in,maxsize_in,thickness_in,alpha_in,accu_in,scale_steps_in,textured_in){
 }
 
-Ribbon::Ribbon(const std::vector<Cartesian> &vertices_in, const std::vector<Cartesian> &n1_vertices_in, const std::vector<Cartesian> &n2_vertices_in, double *colour_in, const Cartesian &origin_in, const std::vector<Cartesian> &colour_vector_in, double minsize_in, double maxsize_in, double thickness_in, double alpha_in, int accu_in, int scale_steps_in, int textured_in) : Primitive(){
+Ribbon::Ribbon(const std::vector<Cartesian> &vertices_in, const std::vector<Cartesian> &n1_vertices_in, const std::vector<Cartesian> &n2_vertices_in, const double *colour_in, const Cartesian &origin_in, const std::vector<Cartesian> &colour_vector_in, double minsize_in, double maxsize_in, double thickness_in, double alpha_in, int accu_in, int scale_steps_in, int textured_in) : Primitive(){
 
   alpha = alpha_in;
   accu = accu_in;
@@ -2031,13 +2084,23 @@ Ribbon::Ribbon(const std::vector<Cartesian> &vertices_in, const std::vector<Cart
 
 std::vector<Cartesian> get_v_and_vpr(const Cartesian &sp1, const Cartesian &sp2, const Cartesian &ovec);
 
-std::vector<std::vector<Cartesian> > ArrowHeadRibbon::GetAB(){
+void Ribbon::SetAlpha(double alpha_in){
+
+  alpha = alpha_in;
   std::vector<Cartesian>::iterator l = colour_vector.begin();
+  while(l!=colour_vector.end()){
+    (*l).set_a(alpha);
+    l++;
+  }
+
+}
+
+std::vector<std::vector<Cartesian> > ArrowHeadRibbon::GetAB(int &insert_at_vertex) const {
 
   std::vector<Cartesian> vertices_tmp;
   std::vector<Cartesian> n1_vertices_tmp;
   std::vector<Cartesian> n2_vertices_tmp;
-  if(RenderQuality::GetRenderQuality()&&0) { // Disable this for now - nice but slow.
+  if(RenderQuality::GetRenderQuality()) { 
     vertices_tmp = SplineCurve(vertices,(vertices.size()-1)*4,3,1);
     n1_vertices_tmp = SplineCurve(n1_vertices,(n1_vertices.size()-1)*4,3,1);
     n2_vertices_tmp = SplineCurve(n2_vertices,(n2_vertices.size()-1)*4,3,1);
@@ -2047,10 +2110,14 @@ std::vector<std::vector<Cartesian> > ArrowHeadRibbon::GetAB(){
     n2_vertices_tmp = n2_vertices;
   }
 
+  /* ????
+  std::vector<Cartesian>::const_iterator l = colour_vector.begin();
   while(l!=colour_vector.end()){
     (*l).set_a(alpha);
     l++;
   }
+  */
+
   unsigned int i;
   double scale = minsize;
   double scale_step = (maxsize-minsize)/double(scale_steps-1);
@@ -2095,7 +2162,7 @@ std::vector<std::vector<Cartesian> > ArrowHeadRibbon::GetAB(){
   return AB;
 }
 
-void ArrowHeadRibbon::draw(double *override_colour, int selective_override){
+void ArrowHeadRibbon::draw(const double *override_colour, int selective_override){
   if(vertices.size()<2) return;
 
   std::vector<Cartesian> vertices_tmp;
@@ -2118,7 +2185,8 @@ void ArrowHeadRibbon::draw(double *override_colour, int selective_override){
     vertices_tmp = vertices;
   }
 
-  std::vector<std::vector<Cartesian> > AB = GetAB();
+  int insert_at_vertex;
+  std::vector<std::vector<Cartesian> > AB = GetAB(insert_at_vertex);
 
 
   if(insert_at_vertex>0){
@@ -2157,12 +2225,12 @@ void ArrowHeadRibbon::draw(double *override_colour, int selective_override){
 
 }
 
-std::vector<std::vector<Cartesian> > Ribbon::GetAB(){
+std::vector<std::vector<Cartesian> > Ribbon::GetAB(int &insert_at_vertex) const {
 
   std::vector<Cartesian> vertices_tmp;
   std::vector<Cartesian> n1_vertices_tmp;
   std::vector<Cartesian> n2_vertices_tmp;
-  if(RenderQuality::GetRenderQuality()&&0) { // Disable this for now - nice but slow.
+  if(RenderQuality::GetRenderQuality()) {
     vertices_tmp = SplineCurve(vertices,(vertices.size()-1)*4,3,1);
     n1_vertices_tmp = SplineCurve(n1_vertices,(n1_vertices.size()-1)*4,3,1);
     n2_vertices_tmp = SplineCurve(n2_vertices,(n2_vertices.size()-1)*4,3,1);
@@ -2171,17 +2239,20 @@ std::vector<std::vector<Cartesian> > Ribbon::GetAB(){
     n1_vertices_tmp = n1_vertices;
     n2_vertices_tmp = n2_vertices;
   }
-  std::vector<Cartesian>::iterator l = colour_vector.begin();
 
+  /* ????
+  std::vector<Cartesian>::const_iterator l = colour_vector.begin();
   while(l!=colour_vector.end()){
     (*l).set_a(alpha);
     l++;
   }
+  */
+
   unsigned int i;
   double scale = minsize;
 
   int scale_steps_tmp = scale_steps;
-  if(RenderQuality::GetRenderQuality()&&0) // Disable this for now - nice but slow.
+  if(RenderQuality::GetRenderQuality())
     scale_steps_tmp *= 4;
 
   double scale_step = (maxsize-minsize)/double(scale_steps_tmp);
@@ -2209,7 +2280,48 @@ std::vector<std::vector<Cartesian> > Ribbon::GetAB(){
   return AB;
 }
 
-void Ribbon::draw(double *override_colour, int selective_override){
+int PolyCylinder::GetNumberOfSimplePrimitives() const {
+  return vertices.size()*accu;
+}
+
+int Ribbon::GetNumberOfSimplePrimitives() const {
+  int nprims;
+  if(accu<4){
+    int two_colour = (-accu)>>20;
+    int orig_style = ((-accu)^two_colour<<20)>>16;
+    int orig_accu = (-accu)^(orig_style<<16)^(two_colour<<20);
+    nprims = (vertices.size()-1)*orig_accu;
+    if(RenderQuality::GetRenderQuality())
+      nprims = nprims * 4 - orig_accu;
+  } else {
+    nprims = (vertices.size()-1)*accu;
+    if(RenderQuality::GetRenderQuality())
+      nprims = nprims * 4 - accu;
+  }
+  return nprims;
+}
+
+int ArrowHeadRibbon::GetNumberOfSimplePrimitives() const {
+  int insert_at_vertex;
+  int nprims;
+  std::vector<std::vector<Cartesian> > AB = GetAB(insert_at_vertex);
+  if (insert_at_vertex > -1) insert_at_vertex = 0;
+  if(accu<4){
+    int two_colour = (-accu)>>20;
+    int orig_style = ((-accu)^two_colour<<20)>>16;
+    int orig_accu = (-accu)^(orig_style<<16)^(two_colour<<20);
+    nprims = (vertices.size()+insert_at_vertex)*orig_accu;
+    if(RenderQuality::GetRenderQuality())
+      nprims = nprims * 4 - orig_accu;
+  } else {
+   nprims = (vertices.size()+insert_at_vertex)*accu;
+   if(RenderQuality::GetRenderQuality())
+      nprims = nprims * 4 - accu;
+  }
+  return nprims;
+}
+
+void Ribbon::draw(const double *override_colour, int selective_override){
   if(vertices.size()<2) return;
 
   std::vector<Cartesian> vertices_tmp;
@@ -2231,7 +2343,8 @@ void Ribbon::draw(double *override_colour, int selective_override){
   } else {
     vertices_tmp = vertices;
   }
-  std::vector<std::vector<Cartesian> > AB = GetAB();
+  int insert_at_vertex;
+  std::vector<std::vector<Cartesian> > AB = GetAB(insert_at_vertex);
   int multicolour = 0;
   if(colour_vector.size()>0)
     multicolour = 1;
@@ -2263,7 +2376,7 @@ void Ribbon::draw(double *override_colour, int selective_override){
   }
 }
 
-void Worm::draw(double *override_colour, int selective_override){
+void Worm::draw(const double *override_colour, int selective_override){
   if(vertices.size()<2) return;
 
   std::vector<Cartesian> vertices_tmp;
@@ -2285,7 +2398,8 @@ void Worm::draw(double *override_colour, int selective_override){
   } else {
     vertices_tmp = vertices;
   }
-  std::vector<std::vector<Cartesian> > AB = Ribbon::GetAB();
+  int insert_at_vertex;
+  std::vector<std::vector<Cartesian> > AB = Ribbon::GetAB(insert_at_vertex);
   int multicolour = 0;
   if(colour_vector.size()>0)
     multicolour = 1;
@@ -2315,9 +2429,10 @@ BillBoard::BillBoard(const std::vector<Cartesian> &vertices_in, const Cartesian 
   scale_h = 1.0;
   
   image = image_info(filename_in);
-  image.invert();
-
-  filename = filename_in;
+  if(image.get_width()&&image.get_height()&&image.get_pixels()){
+    image.invert();
+    filename = filename_in;
+  }
 
   texture_id = 0;
   mask_texture_id = 0;
@@ -2327,8 +2442,10 @@ BillBoard::BillBoard(const std::vector<Cartesian> &vertices_in, const Cartesian 
 void ForceLoadTextures(){ force_load_textures = true; };
 void UnForceLoadTextures(){ force_load_textures = false; };
 
-void BillBoard::draw(double *override_colour, int selective_override){
+void BillBoard::draw(const double *override_colour, int selective_override){
 
+   if(!image.get_width()||!image.get_height()||!image.get_pixels())
+      return;
    glDisable(GL_CLIP_PLANE0);
    glDisable(GL_CLIP_PLANE1);
    GLint poly_params[2];
@@ -2345,11 +2462,18 @@ void BillBoard::draw(double *override_colour, int selective_override){
    }
 
    if(texture_id==0||force_load_textures) { 
+     std::pair<unsigned,unsigned> wh = GetCompatibleTextureSize(image.get_width(),image.get_height());
+     image.convert_rgba();
+     image = ResizeWithEmptySpace(image,wh.first,wh.second);
+     image.write("image.png");
+     image_info mask = image.GenerateMask();
+     mask.write("mask.png");
+
      if(image.get_colourspace_type()==IMAGEINFO_MONOA){
        image.convert_rgba();
      }
-     if(image.get_colourspace_type()==IMAGEINFO_RGBA){
-       mask_texture_id = load_texture(image.GenerateMask(),MIPMAP);
+     if(image.get_colourspace_type()==IMAGEINFO_RGBA||image.get_colourspace_type()==IMAGEINFO_RGB){
+       //mask_texture_id = load_texture(image.GenerateMask(),MIPMAP);
      }
      texture_id = load_texture(image,MIPMAP);
      first_scale_w = double(image.get_width())/double(viewport[2]);
@@ -3059,7 +3183,7 @@ void ConeElement::DrawPovray(std::ofstream &fp, const Quat &quat, double radius,
   fp << "}\n";
 }
 
-void draw_elliptical_ribbon_pov(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, double *colour, const std::vector<Cartesian> &colour_vector, int transparent, double alpha){
+void draw_elliptical_ribbon_pov(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, const double *colour, const std::vector<Cartesian> &colour_vector, int transparent, double alpha){
 
   std::vector<Cartesian>::const_iterator cart;
   std::vector<Cartesian>::const_iterator pviter;
@@ -3159,7 +3283,7 @@ void draw_elliptical_ribbon_pov(std::ofstream &fp, const Quat &quat, double radi
   fp << "}\n";
 }
 
-void draw_flat_round_ribbon_pov(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, double *colour, const std::vector<Cartesian> &colour_vector, int transparent, double alpha, const bool two_colour){
+void draw_flat_round_ribbon_pov(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, const double *colour, const std::vector<Cartesian> &colour_vector, int transparent, double alpha, const bool two_colour){
 
   std::vector<Cartesian>::const_iterator cart;
   std::vector<Cartesian>::const_iterator pviter;
@@ -3485,7 +3609,7 @@ void draw_flat_round_ribbon_pov(std::ofstream &fp, const Quat &quat, double radi
   fp << "}\n";
 }
 
-void draw_fancy_ribbon_pov(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, double *colour, const std::vector<Cartesian> &colour_vector, int transparent, double alpha, const bool two_colour){
+void draw_fancy_ribbon_pov(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, const double *colour, const std::vector<Cartesian> &colour_vector, int transparent, double alpha, const bool two_colour){
 
   std::vector<Cartesian>::const_iterator cart;
   std::vector<Cartesian>::const_iterator pviter;
@@ -3810,7 +3934,7 @@ void draw_fancy_ribbon_pov(std::ofstream &fp, const Quat &quat, double radius, d
   fp << "}\n";
 }
 
-void draw_flat_ribbon_pov(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, double *colour, const std::vector<Cartesian> &colour_vector, int transparent, double alpha){
+void draw_flat_ribbon_pov(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, const double *colour, const std::vector<Cartesian> &colour_vector, int transparent, double alpha){
 
   std::vector<Cartesian>::const_iterator cart;
   std::vector<Cartesian>::const_iterator pviter;
@@ -3974,7 +4098,8 @@ void Ribbon::DrawPovray(std::ofstream &fp, const Quat &quat, double radius, doub
   }
   */
 
-  std::vector<std::vector<Cartesian> > AB = GetAB();
+  int insert_at_vertex;
+  std::vector<std::vector<Cartesian> > AB = GetAB(insert_at_vertex);
 
   if(accu<4){
     int two_colour = (-accu)>>20;
@@ -4003,7 +4128,8 @@ void ArrowHeadRibbon::DrawPovray(std::ofstream &fp, const Quat &quat, double rad
   }
   */
 
-  std::vector<std::vector<Cartesian> > AB = GetAB();
+  int insert_at_vertex;
+  std::vector<std::vector<Cartesian> > AB = GetAB(insert_at_vertex);
 
   std::vector<Cartesian> vertices_tmp = vertices;
   std::vector<Cartesian> colour_vector_tmp = colour_vector;
@@ -4034,6 +4160,8 @@ void ArrowHeadRibbon::DrawPovray(std::ofstream &fp, const Quat &quat, double rad
 
 void BillBoard::DrawPovray(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const Volume &v)
 {
+   if(!image.get_width()||!image.get_height()||!image.get_pixels())
+      return;
   fp << "image={}\n";
   fp << "image[\"position\"]=[" << vertices[0].get_x() << "," << vertices[0].get_y() << "]\n";
   fp << "image[\"scale_w\"]=" << scale_w << "\n";
@@ -5225,6 +5353,8 @@ void ArrowHeadRibbon::DrawPostScript(std::ofstream &fp, const Quat &quat, double
 
 void BillBoard::DrawPostScript(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, double xoff, double yoff, double xscale, double yscale, double xscaleps, const Volume &v)
 {
+   if(!image.get_width()||!image.get_height()||!image.get_pixels())
+      return;
   fp << "gsave /rstr 8 string def /gstr 8 string def /bstr 8 string def %TEXT\n";
   fp << vertices[0].get_x()*xoff*2 << " " << vertices[0].get_y()*yoff*2 << " translate %TEXT\n";
   fp << ((image.get_width()+7)/8)*8*scale_w << " " << image.get_height()*scale_h << " scale %TEXT\n";
@@ -5312,7 +5442,7 @@ void BillBoardText::DrawPostScript(std::ofstream &fp, const Quat &quat, double r
   DrawPSmain(fp,quat,radius,ox,oy,oz,objrotmatrix,objorigin,xoff,yoff,xscale,yscale,xscaleps,v,IsBillBoard());
 }
 
-std::vector<Primitive*> Primitive::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> Primitive::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   //std::cout << "Primitive::GetSimplePrimitives\n";
   std::vector<Primitive*> a;
   /*
@@ -5325,13 +5455,13 @@ std::vector<Primitive*> Primitive::GetSimplePrimitives(const Volume &clip_vol, c
   return a;
 }
 
-std::vector<Primitive*> Point::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> Point::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   a.push_back(new Point(vertices[0],colour,vertices[0],size));
   return a;
 }
 
-std::vector<Primitive*> Line::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> Line::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   //std::cout << "Line::GetSimplePrimitives\n";
   std::vector<Primitive*> a;
   Line *line = new Line(vertices,colour,origin,size,alpha);
@@ -5339,45 +5469,45 @@ std::vector<Primitive*> Line::GetSimplePrimitives(const Volume &clip_vol, const 
   return a;
 }
 
-std::vector<Primitive*> ArrowElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> ArrowElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   return a;
 }
-std::vector<Primitive*> Arrow::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> Arrow::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   //std::cout << "Arrow::GetSimplePrimitives\n";
-  return ArrowElement::GetSimplePrimitives(clip_vol,objrotmatrix,objorigin);
+  return ArrowElement::GetSimplePrimitives(clip_vol,objrotmatrix,objorigin,start,end);
 }
 
-std::vector<Primitive*> DashArrowElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> DashArrowElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   //std::cout << "DashArrowElement::GetSimplePrimitives\n";
   std::vector<Primitive*> a;
   return a;
 }
-std::vector<Primitive*> DashArrow::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> DashArrow::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   //std::cout << "DashArrow::GetSimplePrimitives\n";
-  return DashArrowElement::GetSimplePrimitives(clip_vol,objrotmatrix,objorigin);
+  return DashArrowElement::GetSimplePrimitives(clip_vol,objrotmatrix,objorigin,start,end);
 }
 
 
-std::vector<Primitive*> LineStrip::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> LineStrip::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   //std::cout << "LineStrip::GetSimplePrimitives\n";
   std::vector<Primitive*> a;
   return a;
 }
 
-std::vector<Primitive*> DashLine::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> DashLine::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   //std::cout << "DashLine::GetSimplePrimitives\n";
   std::vector<Primitive*> a;
   return a;
 }
 
-std::vector<Primitive*> Circle::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> Circle::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   //std::cout << "Circle::GetSimplePrimitives\n";
   std::vector<Primitive*> a;
   return a;
 }
 
-std::vector<Primitive*> TriangleElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> TriangleElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   // TriangleElement?
   TriangleElement *tri = new Triangle(vertices,colour,origin,alpha,textured);
@@ -5386,7 +5516,7 @@ std::vector<Primitive*> TriangleElement::GetSimplePrimitives(const Volume &clip_
   return a;
 }
 
-std::vector<Primitive*> PolygonElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> PolygonElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   //typeof(*this)* tri = dynamic_cast<typeof(this)>(new (typeof(*this))(vertices,colour,origin,alpha,textured));
   PolygonElement *tri = new MGPolygon(vertices,colour,origin,alpha,textured);
@@ -5395,7 +5525,7 @@ std::vector<Primitive*> PolygonElement::GetSimplePrimitives(const Volume &clip_v
   return a;
 }
 
-std::vector<Primitive*> QuadElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> QuadElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   // QuadElement?
   QuadElement *tri = new Quad(vertices,colour,origin,alpha,textured);
@@ -5404,59 +5534,59 @@ std::vector<Primitive*> QuadElement::GetSimplePrimitives(const Volume &clip_vol,
   return a;
 }
 
-std::vector<Primitive*> SimpleBillBoard::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> SimpleBillBoard::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   return a;
 }
 
-std::vector<Primitive*> SimpleText::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> SimpleText::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   return a;
 }
 
-std::vector<Primitive*> PointCollection::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> PointCollection::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   if(lines.size()<1) return a;
-  std::vector<Primitive*>::iterator prim_iter = lines.begin();
+  std::vector<Primitive*>::const_iterator prim_iter = lines.begin();
   while(prim_iter!=lines.end()){
     //(*prim_iter)->set_transparent(transparent);
     //(*prim_iter)->SetAlpha(alpha);
-    std::vector<Primitive*> b = (*prim_iter)->GetSimplePrimitives(clip_vol,objrotmatrix,objorigin);
+    std::vector<Primitive*> b = (*prim_iter)->GetSimplePrimitives(clip_vol,objrotmatrix,objorigin,start,end);
     a.insert(a.end(),b.begin(),b.end());
     prim_iter++;
   }
   return a;
 }
-std::vector<Primitive*> LineCollection::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> LineCollection::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   //std::cout << "LineCollection::GetSimplePrimitives\n";
   std::vector<Primitive*> a;
   if(lines.size()<1) return a;
-  std::vector<Primitive*>::iterator prim_iter = lines.begin();
+  std::vector<Primitive*>::const_iterator prim_iter = lines.begin();
   while(prim_iter!=lines.end()){
     //(*prim_iter)->set_transparent(transparent);
     //(*prim_iter)->SetAlpha(alpha);
-    std::vector<Primitive*> b = (*prim_iter)->GetSimplePrimitives(clip_vol,objrotmatrix,objorigin);
+    std::vector<Primitive*> b = (*prim_iter)->GetSimplePrimitives(clip_vol,objrotmatrix,objorigin,start,end);
     a.insert(a.end(),b.begin(),b.end());
     prim_iter++;
   }
   return a;
 }
 
-std::vector<Primitive*> PolyCollection::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> PolyCollection::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   if(prims.size()<1) return a;
-  std::vector<Primitive*>::iterator prim_iter = prims.begin();
+  std::vector<Primitive*>::const_iterator prim_iter = prims.begin();
   while(prim_iter!=prims.end()){
     //(*prim_iter)->set_transparent(transparent);
     //(*prim_iter)->SetAlpha(alpha);
-    std::vector<Primitive*> b = (*prim_iter)->GetSimplePrimitives(clip_vol,objrotmatrix,objorigin);
+    std::vector<Primitive*> b = (*prim_iter)->GetSimplePrimitives(clip_vol,objrotmatrix,objorigin,start,end);
     a.insert(a.end(),b.begin(),b.end());
     prim_iter++;
   }
   return a;
 }
 
-std::vector<Primitive*> QuadStripElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> QuadStripElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   std::vector<Cartesian>::const_iterator k = vertices.begin();
   unsigned int i = 0;
@@ -5475,7 +5605,7 @@ std::vector<Primitive*> QuadStripElement::GetSimplePrimitives(const Volume &clip
   return a;
 }
 
-std::vector<Primitive*> TriangleStripElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> TriangleStripElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   std::vector<Cartesian>::const_iterator k = vertices.begin();
   unsigned int i = 0;
@@ -5493,7 +5623,7 @@ std::vector<Primitive*> TriangleStripElement::GetSimplePrimitives(const Volume &
   return a;
 }
 
-std::vector<Primitive*> TriangleFanElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> TriangleFanElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   std::vector<Cartesian>::const_iterator k = vertices.begin();
   unsigned int i = 0;
@@ -5519,13 +5649,13 @@ std::vector<Primitive*> TriangleFanElement::GetSimplePrimitives(const Volume &cl
   return a;
 }
 
-std::vector<Primitive*> PolyCylinder::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> PolyCylinder::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
 
   int multicolour = 0;
   if(colour_vector.size()>0)
     multicolour = 1;
-  double *colp = colour;
+  const double *colp = GetColour();
   std::vector<std::vector<Cartesian> > AB = GetPolyCylinderAB(vertices,size);
 
   for(int i=0;i<360;i=i+360/accu){
@@ -5637,7 +5767,7 @@ std::vector<Primitive*> PolyCylinder::GetSimplePrimitives(const Volume &clip_vol
   return a;
 }
 
-void get_flat_ribbon(std::vector<Primitive*> &a,const std::vector<Cartesian> &vertices_tmp,const std::vector<std::vector<Cartesian> > &AB,int my_accu,int textured,int multicolour,const std::vector<Cartesian> &colour_vector_tmp, double *colp, double alpha, const bool two_colour){
+void get_flat_ribbon(std::vector<Primitive*> &a,const std::vector<Cartesian> &vertices_tmp,const std::vector<std::vector<Cartesian> > &AB,int my_accu,int textured,int multicolour,const std::vector<Cartesian> &colour_vector_tmp, const double *colp, double alpha, const bool two_colour){
   Cartesian n;
   Cartesian p1,p2;
   unsigned int j;
@@ -5823,7 +5953,7 @@ void get_flat_ribbon(std::vector<Primitive*> &a,const std::vector<Cartesian> &ve
   }
 }
 
-void get_flat_rounded_ribbon(std::vector<Primitive*> &a,const std::vector<Cartesian> &vertices_tmp,const std::vector<std::vector<Cartesian> > &AB,int my_accu,int textured,int multicolour,const std::vector<Cartesian> &colour_vector_tmp, double *colp, double alpha, const bool two_colour){
+void get_flat_rounded_ribbon(std::vector<Primitive*> &a,const std::vector<Cartesian> &vertices_tmp,const std::vector<std::vector<Cartesian> > &AB,int my_accu,int textured,int multicolour,const std::vector<Cartesian> &colour_vector_tmp, const double *colp, double alpha, const bool two_colour){
   Cartesian n;
   Cartesian p1,p2;
   unsigned int j;
@@ -6043,7 +6173,7 @@ void get_flat_rounded_ribbon(std::vector<Primitive*> &a,const std::vector<Cartes
   }
 }
 
-void get_fancy_ribbon(std::vector<Primitive*> &a,const std::vector<Cartesian> &vertices_tmp,const std::vector<std::vector<Cartesian> > &AB,int my_accu,int textured,int multicolour,const std::vector<Cartesian> &colour_vector_tmp, double *colp, double alpha, const bool two_colour){
+void get_fancy_ribbon(std::vector<Primitive*> &a,const std::vector<Cartesian> &vertices_tmp,const std::vector<std::vector<Cartesian> > &AB,int my_accu,int textured,int multicolour,const std::vector<Cartesian> &colour_vector_tmp, const double *colp, double alpha, const bool two_colour){
   Cartesian n;
   Cartesian p1,p2;
   unsigned int j;
@@ -6265,7 +6395,7 @@ void get_fancy_ribbon(std::vector<Primitive*> &a,const std::vector<Cartesian> &v
 
 }
 
-void get_elliptical_ribbon(std::vector<Primitive*> &a,const std::vector<Cartesian> &vertices_tmp,const std::vector<std::vector<Cartesian> > &AB,int my_accu,int textured,int multicolour,const std::vector<Cartesian> &colour_vector_tmp, double *colp, double alpha){
+void get_elliptical_ribbon(std::vector<Primitive*> &a,const std::vector<Cartesian> &vertices_tmp,const std::vector<std::vector<Cartesian> > &AB,int my_accu,int textured,int multicolour,const std::vector<Cartesian> &colour_vector_tmp, const double *colp, double alpha){
   double col[4];
   for(int i=0;i<360;i=i+360/my_accu){
     double theta = (double)i/360.0 * PIBY2;
@@ -6316,16 +6446,27 @@ void get_elliptical_ribbon(std::vector<Primitive*> &a,const std::vector<Cartesia
   }
 }
 
-std::vector<Primitive*> Ribbon::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> Ribbon::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   int multicolour = 0;
   if(colour_vector.size()>0)
     multicolour = 1;
-  double *colp = colour;
-  std::vector<std::vector<Cartesian> > AB = GetAB();
+  const double *colp = GetColour();
+  int insert_at_vertex;
+  std::vector<std::vector<Cartesian> > AB = GetAB(insert_at_vertex);
 
   std::vector<Cartesian> vertices_tmp = vertices;
   std::vector<Cartesian> colour_vector_tmp = colour_vector;
+  if(RenderQuality::GetRenderQuality()) {
+    vertices_tmp = SplineCurve(vertices,(vertices.size()-1)*4,3,1);
+    colour_vector_tmp.resize(colour_vector.size()*4);
+    for(unsigned icol=0;icol<colour_vector.size();icol++){
+      colour_vector_tmp[icol*4] = colour_vector[icol];
+      colour_vector_tmp[icol*4+1] = colour_vector[icol];
+      colour_vector_tmp[icol*4+2] = colour_vector[icol];
+      colour_vector_tmp[icol*4+3] = colour_vector[icol];
+    }
+  }
 
   int my_accu = accu;
   if(accu<4) my_accu = 8;
@@ -6334,7 +6475,7 @@ std::vector<Primitive*> Ribbon::GetSimplePrimitives(const Volume &clip_vol, cons
     int two_colour = (-accu)>>20;
     int orig_style = ((-accu)^two_colour<<20)>>16;
     int orig_accu = (-accu)^(orig_style<<16)^(two_colour<<20);
-    if(RenderQuality::GetRenderQuality())
+    if(RenderQuality::GetRenderQuality()&&0)
       orig_accu = 180;
     if(orig_style==0)
       get_elliptical_ribbon(a,vertices_tmp,AB,orig_accu,textured,multicolour,colour_vector_tmp,colp,alpha);
@@ -6348,7 +6489,7 @@ std::vector<Primitive*> Ribbon::GetSimplePrimitives(const Volume &clip_vol, cons
     get_flat_ribbon(a,vertices_tmp,AB,orig_accu,textured,multicolour,colour_vector_tmp,colp,alpha,two_colour);
   } else {
     int my_accu;
-    if(RenderQuality::GetRenderQuality())
+    if(RenderQuality::GetRenderQuality()&&0)
       my_accu = 180;
     else
       my_accu = accu;
@@ -6359,16 +6500,27 @@ std::vector<Primitive*> Ribbon::GetSimplePrimitives(const Volume &clip_vol, cons
   return a;
 }
 
-std::vector<Primitive*> ArrowHeadRibbon::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> ArrowHeadRibbon::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   int multicolour = 0;
   if(colour_vector.size()>0)
     multicolour = 1;
-  double *colp = colour;
-  std::vector<std::vector<Cartesian> > AB = GetAB();
+  const double *colp = GetColour();
+  int insert_at_vertex;
+  std::vector<std::vector<Cartesian> > AB = GetAB(insert_at_vertex);
 
   std::vector<Cartesian> vertices_tmp = vertices;
   std::vector<Cartesian> colour_vector_tmp = colour_vector;
+  if(RenderQuality::GetRenderQuality()) {
+    vertices_tmp = SplineCurve(vertices,(vertices.size()-1)*4,3,1);
+    colour_vector_tmp.resize(colour_vector.size()*4);
+    for(unsigned icol=0;icol<colour_vector.size();icol++){
+      colour_vector_tmp[icol*4] = colour_vector[icol];
+      colour_vector_tmp[icol*4+1] = colour_vector[icol];
+      colour_vector_tmp[icol*4+2] = colour_vector[icol];
+      colour_vector_tmp[icol*4+3] = colour_vector[icol];
+    }
+  }
 
   if(insert_at_vertex>0){
     vertices_tmp.insert(vertices_tmp.begin()+insert_at_vertex,0.9*vertices_tmp[insert_at_vertex-1] + 0.1*vertices_tmp[insert_at_vertex]);
@@ -6381,7 +6533,7 @@ std::vector<Primitive*> ArrowHeadRibbon::GetSimplePrimitives(const Volume &clip_
   if(accu<4){
     int orig_style = (-accu)>>16;
     int orig_accu = (-accu)^(orig_style<<16);
-    if(RenderQuality::GetRenderQuality())
+    if(RenderQuality::GetRenderQuality()&&0)
       orig_accu = 180;
     if(orig_style==0)
       get_elliptical_ribbon(a,vertices_tmp,AB,orig_accu,textured,multicolour,colour_vector_tmp,colp,alpha);
@@ -6393,7 +6545,7 @@ std::vector<Primitive*> ArrowHeadRibbon::GetSimplePrimitives(const Volume &clip_
     get_flat_ribbon(a,vertices_tmp,AB,orig_accu,textured,multicolour,colour_vector_tmp,colp,alpha,false);
   } else {
     int my_accu;
-    if(RenderQuality::GetRenderQuality())
+    if(RenderQuality::GetRenderQuality()&&0)
       my_accu = 180;
     else
       my_accu = accu;
@@ -6406,7 +6558,7 @@ std::vector<Primitive*> ArrowHeadRibbon::GetSimplePrimitives(const Volume &clip_
 
 
 void normalize(float v[3],float radius);
-void SubDivideSphere(float *v1, float *v2, float *v3, int depth, float radius, std::vector<Primitive*> &a, double *colour, double alpha, int textured, Cartesian origin){ 
+void SubDivideSphere(float *v1, float *v2, float *v3, int depth, float radius, std::vector<Primitive*> &a, const double *colour, double alpha, int textured, Cartesian origin){ 
    GLfloat v12[3], v23[3], v31[3];    
    GLint i;
 
@@ -6445,7 +6597,7 @@ void SubDivideSphere(float *v1, float *v2, float *v3, int depth, float radius, s
 
 }
 
-std::vector<Primitive*> SphereElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> SphereElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   for (int i = 0; i < 20; i++) {    
     SubDivideSphere(&icosa[tindices[i][0]][0],  
@@ -6469,7 +6621,13 @@ std::vector<Primitive*> SphereElement::GetSimplePrimitives(const Volume &clip_vo
   return a;
 }
 
-std::vector<Primitive*> SpheroidElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> SpheroidElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
+
+  std::vector<Primitive*> simp_prims2;
+  SpheroidElement *se = new SpheroidElement(vertices[0],colour,origin,a,b,c,xaxis,yaxis,zaxis,alpha,show_axes,show_solid,textured);
+  simp_prims2.push_back(se);
+  return simp_prims2;
+
   std::vector<Primitive*> simp_prims;
   Cartesian cartx = Cartesian(1,0,0);
   Cartesian carty = Cartesian(0,1,0);
@@ -6477,18 +6635,22 @@ std::vector<Primitive*> SpheroidElement::GetSimplePrimitives(const Volume &clip_
   Quat q1,q2;
   matrix m(4,kdelta);
 
+  std::cout << xaxis << "\n";
+  std::cout << yaxis << "\n";
+  std::cout << zaxis << "\n";
+  std::cout << a << " " << b << " " << c << "\n";
   double angle = acos(cartx.DotProduct(cartx,xaxis))*180.0/M_PI;
-  //std::cout << "Angle 1: " << angle << "\n";
+  std::cout << "Angle 1: " << angle << "\n";
   if(fabs(angle)>0.00001){
     Cartesian rotax = cartx.CrossProduct(cartx,xaxis);
-    //std::cout << "rotax: " << rotax;
+    std::cout << "rotax: " << rotax;
     q1 = Quat(rotax,1,-angle);
   }
   m = q1.getMatrix();
 
   yprim = m * carty;
   angle = acos(yprim.DotProduct(yprim,yaxis))*180.0/M_PI;
-  //std::cout << "Angle 2: " << angle << "\n";
+  std::cout << "Angle 2: " << angle << "\n";
 
   if(fabs(angle)>0.00001){
     q2 = Quat(cartx,1,-angle);
@@ -6507,25 +6669,25 @@ std::vector<Primitive*> SpheroidElement::GetSimplePrimitives(const Volume &clip_
     carts[0].Scale(a,b,c);
     carts[0] = m * carts[0];
     carts[1].Scale(a,b,c);
-    carts[1] = m * carts[0];
+    carts[1] = m * carts[1];
     carts[2].Scale(a,b,c);
-    carts[2] = m * carts[0];
+    carts[2] = m * carts[2];
     simp_prims[ii]->SetVertices(carts);
   }
 
   return simp_prims;
 }
 
-std::vector<Primitive*> CylinderElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> CylinderElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   std::vector<Cartesian> colour_vector;
   colour_vector.push_back(Cartesian(colour[0],colour[1],colour[2]));
   colour_vector.push_back(Cartesian(colour[0],colour[1],colour[2]));
   PolyCylinder polycyl(vertices, colour, origin, colour_vector, size, alpha, accu, textured);
-  return polycyl.GetSimplePrimitives(clip_vol,objrotmatrix,objorigin);
+  return polycyl.GetSimplePrimitives(clip_vol,objrotmatrix,objorigin,start,end);
 }
 
-std::vector<Primitive*> ConeElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> ConeElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
   std::vector<std::vector<Cartesian> > AB = GetPolyCylinderAB(vertices,size);
 
@@ -6563,12 +6725,12 @@ std::vector<Primitive*> ConeElement::GetSimplePrimitives(const Volume &clip_vol,
   return a;
 }
 
-void DashCylinder::draw(double *override_colour, int selective_override){
+void DashCylinder::draw(const double *override_colour, int selective_override){
   glEnable(GL_LIGHTING);
   DashCylinderElement::draw(override_colour,selective_override);
 }
 
-void DashCylinderElement::draw(double *override_colour, int selective_override){
+void DashCylinderElement::draw(const double *override_colour, int selective_override){
   
   double length = (vertices[1]-vertices[0]).length();
   int nsegments = (int)(length/dash_length);
@@ -6627,14 +6789,14 @@ void DashCylinderElement::DrawPostScript(std::ofstream &fp, const Quat &quat, do
    Primitive::DrawPostScript(fp,quat,radius,ox,oy,oz,objrotmatrix,objorigin,xoff,yoff,xscale,yscale,xscaleps,v);
 }
 
-void DashCylinderElement::set_draw_colour(GLfloat *col){
+void DashCylinderElement::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_poly_override(col);
   else
     set_draw_colour_poly();
 }
 
-std::vector<Primitive*> DashCylinderElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin){
+std::vector<Primitive*> DashCylinderElement::GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) const {
   std::vector<Primitive*> a;
     double length = (vertices[1]-vertices[0]).length();
   int nsegments = (int)(length/dash_length);

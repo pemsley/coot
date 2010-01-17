@@ -1,6 +1,7 @@
 /*
      mmut/mmut_sbase.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -1107,6 +1108,7 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
     // Can stop now if all matched
     if ( nmatch == nAtominRes ) {
       delete [] pAtom; 
+      HandleTerminii(pRes,udd_atomEnergyType);
       return output.str();
     }
 
@@ -1196,6 +1198,7 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
         }
         FreeVectorMemory(imatch,0);
 	delete [] pAtom; 
+        HandleTerminii(pRes,udd_atomEnergyType);
 	return output.str();
       } 
       else {
@@ -1219,12 +1222,44 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
       //cout << "Assigned atom type " << LibAtom("",pAtom[j]->element) << endl;
     }
     //return 1;
-  } 
+  }
+
+
   //else {
     //RC = GraphSearch ( pRes, pSbaseRes, nAtominRes, nMatchAtom, matchAtom);
   //}
+
+  HandleTerminii(pRes,udd_atomEnergyType);
   delete [] pAtom;
   return output.str();
+}
+
+
+int CMGSBase::HandleTerminii(PCResidue pRes, int udd_atomEnergyType ) {
+  // Check for peptide chain terminii to fix the typing of N and O
+  PCAtom pAtom;
+  char *Nnames[] = { "N", "NT" };
+  char *Onames[] = { "O", "OXT" , "OE" };
+  if ( isAminoacid(pRes->name) ) {
+    //cout << "isAminoacid " << pRes->name << pRes->seqNum << endl;
+    if ( pRes->index == 0 ) {
+      for (int ia=0; ia<2; ia++ ) {
+        pAtom = pRes->GetAtom(Nnames[ia],"*","*");
+        //cout << "first " << pRes->name << pRes->seqNum << pAtom << " " << LibAtom("NC2","N") <<endl;
+        if (pAtom) pAtom->PutUDData(udd_atomEnergyType,LibAtom("NC2","N"));
+      }
+    }
+    // Test if last in chain or the next residue is not amino acid
+    else if ( (pRes->index == pRes->chain->GetNumberOfResidues()-1) ||
+	      !( isAminoacid(pRes->chain->GetResidue(pRes->index+1)->name) ) ) {
+      for (int ia=0; ia<3; ia++ ) {
+        pAtom = pRes->GetAtom(Onames[ia],"*","*");
+        //cout << "last " << pRes->name << pRes->seqNum << pAtom << " " << LibAtom("OC","O") << endl;
+        if (pAtom) pAtom->PutUDData(udd_atomEnergyType,LibAtom("OC","O"));
+      }
+    }
+  }
+  return 0;
 }
 
 

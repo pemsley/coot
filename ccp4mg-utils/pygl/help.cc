@@ -1,6 +1,7 @@
 /*
      pygl/help.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -77,6 +78,7 @@
 #include "plane.h"
 #include "cartesian.h"
 #include "matrix.h"
+#include "geomutil.h"
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643
@@ -99,7 +101,7 @@ void Win32Error(void){
     (LPTSTR) &lpMsgBuf,
     0,
     NULL );
-    printf("Error: %d %s\n",dw,(LPTSTR)lpMsgBuf);
+    printf("Error: %ld %s\n",dw,(LPTSTR)lpMsgBuf);
 }
 
 void OffScreenBuffer::setupDIB(){
@@ -579,7 +581,7 @@ int CheckIfStereoAvailable(void){
   WNDCLASS wc;
   HWND hWnd;
   HDC hDC;
-  HGLRC hRC;
+  //HGLRC hRC;
 	
   // register window class
   wc.style = CS_OWNDC;
@@ -597,7 +599,7 @@ int CheckIfStereoAvailable(void){
   // create main window
   hWnd = CreateWindow("GLSample", "OpenGL Sample", 
                       WS_CAPTION | WS_POPUPWINDOW,
-                      0, 0, 256, 256,
+                      0, 0, 10, 10,
                       NULL, NULL, GetModuleHandle(NULL), NULL );
 
   PIXELFORMATDESCRIPTOR pfd;
@@ -625,17 +627,17 @@ int CheckIfStereoAvailable(void){
         DestroyWindow(hWnd);
 	return 0;
   }
-  BOOL bStereoAvailable;
+  //BOOL bStereoAvailable;
 
   format = GetPixelFormat (hDC);
   DescribePixelFormat (hDC, format, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 
   if ((pfd.dwFlags & PFD_STEREO) == 0){
-    //printf("Windows does not think stereo is available\n");
+    //printf("Windows does not think stereo is available\n"); fflush(stdout);
     DestroyWindow(hWnd);
     return 0;
   }else{
-    //printf("Windows thinks stereo is available\n");
+    //printf("Windows thinks stereo is available\n"); fflush(stdout);
     DestroyWindow(hWnd);
     return 1;
   }
@@ -749,6 +751,9 @@ int findprimc_main(const Cartesian &xyzmpf, const Cartesian &xyzmpb, const Carte
   unsigned int j;
   Cartesian prim;
 
+  Cartesian front = Cartesian::MidPoint(objrotmat*xyzmmf,objrotmat*xyzppf);
+  Cartesian back  = Cartesian::MidPoint(objrotmat*xyzmmb,objrotmat*xyzppb);
+
   std::vector<Cartesian> points;
   std::vector<Cartesian>::const_iterator point;
 
@@ -785,6 +790,8 @@ int findprimc_main(const Cartesian &xyzmpf, const Cartesian &xyzmpb, const Carte
   int clicked = 0;
   int clicked_prim = -1;
 
+  double mindist = 1.0e+8;
+
   for(j=0;j<primorigin.size();j++){
     prim = primorigin[j];
     clicked = 1;
@@ -794,8 +801,9 @@ int findprimc_main(const Cartesian &xyzmpf, const Cartesian &xyzmpb, const Carte
       n = plane->get_normal();
       n.normalize();
       p2prim = *point-prim;
-      if(n.DotProduct(n,p2prim)>0.0)
+      if(n.DotProduct(n,p2prim)>0.0){
         clicked = 0;
+      }
       point++;
       plane++;
     }
@@ -806,21 +814,32 @@ int findprimc_main(const Cartesian &xyzmpf, const Cartesian &xyzmpb, const Carte
     
     plane = planes.begin();
     point = points.begin();
+    //std::cout << "prim: " << prim << std::endl; 
     while(plane!=planes.end()&&clicked){
       n = plane->get_normal();
+      //std::cout << "point: " << *point << std::endl; 
+      //std::cout << n << std::endl;
       p2prim = *point-prim;
+      //std::cout << "p2prim: " << p2prim << std::endl; 
       n.normalize();
       p2prim.normalize();
-      if(n.DotProduct(n,p2prim)>1e-3)
+      //std::cout <<  n.DotProduct(n,p2prim) << std::endl;
+      if(n.DotProduct(n,p2prim)>1e-3){
 	clicked = 0;
+      }
       point++;
       plane++;
     }
     if(clicked) {
-      clicked_prim = j;
-      break;
+      std::vector<double> linedist = DistanceBetweenPointAndLine(front,back,prim);
+      double dist = fabs(linedist[0]);
+      if(dist<mindist){
+        clicked_prim = j;
+	mindist = dist;
+      }
     }
   }
+  //std::cout << clicked_prim << " " << mindist << std::endl;
 
   return clicked_prim;
   

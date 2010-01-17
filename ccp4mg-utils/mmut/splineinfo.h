@@ -1,6 +1,7 @@
 /*
      mmut/splineinfo.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -16,7 +17,6 @@
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
      GNU Lesser General Public License for more details.
 */
-
 
 #ifndef _CCP4MG_SPLINEINFO_
 #define _CCP4MG_SPLINEINFO_
@@ -36,6 +36,6 @@ struct SplineInfo {
 };
 
 SplineInfo GetSplineInfo(CMMANManager *molH, int atom_selHnd, AtomColourVector *atm_col_vect, int spline_accu , int udd_chain = -1, int udd_CA = -1, int flatten_beta_sheet =0, int flatten_loop=0, int smooth_helix=0);
-
+int GetCAFromSelection(CMMANManager *molH, int atom_selHnd_in);
 
 #endif

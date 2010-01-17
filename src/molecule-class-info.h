@@ -476,6 +476,7 @@ namespace coot {
       float arrow_width;
       float arrow_length;
       float worm_width;
+      float helix_tube_diameter;
       int ribbon_style; // oval, flat, round (0,1,2)
       int two_colour_ribbon; // normal, inside grey (0,1)
       int helix_style;  // oval, flat, flat/round, fancy (0,1,2,3)
@@ -490,6 +491,7 @@ namespace coot {
 	 arrow_width = 2.2;
 	 arrow_length = 2.2;
 	 worm_width = 0.2;
+         helix_tube_diameter = 1.5;
 	 ribbon_style = 0;
 	 two_colour_ribbon = 0;
 	 helix_style = 0;
@@ -997,6 +999,7 @@ class molecule_class_info_t {
       ribbon_params.SetFloat("arrow_width", 2.2);
       ribbon_params.SetFloat("arrow_length", 2.2);
       ribbon_params.SetFloat("worm_width", 0.2);
+      ribbon_params.SetFloat("helix_tube_diameter", 1.5);
       ribbon_params.SetFloat("opacity", 0.5);
       ribbon_params.SetInt("transparent", 0);
       ribbon_params.SetInt("ribbon_style", 0);

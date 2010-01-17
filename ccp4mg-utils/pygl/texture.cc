@@ -21,6 +21,8 @@
 #include <windows.h>
 #endif
 
+#include <utility>
+
 #define GLUT_DISABLE_ATEXIT_HACK
 #ifdef __APPLE_CC__
 #include <OpenGL/gl.h>
@@ -29,6 +31,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif
+#include <string.h>
 #include "ppmutil.h"
 #include "texture.h"
 
@@ -50,12 +53,10 @@ void set_texture_coord(GLfloat x, GLfloat y, int textured){
 #endif
 }
 
-unsigned int load_texture(const image_info &iinfo, int style)
-{
+std::pair<unsigned,unsigned> GetCompatibleTextureSize(const unsigned width_in, const unsigned height_in){
 
-  int width  = iinfo.get_width();
-  int height = iinfo.get_height();
-  image_info tiinfo(iinfo.get_width(),iinfo.get_height(),iinfo.get_pixels(),iinfo.get_colourspace_type());
+  int width = width_in;
+  int height = height_in;
 
   int max_width = 256;
   int max_height = 256;
@@ -96,11 +97,55 @@ unsigned int load_texture(const image_info &iinfo, int style)
 
   if(height>max_height) height = max_height;
 
-  tiinfo.ScaleImage(width,height);
+  return std::pair<unsigned,unsigned>(width,height);
+
+}
+
+image_info ResizeWithEmptySpace(const image_info &iinfo, const unsigned width, const unsigned height){
+  image_info tiinfo(iinfo.get_width(),iinfo.get_height(),iinfo.get_pixels(),iinfo.get_colourspace_type());
+  tiinfo.convert_rgba();
+
+  //printf("Scaling from %d, %d to %d,%d\n",tiinfo.get_width(),tiinfo.get_height(),width,height);
+  // We do not want to scale, we want to expand with empty space!!
+  unsigned char *opix = tiinfo.get_pixels();
+  unsigned char *npix = new unsigned char[height*width*tiinfo.get_colourspace()];
+  int ii=0;
+  for(unsigned i=0;i<height*width;i++){
+     npix[ii++]=255;
+     npix[ii++]=255;
+     npix[ii++]=255;
+     npix[ii++]=0;
+     
+  }
+  for(unsigned ii=0;ii<tiinfo.get_height();ii++){
+    memcpy(npix+ii*width*tiinfo.get_colourspace(),opix+ii*tiinfo.get_width()*tiinfo.get_colourspace(),tiinfo.get_width()*tiinfo.get_colourspace()*sizeof(unsigned char));
+  }
+  image_info tiinfo2(width,height,npix,tiinfo.get_colourspace_type());
+  tiinfo = tiinfo2;
+  //tiinfo.ScaleImage(width,height);
+  return tiinfo;
+}
+
+
+
+unsigned int load_texture(const image_info &iinfo, int style)
+{
+
+  int width  = iinfo.get_width();
+  int height = iinfo.get_height();
+
+  /*
+  std::pair<unsigned,unsigned> wh = GetCompatibleTextureSize(width,height);
+  width = wh.first;
+  height = wh.second;
+
+  image_info tiinfo = ResizeWithEmptySpace(iinfo,width,height);
 
   width  = tiinfo.get_width();
   height = tiinfo.get_height();
+*/
 
+  image_info tiinfo = iinfo;
   GLuint texName;
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glGenTextures(1, &texName);
@@ -111,10 +156,10 @@ unsigned int load_texture(const image_info &iinfo, int style)
   int glcolourspace;
   if(iinfo.get_colourspace_type()==IMAGEINFO_RGBA){
     glcolourspace = GL_RGBA;
-  }else if(iinfo.get_colourspace_type()==IMAGEINFO_MONOA){
+  }else if(tiinfo.get_colourspace_type()==IMAGEINFO_MONOA){
     tiinfo.convert_rgba();
     glcolourspace = GL_RGBA;
-  }else if(iinfo.get_colourspace_type()==IMAGEINFO_RGB){
+  }else if(tiinfo.get_colourspace_type()==IMAGEINFO_RGB){
     glcolourspace = GL_RGB;
   }else{
     tiinfo.convert_rgb();

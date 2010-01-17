@@ -80,6 +80,8 @@ class Quat{
    Quat Exp() const;
    Quat Power(double p) const;
    double Norm() const;
+   const std::vector<double> &dvals() const ;
+   Cartesian GetRotationAxis() const;
 
 };
 #endif
