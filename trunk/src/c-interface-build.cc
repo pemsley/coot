@@ -2205,9 +2205,10 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
    }
    std::string cmd = "mutate";
    std::vector<coot::command_arg_t> args;
-   args.push_back(ires);
-   args.push_back(coot::util::single_quote(chain_id));
    args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(ires);
+   args.push_back(coot::util::single_quote(inscode));
    args.push_back(coot::util::single_quote(target_res_type));
    add_to_history_typed(cmd, args);
    
@@ -2222,6 +2223,15 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
       istate = graphics_info_t::molecules[imol].mutate_base(r, res_type);
       graphics_draw();
    } 
+   std::string cmd = "mutate-base";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(res_no);
+   args.push_back(coot::util::single_quote(ins_code));
+   args.push_back(coot::util::single_quote(res_type));
+   add_to_history_typed(cmd, args);
+   
    return istate; 
 } 
 
@@ -4445,6 +4455,8 @@ void do_base_mutation(const char *type) {
 	    int istat = graphics_info_t::molecules[imol].mutate_base(res_spec, cbn);
 	    if (istat)
 	       graphics_draw();
+	    // Is this the right function?
+	    update_go_to_atom_window_on_changed_mol(imol);
 	 } else {
 	    std::string s = "No canonical base name found";
 	    std::cout << "WARNING:: " << s << std::endl;

@@ -2637,12 +2637,36 @@ coot::util::is_nucleotide(CResidue *residue_p) {
 			} else { 
 			   if (type == "Ur") { 
 			      nuc = 1;
-			   } else {
-			      if (type == "Ud") {  // happens sometimes, e.g. brna.pdb
+			   } else { 
+			      if (type == "DG") { 
 				 nuc = 1;
-			      } else {
-				 if (type == "Tr") {  // not very likely
+			      } else { 
+				 if (type == "DC") { 
 				    nuc = 1;
+				 } else { 
+				    if (type == "DA") { 
+				       nuc = 1;
+				    } else { 
+				       if (type == "DU") { 
+					  nuc = 1;
+				       } else { 
+					  if (type == "DT") { 
+					     nuc = 1;
+					  } else { 
+					     if (type == "DI") { 
+						nuc = 1;
+					     } else {
+						if (type == "Ud") {  // happens sometimes, e.g. brna.pdb
+						   nuc = 1;
+						} else {
+						   if (type == "Tr") {  // not very likely
+						      nuc = 1;
+						   }
+						}
+					     }
+					  }
+				       }
+				    }
 				 }
 			      }
 			   }
