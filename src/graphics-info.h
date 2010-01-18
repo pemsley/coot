@@ -43,6 +43,15 @@
 #include <gtk/gtkgl.h>
 #endif // (GTK_MAJOR_VERSION == 1)
 
+// #ifndef WII_INTERFACE
+// #define WII_INTERFACE 1 // FIXME WII
+// #endif
+
+#ifdef WII_INTERFACE
+#include "cwiid.h"
+#endif 
+
+
 #include "Cartesian.h"
 #include "mgtree.h"
 #include "pick.h"
@@ -444,6 +453,7 @@ namespace coot {
   };
 
 
+#ifdef USE_LIBCURL
   class simple_curl_handler_t { 
   public:
     CURL * c;
@@ -461,7 +471,7 @@ namespace coot {
       stop_it = 1;
     }
   };
-
+#endif // USE_LIBCURL
   
 } // namespace coot
 
@@ -1130,6 +1140,10 @@ public:
 
    static bool do_expose_swap_buffers_flag;
    
+#ifdef WII_INTERFACE
+   static cwiid_wiimote_t *wiimote;
+#endif
+
    static void graphics_draw() {
      if (glarea) { 
        gtk_widget_draw(glarea, NULL);
