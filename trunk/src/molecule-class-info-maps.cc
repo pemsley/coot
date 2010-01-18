@@ -2652,6 +2652,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
    // best score is the inital score (without the atoms being jiggled) (could be a good score!)
    // 
    float initial_score = coot::util::z_weighted_density_score(direct_mol, atom_numbers, xmap);
+   initial_score = coot::util::biased_z_weighted_density_score(direct_mol, atom_numbers, xmap);
    float best_score = initial_score;
    bool  bested = 0;
    coot::minimol::molecule best_molecule;
@@ -2679,9 +2680,11 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
       coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms);
       coot::minimol::molecule fitted_mol = rigid_body_fit(jiggled_mol, xmap, map_sigma);
       float this_score = coot::util::z_weighted_density_score(fitted_mol, atom_numbers, xmap);
-      // std::cout << " comparing scores " << this_score << " vs " << best_score << std::endl;
-      if (this_score > best_score) {
+      float bias_score  = coot::util::biased_z_weighted_density_score(fitted_mol, atom_numbers, xmap);
+	 // std::cout << " comparing scores " << this_score << " vs " << best_score << std::endl;
+      if (bias_score > best_score) {
 	 best_score = this_score;
+	 best_score = bias_score;
 	 best_molecule = fitted_mol;
 	 bested = 1;
       } 

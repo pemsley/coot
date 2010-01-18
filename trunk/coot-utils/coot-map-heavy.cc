@@ -262,12 +262,33 @@ coot::util::z_weighted_density_score(const minimol::molecule &mol,
    float sum_d = 0;
    std::vector<coot::minimol::atom *> atoms = mol.select_atoms_serial();
    for (unsigned int i=0; i<atoms.size(); i++) { 
-      float d = coot::util::z_weighted_density_at_point(atoms[i]->pos,atoms[i]->element,
+      float d = coot::util::z_weighted_density_at_point(atoms[i]->pos, atoms[i]->element,
 							atom_number_list, map);
       sum_d += d;
    }
    return sum_d;
 }
+
+// High density fitting is down-weighted and negative density fitting
+// is upweighted.
+// 
+float
+coot::util::biased_z_weighted_density_score(const minimol::molecule &mol,
+					    const std::vector<std::pair<std::string, int> > &atom_number_list,
+					    const clipper::Xmap<float> &map) {
+
+   float sum_d = 0;
+   std::vector<coot::minimol::atom *> atoms = mol.select_atoms_serial();
+   for (unsigned int i=0; i<atoms.size(); i++) { 
+      float d = coot::util::z_weighted_density_at_point(atoms[i]->pos, atoms[i]->element,
+							atom_number_list, map);
+      float d_v = -exp(-d)+1.0;
+      sum_d += d_v;
+   }
+   return sum_d;
+} 
+
+
 
 
 std::vector<CAtom>
