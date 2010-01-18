@@ -74,6 +74,10 @@ namespace coot {
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
 				     const clipper::Xmap<float> &map);
 
+      float biased_z_weighted_density_score(const minimol::molecule &mol,
+					    const std::vector<std::pair<std::string, int> > &atom_number_list,
+					    const clipper::Xmap<float> &map);
+
       std::vector<CAtom> jiggle_atoms(const std::vector<CAtom *> &atoms,
 				      const clipper::Coord_orth &centre_pt,
 				      float jiggle_scale_factor);
