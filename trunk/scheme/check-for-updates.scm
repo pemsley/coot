@@ -124,16 +124,16 @@
 		(format #t "OOps! Can't find COOT_PREFIX~%")
 		#f)
 	      (let* ((pre-release-flag (string-match "-pre" (coot-version)))
-		     (ys "www.ysbl.york.ac.uk/~emsley/software/binaries")
+		     (ys "www.ysbl.york.ac.uk/~emsley/software/binaries/")
 		     (binary-type (coot-sys-build-type))
 		     (host-dir (cond 
-				((string=? binary-type "binary-Linux-i386-fedora-3") ys)
-				((string=? binary-type "binary-Linux-i386-fedora-3-python") ys)
-				((string=? binary-type "binary-Linux-i386-fedora-8-python-gtk2") ys)
-				((string=? binary-type "binary-Linux-i386-fedora-8-gtk2") ys)
-				((string=? binary-type "binary-Linux-i386-fedora-10-python-gtk2") ys)
-				((string=? binary-type "binary-Linux-i686-ubuntu-8.04.3") ys)
-				((string=? binary-type "binary-Linux-i686-ubuntu-8.04.3-python") ys)
+				((string=? binary-type "Linux-i386-fedora-3") ys)
+				((string=? binary-type "Linux-i386-fedora-3-python") ys)
+				((string=? binary-type "Linux-i386-fedora-8-python-gtk2") ys)
+				((string=? binary-type "Linux-i386-fedora-8-gtk2") ys)
+				((string=? binary-type "Linux-i386-fedora-10-python-gtk2") ys)
+				((string=? binary-type "Linux-i686-ubuntu-8.04.3") ys)
+				((string=? binary-type "Linux-i686-ubuntu-8.04.3-python") ys)
 				(else 
 				 "www.biop.ox.ac.uk/coot/software/binaries/")))
 		     (tar-file-name (string-append version-string "-binary-" binary-type ".tar.gz"))
@@ -435,10 +435,6 @@
     (define (make-latest-version-url)
       (let ((build-type (coot-sys-build-type)))
 	
-	;; hack!
-	;; 
-	;; (set! build-type "Linux-i386-centos-4-gtk2")
-
 	(string-append 
 	 "http://www.biop.ox.ac.uk/coot/software/binaries/"
 	 (if (pre-release?)
