@@ -519,6 +519,7 @@ int do_GL_lighting_state();
    An interface function for Ralf.
 */
 short int use_graphics_interface_state();
+short int python_at_prompt_at_startup_state();
 
 /*! \brief start Gtk (and graphics) 
 

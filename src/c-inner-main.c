@@ -94,7 +94,7 @@ void
 c_inner_main(void *closure, int argc, char** argv) { 
 
 /*    export commands */
-   
+
   char *filename = ".coot";
   char *preferences_filename = ".coot-preferences.scm";
   char *directory;
@@ -111,6 +111,7 @@ c_inner_main(void *closure, int argc, char** argv) {
   struct stat buf;
   int istat = 1; // fail initially (fake a stat() results). 
   short int use_graphics_flag = use_graphics_interface_state();
+  short int python_at_prompt_flag = python_at_prompt_at_startup_state();
   int preferences_dir_status;
   glob_t myglob;
   int flags = 0;
@@ -119,7 +120,7 @@ c_inner_main(void *closure, int argc, char** argv) {
   char **p;
   char *preferences_file;
        
-  // printf("::::::::::::::::: c_inner_main() SWIG_init\n");
+/*   printf("::::::::::::::::: c_inner_main() SWIG_init\n"); */
   SWIG_init();   
 
 
@@ -233,7 +234,7 @@ c_inner_main(void *closure, int argc, char** argv) {
   directory = getenv("HOME"); 
 #endif
   if (directory) {
-     /* first the preferences  (but only if not on windows)*/
+    /* first the preferences  (but only if not on windows)*/
 #if defined COOT_USE_GTK2_INTERFACE && !defined WINDOWS_MINGW
     /* don't forget null termination (+1) */
     tmp_str = (char *) malloc (strlen(directory) + 18 + 1);
@@ -269,47 +270,78 @@ c_inner_main(void *closure, int argc, char** argv) {
      make_preferences_internal();
 #endif
 
-    /* now the own code */
+     /* now the own code */
      check_file = does_file_exist(directory, filename); 
-
+     
      if (check_file) { 
        printf("Loading ~/.coot..."); 
        scm_c_primitive_load(check_file); 
        printf("done.\n");
      }
-  
-  run_command_line_scripts();	/* this may turn off run-state-file */
-
-  run_state_file_maybe();
-
-/* for now, make the user start the listener explictly. */
-/*   make_socket_listener_maybe(); */
-
-  /* tips gui? (only for builds that have guile-gtk)*/
+     
+     run_command_line_scripts();	/* this may turn off run-state-file */
+     
+     run_state_file_maybe();
+     
+     /* for now, make the user start the listener explictly. */
+     /*   make_socket_listener_maybe(); */
+     
+     /* tips gui? (only for builds that have guile-gtk)*/
 #ifdef USE_GUILE_GTK
-  if (gui_lib) {
-    if (use_graphics_flag) { 
-      thunk_str = "(lambda () (if defined? 'tips-gui (tips-gui)))";
-      thunk = scm_c_eval_string(thunk_str); 
-      scm_catch(SCM_BOOL_T, thunk, handler);
-    }
-  }
+     if (gui_lib) {
+       if (use_graphics_flag) { 
+	 thunk_str = "(lambda () (if defined? 'tips-gui (tips-gui)))";
+	 thunk = scm_c_eval_string(thunk_str); 
+	 scm_catch(SCM_BOOL_T, thunk, handler);
+       }
+     }
 #endif
+  } /* directory test */
 
-/*   scm_shell(argc, argv); */
-
-   }
-
-  /* option for Ralf */
   if (use_graphics_interface_state())
     /* OK! over to you Gtk+! */
     gtk_main(); 
   else 
-    scm_shell(0, argv);		/* can't pass command line args such
-				   as --pdb --no-graphics etc. (guile
-				   doesn't understand them). */
+    if (python_at_prompt_flag)
+      start_command_line_python_maybe(argv);
+    else 
+      scm_shell(0, argv);		/* can't pass command line args such
+					   as --pdb --no-graphics etc. (guile
+					   doesn't understand them). */
 }
 #endif
+
+void start_command_line_python_maybe(char **argv) {
+
+#ifdef USE_PYTHON
+   
+#if PY_MAJOR_VERSION > 2 
+   Py_Main(0, argv);
+#else
+#if PY_MINOR_VERSION > 2 
+   Py_Main(0, argv);
+#endif     // PY_MINOR_VERSION
+#endif     // PY_MAJOR_VERSION
+
+     //  Skip initialization registration of signal handlers, useful
+     //  when Python is embedded. Version 2.4 or later. Thanks Stuart
+     //  McNicholas for letting me know about this.
+     //
+     // Question: Do we need to check that we are not using command
+     // line python no graphics before we use this?
+     // 
+#if PY_MAJOR_VERSION > 2
+   Py_InitializeEx(0);
+#endif     
+#if PY_MAJOR_VERSION == 2
+#if PY_MINOR_VERSION > 3
+   Py_InitializeEx(0);
+#endif     
+#endif     
+#endif     
+}
+
+
 
 
 #ifdef USE_GUILE

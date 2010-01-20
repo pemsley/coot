@@ -28,7 +28,10 @@
   o CHANGE: Filenames of mtzs and pdb in the current directory are now
     stored as relative in the state file [Andre White].
 
-  o CHANGE: Default image type now PNG [Joel Bard].
+  o CHANGE: Default image type for screenshot is now PNG [Joel Bard].
+
+  o CHANGE: --python --no-graphics results in a python prompt at the 
+    command line [Gabor Bunkoczi].
 
   o BUG-FIX: Check waters by difference map now works again [Misty X].
 
@@ -54,7 +57,10 @@
   o BUG-FIX: Carbon-Iodine bond length limit lengthened.
 
   o BUG-FIX: Go To Atom dialog is updated after simple mutation of a
-    base.
+    base [Miguel Ortiz Lombardia]
+
+  o BUG-FIX: Coot no longer things that a SHELXL BLOC card is an atom
+    [Zbigniew Dauter].
 
 -----
 

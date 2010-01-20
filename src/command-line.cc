@@ -331,6 +331,9 @@ void command_line_data::handle_immediate_settings() {
       graphics_info_t::use_graphics_interface_flag = 0; 
    }
 
+   if (script_is_python_flag)
+      graphics_info_t::python_at_prompt_flag = 1;
+
    // small screen
    if (small_screen_display && graphics_info_t::use_graphics_interface_flag) {
      std::cout <<"INFO:: set labels and icons for small screens" <<std::endl;
