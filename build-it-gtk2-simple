@@ -297,8 +297,9 @@
 # 4.66 20091209 Test for holding dir in making tar file.
 # 4.67 20091209 Add LDFLAGS to args for libcurl configure.
 # 4.68 20091210 Add post-process-libcurl logic
-# 4.69 20091216 Don't delete bin/curl, we need it for updates.
-script_version=4.69
+# 4.69 20091216 Don't delete bin/curl, we need it for updates. (20100120 Not any more)
+# 4.70 20100120 debugging added to curl build (problems on bragg3)
+script_version=4.70
 
 
 
@@ -2773,6 +2774,9 @@ if test -n "$build_curl" ; then
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
    cd curl-$libcurl_version
+
+   echo from tar file ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz
+   echo building in: $PWD
   
    # libcurl has problems with putting the libraries ine right order when we specify 
    # --with-libidn (it puts the libidn prefix libs at the end of its LDFLAGS and that 
@@ -2780,6 +2784,7 @@ if test -n "$build_curl" ; then
    # we force the libidn libs at the front of LDFLAGS.  Problem found on RHEL4-64bit 
    # (lemur).
    #
+   echo ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    if $MAKE ; then
       if [ -n $post_process_libcurl ] ; then 
@@ -2790,14 +2795,10 @@ if test -n "$build_curl" ; then
       # comments) even though it is fixed by the sed in fixup_libcurl.  So *after* the install
       # let's install the corrected libcurl.la.  Wonderful stuff.
       #
-      if [ -n $post_process_libcurl ] ; then 
+      if [ -n "$post_process_libcurl" ] ; then 
          /usr/bin/install -c 'libcurl.la' $top_install_dir/lib/libcurl.la
       fi
    fi
-
-
-   /usr/bin/install -c 'libcurl.la' '/home/emsley/autobuild/Linux-lemur-pre-release-gtk2-python/lib/libcurl.la'
-
 
 ) > $HOSTLOGDIR/15-b-curl.txt
 else
