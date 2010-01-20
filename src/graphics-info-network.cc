@@ -53,6 +53,7 @@ graphics_info_t::get_curl_handle_for_file_name(const std::string &filename) cons
 }
 #endif
 
+#ifdef USE_LIBCURL
 // static
 bool
 graphics_info_t::curl_handler_stop_it_flag_set(CURL *c) {
@@ -68,7 +69,9 @@ graphics_info_t::curl_handler_stop_it_flag_set(CURL *c) {
    }
    return r;
 } 
+#endif
 
+#ifdef USE_LIBCURL
 // static 
 void
 graphics_info_t::set_stop_curl_download_flag(const std::string &file_name) {
@@ -80,3 +83,4 @@ graphics_info_t::set_stop_curl_download_flag(const std::string &file_name) {
       }
    }
 }
+#endif
