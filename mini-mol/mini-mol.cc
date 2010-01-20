@@ -78,7 +78,8 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
 				  const std::vector<CAtom> &atoms) {
 
    if (atoms.size() != n_residues_atoms) {
-      std::cout << "ERROR inconsistence size in minimol molecule constructor" << std::endl;
+      std::cout << "ERROR inconsistence size in minimol molecule constructor"
+		<< std::endl;
       return;
    }
 
@@ -87,6 +88,7 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
       CResidue *residue_p = at->residue;
       CChain *chain_p = at->GetChain();
       int resno = residue_p->GetSeqNum();
+      std::string res_name = residue_p->GetResName();
       std::string chain_id = chain_p->GetChainID();
 
       // now we have the properties of the atom, lets find where it
@@ -118,6 +120,7 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
 
       if (! found_residue) {
 	 coot::minimol::residue res(resno);
+	 res.name = res_name;
 	 coot::minimol::atom minimol_atom(at);
 	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x, atoms[iat].y, atoms[iat].z);
 	 res.addatom(minimol_atom);
