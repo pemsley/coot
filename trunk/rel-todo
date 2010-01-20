@@ -9,12 +9,17 @@
 
    o tutorial on the web site, biop, is out of date. ::: 0.5
 
-   o --no-graphics --python  -> should give us a python prompt
+   o chain ids in go to atom keyboarding provoke keybinding actions?
+     wrong! ::: 1
+
+   o --no-graphics --python should give us a python prompt
+     ::: 0.5
 
    o type-binary files on the server, e.g. for fed-10 should be taken
      from York. Need a cron job to sync specific type-binaries from York
+     or something ::: 1
 
-   o mail to ccp4 re: libs - what happened to that?
+   o mail to ccp4 re: libs - what happened to that? ::: 0.5
 
 
 ------

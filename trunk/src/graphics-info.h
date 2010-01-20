@@ -3567,6 +3567,11 @@ string   static std::string sessionid;
    } 
 #endif //GTK_MAJOR_VERSION
 
+   // We want --python to give us a python prompt with --no-graphics.
+   // To do that, c_inner_main looks at the "python at the prompt"
+   // flag.  This flag gets set in main(), from the command line
+   // argument processing.
+   static short int python_at_prompt_flag; 
 };
 
 

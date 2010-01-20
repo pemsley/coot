@@ -332,6 +332,10 @@ short int use_graphics_interface_state() {
 
 }
 
+short int python_at_prompt_at_startup_state() {
+   return graphics_info_t::python_at_prompt_flag;
+}
+
 /*! \brief start Gtk (and graphics) 
 
    This function is useful if it was not started already (which can be
@@ -7490,7 +7494,7 @@ void rotate_y_scene(int nsteps, float stepsize) {
    // spin it 1 degree
    float tbs =  g.get_trackball_size(); 
    for(int i=0; i<nsteps; i++) { 
-     trackball(spin_quat, 0, 0, 0.0174*stepsize, 0.000, tbs);
+     trackball(spin_quat, 0, 0, 0.0174533*stepsize, 0.000, tbs);
      add_quats(spin_quat, g.quat, g.quat);
      graphics_draw();
    }
@@ -7505,7 +7509,7 @@ void rotate_x_scene(int nsteps, float stepsize) {
    // spin it 1 degree
    float tbs =  g.get_trackball_size(); 
    for(int i=0; i<nsteps; i++) { 
-     trackball(spin_quat, 0, 0, 0.0, 0.0174*stepsize, tbs);
+     trackball(spin_quat, 0, 0, 0.0, 0.0174533*stepsize, tbs);
      add_quats(spin_quat, g.quat, g.quat);
      graphics_draw();
    }
@@ -7521,7 +7525,7 @@ void rotate_z_scene(int nsteps, float stepsize) {
    for(int i=0; i<nsteps; i++) { 
       trackball(spin_quat, 
 		1.0, 1.0,
-		1.0, 1.0 + 0.0174*stepsize,
+		1.0, 1.0 + 0.0174533*stepsize,
 		0.4);
       add_quats(spin_quat, g.quat, g.quat);
       graphics_draw();
