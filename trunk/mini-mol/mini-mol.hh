@@ -165,7 +165,8 @@ namespace coot {
 	 // to generate the molecule hierachy, but use the atom vector
 	 // to set the positions of the atoms.  Used in rigid body
 	 // fitting of atoms moved with an atom selection (jiggle_fit)
-	 molecule(PPCAtom atom_selection, int n_residues_atoms, const std::vector<CAtom> &atoms);
+	 molecule(PPCAtom atom_selection, int n_residues_atoms,
+		  const std::vector<CAtom> &atoms);
 	 
 	 
 	 short int init(CMMDBManager *mmdb_mol_in) {return setup(mmdb_mol_in);}
