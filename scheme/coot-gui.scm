@@ -2951,7 +2951,7 @@
 (define *additional-solvent-ligands* '())
 
 (define *solvent-ligand-list* 
-  (append (list "EDO" "GOL" "ACT" "MPD" "CIT" "SO4" "PO4" "TAM")
+  (append (list "EDO" "GOL" "DMS" "ACT" "MPD" "CIT" "SO4" "PO4" "TAM")
 	  *additional-solvent-ligands*))
 
 (define *random-jiggle-n-trials* 50)
@@ -2987,6 +2987,7 @@
 	    (if (valid-model-molecule? imol)
 		(begin
 		  (merge-molecules (list imol-ligand) imol)
+		  (set-mol-active    imol-ligand 0)
 		  (set-mol-displayed imol-ligand 0)))))))
   
   ;; add a button for a 3-letter-code to the scrolled vbox that runs
