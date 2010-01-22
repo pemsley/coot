@@ -1928,13 +1928,18 @@ int another_level() {
 
    int istat = -1;
    int imap = -1;
-   for (int i=0; i<graphics_info_t::n_molecules(); i++) {
-      if (is_valid_map_molecule(i)) {
-	 if (! graphics_info_t::molecules[i].is_difference_map_p()) { 
-	    imap = i;
+
+   imap = imol_refinement_map();
+   if (imap == -1) { 
+      for (int i=0; i<graphics_info_t::n_molecules(); i++) {
+	 if (is_valid_map_molecule(i)) {
+	    if (! graphics_info_t::molecules[i].is_difference_map_p()) { 
+	       imap = i;
+	    }
 	 }
       }
    }
+   
    if (imap > -1) {
       istat = another_level_from_map_molecule_number(imap);
    }
