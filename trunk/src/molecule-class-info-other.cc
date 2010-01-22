@@ -7217,13 +7217,15 @@ molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
    return retval; 
 } 
 
-
 void
 molecule_class_info_t::sort_chains() {
 
-   if (atom_sel.mol) {
-      coot::sort_chains(atom_sel.mol);
-   }
+   coot::minimol::molecule mol(atom_sel.mol);
+   mol.sort_chains();
+   atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+   delete atom_sel.mol;
+   atom_sel = make_asc(mol.pcmmdbmanager());
+   update_molecule_after_additions();
 }
 
 std::vector<coot::residue_spec_t>
