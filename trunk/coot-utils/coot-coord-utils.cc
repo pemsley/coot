@@ -182,35 +182,38 @@ coot::sort_chains(CMMDBManager *mol) {
       }
       // now chain_ids is full
       std::sort(chain_ids.begin(), chain_ids.end(), sort_chains_util);
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 // cant do this - Chain is protected
-	 // model_p->Chain[ichain] = chain_ids[ichain].first;
-	 // *(model_p->GetChain(ichain)) = *chain_ids[ichain].first; fails
-      }
+
       for (int ichain=0; ichain<nchains; ichain++) {
 	 std::cout << " Sorted chain order " << ichain << " "
 		   << chain_ids[ichain].second << std::endl;
       }
       for (int ichain=0; ichain<nchains; ichain++) {
 	 CChain *new_chain = new CChain;
-	 // new_chain->Copy(chain_ids[ichain].first);
-	 // model_p->AddChain(new_chain);
+	 new_chain->Copy(chain_ids[ichain].first);
+	 model_p->AddChain(new_chain);
 	 std::cout << " adding new chain " << new_chain->GetChainID() << std::endl;
       }
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 std::cout << " deleting old chain "
-		   << model_p->GetChain(ichain)->GetChainID() << std::endl;
-	 // model_p->DeleteChain(ichain);
+
+
+      // Now delete the old chains
+      //
+      PCChain *chain_table;
+      int n_now_chains;
+      model_p->GetChainTable(chain_table, n_now_chains);
+      int n_chains = chain_ids.size();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 
+	 for (int ii=0; ii<n_now_chains; ii++) {
+
+	    if (model_p->GetChain(ii) == chain_ids[ichain].first) {
+	 
+	       std::cout << " deleting old chain "
+			 << model_p->GetChain(ichain)->GetChainID() << std::endl;
+	       model_p->DeleteChain(ii);
+	       mol->FinishStructEdit();
+	    }
+	 }
       }
-      model_p->DeleteChain(0);
-      // model_p->DeleteChain(1);
-      // model_p->DeleteChain(2);
-      // model_p->DeleteChain(3);
-      // model_p->DeleteChain(4);
-      // model_p->DeleteChain(5);
-      // model_p->DeleteChain(6);
-      // model_p->DeleteChain(7);
-      // model_p->DeleteChain(8);
    }
    mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
    mol->FinishStructEdit();
