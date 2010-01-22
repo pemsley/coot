@@ -79,3 +79,7 @@ tutorial.dvi: $(top_srcdir)/doc/tutorial.tex
 # this relies on the image directory being in place with ps images in it:
 tutorial.ps: tutorial.dvi
 	dvips -o $@ $^
+
+tutorial.pdf: tutorial.ps
+	ps2pdf $^
+
