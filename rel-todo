@@ -1,8 +1,6 @@
 0.6.1 
 
-   points: 4.5 left.
-
-   o Check that ligand with hydrogens give good clashes [JB] ::: 2
+   points: 0 left.
 
 
 ------
@@ -255,3 +253,9 @@
    o tutorial on the web site, biop, is out of date. ::: 0.5
 
 * Done.
+
+   o Check that ligand with hydrogens give good clashes [JB] ::: 2
+
+* Seems OK.  I see a clash with a hydrogens on a prodrg ligand, take
+* off the hydrogen, clash goes away.
+

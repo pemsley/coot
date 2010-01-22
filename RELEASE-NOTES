@@ -33,6 +33,8 @@
   o CHANGE: --python --no-graphics results in a python prompt at the 
     command line [Gabor Bunkoczi].
 
+  o CHANGE: sort-chains function now preserves header info [JED].
+
   o BUG-FIX: Check waters by difference map now works again [Misty X].
 
   o BUG-FIX: SSM alignment crash fixed [Ed Pozharski].
