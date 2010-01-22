@@ -3654,15 +3654,23 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_b:
       // Only toggle baton mode if we are showing a baton!
       // (Otherwise confusion reigns!)
-      if (g.draw_baton_flag)
-	 g.toggle_baton_mode();
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 // do nothing B was added on key press
+      } else { 
+	 if (g.draw_baton_flag)
+	    g.toggle_baton_mode();
+      }
       break;
       
    case GDK_c:
    case GDK_C:
-      g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag; 
-      g.crosshairs_text();
-      g.graphics_draw();
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 // do nothing C was added on key press
+      } else { 
+	 g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag; 
+	 g.crosshairs_text();
+	 g.graphics_draw();
+      }
       break;
 
    case GDK_s:

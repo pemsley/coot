@@ -5338,6 +5338,28 @@ Sun Jan 17 12:51:25 GMT 2010
    Simple mutate base in 1v15.  This has PDB standard base names?
 
 
+---
+Wed Jan 20 21:42:16 GMT 2010
+
+   o mail to ccp4 re: libs - what happened to that? ::: 0.5
+
+
+----
+Thu Jan 21 11:31:07 GMT 2010
+
+   o Read in coot-ccp4/monomer-BIP.pdb and regularize.  -> No restraints.
+     Dynamic add does not use libcheck.  should it?
+     ::: 1
+
+
+----
+Thu Jan 21 23:23:30 GMT 2010
+
+   o Refine: click on ASN, click on terminal NAG, get residues that
+     are linked and use "sphere" refinement for just those residues.
+   
+
+
 ------
 
 
