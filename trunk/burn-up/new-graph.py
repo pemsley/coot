@@ -71,7 +71,8 @@ def draw_prediction_on_canvas(pr, can):
       s += str(int_X_pred)
       s += ",\n"
       s += pred_date_str
-      can.show(70,90, s)
+      # can.show(70,90, s)
+      can.show(25,90, s)
       
       #   print "X_pred: :", X_pred, "Y_pred: :", Y_pred
       can.rectangle(line_style.default, fill_style.default,
@@ -103,7 +104,7 @@ x_label = "Days (since pre-release start)"
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 50
+x_day_range = 60
 
 x_tick_interval = x_ticks(x_day_range)
 
@@ -160,6 +161,7 @@ annotation_box("Dec 5", -5, 20, 0, "c")
 annotation_box("Christmas", 48, 23, 37, "tc")
 annotation_box("New Year", 58, 35, 50, "tc")
 annotation_box("CCP4 SW2010", 70, 45, 65, "tc")
+annotation_box("EDNA meeting", 90, 70, 94, "tc")
 
 
 
