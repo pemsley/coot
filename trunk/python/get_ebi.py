@@ -161,6 +161,34 @@ def get_eds_pdb_and_mtz(id):
     # URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/pdb2sar.ent"
     # URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/2sar_sigmaa.mtz"
 
+    # return a list of 3 molecule numbers or False
+    #
+    def get_cached_eds_files(accession_code):
+        down_code = string.lower(accession_code)
+        pdb_file_name = os.path.join("coot-download",
+                                     "pdb" + down_code + ".ent")
+        mtz_file_name = os.path.join("coot-download",
+                                     down_code + "_sigmaa.mtz")
+
+        if not os.path.isfile(pdb_file_name):
+            return False
+        else:
+            if not os.path.isfile(mtz_file_name):
+                return False
+            else:
+                imol = read_pdb(pdb_file_name)
+                imol_map = make_and_draw_map(mtz_file_name, "2FOFCWT", "PH2FOFCWT", "", 0, 0)
+                imol_map_d = make_and_draw_map(mtz_file_name, "FOFCWT", "PHFOFCWT", "", 0, 1)
+                if not (valid_model_molecule_qm(imol) and
+                        valid_map_molecule_qm(imol_map) and
+                        valid_map_molecule_qm(imol_map_d)):
+                    close_molecule(imol)
+                    close_molecule(imol_map)
+                    close_molecule(imol_map_d)
+                    return False
+                else:
+                    return [imol, imol_map, imol_map_d]
+    
     eds_site = "http://eds.bmc.uu.se/eds"
 
     # "1cbds" -> "cb/"
@@ -172,42 +200,47 @@ def get_eds_pdb_and_mtz(id):
         else:
             return id_code[1:3] + "/"
 
-    r = coot_mkdir(coot_tmp_dir)
-  
-    if (r):
-      down_id = string.lower(id)
-      eds_url = eds_site + "/dfs/"
-      target_pdb_file = "pdb" + down_id + ".ent"
-      dir_target_pdb_file = coot_tmp_dir + "/" + target_pdb_file
-      mc = mid_chars(down_id)
-      model_url = eds_url + mc + down_id + "/" + target_pdb_file
-      target_mtz_file = down_id + "_sigmaa.mtz"
-      dir_target_mtz_file = coot_tmp_dir + "/" + target_mtz_file
-      mtz_url = eds_url + mc +down_id + "/" + target_mtz_file
+    # main line
+    #
+    cached_status = get_cached_eds_files(id)
+    if not cached_status:
+        
+        r = coot_mkdir(coot_tmp_dir)
 
-      try:
-        s1 = urllib.urlretrieve(model_url, dir_target_pdb_file)
-        print "INFO:: read model status: ",s1
-      except IOError:
-        print "BL ERROR:: We can't open ", model_url
-      try:
-        s2 = urllib.urlretrieve(mtz_url, dir_target_mtz_file)
-        print "INFO:: read mtz   status: ",s2
-      except IOError:
-        print "BL ERROR:: We can't open ", mtz_url 
+        if (r):
+            down_id = string.lower(id)
+            eds_url = eds_site + "/dfs/"
+            target_pdb_file = "pdb" + down_id + ".ent"
+            dir_target_pdb_file = coot_tmp_dir + "/" + target_pdb_file
+            mc = mid_chars(down_id)
+            model_url = eds_url + mc + down_id + "/" + target_pdb_file
+            target_mtz_file = down_id + "_sigmaa.mtz"
+            dir_target_mtz_file = coot_tmp_dir + "/" + target_mtz_file
+            mtz_url = eds_url + mc +down_id + "/" + target_mtz_file
+
+            try:
+                s1 = urllib.urlretrieve(model_url, dir_target_pdb_file)
+                print "INFO:: read model status: ",s1
+            except IOError:
+                print "BL ERROR:: We can't open ", model_url
+            try:
+                s2 = urllib.urlretrieve(mtz_url, dir_target_mtz_file)
+                print "INFO:: read mtz   status: ",s2
+            except IOError:
+                print "BL ERROR:: We can't open ", mtz_url 
 
 
-      r_imol = handle_read_draw_molecule(dir_target_pdb_file)
-      sc_map = make_and_draw_map(dir_target_mtz_file,"2FOFCWT","PH2FOFCWT","",0,0)
-      make_and_draw_map(dir_target_mtz_file,"FOFCWT","PHFOFCWT","",0,1)
-      set_scrollable_map(sc_map)
-      if (valid_model_molecule_qm(r_imol)):
-          return r_imol
-      else:
-          return False
+            r_imol = handle_read_draw_molecule(dir_target_pdb_file)
+            sc_map = make_and_draw_map(dir_target_mtz_file,"2FOFCWT","PH2FOFCWT","",0,0)
+            make_and_draw_map(dir_target_mtz_file,"FOFCWT","PHFOFCWT","",0,1)
+            set_scrollable_map(sc_map)
+            if (valid_model_molecule_qm(r_imol)):
+                return r_imol
+            else:
+                return False
 
-    else:
-      print "Can't make directory ",coot_tmp_dir
+        else:
+            print "Can't make directory ",coot_tmp_dir
 
 
 

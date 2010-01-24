@@ -368,6 +368,10 @@ def get_probe_dots_from(pdb_file_name, point, radius):
     handle_read_draw_probe_dots_unformatted(probe_out, 0, 0)
     graphics_draw()
 
+# Update the generic objects probe dots from residues within radius
+# of the screen centre.
+# 
+# Return nothing interesting.
 #
 def probe_local_sphere(imol, radius):
 
@@ -386,6 +390,7 @@ def probe_local_sphere(imol, radius):
   write_pdb_file_for_molprobity(imol_new, pdb_name)
 
   get_probe_dots_from(pdb_name, pt, radius)
+  close_molecule(imol_new)
 
 # add in the conn files by concatting.
 #
@@ -397,7 +402,7 @@ def write_pdb_file_for_molprobity(imol, pdb_name):
 
   # Let's add on the connectivity cards of the residues that
   # molprobity doesn't know about (which I presume are all
-  # non-standard residues).  Cut of (filter) files that didn't
+  # non-standard residues).  Cut out (filter) files that didn't
   # write properly.
   #
   conn_file_names = []

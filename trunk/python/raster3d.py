@@ -125,26 +125,34 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
    else:
      print "Image type ", image_type, " unknown!"
 
-# Converts a ppm file to a bmp file (for windows users)
+# Converts a ppm file to a bmp file (for windows users) and opens in
+# browser or viewer
+# actually dont use ppm any more but png, so not needed as such any more
+# keep for backwards compatibility
+#
 def ppm2bmp(ppm_file_name):
     import os, webbrowser
 
-    bmp_file_name ,extension = os.path.splitext(ppm_file_name)
-    bmp_file_name += ".bmp"
+    bmp_file_name, extension = os.path.splitext(ppm_file_name)
+    # FIXME: horrible hacks!!!
+    if (extension == ".ppm"):
+        bmp_file_name += ".bmp"
 
-    # BL says: need to do some wired stuff to make sure cmd/system works with
-    # space in file name , e.g. ' & " thingys
-    cmd = 'ppm2bmp "'
-    ppm2bmp_call = cmd + ppm_file_name + '"'
-    os.system(ppm2bmp_call)
-    if (os.path.isfile(bmp_file_name)):
-      print "calling display..."
-      try:
-         webbrowser.open(bmp_file_name,1,1)
-      except OSError:
-         print "BL WARNING:: We can't find screendump file ",bmp_file_name
+        # BL says: need to do some wired stuff to make sure cmd/system works with
+        # space in file name , e.g. ' & " thingys
+        cmd = 'ppm2bmp "'
+        ppm2bmp_call = cmd + ppm_file_name + '"'
+        os.system(ppm2bmp_call)
+    if (extension == ".png"):
+        bmp_file_name = ppm_file_name
+    if (not os.path.isfile(bmp_file_name)):
+        print "BL WARNING:: Cannot find png/bmp file ", bmp_file_name
     else:
-      print "BL WARNING:: Cannot find bmp file ",bmp_file_name
+        print "calling display..."
+        try:
+            webbrowser.open(bmp_file_name,1,1)
+        except OSError:
+            print "BL WARNING:: We can't open screendump file ",bmp_file_name
 
 # Tests file names for spaces. there is certainly on problem on windows
 # not sure about other OS, yet

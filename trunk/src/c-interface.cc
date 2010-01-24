@@ -4390,6 +4390,8 @@ void screendump_image(const char *filename) {
       graphics_info_t g;
       g.statusbar_text(s);
 // BL says: we wanna be nice and convert ppm to bmp for windoze user!?
+// but not if we have png!!!
+// still use that function with png but only to open file
 #ifdef WINDOWS_MINGW
 #ifdef USE_PYTHON
       std::string cmd("ppm2bmp(");

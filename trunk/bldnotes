@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 2665
+scripts      rev 2727 (except curl downloads)
 tests        rev 2700
 build-it-win rev 2122
 
@@ -8,15 +8,11 @@ build-it-win rev 2122
 * THINGS TO DO BEFORE 0.6.1 RELEASE *
 ---------------
 
-   o tutorial data in share/coot/data for WinCoot !?
+   o better python std flushing for MINGW
 
-* Done
+   o check gtk threading for dialogs after probe
 
    o doublication of find strand/find ss (Extensions, Other tools)
-
-   o Installer needs to set affinity for Windows 7 too?!? (OrIf, WindowsName = 7)
-
-* Done
 
    o make md5sum note on WinCoot website
 
@@ -340,6 +336,18 @@ build-it-win rev 2122
 * Done
 
    o fix python ebi download
+
+* Done
+
+   o tutorial data in share/coot/data for WinCoot !?
+
+* Done
+
+   o FIX PNG suport for Windows!!!! Bad Paule!!!! Grrrr
+
+* Done
+
+   o Installer needs to set affinity for Windows 7 too?!? (OrIf, WindowsName = 7)
 
 * Done
 
