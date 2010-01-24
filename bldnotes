@@ -1,7 +1,7 @@
  -*-text-*-
 
 scripts      rev 2665
-tests        rev 2665
+tests        rev 2700
 build-it-win rev 2122
 
 ---------------
@@ -10,9 +10,13 @@ build-it-win rev 2122
 
    o tutorial data in share/coot/data for WinCoot !?
 
+* Done
+
    o doublication of find strand/find ss (Extensions, Other tools)
 
    o Installer needs to set affinity for Windows 7 too?!? (OrIf, WindowsName = 7)
+
+* Done
 
    o make md5sum note on WinCoot website
 
