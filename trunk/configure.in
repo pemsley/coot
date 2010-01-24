@@ -53,6 +53,8 @@ AC_SUBST(COOT_STDTYPES)
 
 dnl test for WINDOWS_MINGW
 AM_MINGW_WINDOWS
+dnl test for LIBPNG (Windows only)
+AM_PATH_LIBPNG
 
 dnl Set platform-specific compilation flags - derived from clipper's configure
 test "${target:+set}" = set || target="$host_os"
