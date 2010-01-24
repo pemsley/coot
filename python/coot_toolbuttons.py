@@ -88,11 +88,11 @@ if (have_coot_python):
 
       model = gtk.ListStore(gtk.gdk.Pixbuf, str, str)
       for icon_filename in coot_icon_filename_ls:
-        if (not (('phenixed' in icon_filename) or
-                 ('coot-icon' in icon_filename))):
-          if os.path.isfile(icon_filename):
-            icon = os.path.basename(icon_filename)
-            pixbuf = gtk.gdk.pixbuf_new_from_file(icon_filename)
+        if os.path.isfile(icon_filename):
+          icon = os.path.basename(icon_filename)
+          pixbuf = gtk.gdk.pixbuf_new_from_file(icon_filename)
+          #print "BL DEBUG:: height and width", pixbuf.get_height(), pixbuf.get_width()
+          if (pixbuf.get_height() < 25 and pixbuf.get_width() < 25):
             model.append([pixbuf, icon, icon_filename])
 
       # build in default gtk icons
@@ -534,6 +534,7 @@ def list_of_toolbar_functions():
          ["Swap Stereo", "switch_stereo_sides()", "Toggle between Zalman Stereo and Mono view", "undo-1.svg"],
          ["Test", "rotation_centre()", "test function"]],
         ["Refinement",
+         ["Sphere Refine", "sphere_refine()", "RSR around active residue", "reset-view.svg"],
          ["Refine residue", "refine_active_residue()", "RSR active residue"],
          ["Reset B", "reset_b_factor_active_residue()", "Reset the B-Factor of active Residue"],
          ["Find Waters", "wrapped_create_find_waters_dialog()", "Find water molecules in map", "add-water.svg"],

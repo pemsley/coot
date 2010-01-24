@@ -61,7 +61,8 @@ name_strings = string.split(str(user))
 
 personal_name = string.capitalize(first_non_trivial_name(name_strings))
 
-hello_str =  "Good %(a)s %(b)s, Welcome to Coot." % {"a":time_str, "b":personal_name}
+hello_str =  "Good %(a)s %(b)s, Welcome to Coot. %(c)s" \
+            %{"a":time_str, "b":personal_name, "c":coot_version()}
 # alternative
 # hello_str1 =  "%s %s %s%s" % ("Good",time_str, user, ", Welcome to Coot.")
 

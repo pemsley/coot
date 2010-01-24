@@ -706,6 +706,31 @@ def manual_refine_residues(side_residue_offset):
                     res_no + side_residue_offset,
                     alt_conf)
 
+# Sphere refinement (around radius)
+#
+def sphere_refine(radius=3.0):
+    from types import ListType
+    active_atom = active_residue()
+    if (not active_atom):
+        add_status_bar_text("No active residue")
+    else:
+        if (not valid_map_molecule_qm(imol_refinement_map())):
+            show_select_map_dialog()
+        else:
+            imol      = active_atom[0]
+            chain_id  = active_atom[1]
+            res_no    = active_atom[2]
+            ins_code  = active_atom[3]
+            atom_name = active_atom[4]
+            alt_conf  = active_atom[5]
+            centred_residue = active_atom[1:4]
+            other_residues = residues_near_residue(imol, centred_residue, radius)
+            all_residues = [centred_residue]
+            if (type(other_residues) is ListType):
+                all_residues += other_residues
+            print "imol: %s residues: %s" %(imol, all_residues)
+            refine_residues(imol, all_residues)
+
 
 # Pepflip the active residue - needs a key binding
 #

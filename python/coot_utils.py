@@ -1986,6 +1986,13 @@ execute_ligand_search  = execute_ligand_search_py
 overlap_ligands        = overlap_ligands_py
 analyse_ligand_differences = analyse_ligand_differences_py
 additional_representation_info = additional_representation_info_py
+# document here (so that I dont use track of functions?!)
+
+# rigid body refine using residue ranges.  Takes 2 arguments, the
+# first is the molecule number, the second is a list of
+# residue-ranges.  A residue range is 
+# @code{[@emph{chain_id, resno_start, resno_end}]}.
+#
 rigid_body_refine_by_residue_ranges = rigid_body_refine_by_residue_ranges_py
 find_terminal_residue_type = find_terminal_residue_type_py
 cis_peptides           = cis_peptides_py
@@ -2061,7 +2068,7 @@ except:
 # and some acronyms
 de_chainsaw                    = fill_partial_residues
 
-# fix typo (but where does it come from?
+# fix typo of set_find_hydrogen_torsions (for backwards compatibility?!)
 set_find_hydrogen_torsion = set_find_hydrogen_torsions
 
 # add terminal residue is the normal thing we do with an aligned

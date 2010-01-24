@@ -185,13 +185,17 @@ def download_binary_dialog(version_string):
                 def progress_function(count, blockSize, totalSize):
                     global stop_download
                     percent = int(count*blockSize*100/totalSize)
-                    sys.stdout.write("\rDownloading " + tar_file_name + "...  %d%%" % percent)  # FIXME (format!!)
+                    dots = int(percent / 2.5) * "="
+                    if percent < 100:
+                        dots += ">"
+                    sys.stdout.write("\rProgress %d%%" %percent + "  |%-40s|" %dots)
                     sys.stdout.flush()
                     pbar.set_text("Downloading %s %%" %percent)
                     pbar.set_fraction(percent/100.)
                     if stop_download:
                         # Brute force exit of thread!
-                        print "\n\nBL INFO:: stopping download"
+                        sys.stdout.write("\nBL INFO:: stopping download")
+                        sys.stdout.flush()
                         sys.exit()
                 
                 try:
@@ -201,10 +205,13 @@ def download_binary_dialog(version_string):
                     return False
                 try:
                     print "\n"
+                    print "Downloading: %s" %tar_file_name
                     url_local_file_name, url_info =  urllib.urlretrieve(url, tar_file_name, progress_function)
-                    print "\n"
+                    print "\nDone"
                 except:
-                    print "BL ERROR:: could not download", url
+                    global stop_download
+                    if not stop_download:
+                        print "BL ERROR:: could not download", url
                     return False
 
             if not os.path.isfile(tar_file_name):
@@ -523,8 +530,14 @@ def check_for_updates_gui():
         #latest_version_server_response = coot_get_url_as_string(url)
         # pythonic version
         import urllib
-        latest_version_server_response = urllib.urlopen(url).read()
-        handle_latest_version_server_response(latest_version_server_response)
+        try:
+            latest_version_server_response = urllib.urlopen(url).read()
+            handle_latest_version_server_response(latest_version_server_response)
+        except:
+            print "BL INFO:: problem getting server response from for url", url
+            # for now we give file-not-found, there should be some other form
+            # of error FIXME
+            handle_latest_version_server_response("The requested URL was not found on this server")
 
     # main line
     #
