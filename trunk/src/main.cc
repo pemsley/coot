@@ -244,7 +244,7 @@ main (int argc, char *argv[]) {
   
      while(gtk_main_iteration() == FALSE);
      while (gtk_events_pending()) {
-	usleep(10000);
+	usleep(3000);
 	gtk_main_iteration();
      }
   }
