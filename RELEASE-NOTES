@@ -65,6 +65,9 @@
   o BUG-FIX: sugar chains now find the linkage type better (rather
     than forcing seemingly-random chain breaks) [JED].
 
+  o BUG-FIX: Go to Atom keyboarding chain-id superfluous functions
+    removed [JED].
+
 -----
 
   Release 0.6

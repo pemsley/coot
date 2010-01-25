@@ -141,7 +141,7 @@ coot::protein_geometry::init_sbase(const std::string &sbase_monomer_dir) {
 // 
 int
 coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_number_in) {
- 
+
    int ret_val = 0; 
    CMMCIFFile ciffile;
    // read_number = read_number_in; // nope, not here.
@@ -2840,6 +2840,20 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 }
       } 
    }
+
+   // now, did we get something with minimal description? If so,
+   // delete it, it was a fail.
+   // 
+   std::pair<bool, dictionary_residue_restraints_t> p = get_monomer_restraints(resname);
+   if (! p.first) {
+      success = 0;
+   } else {
+      // elide minimal description restraints.
+      if (p.second.residue_info.description_level == "M") { 
+	 success = 0;
+	 delete_mon_lib(resname);
+      }
+   }
    return success;
 } 
 
@@ -3071,11 +3085,11 @@ coot::protein_geometry::standard_protein_monomer_files() const {
 }
 
 
-int
+bool
 coot::protein_geometry::have_dictionary_for_residue_type(const std::string &monomer_type,
 							 int read_number_in) { 
 
-   int ifound = 0;
+   bool ifound = 0;
    int ndict = dict_res_restraints.size();
    read_number = read_number_in;
    for (int i=0; i<ndict; i++) {
@@ -3119,7 +3133,13 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
 } 
 
 
-
+// Try comparing vs the comp_id first, if that fails compare the
+// three_letter_code to the monomer_type.
+//
+// In future, try to come here only with the monomer_type adjusted to
+// the comp_id, for example, monomer_type should be "NAG-b-D", not
+// "NAG".
+// 
 std::pair<bool, coot::dictionary_residue_restraints_t>
 coot::protein_geometry::get_monomer_restraints(const std::string &monomer_type) const {
 
@@ -3128,10 +3148,26 @@ coot::protein_geometry::get_monomer_restraints(const std::string &monomer_type) 
 
    int nrest = dict_res_restraints.size();
    for (int i=0; i<nrest; i++) {
+//       std::cout << "DEBUG:: get_monomer_restraints comparing :"
+// 		<< dict_res_restraints[i].comp_id << ": with :"
+// 		<< monomer_type << ":" << std::endl;
       if (dict_res_restraints[i].comp_id  == monomer_type) {
 	 r.second = dict_res_restraints[i];
 	 r.first = 1;
 	 break;
+      }
+   }
+
+   if (!r.first) {
+      for (int i=0; i<nrest; i++) {
+// 	 std::cout << "DEBUG:: get_monomer_restraints comparing :"
+// 		   << dict_res_restraints[i].residue_info.three_letter_code << ": with :"
+// 		   << monomer_type << ":" << std::endl;
+	 if (dict_res_restraints[i].residue_info.three_letter_code  == monomer_type) {
+	    r.second = dict_res_restraints[i];
+	    r.first = 1;
+	    break;
+	 }
       }
    } 
 

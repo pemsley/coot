@@ -5366,6 +5366,11 @@ Mon Jan 25 15:10:19 GMT 2010
 	on finding a glycosidic linkage, Coot should do the DEL-xxx
 	mod if needed.
 
+---
+Mon Jan 25 17:22:45 GMT 2010
+
+	sphere refine on a water.  Does it work?  [JED]
+
 
 ------
 
