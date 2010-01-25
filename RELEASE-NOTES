@@ -62,6 +62,9 @@
   o BUG-FIX: Coot no longer things that a SHELXL BLOC card is an atom
     [Zbigniew Dauter].
 
+  o BUG-FIX: sugar chains now find the linkage type better (rather
+    than forcing seemingly-random chain breaks) [JED].
+
 -----
 
   Release 0.6
