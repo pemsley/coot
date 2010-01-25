@@ -3055,6 +3055,12 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       break; // stops Space key getting through to key-press-hook
       
    case GDK_g:
+      // say I want to go to residue 1G: first time Ctrl-G (second if)
+      // and then the first if.
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "G";
+	 handled = TRUE;
+      }
       if (graphics_info_t::control_is_pressed) {
 	 graphics_info_t::in_go_to_residue_keyboarding_mode = 1;
 	 handled = TRUE;
@@ -3073,6 +3079,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
       if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
 	 graphics_info_t::go_to_residue_keyboarding_string += "A";
+	 handled = TRUE;
       } else { 
 
 	 if (graphics_info_t::in_range_define_for_refine == 2) {
@@ -3150,10 +3157,15 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_f:
       
-      if (graphics_info_t::clipping_back > -10.2) { 
-	 set_clipping_front(graphics_info_t::clipping_front - 0.2);
-	 set_clipping_back (graphics_info_t::clipping_front - 0.2);
-	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "E";
+	 handled = TRUE; 
+      } else { 
+	 if (graphics_info_t::clipping_back > -10.2) { 
+	    set_clipping_front(graphics_info_t::clipping_front - 0.2);
+	    set_clipping_back (graphics_info_t::clipping_front - 0.2);
+	    // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
+	 }
       }
       handled = TRUE; 
       break;
