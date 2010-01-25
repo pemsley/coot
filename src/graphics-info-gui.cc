@@ -1771,6 +1771,7 @@ graphics_info_t::set_baton_build_params(int istart_resno,
       }
    }
    baton_build_chain_id = std::string(chain_id);
+   // std::cout << "DEBUG:: baton_build_chain_id set to " << baton_build_chain_id << std::endl;
 }
 
 void

@@ -4134,7 +4134,7 @@ molecule_class_info_t::create_mmdbmanager_from_res_selection(PCResidue *SelResid
    CMMDBManager *residues_mol = new CMMDBManager;
    CModel *model = new CModel;
    CChain *chain = new CChain;
-   short int whole_res_flag = 0; // not all alt confs, only this one ("A") and "".
+   bool whole_res_flag = 0; // not all alt confs, only this one ("A") and "".
 
    // For the active residue range (i.e. not the flanking residues) we only want
    // to refine the atoms that have the alt conf the same as the picked atom
@@ -4161,8 +4161,8 @@ molecule_class_info_t::create_mmdbmanager_from_res_selection(PCResidue *SelResid
 	 whole_res_flag = 0;
       }
       
-      r = coot::util::deep_copy_this_residue(SelResidues[ires], altconf,
-					     whole_res_flag);
+      r = coot::util::deep_copy_this_residue_add_chain(SelResidues[ires], altconf,
+						       whole_res_flag, 0);
       chain->AddResidue(r);
       r->seqNum = SelResidues[ires]->GetSeqNum();
       r->SetResName(SelResidues[ires]->GetResName());
@@ -5723,7 +5723,7 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
 			    residue_p->GetSeqNum() <= end_resno) {
 			   int iseqnum  = residue_p->GetSeqNum();
 			   pstr inscode = residue_p->GetInsCode();
-			   CResidue *residue_copy = coot::util::deep_copy_this_residue(residue_p, "", 1);
+			   CResidue *residue_copy = coot::util::deep_copy_this_residue(residue_p);
 			   chain_p->DeleteResidue(iseqnum, inscode);
 			   new_chain_p->AddResidue(residue_copy);
 			}
@@ -5817,12 +5817,14 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
 
 					  int iseqnum  = residue_p->GetSeqNum();
 					  pstr inscode = residue_p->GetInsCode();
-					  CResidue *residue_copy = coot::util::deep_copy_this_residue(residue_p, "", 1);
+					  CResidue *residue_copy =
+					     coot::util::deep_copy_this_residue_add_chain(residue_p, "", 1, 1);
 					  // delete the residue in the "from" chain:
 					  chain_p->DeleteResidue(iseqnum, inscode);
 
 					  //
 					  change_chain_id_with_residue_range_helper_insert_or_add(to_chain, residue_copy);
+					  // this is done by the deep_copy
 					  // to_chain->AddResidue(residue_copy);
 				       }
 				    }
@@ -6508,7 +6510,7 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
 	 if (nth_chi != -1) {
 	    make_backup();
 	    CResidue *residue_copy =
-	       coot::util::deep_copy_this_residue(residue, altconf, 0);
+	       coot::util::deep_copy_this_residue_add_chain(residue, altconf, 0, 0);
 
 	    // Which atoms have we got in residue_copy?
  	    int n_atom_residue_copy;
@@ -7220,12 +7222,17 @@ molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
 void
 molecule_class_info_t::sort_chains() {
 
-   coot::minimol::molecule mol(atom_sel.mol);
-   mol.sort_chains();
-   atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
-   delete atom_sel.mol;
-   atom_sel = make_asc(mol.pcmmdbmanager());
-   update_molecule_after_additions();
+    coot::minimol::molecule mol(atom_sel.mol);
+    mol.sort_chains();
+    atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+    delete atom_sel.mol;
+    atom_sel = make_asc(mol.pcmmdbmanager());
+    update_molecule_after_additions();
+
+    // 20100125: At some stage get this working, not today though.
+    // 
+    //   if (atom_sel.mol)
+    //      coot::sort_chains(atom_sel.mol);
 }
 
 std::vector<coot::residue_spec_t>

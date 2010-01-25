@@ -169,7 +169,10 @@ coot::util::pair_residue_atoms(CResidue *a_residue_p,
 void
 coot::sort_chains(CMMDBManager *mol) {
 
-   for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) { 
+   // for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
+   int imod = 1;
+
+   {
       CModel *model_p = mol->GetModel(imod);
       CChain *chain_p;
       // run over chains of the existing mol
@@ -183,37 +186,28 @@ coot::sort_chains(CMMDBManager *mol) {
       // now chain_ids is full
       std::sort(chain_ids.begin(), chain_ids.end(), sort_chains_util);
 
+      if (0) 
+	 for (int ichain=0; ichain<nchains; ichain++)
+	    std::cout << " Sorted chain order " << ichain << " "
+		      << chain_ids[ichain].second << std::endl;
+      
+      CModel *new_model_p = new CModel;
+      mol->AddModel(new_model_p);
+      int new_model_number = new_model_p->GetSerNum();
+      std::cout << "new model number : " << new_model_number << std::endl;
       for (int ichain=0; ichain<nchains; ichain++) {
-	 std::cout << " Sorted chain order " << ichain << " "
-		   << chain_ids[ichain].second << std::endl;
-      }
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 CChain *new_chain = new CChain;
-	 new_chain->Copy(chain_ids[ichain].first);
-	 model_p->AddChain(new_chain);
-	 std::cout << " adding new chain " << new_chain->GetChainID() << std::endl;
+	 CChain *new_chain_p = new CChain;
+	 new_chain_p->Copy(chain_ids[ichain].first);
+	 new_chain_p->SetChainID(chain_ids[ichain].second.c_str());
+	 new_model_p->AddChain(new_chain_p);
+	 std::cout << " adding new chain " << new_chain_p->GetChainID() << std::endl;
       }
 
 
-      // Now delete the old chains
-      //
-      PCChain *chain_table;
-      int n_now_chains;
-      model_p->GetChainTable(chain_table, n_now_chains);
-      int n_chains = chain_ids.size();
-      for (int ichain=0; ichain<n_chains; ichain++) {
-	 
-	 for (int ii=0; ii<n_now_chains; ii++) {
-
-	    if (model_p->GetChain(ii) == chain_ids[ichain].first) {
-	 
-	       std::cout << " deleting old chain "
-			 << model_p->GetChain(ichain)->GetChainID() << std::endl;
-	       model_p->DeleteChain(ii);
-	       mol->FinishStructEdit();
-	    }
-	 }
-      }
+      mol->SwapModels(imod, new_model_number);
+      // Now delete the old model.
+      mol->DeleteModel(2);
+      
    }
    mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
    mol->FinishStructEdit();
@@ -2077,7 +2071,7 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<CResidue *>
       CChain *chain_p = new CChain;
       for (unsigned int ires=0; ires<residues_of_chain[ich].residues.size(); ires++) { 
 	 CResidue *residue_p = 
-            coot::util::deep_copy_this_residue(residues_of_chain[ich].residues[ires], "", 1);
+            coot::util::deep_copy_this_residue(residues_of_chain[ich].residues[ires]);
 	 chain_p->AddResidue(residue_p);
       }
       model_p->AddChain(chain_p);
@@ -2323,7 +2317,7 @@ CMMDBManager *
 coot::util::create_mmdbmanager_from_residue(CMMDBManager *orig_mol,
 					    CResidue *res) {
 
-   CResidue *r = coot::util::deep_copy_this_residue(res, "", 1);
+   CResidue *r = coot::util::deep_copy_this_residue(res);
    CMMDBManager *mol = new CMMDBManager;
    CModel *model_p = new CModel;
    CChain *chain_p = new CChain;
@@ -2355,17 +2349,21 @@ coot::util::create_mmdbmanager_from_atom(CAtom *at) {
 // or has an altLoc of "".
 // 
 CResidue *
-coot::util::deep_copy_this_residue(const CResidue *residue,
-				   const std::string &altconf,
-				   short int whole_residue_flag) {
+coot::util::deep_copy_this_residue_add_chain(CResidue *residue,
+					     const std::string &altconf,
+					     bool whole_residue_flag,
+					     bool attach_to_new_chain_flag) {
 
    // Horrible casting to CResidue because GetSeqNum and GetAtomTable
    // are not const functions.
    // 
    CResidue *rres = new CResidue;
-   CChain   *chain_p = new CChain;
-   chain_p->SetChainID(((CResidue *)residue)->GetChainID());
-   rres->seqNum = ((CResidue *)residue)->GetSeqNum();
+   CChain   *chain_p = NULL;
+   if (attach_to_new_chain_flag) { 
+      chain_p = new CChain;
+      chain_p->SetChainID(residue->GetChainID());
+   }
+   rres->seqNum = residue->GetSeqNum();
    strcpy(rres->name, residue->name);
 
    PPCAtom residue_atoms;
@@ -2384,9 +2382,33 @@ coot::util::deep_copy_this_residue(const CResidue *residue,
 	 }
       }
    }
-   chain_p->AddResidue(rres);
+   if (attach_to_new_chain_flag)
+      chain_p->AddResidue(rres);
    return rres;
 }
+
+CResidue *
+coot::util::deep_copy_this_residue(CResidue *residue) { 
+
+   CResidue *rres = new CResidue;
+   rres->seqNum = residue->GetSeqNum();
+   strcpy(rres->name, residue->name);
+
+   PPCAtom residue_atoms;
+   int nResidueAtoms;
+   ((CResidue *)residue)->GetAtomTable(residue_atoms, nResidueAtoms);
+   CAtom *atom_p;
+   
+   for(int iat=0; iat<nResidueAtoms; iat++) {
+      if (! residue_atoms[iat]->isTer()) { 
+	 atom_p = new CAtom;
+	 atom_p->Copy(residue_atoms[iat]);
+	 rres->AddAtom(atom_p);
+      }
+   }
+   return rres;
+}
+
 
 // Note, we also create a chain and add this residue to that chain.
 // We do this so that we have a holder for the segid.
@@ -2461,7 +2483,7 @@ coot::util::deep_copy_this_residue_with_atom_index_and_afix_transfer(CMMDBManage
 
 CResidue *coot::util::copy_and_delete_hydrogens(CResidue *residue_in) {
 
-   CResidue *copy = coot::util::deep_copy_this_residue(residue_in, "", 1);
+   CResidue *copy = coot::util::deep_copy_this_residue(residue_in);
    PPCAtom residue_atoms;
    int nResidueAtoms;
    copy->GetAtomTable(residue_atoms, nResidueAtoms);

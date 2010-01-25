@@ -2819,7 +2819,7 @@ CMMDBManager
 	    if (residue_p->GetSeqNum() >= resno_start) {
 	       if (residue_p->GetSeqNum() <= resno_end) {
 		  CResidue *res_new =
-		     coot::util::deep_copy_this_residue(residue_p, "", 1);
+		     coot::util::deep_copy_this_residue(residue_p);
 		  chain_new->AddResidue(res_new);
 	       }
 	    }
@@ -4856,18 +4856,42 @@ molecule_class_info_t::Have_unsaved_changes_p() const {
 CAtom *
 molecule_class_info_t::add_baton_atom(coot::Cartesian pos, 
 				      int istart_resno,
+				      const std::string &chain_id, 
 				      short int iresno_active,
 				      short int direction_flag) {
 
-   int nchains = atom_sel.mol->GetNumberOfChains(1);
-
-   if (nchains != 1) {
+   CModel *model_p = atom_sel.mol->GetModel(1);
+   int nchains = model_p->GetNumberOfChains();
+   if (nchains == 0) {
       std::cout << "failed to add baton atom" << std::endl;
       return NULL;
    }
-      
+
    make_backup();
-   CChain *chain_p = atom_sel.mol->GetChain(1,0);
+   CChain *chain_p = NULL;
+
+   // now look at the chains of this model, and find the chain that
+   // has the same chain-id as is passed. If there is no such chain,
+   // make one and set the chain_id
+   //
+   for (int ich=0; ich<nchains; ich++) {
+      CChain *chain_p_local = model_p->GetChain(ich);
+      std::string chain_id_local = chain_p_local->GetChainID();
+      if (chain_id_local == chain_id) {
+	 chain_p = chain_p_local;
+	 break;
+      }
+   }
+   
+   if (! chain_p) {
+      // 20100125 can't do this today, the second arg to the
+      // constructor is a char * (not const)
+      // chain_p = new CChain(model_p, chain_id.c_str()); // does the add for us
+      chain_p = new CChain;
+      chain_p->SetChainID(chain_id.c_str());
+      model_p->AddChain(chain_p);
+   }
+
    
    std::string mol_chain_id(chain_p->GetChainID());
    int n_res = chain_p->GetNumberOfResidues();

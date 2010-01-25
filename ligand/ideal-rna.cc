@@ -83,7 +83,7 @@ coot::ideal_rna::make_molecule() {
       clipper::Mat33<double> antisense_base_mat(1, 0, 0, 0, -1, 0, 0, 0, -1);
       clipper::RTop_orth antisense_base_rtop(antisense_base_mat,
 					     clipper::Coord_orth(0,0,0));
-      CResidue *antisense_ref = coot::util::deep_copy_this_residue(ur, "", 1);
+      CResidue *antisense_ref = coot::util::deep_copy_this_residue(ur);
       // now transform antisense base to the right place:
       coot::util::transform_atoms(antisense_ref, antisense_base_rtop);
 
@@ -91,7 +91,7 @@ coot::ideal_rna::make_molecule() {
 	 if (is_valid_base(seq[iseq])) { 
 
 	    // sense residue
-	    CResidue *res = coot::util::deep_copy_this_residue(ur, "", 1);
+	    CResidue *res = coot::util::deep_copy_this_residue(ur);
 	    res->seqNum = 1 + iseq ;
 	    clipper::RTop_orth o = n_turns(iseq, seq.length(), form_flag);
 	    coot::util::transform_atoms(res, o);
@@ -121,7 +121,7 @@ coot::ideal_rna::make_molecule() {
 	    if (is_valid_base(seq[iseq])) { 
 
 	       // antisense residue
-	       CResidue *res = coot::util::deep_copy_this_residue(antisense_ref, "", 1);
+	       CResidue *res = coot::util::deep_copy_this_residue(antisense_ref);
 	       res->seqNum = seq.length() - iseq;
 	       // antisense_chain_p->AddResidue(res);  "backwards in pdb"
 	       clipper::RTop_orth o = n_turns(iseq, seq.length(), form_flag);
@@ -272,7 +272,7 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type,
 		<< " residues looking for residues of type :"
 		<< residue_type << ":\n";
    } else {
-      std_residue = coot::util::deep_copy_this_residue(SelResidue[0], "", 1);
+      std_residue = coot::util::deep_copy_this_residue(SelResidue[0]);
    }
    standard_residues->DeleteSelection(selHnd);
    return std_residue;

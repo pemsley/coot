@@ -2201,9 +2201,9 @@ graphics_info_t::baton_build_atoms_molecule() const {
    }
 
    
-   std::cout << "Creating a molecule for Baton Atoms" << std::endl;
+   std::cout << "INFO:: Creating a molecule for Baton Atoms" << std::endl;
    // not found, let's create one:
-   MyCMMDBManager *MMDBManager = new MyCMMDBManager();
+   CMMDBManager *MMDBManager = new CMMDBManager();
    
 
    // do we attach a model, chain etc here?
@@ -2265,7 +2265,8 @@ graphics_info_t::accept_baton_position() {
    int imol = baton_build_atoms_molecule();
    if (imol >= 0) {
       baton_atom = molecules[imol].add_baton_atom(baton_tip, 
-						  baton_build_start_resno, 
+						  baton_build_start_resno,
+						  baton_build_chain_id,
 						  baton_build_params_active,
 						  baton_build_direction_flag);
       baton_build_params_active = 0; // This flag was set after

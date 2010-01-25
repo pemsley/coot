@@ -1824,8 +1824,12 @@ class molecule_class_info_t {
    void fill_skeleton_treenodemap();
 
    // baton atoms:
+   //
+   // 20100125 now the chain-id is passed
+   // 
    CAtom *add_baton_atom(coot::Cartesian pos, 
-			 int i_chain_start_resno, 
+			 int i_chain_start_resno,
+			 const std::string &chain_id,
 			 short int i_start_resno_active, // dont ignore it this time?
 			 short int direction_flag); // return a pointer to
                                                     // the just added atom.

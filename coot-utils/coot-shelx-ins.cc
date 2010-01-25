@@ -1963,7 +1963,7 @@ coot::unshelx(CMMDBManager *shelx_mol) {
 	    need_new_chain = 0;
 	 }
 	 
-	 CResidue *copy_residue_p = coot::util::deep_copy_this_residue(shelx_residue_p, "", 1);
+	 CResidue *copy_residue_p = coot::util::deep_copy_this_residue(shelx_residue_p);
 	 chain_p->AddResidue(copy_residue_p);
 
 	 // apply the shelx afix numbers:
@@ -2060,7 +2060,7 @@ coot::reshelx(CMMDBManager *mol) {
       PCResidue residue_p;
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
-	 CResidue *copy_residue_p = coot::util::deep_copy_this_residue(residue_p, "", 1);
+	 CResidue *copy_residue_p = coot::util::deep_copy_this_residue(residue_p);
 	 copy_residue_p->seqNum = residue_p->GetSeqNum() + residue_offset;
 	 shelx_chain_p->AddResidue(copy_residue_p);
 
