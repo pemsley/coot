@@ -5360,6 +5360,13 @@ Thu Jan 21 23:23:30 GMT 2010
    
 
 
+---
+Mon Jan 25 15:10:19 GMT 2010
+
+	on finding a glycosidic linkage, Coot should do the DEL-xxx
+	mod if needed.
+
+
 ------
 
 

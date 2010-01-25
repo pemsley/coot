@@ -4046,8 +4046,8 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
 								bool do_rama_plot_restraints) {
 
    coot::bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
-//    std::cout << "   DEBUG in make_link_restraints_from_res_vec found "
-// 	     << bonded_residue_pairs.size() << " bonded residues " << std::endl;
+//     std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
+//  	     << bonded_residue_pairs.size() << " bonded residues " << std::endl;
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Link");
 
    if (do_rama_plot_restraints)
@@ -4067,9 +4067,6 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
    int n_link_torsion_restr = 0;
    int n_link_plane_restr = 0;
 
-//    std::cout << "   DEBUG:: in make_link_restraints_by_pairs, linking "
-// 	     << bonded_residue_pairs.size() << " pairs" << std::endl;
-
    for (unsigned int ibonded_residue=0;
 	ibonded_residue<bonded_residue_pairs.size();
 	ibonded_residue++) {
@@ -4087,7 +4084,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       CResidue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
 
       if (0) { 
-	 std::cout << "   looking for link :" << link_type
+	 std::cout << " ------- looking for link :" << link_type
 		   << ": restraints etc. between residues " 
 		   << sel_res_1->GetChainID() << " " << sel_res_1->seqNum << " - " 
 		   << sel_res_2->GetChainID() << " " << sel_res_2->seqNum << std::endl;
@@ -4334,11 +4331,14 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
       for (int jj=ii+1; jj<residues_vec.size(); jj++) {
 	 CResidue *res_s = residues_vec[jj].second;
 	 std::pair<bool, float> d = closest_approach(res_f, res_s);
-	 // std::cout << " closet approach given " << res_f << " " << res_s << std::endl;
-	 // std::cout << " closet approach d " << d.first << " " << d.second << std::endl;
+// 	 std::cout << " closest approach given " << coot::residue_spec_t(res_f)
+// 		   << " and " << coot::residue_spec_t(res_s) << std::endl;
+// 	 std::cout << " closest approach d " << d.first << " " << d.second << std::endl;
 	 if (d.first) {
 	    if (d.second < dist_crit) {
 	       std::pair<std::string, bool> l = find_link_type_rigourous(res_f, res_s, geom);
+// 	       std::cout << "DEBUG:: find_link_type_rigourous() returns " << l.first << " "
+// 			 << l.second << std::endl;
 	       std::string link_type = l.first;
 	       if (link_type != "") {
 		  std::cout << "INFO:: "
@@ -4466,7 +4466,11 @@ coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
    return link_type; 
 }
 
-// return "" on failure to find link
+// Return "" on failure to find link.  
+// 
+// If this returns "", consider calling this function again, with
+// reversed arguments.
+// 
 std::string
 coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CResidue *second,
 							   const std::string &group1,
@@ -4636,6 +4640,7 @@ std::pair<std::string, bool>
 coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue *second,
 						       const coot::protein_geometry &geom) const {
 
+   bool debug = 0;
    std::string link_type = "";
    bool order_switch_flag = 0;
    std::string comp_id_1 = first->GetResName();
@@ -4653,13 +4658,18 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
-	 unsigned int ilink = 0; // the first link
-	 
+	 if (debug)
+	    for (unsigned int il=0; il<link_infos.size(); il++)
+	       std::cout << "DEBUG:: link_infos: " << il << " " << link_infos[il].first << " "
+			 << link_infos[il].second << std::endl;
+
 	 // Now, if link is a TRANS (default-peptide-link), then
 	 // make sure that the C and N (or N and C) atoms of the
 	 // first and second residue are within dist_crit (2.0A) of
 	 // each other.  If not, then we should fail to find a link
 	 // between these 2 residues.
+	 // 
+	 unsigned int ilink = 0; // the first link
 	 if (link_infos[ilink].first.is_peptide_link_p()) {
 	    std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
 	    if (close_info.first) {
@@ -4679,6 +4689,11 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	    
 	    if (link_infos_are_glycosidic_p(link_infos)) {
 	       link_type = find_glycosidic_linkage_type(first, second, group_1, group_2, geom);
+	       if (link_type == "") {
+		  link_type = find_glycosidic_linkage_type(second, first, group_2, group_1, geom);
+		  if (link_type != "")
+		     order_switch_flag = 1;
+	       }
 	    } else {
 	       link_type = link_infos[ilink].first.Id();
 	    }
