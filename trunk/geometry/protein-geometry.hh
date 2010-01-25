@@ -874,6 +874,7 @@ namespace coot {
 								  const std::string &group_2,
 								  bool allow_peptide_link_flag) const;
 
+      int init_refmac_mon_lib_inner(std::string filename, int read_number_in);
 
    public:
 
@@ -936,7 +937,7 @@ namespace coot {
 
       // this function is no longer const because it can run try_dynamic_add
       //
-      int have_dictionary_for_residue_type(const std::string &monomer_type,
+      bool have_dictionary_for_residue_type(const std::string &monomer_type,
 					   int read_number);
       // likewise not const
       bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types);

@@ -267,19 +267,54 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       check_dictionary_for_residues(SelResidues, nSelResidues);
 
    if (icheck.first == 0) { 
-      std::cout << "DEUBG:: check_dictionary_for_residues - problem..." << std::endl;
+      std::cout << "INFO:: check_dictionary_for_residues - problem..." << std::endl;
+      std::string problem_residues = "Refinement setup failure.\nFailed to find restraints for:\n";
       for (unsigned int icheck_res=0; icheck_res<icheck.second.size(); icheck_res++) { 
 	 std::cout << "WARNING:: Failed to find restraints for :" 
 		   << icheck.second[icheck_res] << ":" << std::endl;
+	 problem_residues+= " ";
+	 problem_residues+= icheck.second[icheck_res];
       }
+      info_dialog(problem_residues);
+      return rr; // fail
    } else {
-      // debug
-      std::cout << "DEBUG:: check_dictionary_for_residues returns OK!" << std::endl;
-   } 
+      return copy_mol_and_refine_inner(imol_for_atoms,
+				       resno_1, resno_2,
+				       nSelResidues, SelResidues,
+				       chain_id_1, altconf,
+				       have_flanking_residue_at_start,
+				       have_flanking_residue_at_end,
+				       imol_for_map);
+   }
+}
 
-   std::cout << "INFO:: " << nSelResidues 
-	     << " residues selected for refined and flanking residues"
-	     << std::endl;
+// static
+void
+graphics_info_t::info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names) {
+
+   std::string problem_residues = "Refinement setup failure.\nFailed to find restraints for:\n";
+   for (unsigned int icheck_res=0; icheck_res<res_names.size(); icheck_res++) { 
+      problem_residues+= " ";
+      problem_residues+= res_names[icheck_res];
+   }
+   info_dialog(problem_residues);
+}
+
+coot::refinement_results_t
+graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
+					   int resno_1,
+					   int resno_2,
+					   int nSelResidues,
+					   PCResidue *SelResidues,
+					   const std::string &chain_id_1,
+					   const std::string &altconf,
+					   short int have_flanking_residue_at_start,
+					   short int have_flanking_residue_at_end,
+					   int imol_for_map
+					   ) {
+
+   coot::refinement_results_t rr(0, GSL_CONTINUE, "");
+   short int have_disulfide_residues = 0; // of course not in linear mode.
 
    if (nSelResidues > 0) {
 
@@ -325,7 +360,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 						  chain_id_1,
 						  // 0, // 0 because we are not in alt conf split
 						  in_alt_conf_split_flag, 
-						  imol);
+						  imol_for_atoms);
 
 	 coot::restraints_container_t restraints(resno_1,
 						 resno_2,
@@ -382,7 +417,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	    restraints.set_do_numerical_gradients();
 
 	 rr = update_refinement_atoms(nrestraints, restraints, rr, local_moving_atoms_asc,
-				      1, imol, chain_id_1);
+				      1, imol_for_atoms, chain_id_1);
 	 
       }
       
@@ -541,37 +576,47 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       
       std::vector<std::string> residue_types = coot::util::residue_types_in_residue_vec(residues);
       // use try_dynamic_add()
-      geom_p->have_dictionary_for_residue_types(residue_types);
-      
-      std::string residues_alt_conf = alt_conf;
-      imol_moving_atoms = imol;
-      std::pair<CMMDBManager *, std::vector<CResidue *> > residues_mol_and_res_vec =
-	 create_mmdbmanager_from_res_vector(residues, imol, mol, residues_alt_conf);
+      bool have_restraints = geom_p->have_dictionary_for_residue_types(residue_types);
 
-      // We only want to act on these new residues and molecule, if
-      // there is something there.
-      // 
-      if (residues_mol_and_res_vec.first) { 
-	 atom_selection_container_t local_moving_atoms_asc =
-	    make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
-	 std::vector<std::pair<bool,CResidue *> > local_residues;  // not fixed.
-	 for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
-	    local_residues.push_back(std::pair<bool, CResidue *>(0, residues_mol_and_res_vec.second[i]));
-	 coot::restraints_container_t restraints(local_residues, *Geom_p(),
-						 residues_mol_and_res_vec.first,
-						 fixed_atom_specs, xmap, weight);
+      if (have_restraints) { 
+      
+	 std::string residues_alt_conf = alt_conf;
+	 imol_moving_atoms = imol;
+	 std::pair<CMMDBManager *, std::vector<CResidue *> > residues_mol_and_res_vec =
+	    create_mmdbmanager_from_res_vector(residues, imol, mol, residues_alt_conf);
+
+	 // We only want to act on these new residues and molecule, if
+	 // there is something there.
+	 // 
+	 if (residues_mol_and_res_vec.first) { 
+	    atom_selection_container_t local_moving_atoms_asc =
+	       make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
+	    std::vector<std::pair<bool,CResidue *> > local_residues;  // not fixed.
+	    for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
+	       local_residues.push_back(std::pair<bool, CResidue *>(0, residues_mol_and_res_vec.second[i]));
+	    coot::restraints_container_t restraints(local_residues, *Geom_p(),
+						    residues_mol_and_res_vec.first,
+						    fixed_atom_specs, xmap, weight);
 	 
-	 int n_restraints = restraints.make_restraints(*Geom_p(), flags,
-						       do_residue_internal_torsions,
-						       rama_plot_restraint_weight,
-						       do_rama_restraints,
-						       pseudo_bonds_type);
+	    int n_restraints = restraints.make_restraints(*Geom_p(), flags,
+							  do_residue_internal_torsions,
+							  rama_plot_restraint_weight,
+							  do_rama_restraints,
+							  pseudo_bonds_type);
 	 
-	 std::string dummy_chain = ""; // not used
-	 rr = update_refinement_atoms(n_restraints, restraints, rr, local_moving_atoms_asc,
-				      0, imol, dummy_chain);
-      }
-   } 
+	    std::string dummy_chain = ""; // not used
+	    rr = update_refinement_atoms(n_restraints, restraints, rr, local_moving_atoms_asc,
+					 0, imol, dummy_chain);
+	 }
+      } else {
+	 // we didn't have restraints for everything.
+	 // 
+	 std::pair<int, std::vector<std::string> > icheck = check_dictionary_for_residues(residues);
+	 if (icheck.first == 0) { 
+	    info_dialog_missing_refinement_residues(icheck.second);
+	 }
+      } 
+   }
 
    return rr;
 
@@ -662,7 +707,8 @@ graphics_info_t::make_moving_atoms_asc(CMMDBManager *residues_mol,
 } 
 
 
-// Return 0 if any of the residues don't have a dictionary entry
+// Return 0 (first) if any of the residues don't have a dictionary
+// entry and a list of the residue type that don't have restraints.
 // 
 std::pair<int, std::vector<std::string> >
 graphics_info_t::check_dictionary_for_residues(PCResidue *SelResidues, int nSelResidues) {
@@ -672,28 +718,52 @@ graphics_info_t::check_dictionary_for_residues(PCResidue *SelResidues, int nSelR
    std::vector<std::string> res_name_vec;
 
    for (int ires=0; ires<nSelResidues; ires++) {
-      std::string resname(SelResidues[ires]->name);
-      if (resname == "UNK") resname = "ALA"; // hack for KC/buccaneer.
-      if (resname.length() > 2)
-	 if (resname[2] == ' ')
-	    resname = resname.substr(0,2);
-      status = geom_p->have_dictionary_for_residue_type(resname,
-							cif_dictionary_read_number);
-      
-      cif_dictionary_read_number++;
-      // This bit is redundant now that try_dynamic_add has been added
-      // to have_dictionary_for_residue_type():
-      if (status == 0) { 
-	 status = geom_p->try_dynamic_add(resname, cif_dictionary_read_number++);
-	 if (status == 0) {
-	    status_OK = 0; // we failed to find it then.
-	    res_name_vec.push_back(resname);
-	 }
-      }
-   }
+      std::string resn(SelResidues[ires]->GetResName());
+      std::string resname = adjust_refinement_residue_name(resn);
+      int status = geom_p->have_dictionary_for_residue_type(resname, cif_dictionary_read_number);
+      if (! status) { 
+	 status_OK = 0;
+	 res_name_vec.push_back(resname);
+      } 
 
+      if (0)
+	 std::cout << "DEBUG:: have_dictionary_for_residues() on residue "
+		   << ires << " of " << nSelResidues << ", "
+		   << resname << " returns "
+		   << status << std::endl;
+      cif_dictionary_read_number++;
+   }
    return std::pair<int, std::vector<std::string> > (status_OK, res_name_vec);
+}
+
+std::string 
+graphics_info_t::adjust_refinement_residue_name(const std::string &resname) const {
+
+   std::string r = resname;
+   if (resname == "UNK") r = "ALA"; // hack for KC/buccaneer.
+   if (resname.length() > 2)
+      if (resname[2] == ' ')
+	 r = resname.substr(0,2);
+   return r;
 } 
+
+std::pair<int, std::vector<std::string> >
+graphics_info_t::check_dictionary_for_residues(const std::vector<CResidue *> &residues) {
+
+   std::vector<std::string> res_name_vec;
+   std::pair<int, std::vector<std::string> > r(0, res_name_vec);
+   for (unsigned int i=0; i<residues.size(); i++) {
+      std::string resname = adjust_refinement_residue_name(residues[i]->GetResName());
+      int status = geom_p->have_dictionary_for_residue_type(resname, cif_dictionary_read_number);
+      if (! status) {
+	 r.first = 0;
+	 r.second.push_back(resname);
+      }
+      cif_dictionary_read_number++; // not sure why this is needed.
+   }
+   return r;
+}
+
 
 
 

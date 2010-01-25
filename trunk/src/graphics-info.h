@@ -765,6 +765,19 @@ class graphics_info_t {
 
    // refinement_results_t is in ideal/simple-restraints.hh
 
+   coot::refinement_results_t
+     copy_mol_and_refine_inner(int imol_for_atoms,
+			       int resno_1,
+			       int resno_2,
+			       int nSelResidues,
+			       PCResidue *SelResidues,
+			       const std::string &chain_id_1,
+			       const std::string &altconf,
+			       short int have_flanking_residue_at_start,
+			       short int have_flanking_residue_at_end,
+			       int imol_for_map); 
+
+
    // rename me
    coot::refinement_results_t
      update_refinement_atoms(int n_restraints,
@@ -774,6 +787,10 @@ class graphics_info_t {
 			     bool need_residue_order_check, 
 			     int imol,
 			     std::string chain_id);
+
+   std::string adjust_refinement_residue_name(const std::string &resname) const;
+   static void info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names);
+
 
    // ----------------------------------------------------------------
    //             public:
@@ -2041,6 +2058,8 @@ public:
    // The vector is a list of residues for which no restraints could be found.
    std::pair<int, std::vector<std::string> >
    check_dictionary_for_residues(PCResidue *SelResidues, int nSelResidues);
+   std::pair<int, std::vector<std::string> >
+   check_dictionary_for_residues(const std::vector<CResidue *> &residues);
 
    // called by copy_mol_and_refine and copy_mol_and_regularize
    // 
