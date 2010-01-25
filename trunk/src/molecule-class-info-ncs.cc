@@ -1326,7 +1326,7 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
 	       //
 	       // 20080401.  Yes.  I do.  Needed to pass NCS residue range test.
 	       
-	       to_residue = coot::util::deep_copy_this_residue(from_residue, "", 1);
+	       to_residue = coot::util::deep_copy_this_residue(from_residue);
 
 	       std::pair<int, CResidue *> serial_number =
 		  find_serial_number_for_insert(to_residue->GetSeqNum(),

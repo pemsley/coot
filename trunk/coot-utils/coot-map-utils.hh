@@ -196,9 +196,9 @@ namespace coot {
 	    delete prev_residue;
 	 }
 	 residue_triple_t deep_copy() {
-	    CResidue *this_residue_cp = deep_copy_this_residue(this_residue, alt_conf, 1);
-	    CResidue *prev_residue_cp = deep_copy_this_residue(this_residue, alt_conf, 1);
-	    CResidue *next_residue_cp = deep_copy_this_residue(this_residue, alt_conf, 1);
+	    CResidue *this_residue_cp = deep_copy_this_residue(this_residue);
+	    CResidue *prev_residue_cp = deep_copy_this_residue(this_residue);
+	    CResidue *next_residue_cp = deep_copy_this_residue(this_residue);
 	    return residue_triple_t(this_residue_cp,
 				    prev_residue_cp,
 				    next_residue_cp,

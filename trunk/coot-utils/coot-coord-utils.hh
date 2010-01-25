@@ -786,9 +786,12 @@ namespace coot {
 		    float new_atom_b_factor); // degrees
       
       // utility function for above:
-      CResidue* deep_copy_this_residue(const CResidue *residue,
-				       const std::string &altconf,
-				       short int whole_residue_flag);
+      CResidue* deep_copy_this_residue_add_chain(CResidue *residue,
+						 const std::string &altconf,
+						 bool whole_residue_flag,
+						 bool attach_to_new_chain_flag);
+      CResidue *deep_copy_this_residue(CResidue *residue);
+      
 
       CResidue *copy_and_delete_hydrogens(CResidue *residue_in);
       

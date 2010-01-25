@@ -111,7 +111,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 		     PCResidue residue_p = chain->GetResidue(ires);
 		     //
 		     std::cout << "INFO:: mutating residue in add_cb_to_terminal_res\n";
-		     istat = molci.move_std_residue(std_res_copy, (const CResidue *)residue_p);
+		     istat = molci.move_std_residue(std_res_copy, residue_p);
 
 		     if (istat) { 
 

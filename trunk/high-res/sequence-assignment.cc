@@ -673,7 +673,7 @@ coot::sequence_assignment::side_chain_score_t::cache_standard_residues() {
 	    std::cout << "ERROR:: failed to find standard residue " << residue_type
 		      << " in cache_standard_residues" << std::endl;
 	 } else {
-	    CResidue *r = coot::util::deep_copy_this_residue(SelResidue[0], "", 1);
+	    CResidue *r = coot::util::deep_copy_this_residue(SelResidue[0]);
 	    standard_residues[i] = r;
 	 }
       }
