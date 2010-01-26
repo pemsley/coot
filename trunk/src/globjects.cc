@@ -1107,7 +1107,8 @@ std::string graphics_info_t::mysql_passwd = "password";
 #endif // USE_MYSQL_DATABASE
 
 //
-int graphics_info_t::ncs_residue_skip_key = GDK_o;
+int graphics_info_t::ncs_next_chain_skip_key = GDK_o;
+int graphics_info_t::ncs_prev_chain_skip_key = GDK_O;
 int graphics_info_t::update_go_to_atom_from_current_residue_key = GDK_p;
 
 //
@@ -2967,8 +2968,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    gint handled = 0; // initially unhandled
 
-   const int o = graphics_info_t::ncs_residue_skip_key; 
-
    switch (event->keyval) {
    case GDK_Control_L:
    case GDK_Control_R:
@@ -3463,19 +3462,37 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    // bindings.
 
    if (handled == 0) { // initial value
-      if (event->keyval == graphics_info_t::ncs_residue_skip_key) {
-#if defined USE_GUILE && !defined WINDOWS_MINGW
-	 std::string scheme_command("(skip-to-next-ncs-chain)");
-	 safe_scheme_command(scheme_command);
-#else 	    
-#ifdef USE_PYTHON
-	 std::string python_command("skip_to_next_ncs_chain()");
-	 safe_python_command(python_command);   
-#endif // PYTHON
+      if (event->keyval == graphics_info_t::ncs_next_chain_skip_key) {
+	 if (graphics_info_t::prefer_python) { 
+#if defined USE_PYTHON
+	    std::string python_command("skip_to_next_ncs_chain('forward')");
+	    safe_python_command(python_command);
+#endif // USE_PYTHON
+	 } else { 
+#if defined USE_GUILE
+	    std::string scheme_command("(skip-to-next-ncs-chain 'forward)");
+	    safe_scheme_command(scheme_command);
 #endif // USE_GUILE
+	 }
 	 handled = TRUE;
       }
 
+      if (event->keyval == graphics_info_t::ncs_prev_chain_skip_key) {
+	 if (graphics_info_t::prefer_python) { 
+#if defined USE_PYTHON
+	    std::string python_command("skip_to_next_ncs_chain('backward')");
+	    safe_python_command(python_command);
+#endif // USE_PYTHON
+	 } else { 
+#if defined USE_GUILE
+	    std::string scheme_command("(skip-to-next-ncs-chain 'backward)");
+	    safe_scheme_command(scheme_command);
+#endif // USE_GUILE
+	 }
+	 handled = TRUE;
+      }
+
+      
       if (event->keyval == graphics_info_t::update_go_to_atom_from_current_residue_key) {
 	 update_go_to_atom_from_current_position();
 	 handled = TRUE;

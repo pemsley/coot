@@ -1637,13 +1637,13 @@
      ;; 
      (let ((imol (greg-pdb "tutorial-modern.pdb")))
        (change-chain-id imol "A" "D" 0  0  0)
-       (change-chain-id imol "B" "E" 1 80 90)  
-       (change-chain-id imol "B" "F" 1 70 80)
-       (change-chain-id imol "B" "G" 1 60 70)
-       (change-chain-id imol "B" "J" 1 50 59)
-       (change-chain-id imol "B" "L" 1 40 49)
        (change-chain-id imol "B" "N" 1 30 38)
+       (change-chain-id imol "B" "L" 1 40 49)
+       (change-chain-id imol "B" "J" 1 50 59)
        (change-chain-id imol "B" "Z" 1 20 28)
+       (change-chain-id imol "B" "G" 1 60 70)
+       (change-chain-id imol "B" "F" 1 70 80)
+       (change-chain-id imol "B" "E" 1 80 90)  
 
        (sort-chains imol)
 

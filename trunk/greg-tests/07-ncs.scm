@@ -188,7 +188,7 @@
      (let ((imol (greg-pdb "pdb1t6q.ent")))
 
        (mutate imol "A" 50 "" "ASP")
-       (skip-to-next-ncs-chain) ;; generate the ghosts
+       (skip-to-next-ncs-chain 'forward) ;; generate the ghosts
        
        (copy-residue-range-from-ncs-master-to-others imol "A" 50 50)
        
