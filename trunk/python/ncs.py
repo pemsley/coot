@@ -28,7 +28,7 @@ def find_first_model_molecule():
 # to beginning.  If it can't find anything then don't move (and put a
 # message in the status bar)
 # 
-def skip_to_next_ncs_chain():
+def skip_to_next_ncs_chain(direction):
 
   import types
 
@@ -43,6 +43,7 @@ def skip_to_next_ncs_chain():
     else:
         # we do it differnt to Paul's function, as I dont understand it and
         # feel that this is easier and equally good!?
+        # Agreed, it does the same thing and more obviously correct 20100126-PE
         current_chain_index = chain_id_list.index(this_chain_id)
 	if current_chain_index == len(chain_id_list)-1:	# last chain
             # return the first chain

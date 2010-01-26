@@ -152,7 +152,7 @@ class NcsTestFunctions(unittest.TestCase):
         self.failUnless(valid_model_molecule_qm(imol))
 
         mutate(imol, "A", 50, "", "ASP")
-        skip_to_next_ncs_chain()     # generate the ghosts
+        skip_to_next_ncs_chain("forward")     # generate the ghosts
 
         copy_residue_range_from_ncs_master_to_others(imol, "A", 50, 50)
 
