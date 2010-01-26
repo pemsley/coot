@@ -34,10 +34,10 @@ def predict_release(data):
         X_today = data[last][0]
         m1 = (data[last][1] - c1)/X_today
         m2 = (data[last][2] - c2)/X_today
-        X_pred = (c2-c1)/(m1-m2) + 1
+        X_pred = (c2-c1)/(m1-m2) 
         Y_pred_1 = m1 * X_pred + c1
         Y_pred_2 = m2 * X_pred + c2
-        return [X_pred, Y_pred_1, X_today]
+        return [X_pred+1, Y_pred_1, X_today]
     else:
         return False
 
