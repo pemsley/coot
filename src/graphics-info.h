@@ -3457,7 +3457,8 @@ public:
 
    // -- make the key user changable.  A template for other bound
    // functions:
-   static int ncs_residue_skip_key;
+   static int ncs_next_chain_skip_key;
+   static int ncs_prev_chain_skip_key;
    static int update_go_to_atom_from_current_residue_key;
    
    // --- keyboarding the Go To Atom (or residue, really)

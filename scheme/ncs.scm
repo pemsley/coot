@@ -13,14 +13,14 @@
 ;; to beginning.  If it can't find anything then don't move (and put a
 ;; message in the status bar)
 ;; 
-(define (skip-to-next-ncs-chain)
+(define (skip-to-next-ncs-chain direction)
 
   ;; Given a chain-id and a list of chain-ids, return the chain-id of
   ;; the next chain to be jumped to (use wrapping).  If the list of
   ;; chain-ids is less then length 2, return #f.
   ;; 
-  (define (skip-to-chain-internal this-chain-id chain-id-list)
-;    (format #t "DEBUG this-chain-id: ~s~%" this-chain-id)
+  (define (skip-to-next-chain-id-internal this-chain-id chain-id-list)
+    (format #t "DEBUG next this-chain-id: ~s chain-id-list: ~s~%" this-chain-id chain-id-list)
     (if (< (length chain-id-list) 2)
 	#f 
 	(let loop ((local-chain-id-list chain-id-list))
@@ -35,16 +35,38 @@
 	   (else 
 	    (loop (cdr local-chain-id-list)))))))
 
+  ;; and the previous chain id:
+  (define (skip-to-previous-chain-id-internal this-chain-id chain-id-list)
+    (format #t "DEBUG prev this-chain-id: ~s chain-id-list: ~s~%" this-chain-id chain-id-list)
+    (if (< (length chain-id-list) 2)
+	#f 
+	(let ((l (length chain-id-list)))
+	  (call-with-current-continuation 
+	   (lambda (break)
+	     (for-each (lambda (ch-id-index)
+			 (let ((ch-id (list-ref chain-id-list ch-id-index)))
+			   (if (string=? ch-id this-chain-id)
+			       (break 
+				(if (> ch-id-index 0)
+				    (list-ref chain-id-list (- ch-id-index 1))
+				    (list-ref chain-id-list (- l 1)))))))
+		       (range l)))))))
+			    
 
+  ;; 
   (define (skip-to-chain imol this-chain-id chain-id-list)
     
     ;; Given a chain-id and a list of chain-ids, return the chain-id of
     ;; the next chain to be jumped to (use wrapping).  If the list of
     ;; chain-ids is less then length 2, return #f.
     ;; 
-    (let ((chain-guess (skip-to-chain-internal this-chain-id chain-id-list)))
+    (let ((chain-guess 
+	   (if (eq? direction 'forward)
+	       (skip-to-next-chain-id-internal     this-chain-id chain-id-list)
+	       (skip-to-previous-chain-id-internal this-chain-id chain-id-list))))
       
-;      (format #t "DEBUG chain-guess: ~s~%" chain-guess)
+      (format #t "DEBUG chain-guess: ~s~%" chain-guess)
+
       (if (not (string? chain-guess))
 	  chain-guess
 	  (if (not (is-solvent-chain? imol chain-guess))	  
@@ -66,7 +88,10 @@
 	     (else (loop (cdr attempts))))))))
 	       
 
+  ;; main line 
+  ;; 
   ;; First, what is imol?  imol is the go to atom molecule
+  ;; 
   (let* ((imol (go-to-atom-molecule-number))
 	 (this-chain-id (go-to-atom-chain-id))
 	 (chains (get-chain-id-list imol this-chain-id))
@@ -101,12 +126,12 @@
 		;; back to this-chain-id - in which case we have a "No NCS
 		;; Next Chain atom" status-bar message.
 		
-; 		(format #t "DEBUG:: gone to : ~s ~s s~%" 
-;			try-next-chain
-;			(go-to-atom-residue-number)
-;			(go-to-atom-atom-name))
+ 		(format #t "DEBUG:: gone to : ~s ~s s~%" 
+			try-next-chain
+			(go-to-atom-residue-number)
+			(go-to-atom-atom-name))
+ 		(format #t "DEBUG:: found atom state: ~s~%" found-atom-state)
 
-; 		(format #t "DEBUG:: found atom state: ~s~%" found-atom-state)
 
 		(if (= found-atom-state 0)
 		    ;; then we did *not* find the atom, e.g. next-chain was
@@ -116,8 +141,6 @@
 		    ;; otherwise all was hunky-dorey
 		    (begin
 		      ; set the orientation:
-;		      (format #t "DEBUG:: apply-ncs-to-view-orientation-and-screen-centre ~s ~s ~s~%"
-;			      imol this-chain-id try-next-chain)
 		      (apply-ncs-to-view-orientation-and-screen-centre
 		       imol this-chain-id try-next-chain)
 		      #t))))))))

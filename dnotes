@@ -3975,7 +3975,7 @@ INFO::
    o Fix the old-coot timer.
    o Fix the release name in the About dialog.
    o commit
-   o Is everyting OK on bubbles? Makes new source tar file?
+   o Passes build on cycle? 
    o clear out pre-releases
    o Build binaries on some hosts
    o Mail mailing list
@@ -3983,8 +3983,7 @@ INFO::
 ---
 Mon Jan 12 00:17:05 GMT 2009
 
-   run libcheck from a pdb file:
-
+   INFO:: run libcheck from a pdb file:
 
 Y
 _FILE_L /home/paule/ccp4i/rnase/STU_bondlist.cif
@@ -5369,7 +5368,16 @@ Mon Jan 25 15:10:19 GMT 2010
 ---
 Mon Jan 25 17:22:45 GMT 2010
 
-	sphere refine on a water.  Does it work?  [JED]
+	sphere refine on a water (with no neighbours). -> No
+	restraints dialog.  [JED]
+
+---
+Tue Jan 26 16:47:45 GMT 2010
+
+    When doing refinement, check that all the non-H atoms of the
+    selected residues appear in the restraints.  If not, give a dialog
+    and run a hook (which is passed a list of the failing residues
+    specs and types). [JED].
 
 
 ------

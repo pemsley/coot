@@ -237,3 +237,5 @@
       (atoms-have-correct-seg-id? (cdr atoms) seg-id)))))
 
 
+
+(set-console-display-commands-hilights 0 0 0)
