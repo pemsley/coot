@@ -3228,6 +3228,7 @@
 		  <child>
 		    <widget class="GtkMenuToolButton" id="model_toolbar_rot_trans_toolbutton">
 		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Rotate Translate Zone/Chain/Molecule</property>
 		      <property name="label" translatable="yes">Rotate Translate</property>
 		      <property name="use_underline">True</property>
 		      <property name="icon">rtz.svg</property>

@@ -1908,6 +1908,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rot_trans_toolbutton);
 #endif
 
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), tooltips, _("Rotate Translate Zone/Chain/Molecule"), NULL);
 
   model_toolbar_auto_fit_rotamer_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), _("Auto Fit Rotamer"));
