@@ -1,11 +1,14 @@
 
+(define my-format format)
+(define my-format (lambda (args) #f)) ;; do nothing, because Coot will crash if user has the Scheme
+				      ;; scripting window open (it captures the format output).
 
 (defmacro with-working-directory args
   `(begin
-     (format #t "args is ~s~%" ,args)
+     ;;     (format #t "args is ~s~%" ,args)
      (let ((current-dir (getcwd))
 	   (funcs (cdr ,args)))
-       (format #t "funcs is ~s~%" funcs)
+       ;; (format #t "funcs is ~s~%" funcs)
        (chdir (car ,args))
        @funcs
        (chdir current-dir))))
@@ -13,10 +16,10 @@
 
 (defmacro test-macro args
   `(begin
-     (format #t "args is ~s~%" ',args)
+     ;; (format #t "args is ~s~%" ',args)
      (let ((current-dir (getcwd))
 	   (funcs (car (cdr ',args))))
-       (format #t "funcs is ~s~%" funcs)
+       ;; (format #t "funcs is ~s~%" funcs)
        ,funcs
        )))
 
@@ -39,7 +42,7 @@
 
 ;; a thread handling function
 (define (coot-updates-error-handler key . args)
-  (format #t "error: finding updates: error in ~s with args ~s~%" key args))
+  (my-format #t "error: finding updates: error in ~s with args ~s~%" key args))
 
 ;; The file name of the phone home script, executed with guile -s
 ;; FIXME - need to be installed in xxx/etc (or some such).
@@ -51,9 +54,13 @@
 (define (get-revision-from-string str)
   ;; e.g. str is "coot-0.6-pre-1-revision-2060" (with a newline at the
   ;; end too).  We want to return 2060 (a number) from here (or #f).
-  (let* ((s (sans-final-newline str))
-	 (ls (separate-fields-discarding-char #\- s list)))
-    (string->number (car (reverse ls)))))
+  (if (not (string? str))
+      #f
+      (if (= (string-length str) 0)
+	  #f
+	  (let* ((s (sans-final-newline str))
+		 (ls (separate-fields-discarding-char #\- s list)))
+	    (string->number (car (reverse ls)))))))
 
 ;; Is this true?
 (define (get-stable-release-from-server-string str)
@@ -69,6 +76,8 @@
 ; Return #t or #f 
 (define (new-version-on-server? str is-pre-release?)
 
+  ;; (format #t "new-version-on-server? gets str: ~s~%" str)
+
   (if is-pre-release?
 
       ;; pre-releases are handle with svn revision numbers (as ints).
@@ -76,7 +85,8 @@
       (let ((server-rev (get-revision-from-string str)))
 	;; for pre-release
 	(if (number? server-rev)
-	    (> server-rev (svn-revision))))
+	    (> server-rev (svn-revision))
+	    #f))
 
       ;; For a stable release: 
       ;; 
@@ -116,12 +126,12 @@
       ;; and #f if not.
       ;; 
       (define (run-download-binary-curl revision version-string)
-	(format #t "INFO:: run-download-binary-curl.... with revision ~s with version-string ~s~%" 
-		revision version-string)
+	(my-format "INFO:: run-download-binary-curl.... with revision ~s with version-string ~s~%" 
+		   revision version-string)
 	(let ((prefix (getenv "COOT_PREFIX")))
 	  (if (not (string? prefix))
 	      (begin
-		(format #t "OOps! Can't find COOT_PREFIX~%")
+		(my-format "OOps! Can't find COOT_PREFIX~%")
 		#f)
 	      (let* ((pre-release-flag (string-match "-pre" (coot-version)))
 		     (ys "www.ysbl.york.ac.uk/~emsley/software/binaries/")
@@ -149,19 +159,20 @@
 		     (md5-tar-file-name (string-append tar-file-name ".md5sum")))
 
 		(set! file-name-for-progress-bar tar-file-name)
-		(format #t "md5sum url for curl: ~s~%" md5-url)
-		(format #t "url for curl: ~s~%" url)
+		(my-format "md5sum url for curl: ~s~%" md5-url)
+		(my-format "url for curl: ~s~%" url)
 
 		(coot-get-url-and-activate-curl-hook md5-url md5-tar-file-name 1)
 		(coot-get-url-and-activate-curl-hook url tar-file-name 1)
 
 		(if (not (file-exists? tar-file-name))
 		    (begin
-		      (format #t "Ooops: ~s does not exist after attempted download~%" tar-file-name)
+		      ;; (format #t "Ooops: ~s does not exist after attempted download~%" tar-file-name)
 		      #f)
 		    (if (not (file-exists? md5-tar-file-name))
 			(begin
-			  (format #t "Ooops: ~s does not exist after attempted download~%" md5-tar-file-name)
+			  ;; (format #t "Ooops: ~s does not exist after attempted download~%" 
+			  ;; md5-tar-file-name)
 			  #f)
 			(if (not (match-md5sums tar-file-name md5-tar-file-name))
 			    #f 
@@ -170,8 +181,8 @@
 				  (begin
 				    (set! pending-install-in-place #t)
 				    #t)
-				  (begin 
-				    (format #t "Ooops: untar of ~s failed~%" tar-file-name)
+				  (begin
+				    ;; (format #t "Ooops: untar of ~s failed~%" tar-file-name)
 				    #f))))))))))
 
 
@@ -207,6 +218,8 @@
 			      version-string))
 	    (revision (get-revision-from-string version-string)))
 
+	;; (format #t "DEBUG:: revision ~s from version-string: ~s~%" revision version-string)
+
 	(let ((window (gtk-window-new 'toplevel))
 	      (dialog-name "Download binary")
 	      (main-vbox (gtk-vbox-new #f 6))
@@ -240,34 +253,38 @@
 				(gtk-widget-destroy window)))
 
 	  (gtk-signal-connect ok-button "clicked"
-			      (lambda () 
-				(gtk-progress-set-show-text progress-bar #t)
-				(call-with-new-thread
-				 (lambda ()
-				   (if (not (run-download-binary-curl revision version-string))
-				       (begin
-					 (if (not (eq? pending-install-in-place 'cancelled))
-					     (set! pending-install-in-place 'fail)))))
-				 coot-updates-error-handler)
-				       
-				;; and a timeout checking the progress of the download:
-				(gtk-timeout-add 
-				 1000  (lambda ()
-					 (cond
-					  ((eq? pending-install-in-place 'fail)
-					   (gtk-widget-destroy window)
-					   (info-dialog "Failure to download and install binary")
-					   #f)
-					  ((eq? pending-install-in-place 'cancelled)
-					   #f) ; do nothing and stop timeout
-					  (pending-install-in-place
-					   (gtk-widget-destroy window)
-					   (restart-dialog)
-					   #f)
-					  (else
-					   (update-progress-bar progress-bar)
-					   #t))))))
-
+			      (lambda ()
+				(if (not (number? revision))
+				    (info-dialog "Failed to communicate with server")
+					 
+				    (begin
+				      (gtk-progress-set-show-text progress-bar #t)
+				      (call-with-new-thread
+				       (lambda ()
+					 (if (not (run-download-binary-curl revision version-string))
+					     (begin
+					       (if (not (eq? pending-install-in-place 'cancelled))
+						   (set! pending-install-in-place 'fail)))))
+				       coot-updates-error-handler)
+				      
+				      ;; and a timeout checking the progress of the download:
+				      (gtk-timeout-add 
+				       1000  (lambda ()
+					       (cond
+						((eq? pending-install-in-place 'fail)
+						 (gtk-widget-destroy window)
+						 (info-dialog "Failure to download and install binary")
+						 #f)
+						((eq? pending-install-in-place 'cancelled)
+						 #f) ; do nothing and stop timeout
+						(pending-install-in-place
+						 (gtk-widget-destroy window)
+						 (restart-dialog)
+						 #f)
+						(else
+						 (update-progress-bar progress-bar)
+						 #t))))))))
+				
 	  (gtk-widget-show-all window))))))
 
 
@@ -277,11 +294,11 @@
   (let ((prefix-dir (getenv "COOT_PREFIX")))
     (if (not (string? prefix-dir))
 	(begin
-	  (format #t "OOps could not get COOT_PREFIX~%")
+	  ;; (format #t "OOps could not get COOT_PREFIX~%")
 	  #f)
 	(if (not (directory-is-modifiable? prefix-dir))
 	    (begin
-	      (format #t "OOps directory ~s is not modifiable~%" prefix-dir)
+	      ;; (format #t "OOps directory ~s is not modifiable~%" prefix-dir)
 	      #f)
 	    (let ((pending-dir (append-dir-file prefix-dir "pending-install")))
 	      (if (not (file-exists? pending-dir))
@@ -289,16 +306,17 @@
 	      (begin
 		(if (not (file-exists? pending-dir))
 		    (begin
-		      (format #t "OOps could not create ~s~%" pending-dir)
+		      ;; (format #t "OOps could not create ~s~%" pending-dir)
 		      #f)
 		    (let ((a-tar-file-name (absolutify tar-file-name)))
 		      ;; with-working-directory 
 		      (let ((current-dir (getcwd)))
 			(chdir pending-dir)
-			(format #t "now current-dir is ~s~%" (getcwd))
+			;; (format #t "now current-dir is ~s~%" (getcwd))
 			(goosh-command "tar" (list "xzf" a-tar-file-name) '() "untar.log" #f)
 			(chdir current-dir))
-		      (format #t "now current-dir is ~s~%" (getcwd))))))))))
+		      ;; (format #t "now current-dir is ~s~%" (getcwd))
+		      ))))))))
 		    
 	
 ;; Test for prefix-dir 1) existing 2) being a directory 3) modifiable by user (ie. u+rwx)
@@ -342,22 +360,22 @@
       #f
       (if (not (file-exists? target-md5sum-file-name))
 	  (begin
-	    (format #t "OOps! ~s does not exist" target-md5sum-file-name)
+	    ;; (format #t "OOps! ~s does not exist" target-md5sum-file-name)
 	    #f)
 	  (let ((target-md5-string (get-target-md5-string target-md5sum-file-name))
 		(md5-string (get-md5sum-string tar-file-name)))
 	    (if (not (string? target-md5-string))
 		(begin
-		  (format #t "OOps ~s is not a string~%" target-md5-string)
+		  ;; (format #t "OOps ~s is not a string~%" target-md5-string)
 		  #f)
 		(if (not (string? md5-string))
 		    (begin
-		      (format #t "OOps ~s is not a string~%" target-md5-string)
+		     ;; (format #t "OOps ~s is not a string~%" target-md5-string)
 		      #f)
 		    (if (not (string=? target-md5-string md5-string))
 			(begin
-			  (format #t "Oops: md5sums do not match ~s ~s.  Doing nothing~%"
-				  target-md5-string md5-string)
+			  ;;n(format #t "Oops: md5sums do not match ~s ~s.  Doing nothing~%"
+			  ;; target-md5-string md5-string)
 			  #f)
 			#t)))))))
 
@@ -449,7 +467,6 @@
       (call-with-new-thread
        (lambda ()
 	 (let* ((url (make-latest-version-url))
-		(nov (format #t "INFO:: get URL ~s~%" url))
 		(latest-version-server-response (coot-get-url-as-string url)))
 	   (handle-latest-version-server-response latest-version-server-response)))
        ;; the error handler
@@ -468,7 +485,7 @@
 	     (cond
 	      ((> count 2000) ;; try for 20 seconds, otherwise timeout.
 	       ;; fail-with-timeout
-	       (format #t "final fail: server-info-status: ~s~%" server-info-status)
+	       ;; (format #t "final fail: server-info-status: ~s~%" server-info-status)
 	       #f) ;; stop running this idle function
 	      ((eq? server-info-status 'file-not-found)
 	       (let ((s (string-append "No " 
@@ -479,12 +496,24 @@
 		 (info-dialog s)
 		 #f)) ;; stop running this idle function
 	      ((string? server-info-status)
-	       (if (new-version-on-server? server-info-status is-pre-release?)
-		   (notify-of-new-version server-info-status)
-		   (let ((s (string-append "No version newer than this revision ("
-					   (number->string (svn-revision))
-					   ").")))
-		     (info-dialog s)))
+	       (if (= (string-length server-info-status) 0)
+
+		   ;; this happens when coot can't get past the proxy
+		   ;; 
+		   (info-dialog "Can't communicate with server")
+		   
+		   ;; otherwise we can get past the proxy, and it gave
+		   ;; us a result, was the server version newer than
+		   ;; this one?
+		   ;; 
+		   (let ((v (new-version-on-server? server-info-status is-pre-release?)))
+		     ;; (format #t "new-version-on-server? returns ~s~%" v)
+		     (if v 
+			 (notify-of-new-version server-info-status)
+			 (let ((s (string-append "No version newer than this revision ("
+						 (number->string (svn-revision))
+						 ").")))
+			   (info-dialog s)))))
 	       #f) ;; stop running idle function
 	      (else 
 	       (usleep 10000) 
