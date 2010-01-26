@@ -13771,7 +13771,7 @@ programs to which you may be more accustomed.
   <widget>
     <class>GtkPixmap</class>
     <name>pixmap3</name>
-    <filename>coot-0.6.xpm</filename>
+    <filename>coot-0.6.1.xpm</filename>
     <xalign>0.5</xalign>
     <yalign>0.5</yalign>
     <xpad>0</xpad>

@@ -2,8 +2,6 @@
 
    points: 0 left.
 
-   o try to fix JED download problem. ::: 0.5
-
 
 ------
 
@@ -262,6 +260,10 @@
 * off the hydrogen, clash goes away.
 
    o rotate/translate toolbar option menu needs a tooltip ::: 0.5
+
+* Done.
+
+   o try to fix JED download problem. ::: 0.5
 
 * Done.
 
