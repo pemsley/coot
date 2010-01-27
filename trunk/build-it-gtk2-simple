@@ -1172,11 +1172,11 @@ coot_version=$fallback_coot_version
 
 pre_release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
 pre_release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/pre-releases/
-release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/
-release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/releases/
+release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software
+release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/releases
 
-${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
-${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
+${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
+${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
 pre_release_files_html=""
 if [ $build_coot_prerelease = 1 ]  ; then 
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
@@ -1284,6 +1284,7 @@ END {
 '`
    echo INFO:: building pre-release and coot_version_pre is $coot_version_pre
    if [ -z "$coot_version_pre" ] ; then
+      # this path when there are no pre-releases to be built, i.e. build the latest release.
       echo trying to build pre-release coot, but failed to find pre-release version
       BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
    else
@@ -1296,6 +1297,7 @@ END {
          coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
       fi
       coot_source_tar_file=$pre_release_server_dir/$coot_version_pre
+      echo DEBUG:: set coot_source_tar_file to $pre_release_server_dir/$coot_version_pre
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
       BINARY_TAR_DEST_DIR=$NIGHTLY_DEST_DIR
       mkdir -p ${NIGHTLY_DEST_DIR}
@@ -2866,6 +2868,7 @@ else
       fi 
    else 
       # compile release code then:
+      echo compile RELEASE code then, getting $release_server_dir/$coot_version.tar.gz
       ${WGET} $release_server_dir/$coot_version.tar.gz
       if [ ! $? = 0 ] ; then
          echo failed to wget $release_server_dir/$coot_version.tar.gz
