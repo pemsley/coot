@@ -11591,3 +11591,30 @@ on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
 }
 #endif /* GTK_MAJOR_VERSION */
 
+
+
+void
+on_environment_distances_h_bonds_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) 
+    set_show_environment_distances_h_bonds(1);
+  else
+    set_show_environment_distances_h_bonds(0);
+}
+
+
+void
+on_environment_distances_bumps_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) 
+    set_show_environment_distances_bumps(1);
+  else
+    set_show_environment_distances_bumps(0);
+
+}
+

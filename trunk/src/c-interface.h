@@ -3234,6 +3234,8 @@ void toggle_environment_show_distances(GtkToggleButton *button);
 /*! \brief show environment distances.  If state is 0, distances are
   turned off, otherwise distances are turned on. */
 void set_show_environment_distances(int state);
+void set_show_environment_distances_bumps(int state);
+void set_show_environment_distances_h_bonds(int state);
 /*! \brief show the state of display of the  environment distances  */
 int show_environment_distances_state();
 /*! \brief min and max distances for the environment distances */

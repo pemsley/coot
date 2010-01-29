@@ -784,7 +784,10 @@ int graphics_info_t::reset_b_factor_moved_atoms_flag = 0;
 // show environment
 float graphics_info_t::environment_min_distance = 0.0;
 float graphics_info_t::environment_max_distance = 3.2;
-short int graphics_info_t::environment_show_distances = 0;
+bool graphics_info_t::environment_show_distances = 0;
+bool graphics_info_t::environment_distances_show_bumps = 1; 
+bool graphics_info_t::environment_distances_show_h_bonds = 1;
+
 short int graphics_info_t::environment_distance_label_atom = 0;
 
 // dynamic distances to intermediate atoms:

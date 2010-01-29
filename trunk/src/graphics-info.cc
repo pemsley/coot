@@ -1528,33 +1528,44 @@ graphics_info_t::environment_graphics_object_internal(const graphical_bonds_cont
 	 glLineStipple (1, 0x00FF);
 	 glLineWidth(2.0);
 	 for (int i=0; i< env_bonds_box.num_colours; i++) {
-	    ll = env_bonds_box.bonds_[i];
-	    float it = float(i);
-	    if (it > 1.0) 
-	       it = 1.0;
 
-	    // now we want to draw out our bonds in various colour,
-	    // according to if they have a carbon or not.
-	    // 
-	    glColor3f (0.8, 0.8-0.4*it, 0.4+0.5*it);
+	    bool display_these_distances_flag = 1;
+	    if (i==0)
+	       if (!environment_distances_show_bumps)
+		  display_these_distances_flag = 0;
+	    if (i==1)
+	       if (!environment_distances_show_h_bonds)
+		  display_these_distances_flag = 0;
+
+	    if (display_these_distances_flag) { 
+	       ll = env_bonds_box.bonds_[i];
+	       float it = float(i);
+	       if (it > 1.0) 
+		  it = 1.0;
+
+	       // now we want to draw out our bonds in various colour,
+	       // according to if they have a carbon or not.
+	       // 
+	       glColor3f (0.8, 0.8-0.4*it, 0.4+0.5*it);
 	    
-	    for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
+	       for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
 	   
-	       pair = ll.pair_list[j];
+		  pair = ll.pair_list[j];
 	    
-	       glBegin(GL_LINES); 
-	       glVertex3f(pair.getStart().get_x(),
-			  pair.getStart().get_y(),
-			  pair.getStart().get_z());
-	       glVertex3f(pair.getFinish().get_x(),
-			  pair.getFinish().get_y(),
-			  pair.getFinish().get_z());
-	       glEnd();
-	       text_pos = pair.getFinish().mid_point(pair.getStart()) +
-		  coot::Cartesian(0.0, 0.1, 0.1);
-	       glRasterPos3f(text_pos.x(), text_pos.y(), text_pos.z());
-	       dist = (pair.getStart() - pair.getFinish()).amplitude();
-	       printString(float_to_string(dist));
+		  glBegin(GL_LINES); 
+		  glVertex3f(pair.getStart().get_x(),
+			     pair.getStart().get_y(),
+			     pair.getStart().get_z());
+		  glVertex3f(pair.getFinish().get_x(),
+			     pair.getFinish().get_y(),
+			     pair.getFinish().get_z());
+		  glEnd();
+		  text_pos = pair.getFinish().mid_point(pair.getStart()) +
+		     coot::Cartesian(0.0, 0.1, 0.1);
+		  glRasterPos3f(text_pos.x(), text_pos.y(), text_pos.z());
+		  dist = (pair.getStart() - pair.getFinish()).amplitude();
+		  printString(float_to_string(dist));
+	       }
 	    }
 	 }
 	 glDisable(GL_LINE_STIPPLE);

@@ -2387,7 +2387,9 @@ public:
    //
    static float environment_min_distance;
    static float environment_max_distance;
-   static short int environment_show_distances;
+   static bool environment_show_distances;
+   static bool environment_distances_show_bumps;
+   static bool environment_distances_show_h_bonds;
    static short int environment_distance_label_atom;
 
    // private?
