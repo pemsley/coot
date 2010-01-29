@@ -32,12 +32,19 @@ def predict_release(data):
         c1 = data[0][1]
         c2 = data[0][2]
         X_today = data[last][0]
-        m1 = (data[last][1] - c1)/X_today
-        m2 = (data[last][2] - c2)/X_today
-        X_pred = (c2-c1)/(m1-m2) 
-        Y_pred_1 = m1 * X_pred + c1
-        Y_pred_2 = m2 * X_pred + c2
-        return [X_pred+1, Y_pred_1, X_today]
+        if X_today > 0:
+            m1 = (data[last][1] - c1)/X_today
+            m2 = (data[last][2] - c2)/X_today
+            m_diff = m1 - m2
+            if m_diff != 0:
+                X_pred = (c2-c1)/(m1-m2) 
+                Y_pred_1 = m1 * X_pred + c1
+                Y_pred_2 = m2 * X_pred + c2
+                return [X_pred+1, Y_pred_1, X_today]
+            else:
+                return False
+        else:
+            return False
     else:
         return False
 
@@ -122,7 +129,7 @@ ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,65))
 # column, which is the default.
 plot = line_plot.T(label="Done", data=data, ycol=1)
 # plot2 = line_plot.T(label="Total", data=data, ycol=2, tick_mark=tick_mark.square)
-plot2 = line_plot.T(label="Total Scope for 0.6.1", data=data, ycol=2)
+plot2 = line_plot.T(label="Total Scope for 0.6.2", data=data, ycol=2)
 
 ar.add_plot(plot, plot2)
 
@@ -157,11 +164,8 @@ def annotation_box(box_text, loc_x, loc_y, data_index, arrow_position):
 
 
 
-annotation_box("Dec 5", -5, 20, 0, "c")
-annotation_box("Christmas", 48, 23, 37, "tc")
-annotation_box("New Year", 58, 35, 50, "tc")
-annotation_box("CCP4 SW2010", 70, 45, 65, "tc")
-annotation_box("EDNA meeting", 90, 70, 94, "tc")
+annotation_box("Jan 28", -6, 20, 0, "c")
+# annotation_box("Christmas", 48, 23, 37, "tc")
 
 
 
