@@ -10124,9 +10124,15 @@ create_environment_distance_dialog (void)
   GtkWidget *vbox58;
   GtkWidget *frame48;
   GtkWidget *environment_distance_checkbutton;
+  GtkWidget *environment_distances_type_selection;
+  GtkWidget *alignment151;
+  GtkWidget *vbox305;
+  GtkWidget *environment_distances_h_bonds_checkbutton;
+  GtkWidget *environment_distances_bumps_checkbutton;
+  GtkWidget *label743;
   GtkWidget *environment_distance_distances_frame;
+  GtkWidget *alignment152;
   GtkWidget *vbox59;
-  GtkWidget *label89;
   GtkWidget *hbox46;
   GtkWidget *label90;
   GtkWidget *environment_distance_min_entry;
@@ -10135,6 +10141,7 @@ create_environment_distance_dialog (void)
   GtkWidget *label91;
   GtkWidget *environment_distance_max_entry;
   GtkWidget *label93;
+  GtkWidget *label744;
   GtkWidget *environment_distance_label_atom_checkbutton;
   GtkWidget *dialog_action_area11;
   GtkWidget *environment_distance_dialog_ok_button;
@@ -10169,30 +10176,64 @@ create_environment_distance_dialog (void)
   gtk_widget_show (environment_distance_checkbutton);
   gtk_container_add (GTK_CONTAINER (frame48), environment_distance_checkbutton);
 
+  environment_distances_type_selection = gtk_frame_new (NULL);
+  gtk_widget_set_name (environment_distances_type_selection, "environment_distances_type_selection");
+  gtk_widget_show (environment_distances_type_selection);
+  gtk_box_pack_start (GTK_BOX (vbox58), environment_distances_type_selection, TRUE, TRUE, 2);
+  gtk_widget_set_sensitive (environment_distances_type_selection, FALSE);
+
+  alignment151 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_set_name (alignment151, "alignment151");
+  gtk_widget_show (alignment151);
+  gtk_container_add (GTK_CONTAINER (environment_distances_type_selection), alignment151);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment151), 0, 0, 12, 0);
+
+  vbox305 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox305, "vbox305");
+  gtk_widget_show (vbox305);
+  gtk_container_add (GTK_CONTAINER (alignment151), vbox305);
+
+  environment_distances_h_bonds_checkbutton = gtk_check_button_new_with_mnemonic (_("Hydrogen/Other Bonds"));
+  gtk_widget_set_name (environment_distances_h_bonds_checkbutton, "environment_distances_h_bonds_checkbutton");
+  gtk_widget_show (environment_distances_h_bonds_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox305), environment_distances_h_bonds_checkbutton, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (environment_distances_h_bonds_checkbutton), TRUE);
+
+  environment_distances_bumps_checkbutton = gtk_check_button_new_with_mnemonic (_("Bumps"));
+  gtk_widget_set_name (environment_distances_bumps_checkbutton, "environment_distances_bumps_checkbutton");
+  gtk_widget_show (environment_distances_bumps_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox305), environment_distances_bumps_checkbutton, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (environment_distances_bumps_checkbutton), TRUE);
+
+  label743 = gtk_label_new (_("<b>Environment Distance Type Selection</b>"));
+  gtk_widget_set_name (label743, "label743");
+  gtk_widget_show (label743);
+  gtk_frame_set_label_widget (GTK_FRAME (environment_distances_type_selection), label743);
+  gtk_label_set_use_markup (GTK_LABEL (label743), TRUE);
+
   environment_distance_distances_frame = gtk_frame_new (NULL);
   gtk_widget_set_name (environment_distance_distances_frame, "environment_distance_distances_frame");
   gtk_widget_show (environment_distance_distances_frame);
-  gtk_box_pack_start (GTK_BOX (vbox58), environment_distance_distances_frame, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (environment_distance_distances_frame), 6);
+  gtk_box_pack_start (GTK_BOX (vbox58), environment_distance_distances_frame, TRUE, TRUE, 2);
   gtk_widget_set_sensitive (environment_distance_distances_frame, FALSE);
+
+  alignment152 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_set_name (alignment152, "alignment152");
+  gtk_widget_show (alignment152);
+  gtk_container_add (GTK_CONTAINER (environment_distance_distances_frame), alignment152);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment152), 0, 0, 12, 0);
 
   vbox59 = gtk_vbox_new (FALSE, 0);
   gtk_widget_set_name (vbox59, "vbox59");
   gtk_widget_show (vbox59);
-  gtk_container_add (GTK_CONTAINER (environment_distance_distances_frame), vbox59);
-
-  label89 = gtk_label_new ("");
-  gtk_widget_set_name (label89, "label89");
-  gtk_widget_show (label89);
-  gtk_box_pack_start (GTK_BOX (vbox59), label89, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label89), GTK_JUSTIFY_CENTER);
+  gtk_container_add (GTK_CONTAINER (alignment152), vbox59);
 
   hbox46 = gtk_hbox_new (FALSE, 0);
   gtk_widget_set_name (hbox46, "hbox46");
   gtk_widget_show (hbox46);
   gtk_box_pack_start (GTK_BOX (vbox59), hbox46, TRUE, TRUE, 0);
 
-  label90 = gtk_label_new (_("  Min Distance  "));
+  label90 = gtk_label_new (_("  Min Distance   "));
   gtk_widget_set_name (label90, "label90");
   gtk_widget_show (label90);
   gtk_box_pack_start (GTK_BOX (hbox46), label90, FALSE, FALSE, 0);
@@ -10202,6 +10243,7 @@ create_environment_distance_dialog (void)
   gtk_widget_set_name (environment_distance_min_entry, "environment_distance_min_entry");
   gtk_widget_show (environment_distance_min_entry);
   gtk_box_pack_start (GTK_BOX (hbox46), environment_distance_min_entry, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (environment_distance_min_entry, 80, -1);
 
   label92 = gtk_label_new (_("  Angstroms  "));
   gtk_widget_set_name (label92, "label92");
@@ -10224,6 +10266,7 @@ create_environment_distance_dialog (void)
   gtk_widget_set_name (environment_distance_max_entry, "environment_distance_max_entry");
   gtk_widget_show (environment_distance_max_entry);
   gtk_box_pack_start (GTK_BOX (hbox45), environment_distance_max_entry, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (environment_distance_max_entry, 80, -1);
 
   label93 = gtk_label_new (_("  Angstroms  "));
   gtk_widget_set_name (label93, "label93");
@@ -10231,10 +10274,16 @@ create_environment_distance_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox45), label93, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label93), GTK_JUSTIFY_CENTER);
 
+  label744 = gtk_label_new (_("<b>Cut-off Distances</b>"));
+  gtk_widget_set_name (label744, "label744");
+  gtk_widget_show (label744);
+  gtk_frame_set_label_widget (GTK_FRAME (environment_distance_distances_frame), label744);
+  gtk_label_set_use_markup (GTK_LABEL (label744), TRUE);
+
   environment_distance_label_atom_checkbutton = gtk_check_button_new_with_mnemonic (_("Label Atom?"));
   gtk_widget_set_name (environment_distance_label_atom_checkbutton, "environment_distance_label_atom_checkbutton");
   gtk_widget_show (environment_distance_label_atom_checkbutton);
-  gtk_box_pack_start (GTK_BOX (vbox58), environment_distance_label_atom_checkbutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox58), environment_distance_label_atom_checkbutton, FALSE, FALSE, 4);
   gtk_widget_set_sensitive (environment_distance_label_atom_checkbutton, FALSE);
 
   dialog_action_area11 = GTK_DIALOG (environment_distance_dialog)->action_area;
@@ -10271,6 +10320,12 @@ create_environment_distance_dialog (void)
   g_signal_connect ((gpointer) environment_distance_checkbutton, "toggled",
                     G_CALLBACK (on_environment_distance_checkbutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) environment_distances_h_bonds_checkbutton, "toggled",
+                    G_CALLBACK (on_environment_distances_h_bonds_checkbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) environment_distances_bumps_checkbutton, "toggled",
+                    G_CALLBACK (on_environment_distances_bumps_checkbutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) environment_distance_label_atom_checkbutton, "toggled",
                     G_CALLBACK (on_environment_distance_label_atom_checkbutton_toggled),
                     NULL);
@@ -10284,9 +10339,15 @@ create_environment_distance_dialog (void)
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, vbox58, "vbox58");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, frame48, "frame48");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_checkbutton, "environment_distance_checkbutton");
+  GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distances_type_selection, "environment_distances_type_selection");
+  GLADE_HOOKUP_OBJECT (environment_distance_dialog, alignment151, "alignment151");
+  GLADE_HOOKUP_OBJECT (environment_distance_dialog, vbox305, "vbox305");
+  GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distances_h_bonds_checkbutton, "environment_distances_h_bonds_checkbutton");
+  GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distances_bumps_checkbutton, "environment_distances_bumps_checkbutton");
+  GLADE_HOOKUP_OBJECT (environment_distance_dialog, label743, "label743");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_distances_frame, "environment_distance_distances_frame");
+  GLADE_HOOKUP_OBJECT (environment_distance_dialog, alignment152, "alignment152");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, vbox59, "vbox59");
-  GLADE_HOOKUP_OBJECT (environment_distance_dialog, label89, "label89");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, hbox46, "hbox46");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, label90, "label90");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_min_entry, "environment_distance_min_entry");
@@ -10295,6 +10356,7 @@ create_environment_distance_dialog (void)
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, label91, "label91");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_max_entry, "environment_distance_max_entry");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, label93, "label93");
+  GLADE_HOOKUP_OBJECT (environment_distance_dialog, label744, "label744");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_label_atom_checkbutton, "environment_distance_label_atom_checkbutton");
   GLADE_HOOKUP_OBJECT_NO_REF (environment_distance_dialog, dialog_action_area11, "dialog_action_area11");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_dialog_ok_button, "environment_distance_dialog_ok_button");

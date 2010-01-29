@@ -2467,6 +2467,8 @@ void toggle_environment_show_distances(GtkToggleButton *button) {
    
    GtkWidget *hbox = lookup_widget(GTK_WIDGET(button),
 				   "environment_distance_distances_frame");
+   GtkWidget *distance_type_frame =
+      lookup_widget(GTK_WIDGET(button), "environment_distances_type_selection");
    GtkWidget *label_atom_check_button =
       lookup_widget(GTK_WIDGET(button),
 		    "environment_distance_label_atom_checkbutton");
@@ -2476,6 +2478,7 @@ void toggle_environment_show_distances(GtkToggleButton *button) {
       g.environment_show_distances = 1;
       gtk_widget_set_sensitive(hbox, TRUE);
       gtk_widget_set_sensitive(label_atom_check_button, TRUE);
+      gtk_widget_set_sensitive(distance_type_frame, TRUE);
 
       //
       std::pair<int, int> r =  g.get_closest_atom();
@@ -2492,6 +2495,7 @@ void toggle_environment_show_distances(GtkToggleButton *button) {
       g.environment_show_distances = 0;
       gtk_widget_set_sensitive(hbox, FALSE);
       gtk_widget_set_sensitive(label_atom_check_button, FALSE);
+      gtk_widget_set_sensitive(distance_type_frame, FALSE);
    }
 }
 

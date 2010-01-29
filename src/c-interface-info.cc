@@ -1930,6 +1930,23 @@ void set_show_environment_distances(int state) {
    graphics_draw();
 }
 
+void set_show_environment_distances_bumps(int state) {
+   graphics_info_t g;
+   std::pair<int, int> r =  g.get_closest_atom();
+   g.environment_distances_show_bumps = state;
+   g.update_environment_distances_maybe(r.first, r.second);
+   graphics_draw();
+}
+
+void set_show_environment_distances_h_bonds(int state) {
+   graphics_info_t g;
+   std::pair<int, int> r =  g.get_closest_atom();
+   g.environment_distances_show_h_bonds = state;
+   g.update_environment_distances_maybe(r.first, r.second);
+   graphics_draw();
+}
+
+
 int show_environment_distances_state() {
    return graphics_info_t::environment_show_distances;
 }

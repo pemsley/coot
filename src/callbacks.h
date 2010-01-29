@@ -4173,3 +4173,13 @@ void
 on_edit_chi_angles_reverse_fragment_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+
+void
+on_environment_distances_h_bonds_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_environment_distances_bumps_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
