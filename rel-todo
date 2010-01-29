@@ -1,7 +1,47 @@
-0.6.1 
+0.6.2
 
-   points: 0 left.
+    Points 40: April 4th
 
+    o roll up/collapse addition representation in Display manager when
+      they are not displayed ::: 2
+
+    o check the atoms of the residues to be refined against the
+      dictionary. JED ::: 4
+
+    o Make RSR interuptable ::: 2
+
+    o Move check water by difference map into water validation dialog ::: 1
+
+    o SBase interface ::: 5
+
+    o chemical component library interface ::: 4
+
+    o white background with ball and stick models. ::: 4
+
+    o sort chains with an mmdb function ::: 4
+
+    o get reverse ncs skip working ::: 2
+
+    o PIR alignment: on pressing the insertion button, go to the
+      nearest residue to the gap. [Joel Bard] ::: 1 
+
+    o H-bond-only, bump-only environment distances.  ::: 1
+
+    o coordination number of waters validataion check ::: 5
+
+    o PISA interfaces via XML  ::: 5
+
+    o Give a dialog of the alignment done in align&mutate ::: 1
 
 ------
+
+
+    o Fix rename-residue to work on just one chain ::: 0.5
+
+* Done.
+
+    o Move molecule here should have a check-button for "allow big
+      molecules to move" ::: 0.5
+
+* Done.
 
