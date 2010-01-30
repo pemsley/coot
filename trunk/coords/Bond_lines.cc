@@ -915,7 +915,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // seqDist has to be 0 here or else failure to find contacts to new
    // waters added as pointer atoms. Why?  Don't know - a bug in mmdb,
    // I suspect.
-   // 
+   //
    SelAtom.mol->SeekContacts(residue_atoms, n_residue_atoms,
 			     SelAtom.atom_selection, SelAtom.n_selected_atoms,
 			     min_dist,
