@@ -120,11 +120,13 @@
 	       ((null? chain-list) (reverse spec-list))
 	       ((null? serial-number-list)
 		(loop (cdr chain-list) 
-		      (range (chain-n-residues (car chain-list) imol))
+		      (if (= (length chain-list) 1)
+			  #f ;; this was the last chain
+			  (range (chain-n-residues (car (cdr chain-list)) imol)))
 		      spec-list))
 	       (else 
-		(format #t " seqnum from ~s ~s ~s~%" imol (car chain-list) 
-			(car serial-number-list))
+;		(format #t " seqnum from ~s ~s ~s~%" imol (car chain-list) 
+;			(car serial-number-list))
 		(let ((res-no   (seqnum-from-serial-number         imol (car chain-list) 
 								   (car serial-number-list)))
 		      (ins-code (insertion-code-from-serial-number imol (car chain-list) 

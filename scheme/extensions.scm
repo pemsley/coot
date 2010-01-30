@@ -34,11 +34,13 @@
 	     menu "Coot News..."
 	     (lambda ()
 	       (whats-new-dialog)))
-	    (add-simple-coot-menu-menuitem
-	     menu "Check for Updates..."
-	     (lambda () 
-	       (format #t "checking for updates....~%")
-	       (check-for-updates-gui)))))))
+	    (let ((os-type (vector-ref (uname) 0)))
+	      (if (not (string=? os-type "Darwin"))
+		  (add-simple-coot-menu-menuitem
+		   menu "Check for Updates..."
+		   (lambda () 
+		     (format #t "checking for updates....~%")
+		     (check-for-updates-gui)))))))))
 
 
 (if (defined? 'coot-main-menubar)
