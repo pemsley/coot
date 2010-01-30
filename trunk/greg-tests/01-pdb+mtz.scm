@@ -2355,6 +2355,30 @@
 	   
 
 
+(greg-testcase "set-residue-name sets the correct residue" #t
+   (lambda () 
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+       (set-residue-name imol "A" 37 "" "FRE")
+
+       ;; There should be only one residue with that residue type and it
+       ;; should be A37.
+       ;; 
+       (let* ((specs (fit-protein-make-specs imol 'all-chains))
+	      (residues-with-name (get-residues-in-molecule-of-type imol "FRE")))
+	 (if (not (= (length residues-with-name) 1))
+	     #f 
+	     (specs-match? (car residues-with-name) (list 0 "A" 37 "")))))))
+
+
+
+(greg-testcase "fit-protein-make-specs makes all specs" #t 
+   (lambda () 
+     (let* ((imol (greg-pdb "tutorial-modern.pdb"))
+	    (specs (fit-protein-make-specs imol 'all-chains)))
+       (format #t "specs: ~s ~s~%" (length specs) specs)
+       (= (length specs) 189))))
+
+
 
 
 
