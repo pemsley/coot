@@ -3171,6 +3171,8 @@ int fix_nomenclature_errors(int imol);
 GtkWidget *wrapped_create_move_molecule_here_dialog();
 void move_molecule_here_by_widget(GtkWidget *w);
 int move_molecule_to_screen_centre_internal(int imol);
+void fill_move_molecule_here_dialog(GtkWidget *w);
+
 /* } */
 
 /*  ----------------------------------------------------------------------- */

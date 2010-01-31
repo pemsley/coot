@@ -200,16 +200,30 @@ GtkWidget *wrapped_create_delete_item_dialog() {
 GtkWidget *wrapped_create_move_molecule_here_dialog() {
 
    GtkWidget *w = create_move_molecule_here_dialog();
-   GtkWidget *option_menu = lookup_widget(w, "move_molecule_here_optionmenu"); 
+   fill_move_molecule_here_dialog(w);
+   return w;
+}
+
+void
+fill_move_molecule_here_dialog(GtkWidget *w) {
+
+   GtkWidget *option_menu  = lookup_widget(w, "move_molecule_here_optionmenu");
+   GtkWidget *check_button = lookup_widget(w, "move_molecule_here_big_molecules_checkbutton");
+
+   bool fill_with_small_molecule_only_flag = 1;
    int imol = first_coords_imol();
    graphics_info_t::move_molecule_here_molecule_number = imol;
    GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::move_molecule_here_item_select);
-   
-   graphics_info_t g;
-   g.fill_option_menu_with_coordinates_options(option_menu, callback_func, imol);
 
-   return w;
-}
+   if (check_button) {
+      if (GTK_TOGGLE_BUTTON(check_button)->active)
+	 fill_with_small_molecule_only_flag = 0;
+   }
+
+   graphics_info_t g;
+   g.fill_option_menu_with_coordinates_options_possibly_small(option_menu, callback_func, imol,
+							      fill_with_small_molecule_only_flag);
+} 
 
 
 void move_molecule_here_by_widget(GtkWidget *w) {

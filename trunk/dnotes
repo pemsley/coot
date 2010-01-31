@@ -3966,6 +3966,7 @@ INFO::
 
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
+     Make sure the release is called Release, not pre-release
    o change the version in configure.in
    o change the splash screen
         artists acknowledged in glade/aboutdialog?
@@ -3976,7 +3977,8 @@ INFO::
    o Fix the old-coot timer in scheme/coot-gui.scm
    o Fix the release name in the About dialog.
    o commit
-   o Passes build on cycle? 
+   o Passes build (build-latest) on cycle? 
+        OK, disable the build-latest cron-job 
    o clear out pre-releases
    o Build binaries on some hosts
    o Mail mailing list
@@ -5379,6 +5381,12 @@ Tue Jan 26 16:47:45 GMT 2010
     selected residues appear in the restraints.  If not, give a dialog
     and run a hook (which is passed a list of the failing residues
     specs and types). [JED].
+
+
+---
+Wed Jan 27 01:47:31 GMT 2010
+
+    Make sure guile is 1.8.7 and GSL is 1.13
 
 
 ------
