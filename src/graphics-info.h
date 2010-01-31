@@ -1738,9 +1738,19 @@ public:
 							     GtkSignalFunc callback_func, 
 							     short int set_last_active_flag,
 							     int imol_active);
+   void fill_option_menu_with_coordinates_options_internal_3(GtkWidget *option_menu,
+							     GtkSignalFunc callback_func, 
+							     std::vector<int> fill_with_these_molecules,
+							     short int set_last_active_flag,
+							     int imol_active);
    void fill_option_menu_with_coordinates_options_internal_with_active_mol(GtkWidget *option_menu,
 									   GtkSignalFunc callback_func, 
 									   int imol_active);
+   void fill_option_menu_with_coordinates_options_possibly_small(GtkWidget *option_menu, 
+								 GtkSignalFunc callback_func, 
+								 int imol,
+								 bool fill_with_small_molecule_only_flag);
+
    
    static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); 
    static void on_go_to_atom_residue_list_selection_changed (GtkList *gtklist,

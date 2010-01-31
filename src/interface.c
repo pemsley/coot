@@ -17990,10 +17990,14 @@ create_move_molecule_here_dialog (void)
   GtkWidget *label287;
   GtkWidget *move_molecule_here_optionmenu;
   GtkWidget *move_molecule_here_optionmenu_menu;
+  GtkWidget *move_molecule_here_big_molecules_checkbutton;
   GtkWidget *dialog_action_area94;
   GtkWidget *hbox143;
   GtkWidget *move_molecule_here_ok_button;
   GtkWidget *move_molecule_here_cancel_button;
+  GtkTooltips *tooltips;
+
+  tooltips = gtk_tooltips_new ();
 
   move_molecule_here_dialog = gtk_dialog_new ();
   gtk_object_set_data (GTK_OBJECT (move_molecule_here_dialog), "move_molecule_here_dialog", move_molecule_here_dialog);
@@ -18027,6 +18031,14 @@ create_move_molecule_here_dialog (void)
   move_molecule_here_optionmenu_menu = gtk_menu_new ();
   gtk_option_menu_set_menu (GTK_OPTION_MENU (move_molecule_here_optionmenu), move_molecule_here_optionmenu_menu);
 
+  move_molecule_here_big_molecules_checkbutton = gtk_check_button_new_with_label (_("Move big molecules"));
+  gtk_widget_ref (move_molecule_here_big_molecules_checkbutton);
+  gtk_object_set_data_full (GTK_OBJECT (move_molecule_here_dialog), "move_molecule_here_big_molecules_checkbutton", move_molecule_here_big_molecules_checkbutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (move_molecule_here_big_molecules_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_big_molecules_checkbutton, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, move_molecule_here_big_molecules_checkbutton, _("Where \"big\" means more than 400 atoms"), NULL);
+
   dialog_action_area94 = GTK_DIALOG (move_molecule_here_dialog)->action_area;
   gtk_object_set_data (GTK_OBJECT (move_molecule_here_dialog), "dialog_action_area94", dialog_action_area94);
   gtk_widget_show (dialog_action_area94);
@@ -18053,12 +18065,17 @@ create_move_molecule_here_dialog (void)
   gtk_widget_show (move_molecule_here_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox143), move_molecule_here_cancel_button, FALSE, FALSE, 6);
 
+  gtk_signal_connect (GTK_OBJECT (move_molecule_here_big_molecules_checkbutton), "toggled",
+                      GTK_SIGNAL_FUNC (on_move_molecule_here_big_molecules_checkbutton_toggled),
+                      NULL);
   gtk_signal_connect (GTK_OBJECT (move_molecule_here_ok_button), "clicked",
                       GTK_SIGNAL_FUNC (on_move_molecule_here_ok_button_clicked),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (move_molecule_here_cancel_button), "clicked",
                       GTK_SIGNAL_FUNC (on_move_molecule_here_cancel_button_clicked),
                       NULL);
+
+  gtk_object_set_data (GTK_OBJECT (move_molecule_here_dialog), "tooltips", tooltips);
 
   return move_molecule_here_dialog;
 }

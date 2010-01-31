@@ -11592,6 +11592,16 @@ on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
 #endif /* GTK_MAJOR_VERSION */
 
 
+void
+on_move_molecule_here_big_molecules_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(togglebutton), "move_molecule_here_dialog");
+  fill_move_molecule_here_dialog(dialog);
+}
+
+
 
 void
 on_environment_distances_h_bonds_checkbutton_toggled
@@ -11618,3 +11628,28 @@ on_environment_distances_bumps_checkbutton_toggled
 
 }
 
+gboolean
+on_environment_distance_max_entry_key_press_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
+       execute_environment_settings(widget);
+  }
+  return FALSE;
+}
+
+gboolean
+on_environment_distance_min_entry_key_press_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
+       execute_environment_settings(widget);
+  }
+  return FALSE;
+}

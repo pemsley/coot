@@ -913,6 +913,29 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
 
 }
 
+void
+graphics_info_t::fill_option_menu_with_coordinates_options_possibly_small(GtkWidget *option_menu, 
+									  GtkSignalFunc callback_func, 
+									  int imol_active,
+									  bool fill_with_small_molecule_only_flag) {
+
+   int n_atoms_means_big_molecule = 400; 
+   short int set_last_active_flag = 0;
+   std::vector<int> fill_with_these_molecules;
+   for (int imol=0; imol<n_molecules(); imol++) {
+      if (molecules[imol].has_model()) {
+	 int n_atoms = molecules[imol].atom_sel.n_selected_atoms;
+	 if ( (!fill_with_small_molecule_only_flag) || (n_atoms < n_atoms_means_big_molecule) )
+	    fill_with_these_molecules.push_back(imol);
+      }
+   }
+   fill_option_menu_with_coordinates_options_internal_3(option_menu, callback_func, fill_with_these_molecules,
+							set_last_active_flag, imol_active);
+   
+
+} 
+
+
 
 void
 graphics_info_t::set_on_off_skeleton_radio_buttons(GtkWidget *skeleton_frame) { 
@@ -1573,6 +1596,23 @@ void
 graphics_info_t::fill_option_menu_with_coordinates_options_internal_2(GtkWidget *option_menu,
 								      GtkSignalFunc callback_func, 
 								      short int set_last_active_flag,
+								      int imol_active) {
+
+   std::vector<int> fill_with_these_molecules;
+   for (int imol=0; imol<n_molecules(); imol++) {
+      if (molecules[imol].has_model()) {
+	 fill_with_these_molecules.push_back(imol);
+      }
+   }
+   fill_option_menu_with_coordinates_options_internal_3(option_menu, callback_func, fill_with_these_molecules,
+							set_last_active_flag, imol_active);
+}
+
+void
+graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget *option_menu,
+								      GtkSignalFunc callback_func,
+								      std::vector<int> fill_with_these_molecules,
+								      short int set_last_active_flag,
 								      int imol_active) { 
 
    // like the column labels from an mtz file, similarly fill this
@@ -1605,13 +1645,13 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_2(GtkWidget 
    int last_menu_item_index = 0;
 
    int menu_index = 0; // for setting of imol_active as active mol in go to atom
-   for (int imol=0; imol<n_molecules(); imol++) {
+   for (int imol=0; imol<fill_with_these_molecules.size(); imol++) {
 
 //       std::cout << "in fill_option_menu_with_coordinates_options, "
 // 		<< "g.molecules[" << imol << "].atom_sel.n_selected_atoms is "
 // 		<< g.molecules[imol].atom_sel.n_selected_atoms << std::endl;
       
-      if (molecules[imol].has_model()) { 
+      if (molecules[fill_with_these_molecules[imol]].has_model()) { 
 
 	 std::string ss = int_to_string(imol);
 	 ss += " " ;
@@ -1624,7 +1664,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_2(GtkWidget 
 	    // chop
 	    ss += "...";
 	 } 
-	 ss += molecules[imol].name_.substr(left_size, ilen);
+	 ss += molecules[fill_with_these_molecules[imol]].name_.substr(left_size, ilen);
 	 menuitem = gtk_menu_item_new_with_label (ss.c_str());
 
 	 gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
@@ -1650,7 +1690,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_2(GtkWidget 
 	 gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(imol));
 	 gtk_menu_append(GTK_MENU(menu), menuitem); 
 
-	 if (imol == imol_active)
+	 if (fill_with_these_molecules[imol] == imol_active)
 	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
 
 	 // we do need this bit of course:

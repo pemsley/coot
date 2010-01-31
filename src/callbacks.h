@@ -783,6 +783,19 @@ on_enviroment_distance_dialog_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 
+gboolean
+on_environment_distance_min_entry_key_press_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data);
+
+gboolean
+on_environment_distance_max_entry_key_press_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data);
+
+
 void
 on_refine_params_use_torsions_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
@@ -4171,6 +4184,11 @@ on_baton_build_set_params_button_clicked
                                         gpointer         user_data);
 void
 on_edit_chi_angles_reverse_fragment_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_move_molecule_here_big_molecules_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 

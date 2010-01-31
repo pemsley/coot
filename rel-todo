@@ -25,8 +25,6 @@
     o PIR alignment: on pressing the insertion button, go to the
       nearest residue to the gap. [Joel Bard] ::: 1 
 
-    o H-bond-only, bump-only environment distances.  ::: 1
-
     o coordination number of waters validataion check ::: 5
 
     o PISA interfaces via XML  ::: 5
@@ -42,6 +40,10 @@
 
     o Move molecule here should have a check-button for "allow big
       molecules to move" ::: 0.5
+
+* Done.
+
+    o H-bond-only, bump-only environment distances.  ::: 1
 
 * Done.
 

@@ -399,13 +399,16 @@ molecule_class_info_t::set_residue_name(std::string chain_id, int res_no, std::s
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 for (int ires=0; ires<nres; ires++) { 
-	    residue_p = chain_p->GetResidue(ires);
-	    if (res_no == residue_p->GetSeqNum()) {
-	       if (ins_code == residue_p->GetInsCode()) {
-		  residue_p->SetResName(new_name.c_str());
+	 std::string mol_chain_id = chain_p->GetChainID();
+	 if (mol_chain_id == chain_id) { 
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       if (res_no == residue_p->GetSeqNum()) {
+		  if (ins_code == residue_p->GetInsCode()) {
+		     residue_p->SetResName(new_name.c_str());
+		  }
 	       }
 	    }
 	 }
