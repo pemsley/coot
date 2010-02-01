@@ -339,14 +339,49 @@ wrapped_create_accept_reject_refinement_dialog() {
  }
 
 // static
-void
+GtkWidget *
 graphics_info_t::info_dialog(const std::string &s) {
    
+   GtkWidget *w = NULL;
    if (graphics_info_t::use_graphics_interface_flag) { 
-      GtkWidget *w = wrapped_nothing_bad_dialog(s);
+      w = wrapped_nothing_bad_dialog(s);
       gtk_widget_show(w);
    }
+   return w;
 }
+
+// This uses an info_dialog but uses gtk_label_set_markup() to display
+// in a monospace font.
+void
+graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mutation_info) const {
+
+   std::string s;
+
+   s = "<tt>";
+   s += ": ";
+   s += mutation_info.alignedS_label;
+   if (mutation_info.chain_id != "") { 
+      s += " Chain ";
+      s += mutation_info.chain_id;
+   }
+   s += "\n";
+   s += mutation_info.alignedS;
+   s += "\n";
+   s += ": ";
+   s += mutation_info.alignedT_label;
+   s += "\n";
+   s += mutation_info.alignedT;
+   s += "\n";
+   // s += "something_here";
+   s += "</tt>";
+
+   GtkWidget *dialog = info_dialog("");
+   GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
+   gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+   gtk_label_set_markup(GTK_LABEL(label), s.c_str());
+
+}
+
 
 // To be used to (typically) get the menu item text label from chain
 // option menus (rather than the ugly/broken casting of

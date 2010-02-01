@@ -23,6 +23,8 @@ namespace coot {
       std::string chain_id;
       std::string alignedS;
       std::string alignedT;
+      std::string alignedS_label;
+      std::string alignedT_label;
       std::vector<mutate_insertion_range_info_t> insertions;
       std::vector<std::pair<residue_spec_t, std::string> > single_insertions;
       std::vector<residue_spec_t> deletions;

@@ -790,6 +790,7 @@ class graphics_info_t {
 
    std::string adjust_refinement_residue_name(const std::string &resname) const;
    static void info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names);
+   void info_dialog_alignment(coot::chain_mutation_info_container_t mutation_info) const;
 
 
    // ----------------------------------------------------------------
@@ -2703,7 +2704,7 @@ public:
    // show citation?
    static short int show_citation_notice; 
 
-   static void info_dialog(const std::string &s);
+   static GtkWidget *info_dialog(const std::string &s);
    
    // Return success status.
    // 

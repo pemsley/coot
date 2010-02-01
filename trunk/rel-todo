@@ -29,8 +29,6 @@
 
     o PISA interfaces via XML  ::: 5
 
-    o Give a dialog of the alignment done in align&mutate ::: 1
-
 ------
 
 
@@ -44,6 +42,10 @@
 * Done.
 
     o H-bond-only, bump-only environment distances.  ::: 1
+
+* Done.
+
+    o Give a dialog of the alignment done in align&mutate ::: 1
 
 * Done.
 
