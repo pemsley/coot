@@ -376,9 +376,11 @@ graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mut
    s += "</tt>";
 
    GtkWidget *dialog = info_dialog("");
-   GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
-   gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-   gtk_label_set_markup(GTK_LABEL(label), s.c_str());
+   if (dialog) { 
+      GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
+      gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+      gtk_label_set_markup(GTK_LABEL(label), s.c_str());
+   }
 
 }
 
