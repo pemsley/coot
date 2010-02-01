@@ -1804,6 +1804,101 @@ GtkWidget *wrapped_create_align_and_mutate_dialog() {
 }
 
 
+GtkWidget *wrapped_create_fixed_atom_dialog() {
+
+   GtkWidget *w = create_fixed_atom_dialog();
+   graphics_info_t::fixed_atom_dialog = w;
+   return w;
+}
+
+int do_align_mutate_sequence(GtkWidget *w) {
+
+   //
+   int handled_state = 0;  // initially unhandled (return value).
+
+   bool renumber_residues_flag = 0; // make this derived from the GUI one day
+   int imol = graphics_info_t::align_and_mutate_imol;
+   std::string chain_id = graphics_info_t::align_and_mutate_chain_from_optionmenu;
+   GtkWidget *autofit_checkbutton = lookup_widget(w, "align_and_mutate_autofit_checkbutton");
+
+   short int do_auto_fit = 0;
+   if (GTK_TOGGLE_BUTTON(autofit_checkbutton)->active)
+      do_auto_fit = 1;
+
+   graphics_info_t g;
+   int imol_refinement_map = g.Imol_Refinement_Map();
+
+   short int early_stop = 0;
+   if (do_auto_fit == 1)
+      if (imol_refinement_map == -1)
+	 early_stop = 1;
+
+   if (early_stop) {
+      std::string s = "WARNING:: autofit requested, but \n   refinement map not set!";
+      std::cout << s << "\n";
+      GtkWidget *warn = wrapped_nothing_bad_dialog(s);
+      gtk_widget_show(warn);
+   } else { 
+
+      handled_state = 1;
+      if (imol >= 0) {
+	 GtkWidget *text = lookup_widget(w, "align_and_mutate_sequence_text");
+	 char *txt = NULL;
+      
+#if (GTK_MAJOR_VERSION == 1) 
+	 gint start_pos = 0;
+	 gint end_pos = -1;
+	 txt = gtk_editable_get_chars(GTK_EDITABLE(text), start_pos, end_pos);
+#else
+	 // std::cout << "Gtk2 text view code... " << std::endl;
+	 // text is a GtkTextView in GTK2
+	 GtkTextView *tv = GTK_TEXT_VIEW(text);
+	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);
+	 GtkTextIter startiter;
+	 GtkTextIter enditer;
+	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
+	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
+	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
+#endif 	 
+      
+	 if (txt) {
+	    std::string sequence(txt);
+
+	    if (is_valid_model_molecule(imol)) {
+	       graphics_info_t g;
+	       g.mutate_chain(imol, chain_id, sequence, do_auto_fit, renumber_residues_flag);
+	       graphics_draw();
+	    }
+	 }
+      } else {
+	 std::cout << "WARNING:: inapproproate molecule number " << imol << std::endl;
+      }
+   }
+   return handled_state;
+}
+
+
+void align_and_mutate_molecule_menu_item_activate(GtkWidget *item, 
+						  GtkPositionType pos) {
+
+   GtkWidget *chain_optionmenu = lookup_widget(item, "align_and_mutate_chain_optionmenu");
+   GtkSignalFunc chain_callback = GTK_SIGNAL_FUNC(align_and_mutate_chain_option_menu_item_activate);
+   graphics_info_t::align_and_mutate_imol = pos;
+   int imol = pos;
+   std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_optionmenu, imol,
+								   chain_callback);
+}
+
+void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
+						       GtkPositionType pos) {
+
+   graphics_info_t::align_and_mutate_chain_from_optionmenu = menu_item_label(item);
+   std::cout << "align_and_mutate_chain_from_optionmenu is now "
+	     << graphics_info_t::align_and_mutate_chain_from_optionmenu
+	     << std::endl;
+}
+
+
 
 
 /*  ----------------------------------------------------------------------- */

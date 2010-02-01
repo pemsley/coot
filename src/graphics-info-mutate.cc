@@ -304,6 +304,9 @@ graphics_info_t::mutate_chain(int imol, const std::string &chain_id,
 		      << chain_id << std::endl;
 	    coot::chain_mutation_info_container_t mutation_info = 
 	       molecules[imol].align_and_mutate(chain_id, coot::fasta(seq), renumber_residues_flag);
+
+	    info_dialog_alignment(mutation_info);
+
 	    if (do_auto_fit_flag) {
 	       int imol_map = Imol_Refinement_Map();
 	       if (is_valid_map_molecule(imol_map)) {

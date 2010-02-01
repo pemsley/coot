@@ -300,6 +300,8 @@ graphics_info_t::info_dialog_missing_refinement_residues(const std::vector<std::
    info_dialog(problem_residues);
 }
 
+
+
 coot::refinement_results_t
 graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 					   int resno_1,

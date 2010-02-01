@@ -522,6 +522,9 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 
    ch_info.alignedS = align.GetAlignedS();
    ch_info.alignedT = align.GetAlignedT();
+   ch_info.alignedS_label = name_;
+   ch_info.alignedT_label = "target sequence:";
+   
 
    std::cout << ">  ";
    std::cout << name_ << std::endl;
