@@ -375,11 +375,15 @@ graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mut
    // s += "something_here";
    s += "</tt>";
 
-   GtkWidget *dialog = info_dialog("");
+   GtkWidget *dialog = info_dialog(s); // get trashed by markup text
    if (dialog) { 
       GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
       gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+
+      // guessing that we need > 6, could be more than 6.
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 6) ) || GTK_MAJOR_VERSION > 2)
       gtk_label_set_markup(GTK_LABEL(label), s.c_str());
+#endif       
    }
 
 }
