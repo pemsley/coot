@@ -23,7 +23,7 @@
 #ifndef PROTEIN_GEOMETRY_HH
 #define PROTEIN_GEOMETRY_HH
 
-#define MONOMER_DIR_STR "SBASE_DIR"
+#define MONOMER_DIR_STR "COOT_SBASE_DIR"
 
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
@@ -878,11 +878,25 @@ namespace coot {
 
    public:
 
-      protein_geometry() { read_number = 0; set_verbose(1); }
+      protein_geometry() {
+	 read_number = 0;
+	 set_verbose(1);
+#ifdef USE_SBASE   
+	 SBase = NULL;
+#endif // USE_SBASE
+      }
+      
 #ifdef USE_SBASE   
       // SBase things
+
+      // init_sbase() should return SBase_OK.  If not, trouble.
+      // 
       int init_sbase(const std::string &sbase_monomer_dir); // inits SBase
       void read_sbase_residues();
+      // return NULL on unable to make residue
+      CResidue *get_sbase_residue(const std::string &res_name) const;
+      std::vector<std::string>
+      matching_sbase_residues_names(const std::string &compound_name) const;
 #endif // USE_SBASE   
       
       // Refmac monomer lib things
@@ -941,6 +955,21 @@ namespace coot {
 					   int read_number);
       // likewise not const
       bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types);
+
+      // return a pair: a status, yes/no atoms match and a vector of
+      // atoms whose names do not match.
+      // 
+      std::pair<bool, std::vector<std::string> >
+      atoms_match_dictionary(CResidue *res,
+			     bool check_hydrogens_too_flag,
+			     const coot::dictionary_residue_restraints_t &restraints);
+
+      // return a pair, overall status, and pair of residue names and
+      // atom names that dont't match.
+      //
+      std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+      atoms_match_dictionary(const std::vector<CResidue *> residues,
+			     bool check_hydrogens_too_flag);
 
       // add "synthetic" 5 atom planar peptide restraint
       void add_planar_peptide_restraint();

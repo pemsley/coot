@@ -93,47 +93,6 @@ coot::basic_dict_restraint_t::basic_dict_restraint_t(const std::string &at1,
 }
 
 
-#ifdef USE_SBASE
-void
-coot::protein_geometry::read_sbase_residues() {
-
-   PCSBStructure SBS;
-
-   for (int i=0; i<residue_codes.size(); i++) {
-      SBS = SBase->GetStructure((char *)residue_codes[i].c_str());
-      std::cout << SBS->compoundID << " " << SBS->Name << std::endl;
-   }
-}
-#endif // USE_SBASE
-
-#ifdef USE_SBASE
-// return mmdb sbase return codes
-int
-coot::protein_geometry::init_sbase(const std::string &sbase_monomer_dir) {
-      
-   const char *monomer_dir = getenv(MONOMER_DIR_STR);
-   int RC = SBASE_FileNotFound;
-   
-   if (!monomer_dir) {
-      if (coot::is_directory_p(sbase_monomer_dir)) {
-	 monomer_dir = sbase_monomer_dir.c_str();
-      } else { 
-	 RC = SBASE_FileNotFound; // fail
-      }
-   } else {
-
-      std::cout << "sbase monomer dir: " << monomer_dir << std::endl; 
-      RC = SBase->LoadIndex(monomer_dir);
-
-      if (RC != SBASE_Ok) {
-         std::cout << "sbase files not found in " << monomer_dir << std::endl;
-      } else { 
-         std::cout << "sbase files found" << std::endl; 
-      }
-   }
-   return RC; 
-}
-#endif // USE_SBASE
 
 // return the number of atoms read (not the number of bonds (because
 // that is not a good measure of having read the file properly for
@@ -3130,7 +3089,78 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
       read_number++;
    }
    return have_all;
-} 
+}
+
+
+std::pair<bool, std::vector<std::string> >
+coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
+					       bool check_hydrogens_too_flag,
+					       const coot::dictionary_residue_restraints_t &restraints) {
+
+   std::vector<std::string> atom_name_vec;
+   bool status = 1;
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (unsigned int i=0; i<n_residue_atoms; i++) {
+      std::string residue_atom_name(residue_atoms[i]->name);
+      std::string ele(residue_atoms[i]->element);
+
+      bool found = 0;
+      if (ele == " H")
+	 if (check_hydrogens_too_flag == 0)
+	    found = 1;
+
+      if (! found) { 
+	 for (unsigned int irestraint_atom_name=0; irestraint_atom_name<restraints.atom_info.size(); irestraint_atom_name++) {
+	    if (restraints.atom_info[irestraint_atom_name].atom_id_4c == residue_atom_name) {
+	       found = 1;
+	       break;
+	    }
+	 }
+      }
+      if (! found) {
+	 atom_name_vec.push_back(residue_atom_name);
+	 status = 0;
+      }
+   }
+   
+   return std::pair<bool, std::vector<std::string> > (status, atom_name_vec);
+}
+
+
+
+// return a pair, overall status, and pair of residue names and
+// atom names that dont't match.
+//
+std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> residues,
+		       bool check_hydrogens_too_flag) {
+
+   bool status = 1;
+   std::vector<std::pair<std::string, std::vector<std::string> > > p;
+   
+   
+   for (unsigned int ires=0; ires<residues.size(); ires++) { 
+      std::string res_name(residues[ires]->GetResName());
+      std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
+	 get_monomer_restraints(res_name);
+      if (restraints.first) { 
+	 std::pair<bool, std::vector<std::string> > r =
+	    atoms_match_dictionary(residues[ires], check_hydrogens_too_flag,
+				   restraints.second);
+	 if (r.first == 0) {
+	    std::pair<std::string, std::vector<std::string> > p_bad(res_name, r.second);
+	    p.push_back(p_bad);
+	 }
+      }
+   }
+
+   return std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > > (status, p);
+}
+
+
 
 
 // Try comparing vs the comp_id first, if that fails compare the
