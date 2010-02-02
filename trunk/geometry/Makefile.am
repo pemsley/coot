@@ -20,9 +20,9 @@
 
 lib_LTLIBRARIES=libcoot-geometry.la
 
-EXTRA_DIST = read-sbase.cc read-sbase.hh notes Makefile.simple
+EXTRA_DIST = notes Makefile.simple
 
-include_HEADERS =  protein-geometry.hh
+include_HEADERS =  protein-geometry.hh read-sbase.hh 
 
 INCLUDES = -I$(top_srcdir)/coords -I$(top_srcdir)/utils -I$(top_srcdir)/coot-utils 	\
 	 -I$(top_srcdir)/compat $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
@@ -34,7 +34,7 @@ AM_CXXFLAGS = \
 
 #	-DHAVE_SYS_STDTYPES_H
 
-libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc 
+libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc read-sbase.cc 
 
 # and coot-utils, hmm.
 libcoot_geometry_la_LIBADD = \
