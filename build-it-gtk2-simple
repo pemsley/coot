@@ -2572,7 +2572,7 @@ gzip -dc ${AUTOBUILD_SOURCES}/guile-${guile_version}.tar.gz | tar xf -
 cd guile-${guile_version}
 # we need to pass CFLAGS and LDFLAGS because there is no --with-readline-prefix
 # arg to guile's configure
-./configure $generic_prefix CFLAGS="-I$install_top_dir/include -O" LDFLAGS=-L$install_top_dir/lib
+./configure $generic_prefix CFLAGS="-I$install_top_dir/include -O" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
 # Multilib fix for procedures.txt
 perl -pi -e 's|threads.doc||' `find . -name Makefile`
 $MAKE
