@@ -56,6 +56,7 @@
 (define user-mods-scm #f)
 (define refine-zone-with-full-residue-spec-scm #f)
 (define get-pkgdatadir-scm #f)
+(define chain-id-scm #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")
