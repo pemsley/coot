@@ -300,7 +300,8 @@
 # 4.69 20091216 Don't delete bin/curl, we need it for updates. (20100120 Not any more)
 # 4.70 20100120 debugging added to curl build (problems on bragg3)
 # 4.71 20100203 Remove goosh
-script_version=4.71
+# 4.72 20100203 Update clipper version
+script_version=4.72
 
 
 
@@ -2081,6 +2082,7 @@ mmdb_version=1.11
 mmdb_version=1.12
 mmdb_version=1.19
 mmdb_version=1.21
+mmdb_version=1.22
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # this patch is badly formed.
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
@@ -2173,6 +2175,7 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1-090210-ac
     clipper_version=2.1-090522-ac
     clipper_version=2.1-090826-ac
+    clipper_version=2.1-091215-ac
     clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
