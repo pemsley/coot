@@ -299,7 +299,8 @@
 # 4.68 20091210 Add post-process-libcurl logic
 # 4.69 20091216 Don't delete bin/curl, we need it for updates. (20100120 Not any more)
 # 4.70 20100120 debugging added to curl build (problems on bragg3)
-script_version=4.70
+# 4.71 20100203 Remove goosh
+script_version=4.71
 
 
 
@@ -1490,7 +1491,6 @@ build_clipper=
 build_guile=0
 build_guile_www=0
 build_guile_gui=0
-build_guile_goosh=0
 build_libtool=0
 build_net_http=0
 build_gsl=0
@@ -1750,14 +1750,6 @@ else
     build_guile_gui=1
 fi
 
-# goosh
-if test -f $install_top_dir/share/guile/site/goosh.scm ; then
-    echo installation has goosh
-    build_guile_goosh=
-else 
-    build_guile_goosh=1
-    echo guile goosh needs to be installed
-fi
 
 # guile-lib 
 if test -f $install_top_dir/share/guile/site/sxml/simple.scm ; then
@@ -2472,7 +2464,6 @@ fi
 #  * guile-www
 #  * guile-gtk
 #  * guile-gui
-#  * goosh
 #  * gsl
 
 
@@ -2693,22 +2684,6 @@ else
     echo not building guile-gui:
 fi
 
-if test -n "$build_guile_goosh" ; then
-   echo BUILDING goosh:
-#
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/goosh-1.3.tar.gz
-( 
-date
-pwd
-gzip -dc ${AUTOBUILD_SOURCES}/goosh-1.3.tar.gz | tar xf -
-cd goosh-1.3
-./configure $generic_prefix
-$MAKE
-$MAKE install
-) > $HOSTLOGDIR/14-goosh.txt 2>&1
-else 
-    echo not building guile_goosh:
-fi
 
 if test -n "$build_guile_lib" ; then
    echo BUILDING guile-lib:
