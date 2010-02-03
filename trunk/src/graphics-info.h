@@ -2658,6 +2658,8 @@ public:
    // align and mutate
    static int         align_and_mutate_imol;
    static std::string align_and_mutate_chain_from_optionmenu;
+   static realtype alignment_wgap;
+   static realtype alignment_wspace;
 
    void mutate_chain(int imol, const std::string &chain_id,
 		     const std::string &seq, bool do_auto_fit_flag, 

@@ -438,7 +438,8 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 coot::chain_mutation_info_container_t
 molecule_class_info_t::align_and_mutate(const std::string chain_id,
 					const coot::fasta &fasta_seq,
-					bool renumber_residues_flag) {
+					bool renumber_residues_flag,
+					realtype wgap, realtype wspace) {
 
    coot::chain_mutation_info_container_t mutation_info;
    std::string target = fasta_seq.sequence;
@@ -464,7 +465,8 @@ molecule_class_info_t::align_and_mutate(const std::string chain_id,
 
 	 // I don't know if we can do this here, but I do know we
 	 // mol->DeleteSelection(selHnd); // can't DeleteSelection after mods.
-	 mutation_info = align_on_chain(chain_id, SelResidues, nSelResidues, target); 
+	 mutation_info = align_on_chain(chain_id, SelResidues, nSelResidues, target,
+					wgap, wspace); 
 	 mutate_chain(chain_id,
 		      mutation_info,
 		      SelResidues, nSelResidues,
@@ -480,7 +482,9 @@ coot::chain_mutation_info_container_t
 molecule_class_info_t::align_on_chain(const std::string &chain_id,
 				      PCResidue *SelResidues,
 				      int nSelResidues,
-				      const std::string &target) const {
+				      const std::string &target,
+				      realtype wgap,
+				      realtype wspace) const {
 
    coot::chain_mutation_info_container_t ch_info(chain_id);
 
@@ -510,11 +514,12 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    // It seems to me now that it is the gap (and space) penalty that
    // is the important issue.
    // 
-   // default values (it seems)
-   realtype wgap = 0.0;
-   realtype wspace = -1.0;
-   wgap = -3.0;
-   wspace = -0.4;
+   // default values (it seems)  now passed parameters
+   // realtype wgap = 0.0;
+   // realtype wspace = -1.0;
+   // wgap = -3.0;
+   // wspace = -0.4;
+
    std::cout << "INFO:: align with gap penalty: " << wgap << " and extension penalty: "
 	     << wspace << std::endl;
    align.SetAffineModel(wgap, wspace);
@@ -699,7 +704,9 @@ molecule_class_info_t::residue_mismatches() const {
 	       chain_p->GetResidueTable(SelResidues, n_residues);
 	       coot::chain_mutation_info_container_t ali =
 		  align_on_chain(chain_id, SelResidues, n_residues,
-				 input_sequence[ich].second);
+				 input_sequence[ich].second,
+				 graphics_info_t::alignment_wgap,
+				 graphics_info_t::alignment_wspace);
 	       ali.print();
 	       ar.push_back(ali);
 	    }
@@ -749,9 +756,11 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
 		     );
 	 mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 	 if (nSelResidues > 0) {
-
+	    
 	    coot::chain_mutation_info_container_t mi =
-	       align_on_chain(chain_id, SelResidues, nSelResidues, target); 
+	       align_on_chain(chain_id, SelResidues, nSelResidues, target,
+			      graphics_info_t::alignment_wgap,
+			      graphics_info_t::alignment_wspace); 
 	    mi.print();
 
 	    coot::residue_spec_t search_spec(chain_id, resno);

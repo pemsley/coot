@@ -77,6 +77,7 @@
 (define user-mods user-mods-scm)
 (define refine-zone-with-full-residue-spec refine-zone-with-full-residue-spec-scm)
 (define pkgdatadir get-pkgdatadir-scm)
+(define chain-id chain-id-scm)
 
 ;; documented functions
 

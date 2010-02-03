@@ -708,7 +708,9 @@ class molecule_class_info_t {
    coot::chain_mutation_info_container_t
    align_on_chain(const std::string &chain_id,
 		  PCResidue *SelResidues, int nSelResidues,
-		  const std::string &target) const;
+		  const std::string &target,
+		  realtype wgap,
+		  realtype wspace) const;
 
    std::string
    make_model_string_for_alignment(PCResidue *SelResidues,
@@ -1720,7 +1722,9 @@ class molecule_class_info_t {
    //
    coot::chain_mutation_info_container_t align_and_mutate(const std::string chain_id,
 							  const coot::fasta &seq,
-							  bool renumber_residues_flag);
+							  bool renumber_residues_flag,
+							  realtype wgap,
+							  realtype wspace);
    
    void mutate_chain(const std::string &chain_id,
 		     const coot::chain_mutation_info_container_t &mut_cont_info,

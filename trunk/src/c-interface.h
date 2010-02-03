@@ -367,7 +367,18 @@ char *insertion_code_from_serial_number(int imol, const char *chain_id, int seri
 /*! \brief the chain_id (string) of the ichain-th chain
   molecule number imol  
    @return the chain-id */
-char *chain_id(int imol, int ichain);
+/* char *chain_id(int imol, int ichain); */
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM
+chain_id_scm(int imol, int ichain); 
+#endif
+#ifdef USE_PYTHON
+PyObject *
+chain_id_py(int imol, int ichain); 
+#endif
+#endif
+
 
 /*! \brief  number of chains in molecule number imol 
 
@@ -2742,7 +2753,10 @@ void align_and_mutate_molecule_menu_item_activate(GtkWidget *item,
 void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
 						       GtkPositionType pos);
 
+/*! \brief aligand and mutate the given chain to the given sequence  */
 void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, short int renumber_residues_flag);
+/*! \brief set the penalty for affine gap and space when aligning */
+void set_alignment_gap_and_space_penalty(float wgap, float wspace);
 
 
 /* What are these functions?  consider deleting them - we have alignment_mismatches_* . */
