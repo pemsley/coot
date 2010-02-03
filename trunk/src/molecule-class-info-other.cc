@@ -7228,6 +7228,13 @@ molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
 void
 molecule_class_info_t::sort_chains() {
 
+#if ((MMDB_MAJOR_VERSION > 1) || ((MMDB_MAJOR_VERSION == 1) && (MMDB_MINOR_VERSION >= 22)))
+
+   if (atom_sel.mol)
+      coot::sort_chains(atom_sel.mol);
+
+#else
+
     coot::minimol::molecule mol(atom_sel.mol);
     mol.sort_chains();
     atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
@@ -7235,10 +7242,7 @@ molecule_class_info_t::sort_chains() {
     atom_sel = make_asc(mol.pcmmdbmanager());
     update_molecule_after_additions();
 
-    // 20100125: At some stage get this working, not today though.
-    // 
-    //   if (atom_sel.mol)
-    //      coot::sort_chains(atom_sel.mol);
+#endif
 }
 
 std::vector<coot::residue_spec_t>
