@@ -644,110 +644,112 @@
 ;;       is-a-python?
 ;;       is-a-gtk2-build?)
 ;;
-(let ((html-file-name (string-append (getenv "HOME") "/public_html/coot/devel/build-info.html"))
-      (build-list
-       (list 
+(let* ((html-file-name (string-append (getenv "HOME") 
+				      "/public_html/coot/devel/build-info.html"))
+       (york-ubuntu-version "8.04.4")
+       (build-list
+	(list 
+	 
+	 (list "binary-Linux-i386-fedora-3"
+	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bunyip.chem.york.ac.uk/gtk1"
+	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	       #f #f)
 
-	(list "binary-Linux-i386-fedora-3"
-	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bunyip.chem.york.ac.uk/gtk1"
- 	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	      #f #f)
-
-	(list "binary-Linux-i386-fedora-3-python"
-	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bunyip.chem.york.ac.uk/gtk1"
- 	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	      #t #f)
+	 (list "binary-Linux-i386-fedora-3-python"
+	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bunyip.chem.york.ac.uk/gtk1"
+	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	       #t #f)
 
 
-	(list "binary-Linux-i386-fedora-4-python-gtk2"
-	      "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
-	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	      #t #t)
+	 (list "binary-Linux-i386-fedora-4-python-gtk2"
+	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
+	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #t #t)
 
-	(list "binary-Linux-i386-fedora-4-gtk2"
-	      "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
-	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	      #f #t)
+	 (list "binary-Linux-i386-fedora-4-gtk2"
+	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
+	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #f #t)
 
-	(list "binary-Linux-i386-fedora-8-python-gtk2"
-	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-8/gtk2"
- 	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	      #t #t)
+	 (list "binary-Linux-i386-fedora-8-python-gtk2"
+	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-8/gtk2"
+	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	       #t #t)
 
-	(list "binary-Linux-i386-fedora-10-python-gtk2"
-	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-10/gtk2"
- 	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	      #t #t)
+	 (list "binary-Linux-i386-fedora-10-python-gtk2"
+	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-10/gtk2"
+	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	       #t #t)
 
 ; 	(list "binary-Linux-i386-fedora-10-gtk2"
 ; 	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-10/gtk2"
 ;  	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 ; 	      #f #t)
 
-	(list "binary-Linux-i386-centos-4-gtk2"
-	      "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"
-	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	      #f #t)
+	 (list "binary-Linux-i386-centos-4-gtk2"
+	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"
+	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #f #t)
 
-	(list "binary-Linux-i386-centos-4-python-gtk2"
-	      "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"
-	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	      #t #t)
+	 (list "binary-Linux-i386-centos-4-python-gtk2"
+	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"
+	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #t #t)
 
-	(list "binary-Linux-x86_64-centos-5-gtk2"
-	      "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2" 
-	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	      #f #t)
+	 (list "binary-Linux-x86_64-centos-5-gtk2"
+	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2" 
+	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #f #t)
 
-	(list "binary-Linux-x86_64-centos-5-python-gtk2"
-	      "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2" 
-	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	      #t #t)
+	 (list "binary-Linux-x86_64-centos-5-python-gtk2"
+	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2" 
+	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #t #t)
 
-	(list "binary-Linux-x86_64-rhel-4-gtk2"
-	      "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" 
-	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	      #f #t)
+	 (list "binary-Linux-x86_64-rhel-4-gtk2"
+	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" 
+	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #f #t)
 
-	(list "binary-Linux-x86_64-rhel-4-python-gtk2"
-	      "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" 
-	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	      #t #t)
+	 (list "binary-Linux-x86_64-rhel-4-python-gtk2"
+	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" 
+	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #t #t)
 
- 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
- 	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/ubuntu-6.06/gtk2"
- 	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
- 	      #t #t)
+	 (list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
+	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/ubuntu-6.06/gtk2"
+	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	       #t #t)
 
- 	(list "binary-Linux-i686-ubuntu-8.04.3"
- 	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk1" 
- 	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
- 	      #f #f)
+	 (list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version)
+	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk1" 
+	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	       #f #f)
 
- 	(list "binary-Linux-i686-ubuntu-8.04.3-python" 
- 	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk1" 
- 	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
- 	      #t #f)
+	 (list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version "-python")
+	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk1" 
+	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	       #t #f)
 
- 	(list "binary-Linux-i686-ubuntu-8.04.3-python-gtk2"
- 	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk2" 
- 	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
- 	      #t #t)
+	 (list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version "-python-gtk2")
+	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk2" 
+	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	       #t #t)
 
- 	(list "binary-Linux-i686-ubuntu-8.04.3-gtk2"
- 	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk2"
- 	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
- 	      #f #t)
+	 (list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version "-gtk2")
+	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk2"
+	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	       #f #t)
 
- 	(list "binary-Linux-x86_64-ubuntu-9.04-gtk2"
-	      "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
-	      "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
- 	      #f #t)
+	 (list "binary-Linux-x86_64-ubuntu-9.04-gtk2"
+	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
+	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #f #t)
 
-	(list "WinCoot" 
-	      "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-5.1-sarabellum/gtk2" 
-	      "http://www.ysbl.york.ac.uk/~lohkamp/software/binaries/nightlies/pre-release/"
-	      #t #t))))
+	 (list "WinCoot" 
+	       "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-5.1-sarabellum/gtk2" 
+	       "http://www.ysbl.york.ac.uk/~lohkamp/software/binaries/nightlies/pre-release/"
+	       #t #t))))
 
   (make-page build-list html-file-name))
 	
