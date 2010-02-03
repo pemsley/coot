@@ -2404,15 +2404,16 @@ char *insertion_code_from_serial_number(int imol, const char *chain_id, int seri
    return r;
 }
 
+#ifdef USE_GUILE
+SCM
+chain_id_scm(int imol, int ichain) {
 
-char *chain_id(int imol, int ichain) {
-
-   char *r = NULL;
+   SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       CChain *chain_p = mol->GetChain(1,ichain);
       if (chain_p) 
-	 r = chain_p->GetChainID();
+	 r = scm_from_locale_string(chain_p->GetChainID());
    }
    std::string cmd = "chain_id";
    std::vector<coot::command_arg_t> args;
@@ -2421,7 +2422,28 @@ char *chain_id(int imol, int ichain) {
    add_to_history_typed(cmd, args);
    return r;
 }
+#endif // USE_GUILE
 
+
+#ifdef USE_PYTHON
+PyObject *
+chain_id_py(int imol, int ichain) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      CChain *chain_p = mol->GetChain(1,ichain);
+      if (chain_p) 
+	 r = PyString_FromString(chain_p->GetChainID());
+   }
+   std::string cmd = "chain_id";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(ichain);
+   add_to_history_typed(cmd, args);
+   return r;
+}
+#endif // USE_GUILE
 
 int n_chains(int imol) {
 

@@ -321,6 +321,14 @@ void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, s
    }
 }
 
+/*! \brief set the penalty for affine gap and space when aligning */
+void set_alignment_gap_and_space_penalty(float wgap, float wspace) {
+
+   graphics_info_t::alignment_wgap = wgap;
+   graphics_info_t::alignment_wspace = wspace;
+}
+
+
 #ifdef USE_GUILE
 SCM alignment_results_scm(int imol, const char *chain_id, const char *seq) {
 

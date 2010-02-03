@@ -280,7 +280,7 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 	 for (int imodel = 1; imodel <= n_models; imodel++) { 
 	    CModel *model_p = moving_atoms_asc_local.mol->GetModel(imodel);
 	    CChain *chain_p;
-	    char *chain_id;
+	    const char *chain_id;
 	    int n_chains = model_p->GetNumberOfChains();
 
 	    for (int ich=0; ich<n_chains; ich++) {
@@ -436,7 +436,7 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 	 CModel *model_p = asc.mol->GetModel(imod);
 	 CChain *chain_p;
 	 int nchains = model_p->GetNumberOfChains();
-	 char *chain_id;
+	 const char *chain_id;
 	 
 	 
 	 for (int ichain=0; ichain<nchains; ichain++) {
@@ -657,7 +657,7 @@ graphics_info_t::omega_graphs(int imol) {
 	       for (int imodel = 1; imodel <= n_models; imodel++) { 
 		  CModel *model_p = mol->GetModel(imodel);
 		  CChain *chain_p;
-		  char *chain_id;
+		  const char *chain_id;
 		  int n_chains = model_p->GetNumberOfChains();
 		  coot::geometry_graphs *graphs =
 		     new coot::geometry_graphs(coot::GEOMETRY_GRAPH_OMEGA_DISTORTION,
@@ -747,7 +747,7 @@ graphics_info_t::rotamer_graphs(int imol) {
 	       for (int imodel = 1; imodel <= n_models; imodel++) { 
 		  CModel *model_p = mol->GetModel(imodel);
 		  CChain *chain_p;
-		  char *chain_id;
+		  const char *chain_id;
 		  int n_chains = model_p->GetNumberOfChains();
 		  coot::geometry_graphs *graphs = 0;
 		  if (use_graphics_interface_flag) {
@@ -895,7 +895,7 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
    int imodel = 1;
    CModel *model_p = mol->GetModel(imodel);
    CChain *chain_p;
-   char *chain_id;
+   const char *chain_id;
    int n_chains = model_p->GetNumberOfChains();
 
    for (int ich=0; ich<n_chains; ich++) {
@@ -1091,7 +1091,7 @@ graphics_info_t::density_fit_graphs(int imol) {
 		  for (int imodel = 1; imodel <= n_models; imodel++) { 
 		     CModel *model_p = mol->GetModel(imodel);
 		     CChain *chain_p;
-		     char *chain_id;
+		     const char *chain_id;
 		     int n_chains = model_p->GetNumberOfChains();
 		     coot::geometry_graphs *graphs =
 			new coot::geometry_graphs(coot::GEOMETRY_GRAPH_DENSITY_FIT,
@@ -1179,7 +1179,7 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
 	    CModel *model_p = asc.mol->GetModel(imod);
 	    CChain *chain_p;
 	    int nchains = model_p->GetNumberOfChains();
-	    char *chain_id;
+	    const char *chain_id;
 	 
 	    for (int ichain=0; ichain<nchains; ichain++) {
 	    

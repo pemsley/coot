@@ -2340,7 +2340,7 @@ Bond_lines_container::set_rainbow_colours(int selHnd_ca, CMMDBManager *mol) {
 	 for (int ich=0; ich<nchains; ich++) {
 
 	    CChain *chain_p = model_p->GetChain(ich);
-	    char *chain_id = chain_p->GetChainID();
+	    const char *chain_id = chain_p->GetChainID();
 	    int selhnd_chain = mol->NewSelection();
 	    mol->SelectAtoms(selhnd_chain, 0, chain_id , ANY_RES, "*", ANY_RES, "*",
 			     "*", " CA ", " C", "*");

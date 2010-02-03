@@ -3212,9 +3212,12 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
 	       PCResidue *SelResidues = new PCResidue[frag_residues.size()];
 	       for (unsigned int ires=0; ires<frag_residues.size(); ires++)
 		  SelResidues[ires] = frag_residues[ires];
-	       coot::chain_mutation_info_container_t a = 
+	       realtype    alignment_wgap   = -3.0;
+	       realtype    alignment_wspace = -0.4;
+	       coot::chain_mutation_info_container_t a =
 		  align_on_chain(chain_id, SelResidues, frag_residues.size(),
-				 input_sequence[ich].second);
+				 input_sequence[ich].second,
+				 alignment_wgap, alignment_wspace);
 
 	       if ((a.insertions.size() +
 		    a.mutations.size() +
