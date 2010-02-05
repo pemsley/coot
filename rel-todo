@@ -31,6 +31,10 @@
 
     o Felix F SHELXL symmetry problem.
 
+    o alt confs cause problems in geometry graph [JED]
+
+    o If low res limit is not set in the Expert options (reading mtz)
+      then neither limit is used [Randy Read]
 
 ------
 

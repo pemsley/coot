@@ -1447,10 +1447,18 @@
 (greg-testcase "Test for mangling of hydrogen names from a PDB v 3.0" #t
    (lambda ()
 
-     (let ((imol (greg-pdb "3ins-6B-3.0.pdb")))
+     ;; Note that it seems to me that the bonds are not within
+     ;; tolerance before the regularization.
+     ;; 
+     ;; Also note that the D atom has been removed because now we have
+     ;; a test for the atom names matching (hydrogens are not checked
+     ;; currently, but this atom does not appear to be a hydrogen
+     ;; (element is " D").
+
+     (let ((imol (greg-pdb "3ins-6B-3.0-no-peptide-D.pdb")))
        (if (not (valid-model-molecule? imol))
 	   (begin
-	     (format #t "Bad read of greg test pdb: 3ins-6B-3.0.pdb~%")
+	     (format #t "Bad read of greg test pdb: 3ins-6B-3.0-no-peptide-D.pdb~%")
 	     (throw 'fail)))
 
        (with-auto-accept (regularize-zone imol "B" 6 6 ""))
