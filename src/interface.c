@@ -137,7 +137,6 @@ create_window1 (void)
   GtkWidget *unmodelled_blobs1;
   GtkWidget *difference_map_peaks1;
   GtkWidget *check_waters1;
-  GtkWidget *check_waters_by_difference_map_variance1;
   GtkWidget *geometry_analysis1;
   GtkWidget *peptide_omega_analysis1;
   GtkWidget *temp_fact_variance_analysis1;
@@ -928,13 +927,6 @@ create_window1 (void)
   gtk_widget_show (check_waters1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), check_waters1);
 
-  check_waters_by_difference_map_variance1 = gtk_menu_item_new_with_label (_("Check waters by Difference Map Variance..."));
-  gtk_widget_ref (check_waters_by_difference_map_variance1);
-  gtk_object_set_data_full (GTK_OBJECT (window1), "check_waters_by_difference_map_variance1", check_waters_by_difference_map_variance1,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (check_waters_by_difference_map_variance1);
-  gtk_container_add (GTK_CONTAINER (validate1_menu), check_waters_by_difference_map_variance1);
-
   geometry_analysis1 = gtk_menu_item_new_with_label (_("Geometry analysis"));
   gtk_widget_ref (geometry_analysis1);
   gtk_object_set_data_full (GTK_OBJECT (window1), "geometry_analysis1", geometry_analysis1,
@@ -1397,9 +1389,6 @@ create_window1 (void)
                       NULL);
   gtk_signal_connect (GTK_OBJECT (check_waters1), "activate",
                       GTK_SIGNAL_FUNC (on_check_waters1_activate),
-                      NULL);
-  gtk_signal_connect (GTK_OBJECT (check_waters_by_difference_map_variance1), "activate",
-                      GTK_SIGNAL_FUNC (on_check_waters_by_difference_map_variance1_activate),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (geometry_analysis1), "activate",
                       GTK_SIGNAL_FUNC (on_geometry_analysis1_activate),
