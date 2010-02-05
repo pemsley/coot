@@ -7228,7 +7228,7 @@ molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
 void
 molecule_class_info_t::sort_chains() {
 
-#if ((MMDB_MAJOR_VERSION > 1) || ((MMDB_MAJOR_VERSION == 1) && (MMDB_MINOR_VERSION >= 22)))
+#ifdef MMDB_MAJOR_VERSION
 
    if (atom_sel.mol)
       coot::sort_chains(atom_sel.mol);
