@@ -71,6 +71,7 @@ int test_ssm_sequence_formatting();
 int test_OXT_in_restraints();
 int test_relativise_file_name();
 int test_previous_water();
+int test_sbase();
 
 
 CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id, int resno);

@@ -260,6 +260,7 @@ coot_real_SOURCES = \
 	c-interface-validate.cc	 \
 	c-interface-widgets.cc   \
 	c-interface-waters.cc	 \
+	c-interface-waters-gui.cc\
 	cc-interface.hh		 \
 	callbacks.c callbacks.h	 \
         canvas-fixes.hh          \

@@ -2,25 +2,18 @@
 
     Points 40: April 4th
 
-    o roll up/collapse addition representation in Display manager when
-      they are not displayed ::: 2
+    o SBase GUI ::: 3
 
     o check the atoms of the residues to be refined against the
       dictionary. JED ::: 4
 
     o Make RSR interuptable ::: 2
 
-    o Move check water by difference map into water validation dialog ::: 1
-
-    o SBase interface ::: 5
-
     o chemical component library interface ::: 4
 
     o white background with ball and stick models. ::: 4
 
-    o sort chains with an mmdb function ::: 4
-
-    o get reverse ncs skip working ::: 2
+    o get reverse NCS skip working ::: 2
 
     o PIR alignment: on pressing the insertion button, go to the
       nearest residue to the gap. [Joel Bard] ::: 1 
@@ -28,6 +21,19 @@
     o coordination number of waters validataion check ::: 5
 
     o PISA interfaces via XML  ::: 5
+
+    o trapped out of range phi/psi access: 1040 A ich: 0 ires: 895
+      phi_psi_sets[ich].phi_psi.size(): 839
+      Which is when the rama plot stops working  ::: 1
+
+    o does rotate/translate zone (on a water) update symmetry? [Ezra
+      Peisach] ::: 1
+
+    o roll up/collapse addition representation in Display manager when
+      they are not displayed ::: 2
+
+    o Felix F SHELXL symmetry problem.
+
 
 ------
 
@@ -49,3 +55,22 @@
 
 * Done.
 
+    o SBase internal interface ::: 3
+
+* Done.
+
+    o Move check water by difference map into water validation dialog 
+      check_waters_by_difference_map_by_widget(GtkWidget *dialog) need to go
+      Also wrapped_create_check_waters_diff_map_dialog()
+      ::: 3
+
+* Done.
+
+    o sort chains with an mmdb function ::: 4
+
+* Done.
+
+    o 1a34: look at the waters - they have hydrogens.  Need to change
+      the bonding system.  ::: 0.5
+
+* Done.

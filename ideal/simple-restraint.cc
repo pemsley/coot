@@ -3939,8 +3939,10 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(CResidue *resid
       if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr),
 						 pdb_resname) ||
 	  dictionary_name_matches_coords_resname(geom[idr].comp_id, pdb_resname)) {
-	 //  		  std::cout << "DEBUG:: ------------- dict/pdb name matches " << pdb_resname
-	 // 			    << " --------------- " << std::endl; 
+
+	 
+// 	 std::cout << "DEBUG:: ------------- dict/pdb name matches " << pdb_resname
+// 		   << " --------------- " << std::endl; 
 
 	 // now get a list of atoms in that residue
 	 // (SelResidue[i]) and compare them to the atoms in

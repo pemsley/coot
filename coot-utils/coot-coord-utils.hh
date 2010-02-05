@@ -722,6 +722,12 @@ namespace coot {
 				       float high_cutoff,
 				       short int apply_low_cutoff,
 				       short int apply_high_cuttoff);
+      float standard_deviation_temperature_factor(PPCAtom atom_selection,
+						  int n_atoms,
+						  float low_cutoff,
+						  float high_cutoff,
+						  short int apply_low_cutoff,
+						  short int apply_high_cuttoff);
 
       // The flanking residues (if any) are in the residue selection (SelResidues).
       // The flags are not needed now we have made adjustments in the calling

@@ -2876,32 +2876,24 @@ graphics_info_t::zoom_adj_changed(GtkAdjustment *adj, GtkWidget *window) {
 void
 graphics_info_t::check_waters_by_difference_map(int imol_waters, int imol_diff_map, 
 						int interactive_flag) {
-   
-   if (imol_waters < n_molecules()) {
-      if (imol_diff_map < n_molecules()) {
-	 if (molecules[imol_waters].has_model()) {
-	    if (molecules[imol_diff_map].has_map()) {
-	       if (molecules[imol_diff_map].is_difference_map_p()) {
-		  std::vector <coot::atom_spec_t> v = molecules[imol_waters].check_waters_by_difference_map(molecules[imol_diff_map].xmap_list[0], check_waters_by_difference_map_sigma_level);
-		  if (interactive_flag) { 
-		     GtkWidget *w = wrapped_create_checked_waters_by_variance_dialog(v, imol_waters);
-		     gtk_widget_show(w);
-		  }
-	       } else {
-		  std::cout << "molecule " <<  imol_diff_map
-			    << " is not a difference map\n";
-	       }
-	    } else {
-	       std::cout << "molecule " <<  imol_diff_map << "has no map\n";
+
+   if (is_valid_model_molecule(imol_waters)) {
+      if (is_valid_map_molecule(imol_diff_map)) { 
+	 if (molecules[imol_diff_map].is_difference_map_p()) {
+	    std::vector <coot::atom_spec_t> v = molecules[imol_waters].check_waters_by_difference_map(molecules[imol_diff_map].xmap_list[0], check_waters_by_difference_map_sigma_level);
+	    if (interactive_flag) { 
+	       GtkWidget *w = wrapped_create_checked_waters_by_variance_dialog(v, imol_waters);
+	       gtk_widget_show(w);
 	    }
 	 } else {
-	    std::cout << "molecule " <<  imol_waters << "has no model\n";
-	 } 
+	    std::cout << "molecule " <<  imol_diff_map
+		      << " is not a difference map\n";
+	 }
       } else {
-	 std::cout << "no molecule for difference map\n";
+	 std::cout << "molecule " <<  imol_diff_map << "has no map\n";
       }
    } else {
-      std::cout << "no molecule for difference (water) coordinates\n";
+      std::cout << "molecule " <<  imol_waters << "has no model\n";
    } 
 }
 
@@ -2958,7 +2950,9 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
       } 
    } else {
       std::cout << "There are no unusual waters\n";
-      w = wrapped_nothing_bad_dialog("There were no strange/anomalous waters");
+      std::string s = "There were no strange/anomalous waters\n";
+      s += "(in relation to the difference map).";
+      w = wrapped_nothing_bad_dialog(s);
    }
    return w;
 }

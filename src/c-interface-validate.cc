@@ -1,7 +1,7 @@
 /* src/c-interface-validate.cc
  * 
  * Copyright 2004, 2005, 2006, 2007 The University of York
- * Copyright 2008, 2009 The University of Oxford
+ * Copyright 2008, 2009, 2010 The University of Oxford
  * Author: Paul Emsley
  * Copyright 2006, 2007 by Bernhard Lohkamp
  * 
@@ -161,10 +161,44 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_max_dist_limit);
    gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
 
+   // 20100131 We have put the variance map check into this dialog
+   // too, to better organise the menus.
+   //
+   GtkWidget *diff_map_option_menu =
+      lookup_widget(dialog, "check_water_by_difference_map_optionmenu");
+
+   // It's not in the gtk1 version
+   // 
+   if (diff_map_option_menu) {
+      // set imol_active to the first difference map.
+      int imol_active = -1; // unset (no difference maps found yet)
+      for (int i=0; i<graphics_n_molecules(); i++) {
+	 if (is_valid_map_molecule(i)) {
+	    if (map_is_difference_map(i)) {
+	       imol_active = i;
+	       break;
+	    }
+	 }
+      }
+
+      if (imol_active != -1) {
+	 graphics_info_t::check_waters_by_difference_map_map_number = imol_active;
+	 GtkSignalFunc signal_func =
+	    GTK_SIGNAL_FUNC(check_water_by_difference_maps_option_menu_item_select);
+	 g.fill_option_menu_with_difference_map_options(diff_map_option_menu,
+							signal_func, imol_active);
+      }
+   }
+
    return dialog;
 
 }
 
+void
+check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, GtkPositionType pos) {
+
+   graphics_info_t::check_waters_by_difference_map_map_number = pos;
+}
 
 // The OK button was pressed on the dialog, so read the dialog and do
 // the check.
@@ -196,10 +230,11 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    graphics_info_t::check_waters_min_dist_limit = min_dist;
    graphics_info_t::check_waters_max_dist_limit = max_dist;
 
-   short int use_b_factor_limit_test = 1;
-   short int use_map_sigma_limit_test = 1;
-   short int use_min_dist_test = 1;
-   short int use_max_dist_test = 1;
+   bool use_b_factor_limit_test = 1;
+   bool use_map_sigma_limit_test = 1;
+   bool use_min_dist_test = 1;
+   bool use_max_dist_test = 1;
+   bool use_difference_map_test = 1;
 
    GtkWidget *hbox1 = lookup_widget(dialog, "check_waters_b_factor_hbox");
    GtkWidget *hbox2 = lookup_widget(dialog, "check_waters_sigma_level_hbox");
@@ -214,6 +249,8 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
       GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_min_dist_entry_active_checkbutton"));
    GtkToggleButton *checkbutton4 =
       GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_max_dist_entry_active_checkbutton"));
+   GtkToggleButton *checkbutton5 =
+      GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_by_difference_map_active_checkbutton"));
 
    if (! checkbutton1->active)
       use_b_factor_limit_test = 0; 
@@ -223,6 +260,8 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
       use_min_dist_test = 0; 
    if (! checkbutton4->active)
       use_max_dist_test = 0;
+   if (! checkbutton5->active)
+      use_difference_map_test = 0;
       
    GtkWidget *zero_occ_checkbutton = lookup_widget(dialog, "check_waters_zero_occ_checkbutton");
    GtkWidget *partial_occ_close_contact_checkbutton =
@@ -245,7 +284,12 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
    int active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
 
-   // std::cout << "active_item is at: " << active_item << " " << active_index << std::endl;
+   // This will give us another dialog
+   // 
+   if (use_difference_map_test) {
+      int imol_diff_map = graphics_info_t::check_waters_by_difference_map_map_number;
+      check_waters_by_difference_map(graphics_info_t::check_waters_molecule, imol_diff_map, 1);
+   } 
 
    if (use_b_factor_limit_test == 0)
       b_factor_lim = -100.0;
@@ -719,7 +763,10 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
 }
 
 void
-add_validation_mol_menu_item(int imol, const std::string &name, GtkWidget *menu, GtkSignalFunc callback) {
+add_validation_mol_menu_item(int imol,
+			     const std::string &name,
+			     GtkWidget *menu,
+			     GtkSignalFunc callback) {
 
    GtkWidget *menu_item = gtk_menu_item_new_with_label(name.c_str());
    gtk_container_add(GTK_CONTAINER(menu), menu_item);

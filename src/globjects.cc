@@ -964,6 +964,7 @@ float graphics_info_t::check_waters_map_sigma_limit = 1.0;
 float graphics_info_t::check_waters_min_dist_limit = 2.3;
 float graphics_info_t::check_waters_max_dist_limit = 3.5;
 float graphics_info_t::check_waters_by_difference_map_sigma_level = 3.5;
+int   graphics_info_t::check_waters_by_difference_map_map_number = -1; 
 
 // default map sigma level:
 float graphics_info_t::default_sigma_level_for_map = 1.5;
@@ -3038,8 +3039,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_Escape:
 
-      // std::cout << " escape key pressed" << std::endl;
-
       if (graphics_info_t::accept_reject_dialog) {
 	 clear_up_moving_atoms();
 	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
@@ -3074,8 +3073,10 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_i:
       // throw away i key pressed (we act on i key released).
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "i";
+      if (! graphics_info_t::control_is_pressed) { 
+	 if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	    graphics_info_t::go_to_residue_keyboarding_string += "i";
+	 }
       }
       handled = TRUE; 
       break;
@@ -3724,8 +3725,9 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_I:
       if (! graphics_info_t::in_go_to_residue_keyboarding_mode) {
 	 // toggle the idle function using the I key.
-	 // 
-	 toggle_idle_spin_function();
+	 //
+	 if (! graphics_info_t::control_is_pressed) 
+	    toggle_idle_spin_function();
       }
       break; 
       

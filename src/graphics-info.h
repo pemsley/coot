@@ -847,6 +847,10 @@ public:
       cif_dictionary_read_number = geom_p->init_standard();
       geom_p->add_planar_peptide_restraint();
 
+#ifdef USE_SBASE
+      geom_p->init_sbase(".");
+#endif // USE_SBASE
+
       // rotamer probabilitiles
       // guess we shall rather use COOT_DATA_DIR and only as fallback PKGDATADIR?!
       // maybe only for windows!?
@@ -2521,7 +2525,14 @@ public:
    // the list, in the option menu)
    int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func); 
    void fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func,
-					  int imol_active_position); 
+					  int imol_active_position);
+   void fill_option_menu_with_difference_map_options(GtkWidget *option_menu, 
+						     GtkSignalFunc signal_func,
+						     int imol_active_position);
+   void fill_option_menu_with_map_options_internal(GtkWidget *option_menu, 
+						   GtkSignalFunc signal_func,
+						   std::vector<int> map_molecule_numbers,
+						   int imol_active_position);
    GtkWidget *wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label);
    void skeletonize_map_by_optionmenu(GtkWidget *optionmenu);
 
@@ -3075,6 +3086,7 @@ public:
    static float check_waters_min_dist_limit;
    static float check_waters_max_dist_limit;
    static float check_waters_by_difference_map_sigma_level;
+   static int   check_waters_by_difference_map_map_number;
    // save the dialog so that . and , can be used on it
    static GtkWidget *checked_waters_baddies_dialog;
 

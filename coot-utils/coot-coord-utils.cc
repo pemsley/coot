@@ -1739,6 +1739,44 @@ coot::util::average_temperature_factor(PPCAtom atom_selection,
    return mean;
 } 
 
+float
+coot::util::standard_deviation_temperature_factor(PPCAtom atom_selection,
+						  int n_atoms,
+						  float low_cutoff,
+						  float high_cutoff,
+						  short int apply_low_cutoff,
+						  short int apply_high_cutoff) {
+
+   double this_b = 0.0;
+   double b_sum = 0.0;
+   double b_sum_sqs = 0.0;
+   int n_sum = 0;
+
+   for (int i=0; i<n_atoms; i++) {
+      this_b = atom_selection[i]->tempFactor;
+      if ((apply_low_cutoff && (this_b > low_cutoff)) ||
+	  !apply_low_cutoff) {
+	 if ((apply_high_cutoff && (this_b > high_cutoff)) ||
+	     !apply_high_cutoff) {
+	    b_sum += this_b;
+	    b_sum_sqs += this_b * this_b;
+	    n_sum++;
+	 }
+      }
+   }
+
+   double mean = 0.0;
+   double var  = 0.0;
+   float sd = 0.0;
+   if (n_atoms > 0) { 
+      mean = b_sum/double(n_atoms);
+      var = b_sum_sqs/double(n_atoms) - mean * mean;
+      if (var < 0.0)
+	 var = 0.0;
+      sd = sqrt(var);
+   } 
+   return sd;
+} 
 
 // Return NULL on residue not found in this molecule.
 // 

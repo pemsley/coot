@@ -1198,3 +1198,48 @@ SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, floa
 } 
 #endif 
 // (map-peaks-near-point-scm 1 4 44.7 11 13.6 6)
+
+#ifdef USE_GUILE
+/*! \brief return a list of compoundIDs of in SBase of which the
+  given string is a substring of the compound name */
+SCM matching_compound_names_from_sbase_scm(const char *compound_name_fragment) {
+
+#ifdef USE_SBASE
+   graphics_info_t g;
+   std::vector<std::string> matching_comp_ids =
+      g.Geom_p()->matching_sbase_residues_names(compound_name_fragment);
+   std::cout << "debug:: found " << matching_comp_ids.size() << " matching names"
+	     << std::endl;
+   SCM r = generic_string_vector_to_list_internal(matching_comp_ids);
+   return r;
+#else
+   return SCM_EOL;
+#endif      
+}
+#endif
+
+int get_sbase_monomer(const char *comp_id) {
+
+   int imol = -1;
+
+   graphics_info_t g;
+   CResidue *residue_p = g.Geom_p()->get_sbase_residue(comp_id);
+   if (residue_p) {
+      CMMDBManager *mol = new CMMDBManager;
+      CModel *model_p = new CModel;
+      CChain *chain_p = new CChain;
+      residue_p->SetResID(comp_id, 1, "");
+      chain_p->AddResidue(residue_p);
+      chain_p->SetChainID("A");
+      model_p->AddChain(chain_p);
+      mol->AddModel(model_p);
+      imol = g.create_molecule();
+      std::string name = "SBase monomer ";
+      name += coot::util::upcase(comp_id);
+      graphics_info_t::molecules[imol].install_model(imol, make_asc(mol), name, 1, 0);
+      move_molecule_to_screen_centre_internal(imol);
+      graphics_draw();
+   }
+
+   return imol;
+}

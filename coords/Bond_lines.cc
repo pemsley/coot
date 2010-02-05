@@ -299,21 +299,34 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			   // Bonded to different atom elements.
 			   //
 
-			   if ((element_1 != " H") && (element_2 != " H")) { 
-			      coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
-			      col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
-			      addBond(col, atom_1, bond_mid_point);
-			      
-			      col = atom_colour(atom_selection_2[ contact[i].id2 ], atom_colour_type);
-			      addBond(col, bond_mid_point, atom_2);
+			   if ((element_1 != " H") && (element_2 != " H")) {
 
+			      add_half_bonds(atom_1, atom_2,
+					     atom_selection_1[contact[i].id1],
+					     atom_selection_2[contact[i].id2],
+					     atom_colour_type);
 			   } else {
-
+			      
 			      // Bonds to hydrogens are one colour -
 			      // HYDROGEN_GREY_BOND, not half-bonds.
 			      // 
-			      addBond(HYDROGEN_GREY_BOND, atom_1, atom_2);
-			   } 
+			      // Except hydrogens on waters are
+			      // treated differently to other
+			      // hydrogens (if they are not then we
+			      // don't get to see the oxygen).
+			      
+			      std::string resname_1 = atom_p_1->GetResName();
+			      std::string resname_2 = atom_p_2->GetResName();
+			      if (resname_1 == "HOH" || resname_2 == "HOH") {
+				 add_half_bonds(atom_1, atom_2,
+						atom_selection_1[contact[i].id1],
+						atom_selection_2[contact[i].id2],
+						atom_colour_type);
+			      } else { 
+				 
+				 addBond(HYDROGEN_GREY_BOND, atom_1, atom_2);
+			      }
+			} 
 		  
 			} else {
 		  
@@ -335,6 +348,24 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
       delete [] contact;
    }
 }
+
+
+void
+Bond_lines_container::add_half_bonds(const coot::Cartesian &atom_1,
+				     const coot::Cartesian &atom_2,
+				     CAtom *at_1,
+				     CAtom *at_2,
+				     int atom_colour_type) {
+   
+   coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
+   int col = atom_colour(at_1, atom_colour_type);
+   addBond(col, atom_1, bond_mid_point);
+   
+   col = atom_colour(at_2, atom_colour_type);
+   addBond(col, bond_mid_point, atom_2);
+			      
+}
+
 
 void
 Bond_lines_container::construct_from_model_links(CModel *model_p,

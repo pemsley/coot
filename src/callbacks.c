@@ -2703,14 +2703,7 @@ on_refine_params_use_peptide_torsions_checkbutton_toggled (GtkToggleButton *togg
 void on_import_cif_dictionary1_activate     (GtkMenuItem     *menuitem,
 					     gpointer         user_data)
 {
-  GtkWidget *fileselection;
-  fileselection = coot_cif_dictionary_chooser();
-  add_ccp4i_project_optionmenu(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
-  add_filename_filter_button(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
-  add_sort_button_fileselection(fileselection); 
-  set_directory_for_fileselection(fileselection);
-  set_file_selection_dialog_size(fileselection);
-  gtk_widget_show(fileselection);
+  open_cif_dictionary_file_selector_dialog();
 }
 
 
@@ -5965,15 +5958,20 @@ on_chiral_restraints_problem_ok_button_clicked (GtkButton       *button,
   gtk_widget_destroy(w);
 }
 
-
+/* We'll keep this for now because it is used by
+   create_check_waters_diff_map_dialog() and that is still in the
+   interface definition (glade file).
+ */
 void
 on_check_waters_diff_map_ok_button_clicked (GtkButton       *button,
 					    gpointer         user_data)
 {
 
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "check_waters_diff_map_dialog");
-  check_waters_by_difference_map_by_widget(w);
-  gtk_widget_destroy(w);
+/*   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "check_waters_diff_map_dialog"); */
+/*   check_waters_by_difference_map_by_widget(w); */
+/*   gtk_widget_destroy(w); */
+  
+
 }
 
 
@@ -5987,13 +5985,13 @@ on_check_waters_diff_map_cancel_button_clicked (GtkButton       *button,
 }
 
 
-void
-on_check_waters_by_difference_map_variance1_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data)
-{
-  GtkWidget *w = wrapped_create_check_waters_diff_map_dialog();
-  gtk_widget_show(w);
-}
+/* void */
+/* on_check_waters_by_difference_map_variance1_activate (GtkMenuItem     *menuitem, */
+/* 						      gpointer         user_data) */
+/* { */
+/*   GtkWidget *w = wrapped_create_check_waters_diff_map_dialog(); */
+/*   gtk_widget_show(w); */
+/* } */
 
 
 void
@@ -8448,9 +8446,25 @@ on_check_waters_map_sigma_entry_active_checkbutton_toggled
       gtk_widget_set_sensitive(hbox, TRUE);
    else
       gtk_widget_set_sensitive(hbox, FALSE);
+}
 
+
+
+void
+on_check_waters_by_difference_map_active_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+   GtkWidget *hbox = lookup_widget(GTK_WIDGET(togglebutton), 
+				   "check_waters_by_difference_map_hbox");
+   if (togglebutton->active)
+      gtk_widget_set_sensitive(hbox, TRUE);
+   else
+      gtk_widget_set_sensitive(hbox, FALSE);
 
 }
+
+
 
 
 void
@@ -11653,3 +11667,4 @@ on_environment_distance_min_entry_key_press_event
   }
   return FALSE;
 }
+

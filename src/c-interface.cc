@@ -3670,6 +3670,26 @@ float average_temperature_factor(int imol) {
    return av;
 }
 
+float standard_deviation_temperature_factor(int imol) { 
+
+   float low_cut = 2.0;
+   float high_cut = 100.0;
+   short int low_cut_flag = 0;
+   short int high_cut_flag = 0;
+
+   float av = -1.0;
+   if (is_valid_model_molecule(imol)) { 
+      av = coot::util::standard_deviation_temperature_factor(graphics_info_t::molecules[imol].atom_sel.atom_selection,
+							     graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
+							     low_cut, high_cut,
+							     low_cut_flag,
+							     high_cut_flag);
+   } else {
+      std::cout << "WARNING:: molecule " << imol << " is not a valid model\n";
+   }
+   return av;
+}
+
 char *centre_of_mass_string(int imol) {
 
 #ifdef USE_GUILE
