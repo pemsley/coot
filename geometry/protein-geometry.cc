@@ -3194,6 +3194,7 @@ coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> res
 	 if (r.first == 0) {
 	    std::pair<std::string, std::vector<std::string> > p_bad(res_name, r.second);
 	    p.push_back(p_bad);
+	    status = 0;
 	 }
       }
    }

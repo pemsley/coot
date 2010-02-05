@@ -259,7 +259,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    std::pair<int, std::vector<std::string> > icheck = 
       check_dictionary_for_residues(SelResidues, nSelResidues);
 
-   if (1) {  // debugging.
+   if (0) {  // debugging.
       std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
       std::cout << "selecting from residue " << iselection_resno_start
 		<< " to " << iselection_resno_end << " selects "
@@ -279,23 +279,22 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       return rr; // fail
    } else {
 
-//       // 20100201
-//       // 
-//       // Now is not the time to add atom name checking.  Add it later
-//       // 
-//       bool check_hydrogens_too_flag = 0;
-//       // convert to CResidues vector
-//       std::vector<CResidue *> residues;
-//       for (int ires=0; ires<nSelResidues; ires++)
-// 	 residues.push_back(SelResidues[ires]);
-//       std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
-// 	 icheck_atoms = 
-// 	 Geom_p()->atoms_match_dictionary(residues, check_hydrogens_too_flag);
-//       if (! icheck_atoms.first) {
-// 	 std::cout << "Fail atom check" << std::endl;
-// 	 return rr; // fail
-//       } else { 
+      // 20100201
+      
+      bool check_hydrogens_too_flag = 0;
+      // convert to CResidues vector
+      std::vector<CResidue *> residues;
+      for (int ires=0; ires<nSelResidues; ires++)
+	 residues.push_back(SelResidues[ires]);
+      std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+	 icheck_atoms = Geom_p()->atoms_match_dictionary(residues, check_hydrogens_too_flag);
 
+      if (! icheck_atoms.first) {
+	 std::cout << "Fail atom check" << std::endl;
+	 info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
+	 return rr; // fail
+      } else { 
+	 
 	 return copy_mol_and_refine_inner(imol_for_atoms,
 					  resno_1, resno_2,
 					  nSelResidues, SelResidues,
@@ -303,7 +302,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 					  have_flanking_residue_at_start,
 					  have_flanking_residue_at_end,
 					  imol_for_map);
-	 //       } we are not testing that atom names match before refinement
+      }
    }
 }
 
@@ -607,25 +606,39 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 // We only want to act on these new residues and molecule, if
 	 // there is something there.
 	 // 
-	 if (residues_mol_and_res_vec.first) { 
-	    atom_selection_container_t local_moving_atoms_asc =
-	       make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
-	    std::vector<std::pair<bool,CResidue *> > local_residues;  // not fixed.
-	    for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
-	       local_residues.push_back(std::pair<bool, CResidue *>(0, residues_mol_and_res_vec.second[i]));
-	    coot::restraints_container_t restraints(local_residues, *Geom_p(),
-						    residues_mol_and_res_vec.first,
-						    fixed_atom_specs, xmap, weight);
+	 if (residues_mol_and_res_vec.first) {
+
+	    // Now we want to do an atom name check.  This stops exploding residues.
+	    //
+	    bool check_hydrogens_too_flag = 0;
+	    std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+	       icheck_atoms = Geom_p()->atoms_match_dictionary(residues, check_hydrogens_too_flag); 
+	    
+	    if (! icheck_atoms.first) {
+	       // Oops. Just give us a dialog and don't start the refinement
+	       info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
+	       
+	    } else { 
+	    
+	       atom_selection_container_t local_moving_atoms_asc =
+		  make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
+	       std::vector<std::pair<bool,CResidue *> > local_residues;  // not fixed.
+	       for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
+		  local_residues.push_back(std::pair<bool, CResidue *>(0, residues_mol_and_res_vec.second[i]));
+	       coot::restraints_container_t restraints(local_residues, *Geom_p(),
+						       residues_mol_and_res_vec.first,
+						       fixed_atom_specs, xmap, weight);
 	 
-	    int n_restraints = restraints.make_restraints(*Geom_p(), flags,
-							  do_residue_internal_torsions,
-							  rama_plot_restraint_weight,
-							  do_rama_restraints,
-							  pseudo_bonds_type);
+	       int n_restraints = restraints.make_restraints(*Geom_p(), flags,
+							     do_residue_internal_torsions,
+							     rama_plot_restraint_weight,
+							     do_rama_restraints,
+							     pseudo_bonds_type);
 	 
-	    std::string dummy_chain = ""; // not used
-	    rr = update_refinement_atoms(n_restraints, restraints, rr, local_moving_atoms_asc,
-					 0, imol, dummy_chain);
+	       std::string dummy_chain = ""; // not used
+	       rr = update_refinement_atoms(n_restraints, restraints, rr, local_moving_atoms_asc,
+					    0, imol, dummy_chain);
+	    }
 	 }
       } else {
 	 // we didn't have restraints for everything.
@@ -634,6 +647,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 if (icheck.first == 0) { 
 	    info_dialog_missing_refinement_residues(icheck.second);
 	 }
+
       } 
    }
 
@@ -645,8 +659,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
    return coot::refinement_results_t(0, 0, "");
 
 #endif    
-} 
-
+}
 
 // mol is new (not from molecules[imol]) molecule for the moving atoms.
 //
