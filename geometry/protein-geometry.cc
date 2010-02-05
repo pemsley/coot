@@ -3133,6 +3133,15 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
 }
 
 
+// Check that the atom names in the residue match the atom names in
+// the dictionary.  Atom " OXT" is treated as a special case (it does
+// not cause failure when " OXT" is not in the residue).
+//
+// This does only monomer by monomer testing.
+//
+// There is no test of DEL-O1 (for example) atoms when making links
+// between monomers.
+// 
 std::pair<bool, std::vector<std::string> >
 coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 					       bool check_hydrogens_too_flag,
@@ -3162,8 +3171,10 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 	 }
       }
       if (! found) {
-	 atom_name_vec.push_back(residue_atom_name);
-	 status = 0;
+	 if (residue_atom_name != " OXT") { 
+	    atom_name_vec.push_back(residue_atom_name);
+	    status = 0;
+	 }
       }
    }
    
