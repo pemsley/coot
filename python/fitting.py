@@ -122,7 +122,7 @@ def fit_protein_make_specs(imol, chain_specifier):
         spec_list = []
         for chain_id in chain_list:
             serial_number_list = range(chain_n_residues(chain_id, imol))
-            print " seqnum from ", imol, chain_id, serial_number_list
+            #print " seqnum from ", imol, chain_id, serial_number_list
             for serial_number in serial_number_list:
                 res_no   = seqnum_from_serial_number(imol, chain_id,
                                                    serial_number)

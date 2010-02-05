@@ -1307,13 +1307,13 @@ class PdbMtzTestFunctions(unittest.TestCase):
         imol = unittest_pdb("tutorial-modern.pdb")
 
         change_chain_id(imol, "A", "D", 0,  0,  0)
-        change_chain_id(imol, "B", "E", 1, 80, 90)
-        change_chain_id(imol, "B", "F", 1, 70, 80)
-        change_chain_id(imol, "B", "G", 1, 60, 70)
-        change_chain_id(imol, "B", "J", 1, 50, 59)
-        change_chain_id(imol, "B", "L", 1, 40, 49)
         change_chain_id(imol, "B", "N", 1, 30, 38)
+        change_chain_id(imol, "B", "L", 1, 40, 49)
+        change_chain_id(imol, "B", "J", 1, 50, 59)
         change_chain_id(imol, "B", "Z", 1, 20, 28)
+        change_chain_id(imol, "B", "G", 1, 60, 70)
+        change_chain_id(imol, "B", "F", 1, 70, 80)
+        change_chain_id(imol, "B", "E", 1, 80, 90)
 
         sort_chains(imol)
 
@@ -1862,6 +1862,32 @@ class PdbMtzTestFunctions(unittest.TestCase):
                         "   fail on matching cells: %s and %s" \
                         %(cell_ref_orig, cell_mov_curr))
 
+
+    def test53_2(self):
+        """set_residue_name sets the correct residue"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        set_residue_name(imol, "A", 37, "", "FRE")
+
+        # There should be only one residue with that residue type and it
+        # should be A37.
+        #
+        specs = fit_protein_make_specs(imol, 'all-chains')
+        residue_with_name = get_residues_in_molecule_of_type(imol, "FRE")
+
+        self.failUnless(len(residue_with_name) == 1)
+        self.failUnless(spec_match_qm(residue_with_name[0], [imol, "A", 37, ""]))
+
+
+    def test53_3(self):
+        """fit_protein_make_specs makes all specs"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        specs = fit_protein_make_specs(imol, 'all-chains')
+        print "specs:", len(specs), specs
+        self.failUnless(len(specs) == 189)
+   
+        
 
     def test54_0(self):
         """Phosphate distance in pucker analysis is sane"""
