@@ -53,7 +53,7 @@ coot::protein_geometry::get_sbase_residue(const std::string &res_name) const {
 	    CAtom *new_atom = new CAtom;
 	    new_atom->SetCoordinates(at->x, at->y, at->z, 1.0, 30.0);
 	    std::string new_atom_name = coot::atom_id_mmdb_expand(at->sca_name, at->element);
-	    std::cout << "Adding SBase atom with name :" << new_atom_name << ":\n";
+	    // std::cout << "Adding SBase atom with name :" << new_atom_name << ":\n";
 	    new_atom->SetAtomName(new_atom_name.c_str());
 	    new_atom->SetElementName(at->element);
 	    residue_p->AddAtom(new_atom);

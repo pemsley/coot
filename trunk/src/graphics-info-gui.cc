@@ -385,8 +385,33 @@ graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mut
       gtk_label_set_markup(GTK_LABEL(label), s.c_str());
 #endif       
    }
-
 }
+
+void
+graphics_info_t::info_dialog_refinement_non_matching_atoms(std::vector<std::pair<std::string, std::vector<std::string> > > nma) {
+
+   std::string s = "   Failed to match (to the dictionary) the following model atom names:\n";
+   for (unsigned int i=0; i<nma.size(); i++) {
+      s += "   ";
+      s += nma[i].first;
+      s += "\n   ";
+      for (unsigned int j=0; j<nma[i].second.size(); j++) {
+	 s += "\"";
+	 s += nma[i].second[j];
+	 s += "\"   ";
+      }
+      s += "\n";
+      s += "\n";
+      s += "   That would cause exploding atoms, so the refinement didn't start\n";
+   }
+
+   GtkWidget *dialog = info_dialog(s); // get trashed by markup text
+   if (dialog) { 
+      GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
+      gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+   }
+}
+
 
 
 // To be used to (typically) get the menu item text label from chain

@@ -4,9 +4,6 @@
 
     o SBase GUI ::: 3
 
-    o check the atoms of the residues to be refined against the
-      dictionary. JED ::: 4
-
     o Make RSR interuptable ::: 2
 
     o chemical component library interface ::: 4
@@ -74,3 +71,10 @@
       the bonding system.  ::: 0.5
 
 * Done.
+
+    o check the atoms of the residues to be refined against the
+      dictionary. JED ::: 4
+
+* Done.
+
+
