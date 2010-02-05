@@ -169,6 +169,7 @@ coot::util::pair_residue_atoms(CResidue *a_residue_p,
 void
 coot::sort_chains(CMMDBManager *mol) {
 
+#ifdef MMDB_MAJOR_VERSION
 #if ((MMDB_MAJOR_VERSION > 1) || ((MMDB_MAJOR_VERSION == 1) && (MMDB_MINOR_VERSION >= 22)))
 
    for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
@@ -177,6 +178,7 @@ coot::sort_chains(CMMDBManager *mol) {
    }
    mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
    mol->FinishStructEdit();
+#endif   
 #else
    
    // for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
