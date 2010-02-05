@@ -1740,6 +1740,10 @@ void
 on_check_waters_zero_occ_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+void
+on_check_waters_by_difference_map_active_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data);
 
 void
 on_get_monomer1_activate               (GtkMenuItem     *menuitem,
@@ -4200,4 +4204,9 @@ on_environment_distances_h_bonds_checkbutton_toggled
 void
 on_environment_distances_bumps_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_check_water_by_difference_map_optionmenu_changed
+                                        (GtkOptionMenu   *optionmenu,
                                         gpointer         user_data);

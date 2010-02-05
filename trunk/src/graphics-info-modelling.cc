@@ -256,15 +256,15 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       );
    molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
-   if (0) {  // debugging.
+   std::pair<int, std::vector<std::string> > icheck = 
+      check_dictionary_for_residues(SelResidues, nSelResidues);
+
+   if (1) {  // debugging.
       std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
       std::cout << "selecting from residue " << iselection_resno_start
 		<< " to " << iselection_resno_end << " selects "
 		<< nSelResidues << " residues" << std::endl;
    }
-
-   std::pair<int, std::vector<std::string> > icheck = 
-      check_dictionary_for_residues(SelResidues, nSelResidues);
 
    if (icheck.first == 0) { 
       std::cout << "INFO:: check_dictionary_for_residues - problem..." << std::endl;
@@ -278,13 +278,32 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       info_dialog(problem_residues);
       return rr; // fail
    } else {
-      return copy_mol_and_refine_inner(imol_for_atoms,
-				       resno_1, resno_2,
-				       nSelResidues, SelResidues,
-				       chain_id_1, altconf,
-				       have_flanking_residue_at_start,
-				       have_flanking_residue_at_end,
-				       imol_for_map);
+
+//       // 20100201
+//       // 
+//       // Now is not the time to add atom name checking.  Add it later
+//       // 
+//       bool check_hydrogens_too_flag = 0;
+//       // convert to CResidues vector
+//       std::vector<CResidue *> residues;
+//       for (int ires=0; ires<nSelResidues; ires++)
+// 	 residues.push_back(SelResidues[ires]);
+//       std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+// 	 icheck_atoms = 
+// 	 Geom_p()->atoms_match_dictionary(residues, check_hydrogens_too_flag);
+//       if (! icheck_atoms.first) {
+// 	 std::cout << "Fail atom check" << std::endl;
+// 	 return rr; // fail
+//       } else { 
+
+	 return copy_mol_and_refine_inner(imol_for_atoms,
+					  resno_1, resno_2,
+					  nSelResidues, SelResidues,
+					  chain_id_1, altconf,
+					  have_flanking_residue_at_start,
+					  have_flanking_residue_at_end,
+					  imol_for_map);
+	 //       } we are not testing that atom names match before refinement
    }
 }
 
@@ -452,47 +471,45 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
       last_restraints = restraints;
 
-      if (1) { // clear me up.
-	 regularize_object_bonds_box.clear_up();
-	 make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
-	 int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
-	 graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
-	 // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
-	 // << std::endl;
-	 short int continue_flag = 1;
-	 int step_count = 0; 
-	 print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
-	 while ((step_count < 10000) && continue_flag) {
-	    int retval = drag_refine_idle_function(NULL);
-	    step_count += dragged_refinement_steps_per_frame;
-	    if (retval == GSL_SUCCESS) { 
-	       continue_flag = 0;
-	       rr = graphics_info_t::saved_dragged_refinement_results;
-	    }
-	    if (retval == GSL_ENOPROG) {
-	       continue_flag = 0;
-	       rr = graphics_info_t::saved_dragged_refinement_results;
-	    }
-	 }
-
-	 // if we reach here with continue_flag == 1, then we
-	 // were refining (regularizing more like) and ran out
-	 // of steps before convergence.  We still want to give
-	 // the use a dialog though.
-	 //
-	 if (continue_flag == 1) {
+      regularize_object_bonds_box.clear_up();
+      make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
+      int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
+      graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
+      // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
+      // << std::endl;
+      short int continue_flag = 1;
+      int step_count = 0; 
+      print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
+      while ((step_count < 10000) && continue_flag) {
+	 int retval = drag_refine_idle_function(NULL);
+	 step_count += dragged_refinement_steps_per_frame;
+	 if (retval == GSL_SUCCESS) { 
+	    continue_flag = 0;
 	    rr = graphics_info_t::saved_dragged_refinement_results;
-	    rr.info = "Time's up...";
 	 }
-	       
+	 if (retval == GSL_ENOPROG) {
+	    continue_flag = 0;
+	    rr = graphics_info_t::saved_dragged_refinement_results;
+	 }
       }
+
+      // if we reach here with continue_flag == 1, then we
+      // were refining (regularizing more like) and ran out
+      // of steps before convergence.  We still want to give
+      // the use a dialog though.
+      //
+      if (continue_flag == 1) {
+	 rr = graphics_info_t::saved_dragged_refinement_results;
+	 rr.info = "Time's up...";
+      }
+      
    } else { 
       if (use_graphics_interface_flag) {
 
 	 // Residues might be out of order (causing problems in atom
 	 // selection).  But the sphere selection doesn't need this
 	 // check.
-	 
+
 	 GtkWidget *widget = create_no_restraints_info_dialog();
 	 if (! need_residue_order_check) {
 	    gtk_widget_show(widget);
@@ -738,17 +755,6 @@ graphics_info_t::check_dictionary_for_residues(PCResidue *SelResidues, int nSelR
    return std::pair<int, std::vector<std::string> > (status_OK, res_name_vec);
 }
 
-std::string 
-graphics_info_t::adjust_refinement_residue_name(const std::string &resname) const {
-
-   std::string r = resname;
-   if (resname == "UNK") r = "ALA"; // hack for KC/buccaneer.
-   if (resname.length() > 2)
-      if (resname[2] == ' ')
-	 r = resname.substr(0,2);
-   return r;
-} 
-
 std::pair<int, std::vector<std::string> >
 graphics_info_t::check_dictionary_for_residues(const std::vector<CResidue *> &residues) {
 
@@ -765,6 +771,19 @@ graphics_info_t::check_dictionary_for_residues(const std::vector<CResidue *> &re
    }
    return r;
 }
+
+
+std::string 
+graphics_info_t::adjust_refinement_residue_name(const std::string &resname) const {
+
+   std::string r = resname;
+   if (resname == "UNK") r = "ALA"; // hack for KC/buccaneer.
+   if (resname.length() > 2)
+      if (resname[2] == ' ')
+	 r = resname.substr(0,2);
+   return r;
+} 
+
 
 
 

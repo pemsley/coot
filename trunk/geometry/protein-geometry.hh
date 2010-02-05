@@ -52,6 +52,9 @@
 
 namespace coot {
 
+   std::string atom_id_mmdb_expand(const std::string &atomname);
+   std::string atom_id_mmdb_expand(const std::string &atomname, const std::string &element);
+   
    class dict_chem_comp_t {
       void setup_internal(const std::string &comp_id_in,
 			  const std::string &three_letter_code_in,
@@ -97,34 +100,6 @@ namespace coot {
    class basic_dict_restraint_t {
       std::string atom_id_1_;
       std::string atom_id_2_;
-
-   protected:
-      std::string atom_id_mmdb_expand(const std::string &atomname) const {
-	 std::string r;
-	 int ilen = atomname.length();
-	 
-	 if (ilen == 4) return atomname;
-	 
-	 if (ilen == 1) {
-	    r = " ";
-	    r += atomname;
-	    r += "  ";
-	 } else {
-	    if (ilen == 2) { 
-	       r = " ";
-	       r += atomname;
-	       r += " ";
-	    } else {
-	       if (ilen == 3) {
-		  r = " ";
-		  r += atomname;
-	       } else {
-		  r = atomname;
-	       }
-	    }
-	 }
-	 return r;
-      }
 
    public:
       basic_dict_restraint_t() {} // for planes

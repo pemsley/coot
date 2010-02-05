@@ -2195,6 +2195,8 @@ int atom_index_first_atom_in_residue_with_altconf(int imol,
 						  const char *alt_conf);
 float median_temperature_factor(int imol);
 float average_temperature_factor(int imol);
+float standard_deviation_temperature_factor(int imol);
+
 void clear_pending_picks(); 
 char *centre_of_mass_string(int imol);
 #ifdef USE_PYTHON
@@ -3344,6 +3346,8 @@ int read_cif_data_with_phases_fo_alpha_calc(const char *filename);
 void handle_cif_dictionary(const char *filename);
 void read_cif_dictionary(const char *filename);
 int write_connectivity(const char* monomer_name, const char *filename);
+/*! \brief open the cif dictionary file selector dialog */
+void open_cif_dictionary_file_selector_dialog(); 
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
@@ -3910,8 +3914,11 @@ void set_value_for_find_waters_sigma_cut_off(float f);
 void on_big_blob_button_clicked(GtkButton *button,
 				gpointer user_data);
 
-/* default 0.07, I think. */
-void set_ligand_water_spherical_variance_limit(float f); 
+/*! \brief set the limit of interesting variance, above which waters
+  are listed (otherwise ignored)
+
+default 0.12. */
+void set_water_check_spherical_variance_limit(float f);
 
 /*! \brief set ligand to protein distance limits
 
@@ -4770,6 +4777,8 @@ void set_check_waters_min_dist_limit(float f);
 void set_check_waters_max_dist_limit(float f);
 void check_waters_molecule_menu_item_activate(GtkWidget *item, 
 					      GtkPositionType pos);
+void check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, 
+							    GtkPositionType pos);
 void do_check_waters_by_widget(GtkWidget *dialog);
 void store_checked_waters_baddies_dialog(GtkWidget *dialog);
 
@@ -4791,8 +4800,6 @@ void delete_checked_waters_baddies(int imol, float b_factor_lim,
 /* difference map variance check  */
 void check_waters_by_difference_map(int imol_waters, int imol_diff_map, 
 				    int interactive_flag); 
-void check_waters_by_difference_map_by_widget(GtkWidget *window);
-GtkWidget *wrapped_create_check_waters_diff_map_dialog();
 /* results widget are in graphics-info.cc  */
 /* Let's give access to the sigma level (default 4) */
 float check_waters_by_difference_map_sigma_level_state();
@@ -5834,6 +5841,27 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
 				  float jiggle_scale_factor);
 /* \} */
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  SBase interface                                         */
+/*  ----------------------------------------------------------------------- */
+/*! \name SBase interface */
+/* \{ */
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return a list of compoundIDs of in SBase of which the
+  given string is a substring of the compound name */
+SCM matching_compound_names_from_sbase_scm(const char *compound_name_fragment);
+#endif
+#endif
+
+/*! \brief return the new molecule number of the monomer.
+
+The monomer will have chainid "A" and residue number 1.
+
+Return -1 on failure to get monomer. */
+int get_sbase_monomer(const char *comp_id);
+/* \} */
 
 
 /*  ----------------------------------------------------------------------- */

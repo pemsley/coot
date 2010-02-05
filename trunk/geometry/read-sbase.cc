@@ -44,16 +44,20 @@ CResidue *
 coot::protein_geometry::get_sbase_residue(const std::string &res_name) const {
 
    CResidue *residue_p = NULL;
-   CSBStructure *SBS = SBase->GetStructure(res_name.c_str());
-   if (SBS) {
-      residue_p = new CResidue;
-      for (int iat=0; iat<SBS->nAtoms; iat++) {
-	 CSBAtom *at = SBS->Atom[iat];
-	 CAtom *new_atom = new CAtom;
-	 new_atom->SetCoordinates(at->x, at->y, at->z, 1.0, 30.0);
-	 new_atom->SetAtomName(at->sca_name);
-	 new_atom->SetElementName(at->element);
-	 residue_p->AddAtom(new_atom);
+   if (SBase) { 
+      CSBStructure *SBS = SBase->GetStructure(res_name.c_str());
+      if (SBS) {
+	 residue_p = new CResidue;
+	 for (int iat=0; iat<SBS->nAtoms; iat++) {
+	    CSBAtom *at = SBS->Atom[iat];
+	    CAtom *new_atom = new CAtom;
+	    new_atom->SetCoordinates(at->x, at->y, at->z, 1.0, 30.0);
+	    std::string new_atom_name = coot::atom_id_mmdb_expand(at->sca_name, at->element);
+	    std::cout << "Adding SBase atom with name :" << new_atom_name << ":\n";
+	    new_atom->SetAtomName(new_atom_name.c_str());
+	    new_atom->SetElementName(at->element);
+	    residue_p->AddAtom(new_atom);
+	 }
       }
    }
    return residue_p;
@@ -120,6 +124,8 @@ coot::protein_geometry::init_sbase(const std::string &sbase_monomer_dir_in) {
 
       if (RC != SBASE_Ok) {
          std::cout << "sbase files not found in " << monomer_dir << std::endl;
+	 delete SBase;
+	 SBase = NULL;
       } else { 
          // std::cout << "sbase files found" << std::endl; 
       }

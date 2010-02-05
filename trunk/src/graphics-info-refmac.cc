@@ -168,6 +168,60 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 }
 
+
+void
+graphics_info_t::fill_option_menu_with_difference_map_options(GtkWidget *option_menu, 
+							      GtkSignalFunc signal_func,
+							      int imol_active_position) {
+
+   std::vector<int> maps_vec;
+   for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].is_difference_map_p())
+	 maps_vec.push_back(i);
+   }
+
+   fill_option_menu_with_map_options_internal(option_menu, signal_func, maps_vec,
+					      imol_active_position);
+   
+}
+
+
+void
+graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_menu, 
+							    GtkSignalFunc signal_func,
+							    std::vector<int> map_molecule_numbers,
+							    int imol_active_position) {
+
+   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+   GtkWidget *menuitem;
+
+   if (menu)
+      gtk_widget_destroy(menu);
+   menu = gtk_menu_new();
+   int menu_index = 0;
+   
+   for (int imap=0; imap<map_molecule_numbers.size(); imap++) {
+      int i = map_molecule_numbers[imap];
+      if (molecules[i].xmap_is_filled[0] == 1) {
+	 char s[200];
+	 snprintf(s,199,"%d", i);
+	 std::string ss(s);
+	 ss += " ";
+	 ss += molecules[i].name_;
+	 menuitem = gtk_menu_item_new_with_label(ss.c_str());
+	 gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
+			    GTK_SIGNAL_FUNC(signal_func),
+			    GINT_TO_POINTER(i));
+	 gtk_menu_append(GTK_MENU(menu), menuitem);
+	 gtk_widget_show(menuitem);
+	 if (i == imol_active_position)
+	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
+	 menu_index++; // setup for next round
+      }
+   }
+   gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
+}
+
 // These are of course *maps*.
 void
 graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {

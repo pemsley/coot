@@ -186,7 +186,8 @@ int test_internal_single() {
       // status = test_coot_atom_tree_2();
       // status = test_coot_atom_tree_proline();
       // status = test_ssm_sequence_formatting();
-      status = test_previous_water();
+      // status = test_previous_water();
+      status = test_sbase();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2046,6 +2047,33 @@ int test_previous_water() {
    std::cout << "returning " << status << std::endl;
    return status;
 
+}
+
+int test_sbase() {
+
+   int status = 0;
+   testing_data t;
+   const char *sbase_dir = getenv("COOT_SBASE_DIR");
+   if (sbase_dir) {
+      std::string sbase_monomer_dir = sbase_dir;
+      int init_status = t.geom.init_sbase(sbase_monomer_dir);
+      std::cout << "   SBase init status: " << init_status << std::endl;
+      if (init_status != SBASE_Ok) {
+	 std::cout << "   WARNING:: Trouble initialising SBase" << std::endl;
+      } else { 
+	 // t.geom.read_sbase_residues();
+	 status = 1;
+
+	 std::string test_name= "AMP";
+	 std::vector<std::string> v = t.geom.matching_sbase_residues_names(test_name);
+	 std::cout << "INFO:: " << v.size() << " matching residue names" << std::endl;
+	 for (unsigned int i=0; i<v.size(); i++) { 
+	    std::cout << "    " << i << " of " << v.size() << " "
+		      << v[i] << std::endl;
+	 }
+      }
+   }
+   return status;
 } 
 
 #endif // BUILT_IN_TESTING

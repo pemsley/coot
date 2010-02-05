@@ -85,6 +85,47 @@
 //    return r;
 // }
 
+std::string
+coot::atom_id_mmdb_expand(const std::string &atomname) { 
+   std::string r;
+   int ilen = atomname.length();
+      
+   if (ilen == 4) return atomname;
+      
+   if (ilen == 1) {
+      r = " ";
+      r += atomname;
+      r += "  ";
+   } else {
+      if (ilen == 2) { 
+	 r = " ";
+	 r += atomname;
+	 r += " ";
+      } else {
+	 if (ilen == 3) {
+	    r = " ";
+	    r += atomname;
+	 } else {
+	    r = atomname;
+	 }
+      }
+   }
+   return r;
+}
+
+std::string
+coot::atom_id_mmdb_expand(const std::string &atomname, const std::string &element) {
+
+   // don't do anything clever with the element now, it needs some
+   // test (e.g. SE), this is a place-holder.
+   //
+   // For now, just call the non-element-using version
+   // 
+   return coot::atom_id_mmdb_expand(atomname);
+}
+
+
+
 coot::basic_dict_restraint_t::basic_dict_restraint_t(const std::string &at1,
 						     const std::string &at2) {
 

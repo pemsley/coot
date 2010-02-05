@@ -128,7 +128,31 @@ void open_coords_dialog() {
 #endif
    }
 }
-  
+
+
+void
+open_cif_dictionary_file_selector_dialog() {
+   
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      GtkWidget *fileselection;
+      fileselection = coot_cif_dictionary_chooser();
+      add_ccp4i_project_optionmenu(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
+      add_filename_filter_button(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
+      add_sort_button_fileselection(fileselection); 
+      set_directory_for_fileselection(fileselection);
+      set_file_selection_dialog_size(fileselection);
+      gtk_widget_show(fileselection);
+   }
+}
+
+
+
+GtkWidget *wrapped_nothing_bad_dialog(const std::string &label) { 
+   
+   graphics_info_t g;
+   return g.wrapped_nothing_bad_dialog(label);
+} 
+
 
 
 void

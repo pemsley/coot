@@ -303,6 +303,11 @@ class Bond_lines_container {
    bool draw_these_residue_contacts(CResidue *this_residue, CResidue *env_residue,
 				    coot::protein_geometry *protein_geom);
 
+   void add_half_bonds(const coot::Cartesian &atom_1,
+		       const coot::Cartesian &atom_2,
+		       CAtom *at_1,
+		       CAtom *at_2,
+		       int atom_colour_type);
                            
  protected:
    std::vector<Bond_lines> bonds; 
