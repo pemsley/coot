@@ -296,12 +296,13 @@
 # 4.65 20091209 Add libidn to build (for curl).
 # 4.66 20091209 Test for holding dir in making tar file.
 # 4.67 20091209 Add LDFLAGS to args for libcurl configure.
-# 4.68 20091210 Add post-process-libcurl logic
+# 4.68 20091210 Add post-process-libcurl logic.
 # 4.69 20091216 Don't delete bin/curl, we need it for updates. (20100120 Not any more)
-# 4.70 20100120 debugging added to curl build (problems on bragg3)
-# 4.71 20100203 Remove goosh
-# 4.72 20100203 Update clipper version
-script_version=4.72
+# 4.70 20100120 debugging added to curl build (problems on bragg3).
+# 4.71 20100203 Remove goosh.
+# 4.72 20100203 Update clipper version.
+# 4.73 20100205 only download mmdb once.
+script_version=4.73
 
 
 
@@ -2089,7 +2090,6 @@ ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
 # for now get mmdb-1.21 from york, the ebi one has out of date files causing 
 # problems on make 
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
