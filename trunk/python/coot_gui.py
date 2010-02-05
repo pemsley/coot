@@ -764,7 +764,8 @@ def old_coot_qm():
    # new_release_time = 1237244400 # 17 March 2009
    # new_release_time = 1249945200 # 11 August 2009 : 0.5
    # new_release_time = 1279926000 # 24 July 2010 : --
-   new_release_time = 1310000000 #  7 July 2011 : 0.6
+   # new_release_time = 1310000000 #  7 July 2011 : 0.6
+   new_release_time = 1330000000 #  23 Jan 2012
    current_time = int(time.time())
    time_diff = current_time - new_release_time
    if (time_diff > 0):
@@ -4187,7 +4188,7 @@ random_jiggle_n_trials = 50
 
 def solvent_ligand_list():
    global additional_solvent_ligands
-   return (["EDO", "DMS" "GOL", "ACT", "MPD", "CIT", "SO4", "PO4", "TAM"] +
+   return (["EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4", "PO4", "TAM"] +
            additional_solvent_ligands)
 
 # add solvent molecules

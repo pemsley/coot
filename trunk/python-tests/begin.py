@@ -216,6 +216,56 @@ def atoms_have_correct_seg_id_qm(atoms, seg_id):
             return False
     return True
 
+# return the residue name given a 4 element spec
+#
+def residue_name_from_spec(imol, spec):
+    
+    if len(spec) == 4:
+        return residue_name(imol, *spec[1:4])
+    return False
+
+# return residue specs of all residues that are type residue-type
+#
+def get_residues_in_molecule_of_type(imol, residue_type):
+
+    return filter(lambda x: residue_name_from_spec(imol, x) == residue_type,
+                  fit_protein_make_specs(imol, 'all-chains'))
+
+# This takes 4 member specs, return True or False
+#
+def spec_match_qm(spec_1, spec_2):
+
+    from types import StringType
+    from types import IntType
+    # first test if specs are of length 4.
+    #
+    if not (len(spec_1) == 4):
+        return False
+    if not (len(spec_2) == 4):
+        return False
+    chain_id_1 = spec_1[1]
+    chain_id_2 = spec_2[1]
+    res_no_1   = spec_1[2]
+    res_no_2   = spec_2[2]
+    ins_code_1 = spec_1[3]
+    ins_code_2 = spec_2[3]
+
+    if not (type(chain_id_1) is StringType):
+        return False
+    if not (chain_id_1 == chain_id_2):
+        return False
+    if not (type(res_no_1) is IntType):
+        return False
+    if not (res_no_1 == res_no_2):
+        return False
+    if not (type(ins_code_1) is StringType):
+        return False
+    if not (ins_code_1 == ins_code_2):
+        return False
+    return True
+    
+set_console_display_commands_hilights(0, 0, 0)
+
 
 #################################
 # SOME MORE FUNCTIONS ONLY PYTHON

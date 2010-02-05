@@ -47,9 +47,11 @@ if (have_coot_python):
                                      lambda func: whats_new_dialog())
 
 
-       add_simple_coot_menu_menuitem(menu, "Check for Updates...",
-                                     lambda func: (printf("checking for updates"),
-                                                   check_for_updates_gui()))
+       os_type = os.name
+       if not os_type == 'mac':
+         add_simple_coot_menu_menuitem(menu, "Check for Updates...",
+                                       lambda func: (printf("checking for updates..."),
+                                                     check_for_updates_gui()))
 
      
      # ---------------------------------------------

@@ -2441,6 +2441,10 @@ chain_id_py(int imol, int ichain) {
    args.push_back(imol);
    args.push_back(ichain);
    add_to_history_typed(cmd, args);
+
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 #endif // USE_GUILE
