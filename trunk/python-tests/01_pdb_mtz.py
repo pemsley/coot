@@ -1183,9 +1183,17 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test32_0(self):
         """Test for mangling of hydrogen names from a PDB v 3.0"""
 
-        imol = unittest_pdb("3ins-6B-3.0.pdb")
+        # Note that it seems to me that the bonds are not within
+        # tolerance before the regularization.
+        # 
+        # Also note that the D atom has been removed because now we have
+        # a test for the atom names matching (hydrogens are not checked
+        # currently, but this atom does not appear to be a hydrogen
+        # (element is " D").
+
+        imol = unittest_pdb("3ins-6B-3.0-no-peptide-D.pdb")
         self.failUnless(valid_model_molecule_qm(imol),
-                        "Bad read of unittest test pdb: 3ins-6B-3.0.pdb")
+                        "Bad read of unittest test pdb: 3ins-6B-3.0-no-peptide-D.pdb")
 
         with_auto_accept([regularize_zone, imol, "B", 6, 6, ""])
         atom_pairs = [["HD11", " CD1"],
