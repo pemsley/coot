@@ -1716,12 +1716,14 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 //       std::cout << "in fill_option_menu_with_coordinates_options, "
 // 		<< "g.molecules[" << imol << "].atom_sel.n_selected_atoms is "
 // 		<< g.molecules[imol].atom_sel.n_selected_atoms << std::endl;
+
+      int jmol = fill_with_these_molecules[imol];
       
-      if (molecules[fill_with_these_molecules[imol]].has_model()) { 
+      if (molecules[jmol].has_model()) { 
 
 	 std::string ss = int_to_string(imol);
 	 ss += " " ;
-	 int ilen = molecules[imol].name_.length();
+	 int ilen = molecules[jmol].name_.length();
 	 int left_size = ilen-go_to_atom_menu_label_n_chars_max;
 	 if (left_size <= 0) {
 	    // no chop
@@ -1730,16 +1732,16 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 	    // chop
 	    ss += "...";
 	 } 
-	 ss += molecules[fill_with_these_molecules[imol]].name_.substr(left_size, ilen);
+	 ss += molecules[jmol].name_.substr(left_size, ilen);
 	 menuitem = gtk_menu_item_new_with_label (ss.c_str());
 
 	 gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
 			     // GTK_SIGNAL_FUNC(go_to_atom_mol_button_select),
 			     callback_func,
-			     GINT_TO_POINTER(imol)); 
+			     GINT_TO_POINTER(jmol)); 
 
 	 // Note that we probably don't need to do the following
-	 // because we already pass a GINT_TO_POINTER(imol) in the
+	 // because we already pass a GINT_TO_POINTER(jmol) in the
 	 // signal connect.
 	 //
 	 // But on reflection.. perhaps we do because we do a
@@ -1756,7 +1758,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 	 gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(imol));
 	 gtk_menu_append(GTK_MENU(menu), menuitem); 
 
-	 if (fill_with_these_molecules[imol] == imol_active)
+	 if (jmol == imol_active)
 	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
 
 	 // we do need this bit of course:
