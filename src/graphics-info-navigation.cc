@@ -856,12 +856,12 @@ graphics_info_t::clear_atom_list(GtkWidget *atom_gtklist) {
 void
 graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
 
-   std::cout << "INFO:: (menu item select) Go To Atom molecule now: " << pos << std::endl;
+   // std::cout << "INFO:: (menu item select) Go To Atom molecule now: " << pos << std::endl;
    graphics_info_t g;
    int old_go_to_molecule = g.go_to_atom_molecule();
    g.set_go_to_atom_molecule(pos);
 
-   std::cout << "debug pos: " << pos << " vs old go to atom mol: " << old_go_to_molecule << std::endl;
+   // std::cout << "debug pos: " << pos << " vs old go to atom mol: " << old_go_to_molecule << std::endl;
    if (pos != old_go_to_molecule) {
       // old style:
 //       GtkWidget *residue_gtklist = lookup_widget(GTK_WIDGET(item),
@@ -871,7 +871,7 @@ graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionTyp
 #if (GTK_MAJOR_VERSION == 1)
       fill_go_to_atom_residue_list_gtk1(residue_gtktree);
 #else
-      std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << pos << std::endl;
+      // std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << pos << std::endl;
       fill_go_to_atom_residue_tree_gtk2(pos, residue_gtktree);
 #endif      
    }
