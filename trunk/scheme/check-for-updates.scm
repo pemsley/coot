@@ -248,7 +248,8 @@
 				;; stop the download process(es) if
 				;; they were running (they get set to
 				;; #f when they are not running)
-				(stop-curl-download file-name-for-progress-bar) 
+				(if (string? file-name-for-progress-bar)
+				    (stop-curl-download file-name-for-progress-bar))
 				(set! pending-install-in-place 'cancelled) ;; not fail
 				(gtk-widget-destroy window)))
 
