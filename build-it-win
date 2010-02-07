@@ -1927,14 +1927,13 @@ if test -n "$build_mmdb" ; then
 # mmdb_version=1.12
 mmdb_version=1.19
 mmdb_version=1.21
-#${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
-${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
+mmdb_version=1.22
+${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
+#${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
 # we need this patch for gzip on Windows (actually revert!?)
 ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.21_file_.cpp.patch
 # but we need this one now
 ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb_title.cpp.patch
-# this patch is badly formed.
-# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
@@ -2016,7 +2015,8 @@ if test -n "$build_clipper" ; then
     #clipper_version=20ac
     #clipper_version=2.1-081201-ac
     #clipper_version=2.1-090210-ac
-    clipper_version=2.1-090522-ac
+    #clipper_version=2.1-090522-ac
+    clipper_version=2.1-091215-ac
     clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
@@ -2036,7 +2036,6 @@ if test -n "$build_clipper" ; then
     if [ "$need_clipper_contrib_patch" = true ] ; then
        patch -p0 < ${AUTOBUILD_SOURCES}/clipper_test_contrib.cpp.patch
     fi
-    patch -p0 < ${AUTOBUILD_SOURCES}/clipper_mingw.patch
     ./configure --prefix=$install_top_dir \
 	--with-fftw=$install_top_dir \
 	--with-mmdb=$install_top_dir \

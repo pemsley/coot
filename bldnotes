@@ -5,12 +5,12 @@ tests        rev 2775
 build-it-win rev 2122
 
 ---------------
-* THINGS TO DO BEFORE 0.6.1 RELEASE *
+* THINGS TO DO BEFORE 0.6.2 RELEASE *
 ---------------
 
-   o better python std flushing for MINGW
+   o transform whole asu for packing comparision?!
 
-   o check gtk threading for dialogs after probe
+   o better python std flushing for MINGW
 
    o doublication of find strand/find ss (Extensions, Other tools)
 
