@@ -1062,9 +1062,9 @@ class molecule_class_info_t {
       return pickable_atom_selection && (atom_sel.n_selected_atoms > 0);
    } 
 
-   short int show_symmetry; // now we have individual control of the
-			    // symmetry display (as well as a master
-			    // control).
+   bool show_symmetry; // now we have individual control of the
+	               // symmetry display (as well as a master
+		       // control).
 
    void set_show_symmetry(short int istate) {
       show_symmetry = istate;
