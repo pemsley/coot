@@ -9,10 +9,16 @@
   o CHANGE: Move molecule here only moves small molecules by default
     now.  There is an check button to allow big molecules
 
+  o CHANGE: In MTZ reading Expert Mode, if the low resolution limit is
+    not set, then presume that it was 999.9A [Randy Read].
+
   o BUG-FIX:: Hydrogens on waters are no longer check against the
     difference map in the water validation test.
 
   o BUG-FIX: rename residue works on only the specified chain.
+
+  o BUG-FIX: Symmetry is updated on accepting a Rotate/Translate
+    modification [Ezra Peisach]
 
 -----
 

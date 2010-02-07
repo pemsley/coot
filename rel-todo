@@ -2,6 +2,11 @@
 
     Points 40: April 4th
 
+    o Felix F SHELXL symmetry problem. ::: 2
+
+    o coot --update-self (runs in no-graphics mode.  Put the old
+      directories in a dated directory, version and revision. ::: 1
+
     o SBase GUI ::: 3
 
     o Make RSR interuptable ::: 2
@@ -23,18 +28,22 @@
       phi_psi_sets[ich].phi_psi.size(): 839
       Which is when the rama plot stops working  ::: 1
 
-    o does rotate/translate zone (on a water) update symmetry? [Ezra
-      Peisach] ::: 1
-
     o roll up/collapse addition representation in Display manager when
       they are not displayed ::: 2
 
-    o Felix F SHELXL symmetry problem.
+    o Edit -> restraints for XX6, plane restraints sigma.  Close edit
+      again -> fail.  Also Take N2 and O out of plane restraints.  ::: 2
 
-    o alt confs cause problems in geometry graph [JED]
+   o Regularize Sphere ::: 2
 
-    o If low res limit is not set in the Expert options (reading mtz)
-      then neither limit is used [Randy Read]
+   o On assigning sequence (after baton building etc) Coot gives me a
+     dialog that says the confidence is not sufficiently high for an
+     assigment - although an assigment was made ::: 0.5
+
+   o alt confs cause problems in geometry graph [JED] ::: 2
+
+   o bad-rigid-body-atom-set.pdb fails to rigid body refine.  Why?  ::: 2
+
 
 ------
 
@@ -80,5 +89,93 @@
       dictionary. JED ::: 4
 
 * Done.
+
+
+    o CRASH:
+
+#0  0x00007f08aee33fb5 in raise () from /lib/libc.so.6
+#1  0x00007f08aee35bc3 in abort () from /lib/libc.so.6
+#2  0x00007f08af6d90b4 in __gnu_cxx::__verbose_terminate_handler () from /usr/lib/libstdc++.so.6
+#3  0x00007f08af6d74b6 in ?? () from /usr/lib/libstdc++.so.6
+#4  0x00007f08af6d74e3 in std::terminate () from /usr/lib/libstdc++.so.6
+#5  0x00007f08af6d75ca in __cxa_throw () from /usr/lib/libstdc++.so.6
+#6  0x00007f08af673777 in std::__throw_out_of_range () from /usr/lib/libstdc++.so.6
+#7  0x00000000005e754e in graphics_info_t::fill_option_menu_with_coordinates_options_internal_3 (this=<value optimized out>, 
+    option_menu=<value optimized out>, 
+    callback_func=0x608be4 <graphics_info_t::go_to_atom_mol_menu_item_select(_GtkWidget*, GtkPositionType)>, fill_with_these_molecules=
+          {<std::_Vector_base<int, std::allocator<int> >> = {_M_impl = {<std::allocator<int>> = {<__gnu_cxx::new_allocator<int>> = {<No data fields>}, <No data fields>}, _M_start = 0x7fffdff23310, _M_finish = 0xa, _M_end_of_storage = 0x5e754e}}, <No data fields>}, 
+    set_last_active_flag=0, imol_active=16) at /usr/include/c++/4.3/bits/basic_string.h:309
+#8  0x00000000005e78e7 in graphics_info_t::fill_option_menu_with_coordinates_options_internal_2 (this=0x7fffdff233cf, option_menu=0x3836d70, 
+    callback_func=0x608be4 <graphics_info_t::go_to_atom_mol_menu_item_select(_GtkWidget*, GtkPositionType)>, set_last_active_flag=0, 
+    imol_active=16) at ../../coot/src/graphics-info-gui.cc:1674
+#9  0x00000000005e7957 in graphics_info_t::fill_option_menu_with_coordinates_options_internal_with_active_mol (this=0x7774, 
+    option_menu=0x7774, callback_func=0x6, imol_active=<value optimized out>) at ../../coot/src/graphics-info-gui.cc:1799
+#10 0x0000000000607615 in graphics_info_t::update_go_to_atom_window_on_other_molecule_chosen (this=0x7fffdff233cf, imol=16)
+    at ../../coot/src/graphics-info-navigation.cc:796
+#11 0x00000000004a4d2d in update_go_to_atom_window_on_other_molecule_chosen (imol=<value optimized out>)
+    at ../../coot/src/c-interface-build.cc:1245
+#12 0x000000000051aee5 in update_go_to_atom_from_current_position () at ../../coot/src/c-interface-info.cc:1416
+#13 0x00000000005ae8f1 in key_press_event (widget=0x7774, event=0x3072d20) at ../../coot/src/globjects.cc:3504
+
+
+    And another.  
+    Read in 3kcz-no-ligand-new2.pdb
+    Go To Atom dialog was up.
+    Extensions -> Modelling -> Select by Residue type LYS -> Crash
+
+
+#6  0x00007f264a0f1777 in std::__throw_out_of_range () from /usr/lib/libstdc++.so.6
+#7  0x00000000005e754e in graphics_info_t::fill_option_menu_with_coordinates_options_internal_3 (this=<value optimized out>, 
+    option_menu=<value optimized out>, 
+    callback_func=0x608be4 <graphics_info_t::go_to_atom_mol_menu_item_select(_GtkWidget*, GtkPositionType)>, fill_with_these_molecules=
+          {<std::_Vector_base<int, std::allocator<int> >> = {_M_impl = {<std::allocator<int>> = {<__gnu_cxx::new_allocator<int>> = {<No data fields>}, <No data fields>}, _M_start = 0x7fff2ac18690, _M_finish = 0x0, _M_end_of_storage = 0x5e754e}}, <No data fields>}, 
+    set_last_active_flag=0, imol_active=-1) at /usr/include/c++/4.3/bits/basic_string.h:309
+#8  0x00000000005e78e7 in graphics_info_t::fill_option_menu_with_coordinates_options_internal_2 (this=0x7fff2ac1878f, option_menu=0x2035bc0, 
+    callback_func=0x608be4 <graphics_info_t::go_to_atom_mol_menu_item_select(_GtkWidget*, GtkPositionType)>, set_last_active_flag=0, 
+    imol_active=-1) at ../../coot/src/graphics-info-gui.cc:1674
+#9  0x00000000005e796e in graphics_info_t::fill_option_menu_with_coordinates_options_internal (this=0xe32, option_menu=0xe32, 
+    callback_func=0x6, set_last_active_flag=-1) at ../../coot/src/graphics-info-gui.cc:1657
+#10 0x00000000006081a5 in graphics_info_t::update_go_to_atom_window_on_new_mol (this=0x7fff2ac1878f)
+    at ../../coot/src/graphics-info-navigation.cc:744
+#11 0x00000000004a4438 in update_go_to_atom_window_on_new_mol () at ../../coot/src/c-interface-build.cc:1238
+#12 0x000000000058c732 in _wrap_update_go_to_atom_window_on_new_mol () at coot_wrap_guile_gtk2.cc:13791
+#13 0x00007f26516866e1 in deval () from /home/paule/autobuild/Linux-scylla-pre-release-gtk2/lib/libguile.so.17
+
+    ::: 1
+
+INFO:: (menu item select) Go To Atom molecule now: 1
+debug pos: 1 vs old go to atom mol: 0
+Debug:: fill_go_to_atom_residue_tree_gtk2 1
+INFO:: (menu item select) Go To Atom molecule now: 0
+debug pos: 0 vs old go to atom mol: 1
+Debug:: fill_go_to_atom_residue_tree_gtk2 0
+INFO:: (menu item select) Go To Atom molecule now: 1
+debug pos: 1 vs old go to atom mol: 0
+Debug:: fill_go_to_atom_residue_tree_gtk2 1
+INFO:: (menu item select) Go To Atom molecule now: 0
+debug pos: 0 vs old go to atom mol: 1
+Debug:: fill_go_to_atom_residue_tree_gtk2 0
+
+    ::: 0.2
+    
+    o If low res limit is not set in the Expert options (reading mtz)
+      then neither limit is used [Randy Read]  ::: 0.2
+
+
+     Check for updates... Cancel:
+
+In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/guile/gtk-2.0/gtk.scm:
+ 147: 0* [apply #<procedure #f ()> ()]
+In unknown file:
+   ?: 1  [#<procedure #f ()>]
+In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-for-updates.scm:
+ 251: 2* [stop-curl-download #f]
+/home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-for-updates.scm:251:33: In procedure SWIG_Guile_scm2newstr in expression (stop-curl-download file-name-for-progress-bar):
+/home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-for-updates.scm:251:33: Wrong type argument in position 1: #f
+
+    ::: 0.2
+
+    o does rotate/translate zone (on a water) update symmetry? [Ezra
+      Peisach] ::: 0.2
 
 

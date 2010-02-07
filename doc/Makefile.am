@@ -83,3 +83,15 @@ tutorial.ps: tutorial.dvi
 tutorial.pdf: tutorial.ps
 	ps2pdf $^
 
+
+tutorial-2.dvi: $(top_srcdir)/doc/tutorial-2.tex
+	-latex -interaction=nonstopmode $^
+	latex -interaction=nonstopmode $^
+
+# this relies on the image directory being in place with ps images in it:
+tutorial-2.ps: tutorial-2.dvi
+	dvips -o $@ $^
+
+tutorial-2.pdf: tutorial-2.ps
+	ps2pdf $^
+
