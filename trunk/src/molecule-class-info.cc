@@ -3383,7 +3383,12 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
       }
    }
    std::cout << "INFO:: replace_coords: " << n_atom << " atoms updated." << std::endl;
-   have_unsaved_changes_flag = 1; 
+   have_unsaved_changes_flag = 1;
+
+   if (show_symmetry) {  // internal
+      update_symmetry();
+   }
+
 
    make_bonds_type_checked();
 }
