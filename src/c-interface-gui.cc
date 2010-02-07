@@ -386,9 +386,13 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
        low_reso_lim  = get_positive_float_from_entry(low_entry);
        high_reso_lim = get_positive_float_from_entry(high_entry);
-       if (low_reso_lim > 0.001) 
-	 if (high_reso_lim > 0.0001)
-	   use_resolution_limits_flag = 1;
+       std::cout << "Resolution limits: low: " << low_reso_lim << " and high: "
+		 << high_reso_lim << std::endl;
+       if (high_reso_lim > 0.0001)
+	  use_resolution_limits_flag = 1;
+       // if low_reso_lim is not set, presume that it was 999.9;
+       if (low_reso_lim < 0.0)
+	  low_reso_lim = 999.9;
      }
 
      /* Refmac label stuff */
