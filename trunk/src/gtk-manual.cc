@@ -1334,9 +1334,10 @@ on_display_control_delete_molecule_button_clicked   (GtkButton       *button,
 {
 
    int imol = GPOINTER_TO_INT(user_data);
-   std::cout << "DEBUG:: calling close_molecule() for " << imol << " from "
-	     << "on_display_control_delete_molecule_button_clicked"
-	     << std::endl;
+   if (0) 
+      std::cout << "DEBUG:: calling close_molecule() for " << imol << " from "
+		<< "on_display_control_delete_molecule_button_clicked"
+		<< std::endl;
    close_molecule(imol);
 }
 
