@@ -342,6 +342,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 							   (card.words[0].substr(0, 4) == "L.S.") ||
 							   (card.words[0].substr(0, 4) == "SUMP") ||
 							   (card.words[0].substr(0, 4) == "BOND") ||
+							   (card.words[0].substr(0, 4) == "HOPE") ||
 							   (card.words[0].substr(0, 4) == "EXTI") ||
 							   (card.words[0].substr(0, 4) == "WPDB")) { 
 						      } else {
