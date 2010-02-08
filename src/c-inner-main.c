@@ -280,9 +280,11 @@ c_inner_main(void *closure, int argc, char** argv) {
      }
      
      run_command_line_scripts();	/* this may turn off run-state-file */
-     
+
      run_state_file_maybe();
      
+     run_update_self_maybe();
+
      /* for now, make the user start the listener explictly. */
      /*   make_socket_listener_maybe(); */
      

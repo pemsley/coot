@@ -5882,7 +5882,13 @@ void toolbar_multi_refine_button_set_sensitive(const char *button_type, short in
 
 
 /*  ----------------------------------------------------------------------- */
-/*                  experimental                                      */
+/*                  update self                                             */
+/*  ----------------------------------------------------------------------- */
+/* this function is here because it is called by c_inner_main() (ie. need a c interface). */
+void run_update_self_maybe(); // called when --update-self given at command line
+
+/*  ----------------------------------------------------------------------- */
+/*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
 void nsv(int imol);
 void sequence_view_old_style(int imol);

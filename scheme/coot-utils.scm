@@ -2458,8 +2458,8 @@
 
   ;; main line
   ;; 
-  (format #t "INFO:: run-download-binary-curl.... with revision ~s with version-string ~s~%" 
-	     revision version-string)
+;  (format #t "INFO:: run-download-binary-curl.... with revision ~s with version-string ~s~%" 
+;	     revision version-string)
   (let ((prefix (getenv "COOT_PREFIX")))
     (if (not (string? prefix))
 	(begin
@@ -2492,14 +2492,10 @@
 	  
 	  (if (procedure? set-file-name-func)
 	      (begin
-		(format #t ":::::::::::::::::::::::::: set file-name-for-progress-bar ~s~%" 
-			tar-file-name)
-		(set-file-name-func tar-file-name))
-	      (begin
-		(format #t ":::::::::::: FAIL to set file-name-for-progress-bar :::::::::::: ~%")))
+		(set-file-name-func tar-file-name)))
 
-	  (my-format "md5sum url for curl: ~s~%" md5-url)
-	  (my-format "url for curl: ~s~%" url)
+	  ;; (my-format "md5sum url for curl: ~s~%" md5-url)
+	  (format #t  "INFO:: getting URL: ~s~%" url)
 
 	  (coot-get-url-and-activate-curl-hook md5-url md5-tar-file-name 1)
 	  (coot-get-url-and-activate-curl-hook url tar-file-name 1)
@@ -2572,16 +2568,15 @@
     (define (pending-install-in-place-func)
       (set! pending-install-in-place #t))
 
-    (format #t "run-download-binary-curl with ~s ~s~%" revision version-string)
-    (let ((status 'unset))
+    (let ((continue-status #t))
       (call-with-new-thread
        (lambda()
-	 (set! status (run-download-binary-curl revision version-string
-						pending-install-in-place-func
-						set-file-name-func)))
-       coot-updates-error-handler))
+	 (run-download-binary-curl revision version-string
+				   pending-install-in-place-func
+				   set-file-name-func)
+	 (set! continue-status #f))
+       coot-updates-error-handler)
     
-    (let ((continue-status #t))
       (while continue-status
 	     (if (string? file-name-for-progress-bar)
 		 (let ((curl-info (curl-progress-info file-name-for-progress-bar)))
@@ -2596,8 +2591,6 @@
 				   (if (> f 0.999) 
 				       (set! continue-status #f)))))))))
 	     (sleep 2)))))
-
-
        
 	 
 

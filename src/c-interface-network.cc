@@ -80,7 +80,7 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 	 // good return values (same as the non-wrapped function call)
 	 success = CURLcode(GPOINTER_TO_INT(scm_without_guile(wrapped_curl_easy_perform, c)));
 #else
-	 std::cout << "Can do this with this old guile" << std::endl;
+	 std::cout << "Can't do this with this old guile" << std::endl;
 #endif 	 
 #else
 	 success = curl_easy_perform(c);
@@ -244,3 +244,6 @@ void stop_curl_download(const char *file_name) {  // stop curling the to file_na
 
 } 
 #endif // USE_LIBCURL
+
+
+

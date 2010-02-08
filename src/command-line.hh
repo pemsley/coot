@@ -23,6 +23,7 @@ public:
    short int small_screen_display;
    bool disable_state_script_writing;
    bool use_splash_screen;
+   bool update_self;
    std::string alternate_splash_screen_file_name; 
    bool run_internal_tests_and_exit;
    command_line_data() { 
@@ -30,6 +31,7 @@ public:
      port = 0;
      hostname = "";
      try_listener = 0;
+     update_self = 0;
      do_graphics = 1; // use graphics by default
      disable_state_script_writing = 0; // don't disable, by default
      script_is_python_flag = 0;
