@@ -4,8 +4,6 @@
 
     o SBase GUI ::: 3
 
-    o Make RSR interuptable ::: 2
-
     o coot --update-self (runs in no-graphics mode.  Put the old
       directories in a dated directory, version and revision. ::: 1
 
@@ -181,3 +179,7 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
     o Felix F SHELXL symmetry problem. ::: 0.2
 
 * Displaced residue (10 unit cells away) - Coot gives up generating symmetry atoms.
+
+    o Make RSR interuptable ::: 2
+
+* Done.
