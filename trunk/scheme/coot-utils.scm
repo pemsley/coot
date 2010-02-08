@@ -178,6 +178,12 @@
 ;; 
 (define post-manipulation-hook #f)
 
+;; Return a boolean
+;; 
+(define (pre-release?)
+  (string-match "-pre" (coot-version)))
+
+
 ;; Return a list of molecule numbers (closed and open) The elements of
 ;; the returned list need to be tested against
 ;; is-valid-model-molecule?
@@ -210,6 +216,28 @@
 		 ((= 0 count) (reverse r))
 		 (else 
 		  (loop (cdr r) (- count 1)))))))))
+
+		    
+	
+;; Test for prefix-dir (1) existing (2) being a directory (3)
+;; modifiable by user (ie. u+rwx).  prefix-dir must be a string.
+;; 
+;; Return #t or #f.
+;; 
+(define (directory-is-modifiable? prefix-dir)
+  (if (not (file-exists? prefix-dir))
+      #f 
+      (let* ((s (stat prefix-dir))
+	     (t (stat:type s)))
+	(if (not (eq? t 'directory))
+	    #f ; not a directory
+	    (let ((p (stat:perms s)))
+	      ;; test the file permissions for rwx for user using bitwise logical 
+	      ;; operator on p (permissions). 448 is 256 + 128 + 64
+	      (let ((b #b111000000))
+		(= b (logand p b))))))))
+
+
 
 ;; Find the most recently created file from the given glob and dir
 ;;
@@ -2321,6 +2349,257 @@
 				(apply place-text (append ann (list 0))))
 			      *annotations*)))
 	      (graphics-draw)))))))
+
+;; Here we construct the url that contains the latest (pre)
+;; release info adding in "pre-release" if this binary is a
+;; pre-release.  args ends up as something like: ("-s"
+;; "xxx/phone-home.scm" "pre-release" "binary"
+;; "Linux-1386-fedora-10-python-gtk2" "command-line"
+;; "/home/xx/coot/bin/coot")
+;; 
+(define (make-latest-version-url)
+  (let ((build-type (coot-sys-build-type)))
+    
+    (string-append 
+     "http://www.biop.ox.ac.uk/coot/software/binaries/"
+     (if (pre-release?)
+	 "pre-releases"
+	 "releases")
+     "/"
+     "type-binary-"
+     build-type
+     "-latest.txt")))
+
+
+
+;; Get the binary (i.e. the action that happens when the download
+;; button is pressed).  This is run in a thread, so it can't do
+;; any graphics stuff. 
+;; 
+;; return #t if tar file was successfully downloaded and untared
+;; and #f if not.
+;; 
+(define (run-download-binary-curl revision version-string pending-install-in-place-func set-file-name-func)
+
+  (define my-format 
+    (lambda args
+      (apply format (cons #t args))))
+
+  (define (match-md5sums tar-file-name target-md5sum-file-name)
+    (if (not (file-exists? tar-file-name))
+	#f
+	(if (not (file-exists? target-md5sum-file-name))
+	    (begin
+	      ;; (format #t "OOps! ~s does not exist" target-md5sum-file-name)
+	      #f)
+	    (let ((target-md5-string (get-target-md5-string target-md5sum-file-name))
+		  (md5-string (get-md5sum-string tar-file-name)))
+	      (if (not (string? target-md5-string))
+		  (begin
+		    ;; (format #t "OOps ~s is not a string~%" target-md5-string)
+		    #f)
+		  (if (not (string? md5-string))
+		      (begin
+			;; (format #t "OOps ~s is not a string~%" target-md5-string)
+			#f)
+		      (if (not (string=? target-md5-string md5-string))
+			  (begin
+			    ;;n(format #t "Oops: md5sums do not match ~s ~s.  Doing nothing~%"
+			    ;; target-md5-string md5-string)
+			    #f)
+			  #t)))))))
+
+  ;; return success status as a boolean
+  ;;
+  (define (install-coot-tar-file tar-file-name)
+    (let ((prefix-dir (getenv "COOT_PREFIX")))
+      (if (not (string? prefix-dir))
+	  (begin
+	    ;; (format #t "OOps could not get COOT_PREFIX~%")
+	    #f)
+	  (if (not (directory-is-modifiable? prefix-dir))
+	      (begin
+		;; (format #t "OOps directory ~s is not modifiable~%" prefix-dir)
+		#f)
+	      (let ((pending-dir (append-dir-file prefix-dir "pending-install")))
+		(if (not (file-exists? pending-dir))
+		    (mkdir pending-dir))
+		(begin
+		  (if (not (file-exists? pending-dir))
+		      (begin
+			;; (format #t "OOps could not create ~s~%" pending-dir)
+			#f)
+		      (let ((a-tar-file-name (absolutify tar-file-name)))
+			;; with-working-directory 
+			(let ((current-dir (getcwd)))
+			  (chdir pending-dir)
+			  (goosh-command "tar" (list "xzf" a-tar-file-name) '() "untar.log" #f)
+			  (chdir current-dir))
+			))))))))
+
+
+  ;; return as a string, or #f
+  (define (get-target-md5-string file-name)
+    (if (not (file-exists? file-name))
+	#f
+	(call-with-input-file file-name
+	  (lambda (port)
+	    (symbol->string (read port))))))
+
+  ;; return a string
+  (define (get-md5sum-string file-name)
+    (if (not (file-exists? file-name))
+	#f
+	(let* ((s (shell-command-to-string (string-append "md5sum " file-name)))
+	       (s-bits (string->list-of-strings s)))
+	  (format #t "get md5sum on ~s returns ~s~%" file-name s)
+	  (car s-bits))))
+
+
+  ;; main line
+  ;; 
+  (format #t "INFO:: run-download-binary-curl.... with revision ~s with version-string ~s~%" 
+	     revision version-string)
+  (let ((prefix (getenv "COOT_PREFIX")))
+    (if (not (string? prefix))
+	(begin
+	  (my-format "OOps! Can't find COOT_PREFIX~%")
+	  #f)
+	(let* ((pre-release-flag (string-match "-pre" (coot-version)))
+	       (ys "www.ysbl.york.ac.uk/~emsley/software/binaries/")
+	       (binary-type (coot-sys-build-type))
+	       (host-dir (cond 
+			  ((string=? binary-type "Linux-i386-fedora-3") ys)
+			  ((string=? binary-type "Linux-i386-fedora-3-python") ys)
+			  ((string=? binary-type "Linux-i386-fedora-8-python-gtk2") ys)
+			  ((string=? binary-type "Linux-i386-fedora-8-gtk2") ys)
+			  ((string=? binary-type "Linux-i386-fedora-10-python-gtk2") ys)
+			  ((string=? binary-type "Linux-i686-ubuntu-8.04.3") ys)
+			  ((string=? binary-type "Linux-i686-ubuntu-8.04.3-python") ys)
+			  (else 
+			   "www.biop.ox.ac.uk/coot/software/binaries/")))
+	       (tar-file-name (string-append version-string "-binary-" binary-type ".tar.gz"))
+	       (url 
+		(if (string-match "ysbl.york.ac.uk" host-dir)
+		    (if pre-release-flag 
+			(string-append "http://" host-dir "nightlies/pre-release/" tar-file-name)
+			(string-append "http://" host-dir "stable/"     tar-file-name))
+		    (if pre-release-flag 
+			(string-append "http://" host-dir "pre-releases/" tar-file-name)
+			(string-append "http://" host-dir "releases/"     tar-file-name))))
+	       (md5-url (string-append url ".md5sum"))
+	       (md5-tar-file-name (string-append tar-file-name ".md5sum")))
+	  
+	  (if (procedure? set-file-name-func)
+	      (begin
+		(format #t ":::::::::::::::::::::::::: set file-name-for-progress-bar ~s~%" 
+			tar-file-name)
+		(set-file-name-func tar-file-name))
+	      (begin
+		(format #t ":::::::::::: FAIL to set file-name-for-progress-bar :::::::::::: ~%")))
+
+	  (my-format "md5sum url for curl: ~s~%" md5-url)
+	  (my-format "url for curl: ~s~%" url)
+
+	  (coot-get-url-and-activate-curl-hook md5-url md5-tar-file-name 1)
+	  (coot-get-url-and-activate-curl-hook url tar-file-name 1)
+
+	  (if (not (file-exists? tar-file-name))
+	      (begin
+		;; (format #t "Ooops: ~s does not exist after attempted download~%" tar-file-name)
+		#f)
+	      (if (not (file-exists? md5-tar-file-name))
+		  (begin
+		    ;; (format #t "Ooops: ~s does not exist after attempted download~%" 
+		    ;; md5-tar-file-name)
+		    #f)
+		  (if (not (match-md5sums tar-file-name md5-tar-file-name))
+		      #f 
+		      (let ((success (install-coot-tar-file tar-file-name)))
+			(if success 
+			    (begin
+			      (pending-install-in-place-func)
+			      #t)
+			    (begin
+			      ;; (format #t "Ooops: untar of ~s failed~%" tar-file-name)
+			      #f))))))))))
+
+(define (get-revision-from-string str)
+  ;; e.g. str is "coot-0.6-pre-1-revision-2060" (with a newline at the
+  ;; end too).  We want to return 2060 (a number) from here (or #f).
+  (if (not (string? str))
+      #f
+      (if (= (string-length str) 0)
+	  #f
+	  (let* ((s (sans-final-newline str))
+		 (ls (separate-fields-discarding-char #\- s list)))
+	    (string->number (car (reverse ls)))))))
+
+;; first generate a version string with no trailing newline.
+;;
+;; e.g. input:  "coot-0.6.2-pre-1-revision-2765\n"
+;;      output: "coot-0.6.2-pre-1-revision-2765"
+;; 
+(define (coot-split-version-string str)
+  (let* ((ls (split-before-char #\c str list))
+	 (ls-2 (split-before-char #\" (car (reverse ls)) list))
+	 (ls-3 (split-before-char #\newline (car ls-2) list)))
+
+;     (format #t "notify-of-new-version str: ~s~%" str)
+;     (format #t "ls: ~s~%" ls)
+;     (format #t "ls-2: ~s~%" ls-2)
+;     (format #t "ls-3: ~s~%" ls-3)
+     (car ls-3)))
+
+
+;; a thread handling function
+;; 
+(define (coot-updates-error-handler key . args)
+  (format #t "error: finding updates: error in ~s with args ~s~%" key args))
+
+
+
+(define (update-self)
+  (let* ((url (make-latest-version-url))
+	 (version-string (coot-split-version-string (coot-get-url-as-string url)))
+	 (revision (get-revision-from-string version-string))
+	 (file-name-for-progress-bar #f)
+	 (pending-install-in-place #f))
+
+    (define (set-file-name-func file-name)
+      (set! file-name-for-progress-bar file-name))
+
+    (define (pending-install-in-place-func)
+      (set! pending-install-in-place #t))
+
+    (format #t "run-download-binary-curl with ~s ~s~%" revision version-string)
+    (let ((status 'unset))
+      (call-with-new-thread
+       (lambda()
+	 (set! status (run-download-binary-curl revision version-string
+						pending-install-in-place-func
+						set-file-name-func)))
+       coot-updates-error-handler))
+    
+    (let ((continue-status #t))
+      (while continue-status
+	     (if (string? file-name-for-progress-bar)
+		 (let ((curl-info (curl-progress-info file-name-for-progress-bar)))
+		   ;; (format #t "curl-info: ~s~%" curl-info)
+		   (if curl-info
+		       (let ((v1 (assoc 'content-length-download curl-info))
+			     (v2 (assoc 'size-download           curl-info)))
+			 (if (list v1)
+			     (if (list v2)
+				 (let ((f (/ (cdr v2) (cdr v1))))
+				   (format #t "~3,2f% " (* f 100))
+				   (if (> f 0.999) 
+				       (set! continue-status #f)))))))))
+	     (sleep 2)))))
+
+
+       
+	 
 
 	
 ; to determine if we have pygtk
