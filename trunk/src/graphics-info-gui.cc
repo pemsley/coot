@@ -1110,6 +1110,18 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
 
 #ifdef HAVE_GSL
 
+   // 20100209 allow the Escape key to be seen during the (initial)
+   // idle function running (before the refinment results dialog is
+   // shown).
+   // 
+   // I don't know why Esc is recognised after the dialog is shown,
+   // but not before.  Both before and after come through this idle
+   // function routine.  Pressing Esc while the dialog is up doesn't
+   // need this pending events/main iteration thing.
+   // 
+   while (gtk_events_pending())
+      gtk_main_iteration();
+   
    int retprog = graphics_info_t::drag_refine_refine_intermediate_atoms();
 
    if (retprog != GSL_CONTINUE) {
