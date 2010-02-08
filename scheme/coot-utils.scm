@@ -1198,8 +1198,8 @@
     (define tf
       (lambda (imol mat trans about-pt radius space-group cell)
 	
-	(format #t "DEBUG:: tf was passed imol: ~s, trans: ~s, about-pt: ~s, radius: ~s, space-group: ~s, cell: ~s~%"
-		imol mat trans about-pt radius space-group cell)
+;	(format #t "DEBUG:: tf was passed imol: ~s, trans: ~s, about-pt: ~s, radius: ~s, space-group: ~s, cell: ~s~%"
+;		imol mat trans about-pt radius space-group cell)
 
 	(transform-map-raw imol 
 			   (list-ref mat 0) 
@@ -1253,7 +1253,7 @@
 	    (list-ref args 1)
 	    (list-ref args 2)
 	    (list-ref args 3)
-	    (symmetry-operators->xHM (symmetry-operators imol))
+	    (show-spacegroup imol)
 	    (cell imol))))
      ((= (length args) 3) ; no matrix or about point specified
       (let ((imol (car args)))
@@ -1262,7 +1262,7 @@
 	    (list-ref args 1)
 	    (rotation-centre)
 	    (list-ref args 2)
-	    (symmetry-operators->xHM (symmetry-operators imol))
+	    (show-spacegroup imol)
 	    (cell imol))))
      (else
       (format #t "arguments to transform-map incomprehensible: args: ~s~%" args)

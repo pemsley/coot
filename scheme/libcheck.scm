@@ -108,9 +108,9 @@
   (define (libcheck-monomer-gui dir-prefix code-str cif-file-name 
 				pdb-file-name post-refmac-pdb-file-name)
 
-    (format #t "================= debug: libcheck-monomer-gui: dir-prefix: ~s   code-str: ~s   cif-file-name: ~s   pdb-file-name: ~s   post-refmac-pdb-file-name: ~s~%"
-	    dir-prefix code-str cif-file-name 
-	    pdb-file-name post-refmac-pdb-file-name)
+    ;; (format #t "================= debug: libcheck-monomer-gui: dir-prefix: ~s   code-str: ~s   cif-file-name: ~s   pdb-file-name: ~s   post-refmac-pdb-file-name: ~s~%"
+    ;; dir-prefix code-str cif-file-name 
+    ;; pdb-file-name post-refmac-pdb-file-name)
 
     (let* ((libcheck-input 
 	    (if (= (string-length dict-cif-libin) 0)
