@@ -112,6 +112,7 @@ parse_command_line(int argc, char ** argv ) {
       {"version-full",  0, 0, 0},       // no arguments 
       {"no-guano",   0, 0, 0},       // no arguments
       {"small-screen", 0, 0, 0},       // no arguments (setting for EEE PC and other small screens)
+      {"update-self", 0, 0, 0},  
       {0, 0, 0, 0}	       // must have blanks at end
    };
 
@@ -252,10 +253,15 @@ parse_command_line(int argc, char ** argv ) {
 					     } else {
 					        if (arg_str == "self-test") {
 						   cld.run_internal_tests_and_exit = 1;
-					        } else {
-						   std::cout << "WARNING! Malformed option - needs an argument: " 
-							     << long_options[option_index].name
-							     << std::endl << std::endl;
+						} else {
+						   if (arg_str == "update-self") {
+						      cld.update_self = 1;
+						      cld.do_graphics = 0;
+						   } else {
+						      std::cout << "WARNING! Malformed option - needs an argument: " 
+								<< long_options[option_index].name
+								<< std::endl << std::endl;
+						   }
 						}
 					     }
 					  }
@@ -333,6 +339,9 @@ void command_line_data::handle_immediate_settings() {
 
    if (script_is_python_flag)
       graphics_info_t::python_at_prompt_flag = 1;
+
+   if (update_self)
+      graphics_info_t::update_self = 1;
 
    // small screen
    if (small_screen_display && graphics_info_t::use_graphics_interface_flag) {

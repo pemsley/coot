@@ -6695,6 +6695,18 @@ void run_command_line_scripts() {
     }
 }
 
+void run_update_self_maybe() { // called when --update-self given at command line
+
+#ifdef USE_LIBCURL
+   if (graphics_info_t::update_self) {
+#ifdef USE_GUILE
+      safe_scheme_command("(update-self)");
+#endif // USE_GUILE
+   }
+
+#endif // USE_LIBCURL
+}
+
 
 void
 set_guile_gui_loaded_flag() { 

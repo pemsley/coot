@@ -3619,6 +3619,11 @@ string   static std::string sessionid;
    // flag.  This flag gets set in main(), from the command line
    // argument processing.
    static short int python_at_prompt_flag; 
+
+
+   // update self?
+   static bool update_self;
+
 };
 
 

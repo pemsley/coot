@@ -1121,6 +1121,10 @@ int graphics_info_t::update_go_to_atom_from_current_residue_key = GDK_p;
 //
 GdkCursorType graphics_info_t::pick_cursor_index = GDK_CROSSHAIR;
 
+// update self?
+bool graphics_info_t::update_self = 0;  // Set by command line arg --update-self
+
+
 // surface
 
 #if (GTK_MAJOR_VERSION == 1)
