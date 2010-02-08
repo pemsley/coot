@@ -2,16 +2,12 @@
 
     Points 40: April 4th
 
-    o Felix F SHELXL symmetry problem. ::: 2
-
-    o coot --update-self (runs in no-graphics mode.  Put the old
-      directories in a dated directory, version and revision. ::: 1
-
     o SBase GUI ::: 3
 
     o Make RSR interuptable ::: 2
 
-    o chemical component library interface ::: 4
+    o coot --update-self (runs in no-graphics mode.  Put the old
+      directories in a dated directory, version and revision. ::: 1
 
     o white background with ball and stick models. ::: 4
 
@@ -19,8 +15,6 @@
 
     o PIR alignment: on pressing the insertion button, go to the
       nearest residue to the gap. [Joel Bard] ::: 1 
-
-    o coordination number of waters validataion check ::: 5
 
     o PISA interfaces via XML  ::: 5
 
@@ -157,6 +151,8 @@ debug pos: 0 vs old go to atom mol: 1
 Debug:: fill_go_to_atom_residue_tree_gtk2 0
 
     ::: 0.2
+
+* Done.
     
     o If low res limit is not set in the Expert options (reading mtz)
       then neither limit is used [Randy Read]  ::: 0.2
@@ -175,7 +171,13 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 
     ::: 0.2
 
+* Done.
+
     o does rotate/translate zone (on a water) update symmetry? [Ezra
       Peisach] ::: 0.2
 
+* Done.
 
+    o Felix F SHELXL symmetry problem. ::: 0.2
+
+* Displaced residue (10 unit cells away) - Coot gives up generating symmetry atoms.

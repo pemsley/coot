@@ -676,6 +676,10 @@ Punted from 0.6:
 
  0.7 Priorities:
 
+   o coordination number of waters validataion check (punted) ::: 5 
+
+   o chemical component library interface (punted) ::: 4
+
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
      make_link_restraints_by_linear() has
      if (do_rama_plot_restraints)
