@@ -3039,8 +3039,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_Escape:
 
+      std::cout << "GDK_Escape pressed" << std::endl;
+
+      clear_up_moving_atoms();
+      
       if (graphics_info_t::accept_reject_dialog) {
-	 clear_up_moving_atoms();
 	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
 	   save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
 	   gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
@@ -3049,6 +3052,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 }
 	 graphics_info_t::accept_reject_dialog = 0;
       }
+      
       graphics_info_t::go_to_residue_keyboarding_string = ""; // reset.
       graphics_info_t::in_go_to_residue_keyboarding_mode = 0;
       handled = TRUE;

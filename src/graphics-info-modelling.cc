@@ -463,7 +463,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 					 bool need_residue_order_check,
 					 int imol,
 					 std::string chain_id_1) {
-   
+
    coot::refinement_results_t rr = rr_in;
    
    if (n_restraints > 0) {
