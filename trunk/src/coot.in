@@ -28,44 +28,51 @@ share
 include
 lib"
 
-   if [ -d $COOT_PREFIX/"old" ] ; then
-       rm -rf $COOT_PREFIX/"old"
+   old_dir="old"
+   old_dir=revision-$($coot_real --version | sed -e 's/.*revision //' -e 's/).*//')
+   echo in apply_pending_install COOT_PREFIX is set too $COOT_PREFIX
+
+   if [ -d $COOT_PREFIX/$old_dir ] ; then
+       rm -rf $COOT_PREFIX/$old_dir
    fi 
 
-   if [ ! -e $COOT_PREFIX/"old" ] ; then
-      mkdir $COOT_PREFIX/"old"
+   if [ ! -e $COOT_PREFIX/$old_dir ] ; then
+      mkdir $COOT_PREFIX/$old_dir
 
-      if [ -d $COOT_PREFIX/"old" ] ; then
+      if [ -d $COOT_PREFIX/$old_dir ] ; then
 
+	 # set $coot_bin_dir to the newly installed 
+         # coot-something directory in pending-install
+         # (if we can, that is).
+	 #
          t=$(echo $COOT_PREFIX/pending-install/coot*)
          if [ -e "$t" ] ; then 
             coot_bin_dir=$t
             echo set coot_bin_dir to $coot_bin_dir
-            echo coot_bin_dir is now 1 $coot_bin_dir
          else 
             echo situation too complicated to install - clean up pending installs.
          fi
-
-         echo coot_bin_dir is now 2 $coot_bin_dir
-
 
          if [ -z "$coot_bin_dir" ] ; then 
            echo coot_bin_dir not set.
          else 
             # continue, it's good
 
+	    echo =====================================================================
+	    echo ==================== installing fresh coot ==========================
+	    echo =====================================================================
+
             # move aside current dirs
             for dir in $dir_list
             do
 	      if [ -e "$COOT_PREFIX/$dir" ] ; then 
                  # echo move out $COOT_PREFIX/$dir $COOT_PREFIX/old/$dir
-                 mv $COOT_PREFIX/$dir $COOT_PREFIX/old/$dir
+                 mv $COOT_PREFIX/$dir $COOT_PREFIX/$old_dir/$dir
               else 
                  echo on move-out: "$COOT_PREFIX/$dir" does not exist.
               fi
             done
 
-           echo apply_pending_install 6
 
    	    # move in the new ones
             for dir in $dir_list
@@ -80,10 +87,10 @@ lib"
             done
          fi
       else 
-         echo WARNING:: $COOT_PREFIX/"old" could not be created.
+         echo WARNING:: $COOT_PREFIX/$old_dir could not be created.
       fi 
    else 
-       echo WARNING:: $COOT_PREFIX/"old" could not be removed, aborting new binary install
+       echo WARNING:: $COOT_PREFIX/$old_dir could not be removed, aborting new binary install
    fi
 
    echo  removing pending-install...

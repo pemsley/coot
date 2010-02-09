@@ -228,7 +228,7 @@ SCM curl_progress_info(const char *file_name) {
 	 r = scm_cons(scm_cons(scm_sym, scm_v), r);
       }
    } else {
-      std::cout << "Found no CURL handle for  " << f << std::endl;
+      // std::cout << "Found no CURL handle for  " << f << std::endl;
    } 
    return r;
 }
