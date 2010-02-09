@@ -67,7 +67,7 @@ libcoot_shelx_la_LIBADD = \
 
 # for non-simple coordinates things
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
-	coot-tree-extras.cc
+	coot-tree-extras.cc water-coordination.cc
 
 # needs more, mini-mol, geometry
 libcoot_coord_extras_la_LIBADD = \

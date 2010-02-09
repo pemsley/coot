@@ -729,6 +729,70 @@ namespace coot {
 						  short int apply_low_cutoff,
 						  short int apply_high_cuttoff);
 
+      class contact_atoms_info_t {
+      public:
+	 class contact_atom_t {
+	 public:
+	    double dist;
+	    CAtom *at;
+	    contact_atom_t(CAtom *contactor, CAtom *central_atom);
+	 };
+      private:
+	 std::vector<contact_atom_t> contact_atoms;
+	 CAtom *at;
+      public:
+	 contact_atoms_info_t() {
+	    at = NULL;
+	 }
+	 contact_atoms_info_t(CAtom *at_central_in, const contact_atom_t &con_at) {
+	    at = at_central_in;
+	    contact_atoms.push_back(con_at);
+	 }
+	 unsigned int size() const {
+	    return contact_atoms.size();
+	 }
+	 contact_atom_t &operator[](int i) {
+	    return contact_atoms[i];
+	 }
+	 bool matches_atom(CAtom *at_in) {
+	    return at_in == at;
+	 }
+	 void add(const contact_atom_t &con_at) {
+	    contact_atoms.push_back(con_at);
+	 }
+	 bool has_contacts(int n_contacts, double dist_max) const {
+	    bool r = 0; 
+	    if (size() >= n_contacts) {
+	       int n_local = 0;
+	       for (unsigned int i=0; i<contact_atoms.size(); i++) {
+		  if (contact_atoms[i].dist <= dist_max) {
+		     n_local++;
+		  }
+	       }
+	       if (n_local >= n_contacts)
+		  r = 1;
+	    }
+	    return r;
+	 }
+	 CAtom *central_atom() const { return at; }
+      };
+
+      class water_coordination_t {
+	 std::vector<contact_atoms_info_t> atom_contacts;
+	 void add_contact(CAtom *atom_contactor, CAtom *atom_central);
+      public:
+	 water_coordination_t(CMMDBManager *mol, realtype radius_limit);
+
+	 // I don't know what the "get" interface to
+	 // water_coordination_t should be. So I'll make one up:
+	 //
+	 std::vector<contact_atoms_info_t>
+	 get_highly_coordinated_waters(int n_contacts,  // at least n_contacts
+				       double dist_max) const; // within dist_max
+	 
+      };
+
+
       // The flanking residues (if any) are in the residue selection (SelResidues).
       // The flags are not needed now we have made adjustments in the calling
       // function.
