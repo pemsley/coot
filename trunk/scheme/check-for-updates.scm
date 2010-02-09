@@ -26,21 +26,6 @@
 
 
 
-;; return an absolute file-name for file-name or #f
-;;
-(define (absolutify file-name)
-
-  (if (not (string? file-name))
-      #f
-      (if (not (> (string-length file-name) 0))
-	  "/"
-	  (let ((first-char (substring file-name  0 1)))
-	    (if (string=? first-char "/")
-		file-name
-		(append-dir-file (getcwd) file-name))))))
-
-
-
 ;; Is this true?
 (define (get-stable-release-from-server-string str)
   str)
@@ -111,94 +96,115 @@
 				;; (format #t "count ~s, active-count ~s, f: ~s~%" count active-count f)
 				(gtk-progress-bar-update progress-bar f)))))))))))
 
+      ;; 
+      (define (set-progress-bar-full progress-bar)
+	(gtk-progress-bar-update progress-bar 1))
+	
+
       (define (set-file-name-func file-name)
 	(set! file-name-for-progress-bar file-name))
 
-      (define (pending-install-in-place-func)
-	(set! pending-install-in-place #t))
+      (define (pending-install-in-place-func val)
+	(set! pending-install-in-place val))
 
-      ;; 
-      ;; (format #t "running download-binary-dialog with version-string arg: ~s~%" version-string)
-      ;; 
-      (let ((s (string-append "   New revision available " 
-			      "for this binary type:   \n"
-			      (coot-sys-build-type)
-			      "\n"
-			      "\n"
-			      version-string))
-	    (revision (get-revision-from-string version-string)))
+      (define (do-download-dialog)
+	;; (format #t "running download-binary-dialog with version-string arg: ~s~%" version-string)
+	;; 
+	(let ((s (string-append "   New revision available " 
+				"for this binary type:   \n"
+				(coot-sys-build-type)
+				"\n"
+				"\n"
+				version-string))
+	      (revision (get-revision-from-string version-string)))
 
-	;; (format #t "DEBUG:: revision ~s from version-string: ~s~%" revision version-string)
+	  (let ((window (gtk-window-new 'toplevel))
+		(dialog-name "Download binary")
+		(main-vbox (gtk-vbox-new #f 6))
+		(cancel-button (gtk-button-new-with-label "  Cancel  "))
+		(ok-button (gtk-button-new-with-label "  Download and Pre-install "))
+		(buttons-hbox (gtk-hbox-new #f 6))
+		(progress-bar (gtk-progress-bar-new))
+		(h-sep (gtk-hseparator-new))
+		(info-string (gtk-label-new s)))
 
-	(let ((window (gtk-window-new 'toplevel))
-	      (dialog-name "Download binary")
-	      (main-vbox (gtk-vbox-new #f 6))
-	      (cancel-button (gtk-button-new-with-label "  Cancel  "))
-	      (ok-button (gtk-button-new-with-label "  Download and Pre-install "))
-	      (buttons-hbox (gtk-hbox-new #f 6))
-	      (progress-bar (gtk-progress-bar-new))
-	      (h-sep (gtk-hseparator-new))
-	      (info-string (gtk-label-new s)))
+	    (gtk-window-set-title window dialog-name)
+	    (gtk-box-pack-start buttons-hbox ok-button #t #f 6)
+	    (gtk-box-pack-start buttons-hbox cancel-button #t #f 6)
 
-	  (gtk-window-set-title window dialog-name)
-	  (gtk-box-pack-start buttons-hbox ok-button #t #f 6)
-	  (gtk-box-pack-start buttons-hbox cancel-button #t #f 6)
+	    (gtk-box-pack-start main-vbox info-string  #t #f 6) ;; not x padding, it is y padding
+	    (gtk-box-pack-start main-vbox h-sep        #t #f 6)
+	    (gtk-box-pack-start main-vbox buttons-hbox #t #f 6)
+	    (gtk-box-pack-start main-vbox progress-bar #t #t 6)
+	    (gtk-container-border-width main-vbox 6)
+	    
+	    (gtk-container-add window main-vbox)
+	    (gtk-container-border-width window 6)
 
-	  (gtk-box-pack-start main-vbox info-string  #t #f 6) ;; not x padding, it is y padding
-	  (gtk-box-pack-start main-vbox h-sep        #t #f 6)
-	  (gtk-box-pack-start main-vbox buttons-hbox #t #f 6)
-	  (gtk-box-pack-start main-vbox progress-bar #t #t 6)
-	  (gtk-container-border-width main-vbox 6)
-	  
-	  (gtk-container-add window main-vbox)
-	  (gtk-container-border-width window 6)
+	    (gtk-signal-connect cancel-button "clicked"
+				(lambda ()
+				  ;; stop the download process(es) if
+				  ;; they were running (they get set to
+				  ;; #f when they are not running)
+				  (if (string? file-name-for-progress-bar)
+				      (stop-curl-download file-name-for-progress-bar))
+				  (set! pending-install-in-place 'cancelled) ;; not fail
+				  (gtk-widget-destroy window)))
 
-	  (gtk-signal-connect cancel-button "clicked"
-			      (lambda ()
-				;; stop the download process(es) if
-				;; they were running (they get set to
-				;; #f when they are not running)
-				(if (string? file-name-for-progress-bar)
-				    (stop-curl-download file-name-for-progress-bar))
-				(set! pending-install-in-place 'cancelled) ;; not fail
-				(gtk-widget-destroy window)))
-
-	  (gtk-signal-connect ok-button "clicked"
-			      (lambda ()
-				(if (not (number? revision))
-				    (info-dialog "Failed to communicate with server")
-					 
-				    (begin
-				      (gtk-progress-set-show-text progress-bar #t)
-				      (call-with-new-thread
-				       (lambda ()
-					 (if (not (run-download-binary-curl revision version-string
-									    pending-install-in-place-func
-									    set-file-name-func))
-					     (begin
-					       (if (not (eq? pending-install-in-place 'cancelled))
-						   (set! pending-install-in-place 'fail)))))
-				       coot-updates-error-handler)
+	    (gtk-signal-connect ok-button "clicked"
+				(lambda ()
+				  (if (not (number? revision))
+				      (info-dialog "Failed to communicate with server")
 				      
-				      ;; and a timeout checking the progress of the download:
-				      (gtk-timeout-add 
-				       1000  (lambda ()
-					       (cond
-						((eq? pending-install-in-place 'fail)
-						 (gtk-widget-destroy window)
-						 (info-dialog "Failure to download and install binary")
-						 #f)
-						((eq? pending-install-in-place 'cancelled)
-						 #f) ; do nothing and stop timeout
-						(pending-install-in-place
-						 (gtk-widget-destroy window)
-						 (restart-dialog)
-						 #f)
-						(else
-						 (update-progress-bar progress-bar)
-						 #t))))))))
-				
-	  (gtk-widget-show-all window))))))
+				      (begin
+					(gtk-progress-set-show-text progress-bar #t)
+					(call-with-new-thread
+					 (lambda ()
+					   (if (not (run-download-binary-curl revision version-string
+									      pending-install-in-place-func
+									      set-file-name-func))
+					       (begin
+						 (if (not (eq? pending-install-in-place 'cancelled))
+						     (set! pending-install-in-place 'fail)))))
+					 coot-updates-error-handler)
+					
+					;; and a timeout checking the progress of the download:
+					(gtk-timeout-add 
+					 500  (lambda ()
+						 (cond
+						  ((eq? pending-install-in-place 'fail)
+						   (gtk-widget-destroy window)
+						   (info-dialog "Failure to download and install binary")
+						   #f)
+						  ((eq? pending-install-in-place 'cancelled)
+						   #f) ; do nothing and stop timeout
+						  ((eq? pending-install-in-place 'full) ; don't go yet
+						   (set-progress-bar-full progress-bar)
+						   #t)
+						  (pending-install-in-place
+						   (gtk-widget-destroy window)
+						   (restart-dialog)
+						   #f)
+						  (else
+						   (update-progress-bar progress-bar)
+						   #t))))))))
+	    (gtk-widget-show-all window))))
+
+
+      ;; main line
+      ;; 
+      (let ((coot-prefix (getenv "COOT_PREFIX")))
+
+	(if (not (directory-is-modifiable? coot-prefix))
+	    (begin
+	      (if (not (string? coot-prefix))
+		  (info-dialog "COOT_PREFIX is not set.  Download not started.")
+		  (info-dialog (string-append
+				"Directory " coot-prefix " is not modifiable.\n"
+				"Download/install not started."))))
+
+	    (do-download-dialog))))))
+
 
 
 		    
