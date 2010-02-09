@@ -53,6 +53,10 @@
 
 #include "graphics-info.h"
 
+// for file name globbing
+#include "cc-interface.hh"
+#include "coot-fileselections.h"
+
 bool close_float_p(float f1, float f2) {
 
    return (fabs(f1-f2) < 0.0001);
@@ -187,7 +191,8 @@ int test_internal_single() {
       // status = test_coot_atom_tree_proline();
       // status = test_ssm_sequence_formatting();
       // status = test_previous_water();
-      status = test_sbase();
+      // status = test_sbase();
+      status = test_coordinated_waters();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2073,6 +2078,39 @@ int test_sbase() {
 	 }
       }
    }
+   return status;
+}
+
+
+int test_coordinated_waters() {
+
+   int status = 0;
+   double water_limit = 2.9; // contacts need to be less than this to be written out.
+
+   int data_type = COOT_COORDS_FILE_SELECTION;
+   std::vector<std::string> file_names = filtered_by_glob("coot-download", data_type);
+   for (unsigned int i=0; i<file_names.size(); i++) {
+      atom_selection_container_t atom_sel = get_atom_selection(file_names[i]);
+      if (atom_sel.mol) { 
+	 coot::util::water_coordination_t wc(atom_sel.mol, 3.3);
+	 std::vector<coot::util::contact_atoms_info_t> water_contacts = 
+	    wc.get_highly_coordinated_waters(5, 2.9);
+	 if (water_contacts.size() > 0) {
+	    std::cout << "    " << water_contacts.size() << std::endl;
+	    for (unsigned int j=0; j<water_contacts.size(); j++) {
+	       std::cout << "       ";
+	       std::cout << water_contacts[j].central_atom();
+	       std::cout << "\n";
+	       for (unsigned int k=0; k<water_contacts[j].size(); k++) {
+		  coot::util::contact_atoms_info_t::contact_atom_t at = water_contacts[j][k];
+		  if (at.dist < water_limit) 
+		     std::cout << "              " << at.dist << "  " << at.at << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
+
    return status;
 } 
 
