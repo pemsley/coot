@@ -219,23 +219,41 @@
 
 		    
 	
-;; Test for prefix-dir (1) existing (2) being a directory (3)
-;; modifiable by user (ie. u+rwx).  prefix-dir must be a string.
+;; Test for prefix-dir (1) being a string (2) existing (3) being a
+;; directory (4) modifiable by user (ie. u+rwx).  prefix-dir must be a
+;; string.
 ;; 
 ;; Return #t or #f.
 ;; 
 (define (directory-is-modifiable? prefix-dir)
-  (if (not (file-exists? prefix-dir))
-      #f 
-      (let* ((s (stat prefix-dir))
-	     (t (stat:type s)))
-	(if (not (eq? t 'directory))
-	    #f ; not a directory
-	    (let ((p (stat:perms s)))
-	      ;; test the file permissions for rwx for user using bitwise logical 
-	      ;; operator on p (permissions). 448 is 256 + 128 + 64
-	      (let ((b #b111000000))
-		(= b (logand p b))))))))
+  (if (not (string? prefix-dir))
+      #f
+      (if (not (file-exists? prefix-dir))
+	  #f 
+	  (let* ((s (stat prefix-dir))
+		 (t (stat:type s)))
+	    (if (not (eq? t 'directory))
+		#f ; not a directory
+		(let ((p (stat:perms s)))
+		  ;; test the file permissions for rwx for user using bitwise logical 
+		  ;; operator on p (permissions). 448 is 256 + 128 + 64
+		  (let ((b #b111000000))
+		    (= b (logand p b)))))))))
+
+
+
+;; return an absolute file-name for file-name or #f
+;;
+(define (absolutify file-name)
+
+  (if (not (string? file-name))
+      #f
+      (if (not (> (string-length file-name) 0))
+	  "/"
+	  (let ((first-char (substring file-name  0 1)))
+	    (if (string=? first-char "/")
+		file-name
+		(append-dir-file (getcwd) file-name))))))
 
 
 
@@ -2515,6 +2533,7 @@
 
 	  (coot-get-url-and-activate-curl-hook md5-url md5-tar-file-name 1)
 	  (coot-get-url-and-activate-curl-hook url tar-file-name 1)
+	  (pending-install-in-place-func 'full)
 
 	  (if (not (file-exists? tar-file-name))
 	      (begin
@@ -2530,7 +2549,7 @@
 		      (let ((success (install-coot-tar-file tar-file-name)))
 			(if success 
 			    (begin
-			      (pending-install-in-place-func)
+			      (pending-install-in-place-func #t)
 			      #t)
 			    (begin
 			      ;; (format #t "Ooops: untar of ~s failed~%" tar-file-name)
@@ -2581,8 +2600,8 @@
     (define (set-file-name-func file-name)
       (set! file-name-for-progress-bar file-name))
 
-    (define (pending-install-in-place-func)
-      (set! pending-install-in-place #t))
+    (define (pending-install-in-place-func val)
+      (set! pending-install-in-place val))
 
     (let ((continue-status #t))
       (call-with-new-thread
@@ -2606,9 +2625,8 @@
 				   (format #t "~3,2f% " (* f 100))
 				   (if (> f 0.999) 
 				       (set! continue-status #f)))))))))
-	     (sleep 2)))))
-       
-	 
+	     (sleep 2))))
+  (coot-real-exit 0))
 
 	
 ; to determine if we have pygtk
