@@ -25,8 +25,42 @@ def describeEvent(days, label, off):
     tb.add_arrow((x1, 0))
     tb.draw()
     
-
 def predict_release(data):
+
+    cg_prediction = predict_release_by_crossing_graphs(data)
+    today = cg_prediction[2]
+    # print "%%cg_prediction: ", cg_prediction
+    dpb_prediction = predict_release_from_dev_points(data)
+    weight = get_weight(data)
+    pr_1 = cg_prediction[0]
+    pr_2 = dpb_prediction[0]
+    # print "%% combining pr_1 and pr_2 using weight ", pr_1, pr_2, weight
+    pred_x_combined = pr_1 * weight + pr_2 * (1.0 - weight)
+    pred_y_combined = cg_prediction[1] * weight + dpb_prediction[1] * (1.0 - weight)
+    # print "%% pred_x_combined ", pred_x_combined
+    # print "%% pred_y_combined ", pred_y_combined
+    return [pred_x_combined, pred_y_combined, today]
+
+def get_weight(data):
+    # return the weight, 0-1, how much emphasis should be put on the
+    # crossing-graphs-based prediction
+    last = len(data) -1
+    c1 = data[last][1]
+    c2 = data[last][2]
+    weight = c1/c2;
+    return weight
+
+def predict_release_from_dev_points(data):
+    last = len(data) -1
+    c2 = data[last][2]
+    c0 = data[0][2]
+    pred_x = c0 * 4/3.14159
+    pred_y = c0 * 2
+    # print "%% pred_x", pred_x
+    # print "%% pred_y", pred_y
+    return [pred_x, pred_y]
+
+def predict_release_by_crossing_graphs(data):
     last = len(data) -1
     if (last > 1):
         c1 = data[0][1]
