@@ -855,6 +855,7 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
    if (element == " I")
       bond_limit = 2.3; // C-I is 2.13 according to wikipedia
    float  bl2 = bond_limit * bond_limit;
+   float h_bl2 = 1.8 * 1.8; // 20100208 all bonds to hydrogens are less than 1.8A ? (guess)
    short int bond_added_flag = 0;
 
    if (res) {
@@ -872,9 +873,11 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
 
 	    // We compared squard bond distances (so that we don't
 	    // have to take the square root for everything of course).
-	    // 
+	    //
+	    std::string res_atom_ele = residue_atoms[i]->element;
 	    float len2 = (atom_pos - res_atom_pos).amplitude_squared();
-	    if (len2 < bl2) {
+	    if (((len2 <   bl2) && (res_atom_ele != " H")) ||
+		((len2 < h_bl2) && (res_atom_ele == " H"))) {
 	       std::string altconf1 = atom->altLoc;
 	       std::string altconf2 = residue_atoms[i]->altLoc;
 	       if ( (altconf1=="") || (altconf2=="") || (altconf1==altconf2) ) {
