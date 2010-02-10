@@ -804,7 +804,8 @@ int test_peptide_link() {
       float weight = 1.0;
       std::vector<coot::atom_spec_t> fixed_atom_specs;
       coot::restraints_container_t
-	 restraints(residues, geom, mol, fixed_atom_specs, xmap, weight);
+	 restraints(residues, geom, mol, fixed_atom_specs);
+      restraints.add_map(xmap, weight);
       std::string link_type = "";
       // restraints.find_link_type(residues[0].second,
       // 		residues[1].second,
@@ -880,7 +881,8 @@ restr_res_vector() {
       coot::protein_geometry geom;
       geom.init_standard();
       coot::restraints_container_t
-	 restraints(residues, geom, mol, fixed_atom_specs, xmap, weight);
+	 restraints(residues, geom, mol, fixed_atom_specs);
+      restraints.add_map(xmap, weight);
       restraints.make_restraints(geom, flags, 0, 0.0, 0, coot::NO_PSEUDO_BONDS);
       restraints.minimize(flags);
       restraints.write_new_atoms("ss-test.pdb");
@@ -2070,11 +2072,11 @@ int test_sbase() {
 	 status = 1;
 
 	 std::string test_name= "AMP";
-	 std::vector<std::string> v = t.geom.matching_sbase_residues_names(test_name);
+	 std::vector<std::pair<std::string,std::string> > v = t.geom.matching_sbase_residues_names(test_name);
 	 std::cout << "INFO:: " << v.size() << " matching residue names" << std::endl;
 	 for (unsigned int i=0; i<v.size(); i++) { 
 	    std::cout << "    " << i << " of " << v.size() << " "
-		      << v[i] << std::endl;
+		      << v[i].first << std::endl;
 	 }
       }
    }

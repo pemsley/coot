@@ -659,6 +659,7 @@ void spin_search_py(int imol_map, int imol, const char *chain_id, int resno, con
 std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_matching(const std::string &search_string, short int allow_minimal_descriptions_flag);
 
 void on_monomer_lib_search_results_button_press (GtkButton *button, gpointer user_data);
+void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer user_data);
 
 /*  ----------------------------------------------------------------------- */
 /*                  mutate                                                  */
@@ -782,7 +783,9 @@ void stop_curl_download(const char *file_name); // stop curling the to file_name
 // number) as an int and used with GPOINTER_TO_INT and GINT_TO_POINTER.
 int encode_ints(int i1, int i2);
 std::pair<int, int> decode_ints(int i);
+
 #ifdef USE_GUILE
+std::vector<coot::residue_spec_t> scm_to_residue_specs(SCM s);
 int key_sym_code_scm(SCM s_scm);
 #endif // USE_GUILE
 #ifdef USE_PYTHON

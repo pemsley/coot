@@ -716,6 +716,7 @@ int
 handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 
    int stat = 0;
+   bool use_sbase_molecules = 0;
    std::string t(text);
 
    // std::cout << "DEBUG:: handle_make_monomer_search " << text << std::endl;
@@ -723,14 +724,29 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    GtkWidget *vbox_current = lookup_widget(viewport, "monomer_search_results_vbox");
    GtkWidget *checkbutton =
       lookup_widget(viewport, "monomer_search_minimal_descriptions_checkbutton");
+   GtkWidget *use_sbase_checkbutton =
+      lookup_widget(viewport, "monomer_search_sbase_molecules_checkbutton");
+   
    short int allow_minimal_descriptions_flag = 0;
    GtkWidget *dialog = lookup_widget(viewport, "monomer_search_dialog");
 
    if (GTK_TOGGLE_BUTTON(checkbutton)->active)
       allow_minimal_descriptions_flag = 1;
-   
-   std::vector<std::pair<std::string, std::string> > v =
-      monomer_lib_3_letter_codes_matching(t, allow_minimal_descriptions_flag);
+
+   if (GTK_TOGGLE_BUTTON(use_sbase_checkbutton)->active)
+      use_sbase_molecules = 1;
+
+   graphics_info_t g;
+   std::vector<std::pair<std::string, std::string> > v;
+   if (! use_sbase_molecules) 
+      v = monomer_lib_3_letter_codes_matching(t, allow_minimal_descriptions_flag);
+   else 
+      v = g.Geom_p()->matching_sbase_residues_names(t);
+
+   std::cout << "DEBUG:: use_sbase_molecules: " << use_sbase_molecules
+	     << " found " << v.size() << " matching molecules "
+	     << " using string :" << t << ":" 
+	     << std::endl;
 
    // std::cout << "DEBUG:: " << v.size() << " solutions matching" << std::endl;
 
@@ -768,10 +784,12 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
       gtk_container_set_border_width (GTK_CONTAINER (button), 2);
 
-      gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			 GTK_SIGNAL_FUNC (on_monomer_lib_search_results_button_press),
-			 s);
-      
+      if (! use_sbase_molecules)
+	 gtk_signal_connect(GTK_OBJECT(button), "clicked",
+			    GTK_SIGNAL_FUNC (on_monomer_lib_search_results_button_press), s);
+      else
+	 gtk_signal_connect(GTK_OBJECT(button), "clicked",
+			    GTK_SIGNAL_FUNC (on_monomer_lib_sbase_molecule_button_press), s);
       gtk_widget_show(button);
    }
 
@@ -789,6 +807,14 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    return stat;
 
 } 
+
+void
+on_monomer_lib_sbase_molecule_button_press (GtkButton *button,
+					    gpointer user_data) {
+   std::string *s = (std::string *) user_data;
+   get_sbase_monomer(s->c_str());
+   
+}
 
 void
 on_monomer_lib_search_results_button_press (GtkButton *button,
@@ -1204,17 +1230,18 @@ SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, floa
   given string is a substring of the compound name */
 SCM matching_compound_names_from_sbase_scm(const char *compound_name_fragment) {
 
-#ifdef USE_SBASE
    graphics_info_t g;
-   std::vector<std::string> matching_comp_ids =
+   std::vector<std::pair<std::string, std::string> > matching_comp_ids =
       g.Geom_p()->matching_sbase_residues_names(compound_name_fragment);
    std::cout << "debug:: found " << matching_comp_ids.size() << " matching names"
 	     << std::endl;
-   SCM r = generic_string_vector_to_list_internal(matching_comp_ids);
+   // map!
+   std::vector<std::string> rv;
+   for (unsigned int i=0; i<matching_comp_ids.size(); i++)
+      rv.push_back(matching_comp_ids[i].first);
+   
+   SCM r = generic_string_vector_to_list_internal(rv);
    return r;
-#else
-   return SCM_EOL;
-#endif      
 }
 #endif
 

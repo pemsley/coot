@@ -1108,23 +1108,20 @@ SCM refine_residues_scm(int imol, SCM r) {
 }
 #endif // USE_GUILE
 
+#ifdef USE_GUILE
+SCM regularize_residues_scm(int imol, SCM r) { /* presumes the alt_conf is "". */
+   return regularize_residues_with_alt_conf_scm(imol, r, "");
+}
+#endif // USE_GUILE
+
+
 
 #ifdef USE_GUILE
 SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /* to be renamed later. */
 
    SCM rv = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
-      std::vector<coot::residue_spec_t> residue_specs;
-      SCM r_length_scm = scm_length(r);
-      int r_length = scm_to_int(r_length_scm);
-      for (unsigned int i=0; i<r_length; i++) {
-	 SCM res_spec_scm = scm_list_ref(r, SCM_MAKINUM(i));
-	 std::pair<bool, coot::residue_spec_t> res_spec =
-	    make_residue_spec(res_spec_scm);
-	 if (res_spec.first) {
-	    residue_specs.push_back(res_spec.second);
-	 } 
-      }
+      std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(r);
 
       if (residue_specs.size() > 0) {
 	 std::vector<CResidue *> residues;
@@ -1153,6 +1150,55 @@ SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /
    return rv;
 } 
 #endif // USE_GUILE
+
+#ifdef USE_GUILE
+SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) {
+   
+   SCM rv = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(r);
+
+      if (residue_specs.size() > 0) {
+	 std::vector<CResidue *> residues;
+	 for (unsigned int i=0; i<residue_specs.size(); i++) {
+	    coot::residue_spec_t rs = residue_specs[i];
+	    CResidue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    if (r) {
+	       residues.push_back(r);
+	    }
+	 }
+
+	 if (residues.size() > 0) {
+	    graphics_info_t g;
+	    CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+	    coot::refinement_results_t rr =
+	       g.regularize_residues_vec(imol, residues, alt_conf, mol);
+	    rv = g.refinement_results_to_scm(rr);
+	 }
+      }
+   }
+   return rv;
+}
+#endif // USE_GUILE
+
+#ifdef USE_GUILE
+std::vector<coot::residue_spec_t> scm_to_residue_specs(SCM r) { 
+   std::vector<coot::residue_spec_t> residue_specs;
+   SCM r_length_scm = scm_length(r);
+   int r_length = scm_to_int(r_length_scm);
+   for (unsigned int i=0; i<r_length; i++) {
+      SCM res_spec_scm = scm_list_ref(r, SCM_MAKINUM(i));
+      std::pair<bool, coot::residue_spec_t> res_spec =
+	 make_residue_spec(res_spec_scm);
+      if (res_spec.first) {
+	 residue_specs.push_back(res_spec.second);
+      } 
+   }
+   return residue_specs;
+}
+#endif // USE_GUILE
+
+
 
 #ifdef USE_PYTHON
 PyObject *refine_residues_py(int imol, PyObject *r) {

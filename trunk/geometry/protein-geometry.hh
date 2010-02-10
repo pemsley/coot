@@ -37,14 +37,9 @@
 
 #include "mmdb_mmcif.h"
 
-#define USE_SBASE
-
-#ifdef USE_SBASE 
-// needs #include "mmdb_sbase.h"
 #ifndef  __MMDB_SBase__
 #include "mmdb_sbase.h"
 #endif
-#endif // USE_SBASE
 
 #include "clipper/core/coords.h"
 
@@ -636,9 +631,7 @@ namespace coot {
    // consider molecule_geometry
    class protein_geometry {
       
-#ifdef USE_SBASE   
       PCSBase SBase; 
-#endif // USE_SBASE
 
       enum { MON_LIB_LIST_CIF = -999}; // A negative number special
 				       // flag to tell the reader that
@@ -856,12 +849,9 @@ namespace coot {
       protein_geometry() {
 	 read_number = 0;
 	 set_verbose(1);
-#ifdef USE_SBASE   
 	 SBase = NULL;
-#endif // USE_SBASE
       }
       
-#ifdef USE_SBASE   
       // SBase things
 
       // init_sbase() should return SBase_OK.  If not, trouble.
@@ -870,9 +860,8 @@ namespace coot {
       void read_sbase_residues();
       // return NULL on unable to make residue
       CResidue *get_sbase_residue(const std::string &res_name) const;
-      std::vector<std::string>
+      std::vector<std::pair<std::string, std::string> >
       matching_sbase_residues_names(const std::string &compound_name) const;
-#endif // USE_SBASE   
       
       // Refmac monomer lib things
       // 

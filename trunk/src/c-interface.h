@@ -2986,6 +2986,8 @@ void do_torsions_toggle(GtkWidget *button);
 #ifdef USE_GUILE
 SCM refine_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */
 SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); /* to be renamed later. */
+SCM regularize_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */
+SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); 
 #endif
 #ifdef USE_PYTHON
 PyObject *refine_residues_py(int imol, PyObject *r);  /* to be renamed later. */

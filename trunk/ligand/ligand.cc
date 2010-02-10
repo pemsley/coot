@@ -1754,6 +1754,22 @@ coot::ligand::install_ligand(const coot::minimol::molecule &ligand) {
 } 
 
 
+std::ostream&
+coot::operator<<(std::ostream &s, coot::ligand_score_card lsc) {
+
+   int n_ligand_atoms; // non-H.
+   int ligand_no;
+   short int many_atoms_fit;
+   double score;
+   double score_per_atom;
+
+   s << "[ligand-score: " << lsc.ligand_no << " score: " <<  lsc.score << " ("
+     << lsc.score_per_atom << ") many-atoms-fit: " << lsc.many_atoms_fit
+     << " n-atoms: " << lsc.n_ligand_atoms << "]";
+   return s;
+}
+
+
 
 // Externally accessible routine.
 //
@@ -1789,6 +1805,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 
    // for debugging
    write_orientation_solutions = 0;
+   bool debug = 0;
 
    minimol::molecule ior_holder;
    minimol::molecule overall_best_mol;  // over all ligands types
@@ -1819,9 +1836,10 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
       // if (similar_eigen_values(iclust, ilig)) { 
 	 if (!do_size_match_test ||
 	     (do_size_match_test && cluster_ligand_size_match(iclust, ilig))) {
-	    
-// 	    std::cout << "ligand " << ilig << " passes the size match test "
-// 		      << "for cluster number " << iclust << std::endl;
+
+	    if (debug) 
+	       std::cout << "ligand " << ilig << " passes the size match test "
+			 << "for cluster number " << iclust << std::endl;
 	    
 	    int n_rot = origin_rotations.size();
 	    if (dont_test_rotations)
@@ -1840,13 +1858,18 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 		  // fiddle with fitted_ligand_vec[i]
 		  this_scorecard = fit_ligand_copy(iclust, ilig, ior, eigen_orientations[i_eigen_ori]);
 
+		  if (debug)
+		     std::cout << "Post-fitting score_card is\n"
+			       << this_scorecard << std::endl;
+
 		  if (this_scorecard.score > best_ori_scorecard.score) {
 		     best_ori_scorecard = this_scorecard; 
 		     ior_holder = fitted_ligand_vec[ilig][iclust];
 		  }
 
-		  // 	       std::cout << "DEBUG:: this_scorecard.score " <<
-		  // 		  this_scorecard.score << std::endl;
+		  if (debug)
+		     std::cout << "DEBUG:: this_scorecard.score " <<
+			this_scorecard.score << std::endl;
 	       
 		  if ((this_scorecard.score > best_overall_scorecard.score) &&
 		      (this_scorecard.many_atoms_fit == 1)) {
@@ -2292,11 +2315,14 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
 				       const clipper::Xmap<float> &xmap_fitting) {
 
    int n_atoms = atoms_p->size();
-   int round_max = 200;
+   int round_max = 500;
    int iround = 0;
    double move_by_length = 1.0; // just to past test initially
+   double angle_sum = 1.0;      // as above
 
-   while ( (iround < round_max) && move_by_length > 0.0005) { 
+   while ((iround < round_max) &&
+	  ((move_by_length > 0.0005) || (angle_sum > 0.01))) {
+
       clipper::Coord_orth midpoint(0,0,0);
 //       std::cout << " at the start of the rigid body round " << iround
 // 		<< ", score is "
@@ -2367,13 +2393,23 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
 
       // Consider moving the generation (not application) of the
       // angles above the application of the translations.
-      // 
-//       std::cout << "Now to apply the angles: "
-// 		<< clipper::Util::rad2d(angles[0]) << " "
-// 		<< clipper::Util::rad2d(angles[1]) << " "
-// 		<< clipper::Util::rad2d(angles[2]) << std::endl;
+      //
+      if (0) 
+	 std::cout << "Now to apply the angles: "
+		   << clipper::Util::rad2d(angles[0]) << " "
+		   << clipper::Util::rad2d(angles[1]) << " "
+		   << clipper::Util::rad2d(angles[2]) << std::endl;
       if (atoms_p->size() > 1) 
 	 apply_angles_to_ligand(angles,atoms_p,mean_pos);
+
+      // set angle_sum for next round
+      angle_sum = 0.0;
+      angle_sum += fabs(clipper::Util::rad2d(angles[0]));
+      angle_sum += fabs(clipper::Util::rad2d(angles[1]));
+      angle_sum += fabs(clipper::Util::rad2d(angles[2]));
+      if (0) 
+	 std::cout << "       round " << iround << " moved: " << move_by_length
+		   << " angle_sum: " << angle_sum << std::endl;
       
       iround++;
    } // irounds
@@ -2468,17 +2504,21 @@ coot::ligand::apply_angles_to_ligand(const clipper::Vec3<double> &angles ,
 
    double sin_t;
    double cos_t;
+   double scale_factor = 1.0;
+   unsigned int n_atoms = atoms_p->size();
+   if (n_atoms > 2)
+      scale_factor = 1.5/double(sqrt(n_atoms));
 
-   sin_t = sin(-angles[0]);
-   cos_t = cos(-angles[0]);
+   sin_t = sin(-scale_factor*angles[0]);
+   cos_t = cos(-scale_factor*angles[0]);
    clipper::Mat33<double> x_mat(1,0,0, 0,cos_t,-sin_t, 0,sin_t,cos_t);
 
-   sin_t = sin(-angles[1]);
-   cos_t = cos(-angles[1]);
+   sin_t = sin(-scale_factor*angles[1]);
+   cos_t = cos(-scale_factor*angles[1]);
    clipper::Mat33<double> y_mat(cos_t,0,sin_t, 0,1,0, -sin_t,0,cos_t);
 
-   sin_t = sin(-angles[2]);
-   cos_t = cos(-angles[2]);
+   sin_t = sin(-scale_factor*angles[2]);
+   cos_t = cos(-scale_factor*angles[2]);
    clipper::Mat33<double> z_mat(cos_t,-sin_t,0, sin_t,cos_t,0, 0,0,1);
 
    clipper::Mat33<double> angle_mat = x_mat * y_mat * z_mat;
@@ -2525,12 +2565,18 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
    if (atoms.size() > 0) { 
       // fit_fraction is initially 0.75, but can be changed by an public member 
       // function.
-      if (n_non_hydrogens > 0) { 
+      if (n_non_hydrogens > 0) {
+	 score_card.set_n_ligand_atoms(n_non_hydrogens);
+	 if (0) 
+	    std::cout << "fit fraction test: is " << n_positive_atoms << "/"
+		      << n_non_hydrogens << " (" 
+		      << float(n_positive_atoms)/float(n_non_hydrogens)
+		      << ") < " << fit_fraction << std::endl;
 	 if ( float(n_positive_atoms)/float(n_non_hydrogens) >= fit_fraction ) { // arbitary
 	    score_card.many_atoms_fit = 1; // consider using a member function
 	    score_card.score_per_atom = score_card.score/float(n_non_hydrogens);
 	 } else {
-	 // std::cout << "badly fitting atoms: " << std::endl;
+	    std::cout << "badly fitting atoms, failing fit_fraction test " << std::endl;
 	 }
       } else {
 	 // Pathalogical case.  No non-hydrogens in ligand.  This code

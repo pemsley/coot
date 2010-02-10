@@ -4,7 +4,6 @@
 #include "coot-utils.hh"
 #include "protein-geometry.hh"
 
-#ifdef USE_SBASE
 void
 coot::protein_geometry::read_sbase_residues() {
 
@@ -37,9 +36,7 @@ coot::protein_geometry::read_sbase_residues() {
       std::cout << "WARNING:: SBase not initialised"  << std::endl;
    } 
 }
-#endif // USE_SBASE
 
-#ifdef USE_SBASE
 CResidue *
 coot::protein_geometry::get_sbase_residue(const std::string &res_name) const {
 
@@ -62,15 +59,13 @@ coot::protein_geometry::get_sbase_residue(const std::string &res_name) const {
    }
    return residue_p;
 }
-#endif // USE_SBASE
 
 
-#ifdef USE_SBASE
-std::vector<std::string>
+std::vector<std::pair<std::string, std::string> >
 coot::protein_geometry::matching_sbase_residues_names(const std::string &compound_name_frag) const {
 
    std::string compound_name = coot::util::upcase(compound_name_frag);
-   std::vector<std::string> v;
+   std::vector<std::pair<std::string,std::string> > v;
    if (SBase) {
       int nStructures = SBase->GetNofStructures();
       CFile *sf = SBase->GetStructFile();
@@ -84,8 +79,8 @@ coot::protein_geometry::matching_sbase_residues_names(const std::string &compoun
 		  if (0) 
 		     std::cout << "DEBUG:: " << imatch << " :" << compound_name
 			       << ": found in " << sbase_residue_name << std::endl;
-		  std::string sbase_comp_id = SBS->compoundID;
-		  v.push_back(sbase_comp_id);
+		  std::pair<std::string,std::string> p(SBS->compoundID, SBS->Name);
+		  v.push_back(p);
 	       }
 	    }
 	 }
@@ -93,10 +88,8 @@ coot::protein_geometry::matching_sbase_residues_names(const std::string &compoun
    }
    return v;
 }
-#endif // USE_SBASE
 
 
-#ifdef USE_SBASE
 // return mmdb sbase return codes
 //
 // Try to use the MONOMER_DIR_STR, ie. COOT_SBASE_DIR first, if that
@@ -132,4 +125,3 @@ coot::protein_geometry::init_sbase(const std::string &sbase_monomer_dir_in) {
    }
    return RC; 
 }
-#endif // USE_SBASE

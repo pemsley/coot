@@ -1155,14 +1155,15 @@ namespace coot {
       // reisdues).
       //
       // Consider also a regularize version of this (without map and
-      // weight)
+      // weight).
+      // 
+      // 20100210 that is what we have now, we use add_map() for the
+      // restraints that fit to a map.
       // 
       restraints_container_t(const std::vector<std::pair<bool,CResidue *> > &residues,
 			     const coot::protein_geometry &geom,			     
 			     CMMDBManager *mol,
-			     const std::vector<atom_spec_t> &fixed_atom_specs,
-			     const clipper::Xmap<float> &map_in,
-			     float map_weight);
+			     const std::vector<atom_spec_t> &fixed_atom_specs);
 
       // 
       // geometric_distortions not const because we set restraints_usage_flag:

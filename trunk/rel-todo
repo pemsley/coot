@@ -2,12 +2,14 @@
 
     Points 40: April 4th
 
-    o SBase GUI ::: 3
+    o accept sphere refine when geometry graph is displayed -> crash. ::: 1
 
-    o coot --update-self (runs in no-graphics mode.  Put the old
-      directories in a dated directory, version and revision. ::: 1
+    o On assigning sequence (after baton building etc) Coot gives me a
+      dialog that says the confidence is not sufficiently high for an
+      assigment - although an assigment was made ::: 0.5
 
-    o white background with ball and stick models. ::: 4
+    o Edit -> restraints for XX6, plane restraints sigma.  Close edit
+      again -> fail.  Also Take N2 and O out of plane restraints.  ::: 2
 
     o get reverse NCS skip working ::: 2
 
@@ -23,18 +25,12 @@
     o roll up/collapse addition representation in Display manager when
       they are not displayed ::: 2
 
-    o Edit -> restraints for XX6, plane restraints sigma.  Close edit
-      again -> fail.  Also Take N2 and O out of plane restraints.  ::: 2
+    o alt confs cause problems in geometry graph [JED] ::: 2
 
-   o Regularize Sphere ::: 2
+    o show-spacegroup should be deprecated.  use SCM space_group_scm()
+      (etc) ::: 1
 
-   o On assigning sequence (after baton building etc) Coot gives me a
-     dialog that says the confidence is not sufficiently high for an
-     assigment - although an assigment was made ::: 0.5
-
-   o alt confs cause problems in geometry graph [JED] ::: 2
-
-   o bad-rigid-body-atom-set.pdb fails to rigid body refine.  Why?  ::: 2
+    o white background with ball and stick models. ::: 4
 
 
 ------
@@ -183,3 +179,26 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
     o Make RSR interuptable ::: 2
 
 * Done.
+
+    o Fix transform map interface for 5 arguments  ::: 0.2
+
+* Done.
+
+    o SBase GUI ::: 2
+
+* Done.
+
+    o coot --update-self (runs in no-graphics mode.  Put the old
+      directories in a dated directory, version and revision. ::: 1
+
+* Done.
+
+    o bad-rigid-body-atom-set.pdb fails to rigid body refine.  Why? 
+     (instability in the minimizer!) ::: 1.5
+ 
+* Done.
+
+    o Regularize Sphere ::: 0.6
+
+* Done.
+
