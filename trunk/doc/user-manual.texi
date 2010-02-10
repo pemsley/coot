@@ -301,8 +301,9 @@ following command line arguments:
 @item @code{--code @emph{accession-code}} on starting Coot, get the pdb file and mtz file (if it 
         exists) from the EDS
 @item @code{--no-guano} don't leave ``Coot droppings'' i.e. don't write state and 
-        history files on exit.
+        history files on exit
 @item @code{--side-by-side} start in side-by-side stereo mode
+@item @code{--update-self} command-line mode to update the coot to the latest pre-release on the server
 @item @code{--python} an argument with no parameters - used to tell Coot that 
         the -c arguments should be process as python (rather than as scheme).
 @end itemize
@@ -3478,7 +3479,8 @@ From MTZ, mmCIF and .phs
 data use @command{File -> Open MTZ, CIF or phs@dots{}}. You can then
 choose the MTZ columns for the Fourier synthesis.  The button ``Expert
 mode'' also adds to the options any anomalous columns you may have in
-the MTZ file.  It also provides the option to apply resolution limits.
+the MTZ file (a -90 degree phase shift will be applied).  It also
+provides the option to apply resolution limits.
 
 From a CCP4
 map use @command{File -> Read Map}.  After being
