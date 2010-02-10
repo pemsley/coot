@@ -208,6 +208,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--side-by-side]\n"
 			       << "            [--version]"
 			       << "            [--version-full]"
+			       << "            [--update-self]"
 			       << "            [--self-test]"
 			       << "            [--no-state-script]\n"
 			       << "            [--no-splash-screen]\n"

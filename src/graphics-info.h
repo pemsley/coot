@@ -847,9 +847,7 @@ public:
       cif_dictionary_read_number = geom_p->init_standard();
       geom_p->add_planar_peptide_restraint();
 
-#ifdef USE_SBASE
       geom_p->init_sbase(".");
-#endif // USE_SBASE
 
       // rotamer probabilitiles
       // guess we shall rather use COOT_DATA_DIR and only as fallback PKGDATADIR?!
@@ -2105,13 +2103,19 @@ public:
      generate_molecule_and_refine(int imol,  // needed for UDD Atom handle transfer
 				  const std::vector<CResidue *> &residues,
 				  const char *alt_conf,
-				  CMMDBManager *mol);
+				  CMMDBManager *mol, 
+				  bool use_map_flag);
 
    coot::refinement_results_t
      refine_residues_vec(int imol, 
 			 const std::vector<CResidue *> &residues,
 			 const char *alt_conf,
 			 CMMDBManager *mol);
+   coot::refinement_results_t
+     regularize_residues_vec(int imol, 
+			     const std::vector<CResidue *> &residues,
+			     const char *alt_conf,
+			     CMMDBManager *mol);
 			       
 
    // on reading a pdb file, we get a list of residues, use these to

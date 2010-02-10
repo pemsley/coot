@@ -1191,7 +1191,8 @@ molecule_class_info_t::apply_sequence(int imol_map, CMMDBManager *poly_ala_mol,
 	 poly_ala_chain_p = poly_ala_model_p->GetChain(ichain);
 	 int nres = poly_ala_chain_p->GetNumberOfResidues();
 	 PCResidue poly_ala_residue_p;
-	 for (int ires=0; ires<nres; ires++) { 
+	 for (int ires=0; ires<nres; ires++) {
+	    istat = 1;
 	    poly_ala_residue_p = poly_ala_chain_p->GetResidue(ires);
  	    auto_fit_best_rotamer(poly_ala_residue_p->GetSeqNum(), "",
  				  poly_ala_residue_p->GetInsCode(),

@@ -68,7 +68,12 @@ namespace coot {
       void set_ligand_number(int ilig) {
 	 ligand_no = ilig;
       }
+      void set_n_ligand_atoms(int n) {
+	 n_ligand_atoms = n;
+      }
+      friend std::ostream& operator<<(std::ostream &s, ligand_score_card lsc);
    };
+   std::ostream& operator<<(std::ostream &s, ligand_score_card lsc);
 
    // Trivial class so that we can pass the (best orientation) ligand
    // back to fit_ligands_to_clusters()

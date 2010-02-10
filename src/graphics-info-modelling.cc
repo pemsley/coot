@@ -539,7 +539,8 @@ graphics_info_t::refine_residues_vec(int imol,
 				     const char *alt_conf, 
 				     CMMDBManager *mol) {
 
-   coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol);
+   bool use_map_flag = 1;
+   coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
    short int istat = rr.found_restraints_flag;
    if (istat) {
       graphics_draw();
@@ -553,20 +554,43 @@ graphics_info_t::refine_residues_vec(int imol,
    return rr;
 }
 
+coot::refinement_results_t 
+graphics_info_t::regularize_residues_vec(int imol, 
+					 const std::vector<CResidue *> &residues,
+					 const char *alt_conf, 
+					 CMMDBManager *mol) {
+
+   bool use_map_flag = 0;
+   coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
+   short int istat = rr.found_restraints_flag;
+   if (istat) {
+      graphics_draw();
+      if (! refinement_immediate_replacement_flag) {
+	 if (use_graphics_interface_flag) { 
+	    do_accept_reject_dialog("Regularization", rr);
+	    check_and_warn_bad_chirals_and_cis_peptides();
+	 }
+      }
+   }
+   return rr;
+}
 
 // simple CResidue * interface to refinement.  20081216
+//
+// Needs use_map flag, I guess
+// 
 coot::refinement_results_t
 graphics_info_t::generate_molecule_and_refine(int imol,
 					      const std::vector<CResidue *> &residues,
 					      const char *alt_conf,
-					      CMMDBManager *mol) { 
+					      CMMDBManager *mol,
+					      bool use_map_flag) { 
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
    
 #ifdef HAVE_GSL
 
-   if (is_valid_map_molecule(Imol_Refinement_Map())) {
-      clipper::Xmap<float> xmap = molecules[Imol_Refinement_Map()].xmap_list[0];
+   if (is_valid_map_molecule(Imol_Refinement_Map()) || (! use_map_flag)) {
       float weight = geometry_vs_map_weight;
       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
       short int do_residue_internal_torsions = 0;
@@ -627,7 +651,12 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  local_residues.push_back(std::pair<bool, CResidue *>(0, residues_mol_and_res_vec.second[i]));
 	       coot::restraints_container_t restraints(local_residues, *Geom_p(),
 						       residues_mol_and_res_vec.first,
-						       fixed_atom_specs, xmap, weight);
+						       fixed_atom_specs);
+
+	       if (use_map_flag) { 
+		  clipper::Xmap<float> &xmap = molecules[Imol_Refinement_Map()].xmap_list[0];
+		  restraints.add_map(xmap, weight);
+	       }
 	 
 	       int n_restraints = restraints.make_restraints(*Geom_p(), flags,
 							     do_residue_internal_torsions,
@@ -1715,6 +1744,7 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
 				bool mask_water_flag) {
 
    bool success = 0; // fail initially
+   bool debug = 0;
    
    std::vector<coot::minimol::atom *> range_atoms = range_mol.select_atoms_serial();
    //       std::cout << "There are " << range_atoms.size() << " atoms from initial ligand "
@@ -1722,7 +1752,7 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
 
 
    // debugging
-   if (0) {
+   if (debug) {
       range_mol.write_file("rigid-body-range-mol.pdb", 44);
       mol_without_moving_zone.write_file("rigid-body-without-moving-zone.pdb", 44);
    } 
@@ -1735,6 +1765,8 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
    lig.find_centre_by_ligand(0); // don't test ligand size
    lig.set_map_atom_mask_radius(0.5);
    lig.mask_map(mol_without_moving_zone, mask_water_flag);
+   if (debug)
+      lig.output_map("rigid-body.map");
    lig.set_dont_write_solutions();
    lig.set_dont_test_rotations();
    lig.set_acceptable_fit_fraction(graphics_info_t::rigid_body_fit_acceptable_fit_fraction);

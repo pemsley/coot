@@ -203,16 +203,12 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 coot::restraints_container_t::restraints_container_t(const std::vector<std::pair<bool,CResidue *> > &residues,
 						     const coot::protein_geometry &geom,
 						     CMMDBManager *mol,
-						     const std::vector<atom_spec_t> &fixed_atom_specs,
-						     const clipper::Xmap<float> &map_in,
-						     float map_weight_in) {
+						     const std::vector<atom_spec_t> &fixed_atom_specs) {
    from_residue_vector = 1;
    lograma.init(LogRamachandran::All, 2.0, true);
    init_from_residue_vec(residues, geom, mol, fixed_atom_specs);
-   map = map_in;
-   map_weight = map_weight_in;
-   include_map_terms_flag = 1;
 }
+
 
 
 // What are the rules for dealing with alt conf in flanking residues?

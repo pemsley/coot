@@ -149,6 +149,8 @@ int cootaneer(int imol_map, int imol_model, SCM atom_in_fragment_atom_spec) {
       istat = cootaneer_internal(imol_map, imol_model, atom_spec);
       graphics_draw();
    }
+   std::cout << "debug:: ======================== cootaneer returns status "
+	     << istat;
    return istat;
 }
 #endif // USE_GUILE
@@ -248,6 +250,9 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 								  mmdb_info.first, mmdb_residues, bestseq,
 								  chain_id, chnoff+1,
 								  *g.Geom_p());
+
+			std::cout << "debug:: ======================== apply_sequence() returns "
+				  << istat;
 		     }
 		  }
 	       } else {
