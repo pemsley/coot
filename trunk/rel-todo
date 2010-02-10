@@ -4,10 +4,6 @@
 
     o accept sphere refine when geometry graph is displayed -> crash. ::: 1
 
-    o On assigning sequence (after baton building etc) Coot gives me a
-      dialog that says the confidence is not sufficiently high for an
-      assigment - although an assigment was made ::: 0.5
-
     o Edit -> restraints for XX6, plane restraints sigma.  Close edit
       again -> fail.  Also Take N2 and O out of plane restraints.  ::: 2
 
@@ -199,6 +195,12 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 * Done.
 
     o Regularize Sphere ::: 0.6
+
+* Done.
+
+    o On assigning sequence (after baton building etc) Coot gives me a
+      dialog that says the confidence is not sufficiently high for an
+      assigment - although an assigment was made ::: 0.5
 
 * Done.
 
