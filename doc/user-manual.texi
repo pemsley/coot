@@ -2087,7 +2087,7 @@ within 3.5@AA{} of the residue at the centre of the screen:
 (add-key-binding "Refine residues in a sphere" "R"
     (lambda ()
       (let ((active-atom (active-residue)))
-        (if (list? active-atom))
+        (if (list? active-atom)
             (let* ((centred-residue (list-head (cdr active-atom) 3))
                    (imol (car active-atom))
                    (other-residues (residues-near-residue 
