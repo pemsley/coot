@@ -141,6 +141,7 @@ int blob_under_pointer_to_screen_centre() {
 
    int r = 0;
    int imol_map = imol_refinement_map();
+   graphics_info_t g;
    if (imol_map != -1) {
       // OK we have a map to search.
       coot::Cartesian front = unproject(0.0);
@@ -151,12 +152,12 @@ int blob_under_pointer_to_screen_centre() {
 	 clipper::Coord_orth blob =
 	    graphics_info_t::molecules[imol_map].find_peak_along_line_favour_front(p1, p2);
 	 coot::Cartesian cc(blob.x(), blob.y(), blob.z());
-	 graphics_info_t g;
 	 g.setRotationCentre(cc);
 	 for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
 	    graphics_info_t::molecules[ii].update_map();
 	    graphics_info_t::molecules[ii].update_symmetry();
 	 }
+	 g.make_pointer_distance_objects();
 	 graphics_draw();
       }
       catch (std::runtime_error mess) {
