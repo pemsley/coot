@@ -3568,6 +3568,7 @@ graphics_info_t::pointer_distances_objects() {
    }
 } 
 
+// update_pointer_distances() you might say
 void
 graphics_info_t::make_pointer_distance_objects() {
 

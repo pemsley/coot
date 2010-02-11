@@ -4,12 +4,12 @@
 
     o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
 
-    o make pointer distances update on go-to-blob [JED] ::: 0.5
-
     o Edit -> restraints for XX6, plane restraints sigma.  Close edit
       again -> fail.  Also Take N2 and O out of plane restraints.  ::: 2
 
     o get reverse NCS skip working ::: 2
+
+    o undisplay merged molecules ::: 0.5
 
     o make a mini-rsr ::: 1
 
@@ -210,7 +210,11 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 
     o accept sphere refine when geometry graph is displayed -> crash. [JED] 
       Test terminal output with geometry graph up, with sphere refine and linear refine.
-      ::: 4
+      ::: 3
 
+* Done.
+
+    o make pointer distances update on go-to-blob [JED] ::: 0.3
+   
 * Done.
 
