@@ -1068,7 +1068,7 @@ graphics_info_t::accept_moving_atoms() {
    } else {
       bool mzo = refinement_move_atoms_with_zero_occupancy_flag;
       if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) { 
-	 molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1, mzo);
+	 molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1, mzo); // doesn't dealloc moving_atoms_asc
 	 update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
       } else {
 	 if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {

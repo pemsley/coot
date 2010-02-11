@@ -215,13 +215,222 @@ coot::geometry_graphs::render_to_canvas(const coot::geometry_distortion_info_con
    draw_chain_axis_tick_and_tick_labels(min_resno, max_resno, chain_number);
    // std::cout << "DEBUG:: resizing blocks[" << chain_number << "] to " << nres << std::endl;
    blocks[chain_number].resize(nres + 1); // needs to index max_resno
-   render_geometry_distortion_blocks_internal(dc, min_resno, max_resno);
+   render_geometry_distortion_blocks_internal_linear(dc, min_resno, max_resno);
    label_chain(dc.chain_id, chain_number); // labels last so they are on top.
 
 }
 
 void
-coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::geometry_distortion_info_container_t &dc,
+coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::geometry_distortion_info_container_t &dc) {
+
+   std::map<coot::residue_spec_t, std::pair<double, std::string> > residue_distortions; // for block height
+   std::map<coot::residue_spec_t, std::pair<coot::geometry_distortion_info_t, std::string> > worst_distortions;
+   int chain_number = chain_id_to_chain_index(dc.chain_id);
+
+   int idx_1, idx_2, idx_3, idx_4;
+   realtype occ_1, occ_2, occ_3;
+   for (unsigned int i=0; i<dc.geometry_distortion.size(); i++) {
+      
+      if (dc.geometry_distortion[i].restraint.restraint_type == coot::BOND_RESTRAINT) {
+	 idx_1 = dc.geometry_distortion[i].restraint.atom_index_1;
+	 idx_2 = dc.geometry_distortion[i].restraint.atom_index_2;
+	 coot::residue_spec_t rs_1(dc.atom[idx_1]->GetResidue());
+	 coot::residue_spec_t rs_2(dc.atom[idx_2]->GetResidue());
+	 occ_1 = sane_occupancy(dc.atom[idx_1]->occupancy);
+	 occ_2 = sane_occupancy(dc.atom[idx_2]->occupancy);
+	 coot::geometry_distortion_info_t extra_distortion = dc.geometry_distortion[i];
+	 
+	 // we try here because if worst_distortions[rs_] is undefined
+	 // (as it will be the first time we use it then we are doing
+	 // a comparison against an undefined distorition
+	 // 
+	 try { 
+	    if (extra_distortion < worst_distortions[rs_1].first) {
+	    } else {
+	       worst_distortions[rs_1].first = extra_distortion;
+	       worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);
+	    }
+	 }
+	 catch (std::runtime_error rte) {
+	    if (extra_distortion.initialised_p()) { 
+	       worst_distortions[rs_1].first = extra_distortion;
+	       worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);
+	    }
+	 }
+	 residue_distortions[rs_1].first += 0.5 * extra_distortion.distortion_score * occ_1;
+	 residue_distortions[rs_2].first += 0.5 * extra_distortion.distortion_score * occ_2;
+      }
+
+      if (dc.geometry_distortion[i].restraint.restraint_type == coot::ANGLE_RESTRAINT) {
+	 idx_1 = dc.geometry_distortion[i].restraint.atom_index_1;
+	 idx_2 = dc.geometry_distortion[i].restraint.atom_index_2;
+	 idx_3 = dc.geometry_distortion[i].restraint.atom_index_2;
+	 coot::residue_spec_t rs_1(dc.atom[idx_1]->GetResidue());
+	 coot::residue_spec_t rs_2(dc.atom[idx_2]->GetResidue());
+	 coot::residue_spec_t rs_3(dc.atom[idx_3]->GetResidue());
+	 occ_1 = sane_occupancy(dc.atom[idx_1]->occupancy);
+	 occ_2 = sane_occupancy(dc.atom[idx_2]->occupancy);
+	 occ_3 = sane_occupancy(dc.atom[idx_3]->occupancy);
+	 coot::geometry_distortion_info_t extra_distortion = dc.geometry_distortion[i];
+	 
+	 // we try here because if worst_distortions[rs_] is undefined
+	 // (as it will be the first time we use it then we are doing
+	 // a comparison against an undefined distorition
+	 // 
+	 try { 
+	    if (extra_distortion < worst_distortions[rs_1].first) {
+	    } else {
+	       worst_distortions[rs_1].first = extra_distortion;
+	       worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);
+	    }
+	 }
+	 catch (std::runtime_error rte) {
+	    if (extra_distortion.initialised_p()) { 
+	       worst_distortions[rs_1].first = extra_distortion;
+	       worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);
+	    }
+	 }
+	 residue_distortions[rs_1].first += 0.333 * extra_distortion.distortion_score * occ_1;
+	 residue_distortions[rs_2].first += 0.333 * extra_distortion.distortion_score * occ_2;
+	 residue_distortions[rs_3].first += 0.333 * extra_distortion.distortion_score * occ_2;
+      }
+
+      if (dc.geometry_distortion[i].restraint.restraint_type == coot::PLANE_RESTRAINT) {
+	 int n_atoms = dc.geometry_distortion[i].restraint.atom_index.size();
+	 if (n_atoms > 0) { 
+	    double factor = 1/double(n_atoms);
+	    for (unsigned int iat=0; iat<dc.geometry_distortion[i].restraint.atom_index.size(); iat++) {
+	       idx_1 = dc.geometry_distortion[i].restraint.atom_index[iat];
+	       occ_1 = sane_occupancy(dc.atom[idx_1]->occupancy);
+	       coot::geometry_distortion_info_t extra_distortion = dc.geometry_distortion[i];
+	       coot::residue_spec_t rs_1(dc.atom[idx_1]->GetResidue());
+	       residue_distortions[rs_1].first += factor * extra_distortion.distortion_score * occ_1;
+
+	       // we try here because if worst_distortions[rs_] is undefined
+	       // (as it will be the first time we use it then we are doing
+	       // a comparison against an undefined distorition
+	       // 
+	       try { 
+		  if (extra_distortion < worst_distortions[rs_1].first) {
+		  } else {
+		     worst_distortions[rs_1].first = extra_distortion;
+		     worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);
+		  }
+	       }
+	       catch (std::runtime_error rte) {
+		  if (extra_distortion.initialised_p()) { 
+		     worst_distortions[rs_1].first = extra_distortion;
+		     worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);
+		  }
+	       }
+
+	    }
+	 }
+      }
+   }
+   std::map<coot::residue_spec_t, std::pair<double, std::string> >::iterator it;
+   for (it=residue_distortions.begin(); it!=residue_distortions.end(); it++) {
+      it->second.second = worst_distortions[it->first].second;
+   }
+   plot_blocks(residue_distortions, chain_number);
+}
+
+std::string
+coot::geometry_graphs::make_distortion_string(const coot::geometry_distortion_info_t &geometry_distortion,
+					      const coot::geometry_distortion_info_container_t &dc) const {
+
+   std::string s;
+   if (geometry_distortion.restraint.restraint_type == coot::BOND_RESTRAINT) {
+      int idx_1 = geometry_distortion.restraint.atom_index_1;
+      int idx_2 = geometry_distortion.restraint.atom_index_2;
+      coot::residue_spec_t rs_1(dc.atom[idx_1]->GetResidue());
+      s += dc.atom[idx_1]->GetChainID();
+      s += " ";
+      s += coot::util::int_to_string(dc.atom[idx_1]->GetSeqNum());
+      s += " ";
+      s += dc.atom[idx_1]->GetResName();
+      s += " ";
+      s  = "Bond: ";
+      s += dc.atom[idx_1]->name;
+      s += "-";
+      s += dc.atom[idx_2]->name;
+      s += " z score: ";
+      s += coot::util::float_to_string(sqrt(geometry_distortion.distortion_score));
+   }
+   
+   if (geometry_distortion.restraint.restraint_type == coot::ANGLE_RESTRAINT) {
+      int idx_1 = geometry_distortion.restraint.atom_index_1;
+      int idx_2 = geometry_distortion.restraint.atom_index_2;
+      int idx_3 = geometry_distortion.restraint.atom_index_3;
+      coot::residue_spec_t rs_1(dc.atom[idx_1]->GetResidue());
+      s += dc.atom[idx_1]->GetChainID();
+      s += " ";
+      s += coot::util::int_to_string(dc.atom[idx_1]->GetSeqNum());
+      s += " ";
+      s += dc.atom[idx_1]->GetResName();
+      s += " ";
+      s  = "Angle: ";
+      s += dc.atom[idx_1]->name;
+      s += "-";
+      s += dc.atom[idx_2]->name;
+      s += "-";
+      s += dc.atom[idx_3]->name;
+      s += " z score: ";
+      s += coot::util::float_to_string(sqrt(geometry_distortion.distortion_score));
+   }
+   if (geometry_distortion.restraint.restraint_type == coot::PLANE_RESTRAINT) {
+      if (geometry_distortion.restraint.atom_index.size() > 0) {
+	 int idx = geometry_distortion.restraint.atom_index[0];
+	 s += dc.atom[idx]->GetChainID();
+	 s += " ";
+	 s += coot::util::int_to_string(dc.atom[idx]->GetSeqNum());
+	 s += " ";
+	 s += dc.atom[idx]->GetResName();
+	 s += " ";
+      }
+      s = "Plane: ";
+      for (unsigned int iat=0; iat<geometry_distortion.restraint.atom_index.size(); iat++) {
+	 int idx = geometry_distortion.restraint.atom_index[iat];
+	 s += dc.atom[idx]->name;
+	 s += " ";
+      }
+      s += " z score: ";
+      s += coot::util::float_to_string(sqrt(geometry_distortion.distortion_score));
+   }
+   return s;
+}
+
+
+void
+coot::geometry_graphs::plot_blocks(const std::map<coot::residue_spec_t, std::pair<double, std::string> > &residue_distortions,
+				   int chain_number) {
+
+   float magic_scale = 0.6;
+   std::map<coot::residue_spec_t, std::pair<double, std::string> >::const_iterator it;
+   std::string distortion_string;
+   
+   for (it=residue_distortions.begin(); it != residue_distortions.end(); it++) {
+      // std::cout << "plot residue " << it->first << " with height " << it->second << std::endl;
+
+      // make an atom spec (graphics_info is not allowed here (well, not included anyway)).
+      // 
+      coot::atom_spec_t try_atom_spec(it->first.chain, it->first.resno, it->first.insertion_code,
+				      " CA ", "");
+
+      geometry_graph_block_info block_info(imol,
+					   it->first.resno,
+					   try_atom_spec,
+					   magic_scale * it->second.first,
+					   it->second.second, canvas);
+      plot_block(block_info, offsets[chain_number], chain_number);
+   }
+
+}
+
+
+
+void
+coot::geometry_graphs::render_geometry_distortion_blocks_internal_linear(const coot::geometry_distortion_info_container_t &dc,
 								  int min_resno, int max_resno) {
 
    int this_resno1;
@@ -273,7 +482,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	    info += dc.atom[idx2]->name;
 	    info += " z score: ";
 	    info += coot::util::float_to_string(sqrt(extra));
-	    std::cout << "new worst " << info << std::endl;
+	    // 	    std::cout << "new worst " << info << std::endl;
 	    atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->name;
 // 	    std::cout << "DEBUG::  BOND_RESTRAINT setting resi_of_distortion["
 // 		      << this_resno1 - min_resno << "] to " << dc.atom[idx1]->GetSeqNum()
@@ -308,7 +517,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	    info += dc.atom[idx2]->name;
 	    info += " z score: ";
 	    info += coot::util::float_to_string(sqrt(extra));
-	    std::cout << "new worst " << info << std::endl;
+	    // std::cout << "new worst " << info << std::endl;
 	    distortion_string[this_resno1 - min_resno] = info;
 	    atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx2]->name;
 	    distortion_worst[this_resno1 - min_resno] = extra;
@@ -338,7 +547,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 		  info += coot::util::int_to_string(dc.atom[idx1]->GetSeqNum());
 		  info += " z score: ";
 		  info += coot::util::float_to_string(sqrt(extra));
-		  std::cout << "new worst " << info << std::endl;
+		  // std::cout << "new worst " << info << std::endl;
 		  distortion_string[this_resno1 - min_resno] = info;
 		  atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->name;
 		  distortion_worst[this_resno1 - min_resno] = extra;
@@ -444,11 +653,43 @@ coot::geometry_graphs::chain_id_to_chain_index(const std::string &chain_id) cons
    return chain_number;
 }
 
+
+void
+coot::geometry_graphs::update_residue_blocks(const coot::geometry_distortion_info_container_t &dc) {
+
+   
+   // This can be called with any arrangement of residues, ie. with gaps.
+   //
+
+   // OK, so dc has an entry for each restraint, each residue is
+   // represented multiple times, we don't want to keep deleting the
+   // same residue, so let's make a vector of deleted residues.
+   std::vector<coot::residue_spec_t> deleted_block_res_specs;
+   
+   int chain_number = chain_id_to_chain_index(dc.chain_id);
+   for (unsigned int iblock=0; iblock<dc.geometry_distortion.size(); iblock++) {
+      coot::residue_spec_t rs(dc.geometry_distortion[iblock].residue_spec);
+      bool ifound = 0;
+      for (unsigned int i=0; i<deleted_block_res_specs.size(); i++) { 
+	 if (deleted_block_res_specs[i] == rs) {
+	    ifound = 1;
+	    break;
+	 }
+      }
+      if (! ifound) { 
+	 delete_block(chain_number, rs);
+	 deleted_block_res_specs.push_back(rs);
+      } 
+   }
+   render_geometry_distortion_blocks_internal(dc);
+
+}
+
 // This is only to be used on a contiguous range of residues in the
 // same chain.
 // 
 void
-coot::geometry_graphs::update_residue_blocks(const coot::geometry_distortion_info_container_t &dc) {
+coot::geometry_graphs::update_residue_blocks_linear(const coot::geometry_distortion_info_container_t &dc) {
 
    // First, we need to delete the old blocks.
    // 
@@ -461,13 +702,14 @@ coot::geometry_graphs::update_residue_blocks(const coot::geometry_distortion_inf
 
    if (chain_number >= 0) { 
       for (int ires=dc.min_resno; ires<=dc.max_resno; ires++) {
+	 std::cout << "DEBUG:: DELETING block " << ires << std::endl;
 	 delete_block(chain_number, ires); // delete_block does the offsetting.
       }
    }
 
    // now render to canvas the new blocks:
    // std::cout << "render_blocks_internal " << dc.min_resno << " " << dc.max_resno << std::endl;
-   render_geometry_distortion_blocks_internal(dc, dc.min_resno, dc.max_resno);
+   render_geometry_distortion_blocks_internal_linear(dc, dc.min_resno, dc.max_resno);
 }
 
 
@@ -569,18 +811,27 @@ coot::geometry_graphs::render_omega_blocks(const coot::omega_distortion_info_con
    }   
 }
 
+void
+coot::geometry_graphs::delete_block(int chain_number, const coot::residue_spec_t &rs) {
+
+   delete_block(chain_number, rs.resno);
+
+}
+
 
 void
 coot::geometry_graphs::delete_block(int chain_number, int raw_resno) {
 
+   bool debug = 0;
    if (chain_number > -1) { 
       if (chain_number < int(blocks.size())) { 
 	 int offsetted_residue_number = raw_resno - offsets[chain_number];
-	 if (offsetted_residue_number < int(blocks[chain_number].size())) { 
-// 	    std::cout << "DEBUB:: destroying block chain_number = " << chain_number << " "
-// 		      << "raw_resno = " << raw_resno << " offsets[chain_number] = "
-// 		      << offsets[chain_number] << " offsetted_residue_number = "
-// 		      << offsetted_residue_number << std::endl;
+	 if (offsetted_residue_number < int(blocks[chain_number].size())) {
+	    if (debug)
+	       std::cout << "DEBUB:: destroying block chain_number = " << chain_number << " "
+			 << "raw_resno = " << raw_resno << " offsets[chain_number] = "
+			 << offsets[chain_number] << " offsetted_residue_number = "
+			 << offsetted_residue_number << std::endl;
 	    if (offsetted_residue_number >= 1) {
 	       if (offsetted_residue_number < int(blocks[chain_number].size())) { 
 		  if (blocks[chain_number][offsetted_residue_number]) { 

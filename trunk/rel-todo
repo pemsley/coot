@@ -2,12 +2,16 @@
 
     Points 40: April 4th
 
-    o accept sphere refine when geometry graph is displayed -> crash. ::: 1
+    o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
+
+    o make pointer distances update on go-to-blob [JED] ::: 0.5
 
     o Edit -> restraints for XX6, plane restraints sigma.  Close edit
       again -> fail.  Also Take N2 and O out of plane restraints.  ::: 2
 
     o get reverse NCS skip working ::: 2
+
+    o make a mini-rsr ::: 1
 
     o PIR alignment: on pressing the insertion button, go to the
       nearest residue to the gap. [Joel Bard] ::: 1 
@@ -201,6 +205,12 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
     o On assigning sequence (after baton building etc) Coot gives me a
       dialog that says the confidence is not sufficiently high for an
       assigment - although an assigment was made ::: 0.5
+
+* Done.
+
+    o accept sphere refine when geometry graph is displayed -> crash. [JED] 
+      Test terminal output with geometry graph up, with sphere refine and linear refine.
+      ::: 4
 
 * Done.
 

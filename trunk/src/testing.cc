@@ -176,6 +176,7 @@ int greg_internal_tests() {
    std::vector<named_func> functions;
    functions.push_back(named_func(test_OXT_in_restraints, "OXT in restraints?"));
    functions.push_back(named_func(test_relativise_file_name, "Relative file name"));
+   functions.push_back(named_func(test_geometry_distortion_info_type, "geometry distortion comparision"));
 
    status = run_internal_tests(functions);
    return status;
@@ -192,7 +193,8 @@ int test_internal_single() {
       // status = test_ssm_sequence_formatting();
       // status = test_previous_water();
       // status = test_sbase();
-      status = test_coordinated_waters();
+      // status = test_coordinated_waters();
+      status = test_geometry_distortion_info_type();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2115,6 +2117,49 @@ int test_coordinated_waters() {
 
    return status;
 } 
+
+int test_geometry_distortion_info_type() {
+
+   int status = 0;
+   coot::simple_restraint rest;
+   coot::residue_spec_t rs("A", 1);
+   
+   coot::geometry_distortion_info_t gdi_1(6, rest, rs);
+   coot::geometry_distortion_info_t gdi_2(7, rest, rs);
+   coot::geometry_distortion_info_t gdi_3; // undefined, no distortion
+   
+
+   if (gdi_1 < gdi_2) {
+      if (gdi_2 > gdi_1) {
+	 bool cont = 1;
+	 try {
+	    if (gdi_3 < gdi_2) // just use the test - does nothing useful
+	       int x = 2; 
+	    cont = 0;
+	 }
+	 catch (std::runtime_error rte) { 
+	    std::cout << "    Good gdi < exception thrown" << std::endl;
+	 }
+	 if (cont) { 
+	    try {
+	       if (gdi_3 < gdi_2)
+		  int x = 2;
+	       cont = 0;
+	    }
+	    catch (std::runtime_error rte) { 
+	       std::cout << "    Good gdi > exception thrown" << std::endl;
+	       status = 1;
+	    }
+	 }
+      } else {
+	 std::cout << "test geometry_distortion_info_t > fails" << std::endl;
+      }
+   } else { 
+      std::cout << "test geometry_distortion_info_t < fails" << std::endl;
+   }
+
+   return status;
+}
 
 #endif // BUILT_IN_TESTING
 

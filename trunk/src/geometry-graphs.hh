@@ -128,29 +128,49 @@ namespace coot {
       void setup_canvas(int n_chains, int max_chain_length);
       void plot_block(const geometry_graph_block_info &block_info,
 		      int offset, int chain_number);
+      void plot_blocks(const std::map<coot::residue_spec_t, std::pair<double, std::string> > &residue_distortions,
+		       int chain_number);
+      std::string make_distortion_string(const coot::geometry_distortion_info_t &extra_distortion,
+					 const coot::geometry_distortion_info_container_t &dc) const;
+
       void label_chain(const std::string &label, int ichain) const;
       void draw_chain_axis(int nres, int ichain) const;
       void draw_chain_axis_tick_and_tick_labels(int min_resno, int max_resno, int chain_number) const;
       void delete_block(int chain_number, int resno);
+      void delete_block(int chain_number, const coot::residue_spec_t &rs);
       std::vector<std::string> colour_list;
       std::string distortion_to_colour(const double &distortion) const;
       double distortion_max;
       std::string fixed_font_str;
       int chain_id_to_chain_index(const std::string &chain_id) const;
 
-      void render_geometry_distortion_blocks_internal(const geometry_distortion_info_container_t &dc,
+      void render_geometry_distortion_blocks_internal(const geometry_distortion_info_container_t &dc);
+      void render_geometry_distortion_blocks_internal_linear(const geometry_distortion_info_container_t &dc,
 				  int min_res, int max_resno);
       std::vector<geometry_distortion_info_container_t>
       geometric_distortions_from_mol(const atom_selection_container_t &asc) const;
 
       double sane_occupancy(const double &occ_in) {
-	 // shelx atoms have occupancies that depend on FVARS and can
+	 // SHELX atoms have occupancies that depend on FVARS and can
 	 // be things like -81 and 61.  Often they are 11.0, which
 	 // means fixed at 1.0.  So, if they are depending on FVARS,
 	 // presume dual-occupancy and return 0.5.
-	 double occ = 0.5;
-	 if ((occ_in < 11.1) && (occ_in > 10.9))
+	 double occ = occ_in;
+	 if ((occ_in < 11.1) && (occ_in > 10.9)) { // like SHELX
 	    occ = 1.0;
+	 } else { 
+	    if (occ_in > 1.0) { 
+	       occ = 1.0;
+	    } else {
+	       if (occ_in < -1) {// SHELX negative
+		  occ = 0.5;
+	       } else {
+		  if (occ_in < 0.0) {
+		     occ = 0.0;
+		  }
+	       }
+	    }
+	 }
 	 return occ;
       }
 
@@ -186,6 +206,8 @@ namespace coot {
 			       const std::string &chain_id);
       
       void update_residue_blocks(const geometry_distortion_info_container_t &dv);
+      // 20100211 old style linear
+      void update_residue_blocks_linear(const geometry_distortion_info_container_t &dv); 
       void update_residue_blocks(const std::vector<geometry_graph_block_info_generic> &dv);
       
       void set_sensitivity(double d); // becomes the distortion_max.
