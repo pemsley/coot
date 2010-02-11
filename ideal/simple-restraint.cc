@@ -161,7 +161,7 @@ coot::restraints_container_t::restraints_container_t(PCResidue *SelResidues, int
    short int have_disulfide_residues = 0;
    char *chn = (char *) chain_id.c_str();
 
-   // std::cout << "DEBUG:  istart_res iend_res " << istart_res << " " << iend_res << std::endl; 
+   std::cout << "DEBUG:  ==== istart_res iend_res " << istart_res << " " << iend_res << std::endl; 
 
    init_from_mol(istart_res, iend_res, 
 		 have_flanking_residue_at_start,
@@ -254,7 +254,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
    SelHnd_atom = mol->NewSelection();
    mol->SelectAtoms(SelHnd_atom,
 		    0,
-		    (char *) chain_id,
+		    chain_id,
 		    iselection_start_res, "*",
 		    iselection_end_res, "*",
 		    "*", // rnames
@@ -266,6 +266,16 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
    // set the PPCAtom atom (class variable) and n_atoms:
    // 
    mol->GetSelIndex(SelHnd_atom, atom, n_atoms);
+
+   bool debug = 0;
+   if (debug) { 
+      std::cout << "DEBUG:: Selecting residues in chain " << chain_id << " gives " << n_atoms
+		<< " atoms " << std::endl;
+      for (int iat=0; iat<n_atoms; iat++) {
+	 std::cout << "   " << iat << " " << atom[iat]->name << " "  << atom[iat]->GetSeqNum()
+		   << " " << atom[iat]->GetChainID() << std::endl;
+      }
+   }
 
    // debugging, you need to uncomment mmdb.h at the top and add coords to the linking
    // atom_selection_container_t tmp_res_asc = make_asc(mol_in);
@@ -303,7 +313,7 @@ coot::restraints_container_t::init_shared_pre(CMMDBManager *mol_in) {
 void
 coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs) {
 
-      
+
    bonded_atom_indices.resize(n_atoms);
 
    initial_position_params_vec.resize(3*n_atoms); 
@@ -679,8 +689,52 @@ coot::restraints_container_t::geometric_distortions(coot::restraint_usage_Flags 
    coot::geometry_distortion_info_container_t dv = distortion_vector(x);
    
    return dv;
+}
+
+std::ostream&
+coot::operator<<(std::ostream &s, geometry_distortion_info_container_t gdic) {
+
+   s << "[ chain :" << gdic.chain_id << ": residues " << gdic.min_resno << " to " << gdic.max_resno
+     << " residues: \n" ;
+   for (unsigned int ires=0; ires<gdic.geometry_distortion.size(); ires++)
+      s << "      " << gdic.geometry_distortion[ires] << "\n";
+   s << "]\n";
+   return s;
 } 
 
+std::ostream&
+coot::operator<<(std::ostream &s, geometry_distortion_info_t gdi) {
+
+   if (gdi.set) {
+      s << gdi.restraint << " " << gdi.residue_spec << " distortion: " << gdi.distortion_score;
+   } else {
+      s << "{geometry_distortion_info-unset}";
+   } 
+   return s;
+}
+
+
+std::ostream &
+coot::operator<<(std::ostream &s, simple_restraint r) {
+
+   s << "{restraint: ";
+   if (r.restraint_type == coot::BOND_RESTRAINT)
+      s << "Bond   ";
+   if (r.restraint_type == coot::ANGLE_RESTRAINT)
+      s << "Angle  ";
+   if (r.restraint_type == coot::TORSION_RESTRAINT)
+      s << "Torsion";
+   if (r.restraint_type == coot::PLANE_RESTRAINT)
+      s << "Plane  ";
+   if (r.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT)
+      s << "NBC    ";
+   if (r.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT)
+      s << "Chiral ";
+   if (r.restraint_type == coot::RAMACHANDRAN_RESTRAINT)
+      s << "Rama   ";
+   s << "}";
+   return s;
+}
 coot::omega_distortion_info_container_t
 coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_bad_flag) {
 
@@ -965,37 +1019,56 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 
    coot::geometry_distortion_info_container_t distortion_vec_container(atom, n_atoms, chainid);
    double distortion = 0.0;
+   int atom_index = -1; // initial unset, the atom index used to spec the residue.
 
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       if (restraints_usage_flag & coot::BONDS_MASK) 
-	 if (restraints_vec[i].restraint_type == coot::BOND_RESTRAINT) 
+	 if (restraints_vec[i].restraint_type == coot::BOND_RESTRAINT) { 
 	    distortion = coot::distortion_score_bond(restraints_vec[i], v);
+	    atom_index = restraints_vec[i].atom_index_1;
+	 } 
 
       if (restraints_usage_flag & coot::ANGLES_MASK) 
-	 if (restraints_vec[i].restraint_type == coot::ANGLE_RESTRAINT)
+	 if (restraints_vec[i].restraint_type == coot::ANGLE_RESTRAINT) { 
 	    distortion = coot::distortion_score_angle(restraints_vec[i], v);
+	    atom_index = restraints_vec[i].atom_index_1;
+	 } 
 
       if (restraints_usage_flag & coot::TORSIONS_MASK)
-	 if (restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT)
-	    distortion = coot::distortion_score_torsion(restraints_vec[i], v); 
+	 if (restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) { 
+	    distortion = coot::distortion_score_torsion(restraints_vec[i], v);
+	    atom_index = restraints_vec[i].atom_index_1;
+	 } 
 
       if (restraints_usage_flag & coot::PLANES_MASK) 
-	 if (restraints_vec[i].restraint_type == coot::PLANE_RESTRAINT)
-	    distortion = coot::distortion_score_plane(restraints_vec[i], v); 
+	 if (restraints_vec[i].restraint_type == coot::PLANE_RESTRAINT) { 
+	    distortion = coot::distortion_score_plane(restraints_vec[i], v);
+	    atom_index = restraints_vec[i].atom_index[0];
+	 } 
 
       if (restraints_usage_flag & coot::NON_BONDED_MASK)  
-	 if (restraints_vec[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) 
+	 if (restraints_vec[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
 	    distortion = coot::distortion_score_non_bonded_contact(restraints_vec[i], v);
+	    atom_index = restraints_vec[i].atom_index_1;
+	 }
 
-      if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) 
-   	 if (restraints_vec[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) 
+      if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK)
+   	 if (restraints_vec[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
    	    distortion = coot::distortion_score_chiral_volume(restraints_vec[i], v);
+	    atom_index = restraints_vec[i].atom_index_centre;
+	 } 
 
       if (restraints_usage_flag & coot::RAMA_PLOT_MASK) 
-    	 if (restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) 
+    	 if (restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) { 
 	    distortion = coot::distortion_score_rama(restraints_vec[i], v, lograma);
+	    atom_index = restraints_vec[i].atom_index_1;
+	 } 
 
-      distortion_vec_container.geometry_distortion.push_back(coot::geometry_distortion_info_t(distortion, restraints_vec[i]));
+      if (atom_index != -1) {
+	 coot::residue_spec_t rs(atom[atom_index]->GetResidue());
+	 coot::geometry_distortion_info_t gdi(distortion, restraints_vec[i], rs);
+	 distortion_vec_container.geometry_distortion.push_back(gdi);
+      }
    }
 
 
@@ -5977,9 +6050,13 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 			     atom_2_sel[isat]->GetUDData(udd_atom_index_handle, index2);
 			     atom_3_sel[itat]->GetUDData(udd_atom_index_handle, index3);
 
-// 			     std::cout << "add_link_angle: " << index1_old << " " << index1 << std::endl;
-// 			     std::cout << "add_link_angle: " << index2_old << " " << index2 << std::endl;
-// 			     std::cout << "add_link_angle: " << index3_old << " " << index3 << std::endl;
+			     if (0) { 
+				std::cout << "bonded_atom_indices.size(): "
+					  <<  bonded_atom_indices.size() << std::endl;
+				std::cout << "   add_link_angle: "  << " " << index1 << std::endl;
+				std::cout << "   add_link_angle: "  << " " << index2 << std::endl;
+				std::cout << "   add_link_angle: "  << " " << index3 << std::endl;
+			     }
 
 			     // set the UDD flag for this residue being bonded/angle with 
 			     // the other

@@ -59,6 +59,7 @@
 (define residues-near-position residues-near-position-scm)
 (define non-standard-residue-names non-standard-residue-names-scm)
 (define refine-residues refine-residues-scm)
+(define refine-residues-with-alt-conf refine-residues-with-alt-conf-scm)
 (define regularize-residues regularize-residues-scm)
 (define map-peaks map-peaks-scm)
 (define map-peaks-near-point map-peaks-near-point-scm)

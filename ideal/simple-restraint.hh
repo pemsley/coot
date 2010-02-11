@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <string>
+#include <stdexcept>
 
 #include "mmdb_manager.h"
 
@@ -433,7 +434,9 @@ namespace coot {
 	    fixed_atom_flags = fixed_atom_flags_in;
 	 } 
       }
+      friend std::ostream &operator<<(std::ostream &s, simple_restraint r);
    };
+   std::ostream &operator<<(std::ostream &s, simple_restraint r);
 
    // We need something to quickly convert between atom name,
    // sequence number, chain id to index into the atom selection
@@ -459,14 +462,43 @@ namespace coot {
    class geometry_distortion_info_t {
    public:
       geometry_distortion_info_t(double distortion_in,
-				 const simple_restraint &rest_in
-				 ) {
+				 const simple_restraint &rest_in,
+				 residue_spec_t &residue_spec_in) {
 	 distortion_score = distortion_in;
 	 restraint = rest_in;
+	 residue_spec = residue_spec_in;
+	 set = 1;
       }
+      geometry_distortion_info_t() {
+	 set = 0;
+      }
+      bool set;
       double distortion_score;
       simple_restraint restraint;
+      residue_spec_t residue_spec;
+      friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_t);
+
+      // This comparison can throw an exception, (when either of the
+      // arguments is not initialised)
+      // 
+      bool operator<(const geometry_distortion_info_t &gdi) const {
+	 if (! gdi.initialised_p())
+	    throw std::runtime_error("unitialised passed geometry_distortion_info_t");
+	 if (! initialised_p())
+	    throw std::runtime_error("unitialised this geometry_distortion_info_t");
+	 return (distortion_score < gdi.distortion_score);
+      }
+      bool operator>(const geometry_distortion_info_t &gdi) const {
+	 if (! gdi.initialised_p())
+	    throw std::runtime_error("unitialised passed geometry_distortion_info_t");
+	 if (! initialised_p())
+	    throw std::runtime_error("unitialised this geometry_distortion_info_t");
+	 return (distortion_score > gdi.distortion_score);
+
+      }
+      bool initialised_p() const { return set; }
    };
+   std::ostream &operator<<(std::ostream &s, geometry_distortion_info_t);
 
    class geometry_distortion_info_container_t {
    public:
@@ -494,7 +526,9 @@ namespace coot {
 	 max_resno = max_resno_in;
       }
       int size () const { return geometry_distortion.size(); }
+      friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t);
    };
+   std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t gdic);
 
    class omega_distortion_info_t {
    public:

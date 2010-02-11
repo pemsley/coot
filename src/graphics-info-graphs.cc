@@ -218,6 +218,9 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
       } else {
 	 std::vector<coot::geometry_distortion_info_container_t> dv =
 	    geometric_distortions_from_mol(moving_atoms_asc_local);
+	 for(unsigned int ich=0; ich<dv.size(); ich++)
+// 	    std::cout << "       ich " << ich << " residue blocks for updating:\n"
+// 		      << dv[ich] << std::endl;
 	 for(unsigned int ich=0; ich<dv.size(); ich++) 
 	    gr->update_residue_blocks(dv[ich]);
       }
@@ -448,7 +451,7 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 	    
 	       // First make an atom selection of the residues selected to regularize.
 	       // 
-	       int selHnd = asc.mol->NewSelection();
+	       int selHnd = asc.mol->NewSelection(); // yes, it's deleted.
 	       int nSelResidues;
 	       PCResidue *SelResidues = NULL;
 	    
@@ -492,6 +495,7 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 	       } else { // normal
 	       
 		  std::vector<CAtom *> fixed_atoms;
+		  std::vector<coot::atom_spec_t> fixed_atom_specs;
 	       
 		  // Notice that we have to make 2 atom selections, one, which includes
 		  // flanking (and disulphide eventually) residues that is used for the
@@ -506,10 +510,19 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 		  // atom selection (it is the atom selection that is used in the bond
 		  // generation).
 		  // 
-	       
-		  coot::restraints_container_t restraints(SelResidues, nSelResidues,
-							  std::string(chain_id),
-							  asc.mol);
+
+//	          20100210 try vector
+// 		  coot::restraints_container_t restraints(SelResidues, nSelResidues,
+// 							  std::string(chain_id),
+// 							  asc.mol);
+		  std::vector<std::pair<bool,CResidue *> > residue_vec;
+		  for (int ires=0; ires<nSelResidues; ires++)
+		     residue_vec.push_back(std::pair<bool, CResidue *> (0, SelResidues[ires]));
+		  
+		  coot::restraints_container_t restraints(residue_vec,
+							  *Geom_p(),
+							  asc.mol,
+							  fixed_atom_specs);
 	       
 		  // coot::restraint_usage_Flags flags = coot::BONDS;
 		  // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
@@ -542,6 +555,7 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 
 // 		     std::cout << "DEBUG:: model " << imod << " pushing back " << nrestraints
 // 			       << " restraints" << std::endl;
+
 		     dcv.push_back(restraints.geometric_distortions(flags));
 		  
 		  } else {
