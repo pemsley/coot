@@ -2614,6 +2614,9 @@ By default torsions for hydrogen atoms are turned off.  To turn them on:
 
 @code{(set-find-hydrogen-torsions 1)}
 
+To edit the rotatable bonds of a ligand using this tool, you will need
+to have read in the mmCIF dictionary beforehand.
+
 @node Torsion General
 @section Torsion General
 @cindex torsion general
