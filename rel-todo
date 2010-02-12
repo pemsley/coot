@@ -2,14 +2,12 @@
 
     Points 40: April 4th
 
-    o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
-
     o Edit -> restraints for XX6, plane restraints sigma.  Close edit
       again -> fail.  Also Take N2 and O out of plane restraints.  ::: 2
 
-    o get reverse NCS skip working ::: 2
+    o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
 
-    o undisplay merged molecules ::: 0.5
+    o get reverse NCS skip working ::: 2
 
     o make a mini-rsr ::: 1
 
@@ -216,5 +214,9 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 
     o make pointer distances update on go-to-blob [JED] ::: 0.3
    
+* Done.
+
+    o undisplay merged molecules ::: 0.3
+
 * Done.
 
