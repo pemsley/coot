@@ -1378,9 +1378,10 @@ graphics_info_t::ncs_diffs_from_mol(int imol) {
       // A ncs_chain_differences_t contains a vector of residue difference infos.
 
       for (unsigned int ires=0; ires<diff.diffs[incs_set].residue_info.size(); ires++) {
- 	 std::cout << " resno for diffs: "
- 		   << diff.diffs[incs_set].residue_info[ires].resno
- 		   << std::endl;
+	 if (0) 
+	    std::cout << "DEBUG:: resno for diffs: "
+		      << diff.diffs[incs_set].residue_info[ires].resno
+		      << std::endl;
 	    
 	 if (diff.diffs[incs_set].residue_info[ires].resno < min_resno) { 
 	    min_resno = diff.diffs[incs_set].residue_info[ires].resno;

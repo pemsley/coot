@@ -1977,16 +1977,19 @@ molecule_class_info_t::ncs_chain_differences(std::string master_chain_id,
 	       for (int ires=0; ires<nres_this && ires<nres_master; ires++) {
 		  master_residue_p = master_chain_p->GetResidue(ires);
 		  this_residue_p = 0;
-		  if ( ((ires-resno_offset)<nres_this) && ((ires-resno_offset)>=0))
-		     this_residue_p = this_chain_p->GetResidue(ires-resno_offset);
+		  if ( ((ires-resno_offset)<nres_this) && ((ires-resno_offset)>=0)) { 
+		     this_residue_p = this_chain_p->GetResidue(master_residue_p->GetSeqNum(),
+							       master_residue_p->GetInsCode());
+		  }
 		  if (this_residue_p && master_residue_p) {
 		     if (this_residue_p->GetSeqNum() == master_residue_p->GetSeqNum()) {
 			coot::ncs_residue_info_t ds = 
 			   ncs_ghosts[ighost].get_differences(this_residue_p, master_residue_p,
 							      main_chain_weight);
-			if (ds.filled) { 
-			   // 			      std::cout << "     pushing back a residue_info with resno "
-			   // 				     << ds.resno << std::endl;
+			if (ds.filled) {
+			   if (0)
+			      std::cout << "     pushing back a residue_info with resno "
+					<< ds.resno << std::endl;
 			   residue_info.push_back(ds);
 			}
 		     }
