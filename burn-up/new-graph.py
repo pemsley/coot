@@ -56,6 +56,7 @@ def predict_release_from_dev_points(data):
     c0 = data[0][2]
     pred_x = c0 * 4/3.14159
     pred_y = c0 * 2
+    pred_y = c0 * 1.8
     # print "%% pred_x", pred_x
     # print "%% pred_y", pred_y
     return [pred_x, pred_y]
@@ -113,7 +114,7 @@ def draw_prediction_on_canvas(pr, can):
       s += ",\n"
       s += pred_date_str
       # can.show(70,90, s)
-      can.show(25,90, s)
+      can.show(100,90, s)
       
       #   print "X_pred: :", X_pred, "Y_pred: :", Y_pred
       can.rectangle(line_style.default, fill_style.default,
@@ -156,7 +157,7 @@ yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 # is 0, but the Y maximum is to be computed automatically. Without
 # y_ranges, Pychart will pick the minimum Y value among the samples,
 # i.e., 20, as the base value of Y axis.
-ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,65))
+ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,75))
 
 # The first plot extracts Y values from the 2nd column
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
