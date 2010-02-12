@@ -3995,23 +3995,17 @@ merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol) {
    
    std::vector<atom_selection_container_t> add_molecules_at_sels;
    if (is_valid_model_molecule(imol)) { 
-      if (graphics_info_t::molecules[imol].has_model()) {
-	 
-	 for (unsigned int i=0; i<add_molecules.size(); i++) {
-	    if (add_molecules[i]<graphics_info_t::n_molecules()) {
-	       if (i >= 0) {
-		  if (graphics_info_t::molecules[add_molecules[i]].has_model()) {
-		     if (add_molecules[i] != imol) { 
-			add_molecules_at_sels.push_back(graphics_info_t::molecules[add_molecules[i]].atom_sel);
-		     }
-		  }
-	       }
+      for (unsigned int i=0; i<add_molecules.size(); i++) {
+	 if (is_valid_model_molecule(add_molecules[i])) { 
+	    if (add_molecules[i] != imol) { 
+	       add_molecules_at_sels.push_back(graphics_info_t::molecules[add_molecules[i]].atom_sel);
+	       set_mol_displayed(add_molecules[i], 0);
 	    }
 	 }
-	 if (add_molecules_at_sels.size() > 0) { 
-	    merged_info = graphics_info_t::molecules[imol].merge_molecules(add_molecules_at_sels);
-	 }
       }
+   }
+   if (add_molecules_at_sels.size() > 0) { 
+      merged_info = graphics_info_t::molecules[imol].merge_molecules(add_molecules_at_sels);
    }
 
    if (graphics_info_t::use_graphics_interface_flag) {
