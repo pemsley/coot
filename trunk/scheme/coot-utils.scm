@@ -81,6 +81,7 @@
 (define pkgdatadir get-pkgdatadir-scm)
 (define matching-compound-names-from-sbase matching-compound-names-from-sbase-scm)
 (define chain-id chain-id-scm)
+(define highly-coordinated-waters highly-coordinated-waters-scm)
 
 ;; documented functions
 

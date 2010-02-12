@@ -356,7 +356,8 @@
 			  (newline port)
 			  (display (cdr item-pair) port)
 			  (newline port))
-			(list (cons "DATA_ROOT"  (append-dir-file s "share/pisa"))
+			(list (cons "DATA_ROOT"   (append-dir-file s "share/pisa"))
+			      (cons "PISTORE_DIR" (append-dir-file s "share/pisa/pisastore"))
 			      (cons "PISA_WORK_ROOT"  pisa-coot-dir)
 			      (cons "SBASE_DIR"  (append-dir-file s "share/sbase"))
 			      ;; that we need these next 3 is ridiculous

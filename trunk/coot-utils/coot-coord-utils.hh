@@ -81,6 +81,7 @@ namespace coot {
 	 insertion_code = at->GetInsCode();
 	 atom_name = at->name;
 	 alt_conf = at->altLoc;
+	 int_user_data = -1; // mark as "unset" (better than not setting it)
       }
       // This presumes at is a member of a coordinate hierarchy.
       atom_spec_t(CAtom *at, const std::string &user_data_string) {
