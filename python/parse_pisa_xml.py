@@ -287,6 +287,7 @@ def pisa_assemblies(imol):
     def make_pisa_config(pisa_coot_dir, config_file_name):
         s = os.getenv("CCP4")
         ls = [["DATA_ROOT", os.path.join(s, "share", "pisa")],
+              ["PISTORE_DIR", os.path.join(s, "share", "pisa", "pisastore")],
               ["PISA_WORK_ROOT", pisa_coot_dir],
               ["SBASE_DIR", os.path.join(s, "share", "sbase")],
               # according to Paule (and I agree):

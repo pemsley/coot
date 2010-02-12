@@ -61,6 +61,7 @@
 #endif // USE_PYTHON
 
 #include "c-interface.h"
+#include "cc-interface.hh"
 
 #include "wligand.hh"
 
@@ -261,3 +262,71 @@ float max_water_distance(int imol) {
    return f;
 } 
 
+
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+//                       this is water validation (really)
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+//
+#ifdef USE_GUILE
+/*! \brief return a list of waters that are coordinated with at least
+  coordination_number of other atoms at distances less than or equal
+  to dist_max */
+// (list (list atom-spec-central (list atom-spec-contactor-1 atom-spec-contactor-2 ..)))
+// 
+SCM highly_coordinated_waters_scm(int imol, int coordination_number, float dist_max) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      coot::util::water_coordination_t wc(mol, dist_max);
+      std::vector<coot::util::contact_atoms_info_t> water_contacts = 
+	 wc.get_highly_coordinated_waters(coordination_number, dist_max);
+      r = SCM_EOL; // a list (at least) because we didn't fail.
+      for (unsigned int j=0; j<water_contacts.size(); j++) {
+	 SCM atom_and_neighbours = SCM_EOL; // combines atom_spec_central and it neighbours
+	 SCM atom_spec_central_scm = atom_spec_to_scm(water_contacts[j].central_atom());
+	 SCM neighbours = SCM_EOL;
+	 for (unsigned int k=0; k<water_contacts[j].size(); k++) {
+	    coot::util::contact_atoms_info_t::contact_atom_t at = water_contacts[j][k];
+	    if (at.dist < dist_max) {
+	       SCM contactor_scm = atom_spec_to_scm(at.at);
+	       neighbours = scm_cons(contactor_scm, neighbours);
+	    }
+	 }
+	 atom_and_neighbours = scm_cons(scm_reverse(neighbours), atom_and_neighbours);
+	 atom_and_neighbours = scm_cons(atom_spec_central_scm, atom_and_neighbours);
+	 r = scm_cons(atom_and_neighbours, r);
+      }
+      r = scm_reverse(r);
+   }
+   return r;
+}
+#endif
+
+
+#ifdef USE_PYTHON
+/*! \brief return a list of waters that are coordinated with at least
+  coordination_number of other atoms at distances less than or equal
+  to dist_max */
+PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float dist_max) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      coot::util::water_coordination_t wc(mol, dist_max);
+      std::vector<coot::util::contact_atoms_info_t> water_contacts = 
+	 wc.get_highly_coordinated_waters(coordination_number, dist_max);
+      for (unsigned int j=0; j<water_contacts.size(); j++) {
+	 for (unsigned int k=0; k<water_contacts[j].size(); k++) {
+	    coot::util::contact_atoms_info_t::contact_atom_t at = water_contacts[j][k];
+	    if (at.dist < dist_max) {
+	    }
+	 }
+      }
+   }
+   return r;
+} 
+#endif

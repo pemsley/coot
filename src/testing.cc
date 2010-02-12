@@ -2098,7 +2098,7 @@ int test_coordinated_waters() {
       if (atom_sel.mol) { 
 	 coot::util::water_coordination_t wc(atom_sel.mol, 3.3);
 	 std::vector<coot::util::contact_atoms_info_t> water_contacts = 
-	    wc.get_highly_coordinated_waters(5, 2.9);
+	    wc.get_highly_coordinated_waters(5, water_limit);
 	 if (water_contacts.size() > 0) {
 	    std::cout << "    " << water_contacts.size() << std::endl;
 	    for (unsigned int j=0; j<water_contacts.size(); j++) {

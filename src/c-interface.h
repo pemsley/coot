@@ -4806,6 +4806,24 @@ void check_waters_by_difference_map(int imol_waters, int imol_diff_map,
 /* Let's give access to the sigma level (default 4) */
 float check_waters_by_difference_map_sigma_level_state();
 void set_check_waters_by_difference_map_sigma_level(float f);
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return a list of waters that are coordinated with at least
+  coordination_number of other atoms at distances less than or equal
+  to dist_max.  Return scheme false on not able to make a list,
+  otherwise a list of atoms and neighbours */
+SCM highly_coordinated_waters_scm(int imol, int coordination_number, float dist_max);
+#endif
+#ifdef USE_PYTHON
+/*! \brief return a list of waters that are coordinated with at least
+  coordination_number of other atoms at distances less than or equal
+  to dist_max */
+PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float dist_max);
+#endif
+#endif
+
+
 /*! \} */
 
 /*  ----------------------------------------------------------------------- */
