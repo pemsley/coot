@@ -37,7 +37,7 @@
 
   ;; and the previous chain id:
   (define (skip-to-previous-chain-id-internal this-chain-id chain-id-list)
-    (format #t "DEBUG prev this-chain-id: ~s chain-id-list: ~s~%" this-chain-id chain-id-list)
+    ;; (format #t "DEBUG prev this-chain-id: ~s chain-id-list: ~s~%" this-chain-id chain-id-list)
     (if (< (length chain-id-list) 2)
 	#f 
 	(let ((l (length chain-id-list)))
@@ -65,7 +65,7 @@
 	       (skip-to-next-chain-id-internal     this-chain-id chain-id-list)
 	       (skip-to-previous-chain-id-internal this-chain-id chain-id-list))))
       
-      (format #t "DEBUG chain-guess: ~s~%" chain-guess)
+      ;; (format #t "DEBUG chain-guess: ~s~%" chain-guess)
 
       (if (not (string? chain-guess))
 	  chain-guess
@@ -126,11 +126,11 @@
 		;; back to this-chain-id - in which case we have a "No NCS
 		;; Next Chain atom" status-bar message.
 		
- 		(format #t "DEBUG:: gone to : ~s ~s s~%" 
-			try-next-chain
-			(go-to-atom-residue-number)
-			(go-to-atom-atom-name))
- 		(format #t "DEBUG:: found atom state: ~s~%" found-atom-state)
+; 		(format #t "DEBUG:: gone to : ~s ~s s~%" 
+;			try-next-chain
+;			(go-to-atom-residue-number)
+;			(go-to-atom-atom-name))
+; 		(format #t "DEBUG:: found atom state: ~s~%" found-atom-state)
 
 
 		(if (= found-atom-state 0)
