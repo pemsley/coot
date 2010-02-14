@@ -2,6 +2,10 @@
 
     Points 40: April 4th
 
+    o make a mini-rsr ::: 1
+
+    o PISA interfaces via XML  ::: 5
+
     o Edit -> restraints for XX6, plane restraints sigma.  Close edit
       again -> fail.  Also Take N2 and O out of plane restraints. 
  
@@ -13,14 +17,8 @@
 
     o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
 
-    o get reverse NCS skip working ::: 2
-
-    o make a mini-rsr ::: 1
-
     o PIR alignment: on pressing the insertion button, go to the
       nearest residue to the gap. [Joel Bard] ::: 1 
-
-    o PISA interfaces via XML  ::: 5
 
     o trapped out of range phi/psi access: 1040 A ich: 0 ires: 895
       phi_psi_sets[ich].phi_psi.size(): 839
@@ -231,3 +229,8 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 * Done.
 
     o NCS differences was broken by gaps not of the same length [Ingo Korndoerfer] ::: 1
+
+    o get reverse NCS skip working ::: 2
+
+* Done.
+
