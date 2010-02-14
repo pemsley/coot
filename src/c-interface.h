@@ -697,7 +697,8 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 /*! \brief as above, but shift the screen centre also.  */
 void apply_ncs_to_view_orientation_and_screen_centre(int imol, 
 						     const char *current_chain, 
-						     const char *next_ncs_chain);
+						     const char *next_ncs_chain, 
+						     short int forward_flag);
 
 void set_fps_flag(int t);
 int  get_fps_flag();

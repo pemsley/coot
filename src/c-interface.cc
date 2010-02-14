@@ -3924,7 +3924,9 @@ int reset_view() {
 void apply_ncs_to_view_orientation(int imol, const char *current_chain, const char *next_ncs_chain) {
 
    if (is_valid_model_molecule(imol)) {
-      
+
+      short int forward_flag = 1; // emulate previous behaviour.  Not
+				  // sure that this is what is needed.
       coot::util::quaternion q(graphics_info_t::quat[0],
 			       graphics_info_t::quat[1],
 			       graphics_info_t::quat[2],
@@ -3937,7 +3939,8 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 	 graphics_info_t::molecules[imol].apply_ncs_to_view_orientation(current_view_mat,
 									current_centre,
 									current_chain,
-									next_ncs_chain);
+									next_ncs_chain,
+									forward_flag);
 
       std::cout << "DEBUG::   NCS view in:  \n" << current_view_mat.format() << std::endl;
 
@@ -3961,7 +3964,8 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
   relative view is preserved.  For NCS skipping. */
 void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 						     const char *current_chain,
-						     const char *next_ncs_chain) {
+						     const char *next_ncs_chain,
+						     short int forward_flag) {
 
    if (is_valid_model_molecule(imol)) {
       
@@ -3977,7 +3981,8 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 	 graphics_info_t::molecules[imol].apply_ncs_to_view_orientation(current_view_mat,
 									current_centre,
 									current_chain,
-									next_ncs_chain);
+									next_ncs_chain,
+									forward_flag);
 
 //       std::cout << "   NCS view in:  \n" << current_view_mat.format() << std::endl;
 //       std::cout << "   NCS view out: " << new_ori.first << std::endl;
