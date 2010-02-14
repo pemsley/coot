@@ -5299,6 +5299,11 @@ GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
    GtkWidget *combo_box = lookup_widget(w, "residue_editor_select_monomer_type_combobox");
    graphics_info_t g;
    std::vector<std::string> v = g.Geom_p()->monomer_types();
+
+   if (0) // debug
+      for (unsigned int i=0; i<v.size(); i++) 
+	 std::cout << "debug:: monomer types :" << i << ": " << v[i] << std::endl;
+
    // remove the 2 items that are already there from the glade interface (I suppose).
    gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);
    gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);

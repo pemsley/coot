@@ -141,9 +141,10 @@
 		    ;; otherwise all was hunky-dorey
 		    (begin
 		      ; set the orientation:
-		      (apply-ncs-to-view-orientation-and-screen-centre
-		       imol this-chain-id try-next-chain)
-		      #t))))))))
+		      (let ((forward-flag (if (eq? direction 'forward) 1 0)))
+			(apply-ncs-to-view-orientation-and-screen-centre
+			 imol this-chain-id try-next-chain forward-flag)
+			#t)))))))))
 
 	 
    

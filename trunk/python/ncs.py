@@ -122,7 +122,10 @@ def skip_to_next_ncs_chain(direction):
           else:
               # otherwise all was hunkey-dorey
               # set the orientation
-              apply_ncs_to_view_orientation_and_screen_centre(imol, this_chain_id, next_chain)
+              forward_flag = 0
+              if (direction == "forward"):
+                  forward_flag = 1
+              apply_ncs_to_view_orientation_and_screen_centre(imol, this_chain_id, next_chain, forward_flag)
               break
   
             

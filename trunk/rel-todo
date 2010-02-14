@@ -1,9 +1,15 @@
-0.6.2
+ 0.6.2
 
     Points 40: April 4th
 
     o Edit -> restraints for XX6, plane restraints sigma.  Close edit
-      again -> fail.  Also Take N2 and O out of plane restraints.  ::: 2
+      again -> fail.  Also Take N2 and O out of plane restraints. 
+ 
+        - That is now unreproducable - maybe related to below (it was
+        changing the wrong comp_id).
+
+      The tlc for XX6 seems to be " " - why is that? It's because the
+      cif was wrongly written. ::: 2
 
     o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
 
@@ -29,6 +35,10 @@
       (etc) ::: 1
 
     o white background with ball and stick models. ::: 4
+
+
+    o NCS functions in c-inteface.cc should move to c-interface-ncs.cc
+      ::: 0.2
 
 
 ------
@@ -220,3 +230,4 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 
 * Done.
 
+    o NCS differences was broken by gaps not of the same length [Ingo Korndoerfer] ::: 1

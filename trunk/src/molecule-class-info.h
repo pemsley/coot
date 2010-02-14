@@ -785,9 +785,25 @@ class molecule_class_info_t {
    void remove_TER_internal(CResidue *res_p);
    void remove_TER_on_last_residue(CChain *chain_p);
 
-   // ------------------------------------------------------------------
- public:
-   // ------------------------------------------------------------------
+   // Return a new orienation, to be used to set the view orientation/quaternion.
+   // 
+   std::pair<bool, clipper::RTop_orth>
+   apply_ncs_to_view_orientation_forward(const clipper::Mat33<double> &current_view_mat,
+					 const clipper::Coord_orth &current_position,
+					 const std::string &current_chain,
+					 const std::string &next_ncs_chain) const;
+   std::pair<bool, clipper::RTop_orth>
+   apply_ncs_to_view_orientation_backward(const clipper::Mat33<double> &current_view_mat,
+					  const clipper::Coord_orth &current_position,
+					  const std::string &current_chain,
+					  const std::string &next_ncs_chain) const;
+   
+
+   // ----------------------------------------------------------------------------------------
+   // ----------------------------------------------------------------------------------------
+public:        //                      public
+   // ----------------------------------------------------------------------------------------
+   // ----------------------------------------------------------------------------------------
 
    // we should dump this constructor in the skip then.
    // it does not set imol_no; 
@@ -2290,8 +2306,9 @@ class molecule_class_info_t {
      apply_ncs_to_view_orientation(const clipper::Mat33<double> &current_view_mat,
 				   const clipper::Coord_orth &current_position,
 				   const std::string &current_chain,
-				   const std::string &next_ncs_chain) const;
-   
+				   const std::string &next_ncs_chain,
+				   bool backward_flag) const;
+
    short int show_strict_ncs_flag;
 
    // Not 'const' because we can do a fill_ghost_info if the NCS ghosts

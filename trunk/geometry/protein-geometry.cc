@@ -236,6 +236,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 	       int n_loop_time = 0;
 	       if (mmCIFLoop == NULL) {
+		  std::cout << "================ cat_name: " << cat_name << std::endl;
 		  if (cat_name == "_chem_comp") {
 		     // read the chemical component library which does
 		     // not have a loop (the refmac files do) for the
@@ -307,8 +308,8 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
    int n_tags = structure->GetNofTags();
    std::string cat_name = structure->GetCategoryName();
 
-//    std::cout << " by structure: in category " << cat_name << " there are "
-// 	     << n_tags << " tags" << std::endl;
+    std::cout << "DEBUG: ================= by structure: in category " << cat_name << " there are "
+ 	     << n_tags << " tags" << std::endl;
 
    std::pair<bool, std::string> comp_id(0, "");
    std::pair<bool, std::string> three_letter_code(0, "");
@@ -333,8 +334,18 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
 	 type = std::pair<bool, std::string> (1,field);
       if (tag == "descr_level")
 	 description_level = std::pair<bool, std::string> (1,field);
+      if (tag == "description_level")
+	 description_level = std::pair<bool, std::string> (1,field);
       // number of atoms here too.
    }
+
+   std::cout
+      << "comp_id :" << comp_id.first << " :" << comp_id.second << ": "
+      << "three_letter_code :" << three_letter_code.first << " :" << three_letter_code.second << ": "
+      << "name :" << name.first << " :" << name.second << ": "
+      << "type :" << type.first << " :" << type.second << ": "
+      << "description_level :" << description_level.first << " :" << description_level.second << ": "
+      << std::endl;
 
    if (comp_id.first && three_letter_code.first && name.first) 
       mon_lib_add_chem_comp(comp_id.second, three_letter_code.second,
@@ -3655,7 +3666,7 @@ coot::protein_geometry::matching_names(const std::string &test_string,
 void
 coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) const {
 
-   PCMMCIFData   mmCIF = new CMMCIFData();
+   PCMMCIFData   mmCIF = new CMMCIFData;
    PCMMCIFStruct mmCIFStruct;
    char S[2000];
    
@@ -3676,29 +3687,34 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 printf(" -- structure was already in mmCIF, it will be extended\n");
       std::cout << "SUMMARY:: rc CIFRC_Ok or newly created. " << std::endl;
 
-      PCMMCIFLoop mmCIFLoop;
+      PCMMCIFLoop mmCIFLoop = new CMMCIFLoop; // 20100212
       // data_comp_list, id, three_letter_code, name group etc:
+
       rc = mmCIF->AddLoop("_chem_comp", mmCIFLoop);
       int i=0;
-      char *s = (char *) residue_info.comp_id.c_str();
+      const char *s = residue_info.comp_id.c_str();
       mmCIFLoop->PutString(s, "comp_id", i);
-      s = (char *) residue_info.three_letter_code.c_str();
+      s = residue_info.three_letter_code.c_str();
       mmCIFLoop->PutString(s, "three_letter_code", i);
-      s = (char *) residue_info.name.c_str();
+      s = residue_info.name.c_str();
       mmCIFLoop->PutString(s, "name", i);
-      s = (char *) residue_info.group.c_str();
+      s =  residue_info.group.c_str();
       mmCIFLoop->PutString(s, "group", i);
-      s = (char *) residue_info.group.c_str();
       int nat = residue_info.number_atoms_all;
       mmCIFLoop->PutInteger(nat, "number_atoms_all", i);
       nat = residue_info.number_atoms_nh;
       mmCIFLoop->PutInteger(nat, "number_atoms_nh", i);
-      s = (char *) residue_info.description_level.c_str();
+      s = residue_info.description_level.c_str();
       mmCIFLoop->PutString(s, "description_level", i);
       
+      std::string comp_record = "comp_list";
+      mmCIF->PutDataName(comp_record.c_str()); // 'data_' record
+      mmCIF->WriteMMCIFData(filename.c_str());
 
-      mmCIF->PutDataName   ("comp_list"); // 'data_' record
+      delete mmCIF;
 
+      mmCIF = new CMMCIFData;
+      
       // atom loop
 
       rc = mmCIF->AddLoop("_chem_comp_atom", mmCIFLoop);
@@ -3846,13 +3862,18 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    }
 	 }
       }
+
       
-      std::string comp_record = "comp_";
+      comp_record = "comp_";
       comp_record += residue_info.comp_id.c_str();
-      mmCIF->PutDataName((char *) comp_record.c_str()); // 'data_' record
-      mmCIF->WriteMMCIFData((char *) filename.c_str());
+      mmCIF->PutDataName(comp_record.c_str()); // 'data_' record
+
+      // CMMCIFFile mmcif_file;
+      // mmcif_file.WriteMMCIFFile(filename.c_str());
+      mmCIF->WriteMMCIFData(filename.c_str());
+	 // delete mmCIFLoop; // crashes
    }
-  delete mmCIF;
+   delete mmCIF;
 }
 
 

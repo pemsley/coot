@@ -1772,7 +1772,30 @@ std::pair<bool, clipper::RTop_orth>
 molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double> &current_view_mat,
 						     const clipper::Coord_orth &current_position,
 						     const std::string &current_chain,
-						     const std::string &next_ncs_chain) const {
+						     const std::string &next_ncs_chain,
+						     bool forward_flag) const {
+
+   if (forward_flag) 
+      return apply_ncs_to_view_orientation_forward(current_view_mat,
+						   current_position,
+						   current_chain,
+						   next_ncs_chain);
+   else
+      return apply_ncs_to_view_orientation_backward(current_view_mat,
+						    current_position,
+						    current_chain,
+						    next_ncs_chain);
+      
+}
+
+// Return a new orienation, to be used to set the view orientation/quaternion.
+// 
+std::pair<bool, clipper::RTop_orth>
+molecule_class_info_t::apply_ncs_to_view_orientation_forward(const clipper::Mat33<double> &current_view_mat,
+							     const clipper::Coord_orth &current_position,
+							     const std::string &current_chain,
+							     const std::string &next_ncs_chain) const { 
+
 
    clipper::Mat33<double> r = current_view_mat;
    bool apply_it = 0;
@@ -1824,7 +1847,6 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	    // were we on the last ghost that has the same
 	    // target_chain_id as this ghost has?
 	    
-	    // if (i_ghost_chain_match == (int(ncs_ghosts.size())-1)) { // too simple
 	    if (last_ghost_matching_target_chain_id_p(i_ghost_chain_match, ncs_ghosts)) { 
 	       
 	       // we need to go to the target_chain
@@ -1859,6 +1881,9 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	    // try to override that by the right operator:
 	    for (unsigned int ighost=0; ighost<n_ghosts; ighost++) {
 	       if (ncs_ghosts[ighost].target_chain_id == current_chain) {
+		  std::cout << "debug:: setting t to inverse of "
+			    << current_chain << " to " << ncs_ghosts[ighost].chain_id
+			    << std::endl;
 		  ncs_mat = ncs_ghosts[ighost].rtop.rot();
 		  t = current_position.transform(ncs_ghosts[ighost].rtop.inverse());
 		  break;
@@ -1870,6 +1895,126 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
       } 
    }
    clipper::RTop_orth rtop(r, t);
+   return std::pair<bool, clipper::RTop_orth> (apply_it, rtop);
+}
+
+// Return a new orienation, to be used to set the view orientation/quaternion.
+// 
+// This is for going for example (B->A or C->A with A,B,C,D NCS)
+// 
+std::pair<bool, clipper::RTop_orth>
+molecule_class_info_t::apply_ncs_to_view_orientation_backward(const clipper::Mat33<double> &current_view_mat,
+							     const clipper::Coord_orth &current_position,
+							     const std::string &current_chain,
+							     const std::string &next_ncs_chain) const { 
+
+   clipper::Mat33<double> r = current_view_mat;
+   bool apply_it = 0;
+   clipper::Coord_orth t(0,0,0);
+
+   unsigned int n_ghosts = ncs_ghosts.size();
+   if ((n_ghosts > 0) && (ncs_ghosts_have_rtops_flag))  {
+
+      // If current_chain is not a target_chain_id
+      //    { i.e. we were not sitting on an NCS master}
+      //    is there a ghost that has chain_id current_chain?
+      //    If so, note its target_chain_id {NCS Master}.
+
+      //    if next_ncs_chain (the one we want to jump to) is not
+      //    the target_chain_id then {
+      //       Then look for a ghost that chain_is next_ncs_chain
+      //       Note its target_chain_id.
+      //       if target_chain_ids match 
+      //          we can find the matrix
+      //    } else { next_ncs_chain *was* target_chain_id }
+      //          the ncs matrix is the ghost matrix
+      //    }
+      //
+      // else { were were sitting on a NCS master }
+      //
+      //     look at the "next" ghost, starting from the back
+      //     if the target chain for that is current_chain
+      //     then we want the inverse matrix of that next
+      //     ghost
+
+      if (! ncs_ghost_chain_is_a_target_chain_p(current_chain)) {
+	 // find the ghost that has current_chain as chain_id
+	 int i_ghost_chain_match = -1; // unset
+	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+	    if (ncs_ghosts[ighost].chain_id == current_chain) {
+	       i_ghost_chain_match = ighost;
+	       break;
+	    }
+	 }
+
+	 if (i_ghost_chain_match != -1) {
+	    // OK, we found (as expected) a ghost that has a chain_id
+	    // that is the current_chain.
+
+	    // Now, imagine we have A,B,C,D NCS ("A" is the master).
+	    // The B->A transformation is trivial, the A->D
+	    // transformation is the inverse of the ghost and D->C and
+	    // D->B involve 2 operations (to A then on again).
+	    //
+	    // We need to now check for the B->A case
+	    // 
+	    if (ncs_ghosts[i_ghost_chain_match].target_chain_id == next_ncs_chain) {
+	       clipper::RTop_orth ncs_mat = ncs_ghosts[i_ghost_chain_match].rtop;
+	       r = ncs_mat.rot() * r;
+	       t = current_position.transform(ncs_mat);
+	       apply_it = 1;
+
+	    } else {
+
+	       // D->C or C->B
+
+	       // OK, now what is the closest (going backward) ghost
+	       // that has the same target chain id as the
+	       // i_ghost_chain_match?
+	       std::string tc_id = ncs_ghosts[i_ghost_chain_match  ].target_chain_id;
+	       int prior_ghost_with_same_target_chain_id = -1;
+	       for (int ighost=(ncs_ghosts.size()-1); ighost>=0; ighost--) {
+		  if (ighost<i_ghost_chain_match) {
+		     if (ncs_ghosts[ighost].target_chain_id == tc_id) {
+			prior_ghost_with_same_target_chain_id = ighost;
+			break;
+		     }
+		  }
+	       }
+
+	       if (prior_ghost_with_same_target_chain_id != -1) { 
+		  
+		  clipper::RTop_orth ncs_mat_1 = ncs_ghosts[i_ghost_chain_match].rtop;
+		  clipper::RTop_orth ncs_mat_2 = ncs_ghosts[prior_ghost_with_same_target_chain_id].rtop;
+		  
+		  r = ncs_mat_2.rot().inverse() * (ncs_mat_1.rot() * r);
+		  t = current_position.transform(ncs_mat_1).transform(ncs_mat_2.inverse());
+		  apply_it = 1;
+	       }
+	    } 
+	 }
+
+      } else {
+
+	 // find a ghost that has this current_chain_id as a target_chain_id
+	 clipper::Mat33<double> ncs_mat = ncs_ghosts[0].rtop.rot();
+	 // try to override that by the right operator:
+	 // search from the back for the "next" NCS chain
+	 // that has target_chain id as current_chain
+	 for (int ighost=(n_ghosts-1); ighost>=0; ighost--) {
+	    if (ncs_ghosts[ighost].target_chain_id == current_chain) {
+	       ncs_mat = ncs_ghosts[ighost].rtop.rot();
+	       t = current_position.transform(ncs_ghosts[ighost].rtop.inverse());
+	       break;
+	    }
+	 }
+	 r = ncs_mat.inverse() * r;
+	 apply_it = 1;
+      } 
+   }
+   clipper::RTop_orth rtop(r, t);
+   if (! apply_it)
+      std::cout << "WARNING apply_it not set " << std::endl;
    return std::pair<bool, clipper::RTop_orth> (apply_it, rtop);
 }
 
@@ -1890,12 +2035,17 @@ molecule_class_info_t::ncs_ghost_chain_is_a_target_chain_p(const std::string &ch
    return r;
 }
 
+// Is this the last ghost chain that has the passed target_chain_id as it's target_chain_id?
+//
+// i.e. were we on the last ghost that has the same target_chain_id as this ghost has?
+// 
+// for example, "D" -> "A" in A,B,C,D
+// 
 bool
 molecule_class_info_t::last_ghost_matching_target_chain_id_p(int i_ghost_chain_match, 
 							     const std::vector<coot::ghost_molecule_display_t> &ncs_ghosts) const {
 
    bool is_last = 0;
-   // if (i_ghost_chain_match == (int(ncs_ghosts.size())-1)) { // too simple
 
    std::string match_target_chain_id = ncs_ghosts[i_ghost_chain_match].target_chain_id;
    int last_ghost_with_matching_target_chain_id = -1; // unset
