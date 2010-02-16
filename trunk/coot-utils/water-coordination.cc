@@ -26,6 +26,8 @@ coot::util::water_coordination_t::water_coordination_t(CMMDBManager *mol, realty
    int n_selected_atoms;
    int SelHnd = mol->NewSelection();
    int SelHnd_waters = mol->NewSelection();
+
+   // c.f. addSymmetry_whole_chain() in Bond-lines.cc 
    
    mol->SelectAtoms (SelHnd, 0, "*",
 		     ANY_RES, // starting resno, an int

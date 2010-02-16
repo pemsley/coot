@@ -4,7 +4,7 @@
 
     o make a mini-rsr ::: 1
 
-    o PISA interfaces via XML  ::: 5
+    o PISA interfaces via XML  ::: 8
 
     o Edit -> restraints for XX6, plane restraints sigma.  Close edit
       again -> fail.  Also Take N2 and O out of plane restraints. 
@@ -34,10 +34,13 @@
 
     o white background with ball and stick models. ::: 4
 
-
     o NCS functions in c-inteface.cc should move to c-interface-ncs.cc
       ::: 0.2
 
+    o anisotropic atom radius. ::: 1
+
+    o Get a molecule with high number of chains, colour by chain.  The
+      grey chain comes out thin [JED]. ::: 1
 
 ------
 

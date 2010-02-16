@@ -417,6 +417,15 @@
    (else
     (string-member? atom (cdr ls)))))
 
+;; 
+(define (member? atom ls)
+  (cond 
+   ((null? ls) #f)
+   ((eqv? atom (car ls)) #t)
+   (else 
+    (member? atom (cdr ls)))))
+    
+
 ;;; range: works like the eponymous python function
 ;;; e.g. (range 3) -> '(0, 1, 2)
 ;;; e.g. (range 1 3) -> '(1, 2)
@@ -496,8 +505,10 @@
 (define (goosh-command cmd args data-list log-file-name screen-output-also?)
     
   (if (not (command-in-path? cmd))
-
-      (format #t "command ~s not found~%" cmd)
+      
+      (begin 
+	(format #t "command ~s not found~%" cmd)
+	255)
 
       (let* ((cmd-ports (apply run-with-pipe (append (list "r+" cmd) args)))
 	     (pid (car cmd-ports))

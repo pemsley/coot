@@ -5847,6 +5847,20 @@ void remove_text(int text_handle);
 /*! \brief return the molecule number of the interacting
   residues. Return -1 if no new model was created.  */
 int pisa_interaction(int imol_1, int imol_2);
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/* an interface_description_scm is a record detailing the interface.
+   A record contains the bsa, asa, and 2 molecule records.  Molecule
+   records contain list of residue records.  The interface (dots) is
+   be made from these lists of residue records. Note of course that
+   imol_2 (or 1) can be a symmetry copy of (part of) mol_1 (or 2). */
+int pisa_interface_scm(int imol_1, int imol_2, SCM interface_description_scm);
+/* clear out and undisplay all pisa interface descriptions. */
+void pisa_clear_interfaces();
+#endif /* USE_GUILE */
+#endif	/* c++ */
+
+
 /* \} */
 
 
