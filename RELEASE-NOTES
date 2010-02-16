@@ -45,9 +45,6 @@
 
   o BUG-FIX: rotate/translate large fragments now works better.
 
-  o BUG-FIX: rotate/translate now updates symmetry on accept [Ezra
-    Peisach].
-
   o BUG-FIX: transform-map function fixed for 5 arguments.
 
   o BUG-FIX: Sort-chains no longer loses header information [Bob

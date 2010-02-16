@@ -1,6 +1,6 @@
 /* src/main.cc
  * 
- * Copyright 2009 The University of Oxford
+ * Copyright 2009, 2010 The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -81,3 +81,22 @@ int pisa_interaction(int imol_1, int imol_2) {
    }
    return imodel_new;
 } 
+
+
+
+int pisa_interface_scm(int imol_1, int imol_2, SCM interface_description_scm) {
+
+   // coot::pisa_molecule_t pisa_molecule_1;
+   // coot::pisa_molecule_t pisa_molecule_2;
+
+   // coot::pisa_interface_t pi(imol_1, imol_2, pisa_molecule_1, pisa_molecule_2);
+   return -1;
+}
+
+
+void pisa_clear_interfaces() {
+   
+
+}
+
+
