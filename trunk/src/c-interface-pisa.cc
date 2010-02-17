@@ -83,7 +83,7 @@ int pisa_interaction(int imol_1, int imol_2) {
 } 
 
 
-
+#ifdef USE_GUILE
 int pisa_interface_scm(int imol_1, int imol_2, SCM interface_description_scm) {
 
    // coot::pisa_molecule_t pisa_molecule_1;
@@ -92,6 +92,7 @@ int pisa_interface_scm(int imol_1, int imol_2, SCM interface_description_scm) {
    // coot::pisa_interface_t pi(imol_1, imol_2, pisa_molecule_1, pisa_molecule_2);
    return -1;
 }
+#endif /* USE_GUILE */
 
 
 void pisa_clear_interfaces() {
