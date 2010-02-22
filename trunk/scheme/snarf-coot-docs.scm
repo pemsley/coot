@@ -61,6 +61,7 @@
 (define matching-compund-names-from-sbase-scm #f)
 (define chain-id-scm #f)
 (define highly-coordinated-waters-scm #f)
+(define handle-pisa-interfaces-scm #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")

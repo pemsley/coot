@@ -282,16 +282,29 @@ namespace coot {
 
    class dots_representation_info_t {
       bool is_closed;
+      double get_radius(const std::string &ele) const; 
    public:
+      dots_representation_info_t() {
+	 is_closed = 0;
+      }
       std::vector<clipper::Coord_orth> points;
       dots_representation_info_t(const std::vector<clipper::Coord_orth> &points_in) {
 	 points = points_in;
 	 is_closed = 0;
       }
+      dots_representation_info_t(CMMDBManager *mol);
+      // make dots around the atoms of mol, only if they are close to
+      // atoms of mol_exclude
+      dots_representation_info_t(CMMDBManager *mol, CMMDBManager *mol_exclude);
+      // mol_exclude can be NULL.
+      void add_dots(int SelHnd_in, CMMDBManager *mol, CMMDBManager *mol_exclude,
+		    double dots_density);
       void close_yourself() {
 	 points.clear();
 	 is_closed = 1;
       }
+      void pure_points(CMMDBManager *mol); // don't surface mol, the surface points *are* the
+					   // (synthetic) atoms in mol.
       bool is_open_p() const {
 	 int r = 1 - is_closed;
 	 return r;
@@ -753,6 +766,7 @@ class molecule_class_info_t {
 			  clipper::RTop_orth a_to_b_transform);
 
    std::vector<coot::dots_representation_info_t> dots;
+   float dots_colour[3];
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
 				     bool ca_check_flag) const;
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
@@ -975,6 +989,12 @@ public:        //                      public
       symmetry_as_calphas = 0;
       symmetry_whole_chain_flag = 0;
       symmetry_colour_by_symop_flag = 0;
+
+      // dots colour can now be set from outside.
+      //
+      dots_colour[0] = 0.3;
+      dots_colour[1] = 0.4;
+      dots_colour[2] = 0.5;
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -2580,6 +2600,20 @@ public:        //                      public
 
    // -------- simply print it (at the moment) --------------
    void print_secondary_structure_info();
+
+   // --------- pisa surface make dots --------------------
+   // here we add the dots to the dots vector of this molecule
+   void add_dots(const coot::dots_representation_info_t &dots_in) {
+      dots.push_back(dots_in);
+   }
+
+   // ---- colour dots surface -----------
+   //
+   void set_dots_colour(float r, float g, float b) {
+      dots_colour[0] = r;
+      dots_colour[1] = g;
+      dots_colour[2] = b;
+   }
 
 };
 

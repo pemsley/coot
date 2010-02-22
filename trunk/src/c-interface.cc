@@ -3139,6 +3139,14 @@ int dots(int imol,
    return idots;
 }
 
+void set_dots_colour(int imol, float r, float g, float b) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_dots_colour(r,g,b);
+      graphics_draw();
+   }
+}
+
 void clear_dots(int imol, int dots_handle) {
 
    if ((imol >= 0) && (imol < graphics_info_t::n_molecules())) { 
@@ -3159,7 +3167,7 @@ int n_dots_sets(int imol) {
       std::cout << "WARNING:: Bad molecule number: " << imol << std::endl;
    } 
    return r;
-} 
+}
 
 
 std::pair<short int, float> float_from_entry(GtkWidget *entry) {

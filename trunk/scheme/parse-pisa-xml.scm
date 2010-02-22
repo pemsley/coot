@@ -2,7 +2,10 @@
 (use-modules (sxml simple)
 	     (ice-9 receive))
 
-	
+
+
+;; (define *pisa-command* "/home/paule/ccp4/ccp4-6.1.2/bin/pisa")
+(define *pisa-command* "pisa")	
 
 
 (define (pisa-assemblies imol)
@@ -14,16 +17,15 @@
 
 	   (begin
 	     (format #t "DEBUG:: ========= pisa with args ~s~%" 
-		     (list "pisa" "-analyse" pdb-file-name pisa-config))
+		     (list *pisa-command* "-analyse" pdb-file-name pisa-config))
 	     (let ((status (goosh-command "pisa" (list "pisa" "-analyse" pdb-file-name pisa-config) 
 					  '() "pisa.log" #f)))
 	       (if (not (number? status))
 		   (info-dialog "Ooops PISA failed to deliver the goods!\n\n(Go for a curry instead?)")
 		   (if (= status 0) ;; good
 		       (begin
-			 (format #t "DEBUG:: ========= pisa with args ~s~%" 
-				 (list "pisa" "-xml" "assemblies" pisa-config))
-			 (let ((status-2 (goosh-command "pisa" (list "pisa" "-xml" "assemblies" pisa-config) '() 
+			 (let ((status-2 (goosh-command *pisa-command* (list "pisa" "-xml" 
+								     "assemblies" pisa-config) '() 
 							pisa-xml-file-name #f)))
 			   (if (= status 0)
 			       (pisa-assemblies-xml imol pisa-xml-file-name))))))))))
@@ -45,8 +47,6 @@
 
 
 
-
-
 ;; Exported to the main level.  A molecule is common to assemblies and interfaces.
 ;; 
 ;; If pisa-result-type is 'assemblies, return a molecule number or #f
@@ -57,7 +57,7 @@
 ;;
 ;; a interface-molecule record contains information about pvalue and residues.
 ;; 
-(define (pisa-handle-sxml-molecule imol molecule pisa-results-type)
+(define (pisa-handle-sxml-molecule imol molecule pisa-results-type rt-mol rt-res)
 
   ;; was it a chain? (or residue selection disguised as
   ;; a chain?)
@@ -91,7 +91,9 @@
 	    ;; (format #t "found a simple chain_id ~s~%" chain-id-raw)
 	    (string-append "//" chain-id-raw)))))
 
-  ;; return a list of residue records (they can be #f, we will use map)
+  ;; Return a list of residue records (they can be #f, we will use map)
+  ;; 
+  ;; indeed they will be #f if bsa is not > 0.1 (or so)
   ;; 
   (define (handle-residues residues make-residue-record)
 
@@ -131,35 +133,26 @@
 		       (cdr residue)) ;; strip of the initial 'residue
 	     (if (not (and ser-no seq-num))
 		 #f ;; badness!
-		 (make-residue-record ser-no name seq-num (if ins-code ins-code "") asa bsa solv-en))))
+		 (if (not (string? bsa))
+		     #f
+		     (let ((bsa-number (string->number bsa)))
+		       (if (< bsa-number 0.1)
+			   #f
+			   (make-residue-record ser-no name seq-num (if ins-code ins-code "") asa bsa solv-en)))))))
 	 (cdr residues))) ;; just the residue list (strip off initial 'residues)
+  
+  ;; remove #fs from the residue list
+  (define (filter-residues residue-list)
+    (let ((result '()))
+      (cond
+       ((null? residue-list) '())
+       ((car residue-list) (cons (car residue-list) (filter-residues (cdr residue-list))))
+       (else 
+	(filter-residues (cdr residue-list))))))
 
-  (define (print-molecule record port)
-    (let ((rec-type (record-type-descriptor record)))
-      (format port "molecule: id ~s ~%" ((record-accessor rec-type 'id)             record))
-      (format port "molecule: chain-id ~s ~%" ((record-accessor rec-type 'chain-id) record))
-      (format port "molecule: class ~s ~%"    ((record-accessor rec-type 'class)    record))
-      (format port "molecule: symop-no ~s ~%" ((record-accessor rec-type 'symop-no) record))
-      (format port "molecule: natoms ~s ~%"   ((record-accessor rec-type 'natoms)   record))
-      (format port "molecule: nres ~s ~%"     ((record-accessor rec-type 'nres)     record))
-      (format port "molecule: area ~s ~%"     ((record-accessor rec-type 'area)     record))
-      (format port "molecule: solv-en ~s ~%"  ((record-accessor rec-type 'solv-en)  record))
-      (format port "molecule: pvalue ~%"      ((record-accessor rec-type 'pvalue)   record))
-      (format port "molecule: residues ~s ~%" ((record-accessor rec-type 'residues) record))))
-
-
-  (define (print-residue record port)
-    (let ((rec-type (record-type-descriptor record)))
-      (format port "[residue: ser-no ~s,"   ((record-accessor rec-type 'ser-no)   record))
-      (format port " name ~s,"     ((record-accessor rec-type 'name)     record))
-      (format port " seq-num ~s,"  ((record-accessor rec-type 'seq-num)  record))
-      (format port " ins-code ~s," ((record-accessor rec-type 'ins-code) record))
-      (format port " asa ~s,"      ((record-accessor rec-type 'asa)      record))
-      (format port " bsa ~s,"      ((record-accessor rec-type 'bsa)      record))
-      (format port " solv-en ~s]"  ((record-accessor rec-type 'solv-en)  record))))
-
-
+  ;; 
   (define (process-molecule-internal)
+
     ;;
     ;; rtop-symbols are common to interfaces and assemblies
     (let* ((rtop-symbols (list 'rxx 'rxy 'rxz 'ryx 'ryy 'ryz 'rzx 'rzy 'rzz 'tx 'ty 'tz)) ;; orthogonal 
@@ -179,11 +172,11 @@
 	   (solv-en #f)
 	   (pvalue #f)
 	   (residues '())
-	   (rt-mol (make-record-type "molecule" '(id chain-id class symop-no natoms nres area solv-en pvalue residues)
-				     print-molecule))
-	   (rt-res (make-record-type "residue" '(ser-no name seq-num ins-code asa bsa solv-en) print-residue))
+;;	   (rt-mol (make-pisa-molecule-record-type print-molecule))
+;;	   (rt-res (make-pisa-residue-record-type print-residue))
 	   (make-molecule-record (record-constructor rt-mol))
 	   (make-residue-record  (record-constructor rt-res)))
+
 
 
       (let ((ass-rtop-symbols '()) ;; association
@@ -222,15 +215,17 @@
 		  (lambda (symbol)
 		    (cond 
 		     ((eq? (car mol-ele) 'pvalue) (set! pvalue (cadr mol-ele)))
-		     ((eq? (car mol-ele) 'id) 'xx)
-		     ((eq? (car mol-ele) 'chain_id) (if (> (length mol-ele) 1) (set! chain-id (cadr mol-ele))))
-		     ((eq? (car mol-ele) 'class)    (if (> (length mol-ele) 1) (set! class    (cadr mol-ele))))
-		     ((eq? (car mol-ele) 'symop_no) (if (> (length mol-ele) 1) (set! symop-no (cadr mol-ele))))
-		     ((eq? (car mol-ele) 'int_natoms)   (if (> (length mol-ele) 1) (set!  natoms  (cadr mol-ele))))
-		     ((eq? (car mol-ele) 'int_nres)     (if (> (length mol-ele) 1) (set!  nres    (cadr mol-ele))))
-		     ((eq? (car mol-ele) 'int_area)     (if (> (length mol-ele) 1) (set!  area    (cadr mol-ele))))
-		     ((eq? (car mol-ele) 'int_solv_en)  (if (> (length mol-ele) 1) (set!  solv-en (cadr mol-ele))))
-		     ((eq? (car mol-ele) 'residues) (set! residues (handle-residues mol-ele make-residue-record)))))
+		     ((eq? (car mol-ele) 'id)          (if (> (length mol-ele) 1) (set! id       (cadr mol-ele))))
+		     ((eq? (car mol-ele) 'chain_id)    (if (> (length mol-ele) 1) (set! chain-id (cadr mol-ele))))
+		     ((eq? (car mol-ele) 'class)       (if (> (length mol-ele) 1) (set! class    (cadr mol-ele))))
+		     ((eq? (car mol-ele) 'symop_no)    (if (> (length mol-ele) 1) (set! symop-no (cadr mol-ele))))
+		     ((eq? (car mol-ele) 'int_natoms)  (if (> (length mol-ele) 1) (set! natoms   (cadr mol-ele))))
+		     ((eq? (car mol-ele) 'int_nres)    (if (> (length mol-ele) 1) (set! nres     (cadr mol-ele))))
+		     ((eq? (car mol-ele) 'int_area)    (if (> (length mol-ele) 1) (set! area     (cadr mol-ele))))
+		     ((eq? (car mol-ele) 'int_solv_en) (if (> (length mol-ele) 1) (set! solv-en  (cadr mol-ele))))
+		     ((eq? (car mol-ele) 'residues) 
+		      (let ((filtered-residues (filter-residues (handle-residues mol-ele make-residue-record))))
+			(set! residues filtered-residues)))))
 		  extra-symbols))))
 	 molecule) ;; passed to (at the main level) to pisa-handle-sxml-molecule.
 	
@@ -245,6 +240,7 @@
 	      (let* ((new-molecule-name (string-append "Symmetry copy of "
 						       (number->string imol)
 						       " using " symm-name-part))
+		     ;; new-molecule-by-symop-with-atom-selection, perhaps?
 		     (new-mol-no (apply new-molecule-by-symmetry-with-atom-selection
 					imol
 					new-molecule-name
@@ -257,7 +253,8 @@
 		    new-mol-no
 		    ;; interfaces:
 		    (list new-mol-no
-			  (make-molecule-record id chain-id class symop-no natoms nres area solv-en pvalue residues)))))))))
+			  (make-molecule-record id chain-id class symop-no natoms nres area 
+						solv-en pvalue residues)))))))))
 
   ;; main line
   ;; 
@@ -390,7 +387,7 @@
 	       (format #t "ele not list: ~s~%" ele) ; caution when deleting
 	       (cond 
 		((eq? (car ele) 'molecule)
-		 (let ((mol-no (pisa-handle-sxml-molecule imol ele 'assemblies)))
+		 (let ((mol-no (pisa-handle-sxml-molecule imol ele 'assemblies #f #f)))
 		   (set! assembly-molecule-numbers 
 			 (append assembly-molecule-numbers (list mol-no)))))
 		((eq? (car ele) 'symNumber)
@@ -578,7 +575,7 @@
 	       (begin
 		 (if (not (cached-pisa-analysis pisa-config))
 		     ;; pisa analysis
-		     (let ((status (goosh-command "pisa" 
+		     (let ((status (goosh-command *pisa-command*
 						  (list "pisa"  "-analyse" pdb-file-name pisa-config)
 						  '()
 						  "pisa-analysis.log" #f)))
@@ -587,7 +584,7 @@
 
 		 ;; OK, let's do interfaces
 		 ;; 
-		 (let ((status (goosh-command "pisa"
+		 (let ((status (goosh-command *pisa-command*
 					      (list "pisa" "-xml" "interfaces" pisa-config) '()
 					      pisa-xml-file-name #f)))
 		   (if (= status 0) ; good
@@ -717,39 +714,164 @@
 ;;                
 (define (parse-pisa-interfaces imol sxml-entity)
 
-  ;; later.
+  ;; return a list of bonds:
+  ;;
+  ;; (bond-type atom-spec-1 atom-spec-2)
+  ;; 
+  ;; where bond-type is 'hbond, 'salt-bridge, 'ss-bond, or 'cov-bond.
+  ;; 
   (define (molecule-bonds entity)
-    #t)
+
+    ;; return a list of 2 atom specs given something like: 
+    ;; 
+    ;; (bond (chain-1 "A") (res-1 "HIS") (seqnum-1 "268") (inscode-1)
+    ;; (atname-1 " NE2") (chain-2 "A") (res-2 "GLU") (seqnum-2 "270")
+    ;; (inscode-2) (atname-2 " OE2") (dist "2.2738189697"))
+    ;; 
+    ;; return #f if the atom specs are not fully set
+    ;; 
+    (define (parse-bond bond-description)
+      (let ((chain-id-1  #f)
+	    (chain-id-2  #f)
+	    (res-no-1    #f)
+	    (res-no-2    #f)
+	    (ins-code-1  #f)
+	    (ins-code-2  #f)
+	    (atom-name-1 #f)
+	    (atom-name-2 #f))
+	(for-each 
+	 (lambda (ele)
+	   (cond 
+	    ((not (pair? ele)) 'pass)
+	    ((not (= (length ele) 2)) 'pass)
+	    ((eq? 'chain-1   (car ele)) (set! chain-id-1  (cadr ele)))
+	    ((eq? 'chain-2   (car ele)) (set! chain-id-2  (cadr ele)))
+	    ((eq? 'seqnum-1  (car ele)) (set! res-no-1    (cadr ele)))
+	    ((eq? 'seqnum-2  (car ele)) (set! res-no-2    (cadr ele)))
+	    ((eq? 'inscode-1 (car ele)) (set! ins-code-1  (cadr ele)))
+	    ((eq? 'inscode-2 (car ele)) (set! ins-code-2  (cadr ele)))
+	    ((eq? 'atname-1  (car ele)) (set! atom-name-1 (cadr ele)))
+	    ((eq? 'atname-2  (car ele)) (set! atom-name-2 (cadr ele)))))
+	 bond-description)
+	(if (not (and chain-id-1 chain-id-2 res-no-1 res-no-2 atom-name-1 atom-name-2))
+	    #f
+	    (list
+	     (list chain-id-1 (string->number res-no-1) (if ins-code-1 ins-code-1 "") atom-name-1 "")
+	     (list chain-id-2 (string->number res-no-2) (if ins-code-2 ins-code-2 "") atom-name-2 "")))))
+      
+      
+
+    ;; (format #t "molecule-bonds handle entity: ~s~%" entity)
+    (let loop ((elements entity)
+	       (bond-type #f)
+	       (bonds '()))
+      (cond
+       ((null? elements) bonds)
+       ((not (pair? (car elements)))
+	(if (not (member? (car elements) (list 'h-bonds 'salt-bridges 'ss-bonds 'cov-bonds)))
+	    (loop (cdr elements) bond-type bonds)
+	    (begin
+	      (loop (cdr elements) (car elements) bonds))))
+       ((eq? (car (car elements)) 'bond)
+	(let ((atom-specs (parse-bond (cdr (car elements)))))
+	  (format #t "=== got atom specs: ~s from ~s~%" atom-specs (car elements))
+	  (if (not atom-specs)
+	      (loop (cdr elements) bond-type bonds)
+	      (loop (cdr elements)
+		bond-type
+		(cons (cons bond-type atom-specs) bonds)))))
+       (else
+	(loop (cdr elements) bond-type bonds)))))
+		  
+	    
+       
+
+  (define (pisa-handle-sxml-interface interface-entity rt-mol rt-res)
+    (let ((molecules '())
+	  (bonds '()))  ;; and some other interface stuff at some stage perhaps.
+      (let loop ((interface-entity interface-entity))
+	(cond
+	 ((null? interface-entity) 
+	  (list (reverse molecules) (reverse bonds))) ; return this
+	 ((not (pair? (car interface-entity))) (loop (cdr interface-entity)))
+	 ((eq? (car (car interface-entity)) 'molecule)
+	  ;;
+	  ;; molecule info is either #f or a pair of a new
+	  ;; molecule number and a pisa molecule record (which contains
+	  ;; things like pvalue, residues, id, class).
+	  ;; 
+	  (let ((molecule-info (pisa-handle-sxml-molecule imol (car interface-entity) 'interfaces 
+							  rt-mol rt-res)))
+	    (set! molecules (cons molecule-info molecules))
+	    (loop (cdr interface-entity))))
+	 ;; or was it a description of the interface bonds?
+	 ((member? (car (car interface-entity)) (list 'h-bonds 'salt-bridges 'ss-bonds 'cov-bonds))
+	  (set! bonds (append (molecule-bonds (car interface-entity)) bonds))
+	  (loop (cdr interface-entity)))
+	 (else 
+	  (loop (cdr interface-entity)))))))
+
+  (define (pisa-handle-pdb-entry pdb-entry-entity rt-mol rt-res)
+    (let ((interfaces '()))
+      (let loop ((entity pdb-entry-entity))
+	(cond
+	 ((null? entity) 
+	  (reverse interfaces)) ;; return this
+	 ((not (pair? (car entity))) (loop (cdr entity)))
+	 ((eq? (car (car entity)) 'interface)
+	  (set! interfaces (cons (pisa-handle-sxml-interface (car entity) rt-mol rt-res) interfaces))
+	  (loop (cdr entity)))
+	  ;; (format #t "interfaces now: ~s~%" interfaces)
+	 (else 
+	  (loop (cdr entity)))))))
 
   ;; 
-  (format #t "entered parse-pisa-interfaces~%") 
-  (let loop ((entity sxml-entity))
-    (cond
-     ((list? entity)
-      (if (not (null? entity))
-	  (begin
-
-	    (cond 
-	     ((eq? (car entity) 'molecule)
-
-	      ;; molecule info is either #f or a pair of a new
-	      ;; molecule number and a molecule record (which contains
-	      ;; things like pvalue, residues, id, class).
-	      ;; 
-	      (let ((molecule-info (pisa-handle-sxml-molecule imol entity 'interfaces)))
-		(format #t "pisa-handle-sxml-molecule returned molecule-info: ~s~%" molecule-info)))
-	     ((member? (car entity) (list 'h-bonds 'salt-bridges 'ss-bonds 'cov-bonds))
-	      (molecule-bonds entity))
-	     (else 
-	      (map loop entity)))))))))
+  (define (make-pisa-molecule-record-type print-molecule)
+    (make-record-type "molecule" '(id chain-id class symop-no natoms nres area 
+				      solv-en pvalue residues)
+		      print-molecule))
+  ;; 
+  (define (make-pisa-residue-record-type print-residue)
+    (make-record-type "residue" '(ser-no name seq-num ins-code asa bsa solv-en) print-residue))
 
 
-		     
+  (define (print-molecule record port)
+    (let ((rec-type (record-type-descriptor record)))
+      (format port "[molecule: id ~s ~%"       ((record-accessor rec-type 'id)       record))
+      (format port " molecule: chain-id ~s ~%" ((record-accessor rec-type 'chain-id) record))
+      (format port " molecule: class ~s ~%"    ((record-accessor rec-type 'class)    record))
+      (format port " molecule: symop-no ~s ~%" ((record-accessor rec-type 'symop-no) record))
+      (format port " molecule: natoms ~s ~%"   ((record-accessor rec-type 'natoms)   record))
+      (format port " molecule: nres ~s ~%"     ((record-accessor rec-type 'nres)     record))
+      (format port " molecule: area ~s ~%"     ((record-accessor rec-type 'area)     record))
+      (format port " molecule: solv-en ~s ~%"  ((record-accessor rec-type 'solv-en)  record))
+      (format port " molecule: pvalue ~s~%"   ((record-accessor rec-type 'pvalue)   record))
+      (format port " molecule: with ~s residues]~%"  (length ((record-accessor rec-type 'residues) record)))
+      ))
 
 
+  (define (print-residue record port)
+    (let ((rec-type (record-type-descriptor record)))
+      (format port "[residue: ser-no ~s,"   ((record-accessor rec-type 'ser-no)   record))
+      (format port " name ~s,"     ((record-accessor rec-type 'name)     record))
+      (format port " seq-num ~s,"  ((record-accessor rec-type 'seq-num)  record))
+      (format port " ins-code ~s," ((record-accessor rec-type 'ins-code) record))
+      (format port " asa ~s,"      ((record-accessor rec-type 'asa)      record))
+      (format port " bsa ~s,"      ((record-accessor rec-type 'bsa)      record))
+      (format port " solv-en ~s]"  ((record-accessor rec-type 'solv-en)  record))))
 
-
-
-  
-
-  
+  ;; main line
+  ;; 
+  (let ((rt-mol (make-pisa-molecule-record-type print-molecule))
+	(rt-res (make-pisa-residue-record-type  print-residue)))
+    (let ((pdb-entry #f))
+      (let loop ((sxml-entity sxml-entity))
+	(cond
+	 ((null? sxml-entity) pdb-entry)
+	 ((not (pair? sxml-entity)) 'pass)
+	 ((eq? (car sxml-entity) 'pdb_entry)
+	  (set! pdb-entry (pisa-handle-pdb-entry (cdr sxml-entity) rt-mol rt-res))
+	  (handle-pisa-interfaces pdb-entry))
+	 (else 
+	  (map loop sxml-entity)))))))
+      

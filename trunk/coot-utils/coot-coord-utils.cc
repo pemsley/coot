@@ -1816,6 +1816,12 @@ coot::util::get_residue(const std::string &chain_id,
    return res;
 }
 
+CResidue *
+coot::util::get_residue(const residue_spec_t &rs, CMMDBManager *mol) {
+   return get_residue(rs.chain, rs.resno, rs.insertion_code, mol);
+}
+  
+
 // Return NULL on residue not found in this molecule.
 // 
 CResidue *
@@ -2134,15 +2140,55 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<CResidue *>
 
    return std::pair<bool, CMMDBManager *> (1, mol);
 
-} 
+}
+
+
+CMMDBManager *
+coot::util::create_mmdbmanager_from_residue_specs(std::vector<coot::residue_spec_t> &r1,
+						  CMMDBManager *mol) {
+   std::vector<CResidue *> residues;
+
+   for (unsigned int ires=0; ires<r1.size(); ires++) {
+      CResidue *res = coot::util::get_residue(r1[ires], mol);
+      if (res) {
+	 residues.push_back(res);
+      }
+   }
+   CMMDBManager *new_mol = coot::util::create_mmdbmanager_from_residue_vector(residues).second;
+   return new_mol;
+}
+
+
+
+// a new residue for each point
+CMMDBManager *coot::util::create_mmdbmanager_from_points(const std::vector<clipper::Coord_orth> &pts) {
+
+   CMMDBManager *new_mol = new CMMDBManager;
+   CModel *model_p = new CModel;
+   CChain *chain_p = new CChain;
+   chain_p->SetChainID("A");
+
+   for (unsigned int i=0; i<pts.size(); i++) {
+      CAtom *at = new CAtom;
+      at->SetCoordinates(pts[i].x(), pts[i].y(), pts[i].z(), 1.0, 20.0);
+      at->SetAtomName(" CA ");
+      at->SetElementName(" C");
+      CResidue *residue_p = new CResidue;
+      residue_p->SetResName("ALA");
+      residue_p->seqNum = i;
+      residue_p->AddAtom(at);
+      chain_p->AddResidue(residue_p);
+   }
+   model_p->AddChain(chain_p);
+   new_mol->AddModel(model_p);
+   return new_mol;
+}
 
 void 
 coot::util::chain_id_residue_vec_helper_t::sort_residues() { 
 
-   
    std::sort(residues.begin(), residues.end(), 
 	     coot::util::chain_id_residue_vec_helper_t::residues_sort_func);
-
 }
 
 
@@ -5284,6 +5330,8 @@ coot::close_residues_from_different_molecules_t::close_residues(CMMDBManager *mo
 	    my_matt[i][j] = 0.0;      
       for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
+      std::cout << "... SeekContacts() on " << n_selected_atoms_1
+		<< " and " << n_selected_atoms_2 << " atoms" << std::endl;
       combined_mol->SeekContacts(atom_selection_1, n_selected_atoms_1,
 				 atom_selection_2, n_selected_atoms_2,
 				 0.0, dist,

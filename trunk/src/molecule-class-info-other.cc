@@ -88,6 +88,194 @@
 
 #include "rotamer-search-modes.hh"
 
+// ---------------------------------------------------------------------------------------
+//                           dots
+// ---------------------------------------------------------------------------------------
+
+// make a surface on mol
+coot::dots_representation_info_t::dots_representation_info_t(CMMDBManager *mol) {
+
+   is_closed = 0;
+   int SelHnd = mol->NewSelection();
+   mol->SelectAtoms(SelHnd, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+   CMMDBManager *dum = NULL;
+   add_dots(SelHnd, mol, dum, 1.0);
+   mol->DeleteSelection(SelHnd);
+}
+
+coot::dots_representation_info_t::dots_representation_info_t(CMMDBManager *mol,
+							     CMMDBManager *mol_exclude) {
+
+   is_closed = 0;
+   int SelHnd = mol->NewSelection();
+   mol->SelectAtoms(SelHnd, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+   add_dots(SelHnd, mol, mol_exclude, 1.0);
+   mol->DeleteSelection(SelHnd);
+}
+
+double
+coot::dots_representation_info_t::get_radius(const std::string &ele) const {
+
+   double radius = 1.70;
+   if (ele == " H")
+      radius = 1.20;
+   if (ele == " N")
+      radius = 1.55;
+   if (ele == " O")
+      radius = 1.52;
+   if (ele == " S")
+      radius = 1.8;
+   return radius;
+} 
+
+void
+coot::dots_representation_info_t::add_dots(int SelHnd, CMMDBManager *mol,
+					   CMMDBManager *mol_exclude,
+					   double dot_density) {
+
+   PPCAtom atoms = NULL;
+   int n_atoms;
+
+   double phi_step = 5.0 * (M_PI/180.0);
+   double theta_step = 5.0 * (M_PI/180.0);
+   if (dot_density > 0.0) { 
+      phi_step   /= dot_density;
+      theta_step /= dot_density;
+   }
+   mol->GetSelIndex(SelHnd, atoms, n_atoms);
+   std::vector<double> radius(n_atoms);
+   std::vector<double> radius_exclude;
+   for (unsigned int iat=0; iat<n_atoms; iat++) {
+      std::string ele(atoms[iat]->element);
+      radius[iat] = get_radius(ele);
+   }
+
+
+   int n_atoms_exclude = 0;
+   PPCAtom atoms_exclude = NULL;
+   int SelHnd_exclude = 0;
+   if (mol_exclude) {
+      SelHnd_exclude = mol_exclude->NewSelection();
+      mol_exclude->SelectAtoms(SelHnd_exclude, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+      mol_exclude->GetSelIndex(SelHnd_exclude, atoms_exclude, n_atoms_exclude);
+      radius_exclude.resize(n_atoms_exclude);
+      for (unsigned int iat=0; iat<n_atoms_exclude; iat++) {
+	 std::string ele(atoms_exclude[iat]->element);
+	 radius_exclude[iat] = get_radius(ele);
+      }
+   }
+   
+   for (int iatom=0; iatom<n_atoms; iatom++) {
+      if (! atoms[iatom]->isTer()) { 
+	 clipper::Coord_orth centre(atoms[iatom]->x,
+				    atoms[iatom]->y,
+				    atoms[iatom]->z);
+	 bool even = 1;
+	 for (double theta=0; theta<M_PI; theta+=theta_step) {
+	    double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
+	    for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
+	       if (even) {
+
+		  // Is there another atom in the same residue as this
+		  // atom, that is closer to pt than the centre atom?
+		  // If so, don't draw this point.
+
+		  double atom_radius = radius[iatom];
+		  double atom_radius_squard = atom_radius * atom_radius;
+	       
+		  clipper::Coord_orth pt(atom_radius*cos(phi)*sin(theta),
+					 atom_radius*sin(phi)*sin(theta),
+					 atom_radius*cos(theta));
+		  pt += centre;
+
+		  bool draw_it = 1;
+
+		  // it might be possible to speed this up by precalculating all dot
+		  // points and then doing a findcontacts to the atoms of the atom
+		  // selection. That is involved though.
+	       
+		  for (int jatom=0; jatom<n_atoms; jatom++) {
+		     if (jatom != iatom) {
+			if (! atoms[jatom]->isTer()) {
+			   double radius_j = radius[jatom];
+			   double radius_j_squared = radius_j * radius_j;
+			   clipper::Coord_orth pt_j(atoms[jatom]->x, atoms[jatom]->y, atoms[jatom]->z);
+			   if ((pt-pt_j).lengthsq() < radius_j_squared) {
+			      draw_it = 0;
+			      break;
+			   }
+			}
+		     }
+		  }
+
+		  // and now, don't draw if far from exclude molecule
+		  // atoms (if there are any).
+		  //
+		  if (n_atoms_exclude) { 
+		     if (draw_it) {
+			draw_it = 0;
+			double dist_j = 4.0;
+			double dist_j_squared = dist_j * dist_j;
+			for (int jatom=0; jatom<n_atoms_exclude; jatom++) {
+			   if (! atoms_exclude[jatom]->isTer()) {
+			      clipper::Coord_orth pt_j(atoms_exclude[jatom]->x,
+						       atoms_exclude[jatom]->y,
+						       atoms_exclude[jatom]->z);
+			      if ((pt-pt_j).lengthsq() < dist_j_squared) {
+				 draw_it = 1;
+				 break;
+			      }
+			   }
+			}
+		     }
+		  }
+		  
+		  if (draw_it) {
+		     points.push_back(pt);
+		  }
+	       }
+	       even = 1 - even;
+	    }
+	 }
+      }
+   }
+   if (mol_exclude) {
+      mol_exclude->DeleteSelection(SelHnd_exclude);
+   }
+}
+
+
+// simply transfer the atoms of mol to the points vector
+//
+void
+coot::dots_representation_info_t::pure_points(CMMDBManager *mol) {
+
+   is_closed = 0;
+   int imod = 1;
+   CModel *model_p = mol->GetModel(imod);
+   CChain *chain_p;
+   // run over chains of the existing mol
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      CResidue *residue_p;
+      CAtom *at;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 int n_atoms = residue_p->GetNumberOfAtoms();
+	 
+	 for (int iat=0; iat<n_atoms; iat++) {
+	    at = residue_p->GetAtom(iat);
+	    points.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+	 }
+      }
+   }
+}
+
+// ---------------------------------------------------------------------------------------
+//                           molecule class
+// ---------------------------------------------------------------------------------------
 void
 molecule_class_info_t::debug_selection() const { 
 
@@ -95,7 +283,7 @@ molecule_class_info_t::debug_selection() const {
    // 
    
    int SelHnd = atom_sel.mol->NewSelection();
-   PPCAtom atom;
+   PPCAtom atom = NULL;
    int n_atoms;
 
    atom_sel.mol->SelectAtoms(SelHnd,
@@ -6798,18 +6986,20 @@ molecule_class_info_t::fill_partial_residue(coot::residue_spec_t &residue_spec,
 void
 molecule_class_info_t::draw_dots() {
 
-   for (int iset=0; iset<dots.size(); iset++) {
-      if (dots[iset].is_open_p() == 1) {
-	 glPointSize(2);
-	 glColor3f(0.3, 0.4, 0.5);
-	 glBegin(GL_POINTS);
-	 unsigned int n_points = dots[iset].points.size();
-	 for (unsigned int i=0; i<n_points; i++) {
-	    glVertex3f(dots[iset].points[i].x(),
-		       dots[iset].points[i].y(),
-		       dots[iset].points[i].z());
+   if (drawit) { 
+      for (int iset=0; iset<dots.size(); iset++) {
+	 if (dots[iset].is_open_p() == 1) {
+	    glPointSize(2);
+	    glColor3f(dots_colour[0], dots_colour[1], dots_colour[2]);
+	    glBegin(GL_POINTS);
+	    unsigned int n_points = dots[iset].points.size();
+	    for (unsigned int i=0; i<n_points; i++) {
+	       glVertex3f(dots[iset].points[i].x(),
+			  dots[iset].points[i].y(),
+			  dots[iset].points[i].z());
+	    }
+	    glEnd();
 	 }
-	 glEnd();
       }
    }
 }
@@ -6862,8 +7052,6 @@ molecule_class_info_t::make_dots(const std::string &atom_selection_str,
 				    atom_selection[iatom]->z);
 
 	 short int even = 1;
-// 	    for (float theta=0; theta<M_PI;
-// 		 theta+=theta_step + f*((theta-M_PI/2.0)*(theta-M_PI/2.0))) {
 	 for (float theta=0; theta<M_PI; theta+=theta_step) {
 	    float phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
 	    for (float phi=0; phi<2*M_PI; phi+=phi_step_inner) {

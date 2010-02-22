@@ -82,6 +82,7 @@
 (define matching-compound-names-from-sbase matching-compound-names-from-sbase-scm)
 (define chain-id chain-id-scm)
 (define highly-coordinated-waters highly-coordinated-waters-scm)
+(define handle-pisa-interfaces handle-pisa-interfaces-scm)
 
 ;; documented functions
 
