@@ -2198,6 +2198,7 @@ float median_temperature_factor(int imol);
 float average_temperature_factor(int imol);
 float standard_deviation_temperature_factor(int imol);
 
+/*! \brief clear pending picks (stop coot thinking that the user is about to pick an atom).  */
 void clear_pending_picks(); 
 char *centre_of_mass_string(int imol);
 #ifdef USE_PYTHON
@@ -4078,6 +4079,11 @@ int dots(int imol,
 	  const char *atom_selection_str,
 	  float dot_density, float sphere_size_scale);
 
+/*! \brief set the colour of the surface of the imol-th molecule
+
+  r,g,b are values between 0.0 and 1.0 */
+void set_dots_colour(int imol, float r, float g, float b);
+
 /*! \brief clear dots in imol with dots_handle */
 void clear_dots(int imol, int dots_handle);
 
@@ -5845,16 +5851,30 @@ void remove_text(int text_handle);
 /*! \name PISA Interaction */
 /* \{ */
 /*! \brief return the molecule number of the interacting
-  residues. Return -1 if no new model was created.  */
+  residues. Return -1 if no new model was created. Old, not very useful. */
 int pisa_interaction(int imol_1, int imol_2);
 #ifdef __cplusplus
 #ifdef USE_GUILE
-/* an interface_description_scm is a record detailing the interface.
+/* \brief the scripting interface, called from parsing the PISA XML
+   interface description
+
+   An interface_description_scm is a record detailing the interface.
    A record contains the bsa, asa, and 2 molecule records.  Molecule
    records contain list of residue records.  The interface (dots) is
    be made from these lists of residue records. Note of course that
-   imol_2 (or 1) can be a symmetry copy of (part of) mol_1 (or 2). */
-int pisa_interface_scm(int imol_1, int imol_2, SCM interface_description_scm);
+   imol_2 (or 1) can be a symmetry copy of (part of) mol_1 (or 2). 
+   
+   Return the dot indexes (currently -1)
+
+*/
+SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm);
+
+/* internal function */
+SCM pisa_molecule_record_residues(SCM molecule_record_1);
+SCM pisa_molecule_record_chain_id(SCM molecule_record_1);
+void add_pisa_interface_bond_scm(int imol_1, int imol_2, SCM pisa_bond_scm, 
+				 int interface_number);
+
 /* clear out and undisplay all pisa interface descriptions. */
 void pisa_clear_interfaces();
 #endif /* USE_GUILE */

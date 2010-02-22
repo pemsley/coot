@@ -4,7 +4,7 @@
 
     o make a mini-rsr ::: 1
 
-    o PISA interfaces via XML  ::: 8
+    o PISA interfaces via XML  ::: 10
 
     o Edit -> restraints for XX6, plane restraints sigma.  Close edit
       again -> fail.  Also Take N2 and O out of plane restraints. 
@@ -14,6 +14,9 @@
 
       The tlc for XX6 seems to be " " - why is that? It's because the
       cif was wrongly written. ::: 2
+
+    o Restore a session that has an anomalous map in the state.  Fail.
+      Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
 
     o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
 
@@ -27,12 +30,17 @@
     o roll up/collapse addition representation in Display manager when
       they are not displayed ::: 2
 
+    o change to rms z scores ::: 2
+
     o alt confs cause problems in geometry graph [JED] ::: 2
 
     o show-spacegroup should be deprecated.  use SCM space_group_scm()
       (etc) ::: 1
 
     o white background with ball and stick models. ::: 4
+
+    o load tutorial data gets files from a relative place? Seems
+      so. ::: 0.1
 
     o NCS functions in c-inteface.cc should move to c-interface-ncs.cc
       ::: 0.2
@@ -42,8 +50,10 @@
     o Get a molecule with high number of chains, colour by chain.  The
       grey chain comes out thin [JED]. ::: 1
 
-------
+    o Do ccp4i aliases work?  Ingo Korndoerfer suggest not.
 
+
+------
 
     o Fix rename-residue to work on just one chain ::: 0.5
 
@@ -183,7 +193,8 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 
     o Felix F SHELXL symmetry problem. ::: 0.2
 
-* Displaced residue (10 unit cells away) - Coot gives up generating symmetry atoms.
+* Displaced residue (10 unit cells away) - Coot gives up generating
+  symmetry atoms.
 
     o Make RSR interuptable ::: 2
 
@@ -218,7 +229,8 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 * Done.
 
     o accept sphere refine when geometry graph is displayed -> crash. [JED] 
-      Test terminal output with geometry graph up, with sphere refine and linear refine.
+      Test terminal output with geometry graph up, with sphere refine
+      and linear refine.
       ::: 3
 
 * Done.
@@ -231,7 +243,8 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 
 * Done.
 
-    o NCS differences was broken by gaps not of the same length [Ingo Korndoerfer] ::: 1
+    o NCS differences was broken by gaps not of the same length [Ingo
+      Korndoerfer] ::: 1
 
     o get reverse NCS skip working ::: 2
 

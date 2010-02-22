@@ -62,6 +62,7 @@ namespace coot {
       int int_user_data;
       float float_user_data;
       std::string string_user_data;
+      int model_number;
       atom_spec_t() {}
       atom_spec_t(const std::string &chain_in,
 		  int resno_in,
@@ -73,18 +74,21 @@ namespace coot {
 	 insertion_code = insertion_code_in;
 	 atom_name = atom_name_in;
 	 alt_conf = alt_conf_in;
+	 model_number = 1; 
       }
       // This presumes at is a member of a coordinate hierarchy.
       atom_spec_t(CAtom *at) {
 	 chain = at->GetChainID();
 	 resno = at->GetSeqNum();
 	 insertion_code = at->GetInsCode();
+	 model_number = at->GetModelNum();
 	 atom_name = at->name;
 	 alt_conf = at->altLoc;
 	 int_user_data = -1; // mark as "unset" (better than not setting it)
       }
       // This presumes at is a member of a coordinate hierarchy.
       atom_spec_t(CAtom *at, const std::string &user_data_string) {
+	 model_number = at->GetModelNum();
 	 chain = at->GetChainID();
 	 resno = at->GetSeqNum();
 	 insertion_code = at->GetInsCode();
@@ -107,12 +111,14 @@ namespace coot {
       bool matches_spec(CAtom *atom) const;
 
       bool operator==(const atom_spec_t &matcher) const {
-	 if (matcher.chain == chain) {
-	    if (matcher.resno == resno) {
-	       if (matcher.insertion_code == insertion_code) {
-		  if (matcher.atom_name == atom_name) {
-		     if (matcher.alt_conf == alt_conf) {
-			return 1; 
+	 if (matcher.model_number == model_number) { 
+	    if (matcher.chain == chain) {
+	       if (matcher.resno == resno) {
+		  if (matcher.insertion_code == insertion_code) {
+		     if (matcher.atom_name == atom_name) {
+			if (matcher.alt_conf == alt_conf) {
+			   return 1; 
+			}
 		     }
 		  }
 	       }
@@ -658,8 +664,12 @@ namespace coot {
 
       // Return NULL on residue not found in this molecule.
       // 
-      CResidue *get_residue(const std::string &chain_id, int reso, const std::string &insertion_code,
+      CResidue *get_residue(const std::string &chain_id, int reso,
+			    const std::string &insertion_code,
 			    CMMDBManager *mol);
+
+      // convenience interface to above
+      CResidue *get_residue(const residue_spec_t &rs, CMMDBManager *mol);
 
       // Return NULL on residue not found in this molecule.
       // 
@@ -835,6 +845,15 @@ namespace coot {
 								    int SelectionHandle);
 
       CMMDBManager *create_mmdbmanager_from_atom(CAtom *at);
+
+      // a new residue for each point.  Caller deletes.
+      // 
+      CMMDBManager *create_mmdbmanager_from_points(const std::vector<clipper::Coord_orth> &pts);
+
+      // calling function deletes
+      // 
+      CMMDBManager *create_mmdbmanager_from_residue_specs(std::vector<coot::residue_spec_t> &r1,
+							  CMMDBManager *mol);
 
       void add_copy_of_atom(CMMDBManager *mol, CAtom *atom);
 
@@ -1090,12 +1109,12 @@ namespace coot {
       // Print secondary structure info:
       void print_secondary_structure_info(CModel *model_p);
       
-   }
+   } // namespace util
    std::ostream&  operator<<(std::ostream&  s, const util::quaternion &q);
    std::ofstream& operator<<(std::ofstream& s, const util::quaternion &q);
    std::ostream& operator<<(std::ostream& s, const atom_spec_t &spec);
    std::ostream& operator<<(std::ostream& s, const residue_spec_t &spec);
 
-}
+} // namespace coot
 
 #endif // HAVE_COOT_COORD_UTILS_HH

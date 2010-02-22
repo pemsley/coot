@@ -23,6 +23,7 @@
 #ifndef CC_INTERFACE_HH
 #define CC_INTERFACE_HH
 
+
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
 
@@ -444,7 +445,6 @@ SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code
 //! return a molecule number, -1 on error
 int add_molecule(SCM molecule_expression, const char *name);
 
-
 //! \brief update a molecule from a s-expression
 //!
 //! And going the other way, given an s-expression, update
@@ -775,6 +775,28 @@ std::string coot_get_url_as_string_internal(const char *url);
 void *wrapped_curl_easy_perform(void *data);
 void stop_curl_download(const char *file_name); // stop curling the to file_name;
 #endif /* USE_LIBCURL */
+
+/*  ----------------------------------------------------------------------- */
+/*                  Pisa internal                                           */
+/*  ----------------------------------------------------------------------- */
+std::pair<int, int> make_complementary_dotted_surfaces(int imol_1, int imol_2, 
+						       std::vector<coot::residue_spec_t> &r1, 
+						       std::vector<coot::residue_spec_t> &r2);
+#ifdef USE_GUILE
+std::vector<coot::residue_spec_t>
+residue_records_list_scm_to_residue_specs(SCM mol_1_residue_records,
+					  const std::string &chain_id);
+SCM symbol_value_from_record(SCM record_1, const std::string &symbol);
+#endif 
+
+void
+add_generic_object_bond(int imol1, int imol2,
+			const coot::atom_spec_t &atom_spec_1,
+			const coot::atom_spec_t &atom_spec_2,
+			int generic_object_number,
+			const std::string &colour);
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Utility Functions                                       */

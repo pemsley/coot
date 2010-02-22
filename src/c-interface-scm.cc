@@ -41,7 +41,7 @@
 SCM display_scm(SCM o) {
 
    SCM dest = SCM_BOOL_F;
-   SCM mess = scm_makfrom0str("object: ~s\n");
+   SCM mess = scm_makfrom0str("object: ~s");
    return scm_simple_format(dest, mess, scm_list_1(o));
 }
 

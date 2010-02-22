@@ -5393,6 +5393,20 @@ Sat Feb 13 14:35:12 GMT 2010
    the wrong spacegroup?
 
 
+---
+Mon Feb 15 02:32:00 GMT 2010
+
+   (Refmac) Additional restraints:
+
+exte dist first chain A resi 2 atom CA second chain A resi 5 atom CA value 4.0 sigma 0.02 
+http://www.ccp4.ac.uk/dist/html/refmac5/keywords/keywords_5_5.html#External
+
+----
+Wed Feb 17 03:05:21 GMT 2010
+
+   Sphere refinement with alt confs creates problems (no progress).
+   e.g.: around B 425 in 3h7w.
+
 
 ------
 

@@ -4269,11 +4269,13 @@ void graphics_info_t::run_user_defined_click_func() {
    
 #if defined USE_GUILE && ! defined WINDOWS_MINGW
 
-   if (scm_is_true(user_defined_click_scm_func)) { 
+   if (scm_is_true(scm_procedure_p(user_defined_click_scm_func))) { 
       SCM arg_list = SCM_EOL;
       for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
 	 SCM spec_scm = atom_spec_to_scm(user_defined_atom_pick_specs[i]);
-	 arg_list = scm_cons(spec_scm, arg_list);
+	 SCM spec_with_model_num = scm_cons(SCM_MAKINUM(user_defined_atom_pick_specs[i].model_number),
+					    spec_scm);
+	 arg_list = scm_cons(spec_with_model_num, arg_list);
       } 
       arg_list = scm_reverse(arg_list);
       
@@ -4295,44 +4297,48 @@ void graphics_info_t::run_user_defined_click_func() {
 
    if (user_defined_click_py_func) {
 
-     if (!PyCallable_Check(user_defined_click_py_func)) {
-       std::cout<<"(PYTHON) ERROR:: user_defined_click function must be callable, is "
-		<< user_defined_click_py_func->ob_type->tp_name<<std::endl;
-     } else {
-      // what are we running? Print it out.
-      std::cout << "INFO applying > " 
-		<< PyEval_GetFuncName(user_defined_click_py_func)
-		<< " < on ";
-
-      PyObject *arg_list_py = PyTuple_New(user_defined_atom_pick_specs.size());
-      for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
-	 PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
-	 // continue output from above
-	 PyObject *fmt = PyString_FromString("[%i,'%s',%i,'%s','%s','%s']");
-	 PyObject *msg = PyString_Format(fmt, PyList_AsTuple(spec_py));
-	 std::cout <<PyString_AsString(msg) << " ";
-	 PyTuple_SetItem(arg_list_py, i, spec_py);
-	 Py_DECREF(fmt);
-	 Py_DECREF(msg);
-      }
-      std::cout<< "" <<std::endl; // end ouput
-      
-      if (PyTuple_Check(arg_list_py)) {
-	 if (!PyCallable_Check(user_defined_click_py_func)) {
-	    std::cout << "WARNING:: python user click function should have been callable." << std::endl;
-	    std::cout << "WARNING:: Ignoring it." << std::endl;
-            return;
-        }
-	 PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
-	 Py_DECREF(arg_list_py);
-	 if (result) {
-	    Py_DECREF(result);
-	 }
+      if (!PyCallable_Check(user_defined_click_py_func)) {
+	 std::cout<<"(PYTHON) ERROR:: user_defined_click function must be callable, is "
+		  << user_defined_click_py_func->ob_type->tp_name<<std::endl;
       } else {
-	 Py_DECREF(arg_list_py);
-	 std::cout<<"ERROR:: executing user_defined_click" <<std::endl;
-      }      
-     }
+	 // what are we running? Print it out.
+	 std::cout << "INFO applying > " 
+		   << PyEval_GetFuncName(user_defined_click_py_func)
+		   << " < on ";
+
+	 PyObject *arg_list_py = PyTuple_New(user_defined_atom_pick_specs.size());
+	 for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
+	    PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
+	    // we need to add the model number too
+	    PyObject *model_number_py = PyInt_FromLong(user_defined_atom_pick_specs[i].model_number);
+	    PyList_Insert(spec_py, 0, model_number_py)
+	 
+	    // continue output from above
+	    PyObject *fmt = PyString_FromString("[%i,'%s',%i,'%s','%s','%s']");
+	    PyObject *msg = PyString_Format(fmt, PyList_AsTuple(spec_py));
+	    std::cout <<PyString_AsString(msg) << " ";
+	    PyTuple_SetItem(arg_list_py, i, spec_py);
+	    Py_DECREF(fmt);
+	    Py_DECREF(msg);
+	 }
+	 std::cout <<std::endl; // end ouput
+      
+	 if (PyTuple_Check(arg_list_py)) {
+	    if (!PyCallable_Check(user_defined_click_py_func)) {
+	       std::cout << "WARNING:: python user click function should have been callable." << std::endl;
+	       std::cout << "WARNING:: Ignoring it." << std::endl;
+	       return;
+	    }
+	    PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
+	    Py_DECREF(arg_list_py);
+	    if (result) {
+	       Py_DECREF(result);
+	    }
+	 } else {
+	    Py_DECREF(arg_list_py);
+	    std::cout<<"ERROR:: executing user_defined_click" <<std::endl;
+	 }      
+      }
    }
 
 #endif // USE_PYTHON
