@@ -19,6 +19,7 @@
  */
 
 
+#include <iostream> // fixes undefined strchr, strchrr problems
 #include "mmdb_manager.h"
 #include <gtk/gtk.h>
 
