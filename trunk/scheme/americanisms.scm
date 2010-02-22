@@ -25,5 +25,5 @@
 (define set-font-color set-font-colour)
 
 ;; an americanism
-(define set-dot-color set-dot-colour)
+(define set-dots-color set-dots-colour)
 
