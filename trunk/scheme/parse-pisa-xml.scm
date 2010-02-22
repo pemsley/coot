@@ -175,6 +175,13 @@
       (format port " bsa ~s,"      ((record-accessor rec-type 'bsa)      record))
       (format port " solv-en ~s]"  ((record-accessor rec-type 'solv-en)  record))))
 
+  (define (make-pisa-molecule-record-type print-molecule)
+    (make-record-type "molecule" '(id chain-id class symop-no natoms nres area 
+				      solv-en pvalue residues)
+		      print-molecule))
+  ;; 
+  (define (make-pisa-residue-record-type print-residue)
+    (make-record-type "residue" '(ser-no name seq-num ins-code asa bsa solv-en) print-residue))
 
 
   ;; 
@@ -801,7 +808,7 @@
 	      (loop (cdr elements) (car elements) bonds))))
        ((eq? (car (car elements)) 'bond)
 	(let ((atom-specs (parse-bond (cdr (car elements)))))
-	  (format #t "=== got atom specs: ~s from ~s~%" atom-specs (car elements))
+	  ;; (format #t "=== got atom specs: ~s from ~s~%" atom-specs (car elements))
 	  (if (not atom-specs)
 	      (loop (cdr elements) bond-type bonds)
 	      (loop (cdr elements)
@@ -852,14 +859,6 @@
 	  (loop (cdr entity)))))))
 
   ;; 
-  (define (make-pisa-molecule-record-type print-molecule)
-    (make-record-type "molecule" '(id chain-id class symop-no natoms nres area 
-				      solv-en pvalue residues)
-		      print-molecule))
-  ;; 
-  (define (make-pisa-residue-record-type print-residue)
-    (make-record-type "residue" '(ser-no name seq-num ins-code asa bsa solv-en) print-residue))
-
 
   ;; main line
   ;; 

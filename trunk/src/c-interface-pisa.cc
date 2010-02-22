@@ -31,7 +31,10 @@
 /*                  PISA Interface                                      */
 /*  ----------------------------------------------------------------------- */
 
-// return the new model_number or -1; 
+// return the new model_number or -1;
+//
+// old function, made before pisa_interfaces.
+// 
 int pisa_interaction(int imol_1, int imol_2) {
 
    int imodel_new = -1;
@@ -164,9 +167,9 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 	    }
 					       
 	    SCM bonds_info_scm = scm_list_ref(interface_scm, SCM_MAKINUM(1));
-	    std::cout << " in handle_pisa_interfaces_scm() got interface bonds: "
-		      << scm_to_locale_string(display_scm(bonds_info_scm))
-		      << std::endl;
+// 	    std::cout << " in handle_pisa_interfaces_scm() got interface bonds: "
+// 		      << scm_to_locale_string(display_scm(bonds_info_scm))
+// 		      << std::endl;
 	    if (scm_is_true(scm_list_p(bonds_info_scm))) {
 	       SCM bonds_info_length_scm = scm_length(bonds_info_scm);
 	       int bonds_info_length = scm_to_int(bonds_info_length_scm);
@@ -369,7 +372,7 @@ add_generic_object_bond(int imol1, int imol2,
 	 if (at1 && at2) {
 	    clipper::Coord_orth pt1(at1->x, at1->y, at1->z);
 	    clipper::Coord_orth pt2(at2->x, at2->y, at2->z);
-	    std::cout << "    " << at1 <<  " and " << at2 << std::endl;
+	    // std::cout << "    " << at1 <<  " and " << at2 << std::endl;
 	    to_generic_object_add_dashed_line(generic_object_number,
 					      colour.c_str(),
 					      5, 0.5,
@@ -414,7 +417,7 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
    // consider making the dots generation a member function of dots_representation_info_t
    // and making it available here (if it isn't already).
 
-   float close_dist = 4.0;
+   float close_dist = 4.5;
 
    if (is_valid_model_molecule(imol_1)) { 
       if (is_valid_model_molecule(imol_2)) {
