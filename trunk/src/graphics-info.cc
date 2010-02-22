@@ -4311,7 +4311,7 @@ void graphics_info_t::run_user_defined_click_func() {
 	    PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
 	    // we need to add the model number too
 	    PyObject *model_number_py = PyInt_FromLong(user_defined_atom_pick_specs[i].model_number);
-	    PyList_Insert(spec_py, 0, model_number_py)
+	    PyList_Insert(spec_py, 0, model_number_py);
 	 
 	    // continue output from above
 	    PyObject *fmt = PyString_FromString("[%i,'%s',%i,'%s','%s','%s']");
