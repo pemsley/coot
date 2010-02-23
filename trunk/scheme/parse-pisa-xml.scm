@@ -155,6 +155,7 @@
       (format port "[molecule: id ~s ~%"       ((record-accessor rec-type 'id)       record))
       (format port " molecule: chain-id ~s ~%" ((record-accessor rec-type 'chain-id) record))
       (format port " molecule: class ~s ~%"    ((record-accessor rec-type 'class)    record))
+      (format port " molecule: symop ~s ~%"    ((record-accessor rec-type 'symop-no) record))
       (format port " molecule: symop-no ~s ~%" ((record-accessor rec-type 'symop-no) record))
       (format port " molecule: natoms ~s ~%"   ((record-accessor rec-type 'natoms)   record))
       (format port " molecule: nres ~s ~%"     ((record-accessor rec-type 'nres)     record))
@@ -176,7 +177,7 @@
       (format port " solv-en ~s]"  ((record-accessor rec-type 'solv-en)  record))))
 
   (define (make-pisa-molecule-record-type print-molecule)
-    (make-record-type "molecule" '(id chain-id class symop-no natoms nres area 
+    (make-record-type "molecule" '(id chain-id class symop symop-no natoms nres area 
 				      solv-en pvalue residues)
 		      print-molecule))
   ;; 
@@ -199,6 +200,7 @@
 	   (id #f)
 	   (chain-id #f)
 	   (class #f)
+	   (symop #f)
 	   (symop-no #f)
 	   (natoms #f)
 	   (nres #f)
@@ -252,6 +254,7 @@
 		     ((eq? (car mol-ele) 'id)          (if (> (length mol-ele) 1) (set! id       (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'chain_id)    (if (> (length mol-ele) 1) (set! chain-id (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'class)       (if (> (length mol-ele) 1) (set! class    (cadr mol-ele))))
+		     ((eq? (car mol-ele) 'symop)       (if (> (length mol-ele) 1) (set! symop    (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'symop_no)    (if (> (length mol-ele) 1) (set! symop-no (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'int_natoms)  (if (> (length mol-ele) 1) (set! natoms   (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'int_nres)    (if (> (length mol-ele) 1) (set! nres     (cadr mol-ele))))
@@ -269,12 +272,15 @@
 		   (map (lambda (sym)
 			  (cadr (assoc sym ass-rtop-symbols)))
 			rtop-symbols)))
-	      ;; (format #t "mat:::: ~s~%" mat)
-	      (format "currently ~s molecules~%" (graphics-n-molecules))
+;	       (format #t "==================== atom-selection string ~s  mat:::: ~s~%" 
+;		       atom-selection-string mat)
+	      ;; (format "currently ~s molecules~%" (graphics-n-molecules))
 	      (let* ((new-molecule-name (string-append "Symmetry copy of "
 						       (number->string imol)
 						       " using " symm-name-part))
-		     ;; new-molecule-by-symop-with-atom-selection, perhaps?
+		     ;; new-molecule-by-symop-with-atom-selection,
+		     ;; perhaps? (20100222 doesn't seem needed because
+		     ;; the transformation is contained in mat.)
 		     (new-mol-no (apply new-molecule-by-symmetry-with-atom-selection
 					imol
 					new-molecule-name
@@ -286,8 +292,8 @@
 		    ;; assemblies:
 		    new-mol-no
 		    ;; interfaces:
-		    (list new-mol-no
-			  (make-molecule-record id chain-id class symop-no natoms nres area 
+		    (list (list new-mol-no symop)
+			  (make-molecule-record id chain-id class symop symop-no natoms nres area 
 						solv-en pvalue residues)))))))))
 
   ;; main line
@@ -714,6 +720,7 @@
 ;;          id
 ;;          chain_id
 ;;          class
+;;          symop
 ;;          symop_no
 ;;          cell_i
 ;;          cell_j
@@ -818,15 +825,18 @@
 	(loop (cdr elements) bond-type bonds)))))
 		  
 	    
-       
 
   (define (pisa-handle-sxml-interface interface-entity)
     (let ((molecules '())
-	  (bonds '()))  ;; and some other interface stuff at some stage perhaps.
+	  (bonds '())
+	  (area #f)
+	  (solv-en #f)
+	  (pvalue #f)
+	  (stab-en #f))
       (let loop ((interface-entity interface-entity))
 	(cond
 	 ((null? interface-entity) 
-	  (list (reverse molecules) (reverse bonds))) ; return this
+	  (list (reverse molecules) (reverse bonds) area solv-en pvalue stab-en)) ; return this
 	 ((not (pair? (car interface-entity))) (loop (cdr interface-entity)))
 	 ((eq? (car (car interface-entity)) 'molecule)
 	  ;;

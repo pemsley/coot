@@ -4210,3 +4210,7 @@ void
 on_check_water_by_difference_map_optionmenu_changed
                                         (GtkOptionMenu   *optionmenu,
                                         gpointer         user_data);
+
+void
+on_pisa_interfces_close_button_clicked (GtkButton       *button,
+                                        gpointer         user_data);
