@@ -3666,12 +3666,19 @@ coot::protein_geometry::matching_names(const std::string &test_string,
 void
 coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) const {
 
-   PCMMCIFData   mmCIF = new CMMCIFData;
+   PCMMCIFFile mmCIFFile = new CMMCIFFile();
+      
+   PCMMCIFData   mmCIFData = NULL;
    PCMMCIFStruct mmCIFStruct;
    char S[2000];
    
    //  2.1  Example 1: add a structure into mmCIF object
-   int rc = mmCIF->AddStructure ("_chem_comp", mmCIFStruct);
+
+   int rc;
+
+   rc = mmCIFFile->AddMMCIFData("comp_list");
+   mmCIFData = mmCIFFile->GetCIFData("comp_list");
+   rc = mmCIFData->AddStructure ("_chem_comp", mmCIFStruct);
    // std::cout << "rc on AddStructure returned " << rc << std::endl;
    if (rc!=CIFRC_Ok && rc!=CIFRC_Created)  {
       // badness!
@@ -3690,7 +3697,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       PCMMCIFLoop mmCIFLoop = new CMMCIFLoop; // 20100212
       // data_comp_list, id, three_letter_code, name group etc:
 
-      rc = mmCIF->AddLoop("_chem_comp", mmCIFLoop);
+      rc = mmCIFData->AddLoop("_chem_comp", mmCIFLoop);
       int i=0;
       const char *s = residue_info.comp_id.c_str();
       mmCIFLoop->PutString(s, "comp_id", i);
@@ -3708,16 +3715,16 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       mmCIFLoop->PutString(s, "description_level", i);
       
       std::string comp_record = "comp_list";
-      mmCIF->PutDataName(comp_record.c_str()); // 'data_' record
-      mmCIF->WriteMMCIFData(filename.c_str());
+      mmCIFData->PutDataName(comp_record.c_str()); // 'data_' record
 
-      delete mmCIF;
-
-      mmCIF = new CMMCIFData;
-      
       // atom loop
 
-      rc = mmCIF->AddLoop("_chem_comp_atom", mmCIFLoop);
+      std::string comp_monomer_name = "comp_";
+      comp_monomer_name += residue_info.comp_id.c_str(); 
+      rc = mmCIFFile->AddMMCIFData(comp_monomer_name.c_str());
+      mmCIFData = mmCIFFile->GetCIFData(comp_monomer_name.c_str());
+      rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
+      
       if (rc == CIFRC_Ok || rc == CIFRC_Created) {
 	 for (int i=0; i<atom_info.size(); i++) {
 	    char *ss = (char *) residue_info.comp_id.c_str();
@@ -3734,10 +3741,10 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    }
 	 }
       }
-      
+
       // bond loop
 
-      rc = mmCIF->AddLoop("_chem_comp_bond", mmCIFLoop);
+      rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
       if (rc == CIFRC_Ok || rc == CIFRC_Created) {
 	 // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
 	 for (int i=0; i<bond_restraint.size(); i++) {
@@ -3759,7 +3766,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       // angle loop
 
-      rc = mmCIF->AddLoop("_chem_comp_angle", mmCIFLoop);
+      rc = mmCIFData->AddLoop("_chem_comp_angle", mmCIFLoop);
       if (rc == CIFRC_Ok || rc == CIFRC_Created) {
 	 // std::cout << " number of angles: " << angle_restraint.size() << std::endl;
 	 for (int i=0; i<angle_restraint.size(); i++) {
@@ -3782,7 +3789,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // torsion loop
 
       if (torsion_restraint.size() > 0) { 
-	 rc = mmCIF->AddLoop("_chem_comp_tor", mmCIFLoop);
+	 rc = mmCIFData->AddLoop("_chem_comp_tor", mmCIFLoop);
 	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
 	    // std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
 	    for (int i=0; i<torsion_restraint.size(); i++) {
@@ -3812,7 +3819,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // chiral loop
       // 
       if (chiral_restraint.size() > 0) { 
-	 rc = mmCIF->AddLoop("_chem_comp_chir", mmCIFLoop);
+	 rc = mmCIFData->AddLoop("_chem_comp_chir", mmCIFLoop);
 	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
 	    // std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
 	    for (int i=0; i<chiral_restraint.size(); i++) {
@@ -3842,7 +3849,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       // plane loop
       if (plane_restraint.size() > 0) { 
-	 rc = mmCIF->AddLoop("_chem_comp_plane_atom", mmCIFLoop);
+	 rc = mmCIFData->AddLoop("_chem_comp_plane_atom", mmCIFLoop);
 	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
 	    // std::cout << " number of planes: " << plane_restraint.size() << std::endl;
 	    int icount = 0;
@@ -3862,18 +3869,11 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    }
 	 }
       }
-
       
-      comp_record = "comp_";
-      comp_record += residue_info.comp_id.c_str();
-      mmCIF->PutDataName(comp_record.c_str()); // 'data_' record
+      mmCIFFile->WriteMMCIFFile(filename.c_str());
 
-      // CMMCIFFile mmcif_file;
-      // mmcif_file.WriteMMCIFFile(filename.c_str());
-      mmCIF->WriteMMCIFData(filename.c_str());
-	 // delete mmCIFLoop; // crashes
    }
-   delete mmCIF;
+   delete mmCIFFile; // deletes all its attributes too.
 }
 
 
