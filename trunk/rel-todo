@@ -40,6 +40,20 @@
     o show-spacegroup should be deprecated.  use SCM space_group_scm()
       (etc) ::: 1
 
+    o move molecule here:
+
+     1. load two pdb files: a protein (imol 0) and a ligand (imol 1)
+     2. open the move molecule here window. We only have the ligand
+        molecule in the dropdown.
+     3. Now tick the allow large molecules to move. This will put the
+        protein in the dropdown.
+     4. Untick the large molecules. Now we only have the ligand in the
+        dropdown again (but its imol is wrong).
+     5. Hit Move it.
+     -> The protein moves.
+
+     ::: 1
+
     o white background with ball and stick models. ::: 4
 
     o load tutorial data gets files from a relative place? Seems
@@ -53,7 +67,7 @@
     o Get a molecule with high number of chains, colour by chain.  The
       grey chain comes out thin [JED]. ::: 1
 
-    o Do ccp4i aliases work?  Ingo Korndoerfer suggest not.
+    o Do ccp4i aliases work?  Ingo Korndoerfer suggest not. ::: 1
 
 
 ------
