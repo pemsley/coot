@@ -28,6 +28,8 @@
 #include "cc-interface.hh"
 #include "c-interface-scm.hh"
 
+#include "pisa-interface.hh"
+
 /*  ----------------------------------------------------------------------- */
 /*                  PISA Interface                                      */
 /*  ----------------------------------------------------------------------- */
@@ -108,6 +110,10 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 // 	     << scm_to_locale_string(display_scm(pisa_residue_record_type))
 // 	     << std::endl;
 
+   std::vector<coot::pisa_interface_t> pisa_treeview_info; // if this is not empty
+					  		   // make a treeview at the
+							   // end of this function.
+   
    SCM interfaces_description_length_scm = scm_length(interfaces_description_scm);
    int interfaces_description_length = scm_to_int(interfaces_description_length_scm);
    std::cout << "INFO:: found " << interfaces_description_length << " interfaces"
@@ -124,7 +130,7 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
       // interfaces contain a molecule pair pair.  a molecule pair is
       // simply a list the first of which is the new molecule number
       // and the second is the molecule record.
-      if (interface_length == 2) { 
+      if (interface_length == 6) {
 	 SCM molecule_pair_pair = scm_list_ref(interface_scm, SCM_MAKINUM(0));
 	 SCM molecule_pair_pair_length_scm = scm_length(molecule_pair_pair);
 	 int molecule_pair_pair_length = scm_to_int(molecule_pair_pair_length_scm);
@@ -134,8 +140,14 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 	    SCM molecule_pair_1 =  scm_list_ref(molecule_pair_pair, SCM_MAKINUM(0));
 	    SCM molecule_pair_2 =  scm_list_ref(molecule_pair_pair, SCM_MAKINUM(1));
 
-	    SCM molecule_number_1_scm = scm_list_ref(molecule_pair_1, SCM_MAKINUM(0));
-	    SCM molecule_number_2_scm = scm_list_ref(molecule_pair_2, SCM_MAKINUM(0));
+	    SCM molecule_number_and_symop_1_scm = scm_list_ref(molecule_pair_1, SCM_MAKINUM(0));
+	    SCM molecule_number_and_symop_2_scm = scm_list_ref(molecule_pair_2, SCM_MAKINUM(0));
+
+	    SCM molecule_number_1_scm = scm_list_ref(molecule_number_and_symop_1_scm, SCM_MAKINUM(0));
+	    SCM molecule_number_2_scm = scm_list_ref(molecule_number_and_symop_2_scm, SCM_MAKINUM(0));
+
+	    SCM molecule_1_symop_scm = scm_list_ref(molecule_number_and_symop_1_scm, SCM_MAKINUM(1));
+	    SCM molecule_2_symop_scm = scm_list_ref(molecule_number_and_symop_2_scm, SCM_MAKINUM(1));
 
 	    SCM molecule_1_record_scm = scm_list_ref(molecule_pair_1, SCM_MAKINUM(1));
 	    SCM molecule_2_record_scm = scm_list_ref(molecule_pair_2, SCM_MAKINUM(1));
@@ -145,7 +157,7 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 
 	    SCM mol_1_chain_id_scm = pisa_molecule_record_chain_id(molecule_1_record_scm);
 	    SCM mol_2_chain_id_scm = pisa_molecule_record_chain_id(molecule_2_record_scm);
-	    
+
 	    imol_1 = scm_to_int(molecule_number_1_scm);
 	    imol_2 = scm_to_int(molecule_number_2_scm);
 
@@ -153,7 +165,15 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 
 	       std::string chain_id_1 = scm_to_locale_string(mol_1_chain_id_scm);
 	       std::string chain_id_2 = scm_to_locale_string(mol_2_chain_id_scm);
-	    
+
+	       std::string symop_1 = "---"; // unset
+	       std::string symop_2 = "---"; // unset
+
+	       if (scm_is_true(scm_string_p(molecule_1_symop_scm)))
+		  symop_1 = scm_to_locale_string(molecule_1_symop_scm);
+	       if (scm_is_true(scm_string_p(molecule_2_symop_scm)))
+		  symop_2 = scm_to_locale_string(molecule_2_symop_scm);
+
 	       std::vector<coot::residue_spec_t> mol_1_residue_specs = 
 		  residue_records_list_scm_to_residue_specs(mol_1_residue_records, chain_id_1);
 	       std::vector<coot::residue_spec_t> mol_2_residue_specs = 
@@ -161,7 +181,23 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 
 	       make_complementary_dotted_surfaces(imol_1, imol_2,
 						  mol_1_residue_specs,
-						  mol_2_residue_specs);;
+						  mol_2_residue_specs);
+
+	       double bsa = 555.5;
+	       double solv_en = -88.8;
+	       int n_h_bonds = 2;
+	       int n_salt_bridges = 2;
+	       int n_cov_bonds = 3;
+	       int n_ss_bonds = 4;
+	       
+	       coot::pisa_interface_t pisa_interface_attribs(imol_1, imol_2, chain_id_1,
+							     chain_id_2, symop_2,
+							     bsa, solv_en,
+							     n_h_bonds, n_salt_bridges,
+							     n_cov_bonds, n_ss_bonds);
+	       
+	       pisa_treeview_info.push_back(pisa_interface_attribs);
+	       
 	    }
 	    catch (std::runtime_error rte)  {
 	       std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -182,6 +218,9 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 	 }
       }
    }
+   if (pisa_treeview_info.size() > 0)
+      coot::pisa_interfaces_gui(pisa_treeview_info);
+      
    return SCM_MAKINUM(-1);
 }
 #endif /* USE_GUILE */
@@ -395,7 +434,7 @@ void pisa_clear_interfaces() {
 // If you want to do something with transparent surfaces in the
 // future, then replace this function.
 //
-// This is called for each interface to be respresented.
+// This is called for each interface to be represented.
 //
 // Perhaps should be std::pair<int, int>, returning the dot index
 // associated with imol_1 and imol_2 (so that we have a way of turning

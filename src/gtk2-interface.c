@@ -30043,4 +30043,68 @@ create_baton_build_params_dialog (void)
   return baton_build_params_dialog;
 }
 
+GtkWidget*
+create_pisa_interfaces_dialog (void)
+{
+  GtkWidget *pisa_interfaces_dialog;
+  GtkWidget *dialog_vbox123;
+  GtkWidget *scrolledwindow31;
+  GtkWidget *pisa_interfaces_treeview;
+  GtkWidget *dialog_action_area122;
+  GtkWidget *button32;
+  GtkWidget *pisa_interfces_close_button;
+
+  pisa_interfaces_dialog = gtk_dialog_new ();
+  gtk_widget_set_name (pisa_interfaces_dialog, "pisa_interfaces_dialog");
+  gtk_widget_set_size_request (pisa_interfaces_dialog, 700, 200);
+  gtk_window_set_title (GTK_WINDOW (pisa_interfaces_dialog), _("PISA interfaces"));
+  gtk_window_set_type_hint (GTK_WINDOW (pisa_interfaces_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox123 = GTK_DIALOG (pisa_interfaces_dialog)->vbox;
+  gtk_widget_set_name (dialog_vbox123, "dialog_vbox123");
+  gtk_widget_show (dialog_vbox123);
+
+  scrolledwindow31 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_set_name (scrolledwindow31, "scrolledwindow31");
+  gtk_widget_show (scrolledwindow31);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox123), scrolledwindow31, TRUE, TRUE, 0);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow31), GTK_SHADOW_IN);
+
+  pisa_interfaces_treeview = gtk_tree_view_new ();
+  gtk_widget_set_name (pisa_interfaces_treeview, "pisa_interfaces_treeview");
+  gtk_widget_show (pisa_interfaces_treeview);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow31), pisa_interfaces_treeview);
+
+  dialog_action_area122 = GTK_DIALOG (pisa_interfaces_dialog)->action_area;
+  gtk_widget_set_name (dialog_action_area122, "dialog_action_area122");
+  gtk_widget_show (dialog_action_area122);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area122), GTK_BUTTONBOX_END);
+
+  button32 = gtk_button_new_with_mnemonic (_("button32"));
+  gtk_widget_set_name (button32, "button32");
+  gtk_dialog_add_action_widget (GTK_DIALOG (pisa_interfaces_dialog), button32, 0);
+  GTK_WIDGET_SET_FLAGS (button32, GTK_CAN_DEFAULT);
+
+  pisa_interfces_close_button = gtk_button_new_from_stock ("gtk-close");
+  gtk_widget_set_name (pisa_interfces_close_button, "pisa_interfces_close_button");
+  gtk_widget_show (pisa_interfces_close_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (pisa_interfaces_dialog), pisa_interfces_close_button, GTK_RESPONSE_CLOSE);
+  GTK_WIDGET_SET_FLAGS (pisa_interfces_close_button, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) pisa_interfces_close_button, "clicked",
+                    G_CALLBACK (on_pisa_interfces_close_button_clicked),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (pisa_interfaces_dialog, pisa_interfaces_dialog, "pisa_interfaces_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (pisa_interfaces_dialog, dialog_vbox123, "dialog_vbox123");
+  GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, scrolledwindow31, "scrolledwindow31");
+  GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, pisa_interfaces_treeview, "pisa_interfaces_treeview");
+  GLADE_HOOKUP_OBJECT_NO_REF (pisa_interfaces_dialog, dialog_action_area122, "dialog_action_area122");
+  GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, button32, "button32");
+  GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, pisa_interfces_close_button, "pisa_interfces_close_button");
+
+  return pisa_interfaces_dialog;
+}
+
 #endif /* (GTK_MAJOR_VERSION > 1) */

@@ -1542,6 +1542,33 @@
 		     (bond-length-within-tolerance? atom-1 atom-2 1.512 0.04))))))))))
 
 
+(greg-testcase "Write mmCIF restraints correctly" #t
+   (lambda ()
+
+     ;; not a very good test, but better than nothing and it would
+     ;; fail on cif writing prior to today 20100223.
+
+     (if (file-exists? "coot-test-ala.cif")
+	 (delete-file "coot-test-ala.cif"))
+
+     (write-restraints-cif-dictionary "ALA" "coot-test-ala.cif")
+     (if (not (file-exists? "coot-test-ala.cif"))
+	 #f
+	 (call-with-input-file "coot-test-ala.cif"
+	   (lambda (port)
+	     (let loop ((line (read-line port))
+			(n-found 0))
+	       (cond
+		((= n-found 2) #t)
+		((eof-object? line) #f) ; failed if we get here
+		((string=? line "data_comp_list")
+		 (loop (read-line port) 1))
+		((string=? line "data_comp_ALA")
+		 (loop (read-line port) (+ n-found 1)))
+		(else
+		 (loop (read-line port) n-found)))))))))
+
+
 
 (greg-testcase "Refinement OK with zero bond esd" #t
    (lambda ()

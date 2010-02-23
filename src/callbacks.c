@@ -11668,3 +11668,11 @@ on_environment_distance_min_entry_key_press_event
   return FALSE;
 }
 
+
+void
+on_pisa_interfces_close_button_clicked (GtkButton       *button,
+                                        gpointer         user_data) { 
+
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "pisa_interfaces_dialog");
+  gtk_widget_destroy(w);
+} 
