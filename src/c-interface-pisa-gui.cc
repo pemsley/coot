@@ -19,6 +19,7 @@
  */
 
 
+#include <string>
 #include "mmdb_manager.h"
 #include <gtk/gtk.h>
 

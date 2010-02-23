@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
-
+#include <string>
 #include <iostream> // fixes undefined strchr, strchrr problems
 #include "mmdb_manager.h"
 #include <gtk/gtk.h>
