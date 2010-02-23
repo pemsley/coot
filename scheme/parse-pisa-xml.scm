@@ -851,6 +851,18 @@
 	 ((member? (car (car interface-entity)) (list 'h-bonds 'salt-bridges 'ss-bonds 'cov-bonds))
 	  (set! bonds (append (molecule-bonds (car interface-entity)) bonds))
 	  (loop (cdr interface-entity)))
+	 ((eq? 'pvalue (car (car interface-entity)))
+	  (set! pvalue (string->number (cadr (car interface-entity))))
+	  (loop (cdr interface-entity)))
+	 ((eq? 'int_area (car (car interface-entity)))
+	  (set! area (string->number (cadr (car interface-entity))))
+	  (loop (cdr interface-entity)))
+	 ((eq? 'int_solv_en (car (car interface-entity)))
+	  (set! solv-en (string->number (cadr (car interface-entity))))
+	  (loop (cdr interface-entity)))
+	 ((eq? 'stab_en (car (car interface-entity)))
+	  (set! stab-en (string->number (cadr (car interface-entity))))
+	  (loop (cdr interface-entity)))
 	 (else 
 	  (loop (cdr interface-entity)))))))
 
@@ -879,6 +891,7 @@
        ((not (pair? sxml-entity)) 'pass)
        ((eq? (car sxml-entity) 'pdb_entry)
 	(set! pdb-entry (pisa-handle-pdb-entry (cdr sxml-entity)))
+	;; (format #t "DEBUG:: pdb-entry: ~s~%" pdb-entry)
 	(handle-pisa-interfaces pdb-entry))
        (else 
 	(map loop sxml-entity))))))

@@ -53,8 +53,8 @@ coot::pisa_interfaces_gui(const std::vector<coot::pisa_interface_t> &gui_info) {
 			    2, gui_info[i].chain_id_1.c_str(),
 			    3, gui_info[i].chain_id_2.c_str(),
 			    4, gui_info[i].symop.c_str(),
-			    5, gui_info[i].bsa,
-			    6, gui_info[i].solv_en,
+			    5, gui_info[i].interface_area,
+			    6, gui_info[i].interface_solv_en,
 			    7, gui_info[i].n_h_bonds,
 			    8, gui_info[i].n_salt_bridges,
 			    9, gui_info[i].n_ss_bonds,
@@ -66,7 +66,7 @@ coot::pisa_interfaces_gui(const std::vector<coot::pisa_interface_t> &gui_info) {
       add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "ChainID", 2);
       add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "ChainID", 3);
       add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Symop",   4);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Buried Surface Area", 5);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Interface Area", 5);
       add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Solvation Energy",    6);
       add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#-H-bonds",           7);
       add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#Salt-bridges",       8);

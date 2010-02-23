@@ -43,15 +43,22 @@ namespace coot {
       int n_salt_bridges;
       int n_cov_bonds;
       int n_ss_bonds;
-      float bsa;
-      float solv_en;
+      float interface_area;
+      float interface_solv_en;
+      float interface_pvalue;
+      float interface_stab_en;
       float asa;
       std::string chain_id_1; 
       std::string chain_id_2; 
       std::string symop;
-      pisa_interface_t(int i1, int i2, const std::string &chain_id_1_in, const std::string &chain_id_2_in,
-		       const std::string &symop_str, float bsa_in,
-		       float solv_en,
+      pisa_interface_t(int i1, int i2,
+		       const std::string &chain_id_1_in,
+		       const std::string &chain_id_2_in,
+		       const std::string &symop_str,
+		       float interface_area_in,
+		       float interface_solv_en_in,
+		       float interface_pvalue_in,
+		       float interface_stab_en_in,
 		       int n_h_bonds_in, int n_salt_bridges_in, int n_cov_bonds_in,
 		       int n_ss_bonds_in) {
 	 imol_1 = i1;
@@ -63,6 +70,10 @@ namespace coot {
 	 n_salt_bridges = n_salt_bridges_in;
 	 n_cov_bonds = n_cov_bonds_in;
 	 n_ss_bonds = n_salt_bridges_in;
+	 interface_pvalue  = interface_pvalue_in;
+	 interface_stab_en = interface_stab_en_in;
+	 interface_area    = interface_area_in;
+	 interface_solv_en = interface_solv_en_in;
       }
    };
 

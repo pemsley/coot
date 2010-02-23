@@ -4,7 +4,10 @@
 
     o make a mini-rsr ::: 1
 
-    o PISA interfaces via XML  ::: 10
+    o PISA interfaces via XML. After parsing and processing only the top
+      interface should be displayed. Clicking on a line in the treeview
+      should centre on the middle of the interface and turn off the
+      other interfaces.    ::: 14
 
     o Edit -> restraints for XX6, plane restraints sigma.  Close edit
       again -> fail.  Also Take N2 and O out of plane restraints. 

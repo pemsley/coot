@@ -27,6 +27,7 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "c-interface-scm.hh"
+#include "guile-fixups.h"
 
 #include "pisa-interface.hh"
 
@@ -131,9 +132,60 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
       // simply a list the first of which is the new molecule number
       // and the second is the molecule record.
       if (interface_length == 6) {
+
+	 SCM interface_area_scm    = scm_list_ref(interface_scm, SCM_MAKINUM(2));
+	 SCM interface_solv_en_scm = scm_list_ref(interface_scm, SCM_MAKINUM(3));
+	 SCM interface_pvalue_scm  = scm_list_ref(interface_scm, SCM_MAKINUM(4));
+	 SCM interface_stab_en_scm = scm_list_ref(interface_scm, SCM_MAKINUM(5));
+
+	 double interface_area    = -9999.9;
+	 double interface_solv_en = -9999.9;
+	 double interface_pvalue  = -9999.9;
+	 double interface_stab_en = -9999.9;
+
+ 	 if (scm_is_true(scm_number_p(interface_area_scm)))
+ 	    interface_area = scm_to_double(interface_area_scm);
+	 else
+ 	    std::cout << "Not a number: " << scm_to_locale_string(display_scm(interface_area_scm))
+		      << std::endl;
+	 
+ 	 if (scm_is_true(scm_number_p(interface_solv_en_scm)))
+ 	    interface_solv_en = scm_to_double(interface_solv_en_scm);
+ 	 else
+ 	    std::cout << "Not a number: " << scm_to_locale_string(display_scm(interface_solv_en_scm))
+		      << std::endl;
+	 
+ 	 if (scm_is_true(scm_number_p(interface_pvalue_scm)))
+ 	    interface_pvalue = scm_to_double(interface_pvalue_scm);
+ 	 else
+ 	    std::cout << "Not a number: " << scm_to_locale_string(display_scm(interface_pvalue_scm))
+		      << std::endl;
+
+ 	 if (scm_is_true(scm_number_p(interface_stab_en_scm)))
+ 	    interface_solv_en = scm_to_double(interface_stab_en_scm);
+ 	 else
+ 	    std::cout << "Not a number: " << scm_to_locale_string(display_scm(interface_stab_en_scm))
+		      << std::endl;
+
+	 std::cout << "debug:: ============ interface_solv_en " << interface_solv_en << std::endl;
+	 
 	 SCM molecule_pair_pair = scm_list_ref(interface_scm, SCM_MAKINUM(0));
 	 SCM molecule_pair_pair_length_scm = scm_length(molecule_pair_pair);
 	 int molecule_pair_pair_length = scm_to_int(molecule_pair_pair_length_scm);
+
+	 SCM bonds_info_scm = scm_list_ref(interface_scm, SCM_MAKINUM(1));
+	 // 	    std::cout << " in handle_pisa_interfaces_scm() got interface bonds: "
+	 // 		      << scm_to_locale_string(display_scm(bonds_info_scm))
+	 // 		      << std::endl;
+	 if (scm_is_true(scm_list_p(bonds_info_scm))) {
+	    SCM bonds_info_length_scm = scm_length(bonds_info_scm);
+	    int bonds_info_length = scm_to_int(bonds_info_length_scm);
+	    for (int ibond=0; ibond<bonds_info_length; ibond++) {
+	       SCM pisa_bond_scm = scm_list_ref(bonds_info_scm, SCM_MAKINUM(ibond));
+	       add_pisa_interface_bond_scm(imol_1, imol_2, pisa_bond_scm, i);
+	    }
+	 }
+	 
 	 if (molecule_pair_pair_length == 2) {
 	    // 2 molecules in an interface (good) :-)
 
@@ -189,10 +241,19 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 	       int n_salt_bridges = 2;
 	       int n_cov_bonds = 3;
 	       int n_ss_bonds = 4;
-	       
-	       coot::pisa_interface_t pisa_interface_attribs(imol_1, imol_2, chain_id_1,
-							     chain_id_2, symop_2,
-							     bsa, solv_en,
+
+	       // Where is the middle of the interface?  We should
+	       // pass that to so that the view recentres there when
+	       // the line is clicked in the treeview.  Before the end
+	       // of this function, we should recentre the view to be
+	       // on the centre of the top interface.
+
+	       coot::pisa_interface_t pisa_interface_attribs(imol_1, imol_2,
+							     chain_id_1, chain_id_2, symop_2,
+							     interface_area,
+							     interface_solv_en,
+							     interface_pvalue,
+							     interface_stab_en,
 							     n_h_bonds, n_salt_bridges,
 							     n_cov_bonds, n_ss_bonds);
 	       
@@ -201,19 +262,6 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 	    }
 	    catch (std::runtime_error rte)  {
 	       std::cout << "WARNING:: " << rte.what() << std::endl;
-	    }
-					       
-	    SCM bonds_info_scm = scm_list_ref(interface_scm, SCM_MAKINUM(1));
-// 	    std::cout << " in handle_pisa_interfaces_scm() got interface bonds: "
-// 		      << scm_to_locale_string(display_scm(bonds_info_scm))
-// 		      << std::endl;
-	    if (scm_is_true(scm_list_p(bonds_info_scm))) {
-	       SCM bonds_info_length_scm = scm_length(bonds_info_scm);
-	       int bonds_info_length = scm_to_int(bonds_info_length_scm);
-	       for (int ibond=0; ibond<bonds_info_length; ibond++) {
-		  SCM pisa_bond_scm = scm_list_ref(bonds_info_scm, SCM_MAKINUM(ibond));
-		  add_pisa_interface_bond_scm(imol_1, imol_2, pisa_bond_scm, i);
-	       }
 	    }
 	 }
       }
