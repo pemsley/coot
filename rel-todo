@@ -9,15 +9,6 @@
       should centre on the middle of the interface and turn off the
       other interfaces.    ::: 14
 
-    o Edit -> restraints for XX6, plane restraints sigma.  Close edit
-      again -> fail.  Also Take N2 and O out of plane restraints. 
- 
-        - That is now unreproducable - maybe related to below (it was
-        changing the wrong comp_id).
-
-      The tlc for XX6 seems to be " " - why is that? It's because the
-      cif was wrongly written. ::: 2
-
     o Restore a session that has an anomalous map in the state.  Fail.
       Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
 
@@ -266,4 +257,13 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
     o get reverse NCS skip working ::: 2
 
 * Done.
+
+    o Edit -> restraints for XX6, plane restraints sigma.  Close edit
+      again -> fail.  Also Take N2 and O out of plane restraints. 
+ 
+        - That is now unreproducable - maybe related to below (it was
+        changing the wrong comp_id).
+
+      The tlc for XX6 seems to be " " - why is that? It's because the
+      cif was wrongly written. ::: 2
 

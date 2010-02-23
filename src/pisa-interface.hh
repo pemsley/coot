@@ -83,6 +83,10 @@ namespace coot {
 					  GtkTreeStore *tree_store,
 					  const std::string &column_title,
 					  int pos);
+   void on_pisa_interfaces_seletion_changed(GtkTreeSelection *treeselection,
+					    gpointer          user_data);
+
+      
 #endif   
 
 }
