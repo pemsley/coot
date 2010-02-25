@@ -47,8 +47,13 @@
 
     o white background with ball and stick models. ::: 4
 
+    o 3kcz fails to give ncs diferences graph. why?
+
     o load tutorial data gets files from a relative place? Seems
       so. ::: 0.1
+
+    o change clipper macros to use clipper-config and not invent mmdb
+      and fftw, ccp4 libraries. ::: 1
 
     o NCS functions in c-inteface.cc should move to c-interface-ncs.cc
       ::: 0.2
