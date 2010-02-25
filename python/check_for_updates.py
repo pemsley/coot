@@ -129,13 +129,13 @@ def download_binary_dialog(version_string):
             pre_release_flag = "-pre" in coot_version()
             ys = "www.ysbl.york.ac.uk/~emsley/software/binaries/"
             binary_type = coot_sys_build_type()
-            if (binary_type == "Linux-i386-fedora-3") or \
-               (binary_type == "Linux-i386-fedora-3-python") or \
-               (binary_type == "Linux-i386-fedora-8-python-gtk2") or \
-               (binary_type == "Linux-i386-fedora-8-gtk2") or \
+            if (binary_type == "Linux-i386-fedora-3") or              \
+               (binary_type == "Linux-i386-fedora-3-python") or       \
+               (binary_type == "Linux-i386-fedora-8-python-gtk2") or  \
+               (binary_type == "Linux-i386-fedora-8-gtk2") or         \
                (binary_type == "Linux-i386-fedora-10-python-gtk2") or \
-               (binary_type == "Linux-i386-fedora-10-gtk2") or \
-               (binary_type == "Linux-i686-ubuntu-8.04.3") or \
+               (binary_type == "Linux-i386-fedora-10-gtk2") or        \
+               (binary_type == "Linux-i686-ubuntu-8.04.3") or         \
                (binary_type == "Linux-i686-ubuntu-8.04.3-python"):
                 host_dir = ys
             else:
