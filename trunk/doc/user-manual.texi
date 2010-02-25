@@ -259,9 +259,12 @@ behaviour.
   Refmac's CIF directory containing the monomers and link descriptions.
   In the future this may simply be the same directory in which refmac
   looks to find the library dictionary.
+@item @env{COOT_SBASE_DIR} 
+@cindex dictionary, ligands
+  The directory to find the SBASE dictionary (often comes with CCP4).
 @item @env{COOT_RESOURCES_DIR} 
   The directory that contains the
-  splash screen image and the GTk application resources.
+  splash screen image and the GTK+ application resources.
 @item @env{COOT_BACKUP_DIR} 
   The directory to which backup are
   written (if it exists as a directory).  If it is not, then backups
@@ -298,14 +301,15 @@ following command line arguments:
 @item @code{--help} print command line options
 @item @code{--stereo} start up in hardware stereo mode
 @item @code{--version} print the version of coot and exit
-@item @code{--code @emph{accession-code}} on starting Coot, get the pdb file and mtz file (if it 
-        exists) from the EDS
-@item @code{--no-guano} don't leave ``Coot droppings'' i.e. don't write state and 
-        history files on exit
+@item @code{--code @emph{accession-code}} on starting Coot, get the pdb file 
+   and mtz file (if it exists) from the EDS
+@item @code{--no-guano} don't leave ``Coot droppings'' i.e. don't write state
+    and history files on exit
 @item @code{--side-by-side} start in side-by-side stereo mode
-@item @code{--update-self} command-line mode to update the coot to the latest pre-release on the server
+@item @code{--update-self} command-line mode to update the coot to the latest 
+    pre-release on the server
 @item @code{--python} an argument with no parameters - used to tell Coot that 
-        the -c arguments should be process as python (rather than as scheme).
+    the -c arguments should be process as python (rather than as scheme).
 @end itemize
 
 So, for example, one might use:
