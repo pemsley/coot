@@ -4652,12 +4652,14 @@ void baton_mode_calculate_skeleton(GtkWidget *window);
 /*  ----------------------------------------------------------------------- */
 /* section Post-Baton Functions */
 /* c-interface-build */
-/* Reverse the direction of a the fragment of the clicked on
-   atom/residue.  A fragment is a consequitive range of residues -
+/* \brief Reverse the direction of a the fragment of the clicked on
+   atom/residue.  
+
+    A fragment is a consecutive range of residues -
    where there is a gap in the numbering, that marks breaks between
    fragments in a chain.  There also needs to be a distance break - if
    the CA of the next/previous residue is more than 5A away, that also
-   marks a break. Thow away all atoms in fragment other than CAs.*/
+   marks a break. Throw away all atoms in fragment other than CAs.*/
 void reverse_direction_of_fragment(int imol, const char *chain_id, int resno);
 void setup_reverse_direction(short int i);
 
