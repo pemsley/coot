@@ -1467,6 +1467,12 @@
       (loop (cdr map-list))))))
 
 
+;; Ian Tickle says (as far as I can understand) that the target chi
+;; squared should be 0.25 or thereabouts.  You can over-ride it now.
+;; 
+(define target-auto-weighting-value 0.25)
+
+
 ;; Set the refinement weight (matrix) by iterating the refinement and
 ;; varying the weight until the chi squares (not including the
 ;; non-bonded terms) reach 1.0 =/- 10%.  It uses sphere refinement.
@@ -1535,8 +1541,8 @@
       (format #t "Overweight factor: ~s~%" ow)
       (if (not (number? ow))
 	  #f 
-	  (if (and (< ow 1.1)
-		   (> ow 0.9))
+	  (if (and (< ow (* target-auto-weighting-value 1.1))
+		   (> ow (* target-auto-weighting-value 0.9)))
 	      ;; done
 	      (let ((s (string-append 
 			"Set weight matrix to "
