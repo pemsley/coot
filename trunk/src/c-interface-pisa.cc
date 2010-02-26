@@ -231,12 +231,11 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 	       std::vector<coot::residue_spec_t> mol_2_residue_specs = 
 		  residue_records_list_scm_to_residue_specs(mol_2_residue_records, chain_id_2);
 
+	       clipper::Coord_orth centre = 
 	       make_complementary_dotted_surfaces(imol_1, imol_2,
 						  mol_1_residue_specs,
 						  mol_2_residue_specs);
 
-	       double bsa = 555.5;
-	       double solv_en = -88.8;
 	       int n_h_bonds = 2;
 	       int n_salt_bridges = 2;
 	       int n_cov_bonds = 3;
@@ -249,7 +248,9 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 	       // on the centre of the top interface.
 
 	       coot::pisa_interface_t pisa_interface_attribs(imol_1, imol_2,
-							     chain_id_1, chain_id_2, symop_2,
+							     chain_id_1, chain_id_2,
+							     symop_2,
+							     centre,
 							     interface_area,
 							     interface_solv_en,
 							     interface_pvalue,
@@ -484,11 +485,11 @@ void pisa_clear_interfaces() {
 //
 // This is called for each interface to be represented.
 //
-// Perhaps should be std::pair<int, int>, returning the dot index
-// associated with imol_1 and imol_2 (so that we have a way of turning
-// them off)
+// Return the centre of the interface (so that we can centre on it
+// when it's row is pressed in the treeview).
 // 
-std::pair<int, int>
+// 
+clipper::Coord_orth 
 make_complementary_dotted_surfaces(int imol_1, int imol_2, 
 				   std::vector<coot::residue_spec_t> &r1, 
 				   std::vector<coot::residue_spec_t> &r2) {
@@ -505,7 +506,9 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
    // consider making the dots generation a member function of dots_representation_info_t
    // and making it available here (if it isn't already).
 
-   float close_dist = 4.5;
+   float close_dist = 4.3;
+   clipper::Coord_orth centre_1(0,0,0);
+   clipper::Coord_orth centre_2(0,0,0);
 
    if (is_valid_model_molecule(imol_1)) { 
       if (is_valid_model_molecule(imol_2)) {
@@ -514,6 +517,14 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
 	 
 	 CMMDBManager *frag_mol_1 = coot::util::create_mmdbmanager_from_residue_specs(r1, mol_1);
 	 CMMDBManager *frag_mol_2 = coot::util::create_mmdbmanager_from_residue_specs(r2, mol_2);
+
+	 std::pair<bool, clipper::Coord_orth> c_1 = coot::centre_of_molecule(frag_mol_1);
+	 std::pair<bool, clipper::Coord_orth> c_2 = coot::centre_of_molecule(frag_mol_2);
+
+	 if (c_1.first)
+	    centre_1 = c_1.second;
+	 if (c_2.first)
+	    centre_2 = c_2.second;
 
 	 // coot::dots_representation_info_t d1(frag_mol_1, frag_mol_2);
 	 // coot::dots_representation_info_t d2(frag_mol_2, frag_mol_1);
@@ -527,12 +538,36 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
 	 graphics_info_t::molecules[imol_1].set_dots_colour(0.6, 0.6, 0.3);
 	 graphics_info_t::molecules[imol_2].set_dots_colour(0.6, 0.3, 0.6);
 
-	 // need to delete those temporary molecules
+	 // delete those temporary molecules
 	 delete frag_mol_1;
 	 delete frag_mol_2;
       }
    }
    graphics_draw();
-   return std::pair<int, int> (-1, -1);
+
+   clipper::Coord_orth centre_av( (centre_1.x() + centre_2.x()) * 0.5,
+				  (centre_1.y() + centre_2.y()) * 0.5,
+				  (centre_1.z() + centre_2.z()) * 0.5);
+   
+   return centre_av;
 } 
 
+// undisplay all other coord molecules except imol_1 and imol_2
+// 
+void
+pisa_interfaces_display_only(int imol_1, int imol_2, clipper::Coord_orth centre_pt) {
+
+   for (unsigned int imol=0; imol<graphics_n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+	 if ((imol != imol_1) && (imol != imol_2)) {
+	    set_mol_displayed(imol, 0);
+	 }
+      } 
+   }
+   set_mol_displayed(imol_1, 1);
+   set_mol_displayed(imol_2, 1);
+   coot::Cartesian pt(centre_pt.x(), centre_pt.y(), centre_pt.z());
+   graphics_info_t g;
+   g.setRotationCentre(pt);
+   g.update_things_on_move_and_redraw();
+}

@@ -353,6 +353,10 @@ namespace coot {
    //
    bool residues_in_order_p(CChain *chain_p);
 
+   // return success status as first element
+   // 
+   std::pair<bool, clipper::Coord_orth> centre_of_molecule(CMMDBManager *mol);
+
    // convert atoms in residue to HETATMs if residue is not of
    // standard PDB type
    int hetify_residue_atoms_as_needed(CResidue *res);

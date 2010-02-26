@@ -41,8 +41,9 @@ coot::pisa_interfaces_gui(const std::vector<coot::pisa_interface_t> &gui_info) {
       // we show:
       // molecule-number molecule-number chain-id chain-id symop Area energy #H-bonds #salt-bridges #Nss #Ncov
       GtkTreeStore *tree_store_interfaces =
-	 gtk_tree_store_new (11, G_TYPE_INT, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-			     G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT);
+	 gtk_tree_store_new (12, G_TYPE_INT, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+			     G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
+			     G_TYPE_INT);
       GtkTreeView *tv_interfaces = GTK_TREE_VIEW(treeview);
       GtkTreeIter   toplevel;
       gtk_tree_view_set_model(tv_interfaces, GTK_TREE_MODEL(tree_store_interfaces));
@@ -56,10 +57,11 @@ coot::pisa_interfaces_gui(const std::vector<coot::pisa_interface_t> &gui_info) {
 			    4, gui_info[i].symop.c_str(),
 			    5, gui_info[i].interface_area,
 			    6, gui_info[i].interface_solv_en,
-			    7, gui_info[i].n_h_bonds,
-			    8, gui_info[i].n_salt_bridges,
-			    9, gui_info[i].n_ss_bonds,
-			    10, gui_info[i].n_cov_bonds,
+			    7, gui_info[i].interface_pvalue,
+			    8, gui_info[i].n_h_bonds,
+			    9, gui_info[i].n_salt_bridges,
+			    10, gui_info[i].n_ss_bonds,
+			    11, gui_info[i].n_cov_bonds,
 			    -1);
       }
       add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Mol No", 0);
@@ -69,13 +71,21 @@ coot::pisa_interfaces_gui(const std::vector<coot::pisa_interface_t> &gui_info) {
       add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Symop",   4);
       add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Interf. Area", 5);
       add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Solv. Energy", 6);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#H-bond",      7);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#Salt-br.",    8);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#SS",          9);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#Covalent",   10);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "p-value",      7);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#H-bond",      8);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#Salt-br.",    9);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#SS",         10);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#Cov",        11);
 
       GtkTreeSelection *sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-      g_signal_connect(sel, "changed", (GCallback) coot::on_pisa_interfaces_seletion_changed, NULL);
+
+      // Here we malloc but don't ever give it back
+      // 
+      std::vector<coot::pisa_interface_t> *gui_info_copy = new std::vector<coot::pisa_interface_t>;
+      *gui_info_copy = gui_info;
+      
+      g_signal_connect(sel, "changed", (GCallback) coot::on_pisa_interfaces_seletion_changed,
+		       gui_info_copy);
    }
    
 #endif   
@@ -111,7 +121,8 @@ void
 coot::on_pisa_interfaces_seletion_changed(GtkTreeSelection *treeselection,
 					 gpointer          user_data) {
 
-   std::cout << "selection changed" << std::endl;
+   std::vector<coot::pisa_interface_t> *gui_info_p
+      = static_cast<std::vector<coot::pisa_interface_t> *> (user_data);
 
    GtkTreeIter  iter;
    GtkTreeModel *model; 
@@ -124,14 +135,35 @@ coot::on_pisa_interfaces_seletion_changed(GtkTreeSelection *treeselection,
    gboolean r = gtk_tree_selection_get_selected(treeselection, &model, &iter);
 
    if (r) { 
-      gchar *name;
-      int COL_NAME = 0;
+      gchar *chain_id_1, *chain_id_2;
+      int imol_1;
+      int imol_2;
       
-//       gtk_tree_model_get (model, &iter, COL_NAME, &name, -1);
-//       g_print ("selected row is: %s\n", name);
-//       g_free(name);
+      gtk_tree_model_get (model, &iter,
+			  0, &imol_1,
+			  1, &imol_2,
+			  2, &chain_id_1,
+			  3, &chain_id_2,
+			  -1);
+      std::cout << "  " << imol_1 << " " << imol_2 << " " << chain_id_1 << " " << chain_id_2 << std::endl;
+
+      for (unsigned int i_interf=0; i_interf<gui_info_p->size(); i_interf++) {
+	 // std::cout << i_interf << " " << (*gui_info_p)[i_interf].imol_1 << std::endl;
+	 if ((*gui_info_p)[i_interf].imol_1 == imol_1) { 
+	    if ((*gui_info_p)[i_interf].imol_2 == imol_2) {
+	       if ((*gui_info_p)[i_interf].chain_id_1 == std::string(chain_id_1)) {
+		  if ((*gui_info_p)[i_interf].chain_id_2 == std::string(chain_id_2)) {
+		     clipper::Coord_orth centre_pt = (*gui_info_p)[i_interf].centre;
+		     pisa_interfaces_display_only(imol_1, imol_2, centre_pt);
+		  }
+	       }
+	    }
+	 }
+      } 
+      
+      g_free(chain_id_1);
+      g_free(chain_id_2);
 
    }
-      
 }
 #endif
