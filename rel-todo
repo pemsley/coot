@@ -12,6 +12,12 @@
     o Restore a session that has an anomalous map in the state.  Fail.
       Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
 
+    o difference map (given previous model and new obs MTZ file, run
+      refmac no cyles to make a map, coot rigid-body per chain then
+      refmac to make phases for new model - get cell from passed MTZ
+      file, go to active site (passed value), create a view, pass 3
+      orthogonal views to be rendered by ccp4mg).  Puntable.
+
     o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
 
     o PIR alignment: on pressing the insertion button, go to the
