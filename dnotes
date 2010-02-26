@@ -5415,6 +5415,18 @@ Wed Feb 17 03:05:21 GMT 2010
    Sphere refinement with alt confs creates problems (no progress).
    e.g.: around B 425 in 3h7w.
 
+----
+Fri Feb 26 11:21:07 GMT 2010
+
+  
+   All pairs NCS rmsd comparison. (Requested by FvD)
+
+  GK:
+
+   - my favourite plot would be the "CD plot" (but then again, it
+   would, wouldn't it?) - see for instance:
+
+   http://xray.bmc.uu.se/cgi-bin/gerard/image_page.pl?image=usf/pics/cdplot_1ldn.gif
 
 ------
 

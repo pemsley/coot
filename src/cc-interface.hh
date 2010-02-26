@@ -779,9 +779,10 @@ void stop_curl_download(const char *file_name); // stop curling the to file_name
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
 /*  ----------------------------------------------------------------------- */
-std::pair<int, int> make_complementary_dotted_surfaces(int imol_1, int imol_2, 
-						       std::vector<coot::residue_spec_t> &r1, 
-						       std::vector<coot::residue_spec_t> &r2);
+clipper::Coord_orth 
+make_complementary_dotted_surfaces(int imol_1, int imol_2, 
+				   std::vector<coot::residue_spec_t> &r1, 
+				   std::vector<coot::residue_spec_t> &r2);
 #ifdef USE_GUILE
 std::vector<coot::residue_spec_t>
 residue_records_list_scm_to_residue_specs(SCM mol_1_residue_records,
@@ -795,6 +796,9 @@ add_generic_object_bond(int imol1, int imol2,
 			const coot::atom_spec_t &atom_spec_2,
 			int generic_object_number,
 			const std::string &colour);
+
+void
+pisa_interfaces_display_only(int imol_1, int imol_2, clipper::Coord_orth centre_pt);
 
 
 

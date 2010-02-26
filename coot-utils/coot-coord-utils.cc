@@ -5861,3 +5861,50 @@ coot::util::print_secondary_structure_info(CModel *model_p) {
    std::cout << "------------------------------------------------\n";
 }
    
+
+// return success status as first element
+// 
+std::pair<bool, clipper::Coord_orth>
+coot::centre_of_molecule(CMMDBManager *mol) {
+
+   bool status = 0;
+   clipper::Coord_orth centre(0,0,0);
+
+   if (mol) {
+
+      int n_atoms = 0;
+      double xs=0, ys=0, zs=0;
+
+      for(int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
+	 CModel *model_p = mol->GetModel(imod);
+	 CChain *chain_p;
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    CAtom *at;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       int n_residue_atoms = residue_p->GetNumberOfAtoms();
+	 
+	       for (int iat=0; iat<n_residue_atoms; iat++) {
+		  at = residue_p->GetAtom(iat);
+		  xs += at->x;
+		  ys += at->y;
+		  zs += at->z;
+		  n_atoms++;
+	       }
+	    }
+	 }
+      }
+
+      if (n_atoms > 0) {
+	 status = 1;
+	 double dna = static_cast<double> (n_atoms);
+	 centre = clipper::Coord_orth(xs/dna, ys/dna, zs/dna);
+      }
+   }
+
+   return std::pair<bool, clipper::Coord_orth> (status, centre);
+} 

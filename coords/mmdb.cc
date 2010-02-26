@@ -410,14 +410,14 @@ fix_wrapped_names(atom_selection_container_t asc) {
 	       new_atom_name = ' ';
 	       new_atom_name += atom_name.substr(1,2) + atom_name[0];
 	    } 
-//  	    std::cout << "DEBUG:: atom_name switch :" <<  atom_name << ": -> :"
-//  		      << new_atom_name << ":\n";
+//   	    std::cout << "DEBUG:: atom_name switch :" <<  atom_name << ": -> :"
+//   		      << new_atom_name << ":\n";
 	    if (uddHnd_old >= 0)
 	       asc.atom_selection[i]->PutUDData(uddHnd_old,
 						asc.atom_selection[i]->name);
 	    if (uddHnd_new >= 0)
 	       asc.atom_selection[i]->PutUDData(uddHnd_new,
-						(char *) new_atom_name.c_str());
+						new_atom_name.c_str());
 	    asc.atom_selection[i]->SetAtomName(new_atom_name.c_str());
 	    n_changed++;;
  	 } else {

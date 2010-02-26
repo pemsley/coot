@@ -39,6 +39,7 @@ namespace coot {
    public:
       int imol_1;
       int imol_2;
+      clipper::Coord_orth centre;
       int n_h_bonds;
       int n_salt_bridges;
       int n_cov_bonds;
@@ -55,6 +56,7 @@ namespace coot {
 		       const std::string &chain_id_1_in,
 		       const std::string &chain_id_2_in,
 		       const std::string &symop_str,
+		       const clipper::Coord_orth &centre_in,
 		       float interface_area_in,
 		       float interface_solv_en_in,
 		       float interface_pvalue_in,
@@ -74,6 +76,7 @@ namespace coot {
 	 interface_stab_en = interface_stab_en_in;
 	 interface_area    = interface_area_in;
 	 interface_solv_en = interface_solv_en_in;
+	 centre = centre_in;
       }
    };
 
