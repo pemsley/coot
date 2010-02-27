@@ -71,8 +71,11 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 			 (residue_name == "TYR")) {
 
 			int isw = test_and_fix_PHE_TYR_nomenclature_errors(residue_p);
-			if (isw)
+			if (isw) { 
+			   std::cout << "INFO:: swapped atoms in " << coot::residue_spec_t(residue_p)
+				     << " " << residue_p->GetResName() << std::endl;
 			   vr.push_back(residue_p);
+			}
 		     }
 		     
 		     if ((residue_name == "ASP") ||
@@ -92,10 +95,12 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 
 			int swapped = d.optimize_rotamer_by_atom_names();
 			if (swapped) {
-			   std::cout << "INFO:: residue " << residue_p->GetChainID()
-				     << " " << residue_p->GetSeqNum() << " "
-				     << residue_p->GetResName()
-				     << " had its atoms swapped\n";
+// 			   std::cout << "INFO:: residue " << residue_p->GetChainID()
+// 				     << " " << residue_p->GetSeqNum() << " "
+// 				     << residue_p->GetResName()
+// 				     << " had its atoms swapped\n";
+			   std::cout << "INFO:: swapped atoms in " << coot::residue_spec_t(residue_p)
+				     << " " << residue_p->GetResName() << std::endl;
 			   vr.push_back(residue_p);
 			}
 		     }
@@ -120,10 +125,10 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 			      // impose a sign on the CB chiral
 			      // centre - in the chiral_restraint the 
 
-			      std::cout << "For residue " << residue_p->GetSeqNum() << " "
-					<< residue_p->GetResName() << " chiral centre: "
-					<< " for restraint: " << irestr << " :" 
-					<<  chiral_restraint.atom_id_c_4c() << ":\n";
+// 			      std::cout << "For residue " << residue_p->GetSeqNum() << " "
+// 					<< residue_p->GetResName() << " chiral centre: "
+// 					<< " for restraint: " << irestr << " :" 
+// 					<<  chiral_restraint.atom_id_c_4c() << ":\n";
 
 #ifdef HAVE_GSL			      
 			      std::vector<std::pair<short int, coot::atom_spec_t> > c = 
@@ -160,6 +165,9 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 				       og1->SetAtomName(" CG2");
 				       cg2->SetAtomName(" OG1");
 				       std::cout << "        CG2 and OG1 atoms swapped\n";
+				       std::cout << "INFO:: swapped atoms in "
+						 << coot::residue_spec_t(residue_p)
+						 << " " << residue_p->GetResName() << std::endl;
 				       vr.push_back(residue_p);
 				    } else {
 				       // This can't happen:
@@ -235,6 +243,9 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 				 cg2->SetAtomName(target_atom_1.c_str());
 				 std::cout << "        " << target_atom_1 << " and "
 					   << target_atom_2 << " atoms swapped\n";
+				 std::cout << "INFO:: swapped atoms in "
+					   << coot::residue_spec_t(residue_p)
+					   << " " << residue_p->GetResName() << std::endl;
 				 vr.push_back(residue_p);
 			      } else {
 				 // This can't happen:

@@ -3316,6 +3316,175 @@
 
 
 
+
+
+;; molecule chooser
+;; 
+;; coordination number chooser
+;; 
+;; Max dist entry
+;; 
+;; results vbox
+;;    containing buttons with atom-spec labels
+;; 
+;; h-sep
+;;
+;;      close-button
+;; 
+(define (water-coordination-gui)
+
+  (define (atom-spec->text atom-spec)
+    (apply string-append 
+     (map (lambda (ele)
+	    ;; (format #t "ele :~s: from spec: ~s~%" ele atom-spec)
+	    (cond 
+	     ((string? ele) (string-append ele " "))
+	     ((number? ele) (string-append
+			     (number->string ele) " "))
+	     (else 
+	      " "))) (cdr atom-spec)))) ;; remove model
+  
+  (define (get-ele imol atom-spec)
+    (let ((atoms (residue-info imol 
+			       (list-ref atom-spec 1)
+			       (list-ref atom-spec 2)
+			       (list-ref atom-spec 3)))
+	  (input-atom-name (list-ref atom-spec 4)))
+      (if (list? atoms)
+	  (let loop ((atoms atoms))
+	    (cond
+	     ((null? atoms) #f)
+	     ((string=? (car (car (car atoms))) input-atom-name)
+	      (list-ref (list-ref (car atoms) 1) 2))
+	     (else 
+	      (loop (cdr atoms))))))))
+
+  ;; add info about bumps (to non-H-bonding atoms or so).  given a
+  ;; water info (a central atom spec and a list of its contacts).
+  (define (make-bump-text imol water-info)
+    (let ((central-atom (car water-info))
+	  (contact-list (cadr water-info)))
+      (let ((rv ""))
+	(for-each (lambda (contact)
+		    (let ((ele (get-ele imol contact)))
+		      (if (string? ele)
+			  (if (string=? ele " C")
+			      (set! rv " Bump")))))
+		  contact-list)
+	rv)))
+
+    (let* ((window (gtk-window-new 'toplevel))
+	   (vbox (gtk-vbox-new #f 0))
+	   (results-vbox (gtk-vbox-new #f 0))
+	   (h-sep (gtk-hseparator-new))
+	   (hint-text "Molecule: ")
+	   (hbox-chooser (gtk-hbox-new #f 0))
+	   (hbox-max-dist (gtk-hbox-new #f 0))
+	   (hbox-number-chooser (gtk-hbox-new #f 0))
+	   (number-text (gtk-label-new "Coordination Number: "))
+	   (molecule-chooser-option-menu-and-model-list
+	    (generic-molecule-chooser hbox-chooser hint-text))
+	   (molecule-chooser-option-menu 
+	    (car molecule-chooser-option-menu-and-model-list))
+	   (model-list (cadr molecule-chooser-option-menu-and-model-list))
+	   (scrolled-win (gtk-scrolled-window-new))
+	   (number-option-menu (gtk-option-menu-new))
+	   (number-list (range 3 10))
+	   (number-menu (gtk-menu-new))
+	   (dist-label (gtk-label-new "Max Dist: "))
+	   (dist-entry (gtk-entry-new))
+	   (close-button (gtk-button-new-with-label "  Close  "))
+	   (apply-button (gtk-button-new-with-label "  Apply  "))
+	   (hbox-buttons (gtk-hbox-new #f 6))
+	   (get-molecule
+	    (lambda ()
+	      (get-option-menu-active-molecule
+	       molecule-chooser-option-menu
+	       model-list)))
+	   (get-number
+	    (lambda ()
+	      (get-option-menu-active-item
+	       number-option-menu number-list)))
+	   (get-distance (lambda ()
+			   (let ((t (gtk-entry-get-text dist-entry)))
+			     (string->number t))))
+	   (clear-previous-results 
+	    (lambda ()
+	      (let ((children (gtk-container-children results-vbox)))
+		(map gtk-widget-destroy children)))))
+      
+
+      (gtk-container-add window vbox)
+
+      (fill-option-menu-with-number-options number-menu number-list 5)
+		
+      (gtk-option-menu-set-menu number-option-menu number-menu)
+      
+      (gtk-scrolled-window-add-with-viewport scrolled-win results-vbox)
+      (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+
+      (gtk-box-pack-start hbox-max-dist dist-label #f #f 2)
+      (gtk-box-pack-start hbox-max-dist dist-entry #f #f 2)
+      
+      (gtk-box-pack-start vbox hbox-chooser #f #f 6)
+
+      (gtk-box-pack-start hbox-number-chooser number-text #f #f 2)
+      (gtk-box-pack-start hbox-number-chooser number-option-menu #f #f 2)
+			  
+      (gtk-box-pack-start vbox hbox-number-chooser #f #f 6)
+
+      (gtk-box-pack-start vbox hbox-max-dist #f #f 2)
+      (gtk-box-pack-start vbox scrolled-win #t #t 0) ; expand fill padding
+      (gtk-box-pack-start vbox h-sep #f #f 2)
+      (gtk-box-pack-end hbox-buttons close-button #f #f 2)
+      (gtk-box-pack-end hbox-buttons apply-button #f #f 2)
+      (gtk-box-pack-start vbox hbox-buttons #f #f 2)
+
+      (gtk-entry-set-text dist-entry "2.7")
+
+      (gtk-signal-connect close-button "clicked" 
+			  (lambda ()
+			    (gtk-widget-destroy window)))
+      
+      (gtk-signal-connect 
+       apply-button "clicked"
+       (lambda ()
+	 (let ((n (get-number))
+	       (imol (get-molecule))
+	       (d (get-distance)))
+	   (if (number? d)
+	       (let ((results (highly-coordinated-waters imol n d)))
+		 (clear-previous-results)
+		 ;; (format #t "got water results: ~s~%" results)
+		 (for-each
+		  (lambda (water-info)
+		    ;; a water spec is a central-atom spec and a list
+		    ;; of its neighbours.
+		    (let* ((t (atom-spec->text (car water-info)))
+			   (bump-text (make-bump-text imol water-info))
+			   (button (gtk-button-new-with-label
+				    (string-append t bump-text))))
+		      (gtk-box-pack-start results-vbox button #f #f 1)
+		      (gtk-widget-show button)
+		      (gtk-signal-connect 
+		       button "clicked"
+		       (lambda ()
+			 (let* ((water-spec (car water-info))
+				(chain-id  (list-ref water-spec 1))
+				(res-no    (list-ref water-spec 2))
+				(atom-name (list-ref water-spec 4)))
+			 (format #t "go to ~s~%" (car water-spec))
+			 (format #t "go to :~s: :~s: :~s:~%" 
+				 chain-id res-no atom-name)
+			 (set-go-to-atom-molecule imol)
+			 (set-go-to-atom-chain-residue-atom-name 
+			  chain-id res-no atom-name))))))
+		  results))))))
+
+      (gtk-widget-show-all window)))
+
+
+
 ;; let the c++ part of coot know that this file was loaded:
 (set-found-coot-gui)
 	 

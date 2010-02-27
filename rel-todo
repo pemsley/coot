@@ -7,7 +7,8 @@
     o PISA interfaces via XML. After parsing and processing only the top
       interface should be displayed. Clicking on a line in the treeview
       should centre on the middle of the interface and turn off the
-      other interfaces.  Test with 3ch6.  ::: 14
+      other interfaces.  Test with 3ch6, 4ins. Check the zinc
+      interactions and h-bonds ::: 14
 
     o Restore a session that has an anomalous map in the state.  Fail.
       Phil Evans.   molecule-class-info-maps.cc:731 ::: 1

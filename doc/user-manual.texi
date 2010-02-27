@@ -1865,7 +1865,11 @@ The convenience function
 
 @code{(overlay-my-ligands @emph{imol-mov chain-id-mov resno-mov imol-ref chain-id-ref resno-ref})} 
 
-wraps @code{overlap-ligands}.  The is no GUI for this function yet.
+wraps @code{overlap-ligands}.  
+
+The GUI for the function can be found under 
+
+@command{Extensions -> Modelling -> Supperpose Ligands@dots{}}
 
 @node Writing PDB files
 @section Writing PDB files
