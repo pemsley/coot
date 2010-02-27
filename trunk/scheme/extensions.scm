@@ -42,6 +42,19 @@
 		     (format #t "checking for updates....~%")
 		     (check-for-updates-gui)))))))))
 
+; wait until this has symmetry checked water coordination
+;
+;(if (defined? 'coot-main-menubar)
+;    ;; --------------------------------------------------
+;    ;;           coordinated water validation dialog
+;    ;; --------------------------------------------------
+;    (let ((menu (coot-menubar-menu "Validate")))
+;      (add-simple-coot-menu-menuitem 
+;       menu "Highly coordinated waters..."
+;       (lambda ()
+;	 (water-coordination-gui)))))
+
+
 
 (if (defined? 'coot-main-menubar)
     ;; ---------------------------------------------

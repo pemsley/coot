@@ -40,7 +40,7 @@
 // not dealt with here.
 // 
 // We deal with bifurcated symmetric non-chiral side chains (PHE, ASP,
-// GLU, THR)
+// GLU, TYR)
 // 
 int 
 coot::rotamer::optimize_rotamer_by_atom_names() {
@@ -99,7 +99,8 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
 		     residue_atoms[ifirst]->SetAtomName(  sec_atom_name.c_str());
 		     residue_atoms[isec  ]->SetAtomName(first_atom_name.c_str());
 		     ifound = 1;
-		     nfound++; 
+		     nfound++;
+		     imoved = 1;
 		  }
 		  if (ifound)
 		     break;
@@ -145,7 +146,8 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
 			   residue_atoms[ifirst]->SetAtomName(  sec_atom_name.c_str());
 			   residue_atoms[isec  ]->SetAtomName(first_atom_name.c_str());
 			   ifound = 1;
-			   nfound++; 
+			   nfound++;
+			   imoved = 1;
 			}
 			if (ifound)
 			   break;
@@ -155,9 +157,10 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
 		  }
 	       }
 	    }
-	    std::cout << "Fixed " << nfound << " atom pairs of residue "
-		      << residue->GetResName() << " " << residue->GetSeqNum()
-		      << std::endl;
+	    if (0) 
+	       std::cout << "Fixed " << nfound << " atom pairs of residue "
+			 << residue->GetResName() << " " << residue->GetSeqNum()
+			 << std::endl;
 	 }
       } else {
 	 std::cout << "badness in atom selection " << std::endl;
