@@ -47,10 +47,7 @@
 
 
 #include "graphics-info.h"
-
-#ifdef USE_GUILE
-#include <guile/gh.h>
-#endif // USE_GUILE
+#include "guile-fixups.h"
 
 // Including python needs to come after graphics-info.h, because
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in

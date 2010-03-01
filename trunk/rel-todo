@@ -4,6 +4,8 @@
 
     o make a mini-rsr ::: 1
 
+    o give useful output when running pisa interface with old pisa.
+
     o Restore a session that has an anomalous map in the state.  Fail.
       Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
 
