@@ -167,25 +167,11 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
  	    std::cout << "Not a number: " << scm_to_locale_string(display_scm(interface_stab_en_scm))
 		      << std::endl;
 
-	 std::cout << "debug:: ============ interface_solv_en " << interface_solv_en << std::endl;
 	 
 	 SCM molecule_pair_pair = scm_list_ref(interface_scm, SCM_MAKINUM(0));
 	 SCM molecule_pair_pair_length_scm = scm_length(molecule_pair_pair);
 	 int molecule_pair_pair_length = scm_to_int(molecule_pair_pair_length_scm);
 
-	 SCM bonds_info_scm = scm_list_ref(interface_scm, SCM_MAKINUM(1));
-	 // 	    std::cout << " in handle_pisa_interfaces_scm() got interface bonds: "
-	 // 		      << scm_to_locale_string(display_scm(bonds_info_scm))
-	 // 		      << std::endl;
-	 if (scm_is_true(scm_list_p(bonds_info_scm))) {
-	    SCM bonds_info_length_scm = scm_length(bonds_info_scm);
-	    int bonds_info_length = scm_to_int(bonds_info_length_scm);
-	    for (int ibond=0; ibond<bonds_info_length; ibond++) {
-	       SCM pisa_bond_scm = scm_list_ref(bonds_info_scm, SCM_MAKINUM(ibond));
-	       add_pisa_interface_bond_scm(imol_1, imol_2, pisa_bond_scm, i);
-	    }
-	 }
-	 
 	 if (molecule_pair_pair_length == 2) {
 	    // 2 molecules in an interface (good) :-)
 
@@ -213,6 +199,16 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 	    imol_1 = scm_to_int(molecule_number_1_scm);
 	    imol_2 = scm_to_int(molecule_number_2_scm);
 
+	    SCM bonds_info_scm = scm_list_ref(interface_scm, SCM_MAKINUM(1));
+	    if (scm_is_true(scm_list_p(bonds_info_scm))) {
+	       SCM bonds_info_length_scm = scm_length(bonds_info_scm);
+	       int bonds_info_length = scm_to_int(bonds_info_length_scm);
+	       for (int ibond=0; ibond<bonds_info_length; ibond++) {
+		  SCM pisa_bond_scm = scm_list_ref(bonds_info_scm, SCM_MAKINUM(ibond));
+		  add_pisa_interface_bond_scm(imol_1, imol_2, pisa_bond_scm, i);
+	       }
+	    }
+	 
 	    try { 
 
 	       std::string chain_id_1 = scm_to_locale_string(mol_1_chain_id_scm);
@@ -274,12 +270,29 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 }
 #endif /* USE_GUILE */
 
+// "[ZN]-:2" as a chain-id.  Bah. (Often just "A" though).
+// 
+std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in) {
+
+   std::string s = mmdb_chain_id_in;
+   std::string::size_type ibracket = mmdb_chain_id_in.find_last_of("]");
+   if (ibracket != std::string::npos) {
+      // it had one...
+      s = mmdb_chain_id_in.substr(ibracket+1, 1);
+   }
+   if (s == "-")
+      s = "";
+   // std::cout << "=== converted \"" << mmdb_chain_id_in << "\" to \"" << s << "\"\n";
+   return s;
+} 
+
 
 #ifdef USE_GUILE
 std::vector<coot::residue_spec_t> 
-residue_records_list_scm_to_residue_specs(SCM mol_1_residues, const std::string &chain_id) {
+residue_records_list_scm_to_residue_specs(SCM mol_1_residues, const std::string &mmdb_chain_id_in) {
 
    std::vector<coot::residue_spec_t> r;
+   std::string chain_id = untangle_mmdb_chain_id_string(mmdb_chain_id_in);
 
    if (scm_is_true(scm_list_p(mol_1_residues))) { 
       SCM residues_length_scm = scm_length(mol_1_residues);
@@ -431,11 +444,12 @@ void add_pisa_interface_bond_scm(int imol_1, int imol_2, SCM pisa_bond_scm,
 	    colour = "yellow";
 	 }
 
-	 if (bond_type != "") 
+	 if (bond_type != "") {
 	    add_generic_object_bond(imol_1, imol_2,
 				    atom_spec_from_scm_expression(atom_spec_1),
 				    atom_spec_from_scm_expression(atom_spec_2),
 				    generic_object_number, colour);
+	 }
       }
    }
 }
@@ -461,12 +475,11 @@ add_generic_object_bond(int imol1, int imol2,
 	 if (at1 && at2) {
 	    clipper::Coord_orth pt1(at1->x, at1->y, at1->z);
 	    clipper::Coord_orth pt2(at2->x, at2->y, at2->z);
-	    // std::cout << "    " << at1 <<  " and " << at2 << std::endl;
 	    to_generic_object_add_dashed_line(generic_object_number,
 					      colour.c_str(),
-					      5, 0.5,
+					      5, 6,
 					      at1->x, at1->y, at1->z,
-					      at2->x-at1->x, at2->y-at1->y, at2->z-at1->z);
+					      at2->x, at2->y, at2->z);
 	 }
       }
    }
@@ -494,6 +507,13 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
 				   std::vector<coot::residue_spec_t> &r1, 
 				   std::vector<coot::residue_spec_t> &r2) {
 
+   if (0) { 
+      std::cout << "----------------------------- ";
+      std::cout << "make_complementary_dotted_surfaces  " << imol_1 << " " << imol_2 << " ";
+      std::cout << "----------------------------- ";
+      std::cout << std::endl;
+   }
+      
    // symmetry is handled outside of here, which means that imol_2 can
    // be a symmetry copy of imol_1.
    
@@ -514,7 +534,7 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
       if (is_valid_model_molecule(imol_2)) {
 	 CMMDBManager *mol_1 = graphics_info_t::molecules[imol_1].atom_sel.mol;
 	 CMMDBManager *mol_2 = graphics_info_t::molecules[imol_2].atom_sel.mol;
-	 
+
 	 CMMDBManager *frag_mol_1 = coot::util::create_mmdbmanager_from_residue_specs(r1, mol_1);
 	 CMMDBManager *frag_mol_2 = coot::util::create_mmdbmanager_from_residue_specs(r2, mol_2);
 
@@ -561,11 +581,14 @@ pisa_interfaces_display_only(int imol_1, int imol_2, clipper::Coord_orth centre_
       if (is_valid_model_molecule(imol)) {
 	 if ((imol != imol_1) && (imol != imol_2)) {
 	    set_mol_displayed(imol, 0);
+	    set_mol_active(imol, 0);
 	 }
       } 
    }
    set_mol_displayed(imol_1, 1);
    set_mol_displayed(imol_2, 1);
+   set_mol_active(imol_1, 1);
+   set_mol_active(imol_2, 1);
    coot::Cartesian pt(centre_pt.x(), centre_pt.y(), centre_pt.z());
    graphics_info_t g;
    g.setRotationCentre(pt);

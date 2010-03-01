@@ -23,6 +23,8 @@
 #ifndef HAVE_COOT_COORD_UTILS_HH
 #define HAVE_COOT_COORD_UTILS_HH
 
+#include <stdexcept>
+
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
 #include <vector>
@@ -478,6 +480,9 @@ namespace coot {
    // 
    graph_match_info_t graph_match(CResidue *res_moving, CResidue *res_reference, bool apply_rtop_flag);
 
+   //
+   bool mol_has_symmetry(CMMDBManager *mol);
+
    namespace util {
 
       class peptide_torsion_angles_info_t {
@@ -743,6 +748,7 @@ namespace coot {
 
       class contact_atoms_info_t {
       public:
+	 enum ele_index_t { ELE_UNASSIGNED, ELE_NA, ELE_K, ELE_MG2, ELE_LI, ELE_CA2 };
 	 class contact_atom_t {
 	 public:
 	    double dist;
@@ -752,9 +758,11 @@ namespace coot {
       private:
 	 std::vector<contact_atom_t> contact_atoms;
 	 CAtom *at;
+	 ele_index_t metal_type;
       public:
 	 contact_atoms_info_t() {
 	    at = NULL;
+	    metal_type = ELE_UNASSIGNED;
 	 }
 	 contact_atoms_info_t(CAtom *at_central_in, const contact_atom_t &con_at) {
 	    at = at_central_in;
@@ -787,13 +795,56 @@ namespace coot {
 	    return r;
 	 }
 	 CAtom *central_atom() const { return at; }
+	 double smallest_contact_dist() const {
+	    if (contact_atoms.size() == 0)
+	       throw std::runtime_error("zero contacts");
+	    double d = 999999999999.9;
+	    for (unsigned int i=0; i<contact_atoms.size(); i++) {
+	       if (contact_atoms[i].dist < d)
+		  d = contact_atoms[i].dist;
+	    }
+	    return d;
+	 }
+	 bool test_for_na() const;
+	 bool test_for_ele(ele_index_t ele_index) const;
+	 static std::string ele_to_string(ele_index_t ele) {
+	    std::string r = "Unknown";
+	    if (ele == ELE_UNASSIGNED)
+	       r = "Unassigned";
+	    if (ele == ELE_NA)
+	       r = "Sodium (Na+)";
+	    if (ele == ELE_K)
+	       r = "Potassium (K+)";
+	    if (ele == ELE_LI)
+	       r = "Lithium (Li+)";
+	    if (ele == ELE_MG2)
+	       r = "Magnesium (Mg+2)";
+	    if (ele == ELE_CA2)
+	       r = "Calcium (Ca+2)";
+	    return r;
+	 }
       };
 
+      // This does nieve symmetry expansion, if the mol has symmetry
+      // then this class should be used with (typically) a copy of the
+      // molecule that has been moved as close as possible to the
+      // origin.
+      // 
       class water_coordination_t {
 	 std::vector<contact_atoms_info_t> atom_contacts;
 	 void add_contact(CAtom *atom_contactor, CAtom *atom_central);
+	 
+	 void add_contacts(CMMDBManager *mol,
+			   PCAtom *water_selection, int n_water_atoms, 
+			   PCAtom *atom_selection, int n_selected_atoms,
+			   realtype min_dist, realtype max_dist,
+			   const mat44 &my_mat);
+	 void sort_contacts(std::vector<contact_atoms_info_t> *v) const;
+	 static bool sort_contacts_func(const contact_atoms_info_t &first,
+					const contact_atoms_info_t &second);
       public:
 	 water_coordination_t(CMMDBManager *mol, realtype radius_limit);
+	 water_coordination_t() {}; 
 
 	 // I don't know what the "get" interface to
 	 // water_coordination_t should be. So I'll make one up:
@@ -801,9 +852,15 @@ namespace coot {
 	 std::vector<contact_atoms_info_t>
 	 get_highly_coordinated_waters(int n_contacts,  // at least n_contacts
 				       double dist_max) const; // within dist_max
+
+	 // This checks against build-in values from the literature
+	 //
+	 std::vector<std::pair<coot::util::contact_atoms_info_t, coot::util::contact_atoms_info_t::ele_index_t> > metals() const;
 	 
       };
 
+      // a simple full copy, caller deletes.
+      CMMDBManager *copy_molecule(CMMDBManager *mol);
 
       // The flanking residues (if any) are in the residue selection (SelResidues).
       // The flags are not needed now we have made adjustments in the calling
@@ -1075,7 +1132,7 @@ namespace coot {
       std::pair<clipper::Cell, clipper::Spacegroup> get_cell_symm(CMMDBManager *mol);
 
       // shove a cell from a clipper cell into the passed mol.
-      void set_mol_cell(CMMDBManager *mol, clipper::Cell cell);
+      bool set_mol_cell(CMMDBManager *mol, clipper::Cell cell);
 
 
       // caller must check that others has some points in it.
@@ -1109,6 +1166,8 @@ namespace coot {
       clipper::Coord_orth
       translate_close_to_origin(const clipper::Coord_orth water_pos_pre,
 				const clipper::Cell &cell);
+
+      void translate_close_to_origin(CMMDBManager *mol);
 
       // Print secondary structure info:
       void print_secondary_structure_info(CModel *model_p);

@@ -64,12 +64,13 @@
   ;; 
   (define (pisa-make-atom-selection-string chain-id-raw)
 
-    ;; first try to split the chain-id-raw on a "]".  If there was
-    ;; no "]" then we had a simple chain-id.  If there was a "]"
-    ;; then we have something like "[CL]D:32", from which we need to
-    ;; extract a residue number and a chain id.  Split on ":" and
+    ;; first try to split the chain-id-raw on a "]".  If there was no
+    ;; "]" then we had a simple chain-id.  If there was a "]" then we
+    ;; have something like "[CL]D:32", or "[ZN]-:2" from which we need
+    ;; to extract a residue number and a chain id.  Split on ":" and
     ;; construct the left and right hand sides of s.  Then use those
-    ;; together to make an mmdb selection string.
+    ;; together to make an mmdb selection string.  If chaind-id is "-"
+    ;; then reset it to blank.
     ;; 
     (let ((match-info (string-match "]" chain-id-raw)))
       
@@ -82,10 +83,18 @@
 		   (s-match-info (string-match ":" s)))
 	      (if s-match-info
 		  (let ((residue-string (substring s (match:end s-match-info) ls))
-			(chain-string (substring s 0 (match:start s-match-info))))
+			(chain-string   (substring s 0 (match:start s-match-info)))
+			(element-string (substring chain-id-raw 0 (match:end match-info))))
 		    ;; (print-var residue-string)
 		    ;; (print-var chain-string)
-		    (string-append "//" chain-string "/" residue-string))
+		    ;; (print-var element-string)
+		    (let ((atom-selection-string 
+			   (if (string=? chain-string "-")
+			       (string-append "// /" residue-string "/" element-string)
+			       (string-append "//" chain-id "/" residue-string))))
+		      (format #t "debug:: atom-selection-string: ~s from ~s~%"
+			      atom-selection-string chain-id-raw)
+		      atom-selection-string))
 		  s)))
 	  (begin
 	    ;; (format #t "found a simple chain_id ~s~%" chain-id-raw)
@@ -252,7 +261,6 @@
 		    (cond 
 		     ((eq? (car mol-ele) 'pvalue) (set! pvalue (cadr mol-ele)))
 		     ((eq? (car mol-ele) 'id)          (if (> (length mol-ele) 1) (set! id       (cadr mol-ele))))
-		     ((eq? (car mol-ele) 'chain_id)    (if (> (length mol-ele) 1) (set! chain-id (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'class)       (if (> (length mol-ele) 1) (set! class    (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'symop)       (if (> (length mol-ele) 1) (set! symop    (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'symop_no)    (if (> (length mol-ele) 1) (set! symop-no (cadr mol-ele))))
@@ -260,6 +268,7 @@
 		     ((eq? (car mol-ele) 'int_nres)    (if (> (length mol-ele) 1) (set! nres     (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'int_area)    (if (> (length mol-ele) 1) (set! area     (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'int_solv_en) (if (> (length mol-ele) 1) (set! solv-en  (cadr mol-ele))))
+		     ((eq? (car mol-ele) 'chain_id)    (if (> (length mol-ele) 1) (set! chain-id (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'residues) 
 		      (let ((filtered-residues (filter-residues (handle-residues mol-ele make-residue-record))))
 			(set! residues filtered-residues)))))
