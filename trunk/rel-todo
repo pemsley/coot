@@ -1,14 +1,8 @@
  0.6.2
 
-    Points 40: April 4th
+    Points 25: April 4th
 
     o make a mini-rsr ::: 1
-
-    o PISA interfaces via XML. After parsing and processing only the top
-      interface should be displayed. Clicking on a line in the treeview
-      should centre on the middle of the interface and turn off the
-      other interfaces.  Test with 3ch6, 4ins. Check the zinc
-      interactions and h-bonds ::: 14
 
     o Restore a session that has an anomalous map in the state.  Fail.
       Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
@@ -21,6 +15,8 @@
 
     o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
 
+    o Environment distances turn off badly [JED] ::: 1
+
     o PIR alignment: on pressing the insertion button, go to the
       nearest residue to the gap. [Joel Bard] ::: 1 
 
@@ -32,6 +28,9 @@
       they are not displayed ::: 2
 
     o change to rms z scores ::: 2
+
+    o adding waters should not add new waters within 2.5A of an
+      existing water.  see tutorial-modern-symmetry-0.pdb ::: 1
 
     o alt confs cause problems in geometry graph [JED] ::: 2
 
@@ -54,7 +53,7 @@
 
     o white background with ball and stick models. ::: 4
 
-    o 3kcz fails to give ncs diferences graph. why?
+    o 3kcz fails to give ncs diferences graph. why? ::: 1
 
     o load tutorial data gets files from a relative place? Seems
       so. ::: 0.1
@@ -278,4 +277,19 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 
       The tlc for XX6 seems to be " " - why is that? It's because the
       cif was wrongly written. ::: 2
+
+* Fixed.
+
+    o Water coordination (including symmetry) ::: 8
+
+* Done.
+
+
+    o PISA interfaces via XML. After parsing and processing only the top
+      interface should be displayed. Clicking on a line in the treeview
+      should centre on the middle of the interface and turn off the
+      other interfaces.  Test with 3ch6, 4ins. Check the zinc
+      interactions and h-bonds ::: 16
+
+* Done.
 

@@ -954,8 +954,8 @@ void to_generic_object_add_dashed_line(int object_number,
       if (visible) { 
 	 float fracs = float(idash)/float(n_dashes);
 	 float fracn = float(idash+1)/float(n_dashes);
-	 clipper::Coord_orth p1 = p_start + fracs * p_end;
-	 clipper::Coord_orth p2 = p_start + fracn * p_end;
+	 clipper::Coord_orth p1 = p_start + fracs * (p_end - p_start);
+	 clipper::Coord_orth p2 = p_start + fracn * (p_end - p_start);
 	 to_generic_object_add_line(object_number, colour, line_width,
 				    p1.x(), p1.y(), p1.z(), 
 				    p2.x(), p2.y(), p2.z());

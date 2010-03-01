@@ -799,6 +799,8 @@ add_generic_object_bond(int imol1, int imol2,
 
 void
 pisa_interfaces_display_only(int imol_1, int imol_2, clipper::Coord_orth centre_pt);
+std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
+
 
 
 

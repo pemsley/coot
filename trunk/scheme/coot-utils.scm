@@ -422,7 +422,7 @@
 (define (member? atom ls)
   (cond 
    ((null? ls) #f)
-   ((eqv? atom (car ls)) #t)
+   ((equal? atom (car ls)) #t)
    (else 
     (member? atom (cdr ls)))))
     

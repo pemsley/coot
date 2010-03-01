@@ -4818,10 +4818,12 @@ void set_check_waters_by_difference_map_sigma_level(float f);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
-/*! \brief return a list of waters that are coordinated with at least
+/*! \brief return an improper list first is list of metals, second is
+  list of waters that are coordinated with at least
   coordination_number of other atoms at distances less than or equal
   to dist_max.  Return scheme false on not able to make a list,
-  otherwise a list of atoms and neighbours */
+  otherwise a list of atoms and neighbours.  Can return scheme false
+  if imol is not a valid molecule. */
 SCM highly_coordinated_waters_scm(int imol, int coordination_number, float dist_max);
 #endif
 #ifdef USE_PYTHON

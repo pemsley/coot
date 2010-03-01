@@ -165,6 +165,48 @@ coot::util::pair_residue_atoms(CResidue *a_residue_p,
    return pv;
 }
 
+CMMDBManager *
+coot::util::copy_molecule(CMMDBManager *mol) {
+   CMMDBManager *n = new CMMDBManager;
+   n->Copy(mol, MMDBFCM_All);
+   return n;
+}
+
+void
+coot::util::translate_close_to_origin(CMMDBManager *mol) {
+
+   try {
+      std::pair<clipper::Cell, clipper::Spacegroup> csp = get_cell_symm(mol);
+      clipper::Coord_frac cf = coot::util::shift_to_origin(mol);
+      clipper::Coord_orth co = cf.coord_orth(csp.first);
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	 int imod = 1;
+	 CModel *model_p = mol->GetModel(imod);
+	 CChain *chain_p;
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    CAtom *at;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       int n_atoms = residue_p->GetNumberOfAtoms();
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  at = residue_p->GetAtom(iat);
+		  at->x += co.x();
+		  at->y += co.y();
+		  at->z += co.z();
+	       }
+	    }
+	 }
+      }
+   } 
+   catch (std::runtime_error rte) {
+      std::cout << rte.what() << std::endl;
+   } 
+}
+
 
 void
 coot::sort_chains(CMMDBManager *mol) {
@@ -2218,6 +2260,15 @@ coot::util::chain_id_residue_vec_helper_t::residues_sort_func(CResidue *first, C
    }
    return 0; // not reached.
 }
+
+
+bool
+coot::mol_has_symmetry(CMMDBManager *mol) {
+   mat44 test_mat;
+   int i_symm_err = mol->GetTMatrix(test_mat, 0, 0, 0, 0);
+   return i_symm_err;
+} 
+
 
 
 // We don't mess with the chain ids, give as we get, but also
@@ -5580,15 +5631,28 @@ coot::util::get_cell_symm(CMMDBManager *mol) {
 
 
 // shove a cell from a clipper cell into the passed mol.
-void
+bool
 coot::util::set_mol_cell(CMMDBManager *mol, clipper::Cell cell_local) {
 
+   bool status = 0; 
    mol->SetCell(cell_local.a(), cell_local.b(), cell_local.c(),
 		clipper::Util::rad2d(cell_local.alpha()),
 		clipper::Util::rad2d(cell_local.beta()),
 		clipper::Util::rad2d(cell_local.gamma()));
-   
 
+   realtype cell[6], vol;
+   int orthog;
+   
+   mol->GetCell(cell[0], cell[1], cell[2], cell[3], cell[4], cell[5], vol, orthog);
+   if (fabs(cell[0] - cell_local.a()) < 0.1)
+      if (fabs(cell[1] - cell_local.b()) < 0.1)
+	 if (fabs(cell[2] - cell_local.c()) < 0.1)
+	    if (fabs(clipper::Util::d2rad(cell[3]) - cell_local.alpha()) < 0.1)
+	       if (fabs(clipper::Util::d2rad(cell[4]) - cell_local.beta()) < 0.1)
+		  if (fabs(clipper::Util::d2rad(cell[5]) - cell_local.gamma()) < 0.1)
+		     status = 1;
+
+   return status;
 }
 
 //
@@ -5890,15 +5954,17 @@ coot::centre_of_molecule(CMMDBManager *mol) {
 	 
 	       for (int iat=0; iat<n_residue_atoms; iat++) {
 		  at = residue_p->GetAtom(iat);
-		  xs += at->x;
-		  ys += at->y;
-		  zs += at->z;
-		  n_atoms++;
+		  if (! at->isTer()) { 
+		     xs += at->x;
+		     ys += at->y;
+		     zs += at->z;
+		     n_atoms++;
+		  }
 	       }
 	    }
 	 }
       }
-
+      
       if (n_atoms > 0) {
 	 status = 1;
 	 double dna = static_cast<double> (n_atoms);

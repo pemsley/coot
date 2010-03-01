@@ -1,6 +1,6 @@
 /* src/testing.cc
  * 
- * Copyright 2008, 2009 by the University of Oxford
+ * Copyright 2008, 2009, 2010 by the University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -177,6 +177,7 @@ int greg_internal_tests() {
    functions.push_back(named_func(test_OXT_in_restraints, "OXT in restraints?"));
    functions.push_back(named_func(test_relativise_file_name, "Relative file name"));
    functions.push_back(named_func(test_geometry_distortion_info_type, "geometry distortion comparision"));
+   functions.push_back(named_func(test_translate_close_to_origin, "test symm trans to origin"));
 
    status = run_internal_tests(functions);
    return status;
@@ -194,7 +195,8 @@ int test_internal_single() {
       // status = test_previous_water();
       // status = test_sbase();
       // status = test_coordinated_waters();
-      status = test_geometry_distortion_info_type();
+      // status = test_geometry_distortion_info_type();
+      status = test_translate_close_to_origin();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2158,6 +2160,37 @@ int test_geometry_distortion_info_type() {
       std::cout << "test geometry_distortion_info_t < fails" << std::endl;
    }
 
+   return status;
+}
+
+
+int test_translate_close_to_origin() {
+
+   int status = 0;
+
+   clipper::Coord_orth origin(0,0,0);
+   std::vector<clipper::Coord_orth> pts;
+   pts.push_back(clipper::Coord_orth(99.9, 100.1, 100.0));
+   CMMDBManager *mol = coot::util::create_mmdbmanager_from_points(pts);
+   clipper::Cell_descr cell_descr(100,100,100,
+				  clipper::Util::d2rad(90.0), 
+				  clipper::Util::d2rad(90.0), 
+				  clipper::Util::d2rad(90.0));
+   clipper::Cell cell(cell_descr);
+   bool cell_status = coot::util::set_mol_cell(mol, cell);
+   if (! cell_status) {
+      std::cout << "failure to set cell" << std::endl;
+   } else { 
+      mol->SetSpaceGroup("P 21 21 21");
+      coot::util::translate_close_to_origin(mol);
+      std::pair<bool, clipper::Coord_orth> c = coot::centre_of_molecule(mol);
+      if (c.first) { 
+	 double len = clipper::Coord_orth::length(c.second, origin);
+	 std::cout << "    Got length " << len << std::endl;
+	 if (len < 0.2)
+	    status = 1;
+      }
+   }
    return status;
 }
 

@@ -3373,9 +3373,19 @@
 		  contact-list)
 	rv)))
 
+  ;; 
+  (define (is-a-metal-site-too? atom-spec metal-results)
+    (let ((metal-specs (map car metal-results)))
+      (format #t "   checking if ~s is in ~s... result: ~s ~%" atom-spec metal-specs
+	      (member? atom-spec metal-specs))
+      (member? atom-spec metal-specs)))
+
     (let* ((window (gtk-window-new 'toplevel))
 	   (vbox (gtk-vbox-new #f 0))
 	   (results-vbox (gtk-vbox-new #f 0))
+	   (water-results-label (gtk-label-new "Other Coordinated Waters"))
+	   (metal-results-vbox (gtk-vbox-new #f 0))
+	   (metal-results-label (gtk-label-new "Potential Metals: "))
 	   (h-sep (gtk-hseparator-new))
 	   (hint-text "Molecule: ")
 	   (hbox-chooser (gtk-hbox-new #f 0))
@@ -3388,6 +3398,7 @@
 	    (car molecule-chooser-option-menu-and-model-list))
 	   (model-list (cadr molecule-chooser-option-menu-and-model-list))
 	   (scrolled-win (gtk-scrolled-window-new))
+	   (metal-results-scrolled-win (gtk-scrolled-window-new))
 	   (number-option-menu (gtk-option-menu-new))
 	   (number-list (range 3 10))
 	   (number-menu (gtk-menu-new))
@@ -3410,9 +3421,70 @@
 			     (string->number t))))
 	   (clear-previous-results 
 	    (lambda ()
-	      (let ((children (gtk-container-children results-vbox)))
-		(map gtk-widget-destroy children)))))
-      
+	      (map (lambda (this-vbox)
+		     (let ((children (gtk-container-children this-vbox)))
+		       (map gtk-widget-destroy children)))
+		   (list results-vbox metal-results-vbox))))
+	   (update-water-results
+	    (lambda (imol n d)
+	      (let ((results (highly-coordinated-waters imol n d)))
+		(clear-previous-results)
+		(format #t "DEBUG:: got  ~s water coordinations ~%" (length results))
+		(if results
+		    (let ((coordination-results (cdr results))
+			  (metal-results (car results)))
+		      (for-each
+		       (lambda (water-info)
+			 ;; a water spec is a central-atom spec and a list
+			 ;; of its neighbours.
+			 (let* ((atom-spec (car water-info))
+				(t (atom-spec->text atom-spec))
+				(bump-text (make-bump-text imol water-info))
+				(button (gtk-button-new-with-label
+					 (string-append t bump-text))))
+			   (if (not (is-a-metal-site-too? atom-spec metal-results))
+			       (begin
+				 (gtk-box-pack-start results-vbox button #f #f 1)
+				 (gtk-widget-show button)
+				 (gtk-signal-connect 
+				  button "clicked"
+				  (lambda ()
+				    (let* ((water-spec (car water-info))
+					   (chain-id  (list-ref water-spec 1))
+					   (res-no    (list-ref water-spec 2))
+					   (atom-name (list-ref water-spec 4)))
+;			  (format #t "go to ~s~%" (car water-spec))
+;			  (format #t "go to :~s: :~s: :~s:~%" 
+;				  chain-id res-no atom-name)
+				      (set-go-to-atom-molecule imol)
+				      (set-go-to-atom-chain-residue-atom-name 
+				       chain-id res-no atom-name))))))))
+		       coordination-results)
+
+		      ;; now handle metal results
+		      (for-each 
+		       (lambda (metal-site)
+			 (let* ((metal-text (cadr metal-site))
+				(t (atom-spec->text (car metal-site)))
+;				(nov (format #t "metal-site: ~s    t: ~s   metal-text: ~s~%" 
+;					     metal-site t metal-text))
+				(button-text (string-append t " Potential "
+							    metal-text))
+				(button (gtk-button-new-with-label button-text)))
+			   (gtk-box-pack-start metal-results-vbox button #f #f 1)
+			   (gtk-widget-show button)
+			   (gtk-signal-connect 
+			    button "clicked"
+			    (lambda ()
+			      (let* ((metal-spec (car metal-site))
+				     (chain-id  (list-ref metal-spec 1))
+				     (res-no    (list-ref metal-spec 2))
+				     (atom-name (list-ref metal-spec 4)))
+				(set-go-to-atom-molecule imol)
+				(set-go-to-atom-chain-residue-atom-name 
+				 chain-id res-no atom-name))))))
+		       metal-results)))))))
+				    
 
       (gtk-container-add window vbox)
 
@@ -3422,6 +3494,9 @@
       
       (gtk-scrolled-window-add-with-viewport scrolled-win results-vbox)
       (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+
+      (gtk-scrolled-window-add-with-viewport metal-results-scrolled-win metal-results-vbox)
+      (gtk-scrolled-window-set-policy metal-results-scrolled-win 'automatic 'always)
 
       (gtk-box-pack-start hbox-max-dist dist-label #f #f 2)
       (gtk-box-pack-start hbox-max-dist dist-entry #f #f 2)
@@ -3434,6 +3509,13 @@
       (gtk-box-pack-start vbox hbox-number-chooser #f #f 6)
 
       (gtk-box-pack-start vbox hbox-max-dist #f #f 2)
+
+      ;; metal sites
+      (gtk-box-pack-start vbox metal-results-label #f #f 2)
+      (gtk-box-pack-start vbox metal-results-scrolled-win #t #t 0)
+
+      ;; interesting water sites
+      (gtk-box-pack-start vbox water-results-label #f #f 2)
       (gtk-box-pack-start vbox scrolled-win #t #t 0) ; expand fill padding
       (gtk-box-pack-start vbox h-sep #f #f 2)
       (gtk-box-pack-end hbox-buttons close-button #f #f 2)
@@ -3445,6 +3527,22 @@
       (gtk-signal-connect close-button "clicked" 
 			  (lambda ()
 			    (gtk-widget-destroy window)))
+
+      (gtk-signal-connect dist-entry "key-press-event"
+			  (lambda (event)
+			    (if (= 65293 (gdk-event-keyval event)) ; GDK_Return
+				(let ((n (get-number))
+				      (imol (get-molecule))
+				      (d (get-distance)))
+				  (if (number? d)
+				      (update-water-results imol n d))))
+			    #f))
+				
+      ;; From the Nayal and Di Cera (1996) paper, it seems that 2.7
+      ;; and at least 4 oxygens is a good test for Na+ or other
+      ;; interesting things.
+      ;; 
+
       
       (gtk-signal-connect 
        apply-button "clicked"
@@ -3453,33 +3551,7 @@
 	       (imol (get-molecule))
 	       (d (get-distance)))
 	   (if (number? d)
-	       (let ((results (highly-coordinated-waters imol n d)))
-		 (clear-previous-results)
-		 ;; (format #t "got water results: ~s~%" results)
-		 (for-each
-		  (lambda (water-info)
-		    ;; a water spec is a central-atom spec and a list
-		    ;; of its neighbours.
-		    (let* ((t (atom-spec->text (car water-info)))
-			   (bump-text (make-bump-text imol water-info))
-			   (button (gtk-button-new-with-label
-				    (string-append t bump-text))))
-		      (gtk-box-pack-start results-vbox button #f #f 1)
-		      (gtk-widget-show button)
-		      (gtk-signal-connect 
-		       button "clicked"
-		       (lambda ()
-			 (let* ((water-spec (car water-info))
-				(chain-id  (list-ref water-spec 1))
-				(res-no    (list-ref water-spec 2))
-				(atom-name (list-ref water-spec 4)))
-			 (format #t "go to ~s~%" (car water-spec))
-			 (format #t "go to :~s: :~s: :~s:~%" 
-				 chain-id res-no atom-name)
-			 (set-go-to-atom-molecule imol)
-			 (set-go-to-atom-chain-residue-atom-name 
-			  chain-id res-no atom-name))))))
-		  results))))))
+	       (update-water-results imol n d)))))
 
       (gtk-widget-show-all window)))
 

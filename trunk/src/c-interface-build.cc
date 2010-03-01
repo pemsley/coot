@@ -4371,8 +4371,10 @@ new_molecule_by_symmetry_with_atom_selection(int imol,
       mol_orig->Select(SelectionHandle, STYPE_ATOM,
 		       mmdb_atom_selection_string,
 		       SKEY_OR);
-      CMMDBManager *mol = coot::util::create_mmdbmanager_from_atom_selection(mol_orig,
-									     SelectionHandle);
+
+      CMMDBManager *mol =
+	 coot::util::create_mmdbmanager_from_atom_selection(mol_orig, SelectionHandle);
+
       CMMDBManager *new_mol = new_molecule_by_symmetry_matrix_from_molecule(mol,
 									    m11, m12, m13,
 									    m21, m22, m23,
@@ -4381,6 +4383,7 @@ new_molecule_by_symmetry_with_atom_selection(int imol,
 									    pre_shift_to_origin_na,
 									    pre_shift_to_origin_nb,
 									    pre_shift_to_origin_nc);
+
       delete mol; // done with it
       if (new_mol) {
 	 imol_new = graphics_info_t::create_molecule();

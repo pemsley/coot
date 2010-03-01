@@ -145,7 +145,6 @@ coot::on_pisa_interfaces_seletion_changed(GtkTreeSelection *treeselection,
 			  2, &chain_id_1,
 			  3, &chain_id_2,
 			  -1);
-      std::cout << "  " << imol_1 << " " << imol_2 << " " << chain_id_1 << " " << chain_id_2 << std::endl;
 
       for (unsigned int i_interf=0; i_interf<gui_info_p->size(); i_interf++) {
 	 // std::cout << i_interf << " " << (*gui_info_p)[i_interf].imol_1 << std::endl;
