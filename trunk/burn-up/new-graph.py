@@ -146,7 +146,7 @@ x_label = "Days (since pre-release start)"
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 65
+x_day_range = 75
 
 x_tick_interval = x_ticks(x_day_range)
 
@@ -157,7 +157,7 @@ yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 # is 0, but the Y maximum is to be computed automatically. Without
 # y_ranges, Pychart will pick the minimum Y value among the samples,
 # i.e., 20, as the base value of Y axis.
-ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,85))
+ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,95))
 
 # The first plot extracts Y values from the 2nd column
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
