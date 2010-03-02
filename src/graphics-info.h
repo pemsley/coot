@@ -119,6 +119,8 @@ namespace coot {
 }
 #endif // HAVE_GSL
 
+enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
+
 #include "generic-display-object.hh"
 
 

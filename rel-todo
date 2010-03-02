@@ -2,19 +2,6 @@
 
     Points 25: April 4th
 
-    o move molecule here:
-
-     1. load two pdb files: a protein (imol 0) and a ligand (imol 1)
-     2. open the move molecule here window. We only have the ligand
-        molecule in the dropdown.
-     3. Now tick the allow large molecules to move. This will put the
-        protein in the dropdown.
-     4. Untick the large molecules. Now we only have the ligand in the
-        dropdown again (but its imol is wrong).
-     5. Hit Move it.
-     -> The protein moves.
-
-     ::: 1
 
     o change clipper macros to use clipper-config and not invent mmdb
       and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
@@ -288,4 +275,20 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
       (etc) ::: 1
 
 * Done.
+
+    o move molecule here:
+
+     1. load two pdb files: a protein (imol 0) and a ligand (imol 1)
+     2. open the move molecule here window. We only have the ligand
+        molecule in the dropdown.
+     3. Now tick the allow large molecules to move. This will put the
+        protein in the dropdown.
+     4. Untick the large molecules. Now we only have the ligand in the
+        dropdown again (but its imol is wrong).
+     5. Hit Move it.
+     -> The protein moves.
+
+     ::: 1
+
+* Done.  fiddle with graphics_info_t::fill_option_menu_with_coordinates_options_internal_3()
 
