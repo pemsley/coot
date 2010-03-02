@@ -786,3 +786,99 @@ get_ncs_matrix_state() {
    graphics_info_t g;
    return g.ncs_matrix_flag;
 }
+
+/*! \brief Given that we are in chain current_chain, apply the NCS
+  operator that maps current_chain on to next_ncs_chain, so that the
+  relative view is preserved.  For NCS skipping. */
+void apply_ncs_to_view_orientation(int imol, const char *current_chain, const char *next_ncs_chain) {
+
+   if (is_valid_model_molecule(imol)) {
+
+      short int forward_flag = 1; // emulate previous behaviour.  Not
+				  // sure that this is what is needed.
+      coot::util::quaternion q(graphics_info_t::quat[0],
+			       graphics_info_t::quat[1],
+			       graphics_info_t::quat[2],
+			       graphics_info_t::quat[3]);
+      clipper::Mat33<double> current_view_mat = q.matrix();
+      clipper::Coord_orth current_centre(graphics_info_t::RotationCentre_x(), 
+					 graphics_info_t::RotationCentre_y(),
+					 graphics_info_t::RotationCentre_z());
+      std::pair<bool, clipper::RTop_orth> new_ori = 
+	 graphics_info_t::molecules[imol].apply_ncs_to_view_orientation(current_view_mat,
+									current_centre,
+									current_chain,
+									next_ncs_chain,
+									forward_flag);
+
+      std::cout << "DEBUG::   NCS view in:  \n" << current_view_mat.format() << std::endl;
+
+      std::cout << "DEBUG::   NCS view out: " << new_ori.first << std::endl;
+      std::cout << "DEBUG::   NCS view out: \n" << new_ori.second.format() << "\n";
+      
+      if (new_ori.first) {
+	 coot::util::quaternion vq(new_ori.second.rot());
+	 graphics_info_t::quat[0] = vq.q0;
+	 graphics_info_t::quat[1] = vq.q1;
+	 graphics_info_t::quat[2] = vq.q2;
+	 graphics_info_t::quat[3] = vq.q3;
+      }
+      graphics_draw();
+   } 
+}
+
+
+/*! \brief Given that we are in chain current_chain, apply the NCS
+  operator that maps current_chain on to next_ncs_chain, so that the
+  relative view is preserved.  For NCS skipping. */
+void apply_ncs_to_view_orientation_and_screen_centre(int imol,
+						     const char *current_chain,
+						     const char *next_ncs_chain,
+						     short int forward_flag) {
+
+   if (is_valid_model_molecule(imol)) {
+      
+      coot::util::quaternion q(graphics_info_t::quat[0],
+			       graphics_info_t::quat[1],
+			       graphics_info_t::quat[2],
+			       graphics_info_t::quat[3]);
+      clipper::Coord_orth current_centre(graphics_info_t::RotationCentre_x(), 
+					 graphics_info_t::RotationCentre_y(),
+					 graphics_info_t::RotationCentre_z());
+      clipper::Mat33<double> current_view_mat = q.matrix();
+      std::pair<bool, clipper::RTop_orth> new_ori = 
+	 graphics_info_t::molecules[imol].apply_ncs_to_view_orientation(current_view_mat,
+									current_centre,
+									current_chain,
+									next_ncs_chain,
+									forward_flag);
+
+//       std::cout << "   NCS view in:  \n" << current_view_mat.format() << std::endl;
+//       std::cout << "   NCS view out: " << new_ori.first << std::endl;
+//       std::cout << "   NCS view out: \n" << new_ori.second.format() << "\n";
+      
+      if (new_ori.first) {
+	 coot::util::quaternion vq(new_ori.second.rot());
+	 graphics_info_t::quat[0] = vq.q0;
+	 graphics_info_t::quat[1] = vq.q1;
+	 graphics_info_t::quat[2] = vq.q2;
+	 graphics_info_t::quat[3] = vq.q3;
+
+	 clipper::Coord_orth new_centre(new_ori.second.trn());
+	 graphics_info_t g;
+	 g.setRotationCentre(coot::Cartesian(new_centre.x(),
+					     new_centre.y(),
+					     new_centre.z()));
+	 g.update_things_on_move();
+	 if (graphics_info_t::environment_show_distances) {
+	    std::pair<int, int> r =  g.get_closest_atom();
+	    // std::cout << "got closest atom " << r.first << " " << r.second << std::endl;
+	    if (r.first >= 0) {
+	       g.update_environment_distances_maybe(r.first, r.second);
+	    }
+	 }
+
+      }
+      graphics_draw();
+   } 
+}
