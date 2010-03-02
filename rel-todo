@@ -2,9 +2,6 @@
 
     Points 25: April 4th
 
-    o NCS functions in c-inteface.cc should move to c-interface-ncs.cc
-      ::: 0.2
-
     o show-spacegroup should be deprecated.  use SCM space_group_scm()
       (etc) ::: 1
 
@@ -280,6 +277,12 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
       should centre on the middle of the interface and turn off the
       other interfaces.  Test with 3ch6, 4ins. Check the zinc
       interactions and h-bonds ::: 16
+
+* Done.
+
+
+    o NCS functions in c-inteface.cc should move to c-interface-ncs.cc
+      ::: 0.2
 
 * Done.
 
