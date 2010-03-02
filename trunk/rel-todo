@@ -2,39 +2,8 @@
 
     Points 25: April 4th
 
-    o make a mini-rsr ::: 1
-
-    o give useful output when running pisa interface with old pisa.
-
-    o Restore a session that has an anomalous map in the state.  Fail.
-      Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
-
-    o difference map (given previous model and new obs MTZ file, run
-      refmac no cyles to make a map, coot rigid-body per chain then
-      refmac to make phases for new model - get cell from passed MTZ
-      file, go to active site (passed value), create a view, pass 3
-      orthogonal views to be rendered by ccp4mg).  Puntable.
-
-    o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
-
-    o Environment distances turn off badly [JED] ::: 1
-
-    o PIR alignment: on pressing the insertion button, go to the
-      nearest residue to the gap. [Joel Bard] ::: 1 
-
-    o trapped out of range phi/psi access: 1040 A ich: 0 ires: 895
-      phi_psi_sets[ich].phi_psi.size(): 839
-      Which is when the rama plot stops working  ::: 1
-
-    o roll up/collapse addition representation in Display manager when
-      they are not displayed ::: 2
-
-    o change to rms z scores ::: 2
-
-    o adding waters should not add new waters within 2.5A of an
-      existing water.  see tutorial-modern-symmetry-0.pdb ::: 1
-
-    o alt confs cause problems in geometry graph [JED] ::: 2
+    o NCS functions in c-inteface.cc should move to c-interface-ncs.cc
+      ::: 0.2
 
     o show-spacegroup should be deprecated.  use SCM space_group_scm()
       (etc) ::: 1
@@ -53,25 +22,44 @@
 
      ::: 1
 
-    o white background with ball and stick models. ::: 4
+    o change clipper macros to use clipper-config and not invent mmdb
+      and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
+      grr. ::: 1
 
     o 3kcz fails to give ncs diferences graph. why? ::: 1
 
-    o load tutorial data gets files from a relative place? Seems
-      so. ::: 0.1
+    o Do ccp4i aliases work?  Ingo Korndoerfer suggest not. ::: 1
 
-    o change clipper macros to use clipper-config and not invent mmdb
-      and fftw, ccp4 libraries. ::: 1
-
-    o NCS functions in c-inteface.cc should move to c-interface-ncs.cc
-      ::: 0.2
-
-    o anisotropic atom radius. ::: 1
+    o make a mini-rsr ::: 1
 
     o Get a molecule with high number of chains, colour by chain.  The
       grey chain comes out thin [JED]. ::: 1
 
-    o Do ccp4i aliases work?  Ingo Korndoerfer suggest not. ::: 1
+    o give useful output when running pisa interface with old pisa. ::: 0.5
+
+    o Restore a session that has an anomalous map in the state.  Fail.
+      Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
+
+    o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
+
+    o Environment distances turn off badly [JED] ::: 1
+
+    o PIR alignment: on pressing the insertion button, go to the
+      nearest residue to the gap. [Joel Bard] ::: 1 
+
+    o trapped out of range phi/psi access: 1040 A ich: 0 ires: 895
+      phi_psi_sets[ich].phi_psi.size(): 839
+      Which is when the rama plot stops working  ::: 1
+
+    o change to rms z scores ::: 2
+
+    o adding waters should not add new waters within 2.5A of an
+      existing water.  see tutorial-modern-symmetry-0.pdb ::: 1
+
+    o alt confs cause problems in geometry graph [JED] ::: 2
+
+    o load tutorial data gets files from a relative place? Seems
+      so. ::: 0.1
 
 
 ------
