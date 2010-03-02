@@ -676,7 +676,18 @@ Punted from 0.6:
 
  0.7 Priorities:
 
+   o difference map (given previous model and new obs MTZ file, run
+     refmac no cyles to make a map, coot rigid-body per chain then
+     refmac to make phases for new model - get cell from passed MTZ
+     file, go to active site (passed value), create a view, pass 3
+     orthogonal views to be rendered by ccp4mg).  Punted.
+
+   o consider roll up/collapse addition representation in Display
+     manager when they are not displayed.  Punted. ::: 2
+
    o coordination number of waters validataion check (punted) ::: 5 
+
+* Done.
 
    o chemical component library interface (punted) ::: 4
 
@@ -690,6 +701,10 @@ Punted from 0.6:
     need something like bonded_residues_from_res_vec(), but for
     residue triples - returning 3 residues.
     ::: 3
+
+    o anisotropic atom radius. Punted ::: 1
+
+    o white background with ball and stick models. Punted ::: 4
 
    o Rotate/Translate on dsDNA (for example)
 
