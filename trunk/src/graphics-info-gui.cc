@@ -985,7 +985,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_possibly_small(GtkWid
 									  int imol_active,
 									  bool fill_with_small_molecule_only_flag) {
 
-   int n_atoms_means_big_molecule = 400; 
+   int n_atoms_means_big_molecule = N_ATOMS_MEANS_BIG_MOLECULE;  // 400
    short int set_last_active_flag = 0;
    std::vector<int> fill_with_these_molecules;
    for (int imol=0; imol<n_molecules(); imol++) {
@@ -995,10 +995,9 @@ graphics_info_t::fill_option_menu_with_coordinates_options_possibly_small(GtkWid
 	    fill_with_these_molecules.push_back(imol);
       }
    }
-   fill_option_menu_with_coordinates_options_internal_3(option_menu, callback_func, fill_with_these_molecules,
+   fill_option_menu_with_coordinates_options_internal_3(option_menu, callback_func,
+							fill_with_these_molecules,
 							set_last_active_flag, imol_active);
-   
-
 } 
 
 
@@ -1722,18 +1721,24 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
    // int last_imol = 0;
    int last_menu_item_index = 0;
 
+   std::cout << "fill_option_menu_with_coordinates_options_internal_3 with these: " << std::endl;
+   for (int idx=0; idx<fill_with_these_molecules.size(); idx++) {
+      std::cout << fill_with_these_molecules[idx] << " ";
+   }
+   std::cout << std::endl;
+
    int menu_index = 0; // for setting of imol_active as active mol in go to atom
-   for (int imol=0; imol<fill_with_these_molecules.size(); imol++) {
+   for (int idx=0; idx<fill_with_these_molecules.size(); idx++) {
 
 //       std::cout << "in fill_option_menu_with_coordinates_options, "
 // 		<< "g.molecules[" << imol << "].atom_sel.n_selected_atoms is "
 // 		<< g.molecules[imol].atom_sel.n_selected_atoms << std::endl;
 
-      int jmol = fill_with_these_molecules[imol];
+      int jmol = fill_with_these_molecules[idx];
       
       if (molecules[jmol].has_model()) { 
 
-	 std::string ss = int_to_string(imol);
+	 std::string ss = int_to_string(jmol);
 	 ss += " " ;
 	 int ilen = molecules[jmol].name_.length();
 	 int left_size = ilen-go_to_atom_menu_label_n_chars_max;
@@ -1747,6 +1752,8 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 	 ss += molecules[jmol].name_.substr(left_size, ilen);
 	 menuitem = gtk_menu_item_new_with_label (ss.c_str());
 
+	 std::cout << "user pointer to int on callback set to " << jmol << std::endl;
+	 
 	 gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
 			     // GTK_SIGNAL_FUNC(go_to_atom_mol_button_select),
 			     callback_func,
@@ -1767,9 +1774,10 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 	 // (callbacks.c)
 	 // 
 	  
-	 gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(imol));
+	 gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(jmol));
 	 gtk_menu_append(GTK_MENU(menu), menuitem); 
 
+	 std::cout << " comparing " << jmol << " and imol_active " << imol_active << std::endl;
 	 if (jmol == imol_active)
 	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
 
@@ -1790,10 +1798,8 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
       gtk_menu_set_active(GTK_MENU(menu), (last_menu_item_index-1)); 
    } else {
       // the old way (ie. not ..._with_active_mol() mechanism)
-      if (imol_active == -1) { 
-	 if (go_to_atom_mol_menu_active_position >= 0) {
-	    gtk_menu_set_active(GTK_MENU(menu), go_to_atom_mol_menu_active_position); 
-	 }
+      if (imol_active == -1) {
+	 gtk_menu_set_active(GTK_MENU(menu), (last_menu_item_index-1)); 
       }
    }
 

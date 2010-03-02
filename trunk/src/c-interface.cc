@@ -578,6 +578,27 @@ int first_coords_imol() {
    return imol;
 }
 
+/*! \brief molecule number of first small (<400 atoms) molecule.
+
+return -1 on no such molecule
+  */
+int first_small_coords_imol() {
+
+   int imol = -1;
+   for (int i=0; i<graphics_n_molecules(); i++) {
+      if (graphics_info_t::molecules[i].has_model()) {
+	 int n_atoms = graphics_info_t::molecules[i].atom_sel.n_selected_atoms;
+	 if (n_atoms < N_ATOMS_MEANS_BIG_MOLECULE) {
+	    imol = i;
+	    break;
+	 }
+      }
+   }
+   add_to_history_simple("first-small-coords-imol");
+   return imol;
+}
+
+
 int first_unsaved_coords_imol() {
 
    int imol = -1;

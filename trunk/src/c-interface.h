@@ -493,7 +493,13 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id);
 /*! \brief What is the molecule number of first coordinates molecule?
 
    return -1 when there is none. */
-int first_coords_imol(); 	
+int first_coords_imol();
+
+/*! \brief molecule number of first small (<400 atoms) molecule.
+
+return -1 on no such molecule
+  */
+int first_small_coords_imol(); 
 
 /*! \brief What is the molecule number of first unsaved coordinates molecule?
 

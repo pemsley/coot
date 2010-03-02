@@ -211,7 +211,8 @@ fill_move_molecule_here_dialog(GtkWidget *w) {
    GtkWidget *check_button = lookup_widget(w, "move_molecule_here_big_molecules_checkbutton");
 
    bool fill_with_small_molecule_only_flag = 1;
-   int imol = first_coords_imol();
+   // int imol = first_coords_imol();
+   int imol = first_small_coords_imol();
    graphics_info_t::move_molecule_here_molecule_number = imol;
    GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::move_molecule_here_item_select);
 
