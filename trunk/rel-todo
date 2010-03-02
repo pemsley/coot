@@ -2,9 +2,6 @@
 
     Points 25: April 4th
 
-    o show-spacegroup should be deprecated.  use SCM space_group_scm()
-      (etc) ::: 1
-
     o move molecule here:
 
      1. load two pdb files: a protein (imol 0) and a ligand (imol 1)
@@ -283,6 +280,12 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 
     o NCS functions in c-inteface.cc should move to c-interface-ncs.cc
       ::: 0.2
+
+* Done.
+
+
+    o show-spacegroup should be deprecated.  use SCM space_group_scm()
+      (etc) ::: 1
 
 * Done.
 

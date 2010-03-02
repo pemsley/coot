@@ -62,6 +62,7 @@
 (define chain-id-scm #f)
 (define highly-coordinated-waters-scm #f)
 (define handle-pisa-interfaces-scm #f)
+(define space-group-scm #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")

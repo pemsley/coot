@@ -2669,11 +2669,20 @@ void set_all_maps_displayed(int on_or_off);
   for other values of on_or_off turn on all models. */
 void set_all_models_displayed_and_active(int on_or_off);
 
-/*! \brief return the spacegroup of molecule number imol 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return the spacegroup as a string, return scheme false if unable to do so. */
+SCM space_group_scm(int imol); 
+#endif 
+#endif 
+
+/*! \brief return the spacegroup of molecule number imol . Deprecated.
 
 @return "No Spacegroup" when the spacegroup of a molecule has not been
-set.*/
+set. */
 char *show_spacegroup(int imol);
+
+
 
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */

@@ -5684,7 +5684,7 @@ char *
 show_spacegroup(int imol) { 
 
    if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
-      std::string spg =  graphics_info_t::molecules[imol].show_spacegroup();
+      std::string spg = graphics_info_t::molecules[imol].show_spacegroup();
       std::cout << "INFO:: spacegroup: " << spg << std::endl;
       unsigned int l = spg.length();
       char *s = new char[l+1];
@@ -5699,6 +5699,34 @@ show_spacegroup(int imol) {
       return s;
    }
 }
+
+#ifdef USE_GUILE
+/*! \brief return the spacegroup as a string, return scheme false if unable to do so. */
+SCM space_group_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+      std::string s =  graphics_info_t::molecules[imol].show_spacegroup();
+      r = scm_from_locale_string(s.c_str());
+   }
+   return r;
+
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *space_group_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+      std::string s =  graphics_info_t::molecules[imol].show_spacegroup();
+      r = PyString_FromString(s.c_str());
+   }
+   return r;
+}
+#endif
+
+
 
 
 

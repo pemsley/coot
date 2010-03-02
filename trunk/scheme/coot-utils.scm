@@ -83,6 +83,7 @@
 (define chain-id chain-id-scm)
 (define highly-coordinated-waters highly-coordinated-waters-scm)
 (define handle-pisa-interfaces handle-pisa-interfaces-scm)
+(define space-group space-group-scm)
 
 ;; documented functions
 
@@ -1277,7 +1278,7 @@
 	    (list-ref args 2)
 	    (list-ref args 3)
 	    (list-ref args 4)
-	    (show-spacegroup imol)
+	    (space-group imol)
 	    (cell imol))))
      ((= (length args) 4) ; no matrix specified
       (let ((imol (car args)))
@@ -1286,7 +1287,7 @@
 	    (list-ref args 1)
 	    (list-ref args 2)
 	    (list-ref args 3)
-	    (show-spacegroup imol)
+	    (space-group imol)
 	    (cell imol))))
      ((= (length args) 3) ; no matrix or about point specified
       (let ((imol (car args)))
@@ -1295,7 +1296,7 @@
 	    (list-ref args 1)
 	    (rotation-centre)
 	    (list-ref args 2)
-	    (show-spacegroup imol)
+	    (space-group imol)
 	    (cell imol))))
      (else
       (format #t "arguments to transform-map incomprehensible: args: ~s~%" args)

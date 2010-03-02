@@ -811,11 +811,11 @@ def transform_map(*args):
     # no matrix specified:
     elif (len(args)==4):
        ret = tf(args[0], identity_matrix(), args[1], args[2], args[3],
-                show_spacegroup(imol), cell(imol))
+                space_group(imol), cell(imol))
     # no matrix or about point specified:
     elif (len(args)==3):
        ret = tf(args[0], identity_matrix(), args[1], rotation_centre(),
-                args[2], show_spacegroup(imol), cell(imol))
+                args[2], space_group(imol), cell(imol))
     else:
        print "arguments to transform-map incomprehensible: args: ",args
     return ret
@@ -2024,6 +2024,7 @@ get_pkgdatadir         = get_pkgdatadir_py
 pkgdatadir             = get_pkgdatadir_py
 user_defined_click     = user_defined_click_py
 get_torsion            = get_torsion_py
+space_group            = space_group_py
 
 # graphics_info.h:
 #run_post_manipulation_hook = run_post_manipulation_hook_py
