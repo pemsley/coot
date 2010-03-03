@@ -7,8 +7,6 @@
       and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
       grr. ::: 1
 
-    o 3kcz fails to give ncs diferences graph. why? ::: 1
-
     o Do ccp4i aliases work?  Ingo Korndoerfer suggest not. ::: 1
 
     o make a mini-rsr ::: 1
@@ -291,4 +289,8 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
      ::: 1
 
 * Done.  fiddle with graphics_info_t::fill_option_menu_with_coordinates_options_internal_3()
+
+    o 3kcz fails to give ncs diferences graph. why? ::: 1
+
+* Done.
 

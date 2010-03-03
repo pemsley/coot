@@ -1881,9 +1881,9 @@ molecule_class_info_t::apply_ncs_to_view_orientation_forward(const clipper::Mat3
 	    // try to override that by the right operator:
 	    for (unsigned int ighost=0; ighost<n_ghosts; ighost++) {
 	       if (ncs_ghosts[ighost].target_chain_id == current_chain) {
-		  std::cout << "debug:: setting t to inverse of "
-			    << current_chain << " to " << ncs_ghosts[ighost].chain_id
-			    << std::endl;
+// 		  std::cout << "debug:: setting t to inverse of "
+// 			    << current_chain << " to " << ncs_ghosts[ighost].chain_id
+// 			    << std::endl;
 		  ncs_mat = ncs_ghosts[ighost].rtop.rot();
 		  t = current_position.transform(ncs_ghosts[ighost].rtop.inverse());
 		  break;
@@ -2180,14 +2180,18 @@ coot::ghost_molecule_display_t::get_differences(CResidue *this_residue_p,
 	 float atom_weight = 1.0;
 	 CAtom *at1 = residue_atoms_1[index_pairs[i].first];
 	 CAtom *at2 = residue_atoms_2[index_pairs[i].second];
-	 if (!at1->isTer() && !at2->isTer()) { 
-	    if (coot::is_main_chain_p(at1))
-	       atom_weight = main_chain_weight;
-	    clipper::Coord_orth pt1(at1->x, at1->y, at1->z);
-	    clipper::Coord_orth pt2(at2->x, at2->y, at2->z);
-	    double len = clipper::Coord_orth::length(pt1.transform(rtop), pt2);
-	    sum_dist +=len;
-	    n_weighted_atoms += atom_weight;
+	 std::string resname_1 = at1->GetResName(); // PDB puts waters in protein chains, bleugh.
+	 std::string resname_2 = at2->GetResName();
+	 if ((resname_1 != "HOH") && (resname_2 != "HOH")) {
+	    if (!at1->isTer() && !at2->isTer()) {
+	       if (coot::is_main_chain_p(at1))
+		  atom_weight = main_chain_weight;
+	       clipper::Coord_orth pt1(at1->x, at1->y, at1->z);
+	       clipper::Coord_orth pt2(at2->x, at2->y, at2->z);
+	       double len = clipper::Coord_orth::length(pt1.transform(rtop), pt2);
+	       sum_dist +=len;
+	       n_weighted_atoms += atom_weight;
+	    }
 	 }
       }
       if (n_weighted_atoms > 0.0) {
@@ -2196,7 +2200,7 @@ coot::ghost_molecule_display_t::get_differences(CResidue *this_residue_p,
 				      this_residue_p->index,
 				      master_residue_p->GetSeqNum(),
 				      master_residue_p->GetInsCode(),
-				      master_residue_p->index);
+				      master_residue_p->index); // sets r.filled
 	 r.mean_diff = sum_dist/float(n_weighted_atoms);
 	 r.n_weighted_atoms = n_weighted_atoms;
       }
@@ -2273,3 +2277,15 @@ molecule_class_info_t::ncs_ghost_chains() const {
    }
    return v;
 }
+
+std::pair<bool, std::string>
+molecule_class_info_t::first_ncs_master_chain_id() const {  // for ncs graphs use
+
+   bool status = 0;
+   std::string master_chain_id;
+   for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+      master_chain_id = ncs_ghosts[ighost].target_chain_id;
+      status = 1;
+   }
+   return std::pair<bool, std::string> (status, master_chain_id);
+} 
