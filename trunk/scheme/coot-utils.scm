@@ -2375,6 +2375,52 @@
 		(format #t "OOPs.. libcheck returned exit status ~s~%" status)))))))
 
 
+;; Generate restraints from the residue at the centre of the screen
+;; using PRODRG. Delete hydrogens from the residue because PRODRG has
+;; anomalous hydrogens.
+;;
+(define (prodrg-ify imol chain-id res-no ins-code)
+  
+  (let ((new-mol (new-molecule-by-atom-selection imol
+		  (string-append "//" chain-id "/" (number->string res-no)))))
+
+    (set-mol-active    new-mol 0)
+    (set-mol-displayed new-mol 0)
+
+    (let ((prodrg-dir "coot-ccp4")
+	  (res-name (residue-name imol chain-id res-no ins-code)))
+
+      (if res-name 
+	  (begin
+	    
+	    (make-directory-maybe prodrg-dir)
+	    (let ((prodrg-xyzin  (append-dir-file prodrg-dir "prodrg-in.pdb"))
+		  (prodrg-xyzout (append-dir-file prodrg-dir
+						  (string-append "prodrg-" res-name ".pdb")))
+		  (prodrg-cif    (append-dir-file prodrg-dir 
+						  (string-append "prodrg-" res-name ".cif")))
+		  (prodrg-log    (append-dir-file prodrg-dir "prodrg.log")))
+	      
+	      (delete-residue-hydrogens new-mol chain-id res-no ins-code "")
+	      (delete-residue-hydrogens imol    chain-id res-no ins-code "") ; otherwise they fly
+	      (write-pdb-file new-mol prodrg-xyzin)
+	      (close-molecule new-mol)
+	      (let ((status 
+		     (goosh-command "cprodrg" 
+				    (list "XYZIN"  prodrg-xyzin
+					  "XYZOUT" prodrg-xyzout
+					  "LIBOUT" prodrg-cif)
+				    (list "MINI PREP" "END") 
+				    prodrg-log #t)))
+		;; (format #t "cprodrg gave status ~s~%" status)
+		(if (number? status)
+		    (if (= status 0)
+			(begin
+			  (read-cif-dictionary prodrg-cif)
+			  (refine-residues imol (list (list chain-id res-no ins-code)))))))))))))
+
+
+
 
 
 ;; ---------- annotations ---------------------
