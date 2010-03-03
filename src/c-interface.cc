@@ -5743,6 +5743,9 @@ PyObject *space_group_py(int imol) {
       std::string s =  graphics_info_t::molecules[imol].show_spacegroup();
       r = PyString_FromString(s.c_str());
    }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 #endif
