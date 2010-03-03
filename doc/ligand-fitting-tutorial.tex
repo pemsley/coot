@@ -61,19 +61,28 @@ molecule and refine and validate the ligand.
 \end{trivlist}
 
 
- So what is the SMILES string for 3-aminobenzamide?
+\begin{trivlist}
+\item So what is the SMILES string for 3-aminobenzamide?
+\end{trivlist}
 
  %% [Draw out the SMILES string].
 
-\textsf{ We need to convert this SMILES string representation to a
- molecule.  In Coot we do that using \textsf{File $\rightarrow$ SMILES...}
-} \footnote{ Note that the first line is the three letter code, conventionally
- this is 3 uppercase letters, e.g. \texttt{LIG, DRG, XXX}.  Note that if you
- use several different SMILES strings, they each should have a
- different 3-letter-code.}
+ If you can't draw out the SMILES string, try this link in your browser:
 
- Enter you SMILES string in the second of the 2 entry boxes. Press
- "Go".
+\texttt{ http://www.molinspiration.com/cgi-bin/properties}
+\begin{trivlist}
+\item  draw the molecule there and hit the ``Calculate Properties'' button - the
+ next pages gives you the SMILES string.
+
+\end{trivlist}
+
+We need to convert this SMILES string representation to a molecule.
+In Coot we do that using \textsf{File $\rightarrow$ SMILES...}
+\footnote{ Note that the first line is the three letter code,
+  conventionally this is 3 uppercase letters, e.g. \texttt{LIG, DRG,
+    XXX}.  Note that if you use several different SMILES strings, they
+  each should have a different 3-letter-code.} Enter you SMILES string
+in the second of the two entry boxes. Press "Go".
 
  \textsl{ After a few moments (in which Coot runs LIBCHECK) a molecule
    will appear at the centre of the screen.}
@@ -157,9 +166,9 @@ the problematic blobs.
  \textsf{Validate $\rightarrow$ Find unmodelled blobs}
 
  We shall search the 2mFo-DFc as did previously using the same protein
- model (which now has the 3-aminobenzamide fitted).
- Press "Find blobs" \footnote{we could also use \textsf{Validate $\rightarrow$ Difference Map
-   Peaks} to navigate to these positions.}
+ model (which now has the 3-aminobenzamide fitted).  Press "Find
+ blobs" \footnote{we could also use \textsf{Validate $\rightarrow$
+     Difference Map Peaks} to navigate to these positions.}
 
 \textsl{ We should get a dialog with two blobs listed.}
  
