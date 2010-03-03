@@ -1753,8 +1753,8 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       //cout << "j range: for i = " << i << " is "
       //	   << bonds_box.bonds_[i].num_lines << endl;
 
-//       std::cout << "DEBUG:: bonds_index: " << i << " has " << bonds_box.bonds_[i].num_lines
-// 		<< " lines, thin_flag:  " << bonds_box.bonds_[i].thin_lines_flag  << std::endl;
+//        std::cout << "DEBUG:: bonds_index: " << i << " has " << bonds_box.bonds_[i].num_lines
+// 		 << " lines, thin_flag:  " << bonds_box.bonds_[i].thin_lines_flag  << std::endl;
 
       if (bonds_box.bonds_[i].thin_lines_flag)
  	 glLineWidth(p_bond_width/2.0);
@@ -2581,7 +2581,7 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
 
    Bond_lines_container bonds;
    bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
-   bonds_box = bonds.make_graphical_bonds();
+   bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 
@@ -2597,7 +2597,7 @@ molecule_class_info_t::make_ca_plus_ligands_bonds() {
 
    Bond_lines_container bonds;
    bonds.do_Ca_plus_ligands_bonds(atom_sel, 2.4, 4.7);
-   bonds_box = bonds.make_graphical_bonds();
+   bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
    
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
@@ -2608,7 +2608,8 @@ molecule_class_info_t::make_colour_by_chain_bonds(short int change_c_only_flag) 
    // 
    Bond_lines_container bonds;
    bonds.do_colour_by_chain_bonds(atom_sel, draw_hydrogens_flag, change_c_only_flag);
-   bonds_box = bonds.make_graphical_bonds();
+   bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty stupid
+                                                         // when it comes to thining.
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
 
    if (graphics_info_t::glarea) 

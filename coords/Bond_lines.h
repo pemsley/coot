@@ -334,6 +334,7 @@ class Bond_lines_container {
 					     int draw_hydrogens_flag);
 
    void try_set_b_factor_scale(CMMDBManager *mol);
+   graphical_bonds_container make_graphical_bonds(bool thinning_flag) const;
 
 public:
    enum bond_representation_type { COLOUR_BY_OCCUPANCY, COLOUR_BY_B_FACTOR}; 
@@ -470,6 +471,7 @@ public:
 				   const std::pair<coot::coot_mat44, symm_trans_t> &strict_ncs_mat);
 
    graphical_bonds_container make_graphical_bonds() const;
+   graphical_bonds_container make_graphical_bonds_no_thinning() const;
 
      
    // debugging function

@@ -11,9 +11,6 @@
 
     o make a mini-rsr ::: 1
 
-    o Get a molecule with high number of chains, colour by chain.  The
-      grey chain comes out thin [JED]. ::: 1
-
     o give useful output when running pisa interface with old pisa. ::: 0.5
 
     o Restore a session that has an anomalous map in the state.  Fail.
@@ -291,6 +288,11 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 * Done.  fiddle with graphics_info_t::fill_option_menu_with_coordinates_options_internal_3()
 
     o 3kcz fails to give ncs diferences graph. why? ::: 1
+
+* Done.
+
+    o Get a molecule with high number of chains, colour by chain.  The
+      grey chain comes out thin [JED]. ::: 0.6
 
 * Done.
 

@@ -1945,6 +1945,17 @@ void Bond_lines_container::check_static() const {
 
 graphical_bonds_container 
 Bond_lines_container::make_graphical_bonds() const {
+   return make_graphical_bonds(1); // allow simple-minded thinning
+}
+
+
+graphical_bonds_container 
+Bond_lines_container::make_graphical_bonds_no_thinning() const {
+   return make_graphical_bonds(0); // no thinning
+} 
+
+graphical_bonds_container 
+Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
 
    graphical_bonds_container box;
 
@@ -1959,8 +1970,9 @@ Bond_lines_container::make_graphical_bonds() const {
       box.bonds_[i].pair_list = new coot::CartesianPair[bonds[i].size()];
       for (int j=0; j<bonds[i].size(); j++) { 
 	 box.bonds_[i].pair_list[j] = bonds[i][j];
-	 if (j == HYDROGEN_GREY_BOND)
-	    box.bonds_[j].thin_lines_flag = 1;
+	 if (thinning_flag)
+	    if (j == HYDROGEN_GREY_BOND)
+	       box.bonds_[j].thin_lines_flag = 1;
       }
    }
    box.add_zero_occ_spots(zero_occ_spot);
