@@ -20,7 +20,7 @@
   ;; chain-ids is less then length 2, return #f.
   ;; 
   (define (skip-to-next-chain-id-internal this-chain-id chain-id-list)
-    (format #t "DEBUG next this-chain-id: ~s chain-id-list: ~s~%" this-chain-id chain-id-list)
+    ;; (format #t "DEBUG next this-chain-id: ~s chain-id-list: ~s~%" this-chain-id chain-id-list)
     (if (< (length chain-id-list) 2)
 	#f 
 	(let loop ((local-chain-id-list chain-id-list))
