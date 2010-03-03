@@ -13,6 +13,8 @@
 
     o give useful output when running pisa interface with old pisa. ::: 0.5
 
+    o PRODRG-ify this ligand ::: 2
+
     o Restore a session that has an anomalous map in the state.  Fail.
       Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
 

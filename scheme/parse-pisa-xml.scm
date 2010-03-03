@@ -10,25 +10,29 @@
 
 (define (pisa-assemblies imol)
 
-  ;; 
-  ;; main line
-  (receive (pdb-file-name pisa-config pisa-xml-file-name)
-	   (prep-for-pisa 'assemblies imol)
+  (if (not (pisa-new-enough?))
+      (info-dialog "Your pisa version it too old.  Need at least v1.06")
 
-	   (begin
-	     (format #t "DEBUG:: ========= pisa with args ~s~%" 
-		     (list *pisa-command* "-analyse" pdb-file-name pisa-config))
-	     (let ((status (goosh-command "pisa" (list "pisa" "-analyse" pdb-file-name pisa-config) 
-					  '() "pisa.log" #f)))
-	       (if (not (number? status))
-		   (info-dialog "Ooops PISA failed to deliver the goods!\n\n(Go for a curry instead?)")
-		   (if (= status 0) ;; good
-		       (begin
-			 (let ((status-2 (goosh-command *pisa-command* (list "pisa" "-xml" 
-								     "assemblies" pisa-config) '() 
-							pisa-xml-file-name #f)))
-			   (if (= status 0)
-			       (pisa-assemblies-xml imol pisa-xml-file-name))))))))))
+      ;; 
+      ;; main line
+      (receive (pdb-file-name pisa-config pisa-xml-file-name)
+	       (prep-for-pisa 'assemblies imol)
+	       
+	       (begin
+		 (format #t "DEBUG:: ========= pisa with args ~s~%" 
+			 (list *pisa-command* "-analyse" pdb-file-name pisa-config))
+		 (let ((status (goosh-command "pisa" (list "pisa" "-analyse" pdb-file-name pisa-config) 
+					      '() "pisa.log" #f)))
+		   (if (not (number? status))
+		       (info-dialog "Ooops PISA failed to deliver the goods!\n\n(Go for a curry instead?)")
+		       (if (= status 0) ;; good
+			   (begin
+			     (let ((status-2 (goosh-command *pisa-command* (list "pisa" "-xml" 
+										 "assemblies" pisa-config)
+							    '() 
+							    pisa-xml-file-name #f)))
+			       (if (= status 0)
+				   (pisa-assemblies-xml imol pisa-xml-file-name)))))))))))
 
 
 ;; called by pisa-assemblies, which is the entry point from the main
@@ -582,7 +586,8 @@
 
   (define (make-stubbed-name imol)
     (strip-extension (basename (molecule-name imol))))
-  
+
+
   (if (valid-model-molecule? imol) 
       (let* ((pisa-coot-dir "coot-pisa")
 	     (stubbed-name (make-stubbed-name imol))
@@ -608,6 +613,19 @@
   #f)
 
 
+(define (pisa-new-enough?)
+  (let ((in-port (open-input-pipe *pisa-command*)))
+    (let loop ((line (read-line in-port 'concat))
+	       (count 0))
+      (cond 
+       ((eof-object? line) #f)
+       ((> count 10) #f)
+       ((string-match "^ v.* .*/.*/.*" line)
+	(let ((s-bits (string->list-of-strings line)))
+	  (string>=? (car s-bits) "v1.06")))
+       (else 
+	(loop (read-line in-port 'concat) (+ count 1)))))))
+
 
 ;;;; -----------------------------------------------------------------------------------
 ;;;; -----------------------------------------------------------------------------------
@@ -617,27 +635,30 @@
 
 (define (pisa-interfaces imol)
 
-  (receive (pdb-file-name pisa-config pisa-xml-file-name)
-	   (prep-for-pisa 'interfaces imol)
+  (if (not (pisa-new-enough?))
+      (info-dialog "Your pisa version it too old.  Need at least v1.06")
 
-	   (if pisa-config
-	       (begin
-		 (if (not (cached-pisa-analysis pisa-config))
-		     ;; pisa analysis
-		     (let ((status (goosh-command *pisa-command*
-						  (list "pisa"  "-analyse" pdb-file-name pisa-config)
-						  '()
-						  "pisa-analysis.log" #f)))
+      (receive (pdb-file-name pisa-config pisa-xml-file-name)
+	       (prep-for-pisa 'interfaces imol)
+
+	       (if pisa-config
+		   (begin
+		     (if (not (cached-pisa-analysis pisa-config))
+			 ;; pisa analysis
+			 (let ((status (goosh-command *pisa-command*
+						      (list "pisa"  "-analyse" pdb-file-name pisa-config)
+						      '()
+						      "pisa-analysis.log" #f)))
 					; check status?
-		       status))
+			   status))
 
-		 ;; OK, let's do interfaces
-		 ;; 
-		 (let ((status (goosh-command *pisa-command*
-					      (list "pisa" "-xml" "interfaces" pisa-config) '()
-					      pisa-xml-file-name #f)))
-		   (if (= status 0) ; good
-		       (pisa-interfaces-xml imol pisa-xml-file-name)))))))
+		     ;; OK, let's do interfaces
+		     ;; 
+		     (let ((status (goosh-command *pisa-command*
+						  (list "pisa" "-xml" "interfaces" pisa-config) '()
+						  pisa-xml-file-name #f)))
+		       (if (= status 0) ; good
+			   (pisa-interfaces-xml imol pisa-xml-file-name))))))))
 		     
 			 
 (define (pisa-interfaces-xml imol file-name)
