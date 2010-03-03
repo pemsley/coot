@@ -1352,55 +1352,57 @@ graphics_info_t::ncs_diffs_from_mol(int imol) {
    std::vector<coot::geometry_graph_block_info_generic> drv;
    std::string altconf("");  // use this (e.g. "A") or "".
 
-   std::string master = "A"; // master chain id
-   float w = 1.0; // main chain weight
-   coot::ncs_differences_t diff = graphics_info_t::molecules[imol].ncs_chain_differences(master, w);
+   if (is_valid_model_molecule(imol)) { 
+      std::pair<bool, std::string> master_info = graphics_info_t::molecules[imol].first_ncs_master_chain_id();
+      if (master_info.first) {
+	 std::string master = master_info.second; // a target_chain_id
+	 float w = 1.0; // main chain weight
+	 coot::ncs_differences_t diff = graphics_info_t::molecules[imol].ncs_chain_differences(master, w);
    
-   CMMDBManager *mol = molecules[imol].atom_sel.mol;
-   CModel *model_p = mol->GetModel(imodel);
-   int n_chains = diff.diffs.size();
-   int max_chain_length = coot::util::max_min_max_residue_range(mol);
-   coot::geometry_graphs *graphs =
-      new coot::geometry_graphs(coot::GEOMETRY_GRAPH_NCS_DIFFS, imol,
-				graphics_info_t::molecules[imol].name_for_display_manager(), 
-				n_chains, max_chain_length);
+	 CMMDBManager *mol = molecules[imol].atom_sel.mol;
+	 CModel *model_p = mol->GetModel(imodel);
+	 int n_chains = diff.diffs.size();
+	 int max_chain_length = coot::util::max_min_max_residue_range(mol);
+	 coot::geometry_graphs *graphs =
+	    new coot::geometry_graphs(coot::GEOMETRY_GRAPH_NCS_DIFFS, imol,
+				      graphics_info_t::molecules[imol].name_for_display_manager(), 
+				      n_chains, max_chain_length);
 
-   // ncs_diffs_graph[imol] = graphs->dialog();
-   set_validation_graph(imol, coot::GEOMETRY_GRAPH_NCS_DIFFS, graphs->dialog());
-   for (unsigned int incs_set=0; incs_set<diff.diffs.size(); incs_set++) {
+	 // ncs_diffs_graph[imol] = graphs->dialog();
+	 set_validation_graph(imol, coot::GEOMETRY_GRAPH_NCS_DIFFS, graphs->dialog());
+	 for (unsigned int incs_set=0; incs_set<diff.diffs.size(); incs_set++) {
 
-      // do this for each chain
-      int min_resno =  99999; 
-      int max_resno = -99999; 
-      int offset = 0;
+	    // do this for each chain
+	    int min_resno =  99999; 
+	    int max_resno = -99999; 
+	    int offset = 0;
 
-      // diffs.diffs is a vector of chain differences (vector of ncs_chain_differences_t)
-      // A ncs_chain_differences_t contains a vector of residue difference infos.
+	    // diffs.diffs is a vector of chain differences (vector of ncs_chain_differences_t)
+	    // A ncs_chain_differences_t contains a vector of residue difference infos.
 
-      for (unsigned int ires=0; ires<diff.diffs[incs_set].residue_info.size(); ires++) {
-	 if (0) 
-	    std::cout << "DEBUG:: resno for diffs: "
-		      << diff.diffs[incs_set].residue_info[ires].resno
-		      << std::endl;
+	    for (unsigned int ires=0; ires<diff.diffs[incs_set].residue_info.size(); ires++) {
+	       if (0) 
+		  std::cout << "DEBUG:: resno for diffs: "
+			    << diff.diffs[incs_set].residue_info[ires].resno
+			    << std::endl;
 	    
-	 if (diff.diffs[incs_set].residue_info[ires].resno < min_resno) { 
-	    min_resno = diff.diffs[incs_set].residue_info[ires].resno;
-	 }
-	 if (diff.diffs[incs_set].residue_info[ires].resno > max_resno) { 
-	    max_resno = diff.diffs[incs_set].residue_info[ires].resno;
+	       if (diff.diffs[incs_set].residue_info[ires].resno < min_resno) { 
+		  min_resno = diff.diffs[incs_set].residue_info[ires].resno;
+	       }
+	       if (diff.diffs[incs_set].residue_info[ires].resno > max_resno) { 
+		  max_resno = diff.diffs[incs_set].residue_info[ires].resno;
+	       }
+	    }
+	    offset = min_resno - 1; 
+	    //       std::cout << "max_resno, min_resno " << max_resno << " "
+	    // 		<< min_resno << std::endl;
+      
+	    std::vector<coot::geometry_graph_block_info_generic> v = 
+	       graphics_info_t::ncs_diffs(imol, diff.diffs[incs_set]);
+	    graphs->render_to_canvas(v, incs_set, diff.diffs[incs_set].peer_chain_id,
+				     max_resno, min_resno, offset);
 	 }
       }
-      offset = min_resno - 1; 
-//       std::cout << "max_resno, min_resno " << max_resno << " "
-// 		<< min_resno << std::endl;
-      
-      std::vector<coot::geometry_graph_block_info_generic> v = 
-	 graphics_info_t::ncs_diffs(imol, diff.diffs[incs_set]);
-      graphs->render_to_canvas(v, incs_set, diff.diffs[incs_set].peer_chain_id,
-			       max_resno, min_resno, offset);
-      
-
-      
    } 
    return drv;
 }

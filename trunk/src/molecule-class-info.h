@@ -2450,7 +2450,10 @@ public:        //                      public
    void fill_ncs_control_frame_internal(GtkWidget *dialog) const; // called if needed.
    void set_display_ncs_ghost_chain(int ichain, int state);
    void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int ichain) const;
+   // return status 0 if ncs master chain was not set.
+   std::pair<bool, std::string> first_ncs_master_chain_id() const; // for ncs graphs use
 
+   
    std::vector<std::string> get_symop_strings() const;
 
 
