@@ -116,12 +116,30 @@ coot::atom_id_mmdb_expand(const std::string &atomname) {
 std::string
 coot::atom_id_mmdb_expand(const std::string &atomname, const std::string &element) {
 
-   // don't do anything clever with the element now, it needs some
-   // test (e.g. SE), this is a place-holder.
-   //
-   // For now, just call the non-element-using version
-   // 
-   return coot::atom_id_mmdb_expand(atomname);
+   std::string r = coot::atom_id_mmdb_expand(atomname);
+
+   if (element.length() == 2 && element[0] != ' ') {
+      if (atomname.length() == 1) { // unlikely
+	 r = " ";
+	 r += atomname;
+	 r += "  ";
+      } else {
+	 if (atomname.length() == 2) {
+	    r = atomname;
+	    r += "  ";
+	 } else {
+	    if (atomname.length() == 3) {
+	       r = atomname;
+	       r += " ";
+	    } else {
+	       r = atomname;
+	    }
+	 }
+      }
+   }
+   // std::cout << "Given :" << atomname << ": and element :" <<
+   // element << ": returning :" << r << ":" << std::endl;
+   return r;
 }
 
 
