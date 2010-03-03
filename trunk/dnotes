@@ -5437,6 +5437,17 @@ Sat Feb 27 13:01:00 GMT 2010
    tutorial-modern-symmetry-2-bad-water-finding-using-this-protein.pdb
 
 
+---
+Wed Mar  3 14:16:25 GMT 2010
+
+  INFO:: To stop being in dos mode:
+
+  M-x set-buffer-file-coding-system 
+  undecided-unix
+
+  -> save
+
+
 ------
 
 
