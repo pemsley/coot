@@ -11,10 +11,6 @@
 
     o make a mini-rsr ::: 1
 
-    o give useful output when running pisa interface with old pisa. ::: 0.5
-
-    o PRODRG-ify this ligand ::: 2
-
     o Restore a session that has an anomalous map in the state.  Fail.
       Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
 
@@ -297,4 +293,14 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
       grey chain comes out thin [JED]. ::: 0.6
 
 * Done.
+
+    o give useful output when running pisa interface with old pisa. ::: 0.5
+
+* Done.
+
+    o PRODRG-ify this ligand ::: 1
+
+* Done.
+
+
 
