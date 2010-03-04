@@ -662,8 +662,8 @@ int   graphics_info_t::ligand_verbose_reporting_flag = 0;
 // std::vector<short int> *graphics_info_t::find_ligand_wiggly_ligands_; bye!
 short int graphics_info_t::ligand_expert_flag = 0;
 
-float graphics_info_t::ligand_water_to_protein_distance_lim_max = 3.4;
-float graphics_info_t::ligand_water_to_protein_distance_lim_min = 2.2;
+float graphics_info_t::ligand_water_to_protein_distance_lim_max = 3.2;
+float graphics_info_t::ligand_water_to_protein_distance_lim_min = 2.4;
 float graphics_info_t::ligand_water_variance_limit = 0.12;
 int   graphics_info_t::ligand_water_n_cycles = 3;
 int   graphics_info_t::find_ligand_ligand_atom_limit = 400;

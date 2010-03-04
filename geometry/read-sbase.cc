@@ -37,6 +37,8 @@ coot::protein_geometry::read_sbase_residues() {
    } 
 }
 
+// Here res_name is the tlc/comp_id.
+// 
 CResidue *
 coot::protein_geometry::get_sbase_residue(const std::string &res_name) const {
 
@@ -47,13 +49,32 @@ coot::protein_geometry::get_sbase_residue(const std::string &res_name) const {
 	 residue_p = new CResidue;
 	 for (int iat=0; iat<SBS->nAtoms; iat++) {
 	    CSBAtom *at = SBS->Atom[iat];
-	    CAtom *new_atom = new CAtom;
-	    new_atom->SetCoordinates(at->x, at->y, at->z, 1.0, 30.0);
+
 	    std::string new_atom_name = coot::atom_id_mmdb_expand(at->sca_name, at->element);
-	    // std::cout << "Adding SBase atom with name :" << new_atom_name << ":\n";
-	    new_atom->SetAtomName(new_atom_name.c_str());
-	    new_atom->SetElementName(at->element);
-	    residue_p->AddAtom(new_atom);
+
+	    // we need to add a sanity check on the position of the
+	    // atoms (e.g. S in SO4 is at (-1.7976e+308 -1.7976e+308
+	    // -1.7976e+308)).
+
+	    bool add_atom_ok = 0;
+	    if (fabs(at->x) < 2000) { 
+	       if (fabs(at->y) < 2000) { 
+		  if (fabs(at->z) < 2000) {
+		     add_atom_ok = 1;
+		  }
+	       }
+	    }
+
+	    if (add_atom_ok) { 
+	       CAtom *new_atom = new CAtom;
+	       new_atom->SetCoordinates(at->x, at->y, at->z, 1.0, 30.0);
+	       new_atom->SetAtomName(new_atom_name.c_str());
+	       new_atom->SetElementName(at->element);
+	       residue_p->AddAtom(new_atom);
+	    } else {
+	       std::cout << "WARNING:: rejecting " << res_name << " SBase atom :" << new_atom_name
+			 << ": at (" << at->x << " " << at->y << " " << at->z << ")" << std::endl;
+	    }
 	 }
       }
    }
