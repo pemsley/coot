@@ -108,6 +108,40 @@ public:
 input_data_t get_input_details(int argc, char **argv);
 
 
+std::vector<std::pair<bool,CResidue *> >
+fill_residues(const std::string &chain_id, int resno_start, int resno_end, CMMDBManager *mol) {
+
+   std::vector<std::pair<bool,CResidue *> > v;
+
+   
+   int imod = 1;
+   CModel *model_p = mol->GetModel(imod);
+   CChain *chain_p;
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      std::string this_chain_id = chain_p->GetChainID();
+      if (this_chain_id == chain_id) { 
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) {
+	    residue_p = chain_p->GetResidue(ires);
+	    int this_res_no = residue_p->GetSeqNum();
+	    if (this_res_no >= resno_start) {
+	       if (this_res_no <= resno_end) { 
+		  std::pair<bool, CResidue *> p(0, residue_p);
+		  v.push_back(p);
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+} 
+
+
+
 int
 main(int argc, char **argv) {
 
@@ -164,9 +198,6 @@ main(int argc, char **argv) {
 // 					      next_residue,
 // 					      fixed_atoms);
       
-      // int istart_res = 72;
-      // int iend_res   = 72;  // ropey.pdb
-
       input_data_t inputs = get_input_details(argc, argv);
 
       if (inputs.is_good) { 
@@ -208,17 +239,24 @@ main(int argc, char **argv) {
 	 
 	 std::string altloc("");
 
-	 // This needs to be determined programmatically.  If
-	 // have_flanking_atoms = 1 and there are not atoms in the
-	 // coordinate file for those flanking residues, then we will
-	 // get a crash.
-	 short int have_flanking_atoms = 0;
+	 std::vector<std::pair<bool,CResidue *> > local_residues =
+	    fill_residues(chain_id, inputs.resno_start, inputs.resno_end, asc.mol);
+
+// 	 int have_flanking_residue_at_start = 0;
+// 	 int have_flanking_residue_at_end   = 0;
+// 	 int have_disulfide_residues        = 0;
 	 
-	 coot::restraints_container_t restraints(inputs.resno_start,
-						 inputs.resno_end,
-						 0, 0, 0,
-						 altloc,
-						 chain_id,
+// 	 coot::restraints_container_t restraints(inputs.resno_start,
+// 						 inputs.resno_end,
+// 						 have_flanking_residue_at_start,
+// 						 have_flanking_residue_at_end,
+// 						 have_disulfide_residues,
+// 						 altloc,
+// 						 chain_id,
+// 						 asc.mol,
+// 						 fixed_atom_specs);
+
+	 coot::restraints_container_t restraints(local_residues, geom,
 						 asc.mol,
 						 fixed_atom_specs);
       
@@ -503,4 +541,5 @@ get_input_details(int argc, char **argv) {
 	    
    return d;
 } 
+
 

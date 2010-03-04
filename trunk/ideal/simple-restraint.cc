@@ -4412,9 +4412,12 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 // 			 << l.second << std::endl;
 	       std::string link_type = l.first;
 	       if (link_type != "") {
-		  std::cout << "INFO:: "
-			    << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
-			    << " link_type :" << link_type << ":" << std::endl;
+
+		  // too verbose
+		  if (0) 
+		     std::cout << "INFO:: "
+			       << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
+			       << " link_type :" << link_type << ":" << std::endl;
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
 		  bool order_switch_flag = l.second;
@@ -4772,7 +4775,7 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
       }
       catch (std::runtime_error mess_in) {
 	 // didn't find a chem_link for this pair, that's OK sometimes.
-	 std::cout << mess_in.what() << std::endl;
+	 // std::cout << mess_in.what() << std::endl;
 	 // geom.print_chem_links();
       } 
    }
