@@ -302,7 +302,8 @@
 # 4.71 20100203 Remove goosh.
 # 4.72 20100203 Update clipper version.
 # 4.73 20100205 only download mmdb once.
-script_version=4.73
+# 4.74 20100303 top install_top_dir typos
+script_version=4.74
 
 
 
@@ -1552,7 +1553,7 @@ if [ -e /usr/lib/libidn.so ] ; then
    if [ -e /usr/lib/libidn.la ] ; then
       echo system has libidn devel
    else
-      if [ -e $top_install_dir/lib/libidn.la ] ; then 
+      if [ -e $install_top_dir/lib/libidn.la ] ; then 
          echo installation has libidn.la
       else 
          echo neither system nor installation has libidn.la, libcurl should be built also
@@ -1566,7 +1567,7 @@ else
    else
       # set it up for building then
       echo system does not have libidn.so, libcurl should be built also
-      if [ -e $top_install_dir/lib/libidn.so ] ; then 
+      if [ -e $install_top_dir/lib/libidn.so ] ; then 
          echo installation has libidn.so
       else 
          echo installation does not have libidn.so, libcurl should be built also
@@ -2776,7 +2777,7 @@ if test -n "$build_curl" ; then
       # let's install the corrected libcurl.la.  Wonderful stuff.
       #
       if [ -n "$post_process_libcurl" ] ; then 
-         /usr/bin/install -c 'libcurl.la' $top_install_dir/lib/libcurl.la
+         /usr/bin/install -c 'libcurl.la' $install_top_dir/lib/libcurl.la
       fi
    fi
 
