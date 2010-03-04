@@ -200,7 +200,7 @@ def annotation_box(box_text, loc_x, loc_y, data_index, arrow_position):
 
 
 annotation_box("Jan 28", -6, 20, 0, "c")
-# annotation_box("Christmas", 48, 23, 37, "tc")
+annotation_box("PISA Interfaces", 60, 23, 69, "tc")
 
 
 
