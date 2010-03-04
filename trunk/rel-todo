@@ -1,12 +1,6 @@
  0.6.2
 
-    Points 15: March 28
-
-
-    o make a mini-rsr.  Investigate linking failure ::: 1
-
-    o adding waters should not add new waters within 2.5A of an
-      existing water.  see tutorial-modern-symmetry-0.pdb ::: 1
+    Points 13:
 
     o alt confs cause problems in geometry graph [JED] ::: 2
 
@@ -304,5 +298,19 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
       so. ::: 0.1
 
 * Checked.
+
+    o make a mini-rsr.  Investigate linking failure ::: 1
+
+* Done.
+
+    o adding waters should not add new waters within 2.5A of an
+      existing water.  see tutorial-modern-symmetry-0.pdb ::: 1
+
+* Water checking improved.  (Check is to O and N atoms only) so bumps
+  should be check (by user, they are interesting - indicating probems
+  in the model)
+
+
+
 
 

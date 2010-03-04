@@ -210,36 +210,27 @@ coot::ligand::has_sphericalish_density(const clipper::Coord_orth &a,
    return iret;
 }
 
-// Is close to protein, H-bonding distance to an O or N atom? 
+// Is close to protein, H-bonding distance to an O or N atom?
+//
+// Return OK_GOLDILOCKS // OK, neither too close nor too far from protein
+//        TOO_CLOSE     // too close to a protein atom
+//        TOO_FAR       // too far from protein atom
+//        WATER_STATUS_UNKNOWN // initial value
 // 
 short int
 coot::ligand::water_pos_is_chemically_sensible(clipper::Coord_orth water_centre) const {
 
-   short int iret = 0; 
+   short int iret = coot::ligand::WATER_STATUS_UNKNOWN;
    float len;
 
-   int n_atom = 0;
    for (unsigned int ifrag=0; ifrag<protein_atoms.fragments.size(); ifrag++) {
-      for (int ires=protein_atoms.fragments[ifrag].min_res_no(); ires<=protein_atoms.fragments[ifrag].max_residue_number(); ires++) {
-	 for (unsigned int iatom=0; iatom<protein_atoms.fragments[ifrag][ires].atoms.size(); iatom++) {
-	    n_atom++;
-	 }
-      }
-   }
-//     std::cout << "testing " << water_centre.format() << " against "
-// 	      << n_atom << " protein atoms " << std::endl;
-
-   // 
-   for (unsigned int ifrag=0; ifrag<protein_atoms.fragments.size(); ifrag++) {
-      for (int ires=protein_atoms.fragments[ifrag].min_res_no(); ires<=protein_atoms.fragments[ifrag].max_residue_number(); ires++) {
+      for (int ires=protein_atoms.fragments[ifrag].min_res_no();
+	   ires<=protein_atoms.fragments[ifrag].max_residue_number();
+	   ires++) {
 	 for (unsigned int iatom=0; iatom<protein_atoms.fragments[ifrag][ires].atoms.size(); iatom++) {
 	    
 	    if (protein_atoms[ifrag][ires][iatom].element == " N" ||
 		protein_atoms[ifrag][ires][iatom].element == " O") {
-	       
-// 	       std::cout << "protein atom:" << ifrag << " " << ires
-// 			 << protein_atoms[ifrag][ires][iatom].name 
-// 			 << ":" << std::endl;
 	       
 	       if (protein_atoms[ifrag][ires].name != "WAT" &&
 		   protein_atoms[ifrag][ires].name != "HOH") {
@@ -249,31 +240,44 @@ coot::ligand::water_pos_is_chemically_sensible(clipper::Coord_orth water_centre)
 // 			    << len << " " << water_to_protein_distance_lim_min
 // 			    << " " << water_to_protein_distance_lim_max<< std::endl;
 		  if (len < water_to_protein_distance_lim_min) {
-		     iret = 0;
+		     iret = coot::ligand::TOO_CLOSE;
 		     break;
 		  } else {
 		     if (len < water_to_protein_distance_lim_max) {
 // 			std::cout << "found H-bond atom " << ires << " "
 // 				  << protein_atoms[ifrag][ires][iatom].name 
 // 				  << " at " << protein_atoms[ifrag][ires][iatom].pos.format() << std::endl;
-			iret = 1;
+			iret = coot::ligand::OK_GOLDILOCKS;
 		     }
 		  }
 	       }
 	    }
 	 }
+	 if (iret == coot::ligand::TOO_CLOSE)
+	    break;
       }
+      if (iret == coot::ligand::TOO_CLOSE)
+	 break;
    }
    return iret;
 }
 
 
+// Return OK_GOLDILOCKS // OK, neither too close nor too far from protein
+//        TOO_CLOSE     // too close to a protein atom
+//        TOO_FAR       // too far from protein atom
+//        WATER_STATUS_UNKNOWN // initial value
+// 
 short int
 coot::ligand::water_pos_is_chemically_sensible(const clipper::Coord_orth &water_centre,
 					       const std::vector<clipper::Coord_orth> &extra_sites) const {
 
+   // this allows for a water to be accepted because it is
+   // OK_GOLDILOCKS to a water, even though it is too far from protein
+   // atoms.
+   // 
    short int iret = water_pos_is_chemically_sensible(water_centre);
-   if (iret == 0) {
+   if (iret == coot::ligand::WATER_STATUS_UNKNOWN || iret == coot::ligand::TOO_FAR) {
       double len;
       double min_length = 9999.9;
       for (unsigned int i=0; i<extra_sites.size(); i++) {
@@ -281,18 +285,24 @@ coot::ligand::water_pos_is_chemically_sensible(const clipper::Coord_orth &water_
 	 if (len < min_length)
 	    min_length = len;
       }
-//       std::cout << "DEBUG:: min_length for " << water_centre.format() << " is " << min_length << "\n";
-//       std::cout << "        acceptable limits : " << water_to_protein_distance_lim_min
-// 		<< " to " << water_to_protein_distance_lim_max << "\n";
       if (min_length < water_to_protein_distance_lim_max) {
 	 if (min_length > water_to_protein_distance_lim_min) {
-// 	    std::cout << "EXTRA waters hit! new water at " << water_centre.format()
-// 		      << " has friend\n";
-	    iret = 1;
+	    iret = OK_GOLDILOCKS;
 	 }
       }
    }
 
+   // This rejects water_centre if it is too close to anythin in extra_sites
+   if (iret == OK_GOLDILOCKS) {
+      double len;
+      double min_length = 9999.9;
+      for (unsigned int i=0; i<extra_sites.size(); i++) {
+	 len = clipper::Coord_orth::length(water_centre, extra_sites[i]);
+	 if (len < water_to_protein_distance_lim_min) {
+	    iret = coot::ligand::TOO_CLOSE;
+	 }
+      }
+   }
    return iret;
 }
 
@@ -401,8 +411,9 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 		|| do_cluster_size_check_flag == 0) {
 	       
 	       clipper::Coord_orth new_centre = move_atom_to_peak(cl_centre, xmap_cluster);
+	       short int chem_sensible = water_pos_is_chemically_sensible(new_centre, water_list);
 	       if ((do_chemically_sensible_test_flag &&
-		    water_pos_is_chemically_sensible(new_centre, water_list))
+		    (chem_sensible == coot::ligand::OK_GOLDILOCKS))
 		   || (do_chemically_sensible_test_flag == 0)) {
 		  water_list.push_back(new_centre);
 		  iterator_remove_list.push_back(it);

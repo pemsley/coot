@@ -2959,7 +2959,7 @@ has been created.
 
 @code{(set-ligand-water-to-protein-distance-limits @emph{min-d max-d})} sets
 the minimum and maximum allowable distances between new waters and the
-masking molecule (usually the protein).
+masking molecule (usually the protein).  Defaults are 2.4 and 3.2@AA{}.
 
 @code{(set-ligand-water-spherical-variance-limit @emph{varlim})} sets the
 upper limit for the density variance around water atoms. The default

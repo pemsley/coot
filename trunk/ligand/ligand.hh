@@ -105,6 +105,7 @@ namespace coot {
    class ligand {
 
    private:
+      enum { OK_GOLDILOCKS, TOO_FAR, TOO_CLOSE, WATER_STATUS_UNKNOWN};
       clipper::Xmap<float> xmap_pristine;
       clipper::Xmap<float> xmap_cluster; // the map that gets masked/scribbled on
       clipper::Xmap<float> xmap_masked;  // the post-masking, pre-clustering map 

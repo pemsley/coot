@@ -339,7 +339,7 @@ main(int argc, char **argv) {
 	       
 	    lig.set_map_atom_mask_radius(flood_atom_mask_radius);
 	    lig.set_water_to_protein_distance_limits(10.0, 1.5); // should not be 
-	    // used in lig.
+                                                                 // used in lig.
 	    lig.flood2(input_sigma_level); // with atoms
 	    coot::minimol::molecule water_mol = lig.water_mol();
 	    water_mol.write_file(output_pdb, 30.0);
