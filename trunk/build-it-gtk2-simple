@@ -302,7 +302,7 @@
 # 4.71 20100203 Remove goosh.
 # 4.72 20100203 Update clipper version.
 # 4.73 20100205 only download mmdb once.
-# 4.74 20100303 top install_top_dir typos
+# 4.74 20100304 Fix install_top_dir typos.
 script_version=4.74
 
 
