@@ -1721,18 +1721,17 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
    // int last_imol = 0;
    int last_menu_item_index = 0;
 
-   std::cout << "fill_option_menu_with_coordinates_options_internal_3 with these: " << std::endl;
-   for (int idx=0; idx<fill_with_these_molecules.size(); idx++) {
-      std::cout << fill_with_these_molecules[idx] << " ";
+   if (0) {  // debug
+      std::cout << "fill_option_menu_with_coordinates_options_internal_3 with these: "
+		<< std::endl;
+      for (int idx=0; idx<fill_with_these_molecules.size(); idx++) {
+	 std::cout << fill_with_these_molecules[idx] << " ";
+      }
+      std::cout << std::endl;
    }
-   std::cout << std::endl;
 
    int menu_index = 0; // for setting of imol_active as active mol in go to atom
    for (int idx=0; idx<fill_with_these_molecules.size(); idx++) {
-
-//       std::cout << "in fill_option_menu_with_coordinates_options, "
-// 		<< "g.molecules[" << imol << "].atom_sel.n_selected_atoms is "
-// 		<< g.molecules[imol].atom_sel.n_selected_atoms << std::endl;
 
       int jmol = fill_with_these_molecules[idx];
       
@@ -1752,7 +1751,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 	 ss += molecules[jmol].name_.substr(left_size, ilen);
 	 menuitem = gtk_menu_item_new_with_label (ss.c_str());
 
-	 std::cout << "user pointer to int on callback set to " << jmol << std::endl;
+	 // std::cout << "user pointer to int on callback set to " << jmol << std::endl;
 	 
 	 gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
 			     // GTK_SIGNAL_FUNC(go_to_atom_mol_button_select),
@@ -1777,7 +1776,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 	 gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(jmol));
 	 gtk_menu_append(GTK_MENU(menu), menuitem); 
 
-	 std::cout << " comparing " << jmol << " and imol_active " << imol_active << std::endl;
+	 // std::cout << " comparing " << jmol << " and imol_active " << imol_active << std::endl;
 	 if (jmol == imol_active)
 	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
 
