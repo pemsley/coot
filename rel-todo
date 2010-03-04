@@ -2,9 +2,6 @@
 
     Points 12:
 
-    o Restore a session that has an anomalous map in the state.  Fail.
-      Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
-
     o alt confs cause problems in geometry graph [JED] ::: 2
 
     o trapped out of range phi/psi access: 1040 A ich: 0 ires: 895
@@ -307,6 +304,13 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 * Water checking improved.  (Check is to O and N atoms only) so bumps
   should be check (by user, they are interesting - indicating probems
   in the model)
+
+* Done.
+
+    o Restore a session that has an anomalous map in the state.  Fail.
+      Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
+
+* Done.
 
 
 

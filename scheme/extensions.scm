@@ -424,7 +424,11 @@
 					   ;; 
 					   (get-monomer text))))))))
 
-	
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Prodrg-ify this residue (generate restraints)"
+	 (lambda ()
+	   (using-active-atom 
+	    (prodrg-ify aa-imol aa-chain-id aa-res-no aa-ins-code))))
 
 
 	(add-simple-coot-menu-menuitem

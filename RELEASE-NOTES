@@ -8,6 +8,9 @@
   o FEATURE: SBase molecules can be imported (under Search Monomer
     Library).
 
+  o FEATURE: prodrg-ify ligand function added (generates restraints
+    for the specified residue).
+
   o CHANGE: Align & Mutate now provides a simple dialog with the
     alignment.
 
