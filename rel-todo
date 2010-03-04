@@ -1,30 +1,28 @@
  0.6.2
 
-    Points 13:
-
-    o alt confs cause problems in geometry graph [JED] ::: 2
-
-    o change clipper macros to use clipper-config and not invent mmdb
-      and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
-      grr. ::: 2
-
-    o Do ccp4i aliases work?  Ingo Korndoerfer suggest not. ::: 1
+    Points 12:
 
     o Restore a session that has an anomalous map in the state.  Fail.
       Phil Evans.   molecule-class-info-maps.cc:731 ::: 1
 
-    o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
-
-    o Environment distances turn off badly [JED] ::: 1
-
-    o PIR alignment: on pressing the insertion button, go to the
-      nearest residue to the gap. [Joel Bard] ::: 1 
+    o alt confs cause problems in geometry graph [JED] ::: 2
 
     o trapped out of range phi/psi access: 1040 A ich: 0 ires: 895
       phi_psi_sets[ich].phi_psi.size(): 839
       Which is when the rama plot stops working  ::: 1
 
+    o Do ccp4i aliases work?  Ingo Korndoerfer suggest not. ::: 1
+
+    o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
+
+    o PIR alignment: on pressing the insertion button, go to the
+      nearest residue to the gap. [Joel Bard] ::: 1 
+
     o change to rms z scores ::: 2
+
+    o change clipper macros to use clipper-config and not invent mmdb
+      and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
+      grr. ::: 2
 
 
 ------

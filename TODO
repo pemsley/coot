@@ -702,9 +702,12 @@ Punted from 0.6:
     residue triples - returning 3 residues.
     ::: 3
 
-    o anisotropic atom radius. Punted ::: 1
+   o anisotropic atom radius. Punted ::: 1
 
-    o white background with ball and stick models. Punted ::: 4
+   o Environment distances turn off badly [JED].  Not sure if this is
+     a problem or how to fix it.  Needs some thinking. Punted. ::: 1
+
+   o white background with ball and stick models. Punted ::: 4
 
    o Rotate/Translate on dsDNA (for example)
 
