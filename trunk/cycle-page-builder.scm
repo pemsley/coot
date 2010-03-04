@@ -681,11 +681,13 @@
 	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 	       #t #t)
 
- 	(list "binary-Linux-i386-fedora-12-gtk2"
- 	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-12/gtk2"
-  	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
- 	      #f #t)
+	 ;; I make this occassionally.
+	 (list "binary-Linux-i386-fedora-12-gtk2"
+	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal-f12/gtk2"
+	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #f #t)
 
+	;; kevin makes this occassionally.
  	(list "binary-Linux-i386-fedora-12-python-gtk2"
  	      "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-12/gtk2"
   	      "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"

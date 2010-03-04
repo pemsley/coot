@@ -743,13 +743,33 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	       save_state_command_strings_.push_back(g.float_to_string( low_reso_limit));
 	       save_state_command_strings_.push_back(g.float_to_string(high_reso_limit));
 	    } else {
-	       save_state_command_strings_.push_back("make-and-draw-map");
-	       save_state_command_strings_.push_back(single_quote(f2));
-	       save_state_command_strings_.push_back(single_quote(f_col));
-	       save_state_command_strings_.push_back(single_quote(phi_col));
-	       save_state_command_strings_.push_back(single_quote(weight_col));
-	       save_state_command_strings_.push_back(g.int_to_string(use_weights));
-	       save_state_command_strings_.push_back(g.int_to_string(is_diff_map));
+	       if (is_anomalous_flag) {
+		  save_state_command_strings_.push_back("make-and-draw-map-with-reso-with-refmac-params");
+		  save_state_command_strings_.push_back(single_quote(f2));
+		  save_state_command_strings_.push_back(single_quote(f_col));
+		  save_state_command_strings_.push_back(single_quote(phi_col));
+		  save_state_command_strings_.push_back(single_quote(weight_col));
+		  save_state_command_strings_.push_back(g.int_to_string(use_weights));
+		  save_state_command_strings_.push_back(g.int_to_string(is_diff_map));
+		  save_state_command_strings_.push_back(g.int_to_string(0)); // have refmac params
+		  save_state_command_strings_.push_back(single_quote(""));
+		  save_state_command_strings_.push_back(single_quote(""));
+		  save_state_command_strings_.push_back(single_quote(""));
+		  save_state_command_strings_.push_back(g.int_to_string(0)); // sensible r-free
+		  save_state_command_strings_.push_back(g.int_to_string(is_anomalous_flag)); 
+		  save_state_command_strings_.push_back(g.int_to_string(0)); // use reso limits
+		  save_state_command_strings_.push_back(g.float_to_string(999.9));
+		  save_state_command_strings_.push_back(g.float_to_string(1.2));
+	       } else {
+		  // bog standard.
+		  save_state_command_strings_.push_back("make-and-draw-map");
+		  save_state_command_strings_.push_back(single_quote(f2));
+		  save_state_command_strings_.push_back(single_quote(f_col));
+		  save_state_command_strings_.push_back(single_quote(phi_col));
+		  save_state_command_strings_.push_back(single_quote(weight_col));
+		  save_state_command_strings_.push_back(g.int_to_string(use_weights));
+		  save_state_command_strings_.push_back(g.int_to_string(is_diff_map));
+	       }
 	    } 
 	 }
       }
