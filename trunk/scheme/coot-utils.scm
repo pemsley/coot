@@ -2417,7 +2417,8 @@
 		    (if (= status 0)
 			(begin
 			  (read-cif-dictionary prodrg-cif)
-			  (refine-residues imol (list (list chain-id res-no ins-code)))))))))))))
+			  (with-auto-accept
+			   (regularize-residues imol (list (list chain-id res-no ins-code))))))))))))))
 
 
 
