@@ -5974,3 +5974,38 @@ coot::centre_of_molecule(CMMDBManager *mol) {
 
    return std::pair<bool, clipper::Coord_orth> (status, centre);
 } 
+
+CResidue *
+coot::nearest_residue_by_sequence(CMMDBManager *mol,
+				  const residue_spec_t &spec) {
+
+   CResidue *r = NULL;
+   int resno_closest_high = -9999;
+      
+   if (mol) {
+      int imod = 1;
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 std::string chain_id = chain_p->GetChainID();
+	 if (chain_id == spec.chain) { 
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       int this_resno = residue_p->GetSeqNum();
+	       if (labs(spec.resno - this_resno)
+		   < (labs(spec.resno - resno_closest_high))) {
+		  resno_closest_high = this_resno;
+		  r = residue_p;
+	       }
+	    }
+	 }
+      }
+   }
+   return r;
+}
+
+

@@ -1,7 +1,7 @@
 /* coot-utils/coot-coord-utils.hh
  * 
  * Copyright 2006, 2007, by The University of York
- * Copyright 2008, 2009 by The University of Oxford
+ * Copyright 2008, 2009, 2010 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -386,6 +386,9 @@ namespace coot {
    // 
    std::pair<bool,float> closest_approach(CMMDBManager *mol,
 					  CResidue *r1, CResidue *r2);
+
+   CResidue *nearest_residue_by_sequence(CMMDBManager *mol,
+					 const residue_spec_t &spec);
 
   // create a new molecule.  rtop_frac comes from the symmetry
   // operator.  If pre_shift_abc is not of size 3 then don't apply it
