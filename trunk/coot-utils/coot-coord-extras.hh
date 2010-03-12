@@ -183,7 +183,10 @@ namespace coot {
 			  CResidue *res, const std::string &altconf) const;
       
       std::vector<atom_tree_index_t> get_back_atoms(const atom_tree_index_t &index2) const;
-      std::pair<int, std::vector<atom_tree_index_t> > get_forward_atoms(const atom_tree_index_t &index2) const;
+
+      // don't add base index to forward atoms (of base_index).
+      std::pair<int, std::vector<atom_tree_index_t> > get_forward_atoms(const atom_tree_index_t &base_index,
+									const atom_tree_index_t &index2) const;
       std::vector<coot::atom_tree_t::atom_tree_index_t>
       uniquify_atom_indices(const std::vector<coot::atom_tree_t::atom_tree_index_t> &vin) const;
 
