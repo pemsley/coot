@@ -328,14 +328,18 @@
 	;;     Molecule functions/Modelling
 	;;
 	;; ---------------------------------------------------------------------
+
 	(add-simple-coot-menu-menuitem
-	 submenu-models "Copy Fragment..."
+	 submenu-models "Add Other Solvent Molecules..."
 	 (lambda ()
-	   (generic-chooser-and-entry "Create a new Molecule\nFrom which molecule shall we seed?"
-				      "Atom selection for fragment"
-				      "//A/1-10" 
-				      (lambda (imol text)
-					(new-molecule-by-atom-selection imol text)))))
+	   (solvent-ligands-gui)))
+				    
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Arrange Waters Around Protein..."
+	 (lambda ()
+	   (molecule-chooser-gui "Arrange waters in molecule: "
+				 (lambda (imol)
+				   (move-waters-to-around-protein imol)))))
 
 
 	(add-simple-coot-menu-menuitem
@@ -346,14 +350,93 @@
 				   (copy-molecule imol)))))
 
 
-	(add-simple-coot-menu-menuitem submenu-models "Residue Type Selection..."
-				       (lambda ()
-					 (generic-chooser-and-entry 
-					  "Choose a molecule from which to select residues:"
-					  "Residue Type:" ""
-					  (lambda (imol text)
-					    (new-molecule-by-residue-type-selection imol text)
-					    (update-go-to-atom-window-on-new-mol)))))
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Copy Fragment..."
+	 (lambda ()
+	   (generic-chooser-and-entry "Create a new Molecule\nFrom which molecule shall we seed?"
+				      "Atom selection for fragment"
+				      "//A/1-10" 
+				      (lambda (imol text)
+					(new-molecule-by-atom-selection imol text)))))
+
+	;; --- D --- 
+
+	(let ((submenu (gtk-menu-new))
+	      (menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
+	  
+	  (gtk-menu-item-set-submenu menuitem2 submenu)
+	  (gtk-menu-append menu menuitem2)
+	  (gtk-widget-show menuitem2)
+	  
+	  ;; 
+	  (if (coot-has-pygtk?)
+	      (add-simple-coot-menu-menuitem
+	       submenu "Dock Sequence (py)..."
+	       (lambda ()
+		 (run-python-command "cootaneer_gui_bl()"))))
+	  
+	  (add-simple-coot-menu-menuitem
+	   submenu "Associate Sequence...."
+	   (lambda ()
+	     (associate-pir-with-molecule-gui #f))) ;; don't do alignement gui on OK press
+
+	  ;; only add this to the GUI if the python version is not available.
+	  (if (not (coot-has-pygtk?))
+	      (add-simple-coot-menu-menuitem
+	       submenu "Dock sequence on this fragment..."
+	       (lambda ()
+		 (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
+				       (lambda (imol)
+					 (cootaneer-gui imol)))))))
+	(let ((submenu (gtk-menu-new))
+	      (menuitem2 (gtk-menu-item-new-with-label "Find Secondary Structure...")))
+
+	  (gtk-menu-item-set-submenu menuitem2 submenu)
+	  (gtk-menu-append submenu-models menuitem2)
+	  (gtk-widget-show menuitem2)
+
+	  (add-simple-coot-menu-menuitem
+	   submenu "Find Helices"
+	   (lambda ()
+	     (find-helices)))
+	  
+	  (add-simple-coot-menu-menuitem
+	   submenu "Find Strands"
+	   (lambda ()
+	     (find-strands))))
+
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Fix Nomenclature Errors..."
+	 (lambda () 
+	   (molecule-chooser-gui "Fix Nomenclature Error in molecule:"
+				 (lambda (imol)
+				   (fix-nomenclature-errors imol)))))
+
+	;; ---- M ---------
+
+	(add-simple-coot-menu-menuitem 
+	 submenu-models "Merge Water Chains..."
+	 (lambda ()
+	   (molecule-chooser-gui "Merge Water Chains in molecule: " 
+				 (lambda (imol)
+				   (merge-solvent-chains imol)))))
+
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Monomer from Dictionary..."
+	 (lambda ()
+	   (generic-single-entry "Pull coordinates from CIF dictionary for 3-letter-code:" "" 
+				 " Get Coords " 
+				 (lambda (text) 
+				   (let ((idealized? 0))
+				     (let ((new-model (get-monomer-from-dictionary text idealized?)))
+				       (if (valid-model-molecule? new-model)
+					   new-model
+					   ;; 
+					   (get-monomer text))))))))
+
+	;; ---- N ---------
 
 	(add-simple-coot-menu-menuitem submenu-models "New Molecule by Sphere..."
 				       (lambda ()
@@ -385,10 +468,48 @@
 						   (inexact->exact (list-ref pre-shift 1))
 						   (inexact->exact (list-ref pre-shift 2)))))))))
 
+
+	;; ---- P ---------
+
+	(add-simple-coot-menu-menuitem 
+	 submenu-models "Phosphorylate this residue"
+	 (lambda ()
+	   (phosphorylate-active-residue)))
+	
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Prodrg-ify this residue (generate restraints)"
+	 (lambda ()
+	   (using-active-atom 
+	    (prodrg-ify aa-imol aa-chain-id aa-res-no aa-ins-code))))
+
+
+	;; ---- R ---------
+
+	;; --- Ren --- 
+
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Rename Residue..."
 	 (lambda ()
 	   (rename-residue-gui)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Renumber Waters..."
+	 (lambda () 
+	   (molecule-chooser-gui 
+	    "Renumber waters of which molecule?"
+	    (lambda (imol)
+	      (renumber-waters imol)))))
+
+	;; --- Reo --- 
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Reorder Chains..."
+	 (lambda () 
+	   (molecule-chooser-gui "Sort Chain IDs in molecule:"
+				 (lambda (imol)
+				   (sort-chains imol))))) ;; an internal function
+
+	;; --- Rep --- 
 
 
 	(add-simple-coot-menu-menuitem
@@ -411,126 +532,18 @@
 				   (using-active-atom 
 				    (mutate-by-overlap aa-imol aa-chain-id aa-res-no text))))))
 
-	(add-simple-coot-menu-menuitem
-	 submenu-models "Monomer from Dictionary..."
-	 (lambda ()
-	   (generic-single-entry "Pull coordinates from CIF dictionary for 3-letter-code:" "" 
-				 " Get Coords " 
-				 (lambda (text) 
-				   (let ((idealized? 0))
-				     (let ((new-model (get-monomer-from-dictionary text idealized?)))
-				       (if (valid-model-molecule? new-model)
-					   new-model
-					   ;; 
-					   (get-monomer text))))))))
 
-	(add-simple-coot-menu-menuitem
-	 submenu-models "Prodrg-ify this residue (generate restraints)"
-	 (lambda ()
-	   (using-active-atom 
-	    (prodrg-ify aa-imol aa-chain-id aa-res-no aa-ins-code))))
+	;; --- Res --- 
 
+	(add-simple-coot-menu-menuitem submenu-models "Residue Type Selection..."
+				       (lambda ()
+					 (generic-chooser-and-entry 
+					  "Choose a molecule from which to select residues:"
+					  "Residue Type:" ""
+					  (lambda (imol text)
+					    (new-molecule-by-residue-type-selection imol text)
+					    (update-go-to-atom-window-on-new-mol)))))
 
-	(add-simple-coot-menu-menuitem
-	 submenu-models "Reorder Chains..."
-	 (lambda () 
-	   (molecule-chooser-gui "Sort Chain IDs in molecule:"
-				 (lambda (imol)
-				   (sort-chains imol))))) ;; an internal function
-
-	(add-simple-coot-menu-menuitem
-	 submenu-models "Fix Nomenclature Errors..."
-	 (lambda () 
-	   (molecule-chooser-gui "Fix Nomenclature Error in molecule:"
-				 (lambda (imol)
-				   (fix-nomenclature-errors imol)))))
-
-	(add-simple-coot-menu-menuitem
-	 submenu-models "Add Strand Here..."
-	 (lambda ()
-	   (place-strand-here-gui)))
-
-	(let ((submenu (gtk-menu-new))
-	      (menuitem2 (gtk-menu-item-new-with-label "Find Secondary Structure...")))
-
-	  (gtk-menu-item-set-submenu menuitem2 submenu)
-	  (gtk-menu-append submenu-models menuitem2)
-	  (gtk-widget-show menuitem2)
-
-	  (add-simple-coot-menu-menuitem
-	   submenu "Find Helices"
-	   (lambda ()
-	     (find-helices)))
-	  
-	  (add-simple-coot-menu-menuitem
-	   submenu "Find Strands"
-	   (lambda ()
-	     (find-strands))))
-
-
-	(let ((submenu (gtk-menu-new))
-	      (menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
-	  
-	  (gtk-menu-item-set-submenu menuitem2 submenu)
-	  (gtk-menu-append menu menuitem2)
-	  (gtk-widget-show menuitem2)
-	  
-	  ;; 
-	  (if (coot-has-pygtk?)
-	      (add-simple-coot-menu-menuitem
-	       submenu "Dock Sequence (py)..."
-	       (lambda ()
-		 (run-python-command "cootaneer_gui_bl()"))))
-	  
-	  (add-simple-coot-menu-menuitem
-	   submenu "Associate Sequence...."
-	   (lambda ()
-	     (associate-pir-with-molecule-gui #f))) ;; don't do alignement gui on OK press
-
-	  ;; only add this to the GUI if the python version is not available.
-	  (if (not (coot-has-pygtk?))
-	      (add-simple-coot-menu-menuitem
-	       submenu "Dock sequence on this fragment..."
-	       (lambda ()
-		 (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
-				       (lambda (imol)
-					 (cootaneer-gui imol)))))))
-
-	(add-simple-coot-menu-menuitem 
-	 submenu-models "Rigid Body Fit Residue Ranges..."
-	 (lambda ()
-	   (let ((func (lambda (imol ls) 
-			 (rigid-body-refine-by-residue-ranges imol ls))))
-	     (residue-range-gui func "Rigid Body Refine" "  Fit  "))))
-      
-
-	(add-simple-coot-menu-menuitem 
-	 submenu-models "Merge Water Chains..."
-	 (lambda ()
-	   (molecule-chooser-gui "Merge Water Chains in molecule: " 
-				 (lambda (imol)
-				   (merge-solvent-chains imol)))))
-
-	(add-simple-coot-menu-menuitem
-	 submenu-models "Renumber Waters..."
-	 (lambda () 
-	   (molecule-chooser-gui 
-	    "Renumber waters of which molecule?"
-	    (lambda (imol)
-	      (renumber-waters imol)))))
-
-	(add-simple-coot-menu-menuitem
-	 submenu-models "Arrange Waters Around Protein..."
-	 (lambda ()
-	   (molecule-chooser-gui "Arrange waters in molecule: "
-				 (lambda (imol)
-				   (move-waters-to-around-protein imol)))))
-
-	(add-simple-coot-menu-menuitem
-	 submenu-models "Add Other Solvent Molecules..."
-	 (lambda ()
-	   (solvent-ligands-gui)))
-				    
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Residues with Alt Confs..."
 	 (lambda ()
@@ -540,6 +553,13 @@
 	      (alt-confs-gui imol)))))
 	
 	(add-simple-coot-menu-menuitem
+	 submenu-models "Residues with Cis Peptides Bonds..."
+	 (lambda ()
+	   (molecule-chooser-gui "Choose a molecule for checking for Cis Peptides" 
+				 (lambda (imol)
+				   (cis-peptides-gui imol)))))
+
+	(add-simple-coot-menu-menuitem
 	 submenu-models "Residues with Missing Atoms..."
 	 (lambda ()
 	   (molecule-chooser-gui
@@ -548,18 +568,15 @@
 	      (missing-atoms-gui imol)))))
 
 
-	(add-simple-coot-menu-menuitem
-	 submenu-models "Residues with Cis Peptides Bonds..."
-	 (lambda ()
-	   (molecule-chooser-gui "Choose a molecule for checking for Cis Peptides" 
-				 (lambda (imol)
-				   (cis-peptides-gui imol)))))
+	;; --- Rig --- 
 
 	(add-simple-coot-menu-menuitem 
-	 submenu-models "Phosphorylate this residue"
+	 submenu-models "Rigid Body Fit Residue Ranges..."
 	 (lambda ()
-	   (phosphorylate-active-residue)))
-	
+	   (let ((func (lambda (imol ls) 
+			 (rigid-body-refine-by-residue-ranges imol ls))))
+	     (residue-range-gui func "Rigid Body Refine" "  Fit  "))))
+      
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Superpose ligands..."
 	 (lambda ()
