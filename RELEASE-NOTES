@@ -1,6 +1,9 @@
 
   Pre-release 0.6.2
 
+  o FEATURE: PISA Interfaces can now be represented in Coot (requires
+    pisa version 1.06 or later).
+
   o FEATURE: Regularize sphere function introduced.
 
   o FEATURE: --update-self to update pre-release binary from server.
@@ -10,6 +13,8 @@
 
   o FEATURE: prodrg-ify ligand function added (generates restraints
     for the specified residue).
+
+  o FEATURE: higly-coordinated waters metal substitution search added.
 
   o CHANGE: Align & Mutate now provides a simple dialog with the
     alignment.
@@ -28,20 +33,32 @@
 
   o CHANGE: Real-space refinement is now interruptible [[JED].
 
+  o CHANGE: NCS skipping now works in the reverse chain order too
+    (Shift-O) [JED].
+
   o CHANGE: Residues are checked atom by atom against the dictionary
     and refinement is not started if there is not complete agreement
     (for non-Hydrogen atoms) [JED].
 
+  o CHANGE: Merged molecules are not undisplayed after merging.
+ 
   o BUG-FIX:: Hydrogens on waters are no longer checked against the
     difference map in the water validation test.
 
   o BUG-FIX: rename residue works on only the specified chain.
+
+  o BUG-FIX: anomalous maps are now properly recovered from the state
+    file [Phil Evans].
 
   o BUG-FIX: Symmetry is updated on accepting a Rotate/Translate
     modification [Ezra Peisach].
 
   o BUG-FIX: NCS differences were broken by gaps of different lengths
     [Ingo Korndoerfer].
+
+  o BUG-FIX: Unconventionally formatted atom tree records in
+    restraints cif now no longer cause a crash when using Chi Angles
+    [JED].
 
   o BUG-FIX: Fix the crash when sphere refine was used at the same
     time that the geometry graph was displayed [JED].
@@ -52,6 +69,14 @@
 
   o BUG-FIX: Sort-chains no longer loses header information [Bob
     Nolte].
+
+  o BUG-FIX: Water search now avoids close contacts to waters
+    generated in the same round.
+
+  o BUG-FIX: mmCIF file writing fixed.
+
+  o BUG-FIX: refining with structures from .res files sometimes crash
+    when writing backup file on Mac [Derek Logan].
 
 -----
 

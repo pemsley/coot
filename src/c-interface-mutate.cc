@@ -333,18 +333,53 @@ void set_alignment_gap_and_space_penalty(float wgap, float wspace) {
 SCM alignment_results_scm(int imol, const char *chain_id, const char *seq) {
 
    SCM r = SCM_BOOL_F;
-
-   
-
    return r;
 }
 #endif /* USE_GUILE */
 
+
+#ifdef USE_GUILE
+SCM  nearest_residue_by_sequence_scm(int imol, const char* chain_id, int resno, const char *ins_code) { 
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      coot::residue_spec_t spec(chain_id, resno, ins_code);
+      CResidue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
+      if (residue_p) {
+	 r = scm_residue(residue_p);
+      }
+   }
+   return r;
+}
+#endif /* USE_GUILE */
+
+
+
 #ifdef USE_PYTHON
 PyObject *alignment_results_py(int imol, const char *chain_id, const char *seq) {
 
-   PyObject *r = NULL;
+   PyObject *r = Py_False;
 
    return r;
 } 
 #endif /* USE_PYTHON */
+
+#ifdef USE_PYTHON
+PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int resno, const char *ins_code) { 
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      coot::residue_spec_t spec(chain_id, resno, ins_code);
+      CResidue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
+      if (residue_p) {
+	 r = py_residue(residue_p);
+	 // some ref counting thing here?
+      }
+   }
+   return r;
+} 
+#endif /* USE_PYTHON */
+
+

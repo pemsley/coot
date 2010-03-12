@@ -2334,7 +2334,7 @@ int handle_read_ccp4_map(const char* filename, int is_diff_map_flag);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
-/*                        save coordintes                                   */
+/*                        save coordinates                                  */
 /*  ----------------------------------------------------------------------- */
 /* section Save Coordinates */
 /*! \name  Save Coordinates */
@@ -2785,9 +2785,15 @@ void set_alignment_gap_and_space_penalty(float wgap, float wspace);
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 SCM alignment_results_scm(int imol, const char* chain_id, const char *seq); 
+/*! \brief return the residue spec of the nearest residue by sequence
+  numbering.  Return scheme #f if not possible */
+SCM nearest_residue_by_sequence_scm(int imol, const char* chain_id, int resno, const char *ins_code);
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
 PyObject *alignment_results_py(int imol, const char* chain_id, const char *seq); 
+/*! \brief return the residue spec of the nearest residue by sequence
+  numbering.  Return Python False if not possible */
+PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int resno, const char *ins_code);
 #endif /* USE_PYTHON */
 #endif  /* c++ */
 

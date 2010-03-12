@@ -2656,7 +2656,13 @@
 					   (number->string (list-ref res-info 3))))
 			   (button-1-action
 			    (lambda () 
-			      (info-dialog button-1-label))))
+			      (info-dialog button-1-label)
+			      (let ((r (nearest-residue-by-sequence imol chain-id res-no ins-code)))
+				(if r 
+				    (begin
+				      (set-go-to-atom-molecule imol)
+				      (set-go-to-atom-chain-residue-atom-name 
+				       chain-id (list-ref r 2) " CA ")))))))
 		      (list button-1-label button-1-action)))
 		  (list-ref am 2))))
 
