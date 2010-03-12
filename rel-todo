@@ -6,13 +6,13 @@
 
     o trapped out of range phi/psi access: 1040 A ich: 0 ires: 895
       phi_psi_sets[ich].phi_psi.size(): 839
-      Which is when the rama plot stops working  ::: 1
+      Which is when the rama plot stops working  ::: 3
 
     o change to rms z scores ::: 2
 
     o change clipper macros to use clipper-config and not invent mmdb
       and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
-      grr. ::: 2
+      grr. ::: 3
 
 
 ------
