@@ -1,6 +1,6 @@
  0.6.2
 
-    Points 12:
+    Points 7:
 
     o alt confs cause problems in geometry graph [JED] ::: 2
 
@@ -8,18 +8,13 @@
       phi_psi_sets[ich].phi_psi.size(): 839
       Which is when the rama plot stops working  ::: 1
 
-    o Do ccp4i aliases work?  Ingo Korndoerfer suggest not. ::: 1
-
-    o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
-
-    o PIR alignment: on pressing the insertion button, go to the
-      nearest residue to the gap. [Joel Bard] ::: 1 
-
     o change to rms z scores ::: 2
 
     o change clipper macros to use clipper-config and not invent mmdb
       and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
       grr. ::: 2
+
+    o clean up libcheck debugging. ::: 0.2
 
 
 ------
@@ -312,7 +307,15 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 
 * Done.
 
+    o Derek Logan's SHELX Mac hydrogen problem (puntable) ::: 2
 
+* Stopped the crash.  Backup .res file is empty though, which is a
+  problem.  This look like a deep time sink. May need revisiting.
 
+    o Do ccp4i aliases work?  Ingo Korndoerfer suggest not. ::: 1
 
+* Seem OK to me.  Punt.
+
+    o PIR alignment: on pressing the insertion button, go to the
+      nearest residue to the gap. [Joel Bard] ::: 1 
 

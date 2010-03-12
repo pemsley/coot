@@ -63,6 +63,7 @@
 (define highly-coordinated-waters-scm #f)
 (define handle-pisa-interfaces-scm #f)
 (define space-group-scm #f)
+(define nearest-residue-by-sequence-scm #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")

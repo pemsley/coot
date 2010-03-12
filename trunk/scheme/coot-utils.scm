@@ -84,6 +84,7 @@
 (define highly-coordinated-waters highly-coordinated-waters-scm)
 (define handle-pisa-interfaces handle-pisa-interfaces-scm)
 (define space-group space-group-scm)
+(define nearest-residue-by-sequence nearest-residue-by-sequence-scm)
 
 ;; documented functions
 
