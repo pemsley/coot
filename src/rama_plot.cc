@@ -583,9 +583,7 @@ coot::rama_plot::black_border() {
 				NULL);
    canvas_item_vec.push_back(item); 
 
-
    gtk_canvas_points_free(points); 
-
 }
 
 
@@ -860,7 +858,7 @@ coot::rama_plot::draw_phi_psi_points(int ich) {
 // 
 void
 coot::rama_plot::generate_phi_psis(std::vector <phi_psi_set_container> *phi_psi_set_vec,
-				   const CMMDBManager *mol_in) {
+				   CMMDBManager *mol_in) {
 
    // clear out whatever data we have in the phi_psi's currently
    // for(int i=0; i<phi_psi_set_vec->size();)
@@ -869,7 +867,7 @@ coot::rama_plot::generate_phi_psis(std::vector <phi_psi_set_container> *phi_psi_
    // InitMatType();
 
    // PCAtom atom1;
-   CMMDBManager *mol = (CMMDBManager *)mol_in;
+   CMMDBManager *mol = mol_in;
 
    // int selHnd = mol->NewSelection();
    // int nSelAtoms;
@@ -1452,7 +1450,7 @@ std::pair<bool, coot::util::phi_psi_t> coot::rama_plot::get_phi_psi(PCResidue *S
 // add to the phi_psi vector
 void
 coot::rama_plot::add_phi_psi(vector <coot::util::phi_psi_t> *phi_psi_vec,
-			     const CMMDBManager *mol_in, const char *segid,
+			     CMMDBManager *mol_in, const char *segid,
 			     CResidue *prev, CResidue *this_res, CResidue *next_res) {
 
 
@@ -1698,7 +1696,7 @@ coot::rama_plot::get_seqnum_2(int seqnum_1) const {
 void
 coot::rama_plot::hide_stats_frame() {
 
-   if (canvas) { 
+   if (canvas) {
       GtkWidget *frame = lookup_widget(GTK_WIDGET(canvas), "rama_stats_frame");
       gtk_widget_hide(frame);
    } else {
@@ -1767,7 +1765,7 @@ coot::rama_plot::draw_it(const std::vector<coot::util::phi_psi_t> &phipsi) {
 //   draw_axes();
 //   draw_zero_lines();
   phi_psi_sets.resize(1);
-  phi_psi_sets[0].phi_psi.resize(0);
+  phi_psi_sets[0].phi_psi.clear();
   clear_last_canvas_items(phipsi.size());
   for (unsigned int ipp=0; ipp<phipsi.size(); ipp++) { 
      phi_psi_sets[0].phi_psi.push_back(phipsi[ipp]);

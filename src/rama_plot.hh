@@ -299,7 +299,7 @@ public:
    void cell_border(int i, int j, int step);
 
    void generate_phi_psis(std::vector <phi_psi_set_container> *phi_psi_set_vec,
-			  const CMMDBManager *mol);
+			  CMMDBManager *mol);
    
    void generate_phi_psis_debug();
 
@@ -326,7 +326,7 @@ public:
 		   const std::string &chainid);
 
    void add_phi_psi(std::vector <util::phi_psi_t> *phi_psi_vec,
-		    const CMMDBManager *mol, const char *chain_id,
+		    CMMDBManager *mol, const char *chain_id,
 		    CResidue *prev, CResidue *this_res, CResidue *next_res);
 
    util::phi_psi_pair_helper_t make_phi_psi_pair(CMMDBManager *mol1,
