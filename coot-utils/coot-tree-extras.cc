@@ -532,7 +532,7 @@ coot::atom_tree_t::add_unique_forward_atom(int this_index, int forward_atom_inde
    }
 
    std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> >
-      forward_atoms_of_forward_atom_index_pair = get_forward_atoms(forward_atom_index);
+      forward_atoms_of_forward_atom_index_pair = get_forward_atoms(forward_atom_index, forward_atom_index);
 
    if (0) 
       std::cout << " in add_unique_forward_atom get_forward_atoms called "
@@ -637,7 +637,7 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	 if (index3_is_forward) {
 
 	    std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> > moving_atom_indices_pair =
-	       get_forward_atoms(index3);
+	       get_forward_atoms(index3, index3);
 	    std::vector<coot::atom_tree_t::atom_tree_index_t> moving_atom_indices =
 	       moving_atom_indices_pair.second;
 // 	    std::cout << " in rotate_about get_forward_atoms called " << moving_atom_indices_pair.first
@@ -760,8 +760,10 @@ coot::atom_tree_t::get_back_atoms(const coot::atom_tree_t::atom_tree_index_t &in
 // with forward recursion
 // 
 std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> > 
-coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t &index) const {
+coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t &base_index,
+				     const coot::atom_tree_t::atom_tree_index_t &index) const {
 
+   bool debug = 0;
    std::vector<coot::atom_tree_t::atom_tree_index_t> v;
    int n_forward_count = 1; // this time at least
 
@@ -786,9 +788,7 @@ coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t 
 //       return v;
 //    } 
    
-   // all of these
-   // 
-   if (0) {
+   if (debug) {
       std::cout << "DEBUG::get_forward_atoms of " << index.index() << " has "
 		<< atom_vertex_vec[index.index()].forward.size()
 		<< " forward atoms ";
@@ -799,7 +799,7 @@ coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t 
    
    for (unsigned int ifo=0; ifo<atom_vertex_vec[index.index()].forward.size(); ifo++) { 
       v.push_back(atom_vertex_vec[index.index()].forward[ifo]);
-      if (0) 
+      if (debug) 
 	 std::cout << " adding to forward atoms " << atom_vertex_vec[index.index()].forward[ifo]
 		   << " which is atom_vertex_vec[" << index.index() << "].forward[" << ifo << "]"
 		   << std::endl;
@@ -809,15 +809,18 @@ coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t 
    for (unsigned int ifo=0; ifo<atom_vertex_vec[index.index()].forward.size(); ifo++) {
       int index_forward = atom_vertex_vec[index.index()].forward[ifo];
       coot::atom_tree_t::atom_tree_index_t forward_index(index_forward);
-      std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> > nv_pair = 
-	 coot::atom_tree_t::get_forward_atoms(forward_index);
+      std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> > nv_pair;
+      if (base_index.index() != forward_index.index())
+	 nv_pair = coot::atom_tree_t::get_forward_atoms(base_index, forward_index);
       std::vector<coot::atom_tree_t::atom_tree_index_t> nv = nv_pair.second;
       n_forward_count += nv_pair.first;
       for (unsigned int inv=0; inv<nv.size(); inv++) {
-	 if (0) 
-	    std::cout << " adding item  " << inv << " which has index " << nv[inv].index()
-		      << " as a forward atom of " << index.index() << std::endl;
-	 v.push_back(nv[inv]);
+	 if (nv[inv].index() != base_index.index()) { 
+	    if (debug) 
+	       std::cout << " adding item  " << inv << " which has index " << nv[inv].index()
+			 << " as a forward atom of " << index.index() << std::endl;
+	    v.push_back(nv[inv]);
+	 }
       }
    }
 
