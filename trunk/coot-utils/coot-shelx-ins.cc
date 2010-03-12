@@ -1103,105 +1103,121 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 		     residue_p = chain_p->GetResidue(ires);
 		     
 		     int n_atoms = residue_p->GetNumberOfAtoms();
-		     if (n_atoms > 0) { 
-			f <<  "RESI ";
-			// format to look like shelx resi:
-			int resno = residue_p->GetSeqNum();
-			if (resno < 1000)
-			   f << " ";
-			if (resno < 100)
-			   f << " ";
-			if (resno < 10)
-			   f << " ";
-			f << resno << "   " << residue_p->GetResName() << "\n";
+		     if (n_atoms > 0) {
+			try { 
+			   f <<  "RESI ";
+			   // format to look like shelx resi:
+			   int resno = residue_p->GetSeqNum();
+			   if (resno < 1000)
+			      f << " ";
+			   if (resno < 100)
+			      f << " ";
+			   if (resno < 10)
+			      f << " ";
+			   f << resno << "   " << residue_p->GetResName() << "\n";
+			}
+			catch (std::ios::failure &e) { 
+			   std::cout << "WARNING:: IOS exception caught on RESI start " << e.what() << std::endl;
+			}
 		     }
+			
 		     int ic;
 		     
 		     for (int iat=0; iat<n_atoms; iat++) {
-			at = residue_p->GetAtom(iat);
-			float site_occ_factor = 11.000;
-			// site_occ_factor = 10.0 + at->occupancy;
-			site_occ_factor = at->occupancy;
-			clipper::Coord_orth co(at->x, at->y, at->z);
-			clipper::Coord_frac cf = co.coord_frac(cell);
-			int sfac_index = get_sfac_index(at->element);
+			try { 
+			   at = residue_p->GetAtom(iat);
+			   float site_occ_factor = 11.000;
+			   // site_occ_factor = 10.0 + at->occupancy;
+			   site_occ_factor = at->occupancy;
+			   clipper::Coord_orth co(at->x, at->y, at->z);
+			   clipper::Coord_frac cf = co.coord_frac(cell);
+			   int sfac_index = get_sfac_index(at->element);
 
-			// AFIX comes before PART
-			if (at->GetUDData(udd_afix_handle, ic) == UDDATA_Ok) {
-			   if (ic != current_afix) { 
-			      f << "AFIX ";
-			      // a bit of formatting to match SHELX format for AFIX
-			      if (ic < 100)
-				 f << " ";
-			      if (ic < 10)
-				 f << " ";
-			      f << ic << "\n";
+			   // AFIX comes before PART
+			   if (at->GetUDData(udd_afix_handle, ic) == UDDATA_Ok) {
+			      if (ic != current_afix) { 
+				 f << "AFIX ";
+				 // a bit of formatting to match SHELX format for AFIX
+				 if (ic < 100)
+				    f << " ";
+				 if (ic < 10)
+				    f << " ";
+				 f << ic << "\n";
+			      }
+			      current_afix = ic;
+			   } else {
+			      std::string s =  "WARNING:: failed to get AFIX handle for ";
+			      s += at->GetChainID();
+			      s += " "; 
+			      s += at->GetSeqNum();
+			      s += " ";
+			      s += at->GetResName();
+			      s += " ";
+			      s += at->GetAtomName();
+			      s += " ,";
+			      s += at->altLoc;
+			      afix_failure_vec.push_back(s);
 			   }
-			   current_afix = ic;
-			} else {
-			   std::string s =  "WARNING:: failed to get AFIX handle for ";
-			   s += at->GetChainID();
-			   s += " "; 
-			   s += at->GetSeqNum();
-			   s += " ";
-			   s += at->GetResName();
-			   s += " ";
-			   s += at->GetAtomName();
-			   s += " ,";
-			   s += at->altLoc;
-			   afix_failure_vec.push_back(s);
-			}
 			
-			// std::cout << "on writting WhatIsSet is " << at->WhatIsSet
-			// << "\n";
+			   // std::cout << "on writting WhatIsSet is " << at->WhatIsSet
+			   // << "\n";
 			
-			std::string this_altloc = at->altLoc;
-			if (this_altloc != current_altloc) {
-			   int ipart = altloc_to_part_no(std::string(at->altLoc));
-			   f << "PART    " << ipart << "\n";
-			}
-			if (at->WhatIsSet & ASET_Anis_tFac) {
-			   // Anisotropic
+			   std::string this_altloc = at->altLoc;
+			   if (this_altloc != current_altloc) {
+			      int ipart = altloc_to_part_no(std::string(at->altLoc));
+			      f << "PART    " << ipart << "\n";
+			   }
+			   if (at->WhatIsSet & ASET_Anis_tFac) {
+			      // Anisotropic
 
-			   clipper::U_aniso_orth cao(at->u11, at->u22, at->u33,
-						     at->u12, at->u13, at->u23);
-			   clipper::U_aniso_frac caf = cao.u_aniso_frac(cell);
+			      clipper::U_aniso_orth cao(at->u11, at->u22, at->u33,
+							at->u12, at->u13, at->u23);
+			      clipper::U_aniso_frac caf = cao.u_aniso_frac(cell);
 
 			   
-			   std::string at_name(at->name);
-			   f.setf(std::ios::fixed);
-			   f.precision(9);
-			   f << coot::util::remove_leading_spaces(at_name)
-			     << "   " << sfac_index << "  ";
-			   f << cf.u() << "  " << cf.v() << "   " << cf.w() << " "
-			     << site_occ_factor << "    =\n     ";
-			   f.precision(5);
-// 			   f << at->u11 << "  " << at->u22 << "  " << at->u33 << "  "
-// 			     << at->u23 << "  " << at->u13 << "  " << at->u12
-// 			     << "\n";
-			   f << caf(0,0)*a*a << "  " << caf(1,1)*b*b << "  " << caf(2,2)*c*c
-			     << "  "
-			     << caf(1,2)*b*c << "  " << caf(0,2)*a*c << "  " << caf(0,1)*a*b
-			     << "\n";
-			} else { 
-			   if (at->WhatIsSet & ASET_tempFactor) {
-			      // Isotropic B factor
 			      std::string at_name(at->name);
-			      float b_factor = at->tempFactor;
 			      f.setf(std::ios::fixed);
 			      f.precision(9);
-			      if (b_factor > 0.0) // (riding?) hydrogens are not (-1.2)
-				 b_factor /= u_to_b;
 			      f << coot::util::remove_leading_spaces(at_name)
-				<< "   " << sfac_index << "  "
-				<< cf.u() << "  " << cf.v() << "   " << cf.w() << " "
-				<< site_occ_factor << "    "
-				<< b_factor << "\n";
+			        << "   " << sfac_index << "  ";
+			      f << cf.u() << "  " << cf.v() << "   " << cf.w() << " "
+			        << site_occ_factor << "    =\n     ";
+			      f.precision(5);
+			      // 			   f << at->u11 << "  " << at->u22 << "  " << at->u33 << "  "
+			      // 			     << at->u23 << "  " << at->u13 << "  " << at->u12
+			      // 			     << "\n";
+			      f << caf(0,0)*a*a << "  " << caf(1,1)*b*b << "  " << caf(2,2)*c*c
+			        << "  "
+			        << caf(1,2)*b*c << "  " << caf(0,2)*a*c << "  " << caf(0,1)*a*b
+			        << "\n";
+			   } else { 
+			      if (at->WhatIsSet & ASET_tempFactor) {
+				 // Isotropic B factor
+				 std::string at_name(at->name);
+				 float b_factor = at->tempFactor;
+				 f.setf(std::ios::fixed);
+				 f.precision(9);
+				 if (b_factor > 0.0) // (riding?) hydrogens are not (-1.2)
+				    b_factor /= u_to_b;
+				 f << coot::util::remove_leading_spaces(at_name)
+				   << "   " << sfac_index << "  "
+				   << cf.u() << "  " << cf.v() << "   " << cf.w() << " "
+				   << site_occ_factor << "    "
+				   << b_factor << "\n";
+			      }
 			   }
+			   current_altloc = this_altloc;
 			}
-			current_altloc = this_altloc;
+			catch (std::ios::failure &e) { 
+			   std::cout << "WARNING:: IOS exception caught: " << e.what() << std::endl;
+			}
 		     }
-		     f << " \n"; // end of a RESI
+		     try { 
+			f << " \n"; // end of a RESI
+		     } 
+		     catch (std::ios::failure &e) { 
+			std::cout << "WARNING:: IOS exception caught on end of a RESI " << e.what() << std::endl;
+		     }
 		  }
 	       }
 	    }
@@ -1218,8 +1234,14 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 		      << " more AFIX failures" << std::endl;
 
 	 
-	 for (unsigned int i=0; i<post_atom_lines.size(); i++)
-	    f << post_atom_lines[i] << "\n";
+	 for (unsigned int i=0; i<post_atom_lines.size(); i++) {
+	    try { 
+	       f << post_atom_lines[i] << "\n";
+	    }
+	    catch (std::ios::failure &e) { 
+	       std::cout << "WARNING:: IOS exception caught in post atom lines " << e.what() << std::endl;
+	    }
+	 }
       }
       f.close();
       message =  "INFO:: SHELXL file ";
