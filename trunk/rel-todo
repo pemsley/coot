@@ -14,8 +14,6 @@
       and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
       grr. ::: 2
 
-    o clean up libcheck debugging. ::: 0.2
-
 
 ------
 
@@ -319,3 +317,8 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
     o PIR alignment: on pressing the insertion button, go to the
       nearest residue to the gap. [Joel Bard] ::: 1 
 
+* Done.
+
+    o clean up libcheck debugging. ::: 0.2
+
+* Done.

@@ -141,8 +141,7 @@
 				      "XYZOUT" post-refmac-pdb-file-name)))
 
       (move-aside (append-dir-file dir-prefix "libcheck.lib"))
-      (let ((nov (format #t "passing libcheck these data lines: ~s~%" libcheck-input))
-	    (libstatus (run-command-in-dir dir-prefix libcheck-exe '() libcheck-input
+      (let ((libstatus (run-command-in-dir dir-prefix libcheck-exe '() libcheck-input
 					   log-file-name #t)))
 	
 	(format #t "INFO:: libcheck status: ~s~%" libstatus)
@@ -171,8 +170,7 @@
 							refmac-input
 							refmac-log-file-name #t)))
 
-		      (format #t "DEBUG:: libcheck-minimal? returns ~s~%" 
-			      libcheck-minimal-desc-status)
+		      (format #t "INFO:: libcheck-minimal? is ~s~%" libcheck-minimal-desc-status)
 		      
 		      (if (not (number? refmac-status))
 			  -4 ; refmac fails 
@@ -183,8 +181,6 @@
 				;; we get the real cif file in
 				;; libcheck.lib.
 				(let ((libcheck-lib (append-dir-file dir-prefix "libcheck.lib")))
-				  (format #t "------------- about to copy file ~s to ~s in dir ~s" 
-					  libcheck-lib cif-file-name (getcwd))
 				  (if (file-exists? libcheck-lib)
 				      (copy-file libcheck-lib cif-file-name)))
 				(handle-libcheck-cif-and-pdb cif-file-name
@@ -193,8 +189,6 @@
   
   (define (handle-libcheck-cif-and-pdb cif-file-name pdb-file-name post-refmac-pdb-file-name)
     
-    (format #t "================= debug:: handle-libcheck-cif-and-pdb: cif-file-name: ~s pdb-file-name: ~s post-refmac-pdb-file-name: ~s~%" 
-	    cif-file-name pdb-file-name post-refmac-pdb-file-name)
 
       (if (and (file-exists? post-refmac-pdb-file-name)
 	       (file-exists? cif-file-name))
