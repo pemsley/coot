@@ -571,6 +571,8 @@ main (int argc, char *argv[]) {
      // languages.  Let that be the guile one.
 #ifndef USE_GUILE     
      run_state_file_maybe(); // run local 0-coot.state.py?
+
+     run_update_self_maybe();
 #endif // USE_GUILE - not both start-up scripts
 
 #if defined USE_PYGTK && !defined USE_GUILE_GTK
@@ -581,7 +583,6 @@ main (int argc, char *argv[]) {
      }
 #endif // USE_PYGTK
      
-
 #endif // USE_PYTHON  
      
 #ifdef USE_GUILE

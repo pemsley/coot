@@ -3016,8 +3016,10 @@ SCM regularize_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */
 SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); 
 #endif
 #ifdef USE_PYTHON
-PyObject *refine_residues_py(int imol, PyObject *r);  /* to be renamed later. */
+PyObject *refine_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
 PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf);  /* to be renamed later. */
+PyObject *regularize_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
+PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf);
 #endif /* PYTHON */
 #endif /* c++ */
 
@@ -5935,8 +5937,13 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
 /*! \brief return a list of compoundIDs of in SBase of which the
   given string is a substring of the compound name */
 SCM matching_compound_names_from_sbase_scm(const char *compound_name_fragment);
-#endif
-#endif
+#endif /* USE_GUILE */
+#ifdef USE_PYTHON
+/*! \brief return a list of compoundIDs of in SBase of which the
+  given string is a substring of the compound name */
+PyObject *matching_compound_names_from_sbase_py(const char *compound_name_fragment);
+#endif /* USE_PYTHON */
+#endif /*__cplusplus */
 
 /*! \brief return the new molecule number of the monomer.
 

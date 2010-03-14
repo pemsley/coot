@@ -1245,6 +1245,27 @@ SCM matching_compound_names_from_sbase_scm(const char *compound_name_fragment) {
 }
 #endif
 
+#ifdef USE_PYTHON
+/*! \brief return a list of compoundIDs of in SBase of which the
+  given string is a substring of the compound name */
+PyObject *matching_compound_names_from_sbase_py(const char *compound_name_fragment) {
+
+   graphics_info_t g;
+   std::vector<std::pair<std::string, std::string> > matching_comp_ids =
+      g.Geom_p()->matching_sbase_residues_names(compound_name_fragment);
+   std::cout << "debug:: found " << matching_comp_ids.size() << " matching names"
+	     << std::endl;
+   // map!
+   std::vector<std::string> rv;
+   for (unsigned int i=0; i<matching_comp_ids.size(); i++)
+      rv.push_back(matching_comp_ids[i].first);
+   
+   PyObject *r = generic_string_vector_to_list_internal_py(rv);
+   return r;
+}
+#endif /* USE_PYTHON */
+
+
 int get_sbase_monomer(const char *comp_id) {
 
    int imol = -1;
