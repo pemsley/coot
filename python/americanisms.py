@@ -32,6 +32,10 @@ set_swap_difference_map_colors = set_swap_difference_map_colours
 # deftexi set_font_color
 set_font_color = set_font_colour
 
+# an americanism
+# deftexi set_dots_color
+set_dots_color = set_dots_colour
+
 # some more from BL
 
 # an americanism

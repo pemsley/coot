@@ -8,6 +8,8 @@ build-it-win rev 2122
 * THINGS TO DO BEFORE 0.6.2 RELEASE *
 ---------------
 
+   o update Windows, check up to date in pending-install dir!?
+
    o transform whole asu for packing comparision?!
 
    o better python std flushing for MINGW

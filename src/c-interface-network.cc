@@ -63,7 +63,12 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
    //
    // Thanks to Andy Wingo for help here.
 
+// BL says:: maybe this should be a general setting and not just for WIN32?!
+#ifdef WINDOWS_MINGW
+   FILE *f = fopen(file_name, "wb");
+#else
    FILE *f = fopen(file_name, "w");
+#endif
    if (f) { 
       CURL *c = curl_easy_init();
       std::pair<FILE *, CURL *> p_for_write(f,c);
@@ -83,8 +88,14 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 	 std::cout << "Can't do this with this old guile" << std::endl;
 #endif 	 
 #else
+#ifdef USE_PYTHON
+     Py_BEGIN_ALLOW_THREADS;
 	 success = curl_easy_perform(c);
-#endif	 
+     Py_END_ALLOW_THREADS;
+#else
+	 success = curl_easy_perform(c);
+#endif /* USE_PYTHON */
+#endif /* USE_GUILE	*/
 	 g.remove_curl_handle_with_file_name(file_name);
       } else {
 	 success = curl_easy_perform(c);
@@ -233,6 +244,46 @@ SCM curl_progress_info(const char *file_name) {
    return r;
 }
 #endif // USE_GUILE
+
+#ifdef USE_PYTHON
+/* this shall be a dictionary or False*/
+PyObject *curl_progress_info_py(const char *file_name) {
+
+   PyObject *r = Py_False;
+   graphics_info_t g;
+   std::string f(file_name);
+   CURLINFO info;
+   double dv;
+   long int liv;
+   CURL *c = g.get_curl_handle_for_file_name(f);
+
+   if (c) { 
+
+     r = PyDict_New();
+     info = CURLINFO_CONTENT_LENGTH_DOWNLOAD;
+     CURLcode status = curl_easy_getinfo(c, info, &dv);
+     if (status == CURLE_OK) {
+       PyObject *py_v   = PyFloat_FromDouble(dv);
+       PyObject *py_sym = PyString_FromString("content-length-download");
+       PyDict_SetItem(r, py_sym, py_v);
+     }
+
+     info = CURLINFO_SIZE_DOWNLOAD;
+     status = curl_easy_getinfo(c, info, &dv);
+     if (status == CURLE_OK) {
+       PyObject *py_v   = PyFloat_FromDouble(dv);
+       PyObject *py_sym = PyString_FromString("size-download");
+       PyDict_SetItem(r, py_sym, py_v);
+     }
+   } else {
+      // std::cout << "Found no CURL handle for  " << f << std::endl;
+   } 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+}
+#endif // USE_PYTHON
 #endif /* USE_LIBCURL */
 
 

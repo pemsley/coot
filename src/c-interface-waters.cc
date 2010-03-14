@@ -357,17 +357,29 @@ PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float 
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      coot::util::water_coordination_t wc(mol, dist_max);
-      std::vector<coot::util::contact_atoms_info_t> water_contacts = 
-	 wc.get_highly_coordinated_waters(coordination_number, dist_max);
-      for (unsigned int j=0; j<water_contacts.size(); j++) {
-	 for (unsigned int k=0; k<water_contacts[j].size(); k++) {
-	    coot::util::contact_atoms_info_t::contact_atom_t at = water_contacts[j][k];
-	    if (at.dist < dist_max) {
-	    }
-	 }
-      }
+     CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+     coot::util::water_coordination_t wc(mol, dist_max);
+     std::vector<coot::util::contact_atoms_info_t> water_contacts = 
+       wc.get_highly_coordinated_waters(coordination_number, dist_max);
+     r = PyList_New(0); // a list (at least) because we didn't fail.
+     for (unsigned int j=0; j<water_contacts.size(); j++) {
+       PyObject *atom_and_neighbours = PyList_New(2);
+       PyObject *atom_spec_central_py = atom_spec_to_py(water_contacts[j].central_atom());
+       PyObject *neighbours = PyList_New(0);
+       for (unsigned int k=0; k<water_contacts[j].size(); k++) {
+         coot::util::contact_atoms_info_t::contact_atom_t at = water_contacts[j][k];
+         if (at.dist < dist_max) {
+           PyObject *contactor_py = atom_spec_to_py(at.at);
+           PyList_Append(neighbours, contactor_py);
+         }
+       }
+       PyList_SetItem(atom_and_neighbours, 0, atom_spec_central_py);
+       PyList_SetItem(atom_and_neighbours, 1, neighbours);
+       PyList_Append(r, atom_and_neighbours);
+     }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
    }
    return r;
 } 

@@ -6377,6 +6377,18 @@ PyObject *safe_python_command_test(const char *cmd) {
 }
 #endif //PYTHON
 
+#ifdef USE_PYTHON
+/* BL says:: try not to use this!!!! */
+/* doesnt work anyway!? */
+void safe_python_command_with_unsafe_thread(const char *cmd) {
+
+  Py_BEGIN_ALLOW_THREADS;
+  PyRun_SimpleString((char *)cmd);
+  Py_END_ALLOW_THREADS;
+}
+
+#endif //PYTHON
+
 void safe_python_command_by_char_star(const char *python_cmd) {
 
 #ifdef USE_PYTHON
@@ -6672,6 +6684,9 @@ void run_update_self_maybe() { // called when --update-self given at command lin
 #ifdef USE_GUILE
       safe_scheme_command("(update-self)");
 #endif // USE_GUILE
+#ifdef USE_PYTHON
+      safe_python_command("update_self()");
+#endif // USE_PYTHON
    }
 
 #endif // USE_LIBCURL

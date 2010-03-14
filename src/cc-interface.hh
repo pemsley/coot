@@ -356,6 +356,7 @@ void safe_python_command_by_char_star(const char *python_command);
 PyObject *py_clean_internal(PyObject *obj);
 PyObject *safe_python_command_with_return(const std::string &python_cmd);
 PyObject *safe_python_command_test(const char *cmd);
+void safe_python_command_with_unsafe_thread(const char *cmd);
 #endif // PYTHON
 /*  Is this a repeat of something?  I don't know. */
 void run_generic_script(const std::vector<std::string> &cmd_strings);
@@ -765,6 +766,9 @@ SCM curl_progress_info(const char *file_name);
 #ifdef USE_PYTHON
 // this handles URLs that are strings, not binaries. 
 PyObject *coot_get_url_as_string_py(const char *url);
+// for the callback of the update binary progress bar.  How much done
+// is the file that I am downloading? Not absolutely required for python
+PyObject *curl_progress_info_py(const char *file_name);
 #endif /* USE_PYTHON */
 // internal use
 size_t write_coot_curl_data(void *buffer, size_t size, size_t nmemb, void *userp);
@@ -817,6 +821,7 @@ std::vector<coot::residue_spec_t> scm_to_residue_specs(SCM s);
 int key_sym_code_scm(SCM s_scm);
 #endif // USE_GUILE
 #ifdef USE_PYTHON
+std::vector<coot::residue_spec_t> py_to_residue_specs(PyObject *s);
 int key_sym_code_py(PyObject *po);
 #endif // USE_PYTHON
 #ifdef USE_GUILE
