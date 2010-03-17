@@ -690,6 +690,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 			std::string ele = non_Hydrogen_atoms[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
 			    || ele == "Cl" || ele == "Br" 
+			    || ele == "PT" 
 			    || ele == "AS" || ele == " P" || ele == "AU") {
 			   handle_long_bonded_atom(non_Hydrogen_atoms[i], uddHnd, atom_colour_type);
 			}
