@@ -3183,26 +3183,29 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (unsigned int i=0; i<n_residue_atoms; i++) {
-      std::string residue_atom_name(residue_atoms[i]->name);
-      std::string ele(residue_atoms[i]->element);
 
-      bool found = 0;
-      if (ele == " H")
-	 if (check_hydrogens_too_flag == 0)
-	    found = 1;
+      if (! residue_atoms[i]->isTer()) { 
+	 std::string residue_atom_name(residue_atoms[i]->name);
+	 std::string ele(residue_atoms[i]->element);
 
-      if (! found) { 
-	 for (unsigned int irestraint_atom_name=0; irestraint_atom_name<restraints.atom_info.size(); irestraint_atom_name++) {
-	    if (restraints.atom_info[irestraint_atom_name].atom_id_4c == residue_atom_name) {
+	 bool found = 0;
+	 if (ele == " H")
+	    if (check_hydrogens_too_flag == 0)
 	       found = 1;
-	       break;
+
+	 if (! found) { 
+	    for (unsigned int irestraint_atom_name=0; irestraint_atom_name<restraints.atom_info.size(); irestraint_atom_name++) {
+	       if (restraints.atom_info[irestraint_atom_name].atom_id_4c == residue_atom_name) {
+		  found = 1;
+		  break;
+	       }
 	    }
 	 }
-      }
-      if (! found) {
-	 if (residue_atom_name != " OXT") { 
-	    atom_name_vec.push_back(residue_atom_name);
-	    status = 0;
+	 if (! found) {
+	    if (residue_atom_name != " OXT") { 
+	       atom_name_vec.push_back(residue_atom_name);
+	       status = 0;
+	    }
 	 }
       }
    }
