@@ -1,7 +1,7 @@
 /* ideal/simple-restraint.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
- * Copyright 2008  by The University of Oxford
+ * Copyright 2008, 2009, 2010  by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -71,7 +71,6 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
    lograma.init(LogRamachandran::All, 2.0, true);
    verbose_geometry_reporting = 0;
    mol = asc_in.mol;
-   include_map_terms_flag = 0;
    have_oxt_flag = 0;
    do_numerical_gradients_flag = 0;
 
@@ -207,6 +206,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
    from_residue_vector = 1;
    lograma.init(LogRamachandran::All, 2.0, true);
    init_from_residue_vec(residues, geom, mol, fixed_atom_specs);
+   include_map_terms_flag = 0;
 }
 
 
