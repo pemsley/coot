@@ -25,7 +25,7 @@
     ::: 2
 
     o are the number of Hbonds, cov-bonds etc correct in the pisa
-    interface gui?  ::: 0.5
+      interface gui?  No.  Fix. ::: 1.0
 
 
 ------
@@ -335,3 +335,9 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
     o clean up libcheck debugging. ::: 0.2
 
 * Done.
+
+    o Thin down the cylinders and balls for bonds to hydrogens in ball
+      and stick representation. ::: 0.5
+
+* Done.
+

@@ -3539,7 +3539,8 @@ molecule_class_info_t::fill_raster_model_info() {
 	 c.col[0] = bond_colour_internal[0];
 	 c.col[1] = bond_colour_internal[1];
 	 c.col[2] = bond_colour_internal[2];
-	 rtmi.atom.push_back(std::pair<coot::Cartesian, coot::colour_t> (bonds_box.atom_centres_[i], c));
+	 // here is the place to add tiny rastered hydrogen balls.
+	 rtmi.atom.push_back(std::pair<coot::Cartesian, coot::colour_t> (bonds_box.atom_centres_[i].second, c));
       }
    }
    std::cout << "DEBUG:: Done fill_raster_model_info for "
@@ -5494,8 +5495,8 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	    double base = bond_thickness;
 	    double top = bond_thickness;
 	    if (ll.thin_lines_flag) { 
-	       base *= 0.5;
-	       top *= 0.5;
+	       base *= 0.55;
+	       top *= 0.55;
 	    }
 	    coot::Cartesian bond_height =
 	       ll.pair_list[j].getFinish() - ll.pair_list[j].getStart();
@@ -5546,6 +5547,9 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 int slices = 20;
 	 int stacks = 20;
 	 for (int i=0; i<bonds_box_local.n_atom_centres_; i++) {
+	    float local_sphere_size = sphere_size;
+	    if (bonds_box_local.atom_centres_[i].first)
+	       local_sphere_size = 0.11; // small (and cute)
 	    set_bond_colour_by_mol_no(bonds_box_local.atom_centres_colour_[i]);
 	    glPushMatrix();
 	    GLfloat bgcolor[4]={bond_colour_internal[0],
@@ -5553,12 +5557,12 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 				bond_colour_internal[2],
 				1.0};
 	    glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
-	    glTranslatef(bonds_box_local.atom_centres_[i].get_x(),
-			 bonds_box_local.atom_centres_[i].get_y(),
-			 bonds_box_local.atom_centres_[i].get_z());
+	    glTranslatef(bonds_box_local.atom_centres_[i].second.get_x(),
+			 bonds_box_local.atom_centres_[i].second.get_y(),
+			 bonds_box_local.atom_centres_[i].second.get_z());
 
 	    GLUquadric* quad = gluNewQuadric();
-	    gluSphere(quad, sphere_size, slices, stacks);
+	    gluSphere(quad, local_sphere_size, slices, stacks);
 	    // gluQuadricNormals(quad, GL_SMOOTH);
 	    gluDeleteQuadric(quad);
 	    glPopMatrix();
