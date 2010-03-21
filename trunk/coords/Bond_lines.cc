@@ -3318,16 +3318,19 @@ void
 Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom,
 				       int atom_colour_type) {
 
-   atom_centres.resize(0);
-   atom_centres_colour.resize(0);
+   atom_centres.clear();
+   atom_centres_colour.clear();
 
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-      if (do_bonds_to_hydrogens ||
-	  (do_bonds_to_hydrogens == 0 &&
-	   std::string(SelAtom.atom_selection[i]->element) != " H")) { 
-	 atom_centres.push_back(coot::Cartesian(SelAtom.atom_selection[i]->x,
-						SelAtom.atom_selection[i]->y,
-						SelAtom.atom_selection[i]->z));
+      bool is_H_flag = 0;
+      if (std::string(SelAtom.atom_selection[i]->element) == " H")
+	 is_H_flag = 1;
+      if (do_bonds_to_hydrogens || (do_bonds_to_hydrogens == 0 && (!is_H_flag))) {
+	 std::pair<bool, coot::Cartesian> p(is_H_flag,
+					    coot::Cartesian(SelAtom.atom_selection[i]->x,
+							    SelAtom.atom_selection[i]->y,
+							    SelAtom.atom_selection[i]->z));
+	 atom_centres.push_back(p);
 	 atom_centres_colour.push_back(atom_colour(SelAtom.atom_selection[i], atom_colour_type));
       }
    }
@@ -3350,25 +3353,19 @@ graphical_bonds_container::add_zero_occ_spots(const std::vector<coot::Cartesian>
 }
 
 void
-graphical_bonds_container::add_atom_centres(const std::vector<coot::Cartesian> &centres,
+graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,
 					    const std::vector<int> &colours) {
 
    if (colours.size() != centres.size()) {
       std::cout << "ERROR!! colours.size() != centres.size() in add_atom_centres\n";
    }
    n_atom_centres_ = centres.size();
-   atom_centres_ = new coot::Cartesian[n_atom_centres_];
+   atom_centres_ = new std::pair<bool, coot::Cartesian>[n_atom_centres_];
    atom_centres_colour_ = new int[n_atom_centres_];
    for (int i=0; i<n_atom_centres_; i++) {
       atom_centres_[i] = centres[i];
       atom_centres_colour_[i] = colours[i];
    }
-         
-}
-
-void
-graphical_bonds_container::add_atom_centre(const coot::Cartesian &pos, int colour_index) {
-
 }
 
 

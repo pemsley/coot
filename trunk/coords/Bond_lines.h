@@ -131,7 +131,7 @@ class graphical_bonds_container {
    coot::Cartesian *zero_occ_spot;
    int n_zero_occ_spot;
 
-   coot::Cartesian *atom_centres_;
+   std::pair<bool,coot::Cartesian> *atom_centres_;
    int n_atom_centres_;
    int *atom_centres_colour_;
 
@@ -224,8 +224,7 @@ class graphical_bonds_container {
    }
 
    void add_zero_occ_spots(const std::vector<coot::Cartesian> &spots);
-   void add_atom_centre(const coot::Cartesian &pos, int colour_index);
-   void add_atom_centres(const std::vector<coot::Cartesian> &centres,
+   void add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,
 			 const std::vector<int> &colours);
 };
 
@@ -312,7 +311,7 @@ class Bond_lines_container {
  protected:
    std::vector<Bond_lines> bonds; 
    std::vector<coot::Cartesian>  zero_occ_spot;
-   std::vector<coot::Cartesian>  atom_centres;
+   std::vector<std::pair<bool, coot::Cartesian> >  atom_centres;
    std::vector<int>        atom_centres_colour;
    void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second);
    void addBondtoHydrogen(const coot::Cartesian &first, const coot::Cartesian &second);
