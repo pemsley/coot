@@ -507,8 +507,8 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::resi
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
-      coot::rama_plot *plot = (coot::rama_plot *)
-	 gtk_object_get_user_data(GTK_OBJECT(w));
+      coot::rama_plot *plot = static_cast<coot::rama_plot *>
+	 (gtk_object_get_user_data(GTK_OBJECT(w)));
 
       plot->big_square(res_spec.resno, res_spec.insertion_code, res_spec.chain);
    } 

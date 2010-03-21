@@ -5493,6 +5493,10 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 			 ll.pair_list[j].getFinish().get_z());
 	    double base = bond_thickness;
 	    double top = bond_thickness;
+	    if (ll.thin_lines_flag) { 
+	       base *= 0.5;
+	       top *= 0.5;
+	    }
 	    coot::Cartesian bond_height =
 	       ll.pair_list[j].getFinish() - ll.pair_list[j].getStart();
 	    double height = bond_height.amplitude();

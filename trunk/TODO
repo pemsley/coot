@@ -744,6 +744,19 @@ Punted from 0.6:
      Or perhaps like Kevin suggests:  prefix.F and prefix.phi
       ::: 3
 
+   o "Quick Bumps"
+
+   o Find nomenclature errors on reading coordinates file and give a
+     dialog to fix if necessary
+
+   o "Flip" chirality restraint
+
+   o Put Sphere Refinement in modelling toolbar
+
+   o Bond ligand by dictionary
+
+   o symmetry-related pointer distances?
+
 
  ------
     

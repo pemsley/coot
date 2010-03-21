@@ -397,8 +397,6 @@ coot::rama_plot::display_background() {
 // 	 std::cout << "Caught an error, n_match is " << n_match << std::endl;
 //       } 
 
-
-      
       gtk_object_destroy(GTK_OBJECT(itm));
    }
    canvas_item_vec.resize(0);
