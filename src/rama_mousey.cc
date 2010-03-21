@@ -48,7 +48,7 @@ gint rama_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    }
 
    coot::rama_plot *plot =
-      (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(widget));
+      static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(widget)));
 
    if (plot) { 
       // plot->map_mouse_pos(x,y); 
@@ -73,7 +73,7 @@ gint rama_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
 gint rama_button_press (GtkWidget *widget, GdkEventButton *event) {
    coot::rama_plot *plot =
-      (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(widget));
+      static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(widget)));
 
    plot->button_press(widget, event);
 
@@ -84,7 +84,7 @@ gint rama_button_press (GtkWidget *widget, GdkEventButton *event) {
 gint rama_key_release_event(GtkWidget *widget, GdkEventKey *event) {
 
    coot::rama_plot *plot =
-      (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(widget));
+      static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(widget)));
    gint i = plot->key_release_event(widget, event);
    return i; 
 }
@@ -106,7 +106,7 @@ void rama_show_preferences() {
 void rama_zoom_out(GtkWidget *widget) {
 
    coot::rama_plot *plot =
-      (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(widget));
+      static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(widget)));
 
    plot->zoom_out(); 
 

@@ -1288,12 +1288,11 @@ void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *
 void do_ramachandran_plot(int imol) {
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-   coot::rama_plot *rama;
 
    if (imol >= 0) {
       if (imol < graphics_info_t::n_molecules()) { 
 	 if (graphics_info_t::molecules[imol].has_model()) { 
-	    rama = new coot::rama_plot;
+	    coot::rama_plot *rama = new coot::rama_plot;
 	    if (graphics_info_t::ramachandran_plot_x_position > 0)
 	       rama->set_position(graphics_info_t::ramachandran_plot_x_position,
 				  graphics_info_t::ramachandran_plot_y_position);
@@ -1330,14 +1329,13 @@ ramachandran_plot_differences(int imol1, int imol2) {
       s += "an existing displayed Ramachandran Plot";
       info_dialog(s.c_str());
    } else { 
-      coot::rama_plot *rama = 0;
       if (imol1 >= 0) {
 	 if (imol1 < graphics_info_t::n_molecules()) {  
 	    if (graphics_info_t::molecules[imol1].has_model()) { 
 	       if (imol2 >= 0) {
 		  if (imol2 < graphics_info_t::n_molecules()) { 
 		     if (graphics_info_t::molecules[imol2].has_model()) { 
-			rama = new coot::rama_plot;
+			coot::rama_plot *rama = new coot::rama_plot;
 			short int is_kleywegt_plot_flag = 1;
 			rama->set_n_diffs(graphics_info_t::rama_n_diffs);
 			rama->init(imol1,

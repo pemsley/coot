@@ -14,6 +14,19 @@
       and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
       grr. ::: 3
 
+    o race condition in downloading.  See Bernie mail.  ::: 2
+
+    o Replace residue should use coords and dict already loaded if it
+      has them.  e.g. consider acetylated lys which is available from
+      SBase. ::: 1
+
+    o Fix nomenclature errors is broken. e.g. 3fcs, many reported as
+    fixed, but on re-running (many of the) same problems reported.
+    ::: 2
+
+    o are the number of Hbonds, cov-bonds etc correct in the pisa
+    interface gui?  ::: 0.5
+
 
 ------
 
