@@ -1223,7 +1223,10 @@ namespace coot {
 			     PCResidue next_atom,
 			     const std::vector<int> &fixed_atom_indices);
 
-      restraints_container_t(){ from_residue_vector = 0;};
+      restraints_container_t(){
+	 from_residue_vector = 0;
+	 include_map_terms_flag = 0;
+      };
 
       ~restraints_container_t() {
 	 if (from_residue_vector) {
