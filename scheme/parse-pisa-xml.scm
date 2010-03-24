@@ -95,7 +95,7 @@
 		    (let ((atom-selection-string 
 			   (if (string=? chain-string "-")
 			       (string-append "// /" residue-string "/" element-string)
-			       (string-append "//" chain-id "/" residue-string))))
+			       (string-append "//" chain-id-raw "/" residue-string))))
 		      (format #t "debug:: atom-selection-string: ~s from ~s~%"
 			      atom-selection-string chain-id-raw)
 		      atom-selection-string))
@@ -440,7 +440,7 @@
 	       (format #t "ele not list: ~s~%" ele) ; caution when deleting
 	       (cond 
 		((eq? (car ele) 'molecule)
-		 (let ((mol-no (pisa-handle-sxml-molecule imol ele 'assemblies #f #f)))
+		 (let ((mol-no (pisa-handle-sxml-molecule imol ele 'assemblies)))
 		   (set! assembly-molecule-numbers 
 			 (append assembly-molecule-numbers (list mol-no)))))
 		((eq? (car ele) 'symNumber)
