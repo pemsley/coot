@@ -95,7 +95,7 @@
 		    (let ((atom-selection-string 
 			   (if (string=? chain-string "-")
 			       (string-append "// /" residue-string "/" element-string)
-			       (string-append "//" chain-id-raw "/" residue-string))))
+			       (string-append "//" chain-string "/" residue-string))))
 		      (format #t "debug:: atom-selection-string: ~s from ~s~%"
 			      atom-selection-string chain-id-raw)
 		      atom-selection-string))
