@@ -1571,6 +1571,7 @@
        (chain-ids imol))
   'done) ; return value
 
+
 ;; simple utility function to return the contents of a file as a string.
 ;; 
 (define (pir-file-name->pir-sequence pir-file-name)
@@ -2411,7 +2412,7 @@
 				    (list "XYZIN"  prodrg-xyzin
 					  "XYZOUT" prodrg-xyzout
 					  "LIBOUT" prodrg-cif)
-				    (list "MINI PREP" "END") 
+				    (list "MINI PREP" "END")
 				    prodrg-log #t)))
 		;; (format #t "cprodrg gave status ~s~%" status)
 		(if (number? status)

@@ -676,6 +676,11 @@ Punted from 0.6:
 
  0.7 Priorities:
 
+
+   o change clipper macros to use clipper-config and not invent mmdb
+     and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
+     grr. ::: 3  Punt.
+
    o difference map (given previous model and new obs MTZ file, run
      refmac no cyles to make a map, coot rigid-body per chain then
      refmac to make phases for new model - get cell from passed MTZ

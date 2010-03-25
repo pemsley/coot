@@ -1,6 +1,6 @@
  0.6.2
 
-    Points 7:
+    Points 17:
 
     o alt confs cause problems in geometry graph [JED] ::: 2
 
@@ -9,10 +9,6 @@
       Which is when the rama plot stops working  ::: 3
 
     o change to rms z scores ::: 2
-
-    o change clipper macros to use clipper-config and not invent mmdb
-      and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
-      grr. ::: 3
 
     o race condition in downloading.  See Bernie mail.  ::: 2
 
@@ -24,8 +20,25 @@
     fixed, but on re-running (many of the) same problems reported.
     ::: 2
 
-    o are the number of Hbonds, cov-bonds etc correct in the pisa
-      interface gui?  No.  Fix. ::: 1.0
+    o disulfide bond problems in 3HH2. [Erik Vogan]  ::: 3
+
+    o Luca's exploding hydrogens ::: 1
+
+    o Extensions->Load tutorial model and data
+
+(handle-read-draw-molecule-with-recentre
+"/home/coot/autobuild/coot-pre-release-gtk2-python/share/coot/data/tutorial-modern.pdb"
+1)
+Error reading /home/coot/autobuild/coot-pre-release-gtk2-python/share/coot/data/tutorial-modern.pdb
+WARNING:: Can't find file
+/home/coot/autobuild/coot-pre-release-gtk2-python/share/coot/data/rnasa-1.8-all_refmac1.mtz
+WARNING:: Can't find file
+/home/coot/autobuild/coot-pre-release-gtk2-python/share/coot/data/rnasa-1.8-all_refmac1.mtz
+     ::: 0.5
+
+    o in with-map.cc: 
+	catch (clipper::Message_base exception)
+      fails to compile.  Why? ::: 0.5
 
 
 ------
@@ -338,6 +351,11 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 
     o Thin down the cylinders and balls for bonds to hydrogens in ball
       and stick representation. ::: 0.5
+
+* Done.
+
+    o are the number of Hbonds, cov-bonds etc correct in the pisa
+      interface gui?  No.  Fix. ::: 1
 
 * Done.
 
