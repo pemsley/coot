@@ -31,7 +31,7 @@
 
   o CHANGE: pointer distances are updated on go-to-blob [JED].
 
-  o CHANGE: Real-space refinement is now interruptible [[JED].
+  o CHANGE: Real-space refinement is now interruptible [JED].
 
   o CHANGE: NCS skipping now works in the reverse chain order too
     (Shift-O) [JED].
