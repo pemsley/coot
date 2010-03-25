@@ -151,7 +151,8 @@
 		     (let ((bsa-number (string->number bsa)))
 		       (if (< bsa-number 0.1)
 			   #f
-			   (make-residue-record ser-no name seq-num (if ins-code ins-code "") asa bsa solv-en)))))))
+			   (make-residue-record ser-no name seq-num (if ins-code ins-code "") 
+						asa bsa solv-en)))))))
 	 (cdr residues))) ;; just the residue list (strip off initial 'residues)
   
   ;; remove #fs from the residue list

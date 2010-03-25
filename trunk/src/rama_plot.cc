@@ -210,43 +210,31 @@ coot::rama_plot::init_internal(const std::string &mol_name,
 // draw a big square after everything else for residue i:
 // 
 void
-coot::rama_plot::big_square(int i,
-			    const std::string &ins_code,
-			    const std::string &chain_id) {
+coot::rama_plot::big_square(const std::string &chain_id,
+			    int resno,
+			    const std::string &ins_code) {
 
+   big_square(1, chain_id, resno, ins_code);
+   
+}
 
-   for (unsigned int ich=0; ich<phi_psi_sets.size(); ich++) {
-      if (phi_psi_sets[ich].chain_id == chain_id) {
+void
+coot::rama_plot::big_square(int model_number,
+			    const std::string &chain_id,
+			    int resno,
+			    const std::string &ins_code) {
 
-	 if (phi_psi_sets[ich].phi_psi.size() > 0) {  // not a water/ligand chain
-	 
-	    int ires = i-ifirst_res[ich];
-	    if (ires >= 0 && ires < int(phi_psi_sets[ich].phi_psi.size())) { 
-	       if ((phi_psi_sets[ich].phi_psi[ires].residue_number == i) &&
-		   (phi_psi_sets[ich].phi_psi[ires].ins_code == ins_code)) {
-		  // normal case (hopefully)
-		  draw_phi_psi_point_internal(ires, &phi_psi_sets[ich].phi_psi, 0, 4); // not white, size 4
-	       } else {
-		  for (unsigned int j=0; j< phi_psi_sets[ich].phi_psi.size(); j++) {
-		     if ((phi_psi_sets[ich].phi_psi[j].residue_number == i) &&
-			 (phi_psi_sets[ich].phi_psi[j].ins_code == ins_code)) { 
-			ires = j;
-			draw_phi_psi_point_internal(ires, &phi_psi_sets[ich].phi_psi, 0, 4); // not white, size 4
-			break; 
-		     }
-		  }
-	       }
-	    } else {
-	       std::cout << "trapped out of range phi/psi access: " << i << " " << chain_id
-			 << " ich: " << ich << " ires: " << ires
-			 << " phi_psi_sets[ich].phi_psi.size(): "
-			 << phi_psi_sets[ich].phi_psi.size() << std::endl;
-	    }
+   coot::residue_spec_t res_spec(chain_id, resno, ins_code);
+   if (model_number >= 1) { 
+      if (model_number < phi_psi_model_sets.size()) {
+	 coot::util::phi_psi_t pp = phi_psi_model_sets[model_number][res_spec];
+	 if (pp.is_filled()) {
+	    draw_phi_psi_point_internal(pp, 0, 4);
 	 }
       }
    }
+   
 }
-
 
 void
 coot::rama_plot::clear_canvas_items() { 
@@ -625,17 +613,15 @@ coot::rama_plot::cell_border(int i, int j, int step) {
 
 // return the region of the point
 int
-coot::rama_plot::draw_phi_psi_point(int i,
-				    const vector<coot::util::phi_psi_t> *phi_psi_vec,
-				    short int as_white_flag) {
+coot::rama_plot::draw_phi_psi_point(const coot::util::phi_psi_t &phi_psi,
+				    bool as_white_flag) {
 
-   return draw_phi_psi_point_internal(i,phi_psi_vec,as_white_flag, 2); 
+   return draw_phi_psi_point_internal(phi_psi, as_white_flag, 2); 
 }
 
 int 
-coot::rama_plot::draw_phi_psi_point_internal(int i,
-					     const vector<coot::util::phi_psi_t> *phi_psi_vec,
-					     short int as_white_flag,
+coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_psi,
+					     bool as_white_flag,
 					     int box_size) {
 
    int region = coot::rama_plot::RAMA_UNKNOWN; // initially unset
@@ -643,15 +629,15 @@ coot::rama_plot::draw_phi_psi_point_internal(int i,
    std::string outline_color("black");
 
    if (box_size == 4) {
-      draw_green_box((*phi_psi_vec)[i].phi(), (*phi_psi_vec)[i].psi());
+      draw_green_box(phi_psi.phi(), phi_psi.psi());
    } else {
 
-      if ((*phi_psi_vec)[i].residue_name() == "GLY") {
-	 region = draw_phi_psi_as_gly(i,phi_psi_vec);
+      if (phi_psi.residue_name() == "GLY") {
+	 region = draw_phi_psi_as_gly(phi_psi);
       } else {
 	 std::string colour;
-	 double phi = (*phi_psi_vec)[i].phi();
-	 double psi = (*phi_psi_vec)[i].psi();
+	 double phi = phi_psi.phi();
+	 double psi = phi_psi.psi();
 
 	 if (rama.allowed(clipper::Util::d2rad(phi),
 			  clipper::Util::d2rad(psi))) {
@@ -669,7 +655,7 @@ coot::rama_plot::draw_phi_psi_point_internal(int i,
 	 if ( as_white_flag == 1 ) {
 	    colour = "white";
 	 } else { 
-	    if ((*phi_psi_vec)[i].residue_name() == "PRO") {
+	    if (phi_psi.residue_name() == "PRO") {
 	       outline_color = "grey";
 	 
 	       if (r_pro.allowed(clipper::Util::d2rad(phi),
@@ -774,7 +760,7 @@ coot::rama_plot::green_box_is_sensible(coot::util::phi_psi_t gb) const { // have
 
 
 int // return region
-coot::rama_plot::draw_phi_psi_as_gly(int i, const vector<coot::util::phi_psi_t> *phi_psi_vec) {
+coot::rama_plot::draw_phi_psi_as_gly(const coot::util::phi_psi_t &phi_psi) {
 
    GtkCanvasItem *item;
 
@@ -785,8 +771,8 @@ coot::rama_plot::draw_phi_psi_as_gly(int i, const vector<coot::util::phi_psi_t> 
    std::string colour;
    int region;
 
-   double phi = (*phi_psi_vec)[i].phi();
-   double psi = (*phi_psi_vec)[i].psi();
+   double phi = phi_psi.phi();
+   double psi = phi_psi.psi();
    
    if (r_gly.allowed(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi))) {
       colour = "blue";
@@ -828,16 +814,28 @@ coot::rama_plot::draw_phi_psi_as_gly(int i, const vector<coot::util::phi_psi_t> 
 
 // Uses a class data member
 coot::rama_stats_container_t 
-coot::rama_plot::draw_phi_psi_points(int ich) {
-
+coot::rama_plot::draw_phi_psi_points() {
 
    coot::rama_stats_container_t counts;
-   short int as_white_flag = 0; 
-   int n_sets = phi_psi_sets[ich].phi_psi.size();
-//    std::cout << "draw_phi_psi_points " << size
-// 	     << " residues for chain number " << ich << std::endl;
-   for (int i=0; i<n_sets; i++) {
-      int type = draw_phi_psi_point(i, &phi_psi_sets[ich].phi_psi, as_white_flag);
+   short int as_white_flag = 0;
+
+   for (unsigned int imod=1; imod<phi_psi_model_sets.size(); imod++) {
+      counts += draw_phi_psi_points_for_model(phi_psi_model_sets[imod]);
+   }
+   return counts; 
+}
+
+
+coot::rama_stats_container_t
+coot::rama_plot::draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t &pp_set) {
+
+   coot::rama_stats_container_t counts;
+   bool as_white_flag = 0;
+
+   std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+   
+   for (it=pp_set.phi_psi.begin(); it!=pp_set.phi_psi.end(); it++) {
+      int type = draw_phi_psi_point(it->second, as_white_flag);
       if (type != coot::rama_plot::RAMA_UNKNOWN) {
 	 counts.n_ramas++; 
 	 if (type == coot::rama_plot::RAMA_ALLOWED)
@@ -851,117 +849,128 @@ coot::rama_plot::draw_phi_psi_points(int ich) {
 
 // fill phi_psi vector
 //
-// We want another version of this routine, one in which
-// we get passed the chain_id.
-// 
 void
-coot::rama_plot::generate_phi_psis(std::vector <phi_psi_set_container> *phi_psi_set_vec,
-				   CMMDBManager *mol_in) {
+coot::rama_plot::generate_phi_psis(CMMDBManager *mol_in) {
+   bool is_primary = 1;
+   generate_phi_psis(mol_in, is_primary);
+}
 
-   // clear out whatever data we have in the phi_psi's currently
-   // for(int i=0; i<phi_psi_set_vec->size();)
-   phi_psi_set_vec->resize(0);
-   
-   // InitMatType();
+// fill phi_psi vector
+//
+void
+coot::rama_plot::generate_secondary_phi_psis(CMMDBManager *mol_in) {
+   bool is_primary = 0;
+   generate_phi_psis(mol_in, is_primary);
+}
 
-   // PCAtom atom1;
-   CMMDBManager *mol = mol_in;
 
-   // int selHnd = mol->NewSelection();
-   // int nSelAtoms;
-   // PPCAtom SelAtom;
+// fill phi_psi vector
+//
+void
+coot::rama_plot::generate_phi_psis(CMMDBManager *mol_in, bool is_primary) {
 
-   // int resno;
-   std::string chain_id;
-   // int nres;
+   int n_models = mol_in->GetNumberOfModels();
+   phi_psi_model_sets.clear();
+   // add a place-holder for the "0-th" model
+   coot::phi_psis_for_model_t empty(0);
+   phi_psi_model_sets.push_back(empty);
+   for (int imod=1; imod<=n_models; imod++) {
+      coot::phi_psis_for_model_t model_phi_psis(imod);
+      CModel *model_p = mol_in->GetModel(imod);
+      if (model_p) { 
+	 CChain *chain_p;
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    if (nres > 2) { 
+	       for (int ires=1; ires<(nres-1); ires++) { 
+		  residue_p = chain_p->GetResidue(ires);
 
-   int nmodels = mol->GetNumberOfModels();
-   // std::cout << "models: " << nmodels << std::endl;
-   for (int imodel=1; imodel<=nmodels; imodel++) {
-      int nchains = mol->GetNumberOfChains(imodel);
+		  // this could be improved
+		  CResidue *res_prev = chain_p->GetResidue(ires-1);
+		  CResidue *res_next = chain_p->GetResidue(ires+1);
 
-      ifirst_res.resize(nchains);
-      PCChain chn;
-      int nres;
-      PCResidue res;
-      int seqno;
-      for (int ichain=0; ichain<nchains; ichain++) {
-
-	 // int nres = mol->GetNumberOfResidues(imodel,ichain); old, delete me.
-
-	 // or PCModel model = mol->GetModel(imodel)
-	 // 
-	 // or PCChain chn = model->GetChain(ichain);
-	 chn = mol->GetChain(imodel, ichain);
-	 nres = chn->GetNumberOfResidues();
-	 std::string chain_name = chn->GetChainID();
-	 std::cout << "    chain: " << chain_name << " "
-		   << ichain << " has " << nres
-		   << " residues" << std::endl;
-
-	 // make a new chain for phi/psi.  We need phi_psi_set_vec to
-	 // be consistent with ichain, so we sometimes add chains that
-	 // have no ramachandran values (e.g.) ligands
-	 // 
-	 phi_psi_set_container a(chain_name);
-	 phi_psi_set_vec->push_back(a);
-	    
-	 if (nres > 2) {
-	    
-	    // no shadowing of the loop:
-	    res = mol->GetResidue(imodel,ichain,1);
-	    seqno  = res->GetSeqNum();
-	    ifirst_res[ichain] = seqno;
-	    
-	    // iresidues in the chain go from 0 to nres-1, but for getting
-	    // ramachandran angles, we want limts: 1 to nres-2
-	    //
-	    CResidue *prev, *next; 
-	    for (int ires=1; ires<(nres-1); ires++) {
-	       res = mol->GetResidue(imodel,ichain,ires);
-	       prev = mol->GetResidue(imodel,ichain,ires-1);
-	       if (res && prev) { 
-		  seqno  = res->GetSeqNum();
-		  next = mol->GetResidue(imodel,ichain,ires+1);
-		  // std::cout << "adding phi/psi for " << seqno << " "
-		  // << chain_name << std::endl;
-		  add_phi_psi(& (*phi_psi_set_vec)[ichain].phi_psi,
-			      mol, chain_name.c_str(), prev, res, next);
+		  if (res_prev && residue_p && res_next) {
+		     try {
+			// coot::phi_psi_t constructor can throw an error
+			// (e.g. bonding atoms too far apart).
+			coot::residue_spec_t spec(residue_p);
+			coot::util::phi_psi_t pp(res_prev, residue_p, res_next);
+			model_phi_psis.add_phi_psi(spec, pp);
+		     }
+		     catch (std::runtime_error rte) {
+			// nothing too bad, just don't add that residue
+			// to the plot
+		     }
+		  }
 	       }
 	    }
 	 }
       }
+      if (is_primary) 
+	 phi_psi_model_sets.push_back(model_phi_psis);
+      else 
+	 secondary_phi_psi_model_sets.push_back(model_phi_psis);
    }
-
-// debugging   
-//    for (int ich=0; ich<phi_psi_set_vec->size(); ich++) { 
-//       cout << "we got "<< (*phi_psi_set_vec)[ich].phi_psi.size()
-// 	   << " ramachandran angles for chain " << (*phi_psi_set_vec)[ich].chain_id
-// 	   << endl;
-//    }
 }
 
+void
+coot::rama_plot::generate_phi_psis_by_selection(CMMDBManager *mol,
+						bool is_primary,
+						int SelectionHandle) {
 
-
+   if (is_primary) { 
+      phi_psi_model_sets.clear();
+      coot::phi_psis_for_model_t empty(0);
+      phi_psi_model_sets.push_back(empty);
+   } else {
+      secondary_phi_psi_model_sets.clear();
+      coot::phi_psis_for_model_t empty(0);
+      secondary_phi_psi_model_sets.push_back(empty);
+   }
+   PCResidue *residues = NULL;
+   int n_residues;
+   mol->GetSelIndex(SelectionHandle, residues, n_residues);
+   coot::phi_psis_for_model_t model_phi_psis(1); // model 1.
+   for (int ires=1; ires<(n_residues-1); ires++) {
+      CResidue *res_prev = residues[ires-1];
+      CResidue *res_this = residues[ires];
+      CResidue *res_next = residues[ires+1];
+      std::string chain_id_1 = res_prev->GetChainID();
+      std::string chain_id_2 = res_this->GetChainID();
+      std::string chain_id_3 = res_next->GetChainID();
+      if (chain_id_1 == chain_id_2) {
+	 if (chain_id_2 == chain_id_3) {
+	    try { 
+	       coot::util::phi_psi_t pp(res_prev, res_this, res_next);
+	       coot::residue_spec_t spec(res_this);
+	       model_phi_psis.add_phi_psi(spec, pp);
+	    }
+	    catch (std::runtime_error rte) {
+	       // nothing bad.
+	    }
+	 }
+      }
+   }
+   if (is_primary) 
+      phi_psi_model_sets.push_back(model_phi_psis);
+   else 
+      secondary_phi_psi_model_sets.push_back(model_phi_psis);
+}
 
 void
 coot::rama_plot::generate_phi_psis_debug()
 {
-   int ich = 0;
-   std::string resname("GLY");
-   std::string label("debug_label"); 
-   for(double phi=-180; phi<180; phi += 50) { 
-      for(double psi=-180; psi<180; psi += 50) { 
-         phi_psi_sets[ich].phi_psi.push_back(coot::util::phi_psi_t(phi, psi,resname,
-								   label, 1, "", "A"));
-      }
-   }
+   // 
 }
+
+
 
 void
 coot::rama_plot::map_mouse_pos(double x, double y) {
 
-   // std::cout << "DEBUG:: canvas: " << canvas << std::endl;
 
    mouse_util_t t = mouse_point_check(x,y); 
 
@@ -969,13 +978,21 @@ coot::rama_plot::map_mouse_pos(double x, double y) {
    // tooltip_like_box, if not, then if we don't have sticky labels,
    // then delete the one that's was being displayed.
    // 
-   if (t.set_smallest_diff_flag) {
+   if (!t.spec.unset_p()) {
 
-      if (drawing_differences) { 
-	 residue_type_background_as(phi_psi_sets[t.ichain].phi_psi[t.smallest_diff_i].residue_name());
-	 tooltip_like_box(t);
+      std::string residue_name;
+      if (drawing_differences) {
+	 if (! t.mouse_over_secondary_set) { 
+	    residue_name = phi_psi_model_sets[t.model_number].phi_psi[t.spec].residue_name();
+	    residue_type_background_as(residue_name);
+	    tooltip_like_box(t);
+	 } else {
+	    residue_name = secondary_phi_psi_model_sets[t.model_number].phi_psi[t.spec].residue_name();
+	    residue_type_background_as(residue_name);
+	    tooltip_like_box(t);
+	 } 
       } else { 
-	 residue_type_background_as(phi_psi_sets[t.ichain].phi_psi[t.smallest_diff_i].residue_name());
+	 residue_type_background_as(residue_name);
 	 tooltip_like_box(t);
       } 
    } else {
@@ -1029,10 +1046,10 @@ coot::rama_plot::mouse_motion_notify_editphipsi(GdkEventMotion *event, double x,
       worldy = worldy < -180.0 ? -180.0 : worldy;
 
       // set the point to new values:
-      phi_psi_sets[0].phi_psi[0] = coot::util::phi_psi_t(worldx, -worldy, "dum",
+      phi_psi_model_sets[1].phi_psi[0] = coot::util::phi_psi_t(worldx, -worldy, "dum",
 							 "moving", 0, "", "");
       clear_last_canvas_item();
-      draw_phi_psi_points(0);
+      draw_phi_psi_points();
 
       set_moving_atoms(worldx, -worldy);
    
@@ -1074,36 +1091,9 @@ coot::rama_plot::button_press_conventional (GtkWidget *widget, GdkEventButton *e
    if (event->button == 1) { 
 
       mouse_util_t t = mouse_point_check(x,y);
-      int ich = t.ichain;
-      if (t.set_smallest_diff_flag) {
-	 if (t.mouse_over_secondary_set) {
-	    cout << "secondary: ";
-	    cout << secondary_phi_psi_sets[ich].phi_psi[t.smallest_diff_i].label()
-		 << ", phi=" << secondary_phi_psi_sets[ich].phi_psi[t.smallest_diff_i].phi() << " "
-		 << " psi=" << secondary_phi_psi_sets[ich].phi_psi[t.smallest_diff_i].psi() << " "
-		 << endl; 
-	    set_go_to_atom_molecule(molecule_numbers_.second);
-	    int ires = t.smallest_diff_i; 
-	    set_go_to_atom_chain_residue_atom_name((gchar *)secondary_phi_psi_sets[t.ichain].phi_psi[ires].chain_id.c_str(),
-						   secondary_phi_psi_sets[t.ichain].phi_psi[ires].residue_number,
-						   "CA");
-	 } else {
-	    cout << "primary: ";
-	    cout << phi_psi_sets[t.ichain].phi_psi[t.smallest_diff_i].label()
-		 << ", phi=" << phi_psi_sets[t.ichain].phi_psi[t.smallest_diff_i].phi() << " "
-		 <<  " psi=" << phi_psi_sets[t.ichain].phi_psi[t.smallest_diff_i].psi() << " "
-		 << endl;
-	    // the all important mapview callback
-	    if (drawing_differences) 
-	       set_go_to_atom_molecule(molecule_numbers_.first);
-	    else 
-	       set_go_to_atom_molecule(imol);
-	    int ires = t.smallest_diff_i; 
-	    set_go_to_atom_chain_residue_atom_name((gchar *)phi_psi_sets[t.ichain].phi_psi[ires].chain_id.c_str(),
-						   phi_psi_sets[t.ichain].phi_psi[ires].residue_number,
-						   "CA");
-	 }
-      }
+
+      recentre_graphics_maybe(t);
+
    } else {
 
       if (event->button == 3) {
@@ -1111,8 +1101,22 @@ coot::rama_plot::button_press_conventional (GtkWidget *widget, GdkEventButton *e
 	 gtk_canvas_set_pixels_per_unit(canvas,zoom);
       }
    }
-   return 0; 
+   return 1; // Handled this, right?
 }
+
+void
+coot::rama_plot::recentre_graphics_maybe(mouse_util_t t) {
+
+   if (t.model_number != coot::mouse_util_t::MODEL_NUMBER_UNSET) {
+      if (t.mouse_over_secondary_set)
+	 set_go_to_atom_molecule(molecule_numbers_.second);
+      else 
+	 set_go_to_atom_molecule(molecule_numbers_.first);
+      set_go_to_atom_chain_residue_atom_name(t.spec.chain.c_str(), t.spec.resno, " CA ");
+   }
+
+}
+
 
 gint
 coot::rama_plot::button_press_editphipsi (GtkWidget *widget, GdkEventButton *event) {
@@ -1128,12 +1132,7 @@ coot::rama_plot::button_press_editphipsi (GtkWidget *widget, GdkEventButton *eve
    if (event->button == 1) { 
 
       mouse_util_t t = mouse_point_check(x,y);
-      if (t.set_smallest_diff_flag) {
-	    cout << "primary: ";
-	    cout << phi_psi_sets[t.ichain].phi_psi[t.smallest_diff_i].label()
-		 << ", phi=" << phi_psi_sets[t.ichain].phi_psi[t.smallest_diff_i].phi() << " "
-		 <<  " psi=" << phi_psi_sets[t.ichain].phi_psi[t.smallest_diff_i].psi() << " "
-		 << endl;
+      if (! t.spec.unset_p()) {
       }
    }
    return 0; 
@@ -1146,18 +1145,11 @@ coot::mouse_util_t
 coot::rama_plot::mouse_point_check(double x, double y) const {
 
    coot::mouse_util_t t;
-
    double worldx, worldy;
-   double diff1x, diff1y;
-   double diff2x, diff2y;
-   double smallest_diff = 999999; 
 
 //    int n = phi_psi_sets[t.ichain].phi_psi.size(); // FIXME?
 //    int ich = t.ichain;
 
-   t.set_smallest_diff_flag = 0;
-   t.mouse_over_secondary_set = 0; 
-   
    gtk_canvas_window_to_world(canvas, x,y, &worldx, &worldy);
 
    if (drawing_differences) {
@@ -1165,81 +1157,70 @@ coot::rama_plot::mouse_point_check(double x, double y) const {
       // need only to check over the top n_diffs differences.  (but we
       // do need to check the primary and the secondary phi_psi sets).
       //
-      unsigned int i; 
-      if (worldx <= 180 && worldx >= -180) { 
-	 if (worldy <= 180 && worldy >= -180) {
-	    unsigned int ich, ich_2;
-	    
-	    for (int j=0; j<int(diff_sq.size()) && j<n_diffs; j++) {
-	       
-	       i = diff_sq[j].i(); 
-	       ich = diff_sq[j].ich();
-	       ich_2 = diff_sq[j].ich2();
-
-		     
-	       if ((ich < phi_psi_sets.size()) && (ich < secondary_phi_psi_sets.size())) {
-		  if (i < phi_psi_sets[ich].phi_psi.size()){ 
-	       
-		     diff1x = fabs(phi_psi_sets[ich].phi_psi[i].phi() - worldx); 
-		     diff1y = fabs(phi_psi_sets[ich].phi_psi[i].psi() + worldy);
-		     
-		     diff2x = fabs(secondary_phi_psi_sets[ich_2].phi_psi[i].phi() - worldx); 
-		     diff2y = fabs(secondary_phi_psi_sets[ich_2].phi_psi[i].psi() + worldy);
-		     
-		     if (diff1x < 3 && diff1y < 3){
-			t.set_smallest_diff_flag = 1; 
-			if (diff1x+diff1y< smallest_diff) {
-			   t.mouse_over_secondary_set = 0; 
-			   smallest_diff = diff1x + diff1y;
-			   t.smallest_diff_i = i;
-			   t.ichain = ich;
-			}
-		     }
-		     if (diff2x < 3 && diff2y < 3){
-			t.set_smallest_diff_flag = 1; 
-			if (diff2x+diff2y< smallest_diff) {
-			   t.mouse_over_secondary_set = 1; 
-			   smallest_diff = diff2x + diff2y;
-			   t.smallest_diff_i = i;
-			   t.ichain = ich; // correct? CHECKME
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
-      }
+      t = mouse_point_check_differences(worldx, worldy);
+      
    } else {
-
+      
       // single molecule, check over all ramachandran angles in the
       // first list:
       // 
       if (worldx <= 180 && worldx >= -180) { 
 	 if (worldy <= 180 && worldy >= -180) {
-	    
-	    for (unsigned int ich=0; ich<phi_psi_sets.size(); ich++) { 
-	       
-	       for (unsigned int i=0; i<phi_psi_sets[ich].phi_psi.size(); i++) {
-		  
-		  diff1x = fabs(phi_psi_sets[ich].phi_psi[i].phi() - worldx); 
-		  diff1y = fabs(phi_psi_sets[ich].phi_psi[i].psi() + worldy);
-		  
-		  if (diff1x < 3 && diff1y < 3) {
-		     
-		     t.set_smallest_diff_flag = 1; // we have at least one
-		     if (diff1x+diff1y< smallest_diff) {
-			smallest_diff = diff1x + diff1y;
-			t.smallest_diff_i = i;
-			t.ichain = ich;
-		     }
-		  }
-	       } 
+	    for (unsigned int imod=1; imod<phi_psi_model_sets.size(); imod++) {
+	       bool is_secondary = 0;
+	       t = mouse_point_check_internal(phi_psi_model_sets[imod], imod, worldx, worldy, is_secondary);
 	    }
 	 }
       }
    }
    return t; 
+}
+
+coot::mouse_util_t
+coot::rama_plot::mouse_point_check_internal(const coot::phi_psis_for_model_t &phi_psi_set,
+					    int imod, 
+					    double worldx, double worldy,
+					    bool is_secondary) const {
+
+   coot::mouse_util_t t;
+   std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+   double diff1x, diff1y;
+   double smallest_diff = 999999; 
+   for (it=phi_psi_set.phi_psi.begin(); it!=phi_psi_set.phi_psi.end(); it++) {
+      diff1x = fabs(it->second.phi() - worldx); 
+      diff1y = fabs(it->second.psi() + worldy);
+      if ((diff1x < 3) && (diff1y < 3)) {
+	 if ((diff1x+diff1y) < smallest_diff) {
+	    t.spec = it->first;
+	    t.model_number = imod;
+	 }
+      }
+   }
+   t.mouse_over_secondary_set = is_secondary;
+   return t;
 } 
+
+
+coot::mouse_util_t
+coot::rama_plot::mouse_point_check_differences(double worldx, double worldy) const {
+
+   coot::mouse_util_t t;
+   
+   for (unsigned int imod=1; imod<phi_psi_model_sets.size(); imod++) {
+      bool is_secondary = 0;
+      t = mouse_point_check_internal(phi_psi_model_sets[imod], imod, worldx, worldy, is_secondary);
+   }
+
+   if (t.spec.unset_p()) {
+      for (unsigned int imod=1; imod<secondary_phi_psi_model_sets.size(); imod++) {
+	 bool is_secondary = 1;
+	 t = mouse_point_check_internal(secondary_phi_psi_model_sets[imod],
+					imod, worldx, worldy, is_secondary);
+      }
+   } 
+   return t;
+
+}
 
 // redraw everything with the given background
 // 
@@ -1287,8 +1268,7 @@ coot::rama_plot::all_plot(clipper::Ramachandran::TYPE type) {
       // draws top n_diffs differences.
       draw_phi_psi_differences();
    } else {
-      for (unsigned int ich=0; ich<phi_psi_sets.size(); ich++) 
-	 draw_phi_psi_points(ich);
+      draw_phi_psi_points();
    }
 
    draw_green_box();
@@ -1297,74 +1277,76 @@ coot::rama_plot::all_plot(clipper::Ramachandran::TYPE type) {
 void
 coot::rama_plot::tooltip_like_box(const mouse_util_t &t) {
 
-   int i = t.smallest_diff_i;
-   short int is_secondary = t.mouse_over_secondary_set;
+   if (! t.spec.unset_p()) { 
+      bool is_secondary = t.mouse_over_secondary_set;
 
-   // make a box slightly below the mouse position
-   // (i.e. at highter psi)
-   int ich = t.ichain;
+      // make a box slightly below the mouse position
+      // (i.e. at highter psi)
+      double phi =  phi_psi_model_sets[t.model_number][t.spec].phi();
+      double psi = -phi_psi_model_sets[t.model_number][t.spec].psi();
+      std::string label = phi_psi_model_sets[t.model_number][t.spec].label();
 
-   // GtkCanvasItem *item;
-   double phi =  phi_psi_sets[ich].phi_psi[i].phi(); 
-   double psi = -phi_psi_sets[ich].phi_psi[i].psi();
-   const char *lab = phi_psi_sets[ich].phi_psi[i].label().c_str();
+//       std::cout << "      debug:: tooltip_like_box for "
+// 		<< t.spec << " phi: " << phi << " psi: " << psi
+// 		<< label << std::endl;
+	 
+      if (is_secondary) {
+	  phi   =  secondary_phi_psi_model_sets[t.model_number][t.spec].phi();
+	  psi   = -secondary_phi_psi_model_sets[t.model_number][t.spec].psi();
+	  label = secondary_phi_psi_model_sets[t.model_number][t.spec].label();
+      }
 
-   if (is_secondary) {
-      phi =  secondary_phi_psi_sets[ich].phi_psi[i].phi(); 
-      psi = -secondary_phi_psi_sets[ich].phi_psi[i].psi();
-      lab =  secondary_phi_psi_sets[ich].phi_psi[i].label().c_str(); 
-   }
+      if (tooltip_item)
+	 gtk_object_destroy(GTK_OBJECT(tooltip_item)); 
+      if (tooltip_item_text)
+	 gtk_object_destroy(GTK_OBJECT(tooltip_item_text));
 
-   if (tooltip_item)
-      gtk_object_destroy(GTK_OBJECT(tooltip_item)); 
-   if (tooltip_item_text)
-      gtk_object_destroy(GTK_OBJECT(tooltip_item_text));
+      // cout << phi_psi[i] << endl;
 
-   // cout << phi_psi[i] << endl;
-
-   // Now we deal with some non-straightforward coordinates.  We want
-   // a box with text label overlaying.  However, the coordinates of
-   // the box (in world coordintes (i.e. phi/psi space)) depend on the
-   // zooming.  i.e.we don't want the box 15 degrees below a residue
-   // when the zoom is 4.  Similarly, the size of the box should not
-   // be 30-10. It need to be less with more zooming.
-   //
-   // tw is in pixels not in world coordinates. 
+      // Now we deal with some non-straightforward coordinates.  We want
+      // a box with text label overlaying.  However, the coordinates of
+      // the box (in world coordintes (i.e. phi/psi space)) depend on the
+      // zooming.  i.e.we don't want the box 15 degrees below a residue
+      // when the zoom is 4.  Similarly, the size of the box should not
+      // be 30-10. It need to be less with more zooming.
+      //
+      // tw is in pixels not in world coordinates. 
    
-   double tw=75; 
-   tooltip_item_text = gtk_canvas_item_new(gtk_canvas_root(canvas),
-					   GTK_CANVAS_TYPE_CANVAS_TEXT,
-					   "text", lab,
-					   "x", phi-tw/2,
-					   "y", psi+15,
-					   "anchor",GTK_ANCHOR_WEST,
-					   "font", fixed_font_str.c_str(),
-					   "fill_color", "black",
-					   NULL);
-   gtk_object_get(GTK_OBJECT(tooltip_item_text),
-		  "text_width", &tw,
-		  NULL);
-   gtk_object_destroy(GTK_OBJECT(tooltip_item_text)); 
+      double tw=75; 
+      tooltip_item_text = gtk_canvas_item_new(gtk_canvas_root(canvas),
+					      GTK_CANVAS_TYPE_CANVAS_TEXT,
+					      "text", label.c_str(),
+					      "x", phi-tw/2,
+					      "y", psi+15,
+					      "anchor",GTK_ANCHOR_WEST,
+					      "font", fixed_font_str.c_str(),
+					      "fill_color", "black",
+					      NULL);
+      gtk_object_get(GTK_OBJECT(tooltip_item_text),
+		     "text_width", &tw,
+		     NULL);
+      gtk_object_destroy(GTK_OBJECT(tooltip_item_text)); 
 
-   tooltip_item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-				GTK_CANVAS_TYPE_CANVAS_RECT,
-				"x1", phi-(tw/(2))-2/zoom,
-				"y1", psi+12/zoom,
-				"x2", phi+(tw/(2))+2/zoom,
-				"y2", psi+30/zoom,
-				"fill_color", "PaleGreen",
-				"outline_color", "black",
-					NULL);
+      tooltip_item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+					 GTK_CANVAS_TYPE_CANVAS_RECT,
+					 "x1", phi-(tw/(2))-2/zoom,
+					 "y1", psi+12/zoom,
+					 "x2", phi+(tw/(2))+2/zoom,
+					 "y2", psi+30/zoom,
+					 "fill_color", "PaleGreen",
+					 "outline_color", "black",
+					 NULL);
 
-   tooltip_item_text = gtk_canvas_item_new(gtk_canvas_root(canvas),
-					     GTK_CANVAS_TYPE_CANVAS_TEXT,
-					     "text", lab,
-					     "x", phi-tw/2.0,
-					     "y", psi+20.0/zoom,
-					     "anchor",GTK_ANCHOR_WEST,
-					     "font", fixed_font_str.c_str(),
-					     "fill_color", "black",
-					     NULL);
+      tooltip_item_text = gtk_canvas_item_new(gtk_canvas_root(canvas),
+					      GTK_CANVAS_TYPE_CANVAS_TEXT,
+					      "text", label.c_str(),
+					      "x", phi-tw/2.0,
+					      "y", psi+20.0/zoom,
+					      "anchor",GTK_ANCHOR_WEST,
+					      "font", fixed_font_str.c_str(),
+					      "fill_color", "black",
+					      NULL);
+   }
 }
 
 
@@ -1445,112 +1427,6 @@ std::pair<bool, coot::util::phi_psi_t> coot::rama_plot::get_phi_psi(PCResidue *S
 
 
 
-// add to the phi_psi vector
-void
-coot::rama_plot::add_phi_psi(vector <coot::util::phi_psi_t> *phi_psi_vec,
-			     CMMDBManager *mol_in, const char *segid,
-			     CResidue *prev, CResidue *this_res, CResidue *next_res) {
-
-
-   // we need the C (for phi) of the previous residue and the N of the
-   // next one (for psi).
-   // 
-
-   //    CMMDBManager *mol = (CMMDBManager *)mol_in;
-   PCAtom *res_selection;
-   int i_no_res_atoms;
-   
-   int natom = 0;
-   clipper::Coord_orth c_prev, n_this, ca_this, c_this, n_next;
-
-   if (prev && this_res && next_res) { 
-
-      // prev:
-      
-      prev->GetAtomTable(res_selection, i_no_res_atoms);
-      if (i_no_res_atoms > 0) {
-	 for (int j=0; j<i_no_res_atoms; j++) {
-	    if ( std::string(res_selection[j]->name) == " C  ") {
-	       c_prev = clipper::Coord_orth(res_selection[j]->x,
-					    res_selection[j]->y,
-					    res_selection[j]->z);
-	       natom++;
-	    }
-	 }
-      }
-
-      // this:
-      this_res->GetAtomTable(res_selection, i_no_res_atoms);
-      if (i_no_res_atoms > 0) {
-	 for (int j=0; j<i_no_res_atoms; j++) {
-	    if ( std::string(res_selection[j]->name) == " C  ") {
-	       c_this = clipper::Coord_orth(res_selection[j]->x,
-					    res_selection[j]->y,
-					    res_selection[j]->z);
-	       natom++;
-	    }
-	    if ( std::string(res_selection[j]->name) == " CA ") {
-	       ca_this = clipper::Coord_orth(res_selection[j]->x,
-					     res_selection[j]->y,
-					     res_selection[j]->z);
-	       natom++;
-	    }
-	    if ( std::string(res_selection[j]->name) == " N  ") {
-	       n_this = clipper::Coord_orth(res_selection[j]->x,
-					    res_selection[j]->y,
-					    res_selection[j]->z);
-	       natom++;
-	    }
-	 }
-      }
-
-      // next
-      next_res->GetAtomTable(res_selection, i_no_res_atoms);
-      if (i_no_res_atoms > 0) {
-	 for (int j=0; j<i_no_res_atoms; j++) {
-	    if (std::string(res_selection[j]->name) == " N  ") {
-	       n_next = clipper::Coord_orth(res_selection[j]->x,
-					    res_selection[j]->y,
-					    res_selection[j]->z);
-	       natom++;
-	    }
-	 }
-      }
-
-      // So that we don't accidently join fragments that should not be
-      // linked, we do a distance check too.
-      
-      if (natom == 5) {
-	 float max_dist = 2.0; // A
-	 if ((clipper::Coord_orth::length(c_prev, n_this) <= max_dist) &&
-	     (clipper::Coord_orth::length(c_this, n_next) <= max_dist)) {
-
-
-	    std::string label = coot::util::int_to_string(this_res->GetSeqNum());
-	    label += this_res->GetInsCode();
-	    label += " ";
-	    label += this_res->name;
-	    label += " ";      
-	    label += segid;
-	    std::string inscode = this_res->GetInsCode();
-	    
-	    // std::cout << " constructed label " << label << std::endl;
-	    double phi = clipper::Util::rad2d(ca_this.torsion(c_prev, n_this,
-							      ca_this, c_this));
-	    double psi = clipper::Util::rad2d(ca_this.torsion(n_this, ca_this,
-							      c_this, n_next));
-	    phi_psi_vec->push_back(coot::util::phi_psi_t(phi, psi,
-							 this_res->name,
-							 label.c_str(),
-							 this_res->GetSeqNum(),
-							 inscode,
-							 segid));
-	 }
-      }
-   }
-}
-
-
 
 void
 coot::rama_plot::draw_phi_psis_on_canvas(char *filename) {
@@ -1568,11 +1444,9 @@ coot::rama_plot::draw_phi_psis_on_canvas(char *filename) {
    CMMDBManager *mol = rama_get_mmdb_manager(filename); 
 
    // put the results in the *primary* list
-   generate_phi_psis(&phi_psi_sets, mol);
+   generate_phi_psis(mol);
 
-   // generate_phi_psis_debug(); 
-   for (unsigned int ich=0; ich<phi_psi_sets.size(); ich++) 
-      draw_phi_psi_points(ich);
+   draw_phi_psi_points();
    
    delete mol; 
 }
@@ -1584,10 +1458,8 @@ coot::rama_plot::draw_it(CMMDBManager *mol) {
    display_background();
    draw_axes();
    draw_zero_lines(); 
-   generate_phi_psis(&phi_psi_sets, mol);
-   coot::rama_stats_container_t counts;
-   for (unsigned int ich=0; ich<phi_psi_sets.size(); ich++) 
-      counts += draw_phi_psi_points(ich);
+   generate_phi_psis(mol);
+   coot::rama_stats_container_t counts = draw_phi_psi_points();
    counts_to_stats_frame(counts);
 }
 
@@ -1746,47 +1618,33 @@ coot::rama_plot::counts_to_stats_frame(const coot::rama_stats_container_t &sc) {
 void
 coot::rama_plot::draw_it(const coot::util::phi_psi_t &phipsi) {
 
-  display_background();
-  draw_axes();
-  draw_zero_lines();
-  phi_psi_sets.resize(1);
-  phi_psi_sets[0].phi_psi.push_back(phipsi);
-  for (unsigned int ich=0; ich<phi_psi_sets.size(); ich++) 
-      draw_phi_psi_points(ich);
- 
-}
-
-void
-coot::rama_plot::draw_it(const std::vector<coot::util::phi_psi_t> &phipsi) {
-
-//   display_background();
-//   draw_axes();
-//   draw_zero_lines();
-  phi_psi_sets.resize(1);
-  phi_psi_sets[0].phi_psi.clear();
-  clear_last_canvas_items(phipsi.size());
-  for (unsigned int ipp=0; ipp<phipsi.size(); ipp++) { 
-     phi_psi_sets[0].phi_psi.push_back(phipsi[ipp]);
-  }
-
-  // std::cout << "DEBUG:: phi_psi_sets.size(): " << phi_psi_sets.size() << std::endl;
-  for (unsigned int ich=0; ich<phi_psi_sets.size(); ich++)   
-     // std::cout << "DEBUG:: " << ich << " " << phi_psi_sets[ich].phi_psi.size() << std::endl;
-
-  for (unsigned int ich=0; ich<phi_psi_sets.size(); ich++) 
-      draw_phi_psi_points(ich);
+   display_background();
+   draw_axes();
+   draw_zero_lines();
+   coot::phi_psis_for_model_t phi_psi_set(1);
+   coot::residue_spec_t spec("", 0, "");
+   phi_psi_set.add_phi_psi(spec, phipsi);
+   phi_psi_model_sets.push_back(phi_psi_set);
+   draw_phi_psi_points();
 }
 
 
 void
-coot::rama_plot::draw_2_phi_psi_sets_on_canvas(char *file1, char *file2) {
+coot::rama_plot::draw_it(const std::vector<coot::util::phi_psi_t> &phi_psi_s) {
 
-   CMMDBManager *mol1 = rama_get_mmdb_manager(file1); 
-   CMMDBManager *mol2 = rama_get_mmdb_manager(file2); 
-
-   draw_2_phi_psi_sets_on_canvas(mol1, mol2);
-   delete mol1; 
-   delete mol2;
+   phi_psi_model_sets.clear();
+   clear_last_canvas_items(phi_psi_s.size());
+   
+   coot::phi_psis_for_model_t phi_psi_set_m0(0);
+   coot::phi_psis_for_model_t phi_psi_set(1);
+   phi_psi_model_sets.push_back(phi_psi_set_m0); // dummy/unused for model 0
+   for (unsigned int i=0; i<phi_psi_s.size(); i++) {
+      coot::residue_spec_t spec("", i, "");
+      phi_psi_set.add_phi_psi(spec, phi_psi_s[i]);
+   }
+   phi_psi_model_sets.push_back(phi_psi_set);
+   draw_phi_psi_points();
+   
 }
 
 void 
@@ -1799,38 +1657,13 @@ coot::rama_plot::draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1,
 
    // Are you sure that you want to edit this function? (not the one below?)
 
-   int imod = 1;
-      
-   CModel *model_p = mol1->GetModel(imod);
-   CChain *chain_p;
-   // run over chains of the existing mol
-   int nchains = model_p->GetNumberOfChains();
-   int set_index = 0;
-   for (int ichain=0; ichain<nchains; ichain++) {
-      chain_p = model_p->GetChain(ichain);
-      int nres = chain_p->GetNumberOfResidues();
-      PCResidue residue_p;
-      phi_psi_sets.push_back(coot::phi_psi_set_container());
-      secondary_phi_psi_sets.push_back(coot::phi_psi_set_container());
-      for (int ires=0; ires<nres; ires++) { 
-	 residue_p = chain_p->GetResidue(ires);
-	 std::string chain_id = residue_p->GetChainID();
-	 int res_num = residue_p->GetSeqNum();
-	 std::string inscode = residue_p->GetInsCode();
-	 coot::util::phi_psi_pair_helper_t p_i =
-	    coot::rama_plot::make_phi_psi_pair(mol1, mol2, chain_id, chain_id, res_num, inscode);
-
-	 if (p_i.is_valid_pair_flag) {
-	    phi_psi_sets[set_index].phi_psi.push_back(p_i.first);
-	    secondary_phi_psi_sets[set_index].phi_psi.push_back(p_i.second);
-	 }
-      }
-      set_index++;
-   }
+   bool primary = 1;
+   generate_phi_psis(mol1,  primary);
+   generate_phi_psis(mol2, !primary);
    
    // all_plot_background_and_bits(clipper::Ramachandran::All);
    // std::cout << "finding differences..." << std::endl;
-   find_phi_psi_differences_whole_molecule(); 
+   find_phi_psi_differences(); 
    // std::cout << "drawing differences..." << std::endl;
    draw_phi_psi_differences();
 
@@ -1841,126 +1674,127 @@ coot::rama_plot::draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1,
    drawing_differences = 1; // set flag for later drawing
 }
 
+// Kleywegt plots call this function
 void 
 coot::rama_plot::draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1, 
 					       CMMDBManager *mol2,
 					       std::string chainid1,
 					       std::string chainid2) {
 
-   // std::cout << "--------------- draw 2 on canvas -------------" << std::endl;
-
    int imod = 1;
 
-   phi_psi_sets.clear();
-   secondary_phi_psi_sets.clear();
-      
-   CModel *model_p = mol1->GetModel(imod);
-   CChain *chain_p;
-   // run over chains of the existing mol
-   int nchains = model_p->GetNumberOfChains();
-   int set_index = 0;
-   for (int ichain=0; ichain<nchains; ichain++) {
-      chain_p = model_p->GetChain(ichain);
-      int nres = chain_p->GetNumberOfResidues();
-      std::string this_chain = chain_p->GetChainID();
-      PCResidue residue_p;
-      phi_psi_sets.push_back(coot::phi_psi_set_container());
-      secondary_phi_psi_sets.push_back(coot::phi_psi_set_container());
-      for (int ires=0; ires<nres; ires++) { 
-	 residue_p = chain_p->GetResidue(ires);
-	 std::string chain_id = residue_p->GetChainID();
-	 int res_num = residue_p->GetSeqNum();
-	 std::string inscode = residue_p->GetInsCode();
-	 coot::util::phi_psi_pair_helper_t p_i =
-	   coot::rama_plot::make_phi_psi_pair(mol1, mol2, chainid1, chainid2, res_num, inscode);
+   phi_psi_model_sets.clear();
+   secondary_phi_psi_model_sets.clear();
 
-	 if (p_i.is_valid_pair_flag) {
-// 	    std::cout << "Adding pair for " << p_i.first.label() << " "
-// 		      << p_i.second.label() << std::endl;
-	    phi_psi_sets[set_index].phi_psi.push_back(p_i.first);
-	    secondary_phi_psi_sets[set_index].phi_psi.push_back(p_i.second);
-	 } else {
-	    // std::cout << "pair for " <<  p_i.first.label() << " was not valid!" << std::endl;
-	 }
-      }
-      set_index++;
-   }
+   int selhnd_1 = mol1->NewSelection();
+   int selhnd_2 = mol2->NewSelection();
+
+   mol1->Select(selhnd_1, STYPE_RESIDUE, 0,
+		chainid1.c_str(),
+		ANY_RES, "*",
+		ANY_RES, "*",
+		"*",  // residue name
+		"*",  // Residue must contain this atom name?
+		"*",  // Residue must contain this Element?
+		"*",   // altLocs
+		SKEY_NEW // selection key
+		);
+
+   mol2->Select(selhnd_2, STYPE_RESIDUE, 0,
+		chainid2.c_str(),
+		ANY_RES, "*",
+		ANY_RES, "*",
+		"*",  // residue name
+		"*",  // Residue must contain this atom name?
+		"*",  // Residue must contain this Element?
+		"*",   // altLocs
+		SKEY_NEW // selection key
+		);
+   
+   generate_phi_psis_by_selection(mol1, 1, selhnd_1);
+   generate_phi_psis_by_selection(mol2, 0, selhnd_2);
+
+   mol1->DeleteSelection(selhnd_1);
+   mol2->DeleteSelection(selhnd_2);
    
    // all_plot_background_and_bits(clipper::Ramachandran::All);
-   std::cout << "finding differences..." << std::endl;
-   find_phi_psi_differences_by_chain(); 
-   std::cout << "drawing differences..." << std::endl;
+   // std::cout << "finding differences..." << std::endl;
+   find_phi_psi_differences(chainid1, chainid2); 
+   // std::cout << "drawing differences..." << std::endl;
    draw_phi_psi_differences();
 
    drawing_differences = 1; // set flag for later drawing
 }
 
+void
+coot::rama_plot::find_phi_psi_differences() {
+   std::string chain_id1;
+   std::string chain_id2;
+   find_phi_psi_differences_internal(chain_id1, chain_id2, 0);
+}
 
 void
-coot::rama_plot::find_phi_psi_differences_whole_molecule() {
+coot::rama_plot::find_phi_psi_differences(const std::string &chain_id1,
+					  const std::string &chain_id2) { 
+   find_phi_psi_differences_internal(chain_id1, chain_id2, 1);
+}
+
+
+void
+coot::rama_plot::find_phi_psi_differences_internal(const std::string &chain_id1,
+						   const std::string &chain_id2,
+						   bool use_chain_ids) {
 
    double d1, d2;
 
-   diff_sq.clear();
-   for (unsigned int ich=0; ich<phi_psi_sets.size(); ich++) { 
-      for (unsigned int ires=0; ires<phi_psi_sets[ich].phi_psi.size(); ires++) {
+   std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
 
-	 // std::cout << "ich: " << ich << " i: " << i << std::endl;
+   diff_sq.clear();
+   for (unsigned int imod=1; imod<phi_psi_model_sets.size(); imod++) {
+      std::cout << "in find_phi_psi_differences_internal with model number " << imod
+		<< " primary size " << phi_psi_model_sets[imod].size() << std::endl;
+      for (it=phi_psi_model_sets[imod].phi_psi.begin();
+	   it!=phi_psi_model_sets[imod].phi_psi.end(); it++) {
+	 coot::residue_spec_t spec_1 = it->first;
+	 coot::residue_spec_t spec_2 = it->first;
+	 // now (re)set chain_id of spec_2
+	 // FIXME
+	 if (use_chain_ids) {
+	    spec_2.chain = chain_id2;
+	 }
+	 coot::util::phi_psi_t pp_1 = it->second;
+	 coot::util::phi_psi_t pp_2 = secondary_phi_psi_model_sets[imod][spec_2];
 	 
-	 d1 = fabs(phi_psi_sets[ich].phi_psi[ires].phi() -
-		  secondary_phi_psi_sets[ich].phi_psi[ires].phi()); 
-	 d2 = fabs(phi_psi_sets[ich].phi_psi[ires].psi() -
-		  secondary_phi_psi_sets[ich].phi_psi[ires].psi());
-	 
-	 if (d1 > 180.0) d1 = 360.0 - d1;
-	 if (d2 > 180.0) d2 = 360.0 - d2;
-	 
-	 diff_sq.push_back(diff_sq_t(ires, sqrt(d1*d1+d2*d2), ich, ich));
+	 if (pp_2.is_filled()) {
+	    d1 = fabs(pp_1.phi() - pp_2.phi());
+	    d2 = fabs(pp_1.psi() - pp_2.psi());
+	    if (d1 > 180) d1 -= 360; 
+	    if (d2 > 180) d2 -= 360;
+	    double v = sqrt(d1*d1 + d2*d2);
+	    diff_sq_t ds(pp_1, pp_2, spec_1, spec_2, v); // something
+	    diff_sq.push_back(ds);
+	 } else {
+	    std::cout << "Not found " << spec_2 << " from ref spec " << spec_1
+		      << " in " << secondary_phi_psi_model_sets[imod].size()
+		      << " residue in secondary set" << std::endl;
+	 } 
       }
-   
    }
+      
    // sort diff_sq
-   std::sort(diff_sq.begin(), diff_sq.end(),
-	     compare_phi_psi_diffs(diff_sq));
+
+   std::cout << " debug:: -- generated " << diff_sq.size() << " rama differences " << std::endl;
+   std::sort(diff_sq.begin(), diff_sq.end(), compare_phi_psi_diffs);
 
 }
 
-void
-coot::rama_plot::find_phi_psi_differences_by_chain() {
 
-   double d1, d2;
-
-   diff_sq.clear();
-   int ich = 0;
-   for (unsigned int ires=0; ires<phi_psi_sets[ich].phi_psi.size(); ires++) {
-      
-      // std::cout << "ich: " << ich << " i: " << i << std::endl;
-      
-      d1 = fabs(phi_psi_sets[ich].phi_psi[ires].phi() -
-		secondary_phi_psi_sets[ich].phi_psi[ires].phi()); 
-      d2 = fabs(phi_psi_sets[ich].phi_psi[ires].psi() -
-		secondary_phi_psi_sets[ich].phi_psi[ires].psi());
-      
-      if (d1 > 180.0) d1 = 360.0 - d1;
-      if (d2 > 180.0) d2 = 360.0 - d2;
-      
-      diff_sq.push_back(diff_sq_t(ires, sqrt(d1*d1+d2*d2), ich, ich));
-   }
-   // sort diff_sq
-   std::sort(diff_sq.begin(), diff_sq.end(),
-	     compare_phi_psi_diffs(diff_sq));
-
-//    // debug
-//    for (int id=0; id<diff_sq.size(); id++) {
-//       std::cout << "diffs: " << id << " "
-// 		<< phi_psi_sets[ich].phi_psi[diff_sq[id].i()].residue_number << " "
-// 		<< phi_psi_sets[ich].phi_psi[diff_sq[id].i()].chain_id << "   "
-// 		<< diff_sq[id].i() << " " << diff_sq[id].v() 
-// 		<< std::endl;
-//    }
+bool coot::compare_phi_psi_diffs(const diff_sq_t &d1, const diff_sq_t d2) {
+      return (d1.v() > d2.v());
 }
 
-// n_diffs is the max number of differences to be displayed.
+
+// n_diffs is the max number of differences to be displayed, 50 typically.
 // 
 void
 coot::rama_plot::draw_phi_psi_differences() {
@@ -1985,43 +1819,27 @@ coot::rama_plot::draw_phi_psi_differences() {
    // Maybe I could make the starting
    // triangle be drawn in grey in that case.
 
-   int ich = 0;
+   if (phi_psi_model_sets.size() == 0 ) {
 
-   if (phi_psi_sets.size() == 0 ) {
+      std::cout << "oops! No phi psi data!" << std::endl;
 
-      std::cout << "oops! phi psi data data!" << std::endl;
+   } else {
 
-   } else { 
-
-      if (phi_psi_sets[ich].phi_psi.size() != secondary_phi_psi_sets[ich].phi_psi.size()) {
-	 std::cout << "wrong number of residues in draw_phi_psi_differences "
-		   << phi_psi_sets[ich].phi_psi.size() << " "
-		   << secondary_phi_psi_sets[ich].phi_psi.size() << std::endl;
-
-      } else { 
-
-// 	 std::cout << "--- DEBUG:: running over " << n_diffs
-// 		   << " diffs with diffs.size(): " << diff_sq.size()
-// 		   << std::endl;
-
-	 GtkCanvasPoints *points = gtk_canvas_points_new(2);
-	 int i; 
       
-	 for (int j=0; j<int(diff_sq.size()) && j<n_diffs; j++) {
+      int n_vsize = diff_sq.size();
 
+      // std::cout << "debug:: draw_phi_psi_differences() " << n_vsize << " " << n_diffs << std::endl;
+
+      for (int j=0; j<n_diffs && j<n_vsize; j++) {
+
+	 coot::util::phi_psi_t pp1 = diff_sq[j].phi_psi_1();
+	 coot::util::phi_psi_t pp2 = diff_sq[j].phi_psi_2();
 	 
-	    i = diff_sq[j].i();
-	    ich = diff_sq[j].ich();
-	    // std::cout << i << " " << diff_sq[j].v() << "   ";
+	 draw_phi_psi_point(pp1, 1);
+	 draw_phi_psi_point(pp2, 0);
+	 GtkCanvasPoints *points = gtk_canvas_points_new(2);
 
-	    draw_phi_psi_point(i, &phi_psi_sets[ich].phi_psi, 1);
-	    draw_phi_psi_point(i, &secondary_phi_psi_sets[ich].phi_psi, 0);
-
-	    draw_kleywegt_arrow(phi_psi_sets[ich].phi_psi[i],
-				secondary_phi_psi_sets[ich].phi_psi[i],
-				points);
-	    
-	 }
+	 draw_kleywegt_arrow(pp1, pp2, points);
       }
    }
 }
@@ -2066,13 +1884,14 @@ coot::rama_plot::draw_kleywegt_arrow(const coot::util::phi_psi_t &phi_psi_primar
       points->coords[2] =  wi.primary_border_point.first;
       points->coords[3] = -wi.primary_border_point.second;
 
-      std::cout << "Borderline 1 : "
-		<< "(" << phi_psi_primary.phi() << "," << phi_psi_primary.psi() << ")"
-		<< " to "
-		<< "("
-		<< wi.primary_border_point.first
-		<< ", " << wi.primary_border_point.second
-		<< ")" << std::endl;
+      if (0)
+	 std::cout << "Borderline 1 : "
+		   << "(" << phi_psi_primary.phi() << "," << phi_psi_primary.psi() << ")"
+		   << " to "
+		   << "("
+		   << wi.primary_border_point.first
+		   << ", " << wi.primary_border_point.second
+		   << ")" << std::endl;
       
       item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 				 GTK_CANVAS_TYPE_CANVAS_LINE,
@@ -2125,8 +1944,7 @@ coot::rama_plot::test_kleywegt_wrap(const coot::util::phi_psi_t &phi_psi_primary
 
 
    if (fabs(phi_psi_primary.phi() - phi_psi_secondary.phi()) > 200.0) {
-       std::cout << "DEBUG:: PHI Outlier detected: " << phi_psi_primary.chain_id
-		 << " " << phi_psi_primary.residue_number << std::endl;
+
       wi.is_wrapped = 1;
       
       float phi_1 = phi_psi_primary.phi();
@@ -2146,8 +1964,7 @@ coot::rama_plot::test_kleywegt_wrap(const coot::util::phi_psi_t &phi_psi_primary
       wi.secondary_border_point.second = psi_critical;
    } 
    if (fabs(phi_psi_primary.psi() - phi_psi_secondary.psi()) > 200.0) {
-      std::cout << "DEBUG:: PSI Outlier detected: " << phi_psi_primary.chain_id
-		<< " " << phi_psi_primary.residue_number << std::endl;
+
       wi.is_wrapped = 1;
 
       float phi_1 = phi_psi_primary.phi();
@@ -2437,7 +2254,7 @@ coot::rama_plot::debug() const {
    std::cout << "ramadebug: big_box_item is " << big_box_item << std::endl;
    std::cout << "ramadebug: step is " << step << std::endl;
    std::cout << "ramadebug: is ifirst_res size " << ifirst_res.size() << std::endl;
-   std::cout << "ramadebug: is phi_psi_sets.size " << phi_psi_sets.size() << std::endl;
+   std::cout << "ramadebug: is phi_psi_sets.size " << phi_psi_model_sets.size() << std::endl;
    std::cout << "ramadebug: allow_seqnum_offset_flag " << allow_seqnum_offset_flag << std::endl;
    //    std::cout << "ramadebug: is " << << std::endl;
 }

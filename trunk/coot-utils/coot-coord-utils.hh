@@ -172,13 +172,13 @@ namespace coot {
       }
       // This one for coot_wrap_guile
       residue_spec_t() {
-	 resno = -9999;
+	 resno = MinInt4;
 	 chain = "";
 	 insertion_code = "";
       }
-      short int unset_p() const {
+      bool unset_p() const {
 	 short int u = 1;
-	 if (resno != -9999)
+	 if (resno != MinInt4)
 	    u = 0;
 	 return u;
       }

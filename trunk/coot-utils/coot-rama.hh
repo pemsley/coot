@@ -42,14 +42,15 @@ namespace coot {
 	 double phi_;
 	 double psi_;
 	 std::string lab;
+	 int residue_number;
+	 std::string ins_code;
 	 //    enum residue_type {ALA,GLY,SER,THR,ASP,GLU,ASN,GLN, 
 	 // 		      LEU,ILE,PHE,TYR,HIS,CYS,MET,TRP,
 	 // 		      ARG,LYS,PRO,VAL,CYH};
 	 std::string residue_name_;
+	 bool is_filled_;
       
       public:
-	 int residue_number;
-	 std::string ins_code;
 	 phi_psi_t(double a, double b,
 		   const std::string &res_name,
 		   const std::string &residue_label,
@@ -62,17 +63,25 @@ namespace coot {
 	    residue_name_ = res_name;
 	    residue_number = resno;
 	    ins_code = ins_code_in;
-	    chain_id = chainid; 
+	    chain_id = chainid;
+	    is_filled_ = 1;
 	 }
-	 phi_psi_t() {};
+	 phi_psi_t() {
+	    is_filled_ = 0;
+	 };
+	 // this can throw an exception (e.g. bonding atoms too far
+	 // apart).  Uses get_phi_psi() below
+	 phi_psi_t(CResidue *prev, CResidue *this_res, CResidue *next); 
       
 	 double phi() const {return phi_;}
 	 double psi() const {return psi_;}
 	 std::string label() const {return lab;}
 	 std::string residue_name() const { return residue_name_; }
-	 std::string chain_id; 
+	 std::string chain_id;
+	 bool is_filled() const {
+	    return is_filled_;
+	 }
 	 friend std::ostream& operator<<(std::ostream &a, phi_psi_t v);
-      
       };
 
       std::ostream& operator<<(std::ostream &s, phi_psi_t v);
@@ -82,6 +91,9 @@ namespace coot {
 
       // used by ramachandran_angles:
       std::pair<bool, phi_psi_t> get_phi_psi(PCResidue *SelResidue);
+      std::pair<bool, phi_psi_t> get_phi_psi(CResidue *residue_0,
+					     CResidue *residue_1,
+					     CResidue *residue_2);
 
       class phi_psi_pair_helper_t {
       public:

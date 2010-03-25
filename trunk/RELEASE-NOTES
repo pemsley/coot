@@ -78,6 +78,9 @@
   o BUG-FIX: refining with structures from .res files sometimes crash
     when writing backup file on Mac [Derek Logan].
 
+  o BUG-FIX: Platinum can now have sensible bonds to N and O [John
+    Helliwell].
+
 -----
 
   Release 0.6.1

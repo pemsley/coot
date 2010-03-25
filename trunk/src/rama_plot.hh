@@ -1,6 +1,7 @@
-/* src/main.cc
+ /* src/main.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+ * Copyright 2010 by The University of Oxford.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +22,13 @@
 #ifndef RAMA_PLOT_HH
 #define RAMA_PLOT_HH
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-
-#ifdef HAVE_GTK_CANVAS
-
-//
+#include <map>
 #include <string>
+#include "coot-coord-utils.hh"
+
+// ------------------------ Canvas stuff -----------------------------------
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GTK_CANVAS
 
 #include <gtk/gtk.h>
 #include <gdk_imlib.h>
@@ -41,27 +43,15 @@ typedef GnomeCanvas     GtkCanvas;
 typedef GnomeCanvasItem GtkCanvasItem;
 typedef GnomeCanvasPoints GtkCanvasPoints;
 #endif
-
 #endif // HAVE_GNOME_CANVAS
+// ------------------------ End of Canvas stuff ------------------------------
+
 
 #include "mmdb_manager.h"
 #include "clipper/core/ramachandran.h"
 #include "coot-rama.hh"
 
 namespace coot { 
-
-// what are these things?
-// static gint
-// expose_handler (GtkTooltips *tooltips); 
-
-
-// void
-// meta_fixed_tip_show (int root_x, int root_y,
-//                      const char *markup_text); 
-
-// void
-// meta_fixed_tip_hide (void);
-
 
    class canvas_tick_t {
    public:
@@ -81,17 +71,15 @@ namespace coot {
    
    class mouse_util_t {
    public:
-      mouse_util_t() { 
-	set_smallest_diff_flag = 0;
-	ichain = 0;
-	smallest_diff_i = 0;
-      }
-      short int set_smallest_diff_flag;
-      int smallest_diff_i;
-      int ichain; // the chain of the smallest diff
-      short int mouse_over_secondary_set;  // used in mouse_point_check()
-      // and the routine which pops up
-      // the mouseover label.
+      enum {MODEL_NUMBER_UNSET = -1}; 
+      mouse_util_t() {
+	 model_number = -1; // unset
+	 mouse_over_secondary_set = 0; } // use residue_spec_t constructor to signal unset.
+      residue_spec_t spec;
+      int model_number;
+      bool mouse_over_secondary_set;  // used in mouse_point_check()
+                                      // and the routine which pops up
+                                      // the mouseover label.
    };
    
 
@@ -108,50 +96,54 @@ namespace coot {
 // };
 
 
+
+   // the container class with the residue spec -> phi-psi map (associative array)
+   //
+   // generating from a CMMDBManager makes a vector of these (one for each model).
+   // 
+   class phi_psis_for_model_t {
+
+   public:
+      int model_number;
+      std::map<residue_spec_t, util::phi_psi_t> phi_psi;
+      phi_psis_for_model_t(int model_number_in) {
+	 model_number = model_number_in;
+      }
+      void add_phi_psi(const residue_spec_t &spec, const util::phi_psi_t &phi_psi_in) {
+	 phi_psi[spec] = phi_psi_in;
+      }
+      util::phi_psi_t operator[](const residue_spec_t &spec) {
+ 	 return phi_psi[spec];
+      }
+      unsigned int size() { return phi_psi.size(); } 
+   };
+
    class diff_sq_t {
       
-      int i_;
       double v_; 
-      int ich_;
-      int ich2_;
+
+      util::phi_psi_t pp_1;
+      util::phi_psi_t pp_2;
+      residue_spec_t res_1;
+      residue_spec_t res_2;
       
    public:
       diff_sq_t() {}; 
-      diff_sq_t(int iin, double vin, int ichin, int ichin2) {
-	 i_ = iin;
-	 v_ = vin;
-	 ich_ = ichin;
-	 ich2_ = ichin2;
+      diff_sq_t(const util::phi_psi_t &pp_1_in, const util::phi_psi_t &pp_2_in,
+		const residue_spec_t &r1, const residue_spec_t r2,
+		double d) {
+	 pp_1 = pp_1_in;
+	 pp_2 = pp_2_in;
+	 res_1 = r1;
+	 res_2 = r2;
+	 v_ = d;
       }
-      int i() const { return i_;}
+      util::phi_psi_t phi_psi_1() const { return pp_1; } 
+      util::phi_psi_t phi_psi_2() const { return pp_2; }
       double v() const { return v_;}
-      int ich() const { return ich_;}
-      int ich2() const { return ich2_;}
-   }; 
-
-   class compare_phi_psi_diffs {
-      
-      const std::vector<diff_sq_t> *v1;
-   public:
-      compare_phi_psi_diffs(const std::vector<diff_sq_t> &vin1) {
-	 v1 = &vin1;
-      }
-      int operator() (diff_sq_t a1, diff_sq_t a2) const {
-	 return a1.v() > a2.v(); 
-      }
-      
    };
 
-   class phi_psi_set_container {
-
-   public:
-      std::string chain_id;
-      std::vector<util::phi_psi_t> phi_psi;
-      phi_psi_set_container(const std::string &name) {
-	 chain_id = name;
-      }
-      phi_psi_set_container() { } // for resize(0)
-   };
+   bool compare_phi_psi_diffs(const diff_sq_t &d1, const diff_sq_t d2);
 
    // A container for information for testing whether a kleywegt
    // phi/psi pair goes over the board of the phi/phi plot (if it
@@ -184,7 +176,7 @@ namespace coot {
 	 n_ramas += sc.n_ramas;
 	 n_preferred += sc.n_preferred;
 	 n_allowed += sc.n_allowed;
-      } 
+      }
    };
 
 class rama_plot {
@@ -206,8 +198,8 @@ class rama_plot {
    // std::vector<phi_psi_t> phi_psi;
    // std::vector<phi_psi_t> secondary_phi_psi;
 
-   std::vector<phi_psi_set_container> phi_psi_sets;
-   std::vector<phi_psi_set_container> secondary_phi_psi_sets;
+   std::vector<phi_psis_for_model_t> phi_psi_model_sets;
+   std::vector<phi_psis_for_model_t> secondary_phi_psi_model_sets;
    GtkTooltips *tooltips;
    std::string fixed_font_str;
 
@@ -227,7 +219,7 @@ class rama_plot {
 				 // should the label disappear?  If
 				 // no, then we have sticky labels.
 
-   double rama_threshold_allowed;  // 0.05 
+   double rama_threshold_allowed;   // 0.05 
    double rama_threshold_preferred; // 0.002
    void init_internal(const std::string &mol_name,
 		      float level_prefered, float level_allowed,
@@ -259,9 +251,24 @@ class rama_plot {
 			  const std::string &chain_id_1,
 			  const std::string &chain_id_2);
    util::phi_psi_t green_box;
-   void draw_green_box() ; // use above stored position to draw green square
-   bool green_box_is_sensible(util::phi_psi_t gb) const; // have the phi and psi been set to something sensible?
-      
+   void draw_green_box(); // use above stored position to draw green square
+   bool green_box_is_sensible(util::phi_psi_t gb) const; // have the phi and psi been set to
+                                                         // something sensible?
+   void recentre_graphics_maybe(mouse_util_t t);
+   mouse_util_t mouse_point_check_differences(double worldx, double worldy) const;
+
+   void find_phi_psi_differences();
+   void find_phi_psi_differences_internal(const std::string &chain_id1,
+					  const std::string &chain_id2,
+					  bool use_chain_ids);
+   void find_phi_psi_differences(const std::string &chain_id1,
+				 const std::string &chain_id2);
+
+   mouse_util_t mouse_point_check_internal(const coot::phi_psis_for_model_t &phi_psi_set,
+					   int imod, 
+					   double worldx, double worldy,
+					   bool is_secondary) const;
+
    
 public:
 
@@ -273,7 +280,8 @@ public:
    // gtk_object_destroy(big_box_item) if it is non-zero.
    void init(const std::string &type);
    // typically level_prefered = 0.02, level_allowed is 0.002, block_size is 10.0;
-   void init(int imol_no, const std::string &mol_name, float level_prefered, float level_allowed, float block_size_for_background, short int is_kleywegt_plot_flag);
+   void init(int imol_no, const std::string &mol_name, float level_prefered, float level_allowed,
+	     float block_size_for_background, short int is_kleywegt_plot_flag);
 
    void allow_seqnum_offset();
    void set_n_diffs(int nd);
@@ -298,18 +306,23 @@ public:
    void black_border();
    void cell_border(int i, int j, int step);
 
-   void generate_phi_psis(std::vector <phi_psi_set_container> *phi_psi_set_vec,
-			  CMMDBManager *mol);
+   void generate_phi_psis(CMMDBManager *mol);
+   void generate_phi_psis(CMMDBManager *mol, bool primary_flag);
+   void generate_secondary_phi_psis(CMMDBManager *mol);
+   void generate_phi_psis_by_selection(CMMDBManager *mol,
+				       bool is_primary_flag,
+				       int SelectionHandle);
+				       
+
+   
+   void generate_phi_psis(CMMDBManager *mol, int SelectionHandle);
    
    void generate_phi_psis_debug();
 
    void draw_axes();
    void draw_zero_lines();
 
-   // void draw_phi_psi_point(double phi, double psi);
-   int draw_phi_psi_point(int i,
-			  const std::vector<util::phi_psi_t> *phi_psi_vec,
-			  short int as_white_flag);
+   int draw_phi_psi_point(const util::phi_psi_t &phi_psi, bool as_white_flag);
    void draw_kleywegt_arrow(const util::phi_psi_t &phi_psi_primary,
 			    const util::phi_psi_t &phi_psi_secondary,
 			    GtkCanvasPoints *points);
@@ -317,17 +330,28 @@ public:
 					      const util::phi_psi_t &phi_psi_secondary)
       const;
 						    
-   int draw_phi_psi_point_internal(int i,
-				   const std::vector<util::phi_psi_t> *phi_psi_vec,
-				   short int as_white_flag, int box_size);
-   rama_stats_container_t draw_phi_psi_points(int ich); // updates canvas_phi_psi_points_vec
-   void big_square(int ires,
-		   const std::string &ins_code,
-		   const std::string &chainid);
+   int draw_phi_psi_point_internal(const util::phi_psi_t &phi_psi,
+				   bool as_white_flag, int box_size);
 
-   void add_phi_psi(std::vector <util::phi_psi_t> *phi_psi_vec,
-		    CMMDBManager *mol, const char *chain_id,
-		    CResidue *prev, CResidue *this_res, CResidue *next_res);
+   
+   rama_stats_container_t draw_phi_psi_points();
+   rama_stats_container_t draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t &pp_set); 
+
+
+   // sanitise the arguments
+   void big_square(const std::string &chainid,
+		   int ires,
+		   const std::string &ins_code);
+   void big_square(int model_number, 
+		   const std::string &chainid,
+		   int ires,
+		   const std::string &ins_code);
+
+
+   // Not sure about this yet
+//    void add_phi_psi(std::vector <util::phi_psi_t> *phi_psi_vec,
+// 		    CMMDBManager *mol, const char *chain_id,
+// 		    CResidue *prev, CResidue *this_res, CResidue *next_res);
 
    util::phi_psi_pair_helper_t make_phi_psi_pair(CMMDBManager *mol1,
 						 CMMDBManager *mol2,
@@ -363,7 +387,7 @@ public:
    CMMDBManager *rama_get_mmdb_manager(std::string pdb_name);
    // void tooltip_like_box(int i, short int is_seconary);
    void tooltip_like_box(const mouse_util_t &t); 
-   int draw_phi_psi_as_gly(int i, const std::vector<util::phi_psi_t> *phi_psi_vec); 
+   int draw_phi_psi_as_gly(const util::phi_psi_t &phi_psi); 
    void residue_type_background_as(std::string res);
    void all_plot(clipper::Ramachandran::TYPE type);
 
@@ -373,9 +397,6 @@ public:
    mouse_util_t mouse_point_check(double x, double y) const;
 
    void all_plot_background_and_bits(clipper::Ramachandran::TYPE type); 
-
-   void find_phi_psi_differences_whole_molecule();
-   void find_phi_psi_differences_by_chain();
 
    gint key_release_event(GtkWidget *widget, GdkEventKey *event);
 

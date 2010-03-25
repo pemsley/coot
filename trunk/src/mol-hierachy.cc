@@ -78,7 +78,7 @@ void check_chiral_volumes(int imol) {
 
    // for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
    int imod = 1;
-   CModel *model_p = asc.mol->GetModel(imod);
+   CModel *model_p = mol->GetModel(imod);
    CChain *chain_p;
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
