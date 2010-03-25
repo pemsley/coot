@@ -510,7 +510,7 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::resi
       coot::rama_plot *plot = static_cast<coot::rama_plot *>
 	 (gtk_object_get_user_data(GTK_OBJECT(w)));
 
-      plot->big_square(res_spec.resno, res_spec.insertion_code, res_spec.chain);
+      plot->big_square(res_spec.chain, res_spec.resno, res_spec.insertion_code);
    } 
 #endif // HAVE_GTK_CANVAS      
 

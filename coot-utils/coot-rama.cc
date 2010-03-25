@@ -58,16 +58,23 @@ coot::util::ramachandran_angles(PCResidue *SelResidues, int nSelResidues) {
 // for that in this function).
 std::pair<bool, coot::util::phi_psi_t>
 coot::util::get_phi_psi(PCResidue *SelResidue) {
+   return get_phi_psi(SelResidue[0], SelResidue[1], SelResidue[2]);
+} 
+
+// SelResidue is guaranteed to have 3 residues (there is no protection
+// for that in this function).
+std::pair<bool, coot::util::phi_psi_t>
+coot::util::get_phi_psi(CResidue *residue_0, CResidue *residue_1, CResidue *residue_2) {
 
    bool is_valid_flag = 0;
    coot::util::phi_psi_t phi_psi; // part of the returned value
    int nResidueAtoms;
    PPCAtom res_selection;
    int natom = 0;
-   int ires = SelResidue[1]->GetSeqNum();
+   int ires = residue_1->GetSeqNum();
    clipper::Coord_orth c_prev, n_this, ca_this, c_this, n_next;
 
-   SelResidue[0]->GetAtomTable(res_selection, nResidueAtoms);
+   residue_0->GetAtomTable(res_selection, nResidueAtoms);
    if (nResidueAtoms > 0) {
       for (int j=0; j<nResidueAtoms; j++) {
 	 std::string atom_name = res_selection[j]->name;
@@ -79,7 +86,7 @@ coot::util::get_phi_psi(PCResidue *SelResidue) {
 	 }
       }
    }
-   SelResidue[1]->GetAtomTable(res_selection, nResidueAtoms);
+   residue_1->GetAtomTable(res_selection, nResidueAtoms);
    if (nResidueAtoms > 0) {
       for (int j=0; j<nResidueAtoms; j++) {
 	 std::string atom_name = res_selection[j]->name;
@@ -104,7 +111,7 @@ coot::util::get_phi_psi(PCResidue *SelResidue) {
       }
    }
 
-   SelResidue[2]->GetAtomTable(res_selection, nResidueAtoms);
+   residue_2->GetAtomTable(res_selection, nResidueAtoms);
    if (nResidueAtoms > 0) {
       for (int j=0; j<nResidueAtoms; j++) {
 	 std::string atom_name = res_selection[j]->name;
@@ -121,10 +128,10 @@ coot::util::get_phi_psi(PCResidue *SelResidue) {
       char num[30];
       snprintf(num,20,"%d",ires); 
       std::string label(num);
-      std::string segid = SelResidue[1]->GetChainID();
-      std::string inscode = SelResidue[1]->GetInsCode();
+      std::string segid = residue_1->GetChainID();
+      std::string inscode = residue_1->GetInsCode();
       label += " ";
-      label += SelResidue[1]->name;
+      label += residue_1->name;
       label += " ";
       label += segid;
       
@@ -132,7 +139,7 @@ coot::util::get_phi_psi(PCResidue *SelResidue) {
       double psi = clipper::Util::rad2d(ca_this.torsion(n_this, ca_this, c_this, n_next));
       
       phi_psi = coot::util::phi_psi_t(phi, psi,
-				      SelResidue[1]->name,
+				      residue_1->name,
 				      label.c_str(),
 				      ires,
 				      inscode,
@@ -142,4 +149,19 @@ coot::util::get_phi_psi(PCResidue *SelResidue) {
       // std::cout << "only found " << natom << " atoms " << std::endl;
    } 
    return std::pair<bool, coot::util::phi_psi_t> (is_valid_flag, phi_psi);
+}
+
+
+// this can throw an exception (e.g. bonding atoms too far
+// apart).
+coot::util::phi_psi_t::phi_psi_t(CResidue *prev, CResidue *this_res, CResidue *next) {
+
+   std::pair<bool, coot::util::phi_psi_t> bpp = coot::util::get_phi_psi(prev, this_res, next);
+
+   if (! bpp.first) {
+      std::string mess = "bad residues for Phi psi calculation";
+      throw std::runtime_error(mess);
+   } else { 
+      *this = bpp.second;
+   }
 }

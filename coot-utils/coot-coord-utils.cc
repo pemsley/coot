@@ -1076,15 +1076,20 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::atom_spec_t &spec) 
 
 std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spec) {
 
-   s << "[spec: ";
-   s << "\"";
-   s << spec.chain;
-   s << "\" ";
-   s << spec.resno;
-   s << " ";
-   s << "\"";
-   s << spec.insertion_code;
-   s << "\"]";
+   if (!spec.unset_p()) { 
+
+      s << "[spec: ";
+      s << "\"";
+      s << spec.chain;
+      s << "\" ";
+      s << spec.resno;
+      s << " ";
+      s << "\"";
+      s << spec.insertion_code;
+      s << "\"]";
+   } else {
+      s << "{residue-spec-not-set}";
+   } 
    return s;
 
 }
