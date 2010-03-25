@@ -76,7 +76,7 @@
 // for debugging (the density_around_point function)
 #include "coot-map-utils.hh"
 
-clipper::Xmap<float>
+std::pair<bool,clipper::Xmap<float> >
 map_from_mtz(std::string mtz_file_name,
 	     std::string f_col,
 	     std::string phi_col,
@@ -203,6 +203,7 @@ main(int argc, char **argv) {
       if (inputs.is_good) { 
 
 	 string pdb_file_name(inputs.input_pdb_file_name);
+	 bool map_is_good = 0;
 
 	 // if pdb_file_name does not exist -> crash?
 	 atom_selection_container_t asc = get_atom_selection(pdb_file_name);
@@ -211,8 +212,11 @@ main(int argc, char **argv) {
 	 clipper::Xmap<float> xmap;
 
 	 if (! inputs.given_map_flag) {
-	    xmap = map_from_mtz(inputs.mtz_file_name, inputs.f_col,
-				inputs.phi_col, "", 0, 0, inputs.is_debug_mode);
+	    std::pair<bool, clipper::Xmap<float> > xmap_pair = 
+	    map_from_mtz(inputs.mtz_file_name, inputs.f_col,
+			 inputs.phi_col, "", 0, 0, inputs.is_debug_mode);
+	    xmap = xmap_pair.second;
+	    map_is_good = xmap_pair.first;
 	    if (inputs.is_debug_mode) { 
 	       clipper::Coord_orth pt(51.148,   8.121,  -1.418);
 	       coot::util::density_stats_info_t ds =
@@ -229,6 +233,7 @@ main(int argc, char **argv) {
 	    file.open_read(inputs.map_file_name);
 	    file.import_xmap(xmap);
 	    file.close_read();
+	    map_is_good = 1;
 	 }
 
 	 float map_weight = 60.0;
@@ -236,57 +241,59 @@ main(int argc, char **argv) {
 	    map_weight = inputs.map_weight;
 	    std::cout << "INFO:: using weight " << map_weight << std::endl;
 	 }
+
+	 if (map_is_good) { 
+	    std::string altloc("");
+
+	    std::vector<std::pair<bool,CResidue *> > local_residues =
+	       fill_residues(chain_id, inputs.resno_start, inputs.resno_end, asc.mol);
+
+	    // 	 int have_flanking_residue_at_start = 0;
+	    // 	 int have_flanking_residue_at_end   = 0;
+	    // 	 int have_disulfide_residues        = 0;
 	 
-	 std::string altloc("");
+	    // 	 coot::restraints_container_t restraints(inputs.resno_start,
+	    // 						 inputs.resno_end,
+	    // 						 have_flanking_residue_at_start,
+	    // 						 have_flanking_residue_at_end,
+	    // 						 have_disulfide_residues,
+	    // 						 altloc,
+	    // 						 chain_id,
+	    // 						 asc.mol,
+	    // 						 fixed_atom_specs);
 
-	 std::vector<std::pair<bool,CResidue *> > local_residues =
-	    fill_residues(chain_id, inputs.resno_start, inputs.resno_end, asc.mol);
-
-// 	 int have_flanking_residue_at_start = 0;
-// 	 int have_flanking_residue_at_end   = 0;
-// 	 int have_disulfide_residues        = 0;
-	 
-// 	 coot::restraints_container_t restraints(inputs.resno_start,
-// 						 inputs.resno_end,
-// 						 have_flanking_residue_at_start,
-// 						 have_flanking_residue_at_end,
-// 						 have_disulfide_residues,
-// 						 altloc,
-// 						 chain_id,
-// 						 asc.mol,
-// 						 fixed_atom_specs);
-
-	 coot::restraints_container_t restraints(local_residues, geom,
-						 asc.mol,
-						 fixed_atom_specs);
+	    coot::restraints_container_t restraints(local_residues, geom,
+						    asc.mol,
+						    fixed_atom_specs);
       
-	 restraints.add_map(xmap, map_weight);
+	    restraints.add_map(xmap, map_weight);
 
-	 // coot::restraint_usage_Flags flags = coot::NO_GEOMETRY_RESTRAINTS;
-	 // coot::restraint_usage_Flags flags = coot::BONDS;
-	 // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
-	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
-	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
-	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
-	 // flags = coot::NON_BONDED;
-	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-	 if (inputs.use_torsion_targets) {
-	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+	    // coot::restraint_usage_Flags flags = coot::NO_GEOMETRY_RESTRAINTS;
+	    // coot::restraint_usage_Flags flags = coot::BONDS;
+	    // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
+	    // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
+	    // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
+	    // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+	    // flags = coot::NON_BONDED;
+	    coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+	    if (inputs.use_torsion_targets) {
+	       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+	       if (inputs.use_rama_targets)
+		  flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	    } else { 
+	       if (inputs.use_rama_targets)
+		  flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	    }
+
+	    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+	    bool do_rama_plot_restraints = 0;
 	    if (inputs.use_rama_targets)
-	       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-	 } else { 
-	    if (inputs.use_rama_targets)
-	       flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	       do_rama_plot_restraints = 1;
+	    restraints.make_restraints(geom, flags, 1, 1.0, do_rama_plot_restraints, pseudos);
+
+	    restraints.minimize(flags);
+	    restraints.write_new_atoms(inputs.output_pdb_file_name);
 	 }
-
-	 coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
-	 bool do_rama_plot_restraints = 0;
-	 if (inputs.use_rama_targets)
-	    do_rama_plot_restraints = 1;
-	 restraints.make_restraints(geom, flags, 1, 1.0, do_rama_plot_restraints, pseudos);
-
-	 restraints.minimize(flags);
-	 restraints.write_new_atoms(inputs.output_pdb_file_name);
       }
    }
 
@@ -294,7 +301,7 @@ main(int argc, char **argv) {
    return 0; 
 } 
 
-clipper::Xmap<float>
+std::pair<bool, clipper::Xmap<float> > 
 map_from_mtz(std::string mtz_file_name,
 	     std::string f_col,
 	     std::string phi_col,
@@ -303,82 +310,87 @@ map_from_mtz(std::string mtz_file_name,
 	     int is_diff_map,
 	     bool is_debug_mode) {
 
+
+   bool status = 0; // not filled
    
    clipper::HKL_info myhkl; 
    clipper::MTZdataset myset; 
    clipper::MTZcrystal myxtl; 
-
-   cout << "reading mtz file..." << endl; 
-   clipper::CCP4MTZfile mtzin; 
-   mtzin.open_read( mtz_file_name );       // open new file 
-   mtzin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
-   clipper::HKL_data< clipper::datatypes::F_sigF<float> >   f_sigf_data(myhkl, myxtl);
-   clipper::HKL_data< clipper::datatypes::Phi_fom<float> > phi_fom_data(myhkl, myxtl);
-   clipper::HKL_data< clipper::datatypes::F_phi<float> >       fphidata(myhkl, myxtl); 
-   
-   std::string mol_name = mtz_file_name + " "; 
-   mol_name += f_col; 
-   mol_name += " "; 
-   mol_name += phi_col; 
-   
-   if (use_weights) { 
-      mol_name += " ";
-      mol_name += weight_col; 
-   } 
    clipper::Xmap<float> xmap;
+
+   try { 
+      cout << "reading mtz file..." << endl; 
+      clipper::CCP4MTZfile mtzin; 
+      mtzin.open_read( mtz_file_name );       // open new file 
+      mtzin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
+      clipper::HKL_data< clipper::datatypes::F_sigF<float> >   f_sigf_data(myhkl, myxtl);
+      clipper::HKL_data< clipper::datatypes::Phi_fom<float> > phi_fom_data(myhkl, myxtl);
+      clipper::HKL_data< clipper::datatypes::F_phi<float> >       fphidata(myhkl, myxtl); 
    
+      std::string mol_name = mtz_file_name + " "; 
+      mol_name += f_col; 
+      mol_name += " "; 
+      mol_name += phi_col; 
+   
+      if (use_weights) { 
+	 mol_name += " ";
+	 mol_name += weight_col; 
+      } 
 
-   if ( use_weights ) {
-     clipper::String dataname = "/*/*/[" + f_col + " " + f_col + "]";
-     std::cout << dataname << "\n";
-     mtzin.import_hkl_data(  f_sigf_data, myset, myxtl, dataname ); 
-     dataname = "/*/*/[" + phi_col + " " + weight_col + "]";
-     std::cout << dataname << "\n";
-     mtzin.import_hkl_data( phi_fom_data, myset, myxtl, dataname );
-     mtzin.close_read(); 
-     cout << "We should use the weights: " << weight_col << endl;
-     // it seems to me that we should make 2 data types, an F_sigF and a phi fom
-     // and then combine them using a Convert_fsigf_phifom_to_fphi();
+      if ( use_weights ) {
+	 clipper::String dataname = "/*/*/[" + f_col + " " + f_col + "]";
+	 std::cout << dataname << "\n";
+	 mtzin.import_hkl_data(  f_sigf_data, myset, myxtl, dataname ); 
+	 dataname = "/*/*/[" + phi_col + " " + weight_col + "]";
+	 std::cout << dataname << "\n";
+	 mtzin.import_hkl_data( phi_fom_data, myset, myxtl, dataname );
+	 mtzin.close_read(); 
+	 cout << "We should use the weights: " << weight_col << endl;
+	 // it seems to me that we should make 2 data types, an F_sigF and a phi fom
+	 // and then combine them using a Convert_fsigf_phifom_to_fphi();
 
-     fphidata.compute(f_sigf_data, phi_fom_data,
-		      clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
+	 fphidata.compute(f_sigf_data, phi_fom_data,
+			  clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
 
-  } else {
-     clipper::String dataname = "/*/*/[" + f_col + " " + phi_col + "]";
-     mtzin.import_hkl_data(     fphidata, myset, myxtl, dataname );
-     mtzin.close_read(); 
-  }
-  std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n"; 
-  xmap.init( myhkl.spacegroup(), myhkl.cell(),
-	     clipper::Grid_sampling( myhkl.spacegroup(),
-				     myhkl.cell(),
-				     myhkl.resolution()) );
-  cout << "Grid..." << xmap.grid_sampling().format() << "\n";
-  cout << "doing fft..." << endl;
+      } else {
+	 clipper::String dataname = "/*/*/[" + f_col + " " + phi_col + "]";
+	 mtzin.import_hkl_data(     fphidata, myset, myxtl, dataname );
+	 mtzin.close_read(); 
+      }
+      std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n"; 
+      xmap.init( myhkl.spacegroup(), myhkl.cell(),
+		 clipper::Grid_sampling( myhkl.spacegroup(),
+					 myhkl.cell(),
+					 myhkl.resolution()) );
+      cout << "Grid..." << xmap.grid_sampling().format() << "\n";
+      cout << "doing fft..." << endl;
 
-  if (is_debug_mode) { 
-     int count = 0; 
-     clipper::HKL_info::HKL_reference_index hri;
-     for (hri=fphidata.first(); !hri.last(); hri.next()) {
-	if (count == 10)
-	   break;
-	std::cout << "sample data " << " "
-		  << hri.hkl().h() << " " 
-		  << hri.hkl().k() << " " 
-		  << hri.hkl().l() << " : " 
-		  << fphidata[hri].f() << " " << fphidata[hri].phi()*180/M_PI << std::endl;
-	count++;
-     }
-  }
+      if (is_debug_mode) { 
+	 int count = 0; 
+	 clipper::HKL_info::HKL_reference_index hri;
+	 for (hri=fphidata.first(); !hri.last(); hri.next()) {
+	    if (count == 10)
+	       break;
+	    std::cout << "sample data " << " "
+		      << hri.hkl().h() << " " 
+		      << hri.hkl().k() << " " 
+		      << hri.hkl().l() << " : " 
+		      << fphidata[hri].f() << " " << fphidata[hri].phi()*180/M_PI << std::endl;
+	    count++;
+	 }
+      }
   
   
-  xmap.fft_from( fphidata );                  // generate map
-  cout << "done fft..." << endl;
+      xmap.fft_from( fphidata );                  // generate map
+      cout << "done fft..." << endl;
+      status = 1;
+   }
+   // catch (clipper::Message_base exception) {
+   catch (...) {
+      std::cout << "Failed to read mtz file " << mtz_file_name << std::endl;
+   }
 
-  // Serge and Tassos don't care about this: let's save a few milliseconds:
-  // clipper::Map_stats stats(xmap);
-  // std::cout << "map mean " << stats.mean() << ", std dev: " << stats.std_dev() << std::endl;
-  return xmap;
+   return std::pair<bool, clipper::Xmap<float> > (status, xmap);
 }
 
 
