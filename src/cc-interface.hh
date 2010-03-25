@@ -43,6 +43,27 @@ namespace coot {
 	 flag = flag_in;
       }
    };
+
+   // pisa internal function
+   //
+   class pisa_interface_bond_info_t {
+   public:
+      pisa_interface_bond_info_t() {
+	 n_h_bonds = 0;
+	 n_salt_bridges = 0;
+	 n_cov_bonds = 0;
+	 n_ss_bonds = 0;
+      }
+      int n_h_bonds;
+      int n_salt_bridges;
+      int n_cov_bonds;
+      int n_ss_bonds;
+   };
+   
+#ifdef USE_GUILE   
+   pisa_interface_bond_info_t get_pisa_interface_bond_info_scm(SCM bonds_info_scm);
+#endif   
+
 }
 
 

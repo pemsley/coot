@@ -232,10 +232,11 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 						  mol_1_residue_specs,
 						  mol_2_residue_specs);
 
-	       int n_h_bonds = 2;
-	       int n_salt_bridges = 2;
-	       int n_cov_bonds = 3;
-	       int n_ss_bonds = 4;
+	       
+	       SCM bonds_scm = scm_list_ref(interface_scm, SCM_MAKINUM(1));
+
+	       coot::pisa_interface_bond_info_t pibi =
+		  coot::get_pisa_interface_bond_info_scm(bonds_scm);
 
 	       // Where is the middle of the interface?  We should
 	       // pass that to so that the view recentres there when
@@ -251,8 +252,10 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 							     interface_solv_en,
 							     interface_pvalue,
 							     interface_stab_en,
-							     n_h_bonds, n_salt_bridges,
-							     n_cov_bonds, n_ss_bonds);
+							     pibi.n_h_bonds,
+							     pibi.n_salt_bridges,
+							     pibi.n_cov_bonds,
+							     pibi.n_ss_bonds);
 	       
 	       pisa_treeview_info.push_back(pisa_interface_attribs);
 	       
@@ -284,7 +287,42 @@ std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in) {
       s = "";
    // std::cout << "=== converted \"" << mmdb_chain_id_in << "\" to \"" << s << "\"\n";
    return s;
-} 
+}
+
+   
+#ifdef USE_GUILE   
+coot::pisa_interface_bond_info_t
+coot::get_pisa_interface_bond_info_scm(SCM bonds_info_scm) {
+   coot::pisa_interface_bond_info_t pibi;
+
+   SCM bonds_info_length_scm = scm_length(bonds_info_scm);
+   int bonds_info_length = scm_to_int(bonds_info_length_scm);
+   for (unsigned int ib=0; ib<bonds_info_length; ib++) {
+      SCM bond_info_scm = scm_list_ref(bonds_info_scm, SCM_MAKINUM(ib));
+      SCM bond_info_scm_length_scm = scm_length(bond_info_scm);
+      int bond_info_scm_length = scm_to_int(bond_info_scm_length_scm);
+      if (bond_info_scm_length == 3) {
+	 SCM bond_type_scm = scm_list_ref(bond_info_scm, SCM_MAKINUM(0));
+	 std::string bond_str = scm_to_locale_string(scm_symbol_to_string(bond_type_scm));
+	 // 'h-bonds 'salt-bridges 'ss-bonds 'cov-bonds
+	 if (bond_str == "h-bonds") { 
+	    pibi.n_h_bonds++;
+	 }
+	 if (bond_str == "salt-bridges") { 
+	    pibi.n_salt_bridges++;
+	 }
+	 if (bond_str == "ss-bonds") { 
+	    pibi.n_ss_bonds++;
+	 }
+	 if (bond_str == "cov-bonds") { 
+	    pibi.n_cov_bonds++;
+	 }
+      }
+   }
+   return pibi;
+}
+#endif   
+
 
 
 #ifdef USE_GUILE

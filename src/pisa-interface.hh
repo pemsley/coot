@@ -70,8 +70,8 @@ namespace coot {
 	 symop = symop_str;
 	 n_h_bonds = n_h_bonds_in;
 	 n_salt_bridges = n_salt_bridges_in;
+	 n_ss_bonds = n_ss_bonds_in;
 	 n_cov_bonds = n_cov_bonds_in;
-	 n_ss_bonds = n_salt_bridges_in;
 	 interface_pvalue  = interface_pvalue_in;
 	 interface_stab_en = interface_stab_en_in;
 	 interface_area    = interface_area_in;

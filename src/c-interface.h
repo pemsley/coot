@@ -5905,6 +5905,7 @@ SCM pisa_molecule_record_chain_id(SCM molecule_record_1);
 void add_pisa_interface_bond_scm(int imol_1, int imol_2, SCM pisa_bond_scm, 
 				 int interface_number);
 
+
 /* clear out and undisplay all pisa interface descriptions. */
 void pisa_clear_interfaces();
 #endif /* USE_GUILE */
