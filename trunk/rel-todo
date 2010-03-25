@@ -13,8 +13,8 @@
       SBase. ::: 1
 
     o Fix nomenclature errors is broken. e.g. 3fcs, many reported as
-    fixed, but on re-running (many of the) same problems reported.
-    ::: 2
+      fixed, but on re-running (many of the) same problems reported.
+      ::: 2
 
     o disulfide bond problems in 3HH2. [Erik Vogan]  ::: 3
 
@@ -361,4 +361,5 @@ In /home/paule/autobuild/Linux-scylla-pre-release-gtk2/share/coot/scheme/check-f
 
 * Done.  At last.
 
-
+   o Hydrogens on highly coordinated waters are not filtered out
+     ::: 0.5 

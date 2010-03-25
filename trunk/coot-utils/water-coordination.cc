@@ -114,23 +114,27 @@ coot::util::water_coordination_t::add_contact(CAtom *atom_central, CAtom *atom_c
 
    if ((alt_conf_1 == alt_conf_2) || (alt_conf_1 == "") || (alt_conf_2 == "")) { 
 
-      coot::util::contact_atoms_info_t::contact_atom_t con_at(atom_contactor, atom_central);
-      //
-      // Now where does con_at go?
-      // is atom_central already in atom_contacts?
-      //
-      bool found = 0;
-      for (unsigned int i=0; i<atom_contacts.size(); i++) {
-	 if (atom_contacts[i].matches_atom(atom_central)) {
-	    atom_contacts[i].add(con_at);
-	    found = 1; 
-	    break;
-	 } 
-      }
+      // filter out H water contacts.
+      std::string ele(atom_contactor->element);
+      if (ele != " H") { 
+	 coot::util::contact_atoms_info_t::contact_atom_t con_at(atom_contactor, atom_central);
+	 //
+	 // Now where does con_at go?
+	 // is atom_central already in atom_contacts?
+	 //
+	 bool found = 0;
+	 for (unsigned int i=0; i<atom_contacts.size(); i++) {
+	    if (atom_contacts[i].matches_atom(atom_central)) {
+	       atom_contacts[i].add(con_at);
+	       found = 1; 
+	       break;
+	    } 
+	 }
 
-      if (! found) {
-	 coot::util::contact_atoms_info_t cai(atom_central, con_at);
-	 atom_contacts.push_back(cai);
+	 if (! found) {
+	    coot::util::contact_atoms_info_t cai(atom_central, con_at);
+	    atom_contacts.push_back(cai);
+	 }
       }
    }
 }
