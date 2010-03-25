@@ -81,6 +81,9 @@
   o BUG-FIX: Platinum can now have sensible bonds to N and O [John
     Helliwell].
 
+  o BUG-FIX: Ramachandran plots work at the end of chains chains with
+    missing residues [JED].
+
 -----
 
   Release 0.6.1
