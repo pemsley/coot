@@ -131,8 +131,9 @@ into EndNote)... format as you please:
   journal =   {Acta Crystallographica Section D - Biological Crystallography},
   year =      2010,
   volume =    66,
-  pages  =    ??-?? (in press)
+  pages  =    486-501
 }
+
 @end verbatim
 
 The Coot paper will be published in the proceedings of the 2009 CCP4 Study Weekend.
