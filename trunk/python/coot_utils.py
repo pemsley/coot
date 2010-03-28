@@ -2506,6 +2506,7 @@ ccp4i_projects         = ccp4i_projects_py
 add_dipole             = add_dipole_py
 add_dipole_for_residues = add_dipole_for_residues_py
 get_pkgdatadir         = get_pkgdatadir_py
+handle_pisa_interfaces = handle_pisa_interfaces_py
 pkgdatadir             = get_pkgdatadir_py
 matching_compound_names_from_sbase = matching_compound_names_from_sbase_py
 user_defined_click     = user_defined_click_py
