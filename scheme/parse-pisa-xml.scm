@@ -169,7 +169,7 @@
       (format port "[molecule: id ~s ~%"       ((record-accessor rec-type 'id)       record))
       (format port " molecule: chain-id ~s ~%" ((record-accessor rec-type 'chain-id) record))
       (format port " molecule: class ~s ~%"    ((record-accessor rec-type 'class)    record))
-      (format port " molecule: symop ~s ~%"    ((record-accessor rec-type 'symop-no) record))
+      (format port " molecule: symop ~s ~%"    ((record-accessor rec-type 'symop)    record))
       (format port " molecule: symop-no ~s ~%" ((record-accessor rec-type 'symop-no) record))
       (format port " molecule: natoms ~s ~%"   ((record-accessor rec-type 'natoms)   record))
       (format port " molecule: nres ~s ~%"     ((record-accessor rec-type 'nres)     record))

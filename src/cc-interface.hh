@@ -30,6 +30,10 @@
 #include "dipole.hh"
 #include "sequence-assignment.hh" // for residue_range_t 
 
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
+
 namespace coot {
 
    class alias_path_t {
@@ -62,6 +66,9 @@ namespace coot {
    
 #ifdef USE_GUILE   
    pisa_interface_bond_info_t get_pisa_interface_bond_info_scm(SCM bonds_info_scm);
+#endif   
+#ifdef USE_PYTHON   
+   pisa_interface_bond_info_t get_pisa_interface_bond_info_py(PyObject *bonds_info_py);
 #endif   
 
 }
@@ -114,7 +121,6 @@ SCM goto_prev_atom_maybe(const char *chain_id, int resno, const char *ins_code, 
 
 #ifdef USE_PYTHON
 // but I 'want' to! Needed for python unittest!
-#include "Python.h"
 PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 #endif
@@ -813,6 +819,12 @@ std::vector<coot::residue_spec_t>
 residue_records_list_scm_to_residue_specs(SCM mol_1_residue_records,
 					  const std::string &chain_id);
 SCM symbol_value_from_record(SCM record_1, const std::string &symbol);
+#endif 
+#ifdef USE_PYTHON
+std::vector<coot::residue_spec_t>
+residue_records_list_py_to_residue_specs(PyObject *mol_1_residue_records,
+					 const std::string &chain_id);
+//PyObject *symbol_value_from_record(PyObject *record_1, const std::string &symbol);
 #endif 
 
 void

@@ -4036,10 +4036,10 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol) {
    }
    
    // clean up
-   Py_XDECREF(vos);
+   Py_XDECREF(le);
 
    if (PyBool_Check(r)) {
-     Py_INCREF(r);
+     Py_XINCREF(r);
    }
    return r;
 }
