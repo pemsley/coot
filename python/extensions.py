@@ -53,6 +53,16 @@ if (have_coot_python):
                                        lambda func: (printf("checking for updates..."),
                                                      check_for_updates_gui()))
 
+
+     # --------------------------------------------------
+     #           coordinated water validation dialog
+     # --------------------------------------------------
+
+     menu = coot_menubar_menu("Validate")
+     if menu:
+       add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
+                                     lambda func: water_coordination_gui())
+
      
      # ---------------------------------------------
      #           extensions
@@ -343,11 +353,16 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Copy Fragment...", 
-       lambda func: generic_chooser_and_entry("Create a new Molecule\n \
-                                  From which molecule shall we seed?", 
-                                 "Atom selection for fragment", "//A/1-10", 
-		lambda imol, text: new_molecule_by_atom_selection(imol,text)))
+       "Add Other Solvent Molecules...",
+       lambda func: solvent_ligands_gui())
+
+     
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Arrange Waters Around Protein...",
+       lambda func: molecule_chooser_gui(
+          "Arrange waters in molecule: ",
+          lambda imol: move_waters_to_around_protein(imol)))
 
 
      add_simple_coot_menu_menuitem(
@@ -359,129 +374,15 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Residue Type Selection...",
-	lambda func: generic_chooser_and_entry("Choose a molecule to select residues from: ","Residue Type:","",
-                                               lambda imol, text: (new_molecule_by_residue_type_selection(imol, text),
-                                                                   update_go_to_atom_window_on_new_mol())))
+       "Copy Fragment...", 
+       lambda func: generic_chooser_and_entry("Create a new Molecule\n \
+                                  From which molecule shall we seed?", 
+                                 "Atom selection for fragment", "//A/1-10", 
+		lambda imol, text: new_molecule_by_atom_selection(imol,text)))
 
 
-     def new_mol_sphere_func1(imol, text):
-       try:
-         radius = float(text)
-       except:
-         print "WARNING:: no valid radius", text
-       args = [imol] + rotation_centre() + [radius]
-       new_molecule_by_sphere_selection(*args)
+     # --- D ---
 
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "New Molecule by Sphere...",
-       lambda func: generic_chooser_and_entry(
-          "Choose a molecule from which to select a sphere of atoms:",
-          "Radius:", "10.0",
-          lambda imol, text: new_mol_sphere_func1(imol, text)))
-
-
-     def new_mol_sym_func1(imol, text):
-       from types import ListType
-       pre_shift = origin_pre_shift(imol)
-       if (type(pre_shift) is not ListType):
-         print "bad pre-shift aborting"
-       else:
-         new_molecule_by_symop(imol, text,
-                               pre_shift[0],
-                               pre_shift[1],
-                               pre_shift[2])
-       
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "New Molecule from Symmetry Op...",
-       lambda func: generic_chooser_and_entry(
-          "Molecule from which to generate a symmetry copy",
-          "SymOp", "X,Y,Z",
-          lambda imol, text: new_mol_sym_func1(imol, text)))
-
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Rename Residue...",
-       lambda func: rename_residue_gui())
-
-# BL says:: may work, not sure about function entirely
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Replace Fragment...",
-       lambda func: molecule_chooser_gui("Define the molecule that needs updating",
-		lambda imol_base: generic_chooser_and_entry(
-				"Molecule that contains the new fragment:",
-				"Atom Selection","//",
-				lambda imol_fragment, atom_selection_str:
-				replace_fragment(imol_base, imol_fragment, atom_selection_str))))
-
-
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Replace Residue...",
-       lambda func: generic_single_entry("Replace this residue with residue of type:",
-                                         "ALA", "Mutate",
-                                         lambda text: using_active_atom([[mutate_by_overlap,
-                                                                          ["aa_imol", "aa_chain_id", "aa_res_no"],
-                                                                          [text]]])))
-
-
-     def mon_dict_func(text):
-       idealized = 0
-       new_model = get_monomer_from_dictionary(text, idealized)
-       if not valid_model_molecule_qm(new_model):
-         get_monomer(text)
-         
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Monomer from Dictionary",
-       lambda func:
-         generic_single_entry("Pull coordinates from CIF dictionary for 3-letter-code:", "",
-                              " Get Coords ",
-                              lambda text: mon_dict_func(text)))
-                              
-       
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Reorder Chains...",
-       lambda func: molecule_chooser_gui("Sort Chain IDs in molecule:",
-                                         lambda imol: sort_chains(imol))) # an internal function
-
-
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Fix Nomenclature Errors...",
-       lambda func: molecule_chooser_gui("Fix Nomenclature Error in molecule:",
-                                         lambda imol: fix_nomenclature_errors(imol)))
-
-
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Add Strand Here...",
-       lambda func: place_strand_here_gui())
-
-
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Find Secondary Structure...")
-
-     menuitem2.set_submenu(submenu)
-     submenu_models.append(menuitem2)
-     menuitem2.show()
-     
-     add_simple_coot_menu_menuitem(
-       submenu,
-       "Find Helices", 
-       lambda func: find_helices())
-
-     add_simple_coot_menu_menuitem(
-       submenu,
-       "Find Strands", 
-       lambda func: find_strands())
-
-
-     # NOTE:: this is (currently) in the main menu?! shall it?
      submenu = gtk.Menu()
      menuitem2 = gtk.MenuItem("Dock Sequence...")
 
@@ -525,20 +426,119 @@ if (have_coot_python):
        lambda func: associate_pir_with_molecule_gui()) # no alignment on OK press
 
 
+     # doublication to entry in main gtk code!
+     submenu = gtk.Menu()
+     menuitem2 = gtk.MenuItem("Find Secondary Structure...")
+
+     menuitem2.set_submenu(submenu)
+     submenu_models.append(menuitem2)
+     menuitem2.show()
+     
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Find Helices", 
+       lambda func: find_helices())
+
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Find Strands", 
+       lambda func: find_strands())
+
+
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Rigid Body Fit Residue Ranges...",
-       lambda func:
-       residue_range_gui(lambda imol, ls: rigid_body_refine_by_residue_ranges(imol, ls),
-                         "Rigid Body Refine",
-                         "  Fit  "))
-     
+       "Fix Nomenclature Errors...",
+       lambda func: molecule_chooser_gui("Fix Nomenclature Error in molecule:",
+                                         lambda imol: fix_nomenclature_errors(imol)))
+
+
+     # --- M ---
 
      add_simple_coot_menu_menuitem(
        submenu_models,
        "Merge Water Chains...",
        lambda func: molecule_chooser_gui("Merge Water Chains in molecule:",
                                          lambda imol: merge_solvent_chains(imol)))
+
+
+     def mon_dict_func(text):
+       idealized = 0
+       new_model = get_monomer_from_dictionary(text, idealized)
+       if not valid_model_molecule_qm(new_model):
+         get_monomer(text)
+         
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Monomer from Dictionary",
+       lambda func:
+         generic_single_entry("Pull coordinates from CIF dictionary for 3-letter-code:", "",
+                              " Get Coords ",
+                              lambda text: mon_dict_func(text)))
+                              
+
+     # -- N --
+
+     def new_mol_sphere_func1(imol, text):
+       try:
+         radius = float(text)
+       except:
+         print "WARNING:: no valid radius", text
+       args = [imol] + rotation_centre() + [radius]
+       new_molecule_by_sphere_selection(*args)
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "New Molecule by Sphere...",
+       lambda func: generic_chooser_and_entry(
+          "Choose a molecule from which to select a sphere of atoms:",
+          "Radius:", "10.0",
+          lambda imol, text: new_mol_sphere_func1(imol, text)))
+
+
+     def new_mol_sym_func1(imol, text):
+       from types import ListType
+       pre_shift = origin_pre_shift(imol)
+       if (type(pre_shift) is not ListType):
+         print "bad pre-shift aborting"
+       else:
+         new_molecule_by_symop(imol, text,
+                               pre_shift[0],
+                               pre_shift[1],
+                               pre_shift[2])
+       
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "New Molecule from Symmetry Op...",
+       lambda func: generic_chooser_and_entry(
+          "Molecule from which to generate a symmetry copy",
+          "SymOp", "X,Y,Z",
+          lambda imol, text: new_mol_sym_func1(imol, text)))
+
+
+     # --- P ---
+     
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Phosphorylate this residue",
+       lambda func: phosphorylate_active_residue())
+
+
+#     BL FIXME:: not tested yet, due to problems on windows, try on Linux!
+#     add_simple_coot_menu_menuitem(
+#       submenu_models,
+#       "Prodrg-ify this residue (generate restraints)",
+#       lambda func: using_active_atom([[prodrg_ify,
+#                                        ["aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"], []]]))
+     
+
+     # ---- R ---------
+
+     # --- Ren --- 
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Rename Residue...",
+       lambda func: rename_residue_gui())
 
 
      add_simple_coot_menu_menuitem(
@@ -548,20 +548,46 @@ if (have_coot_python):
           "Renumber waters of which molecule?",
           lambda imol: renumber_waters(imol)))
 
+     # --- Reo ---
 
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Arrange Waters Around Protein...",
-       lambda func: molecule_chooser_gui(
-          "Arrange waters in molecule: ",
-          lambda imol: move_waters_to_around_protein(imol)))
+       "Reorder Chains...",
+       lambda func: molecule_chooser_gui("Sort Chain IDs in molecule:",
+                                         lambda imol: sort_chains(imol))) # an internal function
 
+     # --- Rep ---
 
+     # BL says:: may work, not sure about function entirely
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Add Other Solvent Molecules...",
-       lambda func: solvent_ligands_gui())
+       "Replace Fragment...",
+       lambda func: molecule_chooser_gui("Define the molecule that needs updating",
+		lambda imol_base: generic_chooser_and_entry(
+				"Molecule that contains the new fragment:",
+				"Atom Selection","//",
+				lambda imol_fragment, atom_selection_str:
+				replace_fragment(imol_base, imol_fragment, atom_selection_str))))
+
      
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Replace Residue...",
+       lambda func: generic_single_entry("Replace this residue with residue of type:",
+                                         "ALA", "Mutate",
+                                         lambda text: using_active_atom([[mutate_by_overlap,
+                                                                          ["aa_imol", "aa_chain_id", "aa_res_no"],
+                                                                          [text]]])))
+
+     # --- Res ---
+     
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Residue Type Selection...",
+	lambda func: generic_chooser_and_entry("Choose a molecule to select residues from: ","Residue Type:","",
+                                               lambda imol, text: (new_molecule_by_residue_type_selection(imol, text),
+                                                                   update_go_to_atom_window_on_new_mol())))
+
 
      add_simple_coot_menu_menuitem(
        submenu_models,
@@ -573,31 +599,27 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_models,
+       "Residues with Cis Peptide Bonds...",
+       lambda func: molecule_chooser_gui("Choose a molecule for checking for Cis Peptides",
+                                         lambda imol: cis_peptides_gui(imol)))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
        "Residues with Missing Atoms...",
        lambda func: molecule_chooser_gui(
          "Which molecule to check for Missing Atoms?",
          lambda imol: missing_atoms_gui(imol)))
 
+     # --- Rig ---
 
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Residues with Cis Peptide Bonds...",
-       lambda func: molecule_chooser_gui("Choose a molecule for checking for Cis Peptides",
-                lambda imol: cis_peptides_gui(imol)))
-
-
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Atoms with Zero Occupancies...",
-       lambda func: molecule_chooser_gui(
-         "Which molecule to check for Atoms with zero occupancies?",
-         lambda imol: zero_occ_atoms_gui(imol)))
-
-
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Phosphorylate this residue",
-       lambda func: phosphorylate_active_residue())
+       "Rigid Body Fit Residue Ranges...",
+       lambda func:
+       residue_range_gui(lambda imol, ls: rigid_body_refine_by_residue_ranges(imol, ls),
+                         "Rigid Body Refine",
+                         "  Fit  "))
 
 
      add_simple_coot_menu_menuitem(
@@ -611,6 +633,15 @@ if (have_coot_python):
        "Use SEGIDs...",
        lambda func: molecule_chooser_gui("Exchange the Chain IDs, replace with SEG IDs",
 		lambda imol: exchange_chain_ids_for_seg_ids(imol)))
+
+     
+     # an python extra, this is
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Atoms with Zero Occupancies...",
+       lambda func: molecule_chooser_gui(
+         "Which molecule to check for Atoms with zero occupancies?",
+         lambda imol: zero_occ_atoms_gui(imol)))
 
      
      #---------------------------------------------------------------------

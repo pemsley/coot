@@ -333,61 +333,9 @@ def coot_gui():
 #
 def handle_smiles_go(tlc_entry, smiles_entry):
 
-    import os, stat, shutil
-
     tlc_text = tlc_entry.get_text()
     smiles_text = smiles_entry.get_text()
-
-    if (len(smiles_text) > 0):
-       if ((len(tlc_text) > 0) and (len(tlc_text) < 4)): three_letter_code = tlc_text
-       # next should actually not happen since I restrict the input to 3 letters!
-       elif (len(tlc_text) > 0): three_letter_code = tlc_text[0:3]
-       else: three_letter_code = "DUM"
-          
-       # ok let's run libcheck
-       smiles_file = "coot-" + three_letter_code + ".smi"
-       libcheck_data_lines = ["N","MON " + three_letter_code, "FILE_SMILE " + smiles_file,""]
-       log_file_name = "libcheck-" + three_letter_code + ".log"
-       pdb_file_name = "libcheck_" + three_letter_code + ".pdb"
-       cif_file_name = "libcheck_" + three_letter_code + ".cif"
-#       print "BL DEBUG:: all others: ", libcheck_data_lines, log_file_name, pdb_file_name ,cif_file_name
-       #write smiles strings to a file
-       smiles_input = file(smiles_file,'w')
-       smiles_input.write(smiles_text)
-       smiles_input.close()
-       #now let's run libcheck (based on libcheck.py)
-       libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
-
-       if (libcheck_exe_file):
-          status = popen_command(libcheck_exe_file, [], libcheck_data_lines, log_file_name, True)
-          if (status == 0):
-             if (os.path.isfile("libcheck.lib")):
-                if (os.path.isfile(cif_file_name)):
-                   # if we have cif_file_name already we cant move to it
-                   # and I dont want to overwrite it, so we make a backup
-                   try:
-                      os.rename(cif_file_name, cif_file_name + ".bak")
-                   except OSError:
-                      # bak file exists, so let's remove and overwrite it
-                      os.remove(cif_file_name + ".bak")
-                      os.rename(cif_file_name,cif_file_name + ".bak")
-                      print "BL INFO:: overwriting %s since same three letter code used again..." %(cif_file_name + ".bak")
-                   except:
-                      print "BL WARNING:: %s exists and we cant remove/overwrite it!" %(cif_file_name + ".bak")
-                shutil.copy("libcheck.lib", cif_file_name)
-                print "BL INFO:: renamed %s to %s " %("libcheck.lib", cif_file_name)
-             sc = rotation_centre()
-             print "BL INFO:: reading ",pdb_file_name
-             imol = handle_read_draw_molecule_with_recentre(pdb_file_name,0)
-             if (is_valid_model_molecule(imol)):
-                mc = molecule_centre(imol)
-                sc_mc = [sc[i]-mc[i] for i in range(len(mc))]
-                translate_molecule_by(imol,*sc_mc)
-             read_cif_dictionary(cif_file_name)
-          else: print "BL WARNING:: libcheck didnt run ok!"
-       else: print " BL WARNING:: libcheck not found!"
-    else:
-       print "BL WARNING:: Wrong input (no smiles text)! Can't continue!"
+    new_molecule_by_smiles_string(tlc_text, smiles_text)
 
 # smiles GUI
 #
@@ -1355,7 +1303,7 @@ def add_simple_coot_menu_menuitem(menu,menu_item_label,activate_function):
     menu.append(sub_menuitem)
     sub_menuitem.show()
 
-    sub_menuitem.connect("activate",activate_function)
+    sub_menuitem.connect("activate", activate_function)
 
 
 # Make an interesting things GUI for residues of molecule number
@@ -1965,7 +1913,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
 
 # This is exported outside of the box-of-buttons gui because the
 # clear_and_add_back function (e.g. from using the check button)
-# needs to add buttons - let's not dupicate that code.
+# needs to add buttons - let's not duplicate that code.
 #
 def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
 
@@ -3933,7 +3881,19 @@ def alignment_mismatches_gui(imol):
                ins_code = res_info[4]
                button_1_label = "Insert " + chain_id + \
                                 " " + str(res_no)
-               button_1_action = "info_dialog(" + button_1_label + ")"
+               #button_1_action = "info_dialog(" + button_1_label + ")"
+               # oh dear, will that work? I dont think I can pass asignments
+               # here. Need to rethink this! FIXME
+               button_1_action = ["info_dialog(" + button_1_label + ")",
+                                  "r = nearest_residue_by_sequence(" + \
+                                  str(imol) + ", \'" + \
+                                  chain_id + "\', " + \
+                                  str(res_no) + ", " + \
+                                  ins_code + ")",
+                                  "set_go_to_atom_chain_residue_atom_name(\'" + \
+                                  chain_id + "\', " + \
+                                  "r[2] , " + \
+                                  "\' CA \')"]
                ret_buttons.append([button_1_label, button_1_action])
             return ret_buttons
 
@@ -4575,5 +4535,213 @@ def rename_residue_gui():
                                                          aa_res_no, aa_ins_code,
                                                          text))
 
+
+# molecule chooser
+# 
+# coordination number chooser
+# 
+# Max dist entry
+# 
+# results vbox
+#    containing buttons with atom-spec labels
+# 
+# h-sep
+#
+#      close-button
+#
+def water_coordination_gui():
+
+   def delete_event(*args):
+      window.destroy()
+      return False
+
+   def apply_cb(*args):
+      n = get_number()
+      imol = get_molecule()
+      d = get_distance()
+      if d:
+         update_water_results(imol, n, d)
+      
+   def key_press_event(widget, event):
+      if (event.keyval == 65293):  # GDK_return
+         n = get_number()
+         imol = get_molecule()
+         d = get_distance()
+         if d:
+            update_water_results(imol, n, d)
+      
+   def atom_spec2text(atom_spec):
+      return " ".join(map(str, atom_spec))
+
+   def get_ele(imol, atom_spec):
+      from types import ListType
+      atoms = residue_info(imol,
+                           atom_spec[1],
+                           atom_spec[2],
+                           atom_spec[3])
+      input_atom_name = atom_spec[4]
+      if type(atoms) is ListType:
+         for atom in atoms:
+            if atom[0][0] == input_atom_name:
+               return atom[1][2]
+      return False
+   
+   # add info about bumps (to non-H-bonding atoms or so).  given a
+   # water info (a central atom spec and a list of its contacts).
+   def make_bump_text(imol, water_info):
+      central_atom = water_info[0]
+      contact_list = water_info[1]
+      rv = ""
+      for contact in contact_list:
+         ele = get_ele(imol, contact)
+         if (ele == " C"):
+            rv = " Bump"
+      return rv
+
+   def is_a_metal_site_too_qm(atom_spec, metal_results):
+      # print "   checking if %s is in %s... result: %s" %(atom_spec, metal_results, atom_spec in metal_results)
+      return atom_spec in metal_results
+
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   vbox = gtk.VBox(False, 0)
+   results_vbox = gtk.VBox(False, 0)
+   water_results_label = gtk.Label("Other Coordinated Waters")
+   metal_results_vbox = gtk.VBox(False, 0)
+   metal_results_label = gtk.Label("Potential Metals: ")
+   h_sep = gtk.HSeparator()
+   hint_text = "Molecule: "
+   hbox_chooser = gtk.HBox(False, 0)
+   hbox_max_dist = gtk.HBox(False, 0)
+   hbox_number_chooser = gtk.HBox(False, 0)
+   number_text = gtk.Label("Coordination Number: ")
+   molecule_chooser_option_menu_and_model_list = generic_molecule_chooser(hbox_chooser, hint_text)
+   molecule_chooser_option_menu = molecule_chooser_option_menu_and_model_list[0]
+   model_list = molecule_chooser_option_menu_and_model_list[1]
+   scrolled_win = gtk.ScrolledWindow()
+   metal_results_scrolled_win = gtk.ScrolledWindow()
+   number_menu = gtk.combo_box_new_text()
+   number_list = range(3, 10)
+   dist_label = gtk.Label("Max Dist: ")
+   dist_entry = gtk.Entry()
+   close_button = gtk.Button("  Close  ")
+   apply_button = gtk.Button("  Apply  ")
+   hbox_buttons = gtk.HBox(False, 6)
+
+   def get_molecule():
+      return get_option_menu_active_molecule(molecule_chooser_option_menu,
+                                             model_list)
+   def get_number():
+      return int(get_option_menu_active_item(number_menu,
+                                             number_list))
+   def get_distance():
+      t = dist_entry.get_text()
+      try:
+         ret = float(t)
+      except:
+         ret = False
+      return ret
+
+   def clear_previous_results():
+      for this_vbox in [results_vbox, metal_results_vbox]:
+         children = this_vbox.get_children()
+         res = map(lambda widget: widget.destroy(), children)
+         #for child in children:
+         #   print "BL DEBUG:: now destroy child", child
+         #   child.destroy()
+         #this_vbox.hide()
+         #this_vbox.show()
+
+   def update_water_results(imol, n, d):
+      results = highly_coordinated_waters(imol, n, d)
+      clear_previous_results()
+      import time
+      time.sleep(2)
+      if results:
+         coordination_results = results[1]
+         metal_results = results[0]
+         for water_info in coordination_results:
+            # a water spec is a central-atom spec and a list
+            # of its neighbours.
+            atom_spec = water_info[0]
+            t = atom_spec2text(atom_spec)
+            bump_text = make_bump_text(imol, water_info)
+            button = gtk.Button(t + bump_text)
+            if not is_a_metal_site_too_qm(atom_spec, metal_results):
+               results_vbox.pack_start(button, False, False, 1)
+               button.show()
+               def water_func(widget, imol, water_info):
+                  water_spec = water_info[0]
+                  chain_id   = water_spec[1]
+                  res_no     = water_spec[2]
+                  atom_name  = water_spec[4]
+                  set_go_to_atom_molecule(imol)
+                  set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
+               button.connect("clicked", water_func, imol, water_info)
+         
+         # now handle metal results
+         for metal_site in metal_results:
+            metal_text = metal_site[1]
+            t = atom_spec2text(metal_site[0])
+            button_text = t + " Potential " + metal_text
+            button = gtk.Button(button_text)
+            metal_results_vbox.pack_start(button, False, False, 1)
+            button.show()
+            def metal_func(widget, imol, metal_site):
+               metal_spec = metal_site[0]
+               chain_id   = metal_spec[1]
+               res_no     = metal_spec[2]
+               atom_name  = metal_spec[4]
+               set_go_to_atom_molecule(imol)
+               set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
+            button.connect("clicked", metal_func, imol, metal_site)
+
+   window.add(vbox)
+   
+   fill_option_menu_with_number_options(number_menu, number_list, 5)
+   
+   scrolled_win.add_with_viewport(results_vbox)
+   scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+   
+   metal_results_scrolled_win.add_with_viewport(metal_results_vbox)
+   metal_results_scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+
+   hbox_max_dist.pack_start(dist_label, False, False, 2)
+   hbox_max_dist.pack_start(dist_entry, False, False, 2)
+
+   vbox.pack_start(hbox_chooser, False, False, 6)
+
+   hbox_number_chooser.pack_start(number_text, False, False, 2)
+   hbox_number_chooser.pack_start(number_menu, False, False, 2)
+
+   vbox.pack_start(hbox_number_chooser, False, False, 6)
+
+   vbox.pack_start(hbox_max_dist, False, False, 2)
+
+   # metal sites
+   vbox.pack_start(metal_results_label, False, False, 2)
+   vbox.pack_start(metal_results_scrolled_win, True, True, 0)
+
+   # interesting water sites
+   vbox.pack_start(water_results_label, False, False, 2)
+   vbox.pack_start(scrolled_win, True, True, 0)  # expand fill padding
+   vbox.pack_start(h_sep, False, False, 2)
+   hbox_buttons.pack_start(close_button, False, False, 2)
+   hbox_buttons.pack_start(apply_button, False, False, 2)
+   vbox.pack_start(hbox_buttons, False, False, 2)
+
+   # From the Nayal and Di Cera (1996) paper, it seems that 2.7
+   # and at least 4 oxygens is a good test for Na+ or other
+   # interesting things
+   #
+   dist_entry.set_text("2.7")
+
+   close_button.connect("clicked", delete_event)
+
+   dist_entry.connect("key_press_event", key_press_event)
+
+   apply_button.connect("clicked", apply_cb)
+
+   window.show_all()
+   
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()

@@ -1,7 +1,7 @@
  -*-text-*-
 
-scripts      rev 2767 (except curl downloads)
-tests        rev 2775
+scripts      rev 2893 (check prodrg and pisa)
+tests        rev 2893
 build-it-win rev 2122
 
 ---------------
@@ -9,6 +9,8 @@ build-it-win rev 2122
 ---------------
 
    o update Windows, check up to date in pending-install dir!?
+
+   o review pygtk button (and other) callbacks which are string, poss can be exchanged (see water_coordination_gui)
 
    o transform whole asu for packing comparision?!
 

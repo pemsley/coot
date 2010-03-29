@@ -103,7 +103,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
   def libcheck_monomer_gui(dir_prefix, code_str, cif_file_name,
                            pdb_file_name, post_refmac_pdb_file_name):
 
-    print "================= debug: libcheck_monomer_gui: dir_prefix: %s   code_str: %s   cif_file_name: %s   pdb_file_name: %s   post_refmac_pdb_file_name: %s" %(dir_prefix, code_str, cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
+    # print "================= debug: libcheck_monomer_gui: dir_prefix: %s   code_str: %s   cif_file_name: %s   pdb_file_name: %s   post_refmac_pdb_file_name: %s" %(dir_prefix, code_str, cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
     
     if (len(dict_cif_libin) == 0):
       libcheck_input = ["N", "MON " + code_str[0:3], ""]
@@ -124,7 +124,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
                            "XYZOUT", post_refmac_pdb_file_name]
 
     move_aside(os.path.join(dir_prefix, "libcheck.lib"))
-    print "passing libcheck these data lines:", libcheck_input
+    #print "passing libcheck these data lines:", libcheck_input
 
     libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
     if (libcheck_exe_file):
@@ -155,7 +155,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
             refmac_exe = find_exe("refmac5", "CCP4_BIN", "PATH")
             refmac_status = popen_command(refmac_exe, refmac_command_line, refmac_input, refmac_log_file_name)
 
-            print "DEBUG:: libcheck-minimal? returns ", libcheck_minimal_desc_status
+            print "INFO:: libcheck-minimal? is ", libcheck_minimal_desc_status
 
             if (not isNumber(refmac_status)):
               return -4 # refmac fails
@@ -169,7 +169,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
                 # we get the real cif file in
                 # libcheck.lib.
                 libcheck_lib = os.path.join(dir_prefix, "libcheck.lib")
-                print "------------- about to copy file %s to %s in dir %s" %(libcheck_lib, cif_file_name, os.getcwd())
+                #print "------------- about to copy file %s to %s in dir %s" %(libcheck_lib, cif_file_name, os.getcwd())
                 if (os.path.isfile(libcheck_lib)):
                   shutil.copyfile(libcheck_lib, cif_file_name)
                 return handle_libcheck_cif_and_pdb(cif_file_name,
@@ -178,7 +178,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
                    
   def handle_libcheck_cif_and_pdb(cif_file_name, pdb_file_name, post_refmac_pdb_file_name):
 
-    print "================= debug:: handle-libcheck-cif-and-pdb: cif-file-name: %s pdb-file-name: %s post-refmac-pdb-file-name: %s" %(cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
+    #print "================= debug:: handle-libcheck-cif-and-pdb: cif-file-name: %s pdb-file-name: %s post-refmac-pdb-file-name: %s" %(cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
     if (os.path.isfile(post_refmac_pdb_file_name) and
         os.path.isfile(cif_file_name)):
       pdb_status = handle_read_draw_molecule_with_recentre(

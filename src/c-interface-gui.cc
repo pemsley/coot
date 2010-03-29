@@ -733,9 +733,9 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
      author      = "Emsley P, Lohkamp B, Scott W, Cowtan K";
      journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
      year        = "2010";
-     volume      = "";
-     pages       = "in press";
-     number      = "";
+     volume      = "66";
+     pages       = "486-501";
+     number      = "4";
      
      bib_type = "Article";
      bib_id   = "emsley10:coot";
@@ -746,7 +746,7 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
 
   if (reference_id == COOT_REFERENCE_WINCOOT) {
 
-    ref_description = "If you used WinCoot please cite Coot and the following:\n\n";
+    ref_description = "Please cite as for Coot now. You find additional information on WinCoot in the following. Feel free to cite as well as above:\n\n";
 
     title      = "Coot News";
     author     = "Lohkamp B, Emsley P, Cowtan K";

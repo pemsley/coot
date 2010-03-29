@@ -84,7 +84,7 @@ def with_auto_accept(*funcs):
 def using_active_atom(funcs):
 
     active_atom = active_residue()
-    if (not active_residue):
+    if (not active_atom):
         add_status_bar_text("No residue found")
     else:
         aa_dict = {"aa_imol":      active_atom[0],
@@ -351,6 +351,7 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
     if not(command_in_path_qm(cmd)):
        print "command ", cmd, " not found in $PATH!"
        print "BL INFO:: Maybe we'll find it somewhere else later..."
+       return 255  # why?
     else:
         if (os.path.isfile(cmd)):
             cmd_execfile = cmd
@@ -1044,7 +1045,13 @@ def guess_refinement_map():
         print "BL WARNING:: we couldnt find a non difference map for fitting!"
         return -1
 
-
+    
+# Ian Tickle says (as far as I can understand) that the target chi
+# squared should be 0.25 or thereabouts.  You can over-ride it now.
+#
+global target_auto_weighting_value
+target_auto_weighting_value = 0.25
+    
 # Set the refinement weight (matrix) by iterating the refinement and
 # varying the weight until the chi squares (not including the
 # non-bonded terms) reach 1.0 =/- 10%.  It uses sphere refinement.
@@ -1053,6 +1060,7 @@ def guess_refinement_map():
 #
 def auto_weight_for_refinement():
 
+    global target_auto_weighting_value
     # return a pair of the imol and a list of residue specs.
     # or False if that is not possible
     def sphere_residues(radius):
@@ -1117,7 +1125,8 @@ def auto_weight_for_refinement():
         if not ow:   # check for number?
             return False
         else:
-            if (ow < 1.1 and ow > 0.9):
+            if (ow < (target_auto_weighting_value * 1.1) and
+                ow > (target_auto_weighting_value * 0.9)):
                 # done
                 s = "Set weight matrix to " + str(matrix_state())
                 add_status_bar_text(s)
@@ -1941,6 +1950,7 @@ def pukka_puckers_qm(imol):
 
 
 def new_molecule_by_smiles_string(tlc_text, smiles_text):
+    import shutil
     if len(smiles_text) > 0:
 
         if ((len(tlc_text) > 0) and (len(tlc_text) < 4)):
@@ -1963,7 +1973,7 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text):
         smiles_input = file(smiles_file,'w')
         smiles_input.write(smiles_text)
         smiles_input.close()
-        #now let's run libcheck (based on libcheck.py)
+        # now let's run libcheck (based on libcheck.py)
         libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
 
         if (not libcheck_exe_file):
@@ -1985,7 +1995,54 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text):
                     read_cif_dictionary(cif_file_name)
             else:
                 print "OOPs.. libcheck returned exit status", status
-        
+
+
+# Generate restraints from the residue at the centre of the screen
+# using PRODRG. Delete hydrogens from the residue because PRODRG has
+# anomalous hydrogens.
+#
+def prodrg_ify(imol, chain_id, res_no, ins_code):
+
+    new_mol = new_molecule_by_atom_selection(imol,
+                                             "//" + chain_id + "/" + str(res_no))
+
+    set_mol_active(new_mol, 0)
+    set_mol_displayed(new_mol, 0)
+
+    prodrg_dir = "coot-ccp4"
+    res_name = residue_name(imol, chain_id, res_no, ins_code)
+
+    if res_name:
+        make_directory_maybe(prodrg_dir)
+        prodrg_xyzin  = os.path.join(prodrg_dir, "prodrg-in.pdb")
+        prodrg_xyzout = os.path.join(prodrg_dir, "prodrg-" + res_name + ".pdb")
+        prodrg_cif    = os.path.join(prodrg_dir, "prodrg-" + res_name + ".cif")
+        prodrg_log    = os.path.join(prodrg_dir, "prodrg.log")
+
+        delete_residue_hydrogens(new_mol, chain_id, res_no, ins_code, "")
+        delete_residue_hydrogens(imol,    chain_id, res_no, ins_code, "") # otherwise they fly
+        write_pdb_file(new_mol, prodrg_xyzin)
+        close_molecule(new_mol)
+        prodrg_exe = find_exe("cprodrg", "CCP4_BIN", "PATH")
+        if not prodrg_exe:
+            info_dialog("Cannot find cprodrg, so no prodrg-ifying of ligand possible")
+        else:
+            print "BL DEBUG:: now run prodrg with", prodrg_exe, \
+                  "XYZIN",  prodrg_xyzin,\
+                  "XYZOUT", prodrg_xyzout,\
+                  "LIBOUT", prodrg_cif
+            status = popen_command(prodrg_exe,
+                                   ["XYZIN",  prodrg_xyzin,
+                                    "XYZOUT", prodrg_xyzout,
+                                    "LIBOUT", prodrg_cif],
+                                   ["MINI PREP", "END"],
+                                   prodrg_log,
+                                   True)
+            if status == 0:
+                read_cif_dictionary(prodrg_cif)
+                with_auto_accept([regularize_residues, imol, [[chain_id, res_no, ins_code]]])
+    
+                
 # ---------- annotations ---------------------
 
 def add_annotation_here(text):
@@ -2452,6 +2509,7 @@ symmetry_operators     = symmetry_operators_py
 symmetry_operators_to_xHM = symmetry_operators_to_xHM_py
 merge_molecules        = merge_molecules_py
 alignment_results      = alignment_results_py
+nearest_residue_by_sequence = nearest_residue_by_sequence_py
 refine_residues        = refine_residues_py
 # to be renamed later
 refine_residues_with_alt_conf        = refine_residues_with_alt_conf_py
@@ -2699,6 +2757,18 @@ def find_exe(*args):
         return ret
 
     program_name = args[0]
+    # first check program nae is absolute full path, before we go
+    # thru everythign
+    if is_windows():
+        file_ext = file_name_extension(program_name)
+        if (file_ext <> 'exe'):
+            program_name += ".exe"
+        program_name = os.path.abspath(program_name)
+        
+    # we shall check for full path names first
+    if (os.path.isfile(program_name)):
+        return program_name
+
     # if Unix we use which and python's command module to locate the
     # executable (indepent if PATH was given); commands only available on
     # unix! May use subprocess at some point...
