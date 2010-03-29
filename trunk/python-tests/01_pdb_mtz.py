@@ -1250,6 +1250,28 @@ class PdbMtzTestFunctions(unittest.TestCase):
                         "fail 1.512 tolerance test")
 
 
+    def test33_1(self):
+        """Write mmCIF restraints correctly"""
+
+        # not a very good test, but better than nothing and it would
+        # fail on cif writing prior to today 20100223?!
+
+        if os.path.isfile("coot-test-ala.cif"):
+            os.remove("coot-test-ala.cif")
+
+        write_restraints_cif_dictionary("ALA", "coot-test-ala.cif")
+        self.failUnless(os.path.isfile("coot-test-ala.cif"))
+        fin = open("coot-test-ala.cif", 'r')
+        lines = fin.readlines()
+        fin.close()
+        n_found = 0
+        for line in lines:
+            if "data_comp_list" in line:
+                n_found = 1
+            if "data_comp_ALA" in line:
+                n_found += 1
+        self.failUnlessEqual(n_found, 2)
+        
     def test34_0(self):
         """Refinement OK with zero bond esd"""
 

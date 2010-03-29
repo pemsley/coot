@@ -361,6 +361,9 @@ PyObject *alignment_results_py(int imol, const char *chain_id, const char *seq) 
 
    PyObject *r = Py_False;
 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 } 
 #endif /* USE_PYTHON */
@@ -375,8 +378,10 @@ PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int res
       CResidue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
       if (residue_p) {
 	 r = py_residue(residue_p);
-	 // some ref counting thing here?
       }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
    }
    return r;
 } 

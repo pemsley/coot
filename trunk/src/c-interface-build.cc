@@ -4035,11 +4035,8 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol) {
       PyList_SetItem(r, i+1, PyList_GetItem(vos,i));
    }
    
-   // clean up
-   Py_XDECREF(le);
-
    if (PyBool_Check(r)) {
-     Py_XINCREF(r);
+     Py_INCREF(r);
    }
    return r;
 }

@@ -350,18 +350,58 @@ SCM highly_coordinated_waters_scm(int imol, int coordination_number, float dist_
 
 
 #ifdef USE_PYTHON
-/*! \brief return a list of waters that are coordinated with at least
+/*! \brief return an improper list first is list of metals, second is
+  list of waters that are coordinated with at least
   coordination_number of other atoms at distances less than or equal
   to dist_max */
 PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float dist_max) {
 
-   PyObject *r = Py_False;
+   PyObject *ret = Py_False;
    if (is_valid_model_molecule(imol)) {
      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-     coot::util::water_coordination_t wc(mol, dist_max);
+     bool mol_has_symmetry = coot::mol_has_symmetry(mol);
+     if (mol_has_symmetry) {
+       CMMDBManager *new_mol = coot::util::copy_molecule(mol);
+       coot::util::translate_close_to_origin(new_mol);
+       mol = new_mol; // do water coordination check with a molecule
+			// that has been translated as close as
+			// possible to the origin.  mol needs to be
+			// deleted at the end of this function.
+     }
+
+     // this one happens for free.
+     //
+     coot::util::water_coordination_t wc_metals(mol, 4.0); // 4.0 magic number from Nayal and Di Cera 1996
+     std::vector<std::pair<coot::util::contact_atoms_info_t, coot::util::contact_atoms_info_t::ele_index_t> >
+       metals = wc_metals.metals();
+
+     std::cout << "Found " << metals.size() << " Metals (Na+, Li+, K+, Mg2+, Ca2+) "
+               << "amongst the waters" << std::endl;
+     for (unsigned int i=0; i<metals.size(); i++) { 
+       std::cout << metals[i].first.central_atom() << " .... type: " << metals[i].second << std::endl;
+     }
+	 
+     coot::util::water_coordination_t wc;
+     PyObject *metal_results = PyList_New(metals.size());
+     for (unsigned int i=0; i<metals.size(); i++) {
+       std::string ele = coot::util::contact_atoms_info_t::ele_to_string(metals[i].second);
+       PyObject *metal_str_py = PyString_FromString(ele.c_str());
+       PyObject *metal_results_ele = PyList_New(2);
+       PyObject *spec = atom_spec_to_py(coot::atom_spec_t(metals[i].first.central_atom()));
+       PyList_SetItem(metal_results_ele, 0, spec);
+       PyList_SetItem(metal_results_ele, 1, metal_str_py);
+       PyList_SetItem(metal_results, i, metal_results_ele);
+     }
+
+
+     if (dist_max < 4.0) {
+       wc = wc_metals;
+     } else {
+       wc = coot::util::water_coordination_t(mol, dist_max);
+     }
      std::vector<coot::util::contact_atoms_info_t> water_contacts = 
        wc.get_highly_coordinated_waters(coordination_number, dist_max);
-     r = PyList_New(0); // a list (at least) because we didn't fail.
+     PyObject *r = PyList_New(water_contacts.size()); // a list (at least) because we didn't fail.
      for (unsigned int j=0; j<water_contacts.size(); j++) {
        PyObject *atom_and_neighbours = PyList_New(2);
        PyObject *atom_spec_central_py = atom_spec_to_py(water_contacts[j].central_atom());
@@ -375,12 +415,18 @@ PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float 
        }
        PyList_SetItem(atom_and_neighbours, 0, atom_spec_central_py);
        PyList_SetItem(atom_and_neighbours, 1, neighbours);
-       PyList_Append(r, atom_and_neighbours);
+       PyList_SetItem(r, j, atom_and_neighbours);
      }
+     if (mol_has_symmetry)
+       delete mol; // it was a copy
+
+     ret = PyList_New(2);
+     PyList_SetItem(ret, 0, metal_results);
+     PyList_SetItem(ret, 1, r); 
    }
-   if (PyBool_Check(r)) {
-     Py_INCREF(r);
+   if (PyBool_Check(ret)) {
+     Py_INCREF(ret);
    }
-   return r;
+   return ret;
 } 
 #endif
