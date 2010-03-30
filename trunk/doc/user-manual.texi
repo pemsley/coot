@@ -2785,6 +2785,12 @@ The GUI for this can be found under @command{Extensions -> Modelling
 -> Replace Residue...} (for this to work, you need to be centred on
 the residue you wish to replace).
 
+Note that if you are replacing are conventional protein residue with a
+modified form (@emph{e.g.} replacing a TYR with a phoso-tyrosine or a
+LYS with an acetyl-lysine) you will need to make sure that the group
+of the resulting restraints is an @code{L-peptide} (use @command{Edit
+-> Restraints} to check and modify the restraints group.
+
 
 @subsection Mutate and Autofit
 The function combines Mutation and Auto Fit Rotamer and is the easiest

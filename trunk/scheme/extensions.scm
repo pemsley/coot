@@ -887,8 +887,6 @@
 						     "Failed to read a number"))))))))
 
 
-	
-
 	;; ---------------------------------------------------------------------
 	;;     Tutorial data
 	;; ---------------------------------------------------------------------
@@ -897,9 +895,12 @@
 	 menu "Load tutorial model and data"
 	 (lambda ()
 	   (let* ((prefix-dir (getenv "COOT_PREFIX")))
-	     (if (string? prefix-dir)
+	     (if (not (string? prefix-dir))
+		 (format #t "OOps - COOT_PREFIX is not set~%")
+		      
 		 (let* ((pkg-data-dir (append-dir-dir (append-dir-dir prefix-dir "share") "coot"))
-			(data-dir (append-dir-dir (pkgdatadir) "data"))
+			;; (data-dir (append-dir-dir (pkgdatadir) "data"))
+			(data-dir (append-dir-dir pkg-data-dir "data"))
 			(pdb-file-name (append-dir-file data-dir "tutorial-modern.pdb"))
 			(mtz-file-name (append-dir-file data-dir "rnasa-1.8-all_refmac1.mtz")))
 
