@@ -1885,31 +1885,62 @@
 ;;
 ;; change chain ids with residue range for the PTY
 ;; 
-(define (mutate-by-overlap imol chain-id resno tlc)
+(define (mutate-by-overlap imol chain-id-in resno tlc)
+
+  ;; get-monomer-and-dictionary, now we check to see if we have a
+  ;; molecule already loaded that matches this residue, if we have,
+  ;; then use it.
+  ;;
+  (define (get-monomer-and-dictionary tlc)
+    
+    ;; (get-monomer tlc))
+    (let ((have-tlc-molecule #f))
+      (for-each (lambda (imol)
+		  (let ((nc (n-chains imol)))
+		    (if (= nc 1)
+			(let* ((ch-id (chain-id imol 0))
+			       (nr (chain-n-residues ch-id imol)))
+			  (if (= nr 1)
+			      (let ((rn (resname-from-serial-number imol ch-id 0)))
+				(if (string? rn)
+				    (if (string=? rn tlc)
+					(set! have-tlc-molecule imol)))))))))
+		(model-molecule-list))
+      (let ((have-dict-for-tlc (monomer-restraints tlc)))
+	(if (or (not have-tlc-molecule) (not have-dict-for-tlc))
+	    (begin
+	      (get-monomer tlc))
+	    (begin
+	      (format #t "we have dict and model for tlc already~%")
+	      have-tlc-molecule)))))
+		      
+	
+      
+      
 
   (define (mutate-it)
-    (let ((imol-ligand (get-monomer tlc)))
+    (let ((imol-ligand (get-monomer-and-dictionary tlc)))
       (if (not (valid-model-molecule? imol-ligand))
 	  (let ((s (string-append " Oops.  Failed to get monomer " tlc)))
 	    (add-status-bar-text s))
 	  (begin
 	    (delete-residue-hydrogens imol-ligand "A" 1 "" "")
 	    (delete-atom imol-ligand "A" 1 "" " OXT" "")
-	    (overlap-ligands imol-ligand imol chain-id resno)
-	    (delete-residue imol chain-id resno "")
+	    (overlap-ligands imol-ligand imol chain-id-in resno)
+	    (delete-residue imol chain-id-in resno "")
 	    (let* ((new-chain-id-info (merge-molecules (list imol-ligand) imol))
 		   (nov (format #t "new-chain-id-info: ~s~%" new-chain-id-info)))
 	      (let ((merge-status (car new-chain-id-info)))
 		(if (= merge-status 1)
 		    (let ((new-chain-id (car (car (cdr new-chain-id-info)))))
 		      (change-residue-number imol new-chain-id 1 "" resno "")
-		      (change-chain-id imol new-chain-id chain-id 1 resno resno)
+		      (change-chain-id imol new-chain-id chain-id-in 1 resno resno)
 
 		      (let ((replacement-state (refinement-immediate-replacement-state))
 			    (imol-map (imol-refinement-map)))
 			(set-refinement-immediate-replacement 1)
 			(if (= imol-map -1)
-			    (regularize-zone imol chain-id resno resno "")
+			    (regularize-zone imol chain-id-in resno resno "")
 			    (let ((spin-atoms (list " P  " " O1P" " O2P" " O3P"))
 				  (dir-atoms (cond 
 					      ((string=? tlc "PTR") (list " CZ " " OH "))
@@ -1918,9 +1949,9 @@
 					      (else 
 					       #f))))
 			      (if dir-atoms
-				  (spin-search imol-map imol chain-id resno "" 
+				  (spin-search imol-map imol chain-id-in resno "" 
 					       dir-atoms spin-atoms))
-			      (refine-zone imol chain-id resno resno "")))
+			      (refine-zone imol chain-id-in resno resno "")))
 			(accept-regularizement)
 			(set-refinement-immediate-replacement replacement-state))
 		      
