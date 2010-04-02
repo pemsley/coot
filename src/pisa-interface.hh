@@ -83,7 +83,6 @@ namespace coot {
    void pisa_interfaces_gui(const std::vector<pisa_interface_t> &gui_info);
 #if (GTK_MAJOR_VERSION > 1)
    void add_pisa_interfaces_cell_renderer(GtkTreeView *tree_view,
-					  GtkTreeStore *tree_store,
 					  const std::string &column_title,
 					  int pos);
    void on_pisa_interfaces_seletion_changed(GtkTreeSelection *treeselection,

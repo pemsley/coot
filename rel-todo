@@ -1,6 +1,6 @@
  0.6.2
 
-    Points 17:
+    Points 9:
 
     o Fix nomenclature errors is broken. e.g. 3fcs, many reported as
       fixed, but on re-running (many of the) same problems reported.
@@ -12,17 +12,7 @@
 
     o race condition in downloading.  See Bernie mail.  ::: 2
 
-    o disulfide bond problems in 3HH2. [Erik Vogan]  ::: 3
-
-* Done - braindead programming earlier - whatever what I thinking?
-
     o Luca's exploding hydrogens ::: 1
-
-    o in with-map.cc: 
-	catch (clipper::Message_base exception)
-      fails to compile.  Why? ::: 0.5
-
-* who knows.  It works now.
 
 
 ------
@@ -370,4 +360,14 @@ WARNING:: Can't find file
     o Replace residue should use coords and dict already loaded if it
       has them.  e.g. consider acetylated lys which is available from
       SBase. ::: 1
+
+    o disulfide bond problems in 3HH2. [Erik Vogan]  ::: 3
+
+* Done - braindead programming earlier - whatever what I thinking?
+
+    o in with-map.cc: 
+	catch (clipper::Message_base exception)
+      fails to compile.  Why? ::: 0.5
+
+* who knows.  It works now.
 

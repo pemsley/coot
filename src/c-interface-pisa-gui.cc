@@ -64,18 +64,18 @@ coot::pisa_interfaces_gui(const std::vector<coot::pisa_interface_t> &gui_info) {
 			    11, gui_info[i].n_cov_bonds,
 			    -1);
       }
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Mol No", 0);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Mol No", 1);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "ChainID", 2);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "ChainID", 3);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Symop",   4);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Interf. Area", 5);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "Solv. Energy", 6);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "p-value",      7);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#H-bond",      8);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#Salt-br.",    9);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#SS",         10);
-      add_pisa_interfaces_cell_renderer(tv_interfaces, tree_store_interfaces, "#Cov",        11);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "Mol No", 0);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "Mol No", 1);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "ChainID", 2);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "ChainID", 3);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "Symop",   4);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "Interf. Area", 5);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "Solv. Energy", 6);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "p-value",      7);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "#H-bond",      8);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "#Salt-br.",    9);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "#SS",         10);
+      add_pisa_interfaces_cell_renderer(tv_interfaces, "#Cov",        11);
 
       GtkTreeSelection *sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 
@@ -94,7 +94,6 @@ coot::pisa_interfaces_gui(const std::vector<coot::pisa_interface_t> &gui_info) {
 #if (GTK_MAJOR_VERSION > 1)
 void
 coot::add_pisa_interfaces_cell_renderer(GtkTreeView *tree_view,
-					GtkTreeStore *tree_store,
 					const std::string &column_title,
 					int pos) {
 
@@ -105,11 +104,7 @@ coot::add_pisa_interfaces_cell_renderer(GtkTreeView *tree_view,
    gtk_tree_view_column_pack_start(column, cell_renderer, TRUE);
    gtk_tree_view_column_add_attribute(column, cell_renderer, "text", pos);
    g_object_set(cell_renderer, "editable", FALSE, NULL);
-   
-   gtk_tree_view_column_set_sort_column_id(column, pos);
-   
-   char *s = new char[column_title.length() + 1];
-   strcpy(s, column_title.c_str());
+   gtk_tree_view_column_set_sort_column_id(column, pos);   
    g_object_set_data (G_OBJECT (cell_renderer), "column", GINT_TO_POINTER (pos));
 }
 #endif
