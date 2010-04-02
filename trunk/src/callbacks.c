@@ -483,7 +483,7 @@ on_density_size1_activate              (GtkMenuItem     *menuitem,
    text = get_text_for_density_size_widget(); /* const gchar *text */
    
   /* Question to self: is this GTK_ENTRY necessary 
-     if entry is an GktEntry? */
+     if entry is an GtkEntry? */
    gtk_entry_set_text(GTK_ENTRY(entry), text);
 
    free (text); 
@@ -10890,7 +10890,7 @@ on_screendump_filechooserdialog1_confirm_overwrite
   }
 
 }
-#endif /* GKT_MAJOR_VERSION */
+#endif /* GTK_MAJOR_VERSION */
 
 
 void

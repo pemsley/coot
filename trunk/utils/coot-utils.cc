@@ -752,7 +752,7 @@ coot::util::random() {
 }
 
     
- bool
+bool
 coot::file_exists(const std::string &filename) {
 
    struct stat s;
@@ -764,10 +764,10 @@ coot::file_exists(const std::string &filename) {
    }
 }
 
- bool coot::is_directory_p(const std::string &filename) {
+bool coot::is_directory_p(const std::string &filename) {
 
-    bool st = 0;
-    struct stat s; 
+   bool st = 0;
+   struct stat s; 
    int fstat = stat(filename.c_str(), &s);
    if ( fstat == -1 ) { // file not exist
       return 0;
@@ -778,8 +778,8 @@ coot::file_exists(const std::string &filename) {
 	 return 0;
       }
    }
-    return st;
- }
+   return st;
+}
 
 
 
