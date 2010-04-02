@@ -11,13 +11,18 @@
     o change to rms z scores ::: 2
 
     o race condition in downloading.  See Bernie mail.  ::: 2
+
     o disulfide bond problems in 3HH2. [Erik Vogan]  ::: 3
+
+* Done - braindead programming earlier - whatever what I thinking?
 
     o Luca's exploding hydrogens ::: 1
 
     o in with-map.cc: 
 	catch (clipper::Message_base exception)
       fails to compile.  Why? ::: 0.5
+
+* who knows.  It works now.
 
 
 ------
