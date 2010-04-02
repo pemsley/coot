@@ -385,7 +385,7 @@ map_from_mtz(std::string mtz_file_name,
       cout << "done fft..." << endl;
       status = 1;
    }
-   catch (clipper::Message_base exception) {
+   catch (clipper::Message_base exc) {  // "exception" is a protected word, it seems.
       std::cout << "Failed to read mtz file " << mtz_file_name << std::endl;
    }
 
