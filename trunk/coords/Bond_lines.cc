@@ -691,7 +691,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
 			    || ele == "Cl" || ele == "Br" 
 			    || ele == "PT" 
-			    || ele == "AS" || ele == " P" || ele == "AU") {
+			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG") {
 			   handle_long_bonded_atom(non_Hydrogen_atoms[i], uddHnd, atom_colour_type);
 			}
 		     }
@@ -852,6 +852,8 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
    if (element == "AU")
       bond_limit = 2.4;
    if (element == "AS")
+      bond_limit = 2.4;
+   if (element == "HG")
       bond_limit = 2.4;
    if (element == " I")
       bond_limit = 2.3; // C-I is 2.13 according to wikipedia
