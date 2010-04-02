@@ -136,12 +136,18 @@ into EndNote)... format as you please:
 
 @end verbatim
 
-The Coot paper will be published in the proceedings of the 2009 CCP4 Study Weekend.
+The Coot paper has published in the proceedings of the 2009 CCP4 Study Weekend.
 
 You can download the 2004 paper here:
 
 @itemize
 @item @url{http://journals.iucr.org/d/issues/2004/12/01/isscontsbdy.html}
+@end itemize
+
+You can download the 2010 paper here:
+
+@itemize
+@item @url{http://journals.iucr.org/d/issues/2010/04/00/ba5144/ba5144.pdf}
 @end itemize
 
 
