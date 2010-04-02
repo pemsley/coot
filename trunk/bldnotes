@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 2893 (check prodrg and pisa)
+scripts      rev 2902 
 tests        rev 2893
 build-it-win rev 2122
 
@@ -20,12 +20,6 @@ build-it-win rev 2122
 
    o make md5sum note on WinCoot website
 
-   o add the binary_type_latest to the WinCoot installer script 
-
-     [And the rest of the phone home system: updates are available?
-     download, install, restart (just like firefox) - 20090711-PE OK,
-     it's not sensible to schedule this for 0.6.]
-
    o optional tooltips for main toolbar buttons
 
    o DNA/RNA backbone is not displayed for symmetry (CA mode)
@@ -36,9 +30,7 @@ build-it-win rev 2122
 
    o fix addition of guile and python keybindings (translation of lambda functions?)
 
-   o key code for ( and ) not recognised (on FC10 e.g.)
-
-   o fix toolbuttons (upon loading with 'new' python import module)
+   o key code for '(' and ')' not recognised (on FC10 e.g.)
 
    o website guile comment
 
@@ -352,6 +344,18 @@ build-it-win rev 2122
 * Done
 
    o Installer needs to set affinity for Windows 7 too?!? (OrIf, WindowsName = 7)
+
+* Done
+
+   o add the binary_type_latest to the WinCoot installer script 
+
+     [And the rest of the phone home system: updates are available?
+     download, install, restart (just like firefox) - 20090711-PE OK,
+     it's not sensible to schedule this for 0.6.]
+
+* Done
+
+   o fix toolbuttons (upon loading with 'new' python import module)
 
 * Done
 
