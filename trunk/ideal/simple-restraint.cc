@@ -34,6 +34,10 @@
 //
 #include "coot-coord-extras.hh"  // is_nucleotide_by_dict
 
+// #include "mmdb.h" // for printing of CAtom pointers as info not raw
+                     // pointers.  Removed. Too much (linking issues in)
+                     // Makefile pain.
+
 #include "coot-sysdep.h"
 
 // #include "mmdb.h"
@@ -4408,14 +4412,12 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	 if (d.first) {
 	    if (d.second < dist_crit) {
 	       std::pair<std::string, bool> l = find_link_type_rigourous(res_f, res_s, geom);
-// 	       std::cout << "DEBUG:: find_link_type_rigourous() returns " << l.first << " "
-// 			 << l.second << std::endl;
 	       std::string link_type = l.first;
 	       if (link_type != "") {
 
 		  // too verbose
 		  if (0) 
-		     std::cout << "INFO:: "
+		     std::cout << "   INFO:: "
 			       << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
 			       << " link_type :" << link_type << ":" << std::endl;
 		  bool whole_first_residue_is_fixed = 0;
@@ -4494,7 +4496,8 @@ coot::operator<<(std::ostream &s, coot::bonded_pair_container_t bpc) {
 }
 
 
-
+// Simple, residue-name and restraints group type link finder
+// 
 std::string
 coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
 					     const coot::protein_geometry &geom) const {
@@ -4723,18 +4726,20 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
    try {
       std::string group_1 = geom.get_group(first);
       std::string group_2 = geom.get_group(second);
-//       std::cout << "====== debug:: find_link_type_rigourous() from "
-// 		<< first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetResName()
-// 		<< " <--> " 
-// 		<< second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
-// 		<< " " << std::endl;
+      if (debug)
+	 std::cout << "====== debug:: find_link_type_rigourous() from "
+		   << first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetResName()
+		   << " <--> " 
+		   << second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
+		   << " " << std::endl;
       try {
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
 	 if (debug)
 	    for (unsigned int il=0; il<link_infos.size(); il++)
-	       std::cout << "DEBUG:: link_infos: " << il << " " << link_infos[il].first << " "
+	       std::cout << "     DEBUG:: find_link_type_rigourous: possible links: (link_infos): "
+			 << il << " " << link_infos[il].first << " "
 			 << link_infos[il].second << std::endl;
 
 	 // Now, if link is a TRANS (default-peptide-link), then
@@ -4743,33 +4748,83 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	 // each other.  If not, then we should fail to find a link
 	 // between these 2 residues.
 	 // 
-	 unsigned int ilink = 0; // the first link
-	 if (link_infos[ilink].first.is_peptide_link_p()) {
-	    std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
-	    if (close_info.first) {
-	       order_switch_flag = close_info.second;
-	       link_type = link_infos[ilink].first.Id();
-	       // std::cout << "   TRANS or CIS pass NvsC dist test with order switch "
-	       // << order_switch_flag << std::endl;
-	    } else {
-	       // std::cout << "   TRANS or CIS FAIL NvsC dist test " << std::endl;
-	       std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
-		  geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
-	    } 
-	 } else {
+	 // unsigned int ilink = 0; // the first link
 
-	    //
-	    order_switch_flag = link_infos[ilink].second;
-	    
-	    if (link_infos_are_glycosidic_p(link_infos)) {
-	       link_type = find_glycosidic_linkage_type(first, second, group_1, group_2, geom);
-	       if (link_type == "") {
-		  link_type = find_glycosidic_linkage_type(second, first, group_2, group_1, geom);
-		  if (link_type != "")
-		     order_switch_flag = 1;
-	       }
+	 for (unsigned int ilink=0; ilink<link_infos.size(); ilink++) { 
+
+	    if (link_infos[ilink].first.is_peptide_link_p()) {
+	       std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
+	       if (close_info.first) {
+		  order_switch_flag = close_info.second;
+		  link_type = link_infos[ilink].first.Id();
+		  // std::cout << "   TRANS or CIS pass NvsC dist test with order switch "
+		  // << order_switch_flag << std::endl;
+	       } else {
+		  // std::cout << "   TRANS or CIS FAIL NvsC dist test " << std::endl;
+		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
+		     geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
+
+		  // debug::
+		  if (debug)
+		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
+			std::cout << "   debug:: non-peptide link: " << link_infos_non_peptide[il].first.Id()
+				  << std::endl;
+	       
+		  // 20100330 eh?  is something missing here?  What shall
+		  // we do with link_infos_non_peptide?  did I mean that,
+		  // now the peptide test has failed, perhaps we should
+		  // distance check potential other (non-peptide) links?
+
+		  // returns "" if no link found
+		  // second is the order switch flag;
+		  // 
+		  std::pair<std::string, bool> non_peptide_close_link_info = 
+		     general_link_find_close_link(link_infos_non_peptide, first, second, geom);
+		  if (non_peptide_close_link_info.first != "") { 
+		     link_type = non_peptide_close_link_info.first;
+		     order_switch_flag = non_peptide_close_link_info.second;
+		  }
+
+	       } 
 	    } else {
-	       link_type = link_infos[ilink].first.Id();
+
+	       if (debug)
+		  std::cout << "   find_link_type_rigourous() not a peptide link... " << std::endl;
+	       //
+	       order_switch_flag = link_infos[ilink].second;
+	    
+	       if (link_infos_are_glycosidic_p(link_infos)) {
+		  link_type = find_glycosidic_linkage_type(first, second, group_1, group_2, geom);
+		  if (link_type == "") {
+		     link_type = find_glycosidic_linkage_type(second, first, group_2, group_1, geom);
+		     if (link_type != "")
+			order_switch_flag = 1;
+		  }
+	       } else {
+
+		  if (debug)
+		     std::cout << "   find_link_type_rigourous() not a glycosidic_linkage... " << std::endl;
+
+		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
+		     geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
+
+		  // debug::
+		  if (debug)
+		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
+			std::cout << "   debug:: " << il << " of " << link_infos_non_peptide.size()
+				  << " non-peptide link: " << link_infos_non_peptide[il].first.Id()
+				  << std::endl;
+	       
+		  // returns "" if no link found
+		  // second is the order switch flag;
+		  // 
+		  std::pair<std::string, bool> non_peptide_close_link_info = 
+		     general_link_find_close_link(link_infos_non_peptide, first, second, geom);
+		  if (non_peptide_close_link_info.first != "") { 
+		     link_type = non_peptide_close_link_info.first;
+		     order_switch_flag = non_peptide_close_link_info.second;
+		  }
+	       }
 	    }
 	 } 
       }
@@ -4782,8 +4837,12 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
    catch (std::runtime_error mess) {
       std::cout << mess.what() << std::endl;
    }
-//    std::cout << "   DEBUG:: find_link_type_rigourous returns link type :"
-// 	     << link_type << ": and order-switch flag " << order_switch_flag << std::endl;
+
+   if (debug)
+      std::cout << "   DEBUG:: given " << coot::residue_spec_t(first) << " and "
+		<< coot::residue_spec_t(second)
+		<< " find_link_type_rigourous returns link type :"
+		<< link_type << ": and order-switch flag " << order_switch_flag << std::endl;
    return std::pair<std::string, bool> (link_type, order_switch_flag);
 }
 
@@ -4848,6 +4907,83 @@ coot::restraints_container_t::peptide_C_and_N_are_close_p(CResidue *r1, CResidue
 
    return std::pair<bool, bool> (0, 0);
 
+}
+
+// a pair, first is if C and N are close and second if and order
+// switch is needed to make it so.
+//
+// return "" as first if no close link found.
+//
+// alt confs are ignored when finding the atoms for the potential
+// link.  Perhaps they should not be (but the calling function does
+// not have them).
+// 
+std::pair<std::string, bool>
+coot::restraints_container_t::general_link_find_close_link(std::vector<std::pair<coot::chem_link, bool> > &li,
+							   CResidue *r1, CResidue *r2,
+							   const coot::protein_geometry &geom) const {
+
+   
+   std::pair<std::string, bool> r("", 0);
+   std::string rs = general_link_find_close_link_inner(li, r1, r2, geom);
+   if (rs != "") {
+      r.first = rs;
+   } else { 
+      rs = general_link_find_close_link_inner(li, r2, r1, geom);
+      if (rs  != "") {
+	 r.first = rs;
+	 r.second = 1;
+      }
+   }
+
+   return r;
+
+}
+
+std::string
+coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std::pair<coot::chem_link, bool> > &li,
+								 CResidue *r1, CResidue *r2,
+								 const coot::protein_geometry &geom) const {
+
+   float dist_crit = 3.0; // Angstroms.
+   bool debug = 0;
+   
+   std::string r("");
+   std::pair<bool,float> close = closest_approach(r1, r2);
+   if (close.first) {
+      if (close.second < dist_crit) {
+	 for (unsigned int ilink=0; ilink<li.size(); ilink++) {
+	    coot::chem_link link = li[ilink].first;
+	    // now find link with id in  dict_link_res_restraints;
+	    dictionary_residue_link_restraints_t lr = geom.link(link.Id());
+	    if (lr.link_id != "") { // found link with lind_id link.Id() { 
+	       for (unsigned int ib=0; ib<lr.link_bond_restraint.size(); ib++) {
+		  std::string atom_id_1 = lr.link_bond_restraint[ib].atom_id_1_4c();
+		  std::string atom_id_2 = lr.link_bond_restraint[ib].atom_id_2_4c();
+		  CAtom *at_1 = r1->GetAtom(atom_id_1.c_str());
+		  CAtom *at_2 = r2->GetAtom(atom_id_1.c_str());
+		  if (at_1 && at_2) {
+		     clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+		     clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		     double d = clipper::Coord_orth::length(p1,p2);
+		     if (debug) 
+			std::cout << "  dist check " << " link-bond-number: "
+				  << ib << " " << coot::atom_spec_t(at_1) << " -to- "
+				  <<  coot::atom_spec_t(at_2) << "   " << d << " for link type " <<  lr.link_id
+				  << std::endl;
+		     if (d < dist_crit) {
+			r = link.Id();
+			break;
+		     } 
+		  } 
+	       }
+	    }
+	    if (r != "")
+	       break;
+	 }
+      }
+   }
+   return r;
 }
 
 

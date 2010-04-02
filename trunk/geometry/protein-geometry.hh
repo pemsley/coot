@@ -363,6 +363,7 @@ namespace coot {
 	 comp_id = comp_id_in;
 	 read_number = read_number_in;
       }
+      dictionary_residue_restraints_t() { comp_id = ""; /* things are unset */ }
       void clear_dictionary_residue();
       dict_chem_comp_t residue_info;
       std::vector <dict_atom> atom_info;
@@ -559,6 +560,7 @@ namespace coot {
    public:
       dictionary_residue_link_restraints_t(const std::string link_id_in) {
 	 link_id = link_id_in;}
+      dictionary_residue_link_restraints_t() { link_id = ""; /* things unset */ }
       std::string link_id;
       std::vector <dict_link_bond_restraint_t>    link_bond_restraint;
       std::vector <dict_link_angle_restraint_t>   link_angle_restraint;
@@ -874,6 +876,17 @@ namespace coot {
 	 return dict_res_restraints[i]; }
       const dictionary_residue_link_restraints_t & link(int i) const {
 	 return dict_link_res_restraints[i]; }
+      dictionary_residue_link_restraints_t link(const std::string &id_in) const {
+	 dictionary_residue_link_restraints_t r;
+	 for (unsigned int id=0; id<dict_link_res_restraints.size(); id++) {
+	    if (dict_link_res_restraints[id].link_id == id_in) {
+	       r = dict_link_res_restraints[id];
+	       break;;
+	    }
+	 } 
+	    return r;
+	 }
+      
       int link_size() const { return dict_link_res_restraints.size(); }
       void info() const;
       std::string three_letter_code(const unsigned int &i) const;

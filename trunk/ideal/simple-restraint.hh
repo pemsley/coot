@@ -993,7 +993,9 @@ namespace coot {
 						   const coot::protein_geometry &geom) const;
       std::pair<bool,float> closest_approach(CResidue *r1, CResidue *r2) const;
 
-      // find simple (tandem residue) links
+      // find simple (tandem residue) links (based on residue-name and
+      // restraints group type).
+      // 
       std::string find_link_type(CResidue *first, CResidue *second,
 				 const protein_geometry &geom) const;
 
@@ -1006,6 +1008,21 @@ namespace coot {
       // 
       std::pair<bool, bool> peptide_C_and_N_are_close_p(CResidue *r1, CResidue *r2) const;
 
+
+      // a pair, first is if C and N are close and second if and order
+      // switch is needed to make it so.
+      //
+      // return "" as first if no close link found.
+      // 
+      std::pair<std::string, bool> general_link_find_close_link(std::vector<std::pair<coot::chem_link, bool> > &li,
+								CResidue *r1, CResidue *r2,
+								const coot::protein_geometry &geom) const;
+
+      std::string general_link_find_close_link_inner(std::vector<std::pair<coot::chem_link, bool> > &li,
+						     CResidue *r1, CResidue *r2,
+						     const coot::protein_geometry &geom) const; 
+      
+      
       void make_helix_pseudo_bond_restraints();
       void make_strand_pseudo_bond_restraints();
 

@@ -40,7 +40,11 @@
     and refinement is not started if there is not complete agreement
     (for non-Hydrogen atoms) [JED].
 
-  o CHANGE: Merged molecules are not undisplayed after merging.
+  o CHANGE: Merged molecules are undisplayed after merging.
+
+  o CHANGE: "Replace residue" will use a dictionary and model for a
+    particular 3-letter code if they have been already read in (rather
+    than run libcheck blindly) [Ian Tickle].
  
   o BUG-FIX:: Hydrogens on waters are no longer checked against the
     difference map in the water validation test.
