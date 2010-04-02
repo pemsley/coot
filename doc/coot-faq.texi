@@ -138,18 +138,17 @@ into EndNote)... format as you please:
 
 The Coot paper has published in the proceedings of the 2009 CCP4 Study Weekend.
 
-You can download the 2004 paper here:
-
-@itemize
-@item @url{http://journals.iucr.org/d/issues/2004/12/01/isscontsbdy.html}
-@end itemize
-
 You can download the 2010 paper here:
 
 @itemize
 @item @url{http://journals.iucr.org/d/issues/2010/04/00/ba5144/ba5144.pdf}
 @end itemize
 
+For the sake of completeness, you can download the old 2004 paper here:
+
+@itemize
+@item @url{http://journals.iucr.org/d/issues/2004/12/01/isscontsbdy.html}
+@end itemize
 
 @c --------------------------------------------
 @comment  node-name,  next,  previous,  up
@@ -516,6 +515,7 @@ work try also:
 * How do I "grab" just one atom in Real Space Refinement/Regularization?::
 * How do I bind a function to a key?::
 * I can't mutate my broken residue::
+* Where has the Rotate/Translate function gone?::
 * How do I get rid of the ``Old Coot'' dialog?::
 * Can I make the spin mode rotate slower?::
 * Does Coot use CONNECT records?::
@@ -828,6 +828,22 @@ is what I do in such a case: first delete the residue, then add a new
 one with "Add Terminal Residue..." then "Mutate -> Auto Fit..." to the
 required type, then Refine Zone.
 @end quotation
+
+@node    Where has the Rotate/Translate function gone?
+@section Where has the Rotate/Translate function gone?
+
+Coot is built on many different OS types, using the given (or supplied)
+version of GTK+.  Some old operating systems have a version of GTK+ that
+does not include a ``ToolMenuButton'' (newer operating systems do, of
+course) - and it is under such widget that the Rotate/Translate function
+has moved.  The Coot build sytem detects old versions of GTK+ and skips
+over the ToolMenuButton code, so the button does not appear in the main
+window.  However, on all systems, the Rotate/Translate mode selector can
+be found as a menu to the right of the ``Rotate/Translate Zone'' button
+on the Model/Fit/Refine dialog.
+
+So, if you want a Rotate/Translate Tool Menu Button in the main window,
+don't use an old OS.
 
 @node How do I get rid of the ``Old Coot'' dialog?
 @section How do I get rid of the ``Old Coot'' dialog?
