@@ -523,12 +523,13 @@ if (have_coot_python):
        lambda func: phosphorylate_active_residue())
 
 
-#     BL FIXME:: not tested yet, due to problems on windows, try on Linux!
-#     add_simple_coot_menu_menuitem(
-#       submenu_models,
-#       "Prodrg-ify this residue (generate restraints)",
-#       lambda func: using_active_atom([[prodrg_ify,
-#                                        ["aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"], []]]))
+     # FIXME:: for now only when prodrg in path
+     if (command_in_path_qm("cprodrg")):
+       add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Prodrg-ify this residue (generate restraints)",
+       lambda func: using_active_atom([[prodrg_ify,
+                                        ["aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"], []]]))
      
 
      # ---- R ---------
@@ -939,14 +940,15 @@ if (have_coot_python):
      def load_tutorial_data_func():
        data_dir = False
        prefix_dir = os.getenv("COOT_PREFIX")
-       if prefix_dir:  # check for string?
+       if not prefix_dir:
+         pkg_data_dir = os.path.join(pkgdatadir(), "data")
+         print "OOps - COOT_PREFIX is not set, try to get data from pkgdatadir ", pkg_data_dir
+         if os.path.isdir(pkg_data_dir):
+           data_dir = pkg_data_dir
+       else:
          prefix_data_dir = os.path.join(prefix_dir, "share", "coot", "data")
          if os.path.isdir(prefix_data_dir):
            data_dir = prefix_data_dir
-       pkg_data_dir = os.path.join(pkgdatadir(), "data")
-       if os.path.isdir(pkg_data_dir):
-         # pkgdatadir overwrites coot_prefix?! Good thing?
-         data_dir = pkg_data_dir
        if data_dir:
          pdb_file_name = os.path.join(data_dir, "tutorial-modern.pdb")
          mtz_file_name = os.path.join(data_dir, "rnasa-1.8-all_refmac1.mtz")

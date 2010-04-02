@@ -1433,75 +1433,100 @@ def delete_atom_by_active_residue():
 #
 # change chain ids with residue range for the PTY
 # 
-def mutate_by_overlap(imol, chain_id, resno, tlc):
+def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 
-	def mutate_it():
-		imol_ligand = get_monomer(tlc)
-		if not valid_model_molecule_qm(imol_ligand):
-			s = " Oops.  Failed to get monomer " + str(tlc)
-			add_status_bar_text(s)
-		else:
-			delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
-			delete_atom(imol_ligand, "A", 1, "", " OXT", "")
-			overlap_ligands(imol_ligand, imol, chain_id, resno)
-			delete_residue(imol, chain_id, resno, "")
-			new_chain_id_info = merge_molecules([imol_ligand], imol)
-			print "INFO:: new_chain_id_info: ", new_chain_id_info
-			merge_status = new_chain_id_info[0]
-			if merge_status == 1:
-				new_chain_id = new_chain_id_info[1]
-				change_residue_number(imol, new_chain_id, 1, "", resno, "")
-				change_chain_id(imol, new_chain_id, chain_id, 1, resno, resno)
+    # get_monomer_and_dictionary, now we check to see if we have a
+    # molecule already loaded that matches this residue, if we have,
+    # then use it.
+    #
+    def get_monomer_and_dictionary(tlc):
 
-				replacement_state = refinement_immediate_replacement_state()
-				imol_map = imol_refinement_map()
-				set_refinement_immediate_replacement(1)
-				if imol_map == -1:
-					regularize_zone(imol, chain_id, resno, resno, "")	
-					# not sure where to continue
-				else:
-					spin_atoms = [" P  ", " O1P", " O2P", " O3P"]
-					phos_dir = {
-						'PTR': [" CZ ", " OH "],
-						'SEP': [" CB ", " OG "],
-						'TPO': [" CB ", " OG1"] }
-					if tlc in phos_dir.keys():
-						dir_atoms = phos_dir[tlc]
-					else:
-						dir_atoms = False
-					print ".... spining atoms ", spin_atoms
-					if dir_atoms:
-						spin_search(imol_map, imol, chain_id, resno, "", dir_atoms, spin_atoms)
-					refine_zone(imol, chain_id, resno, resno, "")
-				accept_regularizement()
-				set_refinement_immediate_replacement(replacement_state)
+        have_tlc_molecule = False
+        for imol in model_molecule_list():
+            nc = n_chains(imol)
+            if (nc == 1):
+                ch_id = chain_id(imol, 0)
+                nr = chain_n_residues(ch_id, imol)
+                if (nr == 1):
+                    rn = resname_from_serial_number(imol, ch_id, 0)
+                    if (rn == tlc):
+                        have_tlc_molecule = imol
+                        break
+        have_dict_for_tlc = monomer_restraints(tlc)
+        if ((not have_tlc_molecule) or (not have_dict_for_tlc)):
+            return get_monomer(tlc)
+        else:
+            print "we have dict and model for tlc already"
+            return have_tlc_molecule
 
-				set_mol_displayed(imol_ligand, 0)
-				set_mol_active(imol_ligand, 0)
+    def mutate_it():
+        imol_ligand = get_monomer_and_dictionary(tlc)
+        if not valid_model_molecule_qm(imol_ligand):
+            s = " Oops.  Failed to get monomer " + str(tlc)
+            add_status_bar_text(s)
+        else:
+            delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
+            delete_atom(imol_ligand, "A", 1, "", " OXT", "")
+            overlap_ligands(imol_ligand, imol, chain_id_in, resno)
+            delete_residue(imol, chain_id_in, resno, "")
+            new_chain_id_info = merge_molecules([imol_ligand], imol)
+            print "INFO:: new_chain_id_info: ", new_chain_id_info
+            merge_status = new_chain_id_info[0]
+            if merge_status == 1:
+                new_chain_id = new_chain_id_info[1]
+                change_residue_number(imol, new_chain_id, 1, "", resno, "")
+                change_chain_id(imol, new_chain_id, chain_id_in, 1, resno, resno)
 
-			else:
-				# guess merge failed!?!
-				print "BL WARNING:: merge failed!?"
+                replacement_state = refinement_immediate_replacement_state()
+                imol_map = imol_refinement_map()
+                set_refinement_immediate_replacement(1)
+                if imol_map == -1:
+                    regularize_zone(imol, chain_id_in, resno, resno, "")	
+                    # not sure where to continue
+                else:
+                    spin_atoms = [" P  ", " O1P", " O2P", " O3P"]
+                    phos_dir = {
+                        'PTR': [" CZ ", " OH "],
+                        'SEP': [" CB ", " OG "],
+                        'TPO': [" CB ", " OG1"] }
+                    if tlc in phos_dir.keys():
+                        dir_atoms = phos_dir[tlc]
+                    else:
+                        dir_atoms = False
+                    print ".... spining atoms ", spin_atoms
+                    if dir_atoms:
+                        spin_search(imol_map, imol, chain_id_in, resno, "", dir_atoms, spin_atoms)
+                    refine_zone(imol, chain_id_in, resno, resno, "")
+                accept_regularizement()
+                set_refinement_immediate_replacement(replacement_state)
 
-	# First, if there are multiple maps, force the user to choose one,
-	# rather than continuing.
-	imol_map = imol_refinement_map()
-	import threading
-	if (imol_map == -1):
-		map_mols = map_molecule_list()
-		if len(map_mols) > 1:
-# BL says:: I dunno how to wait for the input from map selection since there is no return
-# waiting for mouse/keyboard input may be an option but no curses on windows, maybe
-# fix later, for now we use the first map
-#			show_select_map_dialog()
-			print "BL INFO:: we use the first map! If you wanna use another one, please select from Model/Fit/Refine"
-			mutate_it()
-		else:
-			mutate_it()
-	elif map_molecule_list() == []:
-		print "BL WARNING:: no valid maps around!"
-	else:
-		mutate_it()
+                set_mol_displayed(imol_ligand, 0)
+                set_mol_active(imol_ligand, 0)
+
+            else:
+                # guess merge failed!?!
+                print "BL WARNING:: merge failed!?"
+
+    # First, if there are multiple maps, force the user to choose one,
+    # rather than continuing.
+    imol_map = imol_refinement_map()
+    if (imol_map == -1):
+        map_mols = map_molecule_list()
+        if not map_mols:
+            print "BL WARNING:: no valid maps around! Cannot mutate."
+        else:
+            # BL says:: I dunno how to wait for the input from map selection since there is no return
+            # waiting for mouse/keyboard input may be an option but no curses on windows, maybe
+            # fix later, for now we use the first map
+            #			show_select_map_dialog()
+            if len(map_mols) > 1:
+                print "BL INFO:: we use the first map! If you wanna use another one, please select from Model/Fit/Refine"
+            else:
+                print "BL INFO:: no refinement map set, will set first one for you!"
+            set_imol_refinement_map(map_mols[0])
+            mutate_it()
+    else:
+        mutate_it()
 
 # A bit of fun
 #
@@ -2757,14 +2782,7 @@ def find_exe(*args):
         return ret
 
     program_name = args[0]
-    # first check program nae is absolute full path, before we go
-    # thru everythign
-    if is_windows():
-        file_ext = file_name_extension(program_name)
-        if (file_ext <> 'exe'):
-            program_name += ".exe"
-        program_name = os.path.abspath(program_name)
-        
+
     # we shall check for full path names first
     if (os.path.isfile(program_name)):
         return program_name
@@ -2779,9 +2797,14 @@ def find_exe(*args):
         if (os.path.isfile(program_exe)):
             return program_exe
 
+    # should actually check before!!
     if (len(args) > 0):
         #program_name = args[0]
-        path_ls = args[1:len(args)]
+        if (len(args) > 1):
+            path_ls = args[1:len(args)]
+        else:
+            # no extra PATH given, should at least check in dir and in PATH
+            path_ls = ["PATH", "."]
 
         # setting of OS specific path properties
         if (os.name == 'nt'):
@@ -2797,7 +2820,7 @@ def find_exe(*args):
 
         program_name_noext = program_name
         program_name += extension
-
+        
         # search the extra Paths
         for search_path in path_ls:
             

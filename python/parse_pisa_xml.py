@@ -529,7 +529,7 @@ def pisa_new_enough_qm():
     global pisa_command
     if not pisa_command:
         pisa_command="pisa"
-    pisa_exe = find_exe(pisa_command)
+    pisa_exe = find_exe(pisa_command, "CCP4_BIN", "PATH")
     if pisa_exe:
         tmp_file = "pisa-version.log"
         process = popen_command(pisa_exe, [], [], tmp_file)
