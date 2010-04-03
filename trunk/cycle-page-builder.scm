@@ -469,11 +469,14 @@
        ((string-match "coot" (car files))
 	(if (not (string-match ".tar.gz" (car files)))
 	    (loop (cdr files) latest-file latest-revision-number tar-file-date)
-	    (let ((rev (get-revision-from-tar (car files)))
-		  (date (get-date-from-tar (car files))))
+	    (let ((rev (get-revision-from-tar (car files))))
 	      (if (not (number? rev))
-		  (loop (cdr files) latest-file latest-revision-number date)
-		  (loop (cdr files) (car files) rev date)))))
+		  (loop (cdr files) latest-file latest-revision-number tar-file-date)
+		  (if (or (not (number? latest-revision-number))
+			  (> rev latest-revision-number))
+		      (let ((date (get-date-from-tar (car files))))
+			(loop (cdr files) (car files) rev date))
+		      (loop (cdr files) latest-file latest-revision-number tar-file-date))))))
        (else 
 	(loop (cdr files) latest-file latest-revision-number tar-file-date))))))
   
