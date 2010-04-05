@@ -6588,7 +6588,16 @@ void post_scheme_scripting_window() {
      if (t) { 
 	std::cout << COOT_SCHEME_DIR << " was defined to be " << t << std::endl
 		  << "   but loading of scripting window scheme code failed." 
-		  << std::endl; 
+		  << "   Nevertheless you will get a simple scripting window." 
+		  << std::endl;
+        // load the fallback window if we have COOT_SCHEME_DIR (only Windows?!)
+        GtkWidget *window; 
+        GtkWidget *scheme_entry; 
+        window = create_scheme_window();
+
+        scheme_entry = lookup_widget(window, "scheme_window_entry");
+        setup_guile_window_entry(scheme_entry); // USE_PYTHON and USE_GUILE used here
+        gtk_widget_show(window);        
      } else { 
 	std::cout << COOT_SCHEME_DIR << " was not defined - cannot open ";
 	std::cout << "scripting window" << std::endl; 
@@ -6602,8 +6611,6 @@ void post_scheme_scripting_window() {
 void post_python_scripting_window() {
 
 #ifdef USE_PYTHON
-
-// BL says: let's try and get coot_gui loaded
 
   if (graphics_info_t::python_gui_loaded_flag == TRUE) {
 
