@@ -1929,7 +1929,7 @@ setup_python_window_entry(GtkWidget *entry) {
 		       entry);
 # endif // GTK_MAJOR_VERSION
 
-#endif // PYTHON
+#endif // USE_PYTHON
 
 }
 
@@ -1939,9 +1939,15 @@ void
 setup_guile_window_entry(GtkWidget *entry) { 
 
 #ifdef USE_GUILE
+#if (GTK_MAJOR_VERSION > 1) 
+    g_signal_connect(G_OBJECT(entry), "activate",
+		     G_CALLBACK(guile_window_enter_callback),
+		     (gpointer) entry);
+#else
    gtk_signal_connect(GTK_OBJECT(entry), "activate",
 		      GTK_SIGNAL_FUNC(guile_window_enter_callback),
 		      entry);
+# endif // GTK_MAJOR_VERSION
 
 #endif //  USE_GUILE
 

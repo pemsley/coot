@@ -55,6 +55,7 @@ echo "GtkWidget* create_coot_references_dialog(void);"             >> "$1".tmp.b
 echo "GtkWidget* create_fast_ss_search_dialog(void);"              >> "$1".tmp.b
 echo "GtkWidget* create_baton_build_params_dialog(void);"          >> "$1".tmp.b
 echo "GtkWidget* create_pisa_interfaces_dialog(void);"             >> "$1".tmp.b
+echo "GtkWidget* create_scheme_window(void);" 	                   >> "$1".tmp.b
 # echo "void on_accession_code_ok_button_clicked(GtkButton *button, gpointer user_data);" >> "$1".tmp.b
 echo "#endif /* GTK_MAJOR_VERSION */ "                             >> "$1".tmp.b
 echo ""            >> "$1".tmp.b

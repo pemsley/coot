@@ -1870,6 +1870,17 @@ on_scripting_window_activate           (GtkMenuItem     *menuitem,
 
 
 void
+on_scheme_window_close_button_clicked  (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *window = lookup_widget(GTK_WIDGET(button), 
+				    "scheme_window");
+  gtk_widget_destroy(window);
+
+}
+
+
+void
 on_get_pdb_using_code1_activate        (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
