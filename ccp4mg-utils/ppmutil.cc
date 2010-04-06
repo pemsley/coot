@@ -2501,7 +2501,11 @@ void image_info::readpng(const char *filename){
         pixels[i*width*colourspace+j*colourspace+1] = png_ptr->palette[row_pointers[i][j]].green;
         pixels[i*width*colourspace+j*colourspace+2] = png_ptr->palette[row_pointers[i][j]].blue;
         if(row_pointers[i][j]<png_ptr->num_trans){
+#if PNG_LIBPNG_VER_MAJOR >= 1 && PNG_LIBPNG_VER_MINOR >=4
+         pixels[i*width*colourspace+j*colourspace+3] = png_ptr->trans_alpha[row_pointers[i][j]];
+#else
          pixels[i*width*colourspace+j*colourspace+3] = png_ptr->trans[row_pointers[i][j]];
+#endif
         }else
          pixels[i*width*colourspace+j*colourspace+3] = 255;
       }

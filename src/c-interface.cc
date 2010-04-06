@@ -6591,6 +6591,8 @@ void post_scheme_scripting_window() {
 		  << "   Nevertheless you will get a simple scripting window." 
 		  << std::endl;
         // load the fallback window if we have COOT_SCHEME_DIR (only Windows?!)
+        // only for gtk2!
+#if (GTK_MAJOR_VERSION > 1)
         GtkWidget *window; 
         GtkWidget *scheme_entry; 
         window = create_scheme_window();
@@ -6598,6 +6600,7 @@ void post_scheme_scripting_window() {
         scheme_entry = lookup_widget(window, "scheme_window_entry");
         setup_guile_window_entry(scheme_entry); // USE_PYTHON and USE_GUILE used here
         gtk_widget_show(window);        
+#endif /* GTK_MAJOR_VERSION */
      } else { 
 	std::cout << COOT_SCHEME_DIR << " was not defined - cannot open ";
 	std::cout << "scripting window" << std::endl; 

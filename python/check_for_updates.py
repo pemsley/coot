@@ -386,6 +386,10 @@ def get_latest_pending_version():
                     if mtime > tmp_time:
                         tmp_time = mtime
                         installer_name = filename
+                # now delete the other ones
+                for filename in installer_filenames:
+                    if (filename != installer_name):
+                        os.remove(filename)
             return installer_name
     return ""
 
