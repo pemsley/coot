@@ -4396,6 +4396,7 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_geometry &geom) const {
 
+   bool debug = 0;
    coot::bonded_pair_container_t bpc;
    float dist_crit = 3.0;
    // std::cout << "  debug:: residues_vec.size() " << residues_vec.size() << std::endl;
@@ -4416,7 +4417,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	       if (link_type != "") {
 
 		  // too verbose
-		  if (0) 
+		  if (debug) 
 		     std::cout << "   INFO:: "
 			       << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
 			       << " link_type :" << link_type << ":" << std::endl;
@@ -4909,7 +4910,7 @@ coot::restraints_container_t::peptide_C_and_N_are_close_p(CResidue *r1, CResidue
 
 }
 
-// a pair, first is if C and N are close and second if and order
+// a pair, first is if C and N are close and second is if an order
 // switch is needed to make it so.
 //
 // return "" as first if no close link found.
@@ -4961,7 +4962,7 @@ coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std
 		  std::string atom_id_1 = lr.link_bond_restraint[ib].atom_id_1_4c();
 		  std::string atom_id_2 = lr.link_bond_restraint[ib].atom_id_2_4c();
 		  CAtom *at_1 = r1->GetAtom(atom_id_1.c_str());
-		  CAtom *at_2 = r2->GetAtom(atom_id_1.c_str());
+		  CAtom *at_2 = r2->GetAtom(atom_id_2.c_str());
 		  if (at_1 && at_2) {
 		     clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
 		     clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
@@ -4969,18 +4970,25 @@ coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std
 		     if (debug) 
 			std::cout << "  dist check " << " link-bond-number: "
 				  << ib << " " << coot::atom_spec_t(at_1) << " -to- "
-				  <<  coot::atom_spec_t(at_2) << "   " << d << " for link type " <<  lr.link_id
-				  << std::endl;
+				  <<  coot::atom_spec_t(at_2) << "   " << d << " for link type "
+				  <<  lr.link_id << std::endl;
 		     if (d < dist_crit) {
 			r = link.Id();
 			break;
 		     } 
+		  } else {
+		     std::cout << "WARNING:: dictionary vs model problem? "
+			       << "We didn't find the bonded linking atoms :"
+			       << lr.link_bond_restraint[ib].atom_id_1_4c() << ": :"
+			       << lr.link_bond_restraint[ib].atom_id_2_4c() << ":" << std::endl;
 		  } 
 	       }
 	    }
 	    if (r != "")
 	       break;
 	 }
+      } else {
+	 std::cout << "FAIL close enough with closer than dist_crit " << close.second << std::endl;
       }
    }
    return r;
