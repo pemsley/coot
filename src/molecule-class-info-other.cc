@@ -5461,7 +5461,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       GLfloat  mat_shininess[] = {50.0};
       // GLfloat  light_position[] = {1.0, 1.0, 1.0, 1.0};
       
-      glClearColor(0.0, 0.0, 0.0, 0.0);
+      // glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
 
       glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
