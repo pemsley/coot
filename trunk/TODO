@@ -690,6 +690,10 @@ Punted from 0.6:
    o consider roll up/collapse addition representation in Display
      manager when they are not displayed.  Punted. ::: 2
 
+   o Phil: I want to set in my ~/.coot file that all new molecules
+     will be opened in "colour by chain" mode (not just the ones that
+     I've already opened).
+
    o coordination number of waters validataion check (punted) ::: 5 
 
 * Done.
