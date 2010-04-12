@@ -1,0 +1,257 @@
+
+balloon:
+
+Mikko J. Vainio and Mark S. Johnson (2007) Generating Conformer
+Ensembles Using a Multiobjective Genetic Algorithm. Journal of
+Chemical Information and Modeling, 47, 2462 - 2474.
+
+------
+
+    JED:
+ 
+    Place an O, get an OH, 
+    undo
+    O is not OH as it should be.
+
+------
+  
+    JED: break molecule in to bits, add bonds, change bonds to double
+    and back with lots of undos.  delete atoms -> crash eventually.
+
+----
+ 
+    in triple bond add mode, the bond should be added as a triple bond
+    (not double).
+
+    Also, should be linear.
+
+
+  --------
+
+   pan canvas (or move molecule) needs to work
+   c.f. goo_canvas_scroll_to()
+   consider adding a callback to the scroll-event event on the root canvas
+
+
+----
+
+   Fix the search (fraction of atoms in search fragment)
+
+----
+
+   need to have use control over bond direction (JME does it when the
+   mouse moves away from the clicked-on atom).
+
+
+---
+
+   When dragging a bond, the end of the bond should snap to an atom
+   when we mouse over it.
+
+
+----
+
+   Import 515, X offset is wrong.
+
+---- 
+
+
+    \  /   should be  \ /  and similar for up NH bonds
+     NH                N
+                       H
+
+    if 2 neighbours are coming in horizontally (axis orientation < 40
+    say) , that is.
+
+    and OH should be HO if the bond comes in from the right.
+
+----
+
+   INFO:: 106 4-(5-BROMO-2-OXO-2H-INDOL-3-YLAZO)-BENZENESULFONAMIDE is
+   an excellent example of the difference between PRODRG and SBase.
+
+   sp3 vs sp2 nitrogen.  The hydrogen on N1, whats going on there?  A
+   double-bond was invented by PRODRG.  The nitrogen on the sulfur.
+
+
+
+
+------------------------------------------------------
+
+
+
+   delete mode needs to work
+
+* Done.
+
+--------
+
+    important:
+
+    Add ring
+    Add bond
+    Add rind (on end of bond)
+
+    gives a bond with an atom bonded to itself (the atom on the stalk)
+
+* Fixed
+
+
+----
+
+    It would be nice to have the aromatic ring double bonds draw with
+    a shorter inner bond rather than a double bond either side of the
+    mid-line.
+
+* Done.  It *is* nice.
+
+---
+ 
+   aromatic hexagon needs to work
+
+* Done.
+
+----
+
+   The orientation of the rings needs to be altered so that
+   six-membered rings can be added horizontally.
+
+* Done. Better now.
+
+----
+
+   in placement of single bonds, is the "closed" status of deleted
+   atom positions taken into account?  (I think not).
+
+* Done.
+
+----
+
+    Add a ring.
+ 
+    Change a C to a N.
+
+    Add a bond to the N (NH)
+
+    --> the NH should change to a N but it does not.
+
+* Done.
+
+----
+
+
+printing:
+
+cairo_t*        goo_canvas_create_cairo_context (GooCanvas *canvas);
+
+void            goo_canvas_render           (GooCanvas             *canvas,
+                                             cairo_t               *cr,
+                                             const GooCanvasBounds *bounds,
+                                             gdouble                scale);
+* Done.  From example.
+
+---
+
+    cyclo-propane - bond - cyclo-propane
+
+    v. short bond.  
+
+    cf 8-ring - bond 8-ring
+
+* Done.
+
+----
+
+     Adding a N at a junction between a stereo bond and a ring should
+     mean that the N is N not NH.
+
+* Done.
+
+
+--------
+ 
+   undo mode needs to work
+
+* Done.
+
+----
+
+   stamp a ring
+  
+   add a bond 
+
+   cut the bond, cut the CH4
+
+   add a bond in the same place {the bond is short }
+
+   try change the atom at the end of the bond to N 
+
+   -> fail
+
+* Done.
+
+----
+
+
+     loading from an MDL file would be cool.
+
+* it *is* nice.
+
+----
+  
+    connect up sbase.
+
+* Done.  Needs work.
+
+----
+
+   stamp a ring.  
+   Change a C to an N 
+   Add a bond to the N
+   delete the atom at the end
+   
+   -> N should change back to NH, does not.
+
+* Done.
+
+
+----
+
+    try to flatten and export to lbg something with a Hg in it.
+    PRODRG has exit status 1, we should check for this and give a
+    dialog.
+
+* Fixed.
+
+----
+ 
+   Fix the bond centre. e.g. import 3IB indolebutyric acid
+
+* Done.
+
+----
+
+   CRZ gives a incorrect centre and no hydrogens.
+
+* That problem is fixed.
+
+-----
+
+
+   Read in 003, flatten it.  A bond to an O is a ring double bond :-(
+
+* Done, I hope.
+
+
+
+----
+
+   File -> Save as broken, needs work.
+
+
+----
+
+   Fix the option menu
+
+---
+
