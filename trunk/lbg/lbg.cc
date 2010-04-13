@@ -64,8 +64,7 @@ on_canvas_button_press (GtkWidget *widget, GdkEventButton *event)
       if (gp) {
 	 lbg_info_t *l = static_cast<lbg_info_t *> (gp);
 	 l->set_mouse_pos_at_click(x_as_int, y_as_int); // save for dragging
-	 std::cout << "mouse_at_click: " << x_as_int << " "
-		   << y_as_int << std::endl;
+	 // std::cout << "mouse_at_click: " << x_as_int << " " << y_as_int << std::endl;
 	 if (l->in_delete_mode_p()) { 
 	    l->handle_item_delete(event);
 	 } else {
@@ -92,7 +91,7 @@ on_canvas_motion (GtkWidget *widget, GdkEventMotion *event) {
 	    if (! highlight_status) {
 	       if (state & GDK_BUTTON1_MASK) {
 // 		  std::cout << "dragging canvas given mouse point "
-// 			    << x_as_int << " " << y_as_int << std::endl;
+// 			    << x_as_int << " " << y_as_int <grep< std::endl;
 		  l->drag_canvas(x_as_int, y_as_int);
 	       }
 	    }
@@ -1958,8 +1957,7 @@ lbg_info_t::watch_for_mdl_from_coot(gpointer user_data) {
 }
 
 int
-main (int argc, char *argv[])
-{
+main(int argc, char *argv[]) {
         
    gtk_init (&argc, &argv);
         
@@ -1979,6 +1977,14 @@ main (int argc, char *argv[])
       lbg->init(builder);
       gtk_builder_connect_signals (builder, lbg->canvas);
       g_object_unref (G_OBJECT (builder));
+
+      if (argc > 1) {
+	 std::string file_name(argv[1]);
+	 lig_build::molfile_molecule_t mm;
+	 mm.read(file_name);
+	 lbg->import(mm, file_name);
+      }
+	 
       gtk_main ();
 
    } else {
@@ -2317,8 +2323,11 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
    // redo the atoms, this time with widgets.
    for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
-      std::string atom_name = mol.atoms[iat].name;
+      // std::string atom_name = mol.atoms[iat].name;
+
+      std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(iat);
       std::string ele = mol.atoms[iat].element;
+      std::string atom_name = mol.make_atom_name_by_using_bonds(ele, local_bonds);
       std::string fc = font_colour(ele);
       if (ele != "C") 
 	 mol.atoms[iat].update_name_forced(atom_name, fc, root);
@@ -2412,11 +2421,14 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
       // atom table:
       for (unsigned int iat=0; iat<atoms.size(); iat++) {
 	 if (! atoms[iat].is_closed()) {
-	    // shall we invert the y coordinate? Not at the moment.
+	    // shall we invert the y coordinate? Yes.  Internal
+	    // coordinates have the atoms top of the canvas with
+	    // lowest Y values.  The JME has them with highest Y
+	    // values, so swap on output.
 	    of << setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
-	       << (atoms[iat].atom_position.x - centre.x) * 1.54/SINGLE_BOND_CANVAS_LENGTH;
+	       << (atoms[iat].atom_position.x - centre.x) * 1.33/SINGLE_BOND_CANVAS_LENGTH;
 	    of << setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
-	       << (+ atoms[iat].atom_position.y - centre.y) * 1.54/SINGLE_BOND_CANVAS_LENGTH;
+	       << (- atoms[iat].atom_position.y + centre.y) * 1.33/SINGLE_BOND_CANVAS_LENGTH;
 	    double z = 0.0;
 	    of << setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
 	       << z;
@@ -2684,49 +2696,46 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
    double centre_y = 0;
    double sum_x = 0;
    double sum_y = 0;
-   double min_y =  9999999;
-   double max_y = -9999999;
+   mol_in_min_y =  9999999;
+   mol_in_max_y = -9999999;
    
    for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
       sum_x += mol_in.atoms[iat].atom_position.x();
       sum_y += mol_in.atoms[iat].atom_position.y();
-      if (mol_in.atoms[iat].atom_position.y() > max_y)
-	 max_y = mol_in.atoms[iat].atom_position.y();
-      if (mol_in.atoms[iat].atom_position.y() < min_y)
-	 min_y = mol_in.atoms[iat].atom_position.y();
+      if (mol_in.atoms[iat].atom_position.y() > mol_in_max_y)
+	 mol_in_max_y = mol_in.atoms[iat].atom_position.y();
+      if (mol_in.atoms[iat].atom_position.y() < mol_in_min_y)
+	 mol_in_min_y = mol_in.atoms[iat].atom_position.y();
    }
 
-   // sometimes (e.g.) drugbank sdf files, the bonds are short (they
-   // seem to be 1.0, or there abouts), the atoms of the molecule need
+   // Sometimes (e.g. drugbank sdf files) the bonds are short (they
+   // seem to be 1.0, or thereabouts), the atoms of the molecule need
    // to be scaled up.  So, to test if the molecule has short bonds,
    // calculate the median length of the bonds (not including bonds to
    // hydrogens).
 
-   std::pair<bool, double> scale_correction = get_scale_correction(mol_in);
-   double sc = 1.0;
-   if (scale_correction.first)
-      sc = scale_correction.second;
+   scale_correction = get_scale_correction(mol_in);
    
    if (mol_in.atoms.size() > 0) {
       centre_x = sum_x/double(mol_in.atoms.size());
       centre_y = sum_y/double(mol_in.atoms.size());
 
-      double y_offset = 60 + sc * (centre_y - min_y) * 20;
-      // std::cout << ":::: y-stat: " << min_y - centre_y << std::endl;
+      centre_correction = lig_build::pos_t(centre_x, centre_y);
+
+      std::cout << "::::::::::::::: y stats: extents " << mol_in_min_y << " "
+		<< mol_in_max_y << " centre correction: " << centre_correction.y
+		<< std::endl;
    
       for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
-	 double x = sc * (mol_in.atoms[iat].atom_position.x() - centre_x) * SINGLE_BOND_CANVAS_LENGTH/1.3;
-	 double y = sc * (mol_in.atoms[iat].atom_position.y() - centre_y) * SINGLE_BOND_CANVAS_LENGTH/1.3;
-	 x += 300;
-	 y += y_offset;
-	 lig_build::pos_t pos(x, y);
+	 
+	 lig_build::pos_t pos = input_coords_to_canvas_coords(mol_in.atoms[iat].atom_position);
 	 std::string element = mol_in.atoms[iat].element;
 	 int charge = 0;
 	 GooCanvasItem *ci = NULL;
 	 widgeted_atom_t at(pos, element, charge, ci);
 	 if (0)
-	    std::cout << "Element " << element << " at " << pos << " " << min_y << " "
-		      << max_y << std::endl;
+	    std::cout << "Element " << element << " at " << pos << " " << mol_in_min_y << " "
+		      << mol_in_max_y << std::endl;
 	 atoms.push_back(at);
       }
 
@@ -2791,7 +2800,7 @@ std::pair<bool, double>
 widgeted_molecule_t::get_scale_correction(const lig_build::molfile_molecule_t &mol_in) const {
 
    bool status = 0;
-   double scale = 0;
+   double scale = 1.0;
    std::vector<double> bond_lengths; // process this to scale up the mol file molecule if
                   		     // needed.
    
@@ -2818,5 +2827,20 @@ widgeted_molecule_t::get_scale_correction(const lig_build::molfile_molecule_t &m
 
    return std::pair<bool, double> (status, scale);
 }
+
+
+lig_build::pos_t
+widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &pos_in) const {
+
+   // convert from JME-style (top canvas atoms have big Y) to internal
+   // coordinates (top canvas has small Y).
+
+   double x =   scale_correction.second * (pos_in.x() - centre_correction.x) * SINGLE_BOND_CANVAS_LENGTH/1.3;
+   double y = - scale_correction.second * (pos_in.y() - centre_correction.y) * SINGLE_BOND_CANVAS_LENGTH/1.3;
+   double y_offset = 60 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 20;
    
-      
+   x += 300;
+   y += y_offset;
+
+   return lig_build::pos_t(x,y);
+}

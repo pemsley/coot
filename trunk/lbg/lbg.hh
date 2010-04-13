@@ -442,9 +442,17 @@ public:
 #define MAX_SEARCH_DEPTH 9
 
 class widgeted_molecule_t : public lig_build::molecule_t<widgeted_atom_t, widgeted_bond_t> {
-   std::string group;
    
 private:
+   std::string group;
+   lig_build::pos_t centre_correction;
+   std::pair<bool, double> scale_correction;
+   double mol_in_min_y;
+   double mol_in_max_y;
+   void init() {
+      mol_in_max_y = 0;
+      mol_in_min_y = 0;
+   }
    bool member(const int &ind, const std::vector<int> &no_pass_atoms) const {
       bool found = 0;
       for (unsigned int i=0; i<no_pass_atoms.size(); i++) { 
@@ -470,10 +478,11 @@ private:
    std::pair<bool, double>
    get_scale_correction(const lig_build::molfile_molecule_t &mol_in) const;
    int get_number_of_atom_including_hydrogens() const;
+   lig_build::pos_t input_coords_to_canvas_coords(const clipper::Coord_orth &in) const;
 
 
 public:
-   widgeted_molecule_t() {};
+   widgeted_molecule_t() { init(); }
    widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in);
 
    // return 0 as first if not highlighting a bond
