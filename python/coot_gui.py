@@ -2444,7 +2444,7 @@ def cis_peptides_gui(imol):
                    str(r1[2]) + " " + 
                    residue_name(imol, *r1[1:4]) + " - " +
                    str(r2[2]) + " " +
-                   residue_name(imol, *r1[1:4]) + "   " +
+                   residue_name(imol, *r2[1:4]) + "   " +
                    tors_string)
             ls = pos
             ls.insert(0,mess)
@@ -4302,7 +4302,7 @@ def user_mods_gui(imol, pdb_file_name):
                  " ".join(map(atom_spec2string, specs)) + \
                  " " + \
                  info_string
-         atom_specs = specs[0]
+         atom_spec = specs[0]
          chain_id  = atom_spec[1]
          res_no    = atom_spec[2]
          ins_code  = atom_spec[3]
@@ -4311,7 +4311,7 @@ def user_mods_gui(imol, pdb_file_name):
          func = [cmd2str(set_go_to_atom_molecule, imol),
                  cmd2str(set_go_to_atom_chain_residue_atom_name,
                          chain_id, res_no, atom_name)]
-         ret.append(label, func)
+         ret.append([label, func])
       return ret
    
    # Return a list of buttons that are (in this case, (only) clashes,

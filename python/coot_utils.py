@@ -2086,7 +2086,10 @@ def add_annotation_at_click(text):
         global annotations
         global pass_text
         text = pass_text
-        atom_spec = atom_specs(*args[0])
+        # atom_specs for user_defined_clicks have 7 args!
+        # includes model number now too!
+        # maybe there should be a atom_spec including model no!?
+        atom_spec = atom_specs(*args[0][1:7])
         ann = [text] + atom_spec[3:]
         annotations.append(ann)
         place_text(*(ann + [0]))

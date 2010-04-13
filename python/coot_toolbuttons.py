@@ -502,12 +502,17 @@ def save_toolbar_to_init_file(button_label, callback_function, icon=None):
     save_str += ("\", \"" + icon)
   save_str += "\")"
   
-  home = 'HOME'
-  if (os.name == 'nt'):
-    home = 'COOT_HOME'
-  filename = os.path.join(os.getenv(home), ".coot-preferences", "coot_toolbuttons.py")
-  remove_line_containing_from_file(["coot_toolbar_button", button_label], filename)
-  save_string_to_file(save_str, filename)
+  home = os.getenv('HOME')
+  print "BL DEBUG:: home is", home
+  if (not home and os.name == 'nt'):
+    home = os.getenv('COOT_HOME')
+    print "BL DEBUG:: don have home?! home is", home
+  if not home:
+    print "BL ERROR:: could not find a home directory"
+  else:
+    filename = os.path.join(home, ".coot-preferences", "coot_toolbuttons.py")
+    remove_line_containing_from_file(["coot_toolbar_button", button_label], filename)
+    save_string_to_file(save_str, filename)
 
 # remove a toolbar from  ~/.coot-preferences/coot_toolbuttons.py
 def remove_toolbar_from_init_file(button_label):
@@ -531,7 +536,7 @@ def list_of_toolbar_functions():
          ["Stereo/Mono", "stereo_mono_toggle()", "Toggle between Stereo and Mono view", "stereo-view.svg"],
          ["Side-by-side/Mono", "side_by_side_stereo_mono_toggle()", "Toggle between Side-by-Side Stereo and Mono view", "stereo-view.svg"],
          ["Zalman Stereo/mono", "zalman_stereo_mono_toggle()", "Toggle between Zalman Stereo and Mono view", "stereo-view.svg"],
-         ["Swap Stereo", "switch_stereo_sides()", "Toggle between Zalman Stereo and Mono view", "undo-1.svg"],
+         ["Swap Stereo", "switch_stereo_sides()", "Change left and right stereo image", "undo-1.svg"],
          ["Test", "rotation_centre()", "test function"]],
         ["Refinement",
          ["Sphere Refine", "sphere_refine()", "RSR around active residue", "reset-view.svg"],
