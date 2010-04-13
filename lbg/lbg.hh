@@ -445,13 +445,11 @@ class widgeted_molecule_t : public lig_build::molecule_t<widgeted_atom_t, widget
    
 private:
    std::string group;
-   lig_build::pos_t centre_correction;
-   std::pair<bool, double> scale_correction;
-   double mol_in_min_y;
-   double mol_in_max_y;
    void init() {
       mol_in_max_y = 0;
       mol_in_min_y = 0;
+      scale_correction.first = 0;
+      scale_correction.second = 1;
    }
    bool member(const int &ind, const std::vector<int> &no_pass_atoms) const {
       bool found = 0;
@@ -478,7 +476,6 @@ private:
    std::pair<bool, double>
    get_scale_correction(const lig_build::molfile_molecule_t &mol_in) const;
    int get_number_of_atom_including_hydrogens() const;
-   lig_build::pos_t input_coords_to_canvas_coords(const clipper::Coord_orth &in) const;
 
 
 public:
@@ -502,7 +499,15 @@ public:
    int n_stray_atoms() const; // unbonded atoms
    std::vector<int> stray_atoms() const;
    void translate(const lig_build::pos_t &delta); // move the atoms
+   lig_build::pos_t input_coords_to_canvas_coords(const clipper::Coord_orth &in) const;
       
+
+   // make private when bug is fixed.
+   lig_build::pos_t centre_correction;
+   std::pair<bool, double> scale_correction;
+   double mol_in_min_y;
+   double mol_in_max_y;
+   
 };
 
 
@@ -608,6 +613,24 @@ public:
 	    success = 0;
       }
    };
+
+   class residue_circle_t {
+   public:
+      double pos_x;
+      double pos_y;
+      double pos_z;
+      std::string residue_type;
+      std::string residue_label;
+      residue_circle_t(const double &x_in, const double &y_in, const double &z_in,
+		       const std::string &type_in,
+		       const std::string &label_in) {
+	 pos_x = x_in;
+	 pos_y = y_in;
+	 pos_z = z_in;
+	 residue_type = type_in;
+	 residue_label = label_in;
+      }
+   };
 			  
    
 private:
@@ -658,6 +681,7 @@ private:
       search_similarity = 0.93;
       coot_mdl_time = 0;
       canvas_scale = 1.0;
+      canvas_drag_offset = lig_build::pos_t(0,0);
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -714,8 +738,11 @@ private:
 
    void translate_molecule(const lig_build::pos_t &delta);
    void clear_canvas();
+   void add_residue_circle(const residue_circle_t &rc, const lig_build::pos_t &p);
 
-
+   std::pair<std::string, std::string>
+   get_residue_circle_colour(const std::string &residue_type) const;
+   lig_build::pos_t canvas_drag_offset;
    
 public:
    lbg_info_t(GtkWidget *canvas_in) {
@@ -769,6 +796,9 @@ public:
    static void on_sbase_search_result_button_clicked(GtkButton *button, gpointer user_data);
    static gboolean watch_for_mdl_from_coot(gpointer user_data);
    time_t coot_mdl_time;
+   void read_draw_residues(const std::string &file_name);
+   std::vector<residue_circle_t> read_residues(const std::string &file_name) const;
+   void draw_residue_circles(const std::vector<residue_circle_t> &v);
 };
 
 #endif // LBG_HH

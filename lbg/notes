@@ -35,6 +35,11 @@ Tue Apr 13 14:33:21 BST 2010
    When dragging a bond, the end of the bond should snap to an atom
    when we mouse over it.
 
+---
+
+   get_scale_correction() needs to be looked, c.f. 
+   i.e. input_coords_to_canvas_coords() and 
+
 
 ----
 

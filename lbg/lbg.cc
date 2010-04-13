@@ -23,9 +23,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <stdexcept>
 #include <fstream>
 #include <iomanip>
 #include <algorithm>
+
 
 #include <cairo.h>
 #if CAIRO_HAS_PDF_SURFACE
@@ -65,6 +67,13 @@ on_canvas_button_press (GtkWidget *widget, GdkEventButton *event)
 	 lbg_info_t *l = static_cast<lbg_info_t *> (gp);
 	 l->set_mouse_pos_at_click(x_as_int, y_as_int); // save for dragging
 	 // std::cout << "mouse_at_click: " << x_as_int << " " << y_as_int << std::endl;
+	 
+
+	 std::cout << "   on click: scale_correction  " << l->mol.scale_correction.first << " "
+		   << l->mol.scale_correction.second
+		   << " centre_correction " << l->mol.centre_correction << std::endl;
+
+	    
 	 if (l->in_delete_mode_p()) { 
 	    l->handle_item_delete(event);
 	 } else {
@@ -123,6 +132,7 @@ lbg_info_t::drag_canvas(int mouse_x, int mouse_y) {
    // goo_canvas_scroll_to(GOO_CANVAS(canvas), top_left_left, top_left_top);
 
    lig_build::pos_t delta(delta_x, delta_y);
+   canvas_drag_offset += delta;
 
    translate_molecule(delta); // and do a canvas update
 }
@@ -351,21 +361,14 @@ widgeted_bond_t::make_wedge_out_bond_item(const lig_build::pos_t &pos_1,
    // 
    lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.11);
    
-   GooCanvasPoints *points = goo_canvas_points_new(3);
-   points->coords[0] = sharp_point.x; 
-   points->coords[1] = sharp_point.y; 
-   points->coords[2] = short_edge_pt_1.x;
-   points->coords[3] = short_edge_pt_1.y;
-   points->coords[4] = short_edge_pt_2.x;
-   points->coords[5] = short_edge_pt_2.y;
-
    GooCanvasItem *item =
       goo_canvas_polyline_new(root, TRUE, 3,
-			      "points", points,
+			      sharp_point.x, sharp_point.y, 
+			      short_edge_pt_1.x, short_edge_pt_1.y,
+			      short_edge_pt_2.x, short_edge_pt_2.y,
 			      "stroke-color", dark,
 			      "fill-color", dark,
 			      NULL);
-   goo_canvas_points_unref (points);
    return item;
 }
 
@@ -1937,7 +1940,7 @@ gboolean
 lbg_info_t::watch_for_mdl_from_coot(gpointer user_data) {
 
    lbg_info_t *l = static_cast<lbg_info_t *> (user_data);
-   std::string coot_mdl_file = "../build-coot-ubuntu-64bit/src/coot-ccp4/.coot-to-lbg-mdl";
+   std::string coot_mdl_file = "../../build-coot-ubuntu-64bit/src/coot-ccp4/.coot-to-lbg-mol";
    
    struct stat buf;
    int err = stat(coot_mdl_file.c_str(), &buf);
@@ -2333,6 +2336,13 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 	 mol.atoms[iat].update_name_forced(atom_name, fc, root);
    }
 
+   // for input_coords_to_canvas_coords() to work:
+   // 
+   mol.centre_correction = mol_in.centre_correction;
+   mol.scale_correction  = mol_in.scale_correction;
+   mol.mol_in_min_y = mol_in.mol_in_min_y;
+   mol.mol_in_max_y = mol_in.mol_in_max_y;
+   
    // 
    make_saves_mutex = 1; // allow saves again.
 }
@@ -2822,9 +2832,11 @@ widgeted_molecule_t::get_scale_correction(const lig_build::molfile_molecule_t &m
       std::sort(bond_lengths.begin(), bond_lengths.end());
       int index = bond_lengths.size()/2;
       double bll = bond_lengths[index];
-      scale = 1.54/bll;
+      scale = 1.54/bll; // sqrt(1.54) is 1.24
    }
 
+   std::cout << "debug:: ================== get_scale_correction returns " << status << " " 
+	     << scale << std::endl;
    return std::pair<bool, double> (status, scale);
 }
 
@@ -2835,6 +2847,10 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
    // convert from JME-style (top canvas atoms have big Y) to internal
    // coordinates (top canvas has small Y).
 
+   std::cout << "   scale_correction  " << scale_correction.first << " " << scale_correction.second
+	     << " centre_correction " << centre_correction << " mol_in_max_y " << mol_in_max_y
+	     << " mol_in_min_y " << mol_in_min_y << std::endl;
+
    double x =   scale_correction.second * (pos_in.x() - centre_correction.x) * SINGLE_BOND_CANVAS_LENGTH/1.3;
    double y = - scale_correction.second * (pos_in.y() - centre_correction.y) * SINGLE_BOND_CANVAS_LENGTH/1.3;
    double y_offset = 60 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 20;
@@ -2844,3 +2860,203 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
 
    return lig_build::pos_t(x,y);
 }
+
+
+void
+lbg_info_t::read_draw_residues(const std::string &file_name) {
+
+   std::vector<residue_circle_t> residue_circles = read_residues(file_name);
+   draw_residue_circles(residue_circles);
+
+}
+
+std::vector<lbg_info_t::residue_circle_t>
+lbg_info_t::read_residues(const std::string &file_name) const {
+      
+   std::vector<residue_circle_t> v;
+   std::ifstream f(file_name.c_str());
+   if (!f) {
+      std::cout << "Failed to open " << file_name << std::endl;
+   } else {
+
+      std::cout << "opened residue_circle file: " << file_name << std::endl;
+      
+      std::vector<std::string> lines;
+      std::string line;
+      while (std::getline(f, line)) { 
+	 lines.push_back(line);
+      }
+
+      for (unsigned int i=0; i<lines.size(); i++) {
+	 std::vector<std::string> words = coot::util::split_string(lines[i], " ");
+	 
+	 // debug input
+	 if (0) { 
+	    std::cout << i << " " << lines[i] << "\n";
+	    for (unsigned int j=0; j<words.size(); j++) { 
+	       std::cout << "  " << j << " " << words[j] << " ";
+	    }
+	    std::cout << "\n";
+	 }
+
+	 if (words.size() > 5) {
+	    if (words[0] == "RES") {
+	       try { 
+		  double pos_x = lig_build::string_to_float(words[1]);
+		  double pos_y = lig_build::string_to_float(words[2]);
+		  double pos_z = lig_build::string_to_float(words[3]);
+		  std::string res_type = words[4];
+		  std::string label = words[5];
+		  v.push_back(residue_circle_t(pos_x, pos_y, pos_z, res_type, label));
+	       }
+	       catch (std::runtime_error rte) {
+		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
+	       }
+	    }
+	 } 
+      }
+   }
+   std::cout << "found " << v.size() << " residue centres" << std::endl;
+   return v;
+} 
+
+
+void
+lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &residue_circles) {
+
+   std::cout << "  " << residue_circles.size() << " residue circles" << std::endl;
+   for (unsigned int i=0; i<residue_circles.size(); i++) {
+      clipper::Coord_orth cp(residue_circles[i].pos_x,
+			     residue_circles[i].pos_y,
+			     residue_circles[i].pos_z);
+      lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp);
+      pos += canvas_drag_offset;
+      std::cout << "residue circle centre " << cp.format() << " give canvas pos " << pos << std::endl;
+      add_residue_circle(residue_circles[i], pos);
+   }
+
+}
+
+void
+lbg_info_t::add_residue_circle(const residue_circle_t &residue_circle,
+			       const lig_build::pos_t &pos) {
+
+   std::cout << "   adding cirles " << residue_circle.residue_type
+	     << " at " << pos << std::endl;
+      
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+
+   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark,
+						"line-width", 11.0,
+						"width", 11.0,
+						NULL);
+
+   // Capitalise the residue type (takes less space than upper case).
+   std::string rt = residue_circle.residue_type.substr(0,1);
+   rt += coot::util::downcase(residue_circle.residue_type.substr(1));
+
+   // fill colour and stroke colour
+   std::pair<std::string, std::string> col = get_residue_circle_colour(residue_circle.residue_type);
+
+   if (col.first != "") {
+      GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
+						    pos.x, pos.y,
+						    16.0, 16.0,
+						    "fill-color",   col.first.c_str(),
+						    "stroke-color", col.second.c_str(),
+						    NULL);
+   } else {
+      std::cout << "width 11 " << std::endl;
+      GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
+						    pos.x, pos.y,
+						    16.0, 16.0,
+						    "stroke-color", col.second.c_str(),
+						    NULL);
+   }
+   
+   GooCanvasItem *text_1 = goo_canvas_text_new(root, rt.c_str(),
+					       pos.x, pos.y-5, -1,
+					       GTK_ANCHOR_CENTER,
+					       "font", "Sans 9",
+					       "fill_color", dark,
+					       NULL);
+
+   GooCanvasItem *text_2 = goo_canvas_text_new(root, residue_circle.residue_label.c_str(),
+					       pos.x, pos.y+5, -1,
+					       GTK_ANCHOR_CENTER,
+					       "font", "Sans 7",
+					       "fill_color", dark,
+					       NULL);
+}
+
+// Return the fill colour and the stroke colour.
+// 
+std::pair<std::string, std::string>
+lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
+
+   std::string fill_colour = "";
+   std::string stroke_colour = dark;
+
+   std::string grease = "#bbffbb";
+   std::string purple = "#eeccee";
+   std::string red    = "#cc0000";
+   std::string blue   = "#0000cc";
+
+   if (residue_type == "ALA")
+      fill_colour = grease;
+   if (residue_type == "TRP")
+      fill_colour = grease;
+   if (residue_type == "PHE")
+      fill_colour = grease;
+   if (residue_type == "TYR")
+      fill_colour = grease;
+   if (residue_type == "LEU")
+      fill_colour = grease;
+   if (residue_type == "PRO")
+      fill_colour = grease;
+   if (residue_type == "ILE")
+      fill_colour = grease;
+   if (residue_type == "VAL")
+      fill_colour = grease;
+
+   if (residue_type == "GLY")
+      fill_colour = purple;
+   if (residue_type == "ASP")
+      fill_colour = purple;
+   if (residue_type == "ASN")
+      fill_colour = purple;
+   if (residue_type == "CYS")
+      fill_colour = purple;
+   if (residue_type == "GLN")
+      fill_colour = purple;
+   if (residue_type == "GLU")
+      fill_colour = purple;
+   if (residue_type == "HIS")
+      fill_colour = purple;
+   if (residue_type == "LYS")
+      fill_colour = purple;
+   if (residue_type == "LYS")
+      fill_colour = purple;
+   if (residue_type == "MET")
+      fill_colour = purple;
+   if (residue_type == "MSE")
+      fill_colour = purple;
+   if (residue_type == "ARG")
+      fill_colour = purple;
+   if (residue_type == "SER")
+      fill_colour = purple;
+   if (residue_type == "THR")
+      fill_colour = purple;
+
+   if (residue_type == "ASP")
+      stroke_colour = red;
+   if (residue_type == "GLU")
+      stroke_colour = red;
+   if (residue_type == "LYS")
+      stroke_colour = blue;
+   if (residue_type == "ARG")
+      stroke_colour = blue;
+	 
+   return std::pair<std::string, std::string> (fill_colour, stroke_colour);
+
+} 

@@ -59,3 +59,44 @@ coot::util::float_to_string(float f) {
    snprintf(s,99,"%5.2f",f);
    return std::string(s);
 }
+
+std::vector<std::string>
+coot::util::split_string(const std::string &string_in,
+                         const std::string &splitter) {
+
+  
+   std::vector<std::string> v;
+   std::string s=string_in;
+
+   while (1) {
+      std::string::size_type isplit=s.find_first_of(splitter);
+      if (isplit != std::string::npos) {
+         std::string f = s.substr(0, isplit);
+         v.push_back(f);
+         if (s.length() >= (isplit+splitter.length())) { 
+            s = s.substr(isplit+splitter.length());
+         } else {
+            break;
+         }
+      } else {
+         v.push_back(s);
+         break;
+      } 
+   }
+   return v;
+}
+
+
+
+std::string
+coot::util::downcase(const std::string &s) {
+
+   std::string r = s;
+   std::string::iterator it=r.begin();
+
+   while ( (it!=r.end()) ) { 
+      *it = ::tolower(*it);
+      it++;
+   }
+   return r;
+}

@@ -20,6 +20,7 @@
  */
 
 #include <string>
+#include <vector>
 
 namespace coot {
 
@@ -28,6 +29,8 @@ namespace coot {
    namespace util { 
       std::string int_to_string(int i);
       std::string float_to_string(float f);
+      std::vector<std::string> split_string(const std::string &string_in,
+					    const std::string &splitter);
+      std::string downcase(const std::string &s);
    }
-
 }
