@@ -72,7 +72,6 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
    int n_bonds = 0;
    
    std::vector<std::string> lines;
-   char chars[1024];
    std::ifstream in_file(file_name.c_str());
    if (!in_file) {
       std::cout << "Failed to open " << file_name << std::endl;

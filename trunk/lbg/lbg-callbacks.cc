@@ -121,6 +121,10 @@ on_info_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
       GtkWidget *w = l->about_dialog;
       // std::cout << "about_dialog widget is " << w << std::endl;
       gtk_widget_show(w);
+
+      // tmp function
+      l->read_draw_residues("../../build-coot-ubuntu-64bit/src/coot-tmp-fle-view-centres.txt");
+
    } else {
       std::cout << "failed to get lbg_info_t from canvas " << canvas << " " << user_data << std::endl;
    } 
@@ -475,7 +479,7 @@ on_lbg_export_as_png_filechooserdialog_response(GtkDialog       *dialog,
 					  gint             response_id,
 					  gpointer         user_data){
 
-   std::cout << "response" << response_id << std::endl;
+   std::cout << "response " << response_id << std::endl;
    if (response_id == GTK_RESPONSE_OK) { 
       GtkWidget *canvas = GTK_WIDGET(user_data);
       lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
