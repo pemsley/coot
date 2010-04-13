@@ -102,6 +102,12 @@ build-it-win rev 2122
 
 **** Python ****
 
+   o document remote connection
+
+   o make a server-client swapped version for remote control (if possible)
+
+   o fix 'No Adjustment' buttons (and callbacks) in user_mods_gui
+
    o review pygtk button (and other) callbacks which are string, poss can be exchanged (see water_coordination_gui)
 
    o optional tooltips for main toolbar buttons

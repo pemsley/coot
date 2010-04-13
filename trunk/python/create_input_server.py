@@ -6,8 +6,12 @@ if len(sys.argv) < 3:
     print 'Usage: %s [hostname] [portnumber]' % sys.argv[0]
     sys.exit(1)
 
-hostname = sys.argv[1]
-port = int(sys.argv[2])
+try:
+    hostname = sys.argv[1]
+    port = int(sys.argv[2])
+except:
+    print 'Usage: %s [hostname] [portnumber]' % sys.argv[0]
+    sys.exit(1)
 
 def make_server_for_remote_control():
     global sock

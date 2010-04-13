@@ -4312,9 +4312,9 @@ void graphics_info_t::run_user_defined_click_func() {
 	    // we need to add the model number too
 	    PyObject *model_number_py = PyInt_FromLong(user_defined_atom_pick_specs[i].model_number);
 	    PyList_Insert(spec_py, 0, model_number_py);
-	 
+        
 	    // continue output from above
-	    PyObject *fmt = PyString_FromString("[%i,'%s',%i,'%s','%s','%s']");
+	    PyObject *fmt = PyString_FromString("[%i,%i,'%s',%i,'%s','%s','%s']");
 	    PyObject *msg = PyString_Format(fmt, PyList_AsTuple(spec_py));
 	    std::cout <<PyString_AsString(msg) << " ";
 	    PyTuple_SetItem(arg_list_py, i, spec_py);

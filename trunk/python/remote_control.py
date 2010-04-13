@@ -33,16 +33,16 @@ coot_listener_socket = False
 # it breaks the scripting window however! Or for that matter all python
 # scripting which is not comming from the socket! Baeh! May
 # need to thread it after all, but how?!?
-def open_coot_listener_socket(port_number, host_name):
+def open_coot_listener_socket(port_number, host_adress = "127.0.0.1"):
 
     import socket
     global coot_listener_socket
 
-    print "in open_coot_listener_socket port: %s host %s" %(port_number, host_name)
+    print "in open_coot_listener_socket port: %s host %s" %(port_number, host_adress)
 
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    host_adress = "127.0.0.1"
+    #host_adress = "127.0.0.1"
 
     soc.connect((host_adress, port_number))
 
@@ -61,7 +61,7 @@ def open_coot_listener_socket(port_number, host_name):
 # The gtk-timer function must return True to be called again.  When we
 # want to close the socket reader, simply make the function return False.
 # 
-def open_coot_listener_socket_with_timeout(port_number, host_name):
+def open_coot_listener_socket_with_timeout(port_number, host_adress = "127.0.0.1"):
 
     try:
         import gobject
@@ -72,15 +72,15 @@ def open_coot_listener_socket_with_timeout(port_number, host_name):
     import socket
     global coot_listener_socket
 
-    print "in open_coot_listener_socket port: %s host %s" %(port_number, host_name)
+    print "in open_coot_listener_socket port: %s host %s" %(port_number, host_adress)
 
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host_adress = "127.0.0.1"
+    #host_adress = "127.0.0.1"
 
     try:
         soc.connect((host_adress, port_number))
     except:
-        print "BL INFO:: cannot connect to socket on host %s with port %s" %(host_name, port_number)
+        print "BL INFO:: cannot connect to socket on host %s with port %s" %(host_adress, port_number)
         return
 
     print "Coot listener socket ready!"
