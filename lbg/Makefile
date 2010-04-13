@@ -11,15 +11,16 @@ GTK_LDFLAGS=`pkg-config --libs gtk+-2.0`
 CAIRO_CFLAGS=`pkg-config --cflags cairo` 
 # CAIRO_LDFLAGS=`pkg-config --libs cairo` in GOO_LDFLAGS already
 
-HOST=paule-laptop
+CRYST=/home/emsley/autobuild/f12/Linux-jackal-f12-pre-release-gtk2
+CRYST=$(HOME)/autobuild/Linux-scylla-pre-release-gtk2
 
-MMDB=$(HOME)/autobuild/Linux-$(HOST)-pre-release-gtk2
+MMDB=$(CRYST)
 # MMDB=$(HOME)/test/mmdb
 
 MMDB_CXXFLAGS=-I$(MMDB)/include/mmdb
 MMDB_LDFLAGS=$(MMDB)/lib/libmmdb.la
 
-CLIPPER=$(HOME)/autobuild/Linux-$(HOST)-pre-release-gtk2
+CLIPPER=$(CRYST)
 CLIPPER_CXXFLAGS=-I$(CLIPPER)/include
 CLIPPER_LDFLAGS=$(CLIPPER)/lib/libclipper-core.la \
         $(CLIPPER)/lib/librfftw.la \

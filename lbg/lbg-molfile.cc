@@ -141,7 +141,7 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 	       if (ele_str[1] != ' ')
 		  ele = ele_str;
 	       lig_build::molfile_atom_t at(x,y,z,ele);
-	       std::cout << "ele :" << ele << ":" << std::endl;
+	       // std::cout << "ele :" << ele << ":" << std::endl;
 	       atoms.push_back(at);
 	    }
 	    catch (std::runtime_error rte) {

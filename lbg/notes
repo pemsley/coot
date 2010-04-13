@@ -1,22 +1,17 @@
 
-balloon:
-
-Mikko J. Vainio and Mark S. Johnson (2007) Generating Conformer
-Ensembles Using a Multiobjective Genetic Algorithm. Journal of
-Chemical Information and Modeling, 47, 2462 - 2474.
 
 ------
+Tue Apr 13 14:33:21 BST 2010
 
-    JED:
- 
-    Place an O, get an OH, 
-    undo
-    O is not OH as it should be.
+    Write a mol file.  Read it in.  It has become expanded.
 
 ------
   
     JED: break molecule in to bits, add bonds, change bonds to double
     and back with lots of undos.  delete atoms -> crash eventually.
+
+   * Can't reproduce crash, but there are bonding/veiwable deleted
+     atoms errors and reappearing bonds.
 
 ----
  
@@ -24,14 +19,6 @@ Chemical Information and Modeling, 47, 2462 - 2474.
     (not double).
 
     Also, should be linear.
-
-
-  --------
-
-   pan canvas (or move molecule) needs to work
-   c.f. goo_canvas_scroll_to()
-   consider adding a callback to the scroll-event event on the root canvas
-
 
 ----
 
@@ -67,16 +54,28 @@ Chemical Information and Modeling, 47, 2462 - 2474.
 
 ----
 
-   INFO:: 106 4-(5-BROMO-2-OXO-2H-INDOL-3-YLAZO)-BENZENESULFONAMIDE is
-   an excellent example of the difference between PRODRG and SBase.
+   INFO:: 
 
-   sp3 vs sp2 nitrogen.  The hydrogen on N1, whats going on there?  A
-   double-bond was invented by PRODRG.  The nitrogen on the sulfur.
+     106 4-(5-BROMO-2-OXO-2H-INDOL-3-YLAZO)-BENZENESULFONAMIDE is
+     an excellent example of the difference between PRODRG and SBase.
+
+     sp3 vs sp2 nitrogen.  The hydrogen on N1, whats going on there?  A
+     double-bond was invented by PRODRG.  The nitrogen on the sulfur.
+
+----
+
+INFO:: 
+
+   balloon:
+
+   Mikko J. Vainio and Mark S. Johnson (2007) Generating Conformer
+   Ensembles Using a Multiobjective Genetic Algorithm. Journal of
+   Chemical Information and Modeling, 47, 2462 - 2474.
 
 
+------
 
-
-------------------------------------------------------
+=================================================================================
 
 
 
@@ -255,3 +254,20 @@ void            goo_canvas_render           (GooCanvas             *canvas,
 
 ---
 
+    JED:
+ 
+    Place an O, get an OH, place another.
+    undo
+    the first O is not OH as it should be.
+
+* Done
+
+
+----
+
+
+   pan canvas (or move molecule) needs to work
+   c.f. goo_canvas_scroll_to()
+   consider adding a callback to the scroll-event event on the root canvas
+
+* Done
