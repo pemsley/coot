@@ -64,7 +64,6 @@ lig_build::string_to_float(const std::string &s) {
 
 void 
 lig_build::molfile_molecule_t::read(const std::string &file_name) {
-
    
    std::vector<std::string> header_lines(3);
    int n_chirals = 0;

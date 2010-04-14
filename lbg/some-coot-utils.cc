@@ -61,8 +61,8 @@ coot::util::float_to_string(float f) {
 }
 
 std::vector<std::string>
-coot::util::split_string(const std::string &string_in,
-                         const std::string &splitter) {
+coot::util::split_string_no_blanks(const std::string &string_in,
+				   const std::string &splitter) {
 
   
    std::vector<std::string> v;
@@ -72,7 +72,8 @@ coot::util::split_string(const std::string &string_in,
       std::string::size_type isplit=s.find_first_of(splitter);
       if (isplit != std::string::npos) {
          std::string f = s.substr(0, isplit);
-         v.push_back(f);
+	 if (f.length() > 0)
+	    v.push_back(f);
          if (s.length() >= (isplit+splitter.length())) { 
             s = s.substr(isplit+splitter.length());
          } else {

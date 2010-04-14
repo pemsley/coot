@@ -14,6 +14,24 @@ Tue Apr 13 14:33:21 BST 2010
      atoms errors and reappearing bonds.
 
 ----
+Tue Apr 13 22:12:23 BST 2010
+
+   JED: It won't let me do a wedge bond in a ring (say the spiro
+   position in MI6)
+
+
+Still crashing.
+
+Differently though.
+
+Add a ring, then a wedge bond off the ring. Try to cycle the
+wedgedness a bit [1] and add 3 more bonds to this one -> crash.
+
+
+[1] well, it's a bit broken: after a few cycles it's won't do all 4
+variants, just 2 of them
+
+----
  
     in triple bond add mode, the bond should be added as a triple bond
     (not double).
@@ -38,7 +56,7 @@ Tue Apr 13 14:33:21 BST 2010
 ---
 
    get_scale_correction() needs to be looked, c.f. 
-   i.e. input_coords_to_canvas_coords() and 
+   i.e. input_coords_to_canvas_coords() and write_mdl_molfile() 
 
 
 ----
