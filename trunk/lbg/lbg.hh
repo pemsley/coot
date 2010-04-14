@@ -48,6 +48,22 @@ bool save_togglebutton_widgets(GtkBuilder *builder);
 void lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mode);
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *scrolled_window);
 
+class solvent_accessible_atom_t {
+public:
+   std::string atom_name;
+   clipper::Coord_orth pt;
+   double solvent_accessibility;
+   solvent_accessible_atom_t(const std::string &at,
+			     const clipper::Coord_orth &pt_in,
+			     double sa) {
+      atom_name = at;
+      pt = pt_in;
+      solvent_accessibility = sa;
+   }
+};
+
+
+
 // Unfortunately, the bonds and atoms must also have canvas items as
 // part of their make-up.  Why?
 //
@@ -73,6 +89,7 @@ GtkWidget *get_canvas_from_scrolled_win(GtkWidget *scrolled_window);
 
 class widgeted_atom_t : public lig_build::atom_t {
    std::string font_colour;
+   double solvent_accessibility;
    GooCanvasItem *ci;
    void clear(GooCanvasItem *root) {
       gint child_index = goo_canvas_item_find_child(root, ci);
@@ -145,6 +162,7 @@ public:
    widgeted_atom_t(lig_build::atom_t &at_in, GooCanvasItem *ci_in) : lig_build::atom_t(at_in) {
       ci = ci_in;
       font_colour = "yellow";
+      solvent_accessibility = -1;
    }
    widgeted_atom_t(lig_build::pos_t pos_in,
 		   std::string ele_in,
@@ -153,6 +171,7 @@ public:
       lig_build::atom_t(pos_in, ele_in, charge_in) {
       ci = ci_in;
       font_colour = "hotpink";
+      solvent_accessibility = -1;
    }
    GooCanvasItem *get_canvas_item() const { return ci; }
    void update_canvas_item(GooCanvasItem *new_item, GooCanvasItem *root) {
@@ -198,6 +217,10 @@ public:
 			   GooCanvasItem *root) {
       update_name_forced(atom_name_in, font_colour, root);
    }
+   void add_solvent_accessibility(double sa) {
+      solvent_accessibility = sa;
+   }
+   double get_solvent_accessibility() const { return solvent_accessibility; } // negative for none.
    void close(GooCanvasItem *root) {
       // std::cout << " closing subclass atom" << std::endl;
       lig_build::atom_t::close();
@@ -476,11 +499,15 @@ private:
    std::pair<bool, double>
    get_scale_correction(const lig_build::molfile_molecule_t &mol_in) const;
    int get_number_of_atom_including_hydrogens() const;
+   // return negative if not solvent accessibility available.
+   double get_solvent_accessibility(const clipper::Coord_orth &pt,
+				    const std::vector<solvent_accessible_atom_t> &sa) const;
 
 
 public:
    widgeted_molecule_t() { init(); }
-   widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in);
+   widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in,
+		       const std::vector<solvent_accessible_atom_t> &sav);
 
    // return 0 as first if not highlighting a bond
    std::pair<bool, widgeted_bond_t> highlighted_bond_p(int x, int y) const;
@@ -507,6 +534,7 @@ public:
    std::pair<bool, double> scale_correction;
    double mol_in_min_y;
    double mol_in_max_y;
+   std::vector<solvent_accessible_atom_t> solvent_accessible_atoms;
    
 };
 
@@ -631,8 +659,8 @@ public:
 	 residue_label = label_in;
       }
    };
-			  
-   
+
+
 private:
    bool try_stamp_polygon(int n_edges, int x_pos_centre, int y_pos_centre,
 			  bool is_spiro, bool is_aromatic);
@@ -743,6 +771,9 @@ private:
    std::pair<std::string, std::string>
    get_residue_circle_colour(const std::string &residue_type) const;
    lig_build::pos_t canvas_drag_offset;
+   std::vector<solvent_accessible_atom_t> solvent_accessible_atoms;
+   void draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa,
+					   GooCanvasItem *root);
    
 public:
    lbg_info_t(GtkWidget *canvas_in) {
@@ -799,6 +830,7 @@ public:
    void read_draw_residues(const std::string &file_name);
    std::vector<residue_circle_t> read_residues(const std::string &file_name) const;
    void draw_residue_circles(const std::vector<residue_circle_t> &v);
+   void read_solvent_accessibilities(const std::string &file_name);
 };
 
 #endif // LBG_HH

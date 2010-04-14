@@ -68,10 +68,10 @@ on_canvas_button_press (GtkWidget *widget, GdkEventButton *event)
 	 l->set_mouse_pos_at_click(x_as_int, y_as_int); // save for dragging
 	 // std::cout << "mouse_at_click: " << x_as_int << " " << y_as_int << std::endl;
 	 
-
-	 std::cout << "   on click: scale_correction  " << l->mol.scale_correction.first << " "
-		   << l->mol.scale_correction.second
-		   << " centre_correction " << l->mol.centre_correction << std::endl;
+	 if (0) 
+	    std::cout << "   on click: scale_correction  " << l->mol.scale_correction.first << " "
+		      << l->mol.scale_correction.second
+		      << " centre_correction " << l->mol.centre_correction << std::endl;
 
 	    
 	 if (l->in_delete_mode_p()) { 
@@ -1941,13 +1941,17 @@ lbg_info_t::watch_for_mdl_from_coot(gpointer user_data) {
 
    lbg_info_t *l = static_cast<lbg_info_t *> (user_data);
    std::string coot_mdl_file = "../../build-coot-ubuntu-64bit/src/coot-ccp4/.coot-to-lbg-mol";
+   std::string sa_file = "../../build-coot-ubuntu-64bit/src/coot-tmp-fle-view-solvent-accessibilites.txt";
    
    struct stat buf;
    int err = stat(coot_mdl_file.c_str(), &buf);
    if (! err) {
       time_t m = buf.st_mtime;
       if (m > l->coot_mdl_time) {
-	 if (l->coot_mdl_time != 0) { 
+	 if (l->coot_mdl_time != 0) {
+
+	    l->read_solvent_accessibilities(sa_file);
+	    
 	    std::cout << "read from " << coot_mdl_file << std::endl;
 	    lig_build::molfile_molecule_t mm;
 	    mm.read(coot_mdl_file);
@@ -2298,11 +2302,23 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
    for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
       if (!mol_in.atoms[iat].is_closed()) { 
 	 GooCanvasItem *ci = NULL;
-	 widgeted_atom_t new_atom = widgeted_atom_t(mol_in.atoms[iat].atom_position,
+	 lig_build::pos_t pos = mol_in.atoms[iat].atom_position;
+	 widgeted_atom_t new_atom = widgeted_atom_t(pos,
 						    mol_in.atoms[iat].element,
 						    mol_in.atoms[iat].charge,
 						    ci);
+	 double sa = mol_in.atoms[iat].get_solvent_accessibility();
+	 new_atom.add_solvent_accessibility(sa);
 	 re_index[iat] = mol.add_atom(new_atom).second;
+	 if (1)
+	    // clever c++
+	    std::cout << " in render_from_molecule: old sa: "
+		      << mol_in.atoms[iat].get_solvent_accessibility() << " new: "
+		      << mol.atoms[re_index[iat]].get_solvent_accessibility() << std::endl;
+	 if (sa > 0) {
+	    // std::cout << "draw solvent accessibility " << sa << " at " << pos << std::endl;
+	    draw_solvent_accessibility_of_atom(pos, sa, root);
+	 }
       }
    }
 
@@ -2342,6 +2358,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
    mol.scale_correction  = mol_in.scale_correction;
    mol.mol_in_min_y = mol_in.mol_in_min_y;
    mol.mol_in_max_y = mol_in.mol_in_max_y;
+   mol.solvent_accessible_atoms = mol_in.solvent_accessible_atoms;
    
    // 
    make_saves_mutex = 1; // allow saves again.
@@ -2684,11 +2701,17 @@ lbg_info_t::save_molecule() {
 void
 lbg_info_t::import(const lig_build::molfile_molecule_t &mol_in, const std::string &file_name) {
 
-   widgeted_molecule_t new_mol(mol_in);
+   widgeted_molecule_t new_mol(mol_in, solvent_accessible_atoms);
+
+   if (1)
+      for (unsigned int i=0; i<new_mol.atoms.size(); i++) { 
+	 std::cout << "in import(), atom " << i << " has sa "
+		   << new_mol.atoms[i].get_solvent_accessibility() << std::endl;
+      }
    mdl_file_name = file_name;
    render_from_molecule(new_mol);
    save_molecule();
-} 
+}
 
 
 // Don't forget that this function will be used in
@@ -2697,7 +2720,8 @@ lbg_info_t::import(const lig_build::molfile_molecule_t &mol_in, const std::strin
 // Perhaps this should be in the base class, as it doesn't use widgets
 // at all.
 // 
-widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in) {
+widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in,
+					 const std::vector<solvent_accessible_atom_t> &sav) {
 
    // the input coordinates are not necessarily centred on (0,0), so
    // let's find the centre of the input molecule first.
@@ -2735,14 +2759,23 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
       std::cout << "::::::::::::::: y stats: extents " << mol_in_min_y << " "
 		<< mol_in_max_y << " centre correction: " << centre_correction.y
 		<< std::endl;
+
+      if (0) 
+	 for (unsigned int i=0; i<sav.size(); i++)
+	    std::cout << "   :::::::::::::sa: " << i << " " << sav[i].pt.format() << " "
+		      << sav[i].solvent_accessibility << std::endl;
    
       for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
-	 
-	 lig_build::pos_t pos = input_coords_to_canvas_coords(mol_in.atoms[iat].atom_position);
+
+	 clipper::Coord_orth pt = mol_in.atoms[iat].atom_position;
+	 double solvent_accessibility = get_solvent_accessibility(pt, sav);
+	 lig_build::pos_t pos = input_coords_to_canvas_coords(pt);
+	 // std::cout << "sa " << pt.format() << "   " << solvent_accessibility << std::endl;
 	 std::string element = mol_in.atoms[iat].element;
 	 int charge = 0;
 	 GooCanvasItem *ci = NULL;
 	 widgeted_atom_t at(pos, element, charge, ci);
+	 at.add_solvent_accessibility(solvent_accessibility);
 	 if (0)
 	    std::cout << "Element " << element << " at " << pos << " " << mol_in_min_y << " "
 		      << mol_in_max_y << std::endl;
@@ -2835,8 +2868,6 @@ widgeted_molecule_t::get_scale_correction(const lig_build::molfile_molecule_t &m
       scale = 1.54/bll; // sqrt(1.54) is 1.24
    }
 
-   std::cout << "debug:: ================== get_scale_correction returns " << status << " " 
-	     << scale << std::endl;
    return std::pair<bool, double> (status, scale);
 }
 
@@ -2847,9 +2878,10 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
    // convert from JME-style (top canvas atoms have big Y) to internal
    // coordinates (top canvas has small Y).
 
-   std::cout << "   scale_correction  " << scale_correction.first << " " << scale_correction.second
-	     << " centre_correction " << centre_correction << " mol_in_max_y " << mol_in_max_y
-	     << " mol_in_min_y " << mol_in_min_y << std::endl;
+   if (0) 
+      std::cout << "   scale_correction  " << scale_correction.first << " " << scale_correction.second
+		<< " centre_correction " << centre_correction << " mol_in_max_y " << mol_in_max_y
+		<< " mol_in_min_y " << mol_in_min_y << std::endl;
 
    double x =   scale_correction.second * (pos_in.x() - centre_correction.x) * SINGLE_BOND_CANVAS_LENGTH/1.3;
    double y = - scale_correction.second * (pos_in.y() - centre_correction.y) * SINGLE_BOND_CANVAS_LENGTH/1.3;
@@ -2888,7 +2920,7 @@ lbg_info_t::read_residues(const std::string &file_name) const {
       }
 
       for (unsigned int i=0; i<lines.size(); i++) {
-	 std::vector<std::string> words = coot::util::split_string(lines[i], " ");
+	 std::vector<std::string> words = coot::util::split_string_no_blanks(lines[i], " ");
 	 
 	 // debug input
 	 if (0) { 
@@ -2947,8 +2979,6 @@ lbg_info_t::add_residue_circle(const residue_circle_t &residue_circle,
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
    GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark,
-						"line-width", 11.0,
-						"width", 11.0,
 						NULL);
 
    // Capitalise the residue type (takes less space than upper case).
@@ -2957,19 +2987,23 @@ lbg_info_t::add_residue_circle(const residue_circle_t &residue_circle,
 
    // fill colour and stroke colour
    std::pair<std::string, std::string> col = get_residue_circle_colour(residue_circle.residue_type);
+   double line_width = 1.0;
+   if (col.second != dark)
+      line_width = 3.0;
 
    if (col.first != "") {
       GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
 						    pos.x, pos.y,
 						    16.0, 16.0,
+						    "line_width", line_width,
 						    "fill-color",   col.first.c_str(),
 						    "stroke-color", col.second.c_str(),
 						    NULL);
    } else {
-      std::cout << "width 11 " << std::endl;
       GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
 						    pos.x, pos.y,
 						    16.0, 16.0,
+						    "line_width", line_width,
 						    "stroke-color", col.second.c_str(),
 						    NULL);
    }
@@ -3060,3 +3094,85 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
    return std::pair<std::string, std::string> (fill_colour, stroke_colour);
 
 } 
+
+void
+lbg_info_t::read_solvent_accessibilities(const std::string &file_name) {
+
+   std::ifstream f(file_name.c_str());
+   if (!f) {
+      std::cout << "Failed to open " << file_name << std::endl;
+   } else {
+
+      std::cout << "reading solvent accessibilites file: " << file_name << std::endl;
+      
+      std::vector<std::string> lines;
+      std::string line;
+      while (std::getline(f, line)) { 
+	 lines.push_back(line);
+      }
+
+      for (unsigned int i=0; i<lines.size(); i++) {
+	 std::vector<std::string> words = coot::util::split_string_no_blanks(lines[i], " ");
+	 if (words.size() > 5) {
+	    
+	    if (words[0] == "ATOM:") {
+	       std::string atom_name = lines[i].substr(5,4);
+	       try {
+		  double pos_x = lig_build::string_to_float(words[2]);
+		  double pos_y = lig_build::string_to_float(words[3]);
+		  double pos_z = lig_build::string_to_float(words[4]);
+		  double sa    = lig_build::string_to_float(words[5]);
+		  clipper::Coord_orth pt(pos_x, pos_y, pos_z);
+		  
+		  if (0) 
+		     std::cout << "got atom name :" << atom_name << ": and pos "
+			       << pt.format() << " and accessibility: " << sa
+			       << std::endl;
+		  solvent_accessible_atom_t saa(atom_name, pt, sa);
+		  solvent_accessible_atoms.push_back(saa);
+	       }
+	       catch (std::runtime_error rte) {
+		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+// return negative if not solvent accessibility available.
+double
+widgeted_molecule_t::get_solvent_accessibility(const clipper::Coord_orth &pt,
+					       const std::vector<solvent_accessible_atom_t> &sav) const {
+
+   double sa = -1;
+   double dsq = 0.03 * 0.03;
+   
+   for (unsigned int i=0; i<sav.size(); i++) { 
+      if ((sav[i].pt - pt).lengthsq() < dsq) {
+	 sa = sav[i].solvent_accessibility;
+	 break;
+      }
+   }
+
+   return sa;
+}
+
+void
+lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa,
+					       GooCanvasItem *root) {
+
+   int n_circles = int(sa*40) + 1;
+   if (n_circles> 10) n_circles = 10;
+
+   for (unsigned int i=0; i<n_circles; i++) { 
+      double rad = 3.0 * double(i+1);
+      GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
+						    pos.x, pos.y,
+						    rad, rad,
+						    "line_width", 0.0,
+						    "fill-color-rgba", 0x7755bb20,
+						    NULL);
+   }
+
+}

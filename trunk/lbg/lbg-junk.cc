@@ -364,3 +364,47 @@ widgeted_molecule_t::find_bonded_atoms_with_no_pass(int start_atom_index,
 
    GtkCellRenderer *cell_renderer = gtk_cell_renderer_text_new();
    g_object_set_data (G_OBJECT (cell_renderer), "column", GINT_TO_POINTER (0));
+
+
+	    // debug
+	    std::cout << "words: ";
+	    for (unsigned int iw=0; iw<words.size(); iw++) { 
+	       std::cout << "  :" << words[iw] << ":";
+	    }
+	    std::cout << std::endl;
+
+                  std::cout << "... parsing for x :" << words[2] << ":" << std::endl;
+		  double pos_x = lig_build::string_to_float(words[2]);
+		  std::cout << "got x " << pos_x << std::endl;
+		  std::cout << "... parsing for y :" << words[3] << ":" << std::endl;
+		  double pos_y = lig_build::string_to_float(words[3]);
+		  std::cout << "got y " << pos_y << std::endl;
+		  std::cout << "... parsing for z :" << words[4] << ":" << std::endl;
+		  double pos_z = lig_build::string_to_float(words[4]);
+		  std::cout << "got z " << pos_z << std::endl;
+		  std::cout << "... parsing for sa :" << words[5] << ":" << std::endl;
+		  double sa    = lig_build::string_to_float(words[5]);
+		  std::cout << "got sa " << sa << std::endl;
+		  clipper::Coord_orth pt(pos_x, pos_y, pos_z);
+		  std::cout << "got atom name :" << atom_name << ": and pos "
+			    << pt.format() << " and accessibility: " << sa
+			    << std::endl;
+
+
+   GooCanvasItem *group = goo_canvas_group_new (root,
+						"line_width", 1.0,
+						// "fill-color-rgba", 0x5555bb20,
+						"fill-color", "blue",
+						NULL);
+
+   int n_circles = int(sa*20) + 1;
+   if (n_circles> 5 ) n_circles = 5;
+
+   for (unsigned int i=0; i<n_circles; i++) { 
+      double rad = 3.0 * double(i);
+       GooCanvasItem *cirle = goo_canvas_ellipse_new(group,
+						     pos.x, pos.y,
+						     rad, rad,
+						     "fill-color", "blue",
+						     NULL);
+   }
