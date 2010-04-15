@@ -988,6 +988,10 @@ void map_scroll_wheel_mol_selector_activate (GtkMenuItem     *menuitem,
 void set_scroll_wheel_map(int imap);
 /*! \brief return the molecule number to which the mouse scroll wheel
   is attached */
+/*! \brief set the map that has its contour level changed by the
+  scrolling the mouse wheel to molecule number imol (same as set_scroll_wheel_map()). */
+void set_scrollable_map(int imol); 
+/*! \brief the contouring of which map is altered when the scroll wheel changes? */
 int scroll_wheel_map();
 /*! \brief save previous colour map for molecule number imol */
 void save_previous_map_colour(int imol);
@@ -1126,9 +1130,6 @@ char* get_text_for_map_sampling_rate_text();
 /*! \brief return the map sampling rate */
 float get_map_sampling_rate();
 
-/*! \brief set the map that has its contour level changed by the
-  scrolling the mouse wheel to molecule number imol */
-void set_scrollable_map(int imol); 
 /*! \brief change the contour level of the current map by a step
 
 if is_increment=1 the contour level is increased.  If is_increment=0
