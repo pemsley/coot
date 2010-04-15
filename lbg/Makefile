@@ -14,6 +14,9 @@ CAIRO_CFLAGS=`pkg-config --cflags cairo`
 CRYST=/home/emsley/autobuild/f12/Linux-jackal-f12-pre-release-gtk2
 CRYST=$(HOME)/autobuild/Linux-scylla-pre-release-gtk2
 
+GSL_CFLAGS=-I$(CRYST)/include
+GSL_LDFLAGS=$(CRYST)/lib/libgsl.la  $(CRYST)/lib/libgslcblas.la -lm
+
 MMDB=$(CRYST)
 # MMDB=$(HOME)/test/mmdb
 
@@ -29,15 +32,18 @@ CLIPPER_LDFLAGS=$(CLIPPER)/lib/libclipper-core.la \
 
 CXXFLAGS=-g -O2 $(EXTRA_FLAGS) $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) 
 
-lbg: lig-build.o lbg.o lbg-callbacks.o lbg-search.o some-coot-utils.o lbg-molfile.o
+lbg: lig-build.o lbg.o lbg-callbacks.o lbg-search.o some-coot-utils.o lbg-molfile.o residue-circles.o
 	libtool --mode=link $(CXX)  -Wl,--export-dynamic -o $@ $^ \
-	$(CLIPPER_LDFLAGS) $(MMDB_LDFLAGS) $(GTK_LDFLAGS) $(GOO_LDFLAGS)
+	$(CLIPPER_LDFLAGS) $(MMDB_LDFLAGS) $(GTK_LDFLAGS) $(GOO_LDFLAGS) $(GSL_LDFLAGS)
 
 lig-build.o: lig-build.cc
 	libtool --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
 
 lbg-search.o: lbg-search.cc
 	libtool --mode=compile $(CXX) $(CXXFLAGS)  $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
+
+residue-circles.o: residue-circles.cc
+	libtool --mode=compile $(CXX) $(CXXFLAGS)  $(GTK_CFLAGS) $(GOO_CFLAGS) $(GSL_CFLAGS) -c $^
 
 lbg.o: lbg.cc
 	libtool --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) $(CAIRO_CFLAGS) -c $^

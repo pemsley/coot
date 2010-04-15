@@ -30,6 +30,8 @@
 #include <gtk/gtk.h>
 #include <goocanvas.h>
 
+#include "gsl/gsl_multimin.h"
+
 #include "mmdb_manager.h"
 #include "mmdb_sbase.h"
 #define MONOMER_DIR_STR "COOT_SBASE_DIR"
@@ -644,9 +646,10 @@ public:
 
    class residue_circle_t {
    public:
-      double pos_x;
+      double pos_x; // input coordinate reference frame
       double pos_y;
       double pos_z;
+      lig_build::pos_t pos; // coordinate system of the ligand atoms
       std::string residue_type;
       std::string residue_label;
       residue_circle_t(const double &x_in, const double &y_in, const double &z_in,
@@ -658,6 +661,25 @@ public:
 	 residue_type = type_in;
 	 residue_label = label_in;
       }
+      void set_canvas_pos(const lig_build::pos_t &pos_in) {
+	 pos = pos_in;
+      }
+   };
+
+   class optimise_residue_circles {
+   private:
+      int status; 
+      static double f(const gsl_vector *v, void *params);
+      static void  df(const gsl_vector *v, void *params, gsl_vector *df); 
+      static void fdf(const gsl_vector *x, void *params, double *f, gsl_vector *df);
+      
+      std::vector<residue_circle_t> input_circles;
+      widgeted_molecule_t mol;
+   public:
+      optimise_residue_circles(const std::vector<residue_circle_t> &r,
+			       const widgeted_molecule_t &mol);
+      std::vector<residue_circle_t> solution() const;
+      int get_status() const { return status; }
    };
 
 
@@ -770,6 +792,9 @@ private:
 
    std::pair<std::string, std::string>
    get_residue_circle_colour(const std::string &residue_type) const;
+   // minimise layout energy
+   std::vector<residue_circle_t>
+   optimise_residue_circle_positions(const std::vector<residue_circle_t> &r) const;
    lig_build::pos_t canvas_drag_offset;
    std::vector<solvent_accessible_atom_t> solvent_accessible_atoms;
    void draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa,
