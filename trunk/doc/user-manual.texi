@@ -4200,7 +4200,11 @@ Note that Hydrogens are ignored in this analysis.
 
 Peptide distortions.  Some variability of the @math{\omega} is to be
 expected in the peptide bond.  But not too much. Anything more than 13
-degrees is suspicicous.  Unexpected CIS peptide bonds show up red.
+degrees is suspicicous.  Unexpected peptide bonds show up red by
+default.  If cis peptides @emph{are} to be expected, and should not
+marked as bad, then you can tell this to Coot using:
+
+@command{Edit -> Preferences -> Geometry -> Cis-Peptides -> No}
 
 @c @subsection Geometry
 
