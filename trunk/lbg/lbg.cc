@@ -2897,10 +2897,27 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
 void
 lbg_info_t::read_draw_residues(const std::string &file_name) {
 
+   // read residues need to happen after the ligand has been placed on the canvas
+   // i.e. mol.input_coords_to_canvas_coords() is called in read_residues();
+   // 
    std::vector<residue_circle_t> residue_circles = read_residues(file_name);
    draw_residue_circles(residue_circles);
 
+    for (int iround=0; iround<12; iround++) {
+       residue_circles = optimise_residue_circle_positions(residue_circles);
+       draw_residue_circles(residue_circles);
+    } 
 }
+
+// minimise layout energy
+std::vector<lbg_info_t::residue_circle_t>
+lbg_info_t::optimise_residue_circle_positions(const std::vector<lbg_info_t::residue_circle_t> &r) const { 
+
+   optimise_residue_circles orc(r, mol);
+   int status = orc.get_status();
+   return orc.solution();
+}
+
 
 std::vector<lbg_info_t::residue_circle_t>
 lbg_info_t::read_residues(const std::string &file_name) const {
@@ -2939,7 +2956,12 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 		  double pos_z = lig_build::string_to_float(words[3]);
 		  std::string res_type = words[4];
 		  std::string label = words[5];
-		  v.push_back(residue_circle_t(pos_x, pos_y, pos_z, res_type, label));
+		  residue_circle_t rc(pos_x, pos_y, pos_z, res_type, label);
+		  clipper::Coord_orth cp(pos_x, pos_y, pos_z);
+		  lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp);
+		  pos += canvas_drag_offset;
+		  rc.set_canvas_pos(pos);
+		  v.push_back(residue_circle_t(rc));
 	       }
 	       catch (std::runtime_error rte) {
 		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
@@ -2956,25 +2978,20 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 void
 lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &residue_circles) {
 
-   std::cout << "  " << residue_circles.size() << " residue circles" << std::endl;
    for (unsigned int i=0; i<residue_circles.size(); i++) {
-      clipper::Coord_orth cp(residue_circles[i].pos_x,
-			     residue_circles[i].pos_y,
-			     residue_circles[i].pos_z);
-      lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp);
-      pos += canvas_drag_offset;
-      std::cout << "residue circle centre " << cp.format() << " give canvas pos " << pos << std::endl;
+      lig_build::pos_t pos = residue_circles[i].pos;
+      // pos += canvas_drag_offset;
       add_residue_circle(residue_circles[i], pos);
    }
-
 }
 
 void
 lbg_info_t::add_residue_circle(const residue_circle_t &residue_circle,
 			       const lig_build::pos_t &pos) {
 
-   std::cout << "   adding cirles " << residue_circle.residue_type
-	     << " at " << pos << std::endl;
+   if (0)
+      std::cout << "   adding cirles " << residue_circle.residue_type
+		<< " at " << pos << std::endl;
       
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
@@ -3162,16 +3179,16 @@ void
 lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa,
 					       GooCanvasItem *root) {
 
-   int n_circles = int(sa*40) + 1;
-   if (n_circles> 10) n_circles = 10;
+   int n_circles = int(sa*40) + 1; // needs fiddling?
+   if (n_circles> 10) n_circles = 10; // needs fiddling?
 
    for (unsigned int i=0; i<n_circles; i++) { 
-      double rad = 3.0 * double(i+1);
+      double rad = 3.0 * double(i+1); // needs fiddling?
       GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
 						    pos.x, pos.y,
 						    rad, rad,
 						    "line_width", 0.0,
-						    "fill-color-rgba", 0x7755bb20,
+						    "fill-color-rgba", 0x7755bb30,
 						    NULL);
    }
 

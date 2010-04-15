@@ -408,3 +408,8 @@ widgeted_molecule_t::find_bonded_atoms_with_no_pass(int start_atom_index,
 						     "fill-color", "blue",
 						     NULL);
    }
+
+      clipper::Coord_orth cp(residue_circles[i].pos_x,
+			     residue_circles[i].pos_y,
+			     residue_circles[i].pos_z);
+      lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp);
