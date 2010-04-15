@@ -88,6 +88,7 @@ Using Coot
 * I don't like your default REFMAC parameters. How do I change them?::
 * How do I put a pointer into a blob of density?::
 * How do I "grab" just one atom in Real Space Refinement/Regularization?::
+* My sidechains are being sucked into the density for metal.  How do I stop that?::
 * How do I bind a function to a key?::
 * I can't mutate my broken residue::
 * How do I get rid of the ``Old Coot'' dialog?::
@@ -797,6 +798,22 @@ press Ctrl (which, in Windows, that the graphics window has a blue
 title bar rather than a grey one). (You need to means be precise with
 the clicking - if the view rotates instead of the atom moving then you
 know that you have been insufficiently precise.)
+
+@node My sidechains are being sucked into the density for metal.  How do I stop that?
+@section My sidechains are being sucked into the density for metal.  How do I stop that?
+
+The best way to fix that is to add proper (bonding) restraints between
+the metal and the sidechain (type).
+
+If those are not available, you can mask out the density of the metals.
+
+@code{Extensions -> Maps -> Mask Map by Atom Selection...}
+
+For example, atom selection of @var{"//B/[CO]"} will remove all the
+density for Cobalts in the "B" chain.
+
+Then you will need to set the masked map as the map to be used for
+refinement, of course.
 
 
 @node How do I bind a function to a key?
