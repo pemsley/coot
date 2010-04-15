@@ -4120,6 +4120,7 @@ int
 coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::protein_geometry &geom,
 								bool do_rama_plot_restraints) {
 
+   // this determines the link type
    coot::bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
 //     std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
 //  	     << bonded_residue_pairs.size() << " bonded residues " << std::endl;
@@ -4396,7 +4397,7 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_geometry &geom) const {
 
-   bool debug = 0;
+   bool debug = 1;
    coot::bonded_pair_container_t bpc;
    float dist_crit = 3.0;
    // std::cout << "  debug:: residues_vec.size() " << residues_vec.size() << std::endl;
@@ -4416,8 +4417,8 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	       std::string link_type = l.first;
 	       if (link_type != "") {
 
-		  // too verbose
-		  if (debug) 
+		  // too verbose?
+		  if (1) 
 		     std::cout << "   INFO:: "
 			       << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
 			       << " link_type :" << link_type << ":" << std::endl;
@@ -4757,9 +4758,17 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	       std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
 	       if (close_info.first) {
 		  order_switch_flag = close_info.second;
-		  link_type = link_infos[ilink].first.Id();
-		  // std::cout << "   TRANS or CIS pass NvsC dist test with order switch "
-		  // << order_switch_flag << std::endl;
+		  // link_type = link_infos[ilink].first.Id();
+		  link_type = "TRANS"; // 200100415 for now, we force
+				       // all peptide links to be
+				       // TRANS.  (We don't yet (as of
+				       // today) know if this link was
+				       // CIS or TRANS). TRANS has
+				       // 5-atom (plane3) plane
+				       // restraints, CIS does not.
+		  if (debug) 
+		     std::cout << "   ==== TRANS or CIS pass NvsC dist test with order switch "
+			       << order_switch_flag << std::endl;
 	       } else {
 		  // std::cout << "   TRANS or CIS FAIL NvsC dist test " << std::endl;
 		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
