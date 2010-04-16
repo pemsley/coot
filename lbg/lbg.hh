@@ -673,12 +673,24 @@ public:
       static void  df(const gsl_vector *v, void *params, gsl_vector *df); 
       static void fdf(const gsl_vector *x, void *params, double *f, gsl_vector *df);
       
-      std::vector<residue_circle_t> input_circles;
+      std::vector<residue_circle_t> starting_circles;
+      std::vector<residue_circle_t>  current_circles;
       widgeted_molecule_t mol;
+      void numerical_gradients(gsl_vector *x, gsl_vector *df, void *params) const;
+      static bool score_vs_ligand_atoms;
+      static bool score_vs_ring_centres;
+      static bool score_vs_other_residues;
+      static bool score_vs_original_positions;
+      
    public:
-      optimise_residue_circles(const std::vector<residue_circle_t> &r,
+      // we pass two vectors here because (for trajectory-view) we
+      // don't want to restart the minimisation with the current
+      // positions - we want to minimise against the (constant)
+      // original positions.
+      optimise_residue_circles(const std::vector<residue_circle_t> &r, // starting points
+			       const std::vector<residue_circle_t> &c, // current points
 			       const widgeted_molecule_t &mol);
-      std::vector<residue_circle_t> solution() const;
+      std::pair<int, std::vector<residue_circle_t> > solution() const;
       int get_status() const { return status; }
    };
 
@@ -785,20 +797,26 @@ private:
    void orthogonalise_2_bonds(int atom_index,
 			      const std::vector<int> &attached_bonds,
 			      const std::vector<int> &bond_indices);
+   std::vector<residue_circle_t> residue_circles;
 
-   void translate_molecule(const lig_build::pos_t &delta);
+   widgeted_molecule_t translate_molecule(const lig_build::pos_t &delta);
+   void translate_residue_circles(const lig_build::pos_t &delta);
    void clear_canvas();
    void add_residue_circle(const residue_circle_t &rc, const lig_build::pos_t &p);
 
    std::pair<std::string, std::string>
    get_residue_circle_colour(const std::string &residue_type) const;
    // minimise layout energy
-   std::vector<residue_circle_t>
-   optimise_residue_circle_positions(const std::vector<residue_circle_t> &r) const;
+   std::pair<int, std::vector<residue_circle_t> >
+   optimise_residue_circle_positions(const std::vector<residue_circle_t> &start,
+				     const std::vector<residue_circle_t> &current) const;
    lig_build::pos_t canvas_drag_offset;
+   bool is_sane_drag(const lig_build::pos_t &delta) const;
+
    std::vector<solvent_accessible_atom_t> solvent_accessible_atoms;
    void draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa,
 					   GooCanvasItem *root);
+
    
 public:
    lbg_info_t(GtkWidget *canvas_in) {
