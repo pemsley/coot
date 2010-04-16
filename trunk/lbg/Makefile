@@ -37,28 +37,28 @@ lbg: lig-build.o lbg.o lbg-callbacks.o lbg-search.o some-coot-utils.o lbg-molfil
 	$(CLIPPER_LDFLAGS) $(MMDB_LDFLAGS) $(GTK_LDFLAGS) $(GOO_LDFLAGS) $(GSL_LDFLAGS)
 
 lig-build.o: lig-build.cc
-	libtool --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
 
 lbg-search.o: lbg-search.cc
-	libtool --mode=compile $(CXX) $(CXXFLAGS)  $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS)  $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
 
 residue-circles.o: residue-circles.cc
-	libtool --mode=compile $(CXX) $(CXXFLAGS)  $(GTK_CFLAGS) $(GOO_CFLAGS) $(GSL_CFLAGS) -c $^
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS)  $(GTK_CFLAGS) $(GOO_CFLAGS) $(GSL_CFLAGS) -c $^
 
 lbg.o: lbg.cc
-	libtool --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) $(CAIRO_CFLAGS) -c $^
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) $(CAIRO_CFLAGS) -c $^
 
 lbg-molfile.o: lbg-molfile.cc
-	libtool --mode=compile $(CXX) $(CXXFLAGS) -c $^
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) -c $^
 
 test-read-molfile.o: test-read-molfile.cc
-	libtool --mode=compile $(CXX) $(CXXFLAGS) -c $^
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) -c $^
 
 some-coot-utils.o: some-coot-utils.cc
-	libtool --mode=compile $(CXX) $(CXXFLAGS) -c $^
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) -c $^
 
 lbg-callbacks.o: lbg-callbacks.cc
-	libtool --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
 
 example: example.c
 	$(CXX) $(CXXFLAGS) -export-dynamic -o $@ $^ `pkg-config --cflags --libs gtk+-2.0`
@@ -67,7 +67,7 @@ test-lig-build: lig-build.o test-lig-build.o
 	libtool --mode=link $(CXX)  -Wl,--export-dynamic -o $@ $^ $(GTK_LDFLAGS) $(GOO_LDFLAGS)
 
 test-lig-build.o: test-lig-build.cc 
-	libtool --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
 
 test-inh: test-inh.cc
 	libtool --mode=link $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) $^ -o $@ 

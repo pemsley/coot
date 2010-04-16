@@ -134,23 +134,50 @@ lbg_info_t::drag_canvas(int mouse_x, int mouse_y) {
    lig_build::pos_t delta(delta_x, delta_y);
    canvas_drag_offset += delta;
 
-   translate_molecule(delta); // and do a canvas update
-}
+   // should santize delta *here* (and check for not 0,0) before
+   // passing to these functions.
 
+   if (is_sane_drag(delta)) { 
+   
+      clear_canvas();
+      translate_residue_circles(delta);
+      widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
 
-void
-lbg_info_t::translate_molecule(const lig_build::pos_t &delta) {  // and do a canvas update
-
-   if (delta.length() > 0.5) { // don't move with a delta of 0,0.
-      if (delta.length() < 50 ) { // don't move with an absurd delta.
-	 clear_canvas();
-	 widgeted_molecule_t new_mol = mol;
-	 // std::cout << "moving molecule by " << delta << std::endl;
-	 new_mol.translate(delta);
-	 render_from_molecule(new_mol);
-      }
+      render_from_molecule(new_mol);
+      draw_residue_circles(residue_circles);
    }
 }
+
+
+widgeted_molecule_t
+lbg_info_t::translate_molecule(const lig_build::pos_t &delta) {  // and do a canvas update
+
+   // we can't translate mol, because that gets wiped in render_from_molecule.
+   widgeted_molecule_t new_mol = mol;
+   new_mol.translate(delta);
+   return new_mol;
+}
+
+void
+lbg_info_t::translate_residue_circles(const lig_build::pos_t &delta) {
+   
+   for (unsigned int i=0; i<residue_circles.size(); i++) 
+      residue_circles[i].pos += delta;
+
+}
+
+bool
+lbg_info_t::is_sane_drag(const lig_build::pos_t &delta) const {
+
+   bool sane = 0;
+   if (delta.length() > 0.5) { // don't move with a delta of 0,0.
+      if (delta.length() < 50 ) { // don't move with an absurd delta.
+	 sane = 1;
+      }
+   }
+   return sane;
+} 
+
 
 void
 widgeted_molecule_t::translate(const lig_build::pos_t &delta) {
@@ -1855,7 +1882,7 @@ lbg_info_t::clear() {
 
    // clear the molecule
    mol.clear();
-   
+
 }
 
 void
@@ -2900,20 +2927,36 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
    // read residues need to happen after the ligand has been placed on the canvas
    // i.e. mol.input_coords_to_canvas_coords() is called in read_residues();
    // 
-   std::vector<residue_circle_t> residue_circles = read_residues(file_name);
-   draw_residue_circles(residue_circles);
+   residue_circles = read_residues(file_name);
+   std::vector<residue_circle_t> current_circles = residue_circles;
+   // draw_residue_circles(current_circles);
 
-    for (int iround=0; iround<12; iround++) {
-       residue_circles = optimise_residue_circle_positions(residue_circles);
-       draw_residue_circles(residue_circles);
-    } 
+   for (int iround=0; iround<120; iround++) {
+      std::cout << ":::::::::::::::::::: minimization round " << iround
+		<< " :::::::::::::::::::::::::::::::::::::::::::\n";
+      std::pair<int, std::vector<lbg_info_t::residue_circle_t> > new_c =
+	 optimise_residue_circle_positions(residue_circles, current_circles);
+      current_circles = new_c.second;
+      // draw_residue_circles(current_circles);
+      if (new_c.first == GSL_ENOPROG)
+	 break;
+      if (new_c.first == GSL_SUCCESS) { 
+	 break;
+      }
+   }
+
+   draw_residue_circles(current_circles);
+   // save the class member data
+   residue_circles = current_circles;
+   
 }
 
 // minimise layout energy
-std::vector<lbg_info_t::residue_circle_t>
-lbg_info_t::optimise_residue_circle_positions(const std::vector<lbg_info_t::residue_circle_t> &r) const { 
+std::pair<int, std::vector<lbg_info_t::residue_circle_t> >
+lbg_info_t::optimise_residue_circle_positions(const std::vector<lbg_info_t::residue_circle_t> &r,
+					      const std::vector<lbg_info_t::residue_circle_t> &c) const { 
 
-   optimise_residue_circles orc(r, mol);
+   optimise_residue_circles orc(r, c, mol);
    int status = orc.get_status();
    return orc.solution();
 }
@@ -2959,7 +3002,6 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 		  residue_circle_t rc(pos_x, pos_y, pos_z, res_type, label);
 		  clipper::Coord_orth cp(pos_x, pos_y, pos_z);
 		  lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp);
-		  pos += canvas_drag_offset;
 		  rc.set_canvas_pos(pos);
 		  v.push_back(residue_circle_t(rc));
 	       }
@@ -2980,7 +3022,6 @@ lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &residue_ci
 
    for (unsigned int i=0; i<residue_circles.size(); i++) {
       lig_build::pos_t pos = residue_circles[i].pos;
-      // pos += canvas_drag_offset;
       add_residue_circle(residue_circles[i], pos);
    }
 }
@@ -2991,7 +3032,10 @@ lbg_info_t::add_residue_circle(const residue_circle_t &residue_circle,
 
    if (0)
       std::cout << "   adding cirles " << residue_circle.residue_type
-		<< " at " << pos << std::endl;
+		<< " at init pos " << pos << " and canvas_drag_offset "
+		<< canvas_drag_offset << std::endl;
+
+   lig_build::pos_t circle_pos = pos;
       
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
@@ -3010,7 +3054,7 @@ lbg_info_t::add_residue_circle(const residue_circle_t &residue_circle,
 
    if (col.first != "") {
       GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
-						    pos.x, pos.y,
+						    circle_pos.x, circle_pos.y,
 						    16.0, 16.0,
 						    "line_width", line_width,
 						    "fill-color",   col.first.c_str(),
@@ -3018,7 +3062,7 @@ lbg_info_t::add_residue_circle(const residue_circle_t &residue_circle,
 						    NULL);
    } else {
       GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
-						    pos.x, pos.y,
+						    circle_pos.x, circle_pos.y,
 						    16.0, 16.0,
 						    "line_width", line_width,
 						    "stroke-color", col.second.c_str(),
@@ -3026,14 +3070,14 @@ lbg_info_t::add_residue_circle(const residue_circle_t &residue_circle,
    }
    
    GooCanvasItem *text_1 = goo_canvas_text_new(root, rt.c_str(),
-					       pos.x, pos.y-5, -1,
+					       circle_pos.x, circle_pos.y-5, -1,
 					       GTK_ANCHOR_CENTER,
 					       "font", "Sans 9",
 					       "fill_color", dark,
 					       NULL);
 
    GooCanvasItem *text_2 = goo_canvas_text_new(root, residue_circle.residue_label.c_str(),
-					       pos.x, pos.y+5, -1,
+					       circle_pos.x, circle_pos.y+5, -1,
 					       GTK_ANCHOR_CENTER,
 					       "font", "Sans 7",
 					       "fill_color", dark,
@@ -3058,8 +3102,6 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
    if (residue_type == "TRP")
       fill_colour = grease;
    if (residue_type == "PHE")
-      fill_colour = grease;
-   if (residue_type == "TYR")
       fill_colour = grease;
    if (residue_type == "LEU")
       fill_colour = grease;
@@ -3098,6 +3140,10 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
       fill_colour = purple;
    if (residue_type == "THR")
       fill_colour = purple;
+   if (residue_type == "TYR")
+      fill_colour = purple;
+   if (residue_type == "HOH")
+      fill_colour = "white";
 
    if (residue_type == "ASP")
       stroke_colour = red;
