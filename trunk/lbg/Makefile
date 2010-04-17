@@ -32,7 +32,7 @@ CLIPPER_LDFLAGS=$(CLIPPER)/lib/libclipper-core.la \
 
 CXXFLAGS=-g -O2 $(EXTRA_FLAGS) $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) 
 
-lbg: lig-build.o lbg.o lbg-callbacks.o lbg-search.o some-coot-utils.o lbg-molfile.o residue-circles.o
+lbg: lig-build.o lbg.o wmolecule.o lbg-callbacks.o lbg-search.o some-coot-utils.o lbg-molfile.o residue-circles.o
 	libtool --mode=link $(CXX)  -Wl,--export-dynamic -o $@ $^ \
 	$(CLIPPER_LDFLAGS) $(MMDB_LDFLAGS) $(GTK_LDFLAGS) $(GOO_LDFLAGS) $(GSL_LDFLAGS)
 
@@ -43,6 +43,9 @@ lbg-search.o: lbg-search.cc
 	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS)  $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
 
 residue-circles.o: residue-circles.cc
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS)  $(GTK_CFLAGS) $(GOO_CFLAGS) $(GSL_CFLAGS) -c $^
+
+wmolecule.o: wmolecule.cc
 	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS)  $(GTK_CFLAGS) $(GOO_CFLAGS) $(GSL_CFLAGS) -c $^
 
 lbg.o: lbg.cc
