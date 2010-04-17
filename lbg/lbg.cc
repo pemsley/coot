@@ -144,6 +144,7 @@ lbg_info_t::drag_canvas(int mouse_x, int mouse_y) {
       widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
 
       render_from_molecule(new_mol);
+      draw_bonds_to_ligand();
       draw_residue_circles(residue_circles);
    }
 }
@@ -411,7 +412,7 @@ lbg_info_t::try_change_to_element(int addition_element_mode) {
 }
 
 void
-lbg_info_t::change_atom_name_maybe(int atom_index) {
+lbg_info_t::change_atom_id_maybe(int atom_index) {
 
    std::string ele = mol.atoms[atom_index].element;
    std::string fc = font_colour(ele);
@@ -427,11 +428,11 @@ lbg_info_t::change_atom_element(int atom_index, std::string new_ele, std::string
    std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
    lig_build::pos_t pos = mol.atoms[atom_index].atom_position;
 	    
-   std::string atom_name = mol.make_atom_name_by_using_bonds(new_ele, local_bonds);
+   std::string atom_id = mol.make_atom_id_by_using_bonds(new_ele, local_bonds);
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
    // std::cout << "   calling update_name_maybe(" << atom_name << ") " << std::endl;
-   changed_status = mol.atoms[atom_index].update_name_maybe(atom_name, fc, root);
+   changed_status = mol.atoms[atom_index].update_atom_id_maybe(atom_id, fc, root);
    // std::cout << "update_name_maybe return changed_status: " << changed_status << std::endl;
 
    if (changed_status) { 
@@ -490,8 +491,8 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 	    // 
 	    // we do this for both of the atoms of the bond.
 	    //
-	    change_atom_name_maybe(ind_1);
-	    change_atom_name_maybe(ind_2);
+	    change_atom_id_maybe(ind_1);
+	    change_atom_id_maybe(ind_2);
 	    changed_status = 1;
 	 }
       }
@@ -702,7 +703,7 @@ lbg_info_t::add_bond_to_atom_with_2_neighbours(int atom_index, int canvas_additi
    // -> C+ for 5 bonds).
    //
    // std::cout << "calling change_atom_element(" << atom_index << ") " << std::endl;
-   change_atom_name_maybe(atom_index); 
+   change_atom_id_maybe(atom_index); 
 }
 
 
@@ -1573,40 +1574,74 @@ lbg_info_t::init(GtkBuilder *builder) {
 
 }
 
+// static
 gboolean
 lbg_info_t::watch_for_mdl_from_coot(gpointer user_data) {
 
    lbg_info_t *l = static_cast<lbg_info_t *> (user_data);
-   std::string coot_mdl_file = "../../build-coot-ubuntu-64bit/src/coot-ccp4/.coot-to-lbg-mol";
-   std::string sa_file = "../../build-coot-ubuntu-64bit/src/coot-tmp-fle-view-solvent-accessibilites.txt";
    
+   // the pdb file has the atom names.  When we read the mol file, we
+   // will stuff the atom names into the widgeted_molecule (by
+   // matching the coordinates).
+   //
+
+   std::string coot_dir = "../../build-coot-ubuntu-64bit/src"; // make this user-settable.
+   std::string coot_ccp4_dir = coot_dir + "/coot-ccp4";
+   // in use (non-testing), coot_dir will typically be ".";
+
+   
+   std::string coot_mdl_file = coot_ccp4_dir + "/.coot-to-lbg-mol";
+   std::string coot_pdb_file = coot_ccp4_dir + "/.coot-to-lbg-pdb";
+   std::string ready_file    = coot_ccp4_dir + "/.coot-to-lbg-mol-ready";
+   std::string sa_file       = coot_dir      + "/coot-tmp-fle-view-solvent-accessibilites.txt";
+
    struct stat buf;
-   int err = stat(coot_mdl_file.c_str(), &buf);
+   int err = stat(ready_file.c_str(), &buf);
    if (! err) {
       time_t m = buf.st_mtime;
-      if (m > l->coot_mdl_time) {
-	 if (l->coot_mdl_time != 0) {
+      // std::cout << "here 1 in watch_for_mdl_from_coot" << std::endl;
+      if (m > l->coot_mdl_ready_time) {
+	 if (l->coot_mdl_ready_time != 0) {
 
-	    // fill solvent_accessible_atoms vector before reading the
-	    // molecule.  When the molecule is read, the solvent
-	    // accessibilites are grafted onto the various different
-	    // molecules.
-	    //
-	    l->read_solvent_accessibilities(sa_file);
-	    
+	    // std::cout << "here 2 in watch_for_mdl_from_coot" << std::endl;
+	    CMMDBManager *flat_pdb_mol = l->get_cmmdbmanager(coot_pdb_file);
 	    lig_build::molfile_molecule_t mm;
 	    mm.read(coot_mdl_file);
-	    l->import(mm, coot_mdl_file);
+	    widgeted_molecule_t wmol = l->import(mm, coot_mdl_file, flat_pdb_mol);
+	    std::vector<solvent_accessible_atom_t> solvent_accessible_atoms =
+	     l->read_solvent_accessibilities(sa_file);
+	    wmol.map_solvent_accessibilities_to_atoms(solvent_accessible_atoms);
+	    l->render_from_molecule(wmol);
 	 }
-	 l->coot_mdl_time = m;
-      } 
+	 l->coot_mdl_ready_time = m;
+      }
+   } else {
+      // std::cout << "failed to stat " << ready_file << std::endl;
    }
    return 1; // keep running
 }
 
+CMMDBManager *
+lbg_info_t::get_cmmdbmanager(const std::string &file_name) const {
+
+   CMMDBManager *mol = new CMMDBManager;
+
+   int err = mol->ReadCoorFile(file_name.c_str());
+   if (err) {
+      std::cout << "WARNING:: Problem reading coordinates file " << file_name << std::endl;
+      delete mol;
+      mol = NULL;
+   } 
+
+   return mol;
+
+}
+
 int
 main(int argc, char *argv[]) {
-        
+
+   InitMatType(); // mmdb program. 
+   
    gtk_init (&argc, &argv);
         
    std::string glade_file = "lbg.glade";
@@ -1629,8 +1664,10 @@ main(int argc, char *argv[]) {
       if (argc > 1) {
 	 std::string file_name(argv[1]);
 	 lig_build::molfile_molecule_t mm;
+	 CMMDBManager *mol = NULL; // no atom names to transfer
 	 mm.read(file_name);
-	 lbg->import(mm, file_name);
+	 widgeted_molecule_t wmol = lbg->import(mm, file_name, mol);
+	 lbg->render_from_molecule(wmol);
       }
 	 
       gtk_main ();
@@ -1705,9 +1742,15 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 						    mol_in.atoms[iat].charge,
 						    ci);
 	 double sa = mol_in.atoms[iat].get_solvent_accessibility();
+	 new_atom.set_atom_name(mol_in.atoms[iat].get_atom_name());
+	 if (0)
+	    std::cout << "in render_from_molecule() atom with name :"
+		      << mol_in.atoms[iat].get_atom_name()
+		      << ": has solvent_accessibility " << sa << std::endl;
 	 new_atom.add_solvent_accessibility(sa);
 	 re_index[iat] = mol.add_atom(new_atom).second;
-	 if (1)
+	 
+	 if (0)
 	    // clever c++
 	    std::cout << " in render_from_molecule: old sa: "
 		      << mol_in.atoms[iat].get_solvent_accessibility() << " new: "
@@ -1739,14 +1782,13 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
    // redo the atoms, this time with widgets.
    for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
-      // std::string atom_name = mol.atoms[iat].name;
 
       std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(iat);
       std::string ele = mol.atoms[iat].element;
-      std::string atom_name = mol.make_atom_name_by_using_bonds(ele, local_bonds);
+      std::string atom_id = mol.make_atom_id_by_using_bonds(ele, local_bonds);
       std::string fc = font_colour(ele);
       if (ele != "C") 
-	 mol.atoms[iat].update_name_forced(atom_name, fc, root);
+	 mol.atoms[iat].update_atom_id_forced(atom_id, fc, root);
    }
 
    // for input_coords_to_canvas_coords() to work:
@@ -1755,7 +1797,6 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
    mol.scale_correction  = mol_in.scale_correction;
    mol.mol_in_min_y = mol_in.mol_in_min_y;
    mol.mol_in_max_y = mol_in.mol_in_max_y;
-   mol.solvent_accessible_atoms = mol_in.solvent_accessible_atoms;
    
    // 
    make_saves_mutex = 1; // allow saves again.
@@ -1828,19 +1869,18 @@ lbg_info_t::save_molecule() {
    }
 }
 
-void
-lbg_info_t::import(const lig_build::molfile_molecule_t &mol_in, const std::string &file_name) {
+// pdb_mol is the pdb representation of the (flat) ligand - and it has
+// the atom names.  We will add the atom names into mol by matching
+// coordinates.
+// 
+widgeted_molecule_t
+lbg_info_t::import(const lig_build::molfile_molecule_t &mol_in, const std::string &file_name,
+		   CMMDBManager *pdb_mol) {
 
-   widgeted_molecule_t new_mol(mol_in, solvent_accessible_atoms);
-
-   if (1)
-      for (unsigned int i=0; i<new_mol.atoms.size(); i++) { 
-	 std::cout << "in import(), atom " << i << " has sa "
-		   << new_mol.atoms[i].get_solvent_accessibility() << std::endl;
-      }
+   widgeted_molecule_t new_mol(mol_in, pdb_mol);
    mdl_file_name = file_name;
-   render_from_molecule(new_mol);
    save_molecule();
+   return new_mol;
 }
 
 
@@ -1852,7 +1892,6 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
    // 
    residue_circles = read_residues(file_name);
    std::vector<residue_circle_t> current_circles = residue_circles;
-   // draw_residue_circles(current_circles);
 
    for (int iround=0; iround<120; iround++) {
       std::cout << ":::::::::::::::::::: minimization round " << iround
@@ -1868,10 +1907,10 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
       }
    }
 
-   draw_residue_circles(current_circles);
    // save the class member data
    residue_circles = current_circles;
-   
+   draw_bonds_to_ligand();
+   draw_residue_circles(current_circles);
 }
 
 // minimise layout energy
@@ -1879,9 +1918,15 @@ std::pair<int, std::vector<lbg_info_t::residue_circle_t> >
 lbg_info_t::optimise_residue_circle_positions(const std::vector<lbg_info_t::residue_circle_t> &r,
 					      const std::vector<lbg_info_t::residue_circle_t> &c) const { 
 
-   optimise_residue_circles orc(r, c, mol);
-   int status = orc.get_status();
-   return orc.solution();
+   if (r.size() > 0) {
+      if (c.size() == r.size()) { 
+	 optimise_residue_circles orc(r, c, mol);
+	 int status = orc.get_status();
+	 return orc.solution();
+      }
+   }
+   std::vector<lbg_info_t::residue_circle_t> dv; // dummy 
+   return std::pair<int, std::vector<lbg_info_t::residue_circle_t> > (0, dv);
 }
 
 
@@ -1933,15 +1978,18 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 	       }
 	    }
 	 }
-	 if (words.size() == 5) {
-	    if (words[0] == "BOND") {
+	 if (words.size() == 6) {
+	    if (words[0] == "BOND") { // written with space
 	       try {
-		  double pos_x  = lig_build::string_to_float(words[1]);
-		  double pos_y  = lig_build::string_to_float(words[2]);
-		  double bond_l = lig_build::string_to_float(words[4]);
-		  lig_build::pos_t pos(pos_x, pos_y);
-		  lbg_info_t::bond_to_ligand_t btl(pos, bond_l);
-		  v.back().add_bond_to_ligand(btl);
+		  double bond_l = lig_build::string_to_float(words[3]);
+		  std::string atom_name = lines[i].substr(5,4);
+		  int bond_type = lig_build::string_to_int(words[5]);
+		  lbg_info_t::bond_to_ligand_t btl(atom_name, bond_l);
+		  btl.bond_type = bond_type;
+		  std::cout << "adding bond " << v.size() << " to :"
+			    << atom_name << ": " << bond_l << std::endl;
+		  if (v.size())
+		     v.back().add_bond_to_ligand(btl);
 	       }
 	       catch (std::runtime_error rte) {
 		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
@@ -1953,6 +2001,16 @@ lbg_info_t::read_residues(const std::string &file_name) const {
    std::cout << "found " << v.size() << " residue centres" << std::endl;
    return v;
 } 
+
+// "must take exactly one argument" problem
+// 
+// std::ostream &
+// lbg_info_t::operator<<(std::ostream &s, residue_circle_t rc) {
+
+//    s << "res-circ{" << rc.pos << " " << rc.label << " with bond_to_ligand length "
+//      << bond_to_ligand.bond_length << "}";
+
+// }
 
 
 void
@@ -2096,9 +2154,13 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
 
 } 
 
-void
-lbg_info_t::read_solvent_accessibilities(const std::string &file_name) {
 
+std::vector<solvent_accessible_atom_t>
+lbg_info_t::read_solvent_accessibilities(const std::string &file_name) const {
+
+   // return this
+   std::vector<solvent_accessible_atom_t> solvent_accessible_atoms;
+   
    std::ifstream f(file_name.c_str());
    if (!f) {
       std::cout << "Failed to open " << file_name << std::endl;
@@ -2139,6 +2201,7 @@ lbg_info_t::read_solvent_accessibilities(const std::string &file_name) {
 	 }
       }
    }
+   return solvent_accessible_atoms;
 }
 
 void
@@ -2157,5 +2220,72 @@ lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, doub
 						    "fill-color-rgba", 0x7755bb30,
 						    NULL);
    }
+}
 
+void
+lbg_info_t::draw_bonds_to_ligand() {
+   
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+
+   for (unsigned int ic=0; ic<residue_circles.size(); ic++) { 
+      if (residue_circles[ic].bonds_to_ligand.size()) {
+	 for (unsigned int ib=0; ib<residue_circles[ic].bonds_to_ligand.size(); ib++) { 
+
+	    if (0) 
+	       std::cout << "====================== yay bond to ligand from "
+			 << residue_circles[ic].residue_label << " "
+			 << residue_circles[ic].residue_type <<  " to ligand atom " 
+			 << residue_circles[ic].bonds_to_ligand[ib].ligand_atom_name
+			 << " ====== " << std::endl;
+	    
+	    try {
+
+	       lig_build::pos_t pos = residue_circles[ic].pos;
+	       std::string at_name = residue_circles[ic].bonds_to_ligand[ib].ligand_atom_name;
+	       lig_build::pos_t lig_at_pos = mol.get_atom_canvas_position(at_name);
+	       lig_build::pos_t rc_to_lig_at = lig_at_pos - pos;
+	       lig_build::pos_t rc_to_lig_at_uv = rc_to_lig_at.unit_vector();
+	       lig_build::pos_t B = lig_at_pos - rc_to_lig_at_uv * 8;
+	       lig_build::pos_t A = pos + rc_to_lig_at_uv * 20;
+
+	       // colour
+	       std::string stroke_colour = "blue";
+	       if (residue_circles[ic].residue_type == "HOH")
+		  stroke_colour = "#339944";
+	       
+
+	       // arrows?
+	       gboolean start_arrow = 0;
+	       gboolean   end_arrow = 0;
+	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_DONOR) {
+		  start_arrow = 1;
+	       }
+	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR) {
+		  end_arrow = 1;
+	       }
+	    
+	       GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 2.5, 2.5);
+	    
+	       GooCanvasItem *item = goo_canvas_polyline_new_line(root,
+								  A.x, A.y,
+								  B.x, B.y,
+								  "line-width", 2.5,
+								  "line-dash", dash,
+ 								  "start_arrow", start_arrow,
+ 								  "end_arrow",   end_arrow,
+								  "stroke-color", stroke_colour.c_str(),
+								  NULL);
+	    }
+	    catch (std::runtime_error rte) {
+	       std::cout << "WARNING:: " << rte.what() << std::endl;
+	    }
+	 }
+	 
+      } else {
+	 if (0) 
+	    std::cout << "... no bond to ligand from residue circle "
+		      << residue_circles[ic].residue_label << " "
+		      << residue_circles[ic].residue_type << std::endl;
+      }
+   }
 }

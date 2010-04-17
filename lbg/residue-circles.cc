@@ -13,6 +13,9 @@ lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector
    starting_circles = r;
    current_circles = c;
 
+   if (r.size() == 0)
+      return; 
+
    gsl_multimin_function_fdf my_func;
 
    int n_var = starting_circles.size()*2;
@@ -133,7 +136,7 @@ lbg_info_t::optimise_residue_circles::f(const gsl_vector *v, void *params) {
       if (score_vs_other_residues) { 
 	 // score against the other residue centres
 	 //
-	 double kk = 3.0;
+	 double kk = 10.0;
 	 for (unsigned int ic=0; ic<orc->current_circles.size(); ic++) {
 	    if (ic != i) {
 	       double d_pt_1 = gsl_vector_get(v, 2*i  ) - gsl_vector_get(v, 2*ic  );
@@ -222,7 +225,7 @@ lbg_info_t::optimise_residue_circles::df(const gsl_vector *v, void *params, gsl_
       if (score_vs_other_residues) { 
 	 // score against the other residue centres
 	 //
-	 double kk = 3.0;
+	 double kk = 10.0;
 	 for (unsigned int ic=0; ic<orc->current_circles.size(); ic++) {
 	    if (ic != i) {
 	       double d_pt_1 = gsl_vector_get(v, 2*i  ) - gsl_vector_get(v, 2*ic  );

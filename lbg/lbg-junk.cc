@@ -413,3 +413,14 @@ widgeted_molecule_t::find_bonded_atoms_with_no_pass(int start_atom_index,
 			     residue_circles[i].pos_y,
 			     residue_circles[i].pos_z);
       lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp);
+
+
+
+	    // fill solvent_accessible_atoms vector before reading the
+	    // molecule.  When the molecule is read, the solvent
+	    // accessibilites are grafted onto the various different
+	    // molecules.
+	    //
+	    l->read_solvent_accessibilities(sa_file);
+	    
+   std::string res_info_file = coot_dir + "coot-tmp-fle-view-residue-info.txt";
