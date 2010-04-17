@@ -644,6 +644,22 @@ public:
       }
    };
 
+   // contains a coordinate on the flat ligand (input mol coords) that
+   // corresponds to an atom on the ligand - when we add read the
+   // ligand mol file, we'll attach to an atom that it needs a bond to
+   // the residue (that encapsulates this bond description).
+   // 
+   class bond_to_ligand_t {
+   public:
+      lig_build::pos_t ligand_atom_pos;
+      double bond_length;
+      bond_to_ligand_t(const lig_build::pos_t &pos_in, double b) {
+	 ligand_atom_pos = pos_in;
+	 bond_length = b;
+      }
+      bond_to_ligand_t() {}
+   };
+
    class residue_circle_t {
    public:
       double pos_x; // input coordinate reference frame
@@ -652,6 +668,7 @@ public:
       lig_build::pos_t pos; // coordinate system of the ligand atoms
       std::string residue_type;
       std::string residue_label;
+      bond_to_ligand_t bond_to_ligand;
       residue_circle_t(const double &x_in, const double &y_in, const double &z_in,
 		       const std::string &type_in,
 		       const std::string &label_in) {
@@ -664,6 +681,8 @@ public:
       void set_canvas_pos(const lig_build::pos_t &pos_in) {
 	 pos = pos_in;
       }
+      void add_bond_to_ligand(const bond_to_ligand_t) {
+      } 
    };
 
    class optimise_residue_circles {
