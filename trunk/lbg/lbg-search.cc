@@ -44,7 +44,7 @@ lbg_info_t::search() const {
    // atoms are vertices
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
       if (! mol.atoms[iat].is_closed()) {
-	 CVertex *v = new CVertex(mol.atoms[iat].element.c_str(), mol.atoms[iat].name.c_str());
+	 CVertex *v = new CVertex(mol.atoms[iat].element.c_str(), mol.atoms[iat].get_atom_id().c_str());
 	 vertex_indexing[n_atoms] = iat;
 	 graph->AddVertex(v);
 	 n_atoms++;

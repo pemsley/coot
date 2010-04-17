@@ -34,7 +34,8 @@
 // at all.
 // 
 widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in,
-					 const std::vector<solvent_accessible_atom_t> &sav) {
+					 CMMDBManager *pdb_mol) { 
+
 
    // the input coordinates are not necessarily centred on (0,0), so
    // let's find the centre of the input molecule first.
@@ -73,22 +74,27 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 		<< mol_in_max_y << " centre correction: " << centre_correction.y
 		<< std::endl;
 
-      if (0) 
-	 for (unsigned int i=0; i<sav.size(); i++)
-	    std::cout << "   :::::::::::::sa: " << i << " " << sav[i].pt.format() << " "
-		      << sav[i].solvent_accessibility << std::endl;
    
       for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
 
 	 clipper::Coord_orth pt = mol_in.atoms[iat].atom_position;
-	 double solvent_accessibility = get_solvent_accessibility(pt, sav);
 	 lig_build::pos_t pos = input_coords_to_canvas_coords(pt);
-	 // std::cout << "sa " << pt.format() << "   " << solvent_accessibility << std::endl;
 	 std::string element = mol_in.atoms[iat].element;
 	 int charge = 0;
 	 GooCanvasItem *ci = NULL;
 	 widgeted_atom_t at(pos, element, charge, ci);
-	 at.add_solvent_accessibility(solvent_accessibility);
+
+	 std::string atom_name = get_atom_name(pt, pdb_mol);
+	 // and if atom_name is not "", then set atom name of at.
+	 if (atom_name != "") {
+	    if (0) 
+	       std::cout << "Hoorah setting atom at " << pt.format() << " with name :"
+			 << atom_name << ":" << std::endl;
+	    at.set_atom_name(atom_name);
+	 } else { 
+	    std::cout << "Boo!! atom at " << pt.format() << " with no name" << std::endl;
+	 } 
+	 
 	 if (0)
 	    std::cout << "Element " << element << " at " << pos << " " << mol_in_min_y << " "
 		      << mol_in_max_y << std::endl;
@@ -631,7 +637,7 @@ bool
 widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
 				bool handle_post_delete_stray_atoms_flag) {
 
-   // on killing a bond, an N at one end of the bond may need its name
+   // on killing a bond, an N at one end of the bond may need its atom_id
    // changed to NH or so.
 
    bool status = 0;
@@ -644,13 +650,13 @@ widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
       // ind_1
       std::string ele = atoms[ind_1].element;
       std::vector<int> local_bonds = bonds_having_atom_with_atom_index(ind_1);
-      std::string new_atom_name = make_atom_name_by_using_bonds(ele, local_bonds);
-      atoms[ind_1].update_name_maybe(new_atom_name, root);
+      std::string new_atom_id = make_atom_id_by_using_bonds(ele, local_bonds);
+      atoms[ind_1].update_atom_id_maybe(new_atom_id, root);
       // ind_2
       ele = atoms[ind_2].element;
       local_bonds = bonds_having_atom_with_atom_index(ind_2);
-      new_atom_name = make_atom_name_by_using_bonds(ele, local_bonds);
-      atoms[ind_2].update_name_maybe(new_atom_name, root);
+      new_atom_id = make_atom_id_by_using_bonds(ele, local_bonds);
+      atoms[ind_2].update_atom_id_maybe(new_atom_id, root);
    
       if (handle_post_delete_stray_atoms_flag) {
 	 // are there any atoms that now don't have bonds?
@@ -659,10 +665,9 @@ widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
 	 // std::cout << "got " << stray_atoms.size() << " stray atoms " << std::endl;
 	 if (stray_atoms.size()) {
 	    for (unsigned int istray=0; istray<stray_atoms.size(); istray++) { 
-	       std::string atom_name =
-		  make_atom_name_by_using_bonds(atoms[stray_atoms[istray]].element, bonds);
-	       // std::cout << "debug:: stray: new atom name: " << atom_name << std::endl;
-	       atoms[stray_atoms[istray]].update_name_forced(atom_name, root);
+	       std::string atom_id =
+		  make_atom_id_by_using_bonds(atoms[stray_atoms[istray]].element, bonds);
+	       atoms[stray_atoms[istray]].update_atom_id_forced(atom_id, root);
 	    }
 	 } 
       }
@@ -697,16 +702,6 @@ widgeted_molecule_t::close_atom(int iat, GooCanvasItem *root) {
       if (ind2 != iat) affected_neighbour_atoms.push_back(ind2);
       close_bond(bds[i], root, 1);
    }
-
-//    std::cout << "There were " << affected_neighbour_atoms.size() << " affected neighbours" << std::endl;
-//    for (unsigned int i=0; i<affected_neighbour_atoms.size(); i++) {
-//       std::string ele = atoms[affected_neighbour_atoms[i]].element;
-//       std::vector<int> local_bonds = bonds_having_atom_with_atom_index(affected_neighbour_atoms[i]);
-//       std::string new_atom_name = make_atom_name_by_using_bonds(ele, local_bonds);
-//       std::cout << "   new atom name: " << new_atom_name << ": " << std::endl;
-//       atoms[affected_neighbour_atoms[i]].update_name_maybe(new_atom_name, root);
-//    }
-
    return status;
 }
 
@@ -1076,7 +1071,7 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
 
             mmCIFLoop->PutString(comp_id.c_str(), "comp_id", i);
 
-            std::string ss = atoms[i].atom_id().c_str();
+            std::string ss = atoms[i].get_atom_id().c_str();
             mmCIFLoop->PutString(ss.c_str(), "atom_id", i);
 
             ss = atoms[i].element;
@@ -1092,9 +1087,9 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
          for (int i=0; i<bonds.size(); i++) {
             // std::cout << "ading bond number " << i << std::endl;
             mmCIFLoop->PutString(comp_id.c_str(), "comp_id", i);
-            std::string atom_name_1 = atoms[bonds[i].get_atom_1_index()].atom_id();
+            std::string atom_name_1 = atoms[bonds[i].get_atom_1_index()].get_atom_id();
             mmCIFLoop->PutString(atom_name_1.c_str(), "atom_id_1", i);
-            std::string atom_name_2 = atoms[bonds[i].get_atom_2_index()].atom_id();
+            std::string atom_name_2 = atoms[bonds[i].get_atom_2_index()].get_atom_id();
             mmCIFLoop->PutString(atom_name_2.c_str(), "atom_id_1", i);
 
             std::string bond_type = "single";
@@ -1110,6 +1105,19 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
    delete mmCIFFile; // deletes all its attributes too.
    return status;
 }
+
+// void
+// widgeted_molecule_t::add_solvent_accesibilities_to_atoms(std::vector<solvent_accessible_atom_t> solvent_accessible_atoms) {
+
+//    for (unsigned int i=0; i<atoms.size(); i++) { 
+//       for (unsigned int j=0; j<solvent_accessible_atoms.size(); j++) { 
+// 	 if (solvent_accessible_atoms[j].atom_name == atoms[i].get_atom_name()) {
+// 	    atoms[i].add_solvent_accessibility(solvent_accessible_atoms[j].solvent_accessibility);
+// 	 }
+//       }
+//    }
+
+// } 
 
 
 
@@ -1129,4 +1137,86 @@ widgeted_molecule_t::get_solvent_accessibility(const clipper::Coord_orth &pt,
    }
 
    return sa;
+}
+
+std::string
+widgeted_molecule_t::get_atom_name(const clipper::Coord_orth &pt, CMMDBManager *mol) const {
+
+   std::string atom_name;
+   double close_2 = 0.01 * 0.01;
+
+   if (! mol) {
+      std::cout << "Null molecule in get_atom_name " << std::endl;
+
+   } else { 
+
+      int imod = 1;
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       at = residue_p->GetAtom(iat);
+	       clipper::Coord_orth atom_pos(at->x, at->y, at->z);
+	       double d = (atom_pos-pt).lengthsq();
+	       if (d < close_2) {
+		  atom_name = at->name;
+		  break;
+	       } 
+	    }
+	 }
+      }
+   }
+   return atom_name;
+} 
+
+
+void
+widgeted_molecule_t::map_solvent_accessibilities_to_atoms(std::vector<solvent_accessible_atom_t> solvent_accessible_atoms) {
+
+   std::cout << "in map_solvent_accessibilities_to_atoms() " << atoms.size() << " atoms "
+	     << "and " << solvent_accessible_atoms.size() << " solvent atoms " << std::endl;
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      for (unsigned int j=0; j<solvent_accessible_atoms.size(); j++) {
+	 if (0) 
+	    std::cout << "   for solvent accessibility" << i << "  " << j << "  :"
+		      << atoms[i].get_atom_name()
+		      <<  ": :" << solvent_accessible_atoms[j].atom_name << ":" << std::endl;
+	 if (atoms[i].get_atom_name() == solvent_accessible_atoms[j].atom_name) {
+	    atoms[i].add_solvent_accessibility(solvent_accessible_atoms[j].solvent_accessibility);
+	    break;
+	 } 
+      }
+   }
+} 
+
+// can throw an exception
+// 
+lig_build::pos_t
+widgeted_molecule_t::get_atom_canvas_position(const std::string &atom_name) {
+
+   lig_build::pos_t p;
+   bool ifound = 0;
+   for (unsigned int i=0; i<atoms.size(); i++) { 
+      if (atoms[i].get_atom_name() == atom_name) {
+	 p = atoms[i].atom_position;
+	 ifound = 1;
+	 return p;
+      }
+   }
+
+   if (! ifound) {
+      std::string mess = "No atom name \"";
+      mess += atom_name;
+      mess += "\" found in ligand";
+      throw std::runtime_error(mess);
+   }
+   return p;
 }

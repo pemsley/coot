@@ -150,6 +150,18 @@ namespace lig_build {
    // -----------------------------------------------------------------
    //                   atom_t
    // -----------------------------------------------------------------
+
+   // Note!
+   //
+   // element is the element, C, N, O etc
+   //
+   // atom_id is the text on the screen, e.g. NH, C+, OH etc.
+   //
+   // atom_name is the matching name from the PDB file (if any),
+   // e.g. " C12", " OD2" etc.  This can be "" if there was no atom
+   // name assigned.
+   
+   
    class atom_t {
       bool is_closed_; // because we can't delete atoms, we can only close
                        // them (deleting/erase()ing atoms would mess up
@@ -157,12 +169,12 @@ namespace lig_build {
    public:
       pos_t atom_position;
       std::string element;
-      std::string name;
+      std::string atom_id;
       int charge;
       bool aromatic;
       atom_t(pos_t pos_in, std::string ele_in, int charge_in) {
 	 atom_position = pos_in;
-	 name = ele_in;
+	 atom_id = ele_in;
 	 element = ele_in;
 	 charge = charge_in;
 	 is_closed_ = 0;
@@ -191,13 +203,13 @@ namespace lig_build {
       bool atomatic_p() const {
 	 return aromatic;
       }
-      std::string get_atom_name() const { return name; }
-      // return atom-name-was-changed status
-      bool set_atom_name(const std::string &name_in ) {
+      std::string get_atom_id() const { return atom_id; }
+      // return atom-id-was-changed status
+      bool set_atom_id(const std::string &atom_id_in ) {
 	 bool changed_status = 0;
-	 if (name != name_in) { 
+	 if (atom_id != atom_id_in) { 
 	    changed_status = 1;
-	    name = name_in;
+	    atom_id = atom_id_in;
 	 }
 	 return changed_status;
       }
@@ -206,7 +218,7 @@ namespace lig_build {
 	 bool status = 0;
 	 if (at.atom_position == atom_position)
 	    if (at.element == element)
-	       if (at.name == name)
+	       if (at.atom_id == atom_id)
 		  if (at.charge == charge)
 		     if (at.aromatic == aromatic)
 			status = 1;
@@ -217,9 +229,6 @@ namespace lig_build {
 	 // std::cout << " closing base class atom" << std::endl;
 	 is_closed_ = 1;
       }
-      std::string atom_id() const {
-	 return name;
-      } 
    };
    
    std::ostream& operator<<(std::ostream &s, atom_t);
@@ -439,10 +448,10 @@ namespace lig_build {
 
       //
       std::string
-      make_atom_name_by_using_bonds(const std::string &ele,
+      make_atom_id_by_using_bonds(const std::string &ele,
 				    const std::vector<int> &bond_indices) const {
    
-	 std::string atom_name = ele;
+	 std::string atom_id = ele;
    
 	 // Have we added an NH2, an NH or an N (for example)
 	 //
@@ -461,55 +470,55 @@ namespace lig_build {
 	 }
 
 	 if (0) 
-	    std::cout << "  in make_atom_name_by_using_bonds() "<< ele << " sum: "
+	    std::cout << "  in make_atom_id_by_using_bonds() "<< ele << " sum: "
 		      << sum_neigb_bond_order << " " << std::endl;
 
 	 if (ele == "N") {
 	    if (sum_neigb_bond_order == 5)
-	       atom_name = "N+2";
+	       atom_id = "N+2";
 	    if (sum_neigb_bond_order == 4)
-	       atom_name = "N+";
+	       atom_id = "N+";
 	    if (sum_neigb_bond_order == 3)
-	       atom_name = "N";
+	       atom_id = "N";
 	    if (sum_neigb_bond_order == 2)
-	       atom_name = "NH";
+	       atom_id = "NH";
 	    if (sum_neigb_bond_order == 1)
-	       atom_name = "NH2";
+	       atom_id = "NH2";
 	    if (sum_neigb_bond_order == 0)
-	       atom_name = "NH3";
+	       atom_id = "NH3";
 	 }
 							   
 	 if (ele == "O") {
 	    if (sum_neigb_bond_order == 3) { 
-	       atom_name = "0+";
+	       atom_id = "0+";
 	    }
 	    if (sum_neigb_bond_order == 2)
-	       atom_name = "O";
+	       atom_id = "O";
 	    if (sum_neigb_bond_order == 1)
-	       atom_name = "OH";
+	       atom_id = "OH";
 	    if (sum_neigb_bond_order == 0)
-	       atom_name = "OH2";
+	       atom_id = "OH2";
 	 }
 
 	 if (ele == "S") {
 	    if (sum_neigb_bond_order == 1) {
-	       atom_name = "SH";
+	       atom_id = "SH";
 	    }
 	    if (sum_neigb_bond_order == 0) {
-	       atom_name = "SH2";
+	       atom_id = "SH2";
 	    }
 	 }
 
 	 if (ele == "C") {
 	    if (sum_neigb_bond_order == 0) {
-	       atom_name = "CH4";
+	       atom_id = "CH4";
 	    }
 	    if (sum_neigb_bond_order == 5) {
-	       atom_name = "C+";
+	       atom_id = "C+";
 	    }
 	 }
 
-	 return atom_name;
+	 return atom_id;
       }
 
       // write out the atom and bond tables:
@@ -517,7 +526,7 @@ namespace lig_build {
       void debug() const {
 	 for (unsigned int i=0; i<atoms.size(); i++) {
 	    std::cout << "Atom " << i << ": " << atoms[i].element << " "
-		      << atoms[i].name << " at "
+		      << atoms[i].atom_id << " at "
 		      << atoms[i].atom_position << std::endl;
 	 }
 	 for (unsigned int i=0; i<bonds.size(); i++) { 

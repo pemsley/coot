@@ -328,9 +328,10 @@ on_lbg_open_filechooserdialog_response(GtkDialog       *dialog,
       lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->open_dialog));
+	 CMMDBManager *mol = NULL; // no atom names to transfer
 	 lig_build::molfile_molecule_t mm;
 	 mm.read(file_name);
-	 l->import(mm, file_name);
+	 l->import(mm, file_name, mol);
 	 gtk_widget_hide(l->open_dialog);
       }
    }
@@ -495,7 +496,7 @@ on_residue_circles_toolbutton_clicked(GtkToolButton *button, gpointer user_data)
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l)
-      l->read_draw_residues("../../build-coot-ubuntu-64bit/src/coot-tmp-fle-view-centres.txt");
+      l->read_draw_residues("../../build-coot-ubuntu-64bit/src/coot-tmp-fle-view-residue-info.txt");
    else
       std::cout << "Bad lbg_info_t lookup in on_residue_cirlces_toolbutton_clicked" << std::endl;
       
