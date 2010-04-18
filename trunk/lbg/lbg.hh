@@ -169,7 +169,12 @@ public:
    private:
       bool is_set_; 
    public:
-      enum { H_BOND_DONOR, H_BOND_ACCEPTOR, BOND_OTHER };  // sync to c-interface-ligands.hh
+      // sync to c-interface-ligands.hh
+      enum { H_BOND_DONOR_MAINCHAIN,
+	     H_BOND_DONOR_SIDECHAIN,
+	     H_BOND_ACCEPTOR_MAINCHAIN, 
+	     H_BOND_ACCEPTOR_SIDECHAIN, 
+	     BOND_OTHER };  
       std::string ligand_atom_name;
       double bond_length;
       int bond_type; // acceptor or donor
