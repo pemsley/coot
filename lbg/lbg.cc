@@ -2149,6 +2149,8 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
       stroke_colour = blue;
    if (residue_type == "ARG")
       stroke_colour = blue;
+   if (residue_type == "HIS")
+      stroke_colour = blue;
 	 
    return std::pair<std::string, std::string> (fill_colour, stroke_colour);
 
@@ -2248,20 +2250,37 @@ lbg_info_t::draw_bonds_to_ligand() {
 	       lig_build::pos_t B = lig_at_pos - rc_to_lig_at_uv * 8;
 	       lig_build::pos_t A = pos + rc_to_lig_at_uv * 20;
 
-	       // colour
-	       std::string stroke_colour = "blue";
-	       if (residue_circles[ic].residue_type == "HOH")
-		  stroke_colour = "#339944";
-	       
+	       // some colours
+	       std::string blue = "blue";
+	       std::string green = "darkgreen";
+	       std::string olive = "#666600";
+	       std::string stroke_colour = dark; // unset
 
-	       // arrows?
+	       // arrows (acceptor/donor) and stroke colour (depending
+	       // on mainchain or sidechain interaction)
+	       // 
 	       gboolean start_arrow = 0;
 	       gboolean   end_arrow = 0;
-	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_DONOR) {
-		  start_arrow = 1;
-	       }
-	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR) {
+	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_DONOR_SIDECHAIN) {
 		  end_arrow = 1;
+		  stroke_colour = green;
+	       }
+	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_DONOR_MAINCHAIN) {
+		  end_arrow = 1;
+		  stroke_colour = blue;
+	       }
+	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_SIDECHAIN) {
+		  start_arrow = 1;
+		  stroke_colour = green;
+	       }
+	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_MAINCHAIN) {
+		  start_arrow = 1;
+		  stroke_colour = blue;
+	       }
+	       if (residue_circles[ic].residue_type == "HOH") { 
+		  stroke_colour = olive;
+		  start_arrow = 0;
+		  end_arrow = 0;
 	       }
 	    
 	       GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 2.5, 2.5);
