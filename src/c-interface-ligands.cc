@@ -1291,3 +1291,4 @@ int get_sbase_monomer(const char *comp_id) {
 
    return imol;
 }
+

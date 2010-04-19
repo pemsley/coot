@@ -6,15 +6,18 @@
       fixed, but on re-running (many of the) same problems reported.
       ::: 2
 
-    o alt confs cause problems in geometry graph [JED] ::: 2
-
-    o change to rms z scores ::: 2
-
     o race condition in downloading.  See Bernie mail.  ::: 2
 
     o Luca's exploding hydrogens ::: 1
 
-    o SEs of MSEs in the second, third chains of colour by chain fails.
+    o change to rms z scores ::: 2
+
+    o alt confs cause problems in geometry graph [JED] ::: 2
+
+    o Does p link work in RNA/DNA?  Sphere refinement?  Problems with
+    group_comp_1/2 being RNA/DNA?
+
+    o SEs of MSEs in the second, third chains of colour by chain fails. PRE
 
 ------
 

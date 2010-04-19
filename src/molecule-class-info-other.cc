@@ -244,6 +244,204 @@ coot::dots_representation_info_t::add_dots(int SelHnd, CMMDBManager *mol,
    }
 }
 
+std::vector<std::pair<CAtom *, float> >
+coot::dots_representation_info_t::solvent_exposure(int SelHnd_in, CMMDBManager *mol) const {
+   
+   std::vector<std::pair<CAtom *, float> > v;
+   if (mol) {
+
+      double dot_density = 0.35;
+      // 
+      double phi_step = 5.0 * (M_PI/180.0);
+      double theta_step = 5.0 * (M_PI/180.0);
+      if (dot_density > 0.0) { 
+	 phi_step   /= dot_density;
+	 theta_step /= dot_density;
+      }
+      
+      double water_radius = 1.4;
+      double fudge = 1.0;
+      PPCAtom atoms = 0;
+      int n_atoms;
+      mol->GetSelIndex(SelHnd_in, atoms, n_atoms);
+      std::vector<double> radius(n_atoms);
+
+      for (unsigned int iat=0; iat<n_atoms; iat++) {
+	 std::string ele(atoms[iat]->element);
+	 radius[iat] = get_radius(ele);
+      }
+
+      PPCAtom atoms_all = 0;
+      int n_atoms_all;
+      int SelHnd_all = mol->NewSelection();
+      mol->SelectAtoms(SelHnd_all, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+      mol->GetSelIndex(SelHnd_all, atoms_all, n_atoms_all);
+
+      for (int iatom=0; iatom<n_atoms; iatom++) {
+	 if (! atoms[iatom]->isTer()) { 
+	    clipper::Coord_orth centre(atoms[iatom]->x,
+				       atoms[iatom]->y,
+				       atoms[iatom]->z);
+	    bool even = 1;
+	    int n_points = 0;
+	    int n_sa = 0;
+	    for (double theta=0; theta<M_PI; theta+=theta_step) {
+	       double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
+	       for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
+		  if (even) {
+		     double r = fudge * (radius[iatom] + water_radius);
+		     clipper::Coord_orth pt(r*cos(phi)*sin(theta),
+					    r*sin(phi)*sin(theta),
+					    r*cos(theta));
+		     pt += centre;
+		     n_points++;
+
+		     // now, is pt closer to (a water centre around)
+		     // another atom?
+
+		     bool is_solvent_accessible = 1;
+		     for (unsigned int i_all=0; i_all<n_atoms_all; i_all++) {
+			// don't exclude from self
+			CAtom *other_at = atoms_all[i_all];
+			std::string other_res_name = other_at->GetResName();
+			if (other_res_name != "HOH") { 
+			   if (atoms[iatom] != other_at) {
+			      std::string other_ele = other_at->element;
+			      if (other_ele != " H") { 
+				 double other_atom_r = fudge * (get_radius(other_ele) + water_radius);
+				 double other_atom_r_sq = other_atom_r * other_atom_r;
+				 clipper::Coord_orth pt_other(other_at->x, other_at->y, other_at->z);
+				 if ((pt-pt_other).lengthsq() < other_atom_r_sq) {
+				    is_solvent_accessible = 0;
+				    break;
+				 }
+			      }
+			   }
+			}
+		     }
+		     if (is_solvent_accessible)
+			n_sa++;
+		  }
+		  even = 1 - even;
+	       }
+	    }
+
+	    double exposure_frac = double(n_sa)/double(n_points);
+	    if (0)
+	       std::cout << "Atom " << atoms[iatom]->name << " has exposure " << n_sa << "/" << n_points
+			 << " = " << exposure_frac << std::endl;
+	    std::pair<CAtom *, float> p(atoms[iatom], exposure_frac);
+	    v.push_back(p);
+	 }
+      }
+   }
+   return v;
+}
+
+
+// create (and later delete, of course) a new molecule by deep copying
+// and assembling the passed residues.  Use that to make an atom
+// selection which gets passed to
+// dots_representation_info_t::solvent_exposure().  Notice that we
+// pass back atom specs.
+// 
+std::vector<std::pair<coot::atom_spec_t, float> >
+coot::dots_representation_info_t::solvent_accessibilities(CResidue *res_ref,
+							  const std::vector<CResidue *> &near_residues) const {
+
+   std::vector<std::pair<coot::atom_spec_t, float> > v;
+   std::vector<CResidue *> residues = near_residues;
+   residues.push_back(res_ref);
+   
+   std::pair<bool, CMMDBManager *> mol =
+      coot::util::create_mmdbmanager_from_residue_vector(residues);
+
+   if (mol.first) { 
+
+      int SelHnd = mol.second->NewSelection();
+      mol.second->SelectAtoms(SelHnd, 0, res_ref->GetChainID(),
+			      res_ref->GetSeqNum(), res_ref->GetInsCode(),
+			      res_ref->GetSeqNum(), res_ref->GetInsCode(),
+			      "*", "*", "*", "*");
+
+      std::vector<std::pair<CAtom *, float> > se = solvent_exposure(SelHnd, mol.second);
+      v.resize(se.size());
+      for (unsigned int i=0; i<se.size(); i++) { 
+	 v[i] = std::pair<coot::atom_spec_t, float> (se[i].first, se[i].second);
+      }
+
+      mol.second->DeleteSelection(SelHnd);
+      delete mol.second;
+   }
+   return v;
+}
+
+
+std::vector<coot::solvent_exposure_difference_helper_t>
+coot::dots_representation_info_t::solvent_exposure_differences(CResidue *res_ref,
+							       const std::vector<CResidue *> &near_residues) const {
+
+   std::vector<coot::solvent_exposure_difference_helper_t> v;
+
+   std::vector<CResidue *> residues = near_residues;
+   residues.push_back(res_ref);
+   
+   std::pair<bool, CMMDBManager *> mol_holo =
+      coot::util::create_mmdbmanager_from_residue_vector(residues);
+   
+   std::pair<bool, CMMDBManager *> mol_apo =
+      coot::util::create_mmdbmanager_from_residue_vector(near_residues);
+
+   if (mol_holo.first) { 
+      if (mol_apo.first) {
+
+	 for (unsigned int ir=0; ir<near_residues.size(); ir++) {
+	    std::string res_name = near_residues[ir]->GetResName();
+	    if (res_name != "HOH") { 
+	       int SelHnd_holo = mol_holo.second->NewSelection();
+	       int SelHnd_apo  =  mol_apo.second->NewSelection();
+	       mol_holo.second->SelectAtoms(SelHnd_holo, 0, near_residues[ir]->GetChainID(),
+					    near_residues[ir]->GetSeqNum(), near_residues[ir]->GetInsCode(),
+					    near_residues[ir]->GetSeqNum(), near_residues[ir]->GetInsCode(),
+					    "*", "*", "*", "*");
+	       mol_apo.second->SelectAtoms(SelHnd_apo, 0, near_residues[ir]->GetChainID(),
+					   near_residues[ir]->GetSeqNum(), near_residues[ir]->GetInsCode(),
+					   near_residues[ir]->GetSeqNum(), near_residues[ir]->GetInsCode(),
+					   "*", "*", "*", "*");
+	       std::vector<std::pair<CAtom *, float> > se_holo = solvent_exposure(SelHnd_holo, mol_holo.second);
+	       std::vector<std::pair<CAtom *, float> > se_apo  = solvent_exposure(SelHnd_apo,   mol_apo.second);
+
+	       double se_frac_holo = 0.0;
+	       double se_frac_apo  = 0.0;
+
+	       for (unsigned int iah=0; iah<se_holo.size(); iah++) {
+		  se_frac_holo += se_holo[iah].second;
+	       }
+	       for (unsigned int iaa=0; iaa<se_apo.size(); iaa++) {
+		  se_frac_apo += se_apo[iaa].second;
+	       }
+
+	       if (0) 
+		  std::cout << "storing " << coot::residue_spec_t(near_residues[ir]) << " "
+			    << near_residues[ir]->GetResName() << " " 
+			    << se_frac_holo << " " << se_frac_apo << std::endl;
+	       coot::residue_spec_t res_spec(near_residues[ir]);
+	       coot::solvent_exposure_difference_helper_t sed(res_spec, se_frac_holo, se_frac_apo);
+	       v.push_back(sed);
+
+	       mol_holo.second->DeleteSelection(SelHnd_holo);
+	       mol_apo.second->DeleteSelection(SelHnd_apo);
+	    }
+	 }
+
+	 delete mol_apo.second;
+      }
+      delete mol_holo.second;
+   }
+   return v;
+}
+
+
 
 // simply transfer the atoms of mol to the points vector
 //

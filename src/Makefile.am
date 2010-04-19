@@ -245,6 +245,7 @@ coot_real_SOURCES = \
 	c-interface-gtk2.cc	 \
 	c-interface-info.cc	 \
 	c-interface-kk.cc	 \
+	c-interface-ligands.hh   \
 	c-interface-ligands.cc   \
 	c-interface-ligands-gui.cc \
 	c-interface-mmdb.cc	 \
@@ -290,6 +291,7 @@ coot_real_SOURCES = \
 	geometry-graphs.hh	 \
 	get-residue.hh           \
 	get-residue.cc           \
+	flev.cc                  \
 	gl-bits.hh		 \
 	globjects.cc 		 \
 	globjects.h gl-matrix.h  \
