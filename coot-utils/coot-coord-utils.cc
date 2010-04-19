@@ -432,6 +432,52 @@ coot::residues_near_position(const clipper::Coord_orth &pt,
    return v;
 }
 
+// Don't include residues that are HOH residues that are not bonded to
+// the protein (if bonding to res_ref but not protein, then reject.
+// Reject waters that are not within water_dist_max to any atom in
+// res_ref.
+//
+std::vector<CResidue *>
+coot::filter_residues_by_solvent_contact(CResidue *res_ref,
+					 CMMDBManager *mol,
+					 const std::vector<CResidue *> &residues,
+					 const double &water_dist_max) {
+   std::vector<CResidue *> v;
+   PPCAtom lig_residue_atoms = 0;
+   int n_lig_residue_atoms;
+   res_ref->GetAtomTable(lig_residue_atoms, n_lig_residue_atoms);
+   for (unsigned int i=0; i<residues.size(); i++) { 
+      std::string res_name = residues[i]->GetResName();
+      if (res_name != "HOH") { 
+	 v.push_back(residues[i]);
+      } else {
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 residues[i]->GetAtomTable(residue_atoms, n_residue_atoms);
+	 bool i_added = 0;
+	 for (unsigned int jat=0; jat<n_lig_residue_atoms; jat++) {
+	    clipper::Coord_orth lig_pt(lig_residue_atoms[jat]->x,
+				       lig_residue_atoms[jat]->y,
+				       lig_residue_atoms[jat]->z);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	       clipper::Coord_orth pt(residue_atoms[iat]->x,
+				      residue_atoms[iat]->y,
+				      residue_atoms[iat]->z);
+	       if ((lig_pt-pt).lengthsq() < (water_dist_max*water_dist_max)) {
+		  i_added = 1;
+		  v.push_back(residues[i]);
+		  break;
+	       }
+	    }
+	    if (i_added)
+	       break;
+	 }
+      } 
+   }
+   return v;
+} 
+
+
 
 std::pair<bool,float>
 coot::closest_approach(CMMDBManager *mol,
@@ -997,6 +1043,31 @@ coot::util::get_residues_in_fragment(CChain *chain_p,
 
    return r; 
 }
+
+std::pair<bool, clipper::Coord_orth>
+coot::util::get_residue_centre(CResidue *residue_p) {
+
+   bool status = 0;
+   clipper::Coord_orth centre(0,0,0);
+   
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   if (n_residue_atoms>0) {
+      status = 1;
+      for (unsigned int i=0; i<n_residue_atoms; i++) {
+	 clipper::Coord_orth pt(residue_atoms[i]->x,
+				residue_atoms[i]->y,
+				residue_atoms[i]->z);
+	 centre += pt;
+      }
+      double scale = 1.0/double(n_residue_atoms);
+      centre = scale * centre;
+   }
+   return std::pair<bool, clipper::Coord_orth> (status, centre);
+ 
+}
+
 
 
 
@@ -2129,6 +2200,10 @@ coot::util::create_mmdbmanager_from_res_selection(CMMDBManager *orig_mol,
 }
 
 // More complex than above because res_vec is not sorted on chain or residue number.
+//
+// The residues are added in order, the chains are added in order.
+// The returned mol has the same chain ids as do the input residues.
+// 
 std::pair<bool, CMMDBManager *>
 coot::util::create_mmdbmanager_from_residue_vector(const std::vector<CResidue *> &res_vec) { 
   
@@ -2174,6 +2249,7 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<CResidue *>
    CModel *model_p = new CModel;
    for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
       CChain *chain_p = new CChain;
+      chain_p->SetChainID(residues_of_chain[ich].chain_id.c_str());
       for (unsigned int ires=0; ires<residues_of_chain[ich].residues.size(); ires++) { 
 	 CResidue *residue_p = 
             coot::util::deep_copy_this_residue(residues_of_chain[ich].residues[ires]);
