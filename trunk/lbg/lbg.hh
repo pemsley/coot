@@ -188,6 +188,9 @@ public:
    };
 
    class residue_circle_t {
+      bool   se_diff_set_;
+      double se_holo; 
+      double se_apo; 
    public:
       double pos_x; // input coordinate reference frame
       double pos_y;
@@ -204,12 +207,26 @@ public:
 	 pos_z = z_in;
 	 residue_type = type_in;
 	 residue_label = label_in;
+	 se_holo = 0.0;
+	 se_apo  = 0.0;
+	 se_diff_set_ = 0;
       }
       void set_canvas_pos(const lig_build::pos_t &pos_in) {
 	 pos = pos_in;
       }
       void add_bond_to_ligand(const bond_to_ligand_t &bl) {
 	 bonds_to_ligand.push_back(bl);
+      }
+      void set_solvent_exposure_diff(double se_holo_in, double se_apo_in) {
+	 se_holo = se_holo_in;
+	 se_apo = se_apo_in;
+	 se_diff_set_ = 1;
+      }
+      bool se_diff_set() const {
+	 return se_diff_set_;
+      }
+      std::pair<double, double> solvent_exposures() const {
+	 return std::pair<double, double> (se_holo, se_apo);
       }
       // friend std::ostream& operator<<(std::ostream &s, residue_circle_t r);
    };
@@ -293,6 +310,7 @@ private:
       coot_mdl_ready_time = 0;
       canvas_scale = 1.0;
       canvas_drag_offset = lig_build::pos_t(0,0);
+      standard_residue_circle_radius = 16;
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -353,6 +371,8 @@ private:
    void translate_residue_circles(const lig_build::pos_t &delta);
    void clear_canvas();
    void add_residue_circle(const residue_circle_t &rc, const lig_build::pos_t &p);
+   double standard_residue_circle_radius;
+   
 
    std::pair<std::string, std::string>
    get_residue_circle_colour(const std::string &residue_type) const;
@@ -366,6 +386,10 @@ private:
    void draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa,
 					   GooCanvasItem *root);
    void draw_bonds_to_ligand();
+   void draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
+				     const lig_build::pos_t &ligand_centre,
+				     GooCanvasItem *group);
+   std::string get_residue_solvent_exposure_fill_colour(double radius_extra) const;
    
 public:
    lbg_info_t(GtkWidget *canvas_in) {

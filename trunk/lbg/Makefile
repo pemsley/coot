@@ -78,6 +78,15 @@ test-inh: test-inh.cc
 test-read-molfile: test-read-molfile.o lbg-molfile.o
 	libtool --mode=link $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) $^ -o $@ 
 
+test-lbg-graph.o: test-lbg-graph.cc
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
+
+lbg-graph.o: lbg-graph.cc
+	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
+
+test-lbg-graph: test-lbg-graph.o lbg-graph.o
+	libtool --mode=link $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) $^ -o $@ 
+
 dist:
 	tar czf lbg.tar.gz lbg.glade *.cc *.hh *.svg coot-icon.png coot-favicon.png notes Makefile
 

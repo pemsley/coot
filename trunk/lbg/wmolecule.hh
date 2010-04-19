@@ -493,5 +493,9 @@ public:
    // can throw an exception
    // 
    lig_build::pos_t get_atom_canvas_position(const std::string &atom_name);
+
+   // can throw an exception (no atoms)
+   // 
+   lig_build::pos_t get_ligand_centre() const;
    
 };

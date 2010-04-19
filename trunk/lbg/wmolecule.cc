@@ -631,7 +631,29 @@ widgeted_molecule_t::get_unconnected_atoms() const {
       }
    }
    return v;
+}
+
+// can throw an exception (no atoms)
+// 
+lig_build::pos_t
+widgeted_molecule_t::get_ligand_centre() const {
+
+   lig_build::pos_t centre(0,0);
+
+   if (atoms.size() == 0) {
+      std::string message("No atoms in ligand");
+      throw std::runtime_error(message);
+   } else {
+      lig_build::pos_t centre_sum(0,0);
+      for (unsigned int iat=0; iat<atoms.size(); iat++) {
+	 centre_sum += atoms[iat].atom_position;
+      }
+      if (atoms.size() > 0)
+	 centre = centre_sum * (1.0/double(atoms.size()));
+   }
+   return centre;
 } 
+
 
 bool
 widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
