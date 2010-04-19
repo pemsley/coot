@@ -1986,8 +1986,8 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 		  int bond_type = lig_build::string_to_int(words[5]);
 		  lbg_info_t::bond_to_ligand_t btl(atom_name, bond_l);
 		  btl.bond_type = bond_type;
-		  std::cout << "adding bond " << v.size() << " to :"
-			    << atom_name << ": " << bond_l << std::endl;
+// 		  std::cout << "adding bond " << v.size() << " to :"
+// 			    << atom_name << ": " << bond_l << std::endl;
 		  if (v.size())
 		     v.back().add_bond_to_ligand(btl);
 	       }
@@ -1995,7 +1995,22 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
 	       }
 	    }
-	 } 
+	 }
+
+	 if (words.size() == 3) {
+	    if (words[0] == "SOLVENT_ACCESSIBILITY_DIFFERENCE") {
+	       try {
+		  double se_holo = lig_build::string_to_float(words[1]);
+		  double se_apo  = lig_build::string_to_float(words[2]);
+		  if (v.size()) { 
+		     v.back().set_solvent_exposure_diff(se_holo, se_apo);
+		  }
+	       }
+	       catch (std::runtime_error rte) {
+		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
+	       }
+	    }
+	 }
       }
    }
    std::cout << "found " << v.size() << " residue centres" << std::endl;
@@ -2016,63 +2031,79 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 void
 lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &residue_circles) {
 
-   for (unsigned int i=0; i<residue_circles.size(); i++) {
-      lig_build::pos_t pos = residue_circles[i].pos;
-      add_residue_circle(residue_circles[i], pos);
+   try { 
+      lig_build::pos_t ligand_centre = mol.get_ligand_centre();
+      for (unsigned int i=0; i<residue_circles.size(); i++) {
+	 lig_build::pos_t pos = residue_circles[i].pos;
+	 add_residue_circle(residue_circles[i], ligand_centre);
+      }
    }
+   catch (std::runtime_error rte) {
+      std::cout << "WARNING:: draw_residue_circles: " << rte.what() << std::endl;
+   } 
 }
 
 void
 lbg_info_t::add_residue_circle(const residue_circle_t &residue_circle,
-			       const lig_build::pos_t &pos) {
+			       const lig_build::pos_t &ligand_centre) {
 
    if (0)
       std::cout << "   adding cirles " << residue_circle.residue_type
-		<< " at init pos " << pos << " and canvas_drag_offset "
+		<< " at init pos " << residue_circle.pos << " and canvas_drag_offset "
 		<< canvas_drag_offset << std::endl;
 
-   lig_build::pos_t circle_pos = pos;
+   lig_build::pos_t circle_pos = residue_circle.pos;
       
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
    GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark,
 						NULL);
 
+   // don't draw waters that don't have bonds to the ligand
+   //
+   if (residue_circle.residue_type == "HOH")
+      if (residue_circle.bonds_to_ligand.size() == 0)
+	 return;
+
    // Capitalise the residue type (takes less space than upper case).
    std::string rt = residue_circle.residue_type.substr(0,1);
    rt += coot::util::downcase(residue_circle.residue_type.substr(1));
 
-   // fill colour and stroke colour
+   draw_solvent_exposure_circle(residue_circle, ligand_centre, group);
+
+   // fill colour and stroke colour of the residue circle
    std::pair<std::string, std::string> col = get_residue_circle_colour(residue_circle.residue_type);
    double line_width = 1.0;
    if (col.second != dark)
       line_width = 3.0;
 
    if (col.first != "") {
-      GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
+      GooCanvasItem *cirle = goo_canvas_ellipse_new(group,
 						    circle_pos.x, circle_pos.y,
-						    16.0, 16.0,
+						    standard_residue_circle_radius,
+						    standard_residue_circle_radius,
 						    "line_width", line_width,
 						    "fill-color",   col.first.c_str(),
 						    "stroke-color", col.second.c_str(),
 						    NULL);
    } else {
-      GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
+      GooCanvasItem *cirle = goo_canvas_ellipse_new(group,
 						    circle_pos.x, circle_pos.y,
-						    16.0, 16.0,
+						    standard_residue_circle_radius,
+						    standard_residue_circle_radius,
 						    "line_width", line_width,
 						    "stroke-color", col.second.c_str(),
 						    NULL);
    }
    
-   GooCanvasItem *text_1 = goo_canvas_text_new(root, rt.c_str(),
+   GooCanvasItem *text_1 = goo_canvas_text_new(group, rt.c_str(),
 					       circle_pos.x, circle_pos.y-5, -1,
 					       GTK_ANCHOR_CENTER,
 					       "font", "Sans 9",
 					       "fill_color", dark,
 					       NULL);
 
-   GooCanvasItem *text_2 = goo_canvas_text_new(root, residue_circle.residue_label.c_str(),
+   GooCanvasItem *text_2 = goo_canvas_text_new(group, residue_circle.residue_label.c_str(),
 					       circle_pos.x, circle_pos.y+5, -1,
 					       GTK_ANCHOR_CENTER,
 					       "font", "Sans 7",
@@ -2154,6 +2185,61 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
 	 
    return std::pair<std::string, std::string> (fill_colour, stroke_colour);
 
+}
+
+// solvent exposure of the residue due to ligand binding
+void 
+lbg_info_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
+					 const lig_build::pos_t &ligand_centre,
+					 GooCanvasItem *group) {
+
+   if (residue_circle.residue_type != "HOH") { 
+      if (residue_circle.se_diff_set()) {
+	 std::pair<double, double> se_pair = residue_circle.solvent_exposures();
+	 double radius_extra = (se_pair.second - se_pair.first) * 14;
+	 if (radius_extra > 0) {
+	    lig_build::pos_t to_lig_centre_uv = (ligand_centre - residue_circle.pos).unit_vector();
+	    lig_build::pos_t se_circle_centre = residue_circle.pos - to_lig_centre_uv * radius_extra;
+
+	    std::string fill_colour = get_residue_solvent_exposure_fill_colour(radius_extra);
+	    double r = standard_residue_circle_radius + radius_extra;
+
+	    GooCanvasItem *circle = goo_canvas_ellipse_new(group,
+							   se_circle_centre.x, se_circle_centre.y,
+							   r, r,
+							   "line_width", 0.0,
+							   "fill-color", fill_colour.c_str(),
+							   NULL);
+	 }
+      }
+   } 
+}
+
+std::string
+lbg_info_t::get_residue_solvent_exposure_fill_colour(double r) const {
+
+   std::string colour = "#8080ff";
+   double step = 0.7;
+   if (r > step)
+      colour = "#f0e0ff";
+   if (r > step * 2)
+      colour = "#e0d8ff";
+   if (r > step * 3)
+      colour = "#d0d0ff";
+   if (r > step * 4)
+      colour = "#c0c8ff";
+   if (r > step * 5)
+      colour = "#b0c0ff";
+   if (r > step * 6)
+      colour = "#a0b8ff";
+   if (r > step * 7)
+      colour = "#90b0ff";
+   if (r > step * 8)
+      colour = "#80a8ff";
+   if (r > step * 9)
+      colour = "#70a0ff";
+
+   return colour;
 } 
 
 
