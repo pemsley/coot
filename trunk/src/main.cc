@@ -376,6 +376,7 @@ main (int argc, char *argv[]) {
 	
   handle_command_line_data(cld);  // and add a flag if listener
 	   		          // should be started.
+  
      // which gets looked at later in c_inner_main's make_port_listener_maybe()
 
      // For the graphics to be able to see the data set in the .coot

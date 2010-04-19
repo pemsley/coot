@@ -5979,6 +5979,18 @@ Return -1 on failure to get monomer. */
 int get_sbase_monomer(const char *comp_id);
 /* \} */
 
+/*  ----------------------------------------------------------------------- */
+/*               Flattened Ligand Environment View  Interface               */
+/*  ----------------------------------------------------------------------- */
+/*! \name FLE-View */
+/* \{ */
+void fle_view_internal(int imol, const char *chain_id, int res_no, const char *ins_code, 
+		       int imol_ligand_fragment, 
+		       const char *prodrg_output_flat_mol_file_name,
+		       const char *prodrg_output_flat_pdb_file_name);
+/* \} */
+
+
 
 /*  ----------------------------------------------------------------------- */
 /* Multirefine interface (because in guile-gtk there is no way to

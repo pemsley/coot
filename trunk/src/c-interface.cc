@@ -4224,7 +4224,18 @@ int test_function(int i, int j) {
 //    g.wrapped_create_symmetry_controller_dialog();
 //    return 0;
 
+
    if (1) {
+      // atom_selection_container_t asc = get_atom_selection("double.pdb");
+      atom_selection_container_t asc = get_atom_selection("test-frag.pdb");
+      coot::dots_representation_info_t dots;
+      int sel_hnd = asc.SelectionHandle;
+      std::vector<std::pair<CAtom *, float> > v =
+	 dots.solvent_exposure(sel_hnd, asc.mol);
+
+   } 
+
+   if (0) {
 
       std::cout << "sizeof(int): " << sizeof(int) << std::endl;
       

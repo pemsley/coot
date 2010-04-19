@@ -45,6 +45,16 @@
 int 
 coot::rotamer::optimize_rotamer_by_atom_names() {
 
+   // So, the plan is to compare the rotamer probabilies of
+   // 1: the input residue
+   // 2: copy the input residue and swap the "rotamer" atoms of it.
+   //
+   // Now compare the probabilites of each rotamer
+   //
+   // If the second probability is greater than the first, then swap
+   // the atom names.
+   
+
    // Chi2 of PHE, TYR should be between -90 -> +90
 
    int imoved = 0;
@@ -58,13 +68,7 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
    if ((residue_name == "PHE") ||
        (residue_name == "ASP") ||
        (residue_name == "GLU") ||
-       (residue_name == "TYR")
-       // 
-       // These have Chiral Centres and should be treated with more
-       // sophistication (or differently)
-       // (residue_name == "LEU") ||
-       // (residue_name == "VAL")
-       ) {
+       (residue_name == "TYR") ) {
 
       std::vector<std::pair<std::string, std::string> > swapper_atoms;
 
@@ -100,7 +104,7 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
 		     residue_atoms[isec  ]->SetAtomName(first_atom_name.c_str());
 		     ifound = 1;
 		     nfound++;
-		     imoved = 1;
+		     // imoved = 1; surely this should not be set here(?)
 		  }
 		  if (ifound)
 		     break;
@@ -110,10 +114,6 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
 	    }
 	 }
       }
-//       std::cout << "swapped " << nfound << " atom pairs of residue "
-// 		<< residue->GetResName() << " " << residue->GetSeqNum()
-// 		<< std::endl;
-
       coot::rotamer dc(residue_copy);
       coot::rotamer_probability_info_t p_swapped = dc.probability_of_this_rotamer();
 
@@ -123,9 +123,14 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
       }
       delete residue_copy;
       residue_copy = 0;
+
+      // ==============================================
       
-      if (p_init.state && p_swapped.state) { 
-// 	 std::cout << "compare: " << p_init.second << "  " << p_swapped.second << "\n";
+      if (p_init.state && p_swapped.state) {
+	 if (0)
+	    std::cout << "compare: intial orientation score " << p_init.probability
+		      << "  vs swapped orientation score: "
+		      << p_swapped.probability << "\n";
 	 if (p_swapped.probability > p_init.probability) {
 // 	    std::cout << "Fixing residue " << residue->GetSeqNum()
 // 		      << " " << residue->GetChainID() << " " << residue->GetResName()
@@ -157,10 +162,11 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
 		  }
 	       }
 	    }
-	    if (0) 
-	       std::cout << "Fixed " << nfound << " atom pairs of residue "
+	    if (0)
+	       std::cout << "   DEBUG:: Fixed " << nfound << " atom pairs of residue "
 			 << residue->GetResName() << " " << residue->GetSeqNum()
-			 << std::endl;
+			 << "in optimize_rotamer_by_atom_names()" << " of residue pointer "
+			 << residue <<  std::endl;
 	 }
       } else {
 	 std::cout << "badness in atom selection " << std::endl;
@@ -250,10 +256,9 @@ coot::rotamer::probability_of_this_rotamer() {
    // So, which rotamer are we in?
    
    std::vector<coot::simple_rotamer> rots = get_all_rotamers(residue_name);
+   if (0)
+      std::cout << "calling probability_of_this_rotamer(chi_angles, rots)" << std::endl;
    coot::rotamer_probability_info_t d = probability_of_this_rotamer(chi_angles, rots);
-   
-//    std::cout << "DEBUG:: probability_of_this_rotamer returns "
-// 	     << d.first << " " << d.second << std::endl;
    
    return d;
 }
@@ -261,6 +266,7 @@ coot::rotamer::probability_of_this_rotamer() {
 coot::rotamer_probability_info_t
 coot::rotamer::probability_of_this_rotamer(const std::vector<double> &chi_angle_values,
 					   const std::vector<coot::simple_rotamer> &rots) const {
+
 
    short int state;  // flag for assigned,                    1 
                      // unassigned due to missing atoms,      0 
@@ -283,15 +289,17 @@ coot::rotamer::probability_of_this_rotamer(const std::vector<double> &chi_angle_
 	 for (unsigned int ich=0; ich<chi_angle_values.size(); ich++) {
 	    double target = rots[irot].get_chi(ich+1);
 	    double model = chi_angle_values[ich];
-// 	    std::cout  << "DEBUG:: comparing chi " << ich << " target: " << target
-// 		       <<  " model: " << model << std::endl;
+	    if (0) 
+	       std::cout  << "DEBUG::    comparing chi " << ich << " target: " << target
+			  <<  " model: " << model << std::endl;
 	    if (similar_rotamer_chi(target, model))
 	       isimilar++;
 	    else
 	       break;
 	 }
-//   	 std::cout << "DEBUG:: rotamer " << irot << " isimilar = "
-//   		   << isimilar << " out of " << chi_angle_values.size() << std::endl;
+	 if (0)
+	    std::cout << "DEBUG::    rotamer " << irot << " isimilar = "
+		      << isimilar << " out of " << chi_angle_values.size() << std::endl;
 	 if (isimilar == int(chi_angle_values.size())) {
 	    d = rots[irot].P_r1234();
 	    name = rots[irot].rotamer_name();
@@ -302,6 +310,9 @@ coot::rotamer::probability_of_this_rotamer(const std::vector<double> &chi_angle_
 	    break;
       }
    }
+   if (0)
+      std::cout << "   returning from probability_of_this_rotamer() with "
+		<< state << " " << d << " :" << name << ":" << std::endl;
    return coot::rotamer_probability_info_t(state, d, name);
 }
 

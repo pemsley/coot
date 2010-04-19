@@ -113,13 +113,9 @@ graphics_info_t::copy_mol_and_regularize(int imol,
 // Cut and pasted from above.  You might ask why I didn't factor out
 // the common stuff.
 //
-// mmdb doesn't seem to lend itself to consiseness and because I
-// didn't want mmdb_manager in graphics-info.h (which I would have
-// needed in the factorization of the common elements).
 //
 // Note that this refinement routine uses moving_atoms_asc.
 //
-// Sigh.
 // 
 coot::refinement_results_t
 graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
@@ -155,8 +151,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    short int have_flanking_residue_at_start = 0;
    short int have_flanking_residue_at_end = 0;
    short int have_disulfide_residues = 0;  // other residues are included in the
-   // residues_mol for disphide
-   // restraints.
+                                        // residues_mol for disulfide restraints.
    
    // 9 Sept 2003: The atom selection goes mad if residue with seqnum
    // iend_res+1 does not exist, but is not at the end of the chain.
@@ -3261,9 +3256,6 @@ graphics_info_t::get_rotamer_probability(CResidue *res,
    }
    if (rot_prob_tables.is_well_formatted()) {
       try {
-	 // FIXME, return type of
-	 // graphics_info_t::get_rotamer_probability needs to be a
-	 // vector of probabilities.
 	 std::vector<coot::rotamer_probability_info_t> v = rot_prob_tables.probability_this_rotamer(res);
 	 if (v.size() > 0) {
 	    r = v[0];

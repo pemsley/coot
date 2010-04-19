@@ -329,7 +329,8 @@ parse_command_line(int argc, char ** argv ) {
 
 } 
 
-void command_line_data::handle_immediate_settings() {
+void
+command_line_data::handle_immediate_settings() {
 
    // start the graphics?
    if (do_graphics == 1) 

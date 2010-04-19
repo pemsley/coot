@@ -6134,6 +6134,12 @@ create_find_ligand_dialog (void)
   GtkWidget *find_ligand_dialog;
   GtkWidget *dialog_vbox2;
   GtkWidget *vbox44;
+  GtkWidget *vbox47;
+  GtkWidget *label75;
+  GtkWidget *frame37;
+  GtkWidget *find_ligands_ligands_scrolledwindow;
+  GtkWidget *viewport16;
+  GtkWidget *find_ligand_ligands_vbox;
   GtkWidget *vbox45;
   GtkWidget *label73;
   GtkWidget *frame35;
@@ -6152,12 +6158,6 @@ create_find_ligand_dialog (void)
   GSList *find_ligand_mask_waters_yes_radiobutton_group = NULL;
   GtkWidget *find_ligand_mask_waters_no_radiobutton;
   GtkWidget *label279;
-  GtkWidget *vbox47;
-  GtkWidget *label75;
-  GtkWidget *frame37;
-  GtkWidget *find_ligands_ligands_scrolledwindow;
-  GtkWidget *viewport16;
-  GtkWidget *find_ligand_ligands_vbox;
   GtkWidget *frame288;
   GtkWidget *alignment133;
   GtkWidget *vbox300;
@@ -6205,14 +6205,46 @@ create_find_ligand_dialog (void)
   gtk_widget_show (vbox44);
   gtk_box_pack_start (GTK_BOX (dialog_vbox2), vbox44, TRUE, TRUE, 0);
 
+  vbox47 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox47);
+  gtk_box_pack_start (GTK_BOX (vbox44), vbox47, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox47), 5);
+
+  label75 = gtk_label_new (_("<b>Select Ligands: </b>(Search for things like this)"));
+  gtk_widget_show (label75);
+  gtk_box_pack_start (GTK_BOX (vbox47), label75, FALSE, FALSE, 0);
+  gtk_label_set_use_markup (GTK_LABEL (label75), TRUE);
+  gtk_label_set_justify (GTK_LABEL (label75), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label75), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label75), 5, 0);
+
+  frame37 = gtk_frame_new (NULL);
+  gtk_widget_show (frame37);
+  gtk_box_pack_start (GTK_BOX (vbox47), frame37, TRUE, TRUE, 0);
+
+  find_ligands_ligands_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_show (find_ligands_ligands_scrolledwindow);
+  gtk_container_add (GTK_CONTAINER (frame37), find_ligands_ligands_scrolledwindow);
+  GTK_WIDGET_UNSET_FLAGS (find_ligands_ligands_scrolledwindow, GTK_CAN_FOCUS);
+
+  viewport16 = gtk_viewport_new (NULL, NULL);
+  gtk_widget_show (viewport16);
+  gtk_container_add (GTK_CONTAINER (find_ligands_ligands_scrolledwindow), viewport16);
+
+  find_ligand_ligands_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (find_ligand_ligands_vbox);
+  gtk_container_add (GTK_CONTAINER (viewport16), find_ligand_ligands_vbox);
+
   vbox45 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox45);
   gtk_box_pack_start (GTK_BOX (vbox44), vbox45, FALSE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox45), 5);
 
-  label73 = gtk_label_new (_("Select Map:"));
+  label73 = gtk_label_new (_("<b>Select Map:</b>"));
   gtk_widget_show (label73);
   gtk_box_pack_start (GTK_BOX (vbox45), label73, FALSE, FALSE, 0);
+  gtk_label_set_use_markup (GTK_LABEL (label73), TRUE);
+  gtk_misc_set_alignment (GTK_MISC (label73), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label73), 5, 0);
 
   frame35 = gtk_frame_new (NULL);
@@ -6237,10 +6269,12 @@ create_find_ligand_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox44), vbox46, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox46), 5);
 
-  label74 = gtk_label_new (_("Select Protein (Masks Map):"));
+  label74 = gtk_label_new (_("<b>Select Protein:</b> (Masks the Map):"));
   gtk_widget_show (label74);
   gtk_box_pack_start (GTK_BOX (vbox46), label74, FALSE, FALSE, 0);
+  gtk_label_set_use_markup (GTK_LABEL (label74), TRUE);
   gtk_label_set_justify (GTK_LABEL (label74), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label74), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label74), 5, 0);
 
   frame36 = gtk_frame_new (NULL);
@@ -6284,34 +6318,6 @@ create_find_ligand_dialog (void)
   label279 = gtk_label_new (_("Mask Waters?"));
   gtk_widget_show (label279);
   gtk_frame_set_label_widget (GTK_FRAME (frame108), label279);
-
-  vbox47 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox47);
-  gtk_box_pack_start (GTK_BOX (vbox44), vbox47, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (vbox47), 5);
-
-  label75 = gtk_label_new (_("Select Ligands to Search for:"));
-  gtk_widget_show (label75);
-  gtk_box_pack_start (GTK_BOX (vbox47), label75, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label75), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label75), 5, 0);
-
-  frame37 = gtk_frame_new (NULL);
-  gtk_widget_show (frame37);
-  gtk_box_pack_start (GTK_BOX (vbox47), frame37, TRUE, TRUE, 0);
-
-  find_ligands_ligands_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
-  gtk_widget_show (find_ligands_ligands_scrolledwindow);
-  gtk_container_add (GTK_CONTAINER (frame37), find_ligands_ligands_scrolledwindow);
-  GTK_WIDGET_UNSET_FLAGS (find_ligands_ligands_scrolledwindow, GTK_CAN_FOCUS);
-
-  viewport16 = gtk_viewport_new (NULL, NULL);
-  gtk_widget_show (viewport16);
-  gtk_container_add (GTK_CONTAINER (find_ligands_ligands_scrolledwindow), viewport16);
-
-  find_ligand_ligands_vbox = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (find_ligand_ligands_vbox);
-  gtk_container_add (GTK_CONTAINER (viewport16), find_ligand_ligands_vbox);
 
   frame288 = gtk_frame_new (NULL);
   gtk_widget_show (frame288);
@@ -6433,7 +6439,7 @@ create_find_ligand_dialog (void)
   gtk_widget_show (image1508);
   gtk_box_pack_start (GTK_BOX (hbox190), image1508, FALSE, FALSE, 0);
 
-  label364 = gtk_label_new_with_mnemonic (_("Find 'em!"));
+  label364 = gtk_label_new_with_mnemonic (_("Find Ligands"));
   gtk_widget_show (label364);
   gtk_box_pack_start (GTK_BOX (hbox190), label364, FALSE, FALSE, 0);
 
@@ -6475,6 +6481,12 @@ create_find_ligand_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_dialog, find_ligand_dialog, "find_ligand_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_dialog, dialog_vbox2, "dialog_vbox2");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, vbox44, "vbox44");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, vbox47, "vbox47");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, label75, "label75");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, frame37, "frame37");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligands_ligands_scrolledwindow, "find_ligands_ligands_scrolledwindow");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, viewport16, "viewport16");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_ligands_vbox, "find_ligand_ligands_vbox");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, vbox45, "vbox45");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, label73, "label73");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, frame35, "frame35");
@@ -6492,12 +6504,6 @@ create_find_ligand_dialog (void)
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_mask_waters_yes_radiobutton, "find_ligand_mask_waters_yes_radiobutton");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_mask_waters_no_radiobutton, "find_ligand_mask_waters_no_radiobutton");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, label279, "label279");
-  GLADE_HOOKUP_OBJECT (find_ligand_dialog, vbox47, "vbox47");
-  GLADE_HOOKUP_OBJECT (find_ligand_dialog, label75, "label75");
-  GLADE_HOOKUP_OBJECT (find_ligand_dialog, frame37, "frame37");
-  GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligands_ligands_scrolledwindow, "find_ligands_ligands_scrolledwindow");
-  GLADE_HOOKUP_OBJECT (find_ligand_dialog, viewport16, "viewport16");
-  GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_ligands_vbox, "find_ligand_ligands_vbox");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, frame288, "frame288");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, alignment133, "alignment133");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, vbox300, "vbox300");

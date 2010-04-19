@@ -72,7 +72,8 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 
 			int isw = test_and_fix_PHE_TYR_nomenclature_errors(residue_p);
 			if (isw) { 
-			   std::cout << "INFO:: swapped atoms in " << coot::residue_spec_t(residue_p)
+			   std::cout << "INFO:: (result) PHE/TYR swapped atoms in "
+				     << coot::residue_spec_t(residue_p)
 				     << " " << residue_p->GetResName() << std::endl;
 			   vr.push_back(residue_p);
 			}
@@ -91,6 +92,9 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 #else
 			const std::string &alt_conf = "";
 			coot::richardson_rotamer d(residue_p, alt_conf);
+			if (0)
+			   std::cout << "DEUB:: made a richardson_rotamer from residue "
+				     << coot::residue_spec_t(residue_p) << std::endl;
 #endif // USE_DUNBRACK_ROTAMERS			
 
 			int swapped = d.optimize_rotamer_by_atom_names();
@@ -99,7 +103,8 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 // 				     << " " << residue_p->GetSeqNum() << " "
 // 				     << residue_p->GetResName()
 // 				     << " had its atoms swapped\n";
-			   std::cout << "INFO:: swapped atoms in " << coot::residue_spec_t(residue_p)
+			   std::cout << "INFO:: swapped (ASP or GLU) atoms in "
+				     << coot::residue_spec_t(residue_p)
 				     << " " << residue_p->GetResName() << std::endl;
 			   vr.push_back(residue_p);
 			}
@@ -372,6 +377,10 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p
 		     CD2->SetAtomName(" CD1");
 		     CE1->SetAtomName(" CE2");
 		     CE2->SetAtomName(" CE1");
+		     if (0)
+			std::cout << "DEBUG:: swapped in test_and_fix_PHE_TYR_nomenclature_errors()"
+				  << std::endl;
+
 		     iswapped++;
 		  }
 	       }

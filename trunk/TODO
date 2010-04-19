@@ -766,6 +766,10 @@ Punted from 0.6:
 
    o symmetry-related pointer distances?
 
+   o handle_command_line_data() should happen in c_inner_main(), after
+     reading ~/.coot (and other scripts, perhaps?).  Which means, I
+     think, that graphics_info_t:: needs a static copy of the cld.
+
 
  ------
     
