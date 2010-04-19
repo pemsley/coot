@@ -382,6 +382,31 @@ namespace coot {
 						  CMMDBManager *mol,
 						  double radius);
 
+   // a trivial class to hold the residue and the solvent exposure,
+   // including and not including the ligand.
+   class solvent_exposure_difference_helper_t {
+   public:
+      residue_spec_t res_spec;
+      double exposure_fraction_holo;
+      double exposure_fraction_apo;
+      solvent_exposure_difference_helper_t(residue_spec_t res_spec_in, double h, double a) {
+	 res_spec = res_spec_in;
+	 exposure_fraction_holo = h;
+	 exposure_fraction_apo  = a;
+      }
+   };
+
+
+   // Don't include residues that are HOH residues that are not bonded
+   // to the protein (if bonding to res_ref but not protein, then
+   // reject.
+   //
+   std::vector<CResidue *> filter_residues_by_solvent_contact(CResidue *res_ref,
+							      CMMDBManager *mol,
+							      const std::vector<CResidue *> &residues, const double &water_dist_max);
+								  
+
+
    // Return a pair, the bool of which is set if the float is sensible.
    // 
    std::pair<bool,float> closest_approach(CMMDBManager *mol,
@@ -676,7 +701,7 @@ namespace coot {
 
       // Return NULL on residue not found in this molecule.
       // 
-      CResidue *get_residue(const std::string &chain_id, int reso,
+      CResidue *get_residue(const std::string &chain_id, int res_no,
 			    const std::string &insertion_code,
 			    CMMDBManager *mol);
 
@@ -687,6 +712,8 @@ namespace coot {
       // 
       CResidue *get_following_residue(const residue_spec_t &rs, 
 				      CMMDBManager *mol);
+
+      std::pair<bool, clipper::Coord_orth> get_residue_centre(CResidue *res);
       
       std::vector<std::string> get_residue_alt_confs(CResidue *res);
 
