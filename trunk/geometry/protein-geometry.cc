@@ -1933,7 +1933,7 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &group_2) const {
 
    if (0) { 
-      std::cout << "   DEBUGG in matches_comp_ids_and_groups "
+      std::cout << "   ------\nDEBUG:: in matches_comp_ids_and_groups "
 		<< id << " " << chem_link_name << ": input comp_ids "
 		<< comp_id_1 << " and " << comp_id_2 << " vs :"
 		<< chem_link_comp_id_1 << ": :"
@@ -1968,6 +1968,20 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_2)))
 	 match = 1;
 
+   if (((chem_link_group_comp_1 == "DNA/RNA") && (local_group_1 == "RNA") && 
+	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "RNA")))
+      match = 1;
+
+   if (((chem_link_group_comp_1 == "DNA/RNA") && (local_group_1 == "DNA") && 
+	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "DNA")))
+      match = 1;
+
+   if (0) 
+      std::cout << "matches_comp_ids_and_groups given "
+		<< comp_id_1 << " and " << group_1 << " and " 
+		<< comp_id_2 << " and " << group_2 
+		<< " returns " << match << std::endl;
+	
    if (match == 1)
       return std::pair<bool, bool>(match, order_switch);
       
@@ -2460,7 +2474,11 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, 1);
 }
 
-// throw an error on no such chem_link
+// throw an error on no chem links at all. (20100420, not sure why an
+// exception is thrown, why not just return an empty vector?)  Perhaps
+// the throwing of the exception is a hang-over from when this
+// function returned a pair, not a vector of chem_link (and
+// assocciated order_switch_flags).
 // 
 std::vector<std::pair<coot::chem_link, bool> > 
 coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
@@ -2471,6 +2489,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 
    bool switch_order_flag = 0;
    bool found = 0;
+   bool debug = 0;
    
    // Is this link a TRANS peptide or a CIS?  Both have same group and
    // comp_ids.  Similarly, is is BETA-1-2 or BETA1-4 (etc).  We need
@@ -2483,10 +2502,11 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	 chem_link_vec[i_chem_link].matches_comp_ids_and_groups(comp_id_1, group_1,
 								comp_id_2, group_2);
       if (match_res.first) {
+
+	 if (debug)
+	    std::cout << "... matching link " << comp_id_1 << " " << comp_id_2 << " " 
+		      << chem_link_vec[i_chem_link] << std::endl;
 	 
-// 	 std::cout << "... matching link "
-// 		   << comp_id_1 << " " << comp_id_2 << " " 
-// 		   << chem_link_vec[i_chem_link] << std::endl;
 	 // make sure that this link id is not a (currently) useless one.
 	 if (chem_link_vec[i_chem_link].Id() != "gap" &&
 	     chem_link_vec[i_chem_link].Id() != "symmetry") { 
@@ -4063,7 +4083,16 @@ coot::protein_geometry::monomer_types() const {
    return v;
 }
 
-// Thow an exception if we can't get the group of r
+// Thow an exception if we can't get the group of r.
+//
+// 20100420 First compare against the three_letter_code and if not
+// found try testing against the comp_id (added 20100420).  This is
+// needed so that this function returns the group from a Ur/U (that's
+// the comp_id/tlc) [and similarly for other bases].  This is needed
+// so that find_link_type_rigourous() works for link type "p" (RNA/DNA
+// stuff).  (Problem found when trying to sphere refine a on RNA -
+// 3l0u).
+// 
 std::string
 coot::protein_geometry::get_group(CResidue *r) const {
 
@@ -4072,10 +4101,18 @@ coot::protein_geometry::get_group(CResidue *r) const {
    std::string res_name = r->GetResName();
    if (res_name.length() > 3)
       res_name = res_name.substr(0,2);
-   for (unsigned int i=0; i<size(); i++) { 
+   for (unsigned int i=0; i<size(); i++) {
       if (three_letter_code(i) == res_name) {
 	 found = 1;
 	 group = (*this)[i].residue_info.group;
+	 break;
+      }
+   }
+
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) { 
+      if (dict_res_restraints[i].residue_info.comp_id == res_name) {
+	 found = 1;
+	 group = dict_res_restraints[i].residue_info.group;
 	 break;
       }
    }
