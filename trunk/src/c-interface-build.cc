@@ -4054,6 +4054,7 @@ merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol) {
 	    if (add_molecules[i] != imol) { 
 	       add_molecules_at_sels.push_back(graphics_info_t::molecules[add_molecules[i]].atom_sel);
 	       set_mol_displayed(add_molecules[i], 0);
+	       set_mol_active(add_molecules[i], 0);
 	    }
 	 }
       }

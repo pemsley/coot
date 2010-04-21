@@ -16,18 +16,13 @@
     o SEs of MSEs in the second, third chains of colour by chain
       fails. PRE ::: 2
 
-
-    o import a residue, merge it with previous (say
-      tutorial.pdb). delete a atom, does the delete atom delete from the
-      undisplayed molecule?  ::: 1 
-
-
     o load in a tutorial data, load in 2be4 (for example, I presume)
       Rama 2bea4. Click on the red spots in the Rama plot
       -> WARNING: (Programmer error) looking for atoms in a molecule 0 which is null
          Sorry atom  CA  "empty"/251""/A not found in molecule 0
       ::: 1
 
+    o alignment problems - Bob. ::: 2
 
 ------
 
@@ -393,4 +388,8 @@ WARNING:: Can't find file
       group_comp_1 and group_comp_2 being "RNA/DNA", but monomer group
       is "RNA" or "DNA"?  Yes, indeed, a problem. e.g. 3l0u ::: 2
 
+
+    o import a residue, merge it with previous (say
+      tutorial.pdb). delete a atom, does the delete atom delete from the
+      undisplayed molecule?  ::: 0.5
 
