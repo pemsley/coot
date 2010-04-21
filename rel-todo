@@ -6,18 +6,28 @@
       fixed, but on re-running (many of the) same problems reported.
       ::: 2
 
-    o race condition in downloading.  See Bernie mail.  ::: 2
-
-    o Luca's exploding hydrogens ::: 1
+    o race condition in downloading.  See Bernie mail.  Urgh.
+      Hideous. ::: 2
 
     o change to rms z scores ::: 2
 
     o alt confs cause problems in geometry graph [JED] ::: 2
 
-    o Does p link work in RNA/DNA?  Sphere refinement?  Problems with
-    group_comp_1/2 being RNA/DNA?
+    o SEs of MSEs in the second, third chains of colour by chain
+      fails. PRE ::: 2
 
-    o SEs of MSEs in the second, third chains of colour by chain fails. PRE
+
+    o import a residue, merge it with previous (say
+      tutorial.pdb). delete a atom, does the delete atom delete from the
+      undisplayed molecule?  ::: 1 
+
+
+    o load in a tutorial data, load in 2be4 (for example, I presume)
+      Rama 2bea4. Click on the red spots in the Rama plot
+      -> WARNING: (Programmer error) looking for atoms in a molecule 0 which is null
+         Sorry atom  CA  "empty"/251""/A not found in molecule 0
+      ::: 1
+
 
 ------
 
@@ -374,4 +384,13 @@ WARNING:: Can't find file
       fails to compile.  Why? ::: 0.5
 
 * who knows.  It works now.
+
+    o Luca's exploding hydrogens ::: 0.5
+
+* Examined  - nothing bad in Coot.
+
+    o Does p link work in RNA/DNA phere refinement?  Problems with
+      group_comp_1 and group_comp_2 being "RNA/DNA", but monomer group
+      is "RNA" or "DNA"?  Yes, indeed, a problem. e.g. 3l0u ::: 2
+
 

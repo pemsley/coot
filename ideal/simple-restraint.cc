@@ -4738,11 +4738,15 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
-	 if (debug)
+	 if (debug) { 
+	    std::cout << "     DEBUG:: find_link_type_rigourous: "
+		      << link_infos.size() 
+		      << " possible links: (link_infos):\n";
 	    for (unsigned int il=0; il<link_infos.size(); il++)
-	       std::cout << "     DEBUG:: find_link_type_rigourous: possible links: (link_infos): "
+	       std::cout << "            possible links: (link_infos): "
 			 << il << " " << link_infos[il].first << " "
 			 << link_infos[il].second << std::endl;
+	 }
 
 	 // Now, if link is a TRANS (default-peptide-link), then
 	 // make sure that the C and N (or N and C) atoms of the
@@ -4839,9 +4843,11 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	 } 
       }
       catch (std::runtime_error mess_in) {
-	 // didn't find a chem_link for this pair, that's OK sometimes.
-	 // std::cout << mess_in.what() << std::endl;
-	 // geom.print_chem_links();
+	 if (debug) { 
+	    // didn't find a chem_link for this pair, that's OK sometimes.
+	    std::cout << "CAUGHT exception: " << mess_in.what() << std::endl;
+	    // geom.print_chem_links();
+	 }
       } 
    }
    catch (std::runtime_error mess) {
