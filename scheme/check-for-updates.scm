@@ -146,9 +146,12 @@
 				  ;; stop the download process(es) if
 				  ;; they were running (they get set to
 				  ;; #f when they are not running)
-				  (if (string? file-name-for-progress-bar)
-				      (stop-curl-download file-name-for-progress-bar))
 				  (set! pending-install-in-place 'cancelled) ;; not fail
+				  (if (string? file-name-for-progress-bar)
+				      (begin
+					(stop-curl-download file-name-for-progress-bar))
+				      (begin 
+					(format #t "This shouldn't happen! (but it does)\n")))
 				  (gtk-widget-destroy window)))
 
 	    (gtk-signal-connect ok-button "clicked"
@@ -195,6 +198,8 @@
       ;; 
       (let ((coot-prefix (getenv "COOT_PREFIX")))
 
+	(set! pending-install-in-place #f) ;; reset pending-install-in-place 
+                                           ;; in case we do this a second (etc) time
 	(if (not (directory-is-modifiable? coot-prefix))
 	    (begin
 	      (if (not (string? coot-prefix))

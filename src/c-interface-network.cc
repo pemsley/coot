@@ -63,12 +63,9 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
    //
    // Thanks to Andy Wingo for help here.
 
-// BL says:: maybe this should be a general setting and not just for WIN32?!
-#ifdef WINDOWS_MINGW
+   // write binary
    FILE *f = fopen(file_name, "wb");
-#else
-   FILE *f = fopen(file_name, "w");
-#endif
+
    if (f) { 
       CURL *c = curl_easy_init();
       std::pair<FILE *, CURL *> p_for_write(f,c);
