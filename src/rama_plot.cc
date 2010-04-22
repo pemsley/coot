@@ -85,7 +85,9 @@ using namespace std;
 void
 coot::rama_plot::init(int imol_in, const std::string &mol_name_in, float level_prefered, float level_allowed, float block_size, short int is_kleywegt_plot_flag_in) {
 
-   imol = imol_in; 
+   imol = imol_in; // is this used? (yes, sort of, but not handling
+		   // the click on a residue)
+   molecule_numbers_.first = imol;
    phipsi_edit_flag = 0;
    backbone_edit_flag = 0;
    init_internal(mol_name_in, level_prefered, level_allowed, block_size, 0,
@@ -1108,10 +1110,11 @@ void
 coot::rama_plot::recentre_graphics_maybe(mouse_util_t t) {
 
    if (t.model_number != coot::mouse_util_t::MODEL_NUMBER_UNSET) {
-      if (t.mouse_over_secondary_set)
+      if (t.mouse_over_secondary_set) { 
 	 set_go_to_atom_molecule(molecule_numbers_.second);
-      else 
+      } else {
 	 set_go_to_atom_molecule(molecule_numbers_.first);
+      }
       set_go_to_atom_chain_residue_atom_name(t.spec.chain.c_str(), t.spec.resno, " CA ");
    }
 

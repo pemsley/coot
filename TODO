@@ -671,6 +671,20 @@ Punted from 0.6:
   o rework clipper.m4 so that it uses clipper-config, once
     clipper-config is in place.  ::: 2
 
+  o optimize_rotamer_by_atom_names() need to be thrown out and
+    rewritten.  Use richardson rotamers (rotamer_probability_table) for
+    optimisation.
+
+  o alignment problems - Bob.
+    Putting the test-target.pir sequence of 3lhj onto 2z7l
+    (reference)
+
+     ISP-FE
+     LSRPFQ
+
+     Still an issue?
+
+
  ------
 
 
