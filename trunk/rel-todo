@@ -3,9 +3,6 @@
     Points 9:
 
 
-    o race condition in downloading.  See Bernie mail.  Urgh.
-      Hideous. ::: 2
-
     o change to rms z scores ::: 2
 
     o alt confs cause problems in geometry graph [JED] ::: 2
@@ -401,4 +398,11 @@ WARNING:: Can't find file
       ::: 0.5
 
 * Done.
+
+    o race condition in downloading.  See Bernie mail.  Urgh.
+      Hideous. ::: 2
+
+* Fixed, I hope.  Difficult to debug.
+
+
 

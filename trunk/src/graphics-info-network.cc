@@ -58,15 +58,19 @@ graphics_info_t::get_curl_handle_for_file_name(const std::string &filename) cons
 bool
 graphics_info_t::curl_handler_stop_it_flag_set(CURL *c) {
 
+   // 20100422: check the stop status of the curl handler c, not all of them.
+
    bool r = 0;
    std::vector<coot::simple_curl_handler_t>::iterator it;
    for (it=curl_handlers.begin(); it!=curl_handlers.end(); it++) {
-      if (it->stop_is_set()) {
-	 r = 1;
-	 break;
-      } else {
+      if (it->c == c) { 
+	 if (it->stop_is_set()) {
+	    r = 1;
+	    break;
+	 }
       }
    }
+   // std::cout << "curl_handler_stop_it_flag_set() returns " << r << std::endl;
    return r;
 } 
 #endif

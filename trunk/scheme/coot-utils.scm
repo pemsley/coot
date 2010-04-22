@@ -2631,31 +2631,41 @@
 		(set-file-name-func tar-file-name)))
 
 	  ;; (my-format "md5sum url for curl: ~s~%" md5-url)
-	  (format #t  "INFO:: getting URL: ~s~%" url)
 
+	  ;; (format #t  "DEBUG:: getting (md5sum) URL: ~s~%" md5-tar-file-name)
 	  (coot-get-url-and-activate-curl-hook md5-url md5-tar-file-name 1)
-	  (coot-get-url-and-activate-curl-hook url tar-file-name 1)
-	  (pending-install-in-place-func 'full)
+	  (format #t  "INFO:: getting URL: ~s~%" url)
+	  (let ((curl-get-url-status (coot-get-url-and-activate-curl-hook url tar-file-name 1)))
+	    ;; (format #t  "DEBUG:: done getting of URL: ~s~%" url)
+	    ;; (format #t  "DEBUG:: now setting pending-install-in-place-func to full~%")
 
-	  (if (not (file-exists? tar-file-name))
-	      (begin
-		;; (format #t "Ooops: ~s does not exist after attempted download~%" tar-file-name)
-		#f)
-	      (if (not (file-exists? md5-tar-file-name))
-		  (begin
-		    ;; (format #t "Ooops: ~s does not exist after attempted download~%" 
-		    ;; md5-tar-file-name)
-		    #f)
-		  (if (not (match-md5sums tar-file-name md5-tar-file-name))
-		      #f 
-		      (let ((success (install-coot-tar-file tar-file-name)))
-			(if success 
-			    (begin
-			      (pending-install-in-place-func #t)
-			      #t)
-			    (begin
-			      ;; (format #t "Ooops: untar of ~s failed~%" tar-file-name)
-			      #f))))))))))
+	    ;; OK, was the downloading of the binary successful?  If
+	    ;; so, go on to match md5sums etc
+	    ;; 
+	    (if (= 0 curl-get-url-status)
+		(begin
+		  (pending-install-in-place-func 'full))
+		
+
+		(if (not (file-exists? tar-file-name))
+		    (begin
+		      ;; (format #t "Ooops: ~s does not exist after attempted download~%" tar-file-name)
+		      #f)
+		    (if (not (file-exists? md5-tar-file-name))
+			(begin
+			  ;; (format #t "Ooops: ~s does not exist after attempted download~%" 
+			  ;; md5-tar-file-name)
+			  #f)
+			(if (not (match-md5sums tar-file-name md5-tar-file-name))
+			    #f 
+			    (let ((success (install-coot-tar-file tar-file-name)))
+			      (if success 
+				  (begin
+				    (pending-install-in-place-func #t)
+				    #t)
+				  (begin
+				    ;; (format #t "Ooops: untar of ~s failed~%" tar-file-name)
+				    #f))))))))))))
 
 (define (get-revision-from-string str)
   ;; e.g. str is "coot-0.6-pre-1-revision-2060" (with a newline at the
