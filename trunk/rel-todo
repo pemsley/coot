@@ -2,9 +2,6 @@
 
     Points 9:
 
-    o Fix nomenclature errors is broken. e.g. 3fcs, many reported as
-      fixed, but on re-running (many of the) same problems reported.
-      ::: 2
 
     o race condition in downloading.  See Bernie mail.  Urgh.
       Hideous. ::: 2
@@ -16,13 +13,6 @@
     o SEs of MSEs in the second, third chains of colour by chain
       fails. PRE ::: 2
 
-    o load in a tutorial data, load in 2be4 (for example, I presume)
-      Rama 2bea4. Click on the red spots in the Rama plot
-      -> WARNING: (Programmer error) looking for atoms in a molecule 0 which is null
-         Sorry atom  CA  "empty"/251""/A not found in molecule 0
-      ::: 1
-
-    o alignment problems - Bob. ::: 2
 
 ------
 
@@ -370,6 +360,8 @@ WARNING:: Can't find file
       has them.  e.g. consider acetylated lys which is available from
       SBase. ::: 1
 
+* Done. Nice.
+
     o disulfide bond problems in 3HH2. [Erik Vogan]  ::: 3
 
 * Done - braindead programming earlier - whatever what I thinking?
@@ -388,8 +380,25 @@ WARNING:: Can't find file
       group_comp_1 and group_comp_2 being "RNA/DNA", but monomer group
       is "RNA" or "DNA"?  Yes, indeed, a problem. e.g. 3l0u ::: 2
 
+* Done.
 
     o import a residue, merge it with previous (say
       tutorial.pdb). delete a atom, does the delete atom delete from the
       undisplayed molecule?  ::: 0.5
+
+* Done.
+
+    o Fix nomenclature errors is broken. e.g. 3fcs, many reported as
+      fixed, but on re-running (many of the) same problems reported.
+      ::: 2
+
+* Done.
+
+    o load in a tutorial data, load in 2be4 (for example, I presume)
+      Rama 2bea4. Click on the red spots in the Rama plot
+      -> WARNING: (Programmer error) looking for atoms in a molecule 0 which is null
+         Sorry atom  CA  "empty"/251""/A not found in molecule 0
+      ::: 0.5
+
+* Done.
 

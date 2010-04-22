@@ -2778,7 +2778,7 @@ void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
 
 /*! \brief aligand and mutate the given chain to the given sequence  */
 void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, short int renumber_residues_flag);
-/*! \brief set the penalty for affine gap and space when aligning */
+/*! \brief set the penalty for affine gap and space when aligning, defaults -3.0 and -0.4 */
 void set_alignment_gap_and_space_penalty(float wgap, float wspace);
 
 
