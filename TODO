@@ -784,12 +784,11 @@ Punted from 0.6:
      reading ~/.coot (and other scripts, perhaps?).  Which means, I
      think, that graphics_info_t:: needs a static copy of the cld.
 
+   o "click - click" to add a LINK (and LINK record)
+
    o Ramachandran plots don't update on "undo"?   Punt.
 
    o Rotamer plot doesn't update on sidechain 180?  Punt.
-
-
-
 
  ------
     
