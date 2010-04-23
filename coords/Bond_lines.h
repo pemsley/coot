@@ -44,7 +44,9 @@ namespace coot {
 
    static std::string b_factor_bonds_scale_handle_name;
    
-   enum bond_colour_t { COLOUR_BY_CHAIN=0, COLOUR_BY_ATOM_TYPE=1, 
+   enum bond_colour_t { COLOUR_BY_CHAIN=0,
+			COLOUR_BY_CHAIN_C_ONLY=20,
+			COLOUR_BY_ATOM_TYPE=1, 
 		       COLOUR_BY_SEC_STRUCT=2, DISULFIDE_COLOUR=3,
                        COLOUR_BY_MOLECULE=4, COLOUR_BY_RAINBOW=5, 
 		       COLOUR_BY_OCCUPANCY=6, COLOUR_BY_B_FACTOR=7};
@@ -54,14 +56,14 @@ namespace coot {
     public:
     std::vector<std::string> atom_colour_map;
     int index_for_chain(const std::string &chain) { 
-      int isize = atom_colour_map.size();
-      for(int i=0; i<isize; i++) { 
-	if (atom_colour_map[i] == chain) {
-	  return i;
-	}
-      }
-      atom_colour_map.push_back(chain);
-      return isize;
+       unsigned int isize = atom_colour_map.size();
+       for(unsigned int i=0; i<isize; i++) { 
+	  if (atom_colour_map[i] == chain) {
+	     return i;
+	  }
+       }
+       atom_colour_map.push_back(chain);
+       return isize;
     }
     // These colours ranges need to be echoed in the GL bond drawing
     // routine.
@@ -283,8 +285,12 @@ class Bond_lines_container {
 				      int udd_handle);
    void construct_from_model_links(CModel *model, int atom_colour_type);
 
-   void handle_MET_or_MSE_case (PCAtom mse_atom, int udd_handle, int atom_colour_type);
-   void handle_long_bonded_atom(PCAtom     atom, int udd_handle, int atom_colour_type);
+   // now wit optional arg.  If atom_colour_type is set, then use/fill
+   // it to get colour indices from chainids.
+   void handle_MET_or_MSE_case (PCAtom mse_atom, int udd_handle, int atom_colour_type,
+				coot::my_atom_colour_map_t *atom_colour_map = 0);
+   void handle_long_bonded_atom(PCAtom     atom, int udd_handle, int atom_colour_type,
+				coot::my_atom_colour_map_t *atom_colour_map = 0);
 
    // void check_atom_limits(atom_selection_container_t SelAtoms) const;
    
@@ -320,7 +326,7 @@ class Bond_lines_container {
 			const coot::Cartesian &end,
 			bool is_half_bond_flag);
    void addAtom(int colour, const coot::Cartesian &pos);
-   int atom_colour(CAtom *at, int bond_colour_type);
+   int atom_colour(CAtom *at, int bond_colour_type, coot::my_atom_colour_map_t *atom_colour_map = 0);
    void bonds_size_colour_check(int icol) {
       int bonds_size = bonds.size();
       if (icol >= bonds_size) 
