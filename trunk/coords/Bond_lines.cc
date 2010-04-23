@@ -661,7 +661,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 	 coot::Cartesian small_vec_y(0.0, star_size, 0.0);
 	 coot::Cartesian small_vec_z(0.0, 0.0, star_size);
 
-	 int ic; // changed by reference
+	 int ic; // changed by reference (UDData)
 	 int col;
 
 	 for (int i=0; i<n_non_H; i++) {
@@ -757,7 +757,8 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 void
 Bond_lines_container::handle_MET_or_MSE_case(PCAtom mse_atom,
 					     int udd_handle, 
-					     int atom_colour_type) {
+					     int atom_colour_type,
+					     coot::my_atom_colour_map_t *atom_colour_map_p) {
 
    // std::cout << "Handling MET/MSE case for atom " << mse_atom << std::endl;
    
@@ -765,7 +766,7 @@ Bond_lines_container::handle_MET_or_MSE_case(PCAtom mse_atom,
    std::string residue_name(mse_atom->GetResName());
    if (residue_name == "MET" || residue_name == "MSE" || residue_name == "MSO") { 
       if (atom_name == "SE  " || atom_name == " SD ") {
-	 int col = atom_colour(mse_atom, atom_colour_type);
+	 int col = atom_colour(mse_atom, atom_colour_type, atom_colour_map_p);
 
 	 // We need to add special bonds SE -> CE and SE -> CG.
 	 PPCAtom residue_atoms;
@@ -785,12 +786,13 @@ Bond_lines_container::handle_MET_or_MSE_case(PCAtom mse_atom,
 	       std::string altconf2 = residue_atoms[i]->altLoc;
 	       if ( (altconf1=="") || (altconf2=="") || (altconf1==altconf2) ) {
 		  coot::Cartesian bond_mid_point = cart_at1.mid_point(cart_at2);
-		  int colc = atom_colour(residue_atoms[i], atom_colour_type);
+		  int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
+		  // int colc = atom_colour_type; // just to check
 
 		  float bond_length = (cart_at1 - cart_at2).amplitude();
 		  if (bond_length < 3.0) { // surely not longer than this?
-		     addBond(col,  cart_at1, bond_mid_point);
-		     addBond(colc, bond_mid_point, cart_at2);
+		     addBond(col,  cart_at1, bond_mid_point); // The SE->mid_pt bond
+		     addBond(colc, bond_mid_point, cart_at2); // The Cx->mid_pt bond
 		     // mark atom as bonded.
 		     residue_atoms[i]->PutUDData(udd_handle, 1);
 		     mse_atom->PutUDData(udd_handle, 1);
@@ -801,7 +803,7 @@ Bond_lines_container::handle_MET_or_MSE_case(PCAtom mse_atom,
       }
    }
    if (residue_name == "CYS") {
-      int col = atom_colour(mse_atom, atom_colour_type);
+      int col = atom_colour(mse_atom, atom_colour_type, atom_colour_map_p);
       // We need to add special bonds SE -> CE and SE -> CG.
       PPCAtom residue_atoms;
       int nResidueAtoms;
@@ -818,7 +820,7 @@ Bond_lines_container::handle_MET_or_MSE_case(PCAtom mse_atom,
 	    std::string altconf2 = residue_atoms[i]->altLoc;
 	    if ( (altconf1=="") || (altconf2=="") || (altconf1==altconf2) ) {
 	       coot::Cartesian bond_mid_point = cart_at1.mid_point(cart_at2);
-	       int colc = atom_colour(residue_atoms[i], atom_colour_type);
+	       int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
 	       addBond(col,  cart_at1, bond_mid_point);
 	       addBond(colc, bond_mid_point, cart_at2);
 	       // mark atom as bonded.
@@ -833,7 +835,8 @@ Bond_lines_container::handle_MET_or_MSE_case(PCAtom mse_atom,
 void
 Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
 					      int udd_handle,
-					      int atom_colour_type) {
+					      int atom_colour_type,
+					      coot::my_atom_colour_map_t *atom_colour_map_p) {
 
    float bond_limit = 2.16; // A S-S bonds are 2.05A.  So we've added
 			    // some wiggle room (2.1 was too short for
@@ -864,7 +867,7 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
    if (res) {
       // do the bonding by hand:
       coot::Cartesian atom_pos(atom->x, atom->y, atom->z);
-      int col = atom_colour(atom, atom_colour_type);
+      int col = atom_colour(atom, atom_colour_type, atom_colour_map_p);
       PPCAtom residue_atoms = 0;
       int nResidueAtoms;
       res->GetAtomTable(residue_atoms, nResidueAtoms);
@@ -885,7 +888,7 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
 	       std::string altconf2 = residue_atoms[i]->altLoc;
 	       if ( (altconf1=="") || (altconf2=="") || (altconf1==altconf2) ) {
 		  coot::Cartesian bond_mid_point = atom_pos.mid_point(res_atom_pos);
-		  int colc = atom_colour(residue_atoms[i], atom_colour_type);
+		  int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
 		  addBond(col,  atom_pos, bond_mid_point);
 		  addBond(colc, bond_mid_point, res_atom_pos);
 		  bond_added_flag = 1;
@@ -906,7 +909,7 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
       coot::Cartesian small_vec_y(0.0, star_size, 0.0);
       coot::Cartesian small_vec_z(0.0, 0.0, star_size);
 
-      int col = atom_colour(atom, atom_colour_type);
+      int col = atom_colour(atom, atom_colour_type, atom_colour_map_p);
       coot::Cartesian atom_pos(atom->x, atom->y, atom->z);
       addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x);
       addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y);
@@ -2420,14 +2423,19 @@ Bond_lines_container::set_rainbow_colours(int selHnd_ca, CMMDBManager *mol) {
 
 
 int
-Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type) {
+Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type,
+				  coot::my_atom_colour_map_t *atom_colour_map_p) {
 
    int col = 0;
-   coot::my_atom_colour_map_t atom_colour_map;
+   // coot::my_atom_colour_map_t atom_colour_map;
    // std::cout << "In atom-colour with b_factor_scale: " << b_factor_scale << std::endl;
 
    if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
-      col = atom_colour_map.index_for_chain(std::string(at->GetChainID())); 
+      if (atom_colour_map_p) { 
+	 col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
+	 std::cout << " atom_colour_map->index_for_chain(\"" << at->GetChainID()
+		   << "\") returns " << col << std::endl;
+      }
    } else { 
       if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
 	 int sse = at->residue->SSE;
@@ -2480,52 +2488,87 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type) {
 	       }
 	    }
 	    return GREY_BOND;
-	 } else { 
-	    if (bond_colour_type == coot::DISULFIDE_COLOUR) {
-	       return GREEN_BOND;
-	    } else {
-	       if (bond_colour_type == coot::COLOUR_BY_OCCUPANCY) {
-		  if (at->occupancy > 0.95) {
+	 } else {
+
+	    if (bond_colour_type == coot::COLOUR_BY_CHAIN_C_ONLY) {
+	       std::string element = at->element;
+
+	       if (element == " C") {
+		  if (atom_colour_map_p) {
+		     int l_col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
+		     return l_col;
+		  } else {
+		     std::cout << "ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode"
+			       << std::endl;
+		     return col;
+		  } 
+	       } else {
+		  if (element == " N") {
 		     return BLUE_BOND;
 		  } else {
-		     if (at->occupancy < 0.05) {
+		     if (element == " O") {
 			return RED_BOND;
 		     } else {
-			if (at->occupancy > 0.7) {
-			   return CYAN_BOND;
+			if (element == " S") {
+			   return GREEN_BOND;
 			} else {
-			   if (at->occupancy > 0.45) {
-			      return GREEN_BOND;
-			   } else { 
-			      if (at->occupancy > 0.25) {
-				 return YELLOW_BOND;
-			      } else {
-				 return ORANGE_BOND;
-			      }
+			   if (element == " H") {
+			      return HYDROGEN_GREY_BOND;
 			   }
 			}
 		     }
 		  }
+	       }
+	       return GREY_BOND;	       
+
+	    } else { 
+
+	       if (bond_colour_type == coot::DISULFIDE_COLOUR) {
+		  return GREEN_BOND;
 	       } else {
-		  if (bond_colour_type == coot::COLOUR_BY_B_FACTOR) {
-		     float scaled_b = at->tempFactor*b_factor_scale;
-		     if (scaled_b < 10.0) {
+		  if (bond_colour_type == coot::COLOUR_BY_OCCUPANCY) {
+		     if (at->occupancy > 0.95) {
 			return BLUE_BOND;
 		     } else {
-			if (scaled_b > 80.0) {
+			if (at->occupancy < 0.05) {
 			   return RED_BOND;
 			} else {
-			   if (scaled_b < 22.0) {
+			   if (at->occupancy > 0.7) {
 			      return CYAN_BOND;
 			   } else {
-			      if (scaled_b < 36.0) {
+			      if (at->occupancy > 0.45) {
 				 return GREEN_BOND;
-			      } else {
-				 if (scaled_b < 48.0) {
+			      } else { 
+				 if (at->occupancy > 0.25) {
 				    return YELLOW_BOND;
 				 } else {
-				    if (scaled_b < 62.0) {
-				       return ORANGE_BOND;
+				    return ORANGE_BOND;
+				 }
+			      }
+			   }
+			}
+		     }
+		  } else {
+		     if (bond_colour_type == coot::COLOUR_BY_B_FACTOR) {
+			float scaled_b = at->tempFactor*b_factor_scale;
+			if (scaled_b < 10.0) {
+			   return BLUE_BOND;
+			} else {
+			   if (scaled_b > 80.0) {
+			      return RED_BOND;
+			   } else {
+			      if (scaled_b < 22.0) {
+				 return CYAN_BOND;
+			      } else {
+				 if (scaled_b < 36.0) {
+				    return GREEN_BOND;
+				 } else {
+				    if (scaled_b < 48.0) {
+				       return YELLOW_BOND;
+				    } else {
+				       if (scaled_b < 62.0) {
+					  return ORANGE_BOND;
+				       }
 				    }
 				 }
 			      }
@@ -2922,18 +2965,42 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	 int ic; // changed by reference;
 	 int col;
 	 for (int i=0; i<n_selected_atoms; i++) { 
-	    if ( atom_selection[i]->GetUDData(uddHnd,ic) == UDDATA_Ok ) {
-	       if (ic == 0) {
+	    if ( atom_selection[i]->GetUDData(uddHnd, ic) == UDDATA_Ok ) {
+	       if ((ic == 0) ||
+		   (!strcmp(atom_selection[i]->element, " S")) ||
+		   (!strcmp(atom_selection[i]->element, "SE")) ||
+		   (!strcmp(atom_selection[i]->element, " P"))) {
+
 		  std::string segid(atom_selection[i]->GetChainID());
 		  col = atom_colour_map.index_for_chain(segid);
-		  bonds_size_colour_check(col);
-		  coot::Cartesian atom(atom_selection[i]->x,
-				       atom_selection[i]->y,
-				       atom_selection[i]->z);
+
+		  // 		  std::cout << " No contact for " << non_Hydrogen_atoms[i]
+		  // 			    << std::endl;
 	       
-		  addBond(col, atom+small_vec_x, atom-small_vec_x); 
-		  addBond(col, atom+small_vec_y, atom-small_vec_y);
-		  addBond(col, atom+small_vec_z, atom-small_vec_z);
+		  // no contact found or was Sulphur, or Phosphor
+
+		  // So, was this a seleno-methione?
+		  //
+		  CResidue *atom_residue_p = atom_selection[i]->residue;
+		  if (atom_residue_p) {
+		     std::string resname = atom_selection[i]->GetResName();
+		     if (1 &&
+			 (resname == "MSE" || resname == "MET" || resname == "MSO"
+			  || resname == "CYS" )) {
+			handle_MET_or_MSE_case(atom_selection[i], uddHnd, col);
+		     } else {
+			std::string ele = atom_selection[i]->element;
+			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
+			    || ele == "Cl" || ele == "Br" 
+			    || ele == "PT" 
+			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG") {
+			   handle_long_bonded_atom(atom_selection[i], uddHnd, col);
+			}
+		     }
+		  } else {
+		     std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
+			       << atom_selection[i] << std::endl;
+		  }
 	       }
 	    }
 	 }
@@ -3108,6 +3175,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 	 delete [] contact;
       }
 
+
       if (uddHnd>=0) {
     
 	 // for atoms with no neighbour (contacts):
@@ -3117,23 +3185,50 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 
 	 int ic; // changed by reference;
 	 int col;
+	 int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY; // the atoms connected to the SE (say) are Cs.
 	 for (int i=0; i<n_selected_atoms; i++) { 
-	    if ( atom_selection[i]->GetUDData(uddHnd,ic) == UDDATA_Ok ) {
-	       if (ic == 0) {
+	    if ( atom_selection[i]->GetUDData(uddHnd, ic) == UDDATA_Ok ) {
+	       if ((ic == 0) ||
+		   (!strcmp(atom_selection[i]->element, " S")) ||
+		   (!strcmp(atom_selection[i]->element, "SE")) ||
+		   (!strcmp(atom_selection[i]->element, " P"))) {
+
 		  std::string segid(atom_selection[i]->GetChainID());
 		  col = atom_colour_map.index_for_chain(segid);
-		  bonds_size_colour_check(col);
-		  coot::Cartesian atom(atom_selection[i]->x,
-				       atom_selection[i]->y,
-				       atom_selection[i]->z);
+
+		  // 		  std::cout << " No contact for " << non_Hydrogen_atoms[i]
+		  // 			    << std::endl;
 	       
-		  addBond(col, atom+small_vec_x, atom-small_vec_x); 
-		  addBond(col, atom+small_vec_y, atom-small_vec_y);
-		  addBond(col, atom+small_vec_z, atom-small_vec_z);
+		  // no contact found or was Sulphur, or Phosphor
+
+		  // So, was this a seleno-methione?
+		  //
+		  CResidue *atom_residue_p = atom_selection[i]->residue;
+		  if (atom_residue_p) {
+		     std::string resname = atom_selection[i]->GetResName();
+		     if (1 &&
+			 (resname == "MSE" || resname == "MET" || resname == "MSO"
+			  || resname == "CYS" )) {
+			handle_MET_or_MSE_case(atom_selection[i], uddHnd, atom_colour_type,
+					       &atom_colour_map);
+		     } else {
+			std::string ele = atom_selection[i]->element;
+			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
+			    || ele == "Cl" || ele == "Br" 
+			    || ele == "PT" 
+			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG") {
+			   handle_long_bonded_atom(atom_selection[i], uddHnd, atom_colour_type);
+			}
+		     }
+		  } else {
+		     std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
+			       << atom_selection[i] << std::endl;
+		  }
 	       }
 	    }
 	 }
       }
+
       asc.mol->DeleteSelection(SelectionHandle);
    }
    add_zero_occ_spots(asc);
