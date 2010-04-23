@@ -1,14 +1,11 @@
  0.6.2
 
-    Points 9:
+    Points 4:
 
 
     o change to rms z scores ::: 2
 
     o alt confs cause problems in geometry graph [JED] ::: 2
-
-    o SEs of MSEs in the second, third chains of colour by chain
-      fails. PRE ::: 2
 
 
 ------
@@ -405,4 +402,9 @@ WARNING:: Can't find file
 * Fixed, I hope.  Difficult to debug.
 
 
+    o SEs of MSEs in the second, third chains of colour by chain
+      fails. PRE ::: 3
+
+* Done at last.  optional args to atom_colour() function and functions
+  that call it.
 
