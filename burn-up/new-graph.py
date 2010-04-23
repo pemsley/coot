@@ -114,7 +114,8 @@ def draw_prediction_on_canvas(pr, can):
       s += ",\n"
       s += pred_date_str
       # can.show(70,90, s)
-      can.show(100,90, s)
+      # can.show(100,90, s)
+      can.show(8, 96, s)
       
       #   print "X_pred: :", X_pred, "Y_pred: :", Y_pred
       can.rectangle(line_style.default, fill_style.default,
@@ -146,7 +147,7 @@ x_label = "Days (since pre-release start)"
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 75
+x_day_range = 100
 
 x_tick_interval = x_ticks(x_day_range)
 
@@ -157,7 +158,7 @@ yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 # is 0, but the Y maximum is to be computed automatically. Without
 # y_ranges, Pychart will pick the minimum Y value among the samples,
 # i.e., 20, as the base value of Y axis.
-ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,95))
+ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,105))
 
 # The first plot extracts Y values from the 2nd column
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
@@ -199,8 +200,10 @@ def annotation_box(box_text, loc_x, loc_y, data_index, arrow_position):
 
 
 
-annotation_box("Jan 28", -6, 20, 0, "c")
-annotation_box("PISA Interfaces", 60, 23, 69, "tc")
+annotation_box("Jan 28", -6, 30, 0, "c")
+annotation_box("PISA Interfaces",   30, 13, 69, "tc")
+annotation_box("Ligand GUI Expmt.", 50, 30, 96, "tc")
+annotation_box("CCP4 Dev Meeting",  75, 43, 125, "tc")
 
 
 
