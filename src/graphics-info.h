@@ -727,6 +727,7 @@ class graphics_info_t {
    }
    std::vector<coot::geometry_distortion_info_container_t>
    geometric_distortions_from_mol(const atom_selection_container_t &asc);
+   void print_geometry_distortion(const std::vector<coot::geometry_distortion_info_container_t> &v) const;
 #endif // HAVE_GSL
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 

@@ -397,6 +397,7 @@ coot::geometry_graphs::make_distortion_string(const coot::geometry_distortion_in
       s += " z score: ";
       s += coot::util::float_to_string(sqrt(geometry_distortion.distortion_score));
    }
+   // std::cout << "make_distortion_string() " << s << std::endl;
    return s;
 }
 
