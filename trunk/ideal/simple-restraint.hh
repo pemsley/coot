@@ -887,11 +887,13 @@ namespace coot {
 			const char *chain_id) const; 
 
       int get_asc_index_new(const char *at_name,
-			int resno,
-			const char *ins_code,
-			const char *chain_id) const; 
+			    const char *alt_loc,
+			    int resno,
+			    const char *ins_code,
+			    const char *chain_id) const; 
 
       int get_asc_index(const char *at_name,
+			const char *alt_loc,
 			int resno,
 			const char *ins_code,
 			const char *chain_id) const; 

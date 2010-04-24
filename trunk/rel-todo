@@ -2,10 +2,7 @@
 
     Points 4:
 
-
     o change to rms z scores ::: 2
-
-    o alt confs cause problems in geometry graph [JED] ::: 2
 
 
 ------
@@ -407,4 +404,9 @@ WARNING:: Can't find file
 
 * Done at last.  optional args to atom_colour() function and functions
   that call it.
+
+
+    o alt confs cause problems in geometry graph [JED] ::: 2
+
+* Done.  With some nice tidying up too.
 

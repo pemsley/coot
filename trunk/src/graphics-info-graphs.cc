@@ -575,10 +575,23 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 	 }
       }
    }
+   // print_geometry_distortion(dcv);
    return dcv;
 }
 #endif // HAVE_GSL
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
+#ifdef HAVE_GSL   
+#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+void
+graphics_info_t::print_geometry_distortion(const std::vector<coot::geometry_distortion_info_container_t> &v) const {
+   for (unsigned int i=0; i<v.size(); i++) { 
+      std::cout << v[i] << "\n";
+   }
+}
+#endif // HAVE_GSL
+#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
 
 void
 graphics_info_t::b_factor_graphs(int imol) {

@@ -135,7 +135,8 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
    for (int i=0; i<n_atoms; i++) {
       initial_position_params_vec[3*i  ] = atom[i]->x; 
       initial_position_params_vec[3*i+1] = atom[i]->y; 
-      initial_position_params_vec[3*i+2] = atom[i]->z; 
+      initial_position_params_vec[3*i+2] = atom[i]->z;
+      // std::cout << "    " << i << "  " << coot::atom_spec_t(atom[i]) << "\n";
    }
 }
 
@@ -1328,13 +1329,23 @@ coot::distortion_score_chiral_volume(const coot::simple_restraint &chiral_restra
    // double volume_sign = chiral_restraint.chiral_volume_sign;
    double distortion = cv - chiral_restraint.target_chiral_volume;
 
-//    std::cout << "DEBUG:: (distortion) chiral volume target "
-// 	     << chiral_restraint.target_chiral_volume
-// 	     << " chiral actual " << cv << " distortion: " << distortion
-// 	     << "\n";
+   if (0) {
+      std::cout << "atom indices: "
+		<< chiral_restraint.atom_index_centre << " "
+		<< chiral_restraint.atom_index_1 << " " 
+		<< chiral_restraint.atom_index_2 << " " 
+		<< chiral_restraint.atom_index_3 << " ";
+      std::cout << "DEBUG:: (distortion) chiral volume target "
+		<< chiral_restraint.target_chiral_volume
+		<< " chiral actual " << cv << " diff: " << distortion;
+   }
+ 	     
 
    distortion *= distortion;
    distortion /= chiral_restraint.sigma * chiral_restraint.sigma;
+
+   if (0)
+      std::cout << " score: " << distortion << "\n";
 
    return distortion;
 }
@@ -4851,7 +4862,9 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
       } 
    }
    catch (std::runtime_error mess) {
-      std::cout << mess.what() << std::endl;
+      // Failed to get group.  We don't want to hear about not getting
+      // the group of thousands of HOHs.
+      // std::cout << mess.what() << std::endl;
    }
 
    if (debug)
@@ -5811,18 +5824,22 @@ coot::restraints_container_t::add_torsions(int idr, PPCAtom res_selection,
 				    // pdb_atom_name2 in asc.atom_selection:
 
 				    int index1 = get_asc_index(res_selection[iat]->name,
+							       res_selection[iat]->altLoc,
 							       SelRes->seqNum,
 							       SelRes->GetInsCode(),
 							       SelRes->GetChainID());
 				    int index2 = get_asc_index(res_selection[iat2]->name,
+							       res_selection[iat2]->altLoc,
 							       SelRes->seqNum,
 							       SelRes->GetInsCode(),
 							       SelRes->GetChainID());
 				    int index3 = get_asc_index(res_selection[iat3]->name,
+							       res_selection[iat3]->altLoc,
 							       SelRes->seqNum,
 							       SelRes->GetInsCode(),
 							       SelRes->GetChainID());
 				    int index4 = get_asc_index(res_selection[iat4]->name,
+							       res_selection[iat4]->altLoc,
 							       SelRes->seqNum,
 							       SelRes->GetInsCode(),
 							       SelRes->GetChainID());
@@ -5893,32 +5910,39 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 //   					<< pdb_atom_name3 << " "
 //   					<< std::endl;
 
-				 res_selection[iat1]->GetUDData(udd_atom_index_handle, index1);
-				 res_selection[iat2]->GetUDData(udd_atom_index_handle, index2);
-				 res_selection[iat3]->GetUDData(udd_atom_index_handle, index3);
-				 res_selection[iatc]->GetUDData(udd_atom_index_handle, indexc);
-				 
-// 			      add(CHIRAL_VOLUME_RESTRAINT,
-// 				  indexc, index1, index2, index3,
-// 				  geom[idr].chiral_restraint[ic].volume_sign);
+				 std::string alt_conf_c = res_selection[iatc]->altLoc;
+				 std::string alt_conf_1 = res_selection[iat1]->altLoc;
+				 std::string alt_conf_2 = res_selection[iat2]->altLoc;
+				 std::string alt_conf_3 = res_selection[iat3]->altLoc;
 
-//  			      std::cout << "   Adduing chiral restraint for " << res_selection[iatc]->name
-//  					<< " " << res_selection[iatc]->GetSeqNum() <<  " "
-//  					<< res_selection[iatc]->GetChainID() 
-//  					<< " with target volume " << geom[idr].chiral_restraint[ic].target_volume()
-// 					<< " with volume sigma " << geom[idr].chiral_restraint[ic].volume_sigma()
-// 					<< " with volume sign " << geom[idr].chiral_restraint[ic].volume_sign
-// 					<< " idr index: " << idr << " ic index: " << ic << std::endl;
+				 if (((alt_conf_1 == alt_conf_c) || (alt_conf_1 == "")) &&
+				     ((alt_conf_2 == alt_conf_c) || (alt_conf_2 == "")) && 
+				     ((alt_conf_3 == alt_conf_c) || (alt_conf_3 == ""))) { 
 
-				 std::vector<bool> fixed_flags =
-				    make_fixed_flags(indexc, index1, index2, index3);
-				 restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
-									   index1, index2, index3,
-									   geom[idr].chiral_restraint[ic].volume_sign,
-									   geom[idr].chiral_restraint[ic].target_volume(),
-									   geom[idr].chiral_restraint[ic].volume_sigma(),
-									   fixed_flags));
-				 n_chiral_restr++;
+				    res_selection[iat1]->GetUDData(udd_atom_index_handle, index1);
+				    res_selection[iat2]->GetUDData(udd_atom_index_handle, index2);
+				    res_selection[iat3]->GetUDData(udd_atom_index_handle, index3);
+				    res_selection[iatc]->GetUDData(udd_atom_index_handle, indexc);
+
+				    if (0) 
+				       std::cout << "   Adding chiral restraint for " << res_selection[iatc]->name
+						 << " " << res_selection[iatc]->GetSeqNum() <<  " "
+						 << res_selection[iatc]->GetChainID() 
+						 << " with target volume " << geom[idr].chiral_restraint[ic].target_volume()
+						 << " with volume sigma " << geom[idr].chiral_restraint[ic].volume_sigma()
+						 << " with volume sign " << geom[idr].chiral_restraint[ic].volume_sign
+						 << " idr index: " << idr << " ic index: " << ic << std::endl;
+
+				    std::vector<bool> fixed_flags =
+				       make_fixed_flags(indexc, index1, index2, index3);
+				    restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
+									      index1, index2, index3,
+									      geom[idr].chiral_restraint[ic].volume_sign,
+									      geom[idr].chiral_restraint[ic].target_volume(),
+									      geom[idr].chiral_restraint[ic].volume_sigma(),
+									      fixed_flags));
+				    n_chiral_restr++;
+				 }
 			      }
 			   }
 			}
@@ -5956,6 +5980,7 @@ coot::restraints_container_t::add_planes(int idr, PPCAtom res_selection,
 	 for (int irest_at=0; irest_at<geom[idr].plane_restraint[ip].n_atoms(); irest_at++) {
 	    if (pdb_atom_name == geom[idr].plane_restraint[ip].atom_id(irest_at)) {
 	       int idx = get_asc_index(res_selection[iat]->name,
+				       res_selection[iat]->altLoc,
 				       SelRes->seqNum,
 				       SelRes->GetInsCode(),
 				       SelRes->GetChainID());
@@ -6065,29 +6090,36 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 // 				  << second_sel[isat]->GetAtomName() 
 // 				  << std::endl;
 
-			first_sel [ifat]->GetUDData(udd_atom_index_handle, index1);
-			second_sel[isat]->GetUDData(udd_atom_index_handle, index2);
+			// Now, do the alt confs match?
+			//
+			std::string alt_conf_1 =  first_sel[ifat]->altLoc;
+			std::string alt_conf_2 = second_sel[isat]->altLoc;
+			if ((alt_conf_1 == alt_conf_2) || (alt_conf_1 == "") || (alt_conf_2 == "")) {
 
-			// set the UDD flag for this residue being bonded/angle with 
-			// the other
+			   first_sel [ifat]->GetUDData(udd_atom_index_handle, index1);
+			   second_sel[isat]->GetUDData(udd_atom_index_handle, index2);
+
+			   // set the UDD flag for this residue being bonded/angle with 
+			   // the other
 		  
-			bonded_atom_indices[index1].push_back(index2);
-			bonded_atom_indices[index2].push_back(index1);
+			   bonded_atom_indices[index1].push_back(index2);
+			   bonded_atom_indices[index2].push_back(index1);
 
-			fixed_atom_flags[0] = is_fixed_first;
-			fixed_atom_flags[1] = is_fixed_second;
+			   fixed_atom_flags[0] = is_fixed_first;
+			   fixed_atom_flags[1] = is_fixed_second;
 
- 			std::vector<bool> other_fixed_flags = make_fixed_flags(index1, index2);
- 			for (int ii=0; ii<2; ii++)
-			   if (other_fixed_flags[ii])
-			      fixed_atom_flags[ii] = 1;
+			   std::vector<bool> other_fixed_flags = make_fixed_flags(index1, index2);
+			   for (int ii=0; ii<2; ii++)
+			      if (other_fixed_flags[ii])
+				 fixed_atom_flags[ii] = 1;
 
-			add(BOND_RESTRAINT, index1, index2,
-			    fixed_atom_flags,
-			    geom.link(i).link_bond_restraint[j].dist(),
-			    geom.link(i).link_bond_restraint[j].esd(),
-			    1.2); // junk value
-			nbond++;
+			   add(BOND_RESTRAINT, index1, index2,
+			       fixed_atom_flags,
+			       geom.link(i).link_bond_restraint[j].dist(),
+			       geom.link(i).link_bond_restraint[j].esd(),
+			       1.2); // junk value
+			   nbond++;
+			}
 		     }
 		  }
 	       }
@@ -6208,52 +6240,46 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 //  							 atom_3_sel[itat]->residue->seqNum,
 //  							 atom_3_sel[itat]->residue->GetChainID());
 
-			     atom_1_sel[ifat]->GetUDData(udd_atom_index_handle, index1);
-			     atom_2_sel[isat]->GetUDData(udd_atom_index_handle, index2);
-			     atom_3_sel[itat]->GetUDData(udd_atom_index_handle, index3);
+			      std::string alt_conf_1 = atom_1_sel[ifat]->altLoc;
+			      std::string alt_conf_2 = atom_2_sel[isat]->altLoc;
+			      std::string alt_conf_3 = atom_3_sel[itat]->altLoc;
+			      
+			      if (((alt_conf_1 == alt_conf_2) && (alt_conf_1 == alt_conf_3)) ||
+				  ((alt_conf_1 == alt_conf_2) && (alt_conf_3 == "")) ||
+				  ((alt_conf_2 == alt_conf_3) && (alt_conf_1 == ""))) { 
+			      
+				 atom_1_sel[ifat]->GetUDData(udd_atom_index_handle, index1);
+				 atom_2_sel[isat]->GetUDData(udd_atom_index_handle, index2);
+				 atom_3_sel[itat]->GetUDData(udd_atom_index_handle, index3);
+			      
+				 if (0) { 
+				    std::cout << "bonded_atom_indices.size(): "
+					      <<  bonded_atom_indices.size() << std::endl;
+				    std::cout << "   add_link_angle: "  << " " << index1 << std::endl;
+				    std::cout << "   add_link_angle: "  << " " << index2 << std::endl;
+				    std::cout << "   add_link_angle: "  << " " << index3 << std::endl;
+				 }
 
-			     if (0) { 
-				std::cout << "bonded_atom_indices.size(): "
-					  <<  bonded_atom_indices.size() << std::endl;
-				std::cout << "   add_link_angle: "  << " " << index1 << std::endl;
-				std::cout << "   add_link_angle: "  << " " << index2 << std::endl;
-				std::cout << "   add_link_angle: "  << " " << index3 << std::endl;
-			     }
-
-			     // set the UDD flag for this residue being bonded/angle with 
-			     // the other
+				 // set the UDD flag for this residue being bonded/angle with 
+				 // the other
 			     
-			     bonded_atom_indices[index1].push_back(index3);
-			     bonded_atom_indices[index3].push_back(index1);
+				 bonded_atom_indices[index1].push_back(index3);
+				 bonded_atom_indices[index3].push_back(index1);
 
-// 			      std::cout << "INFO: comp_id's: " 
-// 					<< geom.link(i).link_angle_restraint[j].atom_1_comp_id << " "
-// 					<< geom.link(i).link_angle_restraint[j].atom_2_comp_id << " "
-// 					<< geom.link(i).link_angle_restraint[j].atom_3_comp_id << " "
-// 					<< std::endl;
-				 
-// 			      std::cout << "adding TRANS peptide angle for "
-// 					<< asc.atom_selection[index1]->residue->seqNum << " "
-// 					<< asc.atom_selection[index1]->name << " to "
-// 					<< asc.atom_selection[index2]->residue->seqNum << " "
-// 					<< asc.atom_selection[index2]->name << " to "
-// 					<< asc.atom_selection[index3]->residue->seqNum << " "
-// 					<< asc.atom_selection[index3]->name << " "
-// 					<< std::endl; 
+				 std::vector<bool> other_fixed_flags = make_fixed_flags(index1,
+											index2,
+											index3);
+				 for (int ii=0; ii<other_fixed_flags.size(); ii++)
+				    if (other_fixed_flags[ii])
+				       fixed_flag[ii] = 1;
 
-			     std::vector<bool> other_fixed_flags = make_fixed_flags(index1,
-										    index2,
-										    index3);
-			     for (int ii=0; ii<other_fixed_flags.size(); ii++)
-				if (other_fixed_flags[ii])
-				   fixed_flag[ii] = 1;
-
-			      add(ANGLE_RESTRAINT, index1, index2, index3,
-				  fixed_flag,
-				  geom.link(i).link_angle_restraint[j].angle(),
-				  geom.link(i).link_angle_restraint[j].angle_esd(),
-				  1.2); // junk value
-			      nangle++;
+				 add(ANGLE_RESTRAINT, index1, index2, index3,
+				     fixed_flag,
+				     geom.link(i).link_angle_restraint[j].angle(),
+				     geom.link(i).link_angle_restraint[j].angle_esd(),
+				     1.2); // junk value
+				 nangle++;
+			      }
 			   }
 			}
 		     }
@@ -6368,21 +6394,25 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
 				 if (pdb_atom_name_4 == geom.link(i).link_torsion_restraint[j].atom_id_4_4c()) {
 				    
 				    int index1 = get_asc_index(atom_1_sel[ifat]->name,
+							       atom_1_sel[ifat]->altLoc,
 							       atom_1_sel[ifat]->residue->seqNum,
 							       atom_1_sel[ifat]->GetInsCode(),
 							       atom_1_sel[ifat]->GetChainID());
 			
 				    int index2 = get_asc_index(atom_2_sel[isat]->name,
+							       atom_2_sel[isat]->altLoc,
 							       atom_2_sel[isat]->residue->seqNum,
 							       atom_2_sel[ifat]->GetInsCode(),
 							       atom_2_sel[isat]->GetChainID());
 				    
 				    int index3 = get_asc_index(atom_3_sel[itat]->name,
+							       atom_3_sel[itat]->altLoc,
 							       atom_3_sel[itat]->residue->seqNum,
 							       atom_3_sel[itat]->GetInsCode(),
 							       atom_3_sel[itat]->GetChainID());
 
 				    int index4 = get_asc_index(atom_4_sel[iffat]->name,
+							       atom_4_sel[iffat]->altLoc,
 							       atom_4_sel[iffat]->residue->seqNum,
 							       atom_4_sel[iffat]->GetInsCode(),
 							       atom_4_sel[iffat]->residue->GetChainID());
@@ -6541,6 +6571,7 @@ coot::restraints_container_t::add_rama(std::string link_type,
       std::vector<int> atom_indices(5, -1);
       for (int i=0; i<5; i++) {
 	 atom_indices[i] = get_asc_index(rama_atoms[i]->name,
+					 rama_atoms[i]->altLoc,
 					 rama_atoms[i]->residue->seqNum,
 					 rama_atoms[i]->GetInsCode(),
 					 rama_atoms[i]->GetChainID());
@@ -6590,21 +6621,50 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
    if (n_second_res_atoms <= 0) {
       std::cout << "no atoms in second residue!? " << std::endl;
    }
+
+   // 20100424 there can be any number of plane restraints made here (not just one for each
+   // link_plane_restraint) because there can be any number of alt confs passed in the
+   // residues.  So we need to find all the alt conf in the 2 residues passed and make a
+   // mapping between the alt conf and the plane restraint's vector of atom indices.
+   //
+   std::map<std::string, std::vector<int> > atom_indices_map;
+   for (unsigned int iat=0; iat<n_first_res_atoms; iat++) {
+      std::string alt_loc(first_sel[iat]->altLoc);
+      std::map<std::string, std::vector<int> >::const_iterator it = atom_indices_map.find(alt_loc);
+      if (it == atom_indices_map.end()) {
+	 std::vector<int> v;
+	 atom_indices_map[alt_loc] = v;
+      }
+   }
+   for (unsigned int iat=0; iat<n_second_res_atoms; iat++) {
+      std::string alt_loc(second_sel[iat]->altLoc);
+      std::map<std::string, std::vector<int> >::const_iterator it = atom_indices_map.find(alt_loc);
+      if (it == atom_indices_map.end()) {
+	 std::vector<int> v;
+	 atom_indices_map[alt_loc] = v;
+      }
+   }
+   
    
 
    for (int i=0; i<geom.link_size(); i++) {
       if (geom.link(i).link_id == link_type) { // typically "TRANS"
 	 for (unsigned int ip=0; ip<geom.link(i).link_plane_restraint.size(); ip++) {
-	    std::vector <int> pos; 
-	    std::vector<bool> fixed_flag(geom.link(i).link_plane_restraint[ip].n_atoms());
+	    std::vector<bool> fixed_flag(geom.link(i).link_plane_restraint[ip].n_atoms(), 0);
+
+	    std::map<std::string, std::vector<int> >::iterator it;
+	    for (it = atom_indices_map.begin(); it != atom_indices_map.end(); it++)
+	       it->second.clear();
 
 	    for (int irest_at=0; irest_at<geom.link(i).link_plane_restraint[ip].n_atoms(); irest_at++) {
 	       if (geom.link(i).link_plane_restraint[ip].atom_comp_ids[irest_at] == 1) {
+		  // std::cout << "comp_id: 1 " << std::endl;
 		  link_res_n_atoms = n_first_res_atoms;
 		  atom_sel = first_sel;
 		  res = first;
 		  fixed_flag[irest_at] = is_fixed_first_res;
 	       } else {
+		  // std::cout << "comp_id: 2 " << std::endl;
 		  link_res_n_atoms = n_second_res_atoms;
 		  atom_sel = second_sel;
 		  res = second; 
@@ -6613,36 +6673,53 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 	       for (int iat=0; iat<link_res_n_atoms; iat++) { 
 		  std::string pdb_atom_name(atom_sel[iat]->name);
 		  if (geom.link(i).link_plane_restraint[ip].atom_id(irest_at) == pdb_atom_name) {
-		     pos.push_back(get_asc_index(atom_sel[iat]->name,
-						 res->seqNum,
-						 res->GetInsCode(),
-						 res->GetChainID()));
+		     if (0)
+			std::cout << "     pushing back to :" << atom_sel[iat]->altLoc << ": vector "
+				  << res->GetChainID() << " "
+				  << res->seqNum << " :"
+				  << atom_sel[iat]->name << ": :"
+				  << atom_sel[iat]->altLoc << ":" << std::endl;
+
+		     atom_indices_map[atom_sel[iat]->altLoc].push_back(get_asc_index(atom_sel[iat]->name,
+										     atom_sel[iat]->altLoc,
+										     res->seqNum,
+										     res->GetInsCode(),
+										     res->GetChainID()));
 		  }
 	       }
 	    }
-	    if (pos.size() > 3) {
-// 	       std::cout << "found a plane link!" << std::endl;
-// 	       std::cout << "  atom indices: " << std::endl;
-// 	       for (int indx=0; indx<pos.size(); indx++) {
-// 		  std::cout << "    " << pos[indx] << std::endl;
-// 	       }
-// 	       for (int ind=0; ind<pos.size(); ind++) {
-// 		  std::cout << ind << " " << atom[pos[ind]]->name << " "
-// 			    << atom[pos[ind]]->GetSeqNum() << std::endl;
-// 	       }
-// 	       std::cout << "DEBUG:: adding link plane with pos indexes ";
-// 	       for (int ipos=0; ipos<pos.size(); ipos++)
-// 		  std::cout << " " << pos[ipos];
-// 	       std::cout << "\n";
 
+
+	    for (it = atom_indices_map.begin(); it != atom_indices_map.end(); it++) {
 	       
-	       std::vector<bool> other_fixed_flags = make_fixed_flags(pos);
-	       for (int ii=0; ii<2; ii++)
-		  if (other_fixed_flags[ii])
-		     fixed_flag[ii] = 1;
-
-	       add_plane(pos, fixed_flag, geom.link(i).link_plane_restraint[ip].dist_esd());
-	       n_plane++;
+	       if (it->second.size() > 3) {
+		  
+		  if (0) {  // debugging.
+		     std::cout << "  atom indices: for plane restraint :" << it->first
+			       << ":" << std::endl;
+		     for (int indx=0; indx<it->second.size(); indx++) {
+			std::cout << "           " << it->second[indx] << std::endl;
+		     }
+		     for (int ind=0; ind<it->second.size(); ind++) {
+			std::cout << ind << " " << atom[it->second[ind]]->GetChainID() << " "
+				  << atom[it->second[ind]]->GetSeqNum() << " :"
+				  << atom[it->second[ind]]->name << ": :"
+				  << atom[it->second[ind]]->altLoc << ":\n";
+		     }
+		     std::cout << "DEBUG:: adding link plane with pos indexes ";
+		     for (int ipos=0; ipos<it->second.size(); ipos++)
+			std::cout << " " << it->second[ipos];
+		     std::cout << "\n";
+		  }
+		  
+		  std::vector<bool> other_fixed_flags = make_fixed_flags(it->second);
+		  for (int ii=0; ii<2; ii++)
+		     if (other_fixed_flags[ii])
+			fixed_flag[ii] = 1;
+		  
+		  add_plane(it->second, fixed_flag, geom.link(i).link_plane_restraint[ip].dist_esd());
+		  n_plane++;
+	       }
 	    }
 	 }
       }
@@ -6664,16 +6741,18 @@ int coot::restraints_container_t::add_link_plane_tmp(std::string link_type,
 
 int
 coot::restraints_container_t::get_asc_index(const char *at_name,
+					    const char *alt_loc,
 					    int resno,
 					    const char *ins_code,
 					    const char *chain_id) const {
 
-   return get_asc_index_new(at_name, resno, ins_code, chain_id);
+   return get_asc_index_new(at_name, alt_loc, resno, ins_code, chain_id);
    
 }
 
 int
 coot::restraints_container_t::get_asc_index_new(const char *at_name,
+						const char *alt_loc,
 						int resno,
 						const char *ins_code,
 						const char *chain_id) const {
@@ -6683,13 +6762,13 @@ coot::restraints_container_t::get_asc_index_new(const char *at_name,
    
    mol->SelectAtoms(SelHnd,
 		    0,
-		    (char *) chain_id,
-		    resno, (char *) ins_code,
-		    resno, (char *) ins_code,
-		    "*", // rnames
-		    (char *) at_name, // anames
-		    "*", // elements
-		    "*" // altLocs 
+		    chain_id,
+		    resno, ins_code,
+		    resno, ins_code,
+		    "*",      // resnames
+		    at_name,  // anames
+		    "*",      // elements
+		    alt_loc  // altLocs 
 		    );
 
    int nSelAtoms;
