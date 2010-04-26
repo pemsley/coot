@@ -126,14 +126,14 @@ namespace coot {
       int progress; // GSL_ENOPROG, GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
       std::string info;
       std::vector<refinement_lights_info_t> lights;      
-      refinement_results_t(short int frf, int prog_in,
+      refinement_results_t(bool frf, int prog_in,
 			   const std::vector<refinement_lights_info_t> &lights_in) {
 	 found_restraints_flag = frf;
 	 info = ""; // not used
 	 progress = prog_in;
 	 lights = lights_in;
      }
-      refinement_results_t(short int frf, int prog_in, std::string info_in) {
+      refinement_results_t(bool frf, int prog_in, const std::string &info_in) {
 	 found_restraints_flag = frf;
 	 info = info_in;
 	 progress = prog_in;
@@ -142,7 +142,7 @@ namespace coot {
 	 info = "";
 	 found_restraints_flag = 0;
       }
-      refinement_results_t(const std::string s_in) {
+      refinement_results_t(const std::string &s_in) {
 	 info = s_in;
 	 found_restraints_flag = 0;
       }

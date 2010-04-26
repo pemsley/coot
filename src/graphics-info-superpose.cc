@@ -152,13 +152,15 @@ graphics_info_t::superpose_moving_chain_option_menu_item_activate (GtkWidget *it
 
 // OK, the numbers correspond to the residue index (selindex) of the *other* molecule
 // 
-void
+int
 graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_ref,
 					       atom_selection_container_t asc_mov,
 					       int imol2,
 					       std::string moving_mol_name,
 					       std::string reference_mol_name,
 					       short int move_copy_of_imol2_flag) {
+
+   int imodel_return = -1;
 
 #ifdef HAVE_SSMLIB
 
@@ -233,6 +235,7 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	    gtk_widget_show(w);
 	 } else  {
 
+
 	    if (move_copy_of_imol2_flag) { 
 	       mol2 = new CMMDBManager;
 	       mol2->Copy(asc_mov.mol, MMDBFCM_All);
@@ -242,6 +245,8 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	       graphics_info_t::molecules[imol2_new].install_model(imol2_new, make_asc(mol2), name, 1);
 	       imol2 = imol2_new;
 	    }
+	    
+	    imodel_return = imol2;
 	    
 	    // OK, let's get a consistent naming system:  1 is moving: 2 is reference
 
@@ -316,6 +321,7 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
       std::cout << "WARNING:: Molecule reference has no model atoms\n";
    }
 #endif // HAVE_SSMLIB
+   return imodel_return;
 }
 
 

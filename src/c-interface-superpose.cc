@@ -163,10 +163,12 @@ void superpose_with_chain_selection(int imol1, int imol2,
 }
 
 
-void superpose_with_atom_selection(int imol1, int imol2,
+int superpose_with_atom_selection(int imol1, int imol2,
 				   const char *mmdb_atom_sel_str_1, 
 				   const char *mmdb_atom_sel_str_2,
 				   short int move_copy_of_imol2_flag) {
+   int imodel_return = -1; 
+
 #ifdef HAVE_SSMLIB
 
    if (is_valid_model_molecule(imol1)) {
@@ -196,8 +198,8 @@ void superpose_with_atom_selection(int imol1, int imol2,
 
 	 std::string name     = graphics_info_t::molecules[imol2].name_for_display_manager();
 	 std::string ref_name = graphics_info_t::molecules[imol1].name_for_display_manager();
-	 g.superpose_with_atom_selection(asc_ref, asc_mov, imol2, name,
-					 ref_name, move_copy_of_imol2_flag);
+	 imodel_return = g.superpose_with_atom_selection(asc_ref, asc_mov, imol2, name,
+							 ref_name, move_copy_of_imol2_flag);
 	 
 	 asc_ref.mol->DeleteSelection(asc_ref.SelectionHandle);
 	 asc_mov.mol->DeleteSelection(asc_mov.SelectionHandle);
@@ -215,6 +217,8 @@ void superpose_with_atom_selection(int imol1, int imol2,
       }
    }
 #endif // HAVE_SSMLIB
+
+   return imodel_return;
 }
 
 

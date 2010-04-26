@@ -3151,7 +3151,12 @@ public:
    static float rama_level_allowed;
    static float rama_plot_background_block_size; // divisible into 360 preferably.
 
-   void superpose_with_atom_selection(atom_selection_container_t asc_ref,
+   /* 
+     Return the index of the superposed molecule - which could either be a
+     new molecule (if move_imol2_flag was 1) or the imol2 or -1 (signifying
+     failure to do the SMM superposition).
+   */
+   int superpose_with_atom_selection(atom_selection_container_t asc_ref,
 				      atom_selection_container_t asc_mov,
 				      int imol_mov,
 				      std::string moving_mol_name,

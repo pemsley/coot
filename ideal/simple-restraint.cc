@@ -646,7 +646,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	    if (status == GSL_ENOPROG) {
 	       cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG"
 		    << endl; 
-	       chi_squareds("Final Chi Squareds", s->x);
+	       chi_squareds("Final Estimated Average Z scores", s->x);
 	    }
 	    break;
 	 } 
@@ -659,7 +659,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	    std::cout << "Minimum found (iteration number " << iter << ") at ";
 	    std::cout << s->f << "\n";
 	    std::vector <coot::refinement_lights_info_t> results = 
-	       chi_squareds("Final Chi Squareds", s->x);
+	       chi_squareds("Final Estimated Average Z Scores:", s->x);
 	    lights_vec = results;
 	 }
 

@@ -5017,11 +5017,16 @@ void superpose_with_chain_selection(int imol1, int imol2,
 Superpose the given atom selection (specified by the mmdb atom
 selection strings) of imol2 onto imol1.  imol1 is reference, we can
 either move imol2 or copy it to generate a new molecule depending on
-the vaule of move_imol2_flag (1 for move 0 for copy). */
-void superpose_with_atom_selection(int imol1, int imol2,
-				   const char *mmdb_atom_sel_str_1, 
-				   const char *mmdb_atom_sel_str_2,
-				   short int move_imol2_copy_flag);
+the vaule of move_imol2_flag (1 for move 0 for copy). 
+
+@return the index of the superposed molecule - which could either be a
+new molecule (if move_imol2_flag was 1) or the imol2 or -1 (signifying
+failure to do the SMM superposition).
+*/
+int superpose_with_atom_selection(int imol1, int imol2,
+				  const char *mmdb_atom_sel_str_1, 
+				  const char *mmdb_atom_sel_str_2,
+				  short int move_imol2_copy_flag);
 
 void execute_superpose(GtkWidget *w);
 GtkWidget *wrapped_create_superpose_dialog(); /* used by callback */
