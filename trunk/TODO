@@ -213,7 +213,8 @@
      mouse, instead of ctrl left mouse?  Needs abstraction of state in
      that function, I think.
 
-   o helix fitting overshoots
+   o helix fitting overshoots.  Try, amongst others, closed-monomer-works.map
+
 
    o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
 
@@ -789,6 +790,11 @@ Punted from 0.6:
    o Ramachandran plots don't update on "undo"?   Punt.
 
    o Rotamer plot doesn't update on sidechain 180?  Punt.
+
+   o Martyn: http://2dx.org/documentation/mrc-software/mrc-documentation
+     "23	ISPG     space group number 0 or 1 (default=0)".
+     If spacegroup is 0, put the map into an nxmap.
+
 
  ------
     
