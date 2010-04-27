@@ -1049,14 +1049,15 @@ def guess_refinement_map():
 # Ian Tickle says (as far as I can understand) that the target chi
 # squared should be 0.25 or thereabouts.  You can over-ride it now.
 #
+# BL says:: but we never get there, so back to 1.0
 global target_auto_weighting_value
-target_auto_weighting_value = 0.25
+target_auto_weighting_value = 1.0
     
 # Set the refinement weight (matrix) by iterating the refinement and
 # varying the weight until the chi squares (not including the
 # non-bonded terms) reach 1.0 =/- 10%.  It uses sphere refinement.
 # The refinement map must be set!!  At the end show the new weight in
-# the status bar.  Seems to take about 5 rounds.
+# the status bar.  Seems to take about 5 rounds. (bails out after 20)
 #
 def auto_weight_for_refinement():
 
@@ -1094,9 +1095,10 @@ def auto_weight_for_refinement():
     #
     def no_non_bonded(ls):
         ret = []
-        for item in ls:
-            if not (item[0] == "Non-bonded"):
-                ret.append(item)
+        if ls:
+            for item in ls:
+                if not (item[0] == "Non-bonded"):
+                    ret.append(item)
         return ret
 
     # return False or a number, which is the current overweighting of the
@@ -1119,7 +1121,12 @@ def auto_weight_for_refinement():
     # main body
     #
     results = refinement_func()
+    count = 0
     while results:
+        count += 1
+        if count > 20:
+            print "BL INFO:: refinement did not converge, bailing out"
+            return False
         ow = weight_scale_from_refinement_results(results)
         print "Overweight factor:", ow
         if not ow:   # check for number?

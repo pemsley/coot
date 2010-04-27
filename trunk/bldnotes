@@ -14,6 +14,10 @@ build-it-win rev 2122
 
 **** General ****
 
+   o Tooltips for residues in new sequence view?!
+
+   o Edit Chi for hydrogens not working (H from reduce at least)
+
    o transform whole asu for packing comparision?!
 
    o doublication of find strand/find ss (Extensions, Other tools)
@@ -101,6 +105,8 @@ build-it-win rev 2122
 
 
 **** Python ****
+
+   o refmac warning when no freeR (how detect?!)
 
    o document remote connection
 
