@@ -238,13 +238,14 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
     # NCS?
     if(refmac_use_ncs_state()):
         chain_ids_from_ncs = ncs_chain_ids(imol_coords)
-        for ncs_set in chain_ids_from_ncs:
-            no_ncs_chains = len(ncs_set)
-            if (no_ncs_chains > 1):
-                ncs_string = "NCSRestraints NCHAins " + str(no_ncs_chains) + " CHAIns "
-                for chain in ncs_set:
-                    ncs_string += " " + chain
-                std_lines.append(ncs_string)
+        if chain_ids_from_ncs:
+            for ncs_set in chain_ids_from_ncs:
+                no_ncs_chains = len(ncs_set)
+                if (no_ncs_chains > 1):
+                    ncs_string = "NCSRestraints NCHAins " + str(no_ncs_chains) + " CHAIns "
+                    for chain in ncs_set:
+                        ncs_string += " " + chain
+                    std_lines.append(ncs_string)
 
     if (refmac_extra_params):
         extra_params = refmac_extra_params

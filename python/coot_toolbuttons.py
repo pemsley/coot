@@ -503,10 +503,8 @@ def save_toolbar_to_init_file(button_label, callback_function, icon=None):
   save_str += "\")"
   
   home = os.getenv('HOME')
-  print "BL DEBUG:: home is", home
   if (not home and os.name == 'nt'):
     home = os.getenv('COOT_HOME')
-    print "BL DEBUG:: don have home?! home is", home
   if not home:
     print "BL ERROR:: could not find a home directory"
   else:
@@ -516,13 +514,16 @@ def save_toolbar_to_init_file(button_label, callback_function, icon=None):
 
 # remove a toolbar from  ~/.coot-preferences/coot_toolbuttons.py
 def remove_toolbar_from_init_file(button_label):
-  home = 'HOME'
-  if (os.name == 'nt'):
-    home = 'COOT_HOME'
-  filename = os.path.join(os.getenv(home), ".coot-preferences", "coot_toolbuttons.py")
-  remove_str_ls = ["coot_toolbar_button", button_label]
-  if (os.path.isfile(filename)):
-    remove_line_containing_from_file(remove_str_ls, filename)
+  home = os.getenv('HOME')
+  if (not home and os.name == 'nt'):
+    home = os.getenv('COOT_HOME')
+  if not home:
+    print "BL ERROR:: could not find a home directory"
+  else:    
+    filename = os.path.join(home, ".coot-preferences", "coot_toolbuttons.py")
+    remove_str_ls = ["coot_toolbar_button", button_label]
+    if (os.path.isfile(filename)):
+      remove_line_containing_from_file(remove_str_ls, filename)
 
 
 # returns a list with pre-defined toolbar-functions (stock-id is optional)
