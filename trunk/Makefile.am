@@ -31,7 +31,7 @@ ACLOCAL_AMFLAGS=-I macros
 SUBDIRS = auxil scheme python macros compat utils geometry mini-mol coot-utils surface coot-surface \
 	coords angles skeleton ccp4mg-utils density-contour \
 	db-main ideal ligand high-res build greg-tests python-tests \
-	analysis  tw cootaneer src data rama-data doc 
+	analysis  tw cootaneer src data rama-data doc lbg
 
 # po, no po today.
 

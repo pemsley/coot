@@ -15,13 +15,17 @@ int main(int argc, char **argv) {
     bonds.push_back(std::pair<std::string,std::string>(" C6 "," C5 "));
     bonds.push_back(std::pair<std::string,std::string>(" C6 "," C1 "));
     bonds.push_back(std::pair<std::string,std::string>(" C6 "," H6 "));
+    bonds.push_back(std::pair<std::string,std::string>(" C5 "," C7 "));
+    bonds.push_back(std::pair<std::string,std::string>(" C7 "," C8 "));
+    bonds.push_back(std::pair<std::string,std::string>(" C8 "," C9 "));
+    bonds.push_back(std::pair<std::string,std::string>(" C9 "," C6 "));
 
 //    bonds.push_back(std::pair<std::string,std::string>(" C1 "," C2 "));
 //    bonds.push_back(std::pair<std::string,std::string>(" C2 "," C3 "));
 //    bonds.push_back(std::pair<std::string,std::string>(" C3 "," C4 "));
 //    bonds.push_back(std::pair<std::string,std::string>(" C4 "," C1 "));
    
-   lbg_info_t::aromatic_graph_t graph(bonds);
+   coot::aromatic_graph_t graph(bonds);
 
    std::vector<std::vector<std::string> > ring_list = graph.ring_list();
 

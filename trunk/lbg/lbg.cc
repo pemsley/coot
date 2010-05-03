@@ -144,8 +144,7 @@ lbg_info_t::drag_canvas(int mouse_x, int mouse_y) {
       widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
 
       render_from_molecule(new_mol);
-      draw_bonds_to_ligand();
-      draw_residue_circles(residue_circles);
+      draw_all_residue_attribs();
    }
 }
 
@@ -787,8 +786,10 @@ lbg_info_t::squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
 	 lig_build::pos_t new_atom_pos = centre + d_uv_60 * SINGLE_BOND_CANVAS_LENGTH * 0.7;
 	 widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
 	 int new_atom_index = mol.add_atom(new_atom).second;
-	 lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
-	 widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index], new_atom, bt, root);
+	 lig_build::bond_t::bond_type_t bt =
+	    addition_mode_to_bond_type(canvas_addition_mode);
+	 widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index],
+			   new_atom, bt, root);
 	 mol.add_bond(b);
 
       } else {
@@ -977,6 +978,13 @@ lbg_info_t::orthogonalise_2_bonds(int atom_index,
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
 
    int l = attached_bonds.size();
+
+   if (l < 3) {
+      std::cout << "ERROR:: trapped l = " << l << " in orthogonalise_2_bonds()"
+		<< std::endl;
+      return;
+   }
+   
    int ind_1 = attached_bonds[l-1];
    int ind_2 = attached_bonds[l-2];
    std::string ele_1 = mol.atoms[ind_1].element;
@@ -1228,11 +1236,6 @@ lbg_info_t::stamp_polygon(int n_edges, lig_build::polygon_position_info_t ppi,
 			      mol.atoms[atom_pos_index[j].second.second], centre, bt, root);
 	 mol.add_bond(bond);
 
-	 // is this (the bond vector) needed?
-	 //
-	 // No it isn't. Remove std::vector<lig_build::bond_t> > from the
-	 // return type of this function.
-	 // 
       }
    }
 
@@ -1585,41 +1588,44 @@ lbg_info_t::watch_for_mdl_from_coot(gpointer user_data) {
    // matching the coordinates).
    //
 
-   std::string coot_dir = "../../build-coot-ubuntu-64bit/src"; // make this user-settable.
+   std::string coot_dir = ".";
+   coot_dir = "../../build-lucid/src";
    std::string coot_ccp4_dir = coot_dir + "/coot-ccp4";
-   // in use (non-testing), coot_dir will typically be ".";
-
    
-   std::string coot_mdl_file = coot_ccp4_dir + "/.coot-to-lbg-mol";
-   std::string coot_pdb_file = coot_ccp4_dir + "/.coot-to-lbg-pdb";
+   // in use (non-testing), coot_dir will typically be ".";
+   
    std::string ready_file    = coot_ccp4_dir + "/.coot-to-lbg-mol-ready";
-   std::string sa_file       = coot_dir      + "/coot-tmp-fle-view-solvent-accessibilites.txt";
 
    struct stat buf;
    int err = stat(ready_file.c_str(), &buf);
    if (! err) {
       time_t m = buf.st_mtime;
-      // std::cout << "here 1 in watch_for_mdl_from_coot" << std::endl;
       if (m > l->coot_mdl_ready_time) {
 	 if (l->coot_mdl_ready_time != 0) {
-
-	    // std::cout << "here 2 in watch_for_mdl_from_coot" << std::endl;
-	    CMMDBManager *flat_pdb_mol = l->get_cmmdbmanager(coot_pdb_file);
-	    lig_build::molfile_molecule_t mm;
-	    mm.read(coot_mdl_file);
-	    widgeted_molecule_t wmol = l->import(mm, coot_mdl_file, flat_pdb_mol);
-	    std::vector<solvent_accessible_atom_t> solvent_accessible_atoms =
-	     l->read_solvent_accessibilities(sa_file);
-	    wmol.map_solvent_accessibilities_to_atoms(solvent_accessible_atoms);
-	    l->render_from_molecule(wmol);
+	    l->read_files_from_coot();
 	 }
 	 l->coot_mdl_ready_time = m;
       }
-   } else {
-      // std::cout << "failed to stat " << ready_file << std::endl;
    }
    return 1; // keep running
 }
+
+
+void
+lbg_info_t::handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb_file,
+						     const std::string &coot_mdl_file,
+						     const std::string &sa_file) {
+   
+   CMMDBManager *flat_pdb_mol = get_cmmdbmanager(coot_pdb_file);
+   lig_build::molfile_molecule_t mm;
+   mm.read(coot_mdl_file);
+   widgeted_molecule_t wmol = import(mm, coot_mdl_file, flat_pdb_mol);
+   std::vector<solvent_accessible_atom_t> solvent_accessible_atoms =
+      read_solvent_accessibilities(sa_file);
+   wmol.map_solvent_accessibilities_to_atoms(solvent_accessible_atoms);
+   render_from_molecule(wmol);
+}
+
 
 CMMDBManager *
 lbg_info_t::get_cmmdbmanager(const std::string &file_name) const {
@@ -1663,11 +1669,16 @@ main(int argc, char *argv[]) {
 
       if (argc > 1) {
 	 std::string file_name(argv[1]);
-	 lig_build::molfile_molecule_t mm;
-	 CMMDBManager *mol = NULL; // no atom names to transfer
-	 mm.read(file_name);
-	 widgeted_molecule_t wmol = lbg->import(mm, file_name, mol);
-	 lbg->render_from_molecule(wmol);
+
+	 if (file_name == "fudge") {
+	    lbg->read_files_from_coot();
+	 } else {
+	    lig_build::molfile_molecule_t mm;
+	    CMMDBManager *mol = NULL; // no atom names to transfer
+	    mm.read(file_name);
+	    widgeted_molecule_t wmol = lbg->import(mm, file_name, mol);
+	    lbg->render_from_molecule(wmol);
+	 }
       }
 	 
       gtk_main ();
@@ -1677,6 +1688,29 @@ main(int argc, char *argv[]) {
       return 1; 
    } 
    return 0;
+}
+
+void
+lbg_info_t::read_files_from_coot() {
+
+   std::string coot_dir = "../../build-coot-ubuntu-64bit/src"; 
+   coot_dir = "../../build-lucid/src";
+
+   const char *t_dir = getenv("COOT_LBG_OUT_DIR");
+   if (t_dir)
+      coot_dir = t_dir;
+	    
+   std::string coot_ccp4_dir = coot_dir + "/coot-ccp4";
+   // in use (non-testing), coot_dir will typically be ".";
+	    
+   std::string coot_mdl_file = coot_ccp4_dir + "/.coot-to-lbg-mol";
+   std::string coot_pdb_file = coot_ccp4_dir + "/.coot-to-lbg-pdb";
+   std::string ready_file    = coot_ccp4_dir + "/.coot-to-lbg-mol-ready";
+   std::string sa_file       = coot_dir      + "/coot-tmp-fle-view-solvent-accessibilites.txt";
+	    
+   handle_read_draw_coords_mol_and_solv_acc(coot_pdb_file,
+					    coot_mdl_file,
+					    sa_file);
 }
 
 
@@ -1891,8 +1925,16 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
    // i.e. mol.input_coords_to_canvas_coords() is called in read_residues();
    // 
    residue_circles = read_residues(file_name);
-   std::vector<residue_circle_t> current_circles = residue_circles;
 
+   initial_residues_circles_layout(); // twiddle residue_circles
+
+   // cycles of optimisation
+   // 
+   // std::vector<residue_circle_t> current_circles = residue_circles;
+
+   // for debugging
+   std::vector<residue_circle_t> current_circles = offset_residues_from_orig_positions();
+   
    for (int iround=0; iround<120; iround++) {
       std::cout << ":::::::::::::::::::: minimization round " << iround
 		<< " :::::::::::::::::::::::::::::::::::::::::::\n";
@@ -1909,9 +1951,400 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
 
    // save the class member data
    residue_circles = current_circles;
-   draw_bonds_to_ligand();
-   draw_residue_circles(current_circles);
+   draw_all_residue_attribs();
 }
+
+// for debugging the minimization vs original positions
+std::vector<lbg_info_t::residue_circle_t>
+lbg_info_t::offset_residues_from_orig_positions() {
+
+   std::vector<residue_circle_t> current_circles = residue_circles;
+   for (unsigned int i=0; i<current_circles.size(); i++) {
+      double delta_x = 5 * double(rand())/double(RAND_MAX);
+      double delta_y = 5 * double(rand())/double(RAND_MAX);
+      current_circles[i].pos.x += delta_x;
+      current_circles[i].pos.y += delta_y;
+   }
+   return current_circles;
+}
+
+
+void
+lbg_info_t::draw_all_residue_attribs() {
+
+   draw_residue_circles(residue_circles);
+   draw_bonds_to_ligand();
+   draw_stacking_interactions(residue_circles);
+}
+
+// twiddle residue_circles, taking in to account the residues that
+// bond to the ligand (including stacking residues).
+// 
+void
+lbg_info_t::initial_residues_circles_layout() {
+
+   std::cout << "initial_residues_circles_layout..";
+   std::cout.flush();
+      
+   // when we move a primary, we want to know it's index in
+   // residue_circles, because that's what we really want to move.
+   // 
+   std::vector<std::pair<int, lbg_info_t::residue_circle_t> > primaries;
+   
+   for(unsigned int ic=0; ic<residue_circles.size(); ic++) {
+      if (residue_circles[ic].is_a_primary_residue()) {
+	 std::cout << " residue circle " << residue_circles[ic].residue_label
+		   << " is a primary residue" << std::endl;
+	 std::pair<int, lbg_info_t::residue_circle_t> p(ic, residue_circles[ic]);
+	 primaries.push_back(p);
+      }
+   }
+
+   // primaries get placed first and are checked for non-crossing
+   // ligand interaction bonds (they have penalty scored added if they
+   // cross).
+   //
+   try { 
+      std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
+	 mol.ligand_extents();
+      lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
+      grid.fill(mol);
+
+      // add a quadratic function to a copy of the grid
+      //
+
+      // int iprimary = 0; // testing
+      for (unsigned int iprimary=0; iprimary<primaries.size(); iprimary++) {
+	 if (0)
+	    std::cout << " =========== adding quadratic for residue " 
+		      << primaries[iprimary].second.residue_label
+		      << " ============================"
+		      << std::endl;
+	 lbg_info_t::ligand_grid primary_grid = grid;
+	 
+	 // attachment points are points on the ligand, in ligand
+	 // coordinates to which this primary residue circle is
+	 // attached (often only one attachment, but can be 2
+	 // sometimes).
+	 std::vector<lig_build::pos_t> attachment_points =
+	    primaries[iprimary].second.get_attachment_points(mol);
+	 primary_grid.add_quadratic(attachment_points);
+
+	 // I want to see the grid.
+	 // show_grid(primary_grid);
+	 lig_build::pos_t best_pos = primary_grid.find_minimum_position();
+	 residue_circles[primaries[iprimary].first].pos = best_pos;
+      }
+      // show_mol_ring_centres();
+   }
+   catch (std::runtime_error rte) {
+      std::cout << rte.what() << std::endl;
+   }
+   std::cout << "done" << std::endl;
+}
+
+// attachment points are points on the ligand, in ligand coordinates
+// to which this primary residue circle is attached (often only one
+// attachment, but can be 2 sometimes).
+//
+void
+lbg_info_t::ligand_grid::add_quadratic(const std::vector<lig_build::pos_t> &attachment_points) {
+
+   if (attachment_points.size()) {
+      double scale_by_n_attach = 1.0/double(attachment_points.size());
+      
+      for (unsigned int iattach=0; iattach<attachment_points.size(); iattach++) {
+	 for (unsigned int ix=0; ix<x_size(); ix++) {
+	    for (unsigned int iy=0; iy<y_size(); iy++) {
+	       lig_build::pos_t pos = to_canvas_pos(ix, iy);
+	       double d2 = (pos-attachment_points[iattach]).lengthsq();
+	       double val = 0.00002 * d2 * scale_by_n_attach;
+	       grid_[ix][iy] += val;
+	    }
+	 }
+      }
+   }
+}
+
+// can throw an exception
+lig_build::pos_t
+lbg_info_t::ligand_grid::find_minimum_position() const {
+
+   double best_pos_score = 1000000;
+   lig_build::pos_t best_pos;
+   for (unsigned int ix=0; ix<x_size(); ix++) {
+      for (unsigned int iy=0; iy<y_size(); iy++) {
+	 if (grid_[ix][iy] < best_pos_score) {
+	    best_pos_score = grid_[ix][iy];
+	    best_pos = to_canvas_pos(ix,iy);
+	 }
+      }
+   }
+   if (best_pos_score > (1000000-1))
+      throw std::runtime_error("failed to get minimum position from ligand grid");
+   return best_pos;
+}
+
+
+lig_build::pos_t
+lbg_info_t::ligand_grid::to_canvas_pos(const int ii, const int jj) const {
+
+   lig_build::pos_t p(ii*scale_fac, jj*scale_fac);
+   p += top_left;
+   return p;
+}
+
+std::pair<int, int>
+lbg_info_t::ligand_grid::canvas_pos_to_grid_pos(const lig_build::pos_t &pos) const {
+
+   lig_build::pos_t p = pos - top_left;
+   int ix = p.x/scale_fac;
+   int iy = p.y/scale_fac;
+   return std::pair<int, int> (ix, iy);
+}
+
+std::vector<lig_build::pos_t>
+lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &mol) const {
+   
+   std::vector<lig_build::pos_t> v;
+
+   for (unsigned int i=0; i<bonds_to_ligand.size(); i++) {
+      if (bonds_to_ligand[i].is_set()) {
+	 try {
+	    v.push_back(mol.get_atom_canvas_position(bonds_to_ligand[i].ligand_atom_name));
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << "WARNING:: " << rte.what() << std::endl;
+	 }
+      }
+   }
+
+   if (has_stacking_interaction()) {
+      try {
+	 lig_build::pos_t pos = mol.get_ring_centre(ligand_ring_atom_names);
+	 v.push_back(pos);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "WARNING:: " << rte.what() << std::endl;
+      }
+   }
+
+   return v;
+}
+
+
+void
+lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid) {
+
+   int n_objs = 0;
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+   for (int ix=0; ix<grid.x_size(); ix+=1) {
+      for (int iy=0; iy<grid.y_size(); iy+=1) {
+	 lig_build::pos_t pos = grid.to_canvas_pos(ix, iy);
+	 double intensity = grid.get(ix, iy);
+	 int int_as_int = int(255 * intensity);
+	 std::string colour = grid_intensity_to_colour(int_as_int);
+ 	 GooCanvasItem *rect =
+ 	    goo_canvas_rect_new(root, pos.x, pos.y, 3.5, 3.5,
+ 				"line-width", 1.0,
+ 				"fill_color", colour.c_str(),
+				"stroke-color", colour.c_str(),
+ 				NULL);
+	 n_objs++;
+      }
+   }
+}
+
+void
+lbg_info_t::show_mol_ring_centres() {
+
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+   std::vector<lig_build::pos_t> c = mol.get_ring_centres();
+   for (unsigned int i=0; i<c.size(); i++) {
+      GooCanvasItem *rect_item =
+	 rect_item = goo_canvas_rect_new (root,
+					  c[i].x, c[i].y, 4.0, 4.0,
+					  "line-width", 1.0,
+					  "stroke-color", "blue",
+					  "fill_color", "blue",
+					  NULL);
+   }
+
+}
+
+// convert val [0->255] to a hex colour string in red
+// 
+std::string
+lbg_info_t::grid_intensity_to_colour(int val) const {
+
+   std::string colour = "#000000";
+   int step = 8;
+      
+   // higest value -> ff0000
+   // lowest value -> ffffff
+
+   int inv_val = 255 - val;
+   if (inv_val < 0)
+      inv_val = 0;
+   
+   int val_high = (inv_val & 240)/16;
+   int val_low  = inv_val &  15;
+
+   std::string s1 = sixteen_to_hex_let(val_high);
+   std::string s2 = sixteen_to_hex_let(val_low);
+
+   colour = "#ff";
+   colour += s1;
+   colour += s2;
+   colour += s1;
+   colour += s2;
+
+   // std::cout << "val " << val << " returns colour " << colour << "\n";
+   return colour;
+}
+
+std::string
+lbg_info_t::sixteen_to_hex_let(int v) const {
+
+   std::string l = "0";
+   if (v == 15)
+      l = "f";
+   if (v == 14)
+      l = "e";
+   if (v == 13)
+      l = "d";
+   if (v == 12)
+      l = "c";
+   if (v == 11)
+      l = "b";
+   if (v == 10)
+      l = "a";
+   if (v == 9)
+      l = "9";
+   if (v == 8)
+      l = "8";
+   if (v == 7)
+      l = "7";
+   if (v == 6)
+      l = "6";
+   if (v == 5)
+      l = "5";
+   if (v == 4)
+      l = "4";
+   if (v == 3)
+      l = "3";
+   if (v == 2)
+      l = "2";
+   if (v == 1)
+      l = "1";
+
+   return l;
+
+}
+
+lbg_info_t::ligand_grid::ligand_grid(const lig_build::pos_t &low_x_and_y,
+				     const lig_build::pos_t &high_x_and_y) {
+
+   double extra_extents = 100;
+   top_left     = low_x_and_y  - lig_build::pos_t(extra_extents, extra_extents);
+   bottom_right = high_x_and_y + lig_build::pos_t(extra_extents, extra_extents);
+   scale_fac = 5; // fixme
+   double delta_x = bottom_right.x - top_left.x;
+   double delta_y = bottom_right.y - top_left.y;
+   std::cout << " in making grid, got delta_x and delta_y "
+	     << delta_x << " " << delta_y << std::endl;
+   x_size_ = int(delta_x/scale_fac+1);
+   y_size_ = int(delta_y/scale_fac+1);
+
+   std::vector<double> tmp_y (y_size_, 0.0);
+   grid_.resize(x_size_);
+   for (unsigned int i=0; i<x_size_; i++)
+      grid_[i] = tmp_y;
+   std::cout << "--- ligand_grid constructor, grid has extents "
+	     << x_size_ << " " << y_size_ << " real " << grid_.size()
+	     << " " << grid_[0].size()
+	     << std::endl;
+   
+}
+
+// arg is not const reference because get_ring_centres() caches the return value.
+void
+lbg_info_t::ligand_grid::fill(widgeted_molecule_t mol) {
+
+   double exp_scale = 0.0021;
+   double rk = 3000.0;
+   
+   for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+      for (int ipos_x= -10; ipos_x<=10; ipos_x++) {
+	 for (int ipos_y= -10; ipos_y<=10; ipos_y++) {
+	    std::pair<int, int> p = canvas_pos_to_grid_pos(mol.atoms[iat].atom_position);
+	    int ix_grid = ipos_x + p.first;
+	    int iy_grid = ipos_y + p.second;
+	    if ((ix_grid >= 0) && (ix_grid < x_size())) {
+	       if ((iy_grid >= 0) && (iy_grid < y_size())) {
+		  double d2 = (to_canvas_pos(ix_grid, iy_grid) - mol.atoms[iat].atom_position).lengthsq();
+		  double val =  rk * exp(-0.5*exp_scale*d2);
+		  grid_[ix_grid][iy_grid] += val;
+	       } else {
+// 		  std::cout << "ERROR:: out of range in y: " << ix_grid << "," << iy_grid << " "
+// 			    << "and grid size: " << x_size() << "," << y_size() << std::endl;
+	       }
+	    } else {
+// 	       std::cout << "ERROR:: out of range in x: " << ix_grid << "," << iy_grid << " "
+// 			 << "and grid size: " << x_size() << "," << y_size() << std::endl;
+	    }
+	 }
+      }
+   }
+
+   std::vector<lig_build::pos_t> mol_ring_centres = mol.get_ring_centres();
+
+   // std::cout << "DEBUG:: found " << mol_ring_centres.size() << " ring centres " << std::endl;
+   
+   for (unsigned int ir=0; ir<mol_ring_centres.size(); ir++) { 
+      for (int ipos_x= -10; ipos_x<=10; ipos_x++) {
+	 for (int ipos_y= -10; ipos_y<=10; ipos_y++) {
+	    std::pair<int, int> p = canvas_pos_to_grid_pos(mol_ring_centres[ir]);
+	    int ix_grid = ipos_x + p.first;
+	    int iy_grid = ipos_y + p.second;
+	    if ((ix_grid >= 0) && (ix_grid < x_size())) {
+	       if ((iy_grid >= 0) && (iy_grid < y_size())) {
+		  double d2 = (to_canvas_pos(ix_grid, iy_grid) - mol_ring_centres[ir]).lengthsq();
+		  double val = rk * exp(-0.5* exp_scale * d2);
+		  grid_[ix_grid][iy_grid] += val;
+	       }
+	    }
+	 }
+      }
+   }
+   normalize(); // scaled peak value to 1.
+}
+
+// scale peak value to 1.0
+void
+lbg_info_t::ligand_grid::normalize() {
+
+   double max_int = 0.0;
+
+   // std::cout << "normalizing grid " << x_size() << " by " << y_size() << std::endl;
+   for (int ix=0; ix<x_size(); ix++) {
+      for (int iy=0; iy<y_size(); iy++) {
+	 double intensity = grid_[ix][iy];
+	 if (intensity > max_int)
+	    max_int = intensity;
+      }
+   }
+   if (max_int > 0.0) {
+      double sc_fac = 1.0/max_int;
+      for (int ix=0; ix<x_size(); ix++) {
+	 for (int iy=0; iy<y_size(); iy++) {
+	    grid_[ix][iy] *= sc_fac;
+	 }
+      }
+   }
+}
+
+
 
 // minimise layout energy
 std::pair<int, std::vector<lbg_info_t::residue_circle_t> >
@@ -2011,6 +2444,27 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 	       }
 	    }
 	 }
+
+	 if (words.size() > 4) {
+	    if (words[0] == "STACKING") {
+	       std::vector<std::string> ligand_atom_names;
+	       std::string type = words[1];
+	       std::string::size_type l = lines[i].length();
+	       int n_atoms_max = 20;
+	       for (unsigned int iat=0; iat<n_atoms_max; iat++) {
+		  int name_index = 19+iat*6;
+		  if (l > (name_index+4)) {
+		     std::string ss = lines[i].substr(name_index, 4);
+		     if (0)
+			std::cout << "   Found ligand ring stacking atom :"
+				  << ss << ":" << std::endl;
+		     ligand_atom_names.push_back(ss);
+		  }
+	       }
+	       if (v.size())
+		  v.back().set_stacking(type, ligand_atom_names);
+	    }
+	 }
       }
    }
    std::cout << "found " << v.size() << " residue centres" << std::endl;
@@ -2029,13 +2483,20 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 
 
 void
-lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &residue_circles) {
+lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circles) {
 
+   bool draw_solvent_exposures = 1;
    try { 
       lig_build::pos_t ligand_centre = mol.get_ligand_centre();
-      for (unsigned int i=0; i<residue_circles.size(); i++) {
-	 lig_build::pos_t pos = residue_circles[i].pos;
-	 add_residue_circle(residue_circles[i], ligand_centre);
+      GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+
+      if (draw_solvent_exposures)
+	 for (unsigned int i=0; i<l_residue_circles.size(); i++)
+	    draw_solvent_exposure_circle(l_residue_circles[i], ligand_centre, root);
+
+      for (unsigned int i=0; i<l_residue_circles.size(); i++) {
+	 lig_build::pos_t pos = l_residue_circles[i].pos;
+	 draw_residue_circle_top_layer(l_residue_circles[i], ligand_centre);
       }
    }
    catch (std::runtime_error rte) {
@@ -2044,8 +2505,8 @@ lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &residue_ci
 }
 
 void
-lbg_info_t::add_residue_circle(const residue_circle_t &residue_circle,
-			       const lig_build::pos_t &ligand_centre) {
+lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
+					  const lig_build::pos_t &ligand_centre) {
 
    if (0)
       std::cout << "   adding cirles " << residue_circle.residue_type
@@ -2068,8 +2529,6 @@ lbg_info_t::add_residue_circle(const residue_circle_t &residue_circle,
    // Capitalise the residue type (takes less space than upper case).
    std::string rt = residue_circle.residue_type.substr(0,1);
    rt += coot::util::downcase(residue_circle.residue_type.substr(1));
-
-   draw_solvent_exposure_circle(residue_circle, ligand_centre, group);
 
    // fill colour and stroke colour of the residue circle
    std::pair<std::string, std::string> col = get_residue_circle_colour(residue_circle.residue_type);
@@ -2311,6 +2770,112 @@ lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, doub
 }
 
 void
+lbg_info_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
+
+
+   for (unsigned int ires=0; ires<rc.size(); ires++) {
+      if (rc[ires].has_stacking_interaction()) {
+	 std::vector<std::string> ligand_atom_names =
+	    rc[ires].get_ligand_ring_atom_names();
+	 try {
+	    lig_build::pos_t lc =
+	       mol.get_ring_centre(rc[ires].get_ligand_ring_atom_names());
+	    draw_annotated_stacking_line(lc, rc[ires].pos);
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << rte.what() << std::endl;
+	 }
+      }
+   }
+}
+
+void
+lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
+					 const lig_build::pos_t &residue_pos) {	
+
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+   lig_build::pos_t a_to_b_uv = (ligand_ring_centre - residue_pos).unit_vector();
+   lig_build::pos_t A = residue_pos + a_to_b_uv * 20;
+   lig_build::pos_t B = ligand_ring_centre;
+   lig_build::pos_t C = B - a_to_b_uv * 3; // just short of the middle of the ring
+   lig_build::pos_t mid_pt = (A + B) * 0.5;
+   lig_build::pos_t close_mid_pt_1 = mid_pt - a_to_b_uv * 17;
+   lig_build::pos_t close_mid_pt_2 = mid_pt + a_to_b_uv * 17;
+
+   gboolean start_arrow = 0;
+   gboolean end_arrow = 1;
+   std::string stroke_colour = "#109910";
+   GooCanvasItem *group = goo_canvas_group_new (root,
+						"stroke-color", stroke_colour.c_str(),
+						NULL);
+
+   std::vector<lig_build::pos_t> hex_and_ring_centre(2);
+   hex_and_ring_centre[0] = mid_pt - a_to_b_uv * 7;
+   hex_and_ring_centre[1] = mid_pt + a_to_b_uv * 7;
+
+   for(int ir=0; ir<2; ir++) {
+   
+      double angle_step = 60;
+      double r = 8; // radius
+      for (int ipt=1; ipt<=6; ipt++) {
+	 int ipt_0 = ipt - 1;
+	 double theta_deg_1 = 30 + angle_step * ipt;
+	 double theta_1 = theta_deg_1 * DEG_TO_RAD;
+	 lig_build::pos_t pt_1 = hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_1), cos(theta_1)) * r;
+      
+	 double theta_deg_0 = 30 + angle_step * ipt_0;
+	 double theta_0 = theta_deg_0 * DEG_TO_RAD;
+	 lig_build::pos_t pt_0 = hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_0), cos(theta_0)) * r;
+	 goo_canvas_polyline_new_line(group,
+				      pt_1.x, pt_1.y,
+				      pt_0.x, pt_0.y,
+				      "line_width", 1.8,
+				      NULL);
+				   
+      }
+      // Now the circle in the annotation aromatic ring:
+      goo_canvas_ellipse_new(group,
+			     hex_and_ring_centre[ir].x,
+			     hex_and_ring_centre[ir].y,
+			     4.0, 4.0,
+			     "line_width", 1.0,
+			     NULL);
+
+   }
+
+   GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 2.5, 2.5);
+   GooCanvasItem *item_1 =
+      goo_canvas_polyline_new_line(group,
+				   A.x, A.y,
+				   close_mid_pt_1.x, close_mid_pt_1.y,
+				   "line-width", 2.5,
+				   "line-dash", dash,
+				   "stroke-color", stroke_colour.c_str(),
+				   NULL);
+
+   GooCanvasItem *item_2 =
+      goo_canvas_polyline_new_line(group,
+				   close_mid_pt_2.x, close_mid_pt_2.y,
+				   C.x, C.y,
+				   "line-width", 2.5,
+				   "line-dash", dash,
+				   // "end_arrow",   end_arrow,
+				   "stroke-color", stroke_colour.c_str(),
+				   NULL);
+
+   // Now the circle blob at the centre of the aromatic ligand ring:
+   goo_canvas_ellipse_new(group,
+			  B.x, B.y,
+			  3.0, 3.0,
+			  "line_width", 1.0,
+			  "fill_color", stroke_colour.c_str(),
+			  NULL);
+
+
+
+}
+
+void
 lbg_info_t::draw_bonds_to_ligand() {
    
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
@@ -2339,7 +2904,7 @@ lbg_info_t::draw_bonds_to_ligand() {
 	       // some colours
 	       std::string blue = "blue";
 	       std::string green = "darkgreen";
-	       std::string olive = "#666600";
+	       std::string lime = "#888820";
 	       std::string stroke_colour = dark; // unset
 
 	       // arrows (acceptor/donor) and stroke colour (depending
@@ -2364,7 +2929,7 @@ lbg_info_t::draw_bonds_to_ligand() {
 		  stroke_colour = blue;
 	       }
 	       if (residue_circles[ic].residue_type == "HOH") { 
-		  stroke_colour = olive;
+		  stroke_colour = lime;
 		  start_arrow = 0;
 		  end_arrow = 0;
 	       }

@@ -111,17 +111,20 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
       }
 
 
+      // add ring centres
+      //
+      bool debug = 0;
       for (unsigned int ib=0; ib<bonds.size(); ib++) {
 	 if (! bonds[ib].have_centre_pos()) { 
 	    int atom_index = bonds[ib].get_atom_1_index();
 	    int atom_index_other = bonds[ib].get_atom_2_index();
-	    if (0) 
+	    if (debug) 
 	       std::cout << "=============== checking ring for atom index "
 			 << atom_index << " ===============" << std::endl;
 	    // path must pass through atom_index_other
 	    std::pair<bool, std::vector<int> > found =
 	       found_self_through_bonds(atom_index, atom_index_other);
-	    if (0) { // debug
+	    if (debug) { 
 	       std::cout << "-- constructor of widgeted_bond_t atom " << atom_index
 			 << " other bond index (not tested) " << bonds[ib].get_atom_2_index()
 			 << ", found status "
@@ -145,7 +148,7 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 		  }
 		  lig_build::pos_t centre_pos = centre_pos_sum * (1.0/double(found.second.size()));
 		  bonds[ib].add_centre(centre_pos);
-		  if (0) 
+		  if (debug)
 		     std::cout << "adding centre at " << centre_pos
 			       << " generated from (" << centre_pos_atoms_string << ")" 
 			       << " for bond " << ib
@@ -652,7 +655,68 @@ widgeted_molecule_t::get_ligand_centre() const {
 	 centre = centre_sum * (1.0/double(atoms.size()));
    }
    return centre;
-} 
+}
+
+// can throw an exception (no atoms)
+// 
+lig_build::pos_t
+widgeted_molecule_t::get_ring_centre(const std::vector<std::string> &ring_atom_names) const {
+
+   lig_build::pos_t positions_sum(0,0);
+   int n_found = 0;
+   for (unsigned int jat=0; jat<ring_atom_names.size(); jat++) {
+      for (unsigned int iat=0; iat<atoms.size(); iat++) {
+	 if (ring_atom_names[jat] == atoms[iat].get_atom_name()) {
+	    positions_sum += atoms[iat].atom_position;
+	    n_found++;
+	    break;
+	 }
+      }
+   }
+   if (n_found == 0) {
+      std::string mess = "No ring atom names found in ligand!";
+      throw(std::runtime_error(mess));
+   }
+   lig_build::pos_t centre = positions_sum * (1.0/double(n_found));
+   return centre;
+}
+
+// can throw an exception (no bonds)
+//
+// not const because it now caches the return value;
+//
+std::vector<lig_build::pos_t>
+widgeted_molecule_t::get_ring_centres() {
+
+   if (have_cached_bond_ring_centres_flag) {
+      return cached_bond_ring_centres;
+   } else { 
+      std::vector<lig_build::pos_t> v;
+      for (unsigned int ib=0; ib<bonds.size(); ib++) {
+	 if (bonds[ib].have_centre_pos()) {
+	    lig_build::pos_t rc = bonds[ib].centre_pos();
+	    bool found = 0;
+	    for (unsigned int i=0; i<v.size(); i++) {
+	       // 	    std::cout << "close? " << rc << "   " << v[i] << "  " << v[i].close_point(rc)
+	       // 		      << std::endl;
+	       if (v[i].near_point(rc, 7)) { // 7 seems good, others tested.
+		  found = 1;
+		  break;
+	       }
+	    }
+	    if (! found)
+	       v.push_back(rc);
+	 }
+      }
+      //    std::cout << "get_ring_centres returns\n";
+      //    for (unsigned int iv=0; iv<v.size(); iv++) {
+      //       std::cout << "   "  << iv << " " << v[iv] << "\n";
+      //    }
+      cached_bond_ring_centres = v;
+      return v;
+   }
+}
+
 
 
 bool
@@ -771,8 +835,19 @@ widgeted_molecule_t::find_bonded_atoms_with_no_pass(int start_atom_index,
 	    int idx = bonds[i].get_atom_2_index();
 	    if (idx == start_atom_index)
 	       if (depth < (MAX_SEARCH_DEPTH-1)) {
-		  if (member(atom_index_other, local_no_pass_atoms)) { 
-		     // debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
+		  if (member(atom_index_other, local_no_pass_atoms)) {
+		     // if this_atom_index was not alread in
+		     // local_no_pass_atoms, then add it.
+		     bool ifound = 0; 
+		     for (unsigned int ilnp=0; ilnp<local_no_pass_atoms.size(); ilnp++) {
+			if (local_no_pass_atoms[ilnp] == this_atom_index) {
+			   ifound = 1;
+			   break;
+			}
+		     }
+		     if (! ifound)
+			local_no_pass_atoms.push_back(this_atom_index);
+		     debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
 		     return std::pair<bool, std::vector<int> > (1, local_no_pass_atoms);
 		  }
 	       }
@@ -795,7 +870,18 @@ widgeted_molecule_t::find_bonded_atoms_with_no_pass(int start_atom_index,
 	    if (idx == start_atom_index)
 	       if (depth < (MAX_SEARCH_DEPTH-1)) {
 		  if (member(atom_index_other, local_no_pass_atoms)) { 
-		     // debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
+		     local_no_pass_atoms.push_back(this_atom_index);
+		     // if this_atom_index was not alread in
+		     // local_no_pass_atoms, then add it.
+		     bool ifound = 0; 
+		     for (unsigned int ilnp=0; ilnp<local_no_pass_atoms.size(); ilnp++) {
+			if (local_no_pass_atoms[ilnp] == this_atom_index) {
+			   ifound = 1;
+			   break;
+			}
+		     }
+		     if (! ifound)
+			debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
 		     return std::pair<bool, std::vector<int> > (1, local_no_pass_atoms);
 		  }
 	       }
@@ -1222,7 +1308,7 @@ widgeted_molecule_t::map_solvent_accessibilities_to_atoms(std::vector<solvent_ac
 // can throw an exception
 // 
 lig_build::pos_t
-widgeted_molecule_t::get_atom_canvas_position(const std::string &atom_name) {
+widgeted_molecule_t::get_atom_canvas_position(const std::string &atom_name) const {
 
    lig_build::pos_t p;
    bool ifound = 0;
@@ -1242,3 +1328,43 @@ widgeted_molecule_t::get_atom_canvas_position(const std::string &atom_name) {
    }
    return p;
 }
+
+
+// can throw an exception (no atoms) return pseudo points top-left
+// (small small) bottom-right (high high).
+//
+std::pair<lig_build::pos_t, lig_build::pos_t>
+widgeted_molecule_t::ligand_extents() const {
+
+   lig_build::pos_t top_left;
+   lig_build::pos_t bottom_right;
+
+   double mol_min_x =  9999999;
+   double mol_max_x = -9999999;
+   double mol_min_y =  9999999;
+   double mol_max_y = -9999999;
+
+   if (atoms.size()) { 
+      
+      for (unsigned int iat=0; iat<atoms.size(); iat++) {
+	 if (atoms[iat].atom_position.x > mol_max_x)
+	    mol_max_x = atoms[iat].atom_position.x;
+	 if (atoms[iat].atom_position.x < mol_min_x)
+	    mol_min_x = atoms[iat].atom_position.x;
+	 if (atoms[iat].atom_position.y > mol_max_y)
+	    mol_max_y = atoms[iat].atom_position.y;
+	 if (atoms[iat].atom_position.y < mol_min_y)
+	    mol_min_y = atoms[iat].atom_position.y;
+      }
+      top_left     = lig_build::pos_t(mol_min_x, mol_min_y);
+      bottom_right = lig_build::pos_t(mol_max_x, mol_max_y);
+   } else {
+      std::string mess = "WARNING:: no atoms in ligand_extents()";
+      throw std::runtime_error(mess);
+   }
+   
+   return std::pair<lig_build::pos_t, lig_build::pos_t> (top_left, bottom_right);
+
+}
+
+

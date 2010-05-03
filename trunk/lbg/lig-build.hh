@@ -105,6 +105,9 @@ namespace lig_build {
       double length() const {
 	 return sqrt(x*x + y*y);
       } 
+      double lengthsq() const {
+	 return (x*x + y*y);
+      } 
       static double length(const pos_t &p1, const pos_t &p2) {
 	 double a = (p2.x - p1.x);
 	 double b = (p2.y - p1.y);

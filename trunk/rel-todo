@@ -5,6 +5,9 @@
     o change to rms z scores ::: 2
 
 
+    o residues in DNA from modern PDB files is DG, DA, DC, DT.  Need
+      to map to refmac name, restraints don't work.
+
 ------
 
     o Fix rename-residue to work on just one chain ::: 0.5

@@ -5398,7 +5398,9 @@ Sat Feb  6 16:58:24 GMT 2010
 Sat Feb 13 14:35:12 GMT 2010
 
    INFO:: 3CH6 is nice for showing NCS skipping.  Or is it a case of
-   the wrong spacegroup?
+   the wrong spacegroup? NCS jumping.
+
+   Look at the ligand near 177
 
 
 ---
@@ -5465,6 +5467,11 @@ Wed Mar 31 16:47:17 BST 2010
     BEZ and BOX
     many: methyl mercury
           
+
+---
+
+   here's one for the validation tutorial: 1m1f
+
 
 ------
 

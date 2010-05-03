@@ -21,10 +21,16 @@ Tue Apr 13 14:33:21 BST 2010
 
     look at 3lhj.  Problems
 
-
 ----
 
     look at 3hec.  Problems.
+
+----
+Sun May  2 18:20:52 UYT 2010
+
+    Adding or deleting a bond should expire the
+    have_cached_bond_ring_centres_flag.
+
 
 ----
 Tue Apr 13 22:12:23 BST 2010

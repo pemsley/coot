@@ -42,7 +42,7 @@ namespace coot {
    class aromatic_graph_t {
       std::vector<std::pair<std::string, std::string> > original_bonds;
       std::vector<lbg_edge> edges;
-      std::vector<lbg_vertex> vertices;
+      std::vector<lbg_vertex> vertices; // unfiltered
       void print() const;
       void print_path(std::vector<int> &path) const;
       std::vector<int> next_vertex(int start_vertex,
@@ -53,7 +53,7 @@ namespace coot {
 							       const std::vector<int> &path) const;
       void add_path_maybe(std::vector<int> circular_path);
       std::vector<std::vector<int> > rings; // converted from ints to string in ring_list()
-      std::vector<std::vector<std::string> > indexes_to_names() const;
+      std::vector<std::vector<std::string> > indexes_to_names(const std::vector<std::vector<int> > &filtered_rings) const;
 
 
    public:

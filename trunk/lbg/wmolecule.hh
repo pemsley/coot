@@ -427,6 +427,7 @@ private:
       mol_in_min_y = 0;
       scale_correction.first = 0;
       scale_correction.second = 1;
+      have_cached_bond_ring_centres_flag = 0;
    }
    bool member(const int &ind, const std::vector<int> &no_pass_atoms) const {
       bool found = 0;
@@ -457,6 +458,8 @@ private:
    double get_solvent_accessibility(const clipper::Coord_orth &pt,
 				    const std::vector<solvent_accessible_atom_t> &sa) const;
    std::string get_atom_name(const clipper::Coord_orth &pt, CMMDBManager *mol) const;
+   bool have_cached_bond_ring_centres_flag;
+   std::vector<lig_build::pos_t> cached_bond_ring_centres;
 
 public:
    widgeted_molecule_t() { init(); }
@@ -492,10 +495,39 @@ public:
 
    // can throw an exception
    // 
-   lig_build::pos_t get_atom_canvas_position(const std::string &atom_name);
+   lig_build::pos_t get_atom_canvas_position(const std::string &atom_name) const;
 
    // can throw an exception (no atoms)
    // 
    lig_build::pos_t get_ligand_centre() const;
+
+   // If the ligand is not created in lbg, (as is the case if it gets
+   // its ligand from Coot/Prodrg-FLAT) then these are not read and
+   // correct ring centres, they are just points that are on the
+   // correct side of the ring (so that the double bond can be drawn
+   // on the correct side).  However, these control points are often
+   // at ring centres and can be used to reject residue cirlces in the
+   // position refinement.  In my tests so far there are considerably
+   // more control points than genuine ring centres.
+   //
+   // in coot/src/lbg-graph.hh/cc, there is an algorithm to find
+   // aromatic ring centres.  Maybe we should use that (extending it
+   // to find ring non-aromatic centres) instead of the algorithm now
+   // in get_ring_centres().
+   // 
+   // This function can throw an exception (no bonds).
+   // 
+   // (not const because it caches the return value)
+   // 
+   std::vector<lig_build::pos_t> get_ring_centres();
+
+   // can throw an exception (no atoms)
+   // 
+   lig_build::pos_t get_ring_centre(const std::vector<std::string> &ring_atom_names) const;
+
+   // can throw an exception (no atoms) - top-left (small small)
+   // bottom-right (high high)
+   //
+   std::pair<lig_build::pos_t, lig_build::pos_t> ligand_extents() const;
    
 };

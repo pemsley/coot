@@ -215,7 +215,8 @@ INCLUDES = \
 bin_PROGRAMS = coot-real density-score-by-residue-real fix-nomenclature-errors
 dist_bin_SCRIPTS = coot density-score-by-residue
 # noinst_PROGRAMS = test-coot-align test-chol
-check_PROGRAMS = test-coot-align test-chol
+#check_PROGRAMS = test-coot-align test-chol
+check_PROGRAMS = test-lbg-graph
 # testmap write_map testcartesian graphics_crash_test test_cholesky test-command-line
 
 #coot: coot.in
@@ -322,6 +323,8 @@ coot_real_SOURCES = \
 	history_list.hh		 \
 	interface.c	 	 \
 	interface.h              \
+	lbg-graph.hh   		 \
+	lbg-graph.cc   		 \
         manipulation-modes.hh    \
 	molecule-class-info.cc 	 \
 	molecule-class-info-maps.cc 	\
@@ -457,6 +460,9 @@ test_coot_align_LDADD =	\
 	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)
+
+test_lbg_graph_SOURCES = test-lbg-graph.cc lbg-graph.hh lbg-graph.cc
+test_lbg_graph_LDADD = $(MMDB_LIBS)
 
 
 density_score_by_residue_real_SOURCES = density-score-by-residue.cc

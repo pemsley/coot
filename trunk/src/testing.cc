@@ -57,6 +57,8 @@
 #include "cc-interface.hh"
 #include "coot-fileselections.h"
 
+#include "c-interface-ligands.hh"
+
 bool close_float_p(float f1, float f2) {
 
    return (fabs(f1-f2) < 0.0001);
@@ -196,7 +198,8 @@ int test_internal_single() {
       // status = test_sbase();
       // status = test_coordinated_waters();
       // status = test_geometry_distortion_info_type();
-      status = test_translate_close_to_origin();
+      // status = test_translate_close_to_origin();
+      status = test_flev_aromatics();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2190,6 +2193,38 @@ int test_translate_close_to_origin() {
 	 if (len < 0.2)
 	    status = 1;
       }
+   }
+   return status;
+}
+
+int test_flev_aromatics() {
+
+   int status = 0;
+   // std::string filename = "test-with-5GP.pdb";
+   std::string filename = "test-with-5GP-with-ideal-A37-PHE.pdb";
+   // std::string filename = "coot-download/1x8b.pdb";
+   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   CResidue *res_ref = coot::util::get_residue("C", 1, "", atom_sel.mol);
+   // CResidue *res_ref = coot::util::get_residue("A", 901, "", atom_sel.mol);
+   if (! res_ref) {
+      std::cout << "failed to get reference residue in test_flev_aromatics()" << std::endl;
+      return 0;
+   } else {
+
+      testing_data t;
+      int dynamic_add_status = t.geom.try_dynamic_add("5GP", 1);
+      // read_cif_dictionary("coot-ccp4/.coot-to-lbg-lib");
+      std::cout << "DEBUG:: dynamic_add_status " << dynamic_add_status << std::endl;
+      float residues_near_radius = 4.0;
+      std::vector<CResidue *> residues =
+	 coot::residues_near_residue(res_ref, atom_sel.mol, residues_near_radius);
+      std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+	 t.geom.get_monomer_restraints("5GP");
+      coot::pi_stacking_container_t pi_stack_info(p.second, residues, res_ref);
+
+      if (pi_stack_info.stackings.size() > 0)
+	 status = 1;
+
    }
    return status;
 }
