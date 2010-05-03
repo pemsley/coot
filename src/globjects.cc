@@ -1999,6 +1999,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // 
       // BL says:: another hack!? FIXME
       // dont clear when we want to draw the 2 Zalman views
+      
       if (in_stereo_flag != IN_STEREO_ZALMAN_LEFT) 
       	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 

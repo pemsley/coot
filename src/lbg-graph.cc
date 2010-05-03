@@ -57,7 +57,47 @@ coot::aromatic_graph_t::ring_list() {
       next_vertex(iv, path, 0, iv);
    }
 
-   return indexes_to_names(); // converts rings
+   // do any of the rings in the rings vector contain smaller rings?
+   // If so, reject the bigger ring.
+   // 
+   std::vector<std::vector<int> > filtered_rings;
+
+   for (unsigned int i=0; i<rings.size(); i++) {
+      bool contains_sub_ring = 0;
+      for (unsigned int j=0; j<rings.size(); j++) {
+	 if (i!=j) {
+
+	    // does ring i contain ring j?
+	    // 
+	    if (rings[i].size() > rings[j].size()) {
+	       
+	       // are 3 or more of the atoms in the smaller ring (j)
+	       // contained in the bigger ring (i)?
+	       // 
+	       int nfound = 0;
+	       for (unsigned int ii=0; ii<rings[i].size(); ii++) {
+		  for (unsigned int jj=0; jj<rings[j].size(); jj++) {
+		     if (rings[i][ii] == rings[j][jj]) {
+			nfound++;
+			break;
+		     }
+		  }
+	       }
+	       if (nfound > 2) {
+		  // OK, so ring i contains ring j
+		  contains_sub_ring = 1;
+		  break;
+	       }
+	    }
+	 }
+      }
+      if (contains_sub_ring == 0)
+	 filtered_rings.push_back(rings[i]);
+   }
+   
+   
+   return indexes_to_names(filtered_rings); // converts rings to
+					       // name from indices.
 }
 
 
@@ -238,14 +278,15 @@ coot::aromatic_graph_t::add_path_maybe(std::vector<int> circular_path) {
 } 
 
 
+// pass filtered_rings
 std::vector<std::vector<std::string> >
-coot::aromatic_graph_t::indexes_to_names() const {
+coot::aromatic_graph_t::indexes_to_names(const std::vector<std::vector<int> > &filtered_rings) const {
 
    std::vector<std::vector<std::string> > sv;
-   for (unsigned int i=0; i<rings.size(); i++) {
-      std::vector<std::string> string_ring(rings[i].size());
-      for (unsigned int j=0; j<rings[i].size(); j++) {
-	 string_ring[j] = vertices[rings[i][j]].get_name();
+   for (unsigned int i=0; i<filtered_rings.size(); i++) {
+      std::vector<std::string> string_ring(filtered_rings[i].size());
+      for (unsigned int j=0; j<filtered_rings[i].size(); j++) {
+	 string_ring[j] = vertices[filtered_rings[i][j]].get_name();
       }
       sv.push_back(string_ring);
    }

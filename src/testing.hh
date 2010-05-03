@@ -75,6 +75,7 @@ int test_sbase();
 int test_coordinated_waters();
 int test_geometry_distortion_info_type();
 int test_translate_close_to_origin();
+int test_flev_aromatics();
 
 
 CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id, int resno);

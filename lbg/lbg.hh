@@ -190,7 +190,13 @@ public:
    class residue_circle_t {
       bool   se_diff_set_;
       double se_holo; 
-      double se_apo; 
+      double se_apo;
+      std::vector<std::string> ligand_ring_atom_names;
+      int stacking_type;
+      bool is_a_primary_residue_; // primary residues are stacking or
+				  // bond and are placed first looking
+				  // for non-overlaping
+				  // interaction-bond lines.
    public:
       double pos_x; // input coordinate reference frame
       double pos_y;
@@ -210,17 +216,29 @@ public:
 	 se_holo = 0.0;
 	 se_apo  = 0.0;
 	 se_diff_set_ = 0;
+	 stacking_type = -1; // should have enumerated value
+	 is_a_primary_residue_ = 0;
       }
       void set_canvas_pos(const lig_build::pos_t &pos_in) {
 	 pos = pos_in;
       }
       void add_bond_to_ligand(const bond_to_ligand_t &bl) {
 	 bonds_to_ligand.push_back(bl);
+	 is_a_primary_residue_ = 1;
       }
       void set_solvent_exposure_diff(double se_holo_in, double se_apo_in) {
 	 se_holo = se_holo_in;
 	 se_apo = se_apo_in;
 	 se_diff_set_ = 1;
+      }
+      void set_stacking(const std::string &type_string,
+			const std::vector<std::string> &ligand_ring_atom_names_in) {
+	 is_a_primary_residue_ = 1;
+	 if (type_string == "pi-pi")
+	    stacking_type = 0; // should be enumerated values
+	 if (type_string == "pi-cation")
+	    stacking_type = 1;
+	 ligand_ring_atom_names = ligand_ring_atom_names_in;
       }
       bool se_diff_set() const {
 	 return se_diff_set_;
@@ -228,9 +246,49 @@ public:
       std::pair<double, double> solvent_exposures() const {
 	 return std::pair<double, double> (se_holo, se_apo);
       }
+      std::vector<std::string> get_ligand_ring_atom_names() const {
+	 return ligand_ring_atom_names;
+      }
+      bool has_stacking_interaction() const {
+	 return (ligand_ring_atom_names.size() > 0);
+      }
+      bool is_a_primary_residue() const {
+	 return is_a_primary_residue_;
+      }
+      std::vector<lig_build::pos_t> get_attachment_points(const widgeted_molecule_t &mol) const;
       // friend std::ostream& operator<<(std::ostream &s, residue_circle_t r);
    };
    // std::ostream& operator<<(std::ostream &s, residue_circle_t r);
+
+   class ligand_grid {
+      double scale_fac;
+      lig_build::pos_t top_left;
+      lig_build::pos_t bottom_right;
+      std::vector<std::vector<double> > grid_;
+      int x_size_;
+      int y_size_;
+      void normalize(); // scale peak value to 1.0
+      std::pair<int, int> canvas_pos_to_grid_pos(const lig_build::pos_t &atom_pos) const;
+   public:
+      // (low means low numbers, not low on the canvas)
+      // 
+      ligand_grid(const lig_build::pos_t &low_x_and_y,
+		  const lig_build::pos_t &high_x_and_y);
+      lig_build::pos_t to_canvas_pos(const int ii, const int jj) const;
+      void fill(widgeted_molecule_t mol);
+      double get(int i, int j) const {
+	 return grid_[i][j];
+      }
+      int x_size() const {
+	 return x_size_;
+      }
+      int y_size() const {
+	 return y_size_;
+      }
+      void add_quadratic(const std::vector<lig_build::pos_t> &attachment_points);
+      lig_build::pos_t find_minimum_position() const;
+
+   };
 
    class optimise_residue_circles {
    private:
@@ -370,12 +428,18 @@ private:
    widgeted_molecule_t translate_molecule(const lig_build::pos_t &delta);
    void translate_residue_circles(const lig_build::pos_t &delta);
    void clear_canvas();
-   void add_residue_circle(const residue_circle_t &rc, const lig_build::pos_t &p);
+   void draw_residue_circle_top_layer(const residue_circle_t &rc, const lig_build::pos_t &p);
    double standard_residue_circle_radius;
    
 
    std::pair<std::string, std::string>
    get_residue_circle_colour(const std::string &residue_type) const;
+
+   // twiddle residue_circles, taking in to account the residues that
+   // bond to the ligand (including stacking residues).
+   // 
+   void initial_residues_circles_layout(); 
+
    // minimise layout energy
    std::pair<int, std::vector<residue_circle_t> >
    optimise_residue_circle_positions(const std::vector<residue_circle_t> &start,
@@ -390,7 +454,20 @@ private:
 				     const lig_build::pos_t &ligand_centre,
 				     GooCanvasItem *group);
    std::string get_residue_solvent_exposure_fill_colour(double radius_extra) const;
+   void draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
+				     const lig_build::pos_t &residue_pos);
+   void draw_all_residue_attribs();
+   void handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb_file,
+						 const std::string &coot_mdl_file,
+						 const std::string &sa_file);
+   // for debugging the minimization vs original positions
+   std::vector<residue_circle_t> offset_residues_from_orig_positions(); 
+   void show_grid(const lbg_info_t::ligand_grid &grid);
+   void show_mol_ring_centres(); // not const because mol.get_ring_centres() caches
+   std::string grid_intensity_to_colour(int val) const;
+   std::string sixteen_to_hex_let(int v) const;
    
+
 public:
    lbg_info_t(GtkWidget *canvas_in) {
       canvas = canvas_in;
@@ -448,8 +525,10 @@ public:
    void read_draw_residues(const std::string &file_name);
    std::vector<residue_circle_t> read_residues(const std::string &file_name) const;
    void draw_residue_circles(const std::vector<residue_circle_t> &v);
+   void draw_stacking_interactions(const std::vector<residue_circle_t> &v);
    std::vector<solvent_accessible_atom_t> 
    read_solvent_accessibilities(const std::string &file_name) const;
+   void read_files_from_coot();
 };
 
 #endif // LBG_HH

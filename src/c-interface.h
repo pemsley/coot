@@ -5992,7 +5992,8 @@ int get_sbase_monomer(const char *comp_id);
 void fle_view_internal(int imol, const char *chain_id, int res_no, const char *ins_code, 
 		       int imol_ligand_fragment, 
 		       const char *prodrg_output_flat_mol_file_name,
-		       const char *prodrg_output_flat_pdb_file_name);
+		       const char *prodrg_output_flat_pdb_file_name,
+		       const char *prodrg_output_dict_cif_file_name);
 /* \} */
 
 

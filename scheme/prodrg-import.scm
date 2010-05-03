@@ -133,14 +133,16 @@
     (set-mol-displayed imol 0)
     (set-mol-active    imol 0)
     (write-pdb-file imol prodrg-input-file-name)
-    (let ((status 
-	   (goosh-command *cprodrg*
-			  (list "XYZIN" prodrg-input-file-name
-				"MOLOUT" prodrg-output-mol-file
-				"XYZOUT" prodrg-output-pdb-file
-				"LIBOUT" prodrg-output-lib-file)
-			  (list "COORDS BOTH" "MINI FLAT" "END")
-			  prodrg-log #t)))
+    (let* ((arg-list (list "XYZIN"  prodrg-input-file-name
+			   "MOLOUT" prodrg-output-mol-file
+			   "XYZOUT" prodrg-output-pdb-file
+			   "LIBOUT" prodrg-output-lib-file))
+	   (nov (format #t "arg-list: ~s~%" arg-list))
+	   (status 
+	    (goosh-command *cprodrg*
+			   arg-list
+			   (list "COORDS BOTH" "MINI FLAT" "END")
+			    prodrg-log #t)))
       (if (not (number? status))
 	  (begin
 	    (info-dialog "Ooops: cprodrg not found?")
@@ -153,7 +155,10 @@
 		#f)
 
 	      ;; normal return value (hopefully)
-	      (list imol prodrg-output-mol-file prodrg-output-pdb-file))))))
+	      (list imol 
+		    prodrg-output-mol-file 
+		    prodrg-output-pdb-file 
+		    prodrg-output-lib-file))))))
 
 
 
@@ -167,11 +172,13 @@
        (if r
 	   (let ((imol-ligand-fragment (car r))
 		 (prodrg-output-flat-mol-file-name (list-ref r 1))
-		 (prodrg-output-flat-pdb-file-name (list-ref r 2)))
+		 (prodrg-output-flat-pdb-file-name (list-ref r 2))
+		 (prodrg-output-cif-file-name      (list-ref r 3)))
 	     (fle-view-internal imol chain-id res-no "" ;; from active atom
 	      imol-ligand-fragment
 	      prodrg-output-flat-mol-file-name
-	      prodrg-output-flat-pdb-file-name)
+	      prodrg-output-flat-pdb-file-name
+	      prodrg-output-cif-file-name)
 	     (goosh-command "touch" 
 			    (list
 			     (append-dir-file "coot-ccp4" ".coot-to-lbg-mol-ready"))
