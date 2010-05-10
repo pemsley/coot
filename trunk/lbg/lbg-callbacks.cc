@@ -20,6 +20,7 @@
  */
 
 #include <gtk/gtk.h>
+#include <stdlib.h> // for system()
 
 #include "lbg.hh"
 
@@ -331,7 +332,8 @@ on_lbg_open_filechooserdialog_response(GtkDialog       *dialog,
 	 CMMDBManager *mol = NULL; // no atom names to transfer
 	 lig_build::molfile_molecule_t mm;
 	 mm.read(file_name);
-	 l->import(mm, file_name, mol);
+	 widgeted_molecule_t wmol = l->import(mm, file_name, mol);
+	 l->render_from_molecule(wmol);
 	 gtk_widget_hide(l->open_dialog);
       }
    }
@@ -501,4 +503,39 @@ on_residue_circles_toolbutton_clicked(GtkToolButton *button, gpointer user_data)
    else
       std::cout << "Bad lbg_info_t lookup in on_residue_cirlces_toolbutton_clicked" << std::endl;
       
+}
+
+extern "C" G_MODULE_EXPORT void
+on_smiles_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+      l->mol.write_mdl_molfile(".lbg-tmp-smiles-mol");
+      std::string system_string = "babel -i mol .lbg-tmp-smiles-mol -o smi .lbg-tmp-smiles.smi";
+      int status = system(system_string.c_str());
+      if (status == 0) {
+	 std::string file_text = l->file_to_string(".lbg-tmp-smiles.smi");
+	 std::string::size_type ihash = file_text.find("#");
+	 std::string smiles_text = file_text;
+	 if (ihash != std::string::npos) {
+	    smiles_text = file_text.substr(0, ihash);
+	 }
+	 gtk_entry_set_text(GTK_ENTRY(l->lbg_smiles_entry), smiles_text.c_str());
+	 gtk_widget_show(l->lbg_smiles_dialog);
+      }
+   }
+}
+
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_smiles_dialog_close (GtkDialog       *dialog,
+			     gpointer         user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   } else {
+      std::cout << "failed to get lbg_info_t from canvas " << canvas << " " << user_data << std::endl;
+   } 
 }

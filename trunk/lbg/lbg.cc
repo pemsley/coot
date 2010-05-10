@@ -577,11 +577,11 @@ lbg_info_t::font_colour(const std::string &ele) const {
    if (ele == "O") 
       font_colour = "red";
    if (ele == "S") 
-      font_colour = "#999900";
+      font_colour = "#888800";
    if (ele == "F") 
-      font_colour = "#00aa00";
+      font_colour = "#008800";
    if (ele == "CL") 
-      font_colour = "#229900";
+      font_colour = "#228800";
    if (ele == "I") 
       font_colour = "#220077";
    
@@ -927,8 +927,8 @@ lbg_info_t::new_pos_by_bisection(int atom_index,
       lig_build::pos_t pos_2 = mol.atoms[idx_2].atom_position;
       lig_build::pos_t d_1 = pos_1 - centre;
       lig_build::pos_t d_2 = pos_2 - centre;
-      double cross = lig_build::pos_t::cross(d_1, d_2);
-      double cos_theta = cross/(d_1.length() * d_2.length());
+      double dot = lig_build::pos_t::dot(d_1, d_2);
+      double cos_theta = dot/(d_1.length() * d_2.length());
       double angle = acos(cos_theta)/DEG_TO_RAD;
       if (angle > (sorted_angles.back()-0.01)) {
 	 lig_build::pos_t mp_diff = lig_build::pos_t::mid_point(pos_1, pos_2) - centre;
@@ -958,8 +958,8 @@ lbg_info_t::get_angles(int atom_index, const std::vector<int> &bond_indices) con
       lig_build::pos_t pos_2 = mol.atoms[idx_2].atom_position;
       lig_build::pos_t d_1 = pos_1 - centre;
       lig_build::pos_t d_2 = pos_2 - centre;
-      double cross = lig_build::pos_t::cross(d_1, d_2);
-      double cos_theta = cross/(d_1.length() * d_2.length());
+      double dot = lig_build::pos_t::dot(d_1, d_2);
+      double cos_theta = dot/(d_1.length() * d_2.length());
       double angle = acos(cos_theta)/DEG_TO_RAD;
       v[i] = angle;
    }
@@ -1527,6 +1527,12 @@ lbg_info_t::init(GtkBuilder *builder) {
    lbg_sbase_search_results_vbox = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_sbase_search_results_vbox"));
    lbg_export_as_pdf_dialog =  GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_pdf_filechooserdialog"));
    lbg_export_as_png_dialog =  GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_png_filechooserdialog"));
+   lbg_smiles_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_dialog"));
+   lbg_smiles_entry = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_entry"));
+   lbg_toolbar_layout_info_label = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_toolbar_layout_info_label"));
+
+
+   gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
 
 
    GtkWidget *lbg_scrolled_win =
@@ -1921,19 +1927,23 @@ lbg_info_t::import(const lig_build::molfile_molecule_t &mol_in, const std::strin
 void
 lbg_info_t::read_draw_residues(const std::string &file_name) {
 
+   bool show_dynamics = 1;
+
    // read residues need to happen after the ligand has been placed on the canvas
    // i.e. mol.input_coords_to_canvas_coords() is called in read_residues();
    // 
    residue_circles = read_residues(file_name);
 
    initial_residues_circles_layout(); // twiddle residue_circles
-
+   
    // cycles of optimisation
    // 
-   // std::vector<residue_circle_t> current_circles = residue_circles;
+   std::vector<residue_circle_t> current_circles = residue_circles;
+   if (show_dynamics)
+      draw_residue_circles(current_circles);
 
-   // for debugging
-   std::vector<residue_circle_t> current_circles = offset_residues_from_orig_positions();
+   // for debugging the minimizer (vs original positions)
+   // std::vector<residue_circle_t> current_circles = offset_residues_from_orig_positions();
    
    for (int iround=0; iround<120; iround++) {
       std::cout << ":::::::::::::::::::: minimization round " << iround
@@ -1941,7 +1951,8 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
       std::pair<int, std::vector<lbg_info_t::residue_circle_t> > new_c =
 	 optimise_residue_circle_positions(residue_circles, current_circles);
       current_circles = new_c.second;
-      // draw_residue_circles(current_circles);
+      if (show_dynamics)
+	 draw_residue_circles(current_circles);
       if (new_c.first == GSL_ENOPROG)
 	 break;
       if (new_c.first == GSL_SUCCESS) { 
@@ -1951,6 +1962,39 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
 
    // save the class member data
    residue_circles = current_circles;
+
+   // has the current solution problems due to residues too close to the ligand?
+   std::pair<bool, std::vector<int> > problem_status = solution_has_problems_p();
+   std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
+   for (unsigned int ip=0; ip<problem_status.second.size(); ip++) {
+      std::cout << ":::::::::::: "
+		<< current_circles[problem_status.second[ip]].residue_label
+		<< " " << std::endl;
+   }
+   
+   if (problem_status.second.size()) { 
+   // if (0) { // debug, fixme
+      std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
+	 mol.ligand_extents();
+      lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
+      grid.fill(mol);
+      for (unsigned int ip=0; ip<problem_status.second.size(); ip++) {
+	 std::vector<std::pair<lig_build::pos_t, double> > attachment_points;
+	 std::pair<lig_build::pos_t, double> p(residue_circles[problem_status.second[ip]].pos,
+					       3.5); // a trapped residue is now treated
+	                                             // as a primary (bonding) residue
+	                                             // with a distance to the "bad"
+	                                             // solution of 3.5A
+	 attachment_points.push_back(p);
+	 initial_primary_residue_circles_layout(grid, problem_status.second[ip],
+						attachment_points);
+      }
+      current_circles = residue_circles;
+      std::pair<int, std::vector<lbg_info_t::residue_circle_t> > new_c =
+      	 optimise_residue_circle_positions(residue_circles, current_circles);
+      residue_circles = new_c.second;
+   }
+   
    draw_all_residue_attribs();
 }
 
@@ -1989,14 +2033,24 @@ lbg_info_t::initial_residues_circles_layout() {
    // when we move a primary, we want to know it's index in
    // residue_circles, because that's what we really want to move.
    // 
-   std::vector<std::pair<int, lbg_info_t::residue_circle_t> > primaries;
+   // std::vector<std::pair<int, lbg_info_t::residue_circle_t> > primaries;
+
+   // now a class data member because it is used in the layout penalty
+   // function (we want to have nice bond lengths for residues bonded
+   // to the ligand).
+   // 
+   std::vector<int> primary_indices;  // this primary_indices needs to
+				      // get passed to the
+				      // primary_indices used in
+				      // residue cirlce optimization.
    
    for(unsigned int ic=0; ic<residue_circles.size(); ic++) {
       if (residue_circles[ic].is_a_primary_residue()) {
 	 std::cout << " residue circle " << residue_circles[ic].residue_label
 		   << " is a primary residue" << std::endl;
-	 std::pair<int, lbg_info_t::residue_circle_t> p(ic, residue_circles[ic]);
-	 primaries.push_back(p);
+	 // std::pair<int, lbg_info_t::residue_circle_t> p(ic, residue_circles[ic]);
+	 // primaries.push_back(p);
+	 primary_indices.push_back(ic);
       }
    }
 
@@ -2010,30 +2064,11 @@ lbg_info_t::initial_residues_circles_layout() {
       lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
       grid.fill(mol);
 
-      // add a quadratic function to a copy of the grid
-      //
-
-      // int iprimary = 0; // testing
-      for (unsigned int iprimary=0; iprimary<primaries.size(); iprimary++) {
-	 if (0)
-	    std::cout << " =========== adding quadratic for residue " 
-		      << primaries[iprimary].second.residue_label
-		      << " ============================"
-		      << std::endl;
-	 lbg_info_t::ligand_grid primary_grid = grid;
-	 
-	 // attachment points are points on the ligand, in ligand
-	 // coordinates to which this primary residue circle is
-	 // attached (often only one attachment, but can be 2
-	 // sometimes).
-	 std::vector<lig_build::pos_t> attachment_points =
-	    primaries[iprimary].second.get_attachment_points(mol);
-	 primary_grid.add_quadratic(attachment_points);
-
-	 // I want to see the grid.
-	 // show_grid(primary_grid);
-	 lig_build::pos_t best_pos = primary_grid.find_minimum_position();
-	 residue_circles[primaries[iprimary].first].pos = best_pos;
+      for (unsigned int iprimary=0; iprimary<primary_indices.size(); iprimary++) {
+	 int idx = primary_indices[iprimary];
+	 std::vector<std::pair<lig_build::pos_t, double> > attachment_points =
+	    residue_circles[idx].get_attachment_points(mol);
+	 initial_primary_residue_circles_layout(grid, idx, attachment_points);
       }
       // show_mol_ring_centres();
    }
@@ -2043,12 +2078,53 @@ lbg_info_t::initial_residues_circles_layout() {
    std::cout << "done" << std::endl;
 }
 
+// fiddle with the position of the residue_circles[primary_index].
+//
+void
+lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid &grid,
+						   int primary_index,
+						   const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points) {
+   
+   if (0)
+      std::cout << " =========== adding quadratic for residue " 
+		<< residue_circles[primary_index].residue_label
+		<< " ============================"
+		<< std::endl;
+   lbg_info_t::ligand_grid primary_grid = grid;
+	 
+   // attachment points are points on the ligand, in ligand
+   // coordinates to which this primary residue circle is
+   // attached (often only one attachment, but can be 2
+   // sometimes).
+   primary_grid.add_quadratic(attachment_points);
+
+   // I want to see the grid.
+   // if (primary_index == 0) 
+   // show_grid(primary_grid);
+   
+   lig_build::pos_t best_pos = primary_grid.find_minimum_position();
+
+   // OK, consider the case where there are 2 residues bonding to the
+   // same atom in the ligand.  They wil both be given exactly the
+   // same best_pos and they will subsequently refine together,
+   // resulting in one residue sitting on top of another - bad news.
+   //
+   // So let's shift the residue a bit in the direction that it came
+   // from so that the residues don't refine together.
+   //
+   lig_build::pos_t a_to_b_uv = (residue_circles[primary_index].pos - best_pos).unit_vector();
+   
+   residue_circles[primary_index].pos = best_pos + a_to_b_uv * 4;
+   
+}
+
+
 // attachment points are points on the ligand, in ligand coordinates
 // to which this primary residue circle is attached (often only one
 // attachment, but can be 2 sometimes).
 //
 void
-lbg_info_t::ligand_grid::add_quadratic(const std::vector<lig_build::pos_t> &attachment_points) {
+lbg_info_t::ligand_grid::add_quadratic(const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points) {
 
    if (attachment_points.size()) {
       double scale_by_n_attach = 1.0/double(attachment_points.size());
@@ -2057,7 +2133,7 @@ lbg_info_t::ligand_grid::add_quadratic(const std::vector<lig_build::pos_t> &atta
 	 for (unsigned int ix=0; ix<x_size(); ix++) {
 	    for (unsigned int iy=0; iy<y_size(); iy++) {
 	       lig_build::pos_t pos = to_canvas_pos(ix, iy);
-	       double d2 = (pos-attachment_points[iattach]).lengthsq();
+	       double d2 = (pos-attachment_points[iattach].first).lengthsq();
 	       double val = 0.00002 * d2 * scale_by_n_attach;
 	       grid_[ix][iy] += val;
 	    }
@@ -2103,15 +2179,20 @@ lbg_info_t::ligand_grid::canvas_pos_to_grid_pos(const lig_build::pos_t &pos) con
    return std::pair<int, int> (ix, iy);
 }
 
-std::vector<lig_build::pos_t>
+std::vector<std::pair<lig_build::pos_t, double> >
 lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &mol) const {
    
-   std::vector<lig_build::pos_t> v;
+   std::vector<std::pair<lig_build::pos_t, double> > v;
 
    for (unsigned int i=0; i<bonds_to_ligand.size(); i++) {
       if (bonds_to_ligand[i].is_set()) {
 	 try {
-	    v.push_back(mol.get_atom_canvas_position(bonds_to_ligand[i].ligand_atom_name));
+	    lig_build::pos_t pos =
+	       mol.get_atom_canvas_position(bonds_to_ligand[i].ligand_atom_name);
+	    if (bonds_to_ligand[i].is_set()) { 
+	       std::pair<lig_build::pos_t, double> p(pos, bonds_to_ligand[i].bond_length);
+	       v.push_back(p);
+	    }
 	 }
 	 catch (std::runtime_error rte) {
 	    std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -2122,7 +2203,9 @@ lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &m
    if (has_stacking_interaction()) {
       try {
 	 lig_build::pos_t pos = mol.get_ring_centre(ligand_ring_atom_names);
-	 v.push_back(pos);
+	 double stacking_dist = 3.5; // A
+	 std::pair<lig_build::pos_t, double> p(pos, stacking_dist);
+	 v.push_back(p);
       }
       catch (std::runtime_error rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -2131,6 +2214,40 @@ lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &m
 
    return v;
 }
+
+// return 1 on solution having problems, 0 for no problems, also
+// return a list of the residue circles with problems.
+// 
+std::pair<bool, std::vector<int> >
+lbg_info_t::solution_has_problems_p() const {
+
+   std::vector<int> v;
+   bool status = 0;
+   // scale factor of 1.2 is too small, 2.0 seems good for H102 in 2aei 
+   double crit_dist_2 = 2.0 * SINGLE_BOND_CANVAS_LENGTH * SINGLE_BOND_CANVAS_LENGTH;
+   for (unsigned int i=0; i<residue_circles.size(); i++) {
+      int n_close = 0;
+      for (unsigned int j=0; j<mol.atoms.size(); j++) {
+	 double d2 = (residue_circles[i].pos-mol.atoms[j].atom_position).lengthsq();
+// 	 std::cout << "comparing " << d2 << " " << crit_dist_2 << " "
+// 		   << residue_circles[i].residue_label
+// 		   << std::endl;
+	 if (d2 < crit_dist_2) {
+	    n_close++;
+	    if (n_close > 1) {
+	       v.push_back(i);
+	       status = 1;
+	       break;
+	    }
+	 }
+      }
+      if (status)
+	 break;
+   }
+   return std::pair<bool, std::vector<int> > (status, v);
+} 
+ 
+
 
 
 void
@@ -2354,7 +2471,7 @@ lbg_info_t::optimise_residue_circle_positions(const std::vector<lbg_info_t::resi
    if (r.size() > 0) {
       if (c.size() == r.size()) { 
 	 optimise_residue_circles orc(r, c, mol);
-	 int status = orc.get_status();
+	 int status = orc.get_gsl_min_status();
 	 return orc.solution();
       }
    }
@@ -2522,9 +2639,11 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
 
    // don't draw waters that don't have bonds to the ligand
    //
-   if (residue_circle.residue_type == "HOH")
-      if (residue_circle.bonds_to_ligand.size() == 0)
+   if (residue_circle.residue_type == "HOH") {
+      if (residue_circle.bonds_to_ligand.size() == 0) {
 	 return;
+      }
+   }
 
    // Capitalise the residue type (takes less space than upper case).
    std::string rt = residue_circle.residue_type.substr(0,1);
@@ -2582,6 +2701,7 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
    std::string purple = "#eeccee";
    std::string red    = "#cc0000";
    std::string blue   = "#0000cc";
+   std::string metalic_grey = "#d9d9d9";
 
    if (residue_type == "ALA")
       fill_colour = grease;
@@ -2641,9 +2761,20 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
       stroke_colour = blue;
    if (residue_type == "HIS")
       stroke_colour = blue;
+
+   // metals
+   if (residue_type == "ZN") 
+      fill_colour = metalic_grey;
+   if (residue_type == "MG")
+      fill_colour = metalic_grey;
+   if (residue_type == "NA")
+      fill_colour = metalic_grey;
+   if (residue_type == "CA")
+      fill_colour = metalic_grey;
+   if (residue_type == "K")
+      fill_colour = metalic_grey;
 	 
    return std::pair<std::string, std::string> (fill_colour, stroke_colour);
-
 }
 
 // solvent exposure of the residue due to ligand binding
@@ -2958,4 +3089,20 @@ lbg_info_t::draw_bonds_to_ligand() {
 		      << residue_circles[ic].residue_type << std::endl;
       }
    }
+}
+
+std::string
+lbg_info_t::file_to_string(const std::string &file_name) const {
+
+   std::string s;
+   std::string line;
+   std::ifstream f(file_name.c_str());
+   if (!f) {
+      std::cout << "Failed to open " << file_name << std::endl;
+   } else {
+      while (std::getline(f, line)) { 
+	 s += line;
+      }
+   }
+   return s;
 }

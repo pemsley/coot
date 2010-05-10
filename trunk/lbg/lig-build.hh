@@ -127,7 +127,7 @@ namespace lig_build {
 	 // 		   << cos_theta << std::endl;
 	 return acos(cos_theta)/DEG_TO_RAD;
       }
-      static double cross(const pos_t &a, const pos_t &b) {
+      static double dot(const pos_t &a, const pos_t &b) {
 	 return (a.x*b.x + a.y*b.y);
       }
       // return angle to X axis in degrees
