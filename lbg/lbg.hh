@@ -45,7 +45,8 @@
 
 #define dark "#111111"
 
-static double SINGLE_BOND_CANVAS_LENGTH=35.27;
+static double LIGAND_TO_CANVAS_SCALE_FACTOR = 23;
+static double SINGLE_BOND_CANVAS_LENGTH= LIGAND_TO_CANVAS_SCALE_FACTOR * 1.54;
 
 bool save_togglebutton_widgets(GtkBuilder *builder);
 
@@ -255,7 +256,8 @@ public:
       bool is_a_primary_residue() const {
 	 return is_a_primary_residue_;
       }
-      std::vector<lig_build::pos_t> get_attachment_points(const widgeted_molecule_t &mol) const;
+      std::vector<std::pair<lig_build::pos_t, double> >
+      get_attachment_points(const widgeted_molecule_t &mol) const;
       // friend std::ostream& operator<<(std::ostream &s, residue_circle_t r);
    };
    // std::ostream& operator<<(std::ostream &s, residue_circle_t r);
@@ -285,13 +287,26 @@ public:
       int y_size() const {
 	 return y_size_;
       }
-      void add_quadratic(const std::vector<lig_build::pos_t> &attachment_points);
+      void add_quadratic(const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points);
       lig_build::pos_t find_minimum_position() const;
 
    };
 
+
    class optimise_residue_circles {
    private:
+
+      class angle {
+      public:
+	 angle(int i_atom_index_in, int ires_1_in, int ires_2_in) {
+	    i_atom_index = i_atom_index_in;
+	    ires_1_index = ires_1_in;
+	    ires_2_index = ires_2_in;
+	 }
+	 int i_atom_index;
+	 int ires_1_index;
+	 int ires_2_index;
+      };
       int status; 
       static double f(const gsl_vector *v, void *params);
       static void  df(const gsl_vector *v, void *params, gsl_vector *df); 
@@ -301,11 +316,20 @@ public:
       std::vector<residue_circle_t>  current_circles;
       widgeted_molecule_t mol;
       void numerical_gradients(gsl_vector *x, gsl_vector *df, void *params) const;
+      std::vector<angle> angles;
+      void setup_angles(); // uses current_circles and mol and fills angles
+
+      // these can be unstaticed by passing an lbg_info_t to f(), df()
+      // as part of params.  Hmmm... it is already.  Should be easy to
+      // fix then.  But not now.
+      // 
       static bool score_vs_ligand_atoms;
       static bool score_vs_ring_centres;
       static bool score_vs_other_residues;
+      static bool score_vs_other_residues_for_angles;
       static bool score_vs_original_positions;
-      
+      static bool score_vs_ligand_atom_bond_length;
+
    public:
       // we pass two vectors here because (for trajectory-view) we
       // don't want to restart the minimisation with the current
@@ -315,7 +339,12 @@ public:
 			       const std::vector<residue_circle_t> &c, // current points
 			       const widgeted_molecule_t &mol);
       std::pair<int, std::vector<residue_circle_t> > solution() const;
-      int get_status() const { return status; }
+      // return GSL minimisation status;
+      int get_gsl_min_status() const { return status; }
+      std::vector<int> primary_indices;  // indices in residues_circles
+                                         // of the primary residues.
+   
+
    };
 
 
@@ -438,7 +467,21 @@ private:
    // twiddle residue_circles, taking in to account the residues that
    // bond to the ligand (including stacking residues).
    // 
-   void initial_residues_circles_layout(); 
+   void initial_residues_circles_layout();
+
+   // fiddle with the position of the residue_circles[primary_index].
+   //
+   void initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid &grid,
+					       int primary_index,
+					       const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points);
+
+   
+   // return 1 on solution having problems, 0 for no problems, also
+   // return a list of the residue circles with problems.
+   // 
+   std::pair<bool, std::vector<int> > solution_has_problems_p() const;
+      
+
 
    // minimise layout energy
    std::pair<int, std::vector<residue_circle_t> >
@@ -466,7 +509,6 @@ private:
    void show_mol_ring_centres(); // not const because mol.get_ring_centres() caches
    std::string grid_intensity_to_colour(int val) const;
    std::string sixteen_to_hex_let(int v) const;
-   
 
 public:
    lbg_info_t(GtkWidget *canvas_in) {
@@ -488,6 +530,9 @@ public:
    GtkWidget *lbg_export_as_png_dialog;
    GtkWidget *lbg_sbase_search_results_dialog;
    GtkWidget *lbg_sbase_search_results_vbox;
+   GtkWidget *lbg_smiles_dialog;
+   GtkWidget *lbg_smiles_entry;
+   GtkWidget *lbg_toolbar_layout_info_label;
    GtkWidget *canvas;
    std::map<std::string, GtkToggleToolButton *> widget_names;
    widgeted_molecule_t mol;
@@ -529,6 +574,8 @@ public:
    std::vector<solvent_accessible_atom_t> 
    read_solvent_accessibilities(const std::string &file_name) const;
    void read_files_from_coot();
+   std::string file_to_string(const std::string &filename) const;
+
 };
 
 #endif // LBG_HH

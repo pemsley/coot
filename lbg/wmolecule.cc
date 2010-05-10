@@ -92,11 +92,13 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 			 << atom_name << ":" << std::endl;
 	    at.set_atom_name(atom_name);
 	 } else { 
-	    std::cout << "Boo!! atom at " << pt.format() << " with no name" << std::endl;
+	    std::cout << "Boo!! atom at " << pt.format() << " with no name"
+		      << std::endl;
 	 } 
 	 
 	 if (0)
-	    std::cout << "Element " << element << " at " << pos << " " << mol_in_min_y << " "
+	    std::cout << "Element " << element << " at " << pos << " "
+		      << mol_in_min_y << " "
 		      << mol_in_max_y << std::endl;
 	 atoms.push_back(at);
       }
@@ -207,7 +209,9 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
 
    double x =   scale_correction.second * (pos_in.x() - centre_correction.x) * SINGLE_BOND_CANVAS_LENGTH/1.3;
    double y = - scale_correction.second * (pos_in.y() - centre_correction.y) * SINGLE_BOND_CANVAS_LENGTH/1.3;
-   double y_offset = 60 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 20;
+
+   // double y_offset = 60 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 20;
+   double y_offset = 110 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 30;
    
    x += 300;
    y += y_offset;
@@ -847,7 +851,7 @@ widgeted_molecule_t::find_bonded_atoms_with_no_pass(int start_atom_index,
 		     }
 		     if (! ifound)
 			local_no_pass_atoms.push_back(this_atom_index);
-		     debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
+		     // debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
 		     return std::pair<bool, std::vector<int> > (1, local_no_pass_atoms);
 		  }
 	       }
@@ -881,7 +885,8 @@ widgeted_molecule_t::find_bonded_atoms_with_no_pass(int start_atom_index,
 			}
 		     }
 		     if (! ifound)
-			debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
+			local_no_pass_atoms.push_back(this_atom_index);
+		     // debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
 		     return std::pair<bool, std::vector<int> > (1, local_no_pass_atoms);
 		  }
 	       }
@@ -1254,7 +1259,10 @@ widgeted_molecule_t::get_atom_name(const clipper::Coord_orth &pt, CMMDBManager *
    double close_2 = 0.01 * 0.01;
 
    if (! mol) {
-      std::cout << "Null molecule in get_atom_name " << std::endl;
+      // we don't need to be always told this - this *is* the case if
+      // we read a straight mol file.
+      // 
+      // std::cout << "Null molecule in get_atom_name " << std::endl;
 
    } else { 
 

@@ -5,6 +5,26 @@ Tue Apr 13 14:33:21 BST 2010
 
     Write a mol file.  Read it in.  It has become expanded.
 
+---
+Mon May 10 14:23:04 BST 2010
+
+   1udt, residue type VIA, 
+
+   problem at N22, suspicious hydrogen bond doner.
+   problem at O3,  suspicious hydrogen bond doner.
+
+---
+Sat May  8 13:59:58 UYT 2010
+
+    Need to add cation-pi interaction (flev.cc obviously)
+
+-----
+Sat May  8 10:06:59 UYT 2010
+
+   Fix up SINGLE_BOND_CANVAS_LENGTH usage in wmolecule.
+   Replace by LIGAND_TO_CANVAS_SCALE_FACTOR usage.
+
+
 ------
   
     JED: break molecule in to bits, add bonds, change bonds to double
@@ -17,13 +37,33 @@ Tue Apr 13 14:33:21 BST 2010
 
     look at 3h7w.  Problems.
 
+* Angle of bonds to ligand.  Hard to solve.  What are the angles in a
+  H-bond?
+
 ----
 
     look at 3lhj.  Problems
 
+* Looks good now.
+
 ----
 
     look at 3hec.  Problems.
+
+* OK now
+
+---
+
+    look at 1g3b. Problems
+
+-----
+
+Swanand's talk:
+
+   problems with ligands in the PDB:
+
+   1pme, 1tnk  - others, didn't catch
+
 
 ----
 Sun May  2 18:20:52 UYT 2010
@@ -63,7 +103,7 @@ variants, just 2 of them
 
 ----
 
-   need to have use control over bond direction (JME does it when the
+   need to have user control over bond direction (JME does it when the
    mouse moves away from the clicked-on atom).
 
 
@@ -117,7 +157,7 @@ INFO::
 
 ------
 
-=================================================================================
+===============================================================================
 
 
 
