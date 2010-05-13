@@ -1082,7 +1082,10 @@ public:        //                      public
 					   float high_reso_limit, 
 					   float map_sampling_rate);
 
-   void map_fill_from_cns_hkl(std::string cns_file_name,
+   // return succes status, if mtz file is broken or empty, or
+   // non-existant, return 0.
+   // 
+   bool map_fill_from_cns_hkl(std::string cns_file_name,
 			      std::string f_col,
 			      int is_diff_map, 
 			      float map_sampling_rate);

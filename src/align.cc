@@ -73,7 +73,7 @@ do_alignment(atom_selection_container_t asc) {
    for (int imodel = 1; imodel <= n_models; imodel++) { 
       CModel *model_p = mol->GetModel(imodel);
       CChain *chain_p;
-      char *chain_id;
+      const char *chain_id;
       int n_chains = model_p->GetNumberOfChains();
 
       for (int ich=0; ich<n_chains; ich++) {

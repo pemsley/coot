@@ -1381,8 +1381,17 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 
 int auto_read_make_and_draw_maps(const char *mtz_file_name) {
 
+   int imol1 = -1;
+   int imol2 = -1;
    graphics_info_t g;
+
+   if (! coot::file_exists(mtz_file_name)) {
+      std::cout << "WARNING:: file " << mtz_file_name << " does not exist" << std::endl;
+      return -1;
+   }
+   
    if ( is_mtz_file_p(mtz_file_name) ) {
+
       // try MTZ file
       // list of standard column names
       const char coldefs[][40] = { "+FWT,PHWT,",
@@ -1443,8 +1452,6 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
 	 if ( imol >= 0 ) imols.push_back( imol );
       }
 
-      int imol1 = -1;
-      int imol2 = -1;
       if ( imols.size() > 0 ) {
 	 imol1 = imols.front();
 	 imol2 = imols.back();
@@ -1455,19 +1462,34 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
 	 gtk_widget_show(w);
       }
    
-      return imol2; // return to callbacks.c (currently ignored)
-
    } else {
-      // Otherwise try extended CNS format
-      float msr = graphics_info_t::map_sampling_rate;
-      int imol1 = g.create_molecule();
-      g.molecules[imol1].map_fill_from_cns_hkl( mtz_file_name, "F2", 0, msr );
-      int imol2 = g.create_molecule();
-      g.molecules[imol2].map_fill_from_cns_hkl( mtz_file_name, "F1", 1, msr );
-      g.scroll_wheel_map = imol1;
-      g.activate_scroll_radio_button_in_display_manager(imol1);
-      return imol2;
+
+      // don't try to read as a CNS file if it is called an .mtz file
+      // (map_fill_from_cns_hkl can dump core if file is not properly
+      // formatted).
+      // 
+      if (coot::util::file_name_extension(mtz_file_name) != ".mtz") { 
+      
+	 // Otherwise try extended CNS format
+	 float msr = graphics_info_t::map_sampling_rate;
+	 imol1 = g.create_molecule();
+	 bool success;
+	 success = g.molecules[imol1].map_fill_from_cns_hkl( mtz_file_name, "F2", 0, msr );
+	 if (success) { 
+	    imol2 = g.create_molecule();
+	    success = g.molecules[imol2].map_fill_from_cns_hkl( mtz_file_name, "F1", 1, msr );
+	    if (success) { 
+	       g.scroll_wheel_map = imol1;
+	       g.activate_scroll_radio_button_in_display_manager(imol1);
+	    } else {
+	       g.erase_last_molecule();
+	    } 
+	 } else {
+	    g.erase_last_molecule();
+	 }
+      }
    }
+   return imol2; 
 }
 
 int auto_read_do_difference_map_too_state() {
