@@ -209,7 +209,7 @@
 		
 		(format #t "got status: ~s~%" r)))
 	    mtz-list))
-     return #t ;; no crash
+     #t ;; no crash
 ))
 
 
