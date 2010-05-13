@@ -198,6 +198,22 @@
        (valid-map-molecule? imol-map))))
 
 
+(greg-testcase "Auto-read bad MTZ test" #t 
+   (lambda ()
+
+     (let ((mtz-list (list "xx-missing.mtz" 
+			   (append-dir-file greg-data-dir "broken.mtz"))))
+
+       (map (lambda (file-name)
+	      (let ((r (auto-read-make-and-draw-maps file-name)))
+		
+		(format #t "got status: ~s~%" r)))
+	    mtz-list))
+     return #t ;; no crash
+))
+
+
+
 (greg-testcase "Map Sigma " #t 
    (lambda ()
 
