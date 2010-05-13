@@ -499,6 +499,7 @@ work try also:
 * On Fedora systems how do I make the window focus more useful?::
 * On Mac OSX how do I make the window focus more useful?::
 * How do I change the contour level without a scroll-wheel mouse?::
+* "Unmodelled Blobs" takes me to space - why?::
 * I can't get the "Add Terminal Residue" function to work on my sgi::
 * Where has my screen text (or labels) gone?::
 * How can I speed up moving betwee residues using ``Space''?::
@@ -613,6 +614,19 @@ You might need to restart X11 to activate this setting.
 @section How do I change the contour level without a scroll-wheel mouse?
 
 Keyboard + and -.
+
+@node "Unmodelled Blobs" takes me to space - why?
+@section "Unmodelled Blobs" takes me to space - why?
+
+One problem could be that the symmetry and cell of the map does 
+not match the symmetry and cell of the related protein.
+
+Or perhaps it's because Coot does not use the "viewing" contour level 
+to generate blob map point clusters, i.e. it could be using a contour 
+level much below what you are looking at.  Coot positions the view at 
+the centre of a blob. If the blob consists of an "arc" of points (as 
+is often the case) the centre of the blob will not be @emph{in} the blob.
+
 
 @node I can't get the "Add Terminal Residue" function to work on my sgi
 @section I can't get the "Add Terminal Residue" function to work on my sgi
