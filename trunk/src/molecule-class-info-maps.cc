@@ -778,7 +778,10 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
    // << imol_no << std::endl;
 }
 
-void
+// return succes status, if mtz file is broken or empty, or
+// non-existant, return 0.
+// 
+bool
 molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 					     std::string f_col,
 					     int is_diff_map, 
@@ -786,30 +789,31 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 {
    graphics_info_t g;
 
-   long T0 = 0; // timer
-   T0 = glutGet(GLUT_ELAPSED_TIME);
+   try { 
+      long T0 = 0; // timer
+      T0 = glutGet(GLUT_ELAPSED_TIME);
 
-   clipper::CNS_HKLfile cnsin; 
-   cnsin.open_read( cns_file_name );       // open new file
-   clipper::HKL_sampling hklsam( cnsin.cell(), cnsin.resolution() );
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > 
-     fphidata( cnsin.spacegroup(), cnsin.cell(), hklsam );
-   cnsin.import_hkl_data( fphidata, f_col );
-   cnsin.close_read();
+      clipper::CNS_HKLfile cnsin; 
+      cnsin.open_read( cns_file_name );       // open new file
+      clipper::HKL_sampling hklsam( cnsin.cell(), cnsin.resolution() );
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > 
+	 fphidata( cnsin.spacegroup(), cnsin.cell(), hklsam );
+      cnsin.import_hkl_data( fphidata, f_col );
+      cnsin.close_read();
    
-   std::string mol_name = cns_file_name + " "; 
-   mol_name += f_col; 
+      std::string mol_name = cns_file_name + " "; 
+      mol_name += f_col; 
 
-   original_fphis_filled = 1;
-   original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
-   original_fphis = fphidata;
+      original_fphis_filled = 1;
+      original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
+      original_fphis = fphidata;
 
 	 
-   initialize_map_things_on_read_molecule(mol_name,
-					  is_diff_map,
-					  g.swap_difference_map_colours);
-   xmap_list = new clipper::Xmap<float>[5];  // 18Kb each (empty) Xmap
-   max_xmaps++;
+      initialize_map_things_on_read_molecule(mol_name,
+					     is_diff_map,
+					     g.swap_difference_map_colours);
+      xmap_list = new clipper::Xmap<float>[5];  // 18Kb each (empty) Xmap
+      max_xmaps++;
 
       long T1 = glutGet(GLUT_ELAPSED_TIME);
 
@@ -817,6 +821,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       std::cout << "Number of OBSERVED reflections: " << n_reflections << "\n";
       if (n_reflections <= 0) {
 	 std::cout << "WARNING:: No reflections in cns file!?" << std::endl;
+	 return 0;
       } else { 
 	 cout << "INFO:: finding ASU unique map points with sampling rate "
    	      << map_sampling_rate	<< endl;
@@ -878,6 +883,12 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 	 long T5 = glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
 	 std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
+	 return 1;
+      }
+   }
+   catch (clipper::Message_base rte) {
+      std::cout << "WARNING:: bad read of CNS HKL file " << cns_file_name << std::endl;
+      return 0;
    }
 }
 

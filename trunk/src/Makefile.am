@@ -214,8 +214,8 @@ INCLUDES = \
 
 bin_PROGRAMS = coot-real density-score-by-residue-real fix-nomenclature-errors
 dist_bin_SCRIPTS = coot density-score-by-residue
-# noinst_PROGRAMS = test-coot-align test-chol
-#check_PROGRAMS = test-coot-align test-chol
+noinst_PROGRAMS = test-coot-align test-cholesky
+#check_PROGRAMS = test-coot-align test-choleksy
 check_PROGRAMS = test-lbg-graph
 # testmap write_map testcartesian graphics_crash_test test_cholesky test-command-line
 
@@ -428,8 +428,8 @@ coot_real_LDADD = $(COOT_EXTRA_LIBS)    \
 
 #		$(INTLLIBS) 		Fix when GETTEXT workds
 
-test_chol_SOURCES = test-chol.cc gl-matrix.cc
-test_chol_LDADD =	\
+test_cholesky_SOURCES = test-chol.cc gl-matrix.cc
+test_cholesky_LDADD =	\
 	$(top_builddir)/coords/libcoot-coords.la \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
