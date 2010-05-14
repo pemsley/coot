@@ -397,7 +397,7 @@ private:
       coot_mdl_ready_time = 0;
       canvas_scale = 1.0;
       canvas_drag_offset = lig_build::pos_t(0,0);
-      standard_residue_circle_radius = 16;
+      standard_residue_circle_radius = 19;
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
