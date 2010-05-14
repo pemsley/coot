@@ -13,6 +13,7 @@
       <source stock-id="generated-icon-3-c-svg" filename="3-c.svg"/>
       <source stock-id="generated-icon-5-c-svg" filename="5-c.svg"/>
       <source stock-id="generated-icon-4-c-svg" filename="4-c.svg"/>
+      <source stock-id="lbg-key-icon-svg" filename="Anonymous_Architetto_--_Chiave.svg"/>
       <source stock-id="generated-icon-sp3-svg" filename="sp3.svg"/>
       <source stock-id="generated-icon-6-c-exp-2-svg" filename="6-c-exp-2.svg"/>
       <source stock-id="generated-icon-triple-svg" filename="triple.svg"/>
@@ -27,6 +28,7 @@
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
@@ -233,25 +235,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="smiles_toolbutton">
+              <object class="GtkToolButton" id="lbg_smiles_toolbutton">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">SMILES</property>
                 <property name="use_underline">True</property>
                 <property name="icon_name">face-smile</property>
-                <signal name="clicked" handler="on_smiles_toolbutton_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="info_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Info</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-info</property>
-                <signal name="clicked" handler="on_info_toolbutton_clicked"/>
+                <signal name="clicked" handler="on_lbg_smiles_toolbutton_clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -270,6 +259,19 @@
               </object>
               <packing>
                 <property name="expand">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="info_toolbutton">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Info</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-info</property>
+                <signal name="clicked" handler="on_info_toolbutton_clicked"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
               </packing>
             </child>
           </object>
@@ -379,6 +381,19 @@
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-add</property>
                 <signal name="clicked" handler="on_residue_circles_toolbutton_clicked"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleToolButton" id="lbg_key_toggle_toolbutton">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Key</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">lbg-key-icon-svg</property>
+                <signal name="toggled" handler="on_lbg_key_toggle_toolbutton_toggled"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -554,6 +569,16 @@
           </packing>
         </child>
         <child>
+          <object class="GtkStatusbar" id="statusbar1">
+            <property name="visible">True</property>
+            <property name="spacing">2</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">5</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkHBox" id="lbg_buttons_hbox">
             <property name="visible">True</property>
             <child>
@@ -621,6 +646,7 @@
                         <child>
                           <object class="GtkVBox" id="vbox3">
                             <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkLabel" id="label2">
                                 <property name="visible">True</property>
@@ -697,7 +723,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="position">5</property>
+            <property name="position">6</property>
           </packing>
         </child>
       </object>
@@ -718,6 +744,7 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <placeholder/>
@@ -749,6 +776,7 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <placeholder/>
@@ -811,10 +839,12 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox4">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <object class="GtkVBox" id="vbox2">
             <property name="visible">True</property>
+            <property name="orientation">vertical</property>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow1">
                 <property name="width_request">350</property>
@@ -830,6 +860,7 @@
                     <child>
                       <object class="GtkVBox" id="lbg_sbase_search_results_vbox">
                         <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
                         <child>
                           <placeholder/>
                         </child>
@@ -897,6 +928,7 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox5">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <placeholder/>
@@ -956,6 +988,7 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox7">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <placeholder/>
@@ -1019,6 +1052,7 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox9">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <placeholder/>
