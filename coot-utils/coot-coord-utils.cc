@@ -475,8 +475,7 @@ coot::filter_residues_by_solvent_contact(CResidue *res_ref,
       } 
    }
    return v;
-} 
-
+}
 
 
 std::pair<bool,float>

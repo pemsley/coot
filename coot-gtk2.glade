@@ -31750,7 +31750,6 @@ search (this may not work well)</property>
 	      <child>
 		<widget class="GtkButton" id="bond_parameters_apply_button">
 		  <property name="border_width">4</property>
-		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>
@@ -31830,7 +31829,6 @@ search (this may not work well)</property>
 	      <child>
 		<widget class="GtkButton" id="bond_parameters_ok_button">
 		  <property name="border_width">4</property>
-		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>

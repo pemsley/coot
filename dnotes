@@ -5473,6 +5473,27 @@ Wed Mar 31 16:47:17 BST 2010
    here's one for the validation tutorial: 1m1f
 
 
+---
+Thu May 13 13:36:31 BST 2010
+
+
+   JED comments:
+
+
+   - Ball and stick does not obey show hydrogens off.
+
+  Agreed. This should be fixed.
+
+   - Environment distances are shown for hydrogens -- makes the view
+     pretty crowded.
+
+  Don't know how to "fix"
+
+   - The "Apply" button in the bond parameters window seems superfluous.
+
+  Agreed, it's a bit non-canonical.
+
+
 ------
 
 

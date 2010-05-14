@@ -4,9 +4,50 @@
 
     o change to rms z scores ::: 2
 
+    o gtkglext build problem with modern gtk (question: which version
+      of GTK?) ::: 2
 
     o residues in DNA from modern PDB files is DG, DA, DC, DT.  Need
       to map to refmac name, restraints don't work.
+
+      ::: 1
+
+    o Allen Sickmier:
+
+      I run a lot of ligands (compounds) through coot and it is almost
+      always a nomenclature issue when I see this.  Make sure your
+      library and atom names match and if you have multiple NADs make
+      sure they have different chain Ids.
+
+      -> Are multiple chains really needed?  Test.  If so, bug.  Needs
+         fixing.
+
+      ::: 1
+
+    o Stefan Becker: try ~/data/shelx/problems/bad-lst/test.lst and
+      use the sequence view to find the waters in th 4000s.  Fail.
+      ::: 2
+
+    o update environment distances on SSM superposition. Ed Pozharski
+      ::: 1
+
+    o I have two molecules loaded.  The environmental distances are
+      turned on.
+
+     Click on molecule 1, shows distances for molecule 1.  
+     Click on molecule 2, shows distances for molecule 2 - so far so good.
+
+     Now with one molecule selected and showing distances, I hide
+     other molecule in display manager.  Dashed lines for distances
+     disappear.  If I hide the selected molecule instead, dashed lines
+     stay.
+
+     Experiment with 3 molecules loaded shows that bug seems to affect
+     molecules that are next to each other in the list.  For instance,
+     if I select #1, then hiding #2 hides the dashed lines, but hiding
+     #3 doesn't.
+
+     ::: 2
 
 ------
 

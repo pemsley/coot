@@ -403,9 +403,21 @@ namespace coot {
    //
    std::vector<CResidue *> filter_residues_by_solvent_contact(CResidue *res_ref,
 							      CMMDBManager *mol,
-							      const std::vector<CResidue *> &residues, const double &water_dist_max);
-								  
+							      const std::vector<CResidue *> &residues,
+							      const double &water_dist_max);
 
+   // filter out residues that are HOH and are not in contact with
+   // res_ref (i.e. have an atom closer than water_dist_max)
+   // 
+   // std::vector<CResidue *>
+   // filter_residues_by_solvent_contact_to_residue(CResidue *res_ref,
+   // const std::vector<CResidue *> &residues,
+   // const double &water_dist_max);
+   //
+   // we don't do this here - we'll do it in the viewer - were we can
+   // toggle on an off the waters (if they are not rejected at an
+   // early stage).
+   
 
    // Return a pair, the bool of which is set if the float is sensible.
    // 
