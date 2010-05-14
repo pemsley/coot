@@ -242,7 +242,11 @@ fix_nucleic_acid_residue_names(atom_selection_container_t asc) {
 			    residue_name == "U" ||
 			    residue_name == "A" ||
 			    residue_name == "C" ||
-			    residue_name == "G") {
+			    residue_name == "G" ||
+			    residue_name == "DA" ||
+			    residue_name == "DG" ||
+			    residue_name == "DT" ||
+			    residue_name == "DC") {
 
 			   istat += fix_nucleic_acid_residue_name(residue_p);
 			}
@@ -281,8 +285,13 @@ int fix_nucleic_acid_residue_name(CResidue *r) {
    }
 
    convert_to_old_nucleotide_atom_names(r);
-   
-   std::string new_name_stub = std::string(r->name).substr(0,1);
+
+   std::string res_name = r->name;
+   std::string new_name_stub = res_name.substr(0,1);
+   if (res_name == "DA" || res_name == "DT" ||
+       res_name == "DC" || res_name == "DG")
+      new_name_stub = res_name.substr(1,1);
+       
    if (n_residue_atoms > 0)
       istat = 1;
    
