@@ -3790,6 +3790,9 @@ changed (in this case to 80) using:
 
 @command{(set-map-sharpening-scale-limit 80)}
 
+This currently only works on maps created by reading an MTZ (or other)
+reflection data file.
+
 
 @node masks
 @section Masks
