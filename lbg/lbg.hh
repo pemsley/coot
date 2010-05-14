@@ -174,7 +174,8 @@ public:
       enum { H_BOND_DONOR_MAINCHAIN,
 	     H_BOND_DONOR_SIDECHAIN,
 	     H_BOND_ACCEPTOR_MAINCHAIN, 
-	     H_BOND_ACCEPTOR_SIDECHAIN, 
+	     H_BOND_ACCEPTOR_SIDECHAIN,
+	     METAL_CONTACT_BOND,
 	     BOND_OTHER };  
       std::string ligand_atom_name;
       double bond_length;
@@ -511,7 +512,9 @@ private:
    void show_mol_ring_centres(); // not const because mol.get_ring_centres() caches
    std::string grid_intensity_to_colour(int val) const;
    std::string sixteen_to_hex_let(int v) const;
-   
+   void reposition_problematics_and_reoptimise(const std::vector<int> &problematics,
+					       const std::vector<int> &primary_indices);
+
 public:
    lbg_info_t(GtkWidget *canvas_in) {
       canvas = canvas_in;
