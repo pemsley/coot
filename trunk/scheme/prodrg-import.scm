@@ -108,7 +108,7 @@
 				     (lambda (port)
 				       (read-line port)))))
 			      (let ((imol (get-sbase-monomer tlc-symbol)))
-				(if (not (valid-molecule? imol))
+				(if (not (valid-model-molecule? imol))
 				    (format #t "failed to get SBase molecule for ~s~%"
 					    tlc-symbol))))))))
 		

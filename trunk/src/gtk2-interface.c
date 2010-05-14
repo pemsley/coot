@@ -15950,7 +15950,6 @@ create_bond_parameters_dialog (void)
   gtk_container_add (GTK_CONTAINER (dialog_action_area59), hbox105);
 
   bond_parameters_apply_button = gtk_button_new ();
-  gtk_widget_show (bond_parameters_apply_button);
   gtk_box_pack_start (GTK_BOX (hbox105), bond_parameters_apply_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (bond_parameters_apply_button), 4);
 
@@ -15971,7 +15970,6 @@ create_bond_parameters_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox249), label418, FALSE, FALSE, 0);
 
   bond_parameters_ok_button = gtk_button_new ();
-  gtk_widget_show (bond_parameters_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox105), bond_parameters_ok_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (bond_parameters_ok_button), 4);
 

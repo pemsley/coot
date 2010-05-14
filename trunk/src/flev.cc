@@ -631,7 +631,7 @@ coot::write_solvent_accessibilities(const std::vector<std::pair<coot::atom_spec_
 // in res_ref (often/typically), but are in the flat residue.
 // 
 std::vector<coot::fle_ligand_bond_t>
-coot::get_fle_ligand_bonds(CResidue *res_ref,
+coot::get_fle_ligand_bonds(CResidue *ligand_res,
 			   const std::vector<CResidue *> &residues,
 			   const std::map<std::string, std::string> &name_map) {
    std::vector<coot::fle_ligand_bond_t> v;
@@ -640,15 +640,15 @@ coot::get_fle_ligand_bonds(CResidue *res_ref,
    double bond_length = 3.3;
 
    double bl_2 = bond_length * bond_length;
-   PPCAtom ref_residue_atoms = 0;
-   int n_ref_residue_atoms;
-   res_ref->GetAtomTable(ref_residue_atoms, n_ref_residue_atoms);
-   for (unsigned int iat=0; iat<n_ref_residue_atoms; iat++) {
-      std::string ele_ref = ref_residue_atoms[iat]->element;
-      if (ele_ref != " C") { 
-	 clipper::Coord_orth ref_pt(ref_residue_atoms[iat]->x,
-				    ref_residue_atoms[iat]->y,
-				    ref_residue_atoms[iat]->z);
+   PPCAtom ligand_residue_atoms = 0;
+   int n_ligand_residue_atoms;
+   ligand_res->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
+   for (unsigned int iat=0; iat<n_ligand_residue_atoms; iat++) {
+      std::string ele_ligand = ligand_residue_atoms[iat]->element;
+      if (ele_ligand != " C") { 
+	 clipper::Coord_orth ref_pt(ligand_residue_atoms[iat]->x,
+				    ligand_residue_atoms[iat]->y,
+				    ligand_residue_atoms[iat]->z);
 	 for (unsigned int ires=0; ires<residues.size(); ires++) {
 	    PPCAtom residue_atoms = 0;
 	    int n_residue_atoms;
@@ -661,7 +661,7 @@ coot::get_fle_ligand_bonds(CResidue *res_ref,
 					 residue_atoms[jat]->z);
 		  double diff_2 = (ref_pt - pt).lengthsq();
 		  if (diff_2 < bl_2) {
-		     std::string atom_name = ref_residue_atoms[iat]->name;
+		     std::string ligand_atom_name = ligand_residue_atoms[iat]->name;
 		     double bl = sqrt(diff_2);
 		     coot::residue_spec_t res_spec(residues[ires]);
 
@@ -683,19 +683,36 @@ coot::get_fle_ligand_bonds(CResidue *res_ref,
 		     if (residue_atom_name == " H  ")
 			bond_type = fle_ligand_bond_t::H_BOND_DONOR_MAINCHAIN;
 
-		     // note, can't use [] because name_map is const
-		     std::map<std::string, std::string>::const_iterator it =
-			name_map.find(atom_name);
-		     if (it != name_map.end()) { 
-			atom_name = it->second;
-			bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN;
-			if (coot::is_main_chain_p(residue_atoms[jat]))
-			   bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_MAINCHAIN;
+		     // We don't want to map between hydroxyl oxygens -> it attached H
+		     // when the residue to which it has a bond is a metal!  (and in
+		     // that case, we should probably remove the Hs from the ligand
+		     // anyway - but not today).
+		     //
+		     if (is_a_metal(residues[ires])) {
+			bond_type = fle_ligand_bond_t::METAL_CONTACT_BOND;
+		     } else {
+			// note, can't use [] because name_map is const
+			std::map<std::string, std::string>::const_iterator it =
+			   name_map.find(ligand_atom_name);
+			if (it != name_map.end()) {
+			   // If the map happens, that's presumably because we found a H
+			   // attached to an N (or an H attached to an O), either way, we
+			   // are sitting now on an H.
+			   ligand_atom_name = it->second;
+			   bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN;
+			   if (coot::is_main_chain_p(residue_atoms[jat]))
+			      bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_MAINCHAIN;
+			}
 		     }
 
-		     coot::fle_ligand_bond_t bond(atom_name, bond_type, bl, res_spec);
-		     v.push_back(bond);
-		     break;
+		     // that was not enough.  We still need to do some
+		     // more rejections.  Here's a start:
+		     if (! ((ele_ligand == " O") && (ele == " O"))) {
+			
+			coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, bl, res_spec);
+			v.push_back(bond);
+			break;
+		     }
 		  }
 	       }
 	    }
@@ -703,4 +720,44 @@ coot::get_fle_ligand_bonds(CResidue *res_ref,
       }
    }
    return v;
+}
+
+// should be in utils perhaps?
+//
+bool
+coot::is_a_metal(CResidue *res) {
+
+   bool r = 0;
+   std::string res_name = res->GetResName();
+   if (res_name == "MG")
+      return 1;
+   if (res_name == "CA")
+      return 1;
+   if (res_name == "MN")
+      return 1;
+   if (res_name == "FE")
+      return 1;
+   if (res_name == "FE")
+      return 1;
+   if (res_name == "K")
+      return 1;
+   if (res_name == "NA")
+      return 1;
+   if (res_name == "CO")
+      return 1;
+   if (res_name == "NI")
+      return 1;
+   if (res_name == "CU")
+      return 1;
+   if (res_name == "ZN")
+      return 1;
+   if (res_name == "PT")
+      return 1;
+   if (res_name == "AU")
+      return 1;
+   if (res_name == "AG")
+      return 1;
+
+   return 0;
+
 }

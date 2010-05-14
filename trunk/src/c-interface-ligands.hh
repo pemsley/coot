@@ -80,7 +80,8 @@ namespace coot {
       enum { H_BOND_DONOR_MAINCHAIN,
 	     H_BOND_DONOR_SIDECHAIN,
 	     H_BOND_ACCEPTOR_MAINCHAIN, 
-	     H_BOND_ACCEPTOR_SIDECHAIN, 
+	     H_BOND_ACCEPTOR_SIDECHAIN,
+	     METAL_CONTACT_BOND,
 	     BOND_OTHER };  // must sync this to lbg.hh
       std::string ligand_atom_name;
       int bond_type; // acceptor/donor
@@ -106,6 +107,8 @@ namespace coot {
 			  const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
 			  const pi_stacking_container_t &stacking,
 			  CResidue *res_flat);
+
+   bool is_a_metal(CResidue *res);
 
 
 }
