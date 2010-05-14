@@ -3,21 +3,22 @@
 bool lbg_info_t::optimise_residue_circles::score_vs_ligand_atoms       = 1;
 bool lbg_info_t::optimise_residue_circles::score_vs_ring_centres       = 1;
 bool lbg_info_t::optimise_residue_circles::score_vs_other_residues     = 1;
-bool lbg_info_t::optimise_residue_circles::score_vs_other_residues_for_angles = 0;
 bool lbg_info_t::optimise_residue_circles::score_vs_original_positions = 1;
-bool lbg_info_t::optimise_residue_circles::score_vs_ligand_atom_bond_length = 0;
+bool lbg_info_t::optimise_residue_circles::score_vs_other_residues_for_angles = 0;
+bool lbg_info_t::optimise_residue_circles::score_vs_ligand_atom_bond_length = 1;
 
 
 lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector<lbg_info_t::residue_circle_t> &r,
 							       const std::vector<lbg_info_t::residue_circle_t> &c,
-							       const widgeted_molecule_t &mol_in) {
+							       const widgeted_molecule_t &mol_in,
+							       const std::vector<int> &primary_indices_in) {
 
    bool show_dynamics = 1;
-
 
    mol = mol_in;
    starting_circles = r;
    current_circles = c;
+   primary_indices = primary_indices_in;
 
    setup_angles(); // for many residues bound to the same ligand atom.
 		   // Uses current_circles and mol.
@@ -50,7 +51,7 @@ lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector
    size_t iter = 0;
    int n_steps = 60;
    if (show_dynamics)
-      n_steps = 6;
+      n_steps = 60;
 
    do {
 	 iter++;
@@ -199,57 +200,57 @@ lbg_info_t::optimise_residue_circles::f(const gsl_vector *v, void *params) {
 	 double d_2 = gsl_vector_get(v, 2*i+1) - orc->starting_circles[i].pos.y;
 	 score += k * (d_1*d_1 + d_2*d_2);
       }
+   }
 
-      if (score_vs_other_residues_for_angles) {
-	 double k_angle_scale = 1.0;
-	 for (unsigned int iang=0; iang<orc->angles.size(); iang++) {
-	    // we want to get cos_theta and shove it in the penalty
-	    // score function. cos_theta comes from the dot product.
+   if (score_vs_other_residues_for_angles) {
+      double k_angle_scale = 1.0;
+      for (unsigned int iang=0; iang<orc->angles.size(); iang++) {
+	 // we want to get cos_theta and shove it in the penalty
+	 // score function. cos_theta comes from the dot product.
 
-	    lig_build::pos_t &at_pos = orc->mol.atoms[orc->angles[i].i_atom_index].atom_position;
-	    int idx_1 = orc->angles[i].ires_1_index;
-	    int idx_2 = orc->angles[i].ires_2_index;
-	    lig_build::pos_t r1_pos(gsl_vector_get(v, 2*idx_1), gsl_vector_get(v, 2*idx_1+1));
-	    lig_build::pos_t r2_pos(gsl_vector_get(v, 2*idx_2), gsl_vector_get(v, 2*idx_2+1));
-	    lig_build::pos_t A = r1_pos - at_pos;
-	    lig_build::pos_t B = r2_pos - at_pos;
+	 lig_build::pos_t &at_pos = orc->mol.atoms[orc->angles[iang].i_atom_index].atom_position;
+	 int idx_1 = orc->angles[iang].ires_1_index;
+	 int idx_2 = orc->angles[iang].ires_2_index;
+	 lig_build::pos_t r1_pos(gsl_vector_get(v, 2*idx_1), gsl_vector_get(v, 2*idx_1+1));
+	 lig_build::pos_t r2_pos(gsl_vector_get(v, 2*idx_2), gsl_vector_get(v, 2*idx_2+1));
+	 lig_build::pos_t A = r1_pos - at_pos;
+	 lig_build::pos_t B = r2_pos - at_pos;
 	    
- 	    double a_dot_b = lig_build::pos_t::dot(A,B);
- 	    double cos_theta = a_dot_b/(A.length()*B.length());
-	    double one_minus_ct = 1.0-cos_theta;
- 	    double angle_penalty = k_angle_scale * exp(-2.5*one_minus_ct*one_minus_ct);
+	 double a_dot_b = lig_build::pos_t::dot(A,B);
+	 double cos_theta = a_dot_b/(A.length()*B.length());
+	 double one_minus_ct = 1.0-cos_theta;
+	 double angle_penalty = k_angle_scale * exp(-2.5*one_minus_ct*one_minus_ct);
+      }
+   }
+
+   // score vs attachment length, only for primary residues. What
+   // is the index list of primary residues?
+   //
+   // If we do this, we can scrap score_vs_original_positions
+   // perhaps.  Or reduce its weight.
+   //
+   // A simple quadratic function.
+   //
+
+   if (score_vs_ligand_atom_bond_length) {
+      double kk_bond_length_scale = 10;
+      for (unsigned int iprimary=0; iprimary<orc->primary_indices.size(); iprimary++) {
+	 int idx = orc->primary_indices[iprimary];
+	 std::vector<std::pair<lig_build::pos_t, double> > attachment_points =
+	    orc->current_circles[idx].get_attachment_points(orc->mol);
+	 for (unsigned int iattach=0; iattach<attachment_points.size(); iattach++) {
+	    //
+	    double target_length = 1.5 * LIGAND_TO_CANVAS_SCALE_FACTOR *
+	       attachment_points[iattach].second;
+	    lig_build::pos_t current_pos(gsl_vector_get(v, 2*idx),
+					 gsl_vector_get(v, 2*idx+1));
+	    lig_build::pos_t bond_vector = (attachment_points[iattach].first - current_pos);
+	    double dist_to_attachment_point = bond_vector.length();
+	    double d = dist_to_attachment_point - target_length;
+	    double bond_length_penalty = kk_bond_length_scale * d * d;
+	    score += bond_length_penalty;
 	 }
       }
-
-      // score vs attachment length, only for primary residues. What
-      // is the index list of primary residues?
-      //
-      // If we do this, we can scrap score_vs_original_positions
-      // perhaps.  Or reduce its weight.
-      //
-      // A simple quadratic function.
-      //
-      if (score_vs_ligand_atom_bond_length) {
-	 double kk_bond_length_scale = 10;
-	 for (unsigned int iprimary=0; iprimary<orc->primary_indices.size(); iprimary++) {
-	    int idx = orc->primary_indices[iprimary];
-	    std::vector<std::pair<lig_build::pos_t, double> > attachment_points =
-	       orc->current_circles[idx].get_attachment_points(orc->mol);
-	    for (unsigned int iattach=0; iattach<attachment_points.size(); iattach++) {
-	       //
-	       double target_length = LIGAND_TO_CANVAS_SCALE_FACTOR *
-		  attachment_points[iattach].second;
-	       lig_build::pos_t current_pos(gsl_vector_get(v, 2*idx),
-					    gsl_vector_get(v, 2*idx+1));
-	       lig_build::pos_t bond_vector = (attachment_points[iattach].first - current_pos);
-	       double dist_to_attachment_point = bond_vector.length();
-	       double d = dist_to_attachment_point - target_length;
-	       double bond_length_penalty =
-		  kk_bond_length_scale * d * d;
-	    }
-  	 }
-      }
-      
    }
    return score;
 }
@@ -337,49 +338,109 @@ lbg_info_t::optimise_residue_circles::df(const gsl_vector *v, void *params, gsl_
 	  gsl_vector_set(df, 2*i,   gsl_vector_get(df, 2*i  ) + k * df_part_x);
 	  gsl_vector_set(df, 2*i+1, gsl_vector_get(df, 2*i+1) + k * df_part_y);	    
       }
+   }
 
 
-      if (score_vs_other_residues_for_angles) {
-	 double k_angle_scale = 1.0;
-	 for (unsigned int iang=0; iang<orc->angles.size(); iang++) {
-	    // we want to get cos_theta and shove it in the penalty
-	    // score function. cos_theta comes from the dot product.
+   if (score_vs_other_residues_for_angles) {
+      double k_angle_scale = 1.0;
+      for (unsigned int iang=0; iang<orc->angles.size(); iang++) {
+	 // we want to get cos_theta and shove it in the penalty
+	 // score function. cos_theta comes from the dot product.
 
-	    lig_build::pos_t &at_pos = orc->mol.atoms[orc->angles[i].i_atom_index].atom_position;
-	    int idx_1 = orc->angles[i].ires_1_index;
-	    int idx_2 = orc->angles[i].ires_2_index;
-	    lig_build::pos_t r1_pos(gsl_vector_get(v, 2*idx_1), gsl_vector_get(v, 2*idx_1+1));
-	    lig_build::pos_t r2_pos(gsl_vector_get(v, 2*idx_2), gsl_vector_get(v, 2*idx_2+1));
-	    lig_build::pos_t A = r1_pos - at_pos;
-	    lig_build::pos_t B = r2_pos - at_pos;
-	    double A_length = A.length();
-	    double B_length = B.length();
-	    double A_length_recip = 1.0/A_length;
-	    double B_length_recip = 1.0/B_length;
+	 lig_build::pos_t &at_pos = orc->mol.atoms[orc->angles[iang].i_atom_index].atom_position;
+	 int idx_1 = orc->angles[iang].ires_1_index;
+	 int idx_2 = orc->angles[iang].ires_2_index;
+	 lig_build::pos_t r1_pos(gsl_vector_get(v, 2*idx_1), gsl_vector_get(v, 2*idx_1+1));
+	 lig_build::pos_t r2_pos(gsl_vector_get(v, 2*idx_2), gsl_vector_get(v, 2*idx_2+1));
+	 lig_build::pos_t A = r1_pos - at_pos;
+	 lig_build::pos_t B = r2_pos - at_pos;
+	 double A_length = A.length();
+	 double B_length = B.length();
+	 double A_length_recip = 1.0/A_length;
+	 double B_length_recip = 1.0/B_length;
 	    
- 	    double a_dot_b = lig_build::pos_t::dot(A,B);
- 	    double cos_theta = a_dot_b/(A.length()*B.length());
+	 double a_dot_b = lig_build::pos_t::dot(A,B);
+	 double cos_theta = a_dot_b/(A.length()*B.length());
 
-	    double gamma = cos_theta;
-	    double one_minus_ct = 1.0-cos_theta;
- 	    double angle_penalty = k_angle_scale * exp(-2.5*one_minus_ct*one_minus_ct);
+	 double gamma = cos_theta;
+	 double one_minus_ct = 1.0-cos_theta;
+	 double angle_penalty = k_angle_scale * exp(-2.5*one_minus_ct*one_minus_ct);
 
-	    // note: S1 contains k_angle_scale
-	    double S1 = -2.5*angle_penalty*(-2*(1-gamma));
-	    double S2_x1 = (r2_pos.x - at_pos.x) * A_length_recip * B_length_recip + (r1_pos.x - at_pos.x) * (-1.0 * A_length_recip * A_length_recip * A_length_recip * B_length_recip * a_dot_b);
-	    double S2_x2 = (r1_pos.x - at_pos.x) * B_length_recip * A_length_recip + (r1_pos.x - at_pos.x) * (-1.0 * B_length_recip * B_length_recip * B_length_recip * A_length_recip * a_dot_b);
-	    double S2_y1 = (r2_pos.y - at_pos.y) * A_length_recip * B_length_recip + (r1_pos.y - at_pos.y) * (-1.0 * A_length_recip * A_length_recip * A_length_recip * B_length_recip * a_dot_b);
-	    double S2_y2 = (r1_pos.y - at_pos.y) * B_length_recip * A_length_recip + (r1_pos.y - at_pos.y) * (-1.0 * B_length_recip * B_length_recip * B_length_recip * A_length_recip * a_dot_b);
+	 // note: S1 contains k_angle_scale
+	 double S1 = -2.5*angle_penalty*(-2*(1-gamma));
+	 double S2_x1 = (r2_pos.x - at_pos.x) * A_length_recip * B_length_recip + (r1_pos.x - at_pos.x) * (-1.0 * A_length_recip * A_length_recip * A_length_recip * B_length_recip * a_dot_b);
+	 double S2_x2 = (r1_pos.x - at_pos.x) * B_length_recip * A_length_recip + (r1_pos.x - at_pos.x) * (-1.0 * B_length_recip * B_length_recip * B_length_recip * A_length_recip * a_dot_b);
+	 double S2_y1 = (r2_pos.y - at_pos.y) * A_length_recip * B_length_recip + (r1_pos.y - at_pos.y) * (-1.0 * A_length_recip * A_length_recip * A_length_recip * B_length_recip * a_dot_b);
+	 double S2_y2 = (r1_pos.y - at_pos.y) * B_length_recip * A_length_recip + (r1_pos.y - at_pos.y) * (-1.0 * B_length_recip * B_length_recip * B_length_recip * A_length_recip * a_dot_b);
 
-	    gsl_vector_set(df, 2*idx_1,   gsl_vector_get(df, 2*idx_1)   * S1 * S2_x1);
-	    gsl_vector_set(df, 2*idx_2,   gsl_vector_get(df, 2*idx_2)   * S1 * S2_x2);
-	    gsl_vector_set(df, 2*idx_1+1, gsl_vector_get(df, 2*idx_1+1) * S1 * S2_y1);
-	    gsl_vector_set(df, 2*idx_2+1, gsl_vector_get(df, 2*idx_2+1) * S1 * S2_y2);
-	    
+	 gsl_vector_set(df, 2*idx_1,   gsl_vector_get(df, 2*idx_1)   * S1 * S2_x1);
+	 gsl_vector_set(df, 2*idx_2,   gsl_vector_get(df, 2*idx_2)   * S1 * S2_x2);
+	 gsl_vector_set(df, 2*idx_1+1, gsl_vector_get(df, 2*idx_1+1) * S1 * S2_y1);
+	 gsl_vector_set(df, 2*idx_2+1, gsl_vector_get(df, 2*idx_2+1) * S1 * S2_y2);
+      }
+   }
+
+
+
+   // score vs attachment length, only for primary residues. What
+   // is the index list of primary residues?
+   //
+   // If we do this, we can scrap score_vs_original_positions
+   // perhaps.  Or reduce its weight.
+   //
+   // A simple quadratic function.
+   //
+
+   if (score_vs_ligand_atom_bond_length) {
+      double kk_bond_length_scale = 10;
+      for (unsigned int iprimary=0; iprimary<orc->primary_indices.size(); iprimary++) {
+	 int idx = orc->primary_indices[iprimary];
+	 std::vector<std::pair<lig_build::pos_t, double> > attachment_points =
+	    orc->current_circles[idx].get_attachment_points(orc->mol);
+	 for (unsigned int iattach=0; iattach<attachment_points.size(); iattach++) {
+	    //
+	    // 1.5 is a fudge factor to make sure that the residue
+	    // circle is aesthetically distanced from the ligand
+	    // atom.
+	    // 
+	    double target_length = 1.5 * LIGAND_TO_CANVAS_SCALE_FACTOR *
+	       attachment_points[iattach].second;
+	    lig_build::pos_t current_pos(gsl_vector_get(v, 2*idx),
+					 gsl_vector_get(v, 2*idx+1));
+	    lig_build::pos_t bond_vector = (attachment_points[iattach].first - current_pos);
+	    double dist_to_attachment_point = bond_vector.length();
+	    double frac_bond_length_dev = (dist_to_attachment_point - target_length)/dist_to_attachment_point;
+
+	    // debuging
+	    double debug_old_v1 =   gsl_vector_get(df, 2*idx);
+	    double debug_old_v2 =   gsl_vector_get(df, 2*idx+1);
+	       
+	    gsl_vector_set(df, 2*idx,   gsl_vector_get(df, 2*idx)
+			   + 2.0 * kk_bond_length_scale * frac_bond_length_dev
+			   * (current_pos.x - attachment_points[iattach].first.x));
+	    gsl_vector_set(df, 2*idx+1, gsl_vector_get(df, 2*idx+1)
+			   + 2.0 * kk_bond_length_scale * frac_bond_length_dev
+			   * (current_pos.y - attachment_points[iattach].first.y));
+
+	    if (0) { 
+	       std::cout << "some numbers: " << current_pos << " " << bond_vector << " "
+			 << dist_to_attachment_point << " " << target_length << " "
+			 << frac_bond_length_dev << " "
+			 << (current_pos.x - attachment_points[iattach].first.x) << " "
+			 << (current_pos.y - attachment_points[iattach].first.y) << "\n";
+	       double debug_new_v1 =   gsl_vector_get(df, 2*idx);
+	       double debug_new_v2 =   gsl_vector_get(df, 2*idx+1);
+	       std::cout << "reset df for " << 2*idx    << " from " << debug_old_v1
+			 << " to " << debug_new_v1 << "\n";
+	       std::cout << "reset df for " << 2*idx+1  << " from " << debug_old_v2
+			 << " to " << debug_new_v2 << "\n";
+	    }
 	 }
       }
    }
+
    // orc->numerical_gradients((gsl_vector *)v, df, params);
+   
 }
 
 void
@@ -412,6 +473,6 @@ lbg_info_t::optimise_residue_circles::numerical_gradients(gsl_vector *x, gsl_vec
       double v2 = f(x, params);
       gsl_vector_set(x, i, tmp);
       double v_av = 0.5 * (v1 - v2);
-      std::cout << "gradient_comparison " << gsl_vector_get(df, i) << "    " << v_av/micro_step << std::endl; 
+      std::cout << "gradient_comparison " << i << " " << gsl_vector_get(df, i) << "    " << v_av/micro_step << std::endl; 
    }
 }

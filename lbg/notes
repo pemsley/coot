@@ -1,5 +1,18 @@
 
 
+test ligands:
+2z7l A 1001 S91
+3hec A 1    STI
+3lhj A 361  LHJ
+3hvh A 1    542 
+2aei ??? 
+
+
+----
+Tue May 11 15:30:27 BST 2010
+
+  Dont write out waters that do not have bonds to the ligand (flev.cc)
+
 ------
 Tue Apr 13 14:33:21 BST 2010
 

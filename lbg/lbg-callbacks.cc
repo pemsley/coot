@@ -495,18 +495,21 @@ on_lbg_export_as_png_filechooserdialog_response(GtkDialog       *dialog,
 
 extern "C" G_MODULE_EXPORT void
 on_residue_circles_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
+
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
-   if (l)
+   if (l) { 
       // l->read_draw_residues("../../build-coot-ubuntu-64bit/src/coot-tmp-fle-view-residue-info.txt");
-      l->read_draw_residues("../../build-lucid/src/coot-tmp-fle-view-residue-info.txt");
-   else
+      std::string f = l->get_flev_analysis_files_dir();
+      f += "/coot-tmp-fle-view-residue-info.txt";
+      l->read_draw_residues(f);
+   } else {
       std::cout << "Bad lbg_info_t lookup in on_residue_cirlces_toolbutton_clicked" << std::endl;
-      
+   }
 }
 
 extern "C" G_MODULE_EXPORT void
-on_smiles_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
+on_lbg_smiles_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
@@ -538,4 +541,19 @@ on_lbg_smiles_dialog_close (GtkDialog       *dialog,
    } else {
       std::cout << "failed to get lbg_info_t from canvas " << canvas << " " << user_data << std::endl;
    } 
+}
+
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_key_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_handle_toggle_button(button, canvas, lbg_info_t::DELETE_MODE);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) { 
+      if (gtk_toggle_tool_button_get_active(button)) {
+	 l->show_key();
+      } else {
+	 l->hide_key();
+      }
+   }
 }

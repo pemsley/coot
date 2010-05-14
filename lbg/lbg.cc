@@ -579,11 +579,11 @@ lbg_info_t::font_colour(const std::string &ele) const {
    if (ele == "S") 
       font_colour = "#888800";
    if (ele == "F") 
-      font_colour = "#008800";
+      font_colour = "#006600";
    if (ele == "CL") 
-      font_colour = "#228800";
+      font_colour = "#116600";
    if (ele == "I") 
-      font_colour = "#220077";
+      font_colour = "#220066";
    
    return font_colour;
 }
@@ -1696,15 +1696,26 @@ main(int argc, char *argv[]) {
    return 0;
 }
 
-void
-lbg_info_t::read_files_from_coot() {
 
+std::string
+lbg_info_t::get_flev_analysis_files_dir() const {
+
+   // in use (non-testing), coot_dir will typically be ".";
+   
    std::string coot_dir = "../../build-coot-ubuntu-64bit/src"; 
    coot_dir = "../../build-lucid/src";
 
    const char *t_dir = getenv("COOT_LBG_OUT_DIR");
    if (t_dir)
       coot_dir = t_dir;
+
+   return coot_dir;
+}
+
+void
+lbg_info_t::read_files_from_coot() {
+
+   std::string coot_dir = get_flev_analysis_files_dir();
 	    
    std::string coot_ccp4_dir = coot_dir + "/coot-ccp4";
    // in use (non-testing), coot_dir will typically be ".";
@@ -1713,7 +1724,7 @@ lbg_info_t::read_files_from_coot() {
    std::string coot_pdb_file = coot_ccp4_dir + "/.coot-to-lbg-pdb";
    std::string ready_file    = coot_ccp4_dir + "/.coot-to-lbg-mol-ready";
    std::string sa_file       = coot_dir      + "/coot-tmp-fle-view-solvent-accessibilites.txt";
-	    
+
    handle_read_draw_coords_mol_and_solv_acc(coot_pdb_file,
 					    coot_mdl_file,
 					    sa_file);
@@ -1934,6 +1945,8 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
    // 
    residue_circles = read_residues(file_name);
 
+   std::vector<int> primary_indices = get_primary_indices();
+
    initial_residues_circles_layout(); // twiddle residue_circles
    
    // cycles of optimisation
@@ -1943,13 +1956,13 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
       draw_residue_circles(current_circles);
 
    // for debugging the minimizer (vs original positions)
-   // std::vector<residue_circle_t> current_circles = offset_residues_from_orig_positions();
+   current_circles = offset_residues_from_orig_positions();
    
    for (int iround=0; iround<120; iround++) {
       std::cout << ":::::::::::::::::::: minimization round " << iround
 		<< " :::::::::::::::::::::::::::::::::::::::::::\n";
       std::pair<int, std::vector<lbg_info_t::residue_circle_t> > new_c =
-	 optimise_residue_circle_positions(residue_circles, current_circles);
+	 optimise_residue_circle_positions(residue_circles, current_circles, primary_indices);
       current_circles = new_c.second;
       if (show_dynamics)
 	 draw_residue_circles(current_circles);
@@ -1968,12 +1981,12 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
    std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
    for (unsigned int ip=0; ip<problem_status.second.size(); ip++) {
       std::cout << ":::::::::::: "
-		<< current_circles[problem_status.second[ip]].residue_label
-		<< " " << std::endl;
+		<< current_circles[problem_status.second[ip]].residue_label << " "
+		<< current_circles[problem_status.second[ip]].residue_type << std::endl;
    }
    
-   if (problem_status.second.size()) { 
-   // if (0) { // debug, fixme
+   // if (problem_status.second.size()) { 
+   if (0) { // debug, fixme
       std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
 	 mol.ligand_extents();
       lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
@@ -1991,7 +2004,7 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
       }
       current_circles = residue_circles;
       std::pair<int, std::vector<lbg_info_t::residue_circle_t> > new_c =
-      	 optimise_residue_circle_positions(residue_circles, current_circles);
+      	 optimise_residue_circle_positions(residue_circles, current_circles, primary_indices);
       residue_circles = new_c.second;
    }
    
@@ -2020,6 +2033,27 @@ lbg_info_t::draw_all_residue_attribs() {
    draw_bonds_to_ligand();
    draw_stacking_interactions(residue_circles);
 }
+
+std::vector<int>
+lbg_info_t::get_primary_indices() const {
+
+   std::vector<int> primary_indices;  // this primary_indices needs to
+                                      // get passed to the
+                                      // primary_indices used in
+                                      // residue cirlce optimization.
+   
+   for(unsigned int ic=0; ic<residue_circles.size(); ic++) {
+      if (residue_circles[ic].is_a_primary_residue()) {
+         std::cout << " residue circle " << residue_circles[ic].residue_label
+                   << " is a primary residue" << std::endl;
+         // std::pair<int, lbg_info_t::residue_circle_t> p(ic, residue_circles[ic]);
+         // primaries.push_back(p);
+         primary_indices.push_back(ic);
+      }
+   }
+   return primary_indices;
+} 
+
 
 // twiddle residue_circles, taking in to account the residues that
 // bond to the ligand (including stacking residues).
@@ -2241,8 +2275,6 @@ lbg_info_t::solution_has_problems_p() const {
 	    }
 	 }
       }
-      if (status)
-	 break;
    }
    return std::pair<bool, std::vector<int> > (status, v);
 } 
@@ -2466,11 +2498,12 @@ lbg_info_t::ligand_grid::normalize() {
 // minimise layout energy
 std::pair<int, std::vector<lbg_info_t::residue_circle_t> >
 lbg_info_t::optimise_residue_circle_positions(const std::vector<lbg_info_t::residue_circle_t> &r,
-					      const std::vector<lbg_info_t::residue_circle_t> &c) const { 
+					      const std::vector<lbg_info_t::residue_circle_t> &c,
+					      const std::vector<int> &primary_indices) const { 
 
    if (r.size() > 0) {
       if (c.size() == r.size()) { 
-	 optimise_residue_circles orc(r, c, mol);
+	 optimise_residue_circles orc(r, c, mol, primary_indices);
 	 int status = orc.get_gsl_min_status();
 	 return orc.solution();
       }
@@ -3105,4 +3138,15 @@ lbg_info_t::file_to_string(const std::string &file_name) const {
       }
    }
    return s;
+}
+
+void
+lbg_info_t::show_key() {
+
+}
+
+
+void
+lbg_info_t::hide_key() {
+
 }

@@ -337,14 +337,13 @@ public:
       // original positions.
       optimise_residue_circles(const std::vector<residue_circle_t> &r, // starting points
 			       const std::vector<residue_circle_t> &c, // current points
-			       const widgeted_molecule_t &mol);
+			       const widgeted_molecule_t &mol,
+			       const std::vector<int> &primary_indices);
       std::pair<int, std::vector<residue_circle_t> > solution() const;
       // return GSL minimisation status;
       int get_gsl_min_status() const { return status; }
       std::vector<int> primary_indices;  // indices in residues_circles
                                          // of the primary residues.
-   
-
    };
 
 
@@ -464,6 +463,8 @@ private:
    std::pair<std::string, std::string>
    get_residue_circle_colour(const std::string &residue_type) const;
 
+   
+   std::vector<int> get_primary_indices() const;
    // twiddle residue_circles, taking in to account the residues that
    // bond to the ligand (including stacking residues).
    // 
@@ -486,7 +487,8 @@ private:
    // minimise layout energy
    std::pair<int, std::vector<residue_circle_t> >
    optimise_residue_circle_positions(const std::vector<residue_circle_t> &start,
-				     const std::vector<residue_circle_t> &current) const;
+				     const std::vector<residue_circle_t> &current,
+				     const std::vector<int> &primary_indices) const;
    lig_build::pos_t canvas_drag_offset;
    bool is_sane_drag(const lig_build::pos_t &delta) const;
 
@@ -509,7 +511,7 @@ private:
    void show_mol_ring_centres(); // not const because mol.get_ring_centres() caches
    std::string grid_intensity_to_colour(int val) const;
    std::string sixteen_to_hex_let(int v) const;
-
+   
 public:
    lbg_info_t(GtkWidget *canvas_in) {
       canvas = canvas_in;
@@ -575,6 +577,9 @@ public:
    read_solvent_accessibilities(const std::string &file_name) const;
    void read_files_from_coot();
    std::string file_to_string(const std::string &filename) const;
+   std::string get_flev_analysis_files_dir() const;
+   void show_key();
+   void hide_key();
 
 };
 
