@@ -2274,9 +2274,22 @@ if [ "$build_gtkglext" = 1 ] ; then
     # this host? disappeared.
     # ${WGET} http://surfnet.dl.sourceforge.net/sourceforge/gtkglext/gtkglext-$gtkglext_version.tar.gz
     ${WGET}   http://www.ysbl.york.ac.uk/~emsley/software/extras/gtkglext-$gtkglext_version.tar.gz
+    ${WGET}   http://www.biop.ox.ac.uk/coot/software/extras/gtk-gtkglwidget.c-for-modern-gtk.patch
     (date
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
+
+     # now, for some (newer) versions of GTK+ the gtkglext needs to be
+     # tweaked so that it fixes out of date function usage:
+
+     echo gtk+-2.0 version:
+     pkg-config gtk+-2.0 --modversion
+     if pkg-config gtk+-2.0 --atleast-version 2.16 ; then
+        echo we have sufficiently new version of gtk+, we need to patch gtkglext
+        patch -p0 < ${AUTOBUILD_SOURCES}/gtk-gtkglwidget.c-for-modern-gtk.patch
+     else 
+        echo version of gtk is old, no need to patch gtkglext.
+     fi
      cd gtkglext-$gtkglext_version
      ./configure $generic_prefix
      if [ "$update_libtool" = 1 ] ; then
@@ -2286,12 +2299,12 @@ if [ "$build_gtkglext" = 1 ] ; then
      # Use uname -p being x84_64
      #      sed -i 's#sys_lib_search_path_spec="#sys_lib_search_path_spec="/usr/lib64#' libtool
      $MAKE
-    status=$?
-    if [ "$status" != 0 ] ; then
-       echo make of gtkglext failed
-    else
-       $MAKE install
-    fi
+     status=$?
+     if [ "$status" != 0 ] ; then
+        echo make of gtkglext failed
+     else
+        $MAKE install
+     fi
     ) > $HOSTLOGDIR/06-pre-gtkglext.txt 2>&1
 else
     echo not building gtkglext:

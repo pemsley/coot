@@ -4,28 +4,8 @@
 
     o change to rms z scores ::: 2
 
-    o gtkglext build problem with modern gtk (question: which version
-      of GTK?) ::: 2
-
-    o residues in DNA from modern PDB files is DG, DA, DC, DT.  Need
-      to map to refmac name, restraints don't work.
-
-      ::: 1
-
-    o Allen Sickmier:
-
-      I run a lot of ligands (compounds) through coot and it is almost
-      always a nomenclature issue when I see this.  Make sure your
-      library and atom names match and if you have multiple NADs make
-      sure they have different chain Ids.
-
-      -> Are multiple chains really needed?  Test.  If so, bug.  Needs
-         fixing.
-
-      ::: 1
-
     o Stefan Becker: try ~/data/shelx/problems/bad-lst/test.lst and
-      use the sequence view to find the waters in th 4000s.  Fail.
+      use the sequence view to find the waters in the 4000s.  Fail.
       ::: 2
 
     o update environment distances on SSM superposition. Ed Pozharski
@@ -454,3 +434,18 @@ WARNING:: Can't find file
 
 * Done.  With some nice tidying up too.
 
+    o residues in DNA from modern PDB files is DG, DA, DC, DT.  Need
+      to map to refmac name, restraints don't work.
+
+      ::: 0.5
+
+* Done.  The correct solution is to generate a dictionary for DG, DA
+  etc from that GD.cif (Gd) (etc) as they are read in.  Note that in
+  DT, C5M (in the dictionary) become C7 (new PDB coordinate
+  format/convention).
+
+
+    o gtkglext build problem with modern gtk (question: which version
+      of GTK?) ::: 1
+
+* Done.
