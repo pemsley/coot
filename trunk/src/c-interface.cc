@@ -7101,9 +7101,24 @@ void print_sequence_chain(int imol, const char *chain_id) {
 void do_sequence_view(int imol) {
 
    if (is_valid_model_molecule(imol)) {
+      bool do_old_style = 0; 
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<CResidue *> r = coot::util::residues_with_insertion_codes(mol);
       if (r.size() > 0) {
+	 do_old_style = 1;
+      } else {
+	 // was it a big shelx molecule?
+	 if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
+	    std::pair<bool, int> max_resno =
+	       coot::util::max_resno_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
+	    if (max_resno.first)
+	       if (max_resno.second > 3200)
+		  do_old_style = 1;
+	 } 
+      } 
+
+
+      if (do_old_style) { 
 	 sequence_view_old_style(imol);
       } else {
 	 nsv(imol);
