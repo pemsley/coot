@@ -866,15 +866,16 @@ required type, then Refine Zone.
 Coot is built on many different OS types, using the given (or supplied)
 version of GTK+.  Some old operating systems have a version of GTK+ that
 does not include a ``ToolMenuButton'' (newer operating systems do, of
-course) - and it is under such widget that the Rotate/Translate function
-has moved.  The Coot build sytem detects old versions of GTK+ and skips
+course) - and the toolbar menu Rotate/Translate function has uses such a
+widget.  The Coot build sytem detects old versions of GTK+ and skips
 over the ToolMenuButton code, so the button does not appear in the main
 window.  However, on all systems, the Rotate/Translate mode selector can
 be found as a menu to the right of the ``Rotate/Translate Zone'' button
 on the Model/Fit/Refine dialog.
 
 So, if you want a Rotate/Translate Tool Menu Button in the main window,
-don't use an old OS.
+don't use an old OS (or more accurately, don't use a Coot binary built
+for an old OS).
 
 @node How do I get rid of the ``Old Coot'' dialog?
 @section How do I get rid of the ``Old Coot'' dialog?
