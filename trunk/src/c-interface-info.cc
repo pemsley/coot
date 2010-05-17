@@ -1911,6 +1911,7 @@ void execute_environment_settings(GtkWidget *widget) {
    // active
    std::pair<int, int> r =  g.get_closest_atom();
    if (r.first >= 0) { 
+      g.mol_no_for_environment_distances = r.second;
       g.update_environment_distances_maybe(r.first, r.second);
    }
    graphics_draw();

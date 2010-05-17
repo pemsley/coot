@@ -68,9 +68,22 @@ void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) {
 	 graphics_info_t g;
 	 std::string name = graphics_info_t::molecules[imol2].name_for_display_manager();
 	 std::string reference_name = graphics_info_t::molecules[imol1].name_for_display_manager();
-	 g.superpose_with_atom_selection(graphics_info_t::molecules[imol1].atom_sel,
-					 graphics_info_t::molecules[imol2].atom_sel,
-					 imol2, name, reference_name, move_copy_of_imol2_flag);
+	 int imol_new = g.superpose_with_atom_selection(graphics_info_t::molecules[imol1].atom_sel,
+							graphics_info_t::molecules[imol2].atom_sel,
+							imol2, name, reference_name, move_copy_of_imol2_flag);
+
+	 if (is_valid_model_molecule(imol_new)) {
+	    // now move the cryst of mol2 to be the same as the cryst of mol1.
+	    realtype a[6];
+	    realtype vol;
+	    int orthcode;
+	    CMMDBManager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
+	    CMMDBManager *m2 = graphics_info_t::molecules[imol_new].atom_sel.mol;
+	    m1->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
+	    char *sg = m1->GetSpaceGroup();
+	    m2->SetSpaceGroup(sg);
+	    m2->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
+	 } 
 
       } else {
 	 std::cout << "WARNING:: Molecule " << imol2 << " has no model\n";
@@ -135,11 +148,26 @@ void superpose_with_chain_selection(int imol1, int imol2,
 	    name += chain_imol2;
 	 }
 
-	 g.superpose_with_atom_selection(asc_ref, asc_mov, imol2, name, ref_name, move_imol2_flag);
+	 int imol_new = g.superpose_with_atom_selection(asc_ref, asc_mov, imol2, name,
+							ref_name, move_imol2_flag);
 	 if (chain_used_flag_imol1)
 	    asc_ref.mol->DeleteSelection(asc_ref.SelectionHandle);
 	 if (chain_used_flag_imol2)
 	    asc_mov.mol->DeleteSelection(asc_mov.SelectionHandle);
+
+	 if (is_valid_model_molecule(imol_new)) {
+	    // now move the cryst of mol2 to be the same as the cryst of mol1.
+	    realtype a[6];
+	    realtype vol;
+	    int orthcode;
+	    CMMDBManager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
+	    CMMDBManager *m2 = graphics_info_t::molecules[imol_new].atom_sel.mol;
+	    m1->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
+	    char *sg = m1->GetSpaceGroup();
+	    m2->SetSpaceGroup(sg);
+	    m2->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
+	 } 
+	 
       }
    }
    std::vector<std::string> command_strings;
