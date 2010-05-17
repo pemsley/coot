@@ -99,15 +99,15 @@ namespace exptl {
 					 gpointer user_data);
       static gint letter_event (GtkObject *obj, GdkEvent *event, gpointer data);
       static gint rect_event   (GtkObject *obj, GdkEvent *event, gpointer data);
-      void draw_axes(std::vector<chain_length_residue_units_t>, int l, int b);
+      void draw_axes(std::vector<chain_length_residue_units_t>, int l, int b, double x_offset);
       std::string fixed_font_str;
       int pixels_per_letter;
-      void mol_to_canvas(CMMDBManager *mol, int lowest_resno);
-      void chain_to_canvas(CChain *chain_p, int position_number, int lowest_resno);
+      void mol_to_canvas(CMMDBManager *mol, int lowest_resno, double x_offset);
+      void chain_to_canvas(CChain *chain_p, int position_number, int lowest_resno, double x_offset);
       void origin_marker();
       int tick_start_number(int l) const;
       int pixels_per_chain;
-      void add_text_and_rect(CResidue *residue_p, int pos_number, int lowest_resno);
+      void add_text_and_rect(CResidue *residue_p, int pos_number, int lowest_resno, double x_offset);
       std::string colour_by_secstr(CResidue *residue_p) const;
       
    public:

@@ -119,6 +119,8 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
    pixels_per_letter = 10; // 10 for my F10 box
    pixels_per_chain  = 12;
 
+   bool debug = 0;
+
 #ifdef HAVE_GTK_CANVAS
    gtk_canvas_init();
 #endif   
@@ -144,8 +146,8 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
       }
       int total_res_range = biggest_res_number - lowest_resno;
 
-      if (1) {
-	 std::cout << "debug resnos: biggest_res_number "
+      if (debug) {
+	 std::cout << "DEBUG:: resnos: biggest_res_number "
 		   << biggest_res_number << " lowest_resno: "
 		   << lowest_resno << " total_res_range: " << total_res_range << std::endl;
       }
@@ -178,10 +180,13 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	 gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+n_limited_chains));
 	 // the size of the canvas (e.g. long chain, we see only part
 	 // of it at one time).
-// 	 std::cout << "DEBUG:: in setup_canvas(), total_res_range: " << total_res_range
-// 		   << " canvas_x_size " << canvas_x_size << " and canvas_y_size "
-// 		   << canvas_y_size << std::endl;
-// 	 std::cout << "DEBUG:: n_limited_chains: " << n_limited_chains << std::endl;
+
+	 if (debug) { 
+	    std::cout << "DEBUG:: in setup_canvas(), total_res_range: " << total_res_range
+		      << " canvas_x_size " << canvas_x_size << " and canvas_y_size "
+		      << canvas_y_size << std::endl;
+	    std::cout << "DEBUG:: n_limited_chains: " << n_limited_chains << std::endl;
+	 }
 	 gtk_widget_set_usize(GTK_WIDGET(canvas), canvas_x_size, canvas_y_size);
 
 	 double left_limit = 0.0;
@@ -213,7 +218,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	 scroll_width  = double(canvas_x_size) - 130 - left_limit ; // -130 for fat font on jackal
 
 
-	 if (0) { 
+	 if (debug) { 
 	    std::cout << "DEBUG:: rcv.size(): " << rcv.size() << std::endl;
 	    std::cout << "DEBUG:: canvas_y_size: " << canvas_y_size << std::endl;
 	    std::cout << "DEBUG:: scroll_height: " << scroll_height << std::endl;
@@ -226,12 +231,17 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	    // std::cout << "setting scroll width max to " << scroll_width_max << std::endl;
 	    scroll_width= scroll_width_max;
 	 }
-	 
+
+	 // bring the items on the canvas leftwards, no empty big
+	 // space on the left before sequences are shown.
+	 //
+	 double x_offset = -7 * pixels_per_letter + (biggest_res_number - lowest_resno) * 0.65;
+
  	 gtk_canvas_set_scroll_region(canvas, left_limit, upper_limit,
  				      scroll_width, scroll_height);
 	 origin_marker();
-	 draw_axes(rcv, lowest_resno, biggest_res_number);
-	 mol_to_canvas(mol, lowest_resno);
+	 draw_axes(rcv, lowest_resno, biggest_res_number, x_offset);
+	 mol_to_canvas(mol, lowest_resno, x_offset);
 	 
 
       } else {
@@ -242,7 +252,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 }
 
 void
-exptl::nsv::mol_to_canvas(CMMDBManager *mol, int lowest_resno) {
+exptl::nsv::mol_to_canvas(CMMDBManager *mol, int lowest_resno, double x_offset) {
 
    int imod = 1;
    CModel *model_p = mol->GetModel(imod);
@@ -253,19 +263,19 @@ exptl::nsv::mol_to_canvas(CMMDBManager *mol, int lowest_resno) {
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int position_number = nchains - ichain - 1;
-      chain_to_canvas(chain_p, position_number, lowest_resno);
+      chain_to_canvas(chain_p, position_number, lowest_resno, x_offset);
    }
 }
 
 void
-exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number, int lowest_resno) {
+exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number, int lowest_resno, double x_offset) {
 
    int nres = chain_p->GetNumberOfResidues();
    GtkCanvasItem *item;
 
    for (int ires=0; ires<nres; ires++) {
       CResidue *residue_p = chain_p->GetResidue(ires);
-      add_text_and_rect(residue_p, position_number, lowest_resno);  // adds items to canvas_item_vec
+      add_text_and_rect(residue_p, position_number, lowest_resno, x_offset);  // adds items to canvas_item_vec
    }
 
    // now the chain label:
@@ -274,7 +284,7 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number, int lowest_res
    double x = -50;
    // On jackal it needs to be more left? Why? The font is wider?
    // How do I check the font width?
-   x -= 10;
+   x -= 10 + x_offset;
    double y = -pixels_per_chain * position_number - 6;
    item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 			      GTK_CANVAS_TYPE_CANVAS_TEXT,
@@ -291,7 +301,8 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number, int lowest_res
 void
 exptl::nsv::add_text_and_rect(CResidue *residue_p,
 			      int position_number,
-			      int lowest_resno) {
+			      int lowest_resno,
+			      double x_offset) {
 
    if (residue_p) { 
       CAtom *at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
@@ -299,7 +310,7 @@ exptl::nsv::add_text_and_rect(CResidue *residue_p,
       std::string res_code =
 	 coot::util::three_letter_to_one_letter(residue_p->GetResName());
       std::string colour = "black";
-      double x = (residue_p->GetSeqNum() - lowest_resno + 1) * pixels_per_letter -3;
+      double x = (residue_p->GetSeqNum() - lowest_resno + 1) * pixels_per_letter -3 - x_offset;
       double y = - pixels_per_chain * position_number - 6;
       
       exptl::nsv::spec_and_object *so = 
@@ -312,7 +323,7 @@ exptl::nsv::add_text_and_rect(CResidue *residue_p,
       // Hmm... maybe I do.
       // 
       // double x1 = x - 2;
-      double x1 = x - 0; // otherwise rect too far to right relative to letter
+      double x1 = x; // otherwise rect too far to right relative to letter
                          // (on fed10 home).
       double y1 = y + 5;
       
@@ -480,7 +491,7 @@ exptl::nsv::get_residue_counts(CMMDBManager *mol) const {
 // 
 void
 exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
-		      int lrn, int brn) {
+		      int lrn, int brn, double x_offset) {
 
    GtkCanvasItem *item;
    GtkCanvasPoints *points = gtk_canvas_points_new(2);
@@ -504,15 +515,17 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       points->coords[2] = brn*font_scaler;
       points->coords[3] = y_value;
 
-      points->coords[0] = 5; // don't extend too far to the left
+      points->coords[0] = 5 - x_offset; // don't extend too far to the left
       points->coords[1] = y_value;
-      points->coords[2] = (brn-lrn)*font_scaler;
+      points->coords[2] = (brn-lrn)*font_scaler - x_offset;
       points->coords[3] = y_value;
+
+      std::cout << "DEBUG:: x2 of axis: " << points->coords[2] << std::endl;
 
       double points_max = 22500; // 23000 too many (strangely)
       if (points->coords[2] > points_max)
 	 points->coords[2] = points_max;
-      
+
       double tick_length = 3.0;
       if (i_ax_pos == 1)
 	 tick_length = -3.0;
@@ -532,15 +545,15 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       // tick marks and tick labels
       for (int irn=irn_start; irn<brn; irn+=5) {
 
-	 points->coords[0] = (irn-lrn+1)*font_scaler;
+	 points->coords[0] = (irn-lrn+1)*font_scaler - x_offset;
 	 points->coords[1] = y_value;
-	 points->coords[2] = (irn-lrn+1)*font_scaler;
+	 points->coords[2] = (irn-lrn+1)*font_scaler -x_offset;
 	 points->coords[3] = double(y_value + tick_length);
 
 	 // Don't draw things that are too wide (i.e. to much x) for X to handle.
 	 if (points->coords[2] < points_max) { 
 	       
-	    double x = (irn-lrn)*font_scaler -3.0; // x for resno label
+	    double x = (irn-lrn+1)*font_scaler - x_offset; // x for resno label
 	    std::string lab = coot::util::int_to_string(irn);
 	    item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 				       GTK_CANVAS_TYPE_CANVAS_LINE,
@@ -554,7 +567,7 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 				       "text", lab.c_str(),
 				       "x", x,
 				       "y", y_for_text,
-				       "anchor", GTK_ANCHOR_WEST,
+				       "anchor", GTK_ANCHOR_CENTER,
 				       "font", fixed_font_str.c_str(),
 				       "fill_color", "black",
 				       NULL);
