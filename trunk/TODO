@@ -795,6 +795,14 @@ Punted from 0.6:
      "23	ISPG     space group number 0 or 1 (default=0)".
      If spacegroup is 0, put the map into an nxmap.
 
+    o residues in DNA from modern PDB files is DG, DA, DC, DT.  Need
+      to map to refmac name, restraints don't work.
+
+    * The correct solution is to generate a dictionary for DG, DA
+      etc from that GD.cif (Gd) (etc) as they are read in.  Note that in
+      DT, C5M (in the dictionary) become C7 (new PDB coordinate
+      format/convention).
+
 
  ------
     
