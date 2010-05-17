@@ -2280,7 +2280,7 @@ lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &m
    if (has_stacking_interaction()) {
       try {
 	 lig_build::pos_t pos = mol.get_ring_centre(ligand_ring_atom_names);
-	 double stacking_dist = 3.5; // A
+	 double stacking_dist = 4.5; // A
 	 std::pair<lig_build::pos_t, double> p(pos, stacking_dist);
 	 v.push_back(p);
       }
@@ -2758,7 +2758,7 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
 					       NULL);
 
    GooCanvasItem *text_2 = goo_canvas_text_new(group, residue_circle.residue_label.c_str(),
-					       circle_pos.x, circle_pos.y+5, -1,
+					       circle_pos.x, circle_pos.y+6.5, -1,
 					       GTK_ANCHOR_CENTER,
 					       "font", "Sans 7",
 					       "fill_color", dark,
@@ -3011,7 +3011,7 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
 
    gboolean start_arrow = 0;
    gboolean end_arrow = 1;
-   std::string stroke_colour = "#109910";
+   std::string stroke_colour = "#008000";
    GooCanvasItem *group = goo_canvas_group_new (root,
 						"stroke-color", stroke_colour.c_str(),
 						NULL);
