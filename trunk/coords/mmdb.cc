@@ -520,7 +520,7 @@ write_atom_selection_file(atom_selection_container_t asc,
    coot::util::remove_wrong_cis_peptides(asc.mol);
    
    if (coot::is_mmcif_filename(filename)) {
-      ierr = asc.mol->WriteCIFASCII((char *)filename.c_str());
+      ierr = asc.mol->WriteCIFASCII(filename.c_str());
    } else {
       // we need to put the hydrogen names back to how they used to be
       // when we read in the pdb file and then put them put them back
