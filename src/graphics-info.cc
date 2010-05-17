@@ -122,7 +122,7 @@ graphics_info_t::post_recentre_update_and_redraw() {
    for (int ii=0; ii<n_molecules(); ii++) {
       molecules[ii].update_clipper_skeleton();
       molecules[ii].update_map();  // uses statics in graphics_info_t
-      // and redraw the screen using the new map
+                                   // and redraw the screen using the new map
    }
 	 
    int t1 = glutGet(GLUT_ELAPSED_TIME);
@@ -475,7 +475,8 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 
    update_ramachandran_plot_point_maybe(imol, atom);
 
-   if (environment_show_distances) { 
+   if (environment_show_distances) {
+      mol_no_for_environment_distances = imol;
       update_environment_graphics_object(index, imol);
       // label new centre
       if (environment_distance_label_atom) {
@@ -1216,6 +1217,7 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 	 int atom_index;
 	 if (at_d_i.atom->GetUDData(g.molecules[imol_moving_atoms].atom_sel.UDDAtomIndexHandle,
 				    atom_index) == UDDATA_Ok) {
+	    g.mol_no_for_environment_distances = imol_moving_atoms;
 	    g.update_environment_distances_maybe(atom_index, imol_moving_atoms);
 	 }
       }

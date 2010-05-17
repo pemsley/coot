@@ -2773,7 +2773,7 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
    std::string fill_colour = "";
    std::string stroke_colour = dark;
 
-   std::string grease = "#bbffbb";
+   std::string grease = "#ccffbb";
    std::string purple = "#eeccee";
    std::string red    = "#cc0000";
    std::string blue   = "#0000cc";

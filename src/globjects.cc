@@ -4048,7 +4048,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
       if ( nearest_atom_index_info.success == GL_TRUE) {
 
 	 int im = nearest_atom_index_info.imol; 
-	 std::cout << "clicked on imol: " << im << std::endl;
+	 std::cout << "INFO:: recentre: clicked on imol: " << im << std::endl;
 	 
 	 info.setRotationCentre(nearest_atom_index_info.atom_index,
 				nearest_atom_index_info.imol);
