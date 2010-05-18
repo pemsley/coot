@@ -26,6 +26,7 @@
 #include <iostream>
 #include <map>
 
+#include "coot-coord-utils.hh"
 #include "protein-geometry.hh"
 #include "atom-quads.hh"
 #include "mini-mol.hh"
@@ -145,28 +146,15 @@ namespace coot {
 
    class atom_tree_t {
       
-      class atom_tree_index_t {
-	 int index_;
-      public:
-	 enum index_type { UNASSIGNED = -1 };
-	 atom_tree_index_t() { index_ = UNASSIGNED; }
-	 atom_tree_index_t(int i) { index_ = i; }
-	 int index() const { return index_; }
-	 bool is_assigned() { return (index_ != UNASSIGNED); }
-	 bool operator==(const atom_tree_index_t &ti) const {
-	    return (ti.index() == index_);
-	 }
-      };
-
    protected: 
       CResidue *residue;
       bool made_from_minimol_residue_flag; 
       std::vector<std::pair<int, int> > bonds;
-      std::vector<coot::atom_vertex> atom_vertex_vec;
+      std::vector<atom_vertex> atom_vertex_vec;
       void construct_internal(const dictionary_residue_restraints_t &rest,
 			      CResidue *res,
 			      const std::string &altconf);
-      std::map<std::string, atom_tree_index_t, std::less<std::string> > name_to_index;
+      std::map<std::string, map_index_t, std::less<std::string> > name_to_index;
    private: 
       bool fill_atom_vertex_vec(const dictionary_residue_restraints_t &rest, CResidue *res,
 				const std::string &altconf);
@@ -179,24 +167,24 @@ namespace coot {
       // return bool of 0 on not able to fill (not an exception).
       // 
       std::pair<bool, atom_index_quad>
-      get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
+      get_atom_index_quad(const dict_torsion_restraint_t &tr,
 			  CResidue *res, const std::string &altconf) const;
       
-      std::vector<atom_tree_index_t> get_back_atoms(const atom_tree_index_t &index2) const;
+      std::vector<map_index_t> get_back_atoms(const map_index_t &index2) const;
 
       // don't add base index to forward atoms (of base_index).
-      std::pair<int, std::vector<atom_tree_index_t> > get_forward_atoms(const atom_tree_index_t &base_index,
-									const atom_tree_index_t &index2) const;
-      std::vector<coot::atom_tree_t::atom_tree_index_t>
-      uniquify_atom_indices(const std::vector<coot::atom_tree_t::atom_tree_index_t> &vin) const;
+      std::pair<int, std::vector<map_index_t> > get_forward_atoms(const map_index_t &base_index,
+								  const map_index_t &index2) const;
+      std::vector<map_index_t>
+      uniquify_atom_indices(const std::vector<map_index_t> &vin) const;
 
       // Return the complementary indices c.f. the moving atom set,
       // but do not include index2 or index3 in the returned set (they
       // do not move even with the reverse flag (of course)).
-      std::vector<atom_tree_index_t> 
-      complementary_indices(const std::vector<atom_tree_index_t> &moving_atom_indices,
-			    const atom_tree_index_t &index2,
-			    const atom_tree_index_t &index3) const;
+      std::vector<map_index_t> 
+      complementary_indices(const std::vector<map_index_t> &moving_atom_indices,
+			    const map_index_t &index2,
+			    const map_index_t &index3) const;
 
       // add forward_atom_index as a forward atom of this_index - but
       // only if forward_atom_index is not already a forward atom of
@@ -206,11 +194,11 @@ namespace coot {
       // so now we have a set of moving and non-moving atoms:
       //
       // Note: the angle is in radians. 
-      void rotate_internal(std::vector<coot::atom_tree_t::atom_tree_index_t> moving_atom_indices,
+      void rotate_internal(std::vector<map_index_t> moving_atom_indices,
 			   const clipper::Coord_orth &dir,
 			   const clipper::Coord_orth &base_atom_pos,
 			   double angle);
-      double quad_to_torsion(const atom_tree_index_t &index2) const;
+      double quad_to_torsion(const map_index_t &index2) const;
       
    public:
 

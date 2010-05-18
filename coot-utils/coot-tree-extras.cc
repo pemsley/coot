@@ -331,7 +331,7 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
    // print out the name_to_index map
    if (0) {
       std::cout << "==== atom indexes ===\n";
-      for(std::map<std::string, coot::atom_tree_t::atom_tree_index_t>::const_iterator it = name_to_index.begin();
+      for(std::map<std::string, coot::map_index_t>::const_iterator it = name_to_index.begin();
 	  it != name_to_index.end(); ++it)
 	 std::cout << "Atom :" << it->first << ": Index: " << it->second.index() << '\n';
    }
@@ -422,7 +422,7 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
    // print out the name_to_index map
    if (debug) {
       std::cout << "==== atom indexes ===\n";
-      for(std::map<std::string, coot::atom_tree_t::atom_tree_index_t>::const_iterator it = name_to_index.begin();
+      for(std::map<std::string, coot::map_index_t>::const_iterator it = name_to_index.begin();
 	  it != name_to_index.end(); ++it)
 	 std::cout << "Atom :" << it->first << ": Index: " << it->second.index() << '\n';
    }
@@ -441,11 +441,11 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
       // residue indices.
       // 
       for (unsigned int itree=0; itree<rest.tree.size(); itree++) {
-	 coot::atom_tree_t::atom_tree_index_t atom_id_index = name_to_index[rest.tree[itree].atom_id];
+	 coot::map_index_t atom_id_index = name_to_index[rest.tree[itree].atom_id];
 	 if (atom_id_index.is_assigned()) {
 	    retval = 1;
 	    int idx = atom_id_index.index();
-	    coot::atom_tree_t::atom_tree_index_t atom_back_index =
+	    coot::map_index_t atom_back_index =
 	       name_to_index[rest.tree[itree].atom_back];
 	    if (rest.tree[itree].atom_back != "") { 
 	       // if connect_type is START then the back atom is n/a -> UNASSIGNED
@@ -460,7 +460,7 @@ coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraint
 	       }
 	    }
 	       
-	    coot::atom_tree_t::atom_tree_index_t atom_forward_index =
+	    coot::map_index_t atom_forward_index =
 	       name_to_index[rest.tree[itree].atom_forward];
 
 	    if (atom_forward_index.is_assigned()) {
@@ -531,7 +531,7 @@ coot::atom_tree_t::add_unique_forward_atom(int this_index, int forward_atom_inde
       }
    }
 
-   std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> >
+   std::pair<int, std::vector<coot::map_index_t> >
       forward_atoms_of_forward_atom_index_pair = get_forward_atoms(forward_atom_index, forward_atom_index);
 
    if (0) 
@@ -585,8 +585,8 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
    // indices in the calling function. The revere is done here.
    bool internal_reversed = 0;
    
-   coot::atom_tree_t::atom_tree_index_t index2 = name_to_index[atom1];
-   coot::atom_tree_t::atom_tree_index_t index3 = name_to_index[atom2];
+   coot::map_index_t index2 = name_to_index[atom1];
+   coot::map_index_t index3 = name_to_index[atom2];
 
    if ((atom_vertex_vec[index2.index()].forward.size() == 0) && 
        (atom_vertex_vec[index3.index()].forward.size() == 0)) {
@@ -636,9 +636,9 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	 // OK, try again
 	 if (index3_is_forward) {
 
-	    std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> > moving_atom_indices_pair =
+	    std::pair<int, std::vector<coot::map_index_t> > moving_atom_indices_pair =
 	       get_forward_atoms(index3, index3);
-	    std::vector<coot::atom_tree_t::atom_tree_index_t> moving_atom_indices =
+	    std::vector<coot::map_index_t> moving_atom_indices =
 	       moving_atom_indices_pair.second;
 // 	    std::cout << " in rotate_about get_forward_atoms called " << moving_atom_indices_pair.first
 // 		      << " times - indices size: " << moving_atom_indices_pair.second.size() << std::endl;
@@ -649,7 +649,7 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    // copies of the atom in moving_atom_indices.  So let's
 	    // filter them one.  Only the first copy.
 	    // 
-	    std::vector<coot::atom_tree_t::atom_tree_index_t> unique_moving_atom_indices =
+	    std::vector<coot::map_index_t> unique_moving_atom_indices =
 	       uniquify_atom_indices(moving_atom_indices);
 
 	    if (0) {
@@ -703,7 +703,7 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 
 // return the torsion angle in degrees.
 double
-coot::atom_tree_t::quad_to_torsion(const coot::atom_tree_t::atom_tree_index_t &index2) const {
+coot::atom_tree_t::quad_to_torsion(const coot::map_index_t &index2) const {
 
    // std::cout << " this bond has a chi angle assigned" << std::endl;
    coot::atom_index_quad quad = atom_vertex_vec[index2.index()].torsion_quad.second;
@@ -731,10 +731,10 @@ coot::atom_tree_t::quad_to_torsion(const coot::atom_tree_t::atom_tree_index_t &i
 // Back atoms, not very useful - is is only a single path.
 // 
 // some sort of recursion here
-std::vector<coot::atom_tree_t::atom_tree_index_t>
-coot::atom_tree_t::get_back_atoms(const coot::atom_tree_t::atom_tree_index_t &index) const {
+std::vector<coot::map_index_t>
+coot::atom_tree_t::get_back_atoms(const coot::map_index_t &index) const {
 
-   std::vector<coot::atom_tree_t::atom_tree_index_t> v;
+   std::vector<coot::map_index_t> v;
 
    if (atom_vertex_vec[index.index()].connection_type == coot::atom_vertex::END)
       return v;
@@ -747,8 +747,8 @@ coot::atom_tree_t::get_back_atoms(const coot::atom_tree_t::atom_tree_index_t &in
    // and the back atoms of back atoms.
    for (unsigned int ib=0; ib<atom_vertex_vec[index.index()].backward.size(); ib++) {
       int index_back = atom_vertex_vec[index.index()].backward[ib];
-      coot::atom_tree_t::atom_tree_index_t back_index(index_back); // ho ho
-      std::vector<coot::atom_tree_t::atom_tree_index_t> nv = 
+      coot::map_index_t back_index(index_back); // ho ho
+      std::vector<coot::map_index_t> nv = 
 	 coot::atom_tree_t::get_back_atoms(index_back);
       for (unsigned int inv=0; inv<nv.size(); inv++)
 	 v.push_back(nv[inv]);
@@ -759,25 +759,25 @@ coot::atom_tree_t::get_back_atoms(const coot::atom_tree_t::atom_tree_index_t &in
 
 // with forward recursion
 // 
-std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> > 
-coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t &base_index,
-				     const coot::atom_tree_t::atom_tree_index_t &index) const {
+std::pair<int, std::vector<coot::map_index_t> > 
+coot::atom_tree_t::get_forward_atoms(const coot::map_index_t &base_index,
+				     const coot::map_index_t &index) const {
 
    bool debug = 0;
-   std::vector<coot::atom_tree_t::atom_tree_index_t> v;
+   std::vector<coot::map_index_t> v;
    int n_forward_count = 1; // this time at least
 
    // If atom_vertex_vec was not filled, then we should not index into
    // it with index.index():  Stops a crash, at least.
    // 
    if (index.index() >= atom_vertex_vec.size())
-      return std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> > (n_forward_count, v);
+      return std::pair<int, std::vector<coot::map_index_t> > (n_forward_count, v);
 
 
    // how can this happen?
    if (atom_vertex_vec[index.index()].connection_type == coot::atom_vertex::START) {
       // std::cout << " in get_forward_atoms index " <<  index.index() << " at start" << std::endl;
-      return std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> > (n_forward_count, v);
+      return std::pair<int, std::vector<coot::map_index_t> > (n_forward_count, v);
    } 
 
    // Bizarre atom trees in the refmac dictionary - the END atom is
@@ -808,11 +808,11 @@ coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t 
    // and the forward atoms of the forward atoms
    for (unsigned int ifo=0; ifo<atom_vertex_vec[index.index()].forward.size(); ifo++) {
       int index_forward = atom_vertex_vec[index.index()].forward[ifo];
-      coot::atom_tree_t::atom_tree_index_t forward_index(index_forward);
-      std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> > nv_pair;
+      coot::map_index_t forward_index(index_forward);
+      std::pair<int, std::vector<coot::map_index_t> > nv_pair;
       if (base_index.index() != forward_index.index())
 	 nv_pair = coot::atom_tree_t::get_forward_atoms(base_index, forward_index);
-      std::vector<coot::atom_tree_t::atom_tree_index_t> nv = nv_pair.second;
+      std::vector<coot::map_index_t> nv = nv_pair.second;
       n_forward_count += nv_pair.first;
       for (unsigned int inv=0; inv<nv.size(); inv++) {
 	 if (nv[inv].index() != base_index.index()) { 
@@ -824,15 +824,15 @@ coot::atom_tree_t::get_forward_atoms(const coot::atom_tree_t::atom_tree_index_t 
       }
    }
 
-   return std::pair<int, std::vector<coot::atom_tree_t::atom_tree_index_t> > (n_forward_count, uniquify_atom_indices(v));
+   return std::pair<int, std::vector<coot::map_index_t> > (n_forward_count, uniquify_atom_indices(v));
 }
 
 
 
-std::vector<coot::atom_tree_t::atom_tree_index_t>
-coot::atom_tree_t::uniquify_atom_indices(const std::vector<coot::atom_tree_t::atom_tree_index_t> &vin) const {
+std::vector<coot::map_index_t>
+coot::atom_tree_t::uniquify_atom_indices(const std::vector<coot::map_index_t> &vin) const {
 
-   std::vector<coot::atom_tree_t::atom_tree_index_t> v;
+   std::vector<coot::map_index_t> v;
 
    for (unsigned int iv=0; iv<vin.size(); iv++) {
       // vin[iv] is in v?
@@ -856,12 +856,12 @@ coot::atom_tree_t::uniquify_atom_indices(const std::vector<coot::atom_tree_t::at
 // Return the complementary indices c.f. the moving atom set, but do
 // not include index2 or index3 in the returned set (they do not move
 // even with the reverse flag (of course)).
-std::vector<coot::atom_tree_t::atom_tree_index_t> 
-coot::atom_tree_t::complementary_indices(const std::vector<coot::atom_tree_t::atom_tree_index_t> &moving_atom_indices,
-					 const coot::atom_tree_t::atom_tree_index_t &index2,
-					 const coot::atom_tree_t::atom_tree_index_t &index3) const {
+std::vector<coot::map_index_t> 
+coot::atom_tree_t::complementary_indices(const std::vector<coot::map_index_t> &moving_atom_indices,
+					 const coot::map_index_t &index2,
+					 const coot::map_index_t &index3) const {
 
-   std::vector<coot::atom_tree_t::atom_tree_index_t> v;
+   std::vector<coot::map_index_t> v;
    for (unsigned int ivert=0; ivert<atom_vertex_vec.size(); ivert++) {
       bool ifound = 0;
       for (unsigned int im=0; im<moving_atom_indices.size(); im++) {
@@ -886,7 +886,7 @@ coot::atom_tree_t::complementary_indices(const std::vector<coot::atom_tree_t::at
 //
 // the angle is in radians. 
 void
-coot::atom_tree_t::rotate_internal(std::vector<coot::atom_tree_t::atom_tree_index_t> moving_atom_indices,
+coot::atom_tree_t::rotate_internal(std::vector<coot::map_index_t> moving_atom_indices,
 				   const clipper::Coord_orth &dir,
 				   const clipper::Coord_orth &base_atom_pos,
 				   double angle) {
@@ -919,10 +919,10 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 				double angle) {
 
    double dihedral_angle = 0.0;
-   coot::atom_tree_t::atom_tree_index_t i1 = name_to_index[atom1];
-   coot::atom_tree_t::atom_tree_index_t i2 = name_to_index[atom2];
-   coot::atom_tree_t::atom_tree_index_t i3 = name_to_index[atom3];
-   coot::atom_tree_t::atom_tree_index_t i4 = name_to_index[atom4];
+   coot::map_index_t i1 = name_to_index[atom1];
+   coot::map_index_t i2 = name_to_index[atom2];
+   coot::map_index_t i3 = name_to_index[atom3];
+   coot::map_index_t i4 = name_to_index[atom4];
 
    if (i1.is_assigned() && i2.is_assigned() && i3.is_assigned() && i4.is_assigned()) {
       try {

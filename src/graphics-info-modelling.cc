@@ -3357,7 +3357,7 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
 	 catch (std::runtime_error rte) {
 	    // std::cout << rte.what() << std::endl;
 	    int base_atom_index = 0;
-	    coot::contact_info contact = coot::getcontacts(*moving_atoms_asc);
+	    coot::contact_info contact = coot::getcontacts(*moving_atoms_asc, monomer_type, Geom_p());
 	    std::vector<std::vector<int> > contact_indices = contact.get_contact_indices();
 	    try {
 	       coot::atom_tree_t tree(contact_indices, base_atom_index, residue, alt_conf);
