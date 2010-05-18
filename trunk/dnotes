@@ -5494,6 +5494,26 @@ Thu May 13 13:36:31 BST 2010
   Agreed, it's a bit non-canonical.
 
 
+----
+Mon May 17 16:46:04 BST 2010
+
+  Andrew Sharff:
+
+   Just refining / building a structure that has a number of LINK and
+   SSBOND cards in the PDB header.  I have had to renumber one of the
+   chains to make the numbering consistent with other structures.
+
+   However, on saving output, the residue numbers in the SSBOND and
+   LINK lines is not changed.
+
+----
+Tue May 18 11:25:15 BST 2010
+
+   When alt-confing ligands, I'd like to see a slide-bar to set the
+   occs.
+
+
+
 ------
 
 

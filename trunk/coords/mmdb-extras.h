@@ -54,6 +54,8 @@ class MyCMMDBManager : public CMMDBManager {
 }; 
 
 
+#include "protein-geometry.hh"
+
 // 
 //
 class atom_selection_container_t { 
@@ -175,6 +177,15 @@ namespace coot {
 	  contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
       }
     }
+    // This contact_info constructor does not take the alt conf(s) into
+    // account.  That is becuase (in the current scenario) the alt conf
+    // selection has already taken place before we get here.  If you want
+    // to account for alt confs, then you'll have to write a new
+    // constructor.
+    //
+    contact_info(const atom_selection_container_t &asc, 
+		 const std::string &monomer_type,
+		 coot::protein_geometry *geom_p);
 
     void add_MSE_Se_bonds(const atom_selection_container_t &asc);
     int n_contacts() const { return contacts.size(); } 
@@ -182,6 +193,8 @@ namespace coot {
     void print() const; // debug info
   };
   contact_info getcontacts(const atom_selection_container_t &asc); 
+  contact_info getcontacts(const atom_selection_container_t &asc, const std::string &monomer_type, 
+			   coot::protein_geometry *geom_p); 
 
   // Typically this is used on an asc (moving atoms) to get the N of a
   // peptide (say).  Return NULL on atom not found.

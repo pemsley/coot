@@ -23,6 +23,7 @@
 #include <string.h>  // for memcpy()
 #include <string>
 #include <vector> // for Cartesian
+#include <map>
 
 
 #include "coot-coord-utils.hh"
@@ -354,13 +355,65 @@ coot::progressive_residues_in_chain_check(const CChain *chain_p) {
       previous_seq_num = this_seq_no;
    }
    return 1;
+}
+
+// This contact_info constructor does not take the alt conf(s) into
+// account.  That is becuase (in the current scenario) the alt conf
+// selection has already taken place before we get here.  If you want
+// to account for alt confs, then you'll have to write a new
+// constructor.
+//
+coot::contact_info::contact_info(const atom_selection_container_t &asc, 
+				 const std::string &monomer_type,
+				 coot::protein_geometry *geom_p) {
+
+   std::pair<bool, coot::dictionary_residue_restraints_t> r = 
+      geom_p->get_monomer_restraints(monomer_type);
+
+   if (r.first) {
+      std::map<std::string, coot::map_index_t> name_map;
+      for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
+	 std::string atom_name(asc.atom_selection[i]->name);
+	 name_map[atom_name] = i;
+      }
+      
+      for (unsigned int ib=0; ib<r.second.bond_restraint.size(); ib++) {
+	 std::string n_1 = r.second.bond_restraint[ib].atom_id_1_4c();
+	 std::string n_2 = r.second.bond_restraint[ib].atom_id_2_4c();
+	 coot::map_index_t ind_1 = name_map[n_1];
+	 coot::map_index_t ind_2 = name_map[n_2];
+	 if (ind_1.is_assigned() && ind_2.is_assigned()) { 
+	    contacts_pair p(ind_1.index(), ind_2.index());
+	    contacts.push_back(p);
+	 }
+      }
+   } 
 } 
+
+
+// try to get the bonds/contacts from the dictionary.  If there are no
+// bonds, then fall back to the distance based search.
+coot::contact_info
+coot::getcontacts(const atom_selection_container_t &asc,
+		  const std::string &monomer_type,
+		  coot::protein_geometry *geom_p) {
+   
+   coot::contact_info ci(asc, monomer_type, geom_p);
+   if (ci.n_contacts() == 0)
+      return coot::getcontacts(asc);
+   return ci;
+   
+} 
+
 
 
 coot::contact_info
 coot::getcontacts(const atom_selection_container_t &asc) {
 
    // back here again, eh? :)
+   // 
+   // Yep 20100518 :)
+   
    // std::cout << "DEBUG:: getcontacts() in mmdb-extras" << std::endl;
 
    PSContact pscontact = NULL;
