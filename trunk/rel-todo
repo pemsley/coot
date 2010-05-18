@@ -453,3 +453,6 @@ WARNING:: Can't find file
      #3 doesn't.
 
      ::: 1
+
+   o Fix problem of editing chi angles, but no tree in dictionary. JED
+     ::: 1 
