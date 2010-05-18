@@ -46,6 +46,9 @@
     particular 3-letter code if they have been already read in (rather
     than run libcheck blindly) [Ian Tickle].
  
+  o CHANGE: SSM overlayed molecule now takes symmetry of reference
+    molecule
+
   o BUG-FIX:: Hydrogens on waters are no longer checked against the
     difference map in the water validation test.
 
@@ -87,6 +90,12 @@
 
   o BUG-FIX: Ramachandran plots work at the end of chains chains with
     missing residues [JED].
+
+  o BUG-FIX: Environment distances display toggling anomolies cleaned
+    up [Ed Pozharski]
+
+  o BUG-FIX: Sequence view failed with SHELX molecules with high
+    residue numbers [Stefan Becker].
 
 -----
 
