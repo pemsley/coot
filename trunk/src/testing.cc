@@ -45,6 +45,8 @@
 #include "coot-utils.hh" // usually include from simple-restraint.hh
 #endif
 
+#include "coot-rama.hh"
+
 #include "coot-shelx.hh"
 #include "coot-coord-utils.hh"
 
@@ -79,10 +81,19 @@ coot::protein_geometry testing_data::geom;
 
 std::string greg_test(const std::string &file_name) {
 
-   std::string d = getenv("HOME");
-   d += "/data/greg-data/";
-   d += file_name;
-   return d;
+   std::string dd;
+   const char *c = getenv("COOT_TEST_DATA_DIR");
+   if (c) {
+      dd = c;
+   } else { 
+      const char *d = getenv("HOME");
+      if (d) {
+	 dd = d;
+	 dd += "/data/greg-data/";
+	 dd += file_name;
+      }
+   }
+   return dd;
 } 
 
 std::string stringify(double x) {
@@ -135,7 +146,8 @@ void add_test(int (*)(), const std::string &test_name, std::vector<named_func> *
    //    functions->push_back(named_func(p));
 } 
 
-
+// these are not run by greg.
+//
 int test_internal() {
 
    int status = 1;
@@ -173,6 +185,8 @@ int test_internal() {
    
 }
 
+// Greg testing runs these tests - not the above
+//
 int greg_internal_tests() {
    int status = 1;
    std::vector<named_func> functions;
@@ -183,7 +197,58 @@ int greg_internal_tests() {
 
    status = run_internal_tests(functions);
    return status;
-} 
+}
+
+// greg runs these tests too, these tests use data from the greg test
+// data directory.
+// 
+int greg_tests_using_external_data() {
+
+   int status = 1;
+   std::vector<named_func> functions;
+   functions.push_back(named_func(test_phi_psi_values,
+				  "Residues for phi,psi are close enough to be considered linked"));
+   status = run_internal_tests(functions);
+   return status;
+}
+
+// uses greg data test data
+int test_phi_psi_values() {
+
+   std::string filename = greg_test("frag-2wot.pdb");
+   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   int n_phi_psi = 0;
+   
+   int status = 0;
+   if (atom_sel.read_success > 0) {
+      int imod = 1;
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 for (int ires=1; ires<(nres-1); ires++) {
+	    CResidue *prev_res = chain_p->GetResidue(ires-1);
+	    CResidue *this_res = chain_p->GetResidue(ires);
+	    CResidue *next_res = chain_p->GetResidue(ires+1);
+	    try { 
+	       coot::util::phi_psi_t pp(prev_res, this_res, next_res);
+	       n_phi_psi++;
+	    }
+	    catch (std::runtime_error rte) {
+	       std::cout << rte.what() << std::endl;
+	    } 
+	 }
+      }
+   }
+   if (n_phi_psi == 5)
+      status = 1;
+   else
+      std::cout << "   should have found 5 phi,psis - found " << n_phi_psi << std::endl;
+
+   return status;
+}
 
 int test_internal_single() {
    int status = 0;
@@ -199,7 +264,8 @@ int test_internal_single() {
       // status = test_coordinated_waters();
       // status = test_geometry_distortion_info_type();
       // status = test_translate_close_to_origin();
-      status = test_flev_aromatics();
+      // status = test_flev_aromatics();
+      status = test_phi_psi_values();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;

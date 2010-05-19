@@ -646,7 +646,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	    if (status == GSL_ENOPROG) {
 	       cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG"
 		    << endl; 
-	       chi_squareds("Final Estimated Average Z scores", s->x);
+	       chi_squareds("Final Estimated RMS Z scores", s->x);
 	    }
 	    break;
 	 } 
@@ -659,7 +659,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	    std::cout << "Minimum found (iteration number " << iter << ") at ";
 	    std::cout << s->f << "\n";
 	    std::vector <coot::refinement_lights_info_t> results = 
-	       chi_squareds("Final Estimated Average Z Scores:", s->x);
+	       chi_squareds("Final Estimated RMS Z Scores:", s->x);
 	    lights_vec = results;
 	 }
 
@@ -1134,10 +1134,8 @@ coot::distortion_score_bond(const coot::simple_restraint &bond_restraint,
 			  gsl_vector_get(v,idx+1), 
 			  gsl_vector_get(v,idx+2));
    
-   double weight = 1/(bond_restraint.sigma * bond_restraint.sigma);
-   // std::cout << "   weight is " << weight << std::endl; 
-   double bit = 
-      (clipper::Coord_orth::length(a1,a2) - bond_restraint.target_value);
+   double weight = 1.0/(bond_restraint.sigma * bond_restraint.sigma);
+   double bit = (clipper::Coord_orth::length(a1,a2) - bond_restraint.target_value);
    
    return weight * bit *bit;
 }

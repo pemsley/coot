@@ -217,7 +217,11 @@ SCM test_internal_scm() {
    int status = greg_internal_tests();
    if (!status)
       r = SCM_BOOL_F;
-#endif   
+   else
+      status = greg_tests_using_external_data();
+   if (!status)
+      r = SCM_BOOL_F;
+#endif
 
    return r;
 } 

@@ -2751,7 +2751,7 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
    }
    
    GooCanvasItem *text_1 = goo_canvas_text_new(group, rt.c_str(),
-					       circle_pos.x, circle_pos.y-5, -1,
+					       circle_pos.x, circle_pos.y-6, -1,
 					       GTK_ANCHOR_CENTER,
 					       "font", "Sans 9",
 					       "fill_color", dark,
