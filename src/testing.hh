@@ -35,7 +35,7 @@
 std::string stringify(double x);
 std::string stringify(int i);
 std::string stringify(unsigned int i);
-std::string greg_test(const std::string &file_name);
+std::string greg_test(const std::string &file_name); // return directory of testing data
 
 // a shorthand so that the push back line doesn't get too long:
 typedef std::pair<int(*)(), std::string> named_func;
@@ -44,7 +44,9 @@ void add_test(int(*)(), const std::string &test_name, std::vector<named_func> *f
 
 int test_internal();
 int greg_internal_tests(); // portal to internal tests from greg
+int greg_tests_using_external_data(); // portal to greg test using data from greg data directory
 int test_internal_single();
+
 int run_internal_tests(std::vector<named_func> functions);
 
 int test_alt_conf_rotamers();
@@ -76,6 +78,10 @@ int test_coordinated_waters();
 int test_geometry_distortion_info_type();
 int test_translate_close_to_origin();
 int test_flev_aromatics();
+
+
+// uses greg data test data
+int test_phi_psi_values();
 
 
 CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id, int resno);

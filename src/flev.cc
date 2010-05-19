@@ -699,6 +699,11 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 			   // attached to an N (or an H attached to an O), either way, we
 			   // are sitting now on an H.
 			   ligand_atom_name = it->second;
+
+			   // is this OK?
+			   // 
+			   ele = " H";
+			   
 			   bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN;
 			   if (coot::is_main_chain_p(residue_atoms[jat]))
 			      bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_MAINCHAIN;

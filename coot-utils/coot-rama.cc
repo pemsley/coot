@@ -26,6 +26,8 @@
 #include "clipper/core/coords.h"
 #include "clipper/core/ramachandran.h"
 
+#include "coot-coord-utils.hh" // for residue_spec_t
+
 std::ostream& coot::util::operator<<(std::ostream &s, coot::util::phi_psi_t v) {
 
    s << v.label() << " phi=" << v.phi() << ", psi=" << v.psi();
@@ -144,7 +146,17 @@ coot::util::get_phi_psi(CResidue *residue_0, CResidue *residue_1, CResidue *resi
 				      ires,
 				      inscode,
 				      segid);
-      is_valid_flag = 1;
+
+      // peptide bonding atoms have to be within 2.0A, or this is not
+      // a valid peptide.
+      // 
+      double dist_1 = clipper::Coord_orth::length(c_prev, n_this);
+      double dist_2 = clipper::Coord_orth::length(c_this, n_next);
+
+      if (dist_1 < 2.0) 
+	 if (dist_2 < 2.0) 
+	    is_valid_flag = 1;
+      
    } else {
       // std::cout << "only found " << natom << " atoms " << std::endl;
    } 
@@ -159,7 +171,7 @@ coot::util::phi_psi_t::phi_psi_t(CResidue *prev, CResidue *this_res, CResidue *n
    std::pair<bool, coot::util::phi_psi_t> bpp = coot::util::get_phi_psi(prev, this_res, next);
 
    if (! bpp.first) {
-      std::string mess = "bad residues for Phi psi calculation";
+      std::string mess = "bad residues for phi,psi calculation";
       throw std::runtime_error(mess);
    } else { 
       *this = bpp.second;

@@ -456,3 +456,6 @@ WARNING:: Can't find file
 
    o Fix problem of editing chi angles, but no tree in dictionary. JED
      ::: 1 
+
+   o ramachandran plot gap errors - JED ::: 2
+
