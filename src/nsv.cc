@@ -115,7 +115,11 @@ exptl::nsv::on_nsv_dialog_destroy (GtkObject *obj,
 void
 exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+   fixed_font_str = "monospace";
+#else
    fixed_font_str = "fixed";
+#endif
    pixels_per_letter = 10; // 10 for my F10 box
    pixels_per_chain  = 12;
 

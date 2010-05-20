@@ -11,7 +11,8 @@
 
 \title{Tutorial: Ligand Fitting with Coot}
 
-\author{CCP4 Workshop New Delhi 2010}
+%\author{CCP4 Workshop New Delhi 2010}
+\author{CCP4 School APS 2010}
 
 \begin{document}
 \maketitle
@@ -39,7 +40,9 @@ molecule and refine and validate the ligand.
 
  So let's load the protein coordinates
  \texttt{ligand-fitting-no-ligand.pdb} and the associated MTZ file
- which is \texttt{ligand-fitting.mtz}.  Use \textsf{File $\rightarrow$ AutoOpen MTZ}.
+ which is \texttt{ligand-fitting.mtz}\footnote{available, as usual, 
+from \texttt{\small http://www.biop.ox.ac.uk/coot/tutorial/}}.  
+Use \textsf{File $\rightarrow$ AutoOpen MTZ}.
 
 \section{SMILES}
 
@@ -48,8 +51,9 @@ molecule and refine and validate the ligand.
 \begin{figure}[htbp]
   \begin{center}
     \leavevmode
-    \epsfxsize 30mm
-    \epsffile{3-amino-benzamide-2.eps}
+    \includegraphics[width=30mm]{3-amino-benzamide-2.png}
+%    \epsfxsize 30mm
+%    \epsffile{3-amino-benzamide-2.eps}
     \caption{3-amino-benzamide}{}
     \label{fig:3-amino-benzamide}
   \end{center}
@@ -216,7 +220,7 @@ circle icon on the right, then click click on an atom in the residue
   bindings set up).}.
 
  When we are happy with our fit, we can merge this new ligand into the
- main proitein ligand as we did before.
+ main protein ligand as we did before.
 
 \section{NCS Ligands}
 
@@ -234,7 +238,7 @@ circle icon on the right, then click click on an atom in the residue
  ligand that we have fitted into the "A" chain, to do that double
  left-click an an atom in the ligand. In the graphics you will see
  something like: \texttt{" C1 /1 XXX/E"} - so the chain-id is
- \texttt{"E"}. Also the status bar athe bottom shows information about
+ \texttt{"E"}. Also the status bar at the bottom shows information about
  the clicked atom.
 
  So enter that chain-id in the "Molecule containing ligand" "Chain ID"

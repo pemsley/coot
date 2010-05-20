@@ -2812,6 +2812,7 @@ def superpose_ligand_gui():
 global std_key_bindings
 std_key_bindings = [["^g", "keyboard-go-to-residue"],
                     ["^s", "quick-save-as"],
+                    ["^i", "residue info"],
                     ["a", "refine with auto-zone"],
                     ["b", "toggle baton swivel"],
                     ["c", "toggle cross-hairs"],
