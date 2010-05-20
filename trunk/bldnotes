@@ -1,7 +1,7 @@
  -*-text-*-
 
 scripts      rev 2902 
-tests        rev 2893
+tests        rev 2949
 build-it-win rev 2122
 
 -------------------------------------------------------
@@ -13,6 +13,10 @@ build-it-win rev 2122
 ----------------
 
 **** General ****
+
+   o reset button for map sharpening
+
+   o water check for B below threshold?!
 
    o Tooltips for residues in new sequence view?!
 
@@ -42,7 +46,7 @@ build-it-win rev 2122
 04/10/08
    o simultaneous refinement of alt confs
 
-   o interface to thomas schneider superposition program (which is?)
+   o interface to thomas schneider superposition program (ESCET)
 
    o rigid body fit per residues (* done? bb script?!)
 
@@ -106,6 +110,8 @@ build-it-win rev 2122
 
 **** Python ****
 
+   o fix using_active_atom with respect to lists
+
    o refmac warning when no freeR (how detect?!)
 
    o document remote connection
@@ -131,6 +137,12 @@ build-it-win rev 2122
 
 
 **** Windows ****
+
+   o icon on WinCoot website
+
+   o label main Window WinCoot
+
+   o check save times with gz compression, maybe make optional (feels slow)
 
    o better python std flushing for MINGW
 

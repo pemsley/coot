@@ -191,6 +191,18 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnless(valid_map_molecule_qm(imol_map))
 
 
+    def test07_1(self):
+        """Auto-read bad MTZ test"""
+
+        mtz_list = ["xx-missing.mtz",
+                    os.path.join(unittest_data_dir, "broken.mtz")]
+
+        for file_name in mtz_list:
+            r = auto_read_make_and_draw_maps(file_name)
+            print "got status: ", r
+        # no crash
+        
+        
     def test08_0(self):
         """Map Sigma """
 
