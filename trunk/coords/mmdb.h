@@ -19,6 +19,9 @@
  * 02110-1301, USA
  */
 
+#ifndef MMDB_H
+#define MMDB_H
+
 // needs to have included mmdb_manager.h"
 // and "mmdb-extras.h" for atom_selection_container_t
 #include "Cartesian.h"
@@ -42,7 +45,15 @@ fix_wrapped_names(atom_selection_container_t asc);
 
 int write_atom_selection_file(atom_selection_container_t asc,
 			      const std::string &filename, 
-			      byte gz);
+			      byte gz,
+			      bool write_hydrogens = 1,  // optional arg
+			      bool write_aniso_records = 1);  // optional arg
+
+// used by above
+namespace coot {
+  void delete_hydrogens_from_mol(CMMDBManager *mol);
+  void delete_aniso_records_from_atoms(CMMDBManager *mol);
+}
 
 
 // needs <iostream.h>
@@ -50,3 +61,6 @@ int write_atom_selection_file(atom_selection_container_t asc,
 ostream& operator<<(ostream& s, CAtom &atom);
 
 ostream& operator<<(ostream& s, PCAtom atom); 
+
+
+#endif // MMDB_H

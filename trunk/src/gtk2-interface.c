@@ -24318,6 +24318,9 @@ create_save_coords_filechooserdialog1 (void)
 {
   GtkWidget *save_coords_filechooserdialog1;
   GtkWidget *dialog_vbox104;
+  GtkWidget *hbox413;
+  GtkWidget *checkbutton_aniso;
+  GtkWidget *checkbutton_hydrogens;
   GtkWidget *dialog_action_area103;
   GtkWidget *button13;
   GtkWidget *button14;
@@ -24332,6 +24335,20 @@ create_save_coords_filechooserdialog1 (void)
 
   dialog_vbox104 = GTK_DIALOG (save_coords_filechooserdialog1)->vbox;
   gtk_widget_show (dialog_vbox104);
+
+  hbox413 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox413);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox104), hbox413, FALSE, FALSE, 0);
+
+  checkbutton_aniso = gtk_check_button_new_with_mnemonic (_("Save ANISO Records  "));
+  gtk_widget_show (checkbutton_aniso);
+  gtk_box_pack_end (GTK_BOX (hbox413), checkbutton_aniso, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton_aniso), TRUE);
+
+  checkbutton_hydrogens = gtk_check_button_new_with_mnemonic (_("Save Hydrogens  "));
+  gtk_widget_show (checkbutton_hydrogens);
+  gtk_box_pack_end (GTK_BOX (hbox413), checkbutton_hydrogens, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton_hydrogens), TRUE);
 
   dialog_action_area103 = GTK_DIALOG (save_coords_filechooserdialog1)->action_area;
   gtk_widget_show (dialog_action_area103);
@@ -24363,6 +24380,9 @@ create_save_coords_filechooserdialog1 (void)
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, save_coords_filechooserdialog1, "save_coords_filechooserdialog1");
   GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, dialog_vbox104, "dialog_vbox104");
+  GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, hbox413, "hbox413");
+  GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, checkbutton_aniso, "checkbutton_aniso");
+  GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, checkbutton_hydrogens, "checkbutton_hydrogens");
   GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, dialog_action_area103, "dialog_action_area103");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, button13, "button13");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, button14, "button14");

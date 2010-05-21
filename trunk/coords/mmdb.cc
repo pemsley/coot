@@ -514,20 +514,41 @@ ostream& operator<<(ostream& s, PCAtom atom) {
 int
 write_atom_selection_file(atom_selection_container_t asc,
 			  const std::string &filename,
-			  byte gz) {
+			  byte gz,
+			  bool write_hydrogens,     // optional arg
+			  bool write_aniso_records // optional arg
+			  ) {
 
    int ierr = 0; 
    coot::util::remove_wrong_cis_peptides(asc.mol);
+   CMMDBManager *mol = asc.mol;
    
    if (coot::is_mmcif_filename(filename)) {
-      ierr = asc.mol->WriteCIFASCII(filename.c_str());
+      ierr = mol->WriteCIFASCII(filename.c_str());
+      
    } else {
+
+      if (! write_hydrogens) {
+	 CMMDBManager *n = new CMMDBManager;
+	 n->Copy(mol, MMDBFCM_All);
+	 coot::delete_hydrogens_from_mol(n);
+	 mol = n;
+      }
+
+      if (! write_aniso_records) {
+	 CMMDBManager *n = new CMMDBManager;
+	 n->Copy(mol, MMDBFCM_All);
+	 coot::delete_aniso_records_from_atoms(n);
+	 mol = n;
+      }
+
+      
       // we need to put the hydrogen names back to how they used to be
       // when we read in the pdb file and then put them put them back
       // to how they currently are!
 
-      int udd_old = asc.mol->GetUDDHandle(UDR_ATOM, "initial hydrogen name");
-      int udd_new = asc.mol->GetUDDHandle(UDR_ATOM, "new hydrogen name");
+      int udd_old = mol->GetUDDHandle(UDR_ATOM, "initial hydrogen name");
+      int udd_new = mol->GetUDDHandle(UDR_ATOM, "new hydrogen name");
 //       std::cout << "udd_old: " << udd_old << std::endl;
 //       std::cout << "udd_new: " << udd_new << std::endl;
       char *str = 0; 
@@ -543,7 +564,7 @@ write_atom_selection_file(atom_selection_container_t asc,
 	    }
 	 }
       }
-      ierr = asc.mol->WritePDBASCII((char *)filename.c_str());
+      ierr = mol->WritePDBASCII((char *)filename.c_str());
       // now put the names back
       if (udd_old > 0 && udd_new > 0) { 
       	 for (int i=0; i<asc.n_selected_atoms; i++) {
@@ -559,4 +580,63 @@ write_atom_selection_file(atom_selection_container_t asc,
       }
    }
    return ierr; 
+}
+
+
+void
+coot::delete_hydrogens_from_mol(CMMDBManager *mol) {
+
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    bool deleted = 0;
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       at = residue_p->GetAtom(iat);
+	       std::string ele(at->element);
+	       if (ele == " H") {
+		  // delete this atom
+		  deleted = 1;
+		  residue_p->DeleteAtom(iat);
+	       }
+	    }
+	    if (deleted)
+	       residue_p->TrimAtomTable();
+	 }
+      }
+   }
+}
+
+
+void
+coot::delete_aniso_records_from_atoms(CMMDBManager *mol) {
+
+   std::cout << "ASET_Anis_tFac " << ASET_Anis_tFac << " " << ~ASET_Anis_tFac << std::endl;
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       at = residue_p->GetAtom(iat);
+	       at->WhatIsSet &=  ~ASET_Anis_tFac;
+	    }
+	 }
+      }
+   }
 }

@@ -4793,8 +4793,12 @@ molecule_class_info_t::add_pointer_multiatom(CResidue *res_p,
 // ----------------------------------------------------------------------
 //
 // return 0 on success.
+//
+// optional args save_hydrogens and save_aniso_records.
 int
-molecule_class_info_t::save_coordinates(const std::string filename) {
+molecule_class_info_t::save_coordinates(const std::string filename,
+					bool save_hydrogens,
+					bool save_aniso_records) {
 
    int ierr = 0;
    std::string ext = coot::util::file_name_extension(filename);
@@ -4802,7 +4806,9 @@ molecule_class_info_t::save_coordinates(const std::string filename) {
       write_shelx_ins_file(filename);
    } else {
       byte bz = GZM_NONE;
-      ierr = write_atom_selection_file(atom_sel, filename, bz);
+      
+      ierr = write_atom_selection_file(atom_sel, filename, bz,
+				       save_hydrogens, save_aniso_records);
    }
 
    if (ierr) {

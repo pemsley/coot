@@ -35,6 +35,8 @@
 #include <string>
 #endif
 
+#include <map>
+
 #include "mmdb_mmcif.h"
 
 #ifndef  __MMDB_SBase__
@@ -625,6 +627,140 @@ namespace coot {
    std::ostream& operator<<(std::ostream &s, chem_link lnk);
 
    // ------------------------------------------------------------------------
+   //                  energy lib
+   // ------------------------------------------------------------------------
+   
+   class energy_lib_atom {
+   public:
+      enum { HB_UNASSIGNED=-1, HB_NEITHER, HB_DONOR, HB_ACCEPTOR, HB_BOTH, HB_HYDROGEN };
+      std::string type;
+      realtype weight;
+      int hb_type;
+      // radii are negative if not assigned.
+      realtype vdw_radius;
+      realtype ion_radius;
+      std::string element;
+      int valency; // negative if unset
+      int sp_hybridisation; // negative if unset
+      energy_lib_atom(const std::string &type_in,
+		      int hb_type_in,
+		      float weight_in,
+		      float vdw_radius_in,
+		      float ion_radius_in,
+		      const std::string &element_in,
+		      int valency_in,
+		      int sp_hybridisation_in) {
+	 type = type_in;
+	 hb_type = hb_type_in;
+	 weight = weight_in;
+	 vdw_radius = vdw_radius_in;
+	 ion_radius = ion_radius_in;
+	 element = element_in;
+	 valency = valency_in;
+	 sp_hybridisation = sp_hybridisation_in;
+      }
+      // for the map
+      energy_lib_atom() {
+	 type = "";
+	 hb_type = HB_UNASSIGNED;
+	 weight = -1;
+	 vdw_radius = -1;
+	 ion_radius = -1;
+	 element = "";
+	 valency = -1;
+	 sp_hybridisation = -1;
+      } 
+      friend std::ostream& operator<<(std::ostream &s, const energy_lib_atom &at);
+   };
+   std::ostream& operator<<(std::ostream &s, const energy_lib_atom &at);
+
+   
+
+   class energy_lib_bond {
+   public:
+      std::string atom_type_1;
+      std::string atom_type_2;
+      std::string type; // single, double, aromatic etc
+      float spring_constant; // for energetics
+      float length;
+      float esd;
+      energy_lib_bond(const std::string &atom_type_1_in,
+		      const std::string &atom_type_2_in,
+		      const std::string &type_in,
+		      float spring_constant_in,
+		      float length_in,
+		      float esd_in) {
+	 atom_type_1 = atom_type_1_in;
+	 atom_type_2 = atom_type_2_in;
+	 type = type_in;
+	 spring_constant = spring_constant_in;
+	 length = length_in;
+	 esd = esd_in;
+      }
+   };
+
+   class energy_lib_angle {
+   public:
+      std::string atom_type_1;
+      std::string atom_type_2;
+      std::string atom_type_3;
+      float spring_constant; // for energetics
+      float angle;
+      energy_lib_angle(const std::string &atom_type_1_in,
+		       const std::string &atom_type_2_in,
+		       const std::string &atom_type_3_in,
+		       float spring_constant_in,
+		       float value_in) {
+	 
+	 atom_type_1 = atom_type_1_in;
+	 atom_type_2 = atom_type_2_in;
+	 atom_type_3 = atom_type_3_in;
+	 spring_constant = spring_constant_in;
+	 angle = value_in;
+      }
+   };
+
+   class energy_lib_torsion {
+   public:
+      std::string atom_type_1;
+      std::string atom_type_2;
+      std::string atom_type_3;
+      std::string atom_type_4;
+      std::string label;
+      float spring_constant; // for energetics
+      float angle;
+      int period;
+      energy_lib_torsion(const std::string &atom_type_1_in,
+			 const std::string &atom_type_2_in,
+			 const std::string &atom_type_3_in,
+			 const std::string &atom_type_4_in,
+			 float spring_constant_in,
+			 float value_in,
+			 int period_in) {
+	 
+	 atom_type_1 = atom_type_1_in;
+	 atom_type_2 = atom_type_2_in;
+	 atom_type_3 = atom_type_3_in;
+	 atom_type_4 = atom_type_4_in;
+	 spring_constant = spring_constant_in;
+	 angle = value_in;
+	 period = period_in;
+      }
+   };
+
+   // --------------------------
+   // energy container
+   // --------------------------
+   // 
+   class energy_lib_t {
+   public:
+      std::map<std::string, energy_lib_atom> atom_map;
+      std::vector<energy_lib_bond> bonds;
+      std::vector<energy_lib_angle> angles;
+      std::vector<energy_lib_torsion> torsions;
+   };
+
+   // ------------------------------------------------------------------------
    // ------------------------------------------------------------------------
    // class protein_geometry     the container class
    // ------------------------------------------------------------------------
@@ -846,6 +982,14 @@ namespace coot {
 
       int init_refmac_mon_lib_inner(std::string filename, int read_number_in);
 
+
+      energy_lib_t energy_lib;
+      void add_energy_lib_atom(    const energy_lib_atom    &atom);
+      void add_energy_lib_bond(    const energy_lib_bond    &bond);
+      void add_energy_lib_angle(   const energy_lib_angle   &angle);
+      void add_energy_lib_torosion(const energy_lib_torsion &torsion);
+      void add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop);
+
    public:
 
       protein_geometry() {
@@ -1001,6 +1145,12 @@ namespace coot {
 				    const std::string &env_residue_res_type);
 
       bool OXT_in_residue_restraints_p(const std::string &residue_type) const;
+
+      void read_energy_lib(const std::string &file_name);
+
+      // return HB_UNASSIGNED when not found
+      // 
+      int get_h_bond_type(const std::string &atom_name, const std::string &monomer_name) const;
 
    };
 
