@@ -1304,6 +1304,25 @@ coot_real_exit(int retval) {
 
 }
 
+void
+add_file_dialog_action_area_vbox(GtkWidget *fileselection) {
+
+#if (GTK_MAJOR_VERSION > 1)
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+   } else {
+      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+      GtkWidget *frame = gtk_frame_new("Options");
+      GtkWidget *vbox  = gtk_vbox_new(FALSE, 2);
+      gtk_object_set_data(GTK_OBJECT(fileselection), "action_area_vbox", vbox);
+      gtk_widget_show(vbox);
+      gtk_widget_show(frame);
+      gtk_container_add(GTK_CONTAINER(aa), frame);
+      gtk_container_add(GTK_CONTAINER(frame), vbox);
+   } 
+#endif
+   
+} 
+
 // where data type:
 // 0 coords
 // 1 mtz etc
@@ -1325,30 +1344,69 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
 #endif
 
    if (no_chooser_filter) {
-    GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-    GtkWidget *frame = gtk_frame_new("File-name filter:");
-    int d = data_type;
-    button = gtk_toggle_button_new_with_label("Filter");
- //       std::cout << "in add_filename_filter_button data_type is " << data_type << std::endl;
+      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+      GtkWidget *frame = gtk_frame_new("File-name filter:");
+      GtkWidget *vbox = lookup_widget(GTK_WIDGET(fileselection), "action_area_vbox");
+      
+      int d = data_type;
+      button = gtk_toggle_button_new_with_label("Filter");
+      //       std::cout << "in add_filename_filter_button data_type is " << data_type << std::endl;
 
-    gtk_widget_ref(button);
-    gtk_widget_show(button);
-    gtk_container_add(GTK_CONTAINER(aa),frame);
-    gtk_container_add(GTK_CONTAINER(frame), button);
+      gtk_widget_ref(button);
+      gtk_widget_show(button);
+      gtk_container_add(GTK_CONTAINER(aa),frame);
+      // gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 2);
+      gtk_container_add(GTK_CONTAINER(frame), button);
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-    gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled_gtk1),
-			GINT_TO_POINTER(d));
+      gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled_gtk1),
+			  GINT_TO_POINTER(d));
 #else
-    // callback in c-interface-gtk2.cc
-    gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled),
-			GINT_TO_POINTER(d));
+      // callback in c-interface-gtk2.cc
+      gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled),
+			  GINT_TO_POINTER(d));
 #endif   
-    gtk_widget_show(frame);
+      gtk_widget_show(frame);
    }
    
    return button;
+}
+
+void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fileselection) {
+
+   bool no_chooser_filter = 1;
+   
+#if (GTK_MAJOR_VERSION > 1)
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+      	no_chooser_filter = 0;
+   }
+#endif
+
+   if (no_chooser_filter) {
+      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+      GtkWidget *vbox = lookup_widget(GTK_WIDGET(fileselection), "action_area_vbox");
+
+      if (vbox) { 
+
+	 GtkWidget *checkbutton_hydrogens = gtk_check_button_new_with_label("Save Hydrogens");
+	 GtkWidget *checkbutton_aniso = gtk_check_button_new_with_label("Save ANISO records");
+
+	 gtk_object_set_data(GTK_OBJECT(fileselection), "checkbutton_hydrogens",
+			     checkbutton_hydrogens);
+	 gtk_object_set_data(GTK_OBJECT(fileselection), "checkbutton_aniso",
+			     checkbutton_aniso);
+	 
+	 gtk_box_pack_start(GTK_BOX(vbox), checkbutton_hydrogens, FALSE, FALSE, 2);
+	 gtk_box_pack_start(GTK_BOX(vbox), checkbutton_aniso,     FALSE, FALSE, 2);
+	 
+	 gtk_widget_show(checkbutton_hydrogens);
+	 gtk_widget_show(checkbutton_aniso);
+
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_hydrogens), TRUE);
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_aniso),     TRUE);
+      }
+   }
 }
 
 
@@ -4489,17 +4547,27 @@ void save_coordinates_using_widget(GtkWidget *widget) {
    } else { 
 
       int imol = *((int *) stuff);
+      bool save_hydrogens = 1;
+      bool save_aniso_records = 1;
 
       // How do we get the filename?
 
       const gchar *filename;
 #if (GTK_MAJOR_VERSION > 1)
+
+      GtkWidget *chk_but = lookup_widget(GTK_WIDGET(widget), "checkbutton_hydrogens");
+      if (! GTK_TOGGLE_BUTTON(chk_but)->active)
+	 save_hydrogens = 0;
+      chk_but = lookup_widget(GTK_WIDGET(widget), "checkbutton_aniso");
+      if (! GTK_TOGGLE_BUTTON(chk_but)->active)
+	 save_aniso_records = 0;
+      
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE)  {
       	filename = gtk_file_chooser_get_filename
 	 (GTK_FILE_CHOOSER(widget));
       } else {
 	filename = gtk_file_selection_get_filename
-	 (GTK_FILE_SELECTION(widget));
+	   (GTK_FILE_SELECTION(widget));
      }
 #else
       filename = gtk_file_selection_get_filename
@@ -4510,12 +4578,14 @@ void save_coordinates_using_widget(GtkWidget *widget) {
 		<< imol << " to file " << filename << std::endl;
 
       graphics_info_t g;
-      int ierr = save_coordinates(imol, filename);
-      if (! ierr) { 
-	 std::string s = "Saved coordinates file ";
-	 s += filename;
-	 s += ".";
-	 g.statusbar_text(s);
+      if (is_valid_model_molecule(imol)) { 
+	 int ierr = g.molecules[imol].save_coordinates(filename, save_hydrogens, save_aniso_records);
+	 if (! ierr) { 
+	    std::string s = "Saved coordinates file ";
+	    s += filename;
+	    s += ".";
+	    g.statusbar_text(s);
+	 }
       }
    }
 }

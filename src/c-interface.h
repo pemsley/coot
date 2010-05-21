@@ -216,7 +216,10 @@ void on_filename_filter_toggle_button_toggled (GtkButton       *button,
 void on_filename_filter_toggle_button_toggled_gtk1 (GtkButton       *button,
 						    gpointer         user_data);
 #endif 
+void add_file_dialog_action_area_vbox(GtkWidget *fileselection);
 void add_filename_filter(GtkWidget *fileselection);
+void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fileselection);
+
 
 
 // where data type:

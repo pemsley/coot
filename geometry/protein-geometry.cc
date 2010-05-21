@@ -193,7 +193,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		<< " not read.  It is not a regular file.\n";
    } else { 
 
-      int ierr = ciffile.ReadMMCIFFile((char *)ciffilename.c_str());
+      int ierr = ciffile.ReadMMCIFFile(ciffilename.c_str());
    
       if (ierr!=CIFRC_Ok) {
 	 std::cout << "dirty mmCIF file? " << ciffilename.c_str() << std::endl;

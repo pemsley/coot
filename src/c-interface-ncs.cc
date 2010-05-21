@@ -874,6 +874,7 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 	    std::pair<int, int> r =  g.get_closest_atom();
 	    // std::cout << "got closest atom " << r.first << " " << r.second << std::endl;
 	    if (r.first >= 0) {
+	       g.mol_no_for_environment_distances = r.second;
 	       g.update_environment_distances_maybe(r.first, r.second);
 	    }
 	 }

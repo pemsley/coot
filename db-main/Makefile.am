@@ -25,6 +25,7 @@ testdbmain_SOURCES = testdbmain.cc
 testdbmain_LDADD = libcoot-db-main.la \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS)      \
 	$(MMDB_LIBS)
@@ -34,6 +35,7 @@ train_pepflip_SOURCES = train-pepflip.cc
 train_pepflip_LDADD = libcoot-db-main.la \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS)      \
 	$(MMDB_LIBS)

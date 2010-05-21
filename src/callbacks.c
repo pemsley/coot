@@ -2205,12 +2205,17 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
   
      /* we transfer the pointer to imol to the save coordinates fileselection */
      gtk_object_set_user_data(GTK_OBJECT(widget), imol_str);
+
+     add_file_dialog_action_area_vbox(widget);
+     add_save_coordinates_include_hydrogens_and_aniso_checkbutton(widget);
+
      add_sort_button_fileselection(widget); 
      /*   set_directory_for_fileselection(widget); */
      set_file_for_save_fileselection(widget);
      add_ccp4i_project_optionmenu(widget, COOT_SAVE_COORDS_FILE_SELECTION);
      /*   add_filename_filter(widget); */
      add_filename_filter_button(widget, COOT_SAVE_COORDS_FILE_SELECTION);
+
      set_file_selection_dialog_size(widget);
 
      gtk_widget_show(widget);
