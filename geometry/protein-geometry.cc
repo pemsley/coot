@@ -2706,6 +2706,9 @@ coot::protein_geometry::init_standard() {
       refmac_monomer(mon_lib_dir, monomer_cif_file); // update read_number too :)
    }
 
+   std::string energy_cif_file_name = mon_lib_dir + "/ener_lib.cif";
+   read_energy_lib(energy_cif_file_name);
+
    return read_number;
 }
 
@@ -3128,6 +3131,7 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("g/GD.cif");
    s.push_back("t/TD.cif");
    s.push_back("u/UR.cif");
+   s.push_back("h/HOH.cif");
    
 
    return s;

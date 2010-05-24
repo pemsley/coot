@@ -70,6 +70,8 @@ namespace coot {
    void write_solvent_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,
 				      CResidue *reference_residue);
 
+   bool is_a_metal(CResidue *res);
+
    // The bonds from the protein to the ligand which contain
    // ligand-atom-name residue-spec and bond type (acceptor/donor).
    // These (ligand atom names) will have to be mapped to x y position
@@ -96,19 +98,52 @@ namespace coot {
 	 res_spec = spec_in;
 	 bond_length = bl_in;
       }
+      static int get_bond_type(CAtom *at_donor, CAtom *at_acceptor, bool ligand_atom_is_donor_flag) {
+	 int r_bond_type = BOND_OTHER;
+
+	 CAtom *ligand_atom = at_donor;
+	 CAtom *residue_atom = at_acceptor;
+
+	 if (! ligand_atom_is_donor_flag)
+	    std::swap(ligand_atom, residue_atom);
+
+	 if (is_a_metal(residue_atom->residue)) {
+	    r_bond_type = METAL_CONTACT_BOND;
+	 } else { 
+
+	    if (ligand_atom_is_donor_flag) { 
+	       if (coot::is_main_chain_p(residue_atom))
+		  r_bond_type = H_BOND_ACCEPTOR_MAINCHAIN;
+	       else
+		  r_bond_type = H_BOND_ACCEPTOR_SIDECHAIN;
+	       
+	    } else {
+	       if (coot::is_main_chain_p(residue_atom))
+		  r_bond_type = H_BOND_DONOR_MAINCHAIN;
+	       else
+		  r_bond_type = H_BOND_DONOR_SIDECHAIN;
+	    }
+	 }
+	 return r_bond_type;
+      } 
    };
    std::map<std::string, std::string> make_flat_ligand_name_map(CResidue *flat_res);
 
    std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(CResidue *res_ref,
 						       const std::vector<CResidue *> &residues,
 						       const std::map<std::string, std::string> &name_map);
+   // uses the coot::h_bond class (which uses the dictionary).
+   // 
+   std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(CResidue *res_ref,
+						       const std::vector<CResidue *> &residues,
+						       CMMDBManager *mol,
+						       const std::map<std::string, std::string> &name_map,
+						       const protein_geometry &geom);
+   
    void write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 			  const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,
 			  const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
 			  const pi_stacking_container_t &stacking,
 			  CResidue *res_flat);
-
-   bool is_a_metal(CResidue *res);
-
 
 }

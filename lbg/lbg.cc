@@ -1875,11 +1875,15 @@ lbg_info_t::write_pdf(const std::string &file_name) const {
    cairo_surface_t *surface;
    cairo_t *cr;
 
-   surface = cairo_pdf_surface_create(file_name.c_str(), 9 * 72, 10 * 72);
+   std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
+   int pos_x = (extents.second.x + 220.0);
+   int pos_y = (extents.second.y + 220.0);
+   surface = cairo_pdf_surface_create(file_name.c_str(), pos_x, pos_y);
    cr = cairo_create (surface);
 
    /* Place it in the middle of our 9x10 page. */
-   cairo_translate (cr, 20, 130);
+   // cairo_translate (cr, 20, 130);
+   cairo_translate (cr, 2, 13);
 
    goo_canvas_render (GOO_CANVAS(canvas), cr, NULL, 1.0);
    cairo_show_page (cr);
@@ -1895,11 +1899,18 @@ lbg_info_t::write_pdf(const std::string &file_name) const {
 void
 lbg_info_t::write_png(const std::string &file_name) const {
 
-   cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 700, 700);
+   std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
+
+   int size_x = extents.second.x + 220; // or so... (ideally should reside circle-based).
+   int size_y = extents.second.y + 220;
+   
+   cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);
    cairo_t *cr = cairo_create (surface);
 
-   double scale_factor = 2.5;
-   goo_canvas_render (GOO_CANVAS(canvas), cr, NULL, scale_factor); // sc doesn't do anything?
+   // 1.0 is item's visibility threshold to see if they should be rendered
+   // (everything should be rendered).
+   // 
+   goo_canvas_render (GOO_CANVAS(canvas), cr, NULL, 1.0); 
    cairo_surface_write_to_png(surface, file_name.c_str());
    cairo_surface_destroy (surface);
    cairo_destroy (cr);
@@ -1981,7 +1992,9 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
    for (unsigned int ip=0; ip<problem_status.second.size(); ip++) {
       std::cout << ":::::::::::: "
 		<< residue_circles[problem_status.second[ip]].residue_label << " "
-		<< residue_circles[problem_status.second[ip]].residue_type << std::endl;
+		<< residue_circles[problem_status.second[ip]].residue_type << " "
+		<< residue_circles[problem_status.second[ip]].pos
+		<< std::endl;
    }
    
    if (problem_status.second.size()) {
@@ -2025,6 +2038,7 @@ lbg_info_t::reposition_problematics_and_reoptimise(const std::vector<int> &probl
 					     attachment_points);
    }
 
+   
    // set the initial positions for optimisation, now that we have
    // fiddled with residue_circles
    std::vector<residue_circle_t> current_circles = residue_circles;
@@ -2152,7 +2166,8 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
 
    if (0) 
       std::cout << "DEBUG:: staring initial_primary_residue_circles_layout() primary_index " << primary_index
-		<< " " << residue_circles[primary_index].residue_label << " " << residue_circles[primary_index].residue_type
+		<< " " << residue_circles[primary_index].residue_label << " "
+		<< residue_circles[primary_index].residue_type
 		<< " has position " << residue_circles[primary_index].pos
 		<< std::endl;
    
@@ -2187,9 +2202,10 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
    
    residue_circles[primary_index].pos = best_pos + a_to_b_uv * 4;
 
-   if (0)
+   if (1)
       std::cout << "DEBUG::  ending initial_primary_residue_circles_layout() primary_index " << primary_index
-		<< " " << residue_circles[primary_index].residue_label << " " << residue_circles[primary_index].residue_type
+		<< " " << residue_circles[primary_index].residue_label << " "
+		<< residue_circles[primary_index].residue_type
 		<< " has position " << residue_circles[primary_index].pos
 		<< std::endl;
    
@@ -2300,15 +2316,26 @@ lbg_info_t::solution_has_problems_p() const {
 
    std::vector<int> v;
    bool status = 0;
+
    // scale factor of 1.2 is too small, 2.0 seems good for H102 in 2aei 
    double crit_dist_2 = 2.0 * SINGLE_BOND_CANVAS_LENGTH * SINGLE_BOND_CANVAS_LENGTH;
+   double crit_dist_wide_2 = 4 * crit_dist_2;
+
+   // a problem can be 2 atoms < crit_dist_2 or
+   //                  5 atoms < crit_dist_wide_2
+   // 
+   // we need the wider check to find atoms that are enclosed by a
+   // system of 10 or so atoms.
+   // 
+
    for (unsigned int i=0; i<residue_circles.size(); i++) {
       int n_close = 0;
+      int n_close_wide = 0;
       for (unsigned int j=0; j<mol.atoms.size(); j++) {
 	 double d2 = (residue_circles[i].pos-mol.atoms[j].atom_position).lengthsq();
-// 	 std::cout << "comparing " << d2 << " " << crit_dist_2 << " "
-// 		   << residue_circles[i].residue_label
-// 		   << std::endl;
+ 	 std::cout << "comparing " << d2 << " " << crit_dist_2 << " "
+ 		   << residue_circles[i].residue_label
+ 		   << std::endl;
 	 if (d2 < crit_dist_2) {
 	    n_close++;
 	    if (n_close > 1) {
@@ -2317,6 +2344,15 @@ lbg_info_t::solution_has_problems_p() const {
 	       break;
 	    }
 	 }
+
+	 if (d2 < crit_dist_wide_2) {
+	    n_close_wide++;
+	    if (n_close_wide > 5) {
+	       v.push_back(i);
+	       status = 1;
+	       break;
+	    } 
+	 } 
       }
    }
    return std::pair<bool, std::vector<int> > (status, v);

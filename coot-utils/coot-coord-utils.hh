@@ -274,6 +274,17 @@ namespace coot {
       std::vector<CAtom *> matching_atoms(CResidue *residue);
    };
 
+
+   // Return dist in Angstroms, can throw an exception if any of the
+   // atoms is null.
+   // 
+   double distance(CAtom *at_1, CAtom *at_2);
+   
+   // Return angle in degrees, can throw an exception if any of the
+   // atoms is null.
+   // 
+   double angle(CAtom *at_1, CAtom *at_2, CAtom *at_3);
+
    class lsq_range_match_info_t {
    public:
       int to_reference_start_resno;

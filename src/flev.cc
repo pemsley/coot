@@ -30,6 +30,8 @@
 #include "c-interface.h"
 #include "lbg-graph.hh"
 
+#include "coot-h-bonds.hh"
+
 
 void fle_view_internal(int imol, const char *chain_id, int res_no, const char *ins_code, 
 		       int imol_ligand_fragment, 
@@ -75,7 +77,10 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 
    atom_selection_container_t flat = get_atom_selection(prodrg_output_flat_pdb_file_name);
    if (flat.read_success) {
-      if (is_valid_model_molecule(imol_ligand_fragment)) { 
+      if (is_valid_model_molecule(imol_ligand_fragment)) {
+
+	 handle_cif_dictionary(prodrg_output_dict_cif_file_name);
+	 
 	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 CResidue  *res_ref = coot::util::get_residue(chain_id, res_no, ins_code, mol);
 	 CResidue *flat_res = coot::util::get_residue("", 1, "", flat.mol); // prodrg attribs
@@ -135,10 +140,17 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 	       // ligand-atom-name residue-spec and bond type
 	       // (acceptor/donor).
 	       //
-	       std::vector<coot::fle_ligand_bond_t> bonds_to_ligand =
-		  coot::get_fle_ligand_bonds(res_ref, filtered_residues, name_map);
+	       // std::vector<coot::fle_ligand_bond_t> bonds_to_ligand =
+	       // coot::get_fle_ligand_bonds(res_ref, filtered_residues, name_map);
 
-	       if (0) 
+	       // using new (20100522) h_bond class (based on geometry)
+	       //
+ 	       graphics_info_t g;
+ 	       std::vector<coot::fle_ligand_bond_t> bonds_to_ligand = 
+ 		  coot::get_fle_ligand_bonds(res_ref, filtered_residues, mol,
+ 					     name_map, *geom_p);
+
+	       if (1) 
 		  std::cout << "Found ================== " << bonds_to_ligand.size()
 			    << " ==================== bonds to ligand " << std::endl;
 
@@ -165,8 +177,6 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		     delete res_copy;
 		  }
 
-
-		  handle_cif_dictionary(prodrg_output_dict_cif_file_name);
 		  std::pair<bool, coot::dictionary_residue_restraints_t> p = 
 		     geom_p->get_monomer_restraints(ligand_res_name);
 
@@ -269,12 +279,17 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 	    // Don't forget DNA and RNA!
 	    // 
 	    if (1) {
-	       std::cout << "==== Environment residue " << coot::residue_spec_t(residues[ires])
-			 << " " << res_name << std::endl;
+	       
+	       // std::cout << "==== Environment residue " << coot::residue_spec_t(residues[ires])
+	       // << " " << res_name << std::endl;
+	       
 	       double pi_overlap_1 = get_pi_overlap(residues[ires], ligand_ring_pi_pts.first);
 	       double pi_overlap_2 = get_pi_overlap(residues[ires], ligand_ring_pi_pts.second);
-	       std::cout << "   Overlaps: " << pi_overlap_1 << " " << pi_overlap_2
-			 << std::endl;
+
+	       if (0) 
+		  std::cout << "   Overlaps: " << pi_overlap_1 << " " << pi_overlap_2
+			    << std::endl;
+	       
 	       if (pi_overlap_1 > pi_overlap_thresh) {
 		  coot::pi_stacking_instance_t st(residues[ires],
 						  coot::pi_stacking_instance_t::PI_PI_STACKING,
@@ -727,7 +742,88 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
    return v;
 }
 
-// should be in utils perhaps?
+// Use coot::h_bonds class to generate ligands.  We do that by creating a synthetic
+// temporary  molecule and atom selections.
+// 
+std::vector<coot::fle_ligand_bond_t>
+coot::get_fle_ligand_bonds(CResidue *ligand_res,
+			   const std::vector<CResidue *> &residues,
+			   CMMDBManager *mol, 
+			   const std::map<std::string, std::string> &name_map,
+			   const coot::protein_geometry &geom) {
+   std::vector<coot::fle_ligand_bond_t> v; // returned value
+
+   std::vector<CResidue *> rv = residues;
+   rv.push_back(ligand_res);
+
+   std::pair<bool, CMMDBManager *> m = coot::util::create_mmdbmanager_from_residue_vector(rv);
+   coot::residue_spec_t ligand_spec(ligand_res);
+
+   if (m.first) { 
+      int SelHnd_all = m.second->NewSelection();
+      int SelHnd_lig = m.second->NewSelection();
+      m.second->SelectAtoms(SelHnd_all, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+      m.second->SelectAtoms(SelHnd_lig, 0, ligand_spec.chain.c_str(),
+			    ligand_spec.resno, ligand_spec.insertion_code.c_str(),
+			    ligand_spec.resno, ligand_spec.insertion_code.c_str(),
+			    "*", "*", "*", "*");
+      coot::h_bonds hb;
+      std::vector<coot::h_bond> hbonds = hb.get(SelHnd_lig, SelHnd_all, m.second, geom);
+
+      std::cout << "DEBUG:: get_fle_ligand_bonds from h_bonds class found "
+		<< hbonds.size() << " bonds." << std::endl;
+
+      for (unsigned int i=0; i<hbonds.size(); i++) { 
+	 std::cout << coot::atom_spec_t(hbonds[i].donor) << "..."
+		   << coot::atom_spec_t(hbonds[i].acceptor) << " with ligand donor flag "
+		   << hbonds[i].ligand_atom_is_donor << std::endl;
+	 std::string ligand_atom_name = hbonds[i].acceptor->name;
+	 coot::residue_spec_t res_spec(hbonds[i].donor);
+	 int bond_type = fle_ligand_bond_t::get_bond_type(hbonds[i].donor,
+							  hbonds[i].acceptor,
+							  hbonds[i].ligand_atom_is_donor);
+
+	 if (0) 
+	    std::cout << "  DEUBG:: " << coot::atom_spec_t(hbonds[i].donor) << "..."
+		      << coot::atom_spec_t(hbonds[i].acceptor) << " ligand_atom_is_donor "
+		      << hbonds[i].ligand_atom_is_donor << " gives bond_type "
+		      << bond_type << std::endl;
+
+
+	 if (hbonds[i].ligand_atom_is_donor) {
+	    ligand_atom_name = hbonds[i].donor->name;
+	    res_spec = coot::residue_spec_t(hbonds[i].acceptor);
+	 }
+
+	 // Now, in 3D (pre-prodrgification) we don't have (polar) Hs on the ligand
+	 // (but we do in 2D), the map allows transfer from the ligand O or N to the
+	 // polar H in FLEV.
+	 // 
+	 std::map<std::string, std::string>::const_iterator it = name_map.find(ligand_atom_name);
+	 if (it != name_map.end()) {
+	    // If the map happens, that's presumably because we found a H
+	    // attached to an N (or an H attached to an O), either way, we
+	    // are sitting now on an H.
+	    ligand_atom_name = it->second;
+	 }
+
+	 if (0) 
+	    std::cout << "constructing fle ligand bond " << ligand_atom_name
+		      << " " << bond_type << " " << hbonds[i].dist << " " 
+		      << res_spec << std::endl;
+	 
+	 coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, hbonds[i].dist, res_spec);
+	 v.push_back(bond);
+      }
+
+      delete m.second;
+   }
+
+   return v;
+}
+
+
+// should be in coot-utils perhaps?
 //
 bool
 coot::is_a_metal(CResidue *res) {

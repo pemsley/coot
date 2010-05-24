@@ -11,7 +11,25 @@ test ligands:
 ----
 Tue May 11 15:30:27 BST 2010
 
-  Dont write out waters that do not have bonds to the ligand (flev.cc)
+  Don't write out waters that do not have bonds to the ligand (flev.cc)
+
+----
+Mon May 24 13:12:02 BST 2010
+
+   metal contacts
+
+---
+Mon May 24 13:16:54 BST 2010
+
+   covalent attachments
+
+---
+Mon May 24 13:21:39 BST 2010
+
+   HOHs in residue-info.txt should have the length of the qualifying
+   distance to the nearest protein donor/acceptor (so that can be
+   used for rejection criterion in lbg/flev).
+
 
 ------
 Tue Apr 13 14:33:21 BST 2010

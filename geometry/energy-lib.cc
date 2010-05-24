@@ -187,6 +187,9 @@ coot::operator<<(std::ostream &s, const energy_lib_atom &at) {
 int
 coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std::string &monomer_name) const {
 
+   bool debug = 0;  // before debugging this, is ener_lib.cif being
+		    // read correctly?
+   
    // this is heavy!
    // 
    std::pair<bool, coot::dictionary_residue_restraints_t> r =
@@ -207,7 +210,8 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std:
 		  energy_lib.atom_map.find(type);
 	       if (it != energy_lib.atom_map.end()) { 
 		  hb_type = it->second.hb_type;
-		  // std::cout << "DEBUG:: found hb_type " << hb_type << " for " << atom_name << std::endl;
+		  if (debug)
+		     std::cout << "DEBUG:: found hb_type " << hb_type << " for " << atom_name << std::endl;
 	       }
 	    }
 	    break;
@@ -215,6 +219,11 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std:
       }
    } 
 
+   if (debug)
+      if (hb_type == coot::energy_lib_atom::HB_UNASSIGNED)
+	 std::cout << " failed to get_h_bond_type for " << atom_name << " in " << monomer_name
+		   << std::endl;
+	 
    return hb_type;
 
 } 
