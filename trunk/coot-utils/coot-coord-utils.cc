@@ -609,6 +609,44 @@ coot::closest_approach(CMMDBManager *mol,
 }
 
 
+// Return dist in Angstroms, can throw an exception if any of the
+// atoms is null.
+// 
+double
+coot::distance(CAtom *at_1, CAtom *at_2) {
+
+   double d = -1;
+   if (at_1 && at_2) {
+      clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+      clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+      d = clipper::Coord_orth::length(pt_1, pt_2);
+   }
+
+   return d;
+}
+
+// Return angle in degrees, can throw an exception if any of the
+// atoms is null.
+// 
+double
+coot::angle(CAtom *at_1, CAtom *at_2, CAtom *at_3) {
+
+   double ang = -1;
+
+   if (at_1 && at_2 && at_3) {
+
+      clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+      clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+      clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
+
+      ang = clipper::Util::rad2d(clipper::Coord_orth::angle(pt_1, pt_2, pt_3));
+
+   } 
+   return ang; 
+} 
+
+
+
 clipper::RTop_orth
 coot::util::matrix_convert(mat44 mat) {
    

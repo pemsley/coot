@@ -5337,12 +5337,6 @@ Sun Jan 17 12:51:25 GMT 2010
    Simple mutate base in 1v15.  This has PDB standard base names?
 
 
----
-Wed Jan 20 21:42:16 GMT 2010
-
-   o mail to ccp4 re: libs - what happened to that? ::: 0.5
-
-
 ----
 Thu Jan 21 11:31:07 GMT 2010
 
@@ -5357,7 +5351,6 @@ Thu Jan 21 23:23:30 GMT 2010
    o Refine: click on ASN, click on terminal NAG, get residues that
      are linked and use "sphere" refinement for just those residues.
    
-
 
 ---
 Mon Jan 25 15:10:19 GMT 2010
@@ -5442,7 +5435,7 @@ Sat Feb 27 13:01:00 GMT 2010
 ---
 Wed Mar  3 14:16:25 GMT 2010
 
-  INFO:: To stop being in dos mode:
+  INFO:: To stop being in DOS mode:
 
   M-x set-buffer-file-coding-system 
   undecided-unix
@@ -5456,17 +5449,6 @@ Thu Mar 25 15:55:10 GMT 2010
    EJD: let me click on one atom in a chain to convert it (the whole
      chain) to mainchain.
 
-
-
-----
-Wed Mar 31 16:47:17 BST 2010
-
-	SBase problems
-
-    CMH
-    BEZ and BOX
-    many: methyl mercury
-          
 
 ---
 
@@ -5493,6 +5475,7 @@ Thu May 13 13:36:31 BST 2010
 
   Agreed, it's a bit non-canonical.
 
+* Done.
 
 ----
 Mon May 17 16:46:04 BST 2010
@@ -5509,10 +5492,33 @@ Mon May 17 16:46:04 BST 2010
 ----
 Tue May 18 11:25:15 BST 2010
 
-   When alt-confing ligands, I'd like to see a slide-bar to set the
-   occs.
+   BN: When alt-confing ligands, I'd like to see a slide-bar to set
+       the occs.
 
+----
+Sun May 23 13:35:38 BST 2010
 
+   2WOT: lbg the ligand and re-import back to Coot main.  Now try to
+   fit the ligand.
+
+   It's hard.  Make it easier.
+
+----
+Sun May 23 13:37:55 BST 2010
+
+   Ian Tickle:
+
+   o I have long been advocating the use of the RMS density
+     deviation Z-score statistic for this purpose, i.e.
+     sqrt(sum(delta_rho2)/Npoints)/sigma(rho), where delta_rho is a
+     grid-point value in a 2(mFo-DFc) map, the sum is over the region
+     of interest (atom, residue, side-chain etc), Npoints is the
+     number of grid points in the region, and sigma(rho) is the
+     uncertainty in the density (which must be estimated for the
+     asymmetric unit of the map, NOT just the region).  Note that it's
+     equivalent to the negative log-likelihood, which IMO is the
+     appropriate statistic for this situation, if it's assumed that
+     the errors in the density have a normal distribution.
 
 ------
 
