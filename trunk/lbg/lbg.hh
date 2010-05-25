@@ -176,6 +176,7 @@ public:
 	     H_BOND_ACCEPTOR_MAINCHAIN, 
 	     H_BOND_ACCEPTOR_SIDECHAIN,
 	     METAL_CONTACT_BOND,
+	     BOND_COVALENT,	     
 	     BOND_OTHER };  
       std::string ligand_atom_name;
       double bond_length;
@@ -207,6 +208,7 @@ public:
       std::string residue_type;
       std::string residue_label;
       std::vector<bond_to_ligand_t> bonds_to_ligand;
+      double water_dist_to_protein; 
       residue_circle_t(const double &x_in, const double &y_in, const double &z_in,
 		       const std::string &type_in,
 		       const std::string &label_in) {
@@ -220,6 +222,7 @@ public:
 	 se_diff_set_ = 0;
 	 stacking_type = -1; // should have enumerated value
 	 is_a_primary_residue_ = 0;
+	 water_dist_to_protein = 100;
       }
       void set_canvas_pos(const lig_build::pos_t &pos_in) {
 	 pos = pos_in;
@@ -248,6 +251,9 @@ public:
       std::pair<double, double> solvent_exposures() const {
 	 return std::pair<double, double> (se_holo, se_apo);
       }
+      void set_water_dist_to_protein(double d) {
+	 water_dist_to_protein = d;
+      } 
       std::vector<std::string> get_ligand_ring_atom_names() const {
 	 return ligand_ring_atom_names;
       }
@@ -514,6 +520,10 @@ private:
    std::string sixteen_to_hex_let(int v) const;
    void reposition_problematics_and_reoptimise(const std::vector<int> &problematics,
 					       const std::vector<int> &primary_indices);
+   std::vector<residue_circle_t>
+   filter_residue_waters(const std::vector<residue_circle_t> &r_in,
+			 double max_dist_water_to_ligand_atom,
+			 double max_dist_water_to_protein_atom) const;
 
 public:
    lbg_info_t(GtkWidget *canvas_in) {

@@ -4297,7 +4297,7 @@ coot::restraints_container_t::add_rama_links_from_res_vec(const coot::protein_ge
 
 coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_residues_conventional(int selHnd,
-					      const coot::protein_geometry &geom) const {
+							   const coot::protein_geometry &geom) const {
 
    float dist_crit = 3.0; // if atoms in different residues are closer
 			  // than this, then they are considered
@@ -4793,11 +4793,14 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 			std::cout << "   debug:: non-peptide link: " << link_infos_non_peptide[il].first.Id()
 				  << std::endl;
 	       
-		  // 20100330 eh?  is something missing here?  What shall
-		  // we do with link_infos_non_peptide?  did I mean that,
-		  // now the peptide test has failed, perhaps we should
-		  // distance check potential other (non-peptide) links?
-
+		  // 20100330 eh?  is something missing here?  What
+		  // shall we do with link_infos_non_peptide?  did I
+		  // mean that, now the peptide test has failed,
+		  // perhaps we should distance check potential other
+		  // (non-peptide) links?
+		  // 
+		  // Yes, I think I did.
+		  // 
 		  // returns "" if no link found
 		  // second is the order switch flag;
 		  // 

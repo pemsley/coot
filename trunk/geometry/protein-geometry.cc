@@ -4143,7 +4143,7 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
 	 for (unsigned int iat=0; iat<atom_info.size(); iat++) {
 
 	    // real
-	    clipper::Coord_orth p;
+	    clipper::Coord_orth p(0,0,0);
 	    bool flag_and_have_coords = 0;
 
 	    if ((idealised_flag == 0) && (atom_info[iat].model_Cartn.first)) {

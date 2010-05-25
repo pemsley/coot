@@ -1953,8 +1953,19 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
    // read residues need to happen after the ligand has been placed on the canvas
    // i.e. mol.input_coords_to_canvas_coords() is called in read_residues();
    // 
-   residue_circles = read_residues(file_name);
+   std::vector<lbg_info_t::residue_circle_t> file_residue_circles = read_residues(file_name);
 
+   double max_dist_water_to_ligand_atom  = 3.2; // don't draw waters that are far from ligand
+   double max_dist_water_to_protein_atom = 3.2; // don't draw waters that are not somehow 
+                                                // attached to the protein.
+
+   residue_circles = filter_residue_waters(file_residue_circles,
+					   max_dist_water_to_ligand_atom,
+					   max_dist_water_to_protein_atom);
+
+   std::cout << " debug:: input " << file_residue_circles.size() << ", " << residue_circles.size()
+	     << " remaining after filter" << std::endl;
+   
    std::vector<int> primary_indices = get_primary_indices();
 
    initial_residues_circles_layout(); // twiddle residue_circles
@@ -1965,7 +1976,8 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
    if (show_dynamics)
       draw_residue_circles(current_circles);
 
-   // for debugging the minimizer (vs original positions)
+   // For debugging the minimizer (vs original positions).
+   // 
    current_circles = offset_residues_from_orig_positions();
    
    for (int iround=0; iround<120; iround++) {
@@ -2007,6 +2019,45 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
    
    draw_all_residue_attribs();
 }
+
+std::vector<lbg_info_t::residue_circle_t>
+lbg_info_t::filter_residue_waters(const std::vector<lbg_info_t::residue_circle_t> &r_in,
+				  double max_dist_water_to_ligand_atom,
+				  double max_dist_water_to_protein_atom) const {
+
+   std::vector<lbg_info_t::residue_circle_t> v;
+
+   for (unsigned int i=0; i<r_in.size(); i++) { 
+      if (r_in[i].residue_type != "HOH") {
+	 v.push_back(r_in[i]);
+      } else { 
+	 if (r_in[i].water_dist_to_protein > max_dist_water_to_protein_atom) {
+	    // pass
+	 } else {
+	    bool all_too_long_distance = 1;
+	    std::vector<lbg_info_t::bond_to_ligand_t> sasisfactory_bonds;
+	    for (unsigned int j=0; j<r_in[i].bonds_to_ligand.size(); j++) {
+	       if (r_in[i].bonds_to_ligand[j].bond_length < max_dist_water_to_ligand_atom) { 
+		  all_too_long_distance = 0;
+		  sasisfactory_bonds.push_back(r_in[i].bonds_to_ligand[j]);
+	       }
+	    }
+	    if (all_too_long_distance) {
+	       // pass
+	    } else {
+	       // replace input waters with sasisfactory_bonds.
+	       // 
+	       lbg_info_t::residue_circle_t n = r_in[i];
+	       n.bonds_to_ligand = sasisfactory_bonds;
+	       v.push_back(n);
+	    } 
+	 } 
+      }
+   }
+
+   return v;
+} 
+
 
 // fiddle with the position of some residues in residue_circles
 //
@@ -2333,9 +2384,9 @@ lbg_info_t::solution_has_problems_p() const {
       int n_close_wide = 0;
       for (unsigned int j=0; j<mol.atoms.size(); j++) {
 	 double d2 = (residue_circles[i].pos-mol.atoms[j].atom_position).lengthsq();
- 	 std::cout << "comparing " << d2 << " " << crit_dist_2 << " "
- 		   << residue_circles[i].residue_label
- 		   << std::endl;
+//  	 std::cout << "comparing " << d2 << " " << crit_dist_2 << " "
+//  		   << residue_circles[i].residue_label
+//  		   << std::endl;
 	 if (d2 < crit_dist_2) {
 	    n_close++;
 	    if (n_close > 1) {
@@ -2632,6 +2683,16 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 		  residue_circle_t rc(pos_x, pos_y, pos_z, res_type, label);
 		  clipper::Coord_orth cp(pos_x, pos_y, pos_z);
 		  lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp);
+		  if (res_type == "HOH") {
+		     if (words.size() > 7) {
+			try {
+			   double dist_to_protein = lig_build::string_to_float(words[7]);
+			   rc.set_water_dist_to_protein(dist_to_protein);
+			}
+			catch (std::runtime_error rte) {
+			}
+		     } 
+		  } 
 		  rc.set_canvas_pos(pos);
 		  v.push_back(residue_circle_t(rc));
 	       }
@@ -2714,6 +2775,10 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 void
 lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circles) {
 
+   double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
+   double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
+                                                // attached to the protein.
+   
    bool draw_solvent_exposures = 1;
    try { 
       lig_build::pos_t ligand_centre = mol.get_ligand_centre();
@@ -2733,9 +2798,17 @@ lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_
    } 
 }
 
+//    double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
+//    double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
+//                                                // attached to the protein.
+// 
 void
 lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
 					  const lig_build::pos_t &ligand_centre) {
+
+   // double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
+   // double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
+                                                // attached to the protein.
 
    if (0)
       std::cout << "   adding cirles " << residue_circle.residue_type
@@ -2749,7 +2822,9 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
    GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark,
 						NULL);
 
-   // don't draw waters that don't have bonds to the ligand
+   // don't draw waters that don't have bonds to the ligand (or the
+   // bonds to the ligand atoms are too long, or the water is too far
+   // from any protein atom).
    //
    if (residue_circle.residue_type == "HOH") {
       if (residue_circle.bonds_to_ligand.size() == 0) {
@@ -2889,7 +2964,7 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
    return std::pair<std::string, std::string> (fill_colour, stroke_colour);
 }
 
-// solvent exposure of the residue due to ligand binding
+// solvent exposure difference of the residue due to ligand binding
 void 
 lbg_info_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
 					 const lig_build::pos_t &ligand_centre,
@@ -2898,7 +2973,7 @@ lbg_info_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
    if (residue_circle.residue_type != "HOH") { 
       if (residue_circle.se_diff_set()) {
 	 std::pair<double, double> se_pair = residue_circle.solvent_exposures();
-	 double radius_extra = (se_pair.second - se_pair.first) * 14;
+	 double radius_extra = (se_pair.second - se_pair.first) * 18;  // was 14;
 	 if (radius_extra > 0) {
 	    lig_build::pos_t to_lig_centre_uv = (ligand_centre - residue_circle.pos).unit_vector();
 	    lig_build::pos_t se_circle_centre = residue_circle.pos - to_lig_centre_uv * radius_extra;
@@ -2998,7 +3073,7 @@ void
 lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa,
 					       GooCanvasItem *root) {
 
-   int n_circles = int(sa*40) + 1; // needs fiddling?
+   int n_circles = int(sa*40) + 1;    // needs fiddling?
    if (n_circles> 10) n_circles = 10; // needs fiddling?
 
    for (unsigned int i=0; i<n_circles; i++) { 
@@ -3007,7 +3082,7 @@ lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, doub
 						    pos.x, pos.y,
 						    rad, rad,
 						    "line_width", 0.0,
-						    "fill-color-rgba", 0x7755bb30,
+						    "fill-color-rgba", 0x5555cc30,
 						    NULL);
    }
 }
