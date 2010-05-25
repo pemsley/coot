@@ -24,12 +24,20 @@ Mon May 24 13:16:54 BST 2010
    covalent attachments
 
 ---
+Mon May 24 16:15:17 BST 2010
+
+    in ZZG (A 1500) of 2wot, the HOH A2051 should be H-bonded to N24
+    of the ligand (reject on angles somehow?).  This might be
+    impossible without generating hydrogen positions.
+
+---
 Mon May 24 13:21:39 BST 2010
 
    HOHs in residue-info.txt should have the length of the qualifying
    distance to the nearest protein donor/acceptor (so that can be
    used for rejection criterion in lbg/flev).
 
+* Done.
 
 ------
 Tue Apr 13 14:33:21 BST 2010

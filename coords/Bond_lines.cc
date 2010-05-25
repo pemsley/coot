@@ -690,7 +690,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 			std::string ele = non_Hydrogen_atoms[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
 			    || ele == "Cl" || ele == "Br" 
-			    || ele == "PT" 
+			    || ele == "PT" || ele == "RU" 
 			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG") {
 			   handle_long_bonded_atom(non_Hydrogen_atoms[i], uddHnd, atom_colour_type);
 			}
@@ -2992,7 +2992,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 			std::string ele = atom_selection[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
 			    || ele == "Cl" || ele == "Br" 
-			    || ele == "PT" 
+			    || ele == "PT" || ele == "RU" 
 			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG") {
 			   handle_long_bonded_atom(atom_selection[i], uddHnd, col);
 			}
@@ -3215,7 +3215,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 			std::string ele = atom_selection[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
 			    || ele == "Cl" || ele == "Br" 
-			    || ele == "PT" 
+			    || ele == "PT" || ele == "RU" 
 			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG") {
 			   handle_long_bonded_atom(atom_selection[i], uddHnd, atom_colour_type);
 			}

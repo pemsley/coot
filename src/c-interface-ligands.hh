@@ -84,11 +84,14 @@ namespace coot {
 	     H_BOND_ACCEPTOR_MAINCHAIN, 
 	     H_BOND_ACCEPTOR_SIDECHAIN,
 	     METAL_CONTACT_BOND,
+	     BOND_COVALENT,
 	     BOND_OTHER };  // must sync this to lbg.hh
       std::string ligand_atom_name;
       int bond_type; // acceptor/donor
       residue_spec_t res_spec;
-      double bond_length;
+      double bond_length;  // from residue atom to ligand atom
+      double water_protein_length; // if residue is a water, this is the closest
+                                   // distance to protein (100 if very far).
       fle_ligand_bond_t(const std::string &name_in,
 			int bond_type_in,
 			double bl_in,
@@ -128,6 +131,21 @@ namespace coot {
       } 
    };
    std::map<std::string, std::string> make_flat_ligand_name_map(CResidue *flat_res);
+
+   // return 100 if no other contact found (strange!)
+   // 
+   double find_water_protein_length(CResidue *ligand_residue, CMMDBManager *mol);
+
+
+   std::vector<fle_ligand_bond_t> get_covalent_bonds(CMMDBManager *mol,
+						     int SelHnd_lig,
+						     int SelHnd_all,
+						     const residue_spec_t &ligand_spec,
+						     const protein_geometry &geom);
+
+   std::vector<fle_ligand_bond_t> get_metal_bonds(CResidue *ligand_res,
+						  const std::vector<CResidue *> &residues);
+
 
    std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(CResidue *res_ref,
 						       const std::vector<CResidue *> &residues,

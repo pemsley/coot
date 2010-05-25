@@ -1001,10 +1001,6 @@ namespace coot {
       std::string find_link_type(CResidue *first, CResidue *second,
 				 const protein_geometry &geom) const;
 
-      // find disulphides, protein-glycan bonds etc.
-      std::pair<std::string, bool> find_link_type_rigourous(CResidue *first, CResidue *second,
-							    const protein_geometry &geom) const;
-
       // a pair, first is if C and N are close and second if and order
       // switch is needed to make it so.
       // 
@@ -1403,8 +1399,18 @@ namespace coot {
       LogRamachandran::Lgrad rama_grad(const double &phir, const double &psir) const {
 	 return lograma.interp_grad(phir, psir);
       } 
-      
-      
+
+
+      // Allow public access to this - the general method for knowing if 2 residues have a (dictionary) link.
+      // 
+      // find disulphides, protein-glycan bonds etc.
+      // 
+      // Return the link type and a residue order switch flag.
+      // Return link_type as "" if not found.
+      // 
+      std::pair<std::string, bool> find_link_type_rigourous(CResidue *first, CResidue *second,
+							    const protein_geometry &geom) const;
+
       // more debugging interface:
       //
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}

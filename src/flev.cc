@@ -543,7 +543,22 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 	 if (v[i].is_set) { 
 	    of << "RES " << v[i].centre.x() << " " << v[i].centre.y() << " "
 	       << v[i].centre.z() << " "
-	       << v[i].residue_name << " " << v[i].spec.chain << v[i].spec.resno << "\n";
+	       << v[i].residue_name << " " << v[i].spec.chain << v[i].spec.resno;
+
+	    // Add the qualifying distance to protein if this is a water atom.
+	    // 
+	    if (v[i].residue_name == "HOH") { 
+	       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
+		  if (bonds_to_ligand[ib].res_spec == v[i].spec) {
+		     of << " water->protein-length " << bonds_to_ligand[ib].water_protein_length;
+		     break;
+		  }
+	       }
+	       of << "\n";
+	    } else { 
+	       of << "\n";
+	    }
+
 
 	    // now, was there a bond with this res spec?
 	    // 
@@ -565,7 +580,6 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 			   << " length: " << bonds_to_ligand[ib].bond_length
 			   << " type: " << bonds_to_ligand[ib].bond_type
 			   << "\n";
-			break;
 		     }
 		  }
 	       }
@@ -640,6 +654,8 @@ coot::write_solvent_accessibilities(const std::vector<std::pair<coot::atom_spec_
    }
 }
 
+// This function is currently not used.
+// 
 // if there is a name map, use it, otherwise just bond to the found
 // atom.  Using the name map allows bond to hydrogens hanging off of
 // ligand atoms (e.g. the H on an O or an H on an N). The Hs are not
@@ -753,6 +769,7 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 			   const coot::protein_geometry &geom) {
    std::vector<coot::fle_ligand_bond_t> v; // returned value
 
+   bool debug = 0;
    std::vector<CResidue *> rv = residues;
    rv.push_back(ligand_res);
 
@@ -767,6 +784,11 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 			    ligand_spec.resno, ligand_spec.insertion_code.c_str(),
 			    ligand_spec.resno, ligand_spec.insertion_code.c_str(),
 			    "*", "*", "*", "*");
+
+      // -----------------------
+      //   hydrogen bonds 
+      // -----------------------
+      
       coot::h_bonds hb;
       std::vector<coot::h_bond> hbonds = hb.get(SelHnd_lig, SelHnd_all, m.second, geom);
 
@@ -779,20 +801,15 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 		   << hbonds[i].ligand_atom_is_donor << std::endl;
 	 std::string ligand_atom_name = hbonds[i].acceptor->name;
 	 coot::residue_spec_t res_spec(hbonds[i].donor);
+	 CResidue *ligand_residue = hbonds[i].donor->residue;
 	 int bond_type = fle_ligand_bond_t::get_bond_type(hbonds[i].donor,
 							  hbonds[i].acceptor,
 							  hbonds[i].ligand_atom_is_donor);
 
-	 if (0) 
-	    std::cout << "  DEUBG:: " << coot::atom_spec_t(hbonds[i].donor) << "..."
-		      << coot::atom_spec_t(hbonds[i].acceptor) << " ligand_atom_is_donor "
-		      << hbonds[i].ligand_atom_is_donor << " gives bond_type "
-		      << bond_type << std::endl;
-
-
 	 if (hbonds[i].ligand_atom_is_donor) {
 	    ligand_atom_name = hbonds[i].donor->name;
 	    res_spec = coot::residue_spec_t(hbonds[i].acceptor);
+	    ligand_residue = hbonds[i].acceptor->residue;
 	 }
 
 	 // Now, in 3D (pre-prodrgification) we don't have (polar) Hs on the ligand
@@ -807,16 +824,171 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 	    ligand_atom_name = it->second;
 	 }
 
-	 if (0) 
+	 if (debug) 
 	    std::cout << "constructing fle ligand bond " << ligand_atom_name
 		      << " " << bond_type << " " << hbonds[i].dist << " " 
 		      << res_spec << std::endl;
 	 
 	 coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, hbonds[i].dist, res_spec);
+	 std::string residue_name = ligand_residue->GetResName();
+	 if (residue_name == "HOH")
+	    bond.water_protein_length = find_water_protein_length(ligand_residue, mol);
 	 v.push_back(bond);
       }
 
+      // -----------------------
+      //   covalent bonds 
+      // -----------------------
+
+      std::vector<coot::fle_ligand_bond_t> covalent_bonds =
+	 get_covalent_bonds(m.second, SelHnd_lig, SelHnd_all, ligand_spec, geom);
+      for (unsigned int i=0; i<covalent_bonds.size(); i++)
+	 v.push_back(covalent_bonds[i]);
+
+
+      // -----------------------
+      //   metal bonds 
+      // -----------------------
+
+      std::vector<coot::fle_ligand_bond_t> metal_bonds = get_metal_bonds(ligand_res, residues);
+      for (unsigned int i=0; i<metal_bonds.size(); i++)
+	 v.push_back(metal_bonds[i]);
+
+      
+      // -----------------------
+      //   clean up 
+      // -----------------------
+      
+      m.second->DeleteSelection(SelHnd_lig);
+      m.second->DeleteSelection(SelHnd_all);
       delete m.second;
+
+   }
+
+   return v;
+}
+
+std::vector<coot::fle_ligand_bond_t>
+coot::get_covalent_bonds(CMMDBManager *mol,
+			 int SelHnd_lig,
+			 int SelHnd_all,
+			 const residue_spec_t &ligand_spec,
+			 const protein_geometry &geom) {
+   
+   std::vector<coot::fle_ligand_bond_t> v;
+   int SelHnd_local = mol->NewSelection();
+   mol->SelectAtoms(SelHnd_local, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+   mol->Select(SelHnd_local, STYPE_ATOM, 0, ligand_spec.chain.c_str(),
+	       ligand_spec.resno, ligand_spec.insertion_code.c_str(),
+	       ligand_spec.resno, ligand_spec.insertion_code.c_str(),
+	       "*", "*", "*", "*", SKEY_XOR);
+
+   // now find contacts:
+   // 
+   PSContact pscontact = NULL;
+   int n_contacts;
+   long i_contact_group = 1;
+   mat44 my_matt;
+   CSymOps symm;
+   for (int i=0; i<4; i++) 
+      for (int j=0; j<4; j++) 
+	 my_matt[i][j] = 0.0;      
+   for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+   PPCAtom lig_atom_selection = 0;
+   int n_lig_atoms;
+   mol->GetSelIndex(SelHnd_lig, lig_atom_selection, n_lig_atoms);
+
+   PPCAtom other_atom_selection = 0;
+   int n_other_atoms;
+   mol->GetSelIndex(SelHnd_local, other_atom_selection, n_other_atoms);
+
+   realtype min_dist = 0.1;
+   realtype max_dist = 2.3; //  even S-S is shorter than this, I think
+
+   mol->SeekContacts(  lig_atom_selection,   n_lig_atoms,
+		     other_atom_selection, n_other_atoms,
+		     min_dist, max_dist, // min, max distances
+		     0,        // seqDist 0 -> in same res also
+		     pscontact, n_contacts,
+		       0, &my_matt, i_contact_group);
+
+   std::vector<std::pair<CResidue *, CResidue *> > contacting_pairs_vec;
+
+   if (n_contacts > 0) {
+      if (pscontact) {
+	 for (int i=0; i<n_contacts; i++) {
+	    std::cout << "DEUBG:: Covalent test "
+		      << coot::atom_spec_t(  lig_atom_selection[pscontact[i].id1]) << "..."
+		      << coot::atom_spec_t(other_atom_selection[pscontact[i].id2]) << std::endl;
+	    std::pair<CResidue *, CResidue *> pair(  lig_atom_selection[pscontact[i].id1]->GetResidue(),
+						   other_atom_selection[pscontact[i].id2]->GetResidue());
+
+	    // only add this pair if it is not already in the list:
+	    if (std::find(contacting_pairs_vec.begin(), contacting_pairs_vec.end(), pair) == contacting_pairs_vec.end()) {
+	       contacting_pairs_vec.push_back(pair);
+	    }
+	 }
+      }
+   }
+
+   for (unsigned int i=0; i<contacting_pairs_vec.size(); i++) {
+      coot::restraints_container_t rc;
+      std::pair<std::string, bool> link_info =
+	 rc.find_link_type_rigourous(contacting_pairs_vec[i].first, contacting_pairs_vec[i].second, geom);
+      std::cout << "DEUBG:: Covalent test found link :"  << link_info.first << ": " << link_info.second
+		<< std::endl;
+   }
+
+   mol->DeleteSelection(SelHnd_local);
+   return v;
+}
+
+std::vector<coot::fle_ligand_bond_t>
+coot::get_metal_bonds(CResidue *ligand_residue, const std::vector<CResidue *> &residues) {
+
+   // a non-Hydrogen, non-Carbon ligand atom, that is.
+   double max_dist_metal_to_ligand_atom = 3.5; // pass this parameter?
+   
+   std::vector<coot::fle_ligand_bond_t> v;
+
+   double best_dist_sqrd = max_dist_metal_to_ligand_atom * max_dist_metal_to_ligand_atom;
+   std::string ligand_atom_name; // goes with best_dist_sqrd
+   
+   PPCAtom ligand_residue_atoms = 0;
+   int n_ligand_residue_atoms;
+   ligand_residue->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
+   for (unsigned int i=0; i<residues.size(); i++) { 
+      if (coot::is_a_metal(residues[i])) {
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 residues[i]->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int irat=0; irat<n_residue_atoms; irat++) {
+	    for (unsigned int ilat=0; ilat<n_residue_atoms; ilat++) {
+	       std::string ele(residue_atoms[irat]->element);
+	       if ((ele == " H") || (ele == " C")) { 
+		  clipper::Coord_orth pt_1(ligand_residue_atoms[ilat]->x,
+					   ligand_residue_atoms[ilat]->y,
+					   ligand_residue_atoms[ilat]->z);
+		  clipper::Coord_orth pt_2(residue_atoms[irat]->x,
+					   residue_atoms[irat]->y,
+					   residue_atoms[irat]->z);
+		  double d2 = (pt_1-pt_2).clipper::Coord_orth::lengthsq();
+		  if (d2 < best_dist_sqrd) {
+		     best_dist_sqrd = d2;
+		     ligand_atom_name = ligand_residue_atoms[ilat]->name;
+		  }
+	       }
+	    }
+	 }
+	 if (best_dist_sqrd < max_dist_metal_to_ligand_atom * max_dist_metal_to_ligand_atom) {
+	    coot::fle_ligand_bond_t bond(ligand_atom_name,
+					 coot::fle_ligand_bond_t::METAL_CONTACT_BOND,
+					 sqrt(best_dist_sqrd),
+					 coot::residue_spec_t(residues[i]));
+	    v.push_back(bond);
+	 }
+      }
    }
 
    return v;
@@ -852,6 +1024,8 @@ coot::is_a_metal(CResidue *res) {
       return 1;
    if (res_name == "ZN")
       return 1;
+   if (res_name == "RU")
+      return 1;
    if (res_name == "PT")
       return 1;
    if (res_name == "AU")
@@ -861,4 +1035,63 @@ coot::is_a_metal(CResidue *res) {
 
    return 0;
 
+}
+
+// return 100 if no other contact found (strange!)
+// 
+double
+coot::find_water_protein_length(CResidue *ligand_residue, CMMDBManager *mol) {
+
+   double dist = 100;
+
+   double dist_sqrd = dist * dist;
+   double dist_sqrd_init = dist_sqrd;
+   
+   PPCAtom ligand_residue_atoms = 0;
+   int n_ligand_residue_atoms;
+   ligand_residue->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
+
+
+   int imod = 1;
+   CModel *model_p = mol->GetModel(imod);
+   CChain *chain_p;
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      CResidue *residue_p;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 if (ligand_residue != residue_p) {
+	    std::string residue_name(residue_p->GetResName());
+	    if (residue_name != "HOH") { 
+	       PPCAtom residue_atoms = 0;
+	       int n_residue_atoms;
+	       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	       for (unsigned int il=0; il<n_ligand_residue_atoms; il++) {
+		  for (unsigned int irat=0; irat<n_residue_atoms; irat++) {
+		     std::string ele(residue_atoms[irat]->element);
+		     if ((ele == " O") || (ele == " N")) { 
+			clipper::Coord_orth pt_1(ligand_residue_atoms[il]->x,
+						 ligand_residue_atoms[il]->y,
+						 ligand_residue_atoms[il]->z);
+			clipper::Coord_orth pt_2(residue_atoms[irat]->x,
+						 residue_atoms[irat]->y,
+						 residue_atoms[irat]->z);
+			double d2 = (pt_1-pt_2).clipper::Coord_orth::lengthsq();
+			if (d2 < dist_sqrd) {
+			   dist_sqrd = d2;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (dist_sqrd < dist_sqrd_init)  // usually is.
+      dist = sqrt(dist_sqrd);
+
+   return dist;
 }
