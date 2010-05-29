@@ -41,7 +41,13 @@ namespace coot {
    };
 
    class pi_stacking_container_t {
-      float get_pi_overlap(CResidue *res, clipper::Coord_orth &pt) const;
+   private: 
+      // can throw an exception
+      std::pair<float, int> get_pi_overlap_to_ligand_ring(CResidue *res,
+							  const clipper::Coord_orth &pt) const;
+
+      float get_pi_overlap_to_ligand_cation(CResidue *res, const clipper::Coord_orth &pt) const;
+      
       std::pair<clipper::Coord_orth, clipper::Coord_orth>
       get_ring_pi_centre_points(const std::vector<std::string> &ring_atom_names,
 				CResidue *res_ref) const;
@@ -56,7 +62,16 @@ namespace coot {
       ring_atom_names(const std::string &residue_name) const;
       
       float overlap_of_pi_spheres(const clipper::Coord_orth &pt1,
-				  const clipper::Coord_orth &pt2) const;
+				  const clipper::Coord_orth &pt2,
+				  const double &m1_pt_1, const double &m2_pt_1,
+				  const double &m1_pt_2, const double &m2_pt_2) const;
+
+      float
+      overlap_of_cation_pi(const clipper::Coord_orth &ligand_pi_point,
+			   const clipper::Coord_orth &cation_atom_point) const;
+
+      std::vector<clipper::Coord_orth> get_cation_atom_positions(CResidue *res) const;
+      
       
    public:
       // a vector of residues and types
@@ -163,5 +178,7 @@ namespace coot {
 			  const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
 			  const pi_stacking_container_t &stacking,
 			  CResidue *res_flat);
+
+   bool standard_residue_name_p(const std::string &rn);
 
 }

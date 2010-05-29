@@ -3189,8 +3189,6 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
 			  "fill_color", stroke_colour.c_str(),
 			  NULL);
 
-
-
 }
 
 void
@@ -3198,6 +3196,11 @@ lbg_info_t::draw_bonds_to_ligand() {
    
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
+   GooCanvasLineDash *dash_dash     = goo_canvas_line_dash_new (2, 2.1, 2.1);
+   GooCanvasLineDash *dash_unbroken = goo_canvas_line_dash_new (1, 3);
+
+
+   GooCanvasLineDash *dash = dash_dash; // re-assigned later (hopefully)
    for (unsigned int ic=0; ic<residue_circles.size(); ic++) { 
       if (residue_circles[ic].bonds_to_ligand.size()) {
 	 for (unsigned int ib=0; ib<residue_circles[ic].bonds_to_ligand.size(); ib++) { 
@@ -3226,30 +3229,38 @@ lbg_info_t::draw_bonds_to_ligand() {
 	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_DONOR_SIDECHAIN) {
 		  end_arrow = 1;
 		  stroke_colour = green;
+		  dash = dash_dash;
 	       }
 	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_DONOR_MAINCHAIN) {
 		  end_arrow = 1;
 		  stroke_colour = blue;
+		  dash = dash_dash;
 	       }
 	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_SIDECHAIN) {
 		  start_arrow = 1;
 		  stroke_colour = green;
+		  dash = dash_dash;
 	       }
 	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_MAINCHAIN) {
 		  start_arrow = 1;
 		  stroke_colour = blue;
+		  dash = dash_dash;
 	       }
 	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::METAL_CONTACT_BOND) {
 		  stroke_colour = "#990099";
-	       } 
+		  dash = dash_dash;
+	       }
+	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::BOND_COVALENT) {
+		  dash = goo_canvas_line_dash_new (2, 2.7, 0.1);
+		  stroke_colour = "#990099";
+	       }
+	       
 	       if (residue_circles[ic].residue_type == "HOH") { 
 		  stroke_colour = lime;
 		  start_arrow = 0;
 		  end_arrow = 0;
+		  dash = dash_dash;
 	       }
-	    
-	       GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 2.5, 2.5);
-	    
 	       GooCanvasItem *item = goo_canvas_polyline_new_line(root,
 								  A.x, A.y,
 								  B.x, B.y,

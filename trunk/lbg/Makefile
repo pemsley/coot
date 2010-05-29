@@ -13,7 +13,7 @@ CAIRO_CFLAGS=`pkg-config --cflags cairo`
 
 CRYST=/home/emsley/autobuild/f12/Linux-jackal-f12-pre-release-gtk2
 CRYST=$(HOME)/autobuild/Linux-scylla-pre-release-gtk2
-# CRYST=$(HOME)/autobuild/Linux-nestor-pre-release-gtk2
+CRYST=$(HOME)/autobuild/Linux-nestor-pre-release-gtk2
 
 GSL_CFLAGS=-I$(CRYST)/include
 GSL_LDFLAGS=$(CRYST)/lib/libgsl.la  $(CRYST)/lib/libgslcblas.la -lm
