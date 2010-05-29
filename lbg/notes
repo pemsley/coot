@@ -7,21 +7,50 @@ test ligands:
 3hvh A 1    542 
 2aei ??? 
 
+----
+Fri May 28 22:55:28 BST 2010
+
+    Thoughts about 6 July meeting:
+
+    Automated model-building and ligand fitting in Coot.
+
+    o Need to show findligand script with a ccp4mg headless back-end
+      for images.
+
 
 ----
 Tue May 11 15:30:27 BST 2010
 
   Don't write out waters that do not have bonds to the ligand (flev.cc)
 
+* Addressed by contact cut-offs in lbg
+
 ----
 Mon May 24 13:12:02 BST 2010
 
    metal contacts
 
+* Done.
+
+---
+Wed May 26 00:38:07 BST 2010
+
+   Prodrg makes cif files that are non-polymers.  such things fail to
+   make links from find_link_rigorous().  Hence no covalent links from
+   PRODRG-generated dictionary cifs.  
+
+   OK, so when we are displaying a regular residue (standard residues
+   perhaps?), one that we have in the dictionary..., then don't read in
+   the prodrg dictionary - read in the refmac one (if necessary).
+
+* Done.
+
 ---
 Mon May 24 13:16:54 BST 2010
 
    covalent attachments
+
+* Done.
 
 ---
 Mon May 24 16:15:17 BST 2010

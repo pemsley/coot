@@ -793,22 +793,26 @@ Punted from 0.6:
 
    o Martyn: http://2dx.org/documentation/mrc-software/mrc-documentation
      "23	ISPG     space group number 0 or 1 (default=0)".
-     If spacegroup is 0, put the map into an nxmap.
+     If spacegroup is 0, put the map into an nxmap.  ::: 6
 
-    o residues in DNA from modern PDB files is DG, DA, DC, DT.  Need
-      to map to refmac name, restraints don't work.
+   o when running from the "wrong" directory, do a better job at
+     letting the user know there is a problem (an informative dialog,
+     let's say) when running (say) search monomer library and pressing
+     on a returned button.   ::: 1
+
+   o residues in DNA from modern PDB files is DG, DA, DC, DT.  Need
+     to map to refmac name, restraints don't work.
 
     * The correct solution is to generate a dictionary for DG, DA
       etc from that GD.cif (Gd) (etc) as they are read in.  Note that in
       DT, C5M (in the dictionary) become C7 (new PDB coordinate
       format/convention).
 
-
  ------
     
     Release 0.8 [Sept 2009]
 
-   o Use libglade.
+   o Use gtk-builder.
 
    o make minimol's addresidue() work with inscodes.  e.g. the 52A PRO
    in "Autofit Rotamer on Residues with Insertion codes" test. (see

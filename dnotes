@@ -5482,6 +5482,16 @@ Mon May 17 16:46:04 BST 2010
 
   Andrew Sharff:
 
+    CMH
+    BEZ and BOX
+    many: methyl mercury
+
+* a problem for PDBe, not Eugene.         
+
+----
+
+   Andrew Sharf::
+
    Just refining / building a structure that has a number of LINK and
    SSBOND cards in the PDB header.  I have had to renumber one of the
    chains to make the numbering consistent with other structures.
@@ -5489,11 +5499,24 @@ Mon May 17 16:46:04 BST 2010
    However, on saving output, the residue numbers in the SSBOND and
    LINK lines is not changed.
 
+
 ----
 Tue May 18 11:25:15 BST 2010
 
+----
    BN: When alt-confing ligands, I'd like to see a slide-bar to set
        the occs.
+
+----
+
+   On loading the output of refmac, give us a way of seeing the "most
+   moved" atoms. (seems to be a useful thing to see when developing
+   lbg).
+
+----
+Fri May  7 12:48:16 UYT 2010
+
+    re: Kate's project: c.f. SPASM (USF?)
 
 ----
 Sun May 23 13:35:38 BST 2010
@@ -5501,7 +5524,10 @@ Sun May 23 13:35:38 BST 2010
    2WOT: lbg the ligand and re-import back to Coot main.  Now try to
    fit the ligand.
 
-   It's hard.  Make it easier.
+   It's hard.  Make it easier. Identify matched atom (atom name map) and 
+   the rotatable bonds and match them between reference ligand and new 
+   ligand.  Now set the rotatable bonds to those values (before 
+   minimisation).
 
 ----
 Sun May 23 13:37:55 BST 2010

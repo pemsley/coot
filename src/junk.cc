@@ -1831,3 +1831,13 @@ pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
    m.print_matrix();
    glMultMatrixf(m.get());
 
+
+
+   for (unsigned int i=0; i<contacting_pairs_vec.size(); i++) {
+      coot::restraints_container_t rc;
+      std::pair<std::string, bool> link_info =
+	 rc.find_link_type_rigourous(contacting_pairs_vec[i].first, contacting_pairs_vec[i].second, geom);
+      std::cout << "DEUBG:: Covalent test found link :"  << link_info.first << ": " << link_info.second
+		<< std::endl;
+   }
+
