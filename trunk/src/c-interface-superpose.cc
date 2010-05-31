@@ -363,9 +363,6 @@ GtkWidget *wrapped_create_superpose_dialog() {
    GtkSignalFunc signal_func2 =
       GTK_SIGNAL_FUNC(graphics_info_t::superpose_optionmenu_activate_mol2);
 
-   g.fill_option_menu_with_coordinates_options(optionmenu1, signal_func1);
-   g.fill_option_menu_with_coordinates_options(optionmenu2, signal_func2);
-
    graphics_info_t::superpose_imol1 = -1;
    graphics_info_t::superpose_imol2 = -1;
    // and what should the "set" values of graphics_info_t::superpose_imol1 and 2 be?
@@ -377,6 +374,11 @@ GtkWidget *wrapped_create_superpose_dialog() {
 	 break;
       }
    }
+
+   g.fill_option_menu_with_coordinates_options(optionmenu1, signal_func1,
+					       graphics_info_t::superpose_imol1);
+   g.fill_option_menu_with_coordinates_options(optionmenu2, signal_func2,
+					       graphics_info_t::superpose_imol2);
 
    GtkWidget *chain_ref_om = lookup_widget(w, "superpose_reference_chain_optionmenu");
    GtkWidget *chain_mov_om = lookup_widget(w, "superpose_moving_chain_optionmenu");
