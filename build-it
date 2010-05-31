@@ -1737,6 +1737,7 @@ mmdb_version=1.11
 mmdb_version=1.12
 mmdb_version=1.19
 mmdb_version=1.21
+mmdb_version=1.23
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # this patch is badly formed.
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
