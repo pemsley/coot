@@ -92,10 +92,13 @@
     missing residues [JED].
 
   o BUG-FIX: Environment distances display toggling anomolies cleaned
-    up [Ed Pozharski]
+    up [Ed Pozharski].
 
   o BUG-FIX: Sequence view failed with SHELX molecules with high
     residue numbers [Stefan Becker].
+
+  o BUG-FIX: SSM superposition now superposes the correct molecules
+    when the option menus are not adjusted [Sam Stampfter].
 
 -----
 
