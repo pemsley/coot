@@ -234,6 +234,9 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 	 CChain *chain_p;
 	 // run over chains of the existing mol
 	 int nchains = model_p->GetNumberOfChains();
+
+	 // std::cout << "DEUBG:: in fill_ghost_info() nchains is " << nchains << std::endl;
+	 
 	 if (nchains <= 0) { 
 	    std::cout << "bad nchains in molecule " << nchains
 		      << std::endl;
@@ -326,6 +329,18 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 							 short int do_rtops_flag,
 							 float homology_level,
 							 bool allow_offset_flag) {
+
+   // debug input 
+   if (0) { 
+      std::cout << " in add_ncs_ghosts_no_explicit_master() ncs chain_ids are ";
+      for (unsigned int i=0; i<chain_ids.size(); i++) {
+	 std::cout << ":" << chain_ids[i] << ": ";
+      }
+      std::cout << std::endl;
+      std::cout << " and there are " << residue_types.size() << " elements in the residue_types vector "
+		<< std::endl;
+   }
+      
    
    // when checking for ncs, we must make sure that the number of
    // residues is greater than 0 (because we get 0 for solvent
@@ -1010,7 +1025,9 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
 					  float exact_homology_level,
 					  bool allow_offset_flag) const {
 
-   //    std::cout << "DEBUG:: ncs_chains_match_p allow_offset_flag: " << allow_offset_flag << std::endl;
+   // std::cout << "DEBUG:: ncs_chains_match_p allow_offset_flag: " << allow_offset_flag << std::endl;
+   // std::cout << "   v1 size " << v1.size() << " v2.size() " << v2.size() << std::endl;
+   
    bool imatch = 0;
    if (allow_offset_flag == 1) {
 
@@ -1048,42 +1065,55 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
 	       min_v2 = v2[i].second;
 	 }
 
+	 // 20100601 Beware of the minimum resno being set to MinInt4 (a sign of an
+	 // empty chain - or something, just give up in that case) otherwise (prior to
+	 // now) -> crash.
+	 // 
 	 int a_offset = min_v1;
 	 int max_indx = max_v1;
 	 if (min_v2 < min_v1)
 	    a_offset = min_v2;
 	 if (max_v2 > max_v1)
 	    max_indx = max_v2;
-      
-	 std::vector<std::string> a(max_indx-a_offset + 1, "");
-	 std::vector<std::string> b(max_indx-a_offset + 1, "-");
-	 for (unsigned int i=0; i<v1.size(); i++) {
-	    a[v1[i].second-a_offset] = v1[i].first;
-	 }
-	 for (unsigned int i=0; i<v2.size(); i++){ 
-	    b[v2[i].second-a_offset] = v2[i].first;
-	    // 	 std::cout << " adding residue type :" << v2[i].first
-	    // 		   << ": to b with index " << v2[i].second-a_offset
-	    // 		   << " parts " << v2[i].second << " and " << a_offset
-	    // 		   << " index " << i << " of " << v2.size()
-	    // 		   << std::endl;
-	 }
 
-	 int n_match = 0;
-	 for (unsigned int i=0; i<a.size(); i++) {
-	    if (a[i] == b[i]) {
-	       n_match++;
-	    }
-	 }
-	 int n_count = a.size();
-	 std::cout << "INFO:: NCS chain comparison " << n_match << "/" << v1.size() << std::endl;
-	 if (n_count > 0) {
-	    // float hit_rate = float(n_match)/float(n_count);
-	    // case where protein is 1 to 123 but NAP at 500 fails.  So not n_count but v1.size():
-	    if (v1.size() > 0) { 
-	       float hit_rate = float(n_match)/float(v1.size());
-	       if (hit_rate > exact_homology_level) {
-		  imatch = 1;
+	 // 20100601 crash protection tests added.
+	 // 
+	 if (a_offset != MinInt4) { 
+	    // std::cout << "in ncs_chains_match_p() " << max_indx << " - " << a_offset
+	    // << " +1 = " << max_indx-a_offset + 1 << std::endl;
+	    int vec_size = max_indx-a_offset + 1;
+	    if (vec_size > 0) { 
+	       std::vector<std::string> a(vec_size, "");
+	       std::vector<std::string> b(vec_size, "-");
+	       for (unsigned int i=0; i<v1.size(); i++) {
+		  a[v1[i].second-a_offset] = v1[i].first;
+	       }
+	       for (unsigned int i=0; i<v2.size(); i++){ 
+		  b[v2[i].second-a_offset] = v2[i].first;
+		  // 	 std::cout << " adding residue type :" << v2[i].first
+		  // 		   << ": to b with index " << v2[i].second-a_offset
+		  // 		   << " parts " << v2[i].second << " and " << a_offset
+		  // 		   << " index " << i << " of " << v2.size()
+		  // 		   << std::endl;
+	       }
+
+	       int n_match = 0;
+	       for (unsigned int i=0; i<a.size(); i++) {
+		  if (a[i] == b[i]) {
+		     n_match++;
+		  }
+	       }
+	       int n_count = a.size();
+	       std::cout << "INFO:: NCS chain comparison " << n_match << "/" << v1.size() << std::endl;
+	       if (n_count > 0) {
+		  // float hit_rate = float(n_match)/float(n_count);
+		  // case where protein is 1 to 123 but NAP at 500 fails.  So not n_count but v1.size():
+		  if (v1.size() > 0) { 
+		     float hit_rate = float(n_match)/float(v1.size());
+		     if (hit_rate > exact_homology_level) {
+			imatch = 1;
+		     }
+		  }
 	       }
 	    }
 	 }

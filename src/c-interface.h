@@ -5880,7 +5880,7 @@ void set_button_label_for_external_refinement(const char *button_label);
 size variable is currently ignored.*/
 int place_text(const char*text, float x, float y, float z, int size);
 
-/*! \brief Remove text */
+/*! \brief Remove "3d" text item */
 void remove_text(int text_handle);
 /* \} */
 
