@@ -89,6 +89,15 @@
 		  (throw 'fail))
 		#t)))))
 
+
+(greg-testcase "Don't crash on empty NCS from mmCIF file" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "2WF6.cif")))
+       (close-molecule imol)
+       #t)))
+
+
 (greg-testcase "New molecule from bogus atom selection" #t
     (lambda ()
       (let* ((pre-n-molecules (graphics-n-molecules))
