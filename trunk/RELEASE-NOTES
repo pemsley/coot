@@ -171,6 +171,9 @@
   o BUG-FIX: Go to Atom keyboarding chain-id superfluous functions
     removed [JED].
 
+  o BUG-FIX: Don't crash when calculating NCS on reading bogus chains
+    from a PDB mmCIF file [Christian Engel].
+
 -----
 
   Release 0.6
