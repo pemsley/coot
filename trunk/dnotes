@@ -5519,7 +5519,16 @@ Fri May  7 12:48:16 UYT 2010
     re: Kate's project: c.f. SPASM (USF?)
 
 ----
+Thu May 20 18:38:52 BST 2010
+  
+   o Bob Nolte:  "clean up structure button"
+
+	 reorder chains - renumber waters - arrange water around
+	 protein - fix nomenclature errors - merge water chains
+
+----
 Sun May 23 13:35:38 BST 2010
+
 
    2WOT: lbg the ligand and re-import back to Coot main.  Now try to
    fit the ligand.
@@ -5528,6 +5537,32 @@ Sun May 23 13:35:38 BST 2010
    the rotatable bonds and match them between reference ligand and new 
    ligand.  Now set the rotatable bonds to those values (before 
    minimisation).
+
+   o need some cleverness to match and set the chi angles of the 
+     rotatable bonds (before lsqing, even, I guess)  (or at least, 
+     an LSQ is needed afterwards).
+
+
+---
+Thu May 20 18:45:29 BST 2010
+
+    put in Edit Peferences the settings for these:
+
+    (define *clear-out-backup-run-n-days* 7)
+    (define *clear-out-backup-old-days* 7)
+
+
+---
+Thu May 20 18:50:50 BST 2010
+
+    o Bob Nolte: give me a slider to set the alt confs.
+
+---
+Thu May 20 18:58:26 BST 2010
+
+   o I want be able to edit bond colours and params from the molecule
+     in the display manager.
+
 
 ----
 Sun May 23 13:37:55 BST 2010
