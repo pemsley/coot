@@ -50,6 +50,12 @@ namespace coot {
          atom3 = atom_name_3;
          atom4 = atom_name_4;
       }
+      bool all_non_blank() const {
+	 if ((atom1 == "") || (atom2 == "") || (atom3 == "") || (atom4 == ""))
+	    return 0;
+	 else
+	    return 1;
+      } 
       friend std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);
    };
    std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);

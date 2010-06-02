@@ -918,11 +918,24 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 				const std::string &atom3, const std::string &atom4,
 				double angle) {
 
+   // debugging
+//    std::map<std::string, map_index_t, std::less<std::string> >::const_iterator it;
+//    for (it=name_to_index.begin(); it!= name_to_index.end(); it++) {
+//       std::cout << ":" << it->first << ": -> " <<  it->second.index() << std::endl;
+//    } 
+   
+   std::cout << "in set_dihedral() the atom names are 1 " << atom1 << std::endl;
+   std::cout << "in set_dihedral() the atom names are 2 " << atom2 << std::endl;
+   std::cout << "in set_dihedral() the atom names are 3 " << atom3 << std::endl;
+   std::cout << "in set_dihedral() the atom names are 4 " << atom4 << std::endl;
+
    double dihedral_angle = 0.0;
+
    coot::map_index_t i1 = name_to_index[atom1];
    coot::map_index_t i2 = name_to_index[atom2];
    coot::map_index_t i3 = name_to_index[atom3];
    coot::map_index_t i4 = name_to_index[atom4];
+
 
    if (i1.is_assigned() && i2.is_assigned() && i3.is_assigned() && i4.is_assigned()) {
       try {
@@ -936,6 +949,9 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 	 // take out this try/catch when done.
 	 rotate_about(atom2, atom3, clipper::Util::d2rad(diff), 0);
 	 dihedral_angle = iq.torsion(residue);
+	 std::cout << "current, target, diff new "
+		   << current_dihedral_angle << "  " << angle << "  " << diff << "  " << dihedral_angle
+		   << std::endl;
       }
       catch (std::runtime_error rte) {
 	 std::cout << rte.what() << std::endl;

@@ -271,8 +271,8 @@ public:
    // this is for widgeted_bond_t that are invalid (to be assigned later).
    widgeted_bond_t() : lig_build::bond_t() {
       ci = NULL;
-   } 
-   
+   }
+
    // Now we use a constructor that does the creation of the canvas item too
    //
    widgeted_bond_t(int first, int second, 
@@ -290,29 +290,13 @@ public:
       construct_internal(atom_first, atom_second, bt, root);
    }
    
-   // old constructor.  Consider deleting.
-   // 
-   // widgeted_bond_t(int first, int second, bond_type_t bt, GooCanvasItem *ci_in) :
-   // lig_build::bond_t(first, second, bt) {
-   // ci = ci_in;
-   // is_closed_ = 0;
-   // }
-
-   // old constructor.  Consider deleting.
-   // 
-   // widgeted_bond_t(int first, int second,
-   // lig_build::pos_t centre_pos_in,
-   // lig_build::bond_t::bond_type_t bt,
-   // GooCanvasItem *ci_in) :
-   // lig_build::bond_t(first, second, centre_pos_in, bt) {
-   // ci = ci_in;
-   // is_closed_ = 0;
-   // }
-
-
    void update_canvas_item(GooCanvasItem *new_item, GooCanvasItem *root) {
       clear(root);
       ci = new_item;
+   }
+
+   void rotate_canvas_item(gdouble cx, gdouble cy, gdouble degrees) {
+      goo_canvas_item_rotate(ci, degrees, cx, cy);
    }
 
    // We need to make a shorter bond canvas line because we have (say)
@@ -529,5 +513,7 @@ public:
    // bottom-right (high high)
    //
    std::pair<lig_build::pos_t, lig_build::pos_t> ligand_extents() const;
+
+   int n_open_bonds() const; 
    
 };

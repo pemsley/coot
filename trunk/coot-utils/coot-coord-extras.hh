@@ -303,6 +303,27 @@ namespace coot {
    };
    std::ostream& operator<<(std::ostream &o, atom_tree_t::tree_dihedral_info_t t);
 
+   // Move the atoms in res_moving.
+   // 
+   // Return the number of rotated torsions.
+   //
+   class match_torsions {
+      CResidue *res_moving;
+      CResidue *res_ref;
+      dictionary_residue_restraints_t moving_residue_restraints;
+      void apply_torsion(const atom_name_quad &quad_moving,
+			 const atom_name_quad &reference,
+			 const std::string &alt_conf);
+   public: 
+      match_torsions(CResidue *res_moving, CResidue *res_ref,
+		     const dictionary_residue_restraints_t &rest);
+      int match (const std::vector<dict_torsion_restraint_t>  &tr_moving,
+		 const std::vector<dict_torsion_restraint_t>  &tr_ref);
+
+   };
+   
+   
+
 }
 
 #endif // HAVE_COOT_COORD_EXTRAS_HH

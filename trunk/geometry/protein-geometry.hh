@@ -969,9 +969,14 @@ namespace coot {
       // not const because we can do a dynamic add.
       int get_monomer_type_index(const std::string &monomer_type);
       std::string get_padded_name(const std::string &atom_id, const int &comp_id_index) const;
-      std::vector <coot::dict_torsion_restraint_t>
-      filter_torsion_restraints(const std::vector <coot::dict_torsion_restraint_t> &restraints_in) const;
-      static bool torsion_restraints_comparer(const coot::dict_torsion_restraint_t &a, const coot::dict_torsion_restraint_t &b);
+
+      // return a list of torsion restraints that are unique for atoms 2 and
+      // 3 (input restraints vector can potentially have many restraints
+      // that have the same atoms 2 and 3).
+      //
+      std::vector <dict_torsion_restraint_t>
+      filter_torsion_restraints(const std::vector <dict_torsion_restraint_t> &restraints_in) const;
+      static bool torsion_restraints_comparer(const dict_torsion_restraint_t &a, const dict_torsion_restraint_t &b);
 
       // bool is the need-order-switch-flag
       std::vector<std::pair<chem_link, bool> > matching_chem_link(const std::string &comp_id_1,
@@ -1044,15 +1049,15 @@ namespace coot {
       // 
       int try_dynamic_add(const std::string &resname, int read_number);  // return success status?
       // this is not const if we use dynamic add.
-      std::vector <coot::dict_torsion_restraint_t>
+      std::vector <dict_torsion_restraint_t>
       get_monomer_torsions_from_geometry(const std::string &monomer_type);
-      std::vector <coot::dict_chiral_restraint_t>
+      std::vector <dict_chiral_restraint_t>
       get_monomer_chiral_volumes(const std::string monomer_type) const;
 
       // as above, except filter out of the returned vectors torsions
       // that move (or are based on) hydrogens.
       // 
-      std::vector <coot::dict_torsion_restraint_t>
+      std::vector <dict_torsion_restraint_t>
       get_monomer_torsions_from_geometry(const std::string &monomer_type, 
 					 short int find_hydrogen_torsions) const;
 
@@ -1083,7 +1088,7 @@ namespace coot {
       std::pair<bool, std::vector<std::string> >
       atoms_match_dictionary(CResidue *res,
 			     bool check_hydrogens_too_flag,
-			     const coot::dictionary_residue_restraints_t &restraints);
+			     const dictionary_residue_restraints_t &restraints);
 
       // return a pair, overall status, and pair of residue names and
       // atom names that dont't match.

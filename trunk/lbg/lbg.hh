@@ -372,6 +372,31 @@ private:
    highlight_data_t highlight_data;
    bool is_atom_element(int addition_mode) const;
    bool is_bond(int addition_mode) const;
+
+   bool button_down_bond_addition; // set on bond addition by button down, unset by
+				   // button up.  Used to distinguish between canvas drag
+				   // and mouse-based rotation of the bond.
+   
+   lig_build::pos_t penultimate_atom_pos; // used with the above as the anchor point of
+					  // the rotation of the last added atom.
+   int penultimate_atom_index;
+   int ultimate_atom_index;
+   
+   GooCanvasItem *latest_bond_canvas_item; // For (above mentioned) bond rotation, we
+					   // need to rotate the bond.  This is the
+					   // canvas item of the bond.
+   
+   bool latest_bond_was_extended; // Again, for the above system, when we are rotating a
+				  // bond normally, the rotation_bond() is fine.
+				  // However, if, when rotating the bond, the bond
+				  // snaped/extended to a highlighted atom, then simply
+				  // rotating the atom position and the widget won't do
+				  // (when the bond is snapped/extended the new atom (at
+				  // the end of the rotating stick) is removed and the
+				  // bond is adjusted to use the atom index of the
+				  // highlighted atom.  In that case, we don't want to
+				  // simply rotate the bond, that would be bad. OK,
+   
    bool try_change_to_element(int addition_element_mode); // check for highlighted atom;
    bool try_add_or_modify_bond(int canvas_addition_mode, int x, int y); //  ditto.
    bool add_bond_to_atom(int atom_index, int canvas_addition_mode);
@@ -404,6 +429,11 @@ private:
       canvas_scale = 1.0;
       canvas_drag_offset = lig_build::pos_t(0,0);
       standard_residue_circle_radius = 19;
+      button_down_bond_addition = 0;
+      latest_bond_canvas_item = 0;
+      penultimate_atom_index = -1;
+      ultimate_atom_index = -1;
+      latest_bond_was_extended = 0;
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -438,7 +468,8 @@ private:
 
    int get_min_match(const int &n1) const {
       int most_1 = int (search_similarity * float(n1));
-      return most_1;
+      // return most_1;
+      return n1;
    }
 
    // not used.
@@ -455,6 +486,9 @@ private:
 					   CGraphMatch &match, int n_match, 
 					   CSBStructure *SBS) const;
    void display_search_results(const std::vector<lbg_info_t::match_results_t> v) const;
+   void rotate_latest_bond(int x, int y);
+   void rotate_or_extend_latest_bond(int x, int y);
+   void extend_latest_bond(); // use hilight_data
    void orthogonalise_2_bonds(int atom_index,
 			      const std::vector<int> &attached_bonds,
 			      const std::vector<int> &bond_indices);
@@ -525,6 +559,8 @@ private:
 			 double max_dist_water_to_ligand_atom,
 			 double max_dist_water_to_protein_atom) const;
 
+   PCGraph makeTestQueryGraph() const;  // debugging
+
 public:
    lbg_info_t(GtkWidget *canvas_in) {
       canvas = canvas_in;
@@ -560,6 +596,8 @@ public:
    void highlight_bond(const lig_build::bond_t &bond, bool delete_mode);
    void highlight_atom(const lig_build::atom_t &atom, int atom_index, bool delete_mode);
    void remove_bond_and_atom_highlighting();
+   void clear_button_down_bond_addition();
+   void handle_drag(GdkModifierType state, int x, int y); // could be rotate bond or drag canvas
    void set_in_delete_mode(bool v) {
       in_delete_mode_ = v;
    }

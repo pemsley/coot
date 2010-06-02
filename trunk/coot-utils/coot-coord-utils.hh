@@ -521,10 +521,9 @@ namespace coot {
 
    class graph_match_info_t {
    public:
+      // atom_match_names: ((atom_name_ref alt_conf_ref) (atom_name_wrk alt_conf_work))
       std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matching_atom_names;
       bool success;
-      // atom_match_names: ((atom_name_ref alt_conf_ref) (atom_name_wrk alt_conf_work))
-      std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > atom_match_names; 
       clipper::RTop_orth rtop;
       int n_match;
       double dist_score;
@@ -748,6 +747,8 @@ namespace coot {
 			    const std::string &insertion_code,
 			    CMMDBManager *mol);
 
+      CResidue *get_first_residue(CMMDBManager *mol);
+
       // convenience interface to above
       CResidue *get_residue(const residue_spec_t &rs, CMMDBManager *mol);
 
@@ -759,6 +760,7 @@ namespace coot {
       std::pair<bool, clipper::Coord_orth> get_residue_centre(CResidue *res);
       
       std::vector<std::string> get_residue_alt_confs(CResidue *res);
+
 
       std::vector<std::string> residue_types_in_molecule(CMMDBManager *mol);
       // non-standard means not one of the standard protein amino acid

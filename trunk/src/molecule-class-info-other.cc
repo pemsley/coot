@@ -7651,3 +7651,52 @@ molecule_class_info_t::residues_near_residue(const coot::residue_spec_t &rspec, 
    return r; 
 }
 
+
+// manipulate torsion angles of first residue in the molecule to
+// match those of the passed (reference residue (from a different
+// molecule, typically).
+//
+int
+molecule_class_info_t::match_torsions(CResidue *res_ref,
+				      const std::vector <coot::dict_torsion_restraint_t> &tr_ref_res,
+				      const coot::protein_geometry &geom) {
+
+   std::cout << "----------- here in molecule_class_info_t::match_torsions() " << std::endl;
+
+   int n_torsions_moved = 0;
+   make_backup();
+   
+   CResidue *res_ligand = coot::util::get_first_residue(atom_sel.mol); // this could/should be replaced
+								       // by something that allows
+								       // any residue in the molecule
+								       // to move to match the
+								       // reference residue.
+   
+
+   if (res_ligand) { // the local (moving) residue is xxx_ligand
+      std::string res_name_ligand(res_ligand->GetResName());
+      std::pair<bool, coot::dictionary_residue_restraints_t> ligand_restraints_info = 
+	 geom.get_monomer_restraints(res_name_ligand);
+      if (ligand_restraints_info.first) {
+	 std::vector <coot::dict_torsion_restraint_t> tr_ligand = 
+	    geom.get_monomer_torsions_from_geometry(res_name_ligand, 0);
+	 if (tr_ligand.size()) {
+	    
+	    // find the matching torsion between res_ligand and res_ref and then
+	    // set the torsions of res_ligand to match those of res_ref.
+	    // 
+	    // moving then reference
+	    std::cout << "----------- in molecule_class_info_t::match_torsions() class "
+		      << "coot::match_torsions() " << std::endl;
+	    coot::match_torsions mt(res_ligand, res_ref, ligand_restraints_info.second);
+	    std::cout << "----------- in molecule_class_info_t::match_torsions class "
+		      << "coot::match_torsions::match() " << std::endl;
+	    n_torsions_moved = mt.match(tr_ligand, tr_ref_res);
+	 }
+      }
+   }
+   atom_sel.mol->FinishStructEdit();
+   make_bonds_type_checked(); // calls update_ghosts()
+   have_unsaved_changes_flag = 1;
+   return n_torsions_moved;
+}

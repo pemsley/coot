@@ -96,7 +96,7 @@ libcoot_map_heavy_la_LIBADD = \
 noinst_PROGRAMS = test-h-bonds testshelxreader
 
 # testshelxreader fails to link for some reason! coot::protein_geometry::get_h_bond_type 
-#  testcootutils alsol
+# testcootutils also.
 
 
 testshelxreader_SOURCES = test-shelx-reader.cc

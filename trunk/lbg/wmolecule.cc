@@ -1376,3 +1376,14 @@ widgeted_molecule_t::ligand_extents() const {
 }
 
 
+
+int
+widgeted_molecule_t::n_open_bonds() const {
+
+   int n_bonds = 0;
+   for (unsigned int i=0; i<bonds.size(); i++) { 
+      if (! bonds[i].is_closed())
+	 n_bonds++;
+   }
+   return n_bonds;
+} 

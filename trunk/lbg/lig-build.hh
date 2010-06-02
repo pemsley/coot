@@ -99,6 +99,18 @@ namespace lig_build {
 	 double new_y = x * sin_theta + y * cos_theta;
 	 return pos_t(new_x, new_y);
       }
+
+      pos_t rotate_about(double x_cen, double y_cen, double angle) {
+	 double theta = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta);
+	 double cos_theta = cos(theta);
+	 double delta_x = x - x_cen;
+	 double delta_y = y - y_cen;
+	 double new_x = x_cen + (x - x_cen) * cos_theta - (y - y_cen) * sin_theta;
+	 double new_y = y_cen + (x - x_cen) * sin_theta + (y - y_cen) * cos_theta;
+	 return pos_t(new_x, new_y);
+      } 
+      
       pos_t operator*(float sc) {
 	 return pos_t(x*sc, y*sc);
       }
@@ -309,6 +321,18 @@ namespace lig_build {
 	 is_closed_ = 1;
       }
       bool is_closed() const { return is_closed_; }
+      bool matches_indices(const bond_t &test_bond) const {
+	 if (get_atom_1_index() == test_bond.get_atom_1_index()) {
+	    if (get_atom_2_index() == test_bond.get_atom_2_index()) {
+	       return 1;
+	    } else {
+	       return 0;
+	    }
+	 } else {
+	    return 0;
+	 } 
+      } 
+      
    };
    std::ostream& operator<<(std::ostream &s, bond_t);
 
@@ -352,9 +376,28 @@ namespace lig_build {
       virtual std::pair<bool, int> add_atom(const Ta &at) {
 	 return checked_add(at);
       }
-       int add_bond(const Tb &bond) {
-	  bonds.push_back(bond);
-	  return bonds.size() -1;
+      
+      // Add a bond. But only add a bond if there is not already a
+      // bond between the given atom indices in the bond list.
+      //
+      // In that case, return -1, otherwise return the index of the
+      // newly added bond.
+      // 
+      int add_bond(const Tb &bond) {
+	 
+	 bool matches_indices = 0;
+	 for (unsigned int i=0; i<bonds.size(); i++) { 
+	    if (bonds[i].matches_indices(bond)) {
+	       matches_indices = 1;
+	       break;
+	    }
+	 }
+	 if (! matches_indices) { 
+	    bonds.push_back(bond);
+	    return bonds.size() -1;
+	 } else {
+	    return -1;
+	 } 
       }
       bool is_empty() const {
 	 bool status = 1;
