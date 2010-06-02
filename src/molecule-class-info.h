@@ -2147,7 +2147,15 @@ public:        //                      public
    // Do not be mislead this is only a flag, *not* the number of chi
    // angles for this residue, i.e. does this residue have chi angles?
    //
-   int N_chis(int atom_index); 
+   int N_chis(int atom_index);
+
+   // manipulate torsion angles of first residue in the molecule to
+   // match those of the passed (reference residue (from a different
+   // molecule, typically).
+   //
+   int match_torsions(CResidue *res_ref,
+		      const std::vector <coot::dict_torsion_restraint_t> &tr_ligand,
+		      const coot::protein_geometry &geom);
 
    // So that we can move around all the atoms of a ligand (typically)
    void translate_by(float x, float y, float z);

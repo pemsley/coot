@@ -44,7 +44,13 @@ lbg_info_t::search() const {
    // atoms are vertices
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
       if (! mol.atoms[iat].is_closed()) {
-	 CVertex *v = new CVertex(mol.atoms[iat].element.c_str(), mol.atoms[iat].get_atom_id().c_str());
+	 std::string ele = mol.atoms[iat].element;
+	 std::string name = mol.atoms[iat].get_atom_id();
+
+	 // kludge: 
+	 // name = "C" + coot::util::int_to_string(iat+1);
+	    
+	 CVertex *v = new CVertex(ele.c_str(), name.c_str());
 	 vertex_indexing[n_atoms] = iat;
 	 graph->AddVertex(v);
 	 n_atoms++;
@@ -71,15 +77,60 @@ lbg_info_t::search() const {
       }
    }
    graph->SetName ("Liebig-Query");
-   int build_result = graph->Build(True);
-   graph->MakeSymmetryRelief(False);
-   graph->Print();
-   std::cout << "graph build returns: " << build_result << std::endl;
-   std::vector<lbg_info_t::match_results_t> v =
-      compare_vs_sbase(graph, search_similarity, n_atoms);
-   delete graph;
-   display_search_results(v);
+   graph->MakeVertexIDs();
+   
+   int build_result = graph->Build(False);
+
+   if (build_result != 0) {
+
+      std::cout << "Bad graph build result" << std::endl;
+
+   } else { 
+   
+      graph->MakeSymmetryRelief(False);
+      graph->Print();
+      std::cout << "graph build returns: " << build_result << std::endl;
+      std::vector<lbg_info_t::match_results_t> v =
+	 compare_vs_sbase(graph, search_similarity, n_atoms);
+      delete graph;
+      display_search_results(v);
+   }
 }
+
+
+
+
+PCGraph
+lbg_info_t::makeTestQueryGraph() const {
+   
+   // benzene
+   PCGraph  G;
+
+  G = new CGraph();
+
+  G->AddVertex ( new CVertex(" C","C1") );
+  G->AddVertex ( new CVertex(" C","C2") );
+  G->AddVertex ( new CVertex(" C","C3") );
+  G->AddVertex ( new CVertex(" C","C4") );
+  G->AddVertex ( new CVertex(" C","C5") );
+  G->AddVertex ( new CVertex(" C","C6") );
+
+  G->AddEdge ( new CEdge(1,2,2) );
+  G->AddEdge ( new CEdge(2,3,1) );
+  G->AddEdge ( new CEdge(3,4,2) );
+  G->AddEdge ( new CEdge(4,5,1) );
+  G->AddEdge ( new CEdge(5,6,2) );
+  G->AddEdge ( new CEdge(6,1,1) );
+
+  G->MakeVertexIDs();
+  G->MakeSymmetryRelief ( False );
+  // G->Build ( True ); // This makes the search results go crazy.
+  G->Build ( False ); // no bond orders!
+
+  return G;
+
+}
+
 
 
 std::vector<lbg_info_t::match_results_t>
@@ -108,6 +159,7 @@ lbg_info_t::compare_vs_sbase(CGraph *graph_1, float similarity, int n_vertices) 
       
 
       int nStructures = SBase->GetNofStructures();
+      int n_match = 0;
       std::cout << "searching " << nStructures << " SBase structures\n";
       for (int is=0; is<nStructures; is++)  {
 	 int rc = SBase->GetGraph(graphFile, graph_2, exclude_H_flag);
@@ -117,32 +169,38 @@ lbg_info_t::compare_vs_sbase(CGraph *graph_1, float similarity, int n_vertices) 
 	    // std::cout << "graph check on structure " << is << std::endl;
 	    int n2 = graph_2->GetNofVertices();
 
-	    graph_2->MakeVertexIDs();
-	    graph_2->Build(True);
+	    if ((n2 >= int (double(similarity) * double(n_vertices))) &&
+		(n2 < (2.0 - double(similarity)) * double(n_vertices))) { 
 
-	    CGraphMatch *match  = new CGraphMatch();
-	    if (min_match > 0) { 
+	       graph_2->MakeVertexIDs();
+	       graph_2->Build(True);
 
-	       match->MatchGraphs(graph_1, graph_2, min_match);
-	       int nMatches = match->GetNofMatches();
-	       if (nMatches > 0) {
-		  if (0)
-		     std::cout << "found " << nMatches << " match(es) for query in structure "
-			       << is << " " << graph_1->GetName() << " vs " << graph_2->GetName()
-			       << std::endl;
-		  CFile *sf = SBase->GetStructFile();
-		  CSBStructure *SBS = SBase->GetStructure(is, sf);
-		  if (SBS) {
-		     if (SBS->Name) {
-			std::cout << "    " << graph_2->GetName() << " : " << SBS->Name << "\n";
-			lbg_info_t::match_results_t res =
-			   residue_from_best_match(*graph_1, *graph_2, *match, nMatches, SBS);
-			v.push_back(res);
+	       CGraphMatch *match  = new CGraphMatch();
+	       if (min_match > 0) { 
+
+		  match->MatchGraphs(graph_1, graph_2, min_match);
+		  int nMatches = match->GetNofMatches();
+		  if (nMatches > 0) {
+		     if (0)
+			std::cout << "found " << nMatches << " match(es) for query in structure "
+				  << is << " " << graph_1->GetName() << " vs " << graph_2->GetName()
+				  << std::endl;
+		     CFile *sf = SBase->GetStructFile();
+		     CSBStructure *SBS = SBase->GetStructure(is, sf);
+		     if (SBS) {
+			if (SBS->Name) {
+			   std::cout << "    " << n_match << " " << graph_2->GetName() << " : "
+				     << SBS->Name << "\n";
+			   lbg_info_t::match_results_t res =
+			      residue_from_best_match(*graph_1, *graph_2, *match, nMatches, SBS);
+			   v.push_back(res);
+			   n_match++;
+			}
 		     }
 		  }
 	       }
+	       delete match;
 	    }
-	    delete match;
 	 }
       }
       std::cout << "Search complete" << std::endl;
@@ -219,7 +277,8 @@ lbg_info_t::init_sbase(const std::string &sbase_monomer_dir_in) {
 
       std::cout << "sbase monomer dir: " << monomer_dir << std::endl;
       SBase = new CSBase;
-      InitMatType();
+      
+      InitMatType(); // only do this if standalone.
 
       RC = SBase->LoadIndex(monomer_dir);
 

@@ -560,13 +560,14 @@ CResidue *
 coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
 			   int i_rot) const {
 
+   bool debug = 0;
    // std::cout << "rotamer::GetResidue alt_conf is :" << alt_conf << ":" << std::endl;
    CResidue *rres = deep_copy_residue(Residue()); 
    std::string rt = Residue_Type();
 
    std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
 
-   if (0) { // debug
+   if (debug) { // debug
       PPCAtom residue_atoms;
       int n_residue_atoms;
       Residue()->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -598,11 +599,17 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
       double tors = this_rot[ichi];
       try {
 	 coot::atom_tree_t t(rest, rres, alt_conf);
-	 t.set_dihedral(atom_name_quads[ichi].atom1,
-			atom_name_quads[ichi].atom2,
-			atom_name_quads[ichi].atom3,
-			atom_name_quads[ichi].atom4,
-			tors);
+	 double new_angle = t.set_dihedral(atom_name_quads[ichi].atom1,
+					   atom_name_quads[ichi].atom2,
+					   atom_name_quads[ichi].atom3,
+					   atom_name_quads[ichi].atom4,
+					   tors);
+
+	 if (debug) 
+	    std::cout << "DEBUG:: in rotamer::GetResidue() setting torsion " 
+		      << tors << " of " << atom_name_quads[ichi] << " results in angle "
+		      << new_angle << std::endl;
+
       }
       catch (std::runtime_error rte) {
 	 std::cout << "oops! in rotamer::GetResidue() " << rte.what() << std::endl;

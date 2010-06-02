@@ -81,6 +81,78 @@ overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
 }
 #endif
 
+// should be in utils?
+void
+match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref) {
+
+   std::cout << "----------- inside c++: match_ligand_torsions() " << std::endl;
+   std::cout << "----------- inside c++: testing " << imol_ligand << " " << imol_ref << std::endl;
+   
+   if (!is_valid_model_molecule(imol_ligand)) {
+      std::cout << "WARNING molecule number " << imol_ligand << " is not a valid model molecule"
+		<< std::endl;
+   } else {
+      if (! is_valid_model_molecule(imol_ref)) {
+	 std::cout << "WARNING molecule number " << imol_ref << " is not a valid model molecule"
+		   << std::endl;
+      } else { 
+	 std::cout << "----------- inside c++: here 0 " << std::endl;
+	 CMMDBManager *mol_ref = graphics_info_t::molecules[imol_ref].atom_sel.mol;
+	 CResidue *res_ref = coot::util::get_residue(chain_id_ref,
+						     resno_ref, "",
+						     mol_ref);
+	 if (res_ref) {
+	    
+	    graphics_info_t g;
+	    // prodrg-ify the reference ligand if needed.
+	    std::string res_name_ref_res(res_ref->GetResName());
+	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints_info = 
+	       g.Geom_p()->get_monomer_restraints(res_name_ref_res);
+	    if (!restraints_info.first) {
+		  
+	       // prodrg-ify the reference ligand then.
+	       std::vector<coot::command_arg_t> args;
+	       args.push_back("prodrg-ify");
+	       args.push_back(imol_ref);
+	       args.push_back(single_quote(chain_id_ref));
+	       args.push_back(resno_ref);
+	       args.push_back(single_quote(""));
+	       std::vector<std::string> command_strings;
+	       for (unsigned int i=0; i<args.size(); i++)
+		  command_strings.push_back(args[i].as_string());
+	       std::string s_cmd = graphics_info_t::schemize_command_strings(command_strings);
+	       std::cout << "DEUBG:: running scheme comand " << s_cmd << std::endl;
+	       safe_scheme_command(s_cmd);
+
+
+	       std::cout << "----------- inside c++: here 1 " << std::endl;
+
+	       // try again to get restraints_info
+	       restraints_info = g.Geom_p()->get_monomer_restraints(res_name_ref_res);
+	       if (!restraints_info.first) {
+		  std::cout << "WARNING:: PRODRG fails to give restraints"
+			    << std::endl;
+	       }
+	    }
+
+	    std::vector <coot::dict_torsion_restraint_t> tr = 
+	       g.Geom_p()->get_monomer_torsions_from_geometry(res_name_ref_res, 0);
+
+	    if (tr.size() == 0) {
+	       std::cout << "WARNING:: No torsion restraints from PRODRG"
+			 << std::endl;
+	    } else {
+	       // normal case
+	       std::cout << "----------- inside c++: here 2 " << std::endl;
+	       graphics_info_t::molecules[imol_ligand].match_torsions(res_ref, tr,
+								      *g.Geom_p());
+	    } 
+	 } 
+      }
+   }
+} 
+
+
 #ifdef USE_PYTHON
 PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id_ref,
 		int resno_ref) {

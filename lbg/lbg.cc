@@ -84,6 +84,29 @@ on_canvas_button_press (GtkWidget *widget, GdkEventButton *event)
    return TRUE;
 }
 
+
+static gboolean
+on_canvas_button_release(GtkWidget *widget, GdkEventButton *event) {
+
+   GtkObject *obj = GTK_OBJECT(widget);
+   if (obj) {
+      gpointer gp = gtk_object_get_user_data(obj);
+      if (gp) {
+	 lbg_info_t *l = static_cast<lbg_info_t *> (gp);
+	 l->clear_button_down_bond_addition();
+      }
+   }
+   return TRUE;
+} 
+
+void
+lbg_info_t::clear_button_down_bond_addition() {
+
+   button_down_bond_addition = 0;
+   save_molecule();
+} 
+   
+
 static gboolean
 on_canvas_motion (GtkWidget *widget, GdkEventMotion *event) {
    int x_as_int=0, y_as_int=0;
@@ -96,14 +119,7 @@ on_canvas_motion (GtkWidget *widget, GdkEventMotion *event) {
 	 // std::cout << "got gp: " << gp << std::endl;
 	 if (gp) { 
 	    lbg_info_t *l = static_cast<lbg_info_t *> (gp);
-	    bool highlight_status = l->item_highlight_maybe(x_as_int, y_as_int);
-	    if (! highlight_status) {
-	       if (state & GDK_BUTTON1_MASK) {
-// 		  std::cout << "dragging canvas given mouse point "
-// 			    << x_as_int << " " << y_as_int <grep< std::endl;
-		  l->drag_canvas(x_as_int, y_as_int);
-	       }
-	    }
+	    l->handle_drag(state, x_as_int, y_as_int);
 	 } else {
 	    std::cout << "Failed to get gpointer from object on canvas motion"
 		      << std::endl;
@@ -115,6 +131,26 @@ on_canvas_motion (GtkWidget *widget, GdkEventMotion *event) {
    }
    return TRUE;
 }
+
+void
+lbg_info_t::handle_drag(GdkModifierType state, int x_as_int, int y_as_int) {
+
+   bool highlight_status = item_highlight_maybe(x_as_int, y_as_int);
+   if (! highlight_status) {
+      if (state & GDK_BUTTON1_MASK) {
+	 if (button_down_bond_addition) {
+	    rotate_latest_bond(x_as_int, y_as_int);
+	 } else { 
+	    drag_canvas(x_as_int, y_as_int);
+	 }
+      }
+   } else {
+      if (button_down_bond_addition) {
+	 if (highlight_data.single_atom()) 
+	    extend_latest_bond(); // checks for sensible atom to snap to.
+      }
+   }
+} 
 
 void
 lbg_info_t::drag_canvas(int mouse_x, int mouse_y) {
@@ -178,6 +214,105 @@ lbg_info_t::is_sane_drag(const lig_build::pos_t &delta) const {
    return sane;
 } 
 
+
+void
+lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
+   
+  // If no highlighted data, simply rotate the bond.  (Note here that
+   // the canvas item and the atom coordinates are separately rotated
+   // (but result in the same position).
+   //
+
+   bool debug = 0;
+
+   if (mol.bonds.size() > 0) { 
+      if (mol.atoms.size() > 0) {
+	 GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+	 
+	 widgeted_bond_t &bond = mol.bonds.back();
+	 widgeted_atom_t &atom = mol.atoms.back();
+	 
+	 double x_cen = penultimate_atom_pos.x;
+	 double y_cen = penultimate_atom_pos.y;
+	 double x_at = atom.atom_position.x;
+	 double y_at = atom.atom_position.y;
+	 double theta_rad = atan2(-(y_mouse-y_cen), (x_mouse-x_cen));
+	 double theta_target = theta_rad/DEG_TO_RAD;
+	 double theta_current_rad = atan2(-(y_at-y_cen), (x_at-x_cen));
+	 double theta_current = theta_current_rad/DEG_TO_RAD;
+	 double degrees = theta_target - theta_current;
+	 
+	 lig_build::pos_t new_atom_pos =
+	    atom.atom_position.rotate_about(x_cen, y_cen, -degrees);
+
+	 mol.close_atom(ultimate_atom_index, root);
+
+	 // now create new atom and new bond
+	 //
+	 widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
+
+	 int new_index = mol.add_atom(new_atom).second;
+	 lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
+
+	 widgeted_bond_t b(penultimate_atom_index, new_index,
+			   mol.atoms[penultimate_atom_index],
+			   new_atom,
+			   bt, root);
+	 ultimate_atom_index = new_index;
+	 mol.add_bond(b);
+      }
+   }
+}
+
+void
+lbg_info_t::extend_latest_bond() {
+
+   // we need to check that the highlighted atom is not the atom that
+   // we just added the bond to, because (1) that will always be the
+   // case just after the button down and the mouse moves with the
+   // button down and (2) we don't want to draw a bond back to the
+   // atom we just added a bond to.
+
+   // use highlight_data
+
+   if (mol.bonds.size() > 0) {
+      if (mol.atoms.size() > 0) {
+
+	 widgeted_bond_t &bond = mol.bonds.back();
+	 widgeted_atom_t &atom = mol.atoms.back();
+	 if (highlight_data.has_contents()) { 
+	    if (highlight_data.single_atom()) {
+
+	       int atom_index = highlight_data.get_atom_index();
+	       if (atom_index != penultimate_atom_index) { 
+		  if (atom_index != ultimate_atom_index) {
+		     
+		     std::cout << "extend_latest_bond() " << std::endl;
+   
+		     GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+
+		     mol.close_atom(ultimate_atom_index, root);
+	       
+		     // and add a new bond.
+		     // 
+		     lig_build::bond_t::bond_type_t bt =
+			addition_mode_to_bond_type(canvas_addition_mode);
+		     widgeted_bond_t b(penultimate_atom_index, atom_index,
+				       mol.atoms[penultimate_atom_index],
+				       mol.atoms[atom_index],
+				       bt, root);
+		     std::cout << "adding bond! " << b << std::endl;
+		     mol.add_bond(b); // can reject addition if bond
+				      // between the given atom
+				      // indices already exists.
+		     std::cout << "Now we have " << mol.n_open_bonds() << " bonds" << std::endl;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+} 
 
 
 bool
@@ -453,17 +588,24 @@ lbg_info_t::change_atom_element(int atom_index, std::string new_ele, std::string
 bool
 lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_mouse) {
 
+   // button_down_bond_addition is check later so that we can
+   // distinguish between canvas dragging and new bond rotation.
+
    bool changed_status = 0;
    if (! highlight_data.has_contents()) {
       if (mol.is_empty()) {
+	 // calling this sets penultimate_atom_pos and latest_bond_canvas_item
 	 try_stamp_bond_anywhere(canvas_addition_mode, x_mouse, y_mouse);
 	 changed_status = 1; // try_stamp_bond_anywhere always modifies
+	 button_down_bond_addition = 1;
       }
    } else {
       if (highlight_data.single_atom()) {
 	 int atom_index = highlight_data.get_atom_index();
 	 if (atom_index != UNASSIGNED_INDEX) {
+	    // add_bond_to_atom() sets latest_bond_canvas_item
 	    changed_status = add_bond_to_atom(atom_index, canvas_addition_mode);
+	    button_down_bond_addition = changed_status;
 	 }
       } else {
 	 // highlighted item was a bond then.
@@ -517,8 +659,6 @@ lbg_info_t::add_bond_to_atom(int atom_index, int canvas_addition_mode) {
 
    bool changed_status = 0;
    std::vector<int> bonds = mol.bonds_having_atom_with_atom_index(atom_index);
-
-   // std::cout << "here in add_bond_to_atom there are " << bonds.size() << " neighbours " << std::endl;
 
    switch (bonds.size()) {
 
@@ -606,6 +746,11 @@ lbg_info_t::add_bond_to_atom_with_0_neighbours(int atom_index, int canvas_additi
    lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
    widgeted_bond_t b(atom_index, new_index, atom, new_atom, bt, root);
    mol.add_bond(b);
+
+   penultimate_atom_pos = atom.atom_position;
+   penultimate_atom_index = atom_index;
+   ultimate_atom_index    = new_index;
+   
 }
 
 
@@ -658,6 +803,11 @@ lbg_info_t::add_bond_to_atom_with_1_neighbour(int atom_index, int canvas_additio
    lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
    widgeted_bond_t b(atom_index, new_index, atom, new_atom, bt, root);
    mol.add_bond(b);
+
+   penultimate_atom_pos = atom.atom_position;
+   penultimate_atom_index = atom_index;
+   ultimate_atom_index    = new_index;
+   
 }
 
 void
@@ -1117,7 +1267,7 @@ lbg_info_t::try_stamp_polygon(int n_edges, int x_cen, int y_cen, bool is_spiro, 
    return changed_status;
 }
 
-// always modifies
+// always modifies.  Always sets penultimate_atom_pos.
 // 
 void
 lbg_info_t::try_stamp_bond_anywhere(int canvas_addition_mode, int x_mouse, int y_mouse) {
@@ -1131,6 +1281,8 @@ lbg_info_t::try_stamp_bond_anywhere(int canvas_addition_mode, int x_mouse, int y
     widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
     int new_atom_index = mol.add_atom(new_atom).second;
     add_bond_to_atom(new_atom_index, canvas_addition_mode);
+    penultimate_atom_pos = new_atom_pos;
+    penultimate_atom_index = new_atom_index;
 }
 
 
@@ -1562,6 +1714,9 @@ lbg_info_t::init(GtkBuilder *builder) {
 
    g_signal_connect(canvas, "button_press_event",
 		    (GtkSignalFunc) on_canvas_button_press, NULL);
+
+   g_signal_connect(canvas, "button_release_event",
+		    (GtkSignalFunc) on_canvas_button_release, NULL);
 
    g_signal_connect(canvas, "motion_notify_event",
 		    (GtkSignalFunc) on_canvas_motion, NULL);

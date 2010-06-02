@@ -29,16 +29,23 @@
 		  (read-cif-dictionary prodrg-cif)
 		  (let ((imol (handle-read-draw-molecule-and-move-molecule-here prodrg-xyzout)))
 
+		    (format #t "############# match-ligand-torsions ######################\n")
+		    (using-active-atom 
+		     (match-ligand-torsions imol aa-imol aa-chain-id aa-res-no))
+		    (format #t "############# done match-ligand-torsions ######################\n")
+
 		    ;; question, can we overlap this new molecule on
 		    ;; the residue that we are sitting on?
 		    ;; 
-		    (using-active-atom
-		     (overlap-ligands imol aa-imol aa-chain-id aa-res-no))
+;		    (using-active-atom
+;		     (overlap-ligands imol aa-imol aa-chain-id aa-res-no))
 		    
-		    (with-auto-accept
-		     (regularize-residues imol (list (list "" 1 ""))))
+;		    (with-auto-accept
+;		     (regularize-residues imol (list (list "" 1 ""))))
+		    
+;		    (additional-representation-by-attributes imol "" 1 1 "" 2 2 0.2 1)
 
-		    (additional-representation-by-attributes imol "" 1 1 "" 2 2 0.2 1)))))))))
+		    ))))))))
 
 
 

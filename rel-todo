@@ -4,6 +4,7 @@
 
     o change to rms z scores ::: 2
 
+    o HEC and HEA, chiral restraints, minimisation problem ::: 2
 
 ------
 
@@ -459,3 +460,28 @@ WARNING:: Can't find file
 
    o ramachandran plot gap errors - JED ::: 2
 
+    o Sam Stampfer:
+  
+       I found an SSM superpose bug in coot.  If there is more than
+       one structure open and you're doing an SSM superpose, the
+       structure that coot initially displays is NOT the one that it
+       superposes unless you click the drop-down menu and select that
+       structure.
+
+       For example, let's say I have structures 1 and 2 displayed and
+       I want to superpose structure 2 on to structure 1.  When I
+       click SSM superpose, the default structures selected are #2 for
+       both the reference and the moving structure (that's fine).  I
+       then select #1 for the reference structure and don't click
+       anything for the moving structure since it's still set to
+       structure #2.  I then select a chain for each structure to
+       superpose (this doesn't alter the reference or moving structure
+       selections) and tell it to superpose.  When I do all this, it
+       ends up superposing a chain of structure 1 on to a chain of
+       structure 1- instead of doing structure 2 on to structure 1.
+       This is really weird.  The workaround is just to click the drop
+       down menu for the moving structure and select structure 2
+       (which was already selected by default before) and then this
+       works fine.
+
+       ::: 1

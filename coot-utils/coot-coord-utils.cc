@@ -1834,6 +1834,8 @@ coot::graph_match(CResidue *res_moving,
 }
 
 
+
+
 float
 coot::util::median_temperature_factor(PPCAtom atom_selection,
 				      int n_atoms,
@@ -2022,6 +2024,34 @@ coot::util::get_following_residue(const residue_spec_t &rs,
    }
    return res;
 }
+
+CResidue *
+coot::util::get_first_residue(CMMDBManager *mol) {
+
+   CResidue *res = NULL;
+   if (mol) {
+      CModel *model_p = mol->GetModel(1);
+      CChain *chain_p;
+      
+      int n_chains = model_p->GetNumberOfChains();
+      for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	 chain_p = model_p->GetChain(i_chain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 for (int ires=0; ires<nres; ires++) {
+	    residue_p = chain_p->GetResidue(ires);
+	    if (residue_p) {
+	       res = residue_p;
+	       break;
+	    }
+	 }
+	 if (res)
+	    break;
+      }
+   }
+   return res;
+}
+
 
 // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
 // 

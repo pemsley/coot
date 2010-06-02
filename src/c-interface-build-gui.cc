@@ -204,6 +204,9 @@ GtkWidget *wrapped_create_move_molecule_here_dialog() {
    return w;
 }
 
+// called (also) by the callback of toggling the
+// move_molecule_here_big_molecules_checkbutton.
+// 
 void
 fill_move_molecule_here_dialog(GtkWidget *w) {
 
