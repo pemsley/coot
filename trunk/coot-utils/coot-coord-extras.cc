@@ -379,8 +379,8 @@ coot::match_torsions::apply_torsion(const coot::atom_name_quad &moving_quad,
 
    std::cout << "----------- in coot::match_torsions.apply_torsion()  " << std::endl;
    
-   std::vector<CAtom *> reference_atoms(4, NULL);
-   std::vector<CAtom *> moving_atoms(4, NULL);
+   std::vector<CAtom *> reference_atoms(4, static_cast<CAtom *> (NULL));
+   std::vector<CAtom *> moving_atoms(4, static_cast<CAtom *> (NULL));
 
    moving_atoms[0] = res_moving->GetAtom(moving_quad.atom1.c_str());
    moving_atoms[1] = res_moving->GetAtom(moving_quad.atom2.c_str());
