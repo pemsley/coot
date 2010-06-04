@@ -17,6 +17,17 @@ Fri May 28 22:55:28 BST 2010
     o Need to show findligand script with a ccp4mg headless back-end
       for images.
 
+-----
+Tue Jun  1 22:12:57 BST 2010
+
+
+   Make a 6 membered ring - saturated.
+
+   replace a C with an N.
+
+   add an H.  Add another H, N should go to N+, but does not until the 
+   canvas drag.
+
 
 ---
 Mon May 31 12:48:45 BST 2010
@@ -31,6 +42,11 @@ Mon May 31 11:03:59 BST 2010
    in rotate_latest_bond()).  Hmm... is that properly handled in
    rotate_latest_bond()?
 
+
+----
+Sun May 30 08:56:48 BST 2010
+
+     press smiles button, close dialog, press smiles button again.
 
 ----
 Tue May 11 15:30:27 BST 2010

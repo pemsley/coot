@@ -2149,6 +2149,18 @@ public:        //                      public
    //
    int N_chis(int atom_index);
 
+   // return the resulting torsion value
+   double set_torsion(const std::string &chain_id,
+		      int res_no,
+		      const std::string &insertion_code,
+		      const std::string &alt_conf,
+		      const std::string &atom_name_1,
+		      const std::string &atom_name_2,
+		      const std::string &atom_name_3,
+		      const std::string &atom_name_4,
+		      double tors,
+		      const coot::protein_geometry &geom);
+
    // manipulate torsion angles of first residue in the molecule to
    // match those of the passed (reference residue (from a different
    // molecule, typically).

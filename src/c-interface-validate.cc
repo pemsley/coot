@@ -1900,7 +1900,9 @@ SCM get_torsion_scm(int imol, SCM atom_spec_1, SCM atom_spec_2, SCM atom_spec_3,
       coot::atom_spec_t as4 = atom_spec_from_scm_expression(atom_spec_4);
 
       graphics_info_t g;
-      bool suc = g.set_angle_tors(imol, as1, as2, as3, as4);
+      bool suc = g.set_angle_tors(imol, as1, as2, as3, as4); // just set a return value (to
+							     // be used later, don't move
+							     // the coordinates).
       if (suc) { 
 	 double tors = g.get_geometry_torsion();
 	 r = scm_double2num(tors);
@@ -1911,7 +1913,7 @@ SCM get_torsion_scm(int imol, SCM atom_spec_1, SCM atom_spec_2, SCM atom_spec_3,
 		   << as2 << " "
 		   << as3 << " "
 		   << as4 << std::endl;
-	    } 
+      }
    }
    return r;
 } 
@@ -1948,8 +1950,36 @@ PyObject *get_torsion_py(int imol, PyObject *atom_spec_1, PyObject *atom_spec_2,
 } 
 #endif /* USE_PYTHON */
 
+// This is model manipulation, it does not belong here.
+//
+// tors is in degrees.
+#ifdef USE_GUILE
+SCM set_torsion_scm(int imol, const char *chain_id, int res_no, const char *insertion_code,
+		    const char *alt_conf,
+		    const char *atom_name_1,
+		    const char *atom_name_2,
+		    const char *atom_name_3,
+		    const char *atom_name_4,
+		    double tors) { 
 
-#ifdef __cplusplus
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      double new_tors = g.molecules[imol].set_torsion(chain_id, res_no,
+						      insertion_code, alt_conf,
+						      atom_name_1,
+						      atom_name_2,
+						      atom_name_3,
+						      atom_name_4, tors,
+						      *g.Geom_p());
+      r = scm_double2num(new_tors);
+   }
+   return r;
+}
+#endif // USE_GUILE
+
+
+
 #ifdef USE_GUILE
 /*! \brief return the parsed user mod fields from the PDB file
   file_name (output by reduce most likely) */
@@ -1968,4 +1998,4 @@ PyObject *user_mods_py(const char *file_name) {
    return f.user_mods_py();
 }
 #endif // USE_PYTHON
-#endif	/* c++ */
+
