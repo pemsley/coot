@@ -575,14 +575,15 @@ double
 coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &atom2,
 				double angle, bool reversed_flag) {
 
+   bool debug = 0;
    double new_torsion = 0.0;
    // OK, so when the user clicks atom2 then atom1 (as the middle 2
    // atoms), then they implictly want the fragment revsersed,
-   // relative to the atom order internally.  In that case, se
+   // relative to the atom order internally.  In that case, set
    // internal_reversed, and only if it is not set and the
    // reversed_flag flag *is* set, do the reversal (if both are set
    // they cancel each other out).  Now we do not pre-reverse the
-   // indices in the calling function. The revere is done here.
+   // indices in the calling function. The reverse is done here.
    bool internal_reversed = 0;
    
    coot::map_index_t index2 = name_to_index[atom1];
@@ -627,6 +628,9 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    // around index2 and 3 into "standard" order.
 	    // 
 	    if (index2_is_forward) {
+	       if (debug)
+		  std::cout << "    index2 was the forward atom of index3 - swapping "
+			    << "and setting internal_reversed" << std::endl;
 	       std::swap(index2, index3);
 	       index3_is_forward = 1;
 	       internal_reversed = 1;
@@ -640,8 +644,11 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	       get_forward_atoms(index3, index3);
 	    std::vector<coot::map_index_t> moving_atom_indices =
 	       moving_atom_indices_pair.second;
-// 	    std::cout << " in rotate_about get_forward_atoms called " << moving_atom_indices_pair.first
-// 		      << " times - indices size: " << moving_atom_indices_pair.second.size() << std::endl;
+	    if (debug) 
+	       std::cout << " in rotate_about() get_forward_atoms() called "
+			 << moving_atom_indices_pair.first
+			 << " times - indices size: "
+			 << moving_atom_indices_pair.second.size() << std::endl;
 
 	    // Maybe a synthetic forward atom was made, and later on
 	    // in the dictionary, it was a real (normal) forward atom
@@ -652,11 +659,11 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    std::vector<coot::map_index_t> unique_moving_atom_indices =
 	       uniquify_atom_indices(moving_atom_indices);
 
-	    if (0) {
-	       std::cout << "number of moving atoms based on atom index " << index3.index()
+	    if (debug) {
+	       std::cout << "  number of moving atoms based on atom index " << index3.index()
 			 << " is " << moving_atom_indices.size() << std::endl;
 	       for (unsigned int imov=0; imov<unique_moving_atom_indices.size(); imov++) {
-		  std::cout << "now  moving atom[" << imov << "] is "
+		  std::cout << "now pre-reverse  moving atom[" << imov << "] is "
 			    << unique_moving_atom_indices[imov].index() << std::endl;
 	       }
 	    }
@@ -667,10 +674,16 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    //      1                0          complementary_indices
 	    //      1                1             -
 
-	    bool xorv = reversed_flag ^ internal_reversed;
-	    if (xorv)
+	    bool xor_reverse = reversed_flag ^ internal_reversed;
+	    if (xor_reverse) {
 	       unique_moving_atom_indices = complementary_indices(unique_moving_atom_indices,
 								  index2, index3);
+	       if (debug)
+		  for (unsigned int imov=0; imov<unique_moving_atom_indices.size(); imov++) {
+		     std::cout << "now post-reverse  moving atom[" << imov << "] is "
+			       << unique_moving_atom_indices[imov].index() << std::endl;
+		  }
+	    }
 
 	    // so now we have a set of moving atoms:
 	    // set up the coordinates for the rotation, and rotate
@@ -682,7 +695,16 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 	    clipper::Coord_orth base_atom_pos(at2->x, at2->y, at2->z);
 	    clipper::Coord_orth    third_atom(at3->x, at3->y, at3->z);;
 	    clipper::Coord_orth direction = third_atom - base_atom_pos;
+	    if (xor_reverse) {
+	       direction = base_atom_pos - third_atom;
+	       base_atom_pos = third_atom;
+	    }
 
+	    if (debug)
+	       std::cout << " calling rotate_internal() vector "
+			 <<  direction.format() << " with base position "
+			 << base_atom_pos.format() << " by " << angle
+			 << std::endl;
 	    rotate_internal(unique_moving_atom_indices, direction, base_atom_pos, angle);
 
 	    // set the new_torsion (return value) if possible.
@@ -891,8 +913,11 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::map_index_t> moving_atom_in
 				   const clipper::Coord_orth &base_atom_pos,
 				   double angle) {
 
-//    std::cout << "in rotate_internal with " << moving_atom_indices.size() << " moving atoms "
-// 	     << std::endl;
+   bool debug = 0;
+
+   if (debug)
+      std::cout << "in rotate_internal with " << moving_atom_indices.size()
+		<< " moving atoms " << std::endl;
    PPCAtom residue_atoms = 0;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -902,9 +927,9 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::map_index_t> moving_atom_in
       CAtom *at = residue_atoms[idx];
       clipper::Coord_orth po(at->x, at->y, at->z);
       clipper::Coord_orth pt = coot::util::rotate_round_vector(dir, po, base_atom_pos, angle);
-      if (0)
-	 std::cout << " rotate_internal() moving atom number " << im << " " << at->name
-		   << " from " << at->x << "," << at->y << "," << at->z << " "
+      if (debug)
+	 std::cout << "  rotate_internal() moving atom number " << im << " " << at->name
+		   << " from\n    " << at->x << "," << at->y << "," << at->z << " to "
 		   << pt.format() << std::endl;
       at->x = pt.x(); 
       at->y = pt.y(); 
@@ -924,11 +949,6 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 //       std::cout << ":" << it->first << ": -> " <<  it->second.index() << std::endl;
 //    } 
    
-   std::cout << "in set_dihedral() the atom names are 1 " << atom1 << std::endl;
-   std::cout << "in set_dihedral() the atom names are 2 " << atom2 << std::endl;
-   std::cout << "in set_dihedral() the atom names are 3 " << atom3 << std::endl;
-   std::cout << "in set_dihedral() the atom names are 4 " << atom4 << std::endl;
-
    double dihedral_angle = 0.0;
 
    coot::map_index_t i1 = name_to_index[atom1];
@@ -949,9 +969,10 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 	 // take out this try/catch when done.
 	 rotate_about(atom2, atom3, clipper::Util::d2rad(diff), 0);
 	 dihedral_angle = iq.torsion(residue);
-	 std::cout << "current, target, diff new "
-		   << current_dihedral_angle << "  " << angle << "  " << diff << "  " << dihedral_angle
-		   << std::endl;
+	 if (0) 
+	    std::cout << "current, target, diff new "
+		      << current_dihedral_angle << "  " << angle << "  " << diff << "  "
+		      << dihedral_angle << std::endl;
       }
       catch (std::runtime_error rte) {
 	 std::cout << rte.what() << std::endl;

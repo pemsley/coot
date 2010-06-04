@@ -7652,6 +7652,52 @@ molecule_class_info_t::residues_near_residue(const coot::residue_spec_t &rspec, 
 }
 
 
+// return the resulting torsion value.  In degrees.  The input angle tors is in degrees.
+// 
+double
+molecule_class_info_t::set_torsion(const std::string &chain_id,
+				   int res_no,
+				   const std::string &insertion_code,
+				   const std::string &alt_conf,
+				   const std::string &atom_name_1,
+				   const std::string &atom_name_2,
+				   const std::string &atom_name_3,
+				   const std::string &atom_name_4,
+				   double tors,
+				   const coot::protein_geometry &geom) {
+
+   double r = -999.9;
+
+   CResidue *residue_p = get_residue(chain_id, res_no, insertion_code);
+
+   if (!residue_p) {
+      std::cout << "WARNING:: failed to get residue with specs :"
+		<< chain_id << ": " << res_no << " :" << insertion_code
+		<< ":" << std::endl;
+   } else {
+      std::string res_name(residue_p->GetResName());
+      std::pair<bool, coot::dictionary_residue_restraints_t> restraints_info = 
+	 geom.get_monomer_restraints(res_name);
+      if (! restraints_info.first) {
+	 std::cout << "WARNING:: No restraints for " << res_name << std::endl;
+      } else { 
+	 make_backup();
+	 coot::atom_tree_t tree(restraints_info.second, residue_p, alt_conf);
+	    
+	 r = tree.set_dihedral(atom_name_1,
+			       atom_name_2,
+			       atom_name_3,
+			       atom_name_4,
+			       tors);
+	 atom_sel.mol->FinishStructEdit();
+	 make_bonds_type_checked(); // calls update_ghosts()
+	 have_unsaved_changes_flag = 1;
+      }
+   }
+   return r;
+}
+
+
 // manipulate torsion angles of first residue in the molecule to
 // match those of the passed (reference residue (from a different
 // molecule, typically).
@@ -7661,7 +7707,6 @@ molecule_class_info_t::match_torsions(CResidue *res_ref,
 				      const std::vector <coot::dict_torsion_restraint_t> &tr_ref_res,
 				      const coot::protein_geometry &geom) {
 
-   std::cout << "----------- here in molecule_class_info_t::match_torsions() " << std::endl;
 
    int n_torsions_moved = 0;
    make_backup();
@@ -7686,11 +7731,7 @@ molecule_class_info_t::match_torsions(CResidue *res_ref,
 	    // set the torsions of res_ligand to match those of res_ref.
 	    // 
 	    // moving then reference
-	    std::cout << "----------- in molecule_class_info_t::match_torsions() class "
-		      << "coot::match_torsions() " << std::endl;
 	    coot::match_torsions mt(res_ligand, res_ref, ligand_restraints_info.second);
-	    std::cout << "----------- in molecule_class_info_t::match_torsions class "
-		      << "coot::match_torsions::match() " << std::endl;
 	    n_torsions_moved = mt.match(tr_ligand, tr_ref_res);
 	 }
       }

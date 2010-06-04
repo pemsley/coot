@@ -85,8 +85,6 @@ overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
 void
 match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref) {
 
-   std::cout << "----------- inside c++: match_ligand_torsions() " << std::endl;
-   std::cout << "----------- inside c++: testing " << imol_ligand << " " << imol_ref << std::endl;
    
    if (!is_valid_model_molecule(imol_ligand)) {
       std::cout << "WARNING molecule number " << imol_ligand << " is not a valid model molecule"
@@ -96,7 +94,7 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	 std::cout << "WARNING molecule number " << imol_ref << " is not a valid model molecule"
 		   << std::endl;
       } else { 
-	 std::cout << "----------- inside c++: here 0 " << std::endl;
+
 	 CMMDBManager *mol_ref = graphics_info_t::molecules[imol_ref].atom_sel.mol;
 	 CResidue *res_ref = coot::util::get_residue(chain_id_ref,
 						     resno_ref, "",
@@ -125,8 +123,6 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	       safe_scheme_command(s_cmd);
 
 
-	       std::cout << "----------- inside c++: here 1 " << std::endl;
-
 	       // try again to get restraints_info
 	       restraints_info = g.Geom_p()->get_monomer_restraints(res_name_ref_res);
 	       if (!restraints_info.first) {
@@ -143,7 +139,6 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 			 << std::endl;
 	    } else {
 	       // normal case
-	       std::cout << "----------- inside c++: here 2 " << std::endl;
 	       graphics_info_t::molecules[imol_ligand].match_torsions(res_ref, tr,
 								      *g.Geom_p());
 	    } 

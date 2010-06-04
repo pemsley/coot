@@ -317,14 +317,11 @@ int
 coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  &tr_moving,
 			    const std::vector <coot::dict_torsion_restraint_t>  &tr_ref) {
 
-   std::cout << "----------- in coot::match_torsions.match()  " << std::endl;
-
    coot::graph_match_info_t match_info = coot::graph_match(res_moving, res_ref, 0);
 
    if (! match_info.success) {
       std::cout << "WARNING:: Failed to match graphs " << std::endl;
    } else { 
-      std::cout << "----------- in coot::match_torsions.match() good match" << std::endl;
       std::string alt_conf = ""; // kludge it in
 
       // std::map<std::pair<std::string, std::string>, std::pair<std::string, std::string> > atom_name_map;
@@ -337,16 +334,14 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
       for (unsigned int i=0; i<match_info.matching_atom_names.size(); i++) { 
 	 atom_name_map[match_info.matching_atom_names[i].second.first] =
 	    match_info.matching_atom_names[i].first.first;
-	 std::cout << "      name map construction  :"
-		   << match_info.matching_atom_names[i].second.first
-		   << ": -> :"
-		   << match_info.matching_atom_names[i].first.first
-		   << ":\n";
-      } 
+	 if (0) 
+	    std::cout << "      name map construction  :"
+		      << match_info.matching_atom_names[i].second.first
+		      << ": -> :"
+		      << match_info.matching_atom_names[i].first.first
+		      << ":\n";
+      }
 
-      std::cout << "----------- in coot::match_torsions.match() atom_name_map map size "
-		<< atom_name_map.size() << std::endl;
-      
       for (unsigned int itr=0; itr<tr_ref.size(); itr++) {
 	 coot::atom_name_quad quad_ref(tr_ref[itr].atom_id_1_4c(),
 				       tr_ref[itr].atom_id_2_4c(),
@@ -377,7 +372,6 @@ coot::match_torsions::apply_torsion(const coot::atom_name_quad &moving_quad,
 				    const coot::atom_name_quad &reference_quad,
 				    const std::string &alt_conf) {
 
-   std::cout << "----------- in coot::match_torsions.apply_torsion()  " << std::endl;
    
    std::vector<CAtom *> reference_atoms(4, static_cast<CAtom *> (NULL));
    std::vector<CAtom *> moving_atoms(4, static_cast<CAtom *> (NULL));
@@ -401,19 +395,12 @@ coot::match_torsions::apply_torsion(const coot::atom_name_quad &moving_quad,
 					 reference_atoms[i]->z);
 	 double tors = clipper::Coord_orth::torsion(pts[0], pts[1], pts[2], pts[3]); // radians
 
-	 std::cout << "----------- in coot::match_torsions.apply_torsion()  "
-		   << reference_quad << " has torsion " << tors * 180/M_PI << std::endl;
-
 	 try {
 	    coot::atom_tree_t tree(moving_residue_restraints, res_moving, alt_conf);
 	    
 	    double new_angle = tree.set_dihedral(moving_quad.atom1, moving_quad.atom2,
 						 moving_quad.atom3, moving_quad.atom4,
 						 tors * 180/M_PI);
-	    
-	    std::cout << "----------- in coot::match_torsions.apply_torsion()  "
-		      << tors * 180/M_PI << " applied gives " << new_angle << std::endl;
-	    
 	 }
 	 catch (std::runtime_error rte) {
 	    std::cout << "WARNING setting dihedral failed, " << rte.what() << std::endl;

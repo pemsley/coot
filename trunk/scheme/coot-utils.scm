@@ -85,6 +85,7 @@
 (define handle-pisa-interfaces handle-pisa-interfaces-scm)
 (define space-group space-group-scm)
 (define nearest-residue-by-sequence nearest-residue-by-sequence-scm)
+(define set-torsion set-torsion-scm)
 
 ;; documented functions
 
