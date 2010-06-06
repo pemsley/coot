@@ -1978,6 +1978,35 @@ SCM set_torsion_scm(int imol, const char *chain_id, int res_no, const char *inse
 }
 #endif // USE_GUILE
 
+// This is model manipulation, it does not belong here (as above).
+//
+// tors is in degrees.
+#ifdef USE_PYTHON
+PyObject *set_torsion_py(int imol, const char *chain_id, int res_no, const char *insertion_code,
+                         const char *alt_conf,
+                         const char *atom_name_1,
+                         const char *atom_name_2,
+                         const char *atom_name_3,
+                         const char *atom_name_4,
+                         double tors) { 
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      double new_tors = g.molecules[imol].set_torsion(chain_id, res_no,
+						      insertion_code, alt_conf,
+						      atom_name_1,
+						      atom_name_2,
+						      atom_name_3,
+						      atom_name_4, tors,
+						      *g.Geom_p());
+      r = PyFloat_FromDouble(new_tors);
+   }
+   if (PyBool_Check(r))
+     Py_XINCREF(r);
+   return r;
+}
+#endif // USE_PYTHON
 
 
 #ifdef USE_GUILE
