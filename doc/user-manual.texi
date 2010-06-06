@@ -2767,6 +2767,11 @@ using values of 2 and 3 for @code{@emph{start-res-no}} and
 Again, the length of the sequence must correspond to the residue range
 length.  Note also that this is a protein sequence - not nucleic acid.
 
+For mutation of nucleic acids, use: 
+
+@code{(mutate-nucleotide-range @emph{imol chain-id resno-start
+      resno-end sequence})}
+
 @subsection Mutating to a Non-Standard Residue
 
 Sometimes one might like to model post-translational or other such
