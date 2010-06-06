@@ -3514,7 +3514,7 @@ SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, floa
 SCM get_torsion_scm(int imol, SCM atom_spec_1, SCM atom_spec_2, SCM atom_spec_3, SCM atom_spec_4);
 
 /*! \brief set the given torsion the given residue. tors is in
-  degrees.  Return the resulting torsino (also in degrees). */
+  degrees.  Return the resulting torsion (also in degrees). */
 SCM set_torsion_scm(int imol, const char *chain_id, int res_no, const char *insertion_code,
 		    const char *alt_conf,
 		    const char *atom_name_1,
@@ -3527,6 +3527,15 @@ SCM set_torsion_scm(int imol, const char *chain_id, int res_no, const char *inse
 
 #ifdef USE_PYTHON
 PyObject *get_torsion_py(int imol, PyObject *atom_spec_1, PyObject *atom_spec_2, PyObject *atom_spec_3, PyObject *atom_spec_4);
+
+/*! \brief set the given torsion the given residue. tors is in
+  degrees.  Return the resulting torsion (also in degrees). */
+PyObject *set_torsion_py(int imol, const char *chain_id, int res_no, const char *insertion_code,
+		         const char *alt_conf,
+		         const char *atom_name_1,
+		         const char *atom_name_2,
+		         const char *atom_name_3,
+		         const char *atom_name_4, double tors);
 #endif  /* USE_PYTHON */
 
 

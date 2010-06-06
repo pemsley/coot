@@ -2604,6 +2604,7 @@ pkgdatadir             = get_pkgdatadir_py
 matching_compound_names_from_sbase = matching_compound_names_from_sbase_py
 user_defined_click     = user_defined_click_py
 get_torsion            = get_torsion_py
+set_torsion            = set_torsion_py
 space_group            = space_group_py
 
 # graphics_info.h:
