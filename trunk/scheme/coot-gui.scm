@@ -761,9 +761,9 @@
     
     (gtk-widget-show-all window)))
 
-;; Fire up a molecule chooser dialog, with a given label and on OK we
-;; call the call-back-fuction with an argument of the chosen molecule
-;; number. 
+;; Fire up a coordinates/model molecule chooser dialog, with a given
+;; label and on OK we call the call-back-fuction with an argument of
+;; the chosen molecule number.
 ;; 
 ;; chooser-label is a directive to the user such as "Choose a Molecule"
 ;; 
@@ -774,7 +774,16 @@
   (lambda (chooser-label callback-function)
     (molecule-chooser-gui-generic chooser-label callback-function 
 				  fill-option-menu-with-coordinates-mol-options)))
-
+;; 
+;; Fire up a map molecule chooser dialog, with a given label and on OK we
+;; call the call-back-fuction with an argument of the chosen molecule
+;; number. 
+;; 
+;; chooser-label is a directive to the user such as "Choose a Molecule"
+;; 
+;; callback-function is a function that takes a molecule number as an
+;; argument.
+;; 
 (define map-molecule-chooser-gui
   (lambda (chooser-label callback-function)
     (molecule-chooser-gui-generic chooser-label callback-function 
