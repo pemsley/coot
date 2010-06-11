@@ -326,11 +326,11 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				 
 				 addBond(HYDROGEN_GREY_BOND, atom_1, atom_2);
 			      }
-			} 
+			   } // not hydrogen test
 		  
 			} else {
 		  
-			   // Bonded to same an atom of the same element.
+			   // Bonded to an atom of the same element.
 			   //
 			   col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
 			   addBond(col, atom_1, atom_2);
