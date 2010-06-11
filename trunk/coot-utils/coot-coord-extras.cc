@@ -354,7 +354,11 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 					  atom_name_map[tr_ref[itr].atom_id_4_4c()]);
 
 	 if (quad_ref.all_non_blank()) 
-	    if (quad_moving.all_non_blank()) 
+	    if (quad_moving.all_non_blank())
+
+	       std::cout << "  Reference torsion: "
+			 << ":" << tr_ref[itr].format() << " maps to "
+			 << quad_moving << std::endl;
 	       apply_torsion(quad_moving, quad_ref, alt_conf);
       }
    }

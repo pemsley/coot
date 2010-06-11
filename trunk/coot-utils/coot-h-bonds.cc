@@ -9,7 +9,7 @@
 std::vector<coot::h_bond>
 coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::protein_geometry &geom) {
 
-   bool debug = 1;
+   bool debug = 0;
    
    realtype min_dist = 2.4; // H-bonds are longer than this
    realtype max_dist = 3.9; // H-bonds are shorter than this
@@ -221,7 +221,7 @@ int
 coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, CMMDBManager *mol,
 					 const coot::protein_geometry &geom) {
 
-   bool debug = 1;
+   bool debug = 0;
    PPCAtom sel_1_atoms = 0;
    PPCAtom sel_2_atoms = 0;
    int n_sel_1_atoms;
@@ -360,7 +360,7 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol)
       std::sort(it->second.begin(), it->second.end(), as);
    }
 
-   bool debug = 1;
+   bool debug = 0;
 
    // were they sorted correctly?  Debug
    //
