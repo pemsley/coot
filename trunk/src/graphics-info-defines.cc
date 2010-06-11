@@ -1300,7 +1300,8 @@ graphics_info_t::check_if_in_auto_fit_define(GdkEventButton *event) {
 	    std::string chain(atom_p->GetChainID());
 	    std::string altloc(atom_p->altLoc);
 	    
-	    float f = molecules[imol].auto_fit_best_rotamer(rotamer_search_mode, resno, altloc, inscode, chain,
+	    float f = molecules[imol].auto_fit_best_rotamer(rotamer_search_mode,
+							    resno, altloc, inscode, chain,
 							    imol_map, rotamer_fit_clash_flag,
 							    rotamer_lowest_probability, *Geom_p());
 	    if (rotamer_auto_fit_do_post_refine_flag) {

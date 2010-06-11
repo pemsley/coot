@@ -375,8 +375,8 @@ namespace coot {
       static float dot_product(const view_info_t &view1,
 			       const view_info_t &view2);
 
-      friend std::ofstream& operator<<(std::ofstream &stream, 
-				       view_info_t &view);
+      friend std::ostream& operator<<(std::ostream &stream, 
+				      view_info_t &view);
    };
 
    class console_display_commands_t {

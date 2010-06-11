@@ -105,6 +105,7 @@
 
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "c-interface-ligands.hh"
 
 #include "nsv.hh"
 
@@ -4252,6 +4253,12 @@ int test_function(int i, int j) {
 
 
    if (1) {
+      std::vector<std::pair<std::string, int> > h = 
+	 coot::get_prodrg_hybridizations("coot-ccp4/tmp-prodrg-flat.log");
+      
+   } 
+
+   if (0) {
       // atom_selection_container_t asc = get_atom_selection("double.pdb");
       atom_selection_container_t asc = get_atom_selection("test-frag.pdb");
       coot::dots_representation_info_t dots;

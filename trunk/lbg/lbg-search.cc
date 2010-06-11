@@ -173,7 +173,7 @@ lbg_info_t::compare_vs_sbase(CGraph *graph_1, float similarity, int n_vertices) 
 		(n2 < (2.0 - double(similarity)) * double(n_vertices))) { 
 
 	       graph_2->MakeVertexIDs();
-	       graph_2->Build(True);
+	       graph_2->Build(False); // 20100608 was True
 
 	       CGraphMatch *match  = new CGraphMatch();
 	       if (min_match > 0) { 

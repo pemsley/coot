@@ -28,17 +28,38 @@ namespace coot {
 
    class pi_stacking_instance_t {
    public:
-      enum { PI_PI_STACKING, PI_CATION_STACKING };
+
+      // CATION_PI_STACKING sets ligand_cationic_atom_name, not the
+      // ligand_ring_atom_names vector.
+      //
+      enum { PI_PI_STACKING,
+	     PI_CATION_STACKING, // for cations on the protein residues (ligand pi)
+	     CATION_PI_STACKING, // for cations on the ligand (protein TRY, PRO, TRP)
+      };
       CResidue *res;
       int type; // pi-pi or pi-cation
       std::vector<std::string> ligand_ring_atom_names;
+      float overlap_score; 
+      std::string ligand_cationic_atom_name; // for cations on the ligand
       pi_stacking_instance_t(CResidue *res_in, int type_in,
 			     const std::vector<std::string> &ring_atoms) {
 	 res = res_in;
 	 type = type_in;
 	 ligand_ring_atom_names = ring_atoms;
       }
+      
+      // and the constructor for CATION_PI_STACKING
+      // 
+      pi_stacking_instance_t(CResidue *residue_in,
+			     const std::string &ligand_atom_name_in) {
+	 type = CATION_PI_STACKING;
+	 res = residue_in;
+	 ligand_cationic_atom_name = ligand_atom_name_in;
+	 overlap_score = 0;
+      }
+      friend std::ostream& operator<< (std::ostream& s, const pi_stacking_instance_t &spec);
    };
+   std::ostream& operator<< (std::ostream& s, const pi_stacking_instance_t &spec);
 
    class pi_stacking_container_t {
    private: 
@@ -71,6 +92,11 @@ namespace coot {
 			   const clipper::Coord_orth &cation_atom_point) const;
 
       std::vector<clipper::Coord_orth> get_cation_atom_positions(CResidue *res) const;
+      // by search through res_ref
+      std::vector<std::pair<std::string, clipper::Coord_orth> > get_ligand_cations(CResidue *res, const coot::dictionary_residue_restraints_t &monomer_restraints) const;
+
+      std::vector<std::vector<std::string> >
+      get_ligand_aromatic_ring_list(const dictionary_residue_restraints_t &monomer_restraints) const;
       
       
    public:
@@ -181,4 +207,14 @@ namespace coot {
 
    bool standard_residue_name_p(const std::string &rn);
 
+   enum { SP_HYBRIDIZATION, SP2_HYBRIDIZATION, SP3_HYBRIDIZATION };
+
+   std::vector<std::pair<std::string, int> >
+   get_prodrg_hybridizations(const std::string &prodrg_log_file_name);
+
+   std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > >
+   get_cannonball_vectors(CResidue *ligand_res_3d,
+			  const coot::dictionary_residue_restraints_t &monomer_restraints);
+
+   
 }

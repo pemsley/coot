@@ -194,13 +194,21 @@ public:
       bool   se_diff_set_;
       double se_holo; 
       double se_apo;
-      std::vector<std::string> ligand_ring_atom_names;
       int stacking_type;
+      std::vector<std::string> ligand_ring_atom_names;
+      std::string ligand_cation_atom_name;
       bool is_a_primary_residue_; // primary residues are stacking or
 				  // bond and are placed first looking
 				  // for non-overlaping
 				  // interaction-bond lines.
    public:
+      // CATION_PI_STACKING sets ligand_cationic_atom_name, not the
+      // ligand_ring_atom_names vector.
+      //
+      enum { PI_PI_STACKING,
+	     PI_CATION_STACKING, // for cations on the protein residues (ligand pi)
+	     CATION_PI_STACKING, // for cations on the ligand (protein TRY, PRO, TRP)
+      };
       double pos_x; // input coordinate reference frame
       double pos_y;
       double pos_z;
@@ -237,13 +245,27 @@ public:
 	 se_diff_set_ = 1;
       }
       void set_stacking(const std::string &type_string,
-			const std::vector<std::string> &ligand_ring_atom_names_in) {
+			const std::vector<std::string> &ligand_ring_atom_names_in,
+			const std::string &ligand_cation_atom_name_in) {
 	 is_a_primary_residue_ = 1;
 	 if (type_string == "pi-pi")
-	    stacking_type = 0; // should be enumerated values
+	    stacking_type = PI_PI_STACKING;
 	 if (type_string == "pi-cation")
-	    stacking_type = 1;
-	 ligand_ring_atom_names = ligand_ring_atom_names_in;
+	    stacking_type = PI_CATION_STACKING;
+	 if (type_string == "cation-pi")
+	    stacking_type = CATION_PI_STACKING;
+	 if (stacking_type == PI_PI_STACKING)
+	    ligand_ring_atom_names = ligand_ring_atom_names_in;
+	 if (stacking_type == PI_CATION_STACKING)
+	    ligand_ring_atom_names = ligand_ring_atom_names_in;
+	 if (stacking_type == CATION_PI_STACKING)
+	    ligand_cation_atom_name = ligand_cation_atom_name_in;
+      }
+      int get_stacking_type() const {
+	 return stacking_type;
+      }
+      std::string get_ligand_cation_atom_name() const {
+	 return ligand_cation_atom_name;
       }
       bool se_diff_set() const {
 	 return se_diff_set_;
@@ -257,7 +279,7 @@ public:
       std::vector<std::string> get_ligand_ring_atom_names() const {
 	 return ligand_ring_atom_names;
       }
-      bool has_stacking_interaction() const {
+      bool has_ring_stacking_interaction() const {
 	 return (ligand_ring_atom_names.size() > 0);
       }
       bool is_a_primary_residue() const {
@@ -468,8 +490,8 @@ private:
 
    int get_min_match(const int &n1) const {
       int most_1 = int (search_similarity * float(n1));
-      // return most_1;
-      return n1;
+      return most_1;
+      // return n1;
    }
 
    // not used.
@@ -489,9 +511,13 @@ private:
    void rotate_latest_bond(int x, int y);
    void rotate_or_extend_latest_bond(int x, int y);
    void extend_latest_bond(); // use hilight_data
-   void orthogonalise_2_bonds(int atom_index,
-			      const std::vector<int> &attached_bonds,
-			      const std::vector<int> &bond_indices);
+
+   // return the bond between the ligand "core" and the atom_index
+   // (one of bond_indices)
+   // 
+   widgeted_bond_t orthogonalise_2_bonds(int atom_index,
+					 const std::vector<int> &attached_bonds,
+					 const std::vector<int> &bond_indices);
    std::vector<residue_circle_t> residue_circles;
 
    widgeted_molecule_t translate_molecule(const lig_build::pos_t &delta);
@@ -541,7 +567,8 @@ private:
 				     GooCanvasItem *group);
    std::string get_residue_solvent_exposure_fill_colour(double radius_extra) const;
    void draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
-				     const lig_build::pos_t &residue_pos);
+				     const lig_build::pos_t &residue_pos,
+				     int stacking_type);
    void draw_all_residue_attribs();
    void handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb_file,
 						 const std::string &coot_mdl_file,

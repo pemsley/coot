@@ -99,7 +99,7 @@ class widgeted_atom_t : public lig_build::atom_t {
 						  NULL);
 
       double pos_p2_x = atom_position.x + 13;
-      double pos_p2_y = atom_position.y + 2;
+      double pos_p2_y = atom_position.y + 4;
       
       GooCanvasItem *item_2 = goo_canvas_text_new(group, p2.c_str(),
 						  pos_p2_x, pos_p2_y, -1,
@@ -514,6 +514,8 @@ public:
    //
    std::pair<lig_build::pos_t, lig_build::pos_t> ligand_extents() const;
 
-   int n_open_bonds() const; 
+   int n_open_bonds() const;
+
+   bool is_close_to_non_last_atom(const lig_build::pos_t &test_post) const; 
    
 };

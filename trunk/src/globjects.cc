@@ -106,7 +106,7 @@ std::vector<coot::view_info_t> *graphics_info_t::views = 0;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 
 // Views 
-float graphics_info_t::views_play_speed = 1.0;
+float graphics_info_t::views_play_speed = 10.0;
 
 // movies
 std::string graphics_info_t::movie_file_prefix = "movie_";

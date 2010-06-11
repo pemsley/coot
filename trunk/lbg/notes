@@ -6,6 +6,10 @@ test ligands:
 3lhj A 361  LHJ
 3hvh A 1    542 
 2aei ??? 
+1g3b ??? horrific ligand layout-based star wars problems.
+2rh1 A 408  CAU (important to get this better looking). 
+            What about the ASN A312 H-bond donor to the H on the ligand?
+            Mistake, I feel - needs investigating.
 
 ----
 Fri May 28 22:55:28 BST 2010
@@ -17,22 +21,17 @@ Fri May 28 22:55:28 BST 2010
     o Need to show findligand script with a ccp4mg headless back-end
       for images.
 
------
-Tue Jun  1 22:12:57 BST 2010
-
-
-   Make a 6 membered ring - saturated.
-
-   replace a C with an N.
-
-   add an H.  Add another H, N should go to N+, but does not until the 
-   canvas drag.
-
 
 ---
-Mon May 31 12:48:45 BST 2010
+Thu Jun 10 03:05:29 CEST 2010
 
-   Addding a bond to a CH4 should change the CH4 to a normal carbon.
+    HIS for pi-pi stacking?
+
+---
+Fri Jun  4 11:56:40 CEST 2010
+
+	Note:  cprodrg struggles and fails with the ATP in 1ATN.
+	(Grrr...)
 
 ---
 Mon May 31 11:03:59 BST 2010
@@ -46,41 +45,11 @@ Mon May 31 11:03:59 BST 2010
 ----
 Sun May 30 08:56:48 BST 2010
 
-     press smiles button, close dialog, press smiles button again.
+     press SMILES button, close dialog, press SMILES button again.
 
-----
-Tue May 11 15:30:27 BST 2010
+     likewise for the info dialog
 
-  Don't write out waters that do not have bonds to the ligand (flev.cc)
-
-* Addressed by contact cut-offs in lbg
-
-----
-Mon May 24 13:12:02 BST 2010
-
-   metal contacts
-
-* Done.
-
----
-Wed May 26 00:38:07 BST 2010
-
-   Prodrg makes cif files that are non-polymers.  such things fail to
-   make links from find_link_rigorous().  Hence no covalent links from
-   PRODRG-generated dictionary cifs.  
-
-   OK, so when we are displaying a regular residue (standard residues
-   perhaps?), one that we have in the dictionary..., then don't read in
-   the prodrg dictionary - read in the refmac one (if necessary).
-
-* Done.
-
----
-Mon May 24 13:16:54 BST 2010
-
-   covalent attachments
-
-* Done.
+     Mail list.  Give triv example.
 
 ---
 Mon May 24 16:15:17 BST 2010
@@ -89,14 +58,6 @@ Mon May 24 16:15:17 BST 2010
     of the ligand (reject on angles somehow?).  This might be
     impossible without generating hydrogen positions.
 
----
-Mon May 24 13:21:39 BST 2010
-
-   HOHs in residue-info.txt should have the length of the qualifying
-   distance to the nearest protein donor/acceptor (so that can be
-   used for rejection criterion in lbg/flev).
-
-* Done.
 
 ------
 Tue Apr 13 14:33:21 BST 2010
@@ -116,12 +77,7 @@ Sat May  8 13:59:58 UYT 2010
 
     Need to add cation-pi interaction (flev.cc obviously)
 
------
-Sat May  8 10:06:59 UYT 2010
-
-   Fix up SINGLE_BOND_CANVAS_LENGTH usage in wmolecule.
-   Replace by LIGAND_TO_CANVAS_SCALE_FACTOR usage.
-
+    Make a synthetic example 
 
 ------
   
@@ -256,7 +212,7 @@ INFO::
 ------
 Mon May 31 12:30:34 BST 2010
 
-   references on molinspirpation page:
+   INFO:: references on molinspirpation page:
 
     * P. Ertl, B. Rohde, P. Selzer, Fast calculation of molecular
       polar surface area as a sum of fragment-based contributions and
@@ -273,6 +229,15 @@ Mon May 31 12:30:34 BST 2010
       bioavailability of drug candidates. J.Med.Chem. 45, 2615-2623
       (2002).
 
+-----
+
+    INFO:: John Irwin Workshop
+
+    molinspiration for calculation of logP (Wang algorithm or derivatives thereof)
+
+    -1 to 3 are good values, more than 3 means too insoluble
+
+    < -1 is too soluble (atp -6? or so) 
 
 ===============================================================================
 
@@ -470,3 +435,81 @@ void            goo_canvas_render           (GooCanvas             *canvas,
    consider adding a callback to the scroll-event event on the root canvas
 
 * Done
+
+-----
+Tue Jun  1 22:12:57 BST 2010
+
+
+   Make a 6 membered ring - saturated.
+
+   replace a C with an N.
+
+   add an bond. Add another bond, N should go to N+, but does not until the 
+   canvas drag.
+
+   Sat Jun  5 00:17:32 CEST 2010
+   actually, it crashes now :)
+
+* Fixed. squeeze_in_a_4th_bond() needs to update the atom ids after
+  bond addition.
+
+---
+Mon May 31 12:48:45 BST 2010
+
+   Addding a bond to a CH4 should change the CH4 to a normal carbon.
+
+* Fixed.
+
+----
+Tue May 11 15:30:27 BST 2010
+
+  Don't write out waters that do not have bonds to the ligand (flev.cc)
+
+* Addressed by contact cut-offs in lbg
+
+----
+Mon May 24 13:12:02 BST 2010
+
+   metal contacts
+
+* Done.
+
+---
+Wed May 26 00:38:07 BST 2010
+
+   Prodrg makes cif files that are non-polymers.  such things fail to
+   make links from find_link_rigorous().  Hence no covalent links from
+   PRODRG-generated dictionary cifs.  
+
+   OK, so when we are displaying a regular residue (standard residues
+   perhaps?), one that we have in the dictionary..., then don't read in
+   the prodrg dictionary - read in the refmac one (if necessary).
+
+* Done.
+
+---
+Mon May 24 13:16:54 BST 2010
+
+   covalent attachments
+
+* Done.
+
+---
+Mon May 24 13:21:39 BST 2010
+
+   HOHs in residue-info.txt should have the length of the qualifying
+   distance to the nearest protein donor/acceptor (so that can be
+   used for rejection criterion in lbg/flev).
+
+* Done.
+
+-----
+Sat May  8 10:06:59 UYT 2010
+
+   Fix up SINGLE_BOND_CANVAS_LENGTH usage in wmolecule.
+   Replace by LIGAND_TO_CANVAS_SCALE_FACTOR usage.
+
+* Done.
+
+
+-----

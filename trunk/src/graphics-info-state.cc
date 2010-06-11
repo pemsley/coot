@@ -360,6 +360,20 @@ graphics_info_t::save_state_file(const std::string &filename) {
 
 	       // Additional Representations
 	       if (molecules[i].add_reps.size() > 0) {
+
+		  // First the "all" status for the additional representation of this molecule.
+		  // Ooops. This is not (yet) a separate state.  Currently, pressing the button
+		  // simply turns on (or off) all representations.  The display manager does not
+		  // save the state of this button (if it is off, closed and then openned then the
+		  // "all" button is not shown!)
+		  
+// 		  active_strings.clear();
+// 		  active_strings.push_back("set-show-all-additional-representations");
+// 		  active_strings.push_back(int_to_string(molecule_count));
+// 		  active_strings.push_back(int_to_string(0));
+// 		  commands.push_back(state_command(active_strings, il));
+
+		  
 		  for (unsigned int iar=0; iar<molecules[i].add_reps.size(); iar++) {
 		     active_strings.clear();
 		     if (molecules[i].add_reps[iar].atom_sel_info.type ==
@@ -385,6 +399,18 @@ graphics_info_t::save_state_file(const std::string &filename) {
 			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].bonds_box_type));
 			active_strings.push_back(float_to_string(molecules[i].add_reps[iar].bond_width));
 			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].draw_hydrogens_flag));
+			commands.push_back(state_command(active_strings, il));
+		     }
+		     
+		     // now save the on/off state of the add. rep.  Default is on, so only write out
+		     // the on/off status if the add rep is not shown.
+		     // 
+		     if (! molecules[i].add_reps[iar].show_it) {
+			active_strings.clear();
+			active_strings.push_back("set-show-additional-representation");
+			active_strings.push_back(int_to_string(molecule_count));
+			active_strings.push_back(int_to_string(iar));
+			active_strings.push_back(int_to_string(0));
 			commands.push_back(state_command(active_strings, il));
 		     }
 		  } 

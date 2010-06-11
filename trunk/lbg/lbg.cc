@@ -146,8 +146,8 @@ lbg_info_t::handle_drag(GdkModifierType state, int x_as_int, int y_as_int) {
       }
    } else {
       if (button_down_bond_addition) {
-	 if (highlight_data.single_atom()) 
-	    extend_latest_bond(); // checks for sensible atom to snap to.
+	 // if (highlight_data.single_atom()) 
+	    // extend_latest_bond(); // checks for sensible atom to snap to.
       }
    }
 } 
@@ -245,21 +245,31 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 	 lig_build::pos_t new_atom_pos =
 	    atom.atom_position.rotate_about(x_cen, y_cen, -degrees);
 
-	 mol.close_atom(ultimate_atom_index, root);
+	 bool is_close_to_atom = mol.is_close_to_non_last_atom(new_atom_pos);
 
-	 // now create new atom and new bond
-	 //
-	 widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
+	 if (is_close_to_atom) {
 
-	 int new_index = mol.add_atom(new_atom).second;
-	 lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
+	    std::cout << " rotate prevented -- too close to atom " << std::endl;
 
-	 widgeted_bond_t b(penultimate_atom_index, new_index,
-			   mol.atoms[penultimate_atom_index],
-			   new_atom,
-			   bt, root);
-	 ultimate_atom_index = new_index;
-	 mol.add_bond(b);
+	 }  else { 
+
+	    mol.close_atom(ultimate_atom_index, root);
+
+	    // now create new atom and new bond
+	    //
+	    widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
+
+	    int new_index = mol.add_atom(new_atom).second;
+	    lig_build::bond_t::bond_type_t bt =
+	       addition_mode_to_bond_type(canvas_addition_mode);
+
+	    widgeted_bond_t b(penultimate_atom_index, new_index,
+			      mol.atoms[penultimate_atom_index],
+			      new_atom,
+			      bt, root);
+	    ultimate_atom_index = new_index;
+	    mol.add_bond(b);
+	 }
       }
    }
 }
@@ -747,6 +757,10 @@ lbg_info_t::add_bond_to_atom_with_0_neighbours(int atom_index, int canvas_additi
    widgeted_bond_t b(atom_index, new_index, atom, new_atom, bt, root);
    mol.add_bond(b);
 
+   change_atom_id_maybe(atom_index);
+   change_atom_id_maybe(new_index);
+
+
    penultimate_atom_pos = atom.atom_position;
    penultimate_atom_index = atom_index;
    ultimate_atom_index    = new_index;
@@ -804,6 +818,9 @@ lbg_info_t::add_bond_to_atom_with_1_neighbour(int atom_index, int canvas_additio
    widgeted_bond_t b(atom_index, new_index, atom, new_atom, bt, root);
    mol.add_bond(b);
 
+   change_atom_id_maybe(atom_index);
+   change_atom_id_maybe(new_index);
+
    penultimate_atom_pos = atom.atom_position;
    penultimate_atom_index = atom_index;
    ultimate_atom_index    = new_index;
@@ -851,8 +868,10 @@ lbg_info_t::add_bond_to_atom_with_2_neighbours(int atom_index, int canvas_additi
    // have a extra bond, that atoms name could go from NH -> N (or C
    // -> C+ for 5 bonds).
    //
-   // std::cout << "calling change_atom_element(" << atom_index << ") " << std::endl;
+   // std::cout << "calling change_atom_id_maybe(" << atom_index << ") " << std::endl;
    change_atom_id_maybe(atom_index); 
+   // std::cout << "calling change_atom_id_maybe(" << new_index << ") " << std::endl;
+   change_atom_id_maybe(new_index); 
 }
 
 
@@ -873,12 +892,13 @@ lbg_info_t::add_bond_to_atom_with_3_neighbours(int atom_index, int canvas_additi
    
    if (pr.first) {
       int l = attached_bonds.size();
-      orthogonalise_2_bonds(atom_index, attached_bonds, bond_indices);
+      
+      widgeted_bond_t bond_to_core = orthogonalise_2_bonds(atom_index, attached_bonds, bond_indices);
       // now add a third
 
-      lig_build::bond_t existing_bond = mol.bonds[attached_bonds[l-3]];
-      lig_build::pos_t p1 =
-	 mol.atoms[mol.bonds[bond_indices[attached_bonds[l-3]]].get_other_index(atom_index)].atom_position;
+      int p1_idx = bond_to_core.get_other_index(atom_index);
+      lig_build::pos_t p1 = mol.atoms[p1_idx].atom_position;
+      
       lig_build::pos_t central_atom_pos = mol.atoms[atom_index].atom_position;
       lig_build::pos_t existing_bond_dir = central_atom_pos - p1;
       lig_build::pos_t ebd_uv = existing_bond_dir.unit_vector();
@@ -889,11 +909,14 @@ lbg_info_t::add_bond_to_atom_with_3_neighbours(int atom_index, int canvas_additi
       lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
       widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index], atom, bt, root);
       mol.add_bond(b);
+      change_atom_id_maybe(atom_index);
+      change_atom_id_maybe(new_atom_index);
 
    } else {
       // bond_indices are bonds have an atom that is atom_index.
       squeeze_in_a_4th_bond(atom_index, canvas_addition_mode, bond_indices);
    } 
+
    
 }
 
@@ -941,6 +964,8 @@ lbg_info_t::squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
 	 widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index],
 			   new_atom, bt, root);
 	 mol.add_bond(b);
+	 change_atom_id_maybe(atom_index);
+	 change_atom_id_maybe(new_atom_index);
 
       } else {
 	 
@@ -954,6 +979,8 @@ lbg_info_t::squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
 	 lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
 	 widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index], new_atom, bt, root);
 	 mol.add_bond(b);
+	 change_atom_id_maybe(atom_index);
+	 change_atom_id_maybe(new_atom_index);
 	 
       }
       
@@ -965,6 +992,8 @@ lbg_info_t::squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
       lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
       widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index], new_atom, bt, root);
       mol.add_bond(b);
+      change_atom_id_maybe(atom_index);
+      change_atom_id_maybe(new_atom_index);
    } 
 }
 
@@ -1117,40 +1146,76 @@ lbg_info_t::get_angles(int atom_index, const std::vector<int> &bond_indices) con
 }
 
 
-// delete the last 2 bonds of attached_bonds. attached_bonds must be
-// of size 3 at least.
+// Delete the last 2 atoms of stub_attached_atoms, regenerate new
+// atoms.
 //
-void
+// bond_indices are the indices of the bonds attached to atom_index
+// (the "central" atom).
+// 
+widgeted_bond_t
 lbg_info_t::orthogonalise_2_bonds(int atom_index,
-				  const std::vector<int> &attached_bonds,
+				  const std::vector<int> &stub_attached_atoms,
 				  const std::vector<int> &bond_indices) { 
 
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
 
-   int l = attached_bonds.size();
+   // this is the set of bonds that are just stubs to a C or so
+   // (branch is no more than 1 atom).
+   //
+   int l = stub_attached_atoms.size();
 
-   if (l < 3) {
+   if (l < 2) {
       std::cout << "ERROR:: trapped l = " << l << " in orthogonalise_2_bonds()"
 		<< std::endl;
-      return;
+      widgeted_bond_t dummy;
+      return dummy;
    }
    
-   int ind_1 = attached_bonds[l-1];
-   int ind_2 = attached_bonds[l-2];
+   int ind_1 = stub_attached_atoms[l-1];
+   int ind_2 = stub_attached_atoms[l-2];
    std::string ele_1 = mol.atoms[ind_1].element;
    std::string ele_2 = mol.atoms[ind_2].element;
    mol.close_atom(ind_1, root);
    mol.close_atom(ind_2, root);
 
-   lig_build::bond_t existing_bond = mol.bonds[attached_bonds[l-3]];
-   lig_build::pos_t p1 =
-      mol.atoms[mol.bonds[bond_indices[attached_bonds[l-3]]].get_other_index(atom_index)].atom_position;
    lig_build::pos_t central_atom_pos = mol.atoms[atom_index].atom_position;
+
+   // Find the bond that does not have an atom in stub_attached_atoms.
+   bool found_bond = 0;
+   widgeted_bond_t bond_to_core;
+   for (unsigned int i=0; i<bond_indices.size(); i++) { 
+      int idx_1 = mol.bonds[bond_indices[i]].get_atom_1_index();
+      int idx_2 = mol.bonds[bond_indices[i]].get_atom_2_index();
+      if (std::find(stub_attached_atoms.begin(), stub_attached_atoms.end(), idx_1) != stub_attached_atoms.end()) {
+	 if (std::find(stub_attached_atoms.begin(), stub_attached_atoms.end(), idx_2) != stub_attached_atoms.end()) {
+	    found_bond = 1;
+	    bond_to_core = mol.bonds[bond_indices[i]];
+	 }
+      }
+   }
+
+   if (! found_bond) {
+
+      // OK, pathological case of all of the atoms attached to the
+      // central atom being stub atoms?
+      //
+      bond_to_core = mol.bonds[bond_indices[0]];
+      found_bond = 1;
+   }
+
+   // p1 is the position of the atom that is bonded to the central
+   // atom, i.e. is towards the core of the ligand.  The vector from
+   // p1 to the central atom is the vector from which all the others
+   // are based.
+   //
+   int p1_idx = bond_to_core.get_other_index(atom_index);
+   lig_build::pos_t p1 = mol.atoms[p1_idx].atom_position;
    lig_build::pos_t existing_bond_dir = central_atom_pos - p1;
+   
    lig_build::pos_t ebd_uv = existing_bond_dir.unit_vector();
    lig_build::pos_t ebd_uv_90 = ebd_uv.rotate(90);
 
-   std::cout << "existing_bond_dir uv: " << ebd_uv << " and rotated: " << ebd_uv_90
+   std::cout << "DEBUG:: existing_bond_dir uv: " << ebd_uv << " and rotated: " << ebd_uv_90
 	     << std::endl;
       
    lig_build::pos_t new_atom_pos_1 = central_atom_pos + ebd_uv_90 * SINGLE_BOND_CANVAS_LENGTH;
@@ -1164,6 +1229,8 @@ lbg_info_t::orthogonalise_2_bonds(int atom_index,
    widgeted_bond_t b_2(atom_index, new_atom_index_2, mol.atoms[atom_index], atom_2, bt, root);
    mol.add_bond(b_1);
    mol.add_bond(b_2);
+
+   return bond_to_core; // so that we don't have to recalculate it in caller.
 
 }
 
@@ -2499,10 +2566,29 @@ lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &m
       }
    }
 
-   if (has_stacking_interaction()) {
+   // with a ring system on the ligand, that is.
+   // 
+   if (has_ring_stacking_interaction()) {
       try {
 	 lig_build::pos_t pos = mol.get_ring_centre(ligand_ring_atom_names);
 	 double stacking_dist = 4.5; // A
+	 std::pair<lig_build::pos_t, double> p(pos, stacking_dist);
+	 v.push_back(p);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "WARNING:: " << rte.what() << std::endl;
+      }
+   }
+
+   if (get_stacking_type() == lbg_info_t::residue_circle_t::CATION_PI_STACKING) {
+      try {
+	 std::string at_name = get_ligand_cation_atom_name();
+	 double stacking_dist = 3.5; // a bit shorter, because we
+				     // don't have to go from the
+				     // middle of a ring system, the
+				     // target point (an atom) is more
+				     // accessible
+	 lig_build::pos_t pos = mol.get_atom_canvas_position(at_name);
 	 std::pair<lig_build::pos_t, double> p(pos, stacking_dist);
 	 v.push_back(p);
       }
@@ -2890,9 +2976,9 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 	    }
 	 }
 
-	 if (words.size() > 4) {
+	 if (words.size() > 2) {
 	    if (words[0] == "STACKING") {
-	       std::vector<std::string> ligand_atom_names;
+	       std::vector<std::string> ligand_ring_atom_names;
 	       std::string type = words[1];
 	       std::string::size_type l = lines[i].length();
 	       int n_atoms_max = 20;
@@ -2903,11 +2989,21 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 		     if (0)
 			std::cout << "   Found ligand ring stacking atom :"
 				  << ss << ":" << std::endl;
-		     ligand_atom_names.push_back(ss);
+		     ligand_ring_atom_names.push_back(ss);
 		  }
 	       }
-	       if (v.size())
-		  v.back().set_stacking(type, ligand_atom_names);
+	       if (type == "pi-pi")
+		  if (v.size())
+		     v.back().set_stacking(type, ligand_ring_atom_names, "");
+	       if (type == "pi-cation")
+		  if (v.size())
+		     v.back().set_stacking(type, ligand_ring_atom_names, "");
+	       if (type == "cation-pi") {
+		  std::string ligand_cation_atom_name = lines[i].substr(19,4);
+		  // std::cout << "DEBUG:: on reading residue info file found ligand cation "
+		  // << "name :" << ligand_cation_atom_name << ":" << std::endl;
+		  v.back().set_stacking(type, ligand_ring_atom_names, ligand_cation_atom_name);
+	       }
 	    }
 	 }
       }
@@ -3247,30 +3343,45 @@ lbg_info_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) 
 
 
    for (unsigned int ires=0; ires<rc.size(); ires++) {
-      if (rc[ires].has_stacking_interaction()) {
-	 std::vector<std::string> ligand_atom_names =
+      int st = rc[ires].get_stacking_type();
+      if (rc[ires].has_ring_stacking_interaction()) {
+	 std::vector<std::string> ligand_ring_atom_names =
 	    rc[ires].get_ligand_ring_atom_names();
-	 try {
-	    lig_build::pos_t lc =
-	       mol.get_ring_centre(rc[ires].get_ligand_ring_atom_names());
-	    draw_annotated_stacking_line(lc, rc[ires].pos);
+	 if ((st == lbg_info_t::residue_circle_t::PI_PI_STACKING) ||
+	     (st == lbg_info_t::residue_circle_t::PI_CATION_STACKING)) {
+	     
+	    try {
+	       lig_build::pos_t lc = mol.get_ring_centre(ligand_ring_atom_names);
+	       draw_annotated_stacking_line(lc, rc[ires].pos, st);
+	    }
+	    catch (std::runtime_error rte) {
+	       std::cout << rte.what() << std::endl;
+	    }
 	 }
-	 catch (std::runtime_error rte) {
-	    std::cout << rte.what() << std::endl;
-	 }
+      }
+      if (st == lbg_info_t::residue_circle_t::CATION_PI_STACKING) {
+	 std::string at_name = rc[ires].get_ligand_cation_atom_name();
+	 lig_build::pos_t atom_pos = mol.get_atom_canvas_position(at_name);
+	 draw_annotated_stacking_line(atom_pos, rc[ires].pos, st);
       }
    }
 }
 
 void
 lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
-					 const lig_build::pos_t &residue_pos) {	
+					 const lig_build::pos_t &residue_pos,
+					 int stacking_type) {	
 
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+
+   double ligand_target_shortening_factor = 3;
+   if (stacking_type == lbg_info_t::residue_circle_t::CATION_PI_STACKING)
+      ligand_target_shortening_factor = 6;
    lig_build::pos_t a_to_b_uv = (ligand_ring_centre - residue_pos).unit_vector();
    lig_build::pos_t A = residue_pos + a_to_b_uv * 20;
    lig_build::pos_t B = ligand_ring_centre;
-   lig_build::pos_t C = B - a_to_b_uv * 3; // just short of the middle of the ring
+   // just short of the middle of the ring
+   lig_build::pos_t C = B - a_to_b_uv * ligand_target_shortening_factor; 
    lig_build::pos_t mid_pt = (A + B) * 0.5;
    lig_build::pos_t close_mid_pt_1 = mid_pt - a_to_b_uv * 17;
    lig_build::pos_t close_mid_pt_2 = mid_pt + a_to_b_uv * 17;
@@ -3286,35 +3397,79 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
    hex_and_ring_centre[0] = mid_pt - a_to_b_uv * 7;
    hex_and_ring_centre[1] = mid_pt + a_to_b_uv * 7;
 
+   // for cations, we draw a 6-member ring and a "+" text.
+   //
+   // for pi-pi, we draw 2 6-member rings
+   // 
    for(int ir=0; ir<2; ir++) {
-   
-      double angle_step = 60;
-      double r = 8; // radius
-      for (int ipt=1; ipt<=6; ipt++) {
-	 int ipt_0 = ipt - 1;
-	 double theta_deg_1 = 30 + angle_step * ipt;
-	 double theta_1 = theta_deg_1 * DEG_TO_RAD;
-	 lig_build::pos_t pt_1 = hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_1), cos(theta_1)) * r;
-      
-	 double theta_deg_0 = 30 + angle_step * ipt_0;
-	 double theta_0 = theta_deg_0 * DEG_TO_RAD;
-	 lig_build::pos_t pt_0 = hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_0), cos(theta_0)) * r;
-	 goo_canvas_polyline_new_line(group,
-				      pt_1.x, pt_1.y,
-				      pt_0.x, pt_0.y,
-				      "line_width", 1.8,
-				      NULL);
-				   
-      }
-      // Now the circle in the annotation aromatic ring:
-      goo_canvas_ellipse_new(group,
-			     hex_and_ring_centre[ir].x,
-			     hex_and_ring_centre[ir].y,
-			     4.0, 4.0,
-			     "line_width", 1.0,
-			     NULL);
 
+      bool do_ring = 0;
+      bool do_anion = 0;
+      
+      if (stacking_type == lbg_info_t::residue_circle_t::PI_PI_STACKING) {
+	 do_ring = 1; 
+      } 
+      if (stacking_type == lbg_info_t::residue_circle_t::PI_CATION_STACKING) {
+	 if (ir == 0) {
+	    do_ring = 0;
+	    do_anion = 1;
+	 } else {
+	    do_ring = 1;
+	    do_anion = 0;
+	 }
+      }
+      if (stacking_type == lbg_info_t::residue_circle_t::CATION_PI_STACKING) {
+	 if (ir == 0) {
+	    do_ring = 1;
+	    do_anion = 0;
+	 } else {
+	    do_ring = 0;
+	    do_anion = 1;
+	 }
+      }
+      
+      if (do_ring) { 
+	 double angle_step = 60;
+	 double r = 8; // radius
+	 for (int ipt=1; ipt<=6; ipt++) {
+	    int ipt_0 = ipt - 1;
+	    double theta_deg_1 = 30 + angle_step * ipt;
+	    double theta_1 = theta_deg_1 * DEG_TO_RAD;
+	    lig_build::pos_t pt_1 = hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_1), cos(theta_1)) * r;
+      
+	    double theta_deg_0 = 30 + angle_step * ipt_0;
+	    double theta_0 = theta_deg_0 * DEG_TO_RAD;
+	    lig_build::pos_t pt_0 = hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_0), cos(theta_0)) * r;
+	    goo_canvas_polyline_new_line(group,
+					 pt_1.x, pt_1.y,
+					 pt_0.x, pt_0.y,
+					 "line_width", 1.8,
+					 NULL);
+	 }
+	 // Now the circle in the annotation aromatic ring:
+	 goo_canvas_ellipse_new(group,
+				hex_and_ring_centre[ir].x,
+				hex_and_ring_centre[ir].y,
+				4.0, 4.0,
+				"line_width", 1.0,
+				NULL);
+      }
+      
+      if (do_anion) {
+	 // the "+" symbol for the anion
+	 // 
+	 GooCanvasItem *text_1 = goo_canvas_text_new(group,
+						     "+",
+						     hex_and_ring_centre[ir].x,
+						     hex_and_ring_centre[ir].y,
+						     -1,
+						     GTK_ANCHOR_CENTER,
+						     "font", "Sans 12",
+						     "fill_color", stroke_colour.c_str(),
+						     NULL);
+      }
    }
+
 
    GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 2.5, 2.5);
    GooCanvasItem *item_1 =
@@ -3337,12 +3492,13 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
 				   NULL);
 
    // Now the circle blob at the centre of the aromatic ligand ring:
-   goo_canvas_ellipse_new(group,
-			  B.x, B.y,
-			  3.0, 3.0,
-			  "line_width", 1.0,
-			  "fill_color", stroke_colour.c_str(),
-			  NULL);
+   if (stacking_type != lbg_info_t::residue_circle_t::CATION_PI_STACKING)
+      goo_canvas_ellipse_new(group,
+			     B.x, B.y,
+			     3.0, 3.0,
+			     "line_width", 1.0,
+			     "fill_color", stroke_colour.c_str(),
+			     NULL);
 
 }
 

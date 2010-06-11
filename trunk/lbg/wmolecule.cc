@@ -1386,4 +1386,22 @@ widgeted_molecule_t::n_open_bonds() const {
 	 n_bonds++;
    }
    return n_bonds;
-} 
+}
+
+
+bool
+widgeted_molecule_t::is_close_to_non_last_atom(const lig_build::pos_t &test_pos) const {
+
+   bool close = 0;
+   int n_atoms_for_test = atoms.size() - 1; 
+   for (int iat=0; iat<n_atoms_for_test; iat++) {
+      if (! atoms[iat].is_closed()) {
+	 if (atoms[iat].atom_position.near_point(test_pos, 2.1)) {
+	    close = 1;
+	    break;
+	 }
+      }
+   }
+   return close;
+}
+
