@@ -484,8 +484,10 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    for (unsigned int i=0; i<all_residues.size(); i++) {
       n_atoms += all_residues[i]->GetNumberOfAtoms();
    }
-   std::cout << "   DEUBG:: There are " << n_atoms << " atoms total (including flankers)"
-	     << std::endl;
+
+   // std::cout << "   DEUBG:: There are " << n_atoms
+   // << " atoms total (including flankers)"
+   // << std::endl;
 
    atom = new PCAtom[n_atoms];
    int atom_index = 0;
