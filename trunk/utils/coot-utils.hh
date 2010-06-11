@@ -73,6 +73,8 @@ namespace coot {
       std::pair<std::string, std::string> split_string_on_last_slash(const std::string &string_in);
       std::vector<std::string> split_string(const std::string &string_in,
 					    const std::string &splitter);
+      std::vector<std::string> split_string_no_blanks(const std::string &string_in,
+						      const std::string &splitter);
 
       std::string plain_text_to_sequence(const std::string &s);
       std::string plain_text_to_pir(const std::string &title, const std::string &sequence);
