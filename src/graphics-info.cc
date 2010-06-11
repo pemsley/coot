@@ -4655,8 +4655,8 @@ coot::view_info_t::dot_product(const coot::view_info_t &view1,
    return d;
 }
 
-std::ofstream&
-coot::operator<<(std::ofstream &f, coot::view_info_t &view) {
+std::ostream&
+coot::operator<<(std::ostream &f, coot::view_info_t &view) {
 
    // position quaternion zoom view-name
    //

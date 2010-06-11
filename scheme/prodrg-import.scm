@@ -29,19 +29,20 @@
 		  (read-cif-dictionary prodrg-cif)
 		  (let ((imol (handle-read-draw-molecule-and-move-molecule-here prodrg-xyzout)))
 
+		    (using-active-atom
+		     (overlap-ligands imol aa-imol aa-chain-id aa-res-no))
+
+		    (with-auto-accept
+		     (regularize-residues imol (list (list "" 1 ""))))
+
 		    (using-active-atom 
 		     (match-ligand-torsions imol aa-imol aa-chain-id aa-res-no))
 
-		    ;; question, can we overlap this new molecule on
-		    ;; the residue that we are sitting on?
-		    ;; 
 		    (using-active-atom
 		     (overlap-ligands imol aa-imol aa-chain-id aa-res-no))
-		    
-		    (with-auto-accept
-		     (regularize-residues imol (list (list "" 1 ""))))
-		    
+
 		    (additional-representation-by-attributes imol "" 1 1 "" 2 2 0.2 1)
+		    #t
 
 		    ))))))))
 
@@ -123,7 +124,13 @@
 			      (let ((imol (get-sbase-monomer tlc-symbol)))
 				(if (not (valid-model-molecule? imol))
 				    (format #t "failed to get SBase molecule for ~s~%"
-					    tlc-symbol))))))))
+					    tlc-symbol)
+
+				    ;; it was read OK, do an overlap:
+				    (using-active-atom
+				     (overlap-ligands imol aa-imol aa-chain-id aa-res-no))
+
+				    )))))))
 		
 		#t))) ;; return value, keep running
     (gtk-timeout-add 500 func)))
@@ -174,6 +181,30 @@
 		    prodrg-output-lib-file))))))
 
 
+(define (prodrg-plain mode imol-in chain-id-in res-no-in)
+  
+  (let* ((selection-string (string-append "//" chain-id-in "/" 
+					  (number->string res-no-in)))
+	 (imol (new-molecule-by-atom-selection imol-in selection-string)))
+    (let* ((stub (append-dir-file "coot-ccp4" (string-append 
+					       "prodrg-tmp-" 
+					       (number->string (getpid)))))
+	   (prodrg-xyzin (string-append stub "-xyzin.pdb"))
+	   (prodrg-xyzout (string-append stub "-xyzout.pdb"))
+	   (prodrg-cif  (string-append stub "-dict.cif"))
+	   (prodrg-log  (string-append stub ".log")))
+      
+      (write-pdb-file imol prodrg-xyzin)
+      (let ((result (goosh-command "cprodrg" 
+				   (list "XYZIN"  prodrg-xyzin
+					 "XYZOUT" prodrg-xyzout
+					 "LIBOUT" prodrg-cif)
+				   (list "MINI PREP" "END")
+				   prodrg-log #t)))
+	(close-molecule imol)
+	(list result prodrg-xyzout prodrg-cif)))))
+    
+
 
 (define (fle-view imol chain-id res-no ins-code)
 
@@ -181,16 +212,22 @@
    (let ((imol aa-imol)
 	 (chain-id aa-chain-id)
 	 (res-no aa-res-no))
-     (let ((r (prodrg-flat imol chain-id res-no)))
-       (if r
-	   (let ((imol-ligand-fragment (car r))
-		 (prodrg-output-flat-mol-file-name (list-ref r 1))
-		 (prodrg-output-flat-pdb-file-name (list-ref r 2))
-		 (prodrg-output-cif-file-name      (list-ref r 3)))
+     (let ((r-flat  (prodrg-flat  imol chain-id res-no))
+	   ;; (r-plain (prodrg-plain 'mini-no  imol chain-id res-no)))
+	   (r-plain (list 0 0))) ;; dummy value
+       (if (and r-flat
+		(and (number? (car r-plain))
+		     (= (car r-plain) 0)))
+	   (let ((imol-ligand-fragment (car r-flat))
+		 (prodrg-output-flat-mol-file-name (list-ref r-flat 1))
+		 (prodrg-output-flat-pdb-file-name (list-ref r-flat 2))
+		 (prodrg-output-cif-file-name      (list-ref r-flat 3))
+		 (prodrg-output-3d-pdb-file-name "xx"))
 	     (fle-view-internal imol chain-id res-no "" ;; from active atom
 	      imol-ligand-fragment
 	      prodrg-output-flat-mol-file-name
 	      prodrg-output-flat-pdb-file-name
+	      prodrg-output-3d-pdb-file-name
 	      prodrg-output-cif-file-name)
 	     (goosh-command "touch" 
 			    (list

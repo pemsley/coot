@@ -5581,6 +5581,116 @@ Sun May 23 13:37:55 BST 2010
      appropriate statistic for this situation, if it's assumed that
      the errors in the density have a normal distribution.
 
+
+-----
+
+    integration of calcuated chemical shift with molecular dynamics... 
+    interesting..
+
+----
+Fri Jun  4 13:24:37 CEST 2010
+
+
+Judit Debreczeni wrote:
+
+> 1. coot remembers the presence of additional representations from the
+> state file. It would be nice if it also remembered if they were
+> switched on or off.
+
+Funny - I was annoyed by that lack of feature just last night.
+
+
+> 2. If there are two different ligands bound to the same active site
+> with partial occupancies (with alt conf identifiers A and B), coot
+> will still draw the environment distances between them, making the
+> view quite crowded.
+
+Bleugh.  quite right. 
+
+
+> 3. For covalent ligands (but also for SS-bonds etc): if I change the
+> chain ID, the pdb header will still refer to the original chain IDs in
+> therms of LINK and SS-bond records.
+> It would be nice if the header could be automatically updated. (Or if
+> not, it would be nice to have a "view and edit pdb header" option
+> somewhere.)
+
+Second person, maybe 3rd including Eleanor, to complain about this.
+Agreed.
+
+
+> 4. Currently it is frustratingly tedious to set the occupancy for
+> newly added alt conf ligands. 
+
+Do you know about:
+
+(set-add-alt-conf-new-atoms-occupancy 0.2)
+
+before splitting?
+
+If that won't do, a trivial function to fix occs of given alt conf can
+be made by wrapping set-atom-attributes
+
+
+> It would be nice if we had a similar
+> mechanism to what is used for standard residues (without the rotamer
+> bit, of course) -- i.e. a slide bar or some such.
+
+Yes.  That can be done - even with scripting - by above system.
+
+-----
+Wed Jun  9 10:40:31 CEST 2010
+
+   Topf et al structure (2008?)
+
+   Flex-EM, hinge-based flexable fitting of protein structures to EM
+   map (decent/good resolution maps).
+
+----
+Wed Jun  9 12:13:44 CEST 2010
+
+   Eddy Arnold
+
+   "strategic flexibility" (wiggling and jiggling)
+
+   Janssen et al. 2005, J. Med Chem. 48, 1901 (perhaps)
+
+
+   hydrophobic pocket - adaptabilty to changes:
+    
+   2004 Das, 
+
+   2008
+
+   ligprep in schrodinger suite, preparing for glide
+
+   make the "omega" geneation of ligand conformers usable at the scripting layer
+
+    ,... e.g give me 2000 low energy conformers.
+
+	Janssen:  Centre of Molecular Design
+
+
+----
+Wed Jun  9 13:17:27 CEST 2010
+
+   Open Display manager.
+   Add an add rep (ball & stick, say).
+   Turn off all add reps of this molecule.
+   Close display manager.
+   Open Display Manager
+
+       -> the "All" button has disappeared.
+   
+
+----
+Fri Jun 11 11:56:15 CEST 2010
+
+
+   debora makino - elena conti's lab.
+
+
+
 ------
 
 

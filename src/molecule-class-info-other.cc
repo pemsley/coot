@@ -1752,6 +1752,9 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
 					     int clash_flag, float lowest_prob,
 					     const coot::protein_geometry &pg) {
 
+   std::cout << "-------- rotamer_search_mode is " << rotamer_search_mode
+	     << std::endl;
+
    // 20090714 We decide here if we go into auto_fit_best_rotamer
    // (conventional mode with rigid body fitting) or backrub rotamers
    //

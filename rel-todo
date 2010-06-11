@@ -6,6 +6,14 @@
 
     o HEC and HEA, chiral restraints, minimisation problem ::: 2
 
+    o delete residues 80 81, Dock sequence, add terminal residue,
+      should build TYRs - second is an ALA.
+
+    o the sequence view fails with 3mdo.  Where is the ligand in this
+      thing? (mark waters and other hetatms ligands differently?)
+
+    o Documentation for views.
+
 ------
 
     o Fix rename-residue to work on just one chain ::: 0.5

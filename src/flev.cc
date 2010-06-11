@@ -32,11 +32,23 @@
 
 #include "coot-h-bonds.hh"
 
+std::ostream&
+coot::operator<< (std::ostream& s, const pi_stacking_instance_t &stack) {
+
+   s << "[" << stack.type << " " << coot::residue_spec_t(stack.res) << " "
+     << stack.overlap_score << " ligand-atom-name :" <<  stack.ligand_cationic_atom_name
+     << ": ";
+   for (unsigned int i=0; i<stack.ligand_ring_atom_names.size(); i++)
+      s << "  :" << stack.ligand_ring_atom_names[i] << ":   " ;
+   s << "]";
+   return s;
+}
 
 void fle_view_internal(int imol, const char *chain_id, int res_no, const char *ins_code, 
 		       int imol_ligand_fragment, 
 		       const char *prodrg_output_flat_mol_file_name,
 		       const char *prodrg_output_flat_pdb_file_name,
+		       const char *prodrg_output_3d_pdb_file_name,
 		       const char *prodrg_output_dict_cif_file_name) {
    
    float residues_near_radius = 4.5;
@@ -258,7 +270,107 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 						       const std::vector<CResidue *> &residues,
 						       CResidue *res_ref) {
 
+   bool debug = 0;
 
+   // --------------------------------------------------------------------
+   //          ligand ring systems
+   // --------------------------------------------------------------------
+   
+   // get a list of aromatic bonds, so that they can be used to find
+   // aromatic rings.
+   std::vector<std::vector<std::string> > ring_list = get_ligand_aromatic_ring_list(monomer_restraints);
+
+   // float pi_overlap_thresh = 0.2;
+   float pi_overlap_thresh = 0.0015; // play value
+   // float pi_overlap_thresh = 0.2; 
+   for (unsigned int iring=0; iring<ring_list.size(); iring++) {
+      try {
+	 std::pair<clipper::Coord_orth, clipper::Coord_orth> ligand_ring_pi_pts = 
+	    get_ring_pi_centre_points(ring_list[iring], res_ref);
+
+	 if (debug) {
+	    std::cout << " ligand ring ";
+	    for (unsigned int iat=0; iat<ring_list[iring].size(); iat++)
+	       std::cout << ring_list[iring][iat] << "  ";
+	    
+	    std::cout << " points " << ligand_ring_pi_pts.first.format() << " "
+		      << ligand_ring_pi_pts.second.format() << std::endl;
+	 }
+	 
+	 for (unsigned int ires=0; ires<residues.size(); ires++) {
+
+	    if (debug) {
+	       std::string res_name(residues[ires]->GetResName());
+	       std::cout << "==== Environment residue " << coot::residue_spec_t(residues[ires])
+			 << " " << res_name << std::endl;
+	    }
+
+	    // return a pair that is the score and the stacking type
+	    std::pair<float, int> pi_overlap_1 =
+	       get_pi_overlap_to_ligand_ring(residues[ires], ligand_ring_pi_pts.first);
+	    std::pair<float, int> pi_overlap_2 =
+	       get_pi_overlap_to_ligand_ring(residues[ires], ligand_ring_pi_pts.second);
+
+	    if (debug) 
+	       std::cout << "   Overlaps:  score "
+			 << pi_overlap_1.first << " type: " << pi_overlap_1.second << "  score: "
+			 << pi_overlap_2.first << " type: " << pi_overlap_2.second << std::endl;
+	       
+	    if (pi_overlap_1.first > pi_overlap_thresh) {
+	       coot::pi_stacking_instance_t st(residues[ires],
+					       pi_overlap_1.second,
+					       ring_list[iring]);
+	       st.overlap_score = pi_overlap_1.first;
+	       stackings.push_back(st);
+	    }
+	    if (pi_overlap_2.first > pi_overlap_thresh) {
+	       coot::pi_stacking_instance_t st(residues[ires],
+					       pi_overlap_2.second,
+					       ring_list[iring]);
+	       st.overlap_score = pi_overlap_2.first;
+	       stackings.push_back(st);
+	    }
+	 }
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "WARNING:: " << rte.what() << std::endl;
+      }
+   }
+
+   // --------------------------------------------------------------------
+   //          ligand cations (-> protein ring systems)
+   // --------------------------------------------------------------------
+   
+   // Now, we need to test the ligand cations against the environment
+   // residues that have pi system (not ligand ring systems).
+   //
+   // OK, so what are the ligand cations?
+
+   std::vector<std::pair<std::string, clipper::Coord_orth> > cation_points =
+      get_ligand_cations(res_ref, monomer_restraints);
+
+   for (unsigned int icat=0; icat<cation_points.size(); icat++) {
+      for (unsigned int ires=0; ires<residues.size(); ires++) {
+	 // get_ligand_cation_residue_pi_overlap
+	 float score = get_pi_overlap_to_ligand_cation(residues[ires], cation_points[icat].second);
+
+	 if (score > pi_overlap_thresh) { 
+	    // add a stacking to stackings.
+	    coot::pi_stacking_instance_t stacking(residues[ires], cation_points[icat].first);
+	    stacking.overlap_score = score;
+	    stackings.push_back(stacking);
+	 }
+      }
+   }
+
+}
+
+std::vector<std::vector<std::string> >
+coot::pi_stacking_container_t::get_ligand_aromatic_ring_list(const coot::dictionary_residue_restraints_t &monomer_restraints) const {
+
+   // get a list of aromatic bonds, so that they can be used to find
+   // aromatic rings.
+   // 
    std::vector<std::pair<std::string, std::string> > bonds;
    for (unsigned int irest=0; irest<monomer_restraints.bond_restraint.size(); irest++) {
       if (monomer_restraints.bond_restraint[irest].type() == "aromatic") {
@@ -281,65 +393,48 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 	 std::cout << std::endl;
       }
    }
+   return ring_list;
+}
 
-   float pi_overlap_thresh = 0.2;
-   for (unsigned int iring=0; iring<ring_list.size(); iring++) {
-      try {
-	 std::pair<clipper::Coord_orth, clipper::Coord_orth> ligand_ring_pi_pts = 
-	    get_ring_pi_centre_points(ring_list[iring], res_ref);
-	 
-	 for (unsigned int ires=0; ires<residues.size(); ires++) {
-	    std::string res_name(residues[ires]->GetResName());
 
-	    // Don't forget DNA and RNA!
-	    // 
-	       
-	    // std::cout << "==== Environment residue " << coot::residue_spec_t(residues[ires])
-	    // << " " << res_name << std::endl;
-	       
-	    std::pair<float, int> pi_overlap_1 =
-	       get_pi_overlap_to_ligand_ring(residues[ires], ligand_ring_pi_pts.first);
-	    std::pair<float, int> pi_overlap_2 =
-	       get_pi_overlap_to_ligand_ring(residues[ires], ligand_ring_pi_pts.second);
+// by search through res_ref
+std::vector<std::pair<std::string, clipper::Coord_orth> >
+coot::pi_stacking_container_t::get_ligand_cations(CResidue *res_ref,
+						 const coot::dictionary_residue_restraints_t &monomer_restraints) const {
 
-	    if (0) 
-	       std::cout << "   Overlaps: "
-			 << pi_overlap_1.first << " " << pi_overlap_1.second << " "
-			 << pi_overlap_2.first << " " << pi_overlap_2.second << std::endl;
-	       
-	    if (pi_overlap_1.first > pi_overlap_thresh) {
-	       coot::pi_stacking_instance_t st(residues[ires],
-					       pi_overlap_1.second,
-					       ring_list[iring]);
-	       stackings.push_back(st);
-	    }
-	    if (pi_overlap_2.first > pi_overlap_thresh) {
-	       coot::pi_stacking_instance_t st(residues[ires],
-					       pi_overlap_2.second,
-					       ring_list[iring]);
-	       stackings.push_back(st);
-	    }
+   std::vector<std::pair<std::string, clipper::Coord_orth> > v;
+   int n_residue_atoms;
+   PPCAtom residue_atoms = NULL;
+   res_ref->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int iat=0; iat<n_residue_atoms; iat++) { 
+      std::string ele(residue_atoms[iat]->element);
+      if (ele == " N") {
+	 // how many bonds does this N have?
+	 int n_bonds = 0;
+	 std::string atom_name(residue_atoms[iat]->name);
+	 for (unsigned int ibond=0; ibond<monomer_restraints.bond_restraint.size(); ibond++) { 
+	    if ((monomer_restraints.bond_restraint[ibond].atom_id_1_4c() == atom_name) || (monomer_restraints.bond_restraint[ibond].atom_id_2_4c() == atom_name)) {
+	       if (monomer_restraints.bond_restraint[ibond].type() == "single")
+		  n_bonds++;
+	       if (monomer_restraints.bond_restraint[ibond].type() == "double")
+		  n_bonds += 2;
+	       if (monomer_restraints.bond_restraint[ibond].type() == "triple")
+		  n_bonds += 3;
+	    } 
+	 }
+
+	 if (n_bonds > 3) { // i.e. 4
+	    clipper::Coord_orth pt(residue_atoms[iat]->x,
+				   residue_atoms[iat]->y,
+				   residue_atoms[iat]->z);
+	    std::pair<std::string, clipper::Coord_orth> p(atom_name, pt);
+	    v.push_back(p);
 	 }
       }
-      catch (std::runtime_error rte) {
-	 std::cout << "WARNING:: " << rte.what() << std::endl;
-      }
    }
-
-   // Now, we need to test the ligand cations against the environment
-   // residues that have pi system (not ligand ring systems).
-   //
-   // OK, so what are the ligand cations?
-
-   std::vector<clipper::Coord_orth> cation_points;
-
-   for (unsigned int icat=0; icat<cation_points.size(); icat++) {
-      for (unsigned int ires=0; ires<residues.size(); ires++) {
-	 // get_ligand_cation_residue_pi_overlap(residues[ires], cation_points[icat]);
-      }
-   }
-
+   return v;
 }
+
 
 // can throw an exception because it calls get_ring_pi_centre_points()
 //
@@ -374,18 +469,47 @@ coot::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(CResidue *res,
    // Now test all the cation-pi interactions
    // 
    std::vector<clipper::Coord_orth> cation_atom_point = get_cation_atom_positions(res);
+
+   // std::cout << "DEBUG:: there are " << cation_atom_point.size()
+   // << " cation atom points" << std::endl;
+   
    for (unsigned int icat=0; icat<cation_atom_point.size(); icat++) {
-      pi_cation_score = overlap_of_cation_pi(ligand_pi_point, cation_atom_point[icat]);
+      pi_cation_score += overlap_of_cation_pi(ligand_pi_point, cation_atom_point[icat]);
    }
 
    float score = pi_pi_score;
    if (pi_cation_score > pi_pi_score) {
-      score = pi_pi_score;
+      score = pi_cation_score;
       stacking_type = coot::pi_stacking_instance_t::PI_CATION_STACKING;
    }
    
    return std::pair<float, int> (score, stacking_type);
 }
+
+// Return the best score of the ligand cation overlap to any of the
+// ring systems in res (if any of course, typically this function just
+// falls through returning 0.0).
+// 
+float
+coot::pi_stacking_container_t::get_pi_overlap_to_ligand_cation(CResidue *res,
+							       const clipper::Coord_orth &pt) const {
+
+   float score = 0.0;
+   std::string res_name(res->GetResName());
+   std::vector<std::vector<std::string> > atom_names = ring_atom_names(res_name);
+   for (unsigned int iring=0; iring<atom_names.size(); iring++) {
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> residue_pi_points =
+	 get_ring_pi_centre_points(atom_names[iring], res);
+      float pi_cation_score_1 = overlap_of_cation_pi(pt, residue_pi_points.first);
+      float pi_cation_score_2 = overlap_of_cation_pi(pt, residue_pi_points.second );
+      if (pi_cation_score_1 > score)
+	 score = pi_cation_score_1;
+      if (pi_cation_score_2 > score)
+	 score = pi_cation_score_2;
+   }
+   return score;
+}
+
 
 // the sum of the product of the function: m1 exp [ m2 d^2 ]. Where d
 // is the is distance of this particular point from either the control
@@ -703,24 +827,35 @@ coot::pi_stacking_container_t::overlap_of_cation_pi(const clipper::Coord_orth &l
    // multipliers follow the order of the atom/control points
    // 
    float score = overlap_of_pi_spheres(ligand_pi_point, cation_atom_point, 0.78, -1, 7.8, -0.05);
+
+   // std::cout << "overlap_of_cation_pi() calling overlap_of_pi_spheres() returns "
+   // << score << std::endl;
    
    return score;
 }
  
 
- void
+void
 coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 			const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,
 			const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
 			const coot::pi_stacking_container_t &stack_info,
 			CResidue *res_flat) {
 
+   if (0) {
+      std::cout << "DEBUG:: in write_fle_centres() " << stack_info.stackings.size()
+		<< " stackings:\n";
+      for (unsigned int i=0; i<stack_info.stackings.size(); i++)
+      std::cout << "    " << i << ":  " << stack_info.stackings[i] << std::endl;
+      std::cout << std::endl;
+   }
+   
    std::string file_name = "coot-tmp-fle-view-residue-info.txt";
    std::ofstream of(file_name.c_str());
    if (!of) {
       std::cout << "failed to open output file " << file_name << std::endl;
    } else {
-
+      
       for (unsigned int i=0; i<v.size(); i++) {
 	 if (v[i].is_set) { 
 	    of << "RES " << v[i].centre.x() << " " << v[i].centre.y() << " "
@@ -779,22 +914,67 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 	    }
 
 	    // Is there a stacking interaction associated with this residue?
+	    //
+	    // There could, in fact, be several stackings associated
+	    // with this residue.  We want to pick the best one.  So
+	    // we need to run through the list of stacking first,
+	    // looking for the best.
+	    //
+	    // 
+	    double best_stacking_score = -1.0;
+	    coot::pi_stacking_instance_t best_stacking(NULL, "");
+	    
 	    for (unsigned int istack=0; istack<stack_info.stackings.size(); istack++) {
 	       coot::residue_spec_t spec(stack_info.stackings[istack].res);
-	       std::string type = "    pi-pi"; // leading spaces important in format of atom names
-	       if (stack_info.stackings[istack].type ==
-		   coot::pi_stacking_instance_t::PI_CATION_STACKING)
-  		           type = "pi-cation";
 	       if (spec == v[i].spec) {
-		  of << "STACKING " << type << " ";
-		  for (unsigned int jat=0;
-		       jat<stack_info.stackings[istack].ligand_ring_atom_names.size();
-		       jat++) {
-		     of << stack_info.stackings[istack].ligand_ring_atom_names[jat]
-			<< "  ";
+		  if (stack_info.stackings[istack].overlap_score > best_stacking_score) {
+		     best_stacking_score = stack_info.stackings[istack].overlap_score;
+		     best_stacking = stack_info.stackings[istack];
 		  }
-		  of << "\n";
 	       }
+	    }
+
+	    if (best_stacking_score > 0.0) {
+	       std::string type = "    pi-pi"; // leading spaces
+					       // important in format
+					       // of atom names
+
+	       // Recall that CATION_PI_STACKING is for ligand ring
+	       // systems, PI_CATION_STACKING is for protein residue
+	       // ring systems.
+	       // 
+	       if (best_stacking.type == coot::pi_stacking_instance_t::CATION_PI_STACKING)
+		  type = "cation-pi";
+	       if (best_stacking.type == coot::pi_stacking_instance_t::PI_CATION_STACKING)
+		  type = "pi-cation";
+	       if (0) // debug
+		  of << "# Best stacking for RES " 
+		     << v[i].residue_name << " " << v[i].spec.chain
+		     << v[i].spec.resno << " is " << best_stacking.type << " "
+		     << best_stacking_score << std::endl;
+	       of << "STACKING " << type << " ";
+	       switch (best_stacking.type) {
+	       case coot::pi_stacking_instance_t::PI_PI_STACKING: 
+		  for (unsigned int jat=0;
+		       jat<best_stacking.ligand_ring_atom_names.size();
+		       jat++) {
+		     of << best_stacking.ligand_ring_atom_names[jat] << "  ";
+		  }
+		  break;
+		  
+	       case coot::pi_stacking_instance_t::CATION_PI_STACKING:
+		  of << best_stacking.ligand_cationic_atom_name;
+		  break;
+		  
+	       case coot::pi_stacking_instance_t::PI_CATION_STACKING:
+		  for (unsigned int jat=0;
+		       jat<best_stacking.ligand_ring_atom_names.size();
+		       jat++) {
+		     of << best_stacking.ligand_ring_atom_names[jat] << "  ";
+		  }
+		  break;
+	       }
+	       of << "\n";
 	    }
 	    
 	 } else {
@@ -1103,9 +1283,9 @@ coot::get_covalent_bonds(CMMDBManager *mol,
 	 for (int i=0; i<n_contacts; i++) {
 	    CAtom *at_1 =   lig_atom_selection[pscontact[i].id1];
 	    CAtom *at_2 = other_atom_selection[pscontact[i].id2];
-	    std::cout << "DEUBG:: Covalent test "
-		      << coot::atom_spec_t(at_1) << "..."
-		      << coot::atom_spec_t(at_2) << std::endl;
+// 	    std::cout << "DEUBG:: Covalent test "
+// 		      << coot::atom_spec_t(at_1) << "..."
+// 		      << coot::atom_spec_t(at_2) << std::endl;
 	    std::pair<CResidue *, CResidue *> pair(at_1->GetResidue(),
 						   at_2->GetResidue());
 
@@ -1335,4 +1515,122 @@ coot::standard_residue_name_p(const std::string &rn) {
       return 0;
    else
       return 1;
+}
+
+// The substitution contour:
+// 
+// The substitution contour depends on the hydridisation of the atoms
+// of the ligands.  We need to "fire cannonballs" along the direction
+// of the hydrogens and see when they bash into the atoms of the
+// protein.
+//
+// Most (I guess) hydrogens of ligands are "riding", by that, I mean
+// that the position of the hydrogen is determined by the geometry of
+// the atom to which it is attached (e.g. the H on an N that has 2
+// single bonds to 2 carbons).
+//
+// So, PRODRG will give us a ligand that has hydrogens on it - good
+// show (we will need to run it in "regular" mode ("MINI PREP", say)
+// to generate such hydrogens on the model).
+//
+// We need to determine which are the riding hydrogens and which are
+// the rotatable ones. The riding hydrogens give us the cannonball
+// vector trivially. For the rotable ones, we should draw a number
+// from a probability distribution defined by the parameters in the
+// cif dictionary.
+// 
+// How do we know which are riding and which are not?
+//
+// Here is my guess: riding hydrogens do not have torsions for them in
+// the dictionary.  Rotable hydrogens do.  Note though, that PRODRG
+// hydrogen names (in the cif file) are problematic.  You can't rely
+// on name matching of hydrogens between the PDB and the dictionary.
+//
+// So here is what we have to do:
+//
+// i) From the dictionary, look through the list of non-Hydrogen atoms
+// to see if there are hydrogens bonded to the atom.
+// 
+//    ii) If so, does this non-Hydrogen atom appear as atom 2 in a 
+//    torsion restraint with a hydrogen as atom 1 or appear as atom 3
+//    in a torsion restraint with a hydrogen as atom 4?
+//
+//        iii) If so, then this is a torsionable hydrogen, we need to
+//        generate vectors by random sampling from the probability
+//        distribution of this torsion.
+//
+//        However, if it is not, then this is a riding hydrogen.  Add
+//        the vector from the ligand atom to the hydrogen as a
+//        cannonball vector associated with that ligand atom.
+//
+// OK, at the end of the hybridisation analysis, we want a vector of
+// ligand "heavy" (in this case, non-Hydrogen) atoms and associated
+// with each atom is a vector (i.e. list) of cannonball vectors
+// (i.e. directions).  It is not yet clear to me if we need anything
+// else, so maybe a vector of pairs of ligand atoms and a vector of
+// Coord_orths will do.
+//
+// This vector of pairs will in turn be processed into a "bash"
+// distance for each atom (how far can we go from the atom before
+// bashing in the atoms of the protein?)  Note that, in doing so, we
+// need to be able to specify "infinite bash distance". Let's make a
+// trivial class for bash distance.
+//
+// Then these distances get overlayed onto the ligand grid.
+//
+// The the ligand grid gets contoured.
+//
+// And plotted to the canvas.
+
+std::vector<std::pair<std::string, int> >
+coot::get_prodrg_hybridizations(const std::string &prodrg_log_file_name) {
+
+   std::cout << "in get_prodrg_hybridizations() "  << std::endl;
+   std::vector<std::pair<std::string, int> > v;
+   std::ifstream f(prodrg_log_file_name.c_str());
+   if (! f) {
+      std::cout << "WARNING:: failed to open " << prodrg_log_file_name << std::endl;
+   } else {
+      std::string line;
+      bool hybridizations_flag = 0;
+      while (std::getline(f, line)) {
+	 std::vector<std::string> words =
+	    coot::util::split_string_no_blanks(line, " ");
+	 if (words.size() > 1) {
+	    if (words[0] == "DETERMINING") {
+	       if (words[1] == "HYBRIDISATION") {
+		  hybridizations_flag = 1;
+	       }
+	    }
+	    if (words[0] == "PRODRG>") {
+	       hybridizations_flag = 0;
+	    }
+	 }
+	 if (hybridizations_flag) {
+	    if (line.find("qual = ") != std::string::npos ) {
+	       std::string atom_name=line.substr(1,4);
+	       std::string hybridization_str = line.substr(13,3);
+	       std::cout << ":" << atom_name <<": :" << hybridization_str
+			 << ":" << std::endl;
+	       int hybridization = coot::SP_HYBRIDIZATION;
+	       if (hybridization_str == "sp3")
+		  hybridization = coot::SP3_HYBRIDIZATION;
+	       if (hybridization_str == "sp2")
+		  hybridization = coot::SP2_HYBRIDIZATION;
+	       std::pair<std::string, int> p(atom_name, hybridization);
+	       v.push_back(p);
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
+std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > >
+coot::get_cannonball_vectors(CResidue *ligand_res_3d,
+			     const coot::dictionary_residue_restraints_t &monomer_restraints) {
+
+   std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > > v;
+
+   return v;
 }
