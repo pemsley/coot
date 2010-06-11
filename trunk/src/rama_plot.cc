@@ -993,7 +993,30 @@ coot::rama_plot::map_mouse_pos(double x, double y) {
 	    residue_type_background_as(residue_name);
 	    tooltip_like_box(t);
 	 } 
-      } else { 
+      } else {
+
+	 // OK, so is this a pre-PRO? (i.e. is the next residue a PRO?
+	 // (first, check that the residue exists before asking what
+	 // it's residue type is - not that we can't use [], because
+	 // that might add a map item (in that case that the index is
+	 // not found in the map - and that should happed at the end
+	 // of every fragment/chain)).
+	 //
+	 coot::residue_spec_t next_res_spec(t.spec.chain,
+					    t.spec.resno+1,
+					    t.spec.insertion_code);
+	 util::phi_psi_t found_pp =
+	    phi_psi_model_sets[t.model_number].phi_psi.find(next_res_spec)->second;
+
+	 if (found_pp.is_filled()) {
+
+	    std::string next_residue_name = found_pp.residue_name();
+
+	    if (next_residue_name == "PRO")
+	       residue_name = "PRE-PRO";
+	 }
+
+	 residue_name = phi_psi_model_sets[t.model_number].phi_psi[t.spec].residue_name();
 	 residue_type_background_as(residue_name);
 	 tooltip_like_box(t);
       } 
@@ -1222,7 +1245,6 @@ coot::rama_plot::mouse_point_check_differences(double worldx, double worldy) con
       }
    } 
    return t;
-
 }
 
 // redraw everything with the given background
@@ -1240,6 +1262,9 @@ coot::rama_plot::residue_type_background_as(std::string res) {
    }
    if ( res != "GLY"  ) {
       if (res != "PRO") {
+
+	 // PRE-PRO fix up needed here.
+	 
 	 if (displayed_rama_type != clipper::Ramachandran::NonGlyPro) {
 	    all_plot(clipper::Ramachandran::NonGlyPro);
 	 }
