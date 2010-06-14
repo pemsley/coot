@@ -12,7 +12,6 @@ test ligands:
             Mistake, I feel - needs investigating.
 
 ----
-Fri May 28 22:55:28 BST 2010
 
     Thoughts about 6 July meeting:
 
@@ -20,6 +19,21 @@ Fri May 28 22:55:28 BST 2010
 
     o Need to show findligand script with a ccp4mg headless back-end
       for images.
+
+----
+Fri May 21 14:02:36 BST 2010
+
+
+crash when setup sbase to the wrong directory.
+
+
+(lbg:23223): Gtk-WARNING **: Unable to locate theme engine in module_path: "murrine",
+
+(lbg:23223): Gtk-WARNING **: Unable to locate theme engine in module_path: "murrine",
+
+(lbg:23223): Gtk-WARNING **: Error loading icon: Failed to open file '/lmb/wear/emsley/Projects/coot/lbg/Anonymous_Architetto_--_Chiave.svg': No such file or directory
+sbase monomer dir: /home/paule/ccp4/ccp4-6.1.2/share/sbase
+sbase files not found in /home/paule/ccp4/ccp4-6.1.2/share/sbase
 
 
 ---
@@ -40,7 +54,6 @@ Mon May 31 11:03:59 BST 2010
    if a bond between them already exists. (fix problem of "back-bond"
    in rotate_latest_bond()).  Hmm... is that properly handled in
    rotate_latest_bond()?
-
 
 ----
 Sun May 30 08:56:48 BST 2010
