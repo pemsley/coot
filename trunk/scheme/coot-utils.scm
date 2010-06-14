@@ -86,6 +86,8 @@
 (define space-group space-group-scm)
 (define nearest-residue-by-sequence nearest-residue-by-sequence-scm)
 (define set-torsion set-torsion-scm)
+(define get-map-colour get-map-colour-scm)
+
 
 ;; documented functions
 

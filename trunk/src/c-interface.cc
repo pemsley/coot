@@ -4406,6 +4406,53 @@ void screendump_image(const char *filename) {
    }
 }
 
+
+#ifdef USE_GUILE
+SCM get_map_colour_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_map_molecule(imol)) {
+      std::vector<float> colour_v = graphics_info_t::molecules[imol].map_colours();
+      if (colour_v.size() > 2) {
+	 r = scm_list_3(scm_float2num(colour_v[0]),
+			scm_float2num(colour_v[1]),
+			scm_float2num(colour_v[2]));
+      }
+   }
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *get_map_colour_py(int imol) {
+
+   PyObject *r = Py_False;
+
+   return r;
+} 
+#endif
+
+
+
+/* give a warning dialog if density it too dark (blue) */
+void check_for_dark_blue_density() {
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      for (int i=0; i<graphics_info_t::n_molecules(); i++) { 
+	 if (graphics_info_t::molecules[i].has_map()) { 
+	    if (graphics_info_t::molecules[i].is_displayed_p()) {
+	       if (graphics_info_t::molecules[i].map_is_too_blue_p()) {
+		  std::string s = "I suggest that you increase the brightness of the map\n";
+		  s += " if this is for a presentation (blue projects badly).";
+		  info_dialog(s.c_str());
+	       }
+	    }
+	 }
+      }
+   } 
+} 
+
+
 void make_image_raster3d(const char *filename) {
 
    std::string r3d_name = filename;

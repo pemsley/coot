@@ -631,6 +631,9 @@ You can use this, in conjunction with spinning and view moving functions to
 make movies */
 void screendump_image(const char *filename);
 
+/* give a warning dialog if density it too dark (blue) */
+void check_for_dark_blue_density(); 
+
 void add_is_difference_map_checkbutton(GtkWidget *fileselection); 
 /* the callback for the above: */
 void
@@ -973,6 +976,16 @@ int map_from_mtz_by_calc_phases(const char *mtz_file_name,
 				int imol_coords);
 
 gdouble* get_map_colour(int imol);
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM get_map_colour_scm(int imol);
+#endif
+#ifdef USE_PYTHON
+PyObject *get_map_colour_py(int imol);
+#endif
+#endif
+
 
 void add_on_map_colour_choices(GtkWidget *w);
 

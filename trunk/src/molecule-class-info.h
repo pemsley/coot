@@ -1725,6 +1725,8 @@ public:        //                      public
       return i;
    }
 
+   bool map_is_too_blue_p() const;
+
 
    // delete residue, typically for waters
    //

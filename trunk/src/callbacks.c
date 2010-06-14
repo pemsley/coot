@@ -8616,6 +8616,8 @@ on_simple1_activate                    (GtkMenuItem     *menuitem,
    set_file_selection_dialog_size(fileselection);
    gtk_widget_show(fileselection);
 
+   check_for_dark_blue_density(); /* give a dialog if density it too dark (blue) */
+
 }
 
 

@@ -1,7 +1,23 @@
 
 
 (define *cprodrg* "cprodrg")
-(define *cprodrg* "/home/paule/ccp4/ccp4-6.1.2/bin/cprodrg")
+;; (define *cprodrg* "/home/paule/ccp4/ccp4-6.1.2/bin/cprodrg")
+
+;; if there is a prodrg-xyzin set the current-time to its mtime, else #f
+;; 
+;; (define prodrg-xyzin       "../../coot/lbg/prodrg-in.mdl")
+;; (define sbase-to-coot-tlc  "../../coot/lbg/.sbase-to-coot-comp-id")
+
+
+;; what is this rubbish?
+;; (define prodrg-xyzin       "/home/emsley/build-coot-f12/coot/lbg/prodrg-in.mdl")
+;; (define sbase-to-coot-tlc  "/home/emsley/build-coot-f12/coot/lbg/.sbase-to-coot-comp-id")
+
+
+(define prodrg-xyzin       "/lmb/wear/emsley/Projects/coot/lbg/prodrg-in.mdl")
+(define sbase-to-coot-tlc  "/lmb/wear/emsley/Projects/coot/lbg/.sbase-to-coot-comp-id")
+
+
 
 (define (import-from-prodrg minimize-mode)
 
@@ -88,10 +104,6 @@
 			   
 
 
-;; if there is a prodrg-xyzin set the current-time to its mtime, else #f
-;; 
-(define prodrg-xyzin       "../../coot/lbg/prodrg-in.mdl")
-(define sbase-to-coot-tlc  "../../coot/lbg/.sbase-to-coot-comp-id")
 
 (define (get-mdl-latest-time file-name)
   (if (not (file-exists? file-name))

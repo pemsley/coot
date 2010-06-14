@@ -6,6 +6,14 @@
 
     o HEC and HEA, chiral restraints, minimisation problem ::: 2
 
+    o consider default gap penalties:  (-0.5, and -0.4) 
+
+    o go to atom updates correctly on deleting a molecule or a chain?
+
+    o crash on rigid body refine of many residues? > 50 ?
+
+    o checkboxes on save coordinates for ANISO and Hydrogens.
+
     o delete residues 80 81, Dock sequence, add terminal residue,
       should build TYRs - second is an ALA.
 
