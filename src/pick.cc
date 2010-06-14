@@ -223,9 +223,9 @@ atom_pick(GdkEventButton *event) {
 	 atom_selection_container_t SelAtom = graphics_info_t::molecules[p_i.imol].atom_sel;
 	 nearest_atom_index = p_i.atom_index;
 		  
-	 cout << "(" << p_i.imol << ") " 
+	 cout << "(" << p_i.imol << ") \"" 
 	      << (SelAtom.atom_selection)[nearest_atom_index]->name 
-	      << alt_conf_bit << "/"
+	      << alt_conf_bit << "\"/"
 	      << (SelAtom.atom_selection)[nearest_atom_index]->GetModelNum()
 	      << "/chainid=\""
 	      << (SelAtom.atom_selection)[nearest_atom_index]->GetChainID()
@@ -240,9 +240,9 @@ atom_pick(GdkEventButton *event) {
 	      << (SelAtom.atom_selection)[nearest_atom_index]->occupancy 
 	      << " with B-factor: "
 	      << (SelAtom.atom_selection)[nearest_atom_index]->tempFactor
-	      << " element: "
+	      << " element: \""
 	      << (SelAtom.atom_selection)[nearest_atom_index]->element
-	      << " at " << "("
+	      << "\" at " << "("
 	      << (SelAtom.atom_selection)[nearest_atom_index]->x << ","
 	      << (SelAtom.atom_selection)[nearest_atom_index]->y << ","
 	      << (SelAtom.atom_selection)[nearest_atom_index]->z << ")"
