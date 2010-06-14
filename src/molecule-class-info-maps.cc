@@ -2780,3 +2780,20 @@ molecule_class_info_t::rigid_body_fit(const coot::minimol::molecule &mol_in,
    coot::minimol::molecule moved_mol = lig.get_solution(0);
    return moved_mol;
 } 
+
+bool
+molecule_class_info_t::map_is_too_blue_p() const {
+
+   bool state = 0;
+
+   if (has_map())
+      if (! xmap_is_diff_map[0]) 
+	 if (map_colour[0][0] < 0.4) 
+	    if (map_colour[0][1] < 0.4)
+	       state = 1;
+
+   std::cout << "Map is too blue: " << state << std::endl;
+   return state;
+}
+
+
