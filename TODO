@@ -110,6 +110,12 @@
 
    o Rotamer plots need to update on multiple do/undos.
 
+   o Now that we have sequence aligmment, how about supporting the
+     mutation (to the assocated sequence residue type) of the residue
+     that I'm looking at [James Whittle] - needs a function
+     (associated-sequence-residue-type imol chain-id resno ins-code)
+     -> 3-letter code or #f
+
    o in coot_toolbuttons.py Bernhard registers the icons.  Does that
      make them smooth?
 
