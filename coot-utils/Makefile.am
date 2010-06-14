@@ -93,7 +93,7 @@ libcoot_map_heavy_la_LIBADD = \
     $(top_builddir)/utils/libcoot-utils.la
 
 
-noinst_PROGRAMS = test-h-bonds testshelxreader
+noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils
 
 # testshelxreader fails to link for some reason! coot::protein_geometry::get_h_bond_type 
 # testcootutils also.
@@ -106,6 +106,7 @@ testshelxreader_LDADD = \
         $(top_builddir)/utils/libcoot-utils.la
 
 testcootutils_SOURCES = test-utils.cc
+
 testcootutils_LDADD = \
 	./libcoot-shelx.la \
 	./libcoot-coord-utils.la \
