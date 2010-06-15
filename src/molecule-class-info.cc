@@ -1739,17 +1739,23 @@ void
 molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 				     float p_bond_width) {
 
-   //
 
+   coot::Cartesian front = unproject(0.0);
+   coot::Cartesian back  = unproject(1.0);
+
+   // std::cout << "front and back: " << front << " " << back << std::endl;
+   //
+   bool with_gl_lines = 0;
+   
    coot::CartesianPair pair;
-   Lines_list ll;
+   // Lines_list &ll;
    
    glLineWidth(p_bond_width);
    //
 
    for (int i=0; i<bonds_box.num_colours; i++) {
 
-      ll = bonds_box.bonds_[i];
+      Lines_list &ll = bonds_box.bonds_[i];
       //cout << "j range: for i = " << i << " is "
       //	   << bonds_box.bonds_[i].num_lines << endl;
 
@@ -1775,7 +1781,8 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       }
       int linesdrawn = 0;
 
-      if (1) { 
+      if (with_gl_lines) {
+
 	 glBegin(GL_LINES); 
 	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 	    
@@ -1790,43 +1797,60 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	    glVertex3f(ll.pair_list[j].getFinish().get_x(),
 		       ll.pair_list[j].getFinish().get_y(),
 		       ll.pair_list[j].getFinish().get_z());
-	    if ( (++linesdrawn & 1023) == 0) {
-	       glEnd();
-	       glBegin(GL_LINES);
-	       linesdrawn = 0;
-	    }
 	 }
 	 glEnd();
       }
 
-      // quads.  This is poor currently.  Needs to be based on view
-      // rotation matrix and zoom, so that we can draw the quad
-      // perpendicular to the view direction (and of the right
-      // thickness).
-      if (0) {
-	 glBegin(GL_QUADS);
-	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
-	    glVertex3f(ll.pair_list[j].getStart().get_x()+0.05,
-		       ll.pair_list[j].getStart().get_y(),
-		       ll.pair_list[j].getStart().get_z());
-	    glVertex3f(ll.pair_list[j].getStart().get_x()-0.05,
-		       ll.pair_list[j].getStart().get_y(),
-		       ll.pair_list[j].getStart().get_z());
+      if (! with_gl_lines) {
 
-	    glVertex3f(ll.pair_list[j].getFinish().get_x(),
-		       ll.pair_list[j].getFinish().get_y()+0.05,
-		       ll.pair_list[j].getFinish().get_z());
-	    glVertex3f(ll.pair_list[j].getFinish().get_x(),
-		       ll.pair_list[j].getFinish().get_y()-0.05,
-		       ll.pair_list[j].getFinish().get_z());
+	 float modelview[16];
+
+	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
+	 coot::Cartesian vec_perp_to_screen_z =
+	    get_vector_pependicular_to_screen_z(front, back,
+						ll.pair_list[j].getFinish() -
+						ll.pair_list[j].getStart(),
+						graphics_info_t::zoom);
+
+	    glVertex3f(ll.pair_list[j].getStart().get_x()+vec_perp_to_screen_z.get_x(),
+		       ll.pair_list[j].getStart().get_y()+vec_perp_to_screen_z.get_y(),
+		       ll.pair_list[j].getStart().get_z()+vec_perp_to_screen_z.get_z());
+	    glVertex3f(ll.pair_list[j].getStart().get_x()-vec_perp_to_screen_z.get_x(),
+		       ll.pair_list[j].getStart().get_y()-vec_perp_to_screen_z.get_y(),
+		       ll.pair_list[j].getStart().get_z()-vec_perp_to_screen_z.get_z());
+
+	    glVertex3f(ll.pair_list[j].getFinish().get_x()-vec_perp_to_screen_z.get_x(),
+		       ll.pair_list[j].getFinish().get_y()-vec_perp_to_screen_z.get_y(),
+		       ll.pair_list[j].getFinish().get_z()-vec_perp_to_screen_z.get_z());
+	    glVertex3f(ll.pair_list[j].getFinish().get_x()+vec_perp_to_screen_z.get_x(),
+		       ll.pair_list[j].getFinish().get_y()+vec_perp_to_screen_z.get_y(),
+		       ll.pair_list[j].getFinish().get_z()+vec_perp_to_screen_z.get_z());
+	    
 	 }
 	 glEnd();
       } 
-
-      
    }
-
 }
+
+coot::Cartesian 
+molecule_class_info_t::get_vector_pependicular_to_screen_z(const coot::Cartesian &front,
+							   const coot::Cartesian &back,
+							   const coot::Cartesian &bond_dir,
+							   float zoom)  const {
+
+   coot::Cartesian bmf = back - front;
+   // coot::Cartesian arb(0, 0.1, 0.9);
+   coot::Cartesian p1 = coot::Cartesian::CrossProduct(bmf, bond_dir);
+
+//    std::cout << "   crossproduct: " << p1 << " from "
+// 	     << bmf << " and " << arb << "\n";
+
+   p1.unit_vector_yourself();
+   p1 *= zoom * 0.0004 * bond_width;
+   
+   return p1;
+}
+
 
 void
 molecule_class_info_t::display_symmetry_bonds() {

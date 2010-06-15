@@ -289,7 +289,6 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
    int nvecs = n_draw_vectors; // cartesianpair pointer counter (old code)
    if (draw_map_local_flag) {  // i.e. drawit_for_map (except when compiling a new map display list)
-
       // same test as has_map():
       if (xmap_is_filled[0]) {
 
@@ -323,10 +322,6 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 	    // std::cout << "   debug draw immediate mode " << std::endl;
 	    if ( nvecs > 0 ) {
 
-	       coot::Cartesian start, finish;
-	       int linesdrawn = 0;
-	       //
-
 	       glColor3dv (map_colour[0]);
 	       glLineWidth(graphics_info_t::map_line_width);
       
@@ -338,11 +333,6 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 		  glVertex3f(draw_vectors[i].getFinish().x(),
 			     draw_vectors[i].getFinish().y(),
 			     draw_vectors[i].getFinish().z());
-		  if((++linesdrawn & 1023) == 0){
-		     linesdrawn = 0;
-		     glEnd();
-		     glBegin(GL_LINES);
-		  }
 	       }
 	       glEnd();
 	    }
@@ -356,7 +346,6 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 		  if (n_draw_vectors == 0)
 		     glLineWidth(graphics_info_t::map_line_width);
 	       
-		  int linesdrawn_dm = 0;
 		  glBegin(GL_LINES);
 		  for (int i=0; i< n_diff_map_draw_vectors; i++) { 
 		  
@@ -366,11 +355,6 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 		     glVertex3f(diff_map_draw_vectors[i].getFinish().get_x(),
 				diff_map_draw_vectors[i].getFinish().get_y(),
 				diff_map_draw_vectors[i].getFinish().get_z());
-		     if((++linesdrawn_dm & 1023) == 0) {
-			linesdrawn_dm = 0;
-			glEnd();
-			glBegin(GL_LINES);
-		     }
 		  }
 		  glEnd();
 	       }

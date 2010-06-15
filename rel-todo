@@ -22,6 +22,22 @@
 
     o Documentation for views.
 
+    o Does the local update of molprobity dots (e.g. on refinement or
+      sphere refinement) work?
+
+    o Dima's Workshop data, Place helix here on helix 2 - pathetic
+      failure!
+
+    o Document user-defined-click
+
+      user_defined_click(n_clicked, func)
+
+      which runs func after the user has made n_clicked atom picks.
+      func is called with a list of atom specifiers (just print them
+      out, you'll see how they are formatted).
+
+   o  fffear needs better error message when args swap.
+
 ------
 
     o Fix rename-residue to work on just one chain ::: 0.5
