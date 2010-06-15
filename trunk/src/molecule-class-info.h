@@ -813,6 +813,12 @@ class molecule_class_info_t {
    bool original_fphis_filled;
    clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
 
+   // for quads/triangle strip for the bond representation (rather
+   // than gl_lines).
+   coot::Cartesian get_vector_pependicular_to_screen_z(const coot::Cartesian &front,
+						       const coot::Cartesian &back,
+						       const coot::Cartesian &bond_dir,
+						       float zoom) const;
 
    // remove TER record from residue
    bool residue_has_TER_atom(CResidue *res_p) const;

@@ -1570,6 +1570,11 @@ coot::standard_residue_name_p(const std::string &rn) {
 // else, so maybe a vector of pairs of ligand atoms and a vector of
 // Coord_orths will do.
 //
+// Fine, but note that we get the hydrogen directions from the prodrg
+// ligand, but we want the hydrogen position on the atoms of our
+// (reference) ligand.  So, we'll have to do a name mapping of the
+// non-hydrogen atoms using mmdb graph match.  Complicated.
+//
 // This vector of pairs will in turn be processed into a "bash"
 // distance for each atom (how far can we go from the atom before
 // bashing in the atoms of the protein?)  Note that, in doing so, we
