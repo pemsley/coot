@@ -1805,6 +1805,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
 	 float modelview[16];
 
+	 glBegin(GL_QUADS); 
 	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 	 coot::Cartesian vec_perp_to_screen_z =
 	    get_vector_pependicular_to_screen_z(front, back,
