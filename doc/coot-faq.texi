@@ -88,7 +88,7 @@ Using Coot
 * I don't like your default REFMAC parameters. How do I change them?::
 * How do I put a pointer into a blob of density?::
 * How do I "grab" just one atom in Real Space Refinement/Regularization?::
-* My sidechains are being sucked into the density for metal.  How do I stop that?::
+* My sidechains are being sucked into the density for metal - how do I stop that?::
 * How do I bind a function to a key?::
 * I can't mutate my broken residue::
 * How do I get rid of the ``Old Coot'' dialog?::
@@ -515,6 +515,7 @@ work try also:
 * I don't like your default REFMAC parameters. How do I change them?::
 * How do I put a pointer into a blob of density?::
 * How do I "grab" just one atom in Real Space Refinement/Regularization?::
+* My sidechains are being sucked into the density for metal - how do I stop that?::
 * How do I bind a function to a key?::
 * I can't mutate my broken residue::
 * Where has the Rotate/Translate function gone?::
@@ -796,7 +797,8 @@ define (for example in you @t{$HOME/.coot} file) the variable
 
 
 @itemize
-@item Method 1: Quite straightforwardly drag the density onto the pointer (centre of the screen) using Ctrl Left-mouse drag.
+@item Method 1: Quite straightforwardly drag the density onto the pointer (centre of the screen) 
+      using Ctrl Left-mouse drag.
 
 @item Method 2: bind the function (blob-under-pointer-to-screen-centre) to a key. Press that key. 
 @end itemize
@@ -813,8 +815,8 @@ title bar rather than a grey one). (You need to means be precise with
 the clicking - if the view rotates instead of the atom moving then you
 know that you have been insufficiently precise.)
 
-@node My sidechains are being sucked into the density for metal.  How do I stop that?
-@section My sidechains are being sucked into the density for metal.  How do I stop that?
+@node    My sidechains are being sucked into the density for metal - how do I stop that?
+@section My sidechains are being sucked into the density for metal - how do I stop that?
 
 The best way to fix that is to add proper (bonding) restraints between
 the metal and the sidechain (type).
