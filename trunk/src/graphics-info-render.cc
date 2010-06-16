@@ -727,6 +727,10 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       clipper::Vec3<double> camera_translation_cl = view_centre_cl + tt_cl;
 
       render_stream << "#include \"colors.inc\"\n";
+      render_stream << "background { color rgb <"
+                    << graphics_info_t::background_colour[0] << ", "
+                    << graphics_info_t::background_colour[1] << ", "
+                    << graphics_info_t::background_colour[2] << "> }\n";
       render_stream << "camera { orthographic\n"
 		    << "        location  <"
 		    << camera_translation_cl[0] << ", "

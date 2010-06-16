@@ -1055,22 +1055,33 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
     window.show_all()
 #molecule_chooser_gui("test-gui",print_sequence_chain(0,"A"))
 
-# Fire up a molecule chooser dialog, with a given label and on OK we
-# call the call_back_fuction with an argument of the chosen molecule
-# number. 
+# Fire up a coordinates/model molecule chooser dialog, with a given
+# label and on OK we call the callback_fuction with an argument of
+# the chosen molecule number. 
 # 
-# chooser-label is a directive to the user such as "Choose a Molecule"
+# chooser_label is a directive to the user such as "Choose a Molecule"
 # 
-# callback-function is a function that takes a molecule number as an
+# callback_function is a function that takes a molecule number as an
 # argument.
 #
-def molecule_chooser_gui(chooser_label,callback_function):
-    molecule_chooser_gui_generic(chooser_label,callback_function,fill_option_menu_with_coordinates_mol_options)
+def molecule_chooser_gui(chooser_label, callback_function):
+    molecule_chooser_gui_generic(chooser_label,
+                                 callback_function,
+                                 fill_option_menu_with_coordinates_mol_options)
 
-# As above but for maps
+# Fire up a map molecule chooser dialog, with a given label and on OK we
+# call the callback_fuction with an argument of the chosen molecule
+# number. 
+# 
+# chooser_label is a directive to the user such as "Choose a Molecule"
+# 
+# callback_function is a function that takes a molecule number as an
+# argument.
 #
-def map_molecule_chooser_gui(chooser_label,callback_function):
-    molecule_chooser_gui_generic(chooser_label,callback_function,fill_option_menu_with_map_mol_options)
+def map_molecule_chooser_gui(chooser_label, callback_function):
+    molecule_chooser_gui_generic(chooser_label,
+                                 callback_function,
+                                 fill_option_menu_with_map_mol_options)
 
 # A pair of widgets, a molecule chooser and an entry.  The
 # callback_function is a function that takes a molecule number and a
@@ -4375,9 +4386,12 @@ def rename_residue_gui_simple():
    else:
       print active_atom
       generic_single_entry("Rename this residue", "ALA", "Rename",
-                           lambda text: using_active_atom([[set_residue_name,
-                                                            ["aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"],
-                                                            [text]]]))
+                           lambda text: using_active_atom(set_residue_name,
+                                                          "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code",
+                                                            text))
+#                           lambda text: using_active_atom([[set_residue_name,
+#                                                            ["aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"],
+#                                                            [text]]]))
 
 def average_map_gui():
    

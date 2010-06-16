@@ -3331,6 +3331,46 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    std::pair<int, int> cl_at = g.get_closest_atom();
 	    if (is_valid_model_molecule(cl_at.second)) {
 	       g.molecules[cl_at.second].add_to_labelled_atom_list(cl_at.first);
+           // shall add to status_bar ? maybe this should be a function?
+           std::string ai;
+           CAtom *at = g.molecules[cl_at.second].atom_sel.atom_selection[cl_at.first];
+           std::string alt_conf_bit("");
+           if (strncmp(at->altLoc, "", 1))
+             alt_conf_bit=std::string(",") + std::string(at->altLoc);
+           ai += "(mol. no: ";
+           ai += graphics_info_t::int_to_string(cl_at.second);
+           ai += ") ";
+           ai += at->name;
+           ai += alt_conf_bit;
+           ai += "/";
+           ai += graphics_info_t::int_to_string(at->GetModelNum());
+           ai += "/";
+           ai += at->GetChainID();
+           ai += "/";
+           ai += graphics_info_t::int_to_string(at->GetSeqNum());
+           ai += at->GetInsCode();
+           ai += " ";
+           ai += at->GetResName();
+           // ignoring symmetry!!
+           //ai += " [";
+           //ai += p_i.symm_trans.str(1);
+           //ai += "] occ: ";
+           ai += " occ: ";
+           ai += graphics_info_t::float_to_string(at->occupancy);
+           ai += " bf: ";
+           ai += graphics_info_t::float_to_string(at->tempFactor);
+           ai += " ele: ";
+           ai += at->element;
+           ai += " pos: (";
+           // using atom positions (ignoring symmetry etc)
+           ai += graphics_info_t::float_to_string(at->x);
+           ai += ",";
+           ai += graphics_info_t::float_to_string(at->y);
+           ai += ",";
+           ai += graphics_info_t::float_to_string(at->z);
+           ai += ")";
+           g.statusbar_text(ai);
+           // insert end
 	    }
 	    graphics_info_t::graphics_draw();
 	 }

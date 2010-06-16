@@ -59,6 +59,7 @@ namespace coot {
       // stripped from f).  If cwd is not a substring of f, then return f;
       // 
       std::string relativise_file_name(const std::string &f, const std::string &cwd);
+      std::string absolutise_file_name(const std::string &file_name);
       std::string Upper(const std::string &s);
       std::string remove_leading_spaces(const std::string &s);
       std::string int_to_string(int i);
