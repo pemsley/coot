@@ -3819,6 +3819,24 @@ void write_ccp4mg_picture_description(const char *filename) {
 		<< g.quat[0] << ", " << g.quat[1] << ", " << g.quat[2] << "]\n";
       mg_stream << ")\n";
 
+      // Parameters (maybe further down?)
+      // GUI Parameters (for bg colour e.g.)
+      mg_stream << "\n";
+      mg_stream << "ParamsManager (\n";
+      mg_stream << "   name = 'gui_params',\n";
+      mg_stream << "   background_colour = [";
+      mg_stream << (int)graphics_info_t::background_colour[0] * 255 << ", ";
+      mg_stream << (int)graphics_info_t::background_colour[1] * 255 << ", ";
+      mg_stream << (int)graphics_info_t::background_colour[2] * 255 << "]\n";
+      mg_stream << ")\n";
+      mg_stream << "\n";
+      // Display Params (not working I think; default bond width for all)
+      mg_stream << "\n";
+      mg_stream << "ParamsManager (\n";
+      mg_stream << "   name = 'model_drawing_style',\n";
+      mg_stream << "   bond_width = ";
+      mg_stream << graphics_info_t::default_bond_width << "         )\n";
+
       // Molecules:
       std::ostringstream map_colour_stream;
       for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
@@ -3826,8 +3844,8 @@ void write_ccp4mg_picture_description(const char *filename) {
 	    mg_stream << "MolData (\n";
 	    mg_stream << "   filename = [\n";
 	    mg_stream << "   'FULLPATH',\n";
-	    mg_stream << "   " << single_quote(graphics_info_t::molecules[imol].name_) << ",\n";
-	    mg_stream << "   " << single_quote(graphics_info_t::molecules[imol].name_) << "])\n";
+	    mg_stream << "   " << single_quote(coot::util::absolutise_file_name(graphics_info_t::molecules[imol].name_)) << ",\n";
+	    mg_stream << "   " << single_quote(coot::util::absolutise_file_name(graphics_info_t::molecules[imol].name_)) << "])\n";
 	    mg_stream << "\n";
 	    mg_stream << "MolDisp (\n";
 	    mg_stream << "    selection = 'all',\n";
@@ -3856,7 +3874,7 @@ void write_ccp4mg_picture_description(const char *filename) {
 	       "1.0],\n";
 	    //colour_definitions.push_back(map_colour);
 	    // int use_weights_flag = g.molecules[imol].save_use_weights;
-	    std::string name = single_quote(graphics_info_t::molecules[imol].save_mtz_file_name);
+	    std::string name = single_quote(coot::util::absolutise_file_name(graphics_info_t::molecules[imol].save_mtz_file_name));
 	    mg_stream << "MapData (\n";
 	    mg_stream << "   filename = [\n";
 	    mg_stream << "   'FULLPATH',\n";

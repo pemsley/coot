@@ -93,6 +93,14 @@ class PdbMtzTestFunctions(unittest.TestCase):
                              "fail on non-matching n molecules (=)")
 
 
+    def test03_1(self):
+        """Don't crash on empty NCS from mmCIF file"""
+
+        imol = unittest_pdb("2WF6.pdb")
+        close_molecule(imol)
+         # no testing, just not crashing
+         
+        
     def test04_0(self):
         """New molecule from bogus atom selection"""
         pre_n_molecules = graphics_n_molecules()

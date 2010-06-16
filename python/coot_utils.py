@@ -78,11 +78,14 @@ def with_auto_accept(*funcs):
     return ret   # returns result of last functions!!!!
 
 # 'Macro' to run funcs on an active atom
-# funcs is a list of functions, active_atom specifiers and extra args
-# [[func1, ["aa_imol", "aa_chain_id",...], [extra_arg1, extra arg2, ..]], [func2,...]]
+# funcs is function, active_atom specifiers and extra args
+# func, args, "aa_imol", "aa_chain_id", ..., args
+# or list thereof
+# [[func1, extra_arg1, ..., "aa_imol", "aa_chain_id",..., extra_arg2, extra arg3, ..], [func2,...]]
 #
-def using_active_atom(funcs):
+def using_active_atom(*funcs):
 
+    from types import ListType
     active_atom = active_residue()
     if (not active_atom):
         add_status_bar_text("No residue found")
@@ -93,19 +96,28 @@ def using_active_atom(funcs):
                    "aa_ins_code":  active_atom[3],
                    "aa_atom_name": active_atom[4],
                    "aa_alt_conf":  active_atom[5]}
-#        aa_imol      = active_atom[0]
-#        aa_chain_id  = active_atom[1]
-#        aa_res_no    = active_atom[2]
-#        aa_ins_code  = active_atom[3]
-#        aa_atom_name = active_atom[4]
-#        aa_alt_conf  = active_atom[5]
 
-        for (func, aa_args, extra_args) in funcs:
+        if (len(funcs) == 1):
+            # we have a list of functions
+            # so use
+            ls_funcs = funcs[0]
+        elif (type(funcs[0]) is ListType):
+            # we have a range of lists
+            # use as is
+            ls_funcs = funcs
+        else:
+            # we have a single function with args
+            # make into list
+            ls_funcs = [funcs]
+        for ele in ls_funcs:
+            func = ele[0]
+            func_args = ele[1:]
             args = []
-            for aa_arg in aa_args:
-                args.append(aa_dict[aa_arg])
-            for extra_arg in extra_args:
-                args.append(extra_arg)
+            for arg in func_args:
+                if aa_dict.has_key(arg):
+                    args.append(aa_dict[arg])
+                else:
+                    args.append(arg)
             func(*args)
 
 # Pythonize function: return a python boolean.
@@ -348,13 +360,13 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
     
     major, minor, micro, releaselevel, serial = sys.version_info
 
-    if not(command_in_path_qm(cmd)):
-       print "command ", cmd, " not found in $PATH!"
-       print "BL INFO:: Maybe we'll find it somewhere else later..."
-       return 255  # why?
+    if (os.path.isfile(cmd)):
+        cmd_execfile = cmd
     else:
-        if (os.path.isfile(cmd)):
-            cmd_execfile = cmd
+        if not(command_in_path_qm(cmd)):
+            print "command ", cmd, " not found in $PATH!"
+            print "BL INFO:: Maybe we'll find it somewhere else later..."
+            return 255  # why?
         else:
             cmd_execfile = find_exe(cmd, "CCP4_BIN", "PATH")
 
@@ -2527,6 +2539,8 @@ chain_id               = chain_id_py
 coot_sys_build_type    = coot_sys_build_type_py
 run_clear_backups      = run_clear_backups_py
 test_internal          = test_internal_py
+test_internal_single   = test_internal_single_py
+get_map_colour         = get_map_colour_py
 average_map            = average_map_py
 refmac_parameters      = refmac_parameters_py
 map_sigma              = map_sigma_py

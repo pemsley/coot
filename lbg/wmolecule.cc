@@ -26,7 +26,6 @@
 
 #include "lbg.hh"
 
-
 // Don't forget that this function will be used in
 // render_from_molecule, which will add canvas item.
 //
@@ -285,13 +284,13 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
       
 	 lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
 	 lig_build::pos_t buv_90 = buv.rotate(90);
-	 double small = 4;
-	 lig_build::pos_t p1 = pos_1 + buv_90 * small;
-	 lig_build::pos_t p2 = pos_2 + buv_90 * small;
+	 double small_t = 4;
+	 lig_build::pos_t p1 = pos_1 + buv_90 * small_t;
+	 lig_build::pos_t p2 = pos_2 + buv_90 * small_t;
 	 lig_build::pos_t p3 = pos_1;
 	 lig_build::pos_t p4 = pos_2;
-	 lig_build::pos_t p5 = pos_1 - buv_90 * small;
-	 lig_build::pos_t p6 = pos_2 - buv_90 * small;
+	 lig_build::pos_t p5 = pos_1 - buv_90 * small_t;
+	 lig_build::pos_t p6 = pos_2 - buv_90 * small_t;
 	 GooCanvasItem *ci_1 = goo_canvas_polyline_new_line(group,
 							    p1.x, p1.y,
 							    p2.x, p2.y, NULL);
@@ -330,11 +329,11 @@ widgeted_bond_t::canvas_item_double_bond(const lig_build::pos_t &pos_1,
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
 
-   double small = 2;
-   lig_build::pos_t p1 = pos_1 + buv_90 * small;
-   lig_build::pos_t p2 = pos_2 + buv_90 * small;
-   lig_build::pos_t p3 = pos_1 - buv_90 * small;
-   lig_build::pos_t p4 = pos_2 - buv_90 * small;
+   double small_t = 2;
+   lig_build::pos_t p1 = pos_1 + buv_90 * small_t;
+   lig_build::pos_t p2 = pos_2 + buv_90 * small_t;
+   lig_build::pos_t p3 = pos_1 - buv_90 * small_t;
+   lig_build::pos_t p4 = pos_2 - buv_90 * small_t;
    GooCanvasItem *ci_1 = goo_canvas_polyline_new_line(group,
 						      p1.x, p1.y,
 						      p2.x, p2.y, NULL);

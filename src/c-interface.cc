@@ -4426,9 +4426,20 @@ SCM get_map_colour_scm(int imol) {
 #ifdef USE_PYTHON
 PyObject *get_map_colour_py(int imol) {
 
-   PyObject *r = Py_False;
-
-   return r;
+  PyObject *r = Py_False;
+  if (is_valid_map_molecule(imol)) {
+    std::vector<float> colour_v = graphics_info_t::molecules[imol].map_colours();
+    if (colour_v.size() > 2) {
+      r = PyList_New(colour_v.size());
+      for (int i=0; i<colour_v.size(); i++) {
+        PyList_SetItem(r, i, PyFloat_FromDouble(colour_v[i]));
+      }
+    }
+  }
+  if (PyBool_Check(r)) {
+    Py_XINCREF(r);
+  }
+  return r;
 } 
 #endif
 

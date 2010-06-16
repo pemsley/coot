@@ -1,12 +1,39 @@
  -*-text-*-
 
-scripts      rev 2902 
-tests        rev 2949
+scripts      rev 3001
+tests        rev 2994
 build-it-win rev 2122
 
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.6.2 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
+
+notes CCP4 workshop
+- local NCS
+- document refmac extra params + lib files location
+- alt confs in Rama plot
+- symmetry dialog opens multiple times
+- SHELX file hide/delete H when refine?! (automatic?)
+- user manual in python/general documentation clean-up
+- 'l' doesnt work on symmetry mols
+- update refmac gui for v 5.6
+- geometry graph no scroll bar, crashes when close (2vtu) multiple windows
+	in validation (due to MODEL - in combination with alt conf).
+	What can/should we do?
+	geometry validation crashed (e.g. 2KS1):
+gsl: vector_source.c:29: ERROR: index out of range
+Default GSL error handler invoked.
+	other graphs have one per model, but not geometry! Maybe that's 
+	(one) problem
+- reverse direction of (full atom) fragment (ca to main chain looses sequence
+	info!! otherwise can make easy script: reverse->ca->MC->fill residue
+	maybe just save and reapply?
+- white (current) bg for pov-ray (maybe rastre3d too)
+  * Done
+- script to extend helix (strand?!)
+- 'new' loop fitting for scheme
+- SF4 library file
+- LINK record-> refmac (MODRES?, no LINKR)
 
 ----------------
 * TO DO THINGS *
@@ -18,7 +45,8 @@ build-it-win rev 2122
 
    o water check for B below threshold?!
 
-   o Tooltips for residues in new sequence view?!
+   o Tooltips for residues in new sequence view?! (wait for goocanvas - has
+	build-in tooltip)
 
    o Edit Chi for hydrogens not working (H from reduce at least)
 
@@ -27,8 +55,6 @@ build-it-win rev 2122
    o doublication of find strand/find ss (Extensions, Other tools)
 
    o glycosylate residue
-
-   o labelling with 'l' doesnt show status bar info (feature/bug?)
 
 04/11/08 CCP4 dev meeting:
    o activate bulk solvent correction for refmac?
@@ -48,7 +74,8 @@ build-it-win rev 2122
 
    o interface to thomas schneider superposition program (ESCET)
 
-   o rigid body fit per residues (* done? bb script?!)
+   o rigid body fit per residues (* done? bb script?! No! extend to nulceotides
+	i.e. use sugar and base as rb)
 
    o fix OXT refinement
      (maybe not now, as it may be fixed with MODRES etc... certainly already better)
@@ -110,9 +137,12 @@ build-it-win rev 2122
 
 **** Python ****
 
-   o fix using_active_atom with respect to lists
+   o remove trailing space for EBI/downloaded file names
 
-   o refmac warning when no freeR (how detect?!)
+   o make all 'macros' (e.g. with_auto_accept) to use all sort of input
+	(list, args, ... - cf using_active_atom)
+
+   o refmac warning when no freeR (how to detect?!)
 
    o document remote connection
 
@@ -120,7 +150,8 @@ build-it-win rev 2122
 
    o fix 'No Adjustment' buttons (and callbacks) in user_mods_gui
 
-   o review pygtk button (and other) callbacks which are string, poss can be exchanged (see water_coordination_gui)
+   o review pygtk button (and other) callbacks which are string, poss can be 
+	exchanged (see water_coordination_gui)
 
    o optional tooltips for main toolbar buttons
 
@@ -170,4 +201,13 @@ build-it-win rev 2122
 ---------------
 * DONE THINGS *
 ---------------
+
+   o labelling with 'l' doesnt show status bar info (feature/bug?)
+
+* Done
+
+   o fix using_active_atom with respect to lists
+	.. and extra args
+
+*Done
 
