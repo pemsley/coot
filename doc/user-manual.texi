@@ -569,6 +569,7 @@ describing the particular features and are documented in Chapter
 * View Matrix::
 * Space Group and Symmetry::
 * Recentring View::
+* Views::
 * Clipping Manipulation::
 * Background colour::
 * Unit Cell::
@@ -853,6 +854,7 @@ last imported coordinates).  This option is for them:
 * Scheme::
 * Coot State::
 * Key Binding::
+* User-Defined Functions::
 @end menu
 
 There is an compile-time option of adding a script interpreter.
@@ -997,6 +999,22 @@ for example:
  
 Have a look at the key bindings section on the Coot wiki for several
 more examples.
+
+@c --------------------------------------------------------
+@node       User-Defined Functions
+@c --------------------------------------------------------
+@subsection User-Defined Functions
+
+``Power users'' of Coot might also like to write their own functions
+that occur after picking an atom (or a number of atoms)
+
+@code{(user-defined-click @emph{n_clicks} @emph{udfunc})}
+
+define a function @code{@emph{func}} which runs after the user has
+made @code{@emph{n_clicked}} atom picks.  @code{@emph{func}} is called
+with a list of atom specifiers - the first member of which is the
+molecule number.
+
 
 @c --------------------------------------------------------
 @node Backups and Undo
@@ -1144,6 +1162,17 @@ If you don't want smooth recentring (sliding)
 @command{Edit -> Preferences -> Smooth Recentring -> Off}.  You
 can also use this dialog to speed it up a bit (by decreasing the
 number of steps instead of turning it off).
+
+@node Views
+@section Views
+
+Coot has a views interface (you might call them ''scenes``) that
+define a particular orientation, zoom and view centre.  Coot and
+linearly interpolate between the views.  The animation play back speed
+can be set with the ''Views Play Speed`` menu item - default is a
+speed of 10.
+
+The views interface can be found under the Extensions menu item.
 
 @node Clipping Manipulation
 @section Clipping Manipulation

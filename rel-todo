@@ -2,41 +2,27 @@
 
     Points 2:
 
-    o change to rms z scores ::: 2
+    o go to atom updates correctly on deleting a molecule or a chain? 
+     
+      Yes! Open Go To Atom. Delete a (ligand) residue. Now use the Go
+      To Atom dialog for that ligand molecule -> crash.
+      ::: 2
 
     o HEC and HEA, chiral restraints, minimisation problem ::: 2
 
-    o consider default gap penalties:  (-0.5, and -0.4) 
-
-    o go to atom updates correctly on deleting a molecule or a chain?
-
-    o crash on rigid body refine of many residues? > 50 ?
-
-    o checkboxes on save coordinates for ANISO and Hydrogens.
-
-    o delete residues 80 81, Dock sequence, add terminal residue,
-      should build TYRs - second is an ALA.
-
     o the sequence view fails with 3mdo.  Where is the ligand in this
-      thing? (mark waters and other hetatms ligands differently?)
-
-    o Documentation for views.
+      thing? (mark waters and other hetatms ligands differently?)  ::: 1
 
     o Does the local update of molprobity dots (e.g. on refinement or
-      sphere refinement) work?
+      sphere refinement) work? ::: 2
 
     o Dima's Workshop data, Place helix here on helix 2 - pathetic
-      failure!
+      failure! ::: 3
 
-    o Document user-defined-click
+    o delete residues 80 81, Dock sequence, add terminal residue,
+      should build TYRs - second is an ALA.  ::: 2
 
-      user_defined_click(n_clicked, func)
-
-      which runs func after the user has made n_clicked atom picks.
-      func is called with a list of atom specifiers (just print them
-      out, you'll see how they are formatted).
-
-   o  fffear needs better error message when args swap.
+    o change to rms z scores ::: 2
 
 ------
 
@@ -517,3 +503,35 @@ WARNING:: Can't find file
        works fine.
 
        ::: 1
+
+    o Document user-defined-click
+
+      user_defined_click(n_clicked, func)
+
+      which runs func after the user has made n_clicked atom picks.
+      func is called with a list of atom specifiers (just print them
+      out, you'll see how they are formatted).  ::: 1
+
+* Done.
+
+    o checkboxes on save coordinates for ANISO and Hydrogens. ::: 1
+
+* Done.
+	
+    o Documentation for views.  ::: 0.2
+
+* Done.
+
+    o crash on rigid body refine of many residues? > 50 ?
+
+* Can't see it...
+
+   o  fffear needs better error message when args swap. ::: 0.1
+
+* Done
+
+   o consider default gap penalties:  (-0.5, and -0.4)  ::: 0.5 
+
+* Done!
+	
+-------

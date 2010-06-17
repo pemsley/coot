@@ -5,8 +5,8 @@
 
 ;; if there is a prodrg-xyzin set the current-time to its mtime, else #f
 ;; 
-;; (define prodrg-xyzin       "../../coot/lbg/prodrg-in.mdl")
-;; (define sbase-to-coot-tlc  "../../coot/lbg/.sbase-to-coot-comp-id")
+(define prodrg-xyzin       "../../coot/lbg/prodrg-in.mdl")
+(define sbase-to-coot-tlc  "../../coot/lbg/.sbase-to-coot-comp-id")
 
 
 ;; what is this rubbish?
@@ -14,8 +14,8 @@
 ;; (define sbase-to-coot-tlc  "/home/emsley/build-coot-f12/coot/lbg/.sbase-to-coot-comp-id")
 
 
-(define prodrg-xyzin       "/lmb/wear/emsley/Projects/coot/lbg/prodrg-in.mdl")
-(define sbase-to-coot-tlc  "/lmb/wear/emsley/Projects/coot/lbg/.sbase-to-coot-comp-id")
+;; (define prodrg-xyzin       "/lmb/wear/emsley/Projects/coot/lbg/prodrg-in.mdl")
+;; (define sbase-to-coot-tlc  "/lmb/wear/emsley/Projects/coot/lbg/.sbase-to-coot-comp-id")
 
 
 

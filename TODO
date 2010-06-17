@@ -814,6 +814,17 @@ Punted from 0.6:
       DT, C5M (in the dictionary) become C7 (new PDB coordinate
       format/convention).
 
+   o Phil Evans: "the Extensions->NCS->Copy NCS residue range only
+     seems to work if the master chain is the same as that given in the
+     NCS ghost control. Otherwise nothing happens and there's no error
+     message."
+
+     We need a function to return the NCS masters of a given molecule
+     (deep inspection of the target chains of the ghosts, I guess).
+     Return a SCM: #f or a list of chain-ids (hopefully, just one
+     item).
+
+
  ------
     
     Release 0.8 [Sept 2009]
