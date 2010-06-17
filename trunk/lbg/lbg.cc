@@ -2545,6 +2545,143 @@ lbg_info_t::ligand_grid::canvas_pos_to_grid_pos(const lig_build::pos_t &pos) con
    return std::pair<int, int> (ix, iy);
 }
 
+// for marching squares, ii and jj are the indices of the bottom left-hand side.
+int 
+lbg_info_t::ligand_grid::square_type(int ii, int jj, float contour_level) const {
+
+   int square_type = lbg_info_t::ligand_grid::MS_NO_SQUARE;
+   if ((ii+1) >= x_size_) {
+      return lbg_info_t::ligand_grid::MS_NO_SQUARE;
+   } else { 
+      if ((jj+1) >= y_size_) {
+	 return lbg_info_t::ligand_grid::MS_NO_SQUARE;
+      } else {
+	 float v00 = get(ii, jj);
+	 float v01 = get(ii, jj+1);
+	 float v10 = get(ii+1, jj);
+	 float v11 = get(ii+1, jj+1);
+	 if (v00 > contour_level) { 
+	    if (v01 > contour_level) { 
+	       if (v10 > contour_level) { 
+		  if (v11 > contour_level) {
+		     return lbg_info_t::ligand_grid::MS_NO_CROSSING;
+		  }
+	       }
+	    }
+	 }
+	 if (v00 < contour_level) { 
+	    if (v01 < contour_level) { 
+	       if (v10 < contour_level) { 
+		  if (v11 < contour_level) {
+		     return lbg_info_t::ligand_grid::MS_NO_CROSSING;
+		  }
+	       }
+	    }
+	 }
+
+	 // OK, so it is not either of the trivial cases (no
+	 // crossing), there are 14 other variants.
+	 // 
+	 if (v00 < contour_level) { 
+	    if (v01 < contour_level) { 
+	       if (v10 < contour_level) { 
+		  if (v11 < contour_level) {
+		     return lbg_info_t::ligand_grid::MS_NO_CROSSING;
+		  } else {
+		     return lbg_info_t::ligand_grid::MS_UP_1_1;
+		  }
+	       } else {
+		  if (v11 < contour_level) {
+		     return lbg_info_t::ligand_grid::MS_UP_1_0;
+		  } else {
+		     return lbg_info_t::ligand_grid::MS_UP_1_0_and_1_1;
+		  }
+	       }
+	    } else {
+
+	       // 0,1 is up
+	       
+	       if (v10 < contour_level) { 
+		  if (v11 < contour_level) {
+		     return lbg_info_t::ligand_grid::MS_UP_0_1;
+		  } else {
+		     return lbg_info_t::ligand_grid::MS_UP_0_1_and_1_1;
+		  }
+	       } else {
+		  if (v11 < contour_level) {
+		     return lbg_info_t::ligand_grid::MS_UP_0_1_and_1_0;      // hideous valley
+		  } else {
+		     return lbg_info_t::ligand_grid::MS_UP_0_1_and_1_0_and_1_1; // (only 0,0 down)
+		  }
+	       }
+	    }
+	 } else {
+
+	    // 0,0 is up
+	    
+	    if (v01 < contour_level) { 
+	       if (v10 < contour_level) { 
+		  if (v11 < contour_level) {
+		     return lbg_info_t::ligand_grid::MS_UP_0_0;
+		  } else {
+		     return lbg_info_t::ligand_grid::MS_UP_0_0_and_1_1; // another hideous valley
+		  }
+	       } else {
+		  // 1,0 is up
+		  if (v11 < contour_level) {
+		     return lbg_info_t::ligand_grid::MS_UP_0_0_and_1_0;
+		  } else {
+		     return lbg_info_t::ligand_grid::MS_UP_0_0_and_1_0_and_1_1; // 0,1 is down
+		  }
+	       }
+	    } else {
+
+	       // 0,1 is up
+	       
+	       if (v10 < contour_level) { 
+		  if (v11 < contour_level) {
+		     return lbg_info_t::ligand_grid::MS_UP_0_0_and_0_1;
+		  } else {
+		     return lbg_info_t::ligand_grid::MS_UP_0_0_and_0_1_and_1_1; // 1,0 is down
+		  }
+	       } else {
+		  // if we get here, this test must pass.
+		  if (v11 < contour_level) {
+		     return lbg_info_t::ligand_grid::MS_UP_0_0_and_0_1_and_1_0; // only 1,1 is down
+		  }
+	       }
+	    }
+	 } 
+      }
+   }
+   return square_type;
+} 
+
+lbg_info_t::contour_fragment::contour_fragment(int ms_type, int ii, int jj) {
+
+   int ii_next = -1; 
+   int jj_next = -1;  // mark as unset
+
+   float v00 = get(ii, jj);
+   float v01 = get(ii, jj+1);
+   float v10 = get(ii+1, jj);
+   float v11 = get(ii+1, jj+1);
+   
+   switch (ms_type) {
+
+   case lbg_info_t::ligand_grid::MS_UP_0_0:
+      // from a point on the x axis to a point on the y axis
+      
+      
+      
+
+   default:
+      std::cout << "ERROR:: unhandled square type: " << ms_type << std::endl;
+
+   } 
+
+} 
+
 std::vector<std::pair<lig_build::pos_t, double> >
 lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &mol) const {
    
@@ -2599,6 +2736,7 @@ lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &m
 
    return v;
 }
+
 
 // return 1 on solution having problems, 0 for no problems, also
 // return a list of the residue circles with problems.

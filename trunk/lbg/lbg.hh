@@ -291,6 +291,20 @@ public:
    };
    // std::ostream& operator<<(std::ostream &s, residue_circle_t r);
 
+   // The lines constituting the fragment and the indices of the next
+   // square for the contour line that we are chasing (the indices are
+   // not necessarility valid).
+   // 
+   class contour_fragment {
+
+   public:
+      int ii_next;
+      int jj_next;
+      pos_t start_point; // on either the x or y axis
+      pos_t end_point;
+      contour_fragment(int ms_type, int ii, int jj);
+   } 
+
    class ligand_grid {
       double scale_fac;
       lig_build::pos_t top_left;
@@ -300,11 +314,32 @@ public:
       int y_size_;
       void normalize(); // scale peak value to 1.0
       std::pair<int, int> canvas_pos_to_grid_pos(const lig_build::pos_t &atom_pos) const;
+      int square_type(int ii, int jj, float contour_level) const;
+
+      
    public:
       // (low means low numbers, not low on the canvas)
       // 
       ligand_grid(const lig_build::pos_t &low_x_and_y,
 		  const lig_build::pos_t &high_x_and_y);
+
+      enum { MS_NO_SQUARE = -1, MS_NO_CROSSING = -2,
+	     MS_UP_0_0,
+	     MS_UP_0_1,
+	     MS_UP_1_0,
+	     MS_UP_1_1,
+	     MS_UP_0_0_and_0_1,
+	     MS_UP_0_0_and_1_0,
+	     MS_UP_0_0_and_1_1, // hideous valley
+	     MS_UP_0_1_and_1_0, // hideous valley
+	     MS_UP_0_1_and_1_1,
+	     MS_UP_1_0_and_1_1,
+	     MS_UP_0_0_and_0_1_and_1_0,
+	     MS_UP_0_0_and_0_1_and_1_1,
+	     MS_UP_0_0_and_1_0_and_1_1,
+	     MS_UP_0_1_and_1_0_and_1_1,
+	     MS_UP_1_1_and_1_0_and_1_1
+      };
       lig_build::pos_t to_canvas_pos(const int ii, const int jj) const;
       void fill(widgeted_molecule_t mol);
       double get(int i, int j) const {
