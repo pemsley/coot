@@ -840,7 +840,8 @@ int         graphics_info_t::mutate_sequence_imol;
 int         graphics_info_t::align_and_mutate_imol;
 std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
 
-realtype    graphics_info_t::alignment_wgap   = -3.0;
+// Bob recommends:
+realtype    graphics_info_t::alignment_wgap   = -0.5; // was -3.0;
 realtype    graphics_info_t::alignment_wspace = -0.4;
 
 //

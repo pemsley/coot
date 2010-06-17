@@ -108,9 +108,13 @@ void try_load_scheme_extras_dir();
 void try_load_python_extras_dir();
 #endif // USE_PYTHON
 
+/* section Startup Functions */
+/*!  \name Startup Functions */
+/* \{ */
 /*!  \brief tell coot that you prefer to run python scripts if/when
   there is an option to do so. */
 void set_prefer_python();
+/* \} */
 
 /*  ------------------------------------------------------------------------ */
 /*                         File system Functions:                            */
@@ -3711,6 +3715,9 @@ void spin_zoom_trans(int axis, int nstep, float stepsize, float zoom_by,
 /*  ----------------------------------------------------------------------- */
 /*                  Views                                                   */
 /*  ----------------------------------------------------------------------- */
+/* section Views Interface */
+/*! \name Views Interface */
+/* \{ */
 /*! \brief return the view number */
 int add_view_here(const char *view_name); 
 /*! \brief return the view number */
@@ -3770,8 +3777,15 @@ void go_to_view_py(PyObject *view);
 
 /*! \brief Clear the view list */
 void clear_all_views();
+/* \} */
 
+/*  ----------------------------------------------------------------------- */
+/*                  movies                                                  */
+/*  ----------------------------------------------------------------------- */
 /* movies */
+/* section Movies Interface */
+/*! \name Movies Interface */
+/* \{ */
 void set_movie_file_name_prefix(const char *file_name);
 void set_movie_frame_number(int frame_number);
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
@@ -3784,6 +3798,7 @@ PyObject *movie_file_name_prefix_py();
 #endif /* c++ */
 int movie_frame_number();
 void set_make_movie_mode(int make_movies_flag);
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  graphics background colour                              */
@@ -3874,7 +3889,10 @@ void add_ligand_clear_ligands();
   the Ligand Searching dialog */
 void ligand_expert(); 
 
-/*! \brief display the find ligands dialog, if maps, coords and ligands are available */
+/*! \brief display the find ligands dialog
+
+   if maps, coords and ligands are available, that is.
+*/
 void do_find_ligands_dialog();
 
 /* Widget functions */
@@ -3900,14 +3918,15 @@ void fill_ligands_sigma_level_entry(GtkWidget *dialog);
 void fill_ligands_expert_options(GtkWidget *find_ligand_dialog);
 void set_ligand_expert_options_from_widget(GtkWidget *button);
 
-/*! \brief "Template"-based matching.  Overlap the first residue in
+/*! \brief Overlap residue with "template"-based matching.  
+
+  Overlap the first residue in
   imol_ligand onto the residue specified by the reference parameters.
   Use graph matching, not atom names.  
 
 @return success status, False = failed to find residue in either
-imol_ligand or imo_ref, 
-
-otherwise return the RT operator */
+imol_ligand or imo_ref.  If success, return the RT operator.
+*/
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
@@ -3921,8 +3940,19 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
 #endif /* PYTHON*/
 #endif	/* __cplusplus */
 
-void execute_get_mols_ligand_search(GtkWidget *button); 
+/* Just pondering - just a stub currently.
+
+   For use with exporting ligands from the 2D sketcher to the main
+   coot window. It should find the residue that this residue is
+   sitting on top of that is in a molecule that has lot of atoms
+   (i.e. is a protein) and create a new molecule that is a copy of the
+   molecule without the residue/ligand that this (given) ligand
+   overlays - and a copy of this given ligand.  */
+int exchange_ligand(int imol_lig, const char *chain_id_lig, int resno_lig, const char *ins_code_lig);
+		    
+
 /*  info is stored in graphics_info_t beforehand */
+void execute_get_mols_ligand_search(GtkWidget *button); 
 
 /* This has pointers to Coord_orths poked into it, let's clear them
    up. */
@@ -5128,7 +5158,6 @@ void copy_chain(int imol, const char *from_chain, const char *to_chain);
 /* do multiple copies */
 /*! \brief Copy chain from master to all related NCS chains */
 void copy_from_ncs_master_to_others(int imol, const char *chain_id);
-/* void copy_residue_range_from_ncs_master_to_others(int imol, const char *master_chain_id, int residue_range_start, int residue_range_end); */
 /*! \brief Copy residue range to all related NCS chains.  If the
   target residues do not exist in the peer chains, then create
   them. */
@@ -5281,6 +5310,8 @@ int find_secondary_structure_local(
 /*  ----------------------------------------------------------------------- */
 /*             New Molecule by Various Selection                            */
 /*  ----------------------------------------------------------------------- */
+/*! \name New Molecule by Section Interface */
+/*! \{ */
 /*! \brief create a new molecule that consists of only the residue of
   type residue_type in molecule number imol
 
@@ -5299,6 +5330,7 @@ int new_molecule_by_atom_selection(int imol, const char* atom_selection);
 @return the new molecule number, -1 means an error. */
 int new_molecule_by_sphere_selection(int imol, float x, float y, float z, 
 				     float r, short int allow_partial_residues);
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -5487,12 +5519,13 @@ int get_remote_control_port_number();
 
 /* tooltip */
 void set_tip_of_the_day_flag(int state);
-
 /* \} */
+
 /*  ----------------------------------------------------------------------- */
 /*                  Display lists                                           */
 /*  ----------------------------------------------------------------------- */
 /* section Display Lists for Maps */
+/*! \name Display Lists for Maps */
 /*! \brief Should display lists be used for maps? It may speed things
   up if these are turned on (or off) - depends on graphics card and
   drivers.  Pass 1 for on, 0 for off. */
@@ -5503,6 +5536,7 @@ int display_lists_for_maps_state();
 
 /* update the maps to the current position - rarely needed */
 void update_maps();
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Preferences Notebook                                    */
@@ -6064,8 +6098,22 @@ void run_update_self_maybe(); // called when --update-self given at command line
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
 void nsv(int imol);
+
 void sequence_view_old_style(int imol);
 #ifdef __cplusplus
+/*! 
+
+    20100616 This doesn't get into the doxygen documentation for some
+    reason I can't figure out.  Ask Kevin.
+
+    \fn user_defined_click(int n_clicks, SCM func);
+
+    \brief run a user defined function
+
+      Define a function func which runs after the user has made
+      n_clicked atom picks.  func is called with a list of atom
+      specifiers - with leading molecule number.
+*/
 #ifdef USE_GUILE
 void user_defined_click_scm(int n_clicks, SCM func);
 #endif
