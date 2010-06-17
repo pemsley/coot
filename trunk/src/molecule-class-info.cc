@@ -1745,7 +1745,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
    // std::cout << "front and back: " << front << " " << back << std::endl;
    //
-   bool with_gl_lines = 0;
+   bool with_gl_lines = 1;
    
    coot::CartesianPair pair;
    // Lines_list &ll;

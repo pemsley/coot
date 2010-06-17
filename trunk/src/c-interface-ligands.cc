@@ -1359,3 +1359,17 @@ int get_sbase_monomer(const char *comp_id) {
    return imol;
 }
 
+
+/* Just pondering, for use with exporting ligands from the 2D sketcher
+   to the main coot window. It should find the residue that this
+   residue is sitting on top of that is in a molecule that has lot of
+   atoms (i.e. is a protein) and create a new molecule that is a copy
+   of the molecule without the residue/ligand that this (given)
+   ligand overlays - and a copy of this given ligand.  */
+int exchange_ligand(int imol_lig, const char *chain_id_lig, int resno_lig, const char *ins_code_lig) {
+
+   int imol = -1;
+
+   return imol;
+
+} 

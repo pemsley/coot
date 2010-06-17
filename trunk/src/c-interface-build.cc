@@ -5183,8 +5183,12 @@ int fffear_search(int imol_model, int imol_map) {
 
    float angular_resolution = graphics_info_t::fffear_angular_resolution;
    int imol_new = -1;
-   if (is_valid_model_molecule(imol_model)) {
-      if (is_valid_map_molecule(imol_map)) { 
+   if (!is_valid_model_molecule(imol_model)) {
+      std::cout << "WARNING:: this is not a valid model: " << imol_model << std::endl;
+   } else { 
+      if (is_valid_map_molecule(imol_map)) {
+	 std::cout << "WARNING:: this is not a valid map: " << imol_model << std::endl;
+      } else 
 	 coot::util::fffear_search f(graphics_info_t::molecules[imol_model].atom_sel.mol,
 				     graphics_info_t::molecules[imol_model].atom_sel.SelectionHandle,
 				     graphics_info_t::molecules[imol_map].xmap_list[0],
