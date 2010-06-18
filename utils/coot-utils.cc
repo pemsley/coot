@@ -566,16 +566,18 @@ coot::util::relativise_file_name(const std::string &f, const std::string &cwd) {
 std::string
 coot::util::absolutise_file_name(const std::string &file_name) {
   
-  std::string ret = file_name;
-  char r[PATH_MAX + 1];
-  char *res = _fullpath(r, file_name.c_str(), PATH_MAX);
-  if (res) {
-    ret = intelligent_debackslash(r);
-  } else {
-    perror("fullpath");
-  } 
-  return ret;
- 
+   std::string ret = file_name;
+   
+#ifdef WINDOWS_MINGW
+   char r[PATH_MAX + 1];
+   char *res = _fullpath(r, file_name.c_str(), PATH_MAX);
+   if (res) {
+      ret = intelligent_debackslash(r);
+   } else {
+      perror("fullpath");
+   }
+#endif // WINDOWS_MINGW   
+   return ret;
 }
     
 
