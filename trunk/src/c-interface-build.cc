@@ -5188,7 +5188,7 @@ int fffear_search(int imol_model, int imol_map) {
    } else { 
       if (is_valid_map_molecule(imol_map)) {
 	 std::cout << "WARNING:: this is not a valid map: " << imol_model << std::endl;
-      } else 
+      } else {
 	 coot::util::fffear_search f(graphics_info_t::molecules[imol_model].atom_sel.mol,
 				     graphics_info_t::molecules[imol_model].atom_sel.SelectionHandle,
 				     graphics_info_t::molecules[imol_map].xmap_list[0],
@@ -5201,8 +5201,9 @@ int fffear_search(int imol_model, int imol_map) {
 	 std::vector<std::pair<float, clipper::RTop_orth> > p = f.scored_orientations();
 	 if (p.size() > 0) {
 	    // install new molecule(s) that has been rotated.
+	   printf("BL INFO:: just a placeholder\n");
 	 }
-      }
+   }
    }
    return imol_new;
 }
