@@ -9029,7 +9029,7 @@ on_coot_doc_url_monolithic_button_clicked
                                         gpointer         user_data)
 {
 
-  browser_url("http://www.ysbl.york.ac.uk/~emsley/coot/doc/user-manual.html");
+  browser_url("http://www.biop.ox.ac.uk/coot/doc/coot.html");
 
 }
 
@@ -9039,7 +9039,7 @@ on_coot_doc_url_sectioned_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  browser_url("http://www.ysbl.york.ac.uk/~emsley/coot/doc/chapters/user-manual_toc.html");
+  browser_url("http://www.biop.ox.ac.uk/coot/doc/coot/index.html");
 }
 
 

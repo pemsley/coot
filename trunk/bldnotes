@@ -8,32 +8,9 @@ build-it-win rev 2122
 * THINGS TO DO BEFORE 0.6.2 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
-notes CCP4 workshop
-- local NCS
-- document refmac extra params + lib files location
-- alt confs in Rama plot
-- symmetry dialog opens multiple times
-- SHELX file hide/delete H when refine?! (automatic?)
-- user manual in python/general documentation clean-up
-- 'l' doesnt work on symmetry mols
-- update refmac gui for v 5.6
-- geometry graph no scroll bar, crashes when close (2vtu) multiple windows
-	in validation (due to MODEL - in combination with alt conf).
-	What can/should we do?
-	geometry validation crashed (e.g. 2KS1):
-gsl: vector_source.c:29: ERROR: index out of range
-Default GSL error handler invoked.
-	other graphs have one per model, but not geometry! Maybe that's 
-	(one) problem
-- reverse direction of (full atom) fragment (ca to main chain looses sequence
-	info!! otherwise can make easy script: reverse->ca->MC->fill residue
-	maybe just save and reapply?
-- white (current) bg for pov-ray (maybe rastre3d too)
-  * Done
-- script to extend helix (strand?!)
-- 'new' loop fitting for scheme
-- SF4 library file
-- LINK record-> refmac (MODRES?, no LINKR)
+notes APS CCP4 workshop
+- document refmac extra params + lib files location (note to self ?!)
+- SF4 library file (for Garib at some point)
 
 ----------------
 * TO DO THINGS *

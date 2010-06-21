@@ -310,6 +310,9 @@ following command line arguments:
     pre-release on the server
 @item @code{--python} an argument with no parameters - used to tell Coot that 
     the -c arguments should be process as python (rather than as scheme).
+@item @code{--small-screen} start with smaller icons and font to fit on small
+    screen displays
+@item @code{--zalman-stereo} start in Zalman stereo mode
 @end itemize
 
 So, for example, one might use:
