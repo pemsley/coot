@@ -567,16 +567,18 @@ std::string
 coot::util::absolutise_file_name(const std::string &file_name) {
   
    std::string ret = file_name;
-   
+   // first check if already absolute file, i.e. starts with '/' or
+   // has a ':' in second position (windows)
+   if (file_name.substr(0,1) != "/" &&
+       file_name.substr(1,1) != ":" ) {
+     std::string s = current_working_dir();
 #ifdef WINDOWS_MINGW
-   char r[PATH_MAX + 1];
-   char *res = _fullpath(r, file_name.c_str(), PATH_MAX);
-   if (res) {
-      ret = intelligent_debackslash(r);
-   } else {
-      perror("fullpath");
+     ret = intelligent_debackslash(s + "\\" + file_name);
+#else
+     ret = s + "/" + file_name;
+#endif
    }
-#endif // WINDOWS_MINGW   
+
    return ret;
 }
     

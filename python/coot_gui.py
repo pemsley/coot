@@ -447,7 +447,7 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
     window.show_all()
 
 # generic double entry widget, now with a check button
-# ...and returns teh widget if requested
+# ...and returns the widget if requested
 # 
 # pass a the hint labels of the entries and a function 
 # (handle-go-function) that gets called when user hits "Go" (which
@@ -1460,7 +1460,7 @@ def toolbar_label_list():
         label = toolbar_child.get_label()
       except:
         # some toolitems we have from GTK2 cannot be accessed here
-        # so we pass it and dont add it to teh list.
+        # so we pass it and dont add it to the list.
         # nothing we can do about it. Probably good as we dont want to
         # play with the GTK2 toolitems only with the PYGTK ones.
         pass

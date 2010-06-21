@@ -31,6 +31,13 @@ def make_texi_file(python_file, doc_file):
         # will result in better readability of html output
         if (fcn[lb-1] != " "):
             fcn = fcn.replace("(", " (")
+        # check for multiple line functions
+        count = 0
+        while ("(" in fcn and not ")" in fcn):
+            count += 1
+            # remove white space too (maybe - FIXME - check)
+            lb = lines[line_no+count].lstrip()
+            fcn += lb
         return fcn
     
     def extract_info(line_no):
