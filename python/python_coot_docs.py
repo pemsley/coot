@@ -37,6 +37,8 @@ def make_texi_file(python_file, doc_file):
             count += 1
             # remove white space too (maybe - FIXME - check)
             lb = lines[line_no+count].lstrip()
+            # remove EOL '\n' if exists from fcn
+            fcn = fcn[0:-1]
             fcn += lb
         return fcn
     

@@ -300,10 +300,10 @@ public:
    public:
       int ii_next;
       int jj_next;
-      pos_t start_point; // on either the x or y axis
-      pos_t end_point;
+      lig_build::pos_t start_point; // on either the x or y axis
+      lig_build::pos_t end_point;
       contour_fragment(int ms_type, int ii, int jj);
-   } 
+   }; 
 
    class ligand_grid {
       double scale_fac;
