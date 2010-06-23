@@ -110,7 +110,8 @@ lbg_info_t::clear_button_down_bond_addition() {
 static gboolean
 on_canvas_motion (GtkWidget *widget, GdkEventMotion *event) {
    int x_as_int=0, y_as_int=0;
-   if (event->is_hint) {
+   //   if (event->is_hint) {
+   if (1) {
       GdkModifierType state;
       gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
       GtkObject *obj = GTK_OBJECT(widget);
@@ -2662,10 +2663,11 @@ lbg_info_t::contour_fragment::contour_fragment(int ms_type, int ii, int jj) {
    int ii_next = -1; 
    int jj_next = -1;  // mark as unset
 
-   float v00 = get(ii, jj);
-   float v01 = get(ii, jj+1);
-   float v10 = get(ii+1, jj);
-   float v11 = get(ii+1, jj+1);
+   // BL says: not compiling and not used, so comment out for now
+   //float v00 = get(ii, jj);
+   //float v01 = get(ii, jj+1);
+   //float v10 = get(ii+1, jj);
+   //float v11 = get(ii+1, jj+1);
    
    switch (ms_type) {
 
