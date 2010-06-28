@@ -561,7 +561,10 @@ coot::util::relativise_file_name(const std::string &f, const std::string &cwd) {
 }
 
 // return absolute path for filename (can include dirs)
-// oupon error return input filename and throw error
+// oupon error return input filename and throw error.
+//
+// I don't know how to do this in Unix - maybe getcwd(), but that
+// looks wrong.
 // 
 std::string
 coot::util::absolutise_file_name(const std::string &file_name) {

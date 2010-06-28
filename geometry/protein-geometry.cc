@@ -810,7 +810,7 @@ coot::protein_geometry::mon_lib_add_torsion(std::string comp_id,
 int
 coot::protein_geometry::chiral_volume_string_to_chiral_sign(const std::string &volume_sign) {
 
-   int volume_sign_int = -3; // unassigned
+   int volume_sign_int = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
    if (volume_sign.length() > 3) { 
 
        if (volume_sign.substr(0,3) == "pos") { 
@@ -883,12 +883,13 @@ coot::protein_geometry::mon_lib_add_chiral(std::string comp_id,
     // find residues with nomenclature errors (the CG1 and CG2 atom
     // names are swapped).
     // 
-    if (volume_sign_int != 0) 
-       add_restraint(comp_id, dict_chiral_restraint_t(id, atom_id_centre,
-						      atom_id_1,
+    if (volume_sign_int != 0)
+       if (volume_sign_int != coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED)
+	  add_restraint(comp_id, dict_chiral_restraint_t(id, atom_id_centre,
+							 atom_id_1,
 						      atom_id_2,
-						      atom_id_3,
-						      volume_sign_int));
+							 atom_id_3,
+							 volume_sign_int));
     
 
 }

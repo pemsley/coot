@@ -66,13 +66,13 @@ namespace lig_build {
       }
       bool close_point(const pos_t &other) const {
 	 bool status = 0;
-	 double small_t = 3;
-	 return near_point(other, small_t);
+	 double small_bit = 3;
+	 return near_point(other, small_bit);
       }
-      bool near_point(const pos_t &other, double small_t) const {
+      bool near_point(const pos_t &other, double small_bit) const {
 	 bool status = 0;
-	 if (fabs(x-other.x) < small_t) { 
-	    if (fabs(y-other.y) < small_t) {
+	 if (fabs(x-other.x) < small_bit) { 
+	    if (fabs(y-other.y) < small_bit) {
 	       status = 1;
 	    }
 	 }

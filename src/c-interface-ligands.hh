@@ -171,6 +171,7 @@ namespace coot {
 	 return r_bond_type;
       } 
    };
+   
    std::map<std::string, std::string> make_flat_ligand_name_map(CResidue *flat_res);
 
    // return 100 if no other contact found (strange!)
@@ -215,6 +216,58 @@ namespace coot {
    std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > >
    get_cannonball_vectors(CResidue *ligand_res_3d,
 			  const coot::dictionary_residue_restraints_t &monomer_restraints);
+
+   enum { H_IS_RIDING, H_IS_ROTATABLE }; // shared between named_torsion_t and flev_attached_hydrogens_t.
+   
+   // we need to map (the hydrogens torsions) between ideal prodrg
+   // ligand atoms and the atoms in the residue/ligand of interest
+   // (the reference ligand).
+   class named_torsion_t {
+   public:
+      double torsion;
+      double angle;
+      double dist;
+      std::string base_atom_name;
+      std::string atom_name_2;
+      std::string atom_name_bonded_to_H;
+      int hydrogen_type;
+      named_torsion_t(const std::string &base_name_in,
+		      const std::string &a2,
+		      const std::string &anbtoH,
+		      double dist_in,
+		      double angle_in,
+		      double torsion_in,
+		      int hydrogen_type_in) {
+	 torsion = torsion_in;
+	 angle = angle_in;
+	 dist = dist_in;
+	 base_atom_name = base_name_in;
+	 atom_name_2 = a2;
+	 atom_name_bonded_to_H = anbtoH;
+	 hydrogen_type = hydrogen_type_in; // H_IS_ROTATABLE or H_IS_RIDING.
+      } 
+   };
+
+   class flev_attached_hydrogens_t {
+      std::vector<std::string> atoms_with_riding_hydrogens;
+      std::vector<std::string> atoms_with_rotating_hydrogens;
+      bool add_named_torsion(CAtom *h_at, CAtom *at,
+			     const dictionary_residue_restraints_t &restraints,
+			     CMMDBManager *mol,
+			     int hydrogen_type); // fill named_torsions
+      std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > >
+      named_hydrogens_to_reference_ligand(CResidue *ligand_residue_3d,
+					  const dictionary_residue_restraints_t &restraints) const;
+   public:
+      flev_attached_hydrogens_t(const dictionary_residue_restraints_t &restraints);
+
+      std::vector<named_torsion_t> named_torsions;
+      
+      // fill the named_torsions vector
+      void cannonballs(CResidue *ligand_residue_3d,
+		       const std::string &prodrg_3d_ligand_file_name,
+		       const coot::dictionary_residue_restraints_t &restraints);
+   };
 
    
 }

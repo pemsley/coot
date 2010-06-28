@@ -124,10 +124,12 @@ void update_go_to_atom_residue_list(int imol) {
 	    // need to regenerate the residue and atom lists.
 	    GtkWidget *gtktree = lookup_widget(g.go_to_atom_window,
 					       "go_to_atom_residue_tree");
+	    GtkWidget *gtk_atom_list = lookup_widget(g.go_to_atom_window,
+						     "go_to_atom_atom_list");
 #if (GTK_MAJOR_VERSION == 1)
 	    g.fill_go_to_atom_residue_list_gtk1(gtktree);
 #else 	    
-	    g.fill_go_to_atom_residue_tree_gtk2(imol, gtktree);
+	    g.fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, gtktree, gtk_atom_list);
 #endif	    
 	 } 
       }

@@ -291,19 +291,29 @@ public:
    };
    // std::ostream& operator<<(std::ostream &s, residue_circle_t r);
 
-   // The lines constituting the fragment and the indices of the next
-   // square for the contour line that we are chasing (the indices are
-   // not necessarility valid).
-   // 
-   class contour_fragment {
 
-   public:
-      int ii_next;
-      int jj_next;
-      lig_build::pos_t start_point; // on either the x or y axis
-      lig_build::pos_t end_point;
-      contour_fragment(int ms_type, int ii, int jj);
-   }; 
+   class grid_index_t {
+
+      int ii_;
+      int jj_;
+   public: 
+      grid_index_t(int i, int j) {
+	 ii_ = i;
+	 jj_ = j;
+      }
+      grid_index_t() {} // hhmmmm!  needed to compile contour_fragment
+			// constructor, which takes a const reference
+			// to a grid_index_t as an argument. I don't
+			// understand why this is needed - or if it
+			// works.
+      enum { INVALID_INDEX = -1 };
+      
+      bool is_valid_p() const {
+	 return (ii_ != INVALID_INDEX);
+      }
+      int i() const { return ii_;}
+      int j() const { return jj_;}
+   };
 
    class ligand_grid {
       double scale_fac;
@@ -315,6 +325,8 @@ public:
       void normalize(); // scale peak value to 1.0
       std::pair<int, int> canvas_pos_to_grid_pos(const lig_build::pos_t &atom_pos) const;
       int square_type(int ii, int jj, float contour_level) const;
+      std::vector<std::vector<lig_build::pos_t> > make_contour_lines(const std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > &line_fragments) const;
+      void plot_contour_lines(const std::vector<std::vector<lig_build::pos_t> > &contour_lines, GooCanvasItem *root) const;
 
       
    public:
@@ -323,7 +335,8 @@ public:
       ligand_grid(const lig_build::pos_t &low_x_and_y,
 		  const lig_build::pos_t &high_x_and_y);
 
-      enum { MS_NO_SQUARE = -1, MS_NO_CROSSING = -2,
+      enum { MS_NO_CROSSING = -2,
+	     MS_NO_SQUARE = -1, 
 	     MS_UP_0_0,
 	     MS_UP_0_1,
 	     MS_UP_1_0,
@@ -338,9 +351,10 @@ public:
 	     MS_UP_0_0_and_0_1_and_1_1,
 	     MS_UP_0_0_and_1_0_and_1_1,
 	     MS_UP_0_1_and_1_0_and_1_1,
-	     MS_UP_1_1_and_1_0_and_1_1
-      };
-      lig_build::pos_t to_canvas_pos(const int ii, const int jj) const;
+	     };
+      
+      // lig_build::pos_t to_canvas_pos(const int &ii, const int &jj) const;
+      lig_build::pos_t to_canvas_pos(const double &ix, const double &iy) const;
       void fill(widgeted_molecule_t mol);
       double get(int i, int j) const {
 	 return grid_[i][j];
@@ -354,7 +368,100 @@ public:
       void add_quadratic(const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points);
       lig_build::pos_t find_minimum_position() const;
 
+      void show_contour(GooCanvasItem *root, float contour_level) const;
+
    };
+
+   // The lines constituting the fragment and the indices of the next
+   // square for the contour line that we are chasing (the indices are
+   // not necessarility valid).
+   // 
+   class contour_fragment {
+
+   public:
+      enum { X_AXIS_LOW, X_AXIS_HIGH, Y_AXIS_LOW, Y_AXIS_HIGH };
+      class coordinates {
+	 float frac_x;
+	 float frac_y;
+	 int i_ax;
+	 bool x_y_axis;
+	 
+      public:
+	 coordinates() { frac_x = 0; frac_y = 0; i_ax = 0; }
+	 coordinates(float f, int i) {
+	    if (f>1.0)
+	       std::cout << "-----> Bad frac " << f << std::endl;
+	    if (f<0.0)
+	       std::cout << "-----> Bad frac " << f << std::endl;
+	    frac_y = 11; // should not be used
+	    frac_x = f;
+	    i_ax = i;
+	    if (i == X_AXIS_LOW)
+	       frac_y = 0.0;
+	    else
+	       frac_y = 1.0;
+	    if (i_ax != X_AXIS_LOW)
+	       if (i_ax != X_AXIS_HIGH)
+		  std::cout << "Bad axis to coordinates(f, i) f: "
+			    << f << "  i: " << i << std::endl;
+	    std::cout << "   coordinates(f,i): " << frac_x << " " << frac_y
+		      << " given " << f <<  " " << i << std::endl;
+	 } 
+	 coordinates(int i, float f) {
+	    if (f>1.0)
+	       std::cout << "----->  Bad frac " << f << std::endl;
+	    if (f<0.0)
+	       std::cout << "----->  Bad frac " << f << std::endl;
+	    frac_x = 11; // should not be used
+	    frac_y = f;
+	    i_ax = i;
+	    if (i == Y_AXIS_LOW)
+	       frac_x = 0.0;
+	    else
+	       frac_x = 1.0;
+	    if (i_ax != Y_AXIS_LOW)
+	       if (i_ax != Y_AXIS_HIGH)
+		  std::cout << "Bad axis to coordinates(i, f) i: "
+			    << i << "  f: " << f << std::endl;
+	    std::cout << "   coordinates(i,f): " << frac_x << " " << frac_y
+		      << " given " << i <<  " " << f << std::endl;
+	 }
+	 float get_frac_x() { return frac_x; } 
+	 float get_frac_y() { return frac_y; } 
+      };
+      
+      grid_index_t grid_index_next;
+      lig_build::pos_t start_point; // on either the x or y axis
+      lig_build::pos_t end_point;
+      contour_fragment(int ms_type,
+		       const float &contour_level,
+		       const grid_index_t &grid_index_prev,
+		       const grid_index_t &grid_index,
+		       const ligand_grid &grid);
+
+      typedef std::pair<coordinates, coordinates> cp_t;
+      std::vector<cp_t> coords;
+      std::pair<double, double> get_coords(int ii, int jj, int coord_indx) {
+	 coordinates c;
+	 if (coord_indx == 0)
+	    c = coords[0].first;
+	 if (coord_indx == 1)
+	    c = coords[0].second;
+	 
+	 // these are for hideous value (two crossing vectors)
+	 if (coord_indx == 2)
+	    c = coords[1].first;
+	 if (coord_indx == 3)
+	    c = coords[1].second;
+
+	 std::cout << "   frac_x: " << c.get_frac_x() << "  "
+		   << "   frac_y: " << c.get_frac_y() << std::endl;
+	 return std::pair<double, double> (ii+c.get_frac_x(), jj+c.get_frac_y());
+      } 
+
+   };
+
+
 
 
    class optimise_residue_circles {

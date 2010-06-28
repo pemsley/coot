@@ -2,14 +2,6 @@
 
     Points 2:
 
-    o go to atom updates correctly on deleting a molecule or a chain? 
-     
-      Yes! Open Go To Atom. Delete a (ligand) residue. Now use the Go
-      To Atom dialog for that ligand molecule -> crash.
-      ::: 2
-
-    o HEC and HEA, chiral restraints, minimisation problem ::: 2
-
     o the sequence view fails with 3mdo.  Where is the ligand in this
       thing? (mark waters and other hetatms ligands differently?)  ::: 1
 
@@ -23,6 +15,11 @@
       should build TYRs - second is an ALA.  ::: 2
 
     o change to rms z scores ::: 2
+
+    o Steven's spinach ::: 3
+
+    o When I use the GUI to renumber residues it doesn't seem to pick
+      up the imol selected from the drop-down.  ::: 1
 
 ------
 
@@ -533,5 +530,28 @@ WARNING:: Can't find file
    o consider default gap penalties:  (-0.5, and -0.4)  ::: 0.5 
 
 * Done!
+
+
+    o HEC and HEA, chiral restraints, minimisation problem ::: 2
+
+* Currently removed cross2 chiral restraints. They should be added
+  when I know how to handle them.
+
+    o go to atom updates correctly on deleting a molecule or a chain? 
+     
+      Yes! Open Go To Atom. Delete a (ligand) residue. Now use the Go
+      To Atom dialog for that ligand molecule -> crash.
+
+      "go_to_atom_atom_list" is created, added and named in
+      graphics_info_t::fill_go_to_atom_window_gtk2().
+
+      delete_residue() calls graphics_info_t::update_go_to_atom_window_on_changed_mol()
+
+      fill_go_to_atom_residue_tree_gtk2() works OK?  yes.
+
+      ::: 2
+
+* Done.
+
 	
 -------
