@@ -260,7 +260,9 @@ namespace coot {
    public:
       int volume_sign;  // +/- 1, checked by is_bad_chiral_atom_p and
 			// set by nomenclature checking
-      enum { CHIRAL_RESTRAINT_BOTH = -2};
+      enum { CHIRAL_RESTRAINT_BOTH = -2,
+	     CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED = -3 };
+      
       dict_chiral_restraint_t() {};
       dict_chiral_restraint_t(const std::string &chiral_id_in,
 			      const std::string &atom_id_centre_in,
@@ -781,7 +783,7 @@ namespace coot {
 
       enum { UNSET_NUMBER = -1 };  // An unset number, for example the
 				  // number of atoms.
-      
+
       // std::vector<simple_residue_t> residue; 
       std::vector<std::string> residue_codes;
       bool verbose_mode;

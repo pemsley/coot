@@ -1730,7 +1730,9 @@ public:
 #endif
    static void clear_atom_list(GtkWidget *atom_gtklist); 
    static void fill_go_to_atom_residue_list_gtk1(GtkWidget *gtklist);
-   static void fill_go_to_atom_residue_tree_gtk2(int imol, GtkWidget *gtktree);
+   static void fill_go_to_atom_residue_tree_and_atom_list_gtk2(int imol, 
+							       GtkWidget *gtktree, 
+							       GtkWidget *atom_list);
    void fill_go_to_atom_option_menu(GtkWidget *option_menu);
    void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 						  GtkSignalFunc callback_func);

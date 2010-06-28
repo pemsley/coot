@@ -225,16 +225,16 @@
 	 (chain-id aa-chain-id)
 	 (res-no aa-res-no))
      (let ((r-flat  (prodrg-flat  imol chain-id res-no))
-	   ;; (r-plain (prodrg-plain 'mini-no  imol chain-id res-no)))
-	   (r-plain (list 0 0))) ;; dummy value
+	   (r-plain (prodrg-plain 'mini-no  imol chain-id res-no)))
+           ;; (r-plain (list 0 0))) ;; dummy value
        (if (and r-flat
 		(and (number? (car r-plain))
 		     (= (car r-plain) 0)))
 	   (let ((imol-ligand-fragment (car r-flat))
-		 (prodrg-output-flat-mol-file-name (list-ref r-flat 1))
-		 (prodrg-output-flat-pdb-file-name (list-ref r-flat 2))
-		 (prodrg-output-cif-file-name      (list-ref r-flat 3))
-		 (prodrg-output-3d-pdb-file-name "xx"))
+		 (prodrg-output-flat-mol-file-name (list-ref r-flat  1))
+		 (prodrg-output-flat-pdb-file-name (list-ref r-flat  2))
+		 (prodrg-output-cif-file-name      (list-ref r-flat  3))
+		 (prodrg-output-3d-pdb-file-name   (list-ref r-plain 1)))
 	     (fle-view-internal imol chain-id res-no "" ;; from active atom
 	      imol-ligand-fragment
 	      prodrg-output-flat-mol-file-name

@@ -629,15 +629,17 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
 
       // The go to atom molecule matched this molecule, so we
       // need to regenerate the residue and atom lists.
-      GtkWidget *gtktree = lookup_widget(go_to_atom_window,
-					 "go_to_atom_residue_tree");
-      if (gtktree == NULL) {
+      GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
+					      "go_to_atom_residue_tree");
+      GtkWidget *atom_list = lookup_widget(go_to_atom_window,
+					   "go_to_atom_atom_list");
+      if (residue_tree == NULL) {
 	 std::cout << "ERROR:: gtktree (go_to_atom_residue_tree) is null!\n"; 
       } else {
 #if (GTK_MAJOR_VERSION == 1)
-	 graphics_info_t::fill_go_to_atom_residue_list_gtk1(gtktree);
+	 graphics_info_t::fill_go_to_atom_residue_list_gtk1(gtktree, gtk);
 #else
-	 graphics_info_t::fill_go_to_atom_residue_tree_gtk2(imol, gtktree);
+	 graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree, atom_list);
 #endif	 
       }
    } 
@@ -866,13 +868,15 @@ graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionTyp
       // old style:
 //       GtkWidget *residue_gtklist = lookup_widget(GTK_WIDGET(item),
 // 						 "go_to_atom_residue_list");
-      GtkWidget *residue_gtktree = lookup_widget(GTK_WIDGET(item),
+      GtkWidget *residue_tree = lookup_widget(GTK_WIDGET(item),
 						 "go_to_atom_residue_tree");
+      GtkWidget *atom_list = lookup_widget(GTK_WIDGET(item),
+					   "go_to_atom_atom_list");
 #if (GTK_MAJOR_VERSION == 1)
       fill_go_to_atom_residue_list_gtk1(residue_gtktree);
 #else
       // std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << pos << std::endl;
-      fill_go_to_atom_residue_tree_gtk2(pos, residue_gtktree);
+      fill_go_to_atom_residue_tree_and_atom_list_gtk2(pos, residue_tree, atom_list);
 #endif      
    }
 }

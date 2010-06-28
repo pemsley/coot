@@ -59,15 +59,13 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
  			    residue_tree, 
  			    (GtkDestroyNotify) gtk_widget_unref);
    int imol = g.go_to_atom_molecule();
-   graphics_info_t::fill_go_to_atom_residue_tree_gtk2(imol, residue_tree);
-   gtk_widget_show(residue_tree);
    
    /* The atom list/tree */
    GtkWidget *scrolled_window = lookup_widget(GTK_WIDGET(go_to_atom_window),
 					      "go_to_atom_atom_scrolledwindow");
-   GtkTreeView *atom_tree = GTK_TREE_VIEW(gtk_tree_view_new());
+   GtkTreeView *atom_list = GTK_TREE_VIEW(gtk_tree_view_new());
    gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
-					  GTK_WIDGET(atom_tree));
+					  GTK_WIDGET(atom_list));
    /* attach the name to the widget (by hand (as interface.c does
       it) so that we can look it up in the callback of residue selection changed */
 
@@ -76,9 +74,13 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
    // gtk_object_set_data_full() because it is not a GtkWidget (or
    // something).
    gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window), "go_to_atom_atom_list", 
-			    atom_tree, NULL);
+			    atom_list, NULL);
    
-   gtk_widget_show(GTK_WIDGET(atom_tree));
+   graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree,
+								    GTK_WIDGET(atom_list));
+   
+   gtk_widget_show(residue_tree);
+   gtk_widget_show(GTK_WIDGET(atom_list));
 
 }
 
@@ -87,7 +89,9 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 //
 // Recall that the tree is created in c-interface.cc's fill_go_to_atom_window().
 void
-graphics_info_t::fill_go_to_atom_residue_tree_gtk2(int imol, GtkWidget *gtktree) {
+graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(int imol,
+								 GtkWidget *gtktree,
+								 GtkWidget *atom_list) {
 
    std::string button_string;
    graphics_info_t g;
@@ -108,7 +112,7 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(int imol, GtkWidget *gtktree)
       if (! tv)
 	 tv = GTK_TREE_VIEW(gtk_tree_view_new());
 
-      // For stripey pajama view:
+      // For stripey pajamas view:
       // gtk_tree_view_set_rules_hint (tv, TRUE);
 
       GtkTreeModel *model = gtk_tree_view_get_model(tv);
@@ -171,6 +175,17 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(int imol, GtkWidget *gtktree)
 						 NULL, NULL);
       }
    }
+
+   // Now handle the atom list - clear it.
+   //
+   if (atom_list) { 
+      GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(atom_list));
+      if (model) {
+	 GtkListStore *list_store = GTK_LIST_STORE(model);
+	 gtk_list_store_clear(list_store);
+      } 
+   }
+   
 }
 
 // static
@@ -294,7 +309,7 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, in
 						char *chain_id, int resno, char *ins_code) {
    
    GtkTreeView *atom_tree = GTK_TREE_VIEW(lookup_widget(go_to_atom_window, "go_to_atom_atom_list"));
-   // std::cout << "atom_tree:" << atom_tree << std::endl;
+   
    bool need_renderer = 1; 
    if (!atom_tree) {
       // std::cout << "making new atom_tree..." << std::endl;

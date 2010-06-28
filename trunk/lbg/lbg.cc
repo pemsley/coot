@@ -2240,7 +2240,7 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
 					     primary_indices);
    }
    
-   draw_all_residue_attribs();
+   // draw_all_residue_attribs(); // contour debugging.
 }
 
 std::vector<lbg_info_t::residue_circle_t>
@@ -2459,8 +2459,10 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
    primary_grid.add_quadratic(attachment_points);
 
    // I want to see the grid.
-   // if (primary_index == 0) 
-   // show_grid(primary_grid);
+
+   std::cout << "================ Here " << primary_index << std::endl;
+   if (primary_index == 2) 
+      show_grid(primary_grid);
    
    lig_build::pos_t best_pos = primary_grid.find_minimum_position();
 
@@ -2530,12 +2532,13 @@ lbg_info_t::ligand_grid::find_minimum_position() const {
 
 
 lig_build::pos_t
-lbg_info_t::ligand_grid::to_canvas_pos(const int ii, const int jj) const {
+lbg_info_t::ligand_grid::to_canvas_pos(const double &ii, const double &jj) const {
 
    lig_build::pos_t p(ii*scale_fac, jj*scale_fac);
    p += top_left;
    return p;
 }
+
 
 std::pair<int, int>
 lbg_info_t::ligand_grid::canvas_pos_to_grid_pos(const lig_build::pos_t &pos) const {
@@ -2623,6 +2626,8 @@ lbg_info_t::ligand_grid::square_type(int ii, int jj, float contour_level) const 
 	    if (v01 < contour_level) { 
 	       if (v10 < contour_level) { 
 		  if (v11 < contour_level) {
+		     std::cout << "square_type() returns MS_UP_0_0" << "   "
+			       << lbg_info_t::ligand_grid::MS_UP_0_0 << std::endl;
 		     return lbg_info_t::ligand_grid::MS_UP_0_0;
 		  } else {
 		     return lbg_info_t::ligand_grid::MS_UP_0_0_and_1_1; // another hideous valley
@@ -2658,23 +2663,115 @@ lbg_info_t::ligand_grid::square_type(int ii, int jj, float contour_level) const 
    return square_type;
 } 
 
-lbg_info_t::contour_fragment::contour_fragment(int ms_type, int ii, int jj) {
+lbg_info_t::contour_fragment::contour_fragment(int ms_type,
+					       const float &contour_level, 
+					       const lbg_info_t::grid_index_t &grid_index_prev,
+					       const lbg_info_t::grid_index_t &grid_index,
+					       const lbg_info_t::ligand_grid &grid) {
 
-   int ii_next = -1; 
-   int jj_next = -1;  // mark as unset
+   int ii_next = lbg_info_t::grid_index_t::INVALID_INDEX;
+   int jj_next = lbg_info_t::grid_index_t::INVALID_INDEX;
 
-   // BL says: not compiling and not used, so comment out for now
-   //float v00 = get(ii, jj);
-   //float v01 = get(ii, jj+1);
-   //float v10 = get(ii+1, jj);
-   //float v11 = get(ii+1, jj+1);
+   float v00 = grid.get(grid_index.i(),   grid_index.j());
+   float v01 = grid.get(grid_index.i(),   grid_index.j()+1);
+   float v10 = grid.get(grid_index.i()+1, grid_index.j());
+   float v11 = grid.get(grid_index.i()+1, grid_index.j()+1);
+
+   float frac_x1 = -1; 
+   float frac_y1 = -1;
+   float frac_x2 = -1;  // for hideous valley
+   float frac_y2 = -1;
+
+   lbg_info_t::contour_fragment::coordinates c1(0.0, X_AXIS_LOW);
+   lbg_info_t::contour_fragment::coordinates c2(Y_AXIS_LOW, 0.0);
+   cp_t p(c1,c2);
    
    switch (ms_type) {
 
    case lbg_info_t::ligand_grid::MS_UP_0_0:
-      // from a point on the x axis to a point on the y axis
+   case lbg_info_t::ligand_grid::MS_UP_0_1_and_1_0_and_1_1:
+
+      if (ms_type == lbg_info_t::ligand_grid::MS_UP_0_0)
+	 std::cout << " ----- case MS_UP_0,0 " << std::endl;
+      if (ms_type == lbg_info_t::ligand_grid::MS_UP_0_1_and_1_0_and_1_1)
+	 std::cout << " ----- case MS_UP_0,1 and 1,0 and 1,1 " << std::endl;
+      frac_x1 = (v00-contour_level)/(v00-v10);
+      frac_y1 = (v00-contour_level)/(v00-v01);
+      c1 = lbg_info_t::contour_fragment::coordinates(frac_x1, X_AXIS_LOW);
+      c2 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_LOW, frac_y1);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      std::cout << " ----- done case " << std::endl;
+      break;
+
+   case lbg_info_t::ligand_grid::MS_UP_0_1:
+   case lbg_info_t::ligand_grid::MS_UP_0_0_and_1_0_and_1_1:
+      
+      // these look fine
+      std::cout << " ----- case MS_UP_0,1 " << std::endl;
+      frac_y1 = (v00 - contour_level)/(v00-v01);
+      frac_x2 = (v01 - contour_level)/(v01-v11);
+      c1 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_LOW, frac_y1);
+      c2 = lbg_info_t::contour_fragment::coordinates(frac_x2, X_AXIS_HIGH);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      std::cout << " ----- done case " << std::endl;
+      break;
+
+      
+   case lbg_info_t::ligand_grid::MS_UP_1_0:
+   case lbg_info_t::ligand_grid::MS_UP_0_0_and_0_1_and_1_1:
+      
+      std::cout << " ----- case MS_UP_1,0 " << std::endl;
+      frac_x1 = (contour_level - v00)/(v10-v00);
+      frac_y1 = (contour_level - v10)/(v11-v10);
+      c1 = lbg_info_t::contour_fragment::coordinates(frac_x1, X_AXIS_LOW);
+      c2 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_HIGH, frac_y1);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      std::cout << " ----- done case " << std::endl;
+      break;
+
       
       
+   case lbg_info_t::ligand_grid::MS_UP_1_1:
+   case lbg_info_t::ligand_grid::MS_UP_0_0_and_0_1_and_1_0:
+
+      std::cout << " ----- case MS_UP_1,1 " << std::endl;
+      frac_x1 = (v01-contour_level)/(v01-v11);
+      frac_y1 = (v10-contour_level)/(v10-v11);
+      c1 = lbg_info_t::contour_fragment::coordinates(frac_x1, X_AXIS_HIGH);
+      c2 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_HIGH, frac_y1);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      std::cout << " ----- done case " << std::endl;
+      break;
+
+   case lbg_info_t::ligand_grid::MS_UP_0_0_and_0_1:
+   case lbg_info_t::ligand_grid::MS_UP_1_0_and_1_1:
+      
+      std::cout << " ----- case MS_UP_0,0 and 0,1 " << std::endl;
+      frac_x1 = (v00-contour_level)/(v00-v10);
+      frac_x2 = (v01-contour_level)/(v01-v11);
+      c1 = lbg_info_t::contour_fragment::coordinates(frac_x1, X_AXIS_LOW);
+      c2 = lbg_info_t::contour_fragment::coordinates(frac_x2, X_AXIS_HIGH);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      std::cout << " ----- done case " << std::endl;
+      break;
+
+   case lbg_info_t::ligand_grid::MS_UP_0_0_and_1_0:
+   case lbg_info_t::ligand_grid::MS_UP_0_1_and_1_1:
+      
+      std::cout << " ----- case MS_UP_0,0 and 1,0 " << std::endl;
+      frac_y1 = (v00-contour_level)/(v00-v01);
+      frac_y2 = (v10-contour_level)/(v10-v11);
+      c1 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_LOW,  frac_y1);
+      c2 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_HIGH, frac_y2);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      std::cout << " ----- done case " << std::endl;
+      break;
       
 
    default:
@@ -2813,7 +2910,175 @@ lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid) {
 	 n_objs++;
       }
    }
+
+   grid.show_contour(root, 0.3);
+//    grid.show_contour(root, 0.4);
+//    grid.show_contour(root, 0.5);
+//    grid.show_contour(root, 0.6);
+//    grid.show_contour(root, 0.7);
+//    grid.show_contour(root, 0.8);
+//    grid.show_contour(root, 0.9);
+//    grid.show_contour(root, 1.0);
+   
 }
+
+void
+lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level) const {
+
+   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", "#880000",
+						NULL);
+
+   int ii=0;
+   int jj=0;
+
+   std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > line_fragments;
+
+   lbg_info_t::grid_index_t grid_index_prev(0,0);
+
+   for (int ix=0; ix<x_size(); ix+=1) {
+      for (int iy=0; iy<y_size(); iy+=1) {
+	 int ms_type = square_type(ix, iy, contour_level);
+
+	 if (ms_type == lbg_info_t::ligand_grid::MS_UP_0_0) {
+	    std::cout << "debug:: in show_contour() found MS_UP_0_0 "
+		      <<  lbg_info_t::ligand_grid::MS_UP_0_0 << std::endl;
+	 } 
+	 lbg_info_t::grid_index_t grid_index(ix,iy);
+
+	 if ((ms_type != MS_NO_CROSSING) && (ms_type != MS_NO_SQUARE)) { 
+	    lbg_info_t::contour_fragment cf(ms_type, contour_level,
+					    grid_index_prev,
+					    grid_index,
+					    *this); // sign of bad architecture
+	    if (cf.coords.size() == 1) {
+	       std::cout << "plot contour ("
+			 << cf.get_coords(ix, iy, 0).first << " "
+			 << cf.get_coords(ix, iy, 0).second << ") to ("
+			 << cf.get_coords(ix, iy, 1).first << " "
+			 << cf.get_coords(ix, iy, 1).second << ")" << std::endl;
+			
+	       std::pair<double, double> xy_1 = cf.get_coords(ix, iy, 0);
+	       std::pair<double, double> xy_2 = cf.get_coords(ix, iy, 1);
+	       lig_build::pos_t pos_1 = to_canvas_pos(xy_1.first, xy_1.second);
+	       lig_build::pos_t pos_2 = to_canvas_pos(xy_2.first, xy_2.second);
+
+// 	       goo_canvas_polyline_new_line(group,
+// 					    pos_1.x, pos_1.y,
+// 					    pos_2.x, pos_2.y,
+// 					    "line_width", 2.0,
+// 					    NULL);
+
+	       lig_build::pos_t p1 = to_canvas_pos(cf.get_coords(ix, iy, 0).first,
+						   cf.get_coords(ix, iy, 0).second);
+	       lig_build::pos_t p2 = to_canvas_pos(cf.get_coords(ix, iy, 1).first,
+						   cf.get_coords(ix, iy, 1).second);
+	       std::pair<lig_build::pos_t, lig_build::pos_t> fragment_pair(p1, p2);
+	       
+	       line_fragments.push_back(fragment_pair);
+	    } 
+	 }
+      }
+   }
+
+   std::vector<std::vector<lig_build::pos_t> > contour_lines = make_contour_lines(line_fragments);
+
+   plot_contour_lines(contour_lines, root);
+
+   // check the orientation of the canvas
+   if (0) { 
+      lig_build::pos_t grid_ori = to_canvas_pos(0.0, 0.0);
+      goo_canvas_rect_new (group,
+			   grid_ori.x, grid_ori.y, 5.0, 5.0,
+			   "line-width", 1.0,
+			   "stroke-color", "green",
+			   "fill_color", "blue",
+			   NULL);
+   }
+} 
+
+std::vector<std::vector<lig_build::pos_t> >
+lbg_info_t::ligand_grid::make_contour_lines(const std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > &line_fragments) const {
+
+   // Look for neighboring cells so that a continuous line fragment is
+   // generated. That is fine for closed contours, but this handled
+   // badly contour line fragments that go over the edge, they will be
+   // split into several line fragment - depending on which fragment
+   // is picked first.
+   //
+   // Perhaps the last items in the line_frag_queue should be (any)
+   // points that are on the edge of the grid - because they are the
+   // best starting place for dealing with contour line fragments that
+   // go over the edge.  If you do this, then the input arg
+   // line_fragments should carry with it info about this line
+   // fragment being on an edge (generated in show_contour())..
+   //
+   
+   std::vector<std::vector<lig_build::pos_t> > v; // returned item.
+
+   std::deque<std::pair<lig_build::pos_t, lig_build::pos_t> > line_frag_queue;
+   for (unsigned int i=0; i<line_fragments.size(); i++)
+      line_frag_queue.push_back(line_fragments[i]);
+
+   while (!line_frag_queue.empty()) {
+
+      // start a new line fragment
+      // 
+      std::vector<lig_build::pos_t> working_points;
+      std::pair<lig_build::pos_t, lig_build::pos_t> start_frag = line_frag_queue.back();
+      working_points.push_back(start_frag.first);
+      working_points.push_back(start_frag.second);
+      line_frag_queue.pop_back();
+      bool line_fragment_terminated = 0;
+
+      while (! line_fragment_terminated) { 
+	 // Is there a fragment in line_frag_queue that has a start that
+	 // is working_points.back()?
+	 //
+	 bool found = 0;
+	 std::deque<std::pair<lig_build::pos_t, lig_build::pos_t> >::iterator it;
+	 for (it=line_frag_queue.begin(); it!=line_frag_queue.end(); it++) { 
+	    if (it->first.near_point(working_points.back(), 0.1)) {
+	       working_points.push_back(it->second);
+	       line_frag_queue.erase(it);
+	       found = 1;
+	       break;
+	    }
+	 }
+	 if (! found)
+	    line_fragment_terminated = 1;
+      }
+
+      v.push_back(working_points);
+   }
+   
+   return v;
+} 
+
+void
+lbg_info_t::ligand_grid::plot_contour_lines(const std::vector<std::vector<lig_build::pos_t> > &contour_lines, GooCanvasItem *root) const {
+
+   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark,
+						NULL);
+   GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 1.5, 2.5);
+
+   for (unsigned int i=0; i<contour_lines.size(); i++) { 
+      for (int j=0; j<(contour_lines[i].size()-1); j++) {
+	 
+	 goo_canvas_polyline_new_line(group,
+				      contour_lines[i][j].x,
+				      contour_lines[i][j].y,
+				      contour_lines[i][j+1].x,
+				      contour_lines[i][j+1].y,
+				      "line_width", 1.0,
+				      "line-dash", dash,
+				      NULL);
+	 
+      }
+   }
+} 
+
+
+
 
 void
 lbg_info_t::show_mol_ring_centres() {
@@ -3575,11 +3840,13 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
 	    int ipt_0 = ipt - 1;
 	    double theta_deg_1 = 30 + angle_step * ipt;
 	    double theta_1 = theta_deg_1 * DEG_TO_RAD;
-	    lig_build::pos_t pt_1 = hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_1), cos(theta_1)) * r;
+	    lig_build::pos_t pt_1 =
+	       hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_1), cos(theta_1)) * r;
       
 	    double theta_deg_0 = 30 + angle_step * ipt_0;
 	    double theta_0 = theta_deg_0 * DEG_TO_RAD;
-	    lig_build::pos_t pt_0 = hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_0), cos(theta_0)) * r;
+	    lig_build::pos_t pt_0 =
+	       hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_0), cos(theta_0)) * r;
 	    goo_canvas_polyline_new_line(group,
 					 pt_1.x, pt_1.y,
 					 pt_0.x, pt_0.y,

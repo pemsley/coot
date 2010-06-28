@@ -214,7 +214,12 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		     coot::pi_stacking_container_t pi_stack_info(p.second, filtered_residues, res_ref);
 		     
 		     write_fle_centres(centres, bonds_to_ligand, sed, pi_stack_info, flat_res);
-		     
+
+		     coot::flev_attached_hydrogens_t ah(p.second);
+		     ah.cannonballs(res_ref, prodrg_output_3d_pdb_file_name, p.second);
+
+		     std::cout << "in fle_view_internal() ==================\n   "
+			       << "found " << ah.named_torsions.size() << " named torsions " << std::endl;
 		  }
 	       }
 	    }
@@ -1590,6 +1595,10 @@ coot::standard_residue_name_p(const std::string &rn) {
 std::vector<std::pair<std::string, int> >
 coot::get_prodrg_hybridizations(const std::string &prodrg_log_file_name) {
 
+   // This is currently not used. Now we get the cannonball directions
+   // from the positions of the hydrogens directly, not infered from
+   // the hybridisation of the atoms.
+
    std::cout << "in get_prodrg_hybridizations() "  << std::endl;
    std::vector<std::pair<std::string, int> > v;
    std::ifstream f(prodrg_log_file_name.c_str());
@@ -1639,3 +1648,339 @@ coot::get_cannonball_vectors(CResidue *ligand_res_3d,
 
    return v;
 }
+
+// examine the dictionary and find the atoms to which the hydrogens
+// are attached.  Is the hydrogen riding or rotatable?
+// 
+//            ... riding hydrogens do not have torsions for them in
+// the dictionary.  Rotable hydrogens do.  Note though, that PRODRG
+// hydrogen names (in the cif file) are problematic.  You can't rely
+// on name matching of hydrogens between the PDB and the dictionary.
+//
+// So here is what we have to do:
+//
+// i) From the dictionary, look through the list of non-Hydrogen atoms
+// to see if there are hydrogens bonded to the atom.
+// 
+//    ii) If so, does this non-Hydrogen atom appear as atom 2 in a 
+//    torsion restraint with a hydrogen as atom 1 or appear as atom 3
+//    in a torsion restraint with a hydrogen as atom 4?
+//
+//        iii) If so, then this is a torsionable hydrogen, we need to
+//        generate vectors by random sampling from the probability
+//        distribution of this torsion.
+//
+//        However, if it is not, then this is a riding hydrogen.  Add
+//        the vector from the ligand atom to the hydrogen as a
+//        cannonball vector associated with that ligand atom.
+//
+coot::flev_attached_hydrogens_t::flev_attached_hydrogens_t(const coot::dictionary_residue_restraints_t &restraints) {
+
+   for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
+      std::string atom_name_1 = restraints.bond_restraint[ibond].atom_id_1_4c();
+      std::string atom_name_2 = restraints.bond_restraint[ibond].atom_id_2_4c();
+      if ((restraints.is_hydrogen(atom_name_1)) && (! restraints.is_hydrogen(atom_name_2))) {
+	 std::swap(atom_name_1, atom_name_2);
+      }
+      
+      if ((! restraints.is_hydrogen(atom_name_1)) && (restraints.is_hydrogen(atom_name_2))) {
+	 // a heavy atom connected to a hydrogen.
+	 // Does it exist in the torsions?
+
+	 bool found = 0;
+	 for (unsigned int itor=0; itor<restraints.torsion_restraint.size(); itor++) { 
+	    if (((restraints.torsion_restraint[itor].atom_id_1_4c() == atom_name_2) &&
+		 (restraints.torsion_restraint[itor].atom_id_2_4c() == atom_name_1)) ||
+		((restraints.torsion_restraint[itor].atom_id_4_4c() == atom_name_2) &&
+		 (restraints.torsion_restraint[itor].atom_id_3_4c() == atom_name_1))) { 
+	       if (restraints.torsion_restraint[itor].is_const()) { 
+		  atoms_with_riding_hydrogens.push_back(atom_name_1);
+	       } else {
+		  atoms_with_rotating_hydrogens.push_back(atom_name_1);
+	       }
+	       found = 1;
+	       break;
+	    }
+	 }
+	 if (! found) {
+	    atoms_with_riding_hydrogens.push_back(atom_name_1);
+	 }
+      }
+   }
+} 
+
+void
+coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
+					     const std::string &prodrg_3d_ligand_file_name,
+					     const coot::dictionary_residue_restraints_t &restraints) {
+
+   atom_selection_container_t asc = get_atom_selection(prodrg_3d_ligand_file_name);
+
+   if (asc.read_success) {
+      PSContact pscontact = NULL;
+      int n_contacts;
+      long i_contact_group = 1;
+      mat44 my_matt;
+      CSymOps symm;
+      for (int i=0; i<4; i++) 
+	 for (int j=0; j<4; j++) 
+	    my_matt[i][j] = 0.0;      
+      for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+
+      int SelHnd_H = asc.mol->NewSelection();
+      int SelHnd_non_H = asc.mol->NewSelection();
+
+      PPCAtom hydrogen_selection = 0;
+      PPCAtom non_hydrogen_selection = 0;
+      int n_hydrogen_atoms;
+      int n_non_hydrogen_atoms;
+      
+      
+      asc.mol->SelectAtoms(SelHnd_H,     0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", " H", "*");
+      asc.mol->SelectAtoms(SelHnd_non_H, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "!H", "*");
+      
+      asc.mol->GetSelIndex(SelHnd_H, hydrogen_selection, n_hydrogen_atoms);
+      asc.mol->GetSelIndex(SelHnd_non_H, non_hydrogen_selection, n_non_hydrogen_atoms);
+      
+      asc.mol->SeekContacts(hydrogen_selection, n_hydrogen_atoms,
+			    non_hydrogen_selection, n_non_hydrogen_atoms,
+			    0.1, 1.5,
+			    0, // in same res also
+			    pscontact, n_contacts,
+			    0, &my_matt, i_contact_group);
+
+      std::cout << "Found " << n_hydrogen_atoms << " Hydrogens " << std::endl;
+      std::cout << "Found " << n_non_hydrogen_atoms << " non Hydrogens " << std::endl;
+      std::cout << "Found " << n_contacts << " contacts to Hydrogens " << std::endl;
+
+      // We need to find the torsion of the hydrogen,
+      // A torsion (that can be mapped to the reference ligand) is:
+      //
+      // At_name_base At_name_2 At_name_bond_to_H bond_length bond_angle torsion_angle
+      //
+      // that is, we work from "inside" ligand atoms out to the hydrogen
+      // 
+      // 
+      if (n_contacts > 0) {
+	 for (int i=0; i< n_contacts; i++) {
+	    CAtom *at = non_hydrogen_selection[pscontact[i].id2];
+	    std::string atom_name_bonded_to_H(at->name);
+
+	    bool found_torsion_for_this_H = 0;
+
+	    // riding hydrogens:
+	    // 
+	    for (unsigned int iat=0; iat<atoms_with_riding_hydrogens.size(); iat++) { 
+	       if (atom_name_bonded_to_H == atoms_with_riding_hydrogens[iat]) {
+		  CAtom *h_at = hydrogen_selection[pscontact[i].id1];
+		  found_torsion_for_this_H = add_named_torsion(h_at, at, restraints, asc.mol, coot::H_IS_RIDING);
+	       }
+	       if (found_torsion_for_this_H)
+		  break;
+	    }
+
+	    // rotating hydrogens:
+	    // 
+	    for (unsigned int iat=0; iat<atoms_with_rotating_hydrogens.size(); iat++) { 
+	       if (atom_name_bonded_to_H == atoms_with_rotating_hydrogens[iat]) {
+		  CAtom *h_at = hydrogen_selection[pscontact[i].id1];
+		  found_torsion_for_this_H = add_named_torsion(h_at, at, restraints, asc.mol, coot::H_IS_ROTATABLE);
+	       }
+	       if (found_torsion_for_this_H)
+		  break;
+	    }
+	 }
+      }
+
+      asc.mol->DeleteSelection(SelHnd_H);
+      asc.mol->DeleteSelection(SelHnd_non_H);
+
+      named_hydrogens_to_reference_ligand(ligand_residue_3d, restraints);
+   }
+}
+
+// hydrogen_type is either H_IS_RIDING or H_IS_ROTATABLE
+//
+bool
+coot::flev_attached_hydrogens_t::add_named_torsion(CAtom *h_at, CAtom *at,
+						   const coot::dictionary_residue_restraints_t &restraints,
+						   CMMDBManager *mol, // 3d prodrg ligand mol
+						   int hydrogen_type)  {
+
+   bool found_torsion_for_this_H = 0;
+   std::string atom_name_bonded_to_H(at->name);
+   clipper::Coord_orth p_h(h_at->x, h_at->y, h_at->z);
+   clipper::Coord_orth p_1(at->x, at->y, at->z);
+
+   // now we work back through the restraints, finding
+   // an atom that bonds to at/atom_name_bonded_to_H,
+   // and one that bonds to that (by name).
+   for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
+      std::string atom_name_1 = restraints.bond_restraint[ibond].atom_id_1_4c();
+      std::string atom_name_2 = restraints.bond_restraint[ibond].atom_id_2_4c();
+
+      if (atom_name_bonded_to_H == atom_name_2)
+	 std::swap(atom_name_1, atom_name_2);
+
+      if (atom_name_bonded_to_H == atom_name_1) {
+
+	 if (! restraints.is_hydrogen(atom_name_2)) { 
+	    std::string At_name_2 = atom_name_2;
+
+	    // now for the base...
+	    //
+	    for (unsigned int jbond=0; jbond<restraints.bond_restraint.size(); jbond++) {
+	       std::string atom_name_b_1 = restraints.bond_restraint[jbond].atom_id_1_4c();
+	       std::string atom_name_b_2 = restraints.bond_restraint[jbond].atom_id_2_4c();
+
+	       if (At_name_2 == atom_name_b_2)
+		  std::swap(atom_name_b_1, atom_name_b_2); // same trick
+
+	       if (At_name_2 == atom_name_b_1) {
+
+		  // atom_name_b_2 is the base then (maybe)
+
+		  if (atom_name_b_2 != atom_name_bonded_to_H) {
+		     if (! restraints.is_hydrogen(atom_name_b_1)) {
+			std::string base_atom_name = atom_name_b_2;
+
+			// now, where are those atoms (At_name_2 and base_atom_name)?
+			CAtom *At_2 = NULL;
+			CAtom *base_atom = NULL;
+
+			int imod = 1;
+			CModel *model_p = mol->GetModel(imod);
+			CChain *chain_p;
+			int nchains = model_p->GetNumberOfChains();
+			for (int ichain=0; ichain<nchains; ichain++) {
+			   chain_p = model_p->GetChain(ichain);
+			   int nres = chain_p->GetNumberOfResidues();
+			   CResidue *residue_p;
+			   CAtom *residue_at;
+			   for (int ires=0; ires<nres; ires++) { 
+			      residue_p = chain_p->GetResidue(ires);
+			      int n_atoms = residue_p->GetNumberOfAtoms();
+			      for (int iat=0; iat<n_atoms; iat++) {
+				 residue_at = residue_p->GetAtom(iat);
+				 std::string res_atom_name(residue_at->name);
+				 if (res_atom_name == At_name_2)
+				    At_2 = residue_at;
+				 if (res_atom_name == base_atom_name)
+				    base_atom = residue_at;
+			      }
+			   }
+			}
+
+			if (!base_atom || !At_2) {
+
+			   if (!base_atom)
+			      std::cout << "Failed to find base in 3d prodrg residue "
+					<< base_atom_name << std::endl;
+			   if (!At_2)
+			      std::cout << "Failed to find base or At_2 in 3d prodrg residue "
+					<< At_name_2 << std::endl;
+			} else {
+			   try { 
+			      clipper::Coord_orth p_2(At_2->x, At_2->y, At_2->z);
+			      clipper::Coord_orth p_base(base_atom->x, base_atom->y, base_atom->z);
+					     
+			      double tors_r = clipper::Coord_orth::torsion(p_base, p_2, p_1, p_h);
+			      double tors = clipper::Util::rad2d(tors_r);
+			      double angle = coot::angle(h_at, at, At_2);
+			      double dist = clipper::Coord_orth::length(p_h, p_1);
+
+			      coot::named_torsion_t torsion(base_atom_name,
+							    At_name_2,
+							    atom_name_bonded_to_H,
+							    dist, angle, tors, hydrogen_type);
+
+			      std::cout << "  Yeah!!! adding named torsion " << std::endl;
+			      named_torsions.push_back(torsion);
+			      found_torsion_for_this_H = 1;
+			   }
+			   catch (std::runtime_error rte) {
+			      std::cout << "WARNING:: " << rte.what() << std::endl;
+			   } 
+			} 
+		     }
+		  }
+	       }
+	       if (found_torsion_for_this_H)
+		  break;
+	    }
+	 }
+      }
+      if (found_torsion_for_this_H)
+	 break;
+   }
+
+   return found_torsion_for_this_H;
+}
+
+// For (each?) of the atoms in our real reference residue
+// ligand_residue_3d (that should have hydrogens attached) give us a
+// unit vector from the bonding atom in the direction of (each of, if
+// there are more than one) the hydrogen(s).
+// 
+std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > >
+coot::flev_attached_hydrogens_t::named_hydrogens_to_reference_ligand(CResidue *ligand_residue_3d,
+								     const coot::dictionary_residue_restraints_t &restraints) const {
+
+   std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > > v;
+
+   for (unsigned int i=0; i<named_torsions.size(); i++) { 
+      if (named_torsions[i].hydrogen_type == coot::H_IS_RIDING) {
+	 CAtom *atom_base = NULL;
+	 CAtom *atom_2 = NULL;
+	 CAtom *atom_bonded_to_H = NULL;
+	 
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 ligand_residue_3d->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int iat=0; iat<n_residue_atoms; iat++) { 
+	    std::string atom_name(residue_atoms[iat]->name);
+	    if (atom_name == named_torsions[i].base_atom_name) {
+	       atom_base = residue_atoms[iat];
+	    }
+	    if (atom_name == named_torsions[i].atom_name_2) {
+	       atom_2 = residue_atoms[iat];
+	    }
+	    if (atom_name == named_torsions[i].atom_name_bonded_to_H) {
+	       atom_bonded_to_H = residue_atoms[iat];
+	    }
+	 }
+
+	 if (atom_base && atom_2 && atom_bonded_to_H) {
+	    clipper::Coord_orth pos_atom_base(atom_base->x, atom_base->y, atom_base->z);
+	    clipper::Coord_orth pos_atom_2(atom_2->x, atom_2->y, atom_2->z);
+	    clipper::Coord_orth pos_atom_bonded_to_H(atom_bonded_to_H->x, atom_bonded_to_H->y, atom_bonded_to_H->z);
+
+	    clipper::Coord_orth new_pt(pos_atom_base, pos_atom_2, pos_atom_bonded_to_H,
+				       1.0, // unit vector
+				       clipper::Util::d2rad(named_torsions[i].angle),
+				       clipper::Util::d2rad(named_torsions[i].torsion));
+	    clipper::Coord_orth vect = new_pt = pos_atom_bonded_to_H;
+
+
+	    // add that to the pile
+	    bool found_atom = 0;
+	    for (unsigned int irv=0; irv<v.size(); irv++) { 
+	       if (v[irv].first == atom_bonded_to_H) {
+		  v[irv].second.push_back(vect);
+		  found_atom = 1;
+	       }
+	    }
+	    if (! found_atom) {
+	       std::vector<clipper::Coord_orth> cov;
+	       cov.push_back(vect);
+	       std::pair<CAtom *, std::vector<clipper::Coord_orth> > p(atom_bonded_to_H, cov);
+	       v.push_back(p);
+	    } 
+	 }
+      }
+   }
+
+   return v;
+}
+								     

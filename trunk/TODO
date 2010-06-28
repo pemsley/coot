@@ -901,6 +901,8 @@ Punted from 0.6:
      function, if you need to rotate a polypeptide around a single
      bond. 
 
+  o cross2 chiral restraints, HEC and HEA.
+
 
 ------
 
