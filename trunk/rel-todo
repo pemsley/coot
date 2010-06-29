@@ -2,11 +2,14 @@
 
     Points 2:
 
-    o the sequence view fails with 3mdo.  Where is the ligand in this
-      thing? (mark waters and other hetatms ligands differently?)  ::: 1
+    o 2vtu: problems in lhs of sequence view on jackal. It's fine on
+      ubuntu 64 box (there fixed ->
+      -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1)
 
-    o Does the local update of molprobity dots (e.g. on refinement or
-      sphere refinement) work? ::: 2
+    o BL: 2vtu and geometry validation? Crash. (No crash on UB) ::: 2
+
+    o When I use the GUI to renumber residues it doesn't seem to pick
+      up the imol selected from the drop-down.  ::: 1
 
     o Dima's Workshop data, Place helix here on helix 2 - pathetic
       failure! ::: 3
@@ -18,12 +21,10 @@
 
     o Steven's spinach ::: 3
 
-    o When I use the GUI to renumber residues it doesn't seem to pick
-      up the imol selected from the drop-down.  ::: 1
+    o document change chain ids: If you use the "Residue Range" option
+    then you can insert non-conflicting residues into pre-existing
+    chains.
 
-    o 2vtu: problems in lhs of sequence view on jackal. 
-
-    o BL: 2vtu and geometry validation? Crash. ::: 2
 
 ------
 
@@ -556,6 +557,17 @@ WARNING:: Can't find file
       ::: 2
 
 * Done.
+
+    o the sequence view fails with 3mdo.  Where is the ligand in this
+      thing? (mark waters and other hetatms ligands differently?)  ::: 1
+
+* Done.
+
+    o Does the local update of molprobity dots (e.g. on refinement or
+      sphere refinement) work? ::: 2
+
+* Yes, but I want a local update to merge with the already existing
+  dots - it doesn't do that (I thought it did - fantasy, I guess).
 
 	
 -------

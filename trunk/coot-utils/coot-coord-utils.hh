@@ -1076,7 +1076,10 @@ namespace coot {
       CResidue *previous_residue(CResidue *this_residue);
       CResidue *next_residue(CResidue *this_residue);
 
+      // normal sequence codes, X for non-protein
       std::string three_letter_to_one_letter(const std::string &resname);
+      // as above, but allow specials, currently HOH -> "~"
+      std::string three_letter_to_one_letter_with_specials(const std::string &resname);
 
 
       // for sequence/sequence alignment

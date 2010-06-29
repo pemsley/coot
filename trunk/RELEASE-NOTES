@@ -49,6 +49,10 @@
   o CHANGE: SSM overlayed molecule now takes symmetry of reference
     molecule
 
+  o CHANGE: Waters are now represented with "~" in the sequence view -
+    so that there is a distinction between waters and interesting
+    hetatoms.
+
   o BUG-FIX:: Hydrogens on waters are no longer checked against the
     difference map in the water validation test.
 
