@@ -123,7 +123,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
    pixels_per_letter = 10; // 10 for my F10 box
    pixels_per_chain  = 12;
 
-   bool debug = 0;
+   bool debug = 1;
 
 #ifdef HAVE_GTK_CANVAS
    gtk_canvas_init();
@@ -239,7 +239,20 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 	 // bring the items on the canvas leftwards, no empty big
 	 // space on the left before sequences are shown.
 	 //
-	 double x_offset = -7 * pixels_per_letter + (biggest_res_number - lowest_resno) * 0.65;
+	 // The more large negative, the more the sequence items are
+	 // render on the canvas the the rightwards direction.
+	 //
+	 // double x_offset = -7 * pixels_per_letter + (biggest_res_number - lowest_resno) * 0.65;
+
+	 // double x_offset = - total_res_range/15.0 * pixels_per_letter + total_res_range * 0.65;
+
+	 // if you want to change this multiplier, test vs 3GP.pdb,
+	 // 3mdo, tut-modern, 2vtu, 3g5u, others?
+	 // 
+	 double x_offset = - 0.0666 * total_res_range * pixels_per_letter + total_res_range * 0.65;
+
+	 if (debug)
+	    std::cout << " -> x_offset:" << x_offset << std::endl;
 
  	 gtk_canvas_set_scroll_region(canvas, left_limit, upper_limit,
  				      scroll_width, scroll_height);
@@ -312,9 +325,9 @@ exptl::nsv::add_text_and_rect(CResidue *residue_p,
       CAtom *at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
       coot::atom_spec_t at_spec(at);
       std::string res_code =
-	 coot::util::three_letter_to_one_letter(residue_p->GetResName());
+	 coot::util::three_letter_to_one_letter_with_specials(residue_p->GetResName());
       std::string colour = "black";
-      double x = (residue_p->GetSeqNum() - lowest_resno + 1) * pixels_per_letter -3 - x_offset;
+      double x = (residue_p->GetSeqNum() - lowest_resno + 1) * pixels_per_letter - x_offset;
       double y = - pixels_per_chain * position_number - 6;
       
       exptl::nsv::spec_and_object *so = 
@@ -327,7 +340,7 @@ exptl::nsv::add_text_and_rect(CResidue *residue_p,
       // Hmm... maybe I do.
       // 
       // double x1 = x - 2;
-      double x1 = x; // otherwise rect too far to right relative to letter
+      double x1 = x -3; // otherwise rect too far to right relative to letter
                          // (on fed10 home).
       double y1 = y + 5;
       
@@ -335,7 +348,7 @@ exptl::nsv::add_text_and_rect(CResidue *residue_p,
                           // jackal, it partially covers the
                           // previous letter.
 
-      double x2 = x + pixels_per_letter - 2; // how about that then?
+      double x2 = x + pixels_per_letter - 2 - 3; // how about that then?
       
       double y2 = y1 - 11; // pixels_per_letter;
       std::string rect_colour = "grey85";
@@ -364,7 +377,7 @@ exptl::nsv::add_text_and_rect(CResidue *residue_p,
 					 "text", res_code.c_str(),
 					 "x", x,
 					 "y", y,
-					 "anchor", GTK_ANCHOR_WEST,
+					 "anchor", GTK_ANCHOR_CENTER,
 					 "fill_color", colour.c_str(),
 					 "font", fixed_font_str.c_str(),
 					 NULL);
@@ -523,8 +536,6 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       points->coords[1] = y_value;
       points->coords[2] = (brn-lrn)*font_scaler - x_offset;
       points->coords[3] = y_value;
-
-      std::cout << "DEBUG:: x2 of axis: " << points->coords[2] << std::endl;
 
       double points_max = 22500; // 23000 too many (strangely)
       if (points->coords[2] > points_max)

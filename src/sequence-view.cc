@@ -564,7 +564,7 @@ coot::sequence_view::mol_to_canvas(CMMDBManager *mol_in) {
 	 residue_p = chain_p->GetResidue(ires); 
 // 	 std::cout << "DEBUG:: GetResName: " << residue_p->GetResName() 
 // 		   << " " << strlen(residue_p->GetResName()) << std::endl;
-	 res_code = coot::util::three_letter_to_one_letter(residue_p->GetResName());
+	 res_code = coot::util::three_letter_to_one_letter_with_specials(residue_p->GetResName());
 	 // std::cout << res_code;
 
 	 colour = colour_by_secstr(residue_p, model_p);

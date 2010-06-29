@@ -824,6 +824,8 @@ Punted from 0.6:
      Return a SCM: #f or a list of chain-ids (hopefully, just one
      item).
 
+   o update probe dots (probe-local-sphere) should do a merge with
+     already existing dots - removing the overlaping dots.
 
  ------
     
