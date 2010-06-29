@@ -4214,6 +4214,7 @@ interface to other programs.
 
 @menu
 * Ramachandran Plots::
+* Geometry Analysis::
 * Chiral Volumes::
 * sec_blobs::
 * Check Waters by Difference Map::
@@ -4260,6 +4261,16 @@ contours using
 
 These comes into effect when a new plot is created (it doesn't change
 plots currently displayed).
+
+
+@node Geometry Analysis
+@section Geometry Analysis
+
+A restraints-based geometry analysis of the molecule.  The distortion
+is weighted by atom occupancy. The distortion of the geometry due to
+links is shared between the contributing residues.
+
+Note that only the first model of a multi-model molecule is analysed.
 
 
 @node Chiral Volumes
