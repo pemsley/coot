@@ -382,10 +382,10 @@ GtkWidget *wrapped_create_renumber_residue_range_dialog() {
    GtkWidget *w = create_renumber_residue_range_dialog();
    int imol = first_coords_imol();
    graphics_info_t::renumber_residue_range_molecule = imol;
-   if (graphics_info_t::renumber_residue_range_molecule >= 0) { 
-      graphics_info_t::fill_renumber_residue_range_dialog(w);
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.fill_renumber_residue_range_internal(w, imol);
+      g.fill_renumber_residue_range_dialog(w);  // fills the coordinates option menu
+      g.fill_renumber_residue_range_internal(w, imol); // fills the chain option menu
    }
    return w;
 }

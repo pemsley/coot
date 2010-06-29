@@ -1650,7 +1650,8 @@ void
 graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 							   GtkSignalFunc callback_func) { 
 
-   fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, 0);
+   short int set_last_active_flag = 0;
+   fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, set_last_active_flag);
 
 }
 
@@ -1669,6 +1670,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 
 }
 
+// 20100629 this was used in fill_renumber_residue_range_dialog() - the modern way, I guess.
 void
 graphics_info_t::fill_option_menu_with_coordinates_options_internal_2(GtkWidget *option_menu,
 								      GtkSignalFunc callback_func, 
@@ -3486,7 +3488,13 @@ graphics_info_t::fill_renumber_residue_range_dialog(GtkWidget *window) {
    // fill molecules option menu
    GtkSignalFunc callback_func = 
       GTK_SIGNAL_FUNC(graphics_info_t::renumber_residue_range_molecule_menu_item_select);
-   g.fill_option_menu_with_coordinates_options(molecule_option_menu, callback_func);
+
+   // g.fill_option_menu_with_coordinates_options(molecule_option_menu, callback_func);
+
+   short int set_last_active_flag = 0;
+   int imol = renumber_residue_range_molecule;
+   g.fill_option_menu_with_coordinates_options_internal_2(molecule_option_menu, callback_func,
+							  set_last_active_flag, imol);
 
 }
 
