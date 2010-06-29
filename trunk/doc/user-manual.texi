@@ -3037,15 +3037,16 @@ After a water search, Coot will create a blobs dialog (see Section
 
 @section Add Terminal Residue
 @cindex terminal residue
-This creates a new residue at the C or N terminus by fitting to the map.
-@math{\phi/\psi} angle pairs are selected at random based on the
-Ramachandran plot probability (for a generic residue).  By default there
-are 100 trials.  It is possible that a wrong position will be selected
-for the terminal residue and if so, you can reject this fit and try
-again with Fit Terminal Residue @footnote{usually if this still fails
-after two repetitions then it never seems to work.}. Each of the trial
-positions are scored according to their fit to the map @footnote{The map
-is selected using ``Refine/Regularize Control''} and the best one
+This creates a new residue at the C or N terminal extension of the
+residue clicked by fitting to the map.  @math{\phi,\psi} angle pairs
+are selected at random based on the Ramachandran plot probability (for
+a generic residue) and fitted to the density.  By default there are
+100 trials.  It is possible that a wrong position will be selected for
+the terminal residue and if so, you can reject this fit and try again
+with Fit Terminal Residue @footnote{usually if this still fails after
+two repetitions then it never seems to work.}. Each of the trial
+positions are scored according to their fit to the map @footnote{The
+map is selected using ``Refine/Regularize Control''} and the best one
 selected.  It is probably a good idea to run ``Refine Zone'' on these
 new residues.
 
@@ -3054,13 +3055,31 @@ Sequence with Model}) to apply a PIR sequence file to a model then
 @command{Add Terminal Residue} will use the sequence alignment to
 determine the residue type of the added residue.
 
+Sometimes, particularly with low resolution maps, the added terminal
+residue will wander off to somewhere inappropriate.  This can be
+addressed in a number of ways:
+
+
+@enumerate
+
+@item 
 @code{(set-terminal-residue-do-rigid-body-refine 0)} will disable
 rigid body fitting of the terminal residue fragment for
 each trial residue position (the default is 1 (on)) - this may help if
 the search does not provide good results.
 
-@code{(set-add-terminal-residue-n-phi-psi-trials 50)} will change
-the number of trials (default is 100).
+@item
+to anneal the newly added residue back to the clicked residue (no
+matter where it ended up being positioned):
+@code{(set-add-terminal-residue-do-post-refine 1)}
+
+@item
+@code{(set-add-terminal-residue-n-phi-psi-trials 200)} will change the
+number of trials (default is 100).  This is useful if you think that
+Coot needs to search harder to find a good solution to the positioning
+of the next residue.
+
+@end enumerate
 
 @section Add OXT Atom to Residue 
 
