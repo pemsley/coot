@@ -145,7 +145,8 @@ coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
    max_chain_length = max_chain_length_in;
    setup_internal();
    setup_canvas(nchains_in, max_chain_length_in);
-   // std::cout << "resizing geometry_graphs to " << nchains_in << std::endl;
+   // std::cout << "DEBUG:: in geometry_graphs constuctor resizing geometry_graphs block to "
+   // << nchains_in << std::endl;
    blocks.resize(nchains_in);
    offsets.resize(nchains_in);
    chain_index.resize(n_chains);
@@ -213,6 +214,8 @@ coot::geometry_graphs::render_to_canvas(const coot::geometry_distortion_info_con
 
    draw_chain_axis(nres, chain_number);
    draw_chain_axis_tick_and_tick_labels(min_resno, max_resno, chain_number);
+
+   // std::cout << "DEBUG:: blocks.size(): " << blocks.size() << std::endl;
    // std::cout << "DEBUG:: resizing blocks[" << chain_number << "] to " << nres << std::endl;
    blocks[chain_number].resize(nres + 1); // needs to index max_resno
    render_geometry_distortion_blocks_internal_linear(dc, min_resno, max_resno);

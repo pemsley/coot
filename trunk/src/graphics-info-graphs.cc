@@ -297,9 +297,10 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 		  coot::omega_distortion_info_container_t om_dist = 
 		     omega_distortions_from_mol(moving_atoms_asc_local, chain_id);	
 
-		  std::cout << "DEBUG:: update omega dist graph chain "
-			    << om_dist.chain_id << " " << om_dist.omega_distortions.size()
-			    << " blocks" << std::endl;
+		  if (0)
+		     std::cout << "DEBUG:: update omega dist graph chain "
+			       << om_dist.chain_id << " " << om_dist.omega_distortions.size()
+			       << " blocks" << std::endl;
 
 		  // Need to delete geometry blocks, somehow. Here, perhaps.
 		  gr->update_omega_blocks(om_dist, ich, std::string(chain_id));
@@ -392,11 +393,10 @@ graphics_info_t::geometric_distortion(int imol) {
 	 std::cout << "WARNING:: Funny coords - no graphs for this molecule" << std::endl;
       } else { 
 	 int nchains = coot::util::number_of_chains(mol);
-      
+
+	 std::string name = graphics_info_t::molecules[imol].name_for_display_manager();
 	 coot::geometry_graphs *graphs = new coot::geometry_graphs(coot::GEOMETRY_GRAPH_GEOMETRY,
-								   imol,
-								   graphics_info_t::molecules[imol].name_for_display_manager(), 
-								   nchains, max_chain_length);
+								   imol, name, nchains, max_chain_length);
 	 coot::set_validation_graph(imol, coot::GEOMETRY_GRAPH_GEOMETRY, graphs->dialog()); // store for potential updates
 
 	 // debugging.  Problem was negative occupancies.
@@ -433,8 +433,16 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
    int n_models = asc.mol->GetNumberOfModels();
    
    if (n_models > 0) { 
+
+      // 20100629, crash!  Ooops, we can't run over many models
+      // because geometry_graphs (and its data member `blocks' are
+      // sized to the number of chains).  If we run over all models,
+      // then there are too many chains for the indexing of `blocks`
+      // -> crash.  So we just use the first model.
       
-      for (int imod=1; imod<=n_models; imod++) { 
+      // for (int imod=1; imod<=n_models; imod++) {
+      int imod=1;
+      {
 	 
 	 CModel *model_p = asc.mol->GetModel(imod);
 	 CChain *chain_p;
