@@ -8,9 +8,6 @@
 
     o BL: 2vtu and geometry validation? Crash. (No crash on UB) ::: 2
 
-    o When I use the GUI to renumber residues it doesn't seem to pick
-      up the imol selected from the drop-down.  ::: 1
-
     o Dima's Workshop data, Place helix here on helix 2 - pathetic
       failure! ::: 3
 
@@ -568,6 +565,12 @@ WARNING:: Can't find file
 
 * Yes, but I want a local update to merge with the already existing
   dots - it doesn't do that (I thought it did - fantasy, I guess).
+
+    o When I use the GUI to renumber residues it doesn't seem to pick
+      up the imol selected from the drop-down.  ::: 1
+
+* Reworked. Now active molecule is passed in the filling of the
+  coordinate option menu.
 
 	
 -------
