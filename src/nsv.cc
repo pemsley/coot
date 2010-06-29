@@ -119,11 +119,12 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
    fixed_font_str = "monospace";
 #else
    fixed_font_str = "fixed";
+   fixed_font_str = "Sans 9";
 #endif
    pixels_per_letter = 10; // 10 for my F10 box
    pixels_per_chain  = 12;
 
-   bool debug = 1;
+   bool debug = 0;
 
 #ifdef HAVE_GTK_CANVAS
    gtk_canvas_init();
