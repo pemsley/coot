@@ -2,26 +2,12 @@
 
     Points 2:
 
-    o 2vtu: problems in lhs of sequence view on jackal. It's fine on
-      ubuntu 64 box (there fixed ->
-      -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1)
-
-    o BL: 2vtu and geometry validation? Crash. (No crash on UB) ::: 2
-
-    o Dima's Workshop data, Place helix here on helix 2 - pathetic
-      failure! ::: 3
-
     o delete residues 80 81, Dock sequence, add terminal residue,
       should build TYRs - second is an ALA.  ::: 2
 
     o change to rms z scores ::: 2
 
     o Steven's spinach ::: 3
-
-    o document change chain ids: If you use the "Residue Range" option
-    then you can insert non-conflicting residues into pre-existing
-    chains.
-
 
 ------
 
@@ -572,5 +558,24 @@ WARNING:: Can't find file
 * Reworked. Now active molecule is passed in the filling of the
   coordinate option menu.
 
+    o 2vtu: problems in lhs of sequence view on jackal. It's fine on
+      ubuntu 64 box (there fixed ->
+      -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1)
+
+      ::: 1
+
+* looks OK now.
+
+
+    o Dima's Workshop data, Place helix here on helix 2 - pathetic
+      failure! 
+
+      20100629: hmm that was on strange version in Erice.  Now it
+      works as expected.  ::: 1
+
+    o BL: 2vtu and geometry validation? Crash. (No crash on UB) ::: 2
+
+* Fixed - only do the first model.
 	
+
 -------
