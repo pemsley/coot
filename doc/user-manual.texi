@@ -75,7 +75,7 @@ Paul Emsley
 @c @insertcopying : FIXME see above.
 @end ifnottex
 
-@menu 
+@menu
 * Introduction::
 * Mousing and Keyboarding::
 * General Features::
@@ -89,8 +89,201 @@ Paul Emsley
 * More Scripting Functions::
 * Scheme Scripting Functions::
 * Index::   Complete index.
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Introduction
+
+* Citing Coot::
+* What is Coot?::
+* What Coot is Not::
+* Hardware Requirements::
+* Environment Variables::
+* Command Line Arguments::
+* Web Page::
+* Crash::
+
+Mousing and Keyboarding
+
+* Next Residue::
+* Keyboard Contouring::
+* Mouse Z Translation::
+* Keyboard Z Translation::
+* Keyboard Zoom and Clip::
+* Scrollwheel::
+* Selecting Atoms::
+* Virtual Trackball::
+* more on zooming::
+
+General Features
+
+* Version number::
+* Screenshot::
+* Raster3D::
+* Display Manager::
+* The Modelling Toolbar::
+* The file selector::
+* Scripting::
+* Backups and Undo::
+* View Matrix::
+* Space Group and Symmetry::
+* Recentring View::
+* Views::
+* Clipping Manipulation::
+* Background colour::
+* Unit Cell::
+* Rotation Centre Pointer::
+* Pointer Distances::
+* Crosshairs::
+* 3D Annotations::
+* Frame Rate::
+* Program Output::
+
+Scripting
+
+* Python::
+* Scheme::
+* Coot State::
+* Key Binding::
+* User-Defined Functions::
+
+Python
+
+
+Backups and Undo
+
+
+Coordinate-Related Features
+
+* Reading coordinates::
+* Atom Info::
+* Atom Labeling::
+* Atom Colouring::
+* Bond Parameters::
+* Download coordinates::
+* Get Coordinates and Map from EDS::
+* Save coordinates::
+* Setting the Space Group::
+* Anisotropic Atoms::
+* Symmetry::
+* Sequence View::
+* Print Sequence::
+* Environment Distances::
+* Distances and Angles::
+* Zero Occupancy Marker::
+* Atomic Dots::
+* Ball and Stick Representation::
+* Mean and Median Temperature Factors::
+* Secondary Structure Matching (SSM)::
+* Least-Squares Fitting::
+* Ligand Overlaying::
+* Writing PDB files::
+
+Modelling and Building
+
+* Regularization and Real Space Refinement::
+* Changing the Map for Building/Refinement::
+* Rotate/Translate Zone::
+* Rigid Body Refinement::
+* Simplex Refinement::
+* Post-manipulation-hook::
+* Baton Building::
+* Reversing Direction of Fragment::
+* C-alpha -> Mainchain::
+* Backbone Torsion Angles::
+* Docking Sidechains::
+* Rotamers::
+* Editing Chi Angles::
+* Torsion General::
+* Pep-flip::
+* Adding Alternative Conformations::
+* Mutation::
+* Importing Ligands/Monomers::
+* Ligand from SMILES strings::
+* Find Ligands::
+* Flip Ligand::
+* Find Waters::
+* Place Helix::
+* Building Ideal DNA and RNA::
+* Merge Molecules::
+* Temperature Factor for New Atoms::
+* Applying NCS Edits::
+* Running Refmac::
+* Running SHELXL::
+* Clear Pending Picks::
+* Delete::
+* Sequence Assignment::
+* Building Links and Loops::
+* Fill Partial Residues::
+* Changing Chain IDs::
+* Setting Occupancies::
+* Fix Nomenclature Errors::
+* Rotamer Fix Whole Protein::
+* Refine All Waters::
+* Moving Molecules/Ligands::
+* Modifying the Labels on the Model/Fit/Refine dialog::
+
+Regularization and Real Space Refinement 
+
+* Dictionary::
+* Sphere Refinement::
+* Refining Carbohydrates::
+* Planar Peptide Restraints::
+* The UNK residue type::
+* Moving Zero Occupancy Atoms::
+
+Map-Related Features 
+
+* Maps in General::
+* Create a Map::
+* Map Contouring::
+* Map Extent::
+* Map Line Width::
+* Map colouring::
+* Difference Map Colouring::
+* Map Sampling::
+* Make a Difference Map::
+* Make an Averaged Map::
+* Dragged Map::
+* Dynamic Map Sampling and Display Size::
+* Skeletonization::
+* Map Sharpening::
+* masks::
+* Trimming Atoms::
+* Map Transformation::
+* Export Map::
+
+Validation 
+
+* Ramachandran Plots::
+* Chiral Volumes::
+* sec_blobs::
+* Check Waters by Difference Map::
+* Molprobity Tools Interface::
+* GLN and ASN B-factor Outliers::
+* Validation Graphs::
+
+Hints and Usage Tips
+
+* Documentation::
+* Low Resolution::
+* Coot Droppings::
+* Clearing Backups::
+* chap-hints::
+* Label Atom Only Mode::
+* Button Labels::
+* sec_picking::
+* Resizing View::
+* Scroll-wheel::
+* Slow Computer Configuration::
+
+Other Programs
+
+* findligand::
+
+@end detailmenu
 @end menu
-     
 
 @c -------------------------------------------------------------
 @node    Introduction
@@ -1926,47 +2119,48 @@ endresno pdb-file-name})}
 @chapter Modelling and Building
 @c % -----------------------------------------------------------
 
-@menu 
-* Regularization and Real Space Refinement::
-* Changing the Map for Building/Refinement::
-* Rotate/Translate Zone::
-* Rigid Body Refinement::
-* Simplex Refinement::
-* Post-manipulation-hook::
-* Baton Building::
-* Reversing Direction of Fragment::
-* C-alpha -> Mainchain::
-* Backbone Torsion Angles::
-* Docking Sidechains::
-* Rotamers::
-* Editing Chi Angles::
-* Torsion General::
-* Pep-flip::
-* Adding Alternative Conformations::
-* Mutation::
-* Importing Ligands/Monomers::
-* Ligand from SMILES strings::
-* Find Ligands::
-* Flip Ligand::
-* Find Waters::
-* Place Helix::
-* Building Ideal DNA and RNA::
-* Merge Molecules::
-* Temperature Factor for New Atoms::
-* Applying NCS Edits::
-* Running Refmac::
-* Running SHELXL::
-* Clear Pending Picks::
-* Delete::
-* Sequence Assignment::
-* Building Links and Loops::
-* Fill Partial Residues::
-* Setting Occupancies::
-* Fix Nomenclature Errors::
-* Rotamer Fix Whole Protein::
-* Refine All Waters::
-* Moving Molecules/Ligands::
-* Modifying the Labels on the Model/Fit/Refine dialog::
+@menu
+* Regularization and Real Space Refinement ::  
+* Changing the Map for Building/Refinement::  
+* Rotate/Translate Zone::       
+* Rigid Body Refinement  ::     
+* Simplex Refinement ::         
+* Post-manipulation-hook::      
+* Baton Building::              
+* Reversing Direction of Fragment::  
+* C-alpha -> Mainchain::        
+* Backbone Torsion Angles ::    
+* Docking Sidechains::          
+* Rotamers::                    
+* Editing Chi Angles::          
+* Torsion General::             
+* Pep-flip::                    
+* Adding Alternative Conformations::  
+* Mutation::                    
+* Importing Ligands/Monomers::  
+* Ligand from SMILES strings::  
+* Find Ligands::                
+* Flip Ligand::                 
+* Find Waters::                 
+* Place Helix::                 
+* Building Ideal DNA and RNA::  
+* Merge Molecules::             
+* Temperature Factor for New Atoms::  
+* Applying NCS Edits::          
+* Running Refmac::              
+* Running SHELXL::              
+* Clear Pending Picks::         
+* Delete::                      
+* Sequence Assignment ::        
+* Building Links and Loops::    
+* Fill Partial Residues::       
+* Changing Chain IDs::          
+* Setting Occupancies::         
+* Fix Nomenclature Errors::     
+* Rotamer Fix Whole Protein::   
+* Refine All Waters ::          
+* Moving Molecules/Ligands::    
+* Modifying the Labels on the Model/Fit/Refine dialog::  
 @end menu
 
 The functions described in this chapter manipulate, extend or build
@@ -3379,6 +3573,20 @@ is a function to fill such partially-filled residues:
 
 This identifies residues with missing atoms, then fills them and does a
 rotamer fit and real-space refinement.
+
+@node Changing Chain IDs
+@section Changing Chain IDs
+@cindex chain id
+@cindex changing chain ids
+
+You can change the chain ids of chains using @command{Calculate ->
+Change Chain IDs@dots{}}.  Coot will block an attempt to change the
+whole of a chain and the target chain id already exists in the
+molecule.  
+
+If you use the "Residue Range" option then you can insert residues
+with non-conflicting residue number into pre-existing chains.
+
 
 @node    Setting Occupancies
 @section Setting Occupancies
