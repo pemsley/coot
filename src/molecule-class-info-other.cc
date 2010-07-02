@@ -3584,7 +3584,9 @@ molecule_class_info_t::delete_sequence_by_chain_id(const std::string &chain_id_i
 std::pair<bool, std::string>
 molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residue_spec_t &clicked_residue,
 							      CChain *clicked_residue_chain_p, 
-							      short int is_n_term_addition) const {
+							      short int is_n_term_addition,
+							      realtype alignment_wgap,
+							      realtype alignment_wspace) const {
 
    std::pair<bool, std::string> p(0, "");
 
@@ -3601,8 +3603,7 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
 	       PCResidue *SelResidues = new PCResidue[frag_residues.size()];
 	       for (unsigned int ires=0; ires<frag_residues.size(); ires++)
 		  SelResidues[ires] = frag_residues[ires];
-	       realtype    alignment_wgap   = -3.0;
-	       realtype    alignment_wspace = -0.4;
+
 	       coot::chain_mutation_info_container_t a =
 		  align_on_chain(chain_id, SelResidues, frag_residues.size(),
 				 input_sequence[ich].second,

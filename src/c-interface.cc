@@ -4335,7 +4335,7 @@ int test_function(int i, int j) {
 	 CAtom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[10];
 	 CChain *chain_p = at->GetChain();
 	 std::pair<bool, std::string> p = 
-	    graphics_info_t::molecules[imol].residue_type_next_residue_by_alignment(clicked_residue, chain_p, is_n_term_addition);
+	    graphics_info_t::molecules[imol].residue_type_next_residue_by_alignment(clicked_residue, chain_p, is_n_term_addition, graphics_info_t::alignment_wgap, graphics_info_t::alignment_wspace);
 	 if (p.first == 1) { 
 	    std::cout << "next residue: " << p.second << std::endl;
 	 } else {

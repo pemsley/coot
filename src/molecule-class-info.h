@@ -1802,7 +1802,9 @@ public:        //                      public
    std::pair<bool, std::string>
    residue_type_next_residue_by_alignment(const coot::residue_spec_t &clicked_residue,
 					  CChain *clicked_residue_chain_p, 
-					  short int is_n_term_addition) const;
+					  short int is_n_term_addition,
+					  realtype alignment_wgap,
+					  realtype alignment_wspace) const;
 
    // return a status flag (alignments done)
    std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > 

@@ -189,7 +189,13 @@ namespace coot {
 
     void add_MSE_Se_bonds(const atom_selection_container_t &asc);
     int n_contacts() const { return contacts.size(); } 
+
+    // one way only
     std::vector<std::vector<int> > get_contact_indices() const;
+
+    // with reverses, e.g. 0->1 and 1->0 too 
+    std::vector<std::vector<int> > get_contact_indices_with_reverse_contacts() const;
+
     void print() const; // debug info
   };
   contact_info getcontacts(const atom_selection_container_t &asc); 

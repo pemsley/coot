@@ -250,7 +250,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       // All catagories have loops (AFAICS). 
 	       // std::cout << "debug got catagory: " << cat_name << std::endl; 
 
-	       PCMMCIFLoop mmCIFLoop = data->GetLoop( (char *) cat_name.c_str() );
+	       PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
 
 	       int n_loop_time = 0;
 	       if (mmCIFLoop == NULL) {
@@ -1125,6 +1125,7 @@ coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
 	    simple_mon_lib_add_chem_comp(comp_id, three_letter_code, name,
 					 group, number_atoms_all, number_atoms_nh,
 					 description_level);
+
 	 }
       }
    }
