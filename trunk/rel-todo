@@ -2,12 +2,9 @@
 
     Points 2:
 
-    o delete residues 80 81, Dock sequence, add terminal residue,
-      should build TYRs - second is an ALA.  ::: 2
 
     o change to rms z scores ::: 2
 
-    o Steven's spinach ::: 3
 
 ------
 
@@ -558,6 +555,13 @@ WARNING:: Can't find file
 * Reworked. Now active molecule is passed in the filling of the
   coordinate option menu.
 
+
+    o document change chain ids: If you use the "Residue Range" option
+    then you can insert non-conflicting residues into pre-existing
+    chains.  ::: 0.2
+
+* Done 
+
     o 2vtu: problems in lhs of sequence view on jackal. It's fine on
       ubuntu 64 box (there fixed ->
       -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1)
@@ -577,5 +581,18 @@ WARNING:: Can't find file
 
 * Fixed - only do the first model.
 	
+    o Steven's spinach ::: 3
+
+*Done.  Needed to fix get_contacts() to return the reverse indexing of
+ the atoms too (actually a new function used).
+
+    o delete residues 80 81, Dock sequence, add terminal residue,
+      should build TYRs - second is an ALA.  ::: 2
+
+* Pathological case for this algorithm.  Not going to fix now.  The
+  problem is that the with 2 Ys back to back, the second one fills the
+  position of the first, and there is a mismatch (not really an error)
+  in the clicked residue and the spec for the insertion (it's one
+  off).  Too bad.  Fix later.
 
 -------

@@ -53,6 +53,8 @@ coot::atom_tree_t::atom_tree_t(const dictionary_residue_restraints_t &rest,
    made_from_minimol_residue_flag = 1;
    residue = coot::GetResidue(res_in);
    fill_name_map(altconf);
+   // don't forget that contact_indices can be generated from the
+   // bonds in the dictionary (not only distance-based)
    fill_atom_vertex_vec_using_contacts(contact_indices, base_atom_index);
 }
 
@@ -227,11 +229,17 @@ coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &re
    return r;
 }
 
+// Don't forget that contact_indices can be generated from the bonds
+// in the dictionary (not only distance-based).
+// 
 bool
 coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::vector<int> > &contact_indices,
 						       int base_atom_index) {
 
-   bool r=0;
+
+   bool debug = 0;
+   
+   bool r=0; // return 1 on successful fill
 
    PPCAtom residue_atoms;
    int n_residue_atoms;
@@ -246,7 +254,7 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
    if (contact_indices.size() == 0)
       return 0;
 
-   if (0) { 
+   if (debug) { 
       std::cout << " debug:: =========== contact indices ======= " << std::endl;
       for (unsigned int ic1=0; ic1<contact_indices.size(); ic1++) {
 	 std::cout << " index " << ic1 << " : ";
@@ -255,7 +263,6 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
 	 std::cout << std::endl;
       }
    }
-
 
 
    std::queue<int> q;
@@ -329,7 +336,7 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
    }
    
    // print out the name_to_index map
-   if (0) {
+   if (debug) {
       std::cout << "==== atom indexes ===\n";
       for(std::map<std::string, coot::map_index_t>::const_iterator it = name_to_index.begin();
 	  it != name_to_index.end(); ++it)
@@ -337,7 +344,7 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
    }
 
    // print out the atom tree
-   if (0) {
+   if (debug) {
       std::cout << "debug:: ==== atom_vertex_vec === from fill_atom_vertex_vec_using_contacts "
 		<< std::endl;
       for (unsigned int iv=0; iv<atom_vertex_vec.size(); iv++) {

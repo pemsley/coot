@@ -24,6 +24,7 @@
 #include <string>
 #include <vector> // for Cartesian
 #include <map>
+#include <algorithm>
 
 
 #include "coot-coord-utils.hh"
@@ -367,6 +368,9 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 				 const std::string &monomer_type,
 				 coot::protein_geometry *geom_p) {
 
+   // before messing about here, are you sure that you are looking at
+   // the correct cif file for this residue?
+
    std::pair<bool, coot::dictionary_residue_restraints_t> r = 
       geom_p->get_monomer_restraints(monomer_type);
 
@@ -376,7 +380,7 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 	 std::string atom_name(asc.atom_selection[i]->name);
 	 name_map[atom_name] = i;
       }
-      
+
       for (unsigned int ib=0; ib<r.second.bond_restraint.size(); ib++) {
 	 std::string n_1 = r.second.bond_restraint[ib].atom_id_1_4c();
 	 std::string n_2 = r.second.bond_restraint[ib].atom_id_2_4c();
@@ -387,8 +391,8 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 	    contacts.push_back(p);
 	 }
       }
-   } 
-} 
+   }
+}
 
 
 // try to get the bonds/contacts from the dictionary.  If there are no
@@ -397,7 +401,7 @@ coot::contact_info
 coot::getcontacts(const atom_selection_container_t &asc,
 		  const std::string &monomer_type,
 		  coot::protein_geometry *geom_p) {
-   
+
    coot::contact_info ci(asc, monomer_type, geom_p);
    if (ci.n_contacts() == 0)
       return coot::getcontacts(asc);
@@ -413,6 +417,7 @@ coot::getcontacts(const atom_selection_container_t &asc) {
    // back here again, eh? :)
    // 
    // Yep 20100518 :)
+   // Yep 20100702
    
    // std::cout << "DEBUG:: getcontacts() in mmdb-extras" << std::endl;
 
@@ -447,6 +452,9 @@ coot::getcontacts(const atom_selection_container_t &asc) {
    return ci;
 }
 
+// one way only: 0: 1 2 3
+// but 1: does not have 0 as a member index.
+// 
 std::vector<std::vector<int> >
 coot::contact_info::get_contact_indices() const {
    
@@ -463,9 +471,32 @@ coot::contact_info::get_contact_indices() const {
       for (unsigned int i=0; i<contacts.size(); i++) {
 	 v[contacts[i].id1].push_back(contacts[i].id2);
       } 
-   } 
+   }
+   return v;
+}
+
+// with reverses, e.g. 0->1 and 1->0 too
+//
+std::vector<std::vector<int> >
+coot::contact_info::get_contact_indices_with_reverse_contacts() const {
+
+   std::vector<std::vector<int> > v = get_contact_indices();
+
+   for (unsigned int i=0; i<v.size(); i++) { 
+      for (unsigned int j=0; j<v[i].size(); j++) {
+
+	 // so we have i -> j, now add j -> i (if i is not already in
+	 // the list of j)
+
+	 std::vector<int>::const_iterator it = std::find(v[v[i][j]].begin(), v[v[i][j]].end(), i);
+	 if (it == v[v[i][j]].end()) // not found
+	    v[v[i][j]].push_back(i);
+      }
+   }
+
    return v;
 } 
+
 
 
 void

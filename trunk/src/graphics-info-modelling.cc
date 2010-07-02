@@ -3357,8 +3357,16 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
 	 catch (std::runtime_error rte) {
 	    // std::cout << rte.what() << std::endl;
 	    int base_atom_index = 0;
+
+	    // tmp hack for testing.
+	    // coot::contact_info contact = coot::getcontacts(*moving_atoms_asc);
+
+	    // c.f. get_contact_indices_from_restraints().  urgh. Same
+	    // functionality: "written twice".
+	    // 
 	    coot::contact_info contact = coot::getcontacts(*moving_atoms_asc, monomer_type, Geom_p());
-	    std::vector<std::vector<int> > contact_indices = contact.get_contact_indices();
+	    std::vector<std::vector<int> > contact_indices = contact.get_contact_indices_with_reverse_contacts();
+	    
 	    try {
 	       coot::atom_tree_t tree(contact_indices, base_atom_index, residue, alt_conf);
 	       // this can throw an exception
@@ -3382,6 +3390,8 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
    } else {
       
       // chi angles with no dictionary torsions.  No thanks.
+      //
+      // But hmmm... maybe I should...  :)
       
    }
 

@@ -1422,7 +1422,7 @@
 ;; Return #t or #f.
 ;; 
 (define (is-difference-map? imol-map)
-  (if (not (is-valid-map-molecule? imol-map))
+  (if (not (valid-map-molecule? imol-map))
       #f
       (= (map-is-difference-map imol-map) 1)))
       
