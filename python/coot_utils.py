@@ -998,7 +998,7 @@ def shelx_molecule_qm(imol):
 # Return True or False.
 #
 def is_difference_map_qm(imol_map):
-    if (not is_valid_map_molecule(imol_map)):
+    if (not valid_map_molecule_qm(imol_map)):
         return False
     else:
         if (map_is_difference_map(imol_map) == 1):

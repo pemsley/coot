@@ -2358,8 +2358,10 @@ public:        //                      public
    // operators: (and recall that this function is a coordinates
    // molecule function, so it uses its ncs operators on the given
    // map) to make new maps):
+   // BL note:: made extra arg a string, so that we cannot interfere 
+   // with imol_map
    std::vector<std::pair<clipper::Xmap<float>, std::string> > 
-     ncs_averaged_maps(const clipper::Xmap<float> &xmap_in, float homology_lev);
+     ncs_averaged_maps(const clipper::Xmap<float> &xmap_in, float homology_lev, std::string &imol_map_name);
    short int has_ncs_p() { return (ncs_ghosts.size() > 0) ? 1 : 0; }
    short int ncs_ghosts_have_rtops_p() const { return ncs_ghosts_have_rtops_flag;}
    int fill_ghost_info(short int do_rtops_flag,
