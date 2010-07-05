@@ -364,8 +364,13 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
 	    } else {
 	       imol = graphics_info_t::create_molecule();
 	    } 
+        std::string ncs_map_name = "Map ";
+        ncs_map_name += coot::util::int_to_string(imol_map);
+        ncs_map_name += " ";
+        ncs_map_name += local_ncs_ghosts[ighost].name;
 	    g.molecules[imol].install_ghost_map(g.molecules[imol_map].xmap_list[0],
-						local_ncs_ghosts[ighost].name,
+                                            //local_ncs_ghosts[ighost].name,
+						ncs_map_name,
 						local_ncs_ghosts[ighost],
 						g.molecules[imol_map].is_difference_map_p(),
 						g.swap_difference_map_colours,
@@ -374,8 +379,9 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
 	 }
 
 	 if (graphics_info_t::ncs_maps_do_average_flag) {
+        std:: string imol_map_name = coot::util::int_to_string(imol_map);
 	    std::vector<std::pair<clipper::Xmap<float>, std::string> > xmaps  = 
-	       g.molecules[imol_model].ncs_averaged_maps(g.molecules[imol_map].xmap_list[0], homology_lev);
+          g.molecules[imol_model].ncs_averaged_maps(g.molecules[imol_map].xmap_list[0], homology_lev, imol_map_name);
 	    std::cout << "INFO:: made " << xmaps.size() << " averaged map(s)" << std::endl;
 	    for (unsigned int i=0; i<xmaps.size(); i++) {
 	       std::string name;

@@ -734,7 +734,7 @@ molecule_class_info_t::NCS_ghosts() const {
 // 
 std::vector<std::pair<clipper::Xmap<float>, std::string> >
 molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
-					 float homology_lev) {
+                                         float homology_lev, std::string &imol_map_name) {
 
    std::vector<std::pair<clipper::Xmap<float>, std::string> > annotated_xmaps;
 
@@ -925,7 +925,10 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
 		   << " (" << 100.0*float(n_averaged)/float(n_total)
 		   << "%) map points " << " were masked out of NCS average target volume, "
 		   << " chain " << reference_ids[iref] << std::endl;
-	    std::string name = "NCS average of Chain ";
+     //std::string name = "NCS average of Chain ";
+     std::string name = "Map ";
+     name += imol_map_name;
+     name += " NCS average of Chain ";
 	 name += reference_ids[iref];
 	 name += " type molecules";
 	 annotated_xmaps.push_back(std::pair<clipper::Xmap<float>, std::string> (running, name));
