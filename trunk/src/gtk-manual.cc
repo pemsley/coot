@@ -978,7 +978,11 @@ update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_win
 
   for (i=0; i<1024; i++)
     entry_name[i]= 0;
-  memcpy(entry_name, "display_mol_entry_", 18);
+  if (is_valid_map_molecule(imol)) {        
+    memcpy(entry_name, "display_map_entry_", 18);
+      } else {
+    memcpy(entry_name, "display_mol_entry_", 18);
+      }
   tmp_name = entry_name + strlen(entry_name); 
   snprintf(tmp_name, 4, "%-d", imol); 
 
