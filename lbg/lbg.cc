@@ -2021,6 +2021,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 		      << mol_in.atoms[iat].get_atom_name()
 		      << ": has solvent_accessibility " << sa << std::endl;
 	 new_atom.add_solvent_accessibility(sa);
+	 new_atom.bash_distances = mol_in.atoms[iat].bash_distances;
 	 re_index[iat] = mol.add_atom(new_atom).second;
 	 
 	 if (0)
@@ -2065,7 +2066,10 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
    }
 
    // for input_coords_to_canvas_coords() to work:
-   // 
+   //
+
+   draw_substitution_contour();
+   
    mol.centre_correction = mol_in.centre_correction;
    mol.scale_correction  = mol_in.scale_correction;
    mol.mol_in_min_y = mol_in.mol_in_min_y;
@@ -2462,7 +2466,7 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
 
    std::cout << "================ Here " << primary_index << std::endl;
    if (primary_index == 2) 
-      show_grid(primary_grid);
+      show_grid(primary_grid, 0.3);
    
    lig_build::pos_t best_pos = primary_grid.find_minimum_position();
 
@@ -2626,8 +2630,6 @@ lbg_info_t::ligand_grid::square_type(int ii, int jj, float contour_level) const 
 	    if (v01 < contour_level) { 
 	       if (v10 < contour_level) { 
 		  if (v11 < contour_level) {
-		     std::cout << "square_type() returns MS_UP_0_0" << "   "
-			       << lbg_info_t::ligand_grid::MS_UP_0_0 << std::endl;
 		     return lbg_info_t::ligand_grid::MS_UP_0_0;
 		  } else {
 		     return lbg_info_t::ligand_grid::MS_UP_0_0_and_1_1; // another hideous valley
@@ -2691,45 +2693,38 @@ lbg_info_t::contour_fragment::contour_fragment(int ms_type,
    case lbg_info_t::ligand_grid::MS_UP_0_0:
    case lbg_info_t::ligand_grid::MS_UP_0_1_and_1_0_and_1_1:
 
-      if (ms_type == lbg_info_t::ligand_grid::MS_UP_0_0)
-	 std::cout << " ----- case MS_UP_0,0 " << std::endl;
-      if (ms_type == lbg_info_t::ligand_grid::MS_UP_0_1_and_1_0_and_1_1)
-	 std::cout << " ----- case MS_UP_0,1 and 1,0 and 1,1 " << std::endl;
       frac_x1 = (v00-contour_level)/(v00-v10);
       frac_y1 = (v00-contour_level)/(v00-v01);
       c1 = lbg_info_t::contour_fragment::coordinates(frac_x1, X_AXIS_LOW);
       c2 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_LOW, frac_y1);
       p = cp_t(c1,c2);
       coords.push_back(p);
-      std::cout << " ----- done case " << std::endl;
       break;
 
    case lbg_info_t::ligand_grid::MS_UP_0_1:
    case lbg_info_t::ligand_grid::MS_UP_0_0_and_1_0_and_1_1:
       
       // these look fine
-      std::cout << " ----- case MS_UP_0,1 " << std::endl;
+      // std::cout << " ----- case MS_UP_0,1 " << std::endl;
       frac_y1 = (v00 - contour_level)/(v00-v01);
       frac_x2 = (v01 - contour_level)/(v01-v11);
       c1 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_LOW, frac_y1);
       c2 = lbg_info_t::contour_fragment::coordinates(frac_x2, X_AXIS_HIGH);
       p = cp_t(c1,c2);
       coords.push_back(p);
-      std::cout << " ----- done case " << std::endl;
       break;
 
       
    case lbg_info_t::ligand_grid::MS_UP_1_0:
    case lbg_info_t::ligand_grid::MS_UP_0_0_and_0_1_and_1_1:
       
-      std::cout << " ----- case MS_UP_1,0 " << std::endl;
+      // std::cout << " ----- case MS_UP_1,0 " << std::endl;
       frac_x1 = (contour_level - v00)/(v10-v00);
       frac_y1 = (contour_level - v10)/(v11-v10);
       c1 = lbg_info_t::contour_fragment::coordinates(frac_x1, X_AXIS_LOW);
       c2 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_HIGH, frac_y1);
       p = cp_t(c1,c2);
       coords.push_back(p);
-      std::cout << " ----- done case " << std::endl;
       break;
 
       
@@ -2737,40 +2732,37 @@ lbg_info_t::contour_fragment::contour_fragment(int ms_type,
    case lbg_info_t::ligand_grid::MS_UP_1_1:
    case lbg_info_t::ligand_grid::MS_UP_0_0_and_0_1_and_1_0:
 
-      std::cout << " ----- case MS_UP_1,1 " << std::endl;
+      // std::cout << " ----- case MS_UP_1,1 " << std::endl;
       frac_x1 = (v01-contour_level)/(v01-v11);
       frac_y1 = (v10-contour_level)/(v10-v11);
       c1 = lbg_info_t::contour_fragment::coordinates(frac_x1, X_AXIS_HIGH);
       c2 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_HIGH, frac_y1);
       p = cp_t(c1,c2);
       coords.push_back(p);
-      std::cout << " ----- done case " << std::endl;
       break;
 
    case lbg_info_t::ligand_grid::MS_UP_0_0_and_0_1:
    case lbg_info_t::ligand_grid::MS_UP_1_0_and_1_1:
       
-      std::cout << " ----- case MS_UP_0,0 and 0,1 " << std::endl;
+      // std::cout << " ----- case MS_UP_0,0 and 0,1 " << std::endl;
       frac_x1 = (v00-contour_level)/(v00-v10);
       frac_x2 = (v01-contour_level)/(v01-v11);
       c1 = lbg_info_t::contour_fragment::coordinates(frac_x1, X_AXIS_LOW);
       c2 = lbg_info_t::contour_fragment::coordinates(frac_x2, X_AXIS_HIGH);
       p = cp_t(c1,c2);
       coords.push_back(p);
-      std::cout << " ----- done case " << std::endl;
       break;
 
    case lbg_info_t::ligand_grid::MS_UP_0_0_and_1_0:
    case lbg_info_t::ligand_grid::MS_UP_0_1_and_1_1:
       
-      std::cout << " ----- case MS_UP_0,0 and 1,0 " << std::endl;
+      // std::cout << " ----- case MS_UP_0,0 and 1,0 " << std::endl;
       frac_y1 = (v00-contour_level)/(v00-v01);
       frac_y2 = (v10-contour_level)/(v10-v11);
       c1 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_LOW,  frac_y1);
       c2 = lbg_info_t::contour_fragment::coordinates(Y_AXIS_HIGH, frac_y2);
       p = cp_t(c1,c2);
       coords.push_back(p);
-      std::cout << " ----- done case " << std::endl;
       break;
       
 
@@ -2891,7 +2883,7 @@ lbg_info_t::solution_has_problems_p() const {
 
 
 void
-lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid) {
+lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid, double contour_level) {
 
    int n_objs = 0;
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
@@ -2911,7 +2903,7 @@ lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid) {
       }
    }
 
-   grid.show_contour(root, 0.3);
+   grid.show_contour(root, contour_level);
 //    grid.show_contour(root, 0.4);
 //    grid.show_contour(root, 0.5);
 //    grid.show_contour(root, 0.6);
@@ -2927,7 +2919,7 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level) 
 
    GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", "#880000",
 						NULL);
-
+   bool debug = 0;
    int ii=0;
    int jj=0;
 
@@ -2939,10 +2931,6 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level) 
       for (int iy=0; iy<y_size(); iy+=1) {
 	 int ms_type = square_type(ix, iy, contour_level);
 
-	 if (ms_type == lbg_info_t::ligand_grid::MS_UP_0_0) {
-	    std::cout << "debug:: in show_contour() found MS_UP_0_0 "
-		      <<  lbg_info_t::ligand_grid::MS_UP_0_0 << std::endl;
-	 } 
 	 lbg_info_t::grid_index_t grid_index(ix,iy);
 
 	 if ((ms_type != MS_NO_CROSSING) && (ms_type != MS_NO_SQUARE)) { 
@@ -2951,11 +2939,13 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level) 
 					    grid_index,
 					    *this); // sign of bad architecture
 	    if (cf.coords.size() == 1) {
-	       std::cout << "plot contour ("
-			 << cf.get_coords(ix, iy, 0).first << " "
-			 << cf.get_coords(ix, iy, 0).second << ") to ("
-			 << cf.get_coords(ix, iy, 1).first << " "
-			 << cf.get_coords(ix, iy, 1).second << ")" << std::endl;
+
+	       if (debug)
+		  std::cout << "plot contour ("
+			    << cf.get_coords(ix, iy, 0).first << " "
+			    << cf.get_coords(ix, iy, 0).second << ") to ("
+			    << cf.get_coords(ix, iy, 1).first << " "
+			    << cf.get_coords(ix, iy, 1).second << ")" << std::endl;
 			
 	       std::pair<double, double> xy_1 = cf.get_coords(ix, iy, 0);
 	       std::pair<double, double> xy_2 = cf.get_coords(ix, iy, 1);
@@ -3198,10 +3188,12 @@ lbg_info_t::ligand_grid::fill(widgeted_molecule_t mol) {
 
    double exp_scale = 0.0011;
    double rk = 3000.0;
+
+   int grid_extent = 20; // does this need to be increased?
    
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
-      for (int ipos_x= -10; ipos_x<=10; ipos_x++) {
-	 for (int ipos_y= -10; ipos_y<=10; ipos_y++) {
+      for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {
+	 for (int ipos_y= -grid_extent; ipos_y<=grid_extent; ipos_y++) {
 	    std::pair<int, int> p = canvas_pos_to_grid_pos(mol.atoms[iat].atom_position);
 	    int ix_grid = ipos_x + p.first;
 	    int iy_grid = ipos_y + p.second;
@@ -3244,6 +3236,35 @@ lbg_info_t::ligand_grid::fill(widgeted_molecule_t mol) {
    }
    normalize(); // scaled peak value to 1.
 }
+
+
+void
+lbg_info_t::ligand_grid::add_for_accessibility(double bash_dist, const lig_build::pos_t &atom_pos) {
+   
+   int grid_extent = 40; // does this need to be increased?
+
+   double inv_scale_factor = 1.0/double(SINGLE_BOND_CANVAS_LENGTH);
+   
+   for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {
+      for (int ipos_y= -grid_extent; ipos_y<=grid_extent; ipos_y++) {
+	 std::pair<int, int> p = canvas_pos_to_grid_pos(atom_pos);
+	 int ix_grid = ipos_x + p.first;
+	 int iy_grid = ipos_y + p.second;
+	 if ((ix_grid >= 0) && (ix_grid < x_size())) {
+	    if ((iy_grid >= 0) && (iy_grid < y_size())) {
+	       
+	       double d2 = (to_canvas_pos(ix_grid, iy_grid) - atom_pos).lengthsq();
+	       d2 *= (inv_scale_factor * inv_scale_factor);
+	       double val = substitution_value(d2, bash_dist);
+	       std::cout << "adding " << val << " to grid " << ix_grid << " " << iy_grid
+			 << " from " << sqrt(d2) << " vs " << bash_dist << std::endl;
+	       grid_[ix_grid][iy_grid] += val;
+	    }
+	 }
+      }
+   }
+}
+
 
 // scale peak value to 1.0
 void
@@ -3720,6 +3741,25 @@ lbg_info_t::read_solvent_accessibilities(const std::string &file_name) const {
 	       }
 	    }
 	 }
+
+	 if (words[0] == "BASH:") {
+	    if (words.size() == 2) {
+	       try {
+		  if (words[1] == "unlimited") {
+		     if (solvent_accessible_atoms.size())
+			solvent_accessible_atoms.back().add_unlimited();
+		  } else {
+		     if (solvent_accessible_atoms.size()) { 
+			double bash_dist = lig_build::string_to_float(words[1]);
+			solvent_accessible_atoms.back().add_bash_dist(bash_dist);
+		     }
+		  }
+	       }
+	       catch (std::runtime_error rte) {
+		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
+	       }
+	    } 
+	 }
       }
    }
    return solvent_accessible_atoms;
@@ -3742,6 +3782,88 @@ lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, doub
 						    NULL);
    }
 }
+
+void
+lbg_info_t::draw_substitution_contour() {
+
+   bool debug = 1;
+
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+   std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
+      mol.ligand_extents();
+   lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
+   
+   if (debug) { 
+      for (unsigned int i=0; i<mol.atoms.size(); i++) { 
+	 std::cout << "in draw_substitution_contour() atom " << i << " has "
+		   << mol.atoms[i].bash_distances.size() << " bash distances" << std::endl;
+	 for (unsigned int j=0; j<mol.atoms[i].bash_distances.size(); j++) {
+	    std::cout << "  " << mol.atoms[i].bash_distances[j];
+	 }
+	 if (mol.atoms[i].bash_distances.size())
+	    std::cout << std::endl;
+      }
+   }
+
+   for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+      int n_bash_distances = 0;
+      double sum_bash = 0.0;
+      for (unsigned int j=0; j<mol.atoms[iat].bash_distances.size(); j++) {
+	 std::cout << " bash_distances " << j << " " << mol.atoms[iat].bash_distances[j] << std::endl;
+	 if (! mol.atoms[iat].bash_distances[j].unlimited()) {
+	    sum_bash += mol.atoms[iat].bash_distances[j].dist;
+	    n_bash_distances++;
+	 }
+      }
+      if (n_bash_distances > 0) {
+	 double bash_av = sum_bash/double(n_bash_distances);
+	 grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
+      }
+   }
+
+   show_grid(grid, 0.5);
+   grid.show_contour(root, 0.5);
+}
+
+
+// r_squared the squared distance between the atom and the grid point.
+//
+double
+lbg_info_t::ligand_grid::substitution_value(double r_squared, double bash_dist) const {
+
+   double D = bash_dist;
+   double r = sqrt(r_squared);
+
+   if (r<(D-1)) {
+      return 1;
+   } else {
+      if (r > D) { 
+	 return 0;
+      } else {
+	 // double v = 0.5*(1 + cos(0.5 *M_PI * (D-r)));
+	 double v = 0.5 * (1.0 + cos(M_PI * (D-1-r)));
+	 return v;
+      }
+   }
+}
+
+
+
+
+// Kill this on integration, bash_distance_t is shared and this output operator compiled twice.
+// 
+std::ostream&
+coot::operator<< (std::ostream& s, const coot::bash_distance_t &bd) {
+
+   if (bd.unlimited()) { 
+      s << "unlimited"; // C&L.
+   } else {
+      s << bd.dist;
+   } 
+   return s;
+} 
+
+
 
 void
 lbg_info_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {

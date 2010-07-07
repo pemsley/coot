@@ -327,6 +327,8 @@ public:
       int square_type(int ii, int jj, float contour_level) const;
       std::vector<std::vector<lig_build::pos_t> > make_contour_lines(const std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > &line_fragments) const;
       void plot_contour_lines(const std::vector<std::vector<lig_build::pos_t> > &contour_lines, GooCanvasItem *root) const;
+      double substitution_value(double r_squared, double bash_dist) const;
+
 
       
    public:
@@ -368,6 +370,8 @@ public:
       void add_quadratic(const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points);
       lig_build::pos_t find_minimum_position() const;
 
+      void add_for_accessibility(double bash_dist, const lig_build::pos_t &atom_pos);
+
       void show_contour(GooCanvasItem *root, float contour_level) const;
 
    };
@@ -404,8 +408,6 @@ public:
 	       if (i_ax != X_AXIS_HIGH)
 		  std::cout << "Bad axis to coordinates(f, i) f: "
 			    << f << "  i: " << i << std::endl;
-	    std::cout << "   coordinates(f,i): " << frac_x << " " << frac_y
-		      << " given " << f <<  " " << i << std::endl;
 	 } 
 	 coordinates(int i, float f) {
 	    if (f>1.0)
@@ -423,8 +425,6 @@ public:
 	       if (i_ax != Y_AXIS_HIGH)
 		  std::cout << "Bad axis to coordinates(i, f) i: "
 			    << i << "  f: " << f << std::endl;
-	    std::cout << "   coordinates(i,f): " << frac_x << " " << frac_y
-		      << " given " << i <<  " " << f << std::endl;
 	 }
 	 float get_frac_x() { return frac_x; } 
 	 float get_frac_y() { return frac_y; } 
@@ -454,8 +454,6 @@ public:
 	 if (coord_indx == 3)
 	    c = coords[1].second;
 
-	 std::cout << "   frac_x: " << c.get_frac_x() << "  "
-		   << "   frac_y: " << c.get_frac_y() << std::endl;
 	 return std::pair<double, double> (ii+c.get_frac_x(), jj+c.get_frac_y());
       } 
 
@@ -703,6 +701,7 @@ private:
 
    void draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa,
 					   GooCanvasItem *root);
+   void draw_substitution_contour();
    void draw_bonds_to_ligand();
    void draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
 				     const lig_build::pos_t &ligand_centre,
@@ -717,7 +716,7 @@ private:
 						 const std::string &sa_file);
    // for debugging the minimization vs original positions
    std::vector<residue_circle_t> offset_residues_from_orig_positions(); 
-   void show_grid(const lbg_info_t::ligand_grid &grid);
+   void show_grid(const lbg_info_t::ligand_grid &grid, double contour_level);
    void show_mol_ring_centres(); // not const because mol.get_ring_centres() caches
    std::string grid_intensity_to_colour(int val) const;
    std::string sixteen_to_hex_let(int v) const;

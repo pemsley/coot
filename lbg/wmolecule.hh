@@ -1,3 +1,24 @@
+/* lbg/wmolecule.hh
+ * 
+ * Author: Paul Emsley
+ * Copyright 2010 by The University of Oxford
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
+
 // Unfortunately, the bonds and atoms must also have canvas items as
 // part of their make-up.  Why?
 //
@@ -17,18 +38,27 @@
 // description.
 //
 
+#include "lbg-shared.hh"
 
 class solvent_accessible_atom_t {
 public:
    std::string atom_name;
    clipper::Coord_orth pt;
    double solvent_accessibility;
+   std::vector<coot::bash_distance_t> bash_distances;
    solvent_accessible_atom_t(const std::string &at,
 			     const clipper::Coord_orth &pt_in,
 			     double sa) {
       atom_name = at;
       pt = pt_in;
       solvent_accessibility = sa;
+   }
+   void add_bash_dist(double d) {
+      bash_distances.push_back(coot::bash_distance_t(d));
+   }
+   void add_unlimited() {
+      coot::bash_distance_t bd;      
+      bash_distances.push_back(bd);
    }
 };
 
@@ -180,6 +210,7 @@ public:
    std::string get_atom_name() const {
       return atom_name;
    } 
+   std::vector<coot::bash_distance_t> bash_distances;
 };
 
 // ====================================================================
