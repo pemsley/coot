@@ -1292,7 +1292,8 @@ widgeted_molecule_t::get_atom_name(const clipper::Coord_orth &pt, CMMDBManager *
    return atom_name;
 } 
 
-
+// solvent accessibility and bash distances in fact.
+// 
 void
 widgeted_molecule_t::map_solvent_accessibilities_to_atoms(std::vector<solvent_accessible_atom_t> solvent_accessible_atoms) {
 
@@ -1306,6 +1307,7 @@ widgeted_molecule_t::map_solvent_accessibilities_to_atoms(std::vector<solvent_ac
 		      <<  ": :" << solvent_accessible_atoms[j].atom_name << ":" << std::endl;
 	 if (atoms[i].get_atom_name() == solvent_accessible_atoms[j].atom_name) {
 	    atoms[i].add_solvent_accessibility(solvent_accessible_atoms[j].solvent_accessibility);
+	    atoms[i].bash_distances = solvent_accessible_atoms[j].bash_distances;
 	    break;
 	 } 
       }
