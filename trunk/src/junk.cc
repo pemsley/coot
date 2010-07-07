@@ -1841,3 +1841,17 @@ pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
 		<< std::endl;
    }
 
+
+	 
+	 CAtom *at = new CAtom();
+	 std::string h_name = " H";
+	 if (i<100) { // protection (unlikely needed of course)
+	    h_name += coot::util::int_to_string(i);
+	    if (i<10)
+	       h_name += " ";
+	 }
+	 at->SetAtomName(h_name.c_str());
+	 at->SetElementName(" H");
+	 at->SetCoordinates(pt.x(), pt.y(), pt.z(), 1.0, 20.0);
+	 ligand_res_copy->AddAtom(at);
+	 

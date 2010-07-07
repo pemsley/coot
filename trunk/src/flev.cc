@@ -148,9 +148,6 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 	       std::vector<coot::solvent_exposure_difference_helper_t> sed = 
 		  dots.solvent_exposure_differences(res_ref, filtered_residues);
 	       
-	       // for just the ligand atoms.
-	       write_solvent_accessibilities(s_a_v, flat_res);
-
 	       if (0)
 		  for (unsigned int i=0; i<s_a_v.size(); i++)
 		     std::cout << "   " << i << " " << s_a_v[i].first << " " << s_a_v[i].second
@@ -210,16 +207,19 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		     std::cout << "Failed to get monomer_restraints for PRODRG residue"
 			       << std::endl;
 		  } else {
-		     
-		     coot::pi_stacking_container_t pi_stack_info(p.second, filtered_residues, res_ref);
-		     
-		     write_fle_centres(centres, bonds_to_ligand, sed, pi_stack_info, flat_res);
 
+		     // ----------- residue infos ----------
+		     // 
+		     coot::pi_stacking_container_t pi_stack_info(p.second, filtered_residues, res_ref);
+		     write_fle_centres(centres, bonds_to_ligand, sed, pi_stack_info, flat_res);
+		     
+		     // ----------- ligand atom infos ------
+		     // 
 		     coot::flev_attached_hydrogens_t ah(p.second);
 		     ah.cannonballs(res_ref, prodrg_output_3d_pdb_file_name, p.second);
+		     ah.distances_to_protein(res_ref, mol);
+		     write_ligand_atom_accessibilities(s_a_v, ah, flat_res);
 
-		     std::cout << "in fle_view_internal() ==================\n   "
-			       << "found " << ah.named_torsions.size() << " named torsions " << std::endl;
 		  }
 	       }
 	    }
@@ -989,11 +989,23 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
    }
 }
 
+std::ostream&
+coot::operator<< (std::ostream& s, const coot::bash_distance_t &bd) {
+
+   if (bd.unlimited()) { 
+      s << "unlimited"; // C&L.
+   } else {
+      s << bd.dist;
+   } 
+   return s;
+} 
+
 
 // the reference_residue is the flat residue
 void
-coot::write_solvent_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,
-				    CResidue *reference_residue) {
+coot::write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,
+					const coot::flev_attached_hydrogens_t &attached_hydrogens,
+					CResidue *reference_residue) {
 
    // for each of the atoms in reference_residue, find the spec in sav
    // and write out the coordinates and the atom name and the
@@ -1014,6 +1026,13 @@ coot::write_solvent_accessibilities(const std::vector<std::pair<coot::atom_spec_
 	    if (atom_name == sav[j].first.atom_name) {
 	       of << "ATOM:" << atom_name << " " << at->x << " " <<  at->y << " " << at->z
 		  << " " << sav[j].second << "\n";
+	       std::map<std::string, std::vector<coot::bash_distance_t> >::const_iterator it =
+		  attached_hydrogens.atom_bashes.find(atom_name);
+	       if (it != attached_hydrogens.atom_bashes.end()) {
+		  for (unsigned int ibash=0; ibash<it->second.size(); ibash++) { 
+		     of << "   BASH: " << it->second[ibash] << "\n";
+		  }
+	       } 
 	       break;
 	    }
 	 }
@@ -1984,3 +2003,183 @@ coot::flev_attached_hydrogens_t::named_hydrogens_to_reference_ligand(CResidue *l
    return v;
 }
 								     
+
+// apply those cannonball direction onto the real reference ligand:
+void
+coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_reference, 
+						      CMMDBManager *mol_reference) {
+
+   float radius = 6.0;
+   std::vector<CResidue *> env_residues =
+      coot::residues_near_residue(residue_reference, mol_reference, radius);
+
+   CResidue *ligand_res_copy = coot::util::deep_copy_this_residue(residue_reference);
+   for (unsigned int i=0; i<named_torsions.size(); i++) {
+      try { 
+	 std::pair<clipper::Coord_orth, clipper::Coord_orth> pt_base_and_H =
+	    hydrogen_pos(named_torsions[i], residue_reference);
+	 std::vector<CAtom *> atoms = close_atoms(pt_base_and_H.second, env_residues);
+
+	 // bash is one of a (potentially) number of bash distances
+	 // for a given ligand (non-hydrogen) atom.
+	 // 
+	 coot::bash_distance_t bash = find_bash_distance(pt_base_and_H.first,
+							 pt_base_and_H.second,
+							 atoms);
+	 atom_bashes[named_torsions[i].atom_name_bonded_to_H].push_back(bash);
+	 
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << rte.what() << std::endl;
+      } 
+   }
+}
+
+
+
+// Can throw an exception
+// 
+// Return the position of the H-ligand atom (the atom to which the H
+// is attached) and the hydrogen position - in that order.
+// 
+std::pair<clipper::Coord_orth, clipper::Coord_orth>
+coot::flev_attached_hydrogens_t::hydrogen_pos(const coot::named_torsion_t &named_tor,
+					      CResidue *residue_p) const {
+   clipper:: Coord_orth pt(0,0,0);
+   clipper:: Coord_orth pt_ligand_atom(0,0,0);
+   CAtom *at_1 = NULL;
+   CAtom *at_2 = NULL;
+   CAtom *at_3 = NULL;
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (unsigned int i=0; i<n_residue_atoms; i++) {
+      std::string atom_name(residue_atoms[i]->name);
+      if (atom_name == named_tor.base_atom_name)
+	 at_1 = residue_atoms[i];
+      if (atom_name == named_tor.atom_name_2)
+	 at_2 = residue_atoms[i];
+      if (atom_name == named_tor.atom_name_bonded_to_H)
+	 at_3 = residue_atoms[i];
+   }
+
+   if (! (at_1 && at_2 && at_3)) {
+      throw("missing atoms in residue");
+   } else {
+      clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+      clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+      clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
+      clipper::Coord_orth p4_h(pt_1, pt_2, pt_3,
+			       named_tor.dist,
+			       clipper::Util::d2rad(named_tor.angle),
+			       clipper::Util::d2rad(named_tor.torsion));
+      pt = p4_h;
+      pt_ligand_atom = pt_3;
+   } 
+   return std::pair<clipper::Coord_orth, clipper::Coord_orth> (pt_ligand_atom, pt);
+} 
+
+// What are the atoms that are close (distance < 6A) to pt?
+// 
+// waters are not counted as close atoms.
+// 
+std::vector<CAtom *>
+coot::flev_attached_hydrogens_t::close_atoms(const clipper::Coord_orth &pt,
+					     const std::vector<CResidue *> &env_residues) const {
+
+   std::vector<CAtom *> v;
+   double dist_crit = 6.0;
+   double dist_crit_squared = dist_crit * dist_crit;
+   
+   for (unsigned int i=0; i<env_residues.size(); i++) {
+      CResidue *residue_p = env_residues[i];
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 clipper::Coord_orth atom_pos(residue_atoms[iat]->x, residue_atoms[iat]->y, residue_atoms[iat]->z);
+	 double d_squared = (pt - atom_pos).lengthsq();
+	 if (d_squared < dist_crit_squared) { 
+	    std::string rn(residue_atoms[iat]->GetResName());
+	    if (rn != "HOH")
+	       v.push_back(residue_atoms[iat]);
+	 }
+      }
+   }
+   return v;
+}
+
+
+coot::bash_distance_t
+coot::flev_attached_hydrogens_t::find_bash_distance(const clipper::Coord_orth &ligand_atom_pos,
+						    const clipper::Coord_orth &hydrogen_pos,
+						    const std::vector<CAtom *> &close_residue_atoms) const {
+
+   double cannonball_radius = 0.8; // radius of the cannonball, c.f. at least a hydrogen.
+   
+   double max_dist = 4.05; // if we have travelled 4A without bashing
+			   // into a protein atom then this has
+			   // practically unlimited substitution distance.
+
+   double max_dist_squared = max_dist * max_dist;
+   clipper::Coord_orth h_vector((hydrogen_pos - ligand_atom_pos).unit());
+
+   // set the atomic radii:
+   // 
+   std::vector<double> radius(close_residue_atoms.size());
+   for (unsigned int iat=0; iat<close_residue_atoms.size(); iat++) {
+      std::string ele(close_residue_atoms[iat]->element);
+      radius[iat] = get_radius(ele);
+   }
+   
+   coot::bash_distance_t dd;
+   
+   std::vector<clipper::Coord_orth> atom_positions(close_residue_atoms.size());
+   // likewise set the atom positions so that we don't have to keep doing it.
+   for (unsigned int i=0; i<close_residue_atoms.size(); i++)
+      atom_positions[i] = clipper::Coord_orth(close_residue_atoms[i]->x,
+					      close_residue_atoms[i]->y,
+					      close_residue_atoms[i]->z);
+   
+   for (double slide=0; slide<=max_dist; slide+=0.04) {
+      clipper::Coord_orth test_pt = ligand_atom_pos + slide * h_vector;
+//       std::cout << "   bash distance for ligand atom at " << ligand_atom_pos.format() << " "
+// 		<< "determined from " << atom_positions.size() << " atom positions"
+// 		<< std::endl;
+      for (unsigned int iat=0; iat<atom_positions.size(); iat++) {
+	 double atom_radius_plus_cbr = radius[iat]+cannonball_radius;
+	 double d_squared = (test_pt - atom_positions[iat]).lengthsq();
+// 	 std::cout << "   atom " << iat << " slide: " << slide
+// 		   << " comparing " << sqrt(d_squared) << "^2  and "
+// 		   << atom_radius_plus_cbr << "^2" << std::endl;
+	 if (d_squared < atom_radius_plus_cbr*atom_radius_plus_cbr) {
+	    dd = coot::bash_distance_t(slide);
+	    break;
+	 }
+      }
+      if (dd.limited) {
+	 break;
+      }
+   }
+   return dd;
+}
+
+// c.f. 
+// double
+// coot::dots_representation_info_t::get_radius(const std::string &ele)
+
+double
+coot::flev_attached_hydrogens_t::get_radius(const std::string &ele) const { 
+
+   double radius = 1.70;
+   if (ele == " H")
+      radius = 1.20;
+   if (ele == " N")
+      radius = 1.55;
+   if (ele == " O")
+      radius = 1.52;
+   if (ele == " S")
+      radius = 1.8;
+   return radius;
+} 

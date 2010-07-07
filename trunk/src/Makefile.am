@@ -192,6 +192,7 @@ INCLUDES = \
 	-I$(top_srcdir)/high-res	\
 	-I$(top_srcdir)/analysis	\
 	-I$(top_srcdir)/cootaneer	\
+	-I$(top_srcdir)/lbg	        \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_GTK_CFLAGS)		\
