@@ -2,7 +2,7 @@
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
- * Copyright 2007, 2008, 2009 by The University of Oxford
+ * Copyright 2007, 2008, 2009, 2010 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
