@@ -372,7 +372,15 @@ public:
 
       void add_for_accessibility(double bash_dist, const lig_build::pos_t &atom_pos);
 
+      // fudge in a smoothly varing function (so that the contouring
+      // behaves smoothly, rather that the jaggies that we'd get if we
+      // added a top hat function values to 1.0A.
+      // 
+      void add_for_accessibility_no_bash_dist_atom(double scale, const lig_build::pos_t &atom_pos);
+
       void show_contour(GooCanvasItem *root, float contour_level) const;
+      void show_contour(GooCanvasItem *root, float contour_level,
+			const std::vector<lig_build::pos_t> &unlimited_atom_positions) const;
 
    };
 
