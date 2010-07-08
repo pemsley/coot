@@ -5,6 +5,7 @@
 #include "clipper/core/coords.h"
 #include "coot-coord-utils.hh"
 #include "protein-geometry.hh"
+#include "lbg-shared.hh"
 
 
 namespace coot { 
@@ -218,6 +219,7 @@ namespace coot {
 			  const coot::dictionary_residue_restraints_t &monomer_restraints);
 
    enum { H_IS_RIDING, H_IS_ROTATABLE }; // shared between named_torsion_t and flev_attached_hydrogens_t.
+
    
    // we need to map (the hydrogens torsions) between ideal prodrg
    // ligand atoms and the atoms in the residue/ligand of interest
@@ -258,6 +260,23 @@ namespace coot {
       std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > >
       named_hydrogens_to_reference_ligand(CResidue *ligand_residue_3d,
 					  const dictionary_residue_restraints_t &restraints) const;
+
+      // Can throw an exception
+      // 
+      // Return the position of the H-ligand atom (the atom to which
+      // the H is attached) and the hydrogen position - in that order.
+      // 
+      std::pair<clipper::Coord_orth, clipper::Coord_orth>
+      hydrogen_pos(const coot::named_torsion_t &named_tor, CResidue *res) const;
+      
+      std::vector<CAtom *> close_atoms(const clipper::Coord_orth &pt,
+				       const std::vector<CResidue *> &env_residues) const;
+
+      bash_distance_t find_bash_distance(const clipper::Coord_orth &ligand_atom_pos,
+					 const clipper::Coord_orth &hydrogen_pos,
+					 const std::vector<CAtom *> &close_residue_atoms) const;
+      double get_radius(const std::string &ele) const;
+      
    public:
       flev_attached_hydrogens_t(const dictionary_residue_restraints_t &restraints);
 
@@ -267,7 +286,19 @@ namespace coot {
       void cannonballs(CResidue *ligand_residue_3d,
 		       const std::string &prodrg_3d_ligand_file_name,
 		       const coot::dictionary_residue_restraints_t &restraints);
+
+      // apply those cannonball direction onto the real reference ligand:
+      void distances_to_protein(CResidue *residue_reference,
+				CMMDBManager *mol_reference);
+
+      std::map<std::string, std::vector<coot::bash_distance_t> > atom_bashes;
+   
    };
 
-   
+   // the reference_residue is the flat residue
+   void write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,
+					  const coot::flev_attached_hydrogens_t &attached_hydrogens,
+					  CResidue *reference_residue);
+
+
 }
