@@ -1,0 +1,238 @@
+
+% 10pt is the smallest font for article
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{epsf}
+\usepackage{a4}
+\usepackage{palatino}
+\usepackage{euler}
+\usepackage{url}
+% for simlpe code
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small}
+
+% for python stuff
+\usepackage{color}
+\usepackage{listings}
+\usepackage{textcomp}
+\usepackage{setspace}
+\usepackage{palatino}
+
+\renewcommand{\lstlistlistingname}{Code Listings}
+\renewcommand{\lstlistingname}{Code Listing}
+\definecolor{gray}{gray}{0.5}
+\definecolor{green}{rgb}{0,0.5,0}
+
+\lstnewenvironment{python}[1][]{
+\lstset{
+language=python,
+basicstyle=\ttfamily\small\setstretch{1},
+stringstyle=\color{red},
+showstringspaces=false,
+alsoletter={1234567890},
+otherkeywords={\ , \}, \{},
+keywordstyle=\color{blue},
+emph={access,and,break,class,continue,def,del,elif,else,%
+except,exec,finally,for,from,global,if,import,in,is,%
+lambda,not,or,pass,print,raise,return,try,while},
+emphstyle=\color{black}\bfseries,
+emph={[2]True, False, None, self},
+emphstyle=[2]\color{green},
+emph={[3]from, import, as},
+emphstyle=[3]\color{blue},
+upquote=true,
+morecomment=[s]{"""}{"""},
+commentstyle=\color{gray}\slshape,
+emph={[4]1, 2, 3, 4, 5, 6, 7, 8, 9, 0},
+emphstyle=[4]\color{blue},
+literate=*{:}{{\textcolor{blue}:}}{1}%
+{=}{{\textcolor{blue}=}}{1}%
+{-}{{\textcolor{blue}-}}{1}%
+{+}{{\textcolor{blue}+}}{1}%
+{*}{{\textcolor{blue}*}}{1}%
+{!}{{\textcolor{blue}!}}{1}%
+{(}{{\textcolor{blue}(}}{1}%
+{)}{{\textcolor{blue})}}{1}%
+{[}{{\textcolor{blue}[}}{1}%
+{]}{{\textcolor{blue}]}}{1}%
+{<}{{\textcolor{blue}<}}{1}%
+{>}{{\textcolor{blue}>}}{1},%
+framexleftmargin=1mm, framextopmargin=1mm, frame=shadowbox, rulesepcolor=\color{blue},#1
+}}
+{}
+%end python stuff
+
+
+% for scheme code based on python thingy (very simple)
+\lstnewenvironment{guile}[1][]{
+\lstset{
+%language=guile,
+basicstyle=\ttfamily\small\setstretch{1},
+framexleftmargin=1mm, framextopmargin=1mm, frame=shadowbox, rulesepcolor=\color{green},#1
+}}
+{}
+% end scheme
+
+
+\newcommand {\atilde} {$_{\char '176}$} % tilde(~) character
+
+\title{Coot Scripting Tutorial}
+
+\author{Pythonic HowTos, Examples, Tutorials}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+%\listoffigures
+
+
+\newpage
+
+\section{Introduction to Scripting in Coot}
+
+\begin{code}
+  c+=1
+\end{code}
+
+\begin{verbatim}
+(insert literal text)
+\end{verbatim}
+
+\subsection{Python Basics}
+
+\subsection{Moving between Python and Scheme/Guile}
+The following is (almost as is) described on the Coot WIKI (\url{http://strucbio.biologie.uni-konstanz.de/ccp4wiki/index.php/COOT#Python_to_Scheme_and_return}.
+Python scripting is different to the (default) scheme scripting which is mainly described in Paul Emsley's documentation \footnote{although it's mentioned somewhere, fairly hidden; Needs reference FIXME}. In order to ``translate'' the commands you have to change them in the following way:
+
+ GUILE scripting: (guile-command argument1 argument2 ...)
+
+ PYTHON scripting: python\_command(argument1, argument2, ...)
+
+
+\subsubsection{Simple rules for Scheme to Python translations}
+Here some simple rules how to translate from Scheme to Python. To translate the other way around, i.e. Python to Scheme, just turn the rules around:
+\begin{enumerate}
+   \item replace all '-' with '\_' (except in equation when you need arithmetic '-' minus signs)
+   \item move the brackets around the argument(s)
+   \item separate multiple arguments by commas rather than spaces
+   \item replace 'define' for functions with 'def' and for assignments with an '='
+   \item Make sure to use indentation for the function content [Python is indentation sensitive] and a ':' after the function definition. 
+\end{enumerate}
+Some additional/advanced(?) rules:
+\begin{enumerate}
+   \item \#f $\Rightarrow$ False
+   \item \#t $\Rightarrow$ True
+   \item (set! variable value) $\Rightarrow$ variable=value 
+\end{enumerate}
+
+\subsubsection{A simple example}
+
+In Scheme we may have the following script:
+
+\begin{guile}
+(define mol2-pdbFile "somePDBfile.pdb" )
+(define mol2-model (read-pdb mol2-pdbFile))
+(define (read-mol-again)
+        (clear-and-update-model-molecule-from-file mol2-model mol2-pdbFile))
+(read-mol-again)
+\end{guile}
+
+Which will translate into Python:
+
+\begin{python}
+ mol2_pdbFile = "somePDBfile.pdb"
+ mol2_model = read_pdb(mol2_pdbFile)
+ def read_mol_again():
+     clear_and_update_model_molecule_from_file(mol2_model, mol2_pdbFile)
+ read_mol_again()
+\end{python}
+
+\subsubsection{Running a Scheme/Python command from Python/Scheme}
+
+As of Coot 0.5 (and if you have both scripting languages available) you an use the following commands to run a script or command in the other language:
+\begin{code}
+ (run-python-command "python_command(arg1, arg2, ...)")    [from guile/scheme]
+
+ run_scheme_command("(scheme-command arg1 arg2 ...)")      [from python]
+\end{code}
+
+
+\subsection{Script execution and file structure}
+
+\section{Internal and external functions}
+\subsection{Source/internal functions}
+\subsection{Provided scripting functions}
+
+\section{HowTos and Examples}
+
+\subsection{Add an Extension/Plugin}
+Coot 'plugins' are fairly easy. Although we usually not necessarily call 
+them plugins (rather scripts, extensions, ...). Here's what to do (*):
+
+1.) write an extension script which will give you new Menu item with 
+plugin entries which will execute functions, e.g. (simplified)
+
+\begin{code}
+plugin_menu = coot_menubar_menu("My Plugins")
+add_simple_coot_menu_menuitem(plugin_menu, "Run plugin 1", lambda func: 
+plugin1())
+\end{code}
+
+2.) Have your plugin being able to be execute by the function 'plugin1', 
+possibly merge into one file (my\_plugin.py), i.e.
+
+\begin{code}
+def plugin1():
+    here some code to plugin or call plugin...
+
+plugin_menu = .... (from above)
+\end{code}
+
+3.) Place the python script in a directory so that Coot will read it on 
+startup, i.e. either:
+- include in $HOME/.coot.py
+- place the file into $HOME/.coot-preference
+- put the file into whatever directory and set env variable 
+COOT\_PYTHON\_EXTRAS\_DIR to point to that directory
+
+or run manually with Calculate->Scripting->Run Script
+
+4.) Done
+
+\subsection{Make Keybindings}
+
+\subsection{Add Toolbuttons}
+At the moment it is not trivial to add the two functions you suggest 
+(*), but here are a few ways how in general to add buttons to the toolbar:
+
+- add you favourite function to the list 'list\_of\_toolbar\_functions' in 
+python/coot\_toolbuttons.py and the use the Toolbar Manager
+
+- use 'Add a user-defined Button' and specify your favourite function
+
+- use the function coot\_toolbar\_button in e.g. \$HOME/.coot/.py to add 
+your favourite function [e.g. coot\_toolbar\_button("Sphere Refine", 
+"sphere\_refine()", "reset-view.svg")  \# note: all strings, icon -last arg- is optional)
+
+Note: you have to define your favourite function somewhere too (use Run 
+Script, .coot.py, .coot-preference, or COOT\_PYTHON\_EXTRAS\_DIR ... for 
+this)!!!
+
+
+\subsection{User defined clicks}
+
+\subsection{Examples}
+
+\section{Excercises}
+
+
+
+\section*{Colophon}
+
+This document is written using XEmacs 21.5 in \LaTeX{} using AUC\TeX{}
+and is distributed with the Coot source code.
+
+\end{document}
