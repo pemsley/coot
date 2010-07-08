@@ -2244,7 +2244,7 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
 					     primary_indices);
    }
    
-   // draw_all_residue_attribs(); // contour debugging.
+   draw_all_residue_attribs(); // contour debugging.
 }
 
 std::vector<lbg_info_t::residue_circle_t>
@@ -2464,9 +2464,9 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
 
    // I want to see the grid.
 
-   std::cout << "================ Here " << primary_index << std::endl;
-   if (primary_index == 2) 
-      show_grid(primary_grid, 0.3);
+   if (0)
+      if (primary_index == 2) 
+	 show_grid(primary_grid, 0.3);
    
    lig_build::pos_t best_pos = primary_grid.find_minimum_position();
 
@@ -2483,7 +2483,8 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
    residue_circles[primary_index].pos = best_pos + a_to_b_uv * 4;
 
    if (1)
-      std::cout << "DEBUG::  ending initial_primary_residue_circles_layout() primary_index " << primary_index
+      std::cout << "DEBUG::  ending initial_primary_residue_circles_layout() primary_index "
+		<< primary_index
 		<< " " << residue_circles[primary_index].residue_label << " "
 		<< residue_circles[primary_index].residue_type
 		<< " has position " << residue_circles[primary_index].pos
@@ -2904,18 +2905,30 @@ lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid, double contour_level)
    }
 
    grid.show_contour(root, contour_level);
-//    grid.show_contour(root, 0.4);
-//    grid.show_contour(root, 0.5);
-//    grid.show_contour(root, 0.6);
-//    grid.show_contour(root, 0.7);
-//    grid.show_contour(root, 0.8);
-//    grid.show_contour(root, 0.9);
-//    grid.show_contour(root, 1.0);
+
+   if (0) {  // debugging
+      grid.show_contour(root, 0.4);
+      grid.show_contour(root, 0.5);
+      grid.show_contour(root, 0.6);
+      grid.show_contour(root, 0.7);
+      grid.show_contour(root, 0.8);
+      grid.show_contour(root, 0.9);
+      grid.show_contour(root, 1.0);
+   }
    
 }
 
 void
 lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level) const {
+
+   std::vector<lig_build::pos_t> unlimited_atom_positions;
+   show_contour(root, contour_level, unlimited_atom_positions);
+}
+
+void
+lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
+				      const std::vector<lig_build::pos_t> &unlimited_atom_positions) const {
+
 
    GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", "#880000",
 						NULL);
@@ -2952,19 +2965,34 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level) 
 	       lig_build::pos_t pos_1 = to_canvas_pos(xy_1.first, xy_1.second);
 	       lig_build::pos_t pos_2 = to_canvas_pos(xy_2.first, xy_2.second);
 
-// 	       goo_canvas_polyline_new_line(group,
-// 					    pos_1.x, pos_1.y,
-// 					    pos_2.x, pos_2.y,
-// 					    "line_width", 2.0,
-// 					    NULL);
-
 	       lig_build::pos_t p1 = to_canvas_pos(cf.get_coords(ix, iy, 0).first,
 						   cf.get_coords(ix, iy, 0).second);
 	       lig_build::pos_t p2 = to_canvas_pos(cf.get_coords(ix, iy, 1).first,
 						   cf.get_coords(ix, iy, 1).second);
 	       std::pair<lig_build::pos_t, lig_build::pos_t> fragment_pair(p1, p2);
+
+	       // Now filter out this fragment pair if it is too close
+	       // to an unlimited_atom_positions
+	       bool plot_it = 1;
+	       double dist_crit = 4.0;
 	       
-	       line_fragments.push_back(fragment_pair);
+	       for (unsigned int i=0; i<unlimited_atom_positions.size(); i++) { 
+// 		  lig_build::pos_t p = to_canvas_pos(unlimited_atom_positions[i].x,
+// 						     unlimited_atom_positions[i].y);
+		  
+		  lig_build::pos_t p = unlimited_atom_positions[i];
+		  if ((p - p1).lengthsq() < (dist_crit * dist_crit)) { 
+		     plot_it = 0;
+		     break;
+		  }
+		  if ((p - p2).lengthsq() < (dist_crit * dist_crit)) { 
+		     plot_it = 0;
+		     break;
+		  }
+	       }
+
+	       if (plot_it)
+		  line_fragments.push_back(fragment_pair);
 	    } 
 	 }
       }
@@ -3163,7 +3191,7 @@ lbg_info_t::ligand_grid::ligand_grid(const lig_build::pos_t &low_x_and_y,
    double extra_extents = 100;
    top_left     = low_x_and_y  - lig_build::pos_t(extra_extents, extra_extents);
    bottom_right = high_x_and_y + lig_build::pos_t(extra_extents, extra_extents);
-   scale_fac = 5; // fixme
+   scale_fac = 5; // seems good
    double delta_x = bottom_right.x - top_left.x;
    double delta_y = bottom_right.y - top_left.y;
    std::cout << " in making grid, got delta_x and delta_y "
@@ -3189,7 +3217,7 @@ lbg_info_t::ligand_grid::fill(widgeted_molecule_t mol) {
    double exp_scale = 0.0011;
    double rk = 3000.0;
 
-   int grid_extent = 20; // does this need to be increased?
+   int grid_extent = 15; // 10, 12 is not enough
    
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
       for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {
@@ -3240,8 +3268,9 @@ lbg_info_t::ligand_grid::fill(widgeted_molecule_t mol) {
 
 void
 lbg_info_t::ligand_grid::add_for_accessibility(double bash_dist, const lig_build::pos_t &atom_pos) {
-   
-   int grid_extent = 40; // does this need to be increased?
+
+   bool debug = 1;
+   int grid_extent = 40;
 
    double inv_scale_factor = 1.0/double(SINGLE_BOND_CANVAS_LENGTH);
    
@@ -3256,14 +3285,46 @@ lbg_info_t::ligand_grid::add_for_accessibility(double bash_dist, const lig_build
 	       double d2 = (to_canvas_pos(ix_grid, iy_grid) - atom_pos).lengthsq();
 	       d2 *= (inv_scale_factor * inv_scale_factor);
 	       double val = substitution_value(d2, bash_dist);
-	       std::cout << "adding " << val << " to grid " << ix_grid << " " << iy_grid
-			 << " from " << sqrt(d2) << " vs " << bash_dist << std::endl;
+	       if (debug)
+		  std::cout << "adding " << val << " to grid " << ix_grid << " " << iy_grid
+			    << " from " << sqrt(d2) << " vs " << bash_dist << std::endl;
 	       grid_[ix_grid][iy_grid] += val;
 	    }
 	 }
       }
    }
 }
+
+void
+lbg_info_t::ligand_grid::add_for_accessibility_no_bash_dist_atom(double scale,
+								 const lig_build::pos_t &atom_pos) { 
+
+   bool debug = 1;
+   int grid_extent = 40;
+
+   double inv_scale_factor = 1.0/double(SINGLE_BOND_CANVAS_LENGTH);
+   
+   for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {
+      for (int ipos_y= -grid_extent; ipos_y<=grid_extent; ipos_y++) {
+	 std::pair<int, int> p = canvas_pos_to_grid_pos(atom_pos);
+	 int ix_grid = ipos_x + p.first;
+	 int iy_grid = ipos_y + p.second;
+	 if ((ix_grid >= 0) && (ix_grid < x_size())) {
+	    if ((iy_grid >= 0) && (iy_grid < y_size())) {
+	       
+	       double d2 = (to_canvas_pos(ix_grid, iy_grid) - atom_pos).lengthsq();
+	       d2 *= (inv_scale_factor * inv_scale_factor);
+	       // a triangle function, 1 at the atom centre, 0 at 1.5A and beyond
+	       double val = 0.0;
+	       if (d2< 2.25)
+		  val = - 0.6666 * sqrt(d2) + 1.0;
+	       grid_[ix_grid][iy_grid] += val;
+	    }
+	 }
+      }
+   }
+}
+
 
 
 // scale peak value to 1.0
@@ -3793,7 +3854,7 @@ lbg_info_t::draw_substitution_contour() {
       mol.ligand_extents();
    lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
    
-   if (debug) { 
+   if (0) { 
       for (unsigned int i=0; i<mol.atoms.size(); i++) { 
 	 std::cout << "in draw_substitution_contour() atom " << i << " has "
 		   << mol.atoms[i].bash_distances.size() << " bash distances" << std::endl;
@@ -3805,24 +3866,49 @@ lbg_info_t::draw_substitution_contour() {
       }
    }
 
+   std::vector<lig_build::pos_t> unlimited_atom_positions;
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
       int n_bash_distances = 0;
       double sum_bash = 0.0;
-      for (unsigned int j=0; j<mol.atoms[iat].bash_distances.size(); j++) {
-	 std::cout << " bash_distances " << j << " " << mol.atoms[iat].bash_distances[j] << std::endl;
-	 if (! mol.atoms[iat].bash_distances[j].unlimited()) {
-	    sum_bash += mol.atoms[iat].bash_distances[j].dist;
-	    n_bash_distances++;
+      bool unlimited = 0;
+      if (mol.atoms[iat].bash_distances.size()) { 
+	 for (unsigned int j=0; j<mol.atoms[iat].bash_distances.size(); j++) {
+	    std::cout << " bash_distances " << j << " " << mol.atoms[iat].bash_distances[j] << std::endl;
+	    if (! mol.atoms[iat].bash_distances[j].unlimited()) {
+	       sum_bash += mol.atoms[iat].bash_distances[j].dist;
+	       n_bash_distances++;
+	    } else {
+	       unlimited = 1;
+	       break;
+	    } 
 	 }
-      }
-      if (n_bash_distances > 0) {
-	 double bash_av = sum_bash/double(n_bash_distances);
-	 grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
-      }
+
+	 if (! unlimited) { 
+	    if (n_bash_distances > 0) {
+	       double bash_av = sum_bash/double(n_bash_distances);
+	       grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
+	    }
+	 } else {
+	    // just shove some value in to make the grid values vaguely
+	    // correct - the unlimited atoms properly assert themselves
+	    // in the drawing of the contour (that is, the selection of
+	    // the contour fragments).
+	    grid.add_for_accessibility(3.0, mol.atoms[iat].atom_position);
+	    unlimited_atom_positions.push_back(mol.atoms[iat].atom_position);
+	 }
+      } else {
+	 // there were no bash distances - what do we do?  Leaving out
+	 // atoms means gaps over the ligand - bleugh.  Shove some
+	 // value in?  1.0?  if they are not hydrogens, of course.
+	 // 
+	 if (mol.atoms[iat].element != "H") // checked.
+	    grid.add_for_accessibility_no_bash_dist_atom(1.0, mol.atoms[iat].atom_position);
+      } 
    }
 
-   show_grid(grid, 0.5);
-   grid.show_contour(root, 0.5);
+   // show_grid(grid, 0.5);
+   // grid.show_contour(root, 0.5);
+   grid.show_contour(root, 0.5, unlimited_atom_positions);
 }
 
 
@@ -3834,13 +3920,15 @@ lbg_info_t::ligand_grid::substitution_value(double r_squared, double bash_dist) 
    double D = bash_dist;
    double r = sqrt(r_squared);
 
+   if (r<1)
+      return 1; 
    if (r<(D-1)) {
       return 1;
    } else {
       if (r > D) { 
 	 return 0;
       } else {
-	 // double v = 0.5*(1 + cos(0.5 *M_PI * (D-r)));
+	 // double v = 0.5*(1 + cos(0.5 *M_PI * (D-r))); // C&L - eh? typo/bug
 	 double v = 0.5 * (1.0 + cos(M_PI * (D-1-r)));
 	 return v;
       }
