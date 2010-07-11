@@ -285,8 +285,8 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
    // aromatic rings.
    std::vector<std::vector<std::string> > ring_list = get_ligand_aromatic_ring_list(monomer_restraints);
 
-   // float pi_overlap_thresh = 0.2;
-   float pi_overlap_thresh = 0.0015; // play value
+   float pi_overlap_thresh = 0.2;
+   // float pi_overlap_thresh = 0.0015; // play value
    // float pi_overlap_thresh = 0.2; 
    for (unsigned int iring=0; iring<ring_list.size(); iring++) {
       try {
@@ -2013,21 +2013,49 @@ coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_referenc
    std::vector<CResidue *> env_residues =
       coot::residues_near_residue(residue_reference, mol_reference, radius);
 
-   CResidue *ligand_res_copy = coot::util::deep_copy_this_residue(residue_reference);
    for (unsigned int i=0; i<named_torsions.size(); i++) {
-      try { 
-	 std::pair<clipper::Coord_orth, clipper::Coord_orth> pt_base_and_H =
-	    hydrogen_pos(named_torsions[i], residue_reference);
-	 std::vector<CAtom *> atoms = close_atoms(pt_base_and_H.second, env_residues);
+      try {
+	 if (named_torsions[i].hydrogen_type == coot::H_IS_RIDING) {
 
-	 // bash is one of a (potentially) number of bash distances
-	 // for a given ligand (non-hydrogen) atom.
-	 // 
-	 coot::bash_distance_t bash = find_bash_distance(pt_base_and_H.first,
-							 pt_base_and_H.second,
-							 atoms);
-	 atom_bashes[named_torsions[i].atom_name_bonded_to_H].push_back(bash);
+	    std::cout << "hydrogen on " << named_torsions[i].atom_name_bonded_to_H 
+		      << " is riding " << std::endl;
+	    
+	    std::pair<clipper::Coord_orth, clipper::Coord_orth> pt_base_and_H =
+	       hydrogen_pos(named_torsions[i], residue_reference);
+	    std::vector<CAtom *> atoms = close_atoms(pt_base_and_H.second, env_residues);
+
+	    // bash is one of a (potentially) number of bash distances
+	    // for a given ligand (non-hydrogen) atom.
+	    // 
+	    coot::bash_distance_t bash = find_bash_distance(pt_base_and_H.first,
+							    pt_base_and_H.second,
+							    atoms);
+	    atom_bashes[named_torsions[i].atom_name_bonded_to_H].push_back(bash);
+	 }
 	 
+	 if (named_torsions[i].hydrogen_type == coot::H_IS_ROTATABLE) {
+
+	    std::cout << "hydrogen on named_torsions[i].atom_name_bonded_to_H "
+		      << " is rotatable " << std::endl;
+	    
+	    int n_torsion_samples = 8;
+	    std::pair<clipper::Coord_orth, clipper::Coord_orth> pt_base_and_H =
+	       hydrogen_pos(named_torsions[i], residue_reference);
+	    std::vector<CAtom *> atoms = close_atoms(pt_base_and_H.second, env_residues);
+	    for (unsigned int itor=0; itor<n_torsion_samples; itor++) {
+
+	       coot::named_torsion_t tmp_tor = named_torsions[i];
+	       tmp_tor.torsion += double(itor) * 360.0/double(n_torsion_samples);
+	       if (tmp_tor.torsion > 360)
+		  tmp_tor.torsion -= 360;
+	       pt_base_and_H = hydrogen_pos(tmp_tor, residue_reference);
+	       
+	       coot::bash_distance_t bash = find_bash_distance(pt_base_and_H.first,
+							       pt_base_and_H.second,
+							       atoms);
+	    atom_bashes[named_torsions[i].atom_name_bonded_to_H].push_back(bash);
+	    }
+	 }
       }
       catch (std::runtime_error rte) {
 	 std::cout << rte.what() << std::endl;
@@ -2065,7 +2093,7 @@ coot::flev_attached_hydrogens_t::hydrogen_pos(const coot::named_torsion_t &named
    }
 
    if (! (at_1 && at_2 && at_3)) {
-      throw("missing atoms in residue");
+      throw(std::runtime_error("missing atoms in residue"));
    } else {
       clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
       clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
