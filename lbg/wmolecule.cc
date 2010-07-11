@@ -684,6 +684,36 @@ widgeted_molecule_t::get_ring_centre(const std::vector<std::string> &ring_atom_n
    return centre;
 }
 
+// can throw an exception (no rings with this atom)
+//
+lig_build::pos_t
+widgeted_molecule_t::get_ring_centre(const widgeted_atom_ring_centre_info_t &atom) const {
+
+   lig_build::pos_t position(0,0);
+   bool found = 0;
+
+   for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 
+      if ((atoms[bonds[ibond].get_atom_1_index()] == atom.atom) ||
+	  (atoms[bonds[ibond].get_atom_2_index()] == atom.atom)) {
+	 if (bonds[ibond].have_centre_pos()) {
+	    position = bonds[ibond].centre_pos();
+	    found = 1;
+	 }
+      }
+      if (found)
+	 break;
+   }
+
+   if (! found) {
+      std::string mess("No atom ");
+      mess += atom.atom.get_atom_name();
+      mess += " found to be in a ring";
+      throw(std::runtime_error(mess));
+   }
+   return position;
+}
+
+
 // can throw an exception (no bonds)
 //
 // not const because it now caches the return value;
@@ -700,8 +730,6 @@ widgeted_molecule_t::get_ring_centres() {
 	    lig_build::pos_t rc = bonds[ib].centre_pos();
 	    bool found = 0;
 	    for (unsigned int i=0; i<v.size(); i++) {
-	       // 	    std::cout << "close? " << rc << "   " << v[i] << "  " << v[i].close_point(rc)
-	       // 		      << std::endl;
 	       if (v[i].near_point(rc, 7)) { // 7 seems good, others tested.
 		  found = 1;
 		  break;
@@ -716,6 +744,7 @@ widgeted_molecule_t::get_ring_centres() {
       //       std::cout << "   "  << iv << " " << v[iv] << "\n";
       //    }
       cached_bond_ring_centres = v;
+      have_cached_bond_ring_centres_flag = 1;
       return v;
    }
 }

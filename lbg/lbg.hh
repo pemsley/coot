@@ -380,7 +380,7 @@ public:
 
       void show_contour(GooCanvasItem *root, float contour_level) const;
       void show_contour(GooCanvasItem *root, float contour_level,
-			const std::vector<lig_build::pos_t> &unlimited_atom_positions) const;
+			const std::vector<widgeted_atom_ring_centre_info_t> &unlimited_atoms) const;
 
    };
 
