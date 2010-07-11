@@ -141,6 +141,7 @@ class widgeted_atom_t : public lig_build::atom_t {
    }
 
 public:
+
    widgeted_atom_t(lig_build::atom_t &at_in, GooCanvasItem *ci_in) : lig_build::atom_t(at_in) {
       ci = ci_in;
       font_colour = "yellow";
@@ -426,6 +427,22 @@ public:
 
 };
 
+// trivia container for a (copy of an) atom an its ring centre (if
+// it has one)
+class widgeted_atom_ring_centre_info_t {
+public:
+   widgeted_atom_t atom;
+   bool has_ring_centre_flag;
+   lig_build::pos_t ring_centre;
+   widgeted_atom_ring_centre_info_t(const widgeted_atom_t &at) : atom(at) {
+      has_ring_centre_flag = 0;
+   }
+   void add_ring_centre(const lig_build::pos_t &pos) {
+      ring_centre = pos;
+      has_ring_centre_flag = 1;
+   } 
+};
+
 
 // ====================================================================
 //                     widgeted_molecule_t
@@ -540,6 +557,11 @@ public:
    // 
    lig_build::pos_t get_ring_centre(const std::vector<std::string> &ring_atom_names) const;
 
+   // can throw an exception (no rings with this atom)
+   //
+   lig_build::pos_t get_ring_centre(const widgeted_atom_ring_centre_info_t &atom) const;
+
+
    // can throw an exception (no atoms) - top-left (small small)
    // bottom-right (high high)
    //
@@ -547,6 +569,8 @@ public:
 
    int n_open_bonds() const;
 
-   bool is_close_to_non_last_atom(const lig_build::pos_t &test_post) const; 
+   bool is_close_to_non_last_atom(const lig_build::pos_t &test_post) const;
+
+
    
 };
