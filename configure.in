@@ -248,6 +248,7 @@ tw/Makefile
 cootaneer/Makefile
 greg-tests/Makefile
 python-tests/Makefile
+lidia-core/Makefile
 doc/Makefile
 src/Makefile
 src/coot

@@ -12,7 +12,7 @@ CAIRO_CFLAGS=`pkg-config --cflags cairo`
 
 CRYST=/home/emsley/autobuild/f12/Linux-jackal-f12-pre-release-gtk2
 CRYST=$(HOME)/autobuild/Linux-scylla-pre-release-gtk2
-CRYST=$(HOME)/autobuild/Linux-nestor-pre-release-gtk2
+# CRYST=$(HOME)/autobuild/Linux-nestor-pre-release-gtk2
 
 GSL_CFLAGS=-I$(CRYST)/include
 GSL_LDFLAGS=$(CRYST)/lib/libgsl.la  $(CRYST)/lib/libgslcblas.la -lm
@@ -30,7 +30,7 @@ CLIPPER_LDFLAGS=$(CLIPPER)/lib/libclipper-core.la \
         $(CLIPPER)/lib/libfftw.la
 
 
-CXXFLAGS=-g -O2 $(EXTRA_FLAGS) $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) 
+CXXFLAGS=-g -O2 $(EXTRA_FLAGS) $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) -I../lidia-core
 
 lbg: lig-build.o lbg.o wmolecule.o lbg-callbacks.o lbg-search.o some-coot-utils.o lbg-molfile.o residue-circles.o
 	libtool --mode=link $(CXX)  -Wl,--export-dynamic -o $@ $^ \
