@@ -159,8 +159,9 @@
 						      imol-map 1 0.1))
 			   (if (valid-map-molecule? imol-map)
 			       (begin
-				 (with-auto-accept
-				  (refine-zone imol chain-id res-no res-no alt-conf))
+				 (with-no-backups imol
+						  (with-auto-accept
+						   (refine-zone imol chain-id res-no res-no alt-conf)))
 				 (rotate-y-scene 10 0.3)))))))))
 	 (residue-alt-confs imol chain-id res-no ins-code))))
 
@@ -179,8 +180,9 @@
 		       (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
 		       (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
 		       (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
-		       (with-auto-accept
-			(refine-auto-range imol chain-id res-no alt-conf))
+		       (with-no-backups imol
+					(with-auto-accept
+					 (refine-auto-range imol chain-id res-no alt-conf)))
 		       (rotate-y-scene 10 0.3))
 		     (residue-alt-confs imol chain-id res-no ins-code))))))))
     
@@ -201,8 +203,9 @@
 			 (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
 			 (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
 			 (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
-			 (with-auto-accept
-			  (refine-auto-range imol chain-id res-no alt-conf))
+			  (with-no-backups imol
+					   (with-auto-accept
+					    (refine-auto-range imol chain-id res-no alt-conf)))
 			 (rotate-y-scene 10 0.3))
 		       (residue-alt-confs imol chain-id res-no ins-code))
 		  (set-refine-ramachandran-angles current-rama-state)
