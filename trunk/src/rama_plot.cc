@@ -982,6 +982,7 @@ coot::rama_plot::map_mouse_pos(double x, double y) {
    // 
    if (!t.spec.unset_p()) {
 
+
       std::string residue_name;
       if (drawing_differences) {
 	 if (! t.mouse_over_secondary_set) { 
@@ -1005,12 +1006,13 @@ coot::rama_plot::map_mouse_pos(double x, double y) {
 	 coot::residue_spec_t next_res_spec(t.spec.chain,
 					    t.spec.resno+1,
 					    t.spec.insertion_code);
-	 util::phi_psi_t found_pp =
-	    phi_psi_model_sets[t.model_number].phi_psi.find(next_res_spec)->second;
 
-	 if (found_pp.is_filled()) {
+	 std::map<residue_spec_t, util::phi_psi_t>::const_iterator it = 
+	    phi_psi_model_sets[t.model_number].phi_psi.find(next_res_spec);
 
-	    std::string next_residue_name = found_pp.residue_name();
+	 if (it != phi_psi_model_sets[t.model_number].phi_psi.end()) { 
+
+	    std::string next_residue_name = it->second.residue_name();
 
 	    if (next_residue_name == "PRO")
 	       residue_name = "PRE-PRO";
@@ -1116,6 +1118,12 @@ coot::rama_plot::button_press_conventional (GtkWidget *widget, GdkEventButton *e
    if (event->button == 1) { 
 
       mouse_util_t t = mouse_point_check(x,y);
+
+      if (! t.spec.unset_p()) {
+	 if (! t.mouse_over_secondary_set) 
+	    std::cout << "   " << t.spec << "  "
+		      << phi_psi_model_sets[t.model_number].phi_psi[t.spec] << std::endl;
+      } 
 
       recentre_graphics_maybe(t);
 
