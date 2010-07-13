@@ -156,7 +156,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 		  current_res_name = card.words[2];
 	       else
 		  current_res_name = "";
-	       atom_vector.resize(0);
+	       atom_vector.clear();
 	    } else {
 
 	       if (card.words[0] == "AFIX") {
@@ -276,6 +276,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 									     current_res_name,
 									     current_res_no);
 				       chain->AddResidue(residue);
+				       atom_vector.clear();
 				    } else {
 				       if (card.words[0].substr(0, 4) == "WGHT") {
 					  // handle WGHT
@@ -567,14 +568,22 @@ coot::ShelxIns::read_file(const std::string &filename) {
 
 			for (int iat=0; iat<n_atoms; iat++) {
 			   at = residue_p->GetAtom(iat);
-// 			   std::cout << "Mol Hierarchy atom: " << at->name << " "
-// 				     << at->GetResName() << " " << at->GetSeqNum() << " "
-// 				     << at->x << " " <<  at->y << " " << at->z << std::endl;
-			   clipper::Coord_frac pf(at->x, at->y, at->z);
-			   clipper::Coord_orth po = pf.coord_orth(cell);
-			   at->x = po.x();
-			   at->y = po.y();
-			   at->z = po.z();
+			   if (! at) {
+			      std::cout << "Trapped a null atom for atom "
+					<< iat << " of residue " << coot::residue_spec_t(residue_p)
+					<< std::endl;
+			   } else {
+			      if (0) // debug
+				 std::cout << "Mol Hierarchy atom: " << iat << " "
+					   << " " << at->name << " "
+					   << at->GetResName() << " " << at->GetSeqNum() << " "
+					   << at->x << " " <<  at->y << " " << at->z << std::endl;
+			      clipper::Coord_frac pf(at->x, at->y, at->z);
+			      clipper::Coord_orth po = pf.coord_orth(cell);
+			      at->x = po.x();
+			      at->y = po.y();
+			      at->z = po.z();
+			   }
 			}
 		     }
 		  }

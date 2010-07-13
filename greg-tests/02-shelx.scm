@@ -271,3 +271,12 @@
 
 	     (all-true? (map close-float? b-1 b-2))))))))
 
+
+
+
+(greg-testcase "Don't crash on reading a strange HAT file" #t 
+   (lambda ()
+
+     (handle-read-draw-molecule-with-recentre (greg-pdb "crash.hat") 0)
+     #t))
+

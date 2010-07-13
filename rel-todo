@@ -5,17 +5,13 @@
 
     o change to rms z scores ::: 2
 
-    o Fix Marek's Rama plot outlier bug :::1 
-
-    o turn-off-backups is broken? JED ::: 1
-
-    o Marks NCS crash ::: 1
-
-    o Tim Gruene's hat file crash ::: 1
-
     o check/delete waters works? ::: 1
 
     o Ian Stokes-Rees ssm crash ::: 1
+
+    o Mark's NCS crash ::: 1
+
+* Done, I think, test at work.
 
 
 ------
@@ -586,8 +582,8 @@ WARNING:: Can't find file
     o Dima's Workshop data, Place helix here on helix 2 - pathetic
       failure! 
 
-      20100629: hmm that was on strange version in Erice.  Now it
-      works as expected.  ::: 1
+* 20100629: hmm that was on strange version in Erice.  Now it
+  works as expected.  ::: 1
 
     o BL: 2vtu and geometry validation? Crash. (No crash on UB) ::: 2
 
@@ -606,5 +602,22 @@ WARNING:: Can't find file
   position of the first, and there is a mismatch (not really an error)
   in the clicked residue and the spec for the insertion (it's one
   off).  Too bad.  Fix later.
+
+    o NCS maps overwrite existing, test fails now ::: 1
+
+* Fixed.
+
+    o turn-off-backups is broken? JED ::: 1
+
+* Not broken, not used (in fitting functions).  It is now.
+
+    o Fix Marek's Rama plot outlier bug :::1 
+
+* Done.
+
+    o Tim Gruene's hat file crash ::: 1
+
+* Done.
+
 
 -------
