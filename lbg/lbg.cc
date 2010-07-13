@@ -2466,7 +2466,7 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
 
    if (0)
       if (primary_index == 2) 
-	 show_grid(primary_grid, 0.3);
+	 show_grid(primary_grid);
    
    lig_build::pos_t best_pos = primary_grid.find_minimum_position();
 
@@ -2884,7 +2884,7 @@ lbg_info_t::solution_has_problems_p() const {
 
 
 void
-lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid, double contour_level) {
+lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid) {
 
    int n_objs = 0;
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
@@ -2903,8 +2903,6 @@ lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid, double contour_level)
 	 n_objs++;
       }
    }
-
-   grid.show_contour(root, contour_level);
 
    if (0) {  // debugging
       grid.show_contour(root, 0.4);
@@ -3977,8 +3975,7 @@ lbg_info_t::draw_substitution_contour() {
       } 
    }
 
-   // show_grid(grid, 0.5);
-   // grid.show_contour(root, 0.5);
+   show_grid(grid);
    grid.show_contour(root, 0.5, unlimited_atoms);
 }
 
@@ -3991,17 +3988,41 @@ lbg_info_t::ligand_grid::substitution_value(double r_squared, double bash_dist) 
    double D = bash_dist;
    double r = sqrt(r_squared);
 
-   if (r<1)
-      return 1; 
-   if (r<(D-1)) {
-      return 1;
-   } else {
-      if (r > D) { 
+   if (bash_dist < 1) {
+      // this is not in C&L, so this is an enhancement of their
+      // algorithm.  Without this there is non-smoothness as the
+      // contour follows the interface between 0 and 1.
+
+      // So we add a nice smooth slope (similar to that of
+      // conventional bash distances (below).  However we add a slope
+      // between +/- 0.2 of the bash distance.
+      //
+      double small = 0.2;
+      if (r > (D + small)) { 
 	 return 0;
       } else {
-	 // double v = 0.5*(1 + cos(0.5 *M_PI * (D-r))); // C&L - eh? typo/bug
-	 double v = 0.5 * (1.0 + cos(M_PI * (D-1-r)));
-	 return v;
+	 if (r < (D - small)) {
+	    return 1;
+	 } else {
+	    double m = (r-(D-small))/(2*small);
+	    return (0.5 * (1 + cos(M_PI * m)));
+	 } 
+      }
+
+   } else { 
+
+      if (r<1)
+	 return 1; 
+      if (r<(D-1)) {
+	 return 1;
+      } else {
+	 if (r > D) { 
+	    return 0;
+	 } else {
+	    // double v = 0.5*(1 + cos(0.5 *M_PI * (D-r))); // C&L - eh? typo/bug
+	    double v = 0.5 * (1.0 + cos(M_PI * (D-1-r)));
+	    return v;
+	 }
       }
    }
 }
