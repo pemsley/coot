@@ -3003,21 +3003,21 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
 		  if ((p - p1).lengthsq() < (dist_crit * dist_crit)) {
 		     if (1) { // for debugging
 			if (unlimited_atoms[i].has_ring_centre_flag) {
-			   std::cout << " atom " << i << " has ring_centre ";
+			   // std::cout << " atom " << i << " has ring_centre ";
 			   lig_build::pos_t d_1 =
 			      unlimited_atoms[i].ring_centre - unlimited_atoms[i].atom.atom_position;
 			   lig_build::pos_t d_2 = unlimited_atoms[i].atom.atom_position - p1;
 			   double cos_theta =
 			      lig_build::pos_t::dot(d_1, d_2)/(d_1.length()*d_2.length());
-			   std::cout << " cos_theta " << cos_theta;
+			   // std::cout << " cos_theta " << cos_theta;
 			   if (cos_theta > 0.0) { // only cut in the forwards direction
-			      std::cout << " cutting by unlimited atom " << i << " "
-					<< unlimited_atoms[i].atom.get_atom_name()
-					<< std::endl;
+			      // std::cout << " cutting by unlimited atom " << i << " "
+			      // << unlimited_atoms[i].atom.get_atom_name()
+			      // << std::endl;
 			      plot_it = 0;
 			      break;
 			   }
-			   std::cout << std::endl;
+			   // std::cout << std::endl;
 			
 			} else {
 			   plot_it = 0;
@@ -3751,7 +3751,7 @@ lbg_info_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
    if (residue_circle.residue_type != "HOH") { 
       if (residue_circle.se_diff_set()) {
 	 std::pair<double, double> se_pair = residue_circle.solvent_exposures();
-	 double radius_extra = (se_pair.second - se_pair.first) * 18;  // was 14;
+	 double radius_extra = (se_pair.second - se_pair.first) * 22;  // was 18, was 14;
 	 if (radius_extra > 0) {
 	    lig_build::pos_t to_lig_centre_uv = (ligand_centre - residue_circle.pos).unit_vector();
 	    lig_build::pos_t se_circle_centre = residue_circle.pos - to_lig_centre_uv * radius_extra;
@@ -3776,9 +3776,9 @@ lbg_info_t::get_residue_solvent_exposure_fill_colour(double r) const {
    std::string colour = "#8080ff";
    double step = 0.7;
    if (r > step)
-      colour = "#f0e0ff";
+      colour = "#e0e0ff";
    if (r > step * 2)
-      colour = "#e0d8ff";
+      colour = "#d8d8ff";
    if (r > step * 3)
       colour = "#d0d0ff";
    if (r > step * 4)
@@ -3914,8 +3914,8 @@ lbg_info_t::draw_substitution_contour() {
       int n_unlimited = 0;
       if (mol.atoms[iat].bash_distances.size()) { 
 	 for (unsigned int j=0; j<mol.atoms[iat].bash_distances.size(); j++) {
-	    std::cout << " bash_distances " << j << " " << mol.atoms[iat].bash_distances[j]
-		      << std::endl;
+// 	    std::cout << " bash_distances " << j << " " << mol.atoms[iat].bash_distances[j]
+// 		      << std::endl;
 	    if (! mol.atoms[iat].bash_distances[j].unlimited()) {
 	       sum_bash += mol.atoms[iat].bash_distances[j].dist;
 	       n_bash_distances++;
