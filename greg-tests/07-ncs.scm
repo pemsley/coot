@@ -232,6 +232,7 @@
 	   #t)))))
 
 
+
 (greg-testcase "NCS maps overwrite existing maps" #t 
    (lambda ()
 
@@ -255,6 +256,8 @@
        (all-true?
 	(map (lambda (chain-id)
 	       (let ((test-name (string-append 
+				 "Map "
+				 (number->string imol-map) " "
 				 "NCS found from matching Chain "
 				 chain-id
 				 " onto Chain A")))
@@ -262,10 +265,17 @@
 			    (n-matchers 0))
 		   (cond
 		    ((null? molecule-names)
-		     (format #t "==== ~s ~s~%" test-name n-matchers)
-		     (= n-matchers 2))
+		     (format #t "==== test-name: ~s   n-matchers: ~s~%" test-name n-matchers)
+		     (if (= n-matchers 2)
+			 #t ;; all good
+			 (begin ;; bad
+			   (format #t "   failed to match 2 molecule to ~s given names: ~%"
+				   test-name)
+			   (print-molecule-names)
+			   #f)))
 		    ((string=? test-name (car molecule-names))
 		     (loop (cdr molecule-names) (+ n-matchers 1)))
 		    (else
 		     (loop (cdr molecule-names) n-matchers))))))
 	     (list "B" "C" "D"))))))
+

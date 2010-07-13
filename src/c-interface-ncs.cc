@@ -340,8 +340,6 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
       if (is_valid_map_molecule(imol_map)) {
 	 float homology_lev = graphics_info_t::ncs_homology_level;
 
-	 // nmaps = graphics_info_t::molecules[imol_model].make_dynamically_transformed_maps(imol_map, graphics_info_t::ncs_maps_do_average_flag, graphics_info_t::ncs_homology_level);
-
 	 graphics_info_t g;
 	 if (g.molecules[imol_model].has_ncs_p() > 0) {
 	    if (g.molecules[imol_model].ncs_ghosts_have_rtops_p() == 0) {
@@ -354,8 +352,14 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
 	    g.molecules[imol_model].NCS_ghosts();
 	 for (unsigned int ighost=0; ighost<local_ncs_ghosts.size(); ighost++) {
 	    int imol = -1;// gets reset
+	    std::string ncs_map_name = "Map ";
+	    ncs_map_name += coot::util::int_to_string(imol_map);
+	    ncs_map_name += " ";
+	    ncs_map_name += local_ncs_ghosts[ighost].name;
+	    
 	    if (overwrite_maps_of_same_name_flag) { 
-	       int imap_ghost_existing = g.lookup_molecule_name(local_ncs_ghosts[ighost].name);
+	       int imap_ghost_existing = g.lookup_molecule_name(ncs_map_name);
+
 	       if (is_valid_map_molecule(imap_ghost_existing)) {
 		  imol = imap_ghost_existing;
 	       } else {
@@ -364,13 +368,8 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
 	    } else {
 	       imol = graphics_info_t::create_molecule();
 	    } 
-        std::string ncs_map_name = "Map ";
-        ncs_map_name += coot::util::int_to_string(imol_map);
-        ncs_map_name += " ";
-        ncs_map_name += local_ncs_ghosts[ighost].name;
 	    g.molecules[imol].install_ghost_map(g.molecules[imol_map].xmap_list[0],
-                                            //local_ncs_ghosts[ighost].name,
-						ncs_map_name,
+						ncs_map_name, // was local_ncs_ghosts[ighost].name?
 						local_ncs_ghosts[ighost],
 						g.molecules[imol_map].is_difference_map_p(),
 						g.swap_difference_map_colours,

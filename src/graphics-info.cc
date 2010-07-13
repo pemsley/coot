@@ -2563,13 +2563,19 @@ graphics_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &pos_po
    }
 }
 
-// return -1 on error
+// return -1 on no such map.
 int
 graphics_info_t::lookup_molecule_name(const std::string &molname) const {
    
    for (int imol=0; imol<n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].name_ == molname) {
-	 return imol;
+      if (is_valid_map_molecule(imol) || (is_valid_model_molecule(imol))) {
+	 if (0)
+	    std::cout << "comparing map names:\n     :"
+		      << graphics_info_t::molecules[imol].name_ << ":\n   "
+		      << "  :" << molname << ":" << std::endl;
+	 if (graphics_info_t::molecules[imol].name_ == molname) {
+	    return imol;
+	 }
       }
    }
    return -1;
