@@ -2012,7 +2012,22 @@ coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_referenc
    float radius = 6.0;
    std::vector<CResidue *> env_residues =
       coot::residues_near_residue(residue_reference, mol_reference, radius);
+   bool debug = 0;
 
+   if (debug) { 
+      std::cout << "named torsion: " << named_torsions.size() << std::endl;
+      for (unsigned int i=0; i<named_torsions.size(); i++) {
+	 std::cout << "  " << i
+		   << named_torsions[i].base_atom_name << "  "
+		   << named_torsions[i].atom_name_2 << "  "
+		   << named_torsions[i].atom_name_bonded_to_H << "  "
+		   << named_torsions[i].dist << "  "
+		   << named_torsions[i].angle << "  "
+		   << named_torsions[i].torsion << "  "
+		   << std::endl;
+      }
+   }
+   
    for (unsigned int i=0; i<named_torsions.size(); i++) {
       try {
 	 if (named_torsions[i].hydrogen_type == coot::H_IS_RIDING) {
@@ -2053,7 +2068,11 @@ coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_referenc
 	       coot::bash_distance_t bash = find_bash_distance(pt_base_and_H.first,
 							       pt_base_and_H.second,
 							       atoms);
-	    atom_bashes[named_torsions[i].atom_name_bonded_to_H].push_back(bash);
+	       if (debug)
+		  std::cout << "Adding bash distance " << bash << " to atom "
+			    << named_torsions[i].atom_name_bonded_to_H
+			    << std::endl;
+	       atom_bashes[named_torsions[i].atom_name_bonded_to_H].push_back(bash);
 	    }
 	 }
       }
