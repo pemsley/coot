@@ -829,6 +829,10 @@ class molecule_class_info_t {
    // (expand molecule space) test.
    bool original_fphis_filled;
    clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
+   bool original_fobs_sigfobs_filled;
+   clipper::HKL_data< clipper::datatypes::F_sigF<float> > original_fobs_sigfobs;
+   void fill_fobs_sigfobs();
+
 
    // for quads/triangle strip for the bond representation (rather
    // than gl_lines).
@@ -984,6 +988,8 @@ public:        //                      public
 
       // original Fs saved? (could be from map)
       original_fphis_filled = 0;
+      original_fobs_sigfobs_filled = 0;
+      
 
       //  bond width (now changeable).
       bond_width = 3.0;
@@ -2588,9 +2594,12 @@ public:        //                      public
    // EM map function
    int scale_cell(float fac_u, float fac_v, float fac_w);
 
+   // Shall we try to use gompertz correction factor (based on f/sigf
+   // (should be I/sigI, ideally).  Try to use gompertz if it is
+   // available.  Gompertz factor is by default set so that an f/sigf
+   // of 3 will result in 50% correction.
    // 
-   void sharpen(float b_factor);
-   void sharpen_using_orig_fphis(float b_factor);
+   void sharpen(float b_factor, bool gompertz, float gompertz_factor);
 
    // reorder the chains in the models
    void sort_chains();
