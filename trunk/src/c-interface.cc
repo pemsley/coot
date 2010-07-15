@@ -8206,7 +8206,18 @@ void do_surface(int imol, int state) {
 void sharpen(int imol, float b_factor) {
 
    if (is_valid_map_molecule(imol)) {
-      graphics_info_t::molecules[imol].sharpen(b_factor);
+      graphics_info_t::molecules[imol].sharpen(b_factor, 0, 0);
+      graphics_draw();
+   }
+}
+
+void sharpen_with_gompertz_scaling(int imol, float b_factor,
+				   short int do_gompertz_scaling_flag,
+				   float gompertz_factor) {
+
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].sharpen(b_factor, do_gompertz_scaling_flag,
+					       gompertz_factor);
       graphics_draw();
    }
 }

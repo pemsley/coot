@@ -5775,6 +5775,7 @@ PyObject *user_mods_py(const char *file_name);
 /*! \brief Sharpen map imol by b_factor (note (of course) that positive numbers 
     blur the map).  */
 void sharpen(int imol, float b_factor);
+void sharpen_with_gompertz_scaling(int imol, float b_factor, short int try_gompertz, float gompertz_factor);
 
 GtkWidget *wrapped_create_map_shapening_dialog();
 void map_sharpening_map_select(GtkWidget *item, GtkPositionType pos);

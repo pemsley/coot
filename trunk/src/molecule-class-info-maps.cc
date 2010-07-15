@@ -1,10 +1,9 @@
-/* src/molecule-class-info.h
+/* src/molecule-class-info-maps.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2007 by Paul Emsley
- * Copyright 2007, 2008 by The University of Oxford
+ * Copyright 2007, 2008, 2009, 2010 by The University of Oxford
  * 
- * Copyright 2008 The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -71,13 +70,30 @@
 #include "coot-map-heavy.hh"
 #include "ligand.hh"
 
+// 
 void
-molecule_class_info_t::sharpen(float b_factor) {
+molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz_factor) {
 
    int n_data = 0;
    int n_tweaked = 0;
    int n_count = 0;
    bool debugging = 0;
+
+   bool do_gompertz = 0;
+   if (try_gompertz) {
+      if (original_fobs_sigfobs_filled) {
+	 do_gompertz = 1;
+      } else {
+	 if (have_sensible_refmac_params) {
+	    fill_fobs_sigfobs(); // sets original_fobs_sigfobs_filled
+	    if (have_sensible_refmac_params) {
+	       if (original_fobs_sigfobs_filled) {
+		  do_gompertz = 1;
+	       }
+	    } 
+	 }
+      }
+   } 
 
    if (original_fphis_filled) { 
       if (debugging) 
@@ -130,7 +146,15 @@ molecule_class_info_t::sharpen(float b_factor) {
 			    << "*" << irs << ") = " << exp(-b_factor * irs)
 			    << std::endl;
 	    }
-	    fphis[hri].f() *= exp(-b_factor * irs);
+	    float gompertz_scale = 1.0;
+	    if (do_gompertz) { 
+	       float f_obs = original_fobs_sigfobs[hri].f();
+	       float sig_f = original_fobs_sigfobs[hri].sigf();
+	       if (! clipper::Util::is_nan(sig_f)) {
+		  float ratio = f_obs/sig_f;
+	       } 
+	    }
+	    fphis[hri].f() *= exp(-b_factor * irs) * gompertz_scale;
 	    n_tweaked++;
 	 } 
       }
@@ -207,6 +231,29 @@ molecule_class_info_t::update_map_in_display_control_widget() const {
 				    dmn.c_str(),
 				    imol_no);
 
+}
+
+
+void
+molecule_class_info_t::fill_fobs_sigfobs() {
+
+   // set original_fobs_sigfobs_filled when done
+   
+   if (have_sensible_refmac_params) {
+
+      std::pair<std::string, std::string> p =
+	 make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
+
+//       std::cout << "make_import_datanames returns "
+// 		<< p.first << " " << p.second << std::endl;
+      clipper::CCP4MTZfile mtzin; 
+      mtzin.open_read(Refmac_mtz_filename());
+      clipper::HKL_data< clipper::datatypes::F_sigF<float> >  f_sigf_data;
+      mtzin.import_hkl_data(f_sigf_data, p.first);
+      mtzin.close_read();
+      if (f_sigf_data.num_obs() > 100) 
+	 original_fobs_sigfobs_filled = 1;
+   } 
 } 
 
 void
