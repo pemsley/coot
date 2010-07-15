@@ -5690,6 +5690,15 @@ Fri Jun 11 11:56:15 CEST 2010
    debora makino - elena conti's lab.
 
 
+------
+
+> How do you shutdown coot such that it doesn't test whether backups are
+> needed?
+>
+> (define clear-backups-maybe (lambda () (delete-coot-backup-files
+> 'delete) #f))
+
+Add to docs.
 
 ------
 

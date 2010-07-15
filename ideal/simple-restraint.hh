@@ -637,6 +637,36 @@ namespace coot {
 		      int cif_dictionary_read_number);
       
    
+   class extra_restraints_t {
+
+   public:
+
+      class extra_bond_restraint_t {
+      public:
+	 atom_spec_t atom_1;
+	 atom_spec_t atom_2;
+	 double bond_dist;
+	 double esd;
+	 extra_bond_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2, double d, double e) {
+	    atom_1 = a1;
+	    atom_2 = a2;
+	    bond_dist = d;
+	    esd = e;
+	 } 
+      };
+
+      std::vector<extra_bond_restraint_t> bond_restraints;
+
+      bool has_restraints() const {
+
+	 // for now, only bond restraints
+	 
+	 if (bond_restraints.size() > 0)
+	    return 1;
+	 else
+	    return 0;
+      } 
+   };
 
 
    // -------------------------------------------------------------------------
@@ -1364,6 +1394,8 @@ namespace coot {
 			  float rama_plot_target_weight,
 			  bool do_rama_plot_retraints, 
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
+
+      void add_extra_restraints(const extra_restraints_t &extra_restraints);
 
       // old code:
       // Read restraints from the refmac .rst file

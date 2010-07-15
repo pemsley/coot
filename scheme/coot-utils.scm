@@ -87,7 +87,8 @@
 (define nearest-residue-by-sequence nearest-residue-by-sequence-scm)
 (define set-torsion set-torsion-scm)
 (define get-map-colour get-map-colour-scm)
-
+(define list-extra-restraints list-extra-restraints-scm)
+(define delete-extra-restraint delete-extra-restraint-scm)
 
 ;; documented functions
 

@@ -333,6 +333,7 @@ coot_real_SOURCES = \
 	molecule-class-info.h 	        \
 	molecule-class-info-mutate.cc 	\
 	molecule-class-info-residues.cc \
+	molecule-class-info-refine.cc   \
 	molecule-class-info-surface.cc 	\
 	molecule-class-info-ncs.cc 	\
 	molecule-class-info-widget-work.cc \

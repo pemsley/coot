@@ -7,11 +7,18 @@
 
     o check/delete waters works? ::: 1
 
+* Works for me - pending reply from Subhangi Ghosh 
+
     o Ian Stokes-Rees ssm crash ::: 1
+
+* Pending reply from Ian.
 
     o Mark's NCS crash ::: 1
 
 * Done, I think, test at work.
+
+
+    o make coot-crash-catcher know about --no-graphics
 
 
 ------

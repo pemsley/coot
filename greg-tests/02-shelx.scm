@@ -277,6 +277,6 @@
 (greg-testcase "Don't crash on reading a strange HAT file" #t 
    (lambda ()
 
-     (handle-read-draw-molecule-with-recentre (greg-pdb "crash.hat") 0)
+     (handle-read-draw-molecule-with-recentre (append-dir-file greg-data-dir "crash.hat") 0)
      #t))
 
