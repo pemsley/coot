@@ -10,8 +10,9 @@
 
   
 
-(define (user-defined-add-single-bond)
+(define (user-defined-add-single-bond-restraint)
 
+  (add-status-bar-text "Click on 2 atoms to define the additional bond restraint")
   (user-defined-click 2 
 		      (lambda (atom-specs)
 			(if (= (cadr (list-ref atom-specs 0))
@@ -34,6 +35,43 @@
 							(list-ref (list-ref atom-specs 1) 5)
 							(list-ref (list-ref atom-specs 1) 6)
 							1.54 0.02))))))
+
+(define (user-defined-add-arbitrary-length-bond-restraint)
+  (generic-single-entry "Add a User-defined extra bond restraint"
+			"2.0"
+			"Next..."
+			(lambda (text) 
+			  (let ((s  "Now click on 2 atoms to define the additional bond restraint"))
+			    (add-status-bar-text s))
+			  (let ((bl (string->number text)))
+			    (if (not (number? bl))
+				(add-status-bar-text "Must define a number for the bond length")
+
+				(user-defined-click 
+				 2 
+				 (lambda (atom-specs)
+				   (if (= (cadr (list-ref atom-specs 0))
+					  (cadr (list-ref atom-specs 1)))
+				       (let ((imol (cadr (list-ref atom-specs 0))))
+					 (format #t "imol: ~s   spec-1: ~s   spec-2: ~s~% "
+						 imol
+						 (list-ref atom-specs 0)
+						 (list-ref atom-specs 1))
+					 
+					 (add-extra-bond-restraint 
+					  imol
+					  (list-ref (list-ref atom-specs 0) 2)
+					  (list-ref (list-ref atom-specs 0) 3)
+					  (list-ref (list-ref atom-specs 0) 4)
+					  (list-ref (list-ref atom-specs 0) 5)
+					  (list-ref (list-ref atom-specs 0) 6)
+					  (list-ref (list-ref atom-specs 1) 2)
+					  (list-ref (list-ref atom-specs 1) 3)
+					  (list-ref (list-ref atom-specs 1) 4)
+					  (list-ref (list-ref atom-specs 1) 5)
+					  (list-ref (list-ref atom-specs 1) 6)
+					  bl 0.05))))))))))
+
 
 (define (add-base-restraint imol spec-1 spec-2 atom-name-1 atom-name-2 dist)
   (add-extra-bond-restraint imol
@@ -146,8 +184,12 @@
     (let* ((menu (coot-menubar-menu "Extras")))
       
       (add-simple-coot-menu-menuitem 
-       menu "Add Single Bond..."
-       user-defined-add-single-bond)
+       menu "Add Simple C-C Single Bond Restraint..."
+       user-defined-add-single-bond-restraint)
+
+      (add-simple-coot-menu-menuitem 
+       menu "Add Bond Restraint..."
+       user-defined-add-arbitrary-length-bond-restraint)
 
       (add-simple-coot-menu-menuitem 
        menu "Add Helix Restraints..."
