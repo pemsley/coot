@@ -62,6 +62,8 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 
 #include "protein-geometry.hh"
 
+#include "simple-restraint.hh" // for extra restraints.
+
 
 #include "validation-graphs.hh"  // GTK things, now part of
 				 // molecule_class_info_t, they used
@@ -500,7 +502,22 @@ namespace coot {
        display_list_handle = handle;
      } 
    };
-}
+
+   // ------------ extra restraints (e.g. user-defined) ------------
+   //
+   class extra_extraints_representation_t {
+   public:
+      std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > bonds;
+      void clear() {
+	 bonds.clear();
+      }
+      void add_bond(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) {
+	 bonds.push_back(std::pair<clipper::Coord_orth, clipper::Coord_orth>(pt1, pt2));
+      }
+   };
+
+} // namespace coot
+
 
 
 // Forward declaration
@@ -1544,12 +1561,16 @@ public:        //                      public
    int atom_spec_to_atom_index(std::string chain, int reso, 
 			       std::string atom_name) const;
    
+   // return -1 if atom not found
+   // 
    int full_atom_spec_to_atom_index(const std::string &chain,
 				    int reso,
 				    const std::string &insersion_code,
 				    const std::string &atom_name,
 				    const std::string &alt_conf) const;
 
+   // return -1 if atom not found
+   // 
    int full_atom_spec_to_atom_index(const coot::atom_spec_t &spec) const;
 
    int atom_to_atom_index(CAtom *at) const;
@@ -2674,6 +2695,18 @@ public:        //                      public
       dots_colour[1] = g;
       dots_colour[2] = b;
    }
+
+   coot::extra_restraints_t extra_restraints;
+   coot::extra_extraints_representation_t extra_restraints_representation;
+   void draw_extra_restraints_representation();
+   
+   // return an index of the new restraint
+   int add_extra_bond_restraint(coot::atom_spec_t atom_1,
+				coot::atom_spec_t atom_2,
+				double bond_dist, double esd);
+   // the atom specs do not need to be in order
+   void remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2);
+   void update_extra_restraints_representation(); // called from make_bonds_type_checked()
 
 };
 

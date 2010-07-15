@@ -3190,6 +3190,26 @@ int set_imol_refinement_map(int imol);	/* returns imol on success, otherwise -1 
 */
 int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode); 
 
+/*! \brief add a user-define bond restraint
+
+   to be used when the given atoms are selected.  */
+int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, double bond_dist, double esd);
+
+
+#ifdef __cplusplus
+#ifdef USE_GUILE		
+/* restraint_spec is something like (list 'bond spec-1 spec-2)
+
+  spec-1 and spec-2 do not have to be in the order that the bond was created.  */
+void delete_extra_restraint_scm(int imol, SCM restraint_spec);
+SCM list_extra_restraints_scm(int imol);
+#endif	/* USE_GUILE */
+#ifdef USE_PYTHON
+PyObject *list_extra_restraints_py(int imol);
+#endif /* USE_PYTHON */
+#endif /*  __cplusplus */
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  Restraints editor                                       */
 /*  ----------------------------------------------------------------------- */

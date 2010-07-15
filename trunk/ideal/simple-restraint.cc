@@ -6974,6 +6974,111 @@ coot::restraints_container_t::info() const {
 } 
 
 
+void
+coot::restraints_container_t::add_extra_restraints(const extra_restraints_t &extra_restraints) {
+
+   // don't add the restraint if both the residues are fixed.
+   // 
+   for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
+      CResidue *r_1 = NULL;
+      CResidue *r_2 = NULL;
+      CAtom *at_1 = 0;
+      CAtom *at_2 = 0;
+      bool fixed_1 = 0;
+      bool fixed_2 = 0;
+      if (from_residue_vector) {
+	 for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_1) ==
+		coot::residue_spec_t(residues_vec[ir].second)) {
+	       r_1 = residues_vec[ir].second;
+	       fixed_1 = residues_vec[ir].first;
+	    }
+	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_2) ==
+		coot::residue_spec_t(residues_vec[ir].second)) {
+	       r_2 = residues_vec[ir].second;
+	       fixed_2 = residues_vec[ir].first;
+	    }
+	 }
+      } else {
+
+	 // bleugh.
+	 int selHnd = mol->NewSelection();
+	 mol->Select (selHnd, STYPE_RESIDUE, 1,       // .. TYPE, iModel
+		      (char *) chain_id_save.c_str(), // Chain(s)
+		      istart_res, "*", // starting res
+		      iend_res,   "*", // ending   res
+		      "*",  // residue name
+		      "*",  // Residue must contain this atom name?
+		      "*",  // Residue must contain this Element?
+		      "*",  // altLocs
+		      SKEY_NEW // selection key
+		      );
+	 int nSelResidues_local = 0;
+	 PPCResidue SelResidue_local= 0;
+	 mol->GetSelIndex (selHnd, SelResidue_local, nSelResidues_local);
+	 for (int ir=0; ir<nSelResidues_local; ir++) {
+	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_1) ==
+		coot::residue_spec_t(SelResidue_local[ir])) {
+	       r_1 = SelResidue_local[ir];
+	       fixed_1 = residues_vec[ir].first;
+	    }
+	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_2) ==
+		coot::residue_spec_t(SelResidue_local[ir])) {
+	       r_2 = SelResidue_local[ir];
+	       fixed_2 = residues_vec[ir].first;
+	    }
+	 } 
+	 mol->DeleteSelection(selHnd);
+
+      }
+      
+      if (r_1 && r_2) {
+	 if (! (fixed_1 && fixed_2)) {
+	    PPCAtom residue_atoms_1 = 0;
+	    PPCAtom residue_atoms_2 = 0;
+	    int n_residue_atoms_1;
+	    int n_residue_atoms_2;
+	    r_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+	    r_2->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+
+	    for (unsigned int iat=0; iat<n_residue_atoms_1; iat++) { 
+	       std::string atom_name_1(residue_atoms_1[iat]->name);
+	       if (atom_name_1 == extra_restraints.bond_restraints[i].atom_1.atom_name) {
+		  std::string alt_loc_1(residue_atoms_1[iat]->altLoc);
+		  if (alt_loc_1 == extra_restraints.bond_restraints[i].atom_1.alt_conf) {
+		     at_1 = residue_atoms_1[iat];
+		     break;
+		  }
+	       }
+	    }
+	    for (unsigned int iat=0; iat<n_residue_atoms_2; iat++) { 
+	       std::string atom_name_2(residue_atoms_2[iat]->name);
+	       if (atom_name_2 == extra_restraints.bond_restraints[i].atom_2.atom_name) {
+		  std::string alt_loc_2(residue_atoms_2[iat]->altLoc);
+		  if (alt_loc_2 == extra_restraints.bond_restraints[i].atom_2.alt_conf) {
+		     at_2 = residue_atoms_2[iat];
+		     break;
+		  }
+	       }
+	    }
+
+	    if (at_1 && at_2) {
+	       int index_1 = -1; 
+	       int index_2 = -1;
+	       at_1->GetUDData(udd_atom_index_handle, index_1);
+	       at_2->GetUDData(udd_atom_index_handle, index_2);
+	       std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
+	       add(BOND_RESTRAINT, index_1, index_2, fixed_flags,
+		   extra_restraints.bond_restraints[i].bond_dist,
+		   extra_restraints.bond_restraints[i].esd,
+		   1.2 /* dummy value */);
+		  
+	    } 
+	 } 
+      } 
+   }
+}
+
 
 
 #endif // HAVE_GSL

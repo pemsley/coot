@@ -64,6 +64,8 @@
 (define handle-pisa-interfaces-scm #f)
 (define space-group-scm #f)
 (define nearest-residue-by-sequence-scm #f)
+(define list-extra-restraints-scm #f)
+(define delete-extra-restraint-scm #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")

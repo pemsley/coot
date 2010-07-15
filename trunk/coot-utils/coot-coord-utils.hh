@@ -85,7 +85,12 @@ namespace coot {
       float float_user_data;
       std::string string_user_data;
       int model_number;
-      atom_spec_t() {}
+      atom_spec_t() {
+	 chain = "unset";
+	 resno = MinInt4;
+	 insertion_code = "";
+	 model_number = -1;
+      }
       atom_spec_t(const std::string &chain_in,
 		  int resno_in,
 		  const std::string &insertion_code_in,

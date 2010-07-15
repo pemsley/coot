@@ -41,6 +41,8 @@
 
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "c-interface-scm.hh" // for display_scm
+
 
 
 /*  ----------------------------------------------------------------------- */
@@ -329,3 +331,87 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 }
 #endif // USE_PYTHON
 
+/*! \brief add a user-define bond restraint
+
+   to be used when the given atoms are selected.  */
+int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, double bond_dist, double esd) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t as_1(chain_id_1, res_no_1, ins_code_1, atom_name_1, alt_conf_1);
+      coot::atom_spec_t as_2(chain_id_2, res_no_2, ins_code_2, atom_name_2, alt_conf_2);
+      r = graphics_info_t::molecules[imol].add_extra_bond_restraint(as_1, as_2, bond_dist, esd);
+      graphics_draw();
+   }
+   return r;
+
+} 
+
+
+#ifdef USE_GUILE
+SCM list_extra_restraints_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g; // just because it's shorter
+      if (graphics_info_t::molecules[imol].extra_restraints.has_restraints()) {
+	 // reverse loop, put them in backwards (schemey thing)
+	 r = SCM_EOL;
+	 for (int ib=g.molecules[imol].extra_restraints.bond_restraints.size()-1; ib>=0; ib--) {
+	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.bond_restraints[ib].atom_1;
+	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.bond_restraints[ib].atom_2;
+	    double d = g.molecules[imol].extra_restraints.bond_restraints[ib].bond_dist;
+	    double esd = g.molecules[imol].extra_restraints.bond_restraints[ib].esd;
+	    SCM spec_1_scm = atom_spec_to_scm(spec_1);
+	    SCM spec_2_scm = atom_spec_to_scm(spec_2);
+	    SCM l = scm_list_4(spec_1_scm, spec_2_scm, scm_double2num(d), scm_double2num(esd));
+	    r = scm_cons(l, r);
+	 }
+      }
+   }
+   return r;
+} 
+#endif	/* USE_GUILE */
+
+
+#ifdef USE_PYTHON
+PyObject *list_extra_restraints_py(int imol) {
+
+   PyObject *v = Py_False;
+
+   return v;
+
+} 
+#endif	/* USE_PYTHON */
+
+
+#ifdef USE_GUILE
+void
+delete_extra_restraint_scm(int imol, SCM restraint_spec) {
+
+   // for a bond restraint, the restraint_spec is something like:
+   // (list restraint-type spec-1 spec-2)
+   //
+   // where restraint-type is a symbol, in the case of a bond
+   // restraint is 'bond
+   //
+   //
+   if (scm_is_true(scm_list_p(restraint_spec))) { 
+      SCM restraint_spec_length_scm = scm_length(restraint_spec);
+      int restraint_spec_length = scm_to_int(restraint_spec_length_scm);
+      if (restraint_spec_length == 3) {
+	 SCM restraint_type_scm = SCM_CAR(restraint_spec);
+	 SCM spec_1_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(1));
+	 SCM spec_2_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(2));
+	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_str2symbol("bond")))) {
+	    coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(spec_1_scm);
+	    coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(spec_2_scm);
+	    graphics_info_t::molecules[imol].remove_extra_bond_restraint(spec_1, spec_2);
+	    graphics_draw();
+	 }
+      }
+   }
+   
+} 
+#endif // USE_GUILE

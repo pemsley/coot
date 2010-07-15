@@ -747,6 +747,7 @@ SCM generic_int_vector_to_list_internal(const std::vector<int> &v);
 std::vector<std::string> generic_list_to_string_vector_internal(SCM l);
 SCM rtop_to_scm(const clipper::RTop_orth &rtop);
 SCM inverse_rtop_scm(SCM rtop_scm);
+// expects an expr of length 5, ie: (list chain-id res-no ins-cod atom-name alt-conf)
 coot::atom_spec_t atom_spec_from_scm_expression(SCM expr);
 SCM atom_spec_to_scm(const coot::atom_spec_t &spec);
 #endif	/* USE_GUILE */

@@ -847,6 +847,27 @@ molecule_class_info_t::update_symmetry() {
    }
 }
 
+void
+molecule_class_info_t::draw_extra_restraints_representation() {
+
+   if (drawit) { 
+      if (extra_restraints_representation.bonds.size() > 0) { 
+	 glLineWidth(2.0);
+	 glColor3f(0.6, 0.6, 0.8);
+	 glBegin(GL_LINES);
+	 for (unsigned int ib=0; ib<extra_restraints_representation.bonds.size(); ib++) {
+	    glVertex3f(extra_restraints_representation.bonds[ib].first.x(),
+		       extra_restraints_representation.bonds[ib].first.y(),
+		       extra_restraints_representation.bonds[ib].first.z());
+	    glVertex3f(extra_restraints_representation.bonds[ib].second.x(),
+		       extra_restraints_representation.bonds[ib].second.y(),
+		       extra_restraints_representation.bonds[ib].second.z());
+	 }
+	 glEnd();
+      }
+   }
+} 
+
 //
 void
 molecule_class_info_t::draw_coord_unit_cell(const coot::colour_holder &cell_colour) {
@@ -2694,6 +2715,7 @@ molecule_class_info_t::make_bonds_type_checked() {
    update_additional_representations(glci);
    update_fixed_atom_positions();
    update_ghosts();
+   update_extra_restraints_representation();
 }
 
 void
@@ -2781,6 +2803,70 @@ std::vector<coot::atom_spec_t>
 molecule_class_info_t::get_fixed_atoms() const {
    return fixed_atom_specs;
 }
+
+void
+molecule_class_info_t::update_extra_restraints_representation() {
+
+   extra_restraints_representation.clear();
+   for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
+      CAtom *at_1 = NULL;
+      CAtom *at_2 = NULL;
+      clipper::Coord_orth p1(0,0,0);
+      clipper::Coord_orth p2(0,0,0);
+      bool ifound_1 = 0;
+      bool ifound_2 = 0;
+      int ifast_index_1 = extra_restraints.bond_restraints[i].atom_1.int_user_data;
+      int ifast_index_2 = extra_restraints.bond_restraints[i].atom_2.int_user_data;
+
+      // set p1 from ifast_index_1 (if possible)
+      // 
+      if (ifast_index_1 != -1) {
+	 if (ifast_index_1 < atom_sel.n_selected_atoms) { 
+	    at_1 = atom_sel.atom_selection[ifast_index_1];
+	    if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
+	       p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+	       ifound_1 = 1;
+	    }
+	 }
+      }
+      if (! ifound_1) {
+	 int idx = full_atom_spec_to_atom_index(extra_restraints.bond_restraints[i].atom_1);
+	 if (idx != -1) { 
+	    at_1 = atom_sel.atom_selection[idx];
+	    if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
+	       p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+	       ifound_1 = 1;
+	    }
+	 }
+      }
+
+      // set p2 from ifast_index_2 (if possible)
+      // 
+      if (ifast_index_2 != -1) {
+	 if (ifast_index_2 < atom_sel.n_selected_atoms) { 
+	    at_2 = atom_sel.atom_selection[ifast_index_2];
+	    if (extra_restraints.bond_restraints[i].atom_2.matches_spec(at_2)) {
+	       p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
+	       ifound_2 = 1;
+	    }
+	 }
+      }
+      if (! ifound_2) {
+	 int idx = full_atom_spec_to_atom_index(extra_restraints.bond_restraints[i].atom_2);
+	 if (idx != -1) { 
+	    at_2 = atom_sel.atom_selection[idx];
+	    if (extra_restraints.bond_restraints[i].atom_2.matches_spec(at_2)) {
+	       p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
+	       ifound_2 = 1;
+	    }
+	 }
+      }
+
+      if (ifound_1 && ifound_2) {
+	 extra_restraints_representation.add_bond(p1, p2);
+      } 
+   }
+} 
 
 
 // export the molecule in atom_selection_container_t atom_sel;
