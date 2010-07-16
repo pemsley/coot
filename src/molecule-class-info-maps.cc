@@ -77,7 +77,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
    int n_data = 0;
    int n_tweaked = 0;
    int n_count = 0;
-   bool debugging = 0;
+   bool debugging = 1;
 
    bool do_gompertz = 0;
    if (try_gompertz) {
@@ -101,6 +101,16 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       if (debugging) 
 	 std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
 		   << " original data " << std::endl;
+
+      if (debugging)
+	 if (do_gompertz) { 
+	    std::cout << "DEBUG:: do_gompertz: " << do_gompertz << " with "
+		      << original_fobs_sigfobs.num_obs() << " F,sigF reflections"
+		      << std::endl;
+	 } else {
+	    std::cout << "DEBUG:: no gompertz F/sigF scaling " << std::endl;
+	 } 
+      
 
       clipper::HKL_info::HKL_reference_index hri;
       for (hri = original_fphis.first(); !hri.last(); hri.next()) {
@@ -273,17 +283,15 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 
       std::pair<std::string, std::string> p =
 	 make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
-
-//       std::cout << "make_import_datanames returns "
-// 		<< p.first << " " << p.second << std::endl;
       clipper::CCP4MTZfile mtzin; 
       mtzin.open_read(Refmac_mtz_filename());
-      clipper::HKL_data< clipper::datatypes::F_sigF<float> >  f_sigf_data;
-      mtzin.import_hkl_data(f_sigf_data, p.first);
+      mtzin.import_hkl_data(original_fobs_sigfobs, p.first);
       mtzin.close_read();
-      if (f_sigf_data.num_obs() > 100) 
+      std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
+		<< original_fobs_sigfobs.num_obs() << " data" << std::endl;
+      if (original_fobs_sigfobs.num_obs() > 100) 
 	 original_fobs_sigfobs_filled = 1;
-   } 
+   }
 } 
 
 void
