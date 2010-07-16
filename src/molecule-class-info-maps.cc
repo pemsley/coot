@@ -523,7 +523,46 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 	 set_diff_map_draw_vecs(v.data, v.size);
       }
    }
+
+   if (draw_it_for_solid_density_surface) { // perhaps this should not be tested.
+      tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap_list[0],
+							  contour_level[0],
+							  dy_radius, centre,
+							  isample_step);
+   } 
 }
+
+void
+molecule_class_info_t::draw_solid_density_surface() const {
+
+   if (draw_it_for_solid_density_surface) {
+
+      glEnable (GL_BLEND);
+      glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+
+      glBegin(GL_TRIANGLES);
+
+      glColor4f(0.6, 0.6, 0.7, 0.6);
+      // tglColor3f(0.6, 0.6, 0.7);
+
+      for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+	 
+	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[0]].x(),
+		       tri_con.points[tri_con.point_indices[i].pointID[0]].y(),
+		       tri_con.points[tri_con.point_indices[i].pointID[0]].z());
+	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[1]].x(),
+		       tri_con.points[tri_con.point_indices[i].pointID[1]].y(),
+		       tri_con.points[tri_con.point_indices[i].pointID[1]].z());
+	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[2]].x(),
+		       tri_con.points[tri_con.point_indices[i].pointID[2]].y(),
+		       tri_con.points[tri_con.point_indices[i].pointID[2]].z());
+
+      }
+      glEnd();
+   } 
+}
+
+
 
 // modify v
 void
