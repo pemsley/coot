@@ -89,7 +89,9 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 	    if (have_sensible_refmac_params) {
 	       if (original_fobs_sigfobs_filled) {
 		  do_gompertz = 1;
-	       }
+	       } else {
+		  std::cout << "WARNING:: Failure to read in F, sigF data" << std::endl;
+	       } 
 	    } 
 	 }
       }
@@ -130,7 +132,9 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 	 std::cout << "INFO:: sharpening " << original_fphis.num_obs() << " "
 		   << fphis.num_obs() << " data " << std::endl;
 
-      n_count = 0; 
+      n_count = 0;
+      int n_gompertz_count = 0;
+      double gompertz_sum = 0.0; // for checking values
       for (hri = fphis.first(); !hri.last(); hri.next()) {
 	 n_data++;
 
@@ -147,16 +151,42 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 			    << std::endl;
 	    }
 	    float gompertz_scale = 1.0;
-	    if (do_gompertz) { 
-	       float f_obs = original_fobs_sigfobs[hri].f();
-	       float sig_f = original_fobs_sigfobs[hri].sigf();
-	       if (! clipper::Util::is_nan(sig_f)) {
-		  float ratio = f_obs/sig_f;
+	    if (do_gompertz) {
+	       try { 
+		  clipper::datatypes::F_sigF<float> fsigf;		  
+		  bool ok = original_fobs_sigfobs.get_data(hri.hkl(), fsigf);
+		  if (ok) { 
+		     if (! clipper::Util::is_nan(fsigf.sigf())) {
+			float ratio = fsigf.f()/fsigf.sigf();
+			// gompertz function
+			// y = ae^{be^{ct}}
+			// a is 1.0 obviously.
+			float b = -5;
+			float c = 0.6586; // such that y is 0.5 for t = 3
+			// c = -2; // test value
+			gompertz_scale = exp(b*exp(-c*ratio));
+			n_gompertz_count++;
+			gompertz_sum += gompertz_scale;
+		     }
+		  }
+	       }	 
+	       catch (clipper::Message_base exc) { 
+		  std::cout << "Caught something" << std::endl;
 	       } 
 	    }
 	    fphis[hri].f() *= exp(-b_factor * irs) * gompertz_scale;
 	    n_tweaked++;
 	 } 
+      }
+      if (do_gompertz) { 
+	 if (n_gompertz_count) 
+	    std::cout << "INFO:: Average gompertz scale factor "
+		      << gompertz_sum/double(n_gompertz_count)
+		      << " from " << n_gompertz_count << " scaled reflections"
+		      << std::endl;
+	 else
+	    std::cout << "WARNING:: no gompertz F/sig correction to reflections!"
+		      << std::endl;
       }
 
       xmap_list[0].fft_from(fphis);

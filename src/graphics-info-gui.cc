@@ -255,10 +255,13 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 	GtkWidget *extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
 					       "extra_text_label");
       
-	if (text_type == coot::CHIRAL_CENTRES)
-	  extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog), "chiral_centre_text_label");
-      
+	if (text_type == coot::CHIRAL_CENTRES) { 
+	   extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog), "chiral_centre_text_label");
+	}
+	
+	gtk_widget_show(extra_label);
 	gtk_label_set_text(GTK_LABEL(extra_label), extra_text.c_str());
+	
       } else {
 
 	// we have a docked accept/reject dialog
