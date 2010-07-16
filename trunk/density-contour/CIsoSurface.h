@@ -45,19 +45,10 @@
 // Clipper stuff
 #include "clipper/core/xmap.h"
 
-
-struct POINT3DID {
-	unsigned int newID;
-	float x, y, z;
-};
-
-typedef std::map<unsigned int, POINT3DID> ID2POINT3DID;
-
-struct TRIANGLE {
-	unsigned int pointID[3];
-};
+#include "density-contour-triangles.hh"
 
 typedef std::vector<TRIANGLE> TRIANGLEVECTOR;
+
 
 template <class T> class CIsoSurface {
 public:
@@ -80,11 +71,20 @@ public:
 	//
 	// vector<CartesianPair> 
 	coot::CartesianPairInfo
-	   GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
-				     T tIsoLevel,
-				     float box_radius, // half length
-				     coot::Cartesian centre_point,
-				     int isample_step);
+	  GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
+				    T tIsoLevel,
+				    float box_radius, // half length
+				    coot::Cartesian centre_point,
+				    int isample_step);
+
+	coot::density_contour_triangles_container_t
+	  GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
+				      T tIsoLevel,
+				      float box_radius, // half length
+				      coot::Cartesian centre_point,
+				      int isample_step);
+
+	
  
 	// Returns true if a valid surface has been generated.
 	bool IsSurfaceValid();

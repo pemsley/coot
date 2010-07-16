@@ -2107,7 +2107,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // do we need to turn on the lighting?
       int n_display_list_objects = 0;
-	 
+
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 
 	 // Molecule stuff
@@ -2168,6 +2168,15 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       }
 
+      // transparent objects:
+      // 
+      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+	 if (is_valid_map_molecule(ii))
+	    graphics_info_t::molecules[ii].draw_solid_density_surface();
+      }
+
+      
+
       // regularize object 
       graphics_info_t::moving_atoms_graphics_object();
 
@@ -2179,9 +2188,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       //
       graphics_info_t::baton_object();
-
-      //
-      // test_object();
 
       //
       graphics_info_t::geometry_objects(); // angles and distances
@@ -2206,6 +2212,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 myWireCube (1.0);
       }
 
+      //
+      // test_object();
+
       // Put a wirecube at the rotation centre.
       //
       glPushMatrix();
@@ -2224,7 +2233,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glColor3f(0.8,0.6,0.7);
 	 myWireCube (1.0);
       }
- 
 
      // Now we have finished displaying our objects and making
       // transformations, lets put the matrix back how it used
@@ -4265,29 +4273,55 @@ void handle_scroll_event(int scroll_up_down_flag) {
 
 void test_object() {
 
-   int n = 40;
-   float f = 1.0;
+   // a solid triangle
+   // 
+   if (1) {
 
-   std::vector<int> colours;
-   colours.push_back(GREEN_BOND);
-   colours.push_back(BLUE_BOND);
-   colours.push_back(GREY_BOND);
-
-   for (unsigned int ic=0; ic<colours.size(); ic++) {
-      set_bond_colour(colours[ic]);
-      if (ic == 2)
-	 glLineWidth(2.0);
-      else 
-	 glLineWidth(5.0);
       
-      glBegin(GL_LINES);
-      for (int i=0; i<n; i++) { 
-	 for (int j=0; j<n; j++) {
-	    glVertex3f(i*f, j*f, ic);
-	    glVertex3f(i*f, j*f, ic+1);
-	 }
-      }
+      glEnable (GL_BLEND);
+      glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+
+      glBegin(GL_TRIANGLE_STRIP);
+
+      glColor4f(0.6, 0.6, 0.7, 0.8);
+      glNormal3f(1.0, 0.0, 0.0);
+      glVertex3f(10.0,  0.0,  0.0);
+      glVertex3f( 0.0, 10.0,  0.0);
+      glVertex3f(10.0, 10.0,  0.0);
+      
+      glNormal3f(0.0, 1.0, 0.0);
+      glVertex3f(-5.0, 0.0,  -10.0);
+      glVertex3f( 0.0, 10.0,  0.0);
+      glVertex3f(10.0, 10.0,  0.0);
       glEnd();
+
+   } 
+
+   if (0) { 
+      int n = 40;
+      float f = 1.0;
+
+      std::vector<int> colours;
+      colours.push_back(GREEN_BOND);
+      colours.push_back(BLUE_BOND);
+      colours.push_back(GREY_BOND);
+
+      for (unsigned int ic=0; ic<colours.size(); ic++) {
+	 set_bond_colour(colours[ic]);
+	 if (ic == 2)
+	    glLineWidth(2.0);
+	 else 
+	    glLineWidth(5.0);
+      
+	 glBegin(GL_LINES);
+	 for (int i=0; i<n; i++) { 
+	    for (int j=0; j<n; j++) {
+	       glVertex3f(i*f, j*f, ic);
+	       glVertex3f(i*f, j*f, ic+1);
+	    }
+	 }
+	 glEnd();
+      }
    }
 }
 

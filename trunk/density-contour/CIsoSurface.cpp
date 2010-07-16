@@ -630,6 +630,163 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 			  box_radius,
 			  centre_point);
 }
+
+
+// Triangles - for solid surface rendering
+//
+template <class T>
+coot::density_contour_triangles_container_t
+CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
+					    T tIsoLevel,
+					    float box_radius, // half length
+					    coot::Cartesian centre_point,
+					    int isample_step) {
+
+   coot::density_contour_triangles_container_t tri_con;
+
+   // We need to convert the Cartesian centre_point to a grid_coord
+   // using coord_orth we can use the xmap cell to give coord_frac 
+   // and then use xmap::grid_sampling() to get a coord_grid.
+   //
+   // Similarly, to generate the extents of the map in which we are 
+   // interested, we add and subtract box_radius from centre_point 
+   // in all directions to give us u_start, u_end, v_start, v_end and
+   // w_start, w_end.
+   // 
+   // When it comes to writing out the lines/triangles, we will need to add
+   // the offset of the bottom left hand corner.
+   //
+
+   clipper::Coord_orth centre( centre_point.get_x(), centre_point.get_y(),
+			       centre_point.get_z() );
+
+   // clipper::Coord_frac centref = crystal_map.cell().to_frac( centre );
+  
+   clipper::Coord_frac centref = centre.coord_frac(crystal_map.cell() ); 
+
+   clipper::Coord_frac box0(
+			    centref.u() - box_radius/crystal_map.cell().descr().a(),
+			    centref.v() - box_radius/crystal_map.cell().descr().b(),
+			    centref.w() - box_radius/crystal_map.cell().descr().c() );
+   clipper::Coord_frac box1(
+			    centref.u() + box_radius/crystal_map.cell().descr().a(),
+			    centref.v() + box_radius/crystal_map.cell().descr().b(),
+			    centref.w() + box_radius/crystal_map.cell().descr().c() );
+
+   // old style (early 2002) convertion operator:
+   // 
+   //clipper::Grid_map grid( crystal_map.grid_sampling().to_grid( box0 ),
+   // crystal_map.grid_sampling().to_grid( box1 ) );
+
+   // using this constructor (coords.h):
+   //! constructor: takes grid limits
+   // Grid_map( const Coord_grid& min, const Coord_grid& max );
+
+   // question: we have a Coord_frac and want to convert it to a 
+   // Coord_grid.  How?
+
+   // note: 
+   // Coord_frac::coord_grid(const Grid& g) returns a Coord_grid
+   // but how do we get a Grid from an Xmap?
+  
+   //Note that this introduces a rounding step - is this what you want?
+   clipper::Grid_map grid( box0.coord_grid(crystal_map.grid_sampling()),
+			   box1.coord_grid(crystal_map.grid_sampling()));
+			  
+   //   cout << "INFO: centre_point is :" << centre_point << endl;
+   //   cout << "INFO: box0         is :" << box0.format() << endl;
+   //   cout << "INFO: box1         is :" << box1.format() << endl;
+
+
+
+   T* ptScalarField = new T[grid.size()];
+
+   //cout << "box0: " << box0.format() << endl
+   //    << "box1: " << box1.format() << endl;
+
+   clipper::Xmap_base::Map_reference_coord ix( crystal_map ); 
+   int icount = 0; 
+   for ( int w = grid.min().w(); w <= grid.max().w(); w+=isample_step ) { 
+      for ( int v = grid.min().v(); v <= grid.max().v(); v+=isample_step ) { 
+	 ix.set_coord( clipper::Coord_grid( grid.min().u(), v, w ) ); 
+	 for ( int u = grid.min().u(); u <= grid.max().u(); u+= isample_step ) { 
+	    ptScalarField[icount] = crystal_map[ ix ]; 
+	    icount++;
+	    for(int ii=0; ii<isample_step; ii++) 
+	       ix.next_u(); 
+	 } 
+      } 
+   } 
+   
+   GenerateSurface(ptScalarField, tIsoLevel,
+		   (grid.nu()-1)/isample_step,
+		   (grid.nv()-1)/isample_step,
+		   (grid.nw()-1)/isample_step,
+		   isample_step * 1.0, isample_step * 1.0, isample_step * 1.0);
+
+   delete [] ptScalarField;
+
+   // now fill tri_con
+   clipper::Coord_frac base = grid.min().coord_frac(crystal_map.grid_sampling());
+   T nu = crystal_map.grid_sampling().nu();
+   T nv = crystal_map.grid_sampling().nv();
+   T nw = crystal_map.grid_sampling().nw();
+
+   tri_con.point_indices.resize(m_nTriangles);
+   for (unsigned int nt=0; nt < m_nTriangles; nt++) {
+      TRIANGLE tri;
+      int i = nt;
+      tri.pointID[0] = m_piTriangleIndices[i];
+      tri.pointID[1] = m_piTriangleIndices[i+1];
+      tri.pointID[2] = m_piTriangleIndices[i+2];
+      tri_con.point_indices[nt] = tri;
+   }
+
+   // what is the maximum index in m_piTriangleIndices ?  (we
+   // shouldn't need to do this - it should be clear(?) from other
+   // code what this number is, c.f. check_max_min_vertices()
+   unsigned int max_index = 0;
+   for (unsigned int i=0; i < m_nTriangles*3; i++) {
+      if (m_piTriangleIndices[i] > max_index)
+	 max_index = m_piTriangleIndices[i];
+   }
+   tri_con.points.resize(max_index+1);
+   
+   //
+
+   for (unsigned int nt=0; nt < m_nTriangles; nt++) {
+
+      int i = nt*3;
+      unsigned int j   = m_piTriangleIndices[i]; 
+      unsigned int jp  = m_piTriangleIndices[i+1]; 
+      unsigned int jp2 = m_piTriangleIndices[i+2];
+
+      clipper::Coord_frac cf_1 = clipper::Coord_frac(m_ppt3dVertices[j][0]/nu,
+						     m_ppt3dVertices[j][1]/nv,
+						     m_ppt3dVertices[j][2]/nw) + base;
+      clipper::Coord_frac cf_2 = clipper::Coord_frac(m_ppt3dVertices[jp][0]/nu,
+						     m_ppt3dVertices[jp][1]/nv,
+						     m_ppt3dVertices[jp][2]/nw) + base;
+      clipper::Coord_frac cf_3 = clipper::Coord_frac(m_ppt3dVertices[jp2][0]/nu,
+						     m_ppt3dVertices[jp2][1]/nv,
+						     m_ppt3dVertices[jp2][2]/nw) + base;
+
+      clipper::Coord_orth co_1 = cf_1.coord_orth(crystal_map.cell());
+      clipper::Coord_orth co_2 = cf_2.coord_orth(crystal_map.cell());
+      clipper::Coord_orth co_3 = cf_3.coord_orth(crystal_map.cell());
+      tri_con.points[j  ] = co_1;
+      tri_con.points[jp ] = co_2;
+      tri_con.points[jp2] = co_3;
+      tri_con.point_indices[nt].pointID[0] = j;
+      tri_con.point_indices[nt].pointID[1] = jp;
+      tri_con.point_indices[nt].pointID[2] = jp2;
+      
+//       std::cout << "tripoint " << j   << " " << co_1.x() << " " << co_1.y() << " " << co_1.z() << "\n";
+//       std::cout << "tripoint " << jp  << " " << co_2.x() << " " << co_2.y() << " " << co_2.z() << "\n";
+//       std::cout << "tripoint " << jp2 << " " << co_3.x() << " " << co_3.y() << " " << co_3.z() << "\n";
+   }
+   return tri_con;
+}
  
 
 template <class T> bool CIsoSurface<T>::IsSurfaceValid()
@@ -878,7 +1035,7 @@ template <class T> void CIsoSurface<T>::RenameVerticesAndTriangles()
 	m_nTriangles = m_trivecTriangles.size();
 	m_piTriangleIndices = new unsigned int[m_nTriangles*3];
 	for (unsigned int i = 0; i < m_nTriangles; i++, vecIterator++) {
-		m_piTriangleIndices[i*3] = (*vecIterator).pointID[0];
+		m_piTriangleIndices[i*3  ] = (*vecIterator).pointID[0];
 		m_piTriangleIndices[i*3+1] = (*vecIterator).pointID[1];
 		m_piTriangleIndices[i*3+2] = (*vecIterator).pointID[2];
 	}
@@ -1365,15 +1522,10 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
        d1_3 = do_line(done_line_list, j,  jp2);
        d2_3 = do_line(done_line_list, jp, jp2);
 
-//       d1_2 = 1;
-//       d1_3 = 1;
-//       d2_3 = 1;
-
       if (d1_2 || d1_3) { 
 	 cf = clipper::Coord_frac( m_ppt3dVertices[j][0]/nu,
 				   m_ppt3dVertices[j][1]/nv,
 				   m_ppt3dVertices[j][2]/nw ) + base;
-	 // co1 = xmap.cell().to_orth( cf );
 	 co1 = cf.coord_orth(xmap.cell()); 
 	 co1_c = coot::Cartesian( co1.x(), co1.y(), co1.z() );
       }
@@ -1382,9 +1534,7 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
 	 cf = clipper::Coord_frac( m_ppt3dVertices[jp][0]/nu,
 				   m_ppt3dVertices[jp][1]/nv,
 				   m_ppt3dVertices[jp][2]/nw ) + base;
-	 // co2 = xmap.cell().to_orth( cf );
 	 co2 = cf.coord_orth(xmap.cell()); 
-
 	 co2_c = coot::Cartesian( co2.x(), co2.y(), co2.z() );
       }
 
@@ -1392,9 +1542,7 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
 	 cf = clipper::Coord_frac( m_ppt3dVertices[jp2][0]/nu,
 				   m_ppt3dVertices[jp2][1]/nv,
 				   m_ppt3dVertices[jp2][2]/nw ) + base;
-	 // co3 = xmap.cell().to_orth( cf );
 	 co3 = cf.coord_orth(xmap.cell()); 
-
 	 co3_c =  coot::Cartesian( co3.x(), co3.y(), co3.z());
       }
 

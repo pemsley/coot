@@ -71,6 +71,7 @@ using namespace std; // Hmmm.. I don't approve, FIXME
                                  // array->vector change-over.
 
 #include "dipole.hh"
+#include "density-contour-triangles.hh"
 
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
@@ -1044,6 +1045,10 @@ public:        //                      public
       dots_colour[0] = 0.3;
       dots_colour[1] = 0.4;
       dots_colour[2] = 0.5;
+
+      // solid surface density representation
+      //
+      draw_it_for_solid_density_surface = 0;
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -2705,6 +2710,8 @@ public:        //                      public
       dots_colour[2] = b;
    }
 
+   // ---- extra restraints (currently only bonds) -----------
+   //
    coot::extra_restraints_t extra_restraints;
    coot::extra_extraints_representation_t extra_restraints_representation;
    void draw_extra_restraints_representation();
@@ -2717,6 +2724,11 @@ public:        //                      public
    void remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2);
    void update_extra_restraints_representation(); // called from make_bonds_type_checked()
 
+   // --------- (transparent) solid rendering of density ------------------
+   bool draw_it_for_solid_density_surface;
+   coot::density_contour_triangles_container_t tri_con;
+   void draw_solid_density_surface() const;
+   
 };
 
 #endif // MOLECULE_CLASS_INFO_T
