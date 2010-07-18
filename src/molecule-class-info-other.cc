@@ -5647,7 +5647,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       } 
       
 
-      GLfloat bgcolor[4]={1.0, 1.0, 0.3, 1.0};
+      GLfloat bgcolor[4]={0.8, 0.8, 0.8, 0.8};
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       // glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, bgcolor);
       glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);

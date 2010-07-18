@@ -2168,14 +2168,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       }
 
-      // transparent objects:
-      // 
-      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-	 if (is_valid_map_molecule(ii))
-	    graphics_info_t::molecules[ii].draw_solid_density_surface();
-      }
-
-      
 
       // regularize object 
       graphics_info_t::moving_atoms_graphics_object();
@@ -2217,6 +2209,16 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // Put a wirecube at the rotation centre.
       //
+
+      // transparent objects:
+      // 
+      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+	 if (is_valid_map_molecule(ii)) {
+	    // enable lighting internal to this function
+	    graphics_info_t::molecules[ii].draw_solid_density_surface();
+	 }
+      }
+
       glPushMatrix();
       glTranslatef(graphics_info_t::RotationCentre_x(),
 		   graphics_info_t::RotationCentre_y(),

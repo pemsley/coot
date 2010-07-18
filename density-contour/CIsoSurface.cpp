@@ -752,6 +752,7 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
 	 max_index = m_piTriangleIndices[i];
    }
    tri_con.points.resize(max_index+1);
+   tri_con.normals.resize(max_index+1);
    
    //
 
@@ -787,6 +788,8 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
       tri_con.point_indices[nt].mid_point = clipper::Coord_orth(0.333333333 * sum_pt.x(),
 								0.333333333 * sum_pt.y(),
 								0.333333333 * sum_pt.z());
+      tri_con.point_indices[nt].normal_for_flat_shading =
+	 clipper::Coord_orth(-clipper::Coord_orth::cross((co_2-co_1), (co_3-co_1)).unit());
       
       
 //       std::cout << "tripoint " << j   << " " << co_1.x() << " " << co_1.y() << " " << co_1.z() << "\n";

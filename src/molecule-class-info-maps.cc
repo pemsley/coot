@@ -558,11 +558,10 @@ molecule_class_info_t::draw_solid_density_surface() {
       // front << " back: " << back << std::endl;
    
       glEnable (GL_BLEND);
+      glEnable(GL_LIGHTING);
+      glEnable(GL_LIGHT0);
       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
-      glBegin(GL_TRIANGLES);
-
-      glColor4f(0.6, 0.6, 0.7, density_surface_opacity);
 
       if (density_surface_opacity < 1.0) {
 	 clipper::Coord_orth front_cl(front.x(), front.y(), front.z());
@@ -571,29 +570,74 @@ molecule_class_info_t::draw_solid_density_surface() {
 	 // std::cout << " sorted" << std::endl;
       } else {
 	 // std::cout << " no sorting" << std::endl;
-      } 
+      }
 
+      setup_density_surface_material();
+//       std::cout << "density_surface_opacity: " <<
+// 		density_surface_opacity << std::endl;
+      glColor4f(0.7, 0.7, 0.7, density_surface_opacity);
+
+      glBegin(GL_TRIANGLES);
       for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
 
 	 // std::cout << "  distance metric " <<
 	 // tri_con.point_indices[i].back_front_projection_distance
 	 // << std::endl;
 
+	 glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
+		    tri_con.point_indices[i].normal_for_flat_shading.y(),
+		    tri_con.point_indices[i].normal_for_flat_shading.z());
 	 glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[0]].x(),
 		    tri_con.points[tri_con.point_indices[i].pointID[0]].y(),
 		    tri_con.points[tri_con.point_indices[i].pointID[0]].z());
+	 
+	 glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
+		    tri_con.point_indices[i].normal_for_flat_shading.y(),
+		    tri_con.point_indices[i].normal_for_flat_shading.z());
 	 glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[1]].x(),
 		    tri_con.points[tri_con.point_indices[i].pointID[1]].y(),
 		    tri_con.points[tri_con.point_indices[i].pointID[1]].z());
+	 
+	 glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
+		    tri_con.point_indices[i].normal_for_flat_shading.y(),
+		    tri_con.point_indices[i].normal_for_flat_shading.z());
 	 glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[2]].x(),
 		    tri_con.points[tri_con.point_indices[i].pointID[2]].y(),
 		    tri_con.points[tri_con.point_indices[i].pointID[2]].z());
-	 
       }
       glEnd();
+      glDisable(GL_LIGHTING);
    } 
 }
 
+void
+molecule_class_info_t::setup_density_surface_material() {
+
+
+   GLfloat bgcolor[4]={0.8, 0.8, 0.8, 0.8};
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
+   glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128); 
+   //Let the returned colour dictate: note obligatory order of these calls
+   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+   glEnable(GL_COLOR_MATERIAL);
+
+   GLfloat  mat_specular[]  = {0.8, 0.8, 0.8, 1.0};
+   GLfloat  mat_ambient[]   = {0.2, 0.2, 0.2, 1.0};
+   GLfloat  mat_diffuse[]   = {0.2, 0.2, 0.2, 0.5};
+   GLfloat  mat_shininess[] = {50.0};
+
+   glShadeModel(GL_SMOOTH);
+
+   glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
+   glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+   glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+   glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+
+//    glEnable(GL_DEPTH_TEST);
+//    glEnable(GL_NORMALIZE);
+
+}
 
 
 // modify v

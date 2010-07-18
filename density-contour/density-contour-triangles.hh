@@ -15,6 +15,7 @@ public:
    unsigned int pointID[3];
    clipper::Coord_orth mid_point;
    double back_front_projection_distance;
+   clipper::Coord_orth normal_for_flat_shading;
    bool operator<(const TRIANGLE &t) const {
       return (back_front_projection_distance < t.back_front_projection_distance);
    } 
@@ -25,6 +26,7 @@ namespace coot {
   class density_contour_triangles_container_t { 
   public:
      std::vector<clipper::Coord_orth> points;
+     std::vector<clipper::Coord_orth> normals;
      std::vector<TRIANGLE> point_indices;
      void depth_sort(const clipper::Coord_orth &back_plane_point,
 		     const clipper::Coord_orth &front_plane_point);
