@@ -378,9 +378,34 @@ SCM list_extra_restraints_scm(int imol) {
 #ifdef USE_PYTHON
 PyObject *list_extra_restraints_py(int imol) {
 
-   PyObject *v = Py_False;
+   PyObject *r = Py_False;
 
-   return v;
+   if (is_valid_model_molecule(imol)) {
+     graphics_info_t g; // just because it's shorter
+     if (graphics_info_t::molecules[imol].extra_restraints.has_restraints()) {
+       // reverse loop, put them in backwards (schemey thing)
+       // bull, do it right.
+       r = PyList_New(0);
+       for (int ib=0; ib<g.molecules[imol].extra_restraints.bond_restraints.size(); ib++) {
+         coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.bond_restraints[ib].atom_1;
+         coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.bond_restraints[ib].atom_2;
+         double d = g.molecules[imol].extra_restraints.bond_restraints[ib].bond_dist;
+         double esd = g.molecules[imol].extra_restraints.bond_restraints[ib].esd;
+         PyObject *spec_1_py = atom_spec_to_py(spec_1);
+         PyObject *spec_2_py = atom_spec_to_py(spec_2);
+         PyObject *l = PyList_New(4);
+         PyList_SetItem(l, 0, spec_1_py);
+         PyList_SetItem(l, 1, spec_2_py);
+         PyList_SetItem(l, 2, PyFloat_FromDouble(d));
+         PyList_SetItem(l, 3, PyFloat_FromDouble(esd));
+         PyList_Append(r, l);
+       }
+     }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
 
 } 
 #endif	/* USE_PYTHON */
@@ -415,3 +440,32 @@ delete_extra_restraint_scm(int imol, SCM restraint_spec) {
    
 } 
 #endif // USE_GUILE
+
+#ifdef USE_PYTHON
+void
+delete_extra_restraint_py(int imol, PyObject *restraint_spec) {
+
+   // for a bond restraint, the restraint_spec is something like:
+   // [restraint-type, spec-1 spec-2]
+   //
+   // where restraint-type is a symbol, in the case of a bond
+   // restraint is "bond"
+   //
+   //
+  if (PyList_Check(restraint_spec)) { 
+    int restraint_spec_length = PyObject_Length(restraint_spec);
+    if (restraint_spec_length == 3) {
+      PyObject *restraint_type_py = PyList_GetItem(restraint_spec, 0);
+      PyObject *spec_1_py = PyList_GetItem(restraint_spec, 1);
+      PyObject *spec_2_py = PyList_GetItem(restraint_spec, 2);
+      if (strcmp(PyString_AsString(restraint_type_py), "bond") == 0 ) {
+	    coot::atom_spec_t spec_1 = atom_spec_from_python_expression(spec_1_py);
+	    coot::atom_spec_t spec_2 = atom_spec_from_python_expression(spec_2_py);
+	    graphics_info_t::molecules[imol].remove_extra_bond_restraint(spec_1, spec_2);
+	    graphics_draw();
+      }
+    }
+  }
+   
+} 
+#endif // USE_PYTHON

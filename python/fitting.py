@@ -64,14 +64,14 @@ def fit_protein(imol):
                         for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
                             print "centering on ",chain_id,res_no," CA"
                             set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
-                            rotate_y_scene(30,0.3) # n-frames frame-interval(degrees)
+                            rotate_y_scene(30, 0.3) # n-frames frame-interval(degrees)
                             if (alt_conf == ""):
                                 auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
                                                       imol_map, 1, 0.1)
                             if (imol_map >= 0):
                                 refine_zone(imol, chain_id, res_no, res_no, alt_conf)
                                 accept_regularizement()
-                            rotate_y_scene(30,0.3)
+                            rotate_y_scene(30, 0.3)
       
     if (replacement_state == 0):
 	  set_refinement_immediate_replacement(0)
@@ -145,6 +145,10 @@ def fit_protein_fit_function(res_spec, imol_map):
     # BL says: we dont use with_auto_accept here, get's too messy
     replace_state = refinement_immediate_replacement_state()
     set_refinement_immediate_replacement(1)
+    # same goes for backup, and should be faster...
+    make_backup(imol) # do a backup first
+    backup_mode = backup_state(imol)
+    turn_off_backup(imol)
 
     for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
         print "centering on", chain_id, res_no, "CA"
@@ -167,6 +171,8 @@ def fit_protein_fit_function(res_spec, imol_map):
 
     if (replace_state == 0):
         set_refinement_immediate_replacement(0)
+    if (backup_mode == 1):
+        turn_on_backup(imol)
 
 def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
     
@@ -180,6 +186,10 @@ def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
     # BL says: again we dont use with_auto_accept here, get's too messy
     replace_state = refinement_immediate_replacement_state()
     set_refinement_immediate_replacement(1)
+    # same goes for backup, and should be faster...
+    make_backup(imol) # do a backup first
+    backup_mode = backup_state(imol)
+    turn_off_backup(imol)
 
     for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
         if use_rama:
@@ -199,7 +209,9 @@ def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
     
     if (replace_state == 0):
         set_refinement_immediate_replacement(0)
-
+    if (backup_mode == 1):
+        turn_on_backup(imol)
+        
 def fit_protein_rama_fit_function(res_spec, imol_map):
     # BL says: make it more generic
     fit_protein_stepped_refine_function(res_spec, imol_map, True)

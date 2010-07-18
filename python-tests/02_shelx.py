@@ -220,7 +220,7 @@ class ShelxTestFunctions(unittest.TestCase):
         self.failIf(valid_map_molecule_qm(imol_insulin_map))
 
 
-    def test09_0(self):
+    def test11_0(self):
         """Aniso Bs in P21"""
 
         from types import ListType
@@ -247,5 +247,14 @@ class ShelxTestFunctions(unittest.TestCase):
 
         map(lambda x, y: self.failUnlessAlmostEqual(x, y), b_1, b_2)
         
+
+    def test12_0(self):
+        """Don't crash on reading a strange HAT file"""
+
+        handle_read_draw_molecule_with_recentre(os.path.join(get_unittest_data_dir(), "crash.hat"), 0)
+        # this is nonsense since we already 'tested' for read/crash
+        # but it is a proper test...
+        imol = unittest_pdb("crash.hat")
+        self.failUnless(valid_model_molecule_qm(imol))
 
         

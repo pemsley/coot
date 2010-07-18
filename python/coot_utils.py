@@ -1001,10 +1001,7 @@ def is_difference_map_qm(imol_map):
     if (not valid_map_molecule_qm(imol_map)):
         return False
     else:
-        if (map_is_difference_map(imol_map) == 1):
-            return True
-        else:
-            return False
+        return map_is_difference_map(imol_map) == 1
 
 # Does residue resno with insertion code ins_code of chain chain_id
 # and in molecule number imol exist?
@@ -2645,6 +2642,8 @@ closest_atom           = closest_atom_py
 residues_near_residue  = residues_near_residue_py
 residues_near_position = residues_near_position_py
 refine_zone_with_full_residue_spec = refine_zone_with_full_residue_spec_py
+list_extra_restraints  = list_extra_restraints_py
+delete_extra_restraint = delete_extra_restraint_py
 water_chain_from_shelx_ins = water_chain_from_shelx_ins_py
 water_chain            = water_chain_py
 spin_search            = spin_search_py

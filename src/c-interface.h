@@ -3212,6 +3212,10 @@ void delete_extra_restraint_scm(int imol, SCM restraint_spec);
 SCM list_extra_restraints_scm(int imol);
 #endif	/* USE_GUILE */
 #ifdef USE_PYTHON
+/* restraint_spec is something like ['bond', spec_1, spec_2]
+
+  spec_1 and spec_2 do not have to be in the order that the bond was created.  */
+void delete_extra_restraint_py(int imol, PyObject *restraint_spec);
 PyObject *list_extra_restraints_py(int imol);
 #endif /* USE_PYTHON */
 #endif /*  __cplusplus */

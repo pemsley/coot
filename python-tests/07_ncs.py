@@ -212,9 +212,14 @@ class NcsTestFunctions(unittest.TestCase):
 
         result_list = []
         molecule_names = map(molecule_name, molecule_number_list())
+        print "BL DEBUG:: molecule_names", molecule_names
         for chain_id in ["B", "C", "D"]:
-            test_name = "NCS found from matching Chain " + \
+            test_name = "Map " + \
+                        str(imol_map) + " " + \
+                        "NCS found from matching Chain " + \
                         chain_id + \
                         " onto Chain A"
-            
-            self.failUnless(test_name in molecule_names, "  Failed to find matching NCS chain %s" %chain_id)
+
+            n_matchers = molecule_names.count(test_name)
+            print "BL DEBUG:: n_matchers", n_matchers
+            self.failUnless(n_matchers >= 2, "  Failed to find matching NCS chain %s" %chain_id)
