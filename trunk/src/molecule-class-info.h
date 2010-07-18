@@ -2730,7 +2730,8 @@ public:        //                      public
    coot::density_contour_triangles_container_t tri_con;
    void draw_solid_density_surface();
    void set_draw_solid_density_surface(bool state);
-   float density_surface_opacity; 
+   float density_surface_opacity;
+   void setup_density_surface_material(); // shininess, material colour etc.
    
 };
 
