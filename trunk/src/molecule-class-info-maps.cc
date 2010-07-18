@@ -259,6 +259,16 @@ molecule_class_info_t::update_map_internal() {
    }
 }
 
+void
+molecule_class_info_t::set_draw_solid_density_surface(bool state) {
+
+   draw_it_for_solid_density_surface = state;
+   if (state) {
+      update_map(); // gets solid triangles too.
+   }
+} 
+
+
 // Create a new combo box for this newly created map.
 void
 molecule_class_info_t::update_map_in_display_control_widget() const { 
@@ -372,6 +382,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 // 	     << " draw_map_local_flag " << draw_map_local_flag 
 // 	     << std::endl;
 
+
    int nvecs = n_draw_vectors; // cartesianpair pointer counter (old code)
    if (draw_map_local_flag) {  // i.e. drawit_for_map (except when compiling a new map display list)
       // same test as has_map():
@@ -401,6 +412,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 			 << " when main_or_secondary is " << main_or_secondary << std::endl;
 	    }
 	    
+
 	 } else { 
 
 	    // std::cout << "DEBUG:: some vectors " << nvecs << std::endl;
@@ -524,39 +536,59 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       }
    }
 
-   if (draw_it_for_solid_density_surface) { // perhaps this should not be tested.
+   if (draw_it_for_solid_density_surface) {
       tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap_list[0],
 							  contour_level[0],
 							  dy_radius, centre,
 							  isample_step);
-   } 
+   }
 }
 
+// not const because we sort in place the triangles of tri_con
 void
-molecule_class_info_t::draw_solid_density_surface() const {
+molecule_class_info_t::draw_solid_density_surface() {
 
+   
    if (draw_it_for_solid_density_surface) {
 
+      coot::Cartesian front = unproject(0.0);
+      coot::Cartesian back  = unproject(1.0);
+
+      // std::cout << "in draw_solid_density_surface() front " <<
+      // front << " back: " << back << std::endl;
+   
       glEnable (GL_BLEND);
       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
       glBegin(GL_TRIANGLES);
 
-      glColor4f(0.6, 0.6, 0.7, 0.6);
-      // tglColor3f(0.6, 0.6, 0.7);
+      glColor4f(0.6, 0.6, 0.7, density_surface_opacity);
+
+      if (density_surface_opacity < 1.0) {
+	 clipper::Coord_orth front_cl(front.x(), front.y(), front.z());
+	 clipper::Coord_orth  back_cl( back.x(),  back.y(),  back.z());
+	 tri_con.depth_sort(back_cl, front_cl);
+	 // std::cout << " sorted" << std::endl;
+      } else {
+	 // std::cout << " no sorting" << std::endl;
+      } 
 
       for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
-	 
-	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[0]].x(),
-		       tri_con.points[tri_con.point_indices[i].pointID[0]].y(),
-		       tri_con.points[tri_con.point_indices[i].pointID[0]].z());
-	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[1]].x(),
-		       tri_con.points[tri_con.point_indices[i].pointID[1]].y(),
-		       tri_con.points[tri_con.point_indices[i].pointID[1]].z());
-	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[2]].x(),
-		       tri_con.points[tri_con.point_indices[i].pointID[2]].y(),
-		       tri_con.points[tri_con.point_indices[i].pointID[2]].z());
 
+	 // std::cout << "  distance metric " <<
+	 // tri_con.point_indices[i].back_front_projection_distance
+	 // << std::endl;
+
+	 glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[0]].x(),
+		    tri_con.points[tri_con.point_indices[i].pointID[0]].y(),
+		    tri_con.points[tri_con.point_indices[i].pointID[0]].z());
+	 glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[1]].x(),
+		    tri_con.points[tri_con.point_indices[i].pointID[1]].y(),
+		    tri_con.points[tri_con.point_indices[i].pointID[1]].z());
+	 glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[2]].x(),
+		    tri_con.points[tri_con.point_indices[i].pointID[2]].y(),
+		    tri_con.points[tri_con.point_indices[i].pointID[2]].z());
+	 
       }
       glEnd();
    } 

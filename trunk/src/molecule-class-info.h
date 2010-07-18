@@ -1049,6 +1049,7 @@ public:        //                      public
       // solid surface density representation
       //
       draw_it_for_solid_density_surface = 0;
+      density_surface_opacity = 0.8;
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -2727,7 +2728,9 @@ public:        //                      public
    // --------- (transparent) solid rendering of density ------------------
    bool draw_it_for_solid_density_surface;
    coot::density_contour_triangles_container_t tri_con;
-   void draw_solid_density_surface() const;
+   void draw_solid_density_surface();
+   void set_draw_solid_density_surface(bool state);
+   float density_surface_opacity; 
    
 };
 

@@ -8848,6 +8848,31 @@ void set_socket_string_waiting(const char *s) {
 }
 
 
+// should be in c-interface-maps?
+
 void set_map_sharpening_scale_limit(float f) {
    graphics_info_t::map_sharpening_scale_limit = f;
 } 
+
+
+// should be in c-interface-maps?
+// 
+/*! \brief sets the density map of the given molecule to be drawn as a
+  (transparent) solid surface. */
+void set_draw_solid_density_surface(int imol, short int state) {
+
+   if (is_valid_map_molecule(imol)) { 
+      graphics_info_t::molecules[imol].set_draw_solid_density_surface(state);
+      graphics_draw();
+   }
+}
+
+void
+set_solid_density_surface_opacity(int imol, float opacity) {
+
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].density_surface_opacity = opacity;
+      graphics_draw();
+   }
+}
+

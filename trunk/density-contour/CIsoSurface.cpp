@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <iomanip>
 #include <fstream>
+#include <algorithm>
 
 // #include "stdafx.h" commented by PE
 #include <math.h>
@@ -780,6 +781,13 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
       tri_con.point_indices[nt].pointID[0] = j;
       tri_con.point_indices[nt].pointID[1] = jp;
       tri_con.point_indices[nt].pointID[2] = jp2;
+      clipper::Coord_orth sum_pt = co_1;
+      sum_pt += co_2;
+      sum_pt += co_3;
+      tri_con.point_indices[nt].mid_point = clipper::Coord_orth(0.333333333 * sum_pt.x(),
+								0.333333333 * sum_pt.y(),
+								0.333333333 * sum_pt.z());
+      
       
 //       std::cout << "tripoint " << j   << " " << co_1.x() << " " << co_1.y() << " " << co_1.z() << "\n";
 //       std::cout << "tripoint " << jp  << " " << co_2.x() << " " << co_2.y() << " " << co_2.z() << "\n";
@@ -787,7 +795,28 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
    }
    return tri_con;
 }
- 
+
+
+void 
+coot::density_contour_triangles_container_t::depth_sort(const clipper::Coord_orth &back_plane_point,
+							const clipper::Coord_orth &front_plane_point) { 
+
+   for (unsigned int i=0; i<point_indices.size(); i++) {
+      clipper::Coord_orth h_back = point_indices[i].mid_point - back_plane_point;
+      clipper::Coord_orth back_front = front_plane_point - back_plane_point;
+      double dot = clipper::Coord_orth::dot(back_front, h_back);
+      double bf_squared = back_front.lengthsq();
+      // std::cout << " back " << back_plane_point.format() << " front: " << front_plane_point.format() << std::endl;
+      // std::cout << " back-front: " << back_front.format() << " " << bf_squared << std::endl;
+      if (bf_squared < 0.000001)
+	 bf_squared = 0.000001;
+      point_indices[i].back_front_projection_distance =
+	 dot * dot / bf_squared;
+   }
+   std::sort(point_indices.begin(), point_indices.end());
+	     
+} 
+
 
 template <class T> bool CIsoSurface<T>::IsSurfaceValid()
 {
@@ -1815,7 +1844,7 @@ to_vertex_list_t::~to_vertex_list_t() {
    }
    //cout << "~to_v_l_t: done deleting" << endl;
 
-} 
+}
 
 
 
@@ -1824,3 +1853,5 @@ to_vertex_list_t::~to_vertex_list_t() {
 // template class CIsoSurface<short>;
 // template class CIsoSurface<unsigned short>;
 template class CIsoSurface<float>;
+
+
