@@ -650,6 +650,13 @@ void
 on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 					       gpointer         user_data);
 
+/* is this a good place for this function? */
+
+/*! \brief sets the density map of the given molecule to be drawn as a
+  (transparent) solid surface. */
+void set_draw_solid_density_surface(int imol, short int state);
+void set_solid_density_surface_opacity(int imol, float opacity);
+
 /* \} */
 
 /*  -------------------------------------------------------------------- */

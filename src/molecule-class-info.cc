@@ -1734,13 +1734,6 @@ molecule_class_info_t::display_ghost_bonds(int ighost) {
 }
 
 
-// This used to use an int_grid.  Goodbye.  Clipper skeletonization is better.
-// 
-// void
-// molecule_class_info_t::update_skeleton() {
-
-// }
-
 
 void
 molecule_class_info_t::display_bonds() {
@@ -1760,12 +1753,9 @@ void
 molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 				     float p_bond_width) {
 
-
    coot::Cartesian front = unproject(0.0);
    coot::Cartesian back  = unproject(1.0);
 
-   // std::cout << "front and back: " << front << " " << back << std::endl;
-   //
    bool with_gl_lines = 0;
    
    coot::CartesianPair pair;
