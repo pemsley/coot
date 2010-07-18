@@ -7020,12 +7020,14 @@ coot::restraints_container_t::add_extra_restraints(const extra_restraints_t &ext
 	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_1) ==
 		coot::residue_spec_t(SelResidue_local[ir])) {
 	       r_1 = SelResidue_local[ir];
-	       fixed_1 = residues_vec[ir].first;
+               // BL says:: this is certainly not working, since we dont have the residues_vec
+               // not sure how to get the fixed flag. Too lazy to look up. Paul. Fixme!?
+	       //fixed_1 = residues_vec[ir].first;
 	    }
 	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_2) ==
 		coot::residue_spec_t(SelResidue_local[ir])) {
 	       r_2 = SelResidue_local[ir];
-	       fixed_2 = residues_vec[ir].first;
+	       //fixed_2 = residues_vec[ir].first;
 	    }
 	 } 
 	 mol->DeleteSelection(selHnd);
