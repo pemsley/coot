@@ -634,10 +634,10 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
       GtkWidget *atom_list = lookup_widget(go_to_atom_window,
 					   "go_to_atom_atom_list");
       if (residue_tree == NULL) {
-	 std::cout << "ERROR:: gtktree (go_to_atom_residue_tree) is null!\n"; 
+	 std::cout << "ERROR:: residue_tree (go_to_atom_residue_tree) is null!\n"; 
       } else {
 #if (GTK_MAJOR_VERSION == 1)
-	 graphics_info_t::fill_go_to_atom_residue_list_gtk1(gtktree, gtk);
+	 graphics_info_t::fill_go_to_atom_residue_list_gtk1(residue_tree);
 #else
 	 graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree, atom_list);
 #endif	 
@@ -873,7 +873,7 @@ graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionTyp
       GtkWidget *atom_list = lookup_widget(GTK_WIDGET(item),
 					   "go_to_atom_atom_list");
 #if (GTK_MAJOR_VERSION == 1)
-      fill_go_to_atom_residue_list_gtk1(residue_gtktree);
+      fill_go_to_atom_residue_list_gtk1(residue_tree);
 #else
       // std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << pos << std::endl;
       fill_go_to_atom_residue_tree_and_atom_list_gtk2(pos, residue_tree, atom_list);
