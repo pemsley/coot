@@ -1,7 +1,7 @@
  -*-text-*-
 
-scripts      rev 3001
-tests        rev 2994
+scripts      rev 3045 (excl. prodrg)
+tests        rev 3043
 build-it-win rev 2122
 
 -------------------------------------------------------
