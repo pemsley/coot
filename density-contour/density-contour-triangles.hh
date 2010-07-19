@@ -26,10 +26,11 @@ namespace coot {
   class density_contour_triangles_container_t { 
   public:
      std::vector<clipper::Coord_orth> points;
-     std::vector<clipper::Coord_orth> normals;
+     std::vector<clipper::Coord_orth> normals; // for Gouraud shading
      std::vector<TRIANGLE> point_indices;
      void depth_sort(const clipper::Coord_orth &back_plane_point,
 		     const clipper::Coord_orth &front_plane_point);
+     void calculate_normals(); // average normals on shared points
   };
 
 }
