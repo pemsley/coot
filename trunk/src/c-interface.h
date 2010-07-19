@@ -655,6 +655,14 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 /*! \brief sets the density map of the given molecule to be drawn as a
   (transparent) solid surface. */
 void set_draw_solid_density_surface(int imol, short int state);
+/*! \brief set the opacity of density surface representation of the
+  given map.
+
+0.0 is totally transparent, 1.0 is completely opaque and (because the
+objects are no longer depth sorted) considerably faster to render.
+0.3 is a reasonable number.
+
+ */
 void set_solid_density_surface_opacity(int imol, float opacity);
 
 /* \} */

@@ -40,7 +40,6 @@
 #include <stdlib.h>
 #include <iomanip>
 #include <fstream>
-#include <algorithm>
 
 // #include "stdafx.h" commented by PE
 #include <math.h>
@@ -796,29 +795,11 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
 //       std::cout << "tripoint " << jp  << " " << co_2.x() << " " << co_2.y() << " " << co_2.z() << "\n";
 //       std::cout << "tripoint " << jp2 << " " << co_3.x() << " " << co_3.y() << " " << co_3.z() << "\n";
    }
+
+   tri_con.calculate_normals();
    return tri_con;
 }
 
-
-void 
-coot::density_contour_triangles_container_t::depth_sort(const clipper::Coord_orth &back_plane_point,
-							const clipper::Coord_orth &front_plane_point) { 
-
-   for (unsigned int i=0; i<point_indices.size(); i++) {
-      clipper::Coord_orth h_back = point_indices[i].mid_point - back_plane_point;
-      clipper::Coord_orth back_front = front_plane_point - back_plane_point;
-      double dot = clipper::Coord_orth::dot(back_front, h_back);
-      double bf_squared = back_front.lengthsq();
-      // std::cout << " back " << back_plane_point.format() << " front: " << front_plane_point.format() << std::endl;
-      // std::cout << " back-front: " << back_front.format() << " " << bf_squared << std::endl;
-      if (bf_squared < 0.000001)
-	 bf_squared = 0.000001;
-      point_indices[i].back_front_projection_distance =
-	 dot * dot / bf_squared;
-   }
-   std::sort(point_indices.begin(), point_indices.end());
-	     
-} 
 
 
 template <class T> bool CIsoSurface<T>::IsSurfaceValid()

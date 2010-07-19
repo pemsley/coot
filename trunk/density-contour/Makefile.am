@@ -24,9 +24,9 @@ INCLUDES = $(COORD_INCLUDES) $(CLIPPER_CXXFLAGS)
 
 lib_LTLIBRARIES = libcoot-isosurface.la
 
-include_HEADERS = Vectors.h CIsoSurface.h
+include_HEADERS = Vectors.h CIsoSurface.h density-contour-triangles.hh
 
-libcoot_isosurface_la_SOURCES = Vectors.cpp CIsoSurface.cpp
+libcoot_isosurface_la_SOURCES = Vectors.cpp CIsoSurface.cpp density-contour-triangles.cc
 
 libcoot_isosurface_la_LIBADD = \
 	$(top_builddir)/coords/libcoot-coords.la \
