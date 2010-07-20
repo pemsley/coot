@@ -590,7 +590,6 @@ class graphics_info_t {
 				    // Orientation", idealized and in
 				    // the most likely rotamer.
 
-
    // state
    static short int state_language; // a bit-tested variable, 1 = scheme,
                                     // 2 = python, 3 = both.
@@ -880,6 +879,10 @@ public:
       standard_residues_asc.read_success = 0;
       standard_residues_asc.n_selected_atoms = 0;
       read_standard_residues(); // updates read_success
+
+      convert_to_v2_atom_names_flag = 1; // by default convert to
+					 // match the current
+					 // dictionary.
 
       symmetry_colour_merge_weight = 0.5; // 0.0 -> 1.0
 
@@ -1277,6 +1280,12 @@ public:
    // -------------------------------------------------
 
 
+   static bool convert_to_v2_atom_names_flag; // shall we convert nucletotides to
+				       // match the dictionary names? Often
+				       // we want to do this (give current
+				       // Coot architecture).  Sometimes
+				       // not, though.
+
    // To be used to (typically) get the menu item text label from chain
    // option menus (rather than the ugly/broken casting of
    // GtkPositionType data.  
@@ -1301,12 +1310,14 @@ public:
    // flag for the refinement toolbar style
    static short int model_toolbar_style_state;
 
+   static short int do_lighting_flag; 
+   static bool do_flat_shading_for_solid_density_surface;
+
    static short int do_anti_aliasing_flag; // BL feature
    void set_do_anti_aliasing(int state);
    void draw_anti_aliasing();
    static int display_mode; // e.g. HARDWARE_STEREO_MODE, DTI_SIDE_BY_SIDE_STEREO
    static float hardware_stereo_angle_factor;
-   static short int do_lighting_flag; 
    static short int in_wall_eyed_side_by_side_stereo_mode;
 
    // return a vector of the current valid map molecules

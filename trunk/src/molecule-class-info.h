@@ -1,3 +1,4 @@
+
 // -*-c++-*- ; emacs directive
 /* src/molecule-class-info.h
  * 
@@ -1056,7 +1057,8 @@ public:        //                      public
 				 std::string filename,
 				 std::string cwd,
 				 short int recentre_rotation_centre,
-				 short int is_undo_or_redo, 
+				 short int is_undo_or_redo,
+				 bool convert_to_v2_atom_names_flag,
 				 float bond_width_in);
 
    void      label_symm_atom(int i, symm_trans_t symm_trans);
@@ -2728,7 +2730,7 @@ public:        //                      public
    // --------- (transparent) solid rendering of density ------------------
    bool draw_it_for_solid_density_surface;
    coot::density_contour_triangles_container_t tri_con;
-   void draw_solid_density_surface();
+   void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
    float density_surface_opacity;
    void setup_density_surface_material(); // shininess, material colour etc.

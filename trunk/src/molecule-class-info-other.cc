@@ -3199,6 +3199,9 @@ short int
 molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_file_name,
 							  std::string cwd) {
 
+   // consider passing this:
+   bool convert_flag = graphics_info_t::convert_to_v2_atom_names_flag;
+   
    // std::cout << "Recovering from file: " << backup_file_name << std::endl;
 
    std::string save_name = name_;
@@ -3211,7 +3214,9 @@ molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_fil
    handle_read_draw_molecule(imol_no, backup_file_name,
 			     cwd, 
 			     reset_rotation_centre_flag,
-			     is_undo_or_redo, bond_width);
+			     is_undo_or_redo,
+			     convert_flag,
+			     bond_width);
    save_state_command_strings_ = save_save_state;
    imol_no = save_imol; 
    name_ = save_name;

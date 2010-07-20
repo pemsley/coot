@@ -320,6 +320,11 @@ int       graphics_info_t::esoteric_depth_cue_flag = 1; // on by default.
 // save coords fileselection dir
 int graphics_info_t::save_coordinates_in_original_dir_flag = 0;
 
+// by default convert nucleic acid names to match the (currently v2)
+// dictionary.
+// 
+bool graphics_info_t::convert_to_v2_atom_names_flag = 1;
+
 //
 short int graphics_info_t::print_initial_chi_squareds_flag = 0;
 
@@ -1053,6 +1058,7 @@ short int graphics_info_t::do_anti_aliasing_flag = 0;
 
 // lighting
 short int graphics_info_t::do_lighting_flag = 0;
+bool      graphics_info_t::do_flat_shading_for_solid_density_surface = 1;
 
 
 // stereo?
@@ -1696,6 +1702,10 @@ init_gl_widget(GtkWidget *widget) {
 void
 setup_lighting(short int do_lighting_flag) {
 
+
+   std::cout << "==================================== setup_lighting() "
+	     << do_lighting_flag << " ============" << std::endl;
+   
    if (do_lighting_flag) { // set this to 1 to light a surface currently.
 //       GLfloat  mat_specular[]   = {1.0, 0.3, 0.2, 1.0};
 //       GLfloat  mat_ambient[]    = {0.8, 0.1, 0.1, 1.0};
@@ -2215,7 +2225,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 	 if (is_valid_map_molecule(ii)) {
 	    // enable lighting internal to this function
-	    graphics_info_t::molecules[ii].draw_solid_density_surface();
+	    bool do_flat =
+	       graphics_info_t::do_flat_shading_for_solid_density_surface;
+	    graphics_info_t::molecules[ii].draw_solid_density_surface(do_flat);
 	 }
       }
 

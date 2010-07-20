@@ -63,7 +63,7 @@ main(int argc, char **argv) {
       string pdb_file_name(argv[1]);
 
       // if pdb_file_name does not exist -> crash?
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name); 
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, 1); 
       //coot::restraints_container_t restraints(asc);
 
       // So, we provide easy(?) access to the atoms of next and

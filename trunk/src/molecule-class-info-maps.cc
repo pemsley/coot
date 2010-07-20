@@ -546,7 +546,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
 // not const because we sort in place the triangles of tri_con
 void
-molecule_class_info_t::draw_solid_density_surface() {
+molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 
    
    if (draw_it_for_solid_density_surface) {
@@ -653,17 +653,27 @@ molecule_class_info_t::draw_solid_density_surface() {
 void
 molecule_class_info_t::setup_density_surface_material() {
 
-   GLfloat bgcolor[4]={0.8, 0.8, 0.8, 0.1};
+   GLfloat ambientLight[] = { 0.01f, 0.01f, 0.01f, 1.0f };
+   GLfloat diffuseLight[] = { 0.03f, 0.03f, 0.03, 1.0f };
+   GLfloat specularLight[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+   
+   // Assign created components to GL_LIGHT2
+   glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+   glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+   glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+
+
+   GLfloat bgcolor[4]={0.8, 0.8, 0.8, 1.0};
    glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
-   glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128); 
+   glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 256); 
    //Let the returned colour dictate: note obligatory order of these calls
-   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+   // glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
    glEnable(GL_COLOR_MATERIAL);
 
-   GLfloat  mat_specular[]  = {0.8, 0.8, 0.8, 1.0};
-   GLfloat  mat_ambient[]   = {0.1, 0.1, 0.1, 0.5};
-   GLfloat  mat_diffuse[]   = {0.1, 0.1, 0.1, 0.5};
-   GLfloat  mat_shininess[] = {500.0};
+   GLfloat  mat_specular[]  = {0.9, 0.9, 0.9, 1.0};
+   GLfloat  mat_ambient[]   = {0.01, 0.01, 0.01, 1.0};
+   GLfloat  mat_diffuse[]   = {0.01, 0.01, 0.01, 1.0};
+   GLfloat  mat_shininess[] = {80.0};
 
    glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
@@ -1643,7 +1653,7 @@ molecule_class_info_t::make_map_from_phs(std::string pdb_filename,
    std::cout << "Make a map from " << phs_filename << " using "
 	     << pdb_filename << " for the cell and symmetry " << std::endl; 
 
-   atom_selection_container_t SelAtom = get_atom_selection(pdb_filename);
+   atom_selection_container_t SelAtom = get_atom_selection(pdb_filename, 1);
 
    if (SelAtom.read_success == 1) { // success
       try {

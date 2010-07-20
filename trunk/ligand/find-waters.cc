@@ -309,7 +309,7 @@ main(int argc, char **argv) {
 		  clipper::Xmap<float> xmap;
 		  coot::util::map_fill_from_mtz(&xmap, mtz_filename, f_col, phi_col, "", 
 						use_weights, is_diff_map);
-		  atom_selection_container_t asc = get_atom_selection(pdb_file_name);
+		  atom_selection_container_t asc = get_atom_selection(pdb_file_name, 1);
 		  short int waters_only_flag = 1;
 		  short int remove_or_zero_occ_flag = coot::util::TRIM_BY_MAP_DELETE;
 		  clipper::Map_stats stats(xmap);

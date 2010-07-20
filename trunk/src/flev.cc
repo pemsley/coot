@@ -87,7 +87,7 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
    // BOND to_atom_x to_atom_y colour_name
    //
 
-   atom_selection_container_t flat = get_atom_selection(prodrg_output_flat_pdb_file_name);
+   atom_selection_container_t flat = get_atom_selection(prodrg_output_flat_pdb_file_name, 1);
    if (flat.read_success) {
       if (is_valid_model_molecule(imol_ligand_fragment)) {
 
@@ -1733,7 +1733,7 @@ coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
 					     const std::string &prodrg_3d_ligand_file_name,
 					     const coot::dictionary_residue_restraints_t &restraints) {
 
-   atom_selection_container_t asc = get_atom_selection(prodrg_3d_ligand_file_name);
+   atom_selection_container_t asc = get_atom_selection(prodrg_3d_ligand_file_name, 1);
 
    if (asc.read_success) {
       PSContact pscontact = NULL;

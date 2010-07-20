@@ -31,7 +31,7 @@ coot::Cartesian
 centre_of_molecule(atom_selection_container_t SelAtom); 
 
 
-atom_selection_container_t get_atom_selection(std::string t);
+atom_selection_container_t get_atom_selection(std::string t, bool convert_to_v2_name_flag);
 int fix_nucleic_acid_residue_names(atom_selection_container_t asc);
 int fix_nucleic_acid_residue_name(CResidue *r); // return whether it was changed or not.
 void convert_to_old_nucleotide_atom_names(CResidue *r);

@@ -595,6 +595,13 @@ float idle_function_rotate_angle();
 /*! \brief a synonym for read-pdb.  Read the coordinates from
   filename (can be pdb, cif or shelx format)  */
 int handle_read_draw_molecule(const char *filename);
+/*! \brief shall we convert nucletotides to match the dictionary
+  names?
+
+Often we want to do this (give current Coot architecture).  Sometimes
+not, though.
+ */
+void set_convert_to_v2_atom_names(short int state);
 
 /*! \brief read coordinates from filename with option to not recentre.
 
@@ -664,6 +671,12 @@ objects are no longer depth sorted) considerably faster to render.
 
  */
 void set_solid_density_surface_opacity(int imol, float opacity);
+
+/*! \brief set the flag to do flat shading rather than smooth shading
+  for solid density surface.
+
+Default is 1 (on. */
+void set_flat_shading_for_solid_density_surface(short int state);
 
 /* \} */
 
