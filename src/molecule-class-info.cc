@@ -98,8 +98,9 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 						 std::string cwd,
 						 short int reset_rotation_centre,
 						 short int is_undo_or_redo,
+						 bool convert_to_v2_atom_names_flag,
 						 float bond_width_in) {
-
+   
    //
    graphics_info_t g;
    imol_no = imol_no_in;
@@ -129,7 +130,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    // Read in pdb, [shelx files use the read_shelx_ins_file method]
    //
 
-   atom_sel = get_atom_selection(filename);
+   atom_sel = get_atom_selection(filename, convert_to_v2_atom_names_flag);
    
    if (atom_sel.read_success == 1) {
 
@@ -5453,7 +5454,11 @@ molecule_class_info_t::save_history_file_name(const std::string &file) {
 
 // restore from (previous) backup
 void
-molecule_class_info_t::restore_from_backup(int history_offset, const std::string &cwd) {
+molecule_class_info_t::restore_from_backup(int history_offset,
+					   const std::string &cwd) {
+
+   // consider passing this:
+   bool convert_flag = graphics_info_t::convert_to_v2_atom_names_flag;
 
    int hist_vec_index = history_index + history_offset;
    if (int(history_filename_vec.size()) > hist_vec_index) {
@@ -5473,7 +5478,10 @@ molecule_class_info_t::restore_from_backup(int history_offset, const std::string
 	 // don't want that either:
 	 std::vector<std::string> save_save_state = save_state_command_strings_;
 	 short int is_undo_or_redo = 1;
-	 handle_read_draw_molecule(imol_no, filename, cwd, reset_rotation_centre, is_undo_or_redo,
+	 handle_read_draw_molecule(imol_no, filename, cwd,
+				   reset_rotation_centre,
+				   is_undo_or_redo,
+				   convert_flag,
 				   bond_width);
 	 save_state_command_strings_ = save_save_state;
 	 imol_no = save_imol; 

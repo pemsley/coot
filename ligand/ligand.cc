@@ -569,7 +569,7 @@ coot::ligand::mask_by_atoms(std::string pdb_filename) {
    std::cout << "Reading pdb file: " << pdb_filename << std::endl;
 
    // get mol from pdb_filename:
-   atom_selection_container_t asc = get_atom_selection(pdb_filename);
+   atom_selection_container_t asc = get_atom_selection(pdb_filename, 1);
    
    protein_atoms.init(asc.mol);
    bool mask_waters = 0;

@@ -206,7 +206,7 @@ main(int argc, char **argv) {
 	 bool map_is_good = 0;
 
 	 // if pdb_file_name does not exist -> crash?
-	 atom_selection_container_t asc = get_atom_selection(pdb_file_name);
+	 atom_selection_container_t asc = get_atom_selection(pdb_file_name, 1);
       
 	 const char *chain_id = inputs.chain_id.c_str();
 	 clipper::Xmap<float> xmap;

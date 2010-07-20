@@ -427,6 +427,12 @@ int handle_read_draw_molecule(const char *filename) {
    return handle_read_draw_molecule_with_recentre(filename, r);
 }
 
+void set_convert_to_v2_atom_names(short int state) {
+   graphics_info_t::convert_to_v2_atom_names_flag = state;
+}
+
+
+
 
 int handle_read_draw_molecule_with_recentre(const char *filename,
 					   int recentre_on_read_pdb_flag) {
@@ -474,8 +480,11 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 // 		<< imol << std::endl;
 //       std::cout << " DEBUG:: created placeholder molecule number " << imol << std::endl;
       float bw = graphics_info_t::default_bond_width;
-      istat = g.molecules[imol].handle_read_draw_molecule(imol, f, coot::util::current_working_dir(),
-							  recentre_on_read_pdb_flag, 0, bw);
+      istat = g.molecules[imol].handle_read_draw_molecule(imol, f,
+							  coot::util::current_working_dir(),
+							  recentre_on_read_pdb_flag, 0,
+							  g.convert_to_v2_atom_names_flag,
+							  bw);
 
       if (istat == 1) {
 	 std::cout << "Molecule " << imol << " read successfully\n";
@@ -546,7 +555,7 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
 					      const char *file_name) {
    int imol = -1;
    if (is_valid_model_molecule(molecule_number)) {
-      atom_selection_container_t asc = get_atom_selection(file_name);
+      atom_selection_container_t asc = get_atom_selection(file_name, 1);
       CMMDBManager *mol = asc.mol;
       graphics_info_t::molecules[molecule_number].replace_molecule(mol);
       imol = molecule_number;
@@ -4260,7 +4269,7 @@ int test_function(int i, int j) {
 
    if (0) {
       // atom_selection_container_t asc = get_atom_selection("double.pdb");
-      atom_selection_container_t asc = get_atom_selection("test-frag.pdb");
+      atom_selection_container_t asc = get_atom_selection("test-frag.pdb", 1);
       coot::dots_representation_info_t dots;
       int sel_hnd = asc.SelectionHandle;
       std::vector<std::pair<CAtom *, float> > v =
@@ -8876,3 +8885,8 @@ set_solid_density_surface_opacity(int imol, float opacity) {
    }
 }
 
+void
+set_flat_shading_for_solid_density_surface(short int state) {
+   graphics_info_t::do_flat_shading_for_solid_density_surface = state;
+   graphics_draw();
+}

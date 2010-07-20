@@ -216,7 +216,7 @@ int greg_tests_using_external_data() {
 int test_phi_psi_values() {
 
    std::string filename = greg_test("frag-2wot.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
    int n_phi_psi = 0;
    
    int status = 0;
@@ -306,7 +306,7 @@ int test_alt_conf_rotamers() {
    int status = 1;
 
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
    bool ifound = 0;
 
    int imod = 1;
@@ -580,7 +580,7 @@ int test_ramachandran_probabilities() {
 
    std::string file_name = greg_test("crashes_on_cootaneering.pdb");
    file_name = "37-41.pdb";
-   atom_selection_container_t atom_sel = get_atom_selection(file_name);
+   atom_selection_container_t atom_sel = get_atom_selection(file_name, 1);
 
    if (! atom_sel.read_success)
       throw std::runtime_error(file_name + ": file not found.");
@@ -808,7 +808,7 @@ test_fragmemt_atom_selection() {
    //          there are 1465 atoms in tutorial-modern.pdb
    
    std::string f = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t asc = get_atom_selection(f);
+   atom_selection_container_t asc = get_atom_selection(f, 1);
    
    std::pair<coot::minimol::molecule, coot::minimol::molecule> p = 
       coot::make_mols_from_atom_selection_string(asc.mol, atom_selection_string,
@@ -832,7 +832,7 @@ test_fragmemt_atom_selection() {
 int test_peptide_link() {
    
    std::string f = "1h4p.pdb";
-   atom_selection_container_t asc = get_atom_selection(f);
+   atom_selection_container_t asc = get_atom_selection(f, 1);
    if (! asc.read_success)
       return 0;
 
@@ -913,7 +913,7 @@ restr_res_vector() {
    //    f = "7_and_96_B-a-result.pdb";
 //    f = "6_7_and_96_B.pdb";
 //    f = "6_7.pdb";
-   atom_selection_container_t asc = get_atom_selection(f);
+   atom_selection_container_t asc = get_atom_selection(f, 1);
 
    std::vector<std::pair<bool,CResidue *> > residues;
    CMMDBManager *mol = asc.mol;
@@ -970,7 +970,7 @@ test_add_atom() {
    int status = 0;
 
    std::string f = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t asc = get_atom_selection(f);
+   atom_selection_container_t asc = get_atom_selection(f, 1);
 
    int n_test_residues = 20;
    int pass_count = 0;
@@ -1075,7 +1075,7 @@ test_dipole() {
    std::string res_type = "TYR";
    
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
 
    std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
       t.geom.get_monomer_restraints(res_type);
@@ -1143,7 +1143,7 @@ int test_segid_exchange() {
    int status = 0;
    
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
    bool ifound = 0;
 
    std::vector<CResidue *> residues;
@@ -1265,11 +1265,11 @@ int test_ligand_fit_from_given_point() {
    }
    
    std::string f = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t asc = get_atom_selection(f);
+   atom_selection_container_t asc = get_atom_selection(f, 1);
    if (!asc.read_success)
       return 0;
    std::string l = greg_test("monomer-3GP.pdb");
-   atom_selection_container_t l_asc = get_atom_selection(l);
+   atom_selection_container_t l_asc = get_atom_selection(l, 1);
    if (!l_asc.read_success)
       return 0;
    
@@ -1336,7 +1336,7 @@ int test_ligand_conformer_torsion_angles() {
    }
    
    std::string l = greg_test("monomer-3GP.pdb");
-   atom_selection_container_t l_asc = get_atom_selection(l);
+   atom_selection_container_t l_asc = get_atom_selection(l, 1);
    if (!l_asc.read_success)
       return 0;
    
@@ -1504,7 +1504,7 @@ int test_coot_atom_tree() {
 
    // Now get a residue
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
    bool ifound = 0;
 
    int imod = 1;
@@ -1524,7 +1524,7 @@ int test_coot_atom_tree() {
    if (1) {
       try {
 	 filename = "monomer-3GP.pdb";
-	 atom_selection_container_t atom_sel = get_atom_selection(filename);
+	 atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
 	 if (!atom_sel.read_success) {
 	    std::cout << "monomer-3GP.pdb not read successfully." << std::endl;
 	 } else { 
@@ -1639,7 +1639,7 @@ test_coot_atom_tree_proline() {
 
    int r = 0; 
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
    CResidue *res_pro = test_get_residue(atom_sel.mol, "A", 12);
    if (res_pro) {
       coot::protein_geometry geom;
@@ -1810,7 +1810,7 @@ test_rotate_round_vector() {
    int r = 0;
    
    std::string filename = "monomer-3GP.pdb";
-   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
 
    std::string rotate_atom_1 = " N9 ";
    std::string rotate_atom_2 = " C1*";
@@ -2115,7 +2115,8 @@ int test_previous_water() {
    molecule_class_info_t mci;
    mci.handle_read_draw_molecule(1,
 				 greg_test("pathological-water-test.pdb"),
-				 coot::util::current_working_dir(), 0, 0, 1);
+				 coot::util::current_working_dir(),
+				 0, 0, 1, 1);
    mci.delete_atom("D", 162, "", " O  ", "");
    int iprev = mci.intelligent_previous_atom("D", 162, " O  ", "");
    CAtom *at = mci.atom_sel.atom_selection[iprev];
@@ -2165,7 +2166,7 @@ int test_coordinated_waters() {
    int data_type = COOT_COORDS_FILE_SELECTION;
    std::vector<std::string> file_names = filtered_by_glob("coot-download", data_type);
    for (unsigned int i=0; i<file_names.size(); i++) {
-      atom_selection_container_t atom_sel = get_atom_selection(file_names[i]);
+      atom_selection_container_t atom_sel = get_atom_selection(file_names[i], 1);
       if (atom_sel.mol) { 
 	 coot::util::water_coordination_t wc(atom_sel.mol, 3.3);
 	 std::vector<coot::util::contact_atoms_info_t> water_contacts = 
@@ -2269,7 +2270,7 @@ int test_flev_aromatics() {
    // std::string filename = "test-with-5GP.pdb";
    std::string filename = "test-with-5GP-with-ideal-A37-PHE.pdb";
    // std::string filename = "coot-download/1x8b.pdb";
-   atom_selection_container_t atom_sel = get_atom_selection(filename);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
    CResidue *res_ref = coot::util::get_residue("C", 1, "", atom_sel.mol);
    // CResidue *res_ref = coot::util::get_residue("A", 901, "", atom_sel.mol);
    if (! res_ref) {

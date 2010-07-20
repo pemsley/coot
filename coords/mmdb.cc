@@ -44,7 +44,7 @@
 // generally so useful).
 //
 atom_selection_container_t
-get_atom_selection(std::string pdb_name) {
+get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
    int err;
    MyCMMDBManager* MMDBManager;
@@ -192,8 +192,9 @@ get_atom_selection(std::string pdb_name) {
 	  }
        }
 
-       
-       fix_nucleic_acid_residue_names(asc);
+
+       if (convert_to_v2_name_flag)
+	  fix_nucleic_acid_residue_names(asc);
        fix_away_atoms(asc);
        fix_wrapped_names(asc);
     }
