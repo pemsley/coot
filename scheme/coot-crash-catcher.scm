@@ -54,6 +54,18 @@
   (apply string-append ls))
 
 
+;;; ls must be a list of strings, atom must be a string.
+;;; 
+;;; return either #t or #f.
+;;;
+(define (string-member? atom ls)
+  
+  (cond 
+   ((null? ls) #f)
+   ((string=? atom (car ls)) #t)
+   (else
+    (string-member? atom (cdr ls)))))
+
 ;; The following functions from PLEAC (guile version thereof of course).
 ;; 
 ;; or define a utility function for this
@@ -297,7 +309,9 @@
 
   (if (> (length args) 1)
       (let ((coot-exe (car (cdr args))))
-	(bug-report coot-exe))))
+	(if (string-member? "--no-graphics" args)
+	    (format #t "INFO:: --no-graphics mode prevents bug-report GUI~%")
+	    (bug-report coot-exe)))))
 
 
 			   
