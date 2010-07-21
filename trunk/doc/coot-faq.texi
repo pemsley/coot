@@ -517,6 +517,7 @@ work try also:
 * How do I "grab" just one atom in Real Space Refinement/Regularization?::
 * My sidechains are being sucked into the density for metal - how do I stop that?::
 * How do I bind a function to a key?::
+* How do I force Coot to clean up all the time?::
 * I can't mutate my broken residue::
 * Where has the Rotate/Translate function gone?::
 * How do I get rid of the ``Old Coot'' dialog?::
@@ -845,6 +846,20 @@ Like this:
       (set-pointer-atom-is-dummy 1)
       (place-atom-at-pointer)))
 @end verbatim
+
+@node How do I force Coot to clean up all the time?
+@section How do I force Coot to clean up all the time?
+
+By default, Coot cleans out the @file{coot-backup} directory files
+older than 7 days every 7 days.  If you want Coot to clean up all
+backup files every time it exits, add this to your @file{~/.coot}
+file.
+
+
+@code{(define clear-backups-maybe (lambda () (delete-coot-backup-files
+        'delete) #f))}
+
+
 
 @node I can't mutate my broken residue
 @section I can't mutate my broken residue
