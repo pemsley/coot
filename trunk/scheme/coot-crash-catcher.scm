@@ -220,7 +220,8 @@
 	  (begin
 	    (format #t "No core file found.  No debugging~%")
 	    (format #t "   This is not helpful.  ~%")
-	    (format #t "   Please turn on core dumps before sending a crash report~%"))
+	    (format #t "   Please turn on core dumps before sending a crash report~%")
+	    #f)
 	  (let ((gdb-script (make-gdb-script)))
 	    (if (string? gdb-script)
 		(begin
@@ -310,7 +311,19 @@
   (if (> (length args) 1)
       (let ((coot-exe (car (cdr args))))
 	(if (string-member? "--no-graphics" args)
-	    (format #t "INFO:: --no-graphics mode prevents bug-report GUI~%")
+	    
+	    (begin
+	      (format #t "INFO:: --no-graphics mode prevents bug-report GUI~%")
+	      (let ((s (get-gdb-strings coot-exe)))
+		(if (not (list? s))
+		    (begin
+		      (format #t "gdb-strings: ~s~%" s))
+		    (begin
+		      (map (lambda (line)
+			     (display line)
+			     (newline)) 
+			   s)))))
+		     
 	    (bug-report coot-exe)))))
 
 
