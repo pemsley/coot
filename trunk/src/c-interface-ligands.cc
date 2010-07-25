@@ -108,7 +108,7 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	       g.Geom_p()->get_monomer_restraints(res_name_ref_res);
 	    if (!restraints_info.first) {
 		  
-	       // prodrg-ify the reference ligand then.
+          // prodrg-ify the reference ligand then.
 	       std::vector<coot::command_arg_t> args;
 	       args.push_back("prodrg-ify");
 	       args.push_back(imol_ref);
@@ -116,12 +116,20 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	       args.push_back(resno_ref);
 	       args.push_back(single_quote(""));
 	       std::vector<std::string> command_strings;
-	       for (unsigned int i=0; i<args.size(); i++)
-		  command_strings.push_back(args[i].as_string());
-	       std::string s_cmd = graphics_info_t::schemize_command_strings(command_strings);
-	       std::cout << "DEUBG:: running scheme comand " << s_cmd << std::endl;
-	       safe_scheme_command(s_cmd);
-
+           if (!graphics_info_t::prefer_python) {
+             for (unsigned int i=0; i<args.size(); i++)
+               command_strings.push_back(args[i].as_string());
+             std::string s_cmd = graphics_info_t::schemize_command_strings(command_strings);
+             std::cout << "DEUBG:: running scheme comand " << s_cmd << std::endl;
+             safe_scheme_command(s_cmd);
+           } else {
+             // now the pythonic version
+             for (unsigned int i=0; i<args.size(); i++)
+               command_strings.push_back(args[i].as_string());
+             std::string s_cmd = graphics_info_t::pythonize_command_strings(command_strings);
+             std::cout << "DEUBG:: running python comand " << s_cmd << std::endl;
+             safe_python_command(s_cmd);
+           }
 
 	       // try again to get restraints_info
 	       restraints_info = g.Geom_p()->get_monomer_restraints(res_name_ref_res);

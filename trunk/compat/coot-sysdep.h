@@ -25,6 +25,7 @@
 #define GetAtomNameA GetAtomName
 #undef V_UNKNOWN
 #define V_UNKNOWNA V_UNKNOWN
+#undef small
 #endif
 
 // some redefinitions for Visual C++

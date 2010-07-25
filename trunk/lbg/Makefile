@@ -30,7 +30,7 @@ CLIPPER_LDFLAGS=$(CLIPPER)/lib/libclipper-core.la \
         $(CLIPPER)/lib/libfftw.la
 
 
-CXXFLAGS=-g -O2 $(EXTRA_FLAGS) $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) -I../lidia-core
+CXXFLAGS=-g -O2 $(EXTRA_FLAGS) $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) -I../lidia-core -I$(top_srcdir)/compat
 
 lbg: lig-build.o lbg.o wmolecule.o lbg-callbacks.o lbg-search.o some-coot-utils.o lbg-molfile.o residue-circles.o
 	libtool --mode=link $(CXX)  -Wl,--export-dynamic -o $@ $^ \

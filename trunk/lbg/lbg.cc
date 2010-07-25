@@ -35,6 +35,7 @@
 #endif
 #include "lbg.hh"
 
+
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *canvas) {
 
    return canvas;
