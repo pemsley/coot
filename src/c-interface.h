@@ -3221,7 +3221,23 @@ int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode);
 /*! \brief add a user-define bond restraint
 
    to be used when the given atoms are selected.  */
+
 int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, double bond_dist, double esd);
+int add_extra_torsion_restraint(int imol, 
+				const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, 
+				const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, 
+				const char *chain_id_3, int res_no_3, const char *ins_code_3, const char *atom_name_3, const char *alt_conf_3, 
+				const char *chain_id_4, int res_no_4, const char *ins_code_4, const char *atom_name_4, const char *alt_conf_4, 
+				double torsion_angle, double esd, int period);
+
+/* Code this up in due course - needs extra support in simple-restrtaint */
+/* int add_extra_target_position_restraint(int imol,  */
+/* 					const char *chain_id,  */
+/* 					int res_no,  */
+/* 					const char *ins_code,  */
+/* 					const char *atom_name,  */
+/* 					const char *alt_conf); */
+					
 
 
 #ifdef __cplusplus

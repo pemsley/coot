@@ -545,6 +545,10 @@ coot::contact_info::setup_atom_radii() {
    atom_radii[16] = std::pair<std::string, realtype> ("BE", 1.05);
    atom_radii[17] = std::pair<std::string, realtype> ("FE", 1.4);
    atom_radii[18] = std::pair<std::string, realtype> ("ZN", 1.35);
+   atom_radii[19] = std::pair<std::string, realtype> ("PD", 1.6);
+   atom_radii[20] = std::pair<std::string, realtype> ("PB", 1.46);
+   atom_radii[21] = std::pair<std::string, realtype> ("PT", 1.46);
+   atom_radii[22] = std::pair<std::string, realtype> ("AG", 1.36);
 }
 
 realtype

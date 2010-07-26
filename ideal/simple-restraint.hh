@@ -655,17 +655,41 @@ namespace coot {
 	 } 
       };
 
+      class extra_torsion_restraint_t {
+      public:
+	 atom_spec_t atom_1;
+	 atom_spec_t atom_2;
+	 atom_spec_t atom_3;
+	 atom_spec_t atom_4;
+	 double torsion_angle;
+	 double esd;
+	 int period;
+	 extra_torsion_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2,
+				   const atom_spec_t &a3, const atom_spec_t &a4,
+				   double torsion_in, double esd_in, int period_in) {
+	    atom_1 = a1;
+	    atom_2 = a2;
+	    atom_3 = a3;
+	    atom_4 = a4;
+	    torsion_angle = torsion_in;
+	    esd = esd_in;
+	    period = period_in;
+	 } 
+      };
+
       std::vector<extra_bond_restraint_t> bond_restraints;
+      std::vector<extra_torsion_restraint_t> torsion_restraints;
 
       bool has_restraints() const {
 
-	 // for now, only bond restraints
-	 
 	 if (bond_restraints.size() > 0)
 	    return 1;
 	 else
-	    return 0;
-      } 
+	    if (torsion_restraints.size() > 0)
+	       return 1;
+	    else 
+	       return 0;
+      }
    };
 
 
@@ -1396,6 +1420,9 @@ namespace coot {
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
 
       void add_extra_restraints(const extra_restraints_t &extra_restraints);
+      // and that calls:
+      void add_extra_bond_restraints(const extra_restraints_t &extra_restraints);
+      void add_extra_torsion_restraints(const extra_restraints_t &extra_restraints);
 
       // old code:
       // Read restraints from the refmac .rst file

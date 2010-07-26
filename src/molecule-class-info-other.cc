@@ -5662,9 +5662,9 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
       glEnable(GL_COLOR_MATERIAL);
 
-      GLfloat  mat_specular[]  = {1.0, 0.3, 0.2, 1.0};
-      GLfloat  mat_ambient[]   = {0.8, 0.1, 0.1, 1.0};
-      GLfloat  mat_diffuse[]   = {0.2, 0.2, 0.2, 0.5};
+      GLfloat  mat_specular[]  = {0.8, 0.8, 0.8, 1.0};
+      GLfloat  mat_ambient[]   = {0.2, 0.2, 0.2, 1.0};
+      GLfloat  mat_diffuse[]   = {0.7, 0.7, 0.7, 1.0};
       GLfloat  mat_shininess[] = {50.0};
       // GLfloat  light_position[] = {1.0, 1.0, 1.0, 1.0};
       
@@ -5690,9 +5690,9 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 			     bond_colour_internal[1],
 			     bond_colour_internal[2],
 			     1.0};
-	 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	 // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	 // glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, bgcolor);
-	 glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
+	 // glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
 	 // glMaterialfv(GL_FRONT, GL_EMISSION, bgcolor);
 	 for (int j=0; j< bonds_box_local.bonds_[ii].num_lines; j++) {
 	    glPushMatrix();

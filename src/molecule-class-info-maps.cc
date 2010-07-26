@@ -555,7 +555,7 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
       coot::Cartesian back  = unproject(1.0);
 
       glEnable(GL_LIGHTING);
-      glEnable(GL_LIGHT0);
+      glEnable(GL_LIGHT2);
       glEnable (GL_BLEND);
       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
@@ -570,16 +570,14 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 
       setup_density_surface_material();
       
-      glColor4f(0.7, 0.7, 0.7, density_surface_opacity);
+      glColor4f(0.9, 0.9, 0.9, density_surface_opacity);
 
 //       std::cout << "density_surface_opacity " << density_surface_opacity
 // 		<< std::endl;
       
       glBegin(GL_TRIANGLES);
 
-      bool flat_shading = 1;
-      
-      if (flat_shading) {
+      if (do_flat_shading) {
 	 for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
 
 	    // std::cout << "  distance metric " <<
@@ -646,6 +644,7 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
       }
       
       glEnd();
+      glDisable(GL_LIGHT2);
       glDisable(GL_LIGHTING);
    } 
 }
@@ -653,33 +652,39 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 void
 molecule_class_info_t::setup_density_surface_material() {
 
-   GLfloat ambientLight[] = { 0.01f, 0.01f, 0.01f, 1.0f };
-   GLfloat diffuseLight[] = { 0.03f, 0.03f, 0.03, 1.0f };
-   GLfloat specularLight[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+   // GLfloat ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+   // GLfloat diffuseLight[] = { 0.3f, 0.3f, 0.3, 1.0f };
    
-   // Assign created components to GL_LIGHT2
-   glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
-   glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-   glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+   GLfloat  ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+   GLfloat  diffuseLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+   GLfloat specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+   
+   // Assign created components to GL_LIGHT0
+   glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
+   glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
+   glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
 
-
-   GLfloat bgcolor[4]={0.8, 0.8, 0.8, 1.0};
-   glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
-   glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 256); 
+   // glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128); 
    //Let the returned colour dictate: note obligatory order of these calls
    // glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
    glEnable(GL_COLOR_MATERIAL);
 
-   GLfloat  mat_specular[]  = {0.9, 0.9, 0.9, 1.0};
-   GLfloat  mat_ambient[]   = {0.01, 0.01, 0.01, 1.0};
-   GLfloat  mat_diffuse[]   = {0.01, 0.01, 0.01, 1.0};
-   GLfloat  mat_shininess[] = {80.0};
+   GLfloat  mat_specular[]  = {0.98, 0.98, 0.98, 1.0};
+   GLfloat  mat_ambient[]   = {0.000, 1.000, 0.000, 1.0};
+   GLfloat  mat_diffuse[]   = {1.000, 0.000, 0.000, 1.0};
+   GLfloat  mat_shininess[] = {100.0};
 
-   glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
-   glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-   glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
-   glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
+   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
 
+
+   // inside ambient
+   GLfloat  back_mat_ambient[]   = {0.71, 0.71, 0.01, 1.0};
+   glMaterialfv(GL_BACK, GL_AMBIENT,   back_mat_ambient);
+   
 }
 
 

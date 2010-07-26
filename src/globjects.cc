@@ -1664,6 +1664,7 @@ init_gl_widget(GtkWidget *widget) {
    // Linear fog
    glFogi(GL_FOG_MODE, GL_LINEAR); 
    glFogf(GL_FOG_START, -20.0);
+   // glFogf(GL_FOG_START, 0.0);
    glFogf(GL_FOG_END, 20.0);
    
    glFogfv(GL_FOG_COLOR, g.background_colour); 
@@ -1726,6 +1727,7 @@ setup_lighting(short int do_lighting_flag) {
 //       glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
 //       glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
       glLightfv(GL_LIGHT0,   GL_POSITION, light_position);
+      glLightfv(GL_LIGHT2,   GL_POSITION, light_position);
 
       glEnable(GL_LIGHT0);
       glEnable(GL_DEPTH_TEST);

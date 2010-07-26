@@ -69,7 +69,8 @@ libcoot_ideal_la_LIBADD = \
    $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 
 
-libcoot_ideal_la_SOURCES = simple-restraint.cc  pepflip.cc regularize-minimol.cc lograma.cpp
+libcoot_ideal_la_SOURCES = simple-restraint.cc  extra-restraints.cc \
+	pepflip.cc regularize-minimol.cc lograma.cpp
 
 
 noinst_PROGRAMS = test-indexing with-geometry with-map logramatest

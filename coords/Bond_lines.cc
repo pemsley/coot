@@ -691,7 +691,8 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
 			    || ele == "Cl" || ele == "Br" 
 			    || ele == "PT" || ele == "RU" 
-			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG") {
+			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG"
+			    || ele == "PD" || ele == "PB" || ele == "AG") {
 			   handle_long_bonded_atom(non_Hydrogen_atoms[i], uddHnd, atom_colour_type);
 			}
 		     }
@@ -2993,7 +2994,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
 			    || ele == "Cl" || ele == "Br" 
 			    || ele == "PT" || ele == "RU" 
-			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG") {
+			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG"
+			    || ele == "PD" || ele == "PB" || ele == "AG") {
 			   handle_long_bonded_atom(atom_selection[i], uddHnd, col);
 			}
 		     }
@@ -3216,7 +3218,8 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
 			    || ele == "Cl" || ele == "Br" 
 			    || ele == "PT" || ele == "RU" 
-			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG") {
+			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG"
+			    || ele == "PD" || ele == "PB" || ele == "AG") {
 			   handle_long_bonded_atom(atom_selection[i], uddHnd, atom_colour_type);
 			}
 		     }
