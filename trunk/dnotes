@@ -5599,6 +5599,7 @@ Judit Debreczeni wrote:
 
 Funny - I was annoyed by that lack of feature just last night.
 
+* Done now.
 
 > 2. If there are two different ligands bound to the same active site
 > with partial occupancies (with alt conf identifiers A and B), coot
@@ -5655,7 +5656,6 @@ Wed Jun  9 12:13:44 CEST 2010
 
    Janssen et al. 2005, J. Med Chem. 48, 1901 (perhaps)
 
-
    hydrophobic pocket - adaptabilty to changes:
     
    2004 Das, 
@@ -5664,7 +5664,8 @@ Wed Jun  9 12:13:44 CEST 2010
 
    ligprep in schrodinger suite, preparing for glide
 
-   make the "omega" geneation of ligand conformers usable at the scripting layer
+   make the "omega" geneation of ligand conformers usable at the
+   scripting layer
 
     ,... e.g give me 2000 low energy conformers.
 
@@ -5700,6 +5701,33 @@ Fri Jun 11 11:56:15 CEST 2010
 
 Add to docs.
 
+* Done.
+
+----
+
+1T5S nice map to play with?
+
+  TT:
+  flood fill density with dummy atom, 
+  move the atoms the centre line.
+  find characteristic ca-ca-ca-ca geometry.
+  link bits together.  15 residues/second
+
 ------
+Thu Jul 22 21:40:12 EDT 2010
+
+  John Spence: Molecular movies:
+   -> make it easy to make movies from a series of electron density 
+      maps (mtz files).  
+
+      Consider interpolation.
+
+----
+
+   Update NCS maps based on local NCS. 
+   generate NCS matrix by local LSQing.
+ 
 
 
+  Kullback - Leibler divergence:
+------

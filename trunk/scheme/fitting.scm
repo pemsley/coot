@@ -686,3 +686,21 @@
 		(auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol imol-map 1 0.1)))))))
 
 		  
+		  
+
+;; Restrain the atoms in imol (in give range selection) to
+;; corresponding atoms in imol-ref.
+;; 
+;; atom-sel-type is either 'all 'main-chain or 'ca
+;; 
+;; 
+(define (add-extra-restraints-to-other-molecule imol chain-id 
+						resno-range-start resno-range-end 
+						atom-sel-type imol-ref)
+  
+  (for-each (lambda (res-no)
+
+	      'xx)
+
+	    (number-list resno-range-start resno-range-end)))
+  

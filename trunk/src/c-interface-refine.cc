@@ -348,6 +348,28 @@ int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, con
 } 
 
 
+int add_extra_torsion_restraint(int imol, 
+				const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, 
+				const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, 
+				const char *chain_id_3, int res_no_3, const char *ins_code_3, const char *atom_name_3, const char *alt_conf_3, 
+				const char *chain_id_4, int res_no_4, const char *ins_code_4, const char *atom_name_4, const char *alt_conf_4, 
+				double torsion_angle, double esd, int period) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t as_1(chain_id_1, res_no_1, ins_code_1, atom_name_1, alt_conf_1);
+      coot::atom_spec_t as_2(chain_id_2, res_no_2, ins_code_2, atom_name_2, alt_conf_2);
+      coot::atom_spec_t as_3(chain_id_3, res_no_3, ins_code_3, atom_name_3, alt_conf_3);
+      coot::atom_spec_t as_4(chain_id_4, res_no_4, ins_code_4, atom_name_4, alt_conf_4);
+      r = graphics_info_t::molecules[imol].add_extra_torsion_restraint(as_1, as_2, as_3, as_4, torsion_angle, esd, period);
+      graphics_draw();
+   }
+   
+
+   return r;
+}
+
+
 #ifdef USE_GUILE
 SCM list_extra_restraints_scm(int imol) {
 

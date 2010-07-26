@@ -467,7 +467,7 @@ test_lbg_graph_SOURCES = test-lbg-graph.cc lbg-graph.hh lbg-graph.cc
 test_lbg_graph_LDADD = $(MMDB_LIBS)
 
 
-density_score_by_residue_real_SOURCES = density-score-by-residue.cc
+density_score_by_residue_real_SOURCES = density-score-by-residue-src.cc
 density_score_by_residue_real_LDADD  =	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
