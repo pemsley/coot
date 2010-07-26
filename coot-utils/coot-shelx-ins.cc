@@ -139,7 +139,8 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	 // std::cout << card.card << std::endl;
 	 
 	 if (card.words.size() > 0) {
-	    if (card.words[0] == "RESI") {
+	    std::string card_word_0 = coot::util::upcase(card.words[0]);
+	    if (card_word_0 == "RESI") {
 	       encountered_atoms_flag = 1;
 	       resi_count++;
 	       if (atom_vector.size() > 0) { 
@@ -159,12 +160,12 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	       atom_vector.clear();
 	    } else {
 
-	       if (card.words[0] == "AFIX") {
+	       if (card_word_0 == "AFIX") {
 		  if (card.words.size() > 1) {
 		     current_afix = atoi(card.words[1].c_str());
 		  }
 	       } else {
-		  if (card.words[0] == "PART") {
+		  if (card_word_0 == "PART") {
 		     // 20081008 allow for a site occupancy factor on the PART line
 		     // but then throw it away.  Not good. Should fix at some stage.
 		     if (card.words.size() == 2 || card.words.size() == 3) {
@@ -226,13 +227,13 @@ coot::ShelxIns::read_file(const std::string &filename) {
 		     bool is_fvar_line = 0;
 		     bool is_sfac_line = 0; 
 		     if (card.words.size() > 0)
-			if (card.words[0] == "FVAR")
+			if (card_word_0 == "FVAR")
 			   is_fvar_line = 1; // flag for later
 
-		     if (card.words[0] == "TITL") {
+		     if (card_word_0 == "TITL") {
 			title = card.card;
 		     } else {
-			if (card.words[0] == "CELL") {
+			if (card_word_0 == "CELL") {
 			   if (card.words.size() > 7) {
 			      have_cell_flag = 1;
 			      cell_local.resize(6);
@@ -249,18 +250,18 @@ coot::ShelxIns::read_file(const std::string &filename) {
 			      cell.init(cell_d); // cell is class member
 			   }
 			} else { 
-			   if (card.words[0] == "UNIT") {
+			   if (card_word_0 == "UNIT") {
 			      for (unsigned int i=1; i<card.words.size(); i++)
 				 unit.push_back(atoi(card.words[i].c_str())); // number of atoms or each sfac type
 			   } else {
-			      if (card.words[0] == "SFAC") {
+			      if (card_word_0 == "SFAC") {
 				 std::cout << "SFAC LINE: " << card.card << std::endl;
 				 for (unsigned int i=1; i<card.words.size(); i++)
 				    sfac.push_back(card.words[i]); // atoms
 				 // std::cout << "DEBUG:: sfac is now of size " << sfac.size() << std::endl;
 				 is_sfac_line = 1;
 			      } else {
-				 if (card.words[0] == "SYMM") {
+				 if (card_word_0 == "SYMM") {
 				    symm_cards.push_back(card.card); // save for output
 				    std::string s;
 				    for (unsigned int i=1; i<card.words.size(); i++) { 
@@ -269,7 +270,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 				    }
 				    symm_vec.push_back(s);
 				 } else {
-				    if (card.words[0] == "HKLF") {
+				    if (card_word_0 == "HKLF") {
 				       post_atoms_flag = 1;
 				       post_atom_lines.push_back(card.card); // special case, first post atom line
 				       CResidue *residue = add_shelx_residue(atom_vector,
@@ -278,22 +279,22 @@ coot::ShelxIns::read_file(const std::string &filename) {
 				       chain->AddResidue(residue);
 				       atom_vector.clear();
 				    } else {
-				       if (card.words[0].substr(0, 4) == "WGHT") {
+				       if (card_word_0.substr(0, 4) == "WGHT") {
 					  // handle WGHT
 					  // post_atoms_flag = 1; // Definately not, e.g. T.RES
 				       } else {
-					  if (card.words[0].substr(0, 3) == "END") {
+					  if (card_word_0.substr(0, 3) == "END") {
 					     // handle END
 					     post_atoms_flag = 1;
 					     post_END_flag = 1;
 
 					  } else {
 
-					     if (card.words[0].substr(0, 4) == "ZERR") { // zerror 
+					     if (card_word_0.substr(0, 4) == "ZERR") { // zerror 
 					     
 					     } else {
 
-						if (card.words[0].substr(0, 3) == "REM") { // REM
+						if (card_word_0.substr(0, 3) == "REM") { // REM
 						   // Special case:
 						   // we have a REM after atoms but before HKL 4 line
 						   // e.g. insulin.res from GMS
@@ -302,68 +303,68 @@ coot::ShelxIns::read_file(const std::string &filename) {
 							 post_atom_lines.push_back(card.card);
 						
 						} else {
-						   if (card.words[0].substr(0, 4) == "FVAR") {
+						   if (card_word_0.substr(0, 4) == "FVAR") {
 
 						      save_fvars(card); 
 
 						   } else { 
 
-						      if ( (card.words[0].substr(0, 4) == "DEFS") || // DEFS and others
-							   (card.words[0].substr(0, 4) == "CGLS") ||
-							   (card.words[0].substr(0, 4) == "SHEL") ||
-							   (card.words[0].substr(0, 4) == "FMAP") ||
-							   (card.words[0].substr(0, 4) == "SIZE") ||
-							   (card.words[0].substr(0, 4) == "STIR") ||
-							   (card.words[0].substr(0, 4) == "TEMP") ||
-							   (card.words[0].substr(0, 4) == "BLOC") ||
-							   (card.words[0].substr(0, 4) == "SADI") ||
-							   (card.words[0].substr(0, 4) == "DISP") ||
-							   (card.words[0].substr(0, 4) == "SPEC") ||
-							   (card.words[0].substr(0, 4) == "PLAN") ||
-							   (card.words[0].substr(0, 4) == "LIST") ||
-							   (card.words[0].substr(0, 4) == "FREE") ||
-							   (card.words[0].substr(0, 4) == "HTAB") ||
-							   (card.words[0].substr(0, 4) == "DELU") ||
-							   (card.words[0].substr(0, 4) == "SIMU") ||
-							   (card.words[0].substr(0, 4) == "CONN") ||
-							   (card.words[0].substr(0, 4) == "EQIV") ||
-							   (card.words[0].substr(0, 4) == "BUMP") ||
-							   (card.words[0].substr(0, 4) == "MORE") ||
-							   (card.words[0].substr(0, 4) == "ISOR") ||
-							   (card.words[0].substr(0, 4) == "MERG") ||
-							   (card.words[0].substr(0, 4) == "ACTA") ||
-							   (card.words[0].substr(0, 4) == "TWIN") ||
-							   (card.words[0].substr(0, 4) == "OMIT") ||
-							   (card.words[0].substr(0, 4) == "SWAT") ||
-							   (card.words[0].substr(0, 4) == "ANIS") ||
-							   (card.words[0].substr(0, 4) == "BASF") ||
-							   (card.words[0].substr(0, 4) == "SAME") ||
-							   (card.words[0].substr(0, 4) == "MOLE") ||
-							   (card.words[0].substr(0, 4) == "BIND") ||
-							   (card.words[0].substr(0, 4) == "L.S.") ||
-							   (card.words[0].substr(0, 4) == "SUMP") ||
-							   (card.words[0].substr(0, 4) == "BOND") ||
-							   (card.words[0].substr(0, 4) == "HOPE") ||
-							   (card.words[0].substr(0, 4) == "EXTI") ||
-							   (card.words[0].substr(0, 4) == "WPDB")) { 
+						      if ( (card_word_0.substr(0, 4) == "DEFS") || // DEFS and others
+							   (card_word_0.substr(0, 4) == "CGLS") ||
+							   (card_word_0.substr(0, 4) == "SHEL") ||
+							   (card_word_0.substr(0, 4) == "FMAP") ||
+							   (card_word_0.substr(0, 4) == "SIZE") ||
+							   (card_word_0.substr(0, 4) == "STIR") ||
+							   (card_word_0.substr(0, 4) == "TEMP") ||
+							   (card_word_0.substr(0, 4) == "BLOC") ||
+							   (card_word_0.substr(0, 4) == "SADI") ||
+							   (card_word_0.substr(0, 4) == "DISP") ||
+							   (card_word_0.substr(0, 4) == "SPEC") ||
+							   (card_word_0.substr(0, 4) == "PLAN") ||
+							   (card_word_0.substr(0, 4) == "LIST") ||
+							   (card_word_0.substr(0, 4) == "FREE") ||
+							   (card_word_0.substr(0, 4) == "HTAB") ||
+							   (card_word_0.substr(0, 4) == "DELU") ||
+							   (card_word_0.substr(0, 4) == "SIMU") ||
+							   (card_word_0.substr(0, 4) == "CONN") ||
+							   (card_word_0.substr(0, 4) == "EQIV") ||
+							   (card_word_0.substr(0, 4) == "BUMP") ||
+							   (card_word_0.substr(0, 4) == "MORE") ||
+							   (card_word_0.substr(0, 4) == "ISOR") ||
+							   (card_word_0.substr(0, 4) == "MERG") ||
+							   (card_word_0.substr(0, 4) == "ACTA") ||
+							   (card_word_0.substr(0, 4) == "TWIN") ||
+							   (card_word_0.substr(0, 4) == "OMIT") ||
+							   (card_word_0.substr(0, 4) == "SWAT") ||
+							   (card_word_0.substr(0, 4) == "ANIS") ||
+							   (card_word_0.substr(0, 4) == "BASF") ||
+							   (card_word_0.substr(0, 4) == "SAME") ||
+							   (card_word_0.substr(0, 4) == "MOLE") ||
+							   (card_word_0.substr(0, 4) == "BIND") ||
+							   (card_word_0.substr(0, 4) == "L.S.") ||
+							   (card_word_0.substr(0, 4) == "SUMP") ||
+							   (card_word_0.substr(0, 4) == "BOND") ||
+							   (card_word_0.substr(0, 4) == "HOPE") ||
+							   (card_word_0.substr(0, 4) == "EXTI") ||
+							   (card_word_0.substr(0, 4) == "WPDB")) { 
 						      } else {
-							 if (card.words[0].substr(0, 4) == "LATT") {
+							 if (card_word_0.substr(0, 4) == "LATT") {
 							    std::cout << "LATT LINE: " << card.card << std::endl;
 							    latt = atoi(card.words[1].c_str());  // potential crash here
 							 } else { 
-							    if ( (card.words[0].substr(0, 4) == "DFIX" ) || 
-								 (card.words[0].substr(0, 5) == "DFIX_")) {
+							    if ( (card_word_0.substr(0, 4) == "DFIX" ) || 
+								 (card_word_0.substr(0, 5) == "DFIX_")) {
 							    } else {
-							       if ((card.words[0].substr(0, 4) == "FLAT") ||
-								   (card.words[0].substr(0, 5) == "SADI_")) {
+							       if ((card_word_0.substr(0, 4) == "FLAT") ||
+								   (card_word_0.substr(0, 5) == "SADI_")) {
 							       
 							       } else {
-								  if (card.words[0].substr(0, 5) == "CHIV_") {
+								  if (card_word_0.substr(0, 5) == "CHIV_") {
 								  } else {
-								     if ( (card.words[0].substr(0, 4) == "DANG" ) ||
-									  (card.words[0].substr(0, 5) == "DANG_") ||
-								       (card.words[0].substr(0, 4) == "RTAB")  ||
-								       (card.words[0].substr(0, 5) == "RTAB_") ) {
+								     if ( (card_word_0.substr(0, 4) == "DANG" ) ||
+									  (card_word_0.substr(0, 5) == "DANG_") ||
+								       (card_word_0.substr(0, 4) == "RTAB")  ||
+								       (card_word_0.substr(0, 5) == "RTAB_") ) {
 								  } else {
 
 									if (card.words.size() <= 4) {
@@ -372,7 +373,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 									   // say that those are bad atoms
 									   short int handled_dos = 0;
 									   if (card.words.size() == 1) {
-									      if (card.words[0].length() == 1) {
+									      if (card_word_0.length() == 1) {
 										 handled_dos = 1;
 									      }
 									   }
