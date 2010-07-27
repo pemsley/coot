@@ -2224,20 +2224,11 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       //
       // test_object();
 
+      graphics_info_t::draw_generic_objects();
+      graphics_info_t::draw_generic_text();
+
       // Put a wirecube at the rotation centre.
       //
-
-      // transparent objects:
-      // 
-      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-	 if (is_valid_map_molecule(ii)) {
-	    // enable lighting internal to this function
-	    bool do_flat =
-	       graphics_info_t::do_flat_shading_for_solid_density_surface;
-	    graphics_info_t::molecules[ii].draw_solid_density_surface(do_flat);
-	 }
-      }
-
       glPushMatrix();
       glTranslatef(graphics_info_t::RotationCentre_x(),
 		   graphics_info_t::RotationCentre_y(),
@@ -2264,6 +2255,18 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // view matrices that are the same as those that were when
       // the molecule was drawn.  Atom picking depends on this.
 
+      // transparent objects:
+      // 
+      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+	 if (is_valid_map_molecule(ii)) {
+	    // enable lighting internal to this function
+	    bool do_flat =
+	       graphics_info_t::do_flat_shading_for_solid_density_surface;
+	    graphics_info_t::molecules[ii].draw_solid_density_surface(do_flat);
+	 }
+      }
+
+
       // 
       draw_crosshairs_maybe();
 
@@ -2284,9 +2287,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 // 	 glEnable(GL_LIGHT0);
 // 	 glPopMatrix();
 //       }
-
-      graphics_info_t::draw_generic_objects();
-      graphics_info_t::draw_generic_text();
 
       // BL says:: not sure if we dont need to do this for 2nd Zalman view
       //      if (! in_stereo_flag) {
