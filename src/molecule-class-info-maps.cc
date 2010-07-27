@@ -568,21 +568,16 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 	 // std::cout << " no sorting" << std::endl;
       }
 
-      setup_density_surface_material();
-      
-      glColor4f(0.9, 0.9, 0.9, density_surface_opacity);
+      setup_density_surface_material(density_surface_opacity);
 
-//       std::cout << "density_surface_opacity " << density_surface_opacity
-// 		<< std::endl;
-      
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      glPolygonOffset(2.0,2.0);
+      glColor4f(0.0, 0.0, 0.0, density_surface_opacity);
+
       glBegin(GL_TRIANGLES);
 
       if (do_flat_shading) {
 	 for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
-
-	    // std::cout << "  distance metric " <<
-	    // tri_con.point_indices[i].back_front_projection_distance
-	    // << std::endl;
 
 	    glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
 		       tri_con.point_indices[i].normal_for_flat_shading.y(),
@@ -608,6 +603,7 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 
       } else {
 
+	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 10);
 	 glShadeModel(GL_SMOOTH);
 	 for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
 
@@ -644,13 +640,14 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
       }
       
       glEnd();
+      glDisable(GL_POLYGON_OFFSET_FILL);
       glDisable(GL_LIGHT2);
       glDisable(GL_LIGHTING);
    } 
 }
 
 void
-molecule_class_info_t::setup_density_surface_material() {
+molecule_class_info_t::setup_density_surface_material(float opacity) {
 
    // GLfloat ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
    // GLfloat diffuseLight[] = { 0.3f, 0.3f, 0.3, 1.0f };
@@ -664,15 +661,18 @@ molecule_class_info_t::setup_density_surface_material() {
    glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
    glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
 
-   // glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128); 
+   glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+   
    //Let the returned colour dictate: note obligatory order of these calls
-   // glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+   //glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
+   //glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
-   glEnable(GL_COLOR_MATERIAL);
+   //glEnable(GL_COLOR_MATERIAL);
+   glDisable(GL_COLOR_MATERIAL);
 
-   GLfloat  mat_specular[]  = {0.98, 0.98, 0.98, 1.0};
-   GLfloat  mat_ambient[]   = {0.000, 1.000, 0.000, 1.0};
-   GLfloat  mat_diffuse[]   = {1.000, 0.000, 0.000, 1.0};
+   GLfloat  mat_specular[]  = {0.98,  0.98,  0.98,  opacity};
+   GLfloat  mat_ambient[]   = {0.400, 0.400, 0.400, opacity};
+   GLfloat  mat_diffuse[]   = {0.500, 0.500, 0.500, opacity};
    GLfloat  mat_shininess[] = {100.0};
 
    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);

@@ -2738,7 +2738,7 @@ public:        //                      public
    void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
    float density_surface_opacity;
-   void setup_density_surface_material(); // shininess, material colour etc.
+   void setup_density_surface_material(float opacity); // shininess, material colour etc.
    
 };
 
