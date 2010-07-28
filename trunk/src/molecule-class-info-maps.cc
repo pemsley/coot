@@ -102,14 +102,15 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 	 std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
 		   << " original data " << std::endl;
 
-      if (debugging)
+      if (debugging) { 
 	 if (do_gompertz) { 
 	    std::cout << "DEBUG:: do_gompertz: " << do_gompertz << " with "
 		      << original_fobs_sigfobs.num_obs() << " F,sigF reflections"
 		      << std::endl;
 	 } else {
 	    std::cout << "DEBUG:: no gompertz F/sigF scaling " << std::endl;
-	 } 
+	 }
+      }
       
 
       clipper::HKL_info::HKL_reference_index hri;
