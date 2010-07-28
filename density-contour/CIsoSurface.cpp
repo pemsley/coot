@@ -740,6 +740,9 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
       tri.pointID[1] = m_piTriangleIndices[i+1];
       tri.pointID[2] = m_piTriangleIndices[i+2];
       tri_con.point_indices[nt] = tri;
+      tri.mid_point = clipper::Coord_orth(0,0,0); // non-random placeholder value
+      tri.normal_for_flat_shading = clipper::Coord_orth(0,0,0); // ditto.
+      tri.back_front_projection_distance = 0; // ditto.
    }
 
    // what is the maximum index in m_piTriangleIndices ?  (we
