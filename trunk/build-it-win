@@ -3040,6 +3040,9 @@ if [ $architecture = x86_64 ] ; then
    export CXXFLAGS="-g -O"
 fi
 
+# this is a quick fix, and shoudl be done properly at some point
+coot_optim_args='-build=i686-pc-mingw32'
+
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
 echo ./configure $coot_prefix \
