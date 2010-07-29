@@ -662,6 +662,17 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 /*! \brief sets the density map of the given molecule to be drawn as a
   (transparent) solid surface. */
 void set_draw_solid_density_surface(int imol, short int state);
+/*! \brief toggle for standard lines representation of map.
+
+  This turns off/on standard lines representation of map.  transparent
+  surface is another representation type.
+
+  If you want to just turn off a map, don't use this, use
+  set_map_displayed().
+
+  */
+void set_draw_map_standard_lines(int imol, short int state);
+
 /*! \brief set the opacity of density surface representation of the
   given map.
 

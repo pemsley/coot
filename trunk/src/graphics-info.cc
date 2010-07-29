@@ -718,8 +718,10 @@ graphics_info_t::displayed_map_imols() const {
 
    std::vector<int> is;
    for (int i=0; i<n_molecules(); i++) {
-      if (molecules[i].drawit_for_map == 1) {
-	 is.push_back(i);
+      if (molecules[i].has_map()) { 
+	 if (molecules[i].is_displayed_p()) {
+	    is.push_back(i);
+	 }
       }
    }
    return is;

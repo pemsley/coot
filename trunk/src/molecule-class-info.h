@@ -913,7 +913,8 @@ public:        //                      public
       // give back the memory from the map, so that we don't get
       // clipper leak message?
       drawit = 0;
-      drawit_for_map = 0;  // don't display this thing on a redraw!
+      draw_it_for_map = 0;  // don't display this thing on a redraw!
+      draw_it_for_map_standard_lines = 0;
 
       // don't do these things when we have a shallow copy constructor.
       if (0) { 
@@ -968,7 +969,8 @@ public:        //                      public
 
       // Don't draw it initially.
       drawit = 0;
-      drawit_for_map = 0;
+      draw_it_for_map = 0;
+      draw_it_for_map_standard_lines = 0;
 
       // backup on by default, turned off for dummy atoms (baton building)
       backup_this_molecule = 1;
@@ -1050,7 +1052,7 @@ public:        //                      public
       // solid surface density representation
       //
       draw_it_for_solid_density_surface = 0;
-      density_surface_opacity = 0.8;
+      density_surface_opacity = 0.5;
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -1130,7 +1132,8 @@ public:        //                      public
    atom_selection_container_t atom_sel;
    int drawit; // used by Molecule Display control, toggled using
 	       // toggle fuctions. 
-   bool drawit_for_map; 
+   bool draw_it_for_map;
+   bool draw_it_for_map_standard_lines; // was drawit_for_map
    int pickable_atom_selection;  // ditto (toggling).
    
    std::string show_spacegroup() const;
@@ -1149,8 +1152,12 @@ public:        //                      public
    }
 
    void set_map_is_displayed(int state) {
-      drawit_for_map = state;
+      draw_it_for_map = state;
    }
+
+   void set_map_is_displayed_as_standard_lines(short int state) {
+      draw_it_for_map_standard_lines = state;
+   } 
 
    void do_solid_surface_for_density(short int on_off_flag);
 
@@ -1754,7 +1761,7 @@ public:        //                      public
 	 }
       } else {
 	 if (has_map()) {
-	    if (drawit_for_map) { 
+	    if (draw_it_for_map) {
 	       i = 1;
 	    } else {
 	       i = 0;
@@ -2738,7 +2745,7 @@ public:        //                      public
    void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
    float density_surface_opacity;
-   void setup_density_surface_material(float opacity); // shininess, material colour etc.
+   void setup_density_surface_material(bool solid_mode, float opacity); // shininess, material colour etc.
    
 };
 

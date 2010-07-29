@@ -351,12 +351,15 @@ void
 molecule_class_info_t::draw_density_map(short int display_lists_for_maps_flag,
 					short int main_or_secondary) {
 
-   if (drawit_for_map)
-      draw_density_map_internal(display_lists_for_maps_flag, drawit_for_map,
-				main_or_secondary);
+   if (draw_it_for_map)
+      if (draw_it_for_map_standard_lines)
+	 draw_density_map_internal(display_lists_for_maps_flag, draw_it_for_map,
+				   main_or_secondary);
 }
 
-
+// standard lines, testd for draw_it_for_map_standard_lines before
+// calling this.
+// 
 void
 molecule_class_info_t::draw_density_map_internal(short int display_lists_for_maps_flag_local,
 						 bool draw_map_local_flag,
@@ -550,141 +553,162 @@ void
 molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 
    
-   if (draw_it_for_solid_density_surface) {
+   if (draw_it_for_map) {
+      if (draw_it_for_solid_density_surface) {
 
-      coot::Cartesian front = unproject(0.0);
-      coot::Cartesian back  = unproject(1.0);
+	 coot::Cartesian front = unproject(0.0);
+	 coot::Cartesian back  = unproject(1.0);
 
-      glEnable(GL_LIGHTING);
-      glEnable(GL_LIGHT2);
-      glEnable (GL_BLEND);
-      glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	 glEnable(GL_LIGHTING);
+	 glEnable(GL_LIGHT2);
+	 glEnable (GL_BLEND);
+	 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
-      if (density_surface_opacity < 1.0) {
-	 clipper::Coord_orth front_cl(front.x(), front.y(), front.z());
-	 clipper::Coord_orth  back_cl( back.x(),  back.y(),  back.z());
-	 tri_con.depth_sort(back_cl, front_cl);
-	 // std::cout << " sorted" << std::endl;
-      } else {
-	 // std::cout << " no sorting" << std::endl;
-      }
-
-      setup_density_surface_material(density_surface_opacity);
-
-      glEnable(GL_POLYGON_OFFSET_FILL);
-      glPolygonOffset(2.0,2.0);
-      glColor4f(0.0, 0.0, 0.0, density_surface_opacity);
-
-      glBegin(GL_TRIANGLES);
-
-      if (do_flat_shading) {
-	 for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
-
-	    glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
-		       tri_con.point_indices[i].normal_for_flat_shading.y(),
-		       tri_con.point_indices[i].normal_for_flat_shading.z());
-	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[0]].x(),
-		       tri_con.points[tri_con.point_indices[i].pointID[0]].y(),
-		       tri_con.points[tri_con.point_indices[i].pointID[0]].z());
-	 
-	    glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
-		       tri_con.point_indices[i].normal_for_flat_shading.y(),
-		       tri_con.point_indices[i].normal_for_flat_shading.z());
-	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[1]].x(),
-		       tri_con.points[tri_con.point_indices[i].pointID[1]].y(),
-		       tri_con.points[tri_con.point_indices[i].pointID[1]].z());
-	 
-	    glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
-		       tri_con.point_indices[i].normal_for_flat_shading.y(),
-		       tri_con.point_indices[i].normal_for_flat_shading.z());
-	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[2]].x(),
-		       tri_con.points[tri_con.point_indices[i].pointID[2]].y(),
-		       tri_con.points[tri_con.point_indices[i].pointID[2]].z());
+	 if (density_surface_opacity < 1.0) {
+	    clipper::Coord_orth front_cl(front.x(), front.y(), front.z());
+	    clipper::Coord_orth  back_cl( back.x(),  back.y(),  back.z());
+	    tri_con.depth_sort(back_cl, front_cl);
+	    // std::cout << " sorted" << std::endl;
+	 } else {
+	    // std::cout << " no sorting" << std::endl;
 	 }
 
-      } else {
-
-	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 10);
-	 glShadeModel(GL_SMOOTH);
-	 for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
-
-// 	    std::cout << "normal 1: "
-// 		      << tri_con.normals[tri_con.point_indices[i].pointID[0]].format() << " "
-// 		      << "normal 2: "
-// 		      << tri_con.normals[tri_con.point_indices[i].pointID[1]].format() << " "
-// 		      << "normal 3: "
-// 		      << tri_con.normals[tri_con.point_indices[i].pointID[2]].format() << " "
-// 		      << std::endl;
-	       
-	    glNormal3f(tri_con.normals[tri_con.point_indices[i].pointID[0]].x(),
-		       tri_con.normals[tri_con.point_indices[i].pointID[0]].y(),
-		       tri_con.normals[tri_con.point_indices[i].pointID[0]].z());
-	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[0]].x(),
-		       tri_con.points[tri_con.point_indices[i].pointID[0]].y(),
-		       tri_con.points[tri_con.point_indices[i].pointID[0]].z());
+	 // solid_mode is 1 for density maps represented without
+	 // density lines - typically for representation of EM maps
+	 // and smooth shaded.  The lighting needs to be more ambient
+	 // and the material surface has colour (shared with the
+	 // colour of the map lines).
 	 
-	    glNormal3f(tri_con.normals[tri_con.point_indices[i].pointID[1]].x(),
-		       tri_con.normals[tri_con.point_indices[i].pointID[1]].y(),
-		       tri_con.normals[tri_con.point_indices[i].pointID[1]].z());
-	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[1]].x(),
-		       tri_con.points[tri_con.point_indices[i].pointID[1]].y(),
-		       tri_con.points[tri_con.point_indices[i].pointID[1]].z());
+	 bool solid_mode = ! do_flat_shading;
 	 
-	    glNormal3f(tri_con.normals[tri_con.point_indices[i].pointID[2]].x(),
-		       tri_con.normals[tri_con.point_indices[i].pointID[2]].y(),
-		       tri_con.normals[tri_con.point_indices[i].pointID[2]].z());
-	    glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[2]].x(),
-		       tri_con.points[tri_con.point_indices[i].pointID[2]].y(),
-		       tri_con.points[tri_con.point_indices[i].pointID[2]].z());
+	 setup_density_surface_material(solid_mode, density_surface_opacity);
+
+	 glEnable(GL_POLYGON_OFFSET_FILL);
+	 glPolygonOffset(2.0,2.0);
+	 glColor4f(0.0, 0.0, 0.0, density_surface_opacity);
+
+	 glBegin(GL_TRIANGLES);
+
+	 if (do_flat_shading) {
+	    for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+
+	       glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
+			  tri_con.point_indices[i].normal_for_flat_shading.y(),
+			  tri_con.point_indices[i].normal_for_flat_shading.z());
+	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[0]].x(),
+			  tri_con.points[tri_con.point_indices[i].pointID[0]].y(),
+			  tri_con.points[tri_con.point_indices[i].pointID[0]].z());
+	 
+	       glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
+			  tri_con.point_indices[i].normal_for_flat_shading.y(),
+			  tri_con.point_indices[i].normal_for_flat_shading.z());
+	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[1]].x(),
+			  tri_con.points[tri_con.point_indices[i].pointID[1]].y(),
+			  tri_con.points[tri_con.point_indices[i].pointID[1]].z());
+	 
+	       glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
+			  tri_con.point_indices[i].normal_for_flat_shading.y(),
+			  tri_con.point_indices[i].normal_for_flat_shading.z());
+	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[2]].x(),
+			  tri_con.points[tri_con.point_indices[i].pointID[2]].y(),
+			  tri_con.points[tri_con.point_indices[i].pointID[2]].z());
+	    }
+
+	 } else {
+
+	    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 5);
+	    glShadeModel(GL_SMOOTH);
+	    for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+
+	       glNormal3f(tri_con.normals[tri_con.point_indices[i].pointID[0]].x(),
+			  tri_con.normals[tri_con.point_indices[i].pointID[0]].y(),
+			  tri_con.normals[tri_con.point_indices[i].pointID[0]].z());
+	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[0]].x(),
+			  tri_con.points[tri_con.point_indices[i].pointID[0]].y(),
+			  tri_con.points[tri_con.point_indices[i].pointID[0]].z());
+	 
+	       glNormal3f(tri_con.normals[tri_con.point_indices[i].pointID[1]].x(),
+			  tri_con.normals[tri_con.point_indices[i].pointID[1]].y(),
+			  tri_con.normals[tri_con.point_indices[i].pointID[1]].z());
+	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[1]].x(),
+			  tri_con.points[tri_con.point_indices[i].pointID[1]].y(),
+			  tri_con.points[tri_con.point_indices[i].pointID[1]].z());
+	 
+	       glNormal3f(tri_con.normals[tri_con.point_indices[i].pointID[2]].x(),
+			  tri_con.normals[tri_con.point_indices[i].pointID[2]].y(),
+			  tri_con.normals[tri_con.point_indices[i].pointID[2]].z());
+	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[2]].x(),
+			  tri_con.points[tri_con.point_indices[i].pointID[2]].y(),
+			  tri_con.points[tri_con.point_indices[i].pointID[2]].z());
+	    }
+
 	 }
-
-      }
       
-      glEnd();
-      glDisable(GL_POLYGON_OFFSET_FILL);
-      glDisable(GL_LIGHT2);
-      glDisable(GL_LIGHTING);
-   } 
+	 glEnd();
+	 glDisable(GL_POLYGON_OFFSET_FILL);
+	 glDisable(GL_LIGHT2);
+	 glDisable(GL_LIGHTING);
+      }
+   }
 }
 
 void
-molecule_class_info_t::setup_density_surface_material(float opacity) {
+molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opacity) {
 
-   // GLfloat ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-   // GLfloat diffuseLight[] = { 0.3f, 0.3f, 0.3, 1.0f };
+   if (solid_mode) { 
    
-   GLfloat  ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-   GLfloat  diffuseLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-   GLfloat specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+      // cut glass mode:
+
+      GLfloat  ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+      GLfloat  diffuseLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+      GLfloat specularLight[] = { 0.8f, 0.8f, 0.8f, 1.0f };
    
-   // Assign created components to GL_LIGHT0
-   glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
-   glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
-   glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
+      // Assign created components to GL_LIGHT0
+      glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
+      glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
+      glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
 
-   glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+      glDisable(GL_COLOR_MATERIAL);
+
+      // test if (xmap_is_diff_map[0] == 1)
+      
+      GLfloat  mat_specular[]  = {0.98,  0.98,  0.98,  opacity};
+      GLfloat  mat_ambient[]   = {map_colour[0][0], map_colour[0][1], map_colour[0][2], opacity};
+      GLfloat  mat_diffuse[]   = {map_colour[0][0], map_colour[0][1], map_colour[0][2], opacity};
+      GLfloat  mat_shininess[] = {5.0};
+
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+
+      
+   } else {
+
+      GLfloat  ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+      GLfloat  diffuseLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+      GLfloat specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
    
-   //Let the returned colour dictate: note obligatory order of these calls
-   //glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-   //glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+      // Assign created components to GL_LIGHT2
+      glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
+      glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
+      glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
 
-   //glEnable(GL_COLOR_MATERIAL);
-   glDisable(GL_COLOR_MATERIAL);
+      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+      glDisable(GL_COLOR_MATERIAL);
 
-   GLfloat  mat_specular[]  = {0.98,  0.98,  0.98,  opacity};
-   GLfloat  mat_ambient[]   = {0.400, 0.400, 0.400, opacity};
-   GLfloat  mat_diffuse[]   = {0.500, 0.500, 0.500, opacity};
-   GLfloat  mat_shininess[] = {100.0};
+      GLfloat  mat_specular[]  = {0.98,  0.98,  0.98,  opacity};
+      GLfloat  mat_ambient[]   = {0.400, 0.400, 0.400, opacity};
+      GLfloat  mat_diffuse[]   = {0.500, 0.500, 0.500, opacity};
+      GLfloat  mat_shininess[] = {100.0};
 
-   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
-   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
 
-
-   // inside ambient
-   GLfloat  back_mat_ambient[]   = {0.71, 0.71, 0.01, 1.0};
-   glMaterialfv(GL_BACK, GL_AMBIENT,   back_mat_ambient);
+   } 
    
 }
 
