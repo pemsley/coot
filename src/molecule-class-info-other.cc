@@ -3765,29 +3765,31 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
    if (has_map()) {
 
       rtmi.bond_colour.resize(3);
-      if (drawit_for_map) { 
-	 if (lev == 1) {
-	    if (n_draw_vectors>0) { 
+      if (draw_it_for_map) {
+	 if (draw_it_for_map_standard_lines) { 
+	    if (lev == 1) {
+	       if (n_draw_vectors>0) { 
 
-	       rtmi.density_colour.col.resize(3);
-	       rtmi.density_colour.col[0] = map_colour[0][0];
-	       rtmi.density_colour.col[1] = map_colour[0][1];
-	       rtmi.density_colour.col[2] = map_colour[0][2];
+		  rtmi.density_colour.col.resize(3);
+		  rtmi.density_colour.col[0] = map_colour[0][0];
+		  rtmi.density_colour.col[1] = map_colour[0][1];
+		  rtmi.density_colour.col[2] = map_colour[0][2];
 
-	       for(int i=0; i<n_draw_vectors; i++) {
-		  rtmi.density_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(draw_vectors[i].getStart(), draw_vectors[i].getFinish()));
+		  for(int i=0; i<n_draw_vectors; i++) {
+		     rtmi.density_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(draw_vectors[i].getStart(), draw_vectors[i].getFinish()));
+		  }
 	       }
-	    }
-	 } else {
-	    if (n_diff_map_draw_vectors > 0) {
+	    } else {
+	       if (n_diff_map_draw_vectors > 0) {
 
-	       rtmi.density_colour.col.resize(3);
-	       rtmi.density_colour.col[0] = map_colour[1][0];
-	       rtmi.density_colour.col[1] = map_colour[1][1];
-	       rtmi.density_colour.col[2] = map_colour[1][2];
+		  rtmi.density_colour.col.resize(3);
+		  rtmi.density_colour.col[0] = map_colour[1][0];
+		  rtmi.density_colour.col[1] = map_colour[1][1];
+		  rtmi.density_colour.col[2] = map_colour[1][2];
 
-	       for(int i=0; i<n_diff_map_draw_vectors; i++) {
-		  rtmi.density_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(diff_map_draw_vectors[i].getStart(), diff_map_draw_vectors[i].getFinish()));
+		  for(int i=0; i<n_diff_map_draw_vectors; i++) {
+		     rtmi.density_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(diff_map_draw_vectors[i].getStart(), diff_map_draw_vectors[i].getFinish()));
+		  }
 	       }
 	    }
 	 }

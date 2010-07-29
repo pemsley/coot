@@ -445,7 +445,7 @@ graphics_info_t::save_state_file(const std::string &filename) {
 		  command_strings = molecules[i].get_map_contour_sigma_step_strings();
 		  commands.push_back(state_command(command_strings, il));
 	       }
-	       if (! molecules[i].drawit_for_map) {
+	       if (! molecules[i].is_displayed_p()) {
 		  display_strings.clear();
 		  display_strings.push_back("set-map-displayed");
 		  display_strings.push_back(int_to_string(molecule_count));

@@ -11694,3 +11694,63 @@ on_pisa_interfces_close_button_clicked (GtkButton       *button,
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "pisa_interfaces_dialog");
   gtk_widget_destroy(w);
 } 
+
+void
+on_displayed_map_style_as_lines_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data) {
+  
+
+  GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
+				    "single_map_properties_dialog");
+  int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
+  set_draw_map_standard_lines(imol, 1);
+  set_draw_solid_density_surface(imol, 0);
+
+} 
+
+void
+on_displayed_map_style_as_cut_glass_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data) { 
+
+  GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
+				    "single_map_properties_dialog");
+  int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
+  set_draw_map_standard_lines(imol, 1);
+  set_draw_solid_density_surface(imol, 0);
+  set_flat_shading_for_solid_density_surface(1);
+  set_draw_solid_density_surface(imol, 1);
+} 
+
+
+void
+on_displayed_map_style_as_transparent_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data) { 
+  GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
+				    "single_map_properties_dialog");
+  int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
+  set_draw_map_standard_lines(imol, 0);
+  set_draw_solid_density_surface(imol, 1);
+  set_flat_shading_for_solid_density_surface(0);
+  
+} 
+
+void
+on_map_opacity_hscale_value_changed    (GtkRange        *range,
+                                        gpointer         user_data) { 
+
+  GtkAdjustment *adjustment;
+  float fvalue;
+  GtkWidget *window = lookup_widget(GTK_WIDGET(range),
+				    "single_map_properties_dialog");
+  int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
+
+  adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
+  fvalue = 0.01 * gtk_adjustment_get_value(adjustment);
+/*   printf("opacity for %d: %f\n", imol, fvalue); */
+  set_solid_density_surface_opacity(imol, fvalue);
+
+}
+

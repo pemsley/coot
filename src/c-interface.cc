@@ -5693,6 +5693,16 @@ void set_map_displayed(int imol, int state) {
    }
 }
 
+void set_draw_map_standard_lines(int imol, short int state) {
+
+   graphics_info_t g;
+   if (is_valid_map_molecule(imol)) {
+      g.molecules[imol].set_map_is_displayed_as_standard_lines(state);
+      graphics_draw();
+   }
+}
+
+
 // button_type is "Displayed" or "Active"
 void
 set_display_control_button_state(int imol, const std::string &button_type, int state) {
@@ -5772,7 +5782,7 @@ int map_is_displayed(int imol) {
 
    if (is_valid_map_molecule(imol)) { 
       graphics_info_t g;
-      return g.molecules[imol].drawit_for_map;
+      return g.molecules[imol].is_displayed_p();
    }
    return 0; // -1 maybe? No, I think not.
 }

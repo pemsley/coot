@@ -4219,3 +4219,23 @@ on_check_water_by_difference_map_optionmenu_changed
 void
 on_pisa_interfces_close_button_clicked (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_displayed_map_style_as_lines_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_displayed_map_style_as_cut_glass_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_displayed_map_style_as_transparent_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_map_opacity_hscale_value_changed    (GtkRange        *range,
+                                        gpointer         user_data);
+

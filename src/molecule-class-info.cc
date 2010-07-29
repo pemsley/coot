@@ -929,7 +929,7 @@ molecule_class_info_t::draw_map_unit_cell(const coot::colour_holder &cell_colour
 	 if ( max_xmaps > 0 ) {
 	    if ( xmap_is_filled[0] ) {
 
-	       if (drawit_for_map) { 
+	       if (draw_it_for_map) { 
 	    
 		  // rsc = real_space_corners
 		  float rsc[8][3];
@@ -1291,7 +1291,7 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
    } 
    name_ = molecule_name;
 
-   drawit_for_map = 1; // display the map initially, by default
+   draw_it_for_map_standard_lines = 1; // display the map initially, by default
 
    // We can't call this untill xmap_is_filled[0] has been assigned,
    // and here we only make room for it.
@@ -4130,7 +4130,7 @@ molecule_class_info_t::close_yourself() {
    bonds_box.clear_up();
    // symmetry_bonds_box?  (It is a vector of pairs)
    drawit = 0;
-   drawit_for_map = 0;
+   draw_it_for_map = 0;
 
    // Do these whatever the molecule type:
    atom_sel.n_selected_atoms = 0;
