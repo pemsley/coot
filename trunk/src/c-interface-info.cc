@@ -2011,9 +2011,30 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    spgr_text_string += graphics_info_t::molecules[imol].xmap_list[0].spacegroup().descr().symbol_hall();
    spgr_text_string += "]";
 
-
    gtk_label_set_text(GTK_LABEL(cell_text), cell_text_string.c_str());
    gtk_label_set_text(GTK_LABEL(spgr_text), spgr_text_string.c_str());
+
+   // And now the map rendering style: transparent surface or standard lines:
+   GtkWidget *rb_1  = lookup_widget(window, "displayed_map_style_as_lines_radiobutton");
+   GtkWidget *rb_2  = lookup_widget(window, "displayed_map_style_as_cut_glass_radiobutton");
+   GtkWidget *rb_3  = lookup_widget(window, "displayed_map_style_as_transparent_radiobutton");
+   GtkWidget *scale = lookup_widget(window, "map_opacity_hscale");
+   
+
+   graphics_info_t g;
+   if (g.molecules[imol].draw_it_for_solid_density_surface) {
+      if (g.do_flat_shading_for_solid_density_surface)
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_2), TRUE);
+      else 
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_3), TRUE);
+   } else {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_1), TRUE);
+   }
+   
+   GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scale));
+   float op = g.molecules[imol].density_surface_opacity;
+   gtk_adjustment_set_value(adjustment, 100.0*op);
+   
 } 
 
 /*  ----------------------------------------------------------------------- */

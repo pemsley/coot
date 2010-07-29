@@ -11704,8 +11704,10 @@ on_displayed_map_style_as_lines_radiobutton_toggled
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
-  set_draw_map_standard_lines(imol, 1);
-  set_draw_solid_density_surface(imol, 0);
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
+    set_draw_map_standard_lines(imol, 1);
+    set_draw_solid_density_surface(imol, 0);
+  }
 
 } 
 
@@ -11717,10 +11719,15 @@ on_displayed_map_style_as_cut_glass_radiobutton_toggled
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
-  set_draw_map_standard_lines(imol, 1);
-  set_draw_solid_density_surface(imol, 0);
-  set_flat_shading_for_solid_density_surface(1);
-  set_draw_solid_density_surface(imol, 1);
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
+
+    set_draw_map_standard_lines(imol, 1);
+    set_draw_solid_density_surface(imol, 0);
+
+    set_draw_map_standard_lines(imol, 1);
+    set_draw_solid_density_surface(imol, 1);
+    set_flat_shading_for_solid_density_surface(1);
+  }
 } 
 
 
@@ -11731,9 +11738,11 @@ on_displayed_map_style_as_transparent_radiobutton_toggled
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
-  set_draw_map_standard_lines(imol, 0);
-  set_draw_solid_density_surface(imol, 1);
-  set_flat_shading_for_solid_density_surface(0);
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
+    set_draw_map_standard_lines(imol, 0);
+    set_draw_solid_density_surface(imol, 1);
+    set_flat_shading_for_solid_density_surface(0);
+  }
   
 } 
 
