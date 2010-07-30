@@ -252,6 +252,17 @@ Mon May 31 12:30:34 BST 2010
 
     < -1 is too soluble (atp -6? or so) 
 
+----
+Fri Jul 30 14:55:37 BST 2010
+
+    Need to be able to adjust:
+
+      o residue circle radius (and thus, font, I guess)
+
+      o hydrogen bond cut-off distance 
+    
+
+
 ===============================================================================
 
 

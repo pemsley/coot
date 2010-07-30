@@ -19,13 +19,20 @@
 
 * Done, I think, test at work.
 
-    o sue roberts: when generating sfs from cif
+    o Sue Roberts: when generating sfs from cif
     (run-refmac-for-phases), make it so that refmac doeesnt check the
     geimetry of the ligand (or so) first.  Just generate sfs!  talk to
     garib about how to do that.
 
 
     o torsion on a NAD work (with a fixed dictionary)?
+
+    o Quicksave every x minutes (if needed)
+
+    o findligand needs to be able to take an (x,y,z) coordinate 
+
+    o findligand need to be able to take cut-off in absolute (not just
+      sigma)
 
 
 ------

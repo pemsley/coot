@@ -5727,7 +5727,15 @@ Thu Jul 22 21:40:12 EDT 2010
    Update NCS maps based on local NCS. 
    generate NCS matrix by local LSQing.
  
+-------
+
+  Garib: new restraints type:
+  Kullback - Leibler divergence.
+
+-----
+Fri Jul 30 14:54:42 BST 2010
+
+   Fed 12 bins don't run on Fed 13.
 
 
-  Kullback - Leibler divergence:
 ------
