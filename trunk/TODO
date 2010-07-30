@@ -719,7 +719,14 @@ Punted from 0.6:
 
 * Done.
 
+   o draw surface within x A of a ligand
+
+   o check that SSBOND and LINK cards are valid on writing PDB.
+
    o chemical component library interface (punted) ::: 4
+
+   o Generic Display Ojbect dialog should be scrollable (e.g. in use
+     with PISA interfaces).
 
    o sphere-refine:  turn on rama restraints for restraints from residue_vec.
      make_link_restraints_by_linear() has
