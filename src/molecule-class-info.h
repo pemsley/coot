@@ -970,7 +970,7 @@ public:        //                      public
       // Don't draw it initially.
       drawit = 0;
       draw_it_for_map = 0;
-      draw_it_for_map_standard_lines = 0;
+      draw_it_for_map_standard_lines = 1;
 
       // backup on by default, turned off for dummy atoms (baton building)
       backup_this_molecule = 1;

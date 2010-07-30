@@ -16,6 +16,9 @@
 
   o FEATURE: higly-coordinated waters metal substitution search added.
 
+  o FEATURE: New map representation styles, solid/transparent and
+    "cut-glass"
+
   o CHANGE: Align & Mutate now provides a simple dialog with the
     alignment.
 

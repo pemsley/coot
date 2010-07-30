@@ -3766,7 +3766,9 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
 
       rtmi.bond_colour.resize(3);
       if (draw_it_for_map) {
-	 if (draw_it_for_map_standard_lines) { 
+	 // if (draw_it_for_map_standard_lines) // let's see something
+                                                // at least, if we are displaying a volume surface....
+	 if (1) { 
 	    if (lev == 1) {
 	       if (n_draw_vectors>0) { 
 

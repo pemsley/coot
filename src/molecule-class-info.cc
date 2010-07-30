@@ -1291,6 +1291,7 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
    } 
    name_ = molecule_name;
 
+   draw_it_for_map = 1;
    draw_it_for_map_standard_lines = 1; // display the map initially, by default
 
    // We can't call this untill xmap_is_filled[0] has been assigned,
@@ -4131,6 +4132,7 @@ molecule_class_info_t::close_yourself() {
    // symmetry_bonds_box?  (It is a vector of pairs)
    drawit = 0;
    draw_it_for_map = 0;
+   draw_it_for_map_standard_lines = 0;
 
    // Do these whatever the molecule type:
    atom_sel.n_selected_atoms = 0;
