@@ -5,27 +5,20 @@
 
     o change to rms z scores ::: 2
  
-    o findligand should work in absolute levels.
-
     o check/delete waters works? ::: 1
 
 * Works for me - check mail from Subhangi Ghosh 
-
-    o Ian Stokes-Rees ssm crash ::: 1
-
-* Pending reply from Ian.
-
-    o Mark's NCS crash ::: 1
-
-* Done, I think, test at work.
 
     o Sue Roberts: when generating sfs from cif
     (run-refmac-for-phases), make it so that refmac doeesnt check the
     geimetry of the ligand (or so) first.  Just generate sfs!  talk to
     garib about how to do that.
 
+* Pending reply from Garib.
 
-    o torsion on a NAD work (with a fixed dictionary)?
+    o torsion on a NAD work (fix the dictionary)?
+
+* Pending reply from Garib.
 
     o Quicksave every x minutes (if needed)
 
@@ -643,6 +636,14 @@ WARNING:: Can't find file
     o make coot-crash-catcher know about --no-graphics ::: 0.2
 
 * Done.
+
+    o Mark's NCS crash ::: 1
+
+* Done, I think, test at work.  Yes, done here too.
+
+    o Ian Stokes-Rees ssm crash ::: 1
+
+* No crash for me.  He was using old version?  Strange.
 
 
 -------

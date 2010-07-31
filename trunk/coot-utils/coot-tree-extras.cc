@@ -144,9 +144,9 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
       throw std::runtime_error(mess);
    }
 
-   bool success_torsion = fill_torsions(rest, res, altconf);
+   bool success_torsion = fill_torsions(rest, res, altconf); 
 
-   // if you want print out the atom tree, do it in fill_atom_vertex_vec()
+   // if you want print out the atom tree, do it in fill_atom_vertex_vec() 
 }
 
 

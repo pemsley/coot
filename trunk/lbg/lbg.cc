@@ -1826,6 +1826,7 @@ lbg_info_t::watch_for_mdl_from_coot(gpointer user_data) {
    std::string ready_file    = coot_ccp4_dir + "/.coot-to-lbg-mol-ready";
 
    struct stat buf;
+   
    int err = stat(ready_file.c_str(), &buf);
    if (! err) {
       time_t m = buf.st_mtime;
@@ -1947,6 +1948,9 @@ lbg_info_t::read_files_from_coot() {
    std::string coot_pdb_file = coot_ccp4_dir + "/.coot-to-lbg-pdb";
    std::string ready_file    = coot_ccp4_dir + "/.coot-to-lbg-mol-ready";
    std::string sa_file       = coot_dir      + "/coot-tmp-fle-view-solvent-accessibilites.txt";
+
+   std::cout << "trying to read " << coot_pdb_file << " "
+	     << coot_mdl_file << std::endl;
 
    handle_read_draw_coords_mol_and_solv_acc(coot_pdb_file,
 					    coot_mdl_file,
