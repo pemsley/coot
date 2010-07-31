@@ -649,7 +649,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	    if (status == GSL_ENOPROG) {
 	       cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG"
 		    << endl; 
-	       chi_squareds("Final Estimated RMS Z scores", s->x);
+	       chi_squareds("Final Estimated RMS Z Scores", s->x);
 	    }
 	    break;
 	 } 

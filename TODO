@@ -834,6 +834,21 @@ Punted from 0.6:
    o update probe dots (probe-local-sphere) should do a merge with
      already existing dots - removing the overlaping dots.
 
+   o in simple_restraint::minimize() should we return traffic lights
+   when the result has not terminated correctly?  Currently the return
+   value from chi_squareds() is not saved (and returned).
+
+
+   o Add a NAG to this ASN (or ARG (less common)) (this is N-linked).
+     Also consider O-link (on a SER, THR, TYR). Examine good N-linked
+     NAGs in PDB structures and find the chi1, chi2, glycosylation link
+     torsion angle.  Use these to same from. JB
+
+
+   o I want to add a residue that has insertion code (e.g. add to
+     residue 60 and residue 61 already exists).  JB.
+
+
  ------
     
     Release 0.8 [Sept 2009]
