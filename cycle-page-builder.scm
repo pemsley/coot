@@ -6,7 +6,9 @@
 	     (ice-9 popen)
 	     (ice-9 rdelim)
 	     (ice-9 receive)
-	     (net http)
+	     (ice-9 format)
+	     ;; (net http)
+	     (www main)
 	     (goosh)
 	     (ice-9 regex))
 
@@ -92,14 +94,20 @@
 	      (begin
 		(format #t "~%")
 		(let* ((url (list-ref build-info 2))
-		       (s
-			(call-with-output-string
-			 (lambda (port)
-			   (let ((initial-output-port (current-output-port)))
-			     (set-current-output-port port)
-			     (http-get url)
-			     (set-current-output-port initial-output-port)))))
+                       ;; (nov (format #t "debug:: getting url ~s~%" url))
+		       (s (www:get url))
+			;;(call-with-output-string
+			 ;;(lambda (port)
+			  ;; (let ((initial-output-port (current-output-port)))
+			   ;;  (set-current-output-port port)
+			    ;; ;; (http-get url)
+			     ;; (http-get "http://www.biop.ox.ac.uk") 
+			     ;;(www:get url)
+			     ;;(set-current-output-port initial-output-port)
+                             ;;))))
+                       ;; (nov-2 (format #t "================== got http string : ~s~%" s))
 		       (s-lines (string-split s #\newline)))
+                  ;; (format #t "debug2:: done getting url~%")
 		  (set! cached-pages (acons web-dir s-lines cached-pages))
 		  s-lines))))))))
 
@@ -256,7 +264,7 @@
    (lambda (port)
      (let ((initial-output-port (current-output-port)))
        (set-current-output-port port)
-       (http-get url)
+       (www:get url)
        (set-current-output-port initial-output-port)))))
 
 ;; return the revision number or #f
@@ -664,15 +672,15 @@
 	       #t #f)
 
 
-	 (list "binary-Linux-i386-fedora-4-python-gtk2"
-	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
-	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	       #t #t)
+;	 (list "binary-Linux-i386-fedora-4-python-gtk2"
+;	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
+;	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+;	       #t #t)
 
-	 (list "binary-Linux-i386-fedora-4-gtk2"
-	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
-	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	       #f #t)
+;	 (list "binary-Linux-i386-fedora-4-gtk2"
+;	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
+;	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+;	       #f #t)
 
 	 (list "binary-Linux-i386-fedora-8-python-gtk2"
 	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-8/gtk2"
@@ -751,10 +759,10 @@
 	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 	       #f #t)
 
-	 (list "binary-Linux-x86_64-ubuntu-9.04-gtk2"
-	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
-	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	       #f #t)
+; 	 (list "binary-Linux-x86_64-ubuntu-9.04-gtk2"
+; 	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
+; 	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+; 	       #f #t)
 
 	 (list "WinCoot" 
 	       "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-5.1-sarabellum/gtk2" 
