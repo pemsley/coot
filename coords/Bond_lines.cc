@@ -991,6 +991,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 				   SelAtom.atom_selection[ contact[i].id2 ]->z);
 	    std::string ele1 = residue_atoms[ contact[i].id1 ]->element;
 	    std::string ele2 = SelAtom.atom_selection[ contact[i].id2 ]->element;
+	    std::string alt_conf_1 = residue_atoms[ contact[i].id1 ]->altLoc;
+	    std::string alt_conf_2 = SelAtom.atom_selection[ contact[i].id2 ]->altLoc;
 
 	    if (0) { // debug
 	       std::cout << " DEBUG:: add env dist "
@@ -998,18 +1000,23 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 			 << SelAtom.atom_selection[ contact[i].id2 ]
 			 << std::endl;
 	    }
-	    if (draw_env_distances_to_hydrogens_flag ||
-		((ele1 != " H") && (ele2 != " H"))) { 
-	       if (ele1 == " C")
-		  addBond(0, atom_1, atom_2);
-	       else {
-		  if (ele2 == " C") { 
+
+	    if ((alt_conf_1 == alt_conf_2) ||
+		(alt_conf_1 == "") || 
+		(alt_conf_2 == "")) { 
+	       if (draw_env_distances_to_hydrogens_flag ||
+		   ((ele1 != " H") && (ele2 != " H"))) { 
+		  if (ele1 == " C")
 		     addBond(0, atom_1, atom_2);
-		  } else { 
-		     if (ele1 == " H" && ele2 == " H") { 
+		  else {
+		     if (ele2 == " C") { 
 			addBond(0, atom_1, atom_2);
 		     } else { 
-			addBond(1, atom_1, atom_2);
+			if (ele1 == " H" && ele2 == " H") { 
+			   addBond(0, atom_1, atom_2);
+			} else { 
+			   addBond(1, atom_1, atom_2);
+			}
 		     }
 		  }
 	       }
