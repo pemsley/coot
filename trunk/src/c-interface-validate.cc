@@ -260,8 +260,9 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
       use_min_dist_test = 0; 
    if (! checkbutton4->active)
       use_max_dist_test = 0;
-   if (! checkbutton5->active)
-      use_difference_map_test = 0;
+   if (checkbutton5) 
+      if (! checkbutton5->active)
+	 use_difference_map_test = 0;
       
    GtkWidget *zero_occ_checkbutton = lookup_widget(dialog, "check_waters_zero_occ_checkbutton");
    GtkWidget *partial_occ_close_contact_checkbutton =
