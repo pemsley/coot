@@ -234,7 +234,13 @@ namespace coot {
 					 std::vector<std::string> keep_atom_vector,
 					 bool use_keep_atom_vector);
 	 
-      }; 
+      };
+
+      // return segmented map.  -1 means no segment.
+      clipper::Xmap<int> segment(const clipper::Xmap<float> &xmap_in);
+      // sorting function used by above
+      bool compare_density_values_map_refs(const std::pair<clipper::Xmap_base::Map_reference_index, float> &v1,
+					   const std::pair<clipper::Xmap_base::Map_reference_index, float> &v2);
    }
 }
 

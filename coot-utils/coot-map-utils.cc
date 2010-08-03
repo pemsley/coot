@@ -20,11 +20,13 @@
  */
 
 
+#include <algorithm> // for sorting.
 
 // #include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
+#include "clipper/contrib/skeleton.h"
 
 #include "coot-utils.hh"
 #include "coot-map-utils.hh"
@@ -654,3 +656,58 @@ coot::util::backrub_residue_triple_t::trim_next_residue_atoms() {
    trim_residue_atoms_generic(this_residue, vec, 0);
 }
 
+
+clipper::Xmap<int>
+coot::util::segment(const clipper::Xmap<float> &xmap_in) {
+
+   clipper::Xmap<int> xmap_int(xmap_in.spacegroup(),
+			       xmap_in.cell(),
+			       xmap_in.grid_sampling());
+
+   int UNASSIGNED = -1;
+   xmap_int = UNASSIGNED;
+   long n_points = 0;
+
+   // how many points are there in an xmap?
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap_in.first(); !ix.last(); ix.next() )  {
+      n_points++;
+   }
+
+   std::vector<std::pair<clipper::Xmap_base::Map_reference_index, float> > density_values(n_points);
+   long int i=0;
+   for (ix = xmap_in.first(); !ix.last(); ix.next(), i++)
+      density_values[i] = std::pair<clipper::Xmap_base::Map_reference_index, float> (ix, xmap_in[ix]);
+
+   std::sort(density_values.begin(), density_values.end(), coot::util::compare_density_values_map_refs);
+
+   int i_segment_index = 0;
+   clipper::Coord_grid c_g;
+
+   for (i=0; i<n_points; i++) {
+      
+      // Flood down points around xmap_in[density_values[i].first] (if
+      // they are not already assigned to a peak).
+      //
+      //
+      clipper::Skeleton_basic::Neighbours neighb(xmap_in, 0.25, 1.75); // 3x3x3 cube, not centre
+      float v = xmap_in[density_values[i].first];
+      for (int i_n=0; i_n<neighb.size(); i_n++) {
+	 c_g = ix.coord() + neighb[i];
+	 if (xmap_int.get_data(c_g) == UNASSIGNED) {
+	    if (v > xmap_in.get_data(c_g)) {
+	       xmap_int.set_data(c_g, i_segment_index);
+	    }
+	 }
+      }
+   } 
+
+   return xmap_int;
+}
+
+// sorting function used by above
+bool
+coot::util::compare_density_values_map_refs(const std::pair<clipper::Xmap_base::Map_reference_index, float> &v1,
+					    const std::pair<clipper::Xmap_base::Map_reference_index, float> &v2) {
+   return (v1.second < v2.second);
+} 
