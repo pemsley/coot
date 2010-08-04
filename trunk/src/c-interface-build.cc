@@ -266,6 +266,119 @@ int copy_molecule(int imol) {
    return iret;
 }
 
+int
+add_ligand_delete_residue_copy_molecule(int imol_ligand_new, 
+					const char *chain_id_ligand_new,
+					int res_no_ligand_new, 
+					int imol_current,
+					const char *chain_id_ligand_current,
+					int res_no_ligand_current) {
+
+   int r = -1; 
+   bool created_flag = 0; // we only want to do this once
+
+   std::cout << "debug:: searching for residue :"
+	     << chain_id_ligand_current << ": " << res_no_ligand_current
+	     << " in molecule " << imol_current
+	     << " replacing it with atom of :" << chain_id_ligand_new << ":"
+	     << res_no_ligand_new << " of molecule " << imol_ligand_new
+	     << std::endl;
+   
+   if (! is_valid_model_molecule(imol_ligand_new)) {
+      std::cout << "WARNING:: ligand molecule " << imol_ligand_new << " is not a valid molecule"
+		<< std::endl;
+   } else { 
+      if (! is_valid_model_molecule(imol_current)) {
+	 std::cout << "WARNING:: (surrounding) molecule " << imol_current
+		   << " is not a valid molecule" << std::endl;
+      } else { 
+	 graphics_info_t g;
+	 CResidue *res_ligand_new =
+	    g.molecules[imol_ligand_new].get_residue(chain_id_ligand_new,
+						     res_no_ligand_new, "");
+	 CResidue *res_ligand_current =
+	    g.molecules[imol_current].get_residue(chain_id_ligand_current,
+						  res_no_ligand_current, "");
+	 if (!res_ligand_current || !res_ligand_new) {
+	    std::cout << "WARNING:: Oops, reference residues not found"
+		      << std::endl;
+	 } else { 
+	    CMMDBManager *n = new CMMDBManager;
+	    n->Copy(g.molecules[imol_current].atom_sel.mol, MMDBFCM_All);
+
+	    // now find the residue in imol_ligand_current.
+	    // and replace its atoms.
+	    int imodel = 1;
+	    CModel *model_p = n->GetModel(imodel);
+	    CChain *chain_p;
+	    int nchains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<nchains; ichain++) {
+	       chain_p = model_p->GetChain(ichain);
+	       std::cout << "comparing chain ids :"
+			 << chain_id_ligand_current << ": and :"
+			 << chain_p->GetChainID()
+			 << ":" << std::endl;
+	       if (! strncmp(chain_id_ligand_current, chain_p->GetChainID(), 4)) {
+		  int nres = chain_p->GetNumberOfResidues();
+		  CResidue *residue_p;
+		  CAtom *at;
+		  for (int ires=0; ires<nres; ires++) {
+		     residue_p = chain_p->GetResidue(ires);
+		     std::cout << "comparing resno " << residue_p->GetSeqNum()
+			       << " vs " << res_no_ligand_current
+			       << std::endl;
+		     if (residue_p->GetSeqNum() == res_no_ligand_current) {
+
+			std::cout << "Found residue " << std::endl;
+			
+			// delete the current atoms (backwards so that
+			// we don't have reindexing problems)
+			// 
+			int n_atoms = residue_p->GetNumberOfAtoms();
+			for (int iat=n_atoms-1; iat>=0; iat--) {
+			   residue_p->DeleteAtom(iat);
+			}
+
+			n_atoms = res_ligand_new->GetNumberOfAtoms();
+			for (int iat=0; iat<n_atoms; iat++) {
+			   CAtom *at_copy = new CAtom;
+			   at_copy->Copy(res_ligand_new->GetAtom(iat));
+			   residue_p->AddAtom(at_copy);
+			}
+			n->FinishStructEdit();
+
+			r = graphics_info_t::create_molecule();
+			atom_selection_container_t asc = make_asc(n);
+			std::string label = "Copy of ";
+			label += coot::util::int_to_string(imol_current);
+			label += " with ";
+			label += chain_id_ligand_current;
+			label += coot::util::int_to_string(res_no_ligand_current);
+			label += " replaced";
+			g.molecules[r].install_model(r, asc, label, 1);
+			created_flag = 1;
+			break;
+		     }
+
+		     if (created_flag)
+			break;
+		  }
+	       }
+	       if (created_flag)
+		  break;
+	    }
+	 }
+      }
+   }
+
+   if (created_flag) {
+      graphics_draw();
+   }
+   std::cout << "add_ligand_delete_residue_copy_molecule() returns " << r << std::endl;
+   return r;
+} 
+
+
 /*! \brief replace the parts of molecule number imol that are
   duplicated in molecule number imol_frag */
 int replace_fragment(int imol_target, int imol_fragment,
@@ -2829,7 +2942,7 @@ write_residue_range_to_pdb_file(int imol, const char *chain_id,
   names and save the state too. */
 int quick_save() {
 
-   std::cout << "Quick save..." << std::endl;
+   // std::cout << "Quick save..." << std::endl;
    for (unsigned int imol=0; imol<graphics_n_molecules(); imol++) {
       graphics_info_t::molecules[imol].quick_save();
    }

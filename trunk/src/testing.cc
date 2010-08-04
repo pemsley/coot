@@ -30,6 +30,7 @@
 #include "coot-sysdep.h"
 
 #include "clipper/core/ramachandran.h"
+#include "clipper/ccp4/ccp4_map_io.h"
 
 #include "coot-coord-utils.hh"
 #include "coot-rama.hh"
@@ -265,7 +266,8 @@ int test_internal_single() {
       // status = test_geometry_distortion_info_type();
       // status = test_translate_close_to_origin();
       // status = test_flev_aromatics();
-      status = test_phi_psi_values();
+      // status = test_phi_psi_values();
+      status = test_map_segmentation();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2295,6 +2297,29 @@ int test_flev_aromatics() {
    }
    return status;
 }
+
+int test_map_segmentation() {
+
+   std::string filename = "emd_1661.map";
+   clipper::CCP4MAPfile file;
+   try { 
+      file.open_read(filename);
+      clipper::Xmap<float> xmap;
+      file.import_xmap(xmap);
+      float low_level = 0.0524; // 0.075; // 0.02; // 0.005;
+      std::pair<int, clipper::Xmap<int> > segmented_map = coot::util::segment(xmap, low_level);
+
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write(std::string("segmented.map"));
+      mapout.export_xmap(segmented_map.second);
+      mapout.close_write();
+   }
+   catch (clipper::Message_base exc) {
+      std::cout <<  "WARNING:: failed to open " << filename << std::endl;
+   }
+
+   return 1;
+} 
 
 #endif // BUILT_IN_TESTING
 

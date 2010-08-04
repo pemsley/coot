@@ -14,9 +14,6 @@ modelling and building operations.
 Redistribution
 --------------
 
-Due to certain distribution criteria this is officially designated as
-a Development Release.
-
 This software package (coot and its relatives) is Free Software.
 
 This software is substantially dependent on on Free and Open Source
@@ -24,9 +21,9 @@ Software and software distributed under part (i) of the CCP4 Software
 Licence and is therefore is distributed under the GNU General Public
 Licence. 
 
-Therefore, if you are able (and indeed encouraged, if you find it
-useful) to use and redistribute this software with *your* software
-(provided you also distribute this source code).
+Therefore, of course, you are able to use and redistribute this
+software with *your* software (provided you also distribute this
+source code).
 
 You may find coot distributed with CCP4 Software.  Be aware that coot
 is not covered under the CCP4 Software Licence, either part (i) or
@@ -117,7 +114,7 @@ Building by Hand
 
  Don't do this.  Try autobuilding first.  If that fails report to Paul
  (unless building on Windows, then report to Bernhard).  If you try to
- autobuild on Macintosh 10.5.2: good luck.
+ autobuild on Macintosh OS X: good luck.
 
  OK, if you ignore that advice.....
 

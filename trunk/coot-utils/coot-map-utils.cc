@@ -21,6 +21,7 @@
 
 
 #include <algorithm> // for sorting.
+#include <queue>
 
 // #include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
@@ -657,57 +658,100 @@ coot::util::backrub_residue_triple_t::trim_next_residue_atoms() {
 }
 
 
-clipper::Xmap<int>
-coot::util::segment(const clipper::Xmap<float> &xmap_in) {
+// as in the verb, not the noun., return the number of segments (0 is
+// also useful segment).
+// 
+std::pair<int, clipper::Xmap<int> >
+coot::util::segment(const clipper::Xmap<float> &xmap, float low_level) {
 
-   clipper::Xmap<int> xmap_int(xmap_in.spacegroup(),
-			       xmap_in.cell(),
-			       xmap_in.grid_sampling());
+   clipper::Xmap<int> xmap_int(xmap.spacegroup(),
+			       xmap.cell(),
+			       xmap.grid_sampling());
 
    int UNASSIGNED = -1;
-   xmap_int = UNASSIGNED;
-   long n_points = 0;
+   int TOO_LOW    = -2;
 
-   // how many points are there in an xmap?
+   // how many points are there in an xmap are there above the
+   // (user-defined) noise level (low_level)?
+   // 
+   long n_points = 0;
    clipper::Xmap_base::Map_reference_index ix;
-   for (ix = xmap_in.first(); !ix.last(); ix.next() )  {
-      n_points++;
+   for (ix = xmap.first(); !ix.last(); ix.next() )  {
+      if (xmap[ix] < low_level) { 
+	 xmap_int[ix] = TOO_LOW;
+      } else { 
+	 xmap_int[ix] = UNASSIGNED;
+	 n_points++;
+      }
    }
 
    std::vector<std::pair<clipper::Xmap_base::Map_reference_index, float> > density_values(n_points);
    long int i=0;
-   for (ix = xmap_in.first(); !ix.last(); ix.next(), i++)
-      density_values[i] = std::pair<clipper::Xmap_base::Map_reference_index, float> (ix, xmap_in[ix]);
+   for (ix = xmap.first(); !ix.last(); ix.next()) { 
+      if (xmap[ix] >= low_level) { 
+	 density_values[i] = std::pair<clipper::Xmap_base::Map_reference_index, float> (ix, xmap[ix]);
+	 i++;
+      }
+   }
 
    std::sort(density_values.begin(), density_values.end(), coot::util::compare_density_values_map_refs);
 
    int i_segment_index = 0;
    clipper::Coord_grid c_g;
 
+   clipper::Skeleton_basic::Neighbours neighb(xmap, 0.25, 1.75); // 3x3x3 cube, not centre
    for (i=0; i<n_points; i++) {
-      
-      // Flood down points around xmap_in[density_values[i].first] (if
-      // they are not already assigned to a peak).
+
+      // Flood down points around xmap[density_values[i].first] (if
+      // they are not already in the neigbourhood of a peak).
       //
       //
-      clipper::Skeleton_basic::Neighbours neighb(xmap_in, 0.25, 1.75); // 3x3x3 cube, not centre
-      float v = xmap_in[density_values[i].first];
-      for (int i_n=0; i_n<neighb.size(); i_n++) {
-	 c_g = ix.coord() + neighb[i];
-	 if (xmap_int.get_data(c_g) == UNASSIGNED) {
-	    if (v > xmap_in.get_data(c_g)) {
-	       xmap_int.set_data(c_g, i_segment_index);
+      if (xmap_int[density_values[i].first] == UNASSIGNED) {
+	 
+	 // OK, so this point starts a new segment
+	 
+	 int q_set = 0; // debugging counter
+	 float v = xmap[density_values[i].first]; // all points in the segment should be
+	                                          // lower than (or equal to) this density
+	                                          // at the  "centre" of the segment blob.
+	 xmap_int[density_values[i].first] = i_segment_index;
+	 std::queue<clipper::Coord_grid> q;
+	 for (int i_n=0; i_n<neighb.size(); i_n++) {
+	    c_g = density_values[i].first.coord() + neighb[i_n];
+	    if (xmap_int.get_data(c_g) == UNASSIGNED) {
+	       if (xmap.get_data(c_g) <= v) {
+		  xmap_int.set_data(c_g, i_segment_index);
+		  q.push(c_g);
+		  q_set++;
+	       }
 	    }
 	 }
-      }
-   } 
 
-   return xmap_int;
+	 while (q.size()) {
+	    clipper::Coord_grid c_g_start = q.front(); // new local centre
+	    v = xmap.get_data(c_g_start);  
+	    q.pop();
+	    for (unsigned int i_n=0; i_n<neighb.size(); i_n++) {
+	       c_g = c_g_start + neighb[i_n];
+	       if (xmap_int.get_data(c_g) == UNASSIGNED) {
+		  if (xmap.get_data(c_g) <= v) {
+		     xmap_int.set_data(c_g, i_segment_index);
+		     q.push(c_g);
+		     q_set++;
+		  } 
+	       }
+	    }
+	 }
+	 i_segment_index++;
+      }
+   }
+   int n_segments = i_segment_index;
+   return std::pair<int, clipper::Xmap<int> > (n_segments, xmap_int);
 }
 
 // sorting function used by above
 bool
 coot::util::compare_density_values_map_refs(const std::pair<clipper::Xmap_base::Map_reference_index, float> &v1,
 					    const std::pair<clipper::Xmap_base::Map_reference_index, float> &v2) {
-   return (v1.second < v2.second);
+   return (v2.second < v1.second);
 } 

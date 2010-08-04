@@ -236,8 +236,11 @@ namespace coot {
 	 
       };
 
-      // return segmented map.  -1 means no segment.
-      clipper::Xmap<int> segment(const clipper::Xmap<float> &xmap_in);
+      // return segmented map.  -1 means no segment. low_level is the
+      // level below which segmentation should not occur (don't make
+      // blobs in the noise).
+      // 
+      std::pair<int, clipper::Xmap<int> > segment(const clipper::Xmap<float> &xmap_in, float low_level);
       // sorting function used by above
       bool compare_density_values_map_refs(const std::pair<clipper::Xmap_base::Map_reference_index, float> &v1,
 					   const std::pair<clipper::Xmap_base::Map_reference_index, float> &v2);

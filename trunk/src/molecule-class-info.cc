@@ -4074,6 +4074,17 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
    // std::cout << "DEBUG:: ---------------- done add_coords ----------- " << std::endl;
 } 
 
+// save to default file name if has unsaved changes.  Return non-zero on problem.
+int
+molecule_class_info_t::quick_save() {
+
+   if (Have_unsaved_changes_p()) {
+      std::string s = stripped_save_name_suggestion();
+      save_coordinates(s);
+   }
+   return 0;
+}
+
 
 
 void
@@ -4910,7 +4921,7 @@ molecule_class_info_t::save_coordinates(const std::string filename,
       write_shelx_ins_file(filename);
    } else {
       byte bz = GZM_NONE;
-      
+
       ierr = write_atom_selection_file(atom_sel, filename, bz,
 				       save_hydrogens, save_aniso_records);
    }
@@ -4924,6 +4935,7 @@ molecule_class_info_t::save_coordinates(const std::string filename,
       GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(ws);
       gtk_widget_show(w);
    } else {
+      std::cout << "INFO: saved coordinates " << filename << std::endl;
       have_unsaved_changes_flag = 0;
 
       // Now we have updated the molecule name, how shall we restore

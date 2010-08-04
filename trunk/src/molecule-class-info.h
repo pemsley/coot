@@ -936,6 +936,8 @@ public:        //                      public
       xmap_is_filled = NULL;
       // while zero maps, don't need to intialise the arrays (xmap_is_filled)
       max_xmaps = 0;
+      nx_map_is_filled = 0;
+      
       //
       xskel_is_filled = 0; // not filled.
       skeleton_treenodemap_is_filled = 0;
@@ -1415,6 +1417,9 @@ public:        //                      public
    int   *xmap_is_filled;
    int    max_xmaps;
    int   *xmap_is_diff_map;
+   clipper::NXmap<float> nx_map;
+   bool nx_map_is_filled;
+   
 
    float *contour_level; 
    short int contour_by_sigma_flag;
@@ -2238,11 +2243,21 @@ public:        //                      public
    std::string name_for_display_manager() const; // stripped of path maybe
    std::string dotted_chopped_name() const;
 
+   float get_contour_level() const {
+      if (! has_map())
+	 return 0;
+      else
+	 return contour_level[0];
+   }
+	 
+	 
    // external contour control (from saving parameters):
    void set_contour_level(float f);
    void set_contour_level_by_sigma(float f);
    short int change_contour(int direction); // return status 0 if it didn't happen.
+   // for the state file:
    std::vector <std::string> get_map_contour_strings() const;
+   // for the state fle
    std::vector <std::string> get_map_contour_sigma_step_strings() const;
    void set_contour_by_sigma_step(float v, short int state);
    // we ask of this molecule a question: contour_by_sigma?

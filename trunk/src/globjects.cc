@@ -1709,9 +1709,6 @@ void
 setup_lighting(short int do_lighting_flag) {
 
 
-   std::cout << "==================================== setup_lighting() "
-	     << do_lighting_flag << " ============" << std::endl;
-   
    if (do_lighting_flag) { // set this to 1 to light a surface currently.
 //       GLfloat  mat_specular[]   = {1.0, 0.3, 0.2, 1.0};
 //       GLfloat  mat_ambient[]    = {0.8, 0.1, 0.1, 1.0};
@@ -2079,11 +2076,18 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // 	 glOrtho(GLdouble left,   GLdouble right, 
       //               GLdouble bottom, GLdouble top,  
       //               GLdouble near,   GLdouble far);
+
+      GLdouble near_scale = 0.1;
+//       if (! graphics_info_t::esoteric_depth_cue_flag)
+// 	 near_scale = 0.3;
+      
+      GLdouble near = -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
+      GLdouble far  =        0.30*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
+
       //	 if (graphics_info_t::esoteric_depth_cue_flag) 
       glOrtho(-0.3*graphics_info_t::zoom*aspect_ratio, 0.3*graphics_info_t::zoom*aspect_ratio,
 	      -0.3*graphics_info_t::zoom,  0.3*graphics_info_t::zoom,
-	      -0.10*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0),
-	      +0.30*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0));
+	      near, far);
       // 	 else
       // 	    glOrtho(-0.3*info.zoom*aspect_ratio, 0.3*info.zoom*aspect_ratio,
       // 		    -0.3*info.zoom,  0.3*info.zoom,
@@ -2094,20 +2098,23 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       //glFogf(GL_FOG_END,    0.3*info.zoom);
 
 
+      if (graphics_info_t::esoteric_depth_cue_flag) {
+	 glFogf(GL_FOG_START,  0.0f);
+	 glFogf(GL_FOG_END, far);
+      } else {
+	 glFogf(GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+	 glFogf(GL_FOG_DENSITY, 1.0);
+	 GLdouble fog_start = 0;
+	 GLdouble fog_end =  far;
+	 glFogf(GL_FOG_START,  fog_start);
+	 glFogf(GL_FOG_END,    fog_end);
+	 // std::cout << "GL_FOG_START " << fog_start << " with far  " << far  << std::endl;
+	 // std::cout << "GL_FOG_END "   << fog_end   << " with near " << near << std::endl;
+
+      }
+
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
-
-      if (graphics_info_t::esoteric_depth_cue_flag) 
-	 glFogf(GL_FOG_START,  0.0*graphics_info_t::zoom);
-      else 
-	 glFogf(GL_FOG_START,  -0.1*graphics_info_t::zoom*(graphics_info_t::clipping_front*-0.1 + 1.0));
-	 
-      // 	 if (graphics_info_t::esoteric_depth_cue_flag) 
-      glFogf(GL_FOG_END,    0.3*graphics_info_t::zoom*(graphics_info_t::clipping_back* -0.1 + 1.0));
-      // 	 else
-      // 	    glFogf(GL_FOG_END,    0.3*info.zoom*info.clipping_back);
-
-
 
       // Scene Rotation
       GL_matrix m;
@@ -2121,6 +2128,15 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       glTranslatef(-graphics_info_t::RotationCentre_x(),
 		   -graphics_info_t::RotationCentre_y(),
 		   -graphics_info_t::RotationCentre_z());
+
+      if (! graphics_info_t::esoteric_depth_cue_flag) { 
+      	 coot::Cartesian front = unproject(0.0);
+	 coot::Cartesian back  = unproject(1.0);
+	 coot::Cartesian front_to_back = back - front;
+	 coot::Cartesian fbs = front_to_back.by_scalar(-0.2);
+	 // glTranslatef(fbs.x(), fbs.y(), fbs.z());
+      }
+
 
       // do we need to turn on the lighting?
       int n_display_list_objects = 0;
@@ -2349,7 +2365,7 @@ display_density_level_maybe() {
 	 glPushAttrib(GL_ENABLE_BIT);
 	 glDisable(GL_FOG);
 
-      	    glRasterPos3f(0.10, 0.95, -0.9);
+      	    glRasterPos3f(0.0, 0.95, -0.9);
  	    printString(graphics_info_t::display_density_level_screen_string);
 
          glPopAttrib();
