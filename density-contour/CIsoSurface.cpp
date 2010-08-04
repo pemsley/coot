@@ -631,8 +631,76 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 			  centre_point);
 }
 
+template <class T> // vector<CartesianPair>
+coot::CartesianPairInfo
+CIsoSurface<T>::GenerateSurface_from_NXmap(const clipper::NXmap<T>& nx_map,
+					   T tIsoLevel,
+					   float box_radius, // half length
+					   coot::Cartesian centre_point,
+					   int isample_step) {
 
-// Triangles - for solid surface rendering
+   // When it comes to writing out the lines/triangles, we will need to add
+   // the offset of the bottom left hand corner.
+   //
+
+   clipper::Coord_orth centre(centre_point.get_x(),
+			      centre_point.get_y(),
+			      centre_point.get_z());
+
+  
+   clipper::Coord_frac centre_fr(0.5, 0.5, 0.5); // some function of centre.
+
+   clipper::Coord_frac box0(centre_fr.u() - 0.2,
+			    centre_fr.v() - 0.2,
+			    centre_fr.w() - 0.2);
+   clipper::Coord_frac box1(centre_fr.u() + 0.2,
+			    centre_fr.v() + 0.2,
+			    centre_fr.w() + 0.2);
+
+   clipper::Coord_frac grid_min_cf;
+   clipper::Coord_grid grid_min;
+   clipper::Coord_grid grid_max;
+   clipper::Grid_range grid(grid_min, grid_max);
+
+  
+   T* ptScalarField = new T[grid.size()];
+
+   std::cout << "box0: " << box0.format() << std::endl
+	     << "box1: " << box1.format() << std::endl;
+
+   clipper::NXmap_base::Map_reference_coord ix(nx_map); 
+   int icount = 0; 
+   for ( int w = grid.min().w(); w <= grid.max().w(); w+=isample_step ) { 
+      for ( int v = grid.min().v(); v <= grid.max().v(); v+=isample_step ) { 
+	 ix.set_coord( clipper::Coord_grid( grid.min().u(), v, w ) ); 
+	 for ( int u = grid.min().u(); u <= grid.max().u(); u+= isample_step ) { 
+	    ptScalarField[icount] = nx_map[ ix ]; 
+	    icount++;
+	    for(int ii=0; ii<isample_step; ii++) 
+	       ix.next_u(); 
+	 } 
+      } 
+   } 
+   
+   GenerateSurface(ptScalarField, tIsoLevel,
+		   (grid.nu()-1)/isample_step,
+		   (grid.nv()-1)/isample_step,
+		   (grid.nw()-1)/isample_step,
+		   isample_step * 1.0, isample_step * 1.0, isample_step * 1.0);
+  
+   delete [] ptScalarField;
+   return returnTriangles(nx_map,
+			  grid_min_cf,
+			  box_radius,
+			  centre_point);
+} 
+
+
+
+
+// ======================================================================
+//            Triangles - for solid surface rendering
+// ======================================================================
 //
 template <class T>
 coot::density_contour_triangles_container_t
@@ -1513,9 +1581,6 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
    clipper::Coord_frac cf;
    clipper::Coord_orth co1, co2, co3;
 
-   //cout << "In returnTriangles, m_nVertices is " << m_nVertices
-   //<< " and m_nTriangles is " << m_nTriangles << endl;
-
    done_line_list_t done_line_list;
 
    int face_count_1 = 0, face_count_2 = 0, face_count_3 = 0;
@@ -1562,9 +1627,9 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
 	 co3_c =  coot::Cartesian( co3.x(), co3.y(), co3.z());
       }
 
-      //Cartesian co1_c ( co1.x(), co1.y(), co1.z() );
-      //Cartesian co2_c ( co2.x(), co2.y(), co2.z() );
-      //Cartesian co3_c ( co3.x(), co3.y(), co3.z() );
+      // Cartesian co1_c ( co1.x(), co1.y(), co1.z() );
+      // Cartesian co2_c ( co2.x(), co2.y(), co2.z() );
+      // Cartesian co3_c ( co3.x(), co3.y(), co3.z() );
 
       if (d1_2 == 1) 
 	 //	 result.push_back(coot::CartesianPair(co1_c, co2_c));
@@ -1581,17 +1646,6 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
 	 
    }
 
-   //cout << "face counts: " << face_count_1 << " " << face_count_2
-   //	<< " " << face_count_3 << endl;
-
-   //cout << "not_passed_back_count " << not_passed_back_count
-   //	<< "i.e. filtered " << not_passed_back_count*3 << " vectors" << endl;
-
-//    cout << "done " << done_count << " lines, rejected "
-// 	<< 3*m_nTriangles-done_count << " lines" << endl;
-
-   // cout << "we returned " << result.size() << " map vectors" << endl;
-
    coot::CartesianPairInfo result_wrapper;
    
    result_wrapper.data = result;
@@ -1599,6 +1653,25 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
       
    return result_wrapper;
 }
+
+template <class T> // vector<CartesianPair>
+coot::CartesianPairInfo
+CIsoSurface<T>::returnTriangles( const clipper::NXmap<T>& nx_map,
+				 const clipper::Coord_frac& base,
+				 float radius,
+				 coot::Cartesian centre) const {
+
+   coot::CartesianPairInfo result_wrapper;
+   
+   coot::CartesianPair *result = new coot::CartesianPair[m_nTriangles*3]; // at most it can be this
+   int line_index = 0; // indexer of the result array.
+   
+   result_wrapper.data = result;
+   result_wrapper.size = line_index; 
+      
+   return result_wrapper;
+}
+
 
 // -----------------------------------------------------------------
 // testing stuff

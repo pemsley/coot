@@ -44,6 +44,7 @@
 #include "Cartesian.h"
 // Clipper stuff
 #include "clipper/core/xmap.h"
+#include "clipper/core/nxmap.h"
 
 #include "density-contour-triangles.hh"
 
@@ -72,6 +73,13 @@ public:
 	// vector<CartesianPair> 
 	coot::CartesianPairInfo
 	  GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
+				    T tIsoLevel,
+				    float box_radius, // half length
+				    coot::Cartesian centre_point,
+				    int isample_step);
+
+	coot::CartesianPairInfo
+	  GenerateSurface_from_NXmap(const clipper::NXmap<T>& nx_map,
 				    T tIsoLevel,
 				    float box_radius, // half length
 				    coot::Cartesian centre_point,
@@ -107,12 +115,19 @@ public:
 	void writeTriangles(std::string); 
 
 	// PE adds
-	//vector<CartesianPair> 
 	coot::CartesianPairInfo
 	   returnTriangles( const clipper::Xmap<T>& xmap, 
 			    const clipper::Coord_frac& base,
 			    float radius,
 			    coot::Cartesian centre) const; 
+
+	// PE adds
+	coot::CartesianPairInfo
+	  returnTriangles( const clipper::NXmap<T>& nx_map, 
+			    const clipper::Coord_frac& base,
+			    float radius,
+			    coot::Cartesian centre) const; 
+
 
 	// PE adds
 	void check_max_min_vertex_index_from_triangles(void); 
