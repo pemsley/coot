@@ -499,6 +499,7 @@ int scale_cell(int imol_map, float fac_u, float fac_v, float fac_w) {
    return retval; 
 }
 
+
 #ifdef USE_GUILE
 SCM ncs_chain_differences_scm(int imol, const char *master_chain_id) {
 

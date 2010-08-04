@@ -4693,17 +4693,6 @@ int save_coordinates(int imol, const char *filename) {
    return ierr;
 }
 
-// save to default file name if has unsaved changes.  Return non-zero on problem.
-int
-molecule_class_info_t::quick_save() {
-
-   if (Have_unsaved_changes_p()) {
-      std::string s = stripped_save_name_suggestion();
-      save_coordinates(s);
-   }
-   return 0;
-}
-
 
 void set_save_coordinates_in_original_directory(int i) {
 
@@ -6090,6 +6079,38 @@ int export_map(int imol, const char *filename) {
    }
    return rv; 
 }
+
+/* create a number of maps by segmenting the given map, above the
+   (absolute) low_level.  New maps are on the same grid as the input
+   map.  */
+void segment_map(int imol_map, float low_level) {
+
+   if (is_valid_map_molecule(imol_map)) {
+      clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap_list[0];
+      std::pair<int, clipper::Xmap<int> > segmented_map = coot::util::segment(xmap_in, low_level);
+      float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
+      for (int iseg=0; iseg<segmented_map.first; iseg++) {
+	 clipper::Xmap<float> xmap;
+	 xmap.init(segmented_map.second.spacegroup(),
+		   segmented_map.second.cell(),
+		   segmented_map.second.grid_sampling());
+	 clipper::Xmap_base::Map_reference_index ix;
+	 for (ix = segmented_map.second.first(); !ix.last(); ix.next()) {
+	    if (segmented_map.second[ix] == iseg)
+	       xmap[ix] = xmap_in[ix];
+	 }
+	 int imol_new = graphics_info_t::create_molecule();
+	 std::string name = "Map ";
+	 name += coot::util::int_to_string(imol_map);
+	 name += " Segment ";
+	 name += coot::util::int_to_string(iseg);
+	 graphics_info_t::molecules[imol_new].new_map(xmap, name);
+	 graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+      }
+   }
+   graphics_draw();
+} 
+
 
 // the cell is given in Angstroms and the angles in degrees.
 int transform_map_raw(int imol, 

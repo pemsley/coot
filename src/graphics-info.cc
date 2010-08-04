@@ -1616,7 +1616,7 @@ graphics_info_t::set_density_level_string(int imol, float dlevel) {
    
    display_density_level_screen_string = "map " + int_to_string(imol);
    display_density_level_screen_string += " level = ";
-   display_density_level_screen_string += float_to_string(dlevel);
+   display_density_level_screen_string += float_to_string_using_dec_pl(dlevel, 3);
    display_density_level_screen_string += "e/A^3 (";
    display_density_level_screen_string += float_to_string(dlevel/map_sigma);
    display_density_level_screen_string += "sigma)";

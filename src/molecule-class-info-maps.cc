@@ -570,6 +570,9 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 	    tri_con.depth_sort(back_cl, front_cl);
 	    // std::cout << " sorted" << std::endl;
 	 } else {
+	    
+	    // glEnable(GL_CULL_FACE); // eek! surfaces goes dark...
+	    
 	    // std::cout << " no sorting" << std::endl;
 	 }
 
@@ -616,7 +619,6 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 
 	 } else {
 
-	    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 5);
 	    glShadeModel(GL_SMOOTH);
 	    for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
 
@@ -655,12 +657,12 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 void
 molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opacity) {
 
-   if (solid_mode) { 
-   
-      // cut glass mode:
+   if (solid_mode) {
 
-      GLfloat  ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-      GLfloat  diffuseLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+      // normal solid 
+   
+      GLfloat  ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+      GLfloat  diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
       GLfloat specularLight[] = { 0.8f, 0.8f, 0.8f, 1.0f };
    
       // Assign created components to GL_LIGHT0
@@ -668,15 +670,15 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
       glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
 
-      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50);
       glDisable(GL_COLOR_MATERIAL);
 
       // test if (xmap_is_diff_map[0] == 1)
       
-      GLfloat  mat_specular[]  = {0.98,  0.98,  0.98,  opacity};
-      GLfloat  mat_ambient[]   = {map_colour[0][0], map_colour[0][1], map_colour[0][2], opacity};
+      GLfloat  mat_specular[]  = {0.58,  0.58,  0.58,  opacity};
+      GLfloat  mat_ambient[]   = {.05*map_colour[0][0], 0.5*map_colour[0][1], 0.5*map_colour[0][2], opacity};
       GLfloat  mat_diffuse[]   = {map_colour[0][0], map_colour[0][1], map_colour[0][2], opacity};
-      GLfloat  mat_shininess[] = {5.0};
+      GLfloat  mat_shininess[] = {15};
 
       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
@@ -685,6 +687,8 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
       
    } else {
+
+      // cut glass mode:
 
       GLfloat  ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
       GLfloat  diffuseLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -699,8 +703,8 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       glDisable(GL_COLOR_MATERIAL);
 
       GLfloat  mat_specular[]  = {0.98,  0.98,  0.98,  opacity};
-      GLfloat  mat_ambient[]   = {0.400, 0.400, 0.400, opacity};
-      GLfloat  mat_diffuse[]   = {0.500, 0.500, 0.500, opacity};
+      GLfloat  mat_ambient[]   = {0.260, 0.260, 0.260, opacity};
+      GLfloat  mat_diffuse[]   = {0.400, 0.400, 0.400, opacity};
       GLfloat  mat_shininess[] = {100.0};
 
       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
@@ -1596,7 +1600,40 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      file.close_read();
    }
 
-   if (bad_read == 0) { 
+   if (bad_read == 0) {
+
+      // Was this an EM map, or some other such "not crystallographic"
+      // entity? (identified by P1 and angles 90, 90, 90).
+      //
+      // if so, fill nx_map.
+      // 
+      if (xmap_list[0].spacegroup().num_symops() == 1) { // P1
+	 if (((xmap_list[0].cell().descr().alpha() - M_PI/2) <  0.0001) && 
+	     ((xmap_list[0].cell().descr().alpha() - M_PI/2) > -0.0001) &&
+	     ((xmap_list[0].cell().descr().beta()  - M_PI/2) > -0.0001) &&
+	     ((xmap_list[0].cell().descr().beta()  - M_PI/2) <  0.0001) &&
+	     ((xmap_list[0].cell().descr().gamma() - M_PI/2) > -0.0001) &&
+	     ((xmap_list[0].cell().descr().gamma() - M_PI/2) <  0.0001)) { 
+
+	    std::cout << "=================== EM Map ====================== " << std::endl;
+
+	    nx_map.init(xmap_list[0].cell(),
+			xmap_list[0].grid_sampling(),
+			xmap_list[0].grid_asu()); // for P1, this is right.
+
+	    nx_map = 0.0;
+
+	    // Is this the way to copy a P1 xmap into an nxmap? Hmm... Perhaps not.
+	    // 
+	    clipper::Xmap_base::Map_reference_index ix;
+	    clipper::NXmap_base::Map_reference_index inx = nx_map.first();
+	    for (ix = xmap_list[0].first(); !ix.last(); ix.next(), inx.next()) {
+	       nx_map[inx] = xmap_list[0][ix];
+	    }
+	    std::cout << "INFO:: created NX Map with grid " << nx_map.grid().format() << std::endl;
+	 }
+      }
+      
       initialize_map_things_on_read_molecule(filename, is_diff_map_flag, 
 					     graphics_info_t::swap_difference_map_colours);
 

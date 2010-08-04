@@ -78,6 +78,7 @@ int test_coordinated_waters();
 int test_geometry_distortion_info_type();
 int test_translate_close_to_origin();
 int test_flev_aromatics();
+int test_map_segmentation();
 
 
 // uses greg data test data

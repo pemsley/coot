@@ -849,6 +849,15 @@ Punted from 0.6:
      residue 60 and residue 61 already exists).  JB.
 
 
+    o Sue Roberts: when generating sfs from cif
+      (run-refmac-for-phases), make it so that refmac doeesnt check the
+      geometry of the ligand (or so) first.  Just generate sfs!  talk to
+      garib about how to do that.
+
+
+    o internal: c-interface map functions should be in c-interface-maps.cc
+
+
  ------
     
     Release 0.8 [Sept 2009]

@@ -427,6 +427,22 @@ Return -1 on failure to copy molecule (out of range, or molecule is
 closed) */
 int copy_molecule(int imol);
 
+/*! \brief Copy a molecule with addition of a ligand and a deletion of
+  current ligand.
+
+  This function is used when adding a new (modified) ligand to a
+  structure.  It creates a new molecule that is a copy of the current
+  molecule except that the new ligand is added and the current
+  ligand/residue is deleted.
+
+ */
+int add_ligand_delete_residue_copy_molecule(int imol_ligand_new, 
+					    const char *chain_id_ligand_new,
+					    int resno_ligand_new, 
+					    int imol_current,
+					    const char *chain_id_ligand_current,
+					    int resno_ligand_current); 
+
 /*! \brief Experimental interface for Ribosome People. 
 
 Ribosome People have many chains in their pdb file, they prefer segids
@@ -5908,6 +5924,11 @@ void show_partial_charge_info(int imol, const char *chain_id, int resno, const c
    to be adjusted.  Use like:  (scale-cell 2 1.012 1.012 1.012). Return error 
    status, 1 means it worked, 0 means it did not work. */
 int scale_cell(int imol_map, float fac_u, float fac_v, float fac_w); 
+
+/* create a number of maps by segmenting the given map, above the
+   (absolute) low_level.  New maps are on the same grid as the input
+   map.  */
+void segment_map(int imol_map, float low_level);
 /* \} */
 
 

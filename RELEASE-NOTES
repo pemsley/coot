@@ -84,8 +84,15 @@
   o BUG-FIX: Sort-chains no longer loses header information [Bob
     Nolte].
 
+  o BUG-FIX: Environment distances are no longer drawn between atoms
+    with differing non-blank alt-confs.
+
   o BUG-FIX: Water search now avoids close contacts to waters
     generated in the same round.
+
+  o BUG-FIX: Water check in gtk1 version no longer tries to
+    dereference the difference map active checkbutton - fixes crash
+    [Subhangi Ghosh].
 
   o BUG-FIX: mmCIF file writing fixed.
 

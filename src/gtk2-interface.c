@@ -11604,8 +11604,8 @@ create_single_map_properties_dialog (void)
   GtkWidget *vbox308;
   GtkWidget *displayed_map_style_as_lines_radiobutton;
   GSList *displayed_map_style_as_lines_radiobutton_group = NULL;
-  GtkWidget *displayed_map_style_as_cut_glass_radiobutton;
   GtkWidget *displayed_map_style_as_transparent_radiobutton;
+  GtkWidget *displayed_map_style_as_cut_glass_radiobutton;
   GtkWidget *hbox414;
   GtkWidget *label748;
   GtkWidget *map_opacity_hscale;
@@ -11733,17 +11733,17 @@ create_single_map_properties_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (displayed_map_style_as_lines_radiobutton), displayed_map_style_as_lines_radiobutton_group);
   displayed_map_style_as_lines_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (displayed_map_style_as_lines_radiobutton));
 
-  displayed_map_style_as_cut_glass_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("\"Cut-Glass\""));
-  gtk_widget_show (displayed_map_style_as_cut_glass_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox308), displayed_map_style_as_cut_glass_radiobutton, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (displayed_map_style_as_cut_glass_radiobutton), displayed_map_style_as_lines_radiobutton_group);
-  displayed_map_style_as_lines_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (displayed_map_style_as_cut_glass_radiobutton));
-
   displayed_map_style_as_transparent_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Solid/Transparent"));
   gtk_widget_show (displayed_map_style_as_transparent_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox308), displayed_map_style_as_transparent_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (displayed_map_style_as_transparent_radiobutton), displayed_map_style_as_lines_radiobutton_group);
   displayed_map_style_as_lines_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (displayed_map_style_as_transparent_radiobutton));
+
+  displayed_map_style_as_cut_glass_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("\"Cut-Glass\""));
+  gtk_widget_show (displayed_map_style_as_cut_glass_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox308), displayed_map_style_as_cut_glass_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (displayed_map_style_as_cut_glass_radiobutton), displayed_map_style_as_lines_radiobutton_group);
+  displayed_map_style_as_lines_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (displayed_map_style_as_cut_glass_radiobutton));
 
   hbox414 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox414);
@@ -11951,11 +11951,11 @@ create_single_map_properties_dialog (void)
   g_signal_connect ((gpointer) displayed_map_style_as_lines_radiobutton, "toggled",
                     G_CALLBACK (on_displayed_map_style_as_lines_radiobutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) displayed_map_style_as_cut_glass_radiobutton, "toggled",
-                    G_CALLBACK (on_displayed_map_style_as_cut_glass_radiobutton_toggled),
-                    NULL);
   g_signal_connect ((gpointer) displayed_map_style_as_transparent_radiobutton, "toggled",
                     G_CALLBACK (on_displayed_map_style_as_transparent_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) displayed_map_style_as_cut_glass_radiobutton, "toggled",
+                    G_CALLBACK (on_displayed_map_style_as_cut_glass_radiobutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) map_opacity_hscale, "value_changed",
                     G_CALLBACK (on_map_opacity_hscale_value_changed),
@@ -11990,8 +11990,8 @@ create_single_map_properties_dialog (void)
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, vbox307, "vbox307");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, vbox308, "vbox308");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, displayed_map_style_as_lines_radiobutton, "displayed_map_style_as_lines_radiobutton");
-  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, displayed_map_style_as_cut_glass_radiobutton, "displayed_map_style_as_cut_glass_radiobutton");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, displayed_map_style_as_transparent_radiobutton, "displayed_map_style_as_transparent_radiobutton");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, displayed_map_style_as_cut_glass_radiobutton, "displayed_map_style_as_cut_glass_radiobutton");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, hbox414, "hbox414");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label748, "label748");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_opacity_hscale, "map_opacity_hscale");
@@ -13540,8 +13540,12 @@ create_check_waters_dialog (void)
   GtkWidget *check_waters_max_dist_entry_active_checkbutton;
   GtkWidget *hbox411;
   GtkWidget *check_waters_by_difference_map_hbox;
+  GtkWidget *vbox309;
   GtkWidget *label745;
+  GtkWidget *hbox415;
+  GtkWidget *label753;
   GtkWidget *check_water_by_difference_map_optionmenu;
+  GtkWidget *label754;
   GtkWidget *check_waters_by_difference_map_active_checkbutton;
   GtkWidget *check_waters_low_occ_dist_checkbutton;
   GtkWidget *check_waters_zero_occ_checkbutton;
@@ -13752,13 +13756,30 @@ create_check_waters_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox411), check_waters_by_difference_map_hbox, TRUE, TRUE, 0);
   gtk_widget_set_sensitive (check_waters_by_difference_map_hbox, FALSE);
 
+  vbox309 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox309);
+  gtk_box_pack_start (GTK_BOX (check_waters_by_difference_map_hbox), vbox309, TRUE, TRUE, 0);
+
   label745 = gtk_label_new (_("Difference Map Variance Analysis using Map "));
   gtk_widget_show (label745);
-  gtk_box_pack_start (GTK_BOX (check_waters_by_difference_map_hbox), label745, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox309), label745, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (label745), 0, 0.5);
+
+  hbox415 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox415);
+  gtk_box_pack_start (GTK_BOX (vbox309), hbox415, TRUE, TRUE, 0);
+
+  label753 = gtk_label_new (_("          "));
+  gtk_widget_show (label753);
+  gtk_box_pack_start (GTK_BOX (hbox415), label753, FALSE, FALSE, 0);
 
   check_water_by_difference_map_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (check_water_by_difference_map_optionmenu);
-  gtk_box_pack_start (GTK_BOX (check_waters_by_difference_map_hbox), check_water_by_difference_map_optionmenu, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox415), check_water_by_difference_map_optionmenu, FALSE, FALSE, 0);
+
+  label754 = gtk_label_new (_("   "));
+  gtk_widget_show (label754);
+  gtk_box_pack_start (GTK_BOX (hbox415), label754, FALSE, FALSE, 0);
 
   check_waters_by_difference_map_active_checkbutton = gtk_check_button_new_with_mnemonic (_("Active"));
   gtk_widget_show (check_waters_by_difference_map_active_checkbutton);
@@ -13898,8 +13919,12 @@ create_check_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_max_dist_entry_active_checkbutton, "check_waters_max_dist_entry_active_checkbutton");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox411, "hbox411");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_by_difference_map_hbox, "check_waters_by_difference_map_hbox");
+  GLADE_HOOKUP_OBJECT (check_waters_dialog, vbox309, "vbox309");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label745, "label745");
+  GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox415, "hbox415");
+  GLADE_HOOKUP_OBJECT (check_waters_dialog, label753, "label753");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_water_by_difference_map_optionmenu, "check_water_by_difference_map_optionmenu");
+  GLADE_HOOKUP_OBJECT (check_waters_dialog, label754, "label754");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_by_difference_map_active_checkbutton, "check_waters_by_difference_map_active_checkbutton");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_low_occ_dist_checkbutton, "check_waters_low_occ_dist_checkbutton");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_zero_occ_checkbutton, "check_waters_zero_occ_checkbutton");
