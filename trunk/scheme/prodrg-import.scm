@@ -42,24 +42,50 @@
 	(if (number? status)
 	    (if (= status 0)
 		(begin
+
+		  ;; OK, so here we read the PRODRG files and
+		  ;; manipulate them.  We presumen that the active
+		  ;; residue is quite like the input ligand from
+		  ;; prodrg.
+		  ;;
+		  ;; Read in the lib and coord output of PRODRG.  Then
+		  ;; overalay the new ligand onto the active residue
+		  ;; (just so that we can see it approximately
+		  ;; oriented). Then match the torsions from the new
+		  ;; ligand to the those of the active residue.  Then
+		  ;; overlay again so that we have the best match.
+		  ;;
+		  ;; We want to see just one molecule with the protein
+		  ;; and the new ligand.
+		  ;; add-ligand-delete-residue-copy-molecule provides
+		  ;; that for us.  We just colour it and undisplay the
+		  ;; other molecules.
+
 		  (read-cif-dictionary prodrg-cif)
 		  (let ((imol (handle-read-draw-molecule-and-move-molecule-here prodrg-xyzout)))
 
 		    (using-active-atom
-		     (overlap-ligands imol aa-imol aa-chain-id aa-res-no))
+		     (overlap-ligands imol aa-imol aa-chain-id aa-res-no)
 
-		    (with-auto-accept
-		     (regularize-residues imol (list (list "" 1 ""))))
+		     (with-auto-accept
+		      (regularize-residues imol (list (list "" 1 ""))))
 
-		    (using-active-atom 
-		     (match-ligand-torsions imol aa-imol aa-chain-id aa-res-no))
+		     (match-ligand-torsions imol aa-imol aa-chain-id aa-res-no)
 
-		    (using-active-atom
-		     (overlap-ligands imol aa-imol aa-chain-id aa-res-no))
+		     (overlap-ligands imol aa-imol aa-chain-id aa-res-no)
 
-		    (additional-representation-by-attributes imol "" 1 1 "" 2 2 0.2 1)
+		    ;; (additional-representation-by-attributes imol "" 1 1 "" 2 2 0.2 1)
+
+		     (set-mol-displayed aa-imol 0)
+		     (set-mol-displayed imol 0)
+		     (let* ((col (get-molecule-bonds-colour-map-rotation aa-imol))
+			    (new-col (+ col 5)) ;; a tiny amount.
+			    (imol-replaced 
+			     (add-ligand-delete-residue-copy-molecule imol "" 1 
+								      aa-imol aa-chain-id aa-res-no)))
+		       (set-molecule-bonds-colour-map-rotation imol-replaced new-col)
+		       (graphics-draw)))
 		    #t
-
 		    ))))))))
 
 
