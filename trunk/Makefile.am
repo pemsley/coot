@@ -55,12 +55,13 @@ EXTRA_DIST = 		\
 	TODO 		\
 	count-loc 	\
 	syminfo.lib	\
-	windows/syminfo.lib	\
 	colours.def	\
 	function-notes	\
 	my.supp		\
 	guile.supp	\
 	make-patches	\
+	windows/syminfo.lib	\
+ 	fix-cif-loops.awk       \
 	ifdef-for-create-aboutdialog.awk \
 	mtrix-to-ncs-matrix.awk  \
 	theor-helix-70.pdb       \
