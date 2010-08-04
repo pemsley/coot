@@ -42,6 +42,7 @@
 #include <string>
 #include <stdexcept>
 
+#include "coot-utils.hh"
 #include "wligand.hh"
 
 int
@@ -88,19 +89,29 @@ main(int argc, char **argv) {
       std::string coot_ligands_script_file_name = "coot-ligands.scm";
       float fit_frac = -1.0; // tested for positivity
 
+      // These hold the coordinates of a particular position.  The
+      // bool is whether they were set in the input or not.  Only of
+      // all 3 are set will findligand search in a particular position
+      // (pretty obviously).
+      // 
+      std::pair<bool,float> pos_x(0, 0.0), pos_y(0, 0.0), pos_z(0, 0.0);
+
       const char *optstr = "i:h:f:p:s:c:w:n:d";
       struct option long_options[] = {
-	 {"pdbin",      1, 0, 0},
-	 {"hklin",      1, 0, 0},
-	 {"f",          1, 0, 0},
-	 {"phi",        1, 0, 0},
-	 {"sigma",      1, 0, 0},
-	 {"clusters",   1, 0, 0},
-	 {"samples",    1, 0, 0},
-	 {"dictionary", 1, 0, 0},
+	 {"pdbin",        1, 0, 0},
+	 {"hklin",        1, 0, 0},
+	 {"f",            1, 0, 0},
+	 {"phi",          1, 0, 0},
+	 {"sigma",        1, 0, 0},
+	 {"clusters",     1, 0, 0},
+	 {"samples",      1, 0, 0},
+	 {"dictionary",   1, 0, 0},
 	 {"fit-fraction", 1, 0, 0},
-	 {"flexible",   0, 0, 0},
-	 {"script",   0, 0, 0},
+	 {"flexible",     0, 0, 0},
+	 {"script",       0, 0, 0},
+	 {"pos-x",        1, 0, 0},
+	 {"pos-y",        1, 0, 0},
+	 {"pos-z",        1, 0, 0},
 	 {0, 0, 0, 0}
       };
 
@@ -168,6 +179,23 @@ main(int argc, char **argv) {
 		  coot_ligands_script_file_name = optarg;
 		  n_used_args += 2;
 	       }
+
+	       if (arg_str == "pos-x" || arg_str == "pos-y" || arg_str == "pos-z") {
+		  try {
+		     float v = coot::util::string_to_float(optarg);
+		     if (arg_str == "pos-x")
+			pos_x = std::pair<bool, float> (1, v);
+		     if (arg_str == "pos-y")
+			pos_y = std::pair<bool, float> (1, v);
+		     if (arg_str == "pos-z")
+			pos_z = std::pair<bool, float> (1, v);
+		  }
+		  catch (std::runtime_error rte) {
+		     std::cout << "WARNING:: Failed to convert " << arg_str << " to a number"
+			       << std::endl;
+		  } 
+		  n_used_args += 2;
+	       } 
 	       
 	    } else {
 
@@ -271,7 +299,10 @@ main(int argc, char **argv) {
 	    short int use_weights = 0;
 	    short int is_diff_map = 0; 
 
-	    if (! use_wiggly_ligand) { 
+	    if (! use_wiggly_ligand) {
+
+	       // rigid ligands path
+	       
 	       coot::ligand lig;
 	       lig.set_verbose_reporting();
 	       short int map_stat = lig.map_fill_from_mtz(mtz_filename, f_col, phi_col, "", 
@@ -282,20 +313,31 @@ main(int argc, char **argv) {
 	       } else { 
 		  lig.mask_by_atoms(pdb_file_name);
 		  if (lig.masking_molecule_has_atoms()) {
-		     lig.set_acceptable_fit_fraction(fit_frac);
-		     lig.output_map("find-ligands-masked.map");
-		     lig.find_clusters(input_sigma_level);
+		     lig.set_acceptable_fit_fraction(fit_frac); 
+		     // lig.output_map("find-ligands-masked.map"); // debugging
+
+		     if (pos_x.first && pos_y.first && pos_z.first) {
+
+			clipper::Coord_orth pt(pos_x.second, pos_y.second, pos_z.second);
+			lig.cluster_from_point(pt, input_sigma_level);
+			lig.fit_ligands_to_clusters(1); // just this cluster.
+			
+		     } else { 
+			lig.find_clusters(input_sigma_level);
+		     }
 		     // install ligands:
 		     for (unsigned int ilig=0; ilig<lig_files.size(); ilig++)
 			lig.install_ligand(lig_files[ilig]);
 		     lig.fit_ligands_to_clusters(10); 
-		  } else { 
+		  } else {
 		     std::cout << "No atoms found in masking molecule: " 
 			       << pdb_file_name << std::endl;
 		  }
 	       }
 
 	    } else {
+
+	       // wiggly ligands  path
 
 	       coot::wligand wlig;
 	       coot::protein_geometry geom;
@@ -322,7 +364,18 @@ main(int argc, char **argv) {
 			if (wlig.masking_molecule_has_atoms()) { 
 			   wlig.output_map("find-ligands-masked.map");
 			   wlig.set_acceptable_fit_fraction(fit_frac);
-			   wlig.find_clusters(input_sigma_level);
+
+			   
+			   if (pos_x.first && pos_y.first && pos_z.first) {
+			      
+			      clipper::Coord_orth pt(pos_x.second, pos_y.second, pos_z.second);
+			      wlig.cluster_from_point(pt, input_sigma_level);
+			      wlig.fit_ligands_to_clusters(1); // just this cluster.
+			      
+			   } else { 
+			      wlig.find_clusters(input_sigma_level);
+
+			   }
 
 			   // install wiggly ligands...
 			   // 
