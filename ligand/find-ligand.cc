@@ -52,17 +52,19 @@ main(int argc, char **argv) {
       std::cout << "Usage: " << argv[0] << "\n     "
 		<< " --pdbin pdb-in-filename" << " --hklin mtz-filename" << "\n     "
 		<< " --f f_col_label" << " --phi phi_col_label" << "\n     "
-		<< " --clusters nclust"
+		<< " --clusters nclust"   << "\n     "
 		<< " --sigma sigma-level" << "\n     "
+		<< " --absolute level"    << "\n     "
 		<< " --fit-fraction frac" << "\n     "
-		<< " --flexible"
-		<< " --samples nsamples"
+		<< " --flexible"          << "\n     "
+		<< " --samples nsamples"  << "\n     "
 		<< " --dictionary cif-dictionary-name" << "\n     "
 		<< " --script script-file-name\n"
 		<< "   ligand-pdb-file-name(s)\n";
       std::cout << "     where pdbin is the protein (typically)\n"
 		<< "           nclust is the number of clusters to fit [default 10]\n"
 		<< "           sigma is the search level of the map (default 2.0)\n"
+		<< "              or specify --absolute and pass level in e/A^3\n"
 		<< "           --flexible means use torsional conformation ligand search\n"
 		<< "           --dictionary file containing the CIF ligand dictionary description\n"
 		<< "           nsamples is the number of flexible conformation samples [default 30]\n"
@@ -88,6 +90,9 @@ main(int argc, char **argv) {
       std::string fit_frac_str = "";
       std::string coot_ligands_script_file_name = "coot-ligands.scm";
       float fit_frac = -1.0; // tested for positivity
+      bool set_absolute = 0;
+      float absolute_level = 0.0;
+      std::string absolute_string = "";
 
       // These hold the coordinates of a particular position.  The
       // bool is whether they were set in the input or not.  Only of
@@ -103,6 +108,7 @@ main(int argc, char **argv) {
 	 {"f",            1, 0, 0},
 	 {"phi",          1, 0, 0},
 	 {"sigma",        1, 0, 0},
+	 {"absolute",     1, 0, 0},
 	 {"clusters",     1, 0, 0},
 	 {"samples",      1, 0, 0},
 	 {"dictionary",   1, 0, 0},
@@ -153,6 +159,10 @@ main(int argc, char **argv) {
 	       } 
 	       if (arg_str == "sigma") {
 		  sigma_str = optarg;
+		  n_used_args += 2;
+	       } 
+	       if (arg_str == "absolute") {
+		  absolute_string = optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "clusters") {
@@ -294,7 +304,13 @@ main(int argc, char **argv) {
 	       fit_frac = 0.75;
 	    } 
 	    std::cout << "INFO:: Using acceptable fit fraction of: " << fit_frac << std::endl;
-	    float input_sigma_level = atof(sigma_str.c_str());
+	    float input_sigma_level = 2.0;
+	    try {
+	       input_sigma_level = coot::util::string_to_float(sigma_str);
+	    }
+	    catch (std::runtime_error rte) {
+	       std::cout << rte.what() << " - using default 2.0 sigma";
+	    }
 	    int n_cluster = atoi(n_cluster_string.c_str());
 	    short int use_weights = 0;
 	    short int is_diff_map = 0; 
@@ -307,6 +323,21 @@ main(int argc, char **argv) {
 	       lig.set_verbose_reporting();
 	       short int map_stat = lig.map_fill_from_mtz(mtz_filename, f_col, phi_col, "", 
 							  use_weights, is_diff_map);
+
+	       // Now we have the map, we can the convert absolute level (if it was set by
+	       // the user to absolute) which is what the interface to the ligand class
+	       // want to be passed).
+	       // 
+	       if (set_absolute) {
+		  try { 
+		     float ab = coot::util::string_to_float(absolute_string);
+		     clipper::Map_stats stats = lig.map_statistics();
+		     input_sigma_level = ab/stats.std_dev();
+		  }
+		  catch (std::runtime_error rte) {
+		     std::cout << rte.what() << std::endl;
+		  }
+	       } 
 
 	       if (map_stat == 0) { 
 		     std::cout << "Map making failure." << std::endl;
@@ -355,6 +386,22 @@ main(int argc, char **argv) {
 		  } else { 
 		     short int map_stat = wlig.map_fill_from_mtz(mtz_filename, f_col, phi_col, "", 
 								 use_weights, is_diff_map);
+
+		     // Now we have the map, we can the convert absolute level (if it was set by
+		     // the user to absolute) which is what the interface to the ligand class
+		     // want to be passed).
+		     // 
+		     if (set_absolute) {
+			try { 
+			   float ab = coot::util::string_to_float(absolute_string);
+			   clipper::Map_stats stats = wlig.map_statistics();
+			   input_sigma_level = ab/stats.std_dev();
+			}
+			catch (std::runtime_error rte) {
+			   std::cout << rte.what() << std::endl;
+			}
+		     } 
+
 		     
 		     if (map_stat == 0) {
 			std::cout << "Map making failure." << std::endl;

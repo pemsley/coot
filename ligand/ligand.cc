@@ -51,7 +51,6 @@
 #include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/core/xmap.h"
-#include "clipper/core/map_utils.h"
 #include "clipper/core/hkl_compute.h"
 #include "clipper/core/map_interp.h"
 
@@ -596,7 +595,7 @@ coot::ligand::calculate_gradient_scale() {
    
 } 
 
-void
+clipper::Map_stats
 coot::ligand::map_statistics() {
 
    clipper::Map_stats stats(xmap_pristine);
@@ -612,6 +611,8 @@ coot::ligand::map_statistics() {
 
    std::cout << "Grid sampling: " << xmap_pristine.grid_sampling().format() << std::endl;
    std::cout << "Cell:          " << xmap_pristine.cell().format() << std::endl;
+
+   return stats;
 
 }
 

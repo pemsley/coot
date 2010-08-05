@@ -32,6 +32,7 @@
 #include "mmdb_manager.h"
 #include "clipper/core/xmap.h"
 #include "clipper/contrib/skeleton.h" // neighbs is in the recursive function call
+#include "clipper/core/map_utils.h" // map stats (returned value)
 
 namespace coot {
 
@@ -398,9 +399,9 @@ namespace coot {
       int mask_by_atoms(std::string pdb_filename);
       int mask_by_atoms_mapview_way(std::string pdb_filename);
       void cluster_test();
-      void find_clusters(float cut_off);
-      void find_clusters_old(float cut_off);
-      void find_clusters_int(float cut_off);
+      void find_clusters(float z_cut_off); // number of standard deviations
+      void find_clusters_old(float z_cut_off);
+      void find_clusters_int(float z_cut_off);
 
       // and now we want to give a cluster centre (actually, a point
       // close to a cluster centre).  We need to create a
@@ -437,7 +438,7 @@ namespace coot {
       
       void output_centres(); 
       void print_cluster_details() const; 
-      void map_statistics();
+      clipper::Map_stats map_statistics();
       
       // a check for writability is made.
       void output_map(std::string filename) const; // write_map, perhaps (xmap_cluster).
