@@ -2985,11 +2985,16 @@ do_ztrans_and_clip(gdouble x, gdouble y) {
    // (Up and down move the individual clipping planes in PyMol.
    // I'm not keen on allowing that in Coot).
    double slab_change = 0.02  * y_diff; // about 0.2?
-   double ztr_change  = 0.002 * x_diff;
+   double ztr_change  = 0.001 * x_diff;
+
+   // Do *either* z-trans or clipping, not both.  Doing both confuses
+   // me.
      
    v *= ztr_change;
-   g.add_vector_to_RotationCentre(v);
-   adjust_clipping(slab_change);
+   if (fabs(x_diff) > fabs(y_diff))
+      g.add_vector_to_RotationCentre(v);
+   else 
+      adjust_clipping(slab_change);
 
    g.graphics_draw();
    
@@ -2999,12 +3004,12 @@ void
 adjust_clipping(double d) {
 
    if (d>0) {
-      if (graphics_info_t::clipping_back < 10.0) { 
+      if (graphics_info_t::clipping_back < 15.0) { 
 	 set_clipping_front(graphics_info_t::clipping_front + d);
 	 set_clipping_back (graphics_info_t::clipping_front + d);
       }
    } else {
-      if (graphics_info_t::clipping_back > -10.2) { 
+      if (graphics_info_t::clipping_back > -15.2) { 
 	 set_clipping_front(graphics_info_t::clipping_front + d);
 	 set_clipping_back (graphics_info_t::clipping_front + d);
       }
