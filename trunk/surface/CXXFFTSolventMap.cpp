@@ -29,7 +29,7 @@ SolventMap::SolventMap (fftw_real dGrid, fftw_real rProbe, fftw_real xmin, fftw_
 	
 	/* check for obvious error in parameters*/
 	
-	if (probeRadius < 0 | gridSpacing < 0) {
+	if ((probeRadius < 0) || (gridSpacing < 0)) {
 		CXXException theException = CXXException("ERROR: SolventMap, negative probeRadius or gridSpacing - check parameter list?\n");
 		throw theException;
 	}
@@ -358,7 +358,7 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	
 	/* exeption stuff here....*/
 	
-	if (FFTProbe == 0 | FFTGrid == 0 | FourierScratch == 0 | Probe == 0) {
+	if ((FFTProbe == 0) || (FFTGrid == 0) | (FourierScratch == 0) || (Probe == 0)) {
 		CXXException theException(" ERROR (SolventMap::convoluteSphere() ): could not reserve suffiecent memory !");
 		throw theException;
 	}
@@ -471,7 +471,7 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	
 	
 	/* FFT Protein Grid only if old one is not recycled*/
-	if (rapidFlag == 0 | (rapidFlag == 1 && countRapid == 0)) {
+	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
 		rfftwnd_one_real_to_complex (realToComplexPlan, Grid, FFTGrid);
 		countRapid = 1;
 	}
@@ -740,7 +740,7 @@ int SolventMap::dumpXSlice (int type, int SliceNr, int broad) {
 	int i;
 	fstream dump ("dumpfile",ios::out|ios::app );
 	
-	if (SliceNr > dim[0] | SliceNr < 1) {
+	if ((SliceNr > dim[0]) || (SliceNr < 1)) {
 		dump << "ERROR: Slice Nr outside of range\n"; 
 		return 1;
 	}
