@@ -199,8 +199,8 @@ int test_torsion_general(atom_selection_container_t asc, std::string pdb_filenam
 		  CMMDBManager *res_mol_2 =
 		     coot::util::create_mmdbmanager_from_residue(asc.mol, residue_p);
 
-		  CResidue *res_copy_1 = coot::util::get_residue(target_resno, "", "", res_mol_1);
-		  CResidue *res_copy_2 = coot::util::get_residue(target_resno, "", "", res_mol_2);
+		  CResidue *res_copy_1 = coot::util::get_residue("", target_resno, "", res_mol_1);
+		  CResidue *res_copy_2 = coot::util::get_residue("", target_resno, "", res_mol_2);
 
 		  if (! res_copy_1) {
 		     std::cout << "   Error can't find residue in new molecule" << std::endl;
@@ -339,7 +339,7 @@ int main(int argc, char **argv) {
       return 1;
    } else {
       std::string pdb_filename = argv[1];
-      atom_selection_container_t asc = get_atom_selection(pdb_filename);
+      atom_selection_container_t asc = get_atom_selection(pdb_filename, 1);
       int retval = test_torsion_general(asc, pdb_filename);
       r = retval;
    }

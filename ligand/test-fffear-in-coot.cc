@@ -237,7 +237,7 @@ main(int argc, char **argv) {
 	 }
 
 	 atom_selection_container_t atom_sel =
-	    get_atom_selection(pdb_file_name);
+	    get_atom_selection(pdb_file_name, 1);
 
 	 coot::util::fffear_search f(atom_sel.mol,
 				     atom_sel.SelectionHandle,

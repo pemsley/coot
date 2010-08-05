@@ -156,7 +156,7 @@ main(int argc, char **argv) {
       
       std::string pdb_filename(clo.input_pdb_file);
       std::string out_pdb_filename(clo.output_pdb_file);
-      atom_selection_container_t asc = get_atom_selection(pdb_filename);
+      atom_selection_container_t asc = get_atom_selection(pdb_filename, 1);
       if (asc.read_success) { 
 	 coot::minimol::molecule mmol(asc.mol);
 	 if (clo.have_centres == 3) {
