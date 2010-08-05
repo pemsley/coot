@@ -1772,8 +1772,8 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       //cout << "j range: for i = " << i << " is "
       //	   << bonds_box.bonds_[i].num_lines << endl;
 
-//        std::cout << "DEBUG:: bonds_index: " << i << " has " << bonds_box.bonds_[i].num_lines
-// 		 << " lines, thin_flag:  " << bonds_box.bonds_[i].thin_lines_flag  << std::endl;
+//       std::cout << "DEBUG:: bonds_index: " << i << " has " << bonds_box.bonds_[i].num_lines
+// 		<< " lines, thin_flag:  " << bonds_box.bonds_[i].thin_lines_flag  << std::endl;
 
       if (bonds_box.bonds_[i].thin_lines_flag)
  	 glLineWidth(p_bond_width/2.0);
@@ -1817,14 +1817,19 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       if (! with_gl_lines) {
 
 	 float modelview[16];
+	 float zsc = graphics_info_t::zoom;
+
+	 if (bonds_box.bonds_[i].thin_lines_flag)
+	    zsc *= 0.5;
 
 	 glBegin(GL_QUADS); 
 	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
-	 coot::Cartesian vec_perp_to_screen_z =
-	    get_vector_pependicular_to_screen_z(front, back,
-						ll.pair_list[j].getFinish() -
-						ll.pair_list[j].getStart(),
-						graphics_info_t::zoom);
+	    
+	    coot::Cartesian vec_perp_to_screen_z =
+	       get_vector_pependicular_to_screen_z(front, back,
+						   ll.pair_list[j].getFinish() -
+						   ll.pair_list[j].getStart(),
+						   zsc);
 
 	    glVertex3f(ll.pair_list[j].getStart().get_x()+vec_perp_to_screen_z.get_x(),
 		       ll.pair_list[j].getStart().get_y()+vec_perp_to_screen_z.get_y(),
