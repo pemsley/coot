@@ -6089,7 +6089,7 @@ void segment_map(int imol_map, float low_level) {
       clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap_list[0];
       std::pair<int, clipper::Xmap<int> > segmented_map = coot::util::segment(xmap_in, low_level);
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
-      for (int iseg=0; iseg<segmented_map.first; iseg++) {
+      for (int iseg=0; (iseg<segmented_map.first) && iseg<50; iseg++) {
 	 clipper::Xmap<float> xmap;
 	 xmap.init(segmented_map.second.spacegroup(),
 		   segmented_map.second.cell(),
