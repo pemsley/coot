@@ -191,10 +191,10 @@ double CXXCreator::lookUpCharge(int atomNr) {
 	double theCharge = 0.0;
 
 	if(SelAtom){
-	PCAtom theAtom = SelAtom[atomNr];
-	if(theAtom){
-        theCharge = SelAtom[atomNr]->charge;
-	}
+	   PCAtom theAtom = SelAtom[atomNr];
+	   if(theAtom){
+	      theCharge = SelAtom[atomNr]->charge;
+	   }
 	}
 	return theCharge;
 	

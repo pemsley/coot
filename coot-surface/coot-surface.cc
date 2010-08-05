@@ -27,6 +27,7 @@
 #include <GL/gl.h>
 #include "coot-surface.hh"
 #include "CXXCreator.h"
+#include "CXXUtils.h"
 
 #include "rgbreps.h"
 
@@ -34,11 +35,12 @@ void
 coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale) {
 
    theSurface = new CXXSurface;
-
+   CXXChargeTable theChargeTable;
+   CXXUtils::assignCharge(mol, selHnd, &theChargeTable);
 
    // debug::
 
-   if (1) { 
+   if (0) { 
       PPCAtom atoms;
       int n_atoms;
       mol->GetSelIndex(selHnd, atoms, n_atoms);
@@ -65,7 +67,8 @@ coot::surface::fill_surface(CMMDBManager *mol, int SelHnd_selection, int SelHnd_
 } 
 			    
 
-
+// I don't think that this function is used...
+// 
 void
 coot::surface::draw(double *override_colour, int selective_override) {
    
@@ -148,7 +151,8 @@ coot::surface::evaluateElectrostaticPotential(CMMDBManager *theManager, int selH
 int
 coot::surface::evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, const int selHnd,
 						     float col_scale){
-   std::cout << "In evaluatePhiAndColourWithDefaultScheme\n" << std::endl;
+   std::cout << "In evaluatePhiAndColourWithDefaultScheme with col_scale: "
+	     << col_scale << std::endl;
    CColourScheme defaultScheme;
    std::vector<float> typ;
    typ.push_back(-col_scale);

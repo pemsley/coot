@@ -3554,6 +3554,9 @@ public:
    // --- user defined picks
    static std::vector<coot::atom_spec_t> user_defined_atom_pick_specs;
 
+   // --- electrostatic charnge range scale (typically 0.5)
+   static float electrostatic_surface_charge_range;
+
    // --- nudge active residue
    static void nudge_active_residue(guint direction);
 

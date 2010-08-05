@@ -5588,6 +5588,10 @@ void do_clipped_surface_scm(int imol, SCM residue_specs);
 #ifdef USE_PYTHON
 #endif /*  USE_PYTHON */
 #endif	/* __cplusplus */
+void set_electrostatic_surface_charge_range(float v);
+float get_electrostatic_surface_charge_range();
+
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
