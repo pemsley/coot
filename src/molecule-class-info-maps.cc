@@ -519,25 +519,23 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       centre = coot::Cartesian(ct.x(), ct.y(), ct.z());
    }
 
-   for (int i=0; i< max_xmaps; i++) {
-      if (xmap_is_filled[i] == 1) {
-	 v = my_isosurface.GenerateSurface_from_Xmap(xmap_list[0],
-						     contour_level[i],
-						     dy_radius, centre,
-						     isample_step);
-	 if (is_dynamically_transformed_map_flag)
-	    dynamically_transform(v);
-	 set_draw_vecs(v.data, v.size);
-      }
-      if (xmap_is_diff_map[i] == 1) {
-	 v = my_isosurface.GenerateSurface_from_Xmap(xmap_list[0],
-						     -contour_level[i],
-						     dy_radius, centre,
-						     isample_step);
-	 if (is_dynamically_transformed_map_flag)
-	    dynamically_transform(v);
-	 set_diff_map_draw_vecs(v.data, v.size);
-      }
+   if (xmap_is_filled[0] == 1) {
+      v = my_isosurface.GenerateSurface_from_Xmap(xmap_list[0],
+						  contour_level[0],
+						  dy_radius, centre,
+						  isample_step);
+      if (is_dynamically_transformed_map_flag)
+	 dynamically_transform(v);
+      set_draw_vecs(v.data, v.size);
+   }
+   if (xmap_is_diff_map[0]) {
+      v = my_isosurface.GenerateSurface_from_Xmap(xmap_list[0],
+						  -contour_level[0],
+						  dy_radius, centre,
+						  isample_step);
+      if (is_dynamically_transformed_map_flag)
+	 dynamically_transform(v);
+      set_diff_map_draw_vecs(v.data, v.size);
    }
 
    if (draw_it_for_solid_density_surface) {
@@ -545,6 +543,12 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 							  contour_level[0],
 							  dy_radius, centre,
 							  isample_step);
+      if (xmap_is_diff_map[0]) {
+	 tri_con_diff_map_neg = my_isosurface.GenerateTriangles_from_Xmap(xmap_list[0],
+									  -contour_level[0],
+									  dy_radius, centre,
+									  isample_step);
+      } 
    }
 }
 
@@ -587,72 +591,85 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 	 setup_density_surface_material(solid_mode, density_surface_opacity);
 
 	 glEnable(GL_POLYGON_OFFSET_FILL);
-	 glPolygonOffset(2.0,2.0);
-	 glColor4f(0.0, 0.0, 0.0, density_surface_opacity);
+	 glPolygonOffset(2.0, 2.0);
+	 glColor4f(0.2, 0.2, 0.2, density_surface_opacity);
 
-	 glBegin(GL_TRIANGLES);
+	 display_solid_surface_triangles(tri_con, do_flat_shading);
 
-	 if (do_flat_shading) {
-	    for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
-
-	       glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
-			  tri_con.point_indices[i].normal_for_flat_shading.y(),
-			  tri_con.point_indices[i].normal_for_flat_shading.z());
-	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[0]].x(),
-			  tri_con.points[tri_con.point_indices[i].pointID[0]].y(),
-			  tri_con.points[tri_con.point_indices[i].pointID[0]].z());
-	 
-	       glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
-			  tri_con.point_indices[i].normal_for_flat_shading.y(),
-			  tri_con.point_indices[i].normal_for_flat_shading.z());
-	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[1]].x(),
-			  tri_con.points[tri_con.point_indices[i].pointID[1]].y(),
-			  tri_con.points[tri_con.point_indices[i].pointID[1]].z());
-	 
-	       glNormal3f(tri_con.point_indices[i].normal_for_flat_shading.x(),
-			  tri_con.point_indices[i].normal_for_flat_shading.y(),
-			  tri_con.point_indices[i].normal_for_flat_shading.z());
-	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[2]].x(),
-			  tri_con.points[tri_con.point_indices[i].pointID[2]].y(),
-			  tri_con.points[tri_con.point_indices[i].pointID[2]].z());
-	    }
-
-	 } else {
-
-	    glShadeModel(GL_SMOOTH);
-	    for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
-
-	       glNormal3f(tri_con.normals[tri_con.point_indices[i].pointID[0]].x(),
-			  tri_con.normals[tri_con.point_indices[i].pointID[0]].y(),
-			  tri_con.normals[tri_con.point_indices[i].pointID[0]].z());
-	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[0]].x(),
-			  tri_con.points[tri_con.point_indices[i].pointID[0]].y(),
-			  tri_con.points[tri_con.point_indices[i].pointID[0]].z());
-	 
-	       glNormal3f(tri_con.normals[tri_con.point_indices[i].pointID[1]].x(),
-			  tri_con.normals[tri_con.point_indices[i].pointID[1]].y(),
-			  tri_con.normals[tri_con.point_indices[i].pointID[1]].z());
-	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[1]].x(),
-			  tri_con.points[tri_con.point_indices[i].pointID[1]].y(),
-			  tri_con.points[tri_con.point_indices[i].pointID[1]].z());
-	 
-	       glNormal3f(tri_con.normals[tri_con.point_indices[i].pointID[2]].x(),
-			  tri_con.normals[tri_con.point_indices[i].pointID[2]].y(),
-			  tri_con.normals[tri_con.point_indices[i].pointID[2]].z());
-	       glVertex3f(tri_con.points[tri_con.point_indices[i].pointID[2]].x(),
-			  tri_con.points[tri_con.point_indices[i].pointID[2]].y(),
-			  tri_con.points[tri_con.point_indices[i].pointID[2]].z());
-	    }
-
+	 if (xmap_is_diff_map[0]) {
+	    display_solid_surface_triangles(tri_con_diff_map_neg, do_flat_shading);
 	 }
-      
-	 glEnd();
-	 glDisable(GL_POLYGON_OFFSET_FILL);
-	 glDisable(GL_LIGHT2);
-	 glDisable(GL_LIGHTING);
+
       }
    }
 }
+
+void
+molecule_class_info_t::display_solid_surface_triangles(const coot::density_contour_triangles_container_t &tc,
+						       bool do_flat_shading) const {
+
+
+   glBegin(GL_TRIANGLES);
+
+   if (do_flat_shading) {
+      for (unsigned int i=0; i<tc.point_indices.size(); i++) {
+
+	 glNormal3f(tc.point_indices[i].normal_for_flat_shading.x(),
+		    tc.point_indices[i].normal_for_flat_shading.y(),
+		    tc.point_indices[i].normal_for_flat_shading.z());
+	 glVertex3f(tc.points[tc.point_indices[i].pointID[0]].x(),
+		    tc.points[tc.point_indices[i].pointID[0]].y(),
+		    tc.points[tc.point_indices[i].pointID[0]].z());
+	 
+	 glNormal3f(tc.point_indices[i].normal_for_flat_shading.x(),
+		    tc.point_indices[i].normal_for_flat_shading.y(),
+		    tc.point_indices[i].normal_for_flat_shading.z());
+	 glVertex3f(tc.points[tc.point_indices[i].pointID[1]].x(),
+		    tc.points[tc.point_indices[i].pointID[1]].y(),
+		    tc.points[tc.point_indices[i].pointID[1]].z());
+	 
+	 glNormal3f(tc.point_indices[i].normal_for_flat_shading.x(),
+		    tc.point_indices[i].normal_for_flat_shading.y(),
+		    tc.point_indices[i].normal_for_flat_shading.z());
+	 glVertex3f(tc.points[tc.point_indices[i].pointID[2]].x(),
+		    tc.points[tc.point_indices[i].pointID[2]].y(),
+		    tc.points[tc.point_indices[i].pointID[2]].z());
+      }
+
+   } else {
+
+      glShadeModel(GL_SMOOTH);
+      for (unsigned int i=0; i<tc.point_indices.size(); i++) {
+
+	 glNormal3f(tc.normals[tc.point_indices[i].pointID[0]].x(),
+		    tc.normals[tc.point_indices[i].pointID[0]].y(),
+		    tc.normals[tc.point_indices[i].pointID[0]].z());
+	 glVertex3f(tc.points[tc.point_indices[i].pointID[0]].x(),
+		    tc.points[tc.point_indices[i].pointID[0]].y(),
+		    tc.points[tc.point_indices[i].pointID[0]].z());
+	 
+	 glNormal3f(tc.normals[tc.point_indices[i].pointID[1]].x(),
+		    tc.normals[tc.point_indices[i].pointID[1]].y(),
+		    tc.normals[tc.point_indices[i].pointID[1]].z());
+	 glVertex3f(tc.points[tc.point_indices[i].pointID[1]].x(),
+		    tc.points[tc.point_indices[i].pointID[1]].y(),
+		    tc.points[tc.point_indices[i].pointID[1]].z());
+	 
+	 glNormal3f(tc.normals[tc.point_indices[i].pointID[2]].x(),
+		    tc.normals[tc.point_indices[i].pointID[2]].y(),
+		    tc.normals[tc.point_indices[i].pointID[2]].z());
+	 glVertex3f(tc.points[tc.point_indices[i].pointID[2]].x(),
+		    tc.points[tc.point_indices[i].pointID[2]].y(),
+		    tc.points[tc.point_indices[i].pointID[2]].z());
+      }
+   }
+      
+   glEnd();
+   glDisable(GL_POLYGON_OFFSET_FILL);
+   glDisable(GL_LIGHT2);
+   glDisable(GL_LIGHTING);
+} 
+
 
 void
 molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opacity) {

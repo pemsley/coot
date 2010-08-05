@@ -164,7 +164,9 @@ AM_CXXFLAGS = \
 	$(GUILE_CFLAGS)		\
 	$(PYTHON_CFLAGS)	\
 	$(COOT_WINDOWS_CFLAGS) 	\
-	$(COOT_GSL_FLAGS)
+	$(COOT_GSL_FLAGS) $(OPENMP_CFLAGS)
+
+
 
 
 # SWIG_FLAGS is something of a misnomer.  It actually defines

@@ -1,37 +1,17 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 /*
  *  CXXSphereTriangle.cpp
  *  CXXSurface
  *
  *  Created by Martin Noble on Sat Feb 21 2004.
- *  
+ *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
 
 #include "CXXSphereTriangle.h"
-#include <CXXCoord.h>
-#include <CXXSphereTriangleEdge.h>
-#include <CXXSphereElement.h>
-#include <CXXSphereNode.h>
+#include "CXXCoord.h"
+#include "CXXSphereTriangleEdge.h"
+#include "CXXSphereElement.h"
+#include "CXXSphereNode.h"
 
 CXXSphereTriangle::CXXSphereTriangle() :
 theRadius(0),
@@ -56,7 +36,7 @@ CXXSphereTriangle::CXXSphereTriangle(CXXSphereElement *se, int *inputVertices, i
 	theRadius = inRad;
 	theCentre = incent;
 }
-CXXSphereTriangle::~CXXSphereTriangle(){}
+//CXXSphereTriangle::~CXXSphereTriangle(){}
 int CXXSphereTriangle::vertex(int i) const{
 	return triangleVertices[i];
 }
@@ -80,7 +60,10 @@ int CXXSphereTriangle::bisect(double radians){
 		}
 	}
 	if (longestLength>radians){
-		CXXSphereNode newVertex(theSphereElement->edge(triangleEdges[iLongest]).midpoint());
+		const CXXSphereTriangleEdge &theEdge(theSphereElement->edge(triangleEdges[iLongest]));
+		const CXXSphereNode &vertex0 = theSphereElement->vertex(theEdge.vertex(0));
+		CXXSphereNode newVertex(theEdge.midpoint());
+		newVertex.setAtom(vertex0.getAtom());
 		int iNewVertex = theSphereElement->addVertex(newVertex);
 		
 		double oldLength = theSphereElement->edge(triangleEdges[iLongest]).length();
@@ -98,7 +81,7 @@ int CXXSphereTriangle::bisect(double radians){
 		CXXCoord v2 = theSphereElement->vertex(triangleVertices[(iLongest+2)%3]).vertex() - theCentre;
 		CXXCoord newNormal = v1^v2;
 		newNormal.normalise();
-		if (newNormal.dot(theSphereElement->vertex(triangleVertices[iLongest]).vertex()-theCentre)<0.) 
+		if (newNormal*(theSphereElement->vertex(triangleVertices[iLongest]).vertex()-theCentre)<0.) 
 			newNormal *= -1.;
 		CXXSphereTriangleEdge newEdge2(newNormal, 
 									   iNewVertex, 

@@ -147,7 +147,7 @@ x_label = "Days (since pre-release start)"
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 130
+x_day_range = 210
 
 x_tick_interval = x_ticks(x_day_range)
 
@@ -158,7 +158,7 @@ yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 # is 0, but the Y maximum is to be computed automatically. Without
 # y_ranges, Pychart will pick the minimum Y value among the samples,
 # i.e., 20, as the base value of Y axis.
-ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,110))
+ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,160))
 
 # The first plot extracts Y values from the 2nd column
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
@@ -201,13 +201,14 @@ def annotation_box(box_text, loc_x, loc_y, data_index, arrow_position):
 
 
 annotation_box("Jan 28", -6, 30, 0, "c")
-annotation_box("PISA Interfaces",   30, 13, 69, "tc")
-annotation_box("Ligand GUI Expmt.", 50, 30, 96, "tc")
-annotation_box("CCP4 Dev Meeting",  70, 43, 125, "tc")
-annotation_box("Madrid",  83, 58, 190, "tc")
-annotation_box("Montevideo",  93, 70, 195, "tc")
-
-
+annotation_box("PISA Interfaces",   20, 7, 69, "tc")
+annotation_box("Ligand GUI Expmt.", 35, 16, 96, "tc")
+annotation_box("CCP4 Dev Meeting",  38, 25, 125, "tc")
+annotation_box("Madrid",  56, 34, 190, "tc")
+annotation_box("Montevideo",  64, 43, 195, "tc")
+annotation_box("Erice",  75, 51, 250, "tc")
+annotation_box("Integration Machine Dies",  80, 60, 268, "tc")
+annotation_box("GRC & ACA",  92, 70, 273, "tc")
 
 
 # take-home:

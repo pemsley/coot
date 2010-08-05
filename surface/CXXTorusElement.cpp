@@ -1,71 +1,44 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 /*
  *  CXXTorusElement.cpp
  *  CXXSurface
  *
  *  Created by Martin Noble on Mon Feb 09 2004.
- *  
+ *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
 #include <math.h>
-#include <CXXTorusElement.h>
-#include <CXXTorusNode.h>
-#include <CXXCoord.h>
-#include <CXXSurface.h>
-#include <CXXTriangle.h>
-#include <CXXCircle.h>
-#include <CXXCircleNode.h>
-#include <CXXNewHood.h>
+#include "CXXTorusElement.h"
+#include "CXXTorusNode.h"
+#include "CXXCoord.h"
+#include "CXXSurface.h"
+#include "CXXTriangle.h"
+#include "CXXCircle.h"
+#include "CXXCircleNode.h"
+#include "CXXNewHood.h"
 
 CXXCircle CXXTorusElement::nullCircle = CXXCircle();
 
 CXXTorusElement::CXXTorusElement() : 
 theCircle(nullCircle),
-debug(0),
-pointyBit(0)
+debug(0)
 {
 	init();
 }
 
 CXXTorusElement::~CXXTorusElement()
 {
-	if (pointyBit) delete pointyBit;
 }
 
 void CXXTorusElement::init()
 {
-	nodes.reserve(1000);
-	flatTriangles.reserve(1000);
-	nodes.resize(0);
 	flatTriangles.resize(0);
 }
 
 CXXTorusElement::CXXTorusElement(const CXXCircle &aCircle, int iEdge, double delta, double probeRadius) :
 theCircle(aCircle),
 rProbe(probeRadius),
-debug(0),
-pointyBit(0)
+debug(0)
 {
-	int fullOrbit = 0;
 	init();
 	//	cout << "Hood Atom " << aCircle.getParent()->getAtomI()->element << " Circle Atom " << aCircle.getAtomJ()->element << endl;
 	const CXXCoord xAxis(1.,0.,0.,0.);
@@ -77,8 +50,8 @@ pointyBit(0)
 	torusAxis = theCircle.getNormal();
 	rTraj = theCircle.getRadiusOfCircle();
 	
-	const CXXCircleNode &startNode(theCircle.getNode(theCircle.start(iEdge)));
-	const CXXCircleNode &endNode(theCircle.getNode(theCircle.stop(iEdge)));
+	const CXXCircleNode &startNode(*theCircle.start(iEdge));
+	const CXXCircleNode &endNode(*theCircle.stop(iEdge));
 	v1unit = startNode.getUnitRadius();
 	v2unit = endNode.getUnitRadius();
 	CXXCoord temp1 = startNode.getCoord();
@@ -88,10 +61,10 @@ pointyBit(0)
 	// Convert from position vectors to start and end range in theta
 	CXXCoord diff = theCircle.getCentreOfSecondSphere()-temp1;
 	diff.normalise();
-	theta1 = acos(torusAxis.dot(diff));
+	theta1 = acos(torusAxis*diff);
 	diff = theCircle.getCentreOfSphere()-temp1;
 	diff.normalise();
-	theta2 = acos(torusAxis.dot(diff));
+	theta2 = acos(torusAxis*diff);
 	int tooSmallTorus = 0;
 	double halfWay1= (theta2+theta1)/2.;
 	double halfWay2 = halfWay1;
@@ -100,10 +73,10 @@ pointyBit(0)
 	absoluteStartOmega = startNode.getAngle();
 	
 	omega1 = 0;
-	//startNode having an assigned atomK is the coded flag to indicate that this 
+	//startNode having an assigned otherCircle is the coded flag to indicate that this 
 	//node is a real one coming from circle intersection, rather than one assigned
 	//as an arbitrary referenceUnitRadius
-	if (startNode.getAtomK()){
+	if (startNode.getOtherCircle()){
 		omega2 = endNode.getAngle() - startNode.getAngle();
 		while (omega2 < 0.) omega2 += 2.*M_PI;
 	} 
@@ -136,7 +109,6 @@ pointyBit(0)
 		halfWay2 = M_PI - halfWay1;
 		
 		nThetaSteps = int((fabs(theta2-halfWay2)) / deltaTheta) + 1;
-		pointyBit = new CXXCoord (coordFromThetaOmega(halfWay2, 0.));
 	}
 	
 	nodes.resize((nThetaSteps+1)*(nOmegaSteps+1));
@@ -163,7 +135,7 @@ pointyBit(0)
 												((iOmega+0)*(nThetaSteps+1))+(iTheta+0),
 												((iOmega+0)*(nThetaSteps+1))+(iTheta+1),
 												iTriangle));
-			if (iTheta == 0) edgeTriangles.push_back(iTriangle);
+			if (iTheta == 0) edgeTriangles.push_back(&flatTriangles.back());
 			iTriangle = flatTriangles.size();
 			flatTriangles.push_back(CXXTriangle(((iOmega+0)*(nThetaSteps+1))+(iTheta+1),
 												((iOmega+1)*(nThetaSteps+1))+(iTheta+1), 
@@ -222,9 +194,9 @@ int CXXTorusElement::upload(CXXSurface *aSurface){
 	//	Add vertices to surface
 	int oldVertexCount;
 	{
-		double *verticesBuffer = new double[nodes.size()*3];
-		double *accessiblesBuffer = new double[nodes.size()*3];
-		double *normalsBuffer = new double[nodes.size()*3];
+		double verticesBuffer[nodes.size()*3];// = new double[nodes.size()*3];
+		double accessiblesBuffer[nodes.size()*3];// = new double[nodes.size()*3];
+		double normalsBuffer[nodes.size()*3];// = new double[nodes.size()*3];
 		for (unsigned int i=0; i< nodes.size(); i++){
 			for (int j=0; j<3; j++) verticesBuffer[3*i+j] = nodes[i].coord().element(j);
 			CXXCoord accessible = probeAtOmega(nodes[i].getOmega());
@@ -237,38 +209,43 @@ int CXXTorusElement::upload(CXXSurface *aSurface){
 		aSurface->updateWithVectorData(nodes.size(), "vertices", oldVertexCount, verticesBuffer);
 		aSurface->updateWithVectorData(nodes.size(), "accessibles", oldVertexCount, accessiblesBuffer);
 		aSurface->updateWithVectorData(nodes.size(), "normals",  oldVertexCount, normalsBuffer);
-		delete [] verticesBuffer;
-		delete [] accessiblesBuffer;
-		delete [] normalsBuffer;
+		//delete [] verticesBuffer;
+		//delete [] accessiblesBuffer;
+		//delete [] normalsBuffer;
 	}	
 	//Add atom pointers to the surface
 	{
-		void **atomBuffer = new void*[nodes.size()];
+		void *atomBuffer[nodes.size()];// = new void*[nodes.size()];
 		for (unsigned int i=0; i< nodes.size(); i++){
 			atomBuffer[i] = (void *)nodes[i].getAtom();
 		}
 		aSurface->updateWithPointerData(nodes.size(), "atom", oldVertexCount, atomBuffer);
-		delete [] atomBuffer;
+		//delete [] atomBuffer;
 	}
 	// Add triangles to surface
 	{
-		int *triangleBuffer = new int[flatTriangles.size()*3];
+		int triangleBuffer[flatTriangles.size()*3];// = new int[flatTriangles.size()*3];
 		int nToDraw = 0;
-		for (unsigned int i=0; i<flatTriangles.size(); i++){
-			if (flatTriangles[i].doDraw()){
+        list<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator trianglesEnd(flatTriangles.end());
+        for (list<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator triangle=flatTriangles.begin();
+             triangle != trianglesEnd;
+             ++triangle){
+            CXXTriangle &flatTriangle(*triangle);
+			if (flatTriangle.doDraw()){
 				for (unsigned int j=0; j<3; j++){
 					//Note the 2-j, this changes the sense of the triangle to reflect the fact that we
 					//actually visualise the inside of the torus
-					triangleBuffer[(3*nToDraw)+j] = flatTriangles[i].element(j) + oldVertexCount;
+					triangleBuffer[(3*nToDraw)+j] = flatTriangle[j] + oldVertexCount;
 				}
 				nToDraw++;
 			}
 		}
 		aSurface->extendTriangles(triangleBuffer, nToDraw);
-		delete [] triangleBuffer;
+		//delete [] triangleBuffer;
 	}
 	return 0;
 }	
+
 const CXXTorusNode &CXXTorusElement::getNode(const int i) const{
 	return nodes[i];
 } 
@@ -279,12 +256,13 @@ void CXXTorusElement::addEdgeVertex(CXXCircleNode &aNode){
 	if (omega < omega2){
 		//This vertex falls somewhere in the range of the segment:  find which of the edgeTriagles it falls within
 		int triangleFound = 0;
-		std::list<int>::iterator triangle;
-		std::list<int>::iterator matchingTriangle;
-		double omegaStart, omegaEnd, thetaStart, thetaEnd;
-		
-		for (triangle = edgeTriangles.begin(); triangle != edgeTriangles.end()  && !triangleFound; triangle++){
-			CXXTriangle &theFlatTriangle(flatTriangles[*triangle]);
+		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator matchingTriangle;
+		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator edgeTrianglesEnd = edgeTriangles.end();
+		for (list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator triangle = edgeTriangles.begin();
+             triangle != edgeTrianglesEnd && !triangleFound;
+             ++triangle){
+
+			CXXTriangle &theFlatTriangle(**triangle);
 			double omegaStart = nodes[theFlatTriangle[1]].getOmega();
 			double omegaEnd   = nodes[theFlatTriangle[0]].getOmega();
 			if (omega >= omegaStart && omega <= omegaEnd){
@@ -300,15 +278,14 @@ void CXXTorusElement::addEdgeVertex(CXXCircleNode &aNode){
 			aNode.setAtom(theCircle.getParent()->getAtomI());
 			nodes.push_back(aNode);
 			
-			CXXTriangle &theFT(flatTriangles[*matchingTriangle]);
-			flatTriangles[*matchingTriangle].setDoDraw(0);
+			CXXTriangle &theFT(**matchingTriangle);
+			theFT.setDoDraw(0);
 			edgeTriangles.erase(matchingTriangle);
-			
-			flatTriangles.push_back(CXXTriangle(theFT[0], nodes.size()-1, theFT[2]));
-			edgeTriangles.push_back(flatTriangles.size()-1);
-			flatTriangles.push_back(CXXTriangle(nodes.size()-1, theFT[1], theFT[2]));
-			edgeTriangles.push_back(flatTriangles.size()-1);
-			
+
+            flatTriangles.push_back(CXXTriangle(theFT[0], nodes.size()-1, theFT[2]));
+            edgeTriangles.push_back(&flatTriangles.back());
+            flatTriangles.push_back(CXXTriangle(nodes.size()-1, theFT[1], theFT[2]));
+            edgeTriangles.push_back(&flatTriangles.back());
 		}
 	}
 }

@@ -66,6 +66,7 @@
 (define nearest-residue-by-sequence-scm #f)
 (define list-extra-restraints-scm #f)
 (define delete-extra-restraint-scm #f)
+(define do-clipped-surface-sc #f)
 
 (load "filter.scm")
 (load "coot-utils.scm")

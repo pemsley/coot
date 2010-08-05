@@ -1,29 +1,9 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 /*
  *  CXXSpace.cpp
  *  lpbSolver
  *
  *  Created by gruber on Thu Jul 15 2004.
- *  
+ *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
 
@@ -53,7 +33,7 @@ CXXSpace::CXXSpace(float probeRadius, float gridSpacing,
 						   dielGrid = new CXXCoord[dim[0]*dim[1]*dim[2]];
 						   epsilonKappaSq = new double[dim[0]*dim[1]*dim[2]];
 						   
-						   if ((chargeGrid == 0) || (potentialGrid == 0) | (dielGrid == 0)) {
+						   if (chargeGrid == 0 | potentialGrid == 0 | dielGrid == 0) {
 							   CXXException theException = CXXException(" ERROR: (CXXSpace::CXXSpace()) :Could not reserve suffiecent memory !\n");
 							   throw theException;
 						   }
@@ -186,75 +166,76 @@ int CXXSpace::addGridCharge(int i, int j, int k,  double gridCharge) {
 
 double CXXSpace::getGridCharge(int i, int j, int k) { 
 	
-   if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
-      return 0; // WARNING ugly  - need  proper boundary value ...
-   }
-   else {
-      
-      if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
-	 
-	 CXXException theException = CXXException("ERROR in: CXXSpace::getGridCharge - index error");
-	 throw theException;
-	 
-      }	
-      double charge = chargeGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
-      return charge;
-   }
+	if (i < 0 | j < 0 | k < 0 | i == dim[0] | j == dim[1] | k == dim[2]) {
+		return 0; // WARNING ugly  - need  proper boundary value ...
+	}
+	else {
+	
+	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
+		
+		CXXException theException = CXXException("ERROR in: CXXSpace::getGridCharge - index error");
+		throw theException;
+		
+	}	
+	double charge = chargeGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
+	return charge;
+	}
 }
 
 
 double CXXSpace::getGridSolvationParameter(int i, int j, int k) { 
 	
-   if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
-      return 0; // WARNING ugly  - need  proper boundary value ...
-   }
-   else {
-      
-      if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
-	 
-	 CXXException theException = CXXException("ERROR in: CXXSpace::getGridCharge - index error");
-	 throw theException;
-	 
-      }	
-      double parameter = solvationGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
-      return parameter;
-   }
+	if (i < 0 | j < 0 | k < 0 | i == dim[0] | j == dim[1] | k == dim[2]) {
+		return 0; // WARNING ugly  - need  proper boundary value ...
+	}
+	else {
+	
+	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
+		
+		CXXException theException = CXXException("ERROR in: CXXSpace::getGridCharge - index error");
+		throw theException;
+		
+	}	
+	double parameter = solvationGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
+	return parameter;
+	}
 }
 
 
 double CXXSpace::getEpsilonKappaSq(int i, int j, int k) { 
 	
-   if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
-      return epsilonKappaSq[0]; // WARNING ugly  - need  proper boundary value ...
-   }
-   else {
-      if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
-	 
-	 CXXException theException = CXXException("ERROR in: CXXSpace::getEpsilonKappa - index error");
-	 throw theException;
-	 
-      }	
-      double charge = epsilonKappaSq[i+j*dim[0]+ k*dim[0]*dim[1]];	
-      return charge;
-   }
+	if (i < 0 | j < 0 | k < 0 | i == dim[0] | j == dim[1] | k == dim[2]) {
+		return epsilonKappaSq[0]; // WARNING ugly  - need  proper boundary value ...
+	}
+	else {
+	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
+		
+		CXXException theException = CXXException("ERROR in: CXXSpace::getEpsilonKappa - index error");
+		throw theException;
+		
+	}	
+		double charge = epsilonKappaSq[i+j*dim[0]+ k*dim[0]*dim[1]];	
+	return charge;
+	}
 }
 
 
 double CXXSpace::getPotential(int i, int j, int k) {	
 	
-   if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
-      return 0; // WARNING later have alternative boundary conditions ....
-   }
-   else {
-      if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
-	 
-	 CXXException theException = CXXException("ERROR in: CXXSpace::getPotential - index error");
-	 throw theException;
-	 
-      }	
-      double value = potentialGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
-      return value;
-   }
+	if (i < 0 | j < 0 | k < 0 | i == dim[0] | j == dim[1] | k == dim[2]) {
+		return 0; // WARNING later have alternative boundary conditions ....
+	}
+	else {
+		if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
+			
+			CXXException theException = CXXException("ERROR in: CXXSpace::getPotential - index error");
+			throw theException;
+			
+		}	
+		double value = potentialGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
+		return value;
+		
+	}
 }
 
 double CXXSpace::getBoundaryMap(int i, int j, int k) { 
@@ -262,26 +243,26 @@ double CXXSpace::getBoundaryMap(int i, int j, int k) {
 	// this special case only comes into effect when the dielectric grid is generated becuase this step 
 	// involves averaging over box around i j k ± 1 - then should give boindary value ...
 	
-   if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
-      return dielectricBoundary;
-   }
-   else {
-      
-      // WARNIG two different mappings from ijk into array used in solventMap and CXX classes ...
-      if((i*dim[1]*dim[2] + j*dim[2] + k) > dim[0]*dim[1]*dim[2]){
-	 CXXException theException = CXXException("ERROR in: CXXSpace::getBoundaryMap - index error");
-	 throw theException;
-      }	
-      if(dielectricBoundary == -1) {
-	 CXXException theException = CXXException("ERROR in: CXXSpace::getBoundaryMap - no boundary conditions set");
-	 throw theException;
-      }	
-      else {
-	 
-	 double inOut = getSolidAt3i(i,j,k);
-	 return inOut;
-      }
-   }
+	if (i < 0 | j < 0 | k < 0 | i == dim[0] | j == dim[1] | k == dim[2]) {
+		return dielectricBoundary;
+	}
+	else {
+		
+		// WARNIG two different mappings from ijk into array used in solventMap and CXX classes ...
+		if((i*dim[1]*dim[2] + j*dim[2] + k) > dim[0]*dim[1]*dim[2]){
+			CXXException theException = CXXException("ERROR in: CXXSpace::getBoundaryMap - index error");
+			throw theException;
+		}	
+		if(dielectricBoundary == -1) {
+			CXXException theException = CXXException("ERROR in: CXXSpace::getBoundaryMap - no boundary conditions set");
+			throw theException;
+		}	
+		else {
+			
+			double inOut = getSolidAt3i(i,j,k);
+			return inOut;
+		}
+	}
 }
 
 double CXXSpace::getDielGrid(int i, int j, int k, int direction) {
@@ -382,6 +363,7 @@ int CXXSpace::introduceMedium(double dielectricInMedium, double dielectricInProt
 		
 		double dielLookI, dielLookJ, dielLookK;
 		
+//#pragma omp parallel for default(none) shared(dielLookI, dielLookJ, dielLookK)
 		for (int i = 0; i < dim[0]; i++) {	
 			for (int j  = 0; j < dim[1]; j++) {
 				for (int k  = 0; k < dim[2]; k++) {
@@ -434,18 +416,17 @@ int CXXSpace::introduceMedium(double dielectricInMedium, double dielectricInProt
 		double constants = 5304.75324359;
 		// => kappa = constants*sqrt(I/T)
 		double kappa = constants*sqrt(saltConc/temp);
-		double value;
 		// kappa factore in linear PBE k*k*h*h where h in m !
 		double h = gridSpacing*(1e-10);
 		double kappaFactor = kappa*kappa*h*h;
 		
 		double solventDielectric = 78;	// MAGIC NUBERS HERE
 
+//#pragma omp parallel for default(none) shared(solventDielectric, kappaFactor)
 		for (int i = 0; i < dim[0]; i++) {	
 			for (int j  = 0; j < dim[1]; j++) {
 				for (int k  = 0; k < dim[2]; k++) {
-					
-					value =   getDielGrid(i-1,j,k,0) + getDielGrid(i,j,k,0)
+					double value =   getDielGrid(i-1,j,k,0) + getDielGrid(i,j,k,0)
 							+ getDielGrid(i,j-1,k,1) + getDielGrid(i,j,k,1)
 							+ getDielGrid(i,j,k-1,2) + getDielGrid(i,j,k,2);
 					
@@ -508,7 +489,7 @@ type:
 	//dumpXSlice(1,sliceNumber, 3);
 	
 	
-	if ((dimension > 2) || (dimension < 0)) {
+	if (dimension > 2 | dimension < 0) {
 		
 		CXXException theException("ERROR CXXSpace::dumpSpaceSlice() - dimension can only be 0,1 or 2!");
 		throw theException;

@@ -8233,12 +8233,25 @@ set_tip_of_the_day_flag (int state) {
 /*  ----------------------------------------------------------------------- */
 void do_surface(int imol, int state) {
 
+   float colour_scale = 0.2;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      graphics_info_t::molecules[imol].make_surface(state, *g.Geom_p());
+      graphics_info_t::molecules[imol].make_surface(state, *g.Geom_p(), colour_scale);
       graphics_draw();
    }
 }
+
+#ifdef USE_GUILE
+void do_clipped_surface_scm(int imol, SCM residues_specs) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::vector<coot::residue_spec_t> res_specs_vec = scm_to_residue_specs(residues_specs);
+      graphics_info_t::molecules[imol].make_surface(res_specs_vec, *g.Geom_p());
+      graphics_draw();
+   } 
+}
+#endif //USE_GUILE
 
 /*  ----------------------------------------------------------------------- */
 /*           Sharpen                                                        */

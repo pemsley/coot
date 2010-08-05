@@ -1,23 +1,3 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 #include "CXXQADSurface.h"
 #include <map>
 #include <algorithm>
@@ -889,7 +869,7 @@ int CXXQADSurface::toruses()
 	//Identify a big box around this torus, and check if all the pixels inside
 	//the box are within the allowed part of the torus
 	double eatingRadius = probeRadius + sample;
-	double eatingRadiusSq = 0; // FIXME? was = eatingRadiusSq (strangely)
+	double eatingRadiusSq = eatingRadius * eatingRadius;
 
 	//loop over all atoms in selection
 	for (int atomNr  = 0;atomNr < nSelectedAtoms; atomNr++) { 
@@ -916,9 +896,12 @@ int CXXQADSurface::toruses()
 		theNewHood.findSegments();
 		
 		//Loop over the segments that are left, using them to "eat" into the molecular volume
-		int nCircles = theNewHood.nCircles();
-		for (int iCircle = 0; iCircle< nCircles; iCircle ++){
-			const CXXCircle &theCircle(theNewHood.getCircle(iCircle));
+		std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> > &theCircles(theNewHood.getCircles());
+		std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circlesEnd = theCircles.end();
+		for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
+			 circleIter != circlesEnd;
+			 ++circleIter){
+			CXXCircle &theCircle(*circleIter);
 			
 			if (centralAtom->serNum < theCircle.getAtomJ()->serNum){
 				if (theCircle.nSegments()>0){
@@ -932,9 +915,9 @@ int CXXQADSurface::toruses()
 					double rMaxSq = rMax*rMax;
 					double rMinSq = rMin*rMin;
 
-					double xDotAxis = xAxis.dot(torusAxis);
-					double yDotAxis = yAxis.dot(torusAxis);
-					double zDotAxis = zAxis.dot(torusAxis);
+					double xDotAxis = xAxis*torusAxis;
+					double yDotAxis = yAxis*torusAxis;
+					double zDotAxis = zAxis*torusAxis;
 					
 					double xCoeff = sqrt (1.0 - xDotAxis*xDotAxis);
 					double yCoeff = sqrt (1.0 - yDotAxis*yDotAxis);
@@ -970,7 +953,7 @@ int CXXQADSurface::toruses()
 									CXXCoord gridCXXCoord(gridCoord[0], gridCoord[1], gridCoord[2]);
 									
 									CXXCoord centreToGrid = gridCXXCoord - torusCentre;
-									double rParallel= centreToGrid.dot(torusAxis);
+									double rParallel= centreToGrid*torusAxis;
 									if (fabs(rParallel) < eatingRadius){
 										//Project the grid point bac into the plane of the circle
 										CXXCoord parallelOffset = torusAxis;
@@ -1000,8 +983,8 @@ int CXXQADSurface::toruses()
 														 iEdge < theCircle.nSegments() && !inRange; 
 														 iEdge++){
 														
-														double thetaMin = theCircle.getNode(theCircle.start(iEdge)).getAngle();
-														double thetaMax = theCircle.getNode(theCircle.stop(iEdge)).getAngle();
+														double thetaMin = theCircle.start(iEdge)->getAngle();
+														double thetaMax = theCircle.stop(iEdge)->getAngle();
 														if (thetaMax == 2.*M_PI){
 															inRange = 1;
 														}
@@ -1026,11 +1009,18 @@ int CXXQADSurface::toruses()
 			}
 		}
 		//Now collect a list of points where the probes are in contact with three atoms
-		for (int iCircle = 0; iCircle< theNewHood.nCircles(); iCircle ++){
-			const CXXCircle &theCircle = theNewHood.getCircle(iCircle);
+		circlesEnd = theCircles.end();
+		for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
+			 circleIter != circlesEnd;
+			 ++circleIter){
+			CXXCircle &theCircle(*circleIter);
 			if (!theCircle.getEaten()){
-				for (unsigned int iNode = 0; iNode < theCircle.getNNodes(); iNode++){
-					const CXXCircleNode &aNode = theCircle.getNode(iNode);
+                const list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> > &nodes = theCircle.getNodes();
+                list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::const_iterator endNode = nodes.end();
+                for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::const_iterator nodeIter = nodes.begin();
+                     nodeIter != endNode;
+                     ++nodeIter){
+					const CXXCircleNode &aNode(*nodeIter);
 					if (!aNode.isDeleted()){
 						if (aNode.getAtomK()->serNum > aNode.getAtomJ()->serNum &&
 							aNode.getAtomJ()->serNum > aNode.getAtomI()->serNum){

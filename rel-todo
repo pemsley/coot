@@ -25,6 +25,11 @@
     o with-ligand.pdb say, then CA+ligands view, then Rotate/Translate
       ligand.  Fails. JT bug. ::: 2
 
+    o bug: read in a protein, Calculate -> Move Molecule here -> Allow
+      big molecules to move (don't activate the menu item). Move -> Fail.
+      ::: 0.5
+
+    o solid view a difference map -> contouring bug ::: 0.5
 
 ------
 

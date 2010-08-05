@@ -1,43 +1,3 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
-/* surface/CXXFFTSolventMap.cpp
- * 
- * 
- * Author: Martin Noble
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 
 /* definiton of memberfunctions of SolventMap*/
 
@@ -69,7 +29,7 @@ SolventMap::SolventMap (fftw_real dGrid, fftw_real rProbe, fftw_real xmin, fftw_
 	
 	/* check for obvious error in parameters*/
 	
-	if ((probeRadius < 0) || (gridSpacing < 0)) {
+	if (probeRadius < 0 | gridSpacing < 0) {
 		CXXException theException = CXXException("ERROR: SolventMap, negative probeRadius or gridSpacing - check parameter list?\n");
 		throw theException;
 	}
@@ -391,14 +351,14 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	FFTProbe = new fftw_complex[dim[0]*dim[1]*(dim[2]/2+1)];
 	FourierScratch = new fftw_complex[dim[0]*dim[1]*(dim[2]/2+1)];  
 	
-	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
+	if ((rapidFlag == 0) | ((rapidFlag == 1) && (countRapid == 0))) {
 		FFTGrid =  new fftw_complex[dim[0]*dim[1]*(dim[2]/2+1)];
 		cout << "Making new FFTGrid \n";
 	}
 	
 	/* exeption stuff here....*/
 	
-	if ((FFTProbe == 0) || (FFTGrid == 0) || (FourierScratch == 0) | (Probe == 0)) {
+	if (FFTProbe == 0 | FFTGrid == 0 | FourierScratch == 0 | Probe == 0) {
 		CXXException theException(" ERROR (SolventMap::convoluteSphere() ): could not reserve suffiecent memory !");
 		throw theException;
 	}
@@ -406,8 +366,9 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	
 	/* open or create file: ESPfile. If old ESPfile present import wisdom from file */
 	
+        /*
 	FILE *ESPfile = NULL;
-	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
+	if (rapidFlag == 0 | (rapidFlag == 1 && countRapid == 0)) {
 		ESPfile = fopen("ESPfile", "r+");
 		if (ESPfile == NULL) {
 			ESPfile=fopen("ESPfile", "w+");
@@ -418,10 +379,11 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 			fftw_import_wisdom_from_file(ESPfile);
 		}
 	}
+        */
 	
 	/* make plans for FFT in both directions*/
     
-	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
+	if ((rapidFlag == 0) | ((rapidFlag == 1) && (countRapid == 0))) {
 		complexToRealPlan = rfftw3d_create_plan 
 		(dim[0], dim[1], dim[2], FFTW_COMPLEX_TO_REAL, FFTW_ESTIMATE | FFTW_USE_WISDOM);
 		realToComplexPlan = rfftw3d_create_plan 
@@ -431,13 +393,15 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	
 	/* export new wisdom to file and close file*/
 	
-	int status; /* not used yet... ERROR handling yet to come....*/
+	//int status; /* not used yet... ERROR handling yet to come....*/
 	
-	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
+        /*
+	if (rapidFlag == 0 | (rapidFlag == 1 && countRapid == 0)) {
 		fftw_export_wisdom_to_file(ESPfile);
 		status=fclose(ESPfile);
 	}
 	cout << "FFTW plans exported\n"; cout.flush();
+        */
 	
 	/* Make a real space image of the surfacing probe in row major..*/
 	
@@ -485,7 +449,7 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	}
 	cout << "FFTW Probe map generated\n"; cout.flush();
 	
-	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
+	if ((rapidFlag == 0) | ((rapidFlag == 1) && (countRapid == 0))) {
 		int i;
 		for (i = 0; i < dim[0]*dim[1]*(dim[2]/2+1); i++) { 
 			FFTGrid[i].re = 0;        
@@ -507,7 +471,7 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	
 	
 	/* FFT Protein Grid only if old one is not recycled*/
-	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
+	if (rapidFlag == 0 | (rapidFlag == 1 && countRapid == 0)) {
 		rfftwnd_one_real_to_complex (realToComplexPlan, Grid, FFTGrid);
 		countRapid = 1;
 	}
@@ -776,7 +740,7 @@ int SolventMap::dumpXSlice (int type, int SliceNr, int broad) {
 	int i;
 	fstream dump ("dumpfile",ios::out|ios::app );
 	
-	if ((SliceNr > dim[0]) || (SliceNr < 1)) {
+	if (SliceNr > dim[0] | SliceNr < 1) {
 		dump << "ERROR: Slice Nr outside of range\n"; 
 		return 1;
 	}

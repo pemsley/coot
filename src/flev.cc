@@ -2195,7 +2195,7 @@ coot::flev_attached_hydrogens_t::find_bash_distance(const clipper::Coord_orth &l
 // 		<< "determined from " << atom_positions.size() << " atom positions"
 // 		<< std::endl;
       for (unsigned int iat=0; iat<atom_positions.size(); iat++) {
-	 double atom_radius_plus_cbr = radius[iat]+cannonball_radius;
+	 double atom_radius_plus_cbr = radius[iat] + cannonball_radius;
 	 double d_squared = (test_pt - atom_positions[iat]).lengthsq();
 // 	 std::cout << "   atom " << iat << " slide: " << slide
 // 		   << " comparing " << sqrt(d_squared) << "^2  and "

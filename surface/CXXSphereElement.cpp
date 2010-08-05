@@ -1,53 +1,33 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 /*
  *  CXXSphereElement.cpp
  *  CXXSurface
  *
  *  Created by Martin Noble on Sat Feb 21 2004.
- *  
+ *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
 
 #include "CXXSphereElement.h"
-#include <CXXCoord.h>
-#include <CXXSphereTriangle.h>
-#include <CXXSphereTriangleEdge.h>
-#include <CXXSphereNode.h>
-#include <CXXSphereFlatTriangle.h>
-#include <CXXSurface.h>
-#include <CXXCircleNode.h>
-#include <CXXCircle.h>
-#include <CXXNewHood.h>
-#include <CXXTorusElement.h>
+#include "CXXCoord.h"
+#include "CXXSphereTriangle.h"
+#include "CXXSphereTriangleEdge.h"
+#include "CXXSphereNode.h"
+#include "CXXSphereFlatTriangle.h"
+#include "CXXSurface.h"
+#include "CXXCircleNode.h"
+#include "CXXCircle.h"
+#include "CXXNewHood.h"
+#include "CXXTorusElement.h"
 #include <math.h>
 #include "mmdb_manager.h"
 #include "mmdb_tables.h"
 
 
 void CXXSphereElement::init(){
-	theVertices.reserve(720);
-	theTriangles.reserve(720);
-	flatTriangles.reserve(2000);
-	theEdges.reserve(720);
+//	theVertices.reserve(720);
+//	theTriangles.reserve(720);
+//	flatTriangles.reserve(2000);
+//	theEdges.reserve(720);
 	nDrawnTriangles=0;
 }
 CXXSphereElement::CXXSphereElement() : 
@@ -55,10 +35,10 @@ theAtom(0)
 {
 	init();
 }
-
+/*
 CXXSphereElement::~CXXSphereElement(){
 }
-
+*/
 CXXSphereElement::CXXSphereElement (PCAtom anAtom, double del) : 
 theAtom(anAtom), 
 deltaRadians(del)
@@ -74,9 +54,13 @@ theRadius(radius),
 deltaRadians(del) {
 	init ();	
 	calculate();
-	for (unsigned i=0; i<flatTriangles.size(); i++){
+	std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
+	for (std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
+		 triangle!=trianglesEnd;
+		 ++triangle){
+		CXXSphereFlatTriangle &flatTriangle(*triangle);
 		for (int j=0; j<3; j++){
-			flatTriangles[i].setEdgeCircle(j,0);
+			flatTriangle.setEdgeCircle(j,0);
 		}
 	}
 }
@@ -157,17 +141,9 @@ int CXXSphereElement::calculate(){
 }
 
 int CXXSphereElement::addTriangularPatch(const CXXCoord &u1_in, const CXXCoord &u2_in, 
-										 const CXXCoord &u3_in, CAtom *anAtom,
-										 vector <PointyBit> &pointyBits)
+										 const CXXCoord &u3_in, CAtom *anAtom, vector<CXXCircle, CXX::CXXAlloc<CXXCircle> >&circles, 
+                                         int UseOrGenerate)
 {	
-	
-	int oldNFlat = nFlatTriangles();
-	for (int i=0; i<oldNFlat; i++){
-		CXXSphereFlatTriangle &flat(flatTriangles[i]);
-		flat.setEdgeCircle(0,0);
-		flat.setEdgeCircle(1,0);
-		flat.setEdgeCircle(2,0);
-	}
 	
 	theAtom = anAtom;
 	CXXCoord u1(u1_in);
@@ -180,7 +156,7 @@ int CXXSphereElement::addTriangularPatch(const CXXCoord &u1_in, const CXXCoord &
 	//This method works only for triangle for which all angles are < 180.  Here, we check this
 	//by seeing whether the normal to u1->u2 points towards or away from u3, if not, then we reverse
 	//the order of the vertices
-	if (normal1.dot(u3)<0.) {
+	if (normal1*u3<0.) {
 		CXXCoord temp(u1);
 		u1 = u2;
 		u2 = temp;
@@ -198,44 +174,52 @@ int CXXSphereElement::addTriangularPatch(const CXXCoord &u1_in, const CXXCoord &
 	v2Coord *= theRadius;
 	v3Coord *= theRadius;
 	CXXSphereNode v1(theCentre + v1Coord);
+	v1.setAtom(anAtom);
 	int iV1 = addVertex(v1);
 	CXXSphereNode v2(theCentre + v2Coord);
+	v2.setAtom(anAtom);
 	int iV2 = addVertex(v2);
 	CXXSphereNode v3(theCentre + v3Coord);
+	v3.setAtom(anAtom);
 	int iV3 = addVertex(v3);
-	
-	CXXCircle edgeCircle1, edgeCircle2, edgeCircle3;
+    
+    circles.resize(3);
+	CXXCircle &edgeCircle1(circles[0]);
+	CXXCircle &edgeCircle2(circles[1]);
+	CXXCircle &edgeCircle3(circles[2]);
+
 	edgeCircle1.setNormal(normal1);
+	edgeCircle1.setCentreToCircle(CXXCoord(0.,0.,0.,0.));
 	edgeCircle1.setCentreOfCircle(theCentre);
 	edgeCircle1.setRadiusOfCircle(theRadius);
 	
 	edgeCircle2.setNormal(normal2);
+	edgeCircle2.setCentreToCircle(CXXCoord(0.,0.,0.,0.));
 	edgeCircle2.setCentreOfCircle(theCentre);
 	edgeCircle2.setRadiusOfCircle(theRadius);
 	
 	edgeCircle3.setNormal(normal3);
+	edgeCircle3.setCentreToCircle(CXXCoord(0.,0.,0.,0.));
 	edgeCircle3.setCentreOfCircle(theCentre);
 	edgeCircle3.setRadiusOfCircle(theRadius);
 	
+    //std::cout << &edgeCircle1 << " " << &edgeCircle2 << " " << &edgeCircle3 << " "<< std::endl;
+    
 	CXXSphereTriangleEdge edge1(normal1, iV1, iV2, 
 								theCentre, theCentre, 
 								theRadius, this);
-	if(!pointyBits[0].isNull) edge1.setCircle(&edgeCircle1);
-	else edge1.setCircle(0);
+	edge1.setCircle(&edgeCircle1);
 	int iEdge1 = addEdge(edge1);
-	
 	
 	CXXSphereTriangleEdge edge2(normal2, iV2, iV3, 
 								theCentre, theCentre, 
 								theRadius, this);
-	if(!pointyBits[1].isNull) edge2.setCircle(&edgeCircle2);
-	else edge2.setCircle(0);
+	edge2.setCircle(&edgeCircle2);
 	int iEdge2 = addEdge(edge2);
 	CXXSphereTriangleEdge edge3(normal3, iV3, iV1, 
 								theCentre, theCentre, 
 								theRadius, this);
-	if(!pointyBits[2].isNull) edge3.setCircle(&edgeCircle3);
-	else edge3.setCircle(0);
+	edge3.setCircle(&edgeCircle3);
 	int iEdge3 = addEdge(edge3);
 	
 	int vertices[] = {iV1, iV2, iV3};
@@ -250,48 +234,8 @@ int CXXSphereElement::addTriangularPatch(const CXXCoord &u1_in, const CXXCoord &
 			flattenLastTriangle();
 		}
 	}
-	int newNFlat = nFlatTriangles();
-	for (int i=oldNFlat; i<newNFlat; i++){
-		CXXSphereFlatTriangle &flat(flatTriangles[i]);
-		theVertices[flat[0]].setAtom(anAtom);
-		theVertices[flat[1]].setAtom(anAtom);
-		theVertices[flat[2]].setAtom(anAtom);
-	}		
-	
-	if (!pointyBits[0].isNull){
-		edgeCircle1.setArbitraryReference();
-		flagCutTriangles(edgeCircle1);
-		CXXCircleNode cn1(&edgeCircle1, 0, pointyBits[0].coord, 0);
-		cn1.setReference(edgeCircle1.getReferenceUnitRadius());
-		addVertex(cn1);
-	}
-	
-	if (!pointyBits[1].isNull){
-		edgeCircle2.setArbitraryReference();
-		flagCutTriangles(edgeCircle2);
-		CXXCircleNode cn1(&edgeCircle2, 0, pointyBits[1].coord, 0);
-		cn1.setReference(edgeCircle2.getReferenceUnitRadius());
-//		addVertex(cn1);
-	}
-	
-	if (!pointyBits[2].isNull){
-		edgeCircle3.setArbitraryReference();
-		flagCutTriangles(edgeCircle3);
-		CXXCircleNode cn1(&edgeCircle3, 0, pointyBits[2].coord, 0);
-		cn1.setReference(edgeCircle3.getReferenceUnitRadius());
-		addVertex(cn1);
-	}
-	
-	
-	for (unsigned i=0; i<flatTriangles.size(); i++){
-		CXXSphereFlatTriangle &flat(flatTriangles[i]);
-		flat.setEdgeCircle(0,0);
-		flat.setEdgeCircle(1,0);
-		flat.setEdgeCircle(2,0);
-	}
 	clearCutFlags();
 	nDrawnTriangles = countDrawnTriangles();
-	
 	
 	return 0;
 }
@@ -302,14 +246,17 @@ theCentre ( oldOne.centre()),
 theVertices(oldOne.getVertices()),
 theTriangles(oldOne.getTriangles()),
 flatTriangles(oldOne.getFlatTriangles()),
+theCircles(oldOne.getCircles()),
 theRadius ( oldOne.radius()),
 deltaRadians ( oldOne.delta()),
 nDrawnTriangles (oldOne.getNDrawnTriangles())
 {
-	//Makes a complete independent copy of the oldOne;
-	
-	for (int i=0; i<oldOne.nTriangles(); i++){
-		theTriangles[i].setSphereElement(this);
+	//Makes a complete independent copy of the oldOne;	
+	std::vector<CXXSphereTriangle, CXX::CXXAlloc<CXXSphereTriangle> >::iterator trianglesEnd = theTriangles.end();
+	for (std::vector<CXXSphereTriangle, CXX::CXXAlloc<CXXSphereTriangle> >::iterator triangle = theTriangles.begin();
+		 triangle!= trianglesEnd;
+		 ++triangle){
+		triangle->setSphereElement(this);
 	}
 	theEdges.resize(oldOne.nEdges());
 	for (int i=0; i<oldOne.nEdges(); i++){
@@ -318,8 +265,11 @@ nDrawnTriangles (oldOne.getNDrawnTriangles())
 	}
 }
 
-CXXSphereElement::CXXSphereElement(const CXXCircleNode &aNode, double delta, double radius_in, int selHnd, vector<PointyBit> &pointyBits) :
-theCentre(aNode.getCoord()), theRadius(radius_in), deltaRadians(delta){
+void CXXSphereElement::initWith(const CXXCircleNode &aNode, double delta, 
+                                double radius_in, bool *includeAtoms, int UseOrGenerate){
+    theCentre=aNode.getCoord();
+    theRadius=radius_in;
+    deltaRadians=delta;
 	init();
 	
 	CAtom *atomK=aNode.getAtomK();
@@ -349,78 +299,86 @@ theCentre(aNode.getCoord()), theRadius(radius_in), deltaRadians(delta){
 	CXXCoord u123(u1 + u2 + u3);
 	u123.normalise();
 	
-	
-	
-	vector<PointyBit> patchPointyBits(3);
+    int nIncludeAtoms = 0;
+    for (int i=0; i<3; i++){
+        if (includeAtoms[i]) nIncludeAtoms++;
+    }
+    theCircles.resize(2*nIncludeAtoms);
 
-	//Corner of triangle closest to atom I
-	if (atomI->isInSelection(selHnd)) {
-		for (unsigned i=0; i<3; i++) patchPointyBits[i].isNull = 1;
-		for (unsigned i=0; i<pointyBits.size(); i++){
-			if (pointyBits[i].atomI == atomI){
-				if (pointyBits[i].atomJ == atomJ){
-					patchPointyBits[1] = pointyBits[i];
-				}
-			}
-		}
-		addTriangularPatch(u123, u3,  u23, atomI, patchPointyBits);
-		
-		for (unsigned i=0; i<3; i++) patchPointyBits[i].isNull = 1;
-		for (unsigned i=0; i<pointyBits.size(); i++){
-			if (pointyBits[i].atomI == atomI){
-				if (pointyBits[i].atomJ == atomK){
-					patchPointyBits[1] = pointyBits[i];
-				}
-			}
-		}
-		addTriangularPatch(u123, u31, u3,  atomI, patchPointyBits);
+    int iTriangularPatch = 0;
+    if (includeAtoms[0]){	
+        //Corner of triangle closest to atom I
+        addTriangularPatch(u123, u3,  u23, atomI, theCircles[iTriangularPatch++], UseOrGenerate);
+        addTriangularPatch(u123, u31, u3,  atomI, theCircles[iTriangularPatch++], UseOrGenerate);
 	}
-	
-	//Corner of triangle closest to atom J
-	if (atomJ->isInSelection(selHnd)){
-		for (unsigned i=0; i<3; i++) patchPointyBits[i].isNull = 1;
-		for (unsigned i=0; i<pointyBits.size(); i++){
-			if (pointyBits[i].atomI == atomJ){
-				if (pointyBits[i].atomJ == atomK){
-					patchPointyBits[1] = pointyBits[i];
-				}
-			}
-		}
-		addTriangularPatch(u123, u2,  u12, atomJ, patchPointyBits);
-		for (unsigned i=0; i<3; i++) patchPointyBits[i].isNull = 1;
-		for (unsigned i=0; i<pointyBits.size(); i++){
-			if (pointyBits[i].atomI == atomJ){
-				if (pointyBits[i].atomJ == atomI){
-					patchPointyBits[1] = pointyBits[i];
-				}
-			}
-		}
-		addTriangularPatch(u123, u23, u2,  atomJ, patchPointyBits);
+	if (includeAtoms[1]){
+		//Corner of triangle closest to atom J
+		addTriangularPatch(u123, u2,  u12, atomJ, theCircles[iTriangularPatch++], UseOrGenerate);
+		addTriangularPatch(u123, u23, u2,  atomJ, theCircles[iTriangularPatch++], UseOrGenerate);
+    }
+    if (includeAtoms[2]){
+		//Corner of triangle closest to atom K
+		addTriangularPatch(u123, u1,  u31, atomK, theCircles[iTriangularPatch++], UseOrGenerate);
+		addTriangularPatch(u123, u12, u1,  atomK, theCircles[iTriangularPatch++], UseOrGenerate);
 	}
-	
-	//Corner of triangle closest to atom K
-	if (atomK->isInSelection(selHnd)) {
-		for (unsigned i=0; i<3; i++) patchPointyBits[i].isNull = 1;
-		for (unsigned i=0; i<pointyBits.size(); i++){
-			if (pointyBits[i].atomI == atomK){
-				if (pointyBits[i].atomJ == atomI){
-					patchPointyBits[1] = pointyBits[i];
-				}
-			}
-		}
-		addTriangularPatch(u123, u1,  u31, atomK, patchPointyBits);
-		for (unsigned i=0; i<3; i++) patchPointyBits[i].isNull = 1;
-		for (unsigned i=0; i<pointyBits.size(); i++){
-			if (pointyBits[i].atomI == atomK){
-				if (pointyBits[i].atomJ == atomJ){
-					patchPointyBits[1] = pointyBits[i];
-				}
-			}
-		}
-		addTriangularPatch(u123, u12, u1,  atomK, patchPointyBits);
-	}
-	
 }
+
+void CXXSphereElement::initWith(const CXXCoord &aCentre, PCAtom atomI, PCAtom atomJ, PCAtom atomK, 
+								double delta, double radius_in, const bool *includeAtoms){
+	
+	int UseOrGenerate = CXXSphereElement::GenerateCircles;
+    theCentre=aCentre;
+    theRadius=radius_in;
+    deltaRadians=delta;
+	init();
+
+	CXXCoord u1(atomK->x, atomK->y, atomK->z);
+	CXXCoord u2(atomJ->x, atomJ->y, atomJ->z);
+	CXXCoord u3(atomI->x, atomI->y, atomI->z);
+	
+	u1 = u1 - theCentre;
+	u1.normalise();
+	u2 = u2-theCentre;
+	u2.normalise();
+	u3 = u3-theCentre;
+	u3.normalise();
+	
+	CXXCoord u12;
+	u12 = u1 + u2;
+	u12.normalise();
+	CXXCoord u23;
+	u23 = u2 + u3;
+	u23.normalise();
+	CXXCoord u31;
+	u31 = u3 + u1;
+	u31.normalise();
+	CXXCoord u123(u1 + u2 + u3);
+	u123.normalise();
+	
+    int nIncludeAtoms = 0;
+    for (int i=0; i<3; i++){
+        if (includeAtoms[i]) nIncludeAtoms++;
+    }
+    theCircles.resize(2*nIncludeAtoms);
+	
+    int iTriangularPatch = 0;
+    if (includeAtoms[0]){	
+        //Corner of triangle closest to atom I
+        addTriangularPatch(u123, u3,  u23, atomI, theCircles[iTriangularPatch++], UseOrGenerate);
+        addTriangularPatch(u123, u31, u3,  atomI, theCircles[iTriangularPatch++], UseOrGenerate);
+	}
+	if (includeAtoms[1]){
+		//Corner of triangle closest to atom J
+		addTriangularPatch(u123, u2,  u12, atomJ, theCircles[iTriangularPatch++], UseOrGenerate);
+		addTriangularPatch(u123, u23, u2,  atomJ, theCircles[iTriangularPatch++], UseOrGenerate);
+    }
+    if (includeAtoms[2]){
+		//Corner of triangle closest to atom K
+		addTriangularPatch(u123, u1,  u31, atomK, theCircles[iTriangularPatch++], UseOrGenerate);
+		addTriangularPatch(u123, u12, u1,  atomK, theCircles[iTriangularPatch++], UseOrGenerate);
+	}
+}
+
 
 int CXXSphereElement::addVertex(const CXXSphereNode &vert){
 	int debug = 0;
@@ -473,9 +431,7 @@ const unsigned CXXSphereElement::nVertices() const{
 const int CXXSphereElement::nEdges() const {
 	return theEdges.size();
 }
-const int CXXSphereElement::nTriangles() const{
-	return theTriangles.size();
-}
+
 const int CXXSphereElement::nFlatTriangles() const{
 	return flatTriangles.size();
 }
@@ -492,161 +448,189 @@ const CXXSphereTriangle &CXXSphereElement::triangle(const int iTriangle) const{
 const CXXSphereTriangleEdge &CXXSphereElement::edge(const int iEdge) const{
 	return theEdges[iEdge];
 }
-const CXXSphereFlatTriangle &CXXSphereElement::flatTriangle(const int iFlatTriangle) const{
-	return flatTriangles[iFlatTriangle];
-}
-void CXXSphereElement::hideFlatTriangle(const int iFlatTriangle){
-	flatTriangles[iFlatTriangle].setDoDraw(0);
-	nDrawnTriangles--;
-}
 
-int CXXSphereElement::trimBy(const CXXCircle &aCircle){
-	unsigned oldNTriangles = flatTriangles.size();
-	for (unsigned int iTriangle = 0; iTriangle<oldNTriangles; iTriangle++){
-		CXXSphereFlatTriangle &flatTriangle(flatTriangles[iTriangle]);
+
+int CXXSphereElement::trimBy(const CXXCircle &aCircle, int carefully){
+	CXXSphereFlatTriangle newTriangle;
+    int wasTrimmed = 0;
+	vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > theIntersections(2);							 
+
+	list<CXXSphereFlatTriangle>newFlatTriangles;
+	
+	list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
+	for (list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
+		 triangle != trianglesEnd;
+		 ++triangle){
+		CXXSphereFlatTriangle &flatTriangle(*triangle);
 		if (flatTriangle.doDraw()){
 			int iNodes[] = {flatTriangle[0], flatTriangle[1], flatTriangle[2]};
+			CXXSphereNode &vertex0(theVertices[iNodes[0]]);
+			CXXSphereNode &vertex1(theVertices[iNodes[1]]);
+			CXXSphereNode &vertex2(theVertices[iNodes[2]]);
 			
 			int isInFront[] = {
-				aCircle.accIsBehind(theVertices[iNodes[0]].vertex()),
-				aCircle.accIsBehind(theVertices[iNodes[1]].vertex()),
-				aCircle.accIsBehind(theVertices[iNodes[2]].vertex())};
-			int nInFront = isInFront[0] + isInFront[1] + isInFront[2];
+				aCircle.accIsBehind(vertex0.vertex()),
+				aCircle.accIsBehind(vertex1.vertex()),
+                aCircle.accIsBehind(vertex2.vertex())
+			};
 			
+			int isInFrontMask = isInFront[0] + (isInFront[1]<<1) + (isInFront[2] << 2);
+			int nInFront = isInFront[0] + isInFront[1] + isInFront[2];
+			if (nInFront != 3) wasTrimmed=1;
 			//First deal with all vertices in front
 			if (nInFront == 3){
 			}
 			//Next case is all vertices behind
 			else if (nInFront == 0 ){
-				hideFlatTriangle(iTriangle);
+				flatTriangle.setDoDraw(0);
+				nDrawnTriangles--;
 				for (int j=0; j<3; j++) theVertices[iNodes[j]].setDoDraw(0);
 			}
 			//Next case is one vertex in front, other two vertices behind
 			else if (nInFront == 1) {
-				int spun=0;
-				for (int i=0; i<3 && !spun; i++){
-					if (isInFront[i] && (!isInFront[(i+1)%3]) && (!isInFront[(i+2)%3])){
-						spun = 1;
-						hideFlatTriangle(iTriangle);
-						
-						theVertices[iNodes[(i+1)%3]].setDoDraw(0);
-						theVertices[iNodes[(i+2)%3]].setDoDraw(0);
-						
-						CXXCoord newVertex1 = aCircle.accPlaneIntersect
-							(theVertices[iNodes[i]].vertex(), 
-							 theVertices[iNodes[(i+1)%3]].vertex());
-						
-						//If the triangle edge we are examining was already generated by trimming by another
-						//circle, then we have to calculate the intersection vertex more carefully, bearing in mind
-						//that these are circle intersections
-						
-						const CXXCircle *oldCircle = flatTriangle.getEdgeCircle(i);
-						if (oldCircle){
-							vector<CXXCoord> theIntersections(2);							 
-							oldCircle->meetsCircle(aCircle, theIntersections);
-							CXXCoord diff1(theIntersections[0]- newVertex1);
-							CXXCoord diff2(theIntersections[1]- newVertex1);
-							newVertex1 = (diff1.get3DLengthSq() < diff2.get3DLengthSq()?theIntersections[0]:theIntersections[1]);
-						}
-						
-						CXXSphereNode newNode1(newVertex1);
-						iNodes[(i+1)%3] = addVertex(newNode1);
-						theVertices[iNodes[(i+1)%3]].setIntersector(&aCircle);
-						
-						CXXCoord newVertex2 = aCircle.accPlaneIntersect
-							(theVertices[iNodes[i]].vertex(), 
-							 theVertices[iNodes[(i+2)%3]].vertex());
-						
-						const CXXCircle *oldCircle1 = flatTriangle.getEdgeCircle((i+2)%3);
-						if (oldCircle1){
-							vector<CXXCoord> theIntersections(2);							 
-							oldCircle1->meetsCircle(aCircle, theIntersections);
-							CXXCoord diff1(theIntersections[0]- newVertex2);
-							CXXCoord diff2(theIntersections[1]- newVertex2);
-							newVertex2 = (diff1.get3DLengthSq() < diff2.get3DLengthSq()?theIntersections[0]:theIntersections[1]);
-						}
-						
-						CXXSphereNode newNode2(newVertex2);
-						iNodes[(i+2)%3] = addVertex(newNode2);
-						theVertices[iNodes[(i+2)%3]].setIntersector(&aCircle);
-						
-						flatTriangles.push_back(CXXSphereFlatTriangle(iNodes[i], iNodes[(i+1)%3], iNodes[(i+2)%3]));
-						flatTriangles.back().setAtom(flatTriangles[iTriangle].getAtom());
-						flatTriangles.back().setEdgeCircle(0, oldCircle);
-						flatTriangles.back().setEdgeCircle(1, &aCircle);
-						flatTriangles.back().setEdgeCircle(2, oldCircle1);
-						nDrawnTriangles++;
-						
-					}
+				
+				int i=0;
+				if ((isInFrontMask & 1) == 1) i = 0;
+				else if ((isInFrontMask & 2) == 2) i = 1;
+				else if ((isInFrontMask & 4) == 4) i = 2;
+				
+				flatTriangle.setDoDraw(0);
+				nDrawnTriangles--;
+				
+				theVertices[iNodes[(i+1)%3]].setDoDraw(0);
+				theVertices[iNodes[(i+2)%3]].setDoDraw(0);
+				
+				CXXCoord newVertex1 = aCircle.accPlaneIntersect
+				(theVertices[iNodes[i]].vertex(), 
+				 theVertices[iNodes[(i+1)%3]].vertex());
+                
+				//If the triangle edge we are examining was already generated by trimming by another
+				//circle, then we have to calculate the intersection vertex more carefully, bearing in mind
+				//that these are circle intersections
+				
+				const CXXCircle *oldCircle = flatTriangle.getEdgeCircle(i);
+				if (oldCircle &&carefully){
+                    //std::cout << oldCircle << " oc " << std::endl;
+					if (!aCircle.meetsCircle(*oldCircle, theIntersections)){
+                        CXXCoord diff1(theIntersections[0]- newVertex1);
+                        CXXCoord diff2(theIntersections[1]- newVertex1);
+                        newVertex1 = (diff1.get3DLengthSq() < diff2.get3DLengthSq()?theIntersections[0]:theIntersections[1]);
+                    }
 				}
+                //else std::cout << "No obvious old circle\n";
+				
+				CXXSphereNode newNode1(newVertex1);
+				newNode1.setAtom(theVertices[iNodes[i]].getAtom());
+				iNodes[(i+1)%3] = addVertex(newNode1);
+				theVertices[iNodes[(i+1)%3]].setIntersector(&aCircle);
+				
+				CXXCoord newVertex2 = aCircle.accPlaneIntersect
+				(theVertices[iNodes[i]].vertex(), 
+				 theVertices[iNodes[(i+2)%3]].vertex());
+				
+				const CXXCircle *oldCircle1 = flatTriangle.getEdgeCircle((i+2)%3);
+				if (oldCircle1&&carefully){
+                    //std::cout << oldCircle1 << " oc1 " << std::endl;
+					if (!aCircle.meetsCircle(*oldCircle1, theIntersections)){
+                        CXXCoord diff1(theIntersections[0]- newVertex2);
+                        CXXCoord diff2(theIntersections[1]- newVertex2);
+                        newVertex2 = (diff1.get3DLengthSq() < diff2.get3DLengthSq()?theIntersections[0]:theIntersections[1]);
+                    }
+				}
+                //else std::cout << "No obvious old circle 1\n";
+				
+				CXXSphereNode newNode2(newVertex2);
+				newNode2.setAtom(theVertices[iNodes[i]].getAtom());
+				iNodes[(i+2)%3] = addVertex(newNode2);
+				theVertices[iNodes[(i+2)%3]].setIntersector(&aCircle);
+				
+				newTriangle[0] = iNodes[i];
+				newTriangle[1] = iNodes[(i+1)%3];
+				newTriangle[2] = iNodes[(i+2)%3];
+				newTriangle.setAtom(flatTriangle.getAtom());
+				newTriangle.setEdgeCircle(0, oldCircle);
+				newTriangle.setEdgeCircle(1, &aCircle);
+				newTriangle.setEdgeCircle(2, oldCircle1);
+				
+				newFlatTriangles.push_back(newTriangle);
+				nDrawnTriangles++;				
 			}
 			//Now deal with case that one coordinate is chopped off, and two are infront of plane
 			else {
-				int spun=0;
-				for (int i=0; i<3 && !spun; i++){
-					if (!isInFront[i] && isInFront[(i+1)%3] && isInFront[(i+2)%3]){
-						
-						spun = 1;
-						hideFlatTriangle(iTriangle);
-						theVertices[iNodes[i]].setDoDraw(0);
-						
-						CXXCoord newVertex1 = aCircle.accPlaneIntersect
-							(theVertices[iNodes[(i+1)%3]].vertex(), 
-							 theVertices[iNodes[i]].vertex());
-						
-						const CXXCircle *oldCircle = flatTriangles[iTriangle].getEdgeCircle(i);
-						if (oldCircle){
-							vector<CXXCoord> theIntersections(2);							 
-							oldCircle->meetsCircle(aCircle, theIntersections);
-							CXXCoord diff1(theIntersections[0]- newVertex1);
-							CXXCoord diff2(theIntersections[1]- newVertex1);
-							newVertex1 = (diff1.get3DLengthSq() < diff2.get3DLengthSq()?theIntersections[0]:theIntersections[1]);
-						}
-						
-						CXXSphereNode newNode1(newVertex1);
-						int iNewNode1 = addVertex(newNode1);
-						theVertices[iNewNode1].setIntersector(&aCircle);
-						
-						flatTriangles.push_back(CXXSphereFlatTriangle(iNewNode1, iNodes[(i+1)%3], iNodes[(i+2)%3]));
-						flatTriangles.back().setAtom(flatTriangles[iTriangle].getAtom());
-						flatTriangles.back().setEdgeCircle(0, flatTriangles[iTriangle].getEdgeCircle(i));
-						flatTriangles.back().setEdgeCircle(1, flatTriangles[iTriangle].getEdgeCircle((i+1)%3));
-						flatTriangles.back().setEdgeCircle(2, 0);
-						nDrawnTriangles++;
-						
-						CXXCoord newVertex2 = aCircle.accPlaneIntersect
-							(theVertices[iNodes[(i+2)%3]].vertex(), 
-							 theVertices[iNodes[i]].vertex());
-						
-						const CXXCircle *oldCircle1 = flatTriangles[iTriangle].getEdgeCircle((i+2)%3);
-						if (oldCircle1){
-							vector<CXXCoord> theIntersections(2);							 
-							oldCircle1->meetsCircle(aCircle, theIntersections);
-							CXXCoord diff1(theIntersections[0]- newVertex2);
-							CXXCoord diff2(theIntersections[1]- newVertex2);
-							newVertex2 = (diff1.get3DLengthSq() < diff2.get3DLengthSq()?theIntersections[0]:theIntersections[1]);
-						} 
-						
-						CXXSphereNode newNode2(newVertex2);
-						int iNewNode2 = addVertex(newNode2);
-						theVertices[iNewNode2].setIntersector(&aCircle);
-						
-						flatTriangles.push_back(CXXSphereFlatTriangle(iNewNode2, iNewNode1, iNodes[(i+2)%3]));
-						flatTriangles.back().setAtom(flatTriangles[iTriangle].getAtom());
-						flatTriangles.back().setEdgeCircle(0, &aCircle);
-						flatTriangles.back().setEdgeCircle(1, 0);
-						flatTriangles.back().setEdgeCircle(2, flatTriangles[iTriangle].getEdgeCircle((i+2)%3));
-						nDrawnTriangles++;
-						
-						
-					}
+				int i=0;
+				if ((isInFrontMask & 1) != 1) i = 0;
+				else if ((isInFrontMask & 2) != 2) i = 1;
+				else if ((isInFrontMask & 4) != 4) i = 2;
+				
+				flatTriangle.setDoDraw(0);
+				nDrawnTriangles--;
+			
+				theVertices[iNodes[i]].setDoDraw(0);
+				
+				CXXCoord newVertex1 = aCircle.accPlaneIntersect
+				(theVertices[iNodes[(i+1)%3]].vertex(), 
+				 theVertices[iNodes[i]].vertex());
+				
+				const CXXCircle *oldCircle = flatTriangle.getEdgeCircle(i);
+				if (oldCircle&&carefully){
+					if (!aCircle.meetsCircle(*oldCircle, theIntersections)){
+                        CXXCoord diff1(theIntersections[0]- newVertex1);
+                        CXXCoord diff2(theIntersections[1]- newVertex1);
+                        newVertex1 = (diff1.get3DLengthSq() < diff2.get3DLengthSq()?theIntersections[0]:theIntersections[1]);
+                    }
 				}
+				
+				CXXSphereNode newNode1(newVertex1);
+				newNode1.setAtom(theVertices[iNodes[i]].getAtom());
+				int iNewNode1 = addVertex(newNode1);
+				theVertices[iNewNode1].setIntersector(&aCircle);
+				
+				newTriangle[0] = iNewNode1;
+				newTriangle[1] = iNodes[(i+1)%3];
+				newTriangle[2] = iNodes[(i+2)%3];
+				newTriangle.setAtom(flatTriangle.getAtom());
+				newTriangle.setEdgeCircle(0, flatTriangle.getEdgeCircle(i));
+				newTriangle.setEdgeCircle(1, flatTriangle.getEdgeCircle((i+1)%3));
+				newTriangle.setEdgeCircle(2, 0);
+				newFlatTriangles.push_back(newTriangle);
+				nDrawnTriangles++;
+				
+				CXXCoord newVertex2 = aCircle.accPlaneIntersect
+				(theVertices[iNodes[(i+2)%3]].vertex(), 
+				 theVertices[iNodes[i]].vertex());
+				
+				const CXXCircle *oldCircle1 = flatTriangle.getEdgeCircle((i+2)%3);
+				if (oldCircle1&&carefully){
+                    //std::cout << oldCircle1 << " oc1 " << std::endl;
+					if (!aCircle.meetsCircle(*oldCircle1, theIntersections)){
+                        CXXCoord diff1(theIntersections[0]- newVertex2);
+                        CXXCoord diff2(theIntersections[1]- newVertex2);
+                        newVertex2 = (diff1.get3DLengthSq() < diff2.get3DLengthSq()?theIntersections[0]:theIntersections[1]);
+                    }
+				} 
+				
+				CXXSphereNode newNode2(newVertex2);
+				newNode2.setAtom(theVertices[iNodes[i]].getAtom());
+				int iNewNode2 = addVertex(newNode2);
+				theVertices[iNewNode2].setIntersector(&aCircle);
+				
+				newTriangle[0] = iNewNode2;
+				newTriangle[1] = iNewNode1;
+				newTriangle[2] = iNodes[(i+2)%3];
+				newTriangle.setAtom(flatTriangle.getAtom());
+				newTriangle.setEdgeCircle(0, &aCircle);
+				newTriangle.setEdgeCircle(1, 0);
+				newTriangle.setEdgeCircle(2, flatTriangle.getEdgeCircle((i+2)%3));
+				newFlatTriangles.push_back(newTriangle);
+				nDrawnTriangles++;
 			}
 			//No more cases I think
 		}
 	}
-	
-	return 0;
+	flatTriangles.insert(flatTriangles.end(), newFlatTriangles.begin(), newFlatTriangles.end());
+	flatTriangles.remove_if(CXXTriangle::doNotDraw);
+    
+	return wasTrimmed;
 }
 
 const double CXXSphereElement::delta() const{
@@ -659,9 +643,15 @@ int CXXSphereElement::translateBy (const CXXCoord &crd){
 		const CXXCoord result = theVertices[i].vertex() + crd;
 		theVertices[i].setVertex(result);
 	}
-	for (int i=0; i<nTriangles(); i++){
-		CXXCoord result = theTriangles[i].centre() + crd;
-		theTriangles[i].setCentre(result);		
+	std::vector<CXXSphereTriangle, CXX::CXXAlloc<CXXSphereTriangle> >::iterator trianglesEnd = 
+	theTriangles.end();
+	for (std::vector<CXXSphereTriangle, CXX::CXXAlloc<CXXSphereTriangle> >::iterator triangle = 
+		 theTriangles.begin();
+		 triangle != trianglesEnd;
+		 ++triangle){
+		CXXSphereTriangle &theTriangle(*triangle);
+		CXXCoord result = theTriangle.centre() + crd;
+		theTriangle.setCentre(result);		
 	}
 	for (int i=0; i<nEdges(); i++){
 		CXXCoord result = theEdges[i].edgeCentre() + crd;
@@ -693,19 +683,6 @@ const CAtom *CXXSphereElement::getAtom() const{
 	return theAtom;
 }
 
-const std::vector<CXXSphereNode> &CXXSphereElement::getVertices() const {
-	return theVertices;
-}
-const std::vector<CXXSphereTriangle> &CXXSphereElement::getTriangles() const {
-	return theTriangles;
-}
-const std::vector<CXXSphereTriangleEdge> &CXXSphereElement::getEdges() const {
-	return theEdges;
-}
-const std::vector<CXXSphereFlatTriangle> &CXXSphereElement::getFlatTriangles() const {
-	return flatTriangles;
-}
-
 int CXXSphereElement::addFlatTriangle(const CXXSphereFlatTriangle &theTriangle){
 	flatTriangles.push_back(theTriangle);
 	return 0;
@@ -733,7 +710,7 @@ CXXCoord CXXSphereElement::voronoiPoint(const CXXCoord &a, const CXXCoord &b, co
 	midPoint2 = midPoint2 + a;
 	
 	double k2 = (edgeNormal1[1]*(midPoint2[0]-midPoint1[0]) - edgeNormal1[0]*(midPoint2[1]-midPoint1[1])) /
-		(edgeNormal1[0]*edgeNormal2[1]-edgeNormal2[0]*edgeNormal1[1]);
+	(edgeNormal1[0]*edgeNormal2[1]-edgeNormal2[0]*edgeNormal1[1]);
 	
 	CXXCoord result(edgeNormal2);
 	result *= k2;
@@ -741,41 +718,105 @@ CXXCoord CXXSphereElement::voronoiPoint(const CXXCoord &a, const CXXCoord &b, co
 	//Confirm that the voronoi point lies on the triangle, otherwise, shift it to as close as
 	//possible
 	CXXCoord diff(result - a);
-	double c1 = diff.dot(edge1);
-	double c2 = diff.dot(edge2);
+	double c1 = diff*edge1;
+	double c2 = diff*edge2;
 	if (c1> 0. && c1 < 1. && c2 > 0. && c2 < 1. && c1 + c2 < 1.) return result;
 	else return trivialResult;
 	
 }
 
-void CXXSphereElement::flagCutTriangles(const CXXCircle &theCircle){
+void CXXSphereElement::identifyRaggedEdges(CXXCircle &theCircle, std::map<const CXXBall*, vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > >&raggedEdges){
+	//First collect the list of triangles that have this circle as an edge, and evaluate their omega values
+	//	edgeTriangles[&theCircle] = set <CXXSphereFlatTriangle *>;
+	bool noneForThisCircle = true;
+	vector<CXXCoord, CXX::CXXAlloc<CXXCoord> >*raggedEdgesOfBall;
+	std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
+	for (std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
+		 triangle!=trianglesEnd;
+		 ++triangle){
+		CXXSphereFlatTriangle &flatTriangle(*triangle);
+
+		if (flatTriangle.doDraw()){
+			int spun = 0;
+			for (int j=0; j<3 && !spun; j++){
+				if (flatTriangle.getEdgeCircle(j) == &theCircle){
+					spun = 1;					
+					if (noneForThisCircle){
+						raggedEdgesOfBall = &raggedEdges[theCircle.getBallJ()];
+					}
+					const CXXCoord &v1(theVertices[flatTriangle[ j     ]].vertex());
+					raggedEdgesOfBall->push_back(v1);
+					
+					const CXXCoord &v2(theVertices[flatTriangle[(j+1)%3]].vertex());
+					raggedEdgesOfBall->push_back(v2);
+				}
+			}
+		}
+	}
+}
+
+
+int CXXSphereElement::flagCutTriangles(const CXXCircle &theCircle){
 	//First collect the list of triangles that have this circle as an edge, and evaluate their omega values
 	//	edgeTriangles[&theCircle] = set <CXXSphereFlatTriangle *>;
 	clearCutFlags();
-	int nTriangles = flatTriangles.size();
-	for (unsigned i=0; i<nTriangles; i++){
-		CXXSphereFlatTriangle &flatTriangle(flatTriangles[i]);
+
+	std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
+	for (std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
+		 triangle!=trianglesEnd;
+		 ++triangle){
+		CXXSphereFlatTriangle &flatTriangle(*triangle);
+
 		if (flatTriangle.doDraw()){
 			int spun = 0;
 			for (int j=0; j<3 && !spun; j++){
 				if (flatTriangle.getEdgeCircle(j) == &theCircle){
 					spun = 1;
-					TriangleEdgePair edge(i,j);
-					edgeTriangles.push_back(edge);
+					edgeTriangles[&flatTriangle] = j;
 					
 					const CXXCoord &v1(theVertices[flatTriangle[ j     ]].vertex());
 					CXXCircleNode cn1(&theCircle, 0, v1, 0);
-					cn1.setReference(theCircle.getReferenceUnitRadius());
 					flatTriangle.setCircleNode( j     , cn1);
 					
 					const CXXCoord &v2(theVertices[flatTriangle[(j+1)%3]].vertex());
 					CXXCircleNode cn2(&theCircle, 0, v2, 0);
-					cn2.setReference(theCircle.getReferenceUnitRadius());
 					flatTriangle.setCircleNode((j+1)%3, cn2);
 				}
 			}
 		}
 	}
+    //    std::cout << "found "<< edgeTriangles.size() << " cut triangles\n";
+    return edgeTriangles.size();
+}
+
+void CXXSphereElement::addCircleVertices(const CXXCircle &theCircle, int iEdge, double delta)
+{
+    const CXXCircleNode &node1(*theCircle.start(iEdge));
+    const CXXCircleNode &node2(*theCircle.stop(iEdge));
+    double startOmega = node1.getAngle();
+    double stopOmega = node2.getAngle();
+    double deltaOmega = stopOmega - startOmega;
+    int nSteps = 1;
+    while (deltaOmega > delta/2){
+        deltaOmega /= 2.;
+        nSteps *= 2;
+    }
+    CXXCoord normalUnitRadius = theCircle.getReferenceUnitRadius()^theCircle.getNormal();
+    double omega = startOmega;
+    int nPlaced = 0;
+    for (int iStep = 0; iStep <= nSteps+1; iStep++){
+        CXXCoord newNode = 
+        (theCircle.getReferenceUnitRadius()*cos(omega) + 
+         normalUnitRadius*sin(omega)) * theCircle.getRadiusOfCircle();
+        CXXCoord translatedNewNode = newNode + theCircle.getCentreOfCircle();
+		CXXCircleNode extraNode(&theCircle, 0, translatedNewNode, 0);
+		extraNode.setAngle(omega);
+		if (!addVertex(extraNode)){
+            nPlaced++;
+        }
+        omega += deltaOmega;
+    }
+    if (nPlaced != nSteps) std::cout << "Placed "<< nPlaced << " of " << nSteps+1<<std::endl;
 }
 
 void CXXSphereElement::addTorusVertices(const CXXTorusElement &aTorus){
@@ -791,86 +832,77 @@ void CXXSphereElement::addTorusVertices(const CXXTorusElement &aTorus){
 	}
 }
 
-void CXXSphereElement::addVertex(const CXXCircleNode &extraNode){
-	double omega = extraNode.getAngle();
+int CXXSphereElement::addVertex(const CXXCircleNode &extraNode){
+	
+	//There is a problem here:  adding vertices to this sphereelement 
+	//invalidates the edgeTriangle map...not sure what to do
+	
+	
 	const CXXCoord &newNode = extraNode.getCoord();
 	const CXXCircle *aCircle = extraNode.getParent();
-	
-	list<TriangleEdgePair>::iterator cutTriangle;
-	list<TriangleEdgePair>::iterator removeTriangle;
+	//double omega = extraNode.getAngle();
+	map<CXXSphereFlatTriangle *, int>::iterator cutTriangle;
+	map<CXXSphereFlatTriangle *, int>::iterator edgeTrianglesEnd = edgeTriangles.end();
+	map<CXXSphereFlatTriangle *, int>::iterator removeTriangle;
+	map<CXXSphereFlatTriangle *, int> extraEdgeTriangles;
 	int cutFound = 0;
 	for (cutTriangle=edgeTriangles.begin(); 
-		 cutTriangle!=edgeTriangles.end() && !cutFound; 
-		 cutTriangle++){
-		int iTriangle = (*cutTriangle).triangle;
-		int iEdge = (*cutTriangle).edge;
-		if (flatTriangles[iTriangle].doDraw()){
-			if (flatTriangles[iTriangle].getEdgeCircle(iEdge) == aCircle){
-				const CXXCircleNode &cn1 = flatTriangles[iTriangle].getCircleNode( iEdge     );
-				double o1 = cn1.getAngle();
-				const CXXCircleNode &cn2 = flatTriangles[iTriangle].getCircleNode((iEdge+1)%3);
-				double o2 = cn2.getAngle();
-				double omin, omax;
-				if (o2>o1) {
-					if (o2-o1 < M_PI){
-						omin = o1;
-						omax = o2;
-					}
-					else {
-						omin = o2;
-						omax = o1 + 2.*M_PI;
-					}
-				}
-				else {
-					if (o1-o2 < M_PI){
-						omin = o2;
-						omax = o1;
-					}
-					else {
-						omin = o1;
-						omax = o2 + 2.*M_PI;
-					}
-				}
-				if (omega>omin && omega < omax){
-					/*
-					 cout << "select object banana add ball " << newNode[0] << " " << newNode[1] << " " << newNode[2] <<" 0.05\n";
-					 cout << "#" <<omin <<" " <<omega<<" "<<omax<<endl;
-					 CXXCoord projection(aTorus.coordFromThetaOmega(aTorus.getTheta2(),omega-aTorus.getAbsoluteStartOmega()));
-					 cout << "apple " << omega <<" " << omin << " " << omax << endl; 
-					 
-					 cout << "select object banana add line " << newNode[0] << " " << newNode[1] << " " << newNode[2] << " "<<
-					 projection[0] << " " << projection[1] << " " << projection[2] <<  "\n";
-					 */
-					
+		 cutTriangle!=edgeTrianglesEnd && !cutFound; 
+		 ++cutTriangle){
+		CXXSphereFlatTriangle &flatTriangle(*cutTriangle->first);
+		int iEdge = cutTriangle->second;
+		if (flatTriangle.doDraw()){
+			if (flatTriangle.getEdgeCircle(iEdge) == aCircle){
+				const CXXCircleNode &cn1 = flatTriangle.getCircleNode( iEdge     );
+				const CXXCircleNode &cn2 = flatTriangle.getCircleNode((iEdge+1)%3);
+                const CXXSphereNode &vert1(vertex(flatTriangle[iEdge]));
+                //Nw the two circle nodes of this triangle will be listd in an order which
+                //preserves the direction of the normal to the triangle...this is not neccessarily
+                //the order by which cn2 has a higher "omega" value than o2.  However, we can be
+                //relatively confident that the sense in which to interpret the line segment cn1 cn2 is
+                //that sense by which the angle between them is small.  For this reason, we use the
+                //routine "smalabBracketsC" to check whether the vertex lies betwween them.  This will be wrong
+                //under certain circumstances
+                if (aCircle->smallabBracketsC(cn1, cn2, extraNode)){//omega>omin && omega < omax){
 					cutFound = 1;
 					removeTriangle = cutTriangle;
-					int iv3 = addVertex(CXXSphereNode(newNode));
+                    CXXSphereNode newSphereNode(newNode);
+                    newSphereNode.setAtom(vert1.getAtom());
+					int iv3 = addVertex(newSphereNode);
 					
-					flatTriangles.push_back(CXXSphereFlatTriangle(flatTriangles[iTriangle]));
+					flatTriangles.push_back(CXXSphereFlatTriangle(flatTriangle));
 					flatTriangles.back().setElement   ((iEdge+1)%3, iv3);
 					flatTriangles.back().setCircleNode((iEdge+1)%3, extraNode);
 					nDrawnTriangles++;
-					edgeTriangles.push_back(TriangleEdgePair(flatTriangles.size()-1, iEdge));
+					extraEdgeTriangles[&flatTriangles.back()] = iEdge;
 					
-					flatTriangles.push_back(CXXSphereFlatTriangle(flatTriangles[iTriangle]));
+					flatTriangles.push_back(CXXSphereFlatTriangle(flatTriangle));
 					flatTriangles.back().setElement   ( iEdge,      iv3);
 					flatTriangles.back().setCircleNode( iEdge,      extraNode);
 					nDrawnTriangles++;
-					edgeTriangles.push_back(TriangleEdgePair(flatTriangles.size()-1, iEdge));
+					extraEdgeTriangles[&flatTriangles.back()] = iEdge;
 					
-					hideFlatTriangle((*cutTriangle).triangle);
+					flatTriangle.setDoDraw(0);
+					nDrawnTriangles--;
 				}				
 			}
 		}
 	}
-	if (cutFound) edgeTriangles.erase(removeTriangle);
+	if (cutFound) {
+        edgeTriangles.erase(removeTriangle);
+		edgeTriangles.insert(extraEdgeTriangles.begin(), extraEdgeTriangles.end());
+        return 0;
+    }
+    else return 1;
 }
 
 int CXXSphereElement::countDrawnTriangles() const{
-	int nTri = nFlatTriangles();
 	int nToDraw = 0;
-	for (int i=0; i<nTri; i++){
-		if (flatTriangles[i].doDraw()) nToDraw++;
+	std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator trianglesEnd = flatTriangles.end();
+	for (std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator triangle = flatTriangles.begin();
+		 triangle != trianglesEnd;
+		 ++triangle){
+		if (triangle->doDraw()) nToDraw++;
 	}
 	return nToDraw;
 }

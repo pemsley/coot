@@ -1,23 +1,3 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 #include <iostream>
 #include <iomanip>
 
@@ -28,22 +8,29 @@
 
 #ifndef  __MMDB_Manager__
 #include"mmdb_manager.h"
-#include"mmdb_tables.h"
+//#include"mmdb_tables.h"
 #endif
 
+#include "CXXChargeTable.h"
+
 using namespace std;
+
+class CXXChargeTable;
 
 namespace CXXUtils{
 	
 	int assignUnitedAtomRadius(PCMMDBManager, int selHnd);
+	int assignCharge(PCMMDBManager theManager, int selHnd, CXXChargeTable *theChargeTable);
+	int selectionStringToSelHnd(PCMMDBManager allAtomsManager_in, std::string selectionString, int existingSelection=-1, int selKeyRequest=SKEY_NEW);
+	int unCharge(PCMMDBManager theManager,int selHnd);
 	void reformatAtomRadii();
 	
 	typedef struct AtomRadius_{
-		char *atomName;
-		char *residueName;
+		string atomName;
+		string residueName;
 		float radius;
 	} AtomRadius;
-	 
+	
 	static AtomRadius unitedAtomRadii[] = {
 	{ " CA ", "GLY", 2.04},
 	{ " CA ", "*  ", 1.99},
@@ -677,6 +664,5 @@ namespace CXXUtils{
 	{ " P* ", "*  ", 2.14}		
 	};
 	static int nAtomRadii = sizeof(unitedAtomRadii) / sizeof(AtomRadius);
-	
 }
 

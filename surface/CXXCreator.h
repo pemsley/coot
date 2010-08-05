@@ -1,29 +1,9 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 /*
  *  creator.h
  *  lpbSolver
  *
  *  Created by gruber on Fri Jul 02 2004.
- *  
+ *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
 
@@ -39,24 +19,18 @@
 #include "mmdb_manager.h"
 #include "mmdb_tables.h"
 #endif
+#ifndef  __CXXException__
+#include "CXXException.h"
+#endif
 
+#include "CXXCoord.h"
 #ifndef  __CXXException__
 #include <CXXException.h>
 #endif
+#include "CXXChargeTable.h"
+#include "CXXSpace.h"
 
-#include <CXXCoord.h>
-#ifndef  __CXXException__
-#include <CXXException.h>
-#endif
-#include <CXXChargeTable.h>
-#include <CXXSpace.h>
-
-#include <clipper/clipper.h>
-#include <clipper/clipper-contrib.h>
-#include <clipper/core/nxmap.h>
-
-using namespace clipper;
-
+#include "clipper/clipper.h"
 
 using namespace std;
 
@@ -110,7 +84,7 @@ public:
 	
 	CXXCreator (pstr thePdb);   // reads a pdb from file to make creator 
 	CXXCreator (PCMMDBManager theManager); //can also be created from an MMDBManager ...
-	CXXCreator (PCMMDBManager theManager, int selHnd); //can also be created from an MMDBManager + selHnd
+	CXXCreator (PCMMDBManager theManager, int selHnd, int context_selHnd=-1); //can also be created from an MMDBManager + selHnd
 
 	int setParameters( double IonicStrength, double Temperature, double gridSpacing);
 	
@@ -131,7 +105,7 @@ public:
 	
 	// force a calculation from defined selection with default parameters
 	int calculate();
-	
+
 	// after calculation, coerce thecreators data into a clipper map for contouring, interpolating etc
 	clipper::NXmap<double> coerceToClipperMap(clipper::Cell &cell);
 

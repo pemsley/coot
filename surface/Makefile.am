@@ -1,6 +1,8 @@
 
 INCLUDES = -I$(top_srcdir)/coot-utils $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) $(FFTW_CXXFLAGS)
 
+AM_CPPFLAGS = $(OPENMP_CFLAGS)
+
 lib_LTLIBRARIES = libccp4mg-surface.la
 
 EXTRA_DIST = surface.cpp surface.h \
@@ -37,6 +39,7 @@ libccp4mg_surface_la_SOURCES = \
 	CXXNode.h			TokenIterator.h \
 	CXXQADSurface.cpp		\
 	CXXQADSurface.h	\
+	CXXBall.cpp CXXBall.h       \
 	CXXQADSurfaceStaticData.cpp \
 	CXXSpace.cpp				\
 	CXXSpace.h \
