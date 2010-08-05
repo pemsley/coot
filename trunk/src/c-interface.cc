@@ -8233,7 +8233,7 @@ set_tip_of_the_day_flag (int state) {
 /*  ----------------------------------------------------------------------- */
 void do_surface(int imol, int state) {
 
-   float colour_scale = 0.2;
+   float colour_scale = graphics_info_t::electrostatic_surface_charge_range; // 0.5, by default
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       graphics_info_t::molecules[imol].make_surface(state, *g.Geom_p(), colour_scale);
@@ -8241,13 +8241,24 @@ void do_surface(int imol, int state) {
    }
 }
 
+void set_electrostatic_surface_charge_range(float v) {
+   graphics_info_t::electrostatic_surface_charge_range = v;
+} 
+
+float get_electrostatic_surface_charge_range() {
+   return graphics_info_t::electrostatic_surface_charge_range;
+} 
+
+   
+
 #ifdef USE_GUILE
 void do_clipped_surface_scm(int imol, SCM residues_specs) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       std::vector<coot::residue_spec_t> res_specs_vec = scm_to_residue_specs(residues_specs);
-      graphics_info_t::molecules[imol].make_surface(res_specs_vec, *g.Geom_p());
+      float col_scale = g.electrostatic_surface_charge_range;
+      graphics_info_t::molecules[imol].make_surface(res_specs_vec, *g.Geom_p(), col_scale);
       graphics_draw();
    } 
 }

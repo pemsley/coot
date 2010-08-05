@@ -141,12 +141,13 @@ int main (int argc, char * const argv[]) {
 			inputMap.import_nxmap(theClipperNXMap);
 		}
 		else {
-			//Instantiate an electrostatics map and cause it to calculate itself
-			CXXChargeTable theChargeTable;
-			CXXUtils::assignCharge(theMMDBManager, selHnd, &theChargeTable);
-			CXXCreator *theCreator = new CXXCreator(theMMDBManager, selHnd);
-			theCreator->calculate();
-			theClipperNXMap = theCreator->coerceToClipperMap(cell);
+		   //Instantiate an electrostatics map and cause it to calculate itself
+		   std::coot << "=============== here in main " << std::endl;
+		   CXXChargeTable theChargeTable;
+		   CXXUtils::assignCharge(theMMDBManager, selHnd, &theChargeTable);
+		   CXXCreator *theCreator = new CXXCreator(theMMDBManager, selHnd);
+		   theCreator->calculate();
+		   theClipperNXMap = theCreator->coerceToClipperMap(cell);
 		}
 		
 		// Now bring the surface and the map together

@@ -15,6 +15,8 @@ int CXXUtils::assignCharge(PCMMDBManager theManager, int selHnd, CXXChargeTable 
 		double theAtomCharge;
 		theAtomCharge = theChargeTable->getCharge(residueName, atomName);		
 		theAtom->charge = theAtomCharge;
+		// std::cout << "assignCharge() " << theAtom << " was given charge "
+		// << theAtom->charge << std::endl;
 	}
 	return 0;
 }

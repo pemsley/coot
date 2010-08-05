@@ -86,8 +86,8 @@ molecule_class_info_t::apply_charges(const coot::protein_geometry &geom) {
 
 	 // first set all atom charges to unset:
 	 for (int i=0; i<atom_sel.n_selected_atoms; i++)
-	    atom_sel.atom_selection[i]->charge = CXX_UNSET_CHARGE;
-
+	    atom_sel.atom_selection[i]->charge = CXX_UNSET_CHARGE - 0.1;
+      
 
 	 // Now add real charges from the dictionary
 	 // 

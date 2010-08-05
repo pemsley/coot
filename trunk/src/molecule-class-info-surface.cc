@@ -103,19 +103,19 @@ molecule_class_info_t::fill_residue_selection(int SelHnd_selection,
 
 void
 molecule_class_info_t::make_surface(const std::vector<coot::residue_spec_t> &res_specs_vec,
-				    const coot::protein_geometry &geom) {
+				    const coot::protein_geometry &geom,
+				    float col_scale) {
 
-   float col_scale = 0.2; // pass this 
 
    if (0) { // this is how it should work
-   int SelHnd_selection = atom_sel.mol->NewSelection();
-
-   // fill_residue_selection(SelHnd_selection, res_specs_vec);
-
-   // make_surface(SelHnd_selection, atom_sel.SelectionHandle, geom);
-   make_surface(atom_sel.SelectionHandle, atom_sel.SelectionHandle, geom);
-   
-   atom_sel.mol->DeleteSelection(SelHnd_selection);
+      int SelHnd_selection = atom_sel.mol->NewSelection();
+      
+      // fill_residue_selection(SelHnd_selection, res_specs_vec);
+      
+      // make_surface(SelHnd_selection, atom_sel.SelectionHandle, geom);
+      make_surface(atom_sel.SelectionHandle, atom_sel.SelectionHandle, geom, col_scale);
+      
+      atom_sel.mol->DeleteSelection(SelHnd_selection);
    } else {
       make_surface(1, geom, col_scale); // old function.
    } 
@@ -126,10 +126,9 @@ molecule_class_info_t::make_surface(const std::vector<coot::residue_spec_t> &res
 // 
 void
 molecule_class_info_t::make_surface(int SelHnd_selection, int SelHnd_all,
-				    const coot::protein_geometry &geom) {
+				    const coot::protein_geometry &geom,
+				    float col_scale) {
 
-   float col_scale = 0.2; // pass this
-   
    glDeleteLists(theSurface, 1);
    theSurface = glGenLists(1);
    glNewList(theSurface, GL_COMPILE);

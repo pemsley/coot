@@ -1457,12 +1457,14 @@ public:        //                      public
    // the interface function, converting between a residue specs set
    // and a selection handle
    void make_surface(const std::vector<coot::residue_spec_t> &res_specs_vec,
-		     const coot::protein_geometry &geom);
+		     const coot::protein_geometry &geom,
+		     float col_scale);
    // SelHnd_selection is the selection of the environment (residues
    // of the active site, say).  SelHnd_all is all tha atoms
    // contributing to the charge (typically all the atoms of the
    // chain).
-   void make_surface(int SelHnd_selection, int SelHnd_all, const coot::protein_geometry &geom);
+   void make_surface(int SelHnd_selection, int SelHnd_all, const coot::protein_geometry &geom,
+		     float col_scale);
    //
 
    // a generic function to convert from a residue_spec_vec to a
@@ -2781,7 +2783,8 @@ public:        //                      public
    void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
    float density_surface_opacity;
-   void setup_density_surface_material(bool solid_mode, float opacity); // shininess, material colour etc.
+   void setup_density_surface_material(bool solid_mode, float opacity,
+				       bool is_negative_level = 0); // shininess, material colour etc.
    
 };
 

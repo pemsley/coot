@@ -7,8 +7,6 @@ lib_LTLIBRARIES = libccp4mg-surface.la
 
 EXTRA_DIST = surface.cpp surface.h \
 	CXXTorusTriangle.cpp \
-	CXXUtils.cpp \
-	CXXUtils.h \
 	ElectroSurface.cpp
 
 
@@ -45,6 +43,8 @@ libccp4mg_surface_la_SOURCES = \
 	CXXSpace.h \
 	CXXMatrix4x4.h \
 	CXXPointyBit.h \
+	CXXUtils.cpp \
+	CXXUtils.h \
 	CXXSphereFlatTriangle.h
 
 libccp4mg_surface_la_LIBADD = $(CLIPPER_LIBS) $(MMDB_LIBS)

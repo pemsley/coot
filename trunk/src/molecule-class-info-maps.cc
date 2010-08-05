@@ -573,6 +573,8 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 	    clipper::Coord_orth  back_cl( back.x(),  back.y(),  back.z());
 	    tri_con.depth_sort(back_cl, front_cl);
 	    // std::cout << " sorted" << std::endl;
+	    if (xmap_is_diff_map[0])
+	       tri_con_diff_map_neg.depth_sort(back_cl, front_cl);
 	 } else {
 	    
 	    // glEnable(GL_CULL_FACE); // eek! surfaces goes dark...
@@ -593,12 +595,18 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 	 glEnable(GL_POLYGON_OFFSET_FILL);
 	 glPolygonOffset(2.0, 2.0);
 	 glColor4f(0.2, 0.2, 0.2, density_surface_opacity);
-
 	 display_solid_surface_triangles(tri_con, do_flat_shading);
 
 	 if (xmap_is_diff_map[0]) {
+	    bool is_neg = 1;
+	    setup_density_surface_material(solid_mode, density_surface_opacity, is_neg);
 	    display_solid_surface_triangles(tri_con_diff_map_neg, do_flat_shading);
 	 }
+
+	 glDisable(GL_POLYGON_OFFSET_FILL);
+	 glDisable(GL_LIGHT2);
+	 glDisable(GL_LIGHTING);
+	 
 
       }
    }
@@ -665,14 +673,11 @@ molecule_class_info_t::display_solid_surface_triangles(const coot::density_conto
    }
       
    glEnd();
-   glDisable(GL_POLYGON_OFFSET_FILL);
-   glDisable(GL_LIGHT2);
-   glDisable(GL_LIGHTING);
 } 
 
-
+// is_neg is an optional arg
 void
-molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opacity) {
+molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opacity, bool is_neg) {
 
    if (solid_mode) {
 
@@ -690,17 +695,35 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50);
       glDisable(GL_COLOR_MATERIAL);
 
-      // test if (xmap_is_diff_map[0] == 1)
-      
       GLfloat  mat_specular[]  = {0.58,  0.58,  0.58,  opacity};
       GLfloat  mat_ambient[]   = {.05*map_colour[0][0], 0.5*map_colour[0][1], 0.5*map_colour[0][2], opacity};
       GLfloat  mat_diffuse[]   = {map_colour[0][0], map_colour[0][1], map_colour[0][2], opacity};
       GLfloat  mat_shininess[] = {15};
-
+	 
       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+
+      if (is_neg) {
+	 // override
+	 GLfloat  mat_specular[]  = {0.58,  0.58,  0.58,  opacity};
+	 GLfloat  mat_ambient[]   = {.05*map_colour[1][0], 0.5*map_colour[1][1], 0.5*map_colour[1][2], opacity};
+	 GLfloat  mat_diffuse[]   = {map_colour[1][0], map_colour[1][1], map_colour[1][2], opacity};
+	 GLfloat  mat_shininess[] = {15};
+
+// 	 std::cout << " is_neg with map_colour: "
+// 		   << map_colour[1][0] << " "
+// 		   << map_colour[1][1] << " "
+// 		   << map_colour[1][2] << " "
+// 		   << std::endl;
+	 
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+	 
+      }
 
       
    } else {

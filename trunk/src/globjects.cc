@@ -1136,6 +1136,8 @@ GdkCursorType graphics_info_t::pick_cursor_index = GDK_CROSSHAIR;
 // update self?
 bool graphics_info_t::update_self = 0;  // Set by command line arg --update-self
 
+float graphics_info_t::electrostatic_surface_charge_range = 0.5;
+
 
 // surface
 

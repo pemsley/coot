@@ -858,8 +858,21 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
       tri_con.point_indices[nt].mid_point = clipper::Coord_orth(0.333333333 * sum_pt.x(),
 								0.333333333 * sum_pt.y(),
 								0.333333333 * sum_pt.z());
+      
+      // Note we apply a negation to get the normal pointing out of
+      // the surface, so the shiny surface is on the outside.
+      // 
       tri_con.point_indices[nt].normal_for_flat_shading =
 	 clipper::Coord_orth(-clipper::Coord_orth::cross((co_2-co_1), (co_3-co_1)).unit());
+
+      // If the contour level is negative then the normals need to
+      // point in the other direction (c.f. a positive contour).  If
+      // we don't do this, the bright shiny surfaces of the negative
+      // level are on the inside.
+      // 
+      if (tIsoLevel < 0.0) 
+	 tri_con.point_indices[nt].normal_for_flat_shading =
+	    -tri_con.point_indices[nt].normal_for_flat_shading;
       
       
 //       std::cout << "tripoint " << j   << " " << co_1.x() << " " << co_1.y() << " " << co_1.z() << "\n";
