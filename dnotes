@@ -5729,13 +5729,26 @@ Thu Jul 22 21:40:12 EDT 2010
  
 -------
 
-  Garib: new restraints type:
+  Garib: new refmac restraints type:
   Kullback - Leibler divergence.
 
 -----
 Fri Jul 30 14:54:42 BST 2010
 
    Fed 12 bins don't run on Fed 13.
+
+
+----
+Thu Aug  5 05:23:49 BST 2010
+
+   Use rdkit/openbabel for Gasteiger-Marsili partial charge calculation
+
+
+-----
+Thu Aug  5 06:32:43 BST 2010
+
+   Do I have the surface normals reversed?
+   Try reversing the normals - does that make backface culling work?  
 
 
 ------

@@ -10,20 +10,20 @@
 
     o findligand needs to be able to take an (x,y,z) coordinate  ::: 0.5
 
-* Done.
+* Written - needs testing.  
 
     o findligand need to be able to take cut-off in absolute (not just
       sigma) ::: 1
+
+* Written - needs testing.
 
     o add_user_defined_torsion restraint needs filling.  How do atoms
       get fixed when using linear residue selection?  ::: 1
 
     o Ingo symmetry molecule bug ::: 1
 
-    o Hydrogen sticks are too thick ::: 1
-
     o with-ligand.pdb say, then CA+ligands view, then Rotate/Translate
-      ligand.  Fails. ::: 2
+      ligand.  Fails. JT bug. ::: 2
 
 
 ------
@@ -655,6 +655,10 @@ WARNING:: Can't find file
     o check/delete waters works? ::: 1
 
 * Done. 
+
+    o Hydrogen sticks are too thick ::: 1
+
+* Done, it was a GL_QUADS-related oversight.
 
 
 -------
