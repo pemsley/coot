@@ -1,41 +1,19 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 
-#include <clipper/clipper.h>
-#include <clipper/clipper-ccp4.h>
-#include <clipper/clipper-contrib.h>
-#include <clipper/clipper-mmdb.h>
-#include <clipper/core/nxmap.h>
+#include "clipper/clipper.h"
+#include "clipper/clipper-ccp4.h"
 
 using namespace clipper;
 
 #include <iostream>
-#include <CXXSurface.h>
-#include <CXXCreator.h>
+#include <string.h>
+#include "CXXSurface.h"
+#include "CXXCreator.h"
 #ifndef  __MMDB_Manager__
 #include "mmdb_manager.h"
 #endif
-#include <CXXSphereTriangleEdge.h>
-#include <CXXCoord.h>
-#include <CXXUtils.h>
+#include "CXXSphereTriangleEdge.h"
+#include "CXXCoord.h"
+#include "CXXUtils.h"
 #include <math.h>
 
 int usage (string arg);
@@ -58,16 +36,17 @@ int main (int argc, char * const argv[]) {
 	double probeRadius = 1.5;
 	double sampling = 0.7;
 	int analytical = 1;
+	bool evaluateElectrostatics = true;
 	
 	if (argc<2){
-		int iUsage = usage(argv[0]);
+		usage(argv[0]);
 		exit (0);
 	}
 	
 	for (int iArg = 1; iArg < argc; iArg++){
 		string arg(argv[iArg]);
 		if (arg == "-usage" || arg == "-u" || arg == "-help" || arg == "-h"){
-			int iUsage = usage(argv[0]);
+			usage(argv[0]);
 			exit (0);
 		}
 		else if (arg == "-probe"){
@@ -82,11 +61,6 @@ int main (int argc, char * const argv[]) {
 		else if (arg == "-vertex"){
 			iArg++;
 			vertexName = argv[iArg];
-		}
-		else if (arg == "-grid" || arg == "-sample"){
-			analytical = 0;
-			iArg++;
-			sampling = atof(argv[iArg]);
 		}
 		else if (arg == "-mapout"){
 			iArg++;
@@ -111,6 +85,9 @@ int main (int argc, char * const argv[]) {
 		else if (arg.substr(0,1) != "-"){
 			if (inputCoordinateName == " ") inputCoordinateName = arg;
 			else outputSurfaceName = arg;
+		}
+		else if (arg == "-no"){
+			evaluateElectrostatics= false;
 		}
 	}
 	
@@ -139,22 +116,6 @@ int main (int argc, char * const argv[]) {
 		CXXUtils::assignUnitedAtomRadius(theMMDBManager, selHnd);
 	}
 	
-	//Generate or read a potential map
-	clipper::NXmap<double> theClipperNXMap;
-	
-	clipper::Cell cell;
-	if (inputMapName != " "){
-		CCP4MAPfile inputMap;
-		inputMap.open_read(inputMapName);
-		inputMap.import_nxmap(theClipperNXMap);
-	}
-	else {
-		//Instantiate an electrostatics map and cause it to calculate itself
-		CXXCreator *theCreator = new CXXCreator(theMMDBManager, selHnd);
-		theCreator->calculate();
-		theClipperNXMap = theCreator->coerceToClipperMap(cell);
-	}
-	
 	//
 	//Get hold of a surface: May be readin, or aclculated
 	CXXSurface *calculatedSurface = new CXXSurface();
@@ -165,30 +126,45 @@ int main (int argc, char * const argv[]) {
 	}
 	else {
 		if (analytical){
-			calculatedSurface->calculateFromAtoms (theMMDBManager, selHnd, probeRadius, angle*2.*M_PI / 360.);
+			calculatedSurface->calculateFromAtoms (theMMDBManager, selHnd, selHnd, probeRadius, angle*2.*M_PI / 360., false);
+		}
+	}	
+	
+	clipper::Cell cell;
+	clipper::NXmap<double> theClipperNXMap;
+
+	if (evaluateElectrostatics){
+		//Generate or read a potential map		
+		if (inputMapName != " "){
+			CCP4MAPfile inputMap;
+			inputMap.open_read(inputMapName);
+			inputMap.import_nxmap(theClipperNXMap);
 		}
 		else {
-			calculatedSurface->calculateQADFromAtoms (theMMDBManager, selHnd, probeRadius, sampling);
+			//Instantiate an electrostatics map and cause it to calculate itself
+			CXXChargeTable theChargeTable;
+			CXXUtils::assignCharge(theMMDBManager, selHnd, &theChargeTable);
+			CXXCreator *theCreator = new CXXCreator(theMMDBManager, selHnd);
+			theCreator->calculate();
+			theClipperNXMap = theCreator->coerceToClipperMap(cell);
 		}
+		
+		// Now bring the surface and the map together
+		double coords[4];
+		int potentialHandle = calculatedSurface->getScalarHandle("potential");
+		
+		for (int i=0; i< calculatedSurface->numberOfVertices(); i++){
+			//Use the colour if it has been assigned
+			if (calculatedSurface->getCoord(vertexName, i, coords)){
+				cout << "Bizarely no vertices for coordinate "<< i << endl;
+			}
+			Coord_orth orthogonals(coords[0], coords[1], coords[2]);
+			double potential;
+			const Coord_map mapUnits(theClipperNXMap.coord_map(orthogonals));
+			potential = theClipperNXMap.interp<Interp_cubic>( mapUnits );
+			calculatedSurface->setScalar(potentialHandle, i, potential);
+		}				
 	}
-	
-	
-	// Now bring the surface and the map together
-	double coords[4];
-	int potentialHandle = calculatedSurface->getScalarHandle("potential");
-	
-	for (int i=0; i< calculatedSurface->numberOfVertices(); i++){
-		//Use the colour if it has been assigned
-		if (calculatedSurface->getCoord(vertexName, i, coords)){
-			cout << "Bizarely no vertices for coordinate "<< i << endl;
-		}
-		Coord_orth orthogonals(coords[0], coords[1], coords[2]);
-		double potential;
-		const Coord_map mapUnits(theClipperNXMap.coord_map(orthogonals));
-		potential = theClipperNXMap.interp<Interp_cubic>( mapUnits );
-		calculatedSurface->setScalar(potentialHandle, i, potential);
-	}				
-	
 	
 	//Output surface file if desired
 	if (outputSurfaceName != " "){
@@ -222,4 +198,5 @@ int usage(std::string argv0){
 	cout << "Optionally, the potential calculated can be written to a CCP4 format map (-mapout specifier)\n\n";
 	cout << "By default surfaces are calculated on a rather fine angular tolerance (-angle specifier: smaller=smoother)\n";
 	cout << "\t alternatively a less accurate surface algorithm can be specified with the -grid specifier with an arguement of about 0.5\n";
+	return 0;
 }

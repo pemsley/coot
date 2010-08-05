@@ -5579,6 +5579,15 @@ if state = 1 draw the surface (normal representation goes away)
 
 if state = 0 don't draw surface */
 void do_surface(int imol, int istate);
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief draw the surface of the imolth molecule clipped to the
+  residues given by residue_specs */
+void do_clipped_surface_scm(int imol, SCM residue_specs);
+#endif /*  USE_GUILE */
+#ifdef USE_PYTHON
+#endif /*  USE_PYTHON */
+#endif	/* __cplusplus */
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

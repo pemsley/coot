@@ -1453,7 +1453,25 @@ public:        //                      public
    void clear_display_list_object(GLuint tag);
 
    // the charges for the surface come from the dictionary.
-   void make_surface(int on_off_flag, const coot::protein_geometry &geom);
+   void make_surface(int on_off_flag, const coot::protein_geometry &geom, float colour_scale);
+   // the interface function, converting between a residue specs set
+   // and a selection handle
+   void make_surface(const std::vector<coot::residue_spec_t> &res_specs_vec,
+		     const coot::protein_geometry &geom);
+   // SelHnd_selection is the selection of the environment (residues
+   // of the active site, say).  SelHnd_all is all tha atoms
+   // contributing to the charge (typically all the atoms of the
+   // chain).
+   void make_surface(int SelHnd_selection, int SelHnd_all, const coot::protein_geometry &geom);
+   //
+
+   // a generic function to convert from a residue_spec_vec to a
+   // selection handle. Caller creates teh SelHnd_selection so that it
+   // is clearer where the SelHnd_selection should be deleted.
+   //
+   void fill_residue_selection(int SelHnd_selection,
+			       const std::vector<coot::residue_spec_t> &res_specs_vec);
+   
    
    void dynamically_transform(coot::CartesianPairInfo v);
    void set_draw_vecs(const coot::CartesianPair* c, int n) { 
@@ -2757,6 +2775,9 @@ public:        //                      public
    // --------- (transparent) solid rendering of density ------------------
    bool draw_it_for_solid_density_surface;
    coot::density_contour_triangles_container_t tri_con;
+   coot::density_contour_triangles_container_t tri_con_diff_map_neg; // negative contour
+   void display_solid_surface_triangles(const coot::density_contour_triangles_container_t &tri_con,
+					bool do_flat_shading) const;
    void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
    float density_surface_opacity;

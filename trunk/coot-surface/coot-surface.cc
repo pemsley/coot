@@ -1,5 +1,6 @@
 /* coot-surface/coot-surface.cc
  * 
+ * Copyright 2005 The University of Oxford
  * Copyright 2005 The University of York
  * Author: Martin Noble, Jan Gruber, Paul Emsley
  * 
@@ -30,15 +31,39 @@
 #include "rgbreps.h"
 
 void
-coot::surface::fill_from(CMMDBManager *mol, int selHnd) {
+coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale) {
 
    theSurface = new CXXSurface;
-   theSurface->calculateFromAtoms(mol, selHnd, 1.4, 0.5); // 0.785 is 45
+
+
+   // debug::
+
+   if (1) { 
+      PPCAtom atoms;
+      int n_atoms;
+      mol->GetSelIndex(selHnd, atoms, n_atoms);
+      for (int iat=0; iat<n_atoms; iat++) {
+	 std::cout << "  atom: " << atoms[iat]->GetChainID() << " " <<  atoms[iat]->GetSeqNum() << " "
+		   << atoms[iat]->name << " charge: " << atoms[iat]->charge << std::endl;
+      }
+   }
+
+   theSurface->calculateFromAtoms(mol, selHnd, selHnd, 1.4, 0.5, false); // 0.785 is 45
 							  // degrees used by
 							  // Martin
-   evaluateElectrostaticPotential(mol, selHnd);
+   evaluateElectrostaticPotential(mol, selHnd, col_scale);
 
 }
+
+void
+coot::surface::fill_surface(CMMDBManager *mol, int SelHnd_selection, int SelHnd_all, float col_scale) {
+
+   // e.g. selection handles: residues_of_the_active_site, residues_of_the_chain
+   // the first is a subset of the other.
+   theSurface->calculateFromAtoms(mol, SelHnd_selection, SelHnd_all, 1.4, 0.5, false);
+   evaluateElectrostaticPotential(mol, SelHnd_all, col_scale);
+} 
+			    
 
 
 void
@@ -113,22 +138,32 @@ coot::surface::draw(double *override_colour, int selective_override) {
 }
 
 
+// colscale is by default 0.2.
 void
-coot::surface::evaluateElectrostaticPotential(CMMDBManager *theManager, int selHnd) {
+coot::surface::evaluateElectrostaticPotential(CMMDBManager *theManager, int selHnd, float col_scale) {
   iEval = 0;
-  evaluatePhiAndColourWithDefaultScheme(theManager, selHnd);
+  evaluatePhiAndColourWithDefaultScheme(theManager, selHnd, col_scale);
 }
 
 int
-coot::surface::evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, const int selHnd){
-  cout << "In evaluatePhiAndColourWithDefaultScheme\n"; cout.flush();
-  CColourScheme defaultScheme;
-  std::vector<float> typ;
-  typ.push_back(-0.2); typ.push_back(-0.2);  typ.push_back(0.0);  typ.push_back(0.2); typ.push_back(0.2);
-  std::vector<std::string> cols;
-  cols.push_back("red"); cols.push_back("red");  cols.push_back("white");  cols.push_back("blue"); cols.push_back("blue");
-  defaultScheme.SetSchemeFloat(typ, cols);
-  return evaluatePhiAndColourWithScheme(theManager, selHnd, defaultScheme);
+coot::surface::evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, const int selHnd,
+						     float col_scale){
+   std::cout << "In evaluatePhiAndColourWithDefaultScheme\n" << std::endl;
+   CColourScheme defaultScheme;
+   std::vector<float> typ;
+   typ.push_back(-col_scale);
+   typ.push_back(-col_scale);
+   typ.push_back(0.0);
+   typ.push_back(col_scale);
+   typ.push_back(col_scale);
+   std::vector<std::string> cols;
+   cols.push_back("red");
+   cols.push_back("red");
+   cols.push_back("white");
+   cols.push_back("blue");
+   cols.push_back("blue");
+   defaultScheme.SetSchemeFloat(typ, cols);
+   return evaluatePhiAndColourWithScheme(theManager, selHnd, defaultScheme);
 }
 
 int coot::surface::evaluatePhiAndColourWithScheme(CMMDBManager *theManager, const int selHnd, CColourScheme &colourScheme){
@@ -199,9 +234,9 @@ coot::surface::interpolateIntoMap(const std::string &coordinateType, const std::
       if (theSurface->getCoord(coordHandle, i, coords)){
 	cout << "Bizarely no vertices for coordinate "<< i << endl;
       }
-      Coord_orth orthogonals(coords[0], coords[1], coords[2]);
-      const Coord_map mapUnits(aMap.coord_map(orthogonals));
-      scalarBuffer[i] = aMap.interp<Interp_cubic>( mapUnits );
+      clipper::Coord_orth orthogonals(coords[0], coords[1], coords[2]);
+      const clipper::Coord_map mapUnits(aMap.coord_map(orthogonals));
+      scalarBuffer[i] = aMap.interp<clipper::Interp_cubic>( mapUnits );
     }
     theSurface->addPerVertexScalar (scalarType, scalarBuffer);
     delete scalarBuffer;

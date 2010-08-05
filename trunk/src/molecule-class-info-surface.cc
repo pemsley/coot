@@ -54,7 +54,8 @@ molecule_class_info_t::draw_surface() {
 
 void
 molecule_class_info_t::make_surface(int on_off_flag,
-				    const coot::protein_geometry &geom) {
+				    const coot::protein_geometry &geom,
+				    float col_scale) {
 
    if (atom_sel.n_selected_atoms > 0) {
 
@@ -68,7 +69,7 @@ molecule_class_info_t::make_surface(int on_off_flag,
 	 theSurface = glGenLists(1);
 	 glNewList(theSurface, GL_COMPILE);
 	 cootsurface = new coot::surface;
-	 cootsurface->fill_from(atom_sel.mol, atom_sel.SelectionHandle);
+	 cootsurface->fill_from(atom_sel.mol, atom_sel.SelectionHandle, col_scale);
 	 if (cootsurface) 
 	    cootsurface->draw(0, 0);
 	 glEndList();
@@ -76,6 +77,69 @@ molecule_class_info_t::make_surface(int on_off_flag,
    }
 }
 
+// a generic function to convert from a residue_spec_vec to a selection handle.
+//
+void
+molecule_class_info_t::fill_residue_selection(int SelHnd_selection,
+					      const std::vector<coot::residue_spec_t> &res_specs_vec) {
+
+   for (unsigned int ir=0; ir<res_specs_vec.size(); ir++) {
+      atom_sel.mol->SelectAtoms(SelHnd_selection, 0,
+				res_specs_vec[ir].chain.c_str(),
+				res_specs_vec[ir].resno,
+				res_specs_vec[ir].insertion_code.c_str(), 
+				res_specs_vec[ir].resno,
+				res_specs_vec[ir].insertion_code.c_str(),
+				"*", "*", "*", "*", SKEY_OR);
+   }
+
+   PPCAtom atoms = NULL;
+   int n_atoms;
+   atom_sel.mol->GetSelIndex(SelHnd_selection, atoms, n_atoms);
+   std::cout << "debug:: fill_residue_selection selected "
+	     << n_atoms << " atoms" << std::endl;
+} 
+
+
+void
+molecule_class_info_t::make_surface(const std::vector<coot::residue_spec_t> &res_specs_vec,
+				    const coot::protein_geometry &geom) {
+
+   float col_scale = 0.2; // pass this 
+
+   if (0) { // this is how it should work
+   int SelHnd_selection = atom_sel.mol->NewSelection();
+
+   // fill_residue_selection(SelHnd_selection, res_specs_vec);
+
+   // make_surface(SelHnd_selection, atom_sel.SelectionHandle, geom);
+   make_surface(atom_sel.SelectionHandle, atom_sel.SelectionHandle, geom);
+   
+   atom_sel.mol->DeleteSelection(SelHnd_selection);
+   } else {
+      make_surface(1, geom, col_scale); // old function.
+   } 
+} 
+
+
+// use the other version of make surface to turn this surface off.
+// 
+void
+molecule_class_info_t::make_surface(int SelHnd_selection, int SelHnd_all,
+				    const coot::protein_geometry &geom) {
+
+   float col_scale = 0.2; // pass this
+   
+   glDeleteLists(theSurface, 1);
+   theSurface = glGenLists(1);
+   glNewList(theSurface, GL_COMPILE);
+   cootsurface = new coot::surface;
+   // cootsurface->fill_surface(atom_sel.mol, SelHnd_selection, SelHnd_all);
+   cootsurface->fill_surface(atom_sel.mol, SelHnd_all, SelHnd_all, col_scale);
+   if (cootsurface) 
+      cootsurface->draw(0, 0);
+   glEndList();
+}
 
 
 // electron density solid surface

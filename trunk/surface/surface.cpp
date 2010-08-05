@@ -199,7 +199,7 @@ surface::surface (CMMDBManager *theManager, int selHnd) : Primitive() {
 	initArrays();
 	style = CCP4MG_SURFACE_SOLID;
 	theSurface = new CXXSurface();
-	theSurface->calculateFromAtoms (theManager, selHnd, selHnd, 1.5, 0.785);
+	theSurface->calculateFromAtoms (theManager, selHnd, selHnd, 1.5, 30*DEGTORAD, false);
 	//evaluateElectrostaticPotential(theManager, selHnd);
 	theSurface->report();
 }

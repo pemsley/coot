@@ -1,35 +1,13 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 /*
  *  creator.cpp
  *  lpbSolver
  *
  *  Created by gruber on Fri Jul 02 2004.
- *  
+ *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
 
-#include "coot-coord-utils.hh"
 #include "CXXCreator.h"
-#include "mmdb_tables.h"  // why is this needed?
 #include <algorithm>
 
 CXXCreator::CXXCreator (pstr thePdb) {
@@ -59,9 +37,28 @@ CXXCreator::CXXCreator (PCMMDBManager theMMDBManager_in) {
 	theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 }
 
-CXXCreator::CXXCreator (PCMMDBManager theMMDBManager, int selHnd) {
+CXXCreator::CXXCreator (PCMMDBManager theMMDBManager, int selHnd, int context_selHnd ) {
 	init();
 	theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
+        
+        int neighbour_selhnd;
+        int nSelAtomsNeighbours;
+        PPCAtom SelAtomNeighbours;
+
+        //theMMDBManager->Select(neighbour_selhnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
+
+        /* 35 angstroms seems overly generous, but I still get incorrect charges with ca 25 angstroms. */
+        if (context_selHnd>0) {
+          neighbour_selhnd = theMMDBManager->NewSelection();
+          theMMDBManager->SelectNeighbours(neighbour_selhnd,STYPE_ATOM,SelAtom,nSelAtoms,0.0,35.0,SKEY_OR);
+          theMMDBManager->Select(neighbour_selhnd,STYPE_ATOM,context_selHnd,SKEY_AND);
+	  theMMDBManager->GetSelIndex(neighbour_selhnd, SelAtomNeighbours, nSelAtomsNeighbours);
+          //theMMDBManager->DeleteSelection(neighbour_selhnd);
+          SelAtom = SelAtomNeighbours;
+          nSelAtoms = nSelAtomsNeighbours;
+        } else {
+          theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
+        }   
 }
 	
 void CXXCreator::init(){
@@ -106,14 +103,18 @@ CXXCoord CXXCreator::getAtomCoord(int atomNr) {
 	
 	CXXCoord theCoord;
 	
-	if (atomNr > nSelAtoms) {
+	if (atomNr >= nSelAtoms) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomCoord(atomNr) - atomNr out of range");
 		throw theException;
 	}
+	if(SelAtom){
 	PCAtom theAtom = SelAtom[atomNr];
+        if(theAtom){
 	theCoord.setX(theAtom->x);
 	theCoord.setY(theAtom->y);
 	theCoord.setZ(theAtom->z);
+        }
+        }
 	return theCoord;
 }
 
@@ -121,22 +122,25 @@ double CXXCreator::getAtomRadius(int atomNr) {
 	
 	double radius = 0;
 	
-	if (atomNr > nSelAtoms) {
+	if (atomNr >= nSelAtoms) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomRadius(atomNr) - atomNr out of range");
 		throw theException;
 	}
+	if(SelAtom){
 	PCAtom theAtom = SelAtom[atomNr];
+	if(theAtom){
 	radius = getVdWaalsRadius(theAtom->element);
+	}
+	}
 	return radius;
 }
 
 
 string CXXCreator::getAtomElement(int atomNr) {
 	
-	Element element;
 	string theElement;
 	
-	if (atomNr > nSelAtoms) {
+	if (atomNr >= nSelAtoms) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomElement(atomNr) - atomNr out of range");
 		throw theException;
 	}
@@ -150,9 +154,8 @@ string CXXCreator::getAtomElement(int atomNr) {
 
 string CXXCreator::getAtomName(int atomNr) {
 	
-	AtomName name;
 	string theName;
-	if (atomNr > nSelAtoms) {
+	if (atomNr >= nSelAtoms) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomName(atomNr) - atomNr out of range");
 		throw theException;
 	}
@@ -169,7 +172,7 @@ string CXXCreator::getAtomResidueName(int atomNr) {
 	pstr name;
 	string theResidueName;
 	
-	if (atomNr > nSelAtoms) {
+	if (atomNr >= nSelAtoms) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomResidue(atomNr) - atomNr out of range");
 		throw theException;
 	}
@@ -185,16 +188,26 @@ string CXXCreator::getAtomResidueName(int atomNr) {
 double CXXCreator::lookUpCharge(int atomNr) {
 	
 	string residueName, atomName, element, charge;
+	double theCharge;
+
+	if(SelAtom){
+	PCAtom theAtom = SelAtom[atomNr];
+	if(theAtom){
+        theCharge = SelAtom[atomNr]->charge;
+	}
+	}
+	return theCharge;
 	
+        /*
 	residueName = getAtomResidueName(atomNr);
 	atomName = getAtomName(atomNr);
 	element = getAtomElement(atomNr);
 
-	double theAtomCharge = SelAtom[atomNr]->charge;
-	if (theAtomCharge < CXX_UNSET_CHARGE) // i.e. is unset
-	   theAtomCharge = theChargeTable.getCharge(residueName, atomName);
-
+	double theAtomCharge;
+	if ((theAtomCharge = SelAtom[atomNr]->charge) == 0.)
+	  theAtomCharge = theChargeTable.getCharge(residueName, atomName);
 	return theAtomCharge;
+        */
 }
 
 
@@ -221,7 +234,7 @@ int CXXCreator::distributeAtomCharge(CXXCoord gridOrigin, CXXCoord xGridVector, 
 	
 	CXXCoord distanceVector = theAtomLocation - gridOrigin;	// gridOrigin has to be choosen so that this is positive !
 	
-	if ((distanceVector.x() < 0) | (distanceVector.y() < 0) | (distanceVector.z() < 0)) {
+	if (distanceVector.x() < 0 | distanceVector.y() < 0 | distanceVector.z() < 0) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) :GridOrigin is not the samlleset point ...!\n");
 		throw theException;
 	}
@@ -249,7 +262,7 @@ int CXXCreator::distributeAtomCharge(CXXCoord gridOrigin, CXXCoord xGridVector, 
 	jMin = jMin - 1;
 	kMin = kMin - 1;
 	
-	if ((iMin <= 0) | (jMin <= 0) | (kMin < 0)) {
+	if (iMin <= 0 | jMin <= 0 | kMin < 0) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) : AtomBox extends to or beyond grid boundary ...!\n");
 		throw theException;
 	}
@@ -271,7 +284,7 @@ int CXXCreator::distributeAtomCharge(CXXCoord gridOrigin, CXXCoord xGridVector, 
 	int jMax = jMin + intBoxSize;
 	int kMax = kMin + intBoxSize;
 	
-	if ((iMax >= space->getDimI()) | (jMin >= space->getDimJ()) | (kMin >= space->getDimK())) {
+	if (iMax >= space->getDimI() | jMin >= space->getDimJ() | kMin >= space->getDimK()) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) : AtomBox extends to or beyond grid boundary ...!\n");
 		throw theException;
 	}
@@ -349,7 +362,7 @@ double CXXCreator::getGridVolumeOfAtom(CXXCoord gridOrigin, CXXCoord xGridVector
 	distanceVector.setY(distanceVector.y() - atomRadius);
 	distanceVector.setZ(distanceVector.z() - atomRadius);
 	
-	if ((distanceVector.x() < 0) | (distanceVector.y() < 0) | (distanceVector.z() < 0)) {
+	if (distanceVector.x() < 0 | distanceVector.y() < 0 | distanceVector.z() < 0) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) :GridOrigin is not the samlleset point ...!\n");
 		throw theException;
 	}
@@ -374,7 +387,7 @@ double CXXCreator::getGridVolumeOfAtom(CXXCoord gridOrigin, CXXCoord xGridVector
 	kMin = kMin - 1;
 	// these are the grid coordinates for the lower, left, back point of the box covering the atom
 	
-	if ((iMin <= 0) | (jMin <= 0) | (kMin < 0)) {
+	if (iMin <= 0 | jMin <= 0 | kMin < 0) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) : AtomBox extends to or beyond grid boundary ...!\n");
 		throw theException;
 	}
@@ -393,7 +406,7 @@ double CXXCreator::getGridVolumeOfAtom(CXXCoord gridOrigin, CXXCoord xGridVector
 	int jMax = jMin + intBoxSize;
 	int kMax = kMin + intBoxSize;
 	
-	if ((iMax >= space->getDimI()) | (jMin >= space->getDimJ()) | (kMin >= space->getDimK())) {
+	if (iMax >= space->getDimI() | jMin >= space->getDimJ() | kMin >= space->getDimK()) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) : AtomBox extends to or beyond grid boundary ...!\n");
 		throw theException;
 	}
@@ -487,7 +500,7 @@ double CXXCreator::fractionOfGridPointCoveredByAtom(CXXCoord theGridPoint, CXXCo
 				// calculate square length of distance vector and compare to atomRadius
 				// if subgrid point is inside the atom spere - count subGridCounter up by one
 				// <=> more charge gets distributed to the gridPoint at the center of the subgrid
-				if (distanceVector.dot(distanceVector) <= atomRadiusSq) {
+				if (distanceVector*distanceVector <= atomRadiusSq) {
 					subGridCounter++;
 				}
 			}
@@ -527,12 +540,12 @@ int CXXCreator::createSpace() {
 	for (int atomNr = 0; atomNr < nSelAtoms; atomNr++) {
 		currentAtomCoord = getAtomCoord(atomNr);
 		rMax = max(rMax, getAtomRadius(atomNr));
-		xMin = min(currentAtomCoord.x(),xMin);
-		yMin = min(currentAtomCoord.y(),yMin);
-		zMin = min(currentAtomCoord.z(),zMin);
-		xMax = max(currentAtomCoord.x(),xMax);
-		yMax = max(currentAtomCoord.y(),yMax);
-		zMax = max(currentAtomCoord.z(),zMax);
+		xMin = min(currentAtomCoord.x(),CXXCoord_ftype(xMin));
+		yMin = min(currentAtomCoord.y(),CXXCoord_ftype(yMin));
+		zMin = min(currentAtomCoord.z(),CXXCoord_ftype(zMin));
+		xMax = max(currentAtomCoord.x(),CXXCoord_ftype(xMax));
+		yMax = max(currentAtomCoord.y(),CXXCoord_ftype(yMax));
+		zMax = max(currentAtomCoord.z(),CXXCoord_ftype(zMax));
 	}
 	
 	// now choose conservative box size and add empty boundary of size zeroSpace on all sides (depends on 
@@ -635,12 +648,6 @@ int CXXCreator::introduceMatter(double dielectricOfSolvent, double dielectricOfP
 int CXXCreator::addAtomSolvationParameters() { // WARNING - need this to check if the solvent map does yet excist...
 	
 				
-	int iMin = 0;
-	int iMax = 0;
-	int jMin = 0;
-	int jMax = 0;
-	int kMin = 0;
-	int kMax = 0;	
 	// get currentAtom name
 	string theName;
 	
@@ -787,7 +794,7 @@ charge(i,j,k)/h =   dielGrid(i-1,j,k,0)[potentialGrid(i,j,k) - potentialGrid(i-1
 	
 	try {
 		
-		while (abs(fractionalCorrection) > convergenceCriterion && n < maxIterations) { // while potential is still changeing...
+		while (fabs(fractionalCorrection) > convergenceCriterion && n < maxIterations) { // while potential is still changeing...
 																						// reset largestChange
 			largestChange = 0;
 			
@@ -824,8 +831,8 @@ charge(i,j,k)/h =   dielGrid(i-1,j,k,0)[potentialGrid(i,j,k) - potentialGrid(i-1
 							
 							// see if the difference between the current and the new potential is bigger than the largest
 							// difference observed for this n (for convergence)
-							largestPotential = max(largestPotential, double(abs(currentPotential)));
-							largestChange = max(largestChange, double(abs(newPotential - currentPotential)));
+							largestPotential = max(largestPotential, double(fabs(currentPotential)));
+							largestChange = max(largestChange, double(fabs(newPotential - currentPotential)));
 							
 						}
 					}
@@ -920,9 +927,9 @@ clipper::NXmap<double> CXXCreator::coerceToClipperMap(clipper::Cell &cell){
 	alpha = beta = gamma = 90.;
 	
 	//Now create the clipper objects needed to instantiate a map
-	cell = clipper::Cell(Cell_descr(a, b, c, alpha, beta, gamma));
+	cell = clipper::Cell(clipper::Cell_descr(a, b, c, alpha, beta, gamma));
 	clipper::Grid_sampling grid(nu+1, nv+1, nw+1);
-	clipper::Grid_range grid_extent(Coord_grid(iu1, iv1, iw1), Coord_grid(iu2, iv2, iw2));									
+	clipper::Grid_range grid_extent(clipper::Coord_grid(iu1, iv1, iw1), clipper::Coord_grid(iu2, iv2, iw2));
 	//instantiate the NXmap
 	clipper::NXmap<double> theClipperMap(cell, grid, grid_extent);
 	
@@ -930,7 +937,7 @@ clipper::NXmap<double> CXXCreator::coerceToClipperMap(clipper::Cell &cell){
 	for (int i=0; i<nu; i++){
 	    for (int j=0; j<nv; j++){
 			for (int k=0; k<nw; k++){
-				theClipperMap.set_data(Coord_grid(i, j, k), space->getPotential(i, j, k));
+			  theClipperMap.set_data(clipper::Coord_grid(i, j, k), space->getPotential(i, j, k));
 			}
 	    }
 	}

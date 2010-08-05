@@ -1,6 +1,6 @@
 /* coot-surface/coot-surface.hh
  * 
- * Copyright 2005 The University of York
+ * Copyright 2005 The University of Oxford
  * Author: Martin Noble, Jan Gruber
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -66,10 +66,11 @@ class CColourScheme {
       
    public:
 
-      void fill_from(CMMDBManager *mol, int selHnd);
+      void fill_from(CMMDBManager *mol, int selHnd, float col_scale);
+      void fill_surface(CMMDBManager *mol, int selHnd_selection, int SelHnd_all, float col_scale);
       void draw(double *override_colour, int selective_override);
-      void evaluateElectrostaticPotential(CMMDBManager *theManager, int selHnd);
-      int evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, const int selHnd);
+      void evaluateElectrostaticPotential(CMMDBManager *theManager, int selHnd, float col_scale);
+      int evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, const int selHnd, float col_scale);
       int evaluatePhiAndColourWithScheme(CMMDBManager *theManager,
 					 const int selHnd,
 					 CColourScheme &colourScheme);

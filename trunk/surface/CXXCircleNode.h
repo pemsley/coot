@@ -1,29 +1,9 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 /*
  *  CXXCircleNode.h
  *  CXXSurface
  *
  *  Created by martin on Sat Feb 28 2004.
- *  
+ *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
 
@@ -33,52 +13,51 @@
 #ifndef  __MMDB_Manager__
 #include "mmdb_manager.h"
 #endif
+#include "CXXAlloc.h"
 
 #include "CXXCoord.h"
+//#include "CXXAlloc.h"
+#include <map>
+#include <vector>
 class CXXCircle;
+
 
 class CXXCircleNode {
 private:
 	const CXXCircle *theParent;
+	const CXXCircle *theOtherCircle;
 	CXXCoord theCoord;
 	CXXCoord unitRadius;
 	double theAngle;
 	int theFlag;
-	PCAtom theAtomI;
-	PCAtom theAtomJ;
-	PCAtom theAtomK;
 	int thisIsDeleted;
+	CAtom *atomI;
+	CAtom *atomJ;
+	CAtom *atomK;
 public:
-		CXXCircleNode();
-	
-	CXXCircleNode ( const CXXCircle *aParent, PCAtom atomK, const CXXCoord &crd, int aFlag);
-	
+    CXXCircleNode();    
+	CXXCircleNode ( const CXXCircle *aParent, const CXXCircle *anOtherCircle, const CXXCoord &crd, int aFlag);
 	int setReference(const CXXCoord &referenceVector);
 	
 	const CXXCircle *getParent() const{
 		return theParent;
 	};
+	const CXXCircle *getOtherCircle() const{
+		return theOtherCircle;
+	};
 	const CXXCoord &getCoord() const{
 		return theCoord;
 	}
-	const CXXCoord &getUnitRadius() const{
+	CXXCoord getUnitRadius() const{
 		return unitRadius;
 	};
-	const double getAngle() const {
+	const double &getAngle() const {
 		return theAngle;
 	};
-	const PCAtom getAtomI() const{
-		return theAtomI;
-	};
-	const PCAtom getAtomJ() const{
-		return theAtomJ;
-	};
-	const PCAtom getAtomK() const{
-		return theAtomK;
-	};
-	void setAtomK(PCAtom anAtom){
-		theAtomK = anAtom;
-	};
+	const PCAtom getAtomI() const {return atomI;};
+	const PCAtom getAtomJ() const {return atomJ;};
+	const PCAtom getAtomK() const {return atomK;};
+
 	const int getFlag() const {
 		return theFlag;
 	};
@@ -94,16 +73,34 @@ public:
 	};
 	
 	void setDeleted(const int yesOrNo){
-		thisIsDeleted = yesOrNo;
+		thisIsDeleted = yesOrNo; 
 	};
 
 	void setAngle(double anAngle){
 		theAngle = anAngle;
 	};
-	void setParent(CXXCircle *parent){
-		theParent = parent;
+	void setParent(CXXCircle *parent);
+	void setOtherCircle(CXXCircle *parent);
+	void setCoord(const CXXCoord &coord);	
+	static bool shouldDelete(const CXXCircleNode &aNode);
+	
+	const CXXCoord_ftype& operator [] (unsigned i) const{
+		return theCoord[i];
 	};
+
+	CXXCoord_ftype operator [] (int i) const{
+		return theCoord[i];
+	};
+
+	static int probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> > &probes, double probeRadius, 
+					  std::map<CXXCircleNode *, std::vector< CXXCircleNode *, CXX::CXXAlloc< CXXCircleNode *> > > &contactMap);
+	static bool shouldDeletePointer(CXXCircleNode* &aNodePointer);
+    static bool equalsPntr(CXXCircleNode* &node1, CXXCircleNode* &node2);
+    static bool equals(CXXCircleNode &node1, CXXCircleNode &node2);
+	static void filterContacts(std::map<CXXCircleNode *, std::vector< CXXCircleNode *, CXX::CXXAlloc< CXXCircleNode *> > > &contactMap);
+    static bool angleLessThan(const CXXCircleNode &node1, const CXXCircleNode &node2);
 };
+
 #endif
 
 

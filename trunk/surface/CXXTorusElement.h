@@ -1,29 +1,9 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 /*
  *  CXXTorusElement.h
  *  CXXSurface
  *
  *  Created by Martin Noble on Mon Feb 09 2004.
- *  
+ *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
 #ifndef CXXTorusElement_included
@@ -47,8 +27,8 @@ class CXXTorusElement {
 private:
 	static CXXCircle nullCircle;
 	const CXXCircle &theCircle;
-	vector <CXXTorusNode> nodes;
-	vector <CXXTriangle> flatTriangles;
+	vector <CXXTorusNode, CXX::CXXAlloc<CXXTorusNode> > nodes;
+	list <CXXTriangle, CXX::CXXAlloc<CXXTriangle> > flatTriangles;
 	//omega1 and omega2 are the limits of the arc on the surface of a torus
 	//	that is in the plane of the axis of the torus
 	double omega1;
@@ -69,7 +49,7 @@ private:
 	double theta2;
 	//Here a set of triangles that point into the flatTriangles array to identify
 	//triangles that constitute the edge strip (i.e. last step in theta
-	list<int> edgeTriangles;
+	list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> > edgeTriangles;
 	// v1unit and v2unit are unit vectors from the centre of the circle that defines
 	//the trajectory of the probe around a torus, to the start and end point around that
 	//orbit
@@ -84,7 +64,6 @@ private:
 	void init();
 	int debug;
 	
-	CXXCoord *pointyBit;
 public:
 		CXXTorusElement();
 	~CXXTorusElement();
@@ -113,10 +92,6 @@ public:
 	double getTheta2() const {
 		return theta2;
 	};
-	const CXXCoord *getPointyBit() const {
-		return pointyBit;
-	};
-	
 };
 
 #endif

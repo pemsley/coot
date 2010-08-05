@@ -389,7 +389,7 @@ int replace_fragment(int imol_target, int imol_fragment,
       if (is_valid_model_molecule(imol_fragment)) {
 	 CMMDBManager *mol = graphics_info_t::molecules[imol_fragment].atom_sel.mol;
 	 int SelHnd = mol->NewSelection();
-	 mol->Select(SelHnd, STYPE_ATOM, (char *) mmdb_atom_selection_str, SKEY_OR);
+	 mol->Select(SelHnd, STYPE_ATOM, mmdb_atom_selection_str, SKEY_OR);
 	 CMMDBManager *mol_new =
 	    coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd);
 	 atom_selection_container_t asc = make_asc(mol_new);

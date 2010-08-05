@@ -89,6 +89,7 @@
 (define get-map-colour get-map-colour-scm)
 (define list-extra-restraints list-extra-restraints-scm)
 (define delete-extra-restraint delete-extra-restraint-scm)
+(define do-clipped-surface do-clipped-surface-scm)
 
 ;; documented functions
 

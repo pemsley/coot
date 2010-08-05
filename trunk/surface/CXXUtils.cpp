@@ -1,48 +1,47 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 #include "CXXUtils.h"
+#include <stdlib.h>
+#include <string.h>
+
+int CXXUtils::assignCharge(PCMMDBManager theManager, int selHnd, CXXChargeTable *theChargeTable){
+	CAtom **SelAtom;
+	int nSelAtoms;
+	theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
+	
+	//Assign atom charges
+	for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
+		CAtom *theAtom = SelAtom[iAtom];
+		string atomName(theAtom->name);
+		string residueName(theAtom->residue->name);
+		double theAtomCharge;
+		theAtomCharge = theChargeTable->getCharge(residueName, atomName);		
+		theAtom->charge = theAtomCharge;
+	}
+	return 0;
+}
 
 int CXXUtils::assignUnitedAtomRadius  (PCMMDBManager theManager, int selHnd) {
-	 // Add a radius property to the atoms
-	 int iRadiusHandle = theManager->RegisterUDReal(UDR_ATOM, "PerAtomRadius");
-	 if (!iRadiusHandle) {
-		 printf ( " registration failed.\n" );
-		 exit ( 1 );
-	 }
-	 if (iRadiusHandle==UDDATA_WrongUDRType) {
-		 printf ( " wrong registration type used.\n" );
-		 exit ( 2 );
-	 }
-	 
-	 CAtom **SelAtom;
-	 int nSelAtoms;
-	 theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
-	 
-	 for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
-		 CAtom *anAtom = SelAtom[iAtom];
-		 string atomName(anAtom->name);
-		 string residueName(anAtom->residue->name);
-		 int unassigned = 1;
-		 double radius = 1.8;
-		 for (int iAtomRadius = 0; iAtomRadius < CXXUtils::nAtomRadii && unassigned; iAtomRadius++){
+	// Add a radius property to the atoms
+	int iRadiusHandle = theManager->RegisterUDReal(UDR_ATOM, "PerAtomRadius");
+	if (!iRadiusHandle) {
+		printf ( " registration failed.\n" );
+		exit ( 1 );
+	}
+	if (iRadiusHandle==UDDATA_WrongUDRType) {
+		printf ( " wrong registration type used.\n" );
+		exit ( 2 );
+	}
+	
+	CAtom **SelAtom;
+	int nSelAtoms;
+	theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
+	
+	for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
+		CAtom *anAtom = SelAtom[iAtom];
+		string atomName(anAtom->name);
+		string residueName(anAtom->residue->name);
+		int unassigned = 1;
+		double radius = 1.8;
+		for (int iAtomRadius = 0; iAtomRadius < CXXUtils::nAtomRadii && unassigned; iAtomRadius++){
 			if (atomName == CXXUtils::unitedAtomRadii[iAtomRadius].atomName){
 				if (residueName == string(CXXUtils::unitedAtomRadii[iAtomRadius].residueName) ||
 					"*  "== string(CXXUtils::unitedAtomRadii[iAtomRadius].residueName)){
@@ -50,11 +49,11 @@ int CXXUtils::assignUnitedAtomRadius  (PCMMDBManager theManager, int selHnd) {
 					radius = CXXUtils::unitedAtomRadii[iAtomRadius].radius;
 				}
 			}
-		 }
-		 anAtom->PutUDData(iRadiusHandle, radius);
-		 if (unassigned) cout << "Not able to match atom :" << atomName << ":" << residueName << ":\n";
-	 }
-	 return 0;
+		}
+		anAtom->PutUDData(iRadiusHandle, radius);
+		//		 if (unassigned) cout << "Not able to match atom :" << atomName << ":" << residueName << ":\n";
+	}
+	return 0;
 }
 
 void CXXUtils::reformatAtomRadii(){
@@ -96,3 +95,37 @@ void CXXUtils::reformatAtomRadii(){
 		cout << "},\n";
 	}
 }
+
+int CXXUtils::selectionStringToSelHnd(PCMMDBManager allAtomsManager_in, std::string selectionString, int existingSelection, int selKeyRequest){
+	int selHnd, selKey;
+	if (existingSelection == -1) {
+		selHnd = allAtomsManager_in->NewSelection();
+	}
+	else {
+		selHnd = existingSelection;
+	}
+	selKey = selKeyRequest;
+	char *pstring = (char *) malloc (sizeof(selectionString.c_str())+1);
+	strcpy (pstring, selectionString.c_str());
+	allAtomsManager_in->Select ( selHnd, STYPE_ATOM, pstring, selKey);
+	PPCAtom SelAtoms; 
+	int nSelAtoms;
+	allAtomsManager_in->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+	cout << "Selection now contains " << nSelAtoms << " atoms\n";
+	free (pstring);
+	return selHnd;
+}
+
+int CXXUtils::unCharge(PCMMDBManager theManager, int selHnd){
+	CAtom **SelAtom;
+	int nSelAtoms;
+	theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
+	
+	//Assign atom charges
+	for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
+		CAtom *theAtom = SelAtom[iAtom];
+		theAtom->charge = 0.;
+	}
+	return 0;
+}
+

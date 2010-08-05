@@ -1,29 +1,9 @@
-/* 
- * 
- * Copyright 2004 by The University of Oxford
- * Author: Martin Noble, Jan Gruber
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
- * your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
- */
 /*
  *  CXXSurfaceVertex.h
  *  CXXSurface
  *
  *  Created by Martin Noble on Fri Jan 23 2004.
- *  
+ *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
 #ifndef CXXSurfaceVertex_included
@@ -31,18 +11,19 @@
 #include "CXXCoord.h"
 #include <vector>
 #include <deque>
+#include "CXXAlloc.h"
 
 using namespace std;
 
 class CXXSurfaceVertex {
 private:
-	vector<void *> pointers;
-	vector<CXXCoord> vectors;
-	vector<double> scalars;
+	vector<void *, CXX::CXXAlloc<void *> > pointers;
+	vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > vectors;
+	vector<double, CXX::CXXAlloc<double> > scalars;
 	void init();
+	static CXX::CXXAlloc<CXXSurfaceVertex> allocator;
 public:
-	CXXSurfaceVertex();
-	~CXXSurfaceVertex();
+	CXXSurfaceVertex() {init();};
 	
 	int setXyz(unsigned int coordType, double *xyz);
 	int setXyzr(unsigned int coordType, double *xyzr);
@@ -54,7 +35,7 @@ public:
 	double y(unsigned int coordType);
 	double z(unsigned int coordType);
 	double r(unsigned int coordType);
-	double *xyzPntr(unsigned int coordType);
+	CXXCoord_ftype *xyzPntr(unsigned int coordType);
 	int getXyz(unsigned int coordType, double *x);
 	int getXyzr(unsigned int coordType, double *x);
 	double scalar(unsigned int scalarType) const;
@@ -64,6 +45,12 @@ public:
 	int nPointers() const;
 	int nVectors() const;
 	int nScalars() const;
+	static void *operator new(size_t nObjects) {
+		return allocator.allocate(nObjects, 0);
+	};
+	static void operator delete(void *pntr, size_t objectSize=0) {
+		allocator.deallocate(static_cast<CXXSurfaceVertex *>(pntr), 0);
+	};
 };
 #endif
 
