@@ -1638,16 +1638,29 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 			xmap_list[0].grid_sampling(),
 			xmap_list[0].grid_asu()); // for P1, this is right.
 
-	    nx_map = 0.0;
-
-	    // Is this the way to copy a P1 xmap into an nxmap? Hmm... Perhaps not.
-	    // 
-	    clipper::Xmap_base::Map_reference_index ix;
-	    clipper::NXmap_base::Map_reference_index inx = nx_map.first();
-	    for (ix = xmap_list[0].first(); !ix.last(); ix.next(), inx.next()) {
-	       nx_map[inx] = xmap_list[0][ix];
-	    }
 	    std::cout << "INFO:: created NX Map with grid " << nx_map.grid().format() << std::endl;
+
+	    nx_map = 0.0;
+	    
+
+	    if (1) { 
+	       // Is this the way to copy a P1 xmap into an nxmap? Hmm... Perhaps not.
+	       // 
+	       clipper::Xmap_base::Map_reference_index ix;
+	       clipper::NXmap_base::Map_reference_index inx = nx_map.first();
+	       for (ix = xmap_list[0].first(); !ix.last(); ix.next(), inx.next()) {
+		  nx_map[inx] = xmap_list[0][ix];
+	       }
+	    }
+
+	    if (0) { 
+	       clipper::NXmap_base::Map_reference_index inx;
+	       for (inx = nx_map.first(); !inx.last(); inx.next()) {
+		  std::cout << inx.coord().format() << "  " <<  nx_map[inx] << std::endl;
+	       }
+	    }
+
+	    
 	 }
       }
       

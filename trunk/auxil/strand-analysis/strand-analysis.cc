@@ -282,7 +282,7 @@ coot::strands_t::add_strand(const std::string &filename,
 std::pair<bool, clipper::RTop_orth>
 orient_strand_on_z(int SelHnd, CMMDBManager *mol) {
 
-   clipper::RTop_orth rtop;
+   clipper::RTop_orth rtop = clipper::RTop_orth::identity();
    bool stat = 0;
    int nSelResidues = 0;
    PPCResidue SelResidues;
