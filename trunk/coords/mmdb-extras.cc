@@ -524,7 +524,7 @@ coot::contact_info::add_MSE_Se_bonds(const atom_selection_container_t &asc) {
 void
 coot::contact_info::setup_atom_radii() {
 
-   atom_radii.resize(19);
+   atom_radii.resize(23);
    atom_radii[ 0] = std::pair<std::string, realtype> (" C", 0.77);
    atom_radii[ 1] = std::pair<std::string, realtype> (" N", 0.65);
    atom_radii[ 2] = std::pair<std::string, realtype> (" O", 0.6);
