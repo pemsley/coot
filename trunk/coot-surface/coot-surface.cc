@@ -62,12 +62,14 @@ coot::surface::fill_surface(CMMDBManager *mol, int SelHnd_selection, int SelHnd_
 
    // e.g. selection handles: residues_of_the_active_site, residues_of_the_chain
    // the first is a subset of the other.
+   theSurface = new CXXSurface;
+   CXXChargeTable theChargeTable;
+   CXXUtils::assignCharge(mol, SelHnd_all, &theChargeTable);
    theSurface->calculateFromAtoms(mol, SelHnd_selection, SelHnd_all, 1.4, 0.5, false);
    evaluateElectrostaticPotential(mol, SelHnd_all, col_scale);
 } 
 			    
 
-// I don't think that this function is used...
 // 
 void
 coot::surface::draw(double *override_colour, int selective_override) {
@@ -127,9 +129,9 @@ coot::surface::draw(double *override_colour, int selective_override) {
   glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128); 
   
   for (int i=0; i< theSurface->numberOfTriangles(); i++){
-    for (int j=0; j<3; j++){
-      glArrayElement(theSurface->vertex(i,j));
-    }
+     glArrayElement(theSurface->vertex(i, 0));
+     glArrayElement(theSurface->vertex(i, 1));
+     glArrayElement(theSurface->vertex(i, 2));
   }
   glEnd();
   
@@ -139,6 +141,12 @@ coot::surface::draw(double *override_colour, int selective_override) {
   free (normals);
   free (vertices);
 }
+
+void
+coot::surface::transparent_draw(float opacity) const {
+
+} 
+
 
 
 // colscale is by default 0.2.

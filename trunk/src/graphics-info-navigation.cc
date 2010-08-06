@@ -976,6 +976,7 @@ graphics_info_t::apply_go_to_residue_keyboading_string() {
 short int
 graphics_info_t::rotate_intermediate_atoms_maybe(short int axis, double angle) {
 
+
    short int handled_flag = 0;
 
    if (rot_trans_rotation_origin_atom) { 
@@ -991,7 +992,6 @@ graphics_info_t::rotate_intermediate_atoms_maybe(short int axis, double angle) {
 	 }
       }
    }
-
    return handled_flag;
 }
 

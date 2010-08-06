@@ -8241,14 +8241,6 @@ void do_surface(int imol, int state) {
    }
 }
 
-void set_electrostatic_surface_charge_range(float v) {
-   graphics_info_t::electrostatic_surface_charge_range = v;
-} 
-
-float get_electrostatic_surface_charge_range() {
-   return graphics_info_t::electrostatic_surface_charge_range;
-} 
-
    
 
 #ifdef USE_GUILE
@@ -8263,6 +8255,14 @@ void do_clipped_surface_scm(int imol, SCM residues_specs) {
    } 
 }
 #endif //USE_GUILE
+
+void set_electrostatic_surface_charge_range(float v) {
+   graphics_info_t::electrostatic_surface_charge_range = v;
+} 
+
+float get_electrostatic_surface_charge_range() {
+   return graphics_info_t::electrostatic_surface_charge_range;
+} 
 
 /*  ----------------------------------------------------------------------- */
 /*           Sharpen                                                        */

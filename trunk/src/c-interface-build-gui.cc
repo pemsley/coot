@@ -216,18 +216,19 @@ fill_move_molecule_here_dialog(GtkWidget *w) {
    GtkWidget *check_button = lookup_widget(w, "move_molecule_here_big_molecules_checkbutton");
 
    bool fill_with_small_molecule_only_flag = 1;
-   // int imol = first_coords_imol();
-   int imol = first_small_coords_imol();
-   graphics_info_t::move_molecule_here_molecule_number = imol;
+   int imol_active = first_small_coords_imol();
    GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::move_molecule_here_item_select);
 
    if (check_button) {
-      if (GTK_TOGGLE_BUTTON(check_button)->active)
+      if (GTK_TOGGLE_BUTTON(check_button)->active) { 
 	 fill_with_small_molecule_only_flag = 0;
+	 imol_active = first_coords_imol();
+      }
    }
 
    graphics_info_t g;
-   g.fill_option_menu_with_coordinates_options_possibly_small(option_menu, callback_func, imol,
+   graphics_info_t::move_molecule_here_molecule_number = imol_active;
+   g.fill_option_menu_with_coordinates_options_possibly_small(option_menu, callback_func, imol_active,
 							      fill_with_small_molecule_only_flag);
 } 
 

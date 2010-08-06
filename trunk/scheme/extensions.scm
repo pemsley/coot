@@ -944,6 +944,32 @@
 				 (lambda (imol)
 				   (do-surface imol 1)))))
 
+
+	(add-simple-coot-menu-menuitem 
+	 menu "Clipped Surface Here (This Residue)"
+	 (lambda ()
+	   (using-active-atom
+	    
+	    (let* ((central-residue (active-residue))
+		   (residues (residues-near-residue aa-imol (cdr central-residue) 6.0))
+		   (imol-copy (copy-molecule aa-imol)))
+	      ;; delete the interesting residue from the copy (so that
+	      ;; it is not surfaced).
+	      (delete-residue imol-copy aa-chain-id aa-res-no aa-ins-code)
+	      (do-clipped-surface imol-copy residues)))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Full Surface Around Here (This Residue)"
+	 (lambda ()
+	   (using-active-atom
+	    
+	    (let* ((central-residue (active-residue))
+		   (residues (residues-near-residue aa-imol (cdr central-residue) 6.0))
+		   (imol-copy (copy-molecule aa-imol)))
+	      (delete-residue imol-copy aa-chain-id aa-res-no aa-ins-code)
+	      (do-surface imol-copy 1)))))
+
+
 	(add-simple-coot-menu-menuitem
 	 submenu-representation "Un-Surface..."
 	 (lambda () 
