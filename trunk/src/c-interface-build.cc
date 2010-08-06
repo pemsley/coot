@@ -4403,6 +4403,9 @@ void save_symmetry_coords(int imol,
 /*! \brief create a new molecule (molecule number is the return value)
   from imol. 
 
+The rotation/translation matrix components are given in *orthogonal*
+coordinates.
+
 Allow a shift of the coordinates to the origin before symmetry
 expansion is apllied.
 
@@ -4421,7 +4424,7 @@ int new_molecule_by_symmetry(int imol,
       std::pair<bool, clipper::Cell> cell_info = graphics_info_t::molecules[imol].cell();
 
       CMMDBManager *mol_orig = graphics_info_t::molecules[imol].atom_sel.mol;
-      // test if returend molecule is non-null
+      // test if returned molecule is non-null
       std::string name = "Symmetry copy of ";
       name += coot::util::int_to_string(imol);
       if (std::string(name_in) != "")
@@ -4489,16 +4492,16 @@ int new_molecule_by_symop(int imol, const char *symop_string,
 				   sc.trans_frac(1),
 				   sc.trans_frac(2));
 
-	 clipper::RTop_orth rtop_frac(mat, vec);
-	 clipper::RTop_frac rtop_orth = rtop_frac.rtop_frac(cell_info.second);
+	 clipper::RTop_frac rtop_frac(mat, vec);
+	 clipper::RTop_orth rtop_orth = rtop_frac.rtop_orth(cell_info.second);
 	 clipper::Mat33<double> orth_mat = rtop_orth.rot();
 	 clipper::Coord_orth    orth_trn(rtop_orth.trn());
-   
-	 
+
 	 std::string new_mol_name = "SymOp ";
 	 new_mol_name += symop_string;
 	 new_mol_name += " Copy of ";
 	 new_mol_name += coot::util::int_to_string(imol);
+
 	 imol_new =  new_molecule_by_symmetry(imol,
 					      new_mol_name.c_str(),
 					      orth_mat(0,0), orth_mat(0,1), orth_mat(0,2), 
@@ -4578,6 +4581,13 @@ CMMDBManager *new_molecule_by_symmetry_matrix_from_molecule(CMMDBManager *mol,
       clipper::Vec3<double> vec(tx, ty, tz);
       clipper::RTop_orth rtop_orth(mat, vec);
       clipper::RTop_frac rtop_frac = rtop_orth.rtop_frac(cell_info.first);
+      std::cout << "DEBUG:: tx,ty,tz:  " << tx << " " << ty << " " << tz << std::endl;
+      std::cout << "DEBUG:: mol_by_symmetry() passed args:\n" << cell_info.first.format()
+		<< std::endl << rtop_frac.format() << "     "
+		<< pre_shift_to_origin_na << " "
+		<< pre_shift_to_origin_nb << " "
+		<< pre_shift_to_origin_nc << " "
+		<< std::endl;
       new_mol = coot::mol_by_symmetry(mol, cell_info.first, rtop_frac, pre_shift);
    }
    catch (std::runtime_error rte) {
