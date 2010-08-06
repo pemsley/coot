@@ -654,6 +654,11 @@ class molecule_class_info_t {
 
    // Noble surface display list id
    GLuint theSurface;
+   // If we want the surface transparent, we have to do it in
+   // immediate mode. transparent_molecular_surface_flag is 0 by
+   // default.
+   bool transparent_molecular_surface_flag;
+   void draw_transparent_molecular_surface(); // the function to draw surface transparently
    
    // difference map negative level colour relative to positive level:
    float rotate_colour_map_for_difference_map; // 120.0 default colour_map_rotation
@@ -1028,6 +1033,7 @@ public:        //                      public
       //
       cootsurface = NULL; // no surface initial, updated by make_surface()
       theSurface = 0;
+      transparent_molecular_surface_flag = 0;
 
       //
       theMapContours.first = 0;

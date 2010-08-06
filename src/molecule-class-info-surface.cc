@@ -44,12 +44,24 @@ molecule_class_info_t::draw_surface() {
       if (cootsurface) {
 	 glEnable(GL_LIGHTING);
 	 glEnable(GL_LIGHT0);
-	 glCallList(theSurface);
+	 if (transparent_molecular_surface_flag)
+	    draw_transparent_molecular_surface();
+	 else 
+	    glCallList(theSurface);
 	 glDisable(GL_LIGHT0);
 	 glDisable(GL_LIGHTING);
       }
    }
 }
+
+void
+molecule_class_info_t::draw_transparent_molecular_surface() {
+
+   float opacity = 0.4; // pass this 
+   if (cootsurface) {
+      cootsurface->transparent_draw(opacity);
+   } 
+} 
 
 
 void
@@ -107,13 +119,10 @@ molecule_class_info_t::make_surface(const std::vector<coot::residue_spec_t> &res
 				    float col_scale) {
 
 
-   if (0) { // this is how it should work
+   if (1) { // this is how it should work
       int SelHnd_selection = atom_sel.mol->NewSelection();
-      
-      // fill_residue_selection(SelHnd_selection, res_specs_vec);
-      
-      // make_surface(SelHnd_selection, atom_sel.SelectionHandle, geom);
-      make_surface(atom_sel.SelectionHandle, atom_sel.SelectionHandle, geom, col_scale);
+      fill_residue_selection(SelHnd_selection, res_specs_vec);
+      make_surface(SelHnd_selection, atom_sel.SelectionHandle, geom, col_scale);
       
       atom_sel.mol->DeleteSelection(SelHnd_selection);
    } else {
@@ -133,8 +142,7 @@ molecule_class_info_t::make_surface(int SelHnd_selection, int SelHnd_all,
    theSurface = glGenLists(1);
    glNewList(theSurface, GL_COMPILE);
    cootsurface = new coot::surface;
-   // cootsurface->fill_surface(atom_sel.mol, SelHnd_selection, SelHnd_all);
-   cootsurface->fill_surface(atom_sel.mol, SelHnd_all, SelHnd_all, col_scale);
+   cootsurface->fill_surface(atom_sel.mol, SelHnd_selection, SelHnd_all, col_scale);
    if (cootsurface) 
       cootsurface->draw(0, 0);
    glEndList();

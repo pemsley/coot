@@ -531,8 +531,9 @@ graphics_info_t::move_moving_atoms_by_shear(int screenx, int screeny,
 
 // For rotate/translate moving atoms dragged movement
 // 
-   void
-graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screeny) { 
+void
+graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screeny) {
+
 
    coot::Cartesian old_mouse_real_world = unproject_xyz(int(GetMouseBeginX()),
 						  int(GetMouseBeginY()),
@@ -555,7 +556,7 @@ graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screen
        molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
       
       Bond_lines_container bonds;
-      bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
+      bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, 1.0, 4.7);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
    } else {
@@ -733,7 +734,7 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
 		molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
 	       
 	       Bond_lines_container bonds;
-	       bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
+	       bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, 1.0, 4.7);
 	       regularize_object_bonds_box.clear_up();
 	       regularize_object_bonds_box = bonds.make_graphical_bonds();
 	    } else {
@@ -791,7 +792,7 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
 		molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
 	       
 	       Bond_lines_container bonds;
-	       bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
+	       bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, 1.0, 4.7);
 	       regularize_object_bonds_box.clear_up();
 	       regularize_object_bonds_box = bonds.make_graphical_bonds();
 	    } else {

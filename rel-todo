@@ -2,12 +2,6 @@
 
     Points 2:
 
-    o change to rms z scores ::: 2
- 
-    o torsion on a NAD work (fix the dictionary)?
-
-* Pending reply from Garib.
-
     o findligand needs to be able to take an (x,y,z) coordinate  ::: 0.5
 
 * Written - needs testing.  
@@ -20,16 +14,13 @@
     o add_user_defined_torsion restraint needs filling.  How do atoms
       get fixed when using linear residue selection?  ::: 1
 
-    o Ingo symmetry molecule bug ::: 1
+    o change to rms z scores ::: 2
+ 
+    o torsion on a NAD work (fix the dictionary)?
 
-    o with-ligand.pdb say, then CA+ligands view, then Rotate/Translate
-      ligand.  Fails. JT bug. ::: 2
+* Pending reply from Garib.  (May release without this.)
 
-    o bug: read in a protein, Calculate -> Move Molecule here -> Allow
-      big molecules to move (don't activate the menu item). Move -> Fail.
-      ::: 0.5
-
-    o solid view a difference map -> contouring bug ::: 0.5
+    o CA Zone + ligands has thick hydrogen sticks (e.g. with-ligand.pdb)
 
 ------
 
@@ -661,9 +652,27 @@ WARNING:: Can't find file
 
 * Done. 
 
-    o Hydrogen sticks are too thick ::: 1
+    o Hydrogen sticks are too thick ::: 0.5
 
 * Done, it was a GL_QUADS-related oversight.
 
+    o Ingo symmetry molecule bug ::: 0.5
+
+* Done - misordered orth to frac conversion
+
+    o solid view a difference map -> contouring bug ::: 0.5
+
+* Done.
+
+    o bug: read in a protein, Calculate -> Move Molecule here -> Allow
+      big molecules to move (don't activate the menu item). Move -> Fail.
+      ::: 0.5
+
+* Done.
+
+    o with-ligand.pdb say, then CA+ligands view, then Rotate/Translate
+      ligand.  Fails. JT bug. ::: 2
+
+* Done.
 
 -------

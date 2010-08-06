@@ -2604,8 +2604,8 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 					       float min_dist, float max_dist, 
 					       int atom_colour_type) {
 
-   std::cout << "do_Ca_plus_ligands_bonds with atom_colour_type "
-	     << atom_colour_type << std::endl;
+//    std::cout << "do_Ca_plus_ligands_bonds with atom_colour_type "
+// 	     << atom_colour_type << std::endl;
    
    CModel *model_p = SelAtom.mol->GetModel(1);
    if (model_p) {
