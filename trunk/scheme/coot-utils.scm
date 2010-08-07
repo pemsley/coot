@@ -552,7 +552,7 @@
 ; example usage:
 ;(goosh-command "mtzdump" (list "HKLIN" "a.mtz") (list "HEAD" "END") "test.log" #t)
 
-;; 
+;; run commands from an input file.
 ;;
 (define (goosh-command-with-file-input cmd args input-file log-file-name)
 
@@ -863,15 +863,16 @@
 
 ;;; These 2 functions from Chart and are copyrighted by Paul Emsley.
 
-;;;  in a laughable attempt to minimise system dependence.
-;;;
+;; In a laughable attempt to minimise system dependence.
+;; 
 (define (append-dir-file dir-name file-name)
 
   (if (> (string-length dir-name) 0)
       (string-append (directory-as-file-name dir-name) "/" file-name)
       file-name))
 
-;;; similarly attempting to minimise system dependence.
+;; Similarly attempting to minimise system dependence.
+;; 
 (define (append-dir-dir dir-name sub-dir-name)
 
   (string-append (directory-as-file-name dir-name) "/" sub-dir-name))
@@ -2217,12 +2218,14 @@
 	   (range n-col))))))
 
 
+;; simple enumeration
+;; 
 (define BALL_AND_STICK 2)
+
 
 ;; hilight-colour is specified in degrees (round the colour wheel -
 ;; starting at yellow (e.g. 230 is purple))
 ;; 
-;;
 (define (hilight-binding-site imol centre-residue-spec hilight-colour radius)
 
   (if (valid-model-molecule? imol)
@@ -2706,7 +2709,11 @@
   (format #t "error: finding updates: error in ~s with args ~s~%" key args))
 
 
-
+;; update self 
+;;
+;; keep a copy of the old directories around in a directory named
+;; after expiration time.
+;; 
 (define (update-self)
   (let* ((url (make-latest-version-url))
 	 (version-string (coot-split-version-string (coot-get-url-as-string url)))
