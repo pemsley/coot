@@ -44,6 +44,7 @@
 (define add-dipole-scm #f)
 (define add-dipole-for-residues-scm #f)
 (define get-torsion-scm #f)
+(define set-torsion-scm #f)
 (define test-internal-single-scm #f)
 (define user-defined-click-scm #f)
 (define add-lsq-atom-pair-scm #f)
