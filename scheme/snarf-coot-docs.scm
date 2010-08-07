@@ -58,7 +58,7 @@
 (define user-mods-scm #f)
 (define refine-zone-with-full-residue-spec-scm #f)
 (define get-pkgdatadir-scm #f)
-(define matching-compund-names-from-sbase-scm #f)
+(define matching-compound-names-from-sbase-scm #f)
 (define chain-id-scm #f)
 (define highly-coordinated-waters-scm #f)
 (define handle-pisa-interfaces-scm #f)
