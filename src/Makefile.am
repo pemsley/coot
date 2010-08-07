@@ -55,6 +55,7 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 
 COOT_EXTRA_LIBS = \
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la      	\
 	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
 	$(top_builddir)/build/libcoot-cabuild.la		\
 	$(top_builddir)/skeleton/libcoot-skeleton.la    	\

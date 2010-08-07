@@ -26,6 +26,8 @@
 // and "mmdb-extras.h" for atom_selection_container_t
 #include "Cartesian.h"
 
+#include "lbg-molfile.hh"
+
 
 coot::Cartesian
 centre_of_molecule(atom_selection_container_t SelAtom); 
@@ -61,6 +63,11 @@ namespace coot {
 ostream& operator<<(ostream& s, CAtom &atom);
 
 ostream& operator<<(ostream& s, PCAtom atom); 
+
+namespace coot { 
+  // mdl mol file support
+  atom_selection_container_t mdl_mol_to_asc(const lig_build::molfile_molecule_t &m);
+} 
 
 
 #endif // MMDB_H
