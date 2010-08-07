@@ -1,6 +1,7 @@
 
 (use-modules (ice-9 popen)
              (ice-9 string-fun)
+	     (ice-9 rdelim)
 	     (ice-9 regex))
 
 (use-modules (os process))
@@ -8,69 +9,9 @@
 (define is-valid-model-molecule 1) ;; hack to get past problem loading
 				   ;; coot-utils on bubbles
 
-(define generic-object-name-scm #f)
-(define additional-representation-info-scm #f)
-(define missing-atom-info-scm #f)
-(define drag-intermediate-atom-scm #t)
-(define mark-atom-as-fixed-scm #t)
-(define ncs-chain-ids-scm #t)
-(define ncs-chain-differences-scm #t)
-(define refmac-parameters-scm #t)
-(define water-chain-scm #f)
-(define water-chain-from-shelx-ins-scm #f)
-(define key-sym-code-scm #f)
-(define ncs-ghosts-scm #f)
-(define inverse-rtop-scm #f)
-(define coot-has-python-p #f)
-(define map-sigma-scm #f)
-(define pucker-info-scm #f)
-(define map-parameters-scm #f)
-(define map-cell-scm #f)
-(define cell-scm #f)
-(define ccp4i-projects-scm #f)
-(define get-rotamer-name-scm #f)
-(define test-internal-scm #f)
-(define atom-info-string-scm #f)
-(define get-refmac-sad-atom-info-scm #f)
-(define set-find-hydrogen-torsions #f)
-(define find-terminal-residue-type #f)
-(define residues-near-position-scm #f)
-(define non-standard-residue-names-scm #f)
-(define refine-residues-scm #f)
-(define refine-residues-with-alt-conf-scm #f)
-(define regularize-residues-scm #f)
-(define map-peaks-scm #f)
-(define map-peaks-near-point-scm #f)
-(define add-dipole-scm #f)
-(define add-dipole-for-residues-scm #f)
-(define get-torsion-scm #f)
-(define set-torsion-scm #f)
-(define test-internal-single-scm #f)
-(define user-defined-click-scm #f)
-(define add-lsq-atom-pair-scm #f)
-(define coot-sys-build-type-scm #f)
-(define add-alt-conf-scm #f)
-(define origin-pre-shift-scm #f)
-(define alignment-mismatches-scm #f)
-(define rigid-body-refine-by-residue-ranges-scm #f)
-(define average-map-scm #f)
-(define symmetry-operators-scm #f)
-(define symmetry-operators-to-xHM-scm #f)
-(define user-mods-scm #f)
-(define refine-zone-with-full-residue-spec-scm #f)
-(define get-pkgdatadir-scm #f)
-(define matching-compound-names-from-sbase-scm #f)
-(define chain-id-scm #f)
-(define highly-coordinated-waters-scm #f)
-(define handle-pisa-interfaces-scm #f)
-(define space-group-scm #f)
-(define nearest-residue-by-sequence-scm #f)
-(define list-extra-restraints-scm #f)
-(define delete-extra-restraint-scm #f)
-(define do-clipped-surface-sc #f)
 
 (load "filter.scm")
-(load "coot-utils.scm")
+;; (load "coot-utils.scm")
 
 (define is-empty-file?
   (lambda (file-name)
@@ -87,6 +28,181 @@
 	  #f))))
 
 
+;; return a list of file names that match pattern pat in directory dir.
+(define (glob pat dir)
+  (let ((rx (make-regexp (glob->regexp pat))))
+    (filter (lambda (x) (regexp-exec rx x)) (directory-files dir))))
+
+
+(define (glob->regexp pat)
+  (let ((len (string-length pat))
+        (ls '("^"))
+        (in-brace? #f))
+    (do ((i 0 (1+ i)))
+        ((= i len))
+      (let ((char (string-ref pat i)))
+        (case char
+;           ((#\*) (set! ls (cons "[^.]*" ls)))
+          ((#\*) (set! ls (cons ".*" ls)))
+          ((#\?) (set! ls (cons "[^.]" ls)))
+          ((#\[) (set! ls (cons "[" ls)))
+          ((#\]) (set! ls (cons "]" ls)))
+          ((#\\)
+           (set! i (1+ i))
+           (set! ls (cons (make-string 1 (string-ref pat i)) ls))
+           (set! ls (cons "\\" ls)))
+          (else
+           (set! ls (cons (regexp-quote (make-string 1 char)) ls))))))
+    (string-concatenate (reverse (cons "$" ls)))))
+
+;; "a.b.res" -> "a.b"
+;; file-name-sans-extension
+;; 
+(define (strip-extension s) 
+  (let ((ls (split-after-char-last #\. s list)))
+    
+    (cond 
+     ((string=? (car ls) "") (car (cdr ls)))
+     (else 
+      (let ((dotted-s (car ls)))
+	(car (split-discarding-char-last #\. (car ls) list)))))))
+
+
+;; Return #t or #f:
+(define (command-in-path? cmd)
+
+  ;; test for command (see goosh-command-with-file-input description)
+  ;; 
+  (if (string? cmd) 
+      (let ((have-command? (run "which" cmd)))
+	
+	(= have-command? 0)) ; return #t or #f
+      #f))
+
+      
+;; Where cmd is e.g. "refmac" 
+;;       args is (list "HKLIN" "thing.mtz")
+;;       log-file-name is "refmac.log"      
+;;       data-list is (list "HEAD" "END")
+;; 
+;; Return the exist status e.g. 0 or 1.
+;; 
+(define (goosh-command cmd args data-list log-file-name screen-output-also?)
+    
+  (if (not (command-in-path? cmd))
+      
+      (begin 
+	(format #t "command ~s not found~%" cmd)
+	255)
+
+      (let* ((cmd-ports (apply run-with-pipe (append (list "r+" cmd) args)))
+	     (pid (car cmd-ports))
+	     (output-port (car (cdr cmd-ports)))
+	     (input-port  (cdr (cdr cmd-ports))))
+	
+	(let loop ((data-list data-list))
+	  (if (null? data-list)
+	      (begin 
+		(close input-port))
+	      
+	      (begin
+		(format input-port "~a~%" (car data-list))
+		(loop (cdr data-list)))))
+	
+	(call-with-output-file log-file-name
+	  (lambda (log-file-port)
+	    
+	    (let f ((obj (read-line output-port)))
+	      (if (eof-object? obj)
+		  (begin 
+		    (let* ((status-info (waitpid pid))
+			   (status (status:exit-val (cdr status-info))))
+		      (format #t "exit status: ~s~%" status)
+		      status)) ; return status 
+		  
+		  (begin
+		    (if (eq? screen-output-also? #t)
+			(format #t ":~a~%" obj))
+		    (format log-file-port "~a~%" obj)
+		    (f (read-line output-port))))))))))
+
+
+;; Return the strings screen output of cmd or #f if command was not found
+;; 
+(define (run-command/strings cmd args data-list)
+    
+  (if (not (command-in-path? cmd))
+
+      (begin
+	(format #t "command ~s not found~%" cmd)
+	#f)
+
+      (begin 
+	(let* ((cmd-ports (apply run-with-pipe (append (list "r+" cmd) args)))
+	       (pid (car cmd-ports))
+	       (output-port (car (cdr cmd-ports)))
+	       (input-port  (cdr (cdr cmd-ports))))
+	  
+	  (let loop ((data-list data-list))
+	    (if (null? data-list)
+		(begin 
+		  (close input-port))
+		
+		(begin
+		  (format input-port "~a~%" (car data-list))
+		  (loop (cdr data-list)))))
+	  
+	  (let f ((obj (read-line output-port))
+		  (ls '()))
+	    
+	    (if (eof-object? obj)
+		(begin 
+		  (let* ((status-info (waitpid pid))
+			 (status (status:exit-val (cdr status-info))))
+		    (reverse ls))) ; return ls (in the right order)
+		
+		(begin
+		  (f (read-line output-port) (cons obj ls)))))))))
+
+;; Return a list if str is a string, else return '()
+;; 
+(define (string->list-of-strings str)
+
+  (if (not (string? str))
+      '()
+      (let f ((chars (string->list str))
+	      (word-list '())
+	      (running-list '()))
+
+	(cond 
+	 ((null? chars) (reverse 
+			 (if (null? running-list)
+			     word-list
+			     (cons (list->string (reverse running-list)) word-list))))
+	 ((char=? (car chars) #\space) (f (cdr chars)
+					  (if (null? running-list)
+					      word-list
+					      (cons (list->string 
+						     (reverse running-list))
+						    word-list))
+					  '()))
+	 (else 
+	  (f (cdr chars)
+	     word-list
+	     (cons (car chars) running-list)))))))
+
+;; The following functions from PLEAC (guile version thereof of course).
+;; 
+;; or define a utility function for this
+(define (directory-files dir)
+
+  (if (not (access? dir R_OK))
+    '()
+    (let ((p (opendir dir)))
+      (do ((file (readdir p) (readdir p))
+           (ls '()))
+          ((eof-object? file) (closedir p) (reverse! ls))
+        (set! ls (cons file ls))))))
 
 ;; texi2html on user-manual.texi with coot-scheme-functions.texi included gives:
 ;; 
