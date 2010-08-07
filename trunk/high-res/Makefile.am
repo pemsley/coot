@@ -32,8 +32,9 @@ INCLUDES = \
 	-I$(top_srcdir)/ccp4mg-utils \
 	-I$(top_srcdir)/mini-mol     \
 	-I$(top_srcdir)/ligand       \
-	-I$(top_srcdir)/utils   \
+	-I$(top_srcdir)/utils        \
 	-I$(top_srcdir)/coot-utils   \
+	-I$(top_srcdir)/lidia-core   \
 	-I$(top_srcdir)/compat       \
 	$(MMDB_CXXFLAGS)  \
 	$(CLIPPER_CXXFLAGS)

@@ -25,6 +25,7 @@ include_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 	coot-close.hh
 
 INCLUDES = \
+	-I$(top_srcdir)/lidia-core   \
 	-I$(top_srcdir)/skeleton   \
 	-I$(top_srcdir)/utils      \
 	-I$(top_srcdir)/coot-utils \
@@ -43,6 +44,7 @@ libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 Bond_lines_ext.cc coot-close.cc
 
 libcoot_coords_la_LIBADD = \
+   ../lidia-core/libcoot-lidia-core.la  \
    ../geometry/libcoot-geometry.la      \
    ../coot-utils/libcoot-shelx.la       \
    ../coot-utils/libcoot-coord-utils.la \

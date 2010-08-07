@@ -61,142 +61,151 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
    atom_selection_container_t asc;
 
-    std::string extention = coot::util::file_name_extension(pdb_name);
+    std::string extension = coot::util::file_name_extension(pdb_name);
 
     // returns e.g. ".ins"
 
+    if (coot::util::extension_is_for_mdl_mol_coords(extension)) {
 
-    if (coot::util::extension_is_for_shelx_coords(extention)) {
-
-
-       coot::ShelxIns s;
-       coot::shelx_read_file_info_t srf = s.read_file(pdb_name);
-       // atom_selection_container_t.mol is of type MyCMMDBManager *
-       // currently.
-       asc = make_asc(srf.mol);
-       MMDBManager = asc.mol;
-       if (asc.mol)
-	  asc.read_success = 1;  // a good idea?
+       lig_build::molfile_molecule_t m;
+       m.read(pdb_name);
+       asc = coot::mdl_mol_to_asc(m);
 
     } else { 
-   
-       MMDBManager = new MyCMMDBManager();
 
-       // For mmdb version 1.0.3:
-       //    MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-       // 			  MMDBF_IgnoreDuplSeqNum |
-       // 			  MMDBF_IgnoreNonCoorPDBErrors);
-       //
-       // From mmdb versions 1.0.4 to 1.0.7:
-       // 
-       //    MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-       // 			      MMDBF_IgnoreDuplSeqNum |
-       // 			      MMDBF_IgnoreNonCoorPDBErrors |
-       // 			      MMDBF_IgnoreRemarks);
-       // 
-       // For mmdb version 1.0.8 and beyond:
+
+       if (coot::util::extension_is_for_shelx_coords(extension)) {
+
+
+	  coot::ShelxIns s;
+	  coot::shelx_read_file_info_t srf = s.read_file(pdb_name);
+	  // atom_selection_container_t.mol is of type MyCMMDBManager *
+	  // currently.
+	  asc = make_asc(srf.mol);
+	  MMDBManager = asc.mol;
+	  if (asc.mol)
+	     asc.read_success = 1;  // a good idea?
+
+       } else { 
+   
+	  MMDBManager = new MyCMMDBManager();
+
+	  // For mmdb version 1.0.3:
+	  //    MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
+	  // 			  MMDBF_IgnoreDuplSeqNum |
+	  // 			  MMDBF_IgnoreNonCoorPDBErrors);
+	  //
+	  // From mmdb versions 1.0.4 to 1.0.7:
+	  // 
+	  //    MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
+	  // 			      MMDBF_IgnoreDuplSeqNum |
+	  // 			      MMDBF_IgnoreNonCoorPDBErrors |
+	  // 			      MMDBF_IgnoreRemarks);
+	  // 
+	  // For mmdb version 1.0.8 and beyond:
 
 #ifdef HAVE_MMDB_IGNORE_HASH
        
-       MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-			      MMDBF_IgnoreDuplSeqNum |
-			      MMDBF_IgnoreNonCoorPDBErrors |
-			      MMDBF_IgnoreHash |
-			      MMDBF_IgnoreRemarks);
+	  MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
+				 MMDBF_IgnoreDuplSeqNum |
+				 MMDBF_IgnoreNonCoorPDBErrors |
+				 MMDBF_IgnoreHash |
+				 MMDBF_IgnoreRemarks);
 #else
-       MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-			      MMDBF_IgnoreDuplSeqNum |
-			      MMDBF_IgnoreNonCoorPDBErrors |
-			      MMDBF_IgnoreRemarks);
+	  MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
+				 MMDBF_IgnoreDuplSeqNum |
+				 MMDBF_IgnoreNonCoorPDBErrors |
+				 MMDBF_IgnoreRemarks);
 #endif // HAVE_MMDB_IGNORE_HASH       
        
-       std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
-       err = MMDBManager->ReadCoorFile(pdb_name.c_str());
+	  std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
+	  err = MMDBManager->ReadCoorFile(pdb_name.c_str());
    
-       if (err) {
-	  // does_file_exist(pdb_name.c_str());
-	  cout << "There was an error reading " << pdb_name.c_str() << ". \n";
-	  cout << "ERROR " << err << " READ: "
-	       << GetErrorDescription(err) << endl;
-	  //
-	  // This makes my stomach churn too. Sorry.
-	  // 
-	  MMDBManager->GetInputBuffer(error_buf, error_count);
-	  if (error_count >= 0) { 
-	     cout << "         LINE #" << error_count << "\n     "
-		  << error_buf << endl << endl;
+	  if (err) {
+	     // does_file_exist(pdb_name.c_str());
+	     cout << "There was an error reading " << pdb_name.c_str() << ". \n";
+	     cout << "ERROR " << err << " READ: "
+		  << GetErrorDescription(err) << endl;
+	     //
+	     // This makes my stomach churn too. Sorry.
+	     // 
+	     MMDBManager->GetInputBuffer(error_buf, error_count);
+	     if (error_count >= 0) { 
+		cout << "         LINE #" << error_count << "\n     "
+		     << error_buf << endl << endl;
+	     } else {
+		if (error_count == -1) { 
+		   cout << "       CIF ITEM: " << error_buf << endl << endl;
+		}
+	     }
+	     asc.read_success = 0; // FAIL
+	     asc.read_error_message = error_buf; 
+	     //
 	  } else {
-	     if (error_count == -1) { 
-		cout << "       CIF ITEM: " << error_buf << endl << endl;
+	     // we read the coordinate file OK.
+	     //
+	     switch (MMDBManager->GetFileType())  {
+	     case MMDB_FILE_PDB    :  cout << " PDB"         ;
+		break;
+	     case MMDB_FILE_CIF    :  cout << " mmCIF"       ; 
+		break;
+	     case MMDB_FILE_Binary :  cout << " MMDB binary" ;
+		break;
+	     default:
+		cout << " Unknown (report as a bug!)\n";
+	     }
+
+	     MMDBManager->PDBCleanup(PDBCLEAN_ELEMENT);
+	  
+	     cout << " file " << pdb_name.c_str() << " has been read.\n";
+	     asc.read_success = 1; // TRUE
+
+	     // atom_selection_container.read_error_message = NULL; // its a string
+	     asc.mol = MMDBManager;
+	  }
+       }
+
+       char *str = MMDBManager->GetSpaceGroup();
+       if (str) { 
+	  std::string sgrp(str);
+	  std::cout << "Spacegroup: " << sgrp << "\n";
+       } else {
+	  std::cout << "No Spacegroup found for this PDB file\n";
+       } 
+    
+       std::cout << "Cell: "
+		 << MMDBManager->get_cell().a << " "
+		 << MMDBManager->get_cell().b << " "
+		 << MMDBManager->get_cell().c << " "
+		 << MMDBManager->get_cell().alpha << " "
+		 << MMDBManager->get_cell().beta  << " "
+		 << MMDBManager->get_cell().gamma << "\n";
+
+
+       // 
+    
+       // Make handle_read_draw_molecule use make_asc which add the 
+       // UDD "atom index".
+       //
+       if (asc.read_success) {
+	  asc = make_asc(asc.mol);
+
+	  // debug atom names
+	  if (0) { 
+	     for (int i=0; i<asc.n_selected_atoms; i++) {
+		std::cout << i << " "
+			  << asc.atom_selection[i]->GetChainID() << " "
+			  << asc.atom_selection[i]->GetSeqNum() << " :"
+			  << asc.atom_selection[i]->name << ":" <<std::endl;
 	     }
 	  }
-	  asc.read_success = 0; // FAIL
-	  asc.read_error_message = error_buf; 
-	  //
-       } else {
-	  // we read the coordinate file OK.
-	  //
-	  switch (MMDBManager->GetFileType())  {
-	  case MMDB_FILE_PDB    :  cout << " PDB"         ;
-	     break;
-	  case MMDB_FILE_CIF    :  cout << " mmCIF"       ; 
-	     break;
-	  case MMDB_FILE_Binary :  cout << " MMDB binary" ;
-	     break;
-	  default:
-	     cout << " Unknown (report as a bug!)\n";
-	  }
 
-	  MMDBManager->PDBCleanup(PDBCLEAN_ELEMENT);
-	  
-	  cout << " file " << pdb_name.c_str() << " has been read.\n";
-	  asc.read_success = 1; // TRUE
 
-	  // atom_selection_container.read_error_message = NULL; // its a string
-	  asc.mol = MMDBManager;
+	  if (convert_to_v2_name_flag)
+	     fix_nucleic_acid_residue_names(asc);
+	  fix_away_atoms(asc);
+	  fix_wrapped_names(asc);
        }
-    }
-
-    char *str = MMDBManager->GetSpaceGroup();
-    if (str) { 
-       std::string sgrp(str);
-       std::cout << "Spacegroup: " << sgrp << "\n";
-    } else {
-       std::cout << "No Spacegroup found for this PDB file\n";
-    } 
-    
-    std::cout << "Cell: "
-	      << MMDBManager->get_cell().a << " "
-	      << MMDBManager->get_cell().b << " "
-	      << MMDBManager->get_cell().c << " "
-	      << MMDBManager->get_cell().alpha << " "
-	      << MMDBManager->get_cell().beta  << " "
-	      << MMDBManager->get_cell().gamma << "\n";
-
-
-    // 
-    
-    // Make handle_read_draw_molecule use make_asc which add the 
-    // UDD "atom index".
-    //
-    if (asc.read_success) {
-       asc = make_asc(asc.mol);
-
-       // debug atom names
-       if (0) { 
-	  for (int i=0; i<asc.n_selected_atoms; i++) {
-	     std::cout << i << " "
-		       << asc.atom_selection[i]->GetChainID() << " "
-		       << asc.atom_selection[i]->GetSeqNum() << " :"
-		       << asc.atom_selection[i]->name << ":" <<std::endl;
-	  }
-       }
-
-
-       if (convert_to_v2_name_flag)
-	  fix_nucleic_acid_residue_names(asc);
-       fix_away_atoms(asc);
-       fix_wrapped_names(asc);
     }
     return asc; 
 }
@@ -640,4 +649,42 @@ coot::delete_aniso_records_from_atoms(CMMDBManager *mol) {
 	 }
       }
    }
+}
+
+
+atom_selection_container_t
+coot::mdl_mol_to_asc(const lig_build::molfile_molecule_t &m) {
+
+   atom_selection_container_t asc;
+
+   // set these in the constuctor?
+   asc.mol = 0;
+   asc.n_selected_atoms = 0;
+
+   if (m.atoms.size()) { 
+      CResidue *residue_p = new CResidue;
+      for (unsigned int iat=0; iat<m.atoms.size(); iat++) {
+	 CAtom *at = new CAtom;
+	 at->SetCoordinates(m.atoms[iat].atom_position.x(),
+			    m.atoms[iat].atom_position.y(),
+			    m.atoms[iat].atom_position.z(),
+			    1.0, 20.0);
+	 at->SetAtomName(m.atoms[iat].name.c_str());
+	 at->SetElementName(m.atoms[iat].element.c_str());
+	 residue_p->AddAtom(at);
+      }
+
+      CChain *chain_p = new CChain;
+      CModel *model_p = new CModel;
+
+      chain_p->SetChainID("A");
+      residue_p->SetResID("UNL", 1, "A");
+
+      chain_p->AddResidue(residue_p);
+      model_p->AddChain(chain_p);
+      CMMDBManager *mol = new CMMDBManager;
+      mol->AddModel(model_p);
+      asc = make_asc(mol);
+   }
+   return asc;
 }

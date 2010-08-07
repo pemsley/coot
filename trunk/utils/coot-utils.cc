@@ -635,10 +635,10 @@ coot::util::file_name_extension(const std::string &file_name) {
 }
 
 
-short int
+bool
 coot::util::extension_is_for_shelx_coords(const std::string &ext) {
 
-   short int r = 0;
+   bool r = 0;
    if ((ext == ".INS") ||
        (ext == ".ins") ||
        (ext == ".RES") ||
@@ -649,6 +649,24 @@ coot::util::extension_is_for_shelx_coords(const std::string &ext) {
 
    return r; 
 }
+
+
+bool
+coot::util::extension_is_for_mdl_mol_coords(const std::string &ext) {
+
+   bool r = 0;
+   if ((ext == ".mdl") ||
+       (ext == ".MDL") ||
+       (ext == ".mol") ||
+       (ext == ".mol2") ||
+       (ext == ".MOL") ||
+       (ext == ".MOL2") ||
+       (ext == ".sdf") ||
+       (ext == ".SDF"))
+      r = 1;
+   return r;
+}
+
 
 
 short int

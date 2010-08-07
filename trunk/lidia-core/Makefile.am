@@ -15,4 +15,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-include_HEADERS = lbg-shared.hh
+lib_LTLIBRARIES=libcoot-lidia-core.la
+
+include_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh
+
+INCLUDES = $(CLIPPER_CXXFLAGS)
+
+libcoot_lidia_core_la_SOURCES = lbg-molfile.cc lig-build.cc
+

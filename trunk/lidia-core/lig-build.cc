@@ -19,7 +19,9 @@
  * 02110-1301, USA
  */
 
-#include "lbg.hh"
+#include <iostream>
+
+#include "lig-build.hh"
 
 
 // is x,y (from the mouse pointer position) over this bond?

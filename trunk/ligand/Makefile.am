@@ -29,6 +29,7 @@ INCLUDES = \
 	-I$(top_srcdir)/geometry \
 	-I$(top_srcdir)/ideal \
 	-I$(top_srcdir)/coords \
+	-I$(top_srcdir)/lidia-core \
 	-I$(top_srcdir)/utils \
 	-I$(top_srcdir)/coot-utils \
 	-I$(top_srcdir)/compat \

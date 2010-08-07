@@ -10,6 +10,8 @@ GTK_LDFLAGS=`pkg-config --libs gtk+-2.0`
 CAIRO_CFLAGS=`pkg-config --cflags cairo` 
 # CAIRO_LDFLAGS=`pkg-config --libs cairo` in GOO_LDFLAGS already
 
+COOT_INSTALLED=/home/emsley/coot-installed-f12
+
 CRYST=/home/emsley/autobuild/f12/Linux-jackal-f12-pre-release-gtk2
 # CRYST=$(HOME)/autobuild/Linux-scylla-pre-release-gtk2
 # CRYST=$(HOME)/autobuild/Linux-nestor-pre-release-gtk2
@@ -29,15 +31,19 @@ CLIPPER_LDFLAGS=$(CLIPPER)/lib/libclipper-core.la \
         $(CLIPPER)/lib/librfftw.la \
         $(CLIPPER)/lib/libfftw.la
 
+LIDIA_CORE_CXXFLAGS = -I $(COOT_INSTALLED)/include
+LIDIA_CORE_LDFLAGS = $(COOT_INSTALLED)/lib/libcoot-lidia-core.la
 
-CXXFLAGS=-g -O2 $(EXTRA_FLAGS) $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) -I../lidia-core -I$(top_srcdir)/compat
 
-lbg: lig-build.o lbg.o wmolecule.o lbg-callbacks.o lbg-search.o some-coot-utils.o lbg-molfile.o residue-circles.o
+CXXFLAGS=-g -O2 $(EXTRA_FLAGS) $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) $(LIDIA_CORE_CXXFLAGS) \
+    -I$(top_srcdir)/compat
+
+lbg:  lbg.o wmolecule.o lbg-callbacks.o lbg-search.o some-coot-utils.o residue-circles.o
 	libtool --mode=link $(CXX)  -Wl,--export-dynamic -o $@ $^ \
-	$(CLIPPER_LDFLAGS) $(MMDB_LDFLAGS) $(GTK_LDFLAGS) $(GOO_LDFLAGS) $(GSL_LDFLAGS)
+	$(CLIPPER_LDFLAGS) $(MMDB_LDFLAGS) $(LIDIA_CORE_LDFLAGS) $(GTK_LDFLAGS) $(GOO_LDFLAGS) $(GSL_LDFLAGS) 
 
-lig-build.o: lig-build.cc
-	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
+#lig-build.o: lig-build.cc
+#	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
 
 lbg-search.o: lbg-search.cc
 	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS)  $(GTK_CFLAGS) $(GOO_CFLAGS) -c $^
@@ -51,8 +57,8 @@ wmolecule.o: wmolecule.cc
 lbg.o: lbg.cc
 	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(GOO_CFLAGS) $(CAIRO_CFLAGS) -c $^
 
-lbg-molfile.o: lbg-molfile.cc
-	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) -c $^
+#lbg-molfile.o: lbg-molfile.cc
+#	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) -c $^
 
 test-read-molfile.o: test-read-molfile.cc
 	libtool --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) -c $^
