@@ -145,7 +145,7 @@ fi
 
 systype=`uname`
 
-if [ $systype = MINGW32_NT-5.1 ] ; then 
+if [ $systype = MINGW32_NT-* ] ; then 
     PYTHONHOME=$COOT_PREFIX/bin
     # for MinGW we only use Coot's pythonpath otherwise too complicated
     # i'm probably the only one using it anyway...

@@ -5586,6 +5586,9 @@ void do_surface(int imol, int istate);
 void do_clipped_surface_scm(int imol, SCM residue_specs);
 #endif /*  USE_GUILE */
 #ifdef USE_PYTHON
+/*! \brief draw the surface of the imolth molecule clipped to the
+  residues given by residue_specs */
+void do_clipped_surface_py(int imol, PyObject *residue_specs);
 #endif /*  USE_PYTHON */
 #endif	/* __cplusplus */
 void set_electrostatic_surface_charge_range(float v);

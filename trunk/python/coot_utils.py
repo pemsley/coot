@@ -1246,7 +1246,9 @@ def add_key_binding(name, key, thunk):
             if (code in codes):
                 print "INFO:: you are overwriting existing key (from code)", key
                 key_bindings.pop(codes.index(code))
-            if (not (code == -1)):
+            if "Control_" in key:
+                code = decode_key(key[-1])
+            if (("Control_" in key) or not (code == -1)):
                 key_bindings.append([code, key, name, thunk])
             else:
                 print "INFO:: key %s not found in code table" %key
@@ -1256,11 +1258,15 @@ def add_key_binding(name, key, thunk):
 
 # general key press hook
 #
-def graphics_general_key_press_hook(key):
+def graphics_general_key_press_hook(key, control_flag = 0):
     global key_bindings
     #print "Key %s was pressed" %key
-    codes = [elem[0] for elem in key_bindings]
-    funcs = [elem[3] for elem in key_bindings]
+    if control_flag:
+        codes = [elem[0] for elem in key_bindings if "Control_" in elem[1]]
+        funcs = [elem[3] for elem in key_bindings if "Control_" in elem[1]]
+    else:
+        codes = [elem[0] for elem in key_bindings if not "Control_" in elem[1]]
+        funcs = [elem[3] for elem in key_bindings if not "Control_" in elem[1]]
     if (key in codes):
         index = codes.index(key)
         func  = funcs[index]
@@ -1850,6 +1856,8 @@ def multi_chicken(imol, n_colours = False):
         print "BL INFO:: %s is not valid map" %imol
         
 
+# simple enumeration
+#
 def BALL_AND_STICK(): return 2
 
 # hilight-colour is specified in degrees (round the colour wheel -
@@ -2455,6 +2463,12 @@ def coot_split_version_string(stri):
 # not sure if this works, especally with python and Win
 # is for command line update
 # FIXME
+
+# update self 
+#
+# keep a copy of the old directories around in a directory named
+# after expiration time.
+#
 def update_self(use_curl=False):
     import operator
     import time
@@ -2601,6 +2615,7 @@ ncs_ghosts             = ncs_ghosts_py
 pucker_info            = pucker_info_py
 sequence_info          = sequence_info_py
 alignment_mismatches   = alignment_mismatches_py
+do_clipped_surface     = do_clipped_surface_py
 generic_object_name    = generic_object_name_py
 user_mods              = user_mods_py
 probe_available_p      = probe_available_p_py

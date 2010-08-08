@@ -43,6 +43,11 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h> // needed for wirecube and wiresphere.
+#ifdef WINDOWS_MINGW
+// in windows we need these for some newer openGL functions
+#include <GL/glext.h>
+#include <GL/wglext.h>
+#endif // WINDOWS_MINGW
 
 #include <math.h>
 #ifndef HAVE_VECTOR
@@ -3630,16 +3635,12 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    scheme_command += ")";
 	    // std::cout << "running scheme command: " << scheme_command << std::endl;
 	    safe_scheme_command(scheme_command);
+#else // not GUILE
 #ifdef USE_PYTHON	    
 	    std::string python_command("graphics_general_key_press_hook(");
 	    python_command += graphics_info_t::int_to_string(ikey);
-	    python_command += ")";
-	    safe_python_command(python_command);
-#endif 	    
-#else // not GUILE
-#ifdef USE_PYTHON
-	    std::string python_command("graphics_general_key_press_hook(");
-	    python_command += graphics_info_t::int_to_string(ikey);
+	    python_command += ",";
+	    python_command += graphics_info_t::int_to_string(graphics_info_t::control_is_pressed);
 	    python_command += ")";
 	    safe_python_command(python_command);
 #endif // USE_PYTHON	    
