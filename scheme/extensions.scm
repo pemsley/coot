@@ -946,7 +946,7 @@
 
 
 	(add-simple-coot-menu-menuitem 
-	 menu "Clipped Surface Here (This Residue)"
+	 submenu-representation "Clipped Surface Here (This Residue)"
 	 (lambda ()
 	   (using-active-atom
 	    
@@ -959,7 +959,7 @@
 	      (do-clipped-surface imol-copy residues)))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Full Surface Around Here (This Residue)"
+	 submenu-representation "Full Surface Around Here (This Residue)"
 	 (lambda ()
 	   (using-active-atom
 	    

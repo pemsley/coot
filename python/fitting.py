@@ -785,3 +785,14 @@ def auto_fit_rotamer_active_residue():
        else:
           auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol, imol_map, 1, 0.1)
 
+# Restrain the atoms in imol (in give range selection) to
+# corresponding atoms in imol_ref.
+# 
+# atom_sel_type is either 'all' 'main-chain' or 'ca'
+#
+def add_extra_restraints_to_other_molecule(imol, chain_id,
+                                           resno_range_start, resno_range_end,
+                                           atom_sel_type, imol_ref):
+
+    for res_no in range(resno_range_start, resno_range_end):
+        pass # guess should do seomething?!?!

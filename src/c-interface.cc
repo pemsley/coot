@@ -8256,6 +8256,19 @@ void do_clipped_surface_scm(int imol, SCM residues_specs) {
 }
 #endif //USE_GUILE
 
+#ifdef USE_PYTHON
+void do_clipped_surface_py(int imol, PyObject *residues_specs) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::vector<coot::residue_spec_t> res_specs_vec = py_to_residue_specs(residues_specs);
+      float col_scale = g.electrostatic_surface_charge_range;
+      graphics_info_t::molecules[imol].make_surface(res_specs_vec, *g.Geom_p(), col_scale);
+      graphics_draw();
+   } 
+}
+#endif //USE_PYTHON
+
 void set_electrostatic_surface_charge_range(float v) {
    graphics_info_t::electrostatic_surface_charge_range = v;
 } 

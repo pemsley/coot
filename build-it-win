@@ -2092,6 +2092,13 @@ mkdir		$install_top_dir/include/GL
 cp glut.h 	$install_top_dir/include/GL
 cp glut32.dll	$install_top_dir/bin
 cp libglut32.a	$install_top_dir/lib
+# and whilst we are here let's get the openGL extensions as well
+${WGET} http://www.opengl.org/registry/api/glext.h
+${WGET} http://www.opengl.org/registry/api/glxext.h
+${WGET} http://www.opengl.org/registry/api/wglext.h
+cp ${AUTOBUILD_SOURCES}/glext.h  $install_top_dir/include/GL
+cp ${AUTOBUILD_SOURCES}/gxlext.h $install_top_dir/include/GL
+cp ${AUTOBUILD_SOURCES}/wglext.h $install_top_dir/include/GL
 cd ${AUTOBUILD_SOURCES}
 ) >  $HOSTLOGDIR/05-freeglut.txt 2>&1
 else
@@ -3041,7 +3048,7 @@ if [ $architecture = x86_64 ] ; then
 fi
 
 # this is a quick fix, and shoudl be done properly at some point
-coot_optim_args='-build=i686-pc-mingw32'
+coot_optim_args="-build=i686-pc-mingw32"
 
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD

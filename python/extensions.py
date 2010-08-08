@@ -1008,6 +1008,38 @@ if (have_coot_python):
           lambda imol: do_surface(imol, 1)))  # shall we switch on the light too?!
 
 
+     def surface_func1(clipped = 0):
+       active_atom = active_residue()
+       aa_imol      = active_atom[0]
+       aa_chain_id  = active_atom[1]
+       aa_res_no    = active_atom[2]
+       aa_ins_code  = active_atom[3]
+       aa_atom_name = active_atom[4]
+       aa_alt_conf  = active_atom[5]
+       central_residue = active_residue()
+       residues = residues_near_residue(aa_imol, central_residue[1:4], 6.0)
+       imol_copy = copy_molecule(aa_imol)
+       # delete the interesting residue from the copy (so that
+       # it is not surfaced).
+       delete_residue(imol_copy, aa_chain_id, aa_res_no, aa_ins_code)
+       if clipped:
+         do_clipped_surface(imol_copy, residues)
+       else:
+         do_surface(imol_copy, 1)
+       
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Clipped Surface Here (This Residue)",
+       lambda func:
+         surface_func1(1))
+
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Full Surface Around Here (This Residue)",
+       lambda func:
+         surface_func1())
+     
+
      add_simple_coot_menu_menuitem(
        submenu_representation,
        "Un-Surface...",
@@ -1291,6 +1323,22 @@ if (have_coot_python):
        submenu_settings, "Key Bindings...",
        lambda func: key_bindings_gui())
 
+
+     def quick_save_func(txt):
+       try:
+         n = int(txt)
+         gobject.timeout_add(1000*n, quick_save)
+       except:
+         print "BL INFO:: could not add timer for auto save!"
+
+     add_simple_coot_menu_menuitem(
+       submenu_settings, "Enable Quick-Save checkpointing...",
+       lambda func:
+          generic_single_entry("Checkpoint interval (seconds)",
+                               "30",
+                               " Start Auto-saving ",
+                               lambda txt:
+                                  quick_save_func(txt)))
 
      # Doesnt seem to be working right currently, so comment out?! Not any more?!
      # add to validate menu

@@ -26,6 +26,8 @@
 #undef V_UNKNOWN
 #define V_UNKNOWNA V_UNKNOWN
 #undef small
+#undef near
+#undef far
 #endif
 
 // some redefinitions for Visual C++

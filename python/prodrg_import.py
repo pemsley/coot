@@ -33,21 +33,54 @@ def import_from_prodrg(minimize_mode):
                            prodrg_log, True)
     if operator.isNumberType(status):
         if (status == 0):
+            # OK, so here we read the PRODRG files and
+            # manipulate them.  We presumen that the active
+            # residue is quite like the input ligand from
+            # prodrg.
+            #
+            # Read in the lib and coord output of PRODRG.  Then
+            # overlay the new ligand onto the active residue
+            # (just so that we can see it approximately
+            # oriented). Then match the torsions from the new
+            # ligand to the those of the active residue.  Then
+            # overlay again so that we have the best match.
+            #
+            # We want to see just one molecule with the protein
+            # and the new ligand.
+            # add_ligand_delete_residue_copy_molecule provides
+            # that for us.  We just colour it and undisplay the
+            # other molecules.
             read_cif_dictionary(prodrg_cif)
             imol = handle_read_draw_molecule_and_move_molecule_here(prodrg_xyzout)
-            # FIXME
-            # this wont work - have to rework using atom to allow extra args before (and after) dictionary?
-            using_active_atom(match_ligand_torsions, imol, "aa_imol", "aa_chain_id", "aa_res_no")
-            using_active_atom(overlap_ligands, imol, "aa_imol", "aa_chain_id", "aa_res_no")
+            # We omit using_active atom and just make variables
+            # aa_something!
+            active_atom = active_residue()
+            aa_imol      = active_atom[0]
+            aa_chain_id  = active_atom[1]
+            aa_res_no    = active_atom[2]
+            aa_ins_code  = active_atom[3]
+            aa_atom_name = active_atom[4]
+            aa_alt_conf  = active_atom[5]
+            
+            match_ligand_torsions(imol, aa_imol, aa_chain_id, aa_res_no)
+            overlap_ligands(imol, aa_imol, aa_chain_id, aa_res_no)
             with_auto_accept([regularize_residues, imol, [["", 1, ""]]])
-            using_active_atom(match_ligand_torsions, imol, "aa_imol", "aa_chain_id", "aa_res_no")
-            using_active_atom(overlap_ligands, imol, "aa_imol", "aa_chain_id", "aa_res_no")
+            match_ligand_torsions(imol, aa_imol, aa_chain_id, aa_res_no)
+            overlap_ligands(imol, aa_imol, aa_chain_id, aa_res_no)
             additional_representation_by_attributes(imol, "", 1, 1, "", 2, 2, 0.2, 1)
+            set_mol_displayed(aa_imol, 0)
+            set_mol_displayed(imol, 0)
+            col = get_molecule_bonds_colour_map_rotation(aa_imol)
+            new_col += 5 # a tiny amount
+            imol_replaced = add_ligand_delete_residue_copy_molecule(imol, "", 1,
+                                                                    aa_imol, aa_chain_id, aa_res_no)
+            set_molecule_bonds_colour_map_rotation(imol_replaced, new_col)
+            graphics_draw()
             return True
 
 if (have_coot_python):
     if coot_python.main_menubar():
-        menu = coot_menubar_menu("PRODRG")
+        menu = coot_menubar_menu("Lidia")
         add_simple_coot_menu_menuitem(
             menu,
             "Import (using MINI PREP)",
@@ -66,16 +99,16 @@ if (have_coot_python):
             import_from_prodrg('mini-no')
             )
 
-        add_simple_coot_menu_menuitem(
-            menu,
-            "Export to lbg",
-            lambda func:
-            using_active_atom(prodrg_flat, "aa_imol", "aa_chain_id", "aa_res_no")
-            )
+#        add_simple_coot_menu_menuitem(
+#            menu,
+#            "Export to LIDIA",
+#            lambda func:
+#            using_active_atom(prodrg_flat, "aa_imol", "aa_chain_id", "aa_res_no")
+#            )
 
         add_simple_coot_menu_menuitem(
             menu,
-            "FLE-View",
+            "View in LIDIA",
             lambda func:
             using_active_atom(fle_view, "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code")
             )
