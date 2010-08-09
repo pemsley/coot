@@ -4018,7 +4018,7 @@ float rad_50_and_prob_to_radius(float rad_50, float prob) {
 gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    
    graphics_info_t info; // declared at the top of the file
-
+   
    int x_as_int, y_as_int;
    GdkModifierType state;
    gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
@@ -4135,6 +4135,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
       }  // shift is pressed
    }     // button 1
 
+   
    if (state & my_button2_mask) {
 
       // Atom picking (recentre)
@@ -4201,12 +4202,14 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 }
       }
    }
-
-   if (event->button == 4)
-      handle_scroll_event(1); // up
-   if (event->button == 5)
-      handle_scroll_event(0); // down
-
+   
+   if (event->button == 4) {
+      handle_scroll_density_level_event(1); // up
+   }
+   
+   if (event->button == 5) { 
+      handle_scroll_density_level_event(0); // down
+   }
    return TRUE;
 }
 
@@ -4238,17 +4241,32 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 #if (GTK_MAJOR_VERSION > 1)
 gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 
-   if (event->direction == GDK_SCROLL_UP)
-      handle_scroll_event(1);
-   if (event->direction == GDK_SCROLL_DOWN)
-      handle_scroll_event(0);
+   graphics_info_t info;
+   bool handled = 0;
+   if (info.control_is_pressed) {
+      if (info.shift_is_pressed) {
+	 if (event->direction == GDK_SCROLL_UP)
+	    change_model_molecule_representation_mode(1); // up
+	 if (event->direction == GDK_SCROLL_DOWN)
+	    change_model_molecule_representation_mode(0); // up
+	 handled = 1;
+      }
+   }
+
+   if (! handled) {
+      if (event->direction == GDK_SCROLL_UP)
+	 handle_scroll_density_level_event(1);
+      if (event->direction == GDK_SCROLL_DOWN)
+	 handle_scroll_density_level_event(0);
+   } 
    return TRUE;
 }
 #endif
 
-void handle_scroll_event(int scroll_up_down_flag) {
+void handle_scroll_density_level_event(int scroll_up_down_flag) {
 
-   graphics_info_t info; 
+   graphics_info_t info;
+   
    if (scroll_up_down_flag == 1) {
       //
       // consider using

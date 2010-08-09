@@ -5750,5 +5750,14 @@ Thu Aug  5 06:32:43 BST 2010
    Do I have the surface normals reversed?
    Try reversing the normals - does that make backface culling work?  
 
+-----
+Mon Aug  9 08:12:35 BST 2010
+
+    o CA Zone + ligands has thick hydrogen sticks (e.g. with-ligand.pdb)
+
+* To fix this requires a big change in the colour system of coot.  The
+  xth colour is grey and gregy is this (hydrogen sticks) unless
+  make_graphical_bonds is called with "no_thinning" (CA mode).  Tricky.
+
 
 ------

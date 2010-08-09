@@ -83,11 +83,15 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
                // BL says:: this is certainly not working, since we dont have the residues_vec
                // not sure how to get the fixed flag. Too lazy to look up. Paul. Fixme!?
 	       //fixed_1 = residues_vec[ir].first;
+	       //
+	       // 20100807 corrected now.
+	       // 
+	       fixed_1 = fixed_check(ir);
 	    }
 	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_2) ==
 		coot::residue_spec_t(SelResidue_local[ir])) {
 	       r_2 = SelResidue_local[ir];
-	       //fixed_2 = residues_vec[ir].first;
+	       fixed_1 = fixed_check(ir);
 	    }
 	 } 
 	 mol->DeleteSelection(selHnd);
@@ -129,12 +133,13 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 	       int index_2 = -1;
 	       at_1->GetUDData(udd_atom_index_handle, index_1);
 	       at_2->GetUDData(udd_atom_index_handle, index_2);
-	       std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
-	       add(BOND_RESTRAINT, index_1, index_2, fixed_flags,
-		   extra_restraints.bond_restraints[i].bond_dist,
-		   extra_restraints.bond_restraints[i].esd,
-		   1.2 /* dummy value */);
-		  
+	       if ((index_1 != -1) && (index_2 != -1)) { 
+		  std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
+		  add(BOND_RESTRAINT, index_1, index_2, fixed_flags,
+		      extra_restraints.bond_restraints[i].bond_dist,
+		      extra_restraints.bond_restraints[i].esd,
+		      1.2 /* dummy value */);
+	       }
 	    } 
 	 } 
       } 
@@ -198,7 +203,79 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
 	 PPCResidue SelResidue_local= 0;
 	 mol->GetSelIndex (selHnd, SelResidue_local, nSelResidues_local);
 	 for (int ir=0; ir<nSelResidues_local; ir++) {
+	    if (coot::residue_spec_t(extra_restraints.torsion_restraints[i].atom_1) ==
+		coot::residue_spec_t(SelResidue_local[ir]))
+	       r_1 = SelResidue_local[ir];
+	    if (coot::residue_spec_t(extra_restraints.torsion_restraints[i].atom_2) ==
+		coot::residue_spec_t(SelResidue_local[ir]))
+	       r_2 = SelResidue_local[ir];
+	    if (coot::residue_spec_t(extra_restraints.torsion_restraints[i].atom_3) ==
+		coot::residue_spec_t(SelResidue_local[ir]))
+	       r_3 = SelResidue_local[ir];
+	    if (coot::residue_spec_t(extra_restraints.torsion_restraints[i].atom_4) ==
+		coot::residue_spec_t(SelResidue_local[ir]))
+	       r_4 = SelResidue_local[ir];
 	 }
+      }
+
+      if (r_1 && r_2 && r_3 && r_4) {
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 r_1->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    if (coot::atom_spec_t(residue_atoms[iat]) == extra_restraints.torsion_restraints[i].atom_1) {
+	       at_1 = residue_atoms[iat];
+	       break;
+	    } 
+	 }
+	 residue_atoms = 0; // just to be safe
+	 r_2->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    if (coot::atom_spec_t(residue_atoms[iat]) == extra_restraints.torsion_restraints[i].atom_2) {
+	       at_2 = residue_atoms[iat];
+	       break;
+	    } 
+	 }
+	 residue_atoms = 0; // just to be safe
+	 r_3->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    if (coot::atom_spec_t(residue_atoms[iat]) == extra_restraints.torsion_restraints[i].atom_3) {
+	       at_3 = residue_atoms[iat];
+	       break;
+	    } 
+	 }
+	 residue_atoms = 0; // just to be safe
+	 r_4->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    if (coot::atom_spec_t(residue_atoms[iat]) == extra_restraints.torsion_restraints[i].atom_4) {
+	       at_4 = residue_atoms[iat];
+	       break;
+	    } 
+	 }
+
+	 if (at_1 && at_2 && at_3 && at_4) {
+	    int index_1 = -1; 
+	    int index_2 = -1;
+	    int index_3 = -1; 
+	    int index_4 = -1;
+	    at_1->GetUDData(udd_atom_index_handle, index_1);
+	    at_2->GetUDData(udd_atom_index_handle, index_2);
+	    at_3->GetUDData(udd_atom_index_handle, index_3);
+	    at_4->GetUDData(udd_atom_index_handle, index_4);
+	    if ((index_1 != -1) && (index_2 != -1) && (index_3 != -1) && (index_4 != -1)) { 
+	       std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2, index_3, index_4);
+	       if (fixed_1) fixed_flags[0] = 1;
+	       if (fixed_2) fixed_flags[1] = 1;
+	       if (fixed_3) fixed_flags[2] = 1;
+	       if (fixed_4) fixed_flags[3] = 1;
+	       add(TORSION_RESTRAINT, index_1, index_2, index_3, index_4,
+		   fixed_flags,
+		   extra_restraints.torsion_restraints[i].torsion_angle,
+		   extra_restraints.torsion_restraints[i].esd,
+		   1.2, // dummy value
+		   extra_restraints.torsion_restraints[i].period);
+	    }
+	 } 
       }
    } 
 }

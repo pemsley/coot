@@ -56,6 +56,9 @@
     so that there is a distinction between waters and interesting
     hetatoms.
 
+  o CHANGE: Using the scroll wheel with Ctrl and Shift will change the
+    represention of the molecule that has the active residue.
+
   o BUG-FIX:: Hydrogens on waters are no longer checked against the
     difference map in the water validation test.
 

@@ -80,7 +80,7 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event);
 gint glarea_button_release(GtkWidget *widget, GdkEventButton *event);
 gint key_press_event(GtkWidget *widget, GdkEventKey *event);
 gint key_release_event(GtkWidget *widget, GdkEventKey *event);
-void handle_scroll_event(int scroll_up_down_flag);
+void handle_scroll_density_level_event(int scroll_up_down_flag);
 
 void debug_draw_rotation_axes(float y1, float y2, float x1, float x2); 
 void rotate_baton(); 

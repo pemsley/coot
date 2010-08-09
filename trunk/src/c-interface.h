@@ -689,6 +689,8 @@ void set_draw_solid_density_surface(int imol, short int state);
   */
 void set_draw_map_standard_lines(int imol, short int state);
 
+void solid_surface(int imap, short int on_off_flag);
+
 /*! \brief set the opacity of density surface representation of the
   given map.
 
@@ -1107,8 +1109,6 @@ void set_contour_by_sigma_step_by_mol(float f, short int state, int imol);
 /*! \brief return the resolution of the data for molecule number imol.
    Return negative number on error, otherwise resolution in A (eg. 2.0) */
 float data_resolution(int imol);
-
-void solid_surface(int imap, short int on_off_flag);
 
 /*! \brief export (write to disk) the map of molecule number imol to
   filename.  
@@ -4192,6 +4192,9 @@ void graphics_to_occupancy_representation(int imol);
 int graphics_molecule_bond_type(int imol); 
 /*! \brief scale the colours for colour by b factor representation */
 int set_b_factor_bonds_scale_factor(int imol, float f);
+/*! \brief change the representation of the model molecule closest to
+  the centre of the screen */
+void change_model_molecule_representation_mode(int up_or_down);
 
 
 GtkWidget *wrapped_create_bond_parameters_dialog();
@@ -5593,6 +5596,14 @@ void do_clipped_surface_py(int imol, PyObject *residue_specs);
 #endif	/* __cplusplus */
 void set_electrostatic_surface_charge_range(float v);
 float get_electrostatic_surface_charge_range();
+
+/*! \brief simple on/off screendoor transparency at the moment, an
+  opacity > 0.0 will turn on screendoor transparency (stippling). */
+void set_transparent_electrostatic_surface(int imol, float opacity);
+
+/*! \brief return 1.0 for non transparent and 0.5 if screendoor
+  transparency has been turned on. */
+float get_electrostatic_surface_opacity(int imol);
 
 
 /* \} */

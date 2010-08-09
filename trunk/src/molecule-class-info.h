@@ -657,7 +657,6 @@ class molecule_class_info_t {
    // If we want the surface transparent, we have to do it in
    // immediate mode. transparent_molecular_surface_flag is 0 by
    // default.
-   bool transparent_molecular_surface_flag;
    void draw_transparent_molecular_surface(); // the function to draw surface transparently
    
    // difference map negative level colour relative to positive level:
@@ -2791,6 +2790,8 @@ public:        //                      public
    float density_surface_opacity;
    void setup_density_surface_material(bool solid_mode, float opacity,
 				       bool is_negative_level = 0); // shininess, material colour etc.
+   bool transparent_molecular_surface_flag; // 0 by default.
+
    
 };
 
