@@ -1137,7 +1137,7 @@ namespace coot {
       // these are in the order N, CA, C, O
       std::vector<clipper::Coord_orth> oxt_reference_atom_pos;
       // short int is_nucleotide(CResidue *res_p);
-      short int do_numerical_gradients_flag;
+      bool do_numerical_gradients_flag;
 
       // validation:
       coot::geometry_distortion_info_container_t
@@ -1147,6 +1147,7 @@ namespace coot {
       std::vector<bool>  make_fixed_flags(int index1, int index2, int index3) const;
       std::vector<bool>  make_fixed_flags(int index1, int index2, int index3, int index4) const;
       std::vector<bool>  make_fixed_flags(const std::vector<int> &indices) const;
+      bool fixed_check(int i) const; // simple version of above functions.
 
       // return in milliseconds
       //
@@ -1473,7 +1474,7 @@ namespace coot {
       // more debugging interface:
       //
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}
-      short int do_numerical_gradients_status() { return do_numerical_gradients_flag; }
+      bool do_numerical_gradients_status() { return do_numerical_gradients_flag; }
 
    }; 
 

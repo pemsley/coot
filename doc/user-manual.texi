@@ -1529,6 +1529,10 @@ better) to use @code{(handle-read-draw-molecule-with-recentre
 And that affects just the reading of @code{@emph{filename}} and not
 subsequent files.
 
+Note that as of version 0.6.2 Coot can read MDL mol/mol2 files (the
+atom names are not unique (of course), but at least you can see the
+coordinates).
+
 @subsection A Note on Space Groups Names
 @cindex space group names
 Coot uses the space group on the ``CRYST1'' line of the pdb file.  The
@@ -1659,6 +1663,9 @@ using the GUI: @code{Edit -> Bond Colours@enddots{}}.
 The various bond parameters can be set using the GUI dialog
 @command{Draw -> Bond Parameters} or @emph{via} scripting
 functions.
+
+The represention style of the molecule that has the active residue (if any) 
+can be changed using the scroll wheel with Ctrl and Shift.
 
 @subsection Bond Thickness
 @cindex bond thickness 

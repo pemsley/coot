@@ -14,13 +14,18 @@
     o add_user_defined_torsion restraint needs filling.  How do atoms
       get fixed when using linear residue selection?  ::: 1
 
+* Written - needs testing.
+
     o change to rms z scores ::: 2
  
     o torsion on a NAD work (fix the dictionary)?
 
 * Pending reply from Garib.  (May release without this.)
 
-    o CA Zone + ligands has thick hydrogen sticks (e.g. with-ligand.pdb)
+
+    o fix prodrgify to do the Right Things with the hydrogens
+      (i.e. use the prodrg pdb file and dictionary and use torsion
+      matching, overlay and replace). ::: 0.5
 
 ------
 
@@ -674,5 +679,9 @@ WARNING:: Can't find file
       ligand.  Fails. JT bug. ::: 2
 
 * Done.
+
+    o Documentation for hilight-binding-site is not working.  Why? ::: 1
+
+* Bad snarfing.  snarf script reworked.
 
 -------

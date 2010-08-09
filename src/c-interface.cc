@@ -5471,6 +5471,82 @@ graphics_molecule_bond_type(int imol) {
    return -1;
 }
 
+void change_model_molecule_representation_mode(int up_or_down) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      int bond_type = graphics_molecule_bond_type(imol);
+      
+      if (bond_type == 1) { /* atom type bonds */
+	 if (up_or_down == 1) 
+	    graphics_to_ca_representation(imol);
+	 else
+	    graphics_to_occupancy_representation(imol);
+      }
+      if (bond_type == 2) { /* CA bonds */
+	 if (up_or_down == 1)
+	    set_colour_by_chain(imol);
+	 else
+	    graphics_to_bonds_representation(imol);
+      }
+      if (bond_type == 3) { /* segid-coloured bonds */
+	 if (up_or_down == 1) 
+	    graphics_to_ca_plus_ligands_representation(imol);
+	 else
+	    graphics_to_ca_representation(imol);
+      }
+      if (bond_type == 4) { /* CA_BONDS_PLUS_LIGANDS */
+	 if (up_or_down == 1)
+	    graphics_to_bonds_no_waters_representation(imol);
+	 else
+	    set_colour_by_chain(imol);
+      }
+      if (bond_type == 5) { /* BONDS_NO_WATERS */
+	 if (up_or_down == 1) 
+	    graphics_to_sec_struct_bonds_representation(imol);
+	 else
+	    graphics_to_ca_plus_ligands_representation(imol);
+      }
+      if (bond_type == 6) { /* BONDS_SEC_STRUCT_COLOUR */
+	 if (up_or_down == 1)
+	    graphics_to_ca_plus_ligands_sec_struct_representation(imol);
+	 else
+	    graphics_to_bonds_no_waters_representation(imol);
+      }
+      if (bond_type == 7) { /* CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR */
+	 if (up_or_down == 1)
+	    set_colour_by_molecule(imol);
+	 else
+	    graphics_to_sec_struct_bonds_representation(imol);
+      }
+      if (bond_type == 8) { /* COLOUR_BY_MOLECULE_BONDS */
+	 if (up_or_down == 1) 
+	    graphics_to_rainbow_representation(imol);
+	 else
+	    graphics_to_ca_plus_ligands_sec_struct_representation(imol);
+      }
+      if (bond_type == 9) { /* COLOUR_BY_RAINBOW_BONDS */
+	 if (up_or_down == 1)
+	    graphics_to_b_factor_representation(imol);
+	 else
+	    set_colour_by_molecule(imol);
+      }
+      if (bond_type == 10) { /* COLOUR_BY_B_FACTOR_BONDS */
+	 if (up_or_down == 1)
+	    graphics_to_occupancy_representation(imol);
+	 else
+	    graphics_to_rainbow_representation(imol);
+      }
+      if (bond_type == 11) { /* COLOUR_BY_OCCUPANCY_BONDS */
+	 if (up_or_down == 1)
+	    graphics_to_bonds_representation(imol);
+	 else
+	    graphics_to_b_factor_representation(imol);
+      }
+   } 
+} 
+
+
 int
 set_b_factor_bonds_scale_factor(int imol, float f) {
 
@@ -8958,3 +9034,32 @@ set_flat_shading_for_solid_density_surface(short int state) {
    graphics_info_t::do_flat_shading_for_solid_density_surface = state;
    graphics_draw();
 }
+
+/*! \brief simple on/off screendoor transparency at the moment, an
+  opacity > 0.0 will turn on screendoor transparency (stippling). */
+void set_transparent_electrostatic_surface(int imol, float opacity) {
+
+   if (is_valid_model_molecule(imol)) {
+      bool flag = 0;
+      if (opacity > 0.0)
+	 if (opacity < 0.9999)
+	    flag = 1;
+      graphics_info_t::molecules[imol].transparent_molecular_surface_flag = flag;
+      graphics_draw();
+   } 
+
+} 
+
+/*! \brief return 1.0 for non transparent and 0.5 if screendoor
+  transparency has been turned on. */
+float get_electrostatic_surface_opacity(int imol) {
+
+   float r = -1;
+   if (is_valid_model_molecule(imol)) {
+      if (graphics_info_t::molecules[imol].transparent_molecular_surface_flag == 1)
+	 r = 0.5;
+      else
+	 r = 1.0;
+   }
+   return r;
+} 

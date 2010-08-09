@@ -241,7 +241,7 @@ int copy_molecule(int imol) {
       CMMDBManager *n = new CMMDBManager;
       n->Copy(m, MMDBFCM_All);
       atom_selection_container_t asc = make_asc(n);
-      std::string label = "Copy of ";
+      std::string label = "Copy_of_";
       label += graphics_info_t::molecules[imol].name_;
       graphics_info_t::molecules[new_mol_number].install_model(new_mol_number, asc, label, 1);
       update_go_to_atom_window_on_new_mol();
@@ -249,7 +249,7 @@ int copy_molecule(int imol) {
    }
    if (is_valid_map_molecule(imol)) {
       int new_mol_number = graphics_info_t::create_molecule();
-      std::string label = "Copy of ";
+      std::string label = "Copy_of_";
       label += graphics_info_t::molecules[imol].name_;
       graphics_info_t::molecules[new_mol_number].new_map(graphics_info_t::molecules[imol].xmap_list[0], label);
       if (graphics_info_t::molecules[imol].is_difference_map_p()) {
@@ -349,12 +349,12 @@ add_ligand_delete_residue_copy_molecule(int imol_ligand_new,
 
 			r = graphics_info_t::create_molecule();
 			atom_selection_container_t asc = make_asc(n);
-			std::string label = "Copy of ";
+			std::string label = "Copy_of_";
 			label += coot::util::int_to_string(imol_current);
-			label += " with ";
+			label += "_with_";
 			label += chain_id_ligand_current;
 			label += coot::util::int_to_string(res_no_ligand_current);
-			label += " replaced";
+			label += "_replaced";
 			g.molecules[r].install_model(r, asc, label, 1);
 			created_flag = 1;
 			break;
@@ -4497,9 +4497,9 @@ int new_molecule_by_symop(int imol, const char *symop_string,
 	 clipper::Mat33<double> orth_mat = rtop_orth.rot();
 	 clipper::Coord_orth    orth_trn(rtop_orth.trn());
 
-	 std::string new_mol_name = "SymOp ";
+	 std::string new_mol_name = "SymOp_";
 	 new_mol_name += symop_string;
-	 new_mol_name += " Copy of ";
+	 new_mol_name += "_Copy_of_";
 	 new_mol_name += coot::util::int_to_string(imol);
 
 	 imol_new =  new_molecule_by_symmetry(imol,

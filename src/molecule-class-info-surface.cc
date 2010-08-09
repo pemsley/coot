@@ -119,16 +119,12 @@ molecule_class_info_t::make_surface(const std::vector<coot::residue_spec_t> &res
 				    float col_scale) {
 
 
-   if (1) { // this is how it should work
-      int SelHnd_selection = atom_sel.mol->NewSelection();
-      fill_residue_selection(SelHnd_selection, res_specs_vec);
-      make_surface(SelHnd_selection, atom_sel.SelectionHandle, geom, col_scale);
-      
-      atom_sel.mol->DeleteSelection(SelHnd_selection);
-   } else {
-      make_surface(1, geom, col_scale); // old function.
-   } 
-} 
+   int SelHnd_selection = atom_sel.mol->NewSelection();
+   fill_residue_selection(SelHnd_selection, res_specs_vec);
+   make_surface(SelHnd_selection, atom_sel.SelectionHandle, geom, col_scale);
+   
+   atom_sel.mol->DeleteSelection(SelHnd_selection);
+}
 
 
 // use the other version of make surface to turn this surface off.

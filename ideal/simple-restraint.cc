@@ -3620,6 +3620,19 @@ coot::restraints_container_t::mark_OXT(const coot::protein_geometry &geom) {
    }
 }
 
+bool
+coot::restraints_container_t::fixed_check(int index_1) const {
+
+   bool r = 0;
+   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
+      if (index_1 == fixed_atom_indices[ifixed]) {
+	 r = 1;
+	 break;
+      }
+   }
+   return r;
+	 
+} 
 
 std::vector<bool>
 coot::restraints_container_t::make_fixed_flags(int index1, int index2) const {
