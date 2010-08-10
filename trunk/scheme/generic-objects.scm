@@ -127,10 +127,17 @@
 		(begin
 		  (make-directory-maybe "coot-molprobity")
 		  (let ((mol-pdb-file  "coot-molprobity/for-reduce.pdb")
-			(reduce-out-pdb-file "coot-molprobity/reduced.pdb"))
+			(reduce-out-pdb-file "coot-molprobity/reduced.pdb")
+			(reduce-het-dict-file-name "coot-molprobity/reduce-het-dict.txt"))
 		    (write-pdb-file imol mol-pdb-file)
+		    (write-reduce-het-dict imol reduce-het-dict-file-name)
+		    (format #t "============= running reduce: ~s ~s and output to: ~s~%"
+			    *reduce-command* 
+			    (list "-build" "-oldpdb" mol-pdb-file "-DB" reduce-het-dict-file-name)
+			    reduce-out-pdb-file)
 		    (goosh-command *reduce-command* 
-				   (list "-build" "-oldpdb" mol-pdb-file)
+				   (list "-build" "-oldpdb" mol-pdb-file  
+					 "-DB" reduce-het-dict-file-name)
 				   '() reduce-out-pdb-file #f)
 		    (let* ((probe-name-stub (strip-extension (strip-path (molecule-name imol))))
 			   (probe-pdb-in  (string-append 
@@ -175,6 +182,39 @@
 			(handle-read-draw-probe-dots-unformatted probe-out imol-probe 1)
 			(generic-objects-gui)
 			(graphics-draw))))))))))
+
+;; Don't return anything interesting.  Write the connectivity for the
+;; non-standard (non-water) residues for which we have the dictionary.
+;; 
+(define (write-reduce-het-dict imol reduce-het-dict-file-name)
+  
+  (let ((con-file-names 
+	 (filter string? 
+		 (map (lambda (res-name)
+			(let* ((f-name (string-append 
+					"coot-molprobity/conn-"
+					res-name
+					".txt"))
+			       (status (write-connectivity res-name f-name)))
+			  (if (= status 1)
+			      f-name
+			      #f)))
+		      (non-standard-residue-names imol)))))
+
+    (if (not (null? con-file-names))
+	(call-with-output-file reduce-het-dict-file-name
+	  (lambda (port-out)
+	    (for-each (lambda (conn-file)
+			(call-with-input-file conn-file
+			  (lambda (port)
+			    (let f ((line (read-line port)))
+			      (if (not (eof-object? line))
+				  (begin
+				    (display line port-out)
+				    (newline port-out)
+				    (f (read-line port))))))))
+		      con-file-names))))))
+			
 
 		    
 ;; gets set the first time we run interactive-probe.  Takes values
@@ -301,36 +341,3 @@
       (get-probe-dots-from pdb-name pt radius)
       (close-molecule imol-new))))
 
-
-;; add in the conn files by concatting.
-;;
-(define (write-pdb-file-for-molprobity imol pdb-name)
-
-  (let ((tmp-pdb-name (string-append
-		       (file-name-sans-extension pdb-name)
-		       "-tmp.pdb")))
-						 
-    (write-pdb-file imol tmp-pdb-name)
-  
-    ;; Let's add on the connectivity cards of the residues that
-    ;; molprobity doesn't know about (which I presume are all
-    ;; non-standard residues).  Cut out (filter) files that didn't
-    ;; write properly.
-    ;;
-    (let ((con-file-names 
-	   (filter string? 
-		   (map (lambda (res-name)
-			  (let* ((f-name (string-append 
-					  "coot-molprobity/conn-"
-					  res-name
-					  ".txt"))
-				 (status (write-connectivity res-name f-name)))
-			    (if (= status 1)
-				f-name
-				#f)))
-			(non-standard-residue-names imol)))))
-      
-      ;; now, add (append) each of the con-file-names to the end of
-      ;; pdb-name
-      (goosh-command "cat" (cons tmp-pdb-name con-file-names)
-		     '() pdb-name #f))))

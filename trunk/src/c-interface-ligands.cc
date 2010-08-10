@@ -1108,6 +1108,13 @@ SCM non_standard_residue_names_scm(int imol) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<std::string> resnames =
 	 coot::util::non_standard_residue_types_in_molecule(mol);
+      
+      // remove water if it is there
+      std::vector<std::string>::iterator it =
+	 std::find(resnames.begin(), resnames.end(), "HOH");
+      if (it != resnames.end())
+	 resnames.erase(it);
+      
       r = generic_string_vector_to_list_internal(resnames);
    }
 
@@ -1123,10 +1130,17 @@ PyObject *non_standard_residue_names_py(int imol) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<std::string> resnames =
 	 coot::util::non_standard_residue_types_in_molecule(mol);
+
+      // remove water if it is there
+      std::vector<std::string>::iterator it =
+	 std::find(resnames.begin(), resnames.end(), "HOH");
+      if (it != resnames.end())
+	 resnames.erase(it);
+      
       r = generic_string_vector_to_list_internal_py(resnames);
    }
 
-   return r;  
+   return r;
 }
 #endif
 

@@ -27,6 +27,9 @@
       (i.e. use the prodrg pdb file and dictionary and use torsion
       matching, overlay and replace). ::: 0.5
 
+    o fix up the reduce HETATM dict interface ::: 2
+
+
 ------
 
     o Fix rename-residue to work on just one chain ::: 0.5
@@ -683,5 +686,10 @@ WARNING:: Can't find file
     o Documentation for hilight-binding-site is not working.  Why? ::: 1
 
 * Bad snarfing.  snarf script reworked.
+
+    o what is that space stuff on std out when running probe+reduce?
+     Kill it.  ::: 0.2
+
+* Done.
 
 -------
