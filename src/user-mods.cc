@@ -78,7 +78,7 @@ coot::flips_container::parse_set_or_single(const std::string &line) {
       catch (std::runtime_error rte) {
 	 // std::cout << "Ooops " << rte.what() << std::endl;
       }
-      std::cout << "\n";
+      // std::cout << "\n";
    }
 }
 

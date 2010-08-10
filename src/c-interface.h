@@ -3497,6 +3497,7 @@ void open_cif_dictionary_file_selector_dialog();
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
+/*! \brief non-standard residue/monomer names (note HOH is not non-standard). */
 SCM non_standard_residue_names_scm(int imol);
 #endif
 #ifdef USE_PYTHON
