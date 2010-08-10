@@ -13,6 +13,7 @@ EXTRA_DIST = surface.cpp surface.h \
 libccp4mg_surface_la_SOURCES = \
 	CXXSphereElement.cpp \
 	CXXSphereElement.h \
+	CXXAlloc.h \
 	CXXChargeTable.cpp		CXXSphereNode.cpp \
 	CXXChargeTable.h		CXXSphereNode.h \
 	CXXCircle.cpp			CXXSphereTriangle.cpp \
