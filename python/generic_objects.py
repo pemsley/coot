@@ -162,98 +162,125 @@ reduce_molecule_updates_current = False
 # display the generic objects gui)
 #
 def probe(imol):
-   import os
-   global reduce_command, probe_command
+  import os
+  global reduce_command, probe_command
     
-   if is_valid_model_molecule(imol):
+  if is_valid_model_molecule(imol):
 
-      if not (os.path.isfile(reduce_command)):
-	 reduce_command = find_exe("reduce", "PATH")
-      # we need to check if probe_command is defined too
-      if not(os.path.isfile(probe_command)):
-	 probe_command = find_exe("probe", "PATH")
-      make_directory_maybe("coot-molprobity")
-      mol_pdb_file = "coot-molprobity/for-reduce.pdb"
-      reduce_out_pdb_file = "coot-molprobity/reduced.pdb"
-      write_pdb_file(imol,mol_pdb_file)
-      if (reduce_command):
+    if not (os.path.isfile(reduce_command)):
+      reduce_command = find_exe("reduce", "PATH")
+    # we need to check if probe_command is defined too
+    if not(os.path.isfile(probe_command)):
+      probe_command = find_exe("probe", "PATH")
+    make_directory_maybe("coot-molprobity")
+    mol_pdb_file = "coot-molprobity/for-reduce.pdb"
+    reduce_out_pdb_file = "coot-molprobity/reduced.pdb"
+    reduce_het_dict_file_name = "coot-molprobity/reduce-het-dict.txt"
+    write_pdb_file(imol, mol_pdb_file)
+    write_reduce_het_dict(imol, reduce_het_dict_file_name)
+    if not reduce_command:
+      # couldnt find reduce
+      print "BL WARNING:: Could not locate the program reduce!! Please check if installed!"
+    else:
 
-	 # BL says: I think we should set REDUCE_HET_DICT
-	 # so let's set REDUCE_HET_DICT if not set already!
-	 if (not os.getenv('REDUCE_HET_DICT')):
-	    # we assume the dic is in same dir as reduce command
-	    dir, tmp = os.path.split(reduce_command)
-	    connection_file = os.path.join(dir, 'reduce_wwPDB_het_dict.txt')
-	    if (os.path.isfile(connection_file)):
-	       os.environ['REDUCE_HET_DICT'] = connection_file
-	    else:
-	       print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
-	 else:
-	    # REDUCE_HET_DICT is defined
-	    pass
+      # BL says: I think we should set REDUCE_HET_DICT
+      # so let's set REDUCE_HET_DICT if not set already!
+      # not sure if needed any more since we write a connectivity
+      # file - let's see FIXME!!
+      if (not os.getenv('REDUCE_HET_DICT')):
+        # we assume the dic is in same dir as reduce command
+        dir, tmp = os.path.split(reduce_command)
+        connection_file = os.path.join(dir, 'reduce_wwPDB_het_dict.txt')
+        if (os.path.isfile(connection_file)):
+          os.environ['REDUCE_HET_DICT'] = connection_file
+        else:
+          print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
 
-	 print "BL INFO:: run reduce as ", reduce_command + " " + mol_pdb_file + " > " + reduce_out_pdb_file
+      print "BL INFO:: run reduce as:", reduce_command , \
+            ["-build", "-oldpdb", mol_pdb_file,
+             "-DB", reduce_het_dict_file_name], \
+             " and output to:", reduce_out_pdb_file
 
-	 reduce_status = popen_command(reduce_command,
+      reduce_status = popen_command(reduce_command,
 #					["-build", mol_pdb_file],
-					["-build", "-oldpdb", mol_pdb_file],
-					[],
-					reduce_out_pdb_file)
-	 if (reduce_status):
-	    print "BL WARNING:: reduce didnt run ok, so stop here!"
-	 else:
-	    if (probe_command):
-	       probe_name_stub = strip_extension(strip_path(molecule_name(imol)))
-	       probe_pdb_in = "coot-molprobity/" + probe_name_stub + "-with-H.pdb"
-	       probe_out = "coot-molprobity/probe-dots.out"
-	       
-	       prepare_file_for_probe(reduce_out_pdb_file, probe_pdb_in)
-	       
-	       probe_status = popen_command(probe_command,
-					    ["-u", "-stdbonds", "-mc", "ALL", probe_pdb_in],
-					    [],
-					    probe_out)
-
-	       if (probe_status):
-		  print "BL WARNING:: probe failed, cannot continue!"
-	       else:
-		  # by default, we don't want to click on the
-		  # imol-probe molecule (I think :-)
-		  recentre_status = recentre_on_read_pdb()
-		  novalue = set_recentre_on_read_pdb(0)
-		  if (reduce_molecule_updates_current):
-		     print "======= update molecule ======="
-		     imol_probe = clear_and_update_model_molecule_from_file(imol, probe_pdb_in)
-		  else:
-		     print "======= read new pdb file ======="
-		     imol_probe = read_pdb(probe_pdb_in)
-
-		  if recentre_status == 1:
-		     set_recentre_on_read_pdb(1)
-
-                  # show the GUI for USER MODS
-                  if using_gui():
-                    user_mods_gui(imol_probe, reduce_out_pdb_file)
-                    
-		  # toggle_active_mol(imol_probe) let's not do
-		  # that actually.  I no longer think that the
-		  # new probe molecule should not be clickable
-		  # when it is initally displayed (that plus
-		  # there is some active/displayed logic problem
-		  # for the molecules, which means that after
-		  # several probes, the wrong molecule is
-		  # getting refined).
-
-		  handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 2)
-		  generic_objects_gui()
-		  graphics_draw()
-	    else:
-	       # couldnt find probe
-	       print "BL WARNING:: Could not locate the program probe!! Please check if installed!"
+                                    ["-build", "-oldpdb", mol_pdb_file,
+                                     "-DB", reduce_het_dict_file_name],
+                                    [],
+                                    reduce_out_pdb_file)
+      if (reduce_status):
+        print "BL WARNING:: reduce didnt run ok, so stop here!"
       else:
-	 # couldnt find reduce
-	 print "BL WARNING:: Could not locate the program reduce!! Please check if installed!"
+        if not probe_command:
+          # couldnt find probe
+          print "BL WARNING:: Could not locate the program probe!! Please check if installed!"
+        else:
+          probe_name_stub = strip_extension(strip_path(molecule_name(imol)))
+          probe_pdb_in = "coot-molprobity/" + probe_name_stub + "-with-H.pdb"
+          probe_out = "coot-molprobity/probe-dots.out"
+          
+          prepare_file_for_probe(reduce_out_pdb_file, probe_pdb_in)
+          
+          probe_status = popen_command(probe_command,
+                                       ["-u", "-stdbonds", "-mc", "ALL", probe_pdb_in],
+                                       [],
+                                       probe_out)
 
+          if (probe_status):
+            print "BL WARNING:: probe failed, cannot continue!"
+          else:
+            # by default, we don't want to click on the
+            # imol-probe molecule (I think :-)
+            recentre_status = recentre_on_read_pdb()
+            novalue = set_recentre_on_read_pdb(0)
+            if (reduce_molecule_updates_current):
+              print "======= update molecule ======="
+              imol_probe = clear_and_update_model_molecule_from_file(imol, probe_pdb_in)
+            else:
+              print "======= read new pdb file ======="
+              imol_probe = read_pdb(probe_pdb_in)
+
+            if recentre_status == 1:
+              set_recentre_on_read_pdb(1)
+
+            # show the GUI for USER MODS
+            if using_gui():
+              user_mods_gui(imol_probe, reduce_out_pdb_file)
+                    
+            # toggle_active_mol(imol_probe) let's not do
+            # that actually.  I no longer think that the
+            # new probe molecule should not be clickable
+            # when it is initally displayed (that plus
+            # there is some active/displayed logic problem
+            # for the molecules, which means that after
+            # several probes, the wrong molecule is
+            # getting refined).
+
+            handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 2)
+            generic_objects_gui()
+            graphics_draw()
+
+
+# Write the connectivity for the non-standard (non-water) residues in
+# the given molecule for which we have the dictionary.
+#
+# Don't return anything interesting.  
+#
+def write_reduce_het_dict(imol, reduce_het_dict_file_name):
+
+  import shutil
+  con_file_names = []
+  for res_name in non_standard_residue_names(imol):
+    f_name = "coot-molprobity/conn-" + res_name + ".txt"
+    status = write_connectivity(res_name, f_name)
+    if (status == 1):
+      con_file_names.append(f_name)
+  if con_file_names:
+    fin = open(reduce_het_dict_file_name, 'w')
+    for file_name in con_file_names:
+      shutil.copyfileobj(open(file_name, 'rb'), fin)
+    fin.close()
+    
+      
 # Prepare file for probe, i.e. remove 'USER' from file
 def prepare_file_for_probe(file_in, file_out):
     

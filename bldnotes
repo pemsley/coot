@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 3100 
+scripts      rev 3106 
 tests        rev 3043
 build-it-win rev 2122
 
@@ -17,6 +17,8 @@ notes APS CCP4 workshop
 ----------------
 
 **** General ****
+
+   o enable Alt key for scripting keyboard shortcuts
 
    o reset button for map sharpening
 
@@ -113,6 +115,8 @@ notes APS CCP4 workshop
 
 
 **** Python ****
+
+   o different 'Control_' spellings in key board shortcuts
 
    o remove trailing space for EBI/downloaded file names
 
