@@ -183,8 +183,10 @@
 			(generic-objects-gui)
 			(graphics-draw))))))))))
 
-;; Don't return anything interesting.  Write the connectivity for the
-;; non-standard (non-water) residues for which we have the dictionary.
+;; Write the connectivity for the non-standard (non-water) residues in
+;; the given molecule for which we have the dictionary.
+;; 
+;; Don't return anything interesting.  
 ;; 
 (define (write-reduce-het-dict imol reduce-het-dict-file-name)
   

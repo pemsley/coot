@@ -2458,8 +2458,42 @@
 		    (if (= status 0)
 			(begin
 			  (read-cif-dictionary prodrg-cif)
-			  (with-auto-accept
-			   (regularize-residues imol (list (list chain-id res-no ins-code))))))))))))))
+			  (let ((imol-new (handle-read-draw-molecule-with-recentre prodrg-xyzout 0))
+				(rn (residue-name imol chain-id res-no ins-code)))
+			    ;; (move-molecule-here imol-new)
+			    (with-auto-accept
+			     (regularize-zone imol-new "" 1 1 ""))
+			    ;; (overlap-ligands imol-new imol chain-id res-no)
+			    (match-ligand-torsions imol-new imol chain-id res-no)
+			    (overlap-ligands imol-new imol chain-id res-no)
+			    (set-residue-name imol-new "" 1 "" rn)
+			    (change-chain-id imol-new "" chain-id 1 1 1)
+			    (renumber-residue-range imol-new chain-id 1 1 (- res-no 1))
+			    (set-mol-displayed imol-new 0)
+			    (set-mol-active    imol-new 0)
+			    (set-mol-displayed imol 0)
+			    (set-mol-active    imol 0)
+
+			    ;; I don't think that replace-fragment is the right
+			    ;; function because that does not copy across the hydrogen
+			    ;; atoms - and we want those, probably
+
+;			    (replace-fragment imol imol-new 
+;					      (string-append "//"
+;							     chain-id
+;							     "/"
+;							     (number->string res-no))))))))))))))
+								     
+			    (let* ((imol-replacing (add-ligand-delete-residue-copy-molecule
+						    imol-new chain-id res-no imol chain-id res-no))
+				   (col (get-molecule-bonds-colour-map-rotation imol))
+				   (new-col (+ col 5)))
+			      (set-molecule-bonds-colour-map-rotation imol-replacing new-col)
+			      (graphics-draw)))))))))))))
+
+			    
+
+
 
 
 
