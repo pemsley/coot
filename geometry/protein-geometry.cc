@@ -504,7 +504,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 
    // debugging
    bool debug = 0;
-   if (0) { 
+   if (debug) { 
       std::cout << "   mon_lib_add_atom  " << comp_id << " :" << atom_id << ": :"
 		<< atom_id_4c << ": " << type_symbol << " " << type_energy << " ("
 		<< partial_charge.first << "," << partial_charge.second << ")" << std::endl;
@@ -524,36 +524,43 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
    bool ifound = 0;
    int this_index = -1; // unset
 
-    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
-       if (dict_res_restraints[i].comp_id == comp_id) {
-	  this_index = i;
-	  if (dict_res_restraints[i].read_number == read_number) { 
-	     ifound = 1;
-	     dict_res_restraints[i].atom_info.push_back(at_info);
-	     break;
-	  } else {
-	     // trash the old one then
-	     dict_res_restraints[i].clear_dictionary_residue();
-	  }
-       }
-    }
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+//       std::cout << "comparing comp_ids: :" << dict_res_restraints[i].comp_id
+// 		<< ":  :" << comp_id << ":" << std::endl;
+      
+      if (dict_res_restraints[i].comp_id == comp_id) {
 
-    if (! ifound) {
-       // std::cout << "residue not found in mon_lib_add_atom" << std::endl;
-       this_index = dict_res_restraints.size()-1;
-       dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
-       dict_res_restraints[this_index].atom_info.push_back(at_info);
-    }
+// 	 std::cout << "comparing read numbers: "
+// 		   << dict_res_restraints[i].read_number << " and "
+// 		   << read_number << std::endl;
+	 if (dict_res_restraints[i].read_number == read_number) { 
+	    ifound = 1;
+	    this_index = i;
+	    dict_res_restraints[i].atom_info.push_back(at_info);
+	    break;
+	 } else {
+	    // trash the old one then
+	    dict_res_restraints[i].clear_dictionary_residue();
+	 }
+      }
+   }
 
-    if (0) {
-       std::cout << "   dictionary for " << dict_res_restraints[this_index].comp_id
-		 << " now contains " << dict_res_restraints[this_index].atom_info.size()
-		 << " atoms" << std::endl;
-       for (unsigned int i=0; i<dict_res_restraints[this_index].atom_info.size(); i++) { 
-// 	  std::cout << "  " << i << "  " << dict_res_restraints[this_index].atom_info[i]
-// 		    << std::endl;
-       }
-    }
+   if (! ifound) {
+      // std::cout << "residue not found in mon_lib_add_atom" << std::endl;
+      dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
+      this_index = dict_res_restraints.size()-1;
+      dict_res_restraints[this_index].atom_info.push_back(at_info);
+   }
+
+   if (debug) {
+      std::cout << "   dictionary for " << dict_res_restraints[this_index].comp_id
+		<< " now contains " << dict_res_restraints[this_index].atom_info.size()
+		<< " atoms" << std::endl;
+      for (unsigned int i=0; i<dict_res_restraints[this_index].atom_info.size(); i++) { 
+	 // 	  std::cout << "  " << i << "  " << dict_res_restraints[this_index].atom_info[i]
+	 // 		    << std::endl;
+      }
+   }
 
     
 
