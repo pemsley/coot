@@ -47,103 +47,103 @@ libcoot_high_res_la_LIBADD = \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 
-check_PROGRAMS = testatomgraph tracehighres testseqalign testseqassignment globularize_protein
+#check_PROGRAMS = testatomgraph tracehighres testseqalign testseqassignment globularize_protein
 
-testatomgraph_SOURCES = test-atom-graph.cc
+#testatomgraph_SOURCES = test-atom-graph.cc
 
-testatomgraph_LDADD =  libcoot-high-res.la                \
-	$(top_builddir)/ligand/libcoot-ligand.la          \
-	$(top_builddir)/db-main/libcoot-db-main.la        \
-	$(top_builddir)/ideal/libcoot-ideal.la            \
-	$(top_builddir)/geometry/libcoot-geometry.la      \
-	$(top_builddir)/coords/libcoot-coords.la          \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
-	$(top_builddir)/coot-utils/libcoot-shelx.la       \
-	$(top_builddir)/utils/libcoot-utils.la       \
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
-	$(top_builddir)/compat/libcoot-compat.la          \
-	$(GSL_LIBS)			                  \
-	$(CLIPPER_LIBS)
+#testatomgraph_LDADD =  libcoot-high-res.la                \
+#	$(top_builddir)/ligand/libcoot-ligand.la          \
+#	$(top_builddir)/db-main/libcoot-db-main.la        \
+#	$(top_builddir)/ideal/libcoot-ideal.la            \
+#	$(top_builddir)/geometry/libcoot-geometry.la      \
+#	$(top_builddir)/coords/libcoot-coords.la          \
+#	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+#	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+#	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+#	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+#	$(top_builddir)/coot-utils/libcoot-shelx.la       \
+#	$(top_builddir)/utils/libcoot-utils.la       \
+#	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+#	$(top_builddir)/compat/libcoot-compat.la          \
+#	$(GSL_LIBS)			                  \
+#	$(CLIPPER_LIBS)
 
-testseqassignment_SOURCES = testseqassignment.cc
-testseqassignment_LDADD = libcoot-high-res.la             \
-	$(top_builddir)/ligand/libcoot-ligand.la          \
-	$(top_builddir)/db-main/libcoot-db-main.la        \
-	$(top_builddir)/ideal/libcoot-ideal.la            \
-	$(top_builddir)/geometry/libcoot-geometry.la      \
-	$(top_builddir)/coords/libcoot-coords.la          \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
-	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-shelx.la       \
-	$(top_builddir)/utils/libcoot-utils.la       \
-	$(top_builddir)/compat/libcoot-compat.la          \
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
-	$(GSL_LIBS)				          \
-	$(CLIPPER_LIBS)
+#testseqassignment_SOURCES = testseqassignment.cc
+#testseqassignment_LDADD = libcoot-high-res.la             \
+#	$(top_builddir)/ligand/libcoot-ligand.la          \
+#	$(top_builddir)/db-main/libcoot-db-main.la        \
+#	$(top_builddir)/ideal/libcoot-ideal.la            \
+#	$(top_builddir)/geometry/libcoot-geometry.la      \
+#	$(top_builddir)/coords/libcoot-coords.la          \
+#	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+#	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+#	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+#	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+#	$(top_builddir)/coot-utils/libcoot-shelx.la       \
+#	$(top_builddir)/utils/libcoot-utils.la       \
+#	$(top_builddir)/compat/libcoot-compat.la          \
+#	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+#	$(GSL_LIBS)				          \
+#	$(CLIPPER_LIBS)
 
-# tracehighres_LDFLAGS = -static 
-tracehighres_SOURCES = trace-high-res.cc
-tracehighres_LDADD = libcoot-high-res.la                  \
-	$(top_builddir)/ligand/libcoot-ligand.la          \
-	$(top_builddir)/ideal/libcoot-ideal.la            \
-	$(top_builddir)/db-main/libcoot-db-main.la        \
-	$(top_builddir)/geometry/libcoot-geometry.la      \
-	$(top_builddir)/coords/libcoot-coords.la          \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
-	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-shelx.la       \
-	$(top_builddir)/utils/libcoot-utils.la       \
-	$(top_builddir)/compat/libcoot-compat.la          \
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
-	$(GSL_LIBS)				          \
-	$(CLIPPER_LIBS)
-
-
-testseqalign_SOURCES = testseqalign.cc
-
-# why do we need to link with all this (junk)?
-testseqalign_LDADD = libcoot-high-res.la                  \
-	$(top_builddir)/ligand/libcoot-ligand.la          \
-	$(top_builddir)/ideal/libcoot-ideal.la            \
-	$(top_builddir)/db-main/libcoot-db-main.la        \
-	$(top_builddir)/geometry/libcoot-geometry.la      \
-	$(top_builddir)/coords/libcoot-coords.la          \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
-	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-shelx.la       \
-	$(top_builddir)/utils/libcoot-utils.la       \
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
-	$(top_builddir)/compat/libcoot-compat.la          \
-	$(GSL_LIBS)				          \
-	$(CLIPPER_LIBS)
+## tracehighres_LDFLAGS = -static 
+#tracehighres_SOURCES = trace-high-res.cc
+#tracehighres_LDADD = libcoot-high-res.la                  \
+#	$(top_builddir)/ligand/libcoot-ligand.la          \
+#	$(top_builddir)/ideal/libcoot-ideal.la            \
+#	$(top_builddir)/db-main/libcoot-db-main.la        \
+#	$(top_builddir)/geometry/libcoot-geometry.la      \
+#	$(top_builddir)/coords/libcoot-coords.la          \
+#	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+#	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+#	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+#	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+#	$(top_builddir)/coot-utils/libcoot-shelx.la       \
+#	$(top_builddir)/utils/libcoot-utils.la       \
+#	$(top_builddir)/compat/libcoot-compat.la          \
+#	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+#	$(GSL_LIBS)				          \
+#	$(CLIPPER_LIBS)
 
 
-globularize_protein_SOURCES = globularize.cc
+#testseqalign_SOURCES = testseqalign.cc
 
-globularize_protein_LDADD = libcoot-high-res.la           \
-	$(top_builddir)/ligand/libcoot-ligand.la          \
-	$(top_builddir)/db-main/libcoot-db-main.la        \
-	$(top_builddir)/ideal/libcoot-ideal.la            \
-	$(top_builddir)/geometry/libcoot-geometry.la      \
-	$(top_builddir)/coords/libcoot-coords.la          \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
-	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-shelx.la       \
-	$(top_builddir)/utils/libcoot-utils.la       \
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
-	$(top_builddir)/compat/libcoot-compat.la          \
-	$(GSL_LIBS)				          \
-	$(CLIPPER_LIBS)
+## why do we need to link with all this (junk)?
+#testseqalign_LDADD = libcoot-high-res.la                  \
+#	$(top_builddir)/ligand/libcoot-ligand.la          \
+#	$(top_builddir)/ideal/libcoot-ideal.la            \
+#	$(top_builddir)/db-main/libcoot-db-main.la        \
+#	$(top_builddir)/geometry/libcoot-geometry.la      \
+#	$(top_builddir)/coords/libcoot-coords.la          \
+#	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+#	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+#	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+#	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+#	$(top_builddir)/coot-utils/libcoot-shelx.la       \
+#	$(top_builddir)/utils/libcoot-utils.la       \
+#	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+#	$(top_builddir)/compat/libcoot-compat.la          \
+#	$(GSL_LIBS)				          \
+#	$(CLIPPER_LIBS)
+
+
+#globularize_protein_SOURCES = globularize.cc
+
+#globularize_protein_LDADD = libcoot-high-res.la           \
+#	$(top_builddir)/ligand/libcoot-ligand.la          \
+#	$(top_builddir)/db-main/libcoot-db-main.la        \
+#	$(top_builddir)/ideal/libcoot-ideal.la            \
+#	$(top_builddir)/geometry/libcoot-geometry.la      \
+#	$(top_builddir)/coords/libcoot-coords.la          \
+#	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+#	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+#	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+#	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+#	$(top_builddir)/coot-utils/libcoot-shelx.la       \
+#	$(top_builddir)/utils/libcoot-utils.la       \
+#	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+#	$(top_builddir)/compat/libcoot-compat.la          \
+#	$(GSL_LIBS)				          \
+#	$(CLIPPER_LIBS)
 
 

@@ -268,12 +268,13 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
 	       if (fixed_2) fixed_flags[1] = 1;
 	       if (fixed_3) fixed_flags[2] = 1;
 	       if (fixed_4) fixed_flags[3] = 1;
-	       add(TORSION_RESTRAINT, index_1, index_2, index_3, index_4,
-		   fixed_flags,
-		   extra_restraints.torsion_restraints[i].torsion_angle,
-		   extra_restraints.torsion_restraints[i].esd,
-		   1.2, // dummy value
-		   extra_restraints.torsion_restraints[i].period);
+	       add_user_defined_torsion_restraint(TORSION_RESTRAINT,
+						  index_1, index_2, index_3, index_4,
+						  fixed_flags,
+						  extra_restraints.torsion_restraints[i].torsion_angle,
+						  extra_restraints.torsion_restraints[i].esd,
+						  1.2, // dummy value
+						  extra_restraints.torsion_restraints[i].period);
 	    }
 	 } 
       }

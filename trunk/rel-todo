@@ -1,20 +1,12 @@
  0.6.2
 
-    Points 2:
-
-    o findligand needs to be able to take an (x,y,z) coordinate  ::: 0.5
-
-* Written - needs testing.  
-
-    o findligand need to be able to take cut-off in absolute (not just
-      sigma) ::: 1
-
-* Written - needs testing.
 
     o add_user_defined_torsion restraint needs filling.  How do atoms
-      get fixed when using linear residue selection?  ::: 1
+      get fixed when using linear residue selection?  Also, consider
+      how to turn on just user-defined torsion restraints (and not
+      standard torsion restraints). ::: 1
 
-* Written - needs testing.
+* Mostly written - needs more thinking.
 
     o change to rms z scores ::: 2
  
@@ -23,11 +15,9 @@
 * Pending reply from Garib.  (May release without this.)
 
 
-    o fix prodrgify to do the Right Things with the hydrogens
-      (i.e. use the prodrg pdb file and dictionary and use torsion
-      matching, overlay and replace). ::: 0.5
+    o take waters out of (clipped and full) surface calculation
 
-    o fix up the reduce HETATM dict interface ::: 2
+    o Install KK code.
 
 
 ------
@@ -691,5 +681,24 @@ WARNING:: Can't find file
      Kill it.  ::: 0.2
 
 * Done.
+
+    o findligand needs to be able to take an (x,y,z) coordinate  ::: 0.5
+
+* Done.  Works
+
+    o findligand need to be able to take cut-off in absolute (not just
+      sigma) ::: 1
+
+* Done - works.
+
+    o fix up the reduce HETATM dict interface ::: 1
+
+* Done, I hope.
+
+    o fix prodrgify to do the Right Things with the hydrogens
+      (i.e. use the prodrg pdb file and dictionary and use torsion
+      matching, overlay and replace). ::: 0.5
+
+* Done.  Very nice.
 
 -------

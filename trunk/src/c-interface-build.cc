@@ -314,23 +314,14 @@ add_ligand_delete_residue_copy_molecule(int imol_ligand_new,
 	    int nchains = model_p->GetNumberOfChains();
 	    for (int ichain=0; ichain<nchains; ichain++) {
 	       chain_p = model_p->GetChain(ichain);
-	       std::cout << "comparing chain ids :"
-			 << chain_id_ligand_current << ": and :"
-			 << chain_p->GetChainID()
-			 << ":" << std::endl;
 	       if (! strncmp(chain_id_ligand_current, chain_p->GetChainID(), 4)) {
 		  int nres = chain_p->GetNumberOfResidues();
 		  CResidue *residue_p;
 		  CAtom *at;
 		  for (int ires=0; ires<nres; ires++) {
 		     residue_p = chain_p->GetResidue(ires);
-		     std::cout << "comparing resno " << residue_p->GetSeqNum()
-			       << " vs " << res_no_ligand_current
-			       << std::endl;
 		     if (residue_p->GetSeqNum() == res_no_ligand_current) {
 
-			std::cout << "Found residue " << std::endl;
-			
 			// delete the current atoms (backwards so that
 			// we don't have reindexing problems)
 			// 
