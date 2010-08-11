@@ -2089,7 +2089,32 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                                    True)
             if status == 0:
                 read_cif_dictionary(prodrg_cif)
-                with_auto_accept([regularize_residues, imol, [[chain_id, res_no, ins_code]]])
+                imol_new = handle_read_draw_molecule_with_recentre(prodrg_xyzout, 0)
+                rn = residue_name(imol, chain_id, res_no, ins_code)
+                with_auto_accept([regularize_zone, imol_new, "", 1, 1, ""])
+                match_ligand_torsions(imol_new, imol, chain_id, res_no)
+                overlap_ligands(iml_new, imol, chain_id, res_no)
+                set_residue_name(imol_new, "", 1, "", rn)
+                change_chain_id(imol_new, "", chain_id, 1, 1, 1)
+                renumber_residue_range(imol_new, chain_id, 1, 1, res_no - 1)
+                set_mol_displayed(imol_new, 0)
+                set_mol_active   (imol_new, 0)
+                set_mol_displayed(imol, 0)
+                set_mol_active   (imol, 0)
+
+                # I don't think that replace-fragment is the right
+                # function because that does not copy across the hydrogen
+                # atoms - and we want those, probably
+
+                replace_fragment(imol, imol_new,
+                                 "//" + chain_id + "/" + str(res_no))
+
+                imol_replacing = add_ligand_delete_residue_copy_molecule(
+                    imol_new, chain_id, res_no, imol, chain_id, res_no)
+                col = get_molecule_bonds_colour_map_rotation(imol)
+                new_col = col + 5
+                set_molecule_bonds_colour_map_rotation(imol_replacement, new_col)
+                graphics_draw()
     
                 
 # ---------- annotations ---------------------
