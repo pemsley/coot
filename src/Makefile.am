@@ -218,9 +218,9 @@ INCLUDES = \
 
 bin_PROGRAMS = coot-real density-score-by-residue-real fix-nomenclature-errors
 dist_bin_SCRIPTS = coot density-score-by-residue
-noinst_PROGRAMS = test-coot-align test-cholesky
+noinst_PROGRAMS = test-coot-align test-cholesky test-lbg-graph
 #check_PROGRAMS = test-coot-align test-choleksy
-check_PROGRAMS = test-lbg-graph
+# check_PROGRAMS = test-lbg-graph
 # testmap write_map testcartesian graphics_crash_test test_cholesky test-command-line
 
 #coot: coot.in

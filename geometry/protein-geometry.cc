@@ -503,6 +503,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos_ideal) { 
 
    // debugging
+   bool debug = 0;
    if (0) { 
       std::cout << "   mon_lib_add_atom  " << comp_id << " :" << atom_id << ": :"
 		<< atom_id_4c << ": " << type_symbol << " " << type_energy << " ("
@@ -520,7 +521,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
    if (model_pos_ideal.first)
       at_info.add_pos(coot::dict_atom::IDEAL_MODEL_POS, model_pos_ideal);
 
-   short int ifound = 0;
+   bool ifound = 0;
    int this_index = -1; // unset
 
     for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
@@ -548,7 +549,13 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
        std::cout << "   dictionary for " << dict_res_restraints[this_index].comp_id
 		 << " now contains " << dict_res_restraints[this_index].atom_info.size()
 		 << " atoms" << std::endl;
+       for (unsigned int i=0; i<dict_res_restraints[this_index].atom_info.size(); i++) { 
+// 	  std::cout << "  " << i << "  " << dict_res_restraints[this_index].atom_info[i]
+// 		    << std::endl;
+       }
     }
+
+    
 
 }
 
@@ -1264,6 +1271,14 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 		  }
 	       }
 	    }
+
+	    if (0) 
+	       std::cout << "debug:: calling mon_lib_add_atom: "
+			 << ":" << comp_id << ":  "
+			 << ":" << atom_id << ":  "
+			 << ":" << padded_name << ":  "
+			 << ":" << type_symbol << ":  "
+			 << std::endl;
 	    mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
 			     partial_charge, model_Cartn, pdbx_model_Cartn_ideal);
 
@@ -3191,12 +3206,19 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
 
 // Check that the atom names in the residue match the atom names in
 // the dictionary.  Atom " OXT" is treated as a special case (it does
-// not cause failure when " OXT" is not in the residue).
+// not cause a failure when " OXT" is not in the dictionary for the
+// residue).
+//
+// Similarly, we can not return problematic status (0) if the
+// hydrogens do not match, if caller wishes.
 //
 // This does only monomer by monomer testing.
 //
 // There is no test of DEL-O1 (for example) atoms when making links
 // between monomers.
+// 
+// Return in pair.first the state of the match and in .second, the
+// list of atoms that do not match the dictionary.
 // 
 std::pair<bool, std::vector<std::string> >
 coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
@@ -3209,6 +3231,23 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
    PPCAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   bool debug = 0;
+   if (debug) {
+      std::cout << "=== atoms_match_dictionary() with these residue atom names ======= " << std::endl;
+      for (int i=0; i<n_residue_atoms; i++) {
+	 std::cout << i << "  :" << residue_atoms[i]->name << ":" << std::endl;
+      } 
+      std::cout << "=== atoms_match_dictionary() with these residue atom names ======= " << std::endl;
+      for (unsigned int irat=0; irat<restraints.atom_info.size(); irat++) {
+	 std::cout << irat << "  :" << restraints.atom_info[irat].atom_id_4c
+		   << ":" << std::endl;
+      } 
+      
+
+   } 
+
+   
    for (unsigned int i=0; i<n_residue_atoms; i++) {
 
       if (! residue_atoms[i]->isTer()) { 

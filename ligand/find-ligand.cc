@@ -163,6 +163,7 @@ main(int argc, char **argv) {
 	       } 
 	       if (arg_str == "absolute") {
 		  absolute_string = optarg;
+		  set_absolute = 1;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "clusters") {
@@ -318,7 +319,7 @@ main(int argc, char **argv) {
 	    if (! use_wiggly_ligand) {
 
 	       // rigid ligands path
-	       
+
 	       coot::ligand lig;
 	       lig.set_verbose_reporting();
 	       short int map_stat = lig.map_fill_from_mtz(mtz_filename, f_col, phi_col, "", 
@@ -333,6 +334,8 @@ main(int argc, char **argv) {
 		     float ab = coot::util::string_to_float(absolute_string);
 		     clipper::Map_stats stats = lig.map_statistics();
 		     input_sigma_level = ab/stats.std_dev();
+		     std::cout << "Masking with level " << absolute_string << "("
+			       << input_sigma_level << " sigma)" << std::endl;
 		  }
 		  catch (std::runtime_error rte) {
 		     std::cout << rte.what() << std::endl;
@@ -354,6 +357,7 @@ main(int argc, char **argv) {
 			lig.fit_ligands_to_clusters(1); // just this cluster.
 			
 		     } else { 
+			
 			lig.find_clusters(input_sigma_level);
 		     }
 		     // install ligands:

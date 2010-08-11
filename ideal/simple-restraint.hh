@@ -286,9 +286,10 @@ namespace coot {
       int chiral_volume_sign;
       double target_chiral_volume;
       std::vector<bool> fixed_atom_flags;
+      bool is_user_defined_restraint;
 
       // allocator for geometry_distortion_info_t
-      simple_restraint() {}
+      simple_restraint() { is_user_defined_restraint = 0; }
       
       // Bond
       simple_restraint(short int rest_type, int atom_1, int atom_2, 
@@ -303,6 +304,7 @@ namespace coot {
 	 sigma = sig; 
 	 target_value = tar; 
 	 fixed_atom_flags = fixed_atom_flags_in;
+	 is_user_defined_restraint = 0;
 	 
 	 if (rest_type != BOND_RESTRAINT) { 
 	    std::cout << "BOND ERROR" << std::endl; 
@@ -325,6 +327,7 @@ namespace coot {
 	 sigma = sig; 
 	 target_value = tar; 
 	 fixed_atom_flags = fixed_atom_flags_in;
+	 is_user_defined_restraint = 0;
 	 if (rest_type != ANGLE_RESTRAINT) { 
 	    std::cout << "ANGLE ERROR" << std::endl; 
 	    exit(1); 
@@ -348,6 +351,7 @@ namespace coot {
 	 target_value = tar; 
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 periodicity = periodicity_in; 
+	 is_user_defined_restraint = 0;
 	 if (rest_type != TORSION_RESTRAINT) { 
 	    std::cout << "TORSION ERROR" << std::endl; 
 	    exit(1); 
@@ -366,6 +370,7 @@ namespace coot {
 	 atom_index_4 = atom_4;
 	 atom_index_5 = atom_5;
 	 fixed_atom_flags = fixed_atom_flags_in;
+	 is_user_defined_restraint = 0;
 	 if (rest_type != RAMACHANDRAN_RESTRAINT) { 
 	    std::cout << "RAMACHANDRAN_RESTRAINT ERROR" << std::endl; 
 	    exit(1); 
@@ -389,6 +394,7 @@ namespace coot {
 	 target_value = 0.0; // not needed for planes
 	 sigma = sig;
 	 fixed_atom_flags = fixed_atom_flags_in;
+	 is_user_defined_restraint = 0;
       }
 
       // Non-bonded
@@ -405,6 +411,7 @@ namespace coot {
 	    fixed_atom_flags.resize(2);
 	    fixed_atom_flags[0] = 0;
 	    fixed_atom_flags[1] = 0;
+	    is_user_defined_restraint = 0;
 	 } else { 
 	    std::cout << "ERROR:: bad simple_restraint constructor usage "
 		      << "- should be non-bonded\n";
@@ -432,6 +439,7 @@ namespace coot {
 	    target_chiral_volume = target_volume_in;
 	    sigma = target_volume_sigma_in;
 	    fixed_atom_flags = fixed_atom_flags_in;
+	    is_user_defined_restraint = 0;
 	 } 
       }
       friend std::ostream &operator<<(std::ostream &s, simple_restraint r);
@@ -887,19 +895,36 @@ namespace coot {
 	 }
       }
 
-      void add(short int rest_type, int atom_1, int atom_2, 
+      bool add(short int rest_type, int atom_1, int atom_2, 
 	       int atom_3, int atom_4,
 	       const std::vector<bool> &fixed_atom_flags,
 	       float tar, 
 	       float sig, float obs, int periodicty){
-    
+
+	 bool r = 0;
 	 if (sig > 0.0) { 
 	    restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, 
 						      atom_3, atom_4,
 						      fixed_atom_flags,
 						      tar, sig, obs, periodicty));
+	    r = 1;
+	 }
+	 return r;
+      }
+
+      void add_user_defined_torsion_restraint(short int rest_type, int atom_1, int atom_2, 
+					      int atom_3, int atom_4,
+					      const std::vector<bool> &fixed_atom_flags,
+					      float tar, 
+					      float sig, float obs, int periodicty) {
+	 bool r = add(rest_type, atom_1, atom_2, atom_3, atom_4,
+		      fixed_atom_flags, tar, sig, obs, periodicty);
+	 if (r) {
+	    // bleugh.
+	    restraints_vec.back().is_user_defined_restraint = 1;
 	 }
       }
+      
 
       // used for Ramachandran restraint
       void add(short int rest_type,
