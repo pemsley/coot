@@ -4464,6 +4464,10 @@ of thumb).
 @code{(residue-density-fit-scale-factor)} returns the current scale
 factor (default 1.0).
 
+There is also a GUI to this: 
+
+@command{Extensions -> Refine@dots{} -> Set Density Fit Graph Weight@dots{}}
+
 @subsection Rotamer Analysis 
 Residue rotamers are scored according to the prior likelihood.  Note
 that when CD1 and CD2 of a PHE residue are exchanged (simply a

@@ -111,6 +111,8 @@ Other Coot Information
 @end detailmenu
 @end menu
 
+@c note to self: no commas in section/node titles
+
 @c --------------------------------------------
 @node Citing
 @chapter Citing Coot
@@ -516,6 +518,7 @@ work try also:
 * How do I put a pointer into a blob of density?::
 * How do I "grab" just one atom in Real Space Refinement/Regularization?::
 * My sidechains are being sucked into the density for metal - how do I stop that?::
+* My Density Fit Graph bars are all red - how do I fix that?::
 * How do I bind a function to a key?::
 * How do I force Coot to clean up all the time?::
 * I can't mutate my broken residue::
@@ -832,6 +835,18 @@ density for Cobalts in the "B" chain.
 Then you will need to set the masked map as the map to be used for
 refinement, of course.
 
+@node    My Density Fit Graph bars are all red - how do I fix that?
+@section My Density Fit Graph bars are all red - how do I fix that?
+
+The bar heights are set to be sensible for average resolution data on
+the absolute scale.  If that is not the case for your data then you
+may well see red bars.
+
+You can change the scale:
+
+@command{Extensions -> Refine@dots{} -> Set  Density Fit Graph Weight@dots{}}
+
+
 
 @node How do I bind a function to a key?
 @section How do I bind a function to a key?
@@ -906,7 +921,6 @@ You can also remove the old coot warning by running this script:
 
 
 
-
 @node Can I make the spin mode rotate slower?
 @section Can I make the spin mode rotate slower?
 
@@ -954,9 +968,9 @@ directory to which you both can write and @code{setenv
 COOT_BACKUP_DIR} to that directory.
 
 @node How do I find CIS-peptides in my structure?
-@section How do 2 people use Coot with the same structure?
+@section How do I find CIS-peptides in my structure?
 
-Extensions/Modelling/Residue with CIS Peptide Bonds
+@command{Extensions -> Modelling -> Residues with CIS Peptide Bonds}
 
 
 
