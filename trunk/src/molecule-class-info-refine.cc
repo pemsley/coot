@@ -47,6 +47,12 @@ void molecule_class_info_t::remove_extra_bond_restraint(coot::atom_spec_t atom_1
    update_extra_restraints_representation();
 }
 
+void
+molecule_class_info_t::clear_extra_restraints() {
+   extra_restraints.clear();
+} 
+
+
 // return an index of the new restraint
 int
 molecule_class_info_t::add_extra_torsion_restraint(coot::atom_spec_t atom_1,

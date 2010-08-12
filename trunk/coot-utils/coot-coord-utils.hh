@@ -90,6 +90,7 @@ namespace coot {
 	 resno = MinInt4;
 	 insertion_code = "";
 	 model_number = -1;
+	 int_user_data = -1;
       }
       atom_spec_t(const std::string &chain_in,
 		  int resno_in,

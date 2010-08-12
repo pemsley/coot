@@ -210,9 +210,12 @@ int coot::surface::evaluatePhiAndColourWithScheme(CMMDBManager *theManager, cons
 
   //Coerce map into clipper NXmap
   clipper::NXmap<double> thePhiMap(theCreator.coerceToClipperMap(cell));
+  std::cout << " ====================== xmap created ================ " << std::endl;
 
   //Interpolate into this map at ssurface vertices
-  if (interpolateIntoMap("vertices", "potential", thePhiMap)) return 1;
+  if (interpolateIntoMap("vertices", "potential", thePhiMap)) {
+     return 1;
+  }
 
   //Use these values to apply a colour scheme
   if (colourByScalarValue("potential", colourScheme)) return 1;

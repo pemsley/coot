@@ -682,7 +682,7 @@ namespace coot {
 	    torsion_angle = torsion_in;
 	    esd = esd_in;
 	    period = period_in;
-	 } 
+	 }
       };
 
       std::vector<extra_bond_restraint_t> bond_restraints;
@@ -698,6 +698,11 @@ namespace coot {
 	    else 
 	       return 0;
       }
+      void clear() {
+	 bond_restraints.clear();
+	 torsion_restraints.clear();
+      }
+      
    };
 
 
