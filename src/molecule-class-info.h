@@ -2786,6 +2786,7 @@ public:        //                      public
    // the atom specs do not need to be in order
    void remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2);
    void update_extra_restraints_representation(); // called from make_bonds_type_checked()
+   void clear_extra_restraints();
 
    // --------- (transparent) solid rendering of density ------------------
    bool draw_it_for_solid_density_surface;

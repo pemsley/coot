@@ -3266,6 +3266,8 @@ int add_extra_torsion_restraint(int imol,
 /* 					const char *alt_conf); */
 					
 
+/*! \brief clear out all the extra/user-defined restraints for molecule number imol  */
+void delete_all_extra_restraints(int imol); 
 
 #ifdef __cplusplus
 #ifdef USE_GUILE		

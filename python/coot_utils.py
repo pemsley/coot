@@ -2693,6 +2693,7 @@ generic_list_to_string_vector_internal = generic_list_to_string_vector_internal_
 generic_int_vector_to_list_internal = generic_int_vector_to_list_internal_py
 inverse_rtop           = inverse_rtop_py
 key_sym_code           = key_sym_code_py
+screen_vectors         = screen_vectors_py
 
 # curl and hence coot_get_url_as_string are conditionally compiled.
 try:

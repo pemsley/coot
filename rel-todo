@@ -1,8 +1,5 @@
  0.6.2
 
-    o use mtz column selector to say use phase, but no phase column is
-    present -> crash ::: 0.5
-
     o add_user_defined_torsion restraint needs filling.  How do atoms
       get fixed when using linear residue selection?  Also, consider
       how to turn on just user-defined torsion restraints (and not
@@ -14,7 +11,7 @@
 
     o change to rms z scores ::: 2
 
-    o document difference map peaks.
+    o document difference map peaks. ::: 0.5
 
 ------
 
@@ -700,5 +697,10 @@ WARNING:: Can't find file
     o take waters out of (clipped and full) surface calculation (hard?) ::: 0.5
 
 * No, not too hard.
+
+    o use mtz column selector to say use phase, but no phase column is
+    present -> crash ::: 0.5
+
+* Done.
 
 -------

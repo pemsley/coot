@@ -504,7 +504,7 @@ int surface::evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, con
 	std::vector<std::string> cols;
 	cols.push_back("red"); cols.push_back("red");  cols.push_back("white");  cols.push_back("blue"); cols.push_back("blue");
 	defaultScheme.SetSchemeFloat(typ, cols);
-	return evaluatePhiAndColourWithScheme(theManager, selHnd, defaultScheme,contains_hydrogen );
+	return evaluatePhiAndColourWithScheme(theManager, selHnd, defaultScheme, contains_hydrogen);
 }
 
 
@@ -515,11 +515,10 @@ int surface::evaluatePhiAndColourWithScheme(CMMDBManager *theManager, const int 
 	CXXCreator theCreator(theManager, selHnd);
 	theCreator.calculate();	
 	
-    
 	//Coerce map into clipper NXmap
 	clipper::Cell aCell;
 	clipper::NXmap<double> thePhiMap (theCreator.coerceToClipperMap(aCell));
-	//writeNXMap(thePhiMap,"/tmp/lizp/phi.map");
+	// writeNXMap(thePhiMap,"phi.map");
 	//thePhiMap = nxmap;
 	//Interpolate into this map at ssurface vertices
 	if (interpolateIntoMap("vertices", "potential", thePhiMap)) return 1;
