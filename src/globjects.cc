@@ -46,7 +46,7 @@
 #ifdef WINDOWS_MINGW
 // in windows we need these for some newer openGL functions
 #include <GL/glext.h>
-#include <GL/wglext.h>
+//#include <GL/wglext.h>
 #endif // WINDOWS_MINGW
 
 #include <math.h>
