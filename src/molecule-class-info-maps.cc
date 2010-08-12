@@ -40,7 +40,6 @@
 #include "CIsoSurface.h"
 
 #include "clipper/ccp4/ccp4_mtz_io.h"
-#include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/cns/cns_hkl_io.h"
 #include "clipper/cns/cns_map_io.h"
 #include "clipper/core/hkl_compute.h"
@@ -1610,16 +1609,31 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    if ( map_file_type == CCP4 ) {
      std::cout << "attempting to read CCP4 map: " << filename << std::endl;
      clipper::CCP4MAPfile file;
-     try { 
+     try {
 	file.open_read(filename);
-	try {
-	   file.import_xmap( xmap_list[0] );
-	}
-	catch (clipper::Message_base exc) {
-	   std::cout << "WARNING:: failed to read " << filename
-		     << " Bad ASU (inconsistant gridding?)." << std::endl;
-	   bad_read = 1;
-	}
+
+	// if (! is_em_map(file)) {  // activate later
+	
+	if (1) { 
+	
+	   clipper::Grid_sampling fgs = file.grid_sampling();
+	   std::cout << "========== file grid sampling: " << fgs.format() << std::endl;
+	   try {
+	      file.import_xmap( xmap_list[0] );
+	   }
+	   catch (clipper::Message_base exc) {
+	      std::cout << "WARNING:: failed to read " << filename
+			<< " Bad ASU (inconsistant gridding?)." << std::endl;
+	      bad_read = 1;
+	   }
+	} else {
+
+	   // Should never happen.  Not yet.
+	   // 
+	   std::cout << "=================== EM Map ====================== " << std::endl;
+	   file.import_nxmap(nx_map);
+	   std::cout << "INFO:: created NX Map with grid " << nx_map.grid().format() << std::endl;
+	} 
      } catch (clipper::Message_base exc) {
 	std::cout << "WARNING:: failed to open " << filename << std::endl;
 	bad_read = 1;
@@ -1642,51 +1656,6 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
    if (bad_read == 0) {
 
-      // Was this an EM map, or some other such "not crystallographic"
-      // entity? (identified by P1 and angles 90, 90, 90).
-      //
-      // if so, fill nx_map.
-      // 
-      if (xmap_list[0].spacegroup().num_symops() == 1) { // P1
-	 if (((xmap_list[0].cell().descr().alpha() - M_PI/2) <  0.0001) && 
-	     ((xmap_list[0].cell().descr().alpha() - M_PI/2) > -0.0001) &&
-	     ((xmap_list[0].cell().descr().beta()  - M_PI/2) > -0.0001) &&
-	     ((xmap_list[0].cell().descr().beta()  - M_PI/2) <  0.0001) &&
-	     ((xmap_list[0].cell().descr().gamma() - M_PI/2) > -0.0001) &&
-	     ((xmap_list[0].cell().descr().gamma() - M_PI/2) <  0.0001)) { 
-
-	    std::cout << "=================== EM Map ====================== " << std::endl;
-
-	    nx_map.init(xmap_list[0].cell(),
-			xmap_list[0].grid_sampling(),
-			xmap_list[0].grid_asu()); // for P1, this is right.
-
-	    std::cout << "INFO:: created NX Map with grid " << nx_map.grid().format() << std::endl;
-
-	    nx_map = 0.0;
-	    
-
-	    if (1) { 
-	       // Is this the way to copy a P1 xmap into an nxmap? Hmm... Perhaps not.
-	       // 
-	       clipper::Xmap_base::Map_reference_index ix;
-	       clipper::NXmap_base::Map_reference_index inx = nx_map.first();
-	       for (ix = xmap_list[0].first(); !ix.last(); ix.next(), inx.next()) {
-		  nx_map[inx] = xmap_list[0][ix];
-	       }
-	    }
-
-	    if (0) { 
-	       clipper::NXmap_base::Map_reference_index inx;
-	       for (inx = nx_map.first(); !inx.last(); inx.next()) {
-		  std::cout << inx.coord().format() << "  " <<  nx_map[inx] << std::endl;
-	       }
-	    }
-
-	    
-	 }
-      }
-      
       initialize_map_things_on_read_molecule(filename, is_diff_map_flag, 
 					     graphics_info_t::swap_difference_map_colours);
 
@@ -1724,6 +1693,28 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       stat = -1;
    return stat;
 }
+
+// is the CCP4 map a EM map? (this is so that we can fill the
+// NXmap, not the xmap)
+// 
+bool
+molecule_class_info_t::is_em_map(const clipper::CCP4MAPfile &file) const {
+
+   bool is_em = 0;
+   
+   if (file.spacegroup().num_symops() == 1) { // P1
+      if (((file.cell().descr().alpha() - M_PI/2) <  0.0001) && 
+	  ((file.cell().descr().alpha() - M_PI/2) > -0.0001) &&
+	  ((file.cell().descr().beta()  - M_PI/2) > -0.0001) &&
+	  ((file.cell().descr().beta()  - M_PI/2) <  0.0001) &&
+	  ((file.cell().descr().gamma() - M_PI/2) > -0.0001) &&
+	  ((file.cell().descr().gamma() - M_PI/2) <  0.0001)) {
+	 is_em = 1;
+      }
+   }
+   return is_em;
+} 
+
 
 void
 molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string name_in) {

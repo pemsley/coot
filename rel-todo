@@ -1,5 +1,7 @@
  0.6.2
 
+    o use mtz column selector to say use phase, but no phase column is
+    present -> crash ::: 0.5
 
     o add_user_defined_torsion restraint needs filling.  How do atoms
       get fixed when using linear residue selection?  Also, consider
@@ -8,17 +10,11 @@
 
 * Mostly written - needs more thinking.
 
+    o Install KK code. ::: 0.5
+
     o change to rms z scores ::: 2
- 
-    o torsion on a NAD work (fix the dictionary)?
 
-* Pending reply from Garib.  (May release without this.)
-
-
-    o take waters out of (clipped and full) surface calculation
-
-    o Install KK code.
-
+    o document difference map peaks.
 
 ------
 
@@ -700,5 +696,9 @@ WARNING:: Can't find file
       matching, overlay and replace). ::: 0.5
 
 * Done.  Very nice.
+
+    o take waters out of (clipped and full) surface calculation (hard?) ::: 0.5
+
+* No, not too hard.
 
 -------

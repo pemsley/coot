@@ -2191,14 +2191,14 @@ coot::additional_representations_t::fill_bonds_box() {
       if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
       
 	 mol->SelectAtoms(atom_sel.SelectionHandle,
-			  0, (char *) atom_sel_info.chain_id.c_str(),
-			  atom_sel_info.resno_start, (char *) atom_sel_info.ins_code.c_str(),
-			  atom_sel_info.resno_end,   (char *) atom_sel_info.ins_code.c_str(),
+			  0, atom_sel_info.chain_id.c_str(),
+			  atom_sel_info.resno_start, atom_sel_info.ins_code.c_str(),
+			  atom_sel_info.resno_end,   atom_sel_info.ins_code.c_str(),
 			  "*", "*", "*", "*");
       }
       if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING) {
 	 mol->Select(atom_sel.SelectionHandle, STYPE_ATOM, 
-		     (char *) atom_sel_info.atom_selection_str.c_str(),
+		     atom_sel_info.atom_selection_str.c_str(),
 		     SKEY_NEW);
       
       }

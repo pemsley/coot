@@ -1854,4 +1854,53 @@ pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
 	 at->SetElementName(" H");
 	 at->SetCoordinates(pt.x(), pt.y(), pt.z(), 1.0, 20.0);
 	 ligand_res_copy->AddAtom(at);
-	 
+
+
+// ================================ EM map ======================================
+
+      // Was this an EM map, or some other such "not crystallographic"
+      // entity? (identified by P1 and angles 90, 90, 90).
+      //
+      // if so, fill nx_map.
+      // 
+      if (xmap_list[0].spacegroup().num_symops() == 1) { // P1
+	 if (((xmap_list[0].cell().descr().alpha() - M_PI/2) <  0.0001) && 
+	     ((xmap_list[0].cell().descr().alpha() - M_PI/2) > -0.0001) &&
+	     ((xmap_list[0].cell().descr().beta()  - M_PI/2) > -0.0001) &&
+	     ((xmap_list[0].cell().descr().beta()  - M_PI/2) <  0.0001) &&
+	     ((xmap_list[0].cell().descr().gamma() - M_PI/2) > -0.0001) &&
+	     ((xmap_list[0].cell().descr().gamma() - M_PI/2) <  0.0001)) { 
+
+	    std::cout << "=================== EM Map ====================== " << std::endl;
+
+	    clipper::Grid_range gr = xmap_list[0].grid_asu();  // for P1, this is right.
+	    nx_map.init(xmap_list[0].cell(),
+			xmap_list[0].grid_sampling(),
+			gr);
+
+	    std::cout << "INFO:: created NX Map with grid " << nx_map.grid().format() << std::endl;
+
+	    nx_map = 0.0;
+
+	    if (1) { 
+
+	       // populate the map
+	       clipper::Xmap_base::Map_reference_index ix(xmap_list[0]);
+	       for (clipper::NXmap_base::Map_reference_index inx = nx_map.first();
+		    ! inx.last();
+		    inx.next() ) {
+		  ix.set_coord( inx.coord() + gr.min() );
+		  nx_map[inx] = xmap_list[0][ix];
+	       }
+	    }
+
+	    if (0) { 
+	       clipper::NXmap_base::Map_reference_index inx;
+	       for (inx = nx_map.first(); !inx.last(); inx.next()) {
+		  std::cout << inx.coord().format() << "  " <<  nx_map[inx] << std::endl;
+	       }
+	    }
+
+	    
+	 }
+      }

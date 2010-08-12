@@ -340,7 +340,9 @@ coot::peak_search::add_peak_vectors(std::vector<clipper::Coord_orth> *in,
 
 
 
-
+// filter_peaks_by_closeness() called at the end (and the distance is
+// set by set_max_closeness()).
+// 
 std::vector<std::pair<clipper::Coord_orth, float> >
 coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 			     float n_sigma,

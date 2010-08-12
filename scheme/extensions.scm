@@ -952,11 +952,16 @@
 	    
 	    (let* ((central-residue (active-residue))
 		   (residues (residues-near-residue aa-imol (cdr central-residue) 6.0))
+		   ;; no waters in surface, thanks.
+		   (filtered-residues 
+		    (filter (lambda (s) 
+			      (not (string=? (apply residue-name (cons aa-imol s)) "HOH")))
+			    residues))
 		   (imol-copy (copy-molecule aa-imol)))
 	      ;; delete the interesting residue from the copy (so that
 	      ;; it is not surfaced).
 	      (delete-residue imol-copy aa-chain-id aa-res-no aa-ins-code)
-	      (do-clipped-surface imol-copy residues)))))
+	      (do-clipped-surface imol-copy filtered-residues)))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-representation "Full Surface Around Here (This Residue)"

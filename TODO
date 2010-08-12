@@ -857,6 +857,16 @@ Punted from 0.6:
 
     o internal: c-interface map functions should be in c-interface-maps.cc
 
+    o consider an option for refinement post-ligand.  Consider a
+      command-line tool for this (shell script maybe).
+
+    o Kevin NX map code for EM maps [11 Aug 2010: nxmap]
+
+    o torsion on a NAD work (fix the dictionary)?
+
+* Pending reply from Garib. 
+
+
 
  ------
     
