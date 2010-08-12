@@ -43,6 +43,8 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 // display list GLuint
 #include <GL/gl.h>
 
+#include "clipper/ccp4/ccp4_map_io.h"
+
 #include "Bond_lines.h"
 #include "gtk-manual.h"
 
@@ -839,6 +841,11 @@ class molecule_class_info_t {
    clipper::HKL_data< clipper::datatypes::F_sigF<float> > original_fobs_sigfobs;
    void fill_fobs_sigfobs();
 
+   // is the CCP4 map a EM map? (this is so that we can fill the
+   // NXmap, not the xmap)
+   // 
+   bool is_em_map(const clipper::CCP4MAPfile &file) const;
+
 
    // for quads/triangle strip for the bond representation (rather
    // than gl_lines).
@@ -1477,7 +1484,8 @@ public:        //                      public
    // is clearer where the SelHnd_selection should be deleted.
    //
    void fill_residue_selection(int SelHnd_selection,
-			       const std::vector<coot::residue_spec_t> &res_specs_vec);
+			       const std::vector<coot::residue_spec_t> &res_specs_vec,
+			       bool allow_waters_flag);
    
    
    void dynamically_transform(coot::CartesianPairInfo v);

@@ -93,8 +93,13 @@ molecule_class_info_t::make_surface(int on_off_flag,
 //
 void
 molecule_class_info_t::fill_residue_selection(int SelHnd_selection,
-					      const std::vector<coot::residue_spec_t> &res_specs_vec) {
+					      const std::vector<coot::residue_spec_t> &res_specs_vec,
+					      bool allow_waters_flag) {
 
+   std::string no_waters = "!HOH";
+   if (allow_waters_flag)
+      no_waters = "*";
+   
    for (unsigned int ir=0; ir<res_specs_vec.size(); ir++) {
       atom_sel.mol->SelectAtoms(SelHnd_selection, 0,
 				res_specs_vec[ir].chain.c_str(),
@@ -102,7 +107,8 @@ molecule_class_info_t::fill_residue_selection(int SelHnd_selection,
 				res_specs_vec[ir].insertion_code.c_str(), 
 				res_specs_vec[ir].resno,
 				res_specs_vec[ir].insertion_code.c_str(),
-				"*", "*", "*", "*", SKEY_OR);
+				no_waters.c_str(),
+				"*", "*", "*", SKEY_OR);
    }
 
    PPCAtom atoms = NULL;
@@ -118,12 +124,29 @@ molecule_class_info_t::make_surface(const std::vector<coot::residue_spec_t> &res
 				    const coot::protein_geometry &geom,
 				    float col_scale) {
 
+   // res_specs_vec must not contain waters or bad things might
+   // happen.
 
    int SelHnd_selection = atom_sel.mol->NewSelection();
-   fill_residue_selection(SelHnd_selection, res_specs_vec);
-   make_surface(SelHnd_selection, atom_sel.SelectionHandle, geom, col_scale);
+   fill_residue_selection(SelHnd_selection, res_specs_vec, 0);
+
+   // no waters in protein (leaving the waters in the selection makes
+   // a rotten surface)
+   // 
+   int SelHnd_protein = atom_sel.mol->NewSelection();
+
+   atom_sel.mol->SelectAtoms(SelHnd_protein, 0,
+			     "*",
+			     ANY_RES, "*",
+			     ANY_RES, "*",
+			     "!HOH",    // RNames
+			     "*", "*",  // ANames, Elements
+			     "*" );     // Alternate locations.
+   
+   make_surface(SelHnd_selection, SelHnd_protein, geom, col_scale);
    
    atom_sel.mol->DeleteSelection(SelHnd_selection);
+   atom_sel.mol->DeleteSelection(SelHnd_protein);
 }
 
 

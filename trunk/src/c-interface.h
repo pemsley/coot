@@ -3585,7 +3585,10 @@ void probe_mol_selector_activate (GtkMenuItem     *menuitem,
 /* void create_initial_validation_graph_geometry_submenu(GtkWidget *window1); */
 /* void create_initial_validation_graph_omega_submenu(GtkWidget *window1); */
 
-/*! \brief generate a list of difference map peaks */
+/*! \brief generate a list of difference map peaks 
+
+peaks within 2.0 A of a larger peak are not listed.
+*/
 void difference_map_peaks(int imol, int imol_coords, float level, int do_positive_level_flag, int do_negative_level_flag); 
 
 void difference_map_peaks_by_widget(GtkWidget *dialog);
@@ -5587,7 +5590,11 @@ void do_surface(int imol, int istate);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 /*! \brief draw the surface of the imolth molecule clipped to the
-  residues given by residue_specs */
+  residues given by residue_specs.  
+
+  residue_specs must not contain spec for waters (you wouldn't want to
+  surface over waters anyway).
+ */
 void do_clipped_surface_scm(int imol, SCM residue_specs);
 #endif /*  USE_GUILE */
 #ifdef USE_PYTHON
