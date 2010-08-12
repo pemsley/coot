@@ -366,7 +366,8 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 	std::cout << " Making map from " << f_label << " " << phi_label << " and "
 		  << w_label << std::endl;
 	icol = saved_f_phi_columns->selected_weight_col;
-	w_label = saved_f_phi_columns->weight_cols[icol].column_label;
+	if (icol < saved_f_phi_columns->weight_cols.size())
+	   w_label = saved_f_phi_columns->weight_cols[icol].column_label;
      } else { 
 	std::cout << " Making map from " << f_label << " and " << phi_label << std::endl;
      } 
