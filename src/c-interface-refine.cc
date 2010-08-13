@@ -23,6 +23,11 @@
  * 02110-1301, USA
  */
 
+
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #include <stdlib.h>
 #include <iostream>
 
@@ -35,9 +40,11 @@
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in
 // ssm_superpose.h) to be 0x00004000 (Grrr).
 //
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // USE_PYTHON
+// 20100813: Python.h needs to come before to stop"_POSIX_C_SOURCE" redefined problems 
+//
+// #ifdef USE_PYTHON
+// #include "Python.h"
+// #endif // USE_PYTHON
 
 #include "c-interface.h"
 #include "cc-interface.hh"
@@ -468,8 +475,8 @@ PyObject *list_extra_restraints_py(int imol) {
       if (PyBool_Check(r)) {
 	 Py_INCREF(r);
       }
-      return r;
-
+   }
+   return r;
 } 
 #endif	/* USE_PYTHON */
 
