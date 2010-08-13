@@ -441,11 +441,11 @@ PyObject *list_extra_restraints_py(int imol) {
 	    PyList_Append(r, l);
 	 }
 
-	 for (int it=0; it<g.molecules[imol].extra_restraints.bond_restraints.size(); it++) {
-	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.bond_restraints[it].atom_1;
-	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.bond_restraints[it].atom_2;
-	    coot::atom_spec_t spec_3 = g.molecules[imol].extra_restraints.bond_restraints[it].atom_3;
-	    coot::atom_spec_t spec_4 = g.molecules[imol].extra_restraints.bond_restraints[it].atom_4;
+	 for (int it=0; it<g.molecules[imol].extra_restraints.torsion_restraints.size(); it++) {
+	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_1;
+	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_2;
+	    coot::atom_spec_t spec_3 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_3;
+	    coot::atom_spec_t spec_4 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_4;
 	    double t = g.molecules[imol].extra_restraints.torsion_restraints[it].torsion_angle;
 	    double e = g.molecules[imol].extra_restraints.torsion_restraints[it].esd;
 	    int    p = g.molecules[imol].extra_restraints.torsion_restraints[it].period;
