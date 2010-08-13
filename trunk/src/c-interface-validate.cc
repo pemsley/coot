@@ -963,6 +963,7 @@ create_initial_validation_graph_submenu_generic(GtkWidget *widget,
 void
 difference_map_peaks(int imol, int imol_coords,
 		     float n_sigma,
+		     float max_closeness,
 		     int do_positive_level_flag,
 		     int do_negative_levels_flag) {
 
@@ -979,6 +980,7 @@ difference_map_peaks(int imol, int imol_coords,
 
 	 // c.f. trace-high-res.cc
 	 coot::peak_search ps(graphics_info_t::molecules[imol].xmap_list[0]);
+	 ps.set_max_closeness(max_closeness);
 	 std::vector<std::pair<clipper::Coord_orth, float> > centres;
 
 	 if (is_valid_model_molecule(imol_coords)) {
@@ -993,15 +995,19 @@ difference_map_peaks(int imol, int imol_coords,
 	 }
 	 
 	 if (centres.size() == 0) {
-	    std::string info_string("No difference map peaks\nat ");
-	    info_string += graphics_info_t::float_to_string(n_sigma);
-	    info_string += " sigma";
-	    GtkWidget *w = wrapped_nothing_bad_dialog(info_string);
-	    gtk_widget_show(w);
+	    if (graphics_info_t::use_graphics_interface_flag) { 
+	       std::string info_string("No difference map peaks\nat ");
+	       info_string += graphics_info_t::float_to_string(n_sigma);
+	       info_string += " sigma";
+	       GtkWidget *w = wrapped_nothing_bad_dialog(info_string);
+	       gtk_widget_show(w);
+	    }
 	 } else {
-	    float map_sigma = graphics_info_t::molecules[imol].map_sigma();
-	    GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(centres, map_sigma);
-	    gtk_widget_show(w);
+	    if (graphics_info_t::use_graphics_interface_flag) { 
+	       float map_sigma = graphics_info_t::molecules[imol].map_sigma();
+	       GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(centres, map_sigma);
+	       gtk_widget_show(w);
+	    }
 
 	    std::cout << "\n   Found these peak positions:\n";
 	    for (unsigned int i=0; i<centres.size(); i++) {
@@ -1019,7 +1025,18 @@ difference_map_peaks(int imol, int imol_coords,
 
 void set_difference_map_peaks_widget(GtkWidget *w) {
    graphics_info_t::difference_map_peaks_dialog = w;
+}
+
+// In the GUI for difference map peaks, there is not a means to set the
+// max_closeness, so here is a means to set it and query it. */
+void set_difference_map_peaks_max_closeness(float m) {
+   graphics_info_t::difference_map_peaks_max_closeness = m;
+}
+
+float difference_map_peaks_max_closeness() {
+   return graphics_info_t::difference_map_peaks_max_closeness;
 } 
+
 
 
 void
@@ -1149,6 +1166,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
       if (good_sigma)
 	 // if imol_coords is -1 it is ignored in difference_map_peaks
 	 difference_map_peaks(imol_diff_map, imol_coords, v,
+			      graphics_info_t::difference_map_peaks_max_closeness,
 			      do_positive_level, do_negative_level);
    } else {
       std::cout << "WARNING:: failed to find a difference map "

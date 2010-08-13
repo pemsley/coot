@@ -465,7 +465,7 @@ coot::peak_search::filter_peaks_by_closeness(const std::vector<std::pair<clipper
       if (! found_a_close_one)
 	 nv.push_back(v[ipeak]);
    }
-   std::cout << " npeaks: in: " << v.size() << " out: " << nv.size() << std::endl;
+   std::cout << "INFO:: peak filtering: npeaks: in: " << v.size() << " out: " << nv.size() << std::endl;
    return nv;
 } 
 
