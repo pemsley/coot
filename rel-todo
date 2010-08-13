@@ -8,10 +8,6 @@
 
     o change to rms z scores ::: 2
 
-    o document difference map peaks. ::: 0.5
-
-    o fix the ener_lib.cif problem.
-
 ------
 
     o Fix rename-residue to work on just one chain ::: 0.5
@@ -706,5 +702,16 @@ WARNING:: Can't find file
 
 * Done.
 
+    o document difference map peaks. ::: 0.5
+
+* Done.
+
+    o fix the ener_lib.cif problem. ::: 0.5
+ 
+* Can't see the problem
+
+    o max_distance of difference map search exported to user level. ::: 0.5
+
+* Done.
 
 -------

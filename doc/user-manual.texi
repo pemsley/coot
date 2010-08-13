@@ -755,6 +755,7 @@ describing the particular features and are documented in Chapter
 
 @menu 
 * Version number::
+* Antialiasing::
 * Screenshot::
 * Raster3D::
 * Display Manager::
@@ -780,20 +781,21 @@ describing the particular features and are documented in Chapter
 @node Version number
 @section Version number
 @cindex version number 
+
 The version number of Coot can be found at the top of the ``About''
 window (@command{Help -> About}).
-
 
 This will return the version of coot:
 
 @code{$ coot --version}
 
-
 There is also a script function to return the version of coot:
 
 @code{(coot-version)}
 
-@section Anti-aliasing
+
+@section Antialiasing
+
 The built-in antialiasing (for what it's worth) can be enabled using:
 
 @code{(set-do-anti-aliasing 1)}
@@ -804,13 +806,18 @@ This can also be activated using @command{Edit Preferences -> Others ->
 Antialiasing -> Yes}.
 
 If you have an nVidia graphics card, external antialiasing can be
-actived using nvidia-settings:
+actived setting the environment variable @t{__GL_FSAA_MODE}.  For me a
+setting of @t{5} works nicely and gives a better image than using
+Coot's built-in antialiasing.
+
+
+Also for nVidia graphics card users, there is the application
+nvidia-settings: 
 
 @command{Antialiasing Setting -> Override Application Settings} and
-slide the slider to the right.
+slide the slider to the right. On restarting Coot, it should be in
+antialias mode @footnote{that works for me, at least.}.
 
-On restarting Coot, it should be in antialias mode @footnote{that works
-for me, at least.}.
 
 @section Molecule Number
 @cindex molecule number 
@@ -4224,6 +4231,7 @@ interface to other programs.
 * Geometry Analysis::
 * Chiral Volumes::
 * sec_blobs::
+* Difference Map Peaks::
 * Check Waters by Difference Map::
 * Molprobity Tools Interface::
 * GLN and ASN B-factor Outliers::
@@ -4325,8 +4333,31 @@ So, for example, sulfates, ligands, mis-placed sidechains or unbuilt
 terminal residues might appear as blobs.  The blobs are in order, the
 biggest  @footnote{and therefore most interesting} at the top.
 
-@node Check Waters by Difference Map 
-@section Check Waters by Difference Map 
+@node     Difference Map Peaks
+@section  Difference Map Peaks
+
+This is one of the fastest ways to validate a model and its data
+(presuming that the difference map comes from a post-refinement
+mFo-DFc map).  It highlights regions where the model and the data do
+not agree.
+
+Lesser peaks within a certain distance (by default, 2.0@AA{}) of a
+large peak are not shown.  This cuts down on the number of times one
+is navigated to a particular region because of ripple or other noise
+peaks around a central peak. 
+
+This value can be queried:
+
+@code{(difference-map-peaks-max-closeness)}
+
+and adjusted:
+
+@code{(set-difference-map-peaks-max-closeness 0.1)}
+
+
+@node Check Waters by Difference Map
+@section Check Waters by Difference Map
+
 Sometimes waters can be misplaced - taking the place of sidechains or
 ligands or crystallization agents such as phosphate for
 example @footnote{or the water should be more properly modelled as
@@ -4334,16 +4365,16 @@ example @footnote{or the water should be more properly modelled as
 of the difference map can be used to identify these problems.
 
 This function is also useful to check anomalous maps.  Often waters
-are placed in density that is really a cation.  If such an atom
-diffracts anomalously this can be identified and corrected.
+are placed in density that is really a something else, perhaps a
+cation, anion, sulphate or a ligand.  If such an atom diffracts
+anomalously this can be identified and corrected.
 
 By default the waters with a map variance greater than 3.5@math{\sigma}
 are listed.  One can be more rigorous by using a lower cut-off:
 
 @code{(set-check-waters-by-difference-map-sigma-level 3.0)}
 
-@section Check Waters via Difference Map 
-Another check of waters that one can perform is the following:
+The scripting interface is: 
 
 @code{(check-waters-by-difference-map @emph{imol-coords}
   @emph{imol-diff-map})}
@@ -4355,17 +4386,9 @@ coordinates that contain the waters to be checked
 map (it must be a difference map, not an ``ordinary'' map).  This
 difference map must have been calculated using the waters. So there is
 no point in doing this check immediately after ``Find Waters''.  You
-will need to run Refmac first @footnote{and remember to check the
-  difference map button in the ``Run Refmac'' dialog}.
-
-This analysis will return a list of water atoms that have outstandingly
-high local variance of the difference map (by default a sphere of
-1.5@AA{} centred about the atom position).  This analysis might find
-waters that are actually something else, for example: part of a ligand,
-a sulfate, an anion or cation, only partially occupied or should be
-deleted entirely.  Coot doesn't decide what should be done about these
-atoms @footnote{as yet}, it merely brings them to your attention.  It
-may be interesting to use an anomalous map to do this analysis.
+will need to run Refmac or some other refinement first first
+@footnote{and remember to check the difference map button in the ``Run
+Refmac'' dialog}.
 
 @node    Molprobity Tools Interface
 @section Molprobity Tools Interface
@@ -4458,7 +4481,7 @@ use the scripting function:
 
 @code{(set-residue-density-fit-scale-factor @emph{factor})}
 
-where @code{@emph{factor}} would be @math{1/(4\sigma_map)} (as a rule
+where @code{@emph{factor}} would be @math{1/(4\sigma_{map})} (as a rule
 of thumb).
 
 @code{(residue-density-fit-scale-factor)} returns the current scale
@@ -4479,19 +4502,20 @@ problems use
 @code{(fix-nomenclature-errors @emph{imol})}
 
 @subsection Temperature Factor Variance 
+
 This idea is from Eleanor Dodson, who liked to use the standard
 deviation of a residue's temperature factors to highlight regions of
 questionable structure.
 
 Note that Hydrogens are ignored in this analysis.
 
-@subsection Peptide @math{\omega} Distortion
+@subsection Peptide Omega Angle Distortion
 
-Peptide distortions.  Some variability of the @math{\omega} is to be
-expected in the peptide bond.  But not too much. Anything more than 13
-degrees is suspicicous.  Unexpected peptide bonds show up red by
-default.  If cis peptides @emph{are} to be expected, and should not
-marked as bad, then you can tell this to Coot using:
+Some variability of the @math{\omega} is to be expected in the peptide
+bond.  But not too much. Anything more than 13 degrees is suspicicous.
+Unexpected peptide bonds show up red by default.  If cis peptides
+@emph{are} to be expected, and should not marked as bad, then you can
+tell this to Coot using:
 
 @command{Edit -> Preferences -> Geometry -> Cis-Peptides -> No}
 

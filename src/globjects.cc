@@ -660,6 +660,9 @@ short int graphics_info_t::do_torsion_restraints = 0;
 short int graphics_info_t::do_peptide_omega_torsion_restraints = 0;
 bool      graphics_info_t::do_rama_restraints = 0; // No.
 bool      graphics_info_t::do_numerical_gradients = 0; // No.
+// for Kevin Keating 
+bool      graphics_info_t::use_only_extra_torsion_restraints_for_torsions_flag = 0; 
+
 
 // 
 short int graphics_info_t::guile_gui_loaded_flag = FALSE;
@@ -1098,6 +1101,7 @@ std::vector<clipper::Coord_orth> *graphics_info_t::diff_map_peaks =
    new std::vector<clipper::Coord_orth>;
 int   graphics_info_t::max_diff_map_peaks = 0;
 float graphics_info_t::difference_map_peaks_sigma_level = 5.0;
+float graphics_info_t::difference_map_peaks_max_closeness = 2.0; // A
 
 // save state file name
 #ifdef USE_GUILE

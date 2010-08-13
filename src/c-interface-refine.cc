@@ -547,3 +547,10 @@ delete_all_extra_restraints(int imol) {
       graphics_info_t::molecules[imol].extra_restraints.clear();
    } 
 } 
+
+void
+set_use_only_extra_torsion_restraints_for_torsions(short int state) {
+
+   graphics_info_t:: use_only_extra_torsion_restraints_for_torsions_flag = state;
+
+} 

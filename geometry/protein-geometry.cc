@@ -2730,6 +2730,9 @@ coot::protein_geometry::init_standard() {
       refmac_monomer(mon_lib_dir, monomer_cif_file); // update read_number too :)
    }
 
+//    std::cout << "========= debug:: adding /data/monomers/ener_lib.cif to "
+// 	     << mon_lib_dir << " ============ " << std::endl;
+   
    std::string energy_cif_file_name = mon_lib_dir + "/data/monomers/ener_lib.cif";
 
    read_energy_lib(energy_cif_file_name);

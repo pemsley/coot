@@ -2384,6 +2384,7 @@ public:
    // to scroll through using . and ,
 
    static GtkWidget *difference_map_peaks_dialog;
+   static float difference_map_peaks_max_closeness; 
    
    // 
    void model_fit_refine_unactive_togglebutton(const std::string &button_name) const;
@@ -3643,6 +3644,18 @@ string   static std::string sessionid;
      return r;
    } 
 #endif //GTK_MAJOR_VERSION
+
+   // Kevin Keating (for example) wants to be able set torsion
+   // restraints but not have those "fight" the built-in torsion
+   // restraints. i.e. the torsion restraints should be the
+   // user_defined ones only.  This is off (0) by default, but the use
+   // can turn it on - and then the user-defined torsion restraints
+   // will take effect (and not the built-in ones).  Maybe we'd want
+   // to do this sort of things with bonds and angles too - but I
+   // don't see it yet.  (That may require a rework).
+   // 
+   static bool use_only_extra_torsion_restraints_for_torsions_flag;
+
 
    // We want --python to give us a python prompt with --no-graphics.
    // To do that, c_inner_main looks at the "python at the prompt"

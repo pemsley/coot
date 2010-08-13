@@ -3286,6 +3286,8 @@ PyObject *list_extra_restraints_py(int imol);
 #endif /* USE_PYTHON */
 #endif /*  __cplusplus */
 
+void set_use_only_extra_torsion_restraints_for_torsions(short int state);
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Restraints editor                                       */
@@ -3589,12 +3591,21 @@ void probe_mol_selector_activate (GtkMenuItem     *menuitem,
 
 /*! \brief generate a list of difference map peaks 
 
-peaks within 2.0 A of a larger peak are not listed.
+peaks within max_closeness (2.0 A typically) of a larger peak are not
+listed.
 */
-void difference_map_peaks(int imol, int imol_coords, float level, int do_positive_level_flag, int do_negative_level_flag); 
+void difference_map_peaks(int imol, int imol_coords, float level, float max_closeness, int do_positive_level_flag, int do_negative_level_flag); 
 
 void difference_map_peaks_by_widget(GtkWidget *dialog);
 void set_difference_map_peaks_widget(GtkWidget *w);
+
+/* \brief set the max closeness (i.e. no smaller peaks can be within
+   max_closeness of a larger peak)
+
+In the GUI for difference map peaks, there is not a means to set the
+max_closeness, so here is a means to set it and query it. */
+void set_difference_map_peaks_max_closeness(float m);
+float difference_map_peaks_max_closeness();
 
 void clear_diff_map_peaks();
 GtkWidget *wrapped_create_generate_diff_map_peaks_dialog();
