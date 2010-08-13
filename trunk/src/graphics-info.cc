@@ -20,6 +20,11 @@
  */
 
 
+
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>
@@ -83,7 +88,7 @@
 #include "guile-fixups.h"
 
 #ifdef USE_PYTHON
-#include "Python.h"
+// #include "Python.h" included above now.
 #include "cc-interface.hh"
 #endif
 

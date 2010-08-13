@@ -21,6 +21,10 @@
  */
 
 
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>

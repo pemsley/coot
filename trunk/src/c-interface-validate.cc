@@ -20,6 +20,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
  
+
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #if defined _MSC_VER
 #include <windows.h>
 #endif
@@ -61,9 +66,11 @@
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in
 // ssm_superpose.h) to be 0x00004000 (Grrr).
 //
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // USE_PYTHON
+// 20100813: Python.h needs to come before to stop"_POSIX_C_SOURCE" redefined problems 
+//
+// #ifdef USE_PYTHON
+// #include "Python.h"
+// #endif // USE_PYTHON
 
 #include "c-interface.h"
 #include "cc-interface.hh"
@@ -2003,8 +2010,9 @@ PyObject *set_torsion_py(int imol, const char *chain_id, int res_no, const char 
 						      *g.Geom_p());
       r = PyFloat_FromDouble(new_tors);
    }
-   if (PyBool_Check(r))
-     Py_XINCREF(r);
+   if (PyBool_Check(r)) { 
+      Py_XINCREF(r);
+   }
    return r;
 }
 #endif // USE_PYTHON

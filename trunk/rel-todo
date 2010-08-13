@@ -1,17 +1,16 @@
  0.6.2
 
-    o add_user_defined_torsion restraint needs filling.  How do atoms
-      get fixed when using linear residue selection?  Also, consider
+    o add_user_defined_torsion restraint needs filling. Consider
       how to turn on just user-defined torsion restraints (and not
       standard torsion restraints). ::: 1
 
 * Mostly written - needs more thinking.
 
-    o Install KK code. ::: 0.5
-
     o change to rms z scores ::: 2
 
     o document difference map peaks. ::: 0.5
+
+    o fix the ener_lib.cif problem.
 
 ------
 
@@ -702,5 +701,10 @@ WARNING:: Can't find file
     present -> crash ::: 0.5
 
 * Done.
+
+    o Install KK code. ::: 0.5
+
+* Done.
+
 
 -------

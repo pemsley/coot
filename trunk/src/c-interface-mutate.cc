@@ -21,6 +21,10 @@
  * 02110-1301, USA
  */
 
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #include <stdlib.h>
 #include <iostream>
 
@@ -48,10 +52,6 @@
 #include "cc-interface.hh"  // includes coot-coord-utils.hh
 #include "coot-utils.hh"
 #include "guile-fixups.h"
-
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // USE_PYTHON
 
 
 #ifdef USE_GUILE

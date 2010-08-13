@@ -20,6 +20,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
+
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
 #include <vector>
@@ -53,9 +58,6 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "coot-preferences.h"
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // PYTHON
 
 void preferences() {
 

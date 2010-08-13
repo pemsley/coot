@@ -18,6 +18,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
+#ifdef USE_PYTHON
+#include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #include <string>
 #include <iostream> // fixes undefined strchr, strchrr problems
 #include "mmdb_manager.h"
