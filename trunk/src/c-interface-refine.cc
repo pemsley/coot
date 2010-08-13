@@ -446,6 +446,10 @@ PyObject *list_extra_restraints_py(int imol) {
 	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_2;
 	    coot::atom_spec_t spec_3 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_3;
 	    coot::atom_spec_t spec_4 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_4;
+	    PyObject *spec_1_py = atom_spec_to_py(spec_1);
+	    PyObject *spec_2_py = atom_spec_to_py(spec_2);
+	    PyObject *spec_3_py = atom_spec_to_py(spec_3);
+	    PyObject *spec_4_py = atom_spec_to_py(spec_4);
 	    double t = g.molecules[imol].extra_restraints.torsion_restraints[it].torsion_angle;
 	    double e = g.molecules[imol].extra_restraints.torsion_restraints[it].esd;
 	    int    p = g.molecules[imol].extra_restraints.torsion_restraints[it].period;
@@ -453,8 +457,8 @@ PyObject *list_extra_restraints_py(int imol) {
 	    PyList_SetItem(l, 0, PyString_FromString("torsion"));
 	    PyList_SetItem(l, 1, spec_1_py);
 	    PyList_SetItem(l, 2, spec_2_py);
-	    PyList_SetItem(l, 3, spec_1_py);
-	    PyList_SetItem(l, 4, spec_2_py);
+	    PyList_SetItem(l, 3, spec_3_py);
+	    PyList_SetItem(l, 4, spec_4_py);
 	    PyList_SetItem(l, 5, PyFloat_FromDouble(t));
 	    PyList_SetItem(l, 6, PyFloat_FromDouble(e));
 	    PyList_SetItem(l, 7, PyInt_FromLong(p));
