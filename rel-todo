@@ -8,6 +8,12 @@
 
     o change to rms z scores ::: 2
 
+    o fail to find a ligand?  The ligands dialog pops up.
+
+    o in edit chi mode, if I mouse over another chi box then that bond
+      gets highlighted.  It shouldn't update hilighted bond when I am
+      in edit chi mode.
+
 ------
 
     o Fix rename-residue to work on just one chain ::: 0.5
@@ -711,6 +717,10 @@ WARNING:: Can't find file
 * Can't see the problem
 
     o max_distance of difference map search exported to user level. ::: 0.5
+
+* Done.
+
+    o show a thick generic object line -> x,y,z orientation vectors get thick. ::: 0.2
 
 * Done.
 
