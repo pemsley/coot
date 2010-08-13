@@ -21,6 +21,10 @@
  * 02110-1301, USA
  */
 
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #include <stdlib.h>
 
 #if !defined WINDOWS_MINGW && !defined _MSC_VER

@@ -24,6 +24,13 @@
 // $LastChangedDate: 2007-01-26 20:20:18 +0000 (Fri, 26 Jan 2007) $
 // $Rev: 1458 $
  
+// Load the head if it hasn't been included.
+#ifdef USE_PYTHON
+#ifndef PYTHONH
+#define PYTHONH
+#include <Python.h>
+#endif
+#endif
 
 #include <stdlib.h>
 #include <iostream>

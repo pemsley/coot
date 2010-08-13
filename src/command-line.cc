@@ -19,6 +19,10 @@
  */
 
 
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #ifdef _MSC_VER
 #include <windows.h>
 #else

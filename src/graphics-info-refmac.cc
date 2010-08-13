@@ -25,7 +25,12 @@
 // graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
 // 						   GtkSignalFunc signal_func,
 //						   int imol_active_position).
-// 
+//
+
+
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
 
 
 #ifndef HAVE_STRING

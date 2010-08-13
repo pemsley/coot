@@ -6,6 +6,10 @@ post=$2
     
 echo adding gtk2 and guile ifdefs from $pre_tmp $post
 echo "#ifdef USE_GUILE"  > $post
+echo "#ifdef USE_PYTHON"     >> $post
+echo "#include \"Python.h\"" >> $post
+echo "#endif"                >> $post
+
 if [ "$gtk2" = gtk2 ] ; then
    echo "#ifdef COOT_USE_GTK2_INTERFACE"  >> $post
 else 
@@ -68,7 +72,7 @@ else
                -e 's/SCM_STRING_LENGTH/scm_c_string_length/'  \
                -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' \
                -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' \
-               $pre ..to.. $post
+               $pre ..to.. $pre.tmp
            sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/'      \
                -e 's/SCM_STRINGP/scm_is_string/'                  \
                -e 's/SCM_STRING_LENGTH/scm_c_string_length/'      \

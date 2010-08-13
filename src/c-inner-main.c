@@ -19,6 +19,10 @@
  * 02110-1301, USA
  */
 
+#ifdef USE_PYTHON
+#include "Python.h"  // before guile includes to stop "POSIX_C_SOURCE" redefined problems
+#endif 
+
 #ifdef USE_GUILE
 #include <guile/gh.h>
 #endif

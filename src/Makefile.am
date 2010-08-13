@@ -435,11 +435,12 @@ coot_real_LDADD = $(COOT_EXTRA_LIBS)    \
 
 test_cholesky_SOURCES = test-chol.cc gl-matrix.cc
 test_cholesky_LDADD =	\
-	$(top_builddir)/coords/libcoot-coords.la \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/coords/libcoot-coords.la          \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-shelx.la \
-	$(top_builddir)/utils/libcoot-utils.la      \
+	$(top_builddir)/coot-utils/libcoot-shelx.la       \
+	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/utils/libcoot-utils.la            \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # testmap_SOURCES = testmap.cc xmap-interface.cc

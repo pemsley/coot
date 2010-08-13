@@ -1,4 +1,8 @@
 
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #include <fstream>
 #include <stdexcept>
 #include <sstream>

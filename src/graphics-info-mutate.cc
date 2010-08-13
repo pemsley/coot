@@ -19,6 +19,10 @@
  * Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 // For stat, mkdir:
 #include <sys/types.h>
 #include <sys/stat.h>

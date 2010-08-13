@@ -22,6 +22,10 @@
 /*               Flattened Ligand Environment View  Interface               */
 /*  ----------------------------------------------------------------------- */
 
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #include "c-interface-ligands.hh"
 #include "mmdb-extras.h"
 #include "mmdb.h"

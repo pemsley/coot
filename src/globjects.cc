@@ -26,6 +26,11 @@
 // draw, reshape, init, mouse_move and mouse_button press
 // (and animate(for idle)).
 
+
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #ifndef NULL
 #define NULL 0
 #endif

@@ -19,6 +19,9 @@
  * 02110-1301, USA
  */
 
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
  
 #include "coot-coord-utils.hh" // compilation error on MacOSX if this
 			       // doesn't come before the next 3 lines

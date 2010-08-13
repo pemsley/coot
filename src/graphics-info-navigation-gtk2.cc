@@ -18,9 +18,12 @@
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif // USE_PYTHON
 
 #include <gtk/gtk.h>
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 
 # else 
 

@@ -22,6 +22,12 @@
  * 02110-1301, USA
  */
 
+#ifdef USE_PYTHON
+#ifndef PYTHONH
+#include <Python.h>
+#endif
+#endif
+
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
 #include <vector>

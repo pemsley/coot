@@ -18,6 +18,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
+
+#if defined (USE_PYTHON)
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #include <stdlib.h>
 #include <iostream>
 #include <stdexcept>
@@ -47,9 +52,6 @@
 #include "coot-coord-utils.hh"
 #include "peak-search.hh"
 
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif
 #include "wligand.hh"
 
 #include "guile-fixups.h"
