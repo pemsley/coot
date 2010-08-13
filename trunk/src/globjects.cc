@@ -3940,6 +3940,7 @@ draw_axes(GL_matrix &m) {
 
 
       glScalef(0.4, 0.4, 0.4);
+      glLineWidth(1.0);
       
 //       std::cout << endl;
 //       std::cout << "( " << mat_p[0] << " " << mat_p[1]
