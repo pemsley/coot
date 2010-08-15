@@ -402,8 +402,8 @@ SCM list_extra_restraints_scm(int imol) {
 	 for (int it=g.molecules[imol].extra_restraints.torsion_restraints.size()-1; it>=0; it--) {
 	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_1;
 	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_2;
-	    coot::atom_spec_t spec_4 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_3;
-	    coot::atom_spec_t spec_3 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_4;
+	    coot::atom_spec_t spec_3 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_3;
+	    coot::atom_spec_t spec_4 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_4;
 	    double t = g.molecules[imol].extra_restraints.torsion_restraints[it].torsion_angle;
 	    double e = g.molecules[imol].extra_restraints.torsion_restraints[it].esd;
 	    int    p = g.molecules[imol].extra_restraints.torsion_restraints[it].period;
@@ -472,9 +472,9 @@ PyObject *list_extra_restraints_py(int imol) {
 	    PyList_Append(r, l);
 	 }
       }
-      if (PyBool_Check(r)) {
+   }
+   if (PyBool_Check(r)) {
 	 Py_INCREF(r);
-      }
    }
    return r;
 } 

@@ -11750,6 +11750,7 @@ void
 on_map_opacity_hscale_value_changed    (GtkRange        *range,
                                         gpointer         user_data) { 
 
+#if (GTK_MAJOR_VERSION > 1)
   GtkAdjustment *adjustment;
   float fvalue;
   GtkWidget *window = lookup_widget(GTK_WIDGET(range),
@@ -11760,6 +11761,7 @@ on_map_opacity_hscale_value_changed    (GtkRange        *range,
   fvalue = 0.01 * gtk_adjustment_get_value(adjustment);
 /*   printf("opacity for %d: %f\n", imol, fvalue); */
   set_solid_density_surface_opacity(imol, fvalue);
+#endif
 
 }
 
