@@ -2730,7 +2730,7 @@ else
 fi
 
 # Do we need to have to set GUILE_LOAD_PATH? Maybe!!!
-GUILE_LOAD_PATH=$install_top_dir/share/guile/1.8:$install_top_dir/share/guile
+GUILE_LOAD_PATH=$install_top_dir/share/guile/1.8:$install_top_dir/share/guile:$install_top_dir/share/guile/site
 export GUILE_LOAD_PATH
 echo GUILE_LOAD_PATH is now: $GUILE_LOAD_PATH
 

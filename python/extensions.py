@@ -1018,12 +1018,18 @@ if (have_coot_python):
        aa_alt_conf  = active_atom[5]
        central_residue = active_residue()
        residues = residues_near_residue(aa_imol, central_residue[1:4], 6.0)
+       # no waters in surface, thanks.
+       # but what if they have different names?! (only HOH so far)
+       filtered_residues = []
+       for res in residues:
+         if (residue_name(aa_imol, *res) != "HOH"):
+           filtered_residues.append(res)
        imol_copy = copy_molecule(aa_imol)
        # delete the interesting residue from the copy (so that
        # it is not surfaced).
        delete_residue(imol_copy, aa_chain_id, aa_res_no, aa_ins_code)
        if clipped:
-         do_clipped_surface(imol_copy, residues)
+         do_clipped_surface(imol_copy, filtered_residues)
        else:
          do_surface(imol_copy, 1)
        
