@@ -793,7 +793,7 @@ There is also a script function to return the version of coot:
 
 @code{(coot-version)}
 
-
+@node Antialiasing
 @section Antialiasing
 
 The built-in antialiasing (for what it's worth) can be enabled using:
