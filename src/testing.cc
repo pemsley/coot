@@ -2307,7 +2307,8 @@ int test_map_segmentation() {
       clipper::Xmap<float> xmap;
       file.import_xmap(xmap);
       float low_level = 0.0524; // 0.075; // 0.02; // 0.005;
-      std::pair<int, clipper::Xmap<int> > segmented_map = coot::util::segment(xmap, low_level);
+      coot::util::segment_map s;
+      std::pair<int, clipper::Xmap<int> > segmented_map = s.segment(xmap, low_level);
 
       clipper::CCP4MAPfile mapout;
       mapout.open_write(std::string("segmented.map"));

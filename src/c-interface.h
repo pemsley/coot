@@ -5980,6 +5980,8 @@ int scale_cell(int imol_map, float fac_u, float fac_v, float fac_w);
    (absolute) low_level.  New maps are on the same grid as the input
    map.  */
 void segment_map(int imol_map, float low_level);
+
+void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, int n_rounds);
 /* \} */
 
 

@@ -2598,7 +2598,7 @@ coot::protein_geometry::init_standard() {
    std::string hardwired_default_place;
    hardwired_default_place = util::append_dir_dir(dir, "coot");
    hardwired_default_place = util::append_dir_dir(hardwired_default_place, "lib");
-   short int using_clibd_mon = 0; 
+   bool using_clibd_mon = 0; 
 
    std::string mon_lib_dir; 
    short int env_dir_fails = 0;
@@ -2695,7 +2695,7 @@ coot::protein_geometry::init_standard() {
       if (using_clibd_mon) {
 	 filename = mon_lib_dir;
 	 filename += "list/mon_lib_list.cif";
-      } 
+      }
       // now check that that file is there:
       struct stat buf;
       int istat = stat(filename.c_str(), &buf);
@@ -2711,13 +2711,21 @@ coot::protein_geometry::init_standard() {
 		<< std::endl; 
    }
 
+   // setting up CCP4 sets mon_lib_cif to
+   // $CCP4_MASTER/lib/data/monomers (by using $CLIBD_MON).
+   // 
    std::string mon_lib_cif = mon_lib_dir + "/data/monomers/list/mon_lib_list.cif";
-   if (using_clibd_mon)
+   std::string energy_cif_file_name = mon_lib_dir + "/data/monomers/ener_lib.cif";
+   if (using_clibd_mon) { 
       mon_lib_cif = mon_lib_dir + "/list/mon_lib_list.cif";
+      energy_cif_file_name = mon_lib_dir + "/ener_lib.cif";
+   }
    if (cmld) { 
       mon_lib_cif = cmld;
       mon_lib_cif += "/list/mon_lib_list.cif";
+      energy_cif_file_name = std::string(cmld) + "/ener_lib.cif";
    }
+   
    init_refmac_mon_lib(mon_lib_cif, coot::protein_geometry::MON_LIB_LIST_CIF);
    // now the protein monomers:
    read_number = 1;
@@ -2730,10 +2738,6 @@ coot::protein_geometry::init_standard() {
       refmac_monomer(mon_lib_dir, monomer_cif_file); // update read_number too :)
    }
 
-//    std::cout << "========= debug:: adding /data/monomers/ener_lib.cif to "
-// 	     << mon_lib_dir << " ============ " << std::endl;
-   
-   std::string energy_cif_file_name = mon_lib_dir + "/data/monomers/ener_lib.cif";
 
    read_energy_lib(energy_cif_file_name);
 

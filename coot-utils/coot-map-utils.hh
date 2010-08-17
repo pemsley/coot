@@ -111,7 +111,10 @@ namespace coot {
 				const float &reso_high);
 
 
-      // return the max gridding of the map, e.g. 0.5 for a 1A map
+      // return the max gridding of the map, e.g. 0.5 for a 1A map.
+      //
+      // return the maximum Angstrom/grid of the given map.
+      // 
       float max_gridding(const clipper::Xmap<float> &xmap); 
 
 
@@ -236,14 +239,44 @@ namespace coot {
 	 
       };
 
-      // return segmented map.  -1 means no segment. low_level is the
-      // level below which segmentation should not occur (don't make
-      // blobs in the noise).
-      // 
-      std::pair<int, clipper::Xmap<int> > segment(const clipper::Xmap<float> &xmap_in, float low_level);
-      // sorting function used by above
-      bool compare_density_values_map_refs(const std::pair<clipper::Xmap_base::Map_reference_index, float> &v1,
-					   const std::pair<clipper::Xmap_base::Map_reference_index, float> &v2);
+      class segment_map { 
+	 // sorting function used by above
+	 static bool compare_density_values_map_refs(const std::pair<clipper::Xmap_base::Map_reference_index, float> &v1,
+						     const std::pair<clipper::Xmap_base::Map_reference_index, float> &v2);
+
+	 // change values in segmented_map
+	 // 
+	 void flood_fill_segmented_map(clipper::Xmap<std::pair<bool, int> > *segmented_map,
+				       const clipper::Xmap<float> &xmap,  // for Neighbours
+				       const clipper::Coord_grid &seed_point,
+				       int from_val, int to_val);
+
+	 // return a vector of grid points as we trace the route to the
+	 // local peak from start_point by steepest ascent.
+	 // 
+	 std::vector<clipper::Coord_grid> path_to_peak(const clipper::Coord_grid &start_point,
+						       const clipper::Xmap<float> &xmap_new);
+	 static bool sort_segment_vec(const std::pair<int, int> &a,
+				      const std::pair<int, int> &b);
+      public:
+	 segment_map() {};
+	 // Return the number of segments and the segmented map.
+	 // 
+	 // -1 means no segment. low_level is the level below which
+	 // segmentation should not occur (don't make blobs in the
+	 // noise).
+	 // 
+	 std::pair<int, clipper::Xmap<int> > segment(const clipper::Xmap<float> &xmap_in, float low_level);
+
+	 // multi-scale segmentation.  Return a segmented map.
+	 // 
+	 std::pair<int, clipper::Xmap<int> > segment(const clipper::Xmap<float> &xmap_in,
+						     float low_level,
+						     float b_factor_increment, // per round
+						     int n_rounds);
+      };
+
+      
    }
 }
 
