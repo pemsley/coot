@@ -13,7 +13,7 @@
 
 CXX::CXXAlloc<CXXReentrantProbeBall> CXXReentrantProbeBall::allocator = CXX::CXXAlloc<CXXReentrantProbeBall>();
 
-int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &ballPntrs,
+int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > openmp_pragma_reference_arg ballPntrs,
                               vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBallPntrs,
 							  double delta, CXXSurface *aSurface, int insideOrOutside)
 {
@@ -97,9 +97,9 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall
 	return 0;
 }
 
-int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &balls, 
+int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > openmp_pragma_reference_arg balls, 
                           std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBalls, 
-						  std::map<const CXXBall*, std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > > &contactMap) 
+			  std::map<const CXXBall*, std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > > openmp_pragma_reference_arg contactMap) 
 {
 	int maxNBins = 20;
 	if (balls.size() == 0) return 1;
