@@ -13,7 +13,7 @@
 #ifdef __GNUC__
 #ifdef __GNUC_MINOR__
 #if (__GNUC__ == 4)
-#if    (__GNUC_MINOR__ == 1)
+#if    ( (__GNUC_MINOR__ == 1) ||  (__GNUC_MINOR__ == 2))
 #define const_for_openmp_pragma_arg
 #define openmp_pragma_reference_arg
 #endif 
