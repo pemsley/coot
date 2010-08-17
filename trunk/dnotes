@@ -5760,7 +5760,12 @@ Mon Aug  9 08:12:35 BST 2010
   make_graphical_bonds is called with "no_thinning" (CA mode).  Tricky.
 
 
-    
+-----
+Sun Aug 15 12:59:12 BST 2010
+
+    o in edit chi mode, if I mouse over another chi box then that bond
+      gets highlighted.  It shouldn't update hilighted bond when I am
+      in edit chi mode.  Or something. See JED mail from a few days ago.
 
 
 ------

@@ -8,11 +8,8 @@
 
     o change to rms z scores ::: 2
 
-    o fail to find a ligand?  The ligands dialog pops up.
+    o symm card in LINK records cause problems: Alejandro B. ::: 0.5
 
-    o in edit chi mode, if I mouse over another chi box then that bond
-      gets highlighted.  It shouldn't update hilighted bond when I am
-      in edit chi mode.
 
 ------
 
@@ -712,10 +709,6 @@ WARNING:: Can't find file
 
 * Done.
 
-    o fix the ener_lib.cif problem. ::: 0.5
- 
-* Can't see the problem
-
     o max_distance of difference map search exported to user level. ::: 0.5
 
 * Done.
@@ -723,5 +716,23 @@ WARNING:: Can't find file
     o show a thick generic object line -> x,y,z orientation vectors get thick. ::: 0.2
 
 * Done.
+
+
+    o fail to find a ligand?  The ligands dialog pops up.
+
+* Done.
+
+    o fix the ener_lib.cif problem. compare without without ccp4 setup ::: 0.5
+ 
+* Done.
+
+
+    o write_connectivity(): Bernie says:
+
+>> >> .. appears to not work if the monomer wasnt refined or cif dictionary
+>> >> explicitly having been read in. E.g. open pdb of ligand (e.g. 3GP), do
+>> >> not do anything, write_connectivity, fails. Once being refined it's ok.
+
+* shelve the dynamic add.
 
 -------

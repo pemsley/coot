@@ -59,6 +59,7 @@ graphics_info_t::clear_pending_picks() {
    in_torsion_general_define   = 0;
    pick_pending_flag           = 0;
    in_user_defined_define      = 0;
+   in_edit_chi_angles_define   = 0; // Added 20100815: is there a reason why this was missing?
 
    std::vector<std::string> button_name_vec =
       model_fit_refine_toggle_button_name_list();

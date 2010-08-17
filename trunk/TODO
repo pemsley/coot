@@ -866,7 +866,14 @@ Punted from 0.6:
 
 * Pending reply from Garib. 
 
+    o clipper::Skeleton_basic::Neighbours neighb(xmap, 0.25, 1.75); // 3x3x3 cube, not centre
 
+      this is not true: needs checking where such neighbours are set
+      we pass square limits, i.e. 0.5 and 3.1 for 3x3x3 cube, not centre
+
+    o consider adding dynamic add lib for write_connectivity, for the
+      case where a ligand exists, but no (refmac) dictionary has yet
+      been added (note that we only need the bonds for write_connectivity).
 
  ------
     

@@ -4400,6 +4400,9 @@ int write_connectivity(const char *monomer_name, const char *filename) {
 
 void screendump_image(const char *filename) {
 
+   graphics_draw();  // does this improve the artifacts problem?
+   graphics_draw();
+   
    int istatus = graphics_info_t::screendump_image(filename);
    std::cout << "screendump_image status " << istatus << std::endl;
    if (istatus) {
@@ -4472,6 +4475,7 @@ void check_for_dark_blue_density() {
 		  std::string s = "I suggest that you increase the brightness of the map\n";
 		  s += " if this is for a presentation (blue projects badly).";
 		  info_dialog(s.c_str());
+		  break; // only make the dialog once
 	       }
 	    }
 	 }
@@ -6168,11 +6172,15 @@ int export_map(int imol, const char *filename) {
    map.  */
 void segment_map(int imol_map, float low_level) {
 
+   int max_segments = 300;
+   
    if (is_valid_map_molecule(imol_map)) {
       clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap_list[0];
-      std::pair<int, clipper::Xmap<int> > segmented_map = coot::util::segment(xmap_in, low_level);
+      coot::util::segment_map s;
+      std::pair<int, clipper::Xmap<int> > segmented_map = s.segment(xmap_in, low_level);
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
-      for (int iseg=0; (iseg<segmented_map.first) && iseg<50; iseg++) {
+
+      for (int iseg=0; (iseg<segmented_map.first) && iseg<max_segments; iseg++) {
 	 clipper::Xmap<float> xmap;
 	 xmap.init(segmented_map.second.spacegroup(),
 		   segmented_map.second.cell(),
@@ -6192,7 +6200,43 @@ void segment_map(int imol_map, float low_level) {
       }
    }
    graphics_draw();
+}
+
+void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, int n_rounds) {
+
+   int max_segments = 300;
+   if (is_valid_map_molecule(imol_map)) {
+      clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap_list[0];
+      coot::util::segment_map s;
+      std::pair<int, clipper::Xmap<int> > segmented_map = s.segment(xmap_in, low_level, b_factor_inc, n_rounds);
+      float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
+      for (int iseg=0; (iseg<segmented_map.first) && iseg<max_segments; iseg++) {
+	 clipper::Xmap<float> xmap;
+	 xmap.init(segmented_map.second.spacegroup(),
+		   segmented_map.second.cell(),
+		   segmented_map.second.grid_sampling());
+	 clipper::Xmap_base::Map_reference_index ix;
+	 int n_points_in_map = 0;
+	 for (ix = segmented_map.second.first(); !ix.last(); ix.next()) {
+	    if (segmented_map.second[ix] == iseg) { 
+	       xmap[ix] = xmap_in[ix];
+	       n_points_in_map++;
+	    }
+	 }
+	 if (n_points_in_map) { 
+	    int imol_new = graphics_info_t::create_molecule();
+	    std::string name = "Map ";
+	    name += coot::util::int_to_string(imol_map);
+	    name += " Segment ";
+	    name += coot::util::int_to_string(iseg);
+	    graphics_info_t::molecules[imol_new].new_map(xmap, name);
+	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+	 }
+      }
+   }
+   graphics_draw();
 } 
+
 
 
 // the cell is given in Angstroms and the angles in degrees.
