@@ -10,6 +10,22 @@
 #ifndef CXXBall_included
 #define CXXBall_included
 
+#ifdef __GNUC__
+#ifdef __GNUC_MINOR__
+#if (__GNUC__ == 4)
+#if    (__GNUC_MINOR__ == 1)
+#define const_for_openmp_pragma_arg
+#define openmp_pragma_reference_arg
+#endif 
+#endif 
+#endif 
+#endif
+
+#ifndef const_for_openmp_pragma_arg
+#define const_for_openmp_pragma_arg const
+#define openmp_pragma_reference_arg &
+#endif
+
 #include <string.h>
 #ifndef  __MMDB_Manager__
 #include "mmdb_manager.h"
@@ -39,12 +55,12 @@ public:
 	virtual const double &getRadius() const = 0;
 	virtual void initSphereElement(CXXSphereElement &, const double &delta) const = 0;	
 	
-	static int triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &ballPntrs,
+	static int triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> >  openmp_pragma_reference_arg ballPntrs,
                                 vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBallPntrs,
 								double delta, CXXSurface *aSurface, int insideOrOutside);
-	static int ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &ballPntrs, 
+	static int ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > openmp_pragma_reference_arg ballPntrs, 
                             std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBallPntrs, 
-							std::map<const CXXBall*, std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > > &contactMap);
+							std::map<const CXXBall*, std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > > openmp_pragma_reference_arg contactMap);
 	virtual PCAtom getAtomI() const = 0;
 };
 
