@@ -496,7 +496,7 @@
   ;; 
   (define (get-running-status-contents)
     (let* ((running-status-file (append-dir-file devel-dir "source-build-running"))
-	   (s (get-url running-status-file)))
+	   (s (www:get running-status-file)))
       (if (string-match "Not Found" s)
 	 #f
 	 s)))
@@ -577,10 +577,11 @@
 		 (let ((binary-url (string-append 
 				    (list-ref build-info 2) ;; "/" is included in pre-release dir, right?
 				    tar-file))
-		       (build-status (get-url build-status-link))
-		       ( test-status (get-url  test-status-link)))
+		       (build-status (www:get build-status-link))
+		       ( test-status (www:get  test-status-link)))
 
-		   (format #t "test-status for ~s is ~s~%" test-status-link test-status)
+		   (format #t "============== test-status  for ~s is ~s~%" test-status-link test-status)
+		   (format #t "============== build-status for ~s is ~s~%" build-status-link build-status)
 
 		   ;; build-status is e.g. "passed build" or #f
 		   ;;  test-status is e.g. "passed test" or #f
