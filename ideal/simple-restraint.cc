@@ -87,7 +87,7 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
    // -------- Find the max and min res no -----------------------------
    int selHnd = mol->NewSelection();
    mol->Select(selHnd, STYPE_RESIDUE, 1,
-	       (char *) chain_id.c_str(),
+	       chain_id.c_str(),
 	       ANY_RES, "*",
 	       ANY_RES, "*",
 	       "*",  // residue name
@@ -117,7 +117,7 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
    int SelHnd = mol->NewSelection();
    atom = NULL;
    mol->SelectAtoms(SelHnd, 0,
-		    (char *) chain_id.c_str(),
+		    chain_id.c_str(),
 		    ANY_RES, // starting resno, an int
 		    "*", // any insertion code
 		    ANY_RES, // ending resno
@@ -786,7 +786,7 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
    for (int i=istart_res; i<iend_res; i++) {
       int selHnd1 = mol->NewSelection();
       mol->Select(selHnd1, STYPE_RESIDUE, 1,
-		  (char *) chain_id.c_str(),
+		  chain_id.c_str(),
 		  i, "*",
 		  i, "*",
 		  "*",  // residue name
@@ -799,7 +799,7 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
 
       int selHnd2 = mol->NewSelection();
       mol->Select(selHnd2, STYPE_RESIDUE, 1,
-		  (char *) chain_id.c_str(),
+		  chain_id.c_str(),
 		  i+1, "*",
 		  i+1, "*",
 		  "*",  // residue name
@@ -3715,7 +3715,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
    int index1 = -1; 
    int index2 = -1; 
    mol->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
-		(char *) chain_id_save.c_str(), // Chain(s)
+		chain_id_save.c_str(), // Chain(s)
 		istart_res, "*", // starting res
 		iend_res,   "*", // ending   res
 		"*",  // residue name
@@ -3807,7 +3807,7 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
    int index2 = -1; 
    int index3 = -1; 
    mol->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
-		(char *) chain_id_save.c_str(), // Chain(s)
+		chain_id_save.c_str(), // Chain(s)
 		istart_res, "*", // starting res
 		iend_res,   "*", // ending   res
 		"*",  // residue name
@@ -3938,7 +3938,7 @@ coot::restraints_container_t::make_monomer_restraints(const coot::protein_geomet
 
 int
 coot::restraints_container_t::make_monomer_restraints_by_linear(const coot::protein_geometry &geom,
-								short int do_residue_internal_torsions) {
+								bool do_residue_internal_torsions) {
    
    int iret = 0;
    
@@ -3947,7 +3947,7 @@ coot::restraints_container_t::make_monomer_restraints_by_linear(const coot::prot
    coot::restraints_container_t::restraint_counts_t sum;
 
    mol->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
-		(char *) chain_id_save.c_str(), // Chain(s)
+		chain_id_save.c_str(), // Chain(s)
 		istart_res, "*", // starting res
 		iend_res,   "*", // ending   res
 		"*",  // residue name
@@ -3990,7 +3990,7 @@ coot::restraints_container_t::make_monomer_restraints_by_linear(const coot::prot
 
 int
 coot::restraints_container_t::make_monomer_restraints_from_res_vec(const coot::protein_geometry &geom,
-								   short int do_residue_internal_torsions) {
+								   bool do_residue_internal_torsions) {
    
    int iret = 0;
 
@@ -4013,7 +4013,7 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(const coot::p
 coot::restraints_container_t::restraint_counts_t
 coot::restraints_container_t::make_monomer_restraints_by_residue(CResidue *residue_p,
 								 const protein_geometry &geom,
-								 short int do_residue_internal_torsions) {
+								 bool do_residue_internal_torsions) {
 
    coot::restraints_container_t::restraint_counts_t local;
    int i_no_res_atoms;
@@ -5095,7 +5095,7 @@ int coot::restraints_container_t::make_flanking_atoms_rama_restraints(const prot
 	 PPCResidue SelResidue = NULL;
 	 int nSelResidues;
 	 mol->Select (selHnd,STYPE_RESIDUE, 1, // .. TYPE, iModel
-		      (char *) chain_id_save.c_str(), // Chain(s)
+		      chain_id_save.c_str(), // Chain(s)
 		      vrrfr[iround].resno_first,   "*",  // starting res
 		      vrrfr[iround].resno_third,   "*",  // ending res
 		      "*",  // residue name
@@ -6814,11 +6814,11 @@ coot::restraints_container_t::get_asc_index_old(const std::string &at_name,
    
    mol->SelectAtoms(SelHnd,
 			0,
-			(char *)chain_id,
+			chain_id,
 			resno, "*",
 			resno, "*",
 			"*", // rnames
-			(char *) at_name.c_str(), // anames
+			at_name.c_str(), // anames
 			"*", // elements
 			"*" // altLocs 
 			);
@@ -6947,7 +6947,7 @@ coot::restraints_container_t::write_new_atoms(std::string pdb_file_name) {
    int status = -1;
    if (mol != NULL) {
       // return 0 on success, non-zero on failure.
-      status = mol->WritePDBASCII((char *)pdb_file_name.c_str());
+      status = mol->WritePDBASCII(pdb_file_name.c_str());
       if (status == 0)
 	 std::cout << "INFO:: output file: " << pdb_file_name
 		   << " written." << std::endl;

@@ -1306,14 +1306,21 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES;
 
    if (do_torsion_restraints)
-      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
-      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+      if (use_only_extra_torsion_restraints_for_torsions_flag) { 
+	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+      } else {
+	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+      } 
 
    if (do_rama_restraints)
       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
    
    if (do_torsion_restraints && do_rama_restraints)
-      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+      if (use_only_extra_torsion_restraints_for_torsions_flag) { 
+	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+      } else {
+	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+      } 
 	    
 
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.

@@ -1,15 +1,7 @@
  0.6.2
 
-    o add_user_defined_torsion restraint needs filling. Consider
-      how to turn on just user-defined torsion restraints (and not
-      standard torsion restraints). ::: 1
-
-* Mostly written - needs more thinking.
 
     o change to rms z scores ::: 2
-
-    o symm card in LINK records cause problems: Alejandro B. ::: 0.5
-
 
 ------
 
@@ -734,5 +726,16 @@ WARNING:: Can't find file
 >> >> not do anything, write_connectivity, fails. Once being refined it's ok.
 
 * shelve the dynamic add.
+
+
+    o symm card in LINK records cause problems: Alejandro B. ::: 0.5
+ 
+* Done.
+
+    o add_user_defined_torsion restraint needs filling. Consider
+      how to turn on just user-defined torsion restraints (and not
+      standard torsion restraints). ::: 1
+
+* Done.
 
 -------
