@@ -100,6 +100,9 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
    } 
 
    if (original_fphis_filled) { 
+
+      clipper::HKL_info::HKL_reference_index hri;
+      
       if (debugging) 
 	 std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
 		   << " original data " << std::endl;
@@ -115,30 +118,33 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       }
       
 
-      clipper::HKL_info::HKL_reference_index hri;
-      for (hri = original_fphis.first(); !hri.last(); hri.next()) {
+      if (debugging) { 
+	 for (hri = original_fphis.first(); !hri.last(); hri.next()) {
 
-	 if (debugging) 
-	    std::cout << "original_fphis: " << original_fphis[hri].f() << " "
-		      << hri.invresolsq() << std::endl;
-	 n_count++;
-	 if (n_count == 50)
-	    break;
+	    if (debugging) 
+	       std::cout << "original_fphis: " << original_fphis[hri].f() << " "
+			 << hri.invresolsq() << std::endl;
+	    n_count++;
+	    if (n_count == 50)
+	       break;
+	 }
       }
 
       clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(original_fphis.spacegroup(),
 								  original_fphis.cell(),
 								  original_fphis.hkl_sampling());
       fphis = original_fphis;
-   
-      n_count = 0;
-      for (hri = fphis.first(); !hri.last(); hri.next()) {
-	 if (debugging) 
-	    std::cout << "new fphis: " << fphis[hri].f() << " "
-		      << hri.invresolsq() << std::endl;
-	 n_count++;
-	 if (n_count == 50)
-	    break;
+
+      if (debugging) { 
+	 n_count = 0;
+	 for (hri = fphis.first(); !hri.last(); hri.next()) {
+	    if (debugging) 
+	       std::cout << "new fphis: " << fphis[hri].f() << " "
+			 << hri.invresolsq() << std::endl;
+	    n_count++;
+	    if (n_count == 50)
+	       break;
+	 }
       }
 
       if (debugging)
