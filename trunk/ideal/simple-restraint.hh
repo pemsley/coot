@@ -1042,13 +1042,13 @@ namespace coot {
 					 short int do_residue_internal_torsions);
       //uses:
       int make_monomer_restraints_by_linear (const protein_geometry &geom,
-					     short int do_residue_internal_torsions);
+					     bool do_residue_internal_torsions);
       int make_monomer_restraints_from_res_vec (const protein_geometry &geom,
-						short int do_residue_internal_torsions);
+						bool do_residue_internal_torsions);
       // which use:
       restraint_counts_t make_monomer_restraints_by_residue(CResidue *residue_p,
 							    const protein_geometry &geom,
-							    short int do_residue_internal_torsions);
+							    bool do_residue_internal_torsions);
       int make_flanking_atoms_restraints(const protein_geometry &geom,
 					 bool do_rama_plot_retraints); // no torsions
       // uses the following
