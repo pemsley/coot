@@ -4,6 +4,10 @@ sys=`uname`
 OS=`uname`
 hostname=`hostname`
 
+
+# Bernie wants libtoolize
+libtoolize
+
 if test $sys = Darwin ; then 
    echo aclocal -I macros -I /sw/share/aclocal
    aclocal -I macros -I /sw/share/aclocal
