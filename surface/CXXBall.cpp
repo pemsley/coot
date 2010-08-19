@@ -13,7 +13,7 @@
 
 CXX::CXXAlloc<CXXReentrantProbeBall> CXXReentrantProbeBall::allocator = CXX::CXXAlloc<CXXReentrantProbeBall>();
 
-int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > openmp_pragma_reference_arg ballPntrs,
+int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &ballPntrs,
                               vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBallPntrs,
 							  double delta, CXXSurface *aSurface, int insideOrOutside)
 {
@@ -30,7 +30,11 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall
 	// in an stl::map to the spheres with which the intersection occurs
 	std::vector<std::map<const CXXBall *, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > > > raggedEdges;
 	raggedEdges.resize(nBalls);
+#ifndef NEED_OPENMP_PRAGMA_HACK	
 #pragma omp parallel for default(none) shared(delta, nBalls, contactMap, aSurface, raggedEdges, insideOrOutside, ballPntrs) schedule(dynamic, 10) //num_threads(2)
+#else	
+#pragma omp parallel for default(none) shared(delta, nBalls, contactMap, aSurface, raggedEdges, insideOrOutside) schedule(dynamic, 10) //num_threads(2)
+#endif	
     for (int i=0; i< nBalls; i++){
         const CXXBall &ball(*ballPntrs[i]);
         CXXNewHood ballHood;
@@ -97,9 +101,9 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall
 	return 0;
 }
 
-int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > openmp_pragma_reference_arg balls, 
+int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &balls, 
                           std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBalls, 
-			  std::map<const CXXBall*, std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > > openmp_pragma_reference_arg contactMap) 
+						  std::map<const CXXBall*, std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > > &contactMap) 
 {
 	int maxNBins = 20;
 	if (balls.size() == 0) return 1;
@@ -189,8 +193,11 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBal
     }
 	std::cout << "Ready for parallel contact search \n";
 	std::cout.flush();
-	
+#ifndef NEED_OPENMP_PRAGMA_HACK	
 #pragma omp parallel for default(none) shared (binnedballs, ballRadiusX2, limits, binWidth, nBins, balls, contactMap) schedule(dynamic,10) //num_threads(2)
+#else	
+#pragma omp parallel for default(none) shared (binnedballs, ballRadiusX2, limits, binWidth, nBins) schedule(dynamic,10) //num_threads(2)
+#endif	
     for (int iBall=0; iBall< balls.size(); iBall++){
 		int iBin[3];
 		for (int i=0; i<3; i++){
