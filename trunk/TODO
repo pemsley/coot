@@ -875,6 +875,8 @@ Punted from 0.6:
       case where a ligand exists, but no (refmac) dictionary has yet
       been added (note that we only need the bonds for write_connectivity).
 
+    o sequence view for 1miu - not filled and lots of space on right.
+
  ------
     
     Release 0.8 [Sept 2009]
