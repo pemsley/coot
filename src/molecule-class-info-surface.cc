@@ -86,7 +86,9 @@ molecule_class_info_t::make_surface(int on_off_flag,
 	 theSurface = glGenLists(1);
 	 glNewList(theSurface, GL_COMPILE);
 	 cootsurface = new coot::surface;
-	 cootsurface->fill_from(atom_sel.mol, atom_sel.SelectionHandle, col_scale);
+	 bool need_charges_assigned = 1;
+	 cootsurface->fill_from(atom_sel.mol, atom_sel.SelectionHandle, col_scale,
+				need_charges_assigned);
 	 if (cootsurface) 
 	    cootsurface->draw(0, 0);
 	 glEndList();
@@ -166,7 +168,9 @@ molecule_class_info_t::make_surface(int SelHnd_selection, int SelHnd_all,
    theSurface = glGenLists(1);
    glNewList(theSurface, GL_COMPILE);
    cootsurface = new coot::surface;
-   cootsurface->fill_surface(atom_sel.mol, SelHnd_selection, SelHnd_all, col_scale);
+   bool need_charges_assigned = 1;
+   cootsurface->fill_surface(atom_sel.mol, SelHnd_selection, SelHnd_all, col_scale,
+			     need_charges_assigned);
    if (cootsurface) 
       cootsurface->draw(0, 0);
    glEndList();

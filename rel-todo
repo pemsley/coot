@@ -1,7 +1,10 @@
+
  0.6.2
 
+  o talk to Bernhard re: REDUCE_HET_DICT etc.  Look at his python
+  code.
 
-    o change to rms z scores ::: 2
+  o replace residue does chi angle matching?
 
 ------
 
@@ -737,5 +740,15 @@ WARNING:: Can't find file
       standard torsion restraints). ::: 1
 
 * Done.
+
+    o change to rms z scores ::: 2
+
+
+* Nothing left to do.
+
+ Martin's balls on CentOS 5 machine. ::: 1
+
+* Done.
+
 
 -------

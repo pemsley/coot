@@ -16,8 +16,10 @@
 
   o FEATURE: higly-coordinated waters metal substitution search added.
 
+  o FEATURE: Rudimentary support for reading 3D MDL mol2 files.
+
   o FEATURE: New map representation styles, solid/transparent and
-    "cut-glass"
+    "cut-glass".
 
   o CHANGE: Align & Mutate now provides a simple dialog with the
     alignment.
@@ -31,6 +33,9 @@
 
   o CHANGE: In MTZ reading Expert Mode, if the low resolution limit is
     not set, then presume that it was 999.9A [Randy Read].
+
+  o CHANGE: Faster, multiprocessor electrostatic surfaces [Martin
+    Noble].
 
   o CHANGE: pointer distances are updated on go-to-blob [JED].
 
@@ -58,6 +63,10 @@
 
   o CHANGE: Using the scroll wheel with Ctrl and Shift will change the
     represention of the molecule that has the active residue.
+
+  o CHANGE: difference_map_peaks() function now takes an addition
+    argument specifying the minimum distance between peak (filtering
+    out close smaller peaks).
 
   o BUG-FIX:: Hydrogens on waters are no longer checked against the
     difference map in the water validation test.

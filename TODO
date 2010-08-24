@@ -877,6 +877,8 @@ Punted from 0.6:
 
     o sequence view for 1miu - not filled and lots of space on right.
 
+    o For em fitting: e.g. 2zvv in 1485 em, need rigid body fit molecule.
+
  ------
     
     Release 0.8 [Sept 2009]
