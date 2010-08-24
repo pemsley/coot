@@ -2031,88 +2031,105 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    if (n_bond_restraints == 0) {
       std::cout << "bonds:      N/A " << std::endl;
    } else {
-      std::cout << "bonds:      " << bond_distortion/double(n_bond_restraints)
-		<< std::endl;
       double bd = bond_distortion/double(n_bond_restraints);
+      double sbd = 0.0;
+      if (bd > 0)
+	 sbd = sqrt(bd);
+      std::cout << "bonds:      " << sbd << std::endl;
       r += "   bonds:  ";
-      r += coot::util::float_to_string_using_dec_pl(bd, 3);
+      r += coot::util::float_to_string_using_dec_pl(sbd, 3);
       r += "\n";
       std::string s = "Bonds:  ";
-      s += coot::util::float_to_string_using_dec_pl(bd, 3);
-      lights_vec.push_back(coot::refinement_lights_info_t("Bonds", s, bd));
+      s += coot::util::float_to_string_using_dec_pl(sbd, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Bonds", s, sbd));
    } 
    if (n_angle_restraints == 0) {
       std::cout << "angles:     N/A " << std::endl;
    } else {
       double ad = angle_distortion/double(n_angle_restraints);
-      std::cout << "angles:     " << angle_distortion/double(n_angle_restraints)
+      double sad = 0.0;
+      if (ad > 0.0)
+	 sad = sqrt(ad);
+      std::cout << "angles:     " << sad
 		<< std::endl;
       r += "   angles: ";
-      r += coot::util::float_to_string_using_dec_pl(angle_distortion/double(n_angle_restraints), 3);
+      r += coot::util::float_to_string_using_dec_pl(sad, 3);
       r += "\n";
       std::string s = "Angles: ";
-      s += coot::util::float_to_string_using_dec_pl(ad, 3);
-      lights_vec.push_back(coot::refinement_lights_info_t("Angles", s, ad));
+      s += coot::util::float_to_string_using_dec_pl(sad, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Angles", s, sad));
 
    } 
    if (n_torsion_restraints == 0) {
       std::cout << "torsions:   N/A " << std::endl;
    } else {
       double td = torsion_distortion/double(n_torsion_restraints);
-      std::cout << "torsions:   " << td << std::endl;
+      double std = 0.0;
+      if (td > 0.0)
+	 std = sqrt(td);
+      std::cout << "torsions:   " << std << std::endl;
       r += "   torsions: ";
-      r += coot::util::float_to_string_using_dec_pl(td, 3);
+      r += coot::util::float_to_string_using_dec_pl(std, 3);
       r += "\n";
       std::string s = "Torsions: ";
-      s += coot::util::float_to_string_using_dec_pl(td, 3);
-      lights_vec.push_back(coot::refinement_lights_info_t("Torsions", s, td));
+      s += coot::util::float_to_string_using_dec_pl(std, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Torsions", s, std));
    } 
    if (n_plane_restraints == 0) {
       std::cout << "planes:     N/A " << std::endl;
    } else {
       double pd = plane_distortion/double(n_plane_restraints);
-      std::cout << "planes:     " << pd << std::endl;
+      double spd = 0.0;
+      if (pd > 0.0)
+	 spd = sqrt(pd);
+      std::cout << "planes:     " << spd << std::endl;
       r += "   planes: ";
-      r += coot::util::float_to_string_using_dec_pl(pd, 3);
+      r += coot::util::float_to_string_using_dec_pl(spd, 3);
       r += "\n";
       std::string s = "Planes: ";
-      s += coot::util::float_to_string_using_dec_pl(pd, 3);
-      lights_vec.push_back(coot::refinement_lights_info_t("Planes", s, pd));
+      s += coot::util::float_to_string_using_dec_pl(spd, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Planes", s, spd));
    }
    if (n_non_bonded_restraints == 0) {
       std::cout << "non-bonded: N/A " << std::endl;
    } else {
       double nbd = non_bonded_distortion/double(n_non_bonded_restraints);
+      double snbd = 0.0;
+      if (nbd > 0.0)
+	 snbd = sqrt(nbd);
       std::cout << "non-bonded: " << nbd
 		<< std::endl;
       r += "   non-bonded: ";
-      r += coot::util::float_to_string_using_dec_pl(nbd, 3);
+      r += coot::util::float_to_string_using_dec_pl(snbd, 3);
       r += "\n";
       std::string s = "Non-bonded: ";
-      s += coot::util::float_to_string_using_dec_pl(nbd, 3);
-      lights_vec.push_back(coot::refinement_lights_info_t("Non-bonded", s, nbd));
+      s += coot::util::float_to_string_using_dec_pl(snbd, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Non-bonded", s, snbd));
    }
    if (n_chiral_volumes == 0) { 
       std::cout << "chiral vol: N/A " << std::endl;
    } else {
       double cd = chiral_vol_distortion/double(n_chiral_volumes);
-      std::cout << "chiral vol: " << cd << std::endl;
+      double scd = 0.0;
+      if (cd > 0.0)
+	 scd = sqrt(cd);
+      std::cout << "chiral vol: " << scd << std::endl;
       r += "   chirals: ";
-      r += coot::util::float_to_string_using_dec_pl(cd, 3);
+      r += coot::util::float_to_string_using_dec_pl(scd, 3);
       std::string s = "Chirals: ";
-      s += coot::util::float_to_string_using_dec_pl(cd, 3);
-      lights_vec.push_back(coot::refinement_lights_info_t("Chirals", s, cd));
+      s += coot::util::float_to_string_using_dec_pl(scd, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Chirals", s, scd));
    }
    if (n_rama_restraints == 0) { 
       std::cout << "rama plot:  N/A " << std::endl;
    } else {
       double rd = rama_distortion/double(n_rama_restraints);
-         std::cout << "rama plot:  " << rd << std::endl;
+      std::cout << "rama plot:  " << rd << std::endl;
       r += "   rama plot: ";
       r += coot::util::float_to_string_using_dec_pl(rd, 3);
       std::string s = "Rama Plot: ";
       s += coot::util::float_to_string_using_dec_pl(rd, 3);
-      lights_vec.push_back(coot::refinement_lights_info_t("Rama", s, rd)); // correct name?
+      lights_vec.push_back(coot::refinement_lights_info_t("Rama", s, rd));
    }
    return lights_vec;
 } 

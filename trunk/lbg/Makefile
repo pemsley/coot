@@ -11,9 +11,10 @@ CAIRO_CFLAGS=`pkg-config --cflags cairo`
 # CAIRO_LDFLAGS=`pkg-config --libs cairo` in GOO_LDFLAGS already
 
 COOT_INSTALLED=/home/emsley/coot-installed-f12
+COOT_INSTALLED=/home/paule/autobuild/Linux-scylla-pre-release-gtk2
 
 CRYST=/home/emsley/autobuild/f12/Linux-jackal-f12-pre-release-gtk2
-# CRYST=$(HOME)/autobuild/Linux-scylla-pre-release-gtk2
+CRYST=$(HOME)/autobuild/Linux-scylla-pre-release-gtk2
 # CRYST=$(HOME)/autobuild/Linux-nestor-pre-release-gtk2
 
 GSL_CFLAGS=-I$(CRYST)/include
@@ -32,6 +33,9 @@ CLIPPER_LDFLAGS=$(CLIPPER)/lib/libclipper-core.la \
         $(CLIPPER)/lib/libfftw.la
 
 LIDIA_CORE_CXXFLAGS = -I $(COOT_INSTALLED)/include
+LIDIA_CORE_LDFLAGS = $(COOT_INSTALLED)/lib/libcoot-lidia-core.la
+
+LIDIA_CORE_CXXFLAGS = -I ../lidia-core
 LIDIA_CORE_LDFLAGS = $(COOT_INSTALLED)/lib/libcoot-lidia-core.la
 
 

@@ -66,8 +66,9 @@ class CColourScheme {
       
    public:
 
-      void fill_from(CMMDBManager *mol, int selHnd, float col_scale);
-      void fill_surface(CMMDBManager *mol, int selHnd_selection, int SelHnd_all, float col_scale);
+      void fill_from(CMMDBManager *mol, int selHnd, float col_scale, bool assign_charges);
+      void fill_surface(CMMDBManager *mol, int selHnd_selection, int SelHnd_all, float col_scale,
+			bool assign_charges);
       void draw(double *override_colour, int selective_override);
       void transparent_draw(float opacity);
       void evaluateElectrostaticPotential(CMMDBManager *theManager, int selHnd, float col_scale);

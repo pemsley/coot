@@ -156,16 +156,16 @@ GdkColor colour_by_distortion(float dist) {
       col.red   = 0;
       col.green = 0;
    } else {
-      if (dist < 2.0) { 
+      if (dist < 1.4 /* was 2.0 before Tickle-fix */) { 
 	 col.red   = 0;
 	 col.green = 55535;
       } else {
-	 if (dist < 5.0) {
+	 if (dist < 2.2 /* was 5.0 */ ) {
 	    col.red   = 55000;
 	    col.green = 55000;
 	    // col.blue  = 22000;
       } else {
-	    if (dist < 8.0) {
+	    if (dist < 3.0 /* was 8.0 */ ) {
 	       col.red   = 64000;
 	       col.green = 32000;
 	    } else {
@@ -1305,22 +1305,24 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
    // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES;
 
-   if (do_torsion_restraints)
+   if (do_torsion_restraints) {
       if (use_only_extra_torsion_restraints_for_torsions_flag) { 
 	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
       } else {
 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
-      } 
+      }
+   }
 
    if (do_rama_restraints)
       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
    
-   if (do_torsion_restraints && do_rama_restraints)
+   if (do_torsion_restraints && do_rama_restraints) { 
       if (use_only_extra_torsion_restraints_for_torsions_flag) { 
 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
       } else {
 	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-      } 
+      }
+   }
 	    
 
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.

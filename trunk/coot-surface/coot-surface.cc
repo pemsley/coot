@@ -32,15 +32,13 @@
 #include "rgbreps.h"
 
 void
-coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale) {
+coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale, bool assign_charges) {
 
-   theSurface = new CXXSurface;
-   CXXChargeTable theChargeTable;
-   CXXUtils::assignCharge(mol, selHnd, &theChargeTable);
 
    // debug::
 
-   if (0) { 
+   if (1) { 
+      std::cout << "========pre =============" << std::endl;
       PPCAtom atoms;
       int n_atoms;
       mol->GetSelIndex(selHnd, atoms, n_atoms);
@@ -50,6 +48,27 @@ coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale) {
       }
    }
 
+   
+   if (assign_charges) { 
+
+      theSurface = new CXXSurface;
+      CXXChargeTable theChargeTable;
+      CXXUtils::assignCharge(mol, selHnd, &theChargeTable);
+
+      if (1) {
+	 std::cout << "========post=============" << std::endl;
+	 PPCAtom atoms;
+	 int n_atoms;
+	 mol->GetSelIndex(selHnd, atoms, n_atoms);
+	 for (int iat=0; iat<n_atoms; iat++) {
+	    std::cout << "  atom: " << atoms[iat]->GetChainID() << " " <<  atoms[iat]->GetSeqNum() << " "
+		      << atoms[iat]->name << " charge: " << atoms[iat]->charge << std::endl;
+	 }
+      }
+   }
+
+
+   
    theSurface->calculateFromAtoms(mol, selHnd, selHnd, 1.4, 0.5, false); // 0.785 is 45
 							  // degrees used by
 							  // Martin
@@ -58,13 +77,16 @@ coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale) {
 }
 
 void
-coot::surface::fill_surface(CMMDBManager *mol, int SelHnd_selection, int SelHnd_all, float col_scale) {
+coot::surface::fill_surface(CMMDBManager *mol, int SelHnd_selection, int SelHnd_all,
+			    float col_scale, bool assign_charges) {
 
    // e.g. selection handles: residues_of_the_active_site, residues_of_the_chain
    // the first is a subset of the other.
    theSurface = new CXXSurface;
-   CXXChargeTable theChargeTable;
-   CXXUtils::assignCharge(mol, SelHnd_all, &theChargeTable);
+   if (assign_charges) { 
+      CXXChargeTable theChargeTable;
+      CXXUtils::assignCharge(mol, SelHnd_all, &theChargeTable);
+   } 
    theSurface->calculateFromAtoms(mol, SelHnd_selection, SelHnd_all, 1.4, 0.5, false);
    evaluateElectrostaticPotential(mol, SelHnd_all, col_scale);
 } 
@@ -73,10 +95,11 @@ coot::surface::fill_surface(CMMDBManager *mol, int SelHnd_selection, int SelHnd_
 // 
 void
 coot::surface::draw(double *override_colour, int selective_override) {
-   
+
   double coords[4];
   float whiteColour[] = {1.,1.,1.,1.};
   float blackColor[] = {0.,0.,0.,0.};
+  float mat_specular[] = {0.8, 0.8, 0.8, 0.8};
   
   //Save the aspects of gl state that I am going to change
   glPushAttrib(GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LIGHTING_BIT);
@@ -124,9 +147,9 @@ coot::surface::draw(double *override_colour, int selective_override) {
   glBegin(GL_TRIANGLES);
   
   //Set material properties that are not per-vertex
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, whiteColour);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, blackColor);
-  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128); 
+  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 120); 
   
   for (int i=0; i< theSurface->numberOfTriangles(); i++){
      glArrayElement(theSurface->vertex(i, 0));
