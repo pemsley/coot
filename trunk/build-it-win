@@ -2041,7 +2041,9 @@ if test -n "$build_clipper" ; then
 	--enable-minimol \
 	--enable-cns     \
        CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la \
-       CXXFLAGS="-g -O2 -fno-strict-aliasing"
+       CXXFLAGS="-g -O2 -fno-strict-aliasing -DCLIPPER_DISABLE_THREADS"
+       # We have to disable the threading for now, no clean exit from (Win)Coot
+       # CXXFLAGS="-g -O2 -fno-strict-aliasing"
     # we don't want to make the clipper executables, so let's cd in to the clipper libs and 
     # make (just) those.
     cd clipper

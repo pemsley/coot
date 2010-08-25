@@ -1284,7 +1284,7 @@ def coot_menubar_menu(menu_label):
     #
     found_menu = False
     for f in menu_bar_label_list():
-       if menu_label in f: 
+       if menu_label.lstrip("_") in f: 
           #print "BL DEBUG:: found menu label is ", f
           # we shall return the submenu and not the menuitem
           found_menu = f[1].get_submenu()
