@@ -1305,9 +1305,13 @@ coot_real_exit(int retval) {
    // Py_Finalize();
 #endif
 
-   clipper::ClipperInstantiator::instance().destroy();
 
+#if (GTK_MAJOR_VERSION > 1)
+   exit(retval); 
+#else
+   clipper::ClipperInstantiator::instance().destroy();
    gtk_exit(retval); 
+#endif
 
 }
 
