@@ -482,6 +482,7 @@ Punted from 0.6:
    o Add add rep of a residue.  Change background to white.  Rotate
      view.  Ugliness! ::: 2 [Erik Vogan]
 
+* Done.
 
    o Garib wants a function to move (symmetry-related) waters close to
      the protein. ::: 4
@@ -529,6 +530,8 @@ Punted from 0.6:
    o Tim Fenn library thing. 
      Actually, this looks horrific
  
+* Mostly done.
+
    o Add a residue at residue number 2300 say and see if the sequence
      view behaves OK.
 
@@ -582,6 +585,8 @@ Punted from 0.6:
 
    o "Fast Save" - save all models that have been changed to the
      default name.  ::: 2
+
+* Done.
 
    o SBASE or split up chemical component library and use (something
      like?) get-monomer-from-dictionary()
@@ -645,16 +650,24 @@ Punted from 0.6:
 
    o Make python coot work on CentOS 4.  It does?  Needs testing.  ::: 2
 
+* Done.
+
    o I am looking at a symmetry-related part of the molecule. Take me
      to the main molecule (try unapplying symmetry to get there). 
      ::: 2
+
+* Done.
 
    o "Space" through waters.  Delete a water.  "space" recentres
      where?  Now do the same, but go through the waters backwards using
      "shift space" - Ingo Korndoerfer ::: 1
 
+* Done.
+
    o Hydrogens should have thinner bonds.  (Not half bonds - all grey
      - more like molprobity/KING)
+
+* Done.
 
   o the chi-squared dialog should have "the worst geometric feature"
     in the local refinement.  
@@ -721,6 +734,8 @@ Punted from 0.6:
 
    o draw surface within x A of a ligand
 
+* Done.
+
    o check that SSBOND and LINK cards are valid on writing PDB.
 
    o chemical component library interface (punted) ::: 4
@@ -770,10 +785,14 @@ Punted from 0.6:
      single residue with name XXX and you have read in a dictionary
      entry for XXX, then coot should use that. [ Tickle, 20090723]  ::: 3
 
+* Done.
+
    o to make the rotamer probabilites smooth, FFT them like
      Otwinowski's Ramachachandran plots.  FFTW in mult-dimentions.  Hmm.
    
    o (consider) Luca Jovine: I want to do sphere regularization  ::: 2
+
+* Done.
 
    o (consider) Add/generate HELIX and SHEET PDB header info.  ::: 3
 
@@ -835,27 +854,24 @@ Punted from 0.6:
      already existing dots - removing the overlaping dots.
 
    o in simple_restraint::minimize() should we return traffic lights
-   when the result has not terminated correctly?  Currently the return
-   value from chi_squareds() is not saved (and returned).
-
+     when the result has not terminated correctly?  Currently the return
+     value from chi_squareds() is not saved (and returned).
 
    o Add a NAG to this ASN (or ARG (less common)) (this is N-linked).
      Also consider O-link (on a SER, THR, TYR). Examine good N-linked
      NAGs in PDB structures and find the chi1, chi2, glycosylation link
      torsion angle.  Use these to same from. JB
 
-
    o I want to add a residue that has insertion code (e.g. add to
      residue 60 and residue 61 already exists).  JB.
-
 
     o Sue Roberts: when generating sfs from cif
       (run-refmac-for-phases), make it so that refmac doeesnt check the
       geometry of the ligand (or so) first.  Just generate sfs!  talk to
       garib about how to do that.
 
-
-    o internal: c-interface map functions should be in c-interface-maps.cc
+    o internal: c-interface map functions should be in
+      c-interface-maps.cc
 
     o consider an option for refinement post-ligand.  Consider a
       command-line tool for this (shell script maybe).
@@ -875,9 +891,9 @@ Punted from 0.6:
       case where a ligand exists, but no (refmac) dictionary has yet
       been added (note that we only need the bonds for write_connectivity).
 
-    o sequence view for 1miu - not filled and lots of space on right.
-
     o For em fitting: e.g. 2zvv in 1485 em, need rigid body fit molecule.
+
+    o sequence view for 1miu - not filled and lots of space on right.
 
  ------
     
