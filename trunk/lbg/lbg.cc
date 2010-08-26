@@ -3892,101 +3892,120 @@ lbg_info_t::draw_substitution_contour() {
 
    bool debug = 1;
 
-   if (mol.atoms.size() > 0) { 
-      GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
-      try { 
-	 std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
-	    mol.ligand_extents();
-	 lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
-   
-	 if (0) { 
-	    for (unsigned int i=0; i<mol.atoms.size(); i++) { 
-	       std::cout << "in draw_substitution_contour() atom " << i << " has "
-			 << mol.atoms[i].bash_distances.size() << " bash distances" << std::endl;
-	       for (unsigned int j=0; j<mol.atoms[i].bash_distances.size(); j++) {
-		  std::cout << "  " << mol.atoms[i].bash_distances[j];
-	       }
-	       if (mol.atoms[i].bash_distances.size())
-		  std::cout << std::endl;
-	    }
+   if (mol.atoms.size() > 0) {
+
+
+      // first of all, do we have any bash distances for the atoms of this molecule?
+      bool have_bash_distances = 0;
+      for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+	 if (mol.atoms[iat].bash_distances.size()) {
+	    have_bash_distances = 1;
+	    break;
 	 }
+      }
 
-	 std::vector<widgeted_atom_ring_centre_info_t> unlimited_atoms;
-	 for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
-	    int n_bash_distances = 0;
-	    double sum_bash = 0.0;
-	    bool unlimited = 0;
-	    int n_unlimited = 0;
-	    if (mol.atoms[iat].bash_distances.size()) { 
-	       for (unsigned int j=0; j<mol.atoms[iat].bash_distances.size(); j++) {
-		  // 	    std::cout << " bash_distances " << j << " " << mol.atoms[iat].bash_distances[j]
-		  // 		      << std::endl;
-		  if (! mol.atoms[iat].bash_distances[j].unlimited()) {
-		     sum_bash += mol.atoms[iat].bash_distances[j].dist;
-		     n_bash_distances++;
-		  } else {
-		     unlimited = 1;
-		     n_unlimited++;
-		  } 
+      // if we don't have bash distances, then don't grid and contour anything.  If
+      // we do, we do....
+      // 
+      if (have_bash_distances) { 
+      
+	 GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+	 try { 
+
+	    std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
+	       mol.ligand_extents();
+	    lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
+   
+	    if (0) { 
+	       for (unsigned int i=0; i<mol.atoms.size(); i++) { 
+		  std::cout << "in draw_substitution_contour() atom " << i << " has "
+			    << mol.atoms[i].bash_distances.size() << " bash distances" << std::endl;
+		  for (unsigned int j=0; j<mol.atoms[i].bash_distances.size(); j++) {
+		     std::cout << "  " << mol.atoms[i].bash_distances[j];
+		  }
+		  if (mol.atoms[i].bash_distances.size())
+		     std::cout << std::endl;
 	       }
+	    }
 
-	       if (! unlimited) { 
-		  if (n_bash_distances > 0) {
-		     double bash_av = sum_bash/double(n_bash_distances);
-		     grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
+	    std::vector<widgeted_atom_ring_centre_info_t> unlimited_atoms;
+	    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+	       int n_bash_distances = 0;
+	       double sum_bash = 0.0;
+	       bool unlimited = 0;
+	       int n_unlimited = 0;
+	       if (mol.atoms[iat].bash_distances.size()) { 
+		  for (unsigned int j=0; j<mol.atoms[iat].bash_distances.size(); j++) {
+		     // 	    std::cout << " bash_distances " << j << " " << mol.atoms[iat].bash_distances[j]
+		     // 		      << std::endl;
+		     if (! mol.atoms[iat].bash_distances[j].unlimited()) {
+			sum_bash += mol.atoms[iat].bash_distances[j].dist;
+			n_bash_distances++;
+		     } else {
+			unlimited = 1;
+			n_unlimited++;
+		     } 
+		  }
+
+
+		  if (! unlimited) { 
+		     if (n_bash_distances > 0) {
+			double bash_av = sum_bash/double(n_bash_distances);
+			grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
+		     }
+		  } else {
+
+		     // Now, were more than half of the bash distances
+		     // unlimited?  If yes, then this is unlimited.
+
+		     if (double(n_unlimited)/double(mol.atoms[iat].bash_distances.size()) > 0.5) { 
+	    
+			// just shove some value in to make the grid values vaguely
+			// correct - the unlimited atoms properly assert themselves
+			// in the drawing of the contour (that is, the selection of
+			// the contour fragments).
+			grid.add_for_accessibility(1.2, mol.atoms[iat].atom_position);
+			// 	       std::cout << "adding unlimited_atom_position "
+			// 			 << iat << " "
+			// 			 << mol.atoms[iat].atom_position
+
+			// not elegant because no constructor for
+			// widgeted_atom_ring_centre_info_t (because no simple
+			// constructor for lig_build::atom_t).
+			// 
+			widgeted_atom_ring_centre_info_t ua(mol.atoms[iat]);
+			try {
+			   ua.ring_centre = mol.get_ring_centre(ua);
+			   ua.add_ring_centre(mol.get_ring_centre(ua)); // eh? (badness in arg to
+			   // get_ring_centre, I think).
+			}
+			catch (std::runtime_error rte) {
+			   // nothing
+			} 
+			unlimited_atoms.push_back(ua);
+		     } else {
+
+			// treat as a limited:
+			double bash_av = (sum_bash + 4.0 * n_unlimited)/double(n_bash_distances);
+			grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
+		     } 
 		  }
 	       } else {
+		  // there were no bash distances - what do we do?  Leaving out
+		  // atoms means gaps over the ligand - bleugh.  Shove some
+		  // value in?  1.0?  if they are not hydrogens, of course.
+		  // 
+		  if (mol.atoms[iat].element != "H") // checked.
+		     grid.add_for_accessibility_no_bash_dist_atom(1.0, mol.atoms[iat].atom_position);
+	       } 
+	    }
 
-		  // Now, were more than half of the bash distances
-		  // unlimited?  If yes, then this is unlimited.
-
-		  if (double(n_unlimited)/double(mol.atoms[iat].bash_distances.size()) > 0.5) { 
-	    
-		     // just shove some value in to make the grid values vaguely
-		     // correct - the unlimited atoms properly assert themselves
-		     // in the drawing of the contour (that is, the selection of
-		     // the contour fragments).
-		     grid.add_for_accessibility(1.2, mol.atoms[iat].atom_position);
-		     // 	       std::cout << "adding unlimited_atom_position "
-		     // 			 << iat << " "
-		     // 			 << mol.atoms[iat].atom_position
-
-		     // not elegant because no constructor for
-		     // widgeted_atom_ring_centre_info_t (because no simple
-		     // constructor for lig_build::atom_t).
-		     // 
-		     widgeted_atom_ring_centre_info_t ua(mol.atoms[iat]);
-		     try {
-			ua.ring_centre = mol.get_ring_centre(ua);
-			ua.add_ring_centre(mol.get_ring_centre(ua)); // eh? (badness in arg to
-			// get_ring_centre, I think).
-		     }
-		     catch (std::runtime_error rte) {
-			// nothing
-		     } 
-		     unlimited_atoms.push_back(ua);
-		  } else {
-
-		     // treat as a limited:
-		     double bash_av = (sum_bash + 4.0 * n_unlimited)/double(n_bash_distances);
-		     grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
-		  } 
-	       }
-	    } else {
-	       // there were no bash distances - what do we do?  Leaving out
-	       // atoms means gaps over the ligand - bleugh.  Shove some
-	       // value in?  1.0?  if they are not hydrogens, of course.
-	       // 
-	       if (mol.atoms[iat].element != "H") // checked.
-		  grid.add_for_accessibility_no_bash_dist_atom(1.0, mol.atoms[iat].atom_position);
-	    } 
+	    // show_grid(grid);
+	    grid.show_contour(root, 0.5, unlimited_atoms);
 	 }
-
-	 // show_grid(grid);
-	 grid.show_contour(root, 0.5, unlimited_atoms);
-      }
-      catch (std::runtime_error rte) {
-	 std::cout << rte.what() << std::endl;
+	 catch (std::runtime_error rte) {
+	    std::cout << rte.what() << std::endl;
+	 }
       }
    }
 }
