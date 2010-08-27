@@ -1,0 +1,122 @@
+# setup/coot.sh.in
+# 
+# Copyright 2001, 2002, 2003 The University of York
+# Author: Paul Emsley
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA
+
+
+
+# -*-shell-script-*-
+
+
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#      ARE YOU REALLY SURE YOU NEED TO BE EDITING THIS?
+#      Only under very unusual circumstances should you need this file.
+#      A more normal setup just addeds COOT_PREFIX/bin to the path, that
+#      all you usually need.
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
+
+
+# Coot things:
+#
+# Set COOT_PREFIX to be the directory into which you untarred coot:
+# e.g. $HOME/coot/Linux-bubbles
+#
+COOT_PREFIX="@prefix@"
+#
+
+
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# If the COOT_PREFIX is correct, then these should not need modification
+# i.e.  nothing below here need be changed.
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# 
+prefix=$COOT_PREFIX
+PATH=$COOT_PREFIX/bin:$PATH
+
+SYMINFO=$COOT_PREFIX/share/coot/syminfo.lib
+COOT_SCHEME_DIR=$COOT_PREFIX/share/coot/scheme
+# COOT_REFMAC_LIB_DIR=$COOT_PREFIX/share/coot/lib
+COOT_STANDARD_RESIDUES=$COOT_PREFIX/share/coot/standard-residues.pdb
+COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/pixmaps
+COOT_DATA_DIR=$COOT_PREFIX/share/coot
+COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
+COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
+COOT_PYTHON_DIR=$COOT_PREFIX/share/coot/python
+if [ -z "$PYTHONPATH" ] ; then
+    PYTHONPATH=$COOT_PREFIX/share/coot/python
+else
+    PYTHONPATH=$COOT_PREFIX/share/coot/python:${PYTHONPATH}
+fi
+
+GUILE_LOAD_PATH=\
+$COOT_PREFIX/share/guile/1.6:$COOT_PREFIX/share/guile:$COOT_PREFIX/share/guile/gtk-1.2:$COOT_PREFIX/share/guile/gui:$COOT_PREFIX/share/guile/www:$COOT_PREFIX/share/guile/site
+
+systype=`uname`
+
+if [ $systype = Linux ] ; then 
+   if [ -z "$LD_LIBRARY_PATH" ] ;  then
+	LD_LIBRARY_PATH=$COOT_PREFIX/lib
+   else 
+	LD_LIBRARY_PATH=$COOT_PREFIX/lib:${LD_LIBRARY_PATH}
+   fi
+fi
+if [ $systype = Darwin ] ; then 
+   if [ -z "$DYLD_LIBRARY_PATH" ] ;  then
+	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib
+   else 
+	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_LIBRARY_PATH}
+   fi
+fi
+if [ $systype = IRIX ] ; then 
+   if [ -z "$LD_LIBRARYN32_PATH" ] ;  then
+	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib
+   else 
+	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib:${LD_LIBRARYN32_PATH}
+   fi
+fi
+if [ $systype = IRIX64 ] ; then 
+   if [ -z "$LD_LIBRARYN32_PATH" ] ;  then
+	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib
+   else 
+	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib:${LD_LIBRARYN32_PATH}
+   fi
+fi
+
+
+export SYMINFO
+export COOT_PREFIX
+export COOT_STANDARD_RESIDUES
+# export COOT_REFMAC_LIB_DIR
+export COOT_PYTHON_DIR
+export PYTHONPATH
+export COOT_SCHEME_DIR
+export COOT_REF_STRUCTS
+export COOT_RESOURCES_FILE
+export COOT_PIXMAPS_DIR
+export COOT_DATA_DIR
+export GUILE_LOAD_PATH
+export DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH
+export LD_LIBRARYN32_PATH
+
+

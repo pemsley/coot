@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="100"
+   inkscape:export-xdpi="100"
+   inkscape:export-filename="/lmb/wear/emsley/Projects/coot/pixmaps/add-alt-conf.png"
+   sodipodi:docname="add-alt-conf.svg"
+   sodipodi:docbase="/home/paule/Projects/coot/pixmaps"
+   inkscape:version="0.41"
+   sodipodi:version="0.32"
+   id="svg2160"
+   height="16px"
+   width="16px">
+  <defs
+     id="defs2162">
+    <marker
+       style="overflow:visible"
+       id="TriangleOutS"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="TriangleOutS">
+      <path
+         transform="scale(0.2)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         id="path3674" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="TriangleOutL"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="TriangleOutL">
+      <path
+         transform="scale(0.8)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         id="path3680" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-y="236"
+     inkscape:window-x="488"
+     inkscape:window-height="584"
+     inkscape:window-width="822"
+     inkscape:document-units="px"
+     inkscape:grid-bbox="true"
+     showgrid="true"
+     inkscape:current-layer="layer1"
+     inkscape:cy="8.4865639"
+     inkscape:cx="8.0000003"
+     inkscape:zoom="15.696216"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata2165">
+    <rdf:RDF
+       id="RDF1419">
+      <cc:Work
+         id="Work1421"
+         rdf:about="">
+        <dc:format
+           id="format1423">image/svg+xml</dc:format>
+        <dc:type
+           id="type1425"
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1"
+     id="layer1">
+    <path
+       sodipodi:nodetypes="cccc"
+       id="path2168"
+       d="M 14.993961,15.375 L 10.741783,12.381925 L 7.7755968,15.07763 L 4.0516695,12.244315"
+       style="fill:none;fill-rule:evenodd;stroke:#12125a;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       sodipodi:nodetypes="cc"
+       id="path3383"
+       d="M 10.683721,8.5355156 L 10.708723,12.30168"
+       style="fill:none;fill-rule:evenodd;stroke:#000050;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       sodipodi:nodetypes="cc"
+       id="path3819"
+       d="M 6.625,4.3559332 L 10.918547,9.375"
+       style="fill:none;fill-rule:evenodd;stroke:#000050;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       sodipodi:nodetypes="cc"
+       id="path3821"
+       d="M 15.283725,4.7651670 L 10.858585,9.1414146"
+       style="fill:none;fill-rule:evenodd;stroke:#8080ff;stroke-width:1.7171707;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000" />
+    <g
+       id="g2366"
+       transform="matrix(-1,0,0,1.020651,6.090172,-5.221923)">
+      <path
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 1.0361386,7.4722772 L 6.0450495,7.5 L 6.0450495,7.5"
+         id="path2292" />
+      <path
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 3.5277229,5.071287 L 3.5,10.080198 L 3.5,10.080198"
+         id="path2296" />
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,196 @@
+ -*-text-*-
+
+scripts      rev 3120 
+tests        rev 3043
+build-it-win rev 2122
+
+-------------------------------------------------------
+* THINGS TO DO BEFORE 0.6.2 RELEASE * ONLY URGENT THING
+-------------------------------------------------------
+
+notes APS CCP4 workshop
+- document refmac extra params + lib files location (note to self ?!)
+- SF4 library file (for Garib at some point)
+
+----------------
+* TO DO THINGS *
+----------------
+
+**** General ****
+
+   o symmetry colour button doesnt update
+
+   o enable Alt key for scripting keyboard shortcuts
+
+   o reset button for map sharpening
+
+   o water check for B below threshold?!
+
+   o Tooltips for residues in new sequence view?! (wait for goocanvas - has
+	build-in tooltip)
+
+   o Edit Chi for hydrogens not working (H from reduce at least)
+
+   o transform whole asu for packing comparision?!
+
+   o doublication of find strand/find ss (Extensions, Other tools)
+
+   o glycosylate residue
+
+04/11/08 CCP4 dev meeting:
+   o activate bulk solvent correction for refmac?
+
+   o filechooser in save mode doesnt have delete & rename file!? Shall/can we?!
+
+   o refinement weighting by occupancy
+
+   o running shelx should be 'threaded'
+
+   o add all GtkWidget and similar functions as ignore to coot.i (script)
+
+   o simulate middle mouse with Alt left ?!
+
+04/10/08
+   o simultaneous refinement of alt confs
+
+   o interface to thomas schneider superposition program (ESCET)
+
+   o rigid body fit per residues (* done? bb script?! No! extend to nulceotides
+	i.e. use sugar and base as rb)
+
+   o fix OXT refinement
+     (maybe not now, as it may be fixed with MODRES etc... certainly already better)
+
+   o density histogram graph?!
+
+   o additional representations: hide parts of model (use bond thickness 0?!?
+	bond thickness 0 doesnt work. hiding seems tricky!?
+
+   o povray view angle still not ok (view gets smaller the further away from 
+	 origin we are)
+
+   o refmac to run from an XML file
+
+   o read_refmac_log to read refmac XML output (if there)
+
+   o use libglade
+
+   o cootaneering (more testing, make documentation?)
+
+   o alternatives for loop building (wait for Kevin's implementation/sloopy)
+
+   o add terminal residue (if Gly, Pro) use different target ramachandran
+	 function for placement of term residue;
+	 maybe we want to try general rama first, then Pro, then Gly (if we 
+	 dont know the residue type) for better loop fit (or in general)
+	 this may require some Gly noise filtering as Gly always will fit best
+
+   o side chain treatment in low res maps (test if torsion angle restraints 
+	 are good enough) otherwise we may want different weight for MC and SC
+	 and/or B-factor refinement
+
+   o How about interfacing to a Wii?
+
+   o tutorial/documentation for scripting/extensions [Ronan Keegan]
+
+   o high resolution auto-build
+
+14/08/08
+   o probe dots on selected residue range (Bob van Dreele)
+
+	o move (& merge) symmetry related molecules (globularize?) Done?
+
+16/09/08
+   o 'new', short display manager
+
+22/09/08
+   o fix size of chooser dialog (if possible, gtk2 bug?!)
+
+
+   o notes to self:
+     - ribbons: include ribbons
+  		save the ribbons for later use (?, maybe better to update and generate new)
+		sort out colouring
+        get lighting sorted
+		use CMMDBManager somehow...
+     - ccp4mg ellipsoids
+
+
+**** Python ****
+
+   o different 'Control_' spellings in key board shortcuts
+
+   o remove trailing space for EBI/downloaded file names
+
+   o make all 'macros' (e.g. with_auto_accept) to use all sort of input
+	(list, args, ... - cf using_active_atom)
+
+   o refmac warning when no freeR (how to detect?!)
+
+   o document remote connection
+
+   o make a server-client swapped version for remote control (if possible)
+
+   o fix 'No Adjustment' buttons (and callbacks) in user_mods_gui
+
+   o review pygtk button (and other) callbacks which are string, poss can be 
+	exchanged (see water_coordination_gui)
+
+   o optional tooltips for main toolbar buttons
+
+   o fix addition of guile and python keybindings (translation of lambda functions?)
+
+   o key code for '(' and ')' not recognised (on FC10 e.g.)
+
+   o update python WIKI scripts
+
+   o python: rapper-gui and what-check (*Done?!)
+
+   o make guile-gtk properly gtk2 complient (esp. text-view) or wait for
+     proper gnome-guile
+
+
+**** Windows ****
+
+   o icon on WinCoot website
+
+   o label main Window WinCoot
+
+   o check save times with gz compression, maybe make optional (feels slow)
+
+   o better python std flushing for MINGW
+
+   o update WinCoot to guile 1.8.6 (if possible)
+
+   o simple guile implementation in WinCoot
+
+   o windows build: dont update src tar whilst building (if possible)
+
+   o merge build-it-win with buid-it-gtk2-simple?!
+
+   o WinCoot:
+    - update gtk? Better for Windows 7?!
+	- before stable release copy python over
+	- silent python installation? Possible? (http://www.autoitscript.com/autoit3/)
+
+   o A comprehensive windows test system(?):	
+                - start XP for testing after installer build
+				- install WinCoot silent
+				- download test data and unittests
+				- run tests
+				- send email about status/or notify otherwise
+
+
+---------------
+* DONE THINGS *
+---------------
+
+   o labelling with 'l' doesnt show status bar info (feature/bug?)
+
+* Done
+
+   o fix using_active_atom with respect to lists
+	.. and extra args
+
+*Done
+

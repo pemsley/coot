@@ -1,0 +1,461 @@
+
+A function that we need for Molecular Graphics is to be able to
+regularize (a.k.a ``idealize'') the coordinates of the model.  In
+order to do so we need to find the ideal values (also called here
+``restraints'', using the Refmac nomenclature).  We have a
+multivariable function minimizer that requires the gradients of the
+parameters (the coordinates).  Here we describe how to generate the
+gradients analytically.  We need the derivatives for the bond lengths,
+angles, torsions and planes.
+
+\section{Introduction}
+
+The function that we are trying to minimize for refinement is $S$, where
+
+\begin{displaymath}
+  S = S_{bond} + S_{angle} + S_{torsion} + S_{plane} + S_{chiral} + -kS_{map}
+\end{displaymath}
+
+For regularization it is:
+\begin{displaymath}
+  S = S_{bond} + S_{angle} + S_{torsion}
+\end{displaymath}
+
+
+
+Let's take these 3 parts in turn:
+
+% ------------------------------------------------------------------
+%                  Bonds 
+% ------------------------------------------------------------------
+
+\section{Bonds}
+
+\begin{displaymath}
+  S_{bond} = \sum_{i=1}^{N_{bonds}} {(b_i - b_{0_i})^2}
+\end{displaymath}
+
+Where $b_{0_i}$ is the ideal length (from the Refmac dictionary) of
+the $i$th bond, $\mathbf{b}_i$ is the bond vector and $b_i$ is its length.
+
+\begin{eqnarray*}
+  \label{eq:1}
+  \frac{\partial S_i}{\partial x_m} & = & \frac{\partial S_i}{\partial b_i} 
+  \frac{\partial b_i}{\partial x_m} \\
+   & = & [2(b_i - b_{0_i})]   \frac{\partial b_i}{\partial x_m}
+\end{eqnarray*}
+
+\begin{displaymath}
+  b_i = \sqrt((x_m-x_k)^2 + (y_m-y_k)^2 + (z_m-z_k)^2)
+\end{displaymath}
+
+So: 
+\begin{eqnarray*}
+\frac{\partial b_i}{\partial x_m} & = & (\frac{1}{2} \frac{1}{b_i}) 2 (x_m - x_k) \\
+ &   = & \frac{(x_m - x_k)}{b_i}
+\end{eqnarray*}
+
+So: 
+\begin{displaymath}
+  \frac{\partial S_i}{\partial x_m} = 2[b_i - b_{0_1}] \frac{(x_m - x_k)}{b_i}
+\end{displaymath}
+
+
+% ------------------------------------------------------------------
+%                  Angles 
+% ------------------------------------------------------------------
+
+\section{Angles}
+We are trying to minimise $S_{angle}$, where (for simplicity I ignore
+the weights)
+
+\begin{displaymath}
+  S_{angle} = \sum_{i=1}^{N_{angles}} {(\theta_i - \theta_{0_i})^2}
+\end{displaymath}
+
+
+Angle $\theta$ contributed to by atoms $k$, $l$ and $m$:
+
+\begin{displaymath}
+  \cos \theta = \frac{{\underline a}.{\underline b}}{ab}
+\end{displaymath}
+
+\begin{trivlist}
+\item where
+\item $\underline {a}$ is the bond of atoms $k$ and $l$ $((x_k-x_l), (y_k-y_l), (z_k-z_l))$
+\item $\underline {b}$ is the bond of atoms $l$ and $m$  $((x_m-x_l), (y_m-y_l), (z_m-z_l))$
+\item Note that the vectors point away from the middle atom $l$.
+\end{trivlist}
+
+
+
+So: 
+
+\begin{equation}
+  \label{eq:1}
+  \theta = acos(P)
+\end{equation}
+
+where 
+
+\begin{displaymath}
+  P = \frac{{\underline a}.{\underline b}}{ab} 
+\end{displaymath}
+
+Using the Chain Rule:
+\begin{equation}
+  \label{eq:2}
+  \frac{\partial \theta}{\partial _k} = \frac{\partial \theta}{\partial P} \frac{\partial P}{\partial x_k}
+\end{equation}
+
+Given that we are only intereted in $\theta$ in the range $0\rightarrow\pi$:
+
+\begin{equation}
+  \label{eq:3}
+  \frac{\partial \theta}{\partial P} = -\frac{1}{\sin \theta}
+\end{equation}
+
+Let's split up $P$ again using the chain rule: 
+\begin{equation}
+  \label{eq:4}
+  \frac{\partial P}{\partial x_k} = 
+  Q\frac{\partial R}{\partial x_k} + R\frac{\partial Q}{\partial x_k}
+\end{equation}
+
+where 
+\begin{equation}
+  \label{eq:5}
+  Q =  {\underline a}.{\underline b}
+\end{equation}
+\begin{equation}
+  \label{eq:6}
+  R = \frac{1}{ab}
+\end{equation}
+
+\subsection{The middle atom}
+
+This is somewhat more tricky than an end atom because the derivatives
+of $ab$ and ${\underline a}.{\underline b}$ are not so trivial.  Let's
+change the indexing so that we are actually talking about the middle
+atom, $l$.
+
+Differentiating (\ref{eq:6}): 
+
+\begin{equation}
+  \label{eq:7}
+  \frac{\partial R}{\partial x_l} = 
+  -\frac{1}{(ab)^2}b\frac{\partial a}{\partial x_l} 
+  -\frac{1}{(ab)^2}a\frac{\partial b}{\partial x_l}
+\end{equation}
+
+$\frac{\partial a}{\partial x_l}$ is exactly the same as we were using
+with bonds:
+\begin{displaymath}
+  \frac{\partial a}{\partial x_l} = \frac{x_l-x_k}{a}
+\end{displaymath}
+
+Similarly:
+\begin{displaymath}
+  \frac{\partial b}{\partial x_l} = \frac{x_l-x_m}{a}
+\end{displaymath}
+
+So substituting those into (\ref{eq:7}):
+\begin{displaymath}
+  \frac{\partial R}{\partial x_l} = -\frac{x_l-x_k}{a^3b} -\frac{x_l-x_m}{ab^3}
+\end{displaymath}
+
+Turning to $Q$, recall (\ref{eq:5}), so: 
+\begin{displaymath}
+  Q =  
+  ((x_k-x_l)(x_m-x_l) + (y_k-y_l)(y_m-y_l) + (z_k-z_l)(z_m-z_l))
+\end{displaymath}
+
+Therefore
+\begin{displaymath}
+   \frac{\partial Q}{\partial x_l} = -(x_k-x_l) -(x_m-x_l)
+\end{displaymath}
+
+Substituting all the above into (\ref{eq:4}):
+\begin{displaymath}
+  \frac{\partial P}{\partial x_l} = ({\underline a}.{\underline b})[-\frac{x_l-x_k}{a^3b} -\frac{x_l-x_m}{ab^3}] + \frac{-(x_k-x_l)-(x_m-x_l)}{ab}
+\end{displaymath}
+
+So, combining this and (\ref{eq:3}) into (\ref{eq:2}), we get: 
+\begin{displaymath}
+  \frac{\partial \theta}{\partial x_l} = -\frac{1}{\sin \theta}  \frac{\partial P}{\partial x_l} 
+\end{displaymath}
+
+%\begin{displaymath}
+%  \frac{\partial \theta}{\partial x_l} = -\frac{1}{\sin \theta}(({\underline a}.{\underline b})[-\frac{x_l-x_k}{a^3b} -\frac{x_l-x_m}{ab^3}] + \frac{-(x_k-x_l)-(x_m-x_l)}{ab})
+%\end{displaymath}
+
+
+
+
+
+
+\subsection{An End Atom (Atoms $k$ or $m$)}
+This is more simple because there are no cross terms in 
+$\frac{\partial R}{\partial x_k}$ and $\frac{\partial Q}{\partial x_k}$.
+
+\begin{displaymath}
+  \frac{\partial R}{\partial x_k} = \frac{(x_k-x_l)}{ab}
+\end{displaymath}
+
+and 
+\begin{displaymath}
+  \frac{\partial Q}{\partial x_k} = (x_m-x_l)
+\end{displaymath}
+
+So 
+
+\begin{equation}
+  \frac{\partial \theta}{\partial x_k} = -\frac{1}{sin\theta} [\frac{(x_l-x_k)}{a^2}cos\theta + \frac{x_m-x_l}{ab}]
+\end{equation}
+
+
+% ------------------------------------------------------------------
+%                  Torsions
+% ------------------------------------------------------------------
+
+\section{Torsions}
+The torsion of 3 vectors (the vectors between one atom and the next in
+the torsion angle) is given by:
+\begin{equation}
+  \label{eq:8}
+  \tau(\mathbf{a},\mathbf{b},\mathbf{c}) = \arg(-\mathbf{a}.\mathbf{c}+(\mathbf{a}.\mathbf{b})(\mathbf{b}.\mathbf{c}), \mathbf{a}.(\mathbf{b} \mathbf{\times}\mathbf{c}))
+\end{equation}
+
+
+Let's split the expression up into tractable (for me) portions, the
+evaluation of $\theta$ in the program will combine these expressions
+starting at the end (the most simple).
+
+\begin{figure}[htbp]
+  \centering
+  \leavevmode
+  \epsfxsize=50mm
+%  \epsffile{torsion.eps}
+  \caption{Torsion vectors}
+  \label{fig:torsion-vectors}
+\end{figure}
+
+Obviously: 
+\begin{displaymath}
+  a_x = P_{2_x}-P_{1_x} , b_x = P_{3_x}-P_{2_x} , c_x = P_{4_x}-P_{3_x}
+\end{displaymath}
+\begin{displaymath}
+  a_y = P_{2_y}-P_{1_y} , b_y = P_{3_y}-P_{2_y} , c_y = P_{4_y}-P_{3_y}
+\end{displaymath}
+\begin{displaymath}
+  a_z = P_{2_z}-P_{1_z} , b_z = P_{3_z}-P_{2_z} , c_z = P_{4_z}-P_{3_z}
+\end{displaymath}
+
+Unfortunately, I change the nomenclature because I derived the torsion
+terms some time after the angle terms and I had forgotten what I had
+previously been using.
+
+
+\begin{displaymath}
+  \theta = \tau(\mathbf{a},\mathbf{b},\mathbf{c}) =  \arctan(D)
+\end{displaymath}
+
+where
+\begin{displaymath}
+  D = \frac{\frac{\mathbf{a}.(\mathbf{b} \mathbf{\times}\mathbf{c})} {b}}{-\mathbf{a}.\mathbf{c}+\frac{(\mathbf{a}.\mathbf{b})(\mathbf{b}.\mathbf{c})}{b^2}}
+\end{displaymath}
+
+So
+
+\begin{eqnarray}
+  \label{eq:df}
+  \frac{\partial \theta}{\partial x_{P_1}} & = & 
+  \frac{\partial \theta}{\partial D} \frac{\partial D}{\partial x_{P_1}} \\
+  & = & \frac{1}{1+D^2}\frac{\partial D}{\partial x_{P_1}}
+\end{eqnarray}
+
+Let
+\begin{displaymath}
+  E = \frac{\mathbf{a}.(\mathbf{b} \mathbf{\times}\mathbf{c})}{b}
+\end{displaymath}
+and 
+\begin{displaymath}
+  F = \frac{1}{-\mathbf{a}.\mathbf{c}+\frac{(\mathbf{a}.\mathbf{b})(\mathbf{b}.\mathbf{c})}{b}}
+\end{displaymath}
+
+\begin{equation}
+  \label{eq:9}
+  F = \frac{1}{G}
+\end{equation}
+
+Let
+\begin{displaymath}
+  G = -\mathbf{a}.\mathbf{c}+\frac{(\mathbf{a}.\mathbf{b})(\mathbf{b}.\mathbf{c})}{b^2}
+\end{displaymath}
+
+\begin{displaymath}
+  H =  -\mathbf{a}.\mathbf{c}
+\end{displaymath}
+
+\begin{displaymath}
+  J = \mathbf{a}.\mathbf{b}
+\end{displaymath}
+
+\begin{displaymath}
+  K = \mathbf{b}.\mathbf{c}
+\end{displaymath}
+
+\begin{displaymath}
+  L = \frac{1}{b^2}
+\end{displaymath}
+
+Differentiating  (\ref{eq:9})
+\begin{displaymath}
+  \frac{\partial F}{\partial x_{P_1}} = -\frac{1}{G^2}\frac{\partial G}{\partial x_{P_1}}
+\end{displaymath}
+
+%So now we have
+%
+%\begin{displaymath}
+%  D = EF
+%\end{displaymath}
+
+Substituting for the derivative in (\ref{eq:df}):
+
+\begin{displaymath}
+  \frac{\partial \theta}{\partial x_{P_1}} = \frac{1}{1+D^2}[F\frac{\partial E}{\partial x_{P_1}} + E\frac{\partial F}{\partial x_{P_1}}]
+\end{displaymath}
+
+
+Also we have
+\begin{displaymath}
+  G = H + JKL
+\end{displaymath}
+
+Differentiating this: 
+
+\begin{displaymath}
+  \frac{\partial G}{\partial x_{P_1}} = \frac{\partial H}{\partial x_{P_1}} + JL\frac{\partial K}{\partial x_{P_1}} + KL\frac{\partial J}{\partial x_{P_1}} + JK\frac{\partial L}{\partial x_{P_1}}
+\end{displaymath}
+
+Let's look at the $H$, $J$, $K$ and $L$ derivatives:
+
+\begin{displaymath}
+    H = -\mathbf{a}.\mathbf{c} = -a_x c_x - a_y b_y - a_z c_z
+\end{displaymath}
+
+\begin{eqnarray*}
+  \frac{\partial H}{\partial x_{P_1}} & = & c_x,\\
+  \frac{\partial H}{\partial x_{P_2}} & = & -c_x,\\
+  \frac{\partial H}{\partial x_{P_3}} & = & a_x,\\
+  \frac{\partial H}{\partial x_{P_4}} & = & -a_x,\\
+  \frac{\partial K}{\partial x_{P_1}} & = & 0,\\
+  \frac{\partial K}{\partial x_{P_2}} & = & -c_x,\\
+  \frac{\partial K}{\partial x_{P_3}} & = & c_x + b_x,\\
+  \frac{\partial K}{\partial x_{P_4}} & = & b_x,\\
+  \frac{\partial J}{\partial x_{P_1}} & = & -b_x,\\
+  \frac{\partial J}{\partial x_{P_2}} & = & b_x - a_x,\\
+  \frac{\partial J}{\partial x_{P_3}} & = & a_x,\\
+  \frac{\partial J}{\partial x_{P_4}} & = & 0
+\end{eqnarray*}
+
+The $\frac{\partial b}{\partial x}$ terms are just like the bond
+derivatives:
+
+\begin{displaymath}
+  \frac{\partial L}{\partial x_{P_1}} = \frac{\partial L}{\partial b} \frac{\partial b}{\partial x_{P_1}}
+\end{displaymath}
+
+\emph{i.e. }
+\begin{eqnarray*}
+  \frac{\partial L}{\partial x_{P_3}} & = &-\frac{2}{b^3} \frac{x_{P_3}-x_{P_2}}{b}\\
+  & = &-\frac{2(x_{P_3}-x_{P_2})}{b^4}
+\end{eqnarray*}
+
+The derivative with respect to $x_{P_2}$ has the opposite sign.
+
+Notice that $\mathbf{b}$ involves only atoms $P_2$ and $P_3$ so that
+the derivates of $L$ with respect to the $P_1$ and $P_4$ coordinates are zero.
+
+\subsection{$\frac{\partial E}{\partial x}$}
+For the $\frac{\partial E}{\partial x}$ terms: 
+
+Recall:
+\begin{displaymath}
+  E = \frac{\mathbf{a}.(\mathbf{b} \mathbf{\times}\mathbf{c})}{b}
+\end{displaymath}
+
+Let
+\begin{displaymath}
+  M = \mathbf{a}.(\mathbf{b} \mathbf{\times}\mathbf{c})
+\end{displaymath}
+
+\emph{i.e.}:
+\begin{displaymath}
+  E = \frac{M}{b}
+\end{displaymath}
+
+Differentiating that:
+\begin{displaymath}
+  \frac{\partial E}{\partial x_{P_3}} = -\frac{M}{b^2} \frac{\partial b}{\partial x_{P_3}} 
+  +  \frac{1}{b} \frac{\partial M}{\partial x_{P_3}}
+\end{displaymath}
+
+Where, like bonds:
+\begin{displaymath}
+  \frac{\partial b}{\partial x_{P_3}} = \frac{x_{P_3}-x_{P_2}}{b}
+\end{displaymath}
+But note again, that the derivative of $b$ is zero for atoms $P_1$ and $P_4$.
+
+
+
+\emph{i.e.} for atoms $P_2$ and $P_3$:
+\begin{displaymath}
+  \frac{\partial E}{\partial x_{P_3}} = -\frac{M(x_{P_3}-x_{P_2})}{b^3} + \frac{1}{b}\frac{\partial M}{\partial x_{P_3}}
+\end{displaymath}
+
+but for atoms $P_1$ and $P_4$:
+\begin{displaymath}
+  \frac{\partial E}{\partial x_{P_1}} =  \frac{1}{b}\frac{\partial M}{\partial x_{P_1}}
+\end{displaymath}
+
+\begin{displaymath}
+  M = a_x(b_y c_z - b_z c_y) + a_y (b_z c_x - b_x c_z) + a_z (b_x c_y - b_y c_x)
+\end{displaymath}
+
+So here are the primitives of $M = \mathbf{a}.(\mathbf{b} \mathbf{\times}\mathbf{c})$
+
+\begin{eqnarray*}
+  \frac{\partial M}{\partial x_{P_1}} & = & -(b_y c_z - b_z c_y)\\
+  \frac{\partial M}{\partial x_{P_2}} & = & (b_y c_z - b_z c_y) + (a_y c_z - a_z c_y)\\
+  \frac{\partial M}{\partial x_{P_3}} & = & (a_z c_y - a_y c_z) + (b_y a_z - b_z a_y)\\
+  \frac{\partial M}{\partial x_{P_4}} & = & (a_y b_z - a_z b_y)\\
+  \frac{\partial M}{\partial y_{P_1}} & = & -(b_z c_x - b_x c_z)\\
+  \frac{\partial M}{\partial y_{P_2}} & = & (b_z c_x - b_x c_z) + (a_z c_x - a_x c_z)\\
+  \frac{\partial M}{\partial y_{P_3}} & = & -(a_z c_x - a_x c_z) + (b_z a_x - b_x a_z)\\
+  \frac{\partial M}{\partial y_{P_4}} & = & -(b_z a_x - b_x a_z)\\
+  \frac{\partial M}{\partial z_{P_1}} & = & -(b_x c_y - b_y c_x)\\
+  \frac{\partial M}{\partial z_{P_2}} & = & (b_x c_y - b_y c_x) + (a_x c_y - a_y c_x)\\
+  \frac{\partial M}{\partial z_{P_3}} & = & -(a_x c_y - a_y c_x) + (a_y b_x - a_x b_y)\\
+  \frac{\partial M}{\partial z_{P_4}} & = & -(a_y b_x - a_x b_y)
+\end{eqnarray*}
+
+\subsection{Putting it together}
+
+Combining, we get the following expression for the derivative of
+$\theta$ in terms of the primitive derivates:
+\begin{displaymath}
+  \frac{\partial \theta}{\partial x_{P_1}} = \frac{1}{(1+\tan^2\theta)} \frac{\partial D}{\partial x_{P_1}}
+\end{displaymath}
+
+Where 
+\begin{displaymath}
+  \frac{\partial D}{\partial x_{P_1}} = [F \frac{\partial E}{\partial x_{P_1}} -\frac{E}{G^2} (\frac{\partial H}{\partial x_{P_1}} + JL \frac{\partial K}{\partial x_{P_1}} + KL  \frac{\partial J}{\partial x_{P_1}} + JK  \frac{\partial L}{\partial x_{P_1}})]  
+\end{displaymath}
+
+
+
+
+
+
+

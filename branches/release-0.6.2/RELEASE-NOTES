@@ -1,0 +1,1834 @@
+
+  Pre-release 0.6.2
+
+  o FEATURE: PISA Interfaces can now be represented in Coot (requires
+    pisa version 1.06 or later).
+
+  o FEATURE: Regularize sphere function introduced.
+
+  o FEATURE: --update-self to update pre-release binary from server.
+
+  o FEATURE: SBase molecules can be imported (under Search Monomer
+    Library).
+
+  o FEATURE: prodrg-ify ligand function added (generates restraints
+    for the specified residue).
+
+  o FEATURE: higly-coordinated waters metal substitution search added.
+
+  o FEATURE: Rudimentary support for reading 3D MDL mol2 files.
+
+  o FEATURE: New map representation styles, solid/transparent and
+    "cut-glass".
+
+  o CHANGE: Align & Mutate now provides a simple dialog with the
+    alignment.
+
+  o CHANGE: Environment distances are separated into bumps and bonds
+    [Bob Nolte].
+
+  o CHANGE: Move molecule here only moves small molecules by default
+    now.  There is an check button to allow big molecules [Kevin
+    Madauss].
+
+  o CHANGE: In MTZ reading Expert Mode, if the low resolution limit is
+    not set, then presume that it was 999.9A [Randy Read].
+
+  o CHANGE: Faster, multiprocessor electrostatic surfaces [Martin
+    Noble].
+
+  o CHANGE: pointer distances are updated on go-to-blob [JED].
+
+  o CHANGE: Real-space refinement is now interruptible [JED].
+
+  o CHANGE: NCS skipping now works in the reverse chain order too
+    (Shift-O) [JED].
+
+  o CHANGE: Residues are checked atom by atom against the dictionary
+    and refinement is not started if there is not complete agreement
+    (for non-Hydrogen atoms) [JED].
+
+  o CHANGE: Merged molecules are undisplayed after merging.
+
+  o CHANGE: "Replace residue" will use a dictionary and model for a
+    particular 3-letter code if they have been already read in (rather
+    than run libcheck blindly) [Ian Tickle].
+ 
+  o CHANGE: SSM overlayed molecule now takes symmetry of reference
+    molecule
+
+  o CHANGE: Waters are now represented with "~" in the sequence view -
+    so that there is a distinction between waters and interesting
+    hetatoms.
+
+  o CHANGE: Using the scroll wheel with Ctrl and Shift will change the
+    represention of the molecule that has the active residue.
+
+  o CHANGE: difference_map_peaks() function now takes an addition
+    argument specifying the minimum distance between peak (filtering
+    out close smaller peaks).
+
+  o BUG-FIX:: Hydrogens on waters are no longer checked against the
+    difference map in the water validation test.
+
+  o BUG-FIX: rename residue works on only the specified chain.
+
+  o BUG-FIX: anomalous maps are now properly recovered from the state
+    file [Phil Evans].
+
+  o BUG-FIX: Symmetry is updated on accepting a Rotate/Translate
+    modification [Ezra Peisach].
+
+  o BUG-FIX: NCS differences were broken by gaps of different lengths
+    [Ingo Korndoerfer].
+
+  o BUG-FIX: Unconventionally formatted atom tree records in
+    restraints cif now no longer cause a crash when using Chi Angles
+    [JED].
+
+  o BUG-FIX: Fix the crash when sphere refine was used at the same
+    time that the geometry graph was displayed [JED].
+
+  o BUG-FIX: rotate/translate large fragments now works better.
+
+  o BUG-FIX: transform-map function fixed for 5 arguments.
+
+  o BUG-FIX: Sort-chains no longer loses header information [Bob
+    Nolte].
+
+  o BUG-FIX: Environment distances are no longer drawn between atoms
+    with differing non-blank alt-confs.
+
+  o BUG-FIX: Water search now avoids close contacts to waters
+    generated in the same round.
+
+  o BUG-FIX: Water check in gtk1 version no longer tries to
+    dereference the difference map active checkbutton - fixes crash
+    [Subhangi Ghosh].
+
+  o BUG-FIX: mmCIF file writing fixed.
+
+  o BUG-FIX: refining with structures from .res files sometimes crash
+    when writing backup file on Mac [Derek Logan].
+
+  o BUG-FIX: Rotating/translating ligands in CA+Ligands mode now works
+    [Jim Thorpe].
+
+  o BUG-FIX: Platinum can now have sensible bonds to N and O [John
+    Helliwell].
+
+  o BUG-FIX: Ramachandran plots work at the end of chains chains with
+    missing residues [JED].
+
+  o BUG-FIX: Environment distances display toggling anomolies cleaned
+    up [Ed Pozharski].
+
+  o BUG-FIX: Sequence view failed with SHELX molecules with high
+    residue numbers [Stefan Becker].
+
+  o BUG-FIX: SSM superposition now superposes the correct molecules
+    when the option menus are not adjusted [Sam Stampfter].
+
+-----
+
+  Release 0.6.1
+
+  o FEATURE: Quick-save - bound to Ctrl-S.
+
+  o FEATURE: Binary updates (pre-releases) now available. 
+
+  o FEATURE: tutorial data can be loaded from a Extensions menu item
+
+  o FEATURE: A means to set the refinement weight so that the
+    resulting chi squareds are 1.0 (or close) [Katya Heldwein]
+
+  o CHANGE: "Save dialog positions" now also saves the Edit Chi Angles
+    dialog position [Markus Rudolph].
+
+  o CHANGE: Coot can now go through proxies (http_proxy environment
+    variable) to get News and Updates.
+
+  o CHANGE: Baton manipulation is now possible when the skeleton runs
+    out.
+
+  o CHANGE: Hydrogen representation now thin and grey monotone.
+
+  o CHANGE: Interface to sidechain docking improved [Phil Evans].
+
+  o CHANGE: Updates to sync with new EDS (Electron Density Server).
+
+  o CHANGE: Filenames of mtzs and pdb in the current directory are now
+    stored as relative in the state file [Andre White].
+
+  o CHANGE: Default image type for screenshot is now PNG [Joel Bard].
+
+  o CHANGE: --python --no-graphics results in a python prompt at the 
+    command line [Gabor Bunkoczi].
+
+  o BUG-FIX: Check waters by difference map now works again [Misty X].
+
+  o BUG-FIX: SSM alignment crash fixed [Ed Pozharski].
+
+  o BUG-FIX: Splitting a sidechain with zero occupancy no longer
+    leaves atoms with negative occupancy [Takaaki Fukami].
+  
+  o BUG-FIX: Shift-spacing through waters, deleting active water now
+    goes to previous atom [Ingo Korndoerfer].
+
+  o BUG-FIX: No torsion restraints added when the esd of the torsion
+    is 0 (Phenix compatibility) [Joel Bard].
+
+  o BUG-FIX: Rotamers and Edit Chi now works for MSEs [Clemens Vonrhein].
+
+  o BUG-FIX: Hydrogen environment distances now are synchronised with
+    the display of hydrogens [JED].
+
+  o BUG-FIX: Phosphate-backbone mode enabled for symmetry [Miguel
+    Ortiz Lombardia].
+
+  o BUG-FIX: Carbon-Iodine bond length limit lengthened.
+
+  o BUG-FIX: Go To Atom dialog is updated after simple mutation of a
+    base [Miguel Ortiz Lombardia]
+
+  o BUG-FIX: Coot no longer things that a SHELXL BLOC card is an atom
+    [Zbigniew Dauter].
+
+  o BUG-FIX: LINKs between symmetry related molecules are no longer
+    drawn as long vectors to the same molecule [Alejandro Buschazzio]
+
+  o BUG-FIX: sugar chains now find the linkage type better (rather
+    than forcing seemingly-random chain breaks) [JED].
+
+  o BUG-FIX: Go to Atom keyboarding chain-id superfluous functions
+    removed [JED].
+
+  o BUG-FIX: Don't crash when calculating NCS on reading bogus chains
+    from a PDB mmCIF file [Christian Engel].
+
+-----
+
+  Release 0.6
+
+  o FEATURE: User-defined clicks [Joel Bard].
+
+  o FEATURE: SHELXL interfaces allows the user to modify the input before
+    running the SHELXL executable [Tobias Beck].
+
+  o FEATURE: Now compatible with Zalman M220W.
+
+  o FEATURE: Post-manipulation function hook added [JED].
+
+  o FEATURE: "Sphere" (residue selection) refinement.
+
+  o FEATURE: function to (re-)calculate probe dots around a give point
+    [Joel Bard].
+
+  o FEATURE: monomer and residue selection dipoles.
+
+  o FEATURE: Interactive map sharpening [Randy Read, Alex Brunger].
+
+  o FEATURE: LINK bonds are are now represented.
+
+  o FEATURE: "Backrub rotamers" at low (2.7 or worse) resolution.
+
+  o FEATURE: Baton build parameters (e.g. "backwards") now have a GUI 
+    [Phil Evans].
+
+  o FEATURE: Move waters to surround protein [Garib Murshudov]
+
+  o FEATURE: rotate/translate zone by residue ranges
+
+  o FEATURE: Rigid-body fit by residue ranges.
+
+  o FEATURE: Multi-select on reading coordinates is enabled.
+
+  o FEATURE: Immediate access to coordinates from CIF dictionaries
+    that contain coordinates (no need for LIBCHECK in such cases).
+
+  o FEATURE: Nudge-residue (bound to Ctrl-arrow keys).
+
+  o FEATURE: A dialog has been added from map averaging [Bob Nolte].
+
+  o FEATURE: Rename residue [Alexander Schiffer].
+
+  o CHANGE: partial charges added to electrostatic surface calculation.
+
+  o CHANGE: shift-click and ctrl-click in the file selectors now work
+    for reading in several coordinates files [Roberto Steiner].
+
+  o CHANGE: SEGIDs are more intelligently inherited [Steven Sheriff,
+    Bob Nolte].
+ 
+  o CHANGE: Transformed make take the cell and symmetry of the
+    reference coordinates.
+
+  o CHANGE: Transformed maps take on the cell and spacegroup of the
+    reference coordinates.
+
+  o CHANGE: Coordinates Molecules transformed by LSQ take on the cell
+    and spacegroup of the reference coordinates.
+
+  o CHANGE: Pukka-puckers? fixed and re-enabled.
+
+  o CHANGE: Ramachandran Plots now have molecule name labels [Wendy Offen].
+
+  o CHANGE: The save coordinates dialogs active item is the first
+    molecule with unsaved changes (rather than simply the first
+    molecule) [Herb Klei]
+
+  o CHANGE: "Go To Blob" now goes to the front blob, no matter what
+    the density level of blobs/density behind it is [JED].
+
+  o CHANGE: Don't display the geometry distance if the molecule
+    corresponding to the start or end point is not displayed [JED].
+
+  o CHANGE: Using the internal alignment, the weights of the affine
+    gap penalty have been changed to favour mutations and larger gaps
+    rather than several small gaps.
+
+  o CHANGE: the restraints editor now uses strings
+    (positive/negative/both) rather than number to represent the sign
+    for chiral volumes [Andrew Leslie]
+
+  o CHANGE: the restraints editor now adds a new entry to the
+    dictionary when the comp-id is changed.
+
+  o CHANGE: Additional representations now have an "All off" button.
+
+  o CHANGE: Chi angles rotation now include a "reverse fragment" option.
+
+  o CHANGE: "Add strand here" moved next to "Add Helix Here".
+
+  o CHANGE: Convert PDB format 3.x prime atom names to star names (to 
+    correspond to current Refmac dictionary). 
+
+  o BUG-FIX: TER records are removed on addition of waters [Herb Klei].
+
+  o BUG-FIX: Align vs PIR file improved [Bob Nolte]
+
+  o BUG-FIX: Single HETATMs now are refined by rigid body (as waters
+    are) when using Refine Zone.
+
+  o BUG-FIX: new atoms (and waters) are added as HETATMs if
+    appropriate [David Mathog].
+
+  o BUG-FIX: TER records for water chains are no longer tested in
+    water validation tests [Herb Klei].
+
+  o BUG-FIX: NCS chain jumping now works on heterodimers [Jianghai Zhu].
+
+  o BUG-FIX: The Chain Reordering function in Extensions has been fixed.
+
+  o BUG-FIX: Torsion angle refinement convergence improved [JED].
+
+  o BUG-FIX: Ramachandran Green spot no longer disappears on refinement.
+
+  o BUG-FIX: Limit the sequence view canvas X parameters, so that we
+    don't get X11 errors and crash [Felix Frolow].
+
+  o BUG-FIX: Additional representations appear in both "eyes" in
+    side-by-side mode.
+
+  o BUG-FIX: Delete-atom spewing binary fixed [JED].
+
+-----
+
+Release 0.5.2 Uneno
+
+   o BUG-FIX: Fix annoying shift-key-labels-atoms bug
+
+Release 0.5.1 Uneno
+
+   o FEATURE: A "Delete Molecule" button is now available in the
+     Display Manager [TJS].
+
+   o FEATURE: show-rotamer-dialog is now available from the scripting
+     layer (hence `quick rotamer' keybinding) [FvD].
+
+   o FEATURE: Manual definition of NCS ghost matrices - GUI added.
+
+   o FEATURE: overlay-my-ligands function introduced.
+
+   o FEATURE: A simple interface to electrostatic surfaces has been
+     introduced (Extensions -> Representations).
+
+   o FEATURE: rotate-chi feature introduced.  For use with a PowerMate.
+
+   o FEATURE: keyboard-based Go To Residue for quicker navigation.
+
+   o CHANGE: NCS ghost work using LSQ to get the matrix, not SSM.
+ 
+   o CHANGE: Display manager toggle buttons replaced with check
+     buttons.
+
+   o CHANGE: make-dynamically-transformed-ncs-maps takes an extra
+     argument specifying if new maps should overwrite previous maps of
+     the same name.
+
+   o CHANGE: Extensions menu re-worked.
+
+   o CHANGE: Keyboard zooming is now smoothed.
+
+   o BUG-FIX: the chi angle bond highlighting works again.
+
+   o BUG-FIX: The Cancel button in Save Restraints now works.
+
+   o BUG-FIX: Check/Delete waters in Check mode no longer causes a
+     crash when the "Close" button is clicked.
+
+   o BUG-FIX: Atom elements are inferred from the atom name.
+
+   o BUG-FIX: writing of cifs from the Restraints editor has been
+     improved [JED].
+
+   o BUG-FIX: chiral restraints specified as "BOTH" can now be edited.
+
+   o BUG-FIX: "Flip peptide" now flips the peptide H atom too [Joel Bard].
+
+   o BUG-FIX: Ligands can now have their torsions manipulated in
+     CA+Ligands mode [Ingo Korndoerfer].
+
+   o BUG-FIX: NCS residue range edits now apply to more than the first
+     peer.
+
+   o BUG-FIX: Coot now can read PART cards with a site occupancy
+     factor from a SHELXL .res file [Mirek Gilski].
+
+   o BUG-FIX: Fixed crash on using multiple geometry (Distance and
+     Angles) dialogs.
+
+   o BUG-FIX: The Reset View button has been reworked.
+
+   o BUG-FIX: Ball & Stick additional representations has been
+     reworked and now move as the molecule gets updated.
+
+   o BUG-FIX: Ramachandran improvement function has been improved.
+
+   o BUG-FIX: Rotamers and simple refinement now work with residues
+     with insertion codes.
+
+   o BUG-FIX: The rotamer graph no longer rescales on updating a
+     molecule.
+
+
+-----
+
+Release 0.5 Ueno
+
+   o FEATURE: Coot now has a Preferences dialog.
+
+   o FEATURE: Coot now is PDB version 3.0 compliant.
+
+   o FEATURE: Additional Representations added [Tadeusz Skarzynski].
+
+   o FEATURE: "Fixed Atoms" for refinement have been introduced.
+
+   o FEATURE: Monomer restraints can be edited in a GUI and are
+     exported to the scripting layer.
+
+   o FEATURE: Coot can now make difference maps.
+
+   o FEATURE: The state file now remembers the refinement map number
+     [Herb Klei].
+
+   o FEATURE: Add dialog position preferences to Extensions.
+
+   o FEATURE: The state file now remembers the scroll-wheel (contour
+     changing) map [Kevin Madauss].
+   
+   o FEATURE: Add a variable reduce-molecule-updates-current, that
+     when set by the user causes an update of the probed molecule, not
+     the generation of a new one [Bob Nolte].
+
+   o FEATURE: Add Terminal Residue now assigns the correct residue
+     type (if a PIR sequence has been given for side-chain docking) 
+     [Bob Nolte].
+
+   o FEATURE: "Pukka Puckers?" validation tool for RNA.  Based on
+     Davis et al. (2007) Molprobity: all atom contacts and structure
+     validation for proteins and nucleic acids, Nucleic Acids
+     Research 35, W375-W383.
+
+   o FEATURE: "Active site" hilighting.  Cheap and cheerful solid
+     modelling of ligand and neighbouring residues [Herb Klei].
+
+   o FEATURE: Double-clicking on an atom labels it (CCP4mg
+     compatibility).
+
+   o FEATURE: "Eigen-flip" function added.  Use to quickly flip around
+     ligands.
+
+   o FEATURE: it is now possible to add a setting so that atoms with
+     zero occupancy are not moved when refining:
+     set-refinement-move-atoms-with-zero-occupancy [Rajiv Chopra]
+
+   o FEATURE: Refmac can be run from Coot without the user having to
+     explicitly set the column labels.
+
+   o FEATURE: NCS Copy Chain is now available as a GUI extension.
+
+   o FEATURE: The ability to turn on chi angles that move hydrogens is
+     now available from the Chi Angles dialog.
+
+   o FEATURE: The "About" dialog contains references. 
+
+   o CHANGE: Key bindings mechanism has changed.  Now we are able to
+     display key binding in a GUI widget.
+
+   o CHANGE: Molprobity Tools (probe and reduce) will only now work 
+     with those binaries that are hybrid_36 enabled.
+
+   o CHANGE: Picking has been changed to somewhat favour those atoms
+     at the front of the slab.
+
+   o CHANGE: When deleting a residue while displaying validation
+     graphs, the graphs get updated immediately [JED]
+
+   o CHANGE: In CA display mode, only CAs can now be picked.
+
+   o CHANGE: Nudge centre axes are now relative to the screen rather
+     than in world coordinates.
+
+   o CHANGE: NCS skipping changed.  Hopefully faster now [Steven
+     Sheriff].  Also works in the case of hetero dimers with NCS [Phil
+     Evans].
+
+   o CHANGE: default bond width changed to 5.
+
+   o CHANGE: Traffic lights verticalized.
+
+   o CHANGE: Symmetry colour info added to state file [Doug Kuntz].
+ 
+   o CHANGE: the argument order for "mutate" scripting function 
+     have been canonicalised.
+  
+   o CHANGE: set-symmetry-colour-merge now takes only a fraction
+     argument.
+
+   o CHANGE: Mutate no longer changes the atom order in the pdb file.
+
+   o CHANGE: Next Residue/Previous residue reworked so that it now
+     jumps over gaps and goes to the right residue when encountering
+     insertion codes.
+
+   o CHANGE: Don't allow translation drag of intermediate atoms during
+     rotamer selection.
+
+   o CHANGE: Reference structures now have strand markup in the
+     header, so they can now be used as the reference structures for
+     "Build Strand".
+
+   o CHANGE: Bond parameters changes (bond width and hydrogens state)
+     now work immediately, no need to press the "Apply" button [FvD].
+
+   o CHANGE: Colour by Chain style also now displays zero occupancy
+     markers [PRE].
+
+   o CHANGE: Modelling toolbar can now be removed or docked in
+     different positions.
+
+   o BUG-FIX: chiral volumes are now correctly handled for multiple
+     monomer bespoke ligand dictionaries.
+
+   o BUG-FIX: Hydrogens names are better handled after an undo
+     operation - no longer do they fly off when refining [Joel Bard]
+
+   o BUG-FIX: Non-flexible ligands can be added to ligand search when
+     the "flexible?" option is selected.  Previously the ligand search
+     was aborted.
+
+   o BUG-FIX: Flexible ligand fitting when the torsion period is 0 and
+     for ligands that have bonding defined from a cif file (no atom left 
+     behind).
+
+   o BUG-FIX: side-by-side stereo mode improved [Randy Read].
+ 
+   o BUG-FIX: Now coot does not crash on when displaying NPD atoms
+     in anisotropic representation [Mitch Miller].
+
+   o BUG-FIX: Now coot does not crash when opening "Cell & Symmetry"
+     with no molecules loaded.
+
+   o BUG-FIX: Coot no longer crashes when deleting a residue with an
+     Alt Conf [JED].
+
+   o BUG-FIX: Coot can now do rotamers on a MSE residue [Mark Saper]
+
+   o BUG-FIX: Can now read SHELXL .ins files with lowercase symops.
+
+   o BUG-FIX: On additions to a SHELXL molecule: better handling of
+     UNIT and SFAC cards [GMS].
+
+   o BUG-FIX: EQUIV cards from SHELXL handled better.
+
+   o BUG-FIX: Adding waters to a SHELXL molecule now adds them with
+     default occupancy 11.0 [Tobias Beck]
+
+   o BUG-FIX: Go To Atom dialog is properly updated on merging
+     molecules.
+ 
+   o BUG-FIX: Coot no longer crashes when opening the Bond Parameters
+     dialog before a pdb file has been read.
+
+   o BUG-FIX: NCS Loop function now properly mutates residues in the
+     peer chains [PRE].
+
+   o BUG-FIX: Add Terminal Residue deletes the TER record (if it
+     existed) of previous C-terminus [PRE].
+
+   o BUG-FIX: Povray output improved.
+
+   o BUG-FIX: The representation is no longer changed after editing
+     atoms in CA+ligs representation.
+
+-----
+
+
+Release 0.4.1 "Kendall^2"
+
+   o BUG-FIX: Fix problem of key press with no map causing crash.
+
+Release 0.4 "Kendall"
+
+   o FEATURE: Kevin Cowtan has given us "Cootaneer" [slim-line
+     side-chain-assigning Buccaneer for Coot]
+
+   o FEATURE: Richardson Rotamers (instead of Dunbrack's) are used by
+     default. Rotamers are named int the dialog (the probability
+     limits are no longer meaninful) [Dirk Kostrewa]
+
+   o FEATURE: New environment variable COOT_SCHEME_EXTRA_DIR
+     introduced. If the directory pointed to by COOT_SCHEME_EXTRA_DIR
+     exists, then Coot will read all the .scm files in that directory
+
+     :::: CORRECTION ::::
+     That should be COOT_SCHEME_EXTRAS_DIR (note the extra "S").
+
+   o FEATURE: Cis-peptide GUI added to extensions
+
+   o FEATURE: Chiral volumes are added to the geometry target
+     function. Check for chiral volume and cis-peptide errors introduced
+     on refinement.  Add Chi-squared values to Accept/Reject dialog
+     (along with traffic lights in the Gtk2 version)
+
+   o FEATURE: Old backup-files cleaner-upper added
+
+   o FEATURE: CCP4i aliases are also added to the Project Dir options
+     in the file selector [Ingo Korndoerfer]
+
+   o FEATURE: Multiple model ligand overlaying [Bob Nolte]
+
+   o FEATURE: NCS matching (Kleywegt Plots) work using SHELXL molecules
+
+   o FEATURE: Add "Laplacian" transform (the magnitude of the curvature)
+     function for maps
+
+   o FEATURE: Select residues (for new molecule) by sphere [Joel Bard]
+
+   o FEATURE: Cell expansion/contraction function for EM users
+
+   o FEATURE: skeletons now appear in Raster3D output and are properly
+     coloured using the colour wheel.
+
+   o FEATURE: a new command has been introduce, so that one can
+     highlight the command equivalent of gui operations using colour.
+     e.g.: (set-console-display-commands-hilights 1 1 4).
+
+   o FEATURE: binary builds now are scriptable in Python and scheme.
+
+   o FEATURE: GTK2 version has toolbar modelling buttons.
+
+   o FEATURE: a mapman bones reader has been introduced.
+
+   o FEATURE: Key presses . and , now work when navigating the checked
+     waters "baddies" dialog.
+
+   o FEATURE: label-all-CAs function added.
+
+   o FEATURE: Dynamic Distances (distances to intermediate atoms)
+     added [Found in the Distances and Angles dialog].
+
+   o FEATURE: one can now specify a radius around the atoms when
+     masking.
+
+   o FEATURE: Torsion General added.
+
+   o BUG-FIX: Fix occasional crash reported by Ketan Gajiwala on
+     pressing CR in the graphics window after a refinement.
+
+   o BUG-FIX: Fix crash on refining a water with an Alt Conf [Stephen
+     Graham].
+
+   o BUG-FIX: Symmetry atom picker improved [Jan Dohnalek, Pirkko
+     Heikinheimo]
+
+   o BUG-FIX: SSM superposition improved (crash fixed) 
+     [Frank von Delft, Alice Dawson].
+
+   o BUG-FIX: Fix Shelx lst file reader when handling atoms with Alt Confs
+     [Christian Stegmann].
+
+   o BUG-FIX: Lighting of Ball&Stick representations improved (with
+     the help of Martin Noble).
+
+   o BUG-FIX: Ca Zone->Mainchain no longer spews warnings.
+
+   o BUG-FIX: Fix typo in transform-map-using-lsq-matrix [Nick
+     Furnham]
+
+   o BUG-FIX: U-matrix correctly output to shelx .res file [Annette
+     Langkilde]
+
+   o BUG-FIX: Environment Distances now can work to symmetry-related atoms 
+     [David Briggs]
+
+   o BUG-FIX: residues with inscodes are now correctly flashed when
+     refining 
+
+   o BUG-FIX: SHELXL .res molecules now generate ghosts correctly
+     (given that NCS-related chains start at the "same" residue)
+
+   o BUG-FIX: METs can no longer form disulphide bridges [Wendy Offen].
+
+   o CHANGE: Temperature factor variance validation now works for SHELXL
+     molecules [GMS, JED]
+
+   o CHANGE: Map transformation now works differently.  Instead of
+     providing the point from which the map is copied, one passes the
+     target position to which the map should be copied (and the position
+     from which the map is copied is calculated from this target
+     position by the inverse transformation of the operator which moves
+     the coordinates).  This seems more natural to me.
+
+   o CHANGE: No longer a "stub" option in mutate and autofit [Steven
+     Sheriff]
+
+   o CHANGE: Get Monomer checks for pre-calculated results before
+     re-running.
+
+   o CHANGE: Planar peptide restraints are ON by default now [Phil Evans]
+
+   o CHANGE: Omega Distortion graph now updates on Accept Refine Zone
+ 
+   o CHANGE: svn revision number added to version information
+
+   o CHANGE: Moving the Rotate-Translate Y slider in the positve direction
+     moves the fragment in the +Y direction on the screen (instead of 
+     downwards) [Steven Sheriff]
+
+   o CHANGE: Faster bonding of multiple model molecules [e.g. from
+     NMR, Rapper]
+
+   o CHANGE: Binaries no longer contain include file and static library 
+     "junk" [Clemens Vonrhein]
+
+   o CHANGE: Check Waters results now display the occupancy too.
+
+   o CHANGE: Residue Info now displays Chi Angles for conventional
+     residues [Mark Mayer].
+
+   o CHANGE: fcf/cif maps now honour the map sampling rate [Dale Tronrud]
+
+   o CHANGE: Kleywegt Plots arrows "wrap" rather than extend across
+     large regions of the plot [GMS]
+  
+   o CHANGE: Extensions menu tided.
+
+   o CHANGE: multi-read-pdb no longer recentres.  Speeds things up [JED].
+
+   o KNOWN PROBLEM: Rotamer analysis gives too many bad/unusual rotamers.
+    
+
+-----
+
+    -------------------------------------------------------
+    -------------------- Old Releases ---------------------
+    -------------------------------------------------------
+
+
+Release 0.3.3 "The Early Bird Catches the Bugs"
+
+  o Tortuous and seemingly broken "Display Frame" code reverted [RR
+    will be back to being nausiated]
+
+  o Filter button fixed for file selections
+
+---
+
+Release 0.3.2 "Don't Bet on the River"
+
+  o Fix crash due to rigid body refinement of atoms with zero
+    occupancy
+
+  o Add further SHELX support: .res files are split and unsplit on
+    reading/writing.  Solve the ^M problem like SHELX does. SHELXL
+    refinement interface improved [GMS]
+
+  o Fix crash when applying NCS edits [Michael Url]
+
+  o Fix problems of incorrect actions on pressing NCS buttons 
+    [Christopher Rife]
+
+  o Fix (potential?) crash on finding blobs and waters [Kevin Cowtan]
+
+  o Fix crash apparent after deleting all maps then reading a new one 
+    while the Display Control window was open
+
+  o Instabity problems due to 60+ molecules addressed [but difficult
+    to test thoroughly]
+
+  o Added CNS map-reading [provided by Kevin Cowtan]. ".cns" is now 
+    an acceptable map extension
+
+  o Add Terminal Residue for nucleotide polymers
+
+  o Alt confs of ligands no longer fly apart on regularization
+
+  o Ramachandran plots now tell us the Preferred/Allowed/Outlier stats
+
+  o Add user-settable contour levels and block size for Ramachandran plots
+
+  o GTk+-2 interface now usable
+
+  o Added SEGID info to clicked atom [Christine Durnham]
+
+  o Added function fill-partial-residue [Bob Nolte]
+
+  o Added function transform-molecule-by [Alastair Fyfe]
+
+  o map transformation function fixed [Chris Meier]
+
+  o Added function to change the colour of the unit cell [Dirk Kostrewa]
+
+  o Added timer-based socket reading for Phenix and other interfaces
+
+  o Added function "blob under cursor -> screen centre" [FvD]
+
+  o Fix problem of Change Chain ID Residue Range inserting into the wrong 
+    place [Judit Debreczeni]
+
+  o Fix map reading so that it accepts user-approved extensions
+    [Peter Meyer]
+
+  o Reading a bespoke cif dictonary no longer cripples "Get Monomer"
+    for conventional residues [Judit Debreczeni]
+
+  o Added Views system [inspired by PyMol]
+
+  o Colour by B-factor and Occupancy [Jean Whittingham]
+
+  o Ramachandran plot dialog remembers where it was put last time
+    [Shawn Williams] 
+
+  o U matrix now correctly read for SHELXL .res files [Dale Tronrud]
+
+  o Display Control confusion about Display/Active state of molecules
+    untangled [Bob Nolte]
+
+  o state file saves stereo mode [Bob Nolte].
+
+  o Add ability to set the atom radius for Raster3D output
+
+  o On startup, the Go To Atom dialog no longer is inconsistent
+    between the chain chain and molecule chooser [GMS]
+
+  o phosphylate-active-residue function added, with GUI menu item
+
+  o Further tinkering with the bonding algorithm
+
+  o Using side-by-side stereo with slow graphics is no longer
+    nauseating [Randy Read]
+
+  o generic-double-entry interface changed, breaking
+    backwards-compatibility.  It now takes arguments for a check
+    button.
+
+
+
+
+Release 0.3.1 "Another Basil Grande?"
+
+  o Enable NCS ghosts
+  
+  o Add output of fractional matrix when doing coordinates
+    superposition [George Sheldrick]
+
+
+Release 0.3 "Basil Grande"
+
+  o Fixed crash on closing Baton Guide Points molecule [Richard
+    Baxter].
+
+  o Fixed crash on manipulating N-terminal backbone angles [Richard
+    Baxter].
+
+  o Concept of "Active Residue" added [Frank von Delft].  Added
+    trivial functions, (refine-active-residue),
+    (refine-active-residue-triple) and (autofit-rotamer-active-residue),
+    so that users can bind them to their own key choices.
+
+  o Use "Active Residue" concept to navigate and update "Go To Atom"
+    parameters [Bob Nolte].
+
+  o Skip to next NCS Chain function added [Robert Xu].
+
+  o Rationalized hydrogen usage in ligand fitting [Bob Nolte].
+
+  o Added template/graph residue matching function.
+
+  o Fixed problem of display lists and second GL context
+    (i.e. side-by-side stereo with density problems).
+
+  o Add a function to return all the dictionaries read [JED].
+
+  o Added function to find and produce an "interesting things GUI" for
+    residues with alternate conformations.  This is an instance of a
+    more-general purpose function of any scriptable test on a residue
+    producing a GUI [John MacLean].
+
+  o fit-protein function now refines residues with alternate
+    conformations [it doesn't rotamer-search the alternate
+    conformations].
+
+  o set-rotate-translate-zone-rotates-about-zone-centre function added
+    [Martyn Symmons]. Added and Extensions GUI for this too.
+
+  o New atoms have a default B factor that can be set by the user
+    (using set-default-temperature-factor-for-new-atoms).
+
+  o Auto-fit rotamer with hydrogens now works better.
+
+  o Secondary Structure Restraints buttons are properly set on
+    generating the dialog.
+
+  o No longer try to read various SHELX keywords as atoms when trying
+    to read a SHELXL .res file [George Sheldrick].
+
+  o SHELX log file reader accounts for alternative conformations
+    [Bernhard Lohkamp].
+
+  o findligand ligand fitting gives more useful output [Ingo
+    Korndoerfer].
+
+  o Clear up left-over scraps in mainchain building, freeing memory
+    [Joel Bard].
+
+  o Fixed problem of occupancy changes being ignored [Iain Kerr].
+
+  o An unphased mtz file should run REFMAC for 0 cycles to produce
+    phases [Tadeusz Skarzynski].
+
+  o Fixed crash on scripting ligand fitting [Ingo Korndoerfer].
+
+  o Added a scripting function to exit coot (coot-real-exit) [Joel
+    Bard].
+
+  o get-symmetry function added to return a list of symops.
+
+  o Add Terminal Residue works for just one residue.
+
+  o Rigid Body Refinement of a fragment containing residues with
+    occupancy zero improved.  Also less strict about low density (low
+    resolution) maps. Hence "Place Helix Here" may be improved.
+
+  o "Same Chain?" test applied to Rotate/Translate and Rigid Body
+    Refine Zone atom picks [Bob Nolte].
+
+
+
+Release 0.2 "Arashiyama Park"
+
+  o SigmaA code re-written using new version of Clipper [Artem Lyubimov]
+
+  o Extensions added to main GUI
+
+  o Fix crash when using script command (execute-ligand-search)
+
+  o Fix crash on Go To a "Delete Zone" residue [Kevin Cowtan]
+
+  o Fix occasional crash on pressing Escape 
+ 
+  o New Validation Tool - Nakagawa's Bees: check for outliers in
+    B-factor distribution of amino-carbonylo group of GLN and ASNs
+
+  o Fix Symmetry CA alt conf bonding problem [Randy Read]
+
+  o Adjust SE bonding (no more crazy-long Se bonds)
+
+  o "Place Helix Here" improvements.  Substantially better now
+
+  o Fix occasional crash when reversing chain direction
+
+  o Fix probe dots problem [Sabine Schneider]
+
+  o Fix code where Coot failed to find CCP4 Monomer library
+
+  o Exit gracefully on window manager kill
+
+  o Mutate to residue stub
+
+  o Don't reset the bond width on "Undo"
+
+  o Side-by-side stereo
+
+  o Secondard structure restraints in regularize and refine zone.
+
+  o Don't flip back to all-atom mode when using Rotate/Translate in 
+    CA mode
+
+  o Skeleton drawing speedup [Ezra Peisach]
+
+  o Exchange chain-id -> segid for ribosome-building and other
+    many-chain pdb users
+
+  o Added UNK support for Buccaneering
+
+  o If no phased in input MTZ file, try to run refmac to make an MTZ
+    with phases
+
+  o Read shelx .lst file to provide feedback from refinement (split
+    atoms?)
+
+  o Map sampling rate saved in session file [Bob Nolte]
+
+  o Green bonds no longer left behind on Edit Chi Angles finish [Bob Nolte]
+
+  o Optionally run refinement after terminal residue addition.  This is 
+    a good thing and will probably become the default in a later release
+
+  o Optional embedded MySQL database client - history stored in database 
+    on the fly
+
+  o NCS Master copy -> others fix
+
+  o Generic gui code added for easy building of extension guis
+
+  o Fix crash when rendering when there are no graphics [Tim Gruene]
+
+  o Colour by Chain now respects the "Colour Carbons Only" state [Phil Evans]
+
+  o New function new-molecule-by-residue-type-selection [Nino Campobasso]
+
+  o Mask molecule by atom selection [Roberto Steiner]
+
+
+Release 0.1.2 "Athenian Bride"
+
+  o Fix occasional crash on Auto-Read MTZ file
+
+  o Fix occasional crash when reading CCP4 maps [James Murray]
+
+  o Fix crash when showing the Anisotropic Atoms dialog
+
+  o Create NCS ghosts used to do nothing sometimes.  Fixed.
+
+  o NCS application of master-chain residue range fixed [Panagis
+    Filippakopoulos]
+
+  o Ideal Helix Nucleotide-builder can now use upper-cased letters
+    [Bill Scott, Tassos Perrakis]
+
+  o Ideal Nucleotide helix anti-sense chain residues now in the
+    correct order [Bill Scott]
+
+  o Fix output of FVAR values and coordinates in shelx .ins file
+    [Doug Kuntz]
+
+  o Can now pre-filter (as well as pre-sort of course) files in the
+    fileselection [Phil Evans]
+
+  o Fix bug in validation graph causing occasional crash and non-expansion 
+    [Ulrich Englich, Doug Kuntz]
+
+  o Add insertion-code improvement for sequence view, status bar and
+    Ramachandran Plot [Ezra Peisach]
+ 
+  o Save and restore "layout" of major dialogs from state file [Bob Nolte]
+
+  o Conformer searching for multi-torsion ligands improved
+
+  o findligand can now do conformer search [Markus Kroemer]
+
+  o Monomer library text search GUI
+
+  o Fix reading of probe output [Sabine Schneider]
+
+  o Coot-Fffear interface fixed for molecules with atoms with B factor 0
+
+  o Enable GUI extensions
+
+  o "Move Molecule Here" GUI
+
+  o Least-squares fit GUI
+
+  o Flash bonds on Edit Chi Angles for easier identification
+
+  o Pepflip now forces a graphics redraw [Kevin Madauss]
+
+  o cns->coot script added
+
+  o New scripting window layout
+
+  o Fileselections keep their re-size
+
+  o Enable default bond-width
+
+  o Add a function to write a residue range to a pdb file [Nigel Moriarty]
+
+  o Lots of fixes for Windows Coot and Intel Mac Coot [Francois
+    Remacle, Lynn Ten Eyck]
+
+  o Still remaining problems: occasional crash on SSM (bug in SSM
+    lib), occasional crash when baton-building (can't reproduce)
+
+
+--- 
+
+Release 0.1.1 "New Groom"
+
+  o The display unit cell radio buttons now have immediate effect
+    (rather than having to press the "Apply" button).  Unit cells for
+    maps are also displayed [Phil Evans].
+
+  o You can now zoom AND pan Ramachandran and Kleywegt Plots.
+
+  o Kleywegt Plots are properly updated on model modification and undo
+    [Gabor Bunkoczi]
+ 
+  o You can no longer have more than one sequence view for each
+    molecule [fixes a crash, Mark Brooks].
+
+  o Spin molecule added to GUI
+
+  o User-typed Pointer Atom now has sensible attributes [Brad Bennett]
+
+  o Add Atom/water occupancy problem [was often set to 11.0] corrected
+    [Iain Kerr]
+
+  o Simple Mutate on nucleotide now works again [Colin McVey]
+
+  o Nucleotide-builder added [Bill Scott, Tassos Perrakis]
+
+  o "Near Chains" symmetry fixed [Sabine Schneider]
+
+  o Probe clashes added to validation GUI.
+
+  o generic "go to interesting things" GUI created.
+
+  o Planar peptide restraint mechanism changed.
+
+  o Changing map radius now has an "Apply" button [Roberto Steiner].
+
+  o Many internal changes, particularly to support MS Visual Studio
+    build of coot.
+
+---
+
+
+
+Release 0.1.0 "New Broom"
+
+I'd like to particularly thank to following following for criticisms,
+building the test versions, suggestions and other feedback:
+
+George Sheldrick, Bill Scott, Jan Richardson, Ezra Peisach, Dirk
+Kostrewa, Chris (Chuck) Tan.
+
+ o Switched over to CCP4 distribution of dependency libraries, dataset
+   and xtal info now available in MTZ column selection
+
+ o Per molecule colouring [Partha's Wish List No 1]
+
+ o download coords and sfs from EDS [notes from Gerard Kleywegt]
+
+ o difference map peaks now positioned correctly arround the molecule
+
+ o Coot can now be used on the command line, without starting up
+   graphics interface
+
+ o fix "CA + ligands" colouring [Judit Debreczeni]
+
+ o symmetry display, picking and labelling re-worked
+
+ o residue edits mechanism changed [again!]
+
+ o fill-partial-residues function [or "de-chainsaw" as I sometimes call it]
+
+ o multiple blob dialogs now works as expected [Airlie McCoy]
+
+ o Fixed non-refining problem in rigid body fit
+
+ o creating alt conf of waters fixed [Tracy Gloster]
+
+ o function to reverse the direction of a CA chain [Phil Evans]
+
+ o 180 degree side chain flip [Gideon Davies]
+
+ o add helix function [with engine from Kevin Cowtan] [Partha's Wish List No 5]
+
+ o Keyboard accelerators for Accept/Reject Refinement dialog [Frank von Delft]
+
+ o inappropriately invalid rotamers removed from rotamer graph for PHE 
+   and TYR
+
+ o screenshot GUI interface, with povray (with help from Neil "The Boy" 
+   Paterson) and raster3D output (the povray z-orientation is wrong
+   and the lighting is poor)
+
+ o fix water distance check
+ 
+ o Re-worked SHELX input and output (with assistance of George Sheldrick).
+
+ o (another-level) used to crash Coot when the map was not from an MTZ file. 
+   Fixed.
+
+ o new "fit waters" scripting function [Bob Nolte]
+
+ o fix wrong chain water addition bug
+
+ o various dialog are now transiented (float on top of main window)
+   and remember where they were put (instead of appearing in the centre 
+   of the screen every time)
+
+ o partial charges are now optional in monomer dictionary [Ian Tickle]
+
+ o fix scroll wheel handling when the map has not been set [fixes
+   unscrollable maps problem] [Adrian Lapthorn]
+
+ o new surface code from Martin Noble [no more speckles!]
+
+ o new mgtree code from Stuart McNicholas [proline rotamers work!]
+
+ o scrolled window code for options in ligand fitting dialog [Jurgen Bosch]
+
+ o add export-map function
+
+ o re-write water fitting code
+
+ o re-write ligand fitting code
+
+ o fix problem of refining next to a residue with an alt conf
+
+ o Rotate/Translate Zone on an atom with an alt conf moves only atoms in the 
+   zone with the same altconf [Bob Nolte, Artem Lyubimov]
+
+ o correct occupancy of remaining atoms in a residue after removing an
+   alt conf
+
+ o correct occupancy of remaining atoms in a residue after adding an
+   alt conf
+
+ o NCS ghost control re-written [Jade Li]
+
+ o Dotted spheres for atoms [Partha's Wish List Item No 2?]
+
+ o SMILES interface to libcheck
+
+ o Generic Objects
+
+ o Probe&Reduce interface
+
+ o Can now read read Refmac cif dictionary for pyranoses and furanoses 
+
+ o Glycosidic linkages.
+
+ o Generic Key-press hook added [enables Partha Wish List No 8]
+
+ o Least-squares plane GUI
+
+ o Bonding algorithm re-worked (but it still can't draw MES properly)
+
+ o All usable scripting functions are now documented (and on the web)
+
+ o Ramachandran Difference Plot renamed as "Kleywegt Plot" and made to
+   work.
+
+ o Get Monomer fails for normal dictionary monomers (e.g, ATP, 3GP,
+   GOL) etc when a dictionary (for something else) has already been
+   read into Coot using File -> Import CIF Dictionary.
+
+ o Missing (undrawn) bonds can still be a problem.
+
+
+Relase 0.0.33 "Sicilian Rainbow"
+
+Several of these updates were made in Erice (hence "Sicilian")
+
+ o Fix occasional/esoteric crash with Refine Zone on a Water [Joel
+   Bard].
+
+ o Checking chiral volumes now gives a result even if not all the
+   restraints are found.
+
+ o A new CIF file with restraints now overrides the old one of the
+   same monomer name [Charlie Bond].
+
+ o Incorporate code from Kevin to determine the resolution limits for
+   map from the available data, not the resolution in the MTZ file
+   [EJD].
+
+ o Refmac dictionary reference added to startup text.
+
+ o Homology level for NCS determination exposed at the scripting
+   layer.
+
+ o Applied Ezra's map display updates [2-3% speed increase].
+
+ o findwaters improved [Martyn Winn].
+
+ o Find Waters now adds to the water molecule (rather than creating a
+   new chain)
+
+ o Cleared up memory leak in bond allocation, I hope [Joel Bard and
+   others].
+
+ o "Undo Last Navigation" has a home in the GUI.
+
+ o Update to newest mmdb libs and use the IgnoreHash flag so that Coot
+   can read molrep files with # comments.
+
+ o On reading a PDB, Hydrogen names with column 0 numbers are
+   corrected according to REFMAC convention.
+
+ o command line program: fix-nomenclature-errors created.
+
+ o Delete Zone reworked.
+
+ o Delete Item now has "Water" entry.  Waters can no longer be deleted
+   when "Delete Residue" is active and residues can't be deleted when
+   "Delete Water" is active.  This is a good thing and reduces
+   mis-clicking [Paul Rowland].
+
+ o Fixed problem of Delete dialog getting stuck in delete-hydrogens
+   mode.
+
+ o Symmetry display re-worked.  After superposition, turn off the
+   molecule symmetry [EP].  This may affect a few .coot and saved
+   sesion files.  The set-show-symmetry function is
+   no-longer available, use set-show-symmetry-master instead.
+
+ o Fix a crash when closing the window of a Sequence View of a closed
+   molecule.
+
+ o Residue Info reworked.  Now we have a master atom.
+
+ o Changed colours of the model/fit/refine dialog in the cootrc.  I
+   did this in Erice (hence "Rainbow").
+
+ o Display Manager reworked.  Now remembers where it was put last
+   time, what the size and shape was too.  Also, re-worked to use a
+   pane to provide a user-changable divider between molecules and
+   maps [FvD].
+
+ o Shelx input considerably re-worked with the assistance of GMS. I
+   hope Coot can reaad all shelx ins/res files now - even
+   centrosymetric small molecules.
+
+ o Shelx compabibility: .pha files are considered as .phs files.
+
+ o Shelx compabibility: .hat files are considered as .ins files.
+
+ o Mutate Sequence dialog auto fit check-button fixed.
+
+ o Reworked the Go To Atom and other Coordinates Molecules option
+   menus.  The Go To Atom option menu should now be consistent with the
+   residues tree.
+
+ o Difference Map peaks search now tries to put the peaks around a
+   molecule, rather than in the map asymmetric unit [PRE FRS]
+
+ o Bad Chiral Volumes now writes to the console when it can't find the
+   restraints for a monomer type [Marianne Cuff].
+
+ o print-sequence and print-sequence-chain write to the console, so
+   that now coot can do what pdbset's SEQU SING does.
+
+ o Removed the slow and nearly pointless "Import all Dictionary CIFs"
+   from the menu.
+
+ o (Jones) "Rainbow" CA colouring mode.  I decided to add this after
+   listening to Alywn at the ACA 2005 Patterson symposium.
+
+ o Included various cleanups from Ezra Peisach.
+
+ o Included multi-molecule bond display speed up from Ezra Peisach.
+
+ o "Missing Atoms" in rotamer analysis are plotted as blue instead of
+   red [Qingping Xu].
+
+ o Residues with negative numbers now work in the Go To Atom dialog
+   [Qingping Xu].
+
+ o Residue type MSE no longer gives "Missing Atoms" error in Rotamer
+   Analysis graph [Juergen Bosch].
+
+ o Rotamer graph now updates on model modification [Juergen Bosch].
+
+ o linkage type between neighbouring and flanking residues now
+   dependent on the chem_comp.group value in the restraint for the
+   residue types [which means that ligands with C, N atoms and
+   consecutive numbering don't get linked and fly away] [Bob Nolte].
+
+ o pick cursor index now changable from the scripting layer [Bob
+   Nolte].
+
+ o Rotate/Translate in CA bonds mode moves a CA representation (no
+   longer a full atom representation).
+
+ o Resolution limits frame in the MTZ column selection widget now
+   under the control of the check button.  This improves the usability
+   [EJD].
+
+ o Pointer distances now only displayed to displayed molecules
+   [Stephen Graham].
+
+ o Reset View has animated zoom - rather than jump zoom.
+
+ o --auto command line argument for autoreading MTZ files [Randy Read].
+
+ o cis <-> trans conversion [Randy Read, Pierre Rizkallah].
+
+ o user-level hooks available for "." and "," pressed [Charlie Bond].
+
+ o skeleton colouring improved [Stephen Graham].
+
+ o Symmetry control re-worked.  Not it is possible to undisplay
+   symmetry of various molecules.  Molecules having undergone SSM
+   Superposition no longer have their symmetry displayed by default
+   [Ezra Peisach].
+
+ o Change the splash screen.
+
+  
+
+
+Release 0.0.32 "Oranger Hat"
+
+This month, not so much. Been busy with other things as may become
+apparent at some stage.  
+
+Anyway, this I am putting out without fully testing, there may be
+"funny pick mode" problems - it happened to me once but things got
+better using "Clear Pending Picks".
+
+There are several improvements that I don't want to sit on any
+longer.
+
+
+ o Crash on read, close, read, next residue. Fixed.  [Neil Paterson]
+
+ o Animated initial refinement [Kevin]
+
+ o Mutation of nucleic acids [Bill Scott]
+
+ o Change Chain ID GUI [Jan Abendroth]
+
+ o Coot now no longer allows the undoing of changes to a molecule that
+   is not displayed [this is not an ideal interface and will be improved
+   in future].
+
+ o Fix occasional problem of unreadable MTZ columns [Peter Zwart, Joel
+   Bard].
+
+ o Using Ctrl-Z to undo a modification on a second molecule lead to
+   problem with subsequently unclickable atoms.  Fixed.
+
+ o Many widgets are now marked as transients (anti-submarined
+   (i.e. "stay on top")).  A few of them now remember where they were
+   put last time (let me know if there are other dialogs that should
+   also be anti-submarined)
+
+ o Multi-model C-alpha mode now available for NMR models [Ezra Peisach]
+
+ o Negative levels in difference maps no longer truncated [Charlie Bond]
+
+ o "Save State" now brings up a fileselection dialog instead of
+   writing to an unchangable file name [Dirk Kostrewa]
+
+ o Difference maps read from state file maintain their colour map
+   rotation if difference map colours are swapped [Dirk Kostrewa]
+
+ o "Strict NCS" concept added.  The addition of a Strict NCS matrix
+   will allow the "expansion" of molecules in the same way that normal
+   symmetry does.  Useful for molecules refined with strict NCS in
+   CNS (like viruses), I hope (still "in development") [Jonathan
+   Grimes/River]
+
+ o "Undo last navigation" bound to "U" key [FvD]
+
+ o Rotate/Translate objects can now be rotated from the keyboard (use
+   Ctrl left-mouse and click away from the intermediate atoms) [Artem
+   Evdokimov]
+
+ o After Auto-read MTZ, the "scroll" map is the FWT/PHWT map, not the
+   difference map [Randy Read]
+
+ o Coot now honours your umask when it creates coot-backup [Gabor
+   Bunkoczi]
+
+ o You can turn off the map scrolling by the scroll wheel [Phil Evans]
+
+ o New function to fix nomenclature errors.
+
+ o The top of the Coot's hat on the splashscreen is now more orange -
+   less Tajikistan and more India [Neil Paterson].
+
+
+---
+
+Release 0.0.31 "Anniversary (Indian Hat) Release"
+
+Many of these changes were written during the recent sleepless nights
+in Bangalore.  
+
+Coot is officially 1 today... Does that mean we'll get sensible
+release numbering..?  Haha not yet!
+
+ o "Scroll" radio button in the Display Manager to ease the changing
+   of the scrolling map [at long last, eh Charlie?]
+
+ o Some drawing speed-up code suggested by Mike Hartshorn.  On testing
+   I got 40-50% improved frame rates - YMMV.
+
+ o Fit Loop exported to GUI.
+
+ o Now you can undo the deletion of a residue for a molecule that
+   contains a single residue [Joel Bard].
+
+ o Reset View on the menubar.
+
+ o Turn off the cell when either its map or molecule are not displayed.
+
+ o Ctrl-Right mouse now does clipping change (up/down) and
+   z-translation (left/right) [actually, this is a more or less a
+   feature that Frank liked in Pymol and was in the previous
+   release too, but I forgot to mention it] [FvD].
+
+ o Symmetry atom pick, now we can pick any symmetry atom (not just
+   ones close to the centre) [PRE bug].
+
+ o Don't draw hydrogen atom in the rendered image when they are not
+   displayed [Robin Owen].
+
+ o Internal changes so that the 0th molecule can have a colour change
+   too.
+
+ o Diagnostic output checking the reference-structures directory at
+   start.
+
+ o Fixed some of Ezra's non-initialized variable warnings.
+
+ o guile auxilary code change from guile-www to net-http.  This will
+   affect those who compile.  Considerable speed-up in downloading PDB
+   files from an OCA server.
+
+ o More status bar messages.
+
+ o Fixed several option menus that didn't alter the molecule that they
+   said they would.
+
+ o Fixed crash on multiple deletes then refine zone.
+
+ o Some functions now say in the console what their script version is.
+   (print-all-history-in-scheme) gives a history of commands.  The
+   coverage is rather spartan at the moment.
+
+ o Lots of documentation updates, now makeinfo is happy.
+
+
+--
+
+Release 0.0.30 
+
+ Not much this week, I've been ill and have been improving
+ documentation.
+ 
+ o Broken hardware stereo fixed.
+
+ o Delete item now move cursor into "pick-cursor" mode
+
+ o Applied torsionable ligand patch from Joel Bard [not the latest
+   one]
+
+ o Several internal changes suggested by Ezra Peisach to build with
+   sgi CC.
+
+
+--
+
+Release 0.0.29
+
+This release fixes the botched 0.0.28 version.  There are some feature
+requests too.
+
+ o Status bar: has atom pick info and other things [Jan Dohnalek]
+
+ o Now we can colour by molecule too [Andrea Olland]
+
+ o Update go to atom molecule on close molecule [Phil Evans]
+
+ o Measure Torsions [Joel Bard]
+
+ o Use masked map for scoring of orientations in ligand fitting [experimental]
+
+ o Fixed merging molecule chain problems [Harvard oops]
+
+ o Fixed problem of addition pointer atom residue numbers [Wyeth demo oops]
+
+ o Don't write out wiggly ligand models
+
+ o Use group-settings to unset display lists for maps if uname is Linux
+   [by popular demand]
+
+ o Add optional atom-based scoring for residue-density-fit
+
+ o new scheme function: fit-protein which does rotamer search and
+   refinement for each residue in the molecule.  Sit back with feet and
+   and watch the fun job.
+
+ o Use the masked map to score ligand positions rather than the
+   unmasked map.
+
+ o Makefile.am fix [Bill Scott]
+
+ o configure.in fix [Ezra Peisach]
+
+ o Documentation updates (including the F8 key).
+
+--
+
+Coot-0.0.28 release notes
+
+This is a bug-fix release with a few feature requests added.
+
+ o A crash and generally woolly thinking has been fixed in the Align &
+   Mutate function
+
+ o After a chat with Martin Noble, display lists have (optionally)
+   been added for maps.  It is not clear if this will help on your
+   hardware - for me, it makes my PC worse but my Mac faster.  This
+   may address the concerns of Phil Evans and Andrea Schmidt.
+   Map display lists are on by default.  To turn it off:
+   (set-display-lists-for-maps 0)
+
+ o Delete Item on a symmetry related item now deletes the real item
+   (and consequently symmetry copies).
+
+ o Flexible ligands are now pre-regularized (anti-bumped) after
+   torsion angle manipulation
+
+ o Chi Angles for MSE fixed [Marianne Cuff/Phil Evans]
+
+ o Chi Angles values displayed [Dirk Kostrewa]
+
+ o New function: de-clash (see documentation) for de-clashing
+   sidechains without a map [Kay Diederichs] (Clashing waters can be
+   deleted with the validation water checker).
+
+ o Cancel on the Map Colour Selector actually cancels the colour
+   selection and takes you back to the colour you first started with
+   (instead of doing nothing) [Many people doing the tutorial at
+   Grenoble found this one]
+
+ o NCS sequence comparison improved [Adrian Lapthorn].
+
+ o Water searching now tells us the distance parameters it is using.
+
+ o Delete Item now has a checkbutton to keep the dialog alive [Adrian
+   Lapthorn]
+
+ o Fix SSM configuration problem [Joseph Toth]
+
+ o Double-click during Refinement gives 2 "Accept Refinement?"
+   dialogs.  Fixed. [EJD]
+
+ o Density fit for residue now auto-updates on accepting refined
+   residues
+
+ o Various internal updates to make Windows port easier
+
+ o Various documentation updates
+
+   I had been having problems keeping the documentation
+   in order - but now I think that the manual will appear spookily up
+   to date.
+
+--
+
+
+coot-0.0.27 has been released.
+
+Fixes issues raised by Kate Kavanagh (alignment and mutate chain
+problems), Adrian Lapthorn (coloured intermediate atoms), Ian Tickle
+(brief atom labels), Marianne Cuff (water/ligand addition problems).
+
+
+--
+
+coot-0.0.26
+
+I made an important oversight in 0.0.25.  The ccp4mg utils function
+Tree used in chi angles and rotamers was modified and I forgot to
+update one of its uses (the rotamers).
+
+So I am releasing 0.0.26 as a fix.
+
+On the plus side, this version has a couple of other fixes and has a
+least squares interface and shelx interface that are getting released
+sooner than I had planned (these aren't documented in the web pdf
+manual yet).
+
+--
+
+0.0.25 has been released.
+
+Updates include:
+
+o fixed crash on .phs data but no symmetry for molecules
+
+o fixed N-terminal add terminal residue crash
+
+o fixed crash on rot/trans of alt-conf selection [thanks Stephen Graham]
+
+o Added chain chooser to SSM superposition
+
+o Fixed symmetry atom picking (which sometimes gave spurious hits)
+
+o more annotation for SSM overlapping results (work still to be done
+  here, thanks for testing: MOL)
+
+o NCS tool: Edit -> Bond Parameters now has NCS "ghosts" available for
+  display (overlay B chain on A chain)
+
+    e.g. http://www.ysbl.york.ac.uk/~emsley/coot/screenshots/coot-ncs-ghosts.png
+    The result of a chat with Charlie Bond at Galashiels
+
+o NCS tool: Calculate -> NCS maps: i.e. e.g. overlay map for molecule
+  B on molecule A. Does averaging also.
+
+o Fixed various Makefile.am problems [thanks Joseph Toth]
+
+o Real Space Refinement of Water atom now available (it actually does
+  a rigid body fit)
+
+o Pointer distances (distances to the pointer - so that you don't have
+  to add an atom to a structure before you know the distance of a blob
+  centre to the protein atoms)
+
+o Various fixes trying to get rid of accidental "Translate Only" mode
+
+o Delete atoms from the structure "on top" when multiple structures
+  overlaid (more work to be done here it's still too easy to
+  accidently delete stuff "at the back")
+
+o Fixed occasional problem with MTZ column label checking
+
+o "Filename filter always on" option (needs more intricate widget work)
+
+o moved from COOT_RESOURCES to COOT_PIXMAP (coot will have icons one day)
+
+o fixed occasional discrepancy between the bond parameter molecule
+  option menu and the molecule of the bond parameter options
+
+o fixed python function state naming problem [thanks Bernhard]
+
+o Water masking is no longer optional in water search [forced on].  No
+  longer possible to put waters on top of existing waters
+
+o Water checker validation tool now available [about 10 months after
+  Florence asked for it]
+
+o Experimental "Align and Mutate" feature for Molecular Replacement models
+
+o Option to allow the swapping of colours after refmac (so that the
+  new map has the same colour as the pre-refmac map
+
+o difference maps are now by default shown after running refmac
+
+o Tassos encourages the use of "Real Space Refinement" label
+
+o Clicking on "RS Refine Zone" while the delete window is open no
+  longer deletes the residue
+
+o Turn off skeletons properly now
+
+o Rendered images now contain balls (as well as sticks)
+
+o In Ca-mode, Coot no longer "runs out of colours" past the 8th chain
+
+o Several corrections to enable compilation without the GSL (but not
+  recommended)
+
+o Fix typo in contouring algorithm that occasionally deleted a
+  contouring line [thanks Ezra]
+
+o Bond parameters dialog now has slider for colour map rotation - much
+  better than text entry
+
+o Fixed "No solvent" view atom indexing problems [thanks Ward Smith]
+
+o Fixed the mask inversion, so we can easily make nice piccies like this:
+  http://www.ysbl.york.ac.uk/~emsley/coot/screenshots/coot-mask-raster3d.png
+
+o Now using newest CCP4mg code for atom tree (ligand chi angles).
+  Note that the tree is built using the clicked atom as its base -
+  this is still under development (I'm not happy with it) but may
+  improve things
+
+o I'd had a few reports that there were gaps when using Ca Zone ->
+  Mainchain. So I tinkered with a couple of filtering parameters -
+  lets see how it goes...
+
+o citation banner enabled [the Coot paper has been published - yey!].
+  Splash screen amended too
+
+
+--
+
+coot-0.0.24 has been released.
+
+o Added IRIX case to setup scripts and added COOT_REF_STRUCTS.
+  Hopefully that'll put these problems to bed.
+
+o Check the bonds type before making bonds after setting hydrogen bond
+  drawing state (Charlie Bond's bug)
+
+o Calphas + Ligands in Sec. Struct. colouring now works (ditto)
+
+o Added a few GUI warnings as per Ezra's suggestion
+
+o Go To Atom widget residue tree improved
+
+o Fixed-up ligand searching dialog - no longer crashes at execute time
+  when no ligands found.  Re-worked so that the searching dialog doesn't
+  appear unless there are ligands available.
+
+o Re-write of map colour selection and scroll-wheel attachment code.
+  Now the maps are enumerated and one doesn't get the option of
+  changing the colour of closed maps
+
+o COOT_SCHEME_DIR and hard-wired default directory searching logic
+  change
+
+o insertion code support for Go To atom: now Coot displays the
+  insertion code in the (graphics) atom label and in the Go To Atom
+  residue tree item labels and double clicking on such a thing goes to
+  the right residue (you still can't refine it when you get there
+  however)
+
+o one can no longer add Pointer Atoms to closed molecules
+
+o Refmac running extra parameters code cleaned up
+
+o Downloaded files go now to directory coot-download, not .coot
+
+o MSE standard residue more sensible now (apparent after mutate
+  residue to MSE)
+
+o Substantial re-write of atom naming code in dictionary reading.
+  Still not all correct yet but better than it was - it may even be
+  faster to generate the geometric validation graph.  Coot can now
+  refine NAD and MSE (MSE chi angles still fails).
+
+

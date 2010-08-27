@@ -1,0 +1,55 @@
+
+
+Playground for testing ideas about how to do updates.
+
+First we need to encode into the binary what type of build it is.
+   How shall I do that?
+
+* Done.
+
+OK, so this binary knows where on the server to get a new version.
+
+So the user does xxx -> Check for Updates... 
+
+   [runs a built-in blocking function]
+
+   -> Either "No new updates" dialog
+   or 
+   -> "Updates Available" dialog.  
+
+  And this has a "Download..." button if... we have permission to do
+  overwrite the current installation.  i.e. we need to be able to
+  write (and move directories in) the top directory (i.e. in
+  the coot-binary-Linux-i386-gtk2)
+
+    If we can't do that, we get info saying that we do not have
+    permission
+   
+    . OK so, user presses "Dowload..."
+
+   -> A progress bar gets added to the dialog
+
+   -> runs a separate process which does the download and the main
+      process monitors the download and updates the progress bar with
+      a gtk timeout (i.e. every x milliseconds run a function that
+      returns #t if it should be run again).
+
+OK, eventually the subprocess downloads the whole tar file.
+
+   How do we know that it's all there?  The sub-process terminates
+   with 0.  
+
+   How does the subprocess know to terminate with 0? Not sure, there
+   surely is an easy way.
+
+   OK, so now an Install button (that was grey-out) becomes active.
+    
+
+On restart, (or gui button press in the download dialog, perhaps) coot
+should install from the tar-ball.
+
+On restart, how does coot know that the downloaded file was complete?
+The checksum is downloaded too.  It checks that it corresponds to the
+tar file.
+
+

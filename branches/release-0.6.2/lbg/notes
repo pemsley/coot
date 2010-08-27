@@ -1,0 +1,539 @@
+
+
+test ligands:
+2z7l A 1001 S91
+3hec A 1    STI
+3lhj A 361  LHJ
+3hvh A 1    542 
+2aei ??? 
+1g3b ??? horrific ligand layout-based star wars problems.
+2rh1 A 408  CAU (important to get this better looking). 
+            What about the ASN A312 H-bond donor to the H on the ligand?
+            Mistake, I feel - needs investigating.
+
+----
+
+    Thoughts about 6 July meeting:
+
+    Automated model-building and ligand fitting in Coot.
+
+    o Need to show findligand script with a ccp4mg headless back-end
+      for images.
+
+----
+Fri May 21 14:02:36 BST 2010
+
+
+crash when setup sbase to the wrong directory.
+
+
+(lbg:23223): Gtk-WARNING **: Unable to locate theme engine in module_path: "murrine",
+
+(lbg:23223): Gtk-WARNING **: Unable to locate theme engine in module_path: "murrine",
+
+(lbg:23223): Gtk-WARNING **: Error loading icon: Failed to open file '/lmb/wear/emsley/Projects/coot/lbg/Anonymous_Architetto_--_Chiave.svg': No such file or directory
+sbase monomer dir: /home/paule/ccp4/ccp4-6.1.2/share/sbase
+sbase files not found in /home/paule/ccp4/ccp4-6.1.2/share/sbase
+
+
+---
+Thu Jun 10 03:05:29 CEST 2010
+
+    HIS for pi-pi stacking?
+
+---
+Fri Jun  4 11:56:40 CEST 2010
+
+	Note:  cprodrg struggles and fails with the ATP in 1ATN.
+	(Grrr...)
+
+---
+Mon May 31 11:03:59 BST 2010
+
+   mol's add_bond() method should not add a bond between given atoms
+   if a bond between them already exists. (fix problem of "back-bond"
+   in rotate_latest_bond()).  Hmm... is that properly handled in
+   rotate_latest_bond()?
+
+----
+Sun May 30 08:56:48 BST 2010
+
+     press SMILES button, close dialog, press SMILES button again.
+
+     likewise for the info dialog
+
+     Mail list.  Give triv example.
+
+---
+Mon May 24 16:15:17 BST 2010
+
+    in ZZG (A 1500) of 2wot, the HOH A2051 should be H-bonded to N24
+    of the ligand (reject on angles somehow?).  This might be
+    impossible without generating hydrogen positions.
+
+
+------
+Tue Apr 13 14:33:21 BST 2010
+
+    Write a mol file.  Read it in.  It has become expanded.
+
+---
+Mon May 10 14:23:04 BST 2010
+
+   1udt, residue type VIA, 
+
+   problem at N22, suspicious hydrogen bond doner.
+   problem at O3,  suspicious hydrogen bond doner.
+
+---
+Sat May  8 13:59:58 UYT 2010
+
+    Need to add cation-pi interaction (flev.cc obviously)
+
+    Make a synthetic example 
+
+------
+  
+    JED: break molecule in to bits, add bonds, change bonds to double
+    and back with lots of undos.  delete atoms -> crash eventually.
+
+   * Can't reproduce crash, but there are bonding/veiwable deleted
+     atoms errors and reappearing bonds.
+
+----
+
+    look at 3h7w.  Problems.
+
+* Angle of bonds to ligand.  Hard to solve.  What are the angles in a
+  H-bond?
+
+----
+
+    look at 3lhj.  Problems
+
+* Looks good now.
+
+----
+
+    look at 3hec.  Problems.
+
+* OK now
+
+---
+
+    look at 1g3b. Problems
+
+-----
+
+Swanand's talk:
+
+   problems with ligands in the PDB:
+
+   1pme, 1tnk  - others, didn't catch
+
+
+----
+Sun May  2 18:20:52 UYT 2010
+
+    Adding or deleting a bond should expire the
+    have_cached_bond_ring_centres_flag.
+
+
+----
+Tue Apr 13 22:12:23 BST 2010
+
+   JED: It won't let me do a wedge bond in a ring (say the spiro
+   position in MI6)
+
+
+Still crashing.
+
+Differently though.
+
+Add a ring, then a wedge bond off the ring. Try to cycle the
+wedgedness a bit [1] and add 3 more bonds to this one -> crash.
+
+
+[1] well, it's a bit broken: after a few cycles it's won't do all 4
+variants, just 2 of them
+
+----
+ 
+    in triple bond add mode, the bond should be added as a triple bond
+    (not double).
+
+    Also, should be linear.
+
+----
+
+   Fix the search (fraction of atoms in search fragment)
+
+----
+
+   need to have user control over bond direction (JME does it when the
+   mouse moves away from the clicked-on atom).
+
+
+---
+
+   When dragging a bond, the end of the bond should snap to an atom
+   when we mouse over it.
+
+---
+
+   get_scale_correction() needs to be looked, c.f. 
+   i.e. input_coords_to_canvas_coords() and write_mdl_molfile() 
+
+
+----
+
+   Import 515, X offset is wrong.
+
+---- 
+
+
+    \  /   should be  \ /  and similar for up NH bonds
+     NH                N
+                       H
+
+    if 2 neighbours are coming in horizontally (axis orientation < 40
+    say) , that is.
+
+    and OH should be HO if the bond comes in from the right.
+
+----
+
+   INFO:: 
+
+     106 4-(5-BROMO-2-OXO-2H-INDOL-3-YLAZO)-BENZENESULFONAMIDE is
+     an excellent example of the difference between PRODRG and SBase.
+
+     sp3 vs sp2 nitrogen.  The hydrogen on N1, whats going on there?  A
+     double-bond was invented by PRODRG.  The nitrogen on the sulfur.
+
+----
+
+INFO:: 
+
+   balloon:
+
+   Mikko J. Vainio and Mark S. Johnson (2007) Generating Conformer
+   Ensembles Using a Multiobjective Genetic Algorithm. Journal of
+   Chemical Information and Modeling, 47, 2462 - 2474.
+
+
+------
+Mon May 31 12:30:34 BST 2010
+
+   INFO:: references on molinspirpation page:
+
+    * P. Ertl, B. Rohde, P. Selzer, Fast calculation of molecular
+      polar surface area as a sum of fragment-based contributions and
+      its application to the prediction of drug transport
+      properties. J.Med.Chem. 43, 3714-3717 (2000).
+
+    * C.A. Lipinski, F. Lombardo, B.W. Dominy, P.J. Feeney,
+      Experimental and computational approaches to estimate solubility
+      and permeability in drug discovery and development
+      settings. Adv.Drug.Delivery Rev. 23, 4-25 (1997).
+
+    * D.F. Veber, S.R. Johnson, H.-Y. Cheng, B.R. Smith, K.W. Ward,
+      K.D. Kopple, Molecular properties that influence the oral
+      bioavailability of drug candidates. J.Med.Chem. 45, 2615-2623
+      (2002).
+
+-----
+
+    INFO:: John Irwin Workshop
+
+    molinspiration for calculation of logP (Wang algorithm or derivatives thereof)
+
+    -1 to 3 are good values, more than 3 means too insoluble
+
+    < -1 is too soluble (atp -6? or so) 
+
+----
+Fri Jul 30 14:55:37 BST 2010
+
+    Need to be able to adjust:
+
+      o residue circle radius (and thus, font, I guess)
+
+      o hydrogen bond cut-off distance 
+    
+
+
+===============================================================================
+
+
+
+   delete mode needs to work
+
+* Done.
+
+--------
+
+    important:
+
+    Add ring
+    Add bond
+    Add rind (on end of bond)
+
+    gives a bond with an atom bonded to itself (the atom on the stalk)
+
+* Fixed
+
+
+----
+
+    It would be nice to have the aromatic ring double bonds draw with
+    a shorter inner bond rather than a double bond either side of the
+    mid-line.
+
+* Done.  It *is* nice.
+
+---
+ 
+   aromatic hexagon needs to work
+
+* Done.
+
+----
+
+   The orientation of the rings needs to be altered so that
+   six-membered rings can be added horizontally.
+
+* Done. Better now.
+
+----
+
+   in placement of single bonds, is the "closed" status of deleted
+   atom positions taken into account?  (I think not).
+
+* Done.
+
+----
+
+    Add a ring.
+ 
+    Change a C to a N.
+
+    Add a bond to the N (NH)
+
+    --> the NH should change to a N but it does not.
+
+* Done.
+
+----
+
+
+printing:
+
+cairo_t*        goo_canvas_create_cairo_context (GooCanvas *canvas);
+
+void            goo_canvas_render           (GooCanvas             *canvas,
+                                             cairo_t               *cr,
+                                             const GooCanvasBounds *bounds,
+                                             gdouble                scale);
+* Done.  From example.
+
+---
+
+    cyclo-propane - bond - cyclo-propane
+
+    v. short bond.  
+
+    cf 8-ring - bond 8-ring
+
+* Done.
+
+----
+
+     Adding a N at a junction between a stereo bond and a ring should
+     mean that the N is N not NH.
+
+* Done.
+
+
+--------
+ 
+   undo mode needs to work
+
+* Done.
+
+----
+
+   stamp a ring
+  
+   add a bond 
+
+   cut the bond, cut the CH4
+
+   add a bond in the same place {the bond is short }
+
+   try change the atom at the end of the bond to N 
+
+   -> fail
+
+* Done.
+
+----
+
+
+     loading from an MDL file would be cool.
+
+* it *is* nice.
+
+----
+  
+    connect up sbase.
+
+* Done.  Needs work.
+
+----
+
+   stamp a ring.  
+   Change a C to an N 
+   Add a bond to the N
+   delete the atom at the end
+   
+   -> N should change back to NH, does not.
+
+* Done.
+
+
+----
+
+    try to flatten and export to lbg something with a Hg in it.
+    PRODRG has exit status 1, we should check for this and give a
+    dialog.
+
+* Fixed.
+
+----
+ 
+   Fix the bond centre. e.g. import 3IB indolebutyric acid
+
+* Done.
+
+----
+
+   CRZ gives a incorrect centre and no hydrogens.
+
+* That problem is fixed.
+
+-----
+
+
+   Read in 003, flatten it.  A bond to an O is a ring double bond :-(
+
+* Done, I hope.
+
+
+
+----
+
+   File -> Save as broken, needs work.
+
+
+----
+
+   Fix the option menu
+
+---
+
+    JED:
+ 
+    Place an O, get an OH, place another.
+    undo
+    the first O is not OH as it should be.
+
+* Done
+
+
+----
+
+
+   pan canvas (or move molecule) needs to work
+   c.f. goo_canvas_scroll_to()
+   consider adding a callback to the scroll-event event on the root canvas
+
+* Done
+
+-----
+Tue Jun  1 22:12:57 BST 2010
+
+
+   Make a 6 membered ring - saturated.
+
+   replace a C with an N.
+
+   add an bond. Add another bond, N should go to N+, but does not until the 
+   canvas drag.
+
+   Sat Jun  5 00:17:32 CEST 2010
+   actually, it crashes now :)
+
+* Fixed. squeeze_in_a_4th_bond() needs to update the atom ids after
+  bond addition.
+
+---
+Mon May 31 12:48:45 BST 2010
+
+   Addding a bond to a CH4 should change the CH4 to a normal carbon.
+
+* Fixed.
+
+----
+Tue May 11 15:30:27 BST 2010
+
+  Don't write out waters that do not have bonds to the ligand (flev.cc)
+
+* Addressed by contact cut-offs in lbg
+
+----
+Mon May 24 13:12:02 BST 2010
+
+   metal contacts
+
+* Done.
+
+---
+Wed May 26 00:38:07 BST 2010
+
+   Prodrg makes cif files that are non-polymers.  such things fail to
+   make links from find_link_rigorous().  Hence no covalent links from
+   PRODRG-generated dictionary cifs.  
+
+   OK, so when we are displaying a regular residue (standard residues
+   perhaps?), one that we have in the dictionary..., then don't read in
+   the prodrg dictionary - read in the refmac one (if necessary).
+
+* Done.
+
+---
+Mon May 24 13:16:54 BST 2010
+
+   covalent attachments
+
+* Done.
+
+---
+Mon May 24 13:21:39 BST 2010
+
+   HOHs in residue-info.txt should have the length of the qualifying
+   distance to the nearest protein donor/acceptor (so that can be
+   used for rejection criterion in lbg/flev).
+
+* Done.
+
+-----
+Sat May  8 10:06:59 UYT 2010
+
+   Fix up SINGLE_BOND_CANVAS_LENGTH usage in wmolecule.
+   Replace by LIGAND_TO_CANVAS_SCALE_FACTOR usage.
+
+* Done.
+
+
+-----

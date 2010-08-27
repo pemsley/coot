@@ -1,0 +1,1043 @@
+
+\input texinfo   @c -*-texinfo-*-
+
+@c %**start of header
+@setfilename coot-faq.info
+@settitle The Coot FAQ
+@c %**end of header
+
+@dircategory The FAQ for Coot
+@direntry
+* Coot: (coot).  The Coot FAQ
+@end direntry
+
+@titlepage
+@title The Coot FAQ
+@end titlepage
+
+@c Output the table of contents at the beginning.
+@contents
+
+@ifnottex
+@node Top
+@top The Coot FAQ
+@end ifnottex
+
+@menu
+* Citing::                      
+* Building and Installing::     
+* Configuration Problems::      
+* Using Coot::                  
+* Other Coot Information::      
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Building and Installing
+
+* I have Mac OS X. How do I get coot?::
+* How do I make the binary release work?::
+* Which binary tar file shall I use?::
+* What are the md5sums?::
+* I get a libpt error when I try to start coot on Fedora Core 2::
+* I get a tiff error when I try to start coot on Mac OS X::
+* I get a jpeg error when I try to start coot 0.1.2 on my Intel Mac::
+* I get a glut error when I try to start coot on Fedora Core 3::
+* When I start Coot it crashes after @t{load "hello.scm"}::
+* How do I compile coot and its dependencies?::
+
+Which binary tar file shall I use?
+
+* Additional Note for Slackware Users::
+* Additional Note for Mandrake users::
+* Additional Note for Fedora Core 4 users::
+* Additional Note for RedHat Enterprise 3 Users::
+* Additional Note for SuSE 9.1::
+* Additional Note for SuSE 9.3::
+* Additional Note for SuSE 10.1::
+* Additional Note for Debian Users::
+* Additional Note for sgi IRIX64 Users::
+
+Configuration Problems
+
+* I get an ice-9 error when I try to start coot on Fedora Core 2::
+* I get a strange message when I use coot-scheme files::
+* I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?::
+* I get bizarre connectivity and other weirdness on reading files::
+
+Using Coot
+
+* How does it look when Coot starts properly?::
+* I get funny messages when starting Coot - should I worry?::
+* I get funny messages when finishing Coot - should I worry?::
+* On Fedora systems how do I make the window focus more useful?::
+* On Mac OSX how do I make the window focus more useful?::
+* How do I change the contour level without a scroll-wheel mouse?::
+* I can't get the "Add Terminal Residue" function to work on my sgi::
+* Where has my screen text (or labels) gone?::
+* How can I speed up moving betwee residues using ``Space''?::
+* How do I make the dialogs be in the right place?::
+* Does it work in hardware stereo?::
+* Does Coot work in side-by-side stereo mode?::
+* Does Coot work with a Zalman stereo monitor?::
+* How do you make the antialiasing work better?::
+* Stereo on a sgi?::
+* I have problems reading a CNS map (or mask) into Coot::
+* What are the colours of the difference map and can I "invert" them?::
+* How do I label an atom?::
+* I don't like your default REFMAC parameters. How do I change them?::
+* How do I put a pointer into a blob of density?::
+* How do I "grab" just one atom in Real Space Refinement/Regularization?::
+* My sidechains are being sucked into the density for metal - how do I stop that?::
+* How do I bind a function to a key?::
+* I can't mutate my broken residue::
+* How do I get rid of the ``Old Coot'' dialog?::
+* Can I make the spin mode rotate slower?::
+* Does Coot use CONNECT records?::
+* Does Coot use LINK records?::
+* How do I read many PDB files on the command line?::
+* How do I setup auto-completion of command line options?::
+* How do 2 people use Coot with the same structure?::
+* How do I find CIS-peptides in my structure?::
+
+Other Coot Information
+
+* Coot for Microsoft Windows systems?::
+* What database do you use for the Ramachandran plot?::
+* What library do you use for the Rotamers?::
+* How do I search the Manuals and the Mailing list Archive?::
+* What do those abreviations mean?::
+
+@end detailmenu
+@end menu
+
+@c note to self: no commas in section/node titles
+
+@c --------------------------------------------
+@node Citing
+@chapter Citing Coot
+@comment  node-name,  next,  previous,  up
+@c --------------------------------------------
+
+
+
+
+The reference for Coot has been published:
+You can use this BibTeX database entry (which can be imported 
+into EndNote)... format as you please:
+
+@cindex citation
+@verbatim
+@Article{emsley2010:coot,
+  author =    {Paul Emsley and Bernhard Lohkamp and William G. Scott and Kevin Cowtan},
+  title =     {Features and Development of Coot},
+  journal =   {Acta Crystallographica Section D - Biological Crystallography},
+  year =      2010,
+  volume =    66,
+  pages  =    486-501
+}
+
+@end verbatim
+
+The Coot paper has published in the proceedings of the 2009 CCP4 Study Weekend.
+
+You can download the 2010 paper here:
+
+@itemize
+@item @url{http://journals.iucr.org/d/issues/2010/04/00/ba5144/ba5144.pdf}
+@end itemize
+
+For the sake of completeness, you can download the old 2004 paper here:
+
+@itemize
+@item @url{http://journals.iucr.org/d/issues/2004/12/01/isscontsbdy.html}
+@end itemize
+
+@c --------------------------------------------
+@comment  node-name,  next,  previous,  up
+@node Building and Installing
+@chapter Building and Installing
+@c --------------------------------------------
+
+@menu
+* I have Mac OS X. How do I get coot?::
+* How do I make the binary release work?::
+* Which binary tar file shall I use?::
+* What are the md5sums?::
+* I get a libpt error when I try to start coot on Fedora Core 2::
+* I get a tiff error when I try to start coot on Mac OS X::
+* I get a jpeg error when I try to start coot 0.1.2 on my Intel Mac::
+* I get a glut error when I try to start coot on Fedora Core 3::
+* When I start Coot it crashes after @t{load "hello.scm"}::
+* How do I compile coot and its dependencies?::
+@end menu
+
+@node I have Mac OS X. How do I get coot?
+@section I have Mac OS X. How do I get coot?
+
+See Bill Scott's Coot Page:
+
+@itemize
+@item @url{http://sage.ucsc.edu/~wgscott/xtal/wiki/index.php/Installing_Coot_on_OS_X}
+@end itemize
+
+
+@node How do I make the binary release work?
+@section How do I make the binary release work?
+
+ Download the appropriate tar file for you system. Untar
+    it. Add the bin directory (the one that contains coot and coot-real)
+    to your path and you are ready to go...  You should not need 
+    to edit or use the setup/coot* files.
+
+
+@node Which binary tar file shall I use?
+@section Which binary tar file shall I use?
+@comment  node-name,  next,  previous,  up
+
+@menu
+* Additional Note for Slackware Users::
+* Additional Note for Mandrake users::
+* Additional Note for Fedora Core 4 users::
+* Additional Note for RedHat Enterprise 3 Users::
+* Additional Note for SuSE 9.1::
+* Additional Note for SuSE 9.3::
+* Additional Note for SuSE 10.1::
+* Additional Note for Debian Users::
+* Additional Note for sgi IRIX64 Users::
+@end menu
+
+Download the appropriate tar file for you system. Untar it. Add the bin
+directory (the one that contains coot and coot-real) to your path and
+you are ready to go...  You should not need to edit or use the
+setup/coot* files
+
+@node Additional Note for Slackware Users
+@subsection Additional Note for Slackware Users 
+
+Nancy Vogelaar used the RedHat 8 binary distribution and needed to do
+some extra fiddling - documented here:
+
+@itemize
+@item @url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/nancy-slackware.txt}
+@end itemize
+
+
+@node Additional Note for Mandrake users
+@subsection Additional Note for Mandrake users
+
+Raji Edayathumangalam used the RedHat 7.2 binary distribution on
+Mandrake Linux 8.2 and needed to do some extra fiddling, documented
+here:
+
+@url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/raji-mandrake.txt}
+
+@node Additional Note for Fedora Core 4 users
+@subsection Additional Note for Fedora Core 4 users
+
+Coot runs on Fedora Core 4, using the Fedora Core 3 binaries after making the following link:
+
+@cartouche
+  $ ln -s /usr/lib/libpt_linux_x86_r.so.1.8.4 $COOT_PREFIX/lib/libpt.so.1.6.5
+@end cartouche
+
+@node Additional Note for RedHat Enterprise 3 Users
+@subsection Additional Note for RedHat Enterprise 3 Users
+
+   Kay Diederichs reports that
+   coot-0.0.18-binary-Linux-Fedora-Core-1.tar.gz works with RedHat
+   Enterprise 3 if
+   one makes the following link first:
+
+@cartouche
+  $ ln -s /usr/lib/libpt.so.1.4.7 $COOT_PREFIX/lib/libpt.so.1.5.0
+@end cartouche
+
+  Dirk Kostrewa thought that it was not necessary to make this link
+  using the current Red Hat 8 binary tar.
+
+
+@node Additional Note for SuSE 9.1
+@subsection Additional Note for SuSE 9.1
+
+   Michael Latchem reports that coot-0.0.20-binary-Linux-Fedora-Core-1.tar.gz works with 
+   SuSE 9.1 if one makes the following link first:
+
+@cartouche
+  $ ln -s /usr/lib/libpt_linux_x86_r.so.1.6.5 $COOT_PREFIX/lib/libpt.so.1.5.0
+@end cartouche
+
+@node Additional Note for SuSE 9.3
+@subsection Additional Note for SuSE 9.3
+
+Christophe Briand reports that Coot version 0.1 runs on Suse 9.3, using
+the Redhat 8 binary after making the following link
+
+@cartouche 
+$ ln -s /usr/lib/libImlib2.so.1.1.1 /usr/lib/libImlib.so.11
+@end cartouche
+
+I presume that this would also work:
+
+@cartouche
+$ ln -s /usr/lib/libImlib2.so.1.1.1 $COOT_PREFIX/lib/libImlib.so.11
+@end cartouche
+
+
+@node Additional Note for SuSE 10.1
+@subsection Additional Note for SuSE 10.1
+
+
+        You need to install the imlib-1.9.14-215 rpm
+
+@cartouche
+   ln -s /opt/gnome/lib64/libImlib.so.1.9.14 $COOT_PREFIX/lib/libImlib.so.11
+@end cartouche
+
+    or (depending on your architecture):
+
+@cartouche
+ln -s /opt/gnome/lib/libImlib.so.1.9.14 $COOT_PREFIX/lib/libImlib.so.11
+@end cartouche
+
+
+@node Additional Note for Debian Users
+@subsection Additional Note for Debian Users
+
+Dirk Kostrewa has got coot working on his Debian system.
+Here are his notes:
+
+@url{dirk-notes.txt}
+
+@node Additional Note for sgi IRIX64 Users
+@subsection Additional Note for sgi IRIX64 Users 
+
+
+You will need (if you don't alread have them)
+            fw_gcc fw_urt fw_libungif (i.e. libungif) and imlib from 
+
+@url{http://freeware.sgi.com/fw-6.2/index-by-alpha.html}
+
+
+@node What are the md5sums?
+@section What are the md5sums?
+
+The md5sum is a means to determine if the file was corrupted during
+transfer.  Run md5sum on the downloaded tar file and compare the result
+to the md5sum file on the server.  If the results are the same, then the
+tar file is uncorrupted (or more strictly speaking: is corrupted in the
+same way as the file on the server).
+
+@node I get a libpt error when I try to start coot on Fedora Core 2
+@section I get a libpt error when I try to start coot on Fedora Core 2
+
+@verbatim
+$ coot
+coot: error while loading shared libraries: libpt.so.1.6.5: cannot
+open shared object file: No such file or directory
+@end verbatim
+
+You need to install pwlib:
+
+pwlib-1.6.5-1
+
+@node I get a tiff error when I try to start coot on Mac OS X
+@section I get a tiff error when I try to start coot on Mac OS X
+
+
+@verbatim
+$ coot
+dyld: coot version mismatch for library: /sw/lib/libtiff.3.dylib (compatibility 
+version of user: 3.6.0 greater than library's version: 3.5.0)
+@end verbatim
+
+This is because you have the default fink (stable).  Coot is part of
+unstable fink so you need to enable the unstable branch (see Bill
+Scott's page (above)).
+
+@node I get a jpeg error when I try to start coot 0.1.2 on my Intel Mac
+@section I get a jpeg error when I try to start coot 0.1.2 on my Intel Mac
+
+@verbatim
+dyld: Symbol not found: __cg_jpeg_resync_to_restart
+Referenced from: /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/ImageIO
+  Expected in: /Users/xxx/coot-0.1.2_bin/lib/libjpeg.62.dylib
+@end verbatim
+
+Atsushi Nakagawa says that this can be fixed by
+replacing @t{xxx/Darwin-chihiro.chem.york.ac.uk-pre-release/lib/libjpeg.dylib} with 
+@t{/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib}
+
+Or read the advice in $COOT_PREFIX/bin/coot about Intel Mac usage. 
+
+@node I get a glut error when I try to start coot on Fedora Core 3
+@section I get a glut error when I try to start coot on Fedora Core 3
+
+@verbatim
+./coot: error while loading shared libraries: libglut.so.3: cannot open shared
+object file: No such file or directory
+@end verbatim
+
+You need to install these rpms:
+
+@verbatim
+freeglut-2.2.0-14
+freeglut-devel-2.2.0-14
+@end verbatim
+
+@node When I start Coot it crashes after @t{load "hello.scm"}
+@section When I start Coot it crashes after @t{load "hello.scm"}
+
+I don't know why it crashes.  To work around, comment out (with a
+semicolon) "hello.scm" in the
+@t{$COOT_PREFIX/share/coot/scheme/coot.scm} file.
+
+
+@node How do I compile coot and its dependencies?
+@section How do I compile coot and its dependencies?
+
+It's somewhat involved, but hopefully straightforward if you
+follow the autobuilder:
+
+@url{http://coot.googlecode.com/svn/trunk/build-it-gtk2-simple} 
+
+Coot
+requires mmdb, clipper, glut, gtk, gtkglarea.  gtkglarea requires gtk
+and OpenGL.  gtk requires glib. clipper requires fftw, mccp4 and
+mmdb. Optionally you can enhance coot using gtk-canvas, libSSM,
+guile/guile-gtk/guile-gui/guile-www or python (the support for python
+is not so advanced).
+
+These issues are sorted out in the autobuilder.  Just download it,
+change a few parameters to fit your personal system at the top and
+execute it.
+
+@c -----------------------------------------------------------------
+@node    Configuration Problems
+@chapter Configuration Problems
+@c -----------------------------------------------------------------
+
+
+@menu
+* I get an ice-9 error when I try to start coot on Fedora Core 2::
+* I get a strange message when I use coot-scheme files::
+* I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?::
+* I get bizarre connectivity and other weirdness on reading files::
+@end menu
+
+
+@node    I get an ice-9 error when I try to start coot on Fedora Core 2
+@section I get an ice-9 error when I try to start coot on Fedora Core 2
+
+@verbatim
+$ coot
+Acquiring application resources from /usr/programs/COOT/Linux-utonium.chem.york.ac.uk/share/coot/cootrc
+INFO:: splash_screen_pixmap_dir /usr/programs/COOT/Linux-utonium.chem.york.ac.uk/share/coot/pixmaps
+[snip]
+initializing molecules...done
+ERROR: In procedure primitive-load-path:
+ERROR: Unable to find file "ice-9/boot-9.scm" in load path
+@end verbatim
+
+
+You need to install guile.  We have the following guile packages:
+
+@verbatim
+umb-scheme-3.2-32
+guile-devel-1.6.4-11
+guile-1.6.4-11
+@end verbatim
+
+
+@node I get a strange message when I use coot-scheme files
+@section I get a strange message when I use coot-scheme files
+
+You mean this one?
+
+@verbatim
+load "coot-gui.scm"
+(Error in proc: misc-error  args:  (#f ~A ~S (no code for module (gtk gdk)) #f))
+@end verbatim
+
+You need to install guile-gtk.  Here is the source, but your
+distribution may have rpms or debs.
+
+@url{http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile-gtk/guile-gtk-0.41.tar.gz}
+
+@node I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?
+@section I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?
+
+Martin Moncrieffe found a way:
+
+@url{http://www.biop.ox.ac.uk/coot/doc/martin-moncrieffe.txt}
+
+@node I get bizarre connectivity and other weirdness on reading files
+@section I get bizarre connectivity and other weirdness on reading files
+
+You mean something like this?
+
+@url{http://www.biop.ox.ac.uk/coot/doc/ugly.png}
+
+You have a non-default language. @t{setenv LANG C} (or @t{LANG=C} if
+you prefer) before starting coot.  This has recently been added to the
+setup files in the source code (it is not in version 0.0).
+
+
+The problem may also be due to @t{LC_ALL}.  So, if the above doesn't
+work try also:
+
+@t{$ setenv LC_ALL C}
+
+
+@c -----------------------------------------------------------------
+@node    Using Coot
+@chapter Using Coot
+@c -----------------------------------------------------------------
+
+@menu 
+* How does it look when Coot starts properly?::
+* I get funny messages when starting Coot - should I worry?::
+* I get funny messages when finishing Coot - should I worry?::
+* On Fedora systems how do I make the window focus more useful?::
+* On Mac OSX how do I make the window focus more useful?::
+* How do I change the contour level without a scroll-wheel mouse?::
+* "Unmodelled Blobs" takes me to space - why?::
+* I can't get the "Add Terminal Residue" function to work on my sgi::
+* Where has my screen text (or labels) gone?::
+* How can I speed up moving betwee residues using ``Space''?::
+* How do I make the dialogs be in the right place?::
+* Does it work in hardware stereo?::
+* Does Coot work in side-by-side stereo mode?::
+* Does Coot work with a Zalman stereo monitor?::
+* How do you make the antialiasing work better?::
+* Stereo on a sgi?::
+* I have problems reading a CNS map (or mask) into Coot::
+* What are the colours of the difference map and can I "invert" them?::
+* How do I label an atom?::
+* I don't like your default REFMAC parameters. How do I change them?::
+* How do I put a pointer into a blob of density?::
+* How do I "grab" just one atom in Real Space Refinement/Regularization?::
+* My sidechains are being sucked into the density for metal - how do I stop that?::
+* My Density Fit Graph bars are all red - how do I fix that?::
+* How do I bind a function to a key?::
+* How do I force Coot to clean up all the time?::
+* I can't mutate my broken residue::
+* Where has the Rotate/Translate function gone?::
+* How do I get rid of the ``Old Coot'' dialog?::
+* Can I make the spin mode rotate slower?::
+* Does Coot use CONNECT records?::
+* Does Coot use LINK records?::
+* How do I read many PDB files on the command line?::
+* How do I setup auto-completion of command line options?::
+* How do 2 people use Coot with the same structure?::
+* How do I find CIS-peptides in my structure?::
+@end menu
+
+@node How does it look when Coot starts properly?
+@section How does it look when Coot starts properly?
+
+Like this:
+
+@url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/coot-startup.log}
+
+
+Things to look out for: Error reading all scm files, error reading
+Refmac dictionary files, error reading colours.def, error reading
+syminfo.lib, error finding splash-screen image, error reading cootrc
+file, error finding reference structures (e.g. from COOT_REF_STUCTS).
+So, if you get error messages or warning when coot start, you can
+expect it to be other than fully functional.
+
+@node I get funny messages when starting Coot - should I worry?
+@section I get funny messages when starting Coot - should I worry?
+
+e.g. 
+
+@t{Gtk-WARNING **: Unable to locate loadable module in module_path:
+"libbluecurve.so"}
+
+No, don't worry - Gtk just can't find a theme.  Things will look
+a bit different to how they otherwise might, but everything will still
+work.
+
+
+@node I get funny messages when finishing Coot - should I worry?
+@section I get funny messages when finishing Coot - should I worry?
+
+These messages:
+
+@verbatim
+Some deprecated features have been used.  Set the environment
+variable GUILE_WARN_DEPRECATED to "detailed" and rerun the
+program to get more information.  Set it to "no" to suppress
+this message.
+
+ObjectCache: Leaked 0002 refs to P 2ac 2ab
+ObjectCache: Leaked 0002 refs to P 2ac 2ab Nuvw = ( 108, 132,  64)}
+
+are nothing to worry about.  I will clean them up one day (for release
+0.7, I hope).
+@end verbatim
+
+@node On Fedora systems how do I make the window focus more useful?
+@section On Fedora systems how do I make the window focus more useful?
+
+The default window focusing (using Metacity I believe) is a PITA when
+using Coot. Try this:
+
+@code{Hat -> Preferences -> Windows -> Select windows when the mouse moves
+over them}: check that box.
+
+@code{Hat --> Preferences -> Windows -> To move a window, press and hold
+this key then grab the window}:
+
+Change from 
+
+Control
+
+to Alt or Super
+
+@node On Mac OSX how do I make the window focus more useful?
+@section On Mac OSX how do I make the window focus more useful?
+
+The default window focusing with the Aqua window manager is a PITA
+when using Coot. Try typing in a terminal this to set "Focus Follows
+Mouse":
+
+@code{$ defaults write com.apple.x11 wm_ffm true}
+
+On a more modern version of Mac OS X (10.5+), that might be:
+
+@code{$ defaults write org.x.X11 wm_ffm true}
+
+(thanks to William Scott for pointing that out).
+
+You might need to restart X11 to activate this setting.
+
+
+@node How do I change the contour level without a scroll-wheel mouse?
+@section How do I change the contour level without a scroll-wheel mouse?
+
+Keyboard + and -.
+
+@node "Unmodelled Blobs" takes me to space - why?
+@section "Unmodelled Blobs" takes me to space - why?
+
+One problem could be that the symmetry and cell of the map does 
+not match the symmetry and cell of the related protein.
+
+Or perhaps it's because Coot does not use the "viewing" contour level 
+to generate blob map point clusters, i.e. it could be using a contour 
+level much below what you are looking at.  Coot positions the view at 
+the centre of a blob. If the blob consists of an "arc" of points (as 
+is often the case) the centre of the blob will not be @emph{in} the blob.
+
+
+@node I can't get the "Add Terminal Residue" function to work on my sgi
+@section I can't get the "Add Terminal Residue" function to work on my sgi
+
+"Add Terminal Residue" is known to be slow on sgi machines (hours,
+perhaps even a day). I don't know why.
+
+
+@node Where has my screen text (or labels) gone?
+@section Where has my screen text (or labels) gone?
+
+"I can't see the contour level at the top of the screen or and the
+atom labels are faint or non-existant."
+
+This seems like a graphics driver bug, or a hardware problem.  If you
+turn the screenbackground white you might be able to see the text.
+
+If you bring the atom to the centre of the screen, the atom label
+becomes more readable.
+
+@node How can I speed up moving betwee residues using ``Space''?
+@section How can I speed up moving betwee residues using ``Space''?
+
+@code{Edit -> Preferences -> Smooth Recentering -> Number of Steps -> 10}
+
+
+@node How do I make the dialogs be in the right place?
+@section How do I make the dialogs be in the right place?
+
+"I'm bored of moving the dialogs around every coot session.  How
+  do I make coot know where I want them? 
+
+You can use the @code{"Position Dialogs"} function in the @code{Extensions ->
+Settings} menu.
+
+For a more manual way, try
+
+@url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/position-dialogs.txt}.
+
+@node Does it work in hardware stereo?
+@section Does it work in hardware stereo?
+
+It works in quad buffered stereo mode ("stereo-in-a-window"). You will
+need a recent version and either use the @code{Draw -> Stereo} dialog
+or pass the argument @code{--stereo}.
+
+@node Does Coot work in side-by-side stereo mode?
+@section Does Coot work in side-by-side stereo mode?
+
+Yes.
+
+@node Does Coot work with a Zalman stereo monitor?
+@section Does Coot work with a Zalman stereo monitor?
+
+Yes.  Remember to use the DVI cable (not VGA) [thanks Allen Sickmier].
+
+@quotation Warren DeLano
+   A line width of 2 pixels wide or greater is essential for achieving
+a good stereo effort with electron density meshes, "wire" bonds, etc.
+@end quotation
+
+You can achieve this in Coot using:
+
+@code{(set-map-line-width 2)}
+
+You might like also to turn on antialiasing (see below).
+
+
+@node How do you make the antialiasing work better?
+@section How do you make the antialiasing work better?
+
+The build-in antialiasing in Coot is not very good - it needs to be
+improved. Until then, if you have an nvidia card, turn on antialiasing
+using @t{nvidia-settings}
+
+@code{Antialiasing Settings -> Override Application Setting,  16x Antialiasing}  (on the slider)
+
+Then restart coot.
+
+
+@node Stereo on a sgi?
+@section Stereo on a sgi?
+
+[You will need to set up your screen for quad-buffered stereo
+system (not the more usual "full-screen" stereo) to even begin
+thinking about it].
+
+Sue Roberts has some useful advice
+
+ @url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/s-roberts.txt}.
+
+So does Dirk Kostrewa:
+
+ @url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/dirk-k-irix-stero.txt}.
+
+
+@node    I have problems reading a CNS map (or mask) into Coot
+@section I have problems reading a CNS map (or mask) into Coot
+
+@enumerate
+
+@item Don't do it.  Use CNS data instead and let Coot take care of
+the map generation.
+
+@item 
+
+@quotation Kevin Cowtan:
+
+   Change the setting in CNS which controls the extent of the output
+map. Instead of outputting a map covering a single molecule, you need
+to output a map covering a whole asymmetric unit (or if you prefer a
+whole unit cell).
+
+  The X-PLOR maps output by CNS are output in O mode, not Coot mode,
+by default. This is due to a fundamental difference in understanding
+what a map is between programs which work crystal space (e.g. Coot,
+Quanta, XtalView) and those which don't.
+@end quotation
+
+@end enumerate
+
+@node What are the colours of the difference map and can I "invert" them?
+@section What are the colours of the difference map and can I "invert" them?
+
+Green is positive
+
+Red is negative
+
+To change the colour scheme (other than simply changing the map colour
+wheel):
+
+@code{(set-swap-difference-map-colours 1)}
+
+
+
+@node How do I label an atom?
+@section How do I label an atom?
+
+@itemize
+@item Double-click on it
+@item Shift-click on it
+@item Press "L" labels atom closest to the centre of the screen.
+@end itemize
+
+@node I don't like your default REFMAC parameters. How do I change them?
+@section I don't like your default REFMAC parameters. How do I change them?
+
+There are 2 ways.  Either create a file called refmac-extra params in
+the directory in which you started coot, e.g.
+"http://www.ysbl.york.ac.uk/%7Eemsley/coot/refmac-extra-params"
+
+or
+
+define (for example in you @t{$HOME/.coot} file) the variable
+@code{refmac-extra-params}, @emph{e.g.} 
+
+@code{
+(define refmac-extra-params 
+   (list "WEIGHT 0.1"
+         "SOLVENT NO"
+         "REFI BREF ISOT"
+         "NCYCLES 6"))
+}
+
+@node How do I put a pointer into a blob of density?
+@section How do I put a pointer into a blob of density?
+
+
+@itemize
+@item Method 1: Quite straightforwardly drag the density onto the pointer (centre of the screen) 
+      using Ctrl Left-mouse drag.
+
+@item Method 2: bind the function (blob-under-pointer-to-screen-centre) to a key. Press that key. 
+@end itemize
+
+(You can then use Measures -> Pointer Distances if you wish.)
+
+@node How do I "grab" just one atom in Real Space Refinement/Regularization?
+@section How do I "grab" just one atom in Real Space Refinement/Regularization?
+
+Cntl Left-mouse-click over an intermediate (white) atom. Drag and
+drop. Make sure that you have focus in the graphics window when you
+press Ctrl (which, in Windows, that the graphics window has a blue
+title bar rather than a grey one). (You need to means be precise with
+the clicking - if the view rotates instead of the atom moving then you
+know that you have been insufficiently precise.)
+
+@node    My sidechains are being sucked into the density for metal - how do I stop that?
+@section My sidechains are being sucked into the density for metal - how do I stop that?
+
+The best way to fix that is to add proper (bonding) restraints between
+the metal and the sidechain (type).
+
+If those are not available, you can mask out the density of the metals.
+
+@code{Extensions -> Maps -> Mask Map by Atom Selection...}
+
+For example, atom selection of @var{"//B/[CO]"} will remove all the
+density for Cobalts in the "B" chain.
+
+Then you will need to set the masked map as the map to be used for
+refinement, of course.
+
+@node    My Density Fit Graph bars are all red - how do I fix that?
+@section My Density Fit Graph bars are all red - how do I fix that?
+
+The bar heights are set to be sensible for average resolution data on
+the absolute scale.  If that is not the case for your data then you
+may well see red bars.
+
+You can change the scale:
+
+@command{Extensions -> Refine@dots{} -> Set  Density Fit Graph Weight@dots{}}
+
+
+
+@node How do I bind a function to a key?
+@section How do I bind a function to a key?
+
+Like this:
+
+
+@verbatim
+;; Bind a function to the "v" key (Shift-V would be bound to "V").
+(add-key-binding "Place atom at pointer" "v" 
+   (lambda ()
+      (set-pointer-atom-is-dummy 1)
+      (place-atom-at-pointer)))
+@end verbatim
+
+@node How do I force Coot to clean up all the time?
+@section How do I force Coot to clean up all the time?
+
+By default, Coot cleans out the @file{coot-backup} directory files
+older than 7 days every 7 days.  If you want Coot to clean up all
+backup files every time it exits, add this to your @file{~/.coot}
+file.
+
+
+@code{(define clear-backups-maybe (lambda () (delete-coot-backup-files
+        'delete) #f))}
+
+
+
+@node I can't mutate my broken residue
+@section I can't mutate my broken residue
+
+@quotation Question:
+ I have a residue that has one or more missing mainchain atoms.  I
+want to mutate a "fresh" residue in - but I can't. What should I do?
+@end quotation
+
+@quotation Answer
+If any of the CA, C or N atoms of a residue are missing then mutate
+can't work (it needs these atoms to do the least-squares fit).  This
+is what I do in such a case: first delete the residue, then add a new
+one with "Add Terminal Residue..." then "Mutate -> Auto Fit..." to the
+required type, then Refine Zone.
+@end quotation
+
+@node    Where has the Rotate/Translate function gone?
+@section Where has the Rotate/Translate function gone?
+
+Coot is built on many different OS types, using the given (or supplied)
+version of GTK+.  Some old operating systems have a version of GTK+ that
+does not include a ``ToolMenuButton'' (newer operating systems do, of
+course) - and the toolbar menu Rotate/Translate function has uses such a
+widget.  The Coot build sytem detects old versions of GTK+ and skips
+over the ToolMenuButton code, so the button does not appear in the main
+window.  However, on all systems, the Rotate/Translate mode selector can
+be found as a menu to the right of the ``Rotate/Translate Zone'' button
+on the Model/Fit/Refine dialog.
+
+So, if you want a Rotate/Translate Tool Menu Button in the main window,
+don't use an old OS (or more accurately, don't use a Coot binary built
+for an old OS).
+
+@node How do I get rid of the ``Old Coot'' dialog?
+@section How do I get rid of the ``Old Coot'' dialog?
+
+You can also remove it by hand: edit @t{xxx/share/coot/scheme/coot-gui.scm}
+and comment out (with a "@t{;}") the "@t{(old-coot?)}" line.
+
+You can also remove the old coot warning by running this script:
+
+@url{http://www.biop.ox.ac.uk/coot/extras/remove-old-coot-warning.sh}
+
+
+
+@node Can I make the spin mode rotate slower?
+@section Can I make the spin mode rotate slower?
+
+Yes, @code{Extensions -> Settings -> Set Spin Speed}.
+
+@node Does Coot use CONNECT records?
+@section Does Coot use CONNECT records?
+
+No. 
+
+@node Does Coot use LINK records?
+@section Does Coot use LINK records?
+
+Yes. 
+
+
+@node How do I read many PDB files on the command line?
+@section How do I read many PDB files on the command line?
+
+@t{$ coot --pdb pdb-1.pdb --pdb pdb-2.pdb --pdb pdb-3.pdb} @emph{etc.}
+
+@node How do I setup auto-completion of command line options?
+@section How do I setup auto-completion of command line options?
+
+For tcsh, add this to you @t{$HOME/.tcshrc} (or @t{$HOME/.cshrc} file, if that's what you use):
+
+@verbatim
+set noglob
+  complete coot  \
+        n/--coords/f:*{.pdb,.res,.brk,.brk.gz,.ent,.ent.gz,.pdb.gz}/ \
+        n/--data/f:*{.mtz,.cif,.fcf}/ \
+        n/--auto/f:*.mtz/ \
+        n/--script/f:*{.scm,.py}/ \
+        c/--/"(data auto coords script small no-graphics no-state-script)"/
+unset noglob
+@end verbatim
+
+
+@node How do 2 people use Coot with the same structure?
+@section How do 2 people use Coot with the same structure?
+
+The issue here is the backup directory coot-backup. By default, it
+is created with strict permissions. I would recommend creating a
+directory to which you both can write and @code{setenv
+COOT_BACKUP_DIR} to that directory.
+
+@node How do I find CIS-peptides in my structure?
+@section How do I find CIS-peptides in my structure?
+
+@command{Extensions -> Modelling -> Residues with CIS Peptide Bonds}
+
+
+
+
+@c -----------------------------------------------------------------
+@node    Other Coot Information
+@chapter Other Coot Information
+@c -----------------------------------------------------------------
+
+
+@menu
+* Coot for Microsoft Windows systems?::
+* What database do you use for the Ramachandran plot?::
+* What library do you use for the Rotamers?::
+* How do I search the Manuals and the Mailing list Archive?::
+* What do those abreviations mean?::
+@end menu
+
+
+@node Coot for Microsoft Windows systems?
+@section Coot for Microsoft Windows systems?
+
+Bernhard Lohkamp has a web page for WinCoot @url{http://www.chem.gla.ac.uk/%7Ebernhard/coot/wincoot.html} and a FAQ @url{http://www.chem.gla.ac.uk/%7Ebernhard/coot/wincoot-faq.html}
+
+You can find links to WinCoot (and other) pre-release binaries here:
+@url{http://www.biop.ox.ac.uk/coot/devel/build-info.html}.
+
+
+@node What database do you use for the Ramachandran plot?
+@section What database do you use for the Ramachandran plot?
+
+Coot uses clipper's Ramachadran data - which is the Richardson's
+Top500: @url{http://kinemage.biochem.duke.edu/databases/top500.php}
+
+
+@node What library do you use for the Rotamers?
+@section What library do you use for the Rotamers?
+
+The Richardsons' (Son of Penultimate) Rotamer Library.
+
+@node How do I search the Manuals and the Mailing list Archive?
+@section How do I search the Manuals and the Mailing list Archive?
+
+By using google. For example, if you wanted to make a search for
+Coot's "virtual trackball", use the google search:
+
+@t{virtual trackball coot site:www.biop.ox.ac.uk}
+
+
+@node    What do those abreviations mean?
+@section What do those abreviations mean?
+
+@itemize
+@item HTH : Hope This Helps
+@item FYI : For Your Information
+@item FWIW: For What It's Worth
+@item AFAIR: As Far As I Recall
+@end itemize
+
+
+@c @c -----------------------------------------------------------------
+@c @node    Index
+@c @chapter Index
+@c @c -----------------------------------------------------------------
+
+@c @unnumbered Index
+     
+@c @printindex cp
+ 
+@bye
