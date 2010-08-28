@@ -681,16 +681,17 @@ graphics_info_t::save_state_data_and_models(const std::string &filename,
 int
 graphics_info_t::save_state() {
 
+   int r = 0;
    if (run_state_file_status) { 
 #ifdef USE_GUILE
-      return save_state_file(save_state_file_name);
-#else
-#ifdef USE_PYTHON   
-      return save_state_file("0-coot.state.py");
-#else
-      return 0;
-#endif // USE_PYTHON   
+      r = save_state_file(save_state_file_name);
 #endif // USE_GUILE
+      
+#ifdef USE_PYTHON   
+      r = save_state_file("0-coot.state.py");
+#endif // USE_PYTHON   
+
+      return r;
    }
    return 0;
 }
