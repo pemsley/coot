@@ -31,6 +31,8 @@
 #include <vector>
 #endif
 
+#include "clipper/core/coords.h"
+
 // #include "cos-sin.h"
 
 
@@ -57,7 +59,13 @@ namespace coot {
       float z() const { return z_;};
 
       Cartesian(float a, float b, float c); 
-      Cartesian(void);
+      Cartesian();
+
+      Cartesian(const clipper::Coord_orth &pt) {
+	 x_ = pt.x();
+	 y_ = pt.y();
+	 z_ = pt.z();
+      } 
 
       void set_them(float a, float b, float c) {   // tmp function
 	 x_ = a; y_ = b; z_ = c; }
@@ -135,7 +143,7 @@ namespace coot {
 					   float theta_2, float torsion, float dist); 
 
       static Cartesian CrossProduct(const Cartesian &Atom_1, 
-				    const Cartesian &Atom_2); 
+				    const Cartesian &Atom_2);
 
       std::vector<Cartesian> third_points(const Cartesian &other) const;
 

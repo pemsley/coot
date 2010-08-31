@@ -355,9 +355,36 @@ namespace coot {
    // return -1 on badness
    int get_selection_handle(CMMDBManager *mol, const atom_spec_t &at);
 
-   // return the lsq deviation of the pt atom and (in second) the rms
+   // Return the lsq deviation of the pt atom and (in second) the rms
    // deviation of the atoms in the plane (not the including pt of
    // course)
+   // 
+   class lsq_plane_info_t {
+      std::vector<double> abcd;
+      double rms;
+      clipper::Coord_orth centre_;
+   public:
+      lsq_plane_info_t() {}
+      // can throw an exception
+      lsq_plane_info_t(const std::vector<clipper::Coord_orth> &v);
+      // can throw an exception
+      double plane_deviation(const clipper::Coord_orth &pt) const {
+	 if (abcd.size() == 4) 
+	    return abcd[0]*pt.x() + abcd[1]*pt.y() + abcd[2]*pt.z() - abcd[3];
+	 else
+	    throw std::runtime_error("no plane defined");
+      }
+      double plane_atoms_rms() const {
+	 return rms;
+      }
+      clipper::Coord_orth normal() const {
+	 return clipper::Coord_orth(abcd[0], abcd[1], abcd[2]);
+      }
+      clipper::Coord_orth centre() const {
+	 return centre_;
+      }
+   };
+   
    std::pair<double, double>
    lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
 		       const clipper::Coord_orth &pt);

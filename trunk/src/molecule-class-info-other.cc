@@ -89,6 +89,7 @@
 #include "coot-nomenclature.hh"
 
 #include "GL/glu.h"
+#include "GL/glut.h"
 
 #include "rotamer-search-modes.hh"
 
@@ -5586,21 +5587,22 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
 int
 molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str,
 					   float bond_thickness, float sphere_size,
-					   bool do_spheres_flag, gl_context_info_t gl_info) {
+					   bool do_spheres_flag, gl_context_info_t gl_info,
+					   const coot::protein_geometry *geom) {
 
    coot::display_list_object_info dloi;
    // modify a copy of dloi and return it
    graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
    coot::display_list_object_info dloi_1 = make_ball_and_stick(atom_selection_str, bond_thickness,
 							       sphere_size,
-							       do_spheres_flag, 0, dloi);
+							       do_spheres_flag, 0, dloi, geom);
 
    if (gl_info.widget_2) {
       graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
       // modify a copy of dloi_1 and return it
       coot::display_list_object_info dloi_2 = make_ball_and_stick(atom_selection_str, bond_thickness,
 								  sphere_size,
-								  do_spheres_flag, 1, dloi_1);
+								  do_spheres_flag, 1, dloi_1, geom);
 
       if (0)
 	 std::cout << "pushing back dloi (2 contexts) to display_list_tags: with tag_1 = "
@@ -5623,7 +5625,8 @@ coot::display_list_object_info
 molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str,
 					   float bond_thickness, float sphere_size,
 					   bool do_spheres_flag, bool is_second_context,
-					   coot::display_list_object_info dloi) {
+					   coot::display_list_object_info dloi,
+					   const coot::protein_geometry *geom) {
 
    // Use draw hydrogens flag that has been set already for this molecule.
    
@@ -5644,14 +5647,14 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 		<< " atoms selected for ball & stick" << std::endl;
       float min_dist = 0.1;
       float max_dist = 1.9; // prevent ambiguity in constructor def.
-      Bond_lines_container bonds(asc, min_dist, max_dist);
+      Bond_lines_container bonds(asc, geom);
       graphical_bonds_container bonds_box_local = bonds.make_graphical_bonds();
       Lines_list ll;
 
       // start display list object
       GLuint bonds_tag = glGenLists(1);
       glNewList(bonds_tag, GL_COMPILE);
-      if (is_second_context) { 
+      if (is_second_context) {
 	 dloi.tag_2 = bonds_tag;
 	 // std::cout << "debug:: adding second context tag to dloi " << bonds_tag << std::endl;
       } else { 
@@ -5783,6 +5786,42 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	    glPopMatrix();
 	 }
       }
+
+      if (bonds_box_local.have_rings()) {
+	 set_bond_colour_by_mol_no(0);
+	 for (unsigned int ir=0; ir<bonds_box_local.rings.size(); ir++) { 
+	    glPushMatrix();
+
+	    // c.f. draw_diapoles()
+	    // 
+	    clipper::Coord_orth d_unit = bonds_box_local.rings[ir].normal;
+	    clipper::Coord_orth arb(0,0.1,0.9);
+	    if (d_unit.y() < d_unit.z())
+	       arb = clipper::Coord_orth(0.0, 0.9, 0.1);
+	    if (d_unit.x() < d_unit.y())
+	       arb = clipper::Coord_orth(0.9, 0.0, 0.1);
+	    
+	    clipper::Coord_orth p1(clipper::Coord_orth::cross(arb, d_unit).unit());
+	    clipper::Coord_orth p2(clipper::Coord_orth::cross( p1, d_unit).unit());
+	    clipper::Coord_orth p3 = d_unit;
+	    
+	    GL_matrix m(p1.x(), p1.y(), p1.z(),
+			p2.x(), p2.y(), p2.z(),
+			p3.x(), p3.y(), p3.z());
+	    
+	    glTranslatef(bonds_box_local.rings[ir].centre.x(),
+			 bonds_box_local.rings[ir].centre.y(),
+			 bonds_box_local.rings[ir].centre.z());
+	    glMultMatrixf(m.get());
+
+ 	    glutSolidTorus(bonds_box_local.rings[ir].inner_radius,
+			   bonds_box_local.rings[ir].outer_radius,
+ 			   bonds_box_local.rings[ir].n_sides,			   
+ 			   bonds_box_local.rings[ir].n_rings);
+	    
+	    glPopMatrix();
+	 }
+      } 
       
       glEndList();
       bonds_box_local.clear_up();

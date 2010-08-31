@@ -95,7 +95,31 @@ namespace coot {
 	 }
       }
    };
-   
+
+   // For OpenGL solid model, it is much better to draw a torus than a
+   // set of short sticks (particularly for the ring representing
+   // aromaticity).  So now (20100831 Bond_lines_container contains a
+   // number of torus descriptions).
+   // 
+   class torus_description_t {
+   public:
+      double inner_radius;
+      double outer_radius;
+      int n_sides;
+      int n_rings;
+      clipper::Coord_orth centre;
+      clipper::Coord_orth normal;
+      torus_description_t(const clipper::Coord_orth &pt,
+			  const clipper::Coord_orth &normal_in,
+			  double ir1, double ir2, int n1, int n2) {
+	 inner_radius = ir1;
+	 outer_radius = ir2;
+	 n_sides = n1;
+	 n_rings = n2;
+	 centre = pt;
+	 normal = normal_in;
+      }
+   };
 }
  
 // A poor man's vector.  For use when we can't use vectors
@@ -136,6 +160,7 @@ class graphical_bonds_container {
    std::pair<bool,coot::Cartesian> *atom_centres_;
    int n_atom_centres_;
    int *atom_centres_colour_;
+   std::vector<coot::torus_description_t> rings;
 
    graphical_bonds_container() { 
       num_colours = 0; 
@@ -228,7 +253,10 @@ class graphical_bonds_container {
    void add_zero_occ_spots(const std::vector<coot::Cartesian> &spots);
    void add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,
 			 const std::vector<int> &colours);
+   bool have_rings() const { return rings.size();
+   }
 };
+
 
 
 // Bond_lines is a container class, containing a colour index
@@ -240,11 +268,11 @@ class Bond_lines {
    std::vector<coot::CartesianPair> points;
 
  public:
-   Bond_lines(coot::CartesianPair pts);
+   Bond_lines(const coot::CartesianPair &pts);
    Bond_lines(); 
    Bond_lines(int col);
 
-   void add_bond(coot::CartesianPair);
+   void add_bond(const coot::CartesianPair &p);
    int size() const; 
 
    // return the coordinates of the start and finish points of the i'th bond.
@@ -259,11 +287,12 @@ enum symm_keys {NO_SYMMETRY_BONDS};
 
 class Bond_lines_container { 
 
-   short int verbose_reporting;
-   short int do_disulfide_bonds_flag;
-   short int do_bonds_to_hydrogens;
+   bool verbose_reporting;
+   bool do_disulfide_bonds_flag;
+   bool do_bonds_to_hydrogens;
    int udd_has_ca_handle;
-   float b_factor_scale; 
+   float b_factor_scale;
+   bool for_GL_solid_model_rendering;
 
    // we rely on SelAtom.atom_selection being properly constucted to
    // contain all atoms
@@ -313,7 +342,15 @@ class Bond_lines_container {
 		       CAtom *at_1,
 		       CAtom *at_2,
 		       int atom_colour_type);
-                           
+
+   void add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, int atom_colour_type);
+   // used by above, can throw an exception
+   clipper::Coord_orth get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int n_atoms) const;
+
+   bool have_dictionary;
+   const coot::protein_geometry *geom;
+
+
  protected:
    std::vector<Bond_lines> bonds; 
    std::vector<coot::Cartesian>  zero_occ_spot;
@@ -340,6 +377,11 @@ class Bond_lines_container {
 
    void try_set_b_factor_scale(CMMDBManager *mol);
    graphical_bonds_container make_graphical_bonds(bool thinning_flag) const;
+   void add_bonds_het_residues(const std::vector<std::pair<bool, CResidue *> > &het_residues, int atom_colour_t, short int have_udd_atoms, int udd_handle);
+   void het_residue_aromatic_rings(CResidue *res, const coot::dictionary_residue_restraints_t &restraints, int col);
+   // pass a list of atom name that are part of the aromatic ring system.
+   void add_aromatic_ring_bond_lines(const std::vector<std::string> &ring_atom_names, CResidue *res, int col);
+
 
 public:
    enum bond_representation_type { COLOUR_BY_OCCUPANCY, COLOUR_BY_B_FACTOR}; 
@@ -348,12 +390,26 @@ public:
    // We need:  mmdb-extras.h which needs mmdb-manager.h and <string>
    // Bond_lines_container(const atom_selection_container_t &asc);
 
-   Bond_lines_container(const atom_selection_container_t &asc, 
+   Bond_lines_container(const atom_selection_container_t &asc,
 			int include_disulphides=0,
 			int include_hydrogens=1);
+
+   // the constructor for bond by dictionary - should use this most of the time.
+   // geom_in can be null if you don't have it.
+   // 
+   Bond_lines_container(const atom_selection_container_t &asc,
+			coot::protein_geometry *geom_in,
+			int include_disulphides,
+			int include_hydrogens);
+
    Bond_lines_container(atom_selection_container_t, float max_dist);
-   Bond_lines_container(atom_selection_container_t, 
+
+   Bond_lines_container(atom_selection_container_t asc, 
 			float min_dist, float max_dist);
+
+   // geom_in can be null.
+   Bond_lines_container (atom_selection_container_t asc, const coot::protein_geometry *geom);
+
    Bond_lines_container(atom_selection_container_t SelAtom, coot::Cartesian point,
 			float symm_distance,
 			std::vector<symm_trans_t> symm_trans); // const & FIXME
@@ -392,6 +448,8 @@ public:
    Bond_lines_container() {
       do_bonds_to_hydrogens = 1;  // added 20070629
       b_factor_scale = 1.0;
+      have_dictionary = 0;
+      for_GL_solid_model_rendering = 0;
       if (bonds.size() == 0) { 
 	 for (int i=0; i<10; i++) { 
 	    Bond_lines a(i);
@@ -521,6 +579,11 @@ public:
 			     symm_trans_t symm_trans);
 
    void set_verbose_reporting(short int i) { verbose_reporting = i;}
+
+   std::vector<coot::torus_description_t> rings; // for OpenGL rendering of aromaticity bonding.
+   bool have_rings() const {
+      return rings.size();
+   }
 
 };
 

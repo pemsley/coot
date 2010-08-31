@@ -21,6 +21,8 @@
 #ifndef COOT_MAP_UTILS_HH
 #define COOT_MAP_UTILS_HH
 
+#include <map>
+
 #include "clipper/core/coords.h"
 #include "clipper/core/xmap.h"
 #include "clipper/core/hkl_data.h"
@@ -239,7 +241,8 @@ namespace coot {
 	 
       };
 
-      class segment_map { 
+      class segment_map {
+	 enum {UNASSIGNED = -1, TOO_LOW = -2 };
 	 // sorting function used by above
 	 static bool compare_density_values_map_refs(const std::pair<clipper::Xmap_base::Map_reference_index, float> &v1,
 						     const std::pair<clipper::Xmap_base::Map_reference_index, float> &v2);
@@ -258,6 +261,14 @@ namespace coot {
 						       const clipper::Xmap<float> &xmap_new);
 	 static bool sort_segment_vec(const std::pair<int, int> &a,
 				      const std::pair<int, int> &b);
+	 int find_biggest_segment(const std::map<int, std::vector<clipper::Coord_grid> > &segment_id_map,
+				  const std::map<int, int> &segment_id_counter_map) const;
+	 // test function
+	 int find_smallest_segment(const std::map<int, std::vector<clipper::Coord_grid> > &segment_id_map,
+				   const std::map<int, int> &segment_id_counter_map) const;
+	 void resegment_watershed_points(clipper::Xmap<int> *xmap_int,
+					 const clipper::Xmap<float> &xmap) const;
+
       public:
 	 segment_map() {};
 	 // Return the number of segments and the segmented map.
@@ -265,8 +276,15 @@ namespace coot {
 	 // -1 means no segment. low_level is the level below which
 	 // segmentation should not occur (don't make blobs in the
 	 // noise).
+	 //
+	 // This is Pintilie flooding (with extra watershed remapping)
 	 // 
 	 std::pair<int, clipper::Xmap<int> > segment(const clipper::Xmap<float> &xmap_in, float low_level);
+
+	 // This is the flood-down method
+	 // 
+	 std::pair<int, clipper::Xmap<int> > segment_emsley_flood(const clipper::Xmap<float> &xmap_in,
+								  float low_level);
 
 	 // multi-scale segmentation.  Return a segmented map.
 	 // 

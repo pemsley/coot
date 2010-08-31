@@ -1204,7 +1204,7 @@ public:        //                      public
    std::vector<coot::atom_spec_t> fixed_atom_specs;
    std::vector<coot::Cartesian>   fixed_atom_positions; // updated on make_bonds_type_checked()
    void update_fixed_atom_positions();
-   void update_additional_representations(const gl_context_info_t &gl_info);
+   void update_additional_representations(const gl_context_info_t &gl_info, const coot::protein_geometry *geom);
    void update_mols_in_additional_representations(); //uses atom_sel.mol
    void draw_fixed_atom_positions() const;
    void clear_all_fixed_atoms();
@@ -1455,13 +1455,15 @@ public:        //                      public
    // return the display list tag
    int make_ball_and_stick(const std::string &atom_selection_str,
  			   float bond_thickness, float sphere_size,
- 			   bool do_spheres_flag, gl_context_info_t gl_info);
+ 			   bool do_spheres_flag, gl_context_info_t gl_info,
+			   const coot::protein_geometry *geom);
    // return the display list tag
    coot::display_list_object_info
    make_ball_and_stick(const std::string &atom_selection_str,
 		       float bond_thickness, float sphere_size,
 		       bool do_spheres_flag, bool is_second_context,
-		       coot::display_list_object_info dloi);
+		       coot::display_list_object_info dloi,
+		       const coot::protein_geometry *geom);
    void clear_display_list_object(GLuint tag);
 
    // the charges for the surface come from the dictionary.
@@ -2673,7 +2675,8 @@ public:        //                      public
 				     bool draw_hydrogens_flag,
 				     const coot::atom_selection_info_t &info,
 				     GtkWidget *display_control_window,
-				     const gl_context_info_t &glci); 
+				     const gl_context_info_t &glci,
+				     const coot::protein_geometry *geom); 
 
    int adjust_additional_representation(int represenation_number, 
 					const int &bonds_box_type_in, 

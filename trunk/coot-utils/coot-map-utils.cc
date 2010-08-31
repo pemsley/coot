@@ -22,7 +22,6 @@
 
 #include <algorithm> // for sorting.
 #include <queue>
-#include <map>
 
 // #include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
@@ -659,12 +658,11 @@ coot::util::backrub_residue_triple_t::trim_next_residue_atoms() {
    trim_residue_atoms_generic(this_residue, vec, 0);
 }
 
-
 // as in the verb, not the noun., return the number of segments (0 is
 // also useful segment).
 // 
 std::pair<int, clipper::Xmap<int> >
-coot::util::segment_map::segment(const clipper::Xmap<float> &xmap, float low_level) {
+coot::util::segment_map::segment_emsley_flood(const clipper::Xmap<float> &xmap, float low_level) {
 
    clipper::Xmap<int> xmap_int(xmap.spacegroup(),
 			       xmap.cell(),
@@ -772,6 +770,112 @@ coot::util::segment_map::segment(const clipper::Xmap<float> &xmap, float low_lev
 
 
 
+// as in the verb, not the noun., return the number of segments (0 is
+// also useful segment).
+// 
+std::pair<int, clipper::Xmap<int> >
+coot::util::segment_map::segment(const clipper::Xmap<float> &xmap, float low_level) {
+
+   clipper::Xmap<int> xmap_int(xmap.spacegroup(),
+			       xmap.cell(),
+			       xmap.grid_sampling());
+
+   int UNASSIGNED = -1;
+   int TOO_LOW    = -2;
+
+   // how many points are there in an xmap are there above the
+   // (user-defined) noise level (low_level)?
+   // 
+   long n_points = 0;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap.first(); !ix.last(); ix.next() )  {
+      if (xmap[ix] < low_level) { 
+	 xmap_int[ix] = TOO_LOW;
+      } else { 
+	 xmap_int[ix] = UNASSIGNED;
+	 n_points++;
+      }
+   }
+
+   std::vector<std::pair<clipper::Xmap_base::Map_reference_index, float> > density_values(n_points);
+   long int i=0;
+   for (ix = xmap.first(); !ix.last(); ix.next()) { 
+      if (xmap[ix] >= low_level) { 
+	 density_values[i] = std::pair<clipper::Xmap_base::Map_reference_index, float> (ix, xmap[ix]);
+	 i++;
+      }
+   }
+
+   std::sort(density_values.begin(), density_values.end(), compare_density_values_map_refs);
+
+   int i_segment_index = 0;
+   clipper::Coord_grid c_g;
+   std::map<int, int> segment_id_counter_map;
+
+   clipper::Skeleton_basic::Neighbours neighb(xmap, 0.5, 3.1); // 3x3x3 cube, not centre
+   for (i=0; i<n_points; i++) {
+
+      if (xmap_int[density_values[i].first] == UNASSIGNED) {
+	 
+	 float v = xmap[density_values[i].first];
+
+	 // Does this grid point have a neighbour which is already in
+	 // a segment?  If so, which one?  If there are many
+	 // neighbours (this is a watershed point) then we need to make
+	 // a note of all of them and choose later
+
+	 std::map<int, std::vector<clipper::Coord_grid> > neighbour_count_map; // (as in the stl map)
+	 for (int i_n=0; i_n<neighb.size(); i_n++) {
+	    c_g = density_values[i].first.coord() + neighb[i_n];
+	    int segment_index = xmap_int.get_data(c_g);
+	    if (segment_index >= 0) {
+	       neighbour_count_map[segment_index].push_back(c_g);
+	    }
+	 }
+
+	 if (neighbour_count_map.size()) {
+
+	    // OK, so add this grid point to a previously existing
+	    // segment.  Now, which one?
+	    // 
+	    if (neighbour_count_map.size() == 1) {
+	       xmap_int[density_values[i].first] = neighbour_count_map.begin()->first;
+	       segment_id_counter_map[neighbour_count_map.begin()->first]++;
+	    } else {
+
+	       // The complicated case, we have to decide which is the
+	       // biggest of the neighbouring segments and add this
+	       // grid point to that segment.
+
+	       // int big_seg_id = find_biggest_segment(neighbour_count_map, segment_id_counter_map);
+	       int big_seg_id = find_smallest_segment(neighbour_count_map, segment_id_counter_map);
+	       if (0) 
+		  std::cout << "watershed point " << density_values[i].first.coord().format()
+			    << " has " << neighbour_count_map.size() << " neighboring segments and "
+			    << " is of segment " << big_seg_id << "\n";
+	       xmap_int[density_values[i].first] = big_seg_id;
+	       segment_id_counter_map[big_seg_id]++;
+	       
+	    } 
+
+	 } else { 
+
+	    // this didn't have any neighbours so we start a new segment:
+	    // 
+	    xmap_int[density_values[i].first] = i_segment_index;
+	    segment_id_counter_map[i_segment_index]++;
+	    i_segment_index++; // for next round
+	 }
+      }
+   }
+   resegment_watershed_points(&xmap_int, xmap); // Pintilie et al. didn't mention that we need this.
+
+   int n_segments = i_segment_index;
+   return std::pair<int, clipper::Xmap<int> > (n_segments, xmap_int);
+}
+
+
+
 // sorting function used by segmentation
 //
 // static
@@ -779,9 +883,66 @@ bool
 coot::util::segment_map::compare_density_values_map_refs(const std::pair<clipper::Xmap_base::Map_reference_index, float> &v1,
 					    const std::pair<clipper::Xmap_base::Map_reference_index, float> &v2) {
    return (v2.second < v1.second);
+}
+
+// Pintilie et al. didn't mention that we need this.
+void 
+coot::util::segment_map::resegment_watershed_points(clipper::Xmap<int> *xmap_int_in,
+						    const clipper::Xmap<float> &xmap) const {
+
+   clipper::Xmap<int> &xmap_int = *xmap_int_in;
+   clipper::Skeleton_basic::Neighbours neighb(xmap, 0.5, 3.1); // 3x3x3 cube, not centre
+   
+   clipper::Xmap_base::Map_reference_index ix;
+   int is;
+   int ns;
+   clipper::Coord_grid c_g;
+
+   for (ix = xmap_int.first(); !ix.last(); ix.next()) {
+      is = xmap_int[ix];
+      if (is >= 0) {
+	 std::map<int, int> segment_id_map;
+	 for (unsigned int i_n=0; i_n<neighb.size(); i_n++) {
+	    c_g = ix.coord() + neighb[i_n];
+	    ns = xmap_int.get_data(c_g);
+	    if (ns >= 0) 
+	       segment_id_map[ns]++;
+	 }
+	 if (segment_id_map.size() > 1) {
+	    // OK, we have a watershed point, we need to (potentially) change the segment to the
+	    // one which has the steepest gradient from this point.
+	    float v = xmap[ix];
+	    float vn;
+	    float best_vn = -1;
+	    clipper::Coord_grid best_n;
+	    for (unsigned int i_n=0; i_n<neighb.size(); i_n++) {
+	       c_g = ix.coord() + neighb[i_n];
+	       vn = xmap.get_data(c_g);
+	       if (v > best_vn) { 
+		  if (vn > v) {
+		     best_vn = vn;
+		     best_n = neighb[i_n];
+		  }
+	       }
+	    }
+	    // OK, best_vn was set
+	    if (best_vn > -0.9) {
+	       int i_seg_neighb = xmap_int.get_data(ix.coord() + best_n);
+	       if (xmap_int[ix] != i_seg_neighb) {
+		  if (0)
+		     std::cout << "Resegmenting " << ix.coord().format() << " from " << xmap_int[ix] << " to "
+			       << i_seg_neighb << "\n";
+		  xmap_int[ix] = i_seg_neighb;
+	       }
+	    } 
+	 }
+      }
+   }
+
 } 
 
-// "multi-scale" segmentation (i.e. merge segments by progressive blurring)
+
+// "scale-space" segmentation (i.e. merge segments by progressive blurring)
 // 
 std::pair<int, clipper::Xmap<int> >
 coot::util::segment_map::segment(const clipper::Xmap<float> &xmap_in,
@@ -812,9 +973,6 @@ coot::util::segment_map::segment(const clipper::Xmap<float> &xmap_in,
    // 
 
    int n_segments = 0;
-
-   int UNASSIGNED = -1;
-   int TOO_LOW    = -2;
 
 
    clipper::Xmap<std::pair<bool, int> > segmented;
@@ -861,6 +1019,7 @@ coot::util::segment_map::segment(const clipper::Xmap<float> &xmap_in,
 	 if (! clipper::Util::is_nan(fphis_for_loop[hri].f())) {
 	    float irs =  hri.invresolsq();
 	    float scale = expf(- round_factor * irs * irs/(2 * gaussian_sigma * gaussian_sigma));
+	    scale = 1;
 	    fphis_for_loop[hri].f() *= scale;
 	    if (0) 
 	       std::cout << " new f: " << hri.hkl().format() << " " <<  fphis_for_loop[hri].f()
@@ -1009,6 +1168,50 @@ coot::util::segment_map::segment(const clipper::Xmap<float> &xmap_in,
 
    
 }
+
+
+int
+coot::util::segment_map::find_biggest_segment(const std::map<int, std::vector<clipper::Coord_grid> > &segment_id_map, const std::map<int, int> &segment_id_counter_map) const {
+
+   // look through all of the segments in the segment id map and 
+   
+   int seg_id_biggest = UNASSIGNED;
+   int n_gp_in_biggest_segment = 0;
+   std::map<int, std::vector<clipper::Coord_grid> >::const_iterator it;
+   for (it=segment_id_map.begin(); it!=segment_id_map.end(); it++) {
+      std::map<int, int>::const_iterator iti = segment_id_counter_map.find(it->first);
+      if (iti != segment_id_counter_map.end()) { 
+	 if (iti->second > n_gp_in_biggest_segment) {
+	    n_gp_in_biggest_segment = iti->second;
+	    seg_id_biggest = it->first;
+	 }
+      }
+   }
+
+   return seg_id_biggest;
+}
+
+int
+coot::util::segment_map::find_smallest_segment(const std::map<int, std::vector<clipper::Coord_grid> > &segment_id_map, const std::map<int, int> &segment_id_counter_map) const {
+
+   // look through all of the segments in the segment id map and 
+   
+   int seg_id_smallest = UNASSIGNED;
+   int n_gp_in_smallest_segment = 65500;
+   std::map<int, std::vector<clipper::Coord_grid> >::const_iterator it;
+   for (it=segment_id_map.begin(); it!=segment_id_map.end(); it++) {
+      std::map<int, int>::const_iterator iti = segment_id_counter_map.find(it->first);
+      if (iti != segment_id_counter_map.end()) { 
+	 if (iti->second < n_gp_in_smallest_segment) {
+	    n_gp_in_smallest_segment = iti->second;
+	    seg_id_smallest = it->first;
+	 }
+      }
+   }
+
+   return seg_id_smallest;
+}
+
 
 // static
 bool

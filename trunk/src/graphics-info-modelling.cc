@@ -3039,7 +3039,7 @@ graphics_info_t::drag_intermediate_atom(const coot::atom_spec_t &atom_spec, cons
 	 }
       }
    }
-   Bond_lines_container bonds(*moving_atoms_asc, 0);
+   Bond_lines_container bonds(*moving_atoms_asc, geom_p, 0, 1);
    regularize_object_bonds_box.clear_up();
    regularize_object_bonds_box = bonds.make_graphical_bonds();
    graphics_draw();
