@@ -1904,3 +1904,36 @@ pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
 	    
 	 }
       }
+
+
+std::vector<std::vector<std::string> >
+coot::pi_stacking_container_t::get_ligand_aromatic_ring_list(const coot::dictionary_residue_restraints_t &monomer_restraints) const {
+
+   // get a list of aromatic bonds, so that they can be used to find
+   // aromatic rings.
+   // 
+   std::vector<std::pair<std::string, std::string> > bonds;
+   for (unsigned int irest=0; irest<monomer_restraints.bond_restraint.size(); irest++) {
+      if (monomer_restraints.bond_restraint[irest].type() == "aromatic") {
+	 std::pair<std::string, std::string> p(monomer_restraints.bond_restraint[irest].atom_id_1_4c(),
+					       monomer_restraints.bond_restraint[irest].atom_id_2_4c());
+	 bonds.push_back(p);
+      }
+   }
+   
+   coot::aromatic_graph_t arom(bonds);
+   std::vector<std::vector<std::string> > ring_list = arom.ring_list();
+
+   if (0) {
+      std::cout << "----------- " << ring_list.size() << " rings ---------- " << std::endl;
+      for (unsigned int i=0; i<ring_list.size(); i++) {
+	 std::cout << "ring " << i << "\n   ";
+	 for (unsigned int j=0; j<ring_list[i].size(); j++) { 
+	    std::cout << ring_list[i][j] << "  ";
+	 }
+	 std::cout << std::endl;
+      }
+   }
+   return ring_list;
+}
+

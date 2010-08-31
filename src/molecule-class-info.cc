@@ -2074,7 +2074,7 @@ molecule_class_info_t::draw_dipoles() const {
 	 }
       }
 
-      glColor3f(0.9,0.6,0.8);
+      glColor3f(0.9, 0.6, 0.8);
       for (unsigned int i=0; i<dipoles.size(); i++) {
 	 clipper::Coord_orth pt = dipoles[i].position();
 	 clipper::Coord_orth  d = dipoles[i].get_dipole();
@@ -2254,7 +2254,8 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 						     bool draw_hydrogens_flag,
 						     const coot::atom_selection_info_t &info,
 						     GtkWidget *display_control_window,
-						     const gl_context_info_t &glci) {
+						     const gl_context_info_t &glci,
+						     const coot::protein_geometry *geom) {
 
    coot::additional_representations_t rep(atom_sel.mol,
 					  representation_type,
@@ -2266,7 +2267,7 @@ molecule_class_info_t::add_additional_representation(int representation_type,
    GtkWidget *vbox = display_control_add_reps_container(display_control_window, imol_no);
    display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
    if (representation_type == coot::BALL_AND_STICK) {
-      int display_list_handle_index = make_ball_and_stick(info.mmdb_string(), 0.12, 0.28, 1, glci);
+      int display_list_handle_index = make_ball_and_stick(info.mmdb_string(), 0.11, 0.28, 1, glci, geom);
       if ((display_list_handle_index >= 0) && (display_list_handle_index < display_list_tags.size())) {
 	 add_reps[n_rep].add_display_list_handle(display_list_handle_index);
       } 
@@ -2611,11 +2612,14 @@ molecule_class_info_t::makebonds(float max_dist) {
    // << bonds_box.num_colours << endl;
 }
 
+// I think that graphics_info_t::Geom_p() should be passed to this function.
+// 
 void
 molecule_class_info_t::makebonds() {
 
+   graphics_info_t g;
    int do_disulphide_flag = 1;
-   Bond_lines_container bonds(atom_sel, do_disulphide_flag, draw_hydrogens_flag);
+   Bond_lines_container bonds(atom_sel, g.Geom_p(), do_disulphide_flag, draw_hydrogens_flag);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::NORMAL_BONDS;
@@ -2711,15 +2715,17 @@ molecule_class_info_t::make_bonds_type_checked() {
    // That is called from many places....
    // 
    gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+   graphics_info_t g; // urgh!  (But the best solution?)
    
-   update_additional_representations(glci);
+   update_additional_representations(glci, g.Geom_p());
    update_fixed_atom_positions();
    update_ghosts();
    update_extra_restraints_representation();
 }
 
 void
-molecule_class_info_t::update_additional_representations(const gl_context_info_t &gl_info) {
+molecule_class_info_t::update_additional_representations(const gl_context_info_t &gl_info,
+							 const coot::protein_geometry *geom) {
 
    for (unsigned int i=0; i<add_reps.size(); i++) {
       // make_ball_and_stick is not available from inside an add_rep,
@@ -2732,7 +2738,8 @@ molecule_class_info_t::update_additional_representations(const gl_context_info_t
 	 
 	 int old_handle = add_reps[i].display_list_handle;
 	 remove_display_list_object_with_handle(old_handle);
-	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(), 0.11, 0.24, 1, gl_info);
+	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(),
+					  0.11, 0.28, 1, gl_info, geom);
 
 	 std::cout << " update a ball and stick rep " << i << " "
 		   << add_reps[i].show_it << std::endl;

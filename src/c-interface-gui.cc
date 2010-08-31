@@ -5344,7 +5344,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 								bonds_box_type,
 								bond_width,
 								draw_H_flag,
-								asi, dcw, glci);
+								asi, dcw, glci, g.Geom_p());
       } 
    } 
    if (GTK_TOGGLE_BUTTON(resno_radiobutton)->active) {
@@ -5362,7 +5362,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 									bonds_box_type,
 									bond_width,
 									draw_H_flag,
-									asi, dcw, glci);
+									asi, dcw, glci, g.Geom_p());
       } 
    } 
    if (GTK_TOGGLE_BUTTON(selection_string_radiobutton)->active) {
@@ -5374,7 +5374,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 								     bonds_box_type,
 								     bond_width,
 								     draw_H_flag,
-								     asi, dcw, glci);
+								     asi, dcw, glci, g.Geom_p());
    }
    graphics_draw();
 } 

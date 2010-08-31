@@ -25,6 +25,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <algorithm> // for find
 
 #include "Cartesian.h"
 #include "mmdb_manager.h"
@@ -32,16 +33,18 @@
 #include "mmdb.h"
 #include "mmdb-crystal.h"  // should be merged with extras
 
+#include "lbg-graph.hh"  // aromatic ring systems
+#include "coot-utils.hh" // for int_to_string
+
 #include "Bond_lines.h"
 #include "coot-coord-utils.hh"
 
 
 static std::string b_factor_bonds_scale_handle_name = "B-factor-bonds-scale";
 
-Bond_lines::Bond_lines(coot::CartesianPair pair) {
+Bond_lines::Bond_lines(const coot::CartesianPair &pair) {
 
    points.push_back(pair);
-
 }
 
 // We arrange things like this because the other constructor now uses
@@ -52,17 +55,40 @@ Bond_lines::Bond_lines(coot::CartesianPair pair) {
 // 
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   int do_disulphide_bonds_in,   // default argument
-					   int do_bonds_to_hydrogens_in) // default argument
+					   int do_bonds_to_hydrogens_in // default argument
+					   )
 {
-   // how to initiaize bonds to 0.
-   //
+
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
-
-//    std::cout << "====================== Blc constructor "
-// 	     << do_bonds_to_hydrogens << " =======" << std::endl;
-   
    b_factor_scale = 1.0;
+   have_dictionary = 0;
+   for_GL_solid_model_rendering = 0;
+   // 1.7 will not catch MET bonds (1.791 and 1.803) nor MSE bonds (1.95)
+   // but SO4 bonds (1.46 are fine).
+   // They should have special case, handle_MET_or_MSE_case
+   // However, for VNP thingy, S1 has bonds to carbons of 1.67 1.77.  Baah.
+   construct_from_asc(SelAtom, 0.01, 1.64, coot::COLOUR_BY_ATOM_TYPE, 0);
+   verbose_reporting = 0;
+   udd_has_ca_handle = -1;
+
+}
+
+Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
+					   coot::protein_geometry *geom_in,
+					   int do_disulphide_bonds_in, 
+					   int do_bonds_to_hydrogens_in)
+{
+
+   do_disulfide_bonds_flag = do_disulphide_bonds_in;
+   do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
+   for_GL_solid_model_rendering = 0;
+   b_factor_scale = 1.0;
+   have_dictionary = 0;
+   if (geom_in) {
+      geom = geom_in;
+      have_dictionary = 1;
+   } 
    // 1.7 will not catch MET bonds (1.791 and 1.803) nor MSE bonds (1.95)
    // but SO4 bonds (1.46 are fine).
    // They should have special case, handle_MET_or_MSE_case
@@ -80,19 +106,50 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    udd_has_ca_handle = -1;
    do_bonds_to_hydrogens = 1;
    b_factor_scale = 1.0;
+   have_dictionary = 0;
+   for_GL_solid_model_rendering = 0;
    construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0); 
 }
 
+
 Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
 					   float min_dist, float max_dist) {
-
+   
    verbose_reporting = 0;
    do_disulfide_bonds_flag = 1;
    udd_has_ca_handle = -1;
    do_bonds_to_hydrogens = 1;
    b_factor_scale = 1.0;
+   have_dictionary = 0;
+   for_GL_solid_model_rendering = 0;
+   // 0 is is_from_symmetry_flag
    construct_from_asc(SelAtom, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0); 
 }
+
+// geom_in can be null.
+// 
+// The constructor for ball and stick, this constructor implies that
+// for_GL_solid_model_rendering is set.
+// 
+Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
+					   const coot::protein_geometry *geom_in) {
+
+   for_GL_solid_model_rendering = 1; // note!
+   
+   verbose_reporting = 0;
+   do_disulfide_bonds_flag = 1;
+   udd_has_ca_handle = -1;
+   do_bonds_to_hydrogens = 1;
+   b_factor_scale = 1.0;
+   have_dictionary = 0;
+   if (geom_in) {
+      geom = geom_in;
+      have_dictionary = 1;
+   } 
+   // 0 is is_from_symmetry_flag
+   construct_from_asc(asc, 0.01, 1.9, coot::COLOUR_BY_ATOM_TYPE, 0);
+} 
+
 
 // This is the one for occupancy and B-factor representation
 // 
@@ -104,6 +161,8 @@ Bond_lines_container::Bond_lines_container (const atom_selection_container_t &Se
    udd_has_ca_handle = -1;
    do_bonds_to_hydrogens = 1;
    b_factor_scale = 1.0;
+   have_dictionary = 0;
+   for_GL_solid_model_rendering = 0;
    float max_dist = 1.64;
    if (by_occ == Bond_lines_container::COLOUR_BY_OCCUPANCY) {
       construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_OCCUPANCY, 0); 
@@ -199,23 +258,12 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			 contact, ncontacts,
 			 0, &my_matt, i_contact_group);
 
-   if (0) {
-      for (int i=0; i< ncontacts; i++) {
-	 CAtom *atom_p_1 = atom_selection_1[ contact[i].id1 ];
-	 CAtom *atom_p_2 = atom_selection_2[ contact[i].id2 ];
-	 std::cout << "raw contact " << atom_p_1 << " to " << atom_p_2 << std::endl;
-      }
-   }
-
-   //     if (verbose_reporting)
-//    std::cout << "in construct_from_atom_selection found " << ncontacts << " contacts from "
-//  	     << n_selected_atoms_1 << " vs " << n_selected_atoms_2
-//  	     << " selected atoms. " <<  std::endl;
-
    std::string element_1, element_2;
    int col; // atom colour
 
    if (ncontacts > 0) {
+
+      std::vector<std::pair<bool, CResidue *> > het_residues; // bond these separately.
       
       for (int i=0; i< ncontacts; i++) {
 
@@ -255,85 +303,123 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		  int res_1 = atom_p_1->GetSeqNum();
 		  int res_2 = atom_p_2->GetSeqNum();
 
-		  // this +/- 1 residue test
-		  if (labs(res_1 - res_2) < 2 ||
-		      labs(atom_p_1->residue->index - atom_p_2->residue->index) < 2) {
+		  bool bond_het_residue_by_dictionary = 0;
+		  if (have_dictionary) 
+		     if (atom_p_1->residue == atom_p_2->residue)
+			if (atom_p_1->Het)
+			   if (atom_p_2->Het) {
 
-		     //  		  std::cout << "Adding bond " << atom_selection_1[ contact[i].id1 ]
-		     //  			    << " to "
-		     //  			    << atom_selection_2[ contact[i].id2 ] << std::endl;
-
-		     if (atom_selection_1[ contact[i].id1 ]->GetModel() ==
-			 atom_selection_2[ contact[i].id2 ]->GetModel()) {
-
-			if (have_udd_atoms) {
- 			   if (! ((!strcmp(atom_selection_1[ contact[i].id1 ]->element, " S")) ||
-				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "SE")) ||
-				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "CL")) ||
-				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
-				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Cl")) ||
-				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Br")) ||
-				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, " P")))) { 
-			      atom_selection_1[ contact[i].id1 ]->PutUDData(udd_handle, 1);
-// 			      std::cout << "marking udd handle "
-// 					<< atom_selection_1[ contact[i].id1 ]
-// 					<< std::endl;
-			   } 
-
- 			   if (! ((!strcmp(atom_selection_2[ contact[i].id2 ]->element, " S")) ||
-				  (!strcmp(atom_selection_2[ contact[i].id2 ]->element, "SE")) ||
-				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "CL")) ||
-				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
-				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Cl")) ||
-				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Br")) ||
-				  (!strcmp(atom_selection_2[ contact[i].id2 ]->element, " P")))) { 
-			      atom_selection_2[ contact[i].id2 ]->PutUDData(udd_handle, 1);
-// 			      std::cout << "marking udd handle "
-// 					<< atom_selection_2[ contact[i].id2 ]
-// 					<< std::endl;
+			      // Have we checked this residue type before and failed to find
+			      // a dictionary for it?  If so, add it to the vector.
+			      
+			      std::pair<bool, CResidue *> tp0(0, atom_p_1->residue);
+			      std::pair<bool, CResidue *> tp1(1, atom_p_1->residue);
+			      
+			      // add this residue to the vector if it is not there already)
+			      std::vector<std::pair<bool, CResidue *> >::const_iterator it_1 =
+				 std::find(het_residues.begin(), het_residues.end(), tp0);
+			      
+			      if (it_1 == het_residues.end()) { 
+				 
+				 std::vector<std::pair<bool, CResidue *> >::const_iterator it_2 =
+				    std::find(het_residues.begin(), het_residues.end(), tp1);
+				 
+				 if (it_2 == het_residues.end()) { 
+				    if (geom->have_dictionary_for_residue_type_no_dynamic_add(atom_p_1->residue->GetResName())) {
+				       het_residues.push_back(tp1);
+				       bond_het_residue_by_dictionary = 1;
+				    }  else {
+				       het_residues.push_back(tp0);
+				    } 
+				 } else {
+				    // this HET group is already in the list and was maked as found in the dictionary.
+				    bond_het_residue_by_dictionary = 1;
+				 }
+			      } else {
+				    // this HET group is already in the list but not found
+				    bond_het_residue_by_dictionary = 0;
+			      } 
 			   }
-			}
 
-			if (element_1 != element_2) {
+		  if (! bond_het_residue_by_dictionary) {
+
+		     // this +/- 1 residue test
+		     if (labs(res_1 - res_2) < 2 ||
+			 labs(atom_p_1->residue->index - atom_p_2->residue->index) < 2) {
+
+			//  		  std::cout << "Adding bond " << atom_selection_1[ contact[i].id1 ]
+			//  			    << " to "
+			//  			    << atom_selection_2[ contact[i].id2 ] << std::endl;
+
+			if (atom_selection_1[ contact[i].id1 ]->GetModel() ==
+			    atom_selection_2[ contact[i].id2 ]->GetModel()) {
+
+			   if (have_udd_atoms) {
+			      if (! ((!strcmp(atom_selection_1[ contact[i].id1 ]->element, " S")) ||
+				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "SE")) ||
+				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "CL")) ||
+				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
+				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Cl")) ||
+				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Br")) ||
+				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, " P")))) { 
+				 atom_selection_1[ contact[i].id1 ]->PutUDData(udd_handle, 1);
+				 // 			      std::cout << "marking udd handle "
+				 // 					<< atom_selection_1[ contact[i].id1 ]
+				 // 					<< std::endl;
+			      } 
+
+			      if (! ((!strcmp(atom_selection_2[ contact[i].id2 ]->element, " S")) ||
+				     (!strcmp(atom_selection_2[ contact[i].id2 ]->element, "SE")) ||
+				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "CL")) ||
+				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
+				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Cl")) ||
+				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Br")) ||
+				     (!strcmp(atom_selection_2[ contact[i].id2 ]->element, " P")))) { 
+				 atom_selection_2[ contact[i].id2 ]->PutUDData(udd_handle, 1);
+				 // 			      std::cout << "marking udd handle "
+				 // 					<< atom_selection_2[ contact[i].id2 ]
+				 // 					<< std::endl;
+			      }
+			   }
+
+			   if (element_1 != element_2) {
 		  
-			   // Bonded to different atom elements.
-			   //
+			      // Bonded to different atom elements.
 
-			   if ((element_1 != " H") && (element_2 != " H")) {
-
-			      add_half_bonds(atom_1, atom_2,
-					     atom_selection_1[contact[i].id1],
-					     atom_selection_2[contact[i].id2],
-					     atom_colour_type);
-			   } else {
-			      
-			      // Bonds to hydrogens are one colour -
-			      // HYDROGEN_GREY_BOND, not half-bonds.
-			      // 
-			      // Except hydrogens on waters are
-			      // treated differently to other
-			      // hydrogens (if they are not then we
-			      // don't get to see the oxygen).
-			      
-			      std::string resname_1 = atom_p_1->GetResName();
-			      std::string resname_2 = atom_p_2->GetResName();
-			      if (resname_1 == "HOH" || resname_2 == "HOH") {
+			      if ((element_1 != " H") && (element_2 != " H")) {
 				 add_half_bonds(atom_1, atom_2,
 						atom_selection_1[contact[i].id1],
 						atom_selection_2[contact[i].id2],
 						atom_colour_type);
-			      } else { 
+			      } else {
+			      
+				 // Bonds to hydrogens are one colour - HYDROGEN_GREY_BOND, not
+				 // half-bonds.
+				 // 
+				 // Except hydrogens on waters are treated differently to other
+				 // hydrogens (if they are not then we don't get to see the
+				 // oxygen).
+			      
+				 std::string resname_1 = atom_p_1->GetResName();
+				 std::string resname_2 = atom_p_2->GetResName();
+				 if (resname_1 == "HOH" || resname_2 == "HOH") {
+				    add_half_bonds(atom_1, atom_2,
+						   atom_selection_1[contact[i].id1],
+						   atom_selection_2[contact[i].id2],
+						   atom_colour_type);
+				 } else { 
 				 
-				 addBond(HYDROGEN_GREY_BOND, atom_1, atom_2);
-			      }
-			   } // not hydrogen test
+				    addBond(HYDROGEN_GREY_BOND, atom_1, atom_2);
+				 }
+			      } // not hydrogen test
 		  
-			} else {
+			   } else {
 		  
-			   // Bonded to an atom of the same element.
-			   //
-			   col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
-			   addBond(col, atom_1, atom_2);
+			      // Bonded to an atom of the same element.
+			      //
+			      col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
+			      addBond(col, atom_1, atom_2);
+			   }
 			}
 		     }
 		  }
@@ -343,9 +429,14 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 // 	 else {
 // 	    std::cout << "debug:: ignoring contact " << i << std::endl;
 // 	 }
+
       } // i over ncontacts
       
       delete [] contact;
+
+      // OK, now we can handle the het_residues:
+      add_bonds_het_residues(het_residues, atom_colour_type, have_udd_atoms, udd_handle);
+      
    }
 }
 
@@ -365,6 +456,316 @@ Bond_lines_container::add_half_bonds(const coot::Cartesian &atom_1,
    addBond(col, bond_mid_point, atom_2);
 			      
 }
+
+void
+Bond_lines_container::add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, int atom_colour_type) {
+
+   //
+   std::string ele_1 = atoms[iat_1]->element;
+   std::string ele_2 = atoms[iat_2]->element;
+
+   try {
+	 
+      // perp_n is the direction of the offset (from the atom position) of the start and
+      // finish points in the plane of the double bond.
+      // 
+      clipper::Coord_orth pos_at_1(atoms[iat_1]->x, atoms[iat_1]->y, atoms[iat_1]->z);
+      clipper::Coord_orth pos_at_2(atoms[iat_2]->x, atoms[iat_2]->y, atoms[iat_2]->z);
+      clipper::Coord_orth n_n = get_neighb_normal(iat_1, iat_2, atoms, n_atoms);
+      clipper::Coord_orth b(pos_at_1 - pos_at_2);
+      clipper::Coord_orth b_n(b.unit());
+      clipper::Coord_orth perp_n(clipper::Coord_orth::cross(n_n, b_n));
+      int col = atom_colour(atoms[iat_1], atom_colour_type);
+      double offset = 0.066;
+      if (for_GL_solid_model_rendering)
+	 offset = 0.13;
+      clipper::Coord_orth pt_1_1 = pos_at_1 - offset * perp_n;
+      clipper::Coord_orth pt_1_2 = pos_at_1 + offset * perp_n;
+      clipper::Coord_orth pt_2_1 = pos_at_2 - offset * perp_n;
+      clipper::Coord_orth pt_2_2 = pos_at_2 + offset * perp_n;
+
+      if (ele_1 == ele_2) {
+	 // simple double bond (e.g. C=C)
+	 addBond(col, pt_1_1, pt_2_1);
+	 addBond(col, pt_1_2, pt_2_2);
+      } else { 
+	 // we have to draw double half bonds, e.g. C=0
+	 clipper::Coord_orth bond_mid_point = 0.5 * clipper::Coord_orth(pos_at_1 + pos_at_2);
+	 clipper::Coord_orth mp_1 = bond_mid_point - offset * perp_n;
+	 clipper::Coord_orth mp_2 = bond_mid_point + offset * perp_n;
+	 addBond(col, pt_1_1, mp_1);
+	 addBond(col, pt_1_2, mp_2);
+	 col = atom_colour(atoms[iat_2], atom_colour_type);
+ 	 addBond(col, pt_2_1, mp_1);
+ 	 addBond(col, pt_2_2, mp_2);
+      }
+
+   }
+   catch (std::runtime_error rte) {
+      std::cout << rte.what() << std::endl;
+   } 
+}
+
+clipper::Coord_orth
+Bond_lines_container::get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int n_atoms) const {
+
+   clipper::Coord_orth pt(0,0,0);
+   if (have_dictionary) {
+      std::string rn = atoms[iat_1]->residue->GetResName();
+      std::string at_n_1 = atoms[iat_1]->name;
+      std::string at_n_2 = atoms[iat_2]->name;
+      std::vector<std::string> neighbours = geom->get_bonded_neighbours(rn, at_n_1, at_n_2);
+
+      std::cout << "======== neighbours of " << at_n_1 << " and " << at_n_2 << ":" << std::endl;
+      for (unsigned int i=0; i<neighbours.size(); i++)
+	 std::cout << "   " << neighbours[i] << std::endl;
+      
+      std::string alt_conf_bond = atoms[iat_1]->altLoc; // same as iat_2 by the time we get here, I think
+      if (neighbours.size() > 2) {
+	 std::vector<CAtom *> neighb_atoms;
+	 for (unsigned int i=0; i<neighbours.size(); i++) { 
+	    for (unsigned int j=0; j<n_atoms; j++) {
+	       std::string atom_name = atoms[j]->name;
+	       if (neighbours[i] == atom_name) {
+		  std::string alt_conf_atom = atoms[j]->altLoc;
+		  if (alt_conf_atom == alt_conf_bond) {
+		     neighb_atoms.push_back(atoms[j]);
+		  }
+	       } 
+	    }
+	 }
+	 if (neighb_atoms.size() > 2) {
+	    std::vector<clipper::Coord_orth> neighb_atoms_pos(neighb_atoms.size());
+	    for (unsigned int i=0; i<neighb_atoms.size(); i++)
+	       neighb_atoms_pos[i] = clipper::Coord_orth(neighb_atoms[i]->x,
+							 neighb_atoms[i]->y,
+							 neighb_atoms[i]->z);
+	    coot::lsq_plane_info_t lp(neighb_atoms_pos);
+	    pt = lp.normal();
+	 } 
+      } else {
+	 std::string m = "Not enough atoms to determine orientation ";
+	 m += atoms[iat_1]->residue->GetResName();
+	 m += " - dictionary bonding fails";
+	 m += " found ";
+	 m += coot::util::int_to_string(neighbours.size());
+	 m += " neighbs: ";
+	 for (unsigned int i=0; i<neighbours.size(); i++) { 
+	    m += neighbours[i];
+	    m += " ";
+	 }
+	 throw(std::runtime_error(m));
+      } 
+   } else {
+      // this should not happend
+      std::string m = "No dictionary for ";
+      m += atoms[iat_1]->residue->GetResName();
+      m += " - dictionary bonding fails";
+      throw(runtime_error(m));
+   }
+   return pt;
+
+} 
+
+
+void
+Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, CResidue *> > &het_residues,
+					     int atom_colour_type,
+					     short int have_udd_handle,
+					     int udd_handle) {
+
+
+   std::cout << "============== Bonding " << het_residues.size() << " het residues" << std::endl;
+   
+   if (het_residues.size()) {
+      for (unsigned int ires=0; ires<het_residues.size(); ires++) {
+	 if (het_residues[ires].first) { 
+	    std::string res_name = het_residues[ires].second->GetResName();
+	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints = 
+	       geom->get_monomer_restraints(res_name);
+ 	    if (res_name != "HOH")
+ 	       std::cout << "============== Bonding het residue: " << res_name << " " << std::endl;
+	    if (! restraints.first) {
+	       std::cout << "Oooppps!  No bonding rules for residue type :" << res_name
+			 << ": missing bonds! " << std::endl;
+	    } else { 
+	       for (unsigned int ib=0; ib<restraints.second.bond_restraint.size(); ib++) {
+		  std::string atom_name_1 = restraints.second.bond_restraint[ib].atom_id_1_4c();
+		  std::string atom_name_2 = restraints.second.bond_restraint[ib].atom_id_2_4c();
+		  std::string bt = restraints.second.bond_restraint[ib].type();
+
+		  PPCAtom residue_atoms;
+		  int n_atoms;
+		  het_residues[ires].second->GetAtomTable(residue_atoms, n_atoms);
+		  bool added_bond = 0; 
+		  for (int iat=0; iat<n_atoms; iat++) {
+		     std::string residue_atom_name_1(residue_atoms[iat]->name);
+		     if (atom_name_1 == residue_atom_name_1) { 
+			for (int jat=0; jat<n_atoms; jat++) {
+			   std::string residue_atom_name_2(residue_atoms[jat]->name);
+			   if (atom_name_2 == residue_atom_name_2) {
+			      if (std::string(residue_atoms[iat]->altLoc) == std::string(residue_atoms[jat]->altLoc)) {
+				 coot::Cartesian p1(residue_atoms[iat]->x,
+						    residue_atoms[iat]->y,
+						    residue_atoms[iat]->z);
+				 coot::Cartesian p2(residue_atoms[jat]->x,
+						    residue_atoms[jat]->y,
+						    residue_atoms[jat]->z);
+
+				 std::string element_1 = residue_atoms[iat]->element;
+				 std::string element_2 = residue_atoms[jat]->element;
+			      
+				 if (element_1 != element_2) {
+		  
+				    // Bonded to different atom elements.
+
+				    if ((element_1 != " H") && (element_2 != " H")) {
+				       if (bt == "double") {
+					  
+					  add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type);
+				       } else { 
+					  add_half_bonds(p1, p2,
+							 residue_atoms[iat],
+							 residue_atoms[jat],
+							 atom_colour_type);
+				       } 
+				    } else {
+				       if (res_name == "HOH") {
+					  add_half_bonds(p1, p2,
+							 residue_atoms[iat],
+							 residue_atoms[jat],
+							 atom_colour_type);
+				       } else { 
+					  addBond(HYDROGEN_GREY_BOND, p1, p2);
+				       }
+				    }
+
+				 } else {
+				    // Bonded to an atom of the same element.
+				    //
+				    int col = atom_colour(residue_atoms[iat], atom_colour_type);
+				    if (bt == "double") { 
+				       add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type);
+				    } else { 
+				       addBond(col, p1, p2);
+				    } 
+				 }
+
+				 if (have_udd_handle) { 
+				    residue_atoms[iat]->PutUDData(udd_handle, 1);
+				    residue_atoms[jat]->PutUDData(udd_handle, 1);
+				 }
+				 added_bond = 1; 
+				 break;
+
+			      }
+			   }
+			}
+		     }
+		     if (added_bond)
+			break;
+		  }
+	       }
+	    }
+
+	    // now aromatic ring systems.
+	    int col = 0;
+	    het_residue_aromatic_rings(het_residues[ires].second, restraints.second, col);
+	 }
+      }
+   } 
+} 
+
+
+void
+Bond_lines_container::het_residue_aromatic_rings(CResidue *res,
+						 const coot::dictionary_residue_restraints_t &restraints,
+						 int col) {
+
+   std::vector<std::pair<std::string, std::string> > aromatic_bonds;      
+   for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
+      if (restraints.bond_restraint[ib].type() == "aromatic") { 
+	 std::string atom_name_1 = restraints.bond_restraint[ib].atom_id_1_4c();
+	 std::string atom_name_2 = restraints.bond_restraint[ib].atom_id_2_4c();
+	 std::pair<std::string, std::string> p(atom_name_1, atom_name_2);
+	 aromatic_bonds.push_back(p);
+      }
+   }
+   if (aromatic_bonds.size() > 4) {
+      coot::aromatic_graph_t ag(aromatic_bonds);
+      std::vector<std::vector<std::string> > rings = ag.ring_list();
+      std::cout << "Found " << rings.size() << " aromatic ring system" << std::endl;
+      for (unsigned int i=0; i<rings.size(); i++) { 
+	 add_aromatic_ring_bond_lines(rings[i], res, col);
+      }
+   } 
+}
+
+// pass a list of atom name that are part of the aromatic ring system.
+void
+Bond_lines_container::add_aromatic_ring_bond_lines(const std::vector<std::string> &ring_atom_names,
+						   CResidue *residue_p, int col) {
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   std::vector<CAtom *> found_atoms;
+   
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (unsigned int i=0; i<ring_atom_names.size(); i++) {
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 std::string atom_name(residue_atoms[iat]->name);
+	 if (atom_name == ring_atom_names[i]) {
+	    found_atoms.push_back(residue_atoms[iat]);
+	 }
+      }
+   }
+
+   if (found_atoms.size() == ring_atom_names.size()) {
+
+      std::vector<clipper::Coord_orth> pts(ring_atom_names.size());
+      for (unsigned int iat=0; iat<found_atoms.size(); iat++)
+	 pts[iat] = clipper::Coord_orth(found_atoms[iat]->x,
+					found_atoms[iat]->y,
+					found_atoms[iat]->z);
+      coot::lsq_plane_info_t lp(pts);
+      clipper::Coord_orth n = lp.normal();
+      clipper::Coord_orth c = lp.centre();
+      double radius = 0.8;
+      if (ring_atom_names.size() == 5)
+	 radius = 0.6;
+
+      int n_steps = 40;
+      double step_frac = double(1.0/n_steps);
+      
+      // we want a point in the lsq plane that is radius A away from
+      // centre.
+      clipper::Coord_orth arb(0.2, 0.8, 0.1);
+      clipper::Coord_orth cr(clipper::Coord_orth::cross(n, arb).unit());
+      clipper::Coord_orth first_pt = c + radius * cr;
+
+      if (! for_GL_solid_model_rendering) { 
+	 for (unsigned int istep=0; istep<n_steps; istep++) {
+	    double angle_1 = step_frac * 2.0 * M_PI * istep;
+	    double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
+	    clipper::Coord_orth pt_1 = coot::util::rotate_round_vector(n, first_pt, c, angle_1);
+	    clipper::Coord_orth pt_2 = coot::util::rotate_round_vector(n, first_pt, c, angle_2);
+	    addBond(col, pt_1, pt_2);
+	 }
+      } else { 
+      
+	 // for openGL rendering
+	 
+	 coot::torus_description_t ring(c, n, 0.07, radius, 14, 40);
+	 rings.push_back(ring);
+      }
+	 
+   } else {
+      std::cout << "Not all ring atoms found in residue needed to draw aromatic ring: \n    ";
+      for (unsigned int i=0; i<ring_atom_names.size(); i++)
+	 std::cout << ":" << ring_atom_names[i] << ":  ";
+      std::cout << std::endl;
+   }
+} 
 
 
 void
@@ -586,10 +987,6 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       } 
    }
 
-   // ------------------
-   //   FIXME
-   // ------------------
-   // 
    // We need to loop over each model.  Currently the SelAtom is not
    // selected on model.
    //
@@ -949,6 +1346,9 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    do_bonds_to_hydrogens = 1;  // added 20070629
    
    b_factor_scale = 1.0;
+   have_dictionary = 0;
+   for_GL_solid_model_rendering = 0;
+   
    int ncontacts;
    PSContact contact = NULL;
    // initialize each colour in the Bond_lines_container
@@ -1090,6 +1490,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // std::cout << "Environment distances with symm" << std::endl;
 
    do_bonds_to_hydrogens = 1;  // added 20070629
+   for_GL_solid_model_rendering = 0;
+   have_dictionary = 0;
 
    b_factor_scale = 1.0;
    if (bonds.size() == 0) { 
@@ -1943,6 +2345,9 @@ Bond_lines_container::Bond_lines_container(symm_keys key) {
 
    do_bonds_to_hydrogens = 1;  // added 20070629
    b_factor_scale = 1.0;
+   for_GL_solid_model_rendering = 0;
+   have_dictionary = 0;
+   
    if (key == NO_SYMMETRY_BONDS) {
 
       no_symmetry_bonds();
@@ -1999,6 +2404,7 @@ Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
    }
    box.add_zero_occ_spots(zero_occ_spot);
    box.add_atom_centres(atom_centres, atom_centres_colour);
+   box.rings = rings;
    return box;
 }
 
@@ -2123,7 +2529,9 @@ Bond_lines::GetFinish(int i) const {
 Bond_lines_container::Bond_lines_container(int col) {
 
    do_bonds_to_hydrogens = 1;  // added 20070629
+   have_dictionary = 0;
    b_factor_scale = 1.0;
+   for_GL_solid_model_rendering = 0;
    std::cout << "Strange Bond_lines_container(int col)" << std::endl;
    Bond_lines a;
    bonds.push_back(a);
@@ -2162,7 +2570,7 @@ Bond_lines_container::add_dashed_bond(int col,
 
 //
 void
-Bond_lines::add_bond(coot::CartesianPair pair) {
+Bond_lines::add_bond(const coot::CartesianPair &pair) {
    points.push_back(pair);
 } 
 
@@ -2437,7 +2845,8 @@ Bond_lines_container::set_rainbow_colours(int selHnd_ca, CMMDBManager *mol) {
    return udd_handle;
 }
 
-
+// atom_colour_map is an optional arg.
+// 
 int
 Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type,
 				  coot::my_atom_colour_map_t *atom_colour_map_p) {

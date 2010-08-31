@@ -41,10 +41,12 @@
 #define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
 #endif
 
-#include "Cartesian.h"
 #include "clipper/core/clipper_util.h"
 
 #include "coot-sysdep.h"
+#include "Cartesian.h"
+
+#include "lbg-graph.hh"
 
 // std::string 
 // coot::basic_dict_restraint_t::atom_id_1_4c() const {
@@ -3202,6 +3204,22 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    return ifound;
 }
 
+// this is const because there is no dynamic add
+bool
+coot::protein_geometry::have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type) const {
+
+   bool ifound = 0;
+   int ndict = dict_res_restraints.size();
+   for (int i=0; i<ndict; i++) {
+      if (dict_res_restraints[i].comp_id == monomer_type) {
+	 ifound = 1;
+	 break;
+      }
+   }
+   return ifound;
+} 
+
+
 bool
 coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std::string> &residue_types) {
 
@@ -4304,3 +4322,88 @@ coot::protein_geometry::OXT_in_residue_restraints_p(const std::string &residue_t
    } 
    return r;
 }
+
+
+std::vector<std::vector<std::string> >
+coot::dictionary_residue_restraints_t::get_ligand_aromatic_ring_list() const {
+
+   // get a list of aromatic bonds, so that they can be used to find
+   // aromatic rings.
+   // 
+   std::vector<std::pair<std::string, std::string> > bonds;
+   for (unsigned int irest=0; irest<bond_restraint.size(); irest++) {
+      if (bond_restraint[irest].type() == "aromatic") {
+	 std::pair<std::string, std::string> p(bond_restraint[irest].atom_id_1_4c(),
+					       bond_restraint[irest].atom_id_2_4c());
+	 bonds.push_back(p);
+      }
+   }
+   
+   coot::aromatic_graph_t arom(bonds);
+   std::vector<std::vector<std::string> > ring_list = arom.ring_list();
+
+   if (0) {
+      std::cout << "----------- " << ring_list.size() << " rings ---------- " << std::endl;
+      for (unsigned int i=0; i<ring_list.size(); i++) {
+	 std::cout << "ring " << i << "\n   ";
+	 for (unsigned int j=0; j<ring_list[i].size(); j++) { 
+	    std::cout << ring_list[i][j] << "  ";
+	 }
+	 std::cout << std::endl;
+      }
+   }
+   return ring_list;
+}
+
+
+
+// Find the bonded neighbours of the given atoms - throw an
+// exception if residue name is not in dictionary.
+// 
+std::vector<std::string>
+coot::protein_geometry::get_bonded_neighbours(const std::string &residue_name,
+					      const std::string &atom_name_1,
+					      const std::string &atom_name_2) const {
+   std::vector<std::string> v;
+
+   std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
+      get_monomer_restraints(residue_name);
+
+   if (restraints.first) { 
+      for (unsigned int i=0; i<restraints.second.bond_restraint.size(); i++) {
+// 	 std::cout << "-- comparing " << atom_name_1 << " " << atom_name_2 << " -- to -- "
+// 		   << restraints.second.bond_restraint[i].atom_id_1_4c() << " "
+// 		   << restraints.second.bond_restraint[i].atom_id_2_4c() << std::endl;
+	 if (restraints.second.bond_restraint[i].atom_id_1_4c() == atom_name_1)
+	    if (restraints.second.bond_restraint[i].atom_id_2_4c() != atom_name_2) {
+	       // std::cout << " adding a " << restraints.second.bond_restraint[i].atom_id_2_4c() << std::endl;
+	       v.push_back(restraints.second.bond_restraint[i].atom_id_2_4c());
+	    }
+	 if (restraints.second.bond_restraint[i].atom_id_1_4c() == atom_name_2)
+	    if (restraints.second.bond_restraint[i].atom_id_2_4c() != atom_name_1) { 
+	       v.push_back(restraints.second.bond_restraint[i].atom_id_2_4c());
+	       // std::cout << " adding b " << restraints.second.bond_restraint[i].atom_id_2_4c() << std::endl;
+	    }
+	 if (restraints.second.bond_restraint[i].atom_id_2_4c() == atom_name_1)
+	    if (restraints.second.bond_restraint[i].atom_id_1_4c() != atom_name_2) {
+	       // std::cout << " adding c " << restraints.second.bond_restraint[i].atom_id_1_4c() << std::endl;
+	       v.push_back(restraints.second.bond_restraint[i].atom_id_1_4c());
+	    }
+	 if (restraints.second.bond_restraint[i].atom_id_2_4c() == atom_name_2)
+	    if (restraints.second.bond_restraint[i].atom_id_1_4c() != atom_name_1) {
+	       // std::cout << " adding d " << restraints.second.bond_restraint[i].atom_id_1_4c() << std::endl;
+	       v.push_back(restraints.second.bond_restraint[i].atom_id_1_4c());
+	    }
+	 
+      }
+      if (v.size()) {
+	 v.push_back(atom_name_1);
+	 v.push_back(atom_name_2);
+      } 
+   } else {
+      std::string m = "No dictionary for ";
+      m += residue_name;
+      throw std::runtime_error(m);
+   } 
+   return v;
+} 

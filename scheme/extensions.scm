@@ -342,6 +342,13 @@
 				   (move-waters-to-around-protein imol)))))
 
 
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Assign HETATM to molecule..."
+	 (lambda() 
+	   (molecule-chooser-gui "Assign HETATMs as per PDB definition"
+				 (lambda (imol)
+					  (assign-hetatms imol)))))
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Copy Coordinates Molecule...."
 	 (lambda ()

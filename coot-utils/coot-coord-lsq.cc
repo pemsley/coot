@@ -181,7 +181,7 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 //		<< match.matcher_chain_id << " in matcher molecule" << std::endl;
       
       mol1->Select (SelHnd_res1, STYPE_RESIDUE, 0, // .. TYPE, iModel
-		    (char *) match.reference_chain_id.c_str(), // Chain(s)
+		    match.reference_chain_id.c_str(), // Chain(s)
 		    ires, "*",  // starting res
 		    ires, "*",  // ending res
 		    "*",  // residue name
@@ -191,7 +191,7 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 		    SKEY_NEW // selection key
 		    );
       mol2->Select (SelHnd_res2, STYPE_RESIDUE, 0, // .. TYPE, iModel
-		    (char *) match.matcher_chain_id.c_str(), // Chain(s)
+		    match.matcher_chain_id.c_str(), // Chain(s)
 		    ires_matcher, "*",  // starting res
 		    ires_matcher, "*",  // ending res
 		    "*",  // residue name

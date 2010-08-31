@@ -3542,13 +3542,22 @@ std::pair<double, double>
 coot::lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
 			  const clipper::Coord_orth &pt) {
 
+   coot::lsq_plane_info_t lpd(v);
+   double val = lpd.plane_deviation(pt);
+   double rms = lpd.plane_atoms_rms();
+   return std::pair<double, double> (val, rms);
+}
+
+coot::lsq_plane_info_t::lsq_plane_info_t(const std::vector<clipper::Coord_orth> &v) {
+
    int n_atoms = v.size();
    clipper::Coord_orth sum(0,0,0);
    for (int i=0; i<n_atoms; i++)
       sum += v[i];
    double factor = 1/double(n_atoms);
    clipper::Coord_orth midpoint(sum.x()*factor, sum.y()*factor, sum.z()*factor);
-   
+   centre_ = midpoint;
+
    clipper::Matrix<double> mat(3,3);
    for (int i=0; i<n_atoms; i++) {
       mat(0,0) += (v[i].x() - midpoint.x()) * (v[i].x() - midpoint.x());
@@ -3561,12 +3570,28 @@ coot::lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
    mat(1,0) = mat(0,1);
    mat(2,0) = mat(0,2);
    mat(2,1) = mat(1,2);
+
+   if (0) { 
+      std::cout << "  mat for eigens: " << std::endl;
+      std::cout << "     " << mat(0,0) << "   " << mat(0,1) << "   " << mat(0,2) << std::endl;
+      std::cout << "     " << mat(1,0) << "   " << mat(1,1) << "   " << mat(1,2) << std::endl;
+      std::cout << "     " << mat(2,0) << "   " << mat(2,1) << "   " << mat(2,2) << std::endl;
+   }
    std::vector<double> eigens = mat.eigen(true);
    // Let's now extract the values of a,b,c normalize them
-   std::vector<double> abcd;
-   abcd.push_back(mat(0,0));
-   abcd.push_back(mat(1,0));
-   abcd.push_back(mat(2,0));
+   abcd.resize(4);
+   
+   abcd[0] = mat(0,0);
+   abcd[1] = mat(1,0);
+   abcd[2] = mat(2,0);
+
+   if (0) 
+      std::cout << " abcd - pre-values "
+		<< abcd[0] << " "
+		<< abcd[1] << " "
+		<< abcd[2] << " "
+		<< std::endl;
+   
    double sqsum = 1e-20;
    
    for (int i=0; i<3; i++)
@@ -3574,10 +3599,19 @@ coot::lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
    for (int i=0; i<3; i++)
       abcd[i] /= sqsum;
    
-   //set d, recall di = Axi+Byi+Czi-D, so xi = x_cen, yi = y_cen, zi = z_cen:
-   abcd.push_back( abcd[0]*midpoint.x() + abcd[1]*midpoint.y() + abcd[2]*midpoint.z() );
-   
-   double val = abcd[0]*pt.x() + abcd[1]*pt.y() + abcd[2]*pt.z() - abcd[3];
+   // set D, recall di = Axi+Byi+Czi-D, so when
+   // xi = x_cen, yi = y_cen, zi = z_cen, d is 0,
+   // so we can set D.
+   // 
+   abcd[3] = abcd[0]*midpoint.x() + abcd[1]*midpoint.y() + abcd[2]*midpoint.z();
+
+   if (0) 
+      std::cout << " abcd "
+		<< abcd[0] << " "
+		<< abcd[1] << " "
+		<< abcd[2] << " "
+		<< abcd[3] << std::endl;
+
    double var = 0;
    for (unsigned int i_plane_at=0; i_plane_at<v.size(); i_plane_at++) {
       double d =
@@ -3586,13 +3620,11 @@ coot::lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
 	 abcd[2]*v[i_plane_at].z() - abcd[3];
       var += d*d;
    }
-   double rms = 0;
-   if (v.size() > 0) {
+   rms = 0;
+   if (v.size() > 0)
       rms = sqrt(var/double(v.size()));
-   }
-   
-   return std::pair<double, double> (val, rms);
-}
+
+} 
 
 bool
 coot::compare_atom_specs_user_float(const coot::atom_spec_t &a1, const coot::atom_spec_t &a2) {

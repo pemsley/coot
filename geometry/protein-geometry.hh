@@ -391,6 +391,10 @@ namespace coot {
       void write_cif(const std::string &filename) const;
       // look up the atom id in the atom_info (dict_atom vector)
       std::string atom_name_for_tree_4c(const std::string &atom_id) const;
+
+      std::vector<std::vector<std::string> > get_ligand_aromatic_ring_list() const;
+
+      
    };
 
    // ------------------------------------------------------------------------
@@ -1080,7 +1084,11 @@ namespace coot {
       // this function is no longer const because it can run try_dynamic_add
       //
       bool have_dictionary_for_residue_type(const std::string &monomer_type,
-					   int read_number);
+					    int read_number);
+
+      // this is const because there is no dynamic add
+      bool have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type) const;
+      
       // likewise not const
       bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types);
 
@@ -1158,6 +1166,13 @@ namespace coot {
       // return HB_UNASSIGNED when not found
       // 
       int get_h_bond_type(const std::string &atom_name, const std::string &monomer_name) const;
+
+      // Find the bonded neighbours of the given atoms - throw an
+      // exception if residue name is not in dictionary.
+      // 
+      std::vector<std::string> get_bonded_neighbours(const std::string &residue_name,
+						     const std::string &atom_name_1,
+						     const std::string &atom_name_2) const;
 
    };
 

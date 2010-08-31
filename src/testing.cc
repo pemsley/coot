@@ -195,6 +195,7 @@ int greg_internal_tests() {
    functions.push_back(named_func(test_relativise_file_name, "Relative file name"));
    functions.push_back(named_func(test_geometry_distortion_info_type, "geometry distortion comparision"));
    functions.push_back(named_func(test_translate_close_to_origin, "test symm trans to origin"));
+   functions.push_back(named_func(test_lsq_plane, "test lsq plane"));
 
    status = run_internal_tests(functions);
    return status;
@@ -267,7 +268,9 @@ int test_internal_single() {
       // status = test_translate_close_to_origin();
       // status = test_flev_aromatics();
       // status = test_phi_psi_values();
-      status = test_map_segmentation();
+      // status = test_map_segmentation();
+      status = test_lsq_plane();
+
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2320,6 +2323,31 @@ int test_map_segmentation() {
    }
 
    return 1;
+}
+
+int test_lsq_plane() {
+
+   int r = 0;
+   
+   std::vector<clipper::Coord_orth> v;
+   clipper::Coord_orth pt(0.5, 0.5, 0.1); // in the plane, hopefully.
+
+   // The eigenvalues should not be equal, else nans.
+   // 
+   v.push_back(clipper::Coord_orth(0.0, 0.0, 0.0));
+   v.push_back(clipper::Coord_orth(1.0, 0.0, 0.2));
+   v.push_back(clipper::Coord_orth(1.0, 1.1, 0.2));
+   v.push_back(clipper::Coord_orth(0.0, 1.0, 0.0));
+   
+   std::pair<double, double> d = coot::lsq_plane_deviation(v, pt);
+   std::cout << "LSQ deviations: " << d.first << " " << d.second << std::endl;
+   if (close_float_p(d.first, 0.0)) {
+      r = 1;
+   } 
+				
+
+   return r;
+
 } 
 
 #endif // BUILT_IN_TESTING
