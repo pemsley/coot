@@ -2938,10 +2938,22 @@ write_residue_range_to_pdb_file(int imol, const char *chain_id,
 int quick_save() {
 
    // std::cout << "Quick save..." << std::endl;
+   graphics_info_t g;
    for (unsigned int imol=0; imol<graphics_n_molecules(); imol++) {
-      graphics_info_t::molecules[imol].quick_save();
+      g.molecules[imol].quick_save();
    }
-   save_state_file(graphics_info_t::save_state_file_name.c_str());
+
+   
+   short int il = coot::SCRIPT_UNSET;
+
+#ifdef USE_GUILE
+   il = coot::SCHEME_SCRIPT;
+   g.save_state_file(g.save_state_file_name.c_str(), il);
+#endif    
+#ifdef USE_GUILE   
+   il = coot::PYTHON_SCRIPT;
+   g.save_state_file("0-coot.state.py", il);
+#endif    
    return 0;
 }
 
