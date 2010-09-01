@@ -37,6 +37,9 @@
 #include "c-interface-scm.hh"
 
 // save state
+//
+// Pick a language, and write a single state file.
+// 
 int
 graphics_info_t::save_state_file(const std::string &filename) {
 
