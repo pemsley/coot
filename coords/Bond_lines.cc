@@ -119,7 +119,7 @@ void
 Bond_lines_container::try_set_b_factor_scale(CMMDBManager *mol) {
 
    int udd_b_factor_handle =  mol->GetUDDHandle(UDR_HIERARCHY,
-						(char *) coot::b_factor_bonds_scale_handle_name.c_str());
+						coot::b_factor_bonds_scale_handle_name.c_str());
    // std::cout << "debug:: Got b factor udd handle: " << udd_b_factor_handle << std::endl;
    if (udd_b_factor_handle > 0) {
       realtype scale;
