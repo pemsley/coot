@@ -3037,32 +3037,35 @@ molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer)
 	 clipper::Coord_orth atom_sel_atom(atom_sel.atom_selection[i]->x,
 					   atom_sel.atom_selection[i]->y,
 					   atom_sel.atom_selection[i]->z);
-	 d = clipper::Coord_orth::length(atom_sel_atom, mean_residue_pos);
-	 if (d < (max_dev_residue_pos + dist_crit)) {
-	    for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
-	       for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
-		  for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
-		     d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos,atom_sel_atom);
-		     if (d_atom < dist_crit) {
-			int atom_sel_atom_resno = atom_sel.atom_selection[i]->GetSeqNum();
-			std::string atom_sel_atom_chain(atom_sel.atom_selection[i]->GetChainID());
+	 std::string res_name(atom_sel.atom_selection[i]->residue->GetResName());
+	 if (res_name != "HOH") { 
+	    d = clipper::Coord_orth::length(atom_sel_atom, mean_residue_pos);
+	    if (d < (max_dev_residue_pos + dist_crit)) {
+	       for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
+		  for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
+		     for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
+			d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos, atom_sel_atom);
+			if (d_atom < dist_crit) {
+			   int atom_sel_atom_resno = atom_sel.atom_selection[i]->GetSeqNum();
+			   std::string atom_sel_atom_chain(atom_sel.atom_selection[i]->GetChainID());
 
-			if (! ((ires == atom_sel_atom_resno) &&
-			       (a_rotamer[ifrag].fragment_id == atom_sel_atom_chain)) ) {
-			   if ( (a_rotamer[ifrag][ires][iat].name != " N  ") &&
-				(a_rotamer[ifrag][ires][iat].name != " C  ") &&
-				(a_rotamer[ifrag][ires][iat].name != " CA ") &&
-				(a_rotamer[ifrag][ires][iat].name != " O  ") &&
-				(a_rotamer[ifrag][ires][iat].name != " H  ") ) { 
-			      badness = 100.0 * (1.0/d_atom - 1.0/dist_crit);
-			      if (badness > 100.0)
-				 badness = 100.0;
-//  			      std::cout << "DEBUG:: adding clash badness " << badness
-// 					<< " for atom "
-//  					<< a_rotamer[ifrag][ires][iat].name << " with d_atom = "
-//  					<< d_atom << " to sel atom "
-// 					<< atom_sel.atom_selection[i] << std::endl;
-			      score += badness;
+			   if (! ((ires == atom_sel_atom_resno) &&
+				  (a_rotamer[ifrag].fragment_id == atom_sel_atom_chain)) ) {
+			      if ( (a_rotamer[ifrag][ires][iat].name != " N  ") &&
+				   (a_rotamer[ifrag][ires][iat].name != " C  ") &&
+				   (a_rotamer[ifrag][ires][iat].name != " CA ") &&
+				   (a_rotamer[ifrag][ires][iat].name != " O  ") &&
+				   (a_rotamer[ifrag][ires][iat].name != " H  ") ) { 
+				 badness = 100.0 * (1.0/d_atom - 1.0/dist_crit);
+				 if (badness > 100.0)
+				    badness = 100.0;
+				 //  			      std::cout << "DEBUG:: adding clash badness " << badness
+				 // 					<< " for atom "
+				 //  					<< a_rotamer[ifrag][ires][iat].name << " with d_atom = "
+				 //  					<< d_atom << " to sel atom "
+				 // 					<< atom_sel.atom_selection[i] << std::endl;
+				 score += badness;
+			      }
 			   }
 			}
 		     }
