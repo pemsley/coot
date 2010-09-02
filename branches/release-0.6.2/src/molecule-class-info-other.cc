@@ -7268,6 +7268,13 @@ molecule_class_info_t::make_dots(const std::string &atom_selection_str,
       float r = 1.0;
       
       std::vector<clipper::Coord_orth> points;
+      // make the atoms of the selection with user-defined dots UD data.
+      int udd_dots_handle = atom_sel.mol->RegisterUDInteger(UDR_ATOM, "dots selection");
+      int IN_DOTS_SELECTION = 777;
+      for (int iatom=0; iatom<n_selected_atoms; iatom++)
+	 atom_selection[iatom]->PutUDData(udd_dots_handle, IN_DOTS_SELECTION);
+
+      
       for (int iatom=0; iatom<n_selected_atoms; iatom++) {
 	 
 	 clipper::Coord_orth centre(atom_selection[iatom]->x,
@@ -7293,15 +7300,22 @@ molecule_class_info_t::make_dots(const std::string &atom_selection_str,
 		  int n_residue_atoms;
 
 		  atom_selection[iatom]->residue->GetAtomTable(residue_atoms, n_residue_atoms);
-		  short int draw_it = 1;
+		  bool draw_it = 1;
 		  for (int i=0; i<n_residue_atoms; i++) {
-		     if (residue_atoms[i] != atom_selection[iatom]) { 
-			clipper::Coord_orth residue_atom_pt(residue_atoms[i]->x,
-							    residue_atoms[i]->y,
-							    residue_atoms[i]->z);
-			if (clipper::Coord_orth::length(pt, residue_atom_pt) < r*atom_radius_scale) {
-			   draw_it = 0;
-			   break;
+		     if (residue_atoms[i] != atom_selection[iatom]) {
+
+			int local_in_selection = -1;
+
+			if (residue_atoms[i]->GetUDData(udd_dots_handle, local_in_selection) == UDDATA_Ok) {
+			   if (local_in_selection == IN_DOTS_SELECTION) { 
+			      clipper::Coord_orth residue_atom_pt(residue_atoms[i]->x,
+								  residue_atoms[i]->y,
+								  residue_atoms[i]->z);
+			      if (clipper::Coord_orth::length(pt, residue_atom_pt) < r*atom_radius_scale) {
+				 draw_it = 0;
+				 break;
+			      }
+			   }
 			} 
 		     }
 		  }
