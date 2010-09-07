@@ -42,6 +42,34 @@ GL_matrix::GL_matrix(const clipper::Mat33<double> &m) {
 
 }
 
+// We want an orientation (doesn't matter which) that is along normal.
+GL_matrix::GL_matrix(const clipper::Coord_orth &normal) {
+
+   clipper::Coord_orth d_unit = normal;
+   
+   clipper::Coord_orth arb(0,0.1,0.9);
+   if (d_unit.y() < d_unit.z())
+      arb = clipper::Coord_orth(0.0, 0.9, 0.1);
+   if (d_unit.x() < d_unit.y())
+      arb = clipper::Coord_orth(0.9, 0.0, 0.1);
+	    
+   clipper::Coord_orth p1(clipper::Coord_orth::cross(arb, d_unit).unit());
+   clipper::Coord_orth p2(clipper::Coord_orth::cross( p1, d_unit).unit());
+   clipper::Coord_orth p3 = d_unit;
+	    
+   GL_matrix m(p1.x(), p1.y(), p1.z(),
+	       p2.x(), p2.y(), p2.z(),
+	       p3.x(), p3.y(), p3.z());
+
+   mat[0] = p1.x(); mat[1] = p1.y(); mat[ 2] = p1.z();
+   mat[4] = p2.x(); mat[5] = p2.y(); mat[ 6] = p2.z();
+   mat[8] = p3.x(); mat[9] = p3.y(); mat[10] = p3.z();
+   
+   mat[3] = mat[7] = mat[11] = mat[12] = mat[13] = mat[14] = 0.0;
+   mat[15] = 1.0;
+} 
+
+
 
 
 GL_matrix::GL_matrix(float m11, float m12, float m13,
@@ -56,6 +84,17 @@ GL_matrix::GL_matrix(float m11, float m12, float m13,
    mat[3] = mat[7] = mat[11] = mat[12] = mat[13] = mat[14] = 0.0;
    mat[15] = 1.0;
 }
+
+std::ostream&
+operator<<(std::ostream &s, const GL_matrix &m) {
+
+   s <<    "(" << m.mat[ 0] << " " << m.mat[ 1] << " " << m.mat[ 2] << " " << m.mat[ 3] << ")\n";
+   s <<    "(" << m.mat[ 4] << " " << m.mat[ 5] << " " << m.mat[ 6] << " " << m.mat[ 7] << ")\n";
+   s <<    "(" << m.mat[ 8] << " " << m.mat[ 9] << " " << m.mat[10] << " " << m.mat[11] << ")\n";
+   s <<    "(" << m.mat[12] << " " << m.mat[13] << " " << m.mat[14] << " " << m.mat[15] << ")\n";
+   return s;
+} 
+
 
 void
 GL_matrix::from_quaternion(float q[4]) { // quaternion q
@@ -178,16 +217,6 @@ GL_matrix::get() const {
    return mat;
 }
 
-std::ostream& operator<<(std::ostream&s, GL_matrix m) {
-
-   s << std::endl;
-   s << "(" << m.mat[0]  << "  " << m.mat[ 1] << "  " << m.mat[ 2] << "  " << m.mat[ 3] << ")" << std::endl;
-   s << "(" << m.mat[4]  << "  " << m.mat[ 5] << "  " << m.mat[ 6] << "  " << m.mat[ 7] << ")" << std::endl;
-   s << "(" << m.mat[8]  << "  " << m.mat[ 9] << "  " << m.mat[10] << "  " << m.mat[11] << ")" << std::endl;
-   s << "(" << m.mat[12] << "  " << m.mat[13] << "  " << m.mat[14] << "  " << m.mat[15] << ")" << std::endl;
-
-   return s;
-}
 
 #ifndef HAVE_GSL
 // Given a symmetric positive definate matrix,

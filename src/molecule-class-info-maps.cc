@@ -231,7 +231,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       
       // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
       // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str()); 
-   
+
       update_map();
    }
 }
@@ -1009,6 +1009,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
 	 // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
 	 // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str()); 
+
 
 	 update_map();
 	 long T5 = glutGet(GLUT_ELAPSED_TIME);

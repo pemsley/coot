@@ -195,6 +195,11 @@ namespace coot {
      };
    }
 
+   enum scripting_language_type { SCRIPT_UNSET = -1, 
+				  SCHEME_SCRIPT = 1,
+				  PYTHON_SCRIPT = 2};
+
+
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    void set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog);
    GtkWidget *get_validation_graph(int imol, coot::geometry_graph_type type); 
@@ -2729,6 +2734,7 @@ public:
    // save state, return success status of writing
    int save_state();
    int save_state_file(const std::string &filename);
+   int save_state_file(const std::string &filename, short int il);
    int save_history() const;
    std::vector<std::string> save_state_data_and_models(short int lang_flag) const;
    std::vector<std::string> save_state_data_and_models(const std::string &filename,

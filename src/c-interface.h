@@ -6254,6 +6254,7 @@ void run_update_self_maybe(); // called when --update-self given at command line
 void nsv(int imol);
 
 void sequence_view_old_style(int imol);
+
 #ifdef __cplusplus
 /*! 
 

@@ -5792,27 +5792,16 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 for (unsigned int ir=0; ir<bonds_box_local.rings.size(); ir++) { 
 	    glPushMatrix();
 
-	    // c.f. draw_diapoles()
-	    // 
-	    clipper::Coord_orth d_unit = bonds_box_local.rings[ir].normal;
-	    clipper::Coord_orth arb(0,0.1,0.9);
-	    if (d_unit.y() < d_unit.z())
-	       arb = clipper::Coord_orth(0.0, 0.9, 0.1);
-	    if (d_unit.x() < d_unit.y())
-	       arb = clipper::Coord_orth(0.9, 0.0, 0.1);
+ 	    GL_matrix m(bonds_box_local.rings[ir].normal); 
 	    
-	    clipper::Coord_orth p1(clipper::Coord_orth::cross(arb, d_unit).unit());
-	    clipper::Coord_orth p2(clipper::Coord_orth::cross( p1, d_unit).unit());
-	    clipper::Coord_orth p3 = d_unit;
+            glTranslatef(bonds_box_local.rings[ir].centre.x(),
+                         bonds_box_local.rings[ir].centre.y(),
+                         bonds_box_local.rings[ir].centre.z());
+            glMultMatrixf(m.get());
+	    glScalef(1.0, 1.0, 0.7);
+
+
 	    
-	    GL_matrix m(p1.x(), p1.y(), p1.z(),
-			p2.x(), p2.y(), p2.z(),
-			p3.x(), p3.y(), p3.z());
-	    
-	    glTranslatef(bonds_box_local.rings[ir].centre.x(),
-			 bonds_box_local.rings[ir].centre.y(),
-			 bonds_box_local.rings[ir].centre.z());
-	    glMultMatrixf(m.get());
 
  	    glutSolidTorus(bonds_box_local.rings[ir].inner_radius,
 			   bonds_box_local.rings[ir].outer_radius,
@@ -7313,7 +7302,7 @@ molecule_class_info_t::make_dots(const std::string &atom_selection_str,
 				    atom_selection[iatom]->y,
 				    atom_selection[iatom]->z);
 
-	 short int even = 1;
+	 bool even = 1;
 	 for (float theta=0; theta<M_PI; theta+=theta_step) {
 	    float phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
 	    for (float phi=0; phi<2*M_PI; phi+=phi_step_inner) {
