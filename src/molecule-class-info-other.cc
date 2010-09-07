@@ -3038,32 +3038,35 @@ molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer)
 	 clipper::Coord_orth atom_sel_atom(atom_sel.atom_selection[i]->x,
 					   atom_sel.atom_selection[i]->y,
 					   atom_sel.atom_selection[i]->z);
-	 d = clipper::Coord_orth::length(atom_sel_atom, mean_residue_pos);
-	 if (d < (max_dev_residue_pos + dist_crit)) {
-	    for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
-	       for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
-		  for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
-		     d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos,atom_sel_atom);
-		     if (d_atom < dist_crit) {
-			int atom_sel_atom_resno = atom_sel.atom_selection[i]->GetSeqNum();
-			std::string atom_sel_atom_chain(atom_sel.atom_selection[i]->GetChainID());
+	 std::string res_name(atom_sel.atom_selection[i]->residue->GetResName());
+	 if (res_name != "HOH") { 
+	    d = clipper::Coord_orth::length(atom_sel_atom, mean_residue_pos);
+	    if (d < (max_dev_residue_pos + dist_crit)) {
+	       for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
+		  for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
+		     for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
+			d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos, atom_sel_atom);
+			if (d_atom < dist_crit) {
+			   int atom_sel_atom_resno = atom_sel.atom_selection[i]->GetSeqNum();
+			   std::string atom_sel_atom_chain(atom_sel.atom_selection[i]->GetChainID());
 
-			if (! ((ires == atom_sel_atom_resno) &&
-			       (a_rotamer[ifrag].fragment_id == atom_sel_atom_chain)) ) {
-			   if ( (a_rotamer[ifrag][ires][iat].name != " N  ") &&
-				(a_rotamer[ifrag][ires][iat].name != " C  ") &&
-				(a_rotamer[ifrag][ires][iat].name != " CA ") &&
-				(a_rotamer[ifrag][ires][iat].name != " O  ") &&
-				(a_rotamer[ifrag][ires][iat].name != " H  ") ) { 
-			      badness = 100.0 * (1.0/d_atom - 1.0/dist_crit);
-			      if (badness > 100.0)
-				 badness = 100.0;
-//  			      std::cout << "DEBUG:: adding clash badness " << badness
-// 					<< " for atom "
-//  					<< a_rotamer[ifrag][ires][iat].name << " with d_atom = "
-//  					<< d_atom << " to sel atom "
-// 					<< atom_sel.atom_selection[i] << std::endl;
-			      score += badness;
+			   if (! ((ires == atom_sel_atom_resno) &&
+				  (a_rotamer[ifrag].fragment_id == atom_sel_atom_chain)) ) {
+			      if ( (a_rotamer[ifrag][ires][iat].name != " N  ") &&
+				   (a_rotamer[ifrag][ires][iat].name != " C  ") &&
+				   (a_rotamer[ifrag][ires][iat].name != " CA ") &&
+				   (a_rotamer[ifrag][ires][iat].name != " O  ") &&
+				   (a_rotamer[ifrag][ires][iat].name != " H  ") ) { 
+				 badness = 100.0 * (1.0/d_atom - 1.0/dist_crit);
+				 if (badness > 100.0)
+				    badness = 100.0;
+				 //  			      std::cout << "DEBUG:: adding clash badness " << badness
+				 // 					<< " for atom "
+				 //  					<< a_rotamer[ifrag][ires][iat].name << " with d_atom = "
+				 //  					<< d_atom << " to sel atom "
+				 // 					<< atom_sel.atom_selection[i] << std::endl;
+				 score += badness;
+			      }
 			   }
 			}
 		     }
@@ -7296,6 +7299,13 @@ molecule_class_info_t::make_dots(const std::string &atom_selection_str,
       float r = 1.0;
       
       std::vector<clipper::Coord_orth> points;
+      // make the atoms of the selection with user-defined dots UD data.
+      int udd_dots_handle = atom_sel.mol->RegisterUDInteger(UDR_ATOM, "dots selection");
+      int IN_DOTS_SELECTION = 777;
+      for (int iatom=0; iatom<n_selected_atoms; iatom++)
+	 atom_selection[iatom]->PutUDData(udd_dots_handle, IN_DOTS_SELECTION);
+
+      
       for (int iatom=0; iatom<n_selected_atoms; iatom++) {
 	 
 	 clipper::Coord_orth centre(atom_selection[iatom]->x,
@@ -7321,15 +7331,22 @@ molecule_class_info_t::make_dots(const std::string &atom_selection_str,
 		  int n_residue_atoms;
 
 		  atom_selection[iatom]->residue->GetAtomTable(residue_atoms, n_residue_atoms);
-		  short int draw_it = 1;
+		  bool draw_it = 1;
 		  for (int i=0; i<n_residue_atoms; i++) {
-		     if (residue_atoms[i] != atom_selection[iatom]) { 
-			clipper::Coord_orth residue_atom_pt(residue_atoms[i]->x,
-							    residue_atoms[i]->y,
-							    residue_atoms[i]->z);
-			if (clipper::Coord_orth::length(pt, residue_atom_pt) < r*atom_radius_scale) {
-			   draw_it = 0;
-			   break;
+		     if (residue_atoms[i] != atom_selection[iatom]) {
+
+			int local_in_selection = -1;
+
+			if (residue_atoms[i]->GetUDData(udd_dots_handle, local_in_selection) == UDDATA_Ok) {
+			   if (local_in_selection == IN_DOTS_SELECTION) { 
+			      clipper::Coord_orth residue_atom_pt(residue_atoms[i]->x,
+								  residue_atoms[i]->y,
+								  residue_atoms[i]->z);
+			      if (clipper::Coord_orth::length(pt, residue_atom_pt) < r*atom_radius_scale) {
+				 draw_it = 0;
+				 break;
+			      }
+			   }
 			} 
 		     }
 		  }
