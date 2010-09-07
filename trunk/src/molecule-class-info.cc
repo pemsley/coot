@@ -1775,8 +1775,8 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       //cout << "j range: for i = " << i << " is "
       //	   << bonds_box.bonds_[i].num_lines << endl;
 
-//       std::cout << "DEBUG:: bonds_index: " << i << " has " << bonds_box.bonds_[i].num_lines
-// 		<< " lines, thin_flag:  " << bonds_box.bonds_[i].thin_lines_flag  << std::endl;
+      // std::cout << "   DEBUG:: bonds_index: " << i << " has " << bonds_box.bonds_[i].num_lines
+      // << " lines, thin_flag:  " << bonds_box.bonds_[i].thin_lines_flag  << std::endl;
 
       if (bonds_box.bonds_[i].thin_lines_flag)
  	 glLineWidth(p_bond_width/2.0);
@@ -1832,7 +1832,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	       get_vector_pependicular_to_screen_z(front, back,
 						   ll.pair_list[j].getFinish() -
 						   ll.pair_list[j].getStart(),
-						   zsc);
+						   zsc, p_bond_width);
 
 	    glVertex3f(ll.pair_list[j].getStart().get_x()+vec_perp_to_screen_z.get_x(),
 		       ll.pair_list[j].getStart().get_y()+vec_perp_to_screen_z.get_y(),
@@ -1858,7 +1858,8 @@ coot::Cartesian
 molecule_class_info_t::get_vector_pependicular_to_screen_z(const coot::Cartesian &front,
 							   const coot::Cartesian &back,
 							   const coot::Cartesian &bond_dir,
-							   float zoom)  const {
+							   float zoom,
+							   float p_bond_width)  const {
 
    coot::Cartesian bmf = back - front;
    // coot::Cartesian arb(0, 0.1, 0.9);
@@ -1868,7 +1869,7 @@ molecule_class_info_t::get_vector_pependicular_to_screen_z(const coot::Cartesian
 // 	     << bmf << " and " << arb << "\n";
 
    p1.unit_vector_yourself();
-   p1 *= zoom * 0.0004 * bond_width;
+   p1 *= zoom * 0.0004 * p_bond_width;
    
    return p1;
 }
@@ -2261,6 +2262,7 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 					  representation_type,
 					  bonds_box_type_in,
 					  bonds_width, draw_hydrogens_flag, info);
+
    add_reps.push_back(rep);
    int n_rep = add_reps.size() -1;
    std::string name = rep.info_string();

@@ -2804,6 +2804,7 @@ int place_text(const char *text, float x, float y, float z, int size) {
    args.push_back(z);
    args.push_back(size);
    add_to_history_typed(cmd, args);
+   graphics_draw();
 
    return handle; // same value as above.
 } 

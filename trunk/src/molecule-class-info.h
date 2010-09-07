@@ -852,7 +852,8 @@ class molecule_class_info_t {
    coot::Cartesian get_vector_pependicular_to_screen_z(const coot::Cartesian &front,
 						       const coot::Cartesian &back,
 						       const coot::Cartesian &bond_dir,
-						       float zoom) const;
+						       float zoom,
+						       float p_bond_width) const;
 
    // remove TER record from residue
    bool residue_has_TER_atom(CResidue *res_p) const;

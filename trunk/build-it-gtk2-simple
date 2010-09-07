@@ -1590,10 +1590,10 @@ fi
 
 # Hmmm... I am not sure that I want to mess with pkg-config in the
 # simple version.  But we do...
-
+#
 # This allows standard pkg-config to find gtkglext and several other
 # things.
-
+#
 # override STD_PKGCONFIG_DIR to lib64 dir if we are in 64 bit.
 #
 STD_PKGCONFIG_DIR=/usr/lib/pkgconfig
@@ -1601,10 +1601,6 @@ case $(gcc -dumpmachine) in
    x86_64*) 
      STD_PKGCONFIG_DIR=/usr/lib64/pkgconfig
      ;; 
-   *) 
-     echo nay
-     gcc -dumpmachine
-     ;;
 esac
 PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
 export PKG_CONFIG_PATH
