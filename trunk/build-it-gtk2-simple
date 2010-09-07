@@ -1589,12 +1589,27 @@ else
 fi
 
 # Hmmm... I am not sure that I want to mess with pkg-config in the
-# simple version.
+# simple version.  But we do...
 
-# This allows standard pkg-config to find gtkglext and several other things.
-PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:/usr/lib/pkgconfig
+# This allows standard pkg-config to find gtkglext and several other
+# things.
+
+# override STD_PKGCONFIG_DIR to lib64 dir if we are in 64 bit.
+#
+STD_PKGCONFIG_DIR=/usr/lib/pkgconfig
+case $(gcc -dumpmachine) in
+   x86_64*) 
+     STD_PKGCONFIG_DIR=/usr/lib64/pkgconfig
+     ;; 
+   *) 
+     echo nay
+     gcc -dumpmachine
+     ;;
+esac
+PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
 export PKG_CONFIG_PATH
-echo  PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+echo  PKG_CONFIG_PATH is now $PKG_CONFIG_PATH
+
 
 # is the system gtk+2 new enough?  Needs to be 2.8 or better
 build_gtk=

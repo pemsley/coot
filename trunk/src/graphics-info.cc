@@ -337,6 +337,12 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 }
       }
    }
+
+   for (unsigned int i=0; i<molecules.size(); i++) {
+      if (is_valid_model_molecule(i)) {
+	 molecules[i].make_bonds_type_checked();
+      }
+   }
 }
 
 void

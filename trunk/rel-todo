@@ -2,9 +2,11 @@
  0.6.2
 
   o talk to Bernhard re: REDUCE_HET_DICT etc.  Look at his python
-  code.
+    code.
 
   o replace residue does chi angle matching?
+
+  o COOT_SCHEME_EXTRAS_DIR needs to be a :-separated list
 
 ------
 

@@ -37,26 +37,39 @@
 #include "c-interface-scm.hh"
 
 // save state
+//
+// Pick a language, and write a single state file.
+// 
 int
 graphics_info_t::save_state_file(const std::string &filename) {
 
    // std::cout << "saving state" << std::endl;
    std::vector<std::string> commands;
-   short int il = -1; // il: interface language, with some initial bogus value
+   short int il = coot::SCRIPT_UNSET; // il: interface language, with some initial bogus value
 
 #ifdef USE_PYTHON
-   il = 2;
+   il = coot::PYTHON_SCRIPT;
 #endif // USE_PYTHON
    
-#if defined USE_GUILE && ! defined WINDOWS_MINGW
-   il = 1;
+#if defined USE_GUILE
+   il = coot::SCHEME_SCRIPT;
 #endif // USE_GUILE
+   return save_state_file(filename, il);
+}
 
+// save state
+int
+graphics_info_t::save_state_file(const std::string &filename, short int il) {
+
+   std::cout << "DEBUG:: ============================== saving state " << il << std::endl;
+   std::vector<std::string> commands;
+   
    std::string comment_str;
-   if (il == 1) { 
+   if (il == coot::SCHEME_SCRIPT) { 
       comment_str = "; These commands are the saved state of coot.  You can evaluate them\n";
       comment_str += "; using \"Calculate->Run Script...\".";
-   } else { 
+   } else {
+      // python
       comment_str = "# These commands are the saved state of coot.  You can evaluate them\n";
       comment_str += "# using \"Calculate->Run Script...\".";
    }
@@ -682,13 +695,17 @@ int
 graphics_info_t::save_state() {
 
    int r = 0;
-   if (run_state_file_status) { 
+   if (run_state_file_status) {
+      std::cout << "============ in graphics_info_t::save_state() saving SCHEME_SCRIPT " << std::endl;
+      short int il = coot::SCHEME_SCRIPT;
 #ifdef USE_GUILE
-      r = save_state_file(save_state_file_name);
+      r = save_state_file(save_state_file_name, il);
 #endif // USE_GUILE
       
-#ifdef USE_PYTHON   
-      r = save_state_file("0-coot.state.py");
+#ifdef USE_PYTHON
+      il = coot::PYTHON_SCRIPT;
+      std::cout << "============ in graphics_info_t::save_state() saving PYTHON_SCRIPT " << std::endl;
+      r = save_state_file("0-coot.state.py", il);
 #endif // USE_PYTHON   
 
       return r;

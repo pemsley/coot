@@ -22,6 +22,8 @@
 #ifndef HAVE_GL_MATRIX
 #define HAVE_GL_MATRIX
 
+#include <ostream>
+
 enum { TRANSPOSE }; 
 
 #ifdef HAVE_GSL
@@ -42,6 +44,8 @@ class GL_matrix {
 	     float m21, float m22, float m23,
 	     float m31, float m32, float m33);
    GL_matrix(const clipper::Mat33<double> &m);
+   // We want an orientation (doesn't matter which) that is along normal.
+   GL_matrix(const clipper::Coord_orth &normal);
    
    GL_matrix( GL_matrix, int manip);  
 
@@ -55,7 +59,6 @@ class GL_matrix {
    void rotate_Y(float angle);
    void rotate_Z(float angle);
 
-   friend std::ostream& operator<<(std::ostream&, GL_matrix);
 
    // return a "this is a useful matrix" flag, so that we don't draw
    // elipsoids for atoms with non-positive definite U matrices.
@@ -83,7 +86,10 @@ class GL_matrix {
    // irow and icol: 0 -> 2 inclusive
    float matrix_element(int icol, int irow) const;
 
+   friend std::ostream& operator<<(std::ostream&, const GL_matrix &m);
+
 };
+std::ostream& operator<<(std::ostream &s, const GL_matrix &m);
 
 void my_aniso_error_handler (const char * reason,
 			     const char * file,
