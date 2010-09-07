@@ -565,41 +565,26 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
     centref.v() + box_radius/crystal_map.cell().descr().b(),
     centref.w() + box_radius/crystal_map.cell().descr().c() );
 
-  // old style (early 2002) convertion operator:
-  // 
-  //clipper::Grid_map grid( crystal_map.grid_sampling().to_grid( box0 ),
-  // crystal_map.grid_sampling().to_grid( box1 ) );
-
-  // using this constructor (coords.h):
-  //! constructor: takes grid limits
-  // Grid_map( const Coord_grid& min, const Coord_grid& max );
-
-	// question: we have a Coord_frac and want to convert it to a 
-	// Coord_grid.  How?
-
-	// note: 
-	// Coord_frac::coord_grid(const Grid& g) returns a Coord_grid
-	// but how do we get a Grid from an Xmap?
-  
   //Note that this introduces a rounding step - is this what you want?
   clipper::Grid_map grid( box0.coord_grid(crystal_map.grid_sampling()),
 			  box1.coord_grid(crystal_map.grid_sampling()));
 			  
-//   cout << "INFO: centre_point is :" << centre_point << endl;
-//   cout << "INFO: box0         is :" << box0.format() << endl;
-//   cout << "INFO: box1         is :" << box1.format() << endl;
-
-
-
   T* ptScalarField = new T[grid.size()];
 
-  //cout << "box0: " << box0.format() << endl
-  //    << "box1: " << box1.format() << endl;
+  if (0) { // debug
+     std::cout << "    tIsoLevel: " << tIsoLevel << std::endl;
+     std::cout << "    box_radius " << box_radius << std::endl;
+     std::cout << "    centre_point: " << centre_point << std::endl;
+     std::cout << "    isample_step " << isample_step << std::endl;
+     std::cout << "    box0: " << box0.format() << std::endl
+	       << "    box1: " << box1.format() << std::endl;
+     std::cout << "    grid: " << grid.format() << std::endl;
+  }
 
   clipper::Xmap_base::Map_reference_coord ix( crystal_map ); 
   int icount = 0; 
   for ( int w = grid.min().w(); w <= grid.max().w(); w+=isample_step ) { 
-     for ( int v = grid.min().v(); v <= grid.max().v(); v+=isample_step ) { 
+     for ( int v = grid.min().v(); v <= grid.max().v(); v+=isample_step ) {
         ix.set_coord( clipper::Coord_grid( grid.min().u(), v, w ) ); 
         for ( int u = grid.min().u(); u <= grid.max().u(); u+= isample_step ) { 
            ptScalarField[icount] = crystal_map[ ix ]; 
