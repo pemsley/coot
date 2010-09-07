@@ -476,7 +476,7 @@ Bond_lines_container::add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n
       clipper::Coord_orth b_n(b.unit());
       clipper::Coord_orth perp_n(clipper::Coord_orth::cross(n_n, b_n));
       int col = atom_colour(atoms[iat_1], atom_colour_type);
-      double offset = 0.066;
+      double offset = 0.08;
       if (for_GL_solid_model_rendering)
 	 offset = 0.13;
       clipper::Coord_orth pt_1_1 = pos_at_1 - offset * perp_n;
@@ -575,16 +575,14 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 					     int udd_handle) {
 
 
-   std::cout << "============== Bonding " << het_residues.size() << " het residues" << std::endl;
-   
    if (het_residues.size()) {
       for (unsigned int ires=0; ires<het_residues.size(); ires++) {
 	 if (het_residues[ires].first) { 
 	    std::string res_name = het_residues[ires].second->GetResName();
 	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints = 
 	       geom->get_monomer_restraints(res_name);
- 	    if (res_name != "HOH")
- 	       std::cout << "============== Bonding het residue: " << res_name << " " << std::endl;
+//  	    if (res_name != "HOH")
+//  	       std::cout << "============== Bonding het residue: " << res_name << " " << std::endl;
 	    if (! restraints.first) {
 	       std::cout << "Oooppps!  No bonding rules for residue type :" << res_name
 			 << ": missing bonds! " << std::endl;
