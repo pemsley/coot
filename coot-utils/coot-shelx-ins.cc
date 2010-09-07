@@ -332,6 +332,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 							   (card_word_0.substr(0, 4) == "MORE") ||
 							   (card_word_0.substr(0, 4) == "ISOR") ||
 							   (card_word_0.substr(0, 4) == "MERG") ||
+							   (card_word_0.substr(0, 4) == "TREF") ||
 							   (card_word_0.substr(0, 4) == "ACTA") ||
 							   (card_word_0.substr(0, 4) == "TWIN") ||
 							   (card_word_0.substr(0, 4) == "OMIT") ||
