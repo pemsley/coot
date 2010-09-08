@@ -12,6 +12,7 @@ int
 molecule_class_info_t::add_extra_bond_restraint(coot::atom_spec_t atom_1,
 						coot::atom_spec_t atom_2,
 						double bond_dist, double esd) {
+   int r = -1; // unset
    CAtom *at_1 = get_atom(atom_1);
    CAtom *at_2 = get_atom(atom_2);
    if (at_1) {
@@ -24,10 +25,13 @@ molecule_class_info_t::add_extra_bond_restraint(coot::atom_spec_t atom_1,
       at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
       atom_2.int_user_data = atom_index;
    }
-   coot::extra_restraints_t::extra_bond_restraint_t bond(atom_1, atom_2, bond_dist, esd);
-   extra_restraints.bond_restraints.push_back(bond);
-   update_extra_restraints_representation();
-   return extra_restraints.bond_restraints.size() -1;
+   if (at_1 && at_2) { 
+      coot::extra_restraints_t::extra_bond_restraint_t bond(atom_1, atom_2, bond_dist, esd);
+      extra_restraints.bond_restraints.push_back(bond);
+      update_extra_restraints_representation();
+      r = extra_restraints.bond_restraints.size() -1;
+   }
+   return r;
 }
 
 
