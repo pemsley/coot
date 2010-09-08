@@ -170,7 +170,7 @@
     `(format #t "DEBUG:: ~a is ~s~%" ,s ,var)))
 
 ;; schemify function
-;;
+;; 
 (define (molecule-has-hydrogens? imol)
   (= (molecule-has-hydrogens-raw imol) 1))
 
@@ -198,7 +198,7 @@
 ;; Return a list of molecule numbers (closed and open) The elements of
 ;; the returned list need to be tested against
 ;; is-valid-model-molecule?
-;;
+;; 
 (define molecule-number-list
   (lambda ()
     (let loop ((ls (range (graphics-n-molecules)))
@@ -254,7 +254,7 @@
 
 
 ;; return an absolute file-name for file-name or #f
-;;
+;; 
 (define (absolutify file-name)
 
   (if (not (string? file-name))
@@ -301,7 +301,7 @@
 		
 
 ;; Convert a residue-spec to an mmdb atom selection string.
-;;
+;; 
 (define (residue-spec->atom-selection-string centre-residue-spec)
   (string-append "//" (car centre-residue-spec)
 		 "/" (number->string 
@@ -339,7 +339,7 @@
 	    model-list)))))
 
 ;; Return #t (#f) if @var{imol} is (isn't) a shelx molecule.
-;;
+;; 
 (define (shelx-molecule? imol)
   (= (is-shelx-molecule imol) 1))
 
@@ -353,7 +353,7 @@
 ;; Set the virtual trackball behaviour.
 ;; 
 ;; trackball @var{type} is a symbol: either 'flat or 'spherical-surface.
-;;
+;; 
 (define (set-virtual-trackball-type type)
   
   (cond 
@@ -399,8 +399,8 @@
 
 
 
-;;; Make list of integers, @var{a} to @var{b}: eg (number-list 2 5) ->
-;;; (2 3 4 5)
+;; Make list of integers, @var{a} to @var{b}: eg (number-list 2 5) ->
+;; (2 3 4 5)
 ;; 
 (define (number-list a b)
 
@@ -413,10 +413,10 @@
 
 
 
-;;; ls must be a list of strings, atom must be a string.
-;;; 
-;;; return either #t or #f.
-;;;
+;; ls must be a list of strings, atom must be a string.
+;; 
+;; return either #t or #f.
+;; 
 (define (string-member? atom ls)
   
   (cond 
@@ -434,10 +434,10 @@
     (member? atom (cdr ls)))))
     
 
-;;; range: works like the eponymous python function
-;;; e.g. (range 3) -> '(0, 1, 2)
-;;; e.g. (range 1 3) -> '(1, 2)
-;;;
+;; range: works like the eponymous python function
+;; e.g. (range 3) -> '(0, 1, 2)
+;; e.g. (range 1 3) -> '(1, 2)
+;; 
 (define (range first . second)
 
   (if (number? first)
@@ -459,6 +459,7 @@
 ;; 
 ;; run command and put the output into a string and return
 ;; it. (c.f. @code{run-command/strings})
+;; 
 (define (shell-command-to-string cmd)
   (with-output-to-string
     (lambda ()
@@ -492,6 +493,7 @@
 	    (f (cdr data-list)))))))
 
 ;; Return #t or #f:
+;; 
 (define (command-in-path? cmd)
 
   ;; test for command (see goosh-command-with-file-input description)
@@ -553,7 +555,7 @@
 ;(goosh-command "mtzdump" (list "HKLIN" "a.mtz") (list "HEAD" "END") "test.log" #t)
 
 ;; run commands from an input file.
-;;
+;; 
 (define (goosh-command-with-file-input cmd args input-file log-file-name)
 
   ;; we had a problem here (may 2004).  If command was not in path,
@@ -756,6 +758,7 @@
 ;;      @code{(every-nth '(0 1 2 3 4 5 6 7 8) 3)} -> '(0 3 6)
 ;; 
 ;; @var{n} must be positive
+;; 
 (define (every-nth ls n)
 
     (reverse
@@ -771,7 +774,7 @@
 
 
 ;; Return an atom info or #f (if atom not found).
-;;
+;; 
 (define (get-atom imol chain-id resno ins-code atom-name . alt-conf)
   
 
@@ -799,7 +802,6 @@
 	(get-atom-from-res atom-name res-info alt-conf-internal))))
 	
 
-
 ;;
 (define (residue-info-dialog-displayed?)
   (= (residue-info-dialog-is-displayed) 1))
@@ -808,7 +810,7 @@
 ;; @code{@emph{glob-pattern}} in
 ;; directory @code{@emph{dir}}.  Typical usage of this might be:
 ;; @code{(multi-read-pdb "a*.pdb" ".")}
-;; 
+;;  
 (define (multi-read-pdb glob-pattern dir)
 
   (let ((mol-list
@@ -878,7 +880,7 @@
   (string-append (directory-as-file-name dir-name) "/" sub-dir-name))
 
 ;; remove any trailing /s
-;;
+;; 
 (define (directory-as-file-name dir)
 
   (if (= 0 (string-length dir))
@@ -912,7 +914,8 @@
 
 ;; The following functions from PLEAC (guile version thereof of course).
 ;; 
-;; or define a utility function for this
+;; Return: a list of files in the given directory
+;; 
 (define (directory-files dir)
 
   (if (not (access? dir R_OK))
@@ -945,12 +948,14 @@
     (string-concatenate (reverse (cons "$" ls)))))
 
 ;; return a list of file names that match pattern pat in directory dir.
+;; 
 (define (glob pat dir)
   (let ((rx (make-regexp (glob->regexp pat))))
     (filter (lambda (x) (regexp-exec rx x)) (directory-files dir))))
 
 
-;;; return the view matrix (useful for molscript, perhaps).
+;; return the view matrix (useful for molscript, perhaps).
+;; 
 (define view-matrix
   (lambda ()
 
@@ -960,7 +965,8 @@
 		(list 0 1 2)))
 	 (list 0 1 2))))
 
-;;; return the view quaternion
+;; return the view quaternion
+;; 
 (define view-quaternion
   (lambda ()
     
@@ -1045,7 +1051,8 @@
 						 m02 m12 m22)))
 
 
-;;; Miguel's molecular orientation axes
+;; Miguel's molecular orientation axes
+;;
 (define miguels-axes
   (lambda ()
 
@@ -1072,6 +1079,7 @@
 	     (cons imol (map - (rotation-centre) (molecule-centre imol))))))
 
 ;; This is a short name for the above.
+;; 
 (define move-molecule-here move-molecule-to-screen-centre)
 
 ;; this is an americanism
@@ -1087,7 +1095,8 @@
 
 ;; e.g. (translation 'x 2)
 ;;  -> '(2 0 0)
-;; return #f on error
+;; Return: "scheme false" on error
+;; 
 (define (translation axis length)
 
   (cond 
@@ -1161,14 +1170,14 @@
       (set-map-displayed imol 0) ))
 
 ;; toggle the display of imol
-;;
+;; 
 (define (toggle-display-mol imol)
   (if (= (mol-is-displayed imol) 0)
       (set-mol-displayed imol 1)
       (set-mol-displayed imol 0)))
 
 ;; toggle the active state (clickability) of imol
-;;
+;; 
 (define (toggle-active-mol imol)
   (if (= (mol-is-active imol) 0)
       (set-mol-active imol 1)
@@ -1195,7 +1204,8 @@
 		     (range 0 (chain-n-residues chain-id imol)))))
 	(chain-ids imol)))))
 
-
+;; reorder chains
+;; 
 (define (reorder-chains imol)
   
   ;; reorder elements of chain-list: e.g.
@@ -1391,7 +1401,8 @@
   (= (is-solvent-chain-p imol chain-id) 1))
 
 ;; schemey interface to eponymous scripting interface function.
-;; Return #t or #f. 
+;; Return scheme true or false
+;; 
 (define (valid-model-molecule? imol)
 
   (if (not (number? imol))
@@ -1399,7 +1410,8 @@
       (= (is-valid-model-molecule imol) 1)))
 
 ;; schemey interface to eponymous scripting interface function.
-;; Return #t or #f. 
+;; Return scheme true or false.
+;; 
 (define (valid-map-molecule? imol)
   (= (is-valid-map-molecule imol) 1))
 
@@ -1618,6 +1630,11 @@
 ;; e.g. '(103 "g" "Goto Blob" (blob-under-pointer-to-screen-centre))
 (define *key-bindings* (list))
 
+;; Add a key binding 
+;; 
+;; with a given name, key (e.g. "x" or "S") and the function to run
+;; (a thunk) when that key is pressed.
+;; 
 (define (add-key-binding name key thunk)
   (if (number? key)
       (set! *key-bindings* (cons (list key key name thunk) *key-bindings*)))
@@ -1628,7 +1645,7 @@
 	    (format #t "WARNING:: could not find key-sym-code for ~s~%" key)))))
 
 
-;; general key press hook
+;; general key press hook, not for public use.
 ;; 
 (define (graphics-general-key-press-hook key)
   ;; (format #t "Key ~s was pressed~%" key)
@@ -1639,17 +1656,16 @@
 	(begin
 	  ((car (cdr (cdr (cdr field)))))))))
 
-
-;;; Function requested by Mark White.
-;;; 
-;;; read XtalView (and maybe other) .vu files and convert them into generic 
-;;; objects.  
-;;;
-;;; Pass the filename and an object name e.g.
-;;; (read-vu-file "axes.vu" "axes")
-;;;
-;;; Returns: nothing interesting.
-;;;
+;; Function requested by Mark White.
+;; 
+;; read XtalView (and maybe other) .vu files and convert them into generic 
+;; objects.  
+;; 
+;; Pass the filename and an object name e.g.
+;; (read-vu-file "axes.vu" "axes")
+;; 
+;; Returns: nothing interesting.
+;; 
 (define read-vu-file
   (lambda (filename obj-name)
 
@@ -1810,7 +1826,8 @@
 		      (f (cdr atom-ls) (list " CA " alt-conf-str))
 		      (f (cdr atom-ls) centre-atom-name-alt-conf))))))))))
 
-
+;; 
+;; 
 (define (update-go-to-atom-from-current-atom)
 
   (let ((active-atom (active-residue)))
@@ -1828,7 +1845,8 @@
 	  (set-go-to-atom-chain-residue-atom-name chain-id
 						  resno
 						  atom-name)))))
-
+;; 
+;; 
 (define (flip-active-ligand)
   (let ((active-atom (active-residue)))
     (if active-atom
@@ -1851,7 +1869,7 @@
     (if active-atom
 	(apply delete-atom active-atom))))
 
-
+;; 
 (define (merge-solvent-chains imol)
 
   (if (valid-model-molecule? imol)
@@ -2033,7 +2051,7 @@
 
 
 
-;;
+;; 
 (define (label-all-atoms-in-residue imol chain-id resno inscode)
 
   (let ((atom-list (residue-info imol chain-id resno inscode)))
@@ -2064,6 +2082,7 @@
 
 ;; Resets alt confs and occupancies of atoms in residue that have
 ;; orphan alt-loc attributes.
+;; 
 (define (sanitise-alt-confs atom-info atom-ls)
 
   ;; return a matching atom (name match) if it exists.  Else return #f
@@ -2126,6 +2145,7 @@
 
 ;; Resets alt confs and occupancies of atoms in residue that have
 ;; orphan alt-loc attributes.  Use the active-residue.
+;; 
 (define (sanitise-alt-confs-active-residue)
   (let* ((active-atom (active-residue)))
     (if (list? active-atom)
@@ -2139,14 +2159,14 @@
 	    (if (list? atom-ls) 
 		(sanitise-alt-confs active-atom atom-ls)))))))
 
-
+;; 
 (define (print-molecule-names)
 
   (map (lambda (molecule-number)
 	 (format #t "    ~s    ~s~%" molecule-number (molecule-name molecule-number)))
        (molecule-number-list)))
 
-  
+;;   
 (define (save-dialog-positions-to-init-file)
 
   ;; return #f on failure to find ~/.coot
@@ -2370,7 +2390,8 @@
 				 buttons
 				 "  Close  ")))))
 
-
+;; Run libcheck to convert from SMILES string
+;; 
 (define (new-molecule-by-smiles-string tlc-text smiles-text)
   (if (> (string-length smiles-text) 0)
 
@@ -2419,7 +2440,7 @@
 ;; Generate restraints from the residue at the centre of the screen
 ;; using PRODRG. Delete hydrogens from the residue because PRODRG has
 ;; anomalous hydrogens.
-;;
+;; 
 (define (prodrg-ify imol chain-id res-no ins-code)
   
   (let ((new-mol (new-molecule-by-atom-selection imol
@@ -2501,6 +2522,7 @@
 
 ;; ---------- annotations ---------------------
 
+;; 
 (define (add-annotation-here text)
   (let ((rc (rotation-centre))
 	(ann (cons text (rotation-centre))))
@@ -2509,11 +2531,13 @@
     (apply place-text text (append (rotation-centre) (list 0)))
     (graphics-draw)))
 
+;; 
 (define (save-annotations file-name)
   (call-with-output-file file-name
     (lambda (port)
       (format port "~s~%" *annotations*))))
 
+;; 
 (define (load-annotations file-name)
   (if (file-exists? file-name)
       (begin
@@ -2709,6 +2733,10 @@
 				    ;; (format #t "Ooops: untar of ~s failed~%" tar-file-name)
 				    #f))))))))))))
 
+;; get revision number from string
+;;
+;; (used in downloading new version)
+;; 
 (define (get-revision-from-string str)
   ;; e.g. str is "coot-0.6-pre-1-revision-2060" (with a newline at the
   ;; end too).  We want to return 2060 (a number) from here (or #f).
@@ -2724,7 +2752,7 @@
 ;;
 ;; e.g. input:  "coot-0.6.2-pre-1-revision-2765\n"
 ;;      output: "coot-0.6.2-pre-1-revision-2765"
-;; 
+;;  
 (define (coot-split-version-string str)
   (let* ((ls (split-before-char #\c str list))
 	 (ls-2 (split-before-char #\" (car (reverse ls)) list))
@@ -2738,6 +2766,8 @@
 
 
 ;; a thread handling function
+;;
+;; not really for public manipulation.
 ;; 
 (define (coot-updates-error-handler key . args)
   (format #t "error: finding updates: error in ~s with args ~s~%" key args))
@@ -2787,8 +2817,8 @@
   (coot-real-exit 0))
 
 	
-; to determine if we have pygtk
-;
+;; to determine if we have pygtk
+;; 
 (define (coot-has-pygtk?)
   (if (coot-has-python?)
       (run-python-command "coot_has_pygtk()")
