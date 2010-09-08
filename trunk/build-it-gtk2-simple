@@ -1597,7 +1597,7 @@ fi
 # override STD_PKGCONFIG_DIR to lib64 dir if we are in 64 bit.
 #
 STD_PKGCONFIG_DIR=/usr/lib/pkgconfig
-case $(gcc -dumpmachine) in
+case "$architecture" in
    x86_64*) 
      STD_PKGCONFIG_DIR=/usr/lib64/pkgconfig
      ;; 
@@ -2099,8 +2099,6 @@ mmdb_version=1.21
 mmdb_version=1.22
 mmdb_version=1.23
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
-# this patch is badly formed.
-# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
 # ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
 # for now get mmdb-1.21 from york, the ebi one has out of date files causing 
 # problems on make 
@@ -2113,7 +2111,6 @@ pwd
 # patch to read long lines in a cif file
 # 20091110 this patch is not available, above says that it is badly formed.  
 #   Needs fixing.
-patch -p0 < ../mmdb-mmcif-long-line.patch
 # add the following 2 touches because centos 4.6 jackal gives LIBTOOL 
 # problems on `make'.
 # if configure.in newer than aclocal.m4 -> rebuild aclocal.m4
@@ -2698,16 +2695,19 @@ if test -n "$build_guile_gui" ; then
 #
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/neil-jerram.guile-gui.patch
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-patch-post-neil.patch
+#
+# guile-gui-patch-post-neil.patch is the same as
+# neil-jerram.guile-gui.patch except guile-gui-patch-post-neil.patch
+# has the correct file names.  Hmm...
+#
+# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-patch-post-neil.patch
 ( 
 date
 pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-gui-0.2.tar.gz | tar xf -
 patch -p0 < ${AUTOBUILD_SOURCES}/neil-jerram.guile-gui.patch
-patch -p0 < ${AUTOBUILD_SOURCES}/guile-gui-patch-post-neil.patch
 cd guile-gui-0.2
 ./configure $generic_prefix
-$MAKE
 $MAKE install
 ) > $HOSTLOGDIR/13-guile-gui.txt 2>&1
 else 
