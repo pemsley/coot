@@ -3247,7 +3247,13 @@ int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode);
 
 /*! \brief add a user-define bond restraint
 
-   to be used when the given atoms are selected.  */
+   this extra restraint is used when the given atoms are selected in
+   refinement or regularization. 
+
+   @return the index of the new restraint.  
+
+   @return -1 when the atoms were not found and no extra bond
+   restraint was stored.  */
 
 int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, double bond_dist, double esd);
 int add_extra_torsion_restraint(int imol, 
