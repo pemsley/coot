@@ -1937,3 +1937,15 @@ coot::pi_stacking_container_t::get_ligand_aromatic_ring_list(const coot::diction
    return ring_list;
 }
 
+
+	    GList *ls_2 = gtk_container_children(GTK_CONTAINER(item));
+
+	    while (ls_2) {
+
+	       GtkMenuItem *item_2 = GTK_MENU_ITEM(ls_2->data);
+	       std::string t_2 = gtk_menu_item_get_label(GTK_MENU_ITEM(item_2));
+	       std::cout << " calculate menu child  " << ls_2->data << " " << t_2 << std::endl;
+	       ls_2 = ls_2->next;
+	    }
+
+--with-enterprise-tools with optional complicated/experimental ligand-related dependencies

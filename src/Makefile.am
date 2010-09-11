@@ -54,6 +54,7 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la 
 
 COOT_EXTRA_LIBS = \
+	$(top_builddir)/lbg/libcoot-lidia.la      		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la      	\
 	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
@@ -196,6 +197,8 @@ INCLUDES = \
 	-I$(top_srcdir)/analysis	\
 	-I$(top_srcdir)/cootaneer	\
 	-I$(top_srcdir)/lidia-core      \
+	-I$(top_srcdir)/lbg             \
+	$(ENTERPRISE_TOOLS_CFLAGS)      \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_GTK_CFLAGS)		\
@@ -204,6 +207,7 @@ INCLUDES = \
 	$(SWIG_FLAGS)			\
 	$(GTKGL_CONTEXT_CFLAGS)		\
 	$(LIBGLADE_CFLAGS)		\
+        $(GOOCANVAS_CFLAGS)             \
 	@GTK_CFLAGS@ 			\
 	$(GLUT_CFLAGS)			\
 	$(MMDBSSM_CXXFLAGS) 		\
@@ -422,7 +426,8 @@ coot_real_LDADD = $(COOT_EXTRA_LIBS)    \
 		$(MYSQL_LIBS)		\
 		$(CURL_LIBS)		\
 		$(LIBGLADE_LIBS)	\
-		@GTK_LIBS@	
+	        $(GOOCANVAS_LIBS)       \
+		@GTK_LIBS@
 
 #                -lglade-2.0
 

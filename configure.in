@@ -34,6 +34,7 @@ AM_INIT_AUTOMAKE(coot, 0.6.2-pre-1)
 
 dnl Pick up the macros.
 AM_ACLOCAL_INCLUDE(macros)
+AC_CONFIG_MACRO_DIR(macros)
 
 AC_ISC_POSIX
 AC_PROG_CC
@@ -178,6 +179,26 @@ AC_SUBST(SWIG_FLAGS)
 
 AM_CONDITIONAL(USING_GTK2_VERSION, test x$coot_gtk2 = xTRUE)
 
+
+AM_PATH_GOOCANVAS
+
+AC_ARG_WITH(enterprise-tools, [ --with-enterprise-tools with optional complicated/experimental ligand-related dependencies ],
+ coot_enterprise_additions="true",
+ coot_enterprise_additions="false")
+
+if test x$coot_enterprise_additions = xtrue ; then
+   echo ::::::::::::::::::::::: add enterprise tools
+   ENTERPRISE_TOOLS_CFLAGS="-DMAKE_ENTERPRISE_TOOLS"
+else 	
+   echo ::::::::::::::::::::::: No add enterprise tools $coot_enterprise_additions
+   ENTERPRISE_TOOLS_CFLAGS=""
+fi
+
+# coot_enterprise_additions=true
+AM_CONDITIONAL(MAKE_ENTERPRISE_TOOLS, test x$coot_enterprise_additions = xtrue)
+AC_SUBST(ENTERPRISE_TOOLS_CFLAGS)
+
+
 dnl check for guile modules www and gtk here.
 
 dnl check for GSL
@@ -251,6 +272,7 @@ cootaneer/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
+lbg/Makefile
 doc/Makefile
 src/Makefile
 src/coot

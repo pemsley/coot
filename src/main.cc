@@ -152,6 +152,8 @@ SWIGEXPORT(void) SWIG_init(void);
 #include "c-inner-main.h"
 #include "coot-glue.hh"
 
+#include "lbg.hh"
+
 #include "rotate-translate-modes.hh"
 
 void show_citation_request();
@@ -402,8 +404,11 @@ main (int argc, char *argv[]) {
      // 
      // run_state_file_maybe();
 
-  // before we run the scripting, lets make default preferences
+  // before we run the scripting, let's make default preferences
   make_preferences_internal_default();
+
+  //
+  add_ligand_builder_menu_item_maybe();
 
 #ifdef USE_PYTHON
      //  (on Mac OS, call PyMac_Initialize() instead)
@@ -787,27 +792,26 @@ void setup_application_icon(GtkWindow *window) {
    size_t count;
    char **p;
    for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) {
-	  char *filename(*p);
-	  pixbuf = gdk_pixbuf_new_from_file(filename, &error);
-	  if (error) {
-		 g_print ("Error loading icon: %s\n", error->message);
-		 g_error_free (error);
-		 error = NULL;
-	  } else {
-	    if (pixbuf) {
-		 iconset = gtk_icon_set_new_from_pixbuf(pixbuf);
-		 g_object_unref(pixbuf);
-		 // may have to be adjusted for Windows!!
-		 //stock_id = (coot::util::file_name_non_directory(filename)).c_str();
-		 std::string tmp = coot::util::file_name_non_directory(filename);
-		 stock_id = tmp.c_str();
-		 if (stock_id !="") {
-		 gtk_icon_factory_add(iconfactory, stock_id,
-							  iconset);
-		 gtk_icon_factory_add_default(iconfactory);
-		 }
+      char *filename(*p);
+      pixbuf = gdk_pixbuf_new_from_file(filename, &error);
+      if (error) {
+	 g_print ("Error loading icon: %s\n", error->message);
+	 g_error_free (error);
+	 error = NULL;
+      } else {
+	 if (pixbuf) {
+	    iconset = gtk_icon_set_new_from_pixbuf(pixbuf);
+	    g_object_unref(pixbuf);
+	    // may have to be adjusted for Windows!!
+	    //stock_id = (coot::util::file_name_non_directory(filename)).c_str();
+	    std::string tmp = coot::util::file_name_non_directory(filename);
+	    stock_id = tmp.c_str();
+	    if (stock_id !="") {
+	       gtk_icon_factory_add(iconfactory, stock_id, iconset);
+	       gtk_icon_factory_add_default(iconfactory);
 	    }
-	  }
+	 }
+      }
    }
    globfree(&myglob);
 
@@ -816,6 +820,54 @@ void setup_application_icon(GtkWindow *window) {
 
 }
 
+void add_ligand_builder_menu_item_maybe() {
+
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      GtkWidget *menubar = main_menubar();
+      if (menubar) {
+	 GList *ls = gtk_container_children(GTK_CONTAINER(menubar));
+	 while (ls) {
+	    GtkMenuItem *item = GTK_MENU_ITEM(ls->data);
+	    std::string t = gtk_menu_item_get_label(item);
+	    if (t == "_Calculate") {
+	       GtkWidget *w = gtk_menu_item_get_submenu(item);
+
+	       // To put the menu item at a particular place, this might help:
+	       // 
+	       // 	    GList *ls_2 = gtk_container_children(GTK_CONTAINER(w));
+	       // 	    while (ls_2) {
+	       // 	       std::cout << "   inner " << ls_2->data << std::endl;
+	       // 	       GtkMenuItem *item = GTK_MENU_ITEM(ls_2->data);
+	       // 	       std::string t_2 = gtk_menu_item_get_label(item);
+	       // 	       std::cout << "   inner-2 " << t_2 << std::endl;
+	       // 	       ls_2 = ls_2->next;
+	       // 	    }
+
+	       GtkWidget *new_item = gtk_menu_item_new_with_label("Ligand Builder");
+	       gtk_container_add(GTK_CONTAINER(w), new_item);
+	       gtk_signal_connect(GTK_OBJECT(new_item), "activate",
+				  GTK_SIGNAL_FUNC(start_ligand_builder_gui),
+				  NULL);
+	       gtk_widget_show(new_item);
+	       return;
+	    }
+	    ls = ls->next;
+	 }
+      }
+   } 
+}
+
+void
+start_ligand_builder_gui(GtkMenuItem     *menuitem,
+			 gpointer         user_data) {
+
+#ifdef MAKE_ENTERPRISE_TOOLS
+   lig_build::molfile_molecule_t mm;
+   CMMDBManager *mol = NULL;
+   std::string molecule_file_name;
+   lbg(mm, mol, molecule_file_name);
+#endif   
+}
 
 void 
 show_citation_request() { 

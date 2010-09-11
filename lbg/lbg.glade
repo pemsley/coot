@@ -4,27 +4,27 @@
   <!-- interface-naming-policy project-wide -->
   <object class="GtkIconFactory" id="iconfactory1">
     <sources>
-      <source stock-id="generated-icon-charge-svg" filename="charge.svg"/>
-      <source stock-id="generated-icon-stereo-out-svg" filename="stereo-out.svg"/>
-      <source stock-id="generated-icon-8-c-svg" filename="8-c.svg"/>
-      <source stock-id="generated-icon-double-svg" filename="double.svg"/>
-      <source stock-id="generated-icon-6-c-arom-svg" filename="6-c-arom.svg"/>
-      <source stock-id="generated-icon-7-c-svg" filename="7-c.svg"/>
-      <source stock-id="generated-icon-3-c-svg" filename="3-c.svg"/>
-      <source stock-id="generated-icon-5-c-svg" filename="5-c.svg"/>
-      <source stock-id="generated-icon-4-c-svg" filename="4-c.svg"/>
-      <source stock-id="lbg-key-icon-svg" filename="Anonymous_Architetto_--_Chiave.svg"/>
-      <source stock-id="generated-icon-sp3-svg" filename="sp3.svg"/>
-      <source stock-id="generated-icon-6-c-exp-2-svg" filename="6-c-exp-2.svg"/>
-      <source stock-id="generated-icon-triple-svg" filename="triple.svg"/>
-      <source stock-id="generated-icon-single-svg" filename="single.svg"/>
+      <source stock-id="generated-icon-charge-svg" filename="pixmaps/charge.svg"/>
+      <source stock-id="generated-icon-stereo-out-svg" filename="pixmaps/stereo-out.svg"/>
+      <source stock-id="generated-icon-8-c-svg" filename="pixmaps/8-c.svg"/>
+      <source stock-id="generated-icon-double-svg" filename="pixmaps/double.svg"/>
+      <source stock-id="generated-icon-6-c-arom-svg" filename="pixmaps/6-c-arom.svg"/>
+      <source stock-id="generated-icon-7-c-svg" filename="pixmaps/7-c.svg"/>
+      <source stock-id="generated-icon-3-c-svg" filename="pixmaps/3-c.svg"/>
+      <source stock-id="generated-icon-5-c-svg" filename="pixmaps/5-c.svg"/>
+      <source stock-id="generated-icon-4-c-svg" filename="pixmaps/4-c.svg"/>
+      <source stock-id="lbg-key-icon-svg" filename="pixmaps/Anonymous_Architetto_--_Chiave.svg"/>
+      <source stock-id="generated-icon-sp3-svg" filename="pixmaps/sp3.svg"/>
+      <source stock-id="generated-icon-6-c-exp-2-svg" filename="pixmaps/6-c-exp-2.svg"/>
+      <source stock-id="generated-icon-triple-svg" filename="pixmaps/triple.svg"/>
+      <source stock-id="generated-icon-single-svg" filename="pixmaps/single.svg"/>
     </sources>
   </object>
   <object class="GtkWindow" id="lbg_window">
     <property name="width_request">600</property>
     <property name="height_request">420</property>
     <property name="title" translatable="yes">Coot Ligand Builder</property>
-    <property name="icon">coot-favicon.png</property>
+    <property name="icon">pixmaps/coot-favicon.png</property>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
@@ -559,8 +559,9 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHSeparator" id="hseparator1">
+          <object class="GtkStatusbar" id="statusbar1">
             <property name="visible">True</property>
+            <property name="spacing">2</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -568,9 +569,8 @@
           </packing>
         </child>
         <child>
-          <object class="GtkStatusbar" id="statusbar1">
+          <object class="GtkHSeparator" id="hseparator1">
             <property name="visible">True</property>
-            <property name="spacing">2</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -730,13 +730,13 @@
   <object class="GtkAboutDialog" id="lbg_aboutdialog">
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
-    <property name="program_name">Coot Liebig</property>
+    <property name="program_name">Coot LIDIA</property>
     <property name="version">0.0</property>
     <property name="copyright" translatable="yes">Copyright Univeristy of Oxford 2010</property>
     <property name="comments" translatable="yes">Ligand Sketcher</property>
     <property name="license" translatable="yes">GNU GPL v3</property>
     <property name="authors">Paul Emsley</property>
-    <property name="logo">coot-icon.png</property>
+    <property name="logo">pixmaps/coot-icon.png</property>
     <signal name="response" handler="on_lbg_aboutdialog_response"/>
     <signal name="close" handler="on_lbg_aboutdialog_close"/>
     <child internal-child="vbox">
@@ -762,7 +762,7 @@
   </object>
   <object class="GtkImage" id="image1">
     <property name="visible">True</property>
-    <property name="pixbuf">TheStructorr_magnifying_glass-32.svg</property>
+    <property name="pixbuf">pixmaps/TheStructorr_magnifying_glass-32.svg</property>
   </object>
   <object class="GtkFileChooserDialog" id="lbg_open_filechooserdialog">
     <property name="border_width">5</property>
@@ -829,7 +829,7 @@
   </object>
   <object class="GtkDialog" id="lbg_sbase_search_results_dialog">
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">Coot Liebig Search Results</property>
+    <property name="title" translatable="yes">Coot Lidia Search Results</property>
     <property name="type_hint">normal</property>
     <signal name="response" handler="on_lbg_sbase_search_results_dialog_response"/>
     <child internal-child="vbox">

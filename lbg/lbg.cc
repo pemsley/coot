@@ -36,6 +36,43 @@
 #include "lbg.hh"
 
 
+bool
+lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name) {
+
+   bool r = 0; // fail
+   std::string glade_file = "lbg.glade";
+
+   std::string glade_file_full = PKGDATADIR;
+   glade_file_full += "/";
+   glade_file_full += glade_file;
+
+   bool glade_file_exists = 0;
+   struct stat buf;
+   int err = stat(glade_file_full.c_str(), &buf);
+   if (! err)
+      glade_file_exists = 1;
+
+   if (glade_file_exists) { 
+
+      r = 1;
+      GtkBuilder *builder = gtk_builder_new ();
+      gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
+      lbg_info_t *lbg = new lbg_info_t;
+      lbg->init(builder);
+      gtk_builder_connect_signals (builder, lbg->canvas);
+      g_object_unref (G_OBJECT (builder));
+
+      if (mol) { 
+	 widgeted_molecule_t wmol = lbg->import(mm, molecule_file_name, mol);
+	 lbg->render_from_molecule(wmol);
+      }
+   } else {
+      std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
+   } 
+   return r;
+} 
+
+
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *canvas) {
 
    return canvas;
@@ -1873,52 +1910,6 @@ lbg_info_t::get_cmmdbmanager(const std::string &file_name) const {
 
 }
 
-int
-main(int argc, char *argv[]) {
-
-   InitMatType(); // mmdb program. 
-   
-   gtk_init (&argc, &argv);
-        
-   std::string glade_file = "lbg.glade";
-
-   bool glade_file_exists = 0;
-   struct stat buf;
-   int err = stat(glade_file.c_str(), &buf);
-   if (! err)
-      glade_file_exists = 1;
-
-   if (glade_file_exists) { 
-      
-      GtkBuilder *builder = gtk_builder_new ();
-      gtk_builder_add_from_file (builder, glade_file.c_str(), NULL);
-      lbg_info_t *lbg = new lbg_info_t;
-      lbg->init(builder);
-      gtk_builder_connect_signals (builder, lbg->canvas);
-      g_object_unref (G_OBJECT (builder));
-
-      if (argc > 1) {
-	 std::string file_name(argv[1]);
-
-	 if (file_name == "fudge") {
-	    lbg->read_files_from_coot();
-	 } else {
-	    lig_build::molfile_molecule_t mm;
-	    CMMDBManager *mol = NULL; // no atom names to transfer
-	    mm.read(file_name);
-	    widgeted_molecule_t wmol = lbg->import(mm, file_name, mol);
-	    lbg->render_from_molecule(wmol);
-	 }
-      }
-	 
-      gtk_main ();
-
-   } else {
-      std::cout << "ERROR:: glade file " << glade_file << " not found" << std::endl;
-      return 1; 
-   } 
-   return 0;
-}
 
 
 std::string
@@ -2167,7 +2158,8 @@ lbg_info_t::save_molecule() {
 // coordinates.
 // 
 widgeted_molecule_t
-lbg_info_t::import(const lig_build::molfile_molecule_t &mol_in, const std::string &file_name,
+lbg_info_t::import(const lig_build::molfile_molecule_t &mol_in,
+		   const std::string &file_name,
 		   CMMDBManager *pdb_mol) {
 
    widgeted_molecule_t new_mol(mol_in, pdb_mol);

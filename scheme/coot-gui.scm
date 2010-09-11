@@ -990,7 +990,7 @@
 	 (let* ((ac-lab-ls (gtk-container-children menu-child))
 		;; ac-lab-ls is a GtkAccelLabel in a list
 		(ac-lab (car ac-lab-ls))
-		;; ac-lab-ls is a simple GtkAccelLabel
+		;; ac-lab is a simple GtkAccelLabel
 		(lab (gtk-label-get ac-lab)))
 	   (cons lab (gtk-menu-item-submenu menu-child)))) ; improper list
        (gtk-container-children (coot-main-menubar)))))

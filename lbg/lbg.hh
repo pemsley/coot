@@ -19,7 +19,6 @@
  * 02110-1301, USA
  */
 
-
 #ifndef LBG_HH
 #define LBG_HH
 
@@ -54,6 +53,9 @@
 
 static double LIGAND_TO_CANVAS_SCALE_FACTOR = 23;
 static double SINGLE_BOND_CANVAS_LENGTH= LIGAND_TO_CANVAS_SCALE_FACTOR * 1.54;
+
+
+bool lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name);
 
 bool save_togglebutton_widgets(GtkBuilder *builder);
 
