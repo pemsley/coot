@@ -65,7 +65,7 @@ if test $coot_gtk2 = TRUE ; then
    AC_TRY_LINK([#include <glade/glade.h>], [GladeXML *xml = glade_xml_new("x",NULL,NULL);], have_libglade=yes, have_libglade=no)
 
    CXXFLAGS="$saved_CXXFLAGS"
-   CFLAGS="$saved_CXXFLAGS"
+   CFLAGS="$saved_CFLAGS"
    LIBS="$saved_LIBS"
    AC_MSG_RESULT($have_libglade)
 
