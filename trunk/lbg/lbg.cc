@@ -478,8 +478,12 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
       changed_status = try_add_or_modify_bond(canvas_addition_mode, x_as_int, y_as_int);
    }
 
-   if (changed_status)
+   if (changed_status) { 
       save_molecule();
+#ifdef MAKE_ENTERPRISE_TOOLS
+      update_statusbar_smiles_string();
+#endif      
+   } 
 }
 
 void
@@ -500,6 +504,7 @@ lbg_info_t::handle_item_delete(GdkEventButton *event) {
 	 mol.close_bond(bond_index, root, 1);
       }
       save_molecule();
+      update_statusbar_smiles_string();
    }
 }
 
@@ -1787,6 +1792,7 @@ lbg_info_t::init(GtkBuilder *builder) {
    lbg_export_as_png_dialog =  GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_png_filechooserdialog"));
    lbg_smiles_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_dialog"));
    lbg_smiles_entry = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_entry"));
+   lbg_statusbar = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_statusbar"));
    lbg_toolbar_layout_info_label = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_toolbar_layout_info_label"));
 
 
@@ -1843,6 +1849,35 @@ lbg_info_t::init(GtkBuilder *builder) {
    int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
 
 }
+
+std::string
+lbg_info_t::get_smiles_string_from_mol() const {
+
+#if MAKE_ENTERPRISE_TOOLS
+   return get_smiles_string_from_mol_rdkit();
+#else
+   return get_smiles_string_from_mol_openbabel();
+#endif
+} 
+
+std::string
+lbg_info_t::get_smiles_string_from_mol_openbabel() const {
+
+   std::string s;
+   mol.write_mdl_molfile(".lbg-tmp-smiles-mol");
+   std::string system_string = "babel -i mol .lbg-tmp-smiles-mol -o smi .lbg-tmp-smiles.smi";
+   int status = system(system_string.c_str());
+   if (status == 0) {
+      std::string file_text = file_to_string(".lbg-tmp-smiles.smi");
+      std::string::size_type ihash = file_text.find("#");
+      std::string smiles_text = file_text;
+      if (ihash != std::string::npos) {
+	 s = file_text.substr(0, ihash);
+      }
+   }
+   return s;
+} 
+
 
 // static
 gboolean

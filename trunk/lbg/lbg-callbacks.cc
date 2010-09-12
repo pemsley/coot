@@ -514,16 +514,9 @@ on_lbg_smiles_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l) {
-      l->mol.write_mdl_molfile(".lbg-tmp-smiles-mol");
-      std::string system_string = "babel -i mol .lbg-tmp-smiles-mol -o smi .lbg-tmp-smiles.smi";
-      int status = system(system_string.c_str());
-      if (status == 0) {
-	 std::string file_text = l->file_to_string(".lbg-tmp-smiles.smi");
-	 std::string::size_type ihash = file_text.find("#");
-	 std::string smiles_text = file_text;
-	 if (ihash != std::string::npos) {
-	    smiles_text = file_text.substr(0, ihash);
-	 }
+
+      std::string smiles_text = l->get_smiles_string_from_mol();
+      if (smiles_text.length()) { 
 	 gtk_entry_set_text(GTK_ENTRY(l->lbg_smiles_entry), smiles_text.c_str());
 	 gtk_widget_show(l->lbg_smiles_dialog);
       }
