@@ -516,9 +516,9 @@ Bond_lines_container::get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int
       std::string at_n_2 = atoms[iat_2]->name;
       std::vector<std::string> neighbours = geom->get_bonded_neighbours(rn, at_n_1, at_n_2);
 
-      std::cout << "======== neighbours of " << at_n_1 << " and " << at_n_2 << ":" << std::endl;
-      for (unsigned int i=0; i<neighbours.size(); i++)
-	 std::cout << "   " << neighbours[i] << std::endl;
+//       std::cout << "======== neighbours of " << at_n_1 << " and " << at_n_2 << ":" << std::endl;
+//       for (unsigned int i=0; i<neighbours.size(); i++)
+// 	 std::cout << "   " << neighbours[i] << std::endl;
       
       std::string alt_conf_bond = atoms[iat_1]->altLoc; // same as iat_2 by the time we get here, I think
       if (neighbours.size() > 2) {
