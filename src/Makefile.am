@@ -198,6 +198,7 @@ INCLUDES = \
 	-I$(top_srcdir)/cootaneer	\
 	-I$(top_srcdir)/lidia-core      \
 	-I$(top_srcdir)/lbg             \
+	$(RDKIT_CXXFLAGS) 		\
 	$(ENTERPRISE_TOOLS_CFLAGS)      \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
@@ -426,7 +427,8 @@ coot_real_LDADD = $(COOT_EXTRA_LIBS)    \
 		$(MYSQL_LIBS)		\
 		$(CURL_LIBS)		\
 		$(LIBGLADE_LIBS)	\
-	        $(GOOCANVAS_LIBS)       \
+	  	$(RDKIT_LIBS)	        \
+		$(GOOCANVAS_LIBS)       \
 		@GTK_LIBS@
 
 #                -lglade-2.0

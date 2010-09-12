@@ -57,6 +57,8 @@
 
 #include <GL/glut.h> // for glutInit()
 
+#include "lbg.hh"
+
 
 #include "interface.h"
 #ifndef HAVE_SUPPORT_H
@@ -151,8 +153,6 @@ SWIGEXPORT(void) SWIG_init(void);
 
 #include "c-inner-main.h"
 #include "coot-glue.hh"
-
-#include "lbg.hh"
 
 #include "rotate-translate-modes.hh"
 

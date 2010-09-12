@@ -26,6 +26,11 @@
 #include <map>
 #include <queue>
 
+
+#ifdef MAKE_ENTERPRISE_TOOLS
+#include "enterprise.hh"
+#endif 
+
 #include <gtk/gtk.h>
 #include <goocanvas.h>
 
@@ -745,6 +750,12 @@ private:
 			 double max_dist_water_to_protein_atom) const;
 
    PCGraph makeTestQueryGraph() const;  // debugging
+   RDKit::RWMol rdkit_mol(const widgeted_molecule_t &mol) const;
+   RDKit::Bond::BondType convert_bond_type(const lig_build::bond_t::bond_type_t &t) const;
+   std::string get_smiles_string_from_mol_rdkit() const;
+   std::string get_smiles_string_from_mol_openbabel() const;
+
+
 
 public:
    lbg_info_t(GtkWidget *canvas_in) {
@@ -768,6 +779,7 @@ public:
    GtkWidget *lbg_sbase_search_results_vbox;
    GtkWidget *lbg_smiles_dialog;
    GtkWidget *lbg_smiles_entry;
+   GtkWidget *lbg_statusbar;
    GtkWidget *lbg_toolbar_layout_info_label;
    GtkWidget *canvas;
    std::map<std::string, GtkToggleToolButton *> widget_names;
@@ -816,7 +828,9 @@ public:
    std::string get_flev_analysis_files_dir() const;
    void show_key();
    void hide_key();
-
+   void update_statusbar_smiles_string() const;
+   // can throw an exception
+   std::string get_smiles_string_from_mol() const;
 };
 
 #endif // LBG_HH
