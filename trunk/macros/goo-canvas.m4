@@ -10,7 +10,9 @@ AC_ARG_WITH(goocanvas-prefix, [  --with-goocanvas-prefix=PFX Prefix where GOOCAN
 
 
 saved_LIBS="$LIBS"
-saved_CXXFLAGS="$CXXCFLAGS"
+saved_CXXFLAGS="$CXXFLAGS"
+
+echo 1 saved_CXXFLAGS is $saved_CXXFLAGS
 
 if test x$goocanvas_prefix != x; then
 
@@ -50,11 +52,6 @@ CXX="$save_CXX"
 AC_LANG_POP
 AC_MSG_RESULT($have_goocanvas)
 
-# restore
-#
-LIBS="$saved_LIBS"
-CXXFLAGS="$saved_CFLAGS"
-
 if test x$have_goocanvas = xyes; then
 
  GOOCANVAS_CFLAGS="$GOOCANVAS_CFLAGS"
@@ -77,6 +74,13 @@ else
  ifelse([$2], , :, [$2])
 
 fi
+
+# restore
+#
+echo 2 saved_CXXFLAGS is $saved_CXXFLAGS
+LIBS="$saved_LIBS"
+CXXFLAGS="$saved_CXXFLAGS"
+
 
 AC_SUBST(GOOCANVAS_CFLAGS)
 AC_SUBST(GOOCANVAS_LIBS)
