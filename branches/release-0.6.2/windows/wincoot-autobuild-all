@@ -165,7 +165,7 @@ else
    cp $LOCAL_HTML_LOGS/gtk2-test-status $PUBLIC_HTML_LOGS/gtk2-test-status
    diff ${PUBLIC_HTML_LOGS}/gtk2-test-status ${PUBLIC_HTML_LOGS}/gtk2-guile-test-status 
    test_diff=$?
-   if [ "test_diff" = "1" ] ; then
+   if [ "$test_diff" = "1" ] ; then
       # test results differ, i.e. guile&python build test failed
       # dont build installer
       echo fail-test       > $PUBLIC_HTML_LOGS/gtk2-test-status
