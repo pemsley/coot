@@ -1307,6 +1307,10 @@ coot_real_exit(int retval) {
 
 
 #if (GTK_MAJOR_VERSION > 1)
+// or is this a general thing?!
+#ifdef WINDOWS_MINGW
+   clipper::ClipperInstantiator::instance().destroy();
+#endif
    exit(retval); 
 #else
    clipper::ClipperInstantiator::instance().destroy();

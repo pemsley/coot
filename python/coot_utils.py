@@ -315,6 +315,7 @@ def number_list(a,b):
 
 # Return True or False
 # adapted from find_exe
+#
 def command_in_path_qm(cmd):
 
   # test for command (see goosh-command-with-file-input description)
@@ -701,6 +702,7 @@ def identity_matrix():
 # e.g. translation('x',2)
 #  -> [2, 0, 0]
 # return False on error
+#
 def translation(axis,length):
     import operator
 # BL says: we dont check if axis is string, yet at least not directly
@@ -804,6 +806,8 @@ def python_representation(imol):
         ls = [map(lambda chain_id: [chain_id, map(lambda serial_number: r_info(imol, chain_id, serial_number), range(chain_n_residues(chain_id, imol)))], chain_ids(imol))]
         return ls
 
+# reorder chains
+#
 def reorder_chains(imol):
 
     # reorder elements of chain_list: e.g.
@@ -1225,6 +1229,11 @@ def decode_key(key_val_name):
     except:
         return key_sym_code(key_val_name)
 
+# Add a key binding 
+#
+# with a given name, key (e.g. "x" or "S") and the function to run
+# (a thunk) when that key is pressed.
+#
 def add_key_binding(name, key, thunk):
     from types import IntType, StringType
     global key_bindings, std_key_bindings
@@ -1256,7 +1265,7 @@ def add_key_binding(name, key, thunk):
             print "BL WARNING:: invalid key", key
                 
 
-# general key press hook
+# general key press hook, not for public use!!
 #
 def graphics_general_key_press_hook(key, control_flag = 0):
     global key_bindings
@@ -1276,8 +1285,50 @@ def graphics_general_key_press_hook(key, control_flag = 0):
         print "Key %s not found in bindings" %key
 
 
-# def read_vu_file(filename, obj_name):
-# BL says:: should do that at some point.
+# Function requested by Mark White.
+# 
+# read XtalView (and maybe other) .vu files and convert them into generic 
+# objects.  
+# 
+# Pass the filename and an object name e.g.
+# read_vu_file("axes.vu", "axes")
+# 
+# Returns: nothing interesting.
+# 
+def read_vu_file(filename, obj_name):
+    
+    from types import StringType
+    from operator import isNumberType
+    
+    def colour_from_number(obj):
+        if type(obj) is StringType:
+            return obj
+        elif isNumbertype(obj):
+            if (obj == 0):
+                return "white"
+            else:
+                return "red"
+        else:
+            return "white"
+
+    # main body
+    n = new_generic_object_number(obj_name)
+    fin = open(filename, 'r')
+    lines = fin.readlines()
+    fin.close()
+    for line in lines:
+        current_line = line.split()
+        if len(current_line) == 7:
+            colour = colour_from_number(current_line[-1])
+            try:
+                coords = map(float, current_line[0:-1])
+            except:
+                print "BL WARNING:: cannot make float from cordinates", current_line[0:-1]
+                return
+            to_generic_object_add_line(n, colour, 2,
+                                       *coords)
+    set_display_generic_object(n, 1)
+                   
 
 # residue_test_func is a function that takes 4 arguments, the
 # chain_id, resno, inscode and residue_serial_number (should it be
@@ -1997,7 +2048,8 @@ def pukka_puckers_qm(imol):
                               buttons,
                               "  Close  ")
 
-
+# Run libcheck to convert from SMILES string
+#
 def new_molecule_by_smiles_string(tlc_text, smiles_text):
     import shutil
     if len(smiles_text) > 0:
@@ -2447,6 +2499,10 @@ def run_download_binary_curl(revision, version_string,
                         return True
                     return False
 
+# get revision number from string
+#
+# (used in downloading new version)
+#
 def get_revision_from_string(stri):
     # e.g. str is "coot-0.6-pre-1-revision-2060" (with a newline at the
     # end too).  We want to return 2060 (a number) from here (or False).
