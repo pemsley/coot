@@ -2097,6 +2097,7 @@ mmdb_version=1.19
 mmdb_version=1.21
 mmdb_version=1.22
 mmdb_version=1.23
+mmdb_version=1.23.2
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
 # for now get mmdb-1.21 from york, the ebi one has out of date files causing 
