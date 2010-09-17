@@ -163,6 +163,7 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
    }
 }
 
+
 std::pair<bool, double>
 widgeted_molecule_t::get_scale_correction(const lig_build::molfile_molecule_t &mol_in) const {
 

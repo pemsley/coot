@@ -35,7 +35,9 @@
 #endif
 #include "lbg.hh"
 
-
+// Consider passing a widgeted_molecule_t insteead of a
+// molfile_molecule_t.  In fact, yes.  Do that.
+// 
 bool
 lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name) {
 
@@ -70,8 +72,9 @@ lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &mole
       std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
    } 
    return r;
-} 
+}
 
+	     
 
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *canvas) {
 

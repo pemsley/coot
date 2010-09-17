@@ -1,6 +1,10 @@
 
+#ifndef USE_RDKIT_HH
+#define USE_RDKIT_HH
+
 #include <vector>
 #include <algorithm>
+#include <string>
 
 #include <RDGeneral/Invariant.h>
 #include <GraphMol/RDKitBase.h>
@@ -22,3 +26,6 @@
 #include <GraphMol/FileParsers/MolWriters.h>
 #include <GraphMol/MolOps.h>
 #include <GraphMol/PeriodicTable.h>
+
+
+#endif // USE_RDKIT_HH

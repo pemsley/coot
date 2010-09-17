@@ -70,10 +70,19 @@ namespace lig_build {
 
    class molfile_molecule_t {
    public:
+      molfile_molecule_t() {}
       std::vector<molfile_atom_t> atoms;
       std::vector<molfile_bond_t> bonds;
       void read(const std::string &file_name);
+      void add_atom(const molfile_atom_t &at) {
+	 atoms.push_back(at);
+      }
+      void add_bond(const molfile_bond_t &b) {
+	 bonds.push_back(b);
+      } 
    };
+
+   
 }
 
 #endif // LBG_MOLFILE_HH

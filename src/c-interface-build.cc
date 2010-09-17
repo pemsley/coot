@@ -29,6 +29,8 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <vector>
+#include <string>
 
 #define HAVE_CIF  // will become unnessary at some stage.
 
@@ -42,6 +44,11 @@
 #include <windows.h>
 #endif
  
+
+#include "mmdb_manager.h"
+#include "mmdb-extras.h"
+#include "mmdb.h"
+
 #include "globjects.h" //includes gtk/gtk.h
 
 #include "callbacks.h"
@@ -50,12 +57,7 @@
 		       // header since some of the callbacks call
 		       // fuctions built by glade.
 
-#include <vector>
-#include <string>
 
-#include "mmdb_manager.h"
-#include "mmdb-extras.h"
-#include "mmdb.h"
 #include "mmdb-crystal.h"
 
 #include "Cartesian.h"

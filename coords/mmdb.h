@@ -22,11 +22,12 @@
 #ifndef MMDB_H
 #define MMDB_H
 
+#include "lbg-molfile.hh"
+
 // needs to have included mmdb_manager.h"
 // and "mmdb-extras.h" for atom_selection_container_t
 #include "Cartesian.h"
 
-#include "lbg-molfile.hh"
 
 
 coot::Cartesian

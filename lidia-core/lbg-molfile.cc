@@ -180,4 +180,3 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
    }
 }
 
-	     

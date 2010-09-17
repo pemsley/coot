@@ -12,7 +12,6 @@ AC_ARG_WITH(goocanvas-prefix, [  --with-goocanvas-prefix=PFX Prefix where GOOCAN
 saved_LIBS="$LIBS"
 saved_CXXFLAGS="$CXXFLAGS"
 
-echo 1 saved_CXXFLAGS is $saved_CXXFLAGS
 
 if test x$goocanvas_prefix != x; then
 
@@ -77,7 +76,6 @@ fi
 
 # restore
 #
-echo 2 saved_CXXFLAGS is $saved_CXXFLAGS
 LIBS="$saved_LIBS"
 CXXFLAGS="$saved_CXXFLAGS"
 
