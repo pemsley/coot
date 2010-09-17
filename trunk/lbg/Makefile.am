@@ -10,15 +10,17 @@ AM_CXXFLAGS = \
 bin_PROGRAMS = lidia
 
 libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc lbg-callbacks.cc \
-    lbg-search.cc some-coot-utils.cc residue-circles.cc enterprise.cc
+    lbg-search.cc some-coot-utils.cc residue-circles.cc rdkit-interface.cc
 
 lidia_SOURCES = lidia-main.cc
 
 # some-coot-utils.hh needed?
 #
-include_HEADERS = lbg.hh wmolecule.hh enterprise.hh
+include_HEADERS = lbg.hh wmolecule.hh rdkit-interface.hh
 
-INCLUDES = $(GSL_CFLAGS) \
+INCLUDES = \
+	-I$(top_srcdir)/lidia-core \
+        $(GSL_CFLAGS) \
         $(GOOCANVAS_CFLAGS) \
         $(GTK_CFLAGS) \
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) \
@@ -28,6 +30,7 @@ INCLUDES = $(GSL_CFLAGS) \
 
 lidia_LDADD = \
 	./libcoot-lidia.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
 

@@ -167,7 +167,32 @@ AM_PATH_GUILE_GTK
 # declaration of GladeXML and other things.
 AM_PATH_LIBGLADE
 
+AM_PATH_GOOCANVAS
+
+AC_ARG_WITH(enterprise-tools, [ --with-enterprise-tools with optional complicated/experimental ligand-related dependencies ],
+ coot_enterprise_additions="true",
+ coot_enterprise_additions="false")
+
+if test x$coot_enterprise_additions = xtrue ; then
+   ENTERPRISE_TOOLS_CFLAGS="-DMAKE_ENTERPRISE_TOOLS"
+else 	
+   ENTERPRISE_TOOLS_CFLAGS=""
+fi
+
+# coot_enterprise_additions=true
+AM_CONDITIONAL(MAKE_ENTERPRISE_TOOLS, test x$coot_enterprise_additions = xtrue)
+AC_SUBST(ENTERPRISE_TOOLS_CFLAGS)
+
+AC_SUBST(RDKIT_CXXFLAGS)
+AC_SUBST(RDKIT_LIBS)
+
+
 # #defines for SWIG:
+#
+# SWIG_FLAGS is something of a misnomer.  It actually defines
+# COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
+# correct callbacks in both GTK1 and GTK2 regimes.
+#
 if test $coot_gtk2 = TRUE ; then
   SWIG_FLAGS="-DCOOT_USE_GTK2_INTERFACE"
 else 
@@ -181,26 +206,6 @@ AC_SUBST(SWIG_FLAGS)
 AM_CONDITIONAL(USING_GTK2_VERSION, test x$coot_gtk2 = xTRUE)
 
 
-AM_PATH_GOOCANVAS
-
-AC_ARG_WITH(enterprise-tools, [ --with-enterprise-tools with optional complicated/experimental ligand-related dependencies ],
- coot_enterprise_additions="true",
- coot_enterprise_additions="false")
-
-if test x$coot_enterprise_additions = xtrue ; then
-   echo ::::::::::::::::::::::: add enterprise tools
-   ENTERPRISE_TOOLS_CFLAGS="-DMAKE_ENTERPRISE_TOOLS"
-else 	
-   echo ::::::::::::::::::::::: No add enterprise tools $coot_enterprise_additions
-   ENTERPRISE_TOOLS_CFLAGS=""
-fi
-
-# coot_enterprise_additions=true
-AM_CONDITIONAL(MAKE_ENTERPRISE_TOOLS, test x$coot_enterprise_additions = xtrue)
-AC_SUBST(ENTERPRISE_TOOLS_CFLAGS)
-
-AC_SUBST(RDKIT_CXXFLAGS)
-AC_SUBST(RDKIT_LIBS)
 
 dnl check for guile modules www and gtk here.
 

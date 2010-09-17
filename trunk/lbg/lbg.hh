@@ -28,7 +28,7 @@
 
 
 #ifdef MAKE_ENTERPRISE_TOOLS
-#include "enterprise.hh"
+#include "rdkit-interface.hh"
 #endif 
 
 #include <gtk/gtk.h>
@@ -66,7 +66,6 @@ bool save_togglebutton_widgets(GtkBuilder *builder);
 
 void lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mode);
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *scrolled_window);
-
 
 
 

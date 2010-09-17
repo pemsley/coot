@@ -287,6 +287,7 @@ enum symm_keys {NO_SYMMETRY_BONDS};
 
 class Bond_lines_container { 
 
+   enum { NO_BOND, BONDED_WITH_STANDARD_ATOM_BOND, BONDED_WITH_HETATM_BOND /* by dictionary */ };
    bool verbose_reporting;
    bool do_disulfide_bonds_flag;
    bool do_bonds_to_hydrogens;
@@ -309,8 +310,8 @@ class Bond_lines_container {
 				      int n_selected_atoms_2,
 				      float min_dist, float max_dist,
 				      int atom_colour_type,
-				      short int are_different_atom_selections,
-				      short int have_udd_atoms,
+				      bool are_different_atom_selections,
+				      bool have_udd_atoms,
 				      int udd_handle);
    void construct_from_model_links(CModel *model, int atom_colour_type);
 
@@ -343,13 +344,16 @@ class Bond_lines_container {
 		       CAtom *at_2,
 		       int atom_colour_type);
 
-   void add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, int atom_colour_type);
+   // double and delocalized bonds (default (no optional arg) is double).
+   // 
+   void add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, int atom_colour_type,
+			bool is_deloc=0);
    // used by above, can throw an exception
    clipper::Coord_orth get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int n_atoms) const;
 
    bool have_dictionary;
    const coot::protein_geometry *geom;
-
+   enum { NOT_HALF_BOND, HALF_BOND_FIRST_ATOM, HALF_BOND_SECOND_ATOM };
 
  protected:
    std::vector<Bond_lines> bonds; 
@@ -358,10 +362,12 @@ class Bond_lines_container {
    std::vector<int>        atom_centres_colour;
    void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second);
    void addBondtoHydrogen(const coot::Cartesian &first, const coot::Cartesian &second);
+   // void add_deloc_bond_lines(int colour, const coot::Cartesian &first, const coot::Cartesian &second,
+   // int deloc_half_flag);
    void add_dashed_bond(int col,
 			const coot::Cartesian &start,
 			const coot::Cartesian &end,
-			bool is_half_bond_flag);
+			int half_bond_type_flag);
    void addAtom(int colour, const coot::Cartesian &pos);
    int atom_colour(CAtom *at, int bond_colour_type, coot::my_atom_colour_map_t *atom_colour_map = 0);
    void bonds_size_colour_check(int icol) {

@@ -571,6 +571,4 @@ public:
 
    bool is_close_to_non_last_atom(const lig_build::pos_t &test_post) const;
 
-
-   
 };
