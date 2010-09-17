@@ -57,8 +57,9 @@
 
 #include <GL/glut.h> // for glutInit()
 
+#ifdef MAKE_ENTERPRISE_TOOLS
 #include "lbg.hh"
-
+#endif
 
 #include "interface.h"
 #ifndef HAVE_SUPPORT_H
