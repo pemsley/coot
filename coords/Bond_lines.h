@@ -347,6 +347,7 @@ class Bond_lines_container {
    // double and delocalized bonds (default (no optional arg) is double).
    // 
    void add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, int atom_colour_type,
+			const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
 			bool is_deloc=0);
    // used by above, can throw an exception
    clipper::Coord_orth get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int n_atoms) const;
@@ -387,6 +388,9 @@ class Bond_lines_container {
    void het_residue_aromatic_rings(CResidue *res, const coot::dictionary_residue_restraints_t &restraints, int col);
    // pass a list of atom name that are part of the aromatic ring system.
    void add_aromatic_ring_bond_lines(const std::vector<std::string> &ring_atom_names, CResidue *res, int col);
+   bool invert_deloc_bond_displacement_vector(const clipper::Coord_orth &vect,
+					      int iat_1, int iat_2, PPCAtom residue_atoms, int n_atoms,
+					      const std::vector<coot::dict_bond_restraint_t> &bond_restraints) const;
 
 
 public:

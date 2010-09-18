@@ -74,7 +74,44 @@ void residue_to_ligand_builder(int imol, const char *chain_id, int resno, const 
 	 }
       } 
    } 
+}
+
+void smiles_to_ligand_builder(const char *smiles_string) {
+
+   RDKit::RWMol *rdk_mol = RDKit::SmilesToMol(smiles_string);
+   // clear out any cached properties
+   rdk_mol->clearComputedProps();
+   // clean up things like nitro groups
+   RDKit::MolOps::cleanUp(*rdk_mol);
+   // update computed properties on atoms and bonds:
+   rdk_mol->updatePropertyCache();
+   RDKit::MolOps::Kekulize(*rdk_mol);
+   RDKit::MolOps::assignRadicals(*rdk_mol);
+   // set conjugation
+   RDKit::MolOps::setConjugation(*rdk_mol);
+   // set hybridization
+   RDKit::MolOps::setHybridization(*rdk_mol); 
+   // remove bogus chirality specs:
+   RDKit::MolOps::cleanupChirality(*rdk_mol);
+   int iconf = RDDepict::compute2DCoords(*rdk_mol, 0, true);
+   lig_build::molfile_molecule_t m = coot::make_molfile_molecule(*rdk_mol, iconf);
+   
+   std::cout << " molfile contains " << m.atoms.size() << " atoms " << std::endl;
+   for (unsigned int i=0; i<m.atoms.size(); i++) {
+      std::cout << "   " << i << "   name: " << m.atoms[i].name << " element: "
+		<< m.atoms[i].element << " position: "
+		<< m.atoms[i].atom_position.format() << " " << std::endl;
+   }
+   std::cout << " molfile contains " << m.bonds.size() << " atoms " << std::endl;
+   for (unsigned int i=0; i<m.bonds.size(); i++) { 
+      std::cout << "   " << m.bonds[i].index_1 << " " << m.bonds[i].index_2 << " type: "
+		<< m.bonds[i].bond_type << std::endl;
+   }
+   
+   CMMDBManager *mol = NULL;
+   lbg(m, mol, "");
 } 
+
 
 
 #endif // MAKE_ENTERPRISE_TOOLS

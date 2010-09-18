@@ -457,8 +457,11 @@ Bond_lines_container::add_half_bonds(const coot::Cartesian &atom_1,
 			      
 }
 
+// is_deloc is an optional arg (default 0).
+// 
 void
 Bond_lines_container::add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, int atom_colour_type,
+				      const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
 				      bool is_deloc) {
 
    //
@@ -476,6 +479,9 @@ Bond_lines_container::add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n
       clipper::Coord_orth b(pos_at_1 - pos_at_2);
       clipper::Coord_orth b_n(b.unit());
       clipper::Coord_orth perp_n(clipper::Coord_orth::cross(n_n, b_n));
+      if (is_deloc) 
+	 if (invert_deloc_bond_displacement_vector(perp_n, iat_1, iat_2, atoms, n_atoms, bond_restraints))
+	    perp_n = -perp_n;
       int col = atom_colour(atoms[iat_1], atom_colour_type);
       double offset = 0.08;
       if (for_GL_solid_model_rendering)
@@ -579,6 +585,90 @@ Bond_lines_container::get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int
 
 } 
 
+bool
+Bond_lines_container::invert_deloc_bond_displacement_vector(const clipper::Coord_orth &vect,
+							    int iat_1, int iat_2, PPCAtom residue_atoms, int n_atoms,
+							    const std::vector<coot::dict_bond_restraint_t> &bond_restraints) const {
+
+   bool r = false;
+   std::cout << " ==================== considering the swap of :"
+	     << residue_atoms[iat_1]->name << ": to :"
+	     << residue_atoms[iat_2]->name << ": =========================" << std::endl;
+   std::string atom_name_iat = residue_atoms[iat_1]->name;
+   std::string atom_name_jat = residue_atoms[iat_2]->name;
+
+   std::map<std::string, int> atom_name_map;
+   for (unsigned int iat=0; iat<n_atoms; iat++)
+      atom_name_map[residue_atoms[iat]->name] = iat;
+
+   for (unsigned int ib=0; ib<bond_restraints.size(); ib++) { 
+      if (bond_restraints[ib].atom_id_1_4c() == atom_name_iat) {
+	 if (bond_restraints[ib].atom_id_2_4c() != atom_name_jat) {
+	    
+	    std::cout << "::::: bond 1 from :" << bond_restraints[ib].atom_id_1_4c()
+		      << ": to :" << bond_restraints[ib].atom_id_2_4c() << ": type "
+		      << bond_restraints[ib].type() 
+		      << std::endl;
+	 
+	    if (bond_restraints[ib].type() == "deloc") {
+	       clipper::Coord_orth pt_1(residue_atoms[iat_1]->x,
+					residue_atoms[iat_1]->y,
+					residue_atoms[iat_1]->z);
+	       std::map<std::string, int>::const_iterator it;
+	       it = atom_name_map.find(bond_restraints[ib].atom_id_2_4c());
+	       if (it != atom_name_map.end()) { 
+		  clipper::Coord_orth pt_2(residue_atoms[it->second]->x,
+					   residue_atoms[it->second]->y,
+					   residue_atoms[it->second]->z);
+		  clipper::Coord_orth diff = pt_2 - pt_1;
+		  double d = clipper::Coord_orth::dot(vect, diff);
+		  std::cout << "    dot 1 : " << d << std::endl;
+		  if (d < 0)
+		     r = true;
+		  break;
+	       }
+	    }
+	 }
+      }
+   
+
+      // same again, restraints ordered differently.
+      // 
+      if (bond_restraints[ib].atom_id_2_4c() == atom_name_iat) {
+	 if (bond_restraints[ib].atom_id_1_4c() != atom_name_jat) {
+	    
+	    std::cout << "::::: bond 1 from :" << bond_restraints[ib].atom_id_1_4c()
+		      << ": to :" << bond_restraints[ib].atom_id_2_4c() << ": type "
+		      << bond_restraints[ib].type() 
+		      << std::endl;
+	 
+	    if (bond_restraints[ib].type() == "deloc") {
+	       clipper::Coord_orth pt_1(residue_atoms[iat_1]->x,
+					residue_atoms[iat_1]->y,
+					residue_atoms[iat_1]->z);
+	       std::map<std::string, int>::const_iterator it;
+	       it = atom_name_map.find(bond_restraints[ib].atom_id_1_4c());
+	       if (it != atom_name_map.end()) { 
+		  clipper::Coord_orth pt_2(residue_atoms[it->second]->x,
+					   residue_atoms[it->second]->y,
+					   residue_atoms[it->second]->z);
+		  clipper::Coord_orth diff = pt_2 - pt_1;
+		  double d = clipper::Coord_orth::dot(vect, diff);
+		  std::cout << "    dot 2 : " << d << std::endl;
+		  if (d < 0)
+		     r = true;
+		  break;
+	       }
+	    }
+	 }
+      }
+      
+   }
+
+   std::cout << ":::::::::: invert_deloc_bond_displacement_vector() returns " << r << std::endl;
+   return r;
+} 
+
 
 void
 Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, CResidue *> > &het_residues,
@@ -588,14 +678,14 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 
 
    if (het_residues.size()) {
-      std::cout << ":::::: bonding " << het_residues.size() << " het residues" << std::endl;
+      // std::cout << ":::::: bonding " << het_residues.size() << " het residues" << std::endl;
       for (unsigned int ires=0; ires<het_residues.size(); ires++) {
 	 if (het_residues[ires].first) { 
 	    std::string res_name = het_residues[ires].second->GetResName();
 	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints = 
 	       geom->get_monomer_restraints(res_name);
-  	    if (res_name != "HOH")
-  	       std::cout << "============== Bonding het residue: " << res_name << " " << std::endl;
+  	    // if (res_name != "HOH")
+	    // std::cout << "============== Bonding het residue: " << res_name << " " << std::endl;
 	    if (! restraints.first) {
 	       std::cout << "Oooppps!  No bonding rules for residue type :" << res_name
 			 << ": missing bonds! " << std::endl;
@@ -632,12 +722,13 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 
 				    if ((element_1 != " H") && (element_2 != " H")) {
 				       if (bt == "double") {
-					  add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type);
+					  add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type,
+							  restraints.second.bond_restraint);
 				       } else {
 					  if (bt == "deloc") {
 					     bool is_deloc = 1;
 					     add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type,
-							     is_deloc);
+							     restraints.second.bond_restraint, is_deloc);
 					  } else {
 					     add_half_bonds(p1, p2,
 							    residue_atoms[iat],
@@ -661,12 +752,13 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 				    //
 				    int col = atom_colour(residue_atoms[iat], atom_colour_type);
 				    if (bt == "double") { 
-				       add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type);
+				       add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type,
+						       restraints.second.bond_restraint);
 				    } else {
 				       if (bt == "deloc") {
 					  bool is_deloc = 1;
 					  add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type,
-							  is_deloc);
+							  restraints.second.bond_restraint, is_deloc);
 				       } else { 
 					  addBond(col, p1, p2);
 				       } 
@@ -699,6 +791,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 } 
 
 
+
 void
 Bond_lines_container::het_residue_aromatic_rings(CResidue *res,
 						 const coot::dictionary_residue_restraints_t &restraints,
@@ -716,7 +809,7 @@ Bond_lines_container::het_residue_aromatic_rings(CResidue *res,
    if (aromatic_bonds.size() > 4) {
       coot::aromatic_graph_t ag(aromatic_bonds);
       std::vector<std::vector<std::string> > rings = ag.ring_list();
-      std::cout << "Found " << rings.size() << " aromatic ring system" << std::endl;
+      // std::cout << "Found " << rings.size() << " aromatic ring system" << std::endl;
       for (unsigned int i=0; i<rings.size(); i++) { 
 	 add_aromatic_ring_bond_lines(rings[i], res, col);
       }

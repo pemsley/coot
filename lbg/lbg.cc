@@ -35,8 +35,6 @@
 #endif
 #include "lbg.hh"
 
-// Consider passing a widgeted_molecule_t insteead of a
-// molfile_molecule_t.  In fact, yes.  Do that.
 // 
 bool
 lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name) {
@@ -64,10 +62,10 @@ lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &mole
       gtk_builder_connect_signals (builder, lbg->canvas);
       g_object_unref (G_OBJECT (builder));
 
-      if (mol) { 
+      // if (mol) { 
 	 widgeted_molecule_t wmol = lbg->import(mm, molecule_file_name, mol);
 	 lbg->render_from_molecule(wmol);
-      }
+	 // }
    } else {
       std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
    } 
