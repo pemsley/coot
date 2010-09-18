@@ -1,6 +1,7 @@
 
-GOO_CFLAGS=`PKG_CONFIG_PATH=/usr/lib/pkgconfig:$(HOME)/goocanvas/lib/pkgconfig pkg-config --cflags goocanvas`
-GOO_LDFLAGS=`PKG_CONFIG_PATH=/usr/lib/pkgconfig:$(HOME)/goocanvas/lib/pkgconfig pkg-config --libs goocanvas`
+PKG_LIB=lib64
+GOO_CFLAGS=`PKG_CONFIG_PATH=/usr/$(PKG_LIB)/pkgconfig:$(HOME)/goocanvas/lib/pkgconfig pkg-config --cflags goocanvas`
+GOO_LDFLAGS=`PKG_CONFIG_PATH=/usr/$(PKG_LIB)/pkgconfig:$(HOME)/goocanvas/lib/pkgconfig pkg-config --libs goocanvas`
 
 EXTRA_FLAGS=-Wchar-subscripts -Wcomment -Wformat -Winit-self -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wuninitialized -Wundef -Werror -O2
 
