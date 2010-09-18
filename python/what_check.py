@@ -19,7 +19,7 @@
 def strip_leading_spaces(str):
     return str.lstrip()
 
-# conider for coot_utils
+# consider for coot_utils
 def go_to_residue_by_spec(imol, spec):
 
     def atom_spec_qm(spec):
@@ -36,7 +36,7 @@ def go_to_residue_by_spec(imol, spec):
                                            spec[1],
                                            atom_name)
 
-# consider for coot_utsil
+# consider for coot_utils
 def residue_spec2string(spec):
     return (spec[0] + str(spec[1]) + spec[2])
 
