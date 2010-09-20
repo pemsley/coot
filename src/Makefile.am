@@ -410,7 +410,8 @@ fix_nomenclature_errors_LDADD = \
 # coot_real_LDFLAGS = -static -lstdc++
 coot_real_LDFLAGS =
 
-coot_real_LDADD = $(COOT_EXTRA_LIBS)    \
+coot_real_LDADD =  $(OPENMP_CFLAGS)     \
+                $(COOT_EXTRA_LIBS)      \
 		$(GUILE_GTK_LIBS)       \
 		$(GUILE_LDFLAGS)	\
 		$(CLIPPER_LIBS) 	\
