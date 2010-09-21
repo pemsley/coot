@@ -1938,10 +1938,8 @@
 	      (format #t "we have dict and model for tlc already~%")
 	      have-tlc-molecule)))))
 		      
-	
-      
-      
 
+  ;; 
   (define (mutate-it)
     (let ((imol-ligand (get-monomer-and-dictionary tlc)))
       (if (not (valid-model-molecule? imol-ligand))
@@ -1951,6 +1949,7 @@
 	    (delete-residue-hydrogens imol-ligand "A" 1 "" "")
 	    (delete-atom imol-ligand "A" 1 "" " OXT" "")
 	    (overlap-ligands imol-ligand imol chain-id-in resno)
+	    (match-ligand-torsions imol-ligand imol chain-id-in resno)
 	    (delete-residue imol chain-id-in resno "")
 	    (let* ((new-chain-id-info (merge-molecules (list imol-ligand) imol))
 		   (nov (format #t "new-chain-id-info: ~s~%" new-chain-id-info)))
@@ -1972,18 +1971,23 @@
 					      ((string=? tlc "TPO") (list " CB " " OG1"))
 					      (else 
 					       #f))))
+			      (refine-zone imol chain-id-in resno resno "")
 			      (if dir-atoms
 				  (spin-search imol-map imol chain-id-in resno "" 
 					       dir-atoms spin-atoms))
-			      (refine-zone imol chain-id-in resno resno "")))
+			      (refine-zone imol chain-id-in resno resno "")
+			      ))
 			(accept-regularizement)
 			(set-refinement-immediate-replacement replacement-state))
 		      
 		      (set-mol-displayed imol-ligand 0)
 		      (set-mol-active imol-ligand 0)))))))))
 
+  ;; main line
+  ;; 
   ;; First, if there are multiple maps, force the user to choose one,
   ;; rather than continuing.
+  ;; 
   (let ((imol-map (imol-refinement-map)))
     (if (= imol-map -1)
 	(let ((map-mols (map-molecule-list)))
@@ -2484,8 +2488,8 @@
 			    ;; (move-molecule-here imol-new)
 			    (with-auto-accept
 			     (regularize-zone imol-new "" 1 1 ""))
-			    ;; (overlap-ligands imol-new imol chain-id res-no)
-			    ;; (match-ligand-torsions imol-new imol chain-id res-no) ;; broken
+			    (overlap-ligands imol-new imol chain-id res-no)
+			    ;;  (match-ligand-torsions imol-new imol chain-id res-no) ;; broken
 			    (overlap-ligands imol-new imol chain-id res-no)
 			    (set-residue-name imol-new "" 1 "" rn)
 			    (change-chain-id imol-new "" chain-id 1 1 1)
