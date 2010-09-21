@@ -845,7 +845,9 @@
     
     (gtk-widget-show-all window)))
 
-;; A pair of widgets, a molecule chooser and an entry.  The
+;; Create a window
+;; 
+;; Return a pair of widgets, a molecule chooser and an entry.  The
 ;; callback-function is a function that takes a molecule number and 2
 ;; text strings (e.g chain-id and file-name)
 ;; 
@@ -908,8 +910,10 @@
       
       (gtk-widget-show-all window))))
 
-;; A pair of widgets, a molecule chooser and an entry.  
-;; callback-function is a function that takes a molecule number and a 
+;; Create a window.
+;; 
+;; Return a pair of widgets, a molecule chooser and an entry.
+;; callback-function is a function that takes a molecule number and a
 ;; file-name
 ;; 
 ;; chooser-filter is typically valid-map-molecule? or valid-model-molecule?
@@ -940,6 +944,7 @@
       (gtk-box-pack-start vbox hbox-buttons #f #f 5)
     
       (gtk-option-menu-set-menu option-menu menu)
+      (gtk-entry-set-text file-sel-entry default-file-name)
 
       (let ((go-func
 	     (lambda ()

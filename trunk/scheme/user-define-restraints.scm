@@ -37,9 +37,9 @@
 							1.54 0.02))))))
 
 (define (user-defined-add-arbitrary-length-bond-restraint)
-  (generic-single-entry "Add a User-defined extra bond restraint"
+  (generic-single-entry "Add a User-defined extra distance restraint"
 			"2.0"
-			"Next..."
+			"OK..."
 			(lambda (text) 
 			  (let ((s  "Now click on 2 atoms to define the additional bond restraint"))
 			    (add-status-bar-text s))
@@ -70,7 +70,7 @@
 					  (list-ref (list-ref atom-specs 1) 4)
 					  (list-ref (list-ref atom-specs 1) 5)
 					  (list-ref (list-ref atom-specs 1) 6)
-					  bl 0.05))))))))))
+					  bl 0.035))))))))))
 
 
 (define (add-base-restraint imol spec-1 spec-2 atom-name-1 atom-name-2 dist)
@@ -85,7 +85,7 @@
 			    (list-ref spec-2 4)
 			    atom-name-2
 			    (list-ref spec-2 6)
-			    dist 0.05))
+			    dist 0.035))
 
 (define (a-u-restraints spec-1 spec-2)
 
@@ -157,17 +157,17 @@
 		     (add-extra-bond-restraint imol 
 					       chain-id-1 rn       "" " O  " ""
 					       chain-id-1 (+ rn 3) "" " N  " ""
-					       3.18 0.05)
+					       3.18 0.035)
 		     (add-extra-bond-restraint imol 
 					       chain-id-1 rn       "" " O  " ""
 					       chain-id-1 (+ rn 4) "" " N  " ""
-					       2.91 0.05)
+					       2.91 0.035)
 		     (loop (+ rn 1)))
 		     (else 
 		      (add-extra-bond-restraint imol 
 						chain-id-1 rn       "" " O  " ""
 						chain-id-1 (+ rn 3) "" " N  " ""
-						3.18 0.05)
+						3.18 0.035)
 		      (loop  (+ rn 1)))))))))))
 
 
@@ -180,6 +180,52 @@
 			       (imol (cadr (list-ref atom-specs 0))))
 			  (delete-extra-restraint imol (list 'bond spec-1 spec-2))))))
 
+;; exte dist first chain A resi 19 ins . atom  N   second chain A resi 19 ins . atom  OG  value 2.70618 sigma 0.4
+;;
+(define (extra-restraints->refmac-restraints-file imol file-name)
+  (let ((restraints (list-extra-restraints imol)))
+    (if (list? restraints)
+	(call-with-output-file file-name
+	  (lambda (port)
+	    (for-each (lambda (restraint)
+			(if (eq? (car restraint) 'bond)
+			    (begin
+			      (let ((chain-id-1 (list-ref (cadr restraint) 1))
+				    (resno-1    (list-ref (cadr restraint) 2))
+				    (inscode-1  (list-ref (cadr restraint) 3))
+				    (atom-1     (list-ref (cadr restraint) 4))
+				    (chain-id-2 (list-ref (caddr restraint) 1))
+				    (resno-2    (list-ref (caddr restraint) 2))
+				    (inscode-2  (list-ref (caddr restraint) 3))
+				    (atom-2     (list-ref (caddr restraint) 4))
+				    (value      (list-ref restraint 3))
+				    (esd        (list-ref restraint 4)))
+				
+			      (format port "EXT DIST FIRST CHAIN ~a RESI ~s INS ~a ATOM ~a "
+				      (if (or (string=? chain-id-1 " ")
+					      (string=? chain-id-1 ""))
+					  "."
+					  chain-id-1)
+				      resno-1
+				      (if (or (string=? inscode-1 " ")
+					      (string=? inscode-1 ""))
+					  "."
+					  inscode-1)
+				      atom-1)
+			      (format port " SECOND CHAIN ~a RESI ~s INS ~a ATOM ~a "
+				      (if (or (string=? chain-id-2 " ")
+					      (string=? chain-id-2 ""))
+					  "."
+					  chain-id-2)
+				      resno-1
+				      (if (or (string=? inscode-2 " ")
+					      (string=? inscode-2 ""))
+					  "."
+					  inscode-2)
+				      atom-2)
+			      (format port "VALUE ~s SIGMA ~s" value esd)))))
+		      restraints))))))
+
 
 (if (defined? 'coot-main-menubar)
 
@@ -190,7 +236,7 @@
        user-defined-add-single-bond-restraint)
 
       (add-simple-coot-menu-menuitem 
-       menu "Add Bond Restraint..."
+       menu "Add Distance Restraint..."
        user-defined-add-arbitrary-length-bond-restraint)
 
       (add-simple-coot-menu-menuitem 
@@ -203,7 +249,17 @@
 
       (add-simple-coot-menu-menuitem
        menu "Delete an Extra Restraint..."
-       user-defined-delete-restraint)))
+       user-defined-delete-restraint)
+
+      (add-simple-coot-menu-menuitem
+       menu "Save as REFMAC restraints..."
+       (lambda ()
+	 (generic-chooser-and-file-selector "Save REFMAC restraints for molecule " 
+					    valid-model-molecule?
+					    " Restraints file name:  " 
+					    "refmac-restraints.txt"
+					    (lambda (imol file-name)
+					      (extra-restraints->refmac-restraints-file imol file-name)))))))
 
 ;; Now make helix restraints, demonstrate with Bill Weiss, GPCR bent
 ;; helix
