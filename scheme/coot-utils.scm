@@ -1937,11 +1937,9 @@
 	    (begin
 	      (format #t "we have dict and model for tlc already~%")
 	      have-tlc-molecule)))))
-		      
 	
       
-      
-
+  ;; 
   (define (mutate-it)
     (let ((imol-ligand (get-monomer-and-dictionary tlc)))
       (if (not (valid-model-molecule? imol-ligand))
@@ -1951,6 +1949,7 @@
 	    (delete-residue-hydrogens imol-ligand "A" 1 "" "")
 	    (delete-atom imol-ligand "A" 1 "" " OXT" "")
 	    (overlap-ligands imol-ligand imol chain-id-in resno)
+	    (match-ligand-torsions imol-ligand imol chain-id-in resno)
 	    (delete-residue imol chain-id-in resno "")
 	    (let* ((new-chain-id-info (merge-molecules (list imol-ligand) imol))
 		   (nov (format #t "new-chain-id-info: ~s~%" new-chain-id-info)))
@@ -1972,15 +1971,18 @@
 					      ((string=? tlc "TPO") (list " CB " " OG1"))
 					      (else 
 					       #f))))
+			      (refine-zone imol chain-id-in resno resno "")
 			      (if dir-atoms
 				  (spin-search imol-map imol chain-id-in resno "" 
 					       dir-atoms spin-atoms))
-			      (refine-zone imol chain-id-in resno resno "")))
+			      (refine-zone imol chain-id-in resno resno "")
+			      ))
 			(accept-regularizement)
 			(set-refinement-immediate-replacement replacement-state))
 		      
 		      (set-mol-displayed imol-ligand 0)
 		      (set-mol-active imol-ligand 0)))))))))
+
 
   ;; First, if there are multiple maps, force the user to choose one,
   ;; rather than continuing.
