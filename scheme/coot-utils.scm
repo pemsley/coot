@@ -2485,7 +2485,7 @@
 			    (with-auto-accept
 			     (regularize-zone imol-new "" 1 1 ""))
 			    ;; (overlap-ligands imol-new imol chain-id res-no)
-			    (match-ligand-torsions imol-new imol chain-id res-no)
+			    ;; (match-ligand-torsions imol-new imol chain-id res-no) ;; broken
 			    (overlap-ligands imol-new imol chain-id res-no)
 			    (set-residue-name imol-new "" 1 "" rn)
 			    (change-chain-id imol-new "" chain-id 1 1 1)
