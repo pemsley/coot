@@ -14,16 +14,16 @@
 
 (use-syntax (ice-9 syncase))
 
-(define devel-dir  "http://www.biop.ox.ac.uk/coot/devel")
+(define devel-dir  "http://lmb.bioch.ox.ac.uk/coot/devel")
 ;;
-(define svn-log-page  "http://www.biop.ox.ac.uk/coot/devel/svn.log")
+(define svn-log-page  "http://lmb.bioch.ox.ac.uk/coot/devel/svn.log")
 ;; 
 (define source-tar-dir (string-append
 			(getenv "HOME")
 			"/public_html"
 			"/coot/software/source/pre-releases/"))
 ;; 
-(define web-source-tar-dir "http://www.biop.ox.ac.uk/coot/software/source/pre-releases/")
+(define web-source-tar-dir "http://lmb.bioch.ox.ac.uk/coot/software/source/pre-releases/")
 
 
 ;; code from thi <ttn at mingle.glug.org>
@@ -101,7 +101,7 @@
 			  ;; (let ((initial-output-port (current-output-port)))
 			   ;;  (set-current-output-port port)
 			    ;; ;; (http-get url)
-			     ;; (http-get "http://www.biop.ox.ac.uk") 
+			     ;; (http-get "http://lmb.bioch.ox.ac.uk") 
 			     ;;(www:get url)
 			     ;;(set-current-output-port initial-output-port)
                              ;;))))
@@ -674,13 +674,13 @@
 
 
 ;	 (list "binary-Linux-i386-fedora-4-python-gtk2"
-;	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
-;	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+;	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
+;	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 ;	       #t #t)
 
 ;	 (list "binary-Linux-i386-fedora-4-gtk2"
-;	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
-;	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+;	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
+;	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 ;	       #f #t)
 
 	 (list "binary-Linux-i386-fedora-8-python-gtk2"
@@ -695,8 +695,8 @@
 
 	 ;; I make this occassionally.
 	 (list "binary-Linux-i386-fedora-12-gtk2"
-	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal-f12/gtk2"
-	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-jackal-f12/gtk2"
+	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 	       #f #t)
 
 	;; kevin makes this occassionally.
@@ -706,33 +706,33 @@
  	      #t #t)
 
 	 (list "binary-Linux-i386-centos-4-gtk2"
-	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"
-	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"
+	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 	       #f #t)
 
 	 (list "binary-Linux-i386-centos-4-python-gtk2"
-	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"
-	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"
+	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-centos-5-gtk2"
-	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2" 
-	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2" 
+	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 	       #f #t)
 
 	 (list "binary-Linux-x86_64-centos-5-python-gtk2"
-	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2" 
-	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2" 
+	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-rhel-4-gtk2"
-	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" 
-	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" 
+	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 	       #f #t)
 
 	 (list "binary-Linux-x86_64-rhel-4-python-gtk2"
-	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" 
-	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" 
+	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 	       #t #t)
 
 	 (list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
@@ -761,8 +761,8 @@
 	       #f #t)
 
 ; 	 (list "binary-Linux-x86_64-ubuntu-9.04-gtk2"
-; 	       "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
-; 	       "http://www.biop.ox.ac.uk/coot/software/binaries/pre-releases/" 
+; 	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
+; 	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 ; 	       #f #t)
 
 	 (list "WinCoot" 
