@@ -335,8 +335,8 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
    std::pair<bool, std::string> three_letter_code(0, "");
    std::pair<bool, std::string> name(0, "");
    std::pair<bool, std::string> type(0, ""); // aka group?
-   int number_of_atoms = coot::protein_geometry::UNSET_NUMBER;
-   int number_of_atoms_nh = coot::protein_geometry::UNSET_NUMBER;
+   int number_of_atoms_all = coot::protein_geometry::UNSET_NUMBER;
+   int number_of_atoms_nh  = coot::protein_geometry::UNSET_NUMBER;
    std::pair<bool, std::string> description_level(0, "");
 
    for (int itag=0; itag<n_tags; itag++) {
@@ -357,6 +357,23 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
       if (tag == "description_level")
 	 description_level = std::pair<bool, std::string> (1,field);
       // number of atoms here too.
+
+      if (tag == "number_atoms_all") { 
+	 try {
+	    number_of_atoms_all = coot::util::string_to_float(field);
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << rte.what() << std::endl;
+	 }
+      }
+      if (tag == "number_atoms_nh") { 
+	 try {
+	    number_of_atoms_nh = coot::util::string_to_float(field);
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << rte.what() << std::endl;
+	 }
+      }
    }
 
    std::cout
@@ -367,11 +384,14 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
       << "description_level :" << description_level.first << " :" << description_level.second << ": "
       << std::endl;
 
-   if (comp_id.first && three_letter_code.first && name.first) 
+   if (comp_id.first && three_letter_code.first && name.first) {
       mon_lib_add_chem_comp(comp_id.second, three_letter_code.second,
 			    name.second, type.second,
-			    number_of_atoms, number_of_atoms_nh,
+			    number_of_atoms_all, number_of_atoms_nh,
 			    description_level.second);
+   } else { 
+      // std::cout << "oooppps - something missing, not adding that" << std::endl;
+   } 
 
 }
 

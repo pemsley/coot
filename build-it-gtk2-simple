@@ -2067,6 +2067,7 @@ if test -n "$build_ccp4c" ; then
     echo BUILDING: libccp4c
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/ccp4-libs-underlay.tar.gz
+    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
     ( 
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4c-5.0.2-ysbl-2.tar.gz | tar xf -
@@ -2074,6 +2075,7 @@ if test -n "$build_ccp4c" ; then
     # apply the ccp4 new files
     gzip -dc ${AUTOBUILD_SOURCES}/ccp4-libs-underlay.tar.gz | tar xf -
     cp src/*.[ch] .
+    gzip -dc ${AUTOBUILD_SOURCES}/martyn-extras.tar.gz | tar xf -
     ./configure $generic_prefix
     $MAKE
     $MAKE install
@@ -2293,15 +2295,20 @@ if [ "$build_gtkglext" = 1 ] ; then
      # now, for some (newer) versions of GTK+ the gtkglext needs to be
      # tweaked so that it fixes out of date function usage:
 
+     cd gtkglext-$gtkglext_version
      echo gtk+-2.0 version:
      pkg-config gtk+-2.0 --modversion
      if pkg-config gtk+-2.0 --atleast-version 2.16 ; then
         echo we have sufficiently new version of gtk+, we need to patch gtkglext
-        patch -p0 < ${AUTOBUILD_SOURCES}/gtk-gtkglwidget.c-for-modern-gtk.patch
+        if patch -p0 < ${AUTOBUILD_SOURCES}/gtk-gtkglwidget.c-for-modern-gtk.patch ; then 
+            echo gtkglext patched good.
+        else 
+            echo gtkglext patch fail.
+            my_exit 2
+        fi
      else 
         echo version of gtk is old, no need to patch gtkglext.
      fi
-     cd gtkglext-$gtkglext_version
      ./configure $generic_prefix
      if [ "$update_libtool" = 1 ] ; then
         cp $install_top_dir/bin/libtool .
@@ -2317,6 +2324,11 @@ if [ "$build_gtkglext" = 1 ] ; then
         $MAKE install
      fi
     ) > $HOSTLOGDIR/06-pre-gtkglext.txt 2>&1
+    # capture the status from the subshell, if an error, exit the main shell too.
+    status=$?
+    if [ $status = 2 ] ; then 
+       my_exit 2
+    fi
 else
     echo not building gtkglext:
 fi 
@@ -2694,8 +2706,9 @@ fi
 if test -n "$build_guile_gui" ; then 
    echo BUILDING guile-gui:
 #
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/neil-jerram.guile-gui.patch
+# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
+# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/neil-jerram.guile-gui.patch
+${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-gui-0.3.tar.gz
 #
 # guile-gui-patch-post-neil.patch is the same as
 # neil-jerram.guile-gui.patch except guile-gui-patch-post-neil.patch
@@ -2705,9 +2718,9 @@ ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/neil-jerram.guile-gui
 ( 
 date
 pwd
-gzip -dc ${AUTOBUILD_SOURCES}/guile-gui-0.2.tar.gz | tar xf -
-patch -p0 < ${AUTOBUILD_SOURCES}/neil-jerram.guile-gui.patch
-cd guile-gui-0.2
+gzip -dc ${AUTOBUILD_SOURCES}/guile-gui-0.3.tar.gz | tar xf -
+# patch -p0 < ${AUTOBUILD_SOURCES}/neil-jerram.guile-gui.patch # this is for 0.2
+cd guile-gui-0.3
 ./configure $generic_prefix
 $MAKE install
 ) > $HOSTLOGDIR/13-guile-gui.txt 2>&1

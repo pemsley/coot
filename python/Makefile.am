@@ -21,13 +21,16 @@
 pythondir = $(pkgdatadir)/python
 
 
-if COOT_USE_PYTHON
-TEXI_FILE =  coot-python-functions.texi
+# how are these generated?  AFAICS, they are not.  comment out for now
+# 
+#if COOT_USE_PYTHON
+#TEXI_FILE =  coot-python-functions.texi
 
-coot-python-functions.texi:
-	python $(top_srcdir)/python/python_coot_docs.py 
 
-endif
+#coot-python-functions.texi:
+#	python $(top_srcdir)/python/python_coot_docs.py 
+
+#endif
 
 dist_python_DATA = \
                         coot_utils.py        get_ebi.py      mutate.py        \

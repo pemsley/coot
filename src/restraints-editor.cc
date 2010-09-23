@@ -1208,8 +1208,10 @@ coot::restraints_editor::get_residue_info() const {
 	 info = res_info;
       } else {
 	 std::cout << "WARNING:: Incomprehensible chem_comp!\n";
-	 std::cout << ":" << comp_id << ": :" << tlc << ": :" << name << ": :" << group << ": "
-		   << n_H_atoms << " " << n_H_atoms << " :" << description_level << ":" << std::endl;
+	 std::cout << "comp_id :" << comp_id << ":, tlc :" << tlc << ":, name :" << name
+		   << ":, group :" << group << ": n_atoms: "
+		   << n_atoms << " n_H_atoms: " << n_H_atoms << " desc-level :"
+		   << description_level << ":" << std::endl;
       }
    }
 

@@ -1006,6 +1006,7 @@ public:
       data_glob_extensions->push_back(".mmCIF.gz");
 
       map_glob_extensions->push_back(".map");
+      map_glob_extensions->push_back(".mrc");
       map_glob_extensions->push_back(".ext");
       map_glob_extensions->push_back(".msk");
       map_glob_extensions->push_back(".ccp4");
