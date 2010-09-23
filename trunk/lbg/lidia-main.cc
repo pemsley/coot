@@ -50,8 +50,9 @@ main(int argc, char *argv[]) {
       std::string file_name(argv[1]);
       mm.read(file_name);
    }
-   
-   if (lbg(mm, mol, molecule_file_name)) {
+
+   bool stand_alone_flag = 1;
+   if (lbg(mm, mol, molecule_file_name, stand_alone_flag)) {
        gtk_main ();
    } 
    return 1;

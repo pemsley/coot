@@ -3086,6 +3086,17 @@ void do_torsions_toggle(GtkWidget *button);
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
+/*! \brief refine residues, r is a list of residue specs.
+
+ @return refinement results, which consists of 
+
+   1 - an information string (in case of error)
+
+   2 - the progress variable (from GSL)
+
+   3 - refinement results for each particular geometry type (bonds, angles etc.)
+
+ */
 SCM refine_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */
 SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); /* to be renamed later. */
 SCM regularize_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */

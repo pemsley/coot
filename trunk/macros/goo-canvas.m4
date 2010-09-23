@@ -45,7 +45,7 @@ CXXFLAGS="$saved_CXXFLAGS $GOOCANVAS_CFLAGS $GTK_CFLAGS"
 AC_LANG_PUSH(C++)
 save_CXX="$CXX"
 # note that we use ./libtool (running in the build dir) because $LIBOOL is wrong(!)
-CXX="./libtool --mode=link $CXX"
+CXX="libtool --mode=link $CXX"
 AC_TRY_LINK([#include "goocanvas.h"] ,[ GooCanvas *a;  ], have_goocanvas=yes, have_goocanvas=no)
 CXX="$save_CXX"
 AC_LANG_POP

@@ -661,6 +661,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	 if (status == GSL_SUCCESS) { 
 	    std::cout << "Minimum found (iteration number " << iter << ") at ";
 	    std::cout << s->f << "\n";
+	 }
+	 
+	 if (status == GSL_SUCCESS || status == GSL_ENOPROG) {
 	    std::vector <coot::refinement_lights_info_t> results = 
 	       chi_squareds("Final Estimated RMS Z Scores:", s->x);
 	    lights_vec = results;

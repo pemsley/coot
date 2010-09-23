@@ -37,7 +37,8 @@
 
 // 
 bool
-lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name) {
+lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name,
+    bool stand_alone_flag_in) {
 
    bool r = 0; // fail
    std::string glade_file = "lbg.glade";
@@ -58,6 +59,8 @@ lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &mole
       GtkBuilder *builder = gtk_builder_new ();
       gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
       lbg_info_t *lbg = new lbg_info_t;
+      if (stand_alone_flag_in)
+	 lbg->set_stand_alone();
       lbg->init(builder);
       gtk_builder_connect_signals (builder, lbg->canvas);
       g_object_unref (G_OBJECT (builder));
@@ -1780,8 +1783,8 @@ lbg_info_t::clear_canvas() {
 void
 lbg_info_t::init(GtkBuilder *builder) {
 
-   GtkWidget *window = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_window"));
-   gtk_widget_show (window);
+   lbg_window = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_window"));
+   gtk_widget_show (lbg_window);
 
    about_dialog =    GTK_WIDGET (gtk_builder_get_object (builder, "lbg_aboutdialog"));
    search_combobox = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_search_combobox"));

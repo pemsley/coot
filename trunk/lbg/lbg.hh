@@ -60,7 +60,8 @@ static double LIGAND_TO_CANVAS_SCALE_FACTOR = 23;
 static double SINGLE_BOND_CANVAS_LENGTH= LIGAND_TO_CANVAS_SCALE_FACTOR * 1.54;
 
 
-bool lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name);
+bool lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name,
+	 bool stand_alone_flag_in = 0);
 
 bool save_togglebutton_widgets(GtkBuilder *builder);
 
@@ -538,6 +539,8 @@ public:
 
 
 private:
+   bool stand_alone_flag;
+
    bool try_stamp_polygon(int n_edges, int x_pos_centre, int y_pos_centre,
 			  bool is_spiro, bool is_aromatic);
    void stamp_polygon_anywhere(int n_edges, int x_pos_centre, int y_pos_centre,
@@ -617,6 +620,7 @@ private:
       penultimate_atom_index = -1;
       ultimate_atom_index = -1;
       latest_bond_was_extended = 0;
+      stand_alone_flag = 0;
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -768,6 +772,7 @@ public:
 	  CHARGE, ADD_SINGLE_BOND, ADD_DOUBLE_BOND, ADD_TRIPLE_BOND, ADD_STEREO_OUT_BOND,
 	  DELETE_MODE};
    void init(GtkBuilder *builder);
+   GtkWidget *lbg_window;
    GtkWidget *about_dialog; 
    GtkWidget *search_combobox;
    GtkWidget *open_dialog;
@@ -830,6 +835,8 @@ public:
    void update_statusbar_smiles_string() const;
    // can throw an exception
    std::string get_smiles_string_from_mol() const;
+   void set_stand_alone() { stand_alone_flag = 1; }
+   bool is_stand_alone() { return stand_alone_flag; } 
 };
 
 #endif // LBG_HH
