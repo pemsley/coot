@@ -78,8 +78,11 @@ coot::protein_geometry::comp_atom_pad_atom_name(const std::string &atom_id,
 	    } else { 
 	       // promote the characters one space
 	       if (k==2) {
-		  // e.g "NP" "P", or "CA" "C"
-		  if ((atom_id.substr(1,1) == element) && (element != "H")) {
+
+		  std::cout << "DEBUG:: here !!!!!!!!!! " << std::endl;
+		  // e.g "NP" "P", or "CA" "C" (20100929, eh?)
+		  if ((atom_id.substr(1,1) == element) &&
+		      (element != "H") && (element != "C") && (element != "N")) {
 		     new_name = atom_id + "  ";
 		  } else {
 		     new_name = " " + atom_id;
@@ -140,8 +143,9 @@ coot::protein_geometry::comp_atom_pad_atom_name(const std::string &atom_id,
 //    std::cout << "new atom name :" << new_name << ": from :"
 // 	     << atom_id << ": :" << element << ":" << std::endl;
    
-//    std::cout << "DEBUG:: for :" << atom_id << ": element is :" << element
-// 	     << ": returning :" << new_name << ":\n";
+
+   std::cout << "DEBUG:: comp_atom_pad_atom_name() for :" << atom_id << ": element is :" << element
+ 	     << ": returning :" << new_name << ":\n";
    
    return new_name;
 }
