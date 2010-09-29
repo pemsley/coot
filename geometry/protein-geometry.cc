@@ -137,8 +137,9 @@ coot::atom_id_mmdb_expand(const std::string &atomname, const std::string &elemen
 	 }
       }
    }
-   // std::cout << "Given :" << atomname << ": and element :" <<
-   // element << ": returning :" << r << ":" << std::endl;
+   if (0)  // debug
+      std::cout << "Given :" << atomname << ": and element :" <<
+	 element << ": returning :" << r << ":" << std::endl;
    return r;
 }
 
@@ -254,7 +255,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 	       int n_loop_time = 0;
 	       if (mmCIFLoop == NULL) {
-		  std::cout << "================ cat_name: " << cat_name << std::endl;
+// 		  std::cout << "================ cat_name: " << cat_name << std::endl;
 		  if (cat_name == "_chem_comp") {
 		     // read the chemical component library which does
 		     // not have a loop (the refmac files do) for the
@@ -264,7 +265,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 			chem_comp_component(structure);
 		     }
 		  } else {
-		     std::cout << "null loop" << std::endl; 
+		     std::cout << "in init_refmac_mon_lib() null loop for catagory " << cat_name << std::endl; 
 		  } 
 	       } else {
                
@@ -326,8 +327,8 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
    int n_tags = structure->GetNofTags();
    std::string cat_name = structure->GetCategoryName();
 
-    std::cout << "DEBUG: ================= by structure: in category " << cat_name << " there are "
- 	     << n_tags << " tags" << std::endl;
+//     std::cout << "DEBUG: ================= by structure: in category " << cat_name << " there are "
+//  	     << n_tags << " tags" << std::endl;
 
    std::pair<bool, std::string> comp_id(0, "");
    std::pair<bool, std::string> three_letter_code(0, "");
