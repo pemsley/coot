@@ -1,7 +1,7 @@
 
 #include "coot-utils.hh"
 #include "lbg.hh"
-#include "enterprise.hh"
+#include "rdkit-interface.hh"
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 
