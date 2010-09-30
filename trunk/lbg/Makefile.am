@@ -20,6 +20,8 @@ include_HEADERS = lbg.hh wmolecule.hh rdkit-interface.hh
 
 INCLUDES = \
 	-I$(top_srcdir)/lidia-core \
+	-I$(top_srcdir)/geometry \
+	-I$(top_srcdir)/utils \
         $(GSL_CFLAGS) \
         $(GOOCANVAS_CFLAGS) \
         $(GTK_CFLAGS) \
