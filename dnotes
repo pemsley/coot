@@ -5767,5 +5767,63 @@ Sun Aug 15 12:59:12 BST 2010
       gets highlighted.  It shouldn't update hilighted bond when I am
       in edit chi mode.  Or something. See JED mail from a few days ago.
 
+-----
+Wed Sep 29 10:35:58 BST 2010
+
+Interesting valgrind problems:
+
+==23673== 67,982 bytes in 2,432 blocks are possibly lost in loss record 9,100 of 9,127
+==23673==    at 0x4C28CC1: operator new(unsigned long) (vg_replace_malloc.c:261)
+==23673==    by 0xFE8ED98: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (in /usr/lib/libstdc++.so.6.0.13)
+==23673==    by 0xFE8F8B4: ??? (in /usr/lib/libstdc++.so.6.0.13)
+==23673==    by 0xFE8FA52: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (in /usr/lib/libstdc++.so.6.0.13)
+==23673==    by 0x6437F07: coot::protein_geometry::simple_mon_lib_chem_comp(CMMCIFLoop*) (protein-geometry.cc:1128)
+==23673==    by 0x643D3FA: coot::protein_geometry::init_refmac_mon_lib(std::string, int) (protein-geometry.cc:281)
+==23673==    by 0x643F0F9: coot::protein_geometry::init_standard() (protein-geometry.cc:2751)
+==23673==    by 0x4A5E2C: graphics_info_t::init() (graphics-info.h:856)
+==23673==    by 0x4A257B: main (main.cc:269)
+==23673== 
+
+another:
+
+==23673==    by 0xFE8F8B4: ??? (in /usr/lib/libstdc++.so.6.0.13)
+==23673==    by 0xFE8FA52: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char
+> const&) (in /usr/lib/libstdc++.so.6.0.13)
+==23673==    by 0x6437EDB: coot::protein_geometry::simple_mon_lib_chem_comp(CMMCIFLoop*) (protein-geometry.cc:1124)
+==23673==    by 0x643D3FA: coot::protein_geometry::init_refmac_mon_lib(std::string, int) (protein-geometry.cc:281)
+==23673==    by 0x643F0F9: coot::protein_geometry::init_standard() (protein-geometry.cc:2751)
+==23673==    by 0x4A5E2C: graphics_info_t::init() (graphics-info.h:856)
+==23673==    by 0x4A257B: main (main.cc:269)
+==23673== 
+
+another:
+
+==23673== 86,435 bytes in 2,432 blocks are possibly lost in loss record 9,106 of 9,127
+==23673==    at 0x4C28CC1: operator new(unsigned long) (vg_replace_malloc.c:261)
+==23673==    by 0xFE8ED98: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (in /usr/lib/libstdc++.so.6.0.13)
+==23673==    by 0xFE909E9: std::string::_M_mutate(unsigned long, unsigned long, unsigned long) (in /usr/lib/libstdc++.so.6.0.13)
+==23673==    by 0xFE90B7B: std::string::_M_replace_safe(unsigned long, unsigned long, char const*, unsigned long) (in /usr/lib/libstdc++.so.6.0.13)
+==23673==    by 0x6437FFD: coot::protein_geometry::simple_mon_lib_chem_comp(CMMCIFLoop*) (basic_string.h:970)
+==23673==    by 0x643D3FA: coot::protein_geometry::init_refmac_mon_lib(std::string, int) (protein-geometry.cc:281)
+==23673==    by 0x643F0F9: coot::protein_geometry::init_standard() (protein-geometry.cc:2751)
+==23673==    by 0x4A5E2C: graphics_info_t::init() (graphics-info.h:856)
+==23673==    by 0x4A257B: main (main.cc:269)
+==23673== 
+
+Another:
+
+==23673== 2,502,720 bytes in 2 blocks are possibly lost in loss record 9,123 of 9,127
+==23673==    at 0x4C28939: operator new[](unsigned long) (vg_replace_malloc.c:305)
+==23673==    by 0x552A776: CIsoSurface<float>::returnTriangles(clipper::Xmap<float> const&, clipper::Coord_frac const&, float, coot::Cartesian) const (CIsoSurface.cpp:1576)
+==23673==    by 0x552B3D6: CIsoSurface<float>::GenerateSurface_from_Xmap(clipper::Xmap<float> const&, float, float, coot::Cartesian, int) (CIsoSurface.cpp:616)
+==23673==    by 0x6ED8A1: molecule_class_info_t::update_map_triangles(float, coot::Cartesian) (molecule-class-info-maps.cc:534)
+==23673==    by 0x6EDC91: molecule_class_info_t::update_map_internal() (molecule-class-info-maps.cc:256)
+==23673==    by 0x6EDCAE: molecule_class_info_t::update_map() (molecule-class-info-maps.cc:244)
+==23673==    by 0x5D74A4: graphics_info_t::update_things_on_move() (graphics-info.cc:2095)
+==23673==    by 0x5D74E8: graphics_info_t::update_things_on_move_and_redraw() (graphics-info.cc:2086)
+==23673==    by 0x4F4ADC: set_rotation_centre (c-interface.cc:2726)
+==23673==    by 0x59B473: _wrap_set_rotation_centre(scm_unused_struct*, scm_unused_struct*, scm_unused_struct*) (coot_wrap_guile_gtk2.cc:11925)
+==23673==    by 0x87E633D: deval (in /home/paule/autobuild/Linux-scylla-pre-release-gtk2/lib/libguile.so.17.3.1)
+==23673==    by 0x87E732A: scm_i_eval_x (in /home/paule/autobuild/Linux-scylla-pre-release-gtk2/lib/libguile.so.17.3.1)
 
 ------
