@@ -600,6 +600,11 @@ main (int argc, char *argv[]) {
      // executed (if we are using guile)
      //
      c_wrapper_scm_boot_guile(argc, argv); 
+
+     // BL says:: this should happen before I think (i.e. before running state
+     // etc) but tricky for now to put in c-inner-main.cc for now. Re-Think!
+     // FIXME
+     handle_command_line_data(cld);
      //  
 #endif
 

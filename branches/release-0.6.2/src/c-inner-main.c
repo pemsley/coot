@@ -283,7 +283,8 @@ c_inner_main(void *closure, int argc, char** argv) {
        printf("done.\n");
      }
      
-     handle_command_line_data(cld);
+     // not here, is in main.cc now. FIXME
+     //handle_command_line_data(cld);
 
      run_command_line_scripts();	/* this may turn off run-state-file */
 
