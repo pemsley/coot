@@ -378,8 +378,10 @@ main (int argc, char *argv[]) {
   initialize_graphics_molecules();
   std::cout << "done." << std::endl;
 	
+#if !defined(USE_GUILE) && !defined(USE_PYTHON)
   handle_command_line_data(cld);  // and add a flag if listener
 	   		          // should be started.
+#endif
   
      // which gets looked at later in c_inner_main's make_port_listener_maybe()
 
@@ -575,6 +577,8 @@ main (int argc, char *argv[]) {
      // we only want to run one state file if using both scripting
      // languages.  Let that be the guile one.
 #ifndef USE_GUILE     
+     handle_command_line_data(cld);
+
      run_state_file_maybe(); // run local 0-coot.state.py?
 
      run_update_self_maybe();
