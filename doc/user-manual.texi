@@ -2753,17 +2753,6 @@ the default is ``are sensible'', which means that the algorithm is
 prevented from finding solutions that are too close to the atoms of
 other residues. @code{(set-rotamer-check-clashes 0)} will stop this.
 
-By default, Auto Fit Rotamer will switch to ``Backrub Rotamer''
-@footnote{"The Backrub Motion: How Protein Backbone Shrugs
-     When a Sidechain Dances" @emph{Structure}, Volume @b{14}, Issue 2, Pages
-     265-274 I. Davis, W. Bryan Arendall III, D. Richardson, J. Richardson}
-mode when fitting against a map of worse than 2.7@AA{}.  This
-search mode moves the some atoms of the mainchain of the
-neighbouring residues.  After rotation of the central residue and 
-neighbouring atoms around the ``backrub vector'', the 
-individual peptides are back-rotated (along the peptide axis) so that the
-carbonyl oxygen are placed as near as possible to their original position.  
-The Ramachandran plot is not used in this fitting algorithm.
 
 There is a scripting interface to auto-fitting rotamers:
 
@@ -2799,11 +2788,25 @@ You can change the auto-fit rotamer fitting algorithms using
 @code{(set-rotamer-search-mode @emph{mode})}
  
 where @code{@emph{mode}} is one of @code{(ROTAMERSEARCHAUTOMATIC)},
-  @code{(ROTAMERSEARCHLOWRES)} (@emph{i.e.} "Backrub Rotamers") or
-  @code{(ROTAMERSEARCHHIGHRES)} (the conventional/high-resolution method
-  using rigid-body fitting).
+@code{(ROTAMERSEARCHLOWRES)} (@emph{i.e.} "Backrub Rotamers"
+(@emph{vide infra})) or @code{(ROTAMERSEARCHHIGHRES)} (the
+conventional/high-resolution method using rigid-body fitting).
 
 By default, the auto-fit rotamer method is @code{(ROTAMERSEARCHAUTOMATIC)}.
+
+@subsubsection Backrub Rotamers
+@cindex backrub rotamers
+By default, Auto Fit Rotamer will switch to ``Backrub Rotamer''
+@footnote{"The Backrub Motion: How Protein Backbone Shrugs
+     When a Sidechain Dances" @emph{Structure}, Volume @b{14}, Issue 2, Pages
+     265-274 I. Davis, W. Bryan Arendall III, D. Richardson, J. Richardson}
+mode when fitting against a map of worse than 2.7@AA{}.  This
+search mode moves the some atoms of the mainchain of the
+neighbouring residues.  After rotation of the central residue and 
+neighbouring atoms around the ``backrub vector'', the 
+individual peptides are back-rotated (along the peptide axis) so that the
+carbonyl oxygen are placed as near as possible to their original position.  
+The Ramachandran plot is not used in this fitting algorithm.
 
 
 @subsection De-clashing residues
