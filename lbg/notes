@@ -21,6 +21,19 @@ test ligands:
       for images.
 
 ----
+Sun Oct  3 10:30:12 BST 2010
+
+draw 2 fused benzenes (napthalene?)
+Apply 
+then View in LIDIA
+then delete 2nd ring
+move the molecule a bit
+then add new 5-member ring.  (5 member ring is added inside the 6 member ring)
+
+(because ring centre info is wrong or missing?)   
+
+
+----
 Fri May 21 14:02:36 BST 2010
 
 

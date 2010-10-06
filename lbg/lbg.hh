@@ -753,10 +753,14 @@ private:
 			 double max_dist_water_to_protein_atom) const;
 
    PCGraph makeTestQueryGraph() const;  // debugging
+
+#ifdef MAKE_ENTERPRISE_TOOLS
    RDKit::RWMol rdkit_mol(const widgeted_molecule_t &mol) const;
    RDKit::Bond::BondType convert_bond_type(const lig_build::bond_t::bond_type_t &t) const;
    std::string get_smiles_string_from_mol_rdkit() const;
+#endif
    std::string get_smiles_string_from_mol_openbabel() const;
+
 
 
 
