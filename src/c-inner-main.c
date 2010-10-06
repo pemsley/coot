@@ -283,8 +283,8 @@ c_inner_main(void *closure, int argc, char** argv) {
        printf("done.\n");
      }
      
-     // not here, is in main.cc now. FIXME
-     //handle_command_line_data(cld);
+     // now handle the command line data
+     handle_command_line_data(closure);
 
      run_command_line_scripts();	/* this may turn off run-state-file */
 
@@ -355,7 +355,7 @@ void start_command_line_python_maybe(char **argv) {
 
 #ifdef USE_GUILE
 
-void c_wrapper_scm_boot_guile(int argc, char** argv) { 
+void c_wrapper_scm_boot_guile(int argc, char** argv, struct command_line_data* pcld) { 
 
 /* From libguile/init.h:  */
 /* extern void scm_boot_guile (int argc, char **argv, */
@@ -364,7 +364,7 @@ void c_wrapper_scm_boot_guile(int argc, char** argv) {
 /*                                                char **argv), */
 /*                             void *closure); */
   
-  scm_boot_guile(argc, argv, c_inner_main, NULL);
+  scm_boot_guile(argc, argv, c_inner_main, pcld);
 
   printf("you should not see this, c_inner_main should have called exit(0)\n"); 
 

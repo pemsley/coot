@@ -599,12 +599,9 @@ main (int argc, char *argv[]) {
      // Must be the last thing in this function, code after it does not get 
      // executed (if we are using guile)
      //
-     c_wrapper_scm_boot_guile(argc, argv); 
+     command_line_data *pcld = &cld;
+     c_wrapper_scm_boot_guile(argc, argv, pcld); 
 
-     // BL says:: this should happen before I think (i.e. before running state
-     // etc) but tricky for now to put in c-inner-main.cc for now. Re-Think!
-     // FIXME
-     handle_command_line_data(cld);
      //  
 #endif
 
