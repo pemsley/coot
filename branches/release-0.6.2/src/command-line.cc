@@ -362,6 +362,7 @@ command_line_data::handle_immediate_settings() {
 }
 
 
+extern "C"
 void 
 handle_command_line_data(command_line_data cld) {
 

@@ -48,6 +48,9 @@ command_line_data
 parse_command_line(int argc, char ** argv ); 
 
 
+#ifdef __cplusplus
+extern "C"
+#endif
 void 
 handle_command_line_data(command_line_data cld); 
 
