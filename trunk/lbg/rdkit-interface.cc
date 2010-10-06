@@ -124,15 +124,17 @@ coot::rdkit_mol(CResidue *residue_p, const protein_geometry &geom) {
 	 int idx_1 = -1;
 	 int idx_2 = -1;
 	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	    std::string atom_name(residue_atoms[iat]->name);
-	    if (atom_name == atom_name_1)
-	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
-		   != added_atom_names.end())
-		  idx_1 = iat;
-	    if (atom_name == atom_name_2)
-	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
-		   != added_atom_names.end())
-		  idx_2 = iat;
+	    if (! residue_atoms[iat]->Het) { 
+	       std::string atom_name(residue_atoms[iat]->name);
+	       if (atom_name == atom_name_1)
+		  if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
+		      != added_atom_names.end())
+		     idx_1 = iat;
+	       if (atom_name == atom_name_2)
+		  if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
+		      != added_atom_names.end())
+		     idx_2 = iat;
+	    }
 	 }
 	 if (idx_1 != -1) { 
 	    if (idx_2 != -1) {	 
@@ -143,7 +145,8 @@ coot::rdkit_mol(CResidue *residue_p, const protein_geometry &geom) {
 	       }
 	       bond->setBeginAtomIdx(idx_1);
 	       bond->setEndAtomIdx(  idx_2);
-	       std::cout << "Adding rdkit bond with atom indices " << idx_1 << " and " << idx_2 << std::endl;
+	       std::cout << "Adding rdkit bond with atom indices " << idx_1 << " and "
+			 << idx_2 << std::endl;
 	       m.addBond(bond);
 	    }
 	 }
