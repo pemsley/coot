@@ -8,6 +8,16 @@
 
   o COOT_SCHEME_EXTRAS_DIR needs to be a :-separated list
 
+  o Apply NCS residue range needs a way to tell it to apply to one
+   chain only (or a number of chains) - default all chains, of course.
+
+  o load tutorial data on a mac fails, no COOT_PREFIX set.
+
+  o mege a 3GP into tutorial modern then try to undisplay hydrogens
+    with Bond Parameters.  Fail (because of new bonding algorithm)
+
+  o ncs difference graph updating on autofit rotamer and refine residue
+
 ------
 
     o Fix rename-residue to work on just one chain ::: 0.5
