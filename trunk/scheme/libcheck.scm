@@ -186,20 +186,20 @@
 				(handle-libcheck-cif-and-pdb cif-file-name
 							     pdb-file-name
 							     post-refmac-pdb-file-name)))))))))))
-  
-  (define (handle-libcheck-cif-and-pdb cif-file-name pdb-file-name post-refmac-pdb-file-name)
-    
 
-      (if (and (file-exists? post-refmac-pdb-file-name)
-	       (file-exists? cif-file-name))
-	  (let ((pdb-status (handle-read-draw-molecule-with-recentre 
-			     post-refmac-pdb-file-name 0)))
-	    (if (valid-model-molecule? pdb-status) 
-		(begin
-		  (assign-hetatms pdb-status)
-		  (move-molecule-here pdb-status)
-		  (read-cif-dictionary cif-file-name)
-		  pdb-status))))) ; return imol of the ligand
+  ;; 
+  (define (handle-libcheck-cif-and-pdb cif-file-name pdb-file-name post-refmac-pdb-file-name)
+
+    (if (and (file-exists? post-refmac-pdb-file-name)
+	     (file-exists? cif-file-name))
+	(let ((pdb-status (handle-read-draw-molecule-with-recentre 
+			   post-refmac-pdb-file-name 0)))
+	  (if (valid-model-molecule? pdb-status) 
+	      (begin
+		(assign-hetatms pdb-status)
+		(move-molecule-here pdb-status)
+		(read-cif-dictionary cif-file-name)
+		pdb-status))))) ; return imol of the ligand
 
   
 
@@ -207,7 +207,7 @@
   (if (not (or (string? code) (symbol? code)))
 	  
 	(begin
-	  (format #t "WARNING:: Oops code was not a string~%")
+	  (format #t "WARNING:: Oops code ~s was not a string (or symbol)~%" code)
 	  -2)
 
 	;; do the files exist already?  If so, just read them in.
@@ -235,7 +235,7 @@
 							 code-str ".pdb")))
 
 	  (if (and (file-exists? post-refmac-pdb-file-name)
-	       (file-exists? cif-file-name))
+		   (file-exists? cif-file-name))
 	      (handle-libcheck-cif-and-pdb cif-file-name pdb-file-name post-refmac-pdb-file-name)
 	      
 	      (if (not (command-in-path? libcheck-exe))

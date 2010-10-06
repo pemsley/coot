@@ -420,6 +420,7 @@
 				 (lambda (imol)
 				   (fix-nomenclature-errors imol)))))
 
+
 	;; ---- M ---------
 
 	(add-simple-coot-menu-menuitem 
@@ -914,6 +915,15 @@
 		   (read-pdb pdb-file-name)
 		   (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)
 		   (make-and-draw-map mtz-file-name "DELFWT" "PHDELWT" "" 0 1))))))
+
+	;; ---------------------------------------------------------------------
+	;; u
+	;; ---------------------------------------------------------------------
+	;;
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Use \"Backrub\" Rotamers"
+	 (lambda ()
+	   (set-rotamer-search-mode (ROTAMERSEARCHLOWRES))))
 
 	;; ---------------------------------------------------------------------
 	;;     Views/Representations
