@@ -1,8 +1,13 @@
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 
-#include "enterprise.hh"
+#include <cstring>
+#define ENABLE_NLS // fixes dcgettext() header problems on including
+		   // libintl.h (via RDKitBase.h etc (including boost
+		   // stuff).
+
 #include "lbg-interface.hh"
+#include "rdkit-interface.hh"
 #include "graphics-info.h"
 #include "lbg.hh"
 
