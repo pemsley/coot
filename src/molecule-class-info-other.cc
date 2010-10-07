@@ -3117,15 +3117,18 @@ molecule_class_info_t::recent_backup_file_info() const {
       // c.f. make_backup():
       char *es = getenv("COOT_BACKUP_DIR");
       std::string backup_name_glob = "coot-backup/";
-      // first we shall check if es, i.e. COOT_BACKUP_DIR actually exists
-      struct stat buf;
-      int err = stat(es, &buf);
-      if (!err) {
-	if (! S_ISDIR(buf.st_mode)) {
-	  es = NULL;
-	}
-      } else {
-	es = NULL;
+      // very first check if COOT_BACKUP_DIR is defined
+      if (es) {
+        // first we shall check if es, i.e. COOT_BACKUP_DIR actually exists
+        struct stat buf;
+        int err = stat(es, &buf);
+        if (!err) {
+          if (! S_ISDIR(buf.st_mode)) {
+            es = NULL;
+          }
+        } else {
+          es = NULL;
+        }
       }
       if (es) {
 	 backup_name_glob = es;
