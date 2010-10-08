@@ -1,4 +1,6 @@
 
+#ifndef LBG_SHARED_HH
+#define LBG_SHARED_HH
 
 namespace coot {
 
@@ -22,3 +24,5 @@ namespace coot {
    };
    std::ostream& operator<< (std::ostream& s, const bash_distance_t &bd);
 }
+
+#endif // LBG_SHARED_HH

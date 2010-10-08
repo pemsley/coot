@@ -54,7 +54,9 @@ namespace lig_build {
 	 element = ele_in;
 	 name = ele_in;
       }
+      friend std::ostream &operator<<(std::ostream &s, const molfile_atom_t &a);
    };
+   std::ostream &operator<<(std::ostream &s, const molfile_atom_t &a);
 
    class molfile_bond_t {
    public:

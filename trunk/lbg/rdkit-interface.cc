@@ -40,6 +40,9 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
       if (! mol.atoms[iat].is_closed()) { 
 	 RDKit::Atom *at = new RDKit::Atom;
 	 at->setAtomicNum(tbl->getAtomicNumber(mol.atoms[iat].element));
+
+	 // add the name to at too here (if you can).
+
 	 m.addAtom(at);
       }
    }
@@ -72,7 +75,7 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 // conformer for each alt conf).
 // 
 RDKit::RWMol
-coot::rdkit_mol(CResidue *residue_p, const protein_geometry &geom) {
+coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
 
 
    std::string res_name = residue_p->GetResName();
@@ -81,7 +84,10 @@ coot::rdkit_mol(CResidue *residue_p, const protein_geometry &geom) {
       geom.get_monomer_restraints(res_name);
    if (! p.first) {
 
-      throw(std::runtime_error("residue type not in dictionary"));
+      std::string m = "residue type ";
+      m += res_name;
+      m += " not in dictionary";
+      throw(std::runtime_error(m));
 
    } else { 
    
@@ -105,7 +111,11 @@ coot::rdkit_mol(CResidue *residue_p, const protein_geometry &geom) {
 	    RDKit::Atom *at = new RDKit::Atom;
 	    try { 
 	       at->setAtomicNum(tbl->getAtomicNumber(coot::util::remove_leading_spaces(residue_atoms[iat]->element)));
+	       at->setProp("name", std::string(residue_atoms[iat]->name));
 	       m.addAtom(at);
+	       if (0) 
+		  std::cout << "adding atom with name " << atom_name << " to added_atom_names"
+			    << " which is now size " << added_atom_names.size() << std::endl;
 	       added_atom_names.push_back(atom_name);
 	       atom_index[atom_name] = current_atom_id;
 	    }
@@ -124,7 +134,7 @@ coot::rdkit_mol(CResidue *residue_p, const protein_geometry &geom) {
 	 int idx_1 = -1;
 	 int idx_2 = -1;
 	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	    if (! residue_atoms[iat]->Het) { 
+	    if (! residue_atoms[iat]->Ter) { 
 	       std::string atom_name(residue_atoms[iat]->name);
 	       if (atom_name == atom_name_1)
 		  if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
@@ -145,11 +155,15 @@ coot::rdkit_mol(CResidue *residue_p, const protein_geometry &geom) {
 	       }
 	       bond->setBeginAtomIdx(idx_1);
 	       bond->setEndAtomIdx(  idx_2);
-	       std::cout << "Adding rdkit bond with atom indices " << idx_1 << " and "
-			 << idx_2 << std::endl;
 	       m.addBond(bond);
+	    } else {
+	       std::cout << "oops bonding in making rdkit mol "
+			 << "failed to get atom index idx_2 " << atom_name_2 << std::endl;
 	    }
-	 }
+	 } else {
+	    std::cout << "oops bonding in making rdkit mol "
+		      << "failed to get atom index idx_1 " << atom_name_1 << std::endl;
+	 } 
       }
 
       RDKit::Conformer *conf = new RDKit::Conformer(added_atom_names.size());
@@ -166,9 +180,14 @@ coot::rdkit_mol(CResidue *residue_p, const protein_geometry &geom) {
 				residue_atoms[iat]->y,
 				residue_atoms[iat]->z);
 	    conf->setAtomPos(it->second, pos);
+	    if (1) 
+	       std::cout << "in construction of rdkit mol: making a conformer "
+			 << iat << " " << it->second << " " << atom_name << " "
+			 << pos << std::endl;
 	 } 
       }
       m.addConformer(conf);
+      std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms() << std::endl;
       return m;
    } 
 }
@@ -204,10 +223,14 @@ coot::convert_bond_type(const std::string &t) {
       bt = RDKit::Bond::ONEANDAHALF;
    if (t == "aromatic")
       bt = RDKit::Bond::AROMATIC;
-   std::cout << "created RDKit bond type " << bt;
-   if (bt == RDKit::Bond::AROMATIC)
-      std::cout << " (aromatic)";
-   std::cout << std::endl;
+   
+   if (0) { // debug
+      std::cout << "created RDKit bond type " << bt;
+      if (bt == RDKit::Bond::AROMATIC)
+	 std::cout << " (aromatic)";
+      std::cout << std::endl;
+   }
+   
    return bt;
 }
 
@@ -239,14 +262,26 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
       RDKit::Conformer conf = rdkm.getConformer(iconf);
       int n_conf_atoms = conf.getNumAtoms();
       int n_mol_atoms = rdkm.getNumAtoms();
+
+      std::cout << "in make_molfile_molecule() conformer has " << n_conf_atoms
+		<< " atoms" << std::endl;
+      
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
 	 RDKit::ATOM_SPTR at_p = rdkm[iat];
 	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+	 std::string name = "";
+	 try {
+	    at_p->getProp("name", name);
+	 }
+	 catch (KeyErrorException kee) {
+	    std::cout << "caught no-name for atom exception in make_molfile_molecule(): "
+		      <<  kee.what() << std::endl;
+	 } 
 	 clipper::Coord_orth pos(r_pos.x, r_pos.y, r_pos.z);
 	 int n = at_p->getAtomicNum();
 	 std::string element = tbl->getElementSymbol(n);
 	 int charge = at_p->getFormalCharge();
-	 lig_build::molfile_atom_t mol_atom(pos, element, "");
+	 lig_build::molfile_atom_t mol_atom(pos, element, name);
 	 mol.add_atom(mol_atom);
       }
 
@@ -277,14 +312,101 @@ coot::convert_bond_type(const RDKit::Bond::BondType &type) {
       t = lig_build::bond_t::TRIPLE_BOND;
 
    return t;
-   
 }
+
+// fiddle with rdkm
+// 
+void
+coot::remove_non_polar_Hs(RDKit::RWMol *rdkm) {
+
+   int n_bonds = rdkm->getNumBonds();
+   // std::vector<RDKit::ATOM_SPTR> atoms_to_be_deleted;
+   std::vector<RDKit::Atom *> atoms_to_be_deleted;
+   for (unsigned int ib=0; ib<n_bonds; ib++) {
+      RDKit::Bond *bond_p = rdkm->getBondWithIdx(ib);
+      int idx_1 = bond_p->getBeginAtomIdx();
+      int idx_2 = bond_p->getEndAtomIdx();
+      RDKit::ATOM_SPTR at_p_1 = (*rdkm)[idx_1];
+      RDKit::ATOM_SPTR at_p_2 = (*rdkm)[idx_2];
+      // If this was a bond for a hydrogen attached to a carbon, delete it.
+      if ((at_p_1->getAtomicNum() == 1) && (at_p_2->getAtomicNum() == 6)) {
+	 // rdkm->removeBond(idx_1, idx_2);
+	 atoms_to_be_deleted.push_back(at_p_1.get());
+      }
+      if ((at_p_2->getAtomicNum() == 1) && (at_p_1->getAtomicNum() == 6)) { 
+	 // rdkm->removeBond(idx_1, idx_2);
+	 atoms_to_be_deleted.push_back(at_p_2.get());
+      }
+   }
+   for (unsigned int i=0; i<atoms_to_be_deleted.size(); i++) { 
+      rdkm->removeAtom(atoms_to_be_deleted[i]);
+   }
+
+   rdkm->clearComputedProps();
+   // clean up things like nitro groups
+   RDKit::MolOps::cleanUp(*rdkm);
+   // update computed properties on atoms and bonds:
+   rdkm->updatePropertyCache();
+   RDKit::MolOps::Kekulize(*rdkm);
+   RDKit::MolOps::assignRadicals(*rdkm);
+   // set conjugation
+   RDKit::MolOps::setConjugation(*rdkm);
+   // set hybridization
+   RDKit::MolOps::setHybridization(*rdkm); 
+   // remove bogus chirality specs:
+   RDKit::MolOps::cleanupChirality(*rdkm);
+   
+
+} 
 
 // tweak rdkmol
 int
 coot::add_2d_conformer(RDKit::ROMol *rdk_mol) {
 
-   int iconf = RDDepict::compute2DCoords(*rdk_mol);
+   // AFAICS, the number of conformers before and after calling
+   // compute2DCoords() is the same (1).
+   // 
+   // Does it clear first? Yes, optional parameter clearConfs=true.
+   
+   int n_mol_atoms = rdk_mol->getNumAtoms();   
+
+   if (0) 
+      std::cout << "::::: add_2d_conformer before compute2DCoords n_atoms: "
+		<< rdk_mol->getConformer(0).getNumAtoms()
+		<< " n_bonds " << rdk_mol->getNumBonds() << std::endl;
+
+   // We must call calcImplicitValence() before getNumImplictHs()
+   // [that is to say that compute2DCoords() calls getNumImplictHs()
+   // without calling calcImplicitValence()].
+   //
+   for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+      RDKit::ATOM_SPTR at_p = (*rdk_mol)[iat];
+      at_p->calcImplicitValence(true);
+   }
+   
+   int iconf = RDDepict::compute2DCoords(*rdk_mol, 0, 1); // all atoms, long along x-axis 
+
+   if (0) { // .................... debug ...................
+      std::cout << "::::: add_2d_conformer after  compute2DCoords n_atoms: "
+		<< rdk_mol->getConformer(0).getNumAtoms()
+		<< " n_bonds " << rdk_mol->getNumBonds() << std::endl;
+   
+      std::cout << ":::::: in add_2d_conformer here are the coords: "
+		<< std::endl;
+      RDKit::Conformer conf = rdk_mol->getConformer(iconf);
+      for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+	 RDKit::ATOM_SPTR at_p = (*rdk_mol)[iat];
+	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+	 std::string name = "";
+	 try {
+	    at_p->getProp("name", name);
+	 }
+	 catch (KeyErrorException kee) {
+	 }
+	 std::cout << "   " << iat << " " << name << "  " << r_pos << std::endl;
+      }
+   }
+
    return iconf;
 } 
 

@@ -272,3 +272,12 @@
 			     (append-dir-file "coot-ccp4" ".coot-to-lbg-mol-ready"))
 			    '() "/dev/null" #f)))))))
 
+
+(define (flev-view-using-rdkit imol chain-id res-no ins-code)
+  
+  (let ((residues-near-radius 4.5))
+    (fle-view-internal-using-rdkit imol chain-id res-no ins-code residues-near-radius)))
+
+
+				 
+   
