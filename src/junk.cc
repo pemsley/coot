@@ -1949,3 +1949,9 @@ coot::pi_stacking_container_t::get_ligand_aromatic_ring_list(const coot::diction
 	    }
 
 --with-enterprise-tools with optional complicated/experimental ligand-related dependencies
+
+	       // the mapping between atom name and the atom index in
+	       // the residue/rdkit-molecule.
+	       // 
+	       // std::map<std::string, int> name_map =
+	       // coot::make_flat_ligand_name_map(flat_res);

@@ -26,6 +26,13 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+// For reasons I don't understand, this should come near the top of
+// includes, otherwise we get RDKit dcgettext() include file problems.
+//
+#ifdef MAKE_ENTERPRISE_TOOLS
+#include "lbg.hh"
+#endif
+
 #include "c-interface-ligands.hh"
 #include "mmdb-extras.h"
 #include "mmdb.h"
@@ -35,6 +42,7 @@
 #include "lbg-graph.hh"
 
 #include "coot-h-bonds.hh"
+
 
 std::ostream&
 coot::operator<< (std::ostream& s, const pi_stacking_instance_t &stack) {
@@ -172,7 +180,6 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 
 	       // using new (20100522) h_bond class (based on geometry)
 	       //
- 	       graphics_info_t g;
  	       std::vector<coot::fle_ligand_bond_t> bonds_to_ligand = 
  		  coot::get_fle_ligand_bonds(res_ref, filtered_residues, mol,
  					     name_map, *geom_p);
@@ -231,6 +238,84 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
       }
    } 
 }
+
+void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char *ins_code,
+			 float residues_near_radius) { 
+
+#ifndef MAKE_ENTERPRISE_TOOLS
+# else    
+   graphics_info_t g;
+   coot::protein_geometry *geom_p = g.Geom_p();
+
+
+   if (is_valid_model_molecule(imol)) { 
+      CResidue  *res_ref = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      if (res_ref) {
+	 std::string ligand_res_name(res_ref->GetResName());
+
+	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 std::vector<CResidue *> residues =
+	    coot::residues_near_residue(res_ref, mol, residues_near_radius);
+	 
+	 // residues needs to be filtered to remove waters that
+	 // are not connected to a protein atom.
+	 
+	 std::vector<CResidue *> filtered_residues =
+	    coot::filter_residues_by_solvent_contact(res_ref, mol, residues, 3.6);
+
+	 // for the atoms in the ligand only, for the moment.
+	 // More would require a class containing with and
+	 // without solvent accessibilites for each residue.
+	 // Maybe that can be another function.  And that would
+	 // need to consider neighbours of neighbours, perhaps
+	 // done with a larger radius.
+	 //
+	 coot::dots_representation_info_t dots;
+	 std::vector<std::pair<coot::atom_spec_t, float> > s_a_v = 
+	    dots.solvent_accessibilities(res_ref, filtered_residues);
+	 
+	 // for the ligand environment residues:
+	 std::vector<coot::solvent_exposure_difference_helper_t> sed = 
+	    dots.solvent_exposure_differences(res_ref, filtered_residues);
+
+	 try {
+	    RDKit::RWMol rdkm = coot::rdkit_mol(res_ref, *g.Geom_p());
+
+	    // assign atom names
+	    if (rdkm.getNumAtoms() != res_ref->GetNumberOfAtoms()) {
+	       std::cout << "oops failure to construct rdkit molecule " << std::endl;
+	    } else {
+	       PPCAtom residue_atoms = 0;
+	       int n_residue_atoms;
+	       res_ref->GetAtomTable(residue_atoms, n_residue_atoms);
+
+	       // polar Hs only, that is - need new function here.
+	       coot::remove_non_polar_Hs(&rdkm);
+
+	       int mol_2d_depict_conformer = coot::add_2d_conformer(&rdkm);
+	       lig_build::molfile_molecule_t m =
+		  coot::make_molfile_molecule(rdkm, mol_2d_depict_conformer);
+
+	       if (0) 
+		  for (unsigned int iat=0; iat<m.atoms.size(); iat++)
+		     std::cout << iat << "  " << m.atoms[iat] << std::endl;
+	       
+
+	       lbg(m, NULL, "some-name", 0);
+
+	       // later
+	       
+	       std::vector<coot::fle_ligand_bond_t> bonds_to_ligand;
+
+	    }
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << "ERROR in fle_view_with_rdkit(): " << rte.what() << std::endl;
+	 } 
+      }
+   }
+#endif // MAKE_ENTERPRISE_TOOLS   
+} 
 
 std::map<std::string, std::string>
 coot::make_flat_ligand_name_map(CResidue *flat_res) {

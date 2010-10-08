@@ -19,6 +19,7 @@ namespace coot {
    lig_build::molfile_molecule_t make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf);
    // lig_build::molfile_molecule_t make_molfile_molecule(const RDKit::RWMol &rdkm);
    lig_build::bond_t::bond_type_t convert_bond_type(const RDKit::Bond::BondType &type);
+   void remove_non_polar_Hs(RDKit::RWMol *rdkm); // fiddle with rdkm
 
 } 
 

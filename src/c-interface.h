@@ -6238,6 +6238,9 @@ void fle_view_internal(int imol, const char *chain_id, int res_no,
 		       const char *prodrg_output_flat_pdb_file_name,
 		       const char *prodrg_output_3d_pdb_file_name,
 		       const char *prodrg_output_dict_cif_file_name);
+
+void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius);
+
 /* \} */
 
 

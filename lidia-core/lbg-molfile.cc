@@ -26,6 +26,16 @@
 
 #include "lbg-molfile.hh"
 
+std::ostream&
+lig_build::operator<<(std::ostream &s, const molfile_atom_t &at) {
+
+   s << "atom name :" << at.name << ":  ele :" << at.element << ": aromatic? "
+     << at.aromatic << " chiral? " << at.chiral << " at " << at.atom_position.format();
+      
+
+   return s;
+} 
+
 
 // throw an exception on unable to convert
 int
