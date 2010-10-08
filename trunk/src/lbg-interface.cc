@@ -2,9 +2,6 @@
 #ifdef MAKE_ENTERPRISE_TOOLS
 
 #include <cstring>
-#define ENABLE_NLS // fixes dcgettext() header problems on including
-		   // libintl.h (via RDKitBase.h etc (including boost
-		   // stuff).
 
 #include "lbg-interface.hh"
 #include "rdkit-interface.hh"
@@ -56,16 +53,18 @@ void residue_to_ligand_builder(int imol, const char *chain_id, int resno, const 
 	       }
 	    }
 
-	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(g.molecules[imol].atom_sel.mol,
-									    residue_p);
-	    int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs);
-	    lig_build::molfile_molecule_t m =
-	       coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
+	    CMMDBManager *mol =
+	       coot::util::create_mmdbmanager_from_residue(g.molecules[imol].atom_sel.mol,
+							   residue_p);
 	    if (!mol) {
 	       std::cout << "ERROR:: failed to make mol for lbg" << std::endl;
 	    } else { 
+	       int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs);
+	       lig_build::molfile_molecule_t m =
+		  coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
 	       lbg(m, mol, "");
 	    }
+	    delete mol;
 	 }
 	 catch (std::runtime_error coot_error) {
 	    std::cout << coot_error.what() << std::endl;
