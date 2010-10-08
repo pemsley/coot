@@ -591,9 +591,11 @@ Bond_lines_container::invert_deloc_bond_displacement_vector(const clipper::Coord
 							    const std::vector<coot::dict_bond_restraint_t> &bond_restraints) const {
 
    bool r = false;
-   std::cout << " ==================== considering the swap of :"
-	     << residue_atoms[iat_1]->name << ": to :"
-	     << residue_atoms[iat_2]->name << ": =========================" << std::endl;
+   
+//    std::cout << " ==================== considering the swap of :"
+// 	     << residue_atoms[iat_1]->name << ": to :"
+// 	     << residue_atoms[iat_2]->name << ": =========================" << std::endl;
+
    std::string atom_name_iat = residue_atoms[iat_1]->name;
    std::string atom_name_jat = residue_atoms[iat_2]->name;
 
@@ -605,10 +607,10 @@ Bond_lines_container::invert_deloc_bond_displacement_vector(const clipper::Coord
       if (bond_restraints[ib].atom_id_1_4c() == atom_name_iat) {
 	 if (bond_restraints[ib].atom_id_2_4c() != atom_name_jat) {
 	    
-	    std::cout << "::::: bond 1 from :" << bond_restraints[ib].atom_id_1_4c()
-		      << ": to :" << bond_restraints[ib].atom_id_2_4c() << ": type "
-		      << bond_restraints[ib].type() 
-		      << std::endl;
+// 	    std::cout << "::::: bond 1 from :" << bond_restraints[ib].atom_id_1_4c()
+// 		      << ": to :" << bond_restraints[ib].atom_id_2_4c() << ": type "
+// 		      << bond_restraints[ib].type() 
+// 		      << std::endl;
 	 
 	    if (bond_restraints[ib].type() == "deloc") {
 	       clipper::Coord_orth pt_1(residue_atoms[iat_1]->x,
@@ -622,7 +624,7 @@ Bond_lines_container::invert_deloc_bond_displacement_vector(const clipper::Coord
 					   residue_atoms[it->second]->z);
 		  clipper::Coord_orth diff = pt_2 - pt_1;
 		  double d = clipper::Coord_orth::dot(vect, diff);
-		  std::cout << "    dot 1 : " << d << std::endl;
+		  // std::cout << "    dot 1 : " << d << std::endl;
 		  if (d < 0)
 		     r = true;
 		  break;
@@ -637,10 +639,10 @@ Bond_lines_container::invert_deloc_bond_displacement_vector(const clipper::Coord
       if (bond_restraints[ib].atom_id_2_4c() == atom_name_iat) {
 	 if (bond_restraints[ib].atom_id_1_4c() != atom_name_jat) {
 	    
-	    std::cout << "::::: bond 1 from :" << bond_restraints[ib].atom_id_1_4c()
-		      << ": to :" << bond_restraints[ib].atom_id_2_4c() << ": type "
-		      << bond_restraints[ib].type() 
-		      << std::endl;
+// 	    std::cout << "::::: bond 1 from :" << bond_restraints[ib].atom_id_1_4c()
+// 		      << ": to :" << bond_restraints[ib].atom_id_2_4c() << ": type "
+// 		      << bond_restraints[ib].type() 
+// 		      << std::endl;
 	 
 	    if (bond_restraints[ib].type() == "deloc") {
 	       clipper::Coord_orth pt_1(residue_atoms[iat_1]->x,
@@ -654,7 +656,7 @@ Bond_lines_container::invert_deloc_bond_displacement_vector(const clipper::Coord
 					   residue_atoms[it->second]->z);
 		  clipper::Coord_orth diff = pt_2 - pt_1;
 		  double d = clipper::Coord_orth::dot(vect, diff);
-		  std::cout << "    dot 2 : " << d << std::endl;
+		  // std::cout << "    dot 2 : " << d << std::endl;
 		  if (d < 0)
 		     r = true;
 		  break;
@@ -665,7 +667,7 @@ Bond_lines_container::invert_deloc_bond_displacement_vector(const clipper::Coord
       
    }
 
-   std::cout << ":::::::::: invert_deloc_bond_displacement_vector() returns " << r << std::endl;
+   // std::cout << ":::::::::: invert_deloc_bond_displacement_vector() returns " << r << std::endl;
    return r;
 } 
 
