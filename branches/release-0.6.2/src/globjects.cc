@@ -3102,7 +3102,12 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	       save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
 	       gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
 	    } else {
-	       gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+          // have docked dialog
+          if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_HIDE) {
+            gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+          } else {
+            gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
+          }
 	    }
 	    graphics_info_t::accept_reject_dialog = 0;
 	 }

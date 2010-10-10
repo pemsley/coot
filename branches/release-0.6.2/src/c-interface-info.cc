@@ -2726,10 +2726,13 @@ PyObject *map_parameters_py(int imol) {
       PyList_SetItem(r, 1, PyString_FromString(graphics_info_t::molecules[imol].save_f_col.c_str()));
       PyList_SetItem(r, 2, PyString_FromString(graphics_info_t::molecules[imol].save_phi_col.c_str()));
       PyList_SetItem(r, 3, PyString_FromString(graphics_info_t::molecules[imol].save_weight_col.c_str()));
-      if (graphics_info_t::molecules[imol].save_use_weights)
-	PyList_SetItem(r, 4, Py_True);
-      else 
-	PyList_SetItem(r, 4, Py_False);
+      if (graphics_info_t::molecules[imol].save_use_weights) {
+        Py_INCREF(Py_True);
+        PyList_SetItem(r, 4, Py_True);
+      } else {
+        Py_INCREF(Py_False);
+        PyList_SetItem(r, 4, Py_False);
+      }
    }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
@@ -3086,6 +3089,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 PyObject *flag = Py_False;
 	 if (atom_info[iat].partial_charge.first)
 	    flag = Py_True;
+     Py_INCREF(flag);
 	 PyList_SetItem(atom_attributes_list, 4, flag);
 	 PyList_SetItem(atom_info_list, iat, atom_attributes_list);
       }

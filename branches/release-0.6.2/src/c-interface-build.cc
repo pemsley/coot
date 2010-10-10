@@ -1801,6 +1801,9 @@ int move_molecule_to_screen_centre_internal(int imol) {
 
       translate_molecule_by(imol, x, y, z);
       imoved_stat = 1;
+      // finally show and activate
+      set_mol_displayed(imol, 1);
+      set_mol_active(imol, 1);
    }
    return imoved_stat;
 }

@@ -3167,6 +3167,7 @@ PyObject *additional_representation_info_py(int imol) {
 	 // we dont use the atom_spec_py!? -> decref
 	 Py_XDECREF(atom_spec_py);
 
+     Py_XINCREF(is_show_flag_py);
 	 PyList_SetItem(l, 0, PyInt_FromLong(ir));
 	 PyList_SetItem(l, 1, PyString_FromString(s.c_str()));
 	 PyList_SetItem(l, 2, is_show_flag_py);
@@ -6732,6 +6733,7 @@ PyObject *py_residue(const coot::residue_spec_t &res) {
 
 //    std::cout <<  "py_residue on: " << res.chain << " " << res.resno << " "
 // 	     << res.insertion_code  << std::endl;
+   Py_XINCREF(Py_True);
    PyList_SetItem(r, 0, Py_True);
    PyList_SetItem(r, 1, PyString_FromString(res.chain.c_str()));
    PyList_SetItem(r, 2, PyInt_FromLong(res.resno));

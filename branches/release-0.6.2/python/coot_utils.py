@@ -1196,6 +1196,15 @@ def associate_pir_file(imol, chain_id, pir_file_name):
     else:
         print "WARNING:: associate-pir-file: bad text for", pir_file_name
 
+# Associate the contents of a fasta file with a molecule.
+#
+def associate_fasta_file(imol, chain_id, pir_file_name):
+    seq_text = pir_file_name2pir_sequence(pir_file_name)
+    if seq_text:
+        assign_fasta_sequence(imol, chain_id, seq_text)
+    else:
+        print "WARNING:: associate-fasta-file: bad text for", pir_file_name
+
 
 # comma key hook
 def graphics_comma_key_pressed_hook():
