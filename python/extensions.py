@@ -1359,7 +1359,7 @@ if (have_coot_python):
        menu,
        "Alignment vs PIR...",
        lambda func: molecule_chooser_gui("Alignment vs PIR info for molecule:",
-                                         lambda imol: wrapper_aligment_mismatches_gui(imol)))
+                                         lambda imol: wrapper_alignment_mismatches_gui(imol)))
           
 
   else:

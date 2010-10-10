@@ -3126,6 +3126,7 @@ def whats_new_dialog():
 
 # Cootaneer/sequencing gui modified by BL with ideas from KC
 # based on Paul's cootaneer gui and generic_chooser_entry_and_file_selector
+#
 def cootaneer_gui_bl():
 
    # unfortunately currently I dont see a way to avoid a global variable here
@@ -3800,7 +3801,7 @@ def associate_pir_with_molecule_gui(do_alignment=False):
 
    def associate_func(imol, chain_id, pir_file_name):
       #print "assoc seq:", imol, chain_id, pir_file_name
-      associate_pir_sequence(imol, chain_id, seq_text)
+      associate_pir_file(imol, chain_id, pir_file_name)
       if do_alignment:
          alignment_mismatches_gui(imol)
       
@@ -3833,9 +3834,9 @@ def alignment_mismatches_gui(imol):
          return " CA "  # wont work of course
       else:
          for atoms in residue_atoms:
-            if (atoms == " CA "):
+            if (atoms[0][0] == " CA "):
                return " CA "
-         return residue_atoms[0]
+         return residue_atoms[0][0][0]
       
    # main line
    am = alignment_mismatches(imol)
@@ -3865,7 +3866,7 @@ def alignment_mismatches_gui(imol):
                                   "set_go_to_atom_chain_residue_atom_name(\'" + \
                                   chain_id + "\', " + \
                                   str(res_no) + ", " + \
-                                  "\'" + get_sensible_atom_name(res_info) + "\'"]
+                                  "\'" + get_sensible_atom_name(res_info) + "\')"]
                ret_buttons.append([button_1_label, button_1_action])
             return ret_buttons
 
@@ -3881,7 +3882,7 @@ def alignment_mismatches_gui(imol):
                                   "set_go_to_atom_chain_residue_atom_name(\'" + \
                                   chain_id + "\', " + \
                                   str(res_no) + ", " + \
-                                  "\'" + get_sensible_atom_name(res_info) + "\'"]
+                                  "\'" + get_sensible_atom_name(res_info) + "\')"]
                ret_buttons.append([button_1_label, button_1_action])
             return ret_buttons
 
@@ -3896,15 +3897,15 @@ def alignment_mismatches_gui(imol):
                #button_1_action = "info_dialog(" + button_1_label + ")"
                # oh dear, will that work? I dont think I can pass asignments
                # here. Need to rethink this! FIXME
-               button_1_action = ["info_dialog(" + button_1_label + ")",
-                                  "r = nearest_residue_by_sequence(" + \
+               # messy but should work (without too much hazzle)
+               button_1_action = ["info_dialog(\'" + button_1_label + "\')",
+                                  "set_go_to_atom_chain_residue_atom_name(\'" + \
+                                  chain_id + "\', " + \
+                                  "nearest_residue_by_sequence(" + \
                                   str(imol) + ", \'" + \
                                   chain_id + "\', " + \
                                   str(res_no) + ", " + \
-                                  ins_code + ")",
-                                  "set_go_to_atom_chain_residue_atom_name(\'" + \
-                                  chain_id + "\', " + \
-                                  "r[2] , " + \
+                                  "\'" + ins_code + "\')[2], " + \
                                   "\' CA \')"]
                ret_buttons.append([button_1_label, button_1_action])
             return ret_buttons
