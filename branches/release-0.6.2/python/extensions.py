@@ -528,8 +528,8 @@ if (have_coot_python):
        add_simple_coot_menu_menuitem(
        submenu_models,
        "Prodrg-ify this residue (generate restraints)",
-       lambda func: using_active_atom([[prodrg_ify,
-                                        ["aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"], []]]))
+       lambda func: using_active_atom(prodrg_ify,
+                                      "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"))
      
 
      # ---- R ---------
@@ -576,9 +576,9 @@ if (have_coot_python):
        "Replace Residue...",
        lambda func: generic_single_entry("Replace this residue with residue of type:",
                                          "ALA", "Mutate",
-                                         lambda text: using_active_atom([[mutate_by_overlap,
-                                                                          ["aa_imol", "aa_chain_id", "aa_res_no"],
-                                                                          [text]]])))
+                                         lambda text: using_active_atom(mutate_by_overlap,
+                                                                        "aa_imol", "aa_chain_id", "aa_res_no",
+                                                                        text)))
 
      # --- Res ---
      
