@@ -2143,9 +2143,9 @@ molecule_class_info_t::get_residue(const std::string &chain_id,
 CResidue *
 molecule_class_info_t::get_residue(const coot::residue_spec_t &residue_spec) const { 
    
-   CResidue *res = res = get_residue(residue_spec.chain,
-				     residue_spec.resno,
-				     residue_spec.insertion_code);
+   CResidue *res = get_residue(residue_spec.chain,
+		               residue_spec.resno,
+			       residue_spec.insertion_code);
    return res;
 }
 
