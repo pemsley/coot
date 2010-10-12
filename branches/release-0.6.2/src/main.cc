@@ -807,10 +807,9 @@ void setup_application_icon(GtkWindow *window) {
 		 //stock_id = (coot::util::file_name_non_directory(filename)).c_str();
 		 std::string tmp = coot::util::file_name_non_directory(filename);
 		 stock_id = tmp.c_str();
-		 if (stock_id !="") {
-		 gtk_icon_factory_add(iconfactory, stock_id,
-							  iconset);
-		 gtk_icon_factory_add_default(iconfactory);
+		 if (strcmp(stock_id, "") !=0) { // if they don't match..
+		    gtk_icon_factory_add(iconfactory, stock_id, iconset);
+		    gtk_icon_factory_add_default(iconfactory);
 		 }
 	    }
 	  }
