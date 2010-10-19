@@ -2621,6 +2621,11 @@ coot::util::create_mmdbmanager_from_residue(CMMDBManager *orig_mol,
    chain_p->AddResidue(r);
    model_p->AddChain(chain_p);
    mol->AddModel(model_p);
+   if (mol) {
+      chain_p->SetChainID(res->GetChainID());
+   } else {
+      chain_p->SetChainID("");
+   } 
    return mol;
 }
 

@@ -5826,4 +5826,13 @@ Another:
 ==23673==    by 0x87E633D: deval (in /home/paule/autobuild/Linux-scylla-pre-release-gtk2/lib/libguile.so.17.3.1)
 ==23673==    by 0x87E732A: scm_i_eval_x (in /home/paule/autobuild/Linux-scylla-pre-release-gtk2/lib/libguile.so.17.3.1)
 
+
+----
+Sun Oct 10 12:14:21 EDT 2010
+
+   o trivial but useful addition, but a button "non-standard residue"
+     at the bottom of the residue list when mutating.
+     ::: 0.5
+
+
 ------

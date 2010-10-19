@@ -808,6 +808,20 @@ coot::util::upcase(const std::string &s) {
    return r;
 }
 
+// 
+std::string
+coot::util::capitalise(const std::string &s) {
+
+   if (s.length() == 0) {
+      return "";
+   } else { 
+      std::string rt = s.substr(0,1);
+      rt += coot::util::downcase(s.substr(1));
+      return rt;
+   }
+}
+
+
 
 long int
 coot::util::random() { 

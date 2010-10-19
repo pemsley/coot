@@ -84,22 +84,35 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 	 GooCanvasItem *ci = NULL;
 	 widgeted_atom_t at(pos, element, charge, ci);
 
-	 std::string atom_name = get_atom_name(pt, pdb_mol);
-	 // and if atom_name is not "", then set atom name of at.
-	 if (atom_name != "") {
-	    if (0) 
-	       std::cout << "Hoorah setting atom at " << pt.format() << " with name :"
-			 << atom_name << ":" << std::endl;
-	    at.set_atom_name(atom_name);
-	 } else { 
-	    std::cout << "Boo!! atom at " << pt.format() << " with no name"
-		      << std::endl;
+	 std::string current_atom_name = mol_in.atoms[iat].name;
+
+	 // if the atom name was not set already, try to set it.
+	 // 
+	 // if (current_atom_name == "") {
+	 if (current_atom_name.length() == 1) {
+
+	    std::cout << ".... here 1 " << std::endl;
+	    std::string atom_name = get_atom_name(pt, pdb_mol);
+	    // and if atom_name is not "", then set atom name of at.
+	    if (atom_name != "") {
+	       if (1) 
+		  std::cout << "Hoorah setting atom at " << pt.format() << " with name :"
+			    << atom_name << ":" << std::endl;
+	       at.set_atom_name(atom_name);
+	    } else { 
+	       std::cout << "Boo!! atom at " << pt.format() << " with no name"
+			 << std::endl;
+	    }
+	 } else {
+	    at.set_atom_name(current_atom_name);
 	 } 
 	 
 	 if (0)
 	    std::cout << "Element " << element << " at " << pos << " "
 		      << mol_in_min_y << " "
 		      << mol_in_max_y << std::endl;
+	 // std::cout << "::::::: pushing back widgeted atom " << at
+	 // << " with name :"  << at.get_atom_name() << ":" << std::endl;
 	 atoms.push_back(at);
       }
 
@@ -1328,16 +1341,23 @@ widgeted_molecule_t::get_atom_name(const clipper::Coord_orth &pt, CMMDBManager *
 void
 widgeted_molecule_t::map_solvent_accessibilities_to_atoms(std::vector<solvent_accessible_atom_t> solvent_accessible_atoms) {
 
-   std::cout << "in map_solvent_accessibilities_to_atoms() " << atoms.size() << " atoms "
-	     << "and " << solvent_accessible_atoms.size() << " solvent atoms " << std::endl;
+   if (0)
+      std::cout << "in map_solvent_accessibilities_to_atoms() " << atoms.size() << " atoms "
+		<< "and " << solvent_accessible_atoms.size() << " solvent atoms "
+		<< std::endl;
+   
    for (unsigned int i=0; i<atoms.size(); i++) {
       for (unsigned int j=0; j<solvent_accessible_atoms.size(); j++) {
 	 if (0) 
-	    std::cout << "   for solvent accessibility" << i << "  " << j << "  :"
+	    std::cout << "   for solvent accessibility" << i << "  " << j
+		      << "  mol atom name :"
 		      << atoms[i].get_atom_name()
 		      <<  ": :" << solvent_accessible_atoms[j].atom_name << ":" << std::endl;
 	 if (atoms[i].get_atom_name() == solvent_accessible_atoms[j].atom_name) {
 	    atoms[i].add_solvent_accessibility(solvent_accessible_atoms[j].solvent_accessibility);
+	    if (0)
+	       std::cout << "transfering " << solvent_accessible_atoms[j].bash_distances.size()
+			 << " bash distances for atom " << atoms[i].get_atom_name() << std::endl;
 	    atoms[i].bash_distances = solvent_accessible_atoms[j].bash_distances;
 	    break;
 	 } 
@@ -1345,7 +1365,7 @@ widgeted_molecule_t::map_solvent_accessibilities_to_atoms(std::vector<solvent_ac
    }
 } 
 
-// can throw an exception
+// can throw a runtime_error exception.
 // 
 lig_build::pos_t
 widgeted_molecule_t::get_atom_canvas_position(const std::string &atom_name) const {
@@ -1355,7 +1375,6 @@ widgeted_molecule_t::get_atom_canvas_position(const std::string &atom_name) cons
    for (unsigned int i=0; i<atoms.size(); i++) { 
       if (atoms[i].get_atom_name() == atom_name) {
 	 p = atoms[i].atom_position;
-	 ifound = 1;
 	 return p;
       }
    }

@@ -36,10 +36,11 @@
 #include "lbg.hh"
 
 // 
-bool
+lbg_info_t *
 lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name,
     bool stand_alone_flag_in) {
 
+   lbg_info_t *lbg = NULL;
    bool r = 0; // fail
    std::string glade_file = "lbg.glade";
 
@@ -58,7 +59,7 @@ lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &mole
       r = 1;
       GtkBuilder *builder = gtk_builder_new ();
       gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
-      lbg_info_t *lbg = new lbg_info_t;
+      lbg = new lbg_info_t;
       if (stand_alone_flag_in)
 	 lbg->set_stand_alone();
       lbg->init(builder);
@@ -72,7 +73,7 @@ lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &mole
    } else {
       std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
    } 
-   return r;
+   return lbg;
 }
 
 	     
@@ -1850,7 +1851,8 @@ lbg_info_t::init(GtkBuilder *builder) {
    // ------------ watch for new files from coot ---------------------------
    // 
 
-   int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
+   if (is_stand_alone()) 
+      int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
 
 }
 
@@ -1963,6 +1965,11 @@ lbg_info_t::get_flev_analysis_files_dir() const {
    if (t_dir)
       coot_dir = t_dir;
 
+   std::cout << "DEBUG:: get_flev_analysis_files_dir: " << coot_dir << std::endl;
+   if (t_dir)
+      std::cout << "DEBUG:: t_dir: " << t_dir << std::endl;
+   else 
+      std::cout << "DEBUG:: t_dir: NULL" << std::endl;
    return coot_dir;
 }
 
@@ -2090,7 +2097,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
    }
 
    // redo the atoms, this time with widgets.
-   for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
+   for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
 
       std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(iat);
       std::string ele = mol.atoms[iat].element;
@@ -2812,6 +2819,15 @@ lbg_info_t::contour_fragment::contour_fragment(int ms_type,
 
 std::vector<std::pair<lig_build::pos_t, double> >
 lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &mol) const {
+
+   // debug
+//    std::cout << "........ in get_attachment_points() mol has " << mol.atoms.size()
+// 	     << " atoms " << std::endl;
+//    for (unsigned int i=0; i<mol.atoms.size(); i++) { 
+//       std::cout << "    " << i << "   " << mol.atoms[i] << " "
+// 		<< mol.atoms[i].get_atom_name() <<  std::endl;
+//    }
+   
    
    std::vector<std::pair<lig_build::pos_t, double> > v;
 
@@ -3496,7 +3512,7 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 		     } 
 		  } 
 		  rc.set_canvas_pos(pos);
-		  v.push_back(residue_circle_t(rc));
+		  v.push_back(residue_circle_t(rc)); // why is there a constructor here?
 	       }
 	       catch (std::runtime_error rte) {
 		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
@@ -3716,6 +3732,10 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
       fill_colour = grease;
    if (residue_type == "VAL")
       fill_colour = grease;
+   if (residue_type == "MET")
+      fill_colour = grease;
+   if (residue_type == "MSE")
+      fill_colour = grease;
 
    if (residue_type == "GLY")
       fill_colour = purple;
@@ -3734,10 +3754,6 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
    if (residue_type == "LYS")
       fill_colour = purple;
    if (residue_type == "LYS")
-      fill_colour = purple;
-   if (residue_type == "MET")
-      fill_colour = purple;
-   if (residue_type == "MSE")
       fill_colour = purple;
    if (residue_type == "ARG")
       fill_colour = purple;
@@ -3785,7 +3801,7 @@ lbg_info_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
    if (residue_circle.residue_type != "HOH") { 
       if (residue_circle.se_diff_set()) {
 	 std::pair<double, double> se_pair = residue_circle.solvent_exposures();
-	 double radius_extra = (se_pair.second - se_pair.first) * 22;  // was 18, was 14;
+	 double radius_extra = (se_pair.second - se_pair.first) * 19;  // was 18, was 14, was 22.
 	 if (radius_extra > 0) {
 	    lig_build::pos_t to_lig_centre_uv = (ligand_centre - residue_circle.pos).unit_vector();
 	    lig_build::pos_t se_circle_centre = residue_circle.pos - to_lig_centre_uv * radius_extra;
@@ -3935,10 +3951,25 @@ lbg_info_t::draw_substitution_contour() {
 	 }
       }
 
+      // debug, what's happening to the bash distances? How many were tranfered?
+      // 
+      if (0) {
+	 int n_bash_distances = 1;
+	 for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+	    if (mol.atoms[iat].bash_distances.size()) {
+	       std::cout << " atom :" << mol.atoms[iat].get_atom_name() << ":"
+			 << mol.atoms[iat].bash_distances.size()
+			 << " bash distances " << std::endl;
+	    }
+	 }
+	 std::cout << "..... in draw_substitution_contour() total bash distances "
+		   << n_bash_distances << std::endl;
+      }
+
       // if we don't have bash distances, then don't grid and contour anything.  If
       // we do, we do....
       // 
-      if (have_bash_distances) { 
+      if (have_bash_distances) {
       
 	 GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 	 try { 
@@ -4275,12 +4306,11 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
 
 void
 lbg_info_t::draw_bonds_to_ligand() {
-   
+
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
    GooCanvasLineDash *dash_dash     = goo_canvas_line_dash_new (2, 2.1, 2.1);
    GooCanvasLineDash *dash_unbroken = goo_canvas_line_dash_new (1, 3);
-
 
    GooCanvasLineDash *dash = dash_dash; // re-assigned later (hopefully)
    for (unsigned int ic=0; ic<residue_circles.size(); ic++) { 
@@ -4393,3 +4423,131 @@ void
 lbg_info_t::hide_key() {
 
 }
+
+bool
+lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
+		     const std::vector<coot::fle_residues_helper_t> &centres,
+		     const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,
+		     const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
+		     const coot::flev_attached_hydrogens_t &ah,
+		     const coot::pi_stacking_container_t &pi_stack_info) {
+
+   if (1) {
+      for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
+	 std::cout << "  =============== bond to ligand " << ib << " "
+		   << bonds_to_ligand[ib].ligand_atom_name
+		   << " by residue " << bonds_to_ligand[ib].res_spec.chain << " "
+		   << bonds_to_ligand[ib].res_spec.resno << " " << std::endl;
+      }
+   }
+
+   if (0) { 
+      std::cout << "--------------------------------------------------------------" << std::endl;
+      std::cout << "in lbg_info_t::annotate() here are bash distances for atoms:" << std::endl;
+      std::map<std::string, std::vector<coot::bash_distance_t> >::const_iterator it;
+      for (it=ah.atom_bashes.begin(); it!=ah.atom_bashes.end(); it++) {
+	 std::cout << it->first << " " << it->second.size() << " bashes " << std::endl;
+      }
+      std::cout << "--------------------------------------------------------------" << std::endl;
+   }
+
+   bool r = false;
+   std::vector<solvent_accessible_atom_t> solvent_accessible_atoms =
+      convert(s_a_v, ah);
+   widgeted_molecule_t new_mol = mol;
+   new_mol.map_solvent_accessibilities_to_atoms(solvent_accessible_atoms);
+
+   // fill class data item std::vector<residue_circle_t> residue_circles;
+   residue_circles.clear();
+   for (unsigned int i=0; i<centres.size(); i++) {
+      std::string label = centres[i].spec.chain;
+      label += coot::util::int_to_string(centres[i].spec.resno);
+      label += centres[i].spec.insertion_code;
+      
+      residue_circle_t circle(centres[i].centre.x(),
+			      centres[i].centre.y(),
+			      centres[i].centre.z(),
+			      centres[i].residue_name, 
+			      label);
+      
+      clipper::Coord_orth cp(centres[i].centre.x(),
+			     centres[i].centre.y(),
+			     centres[i].centre.z());
+      lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp);
+      circle.set_canvas_pos(pos);
+      if (centres[i].residue_name == "HOH") {
+	 for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
+	    if (bonds_to_ligand[ib].res_spec == centres[i].spec) {
+	       circle.set_water_dist_to_protein(bonds_to_ligand[ib].water_protein_length);
+	    }
+	 }
+      }
+
+      // now add any H-bonds to the ligand:
+      // 
+      for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
+	 if (bonds_to_ligand[ib].res_spec == centres[i].spec) {
+	    double bond_l = bonds_to_ligand[ib].bond_length;
+	    std::string ligand_atom_name = bonds_to_ligand[ib].ligand_atom_name;
+	    lbg_info_t::bond_to_ligand_t btl(ligand_atom_name, bond_l);
+	    btl.bond_type = bonds_to_ligand[ib].bond_type;
+	    circle.add_bond_to_ligand(btl);
+	 }
+      }
+
+      // Now add and pi-stacking interactions to/from the ligand:
+      //
+      for (unsigned int istack=0; istack<pi_stack_info.stackings.size(); istack++) {
+	 coot::residue_spec_t spec(pi_stack_info.stackings[istack].res);
+	 if (spec == centres[i].spec) {
+	    if (pi_stack_info.stackings[istack].type == coot::pi_stacking_instance_t::PI_PI_STACKING) {
+	       std::vector<std::string> lra = pi_stack_info.stackings[istack].ligand_ring_atom_names;
+	       circle.set_stacking("pi-pi", lra, "");
+	    }
+	    if (pi_stack_info.stackings[istack].type == coot::pi_stacking_instance_t::PI_CATION_STACKING) {
+	       std::vector<std::string> lra = pi_stack_info.stackings[istack].ligand_ring_atom_names;
+	       circle.set_stacking("pi-cation", lra, "");
+	    }
+	 }
+      }
+
+      // solvent exposure difference annotation.
+      //
+      // std::vector<coot::solvent_exposure_difference_helper_t> &sed,
+      //
+      for (unsigned int ised=0; ised<sed.size(); ised++) { 
+	 if (sed[ised].res_spec == centres[i].spec) {
+	    circle.set_solvent_exposure_diff(sed[ised].exposure_fraction_holo,
+					     sed[ised].exposure_fraction_apo);
+	 }
+      }
+      
+      residue_circles.push_back(circle);
+   }
+
+   refine_residue_circle_positions();
+   render_from_molecule(new_mol);
+   return r;
+}
+
+
+std::vector<solvent_accessible_atom_t>
+lbg_info_t::convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
+		    const coot::flev_attached_hydrogens_t &ah) const {
+
+   std::vector<solvent_accessible_atom_t> r(s_a_v.size());
+
+   for (unsigned int i=0; i<s_a_v.size(); i++) {
+      std::string name = s_a_v[i].first.atom_name;
+      r[i].atom_name = name;
+      r[i].solvent_accessibility = s_a_v[i].second;
+
+      std::map<std::string, std::vector<coot::bash_distance_t> >::const_iterator it =
+	 ah.atom_bashes.find(name);
+      if (it != ah.atom_bashes.end()) 
+	 r[i].bash_distances = it->second;
+   }
+
+   return r;
+} 
+

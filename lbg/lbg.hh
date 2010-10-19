@@ -47,6 +47,9 @@
 
 #include "wmolecule.hh"
 
+#include "coot-coord-utils.hh"
+#include "flev-annotations.hh"
+
 #define dark "#111111"
 
 // Sorry Bernie, I don't see how this is useful - tell me why.  It
@@ -60,8 +63,6 @@ static double LIGAND_TO_CANVAS_SCALE_FACTOR = 23;
 static double SINGLE_BOND_CANVAS_LENGTH= LIGAND_TO_CANVAS_SCALE_FACTOR * 1.54;
 
 
-bool lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name,
-	 bool stand_alone_flag_in = 0);
 
 bool save_togglebutton_widgets(GtkBuilder *builder);
 
@@ -735,7 +736,6 @@ private:
    void draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
 				     const lig_build::pos_t &residue_pos,
 				     int stacking_type);
-   void draw_all_residue_attribs();
    void handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb_file,
 						 const std::string &coot_mdl_file,
 						 const std::string &sa_file);
@@ -754,10 +754,15 @@ private:
 
    PCGraph makeTestQueryGraph() const;  // debugging
 
+   void refine_residue_circle_positions(); // changes the positions of in residue_circles
+
 #ifdef MAKE_ENTERPRISE_TOOLS
    RDKit::RWMol rdkit_mol(const widgeted_molecule_t &mol) const;
    RDKit::Bond::BondType convert_bond_type(const lig_build::bond_t::bond_type_t &t) const;
    std::string get_smiles_string_from_mol_rdkit() const;
+   std::vector<solvent_accessible_atom_t>
+   convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
+	   const coot::flev_attached_hydrogens_t &ah) const;
 #endif
    std::string get_smiles_string_from_mol_openbabel() const;
 
@@ -826,6 +831,7 @@ public:
    static gboolean watch_for_mdl_from_coot(gpointer user_data);
    time_t coot_mdl_ready_time;
    void read_draw_residues(const std::string &file_name);
+   void draw_all_residue_attribs();
    std::vector<residue_circle_t> read_residues(const std::string &file_name) const;
    void draw_residue_circles(const std::vector<residue_circle_t> &v);
    void draw_stacking_interactions(const std::vector<residue_circle_t> &v);
@@ -840,7 +846,20 @@ public:
    // can throw an exception
    std::string get_smiles_string_from_mol() const;
    void set_stand_alone() { stand_alone_flag = 1; }
-   bool is_stand_alone() { return stand_alone_flag; } 
+   bool is_stand_alone() { return stand_alone_flag; }
+
+   bool annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
+		 const std::vector<coot::fle_residues_helper_t> &centres,
+		 const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,
+		 const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
+		 const coot::flev_attached_hydrogens_t &ah,
+		 const coot::pi_stacking_container_t &pi_stack_info);
 };
+
+// return pointer to an lbg_info_t.  Caller deletes.
+// 
+lbg_info_t *lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol,
+		const std::string &molecule_file_name,
+		bool stand_alone_flag_in = 0);
 
 #endif // LBG_HH

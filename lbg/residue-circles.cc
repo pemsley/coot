@@ -13,7 +13,7 @@ lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector
 							       const widgeted_molecule_t &mol_in,
 							       const std::vector<int> &primary_indices_in) {
 
-   bool show_dynamics = 1;
+   bool show_dynamics = 0;
 
    mol = mol_in;
    starting_circles = r;
@@ -49,7 +49,7 @@ lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector
    s = gsl_multimin_fdfminimizer_alloc (T, n_var);
    gsl_multimin_fdfminimizer_set (s, &my_func, x, 1, 1e-4);
    size_t iter = 0;
-   int n_steps = 60;
+   int n_steps = 150; // increase?
    if (show_dynamics)
       n_steps = 60;
 
@@ -96,6 +96,28 @@ lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector
    gsl_vector_free (x);
    
 }
+
+
+void
+lbg_info_t::refine_residue_circle_positions() { // changes the positions of in residue_circles
+
+   std::vector<int> primary_indices = get_primary_indices();
+   initial_residues_circles_layout(); // twiddle residue_circles
+   std::vector<lbg_info_t::residue_circle_t> current_circles = residue_circles;
+   
+   for (int iround=0; iround<120; iround++) {
+      std::pair<int, std::vector<lbg_info_t::residue_circle_t> > new_c =
+	 optimise_residue_circle_positions(residue_circles, current_circles, primary_indices);
+      current_circles = new_c.second;
+      if (new_c.first == GSL_ENOPROG)
+	 break;
+      if (new_c.first == GSL_SUCCESS) { 
+	 break;
+      }
+   }
+   residue_circles = current_circles;
+}
+
 
 
 // Return the status and updated positions.

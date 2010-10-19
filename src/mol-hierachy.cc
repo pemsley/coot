@@ -71,7 +71,35 @@ void check_chiral_volumes(int imol) {
    } else {
       std::cout << "WARNING:: no such molecule " << imol << std::endl;
    } 
-} 
+}
+
+// debug a mol
+ 
+       { 
+	  int imod = 1;
+	  CModel *model_p = flat_mol->GetModel(imod);
+	  CChain *chain_p;
+	  int nchains = model_p->GetNumberOfChains();
+	  for (int ichain=0; ichain<nchains; ichain++) {
+	     chain_p = model_p->GetChain(ichain);
+	     std::cout << "%%%%%%%%%% DEBUG chain :" << chain_p->GetChainID() << ":" << std::endl;
+	     int nres = chain_p->GetNumberOfResidues();
+	     CResidue *residue_p;
+	     CAtom *atom_p;
+	     for (int ires=0; ires<nres; ires++) { 
+		residue_p = chain_p->GetResidue(ires);
+		std::cout << "%%%%%%%%%% DEBUG    residue number " << residue_p->GetSeqNum()
+			  << std::endl;
+		int n_atoms = residue_p->GetNumberOfAtoms();
+		for (int iat=0; iat<n_atoms; iat++) {
+		   atom_p = residue_p->GetAtom(iat);
+		   std::cout << "%%%%%%%%%% DEBUG       atom :" << atom_p->GetAtomName() << ":"
+			     << std::endl;
+		}
+	     }
+	  }
+       }
+ 
 
    // ---- simple version 
 

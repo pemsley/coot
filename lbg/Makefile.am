@@ -1,6 +1,17 @@
 
 lib_LTLIBRARIES=libcoot-lidia.la
 
+INCLUDES = \
+	-I$(top_srcdir)/lidia-core \
+	-I$(top_srcdir)/geometry \
+	-I$(top_srcdir)/utils \
+        $(GSL_CFLAGS) \
+        $(GOOCANVAS_CFLAGS) \
+        $(GTK_CFLAGS) \
+	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) \
+	$(ENTERPRISE_TOOLS_CFLAGS)      \
+	$(RDKIT_CXXFLAGS)
+
 if MAKE_ENTERPRISE_TOOLS
 
 AM_CXXFLAGS = \
@@ -16,24 +27,18 @@ lidia_SOURCES = lidia-main.cc
 
 # some-coot-utils.hh needed?
 #
-include_HEADERS = lbg.hh wmolecule.hh rdkit-interface.hh
-
-INCLUDES = \
-	-I$(top_srcdir)/lidia-core \
-	-I$(top_srcdir)/geometry \
-	-I$(top_srcdir)/utils \
-        $(GSL_CFLAGS) \
-        $(GOOCANVAS_CFLAGS) \
-        $(GTK_CFLAGS) \
-	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) \
-	$(ENTERPRISE_TOOLS_CFLAGS)      \
-	$(RDKIT_CXXFLAGS)
+include_HEADERS = lbg.hh wmolecule.hh rdkit-interface.hh flev-annotations.hh
 
 
+# res spec output operator means we include libcoot-coord-utils
+# (if that is annoying, then remove it and expand it by hand)
+#
 lidia_LDADD = \
 	./libcoot-lidia.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
 
 EXTRA_DIST=lbg.glade
@@ -53,6 +58,7 @@ appicon_DATA = \
 
 else 
 
-libcoot_lidia_la_SOURCES = 
+libcoot_lidia_la_SOURCES = flev-annotations.cc
+include_HEADERS = flev-annotations.hh
 
 endif
