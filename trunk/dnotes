@@ -5767,9 +5767,40 @@ Sun Aug 15 12:59:12 BST 2010
       gets highlighted.  It shouldn't update hilighted bond when I am
       in edit chi mode.  Or something. See JED mail from a few days ago.
 
+
 -----
 Wed Sep 29 10:35:58 BST 2010
 
+Transparent sphere with glutsphere:  
+
+   martinm:
+
+   You can do it by enabling culling, and using two draw calls - one
+   with glFrontFace(GL_CW) and another with glFrontFace(GL_CCW). First
+   draw call will draw back faces of sphere, and second one front
+   faces, therefore you will get transparent sphere with correct
+   polygons rendered from back to front.
+
+http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=250770
+
+
+----
+Thu Sep  2 11:50:17 BST 2010
+
+  Use GL_ONE_MINUS_DST_COLOR in blending with white background edges?
+
+http://msdn.microsoft.com/en-us/library/ms537046.aspx
+
+----
+Thu Sep  2 11:40:03 BST 2010
+
+   Libraries have been installed in:
+       /lmb/wear/emsley/coot/fed-12/lib
+    
+    use the `-Wl,-rpath -Wl,LIBDIR' linker flag
+
+
+=======
 Interesting valgrind problems:
 
 ==23673== 67,982 bytes in 2,432 blocks are possibly lost in loss record 9,100 of 9,127
@@ -5826,7 +5857,6 @@ Another:
 ==23673==    by 0x87E633D: deval (in /home/paule/autobuild/Linux-scylla-pre-release-gtk2/lib/libguile.so.17.3.1)
 ==23673==    by 0x87E732A: scm_i_eval_x (in /home/paule/autobuild/Linux-scylla-pre-release-gtk2/lib/libguile.so.17.3.1)
 
-
 ----
 Sun Oct 10 12:14:21 EDT 2010
 
@@ -5834,5 +5864,6 @@ Sun Oct 10 12:14:21 EDT 2010
      at the bottom of the residue list when mutating.
      ::: 0.5
 
-
 ------
+
+

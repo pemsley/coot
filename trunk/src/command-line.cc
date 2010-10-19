@@ -206,6 +206,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--data mtz-file-name]\n"
 			       << "            [--hklin mtz-file-name]\n"
 			       << "            [--auto mtz-file-name]\n"
+			       << "            [--dictionary cif-dictionary-file-name]\n"
 			       << "            [--script script-file-name]\n"
 			       << "            [--small-screen]\n"
 			       << "            [--splash-screen]\n"

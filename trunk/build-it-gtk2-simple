@@ -983,6 +983,9 @@ case $systype in
       ;;
 esac
 
+# for SuSe 11.3, we need to install the following:
+# g++ patch m4 make libgnomecanvas-dev gtk-dev swig
+
 
 # give us some diagnostic shell information:
 # (what extra things did $specs give us?)

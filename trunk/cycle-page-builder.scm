@@ -270,7 +270,7 @@
 ;; return the revision number or #f
 ;; 
 (define (get-svn-revision)
-  (let ((coot-dir (string-append (getenv "HOME") "/Projects/coot"))
+  (let ((coot-dir (string-append (getenv "HOME") "/Projects/coot-svn/trunk"))
 	(current-dir (getcwd)))
     ; (format #t "coot-dir: ~s~%" coot-dir)
     ; (format #t "curr-dir: ~s~%" current-dir)

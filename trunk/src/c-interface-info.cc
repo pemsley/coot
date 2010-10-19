@@ -2563,6 +2563,19 @@ float data_resolution(int imol) {
    return r;
 }
 
+/*! \brief return the resolution set in the header of the
+  model/coordinates file.  If this number is not available, return a
+  number less than 0.  */
+float model_resolution(int imol) {
+
+   float r = -1;
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].atom_sel.mol->GetResolution();
+   } 
+   return r;
+} 
+
+
 /*  ------------------------------------------------------------------------ */
 /*                     resolution                                            */
 /*  ------------------------------------------------------------------------ */
