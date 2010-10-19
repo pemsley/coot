@@ -1110,6 +1110,11 @@ void set_contour_by_sigma_step_by_mol(float f, short int state, int imol);
    Return negative number on error, otherwise resolution in A (eg. 2.0) */
 float data_resolution(int imol);
 
+/*! \brief return the resolution set in the header of the
+  model/coordinates file.  If this number is not available, return a
+  number less than 0.  */
+float model_resolution(int imol);
+
 /*! \brief export (write to disk) the map of molecule number imol to
   filename.  
   
