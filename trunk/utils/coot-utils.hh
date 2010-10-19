@@ -95,6 +95,7 @@ namespace coot {
 
       std::string downcase(const std::string &s);
       std::string upcase(const std::string &s);
+      std::string capitalise(const std::string &s); // capitalise first, downcase rest
 
       std::vector<std::pair<std::string, int> > atomic_number_atom_list();
       int atomic_number(const std::string &atom_name, 

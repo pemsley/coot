@@ -503,13 +503,19 @@ on_residue_circles_toolbutton_clicked(GtkToolButton *button, gpointer user_data)
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
-   if (l) { 
-      // l->read_draw_residues("../../build-coot-ubuntu-64bit/src/coot-tmp-fle-view-residue-info.txt");
-      std::string f = l->get_flev_analysis_files_dir();
-      f += "/coot-tmp-fle-view-residue-info.txt";
-      l->read_draw_residues(f);
+   if (l) {
+
+      if (l->is_stand_alone()) { 
+	 // l->read_draw_residues("../../build-coot-ubuntu-64bit/src/coot-tmp-fle-view-residue-info.txt");
+	 std::string f = l->get_flev_analysis_files_dir();
+	 f += "/coot-tmp-fle-view-residue-info.txt";
+	 l->read_draw_residues(f);
+      } else {
+	 // normal enterprise, built-in case
+	 l->draw_all_residue_attribs();
+      } 
    } else {
-      std::cout << "Bad lbg_info_t lookup in on_residue_cirlces_toolbutton_clicked" << std::endl;
+	 std::cout << "Bad lbg_info_t lookup in on_residue_cirlces_toolbutton_clicked" << std::endl;
    }
 }
 

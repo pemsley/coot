@@ -1,4 +1,10 @@
 
+==============================================
+
+rdkit typos, cleanUp() description in MolOps.h
+
+==============================================
+
 
 test ligands:
 2z7l A 1001 S91
@@ -12,6 +18,17 @@ test ligands:
             Mistake, I feel - needs investigating.
 
 ----
+Wed Oct 13 07:18:36 EDT 2010
+
+   Use SBASE to get the bond orders (for any hetatm residue)
+
+   Then we can show anything in the PDB "instantaneously".  And lay it
+   out without having to use PRODRG first.
+	
+   The protein geometry interface will need to change a bit to allow
+   the storage of such entries (bond orders but no restraints).
+
+----
 
     Thoughts about 6 July meeting:
 
@@ -19,6 +36,43 @@ test ligands:
 
     o Need to show findligand script with a ccp4mg headless back-end
       for images.
+
+
+----
+Sun Oct 10 09:17:09 EDT 2010
+
+    o Make a nice picture with biotin c.f.
+
+    http://www.chemcomp.com/journal/ligintdia.htm
+
+    This is a nice page actually, lots of good stuff.
+
+
+----
+Mon Oct 18 01:28:59 EDT 2010
+
+   INU in 7upj, H-bond missing?  OH->B25 sidechain?
+
+
+---
+Sat Oct 16 20:30:42 EDT 2010
+
+    covalent bonds to a regular chain peptide reisdue, should touch
+    the C (it currently is short, like the N)
+
+
+---
+Tue Oct 12 14:11:45 EDT 2010
+
+    o Show a triple bond in 3D view 
+
+---
+Tue Oct 12 14:22:25 EDT 2010
+
+     Chagers disease, 
+     cruzain inhibition by K-777 Kepri/Celera : draw and make this, it's chiral
+
+     Biochemcistry 2000 39, 12543
 
 ----
 Sun Oct  3 10:30:12 BST 2010
@@ -31,6 +85,16 @@ move the molecule a bit
 then add new 5-member ring.  (5 member ring is added inside the 6 member ring)
 
 (because ring centre info is wrong or missing?)   
+
+----
+Tue Oct 12 14:33:17 EDT 2010
+
+  consider a 6-member ring that you want to change to a 5-member ring.
+  Perhaps in the middle of a molecule.
+
+  -> ugly 
+
+  -> need a "clean-up layout" button.  
 
 
 ----

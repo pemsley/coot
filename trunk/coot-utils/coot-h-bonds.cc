@@ -22,6 +22,26 @@
 #include "coot-h-bonds.hh"
 
 
+std::ostream &
+coot::operator<<(std::ostream &s, h_bond hb) {
+
+   s << "donor: " << coot::atom_spec_t(hb.donor)
+     << " acceptor: " << coot::atom_spec_t(hb.acceptor);
+   if (hb.donor_neigh)
+      s << " donor_neigh: " << coot::atom_spec_t(hb.donor_neigh);
+   else 
+      s << " donor_neigh: NULL ";
+   
+   if (hb.acceptor_neigh)
+      s << " acceptor_neigh: " << coot::atom_spec_t(hb.acceptor_neigh);
+   else 
+      s << " acceptor_neigh: NULL [problem!?]";
+	    
+   s << " dist: " << hb.dist 
+     << " ligand-atom-is-donor?: " << hb.ligand_atom_is_donor;
+   return s;
+} 
+
 // typically the atom selection selHnd_1 is for the ligand and
 // selHnd_2 is for everything (else).
 // 
@@ -85,13 +105,6 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 	    at_1->GetUDData(hb_type_udd_handle, hb_type_1);
 	    at_2->GetUDData(hb_type_udd_handle, hb_type_2);
 
-	    if (0) { 
-	       std::cout << "atom 1st selection: " << coot::atom_spec_t(at_1) << " has hb_type "
-			 << hb_type_1 << std::endl;
-	       std::cout << "atom 2nd selection: " << coot::atom_spec_t(at_2) << " has hb_type "
-			 << hb_type_2 << std::endl;
-	    }
-
 	    bool match = 0;
 	    bool swap = 0;
 	    bool ligand_atom_is_donor = 1;
@@ -110,6 +123,14 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 	       match = 1;
 	       swap = 1;
 	       ligand_atom_is_donor = 0;
+	    }
+
+	    if (0) { 
+	       std::cout << "atom 1st selection: " << coot::atom_spec_t(at_1) << " has hb_type "
+			 << hb_type_1 << std::endl;
+	       std::cout << "atom 2nd selection: " << coot::atom_spec_t(at_2) << " has hb_type "
+			 << hb_type_2 << std::endl;
+	       std::cout << ".... makes match: " << match << std::endl;
 	    }
 
 	    if (match) {
@@ -133,8 +154,11 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 	       double angle_1_0 = -1; // assigned later
 	       double angle_2_0 = -1; // assigned later
 	       
-	       std::cout << "   Here 1 #donor-neighbs: " << nm_1.size()
-			 << " #acceptor-neighbs: " << nm_2.size() << std::endl;
+	       std::cout << "   #donor-neighbs: " << nm_1.size()
+			 << " #acceptor-neighbs: " << nm_2.size()
+			 << " res_type_1 " << res_type_1
+			 << " res_type_2 " << res_type_2
+			 << std::endl;
 	       
 	       if (((nm_1.size() > 0) || (res_type_1 == "HOH")) &&
 		   ((nm_2.size() > 0) || (res_type_2 == "HOH"))) {
@@ -201,7 +225,7 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 				     << "\n";
 		     }
 		  
-		     std::cout << "   Here 4 angles_good: " << neighbour_angles_are_good << std::endl;
+		     std::cout << "    angles_good: " << neighbour_angles_are_good << std::endl;
 		     
 		     if (neighbour_angles_are_good) {
 
@@ -213,10 +237,20 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 			hb.angle_1 = angle_1_0;
 			hb.angle_2 = angle_2_0;
 			hb.ligand_atom_is_donor = ligand_atom_is_donor; // selHnd_1 is presumed "ligand"
+			
+			// Don't add h-bonds that somehow have not had
+			// donor_neigh and acceptor_neigh assigned.
+			//
+			// It's OK for donor_neigh to be null/unset if
+			// the donor is an HOH.
+			//
+			// Otherwise, do add it.
+			// 
 			if (1) 
-			   std::cout << "Adding bond " << coot::atom_spec_t(hb.donor) << " to "
-				     << coot::atom_spec_t(hb.acceptor) << std::endl;
+			   std::cout << "Adding an H-bond " << coot::atom_spec_t(hb.donor)
+				     << " to " << coot::atom_spec_t(hb.acceptor) << std::endl;
 			v.push_back(hb);
+
 		     }
 		  }
 	       }
@@ -229,6 +263,12 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
    }
 
    std::sort(v.begin(), v.end());
+
+   std::cout << "returning these h bonds: " << std::endl;
+   for (unsigned int i=0; i<v.size(); i++) { 
+      std::cout << "   " << i << "  " << v[i] << std::endl;
+   }
+   
    return v;
 }
 
@@ -255,7 +295,8 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, CMMDBManage
       int h_bond_type = geom.get_h_bond_type(name, res_name);
       sel_1_atoms[i]->PutUDData(udd_h_bond_type_handle, h_bond_type);
       if (debug)
-	 std::cout << sel_1_atoms[i]->GetChainID() << " "
+	 std::cout << "   h_bonds:: " 
+		   << sel_1_atoms[i]->GetChainID() << " "
 		   << sel_1_atoms[i]->GetSeqNum() << " "
 		   << sel_1_atoms[i]->GetResName() << " "
 		   << "name: " << name << " marked as " << h_bond_type << "\n";
@@ -268,7 +309,8 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, CMMDBManage
 	 int h_bond_type = geom.get_h_bond_type(name, res_name);
 	 sel_2_atoms[i]->PutUDData(udd_h_bond_type_handle, h_bond_type);
       if (debug)
-	 std::cout << sel_2_atoms[i]->GetChainID() << " "
+	 std::cout << "h_bonds:: "
+		   << sel_2_atoms[i]->GetChainID() << " "
 		   << sel_2_atoms[i]->GetSeqNum() << " "
 		   << sel_2_atoms[i]->GetResName() << " "
 		   << "name: " << name << " marked as " << h_bond_type << "\n";
@@ -304,7 +346,7 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol)
 
    mol->SeekContacts(sel_1_atoms, n_sel_1_atoms,
 		     sel_1_atoms, n_sel_1_atoms,
-		     0.1, 1.7,
+		     0.1, 1.8,
 		     0, // seqDist 0 -> also in same res.
 		     pscontact, n_contacts,
 		     0, &my_matt, i_contact_group);

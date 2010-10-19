@@ -355,6 +355,13 @@ coot::dots_representation_info_t::solvent_accessibilities(CResidue *res_ref,
 							  const std::vector<CResidue *> &near_residues) const {
 
    std::vector<std::pair<coot::atom_spec_t, float> > v;
+
+   // no solvent exposures if the ligand does not have *any*
+   // neighbours (i.e. it's floating in space (probably the only
+   // residue in the molecule).
+   if (near_residues.size() == 0)
+      return v;
+   
    std::vector<CResidue *> residues = near_residues;
    residues.push_back(res_ref);
    
@@ -2144,9 +2151,9 @@ molecule_class_info_t::get_residue(const std::string &chain_id,
 CResidue *
 molecule_class_info_t::get_residue(const coot::residue_spec_t &residue_spec) const { 
    
-   CResidue *res = res = get_residue(residue_spec.chain,
-				     residue_spec.resno,
-				     residue_spec.insertion_code);
+   CResidue *res = get_residue(residue_spec.chain,
+			       residue_spec.resno,
+			       residue_spec.insertion_code);
    return res;
 }
 

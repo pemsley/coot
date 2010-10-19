@@ -211,7 +211,8 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std:
 	       if (it != energy_lib.atom_map.end()) { 
 		  hb_type = it->second.hb_type;
 		  if (debug)
-		     std::cout << "DEBUG:: found hb_type " << hb_type << " for " << atom_name << std::endl;
+		     std::cout << "DEBUG:: found hb_type " << hb_type << " for " << atom_name
+			       << " given energy type " << type << std::endl;
 	       }
 	    }
 	    break;

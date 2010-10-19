@@ -53,6 +53,7 @@ public:
       pt = pt_in;
       solvent_accessibility = sa;
    }
+   solvent_accessible_atom_t() { }
    void add_bash_dist(double d) {
       bash_distances.push_back(coot::bash_distance_t(d));
    }

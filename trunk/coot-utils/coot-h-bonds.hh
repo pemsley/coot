@@ -34,6 +34,9 @@ namespace coot {
       h_bond(CAtom *d, CAtom *a) {
 	 donor = d;
 	 acceptor = a;
+	 donor_neigh = NULL;
+	 acceptor_neigh = NULL;
+	 ligand_atom_is_donor = 0;
       } 
       bool operator<(const h_bond &hb_2) const {
 	 return (residue_spec_t(donor) < residue_spec_t(hb_2.donor));
@@ -44,8 +47,10 @@ namespace coot {
 	 atom_spec_t sd2(hb_2.donor);
 	 atom_spec_t sa2(hb_2.acceptor);
 	 return ((sd1 == sd2) && (sa1 == sa2));
-      } 
+      }
+      friend std::ostream & operator<<(std::ostream &s, h_bond hb);
    };
+   std::ostream & operator<<(std::ostream &s, h_bond hb);
 
 
    class h_bonds {
