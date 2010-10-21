@@ -600,8 +600,8 @@ def molecules_matching_criteria(test_func):
                window.destroy()
                return False
 
-           def centre_on_mol(*args):
-               s = "Centred on" + name
+           def centre_on_mol(widget, imol, name):
+               s = "Centred on " + name
                add_status_bar_text(s)
                centre = molecule_centre(imol)
                set_rotation_centre(*centre)
@@ -630,7 +630,7 @@ def molecules_matching_criteria(test_func):
              name = molecule_name(imol)
              button = gtk.Button(str(name))
              inside_vbox.pack_start(button, False, False, 1)
-             button.connect("clicked",centre_on_mol,imol,name)
+             button.connect("clicked", centre_on_mol, imol, name)
 
            outside_vbox.set_border_width(6)
            ok_button = gtk.Button("OK")
