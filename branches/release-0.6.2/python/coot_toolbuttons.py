@@ -280,11 +280,12 @@ if (have_coot_python):
       def remove_toolbar_button(entry_text):
         print "remove button", entry_text
         for toolbar_child in coot_main_toolbar.get_children():
-          button_label = toolbar_child.get_label()
-          if (button_label == entry_text):
-            coot_main_toolbar.remove(toolbar_child)
-            remove_toolbar_from_init_file(button_label)
-            break
+          if (type(toolbar_child) == gtk.ToolButton):
+            button_label = toolbar_child.get_label()
+            if (button_label == entry_text):
+              coot_main_toolbar.remove(toolbar_child)
+              remove_toolbar_from_init_file(button_label)
+              break
       generic_single_entry("Remove toolbar button",
                            "button label",
                            "Remove",

@@ -6,7 +6,7 @@ hostname=`hostname`
 
 
 # Bernie wants libtoolize
-libtoolize -f
+libtoolize
 
 if test $sys = Darwin ; then 
    echo aclocal -I macros -I /sw/share/aclocal
