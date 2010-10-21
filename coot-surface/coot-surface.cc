@@ -116,7 +116,11 @@ coot::surface::draw(double *override_colour, int selective_override) {
   for (int i=0; i< theSurface->numberOfVertices(); i++){
     //Use the colour if it has been assigned
     if (!theSurface->getCoord("colour", i, coords)){
-      for (int k=0; k<4; k++) colour[k] = coords[k];
+      for (int k=0; k<3; k++) {
+        colour[k] = coords[k];
+      }
+      // set alpha to 1 (rather than default 0) needed for screenshot
+      colour[4] = 1.0;
     }
     for (int k=0; k<4; k++) colours [4*i+k] = colour[k];
     
