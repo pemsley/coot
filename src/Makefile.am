@@ -247,7 +247,6 @@ coot_real_SOURCES = \
 	c-interface-database.hh  \
 	c-interface-database.cc  \
 	c-interface-pisa.cc	 \
-	pisa-interface.hh	 \
 	c-interface-pisa-gui.cc	 \
 	c-interface-python.hh	 \
 	c-interface.cc		 \
@@ -290,6 +289,8 @@ coot_real_SOURCES = \
 	coot-glue.c              \
 	coot-glue-gtk2.c	 \
 	coot-glue-gtk2-python.cc \
+	coot-hydrogens.hh        \
+	coot-hydrogens.cc        \
 	coot-render.hh           \
 	coot_pythonmodule.cc     \
 	coot-preferences.h       \
@@ -345,6 +346,7 @@ coot_real_SOURCES = \
 	molecule-class-info-ncs.cc 	\
 	molecule-class-info-widget-work.cc \
 	nsv.cc nsv.hh    	 \
+	pisa-interface.hh	 \
         pick.h pick.cc		 \
 	positioned-widgets.h     \
 	read-phs.h		 \

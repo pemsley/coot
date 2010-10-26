@@ -1,6 +1,6 @@
 
-#ifndef ENTERPRISE_HH
-#define ENTERPRISE_HH
+#ifndef RDKIT_INTERFACE_HH
+#define RDKIT_INTERFACE_HH
 
 #include "use-rdkit.hh"
 
@@ -13,7 +13,11 @@ namespace coot {
    // can throw an runtime_error exception (residue not in dictionary)
    // 
    RDKit::RWMol rdkit_mol(CResidue *residue_p, const protein_geometry &geom);
-   int add_2d_conformer(RDKit::ROMol *rdkmol_in); // tweak rdkmol_in
+
+   RDKit::RWMol rdkit_mol(CResidue *residue_p, const coot::dictionary_residue_restraints_t &restraints);
+
+   
+   int add_2d_conformer(RDKit::ROMol *rdkmol_in, double weight_for_3d_distances); // tweak rdkmol_in
    RDKit::Bond::BondType convert_bond_type(const std::string &t);
 
    lig_build::molfile_molecule_t make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf);
@@ -31,6 +35,19 @@ namespace coot {
    
    // This can throw a std::exception
    void remove_non_polar_Hs(RDKit::RWMol *rdkm); // fiddle with rdkm
+
+
+   // a wrapper for the above, matching hydrogens names to the
+   // dictionary.  Add atoms to residue_p, return success status.
+   // 
+   bool add_hydrogens_with_rdkit(CResidue *residue_p,
+				 const dictionary_residue_restraints_t &restraints);
+
+   std::string infer_H_name(int iat,
+			    RDKit::ATOM_SPTR atom_p,
+			    const RDKit::ROMol *mol,
+			    const dictionary_residue_restraints_t &restraints,
+			    const std::vector<std::string> &H_names_already_added);
 
    //
    void undelocalise(RDKit::RWMol *rdkm); // fiddle with rdkm

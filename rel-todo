@@ -13,10 +13,16 @@
 
   o load tutorial data on a mac fails, no COOT_PREFIX set.
 
-  o mege a 3GP into tutorial modern then try to undisplay hydrogens
-    with Bond Parameters.  Fail (because of new bonding algorithm)
+  o merge a 3GP into tutorial modern then try to undisplay hydrogens
+    with Bond Parameters.  Fail (because of new bonding algorithm) - not for 0.6.2.
 
   o ncs difference graph updating on autofit rotamer and refine residue
+
+  o fix the non-Hs of a molecule.  Refine just the Hs.  Other atoms
+     move too.  Badness.  could be related to KK bug.
+
+  o a pdb with Hs.  undisplay Hs.  Zero occ squares should dissappear,
+    but Do not.  Zero occ atoms are clickable.  JED bug.
 
 ------
 

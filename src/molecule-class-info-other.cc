@@ -5964,7 +5964,7 @@ molecule_class_info_t::set_b_factor_atom_selection(const atom_selection_containe
 					   std::string(atom->name),
 					   std::string(atom->altLoc));
 	if (idx == -1) {
-	  std::cout << "DEBUG:: idx: " << idx << "\n";
+	  std::cout << "DEBUG:: set-bfactor idx: " << idx << "\n";
 	  std::cout << "ERROR:: failed to find spec for chain-id :"
 		    << std::string(atom->residue->GetChainID()) <<  ": "
 		    << atom->residue->seqNum << " inscode :" 

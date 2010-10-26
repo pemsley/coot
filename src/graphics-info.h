@@ -2094,9 +2094,9 @@ public:
    // restraints.  Try to auto-load the dictionary cifs and try again.
    // The vector is a list of residues for which no restraints could be found.
    std::pair<int, std::vector<std::string> >
-   check_dictionary_for_residues(PCResidue *SelResidues, int nSelResidues);
+   check_dictionary_for_residue_restraints(PCResidue *SelResidues, int nSelResidues);
    std::pair<int, std::vector<std::string> >
-   check_dictionary_for_residues(const std::vector<CResidue *> &residues);
+   check_dictionary_for_residue_restraints(const std::vector<CResidue *> &residues);
 
    // called by copy_mol_and_refine and copy_mol_and_regularize
    // 

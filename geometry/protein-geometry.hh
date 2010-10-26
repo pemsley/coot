@@ -359,15 +359,31 @@ namespace coot {
    // ------------------------------------------------------------------------
    // 
    class dictionary_residue_restraints_t {
-      bool has_partial_charges_flag; 
+      bool has_partial_charges_flag;
+      bool filled_with_sbase_data_flag; // if set, this means that
+					// there is only bond orders
+					// (at the moment) and atom
+					// names.
    public:
       dictionary_residue_restraints_t(std::string comp_id_in,
 				      int read_number_in) {
 	 has_partial_charges_flag = 0;
 	 comp_id = comp_id_in;
 	 read_number = read_number_in;
+	 filled_with_sbase_data_flag = 0;
       }
-      dictionary_residue_restraints_t() { comp_id = ""; /* things are unset */ }
+      dictionary_residue_restraints_t() {
+	 comp_id = ""; /* things are unset */
+	 filled_with_sbase_data_flag = 0;
+	 has_partial_charges_flag = 0;
+	 read_number = -1;
+      }
+      dictionary_residue_restraints_t(bool constructor_for_sbase_restraints) {
+	 comp_id = ""; /* things are unset */
+	 filled_with_sbase_data_flag = 1;
+	 has_partial_charges_flag = 0;
+	 read_number = -1;
+      }
       void clear_dictionary_residue();
       dict_chem_comp_t residue_info;
       std::vector <dict_atom> atom_info;
@@ -392,8 +408,16 @@ namespace coot {
       // look up the atom id in the atom_info (dict_atom vector)
       std::string atom_name_for_tree_4c(const std::string &atom_id) const;
 
+      // look up the atom id in the atom_info (dict_atom vector).
+      // Return "" on no atom found with name atom_name;
+      // 
+      std::string element(const std::string &atom_name) const;
+
       std::vector<std::vector<std::string> > get_ligand_aromatic_ring_list() const;
 
+      std::vector<std::string> get_attached_H_names(const std::string &atom_name) const;
+
+      bool is_from_sbase_data() const { return filled_with_sbase_data_flag; }
       
    };
 
@@ -1001,6 +1025,9 @@ namespace coot {
       void add_energy_lib_torosion(const energy_lib_torsion &torsion);
       void add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop);
 
+      std::pair<bool, dictionary_residue_restraints_t>
+      get_monomer_restraints_internal(const std::string &monomer_type, bool allow_minimal_flag) const;
+
    public:
 
       protein_geometry() {
@@ -1017,8 +1044,12 @@ namespace coot {
       void read_sbase_residues();
       // return NULL on unable to make residue
       CResidue *get_sbase_residue(const std::string &res_name) const;
+
+      // return a vector of compound ids and compound names for
+      // compounds that contain compound_name_substring.
+      //
       std::vector<std::pair<std::string, std::string> >
-      matching_sbase_residues_names(const std::string &compound_name) const;
+      matching_sbase_residues_names(const std::string &compound_name_substring) const;
       
       // Refmac monomer lib things
       // 
@@ -1069,10 +1100,39 @@ namespace coot {
 
       // Return success status in first (0 is fail) and the second is
       // a whole residue's restraints so that we can use it to test if
-      // an atom is a hydrogen.
+      // an atom is a hydrogen.  Must have a full entry (not from
+      // sbase) for the first of the returned pair to be true.
       // 
       std::pair<bool, dictionary_residue_restraints_t>
       get_monomer_restraints(const std::string &monomer_type) const;
+
+      // Return success status in first (0 is fail) and the second is
+      // a whole residue's restraints so that we can use it to test if
+      // an atom is a hydrogen.
+      //
+      // the dictionary_residue_restraints_t is returned even we have
+      // a minimal restraints description (e.g. from sbase).
+      // 
+      std::pair<bool, dictionary_residue_restraints_t>
+      get_monomer_restraints_at_least_minimal(const std::string &monomer_type) const;
+
+      
+
+      // non-const because we try to read in stuff from SBase when
+      // it's not in the dictionary yet.  SBase gives us bond orders.
+      //
+      // This relies on SBase being setup before we get to make this
+      // call (init_sbase()).
+      // 
+      std::pair<bool, dictionary_residue_restraints_t>
+      get_bond_orders(const std::string &monomer_type);
+
+      // used to created data from sbase to put into protein_geometry
+      // object.
+      //
+      // return a flag to signify success.
+      //
+      bool fill_using_sbase(const std::string &monomer_type);
 
       // If monomer_type is not in dict_res_restraints, then add a new
       // item to the dict_res_restraints and add mon_res_in.  Return 1
@@ -1086,8 +1146,17 @@ namespace coot {
       bool have_dictionary_for_residue_type(const std::string &monomer_type,
 					    int read_number);
 
-      // this is const because there is no dynamic add
+      // this is const because there is no dynamic add.
+      //
+      // if there is just an sbase entry, then this returns false.
+      // 
       bool have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type) const;
+      
+      // this is const because there is no dynamic add.
+      //
+      // if there is (even ) an sbase entry, then this returns true.
+      // 
+      bool have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type) const;
       
       // likewise not const
       bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types);
@@ -1173,6 +1242,20 @@ namespace coot {
       std::vector<std::string> get_bonded_neighbours(const std::string &residue_name,
 						     const std::string &atom_name_1,
 						     const std::string &atom_name_2) const;
+
+      // add a monomer restraints description.
+      //
+      void add(const dictionary_residue_restraints_t &rest) {
+	 dict_res_restraints.push_back(rest);
+      }
+
+      // a new pdb file has been read in (say).  The residue types
+      // have been compared to the dictionary.  These (comp_ids) are
+      // the types that are not in the dictionary.  Try to load an
+      // sbase description at least so that we can draw their bonds
+      // correctly.  Use fill_using_sbase().
+      // 
+      bool try_load_sbase_description(const std::vector<std::string> &comp_ids);
 
    };
 

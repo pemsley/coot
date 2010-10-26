@@ -840,8 +840,6 @@ pisa_interfaces_display_only(int imol_1, int imol_2, clipper::Coord_orth centre_
 std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
 
 
-
-
 /*  ----------------------------------------------------------------------- */
 /*                  Utility Functions                                       */
 /*  ----------------------------------------------------------------------- */

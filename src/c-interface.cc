@@ -493,6 +493,33 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 							  g.convert_to_v2_atom_names_flag,
 							  bw);
 
+      // we do this somewhat awkward in and out thing with the
+      // molecule, because I don't want to (or am not able to) pass a
+      // modifiable dictionary to the handle_read_draw_molecule()
+      // function.  But maybe I *should* add it as an argument... Not
+      // sure.
+      //
+      // So currently we read in the molecule, read the molecule for
+      // types not in the dictionary and then try to read an sbase
+      // description (should be fast) and if found, rerun the bonding
+      // algorithm.
+      
+      std::vector<std::string> types_with_no_dictionary =
+	 g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+
+      
+      std::cout << "Debug:: there were " << types_with_no_dictionary.size() << " types "
+		<< "with no dictionary " << std::endl;
+
+      for (unsigned int ii=0; ii<types_with_no_dictionary.size(); ii++) {
+	 std::cout << "   " << types_with_no_dictionary[ii] << std::endl;
+      }
+      
+      if (types_with_no_dictionary.size()) {
+	 if (g.Geom_p()->try_load_sbase_description(types_with_no_dictionary))
+	    g.molecules[imol].make_bonds_type_checked();
+      }
+
       if (istat == 1) {
 	 std::cout << "Molecule " << imol << " read successfully\n";
 

@@ -85,7 +85,7 @@ coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
 
    std::string res_name = residue_p->GetResName();
    
-   std::pair<bool, dictionary_residue_restraints_t> p = 
+   std::pair<bool, coot::dictionary_residue_restraints_t> p = 
       geom.get_monomer_restraints(res_name);
    if (! p.first) {
 
@@ -95,152 +95,162 @@ coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
       throw(std::runtime_error(m));
 
    } else { 
-   
-      RDKit::RWMol m;
-      const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+      return rdkit_mol(residue_p, p.second);
+   } 
+}
 
-      PPCAtom residue_atoms = 0;
-      int n_residue_atoms;
-      // this is so that we don't add multiple copies of an atom with
-      // the same name (that is, only add the first atom of a given
-      // atom name in a residue with alt confs).
-      std::vector<std::string> added_atom_names;
-      std::map<std::string, int> atom_index;
-      int current_atom_id = 0;
-      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 std::string atom_name(residue_atoms[iat]->name);
-	 // only add the atom if the atom_name is not in the list of
-	 // already-added atom names.
-	 if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) == added_atom_names.end()) {
-	    RDKit::Atom *at = new RDKit::Atom;
-	    try {
-	       at->setAtomicNum(tbl->getAtomicNumber(coot::util::capitalise(coot::util::remove_leading_spaces(residue_atoms[iat]->element))));
-	       // for debugging, delete if you feel like it.
-	       // if (std::string(residue_atoms[iat]->element) == " H")
-	       //    at->setAtomicNum(tbl->getAtomicNumber(std::string("XXX")));
+RDKit::RWMol
+coot::rdkit_mol(CResidue *residue_p,
+		const coot::dictionary_residue_restraints_t &restraints) {
+
+   RDKit::RWMol m;
+   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   // this is so that we don't add multiple copies of an atom with
+   // the same name (that is, only add the first atom of a given
+   // atom name in a residue with alt confs).
+   std::vector<std::string> added_atom_names;
+   std::map<std::string, int> atom_index;
+   int current_atom_id = 0;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      std::string atom_name(residue_atoms[iat]->name);
+      // only add the atom if the atom_name is not in the list of
+      // already-added atom names.
+      if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) == added_atom_names.end()) {
+	 RDKit::Atom *at = new RDKit::Atom;
+	 try {
+	    at->setAtomicNum(tbl->getAtomicNumber(coot::util::capitalise(coot::util::remove_leading_spaces(residue_atoms[iat]->element))));
+	    // for debugging, delete if you feel like it.
+	    // if (std::string(residue_atoms[iat]->element) == " H")
+	    //    at->setAtomicNum(tbl->getAtomicNumber(std::string("XXX")));
 	       
-	       at->setProp("name", std::string(residue_atoms[iat]->name));
-	       m.addAtom(at);
-	       if (0) 
-		  std::cout << "adding atom with name " << atom_name << " to added_atom_names"
-			    << " which is now size " << added_atom_names.size() << std::endl;
-	       added_atom_names.push_back(atom_name);
-	       atom_index[atom_name] = current_atom_id;
-	       current_atom_id++; // for next round
-	    }
-	    catch (std::exception rte) {
-	       std::cout << rte.what() << std::endl;
-	    } 
+	    at->setProp("name", std::string(residue_atoms[iat]->name));
+	    m.addAtom(at);
+	    if (0) 
+	       std::cout << "adding atom with name " << atom_name << " to added_atom_names"
+			 << " which is now size " << added_atom_names.size() << std::endl;
+	    added_atom_names.push_back(atom_name);
+	    atom_index[atom_name] = current_atom_id;
+	    current_atom_id++; // for next round
+	 }
+	 catch (std::exception rte) {
+	    std::cout << rte.what() << std::endl;
+	 } 
+      }
+   }
+   for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) { 
+      RDKit::Bond::BondType type = convert_bond_type(restraints.bond_restraint[ib].type());
+      RDKit::Bond *bond = new RDKit::Bond(type);
+	    
+      std::string atom_name_1 = restraints.bond_restraint[ib].atom_id_1_4c();
+      std::string atom_name_2 = restraints.bond_restraint[ib].atom_id_2_4c();
+      std::string ele_1 = restraints.element(atom_name_1);
+      std::string ele_2 = restraints.element(atom_name_2);
+      int idx_1 = -1; // unset
+      int idx_2 = -1; // unset
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 if (! residue_atoms[iat]->Ter) { 
+	    std::string atom_name(residue_atoms[iat]->name);
+	    if (atom_name == atom_name_1)
+	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
+		   != added_atom_names.end())
+		  idx_1 = iat;
+	    if (atom_name == atom_name_2)
+	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
+		   != added_atom_names.end())
+		  idx_2 = iat;
 	 }
       }
-      for (unsigned int ib=0; ib<p.second.bond_restraint.size(); ib++) { 
-	 RDKit::Bond::BondType type = convert_bond_type(p.second.bond_restraint[ib].type());
-	 RDKit::Bond *bond = new RDKit::Bond(type);
-	    
-	 std::string atom_name_1 = p.second.bond_restraint[ib].atom_id_1_4c();
-	 std::string atom_name_2 = p.second.bond_restraint[ib].atom_id_2_4c();
-	 int idx_1 = -1; // unset
-	 int idx_2 = -1; // unset
-	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	    if (! residue_atoms[iat]->Ter) { 
-	       std::string atom_name(residue_atoms[iat]->name);
-	       if (atom_name == atom_name_1)
-		  if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
-		      != added_atom_names.end())
-		     idx_1 = iat;
-	       if (atom_name == atom_name_2)
-		  if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
-		      != added_atom_names.end())
-		     idx_2 = iat;
+      if (idx_1 != -1) { 
+	 if (idx_2 != -1) {	 
+	    if (type == RDKit::Bond::AROMATIC) { 
+	       bond->setIsAromatic(true);
+	       m[idx_1]->setIsAromatic(true);
+	       m[idx_2]->setIsAromatic(true);
 	    }
-	 }
-	 if (idx_1 != -1) { 
-	    if (idx_2 != -1) {	 
-	       if (type == RDKit::Bond::AROMATIC) { 
-		  bond->setIsAromatic(true);
-		  m[idx_1]->setIsAromatic(true);
-		  m[idx_2]->setIsAromatic(true);
-	       }
-	       bond->setBeginAtomIdx(idx_1);
-	       bond->setEndAtomIdx(  idx_2);
-	       m.addBond(bond);
-	    } else {
+	    bond->setBeginAtomIdx(idx_1);
+	    bond->setEndAtomIdx(  idx_2);
+	    m.addBond(bond);
+	 } else {
+	    if (ele_2 != " H") 
 	       std::cout << "WARNING:: oops, bonding in making rdkit mol "
 			 << "failed to get atom index idx_2 for atom name: "
-			 << atom_name_2 << std::endl;
-	    }
-	 } else {
+			 << atom_name_2 << " ele :" << ele_2 << ":" << std::endl;
+	 }
+      } else {
+	 if (ele_1 != " H") 
 	    std::cout << "WARNING:: oops, bonding in making rdkit mol "
 		      << "failed to get atom index idx_1 for atom name: "
-		      << atom_name_1 << std::endl;
-	 } 
-      }
+		      << atom_name_1 << " ele :" << ele_1 << ":" << std::endl;
+      } 
+   }
 
-      RDKit::MolOps::cleanUp(m);
+   RDKit::MolOps::cleanUp(m);
 
-      // OK, so cleanUp() doesn't fix the N charge problem our prodrg molecule
-      if (0) { // debug, formal charges
-	 std::cout << "::::::::::::::::::::::::::: after cleanup :::::::::::::::::"
-		   << std::endl;
-	 int n_mol_atoms = m.getNumAtoms();
-	 for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-	    RDKit::ATOM_SPTR at_p = m[iat];
-	    std::string name = "";
-	    try {
-	       at_p->getProp("name", name);
-	    }
-	    catch (KeyErrorException kee) {
-	       std::cout << "caught no-name for atom exception in make_molfile_molecule(): "
-			 <<  kee.what() << std::endl;
-	    }
-	    int formal_charge = at_p->getFormalCharge();
-	    std::cout << " " << iat << " " << name << " formal charge: "
-		      << formal_charge << std::endl;
+   // OK, so cleanUp() doesn't fix the N charge problem our prodrg molecule
+   if (0) { // debug, formal charges
+      std::cout << "::::::::::::::::::::::::::: after cleanup :::::::::::::::::"
+		<< std::endl;
+      int n_mol_atoms = m.getNumAtoms();
+      for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+	 RDKit::ATOM_SPTR at_p = m[iat];
+	 std::string name = "";
+	 try {
+	    at_p->getProp("name", name);
 	 }
-	 std::cout << ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
-		   << std::endl;
+	 catch (KeyErrorException kee) {
+	    std::cout << "caught no-name for atom exception in make_molfile_molecule(): "
+		      <<  kee.what() << std::endl;
+	 }
+	 int formal_charge = at_p->getFormalCharge();
+	 std::cout << " " << iat << " " << name << " formal charge: "
+		   << formal_charge << std::endl;
       }
+      std::cout << ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+		<< std::endl;
+   }
 
-//       std::cout << "in constructing rdk molecule updatePropertyCache()" << std::endl;
-//       m.updatePropertyCache();
-//       std::cout << "in constructing rdk molecule assignRadicals()" << std::endl;
-//       RDKit::MolOps::assignRadicals(m);
-//       // set conjugation
-//       std::cout << "in constructing rdk molecule setConjugation()" << std::endl;
-//       RDKit::MolOps::setConjugation(m);
-//       // set hybridization
-//       std::cout << "in constructing rdk molecule setHybridization()" << std::endl;
-//       RDKit::MolOps::setHybridization(m); 
-//       // remove bogus chirality specs:
-//       std::cout << "in constructing rdk molecule cleanupChirality()" << std::endl;
-//       RDKit::MolOps::cleanupChirality(m);
-//       std::cout << "in constructing rdk molecule now adding a conf" << std::endl;
+   //       std::cout << "in constructing rdk molecule updatePropertyCache()" << std::endl;
+   //       m.updatePropertyCache();
+   //       std::cout << "in constructing rdk molecule assignRadicals()" << std::endl;
+   //       RDKit::MolOps::assignRadicals(m);
+   //       // set conjugation
+   //       std::cout << "in constructing rdk molecule setConjugation()" << std::endl;
+   //       RDKit::MolOps::setConjugation(m);
+   //       // set hybridization
+   //       std::cout << "in constructing rdk molecule setHybridization()" << std::endl;
+   //       RDKit::MolOps::setHybridization(m); 
+   //       // remove bogus chirality specs:
+   //       std::cout << "in constructing rdk molecule cleanupChirality()" << std::endl;
+   //       RDKit::MolOps::cleanupChirality(m);
+   //       std::cout << "in constructing rdk molecule now adding a conf" << std::endl;
 
-      RDKit::Conformer *conf = new RDKit::Conformer(added_atom_names.size());
-      conf->set3D(true);
+   RDKit::Conformer *conf = new RDKit::Conformer(added_atom_names.size());
+   conf->set3D(true);
       
-      // Add positions to the conformer (only the first instance of an
-      // atom with a particular atom name).
-      // 
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 std::string atom_name(residue_atoms[iat]->name);
-	 std::map<std::string, int>::const_iterator it = atom_index.find(atom_name);
-	 if (it != atom_index.end()) {
-	    RDGeom::Point3D pos(residue_atoms[iat]->x,
-				residue_atoms[iat]->y,
-				residue_atoms[iat]->z);
-	    conf->setAtomPos(it->second, pos);
-	    if (0) 
-	       std::cout << "in construction of rdkit mol: making a conformer "
-			 << iat << " " << it->second << " " << atom_name << " "
-			 << pos << std::endl;
-	 } 
-      }
-      m.addConformer(conf);
-      std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms() << std::endl;
-      return m;
-   } 
+   // Add positions to the conformer (only the first instance of an
+   // atom with a particular atom name).
+   // 
+   for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      std::string atom_name(residue_atoms[iat]->name);
+      std::map<std::string, int>::const_iterator it = atom_index.find(atom_name);
+      if (it != atom_index.end()) {
+	 RDGeom::Point3D pos(residue_atoms[iat]->x,
+			     residue_atoms[iat]->y,
+			     residue_atoms[iat]->z);
+	 conf->setAtomPos(it->second, pos);
+	 if (0) 
+	    std::cout << "in construction of rdkit mol: making a conformer "
+		      << iat << " " << it->second << " " << atom_name << " "
+		      << pos << std::endl;
+      } 
+   }
+   m.addConformer(conf);
+   std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms() << std::endl;
+   return m;
 }
 
 
@@ -374,6 +384,7 @@ coot::make_residue(const RDKit::ROMol &rdkm, int iconf) {
 			    mol.atoms[iat].atom_position.y(),
 			    mol.atoms[iat].atom_position.z(),
 			    1.0, 30.0);
+	 at->Het = 1;
 	 residue_p->AddAtom(at);
       }
    }
@@ -522,11 +533,135 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
    }
 }
 
+// a wrapper for the above, matching hydrogens names to the
+// dictionary.  Add atoms to residue_p, return success status.
+// 
+bool
+coot::add_hydrogens_with_rdkit(CResidue *residue_p,
+			      const coot::dictionary_residue_restraints_t &restraints) {
+
+   bool r = 0;
+   if (residue_p) {
+      const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+      try {
+	 RDKit::RWMol m_no_Hs = rdkit_mol(residue_p, restraints);
+	 int n_mol_atoms = m_no_Hs.getNumAtoms();
+	 std::cout << ".......  pre H addition mol has " << n_mol_atoms
+		   << " atoms" << std::endl;
+	 
+	 for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+	    RDKit::ATOM_SPTR at_p = m_no_Hs[iat];
+	    at_p->calcImplicitValence(true);
+	 }
+	 
+	 RDKit::ROMol *m = RDKit::MolOps::addHs(m_no_Hs, 0, 1);
+	 std::cout << "....... post H addition mol has " << m->getNumAtoms()
+		   << std::endl;
+	 int n_atoms_new = m->getNumAtoms();
+	 int n_conf = m->getNumConformers();
+
+	 if (! n_conf) {
+	    std::cout << "ERROR:: mol with Hs: no conformers" << std::endl;
+	 } else { 
+	    RDKit::Conformer conf = m->getConformer(0);
+	    std::vector<std::string> H_names_already_added;
+	 
+	    for (unsigned int iat=0; iat<n_atoms_new; iat++) {
+	       RDKit::ATOM_SPTR at_p = (*m)[iat];
+	       RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+	       std::string name = "";
+	       try {
+		  at_p->getProp("name", name);
+	       }
+	       catch (KeyErrorException kee) {
+
+		  // OK...
+		  //
+		  // typically when we get here, that's because the
+		  // atom is a new one, generated by RDKit.
+		  
+		  std::string name = coot::infer_H_name(iat, at_p, m, restraints,
+							H_names_already_added);
+		  if (name != "") {
+		     H_names_already_added.push_back(name);
+		  
+		     int n = at_p->getAtomicNum();
+		     std::string element = tbl->getElementSymbol(n);
+		  
+		     CAtom *at = new CAtom;
+		     at->SetAtomName(name.c_str());
+		     at->SetElementName(element.c_str());
+		     at->SetCoordinates(r_pos.x, r_pos.y, r_pos.z, 1.0, 30.0);
+		     at->Het = 1;
+		     residue_p->AddAtom(at);
+		     r = 1;
+		  }
+	       }
+	    }
+	 }
+	 
+	 delete m;
+      }
+      catch (std::runtime_error e) {
+	 std::cout << e.what() << std::endl;
+      }
+   }
+   return r;
+}
+
+
+std::string
+coot::infer_H_name(int iat,
+		   RDKit::ATOM_SPTR atom_p,
+		   const RDKit::ROMol *mol,
+		   const dictionary_residue_restraints_t &restraints,
+		   const std::vector<std::string> &H_names_already_added) {
+
+   std::string r = "";
+
+   unsigned int deg = mol->getAtomDegree(atom_p.get());
+   if (deg == 1) {
+      RDKit::ROMol::OEDGE_ITER current, end;
+      boost::tie(current, end) = mol->getAtomBonds(atom_p.get());
+      while (current != end) {
+	 RDKit::BOND_SPTR bond=(*mol)[*current];
+	 int idx = bond->getOtherAtomIdx(iat);
+	 RDKit::ATOM_SPTR other_atom_p = (*mol)[idx];
+	 std::string bonding_atom_name;
+	 try {
+	    other_atom_p->getProp("name", bonding_atom_name);
+	    // in the restraints, what is the name of the hydrogen
+	    // bonded to atom with name bonding_atom_name? (if any).
+	    std::vector<std::string> nv = 
+	       restraints.get_attached_H_names(bonding_atom_name);
+	    for (unsigned int i=0; i<nv.size(); i++) { 
+	       if (std::find(H_names_already_added.begin(),
+			     H_names_already_added.end(), nv[i]) ==
+		   H_names_already_added.end()) {
+		  r = nv[i];
+		  break;
+	       }
+	    }
+	 }
+	 catch (KeyErrorException kee) {
+	    // this should not happen, there should be no way we get
+	    // here where we have a hydrogen (check in calling
+	    // function) with no name attached to another atom with no
+	    // name.
+	    std::cout << "ERROR:: in infer_H_name() bonding atom with no name "
+		      << std::endl;
+	 }
+	 current++;
+      }
+   }
+   // std::cout << "returning infered H name :" << r << ":" << std::endl;
+   return r;
+}
 
 
 // tweak rdkmol
 int
-coot::add_2d_conformer(RDKit::ROMol *rdk_mol) {
+coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 
    int icurrent_conf = 0; // the conformer number from which the
                           // distance matrix is generated.  Should this
@@ -560,30 +695,36 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol) {
    for (unsigned int i=0; i<n_items; i++)
       cData[i] = -1;
 
-   // fill cData with distances:
+   // fill cData with distances (don't include hydrogen distance
+   // metrics (makes layout nicer?)).
    // 
    RDKit::Conformer conf = rdk_mol->getConformer(icurrent_conf);
    int ic_index = 0;
    for (unsigned int iat=1; iat<n_mol_atoms; iat++) {
-      RDGeom::Point3D &pos_1 = conf.getAtomPos(iat);
-      for (unsigned int jat=0; jat<iat; jat++) {
-	 RDKit::ATOM_SPTR at_p = (*rdk_mol)[jat];
-	 RDGeom::Point3D &pos_2 = conf.getAtomPos(jat);
-	 RDGeom::Point3D diff = pos_1 - pos_2;
+      RDKit::ATOM_SPTR iat_p = (*rdk_mol)[iat];
+      if (iat_p->getAtomicNum() != 1) { 
+	 RDGeom::Point3D &pos_1 = conf.getAtomPos(iat);
+	 for (unsigned int jat=0; jat<iat; jat++) {
+	    RDKit::ATOM_SPTR jat_p = (*rdk_mol)[jat];
+	    if (jat_p->getAtomicNum() != 1) { 
+	       RDGeom::Point3D &pos_2 = conf.getAtomPos(jat);
+	       RDGeom::Point3D diff = pos_1 - pos_2;
 
-	 // (thanks to JED for useful discussions)
-	 ic_index = ((iat-1)*(iat-1) + (iat-1))/2 + jat;
-	 if (iat < jat)
-	    ic_index = ((jat-1)*(jat-1) + (jat-1))/2 + iat;
+	       // (thanks to JED for useful discussions)
+	       ic_index = iat*(iat - 1)/2 + jat;
+	       if (iat < jat)
+		  ic_index = jat*(jat -1)/2 + iat;
 
-	 if (ic_index >= n_items)
-	    std::cout << "indexing problem! " << ic_index << " but limit "
-		      << n_items << std::endl;
-	 if (0) 
-	    std::cout << "mimic: atoms " << iat << " " << jat
-		      << " ic_index " << ic_index << " for max " << n_items
-		      << " dist " << diff.length() << std::endl;
-	 cData[ic_index] = diff.length();
+	       if (ic_index >= n_items)
+		  std::cout << "indexing problem! " << ic_index << " but limit "
+			    << n_items << std::endl;
+	       if (0) 
+		  std::cout << "mimic: atoms " << iat << " " << jat
+			    << " ic_index " << ic_index << " for max " << n_items
+			    << " dist " << diff.length() << std::endl;
+	       cData[ic_index] = diff.length();
+	    }
+	 }
       }
    }
 
@@ -598,9 +739,9 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol) {
    // 
    // int iconf = RDDepict::compute2DCoords(*rdk_mol, NULL, 1, 0, 2, 20);
    //
-   int iflip = 1;
+   int iflip = 3;
    int iconf =
-      RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, 1, 1, 0.9, iflip, 40);
+      RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, 1, 1, weight_for_3d_distances, iflip, 40);
 
    if (0) { // .................... debug ...................
       std::cout << "::::: add_2d_conformer after  compute2DCoords n_atoms: "

@@ -258,16 +258,9 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
    std::pair<int, std::vector<std::string> > icheck = 
-      check_dictionary_for_residues(SelResidues, nSelResidues);
+      check_dictionary_for_residue_restraints(SelResidues, nSelResidues);
 
-   if (0) {  // debugging.
-      std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
-      std::cout << "selecting from residue " << iselection_resno_start
-		<< " to " << iselection_resno_end << " selects "
-		<< nSelResidues << " residues" << std::endl;
-   }
-
-   if (icheck.first == 0) { 
+   if (icheck.first == 0) {
       std::cout << "INFO:: check_dictionary_for_residues - problem..." << std::endl;
       std::string problem_residues = "Refinement setup failure.\nFailed to find restraints for:\n";
       for (unsigned int icheck_res=0; icheck_res<icheck.second.size(); icheck_res++) { 
@@ -678,7 +671,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       } else {
 	 // we didn't have restraints for everything.
 	 // 
-	 std::pair<int, std::vector<std::string> > icheck = check_dictionary_for_residues(residues);
+	 std::pair<int, std::vector<std::string> > icheck = check_dictionary_for_residue_restraints(residues);
 	 if (icheck.first == 0) { 
 	    info_dialog_missing_refinement_residues(icheck.second);
 	 }
@@ -778,7 +771,7 @@ graphics_info_t::make_moving_atoms_asc(CMMDBManager *residues_mol,
 // entry and a list of the residue type that don't have restraints.
 // 
 std::pair<int, std::vector<std::string> >
-graphics_info_t::check_dictionary_for_residues(PCResidue *SelResidues, int nSelResidues) {
+graphics_info_t::check_dictionary_for_residue_restraints(PCResidue *SelResidues, int nSelResidues) {
 
    int status;
    bool status_OK = 1; // pass, by default
@@ -804,7 +797,7 @@ graphics_info_t::check_dictionary_for_residues(PCResidue *SelResidues, int nSelR
 }
 
 std::pair<int, std::vector<std::string> >
-graphics_info_t::check_dictionary_for_residues(const std::vector<CResidue *> &residues) {
+graphics_info_t::check_dictionary_for_residue_restraints(const std::vector<CResidue *> &residues) {
 
    std::vector<std::string> res_name_vec;
    std::pair<int, std::vector<std::string> > r(0, res_name_vec);

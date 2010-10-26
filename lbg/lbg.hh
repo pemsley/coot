@@ -743,6 +743,8 @@ private:
    std::vector<residue_circle_t> offset_residues_from_orig_positions(); 
    void show_grid(const lbg_info_t::ligand_grid &grid);
    void show_mol_ring_centres(); // not const because mol.get_ring_centres() caches
+   void show_unlimited_atoms(const std::vector<widgeted_atom_ring_centre_info_t> &ua);
+
    std::string grid_intensity_to_colour(int val) const;
    std::string sixteen_to_hex_let(int v) const;
    void reposition_problematics_and_reoptimise(const std::vector<int> &problematics,
