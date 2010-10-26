@@ -213,6 +213,7 @@ namespace coot {
 				BONDS_AND_PLANES = 9,
 				BONDS_ANGLES_AND_PLANES = 11, // no torsions
 				BONDS_AND_NON_BONDED = 17,
+				BONDS_ANGLES_AND_NON_BONDED = 19,
 				BONDS_ANGLES_PLANES_AND_NON_BONDED = 27,
 				BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS = 59,
 				BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED = 31,
@@ -400,7 +401,8 @@ namespace coot {
       // Non-bonded
       simple_restraint(short int restraint_type_in, 
 		       int index_1, 
-		       int index_2) { 
+		       int index_2,
+		       const std::vector<bool> &fixed_atom_flags_in) { 
 	 
 	 if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) { 
 	    restraint_type = restraint_type_in;
@@ -409,8 +411,7 @@ namespace coot {
 	    target_value = 2.3;
 	    sigma = 0.02;
 	    fixed_atom_flags.resize(2);
-	    fixed_atom_flags[0] = 0;
-	    fixed_atom_flags[1] = 0;
+	    fixed_atom_flags = fixed_atom_flags_in;
 	    is_user_defined_restraint = 0;
 	 } else { 
 	    std::cout << "ERROR:: bad simple_restraint constructor usage "
@@ -944,8 +945,9 @@ namespace coot {
       }
 
       
-      void add_non_bonded(int index1, int index2) { 
-	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT, index1, index2));
+      void add_non_bonded(int index1, int index2, 
+			  const std::vector<bool> &fixed_atom_flag) { 
+	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT, index1, index2, fixed_atom_flag));
       } 
 
       // construct a restraint and add it to restraints_vec
