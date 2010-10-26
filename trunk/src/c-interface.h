@@ -6246,6 +6246,14 @@ void fle_view_internal(int imol, const char *chain_id, int res_no,
 
 void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius);
 
+/* Add hydrogens to specificied residue
+
+@return success status.
+
+use RDKit for enterprise version
+ */
+int sprout_hydrogens(int imol, const char *chain_id, int res_no, const char *ins_code);
+
 /* \} */
 
 

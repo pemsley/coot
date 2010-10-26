@@ -57,6 +57,23 @@ coot::operator<< (std::ostream& s, const pi_stacking_instance_t &stack) {
    return s;
 }
 
+int
+sprout_hydrogens(int imol,
+		 const char *chain_id,
+		 int res_no,
+		 const char *ins_code) {
+   
+   int r = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      r = g.molecules[imol].sprout_hydrogens(chain_id, res_no, ins_code, *(g.Geom_p()));
+      if (r)
+	 graphics_draw();
+   }
+   return r;
+}
+
+
 void fle_view_internal(int imol, const char *chain_id, int res_no, const char *ins_code, 
 		       int imol_ligand_fragment, 
 		       const char *prodrg_output_flat_mol_file_name,
@@ -244,7 +261,10 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
 			 float residues_near_radius) { 
 
 #ifndef MAKE_ENTERPRISE_TOOLS
-# else    
+# else
+
+   double weight_for_3d_distances = 0.4; // for 3d distances 
+   
    graphics_info_t g;
    coot::protein_geometry *geom_p = g.Geom_p();
 
@@ -305,7 +325,8 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
 		  coot::remove_non_polar_Hs(&rdkm);
 		  std::cout << "DEBUG::    done remove_non_polar_Hs() " << std::endl;
 
-		  int mol_2d_depict_conformer = coot::add_2d_conformer(&rdkm);
+		  int mol_2d_depict_conformer =
+		     coot::add_2d_conformer(&rdkm, weight_for_3d_distances);
 		  lig_build::molfile_molecule_t m =
 		     coot::make_molfile_molecule(rdkm, mol_2d_depict_conformer);
 
@@ -2252,8 +2273,8 @@ coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_referenc
       try {
 	 if (named_torsions[i].hydrogen_type == coot::H_IS_RIDING) {
 
-	    std::cout << "hydrogen on " << named_torsions[i].atom_name_bonded_to_H 
-		      << " is riding " << std::endl;
+	    // std::cout << "hydrogen on " << named_torsions[i].atom_name_bonded_to_H 
+	    // << " is riding " << std::endl;
 	    
 	    std::pair<clipper::Coord_orth, clipper::Coord_orth> pt_base_and_H =
 	       hydrogen_pos(named_torsions[i], residue_reference);

@@ -487,7 +487,7 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 			       );
 	       asc.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 	       std::pair<int, std::vector<std::string> > icheck = 
-		  check_dictionary_for_residues(SelResidues, nSelResidues);
+		  check_dictionary_for_residue_restraints(SelResidues, nSelResidues);
 	    
 	       if (icheck.first == 0) { 
 		  for (unsigned int icheck_res=0; icheck_res<icheck.second.size(); icheck_res++) { 

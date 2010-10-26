@@ -94,6 +94,7 @@
    (lambda ()
 
      (let ((imol (greg-pdb "2WF6.cif")))
+       (format #t "closing molecule number ~s~%" imol)
        (close-molecule imol)
        #t)))
 

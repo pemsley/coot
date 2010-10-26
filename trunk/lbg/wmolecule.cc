@@ -560,6 +560,16 @@ widgeted_molecule_t::stray_atoms() const {
    return strays;
 }
 
+std::ostream&
+operator<<(std::ostream &s, widgeted_atom_ring_centre_info_t wa) {
+   s << wa.atom << " ring-centre: " << wa.has_ring_centre_flag;
+   if (wa.has_ring_centre_flag) {
+      s << " " << wa.ring_centre;
+   }
+   return s;
+}
+
+
 
 bool
 widgeted_molecule_t::operator==(const widgeted_molecule_t &mol_other) const {

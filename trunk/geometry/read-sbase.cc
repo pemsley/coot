@@ -118,7 +118,9 @@ coot::protein_geometry::matching_sbase_residues_names(const std::string &compoun
 // 
 int
 coot::protein_geometry::init_sbase(const std::string &sbase_monomer_dir_in) {
-      
+
+   // in the protein_geometry constructor SBase is set to NULL.
+   
    int RC = SBASE_FileNotFound; // initial status.
    const char *monomer_dir = getenv(MONOMER_DIR_STR);
    
@@ -145,4 +147,94 @@ coot::protein_geometry::init_sbase(const std::string &sbase_monomer_dir_in) {
       }
    }
    return RC; 
+}
+
+
+// used to created data from sbase to put into protein_geometry
+// object.
+//
+// return a flag to signify success.
+//
+// This relies on SBase being setup before we get to make this
+// call.
+// 
+bool
+coot::protein_geometry::fill_using_sbase(const std::string &monomer_type) {
+
+   bool success = 0;
+   coot::dictionary_residue_restraints_t rest(true);
+   rest.comp_id = monomer_type;
+   
+   if (SBase) {
+      CSBStructure *SBS = SBase->GetStructure(monomer_type.c_str());
+      if (SBS) {
+	 for (int iat=0; iat<SBS->nAtoms; iat++) {
+	    CSBAtom *at = SBS->Atom[iat];
+	    std::pair<bool, float> pc(0,0); // partial charge.
+	    std::string atom_id = at->pdb_name;
+	    std::string atom_id_4c = atom_id_mmdb_expand(atom_id);
+	    std::string type_symbol = at->element;
+	    std::string type_energy = at->energyType;
+	    coot::dict_atom dict_at(atom_id,
+				    atom_id_4c,
+				    type_symbol,
+				    type_energy,
+				    pc);
+	    rest.atom_info.push_back(dict_at);
+	 }
+      }
+
+      if (rest.atom_info.size() > 1) {
+	 for (int ib=0; ib<SBS->nBonds; ib++) {
+	    CSBBond *bond = SBS->Bond[ib];
+	    int ind_1 = bond->atom1 -1 ; // Yikes!
+	    int ind_2 = bond->atom2 -1 ;
+	    int order = bond->order;
+	    double dist = bond->length;
+	    double esd = bond->length_esd;
+	    std::cout << "... "<< monomer_type << " atom index " << ind_1 << " " << ind_2
+		      << " order " << order << std::endl;
+	    std::string type = "single";
+	    if (order == 2)
+	       type = "double";
+	    if (order == 3)
+	       type = "triple";
+	    std::string atom_name_1 = SBS->Atom[ind_1]->pdb_name;
+	    std::string atom_name_2 = SBS->Atom[ind_2]->pdb_name;
+	    coot::dict_bond_restraint_t dict_bond(atom_name_1, atom_name_2, type, dist, esd);
+	    success = 1;
+	    rest.bond_restraint.push_back(dict_bond);
+	 }
+      }
+   }
+   if (success)
+      add(rest);
+   
+   return success;
+}
+
+
+// A new pdb file has been read in (say).  The residue types
+// have been compared to the dictionary.  These (comp_ids) are
+// the types that are not in the dictionary.  Try to load an
+// sbase description at least so that we can draw their bonds
+// correctly.  Use fill_using_sbase().
+// 
+bool
+coot::protein_geometry::try_load_sbase_description(const std::vector<std::string> &comp_ids) {
+
+   bool status = 0; // none added;
+   if (SBase) {
+      for (unsigned int i=0; i<comp_ids.size(); i++) {
+	 std::string comp_id = comp_ids[i];
+	 bool s = fill_using_sbase(comp_id);
+	 if (s)
+	    std::cout << "debug:: sbase dictionary for " << comp_id << " succssfully loaded "
+		      << std::endl;
+	 if (s)
+	    status = 1;
+      }
+   }
+   
+   return status; // return true of something was added.
 }

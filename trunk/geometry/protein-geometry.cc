@@ -738,6 +738,45 @@ coot::dictionary_residue_restraints_t::atom_name_for_tree_4c(const std::string &
 }
 
 
+// look up the atom id in the atom_info (dict_atom vector).
+// Return "" on no atom found with name atom_name;
+// 
+std::string
+coot::dictionary_residue_restraints_t::element(const std::string &atom_name) const {
+
+   std::string r = "";
+   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+      if (atom_info[iat].atom_id_4c == atom_name) {
+	 r = atom_info[iat].type_symbol;
+	 break;
+      }
+   }
+   if (r.length() == 1)
+      r = " " + r;
+   
+   // std::cout << " dictionary_residue_restraints_t::element()"
+   // 	     << " on atom name :" << atom_name << ": returns :" << r << ":" << std::endl;
+   return r;
+}
+
+
+std::vector<std::string>
+coot::dictionary_residue_restraints_t::get_attached_H_names(const std::string &atom_name) const {
+
+   std::vector<std::string> v;
+   for (unsigned int i=0; i<bond_restraint.size(); i++) { 
+      if (bond_restraint[i].atom_id_1() == atom_name) {
+	 if (element(bond_restraint[i].atom_id_2()) == " H")
+	    v.push_back(bond_restraint[i].atom_id_2());
+      }
+      if (bond_restraint[i].atom_id_2() == atom_name) {
+	 if (element(bond_restraint[i].atom_id_1()) == " H")
+	    v.push_back(bond_restraint[i].atom_id_1());
+      }
+   }
+   return v;
+}
+
 
 
 void 
@@ -3201,8 +3240,10 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    read_number = read_number_in;
    for (int i=0; i<ndict; i++) {
       if (dict_res_restraints[i].comp_id == monomer_type) {
-	 ifound = 1;
-	 break;
+	 if (! dict_res_restraints[i].is_from_sbase_data()) {
+	    ifound = 1;
+	    break;
+	 }
       }
    }
    // OK so the monomer_type did not match the comp_id.  Perhaps the
@@ -3212,8 +3253,10 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    if (ifound == 0) {
       for (int i=0; i<ndict; i++) {
 	 if (dict_res_restraints[i].residue_info.three_letter_code == monomer_type) {
-	    ifound = 1;
-	    break;
+	    if (! dict_res_restraints[i].is_from_sbase_data()) {
+	       ifound = 1;
+	       break;
+	    }
 	 }
       }
    } 
@@ -3232,8 +3275,10 @@ coot::protein_geometry::have_dictionary_for_residue_type_no_dynamic_add(const st
    int ndict = dict_res_restraints.size();
    for (int i=0; i<ndict; i++) {
       if (dict_res_restraints[i].comp_id == monomer_type) {
-	 ifound = 1;
-	 break;
+	 if (! dict_res_restraints[i].is_from_sbase_data()) {
+	    ifound = 1;
+	    break;
+	 }
       }
    }
    return ifound;
@@ -3254,6 +3299,22 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
    }
    return have_all;
 }
+
+// this is const because there is no dynamic add
+bool
+coot::protein_geometry::have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type) const {
+
+   bool ifound = 0;
+   int ndict = dict_res_restraints.size();
+   for (int i=0; i<ndict; i++) {
+      if (dict_res_restraints[i].comp_id == monomer_type) {
+	 ifound = 1;
+	 break;
+      }
+   }
+   return ifound;
+} 
+
 
 
 // Check that the atom names in the residue match the atom names in
@@ -3376,6 +3437,18 @@ coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> res
 std::pair<bool, coot::dictionary_residue_restraints_t>
 coot::protein_geometry::get_monomer_restraints(const std::string &monomer_type) const {
 
+   return get_monomer_restraints_internal(monomer_type, 0);
+   
+}
+
+std::pair<bool, coot::dictionary_residue_restraints_t>
+coot::protein_geometry::get_monomer_restraints_at_least_minimal(const std::string &monomer_type) const {
+
+   return get_monomer_restraints_internal(monomer_type, 1);
+}
+
+std::pair<bool, coot::dictionary_residue_restraints_t>
+coot::protein_geometry::get_monomer_restraints_internal(const std::string &monomer_type, bool allow_minimal_flag) const {
    coot::dictionary_residue_restraints_t t(std::string("(null)"), 0);
    std::pair<bool, coot::dictionary_residue_restraints_t> r(0,t);
 
@@ -3385,9 +3458,11 @@ coot::protein_geometry::get_monomer_restraints(const std::string &monomer_type) 
 // 		<< dict_res_restraints[i].comp_id << ": with :"
 // 		<< monomer_type << ":" << std::endl;
       if (dict_res_restraints[i].comp_id  == monomer_type) {
-	 r.second = dict_res_restraints[i];
-	 r.first = 1;
-	 break;
+	 if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
+	    r.second = dict_res_restraints[i];
+	    r.first = 1;
+	    break;
+	 }
       }
    }
 
@@ -3397,15 +3472,18 @@ coot::protein_geometry::get_monomer_restraints(const std::string &monomer_type) 
 // 		   << dict_res_restraints[i].residue_info.three_letter_code << ": with :"
 // 		   << monomer_type << ":" << std::endl;
 	 if (dict_res_restraints[i].residue_info.three_letter_code  == monomer_type) {
-	    r.second = dict_res_restraints[i];
-	    r.first = 1;
-	    break;
+	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
+	       r.second = dict_res_restraints[i];
+	       r.first = 1;
+	       break;
+	    }
 	 }
       }
-   } 
-
+   }
    return r;
-} 
+}
+
+
 
 // Use dynamic add if necessary.
 // 
@@ -4387,7 +4465,7 @@ coot::protein_geometry::get_bonded_neighbours(const std::string &residue_name,
    std::vector<std::string> v;
 
    std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
-      get_monomer_restraints(residue_name);
+      get_monomer_restraints_at_least_minimal(residue_name);
 
    if (restraints.first) { 
       for (unsigned int i=0; i<restraints.second.bond_restraint.size(); i++) {

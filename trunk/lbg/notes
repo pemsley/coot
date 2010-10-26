@@ -29,6 +29,15 @@ Wed Oct 13 07:18:36 EDT 2010
    the storage of such entries (bond orders but no restraints).
 
 ----
+Wed Oct 20 18:23:52 EDT 2010
+
+   if sprouting hydrogens is to be used in anger, then we need something like:
+
+   assign_formal_charge(imol, chain_id, res_no, ins_code, atom_name, int charge);
+
+   and pass the charge info to RDKit mol.
+
+----
 
     Thoughts about 6 July meeting:
 
@@ -116,7 +125,7 @@ sbase files not found in /home/paule/ccp4/ccp4-6.1.2/share/sbase
 ---
 Thu Jun 10 03:05:29 CEST 2010
 
-    HIS for pi-pi stacking?
+    HIS for pi-pi stacking?  Definately yes.
 
 ---
 Fri Jun  4 11:56:40 CEST 2010

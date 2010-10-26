@@ -62,7 +62,7 @@ void residue_to_ligand_builder(int imol, const char *chain_id, int resno, const 
 	    if (!mol) {
 	       std::cout << "ERROR:: failed to make mol for lbg" << std::endl;
 	    } else { 
-	       int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs);
+	       int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs, 0.4);
 	       lig_build::molfile_molecule_t m =
 		  coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
 	       lbg(m, mol, "");

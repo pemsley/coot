@@ -443,6 +443,8 @@ public:
       has_ring_centre_flag = 1;
    } 
 };
+std::ostream& operator<<(std::ostream &s, widgeted_atom_ring_centre_info_t wa);
+
 
 
 // ====================================================================

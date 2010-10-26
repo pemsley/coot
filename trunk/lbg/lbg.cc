@@ -2525,7 +2525,7 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
    
    residue_circles[primary_index].pos = best_pos + a_to_b_uv * 4;
 
-   if (1)
+   if (0)
       std::cout << "DEBUG::  ending initial_primary_residue_circles_layout() primary_index "
 		<< primary_index
 		<< " " << residue_circles[primary_index].residue_label << " "
@@ -3061,6 +3061,7 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
 			      lig_build::pos_t::dot(d_1, d_2)/(d_1.length()*d_2.length());
 			   // std::cout << " cos_theta " << cos_theta;
 			   if (cos_theta > 0.0) { // only cut in the forwards direction
+
 			      // std::cout << " cutting by unlimited atom " << i << " "
 			      // << unlimited_atoms[i].atom.get_atom_name()
 			      // << std::endl;
@@ -3191,15 +3192,41 @@ lbg_info_t::show_mol_ring_centres() {
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
    std::vector<lig_build::pos_t> c = mol.get_ring_centres();
    for (unsigned int i=0; i<c.size(); i++) {
-      GooCanvasItem *rect_item =
-	 rect_item = goo_canvas_rect_new (root,
-					  c[i].x, c[i].y, 4.0, 4.0,
-					  "line-width", 1.0,
-					  "stroke-color", "blue",
-					  "fill_color", "blue",
-					  NULL);
+      GooCanvasItem *rect_item = goo_canvas_rect_new (root,
+						      c[i].x, c[i].y, 4.0, 4.0,
+						      "line-width", 1.0,
+						      "stroke-color", "blue",
+						      "fill_color", "blue",
+						      NULL);
    }
+}
 
+void
+lbg_info_t::show_unlimited_atoms(const std::vector<widgeted_atom_ring_centre_info_t> &ua) {
+   
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+   for (unsigned int i=0; i<ua.size(); i++) {
+      if (ua[i].has_ring_centre_flag) {
+	 GooCanvasItem *rect_item =
+	    goo_canvas_rect_new(root,
+				ua[i].ring_centre.x -6.0,
+				ua[i].ring_centre.y -6.0,
+				12.0, 12.0,
+				"line-width", 1.0,
+				"stroke-color", "purple",
+				"fill_color", "purple",
+				NULL);
+	 GooCanvasItem *rect_item_2 =
+	    goo_canvas_rect_new(root,
+				ua[i].atom.atom_position.x -6.0,
+				ua[i].atom.atom_position.y -6.0,
+				12.0, 12.0,
+				"line-width", 1.0,
+				"stroke-color", "lawngreen",
+				"fill_color", "lightblue",
+				NULL);
+      }
+   }
 }
 
 // convert val [0->255] to a hex colour string in red
@@ -3357,7 +3384,7 @@ void
 lbg_info_t::ligand_grid::add_for_accessibility(double bash_dist, const lig_build::pos_t &atom_pos) {
 
    bool debug = 0;
-   int grid_extent = 40;
+   int grid_extent = 45;
 
    double inv_scale_factor = 1.0/double(LIGAND_TO_CANVAS_SCALE_FACTOR);
    
@@ -3373,8 +3400,9 @@ lbg_info_t::ligand_grid::add_for_accessibility(double bash_dist, const lig_build
 	       d2 *= (inv_scale_factor * inv_scale_factor);
 	       double val = substitution_value(d2, bash_dist);
 	       if (debug)
-		  std::cout << "adding " << val << " to grid " << ix_grid << " " << iy_grid
-			    << " from " << sqrt(d2) << " vs " << bash_dist << std::endl;
+		  if (val > 0)
+		     std::cout << "adding " << val << " to grid " << ix_grid << " " << iy_grid
+			       << " from " << sqrt(d2) << " vs " << bash_dist << std::endl;
 	       grid_[ix_grid][iy_grid] += val;
 	    }
 	 }
@@ -3951,22 +3979,7 @@ lbg_info_t::draw_substitution_contour() {
 	 }
       }
 
-      // debug, what's happening to the bash distances? How many were tranfered?
-      // 
-      if (0) {
-	 int n_bash_distances = 1;
-	 for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
-	    if (mol.atoms[iat].bash_distances.size()) {
-	       std::cout << " atom :" << mol.atoms[iat].get_atom_name() << ":"
-			 << mol.atoms[iat].bash_distances.size()
-			 << " bash distances " << std::endl;
-	    }
-	 }
-	 std::cout << "..... in draw_substitution_contour() total bash distances "
-		   << n_bash_distances << std::endl;
-      }
-
-      // if we don't have bash distances, then don't grid and contour anything.  If
+      // If we don't have bash distances, then don't grid and contour anything.  If
       // we do, we do....
       // 
       if (have_bash_distances) {
@@ -3978,7 +3991,7 @@ lbg_info_t::draw_substitution_contour() {
 	       mol.ligand_extents();
 	    lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
    
-	    if (0) { 
+	    if (1) { 
 	       for (unsigned int i=0; i<mol.atoms.size(); i++) { 
 		  std::cout << "in draw_substitution_contour() atom " << i << " has "
 			    << mol.atoms[i].bash_distances.size() << " bash distances" << std::endl;
@@ -3996,10 +4009,9 @@ lbg_info_t::draw_substitution_contour() {
 	       double sum_bash = 0.0;
 	       bool unlimited = 0;
 	       int n_unlimited = 0;
+	       
 	       if (mol.atoms[iat].bash_distances.size()) { 
 		  for (unsigned int j=0; j<mol.atoms[iat].bash_distances.size(); j++) {
-		     // 	    std::cout << " bash_distances " << j << " " << mol.atoms[iat].bash_distances[j]
-		     // 		      << std::endl;
 		     if (! mol.atoms[iat].bash_distances[j].unlimited()) {
 			sum_bash += mol.atoms[iat].bash_distances[j].dist;
 			n_bash_distances++;
@@ -4009,10 +4021,11 @@ lbg_info_t::draw_substitution_contour() {
 		     } 
 		  }
 
-
 		  if (! unlimited) { 
 		     if (n_bash_distances > 0) {
 			double bash_av = sum_bash/double(n_bash_distances);
+			std::cout << "   none unlimited, using bash_av " << bash_av
+				  << " for atom " << mol.atoms[iat].get_atom_name() << std::endl;
 			grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
 		     }
 		  } else {
@@ -4026,6 +4039,7 @@ lbg_info_t::draw_substitution_contour() {
 			// correct - the unlimited atoms properly assert themselves
 			// in the drawing of the contour (that is, the selection of
 			// the contour fragments).
+			//
 			grid.add_for_accessibility(1.2, mol.atoms[iat].atom_position);
 			// 	       std::cout << "adding unlimited_atom_position "
 			// 			 << iat << " "
@@ -4048,11 +4062,22 @@ lbg_info_t::draw_substitution_contour() {
 		     } else {
 
 			// treat as a limited:
-			double bash_av = (sum_bash + 4.0 * n_unlimited)/double(n_bash_distances);
+			double bash_av =
+			   (sum_bash + 4.0 * n_unlimited)/double(n_bash_distances+n_unlimited);
+			
+			std::cout << "   few unlimited, as limited using bash_av " << bash_av
+				  << " for atom " << mol.atoms[iat].get_atom_name() << std::endl;
+			
 			grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
 		     } 
 		  }
+		  
 	       } else {
+
+		  // we don't get here currently, now that there is an
+		  // outer test for having bash distances. Current way
+		  // is OK, I think.
+		  
 		  // there were no bash distances - what do we do?  Leaving out
 		  // atoms means gaps over the ligand - bleugh.  Shove some
 		  // value in?  1.0?  if they are not hydrogens, of course.
@@ -4062,8 +4087,18 @@ lbg_info_t::draw_substitution_contour() {
 	       } 
 	    }
 
-	    // show_grid(grid);
-	    grid.show_contour(root, 0.5, unlimited_atoms);
+	    show_grid(grid);
+
+	    std::vector<widgeted_atom_ring_centre_info_t> dummy_unlimited_atoms;
+	    grid.show_contour(root, 0.5, dummy_unlimited_atoms);
+	    // debug
+	    show_unlimited_atoms(unlimited_atoms); // and ring centres
+
+	    std::cout << "Here are the "<< unlimited_atoms.size()
+		      << " unlimited atoms: " << std::endl;
+	    for (unsigned int iat=0; iat<unlimited_atoms.size(); iat++)
+	       std::cout << "   " << unlimited_atoms[iat] << std::endl;
+
 	 }
 	 catch (std::runtime_error rte) {
 	    std::cout << rte.what() << std::endl;
@@ -4447,6 +4482,9 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
       std::map<std::string, std::vector<coot::bash_distance_t> >::const_iterator it;
       for (it=ah.atom_bashes.begin(); it!=ah.atom_bashes.end(); it++) {
 	 std::cout << it->first << " " << it->second.size() << " bashes " << std::endl;
+	 for (unsigned int i=0; i<it->second.size(); i++) { 
+	    std::cout << "   " << it->second[i] << std::endl;
+	 }
       }
       std::cout << "--------------------------------------------------------------" << std::endl;
    }

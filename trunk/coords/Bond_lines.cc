@@ -325,7 +325,8 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				    std::find(het_residues.begin(), het_residues.end(), tp1);
 				 
 				 if (it_2 == het_residues.end()) { 
-				    if (geom->have_dictionary_for_residue_type_no_dynamic_add(atom_p_1->residue->GetResName())) {
+				    // if (geom->have_dictionary_for_residue_type_no_dynamic_add(atom_p_1->residue->GetResName())) {
+				    if (geom->have_at_least_minimal_dictionary_for_residue_type(atom_p_1->residue->GetResName())) {
 				       het_residues.push_back(tp1);
 				       bond_het_residue_by_dictionary = 1;
 				    }  else {
@@ -499,6 +500,7 @@ Bond_lines_container::add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n
 	 else
 	    add_dashed_bond(col, pt_1_2, pt_2_2, NOT_HALF_BOND);
       } else { 
+
 	 // we have to draw double half bonds, e.g. C=0
 	 clipper::Coord_orth bond_mid_point = 0.5 * clipper::Coord_orth(pos_at_1 + pos_at_2);
 	 clipper::Coord_orth mp_1 = bond_mid_point - offset * perp_n;
@@ -517,10 +519,9 @@ Bond_lines_container::add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n
 	    add_dashed_bond(col, pt_2_2, mp_2, HALF_BOND_SECOND_ATOM);
 	 } 
       }
-
    }
    catch (std::runtime_error rte) {
-      std::cout << rte.what() << std::endl;
+      std::cout << "caught exception add_double_bond(): " << rte.what() << std::endl;
    } 
 }
 
@@ -682,16 +683,17 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
    if (het_residues.size()) {
       // std::cout << ":::::: bonding " << het_residues.size() << " het residues" << std::endl;
       for (unsigned int ires=0; ires<het_residues.size(); ires++) {
-	 if (het_residues[ires].first) { 
+	 if (het_residues[ires].first) {
 	    std::string res_name = het_residues[ires].second->GetResName();
 	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints = 
-	       geom->get_monomer_restraints(res_name);
-  	    // if (res_name != "HOH")
-	    // std::cout << "============== Bonding het residue: " << res_name << " " << std::endl;
+	       geom->get_monomer_restraints_at_least_minimal(res_name);
+   	    // if (res_name != "HOH")
+	    // std::cout << "============== Considering bonding HET residue: " << res_name << " " << std::endl;
 	    if (! restraints.first) {
 	       std::cout << "Oooppps!  No bonding rules for residue type :" << res_name
 			 << ": missing bonds! " << std::endl;
-	    } else { 
+	    } else {
+
 	       for (unsigned int ib=0; ib<restraints.second.bond_restraint.size(); ib++) {
 		  std::string atom_name_1 = restraints.second.bond_restraint[ib].atom_id_1_4c();
 		  std::string atom_name_2 = restraints.second.bond_restraint[ib].atom_id_2_4c();
@@ -750,6 +752,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 				    }
 
 				 } else {
+				    
 				    // Bonded to an atom of the same element.
 				    //
 				    int col = atom_colour(residue_atoms[iat], atom_colour_type);
@@ -789,7 +792,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 	    het_residue_aromatic_rings(het_residues[ires].second, restraints.second, col);
 	 }
       }
-   } 
+   }
 } 
 
 
