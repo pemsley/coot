@@ -194,7 +194,16 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 	       coot::restraints_container_t restraints(residues, geom,
 						       atom_sel.mol, fixed_atoms);
 	       bool do_torsions = 0;
-	       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+
+	       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; // fail
+	       
+	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES; // pass
+	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES; // pass
+	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_NON_BONDED; // fail
+	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES; // pass
+	       // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES; // pass
+	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_NON_BONDED;
+	       
 	       int n_restraints = restraints.make_restraints(geom, flags, do_torsions,
 							     0, 0, coot::NO_PSEUDO_BONDS);
 	       restraints.minimize(flags);
