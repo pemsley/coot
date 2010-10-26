@@ -5369,8 +5369,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints() {
    int n_nbc_r = 0;
    for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
       for (unsigned int j=0; j<filtered_non_bonded_atom_indices[i].size(); j++) {
-// 	 fixed_atom_flags[0] = is_fixed_first;
-// 	 fixed_atom_flags[1] = is_fixed_second;
+
+	 fixed_atom_flags = make_fixed_flags(i, filtered_non_bonded_atom_indices[i][j]);
 
 	 if (0) { 
 	    std::cout << "adding non-bonded contact restraint " 
@@ -5379,7 +5379,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints() {
 		      << atom[filtered_non_bonded_atom_indices[i][j]]->GetSeqNum() << " " 
 		      << atom[filtered_non_bonded_atom_indices[i][j]]->name << "]" << std::endl;
 	 }
-	 add_non_bonded(i, filtered_non_bonded_atom_indices[i][j]);
+	 add_non_bonded(i, filtered_non_bonded_atom_indices[i][j], fixed_atom_flags);
 	 n_nbc_r++;
       }
    }
