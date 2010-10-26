@@ -4061,6 +4061,21 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
 #endif /* PYTHON*/
 #endif	/* __cplusplus */
 
+/* Transfer as many atom names as possible from the reference ligand
+   to the given ligand.  The atom names are determined from graph
+   matching the reference ligand onto the given ligand.
+
+   Function needs to be written.  Non-trivial (the atom graph matching
+   is OK, and the atom pairs straightforwardly determined, but what
+   should be done with the atom names that are matched from the
+   reference ligand, but also a different atom of the same name is not
+   matched?).
+ */
+/* void tranfer_atom_names(int imol_ligand, const char *chain_id_ligand, int res_no_ligand, const char *ins_code_ligand, */
+/* 			int imol_reference, const char *chain_id_reference, int res_no_reference, const char *ins_code_reference); */
+
+
+
 /* Just pondering - just a stub currently.
 
    For use with exporting ligands from the 2D sketcher to the main
