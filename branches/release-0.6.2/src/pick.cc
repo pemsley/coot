@@ -77,24 +77,31 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
 	    dist = atom.distance_to_line(front, back);
 
 	    if (dist < min_dist) {
+
 	       if ((pick_mode != PICK_ATOM_CA_ONLY) ||
 		   (std::string(SelAtom.atom_selection[i]->name) == " CA ") ||
-		   (std::string(SelAtom.atom_selection[i]->name) == " P  ")) { 
+		   (std::string(SelAtom.atom_selection[i]->name) == " P  ")) {
 		  
-		  min_dist = dist;
-		  nearest_atom_index = i;
-		  p_i.success = GL_TRUE;
-		  p_i.atom_index = nearest_atom_index;
-		  p_i.imol = imol;
-		  p_i.min_dist = dist;
-
-		  if (verbose_mode) { 
-		     std::cout << "   DEBUG:: imol " << imol << " " 
-			       << " atom index " << nearest_atom_index << std::endl;
-		     std::cout << "   DEBUG:: imol " << imol << " "
-			       << SelAtom.atom_selection[i] << " " << min_dist
-			       << std::endl; 
-		  } 
+		  std::string ele(SelAtom.atom_selection[i]->element);
+		  
+		  if (((pick_mode == PICK_ATOM_NON_HYDROGEN) && (ele != " H")) ||
+		      (pick_mode != PICK_ATOM_NON_HYDROGEN)) {
+		      
+		     min_dist = dist;
+		     nearest_atom_index = i;
+		     p_i.success = GL_TRUE;
+		     p_i.atom_index = nearest_atom_index;
+		     p_i.imol = imol;
+		     p_i.min_dist = dist;
+		     
+		     if (verbose_mode) { 
+			std::cout << "   DEBUG:: imol " << imol << " " 
+				  << " atom index " << nearest_atom_index << std::endl;
+			std::cout << "   DEBUG:: imol " << imol << " "
+				  << SelAtom.atom_selection[i] << " " << min_dist
+				  << std::endl; 
+		     }
+		  }
 	       } else {
 		  if (verbose_mode) { 
 		     std::cout << "CA pick mode:" << std::endl;
@@ -174,6 +181,8 @@ atom_pick(GdkEventButton *event) {
 	       short int pick_mode = PICK_ATOM_ALL_ATOM;
 	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS)
 		  pick_mode = PICK_ATOM_CA_ONLY;
+	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::BONDS_NO_HYDROGENS)
+		  pick_mode = PICK_ATOM_NON_HYDROGEN;
 
 	       bool verbose_mode = graphics_info_t::debug_atom_picking;
 	       pick_info mpi = pick_atom(SelAtom, ii, front, back, pick_mode, verbose_mode);
