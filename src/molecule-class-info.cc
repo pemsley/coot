@@ -2597,6 +2597,9 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist) {
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::NORMAL_BONDS;
+   if (! draw_hydrogens_flag)
+      bonds_box_type = coot::BONDS_NO_HYDROGENS;
+
 }
 
 void
@@ -2621,7 +2624,9 @@ molecule_class_info_t::makebonds() {
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::NORMAL_BONDS;
-
+   if (! draw_hydrogens_flag)
+      bonds_box_type = coot::BONDS_NO_HYDROGENS;
+   
 }
 
 void
@@ -2684,6 +2689,8 @@ void
 molecule_class_info_t::make_bonds_type_checked() { 
 
    if (bonds_box_type == coot::NORMAL_BONDS)
+      makebonds();
+   if (bonds_box_type == coot::BONDS_NO_HYDROGENS)
       makebonds();
    if (bonds_box_type == coot::CA_BONDS)
       make_ca_bonds();
