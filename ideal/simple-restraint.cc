@@ -5409,7 +5409,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints() {
    for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
       for (unsigned int j=0; j<filtered_non_bonded_atom_indices[i].size(); j++) {
 
-	 fixed_atom_flags = make_fixed_flags(i, filtered_non_bonded_atom_indices[i][j]);
+	 std::vector<bool> fixed_atom_flags = make_fixed_flags(i, filtered_non_bonded_atom_indices[i][j]);
 
 	 if (0) { 
 	    std::cout << "adding non-bonded contact restraint " 

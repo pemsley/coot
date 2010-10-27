@@ -3957,9 +3957,13 @@ Bond_lines_container::add_zero_occ_spots(const atom_selection_container_t &SelAt
 	  SelAtom.atom_selection[i]->occupancy > -1) { // shelx occ test
 	 // we don't want to see atoms with occupancy -61 from a shelx ins
 	 // file with zero occupancy spots.
-	 zero_occ_spot.push_back(coot::Cartesian(SelAtom.atom_selection[i]->x,
-						 SelAtom.atom_selection[i]->y,
-						 SelAtom.atom_selection[i]->z));
+	 std::string ele(SelAtom.atom_selection[i]->element);
+	 if (do_bonds_to_hydrogens ||
+	     ((do_bonds_to_hydrogens == 0) && (ele != " H"))) { 
+	    zero_occ_spot.push_back(coot::Cartesian(SelAtom.atom_selection[i]->x,
+						    SelAtom.atom_selection[i]->y,
+						    SelAtom.atom_selection[i]->z));
+	 }
       }
    }
 }

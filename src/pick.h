@@ -71,7 +71,7 @@ namespace coot {
 }
 
 
-enum { PICK_ATOM_ALL_ATOM, PICK_ATOM_CA_ONLY, PICK_ATOM_CA_OR_LIGAND };
+enum { PICK_ATOM_ALL_ATOM, PICK_ATOM_CA_ONLY, PICK_ATOM_CA_OR_LIGAND, PICK_ATOM_NON_HYDROGEN };
 
 pick_info atom_pick(GdkEventButton *event); // atom index in the atom selection
 // pick_info moving_atoms_atom_pick(); not here, it's in graphics.
