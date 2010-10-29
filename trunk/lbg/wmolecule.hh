@@ -428,7 +428,7 @@ public:
 
 };
 
-// trivia container for a (copy of an) atom an its ring centre (if
+// trivial container for a (copy of an) atom an its ring centre (if
 // it has one)
 class widgeted_atom_ring_centre_info_t {
 public:

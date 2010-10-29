@@ -2980,7 +2980,7 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
 				      const std::vector<widgeted_atom_ring_centre_info_t> &unlimited_atoms) const {
 
 
-   std::cout << "------- " << unlimited_atoms.size() << " unlimited atoms " << std::endl;
+   std::cout << "------- in show_contour() " << unlimited_atoms.size() << " unlimited atoms " << std::endl;
 
    GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", "#880000",
 						NULL);
@@ -3059,12 +3059,13 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
 			   lig_build::pos_t d_2 = unlimited_atoms[i].atom.atom_position - p1;
 			   double cos_theta =
 			      lig_build::pos_t::dot(d_1, d_2)/(d_1.length()*d_2.length());
-			   // std::cout << " cos_theta " << cos_theta;
-			   if (cos_theta > 0.0) { // only cut in the forwards direction
+			   // std::cout << " cos_theta " << cos_theta << " for unlimited atom " << i << std::endl;
+			   if (cos_theta > 0.3) { // only cut in the "forwards" direction
 
-			      // std::cout << " cutting by unlimited atom " << i << " "
-			      // << unlimited_atoms[i].atom.get_atom_name()
-			      // << std::endl;
+// 			      std::cout << " cutting by ring-centred unlimited atom " << i << " "
+// 				 << unlimited_atoms[i].atom.get_atom_name()
+// 					<< std::endl;
+			      
 			      plot_it = 0;
 			      break;
 			   }
@@ -3072,6 +3073,9 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
 			
 			} else {
 			   plot_it = 0;
+			   std::cout << " cutting by non-ring-centred unlimited atom " << i << " "
+				     << unlimited_atoms[i].atom.get_atom_name()
+				     << std::endl;
 			   break;
 			}
 		     }
@@ -3225,7 +3229,17 @@ lbg_info_t::show_unlimited_atoms(const std::vector<widgeted_atom_ring_centre_inf
 				"stroke-color", "lawngreen",
 				"fill_color", "lightblue",
 				NULL);
-      }
+      } else {
+	 GooCanvasItem *rect_item =
+	    goo_canvas_rect_new(root,
+				ua[i].atom.atom_position.x -6.0,
+				ua[i].atom.atom_position.y -6.0,
+				12.0, 12.0,
+				"line-width", 1.0,
+				"stroke-color", "lightblue",
+				"fill_color", "lightblue",
+				NULL);
+      } 
    }
 }
 
@@ -3991,9 +4005,10 @@ lbg_info_t::draw_substitution_contour() {
 	       mol.ligand_extents();
 	    lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
    
-	    if (1) { 
+	    if (1) { // debug
 	       for (unsigned int i=0; i<mol.atoms.size(); i++) { 
-		  std::cout << "in draw_substitution_contour() atom " << i << " has "
+		  std::cout << "in draw_substitution_contour() atom " << i << " " << mol.atoms[i].get_atom_name()
+			    << " has "
 			    << mol.atoms[i].bash_distances.size() << " bash distances" << std::endl;
 		  for (unsigned int j=0; j<mol.atoms[i].bash_distances.size(); j++) {
 		     std::cout << "  " << mol.atoms[i].bash_distances[j];
@@ -4087,10 +4102,10 @@ lbg_info_t::draw_substitution_contour() {
 	       } 
 	    }
 
-	    show_grid(grid);
+	    // show_grid(grid);
 
-	    std::vector<widgeted_atom_ring_centre_info_t> dummy_unlimited_atoms;
-	    grid.show_contour(root, 0.5, dummy_unlimited_atoms);
+	    // std::vector<widgeted_atom_ring_centre_info_t> dummy_unlimited_atoms;
+	    grid.show_contour(root, 0.5, unlimited_atoms);
 	    // debug
 	    show_unlimited_atoms(unlimited_atoms); // and ring centres
 

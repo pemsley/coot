@@ -35,8 +35,9 @@ namespace coot {
    };
 
    class flev_attached_hydrogens_t {
-      std::vector<std::string> atoms_with_riding_hydrogens;
-      std::vector<std::string> atoms_with_rotating_hydrogens;
+      // the "base" (heavy) atom name in first and the H name in second.
+      std::vector<std::pair<std::string, std::string> > atoms_with_riding_hydrogens;
+      std::vector<std::pair<std::string, std::string> > atoms_with_rotating_hydrogens;
       bool add_named_torsion(CAtom *h_at, CAtom *at,
 			     const dictionary_residue_restraints_t &restraints,
 			     CMMDBManager *mol,
@@ -60,6 +61,14 @@ namespace coot {
 					 const clipper::Coord_orth &hydrogen_pos,
 					 const std::vector<CAtom *> &close_residue_atoms) const;
       double get_radius(const std::string &ele) const;
+
+      // find an atom (the atom, perhaps) bonded to lig_at that is not H_at.
+      // Return its position. Can throw a std::runtime_error if not found.
+      // 
+      clipper::Coord_orth get_atom_pos_bonded_to_atom(CAtom *lig_at, CAtom *H_at, // not H_at
+						      CResidue *ligand_residue,
+						      const protein_geometry &geom) const;
+      
       
    public:
       flev_attached_hydrogens_t(const dictionary_residue_restraints_t &restraints);
@@ -79,6 +88,9 @@ namespace coot {
       // apply those cannonball direction onto the real reference ligand:
       void distances_to_protein(CResidue *residue_reference,
 				CMMDBManager *mol_reference);
+      void distances_to_protein_using_correct_Hs(CResidue *residue_reference,
+						 CMMDBManager *mol_reference,
+						 const protein_geometry &geom);
 
       std::map<std::string, std::vector<coot::bash_distance_t> > atom_bashes;
    
