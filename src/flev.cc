@@ -263,7 +263,7 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
 #ifndef MAKE_ENTERPRISE_TOOLS
 # else
 
-   double weight_for_3d_distances = 0.4; // for 3d distances 
+   double weight_for_3d_distances = 0.8; // for 3d distances 
    
    graphics_info_t g;
    coot::protein_geometry *geom_p = g.Geom_p();
@@ -371,8 +371,8 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
 		  // ----------- ligand atom infos ------
 		  // 
  		  coot::flev_attached_hydrogens_t ah(p.second);
-		  ah.cannonballs(res_ref, mol_for_res_ref, p.second);
- 		  ah.distances_to_protein(res_ref, mol_for_res_ref);
+		  // ah.cannonballs(res_ref, mol_for_res_ref, p.second);
+ 		  ah.distances_to_protein_using_correct_Hs(res_ref, mol_for_res_ref, *geom_p);
 
  		  lbg_local_p->annotate(s_a_v, centres, bonds_to_ligand, sed, ah, pi_stack_info);
 		  delete mol_for_flat_residue;
@@ -1927,22 +1927,23 @@ coot::flev_attached_hydrogens_t::flev_attached_hydrogens_t(const coot::dictionar
 	 // Does it exist in the torsions?
 
 	 bool found = 0;
+	 std::pair<std::string, std::string> p(atom_name_1, atom_name_2);
 	 for (unsigned int itor=0; itor<restraints.torsion_restraint.size(); itor++) { 
 	    if (((restraints.torsion_restraint[itor].atom_id_1_4c() == atom_name_2) &&
 		 (restraints.torsion_restraint[itor].atom_id_2_4c() == atom_name_1)) ||
 		((restraints.torsion_restraint[itor].atom_id_4_4c() == atom_name_2) &&
 		 (restraints.torsion_restraint[itor].atom_id_3_4c() == atom_name_1))) { 
-	       if (restraints.torsion_restraint[itor].is_const()) { 
-		  atoms_with_riding_hydrogens.push_back(atom_name_1);
+	       if (restraints.torsion_restraint[itor].is_const()) {
+		  atoms_with_riding_hydrogens.push_back(p);
 	       } else {
-		  atoms_with_rotating_hydrogens.push_back(atom_name_1);
+		  atoms_with_rotating_hydrogens.push_back(p);
 	       }
 	       found = 1;
 	       break;
 	    }
 	 }
 	 if (! found) {
-	    atoms_with_riding_hydrogens.push_back(atom_name_1);
+	    atoms_with_riding_hydrogens.push_back(p);
 	 }
       }
    }
@@ -2032,7 +2033,7 @@ coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
 	 // riding hydrogens:
 	 // 
 	 for (unsigned int iat=0; iat<atoms_with_riding_hydrogens.size(); iat++) { 
-	    if (atom_name_bonded_to_H == atoms_with_riding_hydrogens[iat]) {
+	    if (atom_name_bonded_to_H == atoms_with_riding_hydrogens[iat].first) {
 	       CAtom *h_at = hydrogen_selection[pscontact[i].id1];
 	       found_torsion_for_this_H = add_named_torsion(h_at, at, restraints, mol, coot::H_IS_RIDING);
 	    }
@@ -2043,7 +2044,7 @@ coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
 	 // rotating hydrogens:
 	 // 
 	 for (unsigned int iat=0; iat<atoms_with_rotating_hydrogens.size(); iat++) { 
-	    if (atom_name_bonded_to_H == atoms_with_rotating_hydrogens[iat]) {
+	    if (atom_name_bonded_to_H == atoms_with_rotating_hydrogens[iat].first) {
 	       CAtom *h_at = hydrogen_selection[pscontact[i].id1];
 	       found_torsion_for_this_H = add_named_torsion(h_at, at, restraints, mol, coot::H_IS_ROTATABLE);
 	    }
@@ -2245,7 +2246,7 @@ coot::flev_attached_hydrogens_t::named_hydrogens_to_reference_ligand(CResidue *l
 }
 								     
 
-// apply those cannonball direction onto the real reference ligand:
+// apply those cannonball directions onto the real reference ligand:
 void
 coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_reference, 
 						      CMMDBManager *mol_reference) {
@@ -2273,25 +2274,32 @@ coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_referenc
       try {
 	 if (named_torsions[i].hydrogen_type == coot::H_IS_RIDING) {
 
-	    // std::cout << "hydrogen on " << named_torsions[i].atom_name_bonded_to_H 
-	    // << " is riding " << std::endl;
+	    std::cout << "hydrogen on " << named_torsions[i].atom_name_bonded_to_H 
+		      << " is riding " << std::endl;
 	    
 	    std::pair<clipper::Coord_orth, clipper::Coord_orth> pt_base_and_H =
 	       hydrogen_pos(named_torsions[i], residue_reference);
+
+	    std::cout << "pt_base_and_H: ligand atom at: " << pt_base_and_H.first.format()
+		      << " H atom at: " << pt_base_and_H.second.format() << std::endl;
+	    
+	    
 	    std::vector<CAtom *> atoms = close_atoms(pt_base_and_H.second, env_residues);
 
 	    // bash is one of a (potentially) number of bash distances
 	    // for a given ligand (non-hydrogen) atom.
+	    // (passing the H coord, the lig-atom coord, a vector of CAtoms *s.)
 	    // 
 	    coot::bash_distance_t bash = find_bash_distance(pt_base_and_H.first,
 							    pt_base_and_H.second,
 							    atoms);
+	    std::cout << "   found bash: " << bash << std::endl;
 	    atom_bashes[named_torsions[i].atom_name_bonded_to_H].push_back(bash);
 	 }
 	 
 	 if (named_torsions[i].hydrogen_type == coot::H_IS_ROTATABLE) {
 
-	    std::cout << "hydrogen on named_torsions[i].atom_name_bonded_to_H "
+	    std::cout << "hydrogen on " << named_torsions[i].atom_name_bonded_to_H 
 		      << " is rotatable " << std::endl;
 	    
 	    int n_torsion_samples = 8;
@@ -2321,6 +2329,106 @@ coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_referenc
 	 std::cout << rte.what() << std::endl;
       } 
    }
+}
+
+// RDKit version (well, the version that is used when the hydrogens
+// are correctly named (according to the dictionary) and placed on the
+// ligand of interest.
+//
+// This fills the atom_bashes vector.
+// 
+void
+coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(CResidue *ligand_residue,
+								       CMMDBManager *mol,
+								       const coot::protein_geometry &geom) {
+
+   // the constructor (called just before this) should fill
+   // atoms_with_rotating_hydrogens and atoms_with_riding_hydrogens
+   // vectors (using the restraints).
+   
+   float radius = 6.0;
+   std::vector<CResidue *> env_residues =
+      coot::residues_near_residue(ligand_residue, mol, radius);
+
+   // -------------------------------------------------------------------
+   //                    riding hydrogens
+   // -------------------------------------------------------------------
+   // 
+   PPCAtom residue_atoms = 0;
+   int n_ligand_atoms;
+   ligand_residue->GetAtomTable(residue_atoms, n_ligand_atoms);
+   for (unsigned int irh=0; irh<atoms_with_riding_hydrogens.size(); irh++) { 
+      CAtom *lig_at = NULL;
+      CAtom *H_at = NULL;
+      for (unsigned int iat=0; iat<n_ligand_atoms; iat++) { 
+	 std::string atom_name(residue_atoms[iat]->name);
+	 if (atom_name == atoms_with_riding_hydrogens[irh].first)
+	    lig_at = residue_atoms[iat];
+	 if (atom_name == atoms_with_riding_hydrogens[irh].second)
+	    H_at = residue_atoms[iat];
+	 if (lig_at && H_at)
+	    break;
+      }
+      if (lig_at && H_at) {
+	 clipper::Coord_orth H_pt(H_at->x, H_at->y, H_at->z);
+	 clipper::Coord_orth lig_atom_pt(lig_at->x, lig_at->y, lig_at->z);
+	 
+	 std::vector<CAtom *> atoms = close_atoms(H_pt, env_residues);
+	 coot::bash_distance_t bash = find_bash_distance(lig_atom_pt, H_pt, atoms);
+	 atom_bashes[atoms_with_riding_hydrogens[irh].first].push_back(bash);
+	 std::cout << " adding bash distance " << bash << " to atom " 
+		   << atoms_with_riding_hydrogens[irh].first << std::endl;
+      } 
+   }
+   for (unsigned int irh=0; irh<atoms_with_rotating_hydrogens.size(); irh++) { 
+      CAtom *lig_at = NULL;
+      CAtom *H_at = NULL;
+      for (unsigned int iat=0; iat<n_ligand_atoms; iat++) { 
+	 std::string atom_name(residue_atoms[iat]->name);
+	 if (atom_name == atoms_with_rotating_hydrogens[irh].first)
+	    lig_at = residue_atoms[iat];
+	 if (atom_name == atoms_with_rotating_hydrogens[irh].second)
+	    H_at = residue_atoms[iat];
+	 if (lig_at && H_at)
+	    break;
+      }
+      if (lig_at && H_at) {
+	 clipper::Coord_orth H_pt(H_at->x, H_at->y, H_at->z);
+	 clipper::Coord_orth lig_atom_pt(lig_at->x, lig_at->y, lig_at->z);
+	 
+	 std::vector<CAtom *> atoms = close_atoms(H_pt, env_residues);
+
+	 try { 
+	    clipper::Coord_orth vector_pt = get_atom_pos_bonded_to_atom(lig_at, H_at, // not H_at
+									ligand_residue, geom);
+	    clipper::Coord_orth base_ref_pt(0,0,0);
+	    double tors = clipper::Coord_orth::torsion(base_ref_pt, vector_pt, lig_atom_pt, H_pt);
+	    double dist = sqrt((lig_atom_pt - H_pt).lengthsq());
+	    double angle = clipper::Coord_orth::angle(vector_pt, lig_atom_pt, H_pt);
+
+	    int n_torsion_samples = 8;
+	    for (unsigned int itor=0; itor<n_torsion_samples; itor++) {
+
+	       double tmp_tor_d =  double(itor) * 360.0/double(n_torsion_samples);
+	       double tmp_tor = clipper::Util::d2rad(tmp_tor_d);
+	       tmp_tor += tors;
+	       clipper::Coord_orth new_pt =
+		  clipper::Coord_orth(base_ref_pt, vector_pt, lig_atom_pt, dist, angle, tmp_tor);
+	       coot::bash_distance_t bash = find_bash_distance(lig_atom_pt, new_pt, atoms);
+	       atom_bashes[atoms_with_rotating_hydrogens[irh].first].push_back(bash);
+	    }
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << rte.what() << std::endl;
+	 } 
+      }
+   }
+
+   // -------------------------------------------------------------------
+   //                 rotatable hydrogens (more complex)
+   // -------------------------------------------------------------------
+   // 
+   
 }
 
 
@@ -2364,9 +2472,83 @@ coot::flev_attached_hydrogens_t::hydrogen_pos(const coot::named_torsion_t &named
 			       clipper::Util::d2rad(named_tor.torsion));
       pt = p4_h;
       pt_ligand_atom = pt_3;
+      std::cout << "in hydrogen_pos() constructed H pos " << pt.format()
+		<< " from atom at_1: " << at_1 << " "
+		<< "atom at_2: " << at_2 << " "
+		<< "atom at_3: " << at_3 << " "
+		<< " dist: " << named_tor.dist << " " 
+		<< " angle: " << named_tor.angle << " " 
+		<< " torsion: " << named_tor.torsion << std::endl;
    } 
    return std::pair<clipper::Coord_orth, clipper::Coord_orth> (pt_ligand_atom, pt);
-} 
+}
+
+// find an atom (the atom, perhaps) bonded to lig_at that is not H_at.
+// Return its position.
+// 
+// Can throw a std::runtime_error if not found.
+// 
+clipper::Coord_orth
+coot::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(CAtom *lig_at, CAtom *H_at, // not H_at
+							     CResidue *ligand_residue,
+							     const coot::protein_geometry &geom) const {
+   std::string res_name(lig_at->residue->GetResName());
+   std::pair<bool, dictionary_residue_restraints_t> p = 
+      geom.get_monomer_restraints_at_least_minimal(res_name);
+
+   if (! p.first) {
+      std::string m = "No monomer type ";
+      m += res_name;
+      m += " found in dictionary";
+      throw std::runtime_error(m);
+   } else {
+      CAtom *bonded_atom = NULL;
+      std::string bonded_atom_name;
+      std::string lig_at_name = lig_at->name;
+      std::string H_at_name = H_at->name;
+      for (unsigned int ibond=0; ibond<p.second.bond_restraint.size(); ibond++) { 
+	 std::string atom_name_1 = p.second.bond_restraint[ibond].atom_id_1_4c();
+	 std::string atom_name_2 = p.second.bond_restraint[ibond].atom_id_2_4c();
+	 if (atom_name_1 == lig_at_name) {
+	    if (atom_name_2 != H_at_name) {
+	       bonded_atom_name = atom_name_2;
+	       break;
+	    }
+	 }
+	 if (atom_name_2 == lig_at_name) {
+	    if (atom_name_1 != H_at_name) {
+	       bonded_atom_name = atom_name_1;
+	       break;
+	    }
+	 }
+      }
+      if (bonded_atom_name != "") {
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 ligand_residue->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int iat=0; iat<n_residue_atoms ; iat++) {
+	    std::string atom_name = residue_atoms[iat]->name;
+	    if (atom_name == bonded_atom_name) {
+	       bonded_atom = residue_atoms[iat];
+	       break;
+	    } 
+	 }
+      }
+
+      if (! bonded_atom) {
+	 std::string m = "No atom bonded to ";
+	 m += lig_at_name;
+	 m += " found in dictionary for ";
+	 m += res_name;
+	 throw std::runtime_error(m);
+      } else {
+	 // good
+	 return clipper::Coord_orth(bonded_atom->x, bonded_atom->y, bonded_atom->z);
+      }
+   }
+
+}
+
 
 // What are the atoms that are close (distance < 6A) to pt?
 // 
@@ -2413,6 +2595,11 @@ coot::flev_attached_hydrogens_t::find_bash_distance(const clipper::Coord_orth &l
    double max_dist_squared = max_dist * max_dist;
    clipper::Coord_orth h_vector((hydrogen_pos - ligand_atom_pos).unit());
 
+   if (0)
+      std::cout << "h_vector: " << h_vector.format() << " from hydrogen pos: "
+		<< hydrogen_pos.format() << "and ligand atom pos: " << ligand_atom_pos.format()
+		<< std::endl;
+
    // set the atomic radii:
    // 
    std::vector<double> radius(close_residue_atoms.size());
@@ -2432,15 +2619,21 @@ coot::flev_attached_hydrogens_t::find_bash_distance(const clipper::Coord_orth &l
    
    for (double slide=0; slide<=max_dist; slide+=0.04) {
       clipper::Coord_orth test_pt = ligand_atom_pos + slide * h_vector;
-//       std::cout << "   bash distance for ligand atom at " << ligand_atom_pos.format() << " "
-// 		<< "determined from " << atom_positions.size() << " atom positions"
-// 		<< std::endl;
+      if (0)
+	 std::cout << "   bash distance for ligand atom at " << ligand_atom_pos.format() << " "
+		   << "determined from " << atom_positions.size() << " atom positions"
+		   << std::endl;
       for (unsigned int iat=0; iat<atom_positions.size(); iat++) {
 	 double atom_radius_plus_cbr = radius[iat] + cannonball_radius;
 	 double d_squared = (test_pt - atom_positions[iat]).lengthsq();
-// 	 std::cout << "   atom " << iat << " slide: " << slide
-// 		   << " comparing " << sqrt(d_squared) << "^2  and "
-// 		   << atom_radius_plus_cbr << "^2" << std::endl;
+	 if (0)
+	    std::cout << "   atom " << iat << " "
+		      << close_residue_atoms[iat]->GetChainID() << " "
+		      << close_residue_atoms[iat]->GetSeqNum() << " "
+		      << close_residue_atoms[iat]->GetAtomName() << " "
+		      << " slide: " << slide
+		      << " comparing " << sqrt(d_squared) << "^2  and "
+ 		   << atom_radius_plus_cbr << "^2" << std::endl;
 	 if (d_squared < atom_radius_plus_cbr*atom_radius_plus_cbr) {
 	    dd = coot::bash_distance_t(slide);
 	    break;
