@@ -855,7 +855,8 @@ public:
 		 const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,
 		 const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
 		 const coot::flev_attached_hydrogens_t &ah,
-		 const coot::pi_stacking_container_t &pi_stack_info);
+		 const coot::pi_stacking_container_t &pi_stack_info,
+		 const coot::dictionary_residue_restraints_t &restraints);
 };
 
 // return pointer to an lbg_info_t.  Caller deletes.
