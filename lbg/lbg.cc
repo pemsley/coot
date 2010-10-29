@@ -4480,7 +4480,8 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
 		     const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,
 		     const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
 		     const coot::flev_attached_hydrogens_t &ah,
-		     const coot::pi_stacking_container_t &pi_stack_info) {
+		     const coot::pi_stacking_container_t &pi_stack_info,
+		     const coot::dictionary_residue_restraints_t &restraints) {
 
    if (1) {
       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
@@ -4577,6 +4578,21 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
       
       residue_circles.push_back(circle);
    }
+
+   // ligand ring centres (some of which may be aromatic and are in pi_stack_info too).
+   //
+   // However, for the substitution contour and the initial layout
+   // ring avoidance, we blob in a circle of radius 1/(2*sin(180/n_ring_atoms)) bond lengths.
+   
+   std::vector<std::vector<std::string> > ring_atoms_list = restraints.get_ligand_ring_list();
+   for (unsigned int i=0; i<ring_atoms_list.size(); i++) {
+      std::cout << "ring list " << i << "   ";
+      for (unsigned int j=0; j<ring_atoms_list[i].size(); j++) { 
+	 std::cout << ring_atoms_list[i][j] << "  ";
+      }
+      std::cout << std::endl;
+   }
+   
 
    refine_residue_circle_positions();
    render_from_molecule(new_mol);

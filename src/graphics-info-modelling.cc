@@ -406,7 +406,11 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 
 	 if (do_torsion_restraints) { 
 	    do_residue_internal_torsions = 1;
-	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS; // fail
+	    flags = coot::BONDS_ANGLES_AND_TORSIONS; // OK
+	    flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES;  // OK
+	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED; // fail
+	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS; // fail
 	 } 
 
 	 if (do_rama_restraints) 

@@ -348,7 +348,7 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
  		     coot::get_fle_ligand_bonds(res_ref, filtered_residues, mol_for_res_ref,
  						name_map, *geom_p);
 
-		  std::vector<coot::fle_residues_helper_t> centres =
+		  std::vector<coot::fle_residues_helper_t> res_centres =
 		     coot::get_flev_residue_centres(res_ref,
 						    mol_for_res_ref,
 						    filtered_residues,
@@ -356,9 +356,9 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
 
 		  if (0) { 
 		     std::cout << "------------- in flev: centres.size() is "
-			       << centres.size() << std::endl;
-		     for (unsigned int ic=0; ic<centres.size(); ic++)
-			std::cout << "   " << ic << "  " << centres[ic]
+			       << res_centres.size() << std::endl;
+		     for (unsigned int ic=0; ic<res_centres.size(); ic++)
+			std::cout << "   " << ic << "  " << res_centres[ic]
 				  << std::endl;
 		  }
 
@@ -374,7 +374,7 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
 		  // ah.cannonballs(res_ref, mol_for_res_ref, p.second);
  		  ah.distances_to_protein_using_correct_Hs(res_ref, mol_for_res_ref, *geom_p);
 
- 		  lbg_local_p->annotate(s_a_v, centres, bonds_to_ligand, sed, ah, pi_stack_info);
+ 		  lbg_local_p->annotate(s_a_v, res_centres, bonds_to_ligand, sed, ah, pi_stack_info, p.second);
 		  delete mol_for_flat_residue;
 	       }
 	    }
