@@ -2969,6 +2969,27 @@ lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid) {
 }
 
 void
+lbg_info_t::ligand_grid::avoid_ring_centres(std::vector<std::vector<std::string> > ring_atoms_list,
+					    const widgeted_molecule_t &mol) {
+
+   // For the substitution contour we blob in a circle of radius
+   // 1/(2*sin(180/n_ring_atoms)) bond lengths.
+   
+   for (unsigned int iring=0; iring<ring_atoms_list.size(); iring++) {
+      try { 
+	 lig_build::pos_t centre = mol.get_ring_centre(ring_atoms_list[iring]);
+	 int n_atoms = ring_atoms_list.size();
+	 double radius = 1/(2*sin(M_PI/double(n_atoms))) * 1.5; // in "A" or close
+	 add_for_accessibility(radius, centre);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "Opps - failed to find ring centre for ring atom name "
+		   << iring << std::endl;
+      }
+   }
+}
+
+void
 lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level) const {
 
    std::vector<widgeted_atom_ring_centre_info_t> unlimited_atoms;
@@ -4007,9 +4028,11 @@ lbg_info_t::draw_substitution_contour() {
    
 	    if (1) { // debug
 	       for (unsigned int i=0; i<mol.atoms.size(); i++) { 
-		  std::cout << "in draw_substitution_contour() atom " << i << " " << mol.atoms[i].get_atom_name()
+		  std::cout << "in draw_substitution_contour() atom " << i << " "
+			    << mol.atoms[i].get_atom_name()
 			    << " has "
-			    << mol.atoms[i].bash_distances.size() << " bash distances" << std::endl;
+			    << mol.atoms[i].bash_distances.size() << " bash distances"
+			    << std::endl;
 		  for (unsigned int j=0; j<mol.atoms[i].bash_distances.size(); j++) {
 		     std::cout << "  " << mol.atoms[i].bash_distances[j];
 		  }
@@ -4040,7 +4063,8 @@ lbg_info_t::draw_substitution_contour() {
 		     if (n_bash_distances > 0) {
 			double bash_av = sum_bash/double(n_bash_distances);
 			std::cout << "   none unlimited, using bash_av " << bash_av
-				  << " for atom " << mol.atoms[iat].get_atom_name() << std::endl;
+				  << " for atom " << mol.atoms[iat].get_atom_name()
+				  << std::endl;
 			grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
 		     }
 		  } else {
@@ -4064,15 +4088,7 @@ lbg_info_t::draw_substitution_contour() {
 			// widgeted_atom_ring_centre_info_t (because no simple
 			// constructor for lig_build::atom_t).
 			// 
-			widgeted_atom_ring_centre_info_t ua(mol.atoms[iat]);
-			try {
-			   ua.ring_centre = mol.get_ring_centre(ua);
-			   ua.add_ring_centre(mol.get_ring_centre(ua)); // eh? (badness in arg to
-			   // get_ring_centre, I think).
-			}
-			catch (std::runtime_error rte) {
-			   // nothing
-			} 
+ 			widgeted_atom_ring_centre_info_t ua(mol.atoms[iat]);
 			unlimited_atoms.push_back(ua);
 		     } else {
 
@@ -4081,7 +4097,8 @@ lbg_info_t::draw_substitution_contour() {
 			   (sum_bash + 4.0 * n_unlimited)/double(n_bash_distances+n_unlimited);
 			
 			std::cout << "   few unlimited, as limited using bash_av " << bash_av
-				  << " for atom " << mol.atoms[iat].get_atom_name() << std::endl;
+				  << " for atom " << mol.atoms[iat].get_atom_name()
+				  << std::endl;
 			
 			grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
 		     } 
@@ -4101,6 +4118,10 @@ lbg_info_t::draw_substitution_contour() {
 		     grid.add_for_accessibility_no_bash_dist_atom(1.0, mol.atoms[iat].atom_position);
 	       } 
 	    }
+
+	    // Put some values around the ring centres too.
+	    // 
+	    grid.avoid_ring_centres(ring_atoms_list, mol);
 
 	    // show_grid(grid);
 
@@ -4584,15 +4605,18 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
    // However, for the substitution contour and the initial layout
    // ring avoidance, we blob in a circle of radius 1/(2*sin(180/n_ring_atoms)) bond lengths.
    
-   std::vector<std::vector<std::string> > ring_atoms_list = restraints.get_ligand_ring_list();
-   for (unsigned int i=0; i<ring_atoms_list.size(); i++) {
-      std::cout << "ring list " << i << "   ";
-      for (unsigned int j=0; j<ring_atoms_list[i].size(); j++) { 
-	 std::cout << ring_atoms_list[i][j] << "  ";
-      }
-      std::cout << std::endl;
-   }
+   ring_atoms_list = restraints.get_ligand_ring_list();
    
+// just checking that it was passed correctly - it is, for the
+// moment, but do check 1x8b ligand.
+//    
+//    for (unsigned int i=0; i<ring_atoms_list.size(); i++) {
+//       std::cout << "ring list " << i << "   ";
+//       for (unsigned int j=0; j<ring_atoms_list[i].size(); j++) { 
+// 	 std::cout << ring_atoms_list[i][j] << "  ";
+//       }
+//       std::cout << std::endl;
+//    }
 
    refine_residue_circle_positions();
    render_from_molecule(new_mol);
