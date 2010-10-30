@@ -372,6 +372,10 @@ public:
       
       // lig_build::pos_t to_canvas_pos(const int &ii, const int &jj) const;
       lig_build::pos_t to_canvas_pos(const double &ix, const double &iy) const;
+
+      // arg is not const reference because get_ring_centres() caches
+      // the return value inside mol.
+      // 
       void fill(widgeted_molecule_t mol);
       double get(int i, int j) const {
 	 return grid_[i][j];
@@ -384,6 +388,9 @@ public:
       }
       void add_quadratic(const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points);
       lig_build::pos_t find_minimum_position() const;
+
+      void avoid_ring_centres(std::vector<std::vector<std::string> > ring_atoms_list,
+			      const widgeted_molecule_t &mol);
 
       void add_for_accessibility(double bash_dist, const lig_build::pos_t &atom_pos);
 
@@ -768,7 +775,10 @@ private:
 #endif
    std::string get_smiles_string_from_mol_openbabel() const;
 
-
+   // this is the value generated in annotate(), containing aromatic
+   // and non-aromatic rings.
+   // 
+   std::vector<std::vector<std::string> > ring_atoms_list;
 
 
 public:
