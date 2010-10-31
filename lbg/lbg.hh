@@ -401,8 +401,12 @@ public:
       void add_for_accessibility_no_bash_dist_atom(double scale, const lig_build::pos_t &atom_pos);
 
       void show_contour(GooCanvasItem *root, float contour_level) const;
+      // the "cutting" of the contour behaves differently if the
+      // unlimited atom is a member of a ring (compared to if it is
+      // not).
       void show_contour(GooCanvasItem *root, float contour_level,
-			const std::vector<widgeted_atom_ring_centre_info_t> &unlimited_atoms) const;
+			const std::vector<widgeted_atom_ring_centre_info_t> &unlimited_atoms,
+			const std::vector<std::vector<std::string> > &ring_atoms_list) const;
 
    };
 
@@ -751,6 +755,8 @@ private:
    void show_grid(const lbg_info_t::ligand_grid &grid);
    void show_mol_ring_centres(); // not const because mol.get_ring_centres() caches
    void show_unlimited_atoms(const std::vector<widgeted_atom_ring_centre_info_t> &ua);
+   void show_ring_centres(std::vector<std::vector<std::string> > ring_atoms_list,
+			      const widgeted_molecule_t &mol);
 
    std::string grid_intensity_to_colour(int val) const;
    std::string sixteen_to_hex_let(int v) const;
