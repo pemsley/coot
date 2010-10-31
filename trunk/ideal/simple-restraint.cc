@@ -963,7 +963,7 @@ coot::distortion_score(const gsl_vector *v, void *params) {
 
       if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { // 4: torsions
 	 if ( (*restraints)[i].restraint_type == coot::TORSION_RESTRAINT) {
-	    // cout << "adding an torsion restraint: number " << i << endl;  
+	    // std::cout << "adding an torsion restraint: number " << i << std::endl;  
 	    // std::cout << "distortion sum pre-adding a torsion: " << distortion << std::endl;
 	    distortion += coot::distortion_score_torsion((*restraints)[i], v); 
 	    // std::cout << "distortion sum post-adding a torsion: " << distortion << std::endl;
@@ -5925,6 +5925,15 @@ coot::restraints_container_t::add_torsions(int idr, PPCAtom res_selection,
 					geom[idr].torsion_restraint[ib].esd(),
 					1.2,  // junk value
 					geom[idr].torsion_restraint[ib].periodicity());
+				    std::cout << "Adding monomer torsion restraint: "
+					      << index1 << " "
+					      << index2 << " "
+					      << index3 << " "
+					      << index4 << " angle "
+					      << geom[idr].torsion_restraint[ib].angle() << " esd " 
+					      << geom[idr].torsion_restraint[ib].esd() << " period " 
+					      << geom[idr].torsion_restraint[ib].periodicity()
+					      << std::endl;
 				    n_torsion_restr++;
 				 }
 			      }
@@ -6375,8 +6384,8 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
 
    // link_type is "p", "TRANS" etc.
 
-  std::cout << "--------- :: Adding link torsion phi_psi_restraints_type: " 
-	    << phi_psi_restraints_type << std::endl;
+//    std::cout << "--------- :: Adding link torsion, link_type: " << link_type << " phi_psi_restraints_type: " 
+// 	     << phi_psi_restraints_type << std::endl;
    
    int n_torsion = 0;
       
@@ -6490,16 +6499,16 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
 							       atom_4_sel[iffat]->GetInsCode(),
 							       atom_4_sel[iffat]->residue->GetChainID());
 
-// 				    std::cout << "making torsion " << geom.link(i).link_torsion_restraint[j].id()
-// 					      << " from atoms \n    "
+//  				    std::cout << "torsion restraint.... " << geom.link(i).link_torsion_restraint[j].id()
+//  					      << " from atoms \n    "
 // 					      << atom_1_sel[ifat]->name << " " 
-// 					      << atom_1_sel[ifat]->GetSeqNum() << "\n    " 
-// 					      << atom_2_sel[isat]->name << " " 
-// 					      << atom_2_sel[isat]->GetSeqNum() << "\n    " 
-// 					      << atom_3_sel[itat]->name << " " 
-// 					      << atom_3_sel[itat]->GetSeqNum() << "\n    " 
-// 					      << atom_4_sel[iffat]->name << " " 
-// 					      << atom_4_sel[iffat]->GetSeqNum() << "\n";
+//  					      << atom_1_sel[ifat]->GetSeqNum() << "\n    " 
+//  					      << atom_2_sel[isat]->name << " " 
+//  					      << atom_2_sel[isat]->GetSeqNum() << "\n    " 
+//  					      << atom_3_sel[itat]->name << " " 
+//  					      << atom_3_sel[itat]->GetSeqNum() << "\n    " 
+//  					      << atom_4_sel[iffat]->name << " " 
+//  					      << atom_4_sel[iffat]->GetSeqNum() << "\n";
 				       
 
 				    double target_phi = -57.82 + 360.0;
@@ -6527,6 +6536,7 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
 					   1.2, // junk value
 					   1);
 				       n_torsion++;
+				       // std::cout << "!!!!!!!!!!!!!!!! added link torsion restraint phi" << std::endl;
 				    }
 				    if (geom.link(i).link_torsion_restraint[j].id() == "psi") { 
 				       add(TORSION_RESTRAINT, index1, index2, index3, index4,
@@ -6535,6 +6545,7 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
 					   esd, 
 					   1.2, // junk value (obs)
 					   1);
+				       //   std::cout << "!!!!!!!!!!!!!!!! added link torsion restraint psi" << std::endl;
 				       n_torsion++;
 				    }
 				 }

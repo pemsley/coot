@@ -263,7 +263,7 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
 #ifndef MAKE_ENTERPRISE_TOOLS
 # else
 
-   double weight_for_3d_distances = 0.8; // for 3d distances 
+   double weight_for_3d_distances = 0.4; // for 3d distances 
    
    graphics_info_t g;
    coot::protein_geometry *geom_p = g.Geom_p();

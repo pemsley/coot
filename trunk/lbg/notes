@@ -38,6 +38,13 @@ Wed Oct 20 18:23:52 EDT 2010
    and pass the charge info to RDKit mol.
 
 ----
+Sat Oct 30 16:58:37 BST 2010
+
+   Sprout hydrogens with ligand from 1x8b and prodrg dictionary.
+
+   Problems with Hs on Ns...
+
+----
 
     Thoughts about 6 July meeting:
 
@@ -55,6 +62,14 @@ Sun Oct 10 09:17:09 EDT 2010
     http://www.chemcomp.com/journal/ligintdia.htm
 
     This is a nice page actually, lots of good stuff.
+
+
+----
+Sun Oct 31 00:08:37 BST 2010
+
+    residue -> 2d should work for any residue that has sbase bonding. 
+
+    Currently it does not.
 
 
 ----

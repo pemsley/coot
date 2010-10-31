@@ -2992,13 +2992,15 @@ lbg_info_t::ligand_grid::avoid_ring_centres(std::vector<std::vector<std::string>
 void
 lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level) const {
 
-   std::vector<widgeted_atom_ring_centre_info_t> unlimited_atoms;
-   show_contour(root, contour_level, unlimited_atoms);
+   std::vector<widgeted_atom_ring_centre_info_t> dummy_unlimited_atoms;
+   std::vector<std::vector<std::string> > dummy_ring_atom_names;   
+   show_contour(root, contour_level, dummy_unlimited_atoms, dummy_ring_atom_names);
 }
 
 void
 lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
-				      const std::vector<widgeted_atom_ring_centre_info_t> &unlimited_atoms) const {
+				      const std::vector<widgeted_atom_ring_centre_info_t> &unlimited_atoms,
+				      const std::vector<std::vector<std::string> > &ring_atoms_list) const {
 
 
    std::cout << "------- in show_contour() " << unlimited_atoms.size() << " unlimited atoms " << std::endl;
@@ -3094,9 +3096,9 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
 			
 			} else {
 			   plot_it = 0;
-			   std::cout << " cutting by non-ring-centred unlimited atom " << i << " "
-				     << unlimited_atoms[i].atom.get_atom_name()
-				     << std::endl;
+ 			   std::cout << " cutting by unlimited atom " << i << " "
+ 				     << unlimited_atoms[i].atom.get_atom_name()
+ 				     << std::endl;
 			   break;
 			}
 		     }
@@ -3231,38 +3233,46 @@ lbg_info_t::show_unlimited_atoms(const std::vector<widgeted_atom_ring_centre_inf
    
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
    for (unsigned int i=0; i<ua.size(); i++) {
-      if (ua[i].has_ring_centre_flag) {
+      GooCanvasItem *rect_item =
+	 goo_canvas_rect_new(root,
+			     ua[i].atom.atom_position.x -6.0,
+			     ua[i].atom.atom_position.y -6.0,
+			     12.0, 12.0,
+			     "line-width", 1.0,
+			     "stroke-color", "lightblue",
+			     "fill_color", "lightblue",
+			     NULL);
+   }
+}
+
+void
+lbg_info_t::show_ring_centres(std::vector<std::vector<std::string> > ring_atoms_list,
+			      const widgeted_molecule_t &mol) {
+
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+   for (unsigned int iring=0; iring<ring_atoms_list.size(); iring++) {
+      try { 
+	 lig_build::pos_t ring_centre = mol.get_ring_centre(ring_atoms_list[iring]);
 	 GooCanvasItem *rect_item =
 	    goo_canvas_rect_new(root,
-				ua[i].ring_centre.x -6.0,
-				ua[i].ring_centre.y -6.0,
+				ring_centre.x -6.0,
+				ring_centre.y -6.0,
 				12.0, 12.0,
 				"line-width", 1.0,
 				"stroke-color", "purple",
 				"fill_color", "purple",
 				NULL);
-	 GooCanvasItem *rect_item_2 =
-	    goo_canvas_rect_new(root,
-				ua[i].atom.atom_position.x -6.0,
-				ua[i].atom.atom_position.y -6.0,
-				12.0, 12.0,
-				"line-width", 1.0,
-				"stroke-color", "lawngreen",
-				"fill_color", "lightblue",
-				NULL);
-      } else {
-	 GooCanvasItem *rect_item =
-	    goo_canvas_rect_new(root,
-				ua[i].atom.atom_position.x -6.0,
-				ua[i].atom.atom_position.y -6.0,
-				12.0, 12.0,
-				"line-width", 1.0,
-				"stroke-color", "lightblue",
-				"fill_color", "lightblue",
-				NULL);
-      } 
+
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "Opps - failed to find ring centre for ring atom name "
+		   << iring << std::endl;
+      }
    }
-}
+
+} 
+
+
 
 // convert val [0->255] to a hex colour string in red
 // 
@@ -4126,9 +4136,10 @@ lbg_info_t::draw_substitution_contour() {
 	    // show_grid(grid);
 
 	    // std::vector<widgeted_atom_ring_centre_info_t> dummy_unlimited_atoms;
-	    grid.show_contour(root, 0.5, unlimited_atoms);
+	    grid.show_contour(root, 0.5, unlimited_atoms, ring_atoms_list);
 	    // debug
-	    show_unlimited_atoms(unlimited_atoms); // and ring centres
+	    show_unlimited_atoms(unlimited_atoms);
+	    show_ring_centres(ring_atoms_list, mol);
 
 	    std::cout << "Here are the "<< unlimited_atoms.size()
 		      << " unlimited atoms: " << std::endl;
