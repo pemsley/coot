@@ -413,6 +413,11 @@ namespace coot {
       // 
       std::string element(const std::string &atom_name) const;
 
+      // likewise look up the energy type.  Return "" on no atom fould
+      // with that atom_name.
+      // 
+      std::string type_energy(const std::string &atom_name) const;
+
       std::vector<std::vector<std::string> > get_ligand_ring_list() const;
 
       std::vector<std::vector<std::string> > get_ligand_aromatic_ring_list() const;

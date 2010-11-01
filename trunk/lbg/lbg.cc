@@ -3096,9 +3096,9 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
 			
 			} else {
 			   plot_it = 0;
- 			   std::cout << " cutting by unlimited atom " << i << " "
- 				     << unlimited_atoms[i].atom.get_atom_name()
- 				     << std::endl;
+//  			   std::cout << " cutting by unlimited atom " << i << " "
+//  				     << unlimited_atoms[i].atom.get_atom_name()
+//  				     << std::endl;
 			   break;
 			}
 		     }
@@ -4036,7 +4036,7 @@ lbg_info_t::draw_substitution_contour() {
 	       mol.ligand_extents();
 	    lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
    
-	    if (1) { // debug
+	    if (0) { // debug
 	       for (unsigned int i=0; i<mol.atoms.size(); i++) { 
 		  std::cout << "in draw_substitution_contour() atom " << i << " "
 			    << mol.atoms[i].get_atom_name()

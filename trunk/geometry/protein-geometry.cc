@@ -759,6 +759,23 @@ coot::dictionary_residue_restraints_t::element(const std::string &atom_name) con
    return r;
 }
 
+// likewise look up the energy type.  Return "" on no atom fould
+// with that atom_name.
+// 
+std::string
+coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name) const {
+
+   std::string r = "";
+   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+      if (atom_info[iat].atom_id_4c == atom_name) {
+	 r = atom_info[iat].type_energy;
+	 break;
+      }
+   }
+   return r;
+}
+
+
 
 std::vector<std::string>
 coot::dictionary_residue_restraints_t::get_attached_H_names(const std::string &atom_name) const {

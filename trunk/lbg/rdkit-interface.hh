@@ -16,6 +16,15 @@ namespace coot {
 
    RDKit::RWMol rdkit_mol(CResidue *residue_p, const coot::dictionary_residue_restraints_t &restraints);
 
+   // tweaking function used by above (change mol maybe).
+   // @return the added hydrogen name - or "" if nothing was added.
+   //
+   // When adding and atom, try to find the name of the Hydrogen from
+   // the bond restraints.  If not found, add an atom called "-".
+   // 
+   std::string add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
+				  int idx, const std::string &atom_name,
+				  const coot::dictionary_residue_restraints_t &restraints); 
    
    int add_2d_conformer(RDKit::ROMol *rdkmol_in, double weight_for_3d_distances); // tweak rdkmol_in
    RDKit::Bond::BondType convert_bond_type(const std::string &t);
