@@ -6,8 +6,8 @@
 		   // libintl.h (via RDKitBase.h etc (including boost
 		   // stuff).
 
-#include "lbg-interface.hh"
 #include "rdkit-interface.hh"
+#include "lbg-interface.hh"
 #include "graphics-info.h"
 #include "lbg.hh"
 

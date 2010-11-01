@@ -141,6 +141,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	 } 
       }
    }
+
    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) { 
       RDKit::Bond::BondType type = convert_bond_type(restraints.bond_restraint[ib].type());
       RDKit::Bond *bond = new RDKit::Bond(type);
@@ -170,6 +171,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	       bond->setIsAromatic(true);
 	       m[idx_1]->setIsAromatic(true);
 	       m[idx_2]->setIsAromatic(true);
+
 	    }
 	    bond->setBeginAtomIdx(idx_1);
 	    bond->setEndAtomIdx(  idx_2);
@@ -186,6 +188,72 @@ coot::rdkit_mol(CResidue *residue_p,
 		      << "failed to get atom index idx_1 for atom name: "
 		      << atom_name_1 << " ele :" << ele_1 << ":" << std::endl;
       } 
+   }
+
+   // Now all the bonds are in place.  We can now try to add an extra H to the ring N that
+   // need them.  We do this after, because all the molecule bonds have to be in place for
+   // us to know if the H is there already (tested in add_H_to_ring_N_as_needed()).
+   
+   std::vector<int> Hs_added_list; // a list of atoms to which extra Hs have been added
+				      // (this is needed, because we only want to add a
+				      // one H to an aromatic N and as we run though the
+				      // bond list, we typically find N-C and C-N bonds,
+				      // which would result in the H being added twice -
+				      // not good.
+
+   for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) { 
+      RDKit::Bond::BondType type = convert_bond_type(restraints.bond_restraint[ib].type());
+      RDKit::Bond *bond = new RDKit::Bond(type);
+	    
+      std::string atom_name_1 = restraints.bond_restraint[ib].atom_id_1_4c();
+      std::string atom_name_2 = restraints.bond_restraint[ib].atom_id_2_4c();
+      std::string ele_1 = restraints.element(atom_name_1);
+      std::string ele_2 = restraints.element(atom_name_2);
+      int idx_1 = -1; // unset
+      int idx_2 = -1; // unset
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 if (! residue_atoms[iat]->Ter) { 
+	    std::string atom_name(residue_atoms[iat]->name);
+	    if (atom_name == atom_name_1)
+	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
+		   != added_atom_names.end())
+		  idx_1 = iat;
+	    if (atom_name == atom_name_2)
+	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
+		   != added_atom_names.end())
+		  idx_2 = iat;
+	 }
+      }
+      if (idx_1 != -1) { 
+	 if (idx_2 != -1) {	 
+	    if (type == RDKit::Bond::AROMATIC) { 
+   
+	       // special edge case for aromatic ring N that may need an H attached for
+	       // kekulization (depending on energy type).
+
+	       if (m[idx_1]->getAtomicNum() == 7) {
+		  if (std::find(Hs_added_list.begin(), Hs_added_list.end(), idx_1) == Hs_added_list.end()) { 
+		     std::string n = add_H_to_ring_N_as_needed(&m, idx_1, atom_name_1, restraints);
+		     std::cout << "testing 1 idx_1 " << idx_1 << " idx_2 " << idx_2 << " n was :" << n << ":"
+			       << std::endl;
+		     if (n != "")
+			added_atom_names.push_back(n);
+		     Hs_added_list.push_back(idx_1);
+		  }
+	       }
+	       if (m[idx_2]->getAtomicNum() == 7) {
+		  if (std::find(Hs_added_list.begin(), Hs_added_list.end(), idx_2) == Hs_added_list.end()) { 
+		     std::string n = add_H_to_ring_N_as_needed(&m, idx_2, atom_name_2, restraints);
+		     std::cout << "testing 2 idx_1 " << idx_1 << " idx_2 " << idx_2 << " n was :" << n << ":"
+			       << std::endl;
+		     if (n != "")
+			added_atom_names.push_back(n);
+		     Hs_added_list.push_back(idx_2);
+		  }
+	       }
+	    }
+	 }
+      }
    }
 
    RDKit::MolOps::cleanUp(m);
@@ -295,6 +363,91 @@ coot::convert_bond_type(const std::string &t) {
    return bt;
 }
 
+
+// tweaking function used by rdkit mol construction function.
+// (change mol maybe).
+//
+// Don't try to add an H if there is already an H on this atom (typically, this ligand had
+// hydrogens (everywhere) already).
+//
+// Try to find the name of the Hydrogen from the bond restraints.
+// If not found, add an atom called "-".
+// 
+// @return the added hydrogen name - or "" if nothing was added.
+// 
+std::string
+coot::add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
+				int idx, const std::string &atom_name,
+				const coot::dictionary_residue_restraints_t &restraints) {
+
+
+   std::string r = "";
+   std::string energy_type = restraints.type_energy(atom_name);
+   
+   if ((energy_type == "NR15") || (energy_type == "NR16")) {
+
+      // first, is there an H bonded to this atom already?
+      bool already_there = 0;
+      int n_bonds = mol->getNumBonds();
+      for (unsigned int ib=0; ib<n_bonds; ib++) {
+	 const RDKit::Bond *bond_p = mol->getBondWithIdx(ib);
+	 int idx_1 = bond_p->getBeginAtomIdx();
+	 int idx_2 = bond_p->getEndAtomIdx();
+	 if (idx_1 == idx)
+	    if ((*mol)[idx_2]->getAtomicNum() == 1) {
+	       already_there = 1;
+	       break;
+	    }
+	 if (idx_2 == idx)
+	    if ((*mol)[idx_1]->getAtomicNum() == 1) {
+	       already_there = 1;
+	       break;
+	    }
+      }
+
+      if (! already_there) { 
+      
+	 // -------------  add an H atom --------------------------
+	 // 
+	 RDKit::Atom *at = new RDKit::Atom;
+	 at->setAtomicNum(1);
+	 int idx_for_H = mol->addAtom(at);
+
+	 // std::string name_H = "-";
+	 // what is the Name of this H?
+
+	 std::string name_H = "-";
+	 for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) { 
+	    if (restraints.bond_restraint[ib].atom_id_1_4c() == atom_name) {
+	       if (restraints.element(restraints.bond_restraint[ib].atom_id_2_4c()) == " H") { 
+		  name_H = restraints.bond_restraint[ib].atom_id_2_4c();
+		  break;
+	       }
+	    } 
+	    if (restraints.bond_restraint[ib].atom_id_2_4c() == atom_name) {
+	       if (restraints.element(restraints.bond_restraint[ib].atom_id_1_4c()) == " H") { 
+		  name_H = restraints.bond_restraint[ib].atom_id_1_4c();
+		  break;
+	       }
+	    } 
+	 }
+      
+      
+	 if (name_H != "-") {
+	    at->setProp("name", name_H);
+	 }
+	 r = name_H;
+
+	 // -------------  now add a bond --------------------------
+
+	 RDKit::Bond *bond = new RDKit::Bond(RDKit::Bond::SINGLE);
+	 bond->setBeginAtomIdx(idx);
+	 bond->setEndAtomIdx(idx_for_H);
+	 mol->addBond(bond);
+      }
+   }
+   return r;
+}
 
 
 // this can throw a std::exception
@@ -473,7 +626,7 @@ coot::remove_non_polar_Hs(RDKit::RWMol *rdkm) {
 }
 
 
-// Put a +1 charge on Ns with 4 bonds, 
+// Delete a hydrogen (if possible) from a N with valence 4.
 void
 coot::delete_excessive_hydrogens(RDKit::RWMol *rdkm) {
 
@@ -609,7 +762,9 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
    return r;
 }
 
-
+// atom_p is a hydrogen atom we presume, of degree 1.  This is tested
+// before the restraints are checked.
+// 
 std::string
 coot::infer_H_name(int iat,
 		   RDKit::ATOM_SPTR atom_p,
