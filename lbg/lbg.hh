@@ -70,6 +70,13 @@ void lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mo
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *scrolled_window);
 
 
+// extern "C" { 
+// static gboolean on_residue_circle_clicked(GooCanvasItem  *item,
+// 					  GooCanvasItem  *target_item,
+// 					  GdkEventButton *event,
+// 					  gpointer        user_data);
+// }
+
 
 // ====================================================================
 //                     lbg_info_t
@@ -228,16 +235,19 @@ public:
       double pos_y;
       double pos_z;
       lig_build::pos_t pos; // coordinate system of the ligand atoms
+      coot::residue_spec_t spec;
       std::string residue_type;
       std::string residue_label;
       std::vector<bond_to_ligand_t> bonds_to_ligand;
       double water_dist_to_protein; 
       residue_circle_t(const double &x_in, const double &y_in, const double &z_in,
+		       coot::residue_spec_t spec_in,
 		       const std::string &type_in,
 		       const std::string &label_in) {
 	 pos_x = x_in;
 	 pos_y = y_in;
 	 pos_z = z_in;
+	 spec = spec_in;
 	 residue_type = type_in;
 	 residue_label = label_in;
 	 se_holo = 0.0;
