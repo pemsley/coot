@@ -176,6 +176,8 @@ on_canvas_motion (GtkWidget *widget, GdkEventMotion *event) {
    return TRUE;
 }
 
+
+
 void
 lbg_info_t::handle_drag(GdkModifierType state, int x_as_int, int y_as_int) {
 
@@ -3571,7 +3573,8 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 		  double pos_z = lig_build::string_to_float(words[3]);
 		  std::string res_type = words[4];
 		  std::string label = words[5];
-		  residue_circle_t rc(pos_x, pos_y, pos_z, res_type, label);
+		  coot::residue_spec_t dum_spec;
+		  residue_circle_t rc(pos_x, pos_y, pos_z, dum_spec, res_type, label);
 		  clipper::Coord_orth cp(pos_x, pos_y, pos_z);
 		  lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp);
 		  if (res_type == "HOH") {
@@ -3699,6 +3702,30 @@ lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_
    } 
 }
 
+// static
+/* This handles button presses on the canvas */
+extern "C" G_MODULE_EXPORT gboolean
+on_residue_circle_clicked(GooCanvasItem  *item,
+			  GooCanvasItem  *target_item,
+			  GdkEventButton *event,
+			  gpointer        user_data) { 
+
+   gboolean r = true;
+
+   std::cout << "on_residue_circle_clicked()!!!!! " << std::endl;
+
+   coot::residue_spec_t *spec_p = (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
+
+   if (spec_p) { 
+
+      std::cout << "clicked on " << *spec_p << std::endl;
+
+   } 
+
+   return r;
+}
+
+
 //    double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
 //    double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
 //                                                // attached to the protein.
@@ -3742,40 +3769,75 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
    double line_width = 1.0;
    if (col.second != dark)
       line_width = 3.0;
+   GooCanvasItem *circle = NULL;
+   GooCanvasItem *text_1 = NULL;
+   GooCanvasItem *text_2 = NULL;
+   
 
    if (col.first != "") {
-      GooCanvasItem *cirle = goo_canvas_ellipse_new(group,
-						    circle_pos.x, circle_pos.y,
-						    standard_residue_circle_radius,
-						    standard_residue_circle_radius,
-						    "line_width", line_width,
-						    "fill-color",   col.first.c_str(),
-						    "stroke-color", col.second.c_str(),
-						    NULL);
+      circle = goo_canvas_ellipse_new(group,
+				      circle_pos.x, circle_pos.y,
+				      standard_residue_circle_radius,
+				      standard_residue_circle_radius,
+				      "line_width", line_width,
+				      "fill-color",   col.first.c_str(),
+				      "stroke-color", col.second.c_str(),
+				      NULL);
    } else {
-      GooCanvasItem *cirle = goo_canvas_ellipse_new(group,
-						    circle_pos.x, circle_pos.y,
-						    standard_residue_circle_radius,
-						    standard_residue_circle_radius,
-						    "line_width", line_width,
-						    "stroke-color", col.second.c_str(),
-						    NULL);
+      circle = goo_canvas_ellipse_new(group,
+				      circle_pos.x, circle_pos.y,
+				      standard_residue_circle_radius,
+				      standard_residue_circle_radius,
+				      "line_width", line_width,
+				      "stroke-color", col.second.c_str(),
+				      NULL);
    }
    
-   GooCanvasItem *text_1 = goo_canvas_text_new(group, rt.c_str(),
-					       circle_pos.x, circle_pos.y-6, -1,
-					       GTK_ANCHOR_CENTER,
-					       "font", "Sans 9",
-					       "fill_color", dark,
-					       NULL);
+   text_1 = goo_canvas_text_new(group, rt.c_str(),
+				circle_pos.x, circle_pos.y-6, -1,
+				GTK_ANCHOR_CENTER,
+				"font", "Sans 9",
+				"fill_color", dark,
+				NULL);
 
-   GooCanvasItem *text_2 = goo_canvas_text_new(group, residue_circle.residue_label.c_str(),
-					       circle_pos.x, circle_pos.y+6.5, -1,
-					       GTK_ANCHOR_CENTER,
-					       "font", "Sans 7",
-					       "fill_color", dark,
-					       NULL);
+   text_2 = goo_canvas_text_new(group, residue_circle.residue_label.c_str(),
+				circle_pos.x, circle_pos.y+6.5, -1,
+				GTK_ANCHOR_CENTER,
+				"font", "Sans 7",
+				"fill_color", dark,
+				NULL);
+
+   // needed?
+   gtk_widget_set_events(GTK_WIDGET(root),
+			 GDK_EXPOSURE_MASK      |
+			 GDK_BUTTON_PRESS_MASK  |
+			 GDK_BUTTON_RELEASE_MASK|
+			 GDK_POINTER_MOTION_MASK|
+			 GDK_KEY_PRESS_MASK     |
+			 GDK_KEY_RELEASE_MASK   |
+			 GDK_POINTER_MOTION_HINT_MASK);
+
+   
+
+   if (circle) {
+      std::cout << "setting a callback for " << group << std::endl;
+      coot::residue_spec_t *sp_p = new coot::residue_spec_t(residue_circle.spec);
+      g_object_set_data_full(G_OBJECT(circle), "spec", sp_p, g_free);
+      
+      g_signal_connect(group, "button-press-event",
+		       G_CALLBACK (on_residue_circle_clicked), NULL);
+      g_signal_connect(circle, "button-press-event",
+		       G_CALLBACK (on_residue_circle_clicked), NULL);
+      g_signal_connect(circle, "button_press_event",
+		       G_CALLBACK (on_residue_circle_clicked), NULL);
+      g_signal_connect(circle, "motion-notify-event",
+		       G_CALLBACK (on_residue_circle_clicked), NULL);
+      g_signal_connect(group, "motion-notify-event",
+		       G_CALLBACK (on_residue_circle_clicked), NULL);
+
+   } 
 }
+
 
 // Return the fill colour and the stroke colour.
 // 
@@ -3864,6 +3926,9 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
 	 
    return std::pair<std::string, std::string> (fill_colour, stroke_colour);
 }
+
+
+
 
 // solvent exposure difference of the residue due to ligand binding
 void 
@@ -4515,7 +4580,7 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
 		     const coot::pi_stacking_container_t &pi_stack_info,
 		     const coot::dictionary_residue_restraints_t &restraints) {
 
-   if (1) {
+   if (0) {
       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
 	 std::cout << "  =============== bond to ligand " << ib << " "
 		   << bonds_to_ligand[ib].ligand_atom_name
@@ -4544,6 +4609,7 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
    new_mol.map_solvent_accessibilities_to_atoms(solvent_accessible_atoms);
 
    // fill class data item std::vector<residue_circle_t> residue_circles;
+   // 
    residue_circles.clear();
    for (unsigned int i=0; i<centres.size(); i++) {
       std::string label = centres[i].spec.chain;
@@ -4553,7 +4619,8 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
       residue_circle_t circle(centres[i].centre.x(),
 			      centres[i].centre.y(),
 			      centres[i].centre.z(),
-			      centres[i].residue_name, 
+			      centres[i].spec,
+			      centres[i].residue_name,
 			      label);
       
       clipper::Coord_orth cp(centres[i].centre.x(),
