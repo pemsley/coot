@@ -303,7 +303,8 @@
 # 4.72 20100203 Update clipper version.
 # 4.73 20100205 only download mmdb once.
 # 4.74 20100304 Fix install_top_dir typos.
-script_version=4.74
+# 4.75 20101102 dependency check for gtkglext patch (compatibility with gtk+ version).
+script_version=4.75
 
 
 
@@ -2290,7 +2291,6 @@ if [ "$build_gtkglext" = 1 ] ; then
     # this host? disappeared.
     # ${WGET} http://surfnet.dl.sourceforge.net/sourceforge/gtkglext/gtkglext-$gtkglext_version.tar.gz
     ${WGET}   http://www.ysbl.york.ac.uk/~emsley/software/extras/gtkglext-$gtkglext_version.tar.gz
-    ${WGET}   http://www.biop.ox.ac.uk/coot/software/extras/gtk-gtkglwidget.c-for-modern-gtk.patch
     (date
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
@@ -2298,20 +2298,31 @@ if [ "$build_gtkglext" = 1 ] ; then
      # now, for some (newer) versions of GTK+ the gtkglext needs to be
      # tweaked so that it fixes out of date function usage:
 
-     cd gtkglext-$gtkglext_version
+
      echo gtk+-2.0 version:
      pkg-config gtk+-2.0 --modversion
+     # gtk+ 2.20 needs converting GTK_WIDGET_REALIZED to gtk_widget_get_realised, but 
+     # gtk+ 2.18 does not (it fails if we add that patch), so use a simpler one.
      if pkg-config gtk+-2.0 --atleast-version 2.16 ; then
-        echo we have sufficiently new version of gtk+, we need to patch gtkglext
-        if patch -p0 < ${AUTOBUILD_SOURCES}/gtk-gtkglwidget.c-for-modern-gtk.patch ; then 
+        patch_file=gtk-gtkglwidget.c-for-modern-gtk-for-2.18.patch
+        if pkg-config gtk+-2.0 --atleast-version 2.20 ; then
+           patch_file=gtk-gtkglwidget.c-for-modern-gtk.patch
+        fi
+        echo we have sufficiently new version of gtk+, we need to patch gtkglext with $patch_file
+        ${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/$patch_file
+
+        if patch -p0 < ${AUTOBUILD_SOURCES}/$patch_file ; then 
             echo gtkglext patched good.
         else 
             echo gtkglext patch fail.
             my_exit 2
         fi
+
+
      else 
         echo version of gtk is old, no need to patch gtkglext.
      fi
+
      ./configure $generic_prefix
      if [ "$update_libtool" = 1 ] ; then
         cp $install_top_dir/bin/libtool .
