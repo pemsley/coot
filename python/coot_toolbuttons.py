@@ -157,9 +157,15 @@ if (have_coot_python):
                     callback_function  = item[1]
                     description        = item[2]
                     if (check_button_label == button_label):
-                      new_toolbutton = coot_toolbar_button(button_label, callback_function, icon)
+                      new_toolbutton = coot_toolbar_button(button_label,
+                                                           callback_function,
+                                                           icon,
+                                                           description)
                       # save
-                      save_toolbar_to_init_file(button_label, callback_function, icon)
+                      if save_toolbuttons_qm:
+                        save_toolbar_to_init_file(button_label,
+                                                  callback_function,
+                                                  icon, description)
                       break
             else:
               # remove an existing button?
@@ -311,7 +317,9 @@ if (have_coot_python):
     def toolbar_show_text():
       coot_main_toolbar.set_style(gtk.TOOLBAR_BOTH_HORIZ)
 
-    # an assistant to add a toolbutton
+    ####################################
+    # an assistant to add a toolbutton #
+    ####################################
     def add_toolbar_button_assistant():
 
       def cb_close(assistant):
@@ -319,13 +327,16 @@ if (have_coot_python):
         return False
 
       def cb_name_entry_key_press(entry, event):
-        assi.set_page_complete(entry.get_parent(), True)
+        assi.set_page_complete(entry.get_parent(),
+                               len(entry.get_text()) > 0)
 
       def cb_func_entry_key_press(entry, event):
-        assi.set_page_complete(entry.get_parent(), True)
+        assi.set_page_complete(entry.get_parent(),
+                               len(entry.get_text()) > 0)
 
       def cb_entry_key_press(entry, event):
-        assi.set_page_complete(entry.get_parent(), True)
+        assi.set_page_complete(entry.get_parent(),
+                               len(entry.get_text()) > 0)
 
       def cb_apply(assistant):
         name_str = name_entry.get_text()
@@ -355,7 +366,7 @@ if (have_coot_python):
       vbox.set_border_width(5)
       vbox.show()
       assi.append_page(vbox)
-      assi.set_page_title(vbox, 'Create a new toolbutton')
+      assi.set_page_title(vbox, 'Create a new Coot toolbutton')
       assi.set_page_type(vbox, gtk.ASSISTANT_PAGE_CONTENT)
 
       label = gtk.Label("Please enter the name for the new toolbutton...")
@@ -385,7 +396,11 @@ if (have_coot_python):
       func_entry = gtk.Entry()
       func_entry.connect("key-press-event", cb_func_entry_key_press)
       func_entry.show()
-      vbox.pack_end(func_entry)
+      vbox.pack_start(func_entry, True, True, 0)
+      # add advanced option? FIXME (for callable func and args!?)
+      #adv_button = gtk.Button("Advanced options...")
+      #adv_button.show()
+      #vbox.pack_start(adv_button, False, False, 0)
 
       # Construct page 2 (save?)
       vbox = gtk.VBox(False, 5)
@@ -496,12 +511,17 @@ if (have_coot_python):
     coot_main_toolbar.connect("button-press-event", show_pop_up_menu)
 
 # save a toolbar button to ~/.coot-preferences/coot_toolbuttons.py
-def save_toolbar_to_init_file(button_label, callback_function, icon=None):
+def save_toolbar_to_init_file(button_label, callback_function,
+                              icon=None, tooltip=None):
 
-  save_str = "coot_toolbar_button(\"" + button_label + "\", \"" + callback_function
+  # so far only for string
+  save_str = "coot_toolbar_button(\"" + button_label + "\", \"" + \
+             callback_function + "\""
   if icon:
-    save_str += ("\", \"" + icon)
-  save_str += "\")"
+    save_str += (", icon_name=\"" + icon + "\"")
+  if tooltip:
+    save_str += (", tooltip=\"" + tooltip + "\"")
+  save_str += ")"
   
   home = os.getenv('HOME')
   if (not home and os.name == 'nt'):
