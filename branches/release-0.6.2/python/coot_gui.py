@@ -1385,25 +1385,26 @@ def interesting_residues_gui(imol, title, interesting_residues):
 #
 # return False if we cannot create the button and/or wrong no of arguments
 #
-# we accept 3 arguments:
+# we accept 6 arguments:
 #   button_label
-#   callback_function   (is String!!!)
-#   gtk-stock-item (or icon_widget, whatever that is)
+#   callback_function   (can be a string or callable function, or list
+#                        with first element fucntion, then args, i.e.
+#                        [function, arg1, arg2, ...])
+#   gtk-stock-item      (or icon_widget, whatever that is)
+#   tooltip             a text to present as tooltip
+#   toggle_button_flag  toggle button instead of normal button
+#   use_button          pass the button widget onto the function
 #  
-def coot_toolbar_button(*args):
+def coot_toolbar_button(button_label, cb_function,
+                        icon_name = False, tooltip = False,
+                        toggle_button = False, use_button = False):
 
+   import types
+   # we do not exclusively use strings any more...
    #print "BL DEBUG:: create toolbutton with args!", args
-   icon_name = None
-   if ((len(args) > 3) or (len(args) <2)):
-      print "BL WARNING:: wrong no of arguments!\nEither 2 (button_label) or 3 (plus icon)!"
-      return False
-   elif (len(args) == 3):
-      icon_name = args[2]
-   button_label = args[0]
-   callback_function = args[1]
-   if (not type(callback_function) is StringType):
-      print "BL WARNING:: callback function wasn't a string! Cannot create toolbarbutton!"
-      return False
+   #if (not type(cb_function) is StringType):
+   #   print "BL WARNING:: callback function wasn't a string! Cannot create toolbarbutton!"
+   #   return False
    
    try:
       import coot_python
@@ -1424,11 +1425,42 @@ def coot_toolbar_button(*args):
       # here we only try to add a new icon, we cannot overwrite the callback function!
       toolbutton = found_button
    else:
-      toolbutton = gtk.ToolButton(icon_widget=None, label=button_label)
+      if toggle_button:
+         toolbutton = gtk.ToggleToolButton()
+         toolbutton.set_label(button_label)
+      else:
+         toolbutton = gtk.ToolButton(icon_widget=None,
+                                     label=button_label)
       coot_main_toolbar.insert(toolbutton, -1)       # insert at the end
-      toolbutton.set_is_important(True)              # to display the text, otherwise only icon
-      toolbutton.connect("clicked", lambda w: eval(callback_function))
+      toolbutton.set_is_important(True)              # to display the text,
+                                                     # otherwise only icon
+      # tooltips?
+      if tooltip:
+         coot_tooltips.set_tip(toolbutton, tooltip)
+
+      def cb_wrapper(widget, callback_function):
+         if (type(callback_function) is types.StringType):
+            # old style with string as function
+            eval(callback_function)
+         else:
+            # have function as callable and maybe extra args (all in one list)
+            args = []
+            function = callback_function
+            if (type(callback_function) is types.ListType):
+               function = callback_function[0]
+               args = callback_function[1:]
+               # pass the widget/button as well? Maybe the cb function can
+               # make use of it
+               if use_button:
+                  args.append(widget)
+            if callable(function):
+               function(*args)
+            else:
+               print "BL ERROR:: cannot evaluate or call function", function
+      #toolbutton.connect("clicked", lambda w: eval(cb_function))
+      toolbutton.connect("clicked", cb_wrapper, cb_function)
       toolbutton.show()
+
    if (icon_name):
       # try to add a stock item
       try:
@@ -1441,7 +1473,7 @@ def coot_toolbar_button(*args):
             print "BL INFO::  icon name/widget given but could not add the icon"
 
    return toolbutton
-   
+
 # returns a list of existing toolbar buttons
 # [[label, toolbutton],[]...]
 # or False if coot_python is not available

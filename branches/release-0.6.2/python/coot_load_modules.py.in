@@ -97,6 +97,9 @@ if use_gui_qm:
     try:
 	# we only append the graphics modules if we have pygtk 2
 	import pygtk
+	import gtk
+	# now make a global tooltip
+	coot_tooltips = gtk.Tooltips()
 	# pygtk.require("2.0")
 	python_list += post_list
  	if (use_gui_qm == 2):
