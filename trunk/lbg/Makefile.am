@@ -4,6 +4,7 @@ lib_LTLIBRARIES=libcoot-lidia.la
 INCLUDES = \
 	-I$(top_srcdir)/lidia-core \
 	-I$(top_srcdir)/geometry \
+	-I$(top_srcdir)/coot-utils \
 	-I$(top_srcdir)/utils \
         $(GSL_CFLAGS) \
         $(GOOCANVAS_CFLAGS) \

@@ -342,6 +342,7 @@ add_ligand_delete_residue_copy_molecule(int imol_ligand_new,
 			   at_copy->Copy(res_ligand_new->GetAtom(iat));
 			   residue_p->AddAtom(at_copy);
 			}
+			residue_p->SetResName(res_ligand_new->GetResName());
 			n->FinishStructEdit();
 
 			r = graphics_info_t::create_molecule();

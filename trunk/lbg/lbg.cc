@@ -38,6 +38,7 @@
 // 
 lbg_info_t *
 lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name,
+    int imol,
     bool stand_alone_flag_in) {
 
    lbg_info_t *lbg = NULL;
@@ -59,7 +60,7 @@ lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &mole
       r = 1;
       GtkBuilder *builder = gtk_builder_new ();
       gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
-      lbg = new lbg_info_t;
+      lbg = new lbg_info_t(imol);
       if (stand_alone_flag_in)
 	 lbg->set_stand_alone();
       lbg->init(builder);
@@ -97,7 +98,8 @@ lbg_info_t::untoggle_others_except(GtkToggleToolButton *button_toggled_on) {
 }
 
 /* This handles button presses on the canvas */
-static gboolean
+static
+gboolean
 on_canvas_button_press (GtkWidget *widget, GdkEventButton *event)
 {
    int x_as_int, y_as_int;
@@ -127,6 +129,70 @@ on_canvas_button_press (GtkWidget *widget, GdkEventButton *event)
    return TRUE;
 }
 
+static bool
+on_canvas_button_press_new(GooCanvasItem  *item,
+			   GooCanvasItem  *target_item,
+			   GdkEventButton *event,
+			   gpointer        user_data) {
+
+   int x_as_int = -1, y_as_int = -1;
+   GdkModifierType state;
+   if (! event) {
+      std::cout << "on_canvas_button_press_new() error NULL event!" << std::endl;
+   } else { 
+      x_as_int = int(event->x);
+      y_as_int = int(event->y);
+   }
+
+   if (! target_item) { 
+      std::cout << "NULL target item" << std::endl;
+      lbg_info_t *l =
+	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
+      if (!l) {
+	 std::cout << "button-click: null lbg-info from item" << std::endl;
+      }
+   } else {
+      coot::residue_spec_t *spec_p =
+	 (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
+   
+      if (spec_p) { 
+	 std::cout << "clicked on " << *spec_p << std::endl;
+      } else {
+	 std::cout << "null spec" << std::endl;
+      }
+
+      lbg_info_t *l =
+	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (target_item), "lbg-info"));
+      if (!l) {
+	 std::cout << "null lbg-info from target_item" << std::endl;
+      } else {
+
+	 // note: it is not an error if l is null, that can happen
+	 // when clicking on the atom names for example - they don't
+	 // have a lbg-info attached (at the moment).
+	 
+	 l->set_mouse_pos_at_click(x_as_int, y_as_int); // save for dragging
+	 
+	 if (1) 
+	    std::cout << "   on click: scale_correction  " << l->mol.scale_correction.first
+		      << " " << l->mol.scale_correction.second
+		      << " centre_correction " << l->mol.centre_correction << std::endl;
+      
+      
+	 if (l->in_delete_mode_p()) { 
+	    l->handle_item_delete(event);
+	 } else {
+	    l->handle_item_add(event);
+	 }
+      }
+      
+   } 
+   
+   return TRUE;
+}
+   
+   
+
 
 static gboolean
 on_canvas_button_release(GtkWidget *widget, GdkEventButton *event) {
@@ -140,7 +206,24 @@ on_canvas_button_release(GtkWidget *widget, GdkEventButton *event) {
       }
    }
    return TRUE;
-} 
+}
+
+static bool
+on_canvas_button_release_new(GooCanvasItem  *item,
+			   GooCanvasItem  *target_item,
+			   GdkEventButton *event,
+			     gpointer        user_data) {
+
+   if (target_item) { 
+      lbg_info_t *l =
+	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (target_item), "lbg-info"));
+      if (l) {
+	 l->clear_button_down_bond_addition();
+      }
+   }
+   return TRUE;
+}
+
 
 void
 lbg_info_t::clear_button_down_bond_addition() {
@@ -176,6 +259,61 @@ on_canvas_motion (GtkWidget *widget, GdkEventMotion *event) {
    return TRUE;
 }
 
+
+
+static bool
+on_canvas_motion_new(GooCanvasItem  *item,
+		     GooCanvasItem  *target_item,
+		     GdkEventMotion *event,
+		     gpointer        user_data) {
+   
+   int x_as_int = -1, y_as_int = -1;
+   GdkModifierType state;
+   if (! event) {
+      std::cout << "on_canvas_button_press_new() error NULL event!" << std::endl;
+   } else { 
+      x_as_int = int(event->x);
+      y_as_int = int(event->y);
+   }
+
+   if (! target_item) { 
+      std::cout << "canvas_motion: NULL target item" << std::endl;
+      lbg_info_t *l =
+	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
+      if (!l) {
+	 std::cout << "canvas_motion: null lbg-info from target_item" << std::endl;
+      }
+   } else {
+      coot::residue_spec_t *spec_p =
+	 (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
+   
+      if (spec_p) { 
+	 std::cout << "moused over " << *spec_p << std::endl;
+      }
+   }
+
+   if (! item) {
+      std::cout << "canvas_motion: NULL item!" << std::endl;
+   } else {
+      std::cout << "canvas_motion:  item:" << item << std::endl;
+      lbg_info_t *l =
+	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
+      if (!l) {
+	 std::cout << "canvas_motion: null lbg-info from item!" << std::endl;
+      } else {
+	 std::cout << "Yay - got an lbg_info_t pointer " << l << std::endl;
+	 guint state = event->state;
+	 GdkModifierType g_state = static_cast<GdkModifierType> (state);
+	 int x_as_int = int(event->x);
+	 int y_as_int = int(event->y);
+	 std::cout << ":::::::::::: state: " << state 
+		   << " " << (state & GDK_BUTTON1_MASK)
+		   << std::endl;
+	 l->handle_drag(g_state, x_as_int, y_as_int);
+      }
+   }
+   return TRUE;
+}
 
 
 void
@@ -1814,7 +1952,8 @@ lbg_info_t::init(GtkBuilder *builder) {
    // gtk_widget_set(GTK_WIDGET(canvas), "automatic-bounds",  1, NULL);
    gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
    gtk_object_set_user_data(GTK_OBJECT(canvas), (gpointer) this);
-   // std::cout << "attached this lbg_info_t pointer to canvas: " << this << std::endl;
+   std::cout << ":::::: attached this lbg_info_t pointer to canvas: " << this
+	     << " to " << canvas << std::endl;
    
    save_togglebutton_widgets(builder);
    gtk_container_add(GTK_CONTAINER(lbg_scrolled_win), canvas);
@@ -1831,14 +1970,28 @@ lbg_info_t::init(GtkBuilder *builder) {
 		<< gc->hadjustment->page_size  << " "
 		<< gc->vadjustment->page_size << std::endl;
 
-   g_signal_connect(canvas, "button_press_event",
-		    (GtkSignalFunc) on_canvas_button_press, NULL);
+   std::cout << ":::::::::::::::::::: compare canvas " << canvas
+	     << " and root item: "
+	     << goo_canvas_get_root_item(GOO_CANVAS(canvas))
+	     << std::endl;
+   
+   g_object_set_data_full(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
+			  "lbg-info", this, NULL);
 
-   g_signal_connect(canvas, "button_release_event",
-		    (GtkSignalFunc) on_canvas_button_release, NULL);
+   g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
+		    "button_press_event",
+ 		    G_CALLBACK (on_canvas_button_press_new), NULL);
 
-   g_signal_connect(canvas, "motion_notify_event",
-		    (GtkSignalFunc) on_canvas_motion, NULL);
+   g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
+		    "motion_notify_event",
+ 		    G_CALLBACK (on_canvas_motion_new), NULL);
+
+
+//       g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
+// 		       "button_press_event",
+//        		       G_CALLBACK (on_residue_circle_clicked), NULL);
+    
+    
    gtk_widget_show(canvas);
 
    // search combobox
@@ -3704,7 +3857,8 @@ lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_
 
 // static
 /* This handles button presses on the canvas */
-extern "C" G_MODULE_EXPORT gboolean
+// extern "C" G_MODULE_EXPORT 
+static bool
 on_residue_circle_clicked(GooCanvasItem  *item,
 			  GooCanvasItem  *target_item,
 			  GdkEventButton *event,
@@ -3714,12 +3868,18 @@ on_residue_circle_clicked(GooCanvasItem  *item,
 
    std::cout << "on_residue_circle_clicked()!!!!! " << std::endl;
 
-   coot::residue_spec_t *spec_p = (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
-
-   if (spec_p) { 
-
-      std::cout << "clicked on " << *spec_p << std::endl;
-
+   if (target_item) { 
+      coot::residue_spec_t *spec_p = (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
+   
+      if (spec_p) { 
+      
+	 std::cout << "clicked on " << *spec_p << std::endl;
+      
+      } else {
+	 std::cout << "null spec" << std::endl;
+      }
+   } else {
+      std::cout << "NULL target item" << std::endl;
    } 
 
    return r;
@@ -3807,35 +3967,20 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
 				"fill_color", dark,
 				NULL);
 
-   // needed?
-   gtk_widget_set_events(GTK_WIDGET(root),
-			 GDK_EXPOSURE_MASK      |
-			 GDK_BUTTON_PRESS_MASK  |
-			 GDK_BUTTON_RELEASE_MASK|
-			 GDK_POINTER_MOTION_MASK|
-			 GDK_KEY_PRESS_MASK     |
-			 GDK_KEY_RELEASE_MASK   |
-			 GDK_POINTER_MOTION_HINT_MASK);
-
-   
-
-   if (circle) {
-      std::cout << "setting a callback for " << group << std::endl;
-      coot::residue_spec_t *sp_p = new coot::residue_spec_t(residue_circle.spec);
-      g_object_set_data_full(G_OBJECT(circle), "spec", sp_p, g_free);
-      
-      g_signal_connect(group, "button-press-event",
-		       G_CALLBACK (on_residue_circle_clicked), NULL);
-      g_signal_connect(circle, "button-press-event",
-		       G_CALLBACK (on_residue_circle_clicked), NULL);
-      g_signal_connect(circle, "button_press_event",
-		       G_CALLBACK (on_residue_circle_clicked), NULL);
-      g_signal_connect(circle, "motion-notify-event",
-		       G_CALLBACK (on_residue_circle_clicked), NULL);
-      g_signal_connect(group, "motion-notify-event",
-		       G_CALLBACK (on_residue_circle_clicked), NULL);
-
-   } 
+   if (circle && text_1 && text_2) {
+      // so that if a residue is clicked on (or moused over or
+      // whatever, then the target_item has some interesting attached
+      // data for use in the callback)
+      coot::residue_spec_t *sp_p_1 = new coot::residue_spec_t(residue_circle.spec);
+      coot::residue_spec_t *sp_p_2 = new coot::residue_spec_t(residue_circle.spec);
+      coot::residue_spec_t *sp_p_3 = new coot::residue_spec_t(residue_circle.spec);
+      sp_p_1->int_user_data = imol;
+      sp_p_2->int_user_data = imol;
+      sp_p_3->int_user_data = imol;
+      g_object_set_data_full(G_OBJECT(circle), "spec", sp_p_1, g_free);
+      g_object_set_data_full(G_OBJECT(text_1), "spec", sp_p_2, g_free);
+      g_object_set_data_full(G_OBJECT(text_2), "spec", sp_p_3, g_free);
+   }
 }
 
 
@@ -4203,7 +4348,7 @@ lbg_info_t::draw_substitution_contour() {
 	    // std::vector<widgeted_atom_ring_centre_info_t> dummy_unlimited_atoms;
 	    grid.show_contour(root, 0.5, unlimited_atoms, ring_atoms_list);
 	    // debug
-	    show_unlimited_atoms(unlimited_atoms);
+	    // show_unlimited_atoms(unlimited_atoms);
 	    show_ring_centres(ring_atoms_list, mol);
 
 	    std::cout << "Here are the "<< unlimited_atoms.size()

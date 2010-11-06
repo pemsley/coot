@@ -803,12 +803,19 @@ public:
       init_internal();
    }
    lbg_info_t() { init_internal(); }
+   lbg_info_t(int imol_in) {
+      init_internal();
+      imol = imol_in;
+   }
+      
    // toggle button modes, mutually exclusive
    enum { NONE, TRIANLE, SQUARE, PENTAGON, HEXAGON, HEXAGON_AROMATIC, HEPTAGON, OCTAGON,
 	  ATOM_C, ATOM_N, ATOM_O, ATOM_S, ATOM_P, ATOM_F, ATOM_CL, ATOM_I, ATOM_BR, ATOM_X,
 	  CHARGE, ADD_SINGLE_BOND, ADD_DOUBLE_BOND, ADD_TRIPLE_BOND, ADD_STEREO_OUT_BOND,
 	  DELETE_MODE};
    void init(GtkBuilder *builder);
+   int imol; // the coot molecule number from which this plot was
+	     // generated (quite possibly -1, i.e. no coot molecule)
    GtkWidget *lbg_window;
    GtkWidget *about_dialog; 
    GtkWidget *search_combobox;
@@ -886,9 +893,14 @@ public:
 };
 
 // return pointer to an lbg_info_t.  Caller deletes.
+//
+// If there is no molecule (typically, mol is NULL) then pass -1 for
+// the imol.
 // 
 lbg_info_t *lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol,
 		const std::string &molecule_file_name,
+		int imol, // molecule number of the molecule of the
+			  // layed-out residue
 		bool stand_alone_flag_in = 0);
 
 #endif // LBG_HH

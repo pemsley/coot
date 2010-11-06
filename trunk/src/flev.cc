@@ -339,7 +339,7 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
 			std::cout << iat << "  " << m.atoms[iat] << std::endl;
 	       
 
-		  lbg_info_t *lbg_local_p = lbg(m, NULL, ligand_res_name, 0);
+		  lbg_info_t *lbg_local_p = lbg(m, NULL, ligand_res_name, imol, 0);
 
  		  std::map<std::string, std::string> name_map =
  		     coot::make_flat_ligand_name_map(res_ref);
