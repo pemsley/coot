@@ -808,6 +808,17 @@ void *wrapped_curl_easy_perform(void *data);
 void stop_curl_download(const char *file_name); // stop curling the to file_name;
 #endif /* USE_LIBCURL */
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  Functions for FLEV layout callbacks                     */
+/*  ----------------------------------------------------------------------- */
+// orient the graphics somehow so that the interaction between
+// central_residue and neighbour_residue is perpendicular to screen z.
+void orient_view(int imol,
+		 const coot::residue_spec_t &central_residue_spec, // ligand typically
+		 const coot::residue_spec_t &neighbour_residue_spec);
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
 /*  ----------------------------------------------------------------------- */

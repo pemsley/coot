@@ -249,7 +249,6 @@ coot_real_SOURCES = \
 	c-interface-pisa.cc	 \
 	c-interface-pisa-gui.cc	 \
 	c-interface-python.hh	 \
-	c-interface.cc		 \
 	c-interface-gui.cc	 \
 	c-interface-gtk2.cc	 \
 	c-interface-info.cc	 \
@@ -270,9 +269,11 @@ coot_real_SOURCES = \
 	c-interface-scm.cc	 \
 	c-interface-superpose.cc \
 	c-interface-validate.cc	 \
+	c-interface-view.cc	 \
 	c-interface-widgets.cc   \
 	c-interface-waters.cc	 \
 	c-interface-waters-gui.cc\
+	c-interface.cc		 \
 	cc-interface.hh		 \
 	callbacks.c callbacks.h	 \
         canvas-fixes.hh          \

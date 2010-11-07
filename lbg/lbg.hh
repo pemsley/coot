@@ -50,6 +50,11 @@
 #include "coot-coord-utils.hh"
 #include "flev-annotations.hh"
 
+#ifdef MAKE_ENTERPRISE_TOOLS
+#include "graphics-c-interface-functions.hh"
+#endif 
+
+
 #define dark "#111111"
 
 // Sorry Bernie, I don't see how this is useful - tell me why.  It
@@ -563,6 +568,11 @@ public:
 private:
    bool stand_alone_flag;
 
+   // sometime, of course the ligand_spec doesn't mean anything (not
+   // set on construction), hence a flag for that.
+   // 
+   std::pair<bool, coot::residue_spec_t> ligand_spec_pair;
+
    bool try_stamp_polygon(int n_edges, int x_pos_centre, int y_pos_centre,
 			  bool is_spiro, bool is_aromatic);
    void stamp_polygon_anywhere(int n_edges, int x_pos_centre, int y_pos_centre,
@@ -643,6 +653,7 @@ private:
       ultimate_atom_index = -1;
       latest_bond_was_extended = 0;
       stand_alone_flag = 0;
+      ligand_spec_pair.first = 0; // unset ligand_spec
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -706,11 +717,20 @@ private:
 					 const std::vector<int> &attached_bonds,
 					 const std::vector<int> &bond_indices);
    std::vector<residue_circle_t> residue_circles;
+   // a set of handles (returned from
+   // additional_representation_by_attributes()) that correspond to
+   // the residues in residue_circles.  If there are no additional
+   // representations, then an empty vector is handled.
+   std::vector<int> additional_representation_handles;
 
    widgeted_molecule_t translate_molecule(const lig_build::pos_t &delta);
    void translate_residue_circles(const lig_build::pos_t &delta);
    void clear_canvas();
-   void draw_residue_circle_top_layer(const residue_circle_t &rc, const lig_build::pos_t &p);
+   
+   // if you don't have an add_rep_handle, then pass -1 (something negative)
+   // 
+   void draw_residue_circle_top_layer(const residue_circle_t &rc, const lig_build::pos_t &p,
+				      int add_rep_handle);
    double standard_residue_circle_radius;
    
 
@@ -868,7 +888,9 @@ public:
    void read_draw_residues(const std::string &file_name);
    void draw_all_residue_attribs();
    std::vector<residue_circle_t> read_residues(const std::string &file_name) const;
-   void draw_residue_circles(const std::vector<residue_circle_t> &v);
+   // if you don't have add_rep_handles, pass an empty vector.
+   void draw_residue_circles(const std::vector<residue_circle_t> &v,
+			     const std::vector<int> &add_rep_handles);
    void draw_stacking_interactions(const std::vector<residue_circle_t> &v);
    std::vector<solvent_accessible_atom_t> 
    read_solvent_accessibilities(const std::string &file_name) const;
@@ -885,11 +907,22 @@ public:
 
    bool annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
 		 const std::vector<coot::fle_residues_helper_t> &centres,
+		 const std::vector<int> &addition_representation_handles,
 		 const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,
 		 const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
 		 const coot::flev_attached_hydrogens_t &ah,
 		 const coot::pi_stacking_container_t &pi_stack_info,
 		 const coot::dictionary_residue_restraints_t &restraints);
+
+   void set_ligand_spec(const coot::residue_spec_t &spec) {
+      ligand_spec_pair.first = 1;
+      ligand_spec_pair.second = spec;
+   }
+
+   std::pair<bool, coot::residue_spec_t> get_ligand_spec() const {
+      return ligand_spec_pair;
+   } 
+   
 };
 
 // return pointer to an lbg_info_t.  Caller deletes.
@@ -897,7 +930,10 @@ public:
 // If there is no molecule (typically, mol is NULL) then pass -1 for
 // the imol.
 // 
-lbg_info_t *lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol,
+lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
+		std::pair<bool, coot::residue_spec_t> ligand_spec_pair,
+		CMMDBManager *mol,
+		const std::string &view_name, // annotate the decoration
 		const std::string &molecule_file_name,
 		int imol, // molecule number of the molecule of the
 			  // layed-out residue

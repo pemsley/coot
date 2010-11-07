@@ -866,7 +866,9 @@ start_ligand_builder_gui(GtkMenuItem     *menuitem,
    lig_build::molfile_molecule_t mm;
    CMMDBManager *mol = NULL;
    std::string molecule_file_name;
-   lbg(mm, mol, molecule_file_name, -1);
+   std::string view_name;
+   std::pair<bool, coot::residue_spec_t> dummy_pair(0, coot::residue_spec_t());
+   lbg(mm, dummy_pair, mol, view_name, molecule_file_name, -1);
 #endif   
 }
 

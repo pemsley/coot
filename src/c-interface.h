@@ -4261,14 +4261,31 @@ void set_show_all_additional_representations(int imol, int on_off_flag);
 /* delete a given additional representation */
 void delete_additional_representation(int imol, int representation_number);
 
-/* return the index of the additional representation.  Return -1 on error */
+/*! \brief return the index of the additional representation.  Return -1 on error */
 int additional_representation_by_string(int imol,  const char *atom_selection, 
 					int representation_type, 
 					int bonds_box_type,
 					float bond_width,
 					int draw_hydrogens_flag);
 
-/* return the index of the additional representation.  Return -1 on error */
+/*! \brief return the index of the additional representation.  
+
+  representation_types:
+  enum { coot::SIMPLE_LINES, coot::STICKS, coot::BALL_AND_STICK, coot::SURFACE };
+
+  bonds_box_type:
+  enum {  UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2, COLOUR_BY_CHAIN_BONDS=3,
+	  CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
+	  BONDS_NO_HYDROGENS=15,
+	  CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
+	  CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
+	  COLOUR_BY_MOLECULE_BONDS=8,
+	  COLOUR_BY_RAINBOW_BONDS=9, COLOUR_BY_B_FACTOR_BONDS=10,
+	  COLOUR_BY_OCCUPANCY_BONDS=11};
+
+	  @return -1 on error.
+
+ */
 int additional_representation_by_attributes(int imol,  const char *chain_id, 
 					    int resno_start, int resno_end, 
 					    const char *ins_code,
