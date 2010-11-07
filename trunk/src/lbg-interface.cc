@@ -13,11 +13,11 @@
 
 #include "c-interface.h"
 
-void residue_to_ligand_builder(int imol, const char *chain_id, int resno, const char *ins_code) {
+void residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char *ins_code) {
 
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
-      CResidue *residue_p = graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
+      CResidue *residue_p = graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p) {
 	 try {
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, *g.Geom_p());
@@ -65,7 +65,18 @@ void residue_to_ligand_builder(int imol, const char *chain_id, int resno, const 
 	       int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs, 0.4);
 	       lig_build::molfile_molecule_t m =
 		  coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
-	       lbg(m, mol, "", imol);
+
+	       std::string view_name = "Molecule ";
+	       view_name += coot::util::int_to_string(imol);
+	       view_name += " ";
+	       view_name += chain_id;
+	       view_name += coot::util::int_to_string(res_no);
+	       view_name += ins_code;
+	       view_name += "    code: ";
+	       view_name += residue_p->GetResName();
+	       
+	       std::pair<bool, coot::residue_spec_t> p(1, coot::residue_spec_t(residue_p));
+	       lbg(m, p, mol, view_name, "", imol);
 	    }
 	    delete mol;
 	 }
@@ -118,7 +129,8 @@ void smiles_to_ligand_builder(const char *smiles_string) {
       }
    
       CMMDBManager *mol = NULL;
-      lbg(m, mol, "", -1);
+      std::pair<bool, coot::residue_spec_t> dummy_spec(0, coot::residue_spec_t());
+      lbg(m, dummy_spec, mol, "", "", -1);
    }
    catch (std::exception e) {
       std::cout << "WARNING:: in generating molecule from SMILES: "

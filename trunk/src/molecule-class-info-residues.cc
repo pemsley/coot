@@ -302,3 +302,69 @@ molecule_class_info_t::no_dictionary_for_residue_type_as_yet(const coot::protein
    return v;
 }
 
+
+// ------------- helper function to orient_view() --------------------
+// can throw an std::runtime exception;
+clipper::Coord_orth
+molecule_class_info_t::get_vector(const coot::residue_spec_t &central_residue_spec, // ligand typically
+				  const coot::residue_spec_t &neighbour_residue_spec) const {
+
+   clipper::Coord_orth r(0,0,0);
+
+   CResidue *central_residue = get_residue(central_residue_spec);
+   CResidue *neighbour_residue = get_residue(neighbour_residue_spec);
+
+   if (! central_residue) {
+      std::string message = "Missing residue ";
+      message += central_residue_spec.chain;
+      message += " "; 
+      message += central_residue_spec.resno;
+      throw std::runtime_error(message);
+   } else { 
+      if (! neighbour_residue) {
+	 std::string message = "Missing residue ";
+	 message += neighbour_residue_spec.chain;
+	 message += " ";
+	 message += neighbour_residue_spec.resno;
+	 throw std::runtime_error(message);
+      } else {
+	 // OK! go.
+
+	 double min_dist = 42e32;
+	 clipper::Coord_orth shortest_dist(0,0,0); // "best"
+	 PPCAtom c_residue_atoms = 0;
+	 int c_n_residue_atoms;
+	 central_residue->GetAtomTable(c_residue_atoms, c_n_residue_atoms);
+	 PPCAtom n_residue_atoms = 0;
+	 int n_n_residue_atoms;
+	 neighbour_residue->GetAtomTable(n_residue_atoms, n_n_residue_atoms);
+	 for (unsigned int iat=0; iat<c_n_residue_atoms; iat++) {
+	    if (! c_residue_atoms[iat]->isTer()) { 
+	       clipper::Coord_orth pt_1(c_residue_atoms[iat]->x,
+					c_residue_atoms[iat]->y,
+					c_residue_atoms[iat]->z);
+	       for (unsigned int jat=0; jat<n_n_residue_atoms; jat++) {
+		  if (! c_residue_atoms[jat]->isTer()) { 
+		     clipper::Coord_orth pt_2(n_residue_atoms[jat]->x,
+					      n_residue_atoms[jat]->y,
+					      n_residue_atoms[jat]->z);
+		     double d = (pt_1 - pt_2).lengthsq();
+		     if (d < min_dist) {
+			d = min_dist;
+			shortest_dist = pt_2 - pt_1;
+			r = shortest_dist;
+		     } 
+		  }
+	       }
+	    }
+	 }
+
+	 if (shortest_dist.lengthsq() < 0.0001) {
+	    std::string message = "bad inter-residue vector: No atoms or overlapping atoms?";
+	    throw std::runtime_error(message);
+	 }
+      }
+   }
+
+   return r;
+} 

@@ -2813,6 +2813,15 @@ public:        //                      public
 
    std::vector<std::string> no_dictionary_for_residue_type_as_yet(const coot::protein_geometry &geom) const;
 
+   // ------------- helper function to orient_view() --------------------
+   // the vector is from the central residue (atom) to the neighbour_residue (atom);
+   // 
+   // can throw an std::runtime  exception;
+   // 
+   clipper::Coord_orth get_vector(const coot::residue_spec_t &central_residue_spec, // ligand typically
+				  const coot::residue_spec_t &neighbour_residue_spec) const;
+   
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

@@ -35,9 +35,14 @@
 #endif
 #include "lbg.hh"
 
+
 // 
 lbg_info_t *
-lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &molecule_file_name,
+lbg(lig_build::molfile_molecule_t mm,
+    std::pair<bool, coot::residue_spec_t> ligand_spec_pair,
+    CMMDBManager *mol,
+    const std::string &view_name,
+    const std::string &molecule_file_name,
     int imol,
     bool stand_alone_flag_in) {
 
@@ -66,11 +71,12 @@ lbg(lig_build::molfile_molecule_t mm, CMMDBManager *mol, const std::string &mole
       lbg->init(builder);
       gtk_builder_connect_signals (builder, lbg->canvas);
       g_object_unref (G_OBJECT (builder));
+      if (ligand_spec_pair.first)
+	 lbg->set_ligand_spec(ligand_spec_pair.second);
 
-      // if (mol) { 
-	 widgeted_molecule_t wmol = lbg->import(mm, molecule_file_name, mol);
-	 lbg->render_from_molecule(wmol);
-	 // }
+      widgeted_molecule_t wmol = lbg->import(mm, molecule_file_name, mol);
+      lbg->render_from_molecule(wmol);
+      
    } else {
       std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
    } 
@@ -154,17 +160,35 @@ on_canvas_button_press_new(GooCanvasItem  *item,
    } else {
       coot::residue_spec_t *spec_p =
 	 (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
+      lbg_info_t *l = NULL;
+      if (item)
+	 l = static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
    
+#ifdef MAKE_ENTERPRISE_TOOLS      
       if (spec_p) { 
 	 std::cout << "clicked on " << *spec_p << std::endl;
+	 if (event->type==GDK_2BUTTON_PRESS) {
+	    int imol = spec_p->int_user_data;
+	    std::cout << "imol: " << imol << std::endl;
+	    if (! l) {
+	       std::cout << "oops failed to get lbg_info_t pointer" << std::endl;
+	    } else {
+	       std::pair<bool, coot::residue_spec_t> ligand_spec_pair = l->get_ligand_spec();
+	       std::cout << "ligand pair first: " << ligand_spec_pair.first << std::endl;
+	       if (ligand_spec_pair.first) {
+		  std::cout << " ligand_spec: " << ligand_spec_pair.second << std::endl;
+		  std::cout << "residue_spec: " << *spec_p << std::endl;
+		  orient_view(imol,  ligand_spec_pair.second, *spec_p);
+	       }
+	    }
+	 } 
       } else {
 	 std::cout << "null spec" << std::endl;
       }
+#endif       
 
-      lbg_info_t *l =
-	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (target_item), "lbg-info"));
       if (!l) {
-	 std::cout << "null lbg-info from target_item" << std::endl;
+	 // std::cout << "null lbg-info from target_item" << std::endl;
       } else {
 
 	 // note: it is not an error if l is null, that can happen
@@ -277,38 +301,51 @@ on_canvas_motion_new(GooCanvasItem  *item,
    }
 
    if (! target_item) { 
-      std::cout << "canvas_motion: NULL target item" << std::endl;
+      // std::cout << "canvas_motion: NULL target item" << std::endl;
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
       if (!l) {
-	 std::cout << "canvas_motion: null lbg-info from target_item" << std::endl;
+	 // std::cout << "canvas_motion: null lbg-info from target_item" << std::endl;
       }
    } else {
+
+#ifdef MAKE_ENTERPRISE_TOOLS
       coot::residue_spec_t *spec_p =
-	 (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
-   
-      if (spec_p) { 
-	 std::cout << "moused over " << *spec_p << std::endl;
+	 static_cast<coot::residue_spec_t *> (g_object_get_data (G_OBJECT (target_item), "spec"));
+      int *add_rep_handle_p =
+	 static_cast<int *> (g_object_get_data (G_OBJECT (target_item), "add_rep_handle"));
+
+      if (spec_p && add_rep_handle_p) {
+	 int add_rep_handle = *add_rep_handle_p;
+	 // std::cout << "moused over " << *spec_p << std::endl;
+	 if (add_rep_handle >= 0) {
+	    int imol = spec_p->int_user_data;
+	    // std::cout << "show add_rep_handle: " << add_rep_handle << " for " << *spec_p << std::endl;
+	    set_show_all_additional_representations(imol, 0);
+	    set_show_additional_representation(imol, add_rep_handle, 1);
+	 } 
       }
+#endif      
+      
    }
 
    if (! item) {
-      std::cout << "canvas_motion: NULL item!" << std::endl;
+      // std::cout << "canvas_motion: NULL item!" << std::endl;
    } else {
-      std::cout << "canvas_motion:  item:" << item << std::endl;
+      // std::cout << "canvas_motion:  item:" << item << std::endl;
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
       if (!l) {
-	 std::cout << "canvas_motion: null lbg-info from item!" << std::endl;
+	 // std::cout << "canvas_motion: null lbg-info from item!" << std::endl;
       } else {
-	 std::cout << "Yay - got an lbg_info_t pointer " << l << std::endl;
+	 // std::cout << "Yay - got an lbg_info_t pointer " << l << std::endl;
 	 guint state = event->state;
 	 GdkModifierType g_state = static_cast<GdkModifierType> (state);
 	 int x_as_int = int(event->x);
 	 int y_as_int = int(event->y);
-	 std::cout << ":::::::::::: state: " << state 
-		   << " " << (state & GDK_BUTTON1_MASK)
-		   << std::endl;
+// 	 std::cout << ":::::::::::: state: " << state 
+// 		   << " " << (state & GDK_BUTTON1_MASK)
+// 		   << std::endl;
 	 l->handle_drag(g_state, x_as_int, y_as_int);
       }
    }
@@ -2398,8 +2435,9 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
    // cycles of optimisation
    // 
    std::vector<residue_circle_t> current_circles = residue_circles;
+   std::vector<int> empty_vector; // for add_rep_handles, can't do it from a file.
    if (show_dynamics)
-      draw_residue_circles(current_circles);
+      draw_residue_circles(current_circles, empty_vector);
 
    // For debugging the minimizer (vs original positions).
    // 
@@ -2412,7 +2450,7 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
 	 optimise_residue_circle_positions(residue_circles, current_circles, primary_indices);
       current_circles = new_c.second;
       if (show_dynamics)
-	 draw_residue_circles(current_circles);
+	 draw_residue_circles(current_circles, empty_vector);
       if (new_c.first == GSL_ENOPROG)
 	 break;
       if (new_c.first == GSL_SUCCESS) { 
@@ -2550,7 +2588,7 @@ lbg_info_t::offset_residues_from_orig_positions() {
 void
 lbg_info_t::draw_all_residue_attribs() {
 
-   draw_residue_circles(residue_circles);
+   draw_residue_circles(residue_circles, additional_representation_handles);
    draw_bonds_to_ligand();
    draw_stacking_interactions(residue_circles);
 }
@@ -3829,8 +3867,11 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 // }
 
 
+// if you don't have add_rep_handles, then pass a vector or size 0.
+// 
 void
-lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circles) {
+lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circles,
+				 const std::vector<int> &add_rep_handles) {
 
    double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
    double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
@@ -3847,7 +3888,11 @@ lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_
 
       for (unsigned int i=0; i<l_residue_circles.size(); i++) {
 	 lig_build::pos_t pos = l_residue_circles[i].pos;
-	 draw_residue_circle_top_layer(l_residue_circles[i], ligand_centre);
+	 int add_rep_handle = -1; // default, no handle
+	 if (add_rep_handles.size() == l_residue_circles.size())
+	    add_rep_handle = add_rep_handles[i];
+
+	 draw_residue_circle_top_layer(l_residue_circles[i], ligand_centre, add_rep_handle);
       }
    }
    catch (std::runtime_error rte) {
@@ -3886,17 +3931,13 @@ on_residue_circle_clicked(GooCanvasItem  *item,
 }
 
 
-//    double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
-//    double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
-//                                                // attached to the protein.
+// if you don't have an add_rep_handle, then pass -1 (something negative)
 // 
 void
 lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
-					  const lig_build::pos_t &ligand_centre) {
+					  const lig_build::pos_t &ligand_centre,
+					  int add_rep_handle) {
 
-   // double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
-   // double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
-                                                // attached to the protein.
 
    if (0)
       std::cout << "   adding cirles " << residue_circle.residue_type
@@ -3980,6 +4021,12 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
       g_object_set_data_full(G_OBJECT(circle), "spec", sp_p_1, g_free);
       g_object_set_data_full(G_OBJECT(text_1), "spec", sp_p_2, g_free);
       g_object_set_data_full(G_OBJECT(text_2), "spec", sp_p_3, g_free);
+      int *add_rep_handle_p_1 = new int(add_rep_handle);
+      int *add_rep_handle_p_2 = new int(add_rep_handle);
+      int *add_rep_handle_p_3 = new int(add_rep_handle);
+      g_object_set_data_full(G_OBJECT(circle), "add_rep_handle", add_rep_handle_p_1, g_free);
+      g_object_set_data_full(G_OBJECT(text_1), "add_rep_handle", add_rep_handle_p_2, g_free);
+      g_object_set_data_full(G_OBJECT(text_2), "add_rep_handle", add_rep_handle_p_3, g_free);
    }
 }
 
@@ -4719,6 +4766,7 @@ lbg_info_t::hide_key() {
 bool
 lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
 		     const std::vector<coot::fle_residues_helper_t> &centres,
+		     const std::vector<int> &additional_representation_handles_in,
 		     const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,
 		     const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
 		     const coot::flev_attached_hydrogens_t &ah,
@@ -4819,9 +4867,12 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
 					     sed[ised].exposure_fraction_apo);
 	 }
       }
-      
       residue_circles.push_back(circle);
    }
+
+   // additional_representation_handles transfer
+   additional_representation_handles = additional_representation_handles_in;
+
 
    // ligand ring centres (some of which may be aromatic and are in pi_stack_info too).
    //

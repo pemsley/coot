@@ -49,7 +49,8 @@ std::ostream&
 coot::operator<< (std::ostream& s, const pi_stacking_instance_t &stack) {
 
    s << "[" << stack.type << " " << coot::residue_spec_t(stack.res) << " "
-     << stack.overlap_score << " ligand-atom-name :" <<  stack.ligand_cationic_atom_name
+     << stack.overlap_score << " ligand-atom-name :"
+     <<  stack.ligand_cationic_atom_name
      << ": ";
    for (unsigned int i=0; i<stack.ligand_ring_atom_names.size(); i++)
       s << "  :" << stack.ligand_ring_atom_names[i] << ":   " ;
@@ -257,8 +258,8 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
    } 
 }
 
-void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char *ins_code,
-			 float residues_near_radius) { 
+void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
+			 const char *ins_code, float residues_near_radius) { 
 
 #ifndef MAKE_ENTERPRISE_TOOLS
 # else
@@ -338,21 +339,34 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
 		     for (unsigned int iat=0; iat<m.atoms.size(); iat++)
 			std::cout << iat << "  " << m.atoms[iat] << std::endl;
 	       
+		  std::string view_name = "Molecule ";
+		  view_name += coot::util::int_to_string(imol);
+		  view_name += " ";
+		  view_name += chain_id;
+		  view_name += coot::util::int_to_string(res_no);
+		  view_name += ins_code;
+		  view_name += "    code: ";
+		  view_name += ligand_res_name;
 
-		  lbg_info_t *lbg_local_p = lbg(m, NULL, ligand_res_name, imol, 0);
+		  std::pair<bool, coot::residue_spec_t> ligand_spec_pair(1, coot::residue_spec_t(res_ref));
+		  
+		  lbg_info_t *lbg_local_p = lbg(m, ligand_spec_pair,
+						NULL, view_name, ligand_res_name, imol, 0);
 
  		  std::map<std::string, std::string> name_map =
  		     coot::make_flat_ligand_name_map(res_ref);
 	       
  		  std::vector<coot::fle_ligand_bond_t> bonds_to_ligand =
- 		     coot::get_fle_ligand_bonds(res_ref, filtered_residues, mol_for_res_ref,
- 						name_map, *geom_p);
+ 		     coot::get_fle_ligand_bonds(res_ref, filtered_residues,
+						mol_for_res_ref, name_map, *geom_p);
 
 		  std::vector<coot::fle_residues_helper_t> res_centres =
 		     coot::get_flev_residue_centres(res_ref,
 						    mol_for_res_ref,
 						    filtered_residues,
 						    mol_for_flat_residue);
+		  std::vector<int> add_reps_vec =
+		     coot::make_add_reps_for_near_residues(filtered_residues, imol);
 
 		  if (0) { 
 		     std::cout << "------------- in flev: centres.size() is "
@@ -374,7 +388,10 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
 		  // ah.cannonballs(res_ref, mol_for_res_ref, p.second);
  		  ah.distances_to_protein_using_correct_Hs(res_ref, mol_for_res_ref, *geom_p);
 
- 		  lbg_local_p->annotate(s_a_v, res_centres, bonds_to_ligand, sed, ah, pi_stack_info, p.second);
+		  // ------------ show it -----------------
+		  // 
+ 		  lbg_local_p->annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand, sed,
+					ah, pi_stack_info, p.second);
 		  delete mol_for_flat_residue;
 	       }
 	    }
@@ -390,6 +407,30 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
    }
 #endif // MAKE_ENTERPRISE_TOOLS   
 }
+
+std::vector<int>
+coot::make_add_reps_for_near_residues(std::vector<CResidue *> filtered_residues,
+				      int imol) {
+
+   std::vector<int> v(filtered_residues.size());
+
+   int rep_type = coot::SIMPLE_LINES;
+   int bonds_box_type = coot::NORMAL_BONDS;
+   int bond_width = 8;
+   int draw_hydrogens_flag = 1;
+   for (unsigned int i=0; i<filtered_residues.size(); i++) {
+      v[i] = additional_representation_by_attributes(imol,
+						     filtered_residues[i]->GetChainID(),
+						     filtered_residues[i]->GetSeqNum(),
+						     filtered_residues[i]->GetSeqNum(),
+						     filtered_residues[i]->GetInsCode(),
+						     rep_type, bonds_box_type, bond_width,
+						     draw_hydrogens_flag);
+      set_show_additional_representation(imol, v[i], 0); // undisplay it
+   }
+   return v;
+} 
+
 
 std::ostream &
 coot::operator<<(std::ostream &s, fle_residues_helper_t fler) {

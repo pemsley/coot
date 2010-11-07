@@ -35,6 +35,14 @@
 #endif
 #include "lbg.hh"
 
+#ifdef MAKE_ENTERPRISE_TOOLS
+void set_show_additional_representation(int imol, int representation_number, int on_off_flag) {}
+void set_show_all_additional_representations(int imol, int on_off_flag) {}
+void orient_view(int imol,
+		 const coot::residue_spec_t &central_residue_spec,
+		 const coot::residue_spec_t &neighbour_residue_spec) {}
+#endif
+
 
 int
 main(int argc, char *argv[]) {
@@ -52,7 +60,9 @@ main(int argc, char *argv[]) {
    }
 
    bool stand_alone_flag = 1;
-   if (lbg(mm, mol, molecule_file_name, stand_alone_flag)) {
+   std::string view_name = "";
+   std::pair<bool, coot::residue_spec_t> p(0, coot::residue_spec_t());
+   if (lbg(mm, p, mol, view_name, molecule_file_name, stand_alone_flag)) {
        gtk_main ();
    } 
    return 1;
