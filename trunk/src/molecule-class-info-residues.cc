@@ -334,35 +334,40 @@ molecule_class_info_t::get_vector(const coot::residue_spec_t &central_residue_sp
 	 clipper::Coord_orth shortest_dist(0,0,0); // "best"
 	 PPCAtom c_residue_atoms = 0;
 	 int c_n_residue_atoms;
-	 central_residue->GetAtomTable(c_residue_atoms, c_n_residue_atoms);
 	 PPCAtom n_residue_atoms = 0;
 	 int n_n_residue_atoms;
+	 central_residue->GetAtomTable  (c_residue_atoms, c_n_residue_atoms);
 	 neighbour_residue->GetAtomTable(n_residue_atoms, n_n_residue_atoms);
+	 clipper::Coord_orth sum_1(0,0,0);
+	 clipper::Coord_orth sum_2(0,0,0);
 	 for (unsigned int iat=0; iat<c_n_residue_atoms; iat++) {
 	    if (! c_residue_atoms[iat]->isTer()) { 
 	       clipper::Coord_orth pt_1(c_residue_atoms[iat]->x,
 					c_residue_atoms[iat]->y,
 					c_residue_atoms[iat]->z);
-	       for (unsigned int jat=0; jat<n_n_residue_atoms; jat++) {
-		  if (! c_residue_atoms[jat]->isTer()) { 
-		     clipper::Coord_orth pt_2(n_residue_atoms[jat]->x,
-					      n_residue_atoms[jat]->y,
-					      n_residue_atoms[jat]->z);
-		     double d = (pt_1 - pt_2).lengthsq();
-		     if (d < min_dist) {
-			d = min_dist;
-			shortest_dist = pt_2 - pt_1;
-			r = shortest_dist;
-		     } 
-		  }
-	       }
+	       sum_1 += pt_1;
+	    }
+	 }
+	 for (unsigned int jat=0; jat<n_n_residue_atoms; jat++) {
+	    if (! c_residue_atoms[jat]->isTer()) { 
+	       clipper::Coord_orth pt_2(n_residue_atoms[jat]->x,
+					n_residue_atoms[jat]->y,
+					n_residue_atoms[jat]->z);
+	       sum_2 += pt_2;
 	    }
 	 }
 
-	 if (shortest_dist.lengthsq() < 0.0001) {
-	    std::string message = "bad inter-residue vector: No atoms or overlapping atoms?";
-	    throw std::runtime_error(message);
-	 }
+	 if (sum_1.lengthsq() > 0.0001) {
+	    if (sum_2.lengthsq() > 0.0001) {
+	       double frac_1 = 1.0/double(c_n_residue_atoms);
+	       double frac_2 = 1.0/double(n_n_residue_atoms);
+	       r = clipper::Coord_orth(sum_2 * frac_2 - sum_1 * frac_1);
+	    } else {
+	       throw std::runtime_error("No atoms in residue?");
+	    }
+	 } else {
+	    throw std::runtime_error("No atoms in residue?");
+	 } 
       }
    }
 

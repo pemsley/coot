@@ -119,9 +119,9 @@ on_canvas_button_press (GtkWidget *widget, GdkEventButton *event)
 	 l->set_mouse_pos_at_click(x_as_int, y_as_int); // save for dragging
 	 // std::cout << "mouse_at_click: " << x_as_int << " " << y_as_int << std::endl;
 	 
-	 if (0) 
-	    std::cout << "   on click: scale_correction  " << l->mol.scale_correction.first << " "
-		      << l->mol.scale_correction.second
+	 if (0)
+	    std::cout << "   on click: scale_correction  " << l->mol.scale_correction.first
+		      << " " << l->mol.scale_correction.second
 		      << " centre_correction " << l->mol.centre_correction << std::endl;
 
 	    
@@ -167,7 +167,7 @@ on_canvas_button_press_new(GooCanvasItem  *item,
 #ifdef MAKE_ENTERPRISE_TOOLS      
       if (spec_p) { 
 	 std::cout << "clicked on " << *spec_p << std::endl;
-	 if (event->type==GDK_2BUTTON_PRESS) {
+	 if (event->type==GDK_2BUTTON_PRESS) { // double click
 	    int imol = spec_p->int_user_data;
 	    std::cout << "imol: " << imol << std::endl;
 	    if (! l) {
@@ -197,7 +197,7 @@ on_canvas_button_press_new(GooCanvasItem  *item,
 	 
 	 l->set_mouse_pos_at_click(x_as_int, y_as_int); // save for dragging
 	 
-	 if (1) 
+	 if (0) 
 	    std::cout << "   on click: scale_correction  " << l->mol.scale_correction.first
 		      << " " << l->mol.scale_correction.second
 		      << " centre_correction " << l->mol.centre_correction << std::endl;
@@ -320,9 +320,10 @@ on_canvas_motion_new(GooCanvasItem  *item,
 	 // std::cout << "moused over " << *spec_p << std::endl;
 	 if (add_rep_handle >= 0) {
 	    int imol = spec_p->int_user_data;
-	    // std::cout << "show add_rep_handle: " << add_rep_handle << " for " << *spec_p << std::endl;
-	    set_show_all_additional_representations(imol, 0);
+	    // std::cout << "show add_rep_handle: " << add_rep_handle << " for "
+	    // << *spec_p << std::endl;
 	    set_show_additional_representation(imol, add_rep_handle, 1);
+	    all_additional_representations_off_except(imol, add_rep_handle);
 	 } 
       }
 #endif      
@@ -4396,7 +4397,7 @@ lbg_info_t::draw_substitution_contour() {
 	    grid.show_contour(root, 0.5, unlimited_atoms, ring_atoms_list);
 	    // debug
 	    // show_unlimited_atoms(unlimited_atoms);
-	    show_ring_centres(ring_atoms_list, mol);
+	    // show_ring_centres(ring_atoms_list, mol);
 
 	    std::cout << "Here are the "<< unlimited_atoms.size()
 		      << " unlimited atoms: " << std::endl;

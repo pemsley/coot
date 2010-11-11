@@ -2321,7 +2321,17 @@ molecule_class_info_t::set_show_all_additional_representations(bool on_off_flag)
    int n_reps = add_reps.size();
    for (unsigned int i=0; i<n_reps; i++)
       set_show_additional_representation(i, on_off_flag);
-} 
+}
+
+void
+molecule_class_info_t::all_additional_representations_off_except(int rep_no) {
+
+   int n_reps = add_reps.size();
+   for (unsigned int i=0; i<n_reps; i++)
+      if (i != rep_no)
+	 set_show_additional_representation(i, 0);
+}
+
 
 
 

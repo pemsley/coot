@@ -28,6 +28,8 @@ Wed Oct 13 07:18:36 EDT 2010
    The protein geometry interface will need to change a bit to allow
    the storage of such entries (bond orders but no restraints).
 
+* Done.
+
 ----
 Wed Oct 20 18:23:52 EDT 2010
 
@@ -43,6 +45,8 @@ Sat Oct 30 16:58:37 BST 2010
    Sprout hydrogens with ligand from 1x8b and prodrg dictionary.
 
    Problems with Hs on Ns...
+
+* Done.
 
 ----
 
