@@ -2690,6 +2690,7 @@ public:        //                      public
    void clear_additional_representation(int representation_number);
    void set_show_additional_representation(int representation_number, bool on_off_flag);
    void set_show_all_additional_representations(bool on_off_flag);
+   void all_additional_representations_off_except(int rep_no);
    // 
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const; 
 

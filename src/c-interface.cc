@@ -3050,7 +3050,17 @@ set_show_all_additional_representations(int imol, int on_off_flag) {
       graphics_info_t::molecules[imol].set_show_all_additional_representations(on_off_flag);
    }
    graphics_draw();
-} 
+}
+
+/* \brief undisplay all the additional representations for the given
+   molecule, except the given representation number (if it is off, leave it off)  */
+void all_additional_representations_off_except(int imol, int representation_number) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].all_additional_representations_off_except(representation_number);
+   }
+   graphics_draw();
+}
+
 
 
 
@@ -7833,7 +7843,12 @@ int brief_atom_labels_state() {
 /*                  scene rotation (by script)                              */
 /*  ----------------------------------------------------------------------- */
 /* stepsize in degrees */
-void rotate_y_scene(int nsteps, float stepsize) { 
+void rotate_y_scene(int nsteps, float stepsize) {
+
+   // 20101108 [Gatwick airport] Note: there is code in orient_view()
+   // that presumes (with good reason) that this actually rotates the
+   // view by nstep*stepsize*2
+   // 
 
    float spin_quat[4];
    graphics_info_t g;

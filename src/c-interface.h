@@ -4258,6 +4258,11 @@ void set_show_additional_representation(int imol, int representation_number, int
 /* \brief display/undisplay all the additional representations for the given molecule  */
 void set_show_all_additional_representations(int imol, int on_off_flag);
 
+/* \brief undisplay all the additional representations for the given
+   molecule, except the given representation number (if it is off, leave it off)  */
+void all_additional_representations_off_except(int imol, int representation_number);
+
+
 /* delete a given additional representation */
 void delete_additional_representation(int imol, int representation_number);
 
