@@ -26,8 +26,11 @@ def povray_args():
 # BL says: dont know how usefull this function is/will be....
 
 # run raster3d
+#
 def render_image():
-    import os, webbrowser
+    import os
+    import webbrowser
+    import sys
 
     coot_r3d_file_name="coot.r3d"
     if (os.name == 'nt'):
@@ -44,8 +47,19 @@ def render_image():
        r3d_call = r3d_exe + image_format + coot_image_file_name + " < " + coot_r3d_file_name
        print "BL DEBUG:: r3d_call is ", r3d_call
        print "calling render..."
-       
-       status = os.system(r3d_call)
+
+       major, minor, micro, releaselevel, serial = sys.version_info
+       if (major >= 2 and minor >=4):
+           # new style
+           import subprocess
+           status = subprocess.call(r3d_call, shell=True)
+           if status:
+               # something went wrong with raster3d
+               # maybe same for system call?!?
+               print "BL WARNING:: some error in raster3d"
+               return
+       else:
+           status = os.system(r3d_call)
        print "calling display..."
        try:
          webbrowser.open(coot_image_file_name,1,1)
@@ -55,8 +69,11 @@ def render_image():
 # Run either raster3d or povray
 #
 # @var{image_type} is either 'raster3d' or 'povray'
+#
 def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
-   import os, webbrowser
+   import os
+   import webbrowser
+   import sys
 
    if (image_type == "raster3d"):
     # BL says: this is for windows, since tif file
@@ -78,13 +95,22 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
        print "BL DEBUG:: r3d_call is ", r3d_call
        print "calling render..."
 
-       status = os.system(r3d_call)
+       major, minor, micro, releaselevel, serial = sys.version_info
+       if (major >= 2 and minor >=4):
+           import subprocess
+           status = subprocess.call(r3d_call, shell=True)
+           if status:
+               # something went wrong with raster3d
+               # maybe same for system call?!?
+               print "BL WARNING:: some error in raster3d"
+               return
+       else:
+           status = os.system(r3d_call)
        # now we have to copy files back if necessary!!
        if (space_flag):
           import shutil
           shutil.move(image_file_name_mod,image_file_name)
           shutil.move(source_file_name_mod,source_file_name)
-       else: pass
 
        print "calling display..."
        try:
@@ -109,7 +135,17 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
       print "BL INFO:: run povray with args: ", args
       povray_call = povray_exe + args + " +o" + image_file_name_mod
       print "BL DEBUG:: povray command line", povray_call
-      os.system(povray_call)
+      major, minor, micro, releaselevel, serial = sys.version_info
+      if (major >= 2 and minor >=4):
+          import subprocess
+          status = subprocess.call(povray_call, shell=True)
+          if status:
+              # something went wrong with raster3d
+              # maybe same for system call?!?
+              print "BL WARNING:: some error in povray"
+              return
+      else:
+          os.system(povray_call)
       # now we have to copy files back if necessary!!
       if (space_flag):
          import shutil
@@ -131,7 +167,9 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
 # keep for backwards compatibility
 #
 def ppm2bmp(ppm_file_name):
-    import os, webbrowser
+    import os
+    import webbrowser
+    import sys
 
     bmp_file_name, extension = os.path.splitext(ppm_file_name)
     # FIXME: horrible hacks!!!
@@ -142,7 +180,17 @@ def ppm2bmp(ppm_file_name):
         # space in file name , e.g. ' & " thingys
         cmd = 'ppm2bmp "'
         ppm2bmp_call = cmd + ppm_file_name + '"'
-        os.system(ppm2bmp_call)
+        major, minor, micro, releaselevel, serial = sys.version_info
+        if (major >= 2 and minor >=4):
+            import subprocess
+            status = subprocess.call(ppm2bmp_call, shell=True)
+            if status:
+                # something went wrong with raster3d
+                # maybe same for system call?!?
+                print "BL WARNING:: some error in ppm2bmp"
+                return
+        else:
+            os.system(ppm2bmp_call)
     if (extension == ".png"):
         bmp_file_name = ppm_file_name
     if (not os.path.isfile(bmp_file_name)):

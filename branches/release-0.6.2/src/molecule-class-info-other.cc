@@ -3138,17 +3138,16 @@ molecule_class_info_t::recent_backup_file_info() const {
 #endif // MINGW
       }      
       backup_name_glob += t_name_glob;
-#ifdef WINDOWS_MINGW
-      // on windows we dont have gzip, so only *.pdb
-      //backup_name_glob += "*.pdb";
-      // not any more, should be able to do gzipping now too
-      backup_name_glob += "*.pdb.gz";
-#else
-      backup_name_glob += "*.pdb.gz";
-#endif
+
+      // First only the ones withwout gz
+      backup_name_glob += "*.pdb";
 
       glob_t myglob;
       int flags = 0;
+      glob(backup_name_glob.c_str(), flags, 0, &myglob);
+      // And finally the ones with gz
+      backup_name_glob += ".gz";
+      flags = GLOB_APPEND;
       glob(backup_name_glob.c_str(), flags, 0, &myglob);
       size_t count;
 

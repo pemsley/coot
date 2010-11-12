@@ -52,6 +52,7 @@ def register_coot_icons():
         iconfactory.add(stock_id, iconset)
   iconfactory.add_default()
 
+
 if (have_coot_python):
 
   if coot_python.main_toolbar():
@@ -156,16 +157,28 @@ if (have_coot_python):
                     check_button_label = item[0]
                     callback_function  = item[1]
                     description        = item[2]
+                    toggle_button_item = False
+                    use_button_item    = False
+                    # is this foolproof? We assume an icon on i3
+                    if len(item) > 4:
+                      toggle_button_item = item[4]
+                      if len(item) > 5:
+                        use_button_item = item[5]
                     if (check_button_label == button_label):
                       new_toolbutton = coot_toolbar_button(button_label,
                                                            callback_function,
-                                                           icon,
-                                                           description)
+                                                           icon_name=icon,
+                                                           tooltip=description,
+                                                           toggle_button=toggle_button_item,
+                                                           use_button=use_button_item)
                       # save
                       if save_toolbuttons_qm:
                         save_toolbar_to_init_file(button_label,
                                                   callback_function,
-                                                  icon, description)
+                                                  icon=icon,
+                                                  tooltip=description,
+                                                  toggle_button=toggle_button_item,
+                                                  use_button=use_button_item)
                       break
             else:
               # remove an existing button?
@@ -484,7 +497,7 @@ if (have_coot_python):
                                           "test", "centre_of_mass(0)",
                                           "Save to Preferences?", button_func,
                                           "Create", do_func,
-                                          return_widget = True)
+                                          return_widget=True)
 
       hbox = gtk.HBox(True, 0)
       label = gtk.Label("Icon:")
@@ -511,16 +524,26 @@ if (have_coot_python):
     coot_main_toolbar.connect("button-press-event", show_pop_up_menu)
 
 # save a toolbar button to ~/.coot-preferences/coot_toolbuttons.py
+#
 def save_toolbar_to_init_file(button_label, callback_function,
-                              icon=None, tooltip=None):
+                              icon=None, tooltip=None,
+                              toggle_button=False, use_button=False):
 
   # so far only for string
-  save_str = "coot_toolbar_button(\"" + button_label + "\", \"" + \
-             callback_function + "\""
+  save_str = "coot_toolbar_button(\"" + button_label + "\", "
+  if type(callback_function) is StringType:
+    save_str += ("\"" + callback_function + "\"")
+  else:
+    # no lists yet. FIXME
+    save_str += (callback_function.__name__)
   if icon:
-    save_str += (", icon_name=\"" + icon + "\"")
+    save_str += (", icon_name=\"" + str(icon) + "\"")
   if tooltip:
-    save_str += (", tooltip=\"" + tooltip + "\"")
+    save_str += (", tooltip=\"" + str(tooltip) + "\"")
+  if toggle_button:
+    save_str += (", toggle_button=" + str(toggle_button))
+  if use_button:
+    save_str += (", use_button=" + str(use_button))
   save_str += ")"
   
   home = os.getenv('HOME')
@@ -530,10 +553,13 @@ def save_toolbar_to_init_file(button_label, callback_function,
     print "BL ERROR:: could not find a home directory"
   else:
     filename = os.path.join(home, ".coot-preferences", "coot_toolbuttons.py")
-    remove_line_containing_from_file(["coot_toolbar_button", button_label], filename)
+    remove_line_containing_from_file(["coot_toolbar_button", button_label],
+                                     filename)
     save_string_to_file(save_str, filename)
 
+    
 # remove a toolbar from  ~/.coot-preferences/coot_toolbuttons.py
+#
 def remove_toolbar_from_init_file(button_label):
   home = os.getenv('HOME')
   if (not home and os.name == 'nt'):
@@ -547,12 +573,16 @@ def remove_toolbar_from_init_file(button_label):
       remove_line_containing_from_file(remove_str_ls, filename)
 
 
-# returns a list with pre-defined toolbar-functions (stock-id is optional)
+# returns a list with pre-defined toolbar-functions (stock-id is optional,
+# so are a few others - almost consistent with order in coot_toolbar_button
+# function)
 # format:
 # [[Group1,[toolbarname1, callbackfunction1, description1],
-#          [toolbarname2, callbackfunction2, description2, stock-id2],...],
+#          [toolbarname2, callbackfunction2, description2(tooltip),
+#           stock-id2, toggle_button, use_button],...],
 #  [Group2]....]
-# OBS: callbackfunction is a string!
+# OBS: callbackfunction is a string! not any more exclusively
+#
 def list_of_toolbar_functions():
   ls = [["Display",
          ["Stereo/Mono", "stereo_mono_toggle()", "Toggle between Stereo and Mono view", "stereo-view.svg"],
@@ -569,6 +599,11 @@ def list_of_toolbar_functions():
          ["Edit BB", "setup_backbone_torsion_edit(1)", "Edit Backbone Torsion Angle", "flip-peptide.svg"],
          ['Torsion Gen.', "setup_torsion_general(1)", "Torsion General (after O function)", "edit-chi.svg"],
          ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
+        ["Validation",
+         ["Interactive dots", toggle_interactive_probe_dots,
+          "Show dots after refinement and for chi/rotamer changes",
+          "probe-clash.svg", True, True]
+         ],
         ["NMR",[]],
         ["EM",[]],
         ["Sidechains/Alignment",[]]]

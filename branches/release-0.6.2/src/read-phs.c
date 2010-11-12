@@ -34,6 +34,8 @@
 #include "gtk-manual.h" // for display_cell_chooser_box
 #include "read-phs.h"
 
+#include "coot-fileselections.h" // for file chooser filter button
+
 int
 try_read_phs_file(const char *filename) { 
 
@@ -183,6 +185,9 @@ void do_phs_cell_choice_window() {
      }
   }
   gtk_widget_show(window); 
+  // force to the top? (even on Mac?) 
+  // maybe the above show may not be needed any more
+  gtk_window_present(GTK_WINDOW(window));
 
 } 
 
@@ -204,9 +209,26 @@ int phs_pdb_cell_symm() {
    GtkWidget *widget; 
 
    imol = graphics_n_molecules();
-
+#if (GTK_MAJOR_VERSION > 1)
+   if (file_chooser_selector_state()) {
+     GtkWidget *file_filter_button;
+     GtkWidget *sort_button;
+     widget = create_phs_coordinates_filechooserdialog1();
+     // we use th coords filter button, that should be ok
+     add_ccp4i_project_optionmenu(widget, COOT_COORDS_FILE_SELECTION);
+     file_filter_button = add_filename_filter_button(widget, 
+                                                     COOT_COORDS_FILE_SELECTION);
+     sort_button = add_sort_button_fileselection(widget);
+     push_the_buttons_on_fileselection(file_filter_button, sort_button, 
+                                       widget);
+   } else {
+     widget = create_phs_coordinates_fileselection(); 
+     set_directory_for_fileselection(widget);
+   }
+#else
    widget = create_phs_coordinates_fileselection(); 
    set_directory_for_fileselection(widget);
+#endif /* GTK2 */
 
    gtk_widget_show(widget); 
 
