@@ -50137,7 +50137,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="title" translatable="yes">Select Coordinates File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -50291,7 +50291,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="title" translatable="yes">Select Dataset File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -50364,7 +50364,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="title" translatable="yes">Select Map...</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -50504,7 +50504,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="title" translatable="yes">Select Coordinates File for .phs symm/cell</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -50578,7 +50578,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="title" translatable="yes">Select Filename for Saved Coordinates </property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -50709,7 +50709,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="title" translatable="yes">Select Cif Dictionary File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -50782,7 +50782,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="title" translatable="yes">Select Scripting File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -50855,7 +50855,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="title" translatable="yes">Select File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">False</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -50929,7 +50929,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="title" translatable="yes">Select File-name for State File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">False</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -51003,7 +51003,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="title" translatable="yes">Select File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -53681,7 +53681,7 @@ ARG</property>
   <property name="title" translatable="yes">Save Restraints as mmCIF</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -54432,7 +54432,7 @@ add_refmac_sad_atom_lambda.
   <property name="title" translatable="yes">Select Dataset for Twin Refmac</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>

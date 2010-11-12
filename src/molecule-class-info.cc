@@ -5338,13 +5338,17 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
       else 
 	 time_string += ".res";
 
-#if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW) || defined(_MSC_VER)
+#if defined(_MSC_VER)
       // we can do now too (I hope for all of them?!?)
-      if (! is_from_shelx_ins_flag)
-	 time_string += ".gz"; // 'cos we can do compression.  Groovy baby!
+      // lets be save and only assume WINDOWS_MINGW can do it
+      // maybe we can just deal with it using the compress_flag rather
+      // than hard coding?
 #else
-      if (! is_from_shelx_ins_flag)
-	 time_string += ".gz"; // 'cos we can do compression.  Groovy baby!
+      if (! is_from_shelx_ins_flag) {
+        if (g.backup_compress_files_flag) {
+          time_string += ".gz"; // 'cos we can do compression.  Groovy baby!
+        }
+      }
 #endif
       
    } else {
@@ -5357,13 +5361,14 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 	 time_string += ".pdb";
       else 
 	 time_string += ".res";
-#if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW) || defined(_MSC_VER)
+#if defined(_MSC_VER)
       // same here
-      if (! is_from_shelx_ins_flag) 
-	 time_string += ".gz";
 #else
-      if (! is_from_shelx_ins_flag) 
-	 time_string += ".gz";
+      if (! is_from_shelx_ins_flag) {
+        if (g.backup_compress_files_flag) {
+          time_string += ".gz";
+        }
+      }
 #endif
    } 
    return time_string;
@@ -5387,6 +5392,7 @@ molecule_class_info_t::make_maybe_backup_dir(const std::string &backup_dir) cons
 int
 molecule_class_info_t::make_backup() { // changes history details
 
+  graphics_info_t g;
    if (backup_this_molecule) { 
       std::string backup_dir("coot-backup");
 
@@ -5422,11 +5428,16 @@ molecule_class_info_t::make_backup() { // changes history details
 	    std::string backup_file_name = save_molecule_filename(backup_dir);
  	    std::cout << "INFO:: backup file " << backup_file_name << std::endl;
 
-#if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW) || defined(_MSC_VER)
+#if defined(_MSC_VER)
             // and again, although not used any more!?
-	    byte gz = GZM_ENFORCE;
+	    byte gz = GZM_NONE;
 #else
-	    byte gz = GZM_ENFORCE;
+	    byte gz;
+        if (g.backup_compress_files_flag) {
+          gz = GZM_ENFORCE;
+        } else {
+          gz = GZM_NONE;
+        }
 #endif
 	    // Writing out a modified binary mmdb like this results in the
 	    // file being unreadable (crash in mmdb read).

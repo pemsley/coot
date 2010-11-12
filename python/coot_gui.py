@@ -1396,8 +1396,8 @@ def interesting_residues_gui(imol, title, interesting_residues):
 #   use_button          pass the button widget onto the function
 #  
 def coot_toolbar_button(button_label, cb_function,
-                        icon_name = False, tooltip = False,
-                        toggle_button = False, use_button = False):
+                        icon_name=False, tooltip=False,
+                        toggle_button=False, use_button=False):
 
    import types
    # we do not exclusively use strings any more...
@@ -1449,10 +1449,10 @@ def coot_toolbar_button(button_label, cb_function,
             if (type(callback_function) is types.ListType):
                function = callback_function[0]
                args = callback_function[1:]
-               # pass the widget/button as well? Maybe the cb function can
-               # make use of it
-               if use_button:
-                  args.append(widget)
+            # pass the widget/button as well? Maybe the cb function can
+            # make use of it
+            if use_button:
+               args.append(widget)
             if callable(function):
                function(*args)
             else:

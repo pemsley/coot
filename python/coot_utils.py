@@ -3100,13 +3100,21 @@ def coot_has_gobject():
 # return True if managed to kill the process otherwise false
 #
 def kill_process(pid):
-    import os, sys
+    import os
+    import sys
     import signal
 
     if (os.name == 'nt'):
         # Windows killing tasks
         try:
-            ret = os.system("taskkill /PID %i" % pid)
+            # for now use subprocess.call, maybe can use Popen.kill?!
+            major, minor, micro, releaselevel, serial = sys.version_info
+            if (major >= 2 and minor >=4):
+                # new style
+                import subprocess
+                ret = subprocess.call("taskkill /PID %i" % pid, shell=True)
+            else:
+                ret = os.system("taskkill /PID %i" % pid)
             if (ret == 0):
                 # success
                 return True

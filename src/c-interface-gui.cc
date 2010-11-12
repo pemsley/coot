@@ -219,8 +219,10 @@ manage_column_selector(const char *filename) {
       // widget
       GtkWidget *w = coot::column_selector_using_cmtz(filename);
       
-      if (w) 
+      if (w) {
 	 gtk_widget_show(w);
+	 gtk_window_present(GTK_WINDOW(w));
+      }
    }
    std::string cmd = "manage-column-selector";
    std::vector<coot::command_arg_t> args;

@@ -490,6 +490,20 @@ int  unpathed_backup_file_names_state() {
    return graphics_info_t::unpathed_backup_file_names_flag;
 }
 
+void set_backup_compress_files(int state) {
+   
+  graphics_info_t::backup_compress_files_flag = state;
+  std::vector<std::string> command_strings;
+  command_strings.push_back("set-backup-compress-files");
+  command_strings.push_back(graphics_info_t::int_to_string(state));
+  add_to_history(command_strings);
+} 
+
+int backup_compress_files_state() {
+   
+  int state = graphics_info_t::backup_compress_files_flag;
+  return state;
+} 
 
 
 /*  ------------------------------------------------------------------------ */

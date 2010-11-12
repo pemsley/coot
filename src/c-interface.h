@@ -986,6 +986,13 @@ GtkWidget *wrapped_create_undo_molecule_chooser_dialog();
 void set_unpathed_backup_file_names(int state);
 /*! \brief return the state for adding paths to backup file names*/
 int  unpathed_backup_file_names_state();
+
+/*! \brief return the state for compression of backup files*/
+int  backup_compress_files_state();
+
+/*! \brief set if backup files will be compressed or not using gzip */
+void  set_backup_compress_files(int state);
+
 /* \} */
 
 /*  --------------------------------------------------------------------- */

@@ -395,6 +395,9 @@ int graphics_info_t::undo_molecule = -1;
 // backup filenames
 short int graphics_info_t::unpathed_backup_file_names_flag = 0;
 
+// backup compress files (default: compress)
+int graphics_info_t::backup_compress_files_flag = 1;
+
 // Auto read
 int graphics_info_t::auto_read_do_difference_map_too_flag = 1;
 

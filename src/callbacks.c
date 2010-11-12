@@ -10592,27 +10592,19 @@ on_phs_coordinates_filechooserdialog1_response
                                         gpointer         user_data)
 {
 #if (GTK_MAJOR_VERSION > 1)
-  if (response_id == GTK_RESPONSE_OK) {
-   const char *filename;
    GtkWidget *phs_fileselection; 
-
    phs_fileselection = lookup_widget(GTK_WIDGET(dialog), 
-				     "phs_coordinates_fileselection");
-
-   filename = gtk_file_chooser_get_filename
-     (GTK_FILE_CHOOSER(phs_fileselection));
-
-   save_directory_from_filechooser(phs_fileselection);
-   read_phs_and_coords_and_make_map(filename); 
-
-   gtk_widget_destroy(phs_fileselection); /* destroy *after* we use filename */
-   
-  } else {
-    GtkWidget *phs_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
-                                                "phs_coordinates_filechooserdialog1");
-
-    gtk_widget_destroy(phs_fileselection1);
-  }
+                                     "phs_coordinates_filechooserdialog1");
+   if (response_id == GTK_RESPONSE_OK) {
+     const char *filename;    
+     
+     filename = gtk_file_chooser_get_filename
+       (GTK_FILE_CHOOSER(phs_fileselection));
+     
+     save_directory_from_filechooser(phs_fileselection);
+     read_phs_and_coords_and_make_map(filename); 
+   } 
+   gtk_widget_destroy(phs_fileselection);
 #endif /* GTK_MAJOR_VERSION  */
 }
 

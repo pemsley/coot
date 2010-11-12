@@ -24191,6 +24191,7 @@ create_coords_filechooserdialog1 (void)
 
   coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (coords_filechooserdialog1), 10);
+  gtk_window_set_modal (GTK_WINDOW (coords_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox100 = GTK_DIALOG (coords_filechooserdialog1)->vbox;
@@ -24266,6 +24267,7 @@ create_dataset_filechooserdialog1 (void)
 
   dataset_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Dataset File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (dataset_filechooserdialog1), 10);
+  gtk_window_set_modal (GTK_WINDOW (dataset_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (dataset_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox101 = GTK_DIALOG (dataset_filechooserdialog1)->vbox;
@@ -24318,6 +24320,7 @@ create_map_name_filechooserdialog1 (void)
 
   map_name_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Map..."), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (map_name_filechooserdialog1), 10);
+  gtk_window_set_modal (GTK_WINDOW (map_name_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (map_name_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox102 = GTK_DIALOG (map_name_filechooserdialog1)->vbox;
@@ -24391,6 +24394,7 @@ create_phs_coordinates_filechooserdialog1 (void)
 
   phs_coordinates_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File for .phs symm/cell"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (phs_coordinates_filechooserdialog1), 10);
+  gtk_window_set_modal (GTK_WINDOW (phs_coordinates_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (phs_coordinates_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox103 = GTK_DIALOG (phs_coordinates_filechooserdialog1)->vbox;
@@ -24446,6 +24450,7 @@ create_save_coords_filechooserdialog1 (void)
   save_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Filename for Saved Coordinates "), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_filechooserdialog1), 10);
   gtk_tooltips_set_tip (tooltips, save_coords_filechooserdialog1, _("Saved File type: By extension"), NULL);
+  gtk_window_set_modal (GTK_WINDOW (save_coords_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (save_coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox104 = GTK_DIALOG (save_coords_filechooserdialog1)->vbox;
@@ -24518,6 +24523,7 @@ create_cif_dictionary_filechooserdialog1 (void)
 
   cif_dictionary_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Cif Dictionary File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (cif_dictionary_filechooserdialog1), 10);
+  gtk_window_set_modal (GTK_WINDOW (cif_dictionary_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (cif_dictionary_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox105 = GTK_DIALOG (cif_dictionary_filechooserdialog1)->vbox;
@@ -24566,6 +24572,7 @@ create_run_script_filechooserdialog1 (void)
 
   run_script_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Scripting File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (run_script_filechooserdialog1), 10);
+  gtk_window_set_modal (GTK_WINDOW (run_script_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (run_script_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox106 = GTK_DIALOG (run_script_filechooserdialog1)->vbox;
@@ -24614,6 +24621,7 @@ create_save_symmetry_coords_filechooserdialog1 (void)
 
   save_symmetry_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_symmetry_coords_filechooserdialog1), 10);
+  gtk_window_set_modal (GTK_WINDOW (save_symmetry_coords_filechooserdialog1), TRUE);
   gtk_window_set_resizable (GTK_WINDOW (save_symmetry_coords_filechooserdialog1), FALSE);
   gtk_window_set_type_hint (GTK_WINDOW (save_symmetry_coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -24669,6 +24677,7 @@ create_save_state_filechooserdialog1 (void)
 
   save_state_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File-name for State File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_state_filechooserdialog1), 10);
+  gtk_window_set_modal (GTK_WINDOW (save_state_filechooserdialog1), TRUE);
   gtk_window_set_resizable (GTK_WINDOW (save_state_filechooserdialog1), FALSE);
   gtk_window_set_type_hint (GTK_WINDOW (save_state_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -24724,6 +24733,7 @@ create_screendump_filechooserdialog1 (void)
 
   screendump_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (screendump_filechooserdialog1), 10);
+  gtk_window_set_modal (GTK_WINDOW (screendump_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (screendump_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox109 = GTK_DIALOG (screendump_filechooserdialog1)->vbox;
@@ -25910,6 +25920,7 @@ create_save_restraint_chooserdialog (void)
 
   save_restraint_chooserdialog = gtk_file_chooser_dialog_new (_("Save Restraints as mmCIF"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_restraint_chooserdialog), 5);
+  gtk_window_set_modal (GTK_WINDOW (save_restraint_chooserdialog), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (save_restraint_chooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox114 = GTK_DIALOG (save_restraint_chooserdialog)->vbox;
@@ -26311,6 +26322,7 @@ create_run_refmac_mtz_filechooserdialog (void)
 
   run_refmac_mtz_filechooserdialog = gtk_file_chooser_dialog_new (_("Select Dataset for Twin Refmac"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_mtz_filechooserdialog), 5);
+  gtk_window_set_modal (GTK_WINDOW (run_refmac_mtz_filechooserdialog), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_mtz_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox118 = GTK_DIALOG (run_refmac_mtz_filechooserdialog)->vbox;

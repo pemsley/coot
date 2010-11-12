@@ -64,6 +64,7 @@ coot::restraints_editor::fill_dialog(const coot::dictionary_residue_restraints_t
    fill_chiral_tree_data (dialog, restraints);
    fill_plane_tree_data  (dialog, restraints);
    gtk_widget_show (dialog);
+   gtk_window_present(GTK_WINDOW(dialog));
    is_valid_flag = 1;
 }
 
