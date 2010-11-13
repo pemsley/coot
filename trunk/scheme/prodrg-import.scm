@@ -3,10 +3,17 @@
 (define *cprodrg* "cprodrg")
 ;; (define *cprodrg* "/home/paule/ccp4/ccp4-6.1.2/bin/cprodrg")
 
-;; if there is a prodrg-xyzin set the current-time to its mtime, else #f
+;; these are the files that mdl-latest-time and sbase time-out functions
+;; look at.
 ;; 
-(define prodrg-xyzin       "../../coot/lbg/prodrg-in.mdl")
-(define sbase-to-coot-tlc  "../../coot/lbg/.sbase-to-coot-comp-id")
+;; if there is a prodrg-xyzin set the current-time to its mtime, else #f
+;;
+(define prodrg-xyzin       "prodrg-in.mdl")
+(define sbase-to-coot-tlc  ".sbase-to-coot-comp-id")
+
+;; 
+;; (define prodrg-xyzin       "../../coot/lbg/prodrg-in.mdl")
+;; (define sbase-to-coot-tlc  "../../coot/lbg/.sbase-to-coot-comp-id")
 
 
 ;; what is this rubbish?
@@ -18,15 +25,16 @@
 ;; (define sbase-to-coot-tlc  "/lmb/wear/emsley/Projects/coot/lbg/.sbase-to-coot-comp-id")
 
 
+(format #t "new prodrg-import.scm.... ~%")
+
 
 (define (import-from-prodrg minimize-mode)
 
   (let ((prodrg-dir "coot-ccp4")
 	(res-name "DRG"))
-    
+
     (make-directory-maybe prodrg-dir)
-    (let ((prodrg-xyzin  "../../coot/lbg/prodrg-in.mdl")
-	  (prodrg-xyzout (append-dir-file prodrg-dir
+    (let ((prodrg-xyzout (append-dir-file prodrg-dir
 					  (string-append "prodrg-" res-name ".pdb")))
 	  (prodrg-cif    (append-dir-file prodrg-dir 
 					  (string-append "prodrg-out.cif")))
@@ -145,7 +153,7 @@
 ;		  (format #t "sbase-now-time ~s   sbase-transfer-latest-time ~s~%" 
 ;			  sbase-now-time sbase-transfer-latest-time)
 
-		  (if (number? mdl-now-time)
+		  (if (and (number? mdl-now-time) (number? mdl-latest-time))
 		      (if (> mdl-now-time mdl-latest-time)
 			  (begin
 			    (set! mdl-latest-time mdl-now-time)

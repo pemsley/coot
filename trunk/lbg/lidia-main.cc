@@ -63,7 +63,8 @@ main(int argc, char *argv[]) {
    bool stand_alone_flag = 1;
    std::string view_name = "";
    std::pair<bool, coot::residue_spec_t> p(0, coot::residue_spec_t());
-   if (lbg(mm, p, mol, view_name, molecule_file_name, stand_alone_flag)) {
+   int imol = -1; // dummy/unset
+   if (lbg(mm, p, mol, view_name, molecule_file_name, imol, stand_alone_flag)) {
        gtk_main ();
    } 
    return 1;

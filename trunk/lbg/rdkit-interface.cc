@@ -1,32 +1,11 @@
 
 #include "coot-utils.hh"
 #include "lbg.hh"
-#include "rdkit-interface.hh"
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 
-void
-lbg_info_t::update_statusbar_smiles_string() const {
+#include "rdkit-interface.hh"
 
-   std::string status_string;
-   try {
-      std::string s = get_smiles_string_from_mol();
-      std::cout << "SMILES string: " << s << std::endl;
-      status_string = " SMILES:  ";
-      status_string += s;
-
-   }
-   catch (std::exception rte) {
-      std::cout << rte.what() << std::endl;
-   }
-   if (lbg_statusbar) { 
-      guint statusbar_context_id =
-	 gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar), status_string.c_str());
-      gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
-			 statusbar_context_id,
-			 status_string.c_str());
-   }
-}
 
 // Caller deletes
 // 

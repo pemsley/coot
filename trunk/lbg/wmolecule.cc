@@ -91,7 +91,6 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 	 // if (current_atom_name == "") {
 	 if (current_atom_name.length() == 1) {
 
-	    std::cout << ".... here 1 " << std::endl;
 	    std::string atom_name = get_atom_name(pt, pdb_mol);
 	    // and if atom_name is not "", then set atom name of at.
 	    if (atom_name != "") {

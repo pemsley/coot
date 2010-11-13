@@ -2,6 +2,8 @@
 #ifndef FLEV_ANNOTATIONS_HH
 #define FLEV_ANNOTATIONS_HH
 
+#include "protein-geometry.hh"
+
 namespace coot {
 
       
