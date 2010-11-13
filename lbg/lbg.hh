@@ -801,13 +801,14 @@ private:
 
    void refine_residue_circle_positions(); // changes the positions of in residue_circles
 
+   std::vector<solvent_accessible_atom_t>
+   convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
+	   const coot::flev_attached_hydrogens_t &ah) const;
+   
 #ifdef MAKE_ENTERPRISE_TOOLS
    RDKit::RWMol rdkit_mol(const widgeted_molecule_t &mol) const;
    RDKit::Bond::BondType convert_bond_type(const lig_build::bond_t::bond_type_t &t) const;
    std::string get_smiles_string_from_mol_rdkit() const;
-   std::vector<solvent_accessible_atom_t>
-   convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
-	   const coot::flev_attached_hydrogens_t &ah) const;
 #endif
    std::string get_smiles_string_from_mol_openbabel() const;
 

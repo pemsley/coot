@@ -151,12 +151,15 @@ on_canvas_button_press_new(GooCanvasItem  *item,
    }
 
    if (! target_item) { 
-      std::cout << "NULL target item" << std::endl;
+      //       std::cout << "on_canvas_button_press_new() NULL target item ... trying item"
+      // 		<< std::endl;
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
       if (!l) {
-	 std::cout << "button-click: null lbg-info from item" << std::endl;
-      }
+	 std::cout << "on button-click: NULL lbg-info from item" << std::endl;
+      } else {
+	 l->handle_item_add(event);
+      } 
    } else {
       coot::residue_spec_t *spec_p =
 	 (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
@@ -2008,27 +2011,27 @@ lbg_info_t::init(GtkBuilder *builder) {
 		<< gc->hadjustment->page_size  << " "
 		<< gc->vadjustment->page_size << std::endl;
 
-   std::cout << ":::::::::::::::::::: compare canvas " << canvas
-	     << " and root item: "
-	     << goo_canvas_get_root_item(GOO_CANVAS(canvas))
-	     << std::endl;
+//    std::cout << ":::::::::::::::::::: compare canvas " << canvas
+// 	     << " and root item: "
+// 	     << goo_canvas_get_root_item(GOO_CANVAS(canvas))
+// 	     << std::endl;
    
    g_object_set_data_full(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
 			  "lbg-info", this, NULL);
 
    g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
 		    "button_press_event",
- 		    G_CALLBACK (on_canvas_button_press_new), NULL);
+ 		    G_CALLBACK(on_canvas_button_press_new), NULL);
 
    g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
 		    "motion_notify_event",
- 		    G_CALLBACK (on_canvas_motion_new), NULL);
+ 		    G_CALLBACK(on_canvas_motion_new), NULL);
+
+//    g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
+// 		    "key_press_event",
+// 		    G_CALLBACK(on_key_press_event), NULL);
 
 
-//       g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-// 		       "button_press_event",
-//        		       G_CALLBACK (on_residue_circle_clicked), NULL);
-    
     
    gtk_widget_show(canvas);
 
@@ -2042,7 +2045,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 
    
    // ------------ watch for new files from coot ---------------------------
-   // 
+   //
 
    if (is_stand_alone()) 
       int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
@@ -2052,7 +2055,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 std::string
 lbg_info_t::get_smiles_string_from_mol() const {
 
-#if MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENTERPRISE_TOOLS
    return get_smiles_string_from_mol_rdkit();
 #else
    return get_smiles_string_from_mol_openbabel();
@@ -2097,6 +2100,8 @@ lbg_info_t::watch_for_mdl_from_coot(gpointer user_data) {
    std::string ready_file    = coot_ccp4_dir + "/.coot-to-lbg-mol-ready";
 
    struct stat buf;
+
+   // std::cout << "watching reading file: " << ready_file << std::endl;
    
    int err = stat(ready_file.c_str(), &buf);
    if (! err) {
@@ -2158,11 +2163,11 @@ lbg_info_t::get_flev_analysis_files_dir() const {
    if (t_dir)
       coot_dir = t_dir;
 
-   std::cout << "DEBUG:: get_flev_analysis_files_dir: " << coot_dir << std::endl;
-   if (t_dir)
-      std::cout << "DEBUG:: t_dir: " << t_dir << std::endl;
-   else 
-      std::cout << "DEBUG:: t_dir: NULL" << std::endl;
+   // std::cout << "DEBUG:: get_flev_analysis_files_dir: " << coot_dir << std::endl;
+//    if (t_dir)
+//       std::cout << "DEBUG:: t_dir: " << t_dir << std::endl;
+//    else 
+//       std::cout << "DEBUG:: t_dir: NULL" << std::endl;
    return coot_dir;
 }
 
@@ -4774,6 +4779,10 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
 		     const coot::pi_stacking_container_t &pi_stack_info,
 		     const coot::dictionary_residue_restraints_t &restraints) {
 
+#ifndef MAKE_ENTERPRISE_TOOLS
+   return 0;
+#else   
+
    if (0) {
       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
 	 std::cout << "  =============== bond to ligand " << ib << " "
@@ -4896,6 +4905,7 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
    refine_residue_circle_positions();
    render_from_molecule(new_mol);
    return r;
+#endif   
 }
 
 
@@ -4919,3 +4929,26 @@ lbg_info_t::convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a
    return r;
 } 
 
+
+void
+lbg_info_t::update_statusbar_smiles_string() const {
+
+   std::string status_string;
+   try {
+      std::string s = get_smiles_string_from_mol();
+      std::cout << "SMILES string: " << s << std::endl;
+      status_string = " SMILES:  ";
+      status_string += s;
+
+   }
+   catch (std::exception rte) {
+      std::cout << rte.what() << std::endl;
+   }
+   if (lbg_statusbar) { 
+      guint statusbar_context_id =
+	 gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar), status_string.c_str());
+      gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
+			 statusbar_context_id,
+			 status_string.c_str());
+   }
+}
