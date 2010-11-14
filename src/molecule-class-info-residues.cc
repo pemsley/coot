@@ -179,6 +179,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 	 std::cout << "coot::add_hydrogens() returns " << r << std::endl;
 	 if (r) {
 
+
 	    std::string residue_name = residue_p->GetResName();
 
 	    std::pair<bool, coot::dictionary_residue_restraints_t> rp = 
@@ -195,7 +196,9 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 						       atom_sel.mol, fixed_atoms);
 	       bool do_torsions = 0;
 
-	       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; // fail
+	       // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; // fail
+	       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
+	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES; // test
 	       
 	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES; // pass
 	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES; // pass
@@ -212,6 +215,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 	       PPCAtom residue_atoms = 0;
 	       int n_residue_atoms;
 	       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	       
 	       // 
 	       std::vector<coot::dict_chiral_restraint_t> cr = rp.second.chiral_restraint;
 
