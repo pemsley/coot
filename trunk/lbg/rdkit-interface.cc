@@ -875,7 +875,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
    //
    int iflip = 3;
    int iconf =
-      RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, 1, 1, weight_for_3d_distances, iflip, 40);
+      RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, 1, 1, weight_for_3d_distances, iflip, 200);
 
    if (0) { // .................... debug ...................
       std::cout << "::::: add_2d_conformer after  compute2DCoords n_atoms: "

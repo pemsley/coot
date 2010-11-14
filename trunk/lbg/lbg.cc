@@ -4260,7 +4260,7 @@ lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, doub
    if (n_circles> 10) n_circles = 10; // needs fiddling?
 
    for (unsigned int i=0; i<n_circles; i++) { 
-      double rad = 3.0 * double(i+1); // needs fiddling?
+      double rad =  LIGAND_TO_CANVAS_SCALE_FACTOR/23.0 * 3.0 * double(i+1); // needs fiddling?
       GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
 						    pos.x, pos.y,
 						    rad, rad,
