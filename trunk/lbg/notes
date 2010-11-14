@@ -18,6 +18,11 @@ test ligands:
             Mistake, I feel - needs investigating.
 
 ----
+Sat Nov 13 16:40:13 GMT 2010
+
+ 
+
+----
 Wed Oct 13 07:18:36 EDT 2010
 
    Use SBASE to get the bond orders (for any hetatm residue)
@@ -57,6 +62,45 @@ Sat Oct 30 16:58:37 BST 2010
     o Need to show findligand script with a ccp4mg headless back-end
       for images.
 
+----
+Sat Nov 13 16:16:13 GMT 2010
+
+    sbase searching in File -> Search Monomer Library should use the three letter code
+    too (if three letters have been typed)
+
+----
+Sat Nov 13 16:30:18 GMT 2010
+
+    jed says:
+
+    I want a button that turns off the dislay of residues in lidia.
+
+
+    wehn you do so, also undisplay the substituion contour and solvent exposures.
+    all annotion 
+
+    in fact the solvent exposure on the atoms should not be displayed when the residues
+    are not displayed.
+
+    Make atoms in lidia recentre/highlight in the main window.
+
+    Likewise bonds from lidia, to recentre on double click, highlight on mouse-over.
+
+    IMPORTANT:: the hydrogen torsinon (edit torsion) are failing to work correctly.
+
+      1x8b ligand, for example.
+
+-----
+Sat Nov 13 16:43:42 GMT 2010
+
+
+  I want to have fast translation on lidia canvas, (hence , I guess use an image 
+  to show the atom solvent exposure.
+
+
+  I want to be able to 2-d rotate the ligand in lidia of course
+
+  Don't forget the vidia-like view 2-D ligand in 3d window, bottom left.
 
 ----
 Sun Oct 10 09:17:09 EDT 2010

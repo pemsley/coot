@@ -2641,14 +2641,12 @@ lbg_info_t::initial_residues_circles_layout() {
    std::vector<int> primary_indices;  // this primary_indices needs to
 				      // get passed to the
 				      // primary_indices used in
-				      // residue cirlce optimization.
+				      // residue circle optimization.
    
    for(unsigned int ic=0; ic<residue_circles.size(); ic++) {
       if (residue_circles[ic].is_a_primary_residue()) {
 	 std::cout << " residue circle " << residue_circles[ic].residue_label
 		   << " is a primary residue" << std::endl;
-	 // std::pair<int, lbg_info_t::residue_circle_t> p(ic, residue_circles[ic]);
-	 // primaries.push_back(p);
 	 primary_indices.push_back(ic);
       }
    }
@@ -2670,6 +2668,8 @@ lbg_info_t::initial_residues_circles_layout() {
 	 initial_primary_residue_circles_layout(grid, idx, attachment_points);
       }
       // show_mol_ring_centres();
+
+      position_non_primaries(grid, primary_indices); // untrap residues as needed.
    }
    catch (std::runtime_error rte) {
       std::cout << rte.what() << std::endl;
@@ -2706,9 +2706,9 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
 
    // I want to see the grid.
 
-   if (0)
-      if (primary_index == 2) 
-	 show_grid(primary_grid);
+   if (1)
+      if (primary_index == 0) 
+	 show_grid(grid);
    
    lig_build::pos_t best_pos = primary_grid.find_minimum_position();
 
@@ -2732,6 +2732,14 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
 		<< " has position " << residue_circles[primary_index].pos
 		<< std::endl;
    
+}
+
+// untrap residues as needed.
+void
+lbg_info_t::position_non_primaries(const lbg_info_t::ligand_grid &grid,
+				   const std::vector<int> &primary_indices) {
+
+
 }
 
 
@@ -3151,11 +3159,12 @@ lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid) {
  				"fill_color", colour.c_str(),
 				"stroke-color", colour.c_str(),
  				NULL);
+	 std::cout << "added rect: " << rect << std::endl;
 	 n_objs++;
       }
    }
 
-   if (0) {  // debugging
+   if (1) {  // debugging
       grid.show_contour(root, 0.4);
       grid.show_contour(root, 0.5);
       grid.show_contour(root, 0.6);
@@ -3575,7 +3584,8 @@ lbg_info_t::ligand_grid::fill(widgeted_molecule_t mol) {
    double exp_scale = 0.0011;
    double rk = 3000.0;
 
-   int grid_extent = 15; // 10, 12 is not enough
+   // int grid_extent = 15; // 10, 12 is not enough
+   int grid_extent = 50 ; // untraps 2wot residues?
    
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
       for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {

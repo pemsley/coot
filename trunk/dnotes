@@ -5864,6 +5864,24 @@ Sun Oct 10 12:14:21 EDT 2010
      at the bottom of the residue list when mutating.
      ::: 0.5
 
-------
+-------
+Sat Nov 13 16:34:37 GMT 2010
 
+     o JED: environment distances when there are hydrogens on the ligand should not 
+       show interactions with the hydrogen base atom when there is an interaction
+       with the hydrogen.
+
+     o JED: Display manager: all molecules to xxx representation, (option menu, say).
+
+     o JED: load 2wot: then sprout hydrogens on the ligand -> total failure
+
+     o JED: keybinding w should check that there is a water/pointer-atom molecule defined.
+
+     o JED: Sphere refine on a water should do something sensible.
+
+     o (There should be a key that goes to hetatms)
+ 
+     o question to self: do we need restraints to layout molecules?  e.g. 2bzh
+
+------
 
