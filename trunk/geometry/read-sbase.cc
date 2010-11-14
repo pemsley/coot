@@ -192,8 +192,9 @@ coot::protein_geometry::fill_using_sbase(const std::string &monomer_type) {
 	    int order = bond->order;
 	    double dist = bond->length;
 	    double esd = bond->length_esd;
-	    std::cout << "... "<< monomer_type << " atom index " << ind_1 << " " << ind_2
-		      << " order " << order << std::endl;
+	    if (0) 
+	       std::cout << "... "<< monomer_type << " atom index " << ind_1 << " " << ind_2
+			 << " order " << order << std::endl;
 	    std::string type = "single";
 	    if (order == 2)
 	       type = "double";

@@ -1167,16 +1167,31 @@ coot::distortion_score_angle(const coot::simple_restraint &angle_restraint,
    clipper::Coord_orth d2 = a3 - a2; 
    double len1 = clipper::Coord_orth::length(a1,a2);
    double len2 = clipper::Coord_orth::length(a3,a2);
-   len1 = len1 > 0.01 ? len1 : 0.01; 
-   len2 = len2 > 0.01 ? len2 : 0.01; 
-   double theta = acos(clipper::Coord_orth::dot(d1,d2)/(len1*len2));
+   // len1 = len1 > 0.01 ? len1 : 0.01; 
+   // len2 = len2 > 0.01 ? len2 : 0.01;
+   if (len1 < 0.01) {
+      len1 = 0.01;
+      d1 = clipper::Coord_orth(0.01, 0.01, 0.01);
+   } 
+   if (len2 < 0.01) {
+      len2 = 0.01;
+      d2 = clipper::Coord_orth(0.01, 0.01, 0.01);
+   } 
+
+   double cos_theta = clipper::Coord_orth::dot(d1,d2)/(len1*len2);
+   if (cos_theta < -1) cos_theta = -0.99999;
+   if (cos_theta >  1) cos_theta =  0.99999;
+   double theta = acos(cos_theta);
    double bit = 
       clipper::Util::rad2d(theta) - angle_restraint.target_value;
    double weight = 1/(angle_restraint.sigma * angle_restraint.sigma);
-   // 	    std::cout << "actual: " << clipper::Util::rad2d(theta) << " target: "
-   // 		      << (*restraints)[i].target_value
-   // 		      << " adding distortion score: "
-   // 		      << weight * pow(bit, 2.0) << std::endl;
+   if (0)
+      std::cout << "actual: " << clipper::Util::rad2d(theta)
+		<< " cos_theta " << cos_theta
+		<< " target: "
+		<< angle_restraint.target_value
+		<< " adding distortion score: "
+		<< weight * pow(bit, 2.0) << std::endl;
    return weight * bit * bit;
 }
 
@@ -2568,8 +2583,15 @@ void coot::my_df_angles(const gsl_vector *v,
 	    a = sqrt(a_vec.lengthsq());
 	    b = sqrt(b_vec.lengthsq()); 
 
-	    a = a > 0.1 ? a : 0.1;  // Garib's stabilization
-	    b = b > 0.1 ? b : 0.1;  // 
+	    // Garib's stabilization
+	    if (a < 0.01) { 
+	       a = 0.01;
+	       a_vec = clipper::Coord_orth(0.01, 0.01, 0.01);
+	    }
+	    if (b < 0.01) { 
+	       b = 0.01;
+	       b_vec = clipper::Coord_orth(0.01, 0.01, 0.01);
+	    }
 	    
 	    l_over_a_sqd = 1/(a*a);
 	    l_over_b_sqd = 1/(b*b);
@@ -2580,9 +2602,17 @@ void coot::my_df_angles(const gsl_vector *v,
 	    //    -\frac{1}{sin\theta} [(x_l-x_k)cos\theta + \frac{x_m-x_l}{ab}]
 	 
 	    // we need to stabilize $\theta$ too.
-	    a_dot_b = clipper::Coord_orth::dot(a_vec,b_vec); 
-	    cos_theta = a_dot_b/(a*b); 
-	    theta = acos(cos_theta); 
+	    a_dot_b = clipper::Coord_orth::dot(a_vec, b_vec); 
+	    cos_theta = a_dot_b/(a*b);
+	    if (cos_theta < -1) cos_theta = -0.99999;
+	    if (cos_theta >  1) cos_theta =  0.99999;
+	    theta = acos(cos_theta);
+
+// 	    std::cout << "debug:: my_df_angles() theta: " << theta
+// 		      << " cos_theta " << cos_theta << " a_dot_b "
+// 		      << a_dot_b
+// 		      << std::endl;
+	    
 	    // theta = theta > 0.001 ? theta : 0.001;
 	    if (theta < 0.001) theta = 0.001; // it was never -ve.
 
