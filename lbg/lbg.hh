@@ -750,6 +750,10 @@ private:
 					       int primary_index,
 					       const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points);
 
+   // untrap residues as needed.
+   void position_non_primaries(const lbg_info_t::ligand_grid &grid,
+			       const std::vector<int> &primary_indices);
+
    
    // return 1 on solution having problems, 0 for no problems, also
    // return a list of the residue circles with problems.
