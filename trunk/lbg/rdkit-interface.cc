@@ -604,10 +604,9 @@ coot::delete_excessive_hydrogens(RDKit::RWMol *rdkm) {
 	 
 	 int e_valence = at_p->getExplicitValence();
 
-	 std::cout << " atom N has explicit valence: " << e_valence << std::endl;
+	 // std::cout << " atom N has explicit valence: " << e_valence << std::endl;
 
 	 if (e_valence == 4) { 
-	    std::cout << ".......... found one! " << at_p << std::endl;
 
 	    RDKit::ROMol::OEDGE_ITER current, end;
 	    boost::tie(current, end) = rdkm->getAtomBonds(at_p.get());
@@ -684,7 +683,7 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	 double vdwThresh=10.0;
 	 int confId = 0;
 	 bool ignoreInterfragInteractions=true;
-	 int maxIters = 2000;
+	 int maxIters = 500;
 	 
  	 ForceFields::ForceField *ff =
  	    RDKit::UFF::constructForceField(m, vdwThresh, confId,

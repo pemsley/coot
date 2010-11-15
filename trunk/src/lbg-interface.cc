@@ -76,7 +76,10 @@ void residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const
 	       view_name += residue_p->GetResName();
 	       
 	       std::pair<bool, coot::residue_spec_t> p(1, coot::residue_spec_t(residue_p));
-	       lbg(m, p, mol, view_name, "", imol);
+	       bool use_graphics_flag = graphics_info_t::use_graphics_interface_flag;
+	       bool stand_alone_flag = 0; // no, it isn't from here.
+	       
+	       lbg(m, p, mol, view_name, "", imol, use_graphics_flag, stand_alone_flag);
 	    }
 	    delete mol;
 	 }
@@ -130,7 +133,9 @@ void smiles_to_ligand_builder(const char *smiles_string) {
    
       CMMDBManager *mol = NULL;
       std::pair<bool, coot::residue_spec_t> dummy_spec(0, coot::residue_spec_t());
-      lbg(m, dummy_spec, mol, "", "", -1);
+      bool use_graphics_flag = graphics_info_t::use_graphics_interface_flag;
+      bool stand_alone_flag = 0; // no, it isn't from here.
+      lbg(m, dummy_spec, mol, "", "", -1, use_graphics_flag, stand_alone_flag);
    }
    catch (std::exception e) {
       std::cout << "WARNING:: in generating molecule from SMILES: "
