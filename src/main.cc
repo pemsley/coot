@@ -868,7 +868,11 @@ start_ligand_builder_gui(GtkMenuItem     *menuitem,
    std::string molecule_file_name;
    std::string view_name;
    std::pair<bool, coot::residue_spec_t> dummy_pair(0, coot::residue_spec_t());
-   lbg(mm, dummy_pair, mol, view_name, molecule_file_name, -1);
+   bool use_graphics_interface_flag = 0;
+   bool stand_alone_flag = 0;
+   int imol_dummy = -1;
+   lbg(mm, dummy_pair, mol, view_name, molecule_file_name, imol_dummy,
+       use_graphics_interface_flag, stand_alone_flag);
 #endif   
 }
 

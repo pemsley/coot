@@ -349,9 +349,12 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
 		  view_name += ligand_res_name;
 
 		  std::pair<bool, coot::residue_spec_t> ligand_spec_pair(1, coot::residue_spec_t(res_ref));
-		  
+
+		  bool use_graphics_flag = graphics_info_t::use_graphics_interface_flag;
+		  bool stand_alone_flag = 0; // no, it isn't from here.
 		  lbg_info_t *lbg_local_p = lbg(m, ligand_spec_pair,
-						NULL, view_name, ligand_res_name, imol, 0);
+						NULL, view_name, ligand_res_name, imol,
+						use_graphics_flag, stand_alone_flag);
 
  		  std::map<std::string, std::string> name_map =
  		     coot::make_flat_ligand_name_map(res_ref);

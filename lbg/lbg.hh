@@ -327,22 +327,36 @@ public:
       int ii_;
       int jj_;
    public: 
+      enum { INVALID_INDEX = -1 };
       grid_index_t(int i, int j) {
 	 ii_ = i;
 	 jj_ = j;
       }
-      grid_index_t() {} // hhmmmm!  needed to compile contour_fragment
-			// constructor, which takes a const reference
-			// to a grid_index_t as an argument. I don't
-			// understand why this is needed - or if it
-			// works.
-      enum { INVALID_INDEX = -1 };
-      
+      // hhmmmm!  needed to compile contour_fragment
+      // constructor, which takes a const reference
+      // to a grid_index_t as an argument. I don't
+      // understand why this is needed - or if it
+      // works.      
+      grid_index_t() {
+	 ii_ = INVALID_INDEX;
+	 jj_ = INVALID_INDEX;
+      }
       bool is_valid_p() const {
 	 return (ii_ != INVALID_INDEX);
       }
       int i() const { return ii_;}
       int j() const { return jj_;}
+      bool operator==(const grid_index_t &grid_in) const {
+	 if (grid_in.i() != ii_) { 
+	    return 0;
+	 } else { 
+	    if (grid_in.j() != jj_) { 
+	       return 0;
+	    } else { 
+	       return 1; // they match
+	    }
+	 }
+      } 
    };
 
    class ligand_grid {
@@ -358,8 +372,9 @@ public:
       std::vector<std::vector<lig_build::pos_t> > make_contour_lines(const std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > &line_fragments) const;
       void plot_contour_lines(const std::vector<std::vector<lig_build::pos_t> > &contour_lines, GooCanvasItem *root) const;
       double substitution_value(double r_squared, double bash_dist) const;
-
-
+      // can throw a std::runtime_error (if result is out of grid)
+      grid_index_t grid_pos_nearest(const lig_build::pos_t &pos) const;
+      
       
    public:
       // (low means low numbers, not low on the canvas)
@@ -387,6 +402,14 @@ public:
       
       // lig_build::pos_t to_canvas_pos(const int &ii, const int &jj) const;
       lig_build::pos_t to_canvas_pos(const double &ix, const double &iy) const;
+      
+      // Actually, not exactly zero but something small.
+      // Don't return a grid-point/position that matches anything in
+      // already_positioned.
+      // 
+      std::pair<lbg_info_t::grid_index_t, lig_build::pos_t>
+      find_nearest_zero(const lig_build::pos_t &pos,
+			const std::vector<lbg_info_t::grid_index_t> &already_positioned) const;
 
       // arg is not const reference because get_ring_centres() caches
       // the return value inside mol.
@@ -637,7 +660,8 @@ private:
    std::string mdl_file_name; // for save function.
    void add_search_combobox_text() const;
    bool make_saves_mutex;
-   double canvas_scale; 
+   double canvas_scale;
+   bool use_graphics_interface_flag;
    void init_internal() {
       in_delete_mode_ = 0;
       save_molecule_index = UNASSIGNED_INDEX;
@@ -654,6 +678,7 @@ private:
       latest_bond_was_extended = 0;
       stand_alone_flag = 0;
       ligand_spec_pair.first = 0; // unset ligand_spec
+      use_graphics_interface_flag = 1; // default: show gui windows and widgets.
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -926,6 +951,10 @@ public:
 
    std::pair<bool, coot::residue_spec_t> get_ligand_spec() const {
       return ligand_spec_pair;
+   }
+
+   void no_graphics_mode() {
+      use_graphics_interface_flag = 0;
    } 
    
 };
@@ -942,6 +971,7 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		const std::string &molecule_file_name,
 		int imol, // molecule number of the molecule of the
 			  // layed-out residue
-		bool stand_alone_flag_in = 0);
+		bool use_graphics_interface_flag,
+		bool stand_alone_flag_in);
 
 #endif // LBG_HH

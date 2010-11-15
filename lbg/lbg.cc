@@ -44,6 +44,7 @@ lbg(lig_build::molfile_molecule_t mm,
     const std::string &view_name,
     const std::string &molecule_file_name,
     int imol,
+    bool use_graphics_interface_flag,
     bool stand_alone_flag_in) {
 
    lbg_info_t *lbg = NULL;
@@ -68,6 +69,8 @@ lbg(lig_build::molfile_molecule_t mm,
       lbg = new lbg_info_t(imol);
       if (stand_alone_flag_in)
 	 lbg->set_stand_alone();
+      if (use_graphics_interface_flag == 0)
+	 lbg->no_graphics_mode(); // don't display a window
       lbg->init(builder);
       gtk_builder_connect_signals (builder, lbg->canvas);
       g_object_unref (G_OBJECT (builder));
@@ -1966,7 +1969,9 @@ void
 lbg_info_t::init(GtkBuilder *builder) {
 
    lbg_window = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_window"));
-   gtk_widget_show (lbg_window);
+
+   if (use_graphics_interface_flag)
+      gtk_widget_show (lbg_window);
 
    about_dialog =    GTK_WIDGET (gtk_builder_get_object (builder, "lbg_aboutdialog"));
    search_combobox = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_search_combobox"));
@@ -2031,9 +2036,8 @@ lbg_info_t::init(GtkBuilder *builder) {
 // 		    "key_press_event",
 // 		    G_CALLBACK(on_key_press_event), NULL);
 
-
-    
-   gtk_widget_show(canvas);
+   if (use_graphics_interface_flag)
+      gtk_widget_show(canvas);
 
    // search combobox
    add_search_combobox_text();
@@ -2685,7 +2689,7 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
 						   const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points) {
 
    if (0) 
-      std::cout << "DEBUG:: staring initial_primary_residue_circles_layout() primary_index " << primary_index
+      std::cout << "DEBUG:: starting initial_primary_residue_circles_layout() primary_index " << primary_index
 		<< " " << residue_circles[primary_index].residue_label << " "
 		<< residue_circles[primary_index].residue_type
 		<< " has position " << residue_circles[primary_index].pos
@@ -2704,9 +2708,7 @@ lbg_info_t::initial_primary_residue_circles_layout(const lbg_info_t::ligand_grid
    // sometimes).
    primary_grid.add_quadratic(attachment_points);
 
-   // I want to see the grid.
-
-   if (1)
+   if (0)
       if (primary_index == 0) 
 	 show_grid(grid);
    
@@ -2739,7 +2741,25 @@ void
 lbg_info_t::position_non_primaries(const lbg_info_t::ligand_grid &grid,
 				   const std::vector<int> &primary_indices) {
 
+   std::vector<lbg_info_t::grid_index_t> already_positioned;
+   
+   for (unsigned int irc=0; irc<residue_circles.size(); irc++) {
+      // if not a primary...
+      if (std::find(primary_indices.begin(), primary_indices.end(), irc) ==
+	  primary_indices.end()) {
+	 
+	 // if this point has rejection underneath it, find the
+	 // position in grid that doesn't have any rejection.
+	 //
 
+	 std::pair<lbg_info_t::grid_index_t, lig_build::pos_t> pos =
+	    grid.find_nearest_zero(residue_circles[irc].pos, already_positioned);
+	 residue_circles[irc].pos = pos.second;
+	 if (pos.first.is_valid_p())
+	    already_positioned.push_back(pos.first);
+			 
+      }
+   }
 }
 
 
@@ -2785,6 +2805,56 @@ lbg_info_t::ligand_grid::find_minimum_position() const {
    return best_pos;
 }
 
+// actually, not exactly zero but something small.
+//
+// Don't return a grid-point/position that matches anything in
+// already_positioned.
+// 
+std::pair<lbg_info_t::grid_index_t, lig_build::pos_t>
+lbg_info_t::ligand_grid::find_nearest_zero(const lig_build::pos_t &pos,
+					   const std::vector<lbg_info_t::grid_index_t> &already_positioned) const {
+
+   lig_build::pos_t p;
+   lbg_info_t::grid_index_t rgi; // initially invalid
+   double shortest_dist = 43e23;
+   double crit = 0.05; // less than this is effectively zero.
+
+   try { 
+      lbg_info_t::grid_index_t gi=grid_pos_nearest(pos);
+      if (grid_[gi.i()][gi.j()] < crit) {
+	 p = pos; // fine, no change
+      } else {
+	 // search for someplace else
+	 for (unsigned int ix=0; ix<x_size(); ix++) {
+	    for (unsigned int iy=0; iy<y_size(); iy++) {
+	       if (grid_[ix][iy] < crit) {
+		  lig_build::pos_t gp = to_canvas_pos(ix, iy);
+		  double d = (gp - pos).lengthsq();
+		  if (d < shortest_dist) {
+		     lbg_info_t::grid_index_t candidate_grid_index(ix, iy);
+		     // This is OK if there is no other previous
+		     // solution at the same position (if there is,
+		     // keep trying, of course).
+		     if (std::find(already_positioned.begin(), already_positioned.end(),
+				   candidate_grid_index) == already_positioned.end()) { 
+			shortest_dist = d;
+			p = gp;
+			rgi = candidate_grid_index;
+		     }
+		  } 
+	       }
+	    }
+	 }
+      }
+   }
+   catch (std::runtime_error rte) {
+      // the pos was off the grid.  It won't be trapped inside the
+      // ligand, so just return what we were given.
+      p = pos;
+   } 
+   return std::pair<lbg_info_t::grid_index_t, lig_build::pos_t> (rgi, p);
+} 
+
 
 lig_build::pos_t
 lbg_info_t::ligand_grid::to_canvas_pos(const double &ii, const double &jj) const {
@@ -2793,6 +2863,23 @@ lbg_info_t::ligand_grid::to_canvas_pos(const double &ii, const double &jj) const
    p += top_left;
    return p;
 }
+
+// can throw a std::runtime_error.
+// 
+lbg_info_t::grid_index_t
+lbg_info_t::ligand_grid::grid_pos_nearest(const lig_build::pos_t &pos) const {
+
+   lig_build::pos_t p = pos - top_left;
+   int idx_x = int(p.x/scale_fac+0.5);
+   int idx_y = int(p.y/scale_fac+0.5);
+
+   if ((idx_x < 0) || (idx_x >= x_size()) || (idx_y < 0) || (idx_y >= y_size()))
+       throw std::runtime_error("out of grid index");
+   
+   return lbg_info_t::grid_index_t(idx_x, idx_y);
+} 
+
+ 
 
 
 std::pair<int, int>
@@ -3159,12 +3246,14 @@ lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid) {
  				"fill_color", colour.c_str(),
 				"stroke-color", colour.c_str(),
  				NULL);
-	 std::cout << "added rect: " << rect << std::endl;
 	 n_objs++;
       }
    }
 
    if (1) {  // debugging
+      grid.show_contour(root, 0.1);
+      grid.show_contour(root, 0.2);
+      grid.show_contour(root, 0.3);
       grid.show_contour(root, 0.4);
       grid.show_contour(root, 0.5);
       grid.show_contour(root, 0.6);
@@ -3210,8 +3299,6 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
 				      const std::vector<widgeted_atom_ring_centre_info_t> &unlimited_atoms,
 				      const std::vector<std::vector<std::string> > &ring_atoms_list) const {
 
-
-   std::cout << "------- in show_contour() " << unlimited_atoms.size() << " unlimited atoms " << std::endl;
 
    GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", "#880000",
 						NULL);
@@ -4912,8 +4999,9 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
 //       std::cout << std::endl;
 //    }
 
-   refine_residue_circle_positions();
    render_from_molecule(new_mol);
+   refine_residue_circle_positions();
+   
    return r;
 #endif   
 }
