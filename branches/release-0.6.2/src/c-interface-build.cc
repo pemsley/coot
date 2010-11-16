@@ -4090,9 +4090,11 @@ void clear_fixed_atoms_all() {
 // 
 void setup_fixed_atom_pick(short int ipick, short int is_unpick) {
 
+   graphics_info_t g;
    if (ipick == 0) {
       graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
    } else {
+      g.pick_cursor_maybe();
       if (is_unpick) {
 	 graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_UNFIX;
       } else { 

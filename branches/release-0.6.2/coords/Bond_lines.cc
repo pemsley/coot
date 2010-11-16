@@ -2420,8 +2420,11 @@ Bond_lines_container::set_rainbow_colours(int selHnd_ca, CMMDBManager *mol) {
 // 		      << " selected in chain " << chain_id << std::endl;
 	    std::pair<short int, int> min_pair = coot::util::min_resno_in_chain(chain_p);
 	    std::pair<short int, int> max_pair = coot::util::max_resno_in_chain(chain_p);
+        // BL says:: I thin we should use n_selected_atoms for range
+        // in that way we exlucde all ligand and esp waters atoms in the chain
 	    if (min_pair.first && max_pair.first) {
-	       float range = max_pair.second - min_pair.second;
+          //float range = max_pair.second - min_pair.second;
+	       float range = n_selected_atoms;
 	       for (int iat=0; iat<n_selected_atoms; iat++) {
 		  float chain_pos =
 		     float(atom_selection[iat]->GetSeqNum() - min_pair.second - 0.01)/range;

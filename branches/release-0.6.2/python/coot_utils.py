@@ -3112,9 +3112,9 @@ def kill_process(pid):
             if (major >= 2 and minor >=4):
                 # new style
                 import subprocess
-                ret = subprocess.call("taskkill /PID %i" % pid, shell=True)
+                ret = subprocess.call("taskkill /F /PID %i" % pid, shell=True)
             else:
-                ret = os.system("taskkill /PID %i" % pid)
+                ret = os.system("taskkill /F /PID %i" % pid)
             if (ret == 0):
                 # success
                 return True

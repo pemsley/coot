@@ -5342,17 +5342,22 @@ SCM ncs_chain_differences_scm(int imol, const char *master_chain_id);
 SCM ncs_chain_ids_scm(int imol);
 #endif	/* USE_GUILE */
 #ifdef USE_PYTHON
-/* Return e.g. ["B", "A", [[[1, ""], [1, ""], 0.4], [[2, ""], [2, ""], 0.3]]]
-   i.e. ncs-related-chain its-master-chain-id and a list of residue
-   info: [residue number matches: [this-resno, this-inscode
-   matching-master-resno, matching-master-inscode, 
-   rms-atom-position-differences]] */
+/* Return the NCS differences as a list.
+
+   e.g. ["B", "A", [[[1, ""], [1, ""], 0.4], [[2, ""], [2, ""], 0.3]]]
+   i.e. ncs_related_chain its_master_chain_id and a list of residue
+   info: [residue number matches: [this_resno, this_inscode,
+   matching_master_resno, matching_master_inscode, 
+   rms_atom_position_differences]] */
 PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id);
 
-/*! \brief return something like: [["A", "B"]] or [["A", "C", "E"], ["B",
+/*! \brief Return the ncs chains id for the given molecule.
+
+  return something like: [["A", "B"]] or [["A", "C", "E"], ["B",
   "D", "F"]]. The master chain goes in first.
 
-   If imol does not have NCS ghosts, return #f */
+   If imol does not have NCS ghosts, return python False.
+*/
 PyObject *ncs_chain_ids_py(int imol);
 #endif  /* USE_PYTHON */
 
