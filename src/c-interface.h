@@ -4593,7 +4593,7 @@ GtkWidget *wrapped_create_new_close_molecules_dialog();
 /* functions defined in c-interface-build */
 
 /*! \brief set the mode of rotamer search, options are (ROTAMERSEARCHAUTOMATIC),  
-  (ROTAMERSEARCHLOWRES) (aka. "backrub rotamers), 
+  (ROTAMERSEARCHLOWRES) (aka. "backrub rotamers"), 
   (ROTAMERSEARCHHIGHRES) (with rigid body fitting) */
 void set_rotamer_search_mode(int mode);
 
@@ -5323,17 +5323,22 @@ int get_ncs_matrix_state();
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
-/* Return e.g. ("B" "A" '(((1 "") (1 "") 0.4) ((2 "") (2 "") 0.3))
+/* Return the NCS differences as a list.
+  
+   e.g. ("B" "A" '(((1 "") (1 "") 0.4) ((2 "") (2 "") 0.3))
    i.e. ncs-related-chain its-master-chain-id and a list of residue
    info: (residue number matches: (this-resno this-inscode
    matching-mater-resno matching-master-inscode
    rms-atom-position-differences))) */
 SCM ncs_chain_differences_scm(int imol, const char *master_chain_id);
 
-/*! \brief return something like: '(("A" "B")) or '(("A" "C" "E") ("B"
+/*! \brief Return the ncs chains id for the given molecule.
+
+  return something like: '(("A" "B")) or '(("A" "C" "E") ("B"
   "D" "F")). The master chain goes in first. 
 
-   If imol does not have NCS ghosts, return #f */
+   If imol does not have NCS ghosts, return scheme false.
+*/
 SCM ncs_chain_ids_scm(int imol);
 #endif	/* USE_GUILE */
 #ifdef USE_PYTHON
