@@ -24678,7 +24678,7 @@ create_save_state_filechooserdialog1 (void)
   save_state_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File-name for State File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_state_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (save_state_filechooserdialog1), TRUE);
-  gtk_window_set_resizable (GTK_WINDOW (save_state_filechooserdialog1), FALSE);
+  gtk_window_set_resizable (GTK_WINDOW (save_state_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (save_state_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox108 = GTK_DIALOG (save_state_filechooserdialog1)->vbox;

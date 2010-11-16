@@ -1410,7 +1410,7 @@ def coot_toolbar_button(button_label, cb_function,
       import coot_python
    except:
       print """BL WARNING:: could not import coot_python module!!
-      Some things, esp. extensions, may be crippled!"""
+      So we cannot make toolbar_buttons!"""
       return False
    
    coot_main_toolbar = coot_python.main_toolbar()

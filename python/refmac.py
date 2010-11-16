@@ -301,9 +301,10 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 
         refmac_process, logObj = run_concurrently(refmac_execfile, command_line_args, data_lines, refmac_log_file_name)
 
+        separator   = add_coot_toolbar_separator()
         kill_button = coot_toolbar_button("Kill refmac",
-                                      "kill_process(" + str(refmac_process.pid)+ ")",
-                                      "stop.svg")
+                                          "kill_process(" + str(refmac_process.pid)+ ")",
+                                          "stop.svg")
         add_status_bar_text("Running refmac")
 
         gobject.timeout_add(1000,
@@ -315,7 +316,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                             phib_fom_pair, f_col, sig_f_col, r_free_col,
                             phase_combine_flag,
                             refmac_process, logObj,
-                            kill_button, True)
+                            (kill_button, separator), True)
     else:
         # no gobject and no subprocess, so run 'old' popen_command
         refmac_status = popen_command(refmac_execfile, command_line_args, data_lines, refmac_log_file_name)
@@ -343,7 +344,9 @@ def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
             # refmac is finished 
             logObj.close()
             refmac_status = refmac_process.poll()
-            button.destroy()
+            if button:
+                button[0].destroy()
+                button[1].destroy()
         else:
             # continue the loop
             return True
@@ -354,7 +357,8 @@ def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
     if (refmac_status) : # refmac ran fail...
         print "Refmac Failed."
         if (button):
-            button.destroy()
+            button[0].destroy()
+            button[1].destroy()
         if (run_in_timer):
             # stop the gobject timer
             print "... or was killed"

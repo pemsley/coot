@@ -1695,6 +1695,7 @@ graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event,
 	       if (button2)
 		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button2), FALSE);
 	       in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
+	       normal_cursor();
 	    }
 	 }
       }

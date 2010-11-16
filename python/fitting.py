@@ -95,12 +95,14 @@ global multi_refine_idle_proc
 global multi_refine_stop_button
 global multi_refine_cancel_button
 global multi_refine_continue_button
+global multi_refine_separator
 continue_multi_refine = False
 multi_refine_spec_list = []
 multi_refine_idle_proc = False
 multi_refine_stop_button = False
 multi_refine_cancel_button = False
 multi_refine_continue_button = False
+multi_refine_separator = False
 
 # Return a list of residue specs
 #
@@ -226,8 +228,10 @@ def interruptible_fit_protein(imol, func):
     global continue_multi_refine
     global multi_refine_idle_proc
     global multi_refine_stop_button
+    global multi_refine_separator
     specs = fit_protein_make_specs(imol, 'all-chains')
     if specs:
+        multi_refine_separator = add_coot_toolbar_separator()
         multi_refine_stop_button = coot_toolbar_button("Stop", "stop_interruptible_fit_protein()", "gtk-stop")
         multi_refine_spec_list = specs
         def idle_func():
@@ -240,6 +244,8 @@ def interruptible_fit_protein(imol, func):
                 #set_visible_toolbar_multi_refine_continue_button(0)
                 multi_refine_stop_button.destroy()
                 multi_refine_stop_button = False
+                multi_refine_separator.destroy()
+                multi_refine_separator = False
                 return False
             if continue_multi_refine:
                 imol_map = imol_refinement_map()
@@ -247,6 +253,8 @@ def interruptible_fit_protein(imol, func):
                 del multi_refine_spec_list[0]
                 return True
             else:
+                # finish what we have been doing first before we stop
+                accept_regularizement()
                 return False
         gobject.idle_add(idle_func)
         multi_refine_idle_proc = idle_func
@@ -296,6 +304,7 @@ def cancel_interruptible_fit_protein():
     global multi_refine_stop_button
     global multi_refine_cancel_button
     global multi_refine_continue_button
+    global multi_refine_separator
     global continue_multi_refine
 
     continue_multi_refine = False
@@ -305,6 +314,8 @@ def cancel_interruptible_fit_protein():
     multi_refine_cancel_button = False
     multi_refine_continue_button.destroy()
     multi_refine_continue_button = False
+    multi_refine_separator.destroy()
+    multi_refine_separator = False
     
 
 # For each residue in chain chain-id of molecule number imol, do a

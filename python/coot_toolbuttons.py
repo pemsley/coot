@@ -16,7 +16,9 @@
 # Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-import pygtk, gtk, pango
+import pygtk
+import gtk
+import pango
 import time
 
   
@@ -52,7 +54,35 @@ def register_coot_icons():
         iconfactory.add(stock_id, iconset)
   iconfactory.add_default()
 
+# adds a SeparatorToolItem to the coot_main_toolbar (by default at the
+# last position). Return the separator or False. If there is a
+# separator in the last position, dont add it
+#
+def add_coot_toolbar_separator():
+  """adds a SeparatorToolItem to the coot_main_toolbar (by default at the
+  last position). There is no return value currently.
+  
+  """
+  
+  try:
+    coot_main_toolbar = coot_python.main_toolbar()
+  except:
+    print """BL ERROR:: coot_python module not available!!
+    So we cannot make toolbar_separator!"""
+    return False
 
+  # main body
+  toolbar_items = coot_main_toolbar.get_children()
+  if (type(toolbar_items[-1]) != gtk.SeparatorToolItem):
+    # only add if last one is not already separator
+    sep = gtk.SeparatorToolItem()
+    coot_main_toolbar.insert(sep, -1)
+    sep.show()
+    return sep
+  else:
+    return False
+
+  
 if (have_coot_python):
 
   if coot_python.main_toolbar():
@@ -299,7 +329,8 @@ if (have_coot_python):
       def remove_toolbar_button(entry_text):
         print "remove button", entry_text
         for toolbar_child in coot_main_toolbar.get_children():
-          if (type(toolbar_child) == gtk.ToolButton):
+          if (type(toolbar_child) == gtk.ToolButton or
+              type(toolbar_child) == gtk.ToggleToolButton):
             button_label = toolbar_child.get_label()
             if (button_label == entry_text):
               coot_main_toolbar.remove(toolbar_child)
