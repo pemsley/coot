@@ -2971,17 +2971,26 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	 delete [] contact;
       }
 
-      if (uddHnd>=0) {
+      if (! (uddHnd>=0)) {
+	 std::cout << "ERROR:: do_colour_by_chain_bonds() bad uddHnd"
+		   << std::endl;
+      } else { 
     
+	 float star_size = 0.4;
 	 // for atoms with no neighbour (contacts):
-	 coot::Cartesian small_vec_x(0.5, 0.0, 0.0);
-	 coot::Cartesian small_vec_y(0.0, 0.5, 0.0);
-	 coot::Cartesian small_vec_z(0.0, 0.0, 0.5);
+	 coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
+	 coot::Cartesian small_vec_y(0.0, star_size, 0.0);
+	 coot::Cartesian small_vec_z(0.0, 0.0, star_size);
 
+	 int atom_colour_type = coot::COLOUR_BY_CHAIN;
+	 
 	 int ic; // changed by reference;
 	 int col;
 	 for (int i=0; i<n_selected_atoms; i++) { 
-	    if ( atom_selection[i]->GetUDData(uddHnd, ic) == UDDATA_Ok ) {
+	    if ( atom_selection[i]->GetUDData(uddHnd, ic) != UDDATA_Ok ) {
+	       std::cout << "ERROR:: do_colour_by_chain_bonds() failed to get ic bond info"
+			 << std::endl;
+	    } else { 
 	       if ((ic == 0) ||
 		   (!strcmp(atom_selection[i]->element, " S")) ||
 		   (!strcmp(atom_selection[i]->element, "SE")) ||
@@ -2989,9 +2998,6 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 
 		  std::string segid(atom_selection[i]->GetChainID());
 		  col = atom_colour_map.index_for_chain(segid);
-
-		  // 		  std::cout << " No contact for " << non_Hydrogen_atoms[i]
-		  // 			    << std::endl;
 	       
 		  // no contact found or was Sulphur, or Phosphor
 
@@ -3021,6 +3027,29 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	       }
 	    }
 	 }
+
+	 // Make the stars...
+	 // 
+	 for (int i=0; i<n_selected_atoms; i++) {
+	    if (atom_selection[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
+	       if (ic == 0) {
+		  // no contact found
+		  col = atom_colour(atom_selection[i], atom_colour_type);
+		  std::string ele = atom_selection[i]->element;
+		  if (ele != " H" || draw_hydrogens_flag) { 
+		     coot::Cartesian atom(atom_selection[i]->x,
+					  atom_selection[i]->y,
+					  atom_selection[i]->z);
+		     
+		     addBond(col, atom+small_vec_x, atom-small_vec_x);
+		     addBond(col, atom+small_vec_y, atom-small_vec_y);
+		     addBond(col, atom+small_vec_z, atom-small_vec_z);
+		  }
+	       }
+	    }
+	 }
+	 construct_from_model_links(asc.mol->GetModel(imodel), atom_colour_type);
+	 
       }
       asc.mol->DeleteSelection(SelectionHandle);
    }
@@ -3194,17 +3223,23 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 
 
       if (uddHnd>=0) {
-    
+
+
+	 float star_size = 0.4;
 	 // for atoms with no neighbour (contacts):
-	 coot::Cartesian small_vec_x(0.5, 0.0, 0.0);
-	 coot::Cartesian small_vec_y(0.0, 0.5, 0.0);
-	 coot::Cartesian small_vec_z(0.0, 0.0, 0.5);
+	 coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
+	 coot::Cartesian small_vec_y(0.0, star_size, 0.0);
+	 coot::Cartesian small_vec_z(0.0, 0.0, star_size);
 
 	 int ic; // changed by reference;
 	 int col;
 	 int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY; // the atoms connected to the SE (say) are Cs.
 	 for (int i=0; i<n_selected_atoms; i++) { 
-	    if ( atom_selection[i]->GetUDData(uddHnd, ic) == UDDATA_Ok ) {
+	    if ( atom_selection[i]->GetUDData(uddHnd, ic) != UDDATA_Ok ) {
+	       std::cout << "ERROR:: do_colour_by_chain_bonds() failed to get ic bond info"
+			 << std::endl;
+	    } else { 
+	       // std::cout << "debug:: got ic " << ic << " for " << atom_selection[i] << std::endl;
 	       if ((ic == 0) ||
 		   (!strcmp(atom_selection[i]->element, " S")) ||
 		   (!strcmp(atom_selection[i]->element, "SE")) ||
@@ -3245,8 +3280,31 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 	       }
 	    }
 	 }
-      }
 
+	 
+	 // Make the stars...
+	 // 
+	 for (int i=0; i<n_selected_atoms; i++) {
+	    if (atom_selection[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
+	       if (ic == 0) {
+		  // no contact found
+		  col = atom_colour(atom_selection[i], atom_colour_type);
+		  std::string ele = atom_selection[i]->element;
+		  if (ele != " H" || draw_hydrogens_flag) { 
+		     coot::Cartesian atom(atom_selection[i]->x,
+					  atom_selection[i]->y,
+					  atom_selection[i]->z);
+		     
+		     addBond(col, atom+small_vec_x, atom-small_vec_x);
+		     addBond(col, atom+small_vec_y, atom-small_vec_y);
+		     addBond(col, atom+small_vec_z, atom-small_vec_z);
+		  }
+	       }
+	    }
+	 }
+	 construct_from_model_links(asc.mol->GetModel(imodel), atom_colour_type);
+      }
+      
       asc.mol->DeleteSelection(SelectionHandle);
    }
    add_zero_occ_spots(asc);
@@ -3403,6 +3461,8 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 	       }
 	    }
 	 }
+	 construct_from_model_links(asc.mol->GetModel(imodel), coot::COLOUR_BY_CHAIN);
+	 
       }
       asc.mol->DeleteSelection(SelectionHandle);
    }
