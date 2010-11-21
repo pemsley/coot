@@ -622,13 +622,11 @@ lbg_info_t::highlight_atom(const lig_build::atom_t &atom, int atom_index, bool d
    // std::cout << x1 << " " << x2 << " "<< width << " " << height << std::endl;
 
    GooCanvasItem *rect_item =
-      rect_item = goo_canvas_rect_new (root, x1, y1, width, height,
-				       "line-width", 1.0,
-				       "stroke-color", col.c_str(),
-				       NULL);
+      goo_canvas_rect_new (root, x1, y1, width, height,
+			   "line-width", 1.0,
+			   "stroke-color", col.c_str(),
+			   NULL);
    highlight_data = highlight_data_t(rect_item, A, atom_index);
-   // std::cout << "Highlight atom with index " << atom_index << std::endl;
-
 }
 
 

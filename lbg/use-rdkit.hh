@@ -21,6 +21,7 @@
 #include <RDGeneral/RDLog.h>
 #include <GraphMol/GraphMol.h>
 #include <ForceField/ForceField.h>
+#include <ForceField/UFF/Params.h>
 #include <GraphMol/ForceFieldHelpers/UFF/AtomTyper.h>
 #include <GraphMol/ForceFieldHelpers/UFF/Builder.h>
 #include <DistGeom/DistGeomUtils.h>

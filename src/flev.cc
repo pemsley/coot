@@ -234,7 +234,8 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		     geom_p->get_monomer_restraints(ligand_res_name);
 		  
 		  if (! p.first) {
-		     std::cout << "Failed to get monomer_restraints for PRODRG residue"
+		     std::cout << "WARNING:: fle_view_internal(): "
+			       << "Failed to get monomer_restraints for PRODRG residue"
 			       << std::endl;
 		  } else {
 
@@ -276,10 +277,11 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
 	 std::string ligand_res_name(res_ref->GetResName());
 
 	 std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-	    geom_p->get_monomer_restraints(ligand_res_name);
+	    geom_p->get_monomer_restraints_at_least_minimal(ligand_res_name);
 	 
 	 if (! p.first) {
-	    std::cout << "Failed to get monomer_restraints for ligand of type "
+	    std::cout << "WARNING:: fle_view_with_rdkit(): "
+		      << "Failed to get monomer_restraints for ligand of type "
 		      << ligand_res_name << std::endl;
 	 } else {
 	    std::vector<CResidue *> residues =
@@ -399,7 +401,7 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
 	       }
 	    }
 	    catch (std::runtime_error rte) {
-	       std::cout << "ERROR (runtime) in fle_view_with_rdkit(): "
+	       std::cout << "ERROR:: (runtime) in fle_view_with_rdkit(): "
 			 << rte.what() << std::endl;
 	    } 
 	    catch (std::exception e) {
@@ -482,7 +484,7 @@ coot::get_flev_residue_centres(CResidue *residue_ligand_3d,
 						   res_name);
 	    centres[ires] = fle_centre;
 	 } else {
-	    std::cout << "WARNING:: failed to get residue centre for "
+	    std::cout << "WARNING:: get_flev_residue_centres() failed to get residue centre for "
 		      << coot::residue_spec_t(res_copy) << std::endl;
 	 }
 	 delete res_copy;
