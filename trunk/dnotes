@@ -5883,5 +5883,26 @@ Sat Nov 13 16:34:37 GMT 2010
  
      o question to self: do we need restraints to layout molecules?  e.g. 2bzh
 
+
+----
+Mon Nov 15 16:27:35 GMT 2010
+
+    A 500 CDK in 2xmy fails to prodrgify (alt confs)
+
+
+----
+Wed Nov 17 14:01:30 GMT 2010
+
+    Bernhard's Biocryst report.
+
+
+    o Out of plane distances should have graphical output c.f. a distance.
+
+    o 'findligand --help' does not list x-pos, y-pos,... (there may be more) 
+
+    o we may want to loose the HID part of the tutorial
+
+
+
 ------
 

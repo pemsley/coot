@@ -170,13 +170,13 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
    if (residue_p) {
       std::string residue_type = residue_p->GetResName();
       std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-	 geom.get_monomer_restraints(residue_type);
+	 geom.get_monomer_restraints_at_least_minimal(residue_type);
       if (! p.first) {
-	 std::cout << "No restraints for residue type " << residue_type
-		   << std::endl;
+	 std::cout << "WARNING:: sprout_hydrogens(): No restraints for residue type "
+		   << residue_type << std::endl;
       } else {
 	 r = coot::add_hydrogens(residue_p, p.second);
-	 std::cout << "coot::add_hydrogens() returns " << r << std::endl;
+	 std::cout << "DEBUG:: coot::add_hydrogens() returns " << r << std::endl;
 	 if (r) {
 
 

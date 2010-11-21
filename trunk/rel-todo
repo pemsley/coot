@@ -1,6 +1,10 @@
 
  0.6.2
 
+  o Juha Vahokoski:
+    when you change the symmetry after a SSM superposition, change the
+    ORIGx and SCALEx cards too (to match the reference molecule).
+
   o talk to Bernhard re: REDUCE_HET_DICT etc.  Look at his python
     code.
 

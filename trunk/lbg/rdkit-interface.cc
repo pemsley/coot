@@ -65,10 +65,10 @@ coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
    std::string res_name = residue_p->GetResName();
    
    std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-      geom.get_monomer_restraints(res_name);
+      geom.get_monomer_restraints_at_least_minimal(res_name);
    if (! p.first) {
 
-      std::string m = "residue type ";
+      std::string m = "rdkit_mol(): residue type ";
       m += res_name;
       m += " not in dictionary";
       throw(std::runtime_error(m));
