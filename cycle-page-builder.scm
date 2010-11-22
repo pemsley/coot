@@ -9,7 +9,7 @@
 	     (ice-9 format)
 	     ;; (net http)
 	     (www main)
-	     (goosh)
+	     (os process)
 	     (ice-9 regex))
 
 (use-syntax (ice-9 syncase))
