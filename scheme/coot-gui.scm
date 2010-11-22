@@ -2088,7 +2088,6 @@
 						      chain-id-lig
 						      resno-start
 						      resno-end))
-
 					
 					(ncs-ligand active-mol-no-ref
 						    chain-id-ref
