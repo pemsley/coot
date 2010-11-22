@@ -3996,6 +3996,8 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 	       }
 	    }
 	 }
+	 construct_from_model_links(asc.mol->GetModel(imodel), coot::COLOUR_BY_CHAIN);
+	 
       }
       asc.mol->DeleteSelection(SelectionHandle);
    }
