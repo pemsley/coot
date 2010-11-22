@@ -4609,7 +4609,7 @@ GtkWidget *wrapped_create_new_close_molecules_dialog();
 /* functions defined in c-interface-build */
 
 /*! \brief set the mode of rotamer search, options are (ROTAMERSEARCHAUTOMATIC),  
-  (ROTAMERSEARCHLOWRES) (aka. "backrub rotamers), 
+  (ROTAMERSEARCHLOWRES) (aka. "backrub rotamers"), 
   (ROTAMERSEARCHHIGHRES) (with rigid body fitting) */
 void set_rotamer_search_mode(int mode);
 
