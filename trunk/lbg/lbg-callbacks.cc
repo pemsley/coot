@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#if HAVE_GOOCANVAS
+
 #include <gtk/gtk.h>
 #include <stdlib.h> // for system()
 
@@ -572,3 +574,5 @@ on_lbg_key_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_
       }
    }
 }
+
+#endif // HAVE_GOOCANVAS

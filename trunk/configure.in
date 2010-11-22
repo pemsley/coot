@@ -168,6 +168,10 @@ AM_PATH_GUILE_GTK
 AM_PATH_LIBGLADE
 
 AM_PATH_GOOCANVAS
+# give something for the preprocessor to chew on...
+if test "$GOOCANVAS_CFLAGS" != "" ; then
+   GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
+fi
 
 AC_ARG_WITH(enterprise-tools, [ --with-enterprise-tools with optional complicated/experimental ligand-related dependencies ],
  coot_enterprise_additions="true",

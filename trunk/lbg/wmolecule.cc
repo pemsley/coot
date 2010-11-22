@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#ifdef HAVE_GOOCANVAS
+
 #include <stdexcept>
 #include <fstream>
 #include <iomanip>
@@ -1465,3 +1467,5 @@ widgeted_molecule_t::is_close_to_non_last_atom(const lig_build::pos_t &test_pos)
    return close;
 }
 
+
+#endif // GOO_CANVAS

@@ -3,6 +3,7 @@ lib_LTLIBRARIES=libcoot-lidia.la
 
 INCLUDES = \
 	-I$(top_srcdir)/lidia-core \
+	-I$(top_srcdir)/coot-utils \
 	-I$(top_srcdir)/geometry \
 	-I$(top_srcdir)/coot-utils \
 	-I$(top_srcdir)/utils \
@@ -12,8 +13,6 @@ INCLUDES = \
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) \
 	$(ENTERPRISE_TOOLS_CFLAGS)      \
 	$(RDKIT_CXXFLAGS)
-
-## if MAKE_ENTERPRISE_TOOLS
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"'
@@ -58,9 +57,9 @@ appicon_DATA = \
 	6-c-arom.svg   charge.svg			   triple.svg                           \
 	6-c-exp-2.svg  double.svg
 
-#else 
+## #else 
 
-#libcoot_lidia_la_SOURCES = flev-annotations.cc
-#include_HEADERS = flev-annotations.hh
+##libcoot_lidia_la_SOURCES = flev-annotations.cc
+## include_HEADERS = flev-annotations.hh
 
-#endif
+## endif
