@@ -216,7 +216,12 @@
 		  (car cids)))))))
 
 
-
+;; This was designed to create an NCS copy of a ligand (or range of
+;; residues) in the active site of one chain to the as yet unoccupied
+;; active site of another, i.e. it makes a NCS ligand "D"1 that is a NCS
+;; copy of ligand "C"1 using an NCS operator that maps protein chain "A"
+;; onto chain "B".
+;; 
 (define (ncs-ligand imol-protein ncs-master-chain-id imol-ligand chain-id-ligand resno-ligand-start resno-ligand-stop)
 
   ;; find ghost in ghosts that has a chain-id matching
