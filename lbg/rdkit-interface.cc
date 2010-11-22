@@ -1,4 +1,6 @@
 
+#ifdef HAVE_GOOCANVAS
+
 #include "coot-utils.hh"
 #include "lbg.hh"
 
@@ -990,5 +992,4 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 
 
 #endif // MAKE_ENTERPRISE_TOOLS   
-
-
+#endif // HAVE_GOOCANVAS

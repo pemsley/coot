@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#ifdef HAVE_GOOCANVAS
+
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
 #include <unistd.h>
@@ -5048,3 +5050,5 @@ lbg_info_t::update_statusbar_smiles_string() const {
 			 status_string.c_str());
    }
 }
+
+#endif // HAVE_GOOCANVAS

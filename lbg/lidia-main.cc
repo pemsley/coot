@@ -19,6 +19,10 @@
  * 02110-1301, USA
  */
 
+#include <iostream>
+
+#ifdef HAVE_GOOCANVAS
+
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
 #include <unistd.h>
@@ -70,3 +74,17 @@ main(int argc, char *argv[]) {
    } 
    return 1;
 }
+
+
+#else
+
+int
+main(int argc, char *argv[]) {
+
+   std::cout << "No goo canvas at compile-time, no lidia " << std::endl;
+   return 0;
+}
+
+
+
+#endif 

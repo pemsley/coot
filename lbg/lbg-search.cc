@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#ifdef HAVE_GOOCANVAS
+
 #include <fstream>
 
 #include <stdlib.h> // for getenv()
@@ -341,3 +343,5 @@ lbg_info_t::on_sbase_search_result_button_clicked (GtkButton *button,
       }
    }
 }
+
+#endif // HAVE_GOOCANVAS

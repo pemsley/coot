@@ -22,6 +22,7 @@
 #ifndef LBG_HH
 #define LBG_HH
 
+
 #include <iostream>
 #include <map>
 #include <queue>
