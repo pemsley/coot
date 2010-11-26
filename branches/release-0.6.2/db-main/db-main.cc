@@ -186,8 +186,14 @@ coot::db_main::get_fragment_ca_atoms(int istart, int ilength,
 //  			 << " molecule: " << m.name << std::endl; 
 		  coot::minimol::residue res(ires);
 		  res.addatom(m[0][ires][iat]);
-	       //	       f.residues.push_back(res);
-		  f.addresidue(res, 0);
+		  //	       f.residues.push_back(res);
+
+		  try { 
+		     f.addresidue(res, 0);
+		  }
+		  catch (std::runtime_error rte) {
+		     std::cout << "ERROR:: get_fragment_ca_atoms() " << rte.what() << std::endl;
+		  }
 		  break;
 	       }
 	    }
@@ -723,7 +729,12 @@ coot::db_main::pull_db_fragment(const coot::main_fragment_t &dbfit, int ilength)
 
    for (int ipos=0; ipos<ilength; ipos++) {
       coot::minimol::residue res = molecule_list[imolno][0][frag_start_res+ipos];
-      f.addresidue(res, 0);
+      try { 
+	 f.addresidue(res, 0);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "ERROR:: pull_db_fragment() " << rte.what() << std::endl;
+      } 
    }
    return f;
 }

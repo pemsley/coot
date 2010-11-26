@@ -1710,7 +1710,13 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 		  // moving mol, because they don't match the altconf
 		  std::vector<int> from_mov_delete_atom_indices;
 
-		  range_mol[ir].addresidue(mol[ifrag][ires], 1);
+		  try { 
+		     range_mol[ir].addresidue(mol[ifrag][ires], 1);
+		  }
+		  catch (std::runtime_error rte) {
+		     std::cout << "ERROR:: execute_rigid_body_refine() " << rte.what() << std::endl;
+		  } 
+		  
 
 		  for (unsigned int iat=0; iat<mol[ifrag][ires].atoms.size(); iat++) {
 		     if (mol[ifrag][ires][iat].altLoc == altconf) {

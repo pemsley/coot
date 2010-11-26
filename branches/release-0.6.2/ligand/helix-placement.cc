@@ -893,7 +893,12 @@ coot::helix_placement::get_20_residue_helix(int n_residues) const {
 	 // fill f with the first 20 residues of m;
 	 if (m[0].max_residue_number() > n_residues) { 
 	    for (int ires=1; ires<=n_residues; ires++) {
-	       f.addresidue(m[0][ires], 0);
+	       try { 
+		  f.addresidue(m[0][ires], 0);
+	       }
+	       catch (std::runtime_error rte) {
+		  std::cout << "ERROR:: get_20_residue_helix() " << rte.what() << std::endl;
+	       } 
 	    }
 	    m[0] = f;
 	    success = 1;
@@ -1083,10 +1088,16 @@ coot::helix_placement::build_on_N_end(coot::minimol::fragment *f,
 	 std::pair<short int, clipper::Coord_orth> cbeta_info = coot::cbeta_position(r);
 	 if (cbeta_info.first)
 	    r.addatom(" CB ", " C", cbeta_info.second, "", 1.0, 30.0);
-	 f->addresidue(r, 0);
-	 std::cout << "INFO build of N terminal residue " << ires_current_last-1
-		   << " success" << std::endl;
-	 build_on_N_end(f, min_density_limit, b_factor);
+	 try { 
+	    f->addresidue(r, 0);
+	    std::cout << "INFO build of N terminal residue " << ires_current_last-1
+		      << " success" << std::endl;
+	    build_on_N_end(f, min_density_limit, b_factor);
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << "ERROR:: build_on_N_end() " << rte.what() << std::endl;
+	 } 
+	 
       } else {
 	 std::cout << "INFO build of N terminal residue " << ires_current_last-1
 		   << " failed (bad density fit)" << std::endl;
@@ -1142,11 +1153,15 @@ coot::helix_placement::build_on_C_end(coot::minimol::fragment *f,
 	 std::pair<short int, clipper::Coord_orth> cbeta_info = coot::cbeta_position(r);
 	 if (cbeta_info.first)
 	    r.addatom(" CB ", " C", cbeta_info.second, "", 1.0, 30.0);
-	 f->addresidue(r, 0);
-	 std::cout << "INFO build of N terminal residue " << ires_current_last-1
-		   << " success" << std::endl;
-	 build_on_C_end(f, min_density_limit, b_factor);
-	 
+	 try { 
+	    f->addresidue(r, 0);
+	    std::cout << "INFO build of N terminal residue " << ires_current_last-1
+		      << " success" << std::endl;
+	    build_on_C_end(f, min_density_limit, b_factor);
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << "ERROR:: build_on_C_end() " << rte.what() << std::endl;
+	 } 
       } else {
 	 std::cout << "INFO build of C terminal residue " << ires_current_last-1
 		   << " failed (bad density fit)" << std::endl;

@@ -124,7 +124,12 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
 	 coot::minimol::atom minimol_atom(at);
 	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x, atoms[iat].y, atoms[iat].z);
 	 res.addatom(minimol_atom);
-	 fragments[ifrag_atom].addresidue(res,1);
+	 try { 
+	    fragments[ifrag_atom].addresidue(res,1);
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << "ERROR:: minimol constructor " << rte.what() << std::endl;
+	 } 
       } else {
 	 coot::minimol::atom minimol_atom(at);
 	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x, atoms[iat].y, atoms[iat].z);
@@ -241,7 +246,12 @@ coot::minimol::molecule::setup(CMMDBManager *mol) {
 			      r.addatom(mat);
 			   }
 			}
-			fragments[ifrag].addresidue(r, 0);
+			try { 
+			   fragments[ifrag].addresidue(r, 0);
+			} 
+			catch (std::runtime_error rte) {
+			   std::cout << "ERROR:: minimol molecule setup() " << rte.what() << std::endl;
+			}
 		     }
 		  }
 	       }
@@ -305,7 +315,13 @@ coot::minimol::molecule::fragmentize() const {
 		fragment_start_resno != UNSET &&
 		fragment_running_end_resno != UNSET) {
 	       for(int i=fragment_start_resno; i<=fragment_running_end_resno; i++) {
-		  f.addresidue((*this)[ifrag][i], 0);
+
+		  try { 
+		     f.addresidue((*this)[ifrag][i], 0);
+		  }
+		  catch (std::runtime_error rte) {
+		     std::cout << "ERROR:: minimol fragmentize() " << rte.what() << std::endl;
+		  } 
 // 		  std::cout << " fragend: after addresidue f's residue " << i << " has "
 // 			    << f[i].atoms.size() << " atoms" << std::endl;
 	       }
@@ -333,7 +349,14 @@ coot::minimol::molecule::fragmentize() const {
 			    // back any running partial fragment
 	       f.fragment_id = (*this)[ifrag].fragment_id;
 	       for(int i=fragment_start_resno; i<=fragment_running_end_resno; i++) {
-		  f.addresidue((*this)[ifrag][i], 0);
+
+		  try { 
+		     f.addresidue((*this)[ifrag][i], 0);
+		  }
+		  catch (std::runtime_error rte) {
+		     std::cout << "ERROR:: minimol constructor " << rte.what() << std::endl;
+		  }
+		     
 // 		  std::cout << " chainend: after addresidue f's residue " << i << " has "
 // 			    << f[i].atoms.size() << " atoms" << std::endl;
 	       }
@@ -581,6 +604,13 @@ coot::minimol::fragment::operator[](int i) {
 	 //
 	 int new_offset = i - 1;
 	 int offset_diff = new_offset - residues_offset;
+
+	 check();
+
+	 std::cout << "DEBUG:: residues.size() is " << residues.size() << " and offset_diff is " << offset_diff
+		   << " new_offset " << new_offset << " residues_offset " << residues_offset
+		   << " and passed i " << i << std::endl;
+	 std::cout << "FYI: MinInt4 is " << MinInt4 << std::endl;
 	 std::vector<residue> new_residues(residues.size() - offset_diff);
 	 // copy across the current residues...
 	 if (residues.size() > 0) { 
@@ -910,12 +940,20 @@ coot::minimol::molecule::molecule_of_atom_types(std::string at_type) const {
 
 // Sometime one doesn't want to add the residue if it is empty.
 // Sometimes one does.
+//
+// If this is called with an uninitialised res (res.seqnum ==
+// MinInt4), throw a runtime_error.
+//
 void
 coot::minimol::fragment::addresidue(const coot::minimol::residue &res,
-				    short int add_if_empty_flag) {
+				    bool add_if_empty_flag) {
 
    if (res.atoms.size() > 0 || add_if_empty_flag) {
-      (*this)[res.seqnum] = res;
+      if (res.seqnum == MinInt4) {
+	 throw std::runtime_error("ERROR:: caught uninitialised res in addresidue().");
+      } else {
+	 (*this)[res.seqnum] = res;
+      }
    }
 }
 

@@ -1887,46 +1887,53 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 		     coot::minimol::fragment frag;
 		     
 		     int ifrag = residue_mol.fragment_for_chain(chain_id);
-		     residue_mol[ifrag].addresidue(residue_res, 0);
+		     try { 
+			residue_mol[ifrag].addresidue(residue_res, 0);
 
-		     // now do "ligand" fitting setup and run:
-		     coot::ligand lig;
-		     lig.import_map_from(graphics_info_t::molecules[imol_map].xmap_list[0]);
-		     // short int mask_water_flag = 0;
-		     lig.set_acceptable_fit_fraction(0.5);  // at least half of the atoms
-		     // have to be fitted into
-		     // positive density, otherwise
-		     // the fit failed, and we leave
-		     // the atom positions as they
-		     // are (presumably in an even
-		     // worse position?)
-		     lig.install_ligand(residue_mol);
-		     lig.set_dont_write_solutions();
-		     lig.find_centre_by_ligand(0);
-		     lig.set_dont_test_rotations();
-		     lig.fit_ligands_to_clusters(1);
-		     // so we have the solution from lig, what was its score?
-		     //
-		     coot::ligand_score_card score_card = lig.get_solution_score(0);
-		     coot::minimol::molecule moved_mol  = lig.get_solution(0);
+			// now do "ligand" fitting setup and run:
+			coot::ligand lig;
+			lig.import_map_from(graphics_info_t::molecules[imol_map].xmap_list[0]);
+			// short int mask_water_flag = 0;
+			lig.set_acceptable_fit_fraction(0.5);  // at least half of the atoms
+			// have to be fitted into
+			// positive density, otherwise
+			// the fit failed, and we leave
+			// the atom positions as they
+			// are (presumably in an even
+			// worse position?)
+			lig.install_ligand(residue_mol);
+			lig.set_dont_write_solutions();
+			lig.find_centre_by_ligand(0);
+			lig.set_dont_test_rotations();
+			lig.fit_ligands_to_clusters(1);
+			// so we have the solution from lig, what was its score?
+			//
+			coot::ligand_score_card score_card = lig.get_solution_score(0);
+			coot::minimol::molecule moved_mol  = lig.get_solution(0);
 
-		     float clash_score = 0.0;
-		     // std::cout << "debug INFO:: density score: " << score_card.score << "\n";
-		     if (clash_flag) { 
-			clash_score = get_clash_score(moved_mol); // clash on atom_sel.mol
-			// std::cout << "INFO:: clash score: " << clash_score << "\n";
-		     }
-		     if (clash_score < clash_score_limit) { // This value may
-			// need to be
-			// exported to the
-			// user interface
-			if (score_card.score > best_score) {
-			   best_score = score_card.score;
-			   // 20081120 best_rotamer_mol loses the insertion
-			   // code for the residue.  Must fix.
-			   best_rotamer_mol = moved_mol;
+			float clash_score = 0.0;
+			// std::cout << "debug INFO:: density score: " << score_card.score << "\n";
+			if (clash_flag) { 
+			   clash_score = get_clash_score(moved_mol); // clash on atom_sel.mol
+			   // std::cout << "INFO:: clash score: " << clash_score << "\n";
+			}
+			if (clash_score < clash_score_limit) { // This value may
+			   // need to be
+			   // exported to the
+			   // user interface
+			   if (score_card.score > best_score) {
+			      best_score = score_card.score;
+			      // 20081120 best_rotamer_mol loses the insertion
+			      // code for the residue.  Must fix.
+			      best_rotamer_mol = moved_mol;
+			   }
 			}
 		     }
+
+		     catch (std::runtime_error rte) {
+			std::cout << "ERROR:: auto_fit_best_rotamer() " << rte.what() << std::endl;
+		     }
+		     
 		  }
 	       } else {
 		  // we don't have a map, like KD suggests:
@@ -1943,7 +1950,12 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 		     coot::minimol::residue  residue_res(rotamer_res);
 		     coot::minimol::molecule residue_mol;
 		     int ifrag = residue_mol.fragment_for_chain(chain_id);
-		     residue_mol[ifrag].addresidue(residue_res, 0);
+		     try { 
+			residue_mol[ifrag].addresidue(residue_res, 0);
+		     }
+		     catch (std::runtime_error rte) {
+			std::cout << "ERROR:: auto_fit_best_rotamer() 2 " << rte.what() << std::endl;
+		     } 
 		     coot::minimol::molecule moved_mol = residue_mol;
 		     // std::cout << "Getting clash score... " << std::endl;
 		     clash_score = -get_clash_score(moved_mol); // clash on atom_sel.mol
@@ -6835,7 +6847,12 @@ molecule_class_info_t::reverse_direction_of_fragment(const std::string &chain_id
 			      r.addatom(fragmented_mol[ifrag][ires_in_frag].atoms[iat]);
 			   }
 			}
-			f.addresidue(r, 0);
+			try { 
+			   f.addresidue(r, 0);
+			}
+			catch (std::runtime_error rte) { 
+			   std::cout << "ERROR:: auto_fit_best_rotamer() " << rte.what() << std::endl;
+			}
 		     }
 		     // now replace the fragment in fragmented_mol
 		     fragmented_mol[ifrag] = f;
