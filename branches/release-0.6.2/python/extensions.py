@@ -622,6 +622,12 @@ if (have_coot_python):
                          "Rigid Body Refine",
                          "  Fit  "))
 
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Rigid Body Fit Molecule...",
+       lambda func: molecule_chooser_gui("Rigid Body Fit Molecule",
+                lambda imol: rigid_body_refine_by_atom_selection(imol, "//")))                                         
+       
 
      add_simple_coot_menu_menuitem(
        submenu_models,
