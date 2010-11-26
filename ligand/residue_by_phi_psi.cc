@@ -92,15 +92,25 @@ coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
 
 	 if (terminus_type == "C" || terminus_type == "MC" || terminus_type == "singleton") {
 	    for (int ires=frag.min_res_no(); ires<=frag.max_residue_number(); ires++) {
-	       if (frag[ires].atoms.size() > 0) { 
-		  m.fragments[ifrag].addresidue(frag[ires],0);
+	       if (frag[ires].atoms.size() > 0) {
+		  try { 
+		     m.fragments[ifrag].addresidue(frag[ires],0);
+		  }
+		  catch (std::runtime_error rte) {
+		     std::cout << "ERROR:: best_fit_phi_psi() " << rte.what() << std::endl;
+		  } 
 		  break;
 	       }
 	    }
 	 } else { // terminus_type == "N" or "MN"
 	    for (int ires=frag.max_residue_number(); ires>=frag.min_res_no(); ires--) {
-	       if (frag[ires].atoms.size() > 0) { 
-		  m.fragments[ifrag].addresidue(frag[ires],0);
+	       if (frag[ires].atoms.size() > 0) {
+		  try {
+		     m.fragments[ifrag].addresidue(frag[ires],0);
+		  }
+		  catch (std::runtime_error rte) {
+		     std::cout << "ERROR:: best_fit_phi_psi() " << rte.what() << std::endl;
+		  } 
 		  break;
 	       }
 	    }
@@ -315,8 +325,14 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id,
 
    }
 
-   frag.addresidue(res1, 0);
-   frag.addresidue(res2, 0);
+   try { 
+      frag.addresidue(res1, 0);
+      frag.addresidue(res2, 0);
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "ERROR:: make_2_res_joining_frag() " << rte.what() << std::endl;
+   } 
+   
 
    int n_atoms1, iseqnum1;
    n_atoms1 = frag[res1.seqnum].atoms.size();

@@ -55,7 +55,12 @@ make_target_5_res_frag(const coot::minimol::fragment &tf, int ires_start) {
       }
 //       std::cout << " in make_target_5_res_frag adding residue with seqnum: "
 // 		<< r.seqnum << std::endl;
-      f.addresidue(r, 0);
+      try { 
+	 f.addresidue(r, 0);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "ERROR:: make_target_5_res_frag() " << rte.what() << std::endl;
+      } 
    }
    g.five_residues_as_cas = f;
    return g;

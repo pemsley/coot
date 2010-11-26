@@ -213,38 +213,44 @@ coot::wligand::optimize_and_install(const coot::minimol::residue &wiggled_ligand
    
    // now make a molecule of that (my son)
    coot::minimol::fragment wiggled_ligand_frag(ligand_chain_id);
-   wiggled_ligand_frag.addresidue(wiggled_ligand_residue, 0);
-   coot::minimol::molecule wiggled_ligand(wiggled_ligand_frag);
+   try { 
+      wiggled_ligand_frag.addresidue(wiggled_ligand_residue, 0);
+      coot::minimol::molecule wiggled_ligand(wiggled_ligand_frag);
 
-   if (debug_wiggly_ligands) {  // debugging wiggly ligands
-      std::string filename = "wligand-";
-      filename += int_to_string(isample);
-      filename += ".pdb";
-      wiggled_ligand.write_file(filename, default_b_factor);
-   }
+      if (debug_wiggly_ligands) {  // debugging wiggly ligands
+	 std::string filename = "wligand-";
+	 filename += int_to_string(isample);
+	 filename += ".pdb";
+	 wiggled_ligand.write_file(filename, default_b_factor);
+      }
       
 #ifdef HAVE_GSL
-   if (optimize_geometry_flag) { 
-      coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(wiggled_ligand, *pg);
-      install_ligand(reg_ligand);
-      if (fill_returned_molecules_vector_flag) {
-	 l.mol = reg_ligand;
-	 l.add_torsions(non_const_torsions, torsion_set);
-      } 
-   } else {
+      if (optimize_geometry_flag) { 
+	 coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(wiggled_ligand, *pg);
+	 install_ligand(reg_ligand);
+	 if (fill_returned_molecules_vector_flag) {
+	    l.mol = reg_ligand;
+	    l.add_torsions(non_const_torsions, torsion_set);
+	 } 
+      } else {
+	 install_ligand(wiggled_ligand);
+	 if (fill_returned_molecules_vector_flag) { 
+	    l.mol = wiggled_ligand;
+	    l.add_torsions(non_const_torsions, torsion_set);
+	 } 
+      }
+#else
       install_ligand(wiggled_ligand);
       if (fill_returned_molecules_vector_flag) { 
-	 l.mol = wiggled_ligand;
-	 l.add_torsions(non_const_torsions, torsion_set);
-      } 
-   }
-#else
-   install_ligand(wiggled_ligand);
-   if (fill_returned_molecules_vector_flag) { 
-      l.mol = ligand_in;
-      return l;
-   }
+	 l.mol = ligand_in;
+	 return l;
+      }
 #endif
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "ERROR:: optimize_and_install() " << rte.what() << std::endl;
+   } 
+
    return l;
 }
 

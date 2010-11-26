@@ -68,6 +68,9 @@
     argument specifying the minimum distance between peak (filtering
     out close smaller peaks).
 
+  o CHANGE: Waters are not considered when calculating the clash score
+    during rotamer fit.
+
   o BUG-FIX:: Hydrogens on waters are no longer checked against the
     difference map in the water validation test.
 
