@@ -255,7 +255,9 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 	       int n_loop_time = 0;
 	       if (mmCIFLoop == NULL) {
-// 		  std::cout << "================ cat_name: " << cat_name << std::endl;
+
+		  // std::cout << "================ cat_name: " << cat_name << std::endl;
+
 		  if (cat_name == "_chem_comp") {
 		     // read the chemical component library which does
 		     // not have a loop (the refmac files do) for the

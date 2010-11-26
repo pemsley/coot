@@ -39,13 +39,13 @@ ana_grad_on {  if (NF == 2) ana_list[ana_No,ana_count++] = $1+0; }
 
 END {
 
-  if (0) { 
+  if (1) { 
     for (i=0; i< num_count; i++) {
       print num_list[iter_no,i], ana_list[iter_no,i];
     }
   }
 
-  if (1) { 
+  if (0) { 
     lim = 770;
     for (j=0; j<lim; j++) { 
       for (i=0; i< num_count; i++) {

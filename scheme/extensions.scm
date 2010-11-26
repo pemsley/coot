@@ -576,6 +576,14 @@
 	   (let ((func (lambda (imol ls) 
 			 (rigid-body-refine-by-residue-ranges imol ls))))
 	     (residue-range-gui func "Rigid Body Refine" "  Fit  "))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Rigid Body Fit Molecule..."
+	 (lambda () 
+	   (molecule-chooser-gui
+	    "Rigid Body Fit Molecule"
+	    (lambda (imol)
+	      (rigid-body-refine-by-atom-selection imol "//")))))
       
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Superpose ligands..."
