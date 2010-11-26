@@ -237,10 +237,16 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        break;
 
      case PREFERENCES_TIPS:
-       if (g.preferences_internal[i].ivalue1 == 0) {
-	 commands.push_back(state_command("no-coot-tips", il));
-       }
-       break;
+	if (g.preferences_internal[i].ivalue1 == 0) {
+	   if (il == 1) { // guile
+#ifdef USE_GUILE_GTK	   
+	      commands.push_back(state_command("no-coot-tips", il));
+#endif
+	   } else {
+	      commands.push_back(state_command("no-coot-tips", il));
+	   }
+	}
+	break;
       
      case PREFERENCES_SPIN_SPEED:
        commands.push_back(state_command("set-idle-function-rotate-angle",
