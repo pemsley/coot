@@ -5903,6 +5903,18 @@ Wed Nov 17 14:01:30 GMT 2010
     o we may want to loose the HID part of the tutorial
 
 
+----
+Sat Nov 27 10:58:27 GMT 2010
+
+  o merge a 3GP into tutorial modern then try to undisplay hydrogens
+    with Bond Parameters.  Fail (because of new bonding algorithm) - not for 0.6.2.
+
+
+----
+Sat Nov 27 10:58:27 GMT 2010
+
+  o ncs difference graph updating on autofit rotamer and refine residue
+
 
 ------
 
