@@ -178,9 +178,13 @@ coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol,
 //  		      << target_pos.y() << " " << target_pos.z() << "\n";
 	    residue.addatom(" C  ", " C", t, "", 1.0, 30.0);
 	 }
-	 // 	 globular_molecule[igfrag].addresidue(residue, 0);
       }
-      globular_molecule[igfrag].addresidue(residue, 0);
+      try { 
+	 globular_molecule[igfrag].addresidue(residue, 0);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "ERROR:: fill_globular_protein() " << rte.what() << std::endl;
+      } 
    }
    std::cout << "DEBUG:: ##################### globular_molecule created"
 	     << std::endl;

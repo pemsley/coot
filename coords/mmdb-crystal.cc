@@ -185,16 +185,7 @@ molecule_extents_t::molecule_extents_t(atom_selection_container_t selection,
       res.addatom(at);
    }
 
-
-   // 
    atom_sel_cell_trans = coord_to_unit_cell_translations(centre, selection);
-
-   // debugging stuff    
-//    coot::minimol::molecule m;
-//    int ifrag = m.fragment_for_chain("A");
-//    m[ifrag].addresidue(res, 0);
-//    m.write_file("extents-debug.pdb");
-      
 }
 
 molecule_extents_t::~molecule_extents_t() {

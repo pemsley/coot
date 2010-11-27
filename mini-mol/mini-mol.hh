@@ -77,7 +77,7 @@ namespace coot {
 	 residue(CResidue *residue_p);
 	 residue(CResidue *residue_p,
 		 const std::vector<std::string> &keep_only_these_atoms);
-	 residue(){}; // for resizing the residues in fragment
+	 residue(){ seqnum = MinInt4; /* unset */ }; // for resizing the residues in fragment
 	 int seqnum;
 	 std::string ins_code;
 	 std::string name;
@@ -129,7 +129,8 @@ namespace coot {
 	    return residues[i-residues_offset];
 	 }
 	 residue&       operator[](int i);
-	 void addresidue(const residue &res, short int add_if_empty_flag);
+	 // can throw a std::runtime_error if called with an uninialised res.
+	 void addresidue(const residue &res, bool add_if_empty_flag);
 	 std::vector<atom *> select_atoms_serial() const;
 	 int max_residue_number() const { return (residues.size() + residues_offset -1); }
 	 int min_res_no() const { return residues_offset + 1; }

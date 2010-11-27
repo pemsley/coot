@@ -147,10 +147,16 @@ coot::backrub::make_test_fragment(CResidue *r, double rotation_angle) const {
 
    // addresidue() fails when adding residues with the same residue
    // number (the ins code is ignored).  Urgh.
-   // 
-   f.addresidue(prev_residue, 0);
-   f.addresidue(r, 0);
-   f.addresidue(next_residue, 0);
+   //
+   try { 
+      f.addresidue(prev_residue, 0);
+      f.addresidue(r, 0);
+      f.addresidue(next_residue, 0);
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "ERROR:: make_test_fragment() " << rte.what() << std::endl;
+   } 
+   
 
    // now rotate fragment around the ca_prev -> ca_next vector
    clipper::Coord_orth dir = ca_next - ca_prev;
