@@ -1,32 +1,27 @@
 
  0.6.2
 
+  o The hydrogens on DTT are drawn wrongly (additional half-bond).  ::: 1
+
   o Juha Vahokoski:
     when you change the symmetry after a SSM superposition, change the
-    ORIGx and SCALEx cards too (to match the reference molecule).
+    ORIGx and SCALEx cards too (to match the reference molecule).  ::: 1
 
   o talk to Bernhard re: REDUCE_HET_DICT etc.  Look at his python
     code.
 
-  o replace residue does chi angle matching?
-
-  o COOT_SCHEME_EXTRAS_DIR needs to be a :-separated list
+  o COOT_SCHEME_EXTRAS_DIR needs to be a :-separated list  ::: 1
 
   o Apply NCS residue range needs a way to tell it to apply to one
-   chain only (or a number of chains) - default all chains, of course.
+    chain only (or a number of chains) - default all chains, of course. ::: 1
 
-  o load tutorial data on a mac fails, no COOT_PREFIX set.
-
-  o merge a 3GP into tutorial modern then try to undisplay hydrogens
-    with Bond Parameters.  Fail (because of new bonding algorithm) - not for 0.6.2.
-
-  o ncs difference graph updating on autofit rotamer and refine residue
+  o Load tutorial data on a mac fails, no COOT_PREFIX set. ::: 1
 
   o fix the non-Hs of a molecule.  Refine just the Hs.  Other atoms
-     move too.  Badness.  could be related to KK bug.
+     move too.  Badness.  could be related to KK bug. ::: 2 
 
-  o a pdb with Hs.  undisplay Hs.  Zero occ squares should dissappear,
-    but Do not.  Zero occ atoms are clickable.  JED bug.
+* Fixed now?
+
 
 ------
 
@@ -772,5 +767,13 @@ WARNING:: Can't find file
 
 * Done.
 
+  o replace residue does chi angle matching?.  No.  
+
+* Done.
+
+  o a pdb with Hs.  undisplay Hs.  Zero occ squares should dissappear,
+    but Do not.  Zero occ atoms are clickable.  JED bug. ::: 2
+
+* Fixed.
 
 -------
