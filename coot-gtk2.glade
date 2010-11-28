@@ -46425,6 +46425,7 @@ distances more than:</property>
 	  <child>
 	    <widget class="GtkFrame" id="frame116">
 	      <property name="border_width">4</property>
+	      <property name="visible">True</property>
 	      <property name="label_xalign">0</property>
 	      <property name="label_yalign">0.5</property>
 	      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
@@ -46438,7 +46439,6 @@ distances more than:</property>
 		  <child>
 		    <widget class="GtkFrame" id="frame173">
 		      <property name="border_width">2</property>
-		      <property name="visible">True</property>
 		      <property name="label_xalign">0</property>
 		      <property name="label_yalign">0.5</property>
 		      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
@@ -46599,7 +46599,6 @@ distances more than:</property>
 
 	      <child>
 		<widget class="GtkLabel" id="label324">
-		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">Colour Map Rotation [Molecule Independent] </property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
