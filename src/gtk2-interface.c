@@ -280,7 +280,7 @@ create_window1 (void)
   GtkWidget *frame187;
   GtkWidget *angles_eventbox_docked;
   GtkWidget *frame188;
-  GtkWidget *torsion_eventbox_docked;
+  GtkWidget *torsions_eventbox_docked;
   GtkWidget *frame189;
   GtkWidget *planes_eventbox_docked;
   GtkWidget *frame193;
@@ -1405,10 +1405,10 @@ create_window1 (void)
   gtk_frame_set_label_align (GTK_FRAME (frame188), 0.02, 0.5);
   gtk_frame_set_shadow_type (GTK_FRAME (frame188), GTK_SHADOW_ETCHED_OUT);
 
-  torsion_eventbox_docked = gtk_event_box_new ();
-  gtk_widget_show (torsion_eventbox_docked);
-  gtk_container_add (GTK_CONTAINER (frame188), torsion_eventbox_docked);
-  gtk_tooltips_set_tip (tooltips, torsion_eventbox_docked, _("Torsions"), NULL);
+  torsions_eventbox_docked = gtk_event_box_new ();
+  gtk_widget_show (torsions_eventbox_docked);
+  gtk_container_add (GTK_CONTAINER (frame188), torsions_eventbox_docked);
+  gtk_tooltips_set_tip (tooltips, torsions_eventbox_docked, _("Torsions"), NULL);
 
   frame189 = gtk_frame_new (NULL);
   gtk_table_attach (GTK_TABLE (refinement_lights_table_docked), frame189, 3, 4, 0, 1,
@@ -2596,7 +2596,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, frame187, "frame187");
   GLADE_HOOKUP_OBJECT (window1, angles_eventbox_docked, "angles_eventbox_docked");
   GLADE_HOOKUP_OBJECT (window1, frame188, "frame188");
-  GLADE_HOOKUP_OBJECT (window1, torsion_eventbox_docked, "torsion_eventbox_docked");
+  GLADE_HOOKUP_OBJECT (window1, torsions_eventbox_docked, "torsions_eventbox_docked");
   GLADE_HOOKUP_OBJECT (window1, frame189, "frame189");
   GLADE_HOOKUP_OBJECT (window1, planes_eventbox_docked, "planes_eventbox_docked");
   GLADE_HOOKUP_OBJECT (window1, frame193, "frame193");

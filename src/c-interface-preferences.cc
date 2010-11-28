@@ -648,19 +648,25 @@ void save_preferences() {
 
   directory += "/.coot-preferences/";
 
+  int status = make_directory_maybe(directory.c_str());
+  if (status != 0) {
+    std::cout<<"ERROR:: Cannot find directory "<< directory <<
+      "        Will not be able to save preferences"<<std::endl;
+  } else {
+
 #ifdef USE_GUILE
-  preferences_name = "coot-preferences.scm";
-  file_name = directory + preferences_name;
-  il = 1;
-  istat = g.save_preference_file(file_name, il);
+    preferences_name = "coot-preferences.scm";
+    file_name = directory + preferences_name;
+    il = 1;
+    istat = g.save_preference_file(file_name, il);
 #endif // USE_GUILE
 #ifdef USE_PYTHON
-  preferences_name = "coot_preferences.py";
-  file_name = directory + preferences_name;
-  il = 2;
-  istat = g.save_preference_file(file_name, il);
+    preferences_name = "coot_preferences.py";
+    file_name = directory + preferences_name;
+    il = 2;
+    istat = g.save_preference_file(file_name, il);
 #endif // USE_PYTHON
-
+  }
 }
  
 
