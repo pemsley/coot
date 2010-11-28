@@ -526,10 +526,11 @@ main (int argc, char *argv[]) {
      // only GTK2
 #if COOT_USE_GTK2_INTERFACE
      std::string preferences_dir = graphics_info_t::add_dir_file(directory, ".coot-preferences");
-     int preferences_dir_status = make_directory_maybe(preferences_dir.c_str());
+     struct stat buff;
+     int preferences_dir_status = stat(preferences_dir.c_str(), &buff);
      if (preferences_dir_status != 0) { 
-		std::cout << "WARNING preferences directory " << preferences_dir 
-                  << " does not exist and could not be created" << std::endl;;
+		std::cout << "INFO:: preferences directory " << preferences_dir 
+                  << " does not exist. Won't read preferences." << std::endl;;
      } else {
        // load all .py files
        glob_t myglob;

@@ -249,10 +249,9 @@ c_inner_main(void *closure, int argc, char** argv) {
     strcat (tmp_str, ".coot-preferences");
     preferences_dir = tmp_str;
     istat = stat(preferences_dir, &buf);
-    preferences_dir_status = make_directory_maybe(preferences_dir);
-    if (preferences_dir_status != 0) { 
-      printf("WARNING:: preferences directory %s \n", preferences_dir);
-      printf("          does not exist and could not be created\n");
+    if (istat != 0) { 
+      printf("INFO:: preferences directory %s \n", preferences_dir);
+      printf("       does not exist. Won't read preferences.\n");
      } else {
        /* load all .scm files */
        /* need an extra char for null termination, I think */

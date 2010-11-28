@@ -2560,7 +2560,7 @@
 					  <property name="shadow_type">GTK_SHADOW_ETCHED_OUT</property>
 
 					  <child>
-					    <widget class="GtkEventBox" id="torsion_eventbox_docked">
+					    <widget class="GtkEventBox" id="torsions_eventbox_docked">
 					      <property name="visible">True</property>
 					      <property name="tooltip" translatable="yes">Torsions</property>
 					      <property name="visible_window">True</property>

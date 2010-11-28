@@ -1367,12 +1367,14 @@ def get_refmac_version():
             fin = open(log_file, 'r')
             lines = fin.readlines()
             fin.close()
+            os.remove(log_file)
             for line in lines:
                 if ("Program" in line):
                     version = line.split()[-1]
                     major, minor, micro = version.split(".")
                     return [int(major), int(minor)]
         else:
+            os.remove(log_file)
             print "INFO:: problem to get refmac version"
     else:
         return False

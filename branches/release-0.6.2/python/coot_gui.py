@@ -1932,6 +1932,9 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
 
    if check_button_label:
       check_button = gtk.CheckButton(check_button_label)
+      # somehow need to execute the function before we can use it in the
+      # callback. This is odd to say the least. FIXME
+      check_button_func(check_button, inside_vbox)
       check_button.connect("toggled", lambda func:
                            check_button_func(check_button, inside_vbox))
       if check_button_is_initially_on_flag:
@@ -2059,7 +2062,9 @@ def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_b
 
 # as the dialog_box_of_buttons, but we can put in an extra widget (extra_widget)
 #
-def dialog_box_of_buttons_with_widget(window_name, geometry, buttons, extra_widget, close_button_label):
+def dialog_box_of_buttons_with_widget(window_name, geometry,
+                                      buttons, extra_widget,
+                                      close_button_label):
 
 	def add_text_to_text_widget(text_box, description):
 		textbuffer = text_box.get_buffer()
@@ -2374,7 +2379,8 @@ def nudge_screen_centre_extra_gui():
 
    zoom_adj.connect("value_changed", change_zoom)
 
-   dialog_box_of_buttons_with_widget("Nudge Screen Centre with Extras", [200,400], buttons, vbox, "  Close ")
+   dialog_box_of_buttons_with_widget("Nudge Screen Centre with Extras",
+                                     [200, 400], buttons, vbox, "  Close ")
 
 
 # A gui to make a difference map (from arbitrarily gridded maps
@@ -4374,8 +4380,8 @@ def user_mods_gui(imol, pdb_file_name):
             pass
          else:
             # keep-letter: K is for keep, 
-            # is clash, X is "not sure"
-            # is flip.
+            # C is clash, X is "not sure"
+            # F is flip.
             keep_letter = info_string[2:3]
             if keep_letter in "XFC":
                ret.append(flip)
@@ -4405,7 +4411,7 @@ def user_mods_gui(imol, pdb_file_name):
       no_adj_buttons = make_no_adj_buttons(flips[1])
       all_buttons = no_adj_buttons + flip_buttons
       dialog_box_of_buttons_with_check_button(
-         "  Flips ", [300, 300], all_buttons, "  Close  ",
+         " Flips ", [300, 300], all_buttons, "  Close  ",
          "Clashes, Problems and Flips only",
          lambda check_button, vbox: clear_and_add_back(vbox, flips[0], flips[1], True)
                                     if check_button.get_active() else

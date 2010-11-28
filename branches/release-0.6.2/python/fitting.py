@@ -731,7 +731,7 @@ def manual_refine_residues(side_residue_offset):
 
 # Sphere refinement (around radius)
 #
-def sphere_refine(radius=3.0):
+def sphere_refine(radius=3.0, expand=False):
     from types import ListType
     active_atom = active_residue()
     if (not active_atom):
@@ -751,9 +751,26 @@ def sphere_refine(radius=3.0):
             all_residues = [centred_residue]
             if (type(other_residues) is ListType):
                 all_residues += other_residues
+            # extend?
+            if expand:
+                all_residues.sort()
+                tmp_ls = all_residues[:]
+                for res in tmp_ls:
+                    before_res = res[:]
+                    after_res = res[:]
+                    before_res[1] = before_res[1]-1
+                    after_res[1] = after_res[1]+1
+                    if not before_res in all_residues:
+                        all_residues.append(before_res)
+                    if not after_res in all_residues:
+                        all_residues.append(after_res)
+                all_residues.sort()  # not needed
+
             print "imol: %s residues: %s" %(imol, all_residues)
             refine_residues(imol, all_residues)
 
+def sphere_refine_plus(radius=3.0):
+    sphere_refine(radius, True)
 
 # Pepflip the active residue - needs a key binding
 #
