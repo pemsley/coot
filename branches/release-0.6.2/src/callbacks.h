@@ -2332,6 +2332,11 @@ on_preferences_diff_map_colours_o_radiobutton_toggled
                                         gpointer         user_data);
 
 void
+on_preferences_map_colours_hscale_value_changed
+                                        (GtkRange        *range,
+                                        gpointer         user_data);
+
+void
 on_preferences_smooth_scroll_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
