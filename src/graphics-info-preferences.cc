@@ -180,6 +180,11 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 					g.preferences_internal[i].ivalue1, il));
        break;
 
+     case PREFERENCES_MAP_COLOURS_MAP_ROTATION:
+       commands.push_back(state_command("set-colour-map-rotation-for-map",
+					g.preferences_internal[i].fvalue1, il));
+       break;
+
      case PREFERENCES_SMOOTH_SCROLL:
        commands.push_back(state_command("set-smooth-scroll-flag",
 					g.preferences_internal[i].ivalue1, il));
@@ -471,6 +476,11 @@ graphics_info_t::make_preferences_internal() {
   p.ivalue1 = on;
   ret.push_back(p);
 
+  fvalue = graphics_info_t::rotate_colour_map_for_map;
+  p.preference_type = PREFERENCES_MAP_COLOURS_MAP_ROTATION;
+  p.fvalue1 = fvalue;
+  ret.push_back(p);
+   
   // Map smooth scroll
   on = get_smooth_scroll();
   p.preference_type = PREFERENCES_SMOOTH_SCROLL;

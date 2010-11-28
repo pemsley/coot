@@ -361,7 +361,7 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
 
       if (tag == "number_atoms_all") { 
 	 try {
-	    number_of_atoms_all = coot::util::string_to_float(field);
+	    number_of_atoms_all = coot::util::string_to_int(field);
 	 }
 	 catch (std::runtime_error rte) {
 	    std::cout << rte.what() << std::endl;
@@ -369,7 +369,7 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
       }
       if (tag == "number_atoms_nh") { 
 	 try {
-	    number_of_atoms_nh = coot::util::string_to_float(field);
+	    number_of_atoms_nh = coot::util::string_to_int(field);
 	 }
 	 catch (std::runtime_error rte) {
 	    std::cout << rte.what() << std::endl;
