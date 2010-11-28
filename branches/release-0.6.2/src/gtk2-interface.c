@@ -22780,6 +22780,7 @@ create_coords_colour_control_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label271), GTK_JUSTIFY_CENTER);
 
   frame116 = gtk_frame_new (NULL);
+  gtk_widget_show (frame116);
   gtk_box_pack_start (GTK_BOX (vbox178), frame116, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame116), 4);
 
@@ -22788,7 +22789,6 @@ create_coords_colour_control_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame116), vbox123);
 
   frame173 = gtk_frame_new (NULL);
-  gtk_widget_show (frame173);
   gtk_box_pack_start (GTK_BOX (vbox123), frame173, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame173), 2);
 
@@ -22832,7 +22832,6 @@ create_coords_colour_control_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (bond_parameters_rotate_colour_map_c_only_checkbutton), 5);
 
   label324 = gtk_label_new (_("Colour Map Rotation [Molecule Independent] "));
-  gtk_widget_show (label324);
   gtk_frame_set_label_widget (GTK_FRAME (frame116), label324);
 
   dialog_action_area92 = GTK_DIALOG (coords_colour_control_dialog)->action_area;
