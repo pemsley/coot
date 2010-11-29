@@ -221,7 +221,9 @@ manage_column_selector(const char *filename) {
       
       if (w) {
 	 gtk_widget_show(w);
+#if (GTK_MAJOR_VERSION > 1)
 	 gtk_window_present(GTK_WINDOW(w));
+#endif	 
       }
    }
    std::string cmd = "manage-column-selector";
