@@ -98,6 +98,7 @@ namespace coot {
 	 void delete_atom_indices(const std::vector<int> &atom_indices);
 	 // throw an exception if atoms not found
 	 double get_torsion(coot::atom_name_quad &quad) const;
+	 bool is_undefined() const { if (seqnum == MinInt4) return 1; else return 0; };
       };
 
       class fragment {
@@ -105,7 +106,7 @@ namespace coot {
          	              //  and -2 when we start at -1 (etc).
          	              //  operator[] takes into account
          	              //  residues_offset now.
-	                      // Basically offset is the (minimum_resno) + 1.
+	                      // Basically offset is the (minimum_resno) - 1.
 	 // The resizing in operator[] and addresidue() needs some clear thinking.
       public:
 	 fragment() {
@@ -129,7 +130,8 @@ namespace coot {
 	    return residues[i-residues_offset];
 	 }
 	 residue&       operator[](int i);
-	 // can throw a std::runtime_error if called with an uninialised res.
+	 // can throw a std::runtime_error exception if this is called
+	 // with an uninialised (and empty) res and we try to add it.
 	 void addresidue(const residue &res, bool add_if_empty_flag);
 	 std::vector<atom *> select_atoms_serial() const;
 	 int max_residue_number() const { return (residues.size() + residues_offset -1); }

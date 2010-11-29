@@ -1686,7 +1686,6 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
       
       coot::minimol::molecule range_mol;
       int ir = range_mol.fragment_for_chain(chain);
-      coot::minimol::residue empty_res;
 
       // Fill range_mol and manipulate mol so that it has a blank (it
       // will get copied and used as to mask the map).
@@ -1707,8 +1706,12 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 		  // moving mol, because they don't match the altconf
 		  std::vector<int> from_mov_delete_atom_indices;
 
-		  try { 
-		     range_mol[ir].addresidue(mol[ifrag][ires], 1);
+		  try { // (yes, belt and braces in this case)
+		     if (! mol[ifrag][ires].is_undefined()) { 
+			// std::cout << "adding residue mol[" << ifrag<< "][" << ires << "]: "
+			// << mol[ifrag][ires] << std::endl;
+			range_mol[ir].addresidue(mol[ifrag][ires], 1);
+		     }
 		  }
 		  catch (std::runtime_error rte) {
 		     std::cout << "ERROR:: execute_rigid_body_refine() " << rte.what() << std::endl;
