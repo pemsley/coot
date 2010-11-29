@@ -949,7 +949,7 @@ coot::minimol::fragment::addresidue(const coot::minimol::residue &res,
 				    bool add_if_empty_flag) {
 
    if (res.atoms.size() > 0 || add_if_empty_flag) {
-      if (res.seqnum == MinInt4) {
+      if (res.is_undefined()) {
 	 throw std::runtime_error("ERROR:: caught uninitialised res in addresidue().");
       } else {
 	 (*this)[res.seqnum] = res;
@@ -1006,7 +1006,10 @@ coot::minimol::operator<<(std::ostream& s, coot::minimol::atom at) {
 std::ostream&
 coot::minimol::operator<<(std::ostream& s, coot::minimol::residue res) {
 
-   s << res.name << " contains " << res.atoms.size() << " atoms";
+   if (res.seqnum == MinInt4) 
+      s << "residue is undefined! ";
+   if (res.atoms.size() > 0) 
+      s << res.name << " contains " << res.atoms.size() << " atoms";
    return s;
 }
 
