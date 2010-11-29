@@ -1190,12 +1190,9 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 	 while ( fgets( line, 240, dots ) != NULL ) {
 	    if (sscanf(line, "# %s %s %s", s1, s2, s3)) {
 	       std::string st1, st2, st3;
-	       if (s1)
-		  st1 = s1;
-	       if (s2)
-		  st2 = s2;
-	       if (s3)
-		  st3 = s3;
+	       st1 = s1;
+	       st2 = s2;
+	       st3 = s3;
 	       // a comment line, what type of dots are we looking at?
 	       // std::cout << "# line --- " << line << std::endl;
 	       clipper::String contact_line(s);
@@ -1223,8 +1220,7 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 	       
 	    } else {
 	       if (sscanf(line, "%f %f %f %f %f %f %s", &x1, &x2, &x3, &x4, &x5, &x6, s)) {
-		  if (s)
-		     current_colour = s;
+		  current_colour = s;
 		  float length2 = pow((x1-x4),2) + pow((x2-x5),2) + pow((x3-x6),2);
 		  if (length2 > 0.1) {
 		     n_lines++;
