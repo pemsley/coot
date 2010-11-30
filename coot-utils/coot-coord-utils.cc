@@ -6205,3 +6205,28 @@ coot::nearest_residue_by_sequence(CMMDBManager *mol,
 }
 
 
+
+
+// copy cell, symm, origin and scale cards from m1 to m2 (if possible)
+bool
+coot::util::copy_cell_and_symm_headers(CMMDBManager *m1, CMMDBManager *m2) {
+
+   bool r = 0;
+
+   if (m1 && m2) { 
+
+      //       realtype a[6];
+      //       realtype vol;
+      //       int orthcode;
+      
+      //       m1->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
+      //       char *sg = m1->GetSpaceGroup();
+      //       m2->SetSpaceGroup(sg);
+      //       m2->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
+      
+      m2->Copy(m1, MMDBFCM_Cryst);
+      r = 1;
+   }
+   return r;
+}
+

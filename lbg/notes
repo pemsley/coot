@@ -17,10 +17,16 @@ test ligands:
             What about the ASN A312 H-bond donor to the H on the ligand?
             Mistake, I feel - needs investigating.
 
-----
-Sat Nov 13 16:40:13 GMT 2010
 
- 
+----
+Mon Nov 29 17:00:39 GMT 2010
+
+   call smiles_to_ligand_builder with a bad string:     
+	
+	
+    "CCCCC/C=C\C/C=C\C/C=C\C/C=C\CCCC(=O)O CopyCopied"  -> crash
+
+[16:56:23] SMILES Parse Error
 
 ----
 Wed Oct 13 07:18:36 EDT 2010

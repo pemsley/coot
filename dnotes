@@ -5915,6 +5915,13 @@ Sat Nov 27 10:58:27 GMT 2010
 
   o ncs difference graph updating on autofit rotamer and refine residue
 
+---
+Tue Nov 30 02:42:51 GMT 2010
+
+  o The hydrogens on DTT are drawn wrongly (additional half-bond).  
+
+* Too complicated for now
+
 
 ------
 
