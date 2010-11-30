@@ -183,6 +183,11 @@ void do_phs_cell_choice_window() {
      }
   }
   gtk_widget_show(window); 
+  // force to the top? (even on Mac?) 
+  // maybe the above show may not be needed any more
+#if (GTK_MAJOR_VERSION > 1)
+  gtk_window_present(GTK_WINDOW(window));
+#endif
 
 } 
 

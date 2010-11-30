@@ -1988,41 +1988,49 @@ void try_load_scheme_extras_dir() {
 
    char *s = getenv("COOT_SCHEME_EXTRAS_DIR");
    if (s) {
-      struct stat buf;
-      int status = stat(s, &buf);
-      if (status != 0) {
-	 std::cout << "WARNING:: no directory " << s << std::endl;
-      } else {
-	 if (S_ISDIR(buf.st_mode)) {
 
-	    DIR *lib_dir = opendir(s);
-	    if (lib_dir == NULL) {
-	       std::cout << "An ERROR occured on opening the directory "
-			 << s << std::endl;
-	    } else {
+      std::vector<std::string> dirs = coot::util::split_string(s, ":");
 
-	       struct dirent *dir_ent;
+      for (unsigned int i=0; i<dirs.size(); i++) { 
+	 struct stat buf;
+	 int status = stat(dirs[i].c_str(), &buf);
+	 if (status != 0) {
+	    std::cout << "WARNING:: no directory \"" << dirs[i] << "\""
+		      << " in COOT_SCHEME_EXTRAS_DIR " << s
+		      << std::endl;
+	 } else {
+	    if (S_ISDIR(buf.st_mode)) {
 
-	       // loop until the end of the filelist (readdir returns NULL)
-	       // 
-	       while (1) {
-		  dir_ent = readdir(lib_dir);
-		  if (dir_ent == NULL) {
-		     break;
-		  } else {
-		     std::string sub_part(std::string(dir_ent->d_name));
-		     struct stat buf2;
-		     std::string fp = s;
-		     fp += "/";
-		     fp += sub_part;
-		     int status2 = stat(fp.c_str(), &buf2);
-		     if (status2 != 0) {
-			std::cout << "WARNING:: no file " << sub_part << std::endl;
+	       DIR *lib_dir = opendir(dirs[i].c_str());
+	       if (lib_dir == NULL) {
+		  std::cout << "An ERROR occured on opening the directory "
+			    << dirs[i] << std::endl;
+	       } else {
+
+		  struct dirent *dir_ent;
+
+		  // loop until the end of the filelist (readdir returns NULL)
+		  // 
+		  while (1) {
+		     dir_ent = readdir(lib_dir);
+		     if (dir_ent == NULL) {
+			break;
 		     } else {
-			if (S_ISREG(buf2.st_mode)) {
-			   if (coot::util::file_name_extension(sub_part) == ".scm") {
-			      std::cout << "loading extra: " << fp << std::endl;
-			      scm_c_primitive_load(fp.c_str()); 
+			std::string sub_part(std::string(dir_ent->d_name));
+			struct stat buf2;
+			std::string fp = s;
+			fp += "/";
+			fp += sub_part;
+			int status2 = stat(fp.c_str(), &buf2);
+			if (status2 != 0) {
+			   // std::cout << "WARNING:: no file " << sub_part << " in directory "
+			   // << dirs[i] << std::endl;
+			} else {
+			   if (S_ISREG(buf2.st_mode)) {
+			      if (coot::util::file_name_extension(sub_part) == ".scm") {
+				 std::cout << "loading extra: " << fp << std::endl;
+				 scm_c_primitive_load(fp.c_str()); 
+			      }
 			   }
 			}
 		     }
@@ -2041,41 +2049,46 @@ void try_load_python_extras_dir() {
 
    char *s = getenv("COOT_PYTHON_EXTRAS_DIR");
    if (s) {
-      struct stat buf;
-      int status = stat(s, &buf);
-      if (status != 0) {
-	 std::cout << "WARNING:: no directory " << s << std::endl;
-      } else {
-	 if (S_ISDIR(buf.st_mode)) {
+      std::vector<std::string> dirs = coot::util::split_string(s, ":");
+      for (unsigned int i=0; i<dirs.size(); i++) { 
+	 struct stat buf;
+	 int status = stat(dirs[i].c_str(), &buf);
+	 if (status != 0) {
+	    std::cout << "WARNING:: no directory \"" << dirs[i] << "\""
+		      << " in COOT_PYTHON_EXTRAS_DIR " << s
+		      << std::endl;
+	 } else {
+	    if (S_ISDIR(buf.st_mode)) {
 
-	    DIR *lib_dir = opendir(s);
-	    if (lib_dir == NULL) {
-	       std::cout << "An ERROR occured on opening the directory "
-			 << s << std::endl;
-	    } else {
+	       DIR *lib_dir = opendir(dirs[i].c_str());
+	       if (lib_dir == NULL) {
+		  std::cout << "An ERROR occured on opening the directory "
+			    << dirs[i] << std::endl;
+	       } else {
 
-	       struct dirent *dir_ent;
+		  struct dirent *dir_ent;
 
-	       // loop until the end of the filelist (readdir returns NULL)
-	       // 
-	       while (1) {
-		  dir_ent = readdir(lib_dir);
-		  if (dir_ent == NULL) {
-		     break;
-		  } else {
-		     std::string sub_part(std::string(dir_ent->d_name));
-		     struct stat buf2;
-		     std::string fp = s;
-		     fp += "/";
-		     fp += sub_part;
-		     int status2 = stat(fp.c_str(), &buf2);
-		     if (status2 != 0) {
-			std::cout << "WARNING:: no file " << sub_part << std::endl;
+		  // loop until the end of the filelist (readdir returns NULL)
+		  // 
+		  while (1) {
+		     dir_ent = readdir(lib_dir);
+		     if (dir_ent == NULL) {
+			break;
 		     } else {
-			if (S_ISREG(buf2.st_mode)) {
-			   if (coot::util::file_name_extension(sub_part) == ".py") {
-			      std::cout << "loading python extra: " << fp << std::endl;
-			      run_python_script(fp.c_str()); 
+			std::string sub_part(std::string(dir_ent->d_name));
+			struct stat buf2;
+			std::string fp = s;
+			fp += "/";
+			fp += sub_part;
+			int status2 = stat(fp.c_str(), &buf2);
+			if (status2 != 0) {
+			   // std::cout << "WARNING:: no file " << sub_part << std::endl;
+			} else {
+			   if (S_ISREG(buf2.st_mode)) {
+			      if (coot::util::file_name_extension(sub_part) == ".py") {
+				 std::cout << "loading python extra: " << fp << std::endl;
+				 run_python_script(fp.c_str()); 
+			      }
 			   }
 			}
 		     }

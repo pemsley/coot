@@ -74,15 +74,11 @@ void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) {
 
 	 if (is_valid_model_molecule(imol_new)) {
 	    // now move the cryst of mol2 to be the same as the cryst of mol1.
-	    realtype a[6];
-	    realtype vol;
-	    int orthcode;
 	    CMMDBManager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
 	    CMMDBManager *m2 = graphics_info_t::molecules[imol_new].atom_sel.mol;
-	    m1->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
-	    char *sg = m1->GetSpaceGroup();
-	    m2->SetSpaceGroup(sg);
-	    m2->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
+
+	    bool success = coot::util::copy_cell_and_symm_headers(m1, m2);
+	    
 	 } 
 
       } else {
@@ -157,15 +153,10 @@ void superpose_with_chain_selection(int imol1, int imol2,
 
 	 if (is_valid_model_molecule(imol_new)) {
 	    // now move the cryst of mol2 to be the same as the cryst of mol1.
-	    realtype a[6];
-	    realtype vol;
-	    int orthcode;
+
 	    CMMDBManager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
 	    CMMDBManager *m2 = graphics_info_t::molecules[imol_new].atom_sel.mol;
-	    m1->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
-	    char *sg = m1->GetSpaceGroup();
-	    m2->SetSpaceGroup(sg);
-	    m2->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
+	    bool success = coot::util::copy_cell_and_symm_headers(m1, m2);
 	 } 
 	 
       }
@@ -238,10 +229,8 @@ int superpose_with_atom_selection(int imol1, int imol2,
 	 int orthcode;
 	 CMMDBManager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
 	 CMMDBManager *m2 = graphics_info_t::molecules[imol2].atom_sel.mol;
-	 m1->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
-	 char *sg = m1->GetSpaceGroup();
-	 m2->SetSpaceGroup(sg);
-	 m2->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
+
+	 bool success = coot::util::copy_cell_and_symm_headers(m1, m2);
       }
    }
 #endif // HAVE_SSMLIB

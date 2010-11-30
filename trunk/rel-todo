@@ -1,18 +1,8 @@
 
  0.6.2
 
-  o The hydrogens on DTT are drawn wrongly (additional half-bond).  ::: 1
-
-  o COOT_SCHEME_EXTRAS_DIR needs to be a :-separated list  ::: 1
-
-  o Juha Vahokoski:
-    when you change the symmetry after a SSM superposition, change the
-    ORIGx and SCALEx cards too (to match the reference molecule).  ::: 1
-
   o Apply NCS residue range needs a way to tell it to apply to one
     chain only (or a number of chains) - default all chains, of course. ::: 1
-
-  o Load tutorial data on a mac fails, no COOT_PREFIX set. ::: 1
 
   o talk to Bernhard re: REDUCE_HET_DICT etc.  Look at his python
     code.
@@ -775,6 +765,24 @@ WARNING:: Can't find file
      move too.  Badness.  could be related to KK bug. ::: 2 
 
 * Fixed.
+
+   o Joel Bard's residues range rigid body crash ::: 3
+
+* Done.
+
+  o COOT_SCHEME_EXTRAS_DIR needs to be a :-separated list  ::: 0.5
+
+* Done.
+
+  o Load tutorial data on a mac fails, no COOT_PREFIX set. ::: 0.5
+
+* Done.
+
+  o Juha Vahokoski:
+    when you change the symmetry after a SSM superposition, change the
+    ORIGx and SCALEx cards too (to match the reference molecule).  ::: 1
+
+* Done.
 
 
 -------
