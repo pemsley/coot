@@ -196,6 +196,9 @@ int greg_internal_tests() {
    functions.push_back(named_func(test_geometry_distortion_info_type, "geometry distortion comparision"));
    functions.push_back(named_func(test_translate_close_to_origin, "test symm trans to origin"));
 
+   // restore this at some stage
+   // functions.push_back(named_func(test_copy_cell_symm_orig_scale_headers, "test copy cell, symm, orig, scale cards"));
+
    status = run_internal_tests(functions);
    return status;
 }
@@ -268,6 +271,7 @@ int test_internal_single() {
       // status = test_flev_aromatics();
       // status = test_phi_psi_values();
       status = test_map_segmentation();
+      // status = test_copy_cell_symm_orig_scale_headers();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2320,7 +2324,84 @@ int test_map_segmentation() {
    }
 
    return 1;
+}
+
+// This test fails.  I can't get PutPDBString() to work.
+// 
+int test_copy_cell_symm_orig_scale_headers() {
+
+   int r = 0;
+
+   CMMDBManager *m1 = new CMMDBManager;
+   CMMDBManager *m2 = new CMMDBManager;
+
+   int set1 = m1->PutPDBString("CRYST1 69.782 69.782 157.017 90.00 90.00 90.00 P 41 21 2 8");
+   int set2 = m1->PutPDBString("ORIGX1      1.000000  0.000000  0.000000        0.00000");                         
+   int set3 = m1->PutPDBString("ORIGX2      0.000000  1.000000  0.000000        0.00000");                         
+   int set4 = m1->PutPDBString("ORIGX3      0.000000  0.000000  1.000000        0.00000");                         
+   int set5 = m1->PutPDBString("SCALE1      0.014330  0.000000  0.000000        0.00000");                         
+   int set6 = m1->PutPDBString("SCALE2      0.000000  0.014330  0.000000        0.00000");                         
+   int set7 = m1->PutPDBString("SCALE3      0.000000  0.000000  0.006369        0.00000");
+   m1->PutPDBString("ATOM      1  N   MET A 291     -11.787  76.079  32.455  1.00 46.95           N  ");
+   m1->PutPDBString("ATOM      2  CA  MET A 291     -10.759  74.985  32.450  1.00 46.65           C  ");
+   m1->PutPDBString("ATOM      3  C   MET A 291      -9.337  75.415  32.821  1.00 45.29           C  ");
+   m1->PutPDBString("ATOM      4  O   MET A 291      -9.056  75.720  33.979  1.00 45.72           O  ");
+
+
+   std::cout << "sets: "
+	     << set1 << " " << set2 << " " << set3 << " "
+	     << set4 << " " << set5 << " " << set6 << " "
+	     << set7 << " " << std::endl;
+
+   // m1->ReadPDBASCII("test.pdb");
+
+   const char *spc_1 = m1->GetSpaceGroup();
+   if (spc_1 == 0)
+      throw std::runtime_error("fail to set spacegroup with PutPDBString");
+
+   std::cout << "m1 spacegroup " << spc_1 << std::endl;
+
+   realtype a[6];
+   realtype vol;
+   int orthcode;
+   m1->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
+   std::cout << "PutPDBString: cell "
+	     << a[0] << " " << a[1] << " " << a[2] << " "
+	     << a[3] << " " << a[4] << " " << a[5] << " " << vol  << " " << orthcode
+	     << std::endl;
+
+   
+   bool r1 = coot::util::copy_cell_and_symm_headers(m1, m2);
+
+   const char *spc_2 = m2->GetSpaceGroup();
+   if (!spc_2)
+      throw std::runtime_error("fail to convert spacegroup (NULL)");
+
+   std::cout << "debug spacegroup " << spc_2 << std::endl;
+   std::string sp = spc_2;
+   if (sp != "P 41 21 2")
+      throw std::runtime_error("failed to set correct space group");
+
+   m2->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
+   std::cout << "Copied cell "
+	     << a[0] << " " << a[1] << " " << a[2] << " "
+	     << a[3] << " " << a[4] << " " << a[5] << " " << vol  << " " << orthcode
+	     << std::endl;
+
+   if (vol < 70*70*150)
+      throw std::runtime_error("failed to set correct cell");
+
+   
+   delete m1;
+   delete m2;
+
+   if (! r1) {
+      std::cout << "coot::util::copy_cell_and_symm_headers() fails" << std::endl;
+      return 0;
+   } 
+   return 1;
 } 
+
 
 #endif // BUILT_IN_TESTING
 

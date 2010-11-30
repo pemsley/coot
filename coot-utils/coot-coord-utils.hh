@@ -943,6 +943,11 @@ namespace coot {
       // a simple full copy, caller deletes.
       CMMDBManager *copy_molecule(CMMDBManager *mol);
 
+      // copy cell, symm, origin and scale cards from m1 to m2 (if possible)
+      // return success status.
+      bool copy_cell_and_symm_headers(CMMDBManager *m1, CMMDBManager *m2);
+      
+
       // The flanking residues (if any) are in the residue selection (SelResidues).
       // The flags are not needed now we have made adjustments in the calling
       // function.

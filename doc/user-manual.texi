@@ -432,13 +432,17 @@ behaviour.
   The directory containing standard (part of the distribution) scheme
   files 
 @item @env{COOT_SCHEME_EXTRAS_DIR} 
-  The directory containing bespoke scheme files.  This variable is not
-  set by default.  If you set it, Coot will test that it points to a
-  directory, and if it does, Coot will load all the .scm files in that
-  directory.
+  A ':'-separated list of directories containing bespoke scheme files.
+  This variable is not set by default.  If you set it, Coot will test
+  each ':'-separated string that it points to a directory, and if it does, 
+  Coot will load all the @t{.scm} files in that directory.
+@item @env{COOT_PYTHON_EXTRAS_DIR} 
+  A ':'-separated list of directories containing bespoke python files.
+  This variable is not set by default.  If you set it, Coot will test
+  each ':'-separated string that it points to a directory, and if it does, 
+  Coot will load all the @t{.py} files in that directory.
 @item @env{COOT_REF_STRUCTS} 
-  The directory containing a set of
-  high resolution pdb files used as 
+  The directory containing a set of high resolution pdb files used as 
 @cindex reference structures
   reference structures to build backbone atoms from
   C@math{\alpha} positions
