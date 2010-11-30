@@ -2162,7 +2162,9 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
 
   fill_option_menu_with_coordinates_options_unsaved_first(option_menu, callback_func, imol);
   gtk_widget_show(widget);
+#if (GTK_MAJOR_VERSION > 1)
   gtk_window_present(GTK_WINDOW(widget));
+#endif
 }
 
 
