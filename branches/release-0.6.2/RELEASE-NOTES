@@ -39,6 +39,9 @@
 
   o CHANGE: pointer distances are updated on go-to-blob [JED].
 
+  o CHANGE: COOT_SCHEME_EXTRA_DIR and COOT_PYTHON_EXTRAS_DIR are now
+    ":"-separated lists [Thomas Womack].
+
   o CHANGE: Real-space refinement is now interruptible [JED].
 
   o CHANGE: NCS skipping now works in the reverse chain order too
@@ -74,6 +77,16 @@
   o BUG-FIX:: Hydrogens on waters are no longer checked against the
     difference map in the water validation test.
 
+  o BUG-FIX: Water search now avoids close contacts to waters
+    generated in the same round.
+
+  o BUG-FIX: Water check in gtk1 version no longer tries to
+    dereference the difference map active checkbutton - fixes crash
+    [Subhangi Ghosh].
+
+  o BUG-FIX: Fix crash on rigid-body refine by atom selection with
+    residue gaps [Joel Bard].
+
   o BUG-FIX: rename residue works on only the specified chain.
 
   o BUG-FIX: anomalous maps are now properly recovered from the state
@@ -102,14 +115,10 @@
   o BUG-FIX: Environment distances are no longer drawn between atoms
     with differing non-blank alt-confs.
 
-  o BUG-FIX: Water search now avoids close contacts to waters
-    generated in the same round.
-
-  o BUG-FIX: Water check in gtk1 version no longer tries to
-    dereference the difference map active checkbutton - fixes crash
-    [Subhangi Ghosh].
-
   o BUG-FIX: mmCIF file writing fixed.
+
+  o BUG-FIX: Zero occupancy marker on hydrogens are not undisplayed
+    properly [JED].
 
   o BUG-FIX: refining with structures from .res files sometimes crash
     when writing backup file on Mac [Derek Logan].

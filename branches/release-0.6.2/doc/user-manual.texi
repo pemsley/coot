@@ -3407,9 +3407,18 @@ If you have only a range of residues, rather than a whole chain to replace:
 @code{(copy-residue-range-from-ncs-master-to-others @emph{imol} 
         @emph{master-chain-id start-resno end-resno})}
 
-e.g. 
+e.g.
 
 @code{(copy-residue-range-from-ncs-master-to-others 0 "A" 1 5)}
+
+If you want to copy a residue range to a specific chain, or specific
+list of chains (rather than all NCS peer chains) then make a list of
+the chain-ids that you wish replaced:
+
+@code{(copy-residue-range-from-ncs-master-to-chains 0 "A" 1 5 (list "C"))}
+
+in this case, just the residues in the "C" chain is replaced.
+
 
 @node    Running Refmac
 @section Running Refmac 

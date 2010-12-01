@@ -5304,11 +5304,30 @@ void copy_chain(int imol, const char *from_chain, const char *to_chain);
 /* do multiple copies */
 /*! \brief Copy chain from master to all related NCS chains */
 void copy_from_ncs_master_to_others(int imol, const char *chain_id);
-/*! \brief Copy residue range to all related NCS chains.  If the
+/*! \brief Copy residue range to all related NCS chains.  
+
+  If the
   target residues do not exist in the peer chains, then create
   them. */
 void copy_residue_range_from_ncs_master_to_others(int imol, const char *master_chain_id, 
 						  int residue_range_start, int residue_range_end);
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief Copy residue range to selected NCS chains
+
+   If the target residues do not exist in the peer chains, then create
+   them. 
+*/
+void copy_residue_range_from_ncs_master_to_chains_scm(int imol, const char *master_chain_id, 
+						      int residue_range_start, int residue_range_end, 
+						      SCM chain_id_list);
+#endif 
+#ifdef USE_PYTHON
+void copy_residue_range_from_ncs_master_to_chains_py(int imol, const char *master_chain_id, 
+						     int residue_range_start, int residue_range_end, 
+						     PyObject *chain_id_list);
+#endif 
+#endif 
 GtkWidget *wrapped_create_ncs_control_dialog();	
 /*! \brief change the NCS master chain  (by number)*/
 void ncs_control_change_ncs_master_to_chain(int imol, int ichain); 
