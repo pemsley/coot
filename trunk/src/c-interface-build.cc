@@ -5058,6 +5058,40 @@ void copy_residue_range_from_ncs_master_to_others(int imol,
    }
 }
 
+#ifdef USE_GUILE
+void copy_residue_range_from_ncs_master_to_chains_scm(int imol, const char *master_chain_id, 
+						      int residue_range_start, int residue_range_end, 
+						      SCM chain_id_list_in) {
+
+   if (is_valid_model_molecule(imol)) {
+      std::string c(master_chain_id);
+      std::vector<std::string> chain_id_list = generic_list_to_string_vector_internal(chain_id_list_in);
+      graphics_info_t::molecules[imol].copy_residue_range_from_ncs_master_to_chains(c,
+										    residue_range_start,
+										    residue_range_end,
+										    chain_id_list);
+      graphics_draw();
+   }
+} 
+#endif 
+#ifdef USE_PYTHON
+void copy_residue_range_from_ncs_master_to_chains_py(int imol, const char *master_chain_id, 
+						     int residue_range_start, int residue_range_end,
+						     PyObject *chain_id_list_in) {
+
+   if (is_valid_model_molecule(imol)) {
+      std::string c(master_chain_id);
+      std::vector<std::string> chain_id_list = generic_list_to_string_vector_internal_py(chain_id_list_in);
+      graphics_info_t::molecules[imol].copy_residue_range_from_ncs_master_to_chains(c,
+										    residue_range_start,
+										    residue_range_end,
+										    chain_id_list);
+      graphics_draw();
+   }
+} 
+#endif 
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Helices                                                 */

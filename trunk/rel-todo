@@ -1,9 +1,6 @@
 
  0.6.2
 
-  o Apply NCS residue range needs a way to tell it to apply to one
-    chain only (or a number of chains) - default all chains, of course. ::: 1
-
   o talk to Bernhard re: REDUCE_HET_DICT etc.  Look at his python
     code.
 
@@ -781,6 +778,11 @@ WARNING:: Can't find file
   o Juha Vahokoski:
     when you change the symmetry after a SSM superposition, change the
     ORIGx and SCALEx cards too (to match the reference molecule).  ::: 1
+
+* Done.
+
+  o Apply NCS residue range needs a way to tell it to apply to one
+    chain only (or a number of chains) ::: 1
 
 * Done.
 
