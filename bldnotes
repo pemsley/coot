@@ -8,9 +8,28 @@ build-it-win rev 2122
 * THINGS TO DO BEFORE 0.6.2 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
+notes from BioCrys
+- correct resno bsed on associated sequence (note: associate sequence produces
+	nonsens gaps at ends)
+- associate sequence GUI result GUI buttons, have action too rather than only
+	go-to-atom (have pair of buttons)
+
+- update build-it 
+ * update python 7z install
+ * update gtk (and gtk-glext)
+ * martyn mrc stuff
+ * guile gui
+
 notes APS CCP4 workshop
 - document refmac extra params + lib files location (note to self ?!)
 - SF4 library file (for Garib at some point)
+
+scripting exercise
+- shortcut for setting 0, 1, 0.5 occupancy
+- extend helix
+- adjust alt conf/occupancy
+- variance test for aa
+- doublicate residue range with alt conf
 
 ----------------
 * TO DO THINGS *
@@ -18,7 +37,32 @@ notes APS CCP4 workshop
 
 **** General ****
 
-   o symmetry colour button doesnt update
+from Osaka 2010
+
+   o add preferences, dock accept refine etc in tutorial!?
+
+   o fix atoms dont give traffic lights (bug?)
+
+   o toolbar for other modelling tools?
+
+   o menu separators (?)
+
+   o remove model fit refine dialog (for gtk2?)?
+
+-
+   o symmetry phosphates of DNA are bonded and not (i.e. get cross)
+
+   o what about ONLY torsion angle restraints for low res?
+
+   o add solvent molecule creates new monomers every time, check for existing ones
+
+   o grey out python/scheme when not available as scripting window
+
+   o space bar kills density fit window; feature or bug
+
+   o Difference map peaks do not respond to . , shortcuts
+
+   o symmetry colour button doesnt update (needs proper colour button)
 
    o enable Alt key for scripting keyboard shortcuts
 
@@ -104,8 +148,6 @@ notes APS CCP4 workshop
    o 'new', short display manager
 
 22/09/08
-   o fix size of chooser dialog (if possible, gtk2 bug?!)
-
 
    o notes to self:
      - ribbons: include ribbons
@@ -117,6 +159,14 @@ notes APS CCP4 workshop
 
 
 **** Python ****
+
+   o enable PISA interface for new enough PISA
+
+   o rethink threading - maybe better integration in event loop possible?
+
+   o check output libraries/cifs from libcheck, esp from smiles
+
+   o update documentation (tags); make extra file with title?!
 
    o different 'Control_' spellings in key board shortcuts
 
@@ -136,8 +186,6 @@ notes APS CCP4 workshop
    o review pygtk button (and other) callbacks which are string, poss can be 
 	exchanged (see water_coordination_gui)
 
-   o optional tooltips for main toolbar buttons
-
    o fix addition of guile and python keybindings (translation of lambda functions?)
 
    o key code for '(' and ')' not recognised (on FC10 e.g.)
@@ -152,11 +200,17 @@ notes APS CCP4 workshop
 
 **** Windows ****
 
+   o WinCoot:
+    - update gtk? Better for Windows 7?!
+	- before stable release copy python over
+	- silent python installation? Possible? (http://www.autoitscript.com/autoit3/)
+
    o icon on WinCoot website
 
    o label main Window WinCoot
 
    o check save times with gz compression, maybe make optional (feels slow)
+(* Done - optional compress that is)
 
    o better python std flushing for MINGW
 
@@ -167,11 +221,6 @@ notes APS CCP4 workshop
    o windows build: dont update src tar whilst building (if possible)
 
    o merge build-it-win with buid-it-gtk2-simple?!
-
-   o WinCoot:
-    - update gtk? Better for Windows 7?!
-	- before stable release copy python over
-	- silent python installation? Possible? (http://www.autoitscript.com/autoit3/)
 
    o A comprehensive windows test system(?):	
                 - start XP for testing after installer build
@@ -192,5 +241,83 @@ notes APS CCP4 workshop
    o fix using_active_atom with respect to lists
 	.. and extra args
 
-*Done
+* Done
+
+   o add read_vu files for python
+
+* Done
+
+   o move mol here: should auto display molecule!?
+
+* Done
+
+   o docked toolbar disappears when return is pressed
+
+* Done
+
+   o toolbuttons for probe dots chi and post-refine
+
+* Done
+
+   o make toogle_toolbuttons
+
+* Done
+
+   o optional tooltips for main toolbar buttons
+
+* Done
+
+Osaka 2010
+
+   o fix size of chooser dialog (if possible, gtk2 bug?!)
+
+* Done (appeared to have been a gtk2 bug)
+
+   o replace os.system with subprocess 
+
+* Done (maybe kill needs a revisit)
+
+   o save state cannot be expanded (as chooser?!)
+
+* Done
+
+   o rainbow doesnt ignore water (if in same chain)?!
+
+* Done
+
+   o fix atoms dont have pick cursor
+
+* Done
+ 
+   o sphere_refine_plus, i.e. sphere_refine with extra residues
+
+* Done
+
+   o reset Ramachandran lights in docked accept/reject dialog
+
+* Done
+
+   o do not create .coot-preferences if not needed?!
+
+* Done
+
+   o undocked refinement toolbar always on top
+
+* Doneish (bug on Windows and maybe other systems)
+
+   o refinement toolbar R/RC and Map should expand in text mode
+
+* Done
+
+   o bond colours dialog: remove(hide) general setting as already in preferences
+
+* Done
+
+   o add no map wheel rotation to preferences
+
+* Done
+
+   o separator after built-in toolbar buttons
+
+* Done
 

@@ -20,6 +20,13 @@ if test x$goocanvas_prefix != x; then
  #
 
   GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-1.0"
+
+  ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
+  case $ac_cv_build_alias in
+  *-mingw*)
+    GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-0.15/goocanvas"
+    break;;
+  esac
   #
   # Similarly for goocanvas, the uninstalled library position is simply in
   # $goocanvas_prefix, but the installed is in the standard prefixed subdirectory.
@@ -27,11 +34,26 @@ if test x$goocanvas_prefix != x; then
   # SGI compiler CC (CXX=CC) needs -lm to link maths library, but 
   # GCC c++ does not.
   #
-  GOOCANVAS_LDOPTS="$goocanvas_prefix/lib/libgoocanvas.la"
+  if test -e $goocanvas_prefix/lib/libgoocanvas.la ; then
+    GOOCANVAS_LDOPTS="$goocanvas_prefix/lib/libgoocanvas.la"
+  else
+    GOOCANVAS_LDOPTS="-L$goocanvas_prefix/lib -lgoocanvas"
+  fi
 else
   # the compiler looks in the "standard" places for GOOCANVAS.  
   GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-1.0"
-  GOOCANVAS_LDOPTS="libgoocanvas.la"
+
+  ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
+  case $ac_cv_build_alias in
+  *-mingw*)
+    GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-0.15/goocanvas"
+    break;;
+  esac
+  if test -e /usr/lib/libgoocanvas.la ; then
+    GOOCANVAS_LDOPTS="libgoocanvas.la"
+  else
+    GOOCANVAS_LDOPTS="-lgoocanvas"
+  fi
 fi
 
 AC_MSG_CHECKING([for Goocanvas])
