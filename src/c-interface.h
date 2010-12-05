@@ -986,6 +986,13 @@ GtkWidget *wrapped_create_undo_molecule_chooser_dialog();
 void set_unpathed_backup_file_names(int state);
 /*! \brief return the state for adding paths to backup file names*/
 int  unpathed_backup_file_names_state();
+
+/*! \brief return the state for compression of backup files*/
+int  backup_compress_files_state();
+
+/*! \brief set if backup files will be compressed or not using gzip */
+void  set_backup_compress_files(int state);
+
 /* \} */
 
 /*  --------------------------------------------------------------------- */
@@ -4077,6 +4084,21 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
 #endif /* PYTHON*/
 #endif	/* __cplusplus */
 
+/* Transfer as many atom names as possible from the reference ligand
+   to the given ligand.  The atom names are determined from graph
+   matching the reference ligand onto the given ligand.
+
+   Function needs to be written.  Non-trivial (the atom graph matching
+   is OK, and the atom pairs straightforwardly determined, but what
+   should be done with the atom names that are matched from the
+   reference ligand, but also a different atom of the same name is not
+   matched?).
+ */
+/* void tranfer_atom_names(int imol_ligand, const char *chain_id_ligand, int res_no_ligand, const char *ins_code_ligand, */
+/* 			int imol_reference, const char *chain_id_reference, int res_no_reference, const char *ins_code_reference); */
+
+
+
 /* Just pondering - just a stub currently.
 
    For use with exporting ligands from the 2D sketcher to the main
@@ -5358,31 +5380,41 @@ int get_ncs_matrix_state();
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
-/* Return e.g. ("B" "A" '(((1 "") (1 "") 0.4) ((2 "") (2 "") 0.3))
+/* Return the NCS differences as a list.
+  
+   e.g. ("B" "A" '(((1 "") (1 "") 0.4) ((2 "") (2 "") 0.3))
    i.e. ncs-related-chain its-master-chain-id and a list of residue
    info: (residue number matches: (this-resno this-inscode
    matching-mater-resno matching-master-inscode
    rms-atom-position-differences))) */
 SCM ncs_chain_differences_scm(int imol, const char *master_chain_id);
 
-/*! \brief return something like: '(("A" "B")) or '(("A" "C" "E") ("B"
+/*! \brief Return the ncs chains id for the given molecule.
+
+  return something like: '(("A" "B")) or '(("A" "C" "E") ("B"
   "D" "F")). The master chain goes in first. 
 
-   If imol does not have NCS ghosts, return #f */
+   If imol does not have NCS ghosts, return scheme false.
+*/
 SCM ncs_chain_ids_scm(int imol);
 #endif	/* USE_GUILE */
 #ifdef USE_PYTHON
-/* Return e.g. ["B", "A", [[[1, ""], [1, ""], 0.4], [[2, ""], [2, ""], 0.3]]]
-   i.e. ncs-related-chain its-master-chain-id and a list of residue
-   info: [residue number matches: [this-resno, this-inscode
-   matching-master-resno, matching-master-inscode, 
-   rms-atom-position-differences]] */
+/* Return the NCS differences as a list.
+
+   e.g. ["B", "A", [[[1, ""], [1, ""], 0.4], [[2, ""], [2, ""], 0.3]]]
+   i.e. ncs_related_chain its_master_chain_id and a list of residue
+   info: [residue number matches: [this_resno, this_inscode,
+   matching_master_resno, matching_master_inscode, 
+   rms_atom_position_differences]] */
 PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id);
 
-/*! \brief return something like: [["A", "B"]] or [["A", "C", "E"], ["B",
+/*! \brief Return the ncs chains id for the given molecule.
+
+  return something like: [["A", "B"]] or [["A", "C", "E"], ["B",
   "D", "F"]]. The master chain goes in first.
 
-   If imol does not have NCS ghosts, return #f */
+   If imol does not have NCS ghosts, return python False.
+*/
 PyObject *ncs_chain_ids_py(int imol);
 #endif  /* USE_PYTHON */
 

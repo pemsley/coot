@@ -95,12 +95,14 @@ global multi_refine_idle_proc
 global multi_refine_stop_button
 global multi_refine_cancel_button
 global multi_refine_continue_button
+global multi_refine_separator
 continue_multi_refine = False
 multi_refine_spec_list = []
 multi_refine_idle_proc = False
 multi_refine_stop_button = False
 multi_refine_cancel_button = False
 multi_refine_continue_button = False
+multi_refine_separator = False
 
 # Return a list of residue specs
 #
@@ -226,8 +228,10 @@ def interruptible_fit_protein(imol, func):
     global continue_multi_refine
     global multi_refine_idle_proc
     global multi_refine_stop_button
+    global multi_refine_separator
     specs = fit_protein_make_specs(imol, 'all-chains')
     if specs:
+        multi_refine_separator = add_coot_toolbar_separator()
         multi_refine_stop_button = coot_toolbar_button("Stop", "stop_interruptible_fit_protein()", "gtk-stop")
         multi_refine_spec_list = specs
         def idle_func():
@@ -240,6 +244,8 @@ def interruptible_fit_protein(imol, func):
                 #set_visible_toolbar_multi_refine_continue_button(0)
                 multi_refine_stop_button.destroy()
                 multi_refine_stop_button = False
+                multi_refine_separator.destroy()
+                multi_refine_separator = False
                 return False
             if continue_multi_refine:
                 imol_map = imol_refinement_map()
@@ -247,6 +253,8 @@ def interruptible_fit_protein(imol, func):
                 del multi_refine_spec_list[0]
                 return True
             else:
+                # finish what we have been doing first before we stop
+                accept_regularizement()
                 return False
         gobject.idle_add(idle_func)
         multi_refine_idle_proc = idle_func
@@ -296,6 +304,7 @@ def cancel_interruptible_fit_protein():
     global multi_refine_stop_button
     global multi_refine_cancel_button
     global multi_refine_continue_button
+    global multi_refine_separator
     global continue_multi_refine
 
     continue_multi_refine = False
@@ -305,6 +314,8 @@ def cancel_interruptible_fit_protein():
     multi_refine_cancel_button = False
     multi_refine_continue_button.destroy()
     multi_refine_continue_button = False
+    multi_refine_separator.destroy()
+    multi_refine_separator = False
     
 
 # For each residue in chain chain-id of molecule number imol, do a
@@ -600,8 +611,8 @@ def molecules_matching_criteria(test_func):
                window.destroy()
                return False
 
-           def centre_on_mol(*args):
-               s = "Centred on" + name
+           def centre_on_mol(widget, imol, name):
+               s = "Centred on " + name
                add_status_bar_text(s)
                centre = molecule_centre(imol)
                set_rotation_centre(*centre)
@@ -630,7 +641,7 @@ def molecules_matching_criteria(test_func):
              name = molecule_name(imol)
              button = gtk.Button(str(name))
              inside_vbox.pack_start(button, False, False, 1)
-             button.connect("clicked",centre_on_mol,imol,name)
+             button.connect("clicked", centre_on_mol, imol, name)
 
            outside_vbox.set_border_width(6)
            ok_button = gtk.Button("OK")
@@ -720,7 +731,7 @@ def manual_refine_residues(side_residue_offset):
 
 # Sphere refinement (around radius)
 #
-def sphere_refine(radius=3.0):
+def sphere_refine(radius=3.0, expand=False):
     from types import ListType
     active_atom = active_residue()
     if (not active_atom):
@@ -740,9 +751,26 @@ def sphere_refine(radius=3.0):
             all_residues = [centred_residue]
             if (type(other_residues) is ListType):
                 all_residues += other_residues
+            # extend?
+            if expand:
+                all_residues.sort()
+                tmp_ls = all_residues[:]
+                for res in tmp_ls:
+                    before_res = res[:]
+                    after_res = res[:]
+                    before_res[1] = before_res[1]-1
+                    after_res[1] = after_res[1]+1
+                    if not before_res in all_residues:
+                        all_residues.append(before_res)
+                    if not after_res in all_residues:
+                        all_residues.append(after_res)
+                all_residues.sort()  # not needed
+
             print "imol: %s residues: %s" %(imol, all_residues)
             refine_residues(imol, all_residues)
 
+def sphere_refine_plus(radius=3.0):
+    sphere_refine(radius, True)
 
 # Pepflip the active residue - needs a key binding
 #

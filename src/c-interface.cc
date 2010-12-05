@@ -3206,6 +3206,7 @@ PyObject *additional_representation_info_py(int imol) {
 	 // we dont use the atom_spec_py!? -> decref
 	 Py_XDECREF(atom_spec_py);
 
+     Py_XINCREF(is_show_flag_py);
 	 PyList_SetItem(l, 0, PyInt_FromLong(ir));
 	 PyList_SetItem(l, 1, PyString_FromString(s.c_str()));
 	 PyList_SetItem(l, 2, is_show_flag_py);
@@ -5380,7 +5381,7 @@ void graphics_to_bonds_representation(int imol) {
    if (is_valid_model_molecule(imol)) { 
       g.molecules[imol].bond_representation();
       std::vector<std::string> command_strings;
-      command_strings.push_back("graphics-to-ca-plus-ligands-representation");
+      command_strings.push_back("graphics-to-bonds-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
       add_to_history(command_strings);
    }
@@ -5396,7 +5397,7 @@ void graphics_to_bonds_no_waters_representation(int imol) {
    if (is_valid_model_molecule(imol)){ 
       g.molecules[imol].bonds_no_waters_representation();
       std::vector<std::string> command_strings;
-      command_strings.push_back("graphics-to-no-waters-representation");
+      command_strings.push_back("graphics-to-bonds-no-waters-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
       add_to_history(command_strings);
    }
@@ -5445,13 +5446,17 @@ void graphics_to_rainbow_representation(int imol) {
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t::molecules[imol].ca_plus_ligands_rainbow_representation();
       std::vector<std::string> command_strings;
-      command_strings.push_back("graphics-to-ca-plus-ligands-rainbow-representation");
+      // BL says:: or maybe we want to keep the following name and change above
+      //command_strings.push_back("graphics-to-ca-plus-ligands-rainbow-representation");
+      command_strings.push_back("graphics-to-rainbow-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
       add_to_history(command_strings);
    }
    else
       std::cout << "WARNING:: no such valid molecule " << imol
-		<< " in graphics_to_ca_plus_ligands_rainbow_representation"
+		//BL says:: as above
+		//<< " in graphics_to_ca_plus_ligands_rainbow_representation"
+		<< " in graphics_to_rainbow_representation"
 		<< std::endl;
    graphics_draw();
 }
@@ -6771,6 +6776,7 @@ PyObject *py_residue(const coot::residue_spec_t &res) {
 
 //    std::cout <<  "py_residue on: " << res.chain << " " << res.resno << " "
 // 	     << res.insertion_code  << std::endl;
+   Py_XINCREF(Py_True);
    PyList_SetItem(r, 0, Py_True);
    PyList_SetItem(r, 1, PyString_FromString(res.chain.c_str()));
    PyList_SetItem(r, 2, PyInt_FromLong(res.resno));

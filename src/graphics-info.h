@@ -3365,6 +3365,7 @@ public:
 
    // ---------------- backup filenames ----------------------
    static short int unpathed_backup_file_names_flag;
+   static int backup_compress_files_flag;
 
    // --------- Miguel's axis orientation matrix ---------------
    static GL_matrix axes_orientation;

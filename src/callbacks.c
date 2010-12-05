@@ -6804,6 +6804,22 @@ on_preferences_diff_map_colours_o_radiobutton_toggled
 
 
 void
+on_preferences_map_colours_hscale_value_changed
+                                        (GtkRange        *range,
+                                        gpointer         user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  GtkAdjustment *adjustment;
+  float fvalue;
+  adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
+  fvalue = gtk_adjustment_get_value(adjustment);
+  preferences_internal_change_value_float(PREFERENCES_MAP_COLOURS_MAP_ROTATION, fvalue);
+  set_colour_map_rotation_for_map(fvalue);
+#endif
+}
+
+
+void
 on_preferences_smooth_scroll_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
 					 gpointer         user_data)
@@ -10165,7 +10181,13 @@ on_model_toolbar_icons_and_text1_activate
 {
   GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
   if (GTK_CHECK_MENU_ITEM(menuitem)->active){
-    gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ); 
+      gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
+      /* change the labels for R/RC and Map too */
+      GtkWidget *button;
+      button = lookup_widget(GTK_WIDGET(toolbar), "model_toolbar_refine_control_button");
+      gtk_button_set_label(GTK_BUTTON(button), "Refine/Regularize Control...");
+      button = lookup_widget(GTK_WIDGET(toolbar), "model_toolbar_select_map_button");
+      gtk_button_set_label(GTK_BUTTON(button), "Select Map...");
   }
 
 }
@@ -10180,6 +10202,12 @@ on_model_toolbar_icons1_activate       (GtkMenuItem     *menuitem,
   GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
   if (GTK_CHECK_MENU_ITEM(menuitem)->active){
     gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS); 
+    /* change the labels for R/RC and Map too */
+    GtkWidget *button;
+    button = lookup_widget(GTK_WIDGET(toolbar), "model_toolbar_refine_control_button");
+    gtk_button_set_label(GTK_BUTTON(button), "R/RC");
+    button = lookup_widget(GTK_WIDGET(toolbar), "model_toolbar_select_map_button");
+    gtk_button_set_label(GTK_BUTTON(button), "Map");
   }
 }
 #endif	/* GTK_MAJOR_VERSION */
@@ -10193,6 +10221,12 @@ on_model_toolbar_text1_activate        (GtkMenuItem     *menuitem,
   GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
   if (GTK_CHECK_MENU_ITEM(menuitem)->active){
     gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT); 
+    /* change the labels for R/RC and Map too */
+    GtkWidget *button;
+    button = lookup_widget(GTK_WIDGET(toolbar), "model_toolbar_refine_control_button");
+    gtk_button_set_label(GTK_BUTTON(button), "Refine/Regularize Control...");
+    button = lookup_widget(GTK_WIDGET(toolbar), "model_toolbar_select_map_button");
+    gtk_button_set_label(GTK_BUTTON(button), "Select Map...");
   }
 }
 #endif	/* GTK_MAJOR_VERSION */
@@ -10595,27 +10629,19 @@ on_phs_coordinates_filechooserdialog1_response
                                         gpointer         user_data)
 {
 #if (GTK_MAJOR_VERSION > 1)
-  if (response_id == GTK_RESPONSE_OK) {
-   const char *filename;
    GtkWidget *phs_fileselection; 
-
    phs_fileselection = lookup_widget(GTK_WIDGET(dialog), 
-				     "phs_coordinates_fileselection");
-
-   filename = gtk_file_chooser_get_filename
-     (GTK_FILE_CHOOSER(phs_fileselection));
-
-   save_directory_from_filechooser(phs_fileselection);
-   read_phs_and_coords_and_make_map(filename); 
-
-   gtk_widget_destroy(phs_fileselection); /* destroy *after* we use filename */
-   
-  } else {
-    GtkWidget *phs_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
-                                                "phs_coordinates_filechooserdialog1");
-
-    gtk_widget_destroy(phs_fileselection1);
-  }
+                                     "phs_coordinates_filechooserdialog1");
+   if (response_id == GTK_RESPONSE_OK) {
+     const char *filename;    
+     
+     filename = gtk_file_chooser_get_filename
+       (GTK_FILE_CHOOSER(phs_fileselection));
+     
+     save_directory_from_filechooser(phs_fileselection);
+     read_phs_and_coords_and_make_map(filename); 
+   } 
+   gtk_widget_destroy(phs_fileselection);
 #endif /* GTK_MAJOR_VERSION  */
 }
 

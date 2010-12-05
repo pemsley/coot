@@ -1196,6 +1196,15 @@ def associate_pir_file(imol, chain_id, pir_file_name):
     else:
         print "WARNING:: associate-pir-file: bad text for", pir_file_name
 
+# Associate the contents of a fasta file with a molecule.
+#
+def associate_fasta_file(imol, chain_id, pir_file_name):
+    seq_text = pir_file_name2pir_sequence(pir_file_name)
+    if seq_text:
+        assign_fasta_sequence(imol, chain_id, seq_text)
+    else:
+        print "WARNING:: associate-fasta-file: bad text for", pir_file_name
+
 
 # comma key hook
 def graphics_comma_key_pressed_hook():
@@ -1531,7 +1540,8 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
         else:
             print "we have dict and model for tlc already"
             return have_tlc_molecule
-
+    
+    #
     def mutate_it():
         imol_ligand = get_monomer_and_dictionary(tlc)
         if not valid_model_molecule_qm(imol_ligand):
@@ -1541,6 +1551,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
             delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
             delete_atom(imol_ligand, "A", 1, "", " OXT", "")
             overlap_ligands(imol_ligand, imol, chain_id_in, resno)
+            match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
             delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)
             print "INFO:: new_chain_id_info: ", new_chain_id_info
@@ -1555,7 +1566,6 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 set_refinement_immediate_replacement(1)
                 if imol_map == -1:
                     regularize_zone(imol, chain_id_in, resno, resno, "")	
-                    # not sure where to continue
                 else:
                     spin_atoms = [" P  ", " O1P", " O2P", " O3P"]
                     phos_dir = {
@@ -1566,7 +1576,8 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                         dir_atoms = phos_dir[tlc]
                     else:
                         dir_atoms = False
-                    print ".... spining atoms ", spin_atoms
+                    print "BL DEBUG:: .... spining atoms ", spin_atoms
+                    refine_zone(imol, chain_id_in, resno, resno, "")
                     if dir_atoms:
                         spin_search(imol_map, imol, chain_id_in, resno, "", dir_atoms, spin_atoms)
                     refine_zone(imol, chain_id_in, resno, resno, "")
@@ -3090,13 +3101,21 @@ def coot_has_gobject():
 # return True if managed to kill the process otherwise false
 #
 def kill_process(pid):
-    import os, sys
+    import os
+    import sys
     import signal
 
     if (os.name == 'nt'):
         # Windows killing tasks
         try:
-            ret = os.system("taskkill /PID %i" % pid)
+            # for now use subprocess.call, maybe can use Popen.kill?!
+            major, minor, micro, releaselevel, serial = sys.version_info
+            if (major >= 2 and minor >=4):
+                # new style
+                import subprocess
+                ret = subprocess.call("taskkill /F /PID %i" % pid, shell=True)
+            else:
+                ret = os.system("taskkill /F /PID %i" % pid)
             if (ret == 0):
                 # success
                 return True

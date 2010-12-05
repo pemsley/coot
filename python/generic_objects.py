@@ -453,4 +453,30 @@ def write_pdb_file_for_molprobity(imol, pdb_name):
         cf.close()
         fn_all.write(data)
     fn_all.close()
-      
+
+# not sure if the following shoudl reside here?!
+
+# a toggle function for the main toolbar to switch on probe dots post refine
+# and for chis/rotamers
+#
+def toggle_interactive_probe_dots(widget=None):
+  """a toggle function for the main toolbar to switch on probe dots post refine
+  and for chis/rotamers
+
+  Keyword arguments:
+  widget -- can be passed from the toolbutton
+  
+  """
+
+  if widget:
+    if widget.get_active():
+      # the button is toggled on
+      set_do_probe_dots_on_rotamers_and_chis(1)
+      set_do_probe_dots_post_refine(1)
+    else:
+      set_do_probe_dots_on_rotamers_and_chis(0)
+      set_do_probe_dots_post_refine(0)
+  else:
+    # no alternative for now (could just go by state and change back and forth)
+    print "BL WARNING:: no widget"
+  

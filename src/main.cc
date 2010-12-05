@@ -381,8 +381,10 @@ main (int argc, char *argv[]) {
   initialize_graphics_molecules();
   std::cout << "done." << std::endl;
 	
+#if !defined(USE_GUILE) && !defined(USE_PYTHON)
   handle_command_line_data(cld);  // and add a flag if listener
 	   		          // should be started.
+#endif
   
      // which gets looked at later in c_inner_main's make_port_listener_maybe()
 
@@ -530,10 +532,11 @@ main (int argc, char *argv[]) {
      // only GTK2
 #if COOT_USE_GTK2_INTERFACE
      std::string preferences_dir = graphics_info_t::add_dir_file(directory, ".coot-preferences");
-     int preferences_dir_status = make_directory_maybe(preferences_dir.c_str());
+     struct stat buff;
+     int preferences_dir_status = stat(preferences_dir.c_str(), &buff);
      if (preferences_dir_status != 0) { 
-		std::cout << "WARNING preferences directory " << preferences_dir 
-                  << " does not exist and could not be created" << std::endl;;
+		std::cout << "INFO:: preferences directory " << preferences_dir 
+                  << " does not exist. Won't read preferences." << std::endl;;
      } else {
        // load all .py files
        glob_t myglob;
@@ -581,6 +584,8 @@ main (int argc, char *argv[]) {
      // we only want to run one state file if using both scripting
      // languages.  Let that be the guile one.
 #ifndef USE_GUILE     
+     handle_command_line_data(cld);
+
      run_state_file_maybe(); // run local 0-coot.state.py?
 
      run_update_self_maybe();
@@ -601,7 +606,9 @@ main (int argc, char *argv[]) {
      // Must be the last thing in this function, code after it does not get 
      // executed (if we are using guile)
      //
-     c_wrapper_scm_boot_guile(argc, argv); 
+     command_line_data *pcld = &cld;
+     c_wrapper_scm_boot_guile(argc, argv, pcld); 
+
      //  
 #endif
 

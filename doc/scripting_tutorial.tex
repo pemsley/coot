@@ -4,11 +4,13 @@
 
 \usepackage{graphicx}
 \usepackage{epsf}
-\usepackage{a4}
+\usepackage{a4wide}
 \usepackage{palatino}
 \usepackage{euler}
 \usepackage{url}
-% for simlpe code
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.2ex} 
+% for simple code
 \usepackage{fancyvrb}
 \DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small}
 
@@ -101,6 +103,10 @@ framexleftmargin=1mm, framextopmargin=1mm, frame=shadowbox, rulesepcolor=\color{
 (insert literal text)
 \end{verbatim}
 
+How do we write stuff here:
+green boxes: guile code
+blue boxes:  python code
+
 \subsection{Python Basics}
 
 \subsection{Moving between Python and Scheme/Guile}
@@ -175,21 +181,21 @@ them plugins (rather scripts, extensions, ...). Here's what to do (*):
 1.) write an extension script which will give you new Menu item with 
 plugin entries which will execute functions, e.g. (simplified)
 
-\begin{code}
+\begin{python}
 plugin_menu = coot_menubar_menu("My Plugins")
-add_simple_coot_menu_menuitem(plugin_menu, "Run plugin 1", lambda func: 
-plugin1())
-\end{code}
+add_simple_coot_menu_menuitem(plugin_menu, "Run plugin 1",
+                                lambda func: plugin1())
+\end{python}
 
 2.) Have your plugin being able to be execute by the function 'plugin1', 
 possibly merge into one file (my\_plugin.py), i.e.
 
-\begin{code}
+\begin{python}
 def plugin1():
     here some code to plugin or call plugin...
 
 plugin_menu = .... (from above)
-\end{code}
+\end{python}
 
 3.) Place the python script in a directory so that Coot will read it on 
 startup, i.e. either:
@@ -205,6 +211,7 @@ or run manually with Calculate->Scripting->Run Script
 \subsection{Make Keybindings}
 
 \subsection{Add Toolbuttons}
+\label{sec:button}
 At the moment it is not trivial to add the two functions you suggest 
 (*), but here are a few ways how in general to add buttons to the toolbar:
 
@@ -224,7 +231,161 @@ this)!!!
 
 \subsection{User defined clicks}
 
-\subsection{Examples}
+\subsection{Example 1: Setting zero occupancies}
+Imagine you want to have a function to set the occupancy of an atom, a whole 
+residue, or a residue range to zero. Here we will use simple functions to 
+program short-cuts for these and we will bind this functions to keys, buttons, clicks etc..
+
+\subsubsection{Existing functions}
+There are a few build-in functions which can manipulate occpancies. To set 
+occupancies to zero in a residue range you can use:
+
+\begin{code}
+ zero_occpancy_residue_range(imol, chain_id, resno_start, resno_end)
+\end{code}
+
+To manipulate occupancies more specific and fine tuned, the following function
+can be used:
+
+\begin{code}
+ set_atom_atributes(atom_attributes_settings_list)
+\end{code}
+
+where the list is\footnote{``occ'' and occupancy value may be substitutet 
+with different other atom attributes, e.g. ``alt-conf''}:
+
+\begin{code}
+ atom_attribute_settings_list = [[imol, chain_id, res_no, ins_code, atom_name,
+                                alt_conf, "occ", occ_value], [...], ...]
+\end{code}
+
+
+\subsubsection{Function to set occupancies of active residue to zero}
+We can use zero\_occupancy\_residue\_range with just one residue. The 
+information about the active residue we get from active\_residue().
+Note: the function does not need to take arguments.
+
+\begin{python}
+def my_zero_occ_active_residue():
+    active_atom = active_residue()
+    # this returns False if no residue or the following list of residue
+    # properties (includes atom_name of closest atom):
+    # [imol, chain_id, res_no, ins_code, atom_name, alt_conf]
+    if not active_atom:
+        print 'no active atom'   # bail out
+    else:
+        # we found an active residue, get variables from list elements
+        # not all needed now actually
+        imol      = active_atom[0]
+        chain_id  = active_atom[1]
+        res_no    = active_atom[2]
+        ins_code  = active_atom[3]
+        atom_name = active_atom[4]
+        alt_conf  = active_atom[5]
+        zero_occupancy_residue_range(imol, chain_id, res_no, res_no, ins_code)
+
+# to run just type
+my_zero_occ_active_residue()
+\end{python}
+
+\subsubsection{Bind function to keyboard key}
+So the function is done, but not very convienently accessible since we have
+to type it in. So let's bind it to a key. For this we use the function:
+\begin{code}
+ add_key_binding(name, key, function)
+\end{code}
+So we can write simply:
+\begin{python}
+def my_zero_occ_active_residue():
+    active_atom = active_residue()
+    ... from above
+add_key_binding("Set occupancy of active residue to zero", "O",
+                lambda func: my_zero_occ_active_residue())
+\end{python}
+If you load/run this in Coot pressing the ``O'' key will set the occupancy of
+the active residue to 0 (zero).
+
+\subsubsection{Make a button for it}
+For the ones rather using the mouse than keyboard short-cuts, let's make a 
+button for our function to set the occupancy of the active residue to zero.
+To do so we can use either method described above (\ref{sec:button}), but 
+first let's use the pure scripting variant with the function:
+
+\begin{code}
+ coot_toolbar_button(button_label, callback_function[, gtk_icon]) 
+\end{code}
+
+where button\_label is the text appearing on the button and callback\_function
+\footnote{Note: this is a string here!} 
+the function we want to call, i.e. ``my\_zero\_occ\_active\_active\_residue()''.
+The optional argument gtk\_icon specifies a gtk-stock icon to be shown on the
+button. Here e.g. we could use ``gtk-remove''. Putting it together the script 
+could look something like this:
+\begin{python}
+def my_zero_occ_active_residue():
+    active_atom = active_residue()
+    ... from above
+coot_toolbar_button("Set occupancy of active residue to zero",
+                    "my_zero_occ_active_residue()", "gtk-remove") 
+\end{python}
+If you run this script an extra button should appear at the main toolbar
+at the top of the Coot window.
+% put in coot_toolbuttons.py in preferences dir!?
+
+For completeness we look at the way to add a button with the toolbar 
+wizard as well. To get to the wizard right-mouse-click on the main toolbar.
+A context menu will pop up where you select: ``Add a user-defined Button...''.
+The toolbar assistent (wizard) will open.
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+    \includegraphics[width=70mm]{images/toolbar_assistent1.png}
+    \caption{Coot Toolbar Assistent}{Give your button a name and press 
+    ``Forward''}
+    \label{fig:assistent1}
+  \end{center}
+\end{figure}
+
+Now give the function which should be executed
+
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+    \includegraphics[width=70mm]{images/toolbar_assistent2.png}
+    \caption{Coot Toolbar Assistent}{The function to be called, i.e. my\_zero\_occ\_active\_residue() and press ``Forward'' again}
+    \label{fig:assistent2}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+    \includegraphics[width=70mm]{images/toolbar_assistent3.png}
+    \caption{Coot Toolbar Assistent}{Select if the function sould be saved to preferences and press ``Forward'' again. The function would be saved in the filecoot\_toolbuttons.py in the directory \$HOME/.coot-preferences/. The next time you load Coot the button will appear again.}
+    \label{fig:assistent3}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+    \includegraphics[width=70mm]{images/toolbar_assistent4.png}
+    \caption{Coot Toolbar Assistent}{Select (or not) an icon for the button.}
+    \label{fig:assistent3}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+    \includegraphics[width=70mm]{images/toolbar_assistent4b.png}
+    \caption{Coot Toolbar Assistent}{A small selection of icons...}
+    \label{fig:assistent3}
+  \end{center}
+\end{figure}
+
+After the final ``Forward'' you will get an extra toolbutton on the main
+toolbar ready to use.
 
 \section{Excercises}
 

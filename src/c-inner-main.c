@@ -249,10 +249,9 @@ c_inner_main(void *closure, int argc, char** argv) {
     strcat (tmp_str, ".coot-preferences");
     preferences_dir = tmp_str;
     istat = stat(preferences_dir, &buf);
-    preferences_dir_status = make_directory_maybe(preferences_dir);
-    if (preferences_dir_status != 0) { 
-      printf("WARNING:: preferences directory %s \n", preferences_dir);
-      printf("          does not exist and could not be created\n");
+    if (istat != 0) { 
+      printf("INFO:: preferences directory %s \n", preferences_dir);
+      printf("       does not exist. Won't read preferences.\n");
      } else {
        /* load all .scm files */
        /* need an extra char for null termination, I think */
@@ -283,6 +282,9 @@ c_inner_main(void *closure, int argc, char** argv) {
        printf("done.\n");
      }
      
+     // now handle the command line data
+     handle_command_line_data(closure);
+
      run_command_line_scripts();	/* this may turn off run-state-file */
 
      run_state_file_maybe();
@@ -352,7 +354,7 @@ void start_command_line_python_maybe(char **argv) {
 
 #ifdef USE_GUILE
 
-void c_wrapper_scm_boot_guile(int argc, char** argv) { 
+void c_wrapper_scm_boot_guile(int argc, char** argv, struct command_line_data* pcld) { 
 
 /* From libguile/init.h:  */
 /* extern void scm_boot_guile (int argc, char **argv, */
@@ -361,7 +363,7 @@ void c_wrapper_scm_boot_guile(int argc, char** argv) {
 /*                                                char **argv), */
 /*                             void *closure); */
   
-  scm_boot_guile(argc, argv, c_inner_main, NULL);
+  scm_boot_guile(argc, argv, c_inner_main, pcld);
 
   printf("you should not see this, c_inner_main should have called exit(0)\n"); 
 

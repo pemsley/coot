@@ -1919,11 +1919,11 @@ if test -n "$build_mmdb" ; then
 mmdb_version=1.19
 mmdb_version=1.21
 mmdb_version=1.22
-# not yet
-#mmdb_version=1.23
+mmdb_version=1.23.2
+# only configure, make required?!
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
-# we need this patch for gzip on Windows (actually revert!?)
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.21_file_.cpp.patch
+# now we need to patch to not play with string definitions  
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.23.2-mattype_.h.patch
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
@@ -1931,21 +1931,14 @@ echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz
 cd  mmdb-$mmdb_version
 pwd
 # gzip stuff
-patch -p0 < ${AUTOBUILD_SOURCES}/mmdb-1.21_file_.cpp.patch
+patch -p0 < ${AUTOBUILD_SOURCES}/mmdb-1.23.2-mattype_.h.patch
 # patch to read long lines in a cif file
 #patch -p0 < ../mmdb-mmcif-long-line.patch
-# FIXME (temp, BL)
-# 1.23 wirks with
-# touch aclocal.m4
-# sleep 2
-# touch Makefile.in
-# configure --prefix
-# needed for working configure
-sh ./autogen.sh
 ./configure $generic_prefix
 $MAKE
 $MAKE install
 # now remove the mmdb binaries!
+# not needed any more? FIXME
 rm $install_top_dir/bin/mwater
 rm $install_top_dir/bin/ncont
 rm $install_top_dir/bin/pdbcur

@@ -528,8 +528,8 @@ if (have_coot_python):
        add_simple_coot_menu_menuitem(
        submenu_models,
        "Prodrg-ify this residue (generate restraints)",
-       lambda func: using_active_atom([[prodrg_ify,
-                                        ["aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"], []]]))
+       lambda func: using_active_atom(prodrg_ify,
+                                      "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"))
      
 
      # ---- R ---------
@@ -576,9 +576,9 @@ if (have_coot_python):
        "Replace Residue...",
        lambda func: generic_single_entry("Replace this residue with residue of type:",
                                          "ALA", "Mutate",
-                                         lambda text: using_active_atom([[mutate_by_overlap,
-                                                                          ["aa_imol", "aa_chain_id", "aa_res_no"],
-                                                                          [text]]])))
+                                         lambda text: using_active_atom(mutate_by_overlap,
+                                                                        "aa_imol", "aa_chain_id", "aa_res_no",
+                                                                        text)))
 
      # --- Res ---
      
@@ -622,6 +622,12 @@ if (have_coot_python):
                          "Rigid Body Refine",
                          "  Fit  "))
 
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Rigid Body Fit Molecule...",
+       lambda func: molecule_chooser_gui("Rigid Body Fit Molecule",
+                lambda imol: rigid_body_refine_by_atom_selection(imol, "//")))                                         
+       
 
      add_simple_coot_menu_menuitem(
        submenu_models,
@@ -1359,7 +1365,7 @@ if (have_coot_python):
        menu,
        "Alignment vs PIR...",
        lambda func: molecule_chooser_gui("Alignment vs PIR info for molecule:",
-                                         lambda imol: wrapper_aligment_mismatches_gui(imol)))
+                                         lambda imol: wrapper_alignment_mismatches_gui(imol)))
           
 
   else:

@@ -1,11 +1,33 @@
 cprodrg = "cprodrg"
 cprodrg = "c:/Programs/CCP4-Packages/ccp4-6.1.3/bin/cprodrg.exe"
+# we need $CLIBD to run prodrg (for prodrg.param), so check for it:
+if not os.getenv("CLIBD"):
+    print "BL INFO:: potential problem to run prodrg (no CLIBD set)"
+    print "          try to fix this"
+    bin_dir = os.path.dirname(cprodrg)
+    base_dir = os.path.dirname(bin_dir)
+    clibd = os.path.join(base_dir, "lib", "data")
+    prodrg_params = os.path.join(clibd, "prodrg.param")
+    if os.path.isfile(prodrg_params):
+        os.environ["CLIBD"] = clibd
+        print "BL INFO:: found prodrg.param"
+        print "          and set CLIBD to", clibd
+    else:
+        print "BL ERROR:: no prodrg.param available"
+        print "searched in ", clidb
+        print "Sorry, module not available"
+        # should load rest?
+        # i.e. stop here?
+    
 
 # if there is a prodrg-xyzin set the current-time to its mtime, else False
 prodrg_xyzin      = "../../coot/lbg/prodrg-in.mdl"
 sbase_to_coot_tlc = "../../coot/lbg/.sbase-to-coot-comp-id"
 # this is for BL win machine
-prodrg_xyzin      = os.path.join(os.getenv("HOME"), "Projects/build-xp-python/lbg/prodrg-in.mdl")
+home = os.getenv("HOME")
+if is_windows():
+    home = os.getenv("COOT_HOME")
+prodrg_xyzin      = os.path.join(home, "Projects/build-xp-python/lbg/prodrg-in.mdl")
 sbase_to_coot_tlc = "../../build-xp-python/lbg/.sbase-to-coot-comp-id" 
 
 def import_from_prodrg(minimize_mode):
@@ -237,33 +259,49 @@ def prodrg_plain(mode, imol_in, chain_id_in, res_no_in):
 def fle_view(imol, chain_id, res_no, ins_code):
 
     import operator
+    global have_mingw
     
     r_flat  = prodrg_flat (imol, chain_id, res_no)
-    r_plain = prodrg_plain('mini-no', imol, chain_id, res_no)
-    if (r_flat and
-        operator.isNumberType(r_plain[0]) and
-        r_plain[0] == 0 ):
-        imol_ligand_fragment = r_flat[0]
-        prodrg_output_flat_mol_file_name = r_flat[1]
-        prodrg_output_flat_pdb_file_name = r_flat[2]
-        prodrg_output_cif_file_name      = r_flat[3]
-        prodrg_output_3d_pdb_file_name   = r_plain[1]
-        # 'using_active_atom'
-        active_atom = active_residue()
-        imol     = active_atom[0]
-        chain_id = active_atom[1]
-        res_no   = active_atom[2]
-        fle_view_internal(imol, chain_id, res_no, "",  # should be from active_atom!!     using_active_atom([[]])
-                          imol_ligand_fragment,
-                          prodrg_output_flat_mol_file_name,
-                          prodrg_output_flat_pdb_file_name,
-                          prodrg_output_3d_pdb_file_name,
-                          prodrg_output_cif_file_name)
-        # touch on Windows?? FIXME
-        # either distribute touch.exe or use DOS:
-        # copy /b filename.ext +,,
-        popen_command("touch",
-                      [os.path.join("coot-ccp4", ".coot-to-lbg-mol-ready")],
-                      [],
-                      "/dev/null", False)
+    if not r_flat:
+        print "BL ERROR:: cannot continue in fle_view"
+    else:
+        r_plain = prodrg_plain('mini-no', imol, chain_id, res_no)
+        if (operator.isNumberType(r_plain[0]) and
+            r_plain[0] == 0 ):
+            imol_ligand_fragment = r_flat[0]
+            prodrg_output_flat_mol_file_name = r_flat[1]
+            prodrg_output_flat_pdb_file_name = r_flat[2]
+            prodrg_output_cif_file_name      = r_flat[3]
+            prodrg_output_3d_pdb_file_name   = r_plain[1]
+            # 'using_active_atom'
+            active_atom = active_residue()
+            imol     = active_atom[0]
+            chain_id = active_atom[1]
+            res_no   = active_atom[2]
+            fle_view_internal(imol, chain_id, res_no, "",  # should be from active_atom!!     using_active_atom([[]])
+                              imol_ligand_fragment,
+                              prodrg_output_flat_mol_file_name,
+                              prodrg_output_flat_pdb_file_name,
+                              prodrg_output_3d_pdb_file_name,
+                              prodrg_output_cif_file_name)
+            # touch on Windows?? FIXME
+            # either distribute touch.exe or use DOS:
+            # for non existing file use:
+            # copy NUL YourFile.txt
+            # for existing:
+            # copy /b filename.ext +,,
+            if (is_windows() and not have_mingw):
+                import subprocess
+                lbg_ready = os.path.abspath(os.path.join("coot-ccp4",
+                                                          ".coot-to-lbg-mol-ready"))
+                if os.path.isfile(lbg_ready):
+                    subprocess.call("copy /b " + lbg_ready + "+,,")
+                else:
+                    subprocess.call("copy NUL " + lbg_ready)                
+            else:
+                popen_command("touch",
+                              [os.path.join("coot-ccp4",
+                                            ".coot-to-lbg-mol-ready")],
+                              [],
+                              "/dev/null", False)
 

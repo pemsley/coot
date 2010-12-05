@@ -87,39 +87,42 @@ def run_loggraph(logfile):
     # loggraph_exe = os.path.join(os.environ['CCP4I_TOP'],'bin/loggraph.tcl')
     # bltwish_exe = os.path.join(os.environ['CCP4I_TCLTK'],'bltwish')
     # os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
-
-    # now lets get some exception handling in:
-    try:
-        # 1st check TCL
-        os.environ['CCP4I_TCLTK']
-        if (os.name == 'nt'):
+    
+    # now lets check properly if the executables are there:
+    # 1st check TCL
+    ccp4i_tcltk = os.getenv('CCP4I_TCLTK')
+    if not ccp4i_tcltk:
+        print "BL ERROR:: We cannot allocate $CCP4I_TCLTK so no wish available"
+    else:
+        wish_command = "wish"
+        if is_windows():
             # Windows
-            bltwish_exe = os.path.join(os.environ['CCP4I_TCLTK'],'bltwish') + '.exe'
-            #some windows machines have bltwish not in CCP4I_TCLTK but $/bin
-            bltwish_exe_win_alt = os.path.join(os.environ['CCP4I_TCLTK'],'bin','bltwish') + '.exe'
-            if (os.path.isfile(bltwish_exe_win_alt)):
-                bltwish_exe = bltwish_exe_win_alt
-        else:
-            bltwish_exe = os.path.join(os.environ['CCP4I_TCLTK'],'bltwish')
-
-        if (os.path.isfile(bltwish_exe)):
+            wish_command += '.exe'
+        wish_exe = os.path.join(ccp4i_tcltk, wish_command)
+        if (not os.path.isfile(wish_exe)):
+            # some windows machines have CCP4I_TCLTK not including bin
+            wish_exe_win_alt = os.path.join(ccp4i_tcltk,
+                                            "bin",
+                                            wish_command)
+            if (os.path.isfile(wish_exe_win_alt)):
+                wish_exe = wish_exe_win_alt
+            # maybe we want to check for bltwish instead then?!
             
-           # now that we have tcl + btlwish we check for loggraph.tcl
-           try:
-               os.environ['CCP4I_TOP']
-               loggraph_exe = os.path.join(os.environ['CCP4I_TOP'],'bin/loggraph.tcl')
-               if os.path.isfile(loggraph_exe):
-                   # print 'BL DEBUG:: We have allocated everything to run loggraph and shall do that now'
-                   #os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
-                   run_concurrently(bltwish_exe, [loggraph_exe, logfile])
-               else:
-                   print 'We have $CCP4I_TOP but we cannot find bin/loggraph.tcl'
-           except KeyError:
-               print 'We cannot allocate $CCP4I_TOP so no loggraph available'
+        if (not os.path.isfile(wish_exe)):
+            print "BL ERROR:: We have $CCP4I_TCLTK but we cannot find wish"
         else:
-           print 'We have $CCP4I_TCLTK but we cannot find bltwish.exe'
-    except KeyError:
-        print 'We cannot allocate $CCP4I_TCLTK so no bltwish available'
+            # now that we have tcl + wish we check for loggraph.tcl
+            ccp4i_top = os.getenv('CCP4I_TOP')
+            if not ccp4i_top:
+                print "BL ERROR:: We cannot allocate $CCP4I_TOP so no loggraph available"
+            else:
+                loggraph_exe = os.path.join(ccp4i_top, "bin", "loggraph.tcl")
+                if not os.path.isfile(loggraph_exe):
+                    print "BL ERROR:: We have $CCP4I_TOP but we cannot find loggraph.tcl"
+                else:
+                    # print 'BL DEBUG:: We have allocated everything to run loggraph and shall do that now'
+                    #os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
+                    run_concurrently(wish_exe, [loggraph_exe, logfile])
 
 
 def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, mtz_out_filename,
@@ -298,9 +301,10 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 
         refmac_process, logObj = run_concurrently(refmac_execfile, command_line_args, data_lines, refmac_log_file_name)
 
+        separator   = add_coot_toolbar_separator()
         kill_button = coot_toolbar_button("Kill refmac",
-                                      "kill_process(" + str(refmac_process.pid)+ ")",
-                                      "stop.svg")
+                                          "kill_process(" + str(refmac_process.pid)+ ")",
+                                          "stop.svg")
         add_status_bar_text("Running refmac")
 
         gobject.timeout_add(1000,
@@ -312,7 +316,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                             phib_fom_pair, f_col, sig_f_col, r_free_col,
                             phase_combine_flag,
                             refmac_process, logObj,
-                            kill_button, True)
+                            (kill_button, separator), True)
     else:
         # no gobject and no subprocess, so run 'old' popen_command
         refmac_status = popen_command(refmac_execfile, command_line_args, data_lines, refmac_log_file_name)
@@ -340,7 +344,9 @@ def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
             # refmac is finished 
             logObj.close()
             refmac_status = refmac_process.poll()
-            button.destroy()
+            if button:
+                button[0].destroy()
+                button[1].destroy()
         else:
             # continue the loop
             return True
@@ -351,7 +357,8 @@ def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
     if (refmac_status) : # refmac ran fail...
         print "Refmac Failed."
         if (button):
-            button.destroy()
+            button[0].destroy()
+            button[1].destroy()
         if (run_in_timer):
             # stop the gobject timer
             print "... or was killed"
@@ -1360,12 +1367,14 @@ def get_refmac_version():
             fin = open(log_file, 'r')
             lines = fin.readlines()
             fin.close()
+            os.remove(log_file)
             for line in lines:
                 if ("Program" in line):
                     version = line.split()[-1]
                     major, minor, micro = version.split(".")
                     return [int(major), int(minor)]
         else:
+            os.remove(log_file)
             print "INFO:: problem to get refmac version"
     else:
         return False

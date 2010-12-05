@@ -179,36 +179,45 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
    }
    gtk_widget_show(frame);
 
-   for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
-      // std::cout << "Lights for " << ref_results.lights[i_rest_type].second << std::endl;
-      for (unsigned int ibox=0; ibox<boxes.size(); ibox++) {
-	 if (ref_results.lights[i_rest_type].name == boxes[ibox].first) {
-	    std::string stub = boxes[ibox].second.c_str();
-	    std::string event_box_name;
-	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
-	      event_box_name = stub + "eventbox_docked";
-		} else {
-	      event_box_name = stub + "eventbox";
-	    }
-	    GtkWidget *w = lookup_widget(frame, event_box_name.c_str());
-	    if (w) { 
-	       GtkWidget *p = w->parent;
-	       if (boxes[ibox].first != "Rama") { 
-		  GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].value);
-		  set_colour_accept_reject_event_box(w, &color);
-	       } else {
-		  GdkColor color = colour_by_rama_plot_distortion(ref_results.lights[i_rest_type].value);
-		  set_colour_accept_reject_event_box(w, &color);
-	       }
+   // BL says:: First we need to hide all the boxes (actually only for DIALOG_DOCKED)
+   // this could be done here, but requires to swap the loops around,
+   // i.e. we need to first loop over the boxes and then over the ref_results
+   // I hope this is ok. Otherwise I have to doublicate code
+   // this solution here may be slightly slower
+   for (unsigned int ibox=0; ibox<boxes.size(); ibox++) {
+     std::string stub = boxes[ibox].second.c_str();
+     std::string event_box_name;
+     if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
+       event_box_name = stub + "eventbox_docked";
+     } else {
+       event_box_name = stub + "eventbox";
+     }
+     GtkWidget *w = lookup_widget(frame, event_box_name.c_str());
+     // here comes the hiding
+     if (w && graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) { 
+       GtkWidget *p = w->parent;
+       gtk_widget_hide(p);
+     }
+     for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
+       if (ref_results.lights[i_rest_type].name == boxes[ibox].first) {
+         if (w) { 
+           GtkWidget *p = w->parent;
+           if (boxes[ibox].first != "Rama") { 
+             GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].value);
+             set_colour_accept_reject_event_box(w, &color);
+           } else {
+             GdkColor color = colour_by_rama_plot_distortion(ref_results.lights[i_rest_type].value);
+             set_colour_accept_reject_event_box(w, &color);
+           }
 #if (GTK_MAJOR_VERSION > 1)	       
-	       gtk_widget_show(p); // event boxes don't get coloured
+           gtk_widget_show(p); // event boxes don't get coloured
 				   // in GTK1 version - no need to
 				   // show them then.
 #endif	       
-	    } else {
-	       std::cout << "ERROR:: lookup of event_box_name: " << event_box_name
-			 << " failed" << std::endl;
-	    } 
+         } else {
+           std::cout << "ERROR:: lookup of event_box_name: " << event_box_name
+                     << " failed" << std::endl;
+         } 
 
 	    // we do not add labels for the docked box
 	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {

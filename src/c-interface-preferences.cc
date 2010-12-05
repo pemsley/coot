@@ -183,6 +183,8 @@ void update_preference_gui() {
   GtkWidget *dialog;
   GtkWidget *w;
   GtkWidget *colour_button;
+  GtkAdjustment *adjustment;
+  GtkWidget *entry;
   const gchar *gtext;
   std::string text;
   int preference_type;
@@ -306,7 +308,6 @@ void update_preference_gui() {
     case PREFERENCES_BOND_COLOURS_MAP_ROTATION:
       w = lookup_widget(dialog, "preferences_bond_colours_hscale");
       fval1 = g.preferences_internal[i].fvalue1;
-      GtkAdjustment *adjustment;
       adjustment = gtk_range_get_adjustment(GTK_RANGE(w));
       gtk_adjustment_set_value(adjustment, fval1);
       break;
@@ -370,6 +371,13 @@ void update_preference_gui() {
 	w = lookup_widget(dialog, "preferences_diff_map_colours_coot_radiobutton");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       }
+      break;
+
+    case PREFERENCES_MAP_COLOURS_MAP_ROTATION:
+      w = lookup_widget(dialog, "preferences_map_colours_hscale");
+      fval1 = g.preferences_internal[i].fvalue1;
+      adjustment = gtk_range_get_adjustment(GTK_RANGE(w));
+      gtk_adjustment_set_value(adjustment, fval1);
       break;
 
     case PREFERENCES_SMOOTH_SCROLL:
@@ -492,7 +500,6 @@ void update_preference_gui() {
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	 w = lookup_widget(dialog, "preferences_refinement_speed_own_radiobutton");
-	 GtkWidget *entry;
 	 entry = lookup_widget(dialog, "preferences_refinement_speed_entry");
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
 	 if (ivalue <= 0) {
@@ -648,19 +655,25 @@ void save_preferences() {
 
   directory += "/.coot-preferences/";
 
+  int status = make_directory_maybe(directory.c_str());
+  if (status != 0) {
+    std::cout<<"ERROR:: Cannot find directory "<< directory <<
+      "        Will not be able to save preferences"<<std::endl;
+  } else {
+
 #ifdef USE_GUILE
-  preferences_name = "coot-preferences.scm";
-  file_name = directory + preferences_name;
-  il = 1;
-  istat = g.save_preference_file(file_name, il);
+    preferences_name = "coot-preferences.scm";
+    file_name = directory + preferences_name;
+    il = 1;
+    istat = g.save_preference_file(file_name, il);
 #endif // USE_GUILE
 #ifdef USE_PYTHON
-  preferences_name = "coot_preferences.py";
-  file_name = directory + preferences_name;
-  il = 2;
-  istat = g.save_preference_file(file_name, il);
+    preferences_name = "coot_preferences.py";
+    file_name = directory + preferences_name;
+    il = 2;
+    istat = g.save_preference_file(file_name, il);
 #endif // USE_PYTHON
-
+  }
 }
  
 
