@@ -1380,13 +1380,8 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 #else
 
 // Defaults for the file chooser
-#ifdef WINDOWS_MINGW
 int graphics_info_t::gtk2_file_chooser_selector_flag = coot::CHOOSER_STYLE;
 int graphics_info_t::gtk2_chooser_overwrite_flag = coot::CHOOSER_OVERWRITE_PROTECT;
-#else
-int graphics_info_t::gtk2_file_chooser_selector_flag = coot::OLD_STYLE;
-int graphics_info_t::gtk2_chooser_overwrite_flag = coot::CHOOSER_OVERWRITE;
-#endif // MINGW
 
 // GTK2 code
 // 
