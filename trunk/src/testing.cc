@@ -275,6 +275,7 @@ int test_internal_single() {
       status = test_lsq_plane();
 
       // status = test_copy_cell_symm_orig_scale_headers();
+      // status = test_copy_cell_symm_orig_scale_headers();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2427,7 +2428,7 @@ int test_copy_cell_symm_orig_scale_headers() {
       return 0;
    } 
    return 1;
-} 
+}
 
 
 #endif // BUILT_IN_TESTING

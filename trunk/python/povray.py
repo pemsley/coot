@@ -48,7 +48,9 @@ def povray_args():
 # default filename
 #
 def povray_image():
-    import os, webbrowser
+    import os
+    import webbrowser
+    import sys
 
     povray(coot_povray_file_name)
     print "calling povray with args: ", povray_args()
@@ -64,7 +66,18 @@ def povray_image():
     if (povray_exe):
       povray_call = povray_exe + args + " +o" + coot_povray_png_file_name
       print "BL DEBUG:: povray_call", povray_call
-      os.system(povray_call)
+      major, minor, micro, releaselevel, serial = sys.version_info
+      if (major >= 2 and minor >=4):
+          # new style
+          import subprocess
+          status = subprocess.call(povray_call, shell=True)
+          if status:
+              # something went wrong with raster3d
+              # maybe same for system call?!?
+              print "BL WARNING:: some error in povray"
+              return
+      else:
+          os.system(povray_call)
       print "INFO:: displaying..."
       try:
          webbrowser.open(coot_povray_png_file_name,1,1)

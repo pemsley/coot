@@ -16,7 +16,9 @@
 # Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-import pygtk, gtk, pango
+import pygtk
+import gtk
+import pango
 import time
 
   
@@ -52,6 +54,35 @@ def register_coot_icons():
         iconfactory.add(stock_id, iconset)
   iconfactory.add_default()
 
+# adds a SeparatorToolItem to the coot_main_toolbar (by default at the
+# last position). Return the separator or False. If there is a
+# separator in the last position, dont add it
+#
+def add_coot_toolbar_separator():
+  """adds a SeparatorToolItem to the coot_main_toolbar (by default at the
+  last position). There is no return value currently.
+  
+  """
+  
+  try:
+    coot_main_toolbar = coot_python.main_toolbar()
+  except:
+    print """BL ERROR:: coot_python module not available!!
+    So we cannot make toolbar_separator!"""
+    return False
+
+  # main body
+  toolbar_items = coot_main_toolbar.get_children()
+  if (type(toolbar_items[-1]) != gtk.SeparatorToolItem):
+    # only add if last one is not already separator
+    sep = gtk.SeparatorToolItem()
+    coot_main_toolbar.insert(sep, -1)
+    sep.show()
+    return sep
+  else:
+    return False
+
+  
 if (have_coot_python):
 
   if coot_python.main_toolbar():
@@ -156,10 +187,28 @@ if (have_coot_python):
                     check_button_label = item[0]
                     callback_function  = item[1]
                     description        = item[2]
+                    toggle_button_item = False
+                    use_button_item    = False
+                    # is this foolproof? We assume an icon on i3
+                    if len(item) > 4:
+                      toggle_button_item = item[4]
+                      if len(item) > 5:
+                        use_button_item = item[5]
                     if (check_button_label == button_label):
-                      new_toolbutton = coot_toolbar_button(button_label, callback_function, icon)
+                      new_toolbutton = coot_toolbar_button(button_label,
+                                                           callback_function,
+                                                           icon_name=icon,
+                                                           tooltip=description,
+                                                           toggle_button=toggle_button_item,
+                                                           use_button=use_button_item)
                       # save
-                      save_toolbar_to_init_file(button_label, callback_function, icon)
+                      if save_toolbuttons_qm:
+                        save_toolbar_to_init_file(button_label,
+                                                  callback_function,
+                                                  icon=icon,
+                                                  tooltip=description,
+                                                  toggle_button=toggle_button_item,
+                                                  use_button=use_button_item)
                       break
             else:
               # remove an existing button?
@@ -280,11 +329,13 @@ if (have_coot_python):
       def remove_toolbar_button(entry_text):
         print "remove button", entry_text
         for toolbar_child in coot_main_toolbar.get_children():
-          button_label = toolbar_child.get_label()
-          if (button_label == entry_text):
-            coot_main_toolbar.remove(toolbar_child)
-            remove_toolbar_from_init_file(button_label)
-            break
+          if (type(toolbar_child) == gtk.ToolButton or
+              type(toolbar_child) == gtk.ToggleToolButton):
+            button_label = toolbar_child.get_label()
+            if (button_label == entry_text):
+              coot_main_toolbar.remove(toolbar_child)
+              remove_toolbar_from_init_file(button_label)
+              break
       generic_single_entry("Remove toolbar button",
                            "button label",
                            "Remove",
@@ -310,7 +361,9 @@ if (have_coot_python):
     def toolbar_show_text():
       coot_main_toolbar.set_style(gtk.TOOLBAR_BOTH_HORIZ)
 
-    # an assistant to add a toolbutton
+    ####################################
+    # an assistant to add a toolbutton #
+    ####################################
     def add_toolbar_button_assistant():
 
       def cb_close(assistant):
@@ -318,13 +371,16 @@ if (have_coot_python):
         return False
 
       def cb_name_entry_key_press(entry, event):
-        assi.set_page_complete(entry.get_parent(), True)
+        assi.set_page_complete(entry.get_parent(),
+                               len(entry.get_text()) > 0)
 
       def cb_func_entry_key_press(entry, event):
-        assi.set_page_complete(entry.get_parent(), True)
+        assi.set_page_complete(entry.get_parent(),
+                               len(entry.get_text()) > 0)
 
       def cb_entry_key_press(entry, event):
-        assi.set_page_complete(entry.get_parent(), True)
+        assi.set_page_complete(entry.get_parent(),
+                               len(entry.get_text()) > 0)
 
       def cb_apply(assistant):
         name_str = name_entry.get_text()
@@ -354,7 +410,7 @@ if (have_coot_python):
       vbox.set_border_width(5)
       vbox.show()
       assi.append_page(vbox)
-      assi.set_page_title(vbox, 'Create a new toolbutton')
+      assi.set_page_title(vbox, 'Create a new Coot toolbutton')
       assi.set_page_type(vbox, gtk.ASSISTANT_PAGE_CONTENT)
 
       label = gtk.Label("Please enter the name for the new toolbutton...")
@@ -384,7 +440,11 @@ if (have_coot_python):
       func_entry = gtk.Entry()
       func_entry.connect("key-press-event", cb_func_entry_key_press)
       func_entry.show()
-      vbox.pack_end(func_entry)
+      vbox.pack_start(func_entry, True, True, 0)
+      # add advanced option? FIXME (for callable func and args!?)
+      #adv_button = gtk.Button("Advanced options...")
+      #adv_button.show()
+      #vbox.pack_start(adv_button, False, False, 0)
 
       # Construct page 2 (save?)
       vbox = gtk.VBox(False, 5)
@@ -468,7 +528,7 @@ if (have_coot_python):
                                           "test", "centre_of_mass(0)",
                                           "Save to Preferences?", button_func,
                                           "Create", do_func,
-                                          return_widget = True)
+                                          return_widget=True)
 
       hbox = gtk.HBox(True, 0)
       label = gtk.Label("Icon:")
@@ -495,12 +555,27 @@ if (have_coot_python):
     coot_main_toolbar.connect("button-press-event", show_pop_up_menu)
 
 # save a toolbar button to ~/.coot-preferences/coot_toolbuttons.py
-def save_toolbar_to_init_file(button_label, callback_function, icon=None):
+#
+def save_toolbar_to_init_file(button_label, callback_function,
+                              icon=None, tooltip=None,
+                              toggle_button=False, use_button=False):
 
-  save_str = "coot_toolbar_button(\"" + button_label + "\", \"" + callback_function
+  # so far only for string
+  save_str = "coot_toolbar_button(\"" + button_label + "\", "
+  if type(callback_function) is StringType:
+    save_str += ("\"" + callback_function + "\"")
+  else:
+    # no lists yet. FIXME
+    save_str += (callback_function.__name__)
   if icon:
-    save_str += ("\", \"" + icon)
-  save_str += "\")"
+    save_str += (", icon_name=\"" + str(icon) + "\"")
+  if tooltip:
+    save_str += (", tooltip=\"" + str(tooltip) + "\"")
+  if toggle_button:
+    save_str += (", toggle_button=" + str(toggle_button))
+  if use_button:
+    save_str += (", use_button=" + str(use_button))
+  save_str += ")"
   
   home = os.getenv('HOME')
   if (not home and os.name == 'nt'):
@@ -509,10 +584,13 @@ def save_toolbar_to_init_file(button_label, callback_function, icon=None):
     print "BL ERROR:: could not find a home directory"
   else:
     filename = os.path.join(home, ".coot-preferences", "coot_toolbuttons.py")
-    remove_line_containing_from_file(["coot_toolbar_button", button_label], filename)
+    remove_line_containing_from_file(["coot_toolbar_button", button_label],
+                                     filename)
     save_string_to_file(save_str, filename)
 
+    
 # remove a toolbar from  ~/.coot-preferences/coot_toolbuttons.py
+#
 def remove_toolbar_from_init_file(button_label):
   home = os.getenv('HOME')
   if (not home and os.name == 'nt'):
@@ -526,21 +604,26 @@ def remove_toolbar_from_init_file(button_label):
       remove_line_containing_from_file(remove_str_ls, filename)
 
 
-# returns a list with pre-defined toolbar-functions (stock-id is optional)
+# returns a list with pre-defined toolbar-functions (stock-id is optional,
+# so are a few others - almost consistent with order in coot_toolbar_button
+# function)
 # format:
 # [[Group1,[toolbarname1, callbackfunction1, description1],
-#          [toolbarname2, callbackfunction2, description2, stock-id2],...],
+#          [toolbarname2, callbackfunction2, description2(tooltip),
+#           stock-id2, toggle_button, use_button],...],
 #  [Group2]....]
-# OBS: callbackfunction is a string!
+# OBS: callbackfunction is a string! not any more exclusively
+#
 def list_of_toolbar_functions():
   ls = [["Display",
          ["Stereo/Mono", "stereo_mono_toggle()", "Toggle between Stereo and Mono view", "stereo-view.svg"],
          ["Side-by-side/Mono", "side_by_side_stereo_mono_toggle()", "Toggle between Side-by-Side Stereo and Mono view", "stereo-view.svg"],
          ["Zalman Stereo/mono", "zalman_stereo_mono_toggle()", "Toggle between Zalman Stereo and Mono view", "stereo-view.svg"],
          ["Swap Stereo", "switch_stereo_sides()", "Change left and right stereo image", "undo-1.svg"],
-         ["Test", "rotation_centre()", "test function"]],
+         ],
         ["Refinement",
          ["Sphere Refine", "sphere_refine()", "RSR around active residue", "reset-view.svg"],
+         ["Sphere Refine +", "sphere_refine_plus()", "RSR around active residue +/- 1 residue", "reset-view.svg"],
          ["Refine residue", "refine_active_residue()", "RSR active residue"],
          ["Reset B", "reset_b_factor_active_residue()", "Reset the B-Factor of active Residue"],
          ["Find Waters", "wrapped_create_find_waters_dialog()", "Find water molecules in map", "add-water.svg"],
@@ -548,6 +631,11 @@ def list_of_toolbar_functions():
          ["Edit BB", "setup_backbone_torsion_edit(1)", "Edit Backbone Torsion Angle", "flip-peptide.svg"],
          ['Torsion Gen.', "setup_torsion_general(1)", "Torsion General (after O function)", "edit-chi.svg"],
          ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
+        ["Validation",
+         ["Interactive dots", toggle_interactive_probe_dots,
+          "Show dots after refinement and for chi/rotamer changes",
+          "probe-clash.svg", True, True]
+         ],
         ["NMR",[]],
         ["EM",[]],
         ["Sidechains/Alignment",[]]]

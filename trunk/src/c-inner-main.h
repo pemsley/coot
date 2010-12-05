@@ -29,7 +29,8 @@ __declspec(dllimport) extern scm_t_option scm_evaluator_trap_table[];
 #endif
 
 void c_inner_main(void *closure, int argc, char** argv); 
-void c_wrapper_scm_boot_guile(int argc, char** argv); 
+struct command_line_data;
+void c_wrapper_scm_boot_guile(int argc, char** argv, struct command_line_data* pcld);
 char* does_file_exist (const char     *directory,
 		       const char     *filename); 
 void start_command_line_python_maybe(char **argv);

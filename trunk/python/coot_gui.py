@@ -1385,31 +1385,32 @@ def interesting_residues_gui(imol, title, interesting_residues):
 #
 # return False if we cannot create the button and/or wrong no of arguments
 #
-# we accept 3 arguments:
+# we accept 6 arguments:
 #   button_label
-#   callback_function   (is String!!!)
-#   gtk-stock-item (or icon_widget, whatever that is)
+#   callback_function   (can be a string or callable function, or list
+#                        with first element fucntion, then args, i.e.
+#                        [function, arg1, arg2, ...])
+#   gtk-stock-item      (or icon_widget, whatever that is)
+#   tooltip             a text to present as tooltip
+#   toggle_button_flag  toggle button instead of normal button
+#   use_button          pass the button widget onto the function
 #  
-def coot_toolbar_button(*args):
+def coot_toolbar_button(button_label, cb_function,
+                        icon_name=False, tooltip=False,
+                        toggle_button=False, use_button=False):
 
+   import types
+   # we do not exclusively use strings any more...
    #print "BL DEBUG:: create toolbutton with args!", args
-   icon_name = None
-   if ((len(args) > 3) or (len(args) <2)):
-      print "BL WARNING:: wrong no of arguments!\nEither 2 (button_label) or 3 (plus icon)!"
-      return False
-   elif (len(args) == 3):
-      icon_name = args[2]
-   button_label = args[0]
-   callback_function = args[1]
-   if (not type(callback_function) is StringType):
-      print "BL WARNING:: callback function wasn't a string! Cannot create toolbarbutton!"
-      return False
+   #if (not type(cb_function) is StringType):
+   #   print "BL WARNING:: callback function wasn't a string! Cannot create toolbarbutton!"
+   #   return False
    
    try:
       import coot_python
    except:
       print """BL WARNING:: could not import coot_python module!!
-      Some things, esp. extensions, may be crippled!"""
+      So we cannot make toolbar_buttons!"""
       return False
    
    coot_main_toolbar = coot_python.main_toolbar()
@@ -1424,11 +1425,42 @@ def coot_toolbar_button(*args):
       # here we only try to add a new icon, we cannot overwrite the callback function!
       toolbutton = found_button
    else:
-      toolbutton = gtk.ToolButton(icon_widget=None, label=button_label)
+      if toggle_button:
+         toolbutton = gtk.ToggleToolButton()
+         toolbutton.set_label(button_label)
+      else:
+         toolbutton = gtk.ToolButton(icon_widget=None,
+                                     label=button_label)
       coot_main_toolbar.insert(toolbutton, -1)       # insert at the end
-      toolbutton.set_is_important(True)              # to display the text, otherwise only icon
-      toolbutton.connect("clicked", lambda w: eval(callback_function))
+      toolbutton.set_is_important(True)              # to display the text,
+                                                     # otherwise only icon
+      # tooltips?
+      if tooltip:
+         coot_tooltips.set_tip(toolbutton, tooltip)
+
+      def cb_wrapper(widget, callback_function):
+         if (type(callback_function) is types.StringType):
+            # old style with string as function
+            eval(callback_function)
+         else:
+            # have function as callable and maybe extra args (all in one list)
+            args = []
+            function = callback_function
+            if (type(callback_function) is types.ListType):
+               function = callback_function[0]
+               args = callback_function[1:]
+            # pass the widget/button as well? Maybe the cb function can
+            # make use of it
+            if use_button:
+               args.append(widget)
+            if callable(function):
+               function(*args)
+            else:
+               print "BL ERROR:: cannot evaluate or call function", function
+      #toolbutton.connect("clicked", lambda w: eval(cb_function))
+      toolbutton.connect("clicked", cb_wrapper, cb_function)
       toolbutton.show()
+
    if (icon_name):
       # try to add a stock item
       try:
@@ -1441,7 +1473,7 @@ def coot_toolbar_button(*args):
             print "BL INFO::  icon name/widget given but could not add the icon"
 
    return toolbutton
-   
+
 # returns a list of existing toolbar buttons
 # [[label, toolbutton],[]...]
 # or False if coot_python is not available
@@ -1900,6 +1932,9 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
 
    if check_button_label:
       check_button = gtk.CheckButton(check_button_label)
+      # somehow need to execute the function before we can use it in the
+      # callback. This is odd to say the least. FIXME
+      check_button_func(check_button, inside_vbox)
       check_button.connect("toggled", lambda func:
                            check_button_func(check_button, inside_vbox))
       if check_button_is_initially_on_flag:
@@ -2027,7 +2062,9 @@ def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_b
 
 # as the dialog_box_of_buttons, but we can put in an extra widget (extra_widget)
 #
-def dialog_box_of_buttons_with_widget(window_name, geometry, buttons, extra_widget, close_button_label):
+def dialog_box_of_buttons_with_widget(window_name, geometry,
+                                      buttons, extra_widget,
+                                      close_button_label):
 
 	def add_text_to_text_widget(text_box, description):
 		textbuffer = text_box.get_buffer()
@@ -2342,7 +2379,8 @@ def nudge_screen_centre_extra_gui():
 
    zoom_adj.connect("value_changed", change_zoom)
 
-   dialog_box_of_buttons_with_widget("Nudge Screen Centre with Extras", [200,400], buttons, vbox, "  Close ")
+   dialog_box_of_buttons_with_widget("Nudge Screen Centre with Extras",
+                                     [200, 400], buttons, vbox, "  Close ")
 
 
 # A gui to make a difference map (from arbitrarily gridded maps
@@ -3126,6 +3164,7 @@ def whats_new_dialog():
 
 # Cootaneer/sequencing gui modified by BL with ideas from KC
 # based on Paul's cootaneer gui and generic_chooser_entry_and_file_selector
+#
 def cootaneer_gui_bl():
 
    # unfortunately currently I dont see a way to avoid a global variable here
@@ -3800,7 +3839,7 @@ def associate_pir_with_molecule_gui(do_alignment=False):
 
    def associate_func(imol, chain_id, pir_file_name):
       #print "assoc seq:", imol, chain_id, pir_file_name
-      associate_pir_sequence(imol, chain_id, seq_text)
+      associate_pir_file(imol, chain_id, pir_file_name)
       if do_alignment:
          alignment_mismatches_gui(imol)
       
@@ -3833,9 +3872,9 @@ def alignment_mismatches_gui(imol):
          return " CA "  # wont work of course
       else:
          for atoms in residue_atoms:
-            if (atoms == " CA "):
+            if (atoms[0][0] == " CA "):
                return " CA "
-         return residue_atoms[0]
+         return residue_atoms[0][0][0]
       
    # main line
    am = alignment_mismatches(imol)
@@ -3865,7 +3904,7 @@ def alignment_mismatches_gui(imol):
                                   "set_go_to_atom_chain_residue_atom_name(\'" + \
                                   chain_id + "\', " + \
                                   str(res_no) + ", " + \
-                                  "\'" + get_sensible_atom_name(res_info) + "\'"]
+                                  "\'" + get_sensible_atom_name(res_info) + "\')"]
                ret_buttons.append([button_1_label, button_1_action])
             return ret_buttons
 
@@ -3881,7 +3920,7 @@ def alignment_mismatches_gui(imol):
                                   "set_go_to_atom_chain_residue_atom_name(\'" + \
                                   chain_id + "\', " + \
                                   str(res_no) + ", " + \
-                                  "\'" + get_sensible_atom_name(res_info) + "\'"]
+                                  "\'" + get_sensible_atom_name(res_info) + "\')"]
                ret_buttons.append([button_1_label, button_1_action])
             return ret_buttons
 
@@ -3896,15 +3935,15 @@ def alignment_mismatches_gui(imol):
                #button_1_action = "info_dialog(" + button_1_label + ")"
                # oh dear, will that work? I dont think I can pass asignments
                # here. Need to rethink this! FIXME
-               button_1_action = ["info_dialog(" + button_1_label + ")",
-                                  "r = nearest_residue_by_sequence(" + \
+               # messy but should work (without too much hazzle)
+               button_1_action = ["info_dialog(\'" + button_1_label + "\')",
+                                  "set_go_to_atom_chain_residue_atom_name(\'" + \
+                                  chain_id + "\', " + \
+                                  "nearest_residue_by_sequence(" + \
                                   str(imol) + ", \'" + \
                                   chain_id + "\', " + \
                                   str(res_no) + ", " + \
-                                  ins_code + ")",
-                                  "set_go_to_atom_chain_residue_atom_name(\'" + \
-                                  chain_id + "\', " + \
-                                  "r[2] , " + \
+                                  "\'" + ins_code + "\')[2], " + \
                                   "\' CA \')"]
                ret_buttons.append([button_1_label, button_1_action])
             return ret_buttons
@@ -4341,8 +4380,8 @@ def user_mods_gui(imol, pdb_file_name):
             pass
          else:
             # keep-letter: K is for keep, 
-            # is clash, X is "not sure"
-            # is flip.
+            # C is clash, X is "not sure"
+            # F is flip.
             keep_letter = info_string[2:3]
             if keep_letter in "XFC":
                ret.append(flip)
@@ -4372,7 +4411,7 @@ def user_mods_gui(imol, pdb_file_name):
       no_adj_buttons = make_no_adj_buttons(flips[1])
       all_buttons = no_adj_buttons + flip_buttons
       dialog_box_of_buttons_with_check_button(
-         "  Flips ", [300, 300], all_buttons, "  Close  ",
+         " Flips ", [300, 300], all_buttons, "  Close  ",
          "Clashes, Problems and Flips only",
          lambda check_button, vbox: clear_and_add_back(vbox, flips[0], flips[1], True)
                                     if check_button.get_active() else
