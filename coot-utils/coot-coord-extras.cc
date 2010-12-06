@@ -317,7 +317,7 @@ int
 coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  &tr_moving,
 			    const std::vector <coot::dict_torsion_restraint_t>  &tr_ref) {
 
-   coot::graph_match_info_t match_info = coot::graph_match(res_moving, res_ref, 0);
+   coot::graph_match_info_t match_info = coot::graph_match(res_moving, res_ref, 0, 0);
 
    if (! match_info.success) {
       std::cout << "WARNING:: Failed to match graphs " << std::endl;
