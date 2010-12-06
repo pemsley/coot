@@ -2462,7 +2462,8 @@ int test_residue_atom_renaming() {
       for (unsigned int i=0; i<n_residue_atoms; i++)
 	 orig_atom_names[i] = residue_atoms[i]->name;
 
-      coot::graph_match_info_t gm = coot::graph_match(res_mov, res_ref, 0);
+      bool match_hydrogens_also = 1;
+      coot::graph_match_info_t gm = coot::graph_match(res_mov, res_ref, 0, match_hydrogens_also);
       gm.match_names(res_mov);
 
       for (unsigned int i=0; i<n_residue_atoms; i++)

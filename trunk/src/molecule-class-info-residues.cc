@@ -388,8 +388,9 @@ molecule_class_info_t::match_ligand_atom_names(const std::string &chain_id, int 
       std::cout << "No residue for moving atom names:  " << chain_id << " " << res_no << " "  << ins_code
 		<< std::endl;
       
-   } else { 
-      coot::graph_match_info_t gm = coot::graph_match(res_mov, res_ref, 0);
+   } else {
+      bool match_hydrogens_also = 1;
+      coot::graph_match_info_t gm = coot::graph_match(res_mov, res_ref, 0, match_hydrogens_also);
       gm.match_names(res_mov);
    } 
 
