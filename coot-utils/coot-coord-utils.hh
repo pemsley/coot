@@ -561,7 +561,7 @@ namespace coot {
 
    class graph_match_info_t {
    public:
-      // atom_match_names: ((atom_name_ref alt_conf_ref) (atom_name_wrk alt_conf_work))
+      // atom_match_names: ((atom_name_wrk alt_conf_work) (atom_name_ref alt_conf_ref))
       std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matching_atom_names;
       bool success;
       clipper::RTop_orth rtop;
@@ -572,6 +572,19 @@ namespace coot {
 	 success = 0;
 	 dist_score = 0;
       }
+      // Change the names in res_moving_names to match those in
+      // res_reference as much as possible.  When there is a name
+      // collision (i.e. the name maped from the res_reference is
+      // already in the res_moving_names (and that is not to be
+      // replace by anything)), invent a new name for the atom.
+      // Use the internal matching_atom_names.
+      void match_names(CResidue *res_moving_names);
+   private:
+      // Find a new name for name_in that is not already in the residue
+      // 
+      std::string invent_new_name(const std::string &name_in,
+				  const std::string &ele,
+				  const std::vector<std::string> &residue_atom_name) const;
    };
    
    // Match on graph
@@ -589,6 +602,7 @@ namespace coot {
    // Usually though apply_rtop_flag will be 1.
    // 
    graph_match_info_t graph_match(CResidue *res_moving, CResidue *res_reference, bool apply_rtop_flag);
+
 
    //
    bool mol_has_symmetry(CMMDBManager *mol);

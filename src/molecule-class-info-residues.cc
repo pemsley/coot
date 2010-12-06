@@ -377,3 +377,20 @@ molecule_class_info_t::get_vector(const coot::residue_spec_t &central_residue_sp
 
    return r;
 } 
+
+void
+molecule_class_info_t::match_ligand_atom_names(const std::string &chain_id, int res_no, const std::string &ins_code,
+					       CResidue *res_ref) {
+
+   CResidue *res_mov = get_residue(chain_id, res_no, ins_code);
+
+   if (! res_mov) {
+      std::cout << "No residue for moving atom names:  " << chain_id << " " << res_no << " "  << ins_code
+		<< std::endl;
+      
+   } else { 
+      coot::graph_match_info_t gm = coot::graph_match(res_mov, res_ref, 0);
+      gm.match_names(res_mov);
+   } 
+
+} 

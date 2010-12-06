@@ -1398,3 +1398,34 @@ int exchange_ligand(int imol_lig, const char *chain_id_lig, int resno_lig, const
    return imol;
 
 } 
+
+/*! \brief Match ligand atom names
+
+  By using graph matching, make the names of the atoms of the
+  given ligand/residue match those of the reference residue/ligand as
+  closely as possible - where there would be a atom name clash, invent
+  a new atom name.
+ */
+void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand,
+			     int imol_reference, const char *chain_id_reference, int resno_reference, const char *ins_code_reference) {
+
+   if (! is_valid_model_molecule(imol_ligand)) { 
+      std::cout << "Not a valid model number " << imol_ligand << std::endl;
+   } else {
+      if (! is_valid_model_molecule(imol_reference)) {
+	      std::cout << "Not a valid model number " << imol_reference << std::endl;
+      } else {
+	 graphics_info_t g;
+	 CResidue *res_ref =
+	    g.molecules[imol_reference].get_residue(chain_id_reference, resno_reference, ins_code_reference);
+	 if (! res_ref) {
+	    std::cout << "No reference residue " << chain_id_reference << " " << resno_reference
+		      << " "  << ins_code_reference << std::endl;
+	 } else { 
+	    // now lock res_ref - when multi-threaded
+	    g.molecules[imol_ligand].match_ligand_atom_names(chain_id_ligand, resno_ligand, ins_code_ligand, res_ref);
+	    graphics_draw();
+	 }
+      }
+   }
+}

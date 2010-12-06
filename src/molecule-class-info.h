@@ -2825,7 +2825,10 @@ public:        //                      public
    clipper::Coord_orth get_vector(const coot::residue_spec_t &central_residue_spec, // ligand typically
 				  const coot::residue_spec_t &neighbour_residue_spec) const;
    
-
+   // --------- match ligand atom names ------------------
+   void match_ligand_atom_names(const std::string &chain_id, int res_no, const std::string &ins_code,
+				CResidue *res_ref);
+   
 };
 
 #endif // MOLECULE_CLASS_INFO_T
