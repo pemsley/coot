@@ -1707,7 +1707,8 @@ coot::graph_match(CResidue *res_moving,
       cleaned_res_moving->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
       // are these the same atoms?
       for (int i=0; i<4; i++) {
-	 std::cout << "moving and ref atoms: " << residue_atoms_1[i] <<  " " << residue_atoms_2[i] << std::endl;
+	 std::cout << "moving and ref atoms: " << residue_atoms_1[i] <<  " " << residue_atoms_2[i]
+		   << std::endl;
       }
    }
 
@@ -1833,6 +1834,190 @@ coot::graph_match(CResidue *res_moving,
    return gmi;
 }
 
+// Change the names in res_moving_names to match those in
+// res_reference as much as possible.  When there is a name collision
+// (i.e. the name maped from the res_reference is already in the
+// res_moving_names (and that is not to be replace by anything)),
+// invent a new name for the atom.  Use the internal
+// matching_atom_names.
+void
+coot::graph_match_info_t::match_names(CResidue *res_with_moving_names) {
+
+   if (!success) {
+      std::cout << "Can't do name remapping, graph match failed" << std::endl;
+   } else { 
+
+      // non-mapped and not the same, that is.
+      std::vector<std::string> orig_moving_atom_names_non_mapped_non_same;
+
+      // not in the set of graph matched pairs, not changing (presumably).
+      std::vector<std::string> orig_moving_atom_names_non_mapped_same;
+   
+      std::vector<std::string> residue_atom_names;
+   
+
+      // fill orig_moving_atom_names_non_mapped_non_same
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      res_with_moving_names->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 std::string atom_name(residue_atoms[iat]->name);
+	 // add the name if is not already there.
+	 if (std::find(residue_atom_names.begin(), residue_atom_names.end(), atom_name)
+	     == residue_atom_names.end())
+	    residue_atom_names.push_back(atom_name);
+	 bool found_match = 0;
+	 for (unsigned int j_pair=0; j_pair<matching_atom_names.size(); j_pair++) {
+	    // first is working atom spec
+	    if (matching_atom_names[j_pair].first.first == atom_name) {
+	       found_match = 1;
+	       break;
+	    }
+	 }
+
+	 std::cout << ".... atom name: " << atom_name << ": found_match " << found_match << std::endl;
+	 if (! found_match) {
+	    // this atom name was not in the list of working atoms that were matched.
+
+	    // now, was this atom name in the list of matched target atoms?
+	    // If so, it is a collision-atom
+	    bool found_match_2 = 0;
+	    for (unsigned int j_pair=0; j_pair<matching_atom_names.size(); j_pair++) {
+	       // second is reference atom spec
+	       if (matching_atom_names[j_pair].second.first == atom_name) {
+		  found_match_2 = 1;
+		  break;
+	       }
+	    }
+	    std::cout << "      found_match_2 " << found_match_2 << std::endl;
+	    if (found_match_2)
+	       orig_moving_atom_names_non_mapped_non_same.push_back(atom_name);
+	    else
+	       orig_moving_atom_names_non_mapped_same.push_back(atom_name);
+	    
+	 } 
+      }
+
+      if (1) {
+	 std::cout << "Mapped atom names: " << matching_atom_names.size() << std::endl;
+	 // according to header ref is first, work is second.
+	 for (unsigned int i=0; i<matching_atom_names.size(); i++) { 
+	    std::cout << "   " << i << " :" << matching_atom_names[i].first.first 
+		      << ": -> :" << matching_atom_names[i].second.first << ":"
+		      << std::endl;
+	 }
+	 std::cout << "Non-mapped non-same atom names: " << orig_moving_atom_names_non_mapped_non_same.size()
+		   << std::endl;
+	 for (unsigned int i=0; i<orig_moving_atom_names_non_mapped_non_same.size(); i++) { 
+	    std::cout << "   " << i << " :" << orig_moving_atom_names_non_mapped_non_same[i] << ":" << std::endl;
+	 }
+	 std::cout << "Non mapped same atom names: " << orig_moving_atom_names_non_mapped_same.size()
+		   << std::endl;
+	 for (unsigned int i=0; i<orig_moving_atom_names_non_mapped_same.size(); i++) { 
+	    std::cout << "   " << i << " :" << orig_moving_atom_names_non_mapped_same[i] << ":" << std::endl;
+	 }
+      }
+
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+
+	 // check for a collision.  Is the reference name in existing
+	 // atom names that are not due to be replaced?
+	 std::string this_atom_name(residue_atoms[iat]->name);
+
+	 bool replace_name = 0;
+	 std::string new_atom_name = "";
+      
+      
+	 if (std::find(orig_moving_atom_names_non_mapped_non_same.begin(),
+		       orig_moving_atom_names_non_mapped_non_same.end(),
+		       this_atom_name) !=
+	     orig_moving_atom_names_non_mapped_non_same.end()) {
+	    // OK, this atom name is in the list of atoms non-mapped needing a name change
+	    std::string ele = residue_atoms[iat]->element;
+	    new_atom_name = invent_new_name(this_atom_name, ele, residue_atom_names);
+	    residue_atom_names.push_back(new_atom_name);
+	    replace_name = 1;
+	    // std::cout << ":" << this_atom_name << ": non-mapped..." << std::endl;
+	 } else {
+
+	    // OK, this moving residue atom is not non-mapped and needing a name change.
+
+	    // Is it non-mapped and not needing a name change?
+	    //
+	    //   If it is, don't set replace name,
+	    ///  If is not, then it should be in the (graph) matching atom names, so
+	    //      check there if the atom names are the same and if they are, do not
+	    //      set the replace_name flag
+
+	    if (std::find(orig_moving_atom_names_non_mapped_same.begin(),
+			  orig_moving_atom_names_non_mapped_same.end(),
+			  this_atom_name) !=
+		orig_moving_atom_names_non_mapped_same.end()) {
+
+	       // no change to replace_name.
+
+	    } else { 
+
+	       // std::cout << ":" << this_atom_name << ": mapped" << std::endl;
+	       replace_name = 1;
+	       for (unsigned int j_pair=0; j_pair<matching_atom_names.size(); j_pair++) {
+		  if (matching_atom_names[j_pair].first.first == this_atom_name) { 
+		     // if the atom name is the same the reference atom name, then
+		     // nothing to do.
+		     if (matching_atom_names[j_pair].second.first ==
+			 matching_atom_names[j_pair].first.first) {
+			replace_name = 0;
+			break;
+		     } else {
+			new_atom_name = matching_atom_names[j_pair].second.first;
+		     } 
+		  }
+	       }
+	    }
+	 }
+
+	 std::cout << "debug atom name :" << this_atom_name
+		   << ": replace status: " << replace_name
+		   << " new name :" << new_atom_name << ":" << std::endl;
+	 if (replace_name) {
+	    residue_atoms[iat]->SetAtomName(new_atom_name.c_str());
+	 } 
+      
+      }
+   }
+} 
+
+std::string
+coot::graph_match_info_t::invent_new_name(const std::string &name_in,
+					  const std::string &ele,
+					  const std::vector<std::string> &residue_atom_name) const {
+   std::string a("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+   bool found = 0;
+   std::string new_name("XXXX");
+   for (unsigned int i=0; i<a.size(); i++) { 
+      for (unsigned int j=0; j<a.size(); j++) {
+	 std::string test_atom_name = "";
+	 if (ele.length() == 1) { 
+	    test_atom_name = " ";
+	    test_atom_name += ele;
+	 } else {
+	    test_atom_name = ele;
+	 }
+	 test_atom_name += a[i];
+	 test_atom_name += a[j];
+	 if (std::find(residue_atom_name.begin(), residue_atom_name.end(), test_atom_name)
+	     == residue_atom_name.end()) {
+	    found = 1;
+	    new_name = test_atom_name;
+	 }
+	 if (found)
+	    break;
+      }
+      if (found)
+	 break;
+   }
+   return new_name;
+} 
 
 
 
