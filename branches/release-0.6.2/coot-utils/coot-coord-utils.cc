@@ -1682,7 +1682,8 @@ coot::util::single_letter_to_3_letter_code(char code) {
 coot::graph_match_info_t
 coot::graph_match(CResidue *res_moving,
 		  CResidue *res_reference,
-		  bool apply_rtop_flag) {
+		  bool apply_rtop_flag,
+		  bool match_hydrogens_also) {
 
   clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
   clipper::Coord_orth pt_dum(0,0,0);
@@ -1694,8 +1695,18 @@ coot::graph_match(CResidue *res_moving,
    CGraph graph2;
 
    // These are deleted at the end
-   CResidue *cleaned_res_moving    = coot::util::copy_and_delete_hydrogens(res_moving);
-   CResidue *cleaned_res_reference = coot::util::copy_and_delete_hydrogens(res_reference);
+   
+   CResidue *cleaned_res_moving    = NULL;
+   CResidue *cleaned_res_reference = NULL;
+
+   if (! match_hydrogens_also) { 
+      cleaned_res_moving    = coot::util::copy_and_delete_hydrogens(res_moving);
+      cleaned_res_reference = coot::util::copy_and_delete_hydrogens(res_reference);
+   } else {
+      cleaned_res_moving    = coot::util::deep_copy_this_residue(res_moving);
+      cleaned_res_reference = coot::util::deep_copy_this_residue(res_reference);
+
+   } 
 
    // debug 
    if (0) {
@@ -1715,8 +1726,15 @@ coot::graph_match(CResidue *res_moving,
    graph1.MakeGraph(cleaned_res_moving);
    graph2.MakeGraph(cleaned_res_reference);
 
-   // graph1.MakeSymmetryRelief ( False );
-   // graph2.MakeSymmetryRelief ( False );
+   if (match_hydrogens_also) {
+      // 20101206 this stops infinite looping in mmdb_graph.cpp:1898
+      // Backtrack1() when we have hydrogens in the match.  It is not
+      // clear to my why we don't want to do this all the time.
+      // Anyway...
+      // 
+      graph1.MakeSymmetryRelief ( False );
+      graph2.MakeSymmetryRelief ( False );
+   } 
 
    int build_status1 = graph1.Build(1);
    int build_status2 = graph2.Build(1);
@@ -1743,7 +1761,7 @@ coot::graph_match(CResidue *res_moving,
 	 
 	 CGraphMatch match;
 
-	 std::cout << "match.MatchGraphs must match at least " << minMatch << " atoms."
+	 std::cout << "INFO:: match.MatchGraphs must match at least " << minMatch << " atoms."
 		   << std::endl;
 	 match.MatchGraphs(&graph1, &graph2, minMatch, 1);
 	 int n_match = match.GetNofMatches();

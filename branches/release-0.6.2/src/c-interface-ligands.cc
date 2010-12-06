@@ -315,9 +315,10 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
 
 	 if (!residue_reference) {
 	    std::cout << "Oops.  Failed to find reference residue" << std::endl;
-	 } else { 
+	 } else {
+	    bool match_hydrogens_also = 0;
 	    coot::graph_match_info_t rtop_info =
-	       coot::graph_match(residue_moving, residue_reference, apply_rtop_flag);
+	       coot::graph_match(residue_moving, residue_reference, apply_rtop_flag, match_hydrogens_also);
 	    if (rtop_info.success) {
 	       if (rtop_info.dist_score < best_score) { // low score good.
 		  best_score = rtop_info.dist_score;
