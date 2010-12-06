@@ -270,8 +270,10 @@ int test_internal_single() {
       // status = test_translate_close_to_origin();
       // status = test_flev_aromatics();
       // status = test_phi_psi_values();
-      status = test_map_segmentation();
+      // status = test_map_segmentation();
       // status = test_copy_cell_symm_orig_scale_headers();
+
+      status = test_residue_atom_renaming();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2402,6 +2404,70 @@ int test_copy_cell_symm_orig_scale_headers() {
    return 1;
 } 
 
+int test_residue_atom_renaming() {
+
+   // std::string f1 = "coot-ccp4/store-1/prodrg-DRG.pdb";
+   // std::string f2 = "coot-ccp4/store-2/prodrg-DRG.pdb";
+
+   std::string f1 = "coot-ccp4/store-1/prodrg-DRG-with-H.pdb";
+   std::string f2 = "coot-ccp4/store-2/prodrg-DRG-with-H.pdb";
+
+   atom_selection_container_t atom_sel_ref = get_atom_selection(f1, 1);
+   atom_selection_container_t atom_sel_mov = get_atom_selection(f2, 1);
+
+   std::vector<std::string> orig_atom_names;
+   std::vector<std::string> curr_atom_names;
+
+   CResidue *res_ref = atom_sel_ref.mol->GetResidue(1, "", 1, "");
+   CResidue *res_mov = atom_sel_mov.mol->GetResidue(1, "", 1, "");
+
+   if (! res_ref || ! res_mov) {
+      std::cout << "test_residue_atom_renaming(): failed to get residues "
+		<< res_ref << " " << res_mov << std::endl;
+   } else {
+      // normal path
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      res_mov->GetAtomTable(residue_atoms, n_residue_atoms);
+      orig_atom_names.resize(n_residue_atoms);
+      curr_atom_names.resize(n_residue_atoms);
+      for (unsigned int i=0; i<n_residue_atoms; i++)
+	 orig_atom_names[i] = residue_atoms[i]->name;
+
+      coot::graph_match_info_t gm = coot::graph_match(res_mov, res_ref, 0);
+      gm.match_names(res_mov);
+
+      for (unsigned int i=0; i<n_residue_atoms; i++)
+	 curr_atom_names[i] = residue_atoms[i]->name;
+
+      //  CAL ->  CAD
+      //  HAE ->  HAM
+      //  CAJ ->  CAE
+      // CLAN -> CLAH
+      //  CAI ->  CAA
+      //  HAA ->  HAL
+      
+      for (unsigned int i=0; i<n_residue_atoms; i++)
+	 std::cout << " test ---  was :" << orig_atom_names[i] << ":  now :"
+		   << curr_atom_names[i] << ":" << std::endl;
+
+      // Test that there are no atoms in the residue that occur more
+      // than once.
+      std::map<std::string, int> atom_name_map;
+      for (unsigned int i=0; i<n_residue_atoms; i++) {
+	 atom_name_map[residue_atoms[i]->name]++;
+	 if (atom_name_map[residue_atoms[i]->name] != 1) {
+	    std::string m = "   fail - more than 1 of :";
+	    m += residue_atoms[i]->name;
+	    m+= ":";
+	    throw (std::runtime_error(m));
+	 }
+      }
+      
+      
+   }
+   return 0;
+}
 
 #endif // BUILT_IN_TESTING
 

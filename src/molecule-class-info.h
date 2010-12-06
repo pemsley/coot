@@ -2807,6 +2807,11 @@ public:        //                      public
    bool transparent_molecular_surface_flag; // 0 by default.
 
    
+   // --------- match ligand atom names ------------------
+   void match_ligand_atom_names(const std::string &chain_id, int res_no, const std::string &ins_code,
+				CResidue *res_ref);
+
+   
 };
 
 #endif // MOLECULE_CLASS_INFO_T

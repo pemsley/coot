@@ -4068,6 +4068,17 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
 #endif /* PYTHON*/
 #endif	/* __cplusplus */
 
+/*! \brief Match ligand atom names
+
+  By using graph matching, make the names of the atoms of the
+  given ligand/residue match those of the reference residue/ligand as
+  closely as possible - where there would be a atom name clash, invent
+  a new atom name.
+ */
+void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand,
+			     int imol_reference, const char *chain_id_reference, int resno_reference, const char *ins_code_reference);
+
+
 /* Transfer as many atom names as possible from the reference ligand
    to the given ligand.  The atom names are determined from graph
    matching the reference ligand onto the given ligand.
