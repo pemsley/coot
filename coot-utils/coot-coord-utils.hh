@@ -567,7 +567,8 @@ namespace coot {
    //
    // Usually though apply_rtop_flag will be 1.
    // 
-   graph_match_info_t graph_match(CResidue *res_moving, CResidue *res_reference, bool apply_rtop_flag);
+   graph_match_info_t graph_match(CResidue *res_moving, CResidue *res_reference, bool apply_rtop_flag,
+				  bool match_hydrogens_also);
 
 
    //
