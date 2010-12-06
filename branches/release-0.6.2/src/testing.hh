@@ -84,6 +84,7 @@ int test_translate_close_to_origin();
 int test_flev_aromatics();
 int test_map_segmentation();
 int test_copy_cell_symm_orig_scale_headers();
+int test_residue_atom_renaming();
 
 // uses greg data test data
 int test_phi_psi_values();
