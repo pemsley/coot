@@ -73,6 +73,7 @@ void check_chiral_volumes(int imol) {
    } 
 }
 
+
 // debug a mol
  
        { 
@@ -100,6 +101,27 @@ void check_chiral_volumes(int imol) {
 	  }
        }
  
+
+      // debug
+      std::cout << "------------ molecule from residue selection ---- " << std::endl;
+      int imod = 1;
+      CModel *model_p = x->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    std::cout << "   :" << chain_p->GetChainID() << ": " << residue_p->GetSeqNum()
+		      << " :" << residue_p->GetInsCode() << ":    " << n_atoms << " atoms"
+		      << std::endl;
+	 }
+      }
+
+      
 
    // ---- simple version 
 

@@ -1,9 +1,12 @@
 
  0.6.2
 
-  o talk to Bernhard re: REDUCE_HET_DICT etc.  Look at his python
-    code.
+  o CA mode for Fabs can have bad bonding on insertion codes.  ::: 1
+ 
+  o CA+ligands mode can click on regular residue atoms, bleugh.  ::: 1
 
+  o talk to Bernhard re: REDUCE_HET_DICT etc.  Look at his python
+    code. ::: 2
 
 ------
 
@@ -785,6 +788,9 @@ WARNING:: Can't find file
     chain only (or a number of chains) ::: 1
 
 * Done.
+
+  o Rotate/Translate with insertion codes picks wrong residue when
+  clicking on atom with ins code.  ::: 1
 
 
 -------

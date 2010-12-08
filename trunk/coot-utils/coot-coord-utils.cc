@@ -1695,7 +1695,7 @@ coot::graph_match(CResidue *res_moving,
    CGraph graph2;
 
    // These are deleted at the end
-   
+   // 
    CResidue *cleaned_res_moving    = NULL;
    CResidue *cleaned_res_reference = NULL;
 
@@ -1705,7 +1705,6 @@ coot::graph_match(CResidue *res_moving,
    } else {
       cleaned_res_moving    = coot::util::deep_copy_this_residue(res_moving);
       cleaned_res_reference = coot::util::deep_copy_this_residue(res_reference);
-
    } 
 
    // debug 
@@ -2422,8 +2421,15 @@ coot::util::create_mmdbmanager_from_res_selection(CMMDBManager *orig_mol,
       r = coot::util::deep_copy_this_residue_with_atom_index_and_afix_transfer(orig_mol, SelResidues[ires], altconf, whole_res_flag, atom_index_handle, afix_handle_new_mol);
       
       chain->AddResidue(r);
-      r->seqNum = SelResidues[ires]->GetSeqNum();
-      r->SetResName(SelResidues[ires]->GetResName());
+      // r->seqNum = SelResidues[ires]->GetSeqNum();
+      // r->SetResName(SelResidues[ires]->GetResName());
+      // 
+      // 20101208, we need to copy across the ins code too (for
+      // rot/transing).  This is the mmdb approved way of doing this.
+      // 
+      r->SetResID(SelResidues[ires]->GetResName(),
+		  SelResidues[ires]->GetSeqNum(),
+		  SelResidues[ires]->GetInsCode());
    }
    chain->SetChainID(chain_id_1.c_str());
    model->AddChain(chain);
