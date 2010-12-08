@@ -2328,6 +2328,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
    const char *chain_id = "*";
    int resno_1 = ANY_RES;
    int resno_2 = ANY_RES;
+   std::string insertion_code_selection = "*"; // reset on start and stop residue in range being the same
    bool good_settings = 0; // fail initially
    CAtom *atom1 = molecules[imol_rot_trans_object].atom_sel.atom_selection[rot_trans_atom_index_1];
    const char *altLoc = atom1->altLoc;
@@ -2366,6 +2367,9 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 	    resno_1 = resno_2;
 	    resno_2 = tmp;
 	 }
+	 if (atom1->residue == atom2->residue) {
+	    insertion_code_selection = atom1->GetInsCode();
+	 } 
 	 
 	 origin_atom_spec = coot::atom_spec_t(atom2); // as it used to be
 	 
@@ -2404,8 +2408,8 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       int selHnd = molecules[imol_rot_trans_object].atom_sel.mol->NewSelection();
       molecules[imol_rot_trans_object].atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
 							    chain_id,
-							    resno_1, "*",
-							    resno_2, "*",
+							    resno_1, insertion_code_selection.c_str(),
+							    resno_2, insertion_code_selection.c_str(),
 							    "*",  // residue name
 							    "*",  // Residue must contain this atom name?
 							    "*",  // Residue must contain this Element?
@@ -2413,6 +2417,8 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 							    SKEY_NEW // selection key
 							    );
       molecules[imol_rot_trans_object].atom_sel.mol->GetSelIndex(selHnd, sel_residues, n_sel_residues);
+
+      
       short int alt_conf_split_flag = 0;
       std::string altloc_string(altLoc);
       if (altloc_string != "")
@@ -2428,6 +2434,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 							   sel_residues, n_sel_residues,
 							   0, 0, altloc_string, chain_id,
 							   alt_conf_split_flag);
+
 
       if (rot_trans_object_type == ROT_TRANS_TYPE_CHAIN) 
 	mp = 
