@@ -1352,12 +1352,12 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 			std::string atom_id_2_str(atom_id2);
 			std::string contact_type(c_type);
 			
-// 			std::cout << "\"" << contact_type << "\"..\"" << atom_id_1_str
-// 				  << "\"..to..\""
-// 				  << atom_id_2_str << "\" " << gap1 << " " << gap2
-// 				  << " (" << x1 << "," << x2 << "," << x3 << ")"
-// 				  << " (" << x4 << "," << x5 << "," << x6 << ")"
-// 				  << "\n";
+//  			std::cout << "\"" << contact_type << "\"..\"" << atom_id_1_str
+//  				  << "\"..to..\""
+//  				  << atom_id_2_str << "\" " << gap1 << " " << gap2
+//  				  << " (" << x1 << "," << x2 << "," << x3 << ")"
+//  				  << " (" << x4 << "," << x5 << "," << x6 << ")"
+//  				  << "\n";
 	    
 			// assign the colour and dot size
 			if (contact_type == "hb") { 

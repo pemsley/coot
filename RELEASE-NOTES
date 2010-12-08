@@ -95,6 +95,9 @@
   o BUG-FIX: Symmetry is updated on accepting a Rotate/Translate
     modification [Ezra Peisach].
 
+  o BUG-FIX: Rotate/Translate on a residue with an insertion code now
+    picks and moves the correct atoms.
+
   o BUG-FIX: NCS differences were broken by gaps of different lengths
     [Ingo Korndoerfer].
 
