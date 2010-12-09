@@ -27,6 +27,9 @@
 ;; 3D annotations - a bit of a hack currently
 (define *annotations* '())
 
+;; used in Extensions -> Representation -> Ball & Stick
+(define *default-ball-and-stick-selection* "//A/1-2")
+
 ;; scm aliases.  Don't forget to add them to snarf-coot-docs too.
 ;; 
 (define drag-intermediate-atom drag-intermediate-atom-scm)
