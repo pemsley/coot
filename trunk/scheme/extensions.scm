@@ -946,7 +946,7 @@
 	 (lambda ()
 	   (generic-chooser-and-entry "Ball & Stick"
 				      "Atom Selection:"
-				      "//A/1-2"
+				      *default-ball-and-stick-selection*
 				      (lambda (imol text)
 					(let ((handle (make-ball-and-stick imol text 0.14 0.3 1)))
 					  (format #t "handle: ~s~%" handle))))))
