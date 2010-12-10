@@ -371,6 +371,17 @@ main (int argc, char *argv[]) {
      }
   }
 
+  // Finally desensitize the missing scripting menu
+  GtkWidget *w;
+#ifndef USE_GUILE
+  w = lookup_widget(window1, "scripting_scheme1");
+  gtk_widget_set_sensitive(w, False);
+#endif
+#ifndef USE_PYTHON
+  w = lookup_widget(window1, "scripting_python1");
+  gtk_widget_set_sensitive(w, False);
+#endif
+
   // allocate some memory for the molecules
   //
   std::cout << "initalize graphics molecules...";
