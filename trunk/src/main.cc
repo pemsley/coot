@@ -374,6 +374,17 @@ main (int argc, char *argv[]) {
      }
   }
 
+  // Finally desensitize the missing scripting menu
+  GtkWidget *w;
+#ifndef USE_GUILE
+  w = lookup_widget(window1, "scripting_scheme1");
+  gtk_widget_set_sensitive(w, False);
+#endif
+#ifndef USE_PYTHON
+  w = lookup_widget(window1, "scripting_python1");
+  gtk_widget_set_sensitive(w, False);
+#endif
+  
   // allocate some memory for the molecules
   //
   std::cout << "initalize graphics molecules...";
@@ -600,6 +611,7 @@ main (int argc, char *argv[]) {
 #endif // USE_PYGTK
      
 #endif // USE_PYTHON  
+
      
 #ifdef USE_GUILE
      
@@ -831,6 +843,15 @@ void setup_application_icon(GtkWindow *window) {
 void add_ligand_builder_menu_item_maybe() {
 
    if (graphics_info_t::use_graphics_interface_flag) { 
+     // Why so complicated?
+     // requires ligand builder menu in glade of course
+     //GtkWidget *w;
+     //#ifndef MAKE_ENTERPRISE_TOOLS
+     //GtkWidget *p = main_window();
+     //w = lookup_widget(p, "ligand_builder");
+     //gtk_widget_set_sensitive(w, False);  // or hide!?
+     //#endif
+
       GtkWidget *menubar = main_menubar();
       if (menubar) {
 	 GList *ls = gtk_container_children(GTK_CONTAINER(menubar));
