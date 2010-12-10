@@ -25,6 +25,10 @@
 global annotations
 annotations = []
 
+# used in Extensions -> Representation -> Ball & Stick
+global default_ball_and_stick_selection
+default_ball_and_stick_selection = "//A/1-2"
+
 # for mingw debug
 global have_mingw
 have_mingw = False

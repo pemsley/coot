@@ -987,12 +987,13 @@ if (have_coot_python):
        bns_handle = make_ball_and_stick(imol, text, 0.18, 0.3, 1)
        print "handle: ", bns_handle
 
+     global default_ball_and_stick_selection    # shoudl maybe be on top of file
      add_simple_coot_menu_menuitem(
        submenu_representation,
        "Ball & Stick...",
        lambda func: generic_chooser_and_entry("Ball & Stick",
                                               "Atom Selection:",
-                                              "//A/1-2",
+                                              default_ball_and_stick_selection,
                                               lambda imol, text: make_ball_n_stick_func(imol, text)))
 
 

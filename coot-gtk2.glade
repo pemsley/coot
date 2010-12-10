@@ -269,7 +269,7 @@
 			<widget class="GtkImageMenuItem" id="get_pdb_using_code1">
 			  <property name="visible">True</property>
 			  <property name="tooltip" translatable="yes">Get PDB Coordinates file from server using accession code</property>
-			  <property name="label" translatable="yes">Get PDB using Accession Code...</property>
+			  <property name="label" translatable="yes">Fetch PDB using Accession Code...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_get_pdb_using_code1_activate"/>
 
@@ -290,7 +290,7 @@
 			<widget class="GtkImageMenuItem" id="get_pdb_and_map_using_eds1">
 			  <property name="visible">True</property>
 			  <property name="tooltip" translatable="yes">Use the Electron Density Server at Uppsala University to get coords and map... (Long live the EDS!)</property>
-			  <property name="label" translatable="yes">Get PDB &amp; Map using EDS...</property>
+			  <property name="label" translatable="yes">Fetch PDB &amp; Map using EDS...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_get_pdb_and_map_using_eds1_activate"/>
 

@@ -484,7 +484,7 @@ create_window1 (void)
   gtk_widget_show (image9251);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (smiles1), image9251);
 
-  get_pdb_using_code1 = gtk_image_menu_item_new_with_mnemonic (_("Get PDB using Accession Code..."));
+  get_pdb_using_code1 = gtk_image_menu_item_new_with_mnemonic (_("Fetch PDB using Accession Code..."));
   gtk_widget_show (get_pdb_using_code1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_using_code1);
   gtk_tooltips_set_tip (tooltips, get_pdb_using_code1, _("Get PDB Coordinates file from server using accession code"), NULL);
@@ -493,7 +493,7 @@ create_window1 (void)
   gtk_widget_show (image9252);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_using_code1), image9252);
 
-  get_pdb_and_map_using_eds1 = gtk_image_menu_item_new_with_mnemonic (_("Get PDB & Map using EDS..."));
+  get_pdb_and_map_using_eds1 = gtk_image_menu_item_new_with_mnemonic (_("Fetch PDB & Map using EDS..."));
   gtk_widget_show (get_pdb_and_map_using_eds1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_and_map_using_eds1);
   gtk_tooltips_set_tip (tooltips, get_pdb_and_map_using_eds1, _("Use the Electron Density Server at Uppsala University to get coords and map... (Long live the EDS!)"), NULL);
