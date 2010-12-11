@@ -854,8 +854,8 @@ bool coot::is_directory_p(const std::string &filename) {
 
 
 
-// is ALA, GLY, TRP, MET, MSE...?
-short int
+// is ALA, GLY, TRP, MET, MSE (RNA DNA too)...?
+bool
 coot::util::is_standard_residue_name(const std::string &residue_name) {
 
    if (residue_name == "ALA")
@@ -899,6 +899,46 @@ coot::util::is_standard_residue_name(const std::string &residue_name) {
    if (residue_name == "TYR")
       return 1;
    if (residue_name == "VAL")
+      return 1;
+   if (residue_name == "G")
+      return 1;
+   if (residue_name == "A")
+      return 1;
+   if (residue_name == "T")
+      return 1;
+   if (residue_name == "C")
+      return 1;
+   if (residue_name == "U")
+      return 1;
+   if (residue_name == "GR")
+      return 1;
+   if (residue_name == "AR")
+      return 1;
+   if (residue_name == "UR")
+      return 1;
+   if (residue_name == "TR")
+      return 1;
+   if (residue_name == "UR")
+      return 1;
+   if (residue_name == "Gr")
+      return 1;
+   if (residue_name == "Ar")
+      return 1;
+   if (residue_name == "Ur")
+      return 1;
+   if (residue_name == "Tr")
+      return 1;
+   if (residue_name == "Ur")
+      return 1;
+   if (residue_name == "Gd")
+      return 1;
+   if (residue_name == "Ad")
+      return 1;
+   if (residue_name == "Ud")
+      return 1;
+   if (residue_name == "Td")
+      return 1;
+   if (residue_name == "Ud")
       return 1;
 
    return 0;
