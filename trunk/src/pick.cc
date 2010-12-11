@@ -86,20 +86,40 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
 		  
 		  if (((pick_mode == PICK_ATOM_NON_HYDROGEN) && (ele != " H")) ||
 		      (pick_mode != PICK_ATOM_NON_HYDROGEN)) {
-		      
-		     min_dist = dist;
-		     nearest_atom_index = i;
-		     p_i.success = GL_TRUE;
-		     p_i.atom_index = nearest_atom_index;
-		     p_i.imol = imol;
-		     p_i.min_dist = dist;
+
+		     bool allow_pick = 1;
+
+		     std::cout << "pick_mode: " << pick_mode << std::endl;
 		     
-		     if (verbose_mode) { 
-			std::cout << "   DEBUG:: imol " << imol << " " 
-				  << " atom index " << nearest_atom_index << std::endl;
-			std::cout << "   DEBUG:: imol " << imol << " "
-				  << SelAtom.atom_selection[i] << " " << min_dist
-				  << std::endl; 
+		     // 20101211 stop picking on regular residue atoms
+		     // in CA+ligand mode
+		     //
+		     if (pick_mode == PICK_ATOM_CA_OR_LIGAND) {
+			std::string res_name = SelAtom.atom_selection[i]->GetResName();
+			std::string atom_name(SelAtom.atom_selection[i]->name);
+			std::cout << "res_name: " << res_name << std::endl;
+			if (coot::util::is_standard_residue_name(res_name))
+			   // no CAs in RNA/DNA and no Ps in protein.
+			   if ((atom_name != " CA ") && (atom_name != " P  "))
+			      allow_pick = 0;
+		     }
+			
+
+		     if (allow_pick) { 
+			min_dist = dist;
+			nearest_atom_index = i;
+			p_i.success = GL_TRUE;
+			p_i.atom_index = nearest_atom_index;
+			p_i.imol = imol;
+			p_i.min_dist = dist;
+		     
+			if (verbose_mode) { 
+			   std::cout << "   DEBUG:: imol " << imol << " " 
+				     << " atom index " << nearest_atom_index << std::endl;
+			   std::cout << "   DEBUG:: imol " << imol << " "
+				     << SelAtom.atom_selection[i] << " " << min_dist
+				     << std::endl;
+			}
 		     }
 		  }
 	       } else {
@@ -183,6 +203,8 @@ atom_pick(GdkEventButton *event) {
 		  pick_mode = PICK_ATOM_CA_ONLY;
 	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::BONDS_NO_HYDROGENS)
 		  pick_mode = PICK_ATOM_NON_HYDROGEN;
+	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS)
+		  pick_mode = PICK_ATOM_CA_OR_LIGAND;
 
 	       bool verbose_mode = graphics_info_t::debug_atom_picking;
 	       pick_info mpi = pick_atom(SelAtom, ii, front, back, pick_mode, verbose_mode);

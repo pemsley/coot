@@ -90,8 +90,8 @@ namespace coot {
       bool extension_is_for_mdl_mol_coords(const std::string &ext);
       // void template<T> swap(*T v1, *T v2);
 
-      // is ALA, GLY, TRP, MET, MSE...?
-      short int is_standard_residue_name(const std::string &residue_name);
+      // is ALA, GLY, TRP, MET, MSE...? (RNA, DNA allowed too)
+      bool is_standard_residue_name(const std::string &residue_name);
 
       std::string downcase(const std::string &s);
       std::string upcase(const std::string &s);
