@@ -2746,9 +2746,106 @@ Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
 
 // where bond_colour_type is one of 
 // enum bond_colour_t { COLOUR_BY_CHAIN=0, COLOUR_BY_SEC_STRUCT=1};
+//
+// Don't show HETATMs.
 // 
 coot::my_atom_colour_map_t 
 Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAtom,
+						const char *backbone_atom_id,
+						coot::my_atom_colour_map_t atom_colour_map,
+						float min_dist, float max_dist, int bond_colour_type) {
+
+   int atom_colours_udd = -1; // unset/bad
+
+   if (bond_colour_type == coot::COLOUR_BY_RAINBOW)
+      atom_colours_udd = set_rainbow_colours(SelAtom.mol);
+
+   for(int imod = 1; imod<=SelAtom.mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = SelAtom.mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_this;
+	 CResidue *residue_prev;
+	 CAtom *at_1;
+	 CAtom *at_2;
+	 for (int ires=1; ires<nres; ires++) { 
+	    residue_this = chain_p->GetResidue(ires);
+	    residue_prev = chain_p->GetResidue(ires-1);
+	    if (residue_this && residue_prev) {
+	       int n_atoms_prev = residue_prev->GetNumberOfAtoms();
+	       int n_atoms_this = residue_this->GetNumberOfAtoms();
+	       for (int iat=0; iat<n_atoms_prev; iat++) {
+		  at_1 = residue_prev->GetAtom(iat);
+		  std::string atom_name_1(at_1->GetAtomName());
+		  if (atom_name_1 == " CA " || atom_name_1 == " P  ") { 
+		     for (int jat=0; jat<n_atoms_this; jat++) {
+			at_2 = residue_this->GetAtom(jat);
+			std::string atom_name_2(at_2->GetAtomName());
+			std::string alt_conf_prev = at_1->altLoc;
+			std::string alt_conf_this = at_2->altLoc;
+			if (!at_1->Het && !at_2->Het) {
+			   if (!at_1->isTer() && !at_2->isTer()) { 
+			      if (((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) ||
+				  ((atom_name_1 == " P  ") && (atom_name_2 == " P  "))) {
+				 if (alt_conf_prev == alt_conf_this || alt_conf_this == "" || alt_conf_prev == "") {
+				    int col = 0; // overridden.
+				    coot::Cartesian ca_1(at_1->x, at_1->y, at_1->z);
+				    coot::Cartesian ca_2(at_2->x, at_2->y, at_2->z);
+				    if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
+				       coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+				       col = atom_colour(at_1, coot::COLOUR_BY_B_FACTOR);
+				       addBond(col, ca_1, bond_mid_point);
+				       col = atom_colour(at_2, coot::COLOUR_BY_B_FACTOR);
+				       addBond(col, bond_mid_point, ca_2);
+				    } else {
+				       if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
+					  col = atom_colour(at_1, bond_colour_type);
+				       } else {
+					  if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
+					     if (atom_colours_udd > 0) {
+						realtype f;
+						if (at_1->GetUDData(atom_colours_udd, f) == UDDATA_Ok) {
+						   col = atom_colour_map.index_for_rainbow(f);
+						} else {
+						   col = 0;
+						}
+					     } else {
+						col = 0;
+					     }
+					  } else {
+					     col = atom_colour_map.index_for_chain(chain_p->GetChainID());
+					  }
+				       }
+				       bonds_size_colour_check(col);
+				       addBond(col, ca_1, ca_2);
+				    }
+				    // for use with Ca+ligand mode
+				    residue_this->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+				    residue_prev->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+				 }				 
+			      }
+			   }
+			} 
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   return atom_colour_map;
+}
+
+
+// where bond_colour_type is one of 
+// enum bond_colour_t { COLOUR_BY_CHAIN=0, COLOUR_BY_SEC_STRUCT=1};
+// 
+coot::my_atom_colour_map_t 
+Bond_lines_container::do_Ca_or_P_bonds_internal_old(atom_selection_container_t SelAtom,
 						const char *backbone_atom_id,
 						coot::my_atom_colour_map_t atom_colour_map,
 						float min_dist, float max_dist, int bond_colour_type) {
@@ -2780,7 +2877,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    SelAtom.mol->GetSelIndex(selHnd_ca, Ca_selection, n_ca);
    int atom_colours_udd = -1; // unset/bad
    if (bond_colour_type == coot::COLOUR_BY_RAINBOW)
-      atom_colours_udd = set_rainbow_colours(selHnd_ca, SelAtom.mol);
+      atom_colours_udd = set_rainbow_colours(SelAtom.mol);
 
    SelAtom.mol->SeekContacts(Ca_selection, n_ca,
 			     Ca_selection, n_ca,
@@ -2794,7 +2891,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    // Note that contact can be null when ncontacts is 2.
 
    // 
-   short int *found_contact = new short int[SelAtom.n_selected_atoms];
+   bool found_contact[SelAtom.n_selected_atoms];
    for (int i=0; i<SelAtom.n_selected_atoms; i++)
       found_contact[i] = 0;
 
@@ -2802,8 +2899,6 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
       if (contact != NULL) {
 	 int istat;
-	 // zero the array.
-	 for (int i=0; i<SelAtom.n_selected_atoms; i++) found_contact[i] = 0;
       
 	 for (int i=0; i< ncontacts; i++) {
 	    std::string chainid1;
@@ -2920,59 +3015,66 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
       }
    }
 
-   delete [] found_contact;
    return atom_colour_map;
 }
 
 
 int
-Bond_lines_container::set_rainbow_colours(int selHnd_ca, CMMDBManager *mol) {
+Bond_lines_container::set_rainbow_colours(CMMDBManager *mol) {
 
-   PPCAtom Ca_selection = NULL; 
-   int n_ca;
-   mol->GetSelIndex(selHnd_ca, Ca_selection, n_ca);
    int udd_handle = mol->RegisterUDReal(UDR_ATOM, "rainbow circle point");
    if (udd_handle > 0) { 
-
 
       int n_models = mol->GetNumberOfModels();
       for (int imod=1; imod<=n_models; imod++) { 
 	 CModel *model_p = mol->GetModel(imod);
 	 int nchains = model_p->GetNumberOfChains();
 	 for (int ich=0; ich<nchains; ich++) {
-
 	    CChain *chain_p = model_p->GetChain(ich);
-	    const char *chain_id = chain_p->GetChainID();
-	    int selhnd_chain = mol->NewSelection();
-	    mol->SelectAtoms(selhnd_chain, 0, chain_id , ANY_RES, "*", ANY_RES, "*",
-			     "*", " CA ", " C", "*");
-
-	    int n_selected_atoms;
-	    PPCAtom atom_selection = NULL;
-	    mol->GetSelIndex(selhnd_chain, atom_selection, n_selected_atoms);
-// 	    std::cout << "DEBUG:: rainbow " << n_selected_atoms
-// 		      << " selected in chain " << chain_id << std::endl;
-	    std::pair<short int, int> min_pair = coot::util::min_resno_in_chain(chain_p);
-	    std::pair<short int, int> max_pair = coot::util::max_resno_in_chain(chain_p);
-	    if (min_pair.first && max_pair.first) {
-               // BL says:: I think we should use n_selected_atoms for range
-               // in that way we exclude all ligand and esp waters atoms in the chain
-	       //float range = max_pair.second - min_pair.second;
-	       float range = n_selected_atoms;
-	       for (int iat=0; iat<n_selected_atoms; iat++) {
-		  float chain_pos =
-		     float(atom_selection[iat]->GetSeqNum() - min_pair.second - 0.01)/range;
-		  atom_selection[iat]->PutUDData(udd_handle, chain_pos);
-// 		  std::cout << "DEBUG:: atom " << atom_selection[iat]
-// 			    << " has rainbow colour " << chain_pos << "\n";
+	    int nres = chain_p->GetNumberOfResidues();
+	    int seq_no_max = MinInt4;
+	    int seq_no_min = MaxInt4;
+	    
+	    for (int ires=0; ires<nres; ires++) { 
+	       CResidue *residue_p = chain_p->GetResidue(ires);
+	       std::string res_name(residue_p->GetResName());
+	       if (res_name != "HOH") {
+		  if (coot::util::is_standard_residue_name(res_name)) {
+		     int seq_no_this = ires;
+		     if (seq_no_this < seq_no_min) {
+			seq_no_min = seq_no_this;
+		     }
+		     if (seq_no_this > seq_no_max) {
+			seq_no_max = seq_no_this;
+		     } 
+		  } 
 	       }
 	    }
-	    mol->DeleteSelection(selhnd_chain);
+	    if ((seq_no_max != MinInt4) && (seq_no_min != MaxInt4)) {
+	       
+	       for (int ires=0; ires<nres; ires++) { 
+		  CResidue *residue_p = chain_p->GetResidue(ires);
+		  if (seq_no_min < seq_no_max) { 
+		     float range = seq_no_max - seq_no_min;
+		     float chain_pos = float(ires)/range;
+		     if (chain_pos < 0)
+			chain_pos = 0;
+		     if (chain_pos > 1)
+			chain_pos = 1;
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     for (unsigned int iat=0; iat<n_atoms; iat++) { 
+			CAtom *atom_p = residue_p->GetAtom(iat);
+			atom_p->PutUDData(udd_handle, chain_pos);
+		     }
+		  }
+	       }
+	    }
 	 }
       }
    }
    return udd_handle;
 }
+
 
 // atom_colour_map is an optional arg.
 // 
@@ -3258,6 +3360,7 @@ Bond_lines_container::add_ligand_bonds(const atom_selection_container_t &SelAtom
    atom_selection_container_t asc = SelAtom;
    asc.atom_selection = ligand_atoms_selection;
    asc.n_selected_atoms = n_ligand_atoms;
+   std::cout << "debug:: here in add_ligand_bonds() with " << asc.n_selected_atoms << " ligand atoms" << std::endl;
    construct_from_asc(asc, 0.01, 1.9, coot::COLOUR_BY_ATOM_TYPE, 0);
 
    return ibond;

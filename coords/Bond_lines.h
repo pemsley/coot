@@ -378,7 +378,7 @@ class Bond_lines_container {
    }
 
    // return the UDD handle
-   int set_rainbow_colours(int selHnd_ca, CMMDBManager *mol);
+   int set_rainbow_colours(CMMDBManager *mol);
    void do_colour_by_chain_bonds_change_only(const atom_selection_container_t &asc,
 					     int draw_hydrogens_flag);
 
@@ -560,8 +560,14 @@ public:
    void check_static() const; 
    void do_disulphide_bonds(atom_selection_container_t, int imodel);
    void do_Ca_bonds(atom_selection_container_t SelAtom, 
-		    float min_dist, float max_dist); 
+		    float min_dist, float max_dist);
+   // make bonds/lies dependent on residue order in molecule - no neighbour search needed. Don't show HETATMs
    coot::my_atom_colour_map_t do_Ca_or_P_bonds_internal(atom_selection_container_t SelAtom,
+							const char *backbone_atom_id,
+							coot::my_atom_colour_map_t acm,
+							float min_dist, float max_dist,
+							int bond_colour_type); 
+   coot::my_atom_colour_map_t do_Ca_or_P_bonds_internal_old(atom_selection_container_t SelAtom,
 							const char *backbone_atom_id,
 							coot::my_atom_colour_map_t acm,
 							float min_dist, float max_dist,
