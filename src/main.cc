@@ -842,6 +842,7 @@ void setup_application_icon(GtkWindow *window) {
 
 void add_ligand_builder_menu_item_maybe() {
 
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    if (graphics_info_t::use_graphics_interface_flag) { 
      // Why so complicated?
      // requires ligand builder menu in glade of course
@@ -884,6 +885,7 @@ void add_ligand_builder_menu_item_maybe() {
 	 }
       }
    } 
+#endif // GTK_VERSION
 }
 
 void

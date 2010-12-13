@@ -149,7 +149,7 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBal
 	double binWidth[3];
 	
 	for (int i=0; i<3; i++){
-		int nMinimumBins = ceil((limits[i][1]-limits[i][0])/minimumBinSize);
+		int nMinimumBins = (int)ceil((limits[i][1]-limits[i][0])/minimumBinSize);
 		if (nMinimumBins<maxNBins){
 			nBins[i] = nMinimumBins;
 			binWidth[i] = minimumBinSize;
@@ -177,7 +177,7 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBal
          ++ballIter){
 		int iBin[3];
 		for (int i=0; i<3; i++){
-			iBin[i] = floor(((**ballIter)[i]-limits[i][0]) / binWidth[i]);
+			iBin[i] = (int)floor(((**ballIter)[i]-limits[i][0]) / binWidth[i]);
 			iBin[i]  = max(0,iBin[i]);
 			iBin[i] = min(nBins[i]-1,iBin[i]);
 		}
@@ -201,7 +201,7 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBal
     for (int iBall=0; iBall< balls.size(); iBall++){
 		int iBin[3];
 		for (int i=0; i<3; i++){
-			iBin[i] = floor(((*balls[iBall])[i]-limits[i][0]) / binWidth[i]);
+			iBin[i] = (int)floor(((*balls[iBall])[i]-limits[i][0]) / binWidth[i]);
 		}
 		int startBinX = max(0,iBin[0]-1);
 		int endBinX = min(nBins[0],iBin[0]+2);

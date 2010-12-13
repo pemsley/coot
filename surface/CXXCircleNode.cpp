@@ -109,7 +109,7 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCir
 	double binWidth[3];
 	
 	for (int i=0; i<3; i++){
-		int nMinimumBins = ceil((limits[i][1]-limits[i][0])/minimumBinSize);
+		int nMinimumBins = (int)ceil((limits[i][1]-limits[i][0])/minimumBinSize);
 		if (nMinimumBins<10){
 			nBins[i] = nMinimumBins;
 			binWidth[i] = minimumBinSize;
@@ -134,7 +134,7 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCir
 	for (std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator probeIter = probes.begin(); probeIter!=end; ++probeIter){
 		int iBin[3];
 		for (int i=0; i<3; i++){
-			iBin[i] = floor((*probeIter)[i]-limits[i][0]) / binWidth[i];
+			iBin[i] = (int)(floor((*probeIter)[i]-limits[i][0]) / binWidth[i]);
 		}
 		binnedProbes[iBin[0]][iBin[1]][iBin[2]].push_back(probeIter);
 		//To allow subsequent parallelization, create map entries in contactMap for each probe

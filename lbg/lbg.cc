@@ -38,6 +38,7 @@
 #include "lbg.hh"
 
 
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 // 
 lbg_info_t *
 lbg(lig_build::molfile_molecule_t mm,
@@ -87,6 +88,7 @@ lbg(lig_build::molfile_molecule_t mm,
    } 
    return lbg;
 }
+#endif // GTK_VERSION
 
 	     
 
@@ -1902,6 +1904,7 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_1_atom(int n_edges,
 }
 
 
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 bool
 lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
 
@@ -1938,6 +1941,7 @@ lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
    }
    return TRUE;
 } 
+#endif // GTK_VERSION
 
 
 
@@ -1965,6 +1969,7 @@ lbg_info_t::clear_canvas() {
 
 
 
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 void
 lbg_info_t::init(GtkBuilder *builder) {
 
@@ -2055,6 +2060,7 @@ lbg_info_t::init(GtkBuilder *builder) {
       int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
 
 }
+#endif // GTK_VERSION
 
 std::string
 lbg_info_t::get_smiles_string_from_mol() const {
@@ -2228,7 +2234,7 @@ lbg_info_t::get_stroke_colour(int i, int n) const {
    double f =  1 + 12 * double(i)/double(n);
    int f_int = int(f);
 
-   char c = s[f];
+   char c = s[f_int];
    std::string r = "#";
    for (i=0; i<6; i++)
       r += c;
@@ -2347,8 +2353,8 @@ lbg_info_t::write_pdf(const std::string &file_name) const {
    cairo_t *cr;
 
    std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
-   int pos_x = (extents.second.x + 220.0);
-   int pos_y = (extents.second.y + 220.0);
+   double pos_x = (extents.second.x + 220.0);
+   double pos_y = (extents.second.y + 220.0);
    surface = cairo_pdf_surface_create(file_name.c_str(), pos_x, pos_y);
    cr = cairo_create (surface);
 
@@ -2372,8 +2378,8 @@ lbg_info_t::write_png(const std::string &file_name) const {
 
    std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
 
-   int size_x = extents.second.x + 220; // or so... (ideally should reside circle-based).
-   int size_y = extents.second.y + 220;
+   int size_x = (int)extents.second.x + 220; // or so... (ideally should reside circle-based).
+   int size_y = (int)extents.second.y + 220;
    
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);
    cairo_t *cr = cairo_create (surface);
@@ -2886,8 +2892,8 @@ std::pair<int, int>
 lbg_info_t::ligand_grid::canvas_pos_to_grid_pos(const lig_build::pos_t &pos) const {
 
    lig_build::pos_t p = pos - top_left;
-   int ix = p.x/scale_fac;
-   int iy = p.y/scale_fac;
+   int ix = (int)(p.x/scale_fac);
+   int iy = (int)(p.y/scale_fac);
    return std::pair<int, int> (ix, iy);
 }
 

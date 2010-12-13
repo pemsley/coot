@@ -70,7 +70,9 @@ static double SINGLE_BOND_CANVAS_LENGTH= LIGAND_TO_CANVAS_SCALE_FACTOR * 1.54;
 
 
 
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 bool save_togglebutton_widgets(GtkBuilder *builder);
+#endif // GTK_VERSION
 
 void lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mode);
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *scrolled_window);
@@ -864,7 +866,9 @@ public:
 	  ATOM_C, ATOM_N, ATOM_O, ATOM_S, ATOM_P, ATOM_F, ATOM_CL, ATOM_I, ATOM_BR, ATOM_X,
 	  CHARGE, ADD_SINGLE_BOND, ADD_DOUBLE_BOND, ADD_TRIPLE_BOND, ADD_STEREO_OUT_BOND,
 	  DELETE_MODE};
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    void init(GtkBuilder *builder);
+#endif // GTK_VERSION
    int imol; // the coot molecule number from which this plot was
 	     // generated (quite possibly -1, i.e. no coot molecule)
    GtkWidget *lbg_window;
@@ -884,7 +888,9 @@ public:
    std::map<std::string, GtkToggleToolButton *> widget_names;
    widgeted_molecule_t mol;
    int canvas_addition_mode;
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    bool save_togglebutton_widgets(GtkBuilder *builder);
+#endif // GTK_VERSION
    void handle_item_add(GdkEventButton *event);
    void handle_item_delete(GdkEventButton *event);
    void untoggle_others_except(GtkToggleToolButton *button_toggled_on);

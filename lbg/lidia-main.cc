@@ -69,9 +69,11 @@ main(int argc, char *argv[]) {
    std::string view_name = "";
    std::pair<bool, coot::residue_spec_t> p(0, coot::residue_spec_t());
    int imol = -1; // dummy/unset
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    if (lbg(mm, p, mol, view_name, molecule_file_name, imol, stand_alone_flag, use_graphics)) {
        gtk_main ();
    } 
+#endif // GTK_VERSION
    return 1;
 }
 
