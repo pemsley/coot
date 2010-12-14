@@ -270,6 +270,21 @@
 		file-name
 		(append-dir-file (getcwd) file-name))))))
 
+;; return the directory component of file-name, leave "/" on, if it's
+;; there. Note "x", "", "/" -> ""
+;; 
+(define (file-name-directory file-name)
+  (format #t "in file-name-directory: trying to split ~s~%" file-name)
+  (if (not (string? file-name))
+      #f
+      (let ((ls (split-after-char-last #\/ file-name list)))
+	(let ((r (car ls)))
+	  (if (string=? r "/")
+	      ""
+	      r)))))
+
+
+
 
 
 ;; Find the most recently created file from the given glob and dir
