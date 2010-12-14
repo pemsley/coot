@@ -1,11 +1,6 @@
 
  0.6.2
-
-  o CA mode for Fabs can have bad bonding on insertion codes.  ::: 1
  
-  o talk to Bernhard re: REDUCE_HET_DICT etc.  Look at his python
-    code. ::: 2
-
 ------
 
     o Fix rename-residue to work on just one chain ::: 0.5
@@ -795,5 +790,16 @@ WARNING:: Can't find file
   o CA+ligands mode can click on regular residue atoms, bleugh.  ::: 1
 
 * Done.
+
+  o CA mode for Fabs can have bad bonding on insertion codes. 
+
+* fixed in 0.7
+
+  o talk to Bernhard re: REDUCE_HET_DICT etc.  Look at his python
+    code. ::: 0.5
+
+* Done.
+
+
 
 -------
