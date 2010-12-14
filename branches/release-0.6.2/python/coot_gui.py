@@ -1146,7 +1146,12 @@ def generic_chooser_and_entry(chooser_label,entry_hint_text,default_entry_text,c
 #
 # chooser_filter is typically valid_map_molecule_qm or valid_model_molecule_qm
 #
-def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter, entry_hint_text, default_entry_text, file_selector_hint, callback_function):
+def generic_chooser_entry_and_file_selector(chooser_label,
+                                            chooser_filter,
+                                            entry_hint_text,
+                                            default_entry_text,
+                                            file_selector_hint,
+                                            callback_function):
 
     import operator
 
@@ -1208,7 +1213,11 @@ def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter, entry
 #
 # chooser_filter is typically valid_map_molecule_qm or valid_model_molecule_qm
 #
-def generic_chooser_and_file_selector(chooser_label, chooser_filter, file_selector_hint, default_file_name, callback_function):
+def generic_chooser_and_file_selector(chooser_label,
+                                      chooser_filter,
+                                      file_selector_hint,
+                                      default_file_name,
+                                      callback_function):
 
     import operator
 
@@ -1246,7 +1255,9 @@ def generic_chooser_and_file_selector(chooser_label, chooser_filter, file_select
     hbox_buttons.pack_start(ok_button, True, False, 5)
     hbox_buttons.pack_start(cancel_button, False, False, 5)
 
-    file_sel_entry = file_selector_entry(vbox, file_selector_hint)
+    file_sel_entry = file_selector_entry(vbox,
+                                         file_selector_hint,
+                                         default_file_name)
     vbox.pack_start(h_sep, True, False, 2)
     vbox.pack_start(hbox_buttons, False, False, 5)
     
@@ -1626,24 +1637,28 @@ def generic_number_chooser(number_list, default_option_value, hint_text, go_butt
 #
 # Add this widget to the vbox here.
 #
-def entry_do_button(vbox, hint_text, button_label, button_press_func):
+def entry_do_button(vbox, hint_text,
+                    button_label, button_press_func,
+                    entry_text=False):
 
-	hbox = gtk.HBox(False, 0)
-	entry = gtk.Entry()
-	button = gtk.Button(button_label)
-	label = gtk.Label(hint_text)
+   hbox = gtk.HBox(False, 0)
+   entry = gtk.Entry()
+   button = gtk.Button(button_label)
+   label = gtk.Label(hint_text)
 
-	hbox.pack_start(label, False, False, 2)
-	hbox.pack_start(entry, True, False, 2)
-	hbox.pack_start(button, False, False, 2)
-	button.connect("clicked", button_press_func, entry)
+   hbox.pack_start(label, False, False, 2)
+   hbox.pack_start(entry, True, False, 2)
+   hbox.pack_start(button, False, False, 2)
+   button.connect("clicked", button_press_func, entry)
 
-	label.show()
-	button.show()
-	entry.show()
-	hbox.show()
-	vbox.pack_start(hbox, True, False)
-	return entry
+   if entry_text:
+      entry.set_text(entry_text)
+   label.show()
+   button.show()
+   entry.show()
+   hbox.show()
+   vbox.pack_start(hbox, True, False)
+   return entry
 
 # pack a hint text and a molecule chooser option menu into the given vbox.
 # 
@@ -1663,7 +1678,7 @@ def generic_molecule_chooser(hbox, hint_text):
 # Return an entry, the widget is inserted into the hbox passed to
 # this function
 #
-def file_selector_entry(hbox, hint_text):
+def file_selector_entry(hbox, hint_text, default_file_name = False):
 
    if (file_chooser_selector_state() == 0 or gtk.pygtk_version < (2,3,90)):
 
@@ -1682,20 +1697,22 @@ def file_selector_entry(hbox, hint_text):
 				lambda w: fs_window.destroy())
 		fs_window.show()
 
-	entry = entry_do_button(vbox, hint_text, "  File...  ", file_func1)
+	entry = entry_do_button(vbox, hint_text,
+                            "  File...  ", file_func1,
+                            default_file_name)
 
 	hbox.pack_start(vbox, False, False, 2)
 	vbox.show()
         return entry
      
    else:
-      return file_chooser_entry(hbox, hint_text)
+      return file_chooser_entry(hbox, hint_text, default_file_name)
 
 # This is the same as the file_selector_entry, but using the modern FileChooser
 # Return an entry, the widget is inserted into the hbox passed to
 # this function
 #
-def file_chooser_entry(hbox, hint_text):
+def file_chooser_entry(hbox, hint_text, default_file_name = False):
 
    if gtk.pygtk_version > (2,3,90):
 
@@ -1719,7 +1736,8 @@ def file_chooser_entry(hbox, hint_text):
                 elif response == gtk.RESPONSE_CANCEL:
                    fc_window.destroy()
 
-	entry = entry_do_button(vbox, hint_text, "  File...  ", file_func1)
+	entry = entry_do_button(vbox, hint_text, "  File...  ",
+                            file_func1, default_file_name)
 
 	hbox.pack_start(vbox, False, False, 2)
 	vbox.show()
