@@ -131,10 +131,28 @@
 			(reduce-het-dict-file-name "coot-molprobity/reduce-het-dict.txt"))
 		    (write-pdb-file imol mol-pdb-file)
 		    (write-reduce-het-dict imol reduce-het-dict-file-name)
+
+		    ;; As Bernie, let's try to set REDUCE_HET_DICT if
+		    ;; we can, assuming that the het-dict is in the
+		    ;; same directory as is reduce-command.  If it
+		    ;; isn't then do nothing.
+		    ;; 
+		    (let ((h (getenv "REDUCE_HET_DICT")))
+		      (if (not (string? h))
+			  (let* ((d (file-name-directory *reduce-command*)))
+			    (if (string? d)
+				(let ((f (append-dir-file d "reduce_wwPDB_het_dict.txt")))
+				  (if (file-exists? f)
+				      (let ((env-string (string-append "REDUCE_HET_DICT=" f)))
+					(putenv env-string))))))))
+
+
 		    (format #t "============= running reduce: ~s ~s and output to: ~s~%"
 			    *reduce-command* 
 			    (list "-build" "-oldpdb" mol-pdb-file "-DB" reduce-het-dict-file-name)
 			    reduce-out-pdb-file)
+		    (format #t "============= running reduce: REDUCE_HET_DICT env var: ~s~%" 
+			    (getenv "REDUCE_HET_DICT"))
 		    (goosh-command *reduce-command* 
 				   (list "-build" "-oldpdb" mol-pdb-file  
 					 "-DB" reduce-het-dict-file-name)
