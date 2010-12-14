@@ -371,16 +371,6 @@ main (int argc, char *argv[]) {
      }
   }
 
-  // Finally desensitize the missing scripting menu
-  GtkWidget *w;
-#ifndef USE_GUILE
-  w = lookup_widget(window1, "scripting_scheme1");
-  gtk_widget_set_sensitive(w, False);
-#endif
-#ifndef USE_PYTHON
-  w = lookup_widget(window1, "scripting_python1");
-  gtk_widget_set_sensitive(w, False);
-#endif
 
   // allocate some memory for the molecules
   //
@@ -619,6 +609,19 @@ main (int argc, char *argv[]) {
 
      // to start the graphics, we need to init glut and gtk with the
      // command line args.
+
+  // Finally desensitize the missing scripting menu when using graphics
+  if (graphics_info_t::use_graphics_interface_flag) {
+    GtkWidget *w;
+#ifndef USE_GUILE
+    w = lookup_widget(window1, "scripting_scheme1");
+    gtk_widget_set_sensitive(w, False);
+#endif
+#ifndef USE_PYTHON
+    w = lookup_widget(window1, "scripting_python1");
+    gtk_widget_set_sensitive(w, False);
+#endif
+  }
 
 #if ! defined (USE_GUILE)
 #ifdef USE_PYTHON
