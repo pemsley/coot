@@ -618,7 +618,7 @@ main (int argc, char *argv[]) {
      // command line args.
 
   // Finally desensitize the missing scripting menu
-  if (graphics_info_t::use_graphics_interface_flag)
+  if (graphics_info_t::use_graphics_interface_flag) {
     GtkWidget *w;
 #ifndef USE_GUILE
     w = lookup_widget(window1, "scripting_scheme1");
