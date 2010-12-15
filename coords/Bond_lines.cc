@@ -3834,9 +3834,15 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 				 bonds_size_colour_check(col);
 				 addBond(col, atom_1, atom_2);
 			      } else {
-				 col = atom_colour(atom_selection[ contact[i].id1 ], atom_colour_type);
-				 bonds_size_colour_check(col);
-				 addBond(col, atom_1, atom_2);
+
+				 // If we are here: same element, not a carbon, and either drawing hydrogens
+				 // or these are not hydrogens, so don't draw bonds between hydrogens
+
+				 if (element1 != " H") { 
+				    col = atom_colour(atom_selection[ contact[i].id1 ], atom_colour_type);
+				    bonds_size_colour_check(col);
+				    addBond(col, atom_1, atom_2);
+				 }
 			      } 
 			   }
 
@@ -4053,8 +4059,13 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 		     std::string aloc_2(at2->altLoc);
 		     // 
 		     if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
-			bonds_size_colour_check(col);
-			addBond(col, atom_1, atom_2);
+
+			// OK, draw a bond! (but not between 2 Hydrogens)
+
+			if (! (element1 == " H" && element2 == " H")) { 
+			   bonds_size_colour_check(col);
+			   addBond(col, atom_1, atom_2);
+			}
 		     
 			if (uddHnd>=0) {
 			   at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
