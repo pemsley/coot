@@ -268,7 +268,7 @@ def set_virtual_trackball_type(type):
     else:
         print "virtual trackball type",type,"not understood"
 
-#Is ls a list of strings? Return True or False
+# Is ls a list of strings? Return True or False
 #
 def list_of_strings_qm(ls):
     import types
@@ -514,6 +514,7 @@ def unique_date_time_str():
 #      @code{every_nth ([0,1,2,3,4,5,6,7,8],3)} -> [0,3,6]
 # 
 # @var{n} must be positive
+#
 def every_nth(ls, n):
 
     elements = range(0,len(ls),n)
@@ -590,15 +591,18 @@ def coot_mkdir(dir_name):
 
 # return the view matrix (useful for molscript, perhaps).
 # BL says: like all matrices is a python list [...]
+#
 def view_matrix():
     return [get_view_matrix_element(row_number,column_number) for row_number in range(3) for column_number in range(3)]
 
 # return the transposed view matrix (useful for molscript, perhaps).
 # BL says: like all matrices is a python list [...]
+#
 def view_matrix_transp():
     return [get_view_matrix_element(column_number,row_number) for row_number in range(3) for column_number in range(3)]
 
 # return the view quaternion
+#
 def view_quaternion():
 
 	ret = map(get_view_quaternion_internal,[0,1,2,3])
@@ -673,6 +677,7 @@ def set_view_matrix(m00, m10, m20, m01, m11, m21, m02, m12, m22):
                                           m02, m12, m22))
 
 # Miguel's molecular orientation axes
+#
 def miguels_axes():
     set_axis_orientation_matrix(*view_matrix())
     set_axis_orientation_matrix_usage(1)
@@ -705,7 +710,7 @@ def identity_matrix():
 
 # e.g. translation('x',2)
 #  -> [2, 0, 0]
-# return False on error
+# Return: False on error
 #
 def translation(axis,length):
     import operator
@@ -1595,8 +1600,11 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 # guess merge failed!?!
                 print "BL WARNING:: merge failed!?"
 
+    # main line
+    #
     # First, if there are multiple maps, force the user to choose one,
     # rather than continuing.
+    #
     imol_map = imol_refinement_map()
     if (imol_map == -1):
         map_mols = map_molecule_list()
@@ -1685,6 +1693,7 @@ def label_all_active_residue_atoms():
 		for atom_info in atom_list:
 			add_atom_label(imol,chain_id, resno, atom_info[0][0])
 		graphics_draw()
+
 # Resets alt confs and occupancies of atoms in residue that have
 # orphan alt-loc attributes
 #
@@ -2159,8 +2168,8 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                 imol_new = handle_read_draw_molecule_with_recentre(prodrg_xyzout, 0)
                 rn = residue_name(imol, chain_id, res_no, ins_code)
                 with_auto_accept([regularize_zone, imol_new, "", 1, 1, ""])
-                match_ligand_torsions(imol_new, imol, chain_id, res_no)
                 overlap_ligands(iml_new, imol, chain_id, res_no)
+                # match_ligand_torsions(imol_new, imol, chain_id, res_no) # broken?
                 set_residue_name(imol_new, "", 1, "", rn)
                 change_chain_id(imol_new, "", chain_id, 1, 1, 1)
                 renumber_residue_range(imol_new, chain_id, 1, 1, res_no - 1)

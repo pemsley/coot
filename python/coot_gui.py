@@ -1140,7 +1140,9 @@ def generic_chooser_and_entry(chooser_label,entry_hint_text,default_entry_text,c
 
     window.show_all()
 
-# A pair of widgets, a chooser entry and a file selector.  The
+# Create a window
+#
+# Return a pair of widgets, a chooser entry and a file selector.  The
 # callback_function is a function that takes a molecule number and a
 # text string (e.g. chain_id and file_name)
 #
@@ -1207,7 +1209,9 @@ def generic_chooser_entry_and_file_selector(chooser_label,
 
     window.show_all()
 
-# A pair of widgets, a molecule chooser and a file selector.  The
+# Create a window.
+#
+# Return a pair of widgets, a molecule chooser and a file selector.  The
 # callback_function is a function that takes a molecule number and a
 # file_name
 #
@@ -1281,14 +1285,12 @@ def coot_menubar_menu(menu_label):
 
     def menu_bar_label_list():
       ac_lab_ls = []
-      ac_lab = []
       for menu_child in coot_main_menubar.get_children():
           lab = []
-          # ac-lab-ls is a GtkAccelLabel in a list
+          # lab is a GtkAccelLabel list
           lab.append(menu_child.get_children()[0].get_text())
           lab.append(menu_child)
           ac_lab_ls.append(lab)
-#      print "BL DEBUG:: list is", ac_lab_ls, ac_lab, lab
       return ac_lab_ls
 
     # main body
