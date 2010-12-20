@@ -386,6 +386,14 @@ chain_id_py(int imol, int ichain);
 #endif
 #endif
 
+/*! \brief return the number of models in molecule number imol 
+
+useful for NMR or other such multi-model molecules.
+
+return the number of models or -1 if there was a problem with the
+given molecule.
+*/
+int n_models(int imol);
 
 /*! \brief  number of chains in molecule number imol 
 
