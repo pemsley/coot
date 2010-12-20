@@ -2691,6 +2691,29 @@ int n_chains(int imol) {
    return nchains;
 }
 
+
+/*! \brief return the number of models in molecule number imol 
+
+useful for NMR or other such multi-model molecules.
+
+return the number of models or -1 if there was a problem with the
+given molecule.
+*/
+int n_models(int imol) {
+
+   int r = -1; // fail;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      r = mol->GetNumberOfModels();
+   }
+   std::string cmd = "n-models";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
+   return r;
+} 
+
+
 // return -1 on error (e.g. chain_id not found, or molecule is not a
 // model), 0 for no, 1 for is.
 int is_solvent_chain_p(int imol, const char *chain_id) {
@@ -5094,7 +5117,7 @@ void copy_residue_range_from_ncs_master_to_chains_scm(int imol, const char *mast
 void copy_residue_range_from_ncs_master_to_chains_py(int imol, const char *master_chain_id, 
 						     int residue_range_start, int residue_range_end,
 						     PyObject *chain_id_list_in) {
-
+   
    if (is_valid_model_molecule(imol)) {
       std::string c(master_chain_id);
       std::vector<std::string> chain_id_list = generic_list_to_string_vector_internal_py(chain_id_list_in);
