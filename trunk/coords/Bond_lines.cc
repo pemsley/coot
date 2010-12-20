@@ -4075,7 +4075,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 		  } else {
 		     // It was a hydrogen (or bonded to Hydrogen).
 		     // Mark it as bonded (we don't want to see single
-		     // unbonded (stared) hydorgens.
+		     // unbonded (stared) hydorgens).
 		     if (uddHnd>=0) {
 			at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
 			at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);

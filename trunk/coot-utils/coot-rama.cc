@@ -132,10 +132,11 @@ coot::util::get_phi_psi(CResidue *residue_0, CResidue *residue_1, CResidue *resi
       std::string label(num);
       std::string segid = residue_1->GetChainID();
       std::string inscode = residue_1->GetInsCode();
-      label += " ";
-      label += residue_1->name;
+      label += inscode;
       label += " ";
       label += segid;
+      label += " ";
+      label += residue_1->name;
       
       double phi = clipper::Util::rad2d(ca_this.torsion(c_prev, n_this, ca_this, c_this));
       double psi = clipper::Util::rad2d(ca_this.torsion(n_this, ca_this, c_this, n_next));
