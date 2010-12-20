@@ -417,6 +417,9 @@ fix_nomenclature_errors_LDADD = \
 # coot_real_LDFLAGS = -static -lstdc++
 coot_real_LDFLAGS =
 
+# 20101220 Note: when libtool/ltmain.sh is fixed, OPENMP_CFLAGS will
+# not be needed here. So says Justin Lecher (see email).
+#
 coot_real_LDADD =  $(OPENMP_CFLAGS)     \
                 $(COOT_EXTRA_LIBS)      \
 		$(GUILE_GTK_LIBS)       \

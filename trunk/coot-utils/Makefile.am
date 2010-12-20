@@ -90,7 +90,8 @@ libcoot_map_heavy_la_LIBADD = \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la \
    libcoot-map-utils.la \
    libcoot-coord-utils.la \
-    $(top_builddir)/utils/libcoot-utils.la
+   $(top_builddir)/utils/libcoot-utils.la \
+   $(GSL_LIBS)
 
 
 noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils
