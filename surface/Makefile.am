@@ -1,7 +1,7 @@
 
 INCLUDES = -I$(top_srcdir)/coot-utils $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) $(FFTW_CXXFLAGS)
 
-AM_CPPFLAGS = $(OPENMP_CFLAGS)
+AM_CXXFLAGS = $(OPENMP_CFLAGS)
 
 lib_LTLIBRARIES = libccp4mg-surface.la
 
