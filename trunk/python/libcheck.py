@@ -49,7 +49,8 @@ libcheck_exe = "libcheck"
 # libraries can produce coords using "Get Monomer".
 # 
 # might not do all above mentioned things in python, yet
-def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = ""):
+def monomer_molecule_from_3_let_code(code, dict_cif_libin,
+                                     ccp4i_project_dir = ""):
 
   import os, stat, shutil
 
@@ -193,7 +194,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
 
   # main body
   if not isinstance(code, str):
-    print "WARNING:: Oops code was not a string ", code
+    print "WARNING:: Oops code %s was not a string " %code
     return -2
   else:
 

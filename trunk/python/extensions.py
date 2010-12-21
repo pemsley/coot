@@ -367,6 +367,13 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_models,
+       "Assign HETATM to molecule...", 
+       lambda func: molecule_chooser_gui("Assign HETATMs as per PDB definition", 
+		lambda imol: assign_hetatms(imol)))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
        "Copy Coordinates Molecule...", 
        lambda func: molecule_chooser_gui("Molecule to Copy...", 
 		lambda imol: copy_molecule(imol)))
@@ -947,14 +954,11 @@ if (have_coot_python):
        data_dir = False
        prefix_dir = os.getenv("COOT_PREFIX")
        if not prefix_dir:
-         pkg_data_dir = os.path.join(pkgdatadir(), "data")
-         print "OOps - COOT_PREFIX is not set, try to get data from pkgdatadir ", pkg_data_dir
-         if os.path.isdir(pkg_data_dir):
-           data_dir = pkg_data_dir
+         pkg_data_dir = pkgdatadir()
        else:
-         prefix_data_dir = os.path.join(prefix_dir, "share", "coot", "data")
-         if os.path.isdir(prefix_data_dir):
-           data_dir = prefix_data_dir
+         pkg_data_dir = os.path.join(prefix_dir, "share", "coot")
+       if os.path.isdir(pkg_data_dir):  
+         data_dir = os.path.join(pkg_data_dir, "data")
        if data_dir:
          pdb_file_name = os.path.join(data_dir, "tutorial-modern.pdb")
          mtz_file_name = os.path.join(data_dir, "rnasa-1.8-all_refmac1.mtz")
@@ -972,6 +976,19 @@ if (have_coot_python):
        )
 
 
+     # ---------------------------------------------------------------------
+     #     u
+     # ---------------------------------------------------------------------
+     #
+
+     # maybe we should have one for 'normal' romtamers too... FIXME
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Use \"Backrub\" Rotamers",
+       lambda func: set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+       )
+     
+     
      # ---------------------------------------------------------------------
      #     Views/Representations
      # ---------------------------------------------------------------------
