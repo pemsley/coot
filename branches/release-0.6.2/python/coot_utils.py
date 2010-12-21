@@ -1300,7 +1300,11 @@ def graphics_general_key_press_hook(key, control_flag = 0):
         #print "BL DEBUG:: index and executing:", index, func
         apply(func)
     else:
-        print "Key %s not found in bindings" %key
+        if coot_has_guile() and is_windows():
+            run_scheme_command("(graphics-general-key-press-hook " + \
+                               str(key) + \
+                               ")")
+        print "Key %s not found in (python) key bindings" %key
 
 
 # Function requested by Mark White.
