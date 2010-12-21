@@ -1671,7 +1671,14 @@
   (let ((field (assoc key *key-bindings*)))
     ;; (format #t "Field: ~s~%" field)
     (if (not field)
-	(format #t "Key ~s not found in bindings~%" key)
+        (begin
+          ;; try python first
+          (if (coot-has-python?)
+              (run-python-command (string-append 
+                                   "graphics_general_key_press_hook("
+                                   (number->string key)
+                                   ")")))
+          (format #t "Key ~s not found in (scheme) key bindings~%" key))
 	(begin
 	  ((car (cdr (cdr (cdr field)))))))))
 

@@ -1,7 +1,9 @@
  -*-text-*-
 
-scripts      rev 3120 
-tests        rev 3043
+scripts      rev 3120 (0.6.2)
+tests        rev 3043 (0.6.2)
+scripts      rev 3285 (???? -lost, not prodrg stuff)
+tests        rev 3043 
 build-it-win rev 2122
 
 -------------------------------------------------------
@@ -37,6 +39,12 @@ scripting exercise
 
 **** General ****
 
+   o recalculate NCS
+
+   o 'force' NCS on non-matching sequences (*done?!)
+
+   o validate on top waters (already done maybe in 0.7)
+
    o full screen mode? maximize screen function!?
 
 from Osaka 2010
@@ -57,8 +65,6 @@ from Osaka 2010
    o what about ONLY torsion angle restraints for low res?
 
    o add solvent molecule creates new monomers every time, check for existing ones
-
-   o grey out python/scheme when not available as scripting window
 
    o space bar kills density fit window; feature or bug
 
@@ -161,6 +167,8 @@ from Osaka 2010
 
 
 **** Python ****
+
+   o extensions menus separators
 
    o enable PISA interface for new enough PISA
 
@@ -320,6 +328,10 @@ Osaka 2010
 * Done
 
    o separator after built-in toolbar buttons
+
+* Done
+
+   o grey out python/scheme when not available as scripting window
 
 * Done
 

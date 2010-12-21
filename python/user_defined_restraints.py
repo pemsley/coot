@@ -57,13 +57,13 @@ def user_defined_add_arbitrary_length_bond_restraint():
                                      atom_spec_2[4],
                                      atom_spec_2[5],
                                      atom_spec_2[6],
-                                     bl, 0.02)
+                                     bl, 0.035)
       user_defined_click(2, make_restr_dist)
       
       
-  generic_single_entry("Add a User-defined extra bond restraint",
+  generic_single_entry("Add a User-defined extra distance restraint",
                        "2.0",
-                       "Next...",
+                       "OK...",
                        lambda text: make_restr(text))
 
 def add_base_restraint(imol, spec_1, spec_2, atom_name_1, atom_name_2, dist):
@@ -78,7 +78,7 @@ def add_base_restraint(imol, spec_1, spec_2, atom_name_1, atom_name_2, dist):
                            spec_2[4],
                            atom_name_2,
                            spec_2[6],
-                           dist, 0.05)
+                           dist, 0.035)
 
 def a_u_restraints(spec_1, spec_2):
 
@@ -143,12 +143,12 @@ def user_defined_add_helix_restraints():
         add_extra_bond_restraint(imol,
                                  chain_id_1, rn    , "", " O  ", "",
                                  chain_id_1, rn + 3, "", " N  ", "",
-                                 3.18, 0.05)
+                                 3.18, 0.035)
         if (rn + 4 <= res_no_2):
           add_extra_bond_restraint(imol,
                                    chain_id_1, rn    , "", " O  ", "",
                                    chain_id_1, rn + 4, "", " N  ", "",
-                                   2.91, 0.05)
+                                   2.91, 0.035)
         
   user_defined_click(2, make_restr)
 
@@ -160,6 +160,39 @@ def user_defined_delete_restraint():
     delete_extra_restraint(imol, ["bond", spec_1[2:], spec_2[2:]])
   
   user_defined_click(2, del_restr)
+
+
+# exte dist first chain A resi 19 ins . atom  N   second chain A resi 19 ins . atom  OG  value 2.70618 sigma 0.4
+#
+def extra_restraints2refmac_restraints_file(imol, file_name):
+  restraints = list_extra_restraints(imol)
+  
+  if restraints:
+    fin = open(file_name, 'w')
+    for restraint in restraints:
+      if (restraint[0] == 'bond'):
+        chain_id_1 = restraint[1][1]
+        resno_1    = restraint[1][2]
+        inscode_1  = restraint[1][3]
+        atom_1     = restraint[1][4]
+        chain_id_2 = restraint[2][1]
+        resno_2    = restraint[2][2]
+        inscode_2  = restraint[2][3]
+        atom_2     = restraint[2][4]
+        value      = restraint[3]
+        esd        = restraint[4]
+        fin.write("EXT DIST FIRST CHAIN %s RESI %i INS %s ATOM %s " \
+                  %(chain_id_1 if (chain_id_1 != "" and chain_id_1 != " ") else ".",
+                    resno_1,
+                    inscode_1 if (inscode_1 != "" and inscode_1 != " ") else ".",
+                    atom_1))
+        fin.write(" SECOND CHAIN %s RESI %i INS %s ATOM %s " \
+                  %(chain_id_2 if (chain_id_2 != "" and chain_id_2 != " ") else ".",
+                    resno_2,
+                    inscode_2 if (inscode_2 != "" and inscode_2 != " ") else ".",
+                    atom_2))
+        fin.write("VALUE %f SIGMA %f\n" %(value, esd))
+    fin.close()
 
 if (have_coot_python):
   if coot_python.main_menubar():
@@ -173,7 +206,7 @@ if (have_coot_python):
 
     add_simple_coot_menu_menuitem(
       menu,
-      "Add Bond Restraint...",
+      "Add Distance Restraint...",
       lambda func: user_defined_add_arbitrary_length_bond_restraint())
 
     add_simple_coot_menu_menuitem(
@@ -190,6 +223,17 @@ if (have_coot_python):
       menu,
       "Delete an Extra Restraint...",
       lambda func: user_defined_delete_restraint())
+    
+    add_simple_coot_menu_menuitem(
+      menu,
+      "Save as REFMAC restraints...",
+      lambda func:
+      generic_chooser_and_file_selector("Save REFMAC restraints for molecule",
+                                        valid_model_molecule_qm,
+                                        " Restraints file name:  ", 
+                                        "refmac-restraints.txt",
+                                        lambda imol, file_name:
+                                          extra_restraints2refmac_restraints_file(imol, file_name)))
     
     
   
