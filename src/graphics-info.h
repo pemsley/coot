@@ -3185,6 +3185,7 @@ public:
 				      std::string referennce_mol_name,
 				      short int move_copy_of_imol2_flag);
 
+#ifdef HAVE_SSMLIB
    void print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 				     atom_selection_container_t asc_ref,
 				     atom_selection_container_t asc_mov,
@@ -3208,6 +3209,8 @@ public:
 					   atom_selection_container_t asc_mov,
 					   PCAtom *atom_selection1, PCAtom *atom_selection2,
 					   int n_selected_atoms_1, int n_selected_atoms_2) const;
+
+#endif  // HAVE_SSMLIB
 
 
    // widget stuff:
