@@ -2032,6 +2032,7 @@ test_rotate_atom_angle(const std::string &atom_name,
 
 int test_ssm_sequence_formatting() {
 
+#ifdef HAVE_SSMLIB   
    graphics_info_t g;
    std::pair<std::string, std::string> aligned_sequences;
 
@@ -2063,6 +2064,8 @@ int test_ssm_sequence_formatting() {
    aligned_sequences.second = t;
    g.print_horizontal_ssm_sequence_alignment(aligned_sequences);
    std::cout << "--" << std::endl;
+#endif // HAVE_SSMLIB
+   
    return 1;
 } 
 

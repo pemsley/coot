@@ -143,17 +143,18 @@
 	(chain-id (list-ref res-spec 1))
 	(res-no   (list-ref res-spec 2))
 	(ins-code (list-ref res-spec 3)))
-    (map (lambda (alt-conf) 
-	   (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
-	   (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-	   (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
-	    
-	   (let ((res-name  (residue-name imol chain-id res-no ins-code))
-		 (res-atoms (residue-info imol chain-id res-no ins-code)))
-	     (if (> (length res-atoms) 3)
-		 (if (string? res-name)
-		     (if (not (string=? res-name "HOH"))
-			 (begin
+
+    (let ((res-name  (residue-name imol chain-id res-no ins-code)))
+      (if (string? res-name)
+	  (if (not (string=? res-name "HOH"))
+	      (map (lambda (alt-conf) 
+		     
+		     (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+		     (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+		     (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
+		     
+		     (let ((res-atoms (residue-info imol chain-id res-no ins-code)))
+		       (if (> (length res-atoms) 3)
 			   (if (string=? alt-conf "")
 			       (auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol 
 						      imol-map 1 0.1))
@@ -162,8 +163,8 @@
 				 (with-no-backups imol
 						  (with-auto-accept
 						   (refine-zone imol chain-id res-no res-no alt-conf)))
-				 (rotate-y-scene 10 0.3)))))))))
-	 (residue-alt-confs imol chain-id res-no ins-code))))
+				 (rotate-y-scene 10 0.3))))))
+		   (residue-alt-confs imol chain-id res-no ins-code)))))))
 
 
 (define (fit-protein-stepped-refine-function res-spec imol-map)

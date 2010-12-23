@@ -329,6 +329,7 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 }
 
 
+#ifdef HAVE_SSMLIB
 void
 graphics_info_t::make_and_print_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 							 atom_selection_container_t asc_ref,
@@ -343,7 +344,10 @@ graphics_info_t::make_and_print_horizontal_ssm_sequence_alignment(CSSMAlign *SSM
 
    print_horizontal_ssm_sequence_alignment(aligned_sequences);
 }
+#endif // HAVE_SSMLIB
 
+#ifdef HAVE_SSMLIB
+// 
 // To make a GUI dialog with the alignment, we need this function to
 // generate a string, rather than print to the screen.  Easily converted.
 //
@@ -385,8 +389,10 @@ graphics_info_t::print_horizontal_ssm_sequence_alignment(std::pair<std::string, 
       std::cout << std::endl; // for neatness
    } 
 }
+#endif // HAVE_SSMLIB
 
 
+#ifdef HAVE_SSMLIB
 std::pair<std::string, std::string>
 graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 						       atom_selection_container_t asc_ref,
@@ -466,8 +472,9 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
    std::cout << std::endl;
    return std::pair<std::string, std::string> (s,t);
 }
+#endif // HAVE_SSMLIB
 
-
+#ifdef HAVE_SSMLIB
 void
 graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 					      atom_selection_container_t asc_ref,
@@ -539,3 +546,4 @@ graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
       std::cout << "ERROR:: Failed to get moving or reference_chain pointer\n";
    }
 }
+#endif
