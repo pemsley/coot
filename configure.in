@@ -28,7 +28,7 @@ dnl Process this file with autoconf to produce a configure script.
 # AC_INIT package-name version-number
 AC_INIT(configure.in)
 
-AM_INIT_AUTOMAKE(coot, 0.6.2-pre-1)
+AM_INIT_AUTOMAKE(coot, 0.7-pre-1)
 # for old versions of automake
 # AM_CONFIG_HEADER(config.h)
 
@@ -60,6 +60,16 @@ AM_MINGW_WINDOWS
 dnl test for LIBPNG (Windows only)
 AM_PATH_LIBPNG
 
+
+dnl =========================== crystallographic libraries ==========================================
+dnl Check for gpp4
+
+AC_ARG_WITH([gpp4], AS_HELP_STRING([--with-gpp4], [Build with the gpp4 library (default is NO)]))
+
+dnl if test "x$with_gpp4" = "xyes"; then
+dnl    PKG_CHECK_MODULES([CCP4], [gpp4])
+dnl fi
+
 dnl Set platform-specific compilation flags - derived from clipper's configure
 test "${target:+set}" = set || target="$host_os"
 case "$target" in
@@ -80,6 +90,7 @@ case "$target" in
 	fi
     ;;
 esac           
+
 
 dnl test for GSL
 # min_gsl_version=1.3

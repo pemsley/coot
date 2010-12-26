@@ -24,7 +24,7 @@
 # the clipper dependences and put them in place.
 #
 # We can in future test each of the dependences, (currently 
-# umtz, cmap, fftw, cctbx, boost and python).  But we do not do that
+# fftw, cctbx, boost and python).  But we do not do that
 # here at the moment.
 #
 # Note that the clipper include files are not in the include directory
@@ -46,18 +46,18 @@ saved_LIBS="$LIBS"
 saved_CFLAGS="$CFLAGS"
 
 if test x$clipper_prefix != x; then
-	# very likely the majority of cases, we will try to configure with:
-	# --clippper-prefix=/some/thing
-	#
 
- # should ideally be CLIPPER_CFLAGS="-I$clipper_prefix/include", and the like
+ # 20101224 This path when we configure with PE's autobuild script, we will
+ # try to configure with:
+ # --clippper-prefix=/some/thing
+
+ # Should ideally be CLIPPER_CFLAGS="-I$clipper_prefix/include", and the like
  # when clipper and dependencies get installed.
- #  
  #
  # should use clipper-config --cflags
  #
  CLIPPER_CXXFLAGS="-I$clipper_prefix/include"
-# -I$clipper_prefix/cctbx
+ # -I$clipper_prefix/cctbx
  
  # yes, libmmtz.a is in -L$clipper_prefix/umtz!
  #
@@ -68,19 +68,42 @@ if test x$clipper_prefix != x; then
  # added lz, we should have proper autoconf check for this.
  #
  fftw_pre=
+
  # ccp4c=gpp4 mac hack, irritating Bill no doubt.  This ccp4c libs
  # thing will go away when clipper is fixed to know about its
  # dependencies
+ #
  ccp4c=ccp4c
- CLIPPER_LDOPTS="-L$clipper_prefix/lib -lclipper-mtz -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-mmdbold -lclipper-core -lmccp4 $MMDB_LIBS -l${fftw_pre}rfftw -l${fftw_pre}fftw -lz -lm"
+
  CLIPPER_LDOPTS="-L$clipper_prefix/lib -lclipper-ccp4 -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-minimol -lclipper-cns -lclipper-mmdb -lclipper-core -l$ccp4c $MMDB_LIBS -l${fftw_pre}rfftw -l${fftw_pre}fftw -lz -lm"
-# -L$clipper_prefix/boost/lib -lclipper-cctbx -L$clipper_prefix/cctbx/lib -lsgtbx -luctbx 
+ # -L$clipper_prefix/boost/lib -lclipper-cctbx -L$clipper_prefix/cctbx/lib -lsgtbx -luctbx 
+
+
 else
- # the compiler looks in the "standard" places for clipper.  In real life,
+
+
+ # The compiler looks in the "standard" places for clipper.  In real life,
  # it would be quite unlikely that clipper would be installed in /usr/include, 
  # /usr/lib etc. so this code will not usually find the right dependencies.
- CLIPPER_CXXFLAGS=""
- CLIPPER_LDOPTS="-lclipper-ccp4 -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-minimol -lclipper-cns -lclipper-core -l$ccp4c $MMDB_LIBS -l${fftw_pre}rfftw -l${fftw_pre}fftw -lz -lm"
+ # 
+ # 20101224 But these days with distros including Coot, then clipper and mmdb
+ # will be in /usr/lib and /usr/include - who'd have thought it :-)
+
+ # 20101224 We test for gpp4 in configure before we get here.  So
+ # with_gpp4 is set to yes or no by now.  
+
+ # So we add a hack value for CCP4_LIBS in the case that gpp4 (and
+ # hence PKG_CHECK_MODULES([CCP4]) has not been evaluated).
+ # 
+ if test x$with_gpp4 != xyes ; then 
+    CCP4_LIBS=-lccp4c
+ fi
+ 
+ # this needs to be 'configured' - typically either s or blank.
+ fftw_pre=
+
+ CLIPPER_CXXFLAGS="$CCP4_CFLAGS"
+ CLIPPER_LDOPTS="-lclipper-ccp4 -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-minimol -lclipper-cns -lclipper-core $CCP4_LIBS $MMDB_LIBS -l${fftw_pre}rfftw -l${fftw_pre}fftw -lz -lm"
 fi
 
 # BL: workaround needed for new MinGW
