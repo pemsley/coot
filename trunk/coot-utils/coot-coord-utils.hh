@@ -468,9 +468,11 @@ namespace coot {
    };
 
 
-   // Don't include residues that are HOH residues that are not bonded
-   // to the protein (if bonding to res_ref but not protein, then
-   // reject.
+
+   // Don't include residues that are HOH residues that are not bonded to
+   // the protein (if bonding to res_ref but not protein, then reject.
+   // Reject waters that are not within water_dist_max to any atom in
+   // res_ref.
    //
    std::vector<CResidue *> filter_residues_by_solvent_contact(CResidue *res_ref,
 							      CMMDBManager *mol,
