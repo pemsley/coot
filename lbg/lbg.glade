@@ -374,12 +374,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="residue_circles_toolbutton">
+              <object class="GtkToggleToolButton" id="residue_circles_toggletoolbutton">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Env. Residues</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-add</property>
-                <signal name="clicked" handler="on_residue_circles_toolbutton_clicked"/>
+                <signal name="toggled" handler="on_residue_circles_toggle_toolbutton_toggled"/>
               </object>
               <packing>
                 <property name="expand">False</property>

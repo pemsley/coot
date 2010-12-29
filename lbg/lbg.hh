@@ -65,7 +65,8 @@
 // 
 // #include "coot-sysdep.h"
 
-static double LIGAND_TO_CANVAS_SCALE_FACTOR = 23;
+// static double LIGAND_TO_CANVAS_SCALE_FACTOR = 23;
+static double LIGAND_TO_CANVAS_SCALE_FACTOR = 17;
 static double SINGLE_BOND_CANVAS_LENGTH= LIGAND_TO_CANVAS_SCALE_FACTOR * 1.54;
 
 
@@ -613,6 +614,7 @@ private:
    std::vector<widgeted_molecule_t> previous_molecules;
    int save_molecule_index;
    bool in_delete_mode_;
+   bool draw_residue_attribs_flag; // circles and bonds, etc
    highlight_data_t highlight_data;
    bool is_atom_element(int addition_mode) const;
    bool is_bond(int addition_mode) const;
@@ -903,6 +905,9 @@ public:
    void set_in_delete_mode(bool v) {
       in_delete_mode_ = v;
    }
+   void set_draw_residue_attribs(bool v) {
+      draw_residue_attribs_flag = v;
+   } 
    bool in_delete_mode_p() const { return in_delete_mode_; }
    double radius(int n_edges) const; // depends on zoom? (for future).
    void clear();

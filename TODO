@@ -710,10 +710,12 @@ Punted from 0.6:
 
  0.7 Priorities:
 
+   o reading a cif from the PDB (e.g. 1X8B.cif) creates a molecule
+     with atom elements 1-char.  Hence bonding fails.
 
    o change clipper macros to use clipper-config and not invent mmdb
      and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
-     grr. ::: 3  Punt.
+     grr. ::: 3  
 
    o difference map (given previous model and new obs MTZ file, run
      refmac no cyles to make a map, coot rigid-body per chain then

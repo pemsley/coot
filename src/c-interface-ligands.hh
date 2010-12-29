@@ -62,13 +62,15 @@ namespace coot {
    std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(CResidue *res_ref,
 						       const std::vector<CResidue *> &residues,
 						       const std::map<std::string, std::string> &name_map);
+   
    // uses the coot::h_bond class (which uses the dictionary).
    // 
    std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(CResidue *res_ref,
 						       const std::vector<CResidue *> &residues,
 						       CMMDBManager *mol,
 						       const std::map<std::string, std::string> &name_map,
-						       const protein_geometry &geom);
+						       const protein_geometry &geom,
+						       float water_dist_max);
    
    void write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 			  const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,

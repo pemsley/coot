@@ -522,6 +522,24 @@ on_residue_circles_toolbutton_clicked(GtkToolButton *button, gpointer user_data)
 }
 
 extern "C" G_MODULE_EXPORT void
+on_residue_circles_toggle_toolbutton_toggled(GtkToggleToolButton *toggle_button, gpointer user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+
+      if (gtk_toggle_tool_button_get_active(toggle_button)) {
+	 // on
+	 l->set_draw_residue_attribs(true);
+      } else {
+	 // off
+	 l->set_draw_residue_attribs(false);
+      } 
+      l->draw_all_residue_attribs();
+   }
+}
+
+extern "C" G_MODULE_EXPORT void
 on_lbg_smiles_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);

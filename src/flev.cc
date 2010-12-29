@@ -83,6 +83,7 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		       const char *prodrg_output_dict_cif_file_name) {
    
    float residues_near_radius = 4.5;
+   float water_dist_max = 3.25;
    graphics_info_t g;
    coot::protein_geometry *geom_p = g.Geom_p();
    
@@ -161,8 +162,11 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 	       // residues needs to be filtered to remove waters that
 	       // are not connected to a protein atom.
 
+	       // 20101228 water_max_dist was 3.6, not we tweak it to
+	       // 3.25.  Should be a user-setable param.
+	       // 
 	       std::vector<CResidue *> filtered_residues =
-		  coot::filter_residues_by_solvent_contact(res_ref, mol, residues, 3.6);
+		  coot::filter_residues_by_solvent_contact(res_ref, mol, residues, water_dist_max);
 	       
 	       // for the atoms in the ligand only, for the moment.
 	       // More would require a class containing with and
@@ -201,7 +205,7 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 	       //
  	       std::vector<coot::fle_ligand_bond_t> bonds_to_ligand = 
  		  coot::get_fle_ligand_bonds(res_ref, filtered_residues, mol,
- 					     name_map, *geom_p);
+ 					     name_map, *geom_p, water_dist_max);
 
 	       if (1) 
 		  std::cout << "Found ================== " << bonds_to_ligand.size()
@@ -265,7 +269,8 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
 #ifndef MAKE_ENTERPRISE_TOOLS
 # else
 
-   double weight_for_3d_distances = 0.4; // for 3d distances 
+   double weight_for_3d_distances = 0.4; // for 3d distances
+   double water_dist_max = 3.25;
    
    graphics_info_t g;
    coot::protein_geometry *geom_p = g.Geom_p();
@@ -291,7 +296,7 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
 	    // are not connected to a protein atom.
 	 
 	    std::vector<CResidue *> filtered_residues =
-	       coot::filter_residues_by_solvent_contact(res_ref, mol_for_res_ref, residues, 3.6);
+	       coot::filter_residues_by_solvent_contact(res_ref, mol_for_res_ref, residues, 3.25);
 
 	    // for the atoms in the ligand only, for the moment.
 	    // More would require a class containing with and
@@ -363,7 +368,7 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
 	       
  		  std::vector<coot::fle_ligand_bond_t> bonds_to_ligand =
  		     coot::get_fle_ligand_bonds(res_ref, filtered_residues,
-						mol_for_res_ref, name_map, *geom_p);
+						mol_for_res_ref, name_map, *geom_p, water_dist_max);
 
 		  std::vector<coot::fle_residues_helper_t> res_centres =
 		     coot::get_flev_residue_centres(res_ref,
@@ -541,7 +546,7 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 						       const std::vector<CResidue *> &residues,
 						       CResidue *res_ref) {
 
-   bool debug = 0;
+   bool debug = 1;
 
    // --------------------------------------------------------------------
    //          ligand ring systems
@@ -553,7 +558,6 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 
    float pi_overlap_thresh = 0.2;
    // float pi_overlap_thresh = 0.0015; // play value
-   // float pi_overlap_thresh = 0.2; 
    for (unsigned int iring=0; iring<ring_list.size(); iring++) {
       try {
 	 std::pair<clipper::Coord_orth, clipper::Coord_orth> ligand_ring_pi_pts = 
@@ -583,7 +587,7 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 	       get_pi_overlap_to_ligand_ring(residues[ires], ligand_ring_pi_pts.second);
 
 	    if (debug) 
-	       std::cout << "   Overlaps:  score "
+	       std::cout << "   protein cation:ligand ring: Overlaps:  score "
 			 << pi_overlap_1.first << " type: " << pi_overlap_1.second << "  score: "
 			 << pi_overlap_2.first << " type: " << pi_overlap_2.second << std::endl;
 	       
@@ -1295,7 +1299,7 @@ coot::write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_s
 std::vector<coot::fle_ligand_bond_t>
 coot::get_fle_ligand_bonds(CResidue *ligand_res,
 			   const std::vector<CResidue *> &residues,
-			   const std::map<std::string, std::string> &name_map) {
+			   const std::map<std::string, std::string> &name_map) { 
    std::vector<coot::fle_ligand_bond_t> v;
 
    // do it by hand, rather than create a molecule and use SeekContacts();
@@ -1397,7 +1401,9 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 			   const std::vector<CResidue *> &residues,
 			   CMMDBManager *mol, 
 			   const std::map<std::string, std::string> &name_map,
-			   const coot::protein_geometry &geom) {
+			   const coot::protein_geometry &geom,
+			   float water_dist_max) {
+   
    std::vector<coot::fle_ligand_bond_t> v; // returned value
 
    bool debug = 0;
@@ -1423,8 +1429,9 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
       coot::h_bonds hb;
       std::vector<coot::h_bond> hbonds = hb.get(SelHnd_lig, SelHnd_all, m.second, geom);
 
-      std::cout << "DEBUG:: get_fle_ligand_bonds from h_bonds class found "
-		<< hbonds.size() << " bonds." << std::endl;
+      if (debug)
+	 std::cout << "DEBUG:: get_fle_ligand_bonds from h_bonds class found "
+		   << hbonds.size() << " bonds." << std::endl;
 
       for (unsigned int i=0; i<hbonds.size(); i++) { 
 	 std::cout << coot::atom_spec_t(hbonds[i].donor) << "..."
@@ -1464,7 +1471,17 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 	 std::string residue_name = ligand_residue->GetResName();
 	 if (residue_name == "HOH")
 	    bond.water_protein_length = find_water_protein_length(ligand_residue, mol);
-	 v.push_back(bond);
+	 
+	 bool ok_to_add = 1; // reset to 0 for certain waters
+	 if (ligand_residue) {
+	    std::string ligand_residue_name(ligand_residue->name);
+	    if (ligand_residue_name == "HOH") {
+	       if (hbonds[i].dist > water_dist_max)
+		  ok_to_add = 0;
+	    }
+	 }
+	 if (ok_to_add)
+	    v.push_back(bond);
       }
 
       std::cout << ".... get_fle_ligand_bonds(): after h-bonds v.size() is " << v.size() << std::endl;

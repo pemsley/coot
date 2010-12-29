@@ -2604,9 +2604,11 @@ lbg_info_t::offset_residues_from_orig_positions() {
 void
 lbg_info_t::draw_all_residue_attribs() {
 
-   draw_residue_circles(residue_circles, additional_representation_handles);
-   draw_bonds_to_ligand();
-   draw_stacking_interactions(residue_circles);
+   if (draw_residue_attribs_flag) { 
+      draw_residue_circles(residue_circles, additional_representation_handles);
+      draw_bonds_to_ligand();
+      draw_stacking_interactions(residue_circles);
+   }
 }
 
 std::vector<int>
@@ -3985,28 +3987,30 @@ lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_
    double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
    double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
                                                 // attached to the protein.
-   
-   bool draw_solvent_exposures = 1;
-   try { 
-      lig_build::pos_t ligand_centre = mol.get_ligand_centre();
-      GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
-      if (draw_solvent_exposures)
-	 for (unsigned int i=0; i<l_residue_circles.size(); i++)
-	    draw_solvent_exposure_circle(l_residue_circles[i], ligand_centre, root);
+   if (draw_residue_attribs_flag) { 
+      bool draw_solvent_exposures = 1;
+      try { 
+	 lig_build::pos_t ligand_centre = mol.get_ligand_centre();
+	 GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
-      for (unsigned int i=0; i<l_residue_circles.size(); i++) {
-	 lig_build::pos_t pos = l_residue_circles[i].pos;
-	 int add_rep_handle = -1; // default, no handle
-	 if (add_rep_handles.size() == l_residue_circles.size())
-	    add_rep_handle = add_rep_handles[i];
+	 if (draw_solvent_exposures)
+	    for (unsigned int i=0; i<l_residue_circles.size(); i++)
+	       draw_solvent_exposure_circle(l_residue_circles[i], ligand_centre, root);
 
-	 draw_residue_circle_top_layer(l_residue_circles[i], ligand_centre, add_rep_handle);
+	 for (unsigned int i=0; i<l_residue_circles.size(); i++) {
+	    lig_build::pos_t pos = l_residue_circles[i].pos;
+	    int add_rep_handle = -1; // default, no handle
+	    if (add_rep_handles.size() == l_residue_circles.size())
+	       add_rep_handle = add_rep_handles[i];
+
+	    draw_residue_circle_top_layer(l_residue_circles[i], ligand_centre, add_rep_handle);
+	 }
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "WARNING:: draw_residue_circles: " << rte.what() << std::endl;
       }
    }
-   catch (std::runtime_error rte) {
-      std::cout << "WARNING:: draw_residue_circles: " << rte.what() << std::endl;
-   } 
 }
 
 // static

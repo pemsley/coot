@@ -459,14 +459,23 @@ coot::filter_residues_by_solvent_contact(CResidue *res_ref,
 	    clipper::Coord_orth lig_pt(lig_residue_atoms[jat]->x,
 				       lig_residue_atoms[jat]->y,
 				       lig_residue_atoms[jat]->z);
+	    std::string ligand_atom_ele = lig_residue_atoms[jat]->element;
 	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	       clipper::Coord_orth pt(residue_atoms[iat]->x,
-				      residue_atoms[iat]->y,
-				      residue_atoms[iat]->z);
-	       if ((lig_pt-pt).lengthsq() < (water_dist_max*water_dist_max)) {
-		  i_added = 1;
-		  v.push_back(residues[i]);
-		  break;
+	       if (ligand_atom_ele != " C" && ligand_atom_ele != " H") { 
+		  clipper::Coord_orth pt(residue_atoms[iat]->x,
+					 residue_atoms[iat]->y,
+					 residue_atoms[iat]->z);
+		  if ((lig_pt-pt).lengthsq() < (water_dist_max*water_dist_max)) {
+		     if (0) 
+			std::cout << "pushing back " << coot::residue_spec_t(residues[i])
+				  << " with dist "
+				  << sqrt((lig_pt-pt).lengthsq()) << " to "
+				  << coot::atom_spec_t(lig_residue_atoms[jat])
+				  << std::endl;
+		     i_added = 1;
+		     v.push_back(residues[i]);
+		     break;
+		  }
 	       }
 	    }
 	    if (i_added)
