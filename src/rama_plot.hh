@@ -194,10 +194,7 @@ class rama_plot {
    std::vector<int> ifirst_res; // offset between actual residue number and
 		                // position in the phi_psi vector
 
-   // single chain code:
-   // std::vector<phi_psi_t> phi_psi;
-   // std::vector<phi_psi_t> secondary_phi_psi;
-
+   // a set of phi-psis for each model.
    std::vector<phi_psis_for_model_t> phi_psi_model_sets;
    std::vector<phi_psis_for_model_t> secondary_phi_psi_model_sets;
    GtkTooltips *tooltips;
@@ -424,6 +421,15 @@ public:
 
    void set_kleywegt_plot_uses_chain_ids() { kleywegt_plot_uses_chain_ids = 1; }
    bool kleywegt_plot_uses_chain_ids_p() { return kleywegt_plot_uses_chain_ids; }
+
+   unsigned int n_phi_psi_model_sets() const { return phi_psi_model_sets.size(); }
+
+   phi_psis_for_model_t get_phi_psis_for_model(unsigned int model_no) const {
+      phi_psis_for_model_t r(-1);
+      if (model_no < phi_psi_model_sets.size())
+	 r = phi_psi_model_sets[model_no];
+      return r;
+   } 
 
    void debug() const; 
 
