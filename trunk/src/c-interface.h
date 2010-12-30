@@ -6385,6 +6385,14 @@ void start_ligand_builder_gui(GtkMenuItem     *menuitem,
 			      gpointer         user_data);
 
 #ifdef __cplusplus
+#ifdef USE_GUILE
+SCM all_molecule_rotamer_score(int imol);
+SCM all_molecule_ramachandran_score(int imol); /* a stub currently */
+#endif // USE_GUILE
+#endif /* __cplusplus */
+
+
+#ifdef __cplusplus
 /*! 
 
     20100616 This doesn't get into the doxygen documentation for some

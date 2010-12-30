@@ -41,6 +41,8 @@
 #include "coot-utils.hh"
 #include "coot-hydrogens.hh"
 
+#include "rama_plot.hh"
+
 // 1: success
 // 0: failure
 // 
@@ -395,3 +397,70 @@ molecule_class_info_t::match_ligand_atom_names(const std::string &chain_id, int 
    } 
 
 } 
+
+
+coot::rama_score_t
+molecule_class_info_t::get_all_molecule_rama_score() const {
+
+   coot::rama_score_t rs;
+
+   coot::rama_plot rp;
+   rp.generate_phi_psis(atom_sel.mol, true);
+
+   unsigned int n = rp.n_phi_psi_model_sets();
+
+   clipper::Ramachandran r_gly, r_pro, r_non_gly_pro;
+
+   // Lovell et al. 2003, 50, 437 Protein Structure, Function and Genetics values:
+   ftype level_prefered = 0.02; 
+   ftype level_allowed = 0.002;
+   
+   //clipper defaults: 0.01 0.0005
+
+   r_gly.init(clipper::Ramachandran::Gly);
+   r_gly.set_thresholds(level_prefered, level_allowed);
+   //
+   r_pro.init(clipper::Ramachandran::Pro);
+   r_pro.set_thresholds(level_prefered, level_allowed);
+   // 
+   r_non_gly_pro.init(clipper::Ramachandran::NonGlyPro);
+   r_non_gly_pro.set_thresholds(level_prefered, level_allowed);
+
+   double zero_cut_off = 1e-6;
+
+   double log_p_sum = 0.0;
+
+   for (unsigned int imod=0; imod<n; imod++) { 
+      coot::phi_psis_for_model_t pp = rp.get_phi_psis_for_model(imod);
+      std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+      for (it=pp.phi_psi.begin(); it!=pp.phi_psi.end(); it++) {
+	 clipper::Ramachandran &rama = r_non_gly_pro;
+	 if (it->second.residue_name() == "GLY")
+	    rama = r_gly;
+	 if (it->second.residue_name() == "PRO")
+	    rama = r_pro;
+	 ftype p = rama.probability(clipper::Util::d2rad(it->second.phi()), clipper::Util::d2rad(it->second.psi()));
+	 if (p < zero_cut_off) {
+	    // std::cout << "........ was a zero" << std::endl;
+	    rs.n_zeros++;
+	 } else {
+	    std::pair<coot::residue_spec_t, double> pair(it->first, p);
+	    rs.scores.push_back(pair);
+	    log_p_sum += log(p);
+	 } 
+      }
+   }
+
+   rs.score = log_p_sum;
+
+   return rs;
+}
+
+
+coot::rotamer_score_t
+molecule_class_info_t::get_all_molecule_rotamer_score() const {
+
+   coot::rotamer_score_t rs;
+
+   return rs;
+}

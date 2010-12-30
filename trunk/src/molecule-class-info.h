@@ -521,6 +521,30 @@ namespace coot {
       }
    };
 
+   // ------------ molecule probability scoring ------------
+   class rama_score_t {
+   public:
+      rama_score_t() {
+	 score = 0.0;
+	 n_zeros = 0;
+      } 
+      std::vector<std::pair<residue_spec_t, double> >  scores;
+      double score;
+      int n_residues() const { return scores.size(); }
+      int n_zeros;
+   };
+   class rotamer_score_t {
+   public:
+      rotamer_score_t() {
+	 score = 0.0;
+	 n_zeros = 0;
+      } 
+      std::vector<std::pair<residue_spec_t, double> > scores;
+      double score;
+      int n_zeros;
+      int n_residues() const { return scores.size(); }
+   };
+
 } // namespace coot
 
 
@@ -2828,7 +2852,11 @@ public:        //                      public
    // --------- match ligand atom names ------------------
    void match_ligand_atom_names(const std::string &chain_id, int res_no, const std::string &ins_code,
 				CResidue *res_ref);
-   
+
+   // --------- molecule probability scoring ------------
+   coot::rama_score_t get_all_molecule_rama_score() const;
+   coot::rotamer_score_t get_all_molecule_rotamer_score() const;
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

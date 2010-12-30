@@ -339,6 +339,7 @@ coot::dots_representation_info_t::solvent_exposure(int SelHnd_in, CMMDBManager *
 	    v.push_back(p);
 	 }
       }
+      mol->DeleteSelection(SelHnd_all); // presumably this was missing before... 20101230
    }
    return v;
 }

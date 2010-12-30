@@ -2055,3 +2055,33 @@ PyObject *user_mods_py(const char *file_name) {
 }
 #endif // USE_PYTHON
 
+
+#ifdef USE_GUILE
+SCM all_molecule_rotamer_score(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      coot::rotamer_score_t rs = graphics_info_t::molecules[imol].get_all_molecule_rotamer_score();
+      SCM a_scm = scm_double2num(rs.score);
+      SCM b_scm = SCM_MAKINUM(rs.n_residues());
+      r = SCM_LIST2(a_scm, b_scm);
+   } 
+   return r;
+} 
+#endif
+
+#ifdef USE_GUILE
+SCM all_molecule_ramachandran_score(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      coot::rama_score_t rs = graphics_info_t::molecules[imol].get_all_molecule_rama_score();
+      SCM a_scm = scm_double2num(rs.score);
+      SCM b_scm = SCM_MAKINUM(rs.n_residues());
+      SCM c_scm = SCM_MAKINUM(rs.n_zeros);
+      r = SCM_LIST3(a_scm, b_scm, c_scm);
+   } 
+
+   return r;
+} 
+#endif // USE_GUILE
