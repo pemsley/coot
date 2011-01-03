@@ -602,6 +602,14 @@ SectionEnd
 ;  maybe here the other guile things?!
 ;SectionEnd
 
+Section /o "Windows feel" SEC02
+  SetOverwrite on
+  SetOutPath "$INSTDIR\share\coot"
+  File "C:\msys\home\bernhard\autobuild\extras\cootrc"
+  SetOverwrite ifnewer
+;  maybe here the other guile things?!
+SectionEnd
+
 Section -AddIcons
   ;; First install for all users, if anything fails, install
   ;; for current user only.
@@ -644,6 +652,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "This is 'default' WinCoot (${WinCootVersion}) $\n$\nPython scripting only"
 ; disable guile for now
 ;  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Tick if you want additionally $\nGuile/Scheme scripting"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Tick if you want a $\nWindowsy feeling to WinCoot"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
