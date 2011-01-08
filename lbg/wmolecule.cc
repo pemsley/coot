@@ -1162,7 +1162,9 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
       // end
       of << "M  END\n";
       of << "$$$$\n";
- }
+   }
+   of.close();
+   
    return status;
 }
 
