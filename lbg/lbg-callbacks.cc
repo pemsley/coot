@@ -19,7 +19,7 @@
  * 02110-1301, USA
  */
 
-#if HAVE_GOOCANVAS
+#ifdef HAVE_GOOCANVAS
 
 #include <gtk/gtk.h>
 #include <stdlib.h> // for system()

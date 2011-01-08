@@ -495,12 +495,24 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 	    lig_build::bond_t::bond_type_t bt =
 	       addition_mode_to_bond_type(canvas_addition_mode);
 
-	    widgeted_bond_t b(penultimate_atom_index, new_index,
-			      mol.atoms[penultimate_atom_index],
-			      new_atom,
-			      bt, root);
-	    ultimate_atom_index = new_index;
-	    mol.add_bond(b);
+	    std::cout << "::::::::::::::::: widgeted_bond_t atom indcies "
+		      << penultimate_atom_index
+		      << " " << new_index << std::endl;
+
+	    if (penultimate_atom_index == UNASSIGNED_INDEX) {
+
+	       std::cout << "ERROR:: trapped UNASSIGNED_INDEX for penultimate_atom_index in "
+			 << "rotate_latest_bond()" << std::endl;
+	       
+	    } else {
+	       
+	       widgeted_bond_t b(penultimate_atom_index, new_index,
+				 mol.atoms[penultimate_atom_index],
+				 new_atom,
+				 bt, root);
+	       ultimate_atom_index = new_index;
+	       mol.add_bond(b);
+	    }
 	 }
       }
    }

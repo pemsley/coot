@@ -94,6 +94,9 @@ GtkWidget *get_canvas_from_scrolled_win(GtkWidget *scrolled_window);
 class lbg_info_t {
 
 public:
+
+   enum { UNASSIGNED_INDEX = -1 };
+      
    class highlight_data_t {
       int n_atoms_;
       lig_build::pos_t pos_1_;
@@ -678,8 +681,8 @@ private:
       standard_residue_circle_radius = 19;
       button_down_bond_addition = 0;
       latest_bond_canvas_item = 0;
-      penultimate_atom_index = -1;
-      ultimate_atom_index = -1;
+      penultimate_atom_index = UNASSIGNED_INDEX;
+      ultimate_atom_index = UNASSIGNED_INDEX;
       latest_bond_was_extended = 0;
       stand_alone_flag = 0;
       ligand_spec_pair.first = 0; // unset ligand_spec
