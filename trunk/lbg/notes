@@ -83,6 +83,16 @@ Tue Nov  2 14:19:47 GMT 2010
 
 
 ----
+Sat Jan  8 17:54:41 GMT 2011
+
+
+    JED says:
+
+    The + button for residues should remove all annotation, contour
+    and atom solvent exposures too.
+
+
+----
 
     Thoughts about 6 July meeting:
 
@@ -97,15 +107,15 @@ Sat Nov 13 16:16:13 GMT 2010
     sbase searching in File -> Search Monomer Library should use the three letter code
     too (if three letters have been typed)
 
+
 ----
 Sat Nov 13 16:30:18 GMT 2010
 
-    jed says:
+    JED says:
 
     I want a button that turns off the dislay of residues in lidia.
 
-
-    wehn you do so, also undisplay the substituion contour and solvent exposures.
+    When you do so, also undisplay the substituion contour and solvent exposures.
     all annotion 
 
     in fact the solvent exposure on the atoms should not be displayed when the residues
