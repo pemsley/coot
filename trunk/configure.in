@@ -62,7 +62,7 @@ dnl  use of PKG_CHECK_MODULES for GPP4 causes problems when setting up pkg-confi
 dnl
 dnl So, let's check GLIB here, should be harmless.
 dnl
-PKG_CHECK_MODULES([GLIB], [glib])
+PKG_CHECK_MODULES([GLIB], [glib-2.0])
 
 
 dnl test for WINDOWS_MINGW
