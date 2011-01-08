@@ -28,6 +28,12 @@ Mon Nov 29 17:00:39 GMT 2010
 
 [16:56:23] SMILES Parse Error
 
+
+-----
+Sat Jan  1 22:38:57 GMT 2011
+
+   JED: SBase search of a fleved ligand -> Fail
+
 ----
 Wed Oct 13 07:18:36 EDT 2010
 
@@ -49,6 +55,13 @@ Wed Oct 20 18:23:52 EDT 2010
    assign_formal_charge(imol, chain_id, res_no, ins_code, atom_name, int charge);
 
    and pass the charge info to RDKit mol.
+
+---
+Sat Jan  8 16:43:55 GMT 2011
+
+   if you try to flev a ligand without a dictionary (other than the
+   sbase one) lbg should tell mention that in the status bar.
+
 
 ----
 Sat Oct 30 16:58:37 BST 2010
