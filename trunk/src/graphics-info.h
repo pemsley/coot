@@ -3674,6 +3674,8 @@ string   static std::string sessionid;
    // argument processing.
    static short int python_at_prompt_flag; 
 
+   // all molecule rotamer score, (depends on private rotamer probability tables)
+   coot::rotamer_score_t all_molecule_rotamer_score(int imol) const;
 
    // update self?
    static bool update_self;

@@ -411,6 +411,17 @@ int n_chains(int imol);
  */
 int is_solvent_chain_p(int imol, const char *chain_id);
 
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM remarks_scm(int imol);
+#endif
+#ifdef USE_PYTHON
+PyObject *remarks_py(int imol);
+#endif
+#endif
+
+
 /*! \brief sort the chain ids of the imol-th molecule in lexographical order */
 void sort_chains(int imol);	
 

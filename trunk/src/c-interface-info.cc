@@ -1680,8 +1680,7 @@ SCM get_symmetry(int imol) {
 #ifdef USE_PYTHON
 PyObject *get_symmetry_py(int imol) {
 
-   PyObject *r;
-   r = PyList_New(0);
+   PyObject *r = PyList_New(0);
    if (is_valid_model_molecule(imol) ||
        is_valid_map_molecule(imol)) {
       std::vector<std::string> symop_list =
@@ -4149,3 +4148,40 @@ PyObject *ccp4i_projects_py() {
 } 
 #endif // USE_PYTHON
 
+
+
+#ifdef USE_GUILE
+SCM remarks_scm(int imol) {
+
+   SCM r = SCM_EOL;
+   
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      CTitleContainer *tc_p = mol->GetRemarks();
+      int l = tc_p->Length();
+      for (unsigned int i=0; i<l; i++) { 
+	 CRemark *cr = static_cast<CRemark *> (tc_p->GetContainerClass(i));
+	 SCM a_scm = SCM_MAKINUM(cr->remarkNum);
+	 SCM b_scm = scm_makfrom0str(cr->Remark);
+	 SCM l2 = SCM_LIST2(a_scm, b_scm);
+	 r = scm_cons(l2, r);
+      }
+      r = scm_reverse(r); // undo schemey backwardsness
+   }
+   return r;
+}
+
+#endif
+
+
+#ifdef USE_PYTHON
+PyObject *remarks_py(int imol) {
+
+   // Needs filling.
+
+   PyObject *o = Py_False;
+   Py_INCREF(o);
+   return o;
+}
+
+#endif

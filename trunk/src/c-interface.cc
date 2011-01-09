@@ -4307,8 +4307,22 @@ int test_function(int i, int j) {
 //    g.wrapped_create_symmetry_controller_dialog();
 //    return 0;
 
-
    if (1) {
+
+      if (is_valid_model_molecule(0)) {
+	 CMMDBManager *mol = graphics_info_t::molecules[0].atom_sel.mol;
+	 std::vector<std::string> h;
+	 CTitleContainer *tc_p = mol->GetRemarks();
+	 int l = tc_p->Length();
+	 for (unsigned int i=0; i<l; i++) { 
+	    CRemark *cr = static_cast<CRemark *> (tc_p->GetContainerClass(i));
+	    std::cout << "container: " << cr->Remark << std::endl;
+	 }
+      }
+   }
+
+
+   if (0) {
       std::vector<std::pair<std::string, int> > h = 
 	 coot::get_prodrg_hybridizations("coot-ccp4/tmp-prodrg-flat.log");
       

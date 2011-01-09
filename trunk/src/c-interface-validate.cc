@@ -32,7 +32,6 @@
 #include <stdlib.h>
 #include <iostream>
 
- 
 #include "globjects.h" //includes gtk/gtk.h
 
 #include "callbacks.h"
@@ -48,7 +47,6 @@
 #include "mmdb-extras.h"
 #include "mmdb.h"
 #include "mmdb-crystal.h"
-
 
 #include "graphics-info.h"
 
@@ -2061,11 +2059,12 @@ SCM all_molecule_rotamer_score(int imol) {
 
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
-      coot::rotamer_score_t rs = graphics_info_t::molecules[imol].get_all_molecule_rotamer_score();
+      graphics_info_t g;
+      coot::rotamer_score_t rs = g.all_molecule_rotamer_score(imol);
       SCM a_scm = scm_double2num(rs.score);
-      SCM b_scm = SCM_MAKINUM(rs.n_residues());
+      SCM b_scm = SCM_MAKINUM(rs.n_rotamer_residues());
       r = SCM_LIST2(a_scm, b_scm);
-   } 
+   }
    return r;
 } 
 #endif
@@ -2078,8 +2077,10 @@ SCM all_molecule_ramachandran_score(int imol) {
       coot::rama_score_t rs = graphics_info_t::molecules[imol].get_all_molecule_rama_score();
       SCM a_scm = scm_double2num(rs.score);
       SCM b_scm = SCM_MAKINUM(rs.n_residues());
-      SCM c_scm = SCM_MAKINUM(rs.n_zeros);
-      r = SCM_LIST3(a_scm, b_scm, c_scm);
+      SCM c_scm = scm_double2num(rs.score_non_sec_str);
+      SCM d_scm = SCM_MAKINUM(rs.n_residues_non_sec_str());
+      SCM e_scm = SCM_MAKINUM(rs.n_zeros);
+      r = SCM_LIST5(a_scm, b_scm, c_scm, d_scm, e_scm);
    } 
 
    return r;
