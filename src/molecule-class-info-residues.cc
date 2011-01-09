@@ -37,6 +37,8 @@
 #include "Cartesian.h"
 #include "mmdb-crystal.h"
 // 
+#include "rotamer.hh" // in ligand
+
 #include "molecule-class-info.h"
 #include "coot-utils.hh"
 #include "coot-hydrogens.hh"
@@ -429,38 +431,111 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
    double zero_cut_off = 1e-6;
 
    double log_p_sum = 0.0;
+   double log_p_non_sec_str_sum = 0.0;
 
-   for (unsigned int imod=0; imod<n; imod++) { 
-      coot::phi_psis_for_model_t pp = rp.get_phi_psis_for_model(imod);
-      std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
-      for (it=pp.phi_psi.begin(); it!=pp.phi_psi.end(); it++) {
-	 clipper::Ramachandran &rama = r_non_gly_pro;
-	 if (it->second.residue_name() == "GLY")
-	    rama = r_gly;
-	 if (it->second.residue_name() == "PRO")
-	    rama = r_pro;
-	 ftype p = rama.probability(clipper::Util::d2rad(it->second.phi()), clipper::Util::d2rad(it->second.psi()));
-	 if (p < zero_cut_off) {
-	    // std::cout << "........ was a zero" << std::endl;
-	    rs.n_zeros++;
-	 } else {
-	    std::pair<coot::residue_spec_t, double> pair(it->first, p);
-	    rs.scores.push_back(pair);
-	    log_p_sum += log(p);
-	 } 
+   for (unsigned int imod=1; imod<n; imod++) {
+      if (imod<=atom_sel.mol->GetNumberOfModels()) {
+	 
+	 coot::phi_psis_for_model_t pp = rp.get_phi_psis_for_model(imod);
+	 atom_sel.mol->GetModel(pp.model_number)->CalcSecStructure();
+	 std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+	 for (it=pp.phi_psi.begin(); it!=pp.phi_psi.end(); it++) {
+	    CResidue *residue_p = get_residue(it->first);
+	    if (residue_p) { 
+	       bool do_it = true; // unset for secondary structure
+	       int sse = residue_p->SSE;
+	       // std::cout << "residue->SSE is " << sse << " vs " << SSE_Strand << " and " << SSE_Helix
+	       // << std::endl;
+	       switch (residue_p->SSE)  {
+	       case SSE_Strand:
+		  do_it = 0;
+		  break;
+	       case SSE_Helix:
+		  do_it = 0;
+		  break;
+	       }
+	    
+	       clipper::Ramachandran &rama = r_non_gly_pro;
+	       if (it->second.residue_name() == "GLY")
+		  rama = r_gly;
+	       if (it->second.residue_name() == "PRO")
+		  rama = r_pro;
+	       ftype p = rama.probability(clipper::Util::d2rad(it->second.phi()),
+					  clipper::Util::d2rad(it->second.psi()));
+	       if (p < zero_cut_off) {
+		  // std::cout << "........ was a zero" << std::endl;
+		  rs.n_zeros++;
+	       } else {
+		  std::pair<coot::residue_spec_t, double> pair(it->first, p);
+		  rs.scores.push_back(pair);
+		  log_p_sum += log(p);
+		  if (do_it) {
+		     rs.scores_non_sec_str.push_back(pair);
+		     log_p_non_sec_str_sum += log(p);
+		  } 
+	       }
+	    }
+	 }
       }
    }
 
    rs.score = log_p_sum;
+   rs.score_non_sec_str = log_p_non_sec_str_sum;
 
    return rs;
 }
 
 
 coot::rotamer_score_t
-molecule_class_info_t::get_all_molecule_rotamer_score() const {
+molecule_class_info_t::get_all_molecule_rotamer_score(const coot::rotamer_probability_tables &rot_prob_tables) const {
 
    coot::rotamer_score_t rs;
+   double sum_log_p = 0.0;
 
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    if (residue_p) {
+	       std::string residue_name = residue_p->GetResName();
+	       if (coot::util::is_standard_residue_name(residue_name)) { 
+		  try { 
+		     std::vector<coot::rotamer_probability_info_t> v =
+			rot_prob_tables.probability_this_rotamer(residue_p);
+		     if (v.size() > 0) {
+			if (v[0].state == coot::rotamer_probability_info_t::OK) { 
+			   double p = v[0].probability;
+			   if (p > 0) { 
+			      // std::cout << "   " << coot::residue_spec_t(residue_p) << "  " << p << std::endl;
+			      rs.add(coot::residue_spec_t(residue_p), p);
+			      sum_log_p += log(p*0.01); // probability was in percents.
+			   } else {
+			      rs.n_pass++;
+			   } 
+			} else {
+			   rs.n_pass++;
+			} 
+		     } else {
+			rs.n_pass++;
+		     } 
+		  }
+		  catch (std::runtime_error rte) {
+		     std::cout << "Error:: " << rte.what() << std::endl;
+		     rs.n_pass++;
+		  }
+	       }
+	    } 
+	 }
+      }
+   }
+
+   rs.score = sum_log_p;
+   
    return rs;
 }

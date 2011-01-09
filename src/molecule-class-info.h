@@ -67,6 +67,8 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 
 #include "simple-restraint.hh" // for extra restraints.
 
+#include "rotamer.hh" // in ligand, for rotamer probabilty tables
+
 
 #include "validation-graphs.hh"  // GTK things, now part of
 				 // molecule_class_info_t, they used
@@ -526,23 +528,35 @@ namespace coot {
    public:
       rama_score_t() {
 	 score = 0.0;
+	 score_non_sec_str = 0.0;
 	 n_zeros = 0;
-      } 
+      }
+      // for all residues
       std::vector<std::pair<residue_spec_t, double> >  scores;
+      // for non-Secondary structure residues
+      std::vector<std::pair<residue_spec_t, double> >  scores_non_sec_str;
       double score;
+      double score_non_sec_str;
       int n_residues() const { return scores.size(); }
+      int n_residues_non_sec_str() const { return scores_non_sec_str.size(); }
       int n_zeros;
    };
+
+   // ==-------------- all molecule rotamer scoring --------------
    class rotamer_score_t {
    public:
       rotamer_score_t() {
 	 score = 0.0;
-	 n_zeros = 0;
+	 n_pass = 0;
       } 
       std::vector<std::pair<residue_spec_t, double> > scores;
       double score;
-      int n_zeros;
-      int n_residues() const { return scores.size(); }
+      int n_pass; // GLY, PRO, ALA
+      int n_rotamer_residues() const { return scores.size(); }
+      void add (const residue_spec_t &rs, double p) {
+	 std::pair<residue_spec_t, double> pair(rs,p);
+	 scores.push_back(pair);
+      }
    };
 
 } // namespace coot
@@ -2855,7 +2869,7 @@ public:        //                      public
 
    // --------- molecule probability scoring ------------
    coot::rama_score_t get_all_molecule_rama_score() const;
-   coot::rotamer_score_t get_all_molecule_rotamer_score() const;
+   coot::rotamer_score_t get_all_molecule_rotamer_score(const coot::rotamer_probability_tables &rpt) const;
 
 };
 

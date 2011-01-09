@@ -303,6 +303,7 @@ coot_real_SOURCES = \
 	geometry-graphs.hh	 \
 	get-residue.hh           \
 	get-residue.cc           \
+	flev.hh			 \
 	flev.cc                  \
 	gl-bits.hh		 \
 	globjects.cc 		 \
@@ -335,6 +336,7 @@ coot_real_SOURCES = \
 	interface.c	 	 \
 	interface.h              \
         manipulation-modes.hh    \
+	lbg-interface.hh 	 \
 	lbg-interface.cc 	 \
 	molecule-class-info.cc 	 \
 	molecule-class-info-maps.cc 	\

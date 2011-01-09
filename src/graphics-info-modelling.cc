@@ -3303,6 +3303,26 @@ graphics_info_t::get_rotamer_probability(CResidue *res,
 }
 
 
+
+// all molecule rotamer score, (depends on private rotamer probability tables)
+coot::rotamer_score_t
+graphics_info_t::all_molecule_rotamer_score(int imol) const {
+
+   coot::rotamer_score_t rs;
+
+   if (!rot_prob_tables.is_well_formatted()) {
+      rot_prob_tables.fill_tables();
+   }
+   if (rot_prob_tables.is_well_formatted()) {
+      if (is_valid_model_molecule(imol)) {
+	 rs = graphics_info_t::molecules[imol].get_all_molecule_rotamer_score(rot_prob_tables);
+      }
+   }
+   return rs;
+} 
+
+
+
 // wiggly ligands support
 // 
 std::vector <coot::dict_torsion_restraint_t>
