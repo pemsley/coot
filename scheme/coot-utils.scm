@@ -94,6 +94,7 @@
 (define delete-extra-restraint delete-extra-restraint-scm)
 (define do-clipped-surface do-clipped-surface-scm)
 (define copy-residue-range-from-ncs-master-to-chains copy-residue-range-from-ncs-master-to-chains-scm)
+(define remarks remarks-scm)
 
 ;; documented functions
 

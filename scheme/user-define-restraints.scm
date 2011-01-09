@@ -34,7 +34,7 @@
 							(list-ref (list-ref atom-specs 1) 4)
 							(list-ref (list-ref atom-specs 1) 5)
 							(list-ref (list-ref atom-specs 1) 6)
-							1.54 0.02))))))
+							1.54 0.05))))))
 
 (define (user-defined-add-arbitrary-length-bond-restraint)
   (generic-single-entry "Add a User-defined extra distance restraint"
@@ -223,7 +223,7 @@
 					  "."
 					  inscode-2)
 				      atom-2)
-			      (format port "VALUE ~s SIGMA ~s" value esd)))))
+			      (format port "VALUE ~s SIGMA ~s~%" value esd)))))
 		      restraints))))))
 
 
