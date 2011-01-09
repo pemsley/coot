@@ -26,9 +26,7 @@ libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc lbg-callbacks.cc \
 
 lidia_SOURCES = lidia-main.cc
 
-# some-coot-utils.hh needed?
-#
-include_HEADERS = lbg.hh wmolecule.hh rdkit-interface.hh flev-annotations.hh
+include_HEADERS = lbg.hh wmolecule.hh rdkit-interface.hh flev-annotations.hh some-coot-utils.hh
 
 
 # res spec output operator means we include libcoot-coord-utils
@@ -42,7 +40,7 @@ lidia_LDADD = \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
 
-EXTRA_DIST=lbg.glade
+EXTRA_DIST=lbg.glade $(appicon_DATA)
 
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = lbg.glade
