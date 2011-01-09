@@ -337,6 +337,7 @@ coot_real_SOURCES = \
 	interface.h              \
         manipulation-modes.hh    \
 	lbg-interface.hh 	 \
+	lbg-callbacks-outer.cc 	 \
 	lbg-interface.cc 	 \
 	molecule-class-info.cc 	 \
 	molecule-class-info-maps.cc 	\

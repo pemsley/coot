@@ -20,11 +20,11 @@ AM_CXXFLAGS = \
 
 bin_PROGRAMS = lidia
 
-libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc lbg-callbacks.cc \
+libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc  \
     lbg-search.cc some-coot-utils.cc residue-circles.cc rdkit-interface.cc \
     flev-annotations.cc
 
-lidia_SOURCES = lidia-main.cc
+lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc
 
 include_HEADERS = lbg.hh wmolecule.hh rdkit-interface.hh flev-annotations.hh some-coot-utils.hh
 
@@ -43,7 +43,7 @@ lidia_LDADD = \
 EXTRA_DIST=lbg.glade $(appicon_DATA)
 
 subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = lbg.glade
+subpkgdata_DATA = lbg.glade lbg-callbacks.cc
 
 appicondir=$(pkgdatadir)/pixmaps
 appicon_DATA = \
