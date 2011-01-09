@@ -24,6 +24,9 @@
 
 namespace coot {
 
+   // These are needed, I think, for the stand-alone version (and
+   // nothing else).
+
    bool is_directory_p(const std::string &dir);
 
    namespace util { 

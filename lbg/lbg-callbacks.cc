@@ -567,8 +567,8 @@ on_lbg_smiles_dialog_ok_button_clicked(GtkButton *button, gpointer user_data) {
 
 
 extern "C" G_MODULE_EXPORT void
-on_lbg_smiles_dialog_close (GtkDialog       *dialog,
-			     gpointer         user_data) {
+on_lbg_smiles_dialog_close (GtkDialog *dialog,
+			    gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l) {
