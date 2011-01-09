@@ -103,6 +103,7 @@ namespace coot {
       // Note, not a const vector because we can locally manipulate chi_angles if an ASP, GLU, TYR/PHE.
       std::vector<int> chi_angles_to_bins(unsigned int table_index,
 					  std::vector<std::pair<int,float> > chi_angles) const;
+
       rotamer_probability_info_t probability_this_rotamer(unsigned int i_table,
 							  const std::vector<std::pair<int,float> > &chi_angles) const;
       bool test_yourself();
@@ -112,9 +113,11 @@ namespace coot {
       void set_tables_dir(const std::string &tables_dir_in) { tables_dir = tables_dir_in; }
       void fill_tables() { fill_tables(tables_dir); } // for on the fly construction
       void fill_tables(const std::string &tables_dir); // set is_well_formatted.
+
       // the chi angles here (first) numbered 1, 2, 3...
       // throws an exception
       std::vector<rotamer_probability_info_t> probability_this_rotamer(CResidue *res) const;
+      
       bool is_well_formatted() const { return is_well_formatted_; }
       bool tried_and_failed() const { return tried_and_failed_; }
    }; 
