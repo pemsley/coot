@@ -4177,10 +4177,23 @@ SCM remarks_scm(int imol) {
 #ifdef USE_PYTHON
 PyObject *remarks_py(int imol) {
 
-   // Needs filling.
-
    PyObject *o = Py_False;
-   Py_INCREF(o);
+
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      CTitleContainer *tc_p = mol->GetRemarks();
+      int n_records = tc_p->Length();
+      o = PyList_New(n_records);
+      for (unsigned int i=0; i<n_records; i++) {
+	 CRemark *cr = static_cast<CRemark *> (tc_p->GetContainerClass(i));
+	 PyObject *l = PyList_New(2);
+	 PyList_SetItem(l, 0, PyInt_FromLong(cr->remarkNum));
+	 PyList_SetItem(l, 1, PyString_FromString(cr->Remark));
+	 PyList_SetItem(o, i, l);
+      }
+   }
+   if (PyBool_Check(o))
+      Py_INCREF(o);
    return o;
 }
 
