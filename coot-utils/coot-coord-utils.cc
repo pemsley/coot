@@ -1771,7 +1771,8 @@ coot::graph_match(CResidue *res_moving,
 
 	 std::cout << "INFO:: match.MatchGraphs must match at least " << minMatch << " atoms."
 		   << std::endl;
-	 match.MatchGraphs(&graph1, &graph2, minMatch, 1);
+	 Boolean vertext_type = True;
+	 match.MatchGraphs(&graph1, &graph2, minMatch, vertext_type);
 	 int n_match = match.GetNofMatches();
 	 std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
 		   << n_match << std::endl;
