@@ -875,7 +875,7 @@ int probe_available_p() {
 
 #if defined(USE_GUILE) && !defined(WINDOWS_MINGW)
 
-   std::string command("(command-in-path? *probe-command*)");
+   std::string command("(command-in-path-or-absolute? *probe-command*)");
 
    SCM scm_thunk = safe_scheme_command(command); 
 
