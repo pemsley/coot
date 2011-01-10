@@ -356,7 +356,7 @@
     (set-mol-active    imol-new 0)
     (let ((pdb-name "molprobity-tmp-reference-file.pdb"))
       (make-directory-maybe "coot-molprobity")
-      (write-pdb-file-for-molprobity imol-new pdb-name)
+      (write-pdb-file imol-new pdb-name)
       
       (get-probe-dots-from pdb-name pt radius)
       (close-molecule imol-new))))
