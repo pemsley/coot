@@ -6,9 +6,11 @@
 #include <algorithm>
 #include <string>
 
+#ifndef WINDOWS_MINGW
 #define ENABLE_NLS // fixes dcgettext() header problems on including
 		   // libintl.h (via RDKitBase.h etc (including boost
 		   // stuff).
+#endif
 
 #include <RDGeneral/Invariant.h>
 #include <GraphMol/RDKitBase.h>
