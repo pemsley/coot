@@ -524,6 +524,21 @@
 	(= have-command? 0)) ; return #t or #f
       #f))
 
+;; Return #t or #f
+;; 
+(define (command-in-path-or-absolute? cmd)
+
+  (let ((v (command-in-path? cmd)))
+    v
+    (if (not (string? cmd))
+	#f
+	(let ((l (string-length cmd)))
+	  (if (= l 0)
+	      #f
+	      (if (file-exists? cmd)
+		  #t
+		  #f))))))
+
       
 ;; Where cmd is e.g. "refmac" 
 ;;       args is (list "HKLIN" "thing.mtz")
