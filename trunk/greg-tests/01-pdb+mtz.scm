@@ -1258,15 +1258,17 @@
 					   (throw 'fail))
 					 #t))))))))))))))
 
+;; Restore this when the delete-residue-with-full-spec makes it to trunk.
+;; 
 
-(greg-testcase "Deleting (non-existing) Alt conf and Go To Atom [JED]" #t
-   (lambda ()
+; (greg-testcase "Deleting (non-existing) Alt conf and Go To Atom [JED]" #t
+;    (lambda ()
 
-     ;; alt conf "A" does not exist in this residue:
-     (delete-residue-with-altconf imol-rnase "A" 88 "" "A")
-     ;; to activate the bug, we need to search over all atoms
-     (active-residue) ; crash
-     #t))
+;      ;; alt conf "A" does not exist in this residue:
+;      (delete-residue-with-altconf imol-rnase "A" 88 "" "A")
+;      ;; to activate the bug, we need to search over all atoms
+;      (active-residue) ; crash
+;      #t))
 
 
 (greg-testcase "Mask and difference map" #t 
