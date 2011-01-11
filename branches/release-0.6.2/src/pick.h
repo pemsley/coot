@@ -18,6 +18,7 @@ coot::Cartesian unproject_xyz(int x, int y, float screen_z);
 class pick_info { 
  public:
   int success; 
+  int model_number;
   int atom_index;
   int imol;
   float min_dist;

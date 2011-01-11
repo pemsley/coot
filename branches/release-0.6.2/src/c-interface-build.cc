@@ -773,7 +773,10 @@ void delete_residue(int imol, const char *chain_id, int resno, const char *insco
 
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t g;
-      short int istat = g.molecules[imol].delete_residue(chain_id, resno, std::string(inscode));
+      int model_number_ANY = MinInt4;
+      short int istat =
+	 g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno,
+					  std::string(inscode));
       if (istat) { 
 	 // now if the go to atom widget was being displayed, we need to
 	 // redraw the residue list and atom list (if the molecule of the
@@ -834,16 +837,17 @@ void delete_residue_hydrogens(int imol,
 
 
 void
-delete_residue_with_altconf(int imol,
-				 const char *chain_id,
-				 int resno,
-				 const char *inscode,
-				 const char *altloc) {
+delete_residue_with_full_spec(int imol,
+			      int imodel,
+			      const char *chain_id,
+			      int resno,
+			      const char *inscode,
+			      const char *altloc) {
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       std::string altconf(altloc);
       short int istat =
-	 g.molecules[imol].delete_residue_with_altconf(chain_id, resno, inscode, altconf);
+	 g.molecules[imol].delete_residue_with_full_spec(imodel, chain_id, resno, inscode, altconf);
    
       if (istat) { 
 	 // now if the go to atom widget was being displayed, we need to
@@ -860,8 +864,9 @@ delete_residue_with_altconf(int imol,
       }
    }
    std::vector<std::string> command_strings;
-   command_strings.push_back("delete-residue-with-altconf");
+   command_strings.push_back("delete-residue-with-full_spec");
    command_strings.push_back(g.int_to_string(imol));
+   command_strings.push_back(g.int_to_string(imodel));
    command_strings.push_back(single_quote(chain_id));
    command_strings.push_back(g.int_to_string(resno));
    command_strings.push_back(single_quote(inscode));
@@ -1699,6 +1704,7 @@ void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog) 
 void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialog_by_ctrl) {
 
    graphics_info_t g;
+   int imodel            = g.molecules[imol].atom_sel.atom_selection[index]->GetModelNum();
    std::string chain_id  = g.molecules[imol].atom_sel.atom_selection[index]->GetChainID();
    int resno             = g.molecules[imol].atom_sel.atom_selection[index]->GetSeqNum();
    std::string altloc    = g.molecules[imol].atom_sel.atom_selection[index]->altLoc;
@@ -1716,10 +1722,11 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
       g.delete_residue_from_geometry_graphs(imol, spec);
    }
 
-   if (altloc == "") 
+   if ((altloc == "") && (imodel == 1))
       delete_residue(imol, chain_id.c_str(), resno, inscode.c_str());
    else
-      delete_residue_with_altconf(imol, chain_id.c_str(), resno, inscode.c_str(), altloc.c_str());
+      delete_residue_with_full_spec(imol, imodel, chain_id.c_str(), resno,
+				    inscode.c_str(), altloc.c_str());
 
    short int do_delete_dialog = do_delete_dialog_by_ctrl;
    delete_object_handle_delete_dialog(do_delete_dialog);
