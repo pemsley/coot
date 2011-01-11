@@ -167,6 +167,7 @@ namespace coot {
 
    class residue_spec_t {
    public:
+      int model_number;
       std::string chain;
       int resno;
       std::string insertion_code;
@@ -176,28 +177,33 @@ namespace coot {
 	 insertion_code = "";
       }
       residue_spec_t(const std::string &chain_in, int r) {
+	 model_number = MinInt4;
 	 resno = r;
 	 chain = chain_in;
 	 insertion_code = "";
       }
       residue_spec_t(const std::string &chain_in, int r,
 		     const std::string &ins_code_in) {
+	 model_number = MinInt4;
 	 resno = r;
 	 chain = chain_in;
 	 insertion_code = ins_code_in;
       }
       residue_spec_t(CResidue *res) {
 	 chain = res->GetChainID();
+	 model_number = res->GetModelNum();
 	 resno = res->GetSeqNum();
 	 insertion_code = res->GetInsCode();
       } 
       residue_spec_t(const atom_spec_t &atom_spec) { 
+	 model_number = MinInt4;
          chain = atom_spec.chain;
          resno = atom_spec.resno;
          insertion_code = atom_spec.insertion_code;
       }
       // This one for coot_wrap_guile
       residue_spec_t() {
+	 model_number = MinInt4;
 	 resno = MinInt4;
 	 chain = "";
 	 insertion_code = "";

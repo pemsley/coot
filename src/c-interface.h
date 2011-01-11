@@ -4496,7 +4496,7 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int e
 /*! \brief delete residue  */
 void delete_residue(int imol, const char *chain_id, int resno, const char *inscode); 
 /*! \brief delete residue with altconf  */
-void delete_residue_with_altconf(int imol, const char *chain_id, int resno, const char *inscode, const char *altloc); 
+void delete_residue_with_full_spec(int imol, int imodel, const char *chain_id, int resno, const char *inscode, const char *altloc); 
 /*! \brief delete hydrogen atoms in residue  */
 void delete_residue_hydrogens(int imol, const char *chain_id, int resno, const char *inscode, const char *altloc); 
 /*! \brief delete atom in residue */

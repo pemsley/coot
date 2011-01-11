@@ -797,8 +797,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       std::string atom_name(at->name);
 	       std::string ele = at->element;
 	       if (ele == " H") {
-		  delete_residue_with_altconf(naii.imol, chain_id.c_str(), resno,
-					      inscode.c_str(), altloc.c_str());
+		  delete_residue_with_full_spec(naii.imol, naii.model_number, chain_id.c_str(),
+						resno, inscode.c_str(), altloc.c_str());
 	       } else { 
 		  molecules[naii.imol].delete_residue_hydrogens(chain_id, resno, inscode, altloc);
 		  delete_atom(naii.imol, chain_id.c_str(), resno, inscode.c_str(),
