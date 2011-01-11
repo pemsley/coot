@@ -1262,7 +1262,7 @@
    (lambda ()
 
      ;; alt conf "A" does not exist in this residue:
-     (delete-residue-with-altconf imol-rnase "A" 88 "" "A")
+     (delete-residue-with-full-spec imol-rnase 1 "A" 88 "" "A")
      ;; to activate the bug, we need to search over all atoms
      (active-residue) ; crash
      #t))
