@@ -182,8 +182,8 @@ int setup_database();
 int
 main (int argc, char *argv[]) {
    
-  GtkWidget *window1;
-  GtkWidget *glarea;
+  GtkWidget *window1 = NULL;
+  GtkWidget *glarea = NULL;
 
   graphics_info_t graphics_info;
   
@@ -898,7 +898,8 @@ start_ligand_builder_gui(GtkMenuItem     *menuitem,
 #ifdef MAKE_ENTERPRISE_TOOLS
    lig_build::molfile_molecule_t mm;
    CMMDBManager *mol = NULL;
-   std::string molecule_file_name;
+   std::string molecule_file_name = "coot.mol"; // non-null file name passed to lbg, used
+						// in save function
    std::string view_name;
    std::pair<bool, coot::residue_spec_t> dummy_pair(0, coot::residue_spec_t());
    bool use_graphics_interface_flag = 1;

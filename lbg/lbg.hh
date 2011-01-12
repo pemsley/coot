@@ -687,6 +687,7 @@ private:
       stand_alone_flag = 0;
       ligand_spec_pair.first = 0; // unset ligand_spec
       use_graphics_interface_flag = 1; // default: show gui windows and widgets.
+      mdl_file_name = "coot.mol";
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -864,6 +865,7 @@ public:
    lbg_info_t(int imol_in) {
       init_internal();
       imol = imol_in;
+      std::cout << "in lbg_info_t(imol) mdl_file_name is now :" << mdl_file_name << ":" << std::endl;
    }
       
    // toggle button modes, mutually exclusive
@@ -970,7 +972,9 @@ public:
 
    void no_graphics_mode() {
       use_graphics_interface_flag = 0;
-   } 
+   }
+
+   void write_mdl_molfile_using_default_file_name() const;
    
 };
 

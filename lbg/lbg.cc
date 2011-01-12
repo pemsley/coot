@@ -97,6 +97,15 @@ GtkWidget *get_canvas_from_scrolled_win(GtkWidget *canvas) {
    return canvas;
 }
 
+
+void
+lbg_info_t::write_mdl_molfile_using_default_file_name() const {
+
+   std::cout << "DEBUG:: mdl_file_name " << mdl_file_name << std::endl;
+   mol.write_mdl_molfile(mdl_file_name);
+}
+
+
 void
 lbg_info_t::untoggle_others_except(GtkToggleToolButton *button_toggled_on) {
    

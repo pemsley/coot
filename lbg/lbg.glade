@@ -58,11 +58,12 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem3">
+                      <object class="GtkImageMenuItem" id="lbg_save_menuitem">
                         <property name="label">gtk-save</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_lbg_save_menuitem_activate"/>
                       </object>
                     </child>
                     <child>
@@ -676,6 +677,7 @@
                             </child>
                           </object>
                           <packing>
+                            <property name="padding">5</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
@@ -765,7 +767,9 @@
     <property name="pixbuf">pixmaps/TheStructorr_magnifying_glass-32.svg</property>
   </object>
   <object class="GtkFileChooserDialog" id="lbg_open_filechooserdialog">
+    <property name="can_focus">True</property>
     <property name="border_width">5</property>
+    <property name="modal">True</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
     <signal name="response" handler="on_lbg_open_filechooserdialog_response"/>
@@ -912,10 +916,14 @@
     </action-widgets>
   </object>
   <object class="GtkFileChooserDialog" id="lbg_save_as_filechooserdialog">
+    <property name="can_focus">True</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Save As MDL Molfile...</property>
+    <property name="modal">True</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
+    <property name="do_overwrite_confirmation">True</property>
+    <property name="action">save</property>
     <signal name="close" handler="on_lbg_save_as_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_save_as_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -945,7 +953,7 @@
             </child>
             <child>
               <object class="GtkButton" id="button5">
-                <property name="label">gtk-ok</property>
+                <property name="label">gtk-save</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -972,9 +980,13 @@
     </action-widgets>
   </object>
   <object class="GtkFileChooserDialog" id="lbg_export_as_pdf_filechooserdialog">
+    <property name="can_focus">True</property>
     <property name="border_width">5</property>
+    <property name="modal">True</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
+    <property name="do_overwrite_confirmation">True</property>
+    <property name="action">save</property>
     <signal name="close" handler="on_lbg_export_as_pdf_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_pdf_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -990,7 +1002,7 @@
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button6">
-                <property name="label">gtk-close</property>
+                <property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -1004,7 +1016,7 @@
             </child>
             <child>
               <object class="GtkButton" id="button7">
-                <property name="label">gtk-ok</property>
+                <property name="label">gtk-save</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -1035,9 +1047,13 @@
     <property name="stock">gtk-save-as</property>
   </object>
   <object class="GtkFileChooserDialog" id="lbg_export_as_png_filechooserdialog">
+    <property name="can_focus">True</property>
     <property name="border_width">5</property>
+    <property name="modal">True</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
+    <property name="do_overwrite_confirmation">True</property>
+    <property name="action">save</property>
     <signal name="close" handler="on_lbg_export_as_png_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_png_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -1053,7 +1069,7 @@
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button8">
-                <property name="label">gtk-close</property>
+                <property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -1067,7 +1083,7 @@
             </child>
             <child>
               <object class="GtkButton" id="button9">
-                <property name="label">gtk-ok</property>
+                <property name="label">gtk-save</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
