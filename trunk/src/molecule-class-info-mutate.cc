@@ -1177,7 +1177,9 @@ molecule_class_info_t::apply_sequence(int imol_map, CMMDBManager *poly_ala_mol,
 // 	 std::cout << "deleting :" << r_del[ird].chain << ": " << r_del[ird].resno
 // 		   << std::endl;
 
-	 delete_residue(r_del[ird].chain,
+	 int model_number_ANY = MinInt4;
+	 delete_residue(model_number_ANY,
+			r_del[ird].chain,
 			r_del[ird].resno,
 			r_del[ird].insertion_code);
       }

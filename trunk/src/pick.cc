@@ -63,6 +63,7 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
    p_i.min_dist = 0; // keep compiler happy
    p_i.atom_index = -1; // ditto
    p_i.imol = -1; // ditto
+   p_i.model_number = MinInt4; // unset
    p_i.success = GL_FALSE; 
    for (int i=0; i< SelAtom.n_selected_atoms; i++) {
 
@@ -97,7 +98,7 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
 		     if (pick_mode == PICK_ATOM_CA_OR_LIGAND) {
 			std::string res_name = SelAtom.atom_selection[i]->GetResName();
 			std::string atom_name(SelAtom.atom_selection[i]->name);
-			std::cout << "res_name: " << res_name << std::endl;
+			// std::cout << "res_name: " << res_name << std::endl;
 			if (coot::util::is_standard_residue_name(res_name))
 			   // no CAs in RNA/DNA and no Ps in protein.
 			   if ((atom_name != " CA ") && (atom_name != " P  "))
@@ -110,6 +111,7 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
 			nearest_atom_index = i;
 			p_i.success = GL_TRUE;
 			p_i.atom_index = nearest_atom_index;
+			p_i.model_number = SelAtom.atom_selection[i]->GetModelNum();
 			p_i.imol = imol;
 			p_i.min_dist = dist;
 		     
@@ -152,6 +154,7 @@ atom_pick(GdkEventButton *event) {
    p_i.min_dist = 0; // keep compiler happy
    p_i.atom_index = -1; // ditto
    p_i.imol = -1; // ditto
+   p_i.model_number = MinInt4; // unset
    p_i.success = GL_FALSE; 
 
 //     std::cout << "There are " << graphics_info_t::n_molecules << " molecules"

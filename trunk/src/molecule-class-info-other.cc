@@ -1127,47 +1127,71 @@ molecule_class_info_t::replace_fragment(atom_selection_container_t asc) {
 // Return the success status (0: failure to delete, 1 is deleted)
 //
 // regenerate the graphical bonds box if necessary.
+//
+// model number is either a specific model number of MinInt4, meaning:
+// any/all model(s).
 // 
 short int
-molecule_class_info_t::delete_residue(const std::string &chain_id, int resno, const std::string &ins_code) {
+molecule_class_info_t::delete_residue(int model_number,
+				      const std::string &chain_id, int resno,
+				      const std::string &ins_code) {
 
    short int was_deleted = 0;
    CChain *chain;
 
    // run over chains of the existing mol
-   int nchains = atom_sel.mol->GetNumberOfChains(1);
-   for (int ichain=0; ichain<nchains; ichain++) {
-	 
-      chain = atom_sel.mol->GetChain(1,ichain);
-      std::string mol_chain_id(chain->GetChainID());
-      
-      if (chain_id == mol_chain_id) {
+   int n_models = atom_sel.mol->GetNumberOfModels();
+   for (unsigned int imod=1; imod<=n_models; imod++) {
 
-	 int nres = chain->GetNumberOfResidues();
-	 for (int ires=0; ires<nres; ires++) { 
-	    PCResidue res = chain->GetResidue(ires);
-	    if (res) {
-	       if (res->GetSeqNum() == resno) {
+      std::cout << "debug:: delete_residue() comparing imod: "
+		<< imod << " and model_number "
+		<< model_number << std::endl;
+      
+      if ((imod == model_number) || (imod == MinInt4)) { 
+   
+	 int nchains = atom_sel.mol->GetNumberOfChains(imod);
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	 
+	    chain = atom_sel.mol->GetChain(imod,ichain);
+	    std::string mol_chain_id(chain->GetChainID());
+      
+	    if (chain_id == mol_chain_id) {
+
+	       std::cout << "debug:: matching chain_ids on  " << chain_id << std::endl;
+
+	       int nres = chain->GetNumberOfResidues();
+	       for (int ires=0; ires<nres; ires++) { 
+		  CResidue *res = chain->GetResidue(ires);
+		  if (res) {
+		     std::cout << "DEBUG:: comparing resno: " << res->GetSeqNum()
+			       << " with ref " << resno << std::endl;
+		     if (res->GetSeqNum() == resno) {
+
+			std::cout << "DEUBG:: ================== matching resno on " << resno
+				  << std::endl;
 		  
-		  // so we have a matching residue:
-		  int iseqno = res->GetSeqNum();
-		  pstr inscode = res->GetInsCode();
-                  std::string inscodestr(inscode);
-		  if (ins_code == inscodestr) { 
-		     make_backup();
-		     atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
-		     delete_ghost_selections();
-		     chain->DeleteResidue(iseqno, inscode);
-		     was_deleted = 1;
-		     res = NULL;
-		     break;
-                  }
+			// so we have a matching residue:
+			int iseqno = res->GetSeqNum();
+			pstr inscode = res->GetInsCode();
+			std::string inscodestr(inscode);
+			if (ins_code == inscodestr) {
+			   make_backup();
+			   atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+			   delete_ghost_selections();
+			   chain->DeleteResidue(iseqno, inscode);
+			   was_deleted = 1;
+			   std::cout << "DEUBG:: deleted.... " << std::endl;
+			   res = NULL;
+			   break;
+			}
+		     }
+		  }
 	       }
 	    }
+	    if (was_deleted)
+	       break;
 	 }
       }
-      if (was_deleted)
-	 break;
    }
    // potentially
    if (was_deleted) {
@@ -1301,10 +1325,11 @@ molecule_class_info_t::delete_residue_hydrogens(const std::string &chain_id, int
 // Return 1 if at least one atom was deleted, else 0.
 // 
 short int
-molecule_class_info_t::delete_residue_with_altconf(const std::string &chain_id,
-						   int resno,
-				                   const std::string &ins_code,
-						   const std::string &altconf) {
+molecule_class_info_t::delete_residue_with_full_spec(int imodel,
+						     const std::string &chain_id,
+						     int resno,
+						     const std::string &ins_code,
+						     const std::string &altconf) {
 
    short int was_deleted = 0;
    CChain *chain;
@@ -1314,61 +1339,71 @@ molecule_class_info_t::delete_residue_with_altconf(const std::string &chain_id,
 // 	     << atom_sel.n_selected_atoms << std::endl;
 
    // run over chains of the existing mol
-   int nchains = atom_sel.mol->GetNumberOfChains(1);
-   for (int ichain=0; ichain<nchains; ichain++) {
+
+   int n_models = atom_sel.mol->GetNumberOfModels();
+   
+   for (int imod=1; imod<=n_models; imod++) {
+
+      if ((imod == imodel) || (imodel == MinInt4)) { 
+	 int nchains = atom_sel.mol->GetNumberOfChains(imod);
+	 for (int ichain=0; ichain<nchains; ichain++) {
 	 
-      chain = atom_sel.mol->GetChain(1,ichain);
-      std::string mol_chain_id(chain->GetChainID());
+	    chain = atom_sel.mol->GetChain(imod,ichain);
+	    std::string mol_chain_id(chain->GetChainID());
       
-      if (chain_id == mol_chain_id) {
+	    if (chain_id == mol_chain_id) {
 
-	 int nres = chain->GetNumberOfResidues();
-	 for (int ires=0; ires<nres; ires++) { 
-	    PCResidue res = chain->GetResidue(ires);
-	    if (res) { 
-	       if (res->GetSeqNum() == resno) {
+	       int nres = chain->GetNumberOfResidues();
+	       for (int ires=0; ires<nres; ires++) { 
+		  PCResidue res = chain->GetResidue(ires);
+		  if (res) { 
+		     if (res->GetSeqNum() == resno) {
 
-                  pstr inscode_res = res->GetInsCode();
-                  std::string inscode_res_str(inscode_res);
+			pstr inscode_res = res->GetInsCode();
+			std::string inscode_res_str(inscode_res);
 
-		  if (inscode_res_str == ins_code) { 
+			if (inscode_res_str == ins_code) { 
 		  
-		     // so we have a matching residue:
-		     residue_for_deletion = res;
+			   // so we have a matching residue:
+			   residue_for_deletion = res;
 
-		     // delete the specific atoms of the residue:
-		     PPCAtom atoms;
-		     int n_atoms;
-		     bool have_deletable_atom = 0;
-		     res->GetAtomTable(atoms, n_atoms);
-		     for (int i=0; i<n_atoms; i++) {
-		        if (std::string(atoms[i]->altLoc) == altconf) {
-			   have_deletable_atom = 1;
-			}
-		     }
+			   // delete the specific atoms of the residue:
+			   PPCAtom atoms;
+			   int n_atoms;
+			   bool have_deletable_atom = 0;
+			   res->GetAtomTable(atoms, n_atoms);
+			   for (int i=0; i<n_atoms; i++) {
+			      if (std::string(atoms[i]->altLoc) == altconf) {
+				 have_deletable_atom = 1;
+			      }
+			   }
 
-		     if (have_deletable_atom) { 
-			make_backup();
-			atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
-			delete_ghost_selections();
+			   if (have_deletable_atom) { 
+			      make_backup();
+			      atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+			      delete_ghost_selections();
 			
-			for (int i=0; i<n_atoms; i++) {
-			   if (std::string(atoms[i]->altLoc) == altconf) {
-			      std::pair<std::string, float> p(atoms[i]->name,
-							      atoms[i]->occupancy);
-			      deleted_atom.push_back(p);
-			      res->DeleteAtom(i);
-			      was_deleted = 1;
+			      for (int i=0; i<n_atoms; i++) {
+				 if (std::string(atoms[i]->altLoc) == altconf) {
+				    std::pair<std::string, float> p(atoms[i]->name,
+								    atoms[i]->occupancy);
+				    deleted_atom.push_back(p);
+				    res->DeleteAtom(i);
+				    was_deleted = 1;
+				 }
+			      }
 			   }
 			}
+			break;
 		     }
-                  }
-		  break;
+		  }
 	       }
 	    }
 	 }
       }
-      if (was_deleted)
+      // jump out (only) if something was deleted and we are not
+      // deleting from all chains.
+      if (was_deleted && (imodel != MinInt4))
 	 break;
    }
    // potentially (usually, I imagine)
@@ -1531,9 +1566,25 @@ molecule_class_info_t::delete_zone(const coot::residue_spec_t &res1,
    // 
    int tmp_backup_this_molecule = backup_this_molecule;
    backup_this_molecule = 0;
+
+   std::cout << "DEBUG:: in delete_zone() we have model numbers "
+	     << res1.model_number << " and "
+	     << res2.model_number << std::endl;
+
+   // delete any/all residues in range, unless the both models in the
+   // residue specs were set to something interesting (a specific
+   // model number) and are the same as each other.
+   // 
+   int model_number_ANY = MinInt4;
+   if (res1.model_number != MinInt4) 
+      if (res2.model_number != MinInt4)
+	 if (res1.model_number == res2.model_number)
+	    model_number_ANY = res1.model_number;
+
+   
    for (int i=first_res; i<=last_res; i++)
       // delete_residue_with_altconf(res1.chain, i, inscode, alt_conf);
-      delete_residue(res1.chain, i, inscode);
+      delete_residue(model_number_ANY, res1.chain, i, inscode);
    backup_this_molecule = tmp_backup_this_molecule; // restore state
 
    // bonds, have_unsaved_changes_flag etc dealt with by

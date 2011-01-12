@@ -1859,8 +1859,13 @@ public:        //                      public
    // delete residue, typically for waters
    //
    // return the success status (0: failure to delete, 1 is deleted)
+   //
+   // if you want to delete a/the residue without having to specify
+   // the model number (which is typically the case) pass MinInt4 as
+   // the model_number.
    // 
-   short int delete_residue(const std::string &chain_id, int resno, 
+   short int delete_residue(int model_number,
+			    const std::string &chain_id, int resno, 
                             const std::string &inscode);
    // Delete only the atoms of the residue that have the same altconf (as
    // the selected atom).  If the selected atom has altconf "", you
@@ -1868,10 +1873,11 @@ public:        //                      public
    // 
    // Return 1 if at least one atom was deleted, else 0.
    //
-   short int delete_residue_with_altconf(const std::string &chain_id,
-					 int resno, 
-					 const std::string &inscode,
-					 const std::string &altconf);
+   short int delete_residue_with_full_spec(int imodel,
+					   const std::string &chain_id,
+					   int resno, 
+					   const std::string &inscode,
+					   const std::string &altconf);
    short int delete_residue_sidechain(const std::string &chain_id,
 				      int resno,
 				      const std::string &inscode);
