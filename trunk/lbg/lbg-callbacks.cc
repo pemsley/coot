@@ -267,12 +267,26 @@ on_stereo_out_toggle_toolbutton_toggled (GtkToggleToolButton *togglebutton,
 }
 
 extern "C" G_MODULE_EXPORT void
+on_lbg_save_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+	 l->write_mdl_molfile_using_default_file_name();
+   }
+}
+
+
+// Print?  No, this is saving as PDF button clicked.
+// 
+extern "C" G_MODULE_EXPORT void
 on_print_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l) {
-     gtk_widget_show(l->lbg_export_as_pdf_dialog);
+      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->lbg_export_as_pdf_dialog), "coot.pdf");
+      gtk_widget_show(l->lbg_export_as_pdf_dialog);
    }
 }
 
@@ -282,6 +296,7 @@ on_export_as_png_menuitem_activate (GtkMenuItem *item, gpointer         user_dat
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l) {
+      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->lbg_export_as_png_dialog), "coot.png");
      gtk_widget_show(l->lbg_export_as_png_dialog);
    }
 }
@@ -341,9 +356,9 @@ on_lbg_open_filechooserdialog_response(GtkDialog       *dialog,
 	 mm.read(file_name);
 	 widgeted_molecule_t wmol = l->import(mm, file_name, mol);
 	 l->render_from_molecule(wmol);
-	 gtk_widget_hide(l->open_dialog);
       }
    }
+   gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
 extern "C" G_MODULE_EXPORT void
@@ -393,9 +408,9 @@ on_lbg_save_as_filechooserdialog_response(GtkDialog       *dialog,
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->save_as_dialog));
 	 l->mol.write_mdl_molfile(file_name);
-	 gtk_widget_hide(GTK_WIDGET(dialog));
       }
    }
+   gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
 
@@ -405,6 +420,7 @@ on_lbg_save_as_menuitem_activate (GtkMenuItem *item, gpointer         user_data)
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l) {
+      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->save_as_dialog), "coot.mol");
       gtk_widget_show(l->save_as_dialog);
    }
 }
@@ -441,9 +457,9 @@ on_lbg_export_as_pdf_filechooserdialog_response(GtkDialog       *dialog,
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->lbg_export_as_pdf_dialog));
 	 l->write_pdf(file_name);
-	 gtk_widget_hide(GTK_WIDGET(dialog));
       }
    }
+   gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
 extern "C" G_MODULE_EXPORT void
@@ -493,11 +509,11 @@ on_lbg_export_as_png_filechooserdialog_response(GtkDialog       *dialog,
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->lbg_export_as_png_dialog));
 	 l->write_png(file_name);
-	 gtk_widget_hide(GTK_WIDGET(dialog));
       }
    } else {
-      std::cout << "not an OK response" << std::endl;
+      // std::cout << "not an OK response" << std::endl;
    } 
+   gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
 extern "C" G_MODULE_EXPORT void

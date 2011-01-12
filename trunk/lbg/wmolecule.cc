@@ -1039,7 +1039,7 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
    
 
    if (! of) {
-      std::cout << "WARNING:: Cannot open file " << file_name << " to write molfile" << std::endl;
+      std::cout << "WARNING:: Cannot open file :" << file_name << ": to write molfile" << std::endl;
    } else {
 
       // 3 lines of header
