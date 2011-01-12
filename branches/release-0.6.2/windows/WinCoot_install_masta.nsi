@@ -602,7 +602,7 @@ SectionEnd
 ;  maybe here the other guile things?!
 ;SectionEnd
 
-Section /o "Windows feel" SEC02
+Section "Windows feel" SEC02
   SetOverwrite on
   SetOutPath "$INSTDIR\share\coot"
   File "C:\msys\home\bernhard\autobuild\extras\cootrc"
