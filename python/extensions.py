@@ -968,6 +968,19 @@ if (have_coot_python):
        lambda func: load_tutorial_data_func()
        )
 
+     
+     # ---------------------------------------------------------------------
+     #     u
+     # ---------------------------------------------------------------------
+     #
+
+     # maybe we should have one for 'normal' romtamers too... FIXME
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Use \"Backrub\" Rotamers",
+       lambda func: set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+       )
+
 
      # ---------------------------------------------------------------------
      #     Views/Representations

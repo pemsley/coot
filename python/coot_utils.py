@@ -2172,7 +2172,7 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                 imol_new = handle_read_draw_molecule_with_recentre(prodrg_xyzout, 0)
                 rn = residue_name(imol, chain_id, res_no, ins_code)
                 with_auto_accept([regularize_zone, imol_new, "", 1, 1, ""])
-                overlap_ligands(iml_new, imol, chain_id, res_no)
+                overlap_ligands(imol_new, imol, chain_id, res_no)
                 # match_ligand_torsions(imol_new, imol, chain_id, res_no) # broken?
                 set_residue_name(imol_new, "", 1, "", rn)
                 change_chain_id(imol_new, "", chain_id, 1, 1, 1)

@@ -1048,7 +1048,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         global imol_rnase
         # alt conf "A" does not exist in this residue:
-        delete_residue_with_altconf(imol_rnase, "A", 88, "", "A")
+        delete_residue_with_full_spec(imol_rnase, 1, "A", 88, "", "A")
         # to activate the bug, we need to search over all atoms
         active_residue()
         # test for what?? (no crash??)
