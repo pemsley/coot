@@ -1722,11 +1722,8 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
       g.delete_residue_from_geometry_graphs(imol, spec);
    }
 
-   if ((altloc == "") && (imodel == 1))
-      delete_residue(imol, chain_id.c_str(), resno, inscode.c_str());
-   else
-      delete_residue_with_full_spec(imol, imodel, chain_id.c_str(), resno,
-				    inscode.c_str(), altloc.c_str());
+   delete_residue_with_full_spec(imol, imodel, chain_id.c_str(), resno,
+				 inscode.c_str(), altloc.c_str());
 
    short int do_delete_dialog = do_delete_dialog_by_ctrl;
    delete_object_handle_delete_dialog(do_delete_dialog);

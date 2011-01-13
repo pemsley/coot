@@ -404,6 +404,23 @@
 		   #t)))
 
 
+(greg-testcase "Delete Residue" #t
+   (lambda ()
+
+     (let ((imol (read-pdb rnase-pdb)))
+       (if (not (valid-model-molecule? imol))
+	   #f
+	   (begin
+	     (delete-residue imol "A" 42 "")
+	     (let ((r (residue-info imol "A" 42 "")))
+	       
+	       (format #t "residue info (should be #f): ~s~%" r)
+	       (if (list? r)
+		   #f
+		   #t)))))))
+
+
+
 (greg-testcase "Label Atoms and Delete" #t 
    (lambda ()
 
