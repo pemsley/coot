@@ -1134,11 +1134,11 @@ molecule_class_info_t::delete_residue(int model_number,
    int n_models = atom_sel.mol->GetNumberOfModels();
    for (unsigned int imod=1; imod<=n_models; imod++) {
 
-      std::cout << "debug:: delete_residue() comparing imod: "
-		<< imod << " and model_number "
-		<< model_number << std::endl;
+//       std::cout << "DEBUG:: ====== delete_residue() comparing loop model index (imod): "
+// 		<< imod << " and model_number "
+// 		<< model_number << std::endl;
       
-      if ((imod == model_number) || (imod == MinInt4)) { 
+      if ((imod == model_number) || (model_number == MinInt4)) { 
    
 	 int nchains = atom_sel.mol->GetNumberOfChains(imod);
 	 for (int ichain=0; ichain<nchains; ichain++) {
@@ -1148,19 +1148,12 @@ molecule_class_info_t::delete_residue(int model_number,
       
 	    if (chain_id == mol_chain_id) {
 
-	       std::cout << "debug:: matching chain_ids on  " << chain_id << std::endl;
-
 	       int nres = chain->GetNumberOfResidues();
 	       for (int ires=0; ires<nres; ires++) { 
 		  CResidue *res = chain->GetResidue(ires);
 		  if (res) {
-		     std::cout << "DEBUG:: comparing resno: " << res->GetSeqNum()
-			       << " with ref " << resno << std::endl;
 		     if (res->GetSeqNum() == resno) {
 
-			std::cout << "DEUBG:: ================== matching resno on " << resno
-				  << std::endl;
-		  
 			// so we have a matching residue:
 			int iseqno = res->GetSeqNum();
 			pstr inscode = res->GetInsCode();
@@ -1171,7 +1164,6 @@ molecule_class_info_t::delete_residue(int model_number,
 			   delete_ghost_selections();
 			   chain->DeleteResidue(iseqno, inscode);
 			   was_deleted = 1;
-			   std::cout << "DEUBG:: deleted.... " << std::endl;
 			   res = NULL;
 			   break;
 			}
@@ -1557,10 +1549,6 @@ molecule_class_info_t::delete_zone(const coot::residue_spec_t &res1,
    // 
    int tmp_backup_this_molecule = backup_this_molecule;
    backup_this_molecule = 0;
-
-   std::cout << "DEBUG:: in delete_zone() we have model numbers "
-	     << res1.model_number << " and "
-	     << res2.model_number << std::endl;
 
    // delete any/all residues in range, unless the both models in the
    // residue specs were set to something interesting (a specific
