@@ -346,12 +346,24 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
     def test13_0(self):
 	"""Test Views"""
+
 	view_number = add_view([32.0488, 21.6531, 13.7343],
 			       [-0.12784, -0.491866, -0.702983, -0.497535],
 			       20.3661,
 			       "B11 View")
 	go_to_view_number(view_number, 1)
 	# test for something??
+
+
+    def test13_1(self):
+        """Delete Residue"""
+
+        imol = read_pdb(rnase_pdb())
+        self.failUnless(valid_model_molecule_qm(imol))
+        delete_residue(imol, "A", 42, "")
+        r = residue_info(imol, "A", 42, "")
+        print "residue info (should be False):", r
+        self.failIf(r)
 
 
     def test14_0(self):
