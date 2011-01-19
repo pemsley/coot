@@ -1147,7 +1147,7 @@ molecule_class_info_t::delete_residue(int model_number,
 		<< imod << " and model_number "
 		<< model_number << std::endl;
       
-      if ((imod == model_number) || (imod == MinInt4)) { 
+      if ((imod == model_number) || (model_number == MinInt4)) { 
    
 	 int nchains = atom_sel.mol->GetNumberOfChains(imod);
 	 for (int ichain=0; ichain<nchains; ichain++) {
