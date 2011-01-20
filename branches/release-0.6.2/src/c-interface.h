@@ -3423,7 +3423,11 @@ void toggle_environment_show_distances(GtkToggleButton *button);
 /*! \brief show environment distances.  If state is 0, distances are
   turned off, otherwise distances are turned on. */
 void set_show_environment_distances(int state);
+/*! \brief show bumps environment distances.  If state is 0, bump distances are
+  turned off, otherwise bump distances are turned on. */
 void set_show_environment_distances_bumps(int state);
+/*! \brief show H-bond environment distances.  If state is 0, bump distances are
+  turned off, otherwise H-bond distances are turned on. */
 void set_show_environment_distances_h_bonds(int state);
 /*! \brief show the state of display of the  environment distances  */
 int show_environment_distances_state();

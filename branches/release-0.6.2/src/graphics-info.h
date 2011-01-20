@@ -2528,6 +2528,7 @@ public:
    static int keep_delete_item_active_flag;
    // really, we should save pick data with atom or residue specs, so
    // let's start with delete zones' first click:
+   static int delete_item_residue_zone_1_imol;
    static coot::residue_spec_t delete_item_residue_zone_1;
    void delete_residue_range(int imol, const coot::residue_spec_t &res1,
 			     const coot::residue_spec_t &res2);
