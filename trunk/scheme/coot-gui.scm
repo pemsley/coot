@@ -712,7 +712,8 @@
 
 
 
-
+;; Typically option-menu-fill-function is fill-option-menu-with-coordinates-mol-options
+;; 
 (define (molecule-chooser-gui-generic chooser-label callback-function option-menu-fill-function)
 
   (let* ((window (gtk-window-new 'toplevel))

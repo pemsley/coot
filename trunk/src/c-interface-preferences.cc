@@ -1257,7 +1257,9 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 
 
 void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
-					     int show_clash_gui_flag) { 
+					     int show_clash_gui_flag) {
+
+   int dot_size_scale_factor = 1; // user param?
 
    std::vector<coot::atom_spec_t> clash_atoms;
    bool hybrid_36_enabled_probe_flag = 1; // new style
@@ -1397,12 +1399,24 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 
 			float length2 = pow((x1-x4),2) + pow((x2-x5),2) + pow((x3-x6),2);
 			if (length2 > 0.04) {
-			   n_lines++;
-			   to_generic_object_add_line(obj_no, current_colour.c_str(), 3,
-						      x1, x2, x3, x4, x5, x6);
+
+			   // hydrogen bond are not drawn as spikes,
+			   // they should be drawn as pillow surfaces.
+			   if (contact_type == "hb") {
+			      to_generic_object_add_point(obj_no, current_colour.c_str(),
+							  dot_size * dot_size_scale_factor,
+							  x1, x2, x3);
+			      to_generic_object_add_point(obj_no, current_colour.c_str(),
+							  dot_size * dot_size_scale_factor,
+							  x4, x5, x6);
+			   } else { 
+			      n_lines++;
+			      to_generic_object_add_line(obj_no, current_colour.c_str(), 3 * dot_size_scale_factor,
+							 x1, x2, x3, x4, x5, x6);
+			   }
 			} else {
 			   n_points++;
-			   to_generic_object_add_point(obj_no, current_colour.c_str(), dot_size,
+			   to_generic_object_add_point(obj_no, current_colour.c_str(), dot_size * dot_size_scale_factor,
 						       x1, x2, x3);
 			}
 

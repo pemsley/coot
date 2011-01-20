@@ -40,7 +40,7 @@ lidia_LDADD = \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
 
-EXTRA_DIST=lbg.glade $(appicon_DATA)
+EXTRA_DIST=lbg.glade $(appicon_DATA) lbg-callbacks.cc
 
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = lbg.glade lbg-callbacks.cc
