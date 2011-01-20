@@ -2949,6 +2949,8 @@ cd $coot_dir_name
 echo replacing syminfo.lib with windows version
 mv syminfo.lib syminfo.lib.orig
 cp windows/syminfo.lib syminfo.lib
+# get windows cootrc
+wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/cootrc
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"
