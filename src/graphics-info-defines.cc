@@ -946,10 +946,11 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       // This was the first click:
 	       molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
 
-	       // save a residue spec for the first residue
+	       // save a residue spec and the molecule number for the first residue
 	       CAtom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
 	       g.delete_item_residue_zone_1 = coot::residue_spec_t(at->residue);
-	       // now pick another atom
+	       g.delete_item_residue_zone_1_imol = naii.imol;
+	       // so set up to pick another atom
 	       g.delete_item_residue_zone = 2;
 	    } else {
 
@@ -960,12 +961,24 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       // delete functions.  This is because we use
 	       // coot::residue_spec_t which can't be introduced int
 	       // c-interface.h
-	       delete_residue_range(naii.imol, g.delete_item_residue_zone_1, res2);
-	       pick_pending_flag = 0;
-	       g.delete_item_residue_zone = 1; //reset for next time
-	       run_post_manipulation_hook(naii.imol, DELETED);
-
-	       // normal_cursor(); not necessarily, the dialog may not close
+	       if (naii.imol == g.delete_item_residue_zone_1_imol) {
+		  if (res2.model_number == g.delete_item_residue_zone_1.model_number) {
+		     delete_residue_range(naii.imol, g.delete_item_residue_zone_1, res2);
+		     pick_pending_flag = 0;
+		     g.delete_item_residue_zone = 1; //reset for next time
+		     run_post_manipulation_hook(naii.imol, DELETED);
+		  } else {
+		     pick_pending_flag = 0;
+		     normal_cursor();
+		     std::string s = "Picked atoms not in same model.";
+		     statusbar_text(s);
+		  } 
+	       } else {
+		  pick_pending_flag = 0;
+		  normal_cursor();
+		  std::string s = "Picked atoms not in same molecule.";
+		  statusbar_text(s);
+	       } 
 	    }
 	    graphics_draw();
 	 }

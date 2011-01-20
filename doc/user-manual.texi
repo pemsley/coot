@@ -1912,11 +1912,13 @@ into other applications:
 
 @node Environment Distances
 @section Environment Distances
-Environment distances are turned on using @command{Info ->
-  Environment Distances@dots{}}.  Contacts to other residues are shown
-and to symmetry-related atoms if symmetry is being displayed.  The
-contacts are coloured by atom type @footnote{contacts not involving a
-  carbon atom are yellow.}.
+Environment distances are turned on using @command{Info -> Environment
+Distances@dots{}}.  Contacts to other residues are shown and to
+symmetry-related atoms if symmetry is being displayed.  The contacts
+are coloured by atom type @footnote{contacts involving two hydrogens
+or at least one carbon atom are yellow, denoting 'bump'.  Hydrogen
+contacts display cut-off are based on the user-defined maximum
+distance, but shortened by 0.5@AA{} per hydrogen atom.}.
 
 @node Distances and Angles
 @section Distances and Angles

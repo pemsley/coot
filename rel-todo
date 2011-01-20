@@ -1,5 +1,8 @@
 
  0.6.2
+
+    o hydrogen torsions in Edit Chi Angles seem broken.  e.g. ligand
+    in 2gpu after prodrgification.
  
 ------
 

@@ -1473,11 +1473,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    PSContact contact = NULL;
    // initialize each colour in the Bond_lines_container
    //
-   if (bonds.size() == 0) { 
-      for (int i=0; i<10; i++) { 
-	 Bond_lines a(i);
-	 bonds.push_back(a);
-      }
+   if (bonds.size() == 0) {
+      bonds.resize(10);
+      for (int i=0; i<10; i++)
+	 bonds[i] = Bond_lines(i);
    }
    
 
@@ -1522,6 +1521,21 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	    std::string alt_conf_1 = residue_atoms[ contact[i].id1 ]->altLoc;
 	    std::string alt_conf_2 = SelAtom.atom_selection[ contact[i].id2 ]->altLoc;
 
+	    // 20110119 environment distances for Hydrogens.  We don't
+	    // want to see a big web of contacts between hydrogens and
+	    // other atoms (including hydrogens and other hydrogens),
+	    // so if the atom is a hydrogen, only "mark" it if below
+	    // bonding_dist_max (and adjust bonding_dist_max to be
+	    // smaller if this atom is a hydrogen).
+	    // 
+	    double bonding_dist_max = max_dist;
+	    double shorter_bit = 0.5;
+	    // 
+	    if (ele1 == "H" || ele1 == " H")
+	       bonding_dist_max -= shorter_bit;
+	    if (ele2 == "H" || ele2 == " H")
+	       bonding_dist_max -= shorter_bit;
+
 	    if (0) { // debug
 	       std::cout << " DEBUG:: add env dist "
 			 << residue_atoms[ contact[i].id1 ] << " to "
@@ -1529,21 +1543,26 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 			 << std::endl;
 	    }
 
+	    double dist = coot::distance(residue_atoms[contact[i].id1],
+					 SelAtom.atom_selection[contact[i].id2]);
+
 	    if ((alt_conf_1 == alt_conf_2) ||
 		(alt_conf_1 == "") || 
-		(alt_conf_2 == "")) { 
-	       if (draw_env_distances_to_hydrogens_flag ||
-		   ((ele1 != " H") && (ele2 != " H"))) { 
-		  if (ele1 == " C")
-		     addBond(0, atom_1, atom_2);
-		  else {
-		     if (ele2 == " C") { 
+		(alt_conf_2 == "")) {
+	       if (dist <= bonding_dist_max) { 
+		  if (draw_env_distances_to_hydrogens_flag ||
+		      ((ele1 != " H") && (ele2 != " H"))) { 
+		     if (ele1 == " C")
 			addBond(0, atom_1, atom_2);
-		     } else { 
-			if (ele1 == " H" && ele2 == " H") { 
+		     else {
+			if (ele2 == " C") { 
 			   addBond(0, atom_1, atom_2);
 			} else { 
-			   addBond(1, atom_1, atom_2);
+			   if (ele1 == " H" && ele2 == " H") { 
+			      addBond(0, atom_1, atom_2);
+			   } else { 
+			      addBond(1, atom_1, atom_2);
+			   }
 			}
 		     }
 		  }
