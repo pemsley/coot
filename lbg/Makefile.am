@@ -21,12 +21,12 @@ AM_CXXFLAGS = \
 bin_PROGRAMS = lidia
 
 libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc  \
-    lbg-search.cc some-coot-utils.cc residue-circles.cc rdkit-interface.cc \
+    lbg-search.cc  residue-circles.cc rdkit-interface.cc \
     flev-annotations.cc
 
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc
 
-include_HEADERS = lbg.hh wmolecule.hh rdkit-interface.hh flev-annotations.hh some-coot-utils.hh
+include_HEADERS = lbg.hh wmolecule.hh rdkit-interface.hh flev-annotations.hh 
 
 
 # res spec output operator means we include libcoot-coord-utils
