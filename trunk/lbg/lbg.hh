@@ -44,7 +44,8 @@
 #include "lig-build.hh"
 #include "lbg-molfile.hh"
 
-#include "some-coot-utils.hh"
+// #include "some-coot-utils.hh"
+#include "coot-utils.hh"
 
 #include "wmolecule.hh"
 
