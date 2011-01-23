@@ -4596,21 +4596,6 @@ lbg_info_t::ligand_grid::substitution_value(double r_squared, double bash_dist) 
 
 
 
-// Kill this on integration, bash_distance_t is shared and this output operator compiled twice.
-// 
-std::ostream&
-coot::operator<< (std::ostream& s, const coot::bash_distance_t &bd) {
-
-   if (bd.unlimited()) { 
-      s << "unlimited"; // C&L.
-   } else {
-      s << bd.dist;
-   } 
-   return s;
-} 
-
-
-
 void
 lbg_info_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
 
