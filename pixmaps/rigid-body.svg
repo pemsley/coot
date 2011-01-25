@@ -1,26 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="16px"
-   height="16px"
+   width="48"
+   height="48"
    id="svg2160"
    sodipodi:version="0.32"
-   inkscape:version="0.45.1"
-   sodipodi:docbase="/home/paule/Projects/coot/pixmaps"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="rigid-body.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/rigid-body.png"
    inkscape:export-xdpi="100"
-   inkscape:export-ydpi="100">
+   inkscape:export-ydpi="100"
+   version="1.1">
   <defs
-     id="defs2162" />
+     id="defs2162">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 8 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="16 : 8 : 1"
+       inkscape:persp3d-origin="8 : 5.3333333 : 1"
+       id="perspective3773" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -28,17 +37,26 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="15.696216"
-     inkscape:cx="8"
-     inkscape:cy="7.9648528"
+     inkscape:zoom="7.848108"
+     inkscape:cx="-4.1935608"
+     inkscape:cy="21.061079"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="822"
-     inkscape:window-height="588"
+     inkscape:window-width="1007"
+     inkscape:window-height="907"
      inkscape:window-x="59"
-     inkscape:window-y="30" />
+     inkscape:window-y="30"
+     inkscape:window-maximized="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3775"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
   <metadata
      id="metadata2165">
     <rdf:RDF>
@@ -53,34 +71,34 @@
   <g
      id="layer1"
      inkscape:label="Layer 1"
-     inkscape:groupmode="layer">
+     inkscape:groupmode="layer"
+     transform="translate(0,32)">
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#122f5d;stroke-width:1.27055871px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 6.9452279,14.95977 L 3.3417201,12.163482 L 5.854466,5.7703945 L 0.63527936,2.1929581"
+       style="fill:none;stroke:#122f5d;stroke-width:3.77893901px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 19.104104,13.545826 8.386428,5.2290112 15.859923,-13.785527 0.3368404,-24.42566"
        id="path2168" />
     <path
-       style="fill:#23cb59;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
-       d="M 11.415594,1.2406559 C 10.242296,0.39325495 9.4213645,1.4623608 9.4630569,2.6903465 C 9.5047494,3.9183323 11.211819,4.4102104 11.176918,6.0625 C 11.142017,7.7147896 10.404641,8.3084158 10.404641,8.3084158 C 10.404641,8.3084158 8.8638304,8.4784653 8.8482054,10.03125 C 8.8325804,11.538985 9.4862005,11.861634 9.4862005,11.861634 C 9.4862005,11.861634 10.200882,13.68914 11.080755,13.915594 C 11.960628,14.142048 12.812098,13.726361 13.005693,12.76745 C 13.199288,11.80854 11.671597,11.445003 11.855136,10.07995 C 12.038676,8.7148979 13.289356,8.2532797 13.289356,8.2532797 C 13.289356,8.2532797 14.478868,7.6245354 14.291399,5.8997525 C 14.104517,4.1803837 12.588892,2.0880569 11.415594,1.2406559 z "
+       style="fill:#23cb59;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       d="m 35,-29 c -4.471052,-2.94705 -7.599352,0.771035 -7.440476,5.041665 0.158876,4.27063 6.663957,5.98126 6.53096,11.727514 -0.132992,5.7462539 -2.942893,7.8107387 -2.942893,7.8107387 0,0 -5.871522,0.59139 -5.931064,5.9915903 -0.05954,5.2435287 2.431189,6.3656219 2.431189,6.3656219 0,0 2.723416,6.3556131 6.076323,7.1431641 3.352906,0.787551 6.597578,-0.658106 7.335305,-3.992961 0.737727,-3.3348508 -5.083801,-4.5991424 -4.384394,-9.3464584 0.699411,-4.7473129 5.465341,-6.3527066 5.465341,-6.3527066 0,0 4.532838,-2.1866168 3.818456,-8.184984 C 45.246601,-18.776355 39.471053,-26.052949 35,-29 z"
        id="path3143"
-       sodipodi:nodetypes="czzczczzzczz"
-       transform="matrix(1.2812277,0,0,1.1692934,-2.3362127,-0.7957219)" />
+       sodipodi:nodetypes="czzczczzzczz" />
     <g
        id="g3282"
-       transform="matrix(0.8727697,0,0,0.9622903,-0.8082528,-1.3258833)">
+       transform="matrix(2.5958213,0,0,2.8620765,-3.956562,-34.891517)">
       <path
          id="path2292"
-         d="M 5.5,3.8920792 L 10.508911,3.919802 L 10.508911,3.919802"
-         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+         d="m 5.5,3.8920792 5.008911,0.027723 0,0"
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
       <path
          sodipodi:nodetypes="cc"
          id="path2296"
          d="M 10.437129,3.8787128 C 10.187624,4.4070957 10.56565,3.7715696 9.5985147,5.0584159"
-         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1" />
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1" />
       <path
          sodipodi:nodetypes="cc"
          id="path3254"
          d="M 10.5,3.6797031 C 10.250495,3.1513202 10.628521,3.7868463 9.6613857,2.5"
-         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1" />
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
   </g>
 </svg>
