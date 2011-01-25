@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="16px"
-   height="16px"
+   width="48"
+   height="48"
    id="svg3803"
    sodipodi:version="0.32"
-   inkscape:version="0.45.1"
-   sodipodi:docbase="/home/bernhard/Projects/coot/pixmaps"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="side-chain-180.svg"
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/side-chain-180.png"
    inkscape:export-xdpi="100"
    inkscape:export-ydpi="100"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.1">
   <defs
      id="defs3805">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 8 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="16 : 8 : 1"
+       inkscape:persp3d-origin="8 : 5.3333333 : 1"
+       id="perspective4675" />
     <linearGradient
        id="linearGradient3238">
       <stop
@@ -70,9 +78,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="15.696216"
-     inkscape:cx="8"
-     inkscape:cy="7.6288015"
+     inkscape:zoom="2.7747252"
+     inkscape:cx="-67.325677"
+     inkscape:cy="-9.9285379"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
@@ -80,7 +88,8 @@
      inkscape:window-width="1138"
      inkscape:window-height="722"
      inkscape:window-x="229"
-     inkscape:window-y="76" />
+     inkscape:window-y="76"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata3808">
     <rdf:RDF>
@@ -95,17 +104,18 @@
   <g
      id="layer1"
      inkscape:label="Layer 1"
-     inkscape:groupmode="layer">
+     inkscape:groupmode="layer"
+     transform="translate(0,32)">
     <rect
-       style="opacity:1;fill:#ffffff;fill-opacity:0;fill-rule:evenodd;stroke:none;stroke-width:12;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:0;fill-rule:evenodd;stroke:none"
        id="rect3357"
-       width="15.927405"
-       height="15.872581"
-       x="0.072594643"
-       y="0" />
+       width="48.215885"
+       height="48.049915"
+       x="0.219761"
+       y="-32.435646" />
     <path
        sodipodi:type="arc"
-       style="opacity:1;fill:url(#linearGradient3244);fill-opacity:1.0;fill-rule:evenodd;stroke:url(#linearGradient3236);stroke-width:1.0063051;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:url(#linearGradient3244);fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient3236);stroke-width:1.0063051;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="path3811"
        sodipodi:cx="8.7170792"
        sodipodi:cy="8.093812"
@@ -115,17 +125,17 @@
        sodipodi:start="0"
        sodipodi:end="3.1551388"
        sodipodi:open="true"
-       transform="matrix(1.242168,0,0,1.448377,-2.738616,-4.325491)" />
+       transform="matrix(3.7603255,0,0,4.3845671,-8.290414,-45.529891)" />
     <text
        xml:space="preserve"
-       style="font-size:6px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Microsoft Sans Serif, Bitstream Vera Sans, Helvetica, Arial"
-       x="1.3466797"
-       y="5.5585938"
+       style="font-size:18.16336632px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:'Microsoft Sans Serif, Bitstream Vera Sans, Helvetica, Arial'"
+       x="4.0767069"
+       y="-15.608515"
        id="text3813"
        sodipodi:linespacing="100%"><tspan
          sodipodi:role="line"
          id="tspan3246"
-         x="1.3466797"
-         y="5.5585938">Side</tspan></text>
+         x="4.0767069"
+         y="-15.608515">Side</tspan></text>
   </g>
 </svg>

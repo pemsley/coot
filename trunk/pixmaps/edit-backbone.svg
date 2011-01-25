@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
@@ -13,39 +14,39 @@
    inkscape:export-xdpi="90"
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/flip-peptide.png"
    sodipodi:docname="edit-backbone.svg"
-   sodipodi:docbase="/home/bernhard/Projects/coot/pixmaps"
-   inkscape:version="0.45.1"
+   inkscape:version="0.47 r22583"
    sodipodi:version="0.32"
    id="svg2160"
-   height="16px"
-   width="16px"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   height="48"
+   width="48"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.1">
   <defs
      id="defs2162">
     <marker
        style="overflow:visible"
        id="TriangleOutS"
-       refX="0.0"
-       refY="0.0"
+       refX="0"
+       refY="0"
        orient="auto"
        inkscape:stockid="TriangleOutS">
       <path
-         transform="scale(0.2)"
-         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
-         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         transform="scale(0.2,0.2)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
          id="path3674" />
     </marker>
     <marker
        style="overflow:visible"
        id="TriangleOutL"
-       refX="0.0"
-       refY="0.0"
+       refX="0"
+       refY="0"
        orient="auto"
        inkscape:stockid="TriangleOutL">
       <path
-         transform="scale(0.8)"
-         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
-         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         transform="scale(0.8,0.8)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
          id="path3680" />
     </marker>
     <radialGradient
@@ -117,27 +118,27 @@
     <marker
        style="overflow:visible"
        id="marker2348"
-       refX="0.0"
-       refY="0.0"
+       refX="0"
+       refY="0"
        orient="auto"
        inkscape:stockid="TriangleOutL">
       <path
-         transform="scale(0.8)"
-         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
-         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         transform="scale(0.8,0.8)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
          id="path2350" />
     </marker>
     <marker
        style="overflow:visible"
        id="marker2344"
-       refX="0.0"
-       refY="0.0"
+       refX="0"
+       refY="0"
        orient="auto"
        inkscape:stockid="TriangleOutS">
       <path
-         transform="scale(0.2)"
-         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
-         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         transform="scale(0.2,0.2)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
          id="path2346" />
     </marker>
     <radialGradient
@@ -215,23 +216,24 @@
        sodipodi:type="inkscape:persp3d" />
   </defs>
   <sodipodi:namedview
-     inkscape:window-y="229"
-     inkscape:window-x="567"
-     inkscape:window-height="620"
-     inkscape:window-width="822"
+     inkscape:window-y="185"
+     inkscape:window-x="182"
+     inkscape:window-height="903"
+     inkscape:window-width="1029"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      showgrid="true"
      inkscape:current-layer="layer1"
-     inkscape:cy="8.4865639"
-     inkscape:cx="12.903241"
-     inkscape:zoom="15.696216"
+     inkscape:cy="1.4143099"
+     inkscape:cx="-10.160564"
+     inkscape:zoom="5.5494504"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1.0"
      bordercolor="#666666"
      pagecolor="#ffffff"
-     id="base" />
+     id="base"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata2165">
     <rdf:RDF>
@@ -246,40 +248,41 @@
   <g
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
-     id="layer1">
+     id="layer1"
+     transform="translate(0,32)">
     <g
-       style="fill:none;fill-opacity:1.0000000;stroke:#23ad4a;stroke-width:1.5000000;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
-       transform="matrix(0.998851,4.791961e-2,-4.791961e-2,0.998851,-14.91515,-10.24551)"
+       style="fill:none;stroke:#23ad4a;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1"
+       transform="matrix(2.8915934,0.13872342,-0.13872342,2.8915934,-42.082241,-58.141806)"
        id="g3025">
       <path
-         style="fill-rule:evenodd;stroke-linecap:butt;stroke-linejoin:miter"
-         d="M 16.099839,20.228949 L 21.809603,14.715747 L 27.789131,19.464952 L 31.427539,14.346199"
+         style="stroke-linecap:butt;stroke-linejoin:miter"
+         d="m 16.099839,20.228949 5.709764,-5.513202 5.979528,4.749205 3.638408,-5.118753"
          id="path3021"
          sodipodi:nodetypes="cccc" />
       <path
-         style="fill-rule:evenodd;stroke-linecap:butt;stroke-linejoin:miter"
-         d="M 21.874050,8.9909968 L 21.846299,14.306221"
+         style="stroke-linecap:butt;stroke-linejoin:miter"
+         d="M 21.87405,8.9909968 21.8463,14.306221"
          id="path3023"
          sodipodi:nodetypes="cc" />
     </g>
     <g
-       style="fill:none;fill-opacity:1;stroke:#233fad;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1"
-       transform="matrix(0.9991135,4.2096888e-2,-4.2096888e-2,0.9991135,-15.062337,-10.116631)"
+       style="fill:none;stroke:#233fad;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1"
+       transform="matrix(2.8923533,0.12186711,-0.12186711,2.8923533,-42.508336,-57.768711)"
        id="g2074">
       <path
-         style="fill-rule:evenodd;stroke-linecap:butt;stroke-linejoin:miter"
-         d="M 16.099839,20.228949 L 23.315284,18.669573 L 28.457846,20.20197 L 31.427539,14.346199"
+         style="stroke-linecap:butt;stroke-linejoin:miter"
+         d="m 16.099839,20.228949 7.215445,-1.559376 5.142562,1.532397 2.969693,-5.855771"
          id="path2076"
          sodipodi:nodetypes="cccc" />
       <path
-         style="fill-rule:evenodd;stroke-linecap:butt;stroke-linejoin:miter"
-         d="M 23.473601,15.172684 L 23.243447,18.710983"
+         style="stroke-linecap:butt;stroke-linejoin:miter"
+         d="m 23.473601,15.172684 -0.230154,3.538299"
          id="path2078"
          sodipodi:nodetypes="cc" />
     </g>
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#515151;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#TriangleOutS);stroke-opacity:1"
-       d="M 9.8810708,3.5 C 15.634633,6.4091671 12.262333,12.757575 10.082685,13.88078 C 7.9348395,14.987595 6.3235639,13.761074 6.3235639,13.761074"
+       style="fill:none;stroke:#515151;stroke-width:2.89491963px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutS)"
+       d="m 29.700826,-18.349658 c 16.6561,8.4218049 6.893563,26.7999358 0.583657,30.051524 -6.21784,3.204141 -10.882354,-0.346539 -10.882354,-0.346539"
        id="path3585"
        sodipodi:nodetypes="czc" />
   </g>
