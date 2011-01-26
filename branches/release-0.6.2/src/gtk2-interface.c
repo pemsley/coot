@@ -9,7 +9,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifndef _MSC_VER
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #endif
 #include <string.h>
 #include <stdio.h>
@@ -463,7 +465,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), get_monomer1);
   gtk_tooltips_set_tip (tooltips, get_monomer1, _("Give a 3-letter code and use libcheck to generate coordinates from REFMAC monomer library"), NULL);
 
-  image9249 = gtk_image_new_from_stock ("connect-to-ccp4.svg", GTK_ICON_SIZE_MENU);
+  image9249 = gtk_image_new_from_stock ("connect-to-ccp4.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9249);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_monomer1), image9249);
 
@@ -480,7 +482,7 @@ create_window1 (void)
   gtk_widget_show (smiles1);
   gtk_container_add (GTK_CONTAINER (file1_menu), smiles1);
 
-  image9251 = gtk_image_new_from_stock ("smiles.png", GTK_ICON_SIZE_MENU);
+  image9251 = gtk_image_new_from_stock ("smiles.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9251);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (smiles1), image9251);
 
@@ -489,7 +491,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_using_code1);
   gtk_tooltips_set_tip (tooltips, get_pdb_using_code1, _("Get PDB Coordinates file from server using accession code"), NULL);
 
-  image9252 = gtk_image_new_from_stock ("connect-to-oca.svg", GTK_ICON_SIZE_MENU);
+  image9252 = gtk_image_new_from_stock ("connect-to-oca.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9252);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_using_code1), image9252);
 
@@ -498,7 +500,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_and_map_using_eds1);
   gtk_tooltips_set_tip (tooltips, get_pdb_and_map_using_eds1, _("Use the Electron Density Server at Uppsala University to get coords and map... (Long live the EDS!)"), NULL);
 
-  image9253 = gtk_image_new_from_stock ("connect-to-usf.svg", GTK_ICON_SIZE_MENU);
+  image9253 = gtk_image_new_from_stock ("connect-to-usf.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9253);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_and_map_using_eds1), image9253);
 
@@ -519,7 +521,7 @@ create_window1 (void)
   gtk_widget_show (save_symmetry_coordinates1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_symmetry_coordinates1);
 
-  image9255 = gtk_image_new_from_stock ("coot-save-symm.png", GTK_ICON_SIZE_MENU);
+  image9255 = gtk_image_new_from_stock ("coot-save-symm.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9255);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_symmetry_coordinates1), image9255);
 
@@ -527,7 +529,7 @@ create_window1 (void)
   gtk_widget_show (save_state1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_state1);
 
-  image9256 = gtk_image_new_from_stock ("coot-save.png", GTK_ICON_SIZE_MENU);
+  image9256 = gtk_image_new_from_stock ("coot-save.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9256);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_state1), image9256);
 
@@ -596,7 +598,7 @@ create_window1 (void)
   gtk_widget_show (restraints1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), restraints1);
 
-  image9263 = gtk_image_new_from_stock ("radacina_handcuffs-small.svg", GTK_ICON_SIZE_MENU);
+  image9263 = gtk_image_new_from_stock ("radacina_handcuffs-small.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9263);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (restraints1), image9263);
 
@@ -636,21 +638,21 @@ create_window1 (void)
   gtk_widget_show (residue_info2);
   gtk_container_add (GTK_CONTAINER (edit1_menu), residue_info2);
 
-  image9266 = gtk_image_new_from_stock ("residue-info.png", GTK_ICON_SIZE_MENU);
+  image9266 = gtk_image_new_from_stock ("residue-info.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9266);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info2), image9266);
 
   font_size1 = gtk_image_menu_item_new_with_mnemonic (_("Font Size..."));
   gtk_container_add (GTK_CONTAINER (edit1_menu), font_size1);
 
-  image9267 = gtk_image_new_from_stock ("gtk-font.png", GTK_ICON_SIZE_MENU);
+  image9267 = gtk_image_new_from_stock ("gtk-font.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9267);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (font_size1), image9267);
 
   pink_pointer_size1 = gtk_image_menu_item_new_with_mnemonic (_("Pink Pointer Size..."));
   gtk_container_add (GTK_CONTAINER (edit1_menu), pink_pointer_size1);
 
-  image9268 = gtk_image_new_from_stock ("pink-pointer.png", GTK_ICON_SIZE_MENU);
+  image9268 = gtk_image_new_from_stock ("pink-pointer.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9268);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pink_pointer_size1), image9268);
 
@@ -706,7 +708,7 @@ create_window1 (void)
   gtk_widget_show (other_modelling_tools1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), other_modelling_tools1);
 
-  image9272 = gtk_image_new_from_stock ("gnome-run.png", GTK_ICON_SIZE_MENU);
+  image9272 = gtk_image_new_from_stock ("gnome-run.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9272);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (other_modelling_tools1), image9272);
 
@@ -724,7 +726,7 @@ create_window1 (void)
   gtk_widget_show (merge_molecules1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), merge_molecules1);
 
-  image9273 = gtk_image_new_from_stock ("merge-molecules.svg", GTK_ICON_SIZE_MENU);
+  image9273 = gtk_image_new_from_stock ("merge-molecules.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9273);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (merge_molecules1), image9273);
 
@@ -740,7 +742,7 @@ create_window1 (void)
   gtk_widget_show (renumber_residues1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), renumber_residues1);
 
-  image9274 = gtk_image_new_from_stock ("renumber-residues.svg", GTK_ICON_SIZE_MENU);
+  image9274 = gtk_image_new_from_stock ("renumber-residues.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9274);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (renumber_residues1), image9274);
 
@@ -748,7 +750,7 @@ create_window1 (void)
   gtk_widget_show (change_chain_ids2);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), change_chain_ids2);
 
-  image9275 = gtk_image_new_from_stock ("change-chain-id.svg", GTK_ICON_SIZE_MENU);
+  image9275 = gtk_image_new_from_stock ("change-chain-id.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9275);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (change_chain_ids2), image9275);
 
@@ -772,7 +774,7 @@ create_window1 (void)
   gtk_widget_show (ncs_maps1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), ncs_maps1);
 
-  image9276 = gtk_image_new_from_stock ("calculate-ghosts.svg", GTK_ICON_SIZE_MENU);
+  image9276 = gtk_image_new_from_stock ("calculate-ghosts.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9276);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_maps1), image9276);
 
@@ -780,7 +782,7 @@ create_window1 (void)
   gtk_widget_show (frames_sec1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), frames_sec1);
 
-  image9277 = gtk_image_new_from_stock ("appointment-new.png", GTK_ICON_SIZE_MENU);
+  image9277 = gtk_image_new_from_stock ("appointment-new.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9277);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (frames_sec1), image9277);
 
@@ -825,7 +827,7 @@ create_window1 (void)
                               GDK_F6, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
-  image9280 = gtk_image_new_from_stock ("go-to-atom.svg", GTK_ICON_SIZE_MENU);
+  image9280 = gtk_image_new_from_stock ("go-to-atom.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9280);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (go_to_atom1), image9280);
 
@@ -837,7 +839,7 @@ create_window1 (void)
                               GDK_F7, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
-  image9281 = gtk_image_new_from_stock ("display-manager.png", GTK_ICON_SIZE_MENU);
+  image9281 = gtk_image_new_from_stock ("display-manager.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9281);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (map_and_mol_control1), image9281);
 
@@ -864,7 +866,7 @@ create_window1 (void)
   gtk_widget_show (sequence_view1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), sequence_view1);
 
-  image9284 = gtk_image_new_from_stock ("sequence-view.png", GTK_ICON_SIZE_MENU);
+  image9284 = gtk_image_new_from_stock ("sequence-view.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9284);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (sequence_view1), image9284);
 
@@ -872,7 +874,7 @@ create_window1 (void)
   gtk_widget_show (anisotropic_atoms1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), anisotropic_atoms1);
 
-  image9285 = gtk_image_new_from_stock ("aniso-atom.png", GTK_ICON_SIZE_MENU);
+  image9285 = gtk_image_new_from_stock ("aniso-atom.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9285);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (anisotropic_atoms1), image9285);
 
@@ -880,7 +882,7 @@ create_window1 (void)
   gtk_widget_show (show_symmetry1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), show_symmetry1);
 
-  image9286 = gtk_image_new_from_stock ("cell+symm.png", GTK_ICON_SIZE_MENU);
+  image9286 = gtk_image_new_from_stock ("cell+symm.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9286);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (show_symmetry1), image9286);
 
@@ -893,7 +895,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (draw1_menu), ncs_ghost_control1);
   gtk_tooltips_set_tip (tooltips, ncs_ghost_control1, _("Non-crystallographic Ghost Controller"), NULL);
 
-  image9287 = gtk_image_new_from_stock ("ghosts.png", GTK_ICON_SIZE_MENU);
+  image9287 = gtk_image_new_from_stock ("ghosts.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9287);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_ghost_control1), image9287);
 
@@ -901,7 +903,7 @@ create_window1 (void)
   gtk_widget_show (spin_view_on_off1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), spin_view_on_off1);
 
-  image9288 = gtk_image_new_from_stock ("spin-view.png", GTK_ICON_SIZE_MENU);
+  image9288 = gtk_image_new_from_stock ("spin-view.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9288);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (spin_view_on_off1), image9288);
 
@@ -909,7 +911,7 @@ create_window1 (void)
   gtk_widget_show (screenshot1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), screenshot1);
 
-  image9289 = gtk_image_new_from_stock ("panel-screenshot.png", GTK_ICON_SIZE_MENU);
+  image9289 = gtk_image_new_from_stock ("panel-screenshot.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9289);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (screenshot1), image9289);
 
@@ -932,14 +934,14 @@ create_window1 (void)
   gtk_widget_show (generic_display_objects1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), generic_display_objects1);
 
-  image9290 = gtk_image_new_from_stock ("generic-display-objects.svg", GTK_ICON_SIZE_MENU);
+  image9290 = gtk_image_new_from_stock ("generic-display-objects.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9290);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (generic_display_objects1), image9290);
 
   antialiasing1 = gtk_image_menu_item_new_with_mnemonic (_("Antialiasing..."));
   gtk_container_add (GTK_CONTAINER (draw1_menu), antialiasing1);
 
-  image9291 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_MENU);
+  image9291 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9291);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (antialiasing1), image9291);
 
@@ -947,7 +949,7 @@ create_window1 (void)
   gtk_widget_show (stereo1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), stereo1);
 
-  image9292 = gtk_image_new_from_stock ("stereo-view.svg", GTK_ICON_SIZE_MENU);
+  image9292 = gtk_image_new_from_stock ("stereo-view.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9292);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (stereo1), image9292);
 
@@ -959,7 +961,7 @@ create_window1 (void)
   gtk_widget_show (crosshairs1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), crosshairs1);
 
-  image9293 = gtk_image_new_from_stock ("crosshairs.png", GTK_ICON_SIZE_MENU);
+  image9293 = gtk_image_new_from_stock ("crosshairs.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9293);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (crosshairs1), image9293);
 
@@ -995,7 +997,7 @@ create_window1 (void)
                               GDK_I, (GdkModifierType) GDK_CONTROL_MASK,
                               GTK_ACCEL_VISIBLE);
 
-  image9295 = gtk_image_new_from_stock ("residue-info.png", GTK_ICON_SIZE_MENU);
+  image9295 = gtk_image_new_from_stock ("residue-info.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9295);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info1), image9295);
 
@@ -1011,7 +1013,7 @@ create_window1 (void)
   gtk_widget_show (environment_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), environment_distances1);
 
-  image9297 = gtk_image_new_from_stock ("env-distances.png", GTK_ICON_SIZE_MENU);
+  image9297 = gtk_image_new_from_stock ("env-distances.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9297);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (environment_distances1), image9297);
 
@@ -1019,7 +1021,7 @@ create_window1 (void)
   gtk_widget_show (plane_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), plane_distances1);
 
-  image9298 = gtk_image_new_from_stock ("plane-distances.png", GTK_ICON_SIZE_MENU);
+  image9298 = gtk_image_new_from_stock ("plane-distances.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9298);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (plane_distances1), image9298);
 
@@ -1027,7 +1029,7 @@ create_window1 (void)
   gtk_widget_show (pointer_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), pointer_distances1);
 
-  image9299 = gtk_image_new_from_stock ("pointer-distances.png", GTK_ICON_SIZE_MENU);
+  image9299 = gtk_image_new_from_stock ("pointer-distances.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9299);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pointer_distances1), image9299);
 
@@ -1050,7 +1052,7 @@ create_window1 (void)
   gtk_widget_show (ramachandran_plot1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), ramachandran_plot1);
 
-  image9301 = gtk_image_new_from_stock ("ramachandran.png", GTK_ICON_SIZE_MENU);
+  image9301 = gtk_image_new_from_stock ("ramachandran.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9301);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_plot1), image9301);
 
@@ -1059,7 +1061,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), ramachandran_differences_plot1);
   gtk_tooltips_set_tip (tooltips, ramachandran_differences_plot1, _("Ramachandran Difference Plot"), NULL);
 
-  image9302 = gtk_image_new_from_stock ("kleywegt.svg", GTK_ICON_SIZE_MENU);
+  image9302 = gtk_image_new_from_stock ("kleywegt.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9302);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_differences_plot1), image9302);
 
@@ -1067,7 +1069,7 @@ create_window1 (void)
   gtk_widget_show (incorrect_chiral_volumes1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), incorrect_chiral_volumes1);
 
-  image9303 = gtk_image_new_from_stock ("chiral.png", GTK_ICON_SIZE_MENU);
+  image9303 = gtk_image_new_from_stock ("chiral.png", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9303);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (incorrect_chiral_volumes1), image9303);
 
@@ -1075,7 +1077,7 @@ create_window1 (void)
   gtk_widget_show (unmodelled_blobs1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), unmodelled_blobs1);
 
-  image9304 = gtk_image_new_from_stock ("unknown-blob.svg", GTK_ICON_SIZE_MENU);
+  image9304 = gtk_image_new_from_stock ("unknown-blob.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9304);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (unmodelled_blobs1), image9304);
 
@@ -1083,7 +1085,7 @@ create_window1 (void)
   gtk_widget_show (difference_map_peaks1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), difference_map_peaks1);
 
-  image9305 = gtk_image_new_from_stock ("diff-map.svg", GTK_ICON_SIZE_MENU);
+  image9305 = gtk_image_new_from_stock ("diff-map.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9305);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (difference_map_peaks1), image9305);
 
@@ -1091,7 +1093,7 @@ create_window1 (void)
   gtk_widget_show (check_waters1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), check_waters1);
 
-  image9306 = gtk_image_new_from_stock ("water-drop.svg", GTK_ICON_SIZE_MENU);
+  image9306 = gtk_image_new_from_stock ("water-drop.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9306);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (check_waters1), image9306);
 
@@ -1100,7 +1102,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), geometry_analysis1);
   gtk_tooltips_set_tip (tooltips, geometry_analysis1, _("Flags distortions in Bond, Angles and Planes"), NULL);
 
-  image9307 = gtk_image_new_from_stock ("geom.svg", GTK_ICON_SIZE_MENU);
+  image9307 = gtk_image_new_from_stock ("geom.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9307);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (geometry_analysis1), image9307);
 
@@ -1109,7 +1111,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), peptide_omega_analysis1);
   gtk_tooltips_set_tip (tooltips, peptide_omega_analysis1, _("Flags deviations from Trans Peptide"), NULL);
 
-  image9308 = gtk_image_new_from_stock ("peptide-omega.svg", GTK_ICON_SIZE_MENU);
+  image9308 = gtk_image_new_from_stock ("peptide-omega.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9308);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (peptide_omega_analysis1), image9308);
 
@@ -1118,7 +1120,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), temp_fact_variance_analysis1);
   gtk_tooltips_set_tip (tooltips, temp_fact_variance_analysis1, _("Flags Residues with Large Variance in Atom B factors"), NULL);
 
-  image9309 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
+  image9309 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9309);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (temp_fact_variance_analysis1), image9309);
 
@@ -1127,7 +1129,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), gln_and_asn_b_factor_outliers1);
   gtk_tooltips_set_tip (tooltips, gln_and_asn_b_factor_outliers1, _("Nakagawa's Bees (probable flips):  identify OE1 and NE2 B-factor outliers in GLNs (similarly ASNs are analysed)"), NULL);
 
-  image9310 = gtk_image_new_from_stock ("gln-asn-b-factors.svg", GTK_ICON_SIZE_MENU);
+  image9310 = gtk_image_new_from_stock ("gln-asn-b-factors.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9310);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (gln_and_asn_b_factor_outliers1), image9310);
 
@@ -1136,7 +1138,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (validate1_menu), rotamer_analysis1);
   gtk_tooltips_set_tip (tooltips, rotamer_analysis1, _("Flags Unusual Rotamers, Missing Atoms and Nomenclature Errors"), NULL);
 
-  image9311 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_MENU);
+  image9311 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9311);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (rotamer_analysis1), image9311);
 
@@ -1144,7 +1146,7 @@ create_window1 (void)
   gtk_widget_show (density_fit_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), density_fit_analysis1);
 
-  image9312 = gtk_image_new_from_stock ("density-fit.svg", GTK_ICON_SIZE_MENU);
+  image9312 = gtk_image_new_from_stock ("density-fit.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9312);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (density_fit_analysis1), image9312);
 
@@ -1152,7 +1154,7 @@ create_window1 (void)
   gtk_widget_show (probe_clashes1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), probe_clashes1);
 
-  image9313 = gtk_image_new_from_stock ("probe-clash.svg", GTK_ICON_SIZE_MENU);
+  image9313 = gtk_image_new_from_stock ("probe-clash.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9313);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (probe_clashes1), image9313);
 
@@ -1180,7 +1182,7 @@ create_window1 (void)
   gtk_widget_show (scrollwheel1);
   gtk_container_add (GTK_CONTAINER (hid1_menu), scrollwheel1);
 
-  image9315 = gtk_image_new_from_stock ("scroll-wheel.svg", GTK_ICON_SIZE_MENU);
+  image9315 = gtk_image_new_from_stock ("scroll-wheel.svg", GTK_ICON_SIZE_MENU, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image9315);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (scrollwheel1), image9315);
 
@@ -1261,7 +1263,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (reset_view_toolbutton), tooltips, _("Usage Note: click again to centre on a different molecule"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (reset_view_toolbutton), TRUE);
 
-  tmp_image = gtk_image_new_from_stock ("display-manager.png", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("display-manager.png", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   display_manager_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _(" Display Manager"));
   gtk_widget_show (display_manager_toolbutton);
@@ -1269,7 +1271,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (display_manager_toolbutton), tooltips, _("Display the dialog for displaying and undisplaying molecules and changing their representation (F7)"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (display_manager_toolbutton), TRUE);
 
-  tmp_image = gtk_image_new_from_stock ("go-to-atom.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("go-to-atom.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   go_to_atom_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Go To Atom..."));
   gtk_widget_show (go_to_atom_toolbutton);
@@ -1618,7 +1620,7 @@ create_window1 (void)
 
   model_toolbar_refine_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_refine_togglebutton), _("Real Space Refine Zone"));
-  tmp_image = gtk_image_new_from_stock ("refine-1.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("refine-1.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_refine_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_refine_togglebutton);
@@ -1628,7 +1630,7 @@ create_window1 (void)
 
   model_toolbar_regularize_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_regularize_togglebutton), _("Regularize Zone"));
-  tmp_image = gtk_image_new_from_stock ("regularize-1.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("regularize-1.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_regularize_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_regularize_togglebutton);
@@ -1636,7 +1638,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), tooltips, _("Send in the Bond Angels!    Ahem, I mean \"Regularize Zone (click 2 atoms)\""), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), TRUE);
 
-  tmp_image = gtk_image_new_from_stock ("anchor.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("anchor.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_fixed_atoms_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Fixed Atoms..."));
   gtk_widget_show (model_toolbar_fixed_atoms_button);
@@ -1645,7 +1647,7 @@ create_window1 (void)
 
   model_toolbar_rigid_body_fit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), _("Rigid Body Fit Zone"));
-  tmp_image = gtk_image_new_from_stock ("rigid-body.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("rigid-body.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_rigid_body_fit_togglebutton);
@@ -1653,7 +1655,8 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), tooltips, _("Rigid Body Fit Zone (click on 2 atoms)"), NULL);
 
   #ifdef GTK_TYPE_MENU_TOOL_BUTTON
-  tmp_image = gtk_image_new_from_stock ("rtz.svg", tmp_toolbar_icon_size);
+  #ifdef GTK_TYPE_MENU_TOOL_BUTTON
+  tmp_image = gtk_image_new_from_stock ("rtz.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_rot_trans_toolbutton = (GtkWidget*) gtk_menu_tool_button_new (tmp_image, _("Rotate Translate"));
   gtk_widget_show (model_toolbar_rot_trans_toolbutton);
@@ -1662,10 +1665,12 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), tooltips, _("Rotate Translate Zone/Chain/Molecule"), NULL);
 #endif
 
+#endif
+
 
   model_toolbar_auto_fit_rotamer_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), _("Auto Fit Rotamer"));
-  tmp_image = gtk_image_new_from_stock ("auto-fit-rotamer.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("auto-fit-rotamer.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_auto_fit_rotamer_togglebutton);
@@ -1674,7 +1679,7 @@ create_window1 (void)
 
   model_toolbar_rotamers_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rotamers_togglebutton), _("Rotamers..."));
-  tmp_image = gtk_image_new_from_stock ("rotamers.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("rotamers.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rotamers_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_rotamers_togglebutton);
@@ -1683,7 +1688,7 @@ create_window1 (void)
 
   model_toolbar_edit_chi_angles_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_edit_chi_angles_togglebutton), _("Edit Chi Angles"));
-  tmp_image = gtk_image_new_from_stock ("edit-chi.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("edit-chi.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_edit_chi_angles_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_edit_chi_angles_togglebutton);
@@ -1692,7 +1697,7 @@ create_window1 (void)
 
   model_toolbar_torsion_general_toggletoolbutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_torsion_general_toggletoolbutton), _("Torsion General"));
-  tmp_image = gtk_image_new_from_stock ("torsion-general.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("torsion-general.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_torsion_general_toggletoolbutton), tmp_image);
   gtk_widget_show (model_toolbar_torsion_general_toggletoolbutton);
@@ -1701,7 +1706,7 @@ create_window1 (void)
 
   model_toolbar_flip_peptide_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_flip_peptide_togglebutton), _("Flip Peptide"));
-  tmp_image = gtk_image_new_from_stock ("flip-peptide.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("flip-peptide.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_flip_peptide_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_flip_peptide_togglebutton);
@@ -1710,7 +1715,7 @@ create_window1 (void)
 
   model_toolbar_sidechain_180_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), _(" Sidechain 180 Degree Flip"));
-  tmp_image = gtk_image_new_from_stock ("side-chain-180.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("side-chain-180.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_sidechain_180_togglebutton);
@@ -1719,7 +1724,7 @@ create_window1 (void)
 
   model_toolbar_edit_backbone_torsions_toggletoolbutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_edit_backbone_torsions_toggletoolbutton), _("Edit Backbone Torsions"));
-  tmp_image = gtk_image_new_from_stock ("edit-backbone.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("edit-backbone.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_edit_backbone_torsions_toggletoolbutton), tmp_image);
   gtk_widget_show (model_toolbar_edit_backbone_torsions_toggletoolbutton);
@@ -1744,7 +1749,7 @@ create_window1 (void)
 
   model_toolbar_mutate_and_autofit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), _("Mutate & Auto Fit..."));
-  tmp_image = gtk_image_new_from_stock ("mutate-auto-fit.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("mutate-auto-fit.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_mutate_and_autofit_togglebutton);
@@ -1753,14 +1758,14 @@ create_window1 (void)
 
   model_toolbar_simple_mutate_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_simple_mutate_togglebutton), _("Simple Mutate..."));
-  tmp_image = gtk_image_new_from_stock ("mutate.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("mutate.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_simple_mutate_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_simple_mutate_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_simple_mutate_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_simple_mutate_togglebutton), tooltips, _("Simple Mutate (mutates amino acid residues and nucleic acids) A simple modelling tool - no map fitting happens"), NULL);
 
-  tmp_image = gtk_image_new_from_stock ("add-water.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("add-water.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_find_water_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Find Waters..."));
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_find_water_button);
@@ -1769,14 +1774,14 @@ create_window1 (void)
 
   model_toolbar_add_terminal_residue_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_add_terminal_residue_togglebutton), _("Add Terminal Residue..."));
-  tmp_image = gtk_image_new_from_stock ("add-peptide-1.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("add-peptide-1.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_add_terminal_residue_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_add_terminal_residue_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_add_terminal_residue_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_terminal_residue_togglebutton), tooltips, _("Add Residue..."), NULL);
 
-  tmp_image = gtk_image_new_from_stock ("add-alt-conf.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("add-alt-conf.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_add_alt_conf_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Add Alt Conf..."));
   gtk_widget_show (model_toolbar_add_alt_conf_toolbutton);
@@ -1784,7 +1789,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_alt_conf_toolbutton), tooltips, _("Add Alternate (Alternative) Conformation to a Residue"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_add_alt_conf_toolbutton), TRUE);
 
-  tmp_image = gtk_image_new_from_stock ("atom-at-pointer.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("atom-at-pointer.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_add_atom_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Place Atom At Pointer"));
   gtk_widget_show (model_toolbar_add_atom_button);
@@ -1835,7 +1840,7 @@ create_window1 (void)
   gtk_widget_show (vseparator2);
   gtk_container_add (GTK_CONTAINER (model_toolbar_vsep_toolitem2), vseparator2);
 
-  tmp_image = gtk_image_new_from_stock ("azerbaijan.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("azerbaijan.svg", tmp_toolbar_icon_size, tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_refmac_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Run Refmac..."));
   gtk_widget_show (model_toolbar_refmac_button);
@@ -2294,14 +2299,18 @@ create_window1 (void)
                     G_CALLBACK (on_model_toolbar_rigid_body_fit_togglebutton_toggled),
                     NULL);
 #ifdef GTK_TYPE_MENU_TOOL_BUTTON
+#ifdef GTK_TYPE_MENU_TOOL_BUTTON
   g_signal_connect ((gpointer) model_toolbar_rot_trans_toolbutton, "show_menu",
                     G_CALLBACK (on_model_toolbar_rot_trans_toolbutton_show_menu),
                     NULL);
 #endif
+#endif
+#ifdef GTK_TYPE_MENU_TOOL_BUTTON
 #ifdef GTK_TYPE_MENU_TOOL_BUTTON
   g_signal_connect ((gpointer) model_toolbar_rot_trans_toolbutton, "clicked",
                     G_CALLBACK (on_model_toolbar_rot_trans_toolbutton_clicked),
                     NULL);
+#endif
 #endif
   g_signal_connect ((gpointer) model_toolbar_auto_fit_rotamer_togglebutton, "toggled",
                     G_CALLBACK (on_model_toolbar_auto_fit_rotamer_togglebutton_toggled),
@@ -2669,7 +2678,9 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_fixed_atoms_button, "model_toolbar_fixed_atoms_button");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rigid_body_fit_togglebutton, "model_toolbar_rigid_body_fit_togglebutton");
 #ifdef GTK_TYPE_MENU_TOOL_BUTTON
-    GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_toolbutton, "model_toolbar_rot_trans_toolbutton");
+#ifdef GTK_TYPE_MENU_TOOL_BUTTON
+      GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_toolbutton, "model_toolbar_rot_trans_toolbutton");
+#endif
 #endif
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_auto_fit_rotamer_togglebutton, "model_toolbar_auto_fit_rotamer_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rotamers_togglebutton, "model_toolbar_rotamers_togglebutton");
@@ -6805,7 +6816,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox154);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_refine_togglebutton), hbox154);
 
-  image3 = gtk_image_new_from_stock ("refine-1.svg", GTK_ICON_SIZE_BUTTON);
+  image3 = gtk_image_new_from_stock ("refine-1.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image3);
   gtk_box_pack_start (GTK_BOX (hbox154), image3, FALSE, FALSE, 0);
 
@@ -6824,7 +6835,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox155);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_regularize_zone_togglebutton), hbox155);
 
-  image4 = gtk_image_new_from_stock ("regularize-1.svg", GTK_ICON_SIZE_BUTTON);
+  image4 = gtk_image_new_from_stock ("regularize-1.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image4);
   gtk_box_pack_start (GTK_BOX (hbox155), image4, FALSE, FALSE, 0);
 
@@ -6842,7 +6853,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox378);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_fixed_atoms_button), hbox378);
 
-  image6805 = gtk_image_new_from_stock ("anchor.svg", GTK_ICON_SIZE_BUTTON);
+  image6805 = gtk_image_new_from_stock ("anchor.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6805);
   gtk_box_pack_start (GTK_BOX (hbox378), image6805, FALSE, FALSE, 0);
 
@@ -6860,7 +6871,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox216);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_rigid_body_togglebutton), hbox216);
 
-  image1826 = gtk_image_new_from_stock ("rigid-body.svg", GTK_ICON_SIZE_BUTTON);
+  image1826 = gtk_image_new_from_stock ("rigid-body.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image1826);
   gtk_box_pack_start (GTK_BOX (hbox216), image1826, FALSE, FALSE, 0);
 
@@ -6882,7 +6893,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox385);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton), hbox385);
 
-  image6808 = gtk_image_new_from_stock ("rtz.svg", GTK_ICON_SIZE_BUTTON);
+  image6808 = gtk_image_new_from_stock ("rtz.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6808);
   gtk_box_pack_start (GTK_BOX (hbox385), image6808, FALSE, FALSE, 0);
 
@@ -6930,7 +6941,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox156);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton1), hbox156);
 
-  image5 = gtk_image_new_from_stock ("rtz.svg", GTK_ICON_SIZE_BUTTON);
+  image5 = gtk_image_new_from_stock ("rtz.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image5);
   gtk_box_pack_start (GTK_BOX (hbox156), image5, FALSE, FALSE, 0);
 
@@ -6948,7 +6959,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox157);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_auto_fit_rotamer_togglebutton), hbox157);
 
-  image6 = gtk_image_new_from_stock ("auto-fit-rotamer.svg", GTK_ICON_SIZE_BUTTON);
+  image6 = gtk_image_new_from_stock ("auto-fit-rotamer.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6);
   gtk_box_pack_start (GTK_BOX (hbox157), image6, FALSE, FALSE, 0);
 
@@ -6966,7 +6977,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox217);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_rotamer_togglebutton), hbox217);
 
-  image1827 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_BUTTON);
+  image1827 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image1827);
   gtk_box_pack_start (GTK_BOX (hbox217), image1827, FALSE, FALSE, 0);
 
@@ -6984,7 +6995,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox158);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_edit_chi_angles_togglebutton), hbox158);
 
-  image7 = gtk_image_new_from_stock ("edit-chi.svg", GTK_ICON_SIZE_BUTTON);
+  image7 = gtk_image_new_from_stock ("edit-chi.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image7);
   gtk_box_pack_start (GTK_BOX (hbox158), image7, FALSE, FALSE, 0);
 
@@ -7003,7 +7014,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox271);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_torsion_general_togglebutton), hbox271);
 
-  image6022 = gtk_image_new_from_stock ("torsion-general.svg", GTK_ICON_SIZE_BUTTON);
+  image6022 = gtk_image_new_from_stock ("torsion-general.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6022);
   gtk_box_pack_start (GTK_BOX (hbox271), image6022, FALSE, FALSE, 0);
 
@@ -7021,7 +7032,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox159);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_pepflip_togglebutton), hbox159);
 
-  image8 = gtk_image_new_from_stock ("flip-peptide.svg", GTK_ICON_SIZE_BUTTON);
+  image8 = gtk_image_new_from_stock ("flip-peptide.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image8);
   gtk_box_pack_start (GTK_BOX (hbox159), image8, FALSE, FALSE, 0);
 
@@ -7039,7 +7050,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox160);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_do_180_degree_sidechain_flip_togglebutton), hbox160);
 
-  image9 = gtk_image_new_from_stock ("side-chain-180.svg", GTK_ICON_SIZE_BUTTON);
+  image9 = gtk_image_new_from_stock ("side-chain-180.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image9);
   gtk_box_pack_start (GTK_BOX (hbox160), image9, FALSE, FALSE, 0);
 
@@ -7061,7 +7072,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox373);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_edit_backbone_torsions_togglebutton), hbox373);
 
-  image6800 = gtk_image_new_from_stock ("edit-backbone.svg", GTK_ICON_SIZE_BUTTON);
+  image6800 = gtk_image_new_from_stock ("edit-backbone.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6800);
   gtk_box_pack_start (GTK_BOX (hbox373), image6800, FALSE, FALSE, 0);
 
@@ -7083,7 +7094,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox374);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_mutate_auto_fit_togglebutton), hbox374);
 
-  image6801 = gtk_image_new_from_stock ("mutate-auto-fit.svg", GTK_ICON_SIZE_BUTTON);
+  image6801 = gtk_image_new_from_stock ("mutate-auto-fit.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6801);
   gtk_box_pack_start (GTK_BOX (hbox374), image6801, FALSE, FALSE, 0);
 
@@ -7101,7 +7112,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox375);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_mutate_togglebutton), hbox375);
 
-  image6802 = gtk_image_new_from_stock ("mutate.svg", GTK_ICON_SIZE_BUTTON);
+  image6802 = gtk_image_new_from_stock ("mutate.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6802);
   gtk_box_pack_start (GTK_BOX (hbox375), image6802, FALSE, FALSE, 0);
 
@@ -7119,7 +7130,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox161);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_fit_terminal_residue_togglebutton), hbox161);
 
-  image10 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_BUTTON);
+  image10 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image10);
   gtk_box_pack_start (GTK_BOX (hbox161), image10, FALSE, FALSE, 0);
 
@@ -7137,7 +7148,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox171);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_add_alt_conf_button), hbox171);
 
-  image926 = gtk_image_new_from_stock ("add-alt-conf.svg", GTK_ICON_SIZE_BUTTON);
+  image926 = gtk_image_new_from_stock ("add-alt-conf.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image926);
   gtk_box_pack_start (GTK_BOX (hbox171), image926, FALSE, FALSE, 0);
 
@@ -7155,7 +7166,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox162);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_pointer_atom_button), hbox162);
 
-  image11 = gtk_image_new_from_stock ("atom-at-pointer.svg", GTK_ICON_SIZE_BUTTON);
+  image11 = gtk_image_new_from_stock ("atom-at-pointer.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image11);
   gtk_box_pack_start (GTK_BOX (hbox162), image11, FALSE, FALSE, 0);
 
@@ -7250,7 +7261,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox377);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_refmac_button), hbox377);
 
-  image6804 = gtk_image_new_from_stock ("azerbaijan.svg", GTK_ICON_SIZE_BUTTON);
+  image6804 = gtk_image_new_from_stock ("azerbaijan.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6804);
   gtk_box_pack_start (GTK_BOX (hbox377), image6804, FALSE, FALSE, 0);
 
@@ -18170,7 +18181,7 @@ create_preferences (void)
 
   preferences_map_radiotoolbutton = (GtkWidget*) gtk_radio_tool_button_new (NULL);
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (preferences_map_radiotoolbutton), _("Maps"));
-  tmp_image = gtk_image_new_from_stock ("map.svg", GTK_ICON_SIZE_BUTTON);
+  tmp_image = gtk_image_new_from_stock ("map.svg", GTK_ICON_SIZE_BUTTON, GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (preferences_map_radiotoolbutton), tmp_image);
   gtk_widget_show (preferences_map_radiotoolbutton);
@@ -24017,6 +24028,7 @@ create_sft_dialog (void)
 }
 
 #if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
+#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
 GtkWidget*
 create_aboutdialog (void)
 {
@@ -24065,7 +24077,7 @@ create_aboutdialog (void)
   gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (aboutdialog), VERSION);
   gtk_about_dialog_set_name (GTK_ABOUT_DIALOG (aboutdialog), _("Coot"));
   gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), _("Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010 by The University of York\nCopyright 2007, 2008, 2009, 2010 by The University of Oxford\nCopyright 2001, 2007 by Paul Emsley"));
-  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _(g_strconcat("Miramar", coot_revision(), NULL)));
+  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _(g_strconcat(g_strconcat("Miramar", coot_revision(), NULL), coot_revision(), NULL)));
   gtk_about_dialog_set_license (GTK_ABOUT_DIALOG (aboutdialog), _("                    GNU GENERAL PUBLIC LICENSE\n                       Version 3, 29 June 2007\n\n Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>\n Everyone is permitted to copy and distribute verbatim copies\n of this license document, but changing it is not allowed.\n\n                            Preamble\n\n  The GNU General Public License is a free, copyleft license for\nsoftware and other kinds of works.\n\n  The licenses for most software and other practical works are designed\nto take away your freedom to share and change the works.  By contrast,\nthe GNU General Public License is intended to guarantee your freedom to\nshare and change all versions of a program--to make sure it remains free\nsoftware for all its users.  We, the Free Software Foundation, use the\nGNU General Public License for most of our software; it applies also to\nany other work released this way by its authors.  You can apply it to\nyour programs, too.\n\n  When we speak of free software, we are referring to freedom, not\nprice.  Our General Public Licenses are designed to make sure that you\nhave the freedom to distribute copies of free software (and charge for\nthem if you wish), that you receive source code or can get it if you\nwant it, that you can change the software or use pieces of it in new\nfree programs, and that you know you can do these things.\n\n  To protect your rights, we need to prevent others from denying you\nthese rights or asking you to surrender the rights.  Therefore, you have\ncertain responsibilities if you distribute copies of the software, or if\nyou modify it: responsibilities to respect the freedom of others.\n\n  For example, if you distribute copies of such a program, whether\ngratis or for a fee, you must pass on to the recipients the same\nfreedoms that you received.  You must make sure that they, too, receive\nor can get the source code.  And you must show them these terms so they\nknow their rights.\n\n  Developers that use the GNU GPL protect your rights with two steps:\n(1) assert copyright on the software, and (2) offer you this License\ngiving you legal permission to copy, distribute and/or modify it.\n\n  For the developers' and authors' protection, the GPL clearly explains\nthat there is no warranty for this free software.  For both users' and\nauthors' sake, the GPL requires that modified versions be marked as\nchanged, so that their problems will not be attributed erroneously to\nauthors of previous versions.\n\n  Some devices are designed to deny users access to install or run\nmodified versions of the software inside them, although the manufacturer\ncan do so.  This is fundamentally incompatible with the aim of\nprotecting users' freedom to change the software.  The systematic\npattern of such abuse occurs in the area of products for individuals to\nuse, which is precisely where it is most unacceptable.  Therefore, we\nhave designed this version of the GPL to prohibit the practice for those\nproducts.  If such problems arise substantially in other domains, we\nstand ready to extend this provision to those domains in future versions\nof the GPL, as needed to protect the freedom of users.\n\n  Finally, every program is threatened constantly by software patents.\nStates should not allow patents to restrict development and use of\nsoftware on general-purpose computers, but in those that do, we wish to\navoid the special danger that patents applied to a free program could\nmake it effectively proprietary.  To prevent this, the GPL assures that\npatents cannot be used to render the program non-free.\n\n  The precise terms and conditions for copying, distribution and\nmodification follow.\n\n                       TERMS AND CONDITIONS\n\n  0. Definitions.\n\n  \"This License\" refers to version 3 of the GNU General Public License.\n\n  \"Copyright\" also means copyright-like laws that apply to other kinds of\nworks, such as semiconductor masks.\n\n  \"The Program\" refers to any copyrightable work licensed under this\nLicense.  Each licensee is addressed as \"you\".  \"Licensees\" and\n\"recipients\" may be individuals or organizations.\n\n  To \"modify\" a work means to copy from or adapt all or part of the work\nin a fashion requiring copyright permission, other than the making of an\nexact copy.  The resulting work is called a \"modified version\" of the\nearlier work or a work \"based on\" the earlier work.\n\n  A \"covered work\" means either the unmodified Program or a work based\non the Program.\n\n  To \"propagate\" a work means to do anything with it that, without\npermission, would make you directly or secondarily liable for\ninfringement under applicable copyright law, except executing it on a\ncomputer or modifying a private copy.  Propagation includes copying,\ndistribution (with or without modification), making available to the\npublic, and in some countries other activities as well.\n\n  To \"convey\" a work means any kind of propagation that enables other\nparties to make or receive copies.  Mere interaction with a user through\na computer network, with no transfer of a copy, is not conveying.\n\n  An interactive user interface displays \"Appropriate Legal Notices\"\nto the extent that it includes a convenient and prominently visible\nfeature that (1) displays an appropriate copyright notice, and (2)\ntells the user that there is no warranty for the work (except to the\nextent that warranties are provided), that licensees may convey the\nwork under this License, and how to view a copy of this License.  If\nthe interface presents a list of user commands or options, such as a\nmenu, a prominent item in the list meets this criterion.\n\n  1. Source Code.\n\n  The \"source code\" for a work means the preferred form of the work\nfor making modifications to it.  \"Object code\" means any non-source\nform of a work.\n\n  A \"Standard Interface\" means an interface that either is an official\nstandard defined by a recognized standards body, or, in the case of\ninterfaces specified for a particular programming language, one that\nis widely used among developers working in that language.\n\n  The \"System Libraries\" of an executable work include anything, other\nthan the work as a whole, that (a) is included in the normal form of\npackaging a Major Component, but which is not part of that Major\nComponent, and (b) serves only to enable use of the work with that\nMajor Component, or to implement a Standard Interface for which an\nimplementation is available to the public in source code form.  A\n\"Major Component\", in this context, means a major essential component\n(kernel, window system, and so on) of the specific operating system\n(if any) on which the executable work runs, or a compiler used to\nproduce the work, or an object code interpreter used to run it.\n\n  The \"Corresponding Source\" for a work in object code form means all\nthe source code needed to generate, install, and (for an executable\nwork) run the object code and to modify the work, including scripts to\ncontrol those activities.  However, it does not include the work's\nSystem Libraries, or general-purpose tools or generally available free\nprograms which are used unmodified in performing those activities but\nwhich are not part of the work.  For example, Corresponding Source\nincludes interface definition files associated with source files for\nthe work, and the source code for shared libraries and dynamically\nlinked subprograms that the work is specifically designed to require,\nsuch as by intimate data communication or control flow between those\nsubprograms and other parts of the work.\n\n  The Corresponding Source need not include anything that users\ncan regenerate automatically from other parts of the Corresponding\nSource.\n\n  The Corresponding Source for a work in source code form is that\nsame work.\n\n  2. Basic Permissions.\n\n  All rights granted under this License are granted for the term of\ncopyright on the Program, and are irrevocable provided the stated\nconditions are met.  This License explicitly affirms your unlimited\npermission to run the unmodified Program.  The output from running a\ncovered work is covered by this License only if the output, given its\ncontent, constitutes a covered work.  This License acknowledges your\nrights of fair use or other equivalent, as provided by copyright law.\n\n  You may make, run and propagate covered works that you do not\nconvey, without conditions so long as your license otherwise remains\nin force.  You may convey covered works to others for the sole purpose\nof having them make modifications exclusively for you, or provide you\nwith facilities for running those works, provided that you comply with\nthe terms of this License in conveying all material for which you do\nnot control copyright.  Those thus making or running the covered works\nfor you must do so exclusively on your behalf, under your direction\nand control, on terms that prohibit them from making any copies of\nyour copyrighted material outside their relationship with you.\n\n  Conveying under any other circumstances is permitted solely under\nthe conditions stated below.  Sublicensing is not allowed; section 10\nmakes it unnecessary.\n\n  3. Protecting Users' Legal Rights From Anti-Circumvention Law.\n\n  No covered work shall be deemed part of an effective technological\nmeasure under any applicable law fulfilling obligations under article\n11 of the WIPO copyright treaty adopted on 20 December 1996, or\nsimilar laws prohibiting or restricting circumvention of such\nmeasures.\n\n  When you convey a covered work, you waive any legal power to forbid\ncircumvention of technological measures to the extent such circumvention\nis effected by exercising rights under this License with respect to\nthe covered work, and you disclaim any intention to limit operation or\nmodification of the work as a means of enforcing, against the work's\nusers, your or third parties' legal rights to forbid circumvention of\ntechnological measures.\n\n  4. Conveying Verbatim Copies.\n\n  You may convey verbatim copies of the Program's source code as you\nreceive it, in any medium, provided that you conspicuously and\nappropriately publish on each copy an appropriate copyright notice;\nkeep intact all notices stating that this License and any\nnon-permissive terms added in accord with section 7 apply to the code;\nkeep intact all notices of the absence of any warranty; and give all\nrecipients a copy of this License along with the Program.\n\n  You may charge any price or no price for each copy that you convey,\nand you may offer support or warranty protection for a fee.\n\n  5. Conveying Modified Source Versions.\n\n  You may convey a work based on the Program, or the modifications to\nproduce it from the Program, in the form of source code under the\nterms of section 4, provided that you also meet all of these conditions:\n\n    a) The work must carry prominent notices stating that you modified\n    it, and giving a relevant date.\n\n    b) The work must carry prominent notices stating that it is\n    released under this License and any conditions added under section\n    7.  This requirement modifies the requirement in section 4 to\n    \"keep intact all notices\".\n\n    c) You must license the entire work, as a whole, under this\n    License to anyone who comes into possession of a copy.  This\n    License will therefore apply, along with any applicable section 7\n    additional terms, to the whole of the work, and all its parts,\n    regardless of how they are packaged.  This License gives no\n    permission to license the work in any other way, but it does not\n    invalidate such permission if you have separately received it.\n\n    d) If the work has interactive user interfaces, each must display\n    Appropriate Legal Notices; however, if the Program has interactive\n    interfaces that do not display Appropriate Legal Notices, your\n    work need not make them do so.\n\n  A compilation of a covered work with other separate and independent\nworks, which are not by their nature extensions of the covered work,\nand which are not combined with it such as to form a larger program,\nin or on a volume of a storage or distribution medium, is called an\n\"aggregate\" if the compilation and its resulting copyright are not\nused to limit the access or legal rights of the compilation's users\nbeyond what the individual works permit.  Inclusion of a covered work\nin an aggregate does not cause this License to apply to the other\nparts of the aggregate.\n\n  6. Conveying Non-Source Forms.\n\n  You may convey a covered work in object code form under the terms\nof sections 4 and 5, provided that you also convey the\nmachine-readable Corresponding Source under the terms of this License,\nin one of these ways:\n\n    a) Convey the object code in, or embodied in, a physical product\n    (including a physical distribution medium), accompanied by the\n    Corresponding Source fixed on a durable physical medium\n    customarily used for software interchange.\n\n    b) Convey the object code in, or embodied in, a physical product\n    (including a physical distribution medium), accompanied by a\n    written offer, valid for at least three years and valid for as\n    long as you offer spare parts or customer support for that product\n    model, to give anyone who possesses the object code either (1) a\n    copy of the Corresponding Source for all the software in the\n    product that is covered by this License, on a durable physical\n    medium customarily used for software interchange, for a price no\n    more than your reasonable cost of physically performing this\n    conveying of source, or (2) access to copy the\n    Corresponding Source from a network server at no charge.\n\n    c) Convey individual copies of the object code with a copy of the\n    written offer to provide the Corresponding Source.  This\n    alternative is allowed only occasionally and noncommercially, and\n    only if you received the object code with such an offer, in accord\n    with subsection 6b.\n\n    d) Convey the object code by offering access from a designated\n    place (gratis or for a charge), and offer equivalent access to the\n    Corresponding Source in the same way through the same place at no\n    further charge.  You need not require recipients to copy the\n    Corresponding Source along with the object code.  If the place to\n    copy the object code is a network server, the Corresponding Source\n    may be on a different server (operated by you or a third party)\n    that supports equivalent copying facilities, provided you maintain\n    clear directions next to the object code saying where to find the\n    Corresponding Source.  Regardless of what server hosts the\n    Corresponding Source, you remain obligated to ensure that it is\n    available for as long as needed to satisfy these requirements.\n\n    e) Convey the object code using peer-to-peer transmission, provided\n    you inform other peers where the object code and Corresponding\n    Source of the work are being offered to the general public at no\n    charge under subsection 6d.\n\n  A separable portion of the object code, whose source code is excluded\nfrom the Corresponding Source as a System Library, need not be\nincluded in conveying the object code work.\n\n  A \"User Product\" is either (1) a \"consumer product\", which means any\ntangible personal property which is normally used for personal, family,\nor household purposes, or (2) anything designed or sold for incorporation\ninto a dwelling.  In determining whether a product is a consumer product,\ndoubtful cases shall be resolved in favor of coverage.  For a particular\nproduct received by a particular user, \"normally used\" refers to a\ntypical or common use of that class of product, regardless of the status\nof the particular user or of the way in which the particular user\nactually uses, or expects or is expected to use, the product.  A product\nis a consumer product regardless of whether the product has substantial\ncommercial, industrial or non-consumer uses, unless such uses represent\nthe only significant mode of use of the product.\n\n  \"Installation Information\" for a User Product means any methods,\nprocedures, authorization keys, or other information required to install\nand execute modified versions of a covered work in that User Product from\na modified version of its Corresponding Source.  The information must\nsuffice to ensure that the continued functioning of the modified object\ncode is in no case prevented or interfered with solely because\nmodification has been made.\n\n  If you convey an object code work under this section in, or with, or\nspecifically for use in, a User Product, and the conveying occurs as\npart of a transaction in which the right of possession and use of the\nUser Product is transferred to the recipient in perpetuity or for a\nfixed term (regardless of how the transaction is characterized), the\nCorresponding Source conveyed under this section must be accompanied\nby the Installation Information.  But this requirement does not apply\nif neither you nor any third party retains the ability to install\nmodified object code on the User Product (for example, the work has\nbeen installed in ROM).\n\n  The requirement to provide Installation Information does not include a\nrequirement to continue to provide support service, warranty, or updates\nfor a work that has been modified or installed by the recipient, or for\nthe User Product in which it has been modified or installed.  Access to a\nnetwork may be denied when the modification itself materially and\nadversely affects the operation of the network or violates the rules and\nprotocols for communication across the network.\n\n  Corresponding Source conveyed, and Installation Information provided,\nin accord with this section must be in a format that is publicly\ndocumented (and with an implementation available to the public in\nsource code form), and must require no special password or key for\nunpacking, reading or copying.\n\n  7. Additional Terms.\n\n  \"Additional permissions\" are terms that supplement the terms of this\nLicense by making exceptions from one or more of its conditions.\nAdditional permissions that are applicable to the entire Program shall\nbe treated as though they were included in this License, to the extent\nthat they are valid under applicable law.  If additional permissions\napply only to part of the Program, that part may be used separately\nunder those permissions, but the entire Program remains governed by\nthis License without regard to the additional permissions.\n\n  When you convey a copy of a covered work, you may at your option\nremove any additional permissions from that copy, or from any part of\nit.  (Additional permissions may be written to require their own\nremoval in certain cases when you modify the work.)  You may place\nadditional permissions on material, added by you to a covered work,\nfor which you have or can give appropriate copyright permission.\n\n  Notwithstanding any other provision of this License, for material you\nadd to a covered work, you may (if authorized by the copyright holders of\nthat material) supplement the terms of this License with terms:\n\n    a) Disclaiming warranty or limiting liability differently from the\n    terms of sections 15 and 16 of this License; or\n\n    b) Requiring preservation of specified reasonable legal notices or\n    author attributions in that material or in the Appropriate Legal\n    Notices displayed by works containing it; or\n\n    c) Prohibiting misrepresentation of the origin of that material, or\n    requiring that modified versions of such material be marked in\n    reasonable ways as different from the original version; or\n\n    d) Limiting the use for publicity purposes of names of licensors or\n    authors of the material; or\n\n    e) Declining to grant rights under trademark law for use of some\n    trade names, trademarks, or service marks; or\n\n    f) Requiring indemnification of licensors and authors of that\n    material by anyone who conveys the material (or modified versions of\n    it) with contractual assumptions of liability to the recipient, for\n    any liability that these contractual assumptions directly impose on\n    those licensors and authors.\n\n  All other non-permissive additional terms are considered \"further\nrestrictions\" within the meaning of section 10.  If the Program as you\nreceived it, or any part of it, contains a notice stating that it is\ngoverned by this License along with a term that is a further\nrestriction, you may remove that term.  If a license document contains\na further restriction but permits relicensing or conveying under this\nLicense, you may add to a covered work material governed by the terms\nof that license document, provided that the further restriction does\nnot survive such relicensing or conveying.\n\n  If you add terms to a covered work in accord with this section, you\nmust place, in the relevant source files, a statement of the\nadditional terms that apply to those files, or a notice indicating\nwhere to find the applicable terms.\n\n  Additional terms, permissive or non-permissive, may be stated in the\nform of a separately written license, or stated as exceptions;\nthe above requirements apply either way.\n\n  8. Termination.\n\n  You may not propagate or modify a covered work except as expressly\nprovided under this License.  Any attempt otherwise to propagate or\nmodify it is void, and will automatically terminate your rights under\nthis License (including any patent licenses granted under the third\nparagraph of section 11).\n\n  However, if you cease all violation of this License, then your\nlicense from a particular copyright holder is reinstated (a)\nprovisionally, unless and until the copyright holder explicitly and\nfinally terminates your license, and (b) permanently, if the copyright\nholder fails to notify you of the violation by some reasonable means\nprior to 60 days after the cessation.\n\n  Moreover, your license from a particular copyright holder is\nreinstated permanently if the copyright holder notifies you of the\nviolation by some reasonable means, this is the first time you have\nreceived notice of violation of this License (for any work) from that\ncopyright holder, and you cure the violation prior to 30 days after\nyour receipt of the notice.\n\n  Termination of your rights under this section does not terminate the\nlicenses of parties who have received copies or rights from you under\nthis License.  If your rights have been terminated and not permanently\nreinstated, you do not qualify to receive new licenses for the same\nmaterial under section 10.\n\n  9. Acceptance Not Required for Having Copies.\n\n  You are not required to accept this License in order to receive or\nrun a copy of the Program.  Ancillary propagation of a covered work\noccurring solely as a consequence of using peer-to-peer transmission\nto receive a copy likewise does not require acceptance.  However,\nnothing other than this License grants you permission to propagate or\nmodify any covered work.  These actions infringe copyright if you do\nnot accept this License.  Therefore, by modifying or propagating a\ncovered work, you indicate your acceptance of this License to do so.\n\n  10. Automatic Licensing of Downstream Recipients.\n\n  Each time you convey a covered work, the recipient automatically\nreceives a license from the original licensors, to run, modify and\npropagate that work, subject to this License.  You are not responsible\nfor enforcing compliance by third parties with this License.\n\n  An \"entity transaction\" is a transaction transferring control of an\norganization, or substantially all assets of one, or subdividing an\norganization, or merging organizations.  If propagation of a covered\nwork results from an entity transaction, each party to that\ntransaction who receives a copy of the work also receives whatever\nlicenses to the work the party's predecessor in interest had or could\ngive under the previous paragraph, plus a right to possession of the\nCorresponding Source of the work from the predecessor in interest, if\nthe predecessor has it or can get it with reasonable efforts.\n\n  You may not impose any further restrictions on the exercise of the\nrights granted or affirmed under this License.  For example, you may\nnot impose a license fee, royalty, or other charge for exercise of\nrights granted under this License, and you may not initiate litigation\n(including a cross-claim or counterclaim in a lawsuit) alleging that\nany patent claim is infringed by making, using, selling, offering for\nsale, or importing the Program or any portion of it.\n\n  11. Patents.\n\n  A \"contributor\" is a copyright holder who authorizes use under this\nLicense of the Program or a work on which the Program is based.  The\nwork thus licensed is called the contributor's \"contributor version\".\n\n  A contributor's \"essential patent claims\" are all patent claims\nowned or controlled by the contributor, whether already acquired or\nhereafter acquired, that would be infringed by some manner, permitted\nby this License, of making, using, or selling its contributor version,\nbut do not include claims that would be infringed only as a\nconsequence of further modification of the contributor version.  For\npurposes of this definition, \"control\" includes the right to grant\npatent sublicenses in a manner consistent with the requirements of\nthis License.\n\n  Each contributor grants you a non-exclusive, worldwide, royalty-free\npatent license under the contributor's essential patent claims, to\nmake, use, sell, offer for sale, import and otherwise run, modify and\npropagate the contents of its contributor version.\n\n  In the following three paragraphs, a \"patent license\" is any express\nagreement or commitment, however denominated, not to enforce a patent\n(such as an express permission to practice a patent or covenant not to\nsue for patent infringement).  To \"grant\" such a patent license to a\nparty means to make such an agreement or commitment not to enforce a\npatent against the party.\n\n  If you convey a covered work, knowingly relying on a patent license,\nand the Corresponding Source of the work is not available for anyone\nto copy, free of charge and under the terms of this License, through a\npublicly available network server or other readily accessible means,\nthen you must either (1) cause the Corresponding Source to be so\navailable, or (2) arrange to deprive yourself of the benefit of the\npatent license for this particular work, or (3) arrange, in a manner\nconsistent with the requirements of this License, to extend the patent\nlicense to downstream recipients.  \"Knowingly relying\" means you have\nactual knowledge that, but for the patent license, your conveying the\ncovered work in a country, or your recipient's use of the covered work\nin a country, would infringe one or more identifiable patents in that\ncountry that you have reason to believe are valid.\n\n  If, pursuant to or in connection with a single transaction or\narrangement, you convey, or propagate by procuring conveyance of, a\ncovered work, and grant a patent license to some of the parties\nreceiving the covered work authorizing them to use, propagate, modify\nor convey a specific copy of the covered work, then the patent license\nyou grant is automatically extended to all recipients of the covered\nwork and works based on it.\n\n  A patent license is \"discriminatory\" if it does not include within\nthe scope of its coverage, prohibits the exercise of, or is\nconditioned on the non-exercise of one or more of the rights that are\nspecifically granted under this License.  You may not convey a covered\nwork if you are a party to an arrangement with a third party that is\nin the business of distributing software, under which you make payment\nto the third party based on the extent of your activity of conveying\nthe work, and under which the third party grants, to any of the\nparties who would receive the covered work from you, a discriminatory\npatent license (a) in connection with copies of the covered work\nconveyed by you (or copies made from those copies), or (b) primarily\nfor and in connection with specific products or compilations that\ncontain the covered work, unless you entered into that arrangement,\nor that patent license was granted, prior to 28 March 2007.\n\n  Nothing in this License shall be construed as excluding or limiting\nany implied license or other defenses to infringement that may\notherwise be available to you under applicable patent law.\n\n  12. No Surrender of Others' Freedom.\n\n  If conditions are imposed on you (whether by court order, agreement or\notherwise) that contradict the conditions of this License, they do not\nexcuse you from the conditions of this License.  If you cannot convey a\ncovered work so as to satisfy simultaneously your obligations under this\nLicense and any other pertinent obligations, then as a consequence you may\nnot convey it at all.  For example, if you agree to terms that obligate you\nto collect a royalty for further conveying from those to whom you convey\nthe Program, the only way you could satisfy both those terms and this\nLicense would be to refrain entirely from conveying the Program.\n\n  13. Use with the GNU Affero General Public License.\n\n  Notwithstanding any other provision of this License, you have\npermission to link or combine any covered work with a work licensed\nunder version 3 of the GNU Affero General Public License into a single\ncombined work, and to convey the resulting work.  The terms of this\nLicense will continue to apply to the part which is the covered work,\nbut the special requirements of the GNU Affero General Public License,\nsection 13, concerning interaction through a network will apply to the\ncombination as such.\n\n  14. Revised Versions of this License.\n\n  The Free Software Foundation may publish revised and/or new versions of\nthe GNU General Public License from time to time.  Such new versions will\nbe similar in spirit to the present version, but may differ in detail to\naddress new problems or concerns.\n\n  Each version is given a distinguishing version number.  If the\nProgram specifies that a certain numbered version of the GNU General\nPublic License \"or any later version\" applies to it, you have the\noption of following the terms and conditions either of that numbered\nversion or of any later version published by the Free Software\nFoundation.  If the Program does not specify a version number of the\nGNU General Public License, you may choose any version ever published\nby the Free Software Foundation.\n\n  If the Program specifies that a proxy can decide which future\nversions of the GNU General Public License can be used, that proxy's\npublic statement of acceptance of a version permanently authorizes you\nto choose that version for the Program.\n\n  Later license versions may give you additional or different\npermissions.  However, no additional obligations are imposed on any\nauthor or copyright holder as a result of your choosing to follow a\nlater version.\n\n  15. Disclaimer of Warranty.\n\n  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY\nAPPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT\nHOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY\nOF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,\nTHE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\nPURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM\nIS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF\nALL NECESSARY SERVICING, REPAIR OR CORRECTION.\n\n  16. Limitation of Liability.\n\n  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING\nWILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS\nTHE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY\nGENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE\nUSE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF\nDATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD\nPARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),\nEVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF\nSUCH DAMAGES.\n\n  17. Interpretation of Sections 15 and 16.\n\n  If the disclaimer of warranty and limitation of liability provided\nabove cannot be given local legal effect according to their terms,\nreviewing courts shall apply local law that most closely approximates\nan absolute waiver of all civil liability in connection with the\nProgram, unless a warranty or assumption of liability accompanies a\ncopy of the Program in return for a fee.\n\n                     END OF TERMS AND CONDITIONS\n\n            How to Apply These Terms to Your New Programs\n\n  If you develop a new program, and you want it to be of the greatest\npossible use to the public, the best way to achieve this is to make it\nfree software which everyone can redistribute and change under these terms.\n\n  To do so, attach the following notices to the program.  It is safest\nto attach them to the start of each source file to most effectively\nstate the exclusion of warranty; and each file should have at least\nthe \"copyright\" line and a pointer to where the full notice is found.\n\n    <one line to give the program's name and a brief idea of what it does.>\n    Copyright (C) <year>  <name of author>\n\n    This program is free software: you can redistribute it and/or modify\n    it under the terms of the GNU General Public License as published by\n    the Free Software Foundation, either version 3 of the License, or\n    (at your option) any later version.\n\n    This program is distributed in the hope that it will be useful,\n    but WITHOUT ANY WARRANTY; without even the implied warranty of\n    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n    GNU General Public License for more details.\n\n    You should have received a copy of the GNU General Public License\n    along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\nAlso add information on how to contact you by electronic and paper mail.\n\n  If the program does terminal interaction, make it output a short\nnotice like this when it starts in an interactive mode:\n\n    <program>  Copyright (C) <year>  <name of author>\n    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\n    This is free software, and you are welcome to redistribute it\n    under certain conditions; type `show c' for details.\n\nThe hypothetical commands `show w' and `show c' should show the appropriate\nparts of the General Public License.  Of course, your program's commands\nmight be different; for a GUI interface, you would use an \"about box\".\n\n  You should also get your employer (if you work as a programmer) or school,\nif any, to sign a \"copyright disclaimer\" for the program, if necessary.\nFor more information on this, and how to apply and follow the GNU GPL, see\n<http://www.gnu.org/licenses/>.\n\n  The GNU General Public License does not permit incorporating your program\ninto proprietary programs.  If your program is a subroutine library, you\nmay consider it more useful to permit linking proprietary applications with\nthe library.  If this is what you want to do, use the GNU Lesser General\nPublic License instead of this License.  But first, please read\n<http://www.gnu.org/philosophy/why-not-lgpl.html>.\n"));
   gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (aboutdialog), "http://www.ysbl.york.ac.uk/~emsley/coot");
   gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG (aboutdialog), _("Coot Website"));
@@ -24088,6 +24100,7 @@ create_aboutdialog (void)
 
   return aboutdialog;
 }
+#endif /* GTK2 version */
 #endif /* GTK2 version */
 
 GtkWidget*
@@ -24267,7 +24280,7 @@ create_coords_filechooserdialog1 (void)
   GtkWidget *button5;
   GtkWidget *button6;
 
-  coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (coords_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (coords_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -24343,7 +24356,7 @@ create_dataset_filechooserdialog1 (void)
   GtkWidget *button7;
   GtkWidget *button8;
 
-  dataset_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Dataset File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  dataset_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Dataset File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (dataset_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (dataset_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (dataset_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -24396,7 +24409,7 @@ create_map_name_filechooserdialog1 (void)
   GtkWidget *button9;
   GtkWidget *button10;
 
-  map_name_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Map..."), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  map_name_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Map..."), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (map_name_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (map_name_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (map_name_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -24470,7 +24483,7 @@ create_phs_coordinates_filechooserdialog1 (void)
   GtkWidget *button11;
   GtkWidget *button12;
 
-  phs_coordinates_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File for .phs symm/cell"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  phs_coordinates_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File for .phs symm/cell"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (phs_coordinates_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (phs_coordinates_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (phs_coordinates_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -24525,7 +24538,7 @@ create_save_coords_filechooserdialog1 (void)
 
   tooltips = gtk_tooltips_new ();
 
-  save_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Filename for Saved Coordinates "), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Filename for Saved Coordinates "), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_filechooserdialog1), 10);
   gtk_tooltips_set_tip (tooltips, save_coords_filechooserdialog1, _("Saved File type: By extension"), NULL);
   gtk_window_set_modal (GTK_WINDOW (save_coords_filechooserdialog1), TRUE);
@@ -24563,9 +24576,12 @@ create_save_coords_filechooserdialog1 (void)
   GTK_WIDGET_SET_FLAGS (button14, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
+#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_coords_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_save_coords_filechooserdialog1_confirm_overwrite),
                     NULL);
+#endif /* (GTK_MINOR_VERSION > 9) */
+
 #endif /* (GTK_MINOR_VERSION > 9) */
 
   g_signal_connect ((gpointer) save_coords_filechooserdialog1, "response",
@@ -24599,7 +24615,7 @@ create_cif_dictionary_filechooserdialog1 (void)
   GtkWidget *button15;
   GtkWidget *button16;
 
-  cif_dictionary_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Cif Dictionary File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  cif_dictionary_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Cif Dictionary File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (cif_dictionary_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (cif_dictionary_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (cif_dictionary_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -24648,7 +24664,7 @@ create_run_script_filechooserdialog1 (void)
   GtkWidget *button17;
   GtkWidget *button18;
 
-  run_script_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Scripting File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  run_script_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Scripting File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (run_script_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (run_script_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (run_script_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -24697,7 +24713,7 @@ create_save_symmetry_coords_filechooserdialog1 (void)
   GtkWidget *button19;
   GtkWidget *button20;
 
-  save_symmetry_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_symmetry_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_symmetry_coords_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (save_symmetry_coords_filechooserdialog1), TRUE);
   gtk_window_set_resizable (GTK_WINDOW (save_symmetry_coords_filechooserdialog1), FALSE);
@@ -24721,9 +24737,12 @@ create_save_symmetry_coords_filechooserdialog1 (void)
   GTK_WIDGET_SET_FLAGS (button20, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
+#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_symmetry_coords_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_save_symmetry_coords_filechooserdialog1_confirm_overwrite),
                     NULL);
+#endif /* (GTK_MINOR_VERSION > 9) */
+
 #endif /* (GTK_MINOR_VERSION > 9) */
 
   g_signal_connect ((gpointer) save_symmetry_coords_filechooserdialog1, "response",
@@ -24753,7 +24772,7 @@ create_save_state_filechooserdialog1 (void)
   GtkWidget *button21;
   GtkWidget *button22;
 
-  save_state_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File-name for State File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_state_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File-name for State File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_state_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (save_state_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (save_state_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -24776,9 +24795,12 @@ create_save_state_filechooserdialog1 (void)
   GTK_WIDGET_SET_FLAGS (button22, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
+#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_state_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_save_state_filechooserdialog1_confirm_overwrite),
                     NULL);
+#endif /* (GTK_MINOR_VERSION > 9) */
+
 #endif /* (GTK_MINOR_VERSION > 9) */
 
   g_signal_connect ((gpointer) save_state_filechooserdialog1, "response",
@@ -24808,7 +24830,7 @@ create_screendump_filechooserdialog1 (void)
   GtkWidget *button23;
   GtkWidget *button24;
 
-  screendump_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  screendump_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (screendump_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (screendump_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (screendump_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -24831,9 +24853,12 @@ create_screendump_filechooserdialog1 (void)
   GTK_WIDGET_SET_FLAGS (button24, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
+#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) screendump_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_screendump_filechooserdialog1_confirm_overwrite),
                     NULL);
+#endif /* (GTK_MINOR_VERSION > 9) */
+
 #endif /* (GTK_MINOR_VERSION > 9) */
 
   g_signal_connect ((gpointer) screendump_filechooserdialog1, "response",
@@ -25995,7 +26020,7 @@ create_save_restraint_chooserdialog (void)
   GtkWidget *button27;
   GtkWidget *button28;
 
-  save_restraint_chooserdialog = gtk_file_chooser_dialog_new (_("Save Restraints as mmCIF"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_restraint_chooserdialog = gtk_file_chooser_dialog_new (_("Save Restraints as mmCIF"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_restraint_chooserdialog), 5);
   gtk_window_set_modal (GTK_WINDOW (save_restraint_chooserdialog), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (save_restraint_chooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -26018,9 +26043,12 @@ create_save_restraint_chooserdialog (void)
   GTK_WIDGET_SET_FLAGS (button28, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
+#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_restraint_chooserdialog, "confirm_overwrite",
                     G_CALLBACK (on_save_restraint_chooserdialog_confirm_overwrite),
                     NULL);
+#endif /* (GTK_MINOR_VERSION > 9) */
+
 #endif /* (GTK_MINOR_VERSION > 9) */
 
   g_signal_connect ((gpointer) save_restraint_chooserdialog, "response",
@@ -26397,7 +26425,7 @@ create_run_refmac_mtz_filechooserdialog (void)
   GtkWidget *button30;
   GtkWidget *button31;
 
-  run_refmac_mtz_filechooserdialog = gtk_file_chooser_dialog_new (_("Select Dataset for Twin Refmac"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  run_refmac_mtz_filechooserdialog = gtk_file_chooser_dialog_new (_("Select Dataset for Twin Refmac"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_mtz_filechooserdialog), 5);
   gtk_window_set_modal (GTK_WINDOW (run_refmac_mtz_filechooserdialog), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_mtz_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -27010,4 +27038,5 @@ create_scheme_window (void)
   return scheme_window;
 }
 
+#endif /* (GTK_MAJOR_VERSION > 1) */
 #endif /* (GTK_MAJOR_VERSION > 1) */
