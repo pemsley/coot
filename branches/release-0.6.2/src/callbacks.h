@@ -4250,7 +4250,3 @@ on_refine_params_weight_matrix_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data);
 
-void
-on_preferences_map_colours_hscale_value_changed
-                                        (GtkRange        *range,
-                                        gpointer         user_data);
