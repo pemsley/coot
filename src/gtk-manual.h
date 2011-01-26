@@ -47,14 +47,6 @@ BEGIN_C_DECLS
 #endif
 
 
-/* Map Colour */
-
-struct map_colour_data_type { 
-   int imol; 
-   int imap;
-   GtkColorSelection* colorsel;
-};
-
 void 
 on_map_color_changed(GtkWidget *w,   gpointer *tmd);
 /* 		 GtkColorSelection *cs); */
@@ -66,6 +58,15 @@ on_map_col_sel_ok_button_clicked        (GtkButton       *button,
 void
 on_map_col_sel_cancel_button_clicked        (GtkButton       *button,
 					 gpointer         *tmd);
+
+
+/* Map Colour */
+
+struct map_colour_data_type { 
+   int imol; 
+   int imap;
+   GtkColorSelection* colorsel;
+};
 
 GtkWidget* create_map_colour_selection_window(struct map_colour_data_type *mcdt); 
 
