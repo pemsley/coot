@@ -11801,6 +11801,12 @@ on_refine_params_weight_matrix_entry_changed
                                         gpointer         user_data)
 {
 
+  GtkWidget *entry = lookup_widget(GTK_WIDGET(editable), 
+				   "refine_params_weight_matrix_entry");
+
+  const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
+  printf("got text: %s\n", text);
+
 }
 
 
