@@ -319,6 +319,8 @@ GtkWidget *main_menubar();
 GtkWidget *main_statusbar();
 GtkWidget *main_toolbar();
 
+/* entry_info_t entry_to_number(GtkWidget *entry);  */
+
 /* \} */
 
 /*  -------------------------------------------------------------------- */
