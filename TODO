@@ -710,8 +710,14 @@ Punted from 0.6:
 
  0.7 Priorities:
 
+   o Does Ca Zone -> Backbone crash?  (or is that only trunk?) ::: 1 
+
+   o Airlie's ensemble_merged.pdb give bad bonding in 0.7-pre
+
    o reading a cif from the PDB (e.g. 1X8B.cif) creates a molecule
      with atom elements 1-char.  Hence bonding fails.
+
+     Maybe also importing molecules from SBase.
 
    o change clipper macros to use clipper-config and not invent mmdb
      and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)

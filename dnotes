@@ -1075,6 +1075,8 @@ Sat Dec 15 12:18:46 GMT 2007
 
    1OHY is good for displaying NCS skipping NCS jumping
 
+   as is  2x2h
+
 -----
 Sat Dec 15 13:12:08 GMT 2007
 
@@ -5925,6 +5927,15 @@ Tue Nov 30 02:42:51 GMT 2010
 ----
 Tue Dec  7 00:37:42 GMT 2010
 
+    student project:
+
+   dig out whatcheck parsing interface, parse more info and
+   automatically fix stuff (needs (more) intelligence).
+
+
+----
+Tue Dec  7 15:25:30 GMT 2010
+
     Here is how to run molprobity probe for just the interactions of
     environment onto the ligand (and vica versa):
 
@@ -5950,7 +5961,5 @@ Wed Dec  8 14:37:58 GMT 2010
 	the best fit to the density is observed before that happens.
 
  
-
-
 ------
 

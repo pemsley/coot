@@ -147,7 +147,7 @@ x_label = "Days (since pre-release start)"
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 210
+x_day_range = 330
 
 x_tick_interval = x_ticks(x_day_range)
 
@@ -200,15 +200,19 @@ def annotation_box(box_text, loc_x, loc_y, data_index, arrow_position):
 
 
 
-annotation_box("Jan 28", -6, 30, 0, "c")
+annotation_box("Jan 28", -6, 20, 0, "c")
 annotation_box("PISA Interfaces",   20, 7, 69, "tc")
 annotation_box("Ligand GUI Expmt.", 35, 16, 96, "tc")
 annotation_box("CCP4 Dev Meeting",  38, 25, 125, "tc")
 annotation_box("Madrid",  56, 34, 190, "tc")
 annotation_box("Montevideo",  64, 43, 195, "tc")
 annotation_box("Erice",  75, 51, 250, "tc")
-annotation_box("Integration Machine Dies",  80, 60, 268, "tc")
-annotation_box("GRC & ACA",  92, 70, 273, "tc")
+annotation_box("Integration Machine Dies",  80, 58, 268, "tc")
+annotation_box("GRC & ACA",  92, 65, 273, "tc")
+annotation_box("Munich",  87, 72, 279, "tc")
+annotation_box("FBLD & CSHL",  105, 77, 280, "l")
+annotation_box("CoLuAa",   108, 84, 281, "l")
+annotation_box("Florence", 115, 90, 282, "tc")
 
 
 # take-home:
