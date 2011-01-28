@@ -2703,7 +2703,7 @@ coot::protein_geometry::init_standard() {
       cmld = getenv("COOT_MONOMER_LIB_DIR"); // for phenix.
       // we find $COOT_MONOMER_LIB_DIR/a/ALA.cif
       if (cmld) {
-	 mon_lib_dir = s;
+	 mon_lib_dir = cmld;
       }
    } 
       
