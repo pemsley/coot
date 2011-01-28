@@ -68,7 +68,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // but SO4 bonds (1.46 are fine).
    // They should have special case, handle_MET_or_MSE_case
    // However, for VNP thingy, S1 has bonds to carbons of 1.67 1.77.  Baah.
-   construct_from_asc(SelAtom, 0.01, 1.64, coot::COLOUR_BY_ATOM_TYPE, 0);
+   float max_dist = 1.71;
+   construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0);
    verbose_reporting = 0;
    udd_has_ca_handle = -1;
 
@@ -93,7 +94,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // but SO4 bonds (1.46 are fine).
    // They should have special case, handle_MET_or_MSE_case
    // However, for VNP thingy, S1 has bonds to carbons of 1.67 1.77.  Baah.
-   construct_from_asc(SelAtom, 0.01, 1.64, coot::COLOUR_BY_ATOM_TYPE, 0);
+   float max_dist = 1.71;
+   construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0);
    verbose_reporting = 0;
    udd_has_ca_handle = -1;
 }
@@ -163,7 +165,7 @@ Bond_lines_container::Bond_lines_container (const atom_selection_container_t &Se
    b_factor_scale = 1.0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 0;
-   float max_dist = 1.64;
+   float max_dist = 1.71;
    if (by_occ == Bond_lines_container::COLOUR_BY_OCCUPANCY) {
       construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_OCCUPANCY, 0); 
    } else {
