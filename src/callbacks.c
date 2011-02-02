@@ -47,6 +47,7 @@
 #include "gtk-manual.h"
 #include "restraints-editor-c.h"
 
+#include "gtk-widget-conversion-utils.h"
 
 
 #include "read-phs.h"
@@ -11803,10 +11804,12 @@ on_refine_params_weight_matrix_entry_changed
 
   GtkWidget *entry = lookup_widget(GTK_WIDGET(editable), 
 				   "refine_params_weight_matrix_entry");
-
   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
+  struct entry_info_t ei = coot_entry_to_val(GTK_ENTRY(entry));
   printf("got text: %s\n", text);
-
+  if (ei.float_is_set)
+    set_matrix(ei.val_as_float);
+  
 }
 
 
