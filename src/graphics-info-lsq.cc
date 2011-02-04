@@ -71,9 +71,11 @@ graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
       if (molecules[imol_ref].has_model()) {
 	 if (imol_moving < n_molecules()) {
 	    if (molecules[imol_moving].has_model()) {
+
+	       CMMDBManager *mol_ref = molecules[imol_ref].atom_sel.mol;
+	       CMMDBManager *mol_mov = molecules[imol_moving].atom_sel.mol;
 	       std::pair<short int, clipper::RTop_orth> rtop_info =
-		  coot::util::get_lsq_matrix(molecules[imol_ref].atom_sel.mol,
-					     molecules[imol_moving].atom_sel.mol,
+		  coot::util::get_lsq_matrix(mol_ref, mol_mov,
 					     matches, 1);
 	       if (rtop_info.first) {
 
@@ -100,18 +102,8 @@ graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
 
 		  molecules[imol_moving].transform_by(rtop_info.second);
 
-		  if (!new_cell.is_null() && !new_space_group.is_null()) { 
-		     std::pair<std::vector<float>, std::string> cell_spgr;
-		     cell_spgr.first.resize(6);
-		     cell_spgr.first[0] = new_cell.a();
-		     cell_spgr.first[1] = new_cell.b();
-		     cell_spgr.first[2] = new_cell.c();
-		     cell_spgr.first[3] = clipper::Util::rad2d(new_cell.alpha());
-		     cell_spgr.first[4] = clipper::Util::rad2d(new_cell.beta());
-		     cell_spgr.first[5] = clipper::Util::rad2d(new_cell.gamma());
-		     cell_spgr.second = new_space_group.symbol_hm();
-		     molecules[imol_moving].set_mmdb_cell_and_symm(cell_spgr);
-		  }
+		  coot::util::copy_cell_and_symm_headers(mol_ref, mol_mov);
+
 		  rtop_r = rtop_info.second;
 		  graphics_draw();
 		  status = 1; // done good (used to dismiss/destroy the widget)
