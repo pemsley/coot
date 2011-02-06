@@ -1904,3 +1904,79 @@ pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
 	    
 	 }
       }
+
+// Tinker with the atom positions of residue
+// Return 1 on success.
+// We need to pass the asc for the mol because we need it for seekcontacts()
+// Of course the asc that is passed is the moving atoms asc.
+// 
+short int 
+graphics_info_t::update_residue_by_chi_change_old(CResidue *residue,
+						  atom_selection_container_t &asc,
+						  int nth_chi, double diff) {
+
+   // add phi/try rotamers? no.
+   coot::chi_angles chi_ang(residue, 0);
+   
+   // Contact indices:
+   //
+   coot::contact_info contact = coot::getcontacts(asc);
+
+   std::vector<std::vector<int> > contact_indices;
+
+   // Change the coordinates in the residue to which this object contains a
+   // pointer:
+   // 
+   // Return non-zero on failure:
+   // change_by() generates the contact indices (trying regular_residue = 1)
+   std::pair<short int, float> istat = chi_ang.change_by(nth_chi, diff, geom_p);
+
+   if (istat.first) { // failure
+
+      if (0) {
+	 PPCAtom residue_atoms;
+	 int n_residue_atoms;
+	 
+	 residue->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int i=0; i<n_residue_atoms; i++) {
+	    std::cout << "before " << i << " " << residue_atoms[i] << std::endl;
+	 }
+      }
+
+      // std::cout << "DEBUG:: Simple chi change failed" << std::endl;
+
+      // Hack, hack.  See comments on get_contact_indices_from_restraints.
+      //
+      bool add_reverse_contacts = 0;
+      contact_indices = coot::util::get_contact_indices_from_restraints(residue, geom_p, 0,
+									add_reverse_contacts);
+      // try looking up the residue in
+
+      istat = chi_ang.change_by(nth_chi, diff, contact_indices, geom_p,
+				chi_angles_clicked_atom_spec,
+				find_hydrogen_torsions_flag);
+      if (0) {
+	 PPCAtom residue_atoms;
+	 int n_residue_atoms;
+	 
+	 residue->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int i=0; i<n_residue_atoms; i++) {
+	    std::cout << "after  " << i << " " << residue_atoms[i] << std::endl;
+	 }
+      }
+   }
+
+   setup_flash_bond_internal(nth_chi);
+
+   if (istat.first == 0) { // success.
+      display_density_level_this_image = 1;
+      display_density_level_screen_string = "  Chi ";
+      display_density_level_screen_string += int_to_string(nth_chi);
+      display_density_level_screen_string += "  =  ";
+      display_density_level_screen_string += float_to_string( (180.8 /M_PI) * istat.second);
+      statusbar_text(display_density_level_screen_string);
+   } 
+
+   return istat.first;
+} 
+

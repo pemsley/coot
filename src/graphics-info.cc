@@ -3178,14 +3178,12 @@ graphics_info_t::setup_for_probe_dots_on_chis_molprobity(int imol) {
 
 
 void
-graphics_info_t::setup_flash_bond_internal(int ibond_user) {
+graphics_info_t::setup_flash_bond_internal(int i_torsion_index) {
 
-   int bond = ibond_user + 1;
    // turn it off first, only enable it if we find a pair:
    draw_chi_angle_flash_bond_flag = 0; // member data item
 
-//    std::cout << "flash bond ibond_user: " << ibond_user << std::endl;
-//    std::cout << "highlight ligand bond " << bond << std::endl;
+   std::cout << "flash bond i_torsion_index: " << i_torsion_index << std::endl;
 
    // get the residue type and from that the atom name pairs:
    // 
@@ -3204,136 +3202,57 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
 
 		  std::string residue_type(residue_p->GetResName());
 		  bool add_reverse_contacts = 0;
-		  std::vector<std::vector<int> > contact_indices =
-		     coot::util::get_contact_indices_from_restraints(residue_p, geom_p, 0, add_reverse_contacts);
-		  coot::chi_angles c(residue_p, 0);
-
+		  
 		  std::pair<std::string, std::string> atom_names;
-
-		  // c.f. get_torsion_bonds_atom_pairs in chi-angles.cc 
-		  std::vector <coot::dict_torsion_restraint_t> monomer_torsions = 
-		     geom_p->get_monomer_torsions_from_geometry(residue_type);
 
 		  std::pair<short int, coot::dictionary_residue_restraints_t> r =
 		     geom_p->get_monomer_restraints(residue_type);
 
-// 		  std::cout << "DEBUG:: monomer_torsions.size(): "
-// 			    << monomer_torsions.size() << std::endl;
+		  if (r.first) { 
+		     std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
+			r.second.get_non_const_torsions(find_hydrogen_torsions_flag);
 
-		  int hydrogen_or_const_torsion_count = 0;
-// debugging		  
-// 		  for(unsigned int i=0; i<monomer_torsions.size(); i++) {
-// 		     std::string this_one_str;
-// 		     std::string atom1 = monomer_torsions[i].atom_id_1();
-// 		     std::string atom2 = monomer_torsions[i].atom_id_4();
-// 		     if ( (!r.second.is_hydrogen(atom1) && !r.second.is_hydrogen(atom2))
-// 			  || find_hydrogen_torsions) {
-// 		     } else {
-// 			hydrogen_torsion_count++;
-// 		     }
-// 		     if ((bond - 2 + hydrogen_torsion_count) == i)
-// 			this_one_str = " <==";
-// 		     std::cout << "   DEBUG:: torsion i:" << i << " htc:"
-// 			       << hydrogen_torsion_count << " match:"
-// 			       << (bond - 2 + hydrogen_torsion_count) << " "
-// 			       << monomer_torsions[i].atom_id_1() << " "
-// 			       << monomer_torsions[i].atom_id_2() << " "
-// 			       << monomer_torsions[i].atom_id_3() << " "
-// 			       << monomer_torsions[i].atom_id_4() << " "
-// 			       << monomer_torsions[i].periodicity() << " "
-// 			       << monomer_torsions[i].angle() << " "
-// 			       << monomer_torsions[i].esd() << this_one_str
-// 			       << std::endl;
+		     if (i_torsion_index >= 0 && i_torsion_index < torsion_restraints.size()) {
+
+			atom_names.first  = torsion_restraints[i_torsion_index].atom_id_2_4c();
+			atom_names.second = torsion_restraints[i_torsion_index].atom_id_3_4c();
+		  
+			if ((atom_names.first != "") &&
+			    (atom_names.second != "")) {
 		     
-// 		  }
-
-// 		  std::cout << "    got " << monomer_torsions.size() << " monomer torsions "
-// 			    << std::endl;
-
-		  hydrogen_or_const_torsion_count = 0;
-		  if (monomer_torsions.size() > 0) { 
-		     for(unsigned int i=0; i<monomer_torsions.size(); i++) {
-
-			if (!monomer_torsions[i].is_const()) { 
-			   std::string atom1 = monomer_torsions[i].atom_id_1();
-			   std::string atom2 = monomer_torsions[i].atom_id_4();
-			   int hydrogen_torsion_val = 0;
-			   if (r.second.is_hydrogen(atom1)) hydrogen_torsion_val = 1;
-			   if (r.second.is_hydrogen(atom2)) hydrogen_torsion_val = 1;
-			   if (!hydrogen_torsion_val || find_hydrogen_torsions) {
-// 			      std::cout << "   comparing (" << bond << ") "
-// 					<< bond - 2 + hydrogen_or_const_torsion_count
-// 					<< " vs " << i << std::endl;
-			      if ((bond - 2 + hydrogen_or_const_torsion_count) == int(i)) {
-				 std::string atom2 = monomer_torsions[i].atom_id_2();
-				 std::string atom3 = monomer_torsions[i].atom_id_3();
- 				 atom_names = std::pair<std::string, std::string> (atom2, atom3);
-// 				 std::cout << "   match atom names :" << atom_names.first
-// 					   << ": :" << atom_names.second << ":" << std::endl;
-				 break; 
-			      }
-			   }
-			   if (hydrogen_torsion_val)
-			      hydrogen_or_const_torsion_count++;
-			} else {
-			   hydrogen_or_const_torsion_count++;
-			}
-		     }
-		  }
-
-// 		  std::cout << "         :" << atom_names.first << ": :"
-// 			    << atom_names.second << ":" << std::endl;
-
-		  if ((atom_names.first != "") &&
-		      (atom_names.second != "") && 
-		      (atom_names.first != "empty") &&
-		      (atom_names.second != "empty")) {
+			   PPCAtom residue_atoms;
+			   int nResidueAtoms;
+			   residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
 		     
-		     PPCAtom residue_atoms;
-		     int nResidueAtoms;
-		     residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
-		     
-		     if (nResidueAtoms > 0) { // of course it is!
-			for (int iat1=0; iat1<nResidueAtoms; iat1++) {
-			   std::string ra1=residue_atoms[iat1]->name;
-			   if (ra1 == atom_names.first) {
-			      for (int iat2=0; iat2<nResidueAtoms; iat2++) {
-				 std::string ra2=residue_atoms[iat2]->name;
-				 if (ra2 == atom_names.second) {
+			   if (nResidueAtoms > 0) { // of course it is!
+			      for (int iat1=0; iat1<nResidueAtoms; iat1++) {
+				 std::string ra1=residue_atoms[iat1]->name;
+				 if (ra1 == atom_names.first) {
+				    for (int iat2=0; iat2<nResidueAtoms; iat2++) {
+				       std::string ra2=residue_atoms[iat2]->name;
+				       if (ra2 == atom_names.second) {
 
-				    if (0) {
-				       std::cout << " atom names "
-						 << ":" << ra1 << ": " 
-						 << ":" << ra2 << ": indexes "
-						 << iat1 << " " << iat2 << std::endl;
+					  draw_chi_angle_flash_bond_flag = 1;
+					  clipper::Coord_orth p1(residue_atoms[iat1]->x,
+								 residue_atoms[iat1]->y,
+								 residue_atoms[iat1]->z);
+					  clipper::Coord_orth p2(residue_atoms[iat2]->x,
+								 residue_atoms[iat2]->y,
+								 residue_atoms[iat2]->z);
+
+
+					  std::pair<clipper::Coord_orth, clipper::Coord_orth> cp(p1, p2);
+					  graphics_info_t g;
+					  g.add_flash_bond(cp);
+					  graphics_draw();
+				       }
 				    }
-				    
-				    draw_chi_angle_flash_bond_flag = 1;
-				    clipper::Coord_orth p1(residue_atoms[iat1]->x,
-							   residue_atoms[iat1]->y,
-							   residue_atoms[iat1]->z);
-				    clipper::Coord_orth p2(residue_atoms[iat2]->x,
-							   residue_atoms[iat2]->y,
-							   residue_atoms[iat2]->z);
-
-				    if (0) { 
-				       std::cout << "  " << p1.format() << "  " << p2.format()
-						 << std::endl;
-				       std::cout << "  at1 " << residue_atoms[iat1] << std::endl;
-				       std::cout << "  at2 " << residue_atoms[iat2] << std::endl;
-				    }
-
-				    std::pair<clipper::Coord_orth, clipper::Coord_orth> cp(p1, p2);
-
-				    graphics_info_t g;
-				    g.add_flash_bond(cp);
-				    graphics_draw();
 				 }
 			      }
 			   }
-			}
+			} 
 		     } 
-		  } 
+		  }
 	       }
 	    }
 	 }
