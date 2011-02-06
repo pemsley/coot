@@ -497,7 +497,7 @@ std::vector<coot::preference_info_t> graphics_info_t::preferences_internal;
 std::vector<coot::preference_info_t> graphics_info_t::preferences_internal_default;
 
 // Torsions with hydrogens?
-short int graphics_info_t::find_hydrogen_torsions = 0; // no
+bool graphics_info_t::find_hydrogen_torsions_flag = 0; // no
 
 // Which ccp4i project shall we put at the top of a fileselection optionmenu?
 // 

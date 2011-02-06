@@ -2028,7 +2028,7 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    GtkWidget *togglebutton =
       lookup_widget(dialog, "edit_chi_angles_add_hydrogen_torsions_checkbutton");
 
-   if (find_hydrogen_torsions)
+   if (find_hydrogen_torsions_flag)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
 
    // "Reverse Fragment" button
@@ -2051,44 +2051,52 @@ graphics_info_t::clear_out_container(GtkWidget *vbox) {
 
 
 int 
-graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string res_type) {
+graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type) {
 
-   std::vector <coot::dict_torsion_restraint_t> v =
-      get_monomer_torsions_from_geometry(res_type); // uses find H torsions setting.
+   int n_non_const_torsions = -1; // unset
 
    clear_out_container(vbox);
+   
+   std::pair<short int, coot::dictionary_residue_restraints_t> p =
+      Geom_p()->get_monomer_restraints(monomer_type);
+   
+   if (p.first) {
 
-   // We introduce here ichi (which gets incremented if the current
-   // torsion is not const), we do that so that we have consistent
-   // indexing in the torsions vector with chi_angles's change_by()
-   // (see comments above execute_edit_chi_angles()).
+      std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
+	 p.second.get_non_const_torsions(find_hydrogen_torsions_flag);
+      n_non_const_torsions = torsion_restraints.size();
+   
+      // We introduce here ichi (which gets incremented if the current
+      // torsion is not const), we do that so that we have consistent
+      // indexing in the torsions vector with chi_angles's change_by()
+      // (see comments above execute_edit_chi_angles()).
 
-   int ichi = 0;
-   for (unsigned int i=0; i<v.size(); i++) {
-      if (!v[i].is_const()) {
-	 std::string label = "  ";
-	 label += v[i].id(); 
-	 label += "  ";
-	 label += v[i].atom_id_2_4c();
-	 label += " <--> ";
-	 label += v[i].atom_id_3_4c();
-	 label += "  ";
-	 GtkWidget *button = gtk_button_new_with_label(label.c_str());
-	 gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			    GTK_SIGNAL_FUNC(on_change_current_chi_button_clicked),
-			    GINT_TO_POINTER(ichi));
-	 gtk_signal_connect(GTK_OBJECT(button), "enter",
-			    GTK_SIGNAL_FUNC(on_change_current_chi_button_entered),
-			    GINT_TO_POINTER(ichi));
-	 gtk_widget_set_name(button, "edit_chi_angles_button");
-	 gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-	 gtk_container_set_border_width(GTK_CONTAINER(button), 2);
-	 gtk_widget_show(button);
-	 ichi++;
+      int ichi = 0;
+      for (unsigned int i=0; i<torsion_restraints.size(); i++) {
+	 if (!torsion_restraints[i].is_const()) {
+	    std::string label = "  ";
+	    label += torsion_restraints[i].id(); 
+	    label += "  ";
+	    label += torsion_restraints[i].atom_id_2_4c();
+	    label += " <--> ";
+	    label += torsion_restraints[i].atom_id_3_4c();
+	    label += "  ";
+	    GtkWidget *button = gtk_button_new_with_label(label.c_str());
+	    gtk_signal_connect(GTK_OBJECT(button), "clicked",
+			       GTK_SIGNAL_FUNC(on_change_current_chi_button_clicked),
+			       GINT_TO_POINTER(ichi));
+	    gtk_signal_connect(GTK_OBJECT(button), "enter",
+			       GTK_SIGNAL_FUNC(on_change_current_chi_button_entered),
+			       GINT_TO_POINTER(ichi));
+	    gtk_widget_set_name(button, "edit_chi_angles_button");
+	    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+	    gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+	    gtk_widget_show(button);
+	    ichi++;
+	 }
       }
    }
-
-   return v.size();
+   return n_non_const_torsions;
 } 
 
 // static
@@ -2111,7 +2119,7 @@ graphics_info_t::on_change_current_chi_button_entered(GtkButton *button,
    graphics_info_t g;
    int ibond_user = GPOINTER_TO_INT(user_data);
 
-   g.setup_flash_bond_internal(ibond_user+1);
+   g.setup_flash_bond_internal(ibond_user);
 
 }
 

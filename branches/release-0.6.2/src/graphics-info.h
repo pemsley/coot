@@ -3044,7 +3044,7 @@ public:
    void unset_geometry_dialog_dynamic_distance_togglebutton();
    
 
-   static short int find_hydrogen_torsions;
+   static bool find_hydrogen_torsions_flag;
 
    // pickable moving atoms molecule
    pick_info moving_atoms_atom_pick() const;
