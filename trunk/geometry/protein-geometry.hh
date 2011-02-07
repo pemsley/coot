@@ -1103,7 +1103,7 @@ namespace coot {
       // 
       std::vector <dict_torsion_restraint_t>
       get_monomer_torsions_from_geometry(const std::string &monomer_type, 
-					 short int find_hydrogen_torsions) const;
+					 bool find_hydrogen_torsions) const;
 
       // Return success status in first (0 is fail) and the second is
       // a whole residue's restraints so that we can use it to test if

@@ -2553,7 +2553,7 @@ molecule_class_info_t::add_OXT_to_residue(CResidue *residue) {
    return istatus;
 }
 
-// used by above.  Dont add if returns true.
+// used by above.  Don't add if returns true.
 bool
 molecule_class_info_t::residue_has_oxt_p(CResidue *residue) const {
 

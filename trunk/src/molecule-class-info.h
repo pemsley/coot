@@ -1948,7 +1948,7 @@ public:        //                      public
    int backups_state() const { return backup_this_molecule; }
    void set_have_unsaved_changes_from_outside();
 
-   void mutate_internal(CResidue *residue, CResidue *std_residue);
+   void mutate_internal(CResidue *residue, CResidue *std_residue, const std::string &alt_conf);
    bool progressive_residues_in_chain_check_by_chain(const char *chain_id) const;
    void mutate_base_internal(CResidue *residue, CResidue *std_base);
 

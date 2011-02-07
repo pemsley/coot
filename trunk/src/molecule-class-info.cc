@@ -5826,7 +5826,7 @@ short int
 molecule_class_info_t::move_std_residue(CResidue *moving_residue,
 					const CResidue *reference_residue) const {
 
-   std::pair<clipper::RTop_orth, short int> pair = 
+   std::map<std::string, clipper::RTop_orth> rtops = 
       coot::util::get_ori_to_this_res((CResidue *)reference_residue); 
 
    short int istat = 0; // success
@@ -5836,7 +5836,7 @@ molecule_class_info_t::move_std_residue(CResidue *moving_residue,
       std::cout << "null reference residue in move_std_residue" << std::endl;
    } else { 
 
-      if (pair.second == 1) { // successful attempt to get the matrix
+      if (rtops.size()) { // successful attempt to get the matrix
 	 PPCAtom residue_atoms = NULL;
 	 int nResidueAtoms;
 	 moving_residue->GetAtomTable(residue_atoms, nResidueAtoms);
@@ -5859,10 +5859,16 @@ molecule_class_info_t::move_std_residue(CResidue *moving_residue,
 		  clipper::Coord_orth co(residue_atoms[iat]->x,
 					 residue_atoms[iat]->y,
 					 residue_atoms[iat]->z);
-		  clipper::Coord_orth rotted = co.transform(pair.first); // an rtop
-		  residue_atoms[iat]->x = rotted.x();
-		  residue_atoms[iat]->y = rotted.y();
-		  residue_atoms[iat]->z = rotted.z();
+		  std::string alt_conf = residue_atoms[iat]->altLoc;
+		  
+		  std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find(alt_conf);
+
+		  if (it != rtops.end()) { 
+		     clipper::Coord_orth rotted = co.transform(it->second); // an rtop
+		     residue_atoms[iat]->x = rotted.x();
+		     residue_atoms[iat]->y = rotted.y();
+		     residue_atoms[iat]->z = rotted.z();
+		  }
 	       } else { 
 		  istat = 0;
 		  std::cout << "ERROR:: bad residue atom in move_std_residue: iat: "

@@ -2360,6 +2360,8 @@ int test_lsq_plane() {
 
 
 // This test fails.  I can't get PutPDBString() to work.
+// BL says:: PutPDB works now (used the wrong CRYST format)
+// However test still fails as Cryst.Vol is not calculated I think
 // 
 int test_copy_cell_symm_orig_scale_headers() {
 
@@ -2368,7 +2370,7 @@ int test_copy_cell_symm_orig_scale_headers() {
    CMMDBManager *m1 = new CMMDBManager;
    CMMDBManager *m2 = new CMMDBManager;
 
-   int set1 = m1->PutPDBString("CRYST1 69.782 69.782 157.017 90.00 90.00 90.00 P 41 21 2 8");
+   int set1 = m1->PutPDBString("CRYST1   69.782   69.782  157.017  90.00  90.00  90.00 P 41 21 2     8");
    int set2 = m1->PutPDBString("ORIGX1      1.000000  0.000000  0.000000        0.00000");                         
    int set3 = m1->PutPDBString("ORIGX2      0.000000  1.000000  0.000000        0.00000");                         
    int set4 = m1->PutPDBString("ORIGX3      0.000000  0.000000  1.000000        0.00000");                         

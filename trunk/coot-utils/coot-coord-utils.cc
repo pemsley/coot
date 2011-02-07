@@ -3374,99 +3374,76 @@ coot::util::extents(CMMDBManager *mol,
 // pair.second = 0 for failure
 // pair.first  = 1 for success
 // 
-std::pair<clipper::RTop_orth, short int>
-coot::util::get_ori_to_this_res(CResidue *res) {
+std::map<std::string, clipper::RTop_orth>
+coot::util::get_ori_to_this_res(CResidue *residue_p) {
 
-   std::pair<clipper::RTop_orth, short int>  pair;
-   // clipper::RTop_orth op;
+   std::map<std::string, clipper::RTop_orth> orientations;
 
-   PPCAtom residue_atoms;
-   int nResidueAtoms;
-   res->GetAtomTable(residue_atoms, nResidueAtoms);
-   if (nResidueAtoms == 0) {
-      std::cout << "ERROR:: something broken in atom residue selection before ";
-      std::cout << "get_ori_to_this_res, 0 atoms in given residue" << std::endl;
-   } else {
-
-      clipper::Coord_orth ca(0,0,0), c(0,0,0), n(0,0,0);
-      int n_found = 0;
-      bool found_ca = 0;
-      bool found_c  = 0;
-      bool found_n  = 0;
-      
-      for(int iat=0; iat<nResidueAtoms; iat++) {
-	 std::string atom_name = residue_atoms[iat]->name;
-	 if (atom_name == " CA ") {
-	    n_found++;
-	    found_ca = 1;
-	    ca = clipper::Coord_orth(residue_atoms[iat]->x,
-				     residue_atoms[iat]->y,
-				     residue_atoms[iat]->z);
-	 }
-	 if (atom_name == " C  ") {
-	    n_found++;
-	    found_c = 1;
-	    c  = clipper::Coord_orth(residue_atoms[iat]->x,
-				     residue_atoms[iat]->y,
-				     residue_atoms[iat]->z);
-	 }
-	 if (atom_name == " N  ") {
-	    n_found++;
-	    found_n = 1;
-	    n  = clipper::Coord_orth(residue_atoms[iat]->x,
-				     residue_atoms[iat]->y,
-				     residue_atoms[iat]->z);
-	 }
-      }
-
-      if (n_found != 3) {
-	 std::cout << "DISASTER! Not all necessary atoms found in residue ";
-	 std::cout << res->GetChainID() << " " << res->GetSeqNum() << std::endl;
-	 if (found_ca == 0)
-	    std::cout << "    CA is missing " << std::endl;
-	 if (found_c == 0)
-	    std::cout << "    C is missing " << std::endl;
-	 if (found_n == 0)
-	    std::cout << "    N is missing " << std::endl;
-	 pair.second = 0; // failure
-	 return pair;
-      }
-
-      // testing
-//       ca = clipper::Coord_orth(0,0,0);
-//       n  = clipper::Coord_orth(0.87, 0, 1.23);
-//       c  = clipper::Coord_orth(0.83, 0, -1.18);
-//       clipper::Coord_orth cb(-1.03, -1.11, 0);
-
-      
-      // now get the vectors of the orientation:
-      //
-      clipper::Coord_orth can_unit = clipper::Coord_orth((n - ca).unit());
-      clipper::Coord_orth cac_unit = clipper::Coord_orth((c - ca).unit());
-
-      clipper::Coord_orth bisector ((can_unit + cac_unit).unit());
-      clipper::Coord_orth diff_unit((can_unit - cac_unit).unit());
-
-      clipper::Coord_orth cross_prod(clipper::Coord_orth::cross(diff_unit,bisector));
-      clipper::Coord_orth cpu = clipper::Coord_orth(cross_prod.unit());
-
-//       std::cout << "bisector   " << bisector.format() << std::endl;
-//       std::cout << "diff_unit  " << diff_unit.format() << std::endl;
-//       std::cout << "cross prod " << cross_prod.format() << std::endl;
-
-      // bisector   -> new x axis
-      // diff_unit  -> new z axis
-      // cross_prod -> new y axis
-
-      clipper::Mat33<double> m(  bisector.x(),   bisector.y(),   bisector.z(),
-			              cpu.x(),        cpu.y(),        cpu.z(),
-			        diff_unit.x(),  diff_unit.y(),  diff_unit.z());
-
-      pair.first = clipper::RTop_orth(m.transpose(), ca);
-      pair.second = 1;
-
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   std::map<std::string, std::vector<CAtom *> > atoms;
+   // first size up the vectors in the atom map
+   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      std::string alt_conf  = residue_atoms[iat]->altLoc;
+      atoms[alt_conf].resize(3,0);
    }
-   return pair;
+   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      std::string alt_conf  = residue_atoms[iat]->altLoc;
+      std::string atom_name = residue_atoms[iat]->name;
+      int name_index = -1; 
+      if (atom_name == " N  ") name_index = 0;
+      if (atom_name == " CA ") name_index = 1;
+      if (atom_name == " C  ") name_index = 2;
+      if (name_index != -1) {
+	 // this atom was a main chain reference atom
+	 atoms[alt_conf][name_index] = residue_atoms[iat];
+      }
+   }
+
+   std::map<std::string, std::vector<CAtom *> >::const_iterator it;
+   for(it=atoms.begin(); it!=atoms.end(); it++) {
+      if (it->second[0] && it->second[1] && it->second[2]) {
+	 clipper::Coord_orth  n(it->second[0]->x, it->second[0]->y, it->second[0]->z);
+	 clipper::Coord_orth ca(it->second[1]->x, it->second[1]->y, it->second[1]->z);
+	 clipper::Coord_orth  c(it->second[2]->x, it->second[2]->y, it->second[2]->z);
+
+	 clipper::Coord_orth can_unit = clipper::Coord_orth((n - ca).unit());
+	 clipper::Coord_orth cac_unit = clipper::Coord_orth((c - ca).unit());
+	 
+	 clipper::Coord_orth bisector ((can_unit + cac_unit).unit());
+	 clipper::Coord_orth diff_unit((can_unit - cac_unit).unit());
+	 
+	 clipper::Coord_orth cross_prod(clipper::Coord_orth::cross(diff_unit,bisector));
+	 clipper::Coord_orth cpu = clipper::Coord_orth(cross_prod.unit());
+
+// 	 std::cout << "   n " <<  n.format() << std::endl;
+// 	 std::cout << "  ca " << ca.format() << std::endl;
+// 	 std::cout << "   c " <<  c.format() << std::endl;
+// 	 std::cout << "bisector   " <<   bisector.format() << std::endl;
+// 	 std::cout << "diff_unit  " <<  diff_unit.format() << std::endl;
+// 	 std::cout << "cross prod " << cross_prod.format() << std::endl;
+
+	 // bisector   -> new x axis
+	 // diff_unit  -> new z axis
+	 // cross_prod -> new y axis
+	 
+	 clipper::Mat33<double> m(bisector.x(),  bisector.y(),  bisector.z(),
+				  cpu.x(),       cpu.y(),       cpu.z(),
+				  diff_unit.x(), diff_unit.y(), diff_unit.z());
+	 clipper::RTop_orth rtop(m.transpose(), ca);
+	 orientations[it->first] = rtop;
+      }
+   }
+
+   // debug return value
+   //    std::map<std::string, clipper::RTop_orth>::const_iterator ori_it;
+   //    for(ori_it=orientations.begin(); ori_it!=orientations.end(); ori_it++) {
+   //       std::cout << "get_ori_to_this_res :" << ori_it->first << ":" << std::endl;
+   //       std::cout << ori_it->second.format() << std::endl;
+   //    } 
+   
+   return orientations;
 } 
 
 
@@ -4763,7 +4740,9 @@ std::pair<bool, clipper::RTop_orth> coot::util::nucleotide_to_nucleotide(CResidu
 }
 
 void
-coot::util::mutate_internal(CResidue *residue, CResidue *std_residue,
+coot::util::mutate_internal(CResidue *residue,
+			    CResidue *std_residue,
+			    const std::string &alt_conf,
 			    short int is_from_shelx_ins_flag) {
 
    PPCAtom residue_atoms;
@@ -4796,25 +4775,19 @@ coot::util::mutate_internal(CResidue *residue, CResidue *std_residue,
 	 std::cout << std_residue_atoms[i]->name << std::endl;
    }
 
-   // std::vector<CAtom *> keep_atoms;
+   // only touch the atoms with given alt conf, ignore the others.
    for(int i=0; i<nResidueAtoms; i++) {
-      std::string residue_this_atom (residue_atoms[i]->name);
-      if (coot::is_main_chain_p(residue_atoms[i])) {
-	 // copy the atom, and add the copied atom to the keep_atoms
-	 // vector
-// 	 CAtom *c_copy = new CAtom;
-// 	 c_copy->Copy(residue_atoms[i]);
-// 	 keep_atoms.push_back(c_copy);
-      } else { 
-	 residue->DeleteAtom(i);
+      std::string atom_alt_conf(residue_atoms[i]->altLoc);
+      if (atom_alt_conf == alt_conf) { 
+	 std::string residue_this_atom (residue_atoms[i]->name);
+	 if (coot::is_main_chain_p(residue_atoms[i])) {
+	    // nothing
+	 } else { 
+	    residue->DeleteAtom(i);
+	 }
       }
-   };
+   }
 
-//    // now add the mainchain atoms back
-//    for (unsigned int i=0; i<keep_atoms.size(); i++)
-//       residue->AddAtom(keep_atoms[i]);
-   
-   // add all atoms of std residue to 
    for(int i=0; i<n_std_ResidueAtoms; i++) {
       std::string std_residue_this_atom (std_residue_atoms[i]->name);
       if (! coot::is_main_chain_p(std_residue_atoms[i])) {
@@ -4826,8 +4799,10 @@ coot::util::mutate_internal(CResidue *residue, CResidue *std_residue,
 	 if (use_old_seg_id) {
 	    strcpy(copy_at->segID, old_seg_id_for_residue_atoms.c_str());
 	 }
+	 if (alt_conf != "")
+	    strcpy(copy_at->altLoc, alt_conf.c_str());
       }
-   };
+   }
 
    residue->SetResName(std_residue->GetResName());
    residue->TrimAtomTable();
@@ -4836,10 +4811,11 @@ coot::util::mutate_internal(CResidue *residue, CResidue *std_residue,
 // return state, 0 bad, 1 good
 // 
 int
-coot::util::mutate(CResidue *res, CResidue *std_res_unoriented, short int shelx_flag) {
+coot::util::mutate(CResidue *res, CResidue *std_res_unoriented, const std::string &alt_conf,
+		   short int shelx_flag) {
 
    int istate = 0; 
-   std::pair<clipper::RTop_orth, short int> rtop_pair =
+   std::map<std::string, clipper::RTop_orth> rtops = 
       coot::util::get_ori_to_this_res(res);
 
    PPCAtom residue_atoms;
@@ -4853,16 +4829,23 @@ coot::util::mutate(CResidue *res, CResidue *std_res_unoriented, short int shelx_
 	 clipper::Coord_orth co(residue_atoms[iat]->x,
 				residue_atoms[iat]->y,
 				residue_atoms[iat]->z);
-	 clipper::Coord_orth rotted = co.transform(rtop_pair.first);
-	 residue_atoms[iat]->x = rotted.x();
-	 residue_atoms[iat]->y = rotted.y();
-	 residue_atoms[iat]->z = rotted.z();
+
+	 std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find(alt_conf);
+
+	 if (it != rtops.end()) { 
+	    clipper::Coord_orth rotted = co.transform(it->second);
+	    
+	    residue_atoms[iat]->x = rotted.x();
+	    residue_atoms[iat]->y = rotted.y();
+	    residue_atoms[iat]->z = rotted.z();
+	 }
       }
-      coot::util::mutate_internal(res, std_res_unoriented, shelx_flag); // it's oriented now.
+      coot::util::mutate_internal(res, std_res_unoriented, alt_conf, shelx_flag); // it's oriented now.
       istate = 1;
    }
    return istate;
 }
+
 
 
 
