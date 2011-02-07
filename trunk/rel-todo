@@ -1,22 +1,14 @@
 
  0.6.2
 
-  o set the refinement weight on change callback in entry. ::: 1
+  o key bindings with scheme and python.
 
-  o hydrogen torsions in Edit Chi Angles seem broken.  e.g. ligand
-    in 2gpu after prodrgification. ::: 2
-
-
-  o JL: 
-
-   1) The validation geometry histogram bars become bigger if I stay in coot
-   for a long time.  I nearly thought that my later ncs copies were worse and
-   their geometric outliers were harder to correct, but then if I exit from
-   Coot and restart it, the histogram bars for the same chain become tiny.
-
-   ::: 1
+  o More check of "Check waters by difference map variance" David Banner
+    ::: 1
 
   o CCP4MG from Coot: Pete Dunten ::: 2
+
+  o check debugging the charges in surface generation. ::: 0.5
 
 
 ------
@@ -829,7 +821,7 @@ WARNING:: Can't find file
 * Done.  No problem.
 
 
-  o Check ’Check waters by difference map variance’ - David Banner
+  o Check "Check waters by difference map variance" Banner
     ::: 1
 
 * seems to work for me...
@@ -838,5 +830,22 @@ WARNING:: Can't find file
   o Does Ca Zone -> Backbone crash?  (or is that only trunk?) ::: 1 
 
 * Only in trunk.
+
+  o set the refinement weight on change callback in entry. ::: 1
+
+  o hydrogen torsions in Edit Chi Angles seem broken.  e.g. ligand
+    in 2gpu after prodrgification. ::: 2
+
+
+  o JL: 
+
+   1) The validation geometry histogram bars become bigger if I stay in coot
+   for a long time.  I nearly thought that my later ncs copies were worse and
+   their geometric outliers were harder to correct, but then if I exit from
+   Coot and restart it, the histogram bars for the same chain become tiny.
+
+   ::: 1
+
+* Can't reproduce.
 
 -------
