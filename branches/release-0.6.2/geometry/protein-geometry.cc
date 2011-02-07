@@ -3005,9 +3005,9 @@ coot::protein_geometry::get_monomer_torsions_from_geometry(const std::string &mo
 
 std::vector <coot::dict_torsion_restraint_t>
 coot::protein_geometry::get_monomer_torsions_from_geometry(const std::string &monomer_type,
-							   short int find_hydrogen_torsions_flag) const {
+							   bool find_hydrogen_torsions_flag) const {
 
-   short int ifound = 0;
+   bool ifound = 0;
    std::vector <coot::dict_torsion_restraint_t> rv;
    
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
@@ -3112,7 +3112,7 @@ coot::protein_geometry::torsion_restraints_comparer(const coot::dict_torsion_res
 std::vector <coot::dict_chiral_restraint_t>
 coot::protein_geometry::get_monomer_chiral_volumes(const std::string monomer_type) const { 
 
-   short int ifound = 0;
+   bool ifound = 0;
    std::vector <coot::dict_chiral_restraint_t> rv;
    
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
@@ -3408,7 +3408,7 @@ coot::protein_geometry::get_monomer_type_index(const std::string &monomer_type) 
 bool
 coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name) const {
 
-   short int r = 0;
+   bool r = 0;
    for (unsigned int i=0; i<atom_info.size(); i++) {
       if (atom_info[i].atom_id_4c == atom_name) {
 	 if (atom_info[i].type_symbol == "H" || atom_info[i].type_symbol == "D") {
@@ -3647,7 +3647,7 @@ coot::protein_geometry::remove_planar_peptide_restraint() {
 
    std::string link_id = "TRANS";
    std::string plane_id = "plane3";
-   short int ifound = 0;
+   bool ifound = 0;
 
    for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
       if (dict_link_res_restraints[i].link_id == link_id) { // e.g "TRANS"
@@ -3730,7 +3730,7 @@ coot::protein_geometry::remove_omega_peptide_restraints() {
    v.push_back("CIS");
    v.push_back("PCIS");
 
-   short int ifound = 0;
+   bool ifound = 0;
    for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
       if (dict_link_res_restraints[i].link_id == v[i]) { // is TRANS, say
 
