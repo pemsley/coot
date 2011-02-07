@@ -2,7 +2,8 @@
 EXTRA_DIST = coot.tex derivatives.tex tutorial.tex coot-plain-2.ps \
 	function-filter.scsh functions.tex derivatives-part.tex \
 	reference.tex crib-sheet.tex user-manual.texi \
-	coot-reference-manual.texi
+	coot-reference-manual.texi 3-amino-benzamide-2.eps  3-amino-benzamide-2.png  
+
 
 user-manual.dvi: $(top_srcdir)/doc/user-manual.texi
 	if [ ! -e coot-plain-2.eps ] ; then cp $(top_srcdir)/doc/coot-plain-2.ps coot-plain-2.eps ; fi
