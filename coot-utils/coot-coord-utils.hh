@@ -35,6 +35,8 @@
 #include <string>
 #endif // HAVE_STRING
 
+#include <map>
+
 #include "mmdb_manager.h"
 
 #include "clipper/core/coords.h"
@@ -1168,9 +1170,12 @@ namespace coot {
       // pair.second = 0 for failure
       // pair.first  = 1 for success
       //
-      // How to convert a standard orientation residue to res position
+      // How to convert a standard orientation residue to res position.
+      //
+      // return an orientation for each alt conf that you can find.
       // 
-      std::pair<clipper::RTop_orth, short int> get_ori_to_this_res(CResidue *res);
+      std::map<std::string, clipper::RTop_orth> get_ori_to_this_res(CResidue *res);
+      
 
       // residues with insertion codes
       std::vector<CResidue *> residues_with_insertion_codes(CMMDBManager *mol); 
@@ -1215,11 +1220,18 @@ namespace coot {
       std::pair<bool,clipper::RTop_orth> nucleotide_to_nucleotide(CResidue *reference,
 								  CResidue *moving);
 
-      int mutate(CResidue *res, CResidue *std_res_unoriented, short int shelx_flag);
+      // mutate the atoms of the residue with altLoc alt_conf (this
+      // should be called multiple times for residues with alt_confs).
+      // Return mutated state.
+      // 
+      int mutate(CResidue *res, CResidue *std_res_unoriented, const std::string &alt_conf,
+		 short int shelx_flag);
 
       // given a std residue oriented over residue, make the mutation
       // to std_residue
-      void mutate_internal(CResidue *residue, CResidue *std_residue_oriented,
+      void mutate_internal(CResidue *residue,
+			   CResidue * std_residue_oriented,
+			   const std::string &alt_conf,
 			   short int is_from_shelx_ins_flag);
       
       void mutate_base(CResidue *residue, CResidue *std_base);

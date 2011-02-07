@@ -3688,7 +3688,7 @@ void set_edit_chi_angles_reverse_fragment_state(short int istate) {
 // 
 void set_find_hydrogen_torsions(short int state) {
    graphics_info_t g;
-   g.find_hydrogen_torsions = state;
+   g.find_hydrogen_torsions_flag = static_cast<bool>(state);
    std::string cmd = "set-find-hydrogen-torsion";
    std::vector<coot::command_arg_t> args;
    args.push_back(state);

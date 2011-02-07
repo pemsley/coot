@@ -596,12 +596,14 @@ coot::sequence_assignment::side_chain_score_t::auto_fit_score(CResidue *current_
    // (c.f. auto_fit_rotamer in molecule_class_info_t)
    //
 
-   std::pair<clipper::RTop_orth, short int> rtop_pair = 
+   std::map<std::string, clipper::RTop_orth> rtops = 
       coot::util::get_ori_to_this_res(current_ala_res);
 
    CResidue *rot_res = get_standard_residue(idx);
-   if (rtop_pair.second) { 
-      move_std_res_to_this_res_pos(rtop_pair.first, rot_res); // move rot_res atoms
+
+   std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find("");
+   if (it != rtops.end()) { 
+      move_std_res_to_this_res_pos(it->second, rot_res); // move rot_res atoms
    }
 
    // OK, so now we have a residue (rot_res) (which is a

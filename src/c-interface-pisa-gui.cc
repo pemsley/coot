@@ -27,6 +27,7 @@
 #include <gtk/gtk.h>
 
 #include "graphics-info.h"
+#include "interface.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "c-interface-scm.hh"

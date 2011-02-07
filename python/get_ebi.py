@@ -146,6 +146,9 @@ def get_ebi_pdb(id):
 #
 # 20050725 EDS code
 #
+# return a list of 3 molecule numbers [imol, map, diff_map] or False
+#
+#
 def get_eds_pdb_and_mtz(id):
     import string
     import urllib
@@ -161,8 +164,6 @@ def get_eds_pdb_and_mtz(id):
     # URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/pdb2sar.ent"
     # URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/2sar_sigmaa.mtz"
 
-    # return a list of 3 molecule numbers or False
-    #
     def get_cached_eds_files(accession_code):
         down_code = string.lower(accession_code)
         pdb_file_name = os.path.join("coot-download",

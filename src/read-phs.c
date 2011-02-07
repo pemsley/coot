@@ -28,11 +28,11 @@
 
 #include <gtk/gtk.h>
 
-#include "interface.h"
 
 #include "c-interface.h"
 #include "gtk-manual.h" // for display_cell_chooser_box
 #include "read-phs.h"
+#include "interface.h"
 
 #include "coot-fileselections.h" // for file chooser filter button
 

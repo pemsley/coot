@@ -329,6 +329,8 @@ coot_real_SOURCES = \
 	graphics-info.h 	 \
 	gtk-manual.cc		 \
 	gtk-manual.h		 \
+	gtk-widget-conversion-utils.h \
+	gtk-widget-conversion-utils.cc \
 	gtk2-interface.c	 \
 	gtk-manual.hh		 \
 	guile-fixups.h		 \

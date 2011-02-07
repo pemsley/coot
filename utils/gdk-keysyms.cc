@@ -20,6 +20,15 @@
  */
 
 #include "coot-utils.hh"
+namespace coot {
+   namespace util {
+      std::vector<std::pair<std::string, int> > key_sym_vec_1();
+      std::vector<std::pair<std::string, int> > key_sym_vec_2();
+      std::vector<std::pair<std::string, int> > key_sym_vec_3();
+      std::vector<std::pair<std::string, int> > key_sym_vec_4();
+      std::vector<std::pair<std::string, int> > key_sym_vec_5();
+   }
+} 
 
 // Return -1 on failure to find symbol
 int 
@@ -36,10 +45,11 @@ coot::util::decode_keysym(const std::string &s) {
    return r;
 }
 
+
 std::vector<std::pair<std::string, int> >
-coot::util::key_sym_vec() {
-   
-   std::vector<std::pair<std::string, int> > a;
+coot::util::key_sym_vec_1() {
+
+   std::vector<std::pair<std::string, int> > a; 
    a.push_back(std::pair<std::string,int>("BackSpace", 65288));
    a.push_back(std::pair<std::string,int>("Tab", 65289));
    a.push_back(std::pair<std::string,int>("Linefeed", 65290));
@@ -113,6 +123,15 @@ coot::util::key_sym_vec() {
    a.push_back(std::pair<std::string,int>("KP_7", 65463));
    a.push_back(std::pair<std::string,int>("KP_8", 65464));
    a.push_back(std::pair<std::string,int>("KP_9", 65465));
+   return a;
+} 
+
+
+std::vector<std::pair<std::string, int> >
+coot::util::key_sym_vec_2() {
+
+   std::vector<std::pair<std::string, int> > a;
+   {
    a.push_back(std::pair<std::string,int>("F1", 65470));
    a.push_back(std::pair<std::string,int>("F2", 65471));
    a.push_back(std::pair<std::string,int>("F3", 65472));
@@ -187,6 +206,15 @@ coot::util::key_sym_vec() {
    a.push_back(std::pair<std::string,int>("Super_R", 65516));
    a.push_back(std::pair<std::string,int>("Hyper_L", 65517));
    a.push_back(std::pair<std::string,int>("Hyper_R", 65518));
+   }
+   return a;
+}
+
+std::vector<std::pair<std::string, int> >
+coot::util::key_sym_vec_3() {
+
+   std::vector<std::pair<std::string, int> > a;
+   { 
    a.push_back(std::pair<std::string,int>("ISO_Lock", 65025));
    a.push_back(std::pair<std::string,int>("ISO_Level2_Latch", 65026));
    a.push_back(std::pair<std::string,int>("ISO_Level3_Shift", 65027));
@@ -289,6 +317,17 @@ coot::util::key_sym_vec() {
    a.push_back(std::pair<std::string,int>("Pointer_Accelerate", 65274));
    a.push_back(std::pair<std::string,int>("Pointer_DfltBtnNext", 65275));
    a.push_back(std::pair<std::string,int>("Pointer_DfltBtnPrev", 65276));
+   }
+   return a;
+}
+
+
+std::vector<std::pair<std::string, int> >
+coot::util::key_sym_vec_4() {
+
+
+   std::vector<std::pair<std::string, int> > a;
+
    a.push_back(std::pair<std::string,int>("space", 32));
    a.push_back(std::pair<std::string,int>("exclam", 33));
    a.push_back(std::pair<std::string,int>("quotedbl", 34));
@@ -391,6 +430,28 @@ coot::util::key_sym_vec() {
    a.push_back(std::pair<std::string,int>("cent", 162));
    a.push_back(std::pair<std::string,int>("sterling", 163));
    a.push_back(std::pair<std::string,int>("currency", 164));
+
+   return a; 
+}
+   
+std::vector<std::pair<std::string, int> >
+coot::util::key_sym_vec() {
+   
+   std::vector<std::pair<std::string, int> > a;
+
+   std::vector<std::pair<std::string, int> > a_1 = coot::util::key_sym_vec_1();
+   std::vector<std::pair<std::string, int> > a_2 = coot::util::key_sym_vec_2();
+   std::vector<std::pair<std::string, int> > a_3 = coot::util::key_sym_vec_3();
+   std::vector<std::pair<std::string, int> > a_4 = coot::util::key_sym_vec_4();
+
+   for (unsigned int i=0; i<a_1.size(); i++)
+      a.push_back(a_1[i]);
+   for (unsigned int i=0; i<a_2.size(); i++)
+      a.push_back(a_2[i]);
+   for (unsigned int i=0; i<a_3.size(); i++)
+      a.push_back(a_3[i]);
+   for (unsigned int i=0; i<a_4.size(); i++)
+      a.push_back(a_4[i]);
 
    // added by hand (from gdk-keysym.awk)
    

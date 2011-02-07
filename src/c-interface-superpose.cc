@@ -495,6 +495,7 @@ apply_lsq_matches(int imol_reference, int imol_moving) {
    return scm_status;
 }
 #endif // USE_GUILE
+
 #ifdef USE_PYTHON
 PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving) {
 

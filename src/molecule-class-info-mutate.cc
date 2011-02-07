@@ -154,49 +154,61 @@ molecule_class_info_t::mutate(CResidue *res, const std::string &residue_type) {
       std::cout << "badness in mutate standard residue selection\n";
    } else {
 
-      CResidue *std_residue = coot::deep_copy_this_residue(SelResidue[0], "", 1, 
-							   atom_sel.UDDAtomIndexHandle);
-
-      if (std_residue) { 
-	 std::pair<clipper::RTop_orth, short int> rtop_pair =
-	    coot::util::get_ori_to_this_res(res); // the passed res.
-
-	 if (rtop_pair.second == 0) {
+      std::map<std::string, clipper::RTop_orth> rtops =
+	 coot::util::get_ori_to_this_res(res); // the passed res.
 	 
-	    std::cout << "failure to get orientation matrix" << std::endl;
+      if (rtops.size() == 0) {
+	 
+	 std::cout << "failure to get orientation matrix" << std::endl;
 
-	 } else { 
+      } else { 
+
+	 // we need to generate a std_residue for each alt conf,
+	 // (usually, just one of course).
+	 std::map<std::string, clipper::RTop_orth>::const_iterator it;
+
+	 for (it=rtops.begin(); it!=rtops.end(); it++) {
+	    bool whole_res = 1;
+	    CResidue *std_residue = coot::deep_copy_this_residue(SelResidue[0], "", whole_res, 
+								 atom_sel.UDDAtomIndexHandle);
+	    if (! std_residue) {
+
+	       std::cout << "failure to get std_residue in mutate()" << std::endl;
+
+	    } else { 
       
-	    make_backup();
+	       make_backup();
 
-	    PPCAtom residue_atoms;
-	    int nResidueAtoms;
-	    std_residue->GetAtomTable(residue_atoms, nResidueAtoms);
-	    if (nResidueAtoms == 0) {
-	       std::cout << " something broken in atom residue selection in ";
-	       std::cout << "mutate, got 0 atoms" << std::endl;
-	    } else {
-	       for(int iat=0; iat<nResidueAtoms; iat++) {
-		  clipper::Coord_orth co(residue_atoms[iat]->x,
-					 residue_atoms[iat]->y,
-					 residue_atoms[iat]->z);
-		  clipper::Coord_orth rotted = co.transform(rtop_pair.first);
-		  residue_atoms[iat]->x = rotted.x();
-		  residue_atoms[iat]->y = rotted.y();
-		  residue_atoms[iat]->z = rotted.z();
+	       PPCAtom residue_atoms;
+	       int nResidueAtoms;
+	       std_residue->GetAtomTable(residue_atoms, nResidueAtoms);
+	       if (nResidueAtoms == 0) {
+		  std::cout << " something broken in atom residue selection in ";
+		  std::cout << "mutate, got 0 atoms" << std::endl;
+	       } else {
+		  for(int iat=0; iat<nResidueAtoms; iat++) {
+			
+		     clipper::Coord_orth co(residue_atoms[iat]->x,
+					    residue_atoms[iat]->y,
+					    residue_atoms[iat]->z);
+		     clipper::Coord_orth rotted = co.transform(it->second);
+		     residue_atoms[iat]->x = rotted.x();
+		     residue_atoms[iat]->y = rotted.y();
+		     residue_atoms[iat]->z = rotted.z();
+		  }
+
+		  // 	 std::cout << " standard residue has moved to these positions: " 
+		  //             << std::endl;
+		  // 	 for(int iat=0; iat<nResidueAtoms; iat++) {
+		  // 	    std::cout << residue_atoms[iat]->name << " " 
+		  // 		      << residue_atoms[iat]->x << " "
+		  // 		      << residue_atoms[iat]->y << " "
+		  // 		      << residue_atoms[iat]->z << "\n";
+		  // 	 }
+		  // add the atom of std_res to res, deleting excess.
+		  mutate_internal(res, std_residue, it->first);
+		  istate = 1;
 	       }
-
-	       // 	 std::cout << " standard residue has moved to these positions: " 
-	       //             << std::endl;
-	       // 	 for(int iat=0; iat<nResidueAtoms; iat++) {
-	       // 	    std::cout << residue_atoms[iat]->name << " " 
-	       // 		      << residue_atoms[iat]->x << " "
-	       // 		      << residue_atoms[iat]->y << " "
-	       // 		      << residue_atoms[iat]->z << "\n";
-	       // 	 }
-	       // add the atom of std_res to res, deleting excess.
-	       mutate_internal(res, std_residue);
-	       istate = 1;
 	    }
 	 }
       }
@@ -212,13 +224,13 @@ molecule_class_info_t::mutate(CResidue *res, const std::string &residue_type) {
 // coordinates and likely to be wrong in the standard residue.
 // 
 void
-molecule_class_info_t::mutate_internal(CResidue *residue, CResidue *std_residue) {
-
+molecule_class_info_t::mutate_internal(CResidue *residue, CResidue *std_residue,
+				       const std::string &alt_conf) {
 
    atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
    delete_ghost_selections();
 
-   coot::util::mutate_internal(residue, std_residue, is_from_shelx_ins_flag);
+   coot::util::mutate_internal(residue, std_residue, alt_conf, is_from_shelx_ins_flag);
 
    atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
@@ -1150,8 +1162,9 @@ molecule_class_info_t::apply_sequence(int imol_map, CMMDBManager *poly_ala_mol,
 
 		  std::cout << "Mutating poly_ala residue number " << poly_ala_res->GetSeqNum()
 			    << std::endl;
-	       
-		  coot::util::mutate(poly_ala_res, std_res, 0); // not shelx
+
+		  std::string alt_conf = ""; // presumably.
+		  coot::util::mutate(poly_ala_res, std_res, alt_conf, 0); // not shelx
 		  poly_ala_res->GetChain()->SetChainID(chain_id.c_str());
 		  poly_ala_res->seqNum = resno_offset + ichar;
 		  if (ichar < mmdb_residues.size())
@@ -1257,10 +1270,12 @@ molecule_class_info_t::mutate_single_multipart(int ires_serial, const char *chai
 		     // move the standard res to position of res_p
 		     // move_std_residue(moving_residue, (const) reference_residue);
 		     if (std_res) { 
-			istat = move_std_residue(std_res, (const CResidue *)res_p);
+			istat = move_std_residue(std_res, res_p);
 			
-			if (istat) { 
-			   mutate_internal(res_p, std_res);
+			if (istat) {
+			   std::vector<std::string> alt_confs = coot::util::get_residue_alt_confs(res_p);
+			   for (unsigned int i=0; i<alt_confs.size(); i++) 
+			      mutate_internal(res_p, std_res, alt_confs[i]);
 			} else { 
 			   std::cout << "WARNING:  Not mutating residue due to missing atoms!\n";
 			} 
