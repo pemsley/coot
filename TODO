@@ -736,6 +736,10 @@ Punted from 0.6:
      will be opened in "colour by chain" mode (not just the ones that
      I've already opened).
 
+  o Can you mutate residues in alt confs?  BN ::: 3
+
+* No.  Should we be able?  Yes, I think so.
+
    o coordination number of waters validataion check (punted) ::: 5 
 
 * Done.
