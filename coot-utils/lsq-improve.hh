@@ -10,15 +10,16 @@ namespace coot {
       int n_ref_atoms;
       int n_mov_atoms;
       int CAs_to_model(CMMDBManager *mol_in, int model_number);
-      std::vector<coot::lsq_range_match_info_t> get_new_matches() const;
+      std::vector<lsq_range_match_info_t> get_new_matches() const;
+      std::vector<lsq_range_match_info_t> get_new_matches(std::map<residue_spec_t, std::vector<residue_spec_t> > contact_residues) const;
       // move the moving model (with model number 2) in mol.
-      void apply_matches(const std::vector<coot::lsq_range_match_info_t> &matches);
+      void apply_matches(const std::vector<lsq_range_match_info_t> &matches);
       // have we reached convergence?
-      bool same_matches(const std::vector<coot::lsq_range_match_info_t> &ranges_1,
-			const std::vector<coot::lsq_range_match_info_t> &ranges_2) const;
+      bool same_matches(const std::vector<lsq_range_match_info_t> &ranges_1,
+			const std::vector<lsq_range_match_info_t> &ranges_2) const;
       realtype crit_close;
       int n_res_for_frag;
-      clipper::RTop_orth rtop_of_moving(const std::vector<coot::lsq_range_match_info_t> &matches) const;
+      clipper::RTop_orth rtop_of_moving(const std::vector<lsq_range_match_info_t> &matches) const;
    public:
       lsq_improve(CMMDBManager *mol_ref, CMMDBManager *mol_moving);
       void set_crit_close(realtype val) { crit_close = val; }

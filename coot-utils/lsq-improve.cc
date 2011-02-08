@@ -208,7 +208,6 @@ coot::lsq_improve::get_new_matches() const {
    // find residues in mol2 (moving) that are close to residues of mol 1 (reference), key
    // 
    std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> > contact_residues;
-   std::map<coot::residue_spec_t, bool> residue_done; // markers for contact_residues
 
    std::cout << "n_sel_1:: " << n_sel_1 << std::endl;
    std::cout << "n_sel_2:: " << n_sel_2 << std::endl;
@@ -222,32 +221,49 @@ coot::lsq_improve::get_new_matches() const {
 	 coot::residue_spec_t r_2(atom_mov);
 	 contact_residues[r_1].push_back(r_2);
 	 // include an "already matched" flag with the same key
-	 residue_done[r_1] = 0;
+      }
+   }
+   delete [] contact; // we are done with contact now.
+
+   // the heart of the function
+   // 
+   r = get_new_matches(contact_residues);
+
+
+   if (0) { 
+      std::cout << "residue specs after contacts " << std::endl;
+      std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> >::iterator iter;
+      for (iter=contact_residues.begin(); iter!=contact_residues.end(); iter++) {
+	 std::cout << "     " << iter->first << std::endl;
+      }
+   }
+   
+   return r;
+}
+
+// core function
+// 
+std::vector<coot::lsq_range_match_info_t>
+coot::lsq_improve::get_new_matches(std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> > contact_residues) const {
+
+   std::vector<coot::lsq_range_match_info_t> r;
+   
+   std::map<coot::residue_spec_t, bool> residue_done; // markers for contact_residues
+   std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> >::iterator iter;
+   for (iter=contact_residues.begin(); iter!=contact_residues.end(); iter++)
+      residue_done[iter->first] = 0;
+
+   
+   for (iter=contact_residues.begin(); iter!=contact_residues.end(); iter++) {
+      if (! residue_done[iter->first]) {
+	 std::vector<coot::residue_spec_t> contiguous_frag_spec;
+	 
       }
    }
 
-   std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> >::iterator iter;
-   std::map<coot::residue_spec_t, bool>::iterator done_iter; // markers for contact_residues
-
-   std::cout << "residue specs after contacts " << std::endl;
-   for (iter=contact_residues.begin(); iter!=contact_residues.end(); iter++) {
-
-      if (! residue_done[iter->first]) {
-
-	 std::cout << "     " << iter->first << std::endl;
-
-	 std::vector<coot::residue_spec_t> contiguous_frag_spec;
-
-	 
-
-	 // now set as already matched
-	 residue_done[iter->first] = 1;
-      }
-   } 
-   
-   delete [] contact;
    return r;
-} 
+}
+
 
 // move the moving model (with model number 2) in mol.
 void
