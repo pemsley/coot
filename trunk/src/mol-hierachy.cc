@@ -130,8 +130,8 @@ void check_chiral_volumes(int imol) {
    int imod = 1;
    CModel *model_p = mol->GetModel(imod);
    CChain *chain_p;
-   int nchains = model_p->GetNumberOfChains();
-   for (int ichain=0; ichain<nchains; ichain++) {
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       CResidue *residue_p;
