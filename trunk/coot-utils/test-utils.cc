@@ -25,7 +25,7 @@
 
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
-
+#include "lsq-improve.hh"
 
 namespace coot { 
    class SortableChainsCMMDBManager : public CMMDBManager {
@@ -114,6 +114,29 @@ void test_sort_chains() {
    mol->ReadCoorFile((const pstr) file_name.c_str());
    coot::sort_chains(mol);
    mol->WritePDBASCII("test-sort-chains-sorted.pdb");
+}
+
+void test_lsq_improve() {
+
+   std::cout << "========================= lsq-improve ==================" << std::endl;
+   CMMDBManager *mol_1 = new CMMDBManager;
+   CMMDBManager *mol_2 = new CMMDBManager;
+
+   mol_1->ReadCoorFile("tutorial-modern.pdb");
+   mol_2->ReadCoorFile("1py3-matched-A1-5.pdb");
+
+   try { 
+      coot::lsq_improve lsq_imp(mol_1, mol_2);
+      lsq_imp.improve();
+      
+      clipper::RTop_orth rtop = lsq_imp.rtop_of_moving();
+      std::cout << "rtop:\n" << rtop.format() << std::endl;
+
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "lsq_improve ERROR::" << rte.what() << std::endl;
+   } 
+
 } 
 
 
@@ -200,6 +223,8 @@ int main(int argv, char **argc) {
    test_sort_chains();
 
    test_euler_angles();
+
+   test_lsq_improve();
    
    return 0;
 }

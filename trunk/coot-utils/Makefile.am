@@ -30,7 +30,7 @@ lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-shelx.la libcoot-coord-extras.l
 include_HEADERS = peak-search.hh coot-trim.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
-	coot-rama.hh xmap-stats.hh coot-h-bonds.hh
+	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh
 
 INCLUDES = \
 	-I$(top_srcdir)/utils	        \
@@ -49,7 +49,7 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 
 # for pure coordinates (mmdb) things
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
-	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc
+	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc lsq-improve.cc
 
 # clean
 libcoot_coord_utils_la_LIBADD = \
