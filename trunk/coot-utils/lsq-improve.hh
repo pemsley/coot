@@ -11,7 +11,7 @@ namespace coot {
       int n_mov_atoms;
       int CAs_to_model(CMMDBManager *mol_in, int model_number);
       std::vector<lsq_range_match_info_t> get_new_matches() const;
-      std::vector<lsq_range_match_info_t> get_new_matches(std::map<residue_spec_t, std::vector<residue_spec_t> > contact_residues) const;
+      std::vector<lsq_range_match_info_t> get_new_matches(const std::map<residue_spec_t, std::vector<residue_spec_t> > &contact_residues) const;
       // move the moving model (with model number 2) in mol.
       void apply_matches(const std::vector<lsq_range_match_info_t> &matches);
       // have we reached convergence?
