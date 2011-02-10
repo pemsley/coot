@@ -336,7 +336,7 @@ coot::lsq_improve::get_new_matches(const std::map<coot::residue_spec_t, std::vec
 // move the moving model (with model number 2) in mol.
 void
 coot::lsq_improve::apply_matches(const std::vector<coot::lsq_range_match_info_t> &matches) {
-   std::pair<short int, clipper::RTop_orth> mat = coot::util::get_lsq_matrix(mol, mol, matches, 1);
+   // std::pair<short int, clipper::RTop_orth> mat = coot::util::get_lsq_matrix(mol, mol, matches, 1);
 }
 
 
