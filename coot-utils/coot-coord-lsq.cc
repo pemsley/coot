@@ -37,22 +37,12 @@ coot::util::get_lsq_matrix(CMMDBManager *mol1,
    int SelHnd2 = mol2->NewSelection();
    std::vector<int> v1;
    std::vector<int> v2;
-   PPCAtom r_atoms;
-   PPCAtom w_atoms;
-   int r_selected_atoms;
-   int w_selected_atoms;
-
-   mol1->GetSelIndex(SelHnd1, r_atoms, r_selected_atoms);
-   mol2->GetSelIndex(SelHnd2, w_atoms, w_selected_atoms);
-
-   mol1->SelectAtoms(SelHnd1, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
-   mol2->SelectAtoms(SelHnd2, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
 
    std::vector<clipper::Coord_orth> co1v;
    std::vector<clipper::Coord_orth> co2v;
    for (unsigned int i=0; i<matches.size(); i++) {
       std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > p =
-	get_matching_indices(mol1, mol2, SelHnd1, SelHnd2, matches[i], every_nth);
+	get_matching_indices(mol1, mol2, matches[i], every_nth);
       if ((p.first.size() > 0) && (p.first.size() == p.second.size())) {
 	 for (unsigned int j=0; j<p.first.size(); j++) {
 	    co1v.push_back(p.first[j]);
@@ -115,21 +105,11 @@ coot::util::get_lsq_matrix(CMMDBManager *mol1,
 std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > 
 coot::util::get_matching_indices(CMMDBManager *mol1,
 				 CMMDBManager *mol2,
-				 int SelHnd1,
-				 int SelHnd2,
 				 const coot::lsq_range_match_info_t &match,
 				 int every_nth) {
 
    std::vector<clipper::Coord_orth> v1;
    std::vector<clipper::Coord_orth> v2;
-
-   PPCAtom r_atoms;
-   PPCAtom w_atoms;
-   int r_selected_atoms;
-   int w_selected_atoms;
-
-   mol1->GetSelIndex(SelHnd1, r_atoms, r_selected_atoms);
-   mol2->GetSelIndex(SelHnd2, w_atoms, w_selected_atoms);
 
    // general main chain atom names
    std::vector<std::string> mc_at_names;
@@ -180,7 +160,8 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 //      std::cout << "Searching for residue number " << ires_matcher << " "
 //		<< match.matcher_chain_id << " in matcher molecule" << std::endl;
       
-      mol1->Select (SelHnd_res1, STYPE_RESIDUE, 0, // .. TYPE, iModel
+      mol1->Select (SelHnd_res1, STYPE_RESIDUE,
+		    match.model_number_reference,
 		    match.reference_chain_id.c_str(), // Chain(s)
 		    ires, "*",  // starting res
 		    ires, "*",  // ending res
@@ -190,7 +171,8 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 		    "*",  // altLocs
 		    SKEY_NEW // selection key
 		    );
-      mol2->Select (SelHnd_res2, STYPE_RESIDUE, 0, // .. TYPE, iModel
+      mol2->Select (SelHnd_res2, STYPE_RESIDUE, // .. TYPE, 
+		    match.model_number_matcher,
 		    match.matcher_chain_id.c_str(), // Chain(s)
 		    ires_matcher, "*",  // starting res
 		    ires_matcher, "*",  // ending res

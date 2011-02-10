@@ -223,6 +223,18 @@ namespace coot {
 	    u = 0;
 	 return u;
       }
+      residue_spec_t next() const {
+	 residue_spec_t r = *this;
+	 if (resno != MinInt4)
+	    r.resno += 1;
+	 return r;
+      }
+      residue_spec_t previous() const {
+	 residue_spec_t r = *this;
+	 if (resno != MinInt4)
+	    r.resno -= 1;
+	 return r;
+      }
       bool operator==(const residue_spec_t &matcher) const {
 	 if (matcher.chain == chain) {
 	    if (matcher.resno == resno) {
@@ -308,6 +320,8 @@ namespace coot {
 
    class lsq_range_match_info_t {
    public:
+      int model_number_reference; // usually 0, meaning unset.
+      int model_number_matcher;   // usually 0;
       int to_reference_start_resno;
       int to_reference_end_resno;
       int from_matcher_start_resno;
@@ -336,6 +350,8 @@ namespace coot {
 	 from_matcher_end_resno = from_matcher_end_resno_in;
 	 reference_chain_id = reference_chain_id_in;
 	 matcher_chain_id = matcher_chain_id_in;
+	 model_number_matcher = 0;
+	 model_number_reference = 0;
       }
       
       lsq_range_match_info_t(std::string reference_chain_id_in,
@@ -360,7 +376,15 @@ namespace coot {
 	 reference_alt_conf       = reference_alt_conf_in;
 	 matcher_atom_name        = matcher_atom_name_in;
 	 matcher_alt_conf         = matcher_alt_conf_in;
+	 model_number_matcher = 0;
+	 model_number_reference = 0;
       }
+      void set_model_number_reference(int ino) {
+	 model_number_reference = ino;
+      } 
+      void set_model_number_matcher(int ino) {
+	 model_number_matcher = ino;
+      } 
       
    };
    
@@ -1193,8 +1217,6 @@ namespace coot {
       std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > 
       get_matching_indices(CMMDBManager *mol1,
 			   CMMDBManager *mol2,
-			   int SelHnd1,
-			   int SelHnd2,
 			   const lsq_range_match_info_t &match,
 			   int every_nth);
 

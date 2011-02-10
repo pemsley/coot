@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <algorithm>
 
 #include <string.h> // strncpy
 
@@ -57,27 +58,18 @@ coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, CMMDBManager *mol_moving) 
 	 int n_sel_2;
 	 mol->GetSelIndex(sel_hnd_1, atom_sel_1, n_sel_1);
 	 mol->GetSelIndex(sel_hnd_2, atom_sel_2, n_sel_2);
-	 std::cout << ".... in constructor selected " << n_sel_1 << " atoms " << std::endl;
-	 std::cout << ".... in constructor selected " << n_sel_2 << " atoms " << std::endl;
-
 	 
-	 std::cout << "... n_models " << mol->GetNumberOfModels() << std::endl;
 	 for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
 	    CModel *model_p = mol->GetModel(imod);
-	    std::cout << "... model_p " << model_p->GetSerNum() << " " << model_p << std::endl;
 	    CChain *chain_p;
 	    int nchains = model_p->GetNumberOfChains();
-	    std::cout << "... n_chains: " << nchains << std::endl;
 	    for (int ichain=0; ichain<nchains; ichain++) {
 	       chain_p = model_p->GetChain(ichain);
-	       std::cout << "... chain_p: " << chain_p << std::endl;
 	       int nres = chain_p->GetNumberOfResidues();
-	       std::cout << "... ... nres " << nres << std::endl;
 	       CResidue *residue_p;
 	       CAtom *at;
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
-		  std::cout << "... ... residue_p " << residue_p << std::endl;
 		  int n_atoms = residue_p->GetNumberOfAtoms();
 		  for (int iat=0; iat<n_atoms; iat++) {
 		     at = residue_p->GetAtom(iat);
@@ -150,7 +142,7 @@ void coot::lsq_improve::improve() {
 	 std::vector<std::vector<coot::lsq_range_match_info_t> > previous_matches;
 	 bool found_match_before = 0;
 	 int i_round = 0;
-	 int n_rounds_max = 5;
+	 int n_rounds_max = 1;
 
 	 while (! found_match_before) {
 
@@ -209,9 +201,9 @@ coot::lsq_improve::get_new_matches() const {
    // 
    std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> > contact_residues;
 
-   std::cout << "n_sel_1:: " << n_sel_1 << std::endl;
-   std::cout << "n_sel_2:: " << n_sel_2 << std::endl;
-   std::cout << "SeekContacts() found ncontacts: " << ncontacts << std::endl;
+//    std::cout << "n_sel_1:: " << n_sel_1 << std::endl;
+//    std::cout << "n_sel_2:: " << n_sel_2 << std::endl;
+//    std::cout << "SeekContacts() found ncontacts: " << ncontacts << std::endl;
    
    if (ncontacts) {
       for (int icon=0; icon<ncontacts; icon++) {
@@ -225,18 +217,23 @@ coot::lsq_improve::get_new_matches() const {
    }
    delete [] contact; // we are done with contact now.
 
-   // the heart of the function
-   // 
-   r = get_new_matches(contact_residues);
-
-
    if (0) { 
       std::cout << "residue specs after contacts " << std::endl;
       std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> >::iterator iter;
       for (iter=contact_residues.begin(); iter!=contact_residues.end(); iter++) {
-	 std::cout << "     " << iter->first << std::endl;
+	 std::cout << " " << iter->first << std::endl;
+	 for (unsigned int ispec=0; ispec<iter->second.size(); ispec++) { 
+	    std::cout << "      " << iter->second[ispec] << std::endl;
+	 }
       }
    }
+   
+   // the heart of the function
+   // 
+   r = get_new_matches(contact_residues);
+   std::cout << "--------------- found " << r.size() << " matches ------------ " << std::endl;
+
+
    
    return r;
 }
@@ -244,23 +241,94 @@ coot::lsq_improve::get_new_matches() const {
 // core function
 // 
 std::vector<coot::lsq_range_match_info_t>
-coot::lsq_improve::get_new_matches(std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> > contact_residues) const {
+coot::lsq_improve::get_new_matches(const std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> > &contact_residues) const {
 
    std::vector<coot::lsq_range_match_info_t> r;
    
    std::map<coot::residue_spec_t, bool> residue_done; // markers for contact_residues
-   std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> >::iterator iter;
+   std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> >::const_iterator iter;
+   std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> >::const_iterator iter_running;
+   std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> >::const_iterator it;
    for (iter=contact_residues.begin(); iter!=contact_residues.end(); iter++)
       residue_done[iter->first] = 0;
 
    
    for (iter=contact_residues.begin(); iter!=contact_residues.end(); iter++) {
       if (! residue_done[iter->first]) {
-	 std::vector<coot::residue_spec_t> contiguous_frag_spec;
+
+	 // std::vector<coot::lsq_range_match_info_t> contiguous_frag_spec;
+	 std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> > contiguous_frag_spec;
+
+	 // std::cout << "==== outer loop ref res: " << iter->first << std::endl;
+	       
+	 bool found_next_pair = 1; // init
+	 iter_running = iter;
+	 int depth = 0;
+	 coot::residue_spec_t mov_running;
 	 
+	 while (found_next_pair) {
+
+	    depth++;
+	    
+	    // Is there a next (ref) which has a next (moving)? (There is
+	    // a vector of moving that we need to run through)
+	    
+	    it = contact_residues.find(iter_running->first.next());
+	    if (it == contact_residues.end()) {
+	       found_next_pair = 0;
+	       // std::cout << "fail to find next ref res ("<< iter_running->first.next()
+	       // << ")" << std::endl;
+	    } else {
+
+	       bool ifound = 0; // init
+	       for (unsigned int imov=0; imov<iter_running->second.size(); imov++) {
+
+		  if (0)
+		     std::cout << "   depth " << depth << " ref-res:   " << iter_running->first
+			       << " considering match to mov spec "
+			       << imov << "/" << iter_running->second.size() << "  "
+			       << iter_running->second[imov] << std::endl;
+
+		  if (depth == 1 || iter_running->second[imov] == mov_running) { 
+		     mov_running = iter_running->second[imov];
+		     // std::cout << "     pushing pair " << iter_running->first << "  "
+		     // << iter_running->second[imov] << std::endl;
+		     std::pair<coot::residue_spec_t, coot::residue_spec_t> pair(iter_running->first, iter_running->second[imov]);
+		     contiguous_frag_spec.push_back(pair);
+		     ifound = 1;
+		     break;
+		  }
+	       }
+	       if (! ifound)
+		  found_next_pair = 0;
+	    }
+
+	    if (found_next_pair) {
+	       iter_running++;
+	       // std::cout << ".... updating mov_running from " << mov_running << " to "
+	       // << mov_running.next() << std::endl;
+	       mov_running = mov_running.next();
+	    } else {
+	       // we will fail out of the while next time it is tested
+	       // std::cout << "Found a frag of size " << contiguous_frag_spec.size() << std::endl;
+	       if (contiguous_frag_spec.size() >= n_res_for_frag) {
+		  for (unsigned int ipair=0; ipair<contiguous_frag_spec.size(); ipair++) { 
+		     residue_done[contiguous_frag_spec[ipair].first] = 1;
+		  }
+		  coot::lsq_range_match_info_t range(contiguous_frag_spec.begin()->first.resno,
+						     contiguous_frag_spec.back().first.resno,
+						     contiguous_frag_spec.begin()->first.chain,
+						     contiguous_frag_spec.begin()->second.resno,
+						     contiguous_frag_spec.back().second.resno,
+						     contiguous_frag_spec.begin()->second.chain,
+						     COOT_LSQ_CA);
+						     
+		  r.push_back(range);
+	       } 
+	    } 
+	 } 
       }
    }
-
    return r;
 }
 
@@ -269,7 +337,7 @@ coot::lsq_improve::get_new_matches(std::map<coot::residue_spec_t, std::vector<co
 void
 coot::lsq_improve::apply_matches(const std::vector<coot::lsq_range_match_info_t> &matches) {
 
-} 
+}
 
 
 // can throw an exception
