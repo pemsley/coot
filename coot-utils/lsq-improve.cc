@@ -11,14 +11,13 @@
 
 coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, CMMDBManager *mol_moving) {
    mol = new CMMDBManager;
+   mol_initial_copy = NULL; // reset later hopefully.
    crit_close = 6; // A
    n_res_for_frag = 6;
+   n_rounds_max = 10;
    
    n_ref_atoms = CAs_to_model(mol_ref,    1);
    n_mov_atoms = CAs_to_model(mol_moving, 2);
-
-   std::cout << "addded n_ref_atoms: " << n_ref_atoms << std::endl;
-   std::cout << "addded n_mov_atoms: " << n_mov_atoms << std::endl;
 
    if (! n_ref_atoms) {
       std::cout << "no CA atoms from ref mol " << std::endl;
@@ -51,32 +50,8 @@ coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, CMMDBManager *mol_moving) 
 			   "*"  // alt loc.
 			   );
 
-	 
-	 PPCAtom atom_sel_1 = 0;
-	 PPCAtom atom_sel_2 = 0;
-	 int n_sel_1;
-	 int n_sel_2;
-	 mol->GetSelIndex(sel_hnd_1, atom_sel_1, n_sel_1);
-	 mol->GetSelIndex(sel_hnd_2, atom_sel_2, n_sel_2);
-	 
-	 for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-	    CModel *model_p = mol->GetModel(imod);
-	    CChain *chain_p;
-	    int nchains = model_p->GetNumberOfChains();
-	    for (int ichain=0; ichain<nchains; ichain++) {
-	       chain_p = model_p->GetChain(ichain);
-	       int nres = chain_p->GetNumberOfResidues();
-	       CResidue *residue_p;
-	       CAtom *at;
-	       for (int ires=0; ires<nres; ires++) { 
-		  residue_p = chain_p->GetResidue(ires);
-		  int n_atoms = residue_p->GetNumberOfAtoms();
-		  for (int iat=0; iat<n_atoms; iat++) {
-		     at = residue_p->GetAtom(iat);
-		  }
-	       }
-	    }
-	 }
+	 mol_initial_copy = new CMMDBManager;
+	 mol_initial_copy->Copy(mol, MMDBFCM_All);
       }
    }
 }
@@ -90,21 +65,18 @@ coot::lsq_improve::CAs_to_model(CMMDBManager *mol_in, int model_number) {
       int imod = 1;
       CModel *model_p = mol_in->GetModel(imod);
       if (!model_p) {
-	 std::cout << "Oops no MODEL 1 in input molecule for synthmol model-no " << model_number
-		   << std::endl;
+	 std::cout << "Oops no MODEL 1 in input molecule for synthmol model-no "
+		   << model_number << std::endl;
       } else {
 
 	 CModel *model_new = new CModel;
 	 mol->AddModel(model_new);
 	 int nchains = model_p->GetNumberOfChains();
-	 std::cout << "refmol has " << nchains << " chains " << std::endl;
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    CChain *chain_p = model_p->GetChain(ichain);
 	    CChain *chain_new = new CChain(model_new, chain_p->GetChainID());
 	    model_new->AddChain(chain_new);
 	    int nres = chain_p->GetNumberOfResidues();
-	    std::cout << "   refmol chain " << chain_p->GetChainID()
-		      << " has " << nres << " residues " << std::endl;
 	    for (int ires=0; ires<nres; ires++) { 
 	       CResidue *residue_p = chain_p->GetResidue(ires);
 	       CAtom *at = residue_p->GetAtom(" CA ");
@@ -122,16 +94,12 @@ coot::lsq_improve::CAs_to_model(CMMDBManager *mol_in, int model_number) {
 	    }
 	 }
 	 mol->FinishStructEdit();
-
-	 std::cout << "model " << model_number << " has " << model_new->GetNumberOfAtoms(1)
-		   << " atoms "<< std::endl;
       }
    }
    return n_atoms;
 } 
 
 void coot::lsq_improve::improve() {
-
 
    if (! n_ref_atoms) {
       std::cout << "no CA atoms from ref mol " << std::endl;
@@ -142,42 +110,28 @@ void coot::lsq_improve::improve() {
 	 std::vector<std::vector<coot::lsq_range_match_info_t> > previous_matches;
 	 bool found_match_before = 0;
 	 int i_round = 0;
-	 int n_rounds_max = 1;
 
-	 while (! found_match_before) {
+	 while (i_round <= n_rounds_max) {
 
-	    std::cout << "DEBUG:: improve round " << i_round << std::endl;
-	    std::vector<coot::lsq_range_match_info_t> new_matches = get_new_matches();
-
-	    for (unsigned int imatch=0; imatch<previous_matches.size(); imatch++) { 
-	       found_match_before = same_matches(new_matches, previous_matches[imatch]);
-	       if (found_match_before)
-		  break;
-	    }
-	    if (! found_match_before) { 
-	       previous_matches.push_back(new_matches);
-	       apply_matches(new_matches);
-	    }
-
-	    // just for sanity sake
+	    bool summary_to_screen_flag = 0;
+	    if (i_round == 0 || i_round == n_rounds_max)
+	       summary_to_screen_flag = 1;
+	    std::vector<coot::lsq_range_match_info_t> new_matches =
+	       get_new_matches(i_round, n_rounds_max, summary_to_screen_flag);
+	    previous_matches.push_back(new_matches);
+	    apply_matches(new_matches);
+	    
 	    i_round++;
-	    if (i_round >= n_rounds_max)
-	       break;
 	 }
       }
    }
 }
 
 
-bool
-coot::lsq_improve::same_matches(const std::vector<coot::lsq_range_match_info_t> &ranges_1,
-				const std::vector<coot::lsq_range_match_info_t> &ranges_2) const {
-   return 0;
-} 
-
 
 std::vector<coot::lsq_range_match_info_t>
-coot::lsq_improve::get_new_matches() const {
+coot::lsq_improve::get_new_matches(int round_number, int round_max,
+				   bool summary_to_screen_flag) const {
 
    std::vector<coot::lsq_range_match_info_t> r;
 
@@ -191,9 +145,20 @@ coot::lsq_improve::get_new_matches() const {
    int ncontacts = 0;
    PSContact contact = NULL;
 
+   // round_number  round_max  -> multiplier
+   //    0             10         1
+   //    5             10         1 - (1-0.3)*round_number/round_max
+   //   10             10         0.3
+   realtype min_dist = 0.3;
+   realtype multiplier = 1.0 - (1.0 - min_dist)*realtype(round_number)/realtype(round_max);
+   realtype max_dist = crit_close * multiplier;
+
+   std::cout << "   round " << round_number << " multiplier  " << multiplier
+	     << "  max_dist " << max_dist << std::endl;
+
    mol->SeekContacts(atom_sel_1, n_sel_1,
 		     atom_sel_2, n_sel_2,
-		     0.0, crit_close,
+		     0.0, max_dist,
 		     0,
 		     contact, ncontacts);
 
@@ -204,6 +169,7 @@ coot::lsq_improve::get_new_matches() const {
 //    std::cout << "n_sel_1:: " << n_sel_1 << std::endl;
 //    std::cout << "n_sel_2:: " << n_sel_2 << std::endl;
 //    std::cout << "SeekContacts() found ncontacts: " << ncontacts << std::endl;
+   
    
    if (ncontacts) {
       for (int icon=0; icon<ncontacts; icon++) {
@@ -231,9 +197,13 @@ coot::lsq_improve::get_new_matches() const {
    // the heart of the function
    // 
    r = get_new_matches(contact_residues);
-   std::cout << "--------------- found " << r.size() << " matches ------------ " << std::endl;
 
-
+   if (summary_to_screen_flag) { 
+      std::cout << "INFO:: --- round " << round_number
+		<< " found " << r.size() << " matches ---- " << std::endl;
+      for (unsigned int i=0; i<r.size(); i++)
+	 std::cout << "    " << r[i] << std::endl;
+   }
    
    return r;
 }
@@ -283,12 +253,6 @@ coot::lsq_improve::get_new_matches(const std::map<coot::residue_spec_t, std::vec
 	       bool ifound = 0; // init
 	       for (unsigned int imov=0; imov<iter_running->second.size(); imov++) {
 
-		  if (0)
-		     std::cout << "   depth " << depth << " ref-res:   " << iter_running->first
-			       << " considering match to mov spec "
-			       << imov << "/" << iter_running->second.size() << "  "
-			       << iter_running->second[imov] << std::endl;
-
 		  if (depth == 1 || iter_running->second[imov] == mov_running) { 
 		     mov_running = iter_running->second[imov];
 		     // std::cout << "     pushing pair " << iter_running->first << "  "
@@ -305,12 +269,9 @@ coot::lsq_improve::get_new_matches(const std::map<coot::residue_spec_t, std::vec
 
 	    if (found_next_pair) {
 	       iter_running++;
-	       // std::cout << ".... updating mov_running from " << mov_running << " to "
-	       // << mov_running.next() << std::endl;
 	       mov_running = mov_running.next();
 	    } else {
 	       // we will fail out of the while next time it is tested
-	       // std::cout << "Found a frag of size " << contiguous_frag_spec.size() << std::endl;
 	       if (contiguous_frag_spec.size() >= n_res_for_frag) {
 		  for (unsigned int ipair=0; ipair<contiguous_frag_spec.size(); ipair++) { 
 		     residue_done[contiguous_frag_spec[ipair].first] = 1;
@@ -322,7 +283,8 @@ coot::lsq_improve::get_new_matches(const std::map<coot::residue_spec_t, std::vec
 						     contiguous_frag_spec.back().second.resno,
 						     contiguous_frag_spec.begin()->second.chain,
 						     COOT_LSQ_CA);
-						     
+		  range.set_model_number_reference(1);
+		  range.set_model_number_matcher(2);
 		  r.push_back(range);
 	       } 
 	    } 
@@ -336,7 +298,22 @@ coot::lsq_improve::get_new_matches(const std::map<coot::residue_spec_t, std::vec
 // move the moving model (with model number 2) in mol.
 void
 coot::lsq_improve::apply_matches(const std::vector<coot::lsq_range_match_info_t> &matches) {
-   // std::pair<short int, clipper::RTop_orth> mat = coot::util::get_lsq_matrix(mol, mol, matches, 1);
+
+   std::pair<short int, clipper::RTop_orth> mat = 
+      coot::util::get_lsq_matrix(mol, mol, matches, 1, 0);
+   if (mat.first) { 
+      coot::util::transform_selection(mol, sel_hnd_2, mat.second);
+      if (0) { // debug
+	 std::cout << "apply_matches() moving model by matrix:\n"
+		   << mat.second.format()
+		   << std::endl;
+	 std::string file_name = "applied.pdb";
+	 mol->WritePDBASCII(file_name.c_str());
+      } 
+   } else {
+      std::cout << "OOOpps!  bad matrix in apply_matches() "
+		<< " - this should not happen" << std::endl;
+   }
 }
 
 
@@ -345,7 +322,8 @@ coot::lsq_improve::apply_matches(const std::vector<coot::lsq_range_match_info_t>
 clipper::RTop_orth
 coot::lsq_improve::rtop_of_moving() const {
 
-   std::vector<coot::lsq_range_match_info_t> matches = get_new_matches();
+   std::vector<coot::lsq_range_match_info_t> matches =
+      get_new_matches(n_rounds_max, n_rounds_max);
    clipper::RTop_orth rtop = rtop_of_moving(matches);
    return rtop;
 } 
@@ -355,6 +333,10 @@ coot::lsq_improve::rtop_of_moving() const {
 clipper::RTop_orth
 coot::lsq_improve::rtop_of_moving(const std::vector<coot::lsq_range_match_info_t> &matches) const {
 
+   // std::cout << "rtop_of_moving() using ranges: " << std::endl;
+   // for (unsigned int i=0; i<matches.size(); i++)
+   // std::cout << "    " << matches[i] << std::endl;
+   
    clipper::RTop_orth rtop;
    if (! n_ref_atoms) {
       std::string message = "no CA atoms from ref mol ";
@@ -364,7 +346,19 @@ coot::lsq_improve::rtop_of_moving(const std::vector<coot::lsq_range_match_info_t
 	 std::string message = "no CA atoms from moving mol ";
 	 throw(std::runtime_error(message));
       } else {
-	 // do something
+	 if (!mol_initial_copy) {
+	    std::string message = "Null copy of initial! ";
+	    throw(std::runtime_error(message));
+	 } else { 
+	    std::pair<short int, clipper::RTop_orth> mat = 
+	       coot::util::get_lsq_matrix(mol, mol_initial_copy, matches, 1, 0);
+	    if (! mat.first) {
+	       std::string message = "Bad matrix ";
+	       throw(std::runtime_error(message));
+	    } else {
+	       rtop = mat.second;
+	    }
+	 }
       }
    }
    return rtop;

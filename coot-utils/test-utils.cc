@@ -122,15 +122,26 @@ void test_lsq_improve() {
    CMMDBManager *mol_1 = new CMMDBManager;
    CMMDBManager *mol_2 = new CMMDBManager;
 
-   mol_1->ReadCoorFile("tutorial-modern.pdb");
-   mol_2->ReadCoorFile("1py3-matched-A1-5.pdb");
+   std::string ref_pdb = "tutorial-modern.pdb";
+   std::string mov_pdb = "1py3-matched-A6-13.pdb";
 
+   int err_1 = mol_1->ReadCoorFile(ref_pdb.c_str());
+   int err_2 = mol_2->ReadCoorFile(mov_pdb.c_str());
+
+   if (err_1) {
+      std::cout << "There was an error reading " << ref_pdb << ".\n";
+   }
+   if (err_2) {
+      std::cout << "There was an error reading " << mov_pdb << ".\n";
+   }
+   
    try { 
       coot::lsq_improve lsq_imp(mol_1, mol_2);
       lsq_imp.improve();
-      
       clipper::RTop_orth rtop = lsq_imp.rtop_of_moving();
       std::cout << "rtop:\n" << rtop.format() << std::endl;
+      coot::util::transform_mol(mol_2, rtop);
+      mol_2->WritePDBASCII("lsq-improved.pdb");
 
    }
    catch (std::runtime_error rte) {

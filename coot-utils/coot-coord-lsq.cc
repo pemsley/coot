@@ -28,7 +28,8 @@ std::pair<short int, clipper::RTop_orth>
 coot::util::get_lsq_matrix(CMMDBManager *mol1,
 			   CMMDBManager *mol2,
 			   const std::vector<coot::lsq_range_match_info_t> &matches,
-			   int every_nth) {
+			   int every_nth,
+			   bool summary_to_screen) {
 
    short int istat = 0;
    clipper::RTop_orth rtop(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
@@ -57,7 +58,9 @@ coot::util::get_lsq_matrix(CMMDBManager *mol1,
    if (co1v.size() > 0) {
       if (co1v.size() > 2) {
 	 if (co2v.size() > 2) {
-	    std::cout << "INFO:: LSQ matched " << co1v.size() << " atoms" << std::endl;
+	    if (summary_to_screen)
+	       std::cout << "INFO:: LSQ matched " << co1v.size() << " atoms"
+			 << std::endl;
 	    rtop = clipper::RTop_orth(co2v, co1v);
 	    double sum_dist = 0.0;
 	    double sum_dist2 = 0.0;
@@ -78,11 +81,12 @@ coot::util::get_lsq_matrix(CMMDBManager *mol1,
 	    // not variance about mean, variance from 0.
 	    //double var  = sum_dist2/double(co2v.size()) - mean*mean;
 	    double v    = sum_dist2/double(co2v.size());
-	    std::cout << "INFO:: " << co1v.size() << " matched atoms had: \n"
-		      << "   mean devi: " << mean << "\n"
-		      << "    rms devi: " << sqrt(v) << "\n"
-		      << "    max devi: " << maxd << "\n"
-		      << "    min devi: " << mind << std::endl;
+	    if (summary_to_screen) 
+	       std::cout << "INFO:: " << co1v.size() << " matched atoms had: \n"
+			 << "   mean devi: " << mean << "\n"
+			 << "    rms devi: " << sqrt(v) << "\n"
+			 << "    max devi: " << maxd << "\n"
+			 << "    min devi: " << mind << std::endl;
 	    istat = 1;
 	 } else {
 	    std::cout << "WARNING:: not enough points to do matching (matching)"
