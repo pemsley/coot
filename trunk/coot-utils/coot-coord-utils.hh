@@ -385,8 +385,9 @@ namespace coot {
       void set_model_number_matcher(int ino) {
 	 model_number_matcher = ino;
       } 
-      
+      friend std::ostream&  operator<<(std::ostream&  s, const lsq_range_match_info_t &q);
    };
+   std::ostream&  operator<<(std::ostream&  s, const lsq_range_match_info_t &q);
    
    bool sort_chains_util(const std::pair<CChain *, std::string> &a,
 			 const std::pair<CChain *, std::string> &b);
@@ -1138,6 +1139,9 @@ namespace coot {
       // transform all the atom in mol
       void transform_mol(CMMDBManager *mol, const clipper::RTop_orth &rtop);
 
+      // transform the atom selection (provided by handle SelHnd) in mol
+      void transform_selection(CMMDBManager *mol, int SelHnd, const clipper::RTop_orth &rtop);
+
 
       // Rotate position round vector, return a position.
       //
@@ -1210,7 +1214,8 @@ namespace coot {
       get_lsq_matrix(CMMDBManager *mol1,
 		     CMMDBManager *mol2,
 		     const std::vector<lsq_range_match_info_t> &matches,
-		     int every_nth);
+		     int every_nth,
+		     bool summary_to_screen=1);
       // used by above
       // On useful return, first.length == second.length and first.length > 0.
       // 

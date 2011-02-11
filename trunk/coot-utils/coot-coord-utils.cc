@@ -666,6 +666,19 @@ coot::util::matrix_convert(mat44 mat) {
    return clipper::RTop_orth(clipper_mat, cco);
 }
 
+std::ostream&
+coot::operator<<(std::ostream&  s, const coot::lsq_range_match_info_t &m) {
+
+   s << "LSQ Match: (" << m.model_number_reference << ") " << m.reference_chain_id << " " 
+     << m.to_reference_start_resno << "-" << m.to_reference_end_resno
+     << " to ("
+     << m.model_number_matcher << ") " << m.matcher_chain_id << " "
+     << m.from_matcher_start_resno << "-" << m.from_matcher_end_resno
+     << " type: " << m.match_type_flag;
+   return s;
+} 
+
+
 // -------------------------------------------------------------
 //                       quaternions
 // -------------------------------------------------------------
@@ -1769,7 +1782,8 @@ coot::graph_match(CResidue *res_moving,
 	 
 	 CGraphMatch match;
 
-	 std::cout << "INFO:: match.MatchGraphs must match at least " << minMatch << " atoms."
+	 std::cout << "INFO:: match.MatchGraphs must match at least "
+		   << minMatch << " atoms."
 		   << std::endl;
 	 Boolean vertext_type = True;
 	 match.MatchGraphs(&graph1, &graph2, minMatch, vertext_type);
@@ -3071,7 +3085,34 @@ coot::util::transform_mol(CMMDBManager *mol, const clipper::RTop_orth &rtop) {
 	 }
       }
    }
-} 
+   mol->FinishStructEdit();
+}
+
+// transform the atom selection (provided by handle SelHnd) in mol
+void
+coot::util::transform_selection(CMMDBManager *mol, int SelHnd, const clipper::RTop_orth &rtop) {
+
+   PCAtom *atoms = NULL;
+   int n_selected_atoms;
+   double sum_dist = 0.0l;
+   mol->GetSelIndex(SelHnd, atoms, n_selected_atoms);
+   for (unsigned int iat=0; iat<n_selected_atoms; iat++) {
+      CAtom *at = atoms[iat];
+      clipper::Coord_orth co(at->x, at->y, at->z);
+      clipper::Coord_orth trans_pos = co.transform(rtop);
+      at->x = trans_pos.x();
+      at->y = trans_pos.y();
+      at->z = trans_pos.z();
+      sum_dist += (trans_pos - co).lengthsq();
+   }
+   if (0) // for debugging
+      std::cout << ".... transformed " << n_selected_atoms << " selected atoms "
+		<< "by rms distance of "
+		<< sqrt(sum_dist/double(n_selected_atoms))
+		<< std::endl;
+   mol->FinishStructEdit();
+}
+
 
 // a function to find the previous (next) residue.  Find residue
 // by previous (next) serial number.

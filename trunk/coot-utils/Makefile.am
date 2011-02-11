@@ -49,7 +49,7 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 
 # for pure coordinates (mmdb) things
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
-	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc lsq-improve.cc
+	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc 
 
 # clean
 libcoot_coord_utils_la_LIBADD = \
@@ -67,7 +67,7 @@ libcoot_shelx_la_LIBADD =  \
 
 # for non-simple coordinates things
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
-	coot-tree-extras.cc water-coordination.cc
+	coot-tree-extras.cc water-coordination.cc lsq-improve.cc
 
 # needs more, mini-mol, geometry
 libcoot_coord_extras_la_LIBADD = \
@@ -110,11 +110,14 @@ testshelxreader_LDADD =          \
 testcootutils_SOURCES = test-utils.cc
 testcootutils_LDADD =            \
 	./libcoot-shelx.la       \
+	./libcoot-coord-extras.la\
 	./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
         $(top_builddir)/utils/libcoot-utils.la
 
 
 test_h_bonds_SOURCES = test-h-bonds.cc
-test_h_bonds_LDADD = ./libcoot-coord-utils.la $(top_builddir)/geometry/libcoot-geometry.la
+test_h_bonds_LDADD = $(top_builddir)/geometry/libcoot-geometry.la \
+	 ./libcoot-coord-utils.la \
+	$(MMDB_LIBS)
 

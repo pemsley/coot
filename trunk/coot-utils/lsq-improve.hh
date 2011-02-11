@@ -4,19 +4,23 @@
 namespace coot {
 
    class lsq_improve{
+      int n_rounds_max;
       CMMDBManager *mol;
+      CMMDBManager *mol_initial_copy;
       int sel_hnd_1;
       int sel_hnd_2;
       int n_ref_atoms;
       int n_mov_atoms;
       int CAs_to_model(CMMDBManager *mol_in, int model_number);
-      std::vector<lsq_range_match_info_t> get_new_matches() const;
+      
+      // the crit_close has a multipler that is dependent on
+      // round_number so that at high round number the criterion for
+      // close atoms is reduced (i.e. made more tight).
+      // 
+      std::vector<lsq_range_match_info_t> get_new_matches(int round_number, int rounds_max, bool summary_to_screen_flag=0) const;
       std::vector<lsq_range_match_info_t> get_new_matches(const std::map<residue_spec_t, std::vector<residue_spec_t> > &contact_residues) const;
       // move the moving model (with model number 2) in mol.
       void apply_matches(const std::vector<lsq_range_match_info_t> &matches);
-      // have we reached convergence?
-      bool same_matches(const std::vector<lsq_range_match_info_t> &ranges_1,
-			const std::vector<lsq_range_match_info_t> &ranges_2) const;
       realtype crit_close;
       int n_res_for_frag;
       clipper::RTop_orth rtop_of_moving(const std::vector<lsq_range_match_info_t> &matches) const;
@@ -27,7 +31,8 @@ namespace coot {
       void improve();
       
       // so, what is the RTop after we've done all that improving?
-      // question to self: should this throw an exception?
+      // 
+      // this can throw an exception.
       // 
       clipper::RTop_orth rtop_of_moving() const;
       
