@@ -77,6 +77,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/analysis/libcoot-analysis.la 		\
+	$(top_builddir)/protein_db/libcoot-protein-db.la      	\
 	$(top_builddir)/cootaneer/libcootaneer.la 		\
 	$(top_builddir)/compat/libcoot-compat.la  		
 
@@ -181,6 +182,7 @@ INCLUDES = \
 	-I$(top_srcdir)/ccp4mg-utils	\
 	-I$(top_srcdir)/utils	        \
 	-I$(top_srcdir)/coot-utils	\
+	-I$(top_srcdir)/protein_db	\
 	-I$(top_srcdir)/intl 		\
 	-I$(top_srcdir)/skeleton	\
 	-I$(top_srcdir)/angles		\
@@ -344,6 +346,7 @@ coot_real_SOURCES = \
 	molecule-class-info.cc 	 \
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-other.cc 	\
+	molecule-class-info-build.cc 	\
 	molecule-class-info.h 	        \
 	molecule-class-info-mutate.cc 	\
 	molecule-class-info-residues.cc \
@@ -355,6 +358,8 @@ coot_real_SOURCES = \
 	pisa-interface.hh	 \
         pick.h pick.cc		 \
 	positioned-widgets.h     \
+	protein_db-interface.hh  \
+	protein_db-interface.cc  \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \

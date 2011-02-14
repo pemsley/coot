@@ -107,6 +107,8 @@
 #include "backrub-rotamer.hh"
 #include "rotamer-search-modes.hh"
 
+#include "protein_db_utils.h"
+#include "protein_db-interface.hh"
 
 /*  ------------------------------------------------------------------------ */
 /*                   Maps - (somewhere else?):                               */
@@ -6598,21 +6600,49 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
 }
 
 
-
 /*  ----------------------------------------------------------------------- */
 /*               Use Cowtan's protein_db to discover loops                  */
 /*  ----------------------------------------------------------------------- */
-/*! \name LSQ-improve */
-/* \{ */
-/*! \breif Cowtan's protein_db loops */
-void protein_db_loops(int imol_coords, int imol_map, int nfrags) {
 
-   if (is_valid_model_molecule(imol_coords)) { 
-      if (is_valid_map_molecule(imol_map)) { 
-	 clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
-	 std::vector<clipper::Coord_orth> coords;
+#ifdef USE_GUILE
+void
+protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int nfrags) {
+
+   std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_scm);
+   if (!specs.size()) {
+      std::cout << "WARNING:: Ooops - no specs in " << scm_to_locale_string(display_scm(residue_specs_scm))
+		<< std::endl;
+   } else {
+      protein_db_loops(imol_coords, specs, imol_map, nfrags);
+   } 
+} 
+#endif 
+
+
+void
+protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map, int nfrags) {
+
+   if (! is_valid_model_molecule(imol_coords)) {
+      std::cout << "WARNING:: molecule number " << imol_coords << " is not a valid molecule " << std::endl;
+   } else { 
+      if (! is_valid_map_molecule(imol_map)) {
+	 std::cout << "WARNING:: molecule number " << imol_coords << " is not a valid map " << std::endl;
+      } else { 
 	 
+	 clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+
+	 std::vector<ProteinDB::Chain> chains =
+	    graphics_info_t::molecules[imol_coords].protein_db_loops(residue_specs, nfrags, xmap);
+
+	 if (chains.size()) { 
+	    int imol = graphics_info_t::create_molecule();
+	    CMMDBManager *mol = make_mol(chains);
+	    std::string name = "Loop candidates "; 
+	    graphics_info_t::molecules[imol].install_model(imol, mol, name, 1);
+	    graphics_info_t::molecules[imol].set_bond_thickness(2);
+	    graphics_info_t::molecules[imol].bonds_colour_map_rotation = 260; // purple
+	    graphics_draw();
+	 }
       }
    }
 } 
-/* \} */

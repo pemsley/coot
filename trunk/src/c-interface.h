@@ -6388,15 +6388,6 @@ void lsq_improve(int imol_ref, const char *ref_selection,
 /* \} */
 
 
-/*  ----------------------------------------------------------------------- */
-/*               Use Cowtan's protein_db to discover loops                  */
-/*  ----------------------------------------------------------------------- */
-/*! \name LSQ-improve */
-/* \{ */
-/*! \breif Cowtan's protein_db loops */
-void protein_db_loops(int imol_coords, int imol_map, int nfrags); 
-/* \} */
-
 
 /*  ----------------------------------------------------------------------- */
 /* Multirefine interface (because in guile-gtk there is no way to

@@ -1170,9 +1170,9 @@
 		      (append (list label imol) (cdr interesting-residue) centre-atom))))
 	      interesting-residues centre-atoms)))))
 
-;;  A gui that makes a generic number chooser
-;; the go functionis a lambda function that takes the value of 
-;; the active menu item - as a number.
+;; A gui that makes a generic number chooser the go function is a
+;; lambda function that takes the value of the active menu item - as a
+;; number.
 ;; 
 (define (generic-number-chooser number-list default-option-value hint-text go-button-label go-function)
 
@@ -3574,6 +3574,21 @@
 	       (update-water-results imol n d)))))
 
       (gtk-widget-show-all window)))
+
+
+(define (click-protein-db-loop-gui)
+  (generic-number-chooser (range 2 10) 4 
+			  "Number of residues for basis"
+			  "Pick Atoms..."
+			  (lambda (n)
+			    (user-defined-click 
+			     n
+			     (lambda (atom-specs)
+			       (let ((residue-specs (map atom-spec->residue-spec atom-specs))
+				     (imol (car (cdar atom-specs))))
+				 (protein-db-loops imol residue-specs 
+						   (imol-refinement-map)
+						   10)))))))
 
 
 

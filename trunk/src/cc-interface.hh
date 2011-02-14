@@ -852,6 +852,21 @@ std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
 
 
 /*  ----------------------------------------------------------------------- */
+/*               Use Cowtan's protein_db to discover loops                  */
+/*  ----------------------------------------------------------------------- */
+/*! \name LSQ-improve */
+/* \{ */
+/*! \brief Cowtan's protein_db loops */
+void protein_db_loops(int imol_coords, 
+		      const std::vector<coot::residue_spec_t> &residue_specs, 
+		      int imol_map, int nfrags);
+#ifdef USE_GUILE
+void protein_db_loops_scm(int imol_coords, SCM residues_specs, int imol_map, int nfrags);
+#endif 
+/* \} */
+
+
+/*  ----------------------------------------------------------------------- */
 /*                  Utility Functions                                       */
 /*  ----------------------------------------------------------------------- */
 // These functions are for storing the molecule number and (some other

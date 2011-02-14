@@ -8,7 +8,6 @@
 		  (list-ref atom-spec 3)
 		  (list-ref atom-spec 4))))
 
-  
 
 (define (user-defined-add-single-bond-restraint)
 
