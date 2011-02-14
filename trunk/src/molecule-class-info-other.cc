@@ -7884,12 +7884,14 @@ molecule_class_info_t::match_torsions(CResidue *res_ref,
 }
 
 void
-molecule_class_info_t::lsq_improve(CMMDBManager *mol_ref, int n_res, float dist_crit) {
+molecule_class_info_t::lsq_improve(CMMDBManager *mol_ref, const std::string &ref_selection_str,
+				   const std::string &moving_selection_str,
+				   int n_res, float dist_crit) {
    if (mol_ref) {
 
       try {
 	 make_backup();
-	 coot::lsq_improve lsq_imp(mol_ref, atom_sel.mol);
+	 coot::lsq_improve lsq_imp(mol_ref, ref_selection_str, atom_sel.mol, moving_selection_str);
 	 lsq_imp.improve();
 	 clipper::RTop_orth rtop = lsq_imp.rtop_of_moving();
 	 std::cout << "rtop:\n" << rtop.format() << std::endl;

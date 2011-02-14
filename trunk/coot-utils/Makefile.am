@@ -115,9 +115,7 @@ testcootutils_LDADD =            \
 	$(top_builddir)/geometry/libcoot-geometry.la \
         $(top_builddir)/utils/libcoot-utils.la
 
-
 test_h_bonds_SOURCES = test-h-bonds.cc
 test_h_bonds_LDADD = $(top_builddir)/geometry/libcoot-geometry.la \
-	 ./libcoot-coord-utils.la \
-	$(MMDB_LIBS)
+	 ./libcoot-coord-utils.la 
 

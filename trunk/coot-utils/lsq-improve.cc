@@ -1,3 +1,22 @@
+/* coot-utils/lsq-improve.cc
+ * 
+ * Copyright 2011 by The University of Oxford
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 // c.f. with O-function lsq_improve
 
@@ -9,7 +28,9 @@
 
 #include "lsq-improve.hh"
 
-coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, CMMDBManager *mol_moving) {
+coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, const std::string &ref_selection_string,
+			       CMMDBManager *mol_moving, const std::string &moving_selection_string) {
+
    mol = new CMMDBManager;
    mol_initial_copy = NULL; // reset later hopefully.
    crit_close = 6; // A
@@ -28,6 +49,15 @@ coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, CMMDBManager *mol_moving) 
 	 sel_hnd_1 = mol->NewSelection();
 	 sel_hnd_2 = mol->NewSelection();
 
+	 // now apply the passed selections
+	 // 
+	 mol->Select(sel_hnd_1, STYPE_ATOM,    ref_selection_string.c_str(), SKEY_OR);
+	 mol->Select(sel_hnd_2, STYPE_ATOM, moving_selection_string.c_str(), SKEY_OR);
+
+	 PPCAtom atom_sel_1=NULL;
+	 PPCAtom atom_sel_2=NULL;
+	 int n_sel_1;
+	 int n_sel_2;
 	 mol->SelectAtoms (sel_hnd_1, 1, "*",
 			   ANY_RES, // starting resno, an int
 			   "*", // any insertion code
@@ -36,7 +66,8 @@ coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, CMMDBManager *mol_moving) 
 			   "*", // any residue name
 			   "*", // atom name
 			   "*", // elements
-			   "*"  // alt loc.
+			   "*",  // alt loc.
+			   SKEY_AND
 			   );
    
 	 mol->SelectAtoms (sel_hnd_2, 2, "*",
@@ -47,8 +78,14 @@ coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, CMMDBManager *mol_moving) 
 			   "*", // any residue name
 			   "*", // atom name
 			   "*", // elements
-			   "*"  // alt loc.
+			   "*",  // alt loc.
+			   SKEY_AND
 			   );
+	 
+	 mol->GetSelIndex(sel_hnd_1, atom_sel_1, n_sel_1);
+	 mol->GetSelIndex(sel_hnd_2, atom_sel_2, n_sel_2);
+
+	 // throw an exception here if n_sel_1 or n_sel_1 are 2 or less.
 
 	 mol_initial_copy = new CMMDBManager;
 	 mol_initial_copy->Copy(mol, MMDBFCM_All);
@@ -314,6 +351,7 @@ coot::lsq_improve::apply_matches(const std::vector<coot::lsq_range_match_info_t>
       std::cout << "OOOpps!  bad matrix in apply_matches() "
 		<< " - this should not happen" << std::endl;
    }
+
 }
 
 
