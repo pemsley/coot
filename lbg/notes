@@ -34,6 +34,13 @@ Sat Jan  1 22:38:57 GMT 2011
 
    JED: SBase search of a fleved ligand -> Fail
 
+
+---
+Sun Jan  9 16:55:56 GMT 2011
+
+   When reading in a mol2 file, test if zed is zero for the coords, 
+   if Yes, then display in lbg instead.
+
 ----
 Tue Dec  7 17:14:26 GMT 2010
 
