@@ -1,3 +1,22 @@
+/* coot-utils/lsq-improve.hh
+ * 
+ * Copyright 2011 by The University of Oxford
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include "coot-coord-utils.hh"
 
@@ -25,7 +44,8 @@ namespace coot {
       int n_res_for_frag;
       clipper::RTop_orth rtop_of_moving(const std::vector<lsq_range_match_info_t> &matches) const;
    public:
-      lsq_improve(CMMDBManager *mol_ref, CMMDBManager *mol_moving);
+      lsq_improve(CMMDBManager *mol_ref, const std::string &ref_selection_string,
+		  CMMDBManager *mol_moving, const std::string &moving_selection_string);
       void set_crit_close(realtype val) { crit_close = val; }
       void set_n_res_for_frag(int n_res_in) { n_res_for_frag = n_res_in; }
       void improve();

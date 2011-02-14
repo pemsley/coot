@@ -134,19 +134,22 @@ void test_lsq_improve() {
    if (err_2) {
       std::cout << "There was an error reading " << mov_pdb << ".\n";
    }
-   
-   try { 
-      coot::lsq_improve lsq_imp(mol_1, mol_2);
-      lsq_imp.improve();
-      clipper::RTop_orth rtop = lsq_imp.rtop_of_moving();
-      std::cout << "rtop:\n" << rtop.format() << std::endl;
-      coot::util::transform_mol(mol_2, rtop);
-      mol_2->WritePDBASCII("lsq-improved.pdb");
 
+   for (unsigned int i=0; i<1; i++) { 
+
+      try { 
+	 coot::lsq_improve lsq_imp(mol_1, "//A/1-50", mol_2, "//A/4-50");
+	 lsq_imp.improve();
+	 clipper::RTop_orth rtop = lsq_imp.rtop_of_moving();
+	 std::cout << "rtop:\n" << rtop.format() << std::endl;
+	 coot::util::transform_mol(mol_2, rtop);
+	 // mol_2->WritePDBASCII("lsq-improved.pdb");
+	 
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "lsq_improve ERROR::" << rte.what() << std::endl;
+      }
    }
-   catch (std::runtime_error rte) {
-      std::cout << "lsq_improve ERROR::" << rte.what() << std::endl;
-   } 
 
 } 
 

@@ -6371,9 +6371,31 @@ int sprout_hydrogens(int imol, const char *chain_id, int res_no, const char *ins
 /*  ----------------------------------------------------------------------- */
 /*! \name LSQ-improve */
 /* \{ */
-void lsq_improve(int imol_ref, int imol_moving, int n_res, float dist_crit); 
+/*! \brief an slightly-modified implementation of the "lsq_improve"
+  algorithm of Kleywegt and Jones (1997).
+
+  Note that if a residue selection is specified in the residue
+  selection(s), then the first residue of the given range must exist
+  in the molecule (if not, then mmdb will not select any atoms from
+  that molecule).
+
+  Kleywegt and Jones set n_res to 4 and dist_crit to 6.0.
+
+ */
+void lsq_improve(int imol_ref, const char *ref_selection, 
+		 int imol_moving, const char *moving_selection,
+		 int n_res, float dist_crit); 
 /* \} */
 
+
+/*  ----------------------------------------------------------------------- */
+/*               Use Cowtan's protein_db to discover loops                  */
+/*  ----------------------------------------------------------------------- */
+/*! \name LSQ-improve */
+/* \{ */
+/*! \breif Cowtan's protein_db loops */
+void protein_db_loops(int imol_coords, int imol_map, int nfrags); 
+/* \} */
 
 
 /*  ----------------------------------------------------------------------- */

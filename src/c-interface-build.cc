@@ -4616,6 +4616,7 @@ new_molecule_by_symmetry_with_atom_selection(int imol,
 	 update_go_to_atom_window_on_new_mol();
 	 graphics_draw();
       }
+      mol_orig->DeleteSelection(SelectionHandle);
    }
    return imol_new;
 }
@@ -6596,3 +6597,22 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
    return val;
 }
 
+
+
+/*  ----------------------------------------------------------------------- */
+/*               Use Cowtan's protein_db to discover loops                  */
+/*  ----------------------------------------------------------------------- */
+/*! \name LSQ-improve */
+/* \{ */
+/*! \breif Cowtan's protein_db loops */
+void protein_db_loops(int imol_coords, int imol_map, int nfrags) {
+
+   if (is_valid_model_molecule(imol_coords)) { 
+      if (is_valid_map_molecule(imol_map)) { 
+	 clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+	 std::vector<clipper::Coord_orth> coords;
+	 
+      }
+   }
+} 
+/* \} */
