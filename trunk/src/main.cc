@@ -491,22 +491,22 @@ main (int argc, char *argv[]) {
 	     // (and gtk2)
 #ifdef USE_PYGTK
 #ifdef COOT_USE_GTK2_INTERFACE
-	     initcoot_python();
-	     std::cout << "INFO:: coot_python initialized" << std::endl;
+	      initcoot_python();
+	      std::cout << "INFO:: coot_python initialized" << std::endl;
 #ifdef USE_GUILE_GTK
-	     safe_python_command("global use_gui_qm; use_gui_qm = 2");
+	      safe_python_command("global use_gui_qm; use_gui_qm = 2");
 #else
-	     safe_python_command("global use_gui_qm; use_gui_qm = 1");
+	      safe_python_command("global use_gui_qm; use_gui_qm = 1");
 #endif
 #else
-	     safe_python_command("global use_gui_qm; use_gui_qm = False");
+	      safe_python_command("global use_gui_qm; use_gui_qm = False");
 #endif // GKT2
 #else
-	     safe_python_command("global use_gui_qm; use_gui_qm = False");
+	      safe_python_command("global use_gui_qm; use_gui_qm = False");
 #endif // PYTGK
 	   } else {
-	     // we dont have gui
-	     safe_python_command("global use_gui_qm; use_gui_qm = False");
+	      // we dont have gui
+	      safe_python_command("global use_gui_qm; use_gui_qm = False");
 	   }
 	   coot_load_modules_dot_py = "coot_load_modules.py";
 	   char *coot_load_modules_dot_py_checked = 

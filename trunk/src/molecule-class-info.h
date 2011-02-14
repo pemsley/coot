@@ -2877,6 +2877,8 @@ public:        //                      public
    coot::rama_score_t get_all_molecule_rama_score() const;
    coot::rotamer_score_t get_all_molecule_rotamer_score(const coot::rotamer_probability_tables &rpt) const;
 
+   // --------- lsq-improve ------------
+   void lsq_improve(CMMDBManager *mol_ref, int n_res, float dist_crit);
 };
 
 #endif // MOLECULE_CLASS_INFO_T

@@ -24,6 +24,10 @@
 #include <unistd.h>
 #include <stdio.h>
 
+#ifdef MAKE_ENTERPRISE_TOOLS
+// no stand-alone functions need be added
+#else 
+
 #include "some-coot-utils.hh"
 
 bool coot::is_directory_p(const std::string &filename) {
@@ -101,3 +105,5 @@ coot::util::downcase(const std::string &s) {
    }
    return r;
 }
+
+#endif // MAKE_ENTERPRISE_TOOLS

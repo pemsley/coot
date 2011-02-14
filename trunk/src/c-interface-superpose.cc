@@ -759,6 +759,22 @@ void lsq_moving_chain_option_menu_item_activate(GtkWidget *item,
    graphics_info_t::lsq_match_chain_id_mov = menu_item_label(item);
 } 
 
+/*  ----------------------------------------------------------------------- */
+/*               LSQ-improve               */
+/*  ----------------------------------------------------------------------- */
+/*! \name LSQ-improve */
+/* \{ */
+void lsq_improve(int imol_ref, int imol_moving, int n_res, float dist_crit) {
+
+   if (is_valid_model_molecule(imol_ref)) { 
+      if (is_valid_model_molecule(imol_moving)) {
+	 CMMDBManager *mol_ref = graphics_info_t::molecules[imol_ref].atom_sel.mol;
+	 graphics_info_t::molecules[imol_moving].lsq_improve(mol_ref, n_res, dist_crit);
+      }
+   }
+
+} 
+/* \} */
 
 // --------------------------------------------------------------------------
 //  for supperposition of maps

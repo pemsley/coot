@@ -6366,6 +6366,15 @@ int sprout_hydrogens(int imol, const char *chain_id, int res_no, const char *ins
 /* \} */
 
 
+/*  ----------------------------------------------------------------------- */
+/*               LSQ-improve               */
+/*  ----------------------------------------------------------------------- */
+/*! \name LSQ-improve */
+/* \{ */
+void lsq_improve(int imol_ref, int imol_moving, int n_res, float dist_crit); 
+/* \} */
+
+
 
 /*  ----------------------------------------------------------------------- */
 /* Multirefine interface (because in guile-gtk there is no way to

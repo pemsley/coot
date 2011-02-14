@@ -79,6 +79,7 @@
 
 #include "ligand.hh"
 #include "coot-utils.hh"
+#include "lsq-improve.hh"
 #include "coot-trim.hh"
 #include "coot-map-utils.hh"
 #include "coot-coord-utils.hh" // check_dictionary_for_residue
@@ -7881,3 +7882,23 @@ molecule_class_info_t::match_torsions(CResidue *res_ref,
    have_unsaved_changes_flag = 1;
    return n_torsions_moved;
 }
+
+void
+molecule_class_info_t::lsq_improve(CMMDBManager *mol_ref, int n_res, float dist_crit) {
+   if (mol_ref) {
+
+      try {
+	 make_backup();
+	 coot::lsq_improve lsq_imp(mol_ref, atom_sel.mol);
+	 lsq_imp.improve();
+	 clipper::RTop_orth rtop = lsq_imp.rtop_of_moving();
+	 std::cout << "rtop:\n" << rtop.format() << std::endl;
+	 coot::util::transform_mol(atom_sel.mol, rtop);
+	 have_unsaved_changes_flag = 1;
+	 make_bonds_type_checked(); // calls update_ghosts()
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "lsq_improve ERROR::" << rte.what() << std::endl;
+      } 
+   } 
+} 

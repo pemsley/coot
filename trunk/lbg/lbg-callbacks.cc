@@ -137,6 +137,7 @@ on_info_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
 
 extern "C" G_MODULE_EXPORT void
 on_about_menuitem_activate(GtkMenuItem *button, gpointer user_data) {
+   
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l) {
@@ -144,7 +145,8 @@ on_about_menuitem_activate(GtkMenuItem *button, gpointer user_data) {
       std::cout << "about_dialog widget is " << w << std::endl;
       gtk_widget_show(w);
    } else {
-      std::cout << "failed to get lbg_info_t from canvas " << canvas << " " << user_data << std::endl;
+      std::cout << "failed to get lbg_info_t from canvas " << canvas << " "
+		<< user_data << std::endl;
    } 
 }
 
