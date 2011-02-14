@@ -57,6 +57,8 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "coot-shelx.hh"
 #include "coot-utils.hh"
 
+#include "protein_db_utils.h"
+
 using namespace std; // Hmmm.. I don't approve, FIXME
 
 #include "select-atom-info.hh"
@@ -1363,6 +1365,11 @@ public:        //                      public
 							       short int is_undo_or_redo);
    void install_model(int imol_no_in, 
 		      atom_selection_container_t asc, const std::string &mol_name,
+		      short int display_in_display_control_widget_status,
+		      bool is_from_shelx_ins=0);
+
+   void install_model(int imol_no_in, 
+		      CMMDBManager *mol, const std::string &mol_name,
 		      short int display_in_display_control_widget_status,
 		      bool is_from_shelx_ins=0);
 
@@ -2880,6 +2887,12 @@ public:        //                      public
    // --------- lsq-improve ------------
    void lsq_improve(CMMDBManager *mol_ref, const std::string &ref_selection_str,
 		    const std::string &moving_selection_str, int n_res, float dist_crit);
+
+   std::vector<ProteinDB::Chain> protein_db_loops(const std::vector<coot::residue_spec_t> &residue_specs,
+						  int nfrags, const clipper::Xmap<float> &xmap);
+   ProteinDB::Chain make_fragment_chain(const std::vector<coot::residue_spec_t> &residue_specs) const;
+   
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

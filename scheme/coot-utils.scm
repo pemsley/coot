@@ -95,6 +95,7 @@
 (define do-clipped-surface do-clipped-surface-scm)
 (define copy-residue-range-from-ncs-master-to-chains copy-residue-range-from-ncs-master-to-chains-scm)
 (define remarks remarks-scm)
+(define protein-db-loops protein-db-loops-scm)
 
 ;; documented functions
 
@@ -1507,6 +1508,9 @@
 ;; 
 (define (atom-specs imol chain-id resno ins-code atom-name alt-conf)
   (atom-info-string imol chain-id resno ins-code atom-name alt-conf))
+
+(define (atom-spec->residue-spec atom-spec)
+  (list-head (cddr atom-spec) 3))
 
 
 ;; return a guess at the map to be refined (usually called after

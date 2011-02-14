@@ -486,6 +486,17 @@ molecule_class_info_t::install_model(int imol_no_in,
    initialize_coordinate_things_on_read_molecule_internal(name, is_undo_or_redo);
 }
 
+void
+molecule_class_info_t::install_model(int imol_no_in, 
+				     CMMDBManager *mol, const std::string &mol_name,
+				     short int display_in_display_control_widget_status,
+				     bool is_from_shelx_ins) {
+
+   atom_selection_container_t asc = make_asc(mol);
+   install_model(imol_no_in, asc, mol_name, display_in_display_control_widget_status, is_from_shelx_ins);
+} 
+
+
 
 void
 molecule_class_info_t::label_atoms(int brief_atom_labels_flag) {

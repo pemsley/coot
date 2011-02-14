@@ -298,6 +298,7 @@ python/Makefile
 compat/Makefile
 utils/Makefile
 coot-utils/Makefile
+protein_db/Makefile
 ccp4mg-utils/Makefile
 coords/Makefile
 db-main/Makefile

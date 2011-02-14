@@ -368,6 +368,10 @@
 
 	;; --- D --- 
 
+	(add-simple-coot-menu-menuitem submenu-models "DB Loop..." click-protein-db-loop-gui)
+
+
+	;; errr... move this...
 	(let ((submenu (gtk-menu-new))
 	      (menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
 	  

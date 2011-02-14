@@ -22,7 +22,7 @@
 #include "mini-mol-utils.hh"
 
 // C-beta position
-std::pair<short int, clipper::Coord_orth>
+std::pair<bool, clipper::Coord_orth>
 coot::cbeta_position(const coot::minimol::residue &res) {
 
 //     For fitting Cbetas:
@@ -31,11 +31,11 @@ coot::cbeta_position(const coot::minimol::residue &res) {
 //     rz x rx (it seems from get_ori_to_this_res in coot-coord-utils)
  
    clipper::Coord_orth pos(0.0, 0.0, 0.0);
-   std::pair<short int, clipper::Coord_orth> p(0, pos);
+   std::pair<bool, clipper::Coord_orth> p(0, pos);
 
-   short int found_ca = 0;
-   short int found_c  = 0;
-   short int found_n  = 0;
+   bool found_ca = 0;
+   bool found_c  = 0;
+   bool found_n  = 0;
 
    clipper::Coord_orth ca_pos;
    clipper::Coord_orth c_pos;
@@ -99,8 +99,8 @@ coot::cbeta_position(const coot::minimol::residue &res) {
 	 }
       }
    } else {
-      std::cout << "INFO:: not all atoms found\n" << found_ca << " "
-		<< found_c << " " << found_n << std::endl;
+      std::cout << "INFO:: not all atoms found   CA: " << found_ca << "  C: "
+		<< found_c << "  N: " << found_n << std::endl;
    }
    return p;
 } 
@@ -110,7 +110,7 @@ coot::cbeta_position(const coot::minimol::residue &res) {
 // Carbonyl O position return a pair, the first of which indicates
 // if the O was properly positioned.  There are distance sanity
 // checks applied also.  There is abstractable code.
-std::pair<short int, clipper::Coord_orth>
+std::pair<bool, clipper::Coord_orth>
 coot::o_position(const coot::minimol::residue &res_with_CA_C,
 		 const coot::minimol::residue &res_with_N) {
 
@@ -120,15 +120,15 @@ coot::o_position(const coot::minimol::residue &res_with_CA_C,
    // of N->CA and C->CA.
 
    clipper::Coord_orth pos(0.0, 0.0, 0.0);
-   std::pair<short int, clipper::Coord_orth> p(0, pos);
+   std::pair<bool, clipper::Coord_orth> p(0, pos);
 
-   short int found_ca = 0;
-   short int found_c  = 0;
-   short int found_n  = 0;
+   bool found_ca = 0;
+   bool found_c  = 0;
+   bool found_n  = 0;
 
-   clipper::Coord_orth ca_pos;
+   clipper::Coord_orth ca_pos(0,0,0);
    clipper::Coord_orth c_pos(0,0,0);
-   clipper::Coord_orth n_pos;
+   clipper::Coord_orth n_pos(0,0,0);
 
    for (int iat=0; iat<res_with_N.atoms.size(); iat++) {
       if (res_with_N.atoms[iat].name == " N  ") {
@@ -150,23 +150,27 @@ coot::o_position(const coot::minimol::residue &res_with_CA_C,
    }
 
    if (found_ca && found_c && found_n) {
+
       // We could absract this code for functions that don't come in
       // with minimol::residues
 
-      clipper::Coord_orth n_ca = ca_pos - n_pos;
-      double n_ca_d = clipper::Coord_orth::length(ca_pos, n_pos);
+      double n_ca_d = clipper::Coord_orth::length(c_pos, n_pos);
       if (n_ca_d < 3.0) {
-	 // the vector direction and signed are determined (I should
-	 // confess) by guess and fiddle.
-	 clipper::Coord_orth n_ca_unit(n_ca.unit());
-	 clipper::Coord_orth c_ca = ca_pos - c_pos;
-	 clipper::Coord_orth c_ca_unit(c_ca.unit());
-
-	 clipper::Coord_orth plane_vector(n_ca_unit - c_ca_unit);
-	 clipper::Coord_orth plane_vector_unit(plane_vector.unit());
+	 clipper::Coord_orth c_n_unit((n_pos - c_pos).unit());
+	 clipper::Coord_orth c_ca_unit((ca_pos -  c_pos).unit());
+	 clipper::Coord_orth pseudo_N(c_pos + c_n_unit);	 
+	 clipper::Coord_orth pseudo_Ca(c_pos + c_ca_unit);
+	 clipper::Coord_orth pseudo_sum = pseudo_Ca + pseudo_N;
+	 clipper::Coord_orth mid_pseudo(0.5*pseudo_sum.x(),
+					0.5*pseudo_sum.y(),
+					0.5*pseudo_sum.z());
+	 clipper::Coord_orth mid_pseudo_ca_unit((c_pos - mid_pseudo).unit());
 	 p.first = 1;
-	 p.second = c_pos + 1.231 * plane_vector_unit;
+	 p.second = c_pos + 1.231 * mid_pseudo_ca_unit;
       }
+   } else {
+      std::cout << "INFO:: not all atoms found   CA: " << found_ca << "  C: "
+		<< found_c << "  N: " << found_n << std::endl;
    }
    return p;
 }

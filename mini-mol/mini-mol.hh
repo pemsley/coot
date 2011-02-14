@@ -1,4 +1,4 @@
-/* mini-mol/min-mol.cc
+/* mini-mol/min-mol.hh
  * 
  * Copyright  2003, 2004, 2006, 2007 The University of York
  * Author: Paul Emsley
