@@ -760,6 +760,11 @@
 	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 	       #f #t)
 
+	 (list (string-append "binary-Linux-i386-rhel-5-python-gtk2")
+	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-krosp.chem.york.ac.uk/gtk2"
+	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	       #t #t)
+
 ; 	 (list "binary-Linux-x86_64-ubuntu-9.04-gtk2"
 ; 	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
 ; 	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
