@@ -1,21 +1,21 @@
 
 EXTRA_DIST = coot.tex derivatives.tex tutorial.tex coot-plain-2.ps \
 	function-filter.scsh functions.tex derivatives-part.tex \
-	reference.tex crib-sheet.tex user-manual.texi \
+	reference.tex crib-sheet.tex coot-user-manual.texi \
 	coot-reference-manual.texi 3-amino-benzamide-2.eps  3-amino-benzamide-2.png  
 
 
-user-manual.dvi: $(top_srcdir)/doc/user-manual.texi
+coot-user-manual.dvi: $(top_srcdir)/doc/coot-user-manual.texi
 	if [ ! -e coot-plain-2.eps ] ; then cp $(top_srcdir)/doc/coot-plain-2.ps coot-plain-2.eps ; fi
 	texi2dvi $^
 
-user-manual.ps: user-manual.dvi
+coot-user-manual.ps: coot-user-manual.dvi
 	dvips -o $@ $^
 
-user-manual.pdf: user-manual.ps
+coot-user-manual.pdf: coot-user-manual.ps
 	ps2pdf $^
 
-user-manual.html: $(top_srcdir)/doc/user-manual.texi
+coot-user-manual.html: $(top_srcdir)/doc/coot-user-manual.texi
 	texi2html $^
 	splitstr='-split_chapter' ; \
 	texi2html --version ; \
@@ -23,7 +23,7 @@ user-manual.html: $(top_srcdir)/doc/user-manual.texi
 	texi2html $$splitstr $^ ; \
 	cd ..
 
-coot.html: $(top_srcdir)/doc/user-manual.texi
+coot.html: $(top_srcdir)/doc/coot-user-manual.texi
 	makeinfo --html --no-split --force $^
 	makeinfo --html            --force $^
 
@@ -34,10 +34,10 @@ coot.dvi: $(top_srcdir)/doc/coot.tex
 	-latex -interaction=nonstopmode $^
 	latex -interaction=nonstopmode $^
 
-booklet.ps: user-manual.dvi
+booklet.ps: coot-user-manual.dvi
 	dvips $^ -f | psbook | psnup -2 | psset -t > $@
 
-coot-manual.ps: user-manual.dvi
+coot-user-manual.ps: coot-user-manual.dvi
 	dvips $^ -o $@
 
 functions.tex: $(top_srcdir)/src/c-interface.h
