@@ -10,6 +10,13 @@
 
   o check debugging the charges in surface generation. ::: 0.5
 
+  o I just had an epiphany on what might be causing the problem.  The
+    residue causing the problems comes right after a residue with two
+    conformations.  When I deleted one of those conformations and tried
+    refining I no longer got the error message.  Hope this helps.
+
+                                                           Peter Simone
+
 
 ------
 
