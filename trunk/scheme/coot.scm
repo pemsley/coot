@@ -82,6 +82,7 @@
 			   "clear-backup.scm"
 			   "tips.scm"
 			   "americanisms.scm"
+                           "prodrg-import.scm"
 			   "group-settings.scm")))
 
       (let ((scheme-list 

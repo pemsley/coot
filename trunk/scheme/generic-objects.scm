@@ -336,6 +336,7 @@
 	(graphics-draw))))
 
 
+
 ;; Update the generic objects probe dots from residues within radius
 ;; of the screen centre.
 ;; 
@@ -357,7 +358,6 @@
     (let ((pdb-name "molprobity-tmp-reference-file.pdb"))
       (make-directory-maybe "coot-molprobity")
       (write-pdb-file imol-new pdb-name)
-      
       (get-probe-dots-from pdb-name pt radius)
       (close-molecule imol-new))))
 
