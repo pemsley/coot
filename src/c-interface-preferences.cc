@@ -1345,7 +1345,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 		  }
 
 		  if (offset > 0) { 
-		     // std::cout << "scanning |" << contact_type1+offset << std::endl;
+		     std::cout << "scanning |" << contact_type1+offset << std::endl;
 		     
 		     if (sscanf((contact_type1+offset), "%f:%f:%f:%f:%f", 
 				&x4, &x5, &x6, &factor5, &factor6)) {
@@ -1354,6 +1354,12 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 			std::string atom_id_2_str(atom_id2);
 			std::string contact_type(c_type);
 			
+ 			std::cout << "\"" << contact_type << "\"..\"" << atom_id_1_str
+				  << "\"..to..\""
+ 				  << atom_id_2_str << "\" " << gap1 << " " << gap2
+				  << " (" << x1 << "," << x2 << "," << x3 << ")"
+ 				  << " (" << x4 << "," << x5 << "," << x6 << ")"
+ 				  << "\n";
 //  			std::cout << "\"" << contact_type << "\"..\"" << atom_id_1_str
 //  				  << "\"..to..\""
 //  				  << atom_id_2_str << "\" " << gap1 << " " << gap2

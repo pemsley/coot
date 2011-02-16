@@ -2535,13 +2535,14 @@ coot::flev_attached_hydrogens_t::hydrogen_pos(const coot::named_torsion_t &named
 			       clipper::Util::d2rad(named_tor.torsion));
       pt = p4_h;
       pt_ligand_atom = pt_3;
-      std::cout << "in hydrogen_pos() constructed H pos " << pt.format()
-		<< " from atom at_1: " << at_1 << " "
-		<< "atom at_2: " << at_2 << " "
-		<< "atom at_3: " << at_3 << " "
-		<< " dist: " << named_tor.dist << " " 
-		<< " angle: " << named_tor.angle << " " 
-		<< " torsion: " << named_tor.torsion << std::endl;
+      
+//       std::cout << "in hydrogen_pos() constructed H pos " << pt.format()
+// 		<< " from atom at_1: " << at_1 << " "
+// 		<< "atom at_2: " << at_2 << " "
+// 		<< "atom at_3: " << at_3 << " "
+// 		<< " dist: " << named_tor.dist << " " 
+// 		<< " angle: " << named_tor.angle << " " 
+// 		<< " torsion: " << named_tor.torsion << std::endl;
    } 
    return std::pair<clipper::Coord_orth, clipper::Coord_orth> (pt_ligand_atom, pt);
 }
