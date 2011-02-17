@@ -76,7 +76,7 @@ molecule_class_info_t::make_surface(int on_off_flag,
 
    if (atom_sel.n_selected_atoms > 0) {
 
-      apply_charges(geom);
+      bool charges_applied_flag = apply_charges(geom);
       
       if (on_off_flag == 0) {
 	 cootsurface = NULL;
@@ -87,6 +87,11 @@ molecule_class_info_t::make_surface(int on_off_flag,
 	 glNewList(theSurface, GL_COMPILE);
 	 cootsurface = new coot::surface;
 	 bool need_charges_assigned = 1;
+	 if (charges_applied_flag)
+	    need_charges_assigned = 0;
+
+	 std::cout << "in molecule_class_info_t::make_surface() charges_applied_flag " << charges_applied_flag
+		   << " need_charges_assigned " << need_charges_assigned << std::endl;
 	 cootsurface->fill_from(atom_sel.mol, atom_sel.SelectionHandle, col_scale,
 				need_charges_assigned);
 	 if (cootsurface) 

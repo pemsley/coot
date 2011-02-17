@@ -3954,22 +3954,27 @@ molecule_class_info_t::check_waters_by_difference_map(const clipper::Xmap<float>
 
    float sum_v = 0.0;
    float sum_v_sq = 0.0;
-   // int n_atoms = 0;
-   int n_v = 0;
-   for (unsigned int id=0; id<dsi.size(); id++) {
-      sum_v    += dsi[id].first.sum_sq;
-      sum_v_sq += dsi[id].first.sum_sq * dsi[id].first.sum_sq;
-      n_v++;
-   }
+   if (dsi.size()) { 
+      for (unsigned int id=0; id<dsi.size(); id++) {
+	 sum_v    += dsi[id].first.sum_sq;
+	 sum_v_sq += dsi[id].first.sum_sq * dsi[id].first.sum_sq;
+      }
 
-   float v_mean = sum_v/float(n_v);
-   float v_variance = sum_v_sq/float(n_v) - v_mean*v_mean;
-   for (unsigned int id=0; id<dsi.size(); id++) {
-      if ( (dsi[id].first.sum_sq - v_mean)/sqrt(v_variance) > sigma_level) {
-	 v.push_back(dsi[id].second);
-      } 
-   }   
-   
+      float v_mean = sum_v/float(dsi.size());
+      float v_variance = sum_v_sq/float(dsi.size()) - v_mean*v_mean;
+      for (unsigned int id=0; id<dsi.size(); id++) {
+	 std::cout << "debug:: for atom " << dsi[id].second << " comparing "
+		   << dsi[id].first.sum_sq << " - "
+		   << v_mean << ")/sqrt(" << v_variance << ") = "
+		   << (dsi[id].first.sum_sq - v_mean)/sqrt(v_variance)
+		   << " > " << sigma_level
+		   << std::endl;
+	 if ( (dsi[id].first.sum_sq - v_mean)/sqrt(v_variance) > sigma_level) {
+	    std::cout << "debug::   pushing back " << dsi[id].second << std::endl;
+	    v.push_back(dsi[id].second);
+	 } 
+      }
+   }
    return v;
 }
 

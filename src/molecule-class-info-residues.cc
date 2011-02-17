@@ -69,15 +69,20 @@ molecule_class_info_t::progressive_residues_in_chain_check_by_chain(const char *
 } 
 
 
-// only apply charges if the molecule contains lots of hydrogens.
-void
+// Only apply charges if the molecule contains lots of hydrogens.
+//
+// so return a flag, whether or not the charges were applied.
+// 
+bool
 molecule_class_info_t::apply_charges(const coot::protein_geometry &geom) {
 
-   // More than 20% of the atoms have to be hydrogens for use to set
+   // More than 15% of the atoms have to be hydrogens for use to set
    // the charges on all the atoms (to something other than
    // CXX_UNSET_CHARGE).
+
+   bool charges_applied_flag = 0; // unset initially.
    
-   float fraction_hydrogens = 0.2;
+   float fraction_hydrogens = 0.15;
 
    if (atom_sel.n_selected_atoms > 0) { 
       CMMDBManager *mol = atom_sel.mol;
@@ -92,12 +97,13 @@ molecule_class_info_t::apply_charges(const coot::protein_geometry &geom) {
 	 n_all++;
       }
       
-      if ( (float(n_H)/float(n_all) > fraction_hydrogens) || n_all < 40) {
+      if ( (float(n_H)/float(n_all) > fraction_hydrogens) || n_all < 100) {
 
 	 // first set all atom charges to unset:
 	 for (int i=0; i<atom_sel.n_selected_atoms; i++)
 	    atom_sel.atom_selection[i]->charge = CXX_UNSET_CHARGE - 0.1;
-      
+
+	 charges_applied_flag = 1;
 
 	 // Now add real charges from the dictionary
 	 // 
@@ -126,7 +132,8 @@ molecule_class_info_t::apply_charges(const coot::protein_geometry &geom) {
 	    }
 	 }
       }
-   } 
+   }
+   return charges_applied_flag;
 } 
 
 int
