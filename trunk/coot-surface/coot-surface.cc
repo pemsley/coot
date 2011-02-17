@@ -30,18 +30,33 @@
 #include "CXXUtils.h"
 
 #include "rgbreps.h"
+#include "coot-coord-utils.hh"
 
+// assign_charges is an instruction to CXX surface code to generate
+// the charges - sometime we want to do that (e.g. surface on a
+// protein), sometimes not (e.g. surface on a ligand).
+// 
 void
 coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale, bool assign_charges) {
 
 
    // debug::
+   bool debug = 0;
 
-   if (1) { 
+   PPCAtom atoms;
+   int n_atoms;
+   mol->GetSelIndex(selHnd, atoms, n_atoms);
+   std::vector<float> save_charges(n_atoms, -100); // all unset
+
+   if (! assign_charges) 
+      // save our charges (restore later).
+      for (int iat=0; iat<n_atoms; iat++)
+	 if (atoms[iat]->charge > CXX_UNSET_CHARGE)
+	    save_charges[iat] = atoms[iat]->charge;
+   
+
+   if (debug) { 
       std::cout << "========pre =============" << std::endl;
-      PPCAtom atoms;
-      int n_atoms;
-      mol->GetSelIndex(selHnd, atoms, n_atoms);
       for (int iat=0; iat<n_atoms; iat++) {
 	 std::cout << "  atom: " << atoms[iat]->GetChainID() << " " <<  atoms[iat]->GetSeqNum() << " "
 		   << atoms[iat]->name << " charge: " << atoms[iat]->charge << std::endl;
@@ -49,21 +64,25 @@ coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale, bool as
    }
 
    
-   if (assign_charges) { 
+   theSurface = new CXXSurface;
+   CXXChargeTable theChargeTable;
+   CXXUtils::assignCharge(mol, selHnd, &theChargeTable); // magic happens
 
-      theSurface = new CXXSurface;
-      CXXChargeTable theChargeTable;
-      CXXUtils::assignCharge(mol, selHnd, &theChargeTable);
+   if (! assign_charges) 
+      // restore charges 
+      for (int iat=0; iat<n_atoms; iat++)
+	 if (save_charges[iat] > CXX_UNSET_CHARGE)
+	    atoms[iat]->charge = save_charges[iat];
+      
 
-      if (1) {
-	 std::cout << "========post=============" << std::endl;
-	 PPCAtom atoms;
-	 int n_atoms;
-	 mol->GetSelIndex(selHnd, atoms, n_atoms);
-	 for (int iat=0; iat<n_atoms; iat++) {
-	    std::cout << "  atom: " << atoms[iat]->GetChainID() << " " <<  atoms[iat]->GetSeqNum() << " "
-		      << atoms[iat]->name << " charge: " << atoms[iat]->charge << std::endl;
-	 }
+   if (debug) {
+      std::cout << "========post=============" << std::endl;
+      PPCAtom atoms;
+      int n_atoms;
+      mol->GetSelIndex(selHnd, atoms, n_atoms);
+      for (int iat=0; iat<n_atoms; iat++) {
+	 std::cout << "  atom: " << atoms[iat]->GetChainID() << " " <<  atoms[iat]->GetSeqNum() << " "
+		   << atoms[iat]->name << " charge: " << atoms[iat]->charge << std::endl;
       }
    }
 

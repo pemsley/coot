@@ -2755,8 +2755,16 @@ public:        //                      public
    
    coot::validation_graphs_t validation_graphs;
 
-
-   void apply_charges(const coot::protein_geometry &geom);
+   // Only apply charges if the molecule contains lots of hydrogens or
+   // there were few (< 100) atoms in the molecule.
+   //
+   // so return a flag, whether or not the charges were applied.
+   // 
+   // More than 15% of the atoms have to be hydrogens for use to set
+   // the charges on all the atoms (to something other than
+   // CXX_UNSET_CHARGE).
+   // 
+   bool apply_charges(const coot::protein_geometry &geom);
 
    // return the dipole (a copy) and its number
    // 
