@@ -19451,7 +19451,7 @@ create_interesting_waters_by_difference_map_check_dialog (void)
   interesting_waters_by_difference_map_check_dialog = gtk_dialog_new ();
   gtk_widget_set_name (interesting_waters_by_difference_map_check_dialog, "interesting_waters_by_difference_map_check_dialog");
   gtk_widget_set_size_request (interesting_waters_by_difference_map_check_dialog, -1, 200);
-  gtk_window_set_title (GTK_WINDOW (interesting_waters_by_difference_map_check_dialog), _("Interesting/Strange Waters:"));
+  gtk_window_set_title (GTK_WINDOW (interesting_waters_by_difference_map_check_dialog), _("Diff Map Analysis Results: Interesting/Strange Waters:"));
   gtk_window_set_type_hint (GTK_WINDOW (interesting_waters_by_difference_map_check_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox71 = GTK_DIALOG (interesting_waters_by_difference_map_check_dialog)->vbox;
