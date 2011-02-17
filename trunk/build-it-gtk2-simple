@@ -1651,7 +1651,7 @@ pkg-config --atleast-version=$needed_gtk_version gtk+-2.0
 gtk_pkg_config_status=$?
 if [ "$gtk_pkg_config_status" = 0 ] ; then 
    build_gtk=
-   echo :::::::: gtk version is at least $needed_gkt_version
+   echo :::::::: gtk version is at least $needed_gtk_version
    echo :::::::: gtk version is `pkg-config --modversion gtk+-2.0`
 else 
    # no recent/good gtk
@@ -2311,11 +2311,11 @@ if [ "$build_gtkglext" = 1 ] ; then
      # gtk+ 2.20 needs converting GTK_WIDGET_REALIZED to gtk_widget_get_realised, but 
      # gtk+ 2.18 does not (it fails if we add that patch), so use a simpler one.
      if pkg-config gtk+-2.0 --atleast-version 2.16 ; then
+        echo we have sufficiently new version of gtk+, we need to patch gtkglext with $patch_file
         patch_file=gtk-gtkglwidget.c-for-modern-gtk-for-2.18.patch
         if pkg-config gtk+-2.0 --atleast-version 2.20 ; then
            patch_file=gtk-gtkglwidget.c-for-modern-gtk.patch
         fi
-        echo we have sufficiently new version of gtk+, we need to patch gtkglext with $patch_file
         ${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/$patch_file
 
         if patch -p0 < ${AUTOBUILD_SOURCES}/$patch_file ; then 

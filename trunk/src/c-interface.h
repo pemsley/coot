@@ -1375,10 +1375,11 @@ void set_auto_read_do_difference_map_too(int i);
 
    @return 0 means no, 1 means yes. */
 int auto_read_do_difference_map_too_state();
-/*! \brief set the exected MTZ columns for Auto-reading MTZ file. 
+/*! \brief set the expected MTZ columns for Auto-reading MTZ file. 
 
-  Not every program uses the default refmac labels (FWT/PHWT) for its
-  MTZ file.  Here we can tell coot to expect other labels, 
+  Not every program uses the default refmac labels ("FWT"/"PHWT") for
+  its MTZ file.  Here we can tell coot to expect other labels so that
+  coot can "Auto-open" such MTZ files.
 
   e.g. (set-auto-read-column-labels "2FOFCWT" "PH2FOFCWT" 0) */
 void set_auto_read_column_labels(const char *fwt, const char *phwt, 

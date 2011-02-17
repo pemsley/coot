@@ -1,12 +1,9 @@
 
  0.6.2
 
-  o key bindings with scheme and python.
-
-  o More check of "Check waters by difference map variance" David Banner
-    ::: 1
-
   o CCP4MG from Coot: Pete Dunten ::: 2
+
+* Needs to be testing at work.
 
   o check debugging the charges in surface generation. ::: 0.5
 
@@ -16,7 +13,6 @@
     refining I no longer got the error message.  Hope this helps.
 
                                                            Peter Simone
-
 
 ------
 
@@ -854,5 +850,15 @@ WARNING:: Can't find file
    ::: 1
 
 * Can't reproduce.
+
+  o key bindings with scheme and python. ::: 0.5
+
+* Seems OK. 
+
+  o More check of "Check waters by difference map variance" David Banner
+    ::: 1
+
+* Seems OK. 
+
 
 -------

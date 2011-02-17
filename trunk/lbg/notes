@@ -17,6 +17,20 @@ test ligands:
             What about the ASN A312 H-bond donor to the H on the ligand?
             Mistake, I feel - needs investigating.
 
+test_refmac1.pdb from David Banner. LIG
+
+----
+Thu Feb 17 13:31:48 GMT 2011
+ 
+  using --script with-prodrg.scm
+
+ 1) read test_refmac1.pdb from David Banner
+ 2) centre on ligand
+ 3) prodrgify
+ 4) go back to test_refmac1.pdb molecule
+    Why does this not have bond order representation?
+ 5) sprout hydrogens
+   -> crash
 
 ----
 Mon Nov 29 17:00:39 GMT 2010
