@@ -10,10 +10,11 @@
 #ifndef CXXBall_included
 #define CXXBall_included
 
+// 20110217 4.3.3 on Ubuntu 9.04 needs this hack too
 #ifdef __GNUC__
 #ifdef __GNUC_MINOR__
 #if (__GNUC__ == 4)
-#if    ( (__GNUC_MINOR__ == 1) ||  (__GNUC_MINOR__ == 2))
+#if    ( (__GNUC_MINOR__ == 1) ||  (__GNUC_MINOR__ == 2) || (__GNUC_MINOR__ == 3))
 #define NEED_OPENMP_PRAGMA_HACK
 #endif 
 #endif 

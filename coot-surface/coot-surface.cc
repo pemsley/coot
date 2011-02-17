@@ -67,13 +67,11 @@ coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale, bool as
       }
    }
 
-
    
    theSurface->calculateFromAtoms(mol, selHnd, selHnd, 1.4, 0.5, false); // 0.785 is 45
 							  // degrees used by
 							  // Martin
    evaluateElectrostaticPotential(mol, selHnd, col_scale);
-
 }
 
 void
