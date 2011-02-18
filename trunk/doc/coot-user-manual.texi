@@ -83,6 +83,7 @@ Paul Emsley
 * Modelling and Building::
 * Map-Related Features::
 * Validation::
+* Representation::
 * Hints and Usage Tips::
 * Other Programs::
 * Scripting Functions::
@@ -4565,6 +4566,36 @@ tell this to Coot using:
 @c pucker.  Coot checks that the out of plane distance is consistent with
 @c the ribose pucker (and let's you know if it is not). 
 
+
+
+@c % -----------------------------------------------------------
+@node Representation
+@chapter Representation
+@c % -----------------------------------------------------------
+
+@menu
+* Surfaces::
+@end menu
+
+@node Surfaces
+@section Surfaces
+
+Coot uses the surface code from Gruber and Noble (2004).
+
+Coot uses the partial charges of the atoms (the @var{partial_charge}
+field in the @var{_chem_comp_atom} block) from the charge dictionary item
+in the refmac (or other) cif dictionary.  However, partial charges are
+only used under certain conditions
+
+1) the molecule consists of less than 100 atoms
+
+or 
+
+2) the number of atoms in the molecule that are hydrogens is at least
+15% of the total number of atoms in the molecule
+
+If partial charges are not used, then the fall-back is to use charges
+from side-chains charged at physiological pH (Arg, Lys, Asp, Glu).
 
 
 @c % -----------------------------------------------------------
