@@ -37,9 +37,6 @@ coot.dvi: $(top_srcdir)/doc/coot.tex
 booklet.ps: coot-user-manual.dvi
 	dvips $^ -f | psbook | psnup -2 | psset -t > $@
 
-coot-user-manual.ps: coot-user-manual.dvi
-	dvips $^ -o $@
-
 functions.tex: $(top_srcdir)/src/c-interface.h
 # scsh -s $(top_srcdir)/doc/function-filter.scsh $^ > $@
 	echo passing on making function.tex
