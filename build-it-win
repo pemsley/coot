@@ -2434,6 +2434,8 @@ fi
 echo done with Gtk+-2 and dependencies...
 
 
+## goocanvas:
+# http://ftp.gnome.org/pub/gnome/binaries/win32/goocanvas/0.15/
 cd ${AUTOBUILD_SOURCES}
 ## libgnomecanvas
 if test -n "$build_libgnomecanvas" ; then

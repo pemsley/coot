@@ -1,5 +1,6 @@
 cprodrg = "cprodrg"
 cprodrg = "c:/Programs/CCP4-Packages/ccp4-6.1.3/bin/cprodrg.exe"
+
 # we need $CLIBD to run prodrg (for prodrg.param), so check for it:
 if not os.getenv("CLIBD"):
     print "BL INFO:: potential problem to run prodrg (no CLIBD set)"
@@ -20,30 +21,45 @@ if not os.getenv("CLIBD"):
         # i.e. stop here?
     
 
+# these are the files that mdl-latest-time and sbase time-out functions
+# look at.
+# 
 # if there is a prodrg-xyzin set the current-time to its mtime, else False
+#
+global prodrg_xyzin
+global sbase_to_coot_tlc
 prodrg_xyzin      = "../../coot/lbg/prodrg-in.mdl"
 sbase_to_coot_tlc = "../../coot/lbg/.sbase-to-coot-comp-id"
+
 # this is for BL win machine
 home = os.getenv("HOME")
-if is_windows():
+if (not home and is_windows()):
     home = os.getenv("COOT_HOME")
-prodrg_xyzin      = os.path.join(home, "Projects/build-xp-python/lbg/prodrg-in.mdl")
-sbase_to_coot_tlc = "../../build-xp-python/lbg/.sbase-to-coot-comp-id" 
+if home:
+    prodrg_xyzin      = os.path.join(home, "Projects",
+                                     "build-xp-python", "lbg", "prodrg-in.mdl")
+else:
+    print "BL DEBUG:: buggery home is", home  # FIXME
+sbase_to_coot_tlc = "../../build-xp-python/lbg/.sbase-to-coot-comp-id"
+
+prodrg_xyzin      = "prodrg-in.mdl"
+sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
+
+print "new prodrg_import.py"
 
 def import_from_prodrg(minimize_mode):
 
     import operator
+    global prodrg_xyzin
     
     prodrg_dir = "coot-ccp4"
     res_name = "DRG"
 
     make_directory_maybe(prodrg_dir)
-    prodrg_xyzin  = "../../coot/lbg/prodrg-in.mdl"
-    # BL win machine
-    prodrg_xyzin      = os.path.join(os.getenv("HOME"), "Projects/build-xp-python/lbg/prodrg-in.mdl")
     prodrg_xyzout = os.path.join(prodrg_dir, "prodrg-" + res_name + ".pdb")
     prodrg_cif    = os.path.join(prodrg_dir, "prodrg-out.cif")
     prodrg_log    = os.path.join(prodrg_dir, "prodrg.log")
+
     # requires python >= 2.5 (shall we test?)
     mini_mode = "NO" if (minimize_mode == 'mini-no') else "PREP"
     # should test if cprdrg exists?
@@ -72,8 +88,10 @@ def import_from_prodrg(minimize_mode):
             # add_ligand_delete_residue_copy_molecule provides
             # that for us.  We just colour it and undisplay the
             # other molecules.
+            
             read_cif_dictionary(prodrg_cif)
             imol = handle_read_draw_molecule_and_move_molecule_here(prodrg_xyzout)
+            
             # We omit using_active atom and just make variables
             # aa_something!
             active_atom = active_residue()
@@ -84,21 +102,26 @@ def import_from_prodrg(minimize_mode):
             aa_atom_name = active_atom[4]
             aa_alt_conf  = active_atom[5]
             
-            match_ligand_torsions(imol, aa_imol, aa_chain_id, aa_res_no)
             overlap_ligands(imol, aa_imol, aa_chain_id, aa_res_no)
+            
             with_auto_accept([regularize_residues, imol, [["", 1, ""]]])
+            
             match_ligand_torsions(imol, aa_imol, aa_chain_id, aa_res_no)
+            
             overlap_ligands(imol, aa_imol, aa_chain_id, aa_res_no)
-            additional_representation_by_attributes(imol, "", 1, 1, "", 2, 2, 0.2, 1)
+            
+            #additional_representation_by_attributes(imol, "", 1, 1, "", 2, 2, 0.2, 1)
+            
             set_mol_displayed(aa_imol, 0)
             set_mol_displayed(imol, 0)
             col = get_molecule_bonds_colour_map_rotation(aa_imol)
-            new_col += 5 # a tiny amount
+            new_col = col + 5 # a tiny amount
             imol_replaced = add_ligand_delete_residue_copy_molecule(imol, "", 1,
                                                                     aa_imol, aa_chain_id, aa_res_no)
             set_molecule_bonds_colour_map_rotation(imol_replaced, new_col)
             graphics_draw()
             return True
+        # return False otherwise? FIXME
 
 if (have_coot_python):
     if coot_python.main_menubar():
@@ -134,6 +157,7 @@ if (have_coot_python):
             lambda func:
             using_active_atom(fle_view, "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code")
             )
+        
         add_simple_coot_menu_menuitem(
             menu,
             "Load SBase monomer...",
@@ -145,13 +169,22 @@ if (have_coot_python):
                                  get_sbase_monomer(tlc))
             )
 
+        # should be in rdkit file
+        add_simple_coot_menu_menuitem(
+            menu,
+            "FLEV this residue [RDKIT]",
+            lambda func:
+            using_active_atom(fle_view_with_rdkit, "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code", 4.2)
+            )
 
+        
 def get_mdl_latest_time(file_name):
     if not os.path.isfile(file_name):
         return False
     else:
         return os.stat(file_name).st_mtime
 
+# globals should be in the beginning! FIXME
 global mdl_latest_time
 global sbase_transfer_latest_time
 mdl_latest_time = get_mdl_latest_time(prodrg_xyzin)
@@ -167,15 +200,18 @@ def func():
 
     # print "sbase_now_time %s    sbase_latest_time %s" %(sbase_now_time, sbase_transfer_latest_time)
 
-    if operator.isNumberType(mdl_now_time):
+    if (operator.isNumberType(mdl_now_time) and
+        operator.isNumberType(mdl_latest_time)):
         if (mdl_now_time > mdl_latest_time):
-            mdl_latest_time = mdl_now_time  # globals? FIXME
+            mdl_latest_time = mdl_now_time
             import_from_prodrg('mini-prep')
 
-    if operator.isNumberType(sbase_now_time):
+    if (operator.isNumberType(sbase_now_time) and
+        operator.isNumberType(sbase_transfer_latest_time)):
         if (sbase_now_time > sbase_transfer_latest_time):
-            sbase_transfer_latest_time = sbase_now_time  # globals? FIXME
-            fin = open(sbase_to_coot_tlc)
+            sbase_transfer_latest_time = sbase_now_time
+            # check if file exists? FIXME
+            fin = open(sbase_to_coot_tlc, 'r')
             tlc_symbol = fin.readline()  # need to read more? FIXME
             fin.close()
             imol = get_sbase_monomer(tlc_symbol)
@@ -216,12 +252,14 @@ def prodrg_flat(imol_in, chain_id_in, res_no_in):
                            arg_list,
                            ["COORDS BOTH", "MINI FLAT", "END"],
                            prodrg_log, True)
-    # Does this make sense in python? status being number that is. FIXME
+    # Does this make sense in python? status being number that is.
+    # Maybe rather check for cprodrg exe. FIXME
     if not operator.isNumberType(status):
         info_dialog("Ooops: cprodrg not found?")
         return False
     else:
         if not (status == 0):
+            # only for python >=2.5
             mess = "Something went wrong running cprodrg\n" + \
                    ("(quelle surprise)" if random.randint(0,100) <10 else "")
             info_dialog(mess)
@@ -229,7 +267,7 @@ def prodrg_flat(imol_in, chain_id_in, res_no_in):
         else:
             # normal return value (hopefully)
             return [imol,
-                    prodrg_outpu_mol_file,
+                    prodrg_output_mol_file,
                     prodrg_output_pdb_file,
                     prodrg_output_lib_file]
 
@@ -261,13 +299,13 @@ def fle_view(imol, chain_id, res_no, ins_code):
     import operator
     global have_mingw
     
+    # not using active atom, but make property list
     r_flat  = prodrg_flat (imol, chain_id, res_no)
     if not r_flat:
         print "BL ERROR:: cannot continue in fle_view"
     else:
         r_plain = prodrg_plain('mini-no', imol, chain_id, res_no)
-        if (operator.isNumberType(r_plain[0]) and
-            r_plain[0] == 0 ):
+        if (r_plain[0] == 0 ):
             imol_ligand_fragment = r_flat[0]
             prodrg_output_flat_mol_file_name = r_flat[1]
             prodrg_output_flat_pdb_file_name = r_flat[2]
@@ -275,10 +313,10 @@ def fle_view(imol, chain_id, res_no, ins_code):
             prodrg_output_3d_pdb_file_name   = r_plain[1]
             # 'using_active_atom'
             active_atom = active_residue()
-            imol     = active_atom[0]
-            chain_id = active_atom[1]
-            res_no   = active_atom[2]
-            fle_view_internal(imol, chain_id, res_no, "",  # should be from active_atom!!     using_active_atom([[]])
+            aa_imol     = active_atom[0]
+            aa_chain_id = active_atom[1]
+            aa_res_no   = active_atom[2]
+            fle_view_internal(aa_imol, aa_chain_id, aa_res_no, "",  # should be from active_atom!!     using_active_atom([[]])
                               imol_ligand_fragment,
                               prodrg_output_flat_mol_file_name,
                               prodrg_output_flat_pdb_file_name,
@@ -305,3 +343,5 @@ def fle_view(imol, chain_id, res_no, ins_code):
                               [],
                               "/dev/null", False)
 
+
+                

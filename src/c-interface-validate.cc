@@ -2069,6 +2069,26 @@ SCM all_molecule_rotamer_score(int imol) {
 } 
 #endif
 
+#ifdef USE_PYTHON
+PyObject *all_molecule_rotamer_score_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      coot::rotamer_score_t rs = g.all_molecule_rotamer_score(imol);
+      PyObject *a_py = PyFloat_FromDouble(rs.score);
+      PyObject *b_py = PyInt_FromLong(rs.n_rotamer_residues());
+      r = PyList_New(2);
+      PyList_SetItem(r, 0, a_py);
+      PyList_SetItem(r, 1, b_py);
+   } 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+} 
+#endif
+
 #ifdef USE_GUILE
 SCM all_molecule_ramachandran_score(int imol) {
 
@@ -2086,3 +2106,25 @@ SCM all_molecule_ramachandran_score(int imol) {
    return r;
 } 
 #endif // USE_GUILE
+
+#ifdef USE_PYTHON
+PyObject *all_molecule_ramachandran_score_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      coot::rama_score_t rs = graphics_info_t::molecules[imol].get_all_molecule_rama_score();
+      PyObject *a_py = PyFloat_FromDouble(rs.score);
+      PyObject *b_py = PyInt_FromLong(rs.n_residues());
+      PyObject *c_py = PyInt_FromLong(rs.n_zeros);
+      r = PyList_New(3);
+      PyList_SetItem(r, 0, a_py);
+      PyList_SetItem(r, 1, b_py);
+      PyList_SetItem(r, 2, c_py);
+   } 
+
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+} 
+#endif // USE_PYTHON

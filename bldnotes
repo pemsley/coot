@@ -10,6 +10,11 @@ build-it-win rev 2122
 * THINGS TO DO BEFORE 0.6.2 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
+CCP4
+- space update bar
+- baton build no chainid (?)
+- 2nd baton build 'overrides' 1st
+
 notes from BioCrys
 - correct resno bsed on associated sequence (note: associate sequence produces
 	nonsens gaps at ends)
@@ -38,6 +43,13 @@ scripting exercise
 ----------------
 
 **** General ****
+
+   o pick pointer disappears when using delete hydrogens (maybe in others too)
+	when keeping dialog open
+
+   o show symmetry axis !?
+
+   o grab focus of loaded state file window (only Win?)
 
    o recalculate NCS
 
@@ -119,7 +131,7 @@ from Osaka 2010
 	bond thickness 0 doesnt work. hiding seems tricky!?
 
    o povray view angle still not ok (view gets smaller the further away from 
-	 origin we are)
+	 origin we are) use openGL matrices?!
 
    o refmac to run from an XML file
 
@@ -168,7 +180,7 @@ from Osaka 2010
 
 **** Python ****
 
-   o extensions menus separators
+   o extensions menus separators (fill in)
 
    o enable PISA interface for new enough PISA
 
@@ -180,7 +192,7 @@ from Osaka 2010
 
    o different 'Control_' spellings in key board shortcuts
 
-   o remove trailing space for EBI/downloaded file names
+   o remove trailing space for EBI/downloaded file names (if exists)
 
    o make all 'macros' (e.g. with_auto_accept) to use all sort of input
 	(list, args, ... - cf using_active_atom)
@@ -192,6 +204,7 @@ from Osaka 2010
    o make a server-client swapped version for remote control (if possible)
 
    o fix 'No Adjustment' buttons (and callbacks) in user_mods_gui
+(*done?)
 
    o review pygtk button (and other) callbacks which are string, poss can be 
 	exchanged (see water_coordination_gui)
@@ -209,6 +222,8 @@ from Osaka 2010
 
 
 **** Windows ****
+
+   o installer with custom/typical to make easier (use InstType)
 
    o WinCoot:
     - update gtk? Better for Windows 7?!

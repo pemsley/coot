@@ -62,7 +62,7 @@ main (int argc, char *argv[])
 	if (! builder)
 	  printf("Failed to generate builder\n");
  
-        window = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_dialog"));
+        window = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_window"));
 
 	if (! window) {
 	   g_object_unref (G_OBJECT (builder));
