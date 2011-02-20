@@ -462,7 +462,7 @@
 							 imol
 							 (append 
 							  (rotation-centre) 
-							  (list radius)))))))))
+							  (list radius 0)))))))))
 
 	(add-simple-coot-menu-menuitem submenu-models "New Molecule from Symmetry Op..."
 				       (lambda ()
