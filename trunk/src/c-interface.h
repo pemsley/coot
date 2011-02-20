@@ -6429,6 +6429,10 @@ void start_ligand_builder_gui(GtkMenuItem     *menuitem,
 SCM all_molecule_rotamer_score(int imol);
 SCM all_molecule_ramachandran_score(int imol); /* a stub currently */
 #endif // USE_GUILE
+#ifdef USE_PYTHON
+PyObject *all_molecule_rotamer_score_py(int imol);
+PyObject *all_molecule_ramachandran_score_py(int imol); /* a stub currently */
+#endif // USE_PYTHON
 #endif /* __cplusplus */
 
 

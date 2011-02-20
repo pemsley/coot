@@ -56,15 +56,13 @@
 #include "graphics-c-interface-functions.hh"
 #endif 
 
+#ifdef WINDOWS_MINGW
+#undef small
+#endif
+
 
 #define dark "#111111"
 
-// Sorry Bernie, I don't see how this is useful - tell me why.  It
-// causes a compilation issue for me (no compat defined in includes).
-// That can be addressed another way of course, but I don't want to do
-// that if this is not useful.
-// 
-// #include "coot-sysdep.h"
 
 // static double LIGAND_TO_CANVAS_SCALE_FACTOR = 23;
 static double LIGAND_TO_CANVAS_SCALE_FACTOR = 17;

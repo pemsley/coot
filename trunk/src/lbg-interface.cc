@@ -31,7 +31,10 @@ void residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const
  	    // update computed properties on atoms and bonds:
  	    rdk_mol_with_no_Hs.updatePropertyCache();
  	    RDKit::MolOps::Kekulize(rdk_mol_with_no_Hs);
+// BL says:: this is actually RDKit version dependent
+#ifndef WINDOWS_MINGW
  	    RDKit::MolOps::assignRadicals(rdk_mol_with_no_Hs);
+#endif // WINDOWS
 	    
 	    // then do aromaticity perception
 	    // RDKit::MolOps::setAromaticity(rdkm);
@@ -109,7 +112,10 @@ void smiles_to_ligand_builder(const char *smiles_string) {
       // update computed properties on atoms and bonds:
       rdk_mol->updatePropertyCache();
       RDKit::MolOps::Kekulize(*rdk_mol);
+// BL says:: this is actually RDKit version dependent
+#ifndef WINDOWS_MINGW
       RDKit::MolOps::assignRadicals(*rdk_mol);
+#endif
       // set conjugation
       RDKit::MolOps::setConjugation(*rdk_mol);
       // set hybridization
