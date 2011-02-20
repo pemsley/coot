@@ -490,7 +490,7 @@ if (have_coot_python):
          radius = float(text)
        except:
          print "WARNING:: no valid radius", text
-       args = [imol] + rotation_centre() + [radius]
+       args = [imol] + rotation_centre() + [radius, 0]
        new_molecule_by_sphere_selection(*args)
 
      add_simple_coot_menu_menuitem(

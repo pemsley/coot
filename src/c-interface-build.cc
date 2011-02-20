@@ -1369,7 +1369,10 @@ PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *al
         if (residues.size() > 0) {
           graphics_info_t g;
           int imol_map = g.Imol_Refinement_Map();
-          if (is_valid_map_molecule(imol_map)) { 
+          if (! is_valid_map_molecule(imol_map)) { 
+            add_status_bar_text("Refinement map not set");
+          } else {
+            // normal
             CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
             coot::refinement_results_t rr =
               g.refine_residues_vec(imol, residues, alt_conf, mol);
@@ -1408,21 +1411,16 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char
 
 	 if (residues.size() > 0) {
 	    graphics_info_t g;
-	    int imol_map = g.Imol_Refinement_Map();
-	    if (! is_valid_map_molecule(imol_map)) {
-	       add_status_bar_text("Refinement map has not been set");
-	    } else {
-	       // normal
-	       CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
-	       coot::refinement_results_t rr =
-		  g.refine_residues_vec(imol, residues, alt_conf, mol);
+        CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+        coot::refinement_results_t rr =
+		  g.regularize_residues_vec(imol, residues, alt_conf, mol);
 	       rv = g.refinement_results_to_py(rr);
 	    }
 	 } 
       } else {
 	 std::cout << "No residue specs found" << std::endl;
       } 
-   }
+
    if (PyBool_Check(rv)) {
      Py_INCREF(rv);
    }
