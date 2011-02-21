@@ -3890,7 +3890,7 @@ void write_ccp4mg_picture_description(const char *filename) {
 	    mg_stream << "   " << single_quote(coot::util::absolutise_file_name(graphics_info_t::molecules[imol].name_)) << "])\n";
 	    mg_stream << "\n";
 	    mg_stream << "MolDisp (\n";
-	    mg_stream << "    selection = 'all',\n";
+	    mg_stream << "    select    = 'all',\n";
 	    mg_stream << "    colour    = 'atomtype',\n"; 
 	    mg_stream << "    style     = 'BONDS',\n";
 	    mg_stream << "    selection_parameters = {\n";
