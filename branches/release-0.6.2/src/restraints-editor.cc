@@ -329,6 +329,7 @@ coot::restraints_editor::fill_info_tree_data(GtkWidget *restraints_editor_dialog
    GtkTreeStore *tree_store_info =
       gtk_tree_store_new (7, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
 			  G_TYPE_INT, G_TYPE_INT, G_TYPE_STRING);
+
    view_and_store_info.view = tv_info;
    view_and_store_info.store = tree_store_info;
    
@@ -1001,11 +1002,11 @@ coot::restraints_editor::get_plane_restraints() const {
 	 } 
       }
       if (made_restraint) {
-	 std::cout << "Made restraint from :" << plane_id << ": " << atoms.size() << " atoms "
-		   << "with esd " << esd << std::endl;
+	 // std::cout << "Made restraint from :" << plane_id << ": " << atoms.size() << " atoms "
+	 // << "with esd " << esd << std::endl;
       } else {
-	 std::cout << "No restraint from :" << plane_id << ": " << atoms.size() << " atoms "
-		   << "with esd " << esd << std::endl;
+	 // std::cout << "No restraint from :" << plane_id << ": " << atoms.size() << " atoms "
+	 // << "with esd " << esd << std::endl;
       } 
       b = gtk_tree_model_iter_next (GTK_TREE_MODEL(view_and_store_planes.store), &iter);
    }
@@ -1186,8 +1187,9 @@ coot::restraints_editor::get_residue_info() const {
       }
    
       if (tlc.length() == 0) {
-	 std::cout << "WARNING:: three_letter_code blank/unset." << std::endl;
-	 std::cout << "WARNING:: resetting three_letter_code to " << comp_id << std::endl;
+	 std::cout << "WARNING:: get_residue_info() three_letter_code blank/unset." << std::endl;
+	 std::cout << "WARNING:: get_residue_info() resetting three_letter_code to "
+		   << comp_id << std::endl;
 	 tlc = comp_id;
       }
       
@@ -1214,6 +1216,8 @@ coot::restraints_editor::get_residue_info() const {
       }
    }
 
+   // std::cout << "debug:: in get_residue_info() comp_id is " << info.comp_id << std::endl;
+
    return std::pair<bool, coot::dict_chem_comp_t> (proper, info);
 }
 
@@ -1228,7 +1232,7 @@ void apply_restraint_by_widget(GtkWidget *w) {
    if (re.is_valid()) {
       coot::dictionary_residue_restraints_t r = re.make_restraint();
       // do something with r.
-      std::string filename = "restraints.cif";
+      std::string filename = "coot-tmp-restraints.cif";
       r.write_cif(filename);
       coot::protein_geometry *pg = g.Geom_p();
       std::string type = r.residue_info.comp_id;
