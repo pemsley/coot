@@ -5425,7 +5425,15 @@ void show_restraints_editor_by_index(int menu_item_index) {
 	 show_restraints_editor(v[i].c_str());
    }
 } 
-#endif 
+#endif
+
+#if (GTK_MAJOR_VERSION > 1) 
+void clear_restraints_editor_by_dialog(GtkWidget *dialog) { /* close button pressed */
+   graphics_info_t g;
+   g.clear_restraints_editor_by_dialog(dialog);
+}
+#endif
+
 
 
 #if (GTK_MAJOR_VERSION > 1) 

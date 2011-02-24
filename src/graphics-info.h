@@ -3632,15 +3632,20 @@ string   static std::string sessionid;
 #if (GTK_MAJOR_VERSION > 1) 
    static std::vector<coot::restraints_editor> restraints_editors;
    coot::restraints_editor get_restraints_editor(GtkWidget *w) { 
-     coot::restraints_editor r;
+     coot::restraints_editor r; // a null/unset restraints editor
      int found_index = -1;
 
      if (0) // debug
        for (unsigned int i=0; i<restraints_editors.size(); i++) 
 	 if (restraints_editors[i].is_valid()) 
-	   std::cout << " debug:: testing restraints editor number "
-		     << i << " of " << restraints_editors.size() << " "
-		     << restraints_editors[i].get_dialog() << std::endl;
+	   std::cout << " debug:: in get_restraints_editor() a stored restraints editor number "
+		     << i << " of " << restraints_editors.size() << ": "
+		     << restraints_editors[i].get_dialog() 
+		     << " (c.f. " << w << ")" << std::endl;
+	 else 
+	   std::cout << " debug:: in get_restraints_editor() a stored restraints editor number "
+		     << i << " of " << restraints_editors.size() << ": "
+		     << "NULL" << std::endl;
 
 
      for (unsigned int i=0; i<restraints_editors.size(); i++) { 
@@ -3655,6 +3660,16 @@ string   static std::string sessionid;
        r = restraints_editors[found_index];
      return r;
    } 
+   void clear_restraints_editor_by_dialog(GtkWidget *dialog) {
+     for (unsigned int i=0; i<restraints_editors.size(); i++) { 
+       if (restraints_editors[i].is_valid()) { 
+         if (restraints_editors[i].matches_dialog(dialog)) { 
+	   coot::restraints_editor null_restraints;
+ 	   restraints_editors[i] = null_restraints;
+	 }
+       }
+     }
+   }
 #endif //GTK_MAJOR_VERSION
 
    // Kevin Keating (for example) wants to be able set torsion
