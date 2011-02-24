@@ -103,12 +103,22 @@ coot::rdkit_mol(CResidue *residue_p,
       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) == added_atom_names.end()) {
 	 RDKit::Atom *at = new RDKit::Atom;
 	 try {
-	    at->setAtomicNum(tbl->getAtomicNumber(coot::util::capitalise(coot::util::remove_leading_spaces(residue_atoms[iat]->element))));
-	    // for debugging, delete if you feel like it.
-	    // if (std::string(residue_atoms[iat]->element) == " H")
-	    //    at->setAtomicNum(tbl->getAtomicNumber(std::string("XXX")));
-	       
+	    std::string ele_capped = coot::util::capitalise(coot::util::remove_leading_spaces(residue_atoms[iat]->element));
+	    at->setAtomicNum(tbl->getAtomicNumber(ele_capped));
+	    
 	    at->setProp("name", std::string(residue_atoms[iat]->name));
+
+	    // set the valence from they type energy.  Abstract?
+	    //
+	    std::string type_energy = restraints.type_energy(residue_atoms[iat]->name);
+	    if (type_energy != "") {
+	       if (type_energy == "NT") {
+		  at->setFormalCharge(1);
+	       }
+	       // other NT*s will drop hydrogens in RDKit, no need to
+	       // fix up formal charge (unless there is a hydrogen! Hmm).
+	    } 
+	    
 	    m.addAtom(at);
 	    if (0) 
 	       std::cout << "adding atom with name " << atom_name << " to added_atom_names"
@@ -237,10 +247,15 @@ coot::rdkit_mol(CResidue *residue_p,
       }
    }
 
+   
+   std::cout << "---------------------- calling assign_formal_charges() -----------" << std::endl;
+   coot::assign_formal_charges(&m);
+   
+
    RDKit::MolOps::cleanUp(m);
 
    // OK, so cleanUp() doesn't fix the N charge problem our prodrg molecule
-   if (0) { // debug, formal charges
+   if (1) { // debug, formal charges
       std::cout << "::::::::::::::::::::::::::: after cleanup :::::::::::::::::"
 		<< std::endl;
       int n_mol_atoms = m.getNumAtoms();
@@ -639,9 +654,23 @@ coot::delete_excessive_hydrogens(RDKit::RWMol *rdkm) {
 void
 coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 
-   int n_mol_atoms = rdkm->getNumAtoms();   
+   
+   int n_mol_atoms = rdkm->getNumAtoms();
+   std::cout << "---------------------- in assign_formal_charges() with " << n_mol_atoms
+	     << " atoms -----------" << std::endl;
+   
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
       RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+      std::cout << "calcExplicitValence on atom " << iat << "/" << n_mol_atoms
+		<< "  " << at_p->getAtomicNum() << std::endl;
+      at_p->calcExplicitValence();
+   }
+   
+   for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+      RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+      std::cout << "atom " << iat << "/" << n_mol_atoms << "  " << at_p->getAtomicNum()
+		<< " with valence " << at_p->getExplicitValence()
+		<< std::endl;
       if (at_p->getAtomicNum() == 7) {
 	 
 	 int e_valence = at_p->getExplicitValence();
@@ -655,6 +684,7 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 	 }
       }
    }
+   std::cout << "----------- normal completion of assign_formal_charges()" << std::endl;
 }
 
 // a wrapper for the above, matching hydrogens names to the
@@ -672,6 +702,8 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	 int n_mol_atoms = m_no_Hs.getNumAtoms();
 	 std::cout << ".......  pre H addition mol has " << n_mol_atoms
 		   << " atoms" << std::endl;
+
+	 coot::undelocalise(&m_no_Hs);
 	 
 	 for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
 	    RDKit::ATOM_SPTR at_p = m_no_Hs[iat];
@@ -757,6 +789,9 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
       }
       catch (std::runtime_error e) {
 	 std::cout << e.what() << std::endl;
+      }
+      catch (std::exception rdkit_error) {
+	 std::cout << rdkit_error.what() << std::endl;
       }
    }
    return r;
@@ -970,10 +1005,19 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 	       if (atom_1_in == atom_2) {
 		  if (atom_2_in != atom_1) {
 		     if ((*bondIt_inner)->getBondType() == RDKit::Bond::ONEANDAHALF) {
+			std::cout << "Here 1........" << std::endl;
+			int e_valence_pre = atom_1->getExplicitValence();
+			std::cout << "Here 2........" << std::endl;
 			// swap them then
 			(*bondIt)->setBondType(RDKit::Bond::SINGLE);
 			(*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
-			// std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 1" << std::endl;
+			std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 1" << std::endl;
+			std::cout << "Here 3........" << std::endl;
+			int e_valence_post = atom_1->getExplicitValence();
+			std::cout << "Here 4........" << std::endl;
+			std::cout << "::::::: explicit pre valence " << e_valence_pre
+				  << "   explicit post valence "
+				  << e_valence_post << std::endl;
 		     }
 		  }
 	       }
@@ -983,7 +1027,7 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 			// swap them then
 			(*bondIt)->setBondType(RDKit::Bond::SINGLE);
 			(*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
-			// std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 2" << std::endl;
+			std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 2" << std::endl;
 		     }
 		  }
 	       }
