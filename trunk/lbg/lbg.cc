@@ -3187,11 +3187,15 @@ lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &m
    if (get_stacking_type() == lbg_info_t::residue_circle_t::CATION_PI_STACKING) {
       try {
 	 std::string at_name = get_ligand_cation_atom_name();
-	 double stacking_dist = 3.5; // a bit shorter, because we
+	 double stacking_dist = 4.2; // a bit shorter, because we
 				     // don't have to go from the
 				     // middle of a ring system, the
 				     // target point (an atom) is more
-				     // accessible
+				     // accessible.  Still 3.5 was too
+				     // short (->crowded) when
+				     // showing 3 cation-pi interactions
+				     // on a alkylated N.
+	 
 	 lig_build::pos_t pos = mol.get_atom_canvas_position(at_name);
 	 std::pair<lig_build::pos_t, double> p(pos, stacking_dist);
 	 v.push_back(p);
@@ -4976,6 +4980,11 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
 	    if (pi_stack_info.stackings[istack].type == coot::pi_stacking_instance_t::PI_CATION_STACKING) {
 	       std::vector<std::string> lra = pi_stack_info.stackings[istack].ligand_ring_atom_names;
 	       circle.set_stacking("pi-cation", lra, "");
+	    }
+	    // cation in ligand, PHE (say)
+	    if (pi_stack_info.stackings[istack].type == coot::pi_stacking_instance_t::CATION_PI_STACKING) {
+	       std::vector<std::string> lra_null;
+	       circle.set_stacking("cation-pi", lra_null, pi_stack_info.stackings[istack].ligand_cationic_atom_name);
 	    }
 	 }
       }

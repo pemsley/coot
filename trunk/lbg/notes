@@ -17,7 +17,12 @@ test ligands:
             What about the ASN A312 H-bond donor to the H on the ligand?
             Mistake, I feel - needs investigating.
 
-test_refmac1.pdb from David Banner. LIG
+test_refmac1.pdb from David Banner. LIG, get it from the PDB.  Donor
+  to ligand Cl? No. H-bond to Gly216? perhaps not. So says JED.
+
+2w3l Can't sprout hydrogens.  Also valence problem on residue->2d (after prodrg)
+
+
 
 ----
 Thu Feb 17 13:31:48 GMT 2011
@@ -31,6 +36,13 @@ Thu Feb 17 13:31:48 GMT 2011
     Why does this not have bond order representation?
  5) sprout hydrogens
    -> crash
+
+  note residue->2d doesn't crash, but we get the same message. So
+  sprout_hydrogens() should catch the excpection in the same way.
+
+* Crash fixed.
+
+
 
 ----
 Mon Nov 29 17:00:39 GMT 2010
