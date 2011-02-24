@@ -11134,7 +11134,7 @@ on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button
   gchar *t = 0;
 #if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
   t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combo_box));
-  printf("residue editor for type %s\n", t);
+/*   printf("residue editor for type %s\n", t); */
   show_restraints_editor(t);
 #else
   gint iactive = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_box));
@@ -11187,7 +11187,10 @@ on_restraints_editor_close_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
-  gtk_widget_destroy(w);
+  if (w) { 
+    clear_restraints_editor_by_dialog(w);
+    gtk_widget_destroy(w);
+  }
 
 }
 #endif	/* GTK_MAJOR_VERSION */
