@@ -1,11 +1,6 @@
 
  0.6.2
 
-  o CCP4MG from Coot: Pete Dunten ::: 2
-
-* Needs to be testing at work.
-
-  o check debugging the charges in surface generation. ::: 0.5
 
   o I just had an epiphany on what might be causing the problem.  The
     residue causing the problems comes right after a residue with two
@@ -13,6 +8,11 @@
     refining I no longer got the error message.  Hope this helps.
 
                                                            Peter Simone
+    ::: 2
+
+  o state saving needs a cleanup. ::: 0.5
+
+  o Edit charge in Edit restraints, doesn't stick/replace values. ::: 0.5
 
 ------
 
@@ -860,5 +860,12 @@ WARNING:: Can't find file
 
 * Seems OK. 
 
+  o check debugging the charges in surface generation. ::: 0.5
+
+* Good now.
+
+  o CCP4MG from Coot: Pete Dunten ::: 1
+
+* Needs to be testing at work. Done, well clipping needs to be fixed.
 
 -------

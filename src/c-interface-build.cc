@@ -6204,6 +6204,35 @@ int assign_hetatms(int imol) {
    return r;
 }
 
+/*! \brief if this is not a standard group, then turn the atoms to HETATMs. 
+
+Return 1 on atoms changes, 0 on not. Return -1 if residue not found.
+*/
+int hetify_residue(int imol, const char * chain_id, int resno, const char *ins_code) {
+
+   int r = -1; 
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].hetify_residue_atoms(chain_id, resno, ins_code);
+      graphics_draw();
+   } 
+   return r;
+}
+
+/*! \brief residue has HETATMs?
+return 1 if all atoms of the specified residue are HETATMs, else,
+return 0.  If residue not found, return -1. */
+int residue_has_hetatms(int imol, const char * chain_id, int resno, const char *ins_code) {
+
+   int r = -1; 
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].residue_has_hetatms(chain_id, resno, ins_code);
+   } 
+   return r;
+   
+} 
+
+
+
 
 
 /*  ----------------------------------------------------------------------- */

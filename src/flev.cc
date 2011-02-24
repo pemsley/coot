@@ -629,6 +629,10 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 	 // get_ligand_cation_residue_pi_overlap
 	 float score = get_pi_overlap_to_ligand_cation(residues[ires], cation_points[icat].second);
 
+	 // std::cout << "debug:: in pi_stacking_container_t constructor cation point " << icat << " of "
+	 // << cation_points.size() << "  score: " << score << " c.f. " << pi_overlap_thresh
+	 // << std::endl;
+
 	 if (score > pi_overlap_thresh) { 
 	    // add a stacking to stackings.
 	    coot::pi_stacking_instance_t stacking(residues[ires], cation_points[icat].first);
@@ -685,6 +689,12 @@ coot::pi_stacking_container_t::get_ligand_cations(CResidue *res_ref,
 	    v.push_back(p);
 	 }
       }
+   }
+   if (0) { // debug
+      std::cout << "debug:: in coot::pi_stacking_container_t::get_ligand_cations() found " << v.size()
+		<< " ligand cation points " << std::endl;
+      for (unsigned int i=0; i<v.size(); i++)
+	 std::cout << "   :" << v[i].first << ":  " << v[i].second.format() << std::endl;
    }
    return v;
 }

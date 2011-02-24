@@ -659,6 +659,18 @@ int read_pdb(const char *filename); // cc4mg function name
   PDB definition. */
 int assign_hetatms(int imol);
 
+/*! \brief if this is not a standard group, then turn the atoms to HETATMs. 
+
+Return 1 on atoms changes, 0 on not. Return -1 if residue not found.
+*/
+int hetify_residue(int imol, const char * chain_id, int resno, const char *ins_code);
+
+/*! \brief residue has HETATMs?
+
+return 1 if all atoms of the specified residue are HETATMs, else,
+return 0.  If residue not found, return -1. */
+int residue_has_hetatms(int imol, const char * chain_id, int resno, const char *ins_code);
+
 /*! \brief replace the parts of molecule number imol that are
   duplicated in molecule number imol_frag */
 int replace_fragment(int imol_target, int imol_fragment, const char *atom_selection);
