@@ -546,3 +546,46 @@ molecule_class_info_t::get_all_molecule_rotamer_score(const coot::rotamer_probab
    
    return rs;
 }
+
+// --------- HETATMs ------------
+int
+molecule_class_info_t::residue_has_hetatms(const std::string &chain_id,
+					   int resno,
+					   const std::string &ins_code) const {
+
+   int r = -1;
+   CResidue *residue_p = get_residue(chain_id, resno, ins_code);
+   if (residue_p) {
+      r = 1;
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 if (! residue_atoms[iat]->Het) {
+	    r = 0;
+	    break;
+	 } 
+      }
+   }
+   return r;
+}
+
+
+int
+molecule_class_info_t::hetify_residue_atoms(const std::string &chain_id,
+					    int resno,
+					    const std::string &ins_code) {
+
+   int r = -1;
+   CResidue *residue_p = get_residue(chain_id, resno, ins_code);
+   if (residue_p) {
+      make_backup();
+      int n_atoms = coot::hetify_residue_atoms_as_needed(residue_p);
+      if (n_atoms > 0)
+	 r = 1;
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked();
+   }
+   return r;
+}
+

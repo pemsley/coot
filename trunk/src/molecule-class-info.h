@@ -2899,8 +2899,13 @@ public:        //                      public
    std::vector<ProteinDB::Chain> protein_db_loops(const std::vector<coot::residue_spec_t> &residue_specs,
 						  int nfrags, const clipper::Xmap<float> &xmap);
    ProteinDB::Chain make_fragment_chain(const std::vector<coot::residue_spec_t> &residue_specs) const;
-   
 
+
+   // --------- HETATMs ------------
+   int residue_has_hetatms(const std::string &chain_id, int resno, const std::string &ins_code) const;
+
+   // change them if they are not standard PDB 'ATOM' residues
+   int hetify_residue_atoms(const std::string &chain_id, int resno, const std::string &ins_code); 
 };
 
 #endif // MOLECULE_CLASS_INFO_T

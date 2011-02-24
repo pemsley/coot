@@ -155,7 +155,7 @@ coot::restraints_editor::cell_edited_callback (GtkCellRendererText *cell,
 					       gpointer             user_data) {
 
    // Path is telling us the row.  What is the column?
-   
+
    GtkTreeModel *model = (GtkTreeModel *) user_data;
 
    GtkTreePath *path = gtk_tree_path_new_from_string(path_string);

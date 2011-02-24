@@ -413,7 +413,7 @@ namespace coot {
       // 
       std::string element(const std::string &atom_name) const;
 
-      // likewise look up the energy type.  Return "" on no atom fould
+      // likewise look up the energy type.  Return "" on no atom found
       // with that atom_name.
       // 
       std::string type_energy(const std::string &atom_name) const;
