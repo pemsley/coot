@@ -3359,6 +3359,7 @@ void set_use_only_extra_torsion_restraints_for_torsions(short int state);
 GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog();
 void show_restraints_editor(const char *monomer_type);
 void show_restraints_editor_by_index(int menu_item_index);
+void clear_restraints_editor_by_dialog(GtkWidget *dialog); /* close button pressed */
 #endif
 
 void write_restraints_cif_dictionary(const char *monomer_type, const char *file_name);
