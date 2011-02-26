@@ -26,6 +26,7 @@ notes from BioCrys
  * update gtk (and gtk-glext)
  * martyn mrc stuff
  * guile gui
+ * new(er) RDKit (incl assignRadicals etc)
 
 notes APS CCP4 workshop
 - document refmac extra params + lib files location (note to self ?!)

@@ -4816,6 +4816,24 @@ def water_coordination_gui():
    apply_button.connect("clicked", apply_cb)
 
    window.show_all()
+
+def click_protein_db_loop_gui():
+   def pick_loop_func(n):
+      def pick_func(*args):
+         atom_spec_1 = args[0]
+         atom_spec_2 = args[1]
+         imol = atom_spec_1[1]
+         residue_specs = atom_spec_2  # FIXME
+         protein_db_loops(imol, residue_specs,
+                          imol_refinement_map(),
+                          10)  #shouldnt that be n? NO but why n??? confused
+         # would be nice to use my loop selector gui afterwards....
+         # lets see what the output gives
+      user_defined_click(2, pick_func)
+   generic_number_chooser(range(2,10), 4,
+                          "Number of residues for basis",
+                          "Pick Atoms...",
+                          lambda n: pick_loop_func(n))
    
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()

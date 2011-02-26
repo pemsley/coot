@@ -863,6 +863,9 @@ void protein_db_loops(int imol_coords,
 #ifdef USE_GUILE
 void protein_db_loops_scm(int imol_coords, SCM residues_specs, int imol_map, int nfrags);
 #endif 
+#ifdef USE_PYTHON 
+void protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imol_map, int nfrags);
+#endif 
 /* \} */
 
 
