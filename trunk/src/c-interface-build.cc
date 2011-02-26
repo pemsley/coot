@@ -6645,6 +6645,20 @@ protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int n
 } 
 #endif 
 
+#ifdef USE_PYTHON
+void
+protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, int nfrags) {
+
+   std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
+   if (!specs.size()) {
+      std::cout << "WARNING:: Ooops - no specs in " << PyString_AsString(display_python(residue_specs_py))
+		<< std::endl;
+   } else {
+      protein_db_loops(imol_coords, specs, imol_map, nfrags);
+   } 
+} 
+#endif //PYTHON 
+
 
 void
 protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map, int nfrags) {

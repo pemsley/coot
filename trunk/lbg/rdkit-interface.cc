@@ -596,10 +596,7 @@ coot::remove_non_polar_Hs(RDKit::RWMol *rdkm) {
    std::cout << "DEBUG:: remove_non_polar_Hs() kekulize() " << std::endl;
    RDKit::MolOps::Kekulize(*rdkm);
    std::cout << "DEBUG:: remove_non_polar_Hs() assignRadicals() " << std::endl;
-// BL says:: dont have it now (old rdkit?)
-#ifndef WINDOWS_MINGW
    RDKit::MolOps::assignRadicals(*rdkm);
-#endif // WINDOWS
    // set conjugation
    std::cout << "DEBUG:: remove_non_polar_Hs() setConjugation() " << std::endl;
    RDKit::MolOps::setConjugation(*rdkm);
