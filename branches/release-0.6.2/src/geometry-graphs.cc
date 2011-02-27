@@ -214,6 +214,8 @@ coot::geometry_graphs::render_to_canvas(const coot::geometry_distortion_info_con
    int min_resno = dc.min_resno;
    int nres = max_resno - min_resno +1;
    offsets[chain_number] = min_resno -1;
+   std::cout << "::::::::::: in render_to_canvas() offsets[" << chain_number << "] is set to "
+	     << offsets[chain_number] << std::endl;
 
    draw_chain_axis(nres, chain_number);
    draw_chain_axis_tick_and_tick_labels(min_resno, max_resno, chain_number);
@@ -758,11 +760,25 @@ coot::geometry_graphs::update_omega_blocks(const coot::omega_distortion_info_con
       // delete the omega blocks in om_dist
       for (unsigned int iblock=0; iblock<om_dist.omega_distortions.size(); iblock++) {
 	 int raw_resno = om_dist.omega_distortions[iblock].resno;
-	 int offsetted_residue_number = raw_resno - offsets[chain_number];
-	 if (offsetted_residue_number < int(blocks[chain_number].size())) { 
-	    if (blocks[chain_index][offsetted_residue_number]) { 
-	       gtk_object_destroy(GTK_OBJECT(blocks[chain_index][offsetted_residue_number])); 
-	       blocks[chain_index][offsetted_residue_number] = NULL;
+	 int offsetted_residue_number = raw_resno - offsets[chain_index];
+	 if (offsetted_residue_number < int(blocks[chain_index].size())) {
+
+	    // add a test here that offsetted_residue_number is
+	    // sensible for blocks[chain_index].
+
+	    if (offsetted_residue_number >=0 &&
+		offsetted_residue_number < blocks[chain_index].size()) { 
+	       if (blocks[chain_index][offsetted_residue_number]) {
+		  if (0) // debug
+		     std::cout << ":::: in update_omega_blocks() blocks[" << chain_index
+			       << "] is of size(): " << blocks[chain_index].size()
+			       << " and deleting block " << offsetted_residue_number
+			       << " which is (" << raw_resno << " - " << "offsets["
+			       << chain_index << "]=" << offsets[chain_index] << ")"
+			       << std::endl;
+		  gtk_object_destroy(GTK_OBJECT(blocks[chain_index][offsetted_residue_number])); 
+		  blocks[chain_index][offsetted_residue_number] = NULL;
+	       }
 	    }
 	 }
       }
