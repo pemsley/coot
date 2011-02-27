@@ -108,6 +108,9 @@
   o BUG-FIX: Fix the crash when sphere refine was used at the same
     time that the geometry graph was displayed [JED].
 
+  o BUG-FIX: Fix crash when update peptide omega distortion graph
+    [Horacio Botti].
+
   o BUG-FIX: rotate/translate large fragments now works better.
 
   o BUG-FIX: transform-map function fixed for 5 arguments.

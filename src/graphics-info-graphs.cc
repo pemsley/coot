@@ -306,7 +306,6 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 			       << om_dist.chain_id << " " << om_dist.omega_distortions.size()
 			       << " blocks" << std::endl;
 
-		  // Need to delete geometry blocks, somehow. Here, perhaps.
 		  gr->update_omega_blocks(om_dist, ich, std::string(chain_id));
 	       }
 	    }
