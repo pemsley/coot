@@ -873,7 +873,7 @@ if test $OS = Linux ; then
   which rpm > /dev/null
   have_rpm=$?
   if  [ $have_rpm = 0 ] ; then 
-      for i in fedora redhat centos ; do
+      for i in fedora redhat centos openSUSE ; do
 	dist=`rpm -q --qf '%{name}' ${i}-release`
 	if test $? = 0 ; then
 	  dist_name=`echo ${dist} | sed s/\-release//g`
@@ -907,9 +907,11 @@ if test $OS = Linux ; then
       ;;
     esac
     ;;
-    fedora | centos )
+    fedora | centos | openSUSE )
       systype=${architecture}-${dist_name}-${dist_ver}
     ;;
+
+
     * )
       if test -r /etc/issue; then
         dist_name=`awk 'NR==1{print tolower($1)}' /etc/issue`
