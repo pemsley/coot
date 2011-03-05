@@ -149,10 +149,11 @@
 ;			  sbase-now-time sbase-transfer-latest-time)
 
 		  (if (number? mdl-now-time)
-		      (if (> mdl-now-time mdl-latest-time)
-			  (begin
-			    (set! mdl-latest-time mdl-now-time)
-			    (import-from-prodrg 'mini-prep))))
+		      (if (number? mdl-latest-time)
+			  (if (> mdl-now-time mdl-latest-time)
+			      (begin
+				(set! mdl-latest-time mdl-now-time)
+				(import-from-prodrg 'mini-prep)))))
 
 		  (if (number? sbase-transfer-latest-time)
 		      (if (number? sbase-now-time)
