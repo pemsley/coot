@@ -5961,8 +5961,7 @@ Wed Dec  8 14:37:58 GMT 2010
 	the best fit to the density is observed before that happens.
 
 
-
-----
+---
 Mon Feb 28 17:01:48 GMT 2011
 
    in make a difference map (say for overlayed ligand structures)
@@ -5970,7 +5969,35 @@ Mon Feb 28 17:01:48 GMT 2011
    deviation perhaps? 
 
 
+----
+Sun Jan  9 17:21:10 GMT 2011
+ 
+   How about this: map the surface of a protein onto a cylinder, 
+
+   Then unwrap the cylinder and display as a 2d plot.
+
+   Do that for both sides of an interface.
+
+   or mutant vs native.
+
+   so we will need some way to mark the surface of atom selection.
+
+
+
+----
+Mon Jan 10 10:50:29 GMT 2011
+
+    after changing the interface, e.g. c-interface.h
+
+    you will probably need to do:
+    an install in scheme
+    an install in python
+    run swig to make new coot.py
+    an install in src, to update installed coot.py
+
 
  
+
+
 ------
 
