@@ -52,6 +52,7 @@ Which binary tar file shall I use?
 * Additional Note for Mandrake users::
 * Additional Note for Fedora Core 4 users::
 * Additional Note for RedHat Enterprise 3 Users::
+* Coot on 64-bit RHEL 6::
 * Additional Note for SuSE 9.1::
 * Additional Note for SuSE 9.3::
 * Additional Note for SuSE 10.1::
@@ -139,6 +140,9 @@ into EndNote)... format as you please:
 
 @end verbatim
 
+
+
+
 The Coot paper has published in the proceedings of the 2009 CCP4 Study Weekend.
 
 You can download the 2010 paper here:
@@ -200,6 +204,7 @@ See Bill Scott's Coot Page:
 * Additional Note for Mandrake users::
 * Additional Note for Fedora Core 4 users::
 * Additional Note for RedHat Enterprise 3 Users::
+* Coot on 64-bit RHEL 6::
 * Additional Note for SuSE 9.1::
 * Additional Note for SuSE 9.3::
 * Additional Note for SuSE 10.1::
@@ -257,6 +262,26 @@ Coot runs on Fedora Core 4, using the Fedora Core 3 binaries after making the fo
   using the current Red Hat 8 binary tar.
 
 
+
+@node Coot on 64-bit RHEL 6
+@section Coot on 64-bit RHEL 6
+
+Robert Dagil found that if he used the Coot
+binary-Linux-x86_64-centos-5-python-gtk2, then he could get Coot to
+start if he added the following links to in the @file{lib} directory
+of the coot binary distro.
+
+@cartouche
+@t{ln -s libldap-2.2.so.7 -> /usr/lib64/libldap-2.4.so.2}
+
+@t{ln -s libssl.so.4 -> /usr/lib64/libssl.so.1.0.0}
+
+@t{ln -s libcrypto.so.4 -> /usr/lib64/libcrypto.so.1.0.0}
+@end cartouche
+
+
+
+
 @node Additional Note for SuSE 9.1
 @subsection Additional Note for SuSE 9.1
 
@@ -274,13 +299,13 @@ Christophe Briand reports that Coot version 0.1 runs on Suse 9.3, using
 the Redhat 8 binary after making the following link
 
 @cartouche 
-$ ln -s /usr/lib/libImlib2.so.1.1.1 /usr/lib/libImlib.so.11
+@t{$ ln -s /usr/lib/libImlib2.so.1.1.1 /usr/lib/libImlib.so.11}
 @end cartouche
 
 I presume that this would also work:
 
 @cartouche
-$ ln -s /usr/lib/libImlib2.so.1.1.1 $COOT_PREFIX/lib/libImlib.so.11
+@t{$ ln -s /usr/lib/libImlib2.so.1.1.1 $COOT_PREFIX/lib/libImlib.so.11}
 @end cartouche
 
 
@@ -489,8 +514,9 @@ work try also:
 @t{$ setenv LC_ALL C}
 
 
+
 @c -----------------------------------------------------------------
-@node    Using Coot
+
 @chapter Using Coot
 @c -----------------------------------------------------------------
 
