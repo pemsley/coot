@@ -5960,6 +5960,17 @@ Wed Dec  8 14:37:58 GMT 2010
 	Sometimes a real space refine takes too long/gets lost when
 	the best fit to the density is observed before that happens.
 
+
+
+----
+Mon Feb 28 17:01:48 GMT 2011
+
+   in make a difference map (say for overlayed ligand structures)
+   find the scale the maps (around a given spot) mean, standard
+   deviation perhaps? 
+
+
+
  
 ------
 

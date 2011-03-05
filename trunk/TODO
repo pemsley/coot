@@ -712,6 +712,8 @@ Punted from 0.6:
 
    o Does Ca Zone -> Backbone crash?  (or is that only trunk?) ::: 1 
 
+   o sphere refine doesn't work for alt confs.
+
    o Airlie's ensemble_merged.pdb give bad bonding in 0.7-pre
 
    o reading a cif from the PDB (e.g. 1X8B.cif) creates a molecule
