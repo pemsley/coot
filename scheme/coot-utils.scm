@@ -2871,7 +2871,15 @@
 ;; 
 (define (coot-has-pygtk?)
   (if (coot-has-python?)
-      (run-python-command "coot_has_pygtk()")
+      ;; sometimes coot can start up (in development environment with
+      ;; broken embeddded python), in which case coot_has_pygtk()
+      ;; fails to return a value.  So try to account for that here.
+      (let ((cap-var (run-python-command "coot_has_pygtk()")))
+	(if (and (not (eq? cap-var #t))
+		 (not (eq? cap-var #f)))
+	    #f
+	    cap-var))
       #f))
+
 
 
