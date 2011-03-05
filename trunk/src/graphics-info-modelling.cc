@@ -3748,7 +3748,11 @@ graphics_info_t::do_probe_dots_on_rotamers_and_chis() {
 void
 graphics_info_t::do_interactive_probe() const { 
 
-#if defined USE_GUILE && !defined WINDOWS_MINGW
+   // we need to test for GUILE_GTK use, because interactive-guile is
+   // defined in a file that depends on guile-gtk (and of course, if
+   // we do not have guile-gtk, then that file is not loaded).
+   
+#if defined USE_GUILE_GTK
    if (moving_atoms_asc->n_selected_atoms > 0) {
       if (moving_atoms_asc->mol) {
 	 moving_atoms_asc->mol->WritePDBASCII("molprobity-tmp-moving-file.pdb");
