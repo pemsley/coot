@@ -427,6 +427,12 @@ PyObject *remarks_py(int imol);
 /*! \brief sort the chain ids of the imol-th molecule in lexographical order */
 void sort_chains(int imol);	
 
+/*! \brief a gui dialog showing remarks header info (for a model molecule). */
+void remarks_dialog(int imol);
+void on_remarks_dialog_close_button_clicked     (GtkButton *button,
+						 gpointer         user_data);
+GdkColor remark_number_to_colour(int remark_number); 
+
 
 /*! \brief simply print secondardy structure info to the
   terminal/console.  In future, this could/should return the info.  */

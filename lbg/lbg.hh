@@ -909,6 +909,7 @@ public:
    void highlight_atom(const lig_build::atom_t &atom, int atom_index, bool delete_mode);
    void remove_bond_and_atom_highlighting();
    void clear_button_down_bond_addition();
+   bool button_down_bond_addition_state() { return button_down_bond_addition; } 
    void handle_drag(GdkModifierType state, int x, int y); // could be rotate bond or drag canvas
    void set_in_delete_mode(bool v) {
       in_delete_mode_ = v;

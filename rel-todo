@@ -865,5 +865,9 @@ WARNING:: Can't find file
 
 * Good now.
 
+  o Crash on update omega graph on model refinement accept.  [Horacio Botti].
+    ::: 2
+
+* Done.
 
 -------

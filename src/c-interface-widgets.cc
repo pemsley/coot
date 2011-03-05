@@ -108,3 +108,121 @@ void single_map_properties_apply_contour_level_to_map(GtkWidget *w) {
 }
 
 							 
+
+/*! \brief a gui dialog showing remarks header info (for a model molecule). */
+void remarks_dialog(int imol) { 
+
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      if (is_valid_model_molecule(imol)) {
+	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 if (mol) {
+	    CTitleContainer *tc_p = mol->GetRemarks();
+	    int l = tc_p->Length();
+	    std::map<int, std::vector<std::string> > remarks;
+	    for (unsigned int i=0; i<l; i++) { 
+	       CRemark *cr = static_cast<CRemark *> (tc_p->GetContainerClass(i));
+	       int rn = cr->remarkNum;
+	       std::string s = cr->Remark;
+	       remarks[rn].push_back(s);
+	    }
+	    if (remarks.size()) {
+	       GtkWidget *d = gtk_dialog_new();
+	       gtk_object_set_data(GTK_OBJECT(d), "remarks_dialog", d);
+	       GtkWidget *vbox = GTK_DIALOG(d)->vbox;
+	       GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
+	       GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+	       gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+						     GTK_WIDGET(vbox_inner));
+	       gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
+	       gtk_widget_show(scrolled_window);
+	       gtk_container_add(GTK_CONTAINER(scrolled_window), vbox_inner);
+	       gtk_widget_show(vbox_inner);
+	       
+	       std::map<int, std::vector<std::string> >::const_iterator it;
+	       std::cout << ":::: " << remarks.size() << " remark numbers/sections " << std::endl;
+	       for (it=remarks.begin(); it != remarks.end(); it++) {
+		  std::string remark_name = "REMARK ";
+		  remark_name += coot::util::int_to_string(it->first);
+		  GtkWidget *frame = gtk_frame_new(remark_name.c_str());
+		  gtk_box_pack_start(GTK_BOX(vbox_inner), frame, FALSE, FALSE, 1);
+		  gtk_widget_show(frame);
+		  std::cout << "REMARK number " << it->first << std::endl;
+		  GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
+		  GtkWidget *text_view = gtk_text_view_new();
+		  gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
+						       GTK_TEXT_WINDOW_RIGHT, 10);
+		  gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+		  // gtk_box_pack_start(GTK_BOX(vbox_inner), GTK_WIDGET(text_view), FALSE, FALSE, 1);
+		  gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+		  gtk_widget_show(GTK_WIDGET(text_view));
+		  gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
+		  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
+
+		  GdkColor colour = remark_number_to_colour(it->first); 
+		  gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+		  
+		  GtkTextIter end_iter;
+		  for (unsigned int itext=0; itext<it->second.size(); itext++) { 
+		     gtk_text_buffer_get_end_iter(text_buffer, &end_iter);
+		     std::string s = it->second[itext];
+		     s += "\n";
+		     gtk_text_buffer_insert(text_buffer, &end_iter, s.c_str(), -1);
+		  }
+	       }
+
+
+	       GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
+	       GtkWidget *aa = GTK_DIALOG(d)->action_area;
+	       gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
+	       
+	       gtk_signal_connect(GTK_OBJECT(close_button), "clicked",
+				  GTK_SIGNAL_FUNC(on_remarks_dialog_close_button_clicked), NULL);
+	       gtk_widget_show(close_button);
+	       gtk_widget_set_usize(d, 500, 400);
+	       gtk_widget_show(d);
+	    } 
+	 } 
+      }
+   }
+} 
+
+
+void
+on_remarks_dialog_close_button_clicked     (GtkButton *button,
+					    gpointer         user_data)
+{
+   GtkWidget *window = lookup_widget(GTK_WIDGET(button), "remarks_dialog");
+   gtk_widget_destroy(window);
+}
+
+
+GdkColor remark_number_to_colour(int remark_number) {
+
+   GdkColor colour;
+   colour.red   = 65535;
+   colour.green = 65535;
+   colour.blue  = 65535; 
+   colour.pixel = 65535; 
+   if (remark_number == 2) { 
+      colour.blue   = 60000;
+   }
+   if (remark_number == 3) { 
+      colour.red   = 60000;
+   }
+   if (remark_number == 4) { 
+      colour.green   = 60000;
+   }
+   if (remark_number == 5) { 
+      colour.green   = 62000;
+      colour.blue    = 62000;
+   }
+   if (remark_number == 280) { 
+      colour.green   = 61000;
+      colour.red    = 62500;
+   }
+   if (remark_number == 465) { 
+      colour.blue    = 60000;
+      colour.green   = 60000;
+   }
+   return colour;
+} 
