@@ -1,7 +1,6 @@
 
  0.6.2
 
-
   o I just had an epiphany on what might be causing the problem.  The
     residue causing the problems comes right after a residue with two
     conformations.  When I deleted one of those conformations and tried
@@ -11,8 +10,6 @@
     ::: 2
 
   o state saving needs a cleanup. ::: 0.5
-
-  o Edit charge in Edit restraints, doesn't stick/replace values. ::: 0.5
 
 ------
 
@@ -813,11 +810,6 @@ WARNING:: Can't find file
 
 * Done.
 
-  o Talk to Bernhard re: REDUCE_HET_DICT etc.  Look at his python
-    code.  ::: 2
-
-* Done.
-
   o Ctrl Shift Up-arrow doesn't check that the molecule is being
     displayed?  ::: 0.5
 
@@ -860,12 +852,18 @@ WARNING:: Can't find file
 
 * Seems OK. 
 
+  o CCP4MG from Coot: Pete Dunten ::: 2
+    Needs to be testing at work. 
+
+* Works at least, but clipping/depth needs improvement.
+
   o check debugging the charges in surface generation. ::: 0.5
+
+* Done.
+
+  o Edit charge in Edit restraints, doesn't stick/replace values. ::: 0.5
 
 * Good now.
 
-  o CCP4MG from Coot: Pete Dunten ::: 1
-
-* Needs to be testing at work. Done, well clipping needs to be fixed.
 
 -------
