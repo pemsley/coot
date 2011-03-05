@@ -167,8 +167,8 @@ on_canvas_button_press_new(GooCanvasItem  *item,
    }
 
    if (! target_item) { 
-      //       std::cout << "on_canvas_button_press_new() NULL target item ... trying item"
-      // 		<< std::endl;
+             std::cout << "on_canvas_button_press_new() NULL target item ... trying item"
+		       << std::endl;
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
       if (!l) {
@@ -177,6 +177,10 @@ on_canvas_button_press_new(GooCanvasItem  *item,
 	 l->handle_item_add(event);
       } 
    } else {
+
+      std::cout << "on_canvas_button_press_new() non-NULL target_item " << target_item
+		<< std::endl;
+      
       coot::residue_spec_t *spec_p =
 	 (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
       lbg_info_t *l = NULL;
@@ -240,30 +244,42 @@ on_canvas_button_press_new(GooCanvasItem  *item,
 static gboolean
 on_canvas_button_release(GtkWidget *widget, GdkEventButton *event) {
 
+   // not used, I think. Delete.
+
    GtkObject *obj = GTK_OBJECT(widget);
    if (obj) {
       gpointer gp = gtk_object_get_user_data(obj);
       if (gp) {
 	 lbg_info_t *l = static_cast<lbg_info_t *> (gp);
 	 l->clear_button_down_bond_addition();
-      }
-   }
+      } 
+   } 
    return TRUE;
 }
 
 static bool
 on_canvas_button_release_new(GooCanvasItem  *item,
-			   GooCanvasItem  *target_item,
-			   GdkEventButton *event,
+			     GooCanvasItem  *target_item,
+			     GdkEventButton *event,
 			     gpointer        user_data) {
 
-   if (target_item) { 
+   // target_item is null (usually?)
+   
+   // std::cout << "on_canvas_button_release_new() button release item:  " << item
+   // << " target_item: " << target_item << std::endl;
+   
+   if (item) { 
       lbg_info_t *l =
-	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (target_item), "lbg-info"));
+	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
       if (l) {
 	 l->clear_button_down_bond_addition();
-      }
-   }
+      } else {
+	 // this should not happen
+	 std::cout << "======= null lbg_info_t pointer " << std::endl;
+      } 
+   } else {
+      // std::cout << "======= null target_item " << std::endl;
+   } 
    return TRUE;
 }
 
@@ -363,9 +379,12 @@ on_canvas_motion_new(GooCanvasItem  *item,
 	 GdkModifierType g_state = static_cast<GdkModifierType> (state);
 	 int x_as_int = int(event->x);
 	 int y_as_int = int(event->y);
-// 	 std::cout << ":::::::::::: state: " << state 
-// 		   << " " << (state & GDK_BUTTON1_MASK)
-// 		   << std::endl;
+
+//  	 std::cout << ":::::::::::: state: " << state 
+//  		   << " " << (state & GDK_BUTTON1_MASK)
+// 		   << " button_down_bond_addition " << l->button_down_bond_addition_state()
+//  		   << std::endl;
+	 
 	 l->handle_drag(g_state, x_as_int, y_as_int);
       }
    }
@@ -504,9 +523,9 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 	    lig_build::bond_t::bond_type_t bt =
 	       addition_mode_to_bond_type(canvas_addition_mode);
 
-	    std::cout << "::::::::::::::::: widgeted_bond_t atom indcies "
-		      << penultimate_atom_index
-		      << " " << new_index << std::endl;
+	    // std::cout << "::::::::::::::::: widgeted_bond_t atom indcies "
+	    // << penultimate_atom_index
+	    // << " " << new_index << std::endl;
 
 	    if (penultimate_atom_index == UNASSIGNED_INDEX) {
 
@@ -2054,6 +2073,10 @@ lbg_info_t::init(GtkBuilder *builder) {
    g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
 		    "button_press_event",
  		    G_CALLBACK(on_canvas_button_press_new), NULL);
+
+   g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
+		    "button_release_event",
+ 		    G_CALLBACK(on_canvas_button_release_new), NULL);
 
    g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
 		    "motion_notify_event",
