@@ -154,24 +154,25 @@
 			    (set! mdl-latest-time mdl-now-time)
 			    (import-from-prodrg 'mini-prep))))
 
-		  (if (number? sbase-now-time)
-		      (if (> sbase-now-time sbase-transfer-latest-time)
-			  (begin
-			    (set! sbase-transfer-latest-time sbase-now-time)
-			    (let ((tlc-symbol 
-				   (call-with-input-file sbase-to-coot-tlc
-				     (lambda (port)
-				       (read-line port)))))
-			      (let ((imol (get-sbase-monomer tlc-symbol)))
-				(if (not (valid-model-molecule? imol))
-				    (format #t "failed to get SBase molecule for ~s~%"
-					    tlc-symbol)
-
-				    ;; it was read OK, do an overlap:
-				    (using-active-atom
-				     (overlap-ligands imol aa-imol aa-chain-id aa-res-no))
-
-				    )))))))
+		  (if (number? sbase-transfer-latest-time)
+		      (if (number? sbase-now-time)
+			  (if (> sbase-now-time sbase-transfer-latest-time)
+			      (begin
+				(set! sbase-transfer-latest-time sbase-now-time)
+				(let ((tlc-symbol 
+				       (call-with-input-file sbase-to-coot-tlc
+					 (lambda (port)
+					   (read-line port)))))
+				  (let ((imol (get-sbase-monomer tlc-symbol)))
+				    (if (not (valid-model-molecule? imol))
+					(format #t "failed to get SBase molecule for ~s~%"
+						tlc-symbol)
+					
+					;; it was read OK, do an overlap:
+					(using-active-atom
+					 (overlap-ligands imol aa-imol aa-chain-id aa-res-no))
+					
+					))))))))
 		
 		#t))) ;; return value, keep running
     (gtk-timeout-add 500 func)))
