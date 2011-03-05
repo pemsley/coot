@@ -33,6 +33,8 @@
 void
 lbg_info_t::search() const {
 
+   double local_search_similarity = get_search_similarity();
+
    // mol.debug();
 
    CResidue *res = 0;
@@ -59,6 +61,8 @@ lbg_info_t::search() const {
       }
    }
 
+   
+
    // bonds are edges
    int n_bonds = 0;
    for (unsigned int ib=0; ib<mol.bonds.size(); ib++) {
@@ -78,7 +82,7 @@ lbg_info_t::search() const {
 	 }
       }
    }
-   graph->SetName ("Liebig-Query");
+   graph->SetName ("Coot-LBG-Query");
    graph->MakeVertexIDs();
    
    int build_result = graph->Build(False);
@@ -91,13 +95,36 @@ lbg_info_t::search() const {
    
       graph->MakeSymmetryRelief(False);
       graph->Print();
+      std::cout << "graph search using similarity  " << local_search_similarity << std::endl;
       std::cout << "graph build returns: " << build_result << std::endl;
       std::vector<lbg_info_t::match_results_t> v =
-	 compare_vs_sbase(graph, search_similarity, n_atoms);
+	 compare_vs_sbase(graph, local_search_similarity, n_atoms);
       delete graph;
       display_search_results(v);
    }
 }
+
+
+// allow access of the Search button callback to the search
+// similarity combox box text.
+double
+lbg_info_t::get_search_similarity() const {
+
+   double r = search_similarity;
+
+   gchar *txt = gtk_combo_box_get_active_text(GTK_COMBO_BOX(lbg_search_combobox));
+   if (txt) {
+      try { 
+	 r = lig_build::string_to_float(txt);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "WARNING:: Bad number " << txt << " " << rte.what() << std::endl;
+	 std::cout << "WARNING:: Using " << r << std::endl;
+      }
+   } 
+   return r;
+
+} 
 
 
 
@@ -154,7 +181,14 @@ lbg_info_t::compare_vs_sbase(CGraph *graph_1, float similarity, int n_vertices) 
   
       int exclude_H_flag = 1;  // neglect hydrogens
       CGraph *graph_2 = NULL;
-      int min_match = get_min_match(n_vertices);
+      int min_match = get_min_match(n_vertices, similarity);
+
+      if (0) // debug
+	 std::cout << "min_match " << min_match
+		   << " n_vertices: " << n_vertices << " "
+		   <<     (similarity * float(n_vertices)) << " " 
+		   << int (similarity * float(n_vertices)) << " " 
+		   << std::endl;
 
       std::cout << "Close fragments must match " << min_match << " atoms of "
 		<< n_vertices << std::endl;

@@ -673,7 +673,7 @@ private:
       in_delete_mode_ = 0;
       save_molecule_index = UNASSIGNED_INDEX;
       make_saves_mutex = 1; // allow saves initially
-      search_similarity = 0.93;
+      search_similarity = 0.95;
       coot_mdl_ready_time = 0;
       canvas_scale = 1.0;
       canvas_drag_offset = lig_build::pos_t(0,0);
@@ -719,8 +719,8 @@ private:
    // return 0 on strangeness, to pass in search.
    // 
 
-   int get_min_match(const int &n1) const {
-      int most_1 = int (search_similarity * float(n1));
+   int get_min_match(const int &n1, const float similarity) const {
+      int most_1 = int (similarity * float(n1));
       return most_1;
       // return n1;
    }
@@ -854,6 +854,10 @@ private:
    // 
    std::vector<std::vector<std::string> > ring_atoms_list;
 
+   // allow access of the Search button callback to the search
+   // similarity combox box text.
+   double get_search_similarity() const;
+
 
 public:
    lbg_info_t(GtkWidget *canvas_in) {
@@ -879,7 +883,7 @@ public:
 	     // generated (quite possibly -1, i.e. no coot molecule)
    GtkWidget *lbg_window;
    GtkWidget *about_dialog; 
-   GtkWidget *search_combobox;
+   GtkWidget *lbg_search_combobox;
    GtkWidget *open_dialog;
    GtkWidget *save_as_dialog;
    GtkWidget *lbg_export_as_pdf_dialog;

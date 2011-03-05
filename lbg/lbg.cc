@@ -2000,7 +2000,6 @@ lbg_info_t::init(GtkBuilder *builder) {
       gtk_widget_show (lbg_window);
 
    about_dialog =    GTK_WIDGET (gtk_builder_get_object (builder, "lbg_aboutdialog"));
-   search_combobox = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_search_combobox"));
    open_dialog     = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_open_filechooserdialog"));
    save_as_dialog  = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_save_as_filechooserdialog"));
    lbg_sbase_search_results_dialog = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_sbase_search_results_dialog"));
@@ -2009,6 +2008,8 @@ lbg_info_t::init(GtkBuilder *builder) {
    lbg_export_as_png_dialog =  GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_png_filechooserdialog"));
    lbg_smiles_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_dialog"));
    lbg_smiles_entry = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_entry"));
+   lbg_search_combobox = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_combobox"));
+   
    lbg_statusbar = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_statusbar"));
    lbg_toolbar_layout_info_label = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_toolbar_layout_info_label"));
 
@@ -2227,22 +2228,32 @@ lbg_info_t::read_files_from_coot() {
 void
 lbg_info_t::add_search_combobox_text() const {
 
+   bool done_set_active = 0;
    GtkTreeIter   iter;
    GtkListStore *list_store_similarities =
       gtk_list_store_new (1, G_TYPE_STRING);
-   gtk_combo_box_set_model(GTK_COMBO_BOX(search_combobox), GTK_TREE_MODEL(list_store_similarities));
+   gtk_combo_box_set_model(GTK_COMBO_BOX(lbg_search_combobox), GTK_TREE_MODEL(list_store_similarities));
    for (unsigned int i=0; i<6; i++) {
       double f = 0.75 + i*0.05;
       std::string s = coot::util::float_to_string(f);
       gtk_list_store_append(GTK_LIST_STORE(list_store_similarities), &iter);
       gtk_list_store_set(GTK_LIST_STORE(list_store_similarities), &iter,
 			 0, s.c_str(), -1);
+      // the default search similarity is 0.95 initially, so if we are
+      // close to that, then make this the active widget.
+      if (f < (search_similarity + 0.005)) { 
+	 if (f > (search_similarity - 0.005)) {
+	    done_set_active = 1;
+	    gtk_combo_box_set_active(GTK_COMBO_BOX(lbg_search_combobox), i);
+	 }
+      }
    }
-   gtk_combo_box_set_active(GTK_COMBO_BOX(search_combobox), 0);
+   if (! done_set_active)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(lbg_search_combobox), 0);
 
    GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (search_combobox), renderer, TRUE);
-   gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (search_combobox), renderer, "text", 0);
+   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (lbg_search_combobox), renderer, TRUE);
+   gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (lbg_search_combobox), renderer, "text", 0);
    
 
 }
