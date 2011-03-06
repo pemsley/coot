@@ -730,20 +730,62 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       }
       clipper::Vec3<double> camera_translation_cl = view_centre_cl + tt_cl;
 
+      // BL insert for spec
+      //int x0 = graphics_info_t::glarea->allocation.width;
+      //int y0 = graphics_info_t::glarea->allocation.height;
+      float ratio = (float)x0/(float)y0;
+      //
+
+      double mv[16];
+      glGetDoublev(GL_MODELVIEW_MATRIX, mv);
+      
+      // Still dont get the proper field of view angle properly done.
+      // Just set it to 47 which is almost correct for all views I tested
+      // But here an attempt to get FOV based on the projection matrix
+      // assuming p[0] is 1/width of screen in orthographic projection
+      /*
+      double p[16];
+      glGetDoublev(GL_PROJECTION_MATRIX, p);
+      // FOV ?
+      double width = 1 / p[0];
+      double fov = 360 * atan(width / (dir_len * ratio)) / M_PI; // or dir_len * ratio?
+      std::cout<< "BL DEBUG:: FOV? " << fov <<std::endl;
+      */
+
+      //
+
       render_stream << "#include \"colors.inc\"\n";
       render_stream << "background { color rgb <"
                     << graphics_info_t::background_colour[0] << ", "
                     << graphics_info_t::background_colour[1] << ", "
                     << graphics_info_t::background_colour[2] << "> }\n";
-      render_stream << "camera { orthographic\n"
+      /*      render_stream << "camera { orthographic\n"
 		    << "        location  <"
 		    << camera_translation_cl[0] << ", "
 		    << camera_translation_cl[1] << ", "
 		    << camera_translation_cl[2] << ">\n";
-      // BL insert for spec
-      //int x0 = graphics_info_t::glarea->allocation.width;
-      //int y0 = graphics_info_t::glarea->allocation.height;
-      float ratio = (float)x0/(float)y0;
+      */
+      render_stream << "camera { orthographic\n"
+		    << "         transform  {\n"
+		    << "         matrix  <\n"
+                    << "           "
+		    << mv[0]  << ", " << mv[1]  << ", " << mv[2] << ",\n"
+                    << "           "
+		    << mv[4]  << ", " << mv[5]  << ", " << mv[6] << ",\n"
+                    << "           "
+		    << mv[8]  << ", " << mv[9]  << ", " << mv[10] << ",\n"
+                    << "           "
+		    << mv[12] << ", " << mv[13] << ", " << mv[14] << "\n"
+		    << "         >\n"
+                    << "         inverse }\n";
+
+
+      render_stream << "         direction <0,0,-1>  \n";
+      render_stream << "         location  <0,0," << dir_len * ratio << ">  \n";
+      render_stream << "         angle     47  \n";
+      render_stream << "         right     <"<< ratio <<",0,0> \n"
+                    << "         up        <0,1,0>\n";
+      /*
       render_stream << "        right     < " 
 		    << view_matrix.matrix_element(0,0) * ratio << ", "
 		    << view_matrix.matrix_element(0,1) * ratio << ", "
@@ -757,6 +799,7 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
 		    << -view_matrix.matrix_element(2,1) << ", "
 		    << -view_matrix.matrix_element(2,2) << "> \n";
       render_stream << "        angle  90* "<< angle_factor << " \n";
+      */
       //render_stream << "         look_at  <"
       //<< view_centre.x() << ", "
       //<< view_centre.y() << ", "
