@@ -233,7 +233,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 	       for (unsigned int icr=0; icr<cr.size(); icr++) {
 		  std::string centre_atom = cr[icr].atom_id_c_4c();
 		  std::vector<std::pair<short int, coot::atom_spec_t> > v = 
-		     coot::is_bad_chiral_atom_p(cr[icr], residue_p);
+		     coot::is_inverted_chiral_atom_p(cr[icr], residue_p);
 		  if (v.size() ) {
 		     for (unsigned int i=0; i<v.size(); i++) {
 			if (v[i].first) {

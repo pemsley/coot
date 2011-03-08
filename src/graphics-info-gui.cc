@@ -1148,7 +1148,7 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
       std::cout << " TIME:: (dragged refinement): " << float(t1-T0)/1000.0 << std::endl;
 
       graphics_info_t g;
-      g.check_and_warn_bad_chirals_and_cis_peptides();
+      g.check_and_warn_inverted_chirals_and_cis_peptides();
 
       gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
       graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
@@ -3108,7 +3108,7 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
 	 atom_spec->int_user_data = imol;
       
 	 gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			    GTK_SIGNAL_FUNC (on_bad_chiral_volume_button_clicked),
+			    GTK_SIGNAL_FUNC (on_inverted_chiral_volume_button_clicked),
 			    atom_spec);
 
 	 gtk_box_pack_start(GTK_BOX(bad_chiral_volume_atom_vbox),
@@ -3126,8 +3126,8 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
 
 // static 
 void
-graphics_info_t::on_bad_chiral_volume_button_clicked (GtkButton       *button,
-						      gpointer         user_data) {
+graphics_info_t::on_inverted_chiral_volume_button_clicked (GtkButton       *button,
+							   gpointer         user_data) {
 
 
    // This function may get called for an "unclick" too.  It may need
