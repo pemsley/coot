@@ -548,7 +548,7 @@ graphics_info_t::refine_residues_vec(int imol,
       if (! refinement_immediate_replacement_flag) {
 	 if (use_graphics_interface_flag) { 
 	    do_accept_reject_dialog("Refinement", rr);
-	    check_and_warn_bad_chirals_and_cis_peptides();
+	    check_and_warn_inverted_chirals_and_cis_peptides();
 	 }
       }
    }
@@ -569,7 +569,7 @@ graphics_info_t::regularize_residues_vec(int imol,
       if (! refinement_immediate_replacement_flag) {
 	 if (use_graphics_interface_flag) { 
 	    do_accept_reject_dialog("Regularization", rr);
-	    check_and_warn_bad_chirals_and_cis_peptides();
+	    check_and_warn_inverted_chirals_and_cis_peptides();
 	 }
       }
    }
@@ -1179,7 +1179,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
 	    // std::cout << "DEBUG:: Regularize: rr.info is " << rr.info << std::endl;
 	    if (use_graphics_interface_flag) { 
 	       do_accept_reject_dialog("Regularization", rr);
-	       check_and_warn_bad_chirals_and_cis_peptides();
+	       check_and_warn_inverted_chirals_and_cis_peptides();
 	    }
 	 }
       } else {
@@ -1584,7 +1584,7 @@ graphics_info_t::refine_residue_range(int imol,
 		  if (! refinement_immediate_replacement_flag) {
 		     if (use_graphics_interface_flag) { 
 			do_accept_reject_dialog("Refinement", rr);
-			check_and_warn_bad_chirals_and_cis_peptides();
+			check_and_warn_inverted_chirals_and_cis_peptides();
 		     }
 		  }
 	       }
@@ -3806,7 +3806,7 @@ graphics_info_t::do_interactive_probe() const {
 }
 
 void
-graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
+graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 
 #ifdef HAVE_GSL
 
@@ -3819,9 +3819,9 @@ graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
 
 	    // Chirals:
 	    std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
-	       bv = coot::bad_chiral_volumes(moving_atoms_asc->mol,
-					     geom_p,
-					     cif_dictionary_read_number);
+	       bv = coot::inverted_chiral_volumes(moving_atoms_asc->mol,
+						  geom_p,
+						  cif_dictionary_read_number);
 	    if (bv.second.size() > 0) {
 	       if (bv.second.size() == 1) {
 		  int i = 0;

@@ -711,7 +711,7 @@ class graphics_info_t {
    static void edit_backbone_peptide_changed_func (GtkAdjustment *adj, GtkWidget *window); // callback
    static void edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidget *window); // callback
 
-   void check_and_warn_bad_chirals_and_cis_peptides() const;
+   void check_and_warn_inverted_chirals_and_cis_peptides() const;
 
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    void handle_rama_plot_update(coot::rama_plot *plot);
@@ -3251,8 +3251,8 @@ public:
    GtkWidget *wrapped_check_chiral_volumes_dialog(const std::vector <coot::atom_spec_t> &v,
 						  int imol);
    static int chiral_volume_molecule_option_menu_item_select_molecule; // option menu 
-   static void on_bad_chiral_volume_button_clicked(GtkButton *button,
-						   gpointer user_data);
+   static void on_inverted_chiral_volume_button_clicked(GtkButton *button,
+							gpointer user_data);
    // Tell us which residue types for chiral volumes restraints were missing:
    GtkWidget *wrapped_create_chiral_restraints_problem_dialog(const std::vector<std::string> &sv) const; 
 

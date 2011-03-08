@@ -3997,8 +3997,8 @@ molecule_class_info_t::bad_chiral_volumes() const {
    if (atom_sel.n_selected_atoms > 0) {
       // grr Geom_p() is not static
       graphics_info_t g;
-      pair = coot::bad_chiral_volumes(atom_sel.mol, g.Geom_p(),
-				      graphics_info_t::cif_dictionary_read_number);
+      pair = coot::inverted_chiral_volumes(atom_sel.mol, g.Geom_p(),
+					   graphics_info_t::cif_dictionary_read_number);
    }
 #endif //  HAVE_GSL
 

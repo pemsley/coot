@@ -1485,8 +1485,8 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
 //  molecule_class_info-other.cc
 // 
 std::vector<std::pair<short int, coot::atom_spec_t> >
-coot::is_bad_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_restraint,
-			   CResidue *res) {
+coot::is_inverted_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_restraint,
+				CResidue *res) {
 
    short int ibad=0;
    coot::atom_spec_t chiral_atom;
@@ -1610,8 +1610,8 @@ coot::is_bad_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_restraint
 // 0 is good.
 // 
 std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
-coot::bad_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
-			 int cif_dictionary_read_number) {
+coot::inverted_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
+			      int cif_dictionary_read_number) {
 
    std::vector <coot::atom_spec_t> v;
    int restraints_status = 1;
@@ -1670,7 +1670,7 @@ coot::bad_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
 			   chiral_restraint = chiral_restraints[irestr];
 			   if (! chiral_restraint.is_a_both_restraint()) {
 			      std::vector<std::pair<short int, coot::atom_spec_t> > c = 
-				 coot::is_bad_chiral_atom_p(chiral_restraint, residue_p);
+				 coot::is_inverted_chiral_atom_p(chiral_restraint, residue_p);
 			      for (unsigned int ibad=0; ibad<c.size(); ibad++) { 
 				 if (c[ibad].first) {
 				    std::cout << "INFO:: found bad chiral atom: " 
