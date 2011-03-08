@@ -353,6 +353,9 @@ int      graphics_info_t::debug_atom_picking = 0;
 int   graphics_info_t::imol_map_sharpening = -1;
 float graphics_info_t::map_sharpening_scale_limit = 30.0;
 
+//
+int graphics_info_t::imol_remarks_browswer = -1;
+
 // dragged moving atom:
 int       graphics_info_t::moving_atoms_dragged_atom_index = -1;
 short int graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;

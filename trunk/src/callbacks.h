@@ -4250,3 +4250,15 @@ on_refine_params_weight_matrix_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data);
 
+void
+on_remarks_browser1_activate           (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+void
+on_remarks_browser_molecule_chooser_cancel_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_remarks_browser_molecule_chooser_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);

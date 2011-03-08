@@ -174,6 +174,7 @@ GtkWidget* create_fast_ss_search_dialog(void);
 GtkWidget* create_baton_build_params_dialog(void);
 GtkWidget* create_pisa_interfaces_dialog (void);
 GtkWidget* create_scheme_window(void);
+GtkWidget* create_remarks_browser_molecule_chooser_dialog (void);
 #endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS

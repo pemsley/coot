@@ -11816,3 +11816,29 @@ on_refine_params_weight_matrix_entry_changed
 }
 
 
+void
+on_remarks_browser1_activate           (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) { 
+
+  GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog();
+  gtk_widget_show(w);
+
+} 
+
+void
+on_remarks_browser_molecule_chooser_cancel_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data) { 
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "remarks_browser_molecule_chooser_dialog");
+  gtk_widget_destroy(w);
+
+} 
+
+void
+on_remarks_browser_molecule_chooser_ok_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data) { 
+
+  show_remarks_browswer(); // there we look up which molecule to show.
+
+}

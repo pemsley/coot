@@ -3566,6 +3566,9 @@ public:
    static int imol_map_sharpening;
    static float map_sharpening_scale_limit;
 
+   // -- remarks browswer
+   static int imol_remarks_browswer; 
+
    // --- user defined picks
    static std::vector<coot::atom_spec_t> user_defined_atom_pick_specs;
 
