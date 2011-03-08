@@ -157,9 +157,37 @@ GtkWidget *wrapped_nothing_bad_dialog(const std::string &label) {
    
    graphics_info_t g;
    return g.wrapped_nothing_bad_dialog(label);
+}
+
+GtkWidget *wrapped_create_remarks_browser_molecule_chooser_dialog() {
+
+   GtkWidget *w = create_remarks_browser_molecule_chooser_dialog();
+   fill_remarks_browswer_chooser(w);
+   return w;
+} 
+
+void fill_remarks_browswer_chooser(GtkWidget *w) {
+
+   GtkWidget *option_menu = lookup_widget(w, "remarks_browser_molecule_chooser_optionmenu");
+   if (option_menu) {
+      graphics_info_t g;
+      GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(remarks_browswer_molecule_item_select);
+      g.fill_option_menu_with_coordinates_options(option_menu, callback_func);
+   } 
 } 
 
 
+void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos) {
+
+   graphics_info_t::imol_remarks_browswer = pos;
+}
+
+void show_remarks_browswer() {
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      // remarks_dialog(graphics_info_t::imol_remarks_browswer);
+   } 
+} 
 
 void
 set_graphics_rotamer_dialog(GtkWidget *w) {

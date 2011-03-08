@@ -479,6 +479,12 @@ one char in the chainid, so after we read in a pdb, let's replace the
 chain ids with the segids. Will that help? */
 int exchange_chain_ids_for_seg_ids(int imol);
 
+void show_remarks_browswer();
+GtkWidget *wrapped_create_remarks_browser_molecule_chooser_dialog();
+void fill_remarks_browswer_chooser(GtkWidget *w);
+void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos);
+
+
 /* \} */
 
 /*  -------------------------------------------------------------------- */
