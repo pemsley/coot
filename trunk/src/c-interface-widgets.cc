@@ -125,7 +125,9 @@ void remarks_dialog(int imol) {
 	       std::string s = cr->Remark;
 	       remarks[rn].push_back(s);
 	    }
-	    if (remarks.size()) {
+	    if (! remarks.size()) {
+	       info_dialog("No REMARKS");
+	    } else { 
 	       GtkWidget *d = gtk_dialog_new();
 	       gtk_object_set_data(GTK_OBJECT(d), "remarks_dialog", d);
 	       GtkWidget *vbox = GTK_DIALOG(d)->vbox;

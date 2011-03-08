@@ -172,7 +172,9 @@ void fill_remarks_browswer_chooser(GtkWidget *w) {
    if (option_menu) {
       graphics_info_t g;
       GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(remarks_browswer_molecule_item_select);
-      g.fill_option_menu_with_coordinates_options(option_menu, callback_func);
+      int imol = first_coords_imol();
+      graphics_info_t::imol_remarks_browswer = imol;
+      g.fill_option_menu_with_coordinates_options(option_menu, callback_func, imol);
    } 
 } 
 
@@ -185,7 +187,7 @@ void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos)
 void show_remarks_browswer() {
 
    if (graphics_info_t::use_graphics_interface_flag) {
-      // remarks_dialog(graphics_info_t::imol_remarks_browswer);
+      remarks_dialog(graphics_info_t::imol_remarks_browswer);
    } 
 } 
 

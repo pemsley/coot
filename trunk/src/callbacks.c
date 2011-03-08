@@ -11840,5 +11840,7 @@ on_remarks_browser_molecule_chooser_ok_button_clicked
 					 gpointer         user_data) { 
 
   show_remarks_browswer(); // there we look up which molecule to show.
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "remarks_browser_molecule_chooser_dialog");
+  gtk_widget_destroy(w);
 
 }

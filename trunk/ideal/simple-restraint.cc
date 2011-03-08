@@ -3096,7 +3096,7 @@ void coot::my_df_rama(const gsl_vector *v,
 	       // throw an exception
 	    } 
 	    if ( clipper::Util::isnan(psi) ) {
-	       std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
+	       std::cout << "WARNING: observed torsion psi is a NAN!" << std::endl;
 	       // throw an exception
 	    }
 
