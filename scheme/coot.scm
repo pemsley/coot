@@ -82,7 +82,6 @@
 			   "clear-backup.scm"
 			   "tips.scm"
 			   "americanisms.scm"
-                           "prodrg-import.scm"
 			   "group-settings.scm")))
 
       (let ((scheme-list 
@@ -92,6 +91,7 @@
 								      "check-for-updates.scm"
 								      "extensions.scm"
 								      "shelx-extensions.scm"
+								      "prodrg-import.scm"
 								      )))
 	      (else 
 	       (append pre-list post-list)))))
