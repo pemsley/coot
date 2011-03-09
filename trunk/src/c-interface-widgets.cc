@@ -137,24 +137,21 @@ void remarks_dialog(int imol) {
 						     GTK_WIDGET(vbox_inner));
 	       gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
 	       gtk_widget_show(scrolled_window);
-	       gtk_container_add(GTK_CONTAINER(scrolled_window), vbox_inner);
 	       gtk_widget_show(vbox_inner);
 	       
 	       std::map<int, std::vector<std::string> >::const_iterator it;
-	       std::cout << ":::: " << remarks.size() << " remark numbers/sections " << std::endl;
 	       for (it=remarks.begin(); it != remarks.end(); it++) {
 		  std::string remark_name = "REMARK ";
 		  remark_name += coot::util::int_to_string(it->first);
 		  GtkWidget *frame = gtk_frame_new(remark_name.c_str());
 		  gtk_box_pack_start(GTK_BOX(vbox_inner), frame, FALSE, FALSE, 1);
 		  gtk_widget_show(frame);
-		  std::cout << "REMARK number " << it->first << std::endl;
+		  // std::cout << "REMARK number " << it->first << std::endl;
 		  GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
 		  GtkWidget *text_view = gtk_text_view_new();
 		  gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 						       GTK_TEXT_WINDOW_RIGHT, 10);
 		  gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
-		  // gtk_box_pack_start(GTK_BOX(vbox_inner), GTK_WIDGET(text_view), FALSE, FALSE, 1);
 		  gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
 		  gtk_widget_show(GTK_WIDGET(text_view));
 		  gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
