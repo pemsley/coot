@@ -670,8 +670,11 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	 }
 
 	 if (verbose_geometry_reporting)
-	    cout << "iteration number " << iter << " " << s->f << endl; 
+	    cout << "iteration number " << iter << " " << s->f << endl;
 
+// 	 if (iter%1000) {
+// 	    check_pushable_chiral_hydrogens(s->x);
+// 	 } 
       }
    while ((status == GSL_CONTINUE) && (int(iter) < nsteps_max));
 
@@ -680,6 +683,15 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 
    // } time testing
    update_atoms(s->x); // do OXT here
+
+   
+   // if there were bad Hs at the end of refinement
+   if (status != GSL_ENOPROG) {
+      // std::cout << "refine end check and push!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+      if (check_pushable_chiral_hydrogens(s->x)) {
+	 update_atoms(s->x);
+      }
+   }
 
    gsl_multimin_fdfminimizer_free (s);
    gsl_vector_free (x);
@@ -6056,15 +6068,28 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 				    res_selection[iat3]->GetUDData(udd_atom_index_handle, index3);
 				    res_selection[iatc]->GetUDData(udd_atom_index_handle, indexc);
 
+
+				    // does this chiral centre have exactly one hydrogen?
+				    // If so, set chiral_hydrogen_index to the atom index.
+				    // If not set to -1.
+				    //
+				    int chiral_hydrogen_index = get_chiral_hydrogen_index(indexc, index1, index2, index3);
+				    
 				    if (0) 
-				       std::cout << "   Adding chiral restraint for " << res_selection[iatc]->name
+				       std::cout << "   Adding chiral restraint for "
+						 << res_selection[iatc]->name
 						 << " " << res_selection[iatc]->GetSeqNum() <<  " "
 						 << res_selection[iatc]->GetChainID() 
-						 << " with target volume " << geom[idr].chiral_restraint[ic].target_volume()
-						 << " with volume sigma " << geom[idr].chiral_restraint[ic].volume_sigma()
-						 << " with volume sign " << geom[idr].chiral_restraint[ic].volume_sign
-						 << " idr index: " << idr << " ic index: " << ic << std::endl;
-
+						 << " with target volume "
+						 << geom[idr].chiral_restraint[ic].target_volume()
+						 << " with volume sigma "
+						 << geom[idr].chiral_restraint[ic].volume_sigma()
+						 << " with volume sign "
+						 << geom[idr].chiral_restraint[ic].volume_sign
+						 << " idr index: " << idr << " ic index: " << ic
+						 << " chiral_hydrogen_index: " << chiral_hydrogen_index
+						 << std::endl;
+				    
 				    std::vector<bool> fixed_flags =
 				       make_fixed_flags(indexc, index1, index2, index3);
 				    restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
@@ -6072,7 +6097,7 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 									      geom[idr].chiral_restraint[ic].volume_sign,
 									      geom[idr].chiral_restraint[ic].target_volume(),
 									      geom[idr].chiral_restraint[ic].volume_sigma(),
-									      fixed_flags));
+									      fixed_flags, chiral_hydrogen_index));
 				    n_chiral_restr++;
 				 }
 			      }
@@ -6088,6 +6113,43 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
    return n_chiral_restr;
 }
 
+
+
+// is there a single hydrogen connected to this chiral centre?
+// If so, return the index, if not return -1
+// 
+int
+coot::restraints_container_t::get_chiral_hydrogen_index(int indexc, int index1, int index2, int index3) const {
+
+   int r = -1;
+   int n_H = 0;
+   int H_atom_index = -1;
+
+   for (int i=0; i<size(); i++) {
+      if (restraints_usage_flag & coot::BONDS_MASK) {
+	 if ( (*this)[i].restraint_type == coot::BOND_RESTRAINT) {
+	    CAtom *at_1 = atom[(*this)[i].atom_index_1]; 
+	    CAtom *at_2 = atom[(*this)[i].atom_index_2];
+	    if ((*this)[i].atom_index_1 == indexc) {
+	       if (is_hydrogen(at_2)) {
+		  H_atom_index = (*this)[i].atom_index_2;
+		  n_H++;
+	       } 
+	    }
+	    if ((*this)[i].atom_index_2 == indexc) {
+	       if (is_hydrogen(at_1)) {
+		  H_atom_index = (*this)[i].atom_index_1;
+		  n_H++;
+	       }
+	    }
+	 }
+      }
+   }
+   if (n_H == 1)
+      return H_atom_index;
+   else
+      return -1;
+} 
 
 // Creates any number of simple_restraints for this monomer and adds
 // them to restraints_vec.
@@ -7104,7 +7166,195 @@ coot::restraints_container_t::info() const {
    }
 } 
 
+bool
+coot::restraints_container_t::check_pushable_chiral_hydrogens(gsl_vector *v) {
+
+   bool state = 0; // none
+   for (int i=0; i<size(); i++) {
+      if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) { 
+	 if ( (*this)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	    if ((*this)[i].chiral_hydrogen_index != coot::UNSET_INDEX) {
+	       // so we have a single H attached to this chiral centre.
+
+	       // is the hydrogen on the wrong side of the chiral centre?
+	       // 
+	       bool val = chiral_hydrogen_needs_pushing((*this)[i], v);
+	       // std::cout << "::::  chiral_hydrogen_needs_pushing() returns " << val << std::endl;
+	       if (val) {
+		  const coot::simple_restraint &restraint = (*this)[i];
+		  push_chiral_hydrogen(restraint, v);
+		  state = 1;
+	       } 
+	    } 
+	 }
+      }
+   }
+   return state;
+} 
+
+// a single H on this chiral centre is on the wrong side of the
+// chiral centre?
+// (not sure that this is the best name for this function)
+//
+// Note: chiral_restraint.chiral_hydrogen_index must be valid!
+// 
+bool
+coot::restraints_container_t::chiral_hydrogen_needs_pushing(const coot::simple_restraint &chiral_restraint,
+							    const gsl_vector *v) const {
+
+   int n_bad_angles = 0; 
+
+   int n_angles = 0;
+   double angle_distortion = 0;
+   double angle_distortion_max = 35; // if more than this, then the hydrogen is pushable.
+
+   // first check, does this have an inverted chiral centre?
+   //
+   bool icc = has_inverted_chiral_centre(chiral_restraint, v);
+
+   if (icc)
+      return 0;
+      
+
+   // OK, so perhaps the chiral volume was just the right side of 0,
+   // so let's check the angles
+
+   // second check, are there highly distorted angle terms?
+   // 
+   for (int i=0; i<size(); i++) {
+      if (restraints_usage_flag & coot::ANGLES_MASK) {
+	 if ( (*this)[i].restraint_type == coot::ANGLE_RESTRAINT) {
+	    const coot::simple_restraint &restraint = (*this)[i];
+	    bool flag = 0;
+	    if (chiral_restraint.atom_index_centre == restraint.atom_index_2) {
+	       if (chiral_restraint.chiral_hydrogen_index == restraint.atom_index_1 ||
+		   chiral_restraint.chiral_hydrogen_index == restraint.atom_index_3) {
+		  flag = 1;
+	       }
+	    }
+	       
+	    angle_distortion = coot::distortion_score_angle(restraint, v);
+	    if (angle_distortion > angle_distortion_max) { 
+	       // std::cout << "::angle distortion for restraint " << i << ":  "
+	       // << angle_distortion << std::endl;
+	       n_bad_angles++;
+	    }
+	 }
+      }
+   }
+
+   // consider the 2 positions:
+   // 
+   // 1) at the end of refinement, the chiral volume signs match (barely) and we have
+   //    distorted angles
+   //
+   // 2) if we have a starting structure that was correct for the initial (other)
+   //   chirality (that is, before we flipped the chiral restraint on the atom), then we
+   //   start off with clearly incorrect chiral volume sign (but the angles are not bad).
+   //   We don't want to flip the H in that case.
+
+   bool needs_pushing = 0;
+   if ((n_bad_angles > 1) && !icc)
+      needs_pushing = 1;
+
+   // std::cout << ":::: chiral_hydrogen_needs_pushing() returns " << needs_pushing << std::endl;
+   return needs_pushing;
+} 
+
+bool
+coot::restraints_container_t::has_inverted_chiral_centre(const coot::simple_restraint &chiral_restraint,
+							 const gsl_vector *v) const {
+
+   bool r = 0;
+   int idx = 3*(chiral_restraint.atom_index_centre);
+   clipper::Coord_orth centre(gsl_vector_get(v, idx),
+			      gsl_vector_get(v, idx+1),
+			      gsl_vector_get(v, idx+2));
+   
+   idx = 3*(chiral_restraint.atom_index_1);
+   clipper::Coord_orth a1(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   idx = 3*(chiral_restraint.atom_index_2);
+   clipper::Coord_orth a2(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   idx = 3*(chiral_restraint.atom_index_3);
+   clipper::Coord_orth a3(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   
+   clipper::Coord_orth a = a1 - centre;
+   clipper::Coord_orth b = a2 - centre;
+   clipper::Coord_orth c = a3 - centre;
+   double cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
+   
+   double distortion = cv - chiral_restraint.target_chiral_volume;
+   double distort_2  = distortion * distortion / (chiral_restraint.sigma * chiral_restraint.sigma);
+
+   // either both positve or both negative is fine...
+   if (cv*chiral_restraint.chiral_volume_sign < 0)
+      r = 1; // yes, a problem
+
+   // std::cout << "debug in has_inverted_chiral_centre() cv = " << cv << " target: " 
+   // << chiral_restraint.target_chiral_volume << std::endl;
+   // std::cout << "debug in has_inverted_chiral_centre() distortion = " << distortion << " " 
+   // << ", sigma = " << chiral_restraint.sigma << " distort_2 = " << distort_2 << std::endl;
+   // std::cout << "debug in has_inverted_chiral_centre() result: " << r << std::endl;
+
+   return r;
+
+}
+
+void
+coot::restraints_container_t::push_chiral_hydrogen(const simple_restraint &chiral_restraint, gsl_vector *v) {
+   
+   bool r = 0;
+   if (chiral_restraint.chiral_hydrogen_index != coot::UNSET_INDEX) {
+
+      int idx = 3*(chiral_restraint.atom_index_centre);
+      clipper::Coord_orth centre(gsl_vector_get(v, idx),
+				 gsl_vector_get(v, idx+1),
+				 gsl_vector_get(v, idx+2));
+   
+      idx = 3*(chiral_restraint.atom_index_1);
+      clipper::Coord_orth a1(gsl_vector_get(v, idx),
+			     gsl_vector_get(v, idx+1),
+			     gsl_vector_get(v, idx+2));
+      idx = 3*(chiral_restraint.atom_index_2);
+      clipper::Coord_orth a2(gsl_vector_get(v, idx),
+			     gsl_vector_get(v, idx+1),
+			     gsl_vector_get(v, idx+2));
+      idx = 3*(chiral_restraint.atom_index_3);
+      clipper::Coord_orth a3(gsl_vector_get(v, idx),
+			     gsl_vector_get(v, idx+1),
+			     gsl_vector_get(v, idx+2));
+   
+      clipper::Coord_orth a = a1 - centre;
+      clipper::Coord_orth b = a2 - centre;
+      clipper::Coord_orth c = a3 - centre;
+
+      clipper::Coord_orth mid_point_sum = a1 + a2 + a3;
+      clipper::Coord_orth mid_point(mid_point_sum.x()/3.0, mid_point_sum.y()/3.0, mid_point_sum.z()/3.0);
+
+      clipper::Coord_orth dv_u(clipper::Coord_orth(centre - mid_point).unit());
+
+      clipper::Coord_orth new_h_pos = centre + 1.09 * dv_u;
+
+      std::cout << ":::::::::::::::::::: pushing H "
+		<< coot::atom_spec_t(atom[chiral_restraint.chiral_hydrogen_index]) 
+		<< " on " << coot::atom_spec_t(atom[chiral_restraint.atom_index_centre])
+		<< " to " << new_h_pos.format() << std::endl;
+      
+      idx = 3*chiral_restraint.chiral_hydrogen_index;
+      gsl_vector_set(v, idx,     new_h_pos.x());
+      gsl_vector_set(v, idx + 1, new_h_pos.y());
+      gsl_vector_set(v, idx + 2, new_h_pos.z());
+   }
+   
+} 
 
 
 
 #endif // HAVE_GSL
+

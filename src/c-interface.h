@@ -3238,7 +3238,7 @@ int regularize_zone(int imol, const char *chain_id, int resno1, int resno2, cons
   smaller numbers make the movement of the intermediate atoms slower,
   smoother, more elegant.
 
-  Default: 50. */
+  Default: 80. */
 void set_dragged_refinement_steps_per_frame(int v);
 
 /*! \brief return the number of steps per frame in dragged refinement */

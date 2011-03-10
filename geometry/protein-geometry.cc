@@ -315,8 +315,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       }
 	    }
 	    if (n_chiral) {
-// 	       std::cout << "DEBUG:: in init_refmac_mon_lib there were "
-// 			 << n_chiral << " chiral volume restraints\n";
+ 	       // std::cout << "-------------- DEBUG:: in init_refmac_mon_lib there were "
+	       // << n_chiral << " chiral volume restraints\n";
 	       assign_chiral_volume_targets();
 	    }
 	 } // for idata
@@ -404,9 +404,10 @@ coot::protein_geometry::assign_chiral_volume_targets() {
 
    for (unsigned int idict=0; idict<dict_res_restraints.size(); idict++) {
       if (dict_res_restraints[idict].has_unassigned_chiral_volumes()) {
-// 	 std::cout << "DEBUG:: assign_chiral_volume_targets for dict_res_restraints entry: "
-// 		   << idict << " " << dict_res_restraints[idict].comp_id
-// 		   << " has unassigned chiral volumes" << std::endl;
+	 if (0) 
+	    std::cout << "DEBUG:: assign_chiral_volume_targets for dict_res_restraints entry: "
+		      << idict << " " << dict_res_restraints[idict].comp_id
+		      << " has unassigned chiral volumes" << std::endl;
 	 dict_res_restraints[idict].assign_chiral_volume_targets();
       }
    }
@@ -3562,9 +3563,12 @@ int
 coot::dictionary_residue_restraints_t::assign_chiral_volume_targets() {
 
    int ich = 0;
-//    std::cout << "DEBUG:: in dictionary_residue_restraints_t::assign_chiral_volume_targets "
-//  	     << "there are " << chiral_restraint.size() << " chiral restraints for "
-// 	     << comp_id << " \n";
+
+   if (0) 
+      std::cout << "DEBUG:: in dictionary_residue_restraints_t::assign_chiral_volume_targets "
+		<< "there are " << chiral_restraint.size() << " chiral restraints for "
+		<< comp_id << " \n";
+    
    for (unsigned int i=0; i<chiral_restraint.size(); i++) {
       chiral_restraint[i].assign_chiral_volume_target(bond_restraint, angle_restraint);
       ich++;
@@ -3719,7 +3723,10 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target_internal(double a, do
 
    volume_sigma_ = 0.2;  // test value
 
-   //    std::cout << "DEBUG:: target_volume chiral: " << target_volume_ << std::endl;
+   if (0)
+      std::cout << "DEBUG:: assign_chiral_volume_target_internal() target_volume chiral: "
+		<< target_volume_ << std::endl;
+   
    return target_volume_;
 }
 
@@ -4257,15 +4264,19 @@ bool
 coot::protein_geometry::replace_monomer_restraints(std::string monomer_type,
 						   const coot::dictionary_residue_restraints_t &mon_res_in) {
    bool s = 0;
+
+   coot::dictionary_residue_restraints_t mon_res = mon_res_in;
+   mon_res.assign_chiral_volume_targets();
+   
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].comp_id == monomer_type) {
-	 dict_res_restraints[i] = mon_res_in;
+	 dict_res_restraints[i] = mon_res;
 	 s = 1;
       }
    }
 
    if (s == 0) {
-      dict_res_restraints.push_back(mon_res_in);
+      dict_res_restraints.push_back(mon_res);
    } 
    return s;
 }

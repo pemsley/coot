@@ -2866,6 +2866,166 @@
 	     (sleep 2))))
   (coot-real-exit 0))
 
+;; Invert the chiral centre of the atom we are centred on.  
+;; If not centred on a chiral atom, then give a dialog.
+;; 
+;; The restraints for this monomer type are copied and renamed
+;; (changing comp-id, 3-letter-code and name too).  The monomer is
+;; regularized.  Chiral Hydrogen (if needed) is enabled now in the
+;; minimizer.
+;;
+;; This should almost all be c++ code so that Bernie doesn't have to
+;; redo it.  This is temporary then.
+;; 
+(define (chiral-centre-inverter)
+  
+  ;; return "LI2" given "LIG", 
+  ;;        "LI3" given "LI2"
+  ;;        "L10" given "L11"  (etc.)
+  ;; 
+  ;; return #f if current-res-name is not a string of 1, 2 or 3
+  ;; characters.
+  ;; 
+  (define (new-res-name current-res-name)
+
+    (define (generate-name current-res-name) 
+      (if (not (string? current-res-name))
+	  #f
+	  (cond
+	   ((= (string-length current-res-name) 3)
+	    (let ((one (substring current-res-name 0 1))
+		  (two (substring current-res-name 1 2))
+		  (three (substring current-res-name 2 3)))
+	      (let ((n-1 (string->number one))
+		    (n-2 (string->number two))
+		    (n-3 (string->number three)))
+
+		(cond
+		 ;; "LIG" -> "LI2", "LI9" -> "L10"
+		 ;; 
+		 ((and (not (number? n-1))
+		       (not (number? n-2))
+		       (number? n-3))
+		  (if (< n-3 9)
+		      (string-append one two (number->string (+ n-3 1)))
+		      (string-append one "10")))
+		 
+		 ;; "L10" -> "L11",  "L19" -> "L20"
+		 ((and (not (number? n-1))
+		       (number? n-2)
+		       (number? n-3))
+		  (if (< n-3 9)
+		      (string-append one two (number->string (+ n-3 1)))
+		      (if (< n-2 9)
+			  (string-append one (number->string (+ n-2 1) "0"))
+			  ;; "L99" -> #f
+			  #f)))
+
+		 ;; LIG -> LI2
+		 ((and (not (number? n-1))
+		       (not (number? n-2))
+		       (not (number? n-3)))
+		  
+		  (string-append one two "2"))
+
+		 (else #f)))))
+
+	   (else 
+	    (string-append current-res-name "2")))))
+
+    ;; check for name collision, if yes, then try next.
+    ;; 
+    (let f ((s (generate-name current-res-name)))
+      (if (eq? s #f) ;; e.g. current-res-name was "L99"
+	  #f
+	  (let ((r (monomer-restraints s)))
+	    (if (not r)
+		s
+		(f (generate-name s)))))))
+  
+
+  ;; 
+  (define (is-chiral-centre-atom? atom-name chirals)
+
+    (let loop ((chiral-restraints (cdr chirals)))
+      (cond
+       ((null? chiral-restraints) #f)
+       ((string=? (list-ref (car chiral-restraints) 1) atom-name) #t)
+       (else
+	(loop (cdr chiral-restraints))))))
+
+
+  ;; main line
+  ;; 
+  (using-active-atom 
+   (let* ((res-name (residue-name aa-imol aa-chain-id aa-res-no aa-ins-code))
+	  (restraints (monomer-restraints res-name)))
+
+     (if (list? restraints)
+	 (begin
+	   (let ((chirals (assoc "_chem_comp_chir" restraints)))
+	     (if (not chirals)
+		 (info-dialog "Not chiral restraints for residue")
+		 (if (not (is-chiral-centre-atom? aa-atom-name chirals))
+		     (info-dialog "Not a chiral centre")
+		     (begin
+
+		       ;; switch the chiral centre
+		       (for-each
+			(lambda (chiral-index)
+			  (let ((chiral-atom (list-ref (list-ref (cdr chirals) chiral-index) 1)))
+			    (if (string=? chiral-atom aa-atom-name)
+
+				(let* ((current-sign (list-ref (list-ref (cdr chirals) chiral-index) 5))
+				       (new-sign
+					(cond 
+					 ((=  1 current-sign) -1)
+					 ((= -1 current-sign)  1)
+					 (else 
+					  'unset))))
+				  (format #t "current sign: ~s~%" current-sign)
+				  (format #t "chiral atom  pre manip ~s~%"
+					  (list-ref (cdr chirals) chiral-index))
+				  
+				  (if (not (eq? new-sign 'unset))
+				      (list-set! (list-ref (cdr chirals) chiral-index) 5 new-sign))
+				  
+				  (format #t "chiral atom post manip ~s~%"
+					  (list-ref (cdr chirals) chiral-index))
+				  ))))
+			(range (length (cdr chirals))))
+		       
+		       (format #t "post manip chirals ~s~%" 
+			       (assoc "_chem_comp_chir" restraints))
+
+		       
+		       (let ((new-residue-name (new-res-name res-name)))
+			 (let ((new-mol (new-molecule-by-atom-selection 
+					 aa-imol (string-append "//"
+								aa-chain-id
+								"/"
+								(number->string aa-res-no)
+
+								aa-ins-code))))
+			   ;; switch the comp-id three-letter-code and name
+			   ;; 
+			   (let ((chem-comp (assoc "_chem_comp" restraints)))
+			     (if chem-comp
+				 (begin
+				   (list-set! (cdr chem-comp) 0 new-residue-name) ;; comp_id
+				   (list-set! (cdr chem-comp) 1 new-residue-name) ;; 3-letter-code
+				   (list-set! (cdr chem-comp) 2 new-residue-name) ;; name
+				   )))
+
+			   (set-monomer-restraints new-residue-name restraints)
+			   (set-residue-name new-mol aa-chain-id aa-res-no aa-ins-code new-residue-name)
+			   (regularize-zone new-mol aa-chain-id aa-res-no aa-res-no aa-alt-conf)
+			   )))))))))))
+
+;; Americans...
+(define chiral-center-inverter chiral-centre-inverter)
+
+
 	
 ;; to determine if we have pygtk
 ;; 
