@@ -349,6 +349,7 @@
 	   (molecule-chooser-gui "Assign HETATMs as per PDB definition"
 				 (lambda (imol)
 					  (assign-hetatms imol)))))
+
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Copy Coordinates Molecule...."
 	 (lambda ()
@@ -399,6 +400,9 @@
 		 (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
 				       (lambda (imol)
 					 (cootaneer-gui imol)))))))
+
+	;; ---- F ---------
+
 	(let ((submenu (gtk-menu-new))
 	      (menuitem2 (gtk-menu-item-new-with-label "Find Secondary Structure...")))
 
@@ -423,6 +427,13 @@
 	   (molecule-chooser-gui "Fix Nomenclature Error in molecule:"
 				 (lambda (imol)
 				   (fix-nomenclature-errors imol)))))
+
+	;; ---- I ---------
+
+	(add-simple-coot-menu-menuitem 
+	 menu "Invert This Chiral Centre"
+	 (lambda ()
+	   (chiral-centre-inverter)))
 
 
 	;; ---- M ---------
@@ -842,13 +853,13 @@
 	   submenu "Crocodile Refinement mode"
 	   (lambda ()
 	     (format #t "Crock...~%")
-	     (set-dragged-refinement-steps-per-frame 120)))
+	     (set-dragged-refinement-steps-per-frame 160)))
 
 	  (add-simple-coot-menu-menuitem
 	   submenu "Default Refinement mode"
 	   (lambda ()
 	     (format #t "Default Speed...~%")
-	     (set-dragged-refinement-steps-per-frame 50))))
+	     (set-dragged-refinement-steps-per-frame 80))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-refine "Auto-weight refinement"

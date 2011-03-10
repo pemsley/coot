@@ -2924,11 +2924,13 @@ SCM monomer_restraints(const char *monomer_type) {
 	 coot::dict_bond_restraint_t bond_restraint = restraints.bond_restraint[ibond];
 	 std::string a1 = bond_restraint.atom_id_1_4c();
 	 std::string a2 = bond_restraint.atom_id_2_4c();
+	 std::string type = bond_restraint.type();
 	 double d   = bond_restraint.dist();
 	 double esd = bond_restraint.esd();
 	 SCM bond_restraint_scm = SCM_EOL;
 	 bond_restraint_scm = scm_cons(scm_double2num(esd), bond_restraint_scm);
 	 bond_restraint_scm = scm_cons(scm_double2num(d),   bond_restraint_scm);
+	 bond_restraint_scm = scm_cons(scm_makfrom0str(type.c_str()), bond_restraint_scm);
 	 bond_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()),   bond_restraint_scm);
 	 bond_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()),   bond_restraint_scm);
 	 bond_restraint_list = scm_cons(bond_restraint_scm, bond_restraint_list);
@@ -3111,15 +3113,17 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
       // ------------------ Bonds -------------------------
       PyObject *bond_restraint_list = PyList_New(restraints.bond_restraint.size());
       for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
-	 std::string a1 = restraints.bond_restraint[ibond].atom_id_1_4c();
-	 std::string a2 = restraints.bond_restraint[ibond].atom_id_2_4c();
+	 std::string a1   = restraints.bond_restraint[ibond].atom_id_1_4c();
+	 std::string a2   = restraints.bond_restraint[ibond].atom_id_2_4c();
+	 std::string type = restraints.bond_restraint[ibond].type();
 	 double d   = restraints.bond_restraint[ibond].dist();
 	 double esd = restraints.bond_restraint[ibond].esd();
-	 PyObject *bond_restraint = PyList_New(4);
+	 PyObject *bond_restraint = PyList_New(5);
 	 PyList_SetItem(bond_restraint, 0, PyString_FromString(a1.c_str()));
 	 PyList_SetItem(bond_restraint, 1, PyString_FromString(a2.c_str()));
-	 PyList_SetItem(bond_restraint, 2, PyFloat_FromDouble(d));
-	 PyList_SetItem(bond_restraint, 3, PyFloat_FromDouble(esd));
+	 PyList_SetItem(bond_restraint, 2, PyString_FromString(type.c_str()));
+	 PyList_SetItem(bond_restraint, 3, PyFloat_FromDouble(d));
+	 PyList_SetItem(bond_restraint, 4, PyFloat_FromDouble(esd));
 	 PyList_SetItem(bond_restraint_list, ibond, bond_restraint);
       }
 
@@ -3340,21 +3344,23 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   SCM bond_restraint_length_scm = scm_length(bond_restraint);
 			   int bond_restraint_length = scm_to_int(bond_restraint_length_scm);
 
-			   if (bond_restraint_length != 4) {
+			   if (bond_restraint_length != 5) {
 			      std::cout << "WARNING:: bond_restraint_length " << bond_restraint_length
-					<< " should be " << 4 << std::endl;
+					<< " should be " << 5 << std::endl;
 			   } else { 
 			      SCM atom_1_scm = scm_list_ref(bond_restraint, SCM_MAKINUM(0));
 			      SCM atom_2_scm = scm_list_ref(bond_restraint, SCM_MAKINUM(1));
-			      SCM dist_scm   = scm_list_ref(bond_restraint, SCM_MAKINUM(2));
-			      SCM esd_scm    = scm_list_ref(bond_restraint, SCM_MAKINUM(3));
+			      SCM type_scm   = scm_list_ref(bond_restraint, SCM_MAKINUM(2));
+			      SCM dist_scm   = scm_list_ref(bond_restraint, SCM_MAKINUM(3));
+			      SCM esd_scm    = scm_list_ref(bond_restraint, SCM_MAKINUM(4));
 			      if (scm_string_p(atom_1_scm) && scm_string_p(atom_2_scm) &&
 				  scm_number_p(dist_scm) && scm_number_p(esd_scm)) {
 				 std::string atom_1 = scm_to_locale_string(atom_1_scm);
 				 std::string atom_2 = scm_to_locale_string(atom_2_scm);
+				 std::string type   = scm_to_locale_string(type_scm);
 				 double dist        = scm_to_double(dist_scm);
 				 double esd         = scm_to_double(esd_scm);
-				 coot::dict_bond_restraint_t rest(atom_1, atom_2, "unknown", dist, esd);
+				 coot::dict_bond_restraint_t rest(atom_1, atom_2, type, dist, esd);
 				 bond_restraints.push_back(rest);
 			      }
 			   }
@@ -3630,18 +3636,21 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		  if (PyObject_Length(bond_restraint) == 4) { 
 		     PyObject *atom_1_py = PyList_GetItem(bond_restraint, 0);
 		     PyObject *atom_2_py = PyList_GetItem(bond_restraint, 1);
-		     PyObject *dist_py   = PyList_GetItem(bond_restraint, 2);
-		     PyObject *esd_py    = PyList_GetItem(bond_restraint, 3);
+		     PyObject *type_py   = PyList_GetItem(bond_restraint, 2);
+		     PyObject *dist_py   = PyList_GetItem(bond_restraint, 3);
+		     PyObject *esd_py    = PyList_GetItem(bond_restraint, 4);
 
 		     if (PyString_Check(atom_1_py) &&
 			 PyString_Check(atom_2_py) &&
+			 PyString_Check(type_py) &&
 			 PyFloat_Check(dist_py) && 
 			 PyFloat_Check(esd_py)) {
 			std::string atom_1 = PyString_AsString(atom_1_py);
 			std::string atom_2 = PyString_AsString(atom_2_py);
+			std::string type   = PyString_AsString(type_py);
 			float  dist = PyFloat_AsDouble(dist_py);
 			float  esd  = PyFloat_AsDouble(esd_py);
-			coot::dict_bond_restraint_t rest(atom_1, atom_2, "unknown", dist, esd);
+			coot::dict_bond_restraint_t rest(atom_1, atom_2, type, dist, esd);
 			bond_restraints.push_back(rest);
 		     }
 		  }
