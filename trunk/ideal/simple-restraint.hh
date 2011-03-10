@@ -1195,6 +1195,29 @@ namespace coot {
       // a coot-util function?
       // double time_diff(const timeval &current, const timeval &start) const;
 
+
+      // a single H on this chiral centre is on the wrong side of the
+      // chiral centre?
+      // 
+      // (not sure that this is the best name for this function).
+      // 
+      // Called from the minimize() function
+      // 
+      bool chiral_hydrogen_needs_pushing(const simple_restraint &chiral_restraint, const gsl_vector *v) const;
+      bool check_pushable_chiral_hydrogens(gsl_vector *v); // and push them if needed (non-const *v)
+      void push_chiral_hydrogen(const simple_restraint &chiral_restraint, gsl_vector *v);
+      int get_chiral_hydrogen_index(int indexc, int index1, int index2, int index3) const;
+      bool has_inverted_chiral_centre(const simple_restraint &chiral_restraint,
+				      const gsl_vector *v) const;
+      bool is_hydrogen(CAtom *at_p) const {
+	 std::string ele = at_p->element;
+	 if ((ele == "H") || (ele == " H"))
+	    return 1;
+	 else
+	    return 0;
+      } 
+      
+
    public: 
 
       enum link_torsion_restraints_type { NO_LINK_TORSION = 0, 
@@ -1517,29 +1540,6 @@ namespace coot {
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}
       bool do_numerical_gradients_status() { return do_numerical_gradients_flag; }
 
-
-      // This should be private, I think.
-      //
-      // a single H on this chiral centre is on the wrong side of the
-      // chiral centre?
-      // 
-      // (not sure that this is the best name for this function).
-      // 
-      // Called from the minimize() function
-      // 
-      bool chiral_hydrogen_needs_pushing(const simple_restraint &chiral_restraint, const gsl_vector *v) const;
-      bool check_pushable_chiral_hydrogens(gsl_vector *v); // and push them if needed (non-const *v)
-      void push_chiral_hydrogen(const simple_restraint &chiral_restraint, gsl_vector *v);
-      int get_chiral_hydrogen_index(int indexc, int index1, int index2, int index3) const;
-      bool has_inverted_chiral_centre(const simple_restraint &chiral_restraint,
-				      const gsl_vector *v) const;
-      bool is_hydrogen(CAtom *at_p) const {
-	 std::string ele = at_p->element;
-	 if ((ele == "H") || (ele == " H"))
-	    return 1;
-	 else
-	    return 0;
-      } 
    }; 
 
 } // namespace coot
