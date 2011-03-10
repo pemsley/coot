@@ -431,7 +431,7 @@
 	;; ---- I ---------
 
 	(add-simple-coot-menu-menuitem 
-	 menu "Invert This Chiral Centre"
+	 submenu-models "Invert This Chiral Centre"
 	 (lambda ()
 	   (chiral-centre-inverter)))
 
