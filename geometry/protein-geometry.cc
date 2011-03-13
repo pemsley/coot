@@ -2484,8 +2484,33 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
 	 for (unsigned int ip=0; ip<dict_link_res_restraints[i].link_plane_restraint.size(); ip++) {
 	    if (dict_link_res_restraints[i].link_plane_restraint[ip].plane_id == plane_id) {
 	       ifound = 1;
-	       dict_link_res_restraints[i].link_plane_restraint[ip].atom_ids.push_back(atom_id);
-	       dict_link_res_restraints[i].link_plane_restraint[ip].atom_comp_ids.push_back(atom_comp_id);
+
+	       // now check the atom_id and comp_id of that atom are not already in this restraint.
+	       // Only add this atom to the plane restraint if there is not already an atom there.
+	       // If there is, then replace the atom in the restraint.
+	       //
+	       
+	       int found_atom_index = coot::protein_geometry::UNSET_NUMBER;
+
+	       for (int i_rest_at=0; i_rest_at<dict_link_res_restraints[i].link_plane_restraint[ip].n_atoms(); i_rest_at++) {
+		  if (dict_link_res_restraints[i].link_plane_restraint[ip].atom_ids[i_rest_at] == atom_id) { 
+		     if (dict_link_res_restraints[i].link_plane_restraint[ip].atom_comp_ids[i_rest_at] == atom_comp_id) {
+			found_atom_index = i_rest_at;
+			break;
+		     }
+		  } 
+	       }
+
+	       if (found_atom_index != coot::protein_geometry::UNSET_NUMBER) {
+		  // replace it then
+		  dict_link_res_restraints[i].link_plane_restraint[ip].atom_ids[found_atom_index] = atom_id;		  
+		  dict_link_res_restraints[i].link_plane_restraint[ip].atom_comp_ids[found_atom_index] = atom_comp_id;
+	       } else {
+
+		  dict_link_res_restraints[i].link_plane_restraint[ip].atom_ids.push_back(atom_id);
+		  dict_link_res_restraints[i].link_plane_restraint[ip].atom_comp_ids.push_back(atom_comp_id);
+	       }
+	       
 	       break;
 	    }
 	 } 
@@ -2497,7 +2522,7 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
 	 }
       }
    }
-
+   
    // It was not there.  This should only happen when plane restraints
    // are declared in the dictionary *before* the bonds (or angles).
    // Which is never, thanks to Alexei.
@@ -4144,15 +4169,20 @@ bool
 coot::protein_geometry::replace_monomer_restraints(std::string monomer_type,
 						   const coot::dictionary_residue_restraints_t &mon_res_in) {
    bool s = 0;
+
+   coot::dictionary_residue_restraints_t mon_res = mon_res_in;
+   mon_res.assign_chiral_volume_targets();
+   
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].comp_id == monomer_type) {
-	 dict_res_restraints[i] = mon_res_in;
+	 dict_res_restraints[i] = mon_res;
 	 s = 1;
+	 break;
       }
    }
 
    if (s == 0) {
-      dict_res_restraints.push_back(mon_res_in);
+      dict_res_restraints.push_back(mon_res);
    } 
    return s;
 }
