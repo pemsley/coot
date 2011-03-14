@@ -79,7 +79,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
    int n_data = 0;
    int n_tweaked = 0;
    int n_count = 0;
-   bool debugging = 1;
+   bool debugging = 0;
 
    bool do_gompertz = 0;
    if (try_gompertz) {
