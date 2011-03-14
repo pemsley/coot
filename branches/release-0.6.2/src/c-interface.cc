@@ -4268,8 +4268,25 @@ int test_function(int i, int j) {
 //    g.wrapped_create_symmetry_controller_dialog();
 //    return 0;
 
-
    if (1) {
+
+      clipper::Matrix<double> mat(3,3);
+      
+      mat(0,0) = 1.8828;   mat(0,1) = 0.258286;   mat(0,2) = 0.915824;
+      mat(1,0) = 0.258286;   mat(1,1) = 0.0354323;   mat(1,2) = 0.125635;   
+      mat(2,0) = 0.915824;   mat(2,1) = 0.125635;   mat(2,2) = 0.445472;
+      
+      std::vector<double> eigens = mat.eigen(true);
+
+      std::cout << "we get eigen values: "
+ 		<< eigens[0] << "  "
+ 		<< eigens[1] << "  "
+ 		<< eigens[2] << std::endl;
+
+   } 
+
+
+   if (0) {
       std::vector<std::pair<std::string, int> > h = 
 	 coot::get_prodrg_hybridizations("coot-ccp4/tmp-prodrg-flat.log");
       
