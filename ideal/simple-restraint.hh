@@ -587,7 +587,7 @@ namespace coot {
    
    plane_distortion_info_t
    distortion_score_plane_internal(const simple_restraint &plane_restraint,
-				   const gsl_vector *v); 
+				   const gsl_vector *v);
 
    distortion_torsion_gradients_t
    fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
