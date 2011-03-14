@@ -17,7 +17,7 @@ molecule_class_info_t::add_extra_bond_restraint(coot::atom_spec_t atom_1,
    CAtom *at_2 = get_atom(atom_2);
    if (at_1) {
       int atom_index = -1;
-      at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+      at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
       atom_1.int_user_data = atom_index;
    }
    if (at_2) {
@@ -71,7 +71,7 @@ molecule_class_info_t::add_extra_torsion_restraint(coot::atom_spec_t atom_1,
    CAtom *at_4 = get_atom(atom_2);
    if (at_1) {
       int atom_index = -1;
-      at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+      at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
       atom_1.int_user_data = atom_index;
    }
    if (at_2) {
