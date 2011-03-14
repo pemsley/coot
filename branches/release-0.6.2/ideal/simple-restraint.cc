@@ -1181,10 +1181,12 @@ coot::distortion_score_angle(const coot::simple_restraint &angle_restraint,
    double len1 = clipper::Coord_orth::length(a1,a2);
    double len2 = clipper::Coord_orth::length(a3,a2);
    len1 = len1 > 0.01 ? len1 : 0.01; 
-   len2 = len2 > 0.01 ? len2 : 0.01; 
-   double theta = acos(clipper::Coord_orth::dot(d1,d2)/(len1*len2));
-   double bit = 
-      clipper::Util::rad2d(theta) - angle_restraint.target_value;
+   len2 = len2 > 0.01 ? len2 : 0.01;
+   double cos_theta = clipper::Coord_orth::dot(d1,d2)/(len1*len2);
+   if (cos_theta < -1.0) cos_theta = -1.0;
+   if (cos_theta >  1.0) cos_theta =  1.0;
+   double theta = acos(cos_theta);
+   double bit = clipper::Util::rad2d(theta) - angle_restraint.target_value;
    double weight = 1/(angle_restraint.sigma * angle_restraint.sigma);
    // 	    std::cout << "actual: " << clipper::Util::rad2d(theta) << " target: "
    // 		      << (*restraints)[i].target_value
@@ -2629,10 +2631,13 @@ void coot::my_df_angles(const gsl_vector *v,
 	    // \frac{\partial \theta}{\partial x_k} =
 	    //    -\frac{1}{sin\theta} [(x_l-x_k)cos\theta + \frac{x_m-x_l}{ab}]
 	 
-	    // we need to stabilize $\theta$ too.
-	    a_dot_b = clipper::Coord_orth::dot(a_vec,b_vec); 
-	    cos_theta = a_dot_b/(a*b); 
+	    a_dot_b = clipper::Coord_orth::dot(a_vec,b_vec);
+	    cos_theta = a_dot_b/(a*b);
+	    // we need to stabilize cos_theta
+	    if (cos_theta < -1.0) cos_theta = -1.0;
+	    if (cos_theta >  1.0) cos_theta =  1.0;
 	    theta = acos(cos_theta); 
+	    // we need to stabilize $\theta$ too.
 	    // theta = theta > 0.001 ? theta : 0.001;
 	    if (theta < 0.001) theta = 0.001; // it was never -ve.
 
