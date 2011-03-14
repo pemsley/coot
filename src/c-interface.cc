@@ -4309,11 +4309,6 @@ int test_function(int i, int j) {
 
    if (1) {
 
-
-   } 
-
-   if (0) {
-
       if (is_valid_model_molecule(0)) {
 	 CMMDBManager *mol = graphics_info_t::molecules[0].atom_sel.mol;
 	 std::vector<std::string> h;

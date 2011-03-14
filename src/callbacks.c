@@ -11809,7 +11809,7 @@ on_refine_params_weight_matrix_entry_changed
 				   "refine_params_weight_matrix_entry");
   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
   struct entry_info_t ei = coot_entry_to_val(GTK_ENTRY(entry));
-  printf("got text: %s\n", text);
+/*   printf("got text: %s\n", text); */
   if (ei.float_is_set)
     set_matrix(ei.val_as_float);
   
