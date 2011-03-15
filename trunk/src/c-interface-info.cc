@@ -3633,7 +3633,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 	       int n_bonds = PyObject_Length(bond_restraint_list);
 	       for (int i_bond=0; i_bond<n_bonds; i_bond++) {
 		  PyObject *bond_restraint = PyList_GetItem(bond_restraint_list, i_bond);
-		  if (PyObject_Length(bond_restraint) == 4) { 
+		  if (PyObject_Length(bond_restraint) == 5) { 
 		     PyObject *atom_1_py = PyList_GetItem(bond_restraint, 0);
 		     PyObject *atom_2_py = PyList_GetItem(bond_restraint, 1);
 		     PyObject *type_py   = PyList_GetItem(bond_restraint, 2);
