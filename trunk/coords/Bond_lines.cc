@@ -3724,7 +3724,7 @@ void
 Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_container_t &asc,
 							   int draw_hydrogens_flag) {
 
-   // std::cout << "debug:: colour by chain, carbons only" << std::endl;
+   std::cout << "debug:: colour by chain, carbons only" << std::endl;
    float max_dist = 1.9;
    float min_dist = 0.01; // As in the constructor
 			  // Bond_lines_container::Bond_lines_container(const
@@ -3831,25 +3831,50 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 			   
 			      // Bonded to different atom elements.
 			      //
+			      
 			      coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
+			      
 			      if (element1 != " C") {
-				 col = atom_colour(atom_selection[ contact[i].id1 ], atom_colour_type);
-				 bonds_size_colour_check(col);
-				 addBond(col, atom_1, bond_mid_point);
+				 
+				 if (element2 != " C") {
+				    // half bonds, e.g. N-O, (not frequent)
+				    int non_c_col = atom_colour(at1, atom_colour_type);
+				    bonds_size_colour_check(non_c_col);
+				    addBond(non_c_col, atom_1, bond_mid_point);
+				    non_c_col = atom_colour(at2, atom_colour_type);
+				    bonds_size_colour_check(non_c_col);
+				    addBond(non_c_col, atom_2, bond_mid_point);
+				 } else {
+				    // frequent
+				    int non_c_col = atom_colour(at1, atom_colour_type);
+				    bonds_size_colour_check(non_c_col);
+				    addBond(non_c_col, atom_1, bond_mid_point);
+				    bonds_size_colour_check(col);
+				    addBond(col, atom_2, bond_mid_point);
+				 }
+				 
 			      } else {
-				 bonds_size_colour_check(col);
-				 addBond(col, atom_1, bond_mid_point);
+				 
+				 if (element2 != " C") {
+
+				    // frequent
+				    bonds_size_colour_check(col);
+				    addBond(col, atom_1, bond_mid_point);
+				    int non_c_col = atom_colour(at2, atom_colour_type);
+				    bonds_size_colour_check(non_c_col);
+				    addBond(non_c_col, atom_2, bond_mid_point);
+				    
+				 } else {
+				    std::cout << "impossible " << std::endl;
+				    bonds_size_colour_check(col);
+				    addBond(col, atom_2, bond_mid_point);
+				 }
 			      }
-			      if (element2 != " C") {
-				 col = atom_colour(atom_selection[ contact[i].id2 ], atom_colour_type);
-				 bonds_size_colour_check(col);
-				 addBond(col, atom_2, bond_mid_point);
-			      } else {
-				 bonds_size_colour_check(col);
-				 addBond(col, atom_2, bond_mid_point);
-			      }
+
 			   
-			   } else { 
+			   } else {
+
+			      // same element
 
 			      if (element1 == " C") { 
 				 bonds_size_colour_check(col);
