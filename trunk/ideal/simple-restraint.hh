@@ -193,7 +193,8 @@ namespace coot {
    // restraint types:
    // 
    enum {BOND_RESTRAINT, ANGLE_RESTRAINT, TORSION_RESTRAINT, PLANE_RESTRAINT,
-         NON_BONDED_CONTACT_RESTRAINT, CHIRAL_VOLUME_RESTRAINT, RAMACHANDRAN_RESTRAINT};
+         NON_BONDED_CONTACT_RESTRAINT, CHIRAL_VOLUME_RESTRAINT, RAMACHANDRAN_RESTRAINT,
+         START_POS_RESTRAINT};
 
    enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
 				    STRAND_PSEUDO_BONDS};
@@ -451,6 +452,25 @@ namespace coot {
 	    is_user_defined_restraint = 0;
 	 } 
       }
+      
+      //start pos
+      simple_restraint(short int rest_type, int atom_1,
+		       bool fixed_atom_flag_in,
+		       float sig, float obs){
+	 
+	 restraint_type = rest_type; 
+	 atom_index_1 = atom_1; 
+	 observed_value = obs; 
+	 sigma = sig; 
+	 fixed_atom_flags = std::vector<bool> (1,fixed_atom_flag_in);
+	 is_user_defined_restraint = 0;
+	 
+	 if (rest_type != START_POS_RESTRAINT) { 
+	    std::cout << "START POS ERROR" << std::endl; 
+	    exit(1); 
+	 }
+      };
+      
       friend std::ostream &operator<<(std::ostream &s, simple_restraint r);
    };
    std::ostream &operator<<(std::ostream &s, simple_restraint r);
@@ -587,7 +607,10 @@ namespace coot {
 					 const gsl_vector *v); 
    double distortion_score_rama(const simple_restraint &chiral_restraint,
 				const gsl_vector *v,
-				const LogRamachandran &lograma); 
+				const LogRamachandran &lograma);
+   double distortion_score_start_pos(const coot::simple_restraint &start_pos_restraint,
+			    void *params,
+			    const gsl_vector *v);
    double distortion_score_non_bonded_contact(const simple_restraint &plane_restraint,
 					      const gsl_vector *v); 
    void fix_chiral_atom_maybe (const simple_restraint &chiral_restraint,
@@ -694,23 +717,36 @@ namespace coot {
 	    period = period_in;
 	 }
       };
+      
+      class extra_start_pos_restraint_t {
+      public:
+	 atom_spec_t atom_1;
+	 double esd;
+	 extra_start_pos_restraint_t(const atom_spec_t &a1, double e) {
+	    atom_1 = a1;
+	    esd = e;
+	 }
+      };
 
       std::vector<extra_bond_restraint_t> bond_restraints;
       std::vector<extra_torsion_restraint_t> torsion_restraints;
+      std::vector<extra_start_pos_restraint_t> start_pos_restraints;
 
       bool has_restraints() const {
 
 	 if (bond_restraints.size() > 0)
 	    return 1;
-	 else
-	    if (torsion_restraints.size() > 0)
-	       return 1;
-	    else 
-	       return 0;
+	 else if (torsion_restraints.size() > 0)
+	    return 1;
+	 else if (start_pos_restraints.size() > 0)
+	    return 1;
+	 else 
+	    return 0;
       }
       void clear() {
 	 bond_restraints.clear();
 	 torsion_restraints.clear();
+	 start_pos_restraints.clear();
       }
       
    };
@@ -971,6 +1007,30 @@ namespace coot {
 						      sigma));
 	 }
       }
+      
+      //used for start pos restraints
+      bool add(short int rest_type, int atom_1,
+	       bool fixed_atom_flag,
+	       float sig, float obs){
+
+	 bool r = 0;
+	 if (sig > 0.0) { 
+	    restraints_vec.push_back(simple_restraint(rest_type, atom_1, 
+						      fixed_atom_flag,
+						      sig, obs));
+	    r = 1;
+	 }
+	 return r;
+      }
+      
+      void add_user_defined_start_pos_restraint(short int rest_type, int atom_1,
+	       bool fixed_atom_flag, float sig, float obs){
+	 bool r = add(rest_type, atom_1, fixed_atom_flag, sig, obs);
+	 if (r) {
+	    restraints_vec.back().is_user_defined_restraint = 1;
+	 }
+      }
+      
 
 
       // atom indexing stuff
@@ -1488,6 +1548,7 @@ namespace coot {
       // and that calls:
       void add_extra_bond_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_torsion_restraints(const extra_restraints_t &extra_restraints);
+      void add_extra_start_pos_restraints(const extra_restraints_t &extra_restraints);
 
       // old code:
       // Read restraints from the refmac .rst file

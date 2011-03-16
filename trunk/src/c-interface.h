@@ -3220,6 +3220,14 @@ void refine_zone_atom_index_define(int imol, int ind1, int ind2);
 
  presumes that imol_Refinement_Map has been set */
 void refine_zone(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+SCM refine_zone_with_score_scm(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
+#endif /* guile */
+#ifdef USE_PYTHON
+PyObject *refine_zone_with_score_py(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
+#endif /* PYTHON */
+#endif /* c++ */
 
 /*! \brief refine a zone using auto-range
 
@@ -3331,6 +3339,7 @@ int add_extra_torsion_restraint(int imol,
 				const char *chain_id_3, int res_no_3, const char *ins_code_3, const char *atom_name_3, const char *alt_conf_3, 
 				const char *chain_id_4, int res_no_4, const char *ins_code_4, const char *atom_name_4, const char *alt_conf_4, 
 				double torsion_angle, double esd, int period);
+int add_extra_start_pos_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, double esd);
 
 /* Code this up in due course - needs extra support in simple-restrtaint */
 /* int add_extra_target_position_restraint(int imol,  */
@@ -6097,6 +6106,7 @@ SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state);
 #endif 
 #ifdef USE_PYTHON
 PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state);
+int mark_multiple_atoms_as_fixed_py(int imol, PyObject *atom_spec_list, int state);
 #endif 
 #endif /* c++ */
 

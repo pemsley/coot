@@ -2851,8 +2851,13 @@ public:        //                      public
 				   coot::atom_spec_t atom_3,
 				   coot::atom_spec_t atom_4,
 				   double torsion_angle, double esd, int period);
-   // the atom specs do not need to be in order
+   int add_extra_start_pos_restraint(coot::atom_spec_t atom_1,
+						double esd);
+   // the atom specs do not need to be in order for bond restraints only
    void remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2);
+   void remove_extra_start_pos_restraint(coot::atom_spec_t atom_1);
+   void remove_extra_torsion_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2,
+                                      coot::atom_spec_t atom_3, coot::atom_spec_t atom_4);
    void update_extra_restraints_representation(); // called from make_bonds_type_checked()
    void clear_extra_restraints();
 
