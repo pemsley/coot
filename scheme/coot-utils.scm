@@ -64,6 +64,7 @@
 (define refine-residues refine-residues-scm)
 (define refine-residues-with-alt-conf refine-residues-with-alt-conf-scm)
 (define regularize-residues regularize-residues-scm)
+(define refine-zone-with-score refine-zone-with-score-scm)
 (define map-peaks map-peaks-scm)
 (define map-peaks-near-point map-peaks-near-point-scm)
 (define add-dipole add-dipole-scm)

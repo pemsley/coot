@@ -1,6 +1,6 @@
 /* src/c-interface-kk.cc
  * 
- * Copyright 2009 by Kevin Keating
+ * Copyright 2009, 2010, 2011 by Kevin Keating
  * Copyright 2009 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@
 
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "c-interface-python.hh"
   
 #ifdef USE_PYTHON
 PyObject *map_peaks_near_point_from_list_py(int imol_map, PyObject *peak_list, float x, float y, float z,
@@ -115,5 +116,99 @@ clear_extra_restraints(int imol) {
     if (is_valid_model_molecule(imol)) {
         graphics_info_t::molecules[imol].extra_restraints.bond_restraints.clear();
         graphics_info_t::molecules[imol].extra_restraints.torsion_restraints.clear();
+        graphics_info_t::molecules[imol].extra_restraints.start_pos_restraints.clear();
     }
 }
+
+#ifdef USE_PYTHON
+int mark_multiple_atoms_as_fixed_py(int imol, PyObject *atom_spec_list, int state) {
+   int r = 0;
+   int list_length = PyObject_Length(atom_spec_list);
+   PyObject *atom_spec;
+   
+   for (int ispec = 0; ispec<list_length; ispec++) {
+      atom_spec = PyList_GetItem(atom_spec_list, ispec);
+      std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec);
+      if (p.first) {
+	 graphics_info_t::mark_atom_as_fixed(imol, p.second, state);
+	 r++; //keep track of how many atoms we successfully marked
+      }
+   }
+   
+   if (r > 0) {
+      graphics_draw();
+   }
+   
+   return r; //return a count of how many atoms we successfully marked
+}
+#endif // USE_PYTHON
+
+int add_extra_start_pos_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, double esd) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t as_1(chain_id_1, res_no_1, ins_code_1, atom_name_1, alt_conf_1);
+      r = graphics_info_t::molecules[imol].add_extra_start_pos_restraint(as_1, esd);
+      //graphics_draw();
+   }
+   return r;
+}
+
+#ifdef USE_PYTHON
+PyObject *refine_zone_with_score_py(int imol, const char *chain_id,
+		 int resno1,
+		 int resno2,
+		 const char *altconf) {
+
+   graphics_info_t g;
+   PyObject *rv = Py_False;
+   
+   if (is_valid_model_molecule(imol)) {
+      CResidue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
+      CResidue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");
+      if (res_1 && res_2) { 
+	 std::string resname_1(res_1->GetResName());
+	 std::string resname_2(res_2->GetResName());
+	 bool is_water_like_flag = g.check_for_no_restraints_object(resname_1, resname_2);
+	 coot::refinement_results_t rr =
+            g.refine_residue_range(imol, chain_id, chain_id, resno1, "", resno2, "", altconf,
+				is_water_like_flag);
+         rv = g.refinement_results_to_py(rr);
+      }
+   }
+   
+   if (PyBool_Check(rv)) {
+     Py_INCREF(rv);
+   }
+
+   return rv;
+}
+#endif	/* USE_PYTHON */
+
+
+#ifdef USE_GUILE
+SCM refine_zone_with_score_scm(int imol, const char *chain_id,
+		 int resno1,
+		 int resno2,
+		 const char *altconf) {
+
+   graphics_info_t g;
+   SCM rv = SCM_BOOL_F;
+   
+   if (is_valid_model_molecule(imol)) {
+      CResidue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
+      CResidue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");
+      if (res_1 && res_2) { 
+	 std::string resname_1(res_1->GetResName());
+	 std::string resname_2(res_2->GetResName());
+	 bool is_water_like_flag = g.check_for_no_restraints_object(resname_1, resname_2);
+         coot::refinement_results_t rr =
+            g.refine_residue_range(imol, chain_id, chain_id, resno1, "", resno2, "", altconf,
+				is_water_like_flag);
+         rv = g.refinement_results_to_scm(rr);
+      }
+   }
+   
+   return rv;
+}
+#endif // USE_GUILE
