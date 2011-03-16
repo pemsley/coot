@@ -414,7 +414,16 @@ SCM list_extra_restraints_scm(int imol) {
 	    l = scm_cons(atom_spec_to_scm(spec_1), l);
 	    l = scm_cons(scm_str2symbol("torsion"), l);
 	    r = scm_cons(l, r);
-	 } 
+	 }
+         
+         for (int ib=g.molecules[imol].extra_restraints.start_pos_restraints.size()-1; ib>=0; ib--) {
+	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.start_pos_restraints[ib].atom_1;
+	    double esd = g.molecules[imol].extra_restraints.start_pos_restraints[ib].esd;
+	    SCM spec_1_scm = atom_spec_to_scm(spec_1);
+	    SCM l = scm_list_2(spec_1_scm, scm_double2num(esd));
+	    l = scm_cons(scm_str2symbol("start-pos"), l);
+	    r = scm_cons(l, r);
+	 }
 	 
       }
    }
@@ -471,6 +480,17 @@ PyObject *list_extra_restraints_py(int imol) {
 	    PyList_SetItem(l, 7, PyInt_FromLong(p));
 	    PyList_Append(r, l);
 	 }
+         
+         for (int is=0; is<g.molecules[imol].extra_restraints.start_pos_restraints.size(); is++) {
+	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.start_pos_restraints[is].atom_1;
+	    double esd = g.molecules[imol].extra_restraints.start_pos_restraints[is].esd;
+	    PyObject *spec_1_py = atom_spec_to_py(spec_1);
+	    PyObject *l = PyList_New(3);
+	    PyList_SetItem(l, 0, PyString_FromString("start pos"));
+	    PyList_SetItem(l, 1, spec_1_py);
+	    PyList_SetItem(l, 2, PyFloat_FromDouble(esd));
+	    PyList_Append(r, l);
+	 }
       }
    }
    if (PyBool_Check(r)) {
@@ -495,7 +515,16 @@ delete_extra_restraint_scm(int imol, SCM restraint_spec) {
    if (scm_is_true(scm_list_p(restraint_spec))) { 
       SCM restraint_spec_length_scm = scm_length(restraint_spec);
       int restraint_spec_length = scm_to_int(restraint_spec_length_scm);
-      if (restraint_spec_length == 3) {
+      if (restraint_spec_length == 2) {
+         SCM restraint_type_scm = SCM_CAR(restraint_spec);
+	 SCM spec_1_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(1));
+	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_str2symbol("start-pos")))) {
+	    coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(spec_1_scm);
+	    graphics_info_t::molecules[imol].remove_extra_start_pos_restraint(spec_1);
+	    //graphics_draw(); //there is currently no graphical representation for start_pos restraints
+	 }
+         
+      } else if (restraint_spec_length == 3) {
 	 SCM restraint_type_scm = SCM_CAR(restraint_spec);
 	 SCM spec_1_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(1));
 	 SCM spec_2_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(2));
@@ -504,6 +533,21 @@ delete_extra_restraint_scm(int imol, SCM restraint_spec) {
 	    coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(spec_2_scm);
 	    graphics_info_t::molecules[imol].remove_extra_bond_restraint(spec_1, spec_2);
 	    graphics_draw();
+	 }
+         
+      } else if (restraint_spec_length == 5) {
+         SCM restraint_type_scm = SCM_CAR(restraint_spec);
+	 SCM spec_1_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(1));
+	 SCM spec_2_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(2));
+	 SCM spec_3_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(3));
+	 SCM spec_4_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(4));
+	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_str2symbol("torsion")))) {
+	    coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(spec_1_scm);
+	    coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(spec_2_scm);
+	    coot::atom_spec_t spec_3 = atom_spec_from_scm_expression(spec_3_scm);
+	    coot::atom_spec_t spec_4 = atom_spec_from_scm_expression(spec_4_scm);
+	    graphics_info_t::molecules[imol].remove_extra_torsion_restraint(spec_1, spec_2, spec_3, spec_4);
+            //graphics_draw(); //there is currently no graphical representation for torsion restraints
 	 }
       }
    }
@@ -522,20 +566,47 @@ delete_extra_restraint_py(int imol, PyObject *restraint_spec) {
    // restraint is "bond"
    //
    //
-  if (PyList_Check(restraint_spec)) { 
-    int restraint_spec_length = PyObject_Length(restraint_spec);
-    if (restraint_spec_length == 3) {
-      PyObject *restraint_type_py = PyList_GetItem(restraint_spec, 0);
-      PyObject *spec_1_py = PyList_GetItem(restraint_spec, 1);
-      PyObject *spec_2_py = PyList_GetItem(restraint_spec, 2);
-      if (strcmp(PyString_AsString(restraint_type_py), "bond") == 0 ) {
+   if (PyList_Check(restraint_spec)) { 
+      int restraint_spec_length = PyObject_Length(restraint_spec);
+      if (restraint_spec_length == 2) {
+         PyObject *restraint_type_py = PyList_GetItem(restraint_spec, 0);
+         PyObject *spec_1_py = PyList_GetItem(restraint_spec, 1);
+         if ((strcmp(PyString_AsString(restraint_type_py), "start pos") == 0) ||
+             (strcmp(PyString_AsString(restraint_type_py), "start_pos") == 0) ||
+             (strcmp(PyString_AsString(restraint_type_py), "start-pos") == 0)) {
+            coot::atom_spec_t spec_1 = atom_spec_from_python_expression(spec_1_py);
+            graphics_info_t::molecules[imol].remove_extra_start_pos_restraint(spec_1);
+            //graphics_draw(); //there is currently no graphical representation for start_pos restraints
+         }
+      
+      } else if (restraint_spec_length == 3) {
+         PyObject *restraint_type_py = PyList_GetItem(restraint_spec, 0);
+         PyObject *spec_1_py = PyList_GetItem(restraint_spec, 1);
+         PyObject *spec_2_py = PyList_GetItem(restraint_spec, 2);
+         if (strcmp(PyString_AsString(restraint_type_py), "bond") == 0 ) {
 	    coot::atom_spec_t spec_1 = atom_spec_from_python_expression(spec_1_py);
 	    coot::atom_spec_t spec_2 = atom_spec_from_python_expression(spec_2_py);
 	    graphics_info_t::molecules[imol].remove_extra_bond_restraint(spec_1, spec_2);
 	    graphics_draw();
+         }
+      
+      } else if (restraint_spec_length == 5) {
+         PyObject *restraint_type_py = PyList_GetItem(restraint_spec, 0);
+         PyObject *spec_1_py = PyList_GetItem(restraint_spec, 1);
+         PyObject *spec_2_py = PyList_GetItem(restraint_spec, 2);
+         PyObject *spec_3_py = PyList_GetItem(restraint_spec, 3);
+         PyObject *spec_4_py = PyList_GetItem(restraint_spec, 4);
+         
+         if (strcmp(PyString_AsString(restraint_type_py), "torsion") == 0 ) {
+            coot::atom_spec_t spec_1 = atom_spec_from_python_expression(spec_1_py);
+            coot::atom_spec_t spec_2 = atom_spec_from_python_expression(spec_2_py);
+            coot::atom_spec_t spec_3 = atom_spec_from_python_expression(spec_3_py);
+            coot::atom_spec_t spec_4 = atom_spec_from_python_expression(spec_4_py);
+            graphics_info_t::molecules[imol].remove_extra_torsion_restraint(spec_1, spec_2, spec_3, spec_4);
+            //graphics_draw(); //there is currently no graphical representation for torsion restraints
+         }
       }
-    }
-  }
+   }
    
 } 
 #endif // USE_PYTHON

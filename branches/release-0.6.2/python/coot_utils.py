@@ -2683,6 +2683,7 @@ refine_residues        = refine_residues_py
 copy_residue_range_from_ncs_master_to_chains = copy_residue_range_from_ncs_master_to_chains_py
 # to be renamed later
 refine_residues_with_alt_conf        = refine_residues_with_alt_conf_py
+refine_zone_with_score = refine_zone_with_score_py
 regularize_residues    = regularize_residues_py
 regularize_residues_with_alt_conf  = regularize_residues_with_alt_conf_py
 change_chain_id_with_result        = change_chain_id_with_result_py
@@ -2731,6 +2732,7 @@ user_mods              = user_mods_py
 probe_available_p      = probe_available_p_py
 drag_intermediate_atom = drag_intermediate_atom_py
 mark_atom_as_fixed     = mark_atom_as_fixed_py
+mark_multiple_atoms_as_fixed = mark_multiple_atoms_as_fixed_py
 ccp4i_projects         = ccp4i_projects_py
 add_dipole             = add_dipole_py
 add_dipole_for_residues = add_dipole_for_residues_py

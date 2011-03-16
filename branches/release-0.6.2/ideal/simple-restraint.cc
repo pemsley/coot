@@ -655,7 +655,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	    if (status == GSL_ENOPROG) {
 	       cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG"
 		    << endl; 
-	       chi_squareds("Final Estimated RMS Z Scores", s->x);
+	       lights_vec = chi_squareds("Final Estimated RMS Z Scores", s->x);
 	    }
 	    break;
 	 } 
@@ -667,6 +667,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	 if (status == GSL_SUCCESS) { 
 	    std::cout << "Minimum found (iteration number " << iter << ") at ";
 	    std::cout << s->f << "\n";
+	 }
+	 
+	 if (status == GSL_SUCCESS || status == GSL_ENOPROG) {
 	    std::vector <coot::refinement_lights_info_t> results = 
 	       chi_squareds("Final Estimated RMS Z Scores:", s->x);
 	    lights_vec = results;
@@ -1019,6 +1022,10 @@ coot::distortion_score(const gsl_vector *v, void *params) {
 	    // std::cout << "DEBUG:: distortion for rama: " << d << std::endl;
    	    distortion += d; // positive is bad...  negative is good.
    	 }
+      }
+      
+      if ( (*restraints)[i].restraint_type == coot::START_POS_RESTRAINT) {
+         distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
       }
    }
 
@@ -2049,6 +2056,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    int n_non_bonded_restraints = 0;
    int n_chiral_volumes = 0;
    int n_rama_restraints = 0;
+   int n_start_pos_restraints = 0;
 
    double bond_distortion = 0; 
    double angle_distortion = 0; 
@@ -2057,6 +2065,9 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    double non_bonded_distortion = 0;
    double chiral_vol_distortion = 0;
    double rama_distortion = 0;
+   double start_pos_distortion = 0;
+   
+   void *params = (double *)this;
 
    for (int i=0; i<size(); i++) {
       if (restraints_usage_flag & coot::BONDS_MASK) { // 1: bonds
@@ -2111,6 +2122,11 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
   	    n_rama_restraints++;
   	    rama_distortion += coot::distortion_score_rama((*this)[i], v, lograma);
   	 }
+      }
+      
+      if ( (*this)[i].restraint_type == coot::START_POS_RESTRAINT) {
+         n_start_pos_restraints++;
+         start_pos_distortion += coot::distortion_score_start_pos((*this)[i], params, v);
       }
    }
 
@@ -2222,6 +2238,21 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       s += coot::util::float_to_string_using_dec_pl(rd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Rama", s, rd));
    }
+   if (n_start_pos_restraints == 0) {
+      std::cout << "start_pos:  N/A " << std::endl;
+   } else {
+      double spd = start_pos_distortion/double(n_start_pos_restraints);
+      double sspd = 0.0;
+      if (spd > 0.0)
+	 sspd = sqrt(spd);
+      std::cout << "start_pos:  " << sspd << std::endl;
+      r += "startpos:  ";
+      r += coot::util::float_to_string_using_dec_pl(sspd, 3);
+      r += "\n";
+      std::string s = "Start pos: ";
+      s += coot::util::float_to_string_using_dec_pl(sspd, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Start_pos", s, sspd));
+   } 
    return lights_vec;
 } 
 
@@ -2297,10 +2328,7 @@ void coot::my_df(const gsl_vector *v,
    coot::my_df_planes    (v, params, df);
    coot::my_df_non_bonded(v, params, df);
    coot::my_df_chiral_vol(v, params, df);
-   
-   // my_df_start_pos(v,params,df); // If you add these back, don't
-                                    // forget to create the corresponding 
-                                    // distortion_score code.
+   coot::my_df_start_pos (v, params, df);
    
    if (restraints->include_map_terms()) {
       // std::cout << "Using map terms " << std::endl;
@@ -3597,55 +3625,6 @@ void coot::my_df_electron_density_old (gsl_vector *v,
    }
 }
 
-// Include the gradients of the terms that describe the deviation from
-// the starting position.
-// 
-void my_df_start_pos (const gsl_vector *v, 
-		      void *params, 
-		      gsl_vector *df) {
-
-   // first extract the object from params 
-   //
-   coot::restraints_container_t *restraints =
-      (coot::restraints_container_t *)params;
-   
-   if (int(v->size) != int(restraints->init_positions_size()) ) {
-      cout << "very worry. A bug. " << v->size << " "
-	   << restraints->init_positions_size() << endl;
-   } else {
-      // These are similar to the bond terms, however, the d, distance
-      // between the atoms is tiny when we are at the beginning of the
-      // refinement.
-      //
-      // We do x, y, z for each round
-      //
-      double val; 
-      for (unsigned int i=0; i<v->size; i += 3) {
-	 //
-	 clipper::Coord_orth current_pos(gsl_vector_get(v,i),
-					 gsl_vector_get(v,i+1),
-					 gsl_vector_get(v,i+2));
-	 clipper::Coord_orth start_pos(restraints->initial_position(i),
-				       restraints->initial_position(i+1),
-				       restraints->initial_position(i+2));
-
-	 double b = clipper::Coord_orth::length(start_pos,current_pos); 
-
-	 b = b < 0.01 ? 0.01 : b; // Stabilization
-
-	 val = 0.01*(gsl_vector_get(v, i) - restraints->initial_position(i));
-	 gsl_vector_set(df, i, gsl_vector_get(df, i) + val);
-	 // cout << "added in my_df_start_pos: " << val << endl; 
-
-	 val = 0.1*(gsl_vector_get(v, i+1) - restraints->initial_position(i+1));
-	 gsl_vector_set(df, i+1, gsl_vector_get(df, i+1) + val);
-
-	 val = 0.1*(gsl_vector_get(v, i+2) - restraints->initial_position(i+2));
-	 gsl_vector_set(df, i+2, gsl_vector_get(df, i+2) + val);
-	 
-      }
-   }
-}
 
 // Compute both f and df together.
 void coot::my_fdf(const gsl_vector *x, void *params, 
