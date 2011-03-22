@@ -1040,7 +1040,7 @@ graphics_info_t::clear_moving_atoms_object() {
    // rot_trans_atom_index_rotation_origin_atom = -1;
    rot_trans_rotation_origin_atom = NULL;
 
-   std::cout << "clearing intermediate object..." << std::endl;
+   // std::cout << "clearing intermediate object..." << std::endl;
    graphical_bonds_container empty_box;
    regularize_object_bonds_box.clear_up();
    regularize_object_bonds_box = empty_box;

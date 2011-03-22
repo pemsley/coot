@@ -6126,7 +6126,7 @@ void clear_moving_atoms_object() {  /* redraw done here. */
 void clear_up_moving_atoms() {
 
    graphics_info_t g;
-   std::cout << "c-interface clear_up_moving_atoms..." << std::endl;
+   // std::cout << "c-interface clear_up_moving_atoms..." << std::endl;
    g.clear_up_moving_atoms();
    g.clear_moving_atoms_object();
 

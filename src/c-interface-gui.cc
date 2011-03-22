@@ -127,6 +127,7 @@ void open_coords_dialog() {
       add_recentre_on_read_pdb_checkbutton(coords_fileselection1);
       set_directory_for_coot_file_chooser(coords_fileselection1);
       set_file_selection_dialog_size(coords_fileselection1);
+      set_transient_and_position(COOT_UNDEFINED_WINDOW, coords_fileselection1);
       gtk_widget_show (coords_fileselection1);
       /* in gtk2 we have to push the buttons after we show the selection */
       push_the_buttons_on_fileselection(file_filter_button, sort_button, 
@@ -1323,6 +1324,10 @@ coot_real_exit(int retval) {
 
 }
 
+// This is called by when the save coordinates menu item is pressed,
+// for the save coordinates fileselection (other fileselections do not
+// have the name on the action area vbox.
+// 
 void
 add_file_dialog_action_area_vbox(GtkWidget *fileselection) {
 
@@ -1365,16 +1370,14 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
    if (no_chooser_filter) {
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
       GtkWidget *frame = gtk_frame_new("File-name filter:");
-      GtkWidget *vbox = lookup_widget(GTK_WIDGET(fileselection), "action_area_vbox");
       
       int d = data_type;
       button = gtk_toggle_button_new_with_label("Filter");
-      //       std::cout << "in add_filename_filter_button data_type is " << data_type << std::endl;
 
       gtk_widget_ref(button);
       gtk_widget_show(button);
       gtk_container_add(GTK_CONTAINER(aa),frame);
-      // gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 2);
+      
       gtk_container_add(GTK_CONTAINER(frame), button);
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
       gtk_signal_connect (GTK_OBJECT (button), "toggled",
