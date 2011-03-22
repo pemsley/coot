@@ -622,7 +622,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    if (print_initial_chi_sq_flag) { 
       double d = coot::distortion_score(x,(double *)this); 
       std::cout << "initial distortion_score: " << d << std::endl; 
-      chi_squareds("Initial Chi Squareds", s->x);
+      chi_squareds("Initial Extimated RMS Z Scores:", s->x);
    }
 
 //      std::cout << "pre minimization atom positions\n";
@@ -4234,9 +4234,9 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
    coot::bonded_pair_container_t bonded_residue_pairs =
       bonded_residues_conventional(selHnd, geom);
 
-   std::cout << "debug in make_link_restraints_by_linear() " << bonded_residue_pairs.size()
-	     << " bonded residue pairs " << std::endl;
-      std::cout << "  " << bonded_residue_pairs << std::endl;
+   // std::cout << "debug in make_link_restraints_by_linear() " << bonded_residue_pairs.size()
+   // << " bonded residue pairs " << std::endl;
+   // std::cout << "  " << bonded_residue_pairs << std::endl;
 
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Link");
 
@@ -5290,8 +5290,8 @@ coot::restraints_container_t::bonded_flanking_residues_by_linear(const coot::pro
 		"*",  // altLocs
 		SKEY_NEW); // selection key 
    mol->GetSelIndex (selHnd, SelResidue, nSelResidues);
-   std::cout << "INFO:: GetSelIndex (make_flanking_atoms_restraints) returned " 
-	     << nSelResidues << " residues (flanking restraints)" << std::endl;
+   // std::cout << "INFO:: GetSelIndex (make_flanking_atoms_restraints) returned " 
+   // << nSelResidues << " residues (flanking restraints)" << std::endl;
    if (nSelResidues > 1) {
       link_type = find_link_type(SelResidue[0], SelResidue[1], geom);
       if (coot::util::is_nucleotide_by_dict(SelResidue[0], geom))
@@ -5315,8 +5315,8 @@ coot::restraints_container_t::bonded_flanking_residues_by_linear(const coot::pro
 		"*",  // altLocs
 		SKEY_NEW); // selection key 
    mol->GetSelIndex (selHnd, SelResidue, nSelResidues);
-   std::cout << "INFO:: GetSelIndex (make_flanking_atoms_restraints) returned " 
-	     << nSelResidues << " residues (flanking restraints)" << std::endl;
+   // std::cout << "INFO:: GetSelIndex (make_flanking_atoms_restraints) returned " 
+   // << nSelResidues << " residues (flanking restraints)" << std::endl;
    if (nSelResidues > 1) {
       link_type = find_link_type(SelResidue[0], SelResidue[1], geom);
       if (coot::util::is_nucleotide_by_dict(SelResidue[0], geom))
