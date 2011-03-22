@@ -3683,13 +3683,13 @@ coot::protein_geometry::remove_planar_peptide_restraint() {
 	    if (it->plane_id == plane_id) {
 	       ifound = 1;
 	       // let's remove it
-	       std::cout << "INFO:: before removal of plane3 TRANS has " 
-			 << dict_link_res_restraints[i].link_plane_restraint.size()
-			 << " plane restraints\n";
+// 	       std::cout << "INFO:: before removal of plane3 TRANS has " 
+// 			 << dict_link_res_restraints[i].link_plane_restraint.size()
+// 			 << " plane restraints\n";
  	       dict_link_res_restraints[i].link_plane_restraint.erase(it);
-	       std::cout << "INFO::  after removal of plane3 TRANS has " 
-			 << dict_link_res_restraints[i].link_plane_restraint.size()
-			 << " plane restraints\n";
+// 	       std::cout << "INFO::  after removal of plane3 TRANS has " 
+// 			 << dict_link_res_restraints[i].link_plane_restraint.size()
+// 			 << " plane restraints\n";
 	       break;
 	    }
 	 }
