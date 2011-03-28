@@ -678,7 +678,7 @@ coot::mdl_mol_to_asc(const lig_build::molfile_molecule_t &m) {
       CModel *model_p = new CModel;
 
       chain_p->SetChainID("A");
-      residue_p->SetResID("UNL", 1, "A");
+      residue_p->SetResID("UNL", 1, ""); // insertion code of blank
 
       chain_p->AddResidue(residue_p);
       model_p->AddChain(chain_p);
