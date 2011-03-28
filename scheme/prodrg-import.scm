@@ -21,6 +21,63 @@
 
 (define (import-from-prodrg minimize-mode)
 
+  ;; return #t or #f
+  ;; 
+  (define (have-restraints-for? res-name)
+    (let ((restraints (monomer-restraints res-name)))
+      (if restraints #t #f)))
+
+
+  ;; overlap the imol-ligand residue if there are restraints for the
+  ;; reference residue/ligand.
+  ;; 
+  (define (overlap-ligands-maybe imol-ligand imol-ref chain-id-ref res-no-ref)
+
+    ;; we don't want to overlap-ligands if there is no dictionary
+    ;; for the residue to be matched to
+    (let* ((res-name (residue-name imol-ref chain-id-ref res-no-ref ""))
+	   (restraints (monomer-restraints res-name)))
+      (if (not restraints)
+	  #f
+	  (begin 
+	    (overlap-ligands imol-ligand imol-ref chain-id-ref res-no-ref)
+	    #t))))
+		     
+
+  ;; return the new molecule number
+  ;; 
+  (define (read-and-regularize prodrg-xyzout)
+    (let ((imol (handle-read-draw-molecule-and-move-molecule-here prodrg-xyzout)))
+      (with-auto-accept
+       ;; speed up the minisation (and then restore setting).
+       (let ((s (dragged-refinement-steps-per-frame)))
+	 (set-dragged-refinement-steps-per-frame 500)
+	 (regularize-residues imol (list (list "" 1 "")))
+	 (set-dragged-refinement-steps-per-frame s)))
+      imol)) 
+
+  ;; return the new molecule number
+  ;; (only works with aa-ins-code of "")
+  (define (read-regularize-and-match-torsions prodrg-xyzout aa-imol aa-chain-id aa-res-no)
+    (let ((imol (handle-read-draw-molecule-and-move-molecule-here prodrg-xyzout)))
+
+      (if (have-restraints-for? (residue-name aa-imol aa-chain-id aa-res-no ""))
+	  (overlap-ligands-maybe imol aa-imol aa-chain-id aa-res-no))
+
+      (with-auto-accept
+       ;; speed up the minisation (and then restore setting).
+       (let ((s (dragged-refinement-steps-per-frame)))
+	 (set-dragged-refinement-steps-per-frame 500)
+	 (regularize-residues imol (list (list "" 1 "")))
+	 (if (have-restraints-for? (residue-name aa-imol aa-chain-id aa-res-no ""))
+	     (match-ligand-torsions imol aa-imol aa-chain-id aa-res-no))
+	 (regularize-residues imol (list (list "" 1 "")))
+	 (set-dragged-refinement-steps-per-frame s)))
+      imol))
+
+
+  ;; main line
+  ;; 
   (let ((prodrg-dir "coot-ccp4")
 	(res-name "DRG"))
     
@@ -61,35 +118,47 @@
 		  ;; other molecules.
 
 		  (read-cif-dictionary prodrg-cif)
-		  (let ((imol (handle-read-draw-molecule-and-move-molecule-here prodrg-xyzout)))
 
-		    (using-active-atom
-;		     (overlap-ligands imol aa-imol aa-chain-id aa-res-no)
+		  ;; we do different things depending on whether or
+		  ;; not there is an active residue.  We need to test
+		  ;; for having an active residue here (currently we
+		  ;; presume that there is).
+		  ;; 
+		  ;; Similarly, if the aa-ins-code is non-null, let's
+		  ;; presume that we do not have an active residue.
 
-		     (with-auto-accept
-;		      ;; speed up the minisation (and then restore setting).
-		      (let ((s (dragged-refinement-steps-per-frame)))
-			(set-dragged-refinement-steps-per-frame 500)
-			(regularize-residues imol (list (list "" 1 "")))
-			(match-ligand-torsions imol aa-imol aa-chain-id aa-res-no)
-			(regularize-residues imol (list (list "" 1 "")))
-			(set-dragged-refinement-steps-per-frame s)))
+		  (let ((active-atom (active-residue)))
 
-		     (overlap-ligands imol aa-imol aa-chain-id aa-res-no)
-
-		    ;; (additional-representation-by-attributes imol "" 1 1 "" 2 2 0.2 1)
-
-		     (set-mol-displayed aa-imol 0)
-		     (set-mol-displayed imol 0)
-		     (let* ((col (get-molecule-bonds-colour-map-rotation aa-imol))
-			    (new-col (+ col 5)) ;; a tiny amount.
-			    (imol-replaced 
-			     (add-ligand-delete-residue-copy-molecule imol "" 1 
-								      aa-imol aa-chain-id aa-res-no)))
-		       (set-molecule-bonds-colour-map-rotation imol-replaced new-col)
-		       (graphics-draw)))
-		    #t
-		    ))))))))
+		    (if (or (not active-atom)
+			    (not (string=? (list-ref active-atom 3) ""))) ;; aa-ins-code
+			
+			;; then there is no active residue to match to 
+			(begin 
+			  (read-and-regularize prodrg-xyzout))
+			
+			;; we have an active residue to match to 
+			(using-active-atom
+			 (let ((imol (read-regularize-and-match-torsions 
+				      prodrg-xyzout aa-imol aa-chain-id aa-res-no )))
+			   
+			   (let ((overlapped-flag
+				  (overlap-ligands-maybe imol aa-imol aa-chain-id aa-res-no)))
+			   
+			     ;; (additional-representation-by-attributes imol "" 1 1 "" 2 2 0.2 1)
+			     
+			     (if overlapped-flag
+				 (set-mol-displayed aa-imol 0))
+			     (set-mol-displayed imol 0)
+			     (let* ((col (get-molecule-bonds-colour-map-rotation aa-imol))
+				    (new-col (+ col 5)) ;; a tiny amount.
+				    (imol-replaced 
+				     ;; new ligand specs, then "reference" ligand (to be deleted)
+				     (add-ligand-delete-residue-copy-molecule imol "" 1 
+									      aa-imol aa-chain-id aa-res-no)))
+			       (set-molecule-bonds-colour-map-rotation imol-replaced new-col)
+			       (graphics-draw))))
+			 #t
+			 ))))))))))
 
 
 
