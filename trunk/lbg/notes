@@ -34,6 +34,7 @@ Thu Feb 17 13:31:48 GMT 2011
  3) prodrgify
  4) go back to test_refmac1.pdb molecule
     Why does this not have bond order representation?
+    HETATMs?
  5) sprout hydrogens
    -> crash
 
@@ -42,6 +43,23 @@ Thu Feb 17 13:31:48 GMT 2011
 
 * Crash fixed.
 
+----
+Sun Mar 20 23:17:06 GMT 2011
+
+   BUG. nestor
+
+   read in 1.mol in test/flame 
+
+   draw that - or other - molecule in lbg.
+
+   Press Apply
+
+   original and new molecule are undisplayed.
+
+
+* Done.  The mol -> asc interface was making the residue have an
+         insertion code.
+  
 ----
 
  build Coronene using prodrg
@@ -61,15 +79,12 @@ Mon Nov 29 17:00:39 GMT 2010
 ----
 Thu Mar  3 17:42:31 GMT 2011
 
-
    gui should be able to build simvastatin
-
 
 -----
 Sat Jan  1 22:38:57 GMT 2011
 
    JED: SBase search of a fleved ligand -> Fail
-
 
 ---
 Sun Jan  9 16:55:56 GMT 2011
@@ -140,7 +155,7 @@ Wed Oct 20 18:23:52 EDT 2010
 ---
 Sat Jan  8 16:43:55 GMT 2011
 
-   if you try to flev a ligand without a dictionary (other than the
+   If you try to flev a ligand without a dictionary (other than the
    sbase one) lbg should tell mention that in the status bar.
 
 
@@ -194,19 +209,19 @@ Sat Nov 13 16:30:18 GMT 2010
 
     JED says:
 
-    I want a button that turns off the dislay of residues in lidia.
+    I want a button that turns off the display of residues in lidia.
 
-    When you do so, also undisplay the substituion contour and solvent exposures.
-    all annotion 
+    When you do so, also undisplay the substituion contour and solvent
+    exposures i.e. all annotion.
 
-    in fact the solvent exposure on the atoms should not be displayed when the residues
-    are not displayed.
+    In fact the solvent exposure on the atoms should not be displayed
+    when the residues are not displayed.
 
     Make atoms in lidia recentre/highlight in the main window.
 
     Likewise bonds from lidia, to recentre on double click, highlight on mouse-over.
 
-    IMPORTANT:: the hydrogen torsinon (edit torsion) are failing to work correctly.
+    IMPORTANT:: the hydrogen torsions (edit torsion) are failing to work correctly.
 
       1x8b ligand, for example.
 
@@ -216,7 +231,6 @@ Sat Nov 13 16:43:42 GMT 2010
 
   I want to have fast translation on lidia canvas, (hence , I guess use an image 
   to show the atom solvent exposure.
-
 
   I want to be able to 2-d rotate the ligand in lidia of course
 
