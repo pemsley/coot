@@ -350,7 +350,11 @@ class Bond_lines_container {
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
 			bool is_deloc=0);
    // used by above, can throw an exception
-   clipper::Coord_orth get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int n_atoms) const;
+   clipper::Coord_orth get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, 
+	 				 bool also_2nd_order_neighbs=0) const;
+   void add_triple_bond(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, int atom_colour_type,
+			const std::vector<coot::dict_bond_restraint_t> &bond_restraints);
+
 
    bool have_dictionary;
    const coot::protein_geometry *geom;

@@ -1248,7 +1248,8 @@ namespace coot {
       // 
       std::vector<std::string> get_bonded_neighbours(const std::string &residue_name,
 						     const std::string &atom_name_1,
-						     const std::string &atom_name_2) const;
+						     const std::string &atom_name_2,
+						     bool also_2nd_order_neighbs_flag=0) const;
 
       // add a monomer restraints description.
       //

@@ -527,19 +527,82 @@ Bond_lines_container::add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n
    } 
 }
 
+void
+Bond_lines_container::add_triple_bond(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, int atom_colour_type,
+				      const std::vector<coot::dict_bond_restraint_t> &bond_restraints) { 
+   
+   
+   //
+   std::string ele_1 = atoms[iat_1]->element;
+   std::string ele_2 = atoms[iat_2]->element;
+
+   try {
+
+      bool also_2nd_order = 1; // because linear nature of bonds to
+			       // atoms in triple bond means we need
+			       // more atoms.
+      clipper::Coord_orth pos_at_1(atoms[iat_1]->x, atoms[iat_1]->y, atoms[iat_1]->z);
+      clipper::Coord_orth pos_at_2(atoms[iat_2]->x, atoms[iat_2]->y, atoms[iat_2]->z);
+      clipper::Coord_orth n_n = get_neighb_normal(iat_1, iat_2, atoms, n_atoms, also_2nd_order);
+      clipper::Coord_orth b(pos_at_1 - pos_at_2);
+      clipper::Coord_orth b_n(b.unit());
+      clipper::Coord_orth perp_n(clipper::Coord_orth::cross(n_n, b_n));
+      int col = atom_colour(atoms[iat_1], atom_colour_type);
+      double offset = 0.08;
+      if (for_GL_solid_model_rendering)
+	 offset = 0.18;
+      clipper::Coord_orth pt_1_1 = pos_at_1 - offset * perp_n;
+      clipper::Coord_orth pt_1_2 = pos_at_1;
+      clipper::Coord_orth pt_1_3 = pos_at_1 + offset * perp_n;
+      clipper::Coord_orth pt_2_1 = pos_at_2 - offset * perp_n;
+      clipper::Coord_orth pt_2_2 = pos_at_2;
+      clipper::Coord_orth pt_2_3 = pos_at_2 + offset * perp_n;
+      if (ele_1 == ele_2) {
+	 // e.g. -C#C-
+	 addBond(col, pt_1_1, pt_2_1);
+	 addBond(col, pt_1_2, pt_2_2);
+	 addBond(col, pt_1_3, pt_2_3);
+      } else { 
+	 // e.g. -C#N
+	 clipper::Coord_orth bond_mid_point = 0.5 * clipper::Coord_orth(pos_at_1 + pos_at_2);
+	 clipper::Coord_orth mp_1 = bond_mid_point - offset * perp_n;
+	 clipper::Coord_orth mp_2 = bond_mid_point;
+	 clipper::Coord_orth mp_3 = bond_mid_point + offset * perp_n;
+	 addBond(col, pt_1_1, mp_1);
+	 addBond(col, pt_1_2, mp_2);
+	 addBond(col, pt_1_3, mp_3);
+	 col = atom_colour(atoms[iat_2], atom_colour_type);
+	 addBond(col, pt_2_1, mp_1);
+	 addBond(col, pt_2_2, mp_2);
+	 addBond(col, pt_2_3, mp_3);
+      }
+   } 
+	 
+   catch (std::runtime_error rte) {
+      std::cout << "caught exception add_double_bond(): " << rte.what() << std::endl;
+   } 
+} 
+
+
+// also_2nd_order_neighbs_flag is a optional arg (default 0)
+// 
 clipper::Coord_orth
-Bond_lines_container::get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int n_atoms) const {
+Bond_lines_container::get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, 
+					bool also_2nd_order_neighbs_flag) const {
 
    clipper::Coord_orth pt(0,0,0);
    if (have_dictionary) {
       std::string rn = atoms[iat_1]->residue->GetResName();
       std::string at_n_1 = atoms[iat_1]->name;
       std::string at_n_2 = atoms[iat_2]->name;
-      std::vector<std::string> neighbours = geom->get_bonded_neighbours(rn, at_n_1, at_n_2);
+      std::vector<std::string> neighbours = geom->get_bonded_neighbours(rn, at_n_1, at_n_2, 
+									also_2nd_order_neighbs_flag);
 
-//       std::cout << "======== neighbours of " << at_n_1 << " and " << at_n_2 << ":" << std::endl;
-//       for (unsigned int i=0; i<neighbours.size(); i++)
-// 	 std::cout << "   " << neighbours[i] << std::endl;
+      if (0) { 
+	 std::cout << "======== neighbours of " << at_n_1 << " and " << at_n_2 << ":" << std::endl;
+	 for (unsigned int i=0; i<neighbours.size(); i++)
+	    std::cout << "   " << neighbours[i] << std::endl;
+      }
       
       std::string alt_conf_bond = atoms[iat_1]->altLoc; // same as iat_2 by the time we get here, I think
       if (neighbours.size() > 2) {
@@ -550,12 +613,18 @@ Bond_lines_container::get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int
 	       if (neighbours[i] == atom_name) {
 		  std::string alt_conf_atom = atoms[j]->altLoc;
 		  if (alt_conf_atom == alt_conf_bond) {
-		     neighb_atoms.push_back(atoms[j]);
+		     // only add them if they are not there already (belt and braces test)
+		     if (std::find(neighb_atoms.begin(), neighb_atoms.end(), atoms[j]) ==
+			 neighb_atoms.end())
+			neighb_atoms.push_back(atoms[j]);
 		  }
 	       } 
 	    }
 	 }
 	 if (neighb_atoms.size() > 2) {
+
+	    // std::cout << " :::: found " << neighb_atoms.size() << " neibhbours" << std::endl;
+
 	    std::vector<clipper::Coord_orth> neighb_atoms_pos(neighb_atoms.size());
 	    for (unsigned int i=0; i<neighb_atoms.size(); i++)
 	       neighb_atoms_pos[i] = clipper::Coord_orth(neighb_atoms[i]->x,
@@ -736,10 +805,17 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 					     add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type,
 							     restraints.second.bond_restraint, is_deloc);
 					  } else {
-					     add_half_bonds(p1, p2,
-							    residue_atoms[iat],
-							    residue_atoms[jat],
-							    atom_colour_type);
+
+					     if (bt == "triple") { 
+						add_triple_bond(iat, jat, residue_atoms, n_atoms, 
+								atom_colour_type,
+								restraints.second.bond_restraint);
+					     } else { 
+						add_half_bonds(p1, p2,
+							       residue_atoms[iat],
+							       residue_atoms[jat],
+							       atom_colour_type);
+					     } 
 					  }
 				       } 
 				    } else {
@@ -766,8 +842,13 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 					  bool is_deloc = 1;
 					  add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type,
 							  restraints.second.bond_restraint, is_deloc);
-				       } else { 
-					  addBond(col, p1, p2);
+				       } else {
+					  if (bt == "triple") {
+					     add_triple_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type,
+							     restraints.second.bond_restraint);
+					  } else { 
+					     addBond(col, p1, p2);
+					  }
 				       } 
 				    }
 				 }
