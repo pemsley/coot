@@ -4547,8 +4547,12 @@ coot::dictionary_residue_restraints_t::get_ligand_aromatic_ring_list() const {
 std::vector<std::string>
 coot::protein_geometry::get_bonded_neighbours(const std::string &residue_name,
 					      const std::string &atom_name_1,
-					      const std::string &atom_name_2) const {
+					      const std::string &atom_name_2, 
+					      bool also_2nd_order_neighbs_flag) const {
+
    std::vector<std::string> v;
+
+   std::vector<std::string> v_2nd_order; // only filled for triple bonds
 
    std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
       get_monomer_restraints_at_least_minimal(residue_name);
@@ -4561,28 +4565,70 @@ coot::protein_geometry::get_bonded_neighbours(const std::string &residue_name,
 	 if (restraints.second.bond_restraint[i].atom_id_1_4c() == atom_name_1)
 	    if (restraints.second.bond_restraint[i].atom_id_2_4c() != atom_name_2) {
 	       // std::cout << " adding a " << restraints.second.bond_restraint[i].atom_id_2_4c() << std::endl;
-	       v.push_back(restraints.second.bond_restraint[i].atom_id_2_4c());
+	       std::string at_name = restraints.second.bond_restraint[i].atom_id_2_4c();
+	       v.push_back(at_name);
+	       if (also_2nd_order_neighbs_flag) { 
+		  std::vector<std::string> nv = 
+		     coot::protein_geometry::get_bonded_neighbours(residue_name, 
+								   atom_name_1, at_name);
+		  for (unsigned int in=0; in<nv.size(); in++)
+		     v_2nd_order.push_back(nv[in]);
+	       }
 	    }
 	 if (restraints.second.bond_restraint[i].atom_id_1_4c() == atom_name_2)
 	    if (restraints.second.bond_restraint[i].atom_id_2_4c() != atom_name_1) { 
-	       v.push_back(restraints.second.bond_restraint[i].atom_id_2_4c());
 	       // std::cout << " adding b " << restraints.second.bond_restraint[i].atom_id_2_4c() << std::endl;
+	       std::string at_name = restraints.second.bond_restraint[i].atom_id_2_4c();
+	       v.push_back(at_name);
+	       if (also_2nd_order_neighbs_flag) { 
+		  std::vector<std::string> nv = 
+		     coot::protein_geometry::get_bonded_neighbours(residue_name, 
+								   atom_name_1, at_name);
+		  for (unsigned int in=0; in<nv.size(); in++)
+		     v_2nd_order.push_back(nv[in]);
+	       }
 	    }
 	 if (restraints.second.bond_restraint[i].atom_id_2_4c() == atom_name_1)
 	    if (restraints.second.bond_restraint[i].atom_id_1_4c() != atom_name_2) {
 	       // std::cout << " adding c " << restraints.second.bond_restraint[i].atom_id_1_4c() << std::endl;
-	       v.push_back(restraints.second.bond_restraint[i].atom_id_1_4c());
+	       std::string at_name = restraints.second.bond_restraint[i].atom_id_1_4c();
+	       v.push_back(at_name);
+	       if (also_2nd_order_neighbs_flag) { 
+		  std::vector<std::string> nv = 
+		     coot::protein_geometry::get_bonded_neighbours(residue_name, 
+								   atom_name_1, at_name);
+		  for (unsigned int in=0; in<nv.size(); in++)
+		     v_2nd_order.push_back(nv[in]);
+	       }
 	    }
 	 if (restraints.second.bond_restraint[i].atom_id_2_4c() == atom_name_2)
 	    if (restraints.second.bond_restraint[i].atom_id_1_4c() != atom_name_1) {
 	       // std::cout << " adding d " << restraints.second.bond_restraint[i].atom_id_1_4c() << std::endl;
-	       v.push_back(restraints.second.bond_restraint[i].atom_id_1_4c());
+	       std::string at_name = restraints.second.bond_restraint[i].atom_id_1_4c();
+	       v.push_back(at_name);
+	       if (also_2nd_order_neighbs_flag) { 
+		  std::vector<std::string> nv = 
+		     coot::protein_geometry::get_bonded_neighbours(residue_name, 
+								   atom_name_1, at_name);
+		  for (unsigned int in=0; in<nv.size(); in++)
+		     v_2nd_order.push_back(nv[in]);
+	       }
 	    }
-	 
       }
+
+      // add the neighbour neighbours to v (if needed):
+      if (also_2nd_order_neighbs_flag) { 
+	 for(unsigned int in=0; in<v_2nd_order.size(); in++)
+	    if (std::find(v.begin(), v.end(), v_2nd_order[in]) == v.end())
+	       v.push_back(v_2nd_order[in]);
+      } 
+
       if (v.size()) {
-	 v.push_back(atom_name_1);
-	 v.push_back(atom_name_2);
+	 // add the initial atom names if they are not already there
+	 if (std::find(v.begin(), v.end(), atom_name_1) == v.end())
+	    v.push_back(atom_name_1);
+	 if (std::find(v.begin(), v.end(), atom_name_2) == v.end())
+	    v.push_back(atom_name_2);
       } 
    } else {
       std::string m = "No dictionary for ";
