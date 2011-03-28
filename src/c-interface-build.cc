@@ -285,12 +285,12 @@ add_ligand_delete_residue_copy_molecule(int imol_ligand_new,
    int r = -1; 
    bool created_flag = 0; // we only want to do this once
 
-   std::cout << "debug:: searching for residue :"
-	     << chain_id_ligand_current << ": " << res_no_ligand_current
-	     << " in molecule " << imol_current
-	     << " replacing it with atom of :" << chain_id_ligand_new << ":"
-	     << res_no_ligand_new << " of molecule " << imol_ligand_new
-	     << std::endl;
+//    std::cout << "debug:: searching for residue :"
+// 	     << chain_id_ligand_current << ": " << res_no_ligand_current
+// 	     << " in molecule " << imol_current
+// 	     << " replacing it with atom of :" << chain_id_ligand_new << ": "
+// 	     << res_no_ligand_new << " of molecule " << imol_ligand_new
+// 	     << std::endl;
    
    if (! is_valid_model_molecule(imol_ligand_new)) {
       std::cout << "WARNING:: ligand molecule " << imol_ligand_new << " is not a valid molecule"
@@ -308,8 +308,15 @@ add_ligand_delete_residue_copy_molecule(int imol_ligand_new,
 	    g.molecules[imol_current].get_residue(chain_id_ligand_current,
 						  res_no_ligand_current, "");
 	 if (!res_ligand_current || !res_ligand_new) {
-	    std::cout << "WARNING:: Oops, reference residues not found"
-		      << std::endl;
+
+	    // so which was it then?
+	    if (! res_ligand_current)
+	       std::cout << "WARNING:: Oops, reference residue (being replaced) not found"
+			 << std::endl;
+	    if (! res_ligand_new)
+	       std::cout << "WARNING:: Oops, new residue (replacing other) not found"
+			 << std::endl;
+	       
 	 } else { 
 	    CMMDBManager *n = new CMMDBManager;
 	    n->Copy(g.molecules[imol_current].atom_sel.mol, MMDBFCM_All);
