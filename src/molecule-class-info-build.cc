@@ -36,7 +36,7 @@ molecule_class_info_t::protein_db_loops(const std::vector<coot::residue_spec_t> 
    std::string file_name = coot::util::append_dir_file(dir, "protein.db");
 
    std::vector<clipper::Coord_orth> clash_coords;
-   // chain is ..?
+
    ProteinDB::Chain chain = make_fragment_chain(residue_specs);
    
    ProteinDB::ProteinDBSearch protein_db_search(file_name);
@@ -105,7 +105,7 @@ molecule_class_info_t::make_fragment_chain(const std::vector<coot::residue_spec_
 	       if (at_n && at_ca && at_c) { 
 		  ProteinDB::Residue residue(n_pos, ca_pos, c_pos, type);
 		  chain.add_residue(residue);
-		  std::cout << "Added a real residue for " << test_spec << std::endl;
+		  // std::cout << "Added a real residue for " << test_spec << std::endl;
 	       }
 	    }
 	 }

@@ -846,10 +846,6 @@ class molecule_class_info_t {
    // for NCS copying of A chain onto the other chains.
    int copy_chain(CChain *from_chain, CChain *to_chain,
 		  clipper::RTop_orth a_to_b_transform);
-   int copy_residue_range(CChain *from_chain, CChain *to_chain,
-			  int residue_range_1,
-			  int residue_range_2,
-			  clipper::RTop_orth a_to_b_transform);
 
    std::vector<coot::dots_representation_info_t> dots;
    float dots_colour[3];
@@ -1272,6 +1268,12 @@ public:        //                      public
 	 strict_ncs_bonds_box[i].first.clear_up();
    }
 
+
+   // Return a copy of the pointer to the chain (only).  Return NULL
+   // on chain with given chain ID not found.
+   // 
+   CChain *get_chain(const std::string &chain_id) const;
+
    // Return a copy of the pointer (only).  Return NULL on residue not
    // found.
    // 
@@ -1372,6 +1374,11 @@ public:        //                      public
 		      CMMDBManager *mol, const std::string &mol_name,
 		      short int display_in_display_control_widget_status,
 		      bool is_from_shelx_ins=0);
+
+   int copy_residue_range(CChain *from_chain, CChain *to_chain,
+			  int residue_range_1,
+			  int residue_range_2,
+			  clipper::RTop_orth a_to_b_transform);
 
    const coot::CartesianPair* draw_vectors;
    const coot::CartesianPair* diff_map_draw_vectors;

@@ -857,14 +857,21 @@ std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
 /*! \name LSQ-improve */
 /* \{ */
 /*! \brief Cowtan's protein_db loops */
-void protein_db_loops(int imol_coords, 
-		      const std::vector<coot::residue_spec_t> &residue_specs, 
-		      int imol_map, int nfrags);
+std::pair<int, std::vector<int> >
+protein_db_loops(int imol_coords, 
+		 const std::vector<coot::residue_spec_t> &residue_specs, 
+		 int imol_map, int nfrags);
+// so that we can create a "original loop" molecule from the atom
+// specs picked (i.e. the atom selection string should extend over the
+// range from the smallest residue number to the largest (in the same
+// chain)).
+std::string
+protein_db_loop_specs_to_atom_selection_string(const std::vector<coot::residue_spec_t> &specs);
 #ifdef USE_GUILE
-void protein_db_loops_scm(int imol_coords, SCM residues_specs, int imol_map, int nfrags);
+SCM protein_db_loops_scm(int imol_coords, SCM residues_specs, int imol_map, int nfrags);
 #endif 
 #ifdef USE_PYTHON 
-void protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imol_map, int nfrags);
+PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imol_map, int nfrags);
 #endif 
 /* \} */
 

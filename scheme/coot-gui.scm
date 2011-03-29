@@ -3578,6 +3578,56 @@
       (gtk-widget-show-all window)))
 
 
+;; return a list, or #f (e.g. if not in same chain and molecule)
+;; 
+(define (min-max-residues-from-atom-specs specs)
+
+  (print-var specs)
+
+  (let ((min-res-no #f)
+	(max-res-no #f)
+	(chain-id #f))
+
+    (for-each (lambda (spec)
+		(let ((spec-chain (list-ref spec 2))
+		      (res-no     (list-ref spec 3))
+		      (spec-model (list-ref spec 1)))
+
+		  (if (string? chain-id)
+		      (if (not (string=? chain-id spec-chain))
+			  (begin
+			    (set! chain-id #f)
+			    (break))
+			  (begin
+			    (if (not (number? min-res-no))
+				(set! min-res-no res-no)
+				(if (< res-no min-res-no)
+				    (set! min-res-no res-no)))
+			    (if (not (number? max-res-no))
+				(set! max-res-no res-no)
+				(if (> res-no max-res-no)
+				    (set! max-res-no res-no)))))
+		      (begin
+			(set! chain-id spec-chain)
+			(if (not (number? min-res-no))
+			    (set! min-res-no res-no)
+			    (if (< res-no min-res-no)
+				(set! min-res-no res-no)))
+			(if (not (number? max-res-no))
+			    (set! max-res-no res-no)
+			    (if (> res-no max-res-no)
+				(set! max-res-no res-no)))))))
+	      specs)
+			
+
+    (if (or (eq? min-res-no #f)
+	    (eq? max-res-no #f)
+	    (eq? chain-id #f))
+	#f
+	(list min-res-no max-res-no chain-id))))
+    
+   
+
 (define (click-protein-db-loop-gui)
   (generic-number-chooser (range 2 10) 4 
 			  "Number of residues for basis"
@@ -3587,10 +3637,46 @@
 			     n
 			     (lambda (atom-specs)
 			       (let ((residue-specs (map atom-spec->residue-spec atom-specs))
-				     (imol (car (cdar atom-specs))))
-				 (protein-db-loops imol residue-specs 
-						   (imol-refinement-map)
-						   10)))))))
+				     (imol (car (cdar atom-specs)))
+				     (min-max-and-chain-id (min-max-residues-from-atom-specs atom-specs)))
+
+				 (if (not (list? min-max-and-chain-id))
+				     (info-dialog "Picked atoms not in same molecule and chain")
+				     (let ((loop-mols
+					    (protein-db-loops imol residue-specs 
+							      (imol-refinement-map)
+							      10)))
+				       (let ((imol-loop-orig (car loop-mols))
+					     (loop-mols (cadr loop-mols))
+					     (min-resno (list-ref min-max-and-chain-id 0))
+					     (max-resno (list-ref min-max-and-chain-id 1))
+					     (chain-id  (list-ref min-max-and-chain-id 2)))
+
+					 (if (valid-model-molecule? imol-loop-orig)
+					     (if (> (length loop-mols) 0)
+						 (let ((buttons
+							(map (lambda (loop-mol)
+							       (list 
+								(string-append 
+								 (number->string loop-mol)
+								 " "
+								 (molecule-name loop-mol))
+								(lambda ()
+								  (copy-residue-range imol chain-id
+										      loop-mol chain-id
+										      min-resno max-resno))))
+							     loop-mols)))
+						   (dialog-box-of-buttons
+						    "Loop Candidates" 
+						    (cons 360 200)
+						    (cons 
+						     (list "Original loop"
+							   (lambda () 
+							     (copy-residue-range imol chain-id 
+										 imol-loop-orig chain-id
+										 min-resno max-resno)))
+						     buttons)
+						    " Close ")))))))))))))
 
 
 
