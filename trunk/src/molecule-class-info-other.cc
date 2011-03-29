@@ -2198,6 +2198,33 @@ molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_sp
    return i_done;
 } 
 
+// Return a copy of the pointer to the chain (only).  Return NULL
+// on chain with given chain ID not found.
+// 
+CChain *
+molecule_class_info_t::get_chain(const std::string &chain_id) const {
+
+  CChain *r = NULL;
+
+  CMMDBManager *mol = atom_sel.mol; 
+
+  if (mol) { 
+     int imod = 1;
+     CModel *model_p = mol->GetModel(imod);
+     CChain *chain_p;
+     int n_chains = model_p->GetNumberOfChains();
+     for (int ichain=0; ichain<n_chains; ichain++) {
+	chain_p = model_p->GetChain(ichain);
+	std::string mol_chain_id = chain_p->GetChainID();
+	if (chain_id == mol_chain_id) { 
+	   r = chain_p;
+	   break;
+	}
+     } 
+  }
+  return r;
+} 
+
 
 
 // Return NULL on residue not found in this molecule.

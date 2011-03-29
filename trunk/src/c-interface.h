@@ -687,6 +687,13 @@ int residue_has_hetatms(int imol, const char * chain_id, int resno, const char *
   duplicated in molecule number imol_frag */
 int replace_fragment(int imol_target, int imol_fragment, const char *atom_selection);
 
+/*! \brief copy the given residue range from the reference chain to the target chain 
+
+resno_range_start and resno_range_end are inclusive. */
+int copy_residue_range(int imol_target,    const char *chain_id_target, 
+		       int imol_reference, const char *chain_id_reference, 
+		       int resno_range_start, int resno_range_end);
+
 /*! \brief replace pdb.  Fail if molecule_number is not a valid model molecule.
   Return -1 on failure.  Else return molecule_number  */
 int clear_and_update_model_molecule_from_file(int molecule_number, 

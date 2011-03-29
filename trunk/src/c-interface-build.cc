@@ -413,6 +413,45 @@ int replace_fragment(int imol_target, int imol_fragment,
    return istate;
 }
 
+/*! \brief copy the given residue range from the reference chain to the target chain 
+
+resno_range_start and resno_range_end are inclusive. */
+int copy_residue_range(int imol_target,    const char *chain_id_target, 
+		       int imol_reference, const char *chain_id_reference, 
+		       int resno_range_start, int resno_range_end) { 
+   
+   int status = 0; 
+   if (! (is_valid_model_molecule(imol_target))) { 
+      std::cout << "WARNING:: not a valid model molecule " 
+		<< imol_target << std::endl;
+   } else { 
+      if (! (is_valid_model_molecule(imol_reference))) { 
+	 std::cout << "WARNING:: not a valid model molecule " 
+		   << imol_reference << std::endl;
+      } else { 
+	 CChain *chain_p = graphics_info_t::molecules[imol_reference].get_chain(chain_id_reference);
+	 if (! chain_p) { 
+	    std::cout << "WARNING:: not chain " << chain_id_reference << " in molecule " 
+		      << imol_reference << std::endl;
+	 } else { 
+	    CChain *chain_pt = graphics_info_t::molecules[imol_target].get_chain(chain_id_target);
+	    if (! chain_pt) { 
+	       std::cout << "WARNING:: not chain " << chain_id_target << " in molecule " 
+			 << imol_target << std::endl;
+	    } else { 
+	       clipper::RTop_orth rtop = clipper::RTop_orth::identity();
+	       status = graphics_info_t::molecules[imol_target].copy_residue_range(chain_p, chain_pt, 
+								  resno_range_start, resno_range_end,
+								  rtop);
+	       graphics_draw();
+	    }
+	 }
+      }
+   }
+   return status;
+} 
+
+
 void set_refinement_move_atoms_with_zero_occupancy(int state) {
    // convert a int to a bool.
    graphics_info_t::refinement_move_atoms_with_zero_occupancy_flag = state;
@@ -6639,58 +6678,152 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
 /*  ----------------------------------------------------------------------- */
 
 #ifdef USE_GUILE
-void
+SCM
 protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int nfrags) {
 
+   SCM r = SCM_BOOL_F;
    std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_scm);
    if (!specs.size()) {
-      std::cout << "WARNING:: Ooops - no specs in " << scm_to_locale_string(display_scm(residue_specs_scm))
+      std::cout << "WARNING:: Ooops - no specs in " 
+		<< scm_to_locale_string(display_scm(residue_specs_scm))
 		<< std::endl;
    } else {
-      protein_db_loops(imol_coords, specs, imol_map, nfrags);
+      std::pair<int, std::vector<int> > p = 
+	 protein_db_loops(imol_coords, specs, imol_map, nfrags);
+      SCM mol_list_scm = SCM_EOL;
+      // add backwards (for scheme)
+      for (int i=(p.second.size()-1); i>=0; i--)
+	 mol_list_scm = scm_cons(SCM_MAKINUM(p.second[i]), mol_list_scm);
+      r = scm_list_2(SCM_MAKINUM(p.first), mol_list_scm);
    } 
+   return r;
 } 
 #endif 
 
 #ifdef USE_PYTHON
-void
+PyObject *
 protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, int nfrags) {
 
+   PyObject *r = Py_False;
    std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
    if (!specs.size()) {
-      std::cout << "WARNING:: Ooops - no specs in " << PyString_AsString(display_python(residue_specs_py))
+      std::cout << "WARNING:: Ooops - no specs in " 
+		<< PyString_AsString(display_python(residue_specs_py))
 		<< std::endl;
    } else {
-      protein_db_loops(imol_coords, specs, imol_map, nfrags);
+      std::pair<int, std::vector<int> > p = 
+	 protein_db_loops(imol_coords, specs, imol_map, nfrags);
    } 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
 } 
 #endif //PYTHON 
 
-
-void
+// return the imol of the consolodated molecule and the vector of
+// molecule indices for each of the candidate loops.
+// 
+// return -1 in the first of the pair on failure
+// 
+std::pair<int, std::vector<int> > 
 protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map, int nfrags) {
 
+   int imol_consolodated = -1;
+   int imol_loop_orig = -1; // set later hopefully
+   std::vector<int> vec_chain_mols;
+
    if (! is_valid_model_molecule(imol_coords)) {
-      std::cout << "WARNING:: molecule number " << imol_coords << " is not a valid molecule " << std::endl;
+      std::cout << "WARNING:: molecule number " << imol_coords 
+		<< " is not a valid molecule " << std::endl;
    } else { 
       if (! is_valid_map_molecule(imol_map)) {
-	 std::cout << "WARNING:: molecule number " << imol_coords << " is not a valid map " << std::endl;
+	 std::cout << "WARNING:: molecule number " << imol_coords << " is not a valid map " 
+		   << std::endl;
       } else { 
 	 
-	 clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+	 if (residue_specs.size()) { 
+	    std::string chain_id = residue_specs[0].chain;
+	    // what is the first resno?
+	    std::vector<coot::residue_spec_t> rs = residue_specs;
+	    std::sort(rs.begin(), rs.end());
+	    int first_res_no = rs[0].resno;
+	    
+	    clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
 
-	 std::vector<ProteinDB::Chain> chains =
-	    graphics_info_t::molecules[imol_coords].protein_db_loops(residue_specs, nfrags, xmap);
+	    std::vector<ProteinDB::Chain> chains =
+	       graphics_info_t::molecules[imol_coords].protein_db_loops(residue_specs, nfrags, xmap);
 
-	 if (chains.size()) { 
-	    int imol = graphics_info_t::create_molecule();
-	    CMMDBManager *mol = make_mol(chains);
-	    std::string name = "Loop candidates "; 
-	    graphics_info_t::molecules[imol].install_model(imol, mol, name, 1);
-	    graphics_info_t::molecules[imol].set_bond_thickness(2);
-	    graphics_info_t::molecules[imol].bonds_colour_map_rotation = 260; // purple
-	    graphics_draw();
+	    if (chains.size()) {
+
+	       // a molecule for each chain
+	       for(unsigned int ich=0; ich<chains.size(); ich++) { 
+		  CMMDBManager *mol = make_mol(chains[ich], chain_id, first_res_no);
+		  int imol = graphics_info_t::create_molecule();
+		  std::string name = "Loop candidate #"; 
+		  name += coot::util::int_to_string(ich+1);
+		  graphics_info_t::molecules[imol].install_model(imol, mol, name, 1);
+		  vec_chain_mols.push_back(imol);
+		  set_mol_displayed(imol, 0);
+		  set_mol_active(imol, 0);
+	       }
+
+	       // The consolodated molecule
+	       imol_consolodated = graphics_info_t::create_molecule();
+	       CMMDBManager *mol = make_mol(chains, chain_id, first_res_no);
+	       std::string name = "All Loop candidates "; 
+	       graphics_info_t::molecules[imol_consolodated].install_model(imol_consolodated, 
+									   mol, name, 1);
+	       graphics_info_t::molecules[imol_consolodated].set_bond_thickness(2);
+	       graphics_info_t::molecules[imol_consolodated].bonds_colour_map_rotation = 260; // purple
+
+	       // now create a new molecule that is the loop with a
+	       // copy of the original coordinates
+	       // 
+	       std::string ass = protein_db_loop_specs_to_atom_selection_string(residue_specs);
+	       imol_loop_orig = new_molecule_by_atom_selection(imol_coords, ass.c_str());
+	       set_mol_active(imol_loop_orig, 0);
+	       set_mol_displayed(imol_loop_orig, 0);
+
+	       graphics_draw();
+	    }
 	 }
       }
    }
+   return std::pair<int, std::vector<int> > (imol_loop_orig, vec_chain_mols); 
+} 
+
+// so that we can create a "original loop" molecule from the atom
+// specs picked (i.e. the atom selection string should extend over the
+// range from the smallest residue number to the largest (in the same
+// chain)).
+std::string
+protein_db_loop_specs_to_atom_selection_string(const std::vector<coot::residue_spec_t> &specs) { 
+
+   std::string r = "////"; // fail
+
+   // check that we have the same chain id in all the specs, if yes,
+   // then continue.
+   std::map<std::string, int> chain_ids;
+   for (unsigned int i=0; i<specs.size(); i++)
+      chain_ids[specs[i].chain]++;
+   if (chain_ids.size() == 1) { 
+      std::map<std::string, int>::const_iterator it = chain_ids.begin();
+      std::string chain_id = it->first;
+      int lowest_resno = 9999;
+      int highest_resno = -999;
+      for (unsigned int i=0; i<specs.size(); i++) { 
+	 if (specs[i].resno < lowest_resno)
+	    lowest_resno = specs[i].resno;
+	 if (specs[i].resno > highest_resno)
+	    highest_resno = specs[i].resno;
+      }
+      r = "//";
+      r += chain_id;
+      r += "/";
+      r += coot::util::int_to_string(lowest_resno);
+      r += "-";
+      r += coot::util::int_to_string(highest_resno);
+   }
+   return r;
 } 
