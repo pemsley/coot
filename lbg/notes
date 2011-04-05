@@ -20,7 +20,8 @@ test ligands:
 test_refmac1.pdb from David Banner. LIG, get it from the PDB.  Donor
   to ligand Cl? No. H-bond to Gly216? perhaps not. So says JED.
 
-2w3l Can't sprout hydrogens.  Also valence problem on residue->2d (after prodrg)
+2w3l Can't sprout hydrogens.  Also valence problem on residue->2d 
+    (after prodrg)
 
 
 
@@ -34,14 +35,17 @@ Thu Feb 17 13:31:48 GMT 2011
  3) prodrgify
  4) go back to test_refmac1.pdb molecule
     Why does this not have bond order representation?
-    HETATMs?
+        -> Because it is made of ATOMs. 
+        -> Hetatoms for this residue
  5) sprout hydrogens
    -> crash
 
   note residue->2d doesn't crash, but we get the same message. So
-  sprout_hydrogens() should catch the excpection in the same way.
+  sprout_hydrogens() should catch the exception in the same way.
 
 * Crash fixed.
+
+* Sprouting works - r3435
 
 ----
 Sun Mar 20 23:17:06 GMT 2011
@@ -272,13 +276,15 @@ Tue Oct 12 14:11:45 EDT 2010
 
     o Show a triple bond in 3D view 
 
+* fixed.
+
 ---
 Tue Oct 12 14:22:25 EDT 2010
 
      Chagers disease, 
      cruzain inhibition by K-777 Kepri/Celera : draw and make this, it's chiral
 
-     Biochemcistry 2000 39, 12543
+     Biochemistry 2000 39, 12543
 
 ----
 Sun Oct  3 10:30:12 BST 2010
@@ -817,6 +823,11 @@ Sat May  8 10:06:59 UYT 2010
    Replace by LIGAND_TO_CANVAS_SCALE_FACTOR usage.
 
 * Done.
+
+----
+Mon Mar 28 17:25:03 CST 2011
+
+  www.mdbbs.org is all chinese here, but might have something interesting in UK?
 
 
 -----

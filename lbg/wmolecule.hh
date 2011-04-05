@@ -38,6 +38,9 @@
 // description.
 //
 
+#ifndef WMOLECULE_HH
+#define WMOLECULE_HH
+
 #include "lbg-shared.hh"
 
 class solvent_accessible_atom_t {
@@ -575,3 +578,42 @@ public:
    bool is_close_to_non_last_atom(const lig_build::pos_t &test_post) const;
 
 };
+
+// -----------------------------------------------------------------
+//                   chirality
+// -----------------------------------------------------------------
+
+class topological_eqivalence_t {
+
+   std::vector<bool> unique; // is the atom index marked as unique? initially all 0.
+   std::map<std::string, std::vector<int> > atom_map;
+   int n_equivalent_classes(const std::vector<long int> &equivalent_classes) const;
+
+   bool continue_ec_calculations_p(const std::vector<widgeted_atom_t> &atoms,
+				   const std::vector<long int> &curr_eqv, 
+				   const std::vector<long int> &prev_eqv);
+   
+   // fiddles with unique, return true if at least one unique was assigned.
+   bool assign_uniques(const std::vector<long int> &equivalent_classes);
+
+   // old
+   // fiddles with unique
+   bool identified_unique_p(const std::vector<widgeted_atom_t> &atoms,
+			    const std::vector<long int> &curr_eqv, 
+			    const std::vector<long int> &prev_eqv);
+   
+      
+public:
+   topological_eqivalence_t(const std::vector<widgeted_atom_t> &atoms,
+			    const std::vector<widgeted_bond_t> &bonds);
+
+   std::vector<long int> assign_initial_topo_indices(const std::vector<widgeted_atom_t> &atoms,
+					       const std::vector<widgeted_bond_t> &bonds);
+   std::vector<long int> assign_topo_indices(const std::vector<widgeted_atom_t> &atoms,
+					     const std::vector<widgeted_bond_t> &bonds,
+					     const std::vector<long int> &prev_eqv,
+					     int round);
+};
+
+
+#endif // WMOLECULE_HH

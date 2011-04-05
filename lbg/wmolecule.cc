@@ -1043,7 +1043,7 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
    } else {
 
       // 3 lines of header
-      of << "# Molecule sketched in Liebig (part of Coot)\n";
+      of << "# Molecule sketched in LIDIA (part of Coot)\n";
       of << "#\n";
       of << "#\n";
       
@@ -1468,6 +1468,319 @@ widgeted_molecule_t::is_close_to_non_last_atom(const lig_build::pos_t &test_pos)
    }
    return close;
 }
+
+
+
+topological_eqivalence_t::topological_eqivalence_t(const std::vector<widgeted_atom_t> &atoms,
+						   const std::vector<widgeted_bond_t> &bonds) {
+
+
+   unique.resize(atoms.size(), false);
+
+   for (unsigned int iat=0; iat<atoms.size(); iat++)
+      atom_map[atoms[iat].element].push_back(iat);
+      
+
+   // The Morgan algorithm - or something like it.
+   
+   std::vector<long int> prev_eqv = assign_initial_topo_indices(atoms, bonds);
+   std::vector<long int> curr_eqv;
+   int round = 0;
+
+   bool eq_changed = true; // fake initial value
+   bool uniques_assigned = false; 
+
+   while (eq_changed || uniques_assigned) {
+
+      std::cout << "::::::::::::::::::::::::::: round: "
+		<< round << " ::::::::::::::::::::::::::::::::::::" << std::endl;
+
+      curr_eqv = assign_topo_indices(atoms, bonds, prev_eqv, round);
+
+      // should we do this only if eq_changed is true?
+      uniques_assigned = assign_uniques(curr_eqv);
+      
+      eq_changed = continue_ec_calculations_p(atoms, curr_eqv, prev_eqv);
+      std::cout << ":::::::::::: eq_changed: " << eq_changed
+		<< "    uniques_assigned: " << uniques_assigned<< std::endl;
+
+      // for next round
+      round++;
+      prev_eqv = curr_eqv;
+   }
+
+   // OK, when we get here, unique is set and the curr_eqv tells us
+   // what are the equivalent atoms.
+   //
+
+   // EC numbers:
+   std::cout << "--- final EC numbers -------- " << std::endl;
+   for (unsigned int iec=0; iec<curr_eqv.size(); iec++)
+      std::cout << "  atom_index: " << iec << " ec-final: "
+		<< curr_eqv[iec] << std::endl;
+
+   std::cout << "--- final uniques -------- " << std::endl;
+   for (unsigned int iun=0; iun<unique.size(); iun++) {
+      if (unique[iun])
+	 std::cout << "  atom index " << iun << " marked as unique" << std::endl;
+   }
+   
+   std::cout << "--- final equivalents -------- " << std::endl;
+   std::map<std::string, std::vector<int> >::const_iterator it;
+   for (it=atom_map.begin(); it!=atom_map.end(); it++) {
+
+      // it->second points to a vector of atoms.  If they have the
+      // same curr_eqv value then they are equivalent
+      
+      for (unsigned int iat=0; iat<it->second.size(); iat++) {
+
+	 // is there another atom that matches the curr_eqv of this atom
+	 int atom_current_equiv = curr_eqv[it->second[iat]];
+	 for (unsigned int ivi=0; ivi<it->second.size(); ivi++) {
+	    if (!unique[it->second[ivi]] && !unique[it->second[iat]]) { 
+	       if (it->second[ivi] != it->second[iat]) {
+		  if (curr_eqv[it->second[ivi]] == atom_current_equiv) {
+		     std::cout << "  atom index " << it->second[ivi]
+			       << " equivalent to atom index " << it->second[iat]
+			       << "  " << curr_eqv[it->second[ivi]]
+			       << std::endl;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+} 
+
+// Have more atoms become topologically equivalent by this iteration?
+//
+// (If no, then end the loop in the calling function)
+// 
+bool
+topological_eqivalence_t::continue_ec_calculations_p(const std::vector<widgeted_atom_t> &atoms,
+						     const std::vector<long int> &curr_eqv, 
+						     const std::vector<long int> &prev_eqv) {
+
+   int ec_curr = n_equivalent_classes(curr_eqv);
+   int ec_prev = n_equivalent_classes(prev_eqv);
+
+   std::cout << "in continue_ec_calculations_p: comparing current ec " << ec_curr
+	     << " with previous ec " << ec_prev << std::endl;
+
+   // we want to continue if the number of ec from current is more
+   // than from previous round.
+   
+   if (ec_curr <= ec_prev)
+      return false;
+   else
+      return true;
+
+}
+
+// Have more atoms become topologically equivalent by this iteration?
+//
+// (If no, then end the loop in the calling function)
+// 
+bool
+topological_eqivalence_t::identified_unique_p(const std::vector<widgeted_atom_t> &atoms,
+					      const std::vector<long int> &curr_eqv, 
+					      const std::vector<long int> &prev_eqv) {
+
+   bool r = 0; // not changed.
+
+   // sanity checks
+   // 
+   if (atoms.size() == 0) {
+      std::cout << "identified_unique_p: no atoms" << std::endl;
+      return r;
+   }
+   if (curr_eqv.size() == 0) {
+      std::cout << "identified_unique_p: no current equivalences" << std::endl;
+      return r;
+   }
+   if (curr_eqv.size() == 0) {
+      std::cout << "identified_unique_p: no previous equivalences" << std::endl;
+      return r;
+   }
+   if (curr_eqv.size() == 0) {
+      std::cout << "identified_unique_p: no previous equivalences and current equivalences"
+		<< " not of equal size"  << std::endl;
+      return r;
+   }
+      
+   std::map<std::string, std::vector<int> >::const_iterator it;
+   for (it=atom_map.begin(); it!=atom_map.end(); it++) {
+      
+      // it points to a vector of atoms that have the same element.
+      // Do they have new topological equivalence?
+      //
+      // We test that by looking at the number of different
+      // topo_indices for the set of atoms (with the same element).
+      //
+      std::map<long int, std::vector<int> > topo_indices_curr;
+      std::map<long int, std::vector<int> > topo_indices_prev;
+
+      for (unsigned int ivi=0; ivi<it->second.size(); ivi++) {
+	 if (! unique[it->second[ivi]]) { 
+	    topo_indices_prev[curr_eqv[it->second[ivi]]].push_back(it->second[ivi]);
+	    topo_indices_curr[prev_eqv[it->second[ivi]]].push_back(it->second[ivi]);
+	    std::cout << "for topo_indices_curr added " << it->second[ivi]
+		      << " for topo map key " << prev_eqv[it->second[ivi]] << std::endl;
+	 } else {
+	    std::cout << "topo_indices setting blocked because "
+		      << it->second[ivi] << " was marked as unique"
+		      << std::endl; 
+	 }
+      }
+
+      // now mark the uniques
+      std::map<long int, std::vector<int> >::const_iterator it_topo;
+
+      // debug
+//       for (it_topo=topo_indices_curr.begin(); it_topo!=topo_indices_curr.end(); it_topo++) {
+// 	 std::cout << "debug:: key: " << it_topo->first << std::endl;
+// 	 for (unsigned int jj=0; jj<it_topo->second.size(); jj++)
+// 	    std::cout << "debug::  vector values   " << it_topo->second[jj] << std::endl;
+//       }
+      
+      for (it_topo=topo_indices_curr.begin(); it_topo!=topo_indices_curr.end(); it_topo++) {
+	 std::cout << "in marking uniques, it->second has size " << it_topo->second.size()
+		   << std::endl;
+	 if (it_topo->second.size() == 1) {
+	    int unique_index = it_topo->second[0];
+	    std::cout << "........ marking " << unique_index << " as unique "
+		      << std::endl;
+	    unique[unique_index] = true;
+	    // r = 1; // we make a unique
+	 }
+      }
+
+       std::cout << "for equivalence changed test: comparing  n_prev: "
+		<< topo_indices_prev.size() << " and n_curr: " << topo_indices_curr.size()
+ 		<< std::endl;
+	 
+       if (topo_indices_curr.size() != topo_indices_prev.size()) {
+	 r = 1;
+ 	 break;
+       }
+   } 
+   return r; 
+}
+
+
+std::vector<long int>
+topological_eqivalence_t::assign_initial_topo_indices(const std::vector<widgeted_atom_t> &atoms,
+						      const std::vector<widgeted_bond_t> &bonds) {
+   
+   std::vector<long int> r(atoms.size());
+
+   for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+      r[bonds[ibond].get_atom_1_index()]++;
+      r[bonds[ibond].get_atom_2_index()]++;
+   }
+
+   for (unsigned int i=0; i<r.size(); i++)
+      std::cout << "initial topo index: " << i << "  " << r[i] << std::endl;
+      
+   return r;
+}
+
+std::vector<long int>
+topological_eqivalence_t::assign_topo_indices(const std::vector<widgeted_atom_t> &atoms,
+					      const std::vector<widgeted_bond_t> &bonds,
+					      const std::vector<long int> &prev_eqv,
+					      int round) {
+
+   std::vector<long int> r(prev_eqv.size(), 0);
+
+   // which atoms are bonded to which other atoms?
+   std::vector<std::vector<int> > atom_bonds(atoms.size()); // atom index vector
+   
+   for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+      atom_bonds[bonds[ibond].get_atom_1_index()].push_back(bonds[ibond].get_atom_2_index());
+      atom_bonds[bonds[ibond].get_atom_2_index()].push_back(bonds[ibond].get_atom_1_index());
+   }
+
+   for (unsigned int iat=0; iat<atoms.size(); iat++) {
+      for (unsigned int ii=0; ii<atom_bonds[iat].size(); ii++) {
+// 	 std::cout << "   index iat: "<< iat << " ii: " << ii << " of " << atom_bonds[iat].size()
+// 		   << "    adding prev_eqv[" << atom_bonds[iat][ii] << "]="
+// 		   << prev_eqv[atom_bonds[iat][ii]] << " to "
+// 		   << r[iat] << std::endl;
+	 r[iat] += prev_eqv[atom_bonds[iat][ii]];
+      }
+   }
+   for (unsigned int i=0; i<r.size(); i++)
+      std::cout << "   round " << round << " assigned topo index: "
+		<< i << "  " << r[i] << std::endl;
+   return r;
+}
+
+bool
+topological_eqivalence_t::assign_uniques(const std::vector<long int> &equivalent_classes) {
+
+   bool r = 0;
+
+   std::map<std::string, std::vector<int> >::const_iterator it;
+   for (it=atom_map.begin(); it!=atom_map.end(); it++) {
+      
+      // it points to a vector of atoms indices that have the same element.
+      //
+      std::map<long int, std::vector<int> > topo_indices;
+   
+      for (unsigned int ivi=0; ivi<it->second.size(); ivi++) {
+	 if (! unique[it->second[ivi]]) {
+	    topo_indices[equivalent_classes[it->second[ivi]]].push_back(it->second[ivi]);
+	 }
+      }
+
+      // were there any vectors that had size 1?
+      std::map<long int, std::vector<int> >::const_iterator it_topo;
+      for (it_topo=topo_indices.begin(); it_topo!=topo_indices.end(); it_topo++) {
+	 if (it_topo->second.size() == 1) {
+	    int unique_index = it_topo->second[0];
+	    std::cout << "........ marking " << unique_index << " as unique "
+		      << std::endl;
+	    unique[unique_index] = true;
+	    r = 1;
+	 }
+      }
+   }
+   return r; 
+} 
+
+// there is an EC value for each atom.  How many different EC values are there?
+int
+topological_eqivalence_t::n_equivalent_classes(const std::vector<long int> &equivalent_classes) const {
+
+   int r = 0; 
+
+// Does not consider element differences
+//   
+//    std::map<long int, bool> counter;
+//    for (unsigned int i=0; i<equivalent_classes.size(); i++)
+//       counter[equivalent_classes[i]]++;
+//
+//    return counter.size();
+
+   std::map<std::string, std::vector<int> >::const_iterator it;
+   for (it=atom_map.begin(); it!=atom_map.end(); it++) {
+      
+      // it points to a vector of atoms indices that have the same element.
+      //
+      std::map<long int, std::vector<int> > topo_indices;
+
+      for (unsigned int ivi=0; ivi<it->second.size(); ivi++) {
+	 if (! unique[it->second[ivi]]) {
+	    topo_indices[equivalent_classes[it->second[ivi]]].push_back(it->second[ivi]);
+	 }
+      }
+      r += topo_indices.size();
+   }
+
+   return r;
+   
+} 
 
 
 #endif // GOO_CANVAS
