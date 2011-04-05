@@ -141,6 +141,14 @@ void smiles_to_ligand_builder(const char *smiles_string) {
       std::cout << "WARNING:: in generating molecule from SMILES: "
 		<< e.what() << std::endl;
    } 
+   catch (RDKit::MolSanitizeException e) {
+      std::cout << "WARNING:: exception e  SMILES generation..."
+		<< std::endl;
+   } 
+   catch (...) {
+      std::cout << "WARNING:: some other exception in  SMILES generation..."
+		<< std::endl;
+   } 
 } 
 
 
