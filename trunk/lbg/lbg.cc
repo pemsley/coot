@@ -433,7 +433,9 @@ lbg_info_t::drag_canvas(int mouse_x, int mouse_y) {
    // should santize delta *here* (and check for not 0,0) before
    // passing to these functions.
 
-   if (is_sane_drag(delta)) { 
+   if (is_sane_drag(delta)) {
+
+      // std::cout << "here!" << std::endl;
    
       clear_canvas();
       translate_residue_circles(delta);

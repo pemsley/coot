@@ -25,6 +25,13 @@ libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc  \
     lbg-search.cc  residue-circles.cc rdkit-interface.cc \
     flev-annotations.cc
 
+libcoot_lidia_la_LIBADD = \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
+
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc
 
 include_HEADERS = lbg.hh wmolecule.hh rdkit-interface.hh flev-annotations.hh 
@@ -45,6 +52,18 @@ EXTRA_DIST=lbg.glade $(appicon_DATA) lbg-callbacks.cc
 
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = lbg.glade lbg-callbacks.cc
+
+check_PROGRAMS = test_lbg_functions
+test_lbg_functions_SOURCES = test_lbg_functions.cc 
+test_lbg_functions_LDADD = \
+       ./libcoot-lidia.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(RDKIT_LIBS)
+
+
+
 
 appicondir=$(pkgdatadir)/pixmaps
 appicon_DATA = \
