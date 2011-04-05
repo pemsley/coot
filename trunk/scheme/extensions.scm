@@ -342,6 +342,12 @@
 				   (move-waters-to-around-protein imol)))))
 
 
+      (add-simple-coot-menu-menuitem 
+       menu "Assign (force) HETATMs for this Residue"
+       (lambda ()
+	 (using-active-atom
+	  (hetify-residue aa-imol aa-chain-id aa-res-no aa-ins-code))))))
+
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Assign HETATM to molecule..."
