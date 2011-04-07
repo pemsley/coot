@@ -129,6 +129,7 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
   gtk_object_set_user_data(GTK_OBJECT(dataset_fileselection1), GINT_TO_POINTER(is));
   set_file_selection_dialog_size(dataset_fileselection1);
 
+  set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
   gtk_widget_show (dataset_fileselection1);
 #if (GTK_MAJOR_VERSION > 1)
   /* in gtk2 we have to push the buttons after we show the selection */
@@ -162,6 +163,7 @@ on_auto_open_mtz_activate              (GtkMenuItem     *menuitem,
   gtk_object_set_user_data(GTK_OBJECT(dataset_fileselection1), GINT_TO_POINTER(is));
   set_file_selection_dialog_size(dataset_fileselection1);
 
+  set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
   gtk_widget_show (dataset_fileselection1);
 # if (GTK_MAJOR_VERSION > 1)
   push_the_buttons_on_fileselection(file_filter_button, sort_button, 
@@ -2162,6 +2164,7 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
 			      "save_coords_optionmenu");
 
   fill_option_menu_with_coordinates_options_unsaved_first(option_menu, callback_func, imol);
+  set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
   gtk_widget_show(widget);
 #if (GTK_MAJOR_VERSION > 1)
   gtk_window_present(GTK_WINDOW(widget));
