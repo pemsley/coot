@@ -1775,8 +1775,8 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       //cout << "j range: for i = " << i << " is "
       //	   << bonds_box.bonds_[i].num_lines << endl;
 
-      // std::cout << "   DEBUG:: bonds_index: " << i << " has " << bonds_box.bonds_[i].num_lines
-      // << " lines, thin_flag:  " << bonds_box.bonds_[i].thin_lines_flag  << std::endl;
+//       std::cout << "   DEBUG:: bonds_index: " << i << " has " << bonds_box.bonds_[i].num_lines
+// 		<< " lines, thin_flag:  " << bonds_box.bonds_[i].thin_lines_flag  << std::endl;
 
       if (bonds_box.bonds_[i].thin_lines_flag)
  	 glLineWidth(p_bond_width/2.0);

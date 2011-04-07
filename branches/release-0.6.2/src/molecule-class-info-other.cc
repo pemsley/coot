@@ -568,7 +568,7 @@ molecule_class_info_t::bonds_sec_struct_representation() {
    // 
    Bond_lines_container bonds;
    bonds.do_colour_sec_struct_bonds(atom_sel, 0.01, 1.9);
-   bonds_box = bonds.make_graphical_bonds();
+   bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
 } 
   
@@ -590,7 +590,7 @@ molecule_class_info_t::ca_plus_ligands_rainbow_representation() {
    Bond_lines_container bonds;
    bonds.do_Ca_plus_ligands_bonds(atom_sel, 2.4, 4.7,
 				  coot::COLOUR_BY_RAINBOW); // not COLOUR_BY_RAINBOW_BONDS
-   bonds_box = bonds.make_graphical_bonds();
+   bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
 }
 
@@ -601,7 +601,7 @@ molecule_class_info_t::b_factor_representation() {
       Bond_lines_container::COLOUR_BY_B_FACTOR;
 
    Bond_lines_container bonds(atom_sel, bond_type);
-   bonds_box = bonds.make_graphical_bonds();
+   bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
 } 
 
