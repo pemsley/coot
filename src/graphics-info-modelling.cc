@@ -1127,8 +1127,8 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
    }
    // now i_atom_no_2 is greater than i_atom_no_1.
 
-   cout << "regularize: molecule " << imol << " atom index " << i_atom_no_1
-	<< " to " << i_atom_no_2 << endl; 
+   // cout << "regularize: molecule " << imol << " atom index " << i_atom_no_1
+   // << " to " << i_atom_no_2 << endl; 
 
    int resno_1, resno_2; 
 
