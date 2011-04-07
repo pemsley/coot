@@ -57,8 +57,8 @@
     particular 3-letter code if they have been already read in (rather
     than run libcheck blindly) [Ian Tickle].
  
-  o CHANGE: SSM overlayed molecule now takes symmetry of reference
-    molecule
+  o CHANGE: SSM overlayed molecule now takes symmetry, cell and origin
+    of reference molecule.
 
   o CHANGE: Waters are now represented with "~" in the sequence view -
     so that there is a distinction between waters and interesting
@@ -71,8 +71,8 @@
     argument specifying the minimum distance between peak (filtering
     out close smaller peaks).
 
-  o CHANGE: Waters are not considered when calculating the clash score
-    during rotamer fit.
+  o CHANGE: Waters are no longer considered when calculating the clash
+    score during rotamer fit.
 
   o BUG-FIX:: Hydrogens on waters are no longer checked against the
     difference map in the water validation test.
@@ -86,6 +86,9 @@
 
   o BUG-FIX: Fix crash on rigid-body refine by atom selection with
     residue gaps [Joel Bard].
+
+  o BUG-FIX: Fix crash on Ramachandran restraints with planar peptide
+    restraints with alt confs [Peter Simone, Andrew Purkiss].
 
   o BUG-FIX: rename residue works on only the specified chain.
 
@@ -146,6 +149,9 @@
 
   o BUG-FIX: SSM superposition now superposes the correct molecules
     when the option menus are not adjusted [Sam Stampfter].
+
+  o BUG-FIX: colour-by-chain with C-only mode long non-C bonds fixed
+    [Petra Loenze].
 
 -----
 
