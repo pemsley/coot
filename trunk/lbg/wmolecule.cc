@@ -417,6 +417,8 @@ widgeted_bond_t::make_wedge_bond_item(const lig_build::pos_t &pos_1,
 				      const lig_build::pos_t &pos_2,
 				      const lig_build::bond_t::bond_type_t &bt,
 				      GooCanvasItem *root) const {
+
+   std::cout << "here in make_wedge_bond_item " << bt << " " << pos_1 << " " << pos_2 << std::endl;
    
    GooCanvasItem *item = NULL;
 
@@ -1133,11 +1135,27 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
 
       // bond table
       for (unsigned int ib=0; ib<bonds.size(); ib++) {
-	 if (! bonds[ib].is_closed()) { 
+	 const widgeted_bond_t &bond = bonds[ib];
+	 if (! bonds[ib].is_closed()) {
+
+	    // bond stereo, for wedge bonds. 0=Not-Stereo, 1=Up, 6=Down,
+	    // 3=Cis ot trans (either).
+	    // The wedge (narrow) end of the stereo bond is the first atom.
+	    // IN_BOND is Down and OUT_BOND is Up
+	    // 
+	    int bond_stereo = 0;
+	    if (bond.get_bond_type() == lig_build::bond_t::IN_BOND)
+	       bond_stereo = 6;
+	    if (bond.get_bond_type() == lig_build::bond_t::OUT_BOND)
+	       bond_stereo = 1;
+	    
+	    int idx_1 = mdl_atoms[bonds[ib].get_atom_1_index()];
+	    int idx_2 = mdl_atoms[bonds[ib].get_atom_2_index()];
+	    
 	    of.width(3);
-	    of << mdl_atoms[bonds[ib].get_atom_1_index()];
+	    of << idx_1;
 	    of.width(3);
-	    of << mdl_atoms[bonds[ib].get_atom_2_index()];
+	    of << idx_2;
 	    int bond_type = 1;
 	    if (bonds[ib].get_bond_type() == lig_build::bond_t::DOUBLE_BOND)
 	       bond_type = 2;
@@ -1145,9 +1163,11 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
 	       bond_type = 3;
 	    of.width(3);
 	    of << bond_type;
-	    int bond_stereo = 0; // fixme
+
+	    // write the bond stereo now
 	    of.width(3);
 	    of << bond_stereo;
+	    
 	    of << "   ";
 	    int bond_topology = 0; // 0 = either, 1 = ring, 2 = chain
 	    of.width(3);
@@ -1161,7 +1181,7 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
 
       // end
       of << "M  END\n";
-      of << "$$$$\n";
+      // of << "$$$$\n"; // not needed for mol2 files.
    }
    of.close();
    
@@ -1488,7 +1508,7 @@ topological_eqivalence_t::topological_eqivalence_t(const std::vector<widgeted_at
    int round = 0;
 
    bool eq_changed = true; // fake initial value
-   bool uniques_assigned = false; 
+   bool uniques_assigned = assign_uniques(prev_eqv);
 
    while (eq_changed || uniques_assigned) {
 
@@ -1515,9 +1535,9 @@ topological_eqivalence_t::topological_eqivalence_t(const std::vector<widgeted_at
 
    // EC numbers:
    std::cout << "--- final EC numbers -------- " << std::endl;
-   for (unsigned int iec=0; iec<curr_eqv.size(); iec++)
+   for (unsigned int iec=0; iec<prev_eqv.size(); iec++)
       std::cout << "  atom_index: " << iec << " ec-final: "
-		<< curr_eqv[iec] << std::endl;
+		<< prev_eqv[iec] << std::endl;
 
    std::cout << "--- final uniques -------- " << std::endl;
    for (unsigned int iun=0; iun<unique.size(); iun++) {
@@ -1530,19 +1550,19 @@ topological_eqivalence_t::topological_eqivalence_t(const std::vector<widgeted_at
    for (it=atom_map.begin(); it!=atom_map.end(); it++) {
 
       // it->second points to a vector of atoms.  If they have the
-      // same curr_eqv value then they are equivalent
+      // same prev_eqv value then they are equivalent
       
       for (unsigned int iat=0; iat<it->second.size(); iat++) {
 
-	 // is there another atom that matches the curr_eqv of this atom
-	 int atom_current_equiv = curr_eqv[it->second[iat]];
+	 // is there another atom that matches the prev_eqv of this atom
+	 int atom_current_equiv = prev_eqv[it->second[iat]];
 	 for (unsigned int ivi=0; ivi<it->second.size(); ivi++) {
 	    if (!unique[it->second[ivi]] && !unique[it->second[iat]]) { 
 	       if (it->second[ivi] != it->second[iat]) {
-		  if (curr_eqv[it->second[ivi]] == atom_current_equiv) {
+		  if (prev_eqv[it->second[ivi]] == atom_current_equiv) {
 		     std::cout << "  atom index " << it->second[ivi]
 			       << " equivalent to atom index " << it->second[iat]
-			       << "  " << curr_eqv[it->second[ivi]]
+			       << "  " << prev_eqv[it->second[ivi]]
 			       << std::endl;
 		  }
 	       }
@@ -1550,6 +1570,9 @@ topological_eqivalence_t::topological_eqivalence_t(const std::vector<widgeted_at
 	 }
       }
    }
+   std::cout << "--------------------- " << std::endl;
+
+   assign_invariant_sequence_number(atoms, bonds, curr_eqv);
 } 
 
 // Have more atoms become topologically equivalent by this iteration?
@@ -1561,8 +1584,8 @@ topological_eqivalence_t::continue_ec_calculations_p(const std::vector<widgeted_
 						     const std::vector<long int> &curr_eqv, 
 						     const std::vector<long int> &prev_eqv) {
 
-   int ec_curr = n_equivalent_classes(curr_eqv);
-   int ec_prev = n_equivalent_classes(prev_eqv);
+   int ec_curr = n_extended_connectivity(curr_eqv);
+   int ec_prev = n_extended_connectivity(prev_eqv);
 
    std::cout << "in continue_ec_calculations_p: comparing current ec " << ec_curr
 	     << " with previous ec " << ec_prev << std::endl;
@@ -1717,7 +1740,7 @@ topological_eqivalence_t::assign_topo_indices(const std::vector<widgeted_atom_t>
 }
 
 bool
-topological_eqivalence_t::assign_uniques(const std::vector<long int> &equivalent_classes) {
+topological_eqivalence_t::assign_uniques(const std::vector<long int> &extended_connectivity) {
 
    bool r = 0;
 
@@ -1730,7 +1753,7 @@ topological_eqivalence_t::assign_uniques(const std::vector<long int> &equivalent
    
       for (unsigned int ivi=0; ivi<it->second.size(); ivi++) {
 	 if (! unique[it->second[ivi]]) {
-	    topo_indices[equivalent_classes[it->second[ivi]]].push_back(it->second[ivi]);
+	    topo_indices[extended_connectivity[it->second[ivi]]].push_back(it->second[ivi]);
 	 }
       }
 
@@ -1751,17 +1774,9 @@ topological_eqivalence_t::assign_uniques(const std::vector<long int> &equivalent
 
 // there is an EC value for each atom.  How many different EC values are there?
 int
-topological_eqivalence_t::n_equivalent_classes(const std::vector<long int> &equivalent_classes) const {
+topological_eqivalence_t::n_extended_connectivity(const std::vector<long int> &extended_connectivity) const {
 
    int r = 0; 
-
-// Does not consider element differences
-//   
-//    std::map<long int, bool> counter;
-//    for (unsigned int i=0; i<equivalent_classes.size(); i++)
-//       counter[equivalent_classes[i]]++;
-//
-//    return counter.size();
 
    std::map<std::string, std::vector<int> >::const_iterator it;
    for (it=atom_map.begin(); it!=atom_map.end(); it++) {
@@ -1772,7 +1787,7 @@ topological_eqivalence_t::n_equivalent_classes(const std::vector<long int> &equi
 
       for (unsigned int ivi=0; ivi<it->second.size(); ivi++) {
 	 if (! unique[it->second[ivi]]) {
-	    topo_indices[equivalent_classes[it->second[ivi]]].push_back(it->second[ivi]);
+	    topo_indices[extended_connectivity[it->second[ivi]]].push_back(it->second[ivi]);
 	 }
       }
       r += topo_indices.size();
@@ -1782,5 +1797,150 @@ topological_eqivalence_t::n_equivalent_classes(const std::vector<long int> &equi
    
 } 
 
+// return a vector the same size as atoms, with the invariant sequence numbers
+void
+topological_eqivalence_t::assign_invariant_sequence_number(const std::vector<widgeted_atom_t> &atoms,
+							   const std::vector<widgeted_bond_t> &bonds,
+							   const std::vector<long int> &extended_connectivity) {
+
+   isn.resize(atoms.size(), 0);
+   std::map<long int, std::vector<int> > topo_indices;
+   std::map<long int, std::vector<int> >::const_reverse_iterator it_topo;
+
+   for (unsigned int iat=0; iat<extended_connectivity.size(); iat++)
+      topo_indices[extended_connectivity[iat]].push_back(iat);
+
+   // recall that std::maps are auto-sorted (forward low to high)
+
+   
+   // so now iterate through topo_indices, hight to low
+   // 
+   int next_index = 1;
+   for (it_topo=topo_indices.rbegin(); it_topo!=topo_indices.rend(); it_topo++) { 
+
+      const std::vector<int> &atom_index_deepest = it_topo->second;
+      int first_atom_index = atom_index_deepest[0];
+   
+      if (atom_index_deepest.size() == 1) {
+
+	 bool done = mark_isn(first_atom_index, next_index);
+	 if (done)
+	    next_index++;
+      
+      } else {
+
+	 std::vector<std::pair<int, int> > connected_indices;
+	 for (unsigned int iat=0; iat<atom_index_deepest.size(); iat++) {
+	    std::pair<int, int> p(atom_index_deepest[iat], lig_build::bond_t::BOND_UNDEFINED);
+	    connected_indices.push_back(p);
+	 }
+	 next_index = assign_invariant_sequence_number(atoms, bonds, extended_connectivity,
+						       connected_indices, next_index);
+      } 
+      
+      // what atoms are connected to first_atom_index?
+      // make a vector of them.
+      std::vector<std::pair<int, int> > connected_indices;
+      for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 
+	 if (bonds[ibond].get_atom_1_index() == first_atom_index) { 
+	    std::pair<int, int> p(bonds[ibond].get_atom_2_index(), ibond);
+	    connected_indices.push_back(p);
+	 }
+	 if (bonds[ibond].get_atom_2_index() == first_atom_index) {
+	    std::pair<int, int> p(bonds[ibond].get_atom_1_index(), ibond);
+	    connected_indices.push_back(p);
+	 }
+      }
+      next_index =
+	 assign_invariant_sequence_number(atoms, bonds, extended_connectivity, connected_indices, next_index);
+   }
+
+   std::cout << "-------------- isns ------------------" << std::endl;
+   for (unsigned int i_isn=0; i_isn<isn.size(); i_isn++) { 
+      std::cout << "   atom-index:  " << i_isn << " isn: " << isn[i_isn] << std::endl;
+   }
+}
+
+// assign the isns to atom indices of atom_index
+// 
+int
+topological_eqivalence_t::assign_invariant_sequence_number(const std::vector<widgeted_atom_t> &atoms,
+							   const std::vector<widgeted_bond_t> &bonds,
+							   const std::vector<long int> &extended_connectivity,
+							   std::vector<std::pair<int, int> > &atom_and_bond_index,
+							   int next_index) {
+
+
+   // which of the atom indices have the highest ec?  Sort them
+   //
+   std::map<long int, std::vector<std::pair<int, int> > > ec_map;
+   // fill the map
+   for (unsigned int ivi=0; ivi<atom_and_bond_index.size(); ivi++) {
+      std::pair<int, int> ai_pair = atom_and_bond_index[ivi];
+      ec_map[extended_connectivity[ai_pair.first]].push_back(ai_pair);
+   }
+
+   // ec_map is sorted lowest first, run through that list backwards
+   // (incrementing the counter, oh yes).
+
+   std::map<long int, std::vector<std::pair<int, int> > >::const_reverse_iterator it_ec;
+   std::map<long int, std::vector<std::pair<int, int> > >::const_reverse_iterator start_val = ec_map.rbegin();
+   std::map<long int, std::vector<std::pair<int, int> > >::const_reverse_iterator end_val   = ec_map.rend();
+
+   for (it_ec=start_val; it_ec!=end_val; it_ec++) {
+      const std::vector<std::pair<int, int> > &atom_indices_inner = it_ec->second;
+
+      if (atom_indices_inner.size() == 1) {
+	 bool done = mark_isn(atom_indices_inner[0].first, next_index);
+	 if (done)
+	    next_index++;
+      } else { 
+	 // botheration, we have to assign equivalent atoms.  Just
+	 // do it "randomly", i.e. by order for now.
+	 //
+	 // Should test on bond order
+	 for (unsigned int ivi=0; ivi<atom_indices_inner.size(); ivi++) {
+	    // use the bond?
+	    const widgeted_bond_t &bond = bonds[atom_indices_inner[ivi].second];
+	    bool done = mark_isn(atom_indices_inner[ivi].first, next_index);
+	    if (done)
+	       next_index++;
+	 } 
+      }
+   }
+   return next_index;
+   
+}
+
+bool
+topological_eqivalence_t::atoms_have_unassigned_isn_p() const {
+
+   int r = 0;  // non unassigned initially.
+   
+   for (unsigned int i=0; i<isn.size(); i++) { 
+      if (!isn[i]) {
+	 r = 0;
+	 break;
+      }
+   }
+   return r;
+} 
+
+
+bool
+topological_eqivalence_t::mark_isn(int atom_index, int i_s_n) {
+
+   bool done = false;
+   if (isn[atom_index] == 0) { 
+      isn[atom_index] = i_s_n;
+      done = true;
+//       std::cout << "        marked " << atom_index << " as invarient-sequence-number "
+// 		<< i_s_n << std::endl;
+   } else {
+//       std::cout << "      atom with index " << atom_index << " already given isn "
+// 		<< isn[atom_index] << " failed to slot in " << i_s_n << std::endl;
+   } 
+   return done;
+} 
 
 #endif // GOO_CANVAS

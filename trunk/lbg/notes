@@ -26,45 +26,6 @@ test_refmac1.pdb from David Banner. LIG, get it from the PDB.  Donor
 
 
 ----
-Thu Feb 17 13:31:48 GMT 2011
- 
-  using --script with-prodrg.scm
-
- 1) read test_refmac1.pdb from David Banner
- 2) centre on ligand
- 3) prodrgify
- 4) go back to test_refmac1.pdb molecule
-    Why does this not have bond order representation?
-        -> Because it is made of ATOMs. 
-        -> Hetatoms for this residue
- 5) sprout hydrogens
-   -> crash
-
-  note residue->2d doesn't crash, but we get the same message. So
-  sprout_hydrogens() should catch the exception in the same way.
-
-* Crash fixed.
-
-* Sprouting works - r3435
-
-----
-Sun Mar 20 23:17:06 GMT 2011
-
-   BUG. nestor
-
-   read in 1.mol in test/flame 
-
-   draw that - or other - molecule in lbg.
-
-   Press Apply
-
-   original and new molecule are undisplayed.
-
-
-* Done.  The mol -> asc interface was making the residue have an
-         insertion code.
-  
-----
 
  build Coronene using prodrg
 
@@ -93,59 +54,8 @@ Sat Jan  1 22:38:57 GMT 2011
 ---
 Sun Jan  9 16:55:56 GMT 2011
 
-   When reading in a mol2 file, test if zed is zero for the coords, 
+   When reading in a mol2 file, test if z is zero for the coords, 
    if Yes, then display in lbg instead.
-
-----
-Tue Dec  7 17:14:26 GMT 2010
-
-   crash:
-
-
-	    widgeted_bond_t b(penultimate_atom_index, new_index,
-			      mol.atoms[penultimate_atom_index],
-			      new_atom,
-			      bt, root);
-
-#0  0x054481b3 in std::basic_string<char, std::char_traits<char>, std::allocator<char> >::compare(char const*) const ()
-   from /usr/lib/libstdc++.so.6
-#1  0x0090e9b3 in operator==<char, std::char_traits<char>, std::allocator<char> > (this=0xd536e00, x_mouse=156, y_mouse=156)
-    at /usr/lib/gcc/i686-redhat-linux/4.4.3/../../../../include/c++/4.4.3/bits/basic_string.h:2270
-#2  operator!=<char, std::char_traits<char>, std::allocator<char> > (this=0xd536e00, x_mouse=156, y_mouse=156)
-    at /usr/lib/gcc/i686-redhat-linux/4.4.3/../../../../include/c++/4.4.3/bits/basic_string.h:2307
-#3  construct_internal (this=0xd536e00, x_mouse=156, y_mouse=156)
-    at /lmb/wear/emsley/Projects/coot-svn/trunk/lbg/wmolecule.hh:237
-#4  widgeted_bond_t (this=0xd536e00, x_mouse=156, y_mouse=156) at /lmb/wear/emsley/Projects/coot-svn/trunk/lbg/wmolecule.hh:315
-#5  lbg_info_t::rotate_latest_bond (this=0xd536e00, x_mouse=156, y_mouse=156)
-    at /lmb/wear/emsley/Projects/coot-svn/trunk/lbg/lbg.cc:499
-#6  0x00911cbf in lbg_info_t::handle_drag (this=0xd536e00, state=GDK_BUTTON1_MASK, x_as_int=156, y_as_int=156)
-    at /lmb/wear/emsley/Projects/coot-svn/trunk/lbg/lbg.cc:372
-#7  0x00911e3f in on_canvas_motion_new (item=0xd4a69a0, target_item=0x0, event=0xbf8a58ec, user_data=0x0)
-    at /lmb/wear/emsley/Projects/coot-svn/trunk/lbg/lbg.cc:358
-#8  0x01b478bb in goo_canvas_marshal_BOOLEAN__OBJECT_BOXED (closure=0xd491de8, return_value=0xbf8a5654, n_param_values=3, 
-    param_values=0xd574e20, invocation_hint=0xbf8a5640, marshal_data=0x911ce1) at goocanvasmarshal.c:203
-#9  0x09a515b3 in g_closure_invoke () from /lib/libgobject-2.0.so.0
-#10 0x09a67118 in ?? () from /lib/libgobject-2.0.so.0
-#11 0x09a68308 in g_signal_emit_valist () from /lib/libgobject-2.0.so.0
-#12 0x09a68792 in g_signal_emit_by_name () from /lib/libgobject-2.0.so.0
-#13 0x01b56a21 in propagate_event (canvas=<value optimized out>, item=0x0, signal_name=0x1b5f7c1 "motion_notify_event", event=
-    0xbf8a58ec) at goocanvas.c:2874
-#14 0x01b56c6a in emit_pointer_event (canvas=0xd202558, signal_name=0x1b5f7c1 "motion_notify_event", original_event=0xd81c9f8)
-    at goocanvas.c:2972
-
-
-----
-Wed Oct 13 07:18:36 EDT 2010
-
-   Use SBASE to get the bond orders (for any hetatm residue)
-
-   Then we can show anything in the PDB "instantaneously".  And lay it
-   out without having to use PRODRG first.
-	
-   The protein geometry interface will need to change a bit to allow
-   the storage of such entries (bond orders but no restraints).
-
-* Done.
 
 ----
 Wed Oct 20 18:23:52 EDT 2010
@@ -164,15 +74,6 @@ Sat Jan  8 16:43:55 GMT 2011
 
 
 ----
-Sat Oct 30 16:58:37 BST 2010
-
-   Sprout hydrogens with ligand from 1x8b and prodrg dictionary.
-
-   Problems with Hs on Ns...
-
-* Done.
-
-----
 Tue Nov  2 14:19:47 GMT 2010
 
     draw this (nutlin):
@@ -180,6 +81,8 @@ Tue Nov  2 14:19:47 GMT 2010
    http://www.caymanchem.com/app/template/Product.vm/catalog/18585/a/z%3Bjsessionid=68481FD62E7985888DA013B37765339F
 
    it has tricky chiral centres (that it seems phenix.elbow gets wrong)
+
+* Looks fine to me.  Cute.
 
 
 ----
@@ -272,13 +175,6 @@ Sat Oct 16 20:30:42 EDT 2010
 
 
 ---
-Tue Oct 12 14:11:45 EDT 2010
-
-    o Show a triple bond in 3D view 
-
-* fixed.
-
----
 Tue Oct 12 14:22:25 EDT 2010
 
      Chagers disease, 
@@ -307,22 +203,6 @@ Tue Oct 12 14:33:17 EDT 2010
   -> ugly 
 
   -> need a "clean-up layout" button.  
-
-
-----
-Fri May 21 14:02:36 BST 2010
-
-
-crash when setup sbase to the wrong directory.
-
-
-(lbg:23223): Gtk-WARNING **: Unable to locate theme engine in module_path: "murrine",
-
-(lbg:23223): Gtk-WARNING **: Unable to locate theme engine in module_path: "murrine",
-
-(lbg:23223): Gtk-WARNING **: Error loading icon: Failed to open file '/lmb/wear/emsley/Projects/coot/lbg/Anonymous_Architetto_--_Chiave.svg': No such file or directory
-sbase monomer dir: /home/paule/ccp4/ccp4-6.1.2/share/sbase
-sbase files not found in /home/paule/ccp4/ccp4-6.1.2/share/sbase
 
 
 ---
@@ -396,17 +276,6 @@ Sat May  8 13:59:58 UYT 2010
 * Angle of bonds to ligand.  Hard to solve.  What are the angles in a
   H-bond?
 
-----
-
-    look at 3lhj.  Problems
-
-* Looks good now.
-
-----
-
-    look at 3hec.  Problems.
-
-* OK now
 
 ---
 

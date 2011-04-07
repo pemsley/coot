@@ -909,9 +909,10 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 	    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
 	    if (canvas_addition_mode == lbg_info_t::ADD_TRIPLE_BOND)
 	       mol.bonds[bond_index].change_bond_order(at_1, at_2, 1, root);
-	    else 
+	    else {
 	       mol.bonds[bond_index].change_bond_order(at_1, at_2, root); // single to double
 						                          // or visa versa
+	    } 
 
 	    // Now that we have modified this bond, the atoms
 	    // compromising the bond may need to have their atom name
@@ -5095,7 +5096,7 @@ lbg_info_t::update_statusbar_smiles_string() const {
    std::string status_string;
    try {
       std::string s = get_smiles_string_from_mol();
-      std::cout << "SMILES string: " << s << std::endl;
+      // std::cout << "SMILES string: " << s << std::endl;
       status_string = " SMILES:  ";
       status_string += s;
 
