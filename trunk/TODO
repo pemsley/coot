@@ -4,6 +4,9 @@
    What's Planned for the Upcoming Coot Releases?
 
 
+  o Thining in Jones Mode, Rv3394c_model_Alex.pdb
+
+  o Jones Mode and pick non-visible atoms.
 
 -----
 
@@ -711,6 +714,8 @@ Punted from 0.6:
  0.7 Priorities:
 
    o Does Ca Zone -> Backbone crash?  (or is that only trunk?) ::: 1 
+
+   o read in 2Y0Z.pdb.  Ugliness reading UNK from sbase.
 
    o sphere refine doesn't work for alt confs.
 
