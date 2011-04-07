@@ -26,10 +26,6 @@
 
 #include "lbg.hh"
 
-extern "C" G_MODULE_EXPORT void
-on_close_button_clicked(GtkButton *button, gpointer user_data) {
-   gtk_main_quit();
-}
 
 extern "C" G_MODULE_EXPORT void
 on_lbg_apply_button_clicked(GtkButton *button, gpointer user_data) {
@@ -470,7 +466,10 @@ on_lbg_close_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
   GtkWidget *canvas = GTK_WIDGET(user_data);
   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
   if (l) {
-     gtk_exit(0);
+     if (l->is_stand_alone())
+	gtk_exit(0);
+     else
+	gtk_widget_hide(l->lbg_window);
   }
 }
 

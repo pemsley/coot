@@ -167,6 +167,13 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 	    std::string index_2_string =   lines[i].substr( 3,3);
 	    std::string bond_type_string = lines[i].substr( 6,3);
 	    try {
+
+	       int stereo_bond = 0;
+	       if (l> 11) {
+		  std::string stereo_bond_string = lines[i].substr( 9,3);
+		  stereo_bond = lig_build::string_to_int(stereo_bond_string);
+	       } 
+	       
 	       int index_1   = lig_build::string_to_int(index_1_string);
 	       int index_2   = lig_build::string_to_int(index_2_string);
 	       int bond_type = lig_build::string_to_int(bond_type_string);
@@ -178,6 +185,14 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 	       if (((index_1-1) >=0) && (index_1-1) < atoms.size()) { 
 		  if (((index_2-1) >=0) && (index_2-1) < atoms.size()) { 
 		     lig_build::molfile_bond_t bond(index_1-1, index_2-1, bt);
+		     if (stereo_bond != 0) {
+			// something interesting
+			if (stereo_bond == 6)
+			   bond.bond_type = lig_build::bond_t::OUT_BOND;
+			if (stereo_bond == 1)
+			   bond.bond_type = lig_build::bond_t::IN_BOND;
+		     }
+		     std::cout << "Added bond with type " << bond.bond_type << " " << stereo_bond << std::endl;
 		     bonds.push_back(bond);
 		  }
 	       }
