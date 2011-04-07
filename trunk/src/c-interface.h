@@ -644,11 +644,12 @@ float idle_function_rotate_angle();
 /*! \brief a synonym for read-pdb.  Read the coordinates from
   filename (can be pdb, cif or shelx format)  */
 int handle_read_draw_molecule(const char *filename);
-/*! \brief shall we convert nucletotides to match the dictionary
-  names?
+
+/*! \brief shall we convert nucleotide atom names to match the
+  dictionary names?
 
 Often we want to do this (give current Coot architecture).  Sometimes
-not, though.
+not, though.  The default is "on" (1).
  */
 void set_convert_to_v2_atom_names(short int state);
 
