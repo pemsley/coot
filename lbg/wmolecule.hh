@@ -373,7 +373,8 @@ public:
 	       bt = lig_build::bond_t::DOUBLE_BOND;
 	    else
 	       if (bt == lig_build::bond_t::IN_BOND) {
-		  std::cout << " add a reverse direction here " << std::endl;
+		  std::cout << " !!!!!!!!!!!!!!!!!!!!!! add a reverse direction here "
+			    << std::endl;
 		  std::swap(atom_1, atom_2);
 		  std::swap(at_1, at_2);
 		  bt = lig_build::bond_t::OUT_BOND;
