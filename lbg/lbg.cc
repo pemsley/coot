@@ -2400,6 +2400,19 @@ lbg_info_t::undo() {
    } 
 } 
 
+void
+lbg_info_t::delete_hydrogens() {
+
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+
+   // I don't understand what is going on here. Why can't I do this?
+   // mol.delete_hydrogens();  render(mol); ?  -> Blank canvas
+   widgeted_molecule_t copy_mol = mol;
+   copy_mol.delete_hydrogens(root);
+   save_molecule();
+   render_from_molecule(copy_mol);
+} 
+
 
 
 void
