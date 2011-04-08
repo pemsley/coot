@@ -412,6 +412,11 @@ public:
       case TRIPLE_BOND:
 	 mmdb_bt = 3;
 	 break;
+      case AROMATIC_BOND:
+      case SINGLE_OR_DOUBLE:
+      case SINGLE_OR_AROMATIC:
+      case DOUBLE_OR_AROMATIC:
+      case BOND_ANY:
       case BOND_UNDEFINED:
 	 mmdb_bt = UNASSIGNED_INDEX;
 	 break;
@@ -576,6 +581,8 @@ public:
    int n_open_bonds() const;
 
    bool is_close_to_non_last_atom(const lig_build::pos_t &test_post) const;
+
+   void delete_hydrogens(GooCanvasItem *root);
 
 };
 

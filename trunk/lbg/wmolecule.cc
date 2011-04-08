@@ -278,6 +278,11 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
    GooCanvasItem *ci = NULL;
    switch (bt) {
    case SINGLE_BOND:
+      // Add new cases, a bit of a hack of course.
+   case SINGLE_OR_DOUBLE:
+   case SINGLE_OR_AROMATIC:
+   case AROMATIC_BOND:
+   case BOND_ANY:
       ci = goo_canvas_polyline_new_line(root,
 					pos_1.x, pos_1.y,
 					pos_2.x, pos_2.y,
@@ -285,6 +290,7 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
 					NULL);
       break;
    case DOUBLE_BOND:
+   case DOUBLE_OR_AROMATIC:
       {
 	 if (have_centre_pos()) {
 	    ci = canvas_item_double_aromatic_bond(pos_1, pos_2, root);
@@ -1161,6 +1167,16 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
 	       bond_type = 2;
 	    if (bonds[ib].get_bond_type() == lig_build::bond_t::TRIPLE_BOND)
 	       bond_type = 3;
+	    if (bonds[ib].get_bond_type() == lig_build::bond_t::AROMATIC_BOND)
+	       bond_type = 4;
+	    if (bonds[ib].get_bond_type() == lig_build::bond_t::SINGLE_OR_DOUBLE)
+	       bond_type = 5;
+	    if (bonds[ib].get_bond_type() == lig_build::bond_t::SINGLE_OR_AROMATIC)
+	       bond_type = 6;
+	    if (bonds[ib].get_bond_type() == lig_build::bond_t::DOUBLE_OR_AROMATIC)
+	       bond_type = 7;
+	    if (bonds[ib].get_bond_type() == lig_build::bond_t::BOND_ANY)
+	       bond_type = 8;
 	    of.width(3);
 	    of << bond_type;
 
@@ -1488,6 +1504,21 @@ widgeted_molecule_t::is_close_to_non_last_atom(const lig_build::pos_t &test_pos)
    }
    return close;
 }
+
+void
+widgeted_molecule_t::delete_hydrogens(GooCanvasItem *root) {
+
+   for (unsigned int iat=0; iat<atoms.size(); iat++) {
+
+   // for (unsigned int iat=0; iat<28; iat++) {
+      if (atoms[iat].element == "H") {
+	 std::cout << "closing atom number " << iat << std::endl;
+	 close_atom(iat, root);
+      } 
+   } 
+
+} 
+
 
 
 

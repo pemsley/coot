@@ -205,3 +205,87 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
    }
 }
 
+
+
+// Extra addtion, so that we can make a molfile_molecule_t from
+// an MMDB molecule and restraints - this is so that we can
+// bring topological filtering to the results of PRODRG.
+//
+// We can only handle atoms in the residue that have altconf of "" - others are ignored.
+//
+lig_build::molfile_molecule_t::molfile_molecule_t(CResidue *residue_p,
+						  coot::dictionary_residue_restraints_t &restraints) {
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   molfile_atom_t blank_atom(0,0,0, "");
+   atoms.push_back(blank_atom); // blank atom for 0-index.
+   // make the atoms
+   for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      molfile_atom_t atom(residue_atoms[iat]->x,
+			  residue_atoms[iat]->y,
+			  residue_atoms[iat]->z,
+			  residue_atoms[iat]->element);
+      atoms.push_back(atom);
+   } 
+   
+   
+   std::map<std::string, std::vector<CAtom *> > atom_map;
+   std::map<std::string, std::vector<CAtom *> >::const_iterator it_1_atom_map;
+   std::map<std::string, std::vector<CAtom *> >::const_iterator it_2_atom_map;
+   std::map<CAtom *, int> atom_index_map;
+   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      atom_map[residue_atoms[iat]->name].push_back(residue_atoms[iat]);
+      atom_index_map[residue_atoms[iat]] = iat;
+   }
+
+   
+   for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
+      const coot::dict_bond_restraint_t &bond_restraint = restraints.bond_restraint[ibond];
+      std::string atom_name_1 = bond_restraint.atom_id_1_4c();
+      std::string atom_name_2 = bond_restraint.atom_id_2_4c();
+      it_1_atom_map = atom_map.find(atom_name_1);
+      it_2_atom_map = atom_map.find(atom_name_2);
+      if (it_1_atom_map != atom_map.end()) { 
+	 if (it_2_atom_map != atom_map.end()) {
+	    const std::vector<CAtom *> &v_1 = it_1_atom_map->second;
+	    const std::vector<CAtom *> &v_2 = it_2_atom_map->second;
+	    for (unsigned int iat_1=0; iat_1<v_1.size(); iat_1++) {
+	       std::string alt_conf_1 = v_1[iat_1]->altLoc;
+	       if (alt_conf_1 == "") {
+		  for (unsigned int iat_2=0; iat_2<v_2.size(); iat_2++) { 
+		     std::string alt_conf_2 = v_2[iat_2]->altLoc;
+		     if (alt_conf_2 == "") {
+
+			// OK, so we have a bond, these are indices
+			// into the atoms of the residue (they need to
+			// be offset to match the atoms of the
+			// molfile_molecule
+			// 
+			int idx_1 = atom_index_map[v_1[iat_1]];
+			int idx_2 = atom_index_map[v_2[iat_2]];
+
+			bond_t::bond_type_t bond_type = lig_build::bond_t::BOND_UNDEFINED;
+			if (bond_restraint.type() == "single")
+			   bond_type = lig_build::bond_t::SINGLE_BOND;
+			if (bond_restraint.type() == "double")
+			   bond_type = lig_build::bond_t::DOUBLE_BOND;
+			if (bond_restraint.type() == "triple")
+			   bond_type = lig_build::bond_t::TRIPLE_BOND;
+			if (bond_restraint.type() == "triple")
+			   bond_type = lig_build::bond_t::TRIPLE_BOND;
+			if (bond_restraint.type() == "aromatic")
+			   bond_type = lig_build::bond_t::AROMATIC_BOND;
+
+			molfile_bond_t bond(idx_1+1, idx_2+1, bond_type);
+			bonds.push_back(bond);
+		     }
+		  } 
+	       }
+	    }
+	 }
+      }
+   }
+}

@@ -1702,6 +1702,12 @@ else
     echo libtool should be built
 fi
 
+
+# using install_top_dir's libgmp causes selinux problems on some systems.  Therefore, if 
+# libgmp-dev is installed in the system lib dir /usr/$acl_libdirstem/libgmp.so.la we should 
+# use that rather than building.  Users of that build will have to install their own libgmp 
+# then. So be it.
+
 build_gmp=1
 if test -e ${install_top_dir}/lib/libgmp.so.3 ; then
     echo installation has gmp

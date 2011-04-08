@@ -19,7 +19,13 @@ lib_LTLIBRARIES=libcoot-lidia-core.la
 
 include_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh
 
-INCLUDES = $(CLIPPER_CXXFLAGS)
+#  20110408 I add a CResidue,dictionary_residue_restraints_t constructor to molfile_molecule_t
+# simple
+#INCLUDES = $(CLIPPER_CXXFLAGS)
+#
+INCLUDES = \
+	 -I$(top_srcdir)/geometry \
+	 $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 libcoot_lidia_core_la_SOURCES = lbg-molfile.cc lig-build.cc
 

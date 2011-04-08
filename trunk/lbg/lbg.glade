@@ -5,12 +5,13 @@
   <object class="GtkIconFactory" id="iconfactory1">
     <sources>
       <source stock-id="generated-icon-charge-svg" filename="pixmaps/charge.svg"/>
+      <source stock-id="generated-icon-delete-hydrogens-svg" filename="pixmaps/Trash-hydrogens-Andy_Trash_Can.svg"/>
       <source stock-id="generated-icon-stereo-out-svg" filename="pixmaps/stereo-out.svg"/>
       <source stock-id="generated-icon-8-c-svg" filename="pixmaps/8-c.svg"/>
       <source stock-id="generated-icon-double-svg" filename="pixmaps/double.svg"/>
       <source stock-id="generated-icon-6-c-arom-svg" filename="pixmaps/6-c-arom.svg"/>
-      <source stock-id="generated-icon-7-c-svg" filename="pixmaps/7-c.svg"/>
       <source stock-id="generated-icon-3-c-svg" filename="pixmaps/3-c.svg"/>
+      <source stock-id="generated-icon-7-c-svg" filename="pixmaps/7-c.svg"/>
       <source stock-id="generated-icon-5-c-svg" filename="pixmaps/5-c.svg"/>
       <source stock-id="generated-icon-4-c-svg" filename="pixmaps/4-c.svg"/>
       <source stock-id="lbg-key-icon-svg" filename="pixmaps/Anonymous_Architetto_--_Chiave.svg"/>
@@ -54,6 +55,7 @@
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <property name="always_show_image">True</property>
                         <signal name="activate" handler="on_lbg_open_menuitem_activate"/>
                       </object>
                     </child>
@@ -222,12 +224,38 @@
               </packing>
             </child>
             <child>
+              <object class="GtkToggleToolButton" id="lbg_charge_toolbutton">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Charge</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">generated-icon-charge-svg</property>
+                <signal name="toggled" handler="on_lbg_charge_toolbutton_toggled"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkToggleToolButton" id="delete_item_toggle_toolbutton">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Cut</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-cut</property>
                 <signal name="toggled" handler="on_delete_item_toggle_toolbutton_toggled"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="lbg_delete_hydrogens_toolbutton">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Delete Hydrogens</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">generated-icon-delete-hydrogens-svg</property>
+                <signal name="clicked" handler="on_lbg_delete_hydrogens_toolbutton_clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -922,8 +950,8 @@
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
     <signal name="close" handler="on_lbg_save_as_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_save_as_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -985,8 +1013,8 @@
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
     <signal name="close" handler="on_lbg_export_as_pdf_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_pdf_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -1052,8 +1080,8 @@
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
     <signal name="close" handler="on_lbg_export_as_png_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_png_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -1109,7 +1137,6 @@
       <action-widget response="-5">button9</action-widget>
     </action-widgets>
   </object>
-  <object class="GtkAction" id="action1"/>
   <object class="GtkDialog" id="lbg_smiles_dialog">
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
@@ -1198,5 +1225,8 @@
       <action-widget response="-5">lbg_smiles_dialog_ok_button</action-widget>
     </action-widgets>
   </object>
-  <object class="GtkAction" id="action2"/>
+  <object class="GtkImage" id="image4">
+    <property name="visible">True</property>
+    <property name="stock">gtk-missing-image</property>
+  </object>
 </interface>

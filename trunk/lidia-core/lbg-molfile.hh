@@ -24,6 +24,9 @@
 
 #include "clipper/core/coords.h"
 
+#include "mmdb_manager.h" // 20110408 for the construtor using restraints and CResidue
+#include "protein-geometry.hh"
+
 #include "lig-build.hh"
 
 
@@ -81,7 +84,16 @@ namespace lig_build {
       }
       void add_bond(const molfile_bond_t &b) {
 	 bonds.push_back(b);
-      } 
+      }
+
+      // Extra addtion, so that we can make a molfile_molecule_t from
+      // an MMDB molecule and restraints - this is so that we can
+      // bring topological filtering to the results of PRODRG.
+      // 
+      // We can (only) handle atoms in the residue that have altconf of "" - others are ignored.
+      // 
+      molfile_molecule_t(CResidue *residue_p, coot::dictionary_residue_restraints_t &restraints);
+      
    };
 
    

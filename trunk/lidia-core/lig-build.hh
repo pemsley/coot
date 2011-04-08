@@ -254,8 +254,12 @@ namespace lig_build {
    // -----------------------------------------------------------------
    class bond_t {
    public:
-      enum bond_type_t { BOND_UNDEFINED=100, SINGLE_BOND=101, DOUBLE_BOND=102, TRIPLE_BOND=103,
-			 IN_BOND=104, OUT_BOND=105 };
+      // IN_BOND and OUT_BOND are a type of single bond.
+      // 
+      enum bond_type_t { BOND_UNDEFINED=100, SINGLE_BOND=101, DOUBLE_BOND=102,
+			 TRIPLE_BOND=103, AROMATIC_BOND=4, IN_BOND=104, OUT_BOND=105,
+			 SINGLE_OR_DOUBLE=5, SINGLE_OR_AROMATIC=6,
+			 DOUBLE_OR_AROMATIC=7, BOND_ANY=8 };
    protected: // atom_1 and atom_2 get swaped when turning an IN_BOND to an OUT_BOND;
       int atom_1;
       int atom_2;

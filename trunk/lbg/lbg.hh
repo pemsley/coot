@@ -928,6 +928,7 @@ public:
       mouse_at_click = lig_build::pos_t(double(xpos), double(ypos));
    }
    void render_from_molecule(const widgeted_molecule_t &mol_in);
+   void delete_hydrogens();
    void undo();
    void search() const;
    widgeted_molecule_t  import(const lig_build::molfile_molecule_t &mol_in,
