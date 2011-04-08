@@ -229,6 +229,7 @@ on_canvas_button_press_new(GooCanvasItem  *item,
 	 if (l->in_delete_mode_p()) { 
 	    l->handle_item_delete(event);
 	 } else {
+	    std::cout << "calling handle_item_add()... " << std::endl;
 	    l->handle_item_add(event);
 	 }
       }
@@ -694,7 +695,7 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
       changed_status = try_stamp_polygon(6, x_as_int, y_as_int, shift_is_pressed, 0);
    if (canvas_addition_mode == lbg_info_t::HEXAGON_AROMATIC)
       changed_status = try_stamp_hexagon_aromatic(x_as_int, y_as_int, shift_is_pressed);
-   if (canvas_addition_mode == lbg_info_t::TRIANLE)
+   if (canvas_addition_mode == lbg_info_t::TRIANGLE)
       changed_status = try_stamp_polygon(3, x_as_int, y_as_int, shift_is_pressed, 0);
    if (canvas_addition_mode == lbg_info_t::SQUARE)
       changed_status = try_stamp_polygon(4, x_as_int, y_as_int, shift_is_pressed, 0);
@@ -901,6 +902,11 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 	 int bond_index = mol.get_bond_index(ind_1, ind_2);
 	 lig_build::bond_t::bond_type_t bt =
 	    addition_mode_to_bond_type(canvas_addition_mode);
+	 std::cout << "....... canvas_addition_mode: " << canvas_addition_mode << " " 
+		   << "bond type: " << bt << " c.f. " << lbg_info_t::ADD_STEREO_OUT_BOND
+		   << " and " << lig_build::bond_t::OUT_BOND
+		   << std::endl;
+	 
 	 if (bond_index != UNASSIGNED_INDEX) {
 	    // we need to pass the atoms so that we know if and how to
 	    // shorten the bonds (canvas items) to account for atom names.
@@ -910,8 +916,27 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 	    if (canvas_addition_mode == lbg_info_t::ADD_TRIPLE_BOND)
 	       mol.bonds[bond_index].change_bond_order(at_1, at_2, 1, root);
 	    else {
-	       mol.bonds[bond_index].change_bond_order(at_1, at_2, root); // single to double
-						                          // or visa versa
+
+	       if (bt == lig_build::bond_t::OUT_BOND || bt == lig_build::bond_t::IN_BOND) {
+		  // convert to stereo bond
+		  //
+		  // if it is not currently a stereo out bond, convert
+		  // it to a stereo out bond. If it is a stereo_out
+		  // bond, convert it with change_bond_order().
+		  // 
+		  if (mol.bonds[bond_index].get_bond_type() != bt) { 
+		     mol.bonds[bond_index].set_bond_type(bt);
+		     mol.bonds[bond_index].make_new_canvas_item(at_1, at_2, root);
+		  } else {
+		     mol.bonds[bond_index].change_bond_order(at_1, at_2, root); // out to in and vice
+             		                                                      // versa (with direction change)
+		  } 
+	       } else { 
+
+		  // conventional/usual change
+		  mol.bonds[bond_index].change_bond_order(at_1, at_2, root); // single to double
+				  		                             // or visa versa
+	       }
 	    } 
 
 	    // Now that we have modified this bond, the atoms
@@ -931,7 +956,7 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 
 lig_build::bond_t::bond_type_t
 lbg_info_t::addition_mode_to_bond_type(int canvas_addition_mode) const {
-   
+
    lig_build::bond_t::bond_type_t bt = lig_build::bond_t::SINGLE_BOND;
    if (canvas_addition_mode == lbg_info_t::ADD_DOUBLE_BOND)
       bt = lig_build::bond_t::DOUBLE_BOND;

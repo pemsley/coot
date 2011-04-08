@@ -443,18 +443,27 @@ widgeted_bond_t::make_wedge_out_bond_item(const lig_build::pos_t &pos_1,
 
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
-   lig_build::pos_t short_edge_pt_1 = pos_2 + buv_90 * 4;
-   lig_build::pos_t short_edge_pt_2 = pos_2 - buv_90 * 4;
+   lig_build::pos_t short_edge_pt_1 = pos_2 + buv_90 * 3;
+   lig_build::pos_t short_edge_pt_2 = pos_2 - buv_90 * 3;
 
    // the line width means that the sharp angle an pos_1 here results
    // in a few pixels beyond the pos_1, so artificially shorten it a
    // tiny amount.
+   //
+   // Also, make it a quadralateral, with the sharp points very close,
+   // this make the spike go away.
+   //
    // 
-   lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.11);
+   // lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.11);
+   lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.07);
+   
+   lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.1;
+   lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.1;
    
    GooCanvasItem *item =
-      goo_canvas_polyline_new(root, TRUE, 3,
-			      sharp_point.x, sharp_point.y, 
+      goo_canvas_polyline_new(root, TRUE, 4,
+			      sharp_point_2.x, sharp_point_2.y, 
+			      sharp_point_1.x, sharp_point_1.y, 
 			      short_edge_pt_1.x, short_edge_pt_1.y,
 			      short_edge_pt_2.x, short_edge_pt_2.y,
 			      "stroke-color", dark,
@@ -470,14 +479,13 @@ widgeted_bond_t::make_wedge_in_bond_item(const lig_build::pos_t &pos_1,
 					 const lig_build::pos_t &pos_2,
 					 GooCanvasItem *root) const {
    
-   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark,
-						NULL);
+   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark, NULL);
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
    int n_lines = 5;
    for (unsigned int i=1; i<=n_lines; i++) {
       // then centre point of the line, some way along the pos_1 -> pos_2 vector;
-      double len = double(i) * 1.4;
+      double len = double(i) * 1.2;
       double frac = (double(i)- 0.3)/double(n_lines);
       lig_build::pos_t fp = lig_build::pos_t::fraction_point(pos_1, pos_2, frac);
       lig_build::pos_t p1 = fp + buv_90 * len;
