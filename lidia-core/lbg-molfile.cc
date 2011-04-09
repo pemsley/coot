@@ -188,9 +188,9 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 		     if (stereo_bond != 0) {
 			// something interesting
 			if (stereo_bond == 6)
-			   bond.bond_type = lig_build::bond_t::OUT_BOND;
-			if (stereo_bond == 1)
 			   bond.bond_type = lig_build::bond_t::IN_BOND;
+			if (stereo_bond == 1)
+			   bond.bond_type = lig_build::bond_t::OUT_BOND;
 		     }
 		     std::cout << "Added bond with type " << bond.bond_type << " " << stereo_bond << std::endl;
 		     bonds.push_back(bond);

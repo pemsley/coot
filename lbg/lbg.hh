@@ -690,6 +690,9 @@ private:
       ligand_spec_pair.first = 0; // unset ligand_spec
       use_graphics_interface_flag = 1; // default: show gui windows and widgets.
       mdl_file_name = "coot.mol";
+      atom_X = "H";
+      lbg_atom_x_dialog = NULL;
+      lbg_atom_x_entry = NULL;
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -860,6 +863,7 @@ private:
    // allow access of the Search button callback to the search
    // similarity combox box text.
    double get_search_similarity() const;
+   std::string atom_X; // initially "H"
 
 
 public:
@@ -897,6 +901,8 @@ public:
    GtkWidget *lbg_smiles_entry;
    GtkWidget *lbg_statusbar;
    GtkWidget *lbg_toolbar_layout_info_label;
+   GtkWidget *lbg_atom_x_dialog;
+   GtkWidget *lbg_atom_x_entry;
    GtkWidget *canvas;
    std::map<std::string, GtkToggleToolButton *> widget_names;
    widgeted_molecule_t mol;
@@ -981,6 +987,9 @@ public:
    void no_graphics_mode() {
       use_graphics_interface_flag = 0;
    }
+
+   void show_atom_x_dialog();
+   void set_atom_x_string(const std::string &s);
 
    void write_mdl_molfile_using_default_file_name() const;
    

@@ -31,6 +31,18 @@ test_refmac1.pdb from David Banner. LIG, get it from the PDB.  Donor
 
 
 ----
+Sat Apr  9 11:28:00 BST 2011
+
+  Don't allow the change of direction of a wedge bond if there are not
+  more than 1 atom connected to what is (might be) the new sharp end
+  of the wedge.
+
+  confusing code because the swap of indicies (1. of the molecule,
+  2. of the highlighting indices) happens in different places.
+
+  line 939 of lbg.cc 
+
+----
 Mon Nov 29 17:00:39 GMT 2010
 
    call smiles_to_ligand_builder with a bad string:     
