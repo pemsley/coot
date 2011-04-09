@@ -172,6 +172,9 @@ public:
 			     const double &radius_corrected,
 			     const widgeted_molecule_t &mol) const;
       std::pair<int, int> get_bond_indices() const { return bond_indices; }
+      // behind this class's back the atom indices of the bond can get
+      // swapped.  Here is a means to tell that to this class.
+      void swap_bond_indices() { std::swap(bond_indices.first, bond_indices.second);}
    }; // finish highlight_data_t class
 
    // a container for the results of the comparison vs SBase graph matching.

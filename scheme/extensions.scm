@@ -597,7 +597,7 @@
 	      (missing-atoms-gui imol)))))
 
 
-	;; --- Rig --- 
+	;; --- Rid --- 
 
 	(add-simple-coot-menu-menuitem 
 	 submenu-models "Rigid Body Fit Residue Ranges..."

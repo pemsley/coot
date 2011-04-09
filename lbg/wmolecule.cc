@@ -424,7 +424,8 @@ widgeted_bond_t::make_wedge_bond_item(const lig_build::pos_t &pos_1,
 				      const lig_build::bond_t::bond_type_t &bt,
 				      GooCanvasItem *root) const {
 
-   std::cout << "here in make_wedge_bond_item " << bt << " " << pos_1 << " " << pos_2 << std::endl;
+//    std::cout << "here in make_wedge_bond_item " << bt << " " << pos_1 << " " << pos_2 << std::endl;
+//    std::cout << "" << std::endl;
    
    GooCanvasItem *item = NULL;
 
@@ -485,7 +486,7 @@ widgeted_bond_t::make_wedge_in_bond_item(const lig_build::pos_t &pos_1,
    int n_lines = 5;
    for (unsigned int i=1; i<=n_lines; i++) {
       // then centre point of the line, some way along the pos_1 -> pos_2 vector;
-      double len = double(i) * 1.2;
+      double len = double(i) * 1.0;
       double frac = (double(i)- 0.3)/double(n_lines);
       lig_build::pos_t fp = lig_build::pos_t::fraction_point(pos_1, pos_2, frac);
       lig_build::pos_t p1 = fp + buv_90 * len;
@@ -1530,9 +1531,11 @@ widgeted_molecule_t::delete_hydrogens(GooCanvasItem *root) {
 
 
 
-topological_eqivalence_t::topological_eqivalence_t(const std::vector<widgeted_atom_t> &atoms,
-						   const std::vector<widgeted_bond_t> &bonds) {
+topological_equivalence_t::topological_equivalence_t(const std::vector<widgeted_atom_t> &atoms_in,
+						     const std::vector<widgeted_bond_t> &bonds_in) {
 
+   atoms = atoms_in;
+   bonds = bonds_in;
 
    unique.resize(atoms.size(), false);
 
@@ -1542,7 +1545,7 @@ topological_eqivalence_t::topological_eqivalence_t(const std::vector<widgeted_at
 
    // The Morgan algorithm - or something like it.
    
-   std::vector<long int> prev_eqv = assign_initial_topo_indices(atoms, bonds);
+   std::vector<long int> prev_eqv = assign_initial_topo_indices();
    std::vector<long int> curr_eqv;
    int round = 0;
 
@@ -1554,12 +1557,12 @@ topological_eqivalence_t::topological_eqivalence_t(const std::vector<widgeted_at
       std::cout << "::::::::::::::::::::::::::: round: "
 		<< round << " ::::::::::::::::::::::::::::::::::::" << std::endl;
 
-      curr_eqv = assign_topo_indices(atoms, bonds, prev_eqv, round);
+      curr_eqv = assign_topo_indices(prev_eqv, round);
 
       // should we do this only if eq_changed is true?
       uniques_assigned = assign_uniques(curr_eqv);
       
-      eq_changed = continue_ec_calculations_p(atoms, curr_eqv, prev_eqv);
+      eq_changed = continue_ec_calculations_p(curr_eqv, prev_eqv);
       std::cout << ":::::::::::: eq_changed: " << eq_changed
 		<< "    uniques_assigned: " << uniques_assigned<< std::endl;
 
@@ -1611,7 +1614,7 @@ topological_eqivalence_t::topological_eqivalence_t(const std::vector<widgeted_at
    }
    std::cout << "--------------------- " << std::endl;
 
-   assign_invariant_sequence_number(atoms, bonds, curr_eqv);
+   assign_invariant_sequence_number(curr_eqv);
 } 
 
 // Have more atoms become topologically equivalent by this iteration?
@@ -1619,9 +1622,8 @@ topological_eqivalence_t::topological_eqivalence_t(const std::vector<widgeted_at
 // (If no, then end the loop in the calling function)
 // 
 bool
-topological_eqivalence_t::continue_ec_calculations_p(const std::vector<widgeted_atom_t> &atoms,
-						     const std::vector<long int> &curr_eqv, 
-						     const std::vector<long int> &prev_eqv) {
+topological_equivalence_t::continue_ec_calculations_p(const std::vector<long int> &curr_eqv,
+						      const std::vector<long int> &prev_eqv) {
 
    int ec_curr = n_extended_connectivity(curr_eqv);
    int ec_prev = n_extended_connectivity(prev_eqv);
@@ -1644,9 +1646,8 @@ topological_eqivalence_t::continue_ec_calculations_p(const std::vector<widgeted_
 // (If no, then end the loop in the calling function)
 // 
 bool
-topological_eqivalence_t::identified_unique_p(const std::vector<widgeted_atom_t> &atoms,
-					      const std::vector<long int> &curr_eqv, 
-					      const std::vector<long int> &prev_eqv) {
+topological_equivalence_t::identified_unique_p(const std::vector<long int> &curr_eqv, 
+					       const std::vector<long int> &prev_eqv) {
 
    bool r = 0; // not changed.
 
@@ -1731,8 +1732,7 @@ topological_eqivalence_t::identified_unique_p(const std::vector<widgeted_atom_t>
 
 
 std::vector<long int>
-topological_eqivalence_t::assign_initial_topo_indices(const std::vector<widgeted_atom_t> &atoms,
-						      const std::vector<widgeted_bond_t> &bonds) {
+topological_equivalence_t::assign_initial_topo_indices() {
    
    std::vector<long int> r(atoms.size());
 
@@ -1748,10 +1748,8 @@ topological_eqivalence_t::assign_initial_topo_indices(const std::vector<widgeted
 }
 
 std::vector<long int>
-topological_eqivalence_t::assign_topo_indices(const std::vector<widgeted_atom_t> &atoms,
-					      const std::vector<widgeted_bond_t> &bonds,
-					      const std::vector<long int> &prev_eqv,
-					      int round) {
+topological_equivalence_t::assign_topo_indices(const std::vector<long int> &prev_eqv,
+					       int round) {
 
    std::vector<long int> r(prev_eqv.size(), 0);
 
@@ -1779,7 +1777,7 @@ topological_eqivalence_t::assign_topo_indices(const std::vector<widgeted_atom_t>
 }
 
 bool
-topological_eqivalence_t::assign_uniques(const std::vector<long int> &extended_connectivity) {
+topological_equivalence_t::assign_uniques(const std::vector<long int> &extended_connectivity) {
 
    bool r = 0;
 
@@ -1813,7 +1811,7 @@ topological_eqivalence_t::assign_uniques(const std::vector<long int> &extended_c
 
 // there is an EC value for each atom.  How many different EC values are there?
 int
-topological_eqivalence_t::n_extended_connectivity(const std::vector<long int> &extended_connectivity) const {
+topological_equivalence_t::n_extended_connectivity(const std::vector<long int> &extended_connectivity) const {
 
    int r = 0; 
 
@@ -1838,9 +1836,7 @@ topological_eqivalence_t::n_extended_connectivity(const std::vector<long int> &e
 
 // return a vector the same size as atoms, with the invariant sequence numbers
 void
-topological_eqivalence_t::assign_invariant_sequence_number(const std::vector<widgeted_atom_t> &atoms,
-							   const std::vector<widgeted_bond_t> &bonds,
-							   const std::vector<long int> &extended_connectivity) {
+topological_equivalence_t::assign_invariant_sequence_number(const std::vector<long int> &extended_connectivity) {
 
    isn.resize(atoms.size(), 0);
    std::map<long int, std::vector<int> > topo_indices;
@@ -1873,7 +1869,7 @@ topological_eqivalence_t::assign_invariant_sequence_number(const std::vector<wid
 	    std::pair<int, int> p(atom_index_deepest[iat], lig_build::bond_t::BOND_UNDEFINED);
 	    connected_indices.push_back(p);
 	 }
-	 next_index = assign_invariant_sequence_number(atoms, bonds, extended_connectivity,
+	 next_index = assign_invariant_sequence_number(extended_connectivity,
 						       connected_indices, next_index);
       } 
       
@@ -1890,8 +1886,9 @@ topological_eqivalence_t::assign_invariant_sequence_number(const std::vector<wid
 	    connected_indices.push_back(p);
 	 }
       }
-      next_index =
-	 assign_invariant_sequence_number(atoms, bonds, extended_connectivity, connected_indices, next_index);
+      next_index = assign_invariant_sequence_number(extended_connectivity,
+						    connected_indices,
+						    next_index);
    }
 
    std::cout << "-------------- isns ------------------" << std::endl;
@@ -1903,11 +1900,9 @@ topological_eqivalence_t::assign_invariant_sequence_number(const std::vector<wid
 // assign the isns to atom indices of atom_index
 // 
 int
-topological_eqivalence_t::assign_invariant_sequence_number(const std::vector<widgeted_atom_t> &atoms,
-							   const std::vector<widgeted_bond_t> &bonds,
-							   const std::vector<long int> &extended_connectivity,
-							   std::vector<std::pair<int, int> > &atom_and_bond_index,
-							   int next_index) {
+topological_equivalence_t::assign_invariant_sequence_number(const std::vector<long int> &extended_connectivity,
+							    const std::vector<std::pair<int, int> > &atom_and_bond_index,
+							    int next_index) {
 
 
    // which of the atom indices have the highest ec?  Sort them
@@ -1952,7 +1947,7 @@ topological_eqivalence_t::assign_invariant_sequence_number(const std::vector<wid
 }
 
 bool
-topological_eqivalence_t::atoms_have_unassigned_isn_p() const {
+topological_equivalence_t::atoms_have_unassigned_isn_p() const {
 
    int r = 0;  // non unassigned initially.
    
@@ -1967,7 +1962,7 @@ topological_eqivalence_t::atoms_have_unassigned_isn_p() const {
 
 
 bool
-topological_eqivalence_t::mark_isn(int atom_index, int i_s_n) {
+topological_equivalence_t::mark_isn(int atom_index, int i_s_n) {
 
    bool done = false;
    if (isn[atom_index] == 0) { 
@@ -1980,6 +1975,27 @@ topological_eqivalence_t::mark_isn(int atom_index, int i_s_n) {
 // 		<< isn[atom_index] << " failed to slot in " << i_s_n << std::endl;
    } 
    return done;
+} 
+
+
+std::vector<std::string>
+topological_equivalence_t::chiral_centres() const {
+
+   std::vector<std::string> v;
+
+   return v;
+
+} 
+
+// Return a list of atom indices that are connected to 3 or 4 other
+// atoms (return the indices of those other atoms too.
+// 
+std::vector<std::pair<int, std::vector<int> > >
+topological_equivalence_t::tetrahedral_atoms() const {
+
+   std::vector<std::pair<int, std::vector<int> > > v;
+   
+   return v;
 } 
 
 #endif // GOO_CANVAS

@@ -56,6 +56,11 @@
 
 #include "guile-fixups.h"
 
+#ifdef HAVE_GOOCANVAS
+#include "goocanvas.h"
+#include "wmolecule.hh"
+#endif // HAVE_GOOCANVAS
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  ligand overlay                                          */
@@ -1430,3 +1435,42 @@ void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int r
       }
    }
 }
+
+
+/*  return a list of chiral centre ids as determined from topological
+    equivalence analysis based on the bond info (and element names).
+
+    A better OO design would put this inside protein-geometry.
+
+*/
+std::vector<std::string>
+topological_equivalence_chiral_centres(std::string &residue_type) {
+
+   std::vector<std::string> centres;
+#ifdef HAVE_GOOCANVAS
+
+   graphics_info_t g;
+
+   std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+      g.Geom_p()->get_monomer_restraints(residue_type);
+
+   if (p.first) {
+
+      const coot::dictionary_residue_restraints_t &restraints = p.second;
+      lig_build::molfile_molecule_t mm(restraints); // makes dummy atoms
+      widgeted_molecule_t wm(mm, NULL); // we have the atom names already.
+      topological_equivalence_t top_eq(wm.atoms, wm.bonds);
+      centres = top_eq.chiral_centres();
+
+      std::cout << "-------- chiral centres by topology analysis -----------"
+		<< std::endl;
+      for (unsigned int ic=0; ic<centres.size(); ic++) { 
+	 std::cout << "     " << ic << "  " << centres[ic] << std::endl;
+      }
+      std::cout << "-------------------" << std::endl;
+   } 
+
+#endif // HAVE_GOOCANVAS
+   return centres;
+} 
+

@@ -819,6 +819,14 @@ void orient_view(int imol,
 		 const coot::residue_spec_t &neighbour_residue_spec);
 
 
+/*  return a list of chiral centre ids as determined from topological
+    equivalence analysis based on the bond info (and element names). */
+std::vector<std::string>
+topological_equivalence_chiral_centres(std::string &residue_type); 
+
+
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
 /*  ----------------------------------------------------------------------- */
