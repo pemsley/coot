@@ -343,7 +343,7 @@
 
 
       (add-simple-coot-menu-menuitem 
-       menu "Assign (force) HETATMs for this Residue"
+       submenu-models "Assign (force) HETATMs for this Residue"
        (lambda ()
 	 (using-active-atom
 	  (hetify-residue aa-imol aa-chain-id aa-res-no aa-ins-code))))
