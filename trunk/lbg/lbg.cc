@@ -808,7 +808,7 @@ lbg_info_t::to_element(int addition_mode) const {
    if (addition_mode == lbg_info_t::ATOM_BR)
       r = "Br";
    if (addition_mode == lbg_info_t::ATOM_X)
-      r = "X";  // wrong.
+      r = atom_X;  // wrong.
    return r;
 }
 
@@ -2068,15 +2068,15 @@ lbg_info_t::init(GtkBuilder *builder) {
    save_as_dialog  = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_save_as_filechooserdialog"));
    lbg_sbase_search_results_dialog = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_sbase_search_results_dialog"));
    lbg_sbase_search_results_vbox = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_sbase_search_results_vbox"));
-   lbg_export_as_pdf_dialog =  GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_pdf_filechooserdialog"));
-   lbg_export_as_png_dialog =  GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_png_filechooserdialog"));
-   lbg_smiles_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_dialog"));
-   lbg_smiles_entry = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_entry"));
-   lbg_search_combobox = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_combobox"));
-   
-   lbg_statusbar = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_statusbar"));
+   lbg_export_as_pdf_dialog =      GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_pdf_filechooserdialog"));
+   lbg_export_as_png_dialog =      GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_png_filechooserdialog"));
+   lbg_smiles_dialog =             GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_dialog"));
+   lbg_smiles_entry =              GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_entry"));
+   lbg_search_combobox =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_combobox"));
+   lbg_statusbar =                 GTK_WIDGET(gtk_builder_get_object(builder, "lbg_statusbar"));
    lbg_toolbar_layout_info_label = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_toolbar_layout_info_label"));
-
+   lbg_atom_x_dialog =             GTK_WIDGET(gtk_builder_get_object(builder, "lbg_atom_x_dialog"));
+   lbg_atom_x_entry =              GTK_WIDGET(gtk_builder_get_object(builder, "lbg_atom_x_entry"));
 
    gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
 
@@ -5167,5 +5167,22 @@ lbg_info_t::update_statusbar_smiles_string() const {
 			 status_string.c_str());
    }
 }
+
+void
+lbg_info_t::show_atom_x_dialog() {
+
+   // show dialog here.
+   if (lbg_atom_x_dialog && lbg_atom_x_entry) {
+      gtk_entry_set_text(GTK_ENTRY(lbg_atom_x_entry), atom_X.c_str());
+      gtk_widget_show(lbg_atom_x_dialog);
+   } else {
+      std::cout << "lbg_atom_x_dialog null " << std::endl;
+   } 
+} 
+
+void
+lbg_info_t::set_atom_x_string(const std::string &s) {
+   atom_X = s;
+} 
 
 #endif // HAVE_GOOCANVAS

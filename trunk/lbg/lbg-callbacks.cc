@@ -66,6 +66,10 @@ extern "C" G_MODULE_EXPORT void
 on_other_element_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_handle_toggle_button(button, canvas, lbg_info_t::ATOM_X);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+      l->show_atom_x_dialog();
+   } 
 }
 
 extern "C" G_MODULE_EXPORT void
@@ -626,4 +630,39 @@ on_lbg_delete_hydrogens_toolbutton_clicked(GtkToolButton *button, gpointer user_
    } 
 }
 
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_atom_x_dialog_close_button_clicked(GtkButton *button, gpointer user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (!l) {
+      std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
+   } else {
+      gtk_widget_hide(l->lbg_atom_x_dialog);
+   } 
+}
+
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_atom_x_entry_insert_at_cursor(GtkEntry *entry,
+				     char *string,
+				     gpointer  user_data) {
+}
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_atom_x_entry_changed (GtkEditable *editable,
+			     gpointer     user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (!l) {
+      std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
+   } else {
+      l->set_atom_x_string(gtk_entry_get_text(GTK_ENTRY(editable)));
+   }
+} 
+
+
+
 #endif // HAVE_GOOCANVAS
+
