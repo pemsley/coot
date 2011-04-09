@@ -153,7 +153,7 @@ int test_function(int i, int j) {
 	       g.Geom_p()->get_monomer_restraints(residue->GetResName());
 	    lig_build::molfile_molecule_t mm(residue, restraints.second);
 	    widgeted_molecule_t wm(mm, mol);
-	    topological_eqivalence_t top_eq(wm.atoms, wm.bonds);
+	    topological_equivalence_t top_eq(wm.atoms, wm.bonds);
 	 } 
       } 
    } 

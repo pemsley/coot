@@ -214,7 +214,7 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 // We can only handle atoms in the residue that have altconf of "" - others are ignored.
 //
 lig_build::molfile_molecule_t::molfile_molecule_t(CResidue *residue_p,
-						  coot::dictionary_residue_restraints_t &restraints) {
+						  const coot::dictionary_residue_restraints_t &restraints) {
 
    PPCAtom residue_atoms = 0;
    int n_residue_atoms;
@@ -224,10 +224,12 @@ lig_build::molfile_molecule_t::molfile_molecule_t(CResidue *residue_p,
    atoms.push_back(blank_atom); // blank atom for 0-index.
    // make the atoms
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-      molfile_atom_t atom(residue_atoms[iat]->x,
-			  residue_atoms[iat]->y,
-			  residue_atoms[iat]->z,
-			  residue_atoms[iat]->element);
+      clipper::Coord_orth pos(residue_atoms[iat]->x,
+			      residue_atoms[iat]->y,
+			      residue_atoms[iat]->z);
+      molfile_atom_t atom(pos,
+			  residue_atoms[iat]->element,
+			  residue_atoms[iat]->name);
       atoms.push_back(atom);
    } 
    
@@ -267,17 +269,7 @@ lig_build::molfile_molecule_t::molfile_molecule_t(CResidue *residue_p,
 			int idx_1 = atom_index_map[v_1[iat_1]];
 			int idx_2 = atom_index_map[v_2[iat_2]];
 
-			bond_t::bond_type_t bond_type = lig_build::bond_t::BOND_UNDEFINED;
-			if (bond_restraint.type() == "single")
-			   bond_type = lig_build::bond_t::SINGLE_BOND;
-			if (bond_restraint.type() == "double")
-			   bond_type = lig_build::bond_t::DOUBLE_BOND;
-			if (bond_restraint.type() == "triple")
-			   bond_type = lig_build::bond_t::TRIPLE_BOND;
-			if (bond_restraint.type() == "triple")
-			   bond_type = lig_build::bond_t::TRIPLE_BOND;
-			if (bond_restraint.type() == "aromatic")
-			   bond_type = lig_build::bond_t::AROMATIC_BOND;
+			bond_t::bond_type_t bond_type = get_bond_type(bond_restraint.type());
 
 			molfile_bond_t bond(idx_1+1, idx_2+1, bond_type);
 			bonds.push_back(bond);
@@ -288,4 +280,60 @@ lig_build::molfile_molecule_t::molfile_molecule_t(CResidue *residue_p,
 	 }
       }
    }
+}
+
+// Extra addtion, so that we can make a molfile_molecule_t from
+// an MMDB molecule and restraints - this is so that we can
+// bring topological filtering to the results of PRODRG.
+//
+// We can only handle atoms in the residue that have altconf of "" - others are ignored.
+//
+lig_build::molfile_molecule_t::molfile_molecule_t(const coot::dictionary_residue_restraints_t &restraints) {
+
+   std::map<std::string, int> atom_name_index;
+   std::map<std::string, int>::const_iterator it_1_atom_name_index;
+   std::map<std::string, int>::const_iterator it_2_atom_name_index;
+   
+   molfile_atom_t blank_atom(0,0,0, "");
+   atoms.push_back(blank_atom); // blank atom for 0-index.
+   for (unsigned int iat=0; iat<restraints.atom_info.size(); iat++) { 
+      lig_build::molfile_atom_t atom(clipper::Coord_orth(0,0,0),
+				     restraints.atom_info[iat].type_symbol,
+				     restraints.atom_info[iat].atom_id);
+      atoms.push_back(atom);
+      atom_name_index[restraints.atom_info[iat].atom_id]=iat;
+   }
+
+   for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
+      const coot::dict_bond_restraint_t &bond_restraint = restraints.bond_restraint[ibond];
+      it_1_atom_name_index = atom_name_index.find(bond_restraint.atom_id_1_4c());
+      it_2_atom_name_index = atom_name_index.find(bond_restraint.atom_id_2_4c());
+      if (it_1_atom_name_index != atom_name_index.end()) {
+	 if (it_2_atom_name_index != atom_name_index.end()) {
+	    int idx_1 = it_1_atom_name_index->second;
+	    int idx_2 = it_2_atom_name_index->second;
+	    bond_t::bond_type_t bond_type = get_bond_type(bond_restraint.type());
+	    molfile_bond_t bond(idx_1+1, idx_2+1, bond_type);
+	    bonds.push_back(bond);
+	 }
+      }
+   } 
+} 
+
+lig_build::bond_t::bond_type_t
+lig_build::molfile_molecule_t::get_bond_type(const std::string &bond_restraint_type) const {
+
+   bond_t::bond_type_t bond_type = lig_build::bond_t::BOND_UNDEFINED;
+   if (bond_restraint_type == "single")
+      bond_type = lig_build::bond_t::SINGLE_BOND;
+   if (bond_restraint_type == "double")
+      bond_type = lig_build::bond_t::DOUBLE_BOND;
+   if (bond_restraint_type == "triple")
+      bond_type = lig_build::bond_t::TRIPLE_BOND;
+   if (bond_restraint_type == "triple")
+      bond_type = lig_build::bond_t::TRIPLE_BOND;
+   if (bond_restraint_type == "aromatic")
+      bond_type = lig_build::bond_t::AROMATIC_BOND;
+
+   return bond_type;
 }

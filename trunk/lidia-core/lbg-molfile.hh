@@ -74,6 +74,7 @@ namespace lig_build {
    };
 
    class molfile_molecule_t {
+      bond_t::bond_type_t get_bond_type(const std::string &restraints_bond_type) const;
    public:
       molfile_molecule_t() {}
       std::vector<molfile_atom_t> atoms;
@@ -90,9 +91,19 @@ namespace lig_build {
       // an MMDB molecule and restraints - this is so that we can
       // bring topological filtering to the results of PRODRG.
       // 
-      // We can (only) handle atoms in the residue that have altconf of "" - others are ignored.
+      // We can (only) handle atoms in the residue that have altconf of "" -
+      // others are ignored.
+      //
+      // This is a bit of bone-headedness on my part - this is not
+      // needed for what I want - I do not need the atom position.
       // 
-      molfile_molecule_t(CResidue *residue_p, coot::dictionary_residue_restraints_t &restraints);
+      molfile_molecule_t(CResidue *residue_p, const coot::dictionary_residue_restraints_t &restraints);
+
+      // This is what I want - make fake atom positions and return a
+      // list of chiral atoms (i.e. tetravalent and have
+      // non-equivalent bonding atoms)
+      // 
+      molfile_molecule_t(const coot::dictionary_residue_restraints_t &restraints);
       
    };
 

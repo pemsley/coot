@@ -902,10 +902,12 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 	 int bond_index = mol.get_bond_index(ind_1, ind_2);
 	 lig_build::bond_t::bond_type_t bt =
 	    addition_mode_to_bond_type(canvas_addition_mode);
-	 std::cout << "....... canvas_addition_mode: " << canvas_addition_mode << " " 
-		   << "bond type: " << bt << " c.f. " << lbg_info_t::ADD_STEREO_OUT_BOND
-		   << " and " << lig_build::bond_t::OUT_BOND
-		   << std::endl;
+
+	 if (0)
+	    std::cout << "....... canvas_addition_mode: " << canvas_addition_mode << " " 
+		      << "bond type: " << bt << " c.f. " << lbg_info_t::ADD_STEREO_OUT_BOND
+		      << " and " << lig_build::bond_t::OUT_BOND
+		      << std::endl;
 	 
 	 if (bond_index != UNASSIGNED_INDEX) {
 	    // we need to pass the atoms so that we know if and how to
@@ -917,21 +919,36 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 	       mol.bonds[bond_index].change_bond_order(at_1, at_2, 1, root);
 	    else {
 
-	       if (bt == lig_build::bond_t::OUT_BOND || bt == lig_build::bond_t::IN_BOND) {
-		  // convert to stereo bond
-		  //
-		  // if it is not currently a stereo out bond, convert
-		  // it to a stereo out bond. If it is a stereo_out
-		  // bond, convert it with change_bond_order().
-		  // 
-		  if (mol.bonds[bond_index].get_bond_type() != bt) { 
+	       // (bt is OUT_BOND if we want to convert an OUT_BOND to an IN_BOND).
+	       // 
+	       if (bt == lig_build::bond_t::OUT_BOND) {
+
+		  if (mol.bonds[bond_index].get_bond_type() != lig_build::bond_t::OUT_BOND &&
+		      mol.bonds[bond_index].get_bond_type() != lig_build::bond_t::IN_BOND) {
+		     
+
+		     // if it is not currently a stereo out bond, convert
+		     // it to a stereo out bond. If it is a stereo_out
+		     // bond, convert it with change_bond_order().
+		     //
 		     mol.bonds[bond_index].set_bond_type(bt);
 		     mol.bonds[bond_index].make_new_canvas_item(at_1, at_2, root);
+		     
 		  } else {
+
+		     // was already a stereo bond
+// 		     std::cout << "!!!!! was already a stereo bond, with current: "
+// 			       << mol.bonds[bond_index].get_bond_type() << std::endl;
+		     if (mol.bonds[bond_index].get_bond_type() == lig_build::bond_t::IN_BOND) { 
+			highlight_data.swap_bond_indices();
+		     }
+			 
 		     mol.bonds[bond_index].change_bond_order(at_1, at_2, root); // out to in and vice
              		                                                      // versa (with direction change)
 		  } 
-	       } else { 
+	       } else {
+
+		  // Not to a wedge bond
 
 		  // conventional/usual change
 		  mol.bonds[bond_index].change_bond_order(at_1, at_2, root); // single to double
