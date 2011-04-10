@@ -229,7 +229,6 @@ on_canvas_button_press_new(GooCanvasItem  *item,
 	 if (l->in_delete_mode_p()) { 
 	    l->handle_item_delete(event);
 	 } else {
-	    std::cout << "calling handle_item_add()... " << std::endl;
 	    l->handle_item_add(event);
 	 }
       }
@@ -849,13 +848,15 @@ lbg_info_t::change_atom_element(int atom_index, std::string new_ele, std::string
    bool changed_status = 0;
    std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
    lig_build::pos_t pos = mol.atoms[atom_index].atom_position;
-	    
-   std::string atom_id = mol.make_atom_id_by_using_bonds(new_ele, local_bonds);
+
+   // 20110410: Old/simple
+   // std::string atom_id = mol.make_atom_id_by_using_bonds(new_ele, local_bonds);
+   
+   lig_build::atom_id_info_t atom_id_info = 
+      mol.make_atom_id_by_using_bonds(atom_index, new_ele, local_bonds);
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
-   // std::cout << "   calling update_name_maybe(" << atom_name << ") " << std::endl;
-   changed_status = mol.atoms[atom_index].update_atom_id_maybe(atom_id, fc, root);
-   // std::cout << "update_name_maybe return changed_status: " << changed_status << std::endl;
+   changed_status = mol.atoms[atom_index].update_atom_id_maybe(atom_id_info, fc, root);
 
    if (changed_status) { 
       for (unsigned int ib=0; ib<local_bonds.size(); ib++) {
@@ -2409,10 +2410,11 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
       std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(iat);
       std::string ele = mol.atoms[iat].element;
-      std::string atom_id = mol.make_atom_id_by_using_bonds(ele, local_bonds);
+      lig_build::atom_id_info_t atom_id_info = mol.make_atom_id_by_using_bonds(iat, ele, local_bonds);
+
       std::string fc = font_colour(ele);
       if (ele != "C") 
-	 mol.atoms[iat].update_atom_id_forced(atom_id, fc, root);
+	 mol.atoms[iat].update_atom_id_forced(atom_id_info, fc, root);
    }
 
    // for input_coords_to_canvas_coords() to work:

@@ -33,6 +33,11 @@ enum { UNASSIGNED_INDEX = -1 };
 
 namespace lig_build {
 
+
+   // -----------------------------------------------------------------
+   //                   pos_t
+   // -----------------------------------------------------------------
+   // 
    class pos_t {
    public:
       double x;
@@ -161,6 +166,70 @@ namespace lig_build {
       friend std::ostream& operator<<(std::ostream &s, const pos_t &p);
    };
    std::ostream& operator<<(std::ostream &s, const pos_t &p);
+
+   // -----------------------------------------------------------------
+   //                   offset text
+   // -----------------------------------------------------------------
+   // 
+   // 20110410 this is so that NH and OH can be typeset in various
+   // ways, e.g. HO or with the N appearing above the H.  It depends
+   // on the bonds to which this atom is attached.  So instead of
+   // returning a simple string, as we did for
+   // make_atom_id_by_using_bonds, we return a a container for vector
+   // of offsets;
+   //
+   class offset_text_t {
+   public:
+      enum text_pos_offset_t { HERE=0, UP=-1, DOWN=1};
+      offset_text_t(const std::string &text_in) {
+	 text = text_in;
+	 text_pos_offset = HERE;
+	 tweak = pos_t(0,0);
+      }
+      offset_text_t(const std::string &text_in, text_pos_offset_t text_pos_offset_in) {
+	 text = text_in;
+	 text_pos_offset = text_pos_offset_in;
+	 tweak = pos_t(0,0);
+      }
+      std::string text;
+      text_pos_offset_t text_pos_offset;
+      pos_t tweak;
+      friend std::ostream& operator<<(std::ostream &s, offset_text_t a);
+   };
+   std::ostream& operator<<(std::ostream &s, offset_text_t a);
+   
+   class atom_id_info_t {
+   public:
+
+      // simple case
+      atom_id_info_t(const std::string &atom_id_in) {
+	 atom_id = atom_id_in;
+	 offsets.push_back(offset_text_t(atom_id_in));
+      }
+
+      // atom_id_info to be filled in by function that knows about
+      // bonds by adding offsets.
+      atom_id_info_t() { }
+
+      void set_atom_id(const std::string &atom_id_in) {
+	 atom_id = atom_id_in;
+      } 
+      
+      std::vector<offset_text_t> offsets;
+      const offset_text_t &operator[](const unsigned int &indx) const {
+	 return offsets[indx];
+      }
+      void add(const offset_text_t &off) {
+	 offsets.push_back(off);
+      } 
+      unsigned int size() const { return offsets.size(); } 
+      
+      std::string atom_id; // what we used to return, this is used for
+			   // testing against what we had so we know
+			   // if we need to change the id.
+      friend std::ostream& operator<<(std::ostream &s, atom_id_info_t a);
+   };
+   std::ostream& operator<<(std::ostream &s, atom_id_info_t a);
 
    // -----------------------------------------------------------------
    //                   atom_t
@@ -335,8 +404,14 @@ namespace lig_build {
 	 } else {
 	    return 0;
 	 } 
-      } 
-      
+      }
+
+      int get_other_index(const int &atom_index) const {
+	 int idx = get_atom_1_index();
+	 if (idx == atom_index)
+	    idx = get_atom_2_index();
+	 return idx;
+      }
    };
    std::ostream& operator<<(std::ostream &s, bond_t);
 
@@ -497,9 +572,10 @@ namespace lig_build {
       }
 
       //
-      std::string
-      make_atom_id_by_using_bonds(const std::string &ele,
-				    const std::vector<int> &bond_indices) const {
+      atom_id_info_t
+      make_atom_id_by_using_bonds(int atom_index,
+				  const std::string &ele,
+				  const std::vector<int> &bond_indices) const {
    
 	 std::string atom_id = ele;
    
@@ -568,7 +644,98 @@ namespace lig_build {
 	    }
 	 }
 
-	 return atom_id;
+	 if (atom_id != "NH" && atom_id != "OH") {
+
+	    atom_id_info_t simple(atom_id);
+	    return simple;
+	    
+	 } else {
+	    
+	    pos_t sum_delta(0,0);
+	    // maybe up and down offsets needed.
+	    for (unsigned int ibond=0; ibond<bond_indices.size(); ibond++) {
+	       int idx_other = bonds[bond_indices[ibond]].get_other_index(atom_index);
+	       pos_t delta = atoms[idx_other].atom_position - atoms[atom_index].atom_position;
+	       sum_delta += delta;
+	    }
+
+	    atom_id_info_t atom_id_info;
+	    
+	    if (bond_indices.size() == 1) {
+	       // HO or HN
+	       if (sum_delta.x > 0) {
+
+		  atom_id_info.set_atom_id(atom_id);
+		  std::string txt = "HO";
+		  if (ele == "N")
+		     txt = "HN";
+		  offset_text_t ot(txt);
+		  ot.tweak = pos_t(-5, 0);
+		  atom_id_info.add(ot);
+	       } else {
+		  // simple
+		  atom_id_info = atom_id_info_t(atom_id);
+		  // add a tweak to that, push it to the right a tiny bit
+		  atom_id_info.offsets.back().tweak += pos_t(2,0);
+	       } 
+	    }
+
+	    if (bond_indices.size() == 2) {
+	       if (fabs(sum_delta.y) > fabs(sum_delta.x)) { 
+		  
+		  //    \   /
+		  //      N
+		  //      H
+		  //
+		  if (sum_delta.y > 0) {
+		     offset_text_t n("N");
+		     offset_text_t h("H", offset_text_t::DOWN);
+		     atom_id_info.add(n);
+		     atom_id_info.add(h);
+		  } else { 
+		  
+		  
+		  //      H
+		  //      N
+		  //    /   \  .
+		  //
+		     offset_text_t n("N");
+		     offset_text_t h("H", offset_text_t::UP);
+		     atom_id_info.add(n);
+		     atom_id_info.add(h);
+		  } 
+	       } else {
+
+		  // these are not simple, they need a position tweak.
+		  if (sum_delta.x > 0.0) {
+		     // H pokes to the left
+		     atom_id_info = atom_id_info_t();
+		     offset_text_t n("HN");
+		     n.tweak = pos_t(-5,0);
+		     atom_id_info.add(n);
+		  } else {
+		     atom_id_info = atom_id_info_t();
+		     offset_text_t n("NH");
+		     n.tweak = pos_t(5,0);
+		     atom_id_info.add(n);
+		  } 
+	       } 
+	    }
+
+// 	    std::cout << "----------- returning-------------- "
+// 		      << atom_id_info.offsets.size() << " offsets "
+// 		      << std::endl;
+// 	    for (unsigned int ioff=0; ioff<atom_id_info.offsets.size(); ioff++) { 
+// 	       std::cout << "   :"
+// 			 << atom_id_info.offsets[ioff].text << ": here/up/down: "
+// 			 << atom_id_info.offsets[ioff].text_pos_offset << " tweak: "
+// 			 << atom_id_info.offsets[ioff].tweak << std::endl;
+// 	    }
+// 	    std::cout << std::endl;
+
+	    return atom_id_info;
+
+	 }
       }
 
       // write out the atom and bond tables:

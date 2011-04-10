@@ -67,3 +67,19 @@ lig_build::operator<<(std::ostream &s, const pos_t &p) {
    return s;
 }
 
+std::ostream&
+lig_build::operator<<(std::ostream &s, atom_id_info_t a) {
+   s << "atom_id_info: :" << a.atom_id << ": with " << a.offsets.size() << " offsets\n";
+   for (unsigned int io=0; io<a.offsets.size(); io++) { 
+      s << a[io];
+   }
+   return s;
+}
+
+std::ostream&
+lig_build::operator<<(std::ostream &s, offset_text_t ot) {
+
+      s << "    :" << ot.text << ": here/up/down: " << ot.text_pos_offset << " tweak: "
+	<< ot.tweak << "\n";
+      return s;
+}
