@@ -88,42 +88,69 @@ class widgeted_atom_t : public lig_build::atom_t {
    // then general form, use this not the below 2 (which are used by
    // this function)
    // 
-   GooCanvasItem *make_canvas_text_item(const std::string atom_id_in,
+   GooCanvasItem *make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_info_in,
 					const std::string &fc,
 					GooCanvasItem *root) {
       GooCanvasItem *text_item = NULL;
-      if (atom_id_in != "C") {
-	 if (atom_id_in.length() > 2) {
-	    text_item = make_subscripted_canvas_item(atom_id_in, fc, root);
+      if (atom_id_info_in.atom_id != "C") {
+	 if (atom_id_info_in.atom_id.length() > 2) {
+	    text_item = make_subscripted_canvas_item(atom_id_info_in, fc, root);
 	 } else { 
-	    text_item = make_convention_canvas_item(atom_id_in, fc, root);
+	    text_item = make_convention_canvas_item(atom_id_info_in, fc, root);
 	 }
       }
       return  text_item;
    }
    
-   GooCanvasItem *make_convention_canvas_item(const std::string atom_id_in,
-					       const std::string &fc,
-					       GooCanvasItem *root) const {
+   GooCanvasItem *make_convention_canvas_item(const lig_build::atom_id_info_t &atom_id_info_in,
+					      const std::string &fc,
+					      GooCanvasItem *root) const {
 
-      GooCanvasItem *text_item = goo_canvas_text_new(root, atom_id_in.c_str(),
-						     atom_position.x, atom_position.y, -1,
-						     GTK_ANCHOR_CENTER,
-						     "font", "Sans 10",
-						     "fill_color", fc.c_str(),
-						     NULL);
-      return text_item;
+      GooCanvasItem *group = goo_canvas_group_new (root,
+						   "fill_color", fc.c_str(),
+						   NULL);
+      for (unsigned int i=0; i<atom_id_info_in.size(); i++) {
+	 double x_o = 0; 
+	 double y_o = 0;
+	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::UP)
+	    y_o = 12;
+	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::DOWN)
+	    y_o = -12;
+
+	 double x_pos =    atom_position.x + atom_id_info_in.offsets[i].tweak.x + x_o;
+	 double y_pos =    atom_position.y + atom_id_info_in.offsets[i].tweak.y + y_o;
+
+	 if (0) 
+	    std::cout << "Rendering :" << atom_id_info_in[i].text << ": with tweak "
+		      << atom_id_info_in[i].tweak << std::endl;
+	 
+	 GooCanvasItem *item =
+	    goo_canvas_text_new(group, atom_id_info_in.offsets[i].text.c_str(),
+				x_pos, y_pos, 
+				-1,
+				GTK_ANCHOR_CENTER,
+				"font", "Sans 10",
+				"fill_color", fc.c_str(),
+				NULL);
+      }
+      return group;
    }
-   
-   GooCanvasItem *make_subscripted_canvas_item(const std::string atom_id_in,
+
+   // This will take just the straight text, no reorientation (due to subscripting).
+   // 
+   GooCanvasItem *make_subscripted_canvas_item(const lig_build::atom_id_info_t &atom_id_info_in,
 					       const std::string &fc,
 					       GooCanvasItem *root) const {
 
       GooCanvasItem *group = goo_canvas_group_new (root,
 						   "fill_color", fc.c_str(),
 						   NULL);
-      std::string p1 = atom_id_in.substr(0,2);
-      std::string p2 = atom_id_in.substr(2);
+
+      // hack
+      // std::string p1 = atom_id_in.substr(0,2);
+      // std::string p2 = atom_id_in.substr(2);
+      std::string p1 = atom_id_info_in.atom_id.substr(0,2);
+      std::string p2 = atom_id_info_in.atom_id.substr(2);
       
       GooCanvasItem *item_1 = goo_canvas_text_new(group, p1.c_str(),
 						  atom_position.x, atom_position.y, -1,
@@ -165,21 +192,21 @@ public:
       clear(root);
       ci = new_item;
    }
-   bool update_atom_id_maybe(const std::string &atom_id_in,
+   bool update_atom_id_maybe(const lig_build::atom_id_info_t &atom_id_info_in,
 			     GooCanvasItem *root) {
-      return update_atom_id_maybe(atom_id_in, font_colour, root);
+      return update_atom_id_maybe(atom_id_info_in, font_colour, root);
    }
-   bool update_atom_id_maybe(const std::string &atom_id_in,
+   bool update_atom_id_maybe(const lig_build::atom_id_info_t &atom_id_info_in,
 			     const std::string &fc,
 			     GooCanvasItem *root) {
       bool changed_status = 0;
       font_colour = fc;
       GooCanvasItem *text_item = NULL;
       if (! is_closed()) { 
-	 if (atom_id_in != get_atom_id()) {
-	    changed_status = set_atom_id(atom_id_in);
+	 if (atom_id_info_in.atom_id != get_atom_id()) {
+	    changed_status = set_atom_id(atom_id_info_in.atom_id);
 	    if (changed_status) {
-	       text_item = make_canvas_text_item(atom_id_in, fc, root);
+	       text_item = make_canvas_text_item(atom_id_info_in, fc, root);
 	       update_canvas_item(text_item, root);
 	    }
 	 }
@@ -188,17 +215,17 @@ public:
       } 
       return changed_status;
    }
-   void update_atom_id_forced(const std::string &atom_id_in,
+   void update_atom_id_forced(const lig_build::atom_id_info_t &atom_id_info_in,
 			      const std::string &fc, 
 			      GooCanvasItem *root) {
-      set_atom_id(atom_id_in);
-      GooCanvasItem *text_item = make_canvas_text_item(atom_id_in, fc, root);
+      set_atom_id(atom_id_info_in.atom_id);
+      GooCanvasItem *text_item = make_canvas_text_item(atom_id_info_in, fc, root);
       update_canvas_item(text_item, root);
    }
    
-   void update_atom_id_forced(const std::string &atom_id_in,
+   void update_atom_id_forced(const lig_build::atom_id_info_t &atom_id_info_in,
 			      GooCanvasItem *root) {
-      update_atom_id_forced(atom_id_in, font_colour, root);
+      update_atom_id_forced(atom_id_info_in, font_colour, root);
    }
    void add_solvent_accessibility(double sa) {
       solvent_accessibility = sa;
@@ -425,13 +452,6 @@ public:
    }
    void add_centre(const lig_build::pos_t &centre_in) {
       set_centre_pos(centre_in);
-   }
-
-   int get_other_index(int atom_index) const {
-      int idx = get_atom_1_index();
-      if (idx == atom_index)
-	 idx = get_atom_2_index();
-      return idx;
    }
 
 };

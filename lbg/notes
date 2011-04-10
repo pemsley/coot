@@ -29,6 +29,23 @@ test_refmac1.pdb from David Banner. LIG, get it from the PDB.  Donor
 
  build Coronene using prodrg
 
+---
+Sun Apr 10 17:15:31 BST 2011
+
+
+   read a molecule x.mol
+
+   save as thing.mol
+
+   edit 
+
+   save
+
+     -> writes x.mol
+
+  Bad.
+
+
 
 ----
 Sat Apr  9 11:28:00 BST 2011

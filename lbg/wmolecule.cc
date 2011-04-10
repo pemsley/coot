@@ -811,12 +811,12 @@ widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
       // ind_1
       std::string ele = atoms[ind_1].element;
       std::vector<int> local_bonds = bonds_having_atom_with_atom_index(ind_1);
-      std::string new_atom_id = make_atom_id_by_using_bonds(ele, local_bonds);
+      lig_build::atom_id_info_t new_atom_id = make_atom_id_by_using_bonds(ind_1, ele, local_bonds);
       atoms[ind_1].update_atom_id_maybe(new_atom_id, root);
       // ind_2
       ele = atoms[ind_2].element;
       local_bonds = bonds_having_atom_with_atom_index(ind_2);
-      new_atom_id = make_atom_id_by_using_bonds(ele, local_bonds);
+      new_atom_id = make_atom_id_by_using_bonds(ind_2, ele, local_bonds);
       atoms[ind_2].update_atom_id_maybe(new_atom_id, root);
    
       if (handle_post_delete_stray_atoms_flag) {
@@ -826,9 +826,9 @@ widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
 	 // std::cout << "got " << stray_atoms.size() << " stray atoms " << std::endl;
 	 if (stray_atoms.size()) {
 	    for (unsigned int istray=0; istray<stray_atoms.size(); istray++) { 
-	       std::string atom_id =
-		  make_atom_id_by_using_bonds(atoms[stray_atoms[istray]].element, bonds);
-	       atoms[stray_atoms[istray]].update_atom_id_forced(atom_id, root);
+	       lig_build::atom_id_info_t atom_id_info =
+		  make_atom_id_by_using_bonds(ind_1, atoms[stray_atoms[istray]].element, bonds);
+	       atoms[stray_atoms[istray]].update_atom_id_forced(atom_id_info, root);
 	    }
 	 } 
       }
