@@ -670,18 +670,20 @@ namespace lig_build {
 		  if (ele == "N")
 		     txt = "HN";
 		  offset_text_t ot(txt);
-		  ot.tweak = pos_t(-5, 0);
+		  ot.tweak = pos_t(-6, 0);
 		  atom_id_info.add(ot);
 	       } else {
 		  // simple
 		  atom_id_info = atom_id_info_t(atom_id);
-		  // add a tweak to that, push it to the right a tiny bit
-		  atom_id_info.offsets.back().tweak += pos_t(2,0);
+		  // add a tweak to that, push it to the right a tiny
+		  // bit (we want the O (or N) at the end of the bond)
+		  atom_id_info.offsets.back().tweak += pos_t(5,0);
 	       } 
 	    }
 
 	    if (bond_indices.size() == 2) {
-	       if (fabs(sum_delta.y) > fabs(sum_delta.x)) { 
+	       // Add a tweak factor (1.3) to prefer horizontal orientation.
+	       if (fabs(sum_delta.y) > fabs(sum_delta.x) * 1.3) { 
 		  
 		  //    \   /
 		  //      N
