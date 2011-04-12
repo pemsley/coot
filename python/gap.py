@@ -24,7 +24,8 @@
 # direction can be forwards or backwards
 #
 
-def fit_gap(imol, chain_id, start_resno, stop_resno, sequence="", use_rama_restraints=1):
+def fit_gap(imol, chain_id, start_resno, stop_resno,
+            sequence="", use_rama_restraints=1):
 
    imol_map = imol_refinement_map()
    if (imol_map == -1):
@@ -280,11 +281,12 @@ def fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence=""):
 # return True if sequence is there, False otherwise
 #
 def has_sequence_qm(imol, chain_id_ref):
-   for item in sequence_info(imol):
-      chain_id = item[0]
-      sequence = item[1]
-      if (chain_id_ref == chain_id and len(sequence) > 0):
-         return True
+   if sequence_info(imol):
+      for item in sequence_info(imol):
+         chain_id = item[0]
+         sequence = item[1]
+         if (chain_id_ref == chain_id and len(sequence) > 0):
+            return True
    return False
 
 

@@ -1007,7 +1007,9 @@ def get_option_menu_active_item(option_menu, item_list):
        print "Failed children length test : ",children, item_list
        return False
 
-
+# Typically option_menu_fill_function is
+# fill_option_menu_with_coordinates_mol_options
+#
 def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_fill_function):
  
     def delete_event(*args):
@@ -1587,7 +1589,12 @@ def generic_interesting_things(imol,gui_title_string,residue_test_func):
 	else:
 		print "BL WARNING:: no valid model molecule ", imol
 
-def generic_number_chooser(number_list, default_option_value, hint_text, go_button_label, go_function):
+# A gui that makes a generic number chooser the go function is a
+# function that takes the value of the active menu item - as a
+# number.
+#
+def generic_number_chooser(number_list, default_option_value, hint_text,
+                           go_button_label, go_function):
 
     def delete_event(*args):
        window.destroy()
@@ -1914,8 +1921,8 @@ def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
 #
 # return the h_box of the buttons
 #
-# a button is a list of [label, callback, text_description] where callback
-# is a string or list of strings to be evaluated
+# a button is a list of [label, callback, (optional: text_description)]
+# where callback is a string or list of strings to be evaluated
 #
 # If check_button_label is False, don't make one, otherwise create with
 # the given label and "on" state
@@ -2969,18 +2976,20 @@ def key_bindings_gui():
    py_and_scm_keybindings = key_bindings
    if (coot_has_guile()):
       scm_key_bindings = run_scheme_command("*key-bindings*")
-      # filter out doublicates
-      for item in scm_key_bindings:
-         scm_code, scm_key, text, tmp = item
-         py_keys  = [elem[1] for elem in py_and_scm_keybindings]
-         py_codes = [elem[0] for elem in py_and_scm_keybindings]
-         if ((not scm_code in py_codes) and (not scm_key in py_keys)):
-            item[2] = item[2] + " (scm)"
-            py_and_scm_keybindings.append(item)
-         else:
-            item[2] = item[2] + " (scm + doublicate key)"
-            py_and_scm_keybindings.append(item)
-            
+      # check for list
+      if isinstance(scm_key_bindings, list):
+         # filter out doublicates
+         for item in scm_key_bindings:
+            scm_code, scm_key, text, tmp = item
+            py_keys  = [elem[1] for elem in py_and_scm_keybindings]
+            py_codes = [elem[0] for elem in py_and_scm_keybindings]
+            if ((not scm_code in py_codes) and (not scm_key in py_keys)):
+               item[2] = item[2] + " (scm)"
+               py_and_scm_keybindings.append(item)
+            else:
+               item[2] = item[2] + " (scm + doublicate key)"
+               py_and_scm_keybindings.append(item)
+
        
    for items in py_and_scm_keybindings:
       box_for_binding(items, usr_frame_vbox, True)
@@ -4817,19 +4826,82 @@ def water_coordination_gui():
 
    window.show_all()
 
+# return a list, or False (e.g. if not in same chain and molecule)
+#
+def min_max_residues_from_atom_specs(specs):
+
+   print specs
+
+   min_res_no = False
+   max_res_no = False
+   chain_id = False
+
+   for spec in specs:
+      spec_model = spec[1]
+      spec_chain = spec[2]
+      res_no     = spec[3]
+
+      if isinstance(chain_id, str):
+         if (chain_id != spec_chain):
+            return False  # chain mismatch
+      else:
+         chain_id = spec_chain
+
+      if not min_res_no:  # maybe check for number as well
+         min_res_no = res_no
+      else:
+         if (res_no < min_res_no):
+            min_res_no = res_no
+      if not max_res_no:  # maybe check for number as well
+         max_res_no = res_no
+      else:
+         if (res_no > max_res_no):
+            max_res_no = res_no
+
+   if (min_res_no and max_res_no and chain_id):
+      return [min_res_no, max_res_no, chain_id]
+   else:
+      return False
+               
 def click_protein_db_loop_gui():
+
    def pick_loop_func(n):
-      def pick_func(*args):
-         atom_spec_1 = args[0]
-         atom_spec_2 = args[1]
-         imol = atom_spec_1[1]
-         residue_specs = atom_spec_2  # FIXME
-         protein_db_loops(imol, residue_specs,
-                          imol_refinement_map(),
-                          10)  #shouldnt that be n? NO but why n??? confused
-         # would be nice to use my loop selector gui afterwards....
-         # lets see what the output gives
-      user_defined_click(2, pick_func)
+      def pick_func(*atom_specs):
+         residue_specs = map(atom_spec2residue_spec, atom_specs)
+         imol = atom_specs[0][1]
+         min_max_and_chain_id = min_max_residues_from_atom_specs(atom_specs)
+
+         if not isinstance(min_max_and_chain_id, list):
+            info_dialog("Picked atoms not in same molecule and chain")
+         else:
+            loop_mols = protein_db_loops(imol, residue_specs,
+                                         imol_refinement_map(),
+                                         10)
+            imol_loop_orig = loop_mols[0]
+            loop_mols = loop_mols[1]
+            min_resno = min_max_and_chain_id[0]
+            max_resno = min_max_and_chain_id[1]
+            chain_id  = min_max_and_chain_id[2]
+
+            if valid_model_molecule_qm(imol_loop_orig):
+               if len(loop_mols) > 0:
+                  buttons = map(lambda loop_mol:
+                                [str(loop_mol) + " " + molecule_name(loop_mol),
+                                 lambda func: copy_residue_range(imol, chain_id,
+                                                                 loop_mol, chain_id,
+                                                                 min_resno, max_resno)],
+                                loop_mols)
+                  dialog_box_of_buttons("Loop Candidates",
+                                        [360, 200],
+                                        [["Original loop", lambda func:
+                                          copy_residue_range(imol, chain_id,
+                                                             imol_loop_orig, chain_id,
+                                                             min_resno, max_resno)
+                                         ]] + buttons,
+                                        " Close ")
+                  
+      user_defined_click(n, pick_func)
+      
    generic_number_chooser(range(2,10), 4,
                           "Number of residues for basis",
                           "Pick Atoms...",
