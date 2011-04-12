@@ -261,7 +261,9 @@ bool Chain::load_db( const clipper::String file )
   fs.seekg( 0, std::ios::beg );
   int i1 = fs.tellg();
   int l = i2 - i1;
-  char d[l];
+  //char d[l];
+  char *d;
+  d = new char [l];
   fs.read( d, l );
   fs.close();
   if ( l%20 != 0 ) return false;

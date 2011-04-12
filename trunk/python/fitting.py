@@ -152,24 +152,25 @@ def fit_protein_fit_function(res_spec, imol_map):
     backup_mode = backup_state(imol)
     turn_off_backup(imol)
 
-    for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
-        print "centering on", chain_id, res_no, "CA"
-        set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
-        rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
-
-        res_name = residue_name(imol, chain_id, res_no, ins_code)
-        res_atoms = residue_info(imol, chain_id, res_no, ins_code)
-
-        if (len(res_atoms) > 3):
-            # if (not res_name == "HOH"): # not needed as we only refine more than 3 atom res
-            if (alt_conf == ""):
-                # with_auto_accept ?
-                auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
-                                      imol_map, 1, 0.1)
-            if (valid_map_molecule_qm(imol_map)):
-                # with_auto_accept ?
-                refine_zone(imol, chain_id, res_no, res_no, alt_conf)
-            rotate_y_scene(10, 0.3)
+    res_name = residue_name(imol, chain_id, res_no, ins_code)
+    if isinstance(res_name, str):
+        if (res_name != "HOH"):
+            for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
+                print "centering on", chain_id, res_no, "CA"
+                set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+                rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)        
+                res_atoms = residue_info(imol, chain_id, res_no, ins_code)
+                if (len(res_atoms) > 3):
+                    # if (not res_name == "HOH"):
+                    # not needed as we only refine more than 3 atom res
+                    if (alt_conf == ""):
+                        # with_auto_accept ?
+                        auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
+                                              imol_map, 1, 0.1)
+                    if (valid_map_molecule_qm(imol_map)):
+                        # with_auto_accept ?
+                        refine_zone(imol, chain_id, res_no, res_no, alt_conf)
+                    rotate_y_scene(10, 0.3)
 
     if (replace_state == 0):
         set_refinement_immediate_replacement(0)
@@ -184,7 +185,8 @@ def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
     ins_code = res_spec[3]
     current_steps_per_frame = dragged_refinement_steps_per_frame()
     current_rama_state = refine_ramachandran_angles_state()
-
+    set_dragged_refinement_steps_per_frame(400)
+    
     # BL says: again we dont use with_auto_accept here, get's too messy
     replace_state = refinement_immediate_replacement_state()
     set_refinement_immediate_replacement(1)
@@ -512,7 +514,7 @@ def stepped_refine_protein_for_rama(imol):
             refine_auto_range(imol, chain_id, res_no, "")
             accept_regularizement()
 
-        set_dragged_refinement_steps_per_frame(200)
+        set_dragged_refinement_steps_per_frame(400)
         set_refine_ramachandran_angles(1)
         stepped_refine_protein_with_refine_func(imol, refine_func, 1)
         set_refine_ramachandran_angles(current_rama_state)

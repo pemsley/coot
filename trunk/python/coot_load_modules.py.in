@@ -75,6 +75,7 @@ post_list = ["coot_gui.py",
              "check_for_updates.py",
              "extensions.py",
              "shelx_extensions.py",
+             "prodrg_import.py",
              "clear_backup.py",
              "coot_toolbuttons.py"]
 

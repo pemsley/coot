@@ -6713,6 +6713,12 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
    } else {
       std::pair<int, std::vector<int> > p = 
 	 protein_db_loops(imol_coords, specs, imol_map, nfrags);
+      PyObject *mol_list_py = PyList_New(p.second.size());
+      for (int i=0; i< p.second.size(); i++)
+        PyList_SetItem(mol_list_py, i, PyInt_FromLong(p.second[i]));
+      r = PyList_New(2);
+      PyList_SetItem(r, 0, PyInt_FromLong(p.first));
+      PyList_SetItem(r, 1, mol_list_py);
    } 
    if (PyBool_Check(r)) {
      Py_INCREF(r);

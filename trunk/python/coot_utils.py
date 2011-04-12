@@ -319,12 +319,13 @@ def number_list(a,b):
 
 # Return True or False
 # adapted from find_exe
+# this finds absolute file names too
 #
 def command_in_path_qm(cmd):
 
   # test for command (see goosh-command-with-file-input description)
   # 
-    import os,string
+    import os, string
 
     file_ext = file_name_extension(cmd)
     if ((file_ext <> 'exe') and (os.name == 'nt')):
@@ -347,6 +348,7 @@ def command_in_path_qm(cmd):
      except:
        print "BL WARNING:: couldnt open $PATH"  # this shouldnt happen
 
+       
 global gtk_thread_return_value
 gtk_thread_return_value = None
 # Where cmd is e.g. "refmac" 
@@ -1049,6 +1051,8 @@ def atom_specs(imol, chain_id, resno, ins_code, atom_name, alt_conf):
 
     return atom_info_string(imol, chain_id, resno, ins_code, atom_name, alt_conf)
 
+def atom_spec2residue_spec(atom_spec):
+    return atom_spec[2:][0:3]
 
 # return a guess at the map to be refined (usually called after
 # imol_refinement_map returns -1)
@@ -2648,6 +2652,21 @@ def use_curl_status():
 def set_use_curl(status):
     global use_curl
     use_curl = status
+
+
+# Invert the chiral centre of the atom we are centred on.  
+# If not centred on a chiral atom, then give a dialog.
+# 
+# The restraints for this monomer type are copied and renamed
+# (changing comp-id, 3-letter-code and name too).  The monomer is
+# regularized.  Chiral Hydrogen (if needed) is enabled now in the
+# minimizer.
+#
+# This should almost all be c++ code so that Bernie doesn't have to
+# redo it.  This is temporary then
+def chiral_centre_inverter():
+    # just to do something. Wait until this is in c++ code...
+    return False
     
 #############
 # some re-definitions from coot python functions
@@ -2656,6 +2675,7 @@ def set_use_curl(status):
 
 # c-interface.h:
 chain_id               = chain_id_py
+remarks                = remarks_py
 coot_sys_build_type    = coot_sys_build_type_py
 run_clear_backups      = run_clear_backups_py
 test_internal          = test_internal_py
@@ -2686,6 +2706,7 @@ refine_residues_with_alt_conf        = refine_residues_with_alt_conf_py
 refine_zone_with_score = refine_zone_with_score_py
 regularize_residues    = regularize_residues_py
 regularize_residues_with_alt_conf  = regularize_residues_with_alt_conf_py
+refine_zone_with_score = refine_zone_with_score_py
 change_chain_id_with_result        = change_chain_id_with_result_py
 non_standard_residue_names         = non_standard_residue_names_py
 chain_id_for_shelxl_residue_number = chain_id_for_shelxl_residue_number_py
@@ -2779,6 +2800,7 @@ generic_string_vector_to_list_internal = generic_string_vector_to_list_internal_
 generic_list_to_string_vector_internal = generic_list_to_string_vector_internal_py
 generic_int_vector_to_list_internal = generic_int_vector_to_list_internal_py
 inverse_rtop           = inverse_rtop_py
+protein_db_loops       = protein_db_loops_py
 key_sym_code           = key_sym_code_py
 screen_vectors         = screen_vectors_py
 

@@ -3752,7 +3752,7 @@ graphics_info_t::do_interactive_probe() const {
    // defined in a file that depends on guile-gtk (and of course, if
    // we do not have guile-gtk, then that file is not loaded).
    
-#if defined USE_GUILE_GTK
+#if defined USE_GUILE_GTK && !defined WINDOWS_MINGW
    if (moving_atoms_asc->n_selected_atoms > 0) {
       if (moving_atoms_asc->mol) {
 	 moving_atoms_asc->mol->WritePDBASCII("molprobity-tmp-moving-file.pdb");

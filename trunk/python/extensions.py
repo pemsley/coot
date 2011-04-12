@@ -367,6 +367,13 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_models,
+       "Assign (force) HETATMs for this Residue",
+       lambda func: using_active_atom(hetify_residue,
+                                      "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"))
+
+     
+     add_simple_coot_menu_menuitem(
+       submenu_models,
        "Assign HETATM to molecule...", 
        lambda func: molecule_chooser_gui("Assign HETATMs as per PDB definition", 
 		lambda imol: assign_hetatms(imol)))
@@ -390,6 +397,13 @@ if (have_coot_python):
 
      # --- D ---
 
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "DB Loop...",
+       lambda func: click_protein_db_loop_gui())
+
+     
+     # errr... move this...(??)
      submenu = gtk.Menu()
      menuitem2 = gtk.MenuItem("Dock Sequence...")
 
@@ -432,6 +446,7 @@ if (have_coot_python):
        "Associate Sequence...",
        lambda func: associate_pir_with_molecule_gui()) # no alignment on OK press
 
+     # ---- F ---------
 
      # doublication to entry in main gtk code!
      submenu = gtk.Menu()
@@ -458,6 +473,15 @@ if (have_coot_python):
        lambda func: molecule_chooser_gui("Fix Nomenclature Error in molecule:",
                                          lambda imol: fix_nomenclature_errors(imol)))
 
+
+     # --- I --------
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Invert This Chiral Centre",
+       lambda func:
+          chiral_centre_inverter())
+     
 
      # --- M ---
 
@@ -878,14 +902,14 @@ if (have_coot_python):
        submenu,
        "Crocodile Refinement mode", 
        lambda func: (printf("Crock..."),
-                     set_dragged_refinement_steps_per_frame(120)))
+                     set_dragged_refinement_steps_per_frame(160)))
 
 
      add_simple_coot_menu_menuitem(
        submenu,
        "Normal Refinement mode (1 Emsley)", 
        lambda func: (printf("Default Speed (1 Emsley)..."),
-                     set_dragged_refinement_steps_per_frame(50)))
+                     set_dragged_refinement_steps_per_frame(80)))
 
 
      add_simple_coot_menu_menuitem(
@@ -986,6 +1010,12 @@ if (have_coot_python):
        submenu_models,
        "Use \"Backrub\" Rotamers",
        lambda func: set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+       )
+     
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "DONT use \"Backrub\" Rotamers",
+       lambda func: set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
        )
      
      
