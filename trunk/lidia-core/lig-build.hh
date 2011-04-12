@@ -415,6 +415,7 @@ namespace lig_build {
    };
    std::ostream& operator<<(std::ostream &s, bond_t);
 
+
    // -----------------------------------------------------------------
    //                   template molecule_t
    // -----------------------------------------------------------------
@@ -759,9 +760,6 @@ namespace lig_build {
       
    }; // end of molecule_t class
    
-
-   class base_molecule_t : public molecule_t<atom_t, bond_t> {};
-
    class polygon_position_info_t {
    public:
       bool apply_internal_angle_offset_flag;

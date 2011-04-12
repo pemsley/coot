@@ -1152,6 +1152,7 @@ void
 lbg_info_t::add_bond_to_atom_with_2_neighbours(int atom_index, int canvas_addition_mode,
 					       const std::vector<int> &bond_indices) {
 
+
    widgeted_atom_t atom = mol.atoms[atom_index];
    int atom_index_1 = mol.bonds[bond_indices[0]].get_atom_1_index();
    int atom_index_2 = mol.bonds[bond_indices[0]].get_atom_2_index();
@@ -1192,7 +1193,12 @@ lbg_info_t::add_bond_to_atom_with_2_neighbours(int atom_index, int canvas_additi
    // std::cout << "calling change_atom_id_maybe(" << atom_index << ") " << std::endl;
    change_atom_id_maybe(atom_index); 
    // std::cout << "calling change_atom_id_maybe(" << new_index << ") " << std::endl;
-   change_atom_id_maybe(new_index); 
+   change_atom_id_maybe(new_index);
+
+   penultimate_atom_pos = atom.atom_position;
+   penultimate_atom_index = atom_index;
+   ultimate_atom_index    = new_index;
+
 }
 
 
@@ -1287,6 +1293,7 @@ lbg_info_t::squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
 	 mol.add_bond(b);
 	 change_atom_id_maybe(atom_index);
 	 change_atom_id_maybe(new_atom_index);
+	 ultimate_atom_index    = new_atom_index;
 
       } else {
 	 
@@ -1302,6 +1309,7 @@ lbg_info_t::squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
 	 mol.add_bond(b);
 	 change_atom_id_maybe(atom_index);
 	 change_atom_id_maybe(new_atom_index);
+	 ultimate_atom_index    = new_atom_index;
 	 
       }
       
@@ -1315,7 +1323,13 @@ lbg_info_t::squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
       mol.add_bond(b);
       change_atom_id_maybe(atom_index);
       change_atom_id_maybe(new_atom_index);
+      ultimate_atom_index    = new_atom_index;
    } 
+
+   widgeted_atom_t atom = mol.atoms[atom_index];
+   penultimate_atom_pos = atom.atom_position;
+   penultimate_atom_index = atom_index;
+
 }
 
 
