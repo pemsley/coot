@@ -1599,11 +1599,13 @@ void toggle_idle_rock_function() {
 
    if (g.idle_function_spin_rock_token == 0) { 
       g.idle_function_spin_rock_token = gtk_idle_add((GtkFunction)animate_idle_rock, g.glarea);
+      g.time_holder_for_rocking = glutGet(GLUT_ELAPSED_TIME);
+
+      g.idle_function_rock_angle_previous =
+	 get_idle_function_rock_target_angle();
    } else {
       gtk_idle_remove(g.idle_function_spin_rock_token);
       g.idle_function_spin_rock_token = 0;
-      g.time_holder_for_rocking = glutGet(GLUT_ELAPSED_TIME);
-      g.idle_function_rock_angle_previous = 0.0;
    }
    add_to_history_simple("toggle-idle-function");
 }

@@ -636,6 +636,9 @@ void toggle_idle_spin_function();
 
 /*! \brief Rock (not roll) (self-timed) */
 void toggle_idle_rock_function(); 
+/* used by above to set the angle to rotate to (time dependent) */
+double get_idle_function_rock_target_angle();
+
 
 /*! \brief Settings for the inevitable discontents who dislike the 
    default rocking rates (defaults 1 and 1)  */
