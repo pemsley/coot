@@ -77,6 +77,8 @@
 #include <direct.h>
 #endif // _MSC_VER
 
+#include <GL/glut.h> // needed for glutGet(GLUT_ELAPSED_TIME);
+
 #include "clipper/ccp4/ccp4_map_io.h"
  
 #include "globjects.h" //includes gtk/gtk.h
@@ -689,7 +691,7 @@ void hardware_stereo_mode() {
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) { 
 	       // std::cout << "INFO:: switch to hardware_stereo_mode succeeded\n";
-	       if (graphics_info_t::i_fn_token) { 
+	       if (graphics_info_t::idle_function_spin_rock_token) { 
 		  toggle_idle_spin_function(); // turn it off;
 	       }
 // BL says:: maybe we should set the set_display_lists_for_maps here for
@@ -746,7 +748,7 @@ void zalman_stereo_mode() {
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) { 
 	       std::cout << "INFO:: switch to zalman_stereo_mode succeeded\n";
-	       if (graphics_info_t::i_fn_token) { 
+	       if (graphics_info_t::idle_function_spin_rock_token) { 
 		  toggle_idle_spin_function(); // turn it off;
 	       }
 	       gtk_widget_destroy(graphics_info_t::glarea);
@@ -793,7 +795,7 @@ void mono_mode() {
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) { 
 	       std::cout << "INFO:: switch to mono_mode succeeded\n";
-	       if (graphics_info_t::i_fn_token) { 
+	       if (graphics_info_t::idle_function_spin_rock_token) { 
 		  toggle_idle_spin_function(); // turn it off;
 	       }
 	       gtk_widget_destroy(graphics_info_t::glarea);
@@ -855,7 +857,7 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
 	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
 	 if (glarea) {
-	    if (graphics_info_t::i_fn_token) { 
+	    if (graphics_info_t::idle_function_spin_rock_token) { 
 	       toggle_idle_spin_function(); // turn it off;
 	    }
 	    gtk_widget_destroy(graphics_info_t::glarea);
@@ -905,7 +907,7 @@ void set_dti_stereo_mode(short int state) {
 	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
 	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
 	 if (graphics_info_t::use_graphics_interface_flag) {
-	    if (graphics_info_t::i_fn_token) { 
+	    if (graphics_info_t::idle_function_spin_rock_token) { 
 	       toggle_idle_spin_function(); // turn it off;
 	    }
 	    gtk_widget_destroy(graphics_info_t::glarea);
@@ -1581,14 +1583,41 @@ void toggle_idle_spin_function() {
 
    graphics_info_t g; 
 
-   if (g.i_fn_token == 0) { 
-      g.i_fn_token = gtk_idle_add((GtkFunction)animate_idle, g.glarea);
+   if (g.idle_function_spin_rock_token == 0) { 
+      g.idle_function_spin_rock_token = gtk_idle_add((GtkFunction)animate_idle_spin, g.glarea);
    } else {
-      gtk_idle_remove(g.i_fn_token);
-      g.i_fn_token = 0; 
+      gtk_idle_remove(g.idle_function_spin_rock_token);
+      g.idle_function_spin_rock_token = 0; 
    }
    add_to_history_simple("toggle-idle-function");
 }
+
+
+void toggle_idle_rock_function() { 
+
+   graphics_info_t g; 
+
+   if (g.idle_function_spin_rock_token == 0) { 
+      g.idle_function_spin_rock_token = gtk_idle_add((GtkFunction)animate_idle_rock, g.glarea);
+   } else {
+      gtk_idle_remove(g.idle_function_spin_rock_token);
+      g.idle_function_spin_rock_token = 0;
+      g.time_holder_for_rocking = glutGet(GLUT_ELAPSED_TIME);
+      g.idle_function_rock_angle_previous = 0.0;
+   }
+   add_to_history_simple("toggle-idle-function");
+}
+
+/*! \brief Settings for the inevitable discontents who dislike the 
+   default rocking rates (defaults 1 and 1)  */
+void set_rocking_factors(float width, float freq_scale) {
+
+   graphics_info_t g;
+   g.idle_function_rock_amplitude_scale_factor = width;
+   g.idle_function_rock_freq_scale_factor = freq_scale;
+
+} 
+
 
 // in degrees
 void set_idle_function_rotate_angle(float f) {

@@ -123,7 +123,8 @@ void draw_crosshairs_maybe();
 
 void printString(std::string s); 
 
-gint animate_idle(GtkWidget *widget);
+gint animate_idle_spin(GtkWidget *widget);
+gint animate_idle_rock(GtkWidget *widget);
 
 void update_things_on_move_and_redraw(); 
 

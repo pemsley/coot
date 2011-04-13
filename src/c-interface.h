@@ -634,6 +634,13 @@ int next_map_for_molecule(int imol); /* return a map number */
 /*! \brief Spin spin spin (or not) */
 void toggle_idle_spin_function(); 
 
+/*! \brief Rock (not roll) (self-timed) */
+void toggle_idle_rock_function(); 
+
+/*! \brief Settings for the inevitable discontents who dislike the 
+   default rocking rates (defaults 1 and 1)  */
+void set_rocking_factors(float width_scale, float frequency_scale);
+
 /*! \brief how far should we rotate when (auto) spinning? Fast
   computer? set this to 0.1  */
 void set_idle_function_rotate_angle(float f);  // degrees

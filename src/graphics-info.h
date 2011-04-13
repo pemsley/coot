@@ -1654,10 +1654,14 @@ public:
 
    // idle function token (holder)
    //
-   static int i_fn_token;
+   static int idle_function_spin_rock_token;
+   static long time_holder_for_rocking;
    // drag refine idle function token:
    static int drag_refine_idle_function_token;
    static float idle_function_rotate_angle; // degrees
+   static double idle_function_rock_amplitude_scale_factor;
+   static double idle_function_rock_freq_scale_factor;
+   static double idle_function_rock_angle_previous; 
    static gint drag_refine_idle_function(GtkWidget *widget);
    static void add_drag_refine_idle_function();
    static gint drag_refine_refine_intermediate_atoms();
