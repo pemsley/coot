@@ -3925,12 +3925,42 @@ animate_idle_spin(GtkWidget *widget) {
 gint
 animate_idle_rock(GtkWidget *widget) {
 
-   float spin_quat[4];
+   graphics_info_t g; 
+   double target_angle = get_idle_function_rock_target_angle();
+   double curr_angle = g.idle_function_rock_angle_previous;
+
+   double angle_diff = target_angle - curr_angle;
+
+   std::cout << "target_angle: " << target_angle
+	     << "   curr_angle: " << curr_angle
+	     << "   angle_diff: " << angle_diff
+	     << std::endl;
+
+   // we don't need to see every angle - that is fine-grained and
+   // full-on, we just need to do an animation where the angle
+   // difference is a big bigger than tiny, otherwise sleep.
+   
+   if (fabs(angle_diff) > 0.0004) { 
+
+      float spin_quat[4];
+      trackball(spin_quat, 0, 0, angle_diff, 0.0, g.get_trackball_size());
+      add_quats(spin_quat, g.quat, g.quat);
+      g.graphics_draw();
+      g.idle_function_rock_angle_previous = target_angle; // for next round
+
+   } else {
+      usleep(500);
+   } 
+   return 1; 
+}
+
+double
+get_idle_function_rock_target_angle() {
+
    graphics_info_t g;
 
    long t = glutGet(GLUT_ELAPSED_TIME);
    long delta_t = t - g.time_holder_for_rocking;
-   // std::cout << "delta_t " << delta_t << " = " << t << " - " << g.time_holder_for_rocking << std::endl;
    double rock_sf = 0.001 * g.idle_function_rock_freq_scale_factor;
 
    double theta = delta_t * rock_sf;
@@ -3940,36 +3970,11 @@ animate_idle_rock(GtkWidget *widget) {
    while (theta < -2 * M_PI)
       theta += 2*M_PI;   
 
-   double curr_angle = g.idle_function_rock_angle_previous;
    double target_angle = g.idle_function_rock_amplitude_scale_factor *
       0.015 * 2 * M_PI * sin(theta);
 
-   double angle_diff = target_angle - curr_angle;
-
-//    std::cout << "    delta_t: " << delta_t << "  using sin(" << theta << ")  target_angle "
-// 	     << target_angle << " curr_angle " << curr_angle << "  angle_diff: "
-// 	     << angle_diff <<  std::endl;
-
-   // we don't need to see every angle - that is fine-grained and
-   // full-on, we just need to do an animation where the angle
-   // difference is a big bigger than tiny, otherwise sleep.
-   
-   if (fabs(angle_diff) > 0.0004) { 
-
-      trackball(spin_quat, 0, 0, angle_diff, 0.0, g.get_trackball_size());
-      add_quats(spin_quat, g.quat, g.quat);
-      g.graphics_draw();
-      
-      g.idle_function_rock_angle_previous = target_angle; // for next round
-
-      // std::cout << "animate" << std::endl;
-
-   } else {
-      // std::cout << "usleep" << std::endl;
-      usleep(500);
-   } 
-   return 1; 
-}
+   return target_angle;
+} 
 
 
 void
