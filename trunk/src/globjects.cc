@@ -446,7 +446,13 @@ short int graphics_info_t::swap_difference_map_colours = 0; // default: not in J
 
 // No idle functions to start (but setting them to zero doesn't set that - the
 // idle functions are added by gtk_idle_add()).
-int   graphics_info_t::i_fn_token = 0;  
+int   graphics_info_t::idle_function_spin_rock_token = 0;
+long  graphics_info_t::time_holder_for_rocking = 0;
+double graphics_info_t::idle_function_rock_amplitude_scale_factor = 1.0;
+double graphics_info_t::idle_function_rock_freq_scale_factor = 1.0;
+double graphics_info_t::idle_function_rock_angle_previous = 0; 
+
+
 int   graphics_info_t::drag_refine_idle_function_token = -1; // magic unused value
 coot::refinement_results_t graphics_info_t::saved_dragged_refinement_results(0, -2, "");
 float graphics_info_t::idle_function_rotate_angle = 1.0; // degrees
@@ -3899,18 +3905,69 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 // widget is the glarea.
 // 
 gint
-animate_idle(GtkWidget *widget) {
+animate_idle_spin(GtkWidget *widget) {
 
    float spin_quat[4];
    graphics_info_t g;
 
    // spin it 1 degree * user angle setting
    trackball(spin_quat, 0, 0, g.idle_function_rotate_angle*0.0174,
-	     0.0002, g.get_trackball_size());
+	     0.0, g.get_trackball_size());
    add_quats(spin_quat, g.quat, g.quat);
 
    g.graphics_draw();
 
+   return 1; 
+}
+
+// widget is the glarea.
+// 
+gint
+animate_idle_rock(GtkWidget *widget) {
+
+   float spin_quat[4];
+   graphics_info_t g;
+
+   long t = glutGet(GLUT_ELAPSED_TIME);
+   long delta_t = t - g.time_holder_for_rocking;
+   // std::cout << "delta_t " << delta_t << " = " << t << " - " << g.time_holder_for_rocking << std::endl;
+   double rock_sf = 0.001 * g.idle_function_rock_freq_scale_factor;
+
+   double theta = delta_t * rock_sf;
+
+   while (theta > 2 * M_PI)
+      theta -= 2*M_PI;
+   while (theta < -2 * M_PI)
+      theta += 2*M_PI;   
+
+   double curr_angle = g.idle_function_rock_angle_previous;
+   double target_angle = g.idle_function_rock_amplitude_scale_factor *
+      0.015 * 2 * M_PI * sin(theta);
+
+   double angle_diff = target_angle - curr_angle;
+
+//    std::cout << "    delta_t: " << delta_t << "  using sin(" << theta << ")  target_angle "
+// 	     << target_angle << " curr_angle " << curr_angle << "  angle_diff: "
+// 	     << angle_diff <<  std::endl;
+
+   // we don't need to see every angle - that is fine-grained and
+   // full-on, we just need to do an animation where the angle
+   // difference is a big bigger than tiny, otherwise sleep.
+   
+   if (fabs(angle_diff) > 0.0004) { 
+
+      trackball(spin_quat, 0, 0, angle_diff, 0.0, g.get_trackball_size());
+      add_quats(spin_quat, g.quat, g.quat);
+      g.graphics_draw();
+      
+      g.idle_function_rock_angle_previous = target_angle; // for next round
+
+      // std::cout << "animate" << std::endl;
+
+   } else {
+      // std::cout << "usleep" << std::endl;
+      usleep(500);
+   } 
    return 1; 
 }
 
