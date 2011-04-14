@@ -3931,10 +3931,11 @@ animate_idle_rock(GtkWidget *widget) {
 
    double angle_diff = target_angle - curr_angle;
 
-   std::cout << "target_angle: " << target_angle
-	     << "   curr_angle: " << curr_angle
-	     << "   angle_diff: " << angle_diff
-	     << std::endl;
+   if (0) 
+      std::cout << "target_angle: " << target_angle
+		<< "   curr_angle: " << curr_angle
+		<< "   angle_diff: " << angle_diff
+		<< std::endl;
 
    // we don't need to see every angle - that is fine-grained and
    // full-on, we just need to do an animation where the angle

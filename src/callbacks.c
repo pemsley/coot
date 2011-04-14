@@ -9243,6 +9243,13 @@ on_spin_view_on_off1_activate          (GtkMenuItem     *menuitem,
 
 
 void
+on_rock_view_on_off1_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) { 
+  toggle_idle_rock_function();
+} 
+
+
+void
 on_other_tools_RNA_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
