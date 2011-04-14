@@ -3002,7 +3002,7 @@ To mutate a residue range, use
 
 @itemize
 @item 
-@code{(mutate-residue-range @emph{chain-id}
+@code{(mutate-residue-range @emph{imol} @emph{chain-id}
   @emph{start-res-no} @emph{stop-res-no sequence})}
 @end itemize
 
