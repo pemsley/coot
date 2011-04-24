@@ -154,8 +154,10 @@ std::vector<std::string>
 graphics_info_t::other_modelling_tools_button_name_list() {
 
    std::vector<std::string> names;
-   names.push_back("model_refine_dialog_baton_button"); 
+   names.push_back("model_refine_dialog_find_waters_button"); 
    names.push_back("model_refine_dialog_find_ligands_button");
+   names.push_back("model_refine_dialog_fast_sss_button"); 
+   names.push_back("model_refine_dialog_baton_button"); 
    names.push_back("model_refine_dialog_add_OXT_button");
    names.push_back("place_helix_here_button");
    return names;
@@ -186,6 +188,27 @@ graphics_info_t::set_model_fit_refine_button_names(GtkWidget *widget) {
       }
    }
 }
+
+// and for the other modelling toolbar
+void
+graphics_info_t::set_other_modelling_tools_button_names(GtkWidget *widget) { 
+
+   std::vector<std::string> other_button_names =
+     other_modelling_tools_button_name_list();
+
+   std::vector<std::string> button_names = other_button_names;
+   // dont need extra ones here yet
+   //for (unsigned int i=0; i<other_button_names.size(); i++)
+   //   button_names.push_back(other_button_names[i]);
+
+   for (unsigned int i=0; i<button_names.size(); i++) {
+      GtkWidget *w = lookup_widget(widget, button_names[i].c_str());
+      if (w) {
+        gtk_widget_set_name(w, button_names[i].c_str());
+      }
+   }
+}
+
    
 
 

@@ -702,34 +702,32 @@ graphics_info_t::fill_preferences_model_toolbar_icons(GtkWidget *preferences,
 
     // for icons
     if (item.icon_filename != "") {
-      if (item.icon_filename.substr(0, 4) == "gtk-") {
-	//      icon = gtk_widget_render_icon(icons_tree, item.icon_filename.c_str(),
-	icon = gtk_widget_render_icon(icons_tree, item.icon_filename.c_str(),
-				      GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
-	if (icon == NULL) {
-	  g_print("BL DEBUG:: something went wrong, icon is NULL\n");
-	}
-      } else {
-	std::string splash_screen_pixmap_dir = PKGDATADIR;  
-	splash_screen_pixmap_dir += "/";
-	splash_screen_pixmap_dir += "pixmaps";
-    
-	// over-ridden by user?
-	char *s = getenv("COOT_PIXMAPS_DIR");
-	if (s) {
-	  splash_screen_pixmap_dir = s;
-	}
+      icon = gtk_widget_render_icon(icons_tree, item.icon_filename.c_str(),
+                                    GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
+      if (icon == NULL) {
+        g_print("BL DEBUG:: something went wrong, icon is NULL\n");
+        // try to read as filename (although then should be registered and
+        // read in already, but let's try
+        std::string splash_screen_pixmap_dir = PKGDATADIR;  
+        splash_screen_pixmap_dir += "/";
+        splash_screen_pixmap_dir += "pixmaps";
+        
+        // over-ridden by user?
+        char *s = getenv("COOT_PIXMAPS_DIR");
+        if (s) {
+          splash_screen_pixmap_dir = s;
+        }
 
-	// now add the icon
-	std::string icon_path =
-	  coot::util::append_dir_file(splash_screen_pixmap_dir,
-				      item.icon_filename);
-	icon = gdk_pixbuf_new_from_file(icon_path.c_str(), &error);
-	if (error) {
-	  g_warning ("Could not load icon: %s\n", error->message);
-	  g_error_free(error);
-	  error = NULL;
-	}
+        // now add the icon
+        std::string icon_path =
+          coot::util::append_dir_file(splash_screen_pixmap_dir,
+                                      item.icon_filename);
+        icon = gdk_pixbuf_new_from_file(icon_path.c_str(), &error);
+        if (error) {
+          g_warning ("Could not load icon: %s\n", error->message);
+          g_error_free(error);
+          error = NULL;
+        }
       } 
     } else {
       icon = NULL;

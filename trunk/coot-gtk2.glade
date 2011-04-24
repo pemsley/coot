@@ -7213,7 +7213,7 @@
 
 <widget class="GtkWindow" id="aniso_window">
   <property name="visible">True</property>
-  <property name="title" translatable="yes">Anisotripic Atoms</property>
+  <property name="title" translatable="yes">Anisotropic Atoms</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>

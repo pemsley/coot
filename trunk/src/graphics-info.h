@@ -3331,6 +3331,7 @@ public:
    // -------- public toggle button control: ---------
    void untoggle_model_fit_refine_buttons_except(const std::string &button_name);
    static void set_model_fit_refine_button_names(GtkWidget *w);
+   static void set_other_modelling_tools_button_names(GtkWidget *w);
 
    
    // -------- keyboard rotamer control: ---------

@@ -53,6 +53,7 @@
 #include <GL/glext.h>
 //#include <GL/wglext.h>
 #endif // WINDOWS_MINGW
+#include "sleep-fixups.h"
 
 #include <math.h>
 #ifndef HAVE_VECTOR

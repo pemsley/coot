@@ -28,6 +28,7 @@ notes from BioCrys
  * martyn mrc stuff
  * guile gui
  * new(er) RDKit (incl assignRadicals etc)
+Done
 
 notes APS CCP4 workshop
 - document refmac extra params + lib files location (note to self ?!)
@@ -41,8 +42,6 @@ scripting exercise
 - doublicate residue range with alt conf
 
 notes from Shanghai:
-- fix new large icon size for search water, preferences model toolbar (there
-	may be others)
 - on iconcs: replace the smilie in ligand editor, as it is theme specific
 
 ----------------
@@ -367,3 +366,6 @@ Osaka 2010
 
 * Done
 
+   o fix new large icon size for search water, preferences model toolbar (there
+	may be others)
+* Done
