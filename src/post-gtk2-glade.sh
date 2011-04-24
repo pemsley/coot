@@ -29,6 +29,13 @@ sed -e 's/#include "callbacks.h.gtk2"/#if (GTK_MAJOR_VERSION > 1)\n\n#include "c
         /png/s/);/, GTK_ICON_SIZE_BUTTON);/
         }' \
     -e '
+        /create_other_model_tools_dialog (void)/,/}/ {
+        /svg/s/create_pixmap (other_model_tools_dialog, /gtk_image_new_from_stock (/
+        /svg/s/);/, GTK_ICON_SIZE_BUTTON);/
+        /png/s/create_pixmap (other_model_tools_dialog, /gtk_image_new_from_stock (/
+        /png/s/);/, GTK_ICON_SIZE_BUTTON);/
+        }' \
+    -e '
         /toolbar1 = gtk_toolbar_new ();/,/accept_reject_dialog_frame_docked = gtk_frame_new (NULL);/ {
         /svg/s/create_pixmap (window1, /gtk_image_new_from_stock (/
         /svg/s/);/, tmp_toolbar_icon_size);/

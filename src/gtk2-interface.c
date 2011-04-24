@@ -4299,7 +4299,7 @@ create_aniso_window (void)
   GtkWidget *label355;
 
   aniso_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (aniso_window), _("Anisotripic Atoms"));
+  gtk_window_set_title (GTK_WINDOW (aniso_window), _("Anisotropic Atoms"));
 
   vbox16 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox16);
@@ -21943,7 +21943,7 @@ create_other_model_tools_dialog (void)
   gtk_widget_show (hbox376);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_find_waters_button), hbox376);
 
-  image6803 = create_pixmap (other_model_tools_dialog, "add-water.svg");
+  image6803 = gtk_image_new_from_stock ("add-water.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6803);
   gtk_box_pack_start (GTK_BOX (hbox376), image6803, FALSE, FALSE, 0);
 
@@ -21966,7 +21966,7 @@ create_other_model_tools_dialog (void)
   gtk_widget_show (hbox395);
   gtk_container_add (GTK_CONTAINER (model_refine_dialog_fast_sss_button), hbox395);
 
-  image6810 = create_pixmap (other_model_tools_dialog, "secondary-structure.svg");
+  image6810 = gtk_image_new_from_stock ("secondary-structure.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6810);
   gtk_box_pack_start (GTK_BOX (hbox395), image6810, FALSE, FALSE, 0);
 

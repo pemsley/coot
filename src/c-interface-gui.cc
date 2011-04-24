@@ -3288,6 +3288,7 @@ GtkWidget *wrapped_create_other_model_tools_dialog() {
    if (!widget) {
       GtkWidget *w = create_other_model_tools_dialog();
       graphics_info_t::other_modelling_tools_dialog = w;
+      graphics_info_t::set_other_modelling_tools_button_names(w);
       widget = w;
    }
    return widget;
