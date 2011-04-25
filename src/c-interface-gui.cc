@@ -5196,9 +5196,21 @@ void set_filename_for_filechooserselection(GtkWidget *fileselection,
 // functions to dock the accept/reject dialog
 void set_accept_reject_dialog_docked(int istate){
    if (graphics_info_t::use_graphics_interface_flag) {
-	  graphics_info_t::accept_reject_dialog_docked_flag = istate;
-	  // reset the widget upon change of mode
-	  set_accept_reject_dialog(0);
+     // we should destroy/hide the dialog if existing
+     if (graphics_info_t::accept_reject_dialog) {
+       // changing state?
+       if (istate != graphics_info_t::accept_reject_dialog_docked_flag) {
+         if (istate == 0) {
+           gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+         } else {
+           gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+           // reset the widget upon change of mode
+           set_accept_reject_dialog(0);
+         }
+       }
+     }
+     // now change the state
+     graphics_info_t::accept_reject_dialog_docked_flag = istate;
    }
 }
 

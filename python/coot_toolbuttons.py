@@ -624,6 +624,8 @@ def list_of_toolbar_functions():
         ["Refinement",
          ["Sphere Refine", "sphere_refine()", "RSR around active residue", "reset-view.svg"],
          ["Sphere Refine +", "sphere_refine_plus()", "RSR around active residue +/- 1 residue", "reset-view.svg"],
+         ["Sphere Regularization", "sphere_regularize()", "Regularize around active residue", "reset-view.svg"],
+         ["Sphere Regularization +", "sphere_regularize_plus()", "Regularize around active residue +/- 1 residue", "reset-view.svg"],
          ["Refine residue", "refine_active_residue()", "RSR active residue"],
          ["Reset B", "reset_b_factor_active_residue()", "Reset the B-Factor of active Residue"],
          ["Find Waters", "wrapped_create_find_waters_dialog()", "Find water molecules in map", "add-water.svg"],
