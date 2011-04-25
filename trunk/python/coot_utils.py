@@ -86,6 +86,7 @@ def with_auto_accept(*funcs):
 # func, args, "aa_imol", "aa_chain_id", ..., args
 # or list thereof
 # [[func1, extra_arg1, ..., "aa_imol", "aa_chain_id",..., extra_arg2, extra arg3, ..], [func2,...]]
+# returns what? The value from the last function evaluated
 #
 def using_active_atom(*funcs):
 
@@ -122,7 +123,8 @@ def using_active_atom(*funcs):
                     args.append(aa_dict[arg])
                 else:
                     args.append(arg)
-            func(*args)
+            ret = func(*args)
+        return ret
 
 # Pythonize function: return a python boolean.
 #

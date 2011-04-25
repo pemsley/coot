@@ -50,6 +50,8 @@ notes from Shanghai:
 
 **** General ****
 
+   o Esc removes docked acccept/reject toolbar
+
    o Go to Atom doe not update when open and new molecule gets created
 
    o delete chain function (in scripting I guess)

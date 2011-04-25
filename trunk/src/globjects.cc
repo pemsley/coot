@@ -3137,10 +3137,10 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
 	   save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
 	   gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+       graphics_info_t::accept_reject_dialog = 0;
 	 } else {
-	   gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+	   gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
 	 }
-	 graphics_info_t::accept_reject_dialog = 0;
       }
       
       graphics_info_t::go_to_residue_keyboarding_string = ""; // reset.
