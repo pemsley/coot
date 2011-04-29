@@ -216,32 +216,30 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
          
 	    PCMMCIFData data = ciffile.GetCIFData(idata);
 	    
-// 	    std::cout << "DEBUG:: There are " << data->GetNumberOfCategories() 
-// 		      << " categories in " << data->GetDataName() << std::endl;
-
-	    // 	 std::cout << "    compare results: for "
-	    // 		   << std::string(data->GetDataName()) << " : " 
-	    // 		   << std::string(data->GetDataName()).compare("link_", 0)
-	    // 		   << std::endl; 
-
-	    //if (std::string(data->GetDataName()).compare(0,5,"link_") == 0 ) {
-	    // 	 if (std::string(data->GetDataName()).compare("link_",0,4) > 1 ) {
-	    //
 	    // note that chem_link goes here to:
 	    // 
 	    if (std::string(data->GetDataName()).substr(0,5) == "link_") {
-// 	       std::cout  << "DEUBG:: ==== matches link: " << std::string(data->GetDataName())
-// 			  << std::endl;
 	       ret_val += init_links(data);
 	    }
 
+	    if (std::string(data->GetDataName()).length() > 7) {
+	       if (std::string(data->GetDataName()).substr(0,8) == "mod_list") {
+		  // this handles all "list_chem_mod"s in the file (just one call)
+		  ret_val += add_chem_mods(data);
 
-	    if (std::string(data->GetDataName()).length() > 7) { 
-	       if (std::string(data->GetDataName()).substr(0,5) == "mod_list") {
-		  ret_val += add_mods(data);
+		  if (0) // debug
+		     for (unsigned int i=0; i<chem_mod_vec.size(); i++)
+			std::cout << "     " << chem_mod_vec[i] << std::endl;
 	       }
 	    }
 	    
+	    if (std::string(data->GetDataName()).length() > 4) {
+	       // e.g. mod_NH3 ? 
+	       if (std::string(data->GetDataName()).substr(0,4) == "mod_") {
+		  ret_val += add_mod(data);
+	       }
+	    }
+	       
 
          
 	    int n_chiral = 0;
@@ -322,6 +320,9 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	 } // for idata
       } // cif file is OK test
    } // is regular file test
+
+   // debug_mods();
+   
    return ret_val; // the number of atoms read.
 }
 
@@ -1892,7 +1893,7 @@ coot::protein_geometry::info() const {
 
 // 
 int
-coot::protein_geometry::add_mods(PCMMCIFData data) {
+coot::protein_geometry::add_chem_mods(PCMMCIFData data) {
 
    int n_mods = 0;
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
@@ -1909,19 +1910,53 @@ coot::protein_geometry::add_mods(PCMMCIFData data) {
       } else {
 	 int n_chiral = 0;
 	 if (cat_name == "_chem_mod")
-	    n_mods += add_chem_mods(mmCIFLoop);
+	    n_mods += add_chem_mod(mmCIFLoop);
       }
    }
    return n_mods;
 }
 
 int 
-coot::protein_geometry::add_chem_mods(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_mod(PCMMCIFLoop mmCIFLoop) {
 
    int n_chem_mods = 0;
 
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+
+      int ierr_tot = 0;
+      int ierr;
+      
+      std::string id;
+      std::string name;
+      std::string comp_id; // often "." (default)
+      std::string group_id;
+      char *s;
+
+      s = mmCIFLoop->GetString("id", j, ierr);
+      ierr_tot += ierr;
+      if (s) id = s;
+      
+      s = mmCIFLoop->GetString("name", j, ierr);
+      ierr_tot += ierr;
+      if (s) name = s;
+      
+      s = mmCIFLoop->GetString("comp_id", j, ierr);
+      ierr_tot += ierr;
+      if (s) comp_id = s;
+      
+      s = mmCIFLoop->GetString("group_id", j, ierr);
+      ierr_tot += ierr;
+      if (s) group_id = s;
+
+      if (ierr_tot == 0) {
+	 coot::list_chem_mod mod(id, name, comp_id, group_id);
+	 chem_mod_vec.push_back(mod);
+	 n_chem_mods++;
+      } 
+   }
    return n_chem_mods;
 }
+
 
 // Normally, we would use a const pointer (or a reference). But this
 // is mmdb.
@@ -1941,7 +1976,7 @@ coot::protein_geometry::init_links(PCMMCIFData data) {
 
       // std::cout << "DEBUG:: init_link is handling " << cat_name << std::endl;
 
-      PCMMCIFLoop mmCIFLoop = data->GetLoop( (char *) cat_name.c_str() );
+      PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
       if (mmCIFLoop == NULL) { 
 	 std::cout << "null loop" << std::endl; 
@@ -2116,6 +2151,17 @@ std::ostream& coot::operator<<(std::ostream &s, coot::chem_link lnk) {
      << " mod: " << lnk.chem_link_mod_id_2 << "] " << lnk.chem_link_name << "]";
    return s; 
 }
+
+std::ostream& coot::operator<<(std::ostream &s, coot::list_chem_mod mod) {
+
+   s << "[list_chem_mod: id: " << mod.id << " " 
+     << "name: " << mod.name 
+     << " comp_id :" << mod.comp_id 
+     << ": group_id: " << mod.group_id
+     << "]";
+   return s;
+} 
+
 
 int
 coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {

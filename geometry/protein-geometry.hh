@@ -1,7 +1,7 @@
 /* geometry/protein-geometry.cc
  * 
  * Copyright 2004, 2005 The University of York
- * Copyright 2008, 2009 The University of Oxford
+ * Copyright 2008, 2009, 2011 The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -664,6 +664,259 @@ namespace coot {
    std::ostream& operator<<(std::ostream &s, chem_link lnk);
 
    // ------------------------------------------------------------------------
+   //                  chem_mods
+   // ------------------------------------------------------------------------
+   
+   // a container for the data_mod_list chem_mods (used to be simply
+   // chem_mod, but that name is now used as a class that contains the
+   // actual chem mods (with lists of atoms, bonds, angles and so on).
+   // 
+   class list_chem_mod {
+   public:
+      std::string name;
+      std::string id;
+      std::string group_id;
+      std::string comp_id;
+      list_chem_mod(const std::string &id_in,
+		    const std::string &name_in,
+		    const std::string &comp_id_in,
+		    const std::string &group_id_in) {
+	 id = id_in;
+	 name = name_in;
+	 comp_id = comp_id_in;
+	 group_id = group_id_in;
+      } 
+      friend std::ostream& operator<<(std::ostream &s, list_chem_mod mod);
+   };
+   std::ostream& operator<<(std::ostream &s, list_chem_mod mod);
+
+   enum chem_mod_function_t { CHEM_MOD_FUNCTION_UNSET,
+			      CHEM_MOD_FUNCTION_ADD,
+			      CHEM_MOD_FUNCTION_CHANGE,
+			      CHEM_MOD_FUNCTION_DELETE };
+   
+   class chem_mod_atom {
+      chem_mod_function_t function;
+      std::string atom_id;
+      std::string new_atom_id;
+      std::string new_type_symbol;
+      std::string new_type_energy;
+      realtype new_partial_charge;
+   public:
+      chem_mod_atom(const std::string &function_in,
+		    const std::string &atom_id_in,
+		    const std::string &new_atom_id_in,
+		    const std::string &new_type_symbol_in,
+		    const std::string &new_type_energy_in,
+		    realtype new_partial_charge_in) {
+	 function = CHEM_MOD_FUNCTION_UNSET;
+	 if (function_in == "add")
+	    function = CHEM_MOD_FUNCTION_ADD;
+	 if (function_in == "delete")
+	    function = CHEM_MOD_FUNCTION_DELETE;
+	 if (function_in == "change")
+	    function = CHEM_MOD_FUNCTION_CHANGE;
+	 atom_id = atom_id_in;
+	 new_atom_id = new_atom_id_in;
+	 new_type_symbol = new_type_symbol_in;
+	 new_type_energy = new_type_energy_in;
+	 new_partial_charge = new_partial_charge_in;
+      }
+      friend std::ostream& operator<<(std::ostream &s, const chem_mod_atom &a);
+   };
+   std::ostream& operator<<(std::ostream &s, const chem_mod_atom &a);
+
+   class chem_mod_tree {
+      chem_mod_function_t function;
+      std::string atom_id;
+      std::string atom_back;
+      std::string back_type;
+      std::string atom_forward;
+      std::string connect_type;
+   public:
+      chem_mod_tree (const std::string &function_in,
+		     const std::string &atom_id_in,
+		     const std::string &atom_back_in,
+		     const std::string &back_type_in,
+		     const std::string &atom_forward_in,
+		     const std::string &connect_type_in) {
+	 function = CHEM_MOD_FUNCTION_UNSET;
+	 if (function_in == "add")
+	    function = CHEM_MOD_FUNCTION_ADD;
+	 if (function_in == "delete")
+	    function = CHEM_MOD_FUNCTION_DELETE;
+	 if (function_in == "change")
+	    function = CHEM_MOD_FUNCTION_CHANGE;
+	 atom_id = atom_id_in;
+	 atom_back = atom_back_in;
+	 back_type = back_type_in;
+	 atom_forward = atom_forward_in;
+	 connect_type = connect_type_in;
+      }
+      friend std::ostream& operator<<(std::ostream &s, const chem_mod_tree &a);
+   };
+   std::ostream& operator<<(std::ostream &s, const chem_mod_tree &a);
+
+   class chem_mod_bond {
+   public:
+      chem_mod_bond(const std::string &function_in,
+		    const std::string &atom_id_1_in,
+		    const std::string &atom_id_2_in,
+		    const std::string &new_type_in,
+		    realtype new_value_dist_in,
+		    realtype new_value_dist_esd_in) {
+	 function = CHEM_MOD_FUNCTION_UNSET;
+	 if (function_in == "add")
+	    function = CHEM_MOD_FUNCTION_ADD;
+	 if (function_in == "delete")
+	    function = CHEM_MOD_FUNCTION_DELETE;
+	 if (function_in == "change")
+	    function = CHEM_MOD_FUNCTION_CHANGE;
+	 atom_id_1 = atom_id_1_in;
+	 atom_id_2 = atom_id_2_in;
+	 new_type = new_type_in;
+	 new_value_dist = new_value_dist_in;
+	 new_value_dist_esd = new_value_dist_esd_in;
+      }
+      chem_mod_function_t function;
+      std::string atom_id_1;
+      std::string atom_id_2;
+      std::string new_type;
+      realtype new_value_dist;
+      realtype new_value_dist_esd;
+      friend std::ostream& operator<<(std::ostream &s, const chem_mod_bond &a);
+   };
+   std::ostream& operator<<(std::ostream &s, const chem_mod_bond &a);
+
+   class chem_mod_angle {
+   public:
+      chem_mod_angle(const std::string &function_in,
+		     const std::string &atom_id_1_in,
+		     const std::string &atom_id_2_in,
+		     const std::string &atom_id_3_in,
+		     realtype new_value_angle_in,
+		     realtype new_value_angle_esd_in) {
+	 function = CHEM_MOD_FUNCTION_UNSET;
+	 if (function_in == "add")
+	    function = CHEM_MOD_FUNCTION_ADD;
+	 if (function_in == "delete")
+	    function = CHEM_MOD_FUNCTION_DELETE;
+	 if (function_in == "change")
+	    function = CHEM_MOD_FUNCTION_CHANGE;
+	 atom_id_1 = atom_id_1_in;
+	 atom_id_2 = atom_id_2_in;
+	 atom_id_3 = atom_id_3_in;
+	 new_value_angle = new_value_angle_in;
+	 new_value_angle_esd = new_value_angle_esd_in;
+      }
+      chem_mod_function_t function;
+      std::string atom_id_1;
+      std::string atom_id_2;
+      std::string atom_id_3;
+      std::string new_type;
+      realtype new_value_angle;
+      realtype new_value_angle_esd;
+      friend std::ostream& operator<<(std::ostream &s, const chem_mod_angle &a);
+   };
+   std::ostream& operator<<(std::ostream &s, const chem_mod_angle &a);
+
+   class chem_mod_tor {
+   public:
+      chem_mod_tor(const std::string &function_in,
+		   const std::string &atom_id_1_in,
+		   const std::string &atom_id_2_in,
+		   const std::string &atom_id_3_in,
+		   const std::string &atom_id_4_in,
+		   realtype new_value_angle_in,
+		   realtype new_value_angle_esd_in,
+		   int new_period_in) {
+	 function = CHEM_MOD_FUNCTION_UNSET;
+	 if (function_in == "add")
+	    function = CHEM_MOD_FUNCTION_ADD;
+	 if (function_in == "delete")
+	    function = CHEM_MOD_FUNCTION_DELETE;
+	 if (function_in == "change")
+	    function = CHEM_MOD_FUNCTION_CHANGE;
+	 atom_id_1 = atom_id_1_in;
+	 atom_id_2 = atom_id_2_in;
+	 atom_id_3 = atom_id_3_in;
+	 atom_id_4 = atom_id_4_in;
+	 new_value_angle = new_value_angle_in;
+	 new_value_angle_esd = new_value_angle_esd_in;
+	 new_period = new_period_in;
+      }
+      chem_mod_function_t function;
+      std::string atom_id_1;
+      std::string atom_id_2;
+      std::string atom_id_3;
+      std::string atom_id_4;
+      std::string new_type;
+      realtype new_value_angle;
+      realtype new_value_angle_esd;
+      int new_period;
+      friend std::ostream& operator<<(std::ostream &s, const chem_mod_tor &a);
+   };
+   std::ostream& operator<<(std::ostream &s, const chem_mod_tor &a);
+
+   class chem_mod_plane {
+   public:
+      chem_mod_plane(const std::string &plane_id_in,
+		     const std::string &function_in) {
+	 function = CHEM_MOD_FUNCTION_UNSET;
+	 if (function_in == "add")
+	    function = CHEM_MOD_FUNCTION_ADD;
+	 if (function_in == "delete")
+	    function = CHEM_MOD_FUNCTION_DELETE;
+	 if (function_in == "change")
+	    function = CHEM_MOD_FUNCTION_CHANGE;
+	 plane_id = plane_id_in;
+      }
+      chem_mod_function_t function;
+      std::string plane_id;
+      std::vector<std::pair<std::string, realtype> > atom_id_esd;
+      void add_atom(const std::string &atom_id, realtype esd) {
+	 std::pair<std::string, realtype> p(atom_id, esd);
+	 atom_id_esd.push_back(p);
+      }
+      friend std::ostream& operator<<(std::ostream &s, const chem_mod_plane &a);
+   };
+   std::ostream& operator<<(std::ostream &s, const chem_mod_plane &a);
+
+   class chem_mod_chir {
+   public:
+      chem_mod_chir(const std::string &function_in,
+		    const std::string &atom_id_centre_in,
+		    const std::string &atom_id_1_in,
+		    const std::string &atom_id_2_in,
+		    const std::string &atom_id_3_in,
+		    int new_volume_sign_in) {
+	 function = CHEM_MOD_FUNCTION_UNSET;
+	 if (function_in == "add")
+	    function = CHEM_MOD_FUNCTION_ADD;
+	 if (function_in == "delete")
+	    function = CHEM_MOD_FUNCTION_DELETE;
+	 if (function_in == "change")
+	    function = CHEM_MOD_FUNCTION_CHANGE;
+	 atom_id_centre = atom_id_centre_in;
+	 atom_id_1 = atom_id_1_in;
+	 atom_id_2 = atom_id_2_in;
+	 atom_id_3 = atom_id_3_in;
+	 new_volume_sign = new_volume_sign_in;
+      }
+      chem_mod_function_t function;
+      std::string atom_id_centre;
+      std::string atom_id_1;
+      std::string atom_id_2;
+      std::string atom_id_3;
+      int new_volume_sign;
+      friend std::ostream& operator<<(std::ostream &s, const chem_mod_chir &a);
+   };
+   std::ostream& operator<<(std::ostream &s, const chem_mod_chir &a);
+
+   
+
+
+   // ------------------------------------------------------------------------
    //                  energy lib
    // ------------------------------------------------------------------------
    
@@ -826,6 +1079,7 @@ namespace coot {
       std::vector<dictionary_residue_restraints_t> dict_res_restraints;
       std::vector<dictionary_residue_link_restraints_t> dict_link_res_restraints;
       std::vector<chem_link> chem_link_vec;
+      std::vector<list_chem_mod>  chem_mod_vec;
 
       // the monomer data in list/mon_lib_list.cif, not the
       // restraints, just id, 3-letter-code, name, group,
@@ -936,8 +1190,19 @@ namespace coot {
 					const std::string &description_level);
 
       // mod stuff (references by chem links)
-      int add_mods(PCMMCIFData data);
-      int add_chem_mods(PCMMCIFLoop mmCIFLoop); 
+      int add_chem_mods(PCMMCIFData data);
+      int add_chem_mod(PCMMCIFLoop mmCIFLoop);
+
+      int add_mod(PCMMCIFData data);
+      // which calls:
+      void add_chem_mod_atom( PCMMCIFLoop mmCIFLoop);
+      void add_chem_mod_bond( PCMMCIFLoop mmCIFLoop);
+      void add_chem_mod_tree( PCMMCIFLoop mmCIFLoop);
+      void add_chem_mod_angle(PCMMCIFLoop mmCIFLoop);
+      void add_chem_mod_tor(  PCMMCIFLoop mmCIFLoop);
+      void add_chem_mod_chir( PCMMCIFLoop mmCIFLoop);
+      void add_chem_mod_plane(PCMMCIFLoop mmCIFLoop);
+
 
       // link stuff
       int init_links(PCMMCIFData data);
@@ -1057,6 +1322,58 @@ namespace coot {
       //
       std::vector<std::pair<std::string, std::string> >
       matching_sbase_residues_names(const std::string &compound_name_substring) const;
+
+      // and fills these chem mod classes, simple container class
+      // indexed with map on the mod_id
+
+
+      class chem_mod {
+
+      public:
+	 chem_mod() {};
+	 std::vector<chem_mod_atom>  atom_mods;
+	 std::vector<chem_mod_tree>  tree_mods;
+	 std::vector<chem_mod_bond>  bond_mods;
+	 std::vector<chem_mod_angle> angle_mods;
+	 std::vector<chem_mod_tor>   tor_mods;
+	 std::vector<chem_mod_plane> plane_mods;
+	 std::vector<chem_mod_chir>  chir_mods;
+	 void add_mod_atom(const chem_mod_atom &chem_atom) {
+	    atom_mods.push_back(chem_atom);
+	 }
+	 void add_mod_tree(const chem_mod_tree &chem_tree) {
+	    tree_mods.push_back(chem_tree);
+	 }
+	 void add_mod_bond(const chem_mod_bond &chem_bond) {
+	    bond_mods.push_back(chem_bond);
+	 }
+	 void add_mod_angle(const chem_mod_angle &chem_angle) {
+	    angle_mods.push_back(chem_angle);
+	 }
+	 void add_mod_tor(const chem_mod_tor &chem_tor) {
+	    tor_mods.push_back(chem_tor);
+	 }
+	 void add_mod_plane(const chem_mod_plane &chem_plane) {
+	    plane_mods.push_back(chem_plane);
+	 }
+	 void add_mod_chir(const chem_mod_chir &chem_chir) {
+	    chir_mods.push_back(chem_chir);
+	 }
+	 chem_mod_plane &operator[](const chem_mod_plane &plane) {
+	    for (unsigned int iplane=0; iplane<plane_mods.size(); iplane++) {
+	       if (plane_mods[iplane].plane_id == plane.plane_id) {
+		  return plane_mods[iplane];
+	       }
+	    }
+	    plane_mods.push_back(plane);
+	    return plane_mods.back();
+	 }
+      };
+      
+      
+      std::map<std::string, chem_mod> mods;
+      void debug_mods() const;
+      
       
       // Refmac monomer lib things
       // 
