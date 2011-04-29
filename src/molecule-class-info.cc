@@ -5989,7 +5989,29 @@ molecule_class_info_t::chain_n_residues(const char *chain_id) const {
       }
    }
    return r; 
+}
+
+
+int
+molecule_class_info_t::n_residues() const {
+
+   int r = -1;
+   if (atom_sel.n_selected_atoms > 0) {
+      r = 0;
+      for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+	 CModel *model_p = atom_sel.mol->GetModel(imod);
+	 CChain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    r += nres;
+	 }
+      }
+   } 
+   return r;
 } 
+
 
 
 void
