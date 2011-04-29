@@ -2767,7 +2767,22 @@ int n_models(int imol) {
    args.push_back(imol);
    add_to_history_typed(cmd, args);
    return r;
+}
+
+/*!\brief return the number of residues in the molecule, 
+
+return -1 if this is a map or closed.
+ */
+int n_residues(int imol) {
+
+   int r = -1; 
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      r = g.molecules[imol].n_residues();
+   } 
+   return r;
 } 
+
 
 
 // return -1 on error (e.g. chain_id not found, or molecule is not a

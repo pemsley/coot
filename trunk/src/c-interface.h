@@ -414,6 +414,13 @@ int n_chains(int imol);
 int is_solvent_chain_p(int imol, const char *chain_id);
 
 
+/*!\brief return the number of residues in the molecule, 
+
+return -1 if this is a map or closed.
+ */
+int n_residues(int imol);
+
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM remarks_scm(int imol);
@@ -6219,6 +6226,18 @@ PyObject *add_dipole_for_residues_py(int imol, PyObject *residue_specs);
 #endif /* USE_PYTHON */
 #endif /* c++ */
 /* \} */
+
+/*  ----------------------------------------------------------------------- */
+/*                  Patterson                                               */
+/*  ----------------------------------------------------------------------- */
+/*! \brief Make a patterson molecule
+
+\return a new molecule number or -1 on failure */
+int make_and_draw_patterson(const char *mtz_file_name, 
+			    const char *f_col, 
+			    const char *sigf_col, 
+			    const char *weight,
+			    int use_weights);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Laplacian                                               */

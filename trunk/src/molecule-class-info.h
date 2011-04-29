@@ -986,6 +986,7 @@ public:        //                      public
       // while zero maps, don't need to intialise the arrays (xmap_is_filled)
       max_xmaps = 0;
       nx_map_is_filled = 0;
+      is_patterson = 0; 
       
       //
       xskel_is_filled = 0; // not filled.
@@ -1180,6 +1181,14 @@ public:        //                      public
 			      std::string f_col,
 			      int is_diff_map, 
 			      float map_sampling_rate);
+
+   bool make_patterson(std::string mtz_file_name,
+		       std::string f_col,
+		       std::string sigf_col,
+		       std::string weight_col,
+		       int use_weights,
+		       float map_sampling_rate);
+   
 
    atom_selection_container_t atom_sel;
    int drawit; // used by Molecule Display control, toggled using
@@ -1485,6 +1494,7 @@ public:        //                      public
    int   *xmap_is_diff_map;
    clipper::NXmap<float> nx_map;
    bool nx_map_is_filled;
+   bool is_patterson;  // for (at least) contour level protection
    
 
    float *contour_level; 
@@ -2114,6 +2124,9 @@ public:        //                      public
    // return the number of residues in chain with chain_id, return -1 on error
    // 
    int chain_n_residues(const char *chain_id) const;
+
+   // return the number of residues in the molecule. return -1 on error.
+   int n_residues() const;
 
    // Fourier stuff
    std::string Fourier_f_label()      const { return fourier_f_label; }

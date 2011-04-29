@@ -1088,6 +1088,94 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
    // << imol_no << std::endl;
 }
 
+bool
+molecule_class_info_t::make_patterson(std::string mtz_file_name,
+				      std::string f_col,
+				      std::string sigf_col,
+				      std::string weight_col,
+				      int use_weights,
+				      float map_sampling_rate) {
+
+   bool ret_val = 0;
+   if (coot::file_exists(mtz_file_name)) {
+
+      try { 
+	 // KDC Code (examples/cpatterson.cpp)
+	 // 
+	 clipper::CCP4MTZfile mtzin;
+	 mtzin.open_read(mtz_file_name);
+	 clipper::Spacegroup spgr = mtzin.spacegroup();
+	 clipper::Cell       cell = mtzin.cell();
+	 clipper::Resolution reso = mtzin.resolution();
+	 clipper::HKL_info hkls, hklp;
+	 typedef clipper::HKL_data_base::HKL_reference_index HRI;
+
+	 clipper::HKL_data<clipper::data32::F_sigF>     fsig( hkls );
+
+	 // If use weights, use both strings, else just use the first
+	 std::pair<std::string, std::string> p =
+	    make_import_datanames(f_col, sigf_col, weight_col, use_weights);
+	 std::cout << "======= import_hkl_data using " << p.first << std::endl;
+	 // like this: "/*/*/[FWT]"
+	 mtzin.import_hkl_data(fsig, p.first);
+	 mtzin.close_read();
+      
+	 // get Patterson spacegroup
+	 clipper::Spacegroup
+	    pspgr( clipper::Spgr_descr( spgr.generator_ops().patterson_ops() ) );
+	 hklp.init( pspgr, cell, reso, true );
+      
+	 // make patterson coeffs
+	 int count = 0;
+	 clipper::HKL_data<clipper::data32::F_phi> fphi( hklp );
+	 for ( HRI ih = fphi.first(); !ih.last(); ih.next() ) {
+	    clipper::data32::F_sigF f = fsig[ih.hkl()];
+	    fphi[ih].phi() = 0.0 ;
+	    if ( !f.missing() ) {
+	       fphi[ih].f() = f.f()*f.f();
+	       count++;
+	    }
+	 }
+	 std::cout << "===== set the f for " << count << " reflections" << std::endl;
+
+	 count = 0;
+	 for ( HRI ih = fphi.first(); !ih.last(); ih.next() ) {
+	    if (count > 100)
+	       break;
+	    clipper::data32::F_phi f = fphi[ih.hkl()];
+	    std::cout << ih.hkl().format() << " " << f.f() << " " << f.phi() << std::endl;
+	    count++;
+	 }
+	 
+
+	 clipper::Grid_sampling grid;
+	 grid.init( pspgr, cell, reso );
+      
+	 // make xmap
+	 clipper::Xmap<float> xmap(pspgr, cell, grid);
+	 xmap.fft_from(fphi);
+	 is_patterson = 1; // needed for contour level protection
+	 update_map_in_display_control_widget();
+	 new_map(xmap, "Patterson");
+	 mean_and_variance<float> mv = map_density_distribution(xmap_list[0], 0);
+	 map_mean_  = mv.mean; 
+	 map_sigma_ = sqrt(mv.variance);
+	 map_max_   = mv.max_density;
+	 map_min_   = mv.min_density;
+	 
+	 set_initial_contour_level();
+	 update_map();
+	 ret_val = 1;
+      }
+
+      catch (clipper::Message_base rte) {
+	 std::cout << "WARNING:: bad read of HKL file " << mtz_file_name << std::endl;
+      }
+   }
+   return ret_val;
+}
+
+
 // return succes status, if mtz file is broken or empty, or
 // non-existant, return 0.
 // 
@@ -2879,64 +2967,61 @@ short int
 molecule_class_info_t::change_contour(int direction) {
 
    short int istat = 0;
-   if (has_map()) { 
-      // std::cout << "DEBUG:: contour_by_sigma_flag " << contour_by_sigma_flag << std::endl;
-      // std::cout << "DEBUG:: adding " << contour_sigma_step << " * " << map_sigma_
-      // << " to  " << contour_level[0] << std::endl;
-      if (has_map()) {
+   // std::cout << "DEBUG:: contour_by_sigma_flag " << contour_by_sigma_flag << std::endl;
+   // std::cout << "DEBUG:: adding " << contour_sigma_step << " * " << map_sigma_
+   // << " to  " << contour_level[0] << std::endl;
+   if (has_map()) {
 
-	 float shift = graphics_info_t::diff_map_iso_level_increment;
-	 if (contour_by_sigma_flag) { 
-	    shift = contour_sigma_step * map_sigma_;
+      float shift = graphics_info_t::diff_map_iso_level_increment;
+      if (contour_by_sigma_flag) { 
+	 shift = contour_sigma_step * map_sigma_;
+      } else { 
+	 if (xmap_is_diff_map[0]) { 
+	    shift = graphics_info_t::diff_map_iso_level_increment;
 	 } else { 
-	    if (xmap_is_diff_map[0]) { 
-	       shift = graphics_info_t::diff_map_iso_level_increment;
-	    } else { 
-	       shift = graphics_info_t::iso_level_increment;
-	    }
+	    shift = graphics_info_t::iso_level_increment;
 	 }
+      }
 
-	 if (xmap_is_diff_map[0]) {
-	    if (direction == -1) {
-	       if (graphics_info_t::stop_scroll_diff_map_flag) {
-		  if ((contour_level[0] - shift) > 
-		      graphics_info_t::stop_scroll_diff_map_level) { 
-		     contour_level[0] -= shift;
-		     istat = 1;
-		  }
-	       } else {
+      if (xmap_is_diff_map[0]) {
+	 if (direction == -1) {
+	    if (graphics_info_t::stop_scroll_diff_map_flag) {
+	       if ((contour_level[0] - shift) > 
+		   graphics_info_t::stop_scroll_diff_map_level) { 
 		  contour_level[0] -= shift;
 		  istat = 1;
 	       }
 	    } else {
-	       // add, but don't go past the top of the map or the bottom of the map
-	       // 
-	       if (contour_level[0] <= map_max_ || contour_level[0] <= -map_min_) {
-		  contour_level[0] += shift;
-		  istat = 1;
-	       }
+	       contour_level[0] -= shift;
+	       istat = 1;
 	    }
 	 } else {
-	    // iso map
+	    // add, but don't go past the top of the map or the bottom of the map
+	    // 
+	    if (contour_level[0] <= map_max_ || contour_level[0] <= -map_min_) {
+	       contour_level[0] += shift;
+	       istat = 1;
+	    }
+	 }
+      } else {
+	 // iso map
 
-	    if (direction == -1) {
-	       if (graphics_info_t::stop_scroll_iso_map_flag) {
-		  if ((contour_level[0] - shift) >
-		      graphics_info_t::stop_scroll_iso_map_level) {
-		     contour_level[0] -= shift;
-		     istat = 1;
-		  }
-	       } else {
+	 if (direction == -1) {
+	    if (graphics_info_t::stop_scroll_iso_map_flag && ! is_patterson) {
+	       if ((contour_level[0] - shift) > graphics_info_t::stop_scroll_iso_map_level) {
 		  contour_level[0] -= shift;
 		  istat = 1;
 	       }
 	    } else {
-	       if (contour_level[0] <= map_max_) {
-		  contour_level[0] += shift;
-		  istat = 1;
-	       }
-	    } 
-	 }
+	       contour_level[0] -= shift;
+	       istat = 1;
+	    }
+	 } else {
+	    if (contour_level[0] <= map_max_) {
+	       contour_level[0] += shift;
+	       istat = 1;
+	    }
+	 } 
       }
    }
    return istat;

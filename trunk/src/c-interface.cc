@@ -1269,6 +1269,29 @@ int make_and_draw_map(const char* mtz_file_name,
    return imol; // possibly -1
 }
 
+int make_and_draw_patterson(const char *mtz_file_name, 
+			    const char *f_col, 
+			    const char *sigf_col, 
+			    const char *weight,
+			    int use_weights) {
+
+   graphics_info_t g;
+   int imol = g.create_molecule();
+   int status = g.molecules[imol].make_patterson(mtz_file_name,
+						 f_col, sigf_col,
+						 weight, use_weights,
+						 g.map_sampling_rate);
+
+   if (! status) { 
+      g.erase_last_molecule();
+      imol = -1;
+   } else {
+      graphics_draw();
+   } 
+   return imol;
+} 
+
+
 int  make_and_draw_map_with_refmac_params(const char *mtz_file_name, 
 					  const char *a, const char *b,
 					  const char *weight,
