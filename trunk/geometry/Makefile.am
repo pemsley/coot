@@ -35,6 +35,7 @@ AM_CXXFLAGS = \
 
 libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc \
     read-sbase.cc energy-lib.cc 	 \
+    chem_mods.cc \
 	lbg-graph.cc   		
 
 
