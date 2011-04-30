@@ -1271,15 +1271,11 @@ int make_and_draw_map(const char* mtz_file_name,
 
 int make_and_draw_patterson(const char *mtz_file_name, 
 			    const char *f_col, 
-			    const char *sigf_col, 
-			    const char *weight,
-			    int use_weights) {
-
+			    const char *sigf_col) { 
    graphics_info_t g;
    int imol = g.create_molecule();
    int status = g.molecules[imol].make_patterson(mtz_file_name,
 						 f_col, sigf_col,
-						 weight, use_weights,
 						 g.map_sampling_rate);
 
    if (! status) { 

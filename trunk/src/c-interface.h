@@ -6235,9 +6235,7 @@ PyObject *add_dipole_for_residues_py(int imol, PyObject *residue_specs);
 \return a new molecule number or -1 on failure */
 int make_and_draw_patterson(const char *mtz_file_name, 
 			    const char *f_col, 
-			    const char *sigf_col, 
-			    const char *weight,
-			    int use_weights);
+			    const char *sigf_col);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Laplacian                                               */

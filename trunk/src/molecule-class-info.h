@@ -1185,8 +1185,6 @@ public:        //                      public
    bool make_patterson(std::string mtz_file_name,
 		       std::string f_col,
 		       std::string sigf_col,
-		       std::string weight_col,
-		       int use_weights,
 		       float map_sampling_rate);
    
 

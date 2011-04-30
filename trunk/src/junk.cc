@@ -2097,3 +2097,16 @@ graphics_info_t::update_residue_by_chi_change_old(CResidue *residue,
    return istat.first;
 } 
 
+
+	 
+	 std::cout << "===== set the f for " << count << " reflections" << std::endl;
+	 count = 0;
+	 for ( HRI ih = fphi.first(); !ih.last(); ih.next() ) {
+	    if (count > 100)
+	       break;
+	    clipper::data32::F_phi f = fphi[ih.hkl()];
+	    std::cout << ih.hkl().format() << " " << f.f() << " " << f.phi() << std::endl;
+	    count++;
+	 }
+	 
+
