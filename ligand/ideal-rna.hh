@@ -44,15 +44,26 @@ namespace coot {
       clipper::RTop_orth n_turns(int nbase, int n_in_chain, coot::ideal_rna::form_t form_flag) const;
       CMMDBManager *standard_residues;
       bool is_valid_base(char base) const;
-      char antisense_base(char base, short int is_dna_flag) const;
-      int mutate_res(CResidue *res, char base, short int is_dna_flag) const;
+      char antisense_base(char base, bool is_dna_flag) const;
+      int mutate_res(CResidue *res, char base, bool is_dna_flag) const;
       void delete_o2_prime(CResidue *res) const; // RNA -> DNA
       void add_o2_prime(CResidue *res) const;    // DNA -> RNAv
+
+      // where "standard" means old-style:  "Ar", "Ad"...
+      bool use_standard_refmac_names;
+
+      // convert new names: "A", "DA" to old ones (the ones in the
+      // standard residues file), "Ar", "Ad"
+      // 
+      std::string residue_name_from_type(const std::string &residue_type_in) const ;
+      std::string residue_name_old_to_new(const std::string &residue_type_in, bool is_dna_flag) const;
+      void fix_up_residue_and_atom_names(CResidue *res, bool is_dna_flag); // fiddle with res
 
    public:
       ideal_rna(const std::string &RNA_or_DNA, const std::string &form,
 		short int single_stranged_flag,
 		const std::string &sequence, CMMDBManager *standard_residues);
+      void use_v3_names() { use_standard_refmac_names = 0; }
 
       CMMDBManager *make_molecule();
 
