@@ -239,6 +239,7 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 	    coot::ideal_rna ir(RNA_or_DNA_str, form_str, single_stranded_flag,
 			       down_sequence,
 			       graphics_info_t::standard_residues_asc.mol);
+	    ir.use_v3_names();
 	    CMMDBManager *mol = ir.make_molecule();
 
 	    if (mol) { 
