@@ -6398,6 +6398,20 @@ int get_monomer(const char *three_letter_code) {
 
    int imol = -1;
 
+   // fast
+   imol = get_monomer_from_dictionary(three_letter_code, 1); // idealized
+   if (is_valid_model_molecule(imol)) { 
+      return imol;
+   } else { 
+      imol = get_monomer_from_dictionary(three_letter_code, 0); // non-idealized
+      if (is_valid_model_molecule(imol)) { 
+	 return imol;
+      }
+   }
+	 
+
+// OK, the slow path, using LIBCHECK.
+
 #ifdef USE_GUILE
    string scheme_command;
 
@@ -6517,6 +6531,8 @@ int get_monomer_from_dictionary(const char *three_letter_code,
    }
    return istat;
 }
+
+
 
 
 // not the write place for this function.  c-interface-map.cc would be better.

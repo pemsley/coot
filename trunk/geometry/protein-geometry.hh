@@ -1543,8 +1543,10 @@ namespace coot {
 				  const std::string &filename) const;
       
       std::vector<std::string> monomer_types() const;
+
+      // calls try_dynamic_add if needed.
       CMMDBManager *mol_from_dictionary(const std::string &three_letter_code,
-					bool idealised_flag) const;
+					bool idealised_flag);
 
       // Thow an exception if we can't get the group of r
       std::string get_group(CResidue *r) const;
