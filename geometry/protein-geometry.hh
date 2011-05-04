@@ -1190,10 +1190,14 @@ namespace coot {
 					const std::string &description_level);
 
       // mod stuff (references by chem links)
+
       int add_chem_mods(PCMMCIFData data);
       int add_chem_mod(PCMMCIFLoop mmCIFLoop);
-
       int add_mod(PCMMCIFData data);
+
+      int add_mods(PCMMCIFData data);
+      int add_chem_mods(PCMMCIFLoop mmCIFLoop);
+      
       // which calls:
       void add_chem_mod_atom( PCMMCIFLoop mmCIFLoop);
       void add_chem_mod_bond( PCMMCIFLoop mmCIFLoop);
@@ -1203,6 +1207,25 @@ namespace coot {
       void add_chem_mod_chir( PCMMCIFLoop mmCIFLoop);
       void add_chem_mod_plane(PCMMCIFLoop mmCIFLoop);
 
+
+      // synonyms (for RNA/DNA)
+      // 
+      void add_synonyms(PCMMCIFData data);
+      void add_chem_comp_synonym(PCMMCIFLoop mmCIFLoop);
+      class residue_name_synonym {
+      public:
+	 residue_name_synonym(std::string &comp_id_in,
+			      std::string &comp_alternative_id_in,
+			      std::string &mod_id_in) {
+	    comp_id = comp_id_in;
+	    comp_alternative_id = comp_alternative_id_in;
+	    mod_id = mod_id_in;
+	 }
+	 std::string comp_id;
+	 std::string comp_alternative_id;
+	 std::string mod_id;
+      };
+      std::vector<residue_name_synonym> residue_name_synonyms;
 
       // link stuff
       int init_links(PCMMCIFData data);

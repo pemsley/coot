@@ -33,6 +33,7 @@ coot::ideal_rna::ideal_rna(const std::string &RNA_or_DNA, const std::string &for
    seq = sequence;
    standard_residues = standard_residues_in;
    single_stranged_flag = single_stranged_flag_in;
+   use_standard_refmac_names = 1; // Ad, Gr etc
 
 } 
 
@@ -42,7 +43,7 @@ coot::ideal_rna::make_molecule() {
 
    CMMDBManager *mol = 0; 
    CResidue *ur;
-   short int is_dna_flag;
+   bool is_dna_flag;
    coot::ideal_rna::form_t form_flag = A_FORM;
 
    if (RNA_or_DNA_ == "RNA") { 
@@ -101,6 +102,9 @@ coot::ideal_rna::make_molecule() {
 	    int success = mutate_res(res, seq[iseq], is_dna_flag);
 	    if (success) { 
 	       sense_chain_p->AddResidue(res);
+	       if (! use_standard_refmac_names) {
+		  fix_up_residue_and_atom_names(res, is_dna_flag);
+	       } 
 // 	       std::cout << " mutated residue " << res->GetSeqNum()
 // 			 << " to type: " << res->GetResName() << std::endl;
 	    }
@@ -139,6 +143,9 @@ coot::ideal_rna::make_molecule() {
 	    // test must fail, unsigned is bad then
  	    for (int i=int(residues_v.size()-1); i>=0; i--) {
  	       antisense_chain_p->AddResidue(residues_v[i]);
+	       if (! use_standard_refmac_names) {
+		  fix_up_residue_and_atom_names(residues_v[i], is_dna_flag);
+	       } 
  	    }
  	 } 
       }
@@ -153,6 +160,47 @@ coot::ideal_rna::make_molecule() {
 
    return mol;
 }
+
+// Fix up to v3 names, that is.
+void
+coot::ideal_rna::fix_up_residue_and_atom_names(CResidue *residue_p, bool is_dna_flag) { 
+
+   std::string res_name = residue_p->GetResName();
+   std::string new_name = residue_name_old_to_new(res_name, is_dna_flag);
+   residue_p->SetResName(new_name.c_str());
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      CAtom *at = residue_atoms[iat];
+      std::string atom_name = at->name;
+      if (atom_name.length() > 3) {
+	 if (atom_name[3] == '*') { 
+	    atom_name[3] = '\'';
+	    at->SetAtomName(atom_name.c_str());
+	 }
+
+	 if (atom_name == " O1P") 
+	    at->SetAtomName(" OP1");
+	 if (atom_name == " O2P") 
+	    at->SetAtomName(" OP2");
+      } 
+   }
+
+   // fix the atom name C5M->C7 on a T in DNA [Grr, !@#$!@#$% PDB...]
+   if (new_name == "DT") {
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 CAtom *at = residue_atoms[iat];
+	 std::string atom_name = at->name;
+	 if (atom_name == " C5M") {
+	    at->SetAtomName(" C7 ");
+	 }
+      }
+   }
+
+}
+
 
 
 clipper::RTop_orth
@@ -213,7 +261,7 @@ coot::ideal_rna::is_valid_base(char base) const {
 }
 
 char
-coot::ideal_rna::antisense_base(char base, short int is_dna_flag) const {
+coot::ideal_rna::antisense_base(char base, bool is_dna_flag) const {
 
    if (base == 'g') {
       return 'c';
@@ -246,21 +294,27 @@ coot::ideal_rna::antisense_base(char base, short int is_dna_flag) const {
 // return NULL on failure
 // 
 CResidue *
-coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type,
+coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_in,
 					       CMMDBManager *standard_residues) const {
+
+   // convert new names: "A", "DA" to old ones (the ones in the
+   // standard residues file), "Ar", "Ad"
+   // 
+   std::string residue_name = residue_name_from_type(residue_type_in);
+   std::cout << "in :" << residue_type_in << ": out :" << residue_name << ":" << std::endl;
 
    CResidue *std_residue = 0;
    int selHnd = standard_residues->NewSelection();
    standard_residues->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
-			       "*", // Chain(s) it's "A" in this case.
-			       ANY_RES,"*",  // starting res
-			       ANY_RES,"*",  // ending res
-			       (char *) residue_type.c_str(),  // residue name
-			       "*",  // Residue must contain this atom name?
-			       "*",  // Residue must contain this Element?
-			       "*",  // altLocs
-			       SKEY_NEW // selection key
-			       );
+			      "*",
+			      ANY_RES, "*",  // starting res
+			      ANY_RES, "*",  // ending res
+			      residue_name.c_str(),  // residue name
+			      "*",  // Residue must contain this atom name?
+			      "*",  // Residue must contain this Element?
+			      "*",  // altLocs
+			      SKEY_NEW // selection key
+			      );
    PPCResidue SelResidue;
    int nSelResidues;
    standard_residues->GetSelIndex(selHnd, SelResidue, nSelResidues);
@@ -270,7 +324,7 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type,
       std::cout << "badness in get_standard_residue_instance, we selected "
 		<< nSelResidues
 		<< " residues looking for residues of type :"
-		<< residue_type << ":\n";
+		<< residue_name << " from " << residue_type_in << ":\n";
    } else {
       std_residue = coot::util::deep_copy_this_residue(SelResidue[0]);
    }
@@ -278,32 +332,98 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type,
    return std_residue;
 }
 
+// convert new names: "A", "DA" to old ones (the ones in the
+// standard residues file), "Ar", "Ad"
+// 
+std::string
+coot::ideal_rna::residue_name_from_type(const std::string &residue_type_in) const {
+
+   std::string r = "A";
+
+   if (use_standard_refmac_names) {
+      return residue_type_in;
+   } else {
+      if (residue_type_in.length() == 2)
+	 if (residue_type_in[1] == 'r'|| residue_type_in[1] == 'd')
+	    return residue_type_in;
+      if (residue_type_in == "A")
+	 return "Ar";
+      if (residue_type_in == "G")
+	 return "Gr";
+      if (residue_type_in == "C")
+	 return "Cr";
+      if (residue_type_in == "U")
+	 return "Ur";
+      if (residue_type_in == "DA")
+	 return "Ad";
+      if (residue_type_in == "DG")
+	 return "Gd";
+      if (residue_type_in == "DC")
+	 return "Cd";
+      if (residue_type_in == "DT")
+	 return "Td";
+   }
+   return r;
+}
+
+std::string
+coot::ideal_rna::residue_name_old_to_new(const std::string &residue_type_in, bool is_dna_flag) const {
+
+   std::string r = "";
+   if (is_dna_flag) {
+      if (residue_type_in == "Ad") 
+	 return "DA";
+      if (residue_type_in == "Gd") 
+	 return "DG";
+      if (residue_type_in == "Cd") 
+	 return "DC";
+      if (residue_type_in == "Td") 
+	 return "DT";
+      if (residue_type_in == "Ud") 
+	 return "DU";
+   } else {
+      if (residue_type_in == "Ar") 
+	 return "A";
+      if (residue_type_in == "Gr") 
+	 return "G";
+      if (residue_type_in == "Cr") 
+	 return "C";
+      if (residue_type_in == "Tr") 
+	 return "T";
+      if (residue_type_in == "Ur") 
+	 return "U";
+   } 
+   return r; // fail
+} 
+
+
 // return a status: 0 for bad, 1 for good.
 int 
-coot::ideal_rna::mutate_res(CResidue *res, char base, short int is_dna_flag) const {
+coot::ideal_rna::mutate_res(CResidue *res, char base, bool is_dna_flag) const {
 
    // we need to get instances of bases from the standard residues
    int status = 0;
 
    std::string residue_type = "None";
+
    if (is_dna_flag) { 
       if (base == 'a')
-	 residue_type = "Ad";
+	 residue_type = "DA";
       if (base == 'g')
-	 residue_type = "Gd";
+	 residue_type = "DG";
       if (base == 't')
-	 residue_type = "Td";
+	 residue_type = "DT";
       if (base == 'c')
-	 residue_type = "Cd";
+	 residue_type = "DC";
    } else {
       if (base == 'a')
-	 residue_type = "Ar";
+	 residue_type = "A";
       if (base == 'g')
-	 residue_type = "Gr";
+	 residue_type = "G";
       if (base == 'u')
-	 residue_type = "Ur";
+	 residue_type = "U";
       if (base == 'c')
-	 residue_type = "Cr";
+	 residue_type = "C";
    }
 
    if (residue_type != "None") { 
