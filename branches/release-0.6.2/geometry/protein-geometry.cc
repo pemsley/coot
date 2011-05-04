@@ -243,8 +243,6 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 	    if (std::string(data->GetDataName()).length() > 16) { 
 	       if (std::string(data->GetDataName()).substr(0,17) == "comp_synonym_list") {
-		  std::cout << "======================== found "
-			    << data->GetDataName() << std::endl;
 		  add_synonyms(data);
 	       }
 	    }
@@ -262,7 +260,6 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       int n_loop_time = 0;
 	       if (mmCIFLoop == NULL) {
 
-		  // std::cout << "================ cat_name: " << cat_name << std::endl;
 
 		  if (cat_name == "_chem_comp") {
 		     // read the chemical component library which does
@@ -273,7 +270,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 			chem_comp_component(structure);
 		     }
 		  } else {
-		     std::cout << "in init_refmac_mon_lib() null loop for catagory " << cat_name << std::endl; 
+		     std::cout << "in init_refmac_mon_lib() null loop for catagory "
+			       << cat_name << std::endl; 
 		  } 
 	       } else {
                
@@ -1846,8 +1844,6 @@ coot::protein_geometry::add_mods(PCMMCIFData data) {
       
       PCMMCIFCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
-
-      std::cout << "DEBUG:: ================== add_mods is handling " << cat_name << std::endl;
 
       PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
