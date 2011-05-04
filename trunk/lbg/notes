@@ -26,6 +26,12 @@ test_refmac1.pdb from David Banner. LIG, get it from the PDB.  Donor
 
 
 ----
+Fri Apr 15 13:00:04 BST 2011
+
+   When importing a molecule from the refmac dictionary, get the
+   coordinates if it has them, don't run libcheck if you don't have to.
+
+----
 
  build Coronene using prodrg
 
