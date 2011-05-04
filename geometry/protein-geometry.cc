@@ -4380,8 +4380,11 @@ coot::protein_geometry::get_group(CResidue *r) const {
 
 CMMDBManager *
 coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code,
-					    bool idealised_flag) const {
+					    bool idealised_flag) {
 
+   // force use of try_dynamic_add (if needed).
+   bool r = have_dictionary_for_residue_type(three_letter_code, 42);
+   
    CMMDBManager *mol = 0;
    std::vector<CAtom *> atoms;
    for (int i=0; i<dict_res_restraints.size(); i++) {
