@@ -188,6 +188,17 @@ coot::ideal_rna::fix_up_residue_and_atom_names(CResidue *residue_p, bool is_dna_
       } 
    }
 
+   // fix the atom name C5M->C7 on a T in DNA [Grr, !@#$!@#$% PDB...]
+   if (new_name == "DT") {
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 CAtom *at = residue_atoms[iat];
+	 std::string atom_name = at->name;
+	 if (atom_name == " C5M") {
+	    at->SetAtomName(" C7 ");
+	 }
+      }
+   }
+
 }
 
 
