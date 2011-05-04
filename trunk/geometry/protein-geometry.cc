@@ -241,7 +241,11 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	    }
 	       
 
-         
+	    if (std::string(data->GetDataName()).length() > 16) { 
+	       if (std::string(data->GetDataName()).substr(0,17) == "comp_synonym_list") {
+		  add_synonyms(data);
+	       }
+	    }
 	    int n_chiral = 0;
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
 
@@ -256,7 +260,6 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       int n_loop_time = 0;
 	       if (mmCIFLoop == NULL) {
 
-		  // std::cout << "================ cat_name: " << cat_name << std::endl;
 
 		  if (cat_name == "_chem_comp") {
 		     // read the chemical component library which does
@@ -267,7 +270,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 			chem_comp_component(structure);
 		     }
 		  } else {
-		     std::cout << "in init_refmac_mon_lib() null loop for catagory " << cat_name << std::endl; 
+		     std::cout << "in init_refmac_mon_lib() null loop for catagory "
+			       << cat_name << std::endl; 
 		  } 
 	       } else {
                
@@ -1900,7 +1904,7 @@ coot::protein_geometry::add_chem_mods(PCMMCIFData data) {
       
       PCMMCIFCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
-      PCMMCIFLoop mmCIFLoop = data->GetLoop( (char *) cat_name.c_str() );
+      PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
       if (mmCIFLoop == NULL) { 
 	 std::cout << "null loop" << std::endl; 
@@ -1912,6 +1916,66 @@ coot::protein_geometry::add_chem_mods(PCMMCIFData data) {
    }
    return n_mods;
 }
+
+
+// 
+void
+coot::protein_geometry::add_synonyms(PCMMCIFData data) {
+
+   for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
+      
+      PCMMCIFCategory cat = data->GetCategory(icat);
+      std::string cat_name(cat->GetCategoryName());
+
+      std::cout << "DEBUG:: add_synonyms is handling " << cat_name << std::endl;
+
+      PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
+            
+      if (mmCIFLoop == NULL) { 
+	 std::cout << "null loop" << std::endl; 
+      } else {
+	 int n_chiral = 0;
+	 if (cat_name == "_chem_comp_synonym") {
+	    add_chem_comp_synonym(mmCIFLoop);
+	 }
+      }
+   }
+}
+
+void 
+coot::protein_geometry::add_chem_comp_synonym(PCMMCIFLoop mmCIFLoop) {
+
+   int ierr = 0;
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+
+      int ierr_tot = 0;
+      std::string comp_id;
+      std::string comp_alternative_id;
+      std::string mod_id;
+
+      char *s = mmCIFLoop->GetString("comp_id", j, ierr);
+      ierr_tot += ierr;
+      if (s) comp_id = s;
+
+      s = mmCIFLoop->GetString("comp_alternative_id", j, ierr);
+      ierr_tot += ierr;
+      if (s) comp_alternative_id = s;
+
+      s = mmCIFLoop->GetString("mod_id", j, ierr);
+      ierr_tot += ierr;
+      if (s) mod_id = s;
+
+      if (ierr_tot == 0) {
+	 coot::protein_geometry::residue_name_synonym rns(comp_id,
+							  comp_alternative_id,
+							  mod_id);
+	 residue_name_synonyms.push_back(rns);
+      } 
+   }
+} 
+
+
+
 
 int 
 coot::protein_geometry::add_chem_mod(PCMMCIFLoop mmCIFLoop) {
@@ -2911,7 +2975,7 @@ coot::protein_geometry::refmac_monomer(const std::string &s, // dir
 
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
 	 
-	 // indenting goes strange if you factor outh the else code here.
+	 // indenting goes strange if you factor out the else code here.
 	 
 	 if (! S_ISDIR(buf.st_mode) ) {
 	    std::cout << "WARNING: " << filename 
@@ -3106,6 +3170,26 @@ coot::protein_geometry::get_monomer_torsions_from_geometry(const std::string &mo
       }
    }
 
+   // check synonyms before 3-letter codes.
+   // 
+   if (ifound == 0) { 
+      // OK, that failed to, perhaps there is a synonym?
+      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
+	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
+	    int ndict = dict_res_restraints.size();
+	    for (int i=0; i<ndict; i++) {
+	       if (dict_res_restraints[i].comp_id == residue_name_synonyms[i].comp_id) {
+		  ifound = 1;
+		  rv = dict_res_restraints[i].torsion_restraint;
+		  break;
+	       }
+	    }
+	 }
+	 if (ifound)
+	    break;
+      }
+   }
+
    if (ifound == 0) {
       int read_number = 40; // just a filler, FIXME.
       int nbonds = try_dynamic_add(monomer_type, read_number);
@@ -3121,6 +3205,8 @@ coot::protein_geometry::get_monomer_torsions_from_geometry(const std::string &mo
       }
    }
 
+   
+
    if (ifound == 0) { // which it should be if we get here with that
 		      // return in the loop
       std::cout << "WARNING: residue type " << monomer_type << " not found "
@@ -3135,50 +3221,17 @@ coot::protein_geometry::get_monomer_torsions_from_geometry(const std::string &mo
 							   bool find_hydrogen_torsions_flag) const {
 
    bool ifound = 0;
-   std::vector <coot::dict_torsion_restraint_t> rv;
+   int ii = -1; // unset, set when torsion found, ii is the index in
+		// dict_res_restraints for the torsion restraints,
+		// needed so that we can ask about hydrogens.
+   std::vector <coot::dict_torsion_restraint_t> unfiltered_torsion_restraints;
+   std::vector <coot::dict_torsion_restraint_t> filtered_torsion_restraints;
    
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].comp_id == monomer_type) {
 	 ifound = 1;
-// 	 std::cout << "DEBUG:: found " << monomer_type << " in restraints dictionary" 
-// 		   << std::endl;
-	 if (find_hydrogen_torsions_flag) {
-	    rv = dict_res_restraints[i].torsion_restraint;
-	 } else {
-	    // we don't want torsions that move Hydrogens
-	    int nt = dict_res_restraints[i].torsion_restraint.size();
-	    for (int it=0; it<nt; it++) { 
-	       if (!dict_res_restraints[i].is_hydrogen(dict_res_restraints[i].torsion_restraint[it].atom_id_1())) {
-		  if (!dict_res_restraints[i].is_hydrogen(dict_res_restraints[i].torsion_restraint[it].atom_id_4())) {
-		     rv.push_back(dict_res_restraints[i].torsion_restraint[it]);
-		     
-//  		     std::cout << "    Filtered get_monomer_torsions_from_geometry: adding " 
-//  			       << dict_res_restraints[i].torsion_restraint[it].atom_id_1() << " "
-//  			       << dict_res_restraints[i].torsion_restraint[it].atom_id_2() << " "
-//  			       << dict_res_restraints[i].torsion_restraint[it].atom_id_3() << " "
-//  			       << dict_res_restraints[i].torsion_restraint[it].atom_id_4() << " "
-//  			       << std::endl;
-// 		  } else {
-// 		     std::cout << "rejecting torsion "
-//  			       << dict_res_restraints[i].torsion_restraint[it].atom_id_1() << " "
-//  			       << dict_res_restraints[i].torsion_restraint[it].atom_id_2() << " "
-//  			       << dict_res_restraints[i].torsion_restraint[it].atom_id_3() << " "
-//  			       << dict_res_restraints[i].torsion_restraint[it].atom_id_4() << " because "
-// 			       << dict_res_restraints[i].torsion_restraint[it].atom_id_4() << " is hydrogen"
-// 			       << std::endl;
-		  }
-// 	       } else {
-// 		  std::cout << "rejecting torsion "
-// 			    << dict_res_restraints[i].torsion_restraint[it].atom_id_1() << " "
-// 			    << dict_res_restraints[i].torsion_restraint[it].atom_id_2() << " "
-// 			    << dict_res_restraints[i].torsion_restraint[it].atom_id_3() << " "
-// 			    << dict_res_restraints[i].torsion_restraint[it].atom_id_4() << " because "
-// 			    << dict_res_restraints[i].torsion_restraint[it].atom_id_1() << " is hydrogen" 
-// 			    << std::endl;
-	       }
-	    }
-	 }
-	 return rv;
+	 unfiltered_torsion_restraints = dict_res_restraints[i].torsion_restraint;
+	 ii = i; // used for filtering out hydrogens 
       }
    }
 
@@ -3187,11 +3240,32 @@ coot::protein_geometry::get_monomer_torsions_from_geometry(const std::string &mo
       // try dynamic add?
       std::cout << "WARNING: residue type " << monomer_type << " not found "
 		<< "in restraints dictionary (in get_monomer_torsions_from_geometry(mon, hy)" << std::endl;
+   } else {
+      if (find_hydrogen_torsions_flag) {
+	 filtered_torsion_restraints = unfiltered_torsion_restraints;
+      } else {
+	 // we don't want torsions that move Hydrogens
+	 int nt = dict_res_restraints[ii].torsion_restraint.size();
+	 for (int it=0; it<nt; it++) { 
+	    if (!dict_res_restraints[ii].is_hydrogen(dict_res_restraints[ii].torsion_restraint[it].atom_id_1())) {
+	       if (!dict_res_restraints[ii].is_hydrogen(dict_res_restraints[ii].torsion_restraint[it].atom_id_4())) {
+		  filtered_torsion_restraints.push_back(dict_res_restraints[ii].torsion_restraint[it]);
+	       }
+	    }
+	 }
+      }
    }
-   rv = filter_torsion_restraints(rv);
-   return rv;
+
+   // more filtering (only one version of a torsion_restraint that
+   // have the same middle atoms).
+   // 
+   filtered_torsion_restraints = filter_torsion_restraints(filtered_torsion_restraints);
+   return filtered_torsion_restraints;
 }
 
+// Return only one version of a torsions restraint that have the same
+// middle atoms.
+// 
 std::vector <coot::dict_torsion_restraint_t>
 coot::protein_geometry::filter_torsion_restraints(const std::vector <coot::dict_torsion_restraint_t> &restraints_in) const {
 
@@ -3313,8 +3387,20 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("g/GD.cif");
    s.push_back("t/TD.cif");
    s.push_back("u/UR.cif");
-   s.push_back("h/HOH.cif");
+
+   // new-style (CCP4 6.2) RNA names
+   s.push_back("a/A.cif");
+   s.push_back("c/C.cif");
+   s.push_back("g/G.cif");
+   s.push_back("u/U.cif");
+
+   // new-style (CCP4 6.2) DNA names
+   s.push_back("a/DA.cif");
+   s.push_back("c/DC.cif");
+   s.push_back("g/DG.cif");
+   s.push_back("t/DT.cif");
    
+   s.push_back("h/HOH.cif");
 
    return s;
 }
@@ -3335,6 +3421,25 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 	 }
       }
    }
+
+   // check synonyms before checking three-letter-codes
+   
+   if (ifound == 0) { 
+      // OK, that failed to, perhaps there is a synonym?
+      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
+	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
+	    for (int i=0; i<ndict; i++) {
+	       if (dict_res_restraints[i].comp_id == residue_name_synonyms[i].comp_id) {
+		  ifound = 1;
+		  break;
+	       }
+	    }
+	 }
+	 if (ifound)
+	    break;
+      }
+   }
+	 
    // OK so the monomer_type did not match the comp_id.  Perhaps the
    // comp_id was not the same as the three letter code, so let's
    // check the monomer_type against the three_letter_codes.
@@ -3348,7 +3453,8 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 	    }
 	 }
       }
-   } 
+   }
+
 
    if (ifound == 0) {
       ifound = try_dynamic_add(monomer_type, read_number);
@@ -3541,8 +3647,11 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
    coot::dictionary_residue_restraints_t t(std::string("(null)"), 0);
    std::pair<bool, coot::dictionary_residue_restraints_t> r(0,t);
 
-   int nrest = dict_res_restraints.size();
-   for (int i=0; i<nrest; i++) {
+   // std::cout << "------- Here 0 in get_monomer_restraints() with monomer_type :"
+   // << monomer_type << ":" << std::endl;
+
+   unsigned int nrest = dict_res_restraints.size();
+   for (unsigned int i=0; i<nrest; i++) {
 //       std::cout << "DEBUG:: get_monomer_restraints comparing :"
 // 		<< dict_res_restraints[i].comp_id << ": with :"
 // 		<< monomer_type << ":" << std::endl;
@@ -3555,11 +3664,42 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
       }
    }
 
+   // std::cout << "------- Here 1 in get_monomer_restraints() direct: " << r.first << std::endl;
    if (!r.first) {
-      for (int i=0; i<nrest; i++) {
-// 	 std::cout << "DEBUG:: get_monomer_restraints comparing :"
-// 		   << dict_res_restraints[i].residue_info.three_letter_code << ": with :"
-// 		   << monomer_type << ":" << std::endl;
+      // OK, that failed to, perhaps there is a synonym?
+      // std::cout << "------- Here 2 in get_monomer_restraints() - trying synonyms " << std::endl;
+      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
+	 // 	 std::cout << "   ------- Here 3 in get_monomer_restraints() "
+	 // << residue_name_synonyms[i].comp_alternative_id
+	 // << " vs " << monomer_type << std::endl;
+	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
+	    // 	    std::cout << "------- Here 4 in get_monomer_restraints() " << std::endl;
+	    int ndict = dict_res_restraints.size();
+	    for (int j=0; j<ndict; j++) {
+	       if (dict_res_restraints[j].comp_id == residue_name_synonyms[i].comp_id) {
+// 		  std::cout << "============= debug found synonym for " << monomer_type
+// 			    << " ----> " << dict_res_restraints[j].comp_id << std::endl;
+		  r.first = 1;
+		  r.second = dict_res_restraints[j];
+		  break;
+	       }
+	    }
+	 }
+	 if (r.first)
+	    break;
+      }
+   }
+   // std::cout << "------- Here 7 in get_monomer_restraints() direct/synonym: " << r.first << std::endl;
+   
+   if (!r.first) {
+      // std::cout << "------- Here 8 in get_monomer_restraints() [direct/synonym fail route] "
+      // << r.first << std::endl;
+      for (unsigned int i=0; i<nrest; i++) {
+//  	 std::cout << "DEBUG:: get_monomer_restraints comparing :"
+//  		   << dict_res_restraints[i].residue_info.three_letter_code << ": with :"
+//  		   << monomer_type << ":" << " for comp_id "
+// 		   << dict_res_restraints[i].comp_id
+// 		   << std::endl;
 	 if (dict_res_restraints[i].residue_info.three_letter_code  == monomer_type) {
 	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
 	       r.second = dict_res_restraints[i];

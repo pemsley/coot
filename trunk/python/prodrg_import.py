@@ -186,7 +186,9 @@ def import_from_prodrg(minimize_mode):
                     # additional_representation_by_attributes(imol, "", 1, 1, "", 2, 2, 0.2, 1)
                     if overlapped_flag:
                         set_mol_displayed(aa_imol, 0)
+                        set_mol_active(aa_imol, 0)
                     set_mol_displayed(imol, 0)
+                    set_mol_active(imol, 0)
                     col = get_molecule_bonds_colour_map_rotation(aa_imol)
                     new_col = col + 5 # a tiny amount
                     # new ligand specs, then "reference" ligand (to be deleted)
