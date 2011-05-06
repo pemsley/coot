@@ -2025,20 +2025,47 @@
 		   )))))))))
 
 
+;; new tests
 
 (greg-testcase "RNA base has correct residue type after mutation" #t 
    (lambda ()
 
-     (let ((rna-mol (ideal-nucleic-acid "RNA" "A" 0 "GACUCUAG")))
+     (define (test-vs rna-mol base-name)
 
-       (let ((success (mutate-base rna-mol "A" 2 "" "Cr")))
+       (let ((previous-name (residue-name rna-mol "A" 2 ""))
+	     (success (mutate-base rna-mol "A" 2 "" base-name)))
 	 (if (not (= success 1))
 	     (begin
 	       (format #t "  mutation fail!~%")
 	       (throw 'fail)))
 	 (let ((rn (residue-name rna-mol "A" 2 "")))
-	   (format #t "  mutated base to type ~s~%" rn)
-	   (string=? rn "Cr"))))))
+	   (format #t "  mutated base to type ~s - was ~s ~%" rn previous-name)
+	   (string=? rn base-name))))
+
+
+     ;; main line
+     ;; 
+     (let ((rna-mol (ideal-nucleic-acid "RNA" "A" 0 "GACUCUAG")))
+       (let ((res-1 (test-vs rna-mol "C")))
+	 (if (not res-1)
+	     (begin
+	       (format #t "  incorrect base! (default names) ~%")
+	       (throw 'fail))))
+	   
+       (set-convert-to-v2-atom-names 1)
+
+       (let ((rna-mol-old-names (ideal-nucleic-acid "RNA" "A" 0 "GACUCUAG")))
+	 (let ((res-2 (test-vs rna-mol-old-names "Cr")))
+
+	   ;; back to normal
+	   (set-convert-to-v2-atom-names 0)
+	   
+	   (if (not res-2)
+	       (begin
+		 (format #t "  incorrect base! (old names) ~%")
+		 (throw 'fail))))
+       
+	 #t))))
 
 
 
@@ -2059,11 +2086,32 @@
 
      ;; main line
      (let ((rna-mol (ideal-nucleic-acid "DNA" "A" 0 "GACTCTAG")))
-       (all-true?
-	(map (lambda (base)
-	       (correct-base-type? rna-mol base))
-	     (list "Cd" "Gd" "Ad" "Td"))))))
 
+       (if (not (all-true?
+		 (map (lambda (base)
+			(correct-base-type? rna-mol base))
+		      (list "DC" "DG" "DA" "DT"))))
+
+	   (begin
+	     (format #t "Fail in DNA~%")
+	     (throw 'fail))))
+
+
+     (set-convert-to-v2-atom-names 1)
+     (let ((rna-mol (ideal-nucleic-acid "DNA" "A" 0 "GACTCTAG")))
+       
+       (if (not (all-true?
+		 (map (lambda (base)
+			(correct-base-type? rna-mol base))
+		      (list "Cd" "Gd" "Ad" "Td"))))
+	   
+	   (begin
+	     (set-convert-to-v2-atom-names 0)
+	     (format #t "Fail in DNA~%")
+	     (throw 'fail))))
+
+     (set-convert-to-v2-atom-names 0)
+     #t))
 
 
 
