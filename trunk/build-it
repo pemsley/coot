@@ -232,7 +232,8 @@
 # 2.63 20090913 add a date to the fail status message
 # 2.64 20091203 release server is now in oxford.
 # 2.65 20091211 add libcurl to the build
-script_version=2.65
+# 2.66 20110505 switch to new style Refmac library.
+script_version=2.66
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2850,15 +2851,20 @@ echo done coot build. >&2
 
 extra_dir=http://www.ysbl.york.ac.uk/~emsley/software/extras
 extra_dir=http://www.biop.ox.ac.uk/coot/software/dependencies
-refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
-refmac_mon_lib=refmac-monomer-library-20091203.tar.gz
+# 20110505 we change to Garib's new dictionary
+#refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
+#refmac_mon_lib=refmac-monomer-library-20091203.tar.gz
+mon_lib_dir=http://www.ysbl.york.ac.uk/~garib/refmac/data/refmac_experimental
+refmac_mon_lib=refmac_dictionary_v5.28.tar.gz
+
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
 else 
     echo INSTALLING refmac monomer library...
-    $WGET $extra_dir/$refmac_mon_lib
-    tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/$refmac_mon_lib
+    $WGET $refmac_lib_dir/$refmac_mon_lib
+    mkdir -p $install_top_dir/share/coot/lib/data
+    tar xzCf $install_top_dir/share/coot/lib/data $AUTOBUILD_SOURCES/$refmac_mon_lib
 fi 
 if [ -e $install_top_dir/share/coot/reference-structures ] ; then
     echo INFO:: installation has reference structures
