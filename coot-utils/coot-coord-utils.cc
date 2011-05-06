@@ -4229,6 +4229,8 @@ coot::util::interesting_things_list_with_fix_py(const std::vector<coot::util::at
 //
 // reference is residue
 // moving is std_base
+//
+// 20110505 This function is not used anywhere.
 // 
 std::pair<bool, clipper::RTop_orth> coot::util::base_to_base(CResidue *residue,
 							     CResidue *std_base) {
@@ -4367,7 +4369,7 @@ std::pair<bool, clipper::RTop_orth> coot::util::base_to_base(CResidue *residue,
    if ((mol_base_is_pyrimidine == -1) || (mol_base_is_purine == -1) || 
        (std_base_is_pyrimidine == -1) || (std_base_is_purine == -1) ) {
 
-      std::cout << "ERROR:: unassigned type "
+      std::cout << "ERROR:: base_to_base() unassigned type "
 		<< "mol_base_is_pyrimidine:" << " "
 		<< mol_base_is_pyrimidine << " "
 		<< "mol_base_is_purine: " << " "
@@ -4479,8 +4481,10 @@ std::pair<bool, clipper::RTop_orth> coot::util::base_to_base(CResidue *residue,
 // reference is residue
 // moving is std_base
 // 
-std::pair<bool, clipper::RTop_orth> coot::util::nucleotide_to_nucleotide(CResidue *residue,
-									 CResidue *std_base) {
+std::pair<bool, clipper::RTop_orth>
+coot::util::nucleotide_to_nucleotide(CResidue *residue,
+				     CResidue *std_base,
+				     bool use_old_style_naming) {
 
    bool good_rtop_flag = 0;
    clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
@@ -4524,7 +4528,10 @@ std::pair<bool, clipper::RTop_orth> coot::util::nucleotide_to_nucleotide(CResidu
    // 
    thymine.push_back(" O2 ");
    thymine.push_back(" O4 ");
-   thymine.push_back(" C5M");
+   if (use_old_style_naming)
+      thymine.push_back(" C5M");
+   else 
+      thymine.push_back(" C7 ");
    
    std::vector<std::string> cytosine;  // Purine
    cytosine.push_back(" N1 ");
@@ -4587,27 +4594,31 @@ std::pair<bool, clipper::RTop_orth> coot::util::nucleotide_to_nucleotide(CResidu
    std::string std_base_name = std_base->GetResName();
 
    if (mol_base_name == "Ar" || mol_base_name == "Ad" ||
-       mol_base_name == "Gr" || mol_base_name == "Gd") {
+       mol_base_name == "Gr" || mol_base_name == "Gd" ||
+       mol_base_name == "A"  || mol_base_name == "DA") {
       mol_base_is_purine = 1;
       mol_base_is_pyrimidine = 0;
    }
 
    if (mol_base_name == "Cr" || mol_base_name == "Cd" ||
        mol_base_name == "Ur" || mol_base_name == "Ud" ||
-       mol_base_name == "Tr" || mol_base_name == "Td") {
+       mol_base_name == "Tr" || mol_base_name == "Td" ||
+       mol_base_name == "T"  || mol_base_name == "DT") {
       mol_base_is_pyrimidine = 1;
       mol_base_is_purine = 0;
    }
 
    if (std_base_name == "Ar" || std_base_name == "Ad" ||
-       std_base_name == "Gr" || std_base_name == "Gd") {
+       std_base_name == "Gr" || std_base_name == "Gd" ||
+       mol_base_name == "G"  || mol_base_name == "DG") {
       std_base_is_purine = 1;
       std_base_is_pyrimidine = 0;
    }
 
    if (std_base_name == "Cr" || std_base_name == "Cd" ||
        std_base_name == "Tr" || std_base_name == "Td" ||
-       std_base_name == "Ur" || std_base_name == "Ud") {
+       std_base_name == "Ur" || std_base_name == "Ud" ||
+       mol_base_name == "U"  || mol_base_name == "DT") {
       std_base_is_pyrimidine = 1;
       std_base_is_purine = 0;
    }
@@ -4615,7 +4626,7 @@ std::pair<bool, clipper::RTop_orth> coot::util::nucleotide_to_nucleotide(CResidu
    if ((mol_base_is_pyrimidine == -1) || (mol_base_is_purine == -1) || 
        (std_base_is_pyrimidine == -1) || (std_base_is_purine == -1) ) {
 
-      std::cout << "ERROR:: unassigned type "
+      std::cout << "ERROR:: nucleotide_to_nucleotide() unassigned type "
 		<< "mol_base_is_pyrimidine:" << " "
 		<< mol_base_is_pyrimidine << " "
 		<< "mol_base_is_purine: " << " "
@@ -4716,15 +4727,18 @@ std::pair<bool, clipper::RTop_orth> coot::util::nucleotide_to_nucleotide(CResidu
 	    // all nucleodites have these atoms, use them to do a match:
 	    // 
 	    std::vector<std::string> const_nuc_atoms;
-	    const_nuc_atoms.push_back(" C1*");
-	    const_nuc_atoms.push_back(" C2*");
-	    const_nuc_atoms.push_back(" C3*");
-	    const_nuc_atoms.push_back(" C4*");
-	    const_nuc_atoms.push_back(" C5*");
-	    const_nuc_atoms.push_back(" O3*");
-	    const_nuc_atoms.push_back(" O4*");
-	    const_nuc_atoms.push_back(" O5*");
-	    const_nuc_atoms.push_back(" P  ");
+	    std::string prime_char = "'";
+	    if (use_old_style_naming)
+	       prime_char = "*";
+	    const_nuc_atoms.push_back(std::string(" C1")+prime_char);
+	    const_nuc_atoms.push_back(std::string(" C2")+prime_char);
+	    const_nuc_atoms.push_back(std::string(" C3")+prime_char);
+	    const_nuc_atoms.push_back(std::string(" C4")+prime_char);
+	    const_nuc_atoms.push_back(std::string(" C5")+prime_char);
+	    const_nuc_atoms.push_back(std::string(" O3")+prime_char);
+	    const_nuc_atoms.push_back(std::string(" O4")+prime_char);
+	    const_nuc_atoms.push_back(std::string(" O5")+prime_char);
+	    const_nuc_atoms.push_back(std::string(" P ")+prime_char);
 
 	    // We want to match the bases too, don't we?
 // 	    moving_atom_positions.clear();
@@ -4893,7 +4907,8 @@ coot::util::mutate(CResidue *res, CResidue *std_res_unoriented, const std::strin
 // Here std_base is at some arbitary position when passed.
 // 
 void
-coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
+coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_style_naming) {
+
 
    std::vector<std::string> adenine;  // Pyrimidine
    adenine.push_back(" N9 ");
@@ -4932,7 +4947,10 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
    // 
    thymine.push_back(" O2 ");
    thymine.push_back(" O4 ");
-   thymine.push_back(" C5M");
+   if (use_old_style_naming)
+      thymine.push_back(" C5M");
+   else 
+      thymine.push_back(" C7 ");
    
    std::vector<std::string> cytosine;  // Purine
    cytosine.push_back(" N1 ");
@@ -5006,27 +5024,36 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
    std::string std_base_name = std_base->GetResName();
 
    if (mol_base_name == "Ar" || mol_base_name == "Ad" ||
-       mol_base_name == "Gr" || mol_base_name == "Gd") {
+       mol_base_name == "Gr" || mol_base_name == "Gd" ||
+       mol_base_name == "G"  || mol_base_name == "DG" ||
+       mol_base_name == "A"  || mol_base_name == "DA" ) {
       mol_base_is_purine = 1;
       mol_base_is_pyrimidine = 0;
    }
 
    if (mol_base_name == "Cr" || mol_base_name == "Cd" ||
        mol_base_name == "Ur" || mol_base_name == "Ud" ||
-       mol_base_name == "Tr" || mol_base_name == "Td") {
+       mol_base_name == "Tr" || mol_base_name == "Td" ||
+       mol_base_name == "U"  || mol_base_name == "DT" ||
+       mol_base_name == "Ur" || mol_base_name == "T"  ||
+       mol_base_name == "DC" || mol_base_name == "C") {
       mol_base_is_pyrimidine = 1;
       mol_base_is_purine = 0;
    }
 
    if (std_base_name == "Ar" || std_base_name == "Ad" ||
-       std_base_name == "Gr" || std_base_name == "Gd") {
+       std_base_name == "Gr" || std_base_name == "Gd" ||
+       std_base_name == "G"  || std_base_name == "DG" ||
+       std_base_name == "A"  || std_base_name == "DA" ) {
       std_base_is_purine = 1;
       std_base_is_pyrimidine = 0;
    }
 
    if (std_base_name == "Cr" || std_base_name == "Cd" ||
        std_base_name == "Tr" || std_base_name == "Td" ||
-       std_base_name == "Ur" || std_base_name == "Ud") {
+       std_base_name == "Ur" || std_base_name == "Ud" ||
+       std_base_name == "U"  || std_base_name == "DT" ||
+       std_base_name == "T"  || std_base_name == "DC") { 
       std_base_is_pyrimidine = 1;
       std_base_is_purine = 0;
    }
@@ -5034,7 +5061,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
    if ((mol_base_is_pyrimidine == -1) || (mol_base_is_purine == -1) || 
        (std_base_is_pyrimidine == -1) || (std_base_is_purine == -1) ) {
 
-      std::cout << "ERROR:: unassigned type "
+      std::cout << "ERROR:: mutate_base() unassigned type "
 		<< "mol_base_is_pyrimidine:" << " "
 		<< mol_base_is_pyrimidine << " "
 		<< "mol_base_is_purine: " << " "
@@ -5046,7 +5073,6 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
 		<< residue->GetResName() << " " << std_base->GetResName()
 		<< std::endl;
 
-      
    } else {
    
 //       std::cout << "DEBUG:: assigned types "
@@ -5174,8 +5200,21 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
 	    if (mol_base_name == "Ur" || mol_base_name == "Ud")
 	       mol_base_atom_names = uracil;
 
+	    // new names 
+	    if (mol_base_name == "A" || mol_base_name == "DA")
+	       mol_base_atom_names = adenine;
+	    if (mol_base_name == "G" || mol_base_name == "DG")
+	       mol_base_atom_names = guanine;
+	    if (mol_base_name == "C" || mol_base_name == "DC")
+	       mol_base_atom_names = cytosine;
+	    if (mol_base_name == "T" || mol_base_name == "DT")
+	       mol_base_atom_names = thymine;
+	    if (mol_base_name == "U" || mol_base_name == "DU")
+	       mol_base_atom_names = uracil;
+
 	    if (mol_base_atom_names.size() == 0) {
-	       std::cout << "ERROR:: failed to find mol_base_name for mol_base_atom_names\n";
+	       std::cout << "ERROR:: muate_base(): ";
+	       std::cout << "failed to find mol_base_name for mol_base_atom_names\n";
 	    } else {
 	       
 	       std::vector<std::string> std_base_atom_names;
@@ -5189,9 +5228,23 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
 		  std_base_atom_names = thymine;
 	       if (std_base_name == "Ur" || std_base_name == "Ud")
 		  std_base_atom_names = uracil;
+
+	       // new names
+	       if (std_base_name == "A" || std_base_name == "DA")
+		  std_base_atom_names = adenine;
+	       if (std_base_name == "G" || std_base_name == "DG")
+		  std_base_atom_names = guanine;
+	       if (std_base_name == "C" || std_base_name == "DC")
+		  std_base_atom_names = cytosine;
+	       if (std_base_name == "T" || std_base_name == "DT")
+		  std_base_atom_names = thymine;
+	       if (std_base_name == "U" || std_base_name == "DU")
+		  std_base_atom_names = uracil;
+
 	    
 	       if (std_base_atom_names.size() == 0) {
-		  std::cout << "ERROR:: failed to find std_base_name for std_base_atom_names\n";
+		  std::cout << "ERROR:: muate_base(): ";
+		  std::cout << "failed to find std_base_name for std_base_atom_names\n";
 	       } else {
 
 		  // now find the atoms of the given residue and apply
@@ -5213,6 +5266,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
 		  }
  		  if (have_deleted)
  		     residue->TrimAtomTable();
+		  
 		  
 		  for (unsigned int iat=0; iat<std_base_atom_names.size(); iat++) {
 		     for (int i=0; i<n_std_base_atoms; i++) {
@@ -5239,30 +5293,51 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
 		  }
 	    
 	    
+		  
 		  //       
-		  std::string new_base_name = std_base_name;
-
-		  if (mol_base_name.length() != 2) {
-		     new_base_name = mol_base_name;
-		  } else {
-		     // the normal case
-		     std::string debug_s = new_base_name;
-// 		     new_base_name = std_base_name.substr(0,1) +
-// 			mol_base_name.substr(1,2);
-// 		     std::cout << "Changing base name from " << residue->name
-// 			       << " to " << new_base_name << " not "
-// 			       << debug_s << std::endl;
-		  }
+ 		  std::string new_base_name =
+ 		     coot::util::convert_base_name(std_base_name, use_old_style_naming);
+// 		  std::string new_base_name =
+// 		     coot::util::convert_base_name(std_base_name, 1);
 
 		  residue->SetResName(new_base_name.c_str());
 		  residue->TrimAtomTable();
-
 	       }
 	    }
 	 }
       }
    }
+}
+
+std::string
+coot::util::convert_base_name(const std::string &std_base_name, bool use_old_style_naming) {
+
+   if (use_old_style_naming) { 
+      return std_base_name;
+   } else {
+      if (std_base_name == "Cd")
+	 return "DC";
+      if (std_base_name == "Ad")
+	 return "DA";
+      if (std_base_name == "Gd")
+	 return "DG";
+      if (std_base_name == "Td")
+	 return "DT";
+      if (std_base_name == "Cr")
+	 return "C";
+      if (std_base_name == "Ar")
+	 return "A";
+      if (std_base_name == "Gr")
+	 return "G";
+      if (std_base_name == "Ur")
+	 return "U";
+      if (std_base_name == "Tr")
+	 return "T";
+   }
+
+   return std_base_name;
 } 
+
 
 std::vector<std::pair<coot::atom_spec_t, std::string> >
 coot::util::gln_asn_b_factor_outliers(CMMDBManager *mol) {

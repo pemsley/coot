@@ -339,7 +339,7 @@ int graphics_info_t::save_coordinates_in_original_dir_flag = 0;
 // by default convert nucleic acid names to match the (currently v2)
 // dictionary.
 // 
-bool graphics_info_t::convert_to_v2_atom_names_flag = 1;
+bool graphics_info_t::convert_to_v2_atom_names_flag = 0; // changed 20110505
 
 //
 short int graphics_info_t::print_initial_chi_squareds_flag = 0;

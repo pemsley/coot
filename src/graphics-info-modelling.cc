@@ -257,10 +257,22 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       );
    molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
+   // Return 0 (first) if any of the residues don't have a dictionary
+   // entry and a list of the residue type that don't have restraints.
    std::pair<int, std::vector<std::string> > icheck = 
       check_dictionary_for_residue_restraints(SelResidues, nSelResidues);
 
-   if (icheck.first == 0) {
+
+   if (0) {  // debugging.
+      std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
+      std::cout << "selecting from residue " << iselection_resno_start
+		<< " to " << iselection_resno_end << " selects "
+		<< nSelResidues << " residues" << std::endl;
+      std::cout << "=============== icheck: " << icheck.first << std::endl;
+   }
+
+   if (icheck.first == 0) { 
+
       std::cout << "INFO:: check_dictionary_for_residues - problem..." << std::endl;
       std::string problem_residues = "Refinement setup failure.\nFailed to find restraints for:\n";
       for (unsigned int icheck_res=0; icheck_res<icheck.second.size(); icheck_res++) { 
@@ -2262,9 +2274,11 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 
    if (interesting_residue_p) { 
       if (moving_residue_p) {
+	 bool use_old_names = convert_to_v2_atom_names_flag;
+	 
 	 std::pair<bool, clipper::RTop_orth> rtop_pair =
-	    // coot::util::base_to_base(res_p, moving_residue_p);
-	    coot::util::nucleotide_to_nucleotide(res_p, moving_residue_p);
+	    coot::util::nucleotide_to_nucleotide(res_p, moving_residue_p,
+						 use_old_names);
 	    
 	 // now apply rtop to mol:
 	 if (rtop_pair.first) {

@@ -1929,7 +1929,8 @@ public:        //                      public
    int mutate(CResidue *res, const std::string &residue_type);
 
    // Here is something that does DNA/RNA
-   int mutate_base(const coot::residue_spec_t &res_spec, std::string type);
+   int mutate_base(const coot::residue_spec_t &res_spec, std::string type,
+		   bool use_old_style_naming);
 
    // and the biggie: lots of mutations/deletions/insertions from an
    // alignment:
@@ -1972,7 +1973,7 @@ public:        //                      public
 
    void mutate_internal(CResidue *residue, CResidue *std_residue, const std::string &alt_conf);
    bool progressive_residues_in_chain_check_by_chain(const char *chain_id) const;
-   void mutate_base_internal(CResidue *residue, CResidue *std_base);
+   void mutate_base_internal(CResidue *residue, CResidue *std_base, bool use_old_style_naming);
 
    // multiple mutate: we don't want to put the results into an asc,
    // we simply want to make the replacement withouth user
