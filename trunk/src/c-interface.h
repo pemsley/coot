@@ -662,11 +662,14 @@ float idle_function_rotate_angle();
   filename (can be pdb, cif or shelx format)  */
 int handle_read_draw_molecule(const char *filename);
 
-/*! \brief shall we convert nucleotide atom names to match the
-  dictionary names?
+/*! \brief shall we convert nucleotides to match the dictionary
+  names?
 
-Often we want to do this (give current Coot architecture).  Sometimes
-not, though.  The default is "on" (1).
+Usually we do not want to do this (give current Coot architecture).  Most
+often not, though.  Coot should handle the residue synonyms transparently.
+
+default off (0).
+
  */
 void set_convert_to_v2_atom_names(short int state);
 
