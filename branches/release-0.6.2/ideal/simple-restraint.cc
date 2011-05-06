@@ -4448,6 +4448,9 @@ coot::restraints_container_t::bonded_residues_conventional(int selHnd,
 			std::pair<std::string, bool> l =
 			   find_link_type_rigourous(SelResidue[ii], SelResidue[jj], geom);
 			if (l.first != "") {
+
+			   // Eeek!  Fill me? [for 0.7]
+			   
 			} 
 		     } 
 		  }
@@ -4487,6 +4490,8 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 	    // ins code test here in the future.
 	    if ( abs(SelResidue[i]->GetSeqNum() - SelResidue[i+1]->GetSeqNum()) <= 1) { 
 	       link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
+	       std::cout << "DEBUG in bonded_residues_by_linear() link_type is :"
+			 << link_type << ":" << std::endl;
 	       if (link_type != "") {
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
@@ -4669,8 +4674,10 @@ coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
    if (coot::util::is_nucleotide_by_dict(first, geom))
       link_type = "p"; // phosphodiester linkage
 
-   if (t1 == "D-pyranose" || t1 == "D-furanose" || t1 == "L-pyranose" || t1 == "L-furanose") { 
-      if (t2 == "D-pyranose" || t2 == "D-furanose" || t2 == "L-pyranose" || t2 == "L-furanose") {
+   if (t1 == "D-pyranose" || t1 == "D-furanose" || t1 == "L-pyranose" || t1 == "L-furanose" ||
+       t1 == "pyranose" || t1 == "furanose" /* new-style refmac dictionary */) { 
+      if (t2 == "D-pyranose" || t2 == "D-furanose" || t2 == "L-pyranose" || t2 == "L-furanose" ||
+	  t2 == "pyranose" || t2 == "furanose"  /* new-style refmac dictionary */) {
 	 link_type = find_glycosidic_linkage_type(first, second, t1, t2, geom);
 	 std::cout << "INFO:: glycosidic_linkage type :" << link_type << ":\n";
       } 
@@ -6262,7 +6269,7 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
    } 
 
    if (found_link_type == 0)
-      std::cout << "link type: " << link_type << " not found in dictionary!!\n";
+      std::cout << "link type \"" << link_type << "\" not found in dictionary!!\n";
 
    // std::cout << "add link bond returns " <<  nbond << std::endl;
    return nbond;

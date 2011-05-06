@@ -887,10 +887,6 @@ public:
       standard_residues_asc.n_selected_atoms = 0;
       read_standard_residues(); // updates read_success
 
-      convert_to_v2_atom_names_flag = 1; // by default convert to
-					 // match the current
-					 // dictionary.
-
       symmetry_colour_merge_weight = 0.5; // 0.0 -> 1.0
 
       symmetry_colour = std::vector<double> (4, 0.5);

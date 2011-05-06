@@ -1182,7 +1182,9 @@ namespace coot {
       // Return the RTop that matches moving to reference.  Don't move
       // moving.  Lite above, but add phosphate and furanose atoms.
       std::pair<bool,clipper::RTop_orth> nucleotide_to_nucleotide(CResidue *reference,
-								  CResidue *moving);
+								  CResidue *moving,
+								  bool use_old_style_naming); // Cd, Ar
+                                                                                // (modern is C and DA).
 
       // mutate the atoms of the residue with altLoc alt_conf (this
       // should be called multiple times for residues with alt_confs).
@@ -1198,7 +1200,9 @@ namespace coot {
 			   const std::string &alt_conf,
 			   short int is_from_shelx_ins_flag);
       
-      void mutate_base(CResidue *residue, CResidue *std_base);
+      void mutate_base(CResidue *residue, CResidue *std_base, bool use_old_style_naming);
+      // which calls
+      std::string convert_base_name(const std::string &std_base_name, bool use_old_style_naming);
       
       // For use with interesting-things-gui, make the list argument
       // from a vector of atom specs.

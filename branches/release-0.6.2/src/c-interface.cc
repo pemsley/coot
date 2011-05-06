@@ -4264,11 +4264,14 @@ void test_fragment() {
 
 int test_function(int i, int j) {
 
-//    graphics_info_t g;
-//    g.wrapped_create_symmetry_controller_dialog();
-//    return 0;
+   graphics_info_t g;
 
    if (1) {
+      std::cout << "=============== g.convert_to_v2_atom_names_flag " <<
+		g.convert_to_v2_atom_names_flag << std::endl;
+   } 
+
+   if (0) {
 
       clipper::Matrix<double> mat(3,3);
       
