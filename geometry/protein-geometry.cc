@@ -3291,10 +3291,10 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("u/U.cif");
 
    // new-style (CCP4 6.2) DNA names
-   s.push_back("a/DA.cif");
-   s.push_back("c/DC.cif");
-   s.push_back("g/DG.cif");
-   s.push_back("t/DT.cif");
+   s.push_back("d/DA.cif");
+   s.push_back("d/DC.cif");
+   s.push_back("d/DG.cif");
+   s.push_back("d/DT.cif");
    
    s.push_back("h/HOH.cif");
 
@@ -3322,8 +3322,8 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
       // OK, that failed to, perhaps there is a synonym?
       for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
 	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
-	    for (int i=0; i<ndict; i++) {
-	       if (dict_res_restraints[i].comp_id == residue_name_synonyms[i].comp_id) {
+	    for (int j=0; j<ndict; j++) {
+	       if (dict_res_restraints[j].comp_id == residue_name_synonyms[i].comp_id) {
 		  ifound = 1;
 		  break;
 	       }
@@ -3346,7 +3346,6 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 	 }
       }
    }
-
 
    if (ifound == 0) {
       ifound = try_dynamic_add(monomer_type, read_number);

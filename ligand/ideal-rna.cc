@@ -301,7 +301,7 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_i
    // standard residues file), "Ar", "Ad"
    // 
    std::string residue_name = residue_name_from_type(residue_type_in);
-   std::cout << "in :" << residue_type_in << ": out :" << residue_name << ":" << std::endl;
+   // std::cout << "in :" << residue_type_in << ": out :" << residue_name << ":" << std::endl;
 
    CResidue *std_residue = 0;
    int selHnd = standard_residues->NewSelection();
@@ -429,11 +429,7 @@ coot::ideal_rna::mutate_res(CResidue *res, char base, bool is_dna_flag) const {
    if (residue_type != "None") { 
       CResidue *std_res = get_standard_residue_instance(residue_type, standard_residues);
       if (std_res) {
-	 coot::util::mutate_base(res, std_res);
-	 std::cout << "request std_res of type " << residue_type << " and got " 
-		   << std_res->GetResName() << std::endl;
-	 std::cout << "coot::util::mutate_base " << res->GetResName() << " with std "
-		   << std_res->GetResName() << std::endl;
+	 coot::util::mutate_base(res, std_res, 1);
 	 status = 1;
       }
    }

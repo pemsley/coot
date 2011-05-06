@@ -800,25 +800,53 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
 
 // Here is something that does DNA/RNA
 int
-molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::string type) {
+molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::string type,
+				   bool use_old_style_naming) {
 
    int istat=0;
+
+   // refmac_nuc_type is the type of the residue that we extract from
+   // the standard residues molecule.
+   // 
    std::string refmac_nuc_type = type;
    // we match the requested residue type to the residue type that is
    // in the standard residues file.
-   if (refmac_nuc_type.length() == 1) {
-      if (refmac_nuc_type == "A")
-	 refmac_nuc_type = "Ad";
-      if (refmac_nuc_type == "G")
+   if (use_old_style_naming) {
+      if (refmac_nuc_type.length() == 1) {
+	 if (refmac_nuc_type == "A")
+	    refmac_nuc_type = "Ad";
+	 if (refmac_nuc_type == "G")
+	    refmac_nuc_type = "Gr";
+	 if (refmac_nuc_type == "C")
+	    refmac_nuc_type = "Cd";
+	 if (refmac_nuc_type == "T")
+	    refmac_nuc_type = "Td";
+	 if (refmac_nuc_type == "U")
+	    refmac_nuc_type = "Ur";
+      }
+   } else {
+      // modern names input, need to convert to old name to
+      // extract.
+      if (type == "A")
+	 refmac_nuc_type = "Ar";
+      if (type == "G")
 	 refmac_nuc_type = "Gr";
-      if (refmac_nuc_type == "C")
-	 refmac_nuc_type = "Cd";
-      if (refmac_nuc_type == "T")
-	 refmac_nuc_type = "Td";
-      if (refmac_nuc_type == "U")
+      if (type == "T")
+	 refmac_nuc_type = "Tr";
+      if (type == "U")
 	 refmac_nuc_type = "Ur";
+      if (type == "C")
+	 refmac_nuc_type = "Cr";
+      if (type == "DA")
+	 refmac_nuc_type = "Ad";
+      if (type == "DG")
+	 refmac_nuc_type = "Gd";
+      if (type == "DT")
+	 refmac_nuc_type = "Td";
+      if (type == "DC")
+	 refmac_nuc_type = "Cd";
    }
-   
+
    if (atom_sel.n_selected_atoms > 0) { 
 
       int n_models = atom_sel.mol->GetNumberOfModels();
@@ -849,7 +877,7 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
 			      CResidue *std_base =
 				 get_standard_residue_instance(refmac_nuc_type);
 			      if (std_base) { 
-				 mutate_base_internal(residue_p, std_base);
+				 mutate_base_internal(residue_p, std_base, use_old_style_naming);
 				 istat = 1;
 			      } else {
 				 std::cout << "Oops - can't find standard residue for type "
@@ -882,14 +910,12 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
 // Here std_base is at some arbitary position when passed.
 // 
 void
-molecule_class_info_t::mutate_base_internal(CResidue *residue, CResidue *std_base) {
+molecule_class_info_t::mutate_base_internal(CResidue *residue, CResidue *std_base,
+					    bool use_old_names) {
 
    make_backup();
-//    std::cout << "mutate_base_internal: pre:  "
-// 	     << residue->GetNumberOfAtoms() << std::endl;
-   coot::util::mutate_base(residue, std_base);
-//    std::cout << "mutate_base_internal: post: "
-// 	     << residue->GetNumberOfAtoms() << std::endl;
+
+   coot::util::mutate_base(residue, std_base, use_old_names);
    have_unsaved_changes_flag = 1;
 }
 
