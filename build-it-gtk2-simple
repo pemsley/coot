@@ -305,8 +305,8 @@
 # 4.74 20100304 Fix install_top_dir typos.
 # 4.75 20101102 Dependency check for gtkglext patch (compatibility with gtk+ version).
 # 4.76 20101102 Correct directory for previoius patch.
-script_version=4.76
-
+# 4.77 20110505 switch to new style Refmac library.
+script_version=4.77
 
 
 # :: NOTE:: 
@@ -3104,15 +3104,19 @@ echo done coot build.
 
 extra_dir=http://www.ysbl.york.ac.uk/~emsley/software/extras
 extra_dir=http://www.biop.ox.ac.uk/coot/software/dependencies
-refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
-refmac_mon_lib=refmac-monomer-library-20091203.tar.gz
+# 20110505 we change to Garib's new dictionary
+#refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
+#refmac_mon_lib=refmac-monomer-library-20091203.tar.gz
+mon_lib_dir=http://www.ysbl.york.ac.uk/~garib/refmac/data/refmac_experimental
+refmac_mon_lib=refmac_dictionary_v5.28.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
 else 
     echo INSTALLING refmac monomer library...
-    $WGET $extra_dir/$refmac_mon_lib
-    tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/$refmac_mon_lib
+    $WGET $mon_lib_dir/$refmac_mon_lib
+    mkdir -p $install_top_dir/share/coot/lib/data
+    tar xzCf $install_top_dir/share/coot/lib/data $AUTOBUILD_SOURCES/$refmac_mon_lib
 fi 
 if [ -e $install_top_dir/share/coot/reference-structures ] ; then
     echo INFO:: installation has reference structures
