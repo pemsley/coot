@@ -4,10 +4,6 @@
    What's Planned for the Upcoming Coot Releases?
 
 
-  o Thining in Jones Mode, Rv3394c_model_Alex.pdb
-
-  o Jones Mode and pick non-visible atoms.
-
 -----
 
     Release 0.6 and 0.7 [Sept 2009, June 2010]
@@ -754,6 +750,9 @@ Punted from 0.6:
    o draw surface within x A of a ligand
 
 * Done.
+
+   o bonded_residues_conventional() need to check for other links in
+     the selection.
 
    o check that SSBOND and LINK cards are valid on writing PDB.
 
