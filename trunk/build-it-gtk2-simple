@@ -306,7 +306,8 @@
 # 4.75 20101102 Dependency check for gtkglext patch (compatibility with gtk+ version).
 # 4.76 20101102 Correct directory for previoius patch.
 # 4.77 20110505 switch to new style Refmac library.
-script_version=4.77
+# 4.78 20110507 Refmac mon lib to 5.29
+script_version=4.78
 
 
 # :: NOTE:: 
@@ -3109,6 +3110,7 @@ extra_dir=http://www.biop.ox.ac.uk/coot/software/dependencies
 #refmac_mon_lib=refmac-monomer-library-20091203.tar.gz
 mon_lib_dir=http://www.ysbl.york.ac.uk/~garib/refmac/data/refmac_experimental
 refmac_mon_lib=refmac_dictionary_v5.28.tar.gz
+refmac_mon_lib=refmac_dictionary_v5.29.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
