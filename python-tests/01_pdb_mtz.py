@@ -1622,16 +1622,34 @@ class PdbMtzTestFunctions(unittest.TestCase):
         set_residue_to_rotamer_number(imol, "H", 52, "A", 4) # crash!!?
 
 
+    # new version of tests (not yet ;-) )
     def test44_0(self):
         """RNA base has correct residue type after mutation"""
 
-        rna_mol = ideal_nucleic_acid("RNA", "A", 0, "GACUCUAG")
+        def test_vs(rna_mol, base_name):
 
-        success = mutate_base(rna_mol, "A", 2, "", "Cr")
-        self.failUnless(success == 1, "  mutation fail!")
-        rn = residue_name(rna_mol, "A", 2, "")
-        print "  mutated base to type", rn
-        self.failUnless(rn == "Cr")
+            previous_name = residue_name(rna_mol, "A", 2, "")
+            success = mutate_base(rna_mol, "A", 2, "", base_name)
+            self.failUnless(success == 1, "  mutation fail!")
+            rn = residue_name(rna_mol, "A", 2, "")
+            print "  mutated base to type %s - was %s" %(rn, previous_name)
+            return (rn == base_name)
+
+        # main line
+        #   
+        rna_mol = ideal_nucleic_acid("RNA", "A", 0, "GACUCUAG")
+        res_1 = test_vs(rna_mol, "C")
+        self.failUnless(res_1, "  incorrect base! (default names)")
+
+        set_convert_to_v2_atom_names(1)
+
+        rna_mol_old_names = ideal_nucleic_acid("RNA", "A", 0, "GACUCUAG")
+        res_2 = test_vs(rna_mol_old_names, "Cr")
+
+        # back to normal
+        set_convert_to_v2_atom_names(0)
+        
+        self.failUnless(res_2, "  incorrect base! (old names)")
 
 
     def test45_0(self):
@@ -1646,8 +1664,17 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         # main line
         rna_mol = ideal_nucleic_acid("DNA", "A", 0, "GACTCTAG")
+
+        res = map(lambda base: correct_base_type_qm(rna_mol, base),
+                  ["DC", "DG", "DA", "DT"])
+        self.failUnless(all(res))
+
+        set_convert_to_v2_atom_names(1)
+        rna_mol = ideal_nucleic_acid("DNA", "A", 0, "GACTCTAG")
+        
         res = map(lambda base: correct_base_type_qm(rna_mol, base),
                   ["Cd", "Gd", "Ad", "Td"])
+        set_convert_to_v2_atom_names(0)
         self.failUnless(all(res))
 
 
