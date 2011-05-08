@@ -214,7 +214,12 @@
 # 3.12 20080207 Add test and build of ATK, needed for gtk+2.10.x
 # 3.13 20080208 lib cleaning problems, add debugging.
 # 3.14 20080208 Try requiring gtk 2.10
-script_version=3.14
+#
+# BL says:: I should do build versioning tooo!
+# let's start with 1.1
+#
+# 1.1 08/05/11 switch to new style Refmac library
+script_version=1.1 
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -3138,13 +3143,18 @@ echo done coot build.
 
 #extra_dir=http://www.ysbl.york.ac.uk/~emsley/software/extras
 extra_dir=http://www.biop.ox.ac.uk/coot/software/dependencies
-refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
+# 8/5/11 change to Garib's new dicionary.
+#refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
+mon_lib_dir=http://www.ysbl.york.ac.uk/~garib/refmac/data/refmac_experimental
+refmac_mon_lib=refmac_dictionary_v5.29.tar.gz
+
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
 else 
     echo INSTALLING refmac monomer library...
-    $WGET $extra_dir/$refmac_mon_lib
-    tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/$refmac_mon_lib
+    $WGET $mon_lib_dir/$refmac_mon_lib
+    mkdir -p $install_top_dir/share/coot/lib/data
+    tar xzCf $install_top_dir/share/coot/lib/data $AUTOBUILD_SOURCES/$refmac_mon_lib
 fi 
 if [ -e $install_top_dir/share/coot/reference-structures ] ; then
     echo INFO:: installation has reference structures
