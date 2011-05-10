@@ -451,7 +451,14 @@ int   graphics_info_t::idle_function_spin_rock_token = 0;
 long  graphics_info_t::time_holder_for_rocking = 0;
 double graphics_info_t::idle_function_rock_amplitude_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_freq_scale_factor = 1.0;
-double graphics_info_t::idle_function_rock_angle_previous = 0; 
+double graphics_info_t::idle_function_rock_angle_previous = 0;
+
+
+// new style (20110505 ligand interactions)
+// 
+long  graphics_info_t::time_holder_for_ligand_interactions = 0;
+int   graphics_info_t::idle_function_ligand_interactions_token = 0;
+double graphics_info_t::ligand_interaction_pulse_previous = 0;
 
 
 int   graphics_info_t::drag_refine_idle_function_token = -1; // magic unused value
@@ -2019,6 +2026,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    if (in_stereo_flag == IN_STEREO_SIDE_BY_SIDE_RIGHT)
       gl_context = GL_CONTEXT_SECONDARY;
 
+   gl_context_info_t gl_info(graphics_info_t::glarea, graphics_info_t::glarea_2);
+   
+
 // void glDepthRange(GLclampd near, GLclampd far); Defines an encoding
 // for z coordinates that's performed during the viewport
 // transformation. The near and far values represent adjustments to the
@@ -2182,9 +2192,20 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	    glEnable(GL_LIGHT0);
 	    n_display_list_objects +=
 	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
+
 	    glDisable(GL_LIGHT0);
 	    glDisable(GL_LIGHTING);
 	 }
+
+	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) { 
+	    glEnable(GL_LIGHTING);
+	    glEnable(GL_LIGHT0);
+	    glEnable(GL_LIGHT1);
+	    glEnable(GL_LIGHT2);
+	    graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info,
+									     graphics_info_t::time_holder_for_ligand_interactions);
+	    glDisable(GL_LIGHTING);
+	 } 
 
 	 // draw anisotropic atoms maybe
 	 graphics_info_t::molecules[ii].anisotropic_atoms();
@@ -3953,7 +3974,7 @@ animate_idle_rock(GtkWidget *widget) {
    } else {
       usleep(500);
    } 
-   return 1; 
+   return 1;  // keep going
 }
 
 double
@@ -3976,7 +3997,25 @@ get_idle_function_rock_target_angle() {
       0.015 * 2 * M_PI * sin(theta);
 
    return target_angle;
-} 
+}
+
+
+// widget is the glarea.
+// 
+gint
+animate_idle_ligand_interactions(GtkWidget *widget) {
+
+   graphics_info_t g;
+   for (int imol=0; imol<graphics_n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+	 if (g.molecules[imol].is_displayed_p()) {
+	    g.molecules[imol].draw_animated_ligand_interactions_flag = 1;
+	 }
+      }
+   }
+   g.graphics_draw();
+   return 1; // don't stop calling this idle function
+}
 
 
 void

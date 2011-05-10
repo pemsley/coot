@@ -1639,6 +1639,32 @@ void set_rocking_factors(float width, float freq_scale) {
 
 } 
 
+/* Turn on nice animated ligand interaction display */
+void toggle_idle_ligand_interactions() {
+
+   graphics_info_t g;
+   if (g.idle_function_ligand_interactions_token == 0) {
+      g.idle_function_ligand_interactions_token =
+// 	 gtk_idle_add((GtkFunction) animate_idle_ligand_interactions,
+// 		      g.glarea);
+	 gtk_timeout_add(100,
+			 (GtkFunction) animate_idle_ligand_interactions,
+			 NULL);
+			 
+      g.time_holder_for_ligand_interactions = glutGet(GLUT_ELAPSED_TIME);
+   } else {
+      gtk_idle_remove(g.idle_function_ligand_interactions_token);
+      g.idle_function_ligand_interactions_token = 0;
+      for (unsigned int imol=0; imol<g.molecules.size(); imol++) { 
+	 if (is_valid_model_molecule(imol)) {
+	    g.molecules[imol].draw_animated_ligand_interactions_flag = 0;
+	 } 
+      }
+      g.graphics_draw();
+   }
+   add_to_history_simple("toggle-idle-ligand-interactions");
+} 
+
 
 // in degrees
 void set_idle_function_rotate_angle(float f) {

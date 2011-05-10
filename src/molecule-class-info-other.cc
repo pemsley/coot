@@ -2231,7 +2231,8 @@ molecule_class_info_t::get_chain(const std::string &chain_id) const {
 // 
 CResidue *
 molecule_class_info_t::get_residue(const std::string &chain_id,
-				   int resno, const std::string &insertion_code) const {
+				   int resno,
+				   const std::string &insertion_code) const {
 
    CResidue *res = NULL;
    if (atom_sel.n_selected_atoms > 0) {
@@ -2319,8 +2320,9 @@ molecule_class_info_t::get_atom(const std::string &go_to_residue_string,
 CAtom *
 molecule_class_info_t::get_atom(const coot::atom_spec_t &atom_spec) const {
 
-   CAtom *at = NULL;
    CResidue *res = get_residue(atom_spec.chain, atom_spec.resno, atom_spec.insertion_code);
+   CAtom *at = NULL;
+   
    if (res) {
       PPCAtom residue_atoms;
       int nResidueAtoms;

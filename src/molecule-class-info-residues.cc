@@ -26,6 +26,7 @@
 #include <string>
 #include <stdexcept>
 
+#include <GL/glut.h>
 
 // #ifdef MAKE_ENTERPRISE_TOOLS
 // // includes order important, otherwise we get dcgettext() problems.
@@ -589,3 +590,125 @@ molecule_class_info_t::hetify_residue_atoms(const std::string &chain_id,
    return r;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+////////////// animated ligands  /////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+void 
+coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
+					   const gl_context_info_t &gl_info,
+					   const long &start_time) const {
+
+   CAtom *at_1 = coot::util::get_atom(atom_spec_1, mol);
+   CAtom *at_2 = coot::util::get_atom(atom_spec_2, mol);
+
+   if (at_1 && at_2) {
+      glLineWidth(4.0);
+      
+      clipper::Coord_orth pt_1 = coot::util::get_coords(at_1);
+      clipper::Coord_orth pt_2 = coot::util::get_coords(at_2);
+//       glBegin(GL_LINES);
+//       glVertex3f(pt_1.x(), pt_1.y(),pt_1.z());
+//       glVertex3f(pt_2.x(), pt_2.y(),pt_2.z());
+//       glEnd();
+
+      if (1) {
+	 glEnable (GL_BLEND);
+	 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	 long now_time = glutGet(GLUT_ELAPSED_TIME);
+
+	 float opacity = (sin(double(now_time - start_time) * 0.004)+1.4)*0.35;
+	 glColor4f(0.3, 0.3, 0.8, opacity);
+
+	 GLfloat  ambientLight[] = { 0.2f, 0.2f, 0.2f, 0.5f };
+	 GLfloat  diffuseLight[] = { 0.2f, 0.2f, 0.2f, 0.5f };
+	 GLfloat specularLight[] = { 0.2f, 0.2f, 0.2f, 0.5f };
+   
+	 // Assign created components to GL_LIGHT2
+	 glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
+	 glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
+	 glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
+
+	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+	 glDisable(GL_COLOR_MATERIAL);
+
+	 GLfloat  mat_specular[]  = {0.28,  0.28,  0.98,  opacity};
+	 GLfloat  mat_ambient[]   = {0.260, 0.260, 0.260, opacity};
+	 GLfloat  mat_diffuse[]   = {0.200, 0.200, 0.900, opacity};
+	 GLfloat  mat_shininess[] = {100.0};
+
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+
+	 glPushMatrix();
+	 double base = 0.1;
+	 double top =  0.1;
+	 clipper::Coord_orth bond_vec = pt_2-pt_1;
+	 double height = sqrt(bond_vec.lengthsq());
+	 int slices = 12;
+	 int stacks = 2;
+
+	 glTranslatef(pt_2.x(), pt_2.y(), pt_2.z());
+
+
+	 // 	    This code from ccp4mg's cprimitive.cc (but modified)
+	 //  	    ----- 
+	 double ax;
+	 double rx = 0; 
+	 double ry = 0;
+	 double length = height;
+	 double vz = bond_vec.z();
+	 
+	 bool rot_x = false;
+	 if(fabs(vz)>1e-7){
+	    ax = 180.0/M_PI*acos(vz/length);
+	    if(vz<0.0) ax = -ax;
+	    rx = -bond_vec.y()*vz;
+	    ry = bond_vec.x()*vz;
+	 }else{
+	    double vx = bond_vec.x();
+	    double vy = bond_vec.y();
+	    ax = 180.0/M_PI*acos(vx/length);
+	    if(vy<0) ax = -ax;
+	    rot_x = true;
+	 }
+	 
+	 if (rot_x) { 
+	    glRotated(90.0, 0.0, 1.0, 0.0);
+	    glRotated(ax,  -1.0, 0.0, 0.0);
+	 } else {
+	    glRotated(ax, rx, ry, 0.0);
+	 }
+	 // 	    --------
+
+	 GLUquadric* quad = gluNewQuadric();
+	 glScalef(1.0, 1.0, -1.0); // account for mg maths :-)
+	 gluCylinder(quad, base, top, height, slices, stacks);
+	 gluDeleteQuadric(quad);
+	 glPopMatrix();
+      }
+   } 
+}
+
+// add more variables :-)
+void molecule_class_info_t::add_animated_ligand_interaction(const coot::atom_spec_t &as1,
+							    const coot::atom_spec_t &as2) {
+
+   coot::animated_ligand_interactions_t ali(as1, as2);
+   animated_ligand_interactions_vec.push_back(ali);
+
+}
+
+void
+molecule_class_info_t::draw_animated_ligand_interactions(const gl_context_info_t &gl_info,
+							 const long &start_time) const {
+
+   if (draw_animated_ligand_interactions_flag)
+      for (unsigned int i=0; i<animated_ligand_interactions_vec.size(); i++)
+	 animated_ligand_interactions_vec[i].draw(atom_sel.mol, gl_info, start_time);
+
+} 
+							    

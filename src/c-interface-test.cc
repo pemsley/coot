@@ -142,7 +142,26 @@ int test_function(int i, int j) {
 //    g.wrapped_create_symmetry_controller_dialog();
 //    return 0;
 
+
    if (1) {
+      // coot::atom_spec_t spec_1("A", 41, "", " OE1", "");
+      // coot::atom_spec_t spec_2("A", 39, "", " N  ", "");
+      coot::atom_spec_t spec_1("B", 48, "", " OG ", "");
+      coot::atom_spec_t spec_2("A", 48, "", " N  ", "");
+      graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_1, spec_2);
+      coot::atom_spec_t spec_3("B", 47, "", " O  ", "");
+      coot::atom_spec_t spec_4("B", 48, "", " N  ", "");
+      graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_3, spec_4);
+      coot::atom_spec_t spec_5("B", 48, "", " O  ", "");
+      coot::atom_spec_t spec_6("B", 49, "", " N  ", "");
+      graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_5, spec_6);
+      coot::atom_spec_t spec_7("B", 49, "", " O  ", "");
+      coot::atom_spec_t spec_8("B", 50, "", " N  ", "");
+      graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_7, spec_8);
+   } 
+
+       
+   if (0) {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       graphics_info_t g;
       if (pp.first) {
@@ -155,8 +174,8 @@ int test_function(int i, int j) {
 	    widgeted_molecule_t wm(mm, mol);
 	    topological_equivalence_t top_eq(wm.atoms, wm.bonds);
 	 } 
-      } 
-   } 
+      }
+   }
 
    if (0) {
 

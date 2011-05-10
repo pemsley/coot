@@ -125,6 +125,8 @@ void printString(std::string s);
 
 gint animate_idle_spin(GtkWidget *widget);
 gint animate_idle_rock(GtkWidget *widget);
+gint animate_idle_ligand_interactions(GtkWidget *widget);
+
 
 void update_things_on_move_and_redraw(); 
 

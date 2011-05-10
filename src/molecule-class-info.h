@@ -80,6 +80,8 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 #include "dipole.hh"
 #include "density-contour-triangles.hh"
 
+#include "gl-bits.hh"
+
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
 	  TYPE_DIFF_SIGMAA=4 };
@@ -355,6 +357,21 @@ namespace coot {
       }
    };
 
+   class animated_ligand_interactions_t { 
+   public: 
+      atom_spec_t atom_spec_1;
+      atom_spec_t atom_spec_2; 
+      animated_ligand_interactions_t(const atom_spec_t &as_1, 
+				     const atom_spec_t &as_2) { 
+	 atom_spec_1 = as_1;
+	 atom_spec_2 = as_2;
+      }
+      void draw(CMMDBManager *mol,
+		const gl_context_info_t &gl_info,
+		const long &start_time) const;
+   };
+
+
    class go_to_residue_string_info_t {
    public:
       bool resno_is_set;
@@ -567,8 +584,6 @@ namespace coot {
 
 // Forward declaration
 class graphics_info_t;
-
-#include "gl-bits.hh"
 
 // should be arrays so that we can store lots of molecule
 // informations.
@@ -1106,6 +1121,9 @@ public:        //                      public
       //
       draw_it_for_solid_density_surface = 0;
       density_surface_opacity = 0.5;
+
+      // animated ligand interaction representation
+      draw_animated_ligand_interactions_flag = 0;
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -2929,7 +2947,17 @@ public:        //                      public
    int residue_has_hetatms(const std::string &chain_id, int resno, const std::string &ins_code) const;
 
    // change them if they are not standard PDB 'ATOM' residues
-   int hetify_residue_atoms(const std::string &chain_id, int resno, const std::string &ins_code); 
+   int hetify_residue_atoms(const std::string &chain_id, int resno, const std::string &ins_code);
+
+   // --------- Pretty (hopefully) animated ligand interactions -----------
+   std::vector<coot::animated_ligand_interactions_t> animated_ligand_interactions_vec;
+   // add more variables :-)
+   void add_animated_ligand_interaction(const coot::atom_spec_t &as1,
+					const coot::atom_spec_t &as2);
+   void draw_animated_ligand_interactions(const gl_context_info_t &gl,
+					  const long &start_time) const;
+   bool draw_animated_ligand_interactions_flag; // tweaked by outside function
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

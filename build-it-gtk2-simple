@@ -3018,7 +3018,10 @@ if [ $architecture = x86_64 ] ; then
    # coot_optim_args="CXXFLAGS='\"-g -O\"'" fails in configure
    #coot_optim_args="CXXFLAGS=-gO"
    #coot_optim_args="CXXFLAGS=\"-g -O\""
+
+
    export CXXFLAGS="-g -O"
+   #   unset CXXFLAGS
 fi
 
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
@@ -3054,12 +3057,13 @@ echo ./configure $coot_prefix \
 # consider adding -DCOOT_SYS_TYPE=systype (or something like that)
 # here, so that coot --version-info/full returns it.
 
-if [ "$update_libtool" = 1 ] ; then
-   echo need to update libtool here $PWD
-   cp $install_top_dir/bin/libtool .
-else 
-   echo NO need to update libtool $PWD
-fi
+# HACK out libtool updating for coot
+#if [ "$update_libtool" = 1 ] ; then
+#   echo need to update libtool here $PWD
+#   cp $install_top_dir/bin/libtool .
+#else 
+#   echo NO need to update libtool $PWD
+#fi
 
 # 20091001 should not be needed
 # rm src/coot_wrap_guile_pre.cc
