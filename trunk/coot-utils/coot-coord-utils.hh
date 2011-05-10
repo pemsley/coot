@@ -842,6 +842,13 @@ namespace coot {
       // convenience interface to above
       CResidue *get_residue(const residue_spec_t &rs, CMMDBManager *mol);
 
+      // Return NULL on atom not found in this molecule
+      //
+      CAtom *get_atom(const atom_spec_t &spec, CMMDBManager *mol);
+
+      // can throw an exception if atom_p is NULL
+      clipper::Coord_orth get_coords(CAtom *at);
+
       // Return NULL on residue not found in this molecule.
       // 
       CResidue *get_following_residue(const residue_spec_t &rs, 

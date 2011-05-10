@@ -4438,6 +4438,8 @@ PyObject *additional_representation_info_py(int imol);
 #endif	/* __cplusplus */
 
 
+/* Turn on nice animated ligand interaction display */
+void toggle_idle_ligand_interactions();
 
 
 

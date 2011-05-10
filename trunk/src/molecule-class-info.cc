@@ -1830,7 +1830,6 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
       if (! with_gl_lines) {
 
-	 float modelview[16];
 	 float zsc = graphics_info_t::zoom;
 
 	 if (bonds_box.bonds_[i].thin_lines_flag)

@@ -386,6 +386,7 @@ namespace coot {
 				      view_info_t &view);
    };
 
+
    class console_display_commands_t {
    public:
      bool display_commands_flag;
@@ -1669,7 +1670,10 @@ public:
    PyObject *refinement_results_to_py(coot::refinement_results_t &rr);
 #endif    
 
-
+   // ligand interactions (pulsing cylindrical bonds, or whatever)
+   static long time_holder_for_ligand_interactions; 
+   static double ligand_interaction_pulse_previous; // a timing holder
+   static int   idle_function_ligand_interactions_token;
 
    // now that the refinement goes via the idle function callback
    // (which gets called several times) we need to external control of

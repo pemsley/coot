@@ -2161,7 +2161,8 @@ coot::util::standard_deviation_temperature_factor(PPCAtom atom_selection,
    return sd;
 } 
 
-// Return NULL on residue not found in this molecule.
+// Return NULL on residue not found in this molecule. Only look in
+// MODEL 1.
 // 
 CResidue *
 coot::util::get_residue(const std::string &chain_id,
@@ -2191,6 +2192,7 @@ coot::util::get_residue(const std::string &chain_id,
 		     break;
 		  }
 	       }
+	       if (found_res) break;
 	    }
 	 }
 	 if (found_res) break;
@@ -2277,6 +2279,42 @@ coot::util::get_first_residue(CMMDBManager *mol) {
    }
    return res;
 }
+
+// Return NULL on atom not found in this molecule
+//
+CAtom *
+coot::util::get_atom(const atom_spec_t &spec, CMMDBManager *mol) {
+
+   CAtom *at = 0;
+   CResidue *res = coot::util::get_residue(spec, mol);
+
+   if (res) {
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      res->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	 CAtom *test_at = residue_atoms[iat];
+	 std::string at_name = test_at->name;
+	 std::string at_alt_conf = test_at->altLoc;
+	 if (spec.atom_name == at_name) {
+	    if (spec.alt_conf == at_alt_conf) {
+	       at = test_at;
+	       break;
+	    }
+	 } 
+      }
+   } 
+   return at;
+} 
+
+
+// can throw an exception if atom_p is NULL
+clipper::Coord_orth
+coot::util::get_coords(CAtom *at) {
+
+   clipper::Coord_orth pt(at->x, at->y, at->z);
+   return pt;
+} 
 
 
 // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
