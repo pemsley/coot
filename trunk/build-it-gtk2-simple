@@ -462,6 +462,7 @@ function post_install_slim {
     mkdir_maybe $cleaned_dir/bin
     mkdir_maybe $cleaned_dir/lib
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
+       mkdir_maybe $cleaned_dir/include
        mkdir_maybe $cleaned_dir/include/python$pver
     fi
 
