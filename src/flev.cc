@@ -45,6 +45,9 @@
 
 #include "flev.hh"
 
+#include "cc-interface.hh" // for add_animated_ligand_interactions
+
+
 std::ostream&
 coot::operator<< (std::ostream& s, const pi_stacking_instance_t &stack) {
 
@@ -206,6 +209,8 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
  	       std::vector<coot::fle_ligand_bond_t> bonds_to_ligand = 
  		  coot::get_fle_ligand_bonds(res_ref, filtered_residues, mol,
  					     name_map, *geom_p, water_dist_max);
+
+	       add_animated_ligand_interactions(imol, bonds_to_ligand);
 
 	       if (1) 
 		  std::cout << "Found ================== " << bonds_to_ligand.size()
@@ -370,6 +375,8 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
  		     coot::get_fle_ligand_bonds(res_ref, filtered_residues,
 						mol_for_res_ref, name_map, *geom_p, water_dist_max);
 
+		  add_animated_ligand_interactions(imol, bonds_to_ligand);
+
 		  std::vector<coot::fle_residues_helper_t> res_centres =
 		     coot::get_flev_residue_centres(res_ref,
 						    mol_for_res_ref,
@@ -439,7 +446,18 @@ coot::make_add_reps_for_near_residues(std::vector<CResidue *> filtered_residues,
       set_show_additional_representation(imol, v[i], 0); // undisplay it
    }
    return v;
-} 
+}
+
+void
+coot::add_animated_ligand_interactions(int imol,
+				       const std::vector<coot::fle_ligand_bond_t> &ligand_bonds) {
+
+   for (unsigned int i=0; i<ligand_bonds.size(); i++) {
+      std::cout << "Here....  adding animated ligand interaction " << i << std::endl;
+      add_animated_ligand_interaction(imol, ligand_bonds[i]);
+   }
+}
+
 
 
 std::ostream &
@@ -1154,7 +1172,7 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 		  for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
 		     CAtom *at = residue_atoms[iat];
 		     std::string atom_name(at->name);
-		     if (atom_name == bonds_to_ligand[ib].ligand_atom_name) {
+		     if (atom_name == bonds_to_ligand[ib].ligand_atom_spec.atom_name) {
 			// the coordinates of the matching flat ligand
 			// atom (done like solvent accessibilites).
 			of << "BOND " << at->name
@@ -1299,109 +1317,6 @@ coot::write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_s
    }
 }
 
-// This function is currently not used.
-// 
-// if there is a name map, use it, otherwise just bond to the found
-// atom.  Using the name map allows bond to hydrogens hanging off of
-// ligand atoms (e.g. the H on an O or an H on an N). The Hs are not
-// in res_ref (often/typically), but are in the flat residue.
-// 
-std::vector<coot::fle_ligand_bond_t>
-coot::get_fle_ligand_bonds(CResidue *ligand_res,
-			   const std::vector<CResidue *> &residues,
-			   const std::map<std::string, std::string> &name_map) { 
-   std::vector<coot::fle_ligand_bond_t> v;
-
-   // do it by hand, rather than create a molecule and use SeekContacts();
-   double bond_length = 3.3;
-
-   double bl_2 = bond_length * bond_length;
-   PPCAtom ligand_residue_atoms = 0;
-   int n_ligand_residue_atoms;
-   ligand_res->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
-   for (unsigned int iat=0; iat<n_ligand_residue_atoms; iat++) {
-      std::string ele_ligand = ligand_residue_atoms[iat]->element;
-      if (ele_ligand != " C") { 
-	 clipper::Coord_orth ref_pt(ligand_residue_atoms[iat]->x,
-				    ligand_residue_atoms[iat]->y,
-				    ligand_residue_atoms[iat]->z);
-	 for (unsigned int ires=0; ires<residues.size(); ires++) {
-	    PPCAtom residue_atoms = 0;
-	    int n_residue_atoms;
-	    residues[ires]->GetAtomTable(residue_atoms, n_residue_atoms);
-	    for (unsigned int jat=0; jat<n_residue_atoms; jat++) {
-	       std::string ele = residue_atoms[jat]->element;
-	       if (ele != " C") { 
-		  clipper::Coord_orth pt(residue_atoms[jat]->x,
-					 residue_atoms[jat]->y,
-					 residue_atoms[jat]->z);
-		  double diff_2 = (ref_pt - pt).lengthsq();
-		  if (diff_2 < bl_2) {
-		     std::string ligand_atom_name = ligand_residue_atoms[iat]->name;
-		     double bl = sqrt(diff_2);
-		     coot::residue_spec_t res_spec(residues[ires]);
-
-		     // donor/acceptor from the residue to the ligand
-		     // 
-		     int bond_type = fle_ligand_bond_t::H_BOND_DONOR_SIDECHAIN;
-
-		     // it's not a donor from a mainchain oxygen
-		     //
-		     std::string residue_atom_name(residue_atoms[jat]->name);
-		     if (ele == " O")
-			bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN;
-		     if (ele == " N")
-			bond_type = fle_ligand_bond_t::H_BOND_DONOR_SIDECHAIN;
-		     if (residue_atom_name == " O  ")
-			bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_MAINCHAIN;
-		     if (residue_atom_name == " N  ")
-			bond_type = fle_ligand_bond_t::H_BOND_DONOR_MAINCHAIN;
-		     if (residue_atom_name == " H  ")
-			bond_type = fle_ligand_bond_t::H_BOND_DONOR_MAINCHAIN;
-
-		     // We don't want to map between hydroxyl oxygens -> it attached H
-		     // when the residue to which it has a bond is a metal!  (and in
-		     // that case, we should probably remove the Hs from the ligand
-		     // anyway - but not today).
-		     //
-		     if (is_a_metal(residues[ires])) {
-			bond_type = fle_ligand_bond_t::METAL_CONTACT_BOND;
-		     } else {
-			// note, can't use [] because name_map is const
-			std::map<std::string, std::string>::const_iterator it =
-			   name_map.find(ligand_atom_name);
-			if (it != name_map.end()) {
-			   // If the map happens, that's presumably because we found a H
-			   // attached to an N (or an H attached to an O), either way, we
-			   // are sitting now on an H.
-			   ligand_atom_name = it->second;
-
-			   // is this OK?
-			   // 
-			   ele = " H";
-			   
-			   bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN;
-			   if (coot::is_main_chain_p(residue_atoms[jat]))
-			      bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_MAINCHAIN;
-			}
-		     }
-
-		     // that was not enough.  We still need to do some
-		     // more rejections.  Here's a start:
-		     if (! ((ele_ligand == " O") && (ele == " O"))) {
-			
-			coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, bl, res_spec);
-			v.push_back(bond);
-			break;
-		     }
-		  }
-	       }
-	    }
-	 }
-      }
-   }
-   return v;
-}
 
 // Use coot::h_bonds class to generate ligands.  We do that by creating a synthetic
 // temporary  molecule and atom selections.
@@ -1447,44 +1362,57 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 	 std::cout << coot::atom_spec_t(hbonds[i].donor) << "..."
 		   << coot::atom_spec_t(hbonds[i].acceptor) << " with ligand donor flag "
 		   << hbonds[i].ligand_atom_is_donor << std::endl;
-	 std::string ligand_atom_name = hbonds[i].acceptor->name;
-	 coot::residue_spec_t res_spec(hbonds[i].donor);
-	 CResidue *ligand_residue = hbonds[i].donor->residue;
+
 	 int bond_type = fle_ligand_bond_t::get_bond_type(hbonds[i].donor,
 							  hbonds[i].acceptor,
 							  hbonds[i].ligand_atom_is_donor);
-
-	 if (hbonds[i].ligand_atom_is_donor) {
-	    ligand_atom_name = hbonds[i].donor->name;
-	    res_spec = coot::residue_spec_t(hbonds[i].acceptor);
-	    ligand_residue = hbonds[i].acceptor->residue;
-	 }
-
-	 // Now, in 3D (pre-prodrgification) we don't have (polar) Hs on the ligand
-	 // (but we do in 2D), the map allows transfer from the ligand O or N to the
-	 // polar H in FLEV.
+	 // override these 3 if ligand atom is donor
 	 // 
-	 std::map<std::string, std::string>::const_iterator it = name_map.find(ligand_atom_name);
-	 if (it != name_map.end()) {
-	    // If the map happens, that's presumably because we found a H
-	    // attached to an N (or an H attached to an O), either way, we
-	    // are sitting now on an H.
-	    ligand_atom_name = it->second;
+	 CAtom *ligand_atom = hbonds[i].acceptor;
+	 CAtom *env_residue_atom = hbonds[i].donor;
+	 // 
+	 if (hbonds[i].ligand_atom_is_donor) {
+	    ligand_atom = hbonds[i].donor;
+	    env_residue_atom = hbonds[i].acceptor;
 	 }
+
+	 // This map no longer works because we don't pass ligand atom
+	 // name any more (we pass a spec).
+	 // 
+	 
+// 	 // Now, in 3D (pre-prodrgification) we don't have (polar) Hs on the ligand
+// 	 // (but we do in 2D), the map allows transfer from the ligand O or N to the
+// 	 // polar H in FLEV.
+// 	 // 
+// 	 std::map<std::string, std::string>::const_iterator it = name_map.find(ligand_atom->name);
+// 	 if (it != name_map.end()) {
+// 	    // If the map happens, that's presumably because we found a H
+// 	    // attached to an N (or an H attached to an O), either way, we
+// 	    // are sitting now on an H.
+// 	    ligand_atom_name = it->second;
+// 	 }
 
 	 if (debug) 
-	    std::cout << "constructing fle ligand bond " << ligand_atom_name
+	    std::cout << "constructing fle ligand bond " << ligand_atom->name
 		      << " " << bond_type << " " << hbonds[i].dist << " " 
-		      << res_spec << std::endl;
+		      << env_residue_atom << std::endl;
+
+	 // we want to pass the atom specifics (not just the environ residue spec)
+	 // 
+	 // coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, hbonds[i].dist, res_spec);
+	 // 
+	 coot::fle_ligand_bond_t bond(coot::atom_spec_t(ligand_atom),
+				      coot::atom_spec_t(env_residue_atom), 
+				      bond_type,
+				      hbonds[i].dist);
 	 
-	 coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, hbonds[i].dist, res_spec);
-	 std::string residue_name = ligand_residue->GetResName();
+	 std::string residue_name = ligand_atom->GetResName();
 	 if (residue_name == "HOH")
-	    bond.water_protein_length = find_water_protein_length(ligand_residue, mol);
+	    bond.water_protein_length = find_water_protein_length(ligand_atom->residue, mol);
 	 
 	 bool ok_to_add = 1; // reset to 0 for certain waters
-	 if (ligand_residue) {
-	    std::string ligand_residue_name(ligand_residue->name);
+	 if (ligand_atom) {
+	    std::string ligand_residue_name(ligand_atom->GetResName());
 	    if (ligand_residue_name == "HOH") {
 	       if (hbonds[i].dist > water_dist_max)
 		  ok_to_add = 0;
@@ -1621,10 +1549,10 @@ coot::get_covalent_bonds(CMMDBManager *mol,
 		     if (std::find(contacting_pairs_vec.begin(), contacting_pairs_vec.end(), pair) ==
 			 contacting_pairs_vec.end()) {
 			contacting_pairs_vec.push_back(pair);
-			coot::residue_spec_t res_spec(at_2->GetResidue());
 			int bond_type = coot::fle_ligand_bond_t::BOND_COVALENT;
-			std::string ligand_atom_name(at_1->name);
-			coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, d, res_spec);
+			coot::fle_ligand_bond_t bond(coot::atom_spec_t(at_1), // ligand
+						     coot::atom_spec_t(at_2), // env residue
+						     bond_type, d);
 			v.push_back(bond);
 		     }
 		  }
@@ -1648,6 +1576,8 @@ coot::get_metal_bonds(CResidue *ligand_residue, const std::vector<CResidue *> &r
 
    double best_dist_sqrd = max_dist_metal_to_ligand_atom * max_dist_metal_to_ligand_atom;
    std::string ligand_atom_name; // goes with best_dist_sqrd
+   CAtom *ligand_atom = NULL;
+   CAtom *env_residue_atom = NULL;
    
    PPCAtom ligand_residue_atoms = 0;
    int n_ligand_residue_atoms;
@@ -1670,16 +1600,17 @@ coot::get_metal_bonds(CResidue *ligand_residue, const std::vector<CResidue *> &r
 		  double d2 = (pt_1-pt_2).clipper::Coord_orth::lengthsq();
 		  if (d2 < best_dist_sqrd) {
 		     best_dist_sqrd = d2;
-		     ligand_atom_name = ligand_residue_atoms[ilat]->name;
+		     ligand_atom = ligand_residue_atoms[ilat];
+		     env_residue_atom = residue_atoms[irat];
 		  }
 	       }
 	    }
 	 }
 	 if (best_dist_sqrd < max_dist_metal_to_ligand_atom * max_dist_metal_to_ligand_atom) {
-	    coot::fle_ligand_bond_t bond(ligand_atom_name,
-					 coot::fle_ligand_bond_t::METAL_CONTACT_BOND,
-					 sqrt(best_dist_sqrd),
-					 coot::residue_spec_t(residues[i]));
+	    coot::fle_ligand_bond_t bond(ligand_atom,
+					 env_residue_atom,
+ 					 coot::fle_ligand_bond_t::METAL_CONTACT_BOND,
+ 					 sqrt(best_dist_sqrd));
 	    v.push_back(bond);
 	 }
       }

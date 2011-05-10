@@ -59,10 +59,6 @@ namespace coot {
 						  const std::vector<CResidue *> &residues);
 
 
-   std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(CResidue *res_ref,
-						       const std::vector<CResidue *> &residues,
-						       const std::map<std::string, std::string> &name_map);
-   
    // uses the coot::h_bond class (which uses the dictionary).
    // 
    std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(CResidue *res_ref,

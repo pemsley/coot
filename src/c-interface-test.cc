@@ -146,18 +146,18 @@ int test_function(int i, int j) {
    if (1) {
       // coot::atom_spec_t spec_1("A", 41, "", " OE1", "");
       // coot::atom_spec_t spec_2("A", 39, "", " N  ", "");
-      coot::atom_spec_t spec_1("B", 48, "", " OG ", "");
-      coot::atom_spec_t spec_2("A", 48, "", " N  ", "");
-      graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_1, spec_2);
-      coot::atom_spec_t spec_3("B", 47, "", " O  ", "");
-      coot::atom_spec_t spec_4("B", 48, "", " N  ", "");
-      graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_3, spec_4);
-      coot::atom_spec_t spec_5("B", 48, "", " O  ", "");
-      coot::atom_spec_t spec_6("B", 49, "", " N  ", "");
-      graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_5, spec_6);
-      coot::atom_spec_t spec_7("B", 49, "", " O  ", "");
-      coot::atom_spec_t spec_8("B", 50, "", " N  ", "");
-      graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_7, spec_8);
+//       coot::atom_spec_t spec_1("B", 48, "", " OG ", "");
+//       coot::atom_spec_t spec_2("A", 48, "", " N  ", "");
+//       graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_1, spec_2);
+//       coot::atom_spec_t spec_3("B", 47, "", " O  ", "");
+//       coot::atom_spec_t spec_4("B", 48, "", " N  ", "");
+//       graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_3, spec_4);
+//       coot::atom_spec_t spec_5("B", 48, "", " O  ", "");
+//       coot::atom_spec_t spec_6("B", 49, "", " N  ", "");
+//       graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_5, spec_6);
+//       coot::atom_spec_t spec_7("B", 49, "", " O  ", "");
+//       coot::atom_spec_t spec_8("B", 50, "", " N  ", "");
+//       graphics_info_t::molecules[0].add_animated_ligand_interaction(spec_7, spec_8);
    } 
 
        
