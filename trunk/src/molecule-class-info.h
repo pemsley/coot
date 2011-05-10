@@ -81,6 +81,7 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 #include "density-contour-triangles.hh"
 
 #include "gl-bits.hh"
+#include "flev-annotations.hh" // animated ligand interactions
 
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
@@ -2952,8 +2953,8 @@ public:        //                      public
    // --------- Pretty (hopefully) animated ligand interactions -----------
    std::vector<coot::animated_ligand_interactions_t> animated_ligand_interactions_vec;
    // add more variables :-)
-   void add_animated_ligand_interaction(const coot::atom_spec_t &as1,
-					const coot::atom_spec_t &as2);
+   void add_animated_ligand_interaction(const  coot::fle_ligand_bond_t &lb);
+
    void draw_animated_ligand_interactions(const gl_context_info_t &gl,
 					  const long &start_time) const;
    bool draw_animated_ligand_interactions_flag; // tweaked by outside function

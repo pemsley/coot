@@ -5011,7 +5011,7 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
    if (0) {
       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
 	 std::cout << "  =============== bond to ligand " << ib << " "
-		   << bonds_to_ligand[ib].ligand_atom_name
+		   << bonds_to_ligand[ib].ligand_atom_spec.atom_name
 		   << " by residue " << bonds_to_ligand[ib].res_spec.chain << " "
 		   << bonds_to_ligand[ib].res_spec.resno << " " << std::endl;
       }
@@ -5069,7 +5069,7 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
 	 if (bonds_to_ligand[ib].res_spec == centres[i].spec) {
 	    double bond_l = bonds_to_ligand[ib].bond_length;
-	    std::string ligand_atom_name = bonds_to_ligand[ib].ligand_atom_name;
+	    std::string ligand_atom_name = bonds_to_ligand[ib].ligand_atom_spec.atom_name;
 	    lbg_info_t::bond_to_ligand_t btl(ligand_atom_name, bond_l);
 	    btl.bond_type = bonds_to_ligand[ib].bond_type;
 	    circle.add_bond_to_ligand(btl);

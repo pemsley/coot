@@ -1391,6 +1391,19 @@ int get_sbase_monomer(const char *comp_id) {
 }
 
 
+/*  ----------------------------------------------------------------------- */
+//                  animated ligand interactions
+/*  ----------------------------------------------------------------------- */
+void add_animated_ligand_interaction(int imol, const coot::fle_ligand_bond_t &lb) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].add_animated_ligand_interaction(lb);
+   } 
+} 
+
+
+
+
 /* Just pondering, for use with exporting ligands from the 2D sketcher
    to the main coot window. It should find the residue that this
    residue is sitting on top of that is in a molecule that has lot of

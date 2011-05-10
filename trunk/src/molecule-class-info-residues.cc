@@ -694,10 +694,10 @@ coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
 }
 
 // add more variables :-)
-void molecule_class_info_t::add_animated_ligand_interaction(const coot::atom_spec_t &as1,
-							    const coot::atom_spec_t &as2) {
+void molecule_class_info_t::add_animated_ligand_interaction(const coot::fle_ligand_bond_t &lb) {
 
-   coot::animated_ligand_interactions_t ali(as1, as2);
+   // FIXME, this vector can be reworked.
+   coot::animated_ligand_interactions_t ali(lb.ligand_atom_spec, lb.interacting_residue_atom_spec);
    animated_ligand_interactions_vec.push_back(ali);
 
 }

@@ -2110,3 +2110,113 @@ graphics_info_t::update_residue_by_chi_change_old(CResidue *residue,
 	 }
 	 
 
+
+
+   std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(CResidue *res_ref,
+						       const std::vector<CResidue *> &residues,
+						       const std::map<std::string, std::string> &name_map);
+   
+
+// This function is currently not used.
+// 
+// if there is a name map, use it, otherwise just bond to the found
+// atom.  Using the name map allows bond to hydrogens hanging off of
+// ligand atoms (e.g. the H on an O or an H on an N). The Hs are not
+// in res_ref (often/typically), but are in the flat residue.
+// 
+std::vector<coot::fle_ligand_bond_t>
+coot::get_fle_ligand_bonds(CResidue *ligand_res,
+			   const std::vector<CResidue *> &residues,
+			   const std::map<std::string, std::string> &name_map) { 
+   std::vector<coot::fle_ligand_bond_t> v;
+
+   // do it by hand, rather than create a molecule and use SeekContacts();
+   double bond_length = 3.3;
+
+   double bl_2 = bond_length * bond_length;
+   PPCAtom ligand_residue_atoms = 0;
+   int n_ligand_residue_atoms;
+   ligand_res->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
+   for (unsigned int iat=0; iat<n_ligand_residue_atoms; iat++) {
+      std::string ele_ligand = ligand_residue_atoms[iat]->element;
+      if (ele_ligand != " C") { 
+	 clipper::Coord_orth ref_pt(ligand_residue_atoms[iat]->x,
+				    ligand_residue_atoms[iat]->y,
+				    ligand_residue_atoms[iat]->z);
+	 for (unsigned int ires=0; ires<residues.size(); ires++) {
+	    PPCAtom residue_atoms = 0;
+	    int n_residue_atoms;
+	    residues[ires]->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (unsigned int jat=0; jat<n_residue_atoms; jat++) {
+	       std::string ele = residue_atoms[jat]->element;
+	       if (ele != " C") { 
+		  clipper::Coord_orth pt(residue_atoms[jat]->x,
+					 residue_atoms[jat]->y,
+					 residue_atoms[jat]->z);
+		  double diff_2 = (ref_pt - pt).lengthsq();
+		  if (diff_2 < bl_2) {
+		     std::string ligand_atom_name = ligand_residue_atoms[iat]->name;
+		     double bl = sqrt(diff_2);
+		     coot::residue_spec_t res_spec(residues[ires]);
+
+		     // donor/acceptor from the residue to the ligand
+		     // 
+		     int bond_type = fle_ligand_bond_t::H_BOND_DONOR_SIDECHAIN;
+
+		     // it's not a donor from a mainchain oxygen
+		     //
+		     std::string residue_atom_name(residue_atoms[jat]->name);
+		     if (ele == " O")
+			bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN;
+		     if (ele == " N")
+			bond_type = fle_ligand_bond_t::H_BOND_DONOR_SIDECHAIN;
+		     if (residue_atom_name == " O  ")
+			bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_MAINCHAIN;
+		     if (residue_atom_name == " N  ")
+			bond_type = fle_ligand_bond_t::H_BOND_DONOR_MAINCHAIN;
+		     if (residue_atom_name == " H  ")
+			bond_type = fle_ligand_bond_t::H_BOND_DONOR_MAINCHAIN;
+
+		     // We don't want to map between hydroxyl oxygens -> it attached H
+		     // when the residue to which it has a bond is a metal!  (and in
+		     // that case, we should probably remove the Hs from the ligand
+		     // anyway - but not today).
+		     //
+		     if (is_a_metal(residues[ires])) {
+			bond_type = fle_ligand_bond_t::METAL_CONTACT_BOND;
+		     } else {
+			// note, can't use [] because name_map is const
+			std::map<std::string, std::string>::const_iterator it =
+			   name_map.find(ligand_atom_name);
+			if (it != name_map.end()) {
+			   // If the map happens, that's presumably because we found a H
+			   // attached to an N (or an H attached to an O), either way, we
+			   // are sitting now on an H.
+			   ligand_atom_name = it->second;
+
+			   // is this OK?
+			   // 
+			   ele = " H";
+			   
+			   bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN;
+			   if (coot::is_main_chain_p(residue_atoms[jat]))
+			      bond_type = fle_ligand_bond_t::H_BOND_ACCEPTOR_MAINCHAIN;
+			}
+		     }
+
+		     // that was not enough.  We still need to do some
+		     // more rejections.  Here's a start:
+		     if (! ((ele_ligand == " O") && (ele == " O"))) {
+			
+			coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, bl, res_spec);
+			v.push_back(bond);
+			break;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}

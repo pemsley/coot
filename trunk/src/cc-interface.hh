@@ -28,7 +28,10 @@
 #include "coot-coord-utils.hh"
 
 #include "dipole.hh"
-#include "sequence-assignment.hh" // for residue_range_t 
+#include "sequence-assignment.hh" // for residue_range_t
+
+#include "flev-annotations.hh" // animated ligand interactions
+
 
 #ifdef USE_PYTHON
 #include "Python.h"
@@ -704,6 +707,12 @@ std::vector<int> execute_ligand_search_internal();
 coot::graph_match_info_t
 overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,
 			 int resno_ref, bool apply_rtop_flag);
+
+/*  ----------------------------------------------------------------------- */
+//                  animated ligand interactions
+/*  ----------------------------------------------------------------------- */
+void add_animated_ligand_interaction(int imol, const coot::fle_ligand_bond_t &lb);
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Cootaneer                                               */

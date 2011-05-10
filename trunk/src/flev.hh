@@ -12,6 +12,9 @@ namespace coot {
    std::vector<int> make_add_reps_for_near_residues(std::vector<CResidue *> filtered_residues,
 						    int imol);
 
+   void add_animated_ligand_interactions(int imol,
+					 const std::vector<fle_ligand_bond_t> &ligand_bonds); 
+
 }
 
 

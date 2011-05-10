@@ -26,3 +26,10 @@ extern "C" {
 void orient_view(int imol,
 		 const coot::residue_spec_t &central_residue_spec,
 		 const coot::residue_spec_t &neighbour_residue_spec);
+
+void add_animated_ligand_interation(int imol,
+				    const coot::atom_spec_t &spec_1,
+				    const coot::atom_spec_t &spec_2
+				    // type etc.
+				    );
+

@@ -3,6 +3,7 @@
 #define FLEV_ANNOTATIONS_HH
 
 #include "protein-geometry.hh"
+#include "lbg-shared.hh" // bash_distance_t
 
 namespace coot {
 
@@ -215,19 +216,23 @@ namespace coot {
 	     METAL_CONTACT_BOND,
 	     BOND_COVALENT,
 	     BOND_OTHER };  // must sync this to lbg.hh
-      std::string ligand_atom_name;
+      atom_spec_t ligand_atom_spec;
       int bond_type; // acceptor/donor
+
       residue_spec_t res_spec;
+      atom_spec_t interacting_residue_atom_spec; // contains res_spec obviously.
+      
       double bond_length;  // from residue atom to ligand atom
       double water_protein_length; // if residue is a water, this is the closest
                                    // distance to protein (100 if very far).
-      fle_ligand_bond_t(const std::string &name_in,
+      fle_ligand_bond_t(const atom_spec_t &ligand_atom_spec_in,
+			const atom_spec_t &interacting_residue_atom_spec_in,
 			int bond_type_in,
-			double bl_in,
-			residue_spec_t spec_in) {
-	 ligand_atom_name = name_in;
+			double bl_in) {
+	 ligand_atom_spec = ligand_atom_spec_in;
+	 interacting_residue_atom_spec = interacting_residue_atom_spec_in;
+	 res_spec = residue_spec_t(interacting_residue_atom_spec_in);
 	 bond_type = bond_type_in;
-	 res_spec = spec_in;
 	 bond_length = bl_in;
       }
       static int get_bond_type(CAtom *at_donor, CAtom *at_acceptor, bool ligand_atom_is_donor_flag) {
