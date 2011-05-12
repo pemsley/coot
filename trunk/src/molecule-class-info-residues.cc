@@ -599,11 +599,10 @@ coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
 					   const gl_context_info_t &gl_info,
 					   const long &start_time) const {
 
-   CAtom *at_1 = coot::util::get_atom(atom_spec_1, mol);
-   CAtom *at_2 = coot::util::get_atom(atom_spec_2, mol);
+   CAtom *at_1 = coot::util::get_atom(ligand_atom_spec, mol);
+   CAtom *at_2 = coot::util::get_atom(interacting_residue_atom_spec, mol);
 
    if (at_1 && at_2) {
-      glLineWidth(4.0);
       
       clipper::Coord_orth pt_1 = coot::util::get_coords(at_1);
       clipper::Coord_orth pt_2 = coot::util::get_coords(at_2);
@@ -618,7 +617,7 @@ coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
 
 	 long now_time = glutGet(GLUT_ELAPSED_TIME);
 
-	 float opacity = (sin(double(now_time - start_time) * 0.004)+1.4)*0.35;
+	 float opacity = (sin(double(now_time - start_time) * 0.002)+1.4)*0.3;
 	 glColor4f(0.3, 0.3, 0.8, opacity);
 
 	 GLfloat  ambientLight[] = { 0.2f, 0.2f, 0.2f, 0.5f };
@@ -633,62 +632,84 @@ coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
 	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
 	 glDisable(GL_COLOR_MATERIAL);
 
-	 GLfloat  mat_specular[]  = {0.28,  0.28,  0.98,  opacity};
-	 GLfloat  mat_ambient[]   = {0.260, 0.260, 0.260, opacity};
-	 GLfloat  mat_diffuse[]   = {0.200, 0.200, 0.900, opacity};
+	 GLfloat  mat_specular[]  = {0.18, 0.18, 0.80,  opacity};
+	 GLfloat  mat_ambient[]   = {0.20, 0.20, 0.20, opacity};
+	 GLfloat  mat_diffuse[]   = {0.20, 0.20, 0.90, opacity};
 	 GLfloat  mat_shininess[] = {100.0};
+
+	 if (bond_type == coot::fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN ||
+	     bond_type == coot::fle_ligand_bond_t::H_BOND_DONOR_SIDECHAIN) {
+
+	    mat_specular[1] = 0.80; // g
+	    mat_specular[2] = 0.10; // b
+	    mat_diffuse[1]  = 0.80; // g 
+	    mat_diffuse[2]  = 0.10; // b
+	 } 
 
 	 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
 	 glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 	 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
 	 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
 
-	 glPushMatrix();
-	 double base = 0.1;
-	 double top =  0.1;
-	 clipper::Coord_orth bond_vec = pt_2-pt_1;
-	 double height = sqrt(bond_vec.lengthsq());
-	 int slices = 12;
-	 int stacks = 2;
 
-	 glTranslatef(pt_2.x(), pt_2.y(), pt_2.z());
-
-
-	 // 	    This code from ccp4mg's cprimitive.cc (but modified)
-	 //  	    ----- 
-	 double ax;
-	 double rx = 0; 
-	 double ry = 0;
-	 double length = height;
-	 double vz = bond_vec.z();
+	 double top =  0.07;
+	 double base = 0.07;
+	 int slices  = 12;
+	 int stacks  = 2;
+	 int n_parts = 25;
 	 
-	 bool rot_x = false;
-	 if(fabs(vz)>1e-7){
-	    ax = 180.0/M_PI*acos(vz/length);
-	    if(vz<0.0) ax = -ax;
-	    rx = -bond_vec.y()*vz;
-	    ry = bond_vec.x()*vz;
-	 }else{
-	    double vx = bond_vec.x();
-	    double vy = bond_vec.y();
-	    ax = 180.0/M_PI*acos(vx/length);
-	    if(vy<0) ax = -ax;
-	    rot_x = true;
-	 }
+	 clipper::Coord_orth bond_vec = pt_1-pt_2;
+	 clipper::Coord_orth bond_frag(bond_vec * (1.0/double(n_parts)));
 	 
-	 if (rot_x) { 
-	    glRotated(90.0, 0.0, 1.0, 0.0);
-	    glRotated(ax,  -1.0, 0.0, 0.0);
-	 } else {
-	    glRotated(ax, rx, ry, 0.0);
-	 }
-	 // 	    --------
+	 for (unsigned int ipart=0; ipart<n_parts; ipart++) {
 
-	 GLUquadric* quad = gluNewQuadric();
-	 glScalef(1.0, 1.0, -1.0); // account for mg maths :-)
-	 gluCylinder(quad, base, top, height, slices, stacks);
-	 gluDeleteQuadric(quad);
-	 glPopMatrix();
+	    if (coot::util::even_p(ipart)) { 
+	       glPushMatrix();
+	       
+	       double height = sqrt(bond_frag.lengthsq());
+
+	       clipper::Coord_orth base_point = pt_2 + clipper::Coord_orth(bond_frag * double(ipart));
+
+	       glTranslatef(base_point.x(), base_point.y(), base_point.z());
+
+
+	       // 	    This code from ccp4mg's cprimitive.cc (but modified)
+	       //  	    ----- 
+	       double ax;
+	       double rx = 0; 
+	       double ry = 0;
+	       double length = height;
+	       double vz = bond_frag.z();
+	 
+	       bool rot_x = false;
+	       if(fabs(vz)>1e-7){
+		  ax = 180.0/M_PI*acos(vz/length);
+		  if(vz<0.0) ax = -ax;
+		  rx = -bond_frag.y()*vz;
+		  ry = bond_frag.x()*vz;
+	       }else{
+		  double vx = bond_frag.x();
+		  double vy = bond_frag.y();
+		  ax = 180.0/M_PI*acos(vx/length);
+		  if(vy<0) ax = -ax;
+		  rot_x = true;
+	       }
+	 
+	       if (rot_x) { 
+		  glRotated(90.0, 0.0, 1.0, 0.0);
+		  glRotated(ax,  -1.0, 0.0, 0.0);
+	       } else {
+		  glRotated(ax, rx, ry, 0.0);
+	       }
+	       // 	    --------
+
+	       GLUquadric* quad = gluNewQuadric();
+	       // glScalef(1.0, 1.0, -1.0); // account for mg maths :-)
+	       gluCylinder(quad, base, top, height, slices, stacks);
+	       gluDeleteQuadric(quad);
+	       glPopMatrix();
+	    }
+	 }
       }
    } 
 }
@@ -696,10 +717,7 @@ coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
 // add more variables :-)
 void molecule_class_info_t::add_animated_ligand_interaction(const coot::fle_ligand_bond_t &lb) {
 
-   // FIXME, this vector can be reworked.
-   coot::animated_ligand_interactions_t ali(lb.ligand_atom_spec, lb.interacting_residue_atom_spec);
-   animated_ligand_interactions_vec.push_back(ali);
-
+   animated_ligand_interactions_vec.push_back(lb);
 }
 
 void
@@ -707,8 +725,12 @@ molecule_class_info_t::draw_animated_ligand_interactions(const gl_context_info_t
 							 const long &start_time) const {
 
    if (draw_animated_ligand_interactions_flag)
-      for (unsigned int i=0; i<animated_ligand_interactions_vec.size(); i++)
+      for (unsigned int i=0; i<animated_ligand_interactions_vec.size(); i++) {
+	 if (0) 
+	    std::cout << "---- interaction " << i << " of "
+		      << animated_ligand_interactions_vec.size() << std::endl;
 	 animated_ligand_interactions_vec[i].draw(atom_sel.mol, gl_info, start_time);
+      } 
 
 } 
 							    

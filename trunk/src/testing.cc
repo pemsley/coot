@@ -62,6 +62,8 @@
 
 #include "c-interface-ligands.hh"
 
+#include "coot-h-bonds.hh"
+
 bool close_float_p(float f1, float f2) {
 
    return (fabs(f1-f2) < 0.0001);
@@ -276,8 +278,9 @@ int test_internal_single() {
       // status = test_map_segmentation();
       // status = test_copy_cell_symm_orig_scale_headers();
       // status = test_residue_atom_renaming();
+      // status = test_residue_atom_renaming();
 
-      status = test_residue_atom_renaming();
+      status = test_mcd_and_thornton_h_bonds();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2502,5 +2505,31 @@ int test_residue_atom_renaming() {
    }
    return 0;
 }
+
+int test_mcd_and_thornton_h_bonds() {
+
+   int r = 0;
+
+   testing_data t;
+   t.geom.init_refmac_mon_lib("SGP-modified.cif", 0);
+   atom_selection_container_t asc = get_atom_selection("test-hydrogenated-region.pdb", 0);
+   if (asc.read_success) {
+
+      int SelHnd_all = asc.mol->NewSelection();
+      int SelHnd_lig = asc.mol->NewSelection();
+      asc.mol->SelectAtoms(SelHnd_all, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+      asc.mol->SelectAtoms(SelHnd_lig, 0, "A", 97, "", 97, "", "*", "*", "*", "*");
+
+      coot::h_bonds hb;
+      std::vector<coot::h_bond> hbonds =
+	 hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, asc.mol, t.geom);
+
+      std::cout << "Returned H-bonds:" << std::endl;
+      for (unsigned int i=0; i<hbonds.size(); i++) { 
+	 std::cout << "   " << i << "  " << hbonds[i] << std::endl;
+      }
+   } 
+   return r;
+} 
 
 #endif // BUILT_IN_TESTING

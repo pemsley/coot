@@ -417,11 +417,11 @@ coot::dots_representation_info_t::solvent_exposure_differences(CResidue *res_ref
 	       mol_holo.second->SelectAtoms(SelHnd_holo, 0, near_residues[ir]->GetChainID(),
 					    near_residues[ir]->GetSeqNum(), near_residues[ir]->GetInsCode(),
 					    near_residues[ir]->GetSeqNum(), near_residues[ir]->GetInsCode(),
-					    "*", "*", "*", "*");
+					    "*", "*", "!H", "*");
 	       mol_apo.second->SelectAtoms(SelHnd_apo, 0, near_residues[ir]->GetChainID(),
 					   near_residues[ir]->GetSeqNum(), near_residues[ir]->GetInsCode(),
 					   near_residues[ir]->GetSeqNum(), near_residues[ir]->GetInsCode(),
-					   "*", "*", "*", "*");
+					   "*", "*", "!H", "*");
 	       std::vector<std::pair<CAtom *, float> > se_holo = solvent_exposure(SelHnd_holo, mol_holo.second);
 	       std::vector<std::pair<CAtom *, float> > se_apo  = solvent_exposure(SelHnd_apo,   mol_apo.second);
 

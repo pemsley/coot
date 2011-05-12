@@ -1352,11 +1352,12 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
       // -----------------------
       
       coot::h_bonds hb;
-      std::vector<coot::h_bond> hbonds = hb.get(SelHnd_lig, SelHnd_all, m.second, geom);
+      // std::vector<coot::h_bond> hbonds = hb.get(SelHnd_lig, SelHnd_all, m.second, geom);
+      std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, m.second, geom);
 
       if (debug)
 	 std::cout << "DEBUG:: get_fle_ligand_bonds from h_bonds class found "
-		   << hbonds.size() << " bonds." << std::endl;
+		   << hbonds.size() << " H bonds." << std::endl;
 
       for (unsigned int i=0; i<hbonds.size(); i++) { 
 	 std::cout << coot::atom_spec_t(hbonds[i].donor) << "..."
@@ -1366,15 +1367,29 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 	 int bond_type = fle_ligand_bond_t::get_bond_type(hbonds[i].donor,
 							  hbonds[i].acceptor,
 							  hbonds[i].ligand_atom_is_donor);
-	 // override these 3 if ligand atom is donor
+	 // override these 2 if ligand atom is donor
 	 // 
-	 CAtom *ligand_atom = hbonds[i].acceptor;
+	 CAtom      *ligand_atom = hbonds[i].acceptor;
 	 CAtom *env_residue_atom = hbonds[i].donor;
+	 double explict_H_bond_fudge_factor = 0.0; // for H-bonds with no Hs.
 	 // 
 	 if (hbonds[i].ligand_atom_is_donor) {
 	    ligand_atom = hbonds[i].donor;
 	    env_residue_atom = hbonds[i].acceptor;
 	 }
+
+	 // OK, 20110511 new style, where is the hydrogen?
+	 // 
+	 if (hbonds[i].has_hydrogen()) {
+	    if (hbonds[i].ligand_atom_is_H()) {
+	       ligand_atom      = hbonds[i].hb_hydrogen;
+	       env_residue_atom = hbonds[i].acceptor;
+	    } else {
+	       ligand_atom      = hbonds[i].acceptor;
+	       env_residue_atom = hbonds[i].hb_hydrogen;
+	    }
+	    explict_H_bond_fudge_factor = 1.2;
+	 } 
 
 	 // This map no longer works because we don't pass ligand atom
 	 // name any more (we pass a spec).
@@ -1404,7 +1419,7 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 	 coot::fle_ligand_bond_t bond(coot::atom_spec_t(ligand_atom),
 				      coot::atom_spec_t(env_residue_atom), 
 				      bond_type,
-				      hbonds[i].dist);
+				      hbonds[i].dist+explict_H_bond_fudge_factor);
 	 
 	 std::string residue_name = ligand_atom->GetResName();
 	 if (residue_name == "HOH")

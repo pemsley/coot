@@ -924,6 +924,16 @@ coot::util::is_standard_residue_name(const std::string &residue_name) {
       return 1;
    if (residue_name == "U")
       return 1;
+   if (residue_name == "DG")
+      return 1;
+   if (residue_name == "DA")
+      return 1;
+   if (residue_name == "DT")
+      return 1;
+   if (residue_name == "DC")
+      return 1;
+   if (residue_name == "DU")
+      return 1;
    if (residue_name == "GR")
       return 1;
    if (residue_name == "AR")

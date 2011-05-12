@@ -113,3 +113,70 @@ molecule_class_info_t::make_fragment_chain(const std::vector<coot::residue_spec_
    }
    return chain;
 } 
+
+void
+molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out) {
+
+   std::cout << "adding hydrogens from PDB file " << reduce_pdb_out << std::endl;
+
+   make_backup();
+   bool added = 0;
+   atom_selection_container_t asc = get_atom_selection(reduce_pdb_out, 0);
+   int imod = 1;
+   CModel *new_model_p = asc.mol->GetModel(imod);
+   CChain *new_chain_p;
+   int n_new_chains = new_model_p->GetNumberOfChains();
+   for (int i_new_chain=0; i_new_chain<n_new_chains; i_new_chain++) {
+      new_chain_p = new_model_p->GetChain(i_new_chain);
+      int n_new_res = new_chain_p->GetNumberOfResidues();
+      CResidue *new_residue_p;
+      CAtom *new_at;
+      for (int i_new_res=0; i_new_res<n_new_res; i_new_res++) { 
+	 new_residue_p = new_chain_p->GetResidue(i_new_res);
+	 int n_new_atoms = new_residue_p->GetNumberOfAtoms();
+	 for (int i_new_at=0; i_new_at<n_new_atoms; i_new_at++) {
+	    new_at = new_residue_p->GetAtom(i_new_at);
+	    std::string ele = new_at->element;
+	    if (ele == " H") {
+
+	       const char *chain_id  = new_at->GetChainID();
+	       const char *atom_name = new_at->GetAtomName();
+	       int resno             = new_at->GetSeqNum();
+	       const char *ins_code  = new_at->GetInsCode();
+
+	       
+	       int selHnd = atom_sel.mol->NewSelection();
+	       int nSelResidues;
+	       PPCResidue SelResidues;
+	       atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 1,
+				    chain_id, 
+				    resno, ins_code,
+				    resno, ins_code,
+				    "*",  // residue name
+				    "*",  // Residue must contain this atom name?
+				    "*",  // Residue must contain this Element?
+				    "*",  // altLocs
+				    SKEY_NEW // selection key
+				    );
+	       atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+	       
+	       if (nSelResidues != 1) {
+		  std::cout << "Ooops in add_hydrogens_from_file() " << std::endl;
+	       } else {
+
+		  // normal case
+		  CAtom *at_copy = new CAtom;
+		  at_copy->Copy(new_at);
+		  SelResidues[0]->AddAtom(at_copy);
+		  added = 1;
+	       }
+	       atom_sel.mol->DeleteSelection(selHnd);
+	    } 
+	 }
+      }
+   }
+   if (added) { 
+      atom_sel.mol->FinishStructEdit();
+      update_molecule_after_additions();
+   }
+} 
