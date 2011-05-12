@@ -111,6 +111,40 @@
 
 
 
+(define (reduce-on-pdb-file imol pdb-in pdb-out)
+
+  (format #t "running reduce on ~s~%" pdb-in)
+  (if (not (command-in-path? *reduce-command*))
+      (format #t "command for reduce (~s) is not in path~%" *reduce-command*)
+      (begin
+	(let ((reduce-het-dict-file-name "coot-molprobity/reduce-het-dict.txt"))
+	  (write-reduce-het-dict imol reduce-het-dict-file-name)
+
+	  ;; As Bernie, let's try to set REDUCE_HET_DICT if
+	  ;; we can, assuming that the het-dict is in the
+	  ;; same directory as is reduce-command.  If it
+	  ;; isn't then do nothing.
+	  ;; 
+	  (let ((h (getenv "REDUCE_HET_DICT")))
+	    (if (not (string? h))
+		(let* ((d (file-name-directory *reduce-command*)))
+		  (if (string? d)
+		      (let ((f (append-dir-file d "reduce_wwPDB_het_dict.txt")))
+			(if (file-exists? f)
+			    (let ((env-string (string-append "REDUCE_HET_DICT=" f)))
+			      (putenv env-string))))))))
+
+	  (let ((status (goosh-command *reduce-command* 
+				       (list "-build"  pdb-in
+					     "-DB" reduce-het-dict-file-name)
+				       '() pdb-out #f)))
+	    (if (not (number? status))
+		#f
+		(= status 0)))))))
+
+
+
+
 (define reduce-molecule-updates-current #f)
 
 ;; run molprobity (well reduce and probe) to make generic objects (and

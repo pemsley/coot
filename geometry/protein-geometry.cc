@@ -185,15 +185,15 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
    // Thanks Ezra Peisach for this this bug report
 
    if (istat != 0) {
-      std::cout << "WARNING: in init_refmac_mon_lib " << ciffilename
-		<< " not found."
+      std::cout << "WARNING: in init_refmac_mon_lib file \"" << ciffilename
+		<< "\" not found."
 		<< "\n";
       return 0; // failure
    }
 
    if (! S_ISREG(buf.st_mode)) {
-      std::cout << "WARNING: in init_refmac_mon_lib " << ciffilename
-		<< " not read.  It is not a regular file.\n";
+      std::cout << "WARNING: in init_refmac_mon_lib \"" << ciffilename
+		<< "\" not read.  It is not a regular file.\n";
    } else { 
 
       int ierr = ciffile.ReadMMCIFFile(ciffilename.c_str());
@@ -4548,6 +4548,8 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
 
    // force use of try_dynamic_add (if needed).
    bool r = have_dictionary_for_residue_type(three_letter_code, 42);
+
+   bool make_hetatoms = ! coot::util::is_standard_residue_name(three_letter_code);
    
    CMMDBManager *mol = 0;
    std::vector<CAtom *> atoms;
@@ -4578,6 +4580,8 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
 	       atom->SetCoordinates(p.x(), p.y(), p.z(), occ, b);
 	       atom->SetAtomName(atom_info[iat].atom_id_4c.c_str());
 	       atom->SetElementName(ele.c_str());
+	       if (make_hetatoms)
+		  atom->Het = 1;
 	       atoms.push_back(atom);
 	    }
 	 }

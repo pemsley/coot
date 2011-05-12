@@ -845,7 +845,62 @@ PyObject *residues_near_position_py(int imol, PyObject *pt_in_py, float radius) 
    }
    return r;
 } 
-#endif 
+#endif
+
+//! find the active residue, find the near residues (within radius) 
+//! create a new molecule, run reduce on that, import hydrogens from
+//! the result and apply them to the molecule of the active residue.
+void hydrogenate_region(float radius) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t central_residue(pp.second.second);
+      std::vector<coot::residue_spec_t> v =
+	 graphics_info_t::molecules[imol].residues_near_residue(pp.second.second, radius);
+      v.push_back(central_residue);
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      CMMDBManager *new_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
+      if (new_mol) {
+
+	 if (graphics_info_t::prefer_python) {
+#ifdef USE_PYTHON
+	    std::cout << "safe python command " << std::endl;
+	    safe_python_command("bla bla");
+#endif // PYTHON
+	 } else {
+#ifdef USE_GUILE
+
+	    // write a PDB file and run reduce, read it in
+	    //
+	    coot::util::create_directory("coot-molprobity"); // exists already maybe? Handled.
+	    std::string pdb_in =  "coot-molprobity/hydrogenate-region-in.pdb";
+	    std::string pdb_out = "coot-molprobity/hydrogenate-region-out.pdb";
+	    new_mol->WritePDBASCII(pdb_in.c_str());
+	    std::string scheme_command = "(reduce-on-pdb-file ";
+	    scheme_command += coot::util::int_to_string(imol);
+	    scheme_command += " ";
+	    scheme_command += single_quote(pdb_in);
+	    scheme_command += " ";
+	    scheme_command += single_quote(pdb_out);
+	    scheme_command += ")";
+	    
+	    SCM r = safe_scheme_command(scheme_command);
+	    if (scm_is_true(r)) {
+	       graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
+	    }
+	    graphics_draw();
+	 } 
+	    
+#endif 	 
+	 
+	 
+	 delete new_mol;
+	 
+      } 
+   } 
+}
+
 
 
 #ifdef USE_GUILE

@@ -1545,6 +1545,7 @@ namespace coot {
       std::vector<std::string> monomer_types() const;
 
       // calls try_dynamic_add if needed.
+      // make HETATMs if non-standard residue name.
       CMMDBManager *mol_from_dictionary(const std::string &three_letter_code,
 					bool idealised_flag);
 

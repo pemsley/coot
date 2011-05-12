@@ -25,6 +25,10 @@
 std::ostream &
 coot::operator<<(std::ostream &s, h_bond hb) {
 
+   if (hb.hb_hydrogen) 
+      s << "H: "<< coot::atom_spec_t(hb.hb_hydrogen) << " ";
+   else
+      s << "H: NULL ";
    s << "donor: " << coot::atom_spec_t(hb.donor)
      << " acceptor: " << coot::atom_spec_t(hb.acceptor);
    if (hb.donor_neigh)
@@ -98,9 +102,6 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 	    //
 	    int hb_type_1 = coot::energy_lib_atom::HB_UNASSIGNED;
 	    int hb_type_2 = coot::energy_lib_atom::HB_UNASSIGNED;
-
-	    // hb_type_1 = 999; // debugging
-	    // hb_type_2 = 999;
 
 	    at_1->GetUDData(hb_type_udd_handle, hb_type_1);
 	    at_2->GetUDData(hb_type_udd_handle, hb_type_2);
@@ -225,8 +226,6 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 				     << "\n";
 		     }
 		  
-		     std::cout << "    angles_good: " << neighbour_angles_are_good << std::endl;
-		     
 		     if (neighbour_angles_are_good) {
 
 			if (nm_1.size())
@@ -246,7 +245,7 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 			//
 			// Otherwise, do add it.
 			// 
-			if (1) 
+			if (0) 
 			   std::cout << "Adding an H-bond " << coot::atom_spec_t(hb.donor)
 				     << " to " << coot::atom_spec_t(hb.acceptor) << std::endl;
 			v.push_back(hb);
@@ -271,6 +270,297 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
    
    return v;
 }
+
+// Use hydrogen->acceptor distances, not donor and acceptor distances,
+// i.e. model (both selections) has full hydrogens.
+//
+// ligand is the selHnd_1 and selHnd_2 is everything (including ligand (usually, AFAICS).
+//
+//
+//          H
+//         /
+//        /              A   
+//   DD--D                \                        .
+//        \                \                       .
+//         \               AA
+//         DD             
+//
+// D-H-A  > 90 degrees
+// H-A-AA > 90 degrees
+// D-A-AA > 90 degrees
+// H-A < 2.5A
+// D-A < 3.9A
+//
+// Do not consider internal hydrogen bonds (check that the residues
+// are different in H-bond analysis).
+// 
+std::vector<coot::h_bond>
+coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManager *mol,
+					 const protein_geometry &geom) {
+   std::vector<coot::h_bond> v;
+   // (and mark HB hydrogens too)
+   int hb_type_udd_handle = mark_donors_and_acceptors(selHnd_1, selHnd_2, mol, geom); // using UDD data
+
+   // These distance are from the acceptor to the H - not the donor
+   realtype min_dist = 0.1; // H-bonds are longer than this
+   realtype max_dist = 3.9; // H-bonds are shorter than this
+   
+   PPCAtom sel_1_atoms = 0;
+   PPCAtom sel_2_atoms = 0;
+   int n_sel_1_atoms;
+   int n_sel_2_atoms;
+   mat44 my_matt;
+   PSContact pscontact = NULL;
+   int n_contacts;
+   long i_contact_group = 1;
+   for (int i=0; i<4; i++) 
+      for (int j=0; j<4; j++) 
+	 my_matt[i][j] = 0.0;      
+   for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+   
+   mol->GetSelIndex   (selHnd_1, sel_1_atoms, n_sel_1_atoms);
+   mol->GetSelIndex   (selHnd_2, sel_2_atoms, n_sel_2_atoms);
+
+   mol->SeekContacts(sel_1_atoms, n_sel_1_atoms,
+		     sel_2_atoms, n_sel_2_atoms,
+		     min_dist, max_dist,
+		     0, // seqDist 0 -> also in same res.
+		     pscontact, n_contacts,
+		     0, &my_matt, i_contact_group);
+
+   if (n_contacts > 0) {
+      if (pscontact) {
+
+	 // What is the nearest neighbour of the atoms in mol?
+	 // 
+	 std::map<CAtom *, std::vector<std::pair<CAtom *, float> > > neighbour_map =
+	    make_neighbour_map(selHnd_1, selHnd_2, mol);
+	 
+	 for (int i_contact=0; i_contact<n_contacts; i_contact++) {
+	    CAtom *at_1 = sel_1_atoms[pscontact[i_contact].id1];
+	    CAtom *at_2 = sel_2_atoms[pscontact[i_contact].id2];
+
+	    if (at_1->residue != at_2->residue) { 
+
+	       // are they HB_HYDROGEN and HB_ACCEPTOR?
+	       //
+	       int hb_type_1 = coot::energy_lib_atom::HB_UNASSIGNED;
+	       int hb_type_2 = coot::energy_lib_atom::HB_UNASSIGNED;
+
+	       at_1->GetUDData(hb_type_udd_handle, hb_type_1);
+	       at_2->GetUDData(hb_type_udd_handle, hb_type_2);
+
+	       // hydrogen on ligand
+	       // 
+	       if (hb_type_1 == coot::energy_lib_atom::HB_HYDROGEN) { 
+		  if (hb_type_2 == coot::energy_lib_atom::HB_ACCEPTOR ||
+		      hb_type_2 == coot::energy_lib_atom::HB_BOTH) {
+
+		     std::vector<std::pair<CAtom *, float> > nb_1 = neighbour_map[at_1];
+		     std::vector<std::pair<CAtom *, float> > nb_2 = neighbour_map[at_2];
+		     std::pair<bool, coot::h_bond> b_hbond =
+			make_h_bond_from_ligand_hydrogen(at_1, at_2, nb_1, nb_2);
+		     if (b_hbond.first)
+			v.push_back(b_hbond.second);
+		  }
+	       }
+
+	       // hydrogen on environment (protein) residue
+	       // 
+	       if (hb_type_1 == coot::energy_lib_atom::HB_ACCEPTOR ||
+		   hb_type_1 == coot::energy_lib_atom::HB_BOTH) {
+		  if (hb_type_2 == coot::energy_lib_atom::HB_HYDROGEN) {
+
+		     std::vector<std::pair<CAtom *, float> > nb_1 = neighbour_map[at_1];
+		     std::vector<std::pair<CAtom *, float> > nb_2 = neighbour_map[at_2];
+		     std::pair<bool, coot::h_bond> b_hbond =
+			make_h_bond_from_environment_residue_hydrogen(at_1, at_2, nb_1, nb_2);
+		     if (b_hbond.first)
+			v.push_back(b_hbond.second);
+		  } 
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
+// return an h_bond if the angles are good - otherwise first is 0.
+// 
+std::pair<bool, coot::h_bond> 
+coot::h_bonds::make_h_bond_from_ligand_hydrogen(CAtom *at_1, // H on ligand
+						CAtom *at_2, // acceptor on residue
+						const std::vector<std::pair<CAtom *, float> > &nb_1,
+						const std::vector<std::pair<CAtom *, float> > &nb_2) const {
+
+   coot::h_bond bond(at_1, at_2, 1); // ligand atom is Hydrogen
+   bond.dist = coot::distance(at_1, at_2);
+   bool neighbour_distances_and_angles_are_good = 1;
+   bool good_donor_acceptor_dist = 0;
+
+
+   // Angle D-H-A
+   //
+   for (unsigned int iD=0; iD<nb_1.size(); iD++) { 
+      // elements of nb_1 are "D" in the the above diagram
+      double angle = coot::angle(nb_1[iD].first, at_1, at_2);
+      double dist  = coot::distance(nb_1[iD].first, at_2);
+      if (dist < 3.9)  // McDonald and Thornton
+	 good_donor_acceptor_dist = 1;
+      std::cout << "   H-on-ligand angle 1: " << angle << "  ";
+      std::cout << "     angle: "
+		<< coot::atom_spec_t(nb_1[iD].first) << " "
+		<< coot::atom_spec_t(at_1) << " "
+		<< coot::atom_spec_t(at_2) << std::endl;
+      if (! bond.donor) { 
+	 bond.donor = nb_1[iD].first;
+	 bond.angle_1 = angle;
+      } 
+      if (angle < 90) {
+	 neighbour_distances_and_angles_are_good = 0;
+	 break;
+      } 
+   }
+
+   // Angle H-A-AA
+   // 
+   for (unsigned int iA=0; iA<nb_2.size(); iA++) { 
+      // elements of nb_2 are "AA" in the the above diagram
+      double angle = coot::angle(nb_2[iA].first, at_1, at_2);
+      std::cout << "   H-on-ligand angle 2: " << angle <<  "  ";
+      std::cout << "     angle: "
+		<< coot::atom_spec_t(nb_2[iA].first) << " "
+		<< coot::atom_spec_t(at_1) << " "
+		<< coot::atom_spec_t(at_2) << std::endl;
+      if (! bond.acceptor) { 
+	 bond.acceptor = nb_2[iA].first;
+	 bond.angle_2 = angle;
+      }
+      if (angle < 90) {
+	 neighbour_distances_and_angles_are_good = 0;
+	 break;
+      } 
+   }
+
+   // Angle D-A-AA
+   // 
+   for (unsigned int iD=0; iD<nb_1.size(); iD++) { 
+      for (unsigned int iA=0; iA<nb_2.size(); iA++) {
+
+	 double angle = coot::angle(nb_1[iD].first,
+				    at_2,
+				    nb_2[iA].first);
+	 std::cout << "    H-on-ligand angle 3: " << angle <<  "  ";
+	 std::cout << "     angle: "
+		   << coot::atom_spec_t(nb_1[iD].first) << " "
+		   << coot::atom_spec_t(at_2) << " "
+		   << coot::atom_spec_t(nb_2[iA].first) << std::endl;
+	 if (! bond.acceptor_neigh) { 
+	    bond.acceptor_neigh = nb_2[iA].first;
+	    bond.angle_3 = angle;
+	 }
+	 if (angle < 90) {
+	    neighbour_distances_and_angles_are_good = 0;
+	    break;
+	 }
+      }
+      if (!neighbour_distances_and_angles_are_good)
+	 break;
+   }
+
+   return std::pair<bool, coot::h_bond> (neighbour_distances_and_angles_are_good && good_donor_acceptor_dist, bond);
+}
+
+// return an h_bond if the angles are good - otherwise first is 0.
+// 
+std::pair<bool, coot::h_bond> 
+coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(CAtom *at_1, // acceptor on ligand
+							     CAtom *at_2, // H on residue
+							     const std::vector<std::pair<CAtom *, float> > &nb_1,
+							     const std::vector<std::pair<CAtom *, float> > &nb_2) const {
+
+   coot::h_bond bond(at_2, at_1, 0); // H atom goes first for this constructor
+   bond.dist = coot::distance(at_1, at_2);
+
+   bool neighbour_distances_and_angles_are_good = 1;
+   bool good_donor_acceptor_dist = 0;
+
+   // Dist D-A
+   for (unsigned int iD=0; iD<nb_2.size(); iD++) { 
+      double dist = coot::distance(nb_2[iD].first, at_1);
+      if (dist < 3.9) { // McDonald and Thornton
+	 good_donor_acceptor_dist = 1;
+	 break;
+      }
+   }
+
+   // Angle D-H-A
+   //
+   for (unsigned int iD=0; iD<nb_2.size(); iD++) { 
+      double angle = coot::angle(nb_2[iD].first, at_2, at_1);
+      std::cout << "   H-on-protein angle 1: " << angle <<   "  ";
+      std::cout << "     angle: "
+		<< coot::atom_spec_t(nb_2[iD].first) << " "
+		<< coot::atom_spec_t(at_2) << " "
+		<< coot::atom_spec_t(at_1) << std::endl;
+      if (angle < 90) {
+	 neighbour_distances_and_angles_are_good = 0;
+	 break;
+      }
+      if (! bond.donor) {
+	 bond.donor = nb_2[iD].first;
+	 bond.angle_1 = angle;
+      } 
+   }
+
+   // Angle H-A-AA
+   // 
+   for (unsigned int iA=0; iA<nb_1.size(); iA++) { 
+      double angle = coot::angle(at_2, at_1, nb_1[iA].first);
+      std::cout << "   H-on-protein angle 2: " << angle <<   "  ";
+      std::cout << "     angle: "
+		<< coot::atom_spec_t(at_2) << " "
+		<< coot::atom_spec_t(at_2) << " "
+		<< coot::atom_spec_t(nb_1[iA].first) << std::endl;
+      if (angle < 90) {
+	 neighbour_distances_and_angles_are_good = 0;
+	 break;
+      }
+      if (! bond.acceptor) {
+	 bond.acceptor = nb_1[iA].first;
+	 bond.angle_2 = angle;
+      } 
+   }
+
+   // Angle D-A-AA
+   for (unsigned int iD=0; iD<nb_2.size(); iD++) { 
+      for (unsigned int iA=0; iA<nb_1.size(); iA++) { 
+	 double angle = coot::angle(nb_2[iD].first, at_1, nb_1[iA].first);
+	 std::cout << "   H-on-protein angle 3: " << angle <<   "  ";
+	 std::cout << "     angle: "
+		   << coot::atom_spec_t(nb_2[iD].first) << " "
+		   << coot::atom_spec_t(at_1) << " "
+		   << coot::atom_spec_t(nb_1[iA].first) << std::endl;
+	 if (angle < 90) {
+	    neighbour_distances_and_angles_are_good = 0;
+	    break;
+	 }
+	 if (! bond.acceptor_neigh) {
+	    bond.acceptor_neigh = nb_1[iA].first;
+	    bond.angle_3 = angle;
+	 }
+      }
+      if (! neighbour_distances_and_angles_are_good)
+	 break;
+   }
+
+   return std::pair<bool, coot::h_bond> (neighbour_distances_and_angles_are_good && good_donor_acceptor_dist, bond);
+
+} 
+
+
+
 
 
 // using UDD data
@@ -363,9 +653,14 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol)
 	    float d = clipper::Coord_orth::length(pt_1, pt_2);
 	    coot::residue_spec_t res_1(sel_1_atoms[pscontact[i_contact].id1]->GetResidue());
 	    coot::residue_spec_t res_2(sel_1_atoms[pscontact[i_contact].id2]->GetResidue());
-	    
-	    std::pair<CAtom *, float> p(sel_1_atoms[pscontact[i_contact].id2], d);
-	    atom_map[sel_1_atoms[pscontact[i_contact].id1]].push_back(p);
+
+	    // neighbours of donor (or acceptors) have to be in the
+	    // same residue as the donor (or acceptor).
+	    // 
+	    if (res_1 == res_2) { 
+	       std::pair<CAtom *, float> p(sel_1_atoms[pscontact[i_contact].id2], d);
+	       atom_map[sel_1_atoms[pscontact[i_contact].id1]].push_back(p);
+	    }
 	 }
       }
    }
@@ -389,20 +684,26 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol)
 	    clipper::Coord_orth pt_2(sel_2_atoms[pscontact[i_contact].id2]->x,
 				     sel_2_atoms[pscontact[i_contact].id2]->y,
 				     sel_2_atoms[pscontact[i_contact].id2]->z);
-	    float d = clipper::Coord_orth::length(pt_1, pt_2);
 	    coot::residue_spec_t res_1(sel_2_atoms[pscontact[i_contact].id1]->GetResidue());
 	    coot::residue_spec_t res_2(sel_2_atoms[pscontact[i_contact].id2]->GetResidue());
 	    
-	    std::pair<CAtom *, float> p(sel_2_atoms[pscontact[i_contact].id2], d);
-
-	    // only add p if is not already in the atom map vector for this atom:
-	    // (this relies on the doubles matching :) but it seems to work...
+	    // neighbours of donor (or acceptors) have to be in the
+	    // same residue as the donor (or acceptor).
 	    // 
-	    std::vector<std::pair<CAtom *, float> >::const_iterator it = 
-	       std::find(atom_map[sel_2_atoms[pscontact[i_contact].id1]].begin(),
-			 atom_map[sel_2_atoms[pscontact[i_contact].id1]].end(), p);
-	    if (it == atom_map[sel_2_atoms[pscontact[i_contact].id1]].end())
-	       atom_map[sel_2_atoms[pscontact[i_contact].id1]].push_back(p);
+	    if (res_1 == res_2) { 
+
+	       float d = clipper::Coord_orth::length(pt_1, pt_2);
+	       std::pair<CAtom *, float> p(sel_2_atoms[pscontact[i_contact].id2], d);
+
+	       // only add p if is not already in the atom map vector for this atom:
+	       // (this relies on the doubles matching :) but it seems to work...
+	       // 
+	       std::vector<std::pair<CAtom *, float> >::const_iterator it = 
+		  std::find(atom_map[sel_2_atoms[pscontact[i_contact].id1]].begin(),
+			    atom_map[sel_2_atoms[pscontact[i_contact].id1]].end(), p);
+	       if (it == atom_map[sel_2_atoms[pscontact[i_contact].id1]].end())
+		  atom_map[sel_2_atoms[pscontact[i_contact].id1]].push_back(p);
+	    }
 	 }
       }
    }

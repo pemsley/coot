@@ -358,15 +358,10 @@ namespace coot {
       }
    };
 
-   class animated_ligand_interactions_t { 
-   public: 
-      atom_spec_t atom_spec_1;
-      atom_spec_t atom_spec_2; 
-      animated_ligand_interactions_t(const atom_spec_t &as_1, 
-				     const atom_spec_t &as_2) { 
-	 atom_spec_1 = as_1;
-	 atom_spec_2 = as_2;
-      }
+   class animated_ligand_interactions_t : public fle_ligand_bond_t { 
+   public:
+      animated_ligand_interactions_t(const fle_ligand_bond_t &lb) :
+	 fle_ligand_bond_t(lb) { }
       void draw(CMMDBManager *mol,
 		const gl_context_info_t &gl_info,
 		const long &start_time) const;
@@ -2952,12 +2947,13 @@ public:        //                      public
 
    // --------- Pretty (hopefully) animated ligand interactions -----------
    std::vector<coot::animated_ligand_interactions_t> animated_ligand_interactions_vec;
-   // add more variables :-)
+
    void add_animated_ligand_interaction(const  coot::fle_ligand_bond_t &lb);
 
    void draw_animated_ligand_interactions(const gl_context_info_t &gl,
 					  const long &start_time) const;
    bool draw_animated_ligand_interactions_flag; // tweaked by outside function
+   void add_hydrogens_from_file(const std::string &reduce_pdb_out);
 
 };
 

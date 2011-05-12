@@ -52,6 +52,21 @@ Sun Apr 10 17:15:31 BST 2011
   Bad.
 
 
+---
+Tue May 10 22:32:08 BST 2011
+
+   go to a protein residue
+  
+   sprout hydrogens
+
+   do it again - this should abort but it does not - too many Hs now.
+
+
+----
+Wed May 11 13:05:57 BST 2011
+
+   read in SPX: bad bond between hydrogens.  // ah, was this before HETATM bonding?
+
 
 ----
 Sat Apr  9 11:28:00 BST 2011
