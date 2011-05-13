@@ -366,10 +366,15 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManage
 	       }
 
 	       // hydrogen on environment (protein) residue
+	       //
+	       // Allow a special alternative case where the acceptor
+	       // is on the ligand and the donor is a water (because
+	       // waters may not (probably do not) have hydrogens.
 	       // 
 	       if (hb_type_1 == coot::energy_lib_atom::HB_ACCEPTOR ||
 		   hb_type_1 == coot::energy_lib_atom::HB_BOTH) {
-		  if (hb_type_2 == coot::energy_lib_atom::HB_HYDROGEN) {
+		  if (hb_type_2 == coot::energy_lib_atom::HB_HYDROGEN ||
+		      std::string(at_2->GetResName()) == "HOH") {
 
 		     std::vector<std::pair<CAtom *, float> > nb_1 = neighbour_map[at_1];
 		     std::vector<std::pair<CAtom *, float> > nb_2 = neighbour_map[at_2];
@@ -427,14 +432,13 @@ coot::h_bonds::make_h_bond_from_ligand_hydrogen(CAtom *at_1, // H on ligand
    // 
    for (unsigned int iA=0; iA<nb_2.size(); iA++) { 
       // elements of nb_2 are "AA" in the the above diagram
-      double angle = coot::angle(nb_2[iA].first, at_1, at_2);
+      double angle = coot::angle(at_1, at_2, nb_2[iA].first);
       std::cout << "   H-on-ligand angle 2: " << angle <<  "  ";
       std::cout << "     angle: "
-		<< coot::atom_spec_t(nb_2[iA].first) << " "
 		<< coot::atom_spec_t(at_1) << " "
-		<< coot::atom_spec_t(at_2) << std::endl;
+		<< coot::atom_spec_t(at_2) << " "
+		<< coot::atom_spec_t(nb_2[iA].first) << std::endl;
       if (! bond.acceptor) { 
-	 bond.acceptor = nb_2[iA].first;
 	 bond.angle_2 = angle;
       }
       if (angle < 90) {
@@ -456,7 +460,7 @@ coot::h_bonds::make_h_bond_from_ligand_hydrogen(CAtom *at_1, // H on ligand
 		   << coot::atom_spec_t(nb_1[iD].first) << " "
 		   << coot::atom_spec_t(at_2) << " "
 		   << coot::atom_spec_t(nb_2[iA].first) << std::endl;
-	 if (! bond.acceptor_neigh) { 
+	 if (! bond.acceptor_neigh) {
 	    bond.acceptor_neigh = nb_2[iA].first;
 	    bond.angle_3 = angle;
 	 }

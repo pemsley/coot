@@ -863,20 +863,30 @@ void hydrogenate_region(float radius) {
       CMMDBManager *new_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
       if (new_mol) {
 
+	 coot::util::create_directory("coot-molprobity"); // exists already maybe? Handled.
+	 std::string pdb_in =  "coot-molprobity/hydrogenate-region-in.pdb";
+	 std::string pdb_out = "coot-molprobity/hydrogenate-region-out.pdb";
+	 new_mol->WritePDBASCII(pdb_in.c_str());
+	 
 	 if (graphics_info_t::prefer_python) {
 #ifdef USE_PYTHON
-	    std::cout << "safe python command " << std::endl;
-	    safe_python_command("bla bla");
+
+	    std::string python_command = "reduce_on_pdb_file(";
+	    python_command += coot::util::int_to_string(imol);
+	    python_command += ", ";
+	    python_command += single_quote(pdb_in);
+	    python_command += ", ";
+	    python_command += single_quote(pdb_out);
+	    python_command += ")";
+
+	    safe_python_command_with_return(python_command);
+	    graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
+
 #endif // PYTHON
 	 } else {
 #ifdef USE_GUILE
-
 	    // write a PDB file and run reduce, read it in
 	    //
-	    coot::util::create_directory("coot-molprobity"); // exists already maybe? Handled.
-	    std::string pdb_in =  "coot-molprobity/hydrogenate-region-in.pdb";
-	    std::string pdb_out = "coot-molprobity/hydrogenate-region-out.pdb";
-	    new_mol->WritePDBASCII(pdb_in.c_str());
 	    std::string scheme_command = "(reduce-on-pdb-file ";
 	    scheme_command += coot::util::int_to_string(imol);
 	    scheme_command += " ";
@@ -889,12 +899,10 @@ void hydrogenate_region(float radius) {
 	    if (scm_is_true(r)) {
 	       graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
 	    }
-	    graphics_draw();
-	 } 
-	    
+	 }
 #endif 	 
-	 
-	 
+
+	 graphics_draw();
 	 delete new_mol;
 	 
       } 

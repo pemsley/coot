@@ -617,7 +617,7 @@ coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
 
 	 long now_time = glutGet(GLUT_ELAPSED_TIME);
 
-	 float opacity = (sin(double(now_time - start_time) * 0.002)+1.4)*0.3;
+	 float opacity = (sin(double(now_time - start_time) * 0.001)+1.4)*0.3;
 	 glColor4f(0.3, 0.3, 0.8, opacity);
 
 	 GLfloat  ambientLight[] = { 0.2f, 0.2f, 0.2f, 0.5f };
@@ -625,9 +625,9 @@ coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
 	 GLfloat specularLight[] = { 0.2f, 0.2f, 0.2f, 0.5f };
    
 	 // Assign created components to GL_LIGHT2
-	 glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
-	 glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
-	 glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
+	 // glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
+	 // glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
+	 // glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
 
 	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
 	 glDisable(GL_COLOR_MATERIAL);

@@ -110,7 +110,8 @@
 		  (gtk-widget-show window))))))))
 
 
-
+;; return status.
+;; 
 (define (reduce-on-pdb-file imol pdb-in pdb-out)
 
   (format #t "running reduce on ~s~%" pdb-in)
@@ -138,10 +139,7 @@
 				       (list "-build"  pdb-in
 					     "-DB" reduce-het-dict-file-name)
 				       '() pdb-out #f)))
-	    (if (not (number? status))
-		#f
-		(= status 0)))))))
-
+	    status)))))
 
 
 
