@@ -413,11 +413,11 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
 	       }
 	    }
 	    catch (std::runtime_error rte) {
-	       std::cout << "ERROR:: (runtime) in fle_view_with_rdkit(): "
+	       std::cout << "ERROR:: (runtime error) in fle_view_with_rdkit(): "
 			 << rte.what() << std::endl;
 	    } 
 	    catch (std::exception e) {
-	       std::cout << "ERROR in fle_view_with_rdkit(): " << e.what() << std::endl;
+	       std::cout << "ERROR (exception) in fle_view_with_rdkit(): " << e.what() << std::endl;
 	    } 
 	 }
       }
@@ -574,19 +574,24 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
    // aromatic rings.
    std::vector<std::vector<std::string> > ring_list = get_ligand_aromatic_ring_list(monomer_restraints);
 
-   float pi_overlap_thresh = 0.2;
    // float pi_overlap_thresh = 0.0015; // play value
+   // float pi_overlap_thresh = 0.2; 
+   float pi_pi_overlap_thresh = 0.2;
+   float pi_cation_overlap_thresh = 30;  // ZZG in 2wot is 27, close but spurious interaction,
+                                         // a bit more than that then.
+
+   
    for (unsigned int iring=0; iring<ring_list.size(); iring++) {
       try {
 	 std::pair<clipper::Coord_orth, clipper::Coord_orth> ligand_ring_pi_pts = 
 	    get_ring_pi_centre_points(ring_list[iring], res_ref);
 
 	 if (debug) {
-	    std::cout << " ligand ring ";
+	    std::cout << "========= ligand ring ";
 	    for (unsigned int iat=0; iat<ring_list[iring].size(); iat++)
 	       std::cout << ring_list[iring][iat] << "  ";
 	    
-	    std::cout << " points " << ligand_ring_pi_pts.first.format() << " "
+	    std::cout << " ====== points " << ligand_ring_pi_pts.first.format() << " "
 		      << ligand_ring_pi_pts.second.format() << std::endl;
 	 }
 	 
@@ -599,28 +604,36 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 	    }
 
 	    // return a pair that is the score and the stacking type
-	    std::pair<float, int> pi_overlap_1 =
+	    std::pair<float, pi_stacking_instance_t::stacking_t> pi_overlap_1 =
 	       get_pi_overlap_to_ligand_ring(residues[ires], ligand_ring_pi_pts.first);
-	    std::pair<float, int> pi_overlap_2 =
+	    std::pair<float, pi_stacking_instance_t::stacking_t> pi_overlap_2 =
 	       get_pi_overlap_to_ligand_ring(residues[ires], ligand_ring_pi_pts.second);
 
 	    if (debug) 
 	       std::cout << "   protein cation:ligand ring: Overlaps:  score "
 			 << pi_overlap_1.first << " type: " << pi_overlap_1.second << "  score: "
 			 << pi_overlap_2.first << " type: " << pi_overlap_2.second << std::endl;
-	       
-	    if (pi_overlap_1.first > pi_overlap_thresh) {
+
+	    float thresh = -1;
+	    if (pi_overlap_1.second == coot::pi_stacking_instance_t::PI_PI_STACKING)
+	       thresh = pi_pi_overlap_thresh;
+	    if (pi_overlap_1.second == coot::pi_stacking_instance_t::PI_CATION_STACKING)
+	       thresh = pi_cation_overlap_thresh;
+	    
+	    if (pi_overlap_1.first > thresh) {
 	       coot::pi_stacking_instance_t st(residues[ires],
 					       pi_overlap_1.second,
 					       ring_list[iring]);
 	       st.overlap_score = pi_overlap_1.first;
+	       std::cout << "adding a stacking " << st << std::endl;
 	       stackings.push_back(st);
 	    }
-	    if (pi_overlap_2.first > pi_overlap_thresh) {
+	    if (pi_overlap_2.first > thresh) {
 	       coot::pi_stacking_instance_t st(residues[ires],
 					       pi_overlap_2.second,
 					       ring_list[iring]);
 	       st.overlap_score = pi_overlap_2.first;
+	       std::cout << "adding a stacking " << st << std::endl;
 	       stackings.push_back(st);
 	    }
 	 }
@@ -651,7 +664,7 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 	 // << cation_points.size() << "  score: " << score << " c.f. " << pi_overlap_thresh
 	 // << std::endl;
 
-	 if (score > pi_overlap_thresh) { 
+	 if (score > pi_cation_overlap_thresh) { 
 	    // add a stacking to stackings.
 	    coot::pi_stacking_instance_t stacking(residues[ires], cation_points[icat].first);
 	    stacking.overlap_score = score;
@@ -722,7 +735,7 @@ coot::pi_stacking_container_t::get_ligand_cations(CResidue *res_ref,
 //
 // should return the stacking type, e.g. PI_CATION_STACKING.
 // 
-std::pair<float, int>
+std::pair<float, coot::pi_stacking_instance_t::stacking_t>
 coot::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(CResidue *res,
 							     const clipper::Coord_orth &ligand_pi_point) const {
 
@@ -730,7 +743,7 @@ coot::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(CResidue *res,
    float pi_cation_score = 0;
    
    std::string res_name(res->GetResName());
-   int stacking_type = coot::pi_stacking_instance_t::PI_PI_STACKING;
+   coot::pi_stacking_instance_t::stacking_t stacking_type = coot::pi_stacking_instance_t::PI_PI_STACKING;
 
    // First test all the ring systems in the residue
    // 
@@ -765,7 +778,7 @@ coot::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(CResidue *res,
       stacking_type = coot::pi_stacking_instance_t::PI_CATION_STACKING;
    }
    
-   return std::pair<float, int> (score, stacking_type);
+   return std::pair<float, coot::pi_stacking_instance_t::stacking_t> (score, stacking_type);
 }
 
 // Return the best score of the ligand cation overlap to any of the
@@ -1236,6 +1249,8 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 		     << best_stacking_score << std::endl;
 	       of << "STACKING " << type << " ";
 	       switch (best_stacking.type) {
+	       case coot::pi_stacking_instance_t::NO_STACKING:
+		  break;
 	       case coot::pi_stacking_instance_t::PI_PI_STACKING: 
 		  for (unsigned int jat=0;
 		       jat<best_stacking.ligand_ring_atom_names.size();

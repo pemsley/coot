@@ -105,16 +105,19 @@ namespace coot {
       // CATION_PI_STACKING sets ligand_cationic_atom_name, not the
       // ligand_ring_atom_names vector.
       //
-      enum { PI_PI_STACKING,
-	     PI_CATION_STACKING, // for cations on the protein residues (ligand pi)
-	     CATION_PI_STACKING, // for cations on the ligand (protein TRY, PRO, TRP)
+      enum stacking_t {
+	 NO_STACKING,
+	 PI_PI_STACKING,
+	 PI_CATION_STACKING, // for cations on the protein residues (ligand pi)
+	 CATION_PI_STACKING, // for cations on the ligand (protein TRY, PRO, TRP)
       };
       CResidue *res;
-      int type; // pi-pi or pi-cation
+      stacking_t type; // pi-pi or pi-cation
       std::vector<std::string> ligand_ring_atom_names;
       float overlap_score; 
       std::string ligand_cationic_atom_name; // for cations on the ligand
-      pi_stacking_instance_t(CResidue *res_in, int type_in,
+      
+      pi_stacking_instance_t(CResidue *res_in, stacking_t type_in,
 			     const std::vector<std::string> &ring_atoms) {
 	 res = res_in;
 	 type = type_in;
@@ -137,8 +140,8 @@ namespace coot {
    class pi_stacking_container_t {
    private: 
       // can throw an exception
-      std::pair<float, int> get_pi_overlap_to_ligand_ring(CResidue *res,
-							  const clipper::Coord_orth &pt) const;
+      std::pair<float, pi_stacking_instance_t::stacking_t>
+      get_pi_overlap_to_ligand_ring(CResidue *res, const clipper::Coord_orth &pt) const;
 
       float get_pi_overlap_to_ligand_cation(CResidue *res, const clipper::Coord_orth &pt) const;
       

@@ -4381,7 +4381,8 @@ void set_show_all_additional_representations(int imol, int on_off_flag);
 
 /* \brief undisplay all the additional representations for the given
    molecule, except the given representation number (if it is off, leave it off)  */
-void all_additional_representations_off_except(int imol, int representation_number);
+void all_additional_representations_off_except(int imol, int representation_number, 
+					       short int ball_and_sticks_off_too_flag);
 
 
 /* delete a given additional representation */

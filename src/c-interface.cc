@@ -1617,7 +1617,11 @@ void toggle_idle_rock_function() {
    graphics_info_t g; 
 
    if (g.idle_function_spin_rock_token == 0) { 
-      g.idle_function_spin_rock_token = gtk_idle_add((GtkFunction)animate_idle_rock, g.glarea);
+      g.idle_function_spin_rock_token =
+	 // gtk_idle_add((GtkFunction)animate_idle_rock, g.glarea);
+	 gtk_timeout_add(10, // 100 fps
+			 (GtkFunction) animate_idle_rock,
+			 g.glarea);
       g.time_holder_for_rocking = glutGet(GLUT_ELAPSED_TIME);
 
       g.idle_function_rock_angle_previous =
@@ -1626,7 +1630,7 @@ void toggle_idle_rock_function() {
       gtk_idle_remove(g.idle_function_spin_rock_token);
       g.idle_function_spin_rock_token = 0;
    }
-   add_to_history_simple("toggle-idle-function");
+   add_to_history_simple("toggle-idle-rock-function");
 }
 
 /*! \brief Settings for the inevitable discontents who dislike the 
@@ -3130,10 +3134,11 @@ set_show_all_additional_representations(int imol, int on_off_flag) {
 
 /* \brief undisplay all the additional representations for the given
    molecule, except the given representation number (if it is off, leave it off)  */
-void all_additional_representations_off_except(int imol, int representation_number) {
+void all_additional_representations_off_except(int imol, int representation_number,
+					       short int ball_and_sticks_off_too_flag) {
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].all_additional_representations_off_except(representation_number);
-   }
+      graphics_info_t::molecules[imol].all_additional_representations_off_except(representation_number, ball_and_sticks_off_too_flag);
+   }  
    graphics_draw();
 }
 

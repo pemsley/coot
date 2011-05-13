@@ -358,7 +358,7 @@ on_canvas_motion_new(GooCanvasItem  *item,
 	    // std::cout << "show add_rep_handle: " << add_rep_handle << " for "
 	    // << *spec_p << std::endl;
 	    set_show_additional_representation(imol, add_rep_handle, 1);
-	    all_additional_representations_off_except(imol, add_rep_handle);
+	    all_additional_representations_off_except(imol, add_rep_handle, 0);
 	 } 
       }
 #endif      
