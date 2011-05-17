@@ -928,6 +928,7 @@ namespace coot {
       int hb_type;
       // radii are negative if not assigned.
       realtype vdw_radius;
+      realtype vdwh_radius;
       realtype ion_radius;
       std::string element;
       int valency; // negative if unset
@@ -936,6 +937,7 @@ namespace coot {
 		      int hb_type_in,
 		      float weight_in,
 		      float vdw_radius_in,
+		      float vdwh_radius_in,
 		      float ion_radius_in,
 		      const std::string &element_in,
 		      int valency_in,
@@ -1323,6 +1325,12 @@ namespace coot {
       std::pair<bool, dictionary_residue_restraints_t>
       get_monomer_restraints_internal(const std::string &monomer_type, bool allow_minimal_flag) const;
 
+      // created for looking up energy types cheaply (hopefully).
+      // return -1 on restraints not found.
+      // 
+      int get_monomer_restraints_index(const std::string &monomer_type, bool allow_minimal_flag) const;
+      
+
    public:
 
       protein_geometry() {
@@ -1607,6 +1615,19 @@ namespace coot {
       // correctly.  Use fill_using_sbase().
       // 
       bool try_load_sbase_description(const std::vector<std::string> &comp_ids);
+
+      // return "" if not found, else return the energy type found in ener_lib.cif
+      // 
+      std::string get_type_energy(const std::string &atom_name,
+				  const std::string &residue_name) const;
+
+
+      // Find the non-bonded contact distance
+      // 
+      // Return a pair, if not found the first is 0.  Look up in the energy_lib.
+      // 
+      std::pair<bool, double> get_nbc_dist(const std::string &energy_type_1,
+					   const std::string &energy_type_2) const;
 
    };
 

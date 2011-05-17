@@ -283,7 +283,7 @@ namespace coot {
       int atom_index_1, atom_index_2, atom_index_3, atom_index_4, atom_index_5, atom_index_6;
       int atom_index_centre;
       std::vector <int> atom_index; // atom_index can return negative (-1) for planes
-      float target_value; 
+      double target_value; 
       double sigma; 
       float observed_value;    
       short int restraint_type;
@@ -409,15 +409,24 @@ namespace coot {
       simple_restraint(short int restraint_type_in, 
 		       int index_1, 
 		       int index_2,
-		       const std::vector<bool> &fixed_atom_flags_in) { 
+		       const std::string &atom_1_type,
+		       const std::string &atom_2_type,
+		       const std::vector<bool> &fixed_atom_flags_in,
+		       const protein_geometry &geom) { 
 	 
 	 if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) { 
 	    restraint_type = restraint_type_in;
 	    atom_index_1 = index_1;
 	    atom_index_2 = index_2;
-	    target_value = 2.3;
+	    // Enable shortening if there might be an H-bond between them.
+	    std::pair<bool, double> nbc_dist = get_nbc_dist(atom_1_type, atom_2_type, geom); 
+	    if (nbc_dist.first) {
+	       target_value = nbc_dist.second;
+	    } else {
+	       // short/standard value
+	       target_value = 2.3;
+	    } 
 	    sigma = 0.02;
-	    fixed_atom_flags.resize(2);
 	    fixed_atom_flags = fixed_atom_flags_in;
 	    is_user_defined_restraint = 0;
 	 } else { 
@@ -470,6 +479,10 @@ namespace coot {
 	    exit(1); 
 	 }
       };
+
+      std::pair<bool, double> get_nbc_dist(const std::string &atom_1_type,
+					   const std::string &atom_2_type, 
+					   const protein_geometry &geom);       
       
       friend std::ostream &operator<<(std::ostream &s, simple_restraint r);
    };
@@ -990,9 +1003,15 @@ namespace coot {
       }
 
       
-      void add_non_bonded(int index1, int index2, 
-			  const std::vector<bool> &fixed_atom_flag) { 
-	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT, index1, index2, fixed_atom_flag));
+      void add_non_bonded(int index1, int index2,
+			  const std::string &atom_type_1, 
+			  const std::string &atom_type_2, 
+			  const std::vector<bool> &fixed_atom_flag,
+			  const protein_geometry &geom) { 
+	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT,
+						   index1, index2,
+						   atom_type_1, atom_type_2,
+						   fixed_atom_flag, geom));
       } 
 
       // construct a restraint and add it to restraints_vec
@@ -1226,7 +1245,7 @@ namespace coot {
 			 short int is_fixed_second_res,
 			 const coot::protein_geometry &geom);
 
-      int make_non_bonded_contact_restraints();
+      int make_non_bonded_contact_restraints(const protein_geometry &geom);
       std::vector<std::vector<int> > bonded_atom_indices;
 
       //! Set a flag that we have an OXT and we need to position it
@@ -1275,6 +1294,20 @@ namespace coot {
 	    return 1;
 	 else
 	    return 0;
+      }
+
+      // return "" on no type found
+      std::string get_type_energy(CAtom *at, const protein_geometry &geom) const {
+	 std::string r;
+	 if (at) { 
+	    std::string atom_name = at->name;
+	    const char *rn = at->GetResName();
+	    if (rn) {
+	       std::string residue_name = rn;
+	       r = geom.get_type_energy(atom_name, residue_name);
+	    } 
+	 }
+	 return r;
       } 
       
 
