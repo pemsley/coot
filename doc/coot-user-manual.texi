@@ -1,5 +1,6 @@
 \input texinfo   @c -*-texinfo-*-
-@input palatino
+
+@c @input palatino
 
 @c %**start of header
 @setfilename coot.info
@@ -2335,22 +2336,26 @@ refinement.  In this way, one can select residues that are not in a
 linear range.  This technique is useful for refining disulfide bonds and
 glycosidic linkages.
 
+To enable sphere refinement, Right-mouse in the vertical toolbutton
+menu, Manage buttons -> [Tick] Sphere Refine -> Apply.  You will need
+a python-enabled Coot to do this.
+
 The following adds a key binding (Shift-R) that refines resides that are
 within 3.5@AA{} of the residue at the centre of the screen:
 
 @verbatim
+        
+(define *sphere-refine-radius* 3.5)
+
 (add-key-binding "Refine residues in a sphere" "R"
     (lambda ()
-      (let ((active-atom (active-residue)))
-        (if (list? active-atom)
-            (let* ((centred-residue (list-head (cdr active-atom) 3))
-                   (imol (car active-atom))
-                   (other-residues (residues-near-residue 
-                                    imol centred-residue 3.5))
-                   (all-residues (if (list? other-residues)
-                                     (cons centred-residue other-residues)
-                                     (list centred-residue))))
-              (refine-residues imol all-residues))))))
+     (using-active-atom
+      
+      (let* ((rc-spec (list aa-chain-id aa-res-no aa-ins-code))
+	     (ls (residues-near-residue aa-imol rc-spec *sphere-refine-radius*)))
+	(refine-residues aa-imol (cons rc-spec ls))))))
+
+
 @end verbatim
 
 
@@ -3756,6 +3761,7 @@ and
 * Dynamic Map Sampling and Display Size::
 * Skeletonization::
 * Map Sharpening::
+* Patterson::
 * masks::
 * Trimming Atoms::
 * Map Transformation::
@@ -4091,6 +4097,17 @@ changed (in this case to 80) using:
 
 This currently only works on maps created by reading an MTZ (or other)
 reflection data file.
+
+@node Pattersons
+@section Pattersons
+@cindex Patterson
+
+Pattersons can be generated using the @code{make-and-draw-patterson}
+function.  Example usage:
+
+@code{(make-and-draw-patterson @emph{mtz-file-name f-col sig-f-col weight-col use-weights-flag})}
+
+where @code{@emph{use-weights-flag}} is either @code{0} or @code{1}.
 
 
 @node masks
