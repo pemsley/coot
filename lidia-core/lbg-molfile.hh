@@ -45,17 +45,20 @@ namespace lig_build {
       std::string element;
       bool aromatic;
       bool chiral;
+      int formal_charge; 
       molfile_atom_t(const clipper::Coord_orth &pos_in,
 		     const std::string &element_in,
 		     const std::string &name_in) {
 	 atom_position = pos_in;
 	 element = element_in;
 	 name = name_in;
+	 formal_charge = 0;
       }
       molfile_atom_t(float x, float y, float z, std::string ele_in) {
 	 atom_position = clipper::Coord_orth(x,y,z);
 	 element = ele_in;
 	 name = ele_in;
+	 formal_charge = 0;
       }
       friend std::ostream &operator<<(std::ostream &s, const molfile_atom_t &a);
    };

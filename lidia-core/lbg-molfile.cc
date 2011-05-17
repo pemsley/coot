@@ -30,9 +30,8 @@ std::ostream&
 lig_build::operator<<(std::ostream &s, const molfile_atom_t &at) {
 
    s << "atom name :" << at.name << ":  ele :" << at.element << ": aromatic? "
-     << at.aromatic << " chiral? " << at.chiral << " at " << at.atom_position.format();
-      
-
+     << at.aromatic << " chiral? " << at.chiral << " charge: " << at.formal_charge
+     << " at " << at.atom_position.format();
    return s;
 } 
 
@@ -79,6 +78,8 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
    int n_chirals = 0;
    int n_atoms = 0;
    int n_bonds = 0;
+   int extras_start = 0;
+   int extras_end   = 0;
    
    std::vector<std::string> lines;
    std::ifstream in_file(file_name.c_str());
@@ -94,6 +95,8 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
    for (unsigned int i=0; i<lines.size(); i++) { 
       std::cout << ":" << lines[i] << std::endl;
    }
+   std::cout << "File \"" << file_name << "\" contained " << lines.size()
+	     << " lines " << std::endl;
 
    if (lines.size() > 3) {
       for (unsigned int i=0; i<3; i++)
@@ -109,12 +112,16 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 	       std::string n_bonds_string =  lines[3].substr(3,3);
 	       n_atoms = lig_build::string_to_int(n_atoms_string);
 	       n_bonds = lig_build::string_to_int(n_bonds_string);
-	       std::cout << "n_atoms: " << n_atoms << " n_bonds: " << n_bonds << std::endl;
+	       std::cout << "n_atoms: " << n_atoms << " n_bonds: "
+			 << n_bonds << std::endl;
 	    }
 	    catch (std::runtime_error rte) {
 	       std::cout << rte.what() << std::endl;
 	    }
 	 }
+
+	 extras_start = 4 + n_atoms + n_bonds;
+	 extras_end   = lines.size();
 
 	 if (l > 15) {
 	    std::string n_chirals_string = lines[3].substr(9,3);
@@ -133,6 +140,7 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
       //
       for (unsigned int i=4; i<lines.size()  && i<(n_atoms+4); i++) {
 	 // std::cout << "parse this atom block :" << lines[i] << std::endl;
+
 	 int l = lines[i].length();
 	 if (l > 31) {
 	    std::string x_string =  lines[i].substr( 0,9);
@@ -192,7 +200,8 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 			if (stereo_bond == 1)
 			   bond.bond_type = lig_build::bond_t::OUT_BOND;
 		     }
-		     std::cout << "Added bond with type " << bond.bond_type << " " << stereo_bond << std::endl;
+		     std::cout << "Added bond with type " << bond.bond_type << " "
+			       << stereo_bond << std::endl;
 		     bonds.push_back(bond);
 		  }
 	       }
@@ -202,6 +211,52 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 	    }
 	 } 
       }
+
+      // PROPERTY BLOCK
+      // 
+      // extras: charges, radicals, isotopes, ring-bond count and wotnot...
+      //
+      for (int i= extras_start; i<extras_end; i++) {
+	 std::cout << "Check for extras: " << lines[i] << std::endl;
+	 if (lines[i].length() > 8) {
+	    std::string extra_type = lines[i].substr(3,3);
+
+	    // handle CHARGES
+	    // 
+	    if (extra_type == "CHG") {
+	       std::cout << "    parse charge on " << lines[i] << std::endl;
+	       std::string n_charged_atoms_str = lines[i].substr(7,3);
+	       try { 
+		  int nca = lig_build::string_to_int(n_charged_atoms_str);
+		  std::cout << "trying to find " << nca << " charged atoms on line"
+			    << std::endl;
+
+		  for (unsigned int ic=0; ic<nca; ic++) {
+		     if (lines[i].length() > 10+ic*6+3) { 
+			std::string atom_number_string = lines[i].substr(10+ic*8,3);
+			std::string charge_string      = lines[i].substr(14+ic*8,3);
+			std::cout << "found atom_number_string :"
+				  << atom_number_string << ":"
+				  << " charge_string :"
+				  << charge_string
+				  << ":" << std::endl;
+			int atom_number = lig_build::string_to_int(atom_number_string);
+			int charge      = lig_build::string_to_int(charge_string);
+			if (atom_number < n_atoms) {
+			   if (atom_number > 0) { 
+			      atoms[atom_number-1].formal_charge = charge;
+			   }
+			} 
+		     }
+		  } 
+	       }
+	       catch (std::runtime_error rte) {
+		  std::cout << rte.what() << std::endl;
+	       } 
+	    } 
+	 } 
+      } 
+      
    }
 }
 

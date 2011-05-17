@@ -617,7 +617,10 @@ coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
 
 	 long now_time = glutGet(GLUT_ELAPSED_TIME);
 
-	 float opacity = (sin(double(now_time - start_time) * 0.001)+1.4)*0.3;
+	 double add_fac = 1.4;
+	 double m_fac = 1/(1+add_fac) - 0.01;
+	 
+	 float opacity = (sin(double(now_time - start_time) * 0.002)+add_fac)*m_fac;
 	 glColor4f(0.3, 0.3, 0.8, opacity);
 
 	 GLfloat  ambientLight[] = { 0.2f, 0.2f, 0.2f, 0.5f };
