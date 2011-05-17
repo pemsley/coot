@@ -526,6 +526,7 @@ work try also:
 * I get funny messages when finishing Coot - should I worry?::
 * On Fedora systems how do I make the window focus more useful?::
 * On Mac OSX how do I make the window focus more useful?::
+* On a Mac OSX laptop how do I work without a mouse?::
 * How do I change the contour level without a scroll-wheel mouse?::
 * "Unmodelled Blobs" takes me to space - why?::
 * I can't get the "Add Terminal Residue" function to work on my sgi::
@@ -640,6 +641,15 @@ On a more modern version of Mac OS X (10.5+), that might be:
 
 You might need to restart X11 to activate this setting.
 
+@node    On a Mac OSX laptop how do I work without a mouse?
+@section On a Mac OSX laptop how do I work without a mouse?
+
+You can use this setting: 
+
+X11 -> Preferences -> Emulate 3 Button mouse
+
+It will simulate the pressing of middle and right mouse when you use
+it in conjunction with Option and Apple keys.
 
 @node How do I change the contour level without a scroll-wheel mouse?
 @section How do I change the contour level without a scroll-wheel mouse?
