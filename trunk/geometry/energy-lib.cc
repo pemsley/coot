@@ -96,6 +96,7 @@ coot::protein_geometry::add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop) {
       realtype weight = -1;
       int hb_type = coot::energy_lib_atom::HB_UNASSIGNED;
       realtype vdw_radius = -1;
+      realtype vdwh_radius = -1; // with implicit hydrogen, I presume
       realtype ion_radius = -1;
       std::string element;
       int valency = -1;
@@ -139,6 +140,13 @@ coot::protein_geometry::add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop) {
 	 vdw_radius = -1;
       }
 
+      // This can fail (to set vdw_radius - we still have a useful atom description).
+      //
+      ierr = mmCIFLoop->GetReal(vdw_radius, "vdwh_radius",j);
+      if (ierr) {
+	 vdwh_radius = -1;
+      }
+
       // This can fail (to set ion_radius - we still have a useful atom description).
       //
       ierr = mmCIFLoop->GetReal(ion_radius, "ion_radius", j);
@@ -162,8 +170,8 @@ coot::protein_geometry::add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop) {
       }
 
       if (ierr_tot == 0) {
-	 coot::energy_lib_atom at(type, hb_type, weight, vdw_radius, ion_radius, element,
-				  valency, sp_hybridisation);
+	 coot::energy_lib_atom at(type, hb_type, weight, vdw_radius, vdwh_radius,
+				  ion_radius, element, valency, sp_hybridisation);
 	 // std::cout << "DEBUG:: adding energy atom: " << at << std::endl;
 	 add_energy_lib_atom(at);
       } 
@@ -227,4 +235,62 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std:
 	 
    return hb_type;
 
+} 
+
+
+// Find the non-bonded contact distance
+// 
+// Return a pair, if not found the first is 0.  Look up in the energy_lib.
+// 
+std::pair<bool, double>
+coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
+				     const std::string &energy_type_2) const {
+
+   std::pair<bool, double> r(0,0);
+   std::map<std::string, coot::energy_lib_atom>::const_iterator it_1 = energy_lib.atom_map.find(energy_type_1);
+   std::map<std::string, coot::energy_lib_atom>::const_iterator it_2 = energy_lib.atom_map.find(energy_type_2);
+
+   if (it_1 != energy_lib.atom_map.end()) { 
+      if (it_2 != energy_lib.atom_map.end()) {
+	 r.second = it_1->second.vdw_radius + it_2->second.vdw_radius;
+
+	 // ring atoms should not be NBCed to each other.  Not sure
+	 // that 5 atom rings need to be excluded in this manner.
+	 // 
+	 if (it_1->first == "CR15" || it_1->first == "CR16" || it_1->first == "CR1"  ||
+	     it_1->first == "CR6"  || it_1->first == "CR5"  || it_1->first == "CR5"  ||
+	     it_1->first == "CR56" || it_1->first == "CR5"  || it_1->first == "CR66" ||
+	     it_1->first == "NPA"  || it_1->first == "NPB"  || it_1->first == "NRD5" ||
+	     it_1->first == "NRD6" || it_1->first == "NR15" || it_1->first == "NR16" ||
+	     it_1->first == "NR6"  || it_1->first == "NR5") {
+
+	    if (it_2->first == "CR15" || it_2->first == "CR16" || it_2->first == "CR1"  ||
+		it_2->first == "CR6"  || it_2->first == "CR5"  || it_2->first == "CR5"  ||
+		it_2->first == "CR56" || it_2->first == "CR5"  || it_2->first == "CR66" ||
+		it_2->first == "NPA"  || it_2->first == "NPB"  || it_2->first == "NRD5" ||
+		it_2->first == "NRD6" || it_2->first == "NR15" || it_2->first == "NR16" ||
+		it_2->first == "NR6"  || it_2->first == "NR5") {
+	       r.second = 2.2;
+	    }
+	 }
+
+
+	 // hydrogen bonds can be closer
+	 // 
+	 if ((it_1->second.hb_type == coot::energy_lib_atom::HB_DONOR ||
+	      it_1->second.hb_type == coot::energy_lib_atom::HB_BOTH  ||
+	      it_1->second.hb_type == coot::energy_lib_atom::HB_HYDROGEN) &&
+	     (it_2->second.hb_type == coot::energy_lib_atom::HB_ACCEPTOR ||
+	      it_2->second.hb_type == coot::energy_lib_atom::HB_BOTH))
+	    r.second =- 0.8;
+
+	 if ((it_2->second.hb_type == coot::energy_lib_atom::HB_DONOR ||
+	      it_2->second.hb_type == coot::energy_lib_atom::HB_BOTH  ||
+	      it_2->second.hb_type == coot::energy_lib_atom::HB_HYDROGEN) &&
+	     (it_1->second.hb_type == coot::energy_lib_atom::HB_ACCEPTOR ||
+	      it_1->second.hb_type == coot::energy_lib_atom::HB_BOTH))
+	    r.second =- 0.8;
+      }
+   }
+   return r;
 } 

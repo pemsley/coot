@@ -3746,7 +3746,7 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 
    if (restraints_usage_flag & coot::NON_BONDED_MASK) {
       if (iret_prev > 0) {
-	 int n_nbcr = make_non_bonded_contact_restraints();
+	 int n_nbcr = make_non_bonded_contact_restraints(geom);
 	 std::cout << "INFO:: made " << n_nbcr << " non-bonded restraints\n";
       }
    }
@@ -5521,7 +5521,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
 
 
 int 
-coot::restraints_container_t::make_non_bonded_contact_restraints() { 
+coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::protein_geometry &geom) { 
 
    construct_non_bonded_contact_list();
    
@@ -5546,14 +5546,16 @@ coot::restraints_container_t::make_non_bonded_contact_restraints() {
 
 	 std::vector<bool> fixed_atom_flags = make_fixed_flags(i, filtered_non_bonded_atom_indices[i][j]);
 
-	 if (0) { 
+	 if (0)
 	    std::cout << "adding non-bonded contact restraint " 
 		      << i << ":  " << filtered_non_bonded_atom_indices[i][j] << " ["
 		      << atom[i]->GetSeqNum() << " " << atom[i]->name << "] to [" 
 		      << atom[filtered_non_bonded_atom_indices[i][j]]->GetSeqNum() << " " 
 		      << atom[filtered_non_bonded_atom_indices[i][j]]->name << "]" << std::endl;
-	 }
-	 add_non_bonded(i, filtered_non_bonded_atom_indices[i][j], fixed_atom_flags);
+
+	 std::string type_1 = get_type_energy(atom[i], geom);
+	 std::string type_2 = get_type_energy(atom[filtered_non_bonded_atom_indices[i][j]], geom);
+	 add_non_bonded(i, filtered_non_bonded_atom_indices[i][j], type_1, type_2, fixed_atom_flags, geom);
 	 n_nbc_r++;
       }
    }
@@ -5571,6 +5573,15 @@ coot::restraints_container_t::construct_non_bonded_contact_list() {
       construct_non_bonded_contact_list_conventional();
 
 }
+
+std::pair<bool, double>
+coot::simple_restraint::get_nbc_dist(const std::string &atom_1_type,
+				     const std::string &atom_2_type, 
+				     const protein_geometry &geom) {
+
+   return geom.get_nbc_dist(atom_1_type, atom_2_type);
+} 
+
 
    
 void

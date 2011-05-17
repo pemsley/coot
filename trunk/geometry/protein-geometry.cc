@@ -3643,17 +3643,12 @@ coot::protein_geometry::get_monomer_restraints_at_least_minimal(const std::strin
 
 std::pair<bool, coot::dictionary_residue_restraints_t>
 coot::protein_geometry::get_monomer_restraints_internal(const std::string &monomer_type, bool allow_minimal_flag) const {
+
    coot::dictionary_residue_restraints_t t(std::string("(null)"), 0);
    std::pair<bool, coot::dictionary_residue_restraints_t> r(0,t);
 
-   // std::cout << "------- Here 0 in get_monomer_restraints() with monomer_type :"
-   // << monomer_type << ":" << std::endl;
-
    unsigned int nrest = dict_res_restraints.size();
    for (unsigned int i=0; i<nrest; i++) {
-//       std::cout << "DEBUG:: get_monomer_restraints comparing :"
-// 		<< dict_res_restraints[i].comp_id << ": with :"
-// 		<< monomer_type << ":" << std::endl;
       if (dict_res_restraints[i].comp_id  == monomer_type) {
 	 if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
 	    r.second = dict_res_restraints[i];
@@ -3663,21 +3658,13 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
       }
    }
 
-   // std::cout << "------- Here 1 in get_monomer_restraints() direct: " << r.first << std::endl;
    if (!r.first) {
       // OK, that failed to, perhaps there is a synonym?
-      // std::cout << "------- Here 2 in get_monomer_restraints() - trying synonyms " << std::endl;
       for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
-	 // 	 std::cout << "   ------- Here 3 in get_monomer_restraints() "
-	 // << residue_name_synonyms[i].comp_alternative_id
-	 // << " vs " << monomer_type << std::endl;
 	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
-	    // 	    std::cout << "------- Here 4 in get_monomer_restraints() " << std::endl;
 	    int ndict = dict_res_restraints.size();
 	    for (int j=0; j<ndict; j++) {
 	       if (dict_res_restraints[j].comp_id == residue_name_synonyms[i].comp_id) {
-// 		  std::cout << "============= debug found synonym for " << monomer_type
-// 			    << " ----> " << dict_res_restraints[j].comp_id << std::endl;
 		  r.first = 1;
 		  r.second = dict_res_restraints[j];
 		  break;
@@ -3688,17 +3675,9 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 	    break;
       }
    }
-   // std::cout << "------- Here 7 in get_monomer_restraints() direct/synonym: " << r.first << std::endl;
    
    if (!r.first) {
-      // std::cout << "------- Here 8 in get_monomer_restraints() [direct/synonym fail route] "
-      // << r.first << std::endl;
       for (unsigned int i=0; i<nrest; i++) {
-//  	 std::cout << "DEBUG:: get_monomer_restraints comparing :"
-//  		   << dict_res_restraints[i].residue_info.three_letter_code << ": with :"
-//  		   << monomer_type << ":" << " for comp_id "
-// 		   << dict_res_restraints[i].comp_id
-// 		   << std::endl;
 	 if (dict_res_restraints[i].residue_info.three_letter_code  == monomer_type) {
 	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
 	       r.second = dict_res_restraints[i];
@@ -3711,8 +3690,72 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
    return r;
 }
 
+// return -1 on monomer not found.
+int
+coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_type, bool allow_minimal_flag) const {
+
+   int r = -1;
+
+   unsigned int nrest = dict_res_restraints.size();
+   for (unsigned int i=0; i<nrest; i++) {
+      if (dict_res_restraints[i].comp_id  == monomer_type) {
+	 if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
+	    r = i;
+	    break;
+	 }
+      }
+   }
+
+   if (r == -1) {
+      // OK, that failed to, perhaps there is a synonym?
+      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
+	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
+	    int ndict = dict_res_restraints.size();
+	    for (int j=0; j<ndict; j++) {
+	       if (dict_res_restraints[j].comp_id == residue_name_synonyms[i].comp_id) {
+		  r = 1;
+		  break;
+	       }
+	    }
+	 }
+	 if (r != -1)
+	    break;
+      }
+   }
+   
+   if (r == -1) {
+      for (unsigned int i=0; i<nrest; i++) {
+	 if (dict_res_restraints[i].residue_info.three_letter_code  == monomer_type) {
+	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
+	       r = i;
+	       break;
+	    }
+	 }
+      }
+   }
+   
+   return r;
+}
 
 
+std::string
+coot::protein_geometry::get_type_energy(const std::string &atom_name,
+					const std::string &residue_name) const { 
+   // return "" if not found, else return the energy type found in ener_lib.cif
+   //
+   std::string r;
+   int indx = get_monomer_restraints_index(residue_name, 1);
+   if (indx != -1) {
+      coot::dictionary_residue_restraints_t restraints = dict_res_restraints[indx];
+      r = restraints.type_energy(atom_name);
+   } 
+   return r;
+   
+} 
+
+
+// Hmmm... empty function, needs examining.
+// 
 // Use dynamic add if necessary.
 // 
 // Return -1 if the thing was not found or added.
