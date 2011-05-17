@@ -150,8 +150,6 @@
 				 (begin
 				   (set-mol-displayed aa-imol 0)
 				   (set-mol-active    aa-imol 0)))
-			     (set-mol-displayed imol 0)
-			     (set-mol-active    imol 0)
 			     (let* ((col (get-molecule-bonds-colour-map-rotation aa-imol))
 				    (new-col (+ col 5)) ;; a tiny amount.
 				    (imol-replaced 
@@ -159,6 +157,8 @@
 				     (add-ligand-delete-residue-copy-molecule imol "" 1 
 									      aa-imol aa-chain-id aa-res-no)))
 			       (set-molecule-bonds-colour-map-rotation imol-replaced new-col)
+			       (set-mol-displayed imol 0)
+			       (set-mol-active    imol 0)
 			       (graphics-draw))))
 			 #t
 			 ))))))))))
