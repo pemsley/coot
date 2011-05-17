@@ -29,3 +29,8 @@ INCLUDES = \
 
 libcoot_lidia_core_la_SOURCES = lbg-molfile.cc lig-build.cc
 
+# noinst_PROGRAMS = test-molfile
+
+# test_molfile_SOURCES: test-molfile.cc
+
+# test_molfile_LDADD: libcoot-lidia-core.la

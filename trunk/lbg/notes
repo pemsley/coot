@@ -52,8 +52,19 @@ Sun Apr 10 17:15:31 BST 2011
   Bad.
 
 
+
+
 ---
 Tue May 10 22:32:08 BST 2011
+
+    from libcheck, don't run libcheck if coordinates are available from the dictionary.
+
+    This is important for 0.7
+
+* Done
+
+----
+Tue Apr 26 18:40:41 BST 2011
 
    go to a protein residue
   
@@ -61,12 +72,16 @@ Tue May 10 22:32:08 BST 2011
 
    do it again - this should abort but it does not - too many Hs now.
 
-
 ----
 Wed May 11 13:05:57 BST 2011
 
    read in SPX: bad bond between hydrogens.  // ah, was this before HETATM bonding?
 
+
+----
+Sun May 15 09:12:28 BST 2011
+
+   The display of formal charges (from lbg_molefile_atom) needs to be added/reworked.
 
 ----
 Sat Apr  9 11:28:00 BST 2011
