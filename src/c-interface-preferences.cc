@@ -1256,7 +1256,8 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 	 }
 	 // std::cout << "INFO:: added " << n_lines << " lines and " << n_points << " points\n";
       }
-   } 
+      fclose(dots);
+   }
 }
 
 
@@ -1526,6 +1527,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 	    }
 	 }
       }
+      fclose(dots);
    }
 }
 
