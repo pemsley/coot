@@ -152,6 +152,13 @@ namespace lig_build {
 	 double angle = atan2(y,x)/DEG_TO_RAD;
 	 return angle;
       }
+      bool non_zero() const {
+	 if (fabs(x) > 0.00001)
+	    return true;
+	 if (fabs(y) > 0.00001)
+	    return true;
+	 return false;
+      } 
       bool operator==(const pos_t &pos) const {
 	 if (fabs(pos.x-x) < 0.00001) {
 	    if (fabs(pos.x-x) < 0.00001) {

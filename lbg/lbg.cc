@@ -434,16 +434,24 @@ lbg_info_t::drag_canvas(int mouse_x, int mouse_y) {
    // passing to these functions.
 
    if (is_sane_drag(delta)) {
-
-      // std::cout << "here!" << std::endl;
-   
-      clear_canvas();
-      translate_residue_circles(delta);
-      widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
-
-      render_from_molecule(new_mol);
-      draw_all_residue_attribs();
+      clear_and_redraw(delta);
    }
+}
+
+void
+lbg_info_t::clear_and_redraw(const lig_build::pos_t &delta) {
+
+   clear_canvas();
+   if (delta.non_zero()) {
+      widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
+      translate_residue_circles(delta);
+      render_from_molecule(new_mol);
+   } else {
+      std::cout << "==== delta is zero path ==== " << std::endl;
+      widgeted_molecule_t saved_mol = mol;
+      render_from_molecule(saved_mol);
+   }
+   draw_all_flev_annotations();
 }
 
 
@@ -2359,7 +2367,6 @@ lbg_info_t::get_stroke_colour(int i, int n) const {
 void
 lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
-
    make_saves_mutex = 0; // stop saving changes (restored at end)
    clear();
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
@@ -2625,7 +2632,7 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
 					     primary_indices);
    }
    
-   draw_all_residue_attribs(); // contour debugging.
+   draw_all_flev_annotations(); // contour debugging.
 }
 
 std::vector<lbg_info_t::residue_circle_t>
@@ -2729,16 +2736,30 @@ lbg_info_t::offset_residues_from_orig_positions() {
    return current_circles;
 }
 
+void
+lbg_info_t::draw_all_flev_annotations() {
+
+   draw_all_flev_residue_attribs();
+   draw_all_flev_ligand_annotations();
+} 
 
 void
-lbg_info_t::draw_all_residue_attribs() {
+lbg_info_t::draw_all_flev_residue_attribs() {
 
-   if (draw_residue_attribs_flag) { 
+   if (draw_flev_annotations_flag) { 
       draw_residue_circles(residue_circles, additional_representation_handles);
       draw_bonds_to_ligand();
       draw_stacking_interactions(residue_circles);
    }
 }
+
+void
+lbg_info_t::draw_all_flev_ligand_annotations() {
+
+   if (draw_flev_annotations_flag) {
+      draw_substitution_contour();
+   } 
+} 
 
 std::vector<int>
 lbg_info_t::get_primary_indices() const {
@@ -4121,7 +4142,7 @@ lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_
    double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
                                                 // attached to the protein.
 
-   if (draw_residue_attribs_flag) { 
+   if (draw_flev_annotations_flag) { 
       bool draw_solvent_exposures = 1;
       try { 
 	 lig_build::pos_t ligand_centre = mol.get_ligand_centre();
@@ -4496,162 +4517,170 @@ void
 lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa,
 					       GooCanvasItem *root) {
 
-   int n_circles = int(sa*40) + 1;    // needs fiddling?
-   if (n_circles> 10) n_circles = 10; // needs fiddling?
-
-   for (unsigned int i=0; i<n_circles; i++) { 
-      double rad =  LIGAND_TO_CANVAS_SCALE_FACTOR/23.0 * 3.0 * double(i+1); // needs fiddling?
-      GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
-						    pos.x, pos.y,
-						    rad, rad,
-						    "line_width", 0.0,
-						    "fill-color-rgba", 0x5555cc30,
-						    NULL);
+   if (draw_flev_annotations_flag) { 
+      int n_circles = int(sa*40) + 1;    // needs fiddling?
+      if (n_circles> 10) n_circles = 10; // needs fiddling?
+      
+      for (unsigned int i=0; i<n_circles; i++) { 
+	 double rad =  LIGAND_TO_CANVAS_SCALE_FACTOR/23.0 * 3.0 * double(i+1); // needs fiddling?
+	 GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
+						       pos.x, pos.y,
+						       rad, rad,
+						       "line_width", 0.0,
+						       "fill-color-rgba", 0x5555cc30,
+						       NULL);
+      }
    }
 }
 
 void
 lbg_info_t::draw_substitution_contour() {
 
-   bool debug = 1;
+   bool debug = 0;
 
-   if (mol.atoms.size() > 0) {
+   if (draw_flev_annotations_flag) { 
+      if (mol.atoms.size() > 0) {
 
 
-      // first of all, do we have any bash distances for the atoms of this molecule?
-      bool have_bash_distances = 0;
-      for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
-	 if (mol.atoms[iat].bash_distances.size()) {
-	    have_bash_distances = 1;
-	    break;
-	 }
-      }
-
-      // If we don't have bash distances, then don't grid and contour anything.  If
-      // we do, we do....
-      // 
-      if (have_bash_distances) {
-      
-	 GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
-	 try { 
-
-	    std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
-	       mol.ligand_extents();
-	    lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
-   
-	    if (0) { // debug
-	       for (unsigned int i=0; i<mol.atoms.size(); i++) { 
-		  std::cout << "in draw_substitution_contour() atom " << i << " "
-			    << mol.atoms[i].get_atom_name()
-			    << " has "
-			    << mol.atoms[i].bash_distances.size() << " bash distances"
-			    << std::endl;
-		  for (unsigned int j=0; j<mol.atoms[i].bash_distances.size(); j++) {
-		     std::cout << "  " << mol.atoms[i].bash_distances[j];
-		  }
-		  if (mol.atoms[i].bash_distances.size())
-		     std::cout << std::endl;
-	       }
+	 // first of all, do we have any bash distances for the atoms of this molecule?
+	 bool have_bash_distances = 0;
+	 for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+	    if (mol.atoms[iat].bash_distances.size()) {
+	       have_bash_distances = 1;
+	       break;
 	    }
+	 }
 
-	    std::vector<widgeted_atom_ring_centre_info_t> unlimited_atoms;
-	    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
-	       int n_bash_distances = 0;
-	       double sum_bash = 0.0;
-	       bool unlimited = 0;
-	       int n_unlimited = 0;
-	       
-	       if (mol.atoms[iat].bash_distances.size()) { 
-		  for (unsigned int j=0; j<mol.atoms[iat].bash_distances.size(); j++) {
-		     if (! mol.atoms[iat].bash_distances[j].unlimited()) {
-			sum_bash += mol.atoms[iat].bash_distances[j].dist;
-			n_bash_distances++;
-		     } else {
-			unlimited = 1;
-			n_unlimited++;
-		     } 
-		  }
+	 // If we don't have bash distances, then don't grid and contour anything.  If
+	 // we do, we do....
+	 // 
+	 if (have_bash_distances) {
+      
+	    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+	    try { 
 
-		  if (! unlimited) { 
-		     if (n_bash_distances > 0) {
-			double bash_av = sum_bash/double(n_bash_distances);
-			std::cout << "   none unlimited, using bash_av " << bash_av
-				  << " for atom " << mol.atoms[iat].get_atom_name()
-				  << std::endl;
-			grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
+	       std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
+		  mol.ligand_extents();
+	       lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
+   
+	       if (0) { // debug
+		  for (unsigned int i=0; i<mol.atoms.size(); i++) { 
+		     std::cout << "in draw_substitution_contour() atom " << i << " "
+			       << mol.atoms[i].get_atom_name()
+			       << " has "
+			       << mol.atoms[i].bash_distances.size() << " bash distances"
+			       << std::endl;
+		     for (unsigned int j=0; j<mol.atoms[i].bash_distances.size(); j++) {
+			std::cout << "  " << mol.atoms[i].bash_distances[j];
 		     }
+		     if (mol.atoms[i].bash_distances.size())
+			std::cout << std::endl;
+		  }
+	       }
+
+	       std::vector<widgeted_atom_ring_centre_info_t> unlimited_atoms;
+	       for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+		  int n_bash_distances = 0;
+		  double sum_bash = 0.0;
+		  bool unlimited = 0;
+		  int n_unlimited = 0;
+	       
+		  if (mol.atoms[iat].bash_distances.size()) { 
+		     for (unsigned int j=0; j<mol.atoms[iat].bash_distances.size(); j++) {
+			if (! mol.atoms[iat].bash_distances[j].unlimited()) {
+			   sum_bash += mol.atoms[iat].bash_distances[j].dist;
+			   n_bash_distances++;
+			} else {
+			   unlimited = 1;
+			   n_unlimited++;
+			} 
+		     }
+
+		     if (! unlimited) { 
+			if (n_bash_distances > 0) {
+			   double bash_av = sum_bash/double(n_bash_distances);
+			   if (debug)
+			      std::cout << "   none unlimited, using bash_av " << bash_av
+					<< " for atom " << mol.atoms[iat].get_atom_name()
+					<< std::endl;
+			   grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
+			}
+		     } else {
+
+			// Now, were more than half of the bash distances
+			// unlimited?  If yes, then this is unlimited.
+
+			if (double(n_unlimited)/double(mol.atoms[iat].bash_distances.size()) > 0.5) { 
+	    
+			   // just shove some value in to make the grid values vaguely
+			   // correct - the unlimited atoms properly assert themselves
+			   // in the drawing of the contour (that is, the selection of
+			   // the contour fragments).
+			   //
+			   grid.add_for_accessibility(1.2, mol.atoms[iat].atom_position);
+			   // 	       std::cout << "adding unlimited_atom_position "
+			   // 			 << iat << " "
+			   // 			 << mol.atoms[iat].atom_position
+
+			   // not elegant because no constructor for
+			   // widgeted_atom_ring_centre_info_t (because no simple
+			   // constructor for lig_build::atom_t).
+			   // 
+			   widgeted_atom_ring_centre_info_t ua(mol.atoms[iat]);
+			   unlimited_atoms.push_back(ua);
+			} else {
+
+			   // treat as a limited:
+			   double bash_av =
+			      (sum_bash + 4.0 * n_unlimited)/double(n_bash_distances+n_unlimited);
+			   if (debug)
+			      std::cout << "   few unlimited, as limited using bash_av "
+					<< bash_av << " for atom "
+					<< mol.atoms[iat].get_atom_name()
+					<< std::endl;
+			
+			   grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
+			} 
+		     }
+		  
 		  } else {
 
-		     // Now, were more than half of the bash distances
-		     // unlimited?  If yes, then this is unlimited.
-
-		     if (double(n_unlimited)/double(mol.atoms[iat].bash_distances.size()) > 0.5) { 
-	    
-			// just shove some value in to make the grid values vaguely
-			// correct - the unlimited atoms properly assert themselves
-			// in the drawing of the contour (that is, the selection of
-			// the contour fragments).
-			//
-			grid.add_for_accessibility(1.2, mol.atoms[iat].atom_position);
-			// 	       std::cout << "adding unlimited_atom_position "
-			// 			 << iat << " "
-			// 			 << mol.atoms[iat].atom_position
-
-			// not elegant because no constructor for
-			// widgeted_atom_ring_centre_info_t (because no simple
-			// constructor for lig_build::atom_t).
-			// 
- 			widgeted_atom_ring_centre_info_t ua(mol.atoms[iat]);
-			unlimited_atoms.push_back(ua);
-		     } else {
-
-			// treat as a limited:
-			double bash_av =
-			   (sum_bash + 4.0 * n_unlimited)/double(n_bash_distances+n_unlimited);
-			
-			std::cout << "   few unlimited, as limited using bash_av " << bash_av
-				  << " for atom " << mol.atoms[iat].get_atom_name()
-				  << std::endl;
-			
-			grid.add_for_accessibility(bash_av, mol.atoms[iat].atom_position);
-		     } 
-		  }
+		     // we don't get here currently, now that there is an
+		     // outer test for having bash distances. Current way
+		     // is OK, I think.
 		  
-	       } else {
+		     // there were no bash distances - what do we do?  Leaving out
+		     // atoms means gaps over the ligand - bleugh.  Shove some
+		     // value in?  1.0?  if they are not hydrogens, of course.
+		     // 
+		     if (mol.atoms[iat].element != "H") // checked.
+			grid.add_for_accessibility_no_bash_dist_atom(1.0, mol.atoms[iat].atom_position);
+		  } 
+	       }
 
-		  // we don't get here currently, now that there is an
-		  // outer test for having bash distances. Current way
-		  // is OK, I think.
-		  
-		  // there were no bash distances - what do we do?  Leaving out
-		  // atoms means gaps over the ligand - bleugh.  Shove some
-		  // value in?  1.0?  if they are not hydrogens, of course.
-		  // 
-		  if (mol.atoms[iat].element != "H") // checked.
-		     grid.add_for_accessibility_no_bash_dist_atom(1.0, mol.atoms[iat].atom_position);
-	       } 
+	       // Put some values around the ring centres too.
+	       // 
+	       grid.avoid_ring_centres(ring_atoms_list, mol);
+
+	       // show_grid(grid);
+
+	       // std::vector<widgeted_atom_ring_centre_info_t> dummy_unlimited_atoms;
+	       grid.show_contour(root, 0.5, unlimited_atoms, ring_atoms_list);
+	       // debug
+	       // show_unlimited_atoms(unlimited_atoms);
+	       // show_ring_centres(ring_atoms_list, mol);
+
+	       if (debug) { 
+		  std::cout << "Here are the "<< unlimited_atoms.size()
+			    << " unlimited atoms: " << std::endl;
+		  for (unsigned int iat=0; iat<unlimited_atoms.size(); iat++)
+		     std::cout << "   " << unlimited_atoms[iat] << std::endl;
+	       }
+
 	    }
-
-	    // Put some values around the ring centres too.
-	    // 
-	    grid.avoid_ring_centres(ring_atoms_list, mol);
-
-	    // show_grid(grid);
-
-	    // std::vector<widgeted_atom_ring_centre_info_t> dummy_unlimited_atoms;
-	    grid.show_contour(root, 0.5, unlimited_atoms, ring_atoms_list);
-	    // debug
-	    // show_unlimited_atoms(unlimited_atoms);
-	    // show_ring_centres(ring_atoms_list, mol);
-
-	    std::cout << "Here are the "<< unlimited_atoms.size()
-		      << " unlimited atoms: " << std::endl;
-	    for (unsigned int iat=0; iat<unlimited_atoms.size(); iat++)
-	       std::cout << "   " << unlimited_atoms[iat] << std::endl;
-
-	 }
-	 catch (std::runtime_error rte) {
-	    std::cout << rte.what() << std::endl;
+	    catch (std::runtime_error rte) {
+	       std::cout << rte.what() << std::endl;
+	    }
 	 }
       }
    }
