@@ -70,7 +70,7 @@ libcoot_ideal_la_LIBADD = \
    $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 
 
-libcoot_ideal_la_SOURCES = simple-restraint.cc  extra-restraints.cc \
+libcoot_ideal_la_SOURCES = simple-restraint.cc chirals.cc  extra-restraints.cc \
 	pepflip.cc regularize-minimol.cc lograma.cpp \
         extra-restraints-kk.cc simple-restraint-kk.cc
 

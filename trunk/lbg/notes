@@ -31,6 +31,8 @@ Fri Apr 15 13:00:04 BST 2011
    When importing a molecule from the refmac dictionary, get the
    coordinates if it has them, don't run libcheck if you don't have to.
 
+* Done.
+
 ----
 
  build Coronene using prodrg
@@ -57,7 +59,8 @@ Sun Apr 10 17:15:31 BST 2011
 ---
 Tue May 10 22:32:08 BST 2011
 
-    from libcheck, don't run libcheck if coordinates are available from the dictionary.
+    from libcheck, don't run libcheck if coordinates are available
+    from the dictionary.
 
     This is important for 0.7
 
@@ -72,16 +75,20 @@ Tue Apr 26 18:40:41 BST 2011
 
    do it again - this should abort but it does not - too many Hs now.
 
+* Done
+
 ----
 Wed May 11 13:05:57 BST 2011
 
    read in SPX: bad bond between hydrogens.  // ah, was this before HETATM bonding?
 
+* Yes (done).
 
 ----
 Sun May 15 09:12:28 BST 2011
 
-   The display of formal charges (from lbg_molefile_atom) needs to be added/reworked.
+   The display of formal charges (from lbg_molefile_atom) needs to be
+   added/reworked.
 
 ----
 Sat Apr  9 11:28:00 BST 2011
@@ -159,6 +166,8 @@ Sat Jan  8 17:54:41 GMT 2011
     The + button for residues should remove all annotation, contour
     and atom solvent exposures too.
 
+* Done.
+
 
 ----
 
@@ -172,8 +181,8 @@ Sat Jan  8 17:54:41 GMT 2011
 ----
 Sat Nov 13 16:16:13 GMT 2010
 
-    sbase searching in File -> Search Monomer Library should use the three letter code
-    too (if three letters have been typed)
+    sbase searching in File -> Search Monomer Library should use the
+    three letter code too (if three letters have been typed)
 
 
 ----
@@ -183,11 +192,17 @@ Sat Nov 13 16:30:18 GMT 2010
 
     I want a button that turns off the display of residues in lidia.
 
+* Done.
+
     When you do so, also undisplay the substituion contour and solvent
     exposures i.e. all annotion.
 
+* Done.
+
     In fact the solvent exposure on the atoms should not be displayed
     when the residues are not displayed.
+
+* Done.
 
     Make atoms in lidia recentre/highlight in the main window.
 
@@ -235,7 +250,7 @@ Mon Oct 18 01:28:59 EDT 2010
 ---
 Sat Oct 16 20:30:42 EDT 2010
 
-    covalent bonds to a regular chain peptide reisdue, should touch
+    covalent bonds to a regular chain peptide resiude, should touch
     the C (it currently is short, like the N)
 
 

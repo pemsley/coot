@@ -690,11 +690,12 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 // a wrapper for the above, matching hydrogens names to the
 // dictionary.  Add atoms to residue_p, return success status.
 // 
-bool
+std::pair<bool, std::string>
 coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 			      const coot::dictionary_residue_restraints_t &restraints) {
 
    bool r = 0;
+   std::string error_message;
    if (residue_p) {
       const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
       try {
@@ -713,6 +714,13 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	       if (ele == " H")
 		  existing_H_names.push_back(residue_atoms[iat]->name);
 	    }
+	 }
+
+	 // get out now if thre are existing hydrogens,
+	 // MolOps::addHs() throws an exception (not clear to me why)
+	 // if there are hydrogens on the molecule already.
+	 if (existing_H_names.size()) {
+	    return std::pair<bool, std::string> (0, "Ligand contains (some) hydrogens already");
 	 }
 	 
 	 RDKit::RWMol m_no_Hs = rdkit_mol(residue_p, restraints);
@@ -824,7 +832,7 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	 std::cout << rdkit_error.what() << std::endl;
       }
    }
-   return r;
+   return std::pair<bool, std::string> (r, error_message);
 }
 
 // atom_p is a hydrogen atom we presume, of degree 1.  This is tested

@@ -2908,10 +2908,12 @@ public:        //                      public
 				       bool is_negative_level = 0); // shininess, material colour etc.
    bool transparent_molecular_surface_flag; // 0 by default.
 
-   bool sprout_hydrogens(const std::string &chain_id,
-			 int res_no,
-			 const std::string &ins_code,
-			 const coot::protein_geometry &geom);
+   // return a error status and an error message.
+   std::pair<bool, std::string>
+   sprout_hydrogens(const std::string &chain_id,
+		    int res_no,
+		    const std::string &ins_code,
+		    const coot::protein_geometry &geom);
 
    std::vector<std::string> no_dictionary_for_residue_type_as_yet(const coot::protein_geometry &geom) const;
 
