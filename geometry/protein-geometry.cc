@@ -3746,7 +3746,7 @@ coot::protein_geometry::get_type_energy(const std::string &atom_name,
    std::string r;
    int indx = get_monomer_restraints_index(residue_name, 1);
    if (indx != -1) {
-      coot::dictionary_residue_restraints_t restraints = dict_res_restraints[indx];
+      const coot::dictionary_residue_restraints_t &restraints = dict_res_restraints[indx];
       r = restraints.type_energy(atom_name);
    } 
    return r;

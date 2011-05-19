@@ -70,9 +70,13 @@ sprout_hydrogens(int imol,
    int r = 0;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      r = g.molecules[imol].sprout_hydrogens(chain_id, res_no, ins_code, *(g.Geom_p()));
+      std::pair<bool, std::string> r_add =
+	 g.molecules[imol].sprout_hydrogens(chain_id, res_no, ins_code, *(g.Geom_p()));
+      r = r_add.first;
       if (r)
 	 graphics_draw();
+      else
+	 info_dialog(r_add.second.c_str());
    }
    return r;
 }

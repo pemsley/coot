@@ -47,10 +47,12 @@ namespace coot {
 
 
    // a wrapper for the above, matching hydrogens names to the
-   // dictionary.  Add atoms to residue_p, return success status.
+   // dictionary.  Add atoms to residue_p, return success status and error
+   // message pair
    // 
-   bool add_hydrogens_with_rdkit(CResidue *residue_p,
-				 const dictionary_residue_restraints_t &restraints);
+   std::pair<bool, std::string>
+   add_hydrogens_with_rdkit(CResidue *residue_p,
+			    const dictionary_residue_restraints_t &restraints);
 
    std::string infer_H_name(int iat,
 			    RDKit::ATOM_SPTR atom_p,

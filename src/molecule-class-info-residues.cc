@@ -161,13 +161,13 @@ molecule_class_info_t::assign_hetatms() {
 }
 
 
-bool
+std::pair<bool, std::string>
 molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 					int res_no,
 					const std::string &ins_code,
 					const coot::protein_geometry &geom) {
 
-   bool r = 0;
+   std::pair<bool, std::string> r(0, "");
 
    make_backup();
    CResidue *residue_p = get_residue(chain_id, res_no, ins_code);
@@ -188,9 +188,11 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		   << residue_type << std::endl;
       } else {
 	 r = coot::add_hydrogens(residue_p, p.second);
-	 std::cout << "DEBUG:: coot::add_hydrogens() returns " << r << std::endl;
-	 if (r) {
 
+	 std::cout << "DEBUG:: coot::add_hydrogens() returns " << r.first
+		   << " " << r.second << std::endl;
+	 
+	 if (r.first) {
 
 	    std::string residue_name = residue_p->GetResName();
 
@@ -283,7 +285,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 	 }
       }
    }
-   if (r) {
+   if (r.first) {
       have_unsaved_changes_flag = 1;
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);

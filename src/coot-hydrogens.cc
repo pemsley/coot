@@ -10,15 +10,17 @@
 #include "coot-hydrogens.hh"
 
 
-bool
+std::pair<bool, std::string>
 coot::add_hydrogens(CResidue *residue_p,
 		    const coot::dictionary_residue_restraints_t &restraints) {
 
 #ifdef MAKE_ENTERPRISE_TOOLS
-   return add_hydrogens_with_rdkit(residue_p, restraints);
+   std::pair<bool, std::string> r = 
+      add_hydrogens_with_rdkit(residue_p, restraints);
+   return r;
 #else    
    // return add_hydrogens_with_ccp4_tools(residue_p, restraints);
-   return 0;
+   std::pair<bool, std::string> (0, "not implemented");
 #endif   
 
 }
