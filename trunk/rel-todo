@@ -1,8 +1,6 @@
 
  0.6.2
 
-  o state saving needs a cleanup. ::: 0.1
-
 ------
 
     o Fix rename-residue to work on just one chain ::: 0.5
