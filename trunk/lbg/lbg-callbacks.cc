@@ -535,7 +535,7 @@ on_residue_circles_toolbutton_clicked(GtkToolButton *button, gpointer user_data)
 	 l->read_draw_residues(f);
       } else {
 	 // normal enterprise, built-in case
-	 l->draw_all_residue_attribs();
+	 l->draw_all_flev_annotations();
       } 
    } else {
 	 std::cout << "Bad lbg_info_t lookup in on_residue_cirlces_toolbutton_clicked" << std::endl;
@@ -551,12 +551,14 @@ on_residue_circles_toggle_toolbutton_toggled(GtkToggleToolButton *toggle_button,
 
       if (gtk_toggle_tool_button_get_active(toggle_button)) {
 	 // on
-	 l->set_draw_residue_attribs(true);
+	 l->set_draw_flev_annotations(true);
+	 l->draw_all_flev_annotations();
       } else {
 	 // off
-	 l->set_draw_residue_attribs(false);
+	 l->set_draw_flev_annotations(false);
+	 lig_build::pos_t zero_delta(0,0); // dummy, zero is now checked in clear_and_redraw()
+	 l->clear_and_redraw(zero_delta);
       } 
-      l->draw_all_residue_attribs();
    }
 }
 

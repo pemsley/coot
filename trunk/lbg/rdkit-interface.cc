@@ -281,11 +281,13 @@ coot::rdkit_mol(CResidue *residue_p,
 
    std::cout << "in constructing rdk molecule now adding a conf" << std::endl;
    RDKit::Conformer *conf = new RDKit::Conformer(added_atom_names.size());
+   std::cout << "==== setting 3d flag" << std::endl;
    conf->set3D(true);
       
    // Add positions to the conformer (only the first instance of an
    // atom with a particular atom name).
    // 
+   std::cout << "==== adding positions to the conformer " << std::endl;
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
       std::string atom_name(residue_atoms[iat]->name);
       std::map<std::string, int>::const_iterator it = atom_index.find(atom_name);
@@ -301,7 +303,8 @@ coot::rdkit_mol(CResidue *residue_p,
       } 
    }
    m.addConformer(conf);
-   std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms() << std::endl;
+   std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
+	     << std::endl;
    return m;
 }
 
@@ -695,6 +698,23 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
    if (residue_p) {
       const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
       try {
+
+	 // first save the existing hydrogen names. We don't want to
+	 // add a hydrogen with the same name as an atom we already
+	 // have.
+	 //
+	 std::vector<std::string> existing_H_names;
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	    if (! residue_atoms[iat]->isTer()) {
+	       std::string ele = residue_atoms[iat]->element;
+	       if (ele == " H")
+		  existing_H_names.push_back(residue_atoms[iat]->name);
+	    }
+	 }
+	 
 	 RDKit::RWMol m_no_Hs = rdkit_mol(residue_p, restraints);
 	 int n_mol_atoms = m_no_Hs.getNumAtoms();
 	 std::cout << ".......  pre H addition mol has " << n_mol_atoms
@@ -706,7 +726,8 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	    RDKit::ATOM_SPTR at_p = m_no_Hs[iat];
 	    at_p->calcImplicitValence(true);
 	 }
-	 
+
+	 std::cout << "MolOps:: adding hydrogens " << std::endl;
 	 RDKit::ROMol *m_pre = RDKit::MolOps::addHs(m_no_Hs, 0, 1);
 	 RDKit::RWMol m(*m_pre);
 	 std::cout << "....... post H addition mol has " << m_pre->getNumAtoms()
@@ -718,6 +739,8 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	 int confId = 0;
 	 bool ignoreInterfragInteractions=true;
 	 int maxIters = 500;
+
+	 std::cout << "==== constructForceField()......" << std::endl;
 	 
  	 ForceFields::ForceField *ff =
  	    RDKit::UFF::constructForceField(m, vdwThresh, confId,
@@ -726,7 +749,9 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
  	 for (unsigned int iat=0; iat<n_mol_atoms; iat++)
  	    ff->fixedPoints().push_back(iat);
 
+	 std::cout << "==== ff->initialize() ......" << std::endl;
  	 ff->initialize();
+	 std::cout << "==== ff->minimize() ......" << std::endl;
  	 int res=ff->minimize(maxIters);
 	 std::cout << "rdkit minimize() returns " << res << std::endl;
  	 delete ff;
@@ -764,19 +789,27 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 		  std::string name = coot::infer_H_name(iat, at_p, &m, restraints,
 							H_names_already_added);
 		  if (name != "") {
-		     H_names_already_added.push_back(name);
-		  
-		     int n = at_p->getAtomicNum();
-		     std::string element = tbl->getElementSymbol(n);
-		  
-		     CAtom *at = new CAtom;
-		     at->SetAtomName(name.c_str());
-		     // at->SetElementName(element.c_str()); // FIXME?
-		     at->SetElementName(" H");
-		     at->SetCoordinates(r_pos.x, r_pos.y, r_pos.z, 1.0, 30.0);
-		     at->Het = 1;
-		     residue_p->AddAtom(at);
-		     r = 1;
+
+		     // add atom if the name is not already there:
+		     // 
+		     if (std::find(existing_H_names.begin(),
+				   existing_H_names.end(),
+				   name) == existing_H_names.end()) {
+			
+			H_names_already_added.push_back(name);
+			
+			int n = at_p->getAtomicNum();
+			std::string element = tbl->getElementSymbol(n);
+			
+			CAtom *at = new CAtom;
+			at->SetAtomName(name.c_str());
+			// at->SetElementName(element.c_str()); // FIXME?
+			at->SetElementName(" H");
+			at->SetCoordinates(r_pos.x, r_pos.y, r_pos.z, 1.0, 30.0);
+			at->Het = 1;
+			residue_p->AddAtom(at);
+			r = 1;
+		     }
 		  }
 	       }
 	    }

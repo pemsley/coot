@@ -619,7 +619,9 @@ private:
    std::vector<widgeted_molecule_t> previous_molecules;
    int save_molecule_index;
    bool in_delete_mode_;
-   bool draw_residue_attribs_flag; // circles and bonds, etc
+   bool draw_flev_annotations_flag; // residue_attributes (circles and
+				    // bonds), solvent accessiblity and
+				    // substitution contour.
    highlight_data_t highlight_data;
    bool is_atom_element(int addition_mode) const;
    bool is_bond(int addition_mode) const;
@@ -923,8 +925,8 @@ public:
    void set_in_delete_mode(bool v) {
       in_delete_mode_ = v;
    }
-   void set_draw_residue_attribs(bool v) {
-      draw_residue_attribs_flag = v;
+   void set_draw_flev_annotations(bool v) {
+      draw_flev_annotations_flag = v;
    } 
    bool in_delete_mode_p() const { return in_delete_mode_; }
    double radius(int n_edges) const; // depends on zoom? (for future).
@@ -947,7 +949,10 @@ public:
    static gboolean watch_for_mdl_from_coot(gpointer user_data);
    time_t coot_mdl_ready_time;
    void read_draw_residues(const std::string &file_name);
-   void draw_all_residue_attribs();
+   void draw_all_flev_annotations(); // which calls draw_all_residue_attribs();
+   void draw_all_flev_residue_attribs();
+   void draw_all_flev_ligand_annotations();
+   
    std::vector<residue_circle_t> read_residues(const std::string &file_name) const;
    // if you don't have add_rep_handles, pass an empty vector.
    void draw_residue_circles(const std::vector<residue_circle_t> &v,
@@ -992,6 +997,8 @@ public:
    void set_atom_x_string(const std::string &s);
 
    void write_mdl_molfile_using_default_file_name() const;
+
+   void clear_and_redraw(const lig_build::pos_t &delta);
    
 };
 
