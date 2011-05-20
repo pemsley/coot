@@ -31,20 +31,25 @@
   ;; overlap the imol-ligand residue if there are restraints for the
   ;; reference residue/ligand.
   ;; 
+  ;; Don't overlap of the reference residue/ligand is not a het-group.
+  ;; 
   (define (overlap-ligands-maybe imol-ligand imol-ref chain-id-ref res-no-ref)
 
     ;; we don't want to overlap-ligands if there is no dictionary
-    ;; for the residue to be matched to
+    ;; for the residue to be matched to.
+    ;; 
     (let* ((res-name (residue-name imol-ref chain-id-ref res-no-ref ""))
 	   (restraints (monomer-restraints res-name)))
       (if (not restraints)
 	  #f
 	  (begin 
-	    (overlap-ligands imol-ligand imol-ref chain-id-ref res-no-ref)
-	    #t))))
+	    (if (not (residue-has-hetatms? imol-ref chain-id-ref res-no-ref ""))
+		#f
+		(overlap-ligands imol-ligand imol-ref chain-id-ref res-no-ref)
+		#t)))))
 		     
 
-  ;; return the new molecule number
+  ;; return the new molecule number.
   ;; 
   (define (read-and-regularize prodrg-xyzout)
     (let ((imol (handle-read-draw-molecule-and-move-molecule-here prodrg-xyzout)))
@@ -138,28 +143,37 @@
 			
 			;; we have an active residue to match to 
 			(using-active-atom
-			 (let ((imol (read-regularize-and-match-torsions 
-				      prodrg-xyzout aa-imol aa-chain-id aa-res-no )))
+			 (if (not (residue-is-close-to-screen-centre? 
+				   aa-imol aa-chain-id aa-res-no ""))
+
+			     ;; not close, no overlap
+			     ;; 
+			     (begin 
+			       (read-and-regularize prodrg-xyzout))
+
+
+			     ;; try overlap
+			     ;;
+			     (let ((imol (read-regularize-and-match-torsions 
+					  prodrg-xyzout aa-imol aa-chain-id aa-res-no )))
+
+			       (let ((overlapped-flag
+				      (overlap-ligands-maybe imol aa-imol aa-chain-id aa-res-no)))
 			   
-			   (let ((overlapped-flag
-				  (overlap-ligands-maybe imol aa-imol aa-chain-id aa-res-no)))
-			   
-			     ;; (additional-representation-by-attributes imol "" 1 1 "" 2 2 0.2 1)
-			     
-			     (if overlapped-flag
-				 (begin
-				   (set-mol-displayed aa-imol 0)
-				   (set-mol-active    aa-imol 0)))
-			     (let* ((col (get-molecule-bonds-colour-map-rotation aa-imol))
-				    (new-col (+ col 5)) ;; a tiny amount.
-				    (imol-replaced 
-				     ;; new ligand specs, then "reference" ligand (to be deleted)
-				     (add-ligand-delete-residue-copy-molecule imol "" 1 
-									      aa-imol aa-chain-id aa-res-no)))
-			       (set-molecule-bonds-colour-map-rotation imol-replaced new-col)
-			       (set-mol-displayed imol 0)
-			       (set-mol-active    imol 0)
-			       (graphics-draw))))
+				 (if overlapped-flag
+				     (begin
+				       (set-mol-displayed aa-imol 0)
+				       (set-mol-active    aa-imol 0)
+				       (let* ((col (get-molecule-bonds-colour-map-rotation aa-imol))
+					      (new-col (+ col 5)) ;; a tiny amount.
+					      (imol-replaced 
+					       ;; new ligand specs, then "reference" ligand (to be deleted)
+					       (add-ligand-delete-residue-copy-molecule imol "" 1 
+											aa-imol aa-chain-id aa-res-no)))
+					 (set-molecule-bonds-colour-map-rotation imol-replaced new-col)
+					 (set-mol-displayed imol 0)
+					 (set-mol-active    imol 0)
+					 (graphics-draw)))))))
 			 #t
 			 ))))))))))
 
