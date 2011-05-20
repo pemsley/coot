@@ -97,6 +97,7 @@
 (define copy-residue-range-from-ncs-master-to-chains copy-residue-range-from-ncs-master-to-chains-scm)
 (define remarks remarks-scm)
 (define protein-db-loops protein-db-loops-scm)
+(define residue-centre residue-centre-scm)
 
 ;; documented functions
 
@@ -1487,6 +1488,12 @@
 (define (residue-exists? imol chain-id resno ins-code)
 
   (= 1 (does-residue-exist-p imol chain-id resno ins-code)))
+
+;; Does the residue contain hetatoms? 
+;; Return #t or #f.
+;; 
+(define (residue-has-hetatms? imol chain-id res-no ins-code)
+  (= 1 (residue-has-hetatms imol chain-id res-no ins-code)))
 
 
 ;; Return a list of 3 float for the centre of mas of molecule number imol.
@@ -3022,6 +3029,16 @@
 			   (set-residue-name new-mol aa-chain-id aa-res-no aa-ins-code new-residue-name)
 			   (regularize-zone new-mol aa-chain-id aa-res-no aa-res-no aa-alt-conf)
 			   )))))))))))
+
+(define (residue-is-close-to-screen-centre? imol chain-id res-no ins-code)
+  (define (square x) (* x x))
+  (let ((rc (residue-centre imol chain-id res-no ins-code)))
+    (if (not (list? rc))
+	#f
+	(let ((sc (rotation-centre)))
+	  (let ((dist-sum-sq (apply + (map square (map - rc sc)))))
+	    (< dist-sum-sq 25))))))
+	
 
 ;; Americans...
 (define chiral-center-inverter chiral-centre-inverter)
