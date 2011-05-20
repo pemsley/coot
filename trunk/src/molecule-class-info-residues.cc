@@ -739,3 +739,39 @@ molecule_class_info_t::draw_animated_ligand_interactions(const gl_context_info_t
 
 } 
 							    
+
+std::pair<bool, clipper::Coord_orth>
+molecule_class_info_t::residue_centre(const std::string &chain_id, int resno, const std::string &ins_code) const {
+
+   bool r = 0;
+   clipper::Coord_orth pos(0,0,0);
+   int n_atoms = 0;
+
+   CResidue *residue_p = get_residue(chain_id, resno, ins_code);
+   if (residue_p) {
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 if (! residue_atoms[iat]->isTer()) { 
+	    clipper::Coord_orth p(residue_atoms[iat]->x,
+				  residue_atoms[iat]->y,
+				  residue_atoms[iat]->z);
+	    pos += p;
+	    n_atoms++;
+	 }
+      }
+      if (n_atoms) {
+	 pos = clipper::Coord_orth(pos.x()/double(n_atoms),
+				   pos.y()/double(n_atoms),
+				   pos.z()/double(n_atoms));
+	 r = 1; 
+      } 
+   } else {
+      std::cout << "Residue not found "
+		<< coot::residue_spec_t(chain_id, resno, ins_code)
+		<< std::endl;
+   } 
+   return std::pair<bool, clipper::Coord_orth> (r, pos);
+
+} 

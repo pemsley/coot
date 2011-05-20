@@ -4270,3 +4270,47 @@ PyObject *remarks_py(int imol) {
 }
 
 #endif
+
+
+#ifdef USE_GUILE
+SCM residue_centre_scm(int imol, const char *chain_id, int resno, const char *ins_code) {
+
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, clipper::Coord_orth> rr =
+	 graphics_info_t::molecules[imol].residue_centre(chain_id, resno, ins_code);
+      if (rr.first) {
+	 r = SCM_LIST3(scm_double2num(rr.second.x()),
+		       scm_double2num(rr.second.y()),
+		       scm_double2num(rr.second.z()));
+      } 
+   } 
+   return r;
+} 
+
+#endif
+
+
+#ifdef USE_PYTHON
+SCM residue_centre_py(int imol, const char *chain_id, int resno, const char *ins_code) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, clipper::Coord_orth> rr =
+	 graphics_info_t::molecules[imol].residue_centre(chain_id, resno, ins_code);
+      if (rr.first) {
+	 r = PyList_New(3);
+	 PyList_SetItem(r, 0, rr.second.x());
+	 PyList_SetItem(r, 1, rr.second.y());
+	 PyList_SetItem(r, 2, rr.second.z());
+      } 
+   } 
+   if (PyBool_Check(r)) {
+      Py_INCREF(r);
+   }
+   return r;
+} 
+
+#endif
