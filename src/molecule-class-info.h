@@ -2958,6 +2958,9 @@ public:        //                      public
    bool draw_animated_ligand_interactions_flag; // tweaked by outside function
    void add_hydrogens_from_file(const std::string &reduce_pdb_out);
 
+   std::pair<bool, clipper::Coord_orth>
+   residue_centre(const std::string &chain_id, int resno, const std::string &ins_code) const;
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

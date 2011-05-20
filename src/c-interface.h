@@ -424,11 +424,17 @@ int n_residues(int imol);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM remarks_scm(int imol);
+/* return a list or scheme false */
+SCM residue_centre_scm(int imol, const char *chain_id, int resno, const char *ins_code);
 #endif
 #ifdef USE_PYTHON
+/* return a list or python false */
 PyObject *remarks_py(int imol);
+PyObject *residue_centre_py(int imol, const char *chain_id, int resno, const char *ins_code);
 #endif
 #endif
+
+
 
 
 /*! \brief sort the chain ids of the imol-th molecule in lexographical order */
