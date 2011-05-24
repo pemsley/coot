@@ -786,6 +786,7 @@ coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name)
 
 
 
+
 std::vector<std::string>
 coot::dictionary_residue_restraints_t::get_attached_H_names(const std::string &atom_name) const {
 
@@ -3751,7 +3752,37 @@ coot::protein_geometry::get_type_energy(const std::string &atom_name,
    } 
    return r;
    
-} 
+}
+
+// return -1.1 on failure to look up.
+// 
+double
+coot::protein_geometry::get_vdw_radius(const std::string &atom_name,
+				       const std::string &residue_name,
+				       bool use_vdwH_flag) const {
+   double r = -1.1;
+   int indx = get_monomer_restraints_index(residue_name, 1);
+   if (indx != -1) {
+      const coot::dictionary_residue_restraints_t &restraints = dict_res_restraints[indx];
+      std::string et = restraints.type_energy(atom_name);
+      if (et != "") {
+	 std::map<std::string, energy_lib_atom>::const_iterator it =
+	    energy_lib.atom_map.find(et);
+	 if (it != energy_lib.atom_map.end()) {
+	    if (use_vdwH_flag)
+	       r = it->second.vdwh_radius;
+	    else
+	       r = it->second.vdw_radius;
+	 }
+      }
+   } else {
+      std::cout << "  no restraints for type " << residue_name << std::endl;
+   }
+   return r;
+}
+
+
+
 
 
 // Hmmm... empty function, needs examining.
