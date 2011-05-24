@@ -140,9 +140,9 @@ coot::protein_geometry::add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop) {
 	 vdw_radius = -1;
       }
 
-      // This can fail (to set vdw_radius - we still have a useful atom description).
+      // This can fail (to set vdwh_radius - we still have a useful atom description).
       //
-      ierr = mmCIFLoop->GetReal(vdw_radius, "vdwh_radius",j);
+      ierr = mmCIFLoop->GetReal(vdwh_radius, "vdwh_radius",j);
       if (ierr) {
 	 vdwh_radius = -1;
       }
@@ -183,7 +183,8 @@ std::ostream&
 coot::operator<<(std::ostream &s, const energy_lib_atom &at) {
 
    s << "[type: " << at.type << " weight: " << at.weight << " vdw_radius: " << at.vdw_radius
-     << " ion_radius: " << at.ion_radius << " element: " << at.element
+     << " vdwh_radius: " << at.vdwh_radius << " ion_radius: " << at.ion_radius
+     << " element: " << at.element
      << " valency: " << at.valency << " sp_hybridisation: " << at.sp_hybridisation
      << "]";
    return s;

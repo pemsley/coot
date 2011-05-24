@@ -945,7 +945,8 @@ namespace coot {
 	 type = type_in;
 	 hb_type = hb_type_in;
 	 weight = weight_in;
-	 vdw_radius = vdw_radius_in;
+	 vdw_radius  = vdw_radius_in;
+	 vdwh_radius = vdwh_radius_in;
 	 ion_radius = ion_radius_in;
 	 element = element_in;
 	 valency = valency_in;
@@ -1620,6 +1621,12 @@ namespace coot {
       // 
       std::string get_type_energy(const std::string &atom_name,
 				  const std::string &residue_name) const;
+
+      // return -1.1 on failure to look up.
+      // 
+      double get_vdw_radius(const std::string &atom_name,
+			    const std::string &residue_name,
+			    bool use_vdwH_flag) const;
 
 
       // Find the non-bonded contact distance
