@@ -30,7 +30,7 @@ lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-shelx.la libcoot-coord-extras.l
 include_HEADERS = peak-search.hh coot-trim.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
-	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh
+	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh
 
 INCLUDES = \
 	-I$(top_srcdir)/utils	        \
@@ -49,7 +49,7 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 
 # for pure coordinates (mmdb) things
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
-	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc 
+	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc
 
 # clean
 libcoot_coord_utils_la_LIBADD = \
@@ -94,7 +94,7 @@ libcoot_map_heavy_la_LIBADD = \
    $(GSL_LIBS)
 
 
-noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils
+noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole
 
 # testshelxreader fails to link for some reason! coot::protein_geometry::get_h_bond_type 
 # testcootutils also.  20100812 Fixed now - added libcoot-geometry.la
@@ -119,3 +119,6 @@ test_h_bonds_SOURCES = test-h-bonds.cc
 test_h_bonds_LDADD = $(top_builddir)/geometry/libcoot-geometry.la \
 	 ./libcoot-coord-utils.la 
 
+test_hole_SOURCES = test-hole.cc
+test_hole_LDADD = ./libcoot-coord-utils.la \
+    $(MMDB_LIBS)
