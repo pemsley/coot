@@ -31,5 +31,6 @@ include_HEADERS = coot-utils.hh coot-fasta.hh
 
 # for simple things:
 libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
-	gdk-keysyms.cc
+	gdk-keysyms.cc hsv-rgb.cc
+
 

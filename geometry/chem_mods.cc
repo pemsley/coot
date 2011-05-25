@@ -198,30 +198,43 @@ coot::protein_geometry::add_chem_mod_atom( PCMMCIFLoop mmCIFLoop) {
 
       s = mmCIFLoop->GetString("mod_id", j, ierr);
       ierr_tot += ierr;
+      if (ierr) std::cout << "   oops getting mod_id " << std::endl;
       if (s) mod_id = s;
 
       s = mmCIFLoop->GetString("function", j, ierr);
+      if (ierr) std::cout << "   oops getting function " << std::endl;
       ierr_tot += ierr;
       if (s) function = s;
 
       s = mmCIFLoop->GetString("atom_id", j, ierr);
+      if (ierr) std::cout << "   oops getting atom_id " << std::endl;
       ierr_tot += ierr;
       if (s) atom_id = s;
 
       s = mmCIFLoop->GetString("new_atom_id", j, ierr);
+      if (ierr) std::cout << "   oops getting new_atom_id " << std::endl;
       ierr_tot += ierr;
       if (s) new_atom_id = s;
 
       s = mmCIFLoop->GetString("new_type_symbol", j, ierr);
+      if (ierr) std::cout << "   oops getting new_type_symbol " << std::endl;
       ierr_tot += ierr;
       if (s) new_type_symbol = s;
 
       s = mmCIFLoop->GetString("new_type_energy", j, ierr);
+      if (ierr) std::cout << "   oops getting new_type_energy " << std::endl;
       ierr_tot += ierr;
       if (s) new_type_energy = s;
 
       ierr = mmCIFLoop->GetReal(new_partial_charge, "new_partial_charge", j);
-      ierr_tot += ierr; 
+      // OK, with the old dictionary can fail here (the format of the
+      // dictionary is wrong - you can't have default value "." for
+      // numbers in cif.
+      if (ierr) {
+	 new_partial_charge = 0.0; // dummy value, for atoms that
+				   // don't matter - e.g. function is
+				   // "delete"
+      } 
       
       if (ierr_tot == 0) {
 	 coot::chem_mod_atom cma(function,
@@ -232,6 +245,13 @@ coot::protein_geometry::add_chem_mod_atom( PCMMCIFLoop mmCIFLoop) {
       } else {
 	 std::cout << "oops in add_chem_mod_atom ierr_tot = "
 		   << ierr_tot << std::endl;
+	 std::cout << "   mod_id: \"" << mod_id
+		   << "\"    function: \"" << function << "\" atom_id: \""
+		   << atom_id << "\" new_atom_id: \"" 
+		   << new_atom_id << "\" new_type_symbol: \"" 
+		   << new_type_symbol << "\" new_type_energy: \"" 
+		   << new_type_energy << "\" new_partial_charge: \"" 
+		   << new_partial_charge << "\"" << std::endl;
       } 
    } 
       

@@ -1395,7 +1395,12 @@ the front and the back clipping planes @footnote{I find a clipping
   level of about 3.5 to 4 comfortable for viewing electron density
   maps - it is a little ``thinner'' than the default startup
   thickness.}.
-The clipping can also be changed using keyboard ``D'' and ``F''.
+The clipping can also be changed using keyboard ``D'' and ``F''.  
+
+It can also be changed with Ctrl + Right-mouse drag up and down.
+Likewise the screen-Z can be changed with Ctrl + Right-mouse left and
+right @footnote{Inspired by PyMol?  Yep@dots{} sure was!}.
+
 
 One can ``push'' and ``pull'' the view in the screen-Z direction using
 keypad 3 and keypad ``.'' (see Section @ref{Keyboard Z Translation}).

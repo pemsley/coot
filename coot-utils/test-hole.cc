@@ -30,12 +30,12 @@ int main(int argc, char **argv) {
 	 clipper::Coord_orth   to_pt(21.5, 52.5, 11.5);
 
 	 // 1c4d
-	 from_pt = clipper::Coord_orth(-0.36,  21.2, 7.74);
-	 to_pt   = clipper::Coord_orth(-0.36, -4.48, 6.80);
+	 //from_pt = clipper::Coord_orth(-0.36,  21.2, 7.74);
+	 //to_pt   = clipper::Coord_orth(-0.36, -4.48, 6.80);
 
 	 // 30gc
-	 from_pt = clipper::Coord_orth(0.0, 0,  38);
-	 to_pt   = clipper::Coord_orth(0.0, 0, -23);
+	 // from_pt = clipper::Coord_orth(0.0, 0,  38);
+	 // to_pt   = clipper::Coord_orth(0.0, 0, -23);
 
 	 // energy lib:
 	 coot::protein_geometry geom;
@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 	 geom.try_dynamic_add("ETA", 2);
 	 geom.try_dynamic_add("EOH", 2);
 	 
-	 coot::hole hole(m, 0, from_pt, to_pt, geom);
+	 coot::hole hole(m, from_pt, to_pt, geom);
 	 hole.generate();
       }
    }

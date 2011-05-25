@@ -779,6 +779,9 @@ Punted from 0.6:
 
    o white background with ball and stick models. Punted ::: 4
 
+   o Put "Modified Residue/Other" button in Mutate dialog that fires
+     up the "Replace Residue" dialog - or something like that.
+
    o Rotate/Translate on dsDNA (for example)
 
 * Done.

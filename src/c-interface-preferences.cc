@@ -996,6 +996,9 @@ void to_generic_object_add_point(int object_number,
    coot::colour_holder colour =
       coot::generic_display_object_t::colour_values_from_colour_name(c);
 
+//    std::cout << "debug:: colour input " << c << " gave colour "
+// 	     << colour << std::endl;
+
    if (object_number >=0 && object_number < g.generic_objects_p->size()) { 
 
       (*g.generic_objects_p)[object_number].add_point(colour,
@@ -1252,7 +1255,8 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 	 }
 	 // std::cout << "INFO:: added " << n_lines << " lines and " << n_points << " points\n";
       }
-   } 
+      fclose(dots);
+   }
 }
 
 
@@ -1542,6 +1546,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 	    }
 	 }
       }
+      fclose(dots);
    }
 }
 

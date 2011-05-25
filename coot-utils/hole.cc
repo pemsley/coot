@@ -5,7 +5,7 @@
 #include "coot-coord-utils.hh"
 #include "coot-hole.hh"
 
-coot::hole::hole(CMMDBManager *mol_in, int selHnd,
+coot::hole::hole(CMMDBManager *mol_in, 
 		 const clipper::Coord_orth &from_pt_in,
 		 const clipper::Coord_orth &to_pt_in,
 		 const coot::protein_geometry &geom) {
@@ -13,8 +13,9 @@ coot::hole::hole(CMMDBManager *mol_in, int selHnd,
    mol = mol_in;
    from_pt = from_pt_in;
    to_pt = to_pt_in;
-   assign_vdw_radii(geom);
-   
+   assign_vdw_radii(geom); 
+   colour_map_multiplier = 1.0;
+   colour_map_offset = 0.0;
 }
 
 void
@@ -60,19 +61,46 @@ coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
 		  std::string ele = at->element;
 		  // make a reasonable default
 		  realtype radius = 1.7;
-		  if (ele == " N")
-		     radius = 1.55;
-		  if (ele == " 0")
-		     radius = 1.52;
-		  if (ele == " 0")
-		     radius = 1.2;
-		  at->PutUDData(radius_handle, radius_handle); 
+ 		  if (ele == " N")
+ 		     radius = 1.55;
+ 		  if (ele == " 0")
+ 		     radius = 1.52;
+ 		  if (ele == " H")
+ 		     radius = 1.2;
+		  at->PutUDData(radius_handle, radius); 
 	       }
 	    }
 	 }
       }
    }
 }
+
+void
+coot::hole::debug_atom_radii() const {
+
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    std::string residue_name = residue_p->GetResName();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       at = residue_p->GetAtom(iat);
+	       realtype radius;
+	       at->GetUDData(radius_handle, radius);
+	       std::cout << "   " << coot::atom_spec_t(at) << " with radius " << radius<< std::endl;
+	    }
+	 }
+      }
+   }
+} 
 
 void 
 coot::hole::make_atom_selection(int selhnd, const clipper::Coord_orth &pt,
@@ -82,7 +110,7 @@ coot::hole::make_atom_selection(int selhnd, const clipper::Coord_orth &pt,
 
    mol->SelectAtoms(selhnd, 0, "*",
 		    ANY_RES, "*", ANY_RES, "*",
-		    "!HOH,!EOH", // residue names
+		    "!HOH", // residue names
 		    "*", // atom names
 		    "H,C,O,N,S", // elements
 		    "*", "*", "*", // altlocs, segments, charges
@@ -98,11 +126,12 @@ coot::hole::make_atom_selection(int selhnd, const clipper::Coord_orth &pt,
    }
 }
 
-void
+
+std::pair<std::vector<std::pair<clipper::Coord_orth, double> >, std::vector<coot::hole_surface_point_t> >
 coot::hole::generate() {
 
    int nsteps = 200;
-   double radius_prev = 7;
+   double radius_prev = 7; // max prob size + 1.7 (max radius) + a bit.
 
    // position and sphere radius
    // 
@@ -145,25 +174,31 @@ coot::hole::generate() {
 		   << " " << pt.format() << " frag: " << frag.format() << " l:"
 		   << l.format() << " i_step: " << istep << std::endl;
 
-      if (dist_diff > 5)
+      if (dist_diff > 7)
 	 pt = pt_linear;
+      
 
       int selhnd = mol->NewSelection();
       make_atom_selection(selhnd, pt, radius_prev);
       std::pair<clipper::Coord_orth, double> new_pt = optimize_point(pt, selhnd);
       probe_path.push_back(new_pt);
       double d = sqrt(l.lengthsq());
-      std::cout << "istep: " << istep << " l: " << d
-		<< " ss: " << new_pt.second << "        "
-		<< new_pt.first.x() << " "
-		<< new_pt.first.y() << " "
-		<< new_pt.first.z() << " "
-		<< std::endl;
+      if (0) 
+	 std::cout << "istep: " << istep << " l: " << d
+		   << " ss: " << new_pt.second << "        "
+		   << new_pt.first.x() << " "
+		   << new_pt.first.y() << " "
+		   << new_pt.first.z() << " "
+		   << std::endl;
       mol->DeleteSelection(selhnd);
       // next round
       prev_point = new_pt.first;
    }
-   write_probe_path_using_spheres(probe_path);
+
+   std::vector<coot::hole_surface_point_t> surface_points = get_surface_points(probe_path);
+   // write_probe_path_using_spheres(surface_points, "probe-surface-points");
+
+   return std::pair<std::vector<std::pair<clipper::Coord_orth, double> >, std::vector<coot::hole_surface_point_t> > (probe_path, surface_points);
 }
 
 // By moving about in the plane we try to maximise the distance
@@ -269,7 +304,6 @@ coot::hole::write_probe_path(const std::vector<std::pair<clipper::Coord_orth, do
    double inv_n_theta = 2 * M_PI/double(n_theta_points);
 
    std::ofstream render_stream(file_name.c_str());
-   std::ofstream reject_stream("rejects");
 
    if (!render_stream) {
       std::cout << "failed to open " << file_name << std::endl;
@@ -288,7 +322,7 @@ coot::hole::write_probe_path(const std::vector<std::pair<clipper::Coord_orth, do
 	    max_upstream_check_limit = 0;
 	 if (max_downstream_check_limit>=probe_path.size())
 	     max_downstream_check_limit=probe_path.size()-1;
-	 
+
 	 render_stream << probe_path[i].first.x() << " "
 		       << probe_path[i].first.y() << " "
 		       << probe_path[i].first.z() << " \"red\"\n";
@@ -331,37 +365,11 @@ coot::hole::write_probe_path(const std::vector<std::pair<clipper::Coord_orth, do
 					       theta);
 	    clipper::Coord_orth surface_point = probe_path[i].first + circle_point;
 
-	    // is surface_point within the sphere of up and downstream points?
-	    //
-	    bool reject = 0;
-	    for (unsigned int iprev=max_upstream_check_limit; iprev<=max_downstream_check_limit; iprev++) {
-	       if (iprev != i) {
-		  clipper::Coord_orth diff = probe_path[iprev].first - surface_point;
-		  double d_sqrd = diff.lengthsq();
-		  double probe_prev_sqrd = probe_path[iprev].second * probe_path[iprev].second;
-		  if (d_sqrd < probe_prev_sqrd) {
-		     // the surface_point is inside previous sphere
-		     std::cout << "reject: " << i << " " << iprev << " " << sqrt(d_sqrd) << " this radius: "
-			       << probe_path[i].second << " prev: " << probe_path[iprev].second << std::endl;
-		     reject = 1;
-		     break;
-		  } 
-	       } 
-	    }
-
-	    if (! reject) 
-	       render_stream << surface_point.x() << " "
-			     << surface_point.y() << " "
-			     << surface_point.z() << " "
-			     << "\"" << colour << "\""
-			     << "\n";
-	    else 
-	       reject_stream << surface_point.x() << " "
-			     << surface_point.y() << " "
-			     << surface_point.z() << " "
-			     << "\"" << "goldenrod" << "\""
-			     << "\n";
-
+	    render_stream << surface_point.x() << " "
+			  << surface_point.y() << " "
+			  << surface_point.z() << " "
+			  << "\"" << colour << "\""
+			  << "\n";
 	 }
       }
    }
@@ -369,91 +377,109 @@ coot::hole::write_probe_path(const std::vector<std::pair<clipper::Coord_orth, do
 }
 
 void
-coot::hole::write_probe_path_using_spheres(const std::vector<std::pair<clipper::Coord_orth, double> > &probe_path) const {
+coot::hole::write_probe_path_using_spheres(const std::vector<coot::hole_surface_point_t> &surface_points,
+					   const std::string &file_name) const {
 
-   std::string file_name = "probe-surface-points";
    std::ofstream render_stream(file_name.c_str());
    if (!render_stream) {
       std::cout << "failed to open " << file_name << std::endl;
    } else {
+      for (unsigned int i=0; i<surface_points.size(); i++) { 
+	 render_stream << surface_points[i].position.format() << " "
+		       << surface_points[i].normal.format() << " "
+		       << surface_points[i].colour << "\n";
+      }
+   } 
+}
 
-      double dot_density = 0.35;
+
+std::vector<coot::hole_surface_point_t> 
+coot::hole::get_surface_points(const std::vector<std::pair<clipper::Coord_orth, double> > &probe_path) const {
+
+   std::vector<coot::hole_surface_point_t> surface_points; // return this.
+   
+   double dot_density = 0.35;
+   // 
+   double phi_step = 5.0 * (M_PI/180.0);
+   double theta_step = 5.0 * (M_PI/180.0);
+
+   for (unsigned int i=0; i<probe_path.size(); i++) {
+
+      // int because we max_upstream_check_limit might go negative (briefly).
       // 
-      double phi_step = 5.0 * (M_PI/180.0);
-      double theta_step = 5.0 * (M_PI/180.0);
+      int max_upstream_check_limit = i-10;
+      int max_downstream_check_limit = i+10;
+      const clipper::Coord_orth &this_centre = probe_path[i].first;
+      const double &r = probe_path[i].second;
 
-      for (unsigned int i=0; i<probe_path.size(); i++) {
+      if (max_upstream_check_limit<0)
+	 max_upstream_check_limit = 0;
+      if (max_downstream_check_limit>=probe_path.size())
+	 max_downstream_check_limit=probe_path.size()-1;
 
-	 unsigned int max_upstream_check_limit = i-10;
-	 unsigned int max_downstream_check_limit = i+10;
-	 const clipper::Coord_orth &this_centre = probe_path[i].first;
-	 const double &r = probe_path[i].second;
+      coot::colour_holder vertex_colour = probe_size_to_colour(probe_path[i].second);
+      // std::cout << "         " << vertex_colour << std::endl;
+      bool even = 1;
 
-	 if (max_upstream_check_limit<0)
-	    max_upstream_check_limit = 0;
-	 if (max_downstream_check_limit>=probe_path.size())
-	     max_downstream_check_limit=probe_path.size()-1;
-
-	 // the central path
-	 // 
-	 render_stream << this_centre.x() << " "
-		       << this_centre.y() << " "
-		       << this_centre.z() << " \"red\"\n";
-
-	 coot::colour_holder vertex_colour = probe_size_to_colour(probe_path[i].second);
-	 bool even = 1;
-
-	 double theta_start = 0;
-	 double theta_end   = M_PI;
-
-	 // the begin and end point we don't want to draw the tops and bottoms of the "bulbs".
-	 // Leave them open.
-	 // 
-	 if (i == 0) {
-	    theta_start = 0.5 * M_PI;
-	 }
-	 if (i == (probe_path.size() -1)) {
-	    theta_end = 0.5 * M_PI;
-	 }
+      // the begin and end point we don't want to draw the tops and bottoms of the "bulbs".
+      // Leave them open.
+      //
+      bool check_ends = 0;
+      double dot_prod_multiplier = 1;
+      if (i == 0) {
+	 check_ends = 1;
+      }
+      if (i == (probe_path.size() -1)) {
+	 check_ends = 1;
+	 dot_prod_multiplier = -1;
+      }
 	    
-	     
-	 for (double theta=theta_start; theta<theta_end; theta+=theta_step) {
-	    double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
-	    for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
-	       if (even) {
-		  clipper::Coord_orth surface_point(r*cos(phi)*sin(theta),
-						    r*sin(phi)*sin(theta),
-						    r*cos(theta));
-		  surface_point += this_centre;
+      for (double theta=0; theta<M_PI; theta+=theta_step) {
+	 double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
+	 double sin_theta = sin(theta);
+	 double cos_theta = cos(theta);
+	 for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
+	    if (even) { // even
+	       clipper::Coord_orth origin_based_sphere_point(r*cos(phi)*sin_theta,
+							     r*sin(phi)*sin_theta,
+							     r*cos_theta);
+	       clipper::Coord_orth surface_point = this_centre + origin_based_sphere_point;
+	       clipper::Coord_orth normal(origin_based_sphere_point.unit());
+	       bool reject = 0;
+	       for (unsigned int iprev=max_upstream_check_limit; iprev<=max_downstream_check_limit; iprev++) {
+		  if (iprev != i) {
 
-		  bool reject = 0;
-
-		  for (unsigned int iprev=max_upstream_check_limit; iprev<=max_downstream_check_limit; iprev++) {
-		     if (iprev != i) {
-
-			clipper::Coord_orth diff = probe_path[iprev].first - surface_point;
-			double d_sqrd = diff.lengthsq();
-			double probe_prev_sqrd = probe_path[iprev].second * probe_path[iprev].second;
-			if (d_sqrd < probe_prev_sqrd) {
-			   reject = 1;
-			   break;
-			}
+		     clipper::Coord_orth diff = probe_path[iprev].first - surface_point;
+		     double d_sqrd = diff.lengthsq();
+		     double probe_prev_sqrd = probe_path[iprev].second * probe_path[iprev].second;
+		     if (d_sqrd < probe_prev_sqrd) {
+			reject = 1;
+			break;
 		     }
 		  }
-		  if (! reject) {
-		     std::string colour = "cyan";
-		     render_stream << surface_point.x() << " "
-				   << surface_point.y() << " "
-				   << surface_point.z() << " "
-				   << "\"" << colour << "\""
-				   << "\n";
+	       }
+	       if (! reject) {
+
+		  bool do_it = 1;
+		     
+		  // turn off do_it so that we have open cups at the end points.
+		  // 
+		  if (check_ends == 1) {
+		     double dp = clipper::Coord_orth::dot(v_hat, origin_based_sphere_point);
+		     if (dp * dot_prod_multiplier < 0)
+			do_it = 0;
+		  }
+		     
+		  if (do_it) { 
+		     coot::hole_surface_point_t sp(surface_point, normal, vertex_colour);
+		     surface_points.push_back(sp);
 		  }
 	       }
-	       // next round
-	       even = 1 - even;
 	    }
+	    // next round
+	    even = 1 - even;
 	 }
       }
    }
-
+   return surface_points;
 } 

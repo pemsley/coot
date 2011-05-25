@@ -4544,7 +4544,7 @@ set_bond_colour(int i) {
 // 
 std::vector<float> rotate_rgb(std::vector<float> &rgb, float amount) {
 
-   std::vector<float> hsv = convert_rgb_to_hsv(rgb);
+   std::vector<float> hsv = coot::convert_rgb_to_hsv(rgb);
 
    // add 20 degrees to hue (or whatever)
    // std::cout << "adding " << amount << " to hue " << std::endl; 
@@ -4553,7 +4553,7 @@ std::vector<float> rotate_rgb(std::vector<float> &rgb, float amount) {
       hsv[0] -= 1.0;
    }
 
-   std::vector<float> r = convert_hsv_to_rgb(hsv);
+   std::vector<float> r = coot::convert_hsv_to_rgb(hsv);
    //     std::cout << "rotate from ("
    // << rgb[0] << " " << rgb[1] << " " << rgb[2] << ")\n"
    //  	     << "         to ("
@@ -4563,105 +4563,6 @@ std::vector<float> rotate_rgb(std::vector<float> &rgb, float amount) {
 
 }
 
-std::vector<float>
-convert_rgb_to_hsv(const std::vector<float> &in_vals) {
-   
-   std::vector<float> cols(3);
-
-   // convert to hsv
-   float maxc = -1.0;
-   float minc = 9.0;
-
-   for (int i=0; i<3; i++) {
-      if (maxc < in_vals[i]) maxc = in_vals[i];
-      if (minc > in_vals[i]) minc = in_vals[i];
-   }
-   cols[2] = maxc;
-
-   if (minc == maxc) {
-      cols[0] = 0.0;
-      cols[1] = 0.0;
-      cols[2] = maxc;
-   } else { 
-
-      float range = maxc - minc; 
-      cols[1] = range/maxc;
-      float rc = (maxc - in_vals[0]) / range;
-      float gc = (maxc - in_vals[1]) / range;
-      float bc = (maxc - in_vals[2]) / range;
-      if (in_vals[0] == maxc){ 
-	 cols[0] = bc-gc;
-      } else {
-	 if (in_vals[1]==maxc) {
-	    cols[0] = 2.0+rc-bc;
-	 } else {
-	    cols[0] = 4.0 + gc-rc;
-	 }
-      }
-      cols[0] = cols[0]/6.0- floorf(cols[0]/6.0);
-   }
-   return cols; 
-}
-
-std::vector<float>
-convert_hsv_to_rgb(const std::vector<float> &hsv)  {
-
-   std::vector<float> rgb(3);
-
-   if (hsv[1] == 0.0) {
-      rgb[0] = hsv[2]; 
-      rgb[1] = hsv[2]; 
-      rgb[2] = hsv[2];
-   } else {
-      float fi = floorf(hsv[0]*6.0);
-      float f  = (hsv[0]*6.0) - fi;
-      float p = hsv[2]*(1.0 - hsv[1]);
-      float q = hsv[2]*(1.0 - hsv[1]*f);
-      float t = hsv[2]*(1.0 - hsv[1]*(1.0-f));
-
-      int i = int(fi);
-      switch (i) {
-
-      case 0:
-      case 6:
-	 rgb[0] = hsv[2]; 
-	 rgb[1] = t; 
-	 rgb[2] = p;
-	 break;
-
-      case 1:
-	 rgb[0] = q;
-	 rgb[1] = hsv[2]; 
-	 rgb[2] = p;
-	 break;
-
-      case 2:
-	 rgb[0] = p;
-	 rgb[1] = hsv[2]; 
-	 rgb[2] = t;
-	 break;
-
-      case 3:
-	 rgb[0] = p;
-	 rgb[1] = q; 
-	 rgb[2] = hsv[2];
-	 break;
-
-      case 4:
-	 rgb[0] = t;
-	 rgb[1] = p; 
-	 rgb[2] = hsv[2];
-	 break;
-
-      case 5:
-	 rgb[0] = hsv[2];
-	 rgb[1] = p; 
-	 rgb[2] = q;
-	 break;
-      }
-   }
-   return rgb; 
-}
 
 
 // // we get passed a number that is 0.0 - 1.0 inclusive (the higher the
