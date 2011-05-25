@@ -897,6 +897,19 @@ PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imo
 /* \} */
 
 
+/* ------------------------------------------------------------------------- */
+/*                      HOLE                                                 */
+/* ------------------------------------------------------------------------- */
+/*! \name Coot's Hole implementation */
+
+/*! \brief starting pont and end point, colour map multiplier and
+  shall the probe radius graph be shown (dummy value currently). */
+void hole(int imol,
+	  float start_x, float start_y, float start_z,
+	  float   end_x, float   end_y, float   end_z, 
+	  float colour_map_multiplier, float colour_map_offset,
+	  int n_runs, bool show_probe_radius_graph_flag);
+
 /*  ----------------------------------------------------------------------- */
 /*                  Utility Functions                                       */
 /*  ----------------------------------------------------------------------- */

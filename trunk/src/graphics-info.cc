@@ -3722,6 +3722,12 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
    colour.green = 0.4; 
    colour.blue = 0.4;
 
+   if (c.length() == 7) {
+      if (c[0] == '#') {
+	 return coot::colour_holder(c); // hex colour string
+      } 
+   } 
+
    if (c == "blue") {
       colour.red = 0.1; 
       colour.green = 0.1; 

@@ -244,6 +244,7 @@ coot_real_SOURCES = \
 	c-inner-main.c		 \
 	c-inner-main.h		 \
 	c-interface.h            \
+	c-interface-analysis.cc	 \
 	c-interface-build.cc	 \
 	c-interface-build-gui.cc \
 	c-interface-database.hh  \

@@ -1927,9 +1927,6 @@ coot::protein_geometry::add_synonyms(PCMMCIFData data) {
       
       PCMMCIFCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
-
-      std::cout << "DEBUG:: add_synonyms is handling " << cat_name << std::endl;
-
       PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
       if (mmCIFLoop == NULL) { 

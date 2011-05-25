@@ -146,9 +146,17 @@ namespace coot {
 	 red = 0.5;
 	 green = 0.5;
 	 blue = 0.5;
-      } 
+      }
+      colour_holder(const std::string &hex_colour_string);
+      std::string hex() const;
+      friend std::ostream& operator<< (std::ostream& s, const colour_holder &ch);
    };
+   std::ostream& operator<< (std::ostream& s, const colour_holder &ch);
 
+   // colour conversion
+   std::vector<float> convert_hsv_to_rgb(const std::vector<float> &hsv);
+   std::vector<float> convert_rgb_to_hsv(const std::vector<float> &in_vals);
+   colour_holder hsv_to_colour(const std::vector<float> &hsv);
 
 }
 
