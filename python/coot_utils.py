@@ -2678,6 +2678,7 @@ def chiral_centre_inverter():
 # c-interface.h:
 chain_id               = chain_id_py
 remarks                = remarks_py
+residue_centre         = residue_centre_py
 coot_sys_build_type    = coot_sys_build_type_py
 run_clear_backups      = run_clear_backups_py
 test_internal          = test_internal_py

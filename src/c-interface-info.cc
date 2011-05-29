@@ -879,8 +879,11 @@ void hydrogenate_region(float radius) {
 	    python_command += single_quote(pdb_out);
 	    python_command += ")";
 
-	    safe_python_command_with_return(python_command);
-	    graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
+	    PyObject *r = safe_python_command_with_return(python_command);
+        if (r == Py_True) {
+          graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
+        }
+        Py_XDECREF(r);
 
 #endif // PYTHON
 	 } else {
@@ -899,8 +902,8 @@ void hydrogenate_region(float radius) {
 	    if (scm_is_true(r)) {
 	       graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
 	    }
-	 }
 #endif 	 
+	 }
 
 	 graphics_draw();
 	 delete new_mol;

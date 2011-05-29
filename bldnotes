@@ -1,9 +1,9 @@
  -*-text-*-
 
 scripts      rev 3120 (0.6.2)
-tests        rev 3043 (0.6.2)
-scripts      rev 3468 (prodrg stuff needs testing)
-tests        rev 3043 
+tests        rev 3043 (0.6.2) update
+scripts      rev 3468 (prodrg stuff needs testing) generic objects
+tests        rev 3043 update
 build-it-win rev 2122
 
 -------------------------------------------------------
