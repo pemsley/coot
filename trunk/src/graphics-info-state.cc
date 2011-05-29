@@ -444,7 +444,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 		     title += " chain ";
 		     title += molecules[i].input_sequence[iseq].first;
 		     std::string pir_seq = coot::util::plain_text_to_pir(title,
-									 molecules[i].input_sequence[iseq].second);
+									 molecules[i].input_sequence[iseq].second, il);
 		     active_strings.push_back(single_quote(pir_seq));
 		     commands.push_back(state_command(active_strings, il));
 		  }

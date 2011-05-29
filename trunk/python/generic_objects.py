@@ -156,6 +156,43 @@ def generic_objects_gui():
 	gen_window.show()
 
 
+# return status
+#
+def reduce_on_pdb_file(imol, pdb_bin, pdb_out):
+
+  global reduce_command
+  
+  print "running reduce on", pdb_in
+  # could try find_exe too!
+  if not command_in_path_qm(reduce_command):
+    print "command for reduce %s is not found in path" %reduce_command
+  else:
+    # write_reduce_het_dict(imol, reduce_het_dict_file_name)
+    # HOw? what is the filename?
+
+    # BL says: I think we should set REDUCE_HET_DICT
+    # so let's set REDUCE_HET_DICT if not set already!
+    # not sure if needed any more since we write a connectivity
+    # file - let's see FIXME!!
+    if (not os.getenv('REDUCE_HET_DICT')):
+      # we assume the dic is in same dir as reduce command
+      dir, tmp = os.path.split(reduce_command)
+      connection_file = os.path.join(dir, 'reduce_wwPDB_het_dict.txt')
+      if (os.path.isfile(connection_file)):
+        os.environ['REDUCE_HET_DICT'] = connection_file
+      else:
+        print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
+        # now should use the and build the het dic!?
+
+    # FIXME!!!!!
+    status = popen_command(reduce_command,
+                           ["-build", pdb_in,
+                            "-DB", reduce_het_dict_file_name],
+                           [],
+                           pdb_out)
+    return status
+
+
 reduce_molecule_updates_current = False
        
 # run molprobity (well reduce and probe) to make generic objects (and

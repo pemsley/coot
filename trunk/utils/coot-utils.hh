@@ -78,7 +78,7 @@ namespace coot {
 						      const std::string &splitter);
 
       std::string plain_text_to_sequence(const std::string &s);
-      std::string plain_text_to_pir(const std::string &title, const std::string &sequence);
+      std::string plain_text_to_pir(const std::string &title, const std::string &sequence, short int il);
       short int is_fasta_aa(const std::string &s); // single letter code
       std::string single_quote(const std::string &s);
       // return 0 on success, something else on failure

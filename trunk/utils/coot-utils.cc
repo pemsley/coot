@@ -397,12 +397,18 @@ coot::util::plain_text_to_sequence(const std::string &s) {
 }
 
 std::string
-coot::util::plain_text_to_pir(const std::string &title, const std::string &sequence) {
+coot::util::plain_text_to_pir(const std::string &title, const std::string &sequence, short int il) {
 
    std::string r = "> ";
    r += title;
-   r += "\n";
-   r += "\n";
+   if (il == 2) {
+     // for python
+     r += "\\n";
+     r += "\\n";
+   } else {
+     r += "\n";
+     r += "\n";
+   }
    r += sequence;
    r += "*";
    return r;
