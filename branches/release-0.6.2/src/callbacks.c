@@ -2561,7 +2561,7 @@ on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
   helix_checkbutton   = lookup_widget(dialog, "fast_sss_dialog_helix_checkbutton");
   helix_temp_combobox = lookup_widget(dialog, "fast_sss_dialog_helix_template_combobox");
   helix_noaa_combobox = lookup_widget(dialog, "fast_sss_dialog_helix_no_aa_combobox");
-  strand_checkbutton   = lookup_widget(dialog, "fast_sss_dialog_helix_checkbutton");
+  strand_checkbutton   = lookup_widget(dialog, "fast_sss_dialog_strand_checkbutton");
   strand_temp_combobox = lookup_widget(dialog, "fast_sss_dialog_strand_template_combobox");
   strand_noaa_combobox = lookup_widget(dialog, "fast_sss_dialog_strand_no_aa_combobox");
   radius_checkbutton   = lookup_widget(dialog, "fast_sss_dialog_local_checkbutton");
