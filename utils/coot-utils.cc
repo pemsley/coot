@@ -275,6 +275,25 @@ coot::util::Upper(const std::string &s) {
 }
 
 std::string
+coot::util::remove_whitespace(const std::string &s) {
+
+   std::string r;
+   int nchars = s.length();
+   for (int i=0; i<nchars; i++) {
+      if (s[i] != ' ') {
+	 if (s[i] != '\n') {
+	    if (s[i] != '\t') {
+	       r += s[i];
+	    }
+	 }
+      }
+   }
+   return r;
+}
+
+
+
+std::string
 coot::util::remove_leading_spaces(const std::string &s) {
 
    int sl = s.length();
