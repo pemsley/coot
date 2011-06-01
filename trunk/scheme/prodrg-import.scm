@@ -45,8 +45,9 @@
 	  (begin 
 	    (if (not (residue-has-hetatms? imol-ref chain-id-ref res-no-ref ""))
 		#f
-		(overlap-ligands imol-ligand imol-ref chain-id-ref res-no-ref)
-		#t)))))
+		(begin
+		  (overlap-ligands imol-ligand imol-ref chain-id-ref res-no-ref)
+		  #t))))))
 		     
 
   ;; return the new molecule number.

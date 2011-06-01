@@ -2823,6 +2823,42 @@
      (car ls-3)))
 
 
+(define (file->string file-name)
+
+  (if (not (file-exists? file-name))
+      #f
+      (call-with-output-string 
+       (lambda (sport)
+	 (call-with-input-file file-name
+	   (lambda (port)
+	     (let loop ((obj (read-line port)))
+	       (if (not (eof-object? obj))
+		   (begin
+		     (display obj sport)
+		     (newline sport)
+		     (loop (read-line port)))))))))))
+
+      
+;; If "default.seq" (a simple text file with the sequence (not PIR or
+;; FASTA)) exists in the current directory, then try to assign it to
+;; each chain of each molecule.
+
+;; In the first case the sequence is assigned to the closest match
+;; (model sequence to target sequence), subsequently only chains
+;; without a sequence associated with them are candidates for
+;; matching.  The protein sequence has to have at least 95% sequence
+;; identity with the target sequence in "default.seq"
+;; 
+(define (load-default-sequence)
+
+  (let ((default-seq "default.seq"))
+    (if (file-exists? default-seq)
+	(let ((s (file->string default-seq)))
+	  (align-to-closest-chain s 0.95)))))
+
+
+
+
 ;; a thread handling function
 ;;
 ;; not really for public manipulation.
