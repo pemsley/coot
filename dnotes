@@ -5902,7 +5902,7 @@ Wed Nov 17 14:01:30 GMT 2010
 
     o 'findligand --help' does not list x-pos, y-pos,... (there may be more) 
 
-    o we may want to loose the HID part of the tutorial
+    o we may want to lose the HID part of the tutorial
 
 
 ----

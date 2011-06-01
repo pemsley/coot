@@ -29,6 +29,7 @@
 #include "mmdb_tables.h"
 #include "mmdb-extras.h"
 #include "mmdb.h"
+#include "coot-utils.hh"
 #include "coot-align.hh"
 
 void do_alignment(atom_selection_container_t asc);
@@ -110,7 +111,7 @@ do_alignment(atom_selection_container_t asc) {
 
 coot::chain_mutation_info_container_t
 align_on_chain(CChain *chain_p, PCResidue *SelResidues, int nSelResidues,
-	       const std::string &target) {
+	       const std::string &target)  {
 
    coot::chain_mutation_info_container_t ch_info(chain_p->GetChainID());
 
@@ -127,9 +128,10 @@ align_on_chain(CChain *chain_p, PCResidue *SelResidues, int nSelResidues,
    // default values (it seems)
    realtype wgap = 0.0;
    realtype wspace = -1.0;
-   // align.SetAffineModel(wgap, wspace);
+
+   std::string stripped_target = coot::util::remove_whitespace(target);
    
-   align.Align(model.c_str(), target.c_str());
+   align.Align(model.c_str(), stripped_target.c_str());
 
    std::cout << "model : " << align.GetAlignedS() << std::endl;
    std::cout << "target: " << align.GetAlignedT() << std::endl;

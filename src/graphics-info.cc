@@ -244,7 +244,7 @@ graphics_info_t::set_do_anti_aliasing(int state) {
 }
 
 bool
-graphics_info_t::background_is_black_p() {
+graphics_info_t::background_is_black_p() const {
 
    bool v = 0;
    if (background_colour[0] < 0.1)
@@ -1550,6 +1550,10 @@ graphics_info_t::environment_graphics_object_internal(const graphical_bonds_cont
 	 Lines_list ll;
 	 coot::Cartesian text_pos;
 	 float dist;
+
+	 float dark_bg_cor = 0.0;
+	 if (! background_is_black_p())
+	    dark_bg_cor = 0.29;
 	 
 	 glEnable(GL_LINE_STIPPLE);
 	 glLineStipple (1, 0x00FF);
@@ -1573,7 +1577,7 @@ graphics_info_t::environment_graphics_object_internal(const graphical_bonds_cont
 	       // now we want to draw out our bonds in various colour,
 	       // according to if they have a carbon or not.
 	       // 
-	       glColor3f (0.8, 0.8-0.4*it, 0.4+0.5*it);
+	       glColor3f (0.8-dark_bg_cor, 0.8-0.4*it-dark_bg_cor, 0.4+0.5*it-dark_bg_cor);
 	    
 	       for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
 	   

@@ -511,9 +511,6 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    std::vector<std::pair<CResidue *, int> > vseq =
       coot::util::sort_residues_by_seqno(SelResidues, nSelResidues);
 
-   // old style
-   // std::string model = make_model_string_for_alignment(SelResidues, nSelResidues);
-   // new style
    std::string model = coot::util::model_sequence(vseq);
    std::cout << "INFO:: input model  sequence:" << model  << std::endl;
    std::cout << "INFO:: input target sequence:" << target  << std::endl;
@@ -536,10 +533,12 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    // wgap = -3.0;
    // wspace = -0.4;
 
+   std::string stripped_target = coot::util::remove_whitespace(target);
+
    std::cout << "INFO:: align with gap penalty: " << wgap << " and extension penalty: "
 	     << wspace << std::endl;
    align.SetAffineModel(wgap, wspace);
-   align.Align(model.c_str(), target.c_str());
+   align.Align(model.c_str(), stripped_target.c_str());
 
    ch_info.alignedS = align.GetAlignedS();
    ch_info.alignedT = align.GetAlignedT();
@@ -683,6 +682,64 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    return ch_info;
 }
 
+// Try to align on all chains - pick the best one and return it in the
+// second.  If there is no chain that matches within match_frag
+// (e.g. 0.95) then return 0 as first and a blank in second.  Also
+// return the chain_id.
+// 
+std::pair<bool, std::pair<std::string, coot::chain_mutation_info_container_t> >
+molecule_class_info_t::try_align_on_all_chains(const std::string &target, float match_fragment_crit, realtype wgap, realtype wspace) const {
+
+   coot::chain_mutation_info_container_t cmi;
+   bool success = 0;
+   float match_frag_best = 2;
+   std::string chain_id_best;
+
+   int imod = 1;
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   if (target.length() > 0) {
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres;
+	 PCResidue *residue_table = 0;
+	 chain_p->GetResidueTable(residue_table, nres);
+	 std::string chain_id = chain_p->GetChainID();
+
+	 // Only try to align if this chain does not have an assigned
+	 // sequence already.  Slightly awkward in c++ - we want a
+	 // scheme 'map'.
+	 bool already_assigned = false;
+	 for (unsigned int ii=0; ii<input_sequence.size(); ii++) {
+	    if (input_sequence[ii].first == chain_id) {
+	       already_assigned = true;
+	       break;
+	    }
+	 }
+
+	 if (! already_assigned) { 
+	    coot::chain_mutation_info_container_t mic = 
+	       align_on_chain(chain_id, residue_table, nres, target, wgap, wspace);
+	    float sum_changes = mic.single_insertions.size() + mic.deletions.size() +  mic.mutations.size();
+	    // was it close? (small number of differences)
+	    float match_frag = sum_changes/float(target.length());
+	    if (match_frag < (1 - match_fragment_crit)) {
+	       if (match_frag < match_frag_best) {
+		  match_frag_best = match_frag;
+		  cmi = mic;
+		  success = 1;
+		  chain_id_best = chain_id;
+	       }
+	    }
+	 }
+      }
+   }
+   std::pair<std::string, coot::chain_mutation_info_container_t> p(chain_id_best, cmi);
+   return std::pair<bool, std::pair<std::string, coot::chain_mutation_info_container_t> > (success, p);
+} 
+
+
 
 // redundant now that we have coot-util functions.
 //
@@ -697,7 +754,7 @@ molecule_class_info_t::make_model_string_for_alignment(PCResidue *SelResidues,
 
 
 std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > 
-molecule_class_info_t::residue_mismatches() const {
+molecule_class_info_t::residue_mismatches(realtype alignment_wgap, realtype alignment_wspace) const {
 
    std::vector<coot::chain_mutation_info_container_t> ar;
    bool status = 0;
@@ -721,8 +778,8 @@ molecule_class_info_t::residue_mismatches() const {
 	       coot::chain_mutation_info_container_t ali =
 		  align_on_chain(chain_id, SelResidues, n_residues,
 				 input_sequence[ich].second,
-				 graphics_info_t::alignment_wgap,
-				 graphics_info_t::alignment_wspace);
+				 alignment_wgap,
+				 alignment_wspace);
 	       ali.print();
 	       ar.push_back(ali);
 	    }
@@ -735,7 +792,9 @@ molecule_class_info_t::residue_mismatches() const {
 
 
 std::pair<bool, std::string>
-molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, int resno) const {
+molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, int resno,
+						  realtype alignment_wgap,
+						  realtype alignment_wspace) const {
 
 
    std::cout << "DEBUG:: ==== finding terminal residue type of chaind " << chain_id << " with resno "
@@ -775,8 +834,7 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
 	    
 	    coot::chain_mutation_info_container_t mi =
 	       align_on_chain(chain_id, SelResidues, nSelResidues, target,
-			      graphics_info_t::alignment_wgap,
-			      graphics_info_t::alignment_wspace); 
+			      alignment_wgap, alignment_wspace); 
 	    mi.print();
 
 	    coot::residue_spec_t search_spec(chain_id, resno);
@@ -789,6 +847,7 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
 			 << " for an insertion " << mess.what() << std::endl;
 	    } 
 	 }
+	 mol->DeleteSelection(selHnd);
       }
    }
 

@@ -1575,7 +1575,8 @@ SCM alignment_mismatches_scm(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > ar = 
-      	 graphics_info_t::molecules[imol].residue_mismatches();
+      	 graphics_info_t::molecules[imol].residue_mismatches(graphics_info_t::alignment_wgap,
+							     graphics_info_t::alignment_wspace);
       if (ar.first)
 	 r = SCM_EOL;
       for (unsigned int ir=0; ir<ar.second.size(); ir++) {
@@ -1725,7 +1726,6 @@ void setup_lsq_deviation(int state) {
 
 void setup_lsq_plane_define(int state) {
 
-   std::cout << "DEBUG:: in_lsq_plane_define " << state << std::endl;
    graphics_info_t::in_lsq_plane_define = state;
 
 } 

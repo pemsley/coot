@@ -275,7 +275,9 @@ SCM find_terminal_residue_type(int imol, const char *chain_id, int resno) {
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, std::string> p = 
-	 graphics_info_t::molecules[imol].find_terminal_residue_type(chain_id, resno);
+	 graphics_info_t::molecules[imol].find_terminal_residue_type(chain_id, resno,
+								     graphics_info_t::alignment_wgap,
+								     graphics_info_t::alignment_wspace);
       if (p.first) {
 	 r = scm_makfrom0str(p.second.c_str());
       }
@@ -336,6 +338,51 @@ SCM alignment_results_scm(int imol, const char *chain_id, const char *seq) {
    return r;
 }
 #endif /* USE_GUILE */
+
+/*! \brief align sequence to closest chain (compare across all chains in all molecules).  
+
+Typically match_fraction is 0.95 or so.
+
+Return 1 if we were successful, 0 if not. */
+int align_to_closest_chain(const char *target_seq_in, float match_fraction_crit) {
+
+   int status = 0;
+   float match_fragment_best = 1.0;
+   std::string chain_id_best;
+   int imol_best = -1;
+   std::string target(target_seq_in);
+   
+   for (unsigned int imol=0; imol<graphics_n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+	 if (target.length() > 0) { 
+	    std::pair<bool, std::pair<std::string, coot::chain_mutation_info_container_t> > r = 
+	       graphics_info_t::molecules[imol].try_align_on_all_chains(target, match_fraction_crit,
+									graphics_info_t::alignment_wgap,
+									graphics_info_t::alignment_wspace);
+	    if (r.first) {
+	       float sum_changes =
+		  r.second.second.single_insertions.size() +
+		  r.second.second.mutations.size() +
+		  r.second.second.deletions.size();
+	       float match_frag = sum_changes/float(target.length());
+	       if (match_frag < match_fragment_best) {
+		  status = 1;
+		  imol_best = imol;
+		  chain_id_best = r.second.first;
+	       } 
+	    }
+	 } 
+      } 
+   }
+
+   if (status) {
+      assign_sequence_from_string(imol_best, chain_id_best.c_str(), target_seq_in);
+      std::cout << "INFO:: sequence assigned to chain \"" << chain_id_best
+		<< "\" of molecule " << imol_best << std::endl;
+   } 
+   return status;
+} 
+
 
 
 #ifdef USE_GUILE

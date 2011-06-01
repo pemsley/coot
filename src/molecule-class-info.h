@@ -822,6 +822,7 @@ class molecule_class_info_t {
 		  realtype wgap,
 		  realtype wspace) const;
 
+
    std::string
    make_model_string_for_alignment(PCResidue *SelResidues,
 				   int nSelResidues) const;
@@ -1818,7 +1819,9 @@ public:        //                      public
    std::string get_term_type_old(int atom_index); 
    std::string get_term_type(int atom_index); 
    // by alignment (against asigned pir seq file) return, "HIS", "ALA" etc, if we can.
-   std::pair<bool, std::string> find_terminal_residue_type(const std::string &chain_id, int resno) const;
+   std::pair<bool, std::string> find_terminal_residue_type(const std::string &chain_id, int resno,
+							   realtype alignment_wgap,
+							   realtype alignment_wspace) const;
 
 
    // These create an object that is not specific to a molecule, there
@@ -1973,9 +1976,16 @@ public:        //                      public
 
    // return a status flag (alignments done)
    std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > 
-   residue_mismatches() const;
+   residue_mismatches(realtype alignment_wgap, realtype aligment_wspace) const;
 
-   
+   // Try to align on all chains - pick the best one and return it in
+   // the second.  If there is no chain that matches within match_frag
+   // (e.g. 0.95) then return 0 as first and a blank in second.
+   // 
+   std::pair<bool, std::pair<std::string, coot::chain_mutation_info_container_t> >
+   try_align_on_all_chains(const std::string &target, float match_fragment,
+			   realtype wgap, realtype wspace) const;
+
    void make_backup_from_outside(); // when we have a multi mutate, we
 				    // want the wrapper to make a
 				    // backup when we start and set
