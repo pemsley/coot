@@ -1097,6 +1097,51 @@ namespace coot {
 		       PCResidue SelRes,
 		       const coot::protein_geometry &geom);
 
+      restraint_counts_t 
+      apply_mods(int idr, PPCAtom res_selection,
+		 int i_no_res_atoms,
+		 PCResidue SelRes,
+		 const coot::protein_geometry &geom);
+
+      void
+      apply_mod(const std::string &mod_name,
+		const coot::protein_geometry &geom,
+		int idr,
+		PCResidue residue_p);
+
+      void apply_mod_bond(const coot::chem_mod_bond &mod_bond,
+			  PCResidue residue_p);
+
+      void apply_mod_angle(const coot::chem_mod_angle &mod_angle,
+			  PCResidue residue_p);
+
+      void apply_mod_plane(const coot::chem_mod_plane &mod_plane,
+			   PCResidue residue_p);
+
+      void mod_bond_add(const coot::chem_mod_bond &mod_bond,
+			PCResidue residue_p);
+
+      void mod_bond_change(const coot::chem_mod_bond &mod_bond,
+			   PCResidue residue_p);
+
+      void mod_bond_delete(const coot::chem_mod_bond &mod_bond,
+			   PCResidue residue_p);
+
+      void mod_angle_add(const coot::chem_mod_angle &mod_angle,
+			PCResidue residue_p);
+
+      void mod_angle_change(const coot::chem_mod_angle &mod_angle,
+			   PCResidue residue_p);
+
+      void mod_angle_delete(const coot::chem_mod_angle &mod_angle,
+			   PCResidue residue_p);
+
+      void mod_plane_add(const coot::chem_mod_plane &mod_plane,
+			 PCResidue residue_p);
+
+      void mod_plane_delete(const coot::chem_mod_plane &mod_plane,
+			    PCResidue residue_p);
+      
       bool dictionary_name_matches_coords_resname(const std::string &comp_id,
 						  const std::string &resname) const {
 
@@ -1104,7 +1149,6 @@ namespace coot {
 	 if (r.length() > 2) 
 	    if (r[2] == ' ')
 	       r = resname.substr(0,2);
-
 	 return (r == comp_id);
       }
 
@@ -1254,6 +1298,7 @@ namespace coot {
       void position_OXT(); // called from update atoms if we have an OXT.
       bool have_oxt_flag;
       int oxt_index;
+      std::vector<CResidue *> residues_with_OXTs;
       // these are in the order N, CA, C, O
       std::vector<clipper::Coord_orth> oxt_reference_atom_pos;
       // short int is_nucleotide(CResidue *res_p);
