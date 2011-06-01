@@ -2948,6 +2948,12 @@ void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, s
 /*! \brief set the penalty for affine gap and space when aligning, defaults -3.0 and -0.4 */
 void set_alignment_gap_and_space_penalty(float wgap, float wspace);
 
+/*! \brief align sequence to closest chain (compare across all chains in all molecules).  
+
+Typically match_fraction is 0.95 or so.
+
+Return 1 if we were successful, 0 if not. */
+int align_to_closest_chain(const char *target_seq, float match_fraction);
 
 /* What are these functions?  consider deleting them - we have alignment_mismatches_* . */
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */

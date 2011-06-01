@@ -247,8 +247,8 @@ coot::protein_geometry::add_chem_mod_atom( PCMMCIFLoop mmCIFLoop) {
 		   << ierr_tot << std::endl;
 	 std::cout << "   mod_id: \"" << mod_id
 		   << "\"    function: \"" << function << "\" atom_id: \""
-		   << atom_id << "\" new_atom_id: \"" 
-		   << new_atom_id << "\" new_type_symbol: \"" 
+		   << atom_id_mmdb_expand(atom_id) << "\" new_atom_id: \"" 
+		   << atom_id_mmdb_expand(new_atom_id) << "\" new_type_symbol: \"" 
 		   << new_type_symbol << "\" new_type_energy: \"" 
 		   << new_type_energy << "\" new_partial_charge: \"" 
 		   << new_partial_charge << "\"" << std::endl;
@@ -303,7 +303,8 @@ coot::protein_geometry::add_chem_mod_bond( PCMMCIFLoop mmCIFLoop) {
 
       if (ierr_tot == 0) {
 	 coot::chem_mod_bond cmb(function,
-				 atom_id_1, atom_id_2, new_type,
+				 atom_id_mmdb_expand(atom_id_1),
+				 atom_id_mmdb_expand(atom_id_2), new_type,
 				 new_value_dist, new_value_dist_esd);
 	 mods[mod_id].add_mod_bond(cmb);
       } 
@@ -357,8 +358,9 @@ coot::protein_geometry::add_chem_mod_tree( PCMMCIFLoop mmCIFLoop) {
       if (s) connect_type = s;
 
       if (ierr_tot == 0) {
-	 coot::chem_mod_tree cmt(function, atom_id, atom_back,
-				 back_type, atom_forward,
+	 coot::chem_mod_tree cmt(function, atom_id_mmdb_expand(atom_id),
+				 atom_id_mmdb_expand(atom_back),
+				 back_type, atom_id_mmdb_expand(atom_forward),
 				 connect_type);
 	 mods[mod_id].add_mod_tree(cmt);
       } 
@@ -411,7 +413,9 @@ coot::protein_geometry::add_chem_mod_angle(PCMMCIFLoop mmCIFLoop) {
 
       if (ierr_tot == 0) {
 	 coot::chem_mod_angle cma(function,
-				  atom_id_1, atom_id_2, atom_id_3,
+				  atom_id_mmdb_expand(atom_id_1),
+				  atom_id_mmdb_expand(atom_id_2),
+				  atom_id_mmdb_expand(atom_id_3),
 				  new_value_angle,
 				  new_value_angle_esd);
 	 mods[mod_id].add_mod_angle(cma);
@@ -474,8 +478,10 @@ coot::protein_geometry::add_chem_mod_tor(PCMMCIFLoop mmCIFLoop) {
 
       if (ierr_tot == 0) {
 	 coot::chem_mod_tor cmt(function,
-				atom_id_1, atom_id_2,
-				atom_id_3, atom_id_4,
+				atom_id_mmdb_expand(atom_id_1),
+				atom_id_mmdb_expand(atom_id_2), 
+				atom_id_mmdb_expand(atom_id_3),  
+				atom_id_mmdb_expand(atom_id_4), 
 				new_value_angle,
 				new_value_angle_esd,
 				new_period);
@@ -536,8 +542,10 @@ coot::protein_geometry::add_chem_mod_chir(PCMMCIFLoop mmCIFLoop) {
 
       if (ierr_tot == 0) {
 	 coot::chem_mod_chir cmc(function,
-				 atom_id_centre,
-				 atom_id_1, atom_id_2, atom_id_3, 
+				 atom_id_mmdb_expand(atom_id_centre),
+				 atom_id_mmdb_expand(atom_id_1),
+				 atom_id_mmdb_expand(atom_id_2),
+				 atom_id_mmdb_expand(atom_id_3), 
 				 volume_sign_int);
 	 mods[mod_id].add_mod_chir(cmc);
       } else {
@@ -585,7 +593,7 @@ coot::protein_geometry::add_chem_mod_plane(PCMMCIFLoop mmCIFLoop) {
 
       if (ierr_tot == 0) {
 	 coot::chem_mod_plane plane(plane_id, function);
-	 mods[mod_id][plane].add_atom(atom_id, new_dist_esd);
+	 mods[mod_id][plane].add_atom(atom_id_mmdb_expand(atom_id), new_dist_esd);
       } else {
 	 std::cout << "oops in add_chem_mod_plane ierr_tot is "
 		   << ierr_tot << std::endl;

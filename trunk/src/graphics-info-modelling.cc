@@ -1318,12 +1318,11 @@ graphics_info_t::flash_selection(int imol,
    int selHnd = ((CMMDBManager *)molecules[imol].atom_sel.mol)->NewSelection();
    int nSelAtoms;
    PPCAtom SelAtom;
-   char *chn  = (char *) chain_id_1.c_str();
-   char *ins1 = (char *) ins_code_1.c_str();
-   char *ins2 = (char *) ins_code_2.c_str();
+   const char *chn  = chain_id_1.c_str();
+   const char *ins1 = ins_code_1.c_str();
+   const char *ins2 = ins_code_2.c_str();
 
    ((CMMDBManager *)molecules[imol].atom_sel.mol)->SelectAtoms(selHnd, 0, 
-							       // (char *) chain_id_1.c_str(),
 							       chn,
 							       resno_1, ins1,
 							       resno_2, ins2,
@@ -1884,7 +1883,7 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 // 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms altconf :"
 // 		   << altconf << ":" << std::endl;
 	 
-	 molecules[imol].atom_sel.mol->SelectAtoms(SelHnd, 0, (char *) chain_id.c_str(),
+	 molecules[imol].atom_sel.mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
 						   resno_start, // starting resno, an int
 						   "*", // any insertion code
 						   resno_start, // ending resno
@@ -1892,7 +1891,7 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 						   "*", // any residue name
 						   "*", // atom name
 						   "*", // elements
-						   (char *) altconf.c_str()  // alt loc.
+						    altconf.c_str()  // alt loc.
 						   );
 	 molecules[imol].atom_sel.mol->GetSelIndex(SelHnd, selatoms, nselatoms);
 // 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms nselatoms (1) "
@@ -1907,7 +1906,7 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 	 // and again for the second atom seletion:
 	 // 
 	 SelHnd = molecules[imol].atom_sel.mol->NewSelection();
-	 molecules[imol].atom_sel.mol->SelectAtoms(SelHnd, 0, (char *) chain_id.c_str(),
+	 molecules[imol].atom_sel.mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
 						   resno_end, // starting resno, an int
 						   "*", // any insertion code
 						   resno_end, // ending resno
@@ -1915,7 +1914,7 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 						   "*", // any residue name
 						   "*", // atom name
 						   "*", // elements
-						   (char *) altconf.c_str()  // alt loc.
+						   altconf.c_str()  // alt loc.
 						   );
 	 molecules[imol].atom_sel.mol->GetSelIndex(SelHnd, selatoms, nselatoms);
 // 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms nselatoms (2) "
@@ -1987,7 +1986,9 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	    if (terminus_type == "N" || terminus_type == "MN")
 	       resno_added = residue_number - 1;
 	    std::pair<bool, std::string> p = 
-	       molecules[imol].find_terminal_residue_type(chain_id, resno_added);
+	       molecules[imol].find_terminal_residue_type(chain_id, resno_added,
+							  alignment_wgap,
+							  alignment_wspace);
 	    if (p.first) {
 	       res_type = p.second;
 	    } else {
@@ -3810,7 +3811,7 @@ graphics_info_t::do_interactive_probe() const {
 	 c += "\", ";
 	 c += int_to_string(moving_atoms_asc->atom_selection[0]->GetSeqNum());
 	 c += ")";
-	 PyRun_SimpleString((char *)c.c_str());
+	 PyRun_SimpleString((char *) c.c_str());
       }
    }
    

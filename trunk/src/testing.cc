@@ -198,6 +198,7 @@ int greg_internal_tests() {
    functions.push_back(named_func(test_geometry_distortion_info_type, "geometry distortion comparision"));
    functions.push_back(named_func(test_translate_close_to_origin, "test symm trans to origin"));
    functions.push_back(named_func(test_lsq_plane, "test lsq plane"));
+   functions.push_back(named_func(test_COO_mod, "test COO modification"));
 
    // restore this at some stage
    // functions.push_back(named_func(test_copy_cell_symm_orig_scale_headers, "test copy cell, symm, orig, scale cards"));
@@ -279,8 +280,9 @@ int test_internal_single() {
       // status = test_copy_cell_symm_orig_scale_headers();
       // status = test_residue_atom_renaming();
       // status = test_residue_atom_renaming();
-
-      status = test_mcd_and_thornton_h_bonds();
+      // status = test_mcd_and_thornton_h_bonds();
+      status = test_COO_mod();
+      
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -502,7 +504,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
    short int have_disulfide_residues = 0;  // other residues are included in the
    std::string altconf = "";
    short int in_alt_conf_split_flag = 0;
-   char *chn = (char *) chain_id.c_str(); // mmdb thing.  Needs updating on new mmdb?
+   const char *chn = chain_id.c_str(); // mmdb thing.  Needs updating on new mmdb?
 	       
    std::pair<CMMDBManager *, int> residues_mol_pair = 
       coot::util::create_mmdbmanager_from_res_selection(atom_sel.mol,
@@ -528,11 +530,9 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
    short int do_link_torsions = 0;
    float rama_plot_restraint_weight = 1.0;
 
-   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
-   flags = coot::BONDS_ANGLES_AND_PLANES;
-      
-   // coot::restraint_usage_Flags flags = coot::TORSIONS;
+   coot::restraint_usage_Flags flags =
+      coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+
    if (enable_rama_refinement) { 
       do_rama_restraints = 1;
       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
@@ -541,12 +541,9 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
       //flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
       //flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS;
       //flags = coot::BONDS_AND_NON_BONDED;
-      flags = coot::RAMA;
+      //flags = coot::RAMA;
    } 
 
-   std::cout << " ===================== enable_rama_refinement: " 
-	     << " " << do_rama_restraints << " ========================" << std::endl;
-   
    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
    int nrestraints = 
       restraints.make_restraints(geom, flags,
@@ -2530,6 +2527,67 @@ int test_mcd_and_thornton_h_bonds() {
       }
    } 
    return r;
+}
+
+int test_COO_mod() {
+
+   graphics_info_t g;
+   testing_data t;
+   int status = 0;
+   std::string file_name = greg_test("hideous-OXT.pdb");
+   atom_selection_container_t asc = get_atom_selection(file_name, 1);
+
+   
+   if (!  asc.read_success) {
+      std::cout << "failed to correctly read hideous-OXT.pdb " << std::endl;
+   } else { 
+      std::cout << "read " << asc.n_selected_atoms << " atom " << std::endl;
+
+      // refine ...
+      
+      PCResidue *SelResidues = new PCResidue[1];
+      SelResidues[0] = asc.atom_selection[0]->residue;
+      
+      residue_selection_t result =
+	 testing_func_probabilities_refine_fragment(asc, SelResidues,
+						    1, "A", 93, t.geom, 0, 0, 0, 0);
+      delete [] SelResidues;
+
+      // now test...
+   
+      std::vector<int> atom_index(3);
+      atom_index[0] = 1; // CA
+      atom_index[1] = 6; // C
+      atom_index[2] = 7; // O
+      for (unsigned int i=0; i<3; i++) {
+	 clipper::Coord_orth pos(result.SelResidues[0]->GetAtom(atom_index[i])->x,
+				 result.SelResidues[0]->GetAtom(atom_index[i])->y,
+				 result.SelResidues[0]->GetAtom(atom_index[i])->z);
+
+	 g.lsq_plane_atom_positions->push_back(pos);
+      }
+      clipper::Coord_orth oxt_pos(result.SelResidues[0]->GetAtom(8)->x,
+				  result.SelResidues[0]->GetAtom(8)->y,
+				  result.SelResidues[0]->GetAtom(8)->z);
+      clipper::Coord_orth o_pos(result.SelResidues[0]->GetAtom(7)->x,
+				result.SelResidues[0]->GetAtom(7)->y,
+				result.SelResidues[0]->GetAtom(7)->z);
+      result.clear_up();
+   
+      std::pair<float,float> d_pair =
+	 coot::lsq_plane_deviation(*g.lsq_plane_atom_positions, oxt_pos);
+      float d = fabs(d_pair.first);
+      std::cout << "OXT out of plane distance: " << d << std::endl;
+      double oxt_dist = clipper::Coord_orth::length(o_pos, oxt_pos);
+      std::cout << "OXT->O distance: " << oxt_dist << std::endl;
+   
+      if (d < 0.02)
+	 if (oxt_dist > 2.0) 
+	    status = 1;
+
+   }
+   return status;
 } 
+
 
 #endif // BUILT_IN_TESTING
