@@ -71,12 +71,27 @@ namespace coot {
    public:
       CResidue *r_1; 
       CResidue *r_2; 
-      CResidue *r_3; 
+      CResidue *r_3;
+      bool fixed_1; 
+      bool fixed_2; 
+      bool fixed_3; 
       rama_triple_t(CResidue *r1, CResidue *r2, CResidue *r3) {
 	 r_1 = r1;
 	 r_2 = r2;
 	 r_3 = r3;
-      } 
+	 fixed_1 = 0;
+	 fixed_2 = 0;
+	 fixed_3 = 0;
+      }
+      rama_triple_t(CResidue *r1, CResidue *r2, CResidue *r3,
+		    bool fixed_1_in, bool fixed_2_in, bool fixed_3_in) {
+	 r_1 = r1;
+	 r_2 = r2;
+	 r_3 = r3;
+	 fixed_1 = fixed_1_in;
+	 fixed_2 = fixed_2_in;
+	 fixed_3 = fixed_3_in;
+      }
    };
 
    class bonded_pair_container_t {
@@ -1169,7 +1184,8 @@ namespace coot {
 
       void add_rama_links(int SelHnd, const coot::protein_geometry &geom);
 					
-      void add_rama_links_from_res_vec(const coot::protein_geometry &geom);
+      void add_rama_links_from_res_vec(const coot::bonded_pair_container_t &bonded_residue_pairs,
+				       const coot::protein_geometry &geom);
 					
 
       int make_monomer_restraints       (const protein_geometry &geom,
