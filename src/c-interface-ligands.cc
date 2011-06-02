@@ -158,8 +158,9 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	       // normal case
 	       graphics_info_t::molecules[imol_ligand].match_torsions(res_ref, tr,
 								      *g.Geom_p());
-	    } 
-	 } 
+	    }
+	    graphics_draw();
+	 }
       }
    }
 } 
