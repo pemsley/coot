@@ -663,7 +663,7 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
       RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
       std::cout << "calcExplicitValence on atom " << iat << "/" << n_mol_atoms
 		<< "  " << at_p->getAtomicNum() << std::endl;
-      at_p->calcExplicitValence();
+      at_p->calcExplicitValence(false);
    }
    
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
