@@ -292,7 +292,9 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
   PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, std::string> p = 
-	 graphics_info_t::molecules[imol].find_terminal_residue_type(chain_id, resno);
+	 graphics_info_t::molecules[imol].find_terminal_residue_type(chain_id, resno,
+								     graphics_info_t::alignment_wgap,
+								     graphics_info_t::alignment_wspace);
       if (p.first) {
 	 r = PyString_FromString(p.second.c_str());
       }

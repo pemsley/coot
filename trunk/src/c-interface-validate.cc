@@ -1653,7 +1653,8 @@ PyObject *alignment_mismatches_py(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > ar = 
-      	 graphics_info_t::molecules[imol].residue_mismatches();
+      	 graphics_info_t::molecules[imol].residue_mismatches(graphics_info_t::alignment_wgap,
+							     graphics_info_t::alignment_wspace);
       if (ar.first)
 	r = PyList_New(0);
       for (unsigned int ir=0; ir<ar.second.size(); ir++) {
