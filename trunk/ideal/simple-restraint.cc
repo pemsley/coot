@@ -3950,7 +3950,7 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Link");
 
    if (do_rama_plot_restraints)
-      add_rama_links_from_res_vec(geom);
+      add_rama_links_from_res_vec(bonded_residue_pairs, geom);
 
    return iv;
 }
@@ -4101,12 +4101,48 @@ coot::restraints_container_t::add_rama_links(int selHnd, const coot::protein_geo
 }
 
 void
-coot::restraints_container_t::add_rama_links_from_res_vec(const coot::protein_geometry &geom) {
+coot::restraints_container_t::add_rama_links_from_res_vec(const coot::bonded_pair_container_t &bonded_residue_pairs,
+							  const coot::protein_geometry &geom) {
 
-   std::cout << "::::::::: FIX ME :::::: residue vec rama triples " << std::endl;
-   // need to get rama triples
+
+   std::vector<coot::rama_triple_t> rama_triples;
    //
-   // make_rama_triples(, geom);
+   // This relies on the bonded_residues in bonded_residue_pairs being
+   // ordered (i.e. res_1 is the first residue in the comp_id of the
+   // restraints)
+   // 
+   for (unsigned int i=0; i<bonded_residue_pairs.bonded_residues.size(); i++) { 
+      for (unsigned int j=0; j<bonded_residue_pairs.bonded_residues.size(); j++) { 
+	 if (i != j) {
+	    if (bonded_residue_pairs.bonded_residues[i].res_2 ==
+		bonded_residue_pairs.bonded_residues[j].res_1) {
+	       if (bonded_residue_pairs.bonded_residues[i].link_type == "TRANS") { 
+		  if (bonded_residue_pairs.bonded_residues[j].link_type == "TRANS") {
+		     coot::rama_triple_t rt(bonded_residue_pairs.bonded_residues[i].res_1,
+					    bonded_residue_pairs.bonded_residues[i].res_2,
+					    bonded_residue_pairs.bonded_residues[j].res_2,
+					    bonded_residue_pairs.bonded_residues[i].is_fixed_first,
+					    bonded_residue_pairs.bonded_residues[i].is_fixed_second,
+					    bonded_residue_pairs.bonded_residues[j].is_fixed_second);
+		     rama_triples.push_back(rt);
+		  }
+	       }
+	    }
+	 }
+      } 
+   }
+
+   for (unsigned int ir=0; ir<rama_triples.size(); ir++) {
+      add_rama("TRANS",
+	       rama_triples[ir].r_1,
+	       rama_triples[ir].r_2,
+	       rama_triples[ir].r_3,
+	       rama_triples[ir].fixed_1,
+	       rama_triples[ir].fixed_2,
+	       rama_triples[ir].fixed_3,
+	       geom);
+   }
+   
 }
 
 coot::bonded_pair_container_t
