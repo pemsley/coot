@@ -4507,7 +4507,8 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
 
    if (mol_base_name == "Ar" || mol_base_name == "Ad" ||
        mol_base_name == "Gr" || mol_base_name == "Gd" ||
-       mol_base_name == "A"  || mol_base_name == "DA") {
+       mol_base_name == "A"  || mol_base_name == "G"  ||
+       mol_base_name == "DA" || mol_base_name == "DG") {
       mol_base_is_purine = 1;
       mol_base_is_pyrimidine = 0;
    }
@@ -4515,14 +4516,17 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
    if (mol_base_name == "Cr" || mol_base_name == "Cd" ||
        mol_base_name == "Ur" || mol_base_name == "Ud" ||
        mol_base_name == "Tr" || mol_base_name == "Td" ||
-       mol_base_name == "T"  || mol_base_name == "DT") {
+       mol_base_name == "T"  || mol_base_name == "U"  ||
+       mol_base_name == "DT" || mol_base_name == "DC" ||
+       mol_base_name == "DU" ) {
       mol_base_is_pyrimidine = 1;
       mol_base_is_purine = 0;
    }
 
    if (std_base_name == "Ar" || std_base_name == "Ad" ||
        std_base_name == "Gr" || std_base_name == "Gd" ||
-       mol_base_name == "G"  || mol_base_name == "DG") {
+       std_base_name == "G"  || std_base_name == "DG" ||
+       std_base_name == "DA" ) {
       std_base_is_purine = 1;
       std_base_is_pyrimidine = 0;
    }
@@ -4530,7 +4534,8 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
    if (std_base_name == "Cr" || std_base_name == "Cd" ||
        std_base_name == "Tr" || std_base_name == "Td" ||
        std_base_name == "Ur" || std_base_name == "Ud" ||
-       mol_base_name == "U"  || mol_base_name == "DT") {
+       std_base_name == "U"  || std_base_name == "DT" ||
+       std_base_name == "DC" ) {
       std_base_is_pyrimidine = 1;
       std_base_is_purine = 0;
    }
@@ -4546,8 +4551,8 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
 		<< "std_base_is_pyrimidine: " << " "
 		<< std_base_is_pyrimidine << " "
 		<< "std_base_is_purine: " << " "
-		<< std_base_is_purine << " "
-		<< residue->GetResName() << " " << std_base->GetResName()
+		<< std_base_is_purine << " mol_res_name: "
+		<< residue->GetResName() << " std_base_name: " << std_base->GetResName()
 		<< std::endl;
 
       
