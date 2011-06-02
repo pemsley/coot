@@ -765,6 +765,11 @@
 	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 	       #t #t)
 
+	 (list "binary-Linux-i386-fedora-14-gtk2"
+	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-marmoset-f14/gtk2" 
+	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #f #t)
+
 ; 	 (list "binary-Linux-x86_64-ubuntu-9.04-gtk2"
 ; 	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
 ; 	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
