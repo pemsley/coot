@@ -142,6 +142,7 @@
 	    status)))))
 
 
+(define *old-pdb-style* #f)
 
 (define reduce-molecule-updates-current #f)
 
@@ -179,59 +180,61 @@
 					(putenv env-string))))))))
 
 
-		    (format #t "============= running reduce: ~s ~s and output to: ~s~%"
-			    *reduce-command* 
-			    (list "-build" "-oldpdb" mol-pdb-file "-DB" reduce-het-dict-file-name)
-			    reduce-out-pdb-file)
-		    (format #t "============= running reduce: REDUCE_HET_DICT env var: ~s~%" 
-			    (getenv "REDUCE_HET_DICT"))
-		    (goosh-command *reduce-command* 
-				   (list "-build" "-oldpdb" mol-pdb-file  
-					 "-DB" reduce-het-dict-file-name)
-				   '() reduce-out-pdb-file #f)
-		    (let* ((probe-name-stub (strip-extension (strip-path (molecule-name imol))))
-			   (probe-pdb-in  (string-append 
-					   "coot-molprobity/" probe-name-stub "-with-H.pdb"))
-			   (probe-out "coot-molprobity/probe-dots.out"))
+		    (let ((arg-list 
+			   (if *old-pdb-style*
+			       ;; old 
+			       (list "-build" "-oldpdb" mol-pdb-file "-DB" reduce-het-dict-file-name)
+			       ;; modern
+			       (list "-build" mol-pdb-file "-DB" reduce-het-dict-file-name))))
 
-		      (goosh-command "grep" (list "-v" "^USER" reduce-out-pdb-file)
-				     '() probe-pdb-in #f)
-		      (goosh-command *probe-command* (list "-u" "-stdbonds" "-mc"
-							   ; "'(chainA,chainZ) alta'" 
-							   "ALL"
-							   probe-pdb-in)
-				     '() probe-out #f)
-		      ; by default, we don't want to click on the
-		      ; imol-probe molecule (I think :-)
-		      (let* ((recentre-status (recentre-on-read-pdb))
-			     (novalue (set-recentre-on-read-pdb 0))
-			     (imol-probe 
-			      (if reduce-molecule-updates-current
-				  (begin
+		      (format #t "============= running reduce: ~s ~s and output to: ~s~%"
+			      *reduce-command* arg-list reduce-out-pdb-file)
+		      (format #t "============= running reduce: REDUCE_HET_DICT env var: ~s~%" 
+			      (getenv "REDUCE_HET_DICT"))
+		      (goosh-command *reduce-command* arg-list '() reduce-out-pdb-file #f)
+		      (let* ((probe-name-stub (strip-extension (strip-path (molecule-name imol))))
+			     (probe-pdb-in  (string-append 
+					     "coot-molprobity/" probe-name-stub "-with-H.pdb"))
+			     (probe-out "coot-molprobity/probe-dots.out"))
+			
+			(goosh-command "grep" (list "-v" "^USER" reduce-out-pdb-file)
+				       '() probe-pdb-in #f)
+			(goosh-command *probe-command* (list "-u" "-stdbonds" "-mc"
+					; "'(chainA,chainZ) alta'" 
+							     "ALL"
+							     probe-pdb-in)
+				       '() probe-out #f)
+					; by default, we don't want to click on the
+					; imol-probe molecule (I think :-)
+			(let* ((recentre-status (recentre-on-read-pdb))
+			       (novalue (set-recentre-on-read-pdb 0))
+			       (imol-probe 
+				(if reduce-molecule-updates-current
+				    (begin
 				    (format #t "======= update molecule =======~%")
 				    (clear-and-update-model-molecule-from-file imol probe-pdb-in))
-				  (begin
-				    (format #t "======= read new pdb file =======~%")
-				    (read-pdb probe-pdb-in)
-				    imol))))
-			(if (= 1 recentre-status)
-			    (set-recentre-on-read-pdb 1))
-			
-			;; show the GUI for the USER MODS
-			(if (using-gui?)
-			    (user-mods-gui imol-probe reduce-out-pdb-file))
-
-			; (toggle-active-mol imol-probe) let's not do
-			; that actually.  I no longer think that the
-			; new probe molecule should not be clickable
-			; when it is initally displayed (that plus
-			; there is some active/displayed logic problem
-			; for the molecules, which means that after
-			; several probes, the wrong molecule is
-			; getting refined).
-			(handle-read-draw-probe-dots-unformatted probe-out imol-probe 1)
-			(generic-objects-gui)
-			(graphics-draw))))))))))
+				    (begin
+				      (format #t "======= read new pdb file =======~%")
+				      (read-pdb probe-pdb-in)
+				      imol))))
+			  (if (= 1 recentre-status)
+			      (set-recentre-on-read-pdb 1))
+			  
+			  ;; show the GUI for the USER MODS
+			  (if (using-gui?)
+			      (user-mods-gui imol-probe reduce-out-pdb-file))
+			  
+					; (toggle-active-mol imol-probe) let's not do
+					; that actually.  I no longer think that the
+					; new probe molecule should not be clickable
+					; when it is initally displayed (that plus
+					; there is some active/displayed logic problem
+					; for the molecules, which means that after
+					; several probes, the wrong molecule is
+					; getting refined).
+			  (handle-read-draw-probe-dots-unformatted probe-out imol-probe 1)
+			  (generic-objects-gui)
+			  (graphics-draw)))))))))))
 
 ;; Write the connectivity for the non-standard (non-water) residues in
 ;; the given molecule for which we have the dictionary.
