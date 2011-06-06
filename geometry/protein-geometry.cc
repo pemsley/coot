@@ -247,6 +247,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       }
 	    }
 	    int n_chiral = 0;
+	    std::vector<std::string> comp_ids_for_chirals;
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
 
 	       PCMMCIFCategory cat = data->GetCategory(icat);
@@ -307,8 +308,13 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     comp_torsion(mmCIFLoop);
 
 		  // chiral
-		  if (cat_name == "_chem_comp_chir")
-		     n_chiral += comp_chiral(mmCIFLoop);
+		  if (cat_name == "_chem_comp_chir") {
+		     std::pair<int, std::vector<std::string> > chirals = 
+			comp_chiral(mmCIFLoop);
+		     n_chiral += chirals.first;
+		     for (unsigned int ichir=0; ichir<chirals.second.size(); ichir++)
+			comp_ids_for_chirals.push_back(chirals.second[ichir]);
+		  }
                
 		  // plane
 		  if (cat_name == "_chem_comp_plane_atom")
@@ -317,9 +323,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       }
 	    }
 	    if (n_chiral) {
- 	       // std::cout << "-------------- DEBUG:: in init_refmac_mon_lib there were "
-	       // << n_chiral << " chiral volume restraints\n";
 	       assign_chiral_volume_targets();
+	       filter_chiral_centres(comp_ids_for_chirals);
 	    }
 	 } // for idata
       } // cif file is OK test
@@ -419,6 +424,55 @@ coot::protein_geometry::assign_chiral_volume_targets() {
 
    assign_link_chiral_volume_targets();
 }
+
+// the chiral restraint for this comp_id(s) may need filtering
+// (i.e. removing some of them if they are not real chiral centres
+// (e.g. from prodrg restraints)).
+void
+coot::protein_geometry::filter_chiral_centres(const std::vector<std::string> &comp_ids_for_filtering) {
+
+   for (unsigned int ichir=0; ichir<comp_ids_for_filtering.size(); ichir++) {
+      int idx = get_monomer_restraints_index(comp_ids_for_filtering[ichir], 0);
+      if (idx != -1) { 
+	 const coot::dictionary_residue_restraints_t &restraints =
+	    dict_res_restraints[idx];
+	 std::vector<coot::dict_chiral_restraint_t> new_chirals =
+	    filter_chiral_centres(restraints);
+	 dict_res_restraints[idx].chiral_restraint = new_chirals;
+      }
+   }
+} 
+
+// Return a filtered list, that is don't include chiral centers that
+// are connected to more than one hydrogen.
+// 
+std::vector<coot::dict_chiral_restraint_t>
+coot::protein_geometry::filter_chiral_centres(const dictionary_residue_restraints_t &restraints) {
+
+   std::cout << "============================================ filtering chiral restraints for "
+	     << restraints.comp_id << " ===================" << std::endl;
+
+   std::vector<coot::dict_chiral_restraint_t> v;
+   for (unsigned int ichir=0; ichir<restraints.chiral_restraint.size(); ichir++) { 
+      int n_H=0;
+      for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
+	 if (restraints.bond_restraint[ib].atom_id_1_4c() ==
+	     restraints.chiral_restraint[ichir].atom_id_c_4c()) {
+	    if (restraints.element(restraints.bond_restraint[ib].atom_id_2_4c()) == " H")
+	       n_H++;
+	 }
+	 if (restraints.bond_restraint[ib].atom_id_2_4c() ==
+	     restraints.chiral_restraint[ichir].atom_id_c_4c()) {
+	    if (restraints.element(restraints.bond_restraint[ib].atom_id_1_4c()) == " H")
+	       n_H++;
+	 }
+      }
+      std::cout << "n_H = " << n_H << std::endl;
+      if (n_H <= 1)
+	 v.push_back(restraints.chiral_restraint[ichir]);
+   }
+   return v;
+} 
 
 void
 coot::protein_geometry::assign_link_chiral_volume_targets() {
@@ -1732,7 +1786,7 @@ coot::protein_geometry::comp_torsion(PCMMCIFLoop mmCIFLoop) {
 } 
 
 
-int
+std::pair<int, std::vector<std::string> >
 coot::protein_geometry::comp_chiral(PCMMCIFLoop mmCIFLoop) {
 
    std::string comp_id;
@@ -1740,6 +1794,7 @@ coot::protein_geometry::comp_chiral(PCMMCIFLoop mmCIFLoop) {
    std::string atom_id_1, atom_id_2, atom_id_3;
    std::string volume_sign;
    int n_chiral = 0;
+   std::vector<std::string> comp_id_vector;
 
    char *s; 
    int ierr;
@@ -1799,11 +1854,15 @@ coot::protein_geometry::comp_chiral(PCMMCIFLoop mmCIFLoop) {
 			    atom_id_2,
 			    atom_id_3,
 			    volume_sign);
+	 // add comp_id to comp_id_vector if it is not there already.
+	 if (std::find(comp_id_vector.begin(), comp_id_vector.end(), comp_id) ==
+	     comp_id_vector.end())
+	    comp_id_vector.push_back(comp_id);
 	 n_chiral++;
       }
    }
 
-   return n_chiral;
+   return std::pair<int, std::vector<std::string> > (n_chiral, comp_id_vector);
 }
 
 void
