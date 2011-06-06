@@ -449,9 +449,6 @@ coot::protein_geometry::filter_chiral_centres(const std::vector<std::string> &co
 std::vector<coot::dict_chiral_restraint_t>
 coot::protein_geometry::filter_chiral_centres(const dictionary_residue_restraints_t &restraints) {
 
-   std::cout << "============================================ filtering chiral restraints for "
-	     << restraints.comp_id << " ===================" << std::endl;
-
    std::vector<coot::dict_chiral_restraint_t> v;
    for (unsigned int ichir=0; ichir<restraints.chiral_restraint.size(); ichir++) { 
       int n_H=0;
@@ -467,7 +464,6 @@ coot::protein_geometry::filter_chiral_centres(const dictionary_residue_restraint
 	       n_H++;
 	 }
       }
-      std::cout << "n_H = " << n_H << std::endl;
       if (n_H <= 1)
 	 v.push_back(restraints.chiral_restraint[ichir]);
    }
