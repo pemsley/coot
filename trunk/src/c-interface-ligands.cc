@@ -1458,7 +1458,7 @@ void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int r
 
 */
 std::vector<std::string>
-topological_equivalence_chiral_centres(std::string &residue_type) {
+topological_equivalence_chiral_centres(const std::string &residue_type) {
 
    std::vector<std::string> centres;
 #ifdef HAVE_GOOCANVAS
