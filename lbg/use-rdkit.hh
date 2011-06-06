@@ -19,6 +19,7 @@
 #include <GraphMol/Substruct/SubstructMatch.h>
 #include <GraphMol/Depictor/RDDepictor.h>
 #include <GraphMol/FileParsers/FileParsers.h>
+#include <GraphMol/FileParsers/MolFileStereochem.h>
 #include <GraphMol/DistGeomHelpers/Embedder.h>
 #include <RDGeneral/RDLog.h>
 #include <GraphMol/GraphMol.h>
@@ -30,6 +31,5 @@
 #include <GraphMol/FileParsers/MolWriters.h>
 #include <GraphMol/MolOps.h>
 #include <GraphMol/PeriodicTable.h>
-
 
 #endif // USE_RDKIT_HH

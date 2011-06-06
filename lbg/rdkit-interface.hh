@@ -75,6 +75,13 @@ namespace coot {
    // hydrogen.
    // 
    void delete_excessive_hydrogens(RDKit::RWMol *rdkm);
+
+   // used in the rdkit_mol() "constructor".
+   // 
+   RDKit::Atom::ChiralType get_chiral_tag(CResidue *residue_p,
+					  const dictionary_residue_restraints_t &restraints,
+					  CAtom *atom_p);
+
    
 } 
 

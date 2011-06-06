@@ -117,7 +117,23 @@ coot::rdkit_mol(CResidue *residue_p,
 	       }
 	       // other NT*s will drop hydrogens in RDKit, no need to
 	       // fix up formal charge (unless there is a hydrogen! Hmm).
-	    } 
+	    }
+
+	    // set the chirality
+	    // (if this atom is chiral)
+	    //
+	    for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) { 
+	       if (restraints.chiral_restraint[ichi].atom_id_c_4c() == atom_name) {
+		  if (!restraints.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
+		     if (!restraints.chiral_restraint[ichi].is_a_both_restraint()) {
+			// e.g. RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+			RDKit::Atom::ChiralType chiral_tag = get_chiral_tag(residue_p, restraints, residue_atoms[iat]);
+			
+			at->setChiralTag(chiral_tag);
+		     } 
+		  } 
+	       } 
+	    }
 	    
 	    m.addAtom(at);
 	    if (0) 
@@ -350,6 +366,79 @@ coot::convert_bond_type(const std::string &t) {
    return bt;
 }
 
+// used in the rdkit_mol() "constructor".
+// 
+RDKit::Atom::ChiralType
+coot::get_chiral_tag(CResidue *residue_p,
+		     const dictionary_residue_restraints_t &restraints,
+		     CAtom *atom_p) {
+
+   RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED; // as yet
+   
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   std::string atom_name = atom_p->name;
+   
+   bool atom_orders_match = 0; 
+   // does the order of the restraints match the order of the atoms?
+   //
+   for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) { 
+      if (restraints.chiral_restraint[ichi].atom_id_c_4c() == atom_name) {
+	 const coot::dict_chiral_restraint_t &chiral_restraint = restraints.chiral_restraint[ichi];
+
+	 int n_neigbours_found = 0;
+	 unsigned int i_next = 0;
+	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	    std::string atom_name_local = residue_atoms[iat]->name;
+	    if (atom_name_local == chiral_restraint.atom_id_1_4c()) {
+	       n_neigbours_found++;
+	       i_next = iat+1;
+	       break;
+	    }
+	 }
+	 for (unsigned int iat=i_next; iat<n_residue_atoms; iat++) {
+	    std::string atom_name_local = residue_atoms[iat]->name;
+	    if (atom_name_local == chiral_restraint.atom_id_2_4c()) {
+	       n_neigbours_found++;
+	       i_next = iat+1;
+	       break;
+	    }
+	 }
+	 for (unsigned int iat=i_next; iat<n_residue_atoms; iat++) {
+	    std::string atom_name_local = residue_atoms[iat]->name;
+	    if (atom_name_local == chiral_restraint.atom_id_3_4c()) {
+	       n_neigbours_found++;
+	       break;
+	    }
+	 }
+
+	 if (n_neigbours_found == 3) {
+	    // yes, they match
+	    atom_orders_match = 1;
+	 }
+
+	 // This bit needs checking
+	 // 
+	 if (atom_orders_match) {
+	    if (chiral_restraint.volume_sign == 1)
+	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	    else 
+	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
+	 } else {
+	    if (chiral_restraint.volume_sign == 1)
+	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
+	    else 
+	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	 } 
+	 break;
+      } 
+   }
+
+   return chiral_tag;
+} 
+
+
 
 // tweaking function used by rdkit mol construction function.
 // (change mol maybe).
@@ -493,6 +582,14 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	 int idx_2 = bond_p->getEndAtomIdx();
 	 lig_build::bond_t::bond_type_t bt = convert_bond_type(bond_p->getBondType());
 	 lig_build::molfile_bond_t mol_bond(idx_1, idx_2, bt);
+	 RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
+	 std::cout << "bond " << ib << " has bond_dir " << bond_dir << std::endl;
+	 if (bond_dir != RDKit::Bond::NONE) {
+	    if (bond_dir == RDKit::Bond::BEGINWEDGE)
+	       mol_bond.bond_type = lig_build::bond_t::OUT_BOND;
+	    if (bond_dir == RDKit::Bond::BEGINDASH)
+	       mol_bond.bond_type = lig_build::bond_t::IN_BOND;
+	 }
 	 mol.add_bond(mol_bond);
       }
    }
@@ -658,10 +755,12 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
    int n_mol_atoms = rdkm->getNumAtoms();
    std::cout << "---------------------- in assign_formal_charges() with " << n_mol_atoms
 	     << " atoms -----------" << std::endl;
-   
+
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
       RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
-      std::cout << "calcExplicitValence on atom " << iat << "/" << n_mol_atoms
+      // debug
+      std::cout << "in assign_formal_charges() calcExplicitValence on atom "
+		<< iat << "/" << n_mol_atoms
 		<< "  " << at_p->getAtomicNum() << std::endl;
       at_p->calcExplicitValence(false);
    }
@@ -971,6 +1070,9 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
    int iconf =
       RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, 1, 1, weight_for_3d_distances, iflip, 200);
 
+   conf = rdk_mol->getConformer(iconf);
+   RDKit::WedgeMolBonds(*rdk_mol, &conf);
+
    if (0) { // .................... debug ...................
       std::cout << "::::: add_2d_conformer after  compute2DCoords n_atoms: "
 		<< rdk_mol->getConformer(0).getNumAtoms()
@@ -1010,6 +1112,9 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
    // 4)      if yes, then find another bond to this carbon that
    //            is deloc (bond_2)
    // 5)         if found, then make bond_1 single, bond_2 double
+
+
+   std::cout << "======================= undelocalise ==========" << std::endl;
     
 
    int n_bonds = rdkm->getNumBonds();
