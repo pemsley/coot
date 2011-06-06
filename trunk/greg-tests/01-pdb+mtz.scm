@@ -1678,6 +1678,21 @@
 	       
 	       #t))))))) ;; it didn't crash
 
+;; enable when we are in 07
+;; 
+;;; simple-minded Hydrogen-based filtered (not topological).
+;;; 
+;(greg-testcase "filter out multi-hydrogen chiral centres" #t
+;   (lambda ()
+
+;     (let ((imol (greg-pdb "chiral-test-1.pdb")))
+;       (if (not (valid-model-molecule? imol))
+;	   (throw "chiral-test-1.pdb not found"))
+;       (read-cif-dictionary (append-dir-file greg-data-dir "chiral-test-1-dict.cif"))
+;       (let ((r (monomer-restraints "DRG")))
+;	 (let ((chirals (assoc-ref r "_chem_comp_chir")))
+;	   (= (length chirals) 2))))))
+
 
 
 (greg-testcase "Change Chain IDs and Chain Sorting" #t 
