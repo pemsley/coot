@@ -835,7 +835,7 @@ void orient_view(int imol,
 /*  return a list of chiral centre ids as determined from topological
     equivalence analysis based on the bond info (and element names). */
 std::vector<std::string>
-topological_equivalence_chiral_centres(std::string &residue_type); 
+topological_equivalence_chiral_centres(const std::string &residue_type); 
 
 
 

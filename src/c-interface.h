@@ -4588,6 +4588,8 @@ void set_add_terminal_residue_immediate_addition(int i);
 
 /*! \brief Add a terminal residue
 
+residue type can be "auto" and immediate_add is recommended to be 1.
+
 return 0 on failure, 1 on success */
 int add_terminal_residue(int imol, char *chain_id, int residue_number,
 			 char *residue_type, int immediate_add); 
