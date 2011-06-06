@@ -521,12 +521,12 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius);
 //! 
 SCM residues_near_position_scm(int imol, SCM pos, float radius);
 
+#endif	/* USE_GUILE */
+
 //! find the active residue, find the near residues (within radius) 
 //! create a new molecule, run reduce on that, import hydrogens from
 //! the result and apply them to the molecule of the active residue.
 void hydrogenate_region(float radius);
-
-#endif	/* USE_GUILE */
 
 /* Here the Python code for ATOM INFO */
 

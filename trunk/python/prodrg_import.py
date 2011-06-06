@@ -60,19 +60,24 @@ def import_from_prodrg(minimize_mode):
         return not restraints == False   # twisted but short
 
     # overlap the imol_ligand residue if there are restraints for the
-    # reference residue/ligand
+    # reference residue/ligand.
+    #
+    # Don't overlap of the reference residue/ligand is not a het-group.
     #
     def overlap_ligands_maybe(imol_ligand, imol_ref, chain_id_ref, res_no_ref):
 
         # we don't want to overlap-ligands if there is no dictionary
-        # for the residue to be matched to
+        # for the residue to be matched to.
         res_name = residue_name(imol_ref, chain_id_ref, res_no_ref, "")
         restraints = monomer_restraints(res_name)
         if (not restraints):
             return False
         else:
-            overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
-            return True
+            if not residue_has_hetatms_qm(imol_ref, chain_id_ref, res_no_ref, ""):
+                return False
+            else:
+                overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
+                return True
 
     # return the new molecule number
     #

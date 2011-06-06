@@ -158,7 +158,7 @@ def generic_objects_gui():
 
 # return status
 #
-def reduce_on_pdb_file(imol, pdb_bin, pdb_out):
+def reduce_on_pdb_file(imol, pdb_in, pdb_out):
 
   global reduce_command
   
@@ -167,30 +167,33 @@ def reduce_on_pdb_file(imol, pdb_bin, pdb_out):
   if not command_in_path_qm(reduce_command):
     print "command for reduce %s is not found in path" %reduce_command
   else:
-    # write_reduce_het_dict(imol, reduce_het_dict_file_name)
-    # HOw? what is the filename?
+    # need full path to find het dict
+    full_reduce_command = find_exe(reduce_command, "PATH")
+    reduce_het_dict_file_name = "coot-molprobity/reduce-het-dict.txt"
+    write_reduce_het_dict(imol, reduce_het_dict_file_name)
 
     # BL says: I think we should set REDUCE_HET_DICT
     # so let's set REDUCE_HET_DICT if not set already!
     # not sure if needed any more since we write a connectivity
     # file - let's see FIXME!!
+
+    dict_args = []
     if (not os.getenv('REDUCE_HET_DICT')):
       # we assume the dic is in same dir as reduce command
-      dir, tmp = os.path.split(reduce_command)
+      dir, tmp = os.path.split(full_reduce_command)
       connection_file = os.path.join(dir, 'reduce_wwPDB_het_dict.txt')
       if (os.path.isfile(connection_file)):
         os.environ['REDUCE_HET_DICT'] = connection_file
       else:
         print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
         # now should use the and build the het dic!?
+        dict_args = ["-DB", reduce_het_dict_file_name]
 
-    # FIXME!!!!!
     status = popen_command(reduce_command,
-                           ["-build", pdb_in,
-                            "-DB", reduce_het_dict_file_name],
+                           ["-build", pdb_in] + dict_args,
                            [],
                            pdb_out)
-    return status
+    return status == 0
 
 
 reduce_molecule_updates_current = False
@@ -224,6 +227,7 @@ def probe(imol):
       # so let's set REDUCE_HET_DICT if not set already!
       # not sure if needed any more since we write a connectivity
       # file - let's see FIXME!!
+      dict_args = []
       if (not os.getenv('REDUCE_HET_DICT')):
         # we assume the dic is in same dir as reduce command
         dir, tmp = os.path.split(reduce_command)
@@ -232,16 +236,15 @@ def probe(imol):
           os.environ['REDUCE_HET_DICT'] = connection_file
         else:
           print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
+          dict_args = ["-DB", reduce_het_dict_file_name]
 
       print "BL INFO:: run reduce as:", reduce_command , \
-            ["-build", "-oldpdb", mol_pdb_file,
-             "-DB", reduce_het_dict_file_name], \
+            ["-build", "-oldpdb", mol_pdb_file] + dict_args, \
              " and output to:", reduce_out_pdb_file
 
       reduce_status = popen_command(reduce_command,
 #					["-build", mol_pdb_file],
-                                    ["-build", "-oldpdb", mol_pdb_file,
-                                     "-DB", reduce_het_dict_file_name],
+                                    ["-build", "-oldpdb", mol_pdb_file] + dict_args,
                                     [],
                                     reduce_out_pdb_file)
       if (reduce_status):

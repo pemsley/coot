@@ -1622,7 +1622,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         set_residue_to_rotamer_number(imol, "H", 52, "A", 4) # crash!!?
 
 
-    # new version of tests (not yet ;-) )
+    # new version of tests
     def test44_0(self):
         """RNA base has correct residue type after mutation"""
 

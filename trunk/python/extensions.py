@@ -697,7 +697,7 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_ncs,
-       "Copy NCS Reside Range...",
+       "Copy NCS Residue Range...",
        lambda func: generic_chooser_and_entry("Apply NCS Range from Master",
                                               "Master Chain ID",
                                               "",

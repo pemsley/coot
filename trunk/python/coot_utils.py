@@ -1026,8 +1026,13 @@ def is_difference_map_qm(imol_map):
 # Return True or False
 #
 def residue_exists_qm(imol,chain_id,resno,ins_code): 
-    if (does_residue_exist_p(imol,chain_id,resno,ins_code)==1): return True
-    else: return False
+    return does_residue_exist_p(imol,chain_id,resno,ins_code) == 1
+
+# Does the residue contain hetatoms? 
+# Return True or False.
+#
+def residue_has_hetatms_qm(imol, chain_id, res_no, ins_code):
+    return residue_has_hetatms(imol, chain_id, res_no, ins_code) == 1
 
 # Return a list of 3 float for the centre of mas of molecule number imol.
 #
@@ -2575,6 +2580,34 @@ def coot_split_version_string(stri):
         ls2 = stri[stri.find("W"):-1]  # for 'WinCoot' start
     return ls2
 
+# convert file to string
+def file2string(file_name):
+    if not os.path.isfile(file_name):
+        return False
+    else:
+        fin = open(file_name)
+        ret = fin.read()
+        fin.close()
+        return ret
+
+# If "default.seq" (a simple text file with the sequence (not PIR or
+# FASTA)) exists in the current directory, then try to assign it to
+# each chain of each molecule.
+#
+# In the first case the sequence is assigned to the closest match
+# (model sequence to target sequence), subsequently only chains
+# without a sequence associated with them are candidates for
+# matching.  The protein sequence has to have at least 95% sequence
+# identity with the target sequence in "default.seq"
+#
+def load_default_sequence():
+
+    default_seq = "default.seq"
+    if os.path.isfile(default_seq):
+        s = file2string(default_seq)
+        align_to_closest_chain(s, 0.95)
+    
+    
 # not sure if this works, especally with python and Win
 # is for command line update
 # FIXME
@@ -2669,6 +2702,16 @@ def set_use_curl(status):
 def chiral_centre_inverter():
     # just to do something. Wait until this is in c++ code...
     return False
+
+def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
+    def square(x): return x * x
+    rc = residue_centre(imol, chain_id, res_no, ins_code)
+    if not isinstance(rc, types.ListType):
+        return False
+    else:
+        sc = rotation_centre()
+        dist_sum_sq = sum(square(rcx-scx) for rcx, scx in zip(rc, sc))
+        return dist_sum_sq < 25.
     
 #############
 # some re-definitions from coot python functions
