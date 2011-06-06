@@ -254,6 +254,7 @@ create_window1 (void)
   GtkWidget *reset_view_toolbutton;
   GtkWidget *display_manager_toolbutton;
   GtkWidget *go_to_atom_toolbutton;
+  GtkWidget *go_to_ligand_toolbutton;
   GtkWidget *separatortoolitem1;
   GtkWidget *toolitem30;
   GtkWidget *hbox398;
@@ -1292,6 +1293,13 @@ create_window1 (void)
                               GDK_F6, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
+  tmp_image = gtk_image_new_from_stock ("go-to-ligand.svg", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  go_to_ligand_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Go To Ligand"));
+  gtk_widget_show (go_to_ligand_toolbutton);
+  gtk_container_add (GTK_CONTAINER (toolbar1), go_to_ligand_toolbutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (go_to_ligand_toolbutton), tooltips, _("Go To (Next) Ligand"), NULL);
+
   separatortoolitem1 = (GtkWidget*) gtk_separator_tool_item_new ();
   gtk_widget_show (separatortoolitem1);
   gtk_container_add (GTK_CONTAINER (toolbar1), separatortoolitem1);
@@ -2261,6 +2269,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) go_to_atom_toolbutton, "clicked",
                     G_CALLBACK (on_go_to_atom_toolbutton_clicked),
                     NULL);
+  g_signal_connect ((gpointer) go_to_ligand_toolbutton, "clicked",
+                    G_CALLBACK (on_go_to_ligand_toolbutton_clicked),
+                    NULL);
   g_signal_connect ((gpointer) toolbar_multi_refine_stop_button, "clicked",
                     G_CALLBACK (on_toolbar_multi_refine_stop_button_clicked),
                     NULL);
@@ -2616,6 +2627,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, reset_view_toolbutton, "reset_view_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, display_manager_toolbutton, "display_manager_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, go_to_atom_toolbutton, "go_to_atom_toolbutton");
+  GLADE_HOOKUP_OBJECT (window1, go_to_ligand_toolbutton, "go_to_ligand_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, separatortoolitem1, "separatortoolitem1");
   GLADE_HOOKUP_OBJECT (window1, toolitem30, "toolitem30");
   GLADE_HOOKUP_OBJECT (window1, hbox398, "hbox398");

@@ -2329,6 +2329,9 @@ void set_rotation_centre(float x, float y, float z);
 // The redraw happens somewhere else...
 void set_rotation_centre_internal(float x, float y, float z); 
 float rotation_centre_position(int axis); /* only return one value: x=0, y=1, z=2 */
+/*! \brief centre on the ligand of the "active molecule", if we are
+  already there, centre on the next hetgroup (etc) */
+void go_to_ligand();
 /* \} */
 
 /*  ---------------------------------------------------------------------- */

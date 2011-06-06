@@ -62,6 +62,57 @@
 #endif // HAVE_GOOCANVAS
 
 
+/*! \brief centre on the ligand of the "active molecule", if we are
+  already there, centre on the next hetgroup (etc) */
+void go_to_ligand() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      if (is_valid_model_molecule(pp.second.first)) {
+	 clipper::Coord_orth rc(graphics_info_t::RotationCentre_x(),
+				graphics_info_t::RotationCentre_y(),
+				graphics_info_t::RotationCentre_z());
+	 coot::new_centre_info_t new_centre =
+	    graphics_info_t::molecules[pp.second.first].new_ligand_centre(rc);
+	 if (new_centre.type == coot::NORMAL_CASE) {
+	    graphics_info_t g;
+	    g.setRotationCentre(new_centre.position);
+	    g.update_things_on_move_and_redraw();
+	    std::string s = "Centred on residue ";
+	    // s += new_centre.residue_spec;
+	    s += coot::util::int_to_string(new_centre.residue_spec.resno);
+	    s += new_centre.residue_spec.insertion_code;
+	    s+= " ";
+	    s += new_centre.residue_spec.chain;
+	    s += " in molecule #";
+	    s += coot::util::int_to_string(pp.second.first);
+	    s += ".";
+	    add_status_bar_text(s.c_str());
+	 } else {
+	    if (new_centre.type == coot::NO_LIGANDS) { 
+	       std::string s = "No ligand (hetgroup) found in this molecule (#";
+	       s += coot::util::int_to_string(pp.second.first);
+	       s += ").";
+	       add_status_bar_text(s.c_str());
+	    }
+	    if (new_centre.type == coot::SINGLE_LIGAND_NO_MOVEMENT) { 
+	       std::string s = "This ligand (";
+	       s += coot::util::int_to_string(new_centre.residue_spec.resno);
+	       s += new_centre.residue_spec.insertion_code;
+	       s += new_centre.residue_spec.chain;
+	       s += ") ";
+	       s += " is the only ligand in this molecule (#";
+	       s += coot::util::int_to_string(pp.second.first);
+	       s += ").";
+	       add_status_bar_text(s.c_str());
+	    }
+	 } 
+      } 
+   } 
+} 
+
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  ligand overlay                                          */
 /*  ----------------------------------------------------------------------- */

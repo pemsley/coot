@@ -743,11 +743,27 @@ molecule_class_info_t::draw_animated_ligand_interactions(const gl_context_info_t
 std::pair<bool, clipper::Coord_orth>
 molecule_class_info_t::residue_centre(const std::string &chain_id, int resno, const std::string &ins_code) const {
 
+   CResidue *residue_p = get_residue(chain_id, resno, ins_code);
+   if (residue_p) {
+      return residue_centre(residue_p);
+   } else {
+      std::cout << "Residue not found "
+		<< coot::residue_spec_t(chain_id, resno, ins_code)
+		<< std::endl;
+      bool r = 0;
+      clipper::Coord_orth pos(0,0,0);
+      return std::pair<bool, clipper::Coord_orth> (r, pos);
+   }
+}
+
+
+std::pair<bool, clipper::Coord_orth>
+molecule_class_info_t::residue_centre(CResidue *residue_p) const {
+
    bool r = 0;
    clipper::Coord_orth pos(0,0,0);
    int n_atoms = 0;
 
-   CResidue *residue_p = get_residue(chain_id, resno, ins_code);
    if (residue_p) {
       PPCAtom residue_atoms = 0;
       int n_residue_atoms;
@@ -767,11 +783,102 @@ molecule_class_info_t::residue_centre(const std::string &chain_id, int resno, co
 				   pos.z()/double(n_atoms));
 	 r = 1; 
       } 
-   } else {
-      std::cout << "Residue not found "
-		<< coot::residue_spec_t(chain_id, resno, ins_code)
-		<< std::endl;
    } 
    return std::pair<bool, clipper::Coord_orth> (r, pos);
+}
 
+
+
+// ------------------- ligand centre ---------------------
+// we want a button that goes to the ligand when we click it.
+// (if we are already on a ligand, go to the next one).
+// 
+// the first value flags if this contains a useful return value.
+// 1: normal case, go ahead and use the coord
+// 0:  No ligands found
+// -1: No movement because we are at the (single) ligand already
+//
+coot::new_centre_info_t
+molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_centre) const {
+
+   clipper::Coord_orth pos(0,0,0);
+   coot::new_ligand_position_type status = coot::NO_LIGANDS;
+   coot::residue_spec_t residue_spec;
+
+   std::vector<std::pair<clipper::Coord_orth, coot::residue_spec_t> > ligand_centres;
+   
+   if (atom_sel.n_selected_atoms > 0) { 
+      int imod = 1;
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    bool is_het = false;
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       at = residue_p->GetAtom(iat);
+	       if (at->Het) {
+		  std::string res_name = residue_p->GetResName();
+		  if (res_name != "HOH")
+		     if (res_name != "WAT")
+			is_het = true;
+		  break;
+	       } 
+	    }
+	    if (is_het) {
+	       std::pair<bool, clipper::Coord_orth> res_centre = residue_centre(residue_p);
+	       if (res_centre.first) {
+		  std::pair<clipper::Coord_orth, coot::residue_spec_t> p(res_centre.second, residue_p);
+		  ligand_centres.push_back(p);
+	       } 
+	    } 
+	 }
+      }
+   }
+
+   int current_centre_index = -1; // unset
+   if (ligand_centres.size()) {
+      for (unsigned int ilig=0; ilig<ligand_centres.size(); ilig++) { 
+	 double d = clipper::Coord_orth::length(current_centre, ligand_centres[ilig].first);
+	 if (d < 5) {
+	    current_centre_index = ilig;
+	    break;
+	 } 
+      }
+
+      if (current_centre_index == -1) {
+	 // go to the first
+	 status = coot::NORMAL_CASE;
+	 pos = ligand_centres[0].first;
+	 residue_spec = ligand_centres[0].second;
+      } else {
+	 if (ligand_centres.size() > 1) {
+	    int next_ligand_centre_index = 0;
+	    // we are on the last one
+	    if (current_centre_index == (ligand_centres.size()-1)) {
+	       next_ligand_centre_index = 0;
+	    } else {
+	       // normal case, go to the next one
+	       next_ligand_centre_index = current_centre_index + 1;
+	    }
+	    status = coot::NORMAL_CASE;
+	    pos =          ligand_centres[next_ligand_centre_index].first;
+	    residue_spec = ligand_centres[next_ligand_centre_index].second;
+	 } else {
+	    // there was only one ligand and we are centred on it.
+	    // Do nothing.
+	    status = coot::SINGLE_LIGAND_NO_MOVEMENT;
+	    residue_spec = ligand_centres[0].second;
+	 }
+      }
+   }
+
+   coot::new_centre_info_t nci(status, pos, residue_spec);
+   return nci;
 } 

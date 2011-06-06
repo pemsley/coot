@@ -11666,6 +11666,15 @@ on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
 }
 #endif /* GTK_MAJOR_VERSION */
 
+#if (GTK_MAJOR_VERSION >1)
+void
+on_go_to_ligand_toolbutton_clicked     (GtkToolButton   *toolbutton,
+                                        gpointer         user_data) { 
+  go_to_ligand();
+} 
+
+#endif /* GTK_MAJOR_VERSION */
+
 
 void
 on_move_molecule_here_big_molecules_checkbutton_toggled

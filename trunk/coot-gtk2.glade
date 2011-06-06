@@ -2139,6 +2139,24 @@
 	      </child>
 
 	      <child>
+		<widget class="GtkToolButton" id="go_to_ligand_toolbutton">
+		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">Go To (Next) Ligand</property>
+		  <property name="label" translatable="yes">Go To Ligand</property>
+		  <property name="use_underline">True</property>
+		  <property name="icon">go-to-ligand.svg</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		  <property name="is_important">False</property>
+		  <signal name="clicked" handler="on_go_to_ligand_toolbutton_clicked" last_modification_time="Mon, 06 Jun 2011 14:46:42 GMT"/>
+		</widget>
+		<packing>
+		  <property name="expand">False</property>
+		  <property name="homogeneous">True</property>
+		</packing>
+	      </child>
+
+	      <child>
 		<widget class="GtkSeparatorToolItem" id="separatortoolitem1">
 		  <property name="visible">True</property>
 		  <property name="draw">True</property>
