@@ -195,7 +195,9 @@ def reduce_on_pdb_file(imol, pdb_in, pdb_out):
                            pdb_out)
     return status == 0
 
-
+global old_pdb_style
+old_pdb_style = False
+  
 reduce_molecule_updates_current = False
        
 # run molprobity (well reduce and probe) to make generic objects (and
@@ -204,6 +206,7 @@ reduce_molecule_updates_current = False
 def probe(imol):
   import os
   global reduce_command, probe_command
+  global old_pdb_style
     
   if is_valid_model_molecule(imol):
 
@@ -238,13 +241,21 @@ def probe(imol):
           print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
           dict_args = ["-DB", reduce_het_dict_file_name]
 
-      print "BL INFO:: run reduce as:", reduce_command , \
-            ["-build", "-oldpdb", mol_pdb_file] + dict_args, \
-             " and output to:", reduce_out_pdb_file
+      if old_pdb_style:
+        # old
+        arg_list = ["-build", "-oldpdb", mol_pdb_file]
+      else:
+        # modern 
+        arg_list = ["-build", mol_pdb_file]
 
+      arg_list += dict_args
+
+      print "BL INFO:: running reduce: %s %s and ouptut to: %s" \
+            %(reduce_command , arg_list, reduce_out_pdb_file)
+      print "BL INFO:: running reduce: REDUCE_HET_DICT env var:", os.getenv('REDUCE_HET_DICT')
+      
       reduce_status = popen_command(reduce_command,
-#					["-build", mol_pdb_file],
-                                    ["-build", "-oldpdb", mol_pdb_file] + dict_args,
+                                    arg_list,
                                     [],
                                     reduce_out_pdb_file)
       if (reduce_status):
