@@ -1,5 +1,10 @@
 
 %module coot
+%include "std_string.i"
+%include "std_vector.i"
+
+%template(vector_string) std::vector<std::string>;
+
 
 %{
 
