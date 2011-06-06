@@ -79,7 +79,7 @@ def import_from_prodrg(minimize_mode):
                 overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
                 return True
 
-    # return the new molecule number
+    # return the new molecule number.
     #
     def read_and_regularize(prodrg_xyzout):
         imol = handle_read_draw_molecule_and_move_molecule_here(prodrg_xyzout)
@@ -173,35 +173,45 @@ def import_from_prodrg(minimize_mode):
                     read_and_regularize(prodrg_xyzout)
                 else:
                     # we have an active residue to match to
-                    # I guess this should only happen when it's close
-                    # i.e. not a new ligand.
+                    # BL says: not using active_atom!? FIXME??
                     aa_imol      = active_atom[0]
                     aa_chain_id  = active_atom[1]
                     aa_res_no    = active_atom[2]
                     aa_ins_code  = active_atom[3]
                     aa_atom_name = active_atom[4]
                     aa_alt_conf  = active_atom[5]
-                    
-                    imol = read_regularize_and_match_torsions(prodrg_xyzout,
-                                                              aa_imol, aa_chain_id, aa_res_no)
 
-                    overlapped_flag = overlap_ligands_maybe(imol, aa_imol,
-                                                            aa_chain_id, aa_res_no)
+                    if not residue_is_close_to_screen_centre_qm(
+                        aa_imol, aa_chain_id, aa_res_no, ""):
+
+                        # not close, no overlap
+                        #
+                        read_and_regularize(prodrg_xyzout)
+                    else:
+                        # try overlap
+                        imol = read_regularize_and_match_torsions(prodrg_xyzout,
+                                                                  aa_imol, aa_chain_id, aa_res_no)
+
+                        overlapped_flag = overlap_ligands_maybe(imol, aa_imol,
+                                                                aa_chain_id, aa_res_no)
             
-                    # additional_representation_by_attributes(imol, "", 1, 1, "", 2, 2, 0.2, 1)
-                    if overlapped_flag:
-                        set_mol_displayed(aa_imol, 0)
-                        set_mol_active(aa_imol, 0)
-                    set_mol_displayed(imol, 0)
-                    set_mol_active(imol, 0)
-                    col = get_molecule_bonds_colour_map_rotation(aa_imol)
-                    new_col = col + 5 # a tiny amount
-                    # new ligand specs, then "reference" ligand (to be deleted)
-                    imol_replaced = add_ligand_delete_residue_copy_molecule(imol, "", 1,
-                                                                    aa_imol, aa_chain_id, aa_res_no)
-                    set_molecule_bonds_colour_map_rotation(imol_replaced, new_col)
-                    graphics_draw()
-            return True
+                        # additional_representation_by_attributes(imol, "", 1, 1, "", 2, 2, 0.2, 1)
+                        if overlapped_flag:
+                            set_mol_displayed(aa_imol, 0)
+                            set_mol_active(aa_imol, 0)
+                            col = get_molecule_bonds_colour_map_rotation(aa_imol)
+                            new_col = col + 5 # a tiny amount
+                            # new ligand specs, then "reference" ligand (to be deleted)
+                            imol_replaced = add_ligand_delete_residue_copy_molecule(
+                                imol, "", 1,
+                                aa_imol, aa_chain_id, aa_res_no)
+
+
+                            set_molecule_bonds_colour_map_rotation(imol_replaced, new_col)
+                            set_mol_displayed(imol, 0)
+                            set_mol_active(imol, 0)
+                            graphics_draw()
+                    return True
         # return False otherwise? FIXME
 
 if (have_coot_python):
