@@ -1097,8 +1097,12 @@ namespace coot {
       int  comp_bond   (PCMMCIFLoop mmCIFLoop); 
       void comp_angle  (PCMMCIFLoop mmCIFLoop); 
       void comp_torsion(PCMMCIFLoop mmCIFLoop); 
-      int  comp_chiral (PCMMCIFLoop mmCIFLoop);  // return number of chirals.
       void comp_plane  (PCMMCIFLoop mmCIFLoop); 
+      std::pair<int, std::vector<std::string> >
+      comp_chiral (PCMMCIFLoop mmCIFLoop);  // return the number of chirals and a vector
+						 // of monomer names that have had
+						 // chirals added (almost certainly just
+						 // one of them, of course).
 
       void add_chem_links (PCMMCIFLoop mmCIFLoop); // references to the modifications
                                                 // to the link groups (the modifications
@@ -1283,6 +1287,18 @@ namespace coot {
 			  double dist_esd);
 
       void assign_chiral_volume_targets();
+
+      // the chiral restraint for this comp_id(s) may need filtering
+      // (i.e. removing some of them if they are not real chiral centres
+      // (e.g. from prodrg restraints)).
+      // 
+      void filter_chiral_centres(const std::vector<std::string> & comp_id_for_filtering);
+
+      // Return a filtered list, that is don't include chiral centers that
+      // are connected to more than one hydrogen.
+      // 
+      std::vector<dict_chiral_restraint_t> filter_chiral_centres(const dictionary_residue_restraints_t &restraints);
+      
       void assign_link_chiral_volume_targets();
       int read_number;
 
