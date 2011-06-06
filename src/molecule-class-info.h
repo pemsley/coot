@@ -102,7 +102,25 @@ namespace coot {
    // representation_types
    enum { SIMPLE_LINES, STICKS, BALL_AND_STICK, SURFACE };
 
-   enum { RESIDUE_NUMBER_UNSET = -1111}; 
+   enum { RESIDUE_NUMBER_UNSET = -1111};
+
+   typedef enum { NO_LIGANDS=0, NORMAL_CASE=1, SINGLE_LIGAND_NO_MOVEMENT } new_ligand_position_type;
+
+   class new_centre_info_t {
+   public:
+      coot::new_ligand_position_type type;
+      clipper::Coord_orth position;
+      std::string info_string;
+      residue_spec_t residue_spec;
+      new_centre_info_t(coot::new_ligand_position_type pt,
+			const clipper::Coord_orth &pos,
+			const residue_spec_t &res_spec_in) {
+	 type = pt;
+	 position = pos;
+	 residue_spec = res_spec_in;
+      } 
+   };
+
 
    class model_view_residue_button_info_t {
    public:
@@ -2970,6 +2988,22 @@ public:        //                      public
 
    std::pair<bool, clipper::Coord_orth>
    residue_centre(const std::string &chain_id, int resno, const std::string &ins_code) const;
+   // which calls:
+   std::pair<bool, clipper::Coord_orth> residue_centre(CResidue *residue_p) const;
+
+   // ------------------- ligand centre ---------------------
+   // we want a button that goes to the ligand when we click it.
+   // (if we are already on a ligand, go to the next one).
+   // 
+   // the first value flags if this contains a useful return value.
+   // 
+   // the first value flags if this contains a useful return value.
+   // 1: normal case, go ahead and use the coord
+   // 0:  No ligands found
+   // -1: No movement because we are at the (single) ligand already.
+   //
+   coot::new_centre_info_t 
+   new_ligand_centre(const clipper::Coord_orth &current_centre) const;
 
 };
 

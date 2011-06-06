@@ -4142,6 +4142,11 @@ on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
                                         gpointer         user_data);
 
 
+void
+on_go_to_ligand_toolbutton_clicked     (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+
 #endif /* GTK_MAJOR_VERSION */
 
 void
