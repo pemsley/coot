@@ -139,7 +139,6 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
       // atom block:
       //
       for (unsigned int i=4; i<lines.size()  && i<(n_atoms+4); i++) {
-	 // std::cout << "parse this atom block :" << lines[i] << std::endl;
 
 	 int l = lines[i].length();
 	 if (l > 31) {
@@ -151,7 +150,6 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 	       float x = lig_build::string_to_float(x_string);
 	       float y = lig_build::string_to_float(y_string);
 	       float z = lig_build::string_to_float(z_string);
-	       // std::cout << "read x y z " << x << " " << y << " " << z << std::endl;
 	       std::string ele;
 	       ele += ele_str[0];
 	       if (ele_str[1] != ' ')
