@@ -765,18 +765,18 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 			 << ": missing bonds! " << std::endl;
 	    } else {
 
+	       PPCAtom residue_atoms;
+	       int n_atoms;
+	       het_residues[ires].second->GetAtomTable(residue_atoms, n_atoms);
 	       for (unsigned int ib=0; ib<restraints.second.bond_restraint.size(); ib++) {
 		  std::string atom_name_1 = restraints.second.bond_restraint[ib].atom_id_1_4c();
 		  std::string atom_name_2 = restraints.second.bond_restraint[ib].atom_id_2_4c();
 		  std::string bt = restraints.second.bond_restraint[ib].type();
 
-		  PPCAtom residue_atoms;
-		  int n_atoms;
-		  het_residues[ires].second->GetAtomTable(residue_atoms, n_atoms);
 		  bool added_bond = 0; 
 		  for (int iat=0; iat<n_atoms; iat++) {
 		     std::string residue_atom_name_1(residue_atoms[iat]->name);
-		     if (atom_name_1 == residue_atom_name_1) { 
+		     if (atom_name_1 == residue_atom_name_1) {
 			for (int jat=0; jat<n_atoms; jat++) {
 			   std::string residue_atom_name_2(residue_atoms[jat]->name);
 			   if (atom_name_2 == residue_atom_name_2) {
@@ -790,7 +790,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 
 				 std::string element_1 = residue_atoms[iat]->element;
 				 std::string element_2 = residue_atoms[jat]->element;
-			      
+
 				 if (element_1 != element_2) {
 		  
 				    // Bonded to different atom elements.
@@ -864,8 +864,11 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 			   }
 			}
 		     }
-		     if (added_bond)
-			break;
+		     // 20110607: Nope!  We want to be able to bond
+		     // het_residues with alt confs too.
+		     // 
+		     // if (added_bond)
+		     // break;
 		  }
 	       }
 	    }
