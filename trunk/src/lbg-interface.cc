@@ -13,7 +13,8 @@
 
 #include "c-interface.h"
 
-void residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char *ins_code) {
+void residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char *ins_code,
+			       double weight_for_3d_distances) {
 
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
@@ -62,7 +63,8 @@ void residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const
 	    if (!mol) {
 	       std::cout << "ERROR:: failed to make mol for lbg" << std::endl;
 	    } else { 
-	       int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs, 0.4);
+	       int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs,
+								    weight_for_3d_distances);
 	       lig_build::molfile_molecule_t m =
 		  coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
 
