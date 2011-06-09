@@ -344,6 +344,30 @@ void check_waters_molecule_menu_item_activate(GtkWidget *item,
 }
 
 
+std::vector<coot::atom_spec_t>
+check_waters_baddies(int imol, float b_factor_lim, float map_sigma_lim, float min_dist, float max_dist, short int part_occ_contact_flag, short int zero_occ_flag, short int logical_operator_and_or_flag) {
+
+   std::vector<coot::atom_spec_t> v;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      int imol_for_map = g.Imol_Refinement_Map();
+      v = g.molecules[imol].find_water_baddies(b_factor_lim, g.molecules[imol_for_map].xmap_list[0], g.molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
+      if (graphics_info_t::use_graphics_interface_flag) { 
+	 GtkWidget *w = wrapped_checked_waters_baddies_dialog(imol,
+							      b_factor_lim,
+							      map_sigma_lim,
+							      min_dist,
+							      max_dist,
+							      part_occ_contact_flag,
+							      zero_occ_flag,
+							      logical_operator_and_or_flag);
+	 gtk_widget_show(w);
+      }
+   }
+   return v;
+}
+
+
 // On check OK, we fire up this widget which is a vbox of baddy radio buttons.
 // 
 GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, float map_sigma_lim, float min_dist, float max_dist, short int part_occ_contact_flag, short int zero_occ_flag, short int logical_operator_and_or_flag) {
@@ -361,7 +385,8 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 		      << imol_for_map << std::endl;
 	 } else {
 
-	    std::vector<coot::atom_spec_t> baddies = graphics_info_t::molecules[imol].find_water_baddies(b_factor_lim, graphics_info_t::molecules[imol_for_map].xmap_list[0], graphics_info_t::molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
+	    std::vector<coot::atom_spec_t> baddies =
+	       g.molecules[imol].find_water_baddies(b_factor_lim, graphics_info_t::molecules[imol_for_map].xmap_list[0], graphics_info_t::molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
 
 	    // User data is used to keyboard up and down baddie water
 	    // list (in graphics_info_t::checked_waters_next_baddie).
@@ -2129,3 +2154,19 @@ PyObject *all_molecule_ramachandran_score_py(int imol) {
    return r;
 } 
 #endif // USE_PYTHON
+
+// SWIG testing.
+// 
+// Foo foo_test() {
+//    Foo f;
+//    return f;
+// } 
+
+// std::vector<Foo>
+// foo_vec() {
+//    std::vector<Foo> v;
+//    v.push_back(Foo());
+//    v.push_back(Foo());
+//    v.push_back(Foo());
+//    return v;
+// } 

@@ -5349,6 +5349,7 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
    short int use_map_sigma_limit_test = 1;
    short int use_min_dist_test = 1;
    short int use_max_dist_test = 1;
+   bool sigma_warned = 0; // we only want to see this message once (at most!), not 184 times.
 
    if (b_factor_lim < 0.0)
       use_b_factor_limit_test = 0;
@@ -5418,8 +5419,11 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 				    marked_for_display.push_back(std::pair<CAtom *, float>(at, den));
 				 }
 			      } else {
-				 std::cout << "Ooops! Map sigma is " << map_in_sigma << std::endl;
-			   }
+				 if (! sigma_warned) { 
+				    std::cout << "Ooops! Map sigma is " << map_in_sigma << std::endl;
+				    sigma_warned = true;
+				 }
+			      }
 			      
 			      // B factor check:
 			      if (this_is_marked == 0) {
@@ -7878,7 +7882,7 @@ molecule_class_info_t::set_torsion(const std::string &chain_id,
 // molecule, typically).
 //
 int
-molecule_class_info_t::match_torsions(CResidue *res_ref,
+molecule_class_info_t::match_torsions(CResidue *res_reference,
 				      const std::vector <coot::dict_torsion_restraint_t> &tr_ref_res,
 				      const coot::protein_geometry &geom) {
 
@@ -7892,7 +7896,6 @@ molecule_class_info_t::match_torsions(CResidue *res_ref,
 								       // to move to match the
 								       // reference residue.
    
-
    if (res_ligand) { // the local (moving) residue is xxx_ligand
       std::string res_name_ligand(res_ligand->GetResName());
       std::pair<bool, coot::dictionary_residue_restraints_t> ligand_restraints_info = 
@@ -7902,18 +7905,18 @@ molecule_class_info_t::match_torsions(CResidue *res_ref,
 	    geom.get_monomer_torsions_from_geometry(res_name_ligand, 0);
 	 if (tr_ligand.size()) {
 	    
-	    // find the matching torsion between res_ligand and res_ref and then
-	    // set the torsions of res_ligand to match those of res_ref.
+	    // find the matching torsion between res_ligand and res_reference and then
+	    // set the torsions of res_ligand to match those of res_reference.
 	    // 
-	    // moving then reference
-	    coot::match_torsions mt(res_ligand, res_ref, ligand_restraints_info.second);
+	    // moving the res_ligand
+	    coot::match_torsions mt(res_ligand, res_reference, ligand_restraints_info.second);
 	    n_torsions_moved = mt.match(tr_ligand, tr_ref_res);
+	    atom_sel.mol->FinishStructEdit();
+	    make_bonds_type_checked(); // calls update_ghosts()
+	    have_unsaved_changes_flag = 1;
 	 }
       }
    }
-   atom_sel.mol->FinishStructEdit();
-   make_bonds_type_checked(); // calls update_ghosts()
-   have_unsaved_changes_flag = 1;
    return n_torsions_moved;
 }
 

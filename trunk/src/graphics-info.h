@@ -3437,9 +3437,7 @@ public:
    // and space group of the moving molecule to that of the reference
    // (presumably).
    std::pair<int, clipper::RTop_orth> apply_lsq(int imol_ref, int imol_moving,
-						const std::vector<coot::lsq_range_match_info_t> &matches,
-						const clipper::Spacegroup &new_space_group, 
-						const clipper::Cell &new_cell);
+						const std::vector<coot::lsq_range_match_info_t> &matches);
    static std::vector<coot::lsq_range_match_info_t> *lsq_matchers;
    // the simple widget for LSQing: (perhaps these should be vectors of strings 
    // in the general case (more complex widget)?)

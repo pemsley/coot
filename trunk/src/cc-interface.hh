@@ -637,6 +637,13 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue_range_t> &ranges);
 
 /*  ----------------------------------------------------------------------- */
+/*                  check water baddies                                     */
+/*  ----------------------------------------------------------------------- */
+
+std::vector<coot::atom_spec_t>
+check_waters_baddies(int imol, float b_factor_lim, float map_sigma_lim, float min_dist, float max_dist, short int part_occ_contact_flag, short int zero_occ_flag, short int logical_operator_and_or_flag);
+
+/*  ----------------------------------------------------------------------- */
 /*                  water chain                                             */
 /*  ----------------------------------------------------------------------- */
 
@@ -662,7 +669,6 @@ PyObject *water_chain_py(int imol);
 #endif 
 
 //! \}
-
 
 /*  ----------------------------------------------------------------------- */
 /*                  spin search                                             */
@@ -875,7 +881,7 @@ std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
 /*  ----------------------------------------------------------------------- */
 /*               Use Cowtan's protein_db to discover loops                  */
 /*  ----------------------------------------------------------------------- */
-/*! \name LSQ-improve */
+/*! \name protein-db */
 /* \{ */
 /*! \brief Cowtan's protein_db loops */
 std::pair<int, std::vector<int> >

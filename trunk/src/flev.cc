@@ -579,8 +579,7 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
    std::vector<std::vector<std::string> > ring_list = get_ligand_aromatic_ring_list(monomer_restraints);
 
    // float pi_overlap_thresh = 0.0015; // play value
-   // float pi_overlap_thresh = 0.2; 
-   float pi_pi_overlap_thresh = 0.2;
+   float pi_pi_overlap_thresh = 0.1;    // HLZ in 3LTW
    float pi_cation_overlap_thresh = 30;  // ZZG in 2wot is 27, close but spurious interaction,
                                          // a bit more than that then.
 
