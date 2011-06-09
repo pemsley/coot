@@ -800,7 +800,8 @@ molecule_class_info_t::residue_centre(CResidue *residue_p) const {
 // -1: No movement because we are at the (single) ligand already
 //
 coot::new_centre_info_t
-molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_centre) const {
+molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_centre,
+					 int n_atoms_min) const {
 
    clipper::Coord_orth pos(0,0,0);
    coot::new_ligand_position_type status = coot::NO_LIGANDS;
@@ -821,23 +822,25 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    int n_atoms = residue_p->GetNumberOfAtoms();
-	    bool is_het = false;
-	    for (int iat=0; iat<n_atoms; iat++) {
-	       at = residue_p->GetAtom(iat);
-	       if (at->Het) {
-		  std::string res_name = residue_p->GetResName();
-		  if (res_name != "HOH")
-		     if (res_name != "WAT")
-			is_het = true;
-		  break;
-	       } 
-	    }
-	    if (is_het) {
-	       std::pair<bool, clipper::Coord_orth> res_centre = residue_centre(residue_p);
-	       if (res_centre.first) {
-		  std::pair<clipper::Coord_orth, coot::residue_spec_t> p(res_centre.second, residue_p);
-		  ligand_centres.push_back(p);
-	       } 
+	    if (n_atoms >= n_atoms_min) { 
+	       bool is_het = false;
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  at = residue_p->GetAtom(iat);
+		  if (at->Het) {
+		     std::string res_name = residue_p->GetResName();
+		     if (res_name != "HOH")
+			if (res_name != "WAT")
+			   is_het = true;
+		     break;
+		  } 
+	       }
+	       if (is_het) {
+		  std::pair<bool, clipper::Coord_orth> res_centre = residue_centre(residue_p);
+		  if (res_centre.first) {
+		     std::pair<clipper::Coord_orth, coot::residue_spec_t> p(res_centre.second, residue_p);
+		     ligand_centres.push_back(p);
+		  }
+	       }
 	    } 
 	 }
       }

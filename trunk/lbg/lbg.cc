@@ -2771,10 +2771,6 @@ lbg_info_t::get_primary_indices() const {
    
    for(unsigned int ic=0; ic<residue_circles.size(); ic++) {
       if (residue_circles[ic].is_a_primary_residue()) {
-         std::cout << " residue circle " << residue_circles[ic].residue_label
-                   << " is a primary residue" << std::endl;
-         // std::pair<int, lbg_info_t::residue_circle_t> p(ic, residue_circles[ic]);
-         // primaries.push_back(p);
          primary_indices.push_back(ic);
       }
    }
@@ -2788,9 +2784,6 @@ lbg_info_t::get_primary_indices() const {
 void
 lbg_info_t::initial_residues_circles_layout() {
 
-   std::cout << "initial_residues_circles_layout..";
-   std::cout.flush();
-      
    // when we move a primary, we want to know it's index in
    // residue_circles, because that's what we really want to move.
    // 
@@ -2807,8 +2800,6 @@ lbg_info_t::initial_residues_circles_layout() {
    
    for(unsigned int ic=0; ic<residue_circles.size(); ic++) {
       if (residue_circles[ic].is_a_primary_residue()) {
-	 std::cout << " residue circle " << residue_circles[ic].residue_label
-		   << " is a primary residue" << std::endl;
 	 primary_indices.push_back(ic);
       }
    }
@@ -2836,7 +2827,6 @@ lbg_info_t::initial_residues_circles_layout() {
    catch (std::runtime_error rte) {
       std::cout << rte.what() << std::endl;
    }
-   std::cout << "done" << std::endl;
 }
 
 // fiddle with the position of the residue_circles[primary_index].
