@@ -12,7 +12,7 @@ coot::protein_geometry::add_energy_lib_atom(    const coot::energy_lib_atom    &
 } 
 
 void
-coot::protein_geometry::add_energy_lib_bond(    const coot::energy_lib_bond    &bond) {
+coot::protein_geometry::add_energy_lib_bond(const coot::energy_lib_bond &bond) {
    energy_lib.bonds.push_back(bond);
 }
 
@@ -72,6 +72,8 @@ coot::protein_geometry::read_energy_lib(const std::string &file_name) {
 		  int n_chiral = 0;
 		  if (cat_name == "_lib_atom")
 		     add_energy_lib_atoms(mmCIFLoop);
+		  if (cat_name == "_lib_bond")
+		     add_energy_lib_bonds(mmCIFLoop);
 	       }
 	    }
 	 } 
@@ -189,7 +191,56 @@ coot::operator<<(std::ostream &s, const energy_lib_atom &at) {
      << "]";
    return s;
 
+}
+
+void
+coot::protein_geometry::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
+
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      
+      std::string atom_type_1;
+      std::string atom_type_2;
+      std::string type;
+      realtype spring_const;
+      realtype length;
+      realtype value_esd; 
+      int ierr;
+      int ierr_tot = 0;
+
+      char *s;
+
+      s = mmCIFLoop->GetString("atom_type_1", j, ierr);
+      ierr_tot += ierr;
+      if (s) atom_type_1 = s;
+
+      s = mmCIFLoop->GetString("atom_type_2", j, ierr);
+      ierr_tot += ierr;
+      if (s) atom_type_1 = s;
+
+      s = mmCIFLoop->GetString("type", j, ierr);
+      ierr_tot += ierr;
+      if (s) type = s;
+      
+      ierr = mmCIFLoop->GetReal(spring_const, "const", j);
+      if (ierr) {
+	 spring_const = 420;
+      }
+      
+      ierr = mmCIFLoop->GetReal(length, "length", j);
+      ierr_tot += ierr;
+
+      ierr = mmCIFLoop->GetReal(value_esd, "value_esd", j);
+      if (ierr) {
+	 value_esd = 0.02;
+      }
+
+      if (ierr_tot == 0) {
+	 coot::energy_lib_bond bond(atom_type_1, atom_type_1, type, spring_const, length, value_esd);
+	 add_energy_lib_bond(bond);
+      }
+   } 
 } 
+
 
 
 

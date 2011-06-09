@@ -1338,6 +1338,7 @@ namespace coot {
       void add_energy_lib_angle(   const energy_lib_angle   &angle);
       void add_energy_lib_torosion(const energy_lib_torsion &torsion);
       void add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop);
+      void add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop);
 
       std::pair<bool, dictionary_residue_restraints_t>
       get_monomer_restraints_internal(const std::string &monomer_type, bool allow_minimal_flag) const;
