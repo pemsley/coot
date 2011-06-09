@@ -87,9 +87,9 @@ libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc
 
 # and mini-mol (just one).
 libcoot_map_heavy_la_LIBADD = \
-   $(top_builddir)/mini-mol/libcoot-mini-mol.la \
    libcoot-map-utils.la \
    libcoot-coord-utils.la \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la \
    $(top_builddir)/utils/libcoot-utils.la \
    $(GSL_LIBS)
 
@@ -116,9 +116,15 @@ testcootutils_LDADD =            \
         $(top_builddir)/utils/libcoot-utils.la
 
 test_h_bonds_SOURCES = test-h-bonds.cc
-test_h_bonds_LDADD = $(top_builddir)/geometry/libcoot-geometry.la \
-	 ./libcoot-coord-utils.la 
+test_h_bonds_LDADD = \
+	 ./libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+        $(top_builddir)/utils/libcoot-utils.la
 
 test_hole_SOURCES = test-hole.cc
 test_hole_LDADD = ./libcoot-coord-utils.la \
-    $(MMDB_LIBS)
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la
+
+
+#    $(MMDB_LIBS)

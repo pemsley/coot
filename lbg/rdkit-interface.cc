@@ -553,7 +553,7 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
       int n_conf_atoms = conf.getNumAtoms();
       int n_mol_atoms = rdkm.getNumAtoms();
 
-      std::cout << "in make_molfile_molecule() conformer has " << n_conf_atoms
+      std::cout << "DEBUG:: in make_molfile_molecule() conformer has " << n_conf_atoms
 		<< " atoms" << std::endl;
       
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
@@ -583,7 +583,6 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	 lig_build::bond_t::bond_type_t bt = convert_bond_type(bond_p->getBondType());
 	 lig_build::molfile_bond_t mol_bond(idx_1, idx_2, bt);
 	 RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
-	 std::cout << "bond " << ib << " has bond_dir " << bond_dir << std::endl;
 	 if (bond_dir != RDKit::Bond::NONE) {
 	    if (bond_dir == RDKit::Bond::BEGINWEDGE)
 	       mol_bond.bond_type = lig_build::bond_t::OUT_BOND;
@@ -1148,16 +1147,12 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 	       if (atom_1_in == atom_2) {
 		  if (atom_2_in != atom_1) {
 		     if ((*bondIt_inner)->getBondType() == RDKit::Bond::ONEANDAHALF) {
-			std::cout << "Here 1........" << std::endl;
 			int e_valence_pre = atom_1->getExplicitValence();
-			std::cout << "Here 2........" << std::endl;
 			// swap them then
 			(*bondIt)->setBondType(RDKit::Bond::SINGLE);
 			(*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
 			std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 1" << std::endl;
-			std::cout << "Here 3........" << std::endl;
 			int e_valence_post = atom_1->getExplicitValence();
-			std::cout << "Here 4........" << std::endl;
 			std::cout << "::::::: explicit pre valence " << e_valence_pre
 				  << "   explicit post valence "
 				  << e_valence_post << std::endl;

@@ -1756,9 +1756,6 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	       std::string ele1 = residue_atoms[iresatom]->element;
 	       std::string ele2 = translated[it]->element;
 
-	       std::cout << "adding bond: " << residue_atoms[iresatom] << " -> "
-			 << translated[it] << std::endl;
-
 	       if (draw_env_distances_to_hydrogens_flag ||
 		   ((ele1 != " H") && (ele2 != " H"))) { 
 		  if (ele1 == " C")

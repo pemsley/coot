@@ -312,11 +312,15 @@ coot::match_torsions::match_torsions(CResidue *res_moving_in, CResidue *res_ref_
 // Move the atoms in res_moving.
 // 
 // Return the number of rotated torsions.
+//
+// tr_moving is not used - we use an atom name match to find the
+// torsions in the moving residue.
 // 
 int
 coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  &tr_moving,
 			    const std::vector <coot::dict_torsion_restraint_t>  &tr_ref) {
 
+   int n_matched = 0; // return value.
    coot::graph_match_info_t match_info = coot::graph_match(res_moving, res_ref, 0, 0);
 
    if (! match_info.success) {
@@ -327,7 +331,7 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
       // std::map<std::pair<std::string, std::string>, std::pair<std::string, std::string> > atom_name_map;
 
       // match_info.matching_atom_names have moving molecule first and
-      // referenc atoms second.  We want to map from reference atom
+      // reference atoms second.  We want to map from reference atom
       // names to moving atom names.
       // 
       std::map<std::string, std::string> atom_name_map;
@@ -353,16 +357,19 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 					  atom_name_map[tr_ref[itr].atom_id_3_4c()],
 					  atom_name_map[tr_ref[itr].atom_id_4_4c()]);
 
-	 if (quad_ref.all_non_blank()) 
-	    if (quad_moving.all_non_blank())
-
+	 if (quad_ref.all_non_blank()) {
+	    if (quad_moving.all_non_blank()) { 
+	       
 	       std::cout << "  Reference torsion: "
 			 << ":" << tr_ref[itr].format() << " maps to "
 			 << quad_moving << std::endl;
 	       apply_torsion(quad_moving, quad_ref, alt_conf);
+	       n_matched++;
+	    }
+	 }
       }
    }
-   return 0;
+   return n_matched;
 } 
 
 // Move the atoms of res_moving to match the torsion of res_ref - and

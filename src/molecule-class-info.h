@@ -2969,6 +2969,11 @@ public:        //                      public
 						  int nfrags, const clipper::Xmap<float> &xmap);
    ProteinDB::Chain make_fragment_chain(const std::vector<coot::residue_spec_t> &residue_specs) const;
 
+   // ---------- LSQ fit by atom pairs -------------
+   // return success (0 is fail)
+   int lsq_fit_by_atom_pairs(const std::vector<coot::atom_spec_t> &mov_atom_specs,
+			     const std::vector<clipper::Coord_orth> &ref_coords);
+
 
    // --------- HETATMs ------------
    int residue_has_hetatms(const std::string &chain_id, int resno, const std::string &ins_code) const;

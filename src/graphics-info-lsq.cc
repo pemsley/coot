@@ -59,9 +59,7 @@
 // --------- LSQing ---------------
 std::pair<int, clipper::RTop_orth>
 graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
-			   const std::vector<coot::lsq_range_match_info_t> &matches,
-			   const clipper::Spacegroup &new_space_group, 
-			   const clipper::Cell &new_cell) {
+			   const std::vector<coot::lsq_range_match_info_t> &matches) {
 
    int status = 0;
    clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);

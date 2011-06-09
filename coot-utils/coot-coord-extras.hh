@@ -281,7 +281,10 @@ namespace coot {
 
       // this can throw an exception
       //
-      // angle in degrees
+      // input angle in degrees
+      // 
+      // return the dihedral angle (in degrees)
+      // 
       double set_dihedral(const std::string &atom1, const std::string &atom2,
 			  const std::string &atom3, const std::string &atom4,
 			  double angle);
@@ -316,7 +319,7 @@ namespace coot {
 			 const std::string &alt_conf);
    public: 
       match_torsions(CResidue *res_moving, CResidue *res_ref,
-		     const dictionary_residue_restraints_t &rest);
+		     const dictionary_residue_restraints_t &moving_residue_restraints_in);
       int match (const std::vector<dict_torsion_restraint_t>  &tr_moving,
 		 const std::vector<dict_torsion_restraint_t>  &tr_ref);
 

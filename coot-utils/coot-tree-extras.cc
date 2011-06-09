@@ -976,8 +976,8 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 	 // take out this try/catch when done.
 	 rotate_about(atom2, atom3, clipper::Util::d2rad(diff), 0);
 	 dihedral_angle = iq.torsion(residue);
-	 if (0) 
-	    std::cout << "current, target, diff new "
+	 if (0)
+	    std::cout << "   current, target, diff new "
 		      << current_dihedral_angle << "  " << angle << "  " << diff << "  "
 		      << dihedral_angle << std::endl;
       }
