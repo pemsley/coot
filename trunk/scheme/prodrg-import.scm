@@ -31,7 +31,7 @@
   ;; overlap the imol-ligand residue if there are restraints for the
   ;; reference residue/ligand.
   ;; 
-  ;; Don't overlap of the reference residue/ligand is not a het-group.
+  ;; Don't overlap if the reference residue/ligand is not a het-group.
   ;; 
   (define (overlap-ligands-maybe imol-ligand imol-ref chain-id-ref res-no-ref)
 
@@ -64,21 +64,26 @@
 
   ;; return the new molecule number
   ;; (only works with aa-ins-code of "")
+  ;; 
   (define (read-regularize-and-match-torsions prodrg-xyzout aa-imol aa-chain-id aa-res-no)
     (let ((imol (handle-read-draw-molecule-and-move-molecule-here prodrg-xyzout)))
 
-      (if (have-restraints-for? (residue-name aa-imol aa-chain-id aa-res-no ""))
-	  (overlap-ligands-maybe imol aa-imol aa-chain-id aa-res-no))
+      (if (not (have-restraints-for? (residue-name aa-imol aa-chain-id aa-res-no "")))
+	  
+	  #f
 
-      (with-auto-accept
-       ;; speed up the minisation (and then restore setting).
-       (let ((s (dragged-refinement-steps-per-frame)))
-	 (set-dragged-refinement-steps-per-frame 500)
-	 (regularize-residues imol (list (list "" 1 "")))
-	 (if (have-restraints-for? (residue-name aa-imol aa-chain-id aa-res-no ""))
-	     (match-ligand-torsions imol aa-imol aa-chain-id aa-res-no))
-	 (regularize-residues imol (list (list "" 1 "")))
-	 (set-dragged-refinement-steps-per-frame s)))
+	  (begin
+	    (overlap-ligands-maybe imol aa-imol aa-chain-id aa-res-no)
+
+	    (with-auto-accept
+	     ;; speed up the minisation (and then restore setting).
+	     (let ((s (dragged-refinement-steps-per-frame)))
+	       (set-dragged-refinement-steps-per-frame 500)
+	       (regularize-residues imol (list (list "" 1 "")))
+	       (set-dragged-refinement-steps-per-frame s)))
+
+	    (if (have-restraints-for? (residue-name aa-imol aa-chain-id aa-res-no ""))
+		(match-ligand-torsions imol aa-imol aa-chain-id aa-res-no))))
       imol))
 
 
@@ -158,7 +163,7 @@
 			     (let ((imol (read-regularize-and-match-torsions 
 					  prodrg-xyzout aa-imol aa-chain-id aa-res-no )))
 
-			       (let ((overlapped-flag
+			       (let ((overlapped-flag 
 				      (overlap-ligands-maybe imol aa-imol aa-chain-id aa-res-no)))
 			   
 				 (if overlapped-flag
