@@ -1712,6 +1712,9 @@ public:
    static int go_to_atom_mol_menu_active_position;
    static int go_to_atom_menu_label_n_chars_max; // the last 30 (or so) chars
    std::string make_mmdb_atom_string_from_go_to_atom(); 
+   static int         go_to_ligand_n_atoms_limit; // ligands must have at least this
+						  // number of atoms for the "go to ligand"
+                                                  // button and function to see it.
 
    void set_go_to_atom_chain_residue_atom_name(const gchar *t1, 
 					       int it2, const gchar *t3);

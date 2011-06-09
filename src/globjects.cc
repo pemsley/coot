@@ -538,7 +538,9 @@ std::string graphics_info_t::go_to_atom_inscode_ = "";
 int         graphics_info_t::go_to_atom_residue_   = -9999; // magic
 							    // number. unset
 							    // initially.
-int         graphics_info_t::go_to_atom_molecule_  = 0; 
+int         graphics_info_t::go_to_atom_molecule_  = 0;
+int         graphics_info_t::go_to_ligand_n_atoms_limit = 6;
+
 int         graphics_info_t::go_to_atom_mol_menu_active_position = -1; // unset
                                                                        // initially.
 GtkWidget  *graphics_info_t::go_to_atom_window = NULL;

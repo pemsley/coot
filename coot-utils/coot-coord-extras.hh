@@ -311,12 +311,18 @@ namespace coot {
    // Return the number of rotated torsions.
    //
    class match_torsions {
+      enum { REFERENCE_TORSION, MOVING_TORSION};
       CResidue *res_moving;
       CResidue *res_ref;
       dictionary_residue_restraints_t moving_residue_restraints;
-      void apply_torsion(const atom_name_quad &quad_moving,
-			 const atom_name_quad &reference,
-			 const std::string &alt_conf);
+      std::pair<bool, double> apply_torsion(const atom_name_quad &quad_moving,
+					    const atom_name_quad &reference,
+					    const std::string &alt_conf);
+      // return in radians
+      std::pair<bool, double> get_torsion(int torsion_type, const coot::atom_name_quad &quad) const;
+      // return in radians
+      std::pair<bool, double> get_torsion(CResidue *res, const coot::atom_name_quad &quad) const;
+      
    public: 
       match_torsions(CResidue *res_moving, CResidue *res_ref,
 		     const dictionary_residue_restraints_t &moving_residue_restraints_in);

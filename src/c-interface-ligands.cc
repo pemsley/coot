@@ -73,7 +73,7 @@ void go_to_ligand() {
 				graphics_info_t::RotationCentre_y(),
 				graphics_info_t::RotationCentre_z());
 	 coot::new_centre_info_t new_centre =
-	    graphics_info_t::molecules[pp.second.first].new_ligand_centre(rc);
+	    graphics_info_t::molecules[pp.second.first].new_ligand_centre(rc, graphics_info_t::go_to_ligand_n_atoms_limit);
 	 if (new_centre.type == coot::NORMAL_CASE) {
 	    graphics_info_t g;
 	    g.setRotationCentre(new_centre.position);
@@ -109,7 +109,12 @@ void go_to_ligand() {
 	 } 
       } 
    } 
+}
+
+void set_go_to_ligand_n_atoms_limit(int n_atoms_min) {
+   graphics_info_t::go_to_ligand_n_atoms_limit = n_atoms_min;
 } 
+
 
 
 

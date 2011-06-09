@@ -22,6 +22,7 @@
 
 
 #include <stdexcept>
+#include <iomanip>
 
 #include "string.h"
 
@@ -346,6 +347,9 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 		      << ":\n";
       }
 
+      // for debugging
+      std::vector<std::pair<coot::atom_name_quad, double> > check_quads;
+
       for (unsigned int itr=0; itr<tr_ref.size(); itr++) {
 	 coot::atom_name_quad quad_ref(tr_ref[itr].atom_id_1_4c(),
 				       tr_ref[itr].atom_id_2_4c(),
@@ -363,14 +367,74 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 	       std::cout << "  Reference torsion: "
 			 << ":" << tr_ref[itr].format() << " maps to "
 			 << quad_moving << std::endl;
-	       apply_torsion(quad_moving, quad_ref, alt_conf);
-	       n_matched++;
+	       std::pair<bool, double> result = apply_torsion(quad_moving, quad_ref, alt_conf);
+	       if (result.first) { 
+		  n_matched++;
+		  // result.second is in radians
+		  std::pair<coot::atom_name_quad, double> cq (quad_moving, result.second);
+		  check_quads.push_back(cq);
+	       }
 	    }
+	 }
+      }
+
+      // after matching, check the torsions:
+      for (unsigned int iquad=0; iquad<check_quads.size(); iquad++) {
+	 std::pair<bool, double> mtr = get_torsion(coot::match_torsions::MOVING_TORSION,
+						   check_quads[iquad].first);
+	 if (mtr.first) { 
+	    std::cout << "   torsion check: " << check_quads[iquad].first
+		      << " should be " << std::fixed << std::setw(7) << std::setprecision(2)
+		      << check_quads[iquad].second * 180/M_PI
+		      << " and is "  << std::fixed << std::setw(7) << std::setprecision(2)
+		      << mtr.second * 180/M_PI;
+	    if (fabs(check_quads[iquad].second - mtr.second) > M_PI/180)
+	       std::cout << "  ----- WRONG!!!! ";
+	    std::cout << "\n";
 	 }
       }
    }
    return n_matched;
-} 
+}
+
+// return in radians
+std::pair<bool, double>
+coot::match_torsions::get_torsion(int torsion_type,
+				  const coot::atom_name_quad &quad) const {
+
+   switch (torsion_type) {
+
+   case coot::match_torsions::REFERENCE_TORSION:
+      return get_torsion(res_ref, quad);
+      
+   case coot::match_torsions::MOVING_TORSION:
+      return get_torsion(res_moving, quad);
+
+   default:
+      return std::pair<bool, double> (0,0);
+   }
+}
+
+std::pair<bool, double>
+coot::match_torsions::get_torsion(CResidue *res, const coot::atom_name_quad &quad) const {
+
+   bool status = 0;
+   double tors = 0;
+   std::vector<CAtom *> atoms(4, static_cast<CAtom *> (NULL));
+   atoms[0] = res->GetAtom(quad.atom1.c_str());
+   atoms[1] = res->GetAtom(quad.atom2.c_str());
+   atoms[2] = res->GetAtom(quad.atom3.c_str());
+   atoms[3] = res->GetAtom(quad.atom4.c_str());
+
+   if (atoms[0] && atoms[1] && atoms[2] && atoms[3]) {
+      clipper::Coord_orth pts[4];
+      for (unsigned int i=0; i<4; i++)
+	 pts[i] = clipper::Coord_orth(atoms[i]->x, atoms[i]->y, atoms[i]->z);
+      tors = clipper::Coord_orth::torsion(pts[0], pts[1], pts[2], pts[3]); // radians
+      status = 1;
+   }
+   return std::pair<bool, double> (status, tors);
+}
 
 // Move the atoms of res_moving to match the torsion of res_ref - and
 // the torsion of res_ref is determined from the
@@ -378,44 +442,28 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 //
 // The alt conf is the alt conf of the moving residue.
 // 
-void
+// return the torsion which we applied (in radians).
+// 
+std::pair<bool, double>
 coot::match_torsions::apply_torsion(const coot::atom_name_quad &moving_quad,
 				    const coot::atom_name_quad &reference_quad,
 				    const std::string &alt_conf) {
 
-   
-   std::vector<CAtom *> reference_atoms(4, static_cast<CAtom *> (NULL));
-   std::vector<CAtom *> moving_atoms(4, static_cast<CAtom *> (NULL));
-
-   moving_atoms[0] = res_moving->GetAtom(moving_quad.atom1.c_str());
-   moving_atoms[1] = res_moving->GetAtom(moving_quad.atom2.c_str());
-   moving_atoms[2] = res_moving->GetAtom(moving_quad.atom3.c_str());
-   moving_atoms[3] = res_moving->GetAtom(moving_quad.atom4.c_str());
-
-   reference_atoms[0] = res_ref->GetAtom(reference_quad.atom1.c_str());
-   reference_atoms[1] = res_ref->GetAtom(reference_quad.atom2.c_str());
-   reference_atoms[2] = res_ref->GetAtom(reference_quad.atom3.c_str());
-   reference_atoms[3] = res_ref->GetAtom(reference_quad.atom4.c_str());
-
-   if (moving_atoms[0] && moving_atoms[1] && moving_atoms[2] && moving_atoms[3]) {
-      if (reference_atoms[0] && reference_atoms[1] && reference_atoms[2] && reference_atoms[3]) {
-	 clipper::Coord_orth pts[4];
-	 for (unsigned int i=0; i<4; i++)
-	    pts[i] = clipper::Coord_orth(reference_atoms[i]->x,
-					 reference_atoms[i]->y,
-					 reference_atoms[i]->z);
-	 double tors = clipper::Coord_orth::torsion(pts[0], pts[1], pts[2], pts[3]); // radians
-
-	 try {
-	    coot::atom_tree_t tree(moving_residue_restraints, res_moving, alt_conf);
-	    
-	    double new_angle = tree.set_dihedral(moving_quad.atom1, moving_quad.atom2,
-						 moving_quad.atom3, moving_quad.atom4,
-						 tors * 180/M_PI);
-	 }
-	 catch (std::runtime_error rte) {
-	    std::cout << "WARNING setting dihedral failed, " << rte.what() << std::endl;
-	 } 
+   bool status = 0;
+   double new_angle = 0;
+   std::pair<bool, double> tors = get_torsion(res_ref, reference_quad);
+   if (tors.first) { 
+      try {
+	 coot::atom_tree_t tree(moving_residue_restraints, res_moving, alt_conf);
+	 
+	 new_angle = tree.set_dihedral(moving_quad.atom1, moving_quad.atom2,
+				       moving_quad.atom3, moving_quad.atom4,
+				       tors.second * 180/M_PI);
+	 status = 1; // may not happen if set_dihedral() throws an exception
       }
+      catch (std::runtime_error rte) {
+	 std::cout << "WARNING setting dihedral failed, " << rte.what() << std::endl;
+      } 
    }
-} 
+   return std::pair<bool, double> (status, new_angle * M_PI/180.0);
+}

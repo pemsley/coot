@@ -263,9 +263,11 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 
    std::sort(v.begin(), v.end());
 
-   std::cout << "returning these h bonds: " << std::endl;
-   for (unsigned int i=0; i<v.size(); i++) { 
-      std::cout << "   " << i << "  " << v[i] << std::endl;
+   if (0) { 
+      std::cout << "returning these h bonds: " << std::endl;
+      for (unsigned int i=0; i<v.size(); i++) { 
+	 std::cout << "   " << i << "  " << v[i] << std::endl;
+      }
    }
    
    return v;
@@ -413,11 +415,13 @@ coot::h_bonds::make_h_bond_from_ligand_hydrogen(CAtom *at_1, // H on ligand
       double dist  = coot::distance(nb_1[iD].first, at_2);
       if (dist < 3.9)  // McDonald and Thornton
 	 good_donor_acceptor_dist = 1;
-      std::cout << "   H-on-ligand angle 1: " << angle << "  ";
-      std::cout << "     angle: "
-		<< coot::atom_spec_t(nb_1[iD].first) << " "
-		<< coot::atom_spec_t(at_1) << " "
-		<< coot::atom_spec_t(at_2) << std::endl;
+      if (0) { 
+	 std::cout << "   H-on-ligand angle 1: " << angle << "  ";
+	 std::cout << "     angle: "
+		   << coot::atom_spec_t(nb_1[iD].first) << " "
+		   << coot::atom_spec_t(at_1) << " "
+		   << coot::atom_spec_t(at_2) << std::endl;
+      }
       if (! bond.donor) { 
 	 bond.donor = nb_1[iD].first;
 	 bond.angle_1 = angle;
@@ -433,11 +437,13 @@ coot::h_bonds::make_h_bond_from_ligand_hydrogen(CAtom *at_1, // H on ligand
    for (unsigned int iA=0; iA<nb_2.size(); iA++) { 
       // elements of nb_2 are "AA" in the the above diagram
       double angle = coot::angle(at_1, at_2, nb_2[iA].first);
-      std::cout << "   H-on-ligand angle 2: " << angle <<  "  ";
-      std::cout << "     angle: "
-		<< coot::atom_spec_t(at_1) << " "
-		<< coot::atom_spec_t(at_2) << " "
-		<< coot::atom_spec_t(nb_2[iA].first) << std::endl;
+      if (0) { 
+	 std::cout << "   H-on-ligand angle 2: " << angle <<  "  ";
+	 std::cout << "     angle: "
+		   << coot::atom_spec_t(at_1) << " "
+		   << coot::atom_spec_t(at_2) << " "
+		   << coot::atom_spec_t(nb_2[iA].first) << std::endl;
+      }
       if (! bond.acceptor) { 
 	 bond.angle_2 = angle;
       }
@@ -455,11 +461,13 @@ coot::h_bonds::make_h_bond_from_ligand_hydrogen(CAtom *at_1, // H on ligand
 	 double angle = coot::angle(nb_1[iD].first,
 				    at_2,
 				    nb_2[iA].first);
-	 std::cout << "    H-on-ligand angle 3: " << angle <<  "  ";
-	 std::cout << "     angle: "
-		   << coot::atom_spec_t(nb_1[iD].first) << " "
-		   << coot::atom_spec_t(at_2) << " "
-		   << coot::atom_spec_t(nb_2[iA].first) << std::endl;
+	 if (0) { 
+	    std::cout << "    H-on-ligand angle 3: " << angle <<  "  ";
+	    std::cout << "     angle: "
+		      << coot::atom_spec_t(nb_1[iD].first) << " "
+		      << coot::atom_spec_t(at_2) << " "
+		      << coot::atom_spec_t(nb_2[iA].first) << std::endl;
+	 }
 	 if (! bond.acceptor_neigh) {
 	    bond.acceptor_neigh = nb_2[iA].first;
 	    bond.angle_3 = angle;
@@ -503,11 +511,13 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(CAtom *at_1, // acc
    //
    for (unsigned int iD=0; iD<nb_2.size(); iD++) { 
       double angle = coot::angle(nb_2[iD].first, at_2, at_1);
-      std::cout << "   H-on-protein angle 1: " << angle <<   "  ";
-      std::cout << "     angle: "
-		<< coot::atom_spec_t(nb_2[iD].first) << " "
-		<< coot::atom_spec_t(at_2) << " "
-		<< coot::atom_spec_t(at_1) << std::endl;
+      if (0) { 
+	 std::cout << "   H-on-protein angle 1: " << angle <<   "  ";
+	 std::cout << "     angle: "
+		   << coot::atom_spec_t(nb_2[iD].first) << " "
+		   << coot::atom_spec_t(at_2) << " "
+		   << coot::atom_spec_t(at_1) << std::endl;
+      }
       if (angle < 90) {
 	 neighbour_distances_and_angles_are_good = 0;
 	 break;
@@ -522,11 +532,13 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(CAtom *at_1, // acc
    // 
    for (unsigned int iA=0; iA<nb_1.size(); iA++) { 
       double angle = coot::angle(at_2, at_1, nb_1[iA].first);
-      std::cout << "   H-on-protein angle 2: " << angle <<   "  ";
-      std::cout << "     angle: "
-		<< coot::atom_spec_t(at_2) << " "
-		<< coot::atom_spec_t(at_2) << " "
-		<< coot::atom_spec_t(nb_1[iA].first) << std::endl;
+      if (0) { 
+	 std::cout << "   H-on-protein angle 2: " << angle <<   "  ";
+	 std::cout << "     angle: "
+		   << coot::atom_spec_t(at_2) << " "
+		   << coot::atom_spec_t(at_2) << " "
+		   << coot::atom_spec_t(nb_1[iA].first) << std::endl;
+      }
       if (angle < 90) {
 	 neighbour_distances_and_angles_are_good = 0;
 	 break;
@@ -541,11 +553,13 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(CAtom *at_1, // acc
    for (unsigned int iD=0; iD<nb_2.size(); iD++) { 
       for (unsigned int iA=0; iA<nb_1.size(); iA++) { 
 	 double angle = coot::angle(nb_2[iD].first, at_1, nb_1[iA].first);
-	 std::cout << "   H-on-protein angle 3: " << angle <<   "  ";
-	 std::cout << "     angle: "
-		   << coot::atom_spec_t(nb_2[iD].first) << " "
-		   << coot::atom_spec_t(at_1) << " "
-		   << coot::atom_spec_t(nb_1[iA].first) << std::endl;
+	 if (0) { 
+	    std::cout << "   H-on-protein angle 3: " << angle <<   "  ";
+	    std::cout << "     angle: "
+		      << coot::atom_spec_t(nb_2[iD].first) << " "
+		      << coot::atom_spec_t(at_1) << " "
+		      << coot::atom_spec_t(nb_1[iA].first) << std::endl;
+	 }
 	 if (angle < 90) {
 	    neighbour_distances_and_angles_are_good = 0;
 	    break;

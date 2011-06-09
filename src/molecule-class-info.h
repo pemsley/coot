@@ -3008,7 +3008,7 @@ public:        //                      public
    // -1: No movement because we are at the (single) ligand already.
    //
    coot::new_centre_info_t 
-   new_ligand_centre(const clipper::Coord_orth &current_centre) const;
+   new_ligand_centre(const clipper::Coord_orth &current_centre, int n_atoms_min) const;
 
 };
 
