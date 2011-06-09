@@ -367,7 +367,7 @@ molecule_class_info_t::get_vector(const coot::residue_spec_t &central_residue_sp
 	    }
 	 }
 	 for (unsigned int jat=0; jat<n_n_residue_atoms; jat++) {
-	    if (! c_residue_atoms[jat]->isTer()) { 
+	    if (! n_residue_atoms[jat]->isTer()) { 
 	       clipper::Coord_orth pt_2(n_residue_atoms[jat]->x,
 					n_residue_atoms[jat]->y,
 					n_residue_atoms[jat]->z);
@@ -406,8 +406,9 @@ molecule_class_info_t::match_ligand_atom_names(const std::string &chain_id, int 
       bool match_hydrogens_also = 1;
       coot::graph_match_info_t gm = coot::graph_match(res_mov, res_ref, 0, match_hydrogens_also);
       gm.match_names(res_mov);
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked();
    } 
-
 } 
 
 
