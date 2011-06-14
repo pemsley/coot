@@ -321,10 +321,10 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_i
    
    if (nSelResidues != 1) {
       std::cout << "This should never happen - ";
-      std::cout << "badness in get_standard_residue_instance, we selected "
+      std::cout << "badness in ideal_rna::get_standard_residue_instance(), we selected "
 		<< nSelResidues
 		<< " residues looking for residues of type :"
-		<< residue_name << " from " << residue_type_in << ":\n";
+		<< residue_name << ": from :" << residue_type_in << ":\n";
    } else {
       std_residue = coot::util::deep_copy_this_residue(SelResidue[0]);
    }
@@ -415,6 +415,16 @@ coot::ideal_rna::mutate_res(CResidue *res, char base, bool is_dna_flag) const {
 	 residue_type = "DT";
       if (base == 'c')
 	 residue_type = "DC";
+
+      // current residues in standard residue set
+      if (base == 'a')
+	 residue_type = "Ad";
+      if (base == 'g')
+	 residue_type = "Gd";
+      if (base == 't')
+	 residue_type = "Td";
+      if (base == 'c')
+	 residue_type = "Cd";
    } else {
       if (base == 'a')
 	 residue_type = "A";
@@ -426,7 +436,8 @@ coot::ideal_rna::mutate_res(CResidue *res, char base, bool is_dna_flag) const {
 	 residue_type = "C";
    }
 
-   if (residue_type != "None") { 
+   if (residue_type != "None") {
+      // std::cout << "in ideal_rna::mutate_res() residue_type is " << residue_type << std::endl;
       CResidue *std_res = get_standard_residue_instance(residue_type, standard_residues);
       if (std_res) {
 	 coot::util::mutate_base(res, std_res, 1);

@@ -29,21 +29,21 @@ coot::watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues) {
 
    CResidue *res = NULL;
    std::string nucleic_acid_type = "DNA";
-   std::string form = "A"; // overriden later if nucleic_acid_type is "RNA";
+   std::string form = "B"; // overriden later if nucleic_acid_type is "RNA";
 
    std::string resname = res_ref->GetResName();
    std::string seq;
 
-   if (resname == "Gd") { 
+   if (resname == "Gd" || resname == "DG") { 
       seq = "g";
    } 
-   if (resname == "Ad") { 
+   if (resname == "Ad" || resname == "DA") { 
       seq = "a";
    } 
-   if (resname == "Td") { 
+   if (resname == "Td" || resname == "DT") { 
       seq = "t";
    } 
-   if (resname == "Cd") { 
+   if (resname == "Cd" || resname == "DC") { 
       seq = "c";
    }
    if (resname == "Gr") { 
@@ -87,40 +87,53 @@ coot::watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues) {
       seq = "u";
    }
 
-   if (nucleic_acid_type == "RNA")
+   if (nucleic_acid_type == "RNA") {
       form = "A";
-   
+   } 
+
    coot::ideal_rna ir(nucleic_acid_type, form, 0, seq, standard_residues);
    CMMDBManager *mol = ir.make_molecule();
 
    clipper::RTop_orth rtop;
    bool rtop_is_good = 0;
 
-   if (mol) { 
+   if (!mol) {
+      std::cout << "oops - ideal_rna.make_molecule() failed " << std::endl;
+   } else {
+
       int imod = 1;
       CModel *model_p = mol->GetModel(imod);
       CChain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
-      if (nchains == 2) { 
+      if (nchains != 2) {
+	 std::cout << "WARNING:: Ooops ir.make_molecule() returned molecule with nchains = "
+		   << nchains<< std::endl;
+      } else { 
 	 chain_p = model_p->GetChain(0);
 	 int nres = chain_p->GetNumberOfResidues();
-	 if (nres == 1) { 
+	 if (nres == 1) {
 	    CResidue *res_moving = chain_p->GetResidue(0);
 	    // we need to match res_moving onto res_ref atom by atom
 	    std::pair<bool, clipper::RTop_orth> m =
 	       coot::base_pair_match_matix(res_ref, res_moving);
-	    if (m.first) { 
+	    if (! m.first) {
+	       std::cout << "WARNING:: oops failed to get good matrix from base_pair_match_matix() "
+			 << std::endl;
+	    } else { 
 	       rtop = m.second;
 	       rtop_is_good = 1;
 	    } 
 	 }
       }
 
-      if (rtop_is_good) {
+      if (! rtop_is_good) {
+	 std::cout << "WARNING:: oops failed to get good rtop in watson_crick_partner() "
+		   << std::endl;
+      } else { 
 	 coot::util::transform_mol(mol, rtop);
 
-	 mol->WritePDBASCII("debug.pdb");
+	 // mol->WritePDBASCII("debug.pdb");
 	 
 	 chain_p = model_p->GetChain(1);
 	 int nres = chain_p->GetNumberOfResidues();
@@ -169,12 +182,16 @@ coot::base_pair_match_matix(CResidue *res_ref, CResidue *res_mov) {
       is_pyrimidine = 1;
    if (res_name == "A" || res_name == "Ad" || res_name == "Ar")
       is_pyrimidine = 1;
+   if (res_name == "DG" || res_name == "DA")
+      is_pyrimidine = 1;
 
    if (res_name == "T" || res_name == "Td" || res_name == "Tr")
       is_purine = 1;
    if (res_name == "C" || res_name == "Cd" || res_name == "Cr")
       is_purine = 1;
    if (res_name == "U" || res_name == "Ud" || res_name == "Ur")
+      is_purine = 1;
+   if (res_name == "DT" || res_name == "DC")
       is_purine = 1;
 
    std::vector<std::string> base_atom_names;
