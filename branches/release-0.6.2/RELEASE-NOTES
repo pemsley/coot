@@ -1,5 +1,7 @@
 
-  Pre-release 0.6.2
+-----
+
+  Release 0.6.2
 
   o FEATURE: PISA Interfaces can now be represented in Coot (requires
     pisa version 1.06 or later).
