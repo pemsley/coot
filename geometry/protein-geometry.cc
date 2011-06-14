@@ -163,13 +163,6 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
    int ret_val = 0; 
    CMMCIFFile ciffile;
-   // read_number = read_number_in; // nope, not here.
-
-//    std::cout << "DEBUG:: init_refmac_mon_lib: read_number_in: " << read_number_in << "\n";
-//    std::cout << "DEBUG:: init_refmac_mon_lib: read_number:    " << read_number    << "\n";
-
-   // test for ciffilename.c_str() existing first here.
-   //
 
    // Here we would want to check through dict_res_restraints for the
    // existance of this restraint.  If it does exist, kill it by
@@ -1049,61 +1042,83 @@ void
 coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 
    int ierr = 0;
-   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
+
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+
       // modify a reference (ierr)
       // 
-      char *s = mmCIFLoop->GetString("id", j, ierr);
       std::string three_letter_code;
       std::string name;
       std::string group; // e.g. "L-peptide"
       int number_atoms_all;
       int number_atoms_nh;
       std::string description_level = "None";
+      
+      std::string id; // gets stored as comp_id, but is labelled "id"
+		      // in the cif file chem_comp block.
 
-      if (ierr == 0) {
-	 int ierr_tot = 0;
-	 std::string comp_id(s);
-	 s = mmCIFLoop->GetString("three_letter_code", j, ierr);
-	 ierr_tot += ierr;
-	 if (s)
-	    three_letter_code = s;
+      int ierr_tot = 0;
+      char *s = mmCIFLoop->GetString("id", j, ierr);
+      ierr_tot += ierr;
+      if (s) 
+	 id = s;
+      
+      s = mmCIFLoop->GetString("three_letter_code", j, ierr);
+      ierr_tot += ierr;
+      if (s)
+	 three_letter_code = s;
 
-	 s = mmCIFLoop->GetString("name", j, ierr);
-	 ierr_tot += ierr;
-	 if (s)
-	    name = s;
+      s = mmCIFLoop->GetString("name", j, ierr);
+      ierr_tot += ierr;
+      if (s)
+	 name = s;
 
-	 s = mmCIFLoop->GetString("group", j, ierr);
-	 ierr_tot += ierr;
-	 if (s)
-	    group = s; // e.g. "L-peptide"
+      s = mmCIFLoop->GetString("group", j, ierr);
+      ierr_tot += ierr;
+      if (s)
+	 group = s; // e.g. "L-peptide"
 
-	 ierr = mmCIFLoop->GetInteger(number_atoms_all, "number_atoms_all", j);
-	 ierr_tot += ierr;
+      ierr = mmCIFLoop->GetInteger(number_atoms_all, "number_atoms_all", j);
+      ierr_tot += ierr;
 
-	 ierr = mmCIFLoop->GetInteger(number_atoms_nh, "number_atoms_nh", j);
-	 ierr_tot += ierr;
+      ierr = mmCIFLoop->GetInteger(number_atoms_nh, "number_atoms_nh", j);
+      ierr_tot += ierr;
 
-	 // If desc_level is in the file, extract it, otherwise set it to "None"
-	 // 
-	 s = mmCIFLoop->GetString("desc_level", j, ierr);
-	 if (! ierr)
-	    if (s)
-	       description_level = s;  // e.g. "." for full, I think
+      // If desc_level is in the file, extract it, otherwise set it to "None"
+      // 
+      s = mmCIFLoop->GetString("desc_level", j, ierr);
+      if (! ierr) {
+	 if (s) { 
+	    description_level = s;  // e.g. "." for full, I think
+	 } else {
+	    // if the description_level is "." in the cif file, then
+	    // GetString() does not fail, but s is set to NULL
+	    // (slightly surprising).
+	    description_level = ".";
+	 } 
+      } else {
+	 std::cout << "WARNING:: desc_level was not set " << j << std::endl;
+      } 
 
-	 if (ierr_tot == 0) {
-	    // std::cout << "in chem_comp description_level is :" << description_level << ":" << std::endl;
-	    // if there is a "." in the file description_level is "".
-// 	    std::cout << "Adding :" << comp_id << ": :" << three_letter_code << ": :" << name << ": :"
-// 		      << group << ": " << number_atoms_all << " "
-// 		      << number_atoms_nh << " :" << description_level << ":" << std::endl;
 
-	    delete_mon_lib(comp_id); // delete it if it exists already.
+      if (ierr_tot != 0) {
+	 std::cout << "oops:: ierr_tot was " << ierr_tot << std::endl;
+      } else { 
 
-	    mon_lib_add_chem_comp(comp_id, three_letter_code, name,
-				  group, number_atoms_all, number_atoms_nh,
-				  description_level);
+	 if (0) {
+	    std::cout << "in chem_comp, adding chem_comp, description_level is :"
+		      << description_level << ":" << std::endl;
+
+	    std::cout << "Adding :" << id << ": :" << three_letter_code << ": :" << name << ": :"
+		      << group << ": " << number_atoms_all << " "
+		      << number_atoms_nh << " :" << description_level << ":" << std::endl;
 	 }
+
+	 delete_mon_lib(id); // delete it if it exists already.
+
+	 mon_lib_add_chem_comp(id, three_letter_code, name,
+			       group, number_atoms_all, number_atoms_nh,
+			       description_level);
       }
    }
 }
@@ -3984,7 +3999,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       rc = mmCIFData->AddLoop("_chem_comp", mmCIFLoop);
       int i=0;
       const char *s = residue_info.comp_id.c_str();
-      mmCIFLoop->PutString(s, "comp_id", i);
+      mmCIFLoop->PutString(s, "id", i);
       s = residue_info.three_letter_code.c_str();
       mmCIFLoop->PutString(s, "three_letter_code", i);
       s = residue_info.name.c_str();
@@ -3996,7 +4011,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       nat = residue_info.number_atoms_nh;
       mmCIFLoop->PutInteger(nat, "number_atoms_nh", i);
       s = residue_info.description_level.c_str();
-      mmCIFLoop->PutString(s, "description_level", i);
+      mmCIFLoop->PutString(s, "desc_level", i);
       
       std::string comp_record = "comp_list";
       mmCIFData->PutDataName(comp_record.c_str()); // 'data_' record
@@ -4011,13 +4026,13 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       
       if (rc == CIFRC_Ok || rc == CIFRC_Created) {
 	 for (int i=0; i<atom_info.size(); i++) {
-	    char *ss = (char *) residue_info.comp_id.c_str();
+	    const char *ss =  residue_info.comp_id.c_str();
 	    mmCIFLoop->PutString(ss, "comp_id", i);
-	    ss = (char *) atom_info[i].atom_id.c_str();
+	    ss = atom_info[i].atom_id.c_str();
 	    mmCIFLoop->PutString(ss, "atom_id", i);
-	    ss = (char *) atom_info[i].type_symbol.c_str();
+	    ss = atom_info[i].type_symbol.c_str();
 	    mmCIFLoop->PutString(ss, "type_symbol", i);
-	    ss = (char *) atom_info[i].type_energy.c_str();
+	    ss = atom_info[i].type_energy.c_str();
 	    mmCIFLoop->PutString(ss, "type_energy", i);
 	    if (atom_info[i].partial_charge.first) {
 	       float v = atom_info[i].partial_charge.second;
@@ -4033,13 +4048,13 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
 	 for (int i=0; i<bond_restraint.size(); i++) {
 	    // std::cout << "ading bond number " << i << std::endl;
-	    char *ss = (char *) residue_info.comp_id.c_str();
+	    const char *ss = residue_info.comp_id.c_str();
 	    mmCIFLoop->PutString(ss, "comp_id", i);
-	    ss = (char *) bond_restraint[i].atom_id_1_4c().c_str();
+	    ss = bond_restraint[i].atom_id_1_4c().c_str();
 	    mmCIFLoop->PutString(ss, "atom_id_1", i);
-	    ss = (char *) bond_restraint[i].atom_id_2_4c().c_str();
+	    ss = bond_restraint[i].atom_id_2_4c().c_str();
 	    mmCIFLoop->PutString(ss, "atom_id_2", i);
-	    ss = (char *) bond_restraint[i].type().c_str();
+	    ss = bond_restraint[i].type().c_str();
 	    mmCIFLoop->PutString(ss, "type", i);
 	    float v = bond_restraint[i].dist();
 	    mmCIFLoop->PutReal(v, "value_dist", i);
