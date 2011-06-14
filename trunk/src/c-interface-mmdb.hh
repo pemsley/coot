@@ -44,3 +44,6 @@ CMMDBManager * mmdb_manager_from_python_expression(PyObject *molecule_expression
 #endif // PYTHON
 #endif 
 
+// Delete the CONECT records from the MMDBManager? Depending on 
+// write_conect_records_flag
+void mmdb_manager_delete_conect(CMMDBManager *mol);

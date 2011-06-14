@@ -2804,6 +2804,9 @@ public:
 			      // ambiguity (or undo_molecule has been
 			      // set already).
 
+   // save CONECT records?
+   //
+   static int write_conect_records_flag;
 
    // used in globjects:
    // 

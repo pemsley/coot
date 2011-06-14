@@ -4632,7 +4632,8 @@ void save_coordinates_using_widget(GtkWidget *widget) {
 
       graphics_info_t g;
       if (is_valid_model_molecule(imol)) { 
-	 int ierr = g.molecules[imol].save_coordinates(filename, save_hydrogens, save_aniso_records);
+         int save_conect_records = g.write_conect_records_flag;
+	 int ierr = g.molecules[imol].save_coordinates(filename, save_hydrogens, save_aniso_records, save_conect_records);
 	 if (! ierr) { 
 	    std::string s = "Saved coordinates file ";
 	    s += filename;

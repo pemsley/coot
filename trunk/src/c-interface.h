@@ -1609,6 +1609,16 @@ int quick_save();
 /*! \} */
 
 
+/*! \brief return the state of the write_conect_records_flag.
+  */
+int get_write_conect_record_state(); 
+/*! \} */
+
+/*! \brief set the flag to write (or not) conect records to the PDB file.
+  */
+void set_write_conect_record_state(int state); 
+/*! \} */
+
 /*  ------------------------------------------------------------------------ */
 /*                         refmac stuff                                      */
 /*  ------------------------------------------------------------------------ */

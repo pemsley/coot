@@ -50,6 +50,16 @@ notes from Shanghai:
 
 **** General ****
 
+   o domain NCS (use parrot's code?!)
+
+   o make LINK search and LINK in pdb
+
+   o disable the 'Question Accept..' in Preferences
+
+   o preferencable main toolbar
+
+   o default bond length (e.g.) preferences conflict with state file
+
    o seq view colour by alignment (optional/button)
 
    o Esc removes docked acccept/reject toolbar

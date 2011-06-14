@@ -375,9 +375,7 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
         if not(command_in_path_qm(cmd)):
             print "command ", cmd, " not found in $PATH!"
             print "BL INFO:: Maybe we'll find it somewhere else later..."
-            return 255  # why?
-        else:
-            cmd_execfile = find_exe(cmd, "CCP4_BIN", "PATH")
+        cmd_execfile = find_exe(cmd, "CCP4_BIN", "PATH")
 
     if (cmd_execfile):
         # minor = 2
