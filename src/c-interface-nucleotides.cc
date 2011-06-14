@@ -298,10 +298,12 @@ int watson_crick_pair(int imol, const char *chain_id, int resno) {
 	       graphics_info_t g;
 	       int imol_new = g.create_molecule();
 	       atom_selection_container_t asc_wc = make_asc(mol);
-	       g.molecules[imol_new].install_model(imol_new, asc_wc, "WC partner", 1);
+	       g.molecules[imol_new].install_model(imol_new, asc_wc, "W&C partner", 1);
 	       graphics_draw();
 	    }
-	 }
+	 } else {
+	    std::cout << "Ooops - failed to get Watson&Crick partner" << std::endl;
+	 } 
       } 
    } 
 
