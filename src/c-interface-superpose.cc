@@ -508,8 +508,7 @@ PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving) {
 	 clipper::Spacegroup new_space_group = g.molecules[imol_reference].space_group().second;
 	 clipper::Cell new_cell = g.molecules[imol_reference].cell().second;
          std::pair<int, clipper::RTop_orth> status_and_rtop =
-            g.apply_lsq(imol_reference, imol_moving, *graphics_info_t::lsq_matchers,
-			new_space_group, new_cell);
+            g.apply_lsq(imol_reference, imol_moving, *graphics_info_t::lsq_matchers);
          if (status_and_rtop.first) {
             python_status = rtop_to_python(status_and_rtop.second);
          }

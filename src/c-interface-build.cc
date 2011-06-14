@@ -3036,6 +3036,7 @@ write_residue_range_to_pdb_file(int imol, const char *chain_id,
       CMMDBManager *mol =
 	 graphics_info_t::molecules[imol].get_residue_range_as_mol(chain, resno_start, resno_end);
       if (mol) {
+        mmdb_manager_delete_conect(mol);
 	 istat = mol->WritePDBASCII(filename);
 	 delete mol; // give back the memory.
       }
@@ -3074,6 +3075,27 @@ int quick_save() {
    return 0;
 }
 
+
+/*! \brief return the state of the write_conect_records_flag.
+  */
+int get_write_conect_record_state() {
+  graphics_info_t g;
+  return g.write_conect_records_flag;
+}
+/*! \} */
+
+/*! \brief set the flag to write (or not) conect records to the PDB file.
+  */
+void set_write_conect_record_state(int state) {
+  graphics_info_t g;
+  if (state == 1) {
+    g.write_conect_records_flag = 1;
+  } else {
+    g.write_conect_records_flag = 0;
+  }
+}
+
+/*! \} */
 
 
 
@@ -4492,6 +4514,7 @@ void save_symmetry_coords(int imol,
 	    asc.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
 	    asc.mol->FinishStructEdit();
 	    
+        mmdb_manager_delete_conect(mol2);
 	    int ierr = mol2->WritePDBASCII(filename);
 	    if (ierr) {
 	       std::cout << "WARNING:: WritePDBASCII to " << filename << " failed." << std::endl;

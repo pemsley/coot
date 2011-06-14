@@ -526,7 +526,8 @@ write_atom_selection_file(atom_selection_container_t asc,
 			  const std::string &filename,
 			  byte gz,
 			  bool write_hydrogens,     // optional arg
-			  bool write_aniso_records // optional arg
+			  bool write_aniso_records, // optional arg
+			  bool write_conect_records // optional arg
 			  ) {
 
    int ierr = 0; 
@@ -552,6 +553,13 @@ write_atom_selection_file(atom_selection_container_t asc,
 	 mol = n;
       }
 
+      if (! write_conect_records) {
+	 CMMDBManager *n = new CMMDBManager;
+	 n->Copy(mol, MMDBFCM_All);
+     // Eugenes magic code
+	 n->Delete ( MMDBFCM_SC );
+	 mol = n;
+      }
       
       // we need to put the hydrogen names back to how they used to be
       // when we read in the pdb file and then put them put them back

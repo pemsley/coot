@@ -336,6 +336,9 @@ int       graphics_info_t::esoteric_depth_cue_flag = 1; // on by default.
 // save coords fileselection dir
 int graphics_info_t::save_coordinates_in_original_dir_flag = 0;
 
+// save CONECT records, by default we dont
+int graphics_info_t::write_conect_records_flag = 0;
+
 // by default convert nucleic acid names to match the (currently v2)
 // dictionary.
 // 

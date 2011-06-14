@@ -111,7 +111,7 @@
 		(begin
 
 		  ;; OK, so here we read the PRODRG files and
-		  ;; manipulate them.  We presumen that the active
+		  ;; manipulate them.  We presume that the active
 		  ;; residue is quite like the input ligand from
 		  ;; prodrg.
 		  ;;

@@ -37,6 +37,8 @@
 
 #include "guile-fixups.h"
 
+#include "graphics-info.h"
+
 #ifdef USE_GUILE
 
 CMMDBManager *
@@ -417,3 +419,12 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
 
 #endif // USE_PYTHON
 
+// delete CONECT records from mmdb manager
+void mmdb_manager_delete_conect(CMMDBManager *mol) {
+
+  graphics_info_t g;
+
+  if (g.write_conect_records_flag != 1) {
+    mol->Delete ( MMDBFCM_SC );
+  }
+}

@@ -2132,7 +2132,8 @@ public:        //                      public
    // 
    int save_coordinates(const std::string filename,
 			bool save_hydrogens=1,
-			bool save_aniso_records=1);
+			bool save_aniso_records=1,
+			bool save_conect_records=0);
    int quick_save(); // save to default file name if has unsaved changes.  Return non-zero on problem.
    std::string stripped_save_name_suggestion(); // sets coot_save_index maybe
    int Have_unsaved_changes_p() const;
