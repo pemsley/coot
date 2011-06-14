@@ -694,7 +694,6 @@ graphics_info_t::save_state_data_and_models(const std::string &filename,
 int
 graphics_info_t::save_state() {
 
-   std::cout << "here in save state ---------------------  " << std::endl;
    int r = 0;
    if (run_state_file_status) {
       short int il = 1;
@@ -702,13 +701,10 @@ graphics_info_t::save_state() {
       r = save_state_file(save_state_file_name, il);
 #endif // USE_GUILE
       
-      std::cout << "here --------------------- pre python " << std::endl;
 #ifdef USE_PYTHON
       il = 2;
-      std::cout << "here --------------------- python " << std::endl;
       r = save_state_file("0-coot.state.py", il);
 #endif // USE_PYTHON   
-
       return r;
    }
    return 0;
