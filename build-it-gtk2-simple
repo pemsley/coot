@@ -307,7 +307,8 @@
 # 4.76 20101102 Correct directory for previoius patch.
 # 4.77 20110505 switch to new style Refmac library.
 # 4.78 20110507 Refmac mon lib to 5.29
-script_version=4.78
+# 4.79 20110610 biop -> lmb.bioch
+script_version=4.79
 
 
 # :: NOTE:: 
@@ -1184,9 +1185,9 @@ fi
 coot_version=$fallback_coot_version
 
 pre_release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
-pre_release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/pre-releases/
+pre_release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/pre-releases/
 release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software
-release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/releases
+release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/releases
 
 ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
 ${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
@@ -3109,7 +3110,7 @@ echo done coot build.
 # library and the reference structures?
 
 extra_dir=http://www.ysbl.york.ac.uk/~emsley/software/extras
-extra_dir=http://www.biop.ox.ac.uk/coot/software/dependencies
+extra_dir=http://lmb.bioch.ox.ac.uk/coot/software/dependencies
 # 20110505 we change to Garib's new dictionary
 #refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
 #refmac_mon_lib=refmac-monomer-library-20091203.tar.gz
