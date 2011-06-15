@@ -696,7 +696,6 @@ graphics_info_t::save_state() {
 
    int r = 0;
    if (run_state_file_status) {
-      std::cout << "============ in graphics_info_t::save_state() saving SCHEME_SCRIPT " << std::endl;
       short int il = coot::SCHEME_SCRIPT;
 #ifdef USE_GUILE
       r = save_state_file(save_state_file_name, il);
@@ -704,10 +703,8 @@ graphics_info_t::save_state() {
       
 #ifdef USE_PYTHON
       il = coot::PYTHON_SCRIPT;
-      std::cout << "============ in graphics_info_t::save_state() saving PYTHON_SCRIPT " << std::endl;
       r = save_state_file("0-coot.state.py", il);
 #endif // USE_PYTHON   
-
       return r;
    }
    return 0;
