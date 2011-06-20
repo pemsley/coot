@@ -966,6 +966,19 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
    add_to_history_typed(cmd, args);
 }
 
+/*! \brief delete all hydrogens in molecule */
+int delete_hydrogens(int imol) {
+
+   int n_deleted = 0;
+   if (is_valid_model_molecule(imol)) {
+      n_deleted = graphics_info_t::molecules[imol].delete_hydrogens();
+      if (n_deleted)
+	 graphics_draw();
+   }
+   return n_deleted;
+} 
+
+
 
 void set_add_alt_conf_new_atoms_occupancy(float f) {  /* default 0.5 */
 

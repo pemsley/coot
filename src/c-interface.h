@@ -4653,6 +4653,11 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
 /*! \brief delete all atoms in residue that are not main chain or CB */
 void delete_residue_sidechain(int imol, const char *chain_id, int resno, const char*ins_code, 
 			      short int do_delete_dialog);
+/*! \brief delete all hydrogens in molecule, 
+
+   @return number of hydrogens deleted. */
+int delete_hydrogens(int imol);
+
 /* toggle callbacks */
 void set_delete_atom_mode();
 void set_delete_residue_mode();

@@ -1950,6 +1950,8 @@ public:        //                      public
 
    int delete_atoms(const std::vector<coot::atom_spec_t> &atom_specs);
 
+   int delete_hydrogens(); // return status of atoms deleted (0 -> none deleted).
+
 
    // closing molecules, delete maps and atom sels as appropriate
    // and unset "filled" variables.  Set name_ to "".

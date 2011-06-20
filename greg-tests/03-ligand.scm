@@ -44,7 +44,19 @@
 	 (begin
 	   (format #t "   No ligand molecule - Skipping bond thickness test~%")
 	   (throw 'untested)))))
-	 
+
+
+(greg-testcase "Delete all-molecule Hydrogens" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "monomer-3GP.pdb")))
+       (if (not (valid-model-molecule? imol))
+	   (throw 'fail))
+       (format #t "here 1 ~%")
+       (let ((n (delete-hydrogens imol)))
+	 (> n 0)))))
+
+
 
 (greg-testcase "Move and Refine Ligand test" #t 
    (lambda ()
