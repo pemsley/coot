@@ -1772,13 +1772,13 @@ molecule_class_info_t::delete_atoms(const std::vector<coot::atom_spec_t> &atom_s
 	 //
 	 PCAtom *atoms = NULL;
 	 int n_atoms;
-	 atom_sel.mol->SelectAtoms(SelHnd, 0, (char *) atom_specs[i].chain.c_str(),
-				   atom_specs[i].resno, (char *) atom_specs[i].insertion_code.c_str(),
-				   atom_specs[i].resno, (char *) atom_specs[i].insertion_code.c_str(),
+	 atom_sel.mol->SelectAtoms(SelHnd, 0, atom_specs[i].chain.c_str(),
+				   atom_specs[i].resno, atom_specs[i].insertion_code.c_str(),
+				   atom_specs[i].resno, atom_specs[i].insertion_code.c_str(),
 				   "*",
-				   (char *) atom_specs[i].atom_name.c_str(),
+				   atom_specs[i].atom_name.c_str(),
 				   "*",
-				   (char *) atom_specs[i].alt_conf.c_str()
+				   atom_specs[i].alt_conf.c_str()
 				   );
 	 atom_sel.mol->GetSelIndex(SelHnd, atoms, n_atoms);
 	 if (n_atoms) {
@@ -1804,6 +1804,62 @@ molecule_class_info_t::delete_atoms(const std::vector<coot::atom_spec_t> &atom_s
 
    return n_deleleted_atoms;
 }
+
+int
+molecule_class_info_t::delete_hydrogens(){  // return status of atoms deleted (0 -> none deleted).
+
+   int n_deleted = 0;
+
+   // we make a big list and then delete them all at once.  Deleting
+   // them in place (inside the residue block crashes).
+   // 
+   std::vector<CAtom *> atoms_to_be_deleted;
+
+   if (molecule_has_hydrogens()) {
+      for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+	 CModel *model_p = atom_sel.mol->GetModel(imod);
+	 CChain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    CAtom *at;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       PPCAtom residue_atoms = 0;
+	       int n_residue_atoms;
+	       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	       for (int iat=0; iat<n_residue_atoms; iat++) {
+		  at = residue_atoms[iat];
+		  std::string ele(at->element);
+		  if (ele == " H") {
+		     atoms_to_be_deleted.push_back(at);
+		  } 
+	       }
+	    }
+	 }
+      }
+      
+      if (atoms_to_be_deleted.size() > 0) {
+
+	 for (unsigned int iat=0; iat<atoms_to_be_deleted.size(); iat++) {
+	    delete atoms_to_be_deleted[iat];
+	    atoms_to_be_deleted[iat] = NULL;
+	 }
+	 
+	 atom_sel.mol->FinishStructEdit();
+	 atom_sel = make_asc(atom_sel.mol);
+	 make_bonds_type_checked();
+	 have_unsaved_changes_flag = 1;
+	 // unlikely to be necessary:
+	 trim_atom_label_table();
+	 update_symmetry();
+      } 
+   } 
+   return atoms_to_be_deleted.size();
+}
+
 
 
 // best fit rotamer stuff
