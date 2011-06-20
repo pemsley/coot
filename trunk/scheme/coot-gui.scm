@@ -451,15 +451,16 @@
 	     ;; (new-release-time 1250000000) ; 11 Aug 2009 : 0.5
 	     ;; (new-release-time 1280000000) ; 24 Jul 2010 : --
 	     ;; (new-release-time 1310000000) ;  7 Jul 2011 : 0.6
-	     (new-release-time 1330000000) ; 23 Jan 2012
+	     ;; (new-release-time 1330000000) ; 23 Jan 2012
+	     (new-release-time 1330000000) ; 12 Nov 2012
 	     (time-diff (- (current-time) new-release-time)))
 	(if (> time-diff 0)
 	    (let ((s (if (> time-diff 8600000) ;; 100 days
-			 "You're using an Old Coot!\n\nIt's time to upgrade."
+			 "You've got an Old Coot!\n\nIt's time to upgrade."
 			 (if (= (random 10) 0)
 			     ;; Jorge Garcia:
 			     "(Nothing says \"patriotism\" like an Ireland shirt...)\n"
-			     "You have an Old Coot!\n\nIt's time to upgrade."))))
+			     "You've got an Old Coot!\n\nIt's time to upgrade."))))
 	      (info-dialog s))))))
 
 (old-coot?)
