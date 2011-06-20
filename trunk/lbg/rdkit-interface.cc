@@ -1065,9 +1065,10 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
    // 
    // int iconf = RDDepict::compute2DCoords(*rdk_mol, NULL, 1, 0, 2, 20);
    //
-   int iflip = 3;
+
+   int nRB = RDKit::Descriptors::calcNumRotatableBonds(*rdk_mol);
    int iconf =
-      RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, 1, 1, weight_for_3d_distances, iflip, 200);
+      RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, 1, 1, weight_for_3d_distances, nRB, 200);
 
    conf = rdk_mol->getConformer(iconf);
    RDKit::WedgeMolBonds(*rdk_mol, &conf);
