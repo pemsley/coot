@@ -329,20 +329,15 @@ graphics_info_t::make_preferences_internal() {
   float fvalue;
   // General preference settings
   // file chooser
-#if (GTK_MAJOR_VERSION > 1)
+
   on = file_chooser_selector_state();
-#else
-  on = 0;
-#endif // GTK
+  
   p.preference_type = PREFERENCES_FILE_CHOOSER;
   p.ivalue1 = on;
   ret.push_back(p);
   
-#if (GTK_MAJOR_VERSION > 1)
   on = file_chooser_overwrite_state();
-#else
-  on = 0;
-#endif // GTK
+
   p.preference_type = PREFERENCES_FILE_OVERWRITE;
   p.ivalue1 = on;
   ret.push_back(p);
