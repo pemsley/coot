@@ -36,8 +36,17 @@
 ``p'' go to an atom of the closest residue (the ``CA'' atom if the
 residue has one)
 
+\subsection{Go To Residue}
+Ctrl-g $<$\emph{Residue-number}$>$$<$\emph{Enter}$>$
+
+Jump to the give residue (you can provide a chain-id too)
+
 \subsection{Next NCS Chain}
 ``o'' - other NCS chain.
+
+\subsection{``Undo'' Move}
+``u'' to undo the move recent screen recentering (\emph{e.g.} move
+back after recentering after reading a new PDB file)
 
 \subsection{Previous/Next Rotamer}
 
@@ -56,14 +65,10 @@ use keyboard ``1'' for Chi1, ``2'' for Chi2 \emph{etc.}
 
 \subsection{Keyboard Contouring}
 
-Use \texttt{+} or \texttt{-} to change the contour level
+Use ``\texttt{+}'' or ``\texttt{-}'' to change the contour level
 
 \subsection{Keyboard Labelling}
 ``l'' to label closest atom
-
-\subsection{Keyboard Go To Residue} 
-   \texttt{Ctrl-g} then key in a residue number and (optionally) a chain-id 
-      and press Return 
 
 \subsection{Quick Save As} 
    Ctrl-s to save the state
@@ -118,10 +123,13 @@ Mouse actions are occassionally augmented with keyboard modifiers:
     Ctrl Left-Mouse Drag &  Translates view \\
     Shift Left-Mouse Click &  Label Atom\\
     Right-Mouse Drag &  Zoom in and out\index{zoom}\\
-    Shift Right-Mouse Drag & Change clipping and Translate in Screen Z \\
-    & The movement is along orthogonal axes: \\
-    & up+right/down+left shifts in z, \\ 
-    &  up+left/down+right changes the slab \\
+    Shift Right-Mouse Drag & Change clipping and Translate in \\
+                           & Screen Z \\
+                           & The movement is along orthogonal \\
+                           & axes: \\
+                           & up+right/down+left shifts in z, \\ 
+                           &  up+left/down+right changes the \\
+                           & slab \\
     Ctrl Shift Right-Mouse Drag &  Rotate View about Screen Z\\
     Middle-mouse Click & Centre on atom\\
     Scroll-wheel Forward &  Increase map contour level\\
