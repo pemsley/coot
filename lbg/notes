@@ -34,6 +34,17 @@ Fri Apr 15 13:00:04 BST 2011
 
 * Done.
 
+
+----
+Sun Jun 19 14:13:29 BST 2011
+
+   Try FLEVing a nucleic acid (which is part of a chain).
+
+   The extraction of the single residue makes problems with the
+   valence of the phosphate - becuase we lose 03' of the previous
+   residue.  Not sure how to handle that...
+
+
 ----
 
  build Coronene using prodrg

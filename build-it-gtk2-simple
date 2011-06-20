@@ -546,7 +546,7 @@ function ssh_copy {
           $HOME/bin/sput-with-dir $bin_tar_file.md5sum public_html/software/binaries/nightlies/pre-release/
        fi
     else 
-       echo Not copying file to York, $domainname
+       echo Not ssh copying file to York, $domainname
     fi    
 }
 
@@ -562,7 +562,7 @@ function ssh_copy_to_biop {
           $HOME/bin/sput-with-dir $bin_tar_file.md5sum $target_dir
        fi
     else 
-       echo Not copying file to biop
+       echo Not ssh copying file to biop
     fi    
 }
 
@@ -575,7 +575,7 @@ function ssh_copy_logs_to_biop {
        target_dir=$2
        $HOME/bin/sput-with-dir $local_log_dir $target_dir
     else 
-       echo Not copying log files to biop
+       echo Not ssh copying log files to biop
     fi
 }
 

@@ -1077,6 +1077,8 @@ Sat Dec 15 12:18:46 GMT 2007
 
    as is  2x2h
 
+   79, 137
+
 -----
 Sat Dec 15 13:12:08 GMT 2007
 
@@ -3967,8 +3969,8 @@ INFO::
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
    o change the version in configure.in
+   o artists acknowledged in glade/aboutdialog?
    o change the splash screen
-        artists acknowledged in glade/aboutdialog?
         To correct the transparency, duplicate layer, bucket fill with white 
         the bottom layer, merge and bevel 6.
         Do Gtk1 and gtk2 versions.
@@ -6005,6 +6007,27 @@ checkmol/matchmol
 GPL Pascal
 
 http://merian.pch.univie.ac.at/~nhaider/cheminf/cmmm.html
+
+
+---
+Sun Jun 19 14:15:19 BST 2011
+
+    JED:
+
+    Add an tool to add OP3 to DNA and RNA. Find the torsion of the OP1
+    and OP2. Average.  Add 180 then position OP3 by torsion,angle,bond
+    (use the values in the dictionary).
+
+    (ideal DNA and RNA helix builder doesn't add them - you might like
+    to reconsider that).
+
+---
+Sun Jun 19 14:18:41 BST 2011
+ 
+    JED:
+
+    Tool to WC base-pair a residue range and put the results into the
+    same molecule (as the reference) but a different chain of course.
 
 
 ------
