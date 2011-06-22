@@ -358,6 +358,7 @@ on_lbg_open_filechooserdialog_response(GtkDialog       *dialog,
 	 mm.read(file_name);
 	 widgeted_molecule_t wmol = l->import(mm, file_name, mol);
 	 l->render_from_molecule(wmol);
+	 l->update_statusbar_smiles_string();
       }
    }
    gtk_widget_hide(GTK_WIDGET(dialog));
@@ -409,6 +410,7 @@ on_lbg_save_as_filechooserdialog_response(GtkDialog       *dialog,
       lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->save_as_dialog));
+	 l->set_default_mdl_file_name(file_name);
 	 l->mol.write_mdl_molfile(file_name);
       }
    }
