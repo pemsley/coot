@@ -36,6 +36,13 @@ Fri Apr 15 13:00:04 BST 2011
 
 
 ----
+Wed Jun 22 05:58:52 EDT 2011
+
+   on loading a new molecule, it should update the smiles string
+
+* Done.
+
+----
 Sun Jun 19 14:13:29 BST 2011
 
    Try FLEVing a nucleic acid (which is part of a chain).
@@ -65,7 +72,7 @@ Sun Apr 10 17:15:31 BST 2011
 
   Bad.
 
-
+* done.
 
 
 ---

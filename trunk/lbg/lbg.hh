@@ -998,6 +998,10 @@ public:
 
    void write_mdl_molfile_using_default_file_name() const;
 
+   void set_default_mdl_file_name(const std::string &file_name) {
+      mdl_file_name = file_name;
+   }
+
    void clear_and_redraw(const lig_build::pos_t &delta);
    
 };

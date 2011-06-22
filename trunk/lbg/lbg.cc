@@ -2450,6 +2450,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
    
    // 
    make_saves_mutex = 1; // allow saves again.
+
 }
 
 void

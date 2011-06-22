@@ -226,7 +226,7 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
    double y = - scale_correction.second * (pos_in.y() - centre_correction.y) * SINGLE_BOND_CANVAS_LENGTH/1.3;
 
    // double y_offset = 60 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 20;
-   double y_offset = 110 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 30;
+   double y_offset = 40 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 30;
    
    x += 300;
    y += y_offset;
