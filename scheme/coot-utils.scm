@@ -98,6 +98,7 @@
 (define remarks remarks-scm)
 (define protein-db-loops protein-db-loops-scm)
 (define residue-centre residue-centre-scm)
+(define make-link make-link-scm)
 
 ;; documented functions
 
@@ -329,6 +330,17 @@
   (string-append "//" (car centre-residue-spec)
 		 "/" (number->string 
 		      (car (cdr centre-residue-spec)))))
+
+
+(define (spec->imol atom-spec)
+  (if (not (list? atom-spec))
+      #f
+      (if (= (length atom-spec) 6)
+	  (car atom-spec)
+	  (if (= (length atom-spec) 7)
+	      (cadr atom-spec)))))
+	  
+
 
 ;; Return a list of molecules that are maps
 ;; 
