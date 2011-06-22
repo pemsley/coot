@@ -33,6 +33,8 @@
   ;; 
   ;; Don't overlap if the reference residue/ligand is not a het-group.
   ;; 
+  ;; return overlapped status
+  ;; 
   (define (overlap-ligands-maybe imol-ligand imol-ref chain-id-ref res-no-ref)
 
     ;; we don't want to overlap-ligands if there is no dictionary
@@ -46,8 +48,11 @@
 	    (if (not (residue-has-hetatms? imol-ref chain-id-ref res-no-ref ""))
 		#f
 		(begin
+		  (format #t "----------- overlap-ligands ~s ~s ~s ~s ------------ ~%"
+			  imol-ligand imol-ref chain-id-ref res-no-ref)
+		  ;; this can return the rtop operator or the #f (for fail of course).
 		  (overlap-ligands imol-ligand imol-ref chain-id-ref res-no-ref)
-		  #t))))))
+		  ))))))
 		     
 
   ;; return the new molecule number.
@@ -65,25 +70,23 @@
   ;; return the new molecule number
   ;; (only works with aa-ins-code of "")
   ;; 
-  (define (read-regularize-and-match-torsions prodrg-xyzout aa-imol aa-chain-id aa-res-no)
+  (define (read-regularize-and-match-torsions-maybe prodrg-xyzout imol-ref chain-id-ref res-no-ref)
     (let ((imol (handle-read-draw-molecule-and-move-molecule-here prodrg-xyzout)))
 
-      (if (not (have-restraints-for? (residue-name aa-imol aa-chain-id aa-res-no "")))
+      (if (not (have-restraints-for? (residue-name imol-ref chain-id-ref res-no-ref "")))
 	  
 	  #f
 
 	  (begin
-	    (overlap-ligands-maybe imol aa-imol aa-chain-id aa-res-no)
-
-	    (with-auto-accept
-	     ;; speed up the minisation (and then restore setting).
-	     (let ((s (dragged-refinement-steps-per-frame)))
-	       (set-dragged-refinement-steps-per-frame 500)
-	       (regularize-residues imol (list (list "" 1 "")))
-	       (set-dragged-refinement-steps-per-frame s)))
-
-	    (if (have-restraints-for? (residue-name aa-imol aa-chain-id aa-res-no ""))
-		(match-ligand-torsions imol aa-imol aa-chain-id aa-res-no))))
+	    (let ((overlap-status (overlap-ligands-maybe imol imol-ref chain-id-ref res-no-ref)))
+	      (with-auto-accept
+	       ;; speed up the minisation (and then restore setting).
+	       (let ((s (dragged-refinement-steps-per-frame)))
+		 (set-dragged-refinement-steps-per-frame 600)
+		 (regularize-residues imol (list (list "" 1 "")))
+		 (set-dragged-refinement-steps-per-frame s)))
+	      (if overlap-status
+		  (match-ligand-torsions imol imol-ref chain-id-ref res-no-ref)))))
       imol))
 
 
@@ -160,7 +163,7 @@
 
 			     ;; try overlap
 			     ;;
-			     (let ((imol (read-regularize-and-match-torsions 
+			     (let ((imol (read-regularize-and-match-torsions-maybe
 					  prodrg-xyzout aa-imol aa-chain-id aa-res-no )))
 
 			       (let ((overlapped-flag 
@@ -168,6 +171,7 @@
 			   
 				 (if overlapped-flag
 				     (begin
+				       (format #t "------ overlapped-flag was true!!!!!~%")
 				       (set-mol-displayed aa-imol 0)
 				       (set-mol-active    aa-imol 0)
 				       (let* ((col (get-molecule-bonds-colour-map-rotation aa-imol))
