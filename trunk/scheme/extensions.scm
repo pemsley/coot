@@ -444,6 +444,24 @@
 
 	;; ---- M ---------
 
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Make Link (click 2 atoms)..."
+	 (lambda () 
+	   (user-defined-click 2
+			       (lambda (atom-specs)
+				 (let ((m-spec-1 (car atom-specs))
+				       (m-spec-2 (cadr atom-specs)))
+				   (let ((imol-1 (spec->imol m-spec-1))
+					 (imol-2 (spec->imol m-spec-2))
+					 (spec-1 (cddr m-spec-1))
+					 (spec-2 (cddr m-spec-2)))
+				     
+				     (if (not (= imol-1 imol-2))
+					 (format #t "Mismatch molecules~%")
+					 (make-link imol-1 spec-1 spec-2 "dummy" 0.1))))))))
+
+
+
 	(add-simple-coot-menu-menuitem 
 	 submenu-models "Merge Water Chains..."
 	 (lambda ()

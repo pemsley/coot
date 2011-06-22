@@ -64,7 +64,7 @@ atom_spec_from_scm_expression(SCM expr) {
    SCM len_expr = scm_length(expr);
    int len_view = scm_to_int(len_expr);
    if (len_view == 5) {
-      
+
       SCM idx_scm = SCM_MAKINUM(0);
       SCM chain_id_scm = scm_list_ref(expr, idx_scm);
       std::string chain_id = scm_to_locale_string(chain_id_scm);
@@ -85,8 +85,9 @@ atom_spec_from_scm_expression(SCM expr) {
       SCM alt_conf_scm = scm_list_ref(expr, idx_scm);
       std::string alt_conf = scm_to_locale_string(alt_conf_scm);
 
-//       std::cout << "decoding spec :" << chain_id << ": " << resno << " :" << ins_code
-// 		<< ": :" << atom_name << ": :" << alt_conf << ":" << std::endl;
+      //        std::cout << "decoding spec :" << chain_id << ": " << resno << " :"
+      // << ins_code // << ": :" << atom_name << ": :" << alt_conf << ":" << std::endl;
+       
       atom_spec = coot::atom_spec_t(chain_id, resno, ins_code, atom_name, alt_conf);
       // if all OK:
       atom_spec.string_user_data = "OK";

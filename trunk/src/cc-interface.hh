@@ -916,6 +916,19 @@ void hole(int imol,
 	  float colour_map_multiplier, float colour_map_offset,
 	  int n_runs, bool show_probe_radius_graph_flag);
 
+/* ------------------------------------------------------------------------- */
+/*                      LINKs                                                */
+/* ------------------------------------------------------------------------- */
+void
+make_link(int imol, coot::atom_spec_t &spec_1, coot::atom_spec_t &spec_2,
+	  const std::string &link_name, float length);
+#ifdef USE_GUILE
+void make_link_scm(int imol, SCM spec_1, SCM spec_2, const std::string&link_name, float length);
+#endif
+#ifdef USE_PYTHON
+void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2, const std::string&link_name, float length);
+#endif
+
 /*  ----------------------------------------------------------------------- */
 /*                  Utility Functions                                       */
 /*  ----------------------------------------------------------------------- */

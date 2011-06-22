@@ -18,6 +18,8 @@
  * 02110-1301, USA
  */
 
+#include <string.h>
+
 // include files needed to include molecule-class-info.h correctly. Useful.
 #include "Cartesian.h"
 #include "mmdb_manager.h" 
@@ -180,3 +182,56 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
       update_molecule_after_additions();
    }
 } 
+
+// --------- LINKs ---------------
+void
+molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,
+				 const std::string &link_name, float length) {
+
+   // I don't see how link_name and length are part of a CLink.
+   // Perhaps they should not be passed then?
+   
+   CAtom *at_1 = get_atom(spec_1);
+   CAtom *at_2 = get_atom(spec_2);
+
+   if (! at_1) {
+      std::cout << "WARNING:: atom " << spec_1 << " not found - abandoning LINK addition " << std::endl;
+   } else { 
+      if (! at_2) {
+	 std::cout << "WARNING:: atom " << spec_1 << " not found - abandoning LINK addition " << std::endl;
+      } else {
+
+	 CModel *model_1 = at_1->GetModel();
+	 CModel *model_2 = at_1->GetModel();
+
+	 if (model_1 != model_2) {
+
+	    std::cout << "WARNING:: specified atoms have mismatching models - abandoning LINK addition"
+		      << std::endl;
+
+	 } else { 
+	 
+	    CLink *link = new CLink; // sym ids default to 1555 1555
+
+	    strncpy(link->atName1,  at_1->GetAtomName(), 19);
+	    strncpy(link->aloc1,    at_1->altLoc, 9);
+	    strncpy(link->resName1, at_1->GetResName(), 19);
+	    strncpy(link->chainID1, at_1->GetChainID(), 9);
+	    strncpy(link->insCode1, at_1->GetInsCode(), 9);
+	    link->seqNum1         = at_1->GetSeqNum();
+
+	    strncpy(link->atName2,  at_2->GetAtomName(), 19);
+	    strncpy(link->aloc2,    at_2->altLoc, 9);
+	    strncpy(link->resName2, at_2->GetResName(), 19);
+	    strncpy(link->chainID2, at_2->GetChainID(), 9);
+	    strncpy(link->insCode2, at_2->GetInsCode(), 9);
+	    link->seqNum2         = at_2->GetSeqNum();
+
+	    model_1->AddLink(link);
+	    atom_sel.mol->FinishStructEdit();
+	    update_molecule_after_additions();
+	 }
+      } 
+   }
+   
+}
