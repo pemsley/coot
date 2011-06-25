@@ -2362,3 +2362,16 @@ molecule_class_info_t::first_ncs_master_chain_id() const {  // for ncs graphs us
    }
    return std::pair<bool, std::string> (status, master_chain_id);
 } 
+
+std::vector<std::string>
+molecule_class_info_t::ncs_master_chains() const {
+
+   std::vector<std::string> s;
+   for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+      std::string master_chain_id = ncs_ghosts[ighost].target_chain_id;
+      if (std::find(s.begin(), s.end(), master_chain_id) ==
+	  s.end())
+	 s.push_back(master_chain_id);
+   }
+   return s;
+}

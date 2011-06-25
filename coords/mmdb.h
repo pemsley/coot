@@ -60,7 +60,7 @@ namespace coot {
 }
 
 
-// needs <iostream.h>
+// needs <iostream>
 // 
 ostream& operator<<(ostream& s, CAtom &atom);
 

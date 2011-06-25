@@ -2721,6 +2721,7 @@ public:        //                      public
    void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int ichain) const;
    // return status 0 if ncs master chain was not set.
    std::pair<bool, std::string> first_ncs_master_chain_id() const; // for ncs graphs use
+   std::vector<std::string> ncs_master_chains() const;
 
    
    std::vector<std::string> get_symop_strings() const;
@@ -2987,6 +2988,11 @@ public:        //                      public
    // --------- LINKs ---------------
    void make_link(const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,
 		  const std::string &link_name, float length);
+
+   // ------------ watson crick pair additions  ---------
+   int watson_crick_pair_for_residue_range(const std::string &chain_id,
+					   int resno_start, int resno_end,
+					   CMMDBManager *standard_residues_mol);
 
    // --------- Pretty (hopefully) animated ligand interactions -----------
    std::vector<coot::animated_ligand_interactions_t> animated_ligand_interactions_vec;

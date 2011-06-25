@@ -230,10 +230,13 @@
 
 
 
-(define (get-mdl-latest-time file-name)
+(define (get-file-latest-time file-name)
   (if (not (file-exists? file-name))
       #f
       (stat:mtime (stat file-name))))
+
+;; not needed?
+(define get-mdl-latest-time get-file-latest-time)
 
 (let ((mdl-latest-time (get-mdl-latest-time prodrg-xyzin))
       (sbase-transfer-latest-time (get-mdl-latest-time sbase-to-coot-tlc)))

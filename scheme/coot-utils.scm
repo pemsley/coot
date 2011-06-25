@@ -99,6 +99,8 @@
 (define protein-db-loops protein-db-loops-scm)
 (define residue-centre residue-centre-scm)
 (define make-link make-link-scm)
+(define ncs-master-chains ncs-master-chains-scm)
+(define get-lsq-matrix get-lsq-matrix-scm)
 
 ;; documented functions
 
@@ -332,7 +334,7 @@
 		      (car (cdr centre-residue-spec)))))
 
 
-(define (spec->imol atom-spec)
+(define (atom-spec->imol atom-spec)
   (if (not (list? atom-spec))
       #f
       (if (= (length atom-spec) 6)
@@ -1368,6 +1370,24 @@
      (else
       (format #t "arguments to transform-map incomprehensible: args: ~s~%" args)
       #f))))
+
+;; return then NCS master of the first molecule that has ncs.
+;; 
+;; return "" on fail to find an ncs chain
+;; 
+(define (get-first-ncs-master-chain) 
+
+  (let ((r ""))
+    (let loop ((mols (model-molecule-list)))
+      (cond
+       ((null? mols) "")
+       (else 
+	(let ((ncs-masters (ncs-master-chains (car mols))))
+	  (if (not (null? ncs-masters))
+	      (car ncs-masters)
+	      (loop (cdr mols)))))))))
+		
+
 	 
      
 ;; Define a map transformation function that obeys Lapthorn's Law of

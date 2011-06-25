@@ -3444,6 +3444,10 @@ public:
    // (presumably).
    std::pair<int, clipper::RTop_orth> apply_lsq(int imol_ref, int imol_moving,
 						const std::vector<coot::lsq_range_match_info_t> &matches);
+   // sometimes we just want the matrix but not to actually move the coordinates.
+   std::pair<int, clipper::RTop_orth> lsq_get_and_apply_matrix_maybe(int imol_ref, int imol_moving,
+								     const std::vector<coot::lsq_range_match_info_t> &matches, 
+								     bool apply_matrix);
    static std::vector<coot::lsq_range_match_info_t> *lsq_matchers;
    // the simple widget for LSQing: (perhaps these should be vectors of strings 
    // in the general case (more complex widget)?)

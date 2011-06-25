@@ -495,6 +495,36 @@ apply_lsq_matches(int imol_reference, int imol_moving) {
 }
 #endif // USE_GUILE
 
+// return the rtop on a good match, don't move the coordinates by applying the matrix.
+// 
+#ifdef USE_GUILE
+SCM
+get_lsq_matrix_scm(int imol_reference, int imol_moving) {
+
+   SCM scm_status = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol_reference)) {
+      if (is_valid_model_molecule(imol_moving)) {
+	 graphics_info_t g;
+	 std::pair<int, clipper::RTop_orth> status_and_rtop =
+	    g.lsq_get_and_apply_matrix_maybe(imol_reference, imol_moving,
+					     *(g.lsq_matchers),
+					     0); // don't apply the matrix!
+	 if (status_and_rtop.first) {
+	    scm_status = rtop_to_scm(status_and_rtop.second);
+	 }
+	    
+      } else {
+	 std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
+      } 
+   } else {
+      std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
+   }
+   return scm_status;
+}
+#endif // USE_GUILE
+
+
+
 #ifdef USE_PYTHON
 PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving) {
 
@@ -531,8 +561,6 @@ apply_lsq_matches_simple(int imol_reference, int imol_moving) {
    if (is_valid_model_molecule(imol_reference)) {
       if (is_valid_model_molecule(imol_moving)) {
 	 graphics_info_t g;
-	 clipper::Spacegroup new_space_group = g.molecules[imol_reference].space_group().second;
-	 clipper::Cell new_cell = g.molecules[imol_reference].cell().second;
 	 std::cout << "INFO:: Matching/moving molecule number " << imol_moving << " to "
 		   << imol_reference << std::endl;
 	 std::pair<int, clipper::RTop_orth> statuspair = g.apply_lsq(imol_reference, imol_moving,

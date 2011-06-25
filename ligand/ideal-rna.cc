@@ -46,6 +46,9 @@ coot::ideal_rna::make_molecule() {
    bool is_dna_flag;
    coot::ideal_rna::form_t form_flag = A_FORM;
 
+   if (seq.length() == 0)
+      return mol; // NULL
+
    if (RNA_or_DNA_ == "RNA") { 
       // in a special place
       is_dna_flag = 0;
@@ -87,27 +90,22 @@ coot::ideal_rna::make_molecule() {
       CResidue *antisense_ref = coot::util::deep_copy_this_residue(ur);
       // now transform antisense base to the right place:
       coot::util::transform_atoms(antisense_ref, antisense_base_rtop);
-
       for(int iseq=0; iseq<seq.length(); iseq++) {
-	 if (is_valid_base(seq[iseq])) { 
-
+	 if (is_valid_base(seq[iseq])) {
 	    // sense residue
 	    CResidue *res = coot::util::deep_copy_this_residue(ur);
 	    res->seqNum = 1 + iseq ;
 	    clipper::RTop_orth o = n_turns(iseq, seq.length(), form_flag);
 	    coot::util::transform_atoms(res, o);
-// 	    std::cout << " debug about to mutate residue " << res->GetSeqNum()
-// 		      << " to type: " << seq[iseq] << " dna-flag: " << is_dna_flag
-// 		      << std::endl;
 	    int success = mutate_res(res, seq[iseq], is_dna_flag);
 	    if (success) { 
 	       sense_chain_p->AddResidue(res);
 	       if (! use_standard_refmac_names) {
 		  fix_up_residue_and_atom_names(res, is_dna_flag);
 	       } 
-// 	       std::cout << " mutated residue " << res->GetSeqNum()
-// 			 << " to type: " << res->GetResName() << std::endl;
 	    }
+	 } else {
+	    std::cout << "oops not a valid base " << iseq << " " << seq[iseq] << std::endl;
 	 }
       }
 
@@ -120,6 +118,7 @@ coot::ideal_rna::make_molecule() {
 	 //
 	 std::vector<CResidue *> residues_v;
 	 antisense_chain_p->SetChainID("B");
+
 	 model_p->AddChain(antisense_chain_p);
 	 for(int iseq=0; iseq<seq.length(); iseq++) {
 	    if (is_valid_base(seq[iseq])) { 
@@ -147,7 +146,9 @@ coot::ideal_rna::make_molecule() {
 		  fix_up_residue_and_atom_names(residues_v[i], is_dna_flag);
 	       } 
  	    }
- 	 } 
+ 	 } else {
+	    std::cout << "WARNING:: OOpps no backwards residues " << std::endl;
+	 }
       }
       mol->AddModel(model_p);
       mol->FinishStructEdit();
@@ -156,7 +157,6 @@ coot::ideal_rna::make_molecule() {
    } else {
       std::cout << "WARNING:: Bad standard residue Ur/Td" << std::endl;
    }
-
 
    return mol;
 }
@@ -324,7 +324,7 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_i
       std::cout << "badness in get_standard_residue_instance, we selected "
 		<< nSelResidues
 		<< " residues looking for residues of type :"
-		<< residue_name << " from " << residue_type_in << ":\n";
+		<< residue_name << ": from :" << residue_type_in << ":\n";
    } else {
       std_residue = coot::util::deep_copy_this_residue(SelResidue[0]);
    }
@@ -426,7 +426,7 @@ coot::ideal_rna::mutate_res(CResidue *res, char base, bool is_dna_flag) const {
 	 residue_type = "C";
    }
 
-   if (residue_type != "None") { 
+   if (residue_type != "None") {
       CResidue *std_res = get_standard_residue_instance(residue_type, standard_residues);
       if (std_res) {
 	 coot::util::mutate_base(res, std_res, 1);

@@ -2969,7 +2969,7 @@ coot::util::deep_copy_this_residue(CResidue *residue) {
 
    PPCAtom residue_atoms;
    int nResidueAtoms;
-   ((CResidue *)residue)->GetAtomTable(residue_atoms, nResidueAtoms);
+   residue->GetAtomTable(residue_atoms, nResidueAtoms);
    CAtom *atom_p;
    
    for(int iat=0; iat<nResidueAtoms; iat++) {

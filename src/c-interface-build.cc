@@ -5213,6 +5213,41 @@ void copy_residue_range_from_ncs_master_to_others(int imol,
 }
 
 #ifdef USE_GUILE
+SCM ncs_master_chains_scm(int imol) {
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol)) {
+      std::vector<std::string> v = graphics_info_t::molecules[imol].ncs_master_chains();
+      if (v.size()) {
+	 r = generic_string_vector_to_list_internal(v);
+      } 
+   } 
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *ncs_master_chains_py(int imol) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol)) {
+      std::vector<std::string> v = graphics_info_t::molecules[imol].ncs_master_chains();
+      if (v.size()) {
+	 r = generic_string_vector_to_list_internal_py(v);
+      }
+   } 
+
+   if (PyBool_Check(r)) {
+      Py_INCREF(r);
+   }
+   return r;
+
+}
+#endif
+
+
+#ifdef USE_GUILE
 void copy_residue_range_from_ncs_master_to_chains_scm(int imol, const char *master_chain_id, 
 						      int residue_range_start, int residue_range_end, 
 						      SCM chain_id_list_in) {
