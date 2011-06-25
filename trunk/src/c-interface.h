@@ -5280,6 +5280,7 @@ void add_lsq_atom_pair_py(PyObject *atom_spec_ref, PyObject *atom_spec_moving);
 #ifdef USE_GUILE
 /* Return an rtop pair (proper list) on good match, else #f */
 SCM apply_lsq_matches(int imol_reference, int imol_moving);
+SCM get_lsq_matrix_scm(int imol_reference, int imol_moving);
 #endif
 #ifdef USE_PYTHON
 /* Return an rtop pair (proper list) on good match, else False */
@@ -5491,6 +5492,8 @@ void copy_residue_range_from_ncs_master_to_others(int imol, const char *master_c
    If the target residues do not exist in the peer chains, then create
    them. 
 */
+/*! \brief return a list of NCS masters or scheme false */
+SCM ncs_master_chains_scm(int imol);
 void copy_residue_range_from_ncs_master_to_chains_scm(int imol, const char *master_chain_id, 
 						      int residue_range_start, int residue_range_end, 
 						      SCM chain_id_list);
@@ -5499,8 +5502,10 @@ void copy_residue_range_from_ncs_master_to_chains_scm(int imol, const char *mast
 void copy_residue_range_from_ncs_master_to_chains_py(int imol, const char *master_chain_id, 
 						     int residue_range_start, int residue_range_end, 
 						     PyObject *chain_id_list);
+PyObject *ncs_master_chains_py(int imol);
 #endif 
 #endif 
+
 GtkWidget *wrapped_create_ncs_control_dialog();	
 /*! \brief change the NCS master chain  (by number)*/
 void ncs_control_change_ncs_master_to_chain(int imol, int ichain); 
@@ -5748,6 +5753,8 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec, int do_pukka_pucker_c
 /*! \brief Return a molecule that contains a residue that is the WC pair
    partner of the clicked/picked/selected residue */
 int watson_crick_pair(int imol, const char * chain_id, int resno);
+/*! \brief add base pairs for the given residue range, modify molecule imol by creating a new chain */
+int watson_crick_pair_for_residue_range(int imol, const char * chain_id, int resno_start, int resno_end);
 
 /* not for user level */
 void setup_base_pairing(int state);

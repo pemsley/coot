@@ -40,6 +40,8 @@
 // 
 #include "rotamer.hh" // in ligand
 
+#include "base-pairing.hh"
+
 #include "molecule-class-info.h"
 #include "coot-utils.hh"
 #include "coot-hydrogens.hh"
@@ -885,4 +887,52 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
 
    coot::new_centre_info_t nci(status, pos, residue_spec);
    return nci;
+} 
+
+
+int
+molecule_class_info_t::watson_crick_pair_for_residue_range(const std::string &chain_id,
+							   int resno_start, int resno_end,
+							   CMMDBManager *standard_residues_mol) {
+   int status = 0;
+   std::vector<CResidue *> new_residues;
+   CModel *model_p = NULL;
+   if (resno_end < resno_start)
+      std::swap(resno_start, resno_end);
+
+   for (int ires=resno_start; ires<=resno_end; ires++) { 
+      CResidue *res = get_residue(chain_id, ires, "");
+      if (!res) {
+	 std::cout << "Residue not found in  " << chain_id << " " << ires
+		   << std::endl;
+      } else {
+	 model_p = res->GetModel(); // set it to the model that contains this chain.
+	 // these residues are (simple) deep copied
+	 CResidue *res_wc =
+	    coot::watson_crick_partner(res, standard_residues_mol);
+	 if (res_wc) {
+	    new_residues.push_back(res_wc);
+	 }
+      } 
+   }
+
+   if (new_residues.size()) {
+      make_backup();
+      CChain *chain_p = new CChain;
+      // set the chain id
+      std::pair<short int, std::string> u = unused_chain_id();
+      if (u.first) { 
+	 chain_p->SetChainID(u.second.c_str());
+	 for (unsigned int ires=0; ires<new_residues.size(); ires++) { 
+	    chain_p->AddResidue(new_residues[ires]);
+	    new_residues[ires]->seqNum = new_residues.size() - ires;
+	    status = 1;
+	 }
+	 model_p->AddChain(chain_p);
+	 
+	 atom_sel.mol->FinishStructEdit();
+	 update_molecule_after_additions();
+      }
+   } 
+   return status;
 } 

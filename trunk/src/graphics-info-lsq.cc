@@ -61,6 +61,15 @@ std::pair<int, clipper::RTop_orth>
 graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
 			   const std::vector<coot::lsq_range_match_info_t> &matches) {
 
+   return lsq_get_and_apply_matrix_maybe(imol_ref, imol_moving, matches, 1);
+}
+   
+// sometimes we just want the matrix but not to actually move the coordinates.
+std::pair<int, clipper::RTop_orth>
+graphics_info_t::lsq_get_and_apply_matrix_maybe(int imol_ref, int imol_moving,
+						const std::vector<coot::lsq_range_match_info_t> &matches, 
+						bool apply_matrix) {
+
    int status = 0;
    clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
    clipper::Coord_orth pt_dum(0,0,0);
@@ -98,9 +107,10 @@ graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
 			    << std::endl;
 		  
 
-		  molecules[imol_moving].transform_by(rtop_info.second);
-
-		  coot::util::copy_cell_and_symm_headers(mol_ref, mol_mov);
+		  if (apply_matrix) {
+		     molecules[imol_moving].transform_by(rtop_info.second);
+		     coot::util::copy_cell_and_symm_headers(mol_ref, mol_mov);
+		  }
 
 		  rtop_r = rtop_info.second;
 		  graphics_draw();

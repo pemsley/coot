@@ -36,15 +36,35 @@ coot::watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues) {
 
    if (resname == "Gd") { 
       seq = "g";
+      form = "B";
    } 
    if (resname == "Ad") { 
       seq = "a";
+      form = "B";
    } 
    if (resname == "Td") { 
       seq = "t";
+      form = "B";
    } 
    if (resname == "Cd") { 
       seq = "c";
+      form = "B";
+   }
+   if (resname == "DG") { 
+      seq = "g";
+      form = "B";
+   } 
+   if (resname == "DA") { 
+      form = "B";
+      seq = "a";
+   } 
+   if (resname == "DT") { 
+      seq = "t";
+      form = "B";
+   } 
+   if (resname == "DC") { 
+      seq = "c";
+      form = "B";
    }
    if (resname == "Gr") { 
       nucleic_acid_type = "RNA";
@@ -89,8 +109,16 @@ coot::watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues) {
 
    if (nucleic_acid_type == "RNA")
       form = "A";
+
+   if (seq == "") {
+      std::cout << "blank sequence " << std::endl;
+      return res; // NULL
+   }
    
    coot::ideal_rna ir(nucleic_acid_type, form, 0, seq, standard_residues);
+   ir.use_v3_names();
+   std::cout << "::::::::::: nucleic_acid_type " << nucleic_acid_type << std::endl;
+   std::cout << "::::::::::: nucleic_acid form " << form << std::endl;
    CMMDBManager *mol = ir.make_molecule();
 
    clipper::RTop_orth rtop;
@@ -115,12 +143,15 @@ coot::watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues) {
 	       rtop_is_good = 1;
 	    } 
 	 }
+      } else {
+	 std::cout << "oops - not 2 chains " << nchains << " for molecule "
+		   << mol << "   and model " << model_p << std::endl;
       }
 
       if (rtop_is_good) {
 	 coot::util::transform_mol(mol, rtop);
 
-	 mol->WritePDBASCII("debug.pdb");
+	 // mol->WritePDBASCII("debug.pdb");
 	 
 	 chain_p = model_p->GetChain(1);
 	 int nres = chain_p->GetNumberOfResidues();
@@ -130,10 +161,12 @@ coot::watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues) {
       }
    }
 
-   // don't destroy mol unless you deep copy res out it (which we
-   // don't do yet).
-   
-   return res;
+   CResidue *rres = NULL;
+   if (res) {
+      rres = coot::util::deep_copy_this_residue(res);
+   }
+   delete mol;
+   return rres;
 } 
 
 
@@ -169,12 +202,16 @@ coot::base_pair_match_matix(CResidue *res_ref, CResidue *res_mov) {
       is_pyrimidine = 1;
    if (res_name == "A" || res_name == "Ad" || res_name == "Ar")
       is_pyrimidine = 1;
+   if (res_name == "DA" || res_name == "DG")
+      is_pyrimidine = 1;
 
    if (res_name == "T" || res_name == "Td" || res_name == "Tr")
       is_purine = 1;
    if (res_name == "C" || res_name == "Cd" || res_name == "Cr")
       is_purine = 1;
    if (res_name == "U" || res_name == "Ud" || res_name == "Ur")
+      is_purine = 1;
+   if (res_name == "DT" || res_name == "DC" || res_name == "DT")
       is_purine = 1;
 
    std::vector<std::string> base_atom_names;

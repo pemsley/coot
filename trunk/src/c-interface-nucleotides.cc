@@ -322,3 +322,17 @@ void setup_base_pairing(int state) {
    } 
 
 } 
+
+/*! \brief add base pairs for the given residue range, modify molecule imol by creating a new chain */
+int
+watson_crick_pair_for_residue_range(int imol, const char * chain_id, int resno_start, int resno_end) {
+   int status = 0;
+   graphics_info_t g;
+   if (is_valid_model_molecule(imol)) {
+      status = g.molecules[imol].watson_crick_pair_for_residue_range(chain_id,
+								     resno_start, resno_end,
+								     g.standard_residues_asc.mol);
+      graphics_draw();
+   } 
+   return status;
+}

@@ -451,8 +451,8 @@
 			       (lambda (atom-specs)
 				 (let ((m-spec-1 (car atom-specs))
 				       (m-spec-2 (cadr atom-specs)))
-				   (let ((imol-1 (spec->imol m-spec-1))
-					 (imol-2 (spec->imol m-spec-2))
+				   (let ((imol-1 (atom-spec->imol m-spec-1))
+					 (imol-2 (atom-spec->imol m-spec-2))
 					 (spec-1 (cddr m-spec-1))
 					 (spec-2 (cddr m-spec-2)))
 				     
@@ -655,7 +655,7 @@
 	 (lambda ()
 	   (generic-chooser-and-entry "Apply NCS Range from Master"
 				      "Master Chain ID"
-				      ""
+				      (get-first-ncs-master-chain) ;; returns "" on fail
 				      (lambda (imol chain-id)
 					(generic-double-entry 
 					 "Start of Residue Number Range"
@@ -675,7 +675,7 @@
 	   (generic-chooser-and-entry 
 	    "Apply NCS edits from NCS Master Chain to Other Chains"
 	    "Master Chain ID"
-	    ""
+	    (get-first-ncs-master-chain) ;; can return  "".
 	    (lambda (imol chain-id)
 	      (let ((ncs-chains (ncs-chain-ids imol)))
 		(if (null? ncs-chains)
