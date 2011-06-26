@@ -219,7 +219,8 @@
 # let's start with 1.1
 #
 # 1.1 08/05/11 switch to new style Refmac library
-script_version=1.1 
+# 1.2 25/06/11 apply clipper thread patch
+script_version=1.2 
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2011,6 +2012,7 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1-091215-ac
     clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
+    ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper-2.1.thread.patch
     if [ "$need_clipper_contrib_patch" = true ] ; then
        ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
     fi 
@@ -2028,6 +2030,7 @@ if test -n "$build_clipper" ; then
     if [ "$need_clipper_contrib_patch" = true ] ; then
        patch -p0 < ${AUTOBUILD_SOURCES}/clipper_test_contrib.cpp.patch
     fi
+    patch -p0 < ${AUTOBUILD_SOURCES}/clipper-2.1.thread.patch
     ./configure --prefix=$install_top_dir \
 	--with-fftw=$install_top_dir \
 	--with-mmdb=$install_top_dir \
@@ -3015,6 +3018,7 @@ else
    python_tag=-python
 fi
 (
+date
 
 #if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
 #   echo INFO:: not a pythonized build

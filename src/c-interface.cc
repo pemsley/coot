@@ -8155,6 +8155,12 @@ void set_raster3d_density_thickness(float f) {
 
 } 
 
+void set_raster3d_water_sphere(int state) {
+
+   graphics_info_t::raster3d_water_sphere_flag = state;
+
+} 
+
 void
 raster_screen_shot() {  // run raster3d or povray and guile
                 		         // script to render and display image

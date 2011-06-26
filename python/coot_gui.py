@@ -713,18 +713,19 @@ def old_coot_qm():
    # new_release_time = 1249945200 # 11 August 2009 : 0.5
    # new_release_time = 1279926000 # 24 July 2010 : --
    # new_release_time = 1310000000 #  7 July 2011 : 0.6
-   new_release_time = 1330000000 #  23 Jan 2012
+   # new_release_time = 1330000000 # 23 Jan 2012
+   new_release_time = 1352674800 # 12 Nov 2012
    current_time = int(time.time())
    time_diff = current_time - new_release_time
    if (time_diff > 0):
       if (time_diff > 8600):
-         s = "This is an Old Coot!\n\nIt's time to upgrade."
+         s = "You've got an Old Coot!\n\nIt's time to upgrade."
       else:
          if (random.randint(0,10) == 0):
             # Jorge Garcia:
             s = "(Nothing says \"patriotism\" like an Ireland shirt...)\n"
          else:
-            s = "This is an Old Coot!\n\nIt's time to upgrade."
+            s = "You've got an Old Coot!\n\nIt's time to upgrade."
       info_dialog(s)
 
 if (not coot_has_guile()):

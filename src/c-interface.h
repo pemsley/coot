@@ -5285,6 +5285,7 @@ SCM get_lsq_matrix_scm(int imol_reference, int imol_moving);
 #ifdef USE_PYTHON
 /* Return an rtop pair (proper list) on good match, else False */
 PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving);
+PyObject *get_lsq_matrix_py(int imol_reference, int imol_moving);
 #endif // PYTHON
 #endif /* __cplusplus */
 
@@ -5359,6 +5360,9 @@ void set_renderer_show_atoms(int istate);
 void set_raster3d_bone_thickness(float f);
 /*! \brief turn off shadows for raster3d output - give argument 0 to turn off  */
 void set_raster3d_shadows_enabled(int state);
+/*! \brief set the flag to show waters as spheres for the Raster3D 
+representation. 1 show as spheres, 0 the usual stars. */
+void set_raster3d_water_sphere(int istate);
 /*! \brief run raster3d and display the resulting image.  */
 void raster_screen_shot(); /* run raster3d or povray and guile */
                            /* script to render and display image */

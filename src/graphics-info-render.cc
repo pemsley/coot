@@ -447,6 +447,9 @@ coot::raytrace_info_t::render_molecules(std::ofstream &render_stream) {
 
    for (unsigned int i=0; i<rt_mol_info.size(); i++) {
       std::cout << "rendering ray trace number: " << i << std::endl;
+      render_stream << "# render for molecule no and name:"
+                    << rt_mol_info[i].molecule_number << " "
+                    << rt_mol_info[i].molecule_name   << "\n";
       rt_mol_info[i].render_molecule(render_stream, bond_thickness,
 				     atom_radius, density_thickness,
 				     bone_thickness);

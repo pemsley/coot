@@ -2,13 +2,19 @@
 
 scripts      rev 3120 (0.6.2)
 tests        rev 3043 (0.6.2) update
-scripts      rev 33541 prodrg stuff needs testing) generic objects
-tests        rev 3043 update
+scripts      rev 3576 prodrg stuff needs testing) generic objects
+tests        rev 3576 update
 build-it-win rev 2122
 
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.6.2 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
+
+UPDATE CCP4 on build machine! Use new dictionary!!!
+
+use dlls in rdkit/enterprise rather than static ?!
+
+make clean before new stable release!
 
 CCP4
 - space update bar

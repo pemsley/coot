@@ -53,6 +53,15 @@ class LigandTestFunctions(unittest.TestCase):
 	set_bond_thickness(imol_ligand, 5)
 
 
+    def test02_1(self):
+        """Delete all-molecule Hydrogens"""
+        imol = unittest_pdb("monomer-3GP.pdb")
+        self.failUnless(valid_model_molecule_qm(imol))
+        print "here 1"
+        n = delete_hydrogens(imol)
+        self.failUnless(n > 0)
+        
+
     def test03_0(self):
 	"""Move and Refine Ligand test"""
         
