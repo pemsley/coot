@@ -36,6 +36,8 @@ namespace coot {
       std::vector<std::pair<Cartesian, Cartesian> > bone_lines;
       std::vector<colour_t> bond_colour;
       std::vector<std::pair<Cartesian, colour_t> > atom;
+      std::string molecule_name;
+      int molecule_number;
       void render_molecule(std::ofstream &render_stream,
 			   float bond_thickness,
 			   float atom_radius,

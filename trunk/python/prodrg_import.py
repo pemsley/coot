@@ -63,7 +63,9 @@ def import_from_prodrg(minimize_mode):
     # overlap the imol_ligand residue if there are restraints for the
     # reference residue/ligand.
     #
-    # Don't overlap of the reference residue/ligand is not a het-group.
+    # Don't overlap if the reference residue/ligand is not a het-group.
+    #
+    # return overlapped status
     #
     def overlap_ligands_maybe(imol_ligand, imol_ref, chain_id_ref, res_no_ref):
 
@@ -77,8 +79,10 @@ def import_from_prodrg(minimize_mode):
             if not residue_has_hetatms_qm(imol_ref, chain_id_ref, res_no_ref, ""):
                 return False
             else:
-                overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
-                return True
+                print "----------- overlap-ligands %s %s %s %s ------------" \
+                      %(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
+                # this can return the rtop operator or the #f (for fail of course).
+                return overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
 
     # return the new molecule number.
     #
@@ -95,25 +99,25 @@ def import_from_prodrg(minimize_mode):
     # return the new molecule number
     # (only works with aa_ins_code of "")
     #
-    def read_regularize_and_match_torsions(prodrg_xyzout,
-                                           aa_imol, aa_chain_id, aa_res_no):
+    def read_regularize_and_match_torsions_maybe(prodrg_xyzout, imol_ref,
+                                                 chain_id_ref, res_no_ref):
         imol = handle_read_draw_molecule_and_move_molecule_here(prodrg_xyzout)
 
-        if (not have_restraints_for_qm(residue_name(aa_imol, aa_chain_id,
-                                                    aa_res_no, ""))):
+        if (not have_restraints_for_qm(residue_name(imol_ref, chain_id_ref,
+                                                    res_no_ref, ""))):
             return False
         else:
-            overlap_ligands_maybe(imol, aa_imol, aa_chain_id, aa_res_no)
+            overlap_status = overlap_ligands_maybe(imol, imol_ref,
+                                                   chain_id_ref, res_no_ref)
             
             # speed up the minisation (and then restore setting).
             # No need to put refinement steps in auto accept!?
             s = dragged_refinement_steps_per_frame()
-            set_dragged_refinement_steps_per_frame(500)
+            set_dragged_refinement_steps_per_frame(600)
             with_auto_accept([regularize_residues, imol, [["", 1, ""]]])
-            # BL says:: we already checked for restraints!?
-            if (have_restraints_for_qm(residue_name(aa_imol, aa_chain_id,
-                                                    aa_res_no, ""))):
-                match_ligand_torsions(imol, aa_imol, aa_chain_id, aa_res_no)
+            set_dragged_refinement_steps_per_frame(s)
+            if overlap_status:
+                match_ligand_torsions(imol, imol_ref, chain_id_ref, res_no_ref)
         return imol
 
     # main line
@@ -198,13 +202,14 @@ def import_from_prodrg(minimize_mode):
                     else:
                         # try overlap
                         # BL says:: this overwrites 
-                        imol = read_regularize_and_match_torsions(prodrg_xyzout,
-                                                                  aa_imol, aa_chain_id, aa_res_no)
-
+                        imol = read_regularize_and_match_torsions_maybe(prodrg_xyzout,
+                                                                        aa_imol, aa_chain_id, aa_res_no)
+                        
                         overlapped_flag = overlap_ligands_maybe(imol, aa_imol,
                                                                 aa_chain_id, aa_res_no)
             
                         if overlapped_flag:
+                            print "------ overlapped-flag was true!!!!!"
                             set_mol_displayed(aa_imol, 0)
                             set_mol_active(aa_imol, 0)
                             col = get_molecule_bonds_colour_map_rotation(aa_imol)
@@ -281,7 +286,7 @@ if (have_coot_python):
             )
 
         
-def get_mdl_latest_time(file_name):
+def get_file_latest_time(file_name):
     if not os.path.isfile(file_name):
         return False
     else:
@@ -290,8 +295,8 @@ def get_mdl_latest_time(file_name):
 # globals should be in the beginning! FIXME
 global mdl_latest_time
 global sbase_transfer_latest_time
-mdl_latest_time = get_mdl_latest_time(prodrg_xyzin)
-sbase_transfer_latest_time = get_mdl_latest_time(sbase_to_coot_tlc)
+mdl_latest_time = get_file_latest_time(prodrg_xyzin)
+sbase_transfer_latest_time = get_file_latest_time(sbase_to_coot_tlc)
 # FIXME: this is not a proper name
 def mdl_update_timeout_func():
 
@@ -299,8 +304,8 @@ def mdl_update_timeout_func():
     global mdl_latest_time
     global sbase_transfer_latest_time
     
-    mdl_now_time   = get_mdl_latest_time(prodrg_xyzin)
-    sbase_now_time = get_mdl_latest_time(sbase_to_coot_tlc)
+    mdl_now_time   = get_file_latest_time(prodrg_xyzin)
+    sbase_now_time = get_file_latest_time(sbase_to_coot_tlc)
 
     # print "sbase_now_time %s    sbase_latest_time %s" %(sbase_now_time, sbase_transfer_latest_time)
 

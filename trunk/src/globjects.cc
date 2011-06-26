@@ -1078,6 +1078,7 @@ float graphics_info_t::raster3d_density_thickness = 0.015;
 bool  graphics_info_t::raster3d_enable_shadows = 1;
 int   graphics_info_t::renderer_show_atoms_flag = 1;
 float graphics_info_t::raster3d_bone_thickness    = 0.05;
+int   graphics_info_t::raster3d_water_sphere_flag = 0;
 
 // map (density) line thickness:
 int graphics_info_t::map_line_width = 1;

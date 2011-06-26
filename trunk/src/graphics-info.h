@@ -3280,6 +3280,7 @@ public:
    static int renderer_show_atoms_flag;
    static float raster3d_bone_thickness; 
    static bool  raster3d_enable_shadows;
+   static int raster3d_water_sphere_flag;
 
    short int renderman(std::string filename);
 

@@ -230,6 +230,17 @@ def residue_spec2atom_selection_string(centre_residue_spec):
           "/" + str(centre_residue_spec[1])
     return ret
 
+def spec2imol(atom_spec):
+    import types
+    if not (isinstance(atom_spec, types.ListType)):
+        return False
+    else:
+        if (len(atom_spec) == 6):
+            return atom_spec[0]
+        if (len(atom_spec) == 7):
+            return atom_spec[1]
+        return False
+
 # Return a list of molecules that are maps
 # 
 def map_molecule_list():
@@ -895,6 +906,20 @@ def transform_map(*args):
     else:
        print "arguments to transform-map incomprehensible: args: ",args
     return ret
+
+
+# return then NCS master of the first molecule that has ncs.
+# 
+# return "" on fail to find an ncs chain
+#
+def get_first_ncs_master_chain():
+
+    r = ""
+    for mols in model_molecule_list():
+        ncs_masters = ncs_master_chains(mols)
+        if ncs_masters:
+            return ncs_masters[0]
+    return r
 
 # Define a map transformation function that obeys Lapthorn's Law of
 # NCS Handling Programs
@@ -2782,9 +2807,11 @@ add_alt_conf           = add_alt_conf_py
 highly_coordinated_waters = highly_coordinated_waters_py
 add_lsq_atom_pair      = add_lsq_atom_pair_py
 apply_lsq_matches      = apply_lsq_matches_py
+get_lsq_matrix         = get_lsq_matrix_py
 make_image_raster3d    = make_image_raster3d_py
 make_image_povray      = make_image_povray_py
 raster_screen_shot     = raster_screen_shot_py
+ncs_master_chains      = ncs_master_chains_py
 ncs_chain_differences  = ncs_chain_differences_py
 ncs_chain_ids          = ncs_chain_ids_py
 ncs_ghosts             = ncs_ghosts_py
@@ -2845,6 +2872,7 @@ generic_list_to_string_vector_internal = generic_list_to_string_vector_internal_
 generic_int_vector_to_list_internal = generic_int_vector_to_list_internal_py
 inverse_rtop           = inverse_rtop_py
 protein_db_loops       = protein_db_loops_py
+make_link              = make_link_py
 key_sym_code           = key_sym_code_py
 screen_vectors         = screen_vectors_py
 

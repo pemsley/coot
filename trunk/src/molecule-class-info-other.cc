@@ -3890,6 +3890,14 @@ molecule_class_info_t::fill_raster_model_info() {
 
    coot::ray_trace_molecule_info rtmi;
    if (has_model()) {
+     int restore_bonds = 0;
+     graphics_info_t g;
+     if (g.raster3d_water_sphere_flag &&
+         bonds_box_type == coot::NORMAL_BONDS) {
+       // remove waters
+       bonds_no_waters_representation();
+       restore_bonds = 1;
+     }
       for (int i=0; i<bonds_box.num_colours; i++) {
 	 set_bond_colour_by_mol_no(i); //sets bond_colour_internal
 	 for (int j=0; j<bonds_box.bonds_[i].num_lines; j++) {
@@ -3901,6 +3909,11 @@ molecule_class_info_t::fill_raster_model_info() {
 	    c.col[2] = bond_colour_internal[2];
 	    rtmi.bond_colour.push_back(c);
 	 }
+      }
+      // restore bond_box_type
+      if (restore_bonds) {
+        bonds_box_type == coot::NORMAL_BONDS;
+        makebonds();
       }
 
       std::cout << " There are " << bonds_box.n_atom_centres_
@@ -3916,6 +3929,8 @@ molecule_class_info_t::fill_raster_model_info() {
 	 // here is the place to add tiny rastered hydrogen balls.
 	 rtmi.atom.push_back(std::pair<coot::Cartesian, coot::colour_t> (bonds_box.atom_centres_[i].second, c));
       }
+      rtmi.molecule_name = name_;
+      rtmi.molecule_number = imol_no;
    }
    std::cout << "DEBUG:: Done fill_raster_model_info for "
 	     << imol_no << std::endl;
@@ -3977,6 +3992,9 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
 	    }
 	 }
       }
+      rtmi.molecule_name = name_;
+      rtmi.molecule_number = imol_no;
+
    } 
    return rtmi;
 }

@@ -554,6 +554,38 @@ PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving) {
 }
 #endif // USE_PYTHON
 
+// return the rtop on a good match, don't move the coordinates by applying the matrix.
+// 
+#ifdef USE_PYTHON
+PyObject *get_lsq_matrix_py(int imol_reference, int imol_moving) {
+
+   PyObject *py_status = Py_False;
+   if (is_valid_model_molecule(imol_reference)) {
+     if (is_valid_model_molecule(imol_moving)) {
+       graphics_info_t g;
+       std::pair<int, clipper::RTop_orth> status_and_rtop =
+         g.lsq_get_and_apply_matrix_maybe(imol_reference, imol_moving,
+                                          *(g.lsq_matchers),
+                                          0); // don't apply the matrix!
+       if (status_and_rtop.first) {
+         py_status = rtop_to_python(status_and_rtop.second);
+       }
+	    
+     } else {
+       std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
+     } 
+   } else {
+     std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
+   }
+
+   if (PyBool_Check(py_status)) {
+     Py_INCREF(py_status);
+   }   
+
+   return py_status;
+}
+#endif // USE_PYTHON
+
 int
 apply_lsq_matches_simple(int imol_reference, int imol_moving) {
 

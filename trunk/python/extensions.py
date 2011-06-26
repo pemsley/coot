@@ -485,6 +485,25 @@ if (have_coot_python):
 
      # --- M ---
 
+     def make_link_ext_func(*args):
+       m_spec_1 = args[0]
+       m_spec_2 = args[1]
+       imol_1 = spec2imol(m_spec_1)
+       imol_2 = spec2imol(m_spec_2)
+       spec_1 = m_spec_1[2:]
+       spec_2 = m_spec_2[2:]
+       if not (imol_1 == imol_2):
+         print "Mismatch molecules"
+       else:
+         make_link(imol_1, spec_1, spec_2, "dummy", 0.1)
+       
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Make Link (click 2 atoms)...",
+       lambda func:
+       user_defined_click(2, make_link_ext_func))
+
+       
      add_simple_coot_menu_menuitem(
        submenu_models,
        "Merge Water Chains...",
@@ -700,7 +719,7 @@ if (have_coot_python):
        "Copy NCS Residue Range...",
        lambda func: generic_chooser_and_entry("Apply NCS Range from Master",
                                               "Master Chain ID",
-                                              "",
+                                              get_first_ncs_master_chain(),  # returns "" on fail
                 lambda imol, chain_id: generic_double_entry("Start of Residue Number Range",
                                        "End of Residue Number Range",
                                        "", "", False, False,
@@ -721,7 +740,7 @@ if (have_coot_python):
        "Copy NCS Chain...",
        lambda func: generic_chooser_and_entry("Apply NCS edits from NCS Master Chain to Other Chains",
                                               "Master Chain ID",
-                                              "",
+                                              get_first_ncs_master_chain(),  # can return  "".
                                               lambda imol, chain_id: copy_ncs_chain_func(imol, chain_id)))
 
 

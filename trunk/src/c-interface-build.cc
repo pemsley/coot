@@ -6981,6 +6981,14 @@ void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2,
 		  const std::string &link_name, float length) {
    coot::atom_spec_t s1 = atom_spec_from_python_expression(spec_1);
    coot::atom_spec_t s2 = atom_spec_from_python_expression(spec_2);
-   make_link(imol, s1, s2, link_name, length);
+   if (s1.string_user_data != "OK")
+     std::cout << "WARNING:: problem with atom spec "
+               << PyString_AsString(display_python(spec_1)) << std::endl;
+   else 
+     if (s2.string_user_data != "OK")
+       std::cout << "WARNING:: problem with atom spec "
+                 << PyString_AsString(display_python(spec_2)) << std::endl;
+     else 
+       make_link(imol, s1, s2, link_name, length);
 }
 #endif

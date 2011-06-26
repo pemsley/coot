@@ -1352,6 +1352,21 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         # didn't crash?!
 
+# enable when we are in 07
+# simple-minded Hydrogen-based filtered (not topological).
+#    def test34_1(self):
+#        """filter out multi-hydrogen chiral centres"""
+#
+#        global unittest_data_dir
+#        import os
+#        imol = unittest_pdb("chiral-test-1.pdb")
+#        self.failUnless(valid_model_molecule_qm(imol),
+#                        "chiral-test-1.pdb not found")
+#        read_cif_dictionary(os.path.join(unittest_data_dir,
+#                                         "chiral-test-1-dict.cif"))
+#        r = monomer_restraints("DRG")
+#        chirals = r["_chem_comp_chir"]
+#        self.failIf(len(chirals) == 2)  # ? FIXME
 
     def test35_0(self):
         """Change Chain IDs and Chain Sorting"""
