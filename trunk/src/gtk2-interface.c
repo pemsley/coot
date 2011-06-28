@@ -12313,7 +12313,7 @@ create_splash_screen_window (void)
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-  image7052 = create_pixmap (splash_screen_window, "coot-0.6.1.png");
+  image7052 = create_pixmap (splash_screen_window, "coot-0.7-pre-1.png");
   gtk_widget_show (image7052);
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image7052);
 
@@ -24084,8 +24084,7 @@ create_aboutdialog (void)
     NULL
   };
   const gchar *artists[] = {
-    "Splash screen artwork is a mash-up with contributions",
-    "from (open-clip-art) artists \"muga\" and \"johnny_automatic\".",
+    "Splash screen backdrop photo: Noam Adir",
     "\"radacina\" make the \"edit restraints\" icon.",
     "\"lunanaut\" made the connect-to-world globe icon.",
     "\"crispy\" made the mouse icon.",
