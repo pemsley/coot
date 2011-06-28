@@ -3022,7 +3022,6 @@ void  change_chain_id(int imol, const char *from_chain_id, const char *to_chain_
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
-/* Paul fill me in please */
 SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const char *to_chain_id,
                                          short int use_res_range_flag, int from_resno, int to_resno);
 #endif /* USE_GUILE */

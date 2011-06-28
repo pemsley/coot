@@ -4896,7 +4896,7 @@ void change_chain_id(int imol, const char *from_chain_id, const char *to_chain_i
 SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const char *to_chain_id,
 				    short int use_res_range_flag, int from_resno, int to_resno){
 
-   SCM r = SCM_EOL;
+   SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) { 
       std::pair<int, std::string> p = 
 	 graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
@@ -4904,7 +4904,7 @@ SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const c
 							  use_res_range_flag,
 							  from_resno,
 							  to_resno);
-      
+      r = SCM_EOL;
       r = scm_cons(scm_makfrom0str(p.second.c_str()), r);
       r = scm_cons(SCM_MAKINUM(p.first), r);
    }
