@@ -57,9 +57,7 @@
 
 #include <GL/glut.h> // for glutInit()
 
-#ifdef MAKE_ENTERPRISE_TOOLS
 #include "lbg.hh"
-#endif
 
 #include "interface.h"
 #ifndef HAVE_SUPPORT_H
@@ -895,7 +893,7 @@ void
 start_ligand_builder_gui(GtkMenuItem     *menuitem,
 			 gpointer         user_data) {
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef HAVE_GOOCANVAS
    lig_build::molfile_molecule_t mm;
    CMMDBManager *mol = NULL;
    std::string molecule_file_name = "coot.mol"; // non-null file name passed to lbg, used
@@ -907,7 +905,10 @@ start_ligand_builder_gui(GtkMenuItem     *menuitem,
    int imol_dummy = -1;
    lbg(mm, dummy_pair, mol, view_name, molecule_file_name, imol_dummy,
        use_graphics_interface_flag, stand_alone_flag);
-#endif   
+#else
+   std::cout << "No goocanvas" << std::endl;
+#endif // HAVE_GOOCANVAS
+   
 }
 
 void 
