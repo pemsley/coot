@@ -4229,7 +4229,7 @@ random_jiggle_n_trials = 50
 
 def solvent_ligand_list():
    global additional_solvent_ligands
-   return (["EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4", "PO4", "TAM"] +
+   return (["EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4", "PO4", "TRS", "TAM"] +
            additional_solvent_ligands)
 
 # add solvent molecules

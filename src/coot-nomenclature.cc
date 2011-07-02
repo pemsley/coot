@@ -38,6 +38,26 @@
 std::vector<CResidue *>
 coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 
+   std::vector<CResidue *> vr = fix_and_swap_maybe(Geom_p, 1);
+   return vr;
+}
+
+// just list the swaps needed - don't apply them.
+// 
+std::vector<CResidue *>
+coot::nomenclature::list(coot::protein_geometry *Geom_p) {
+
+   std::vector<CResidue *> vr = fix_and_swap_maybe(Geom_p, 0);
+   return vr;
+}
+
+
+// Here we rename atoms to fix nomeclature errors. Note ILEs are not fixed
+// by renaming atoms.
+// 
+std::vector<CResidue *>
+coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool apply_swaps) {
+
    std::vector<CResidue *> vr;
    if (mol_) { 
 
@@ -70,7 +90,9 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 		     if ((residue_name == "PHE") ||
 			 (residue_name == "TYR")) {
 
-			int isw = test_and_fix_PHE_TYR_nomenclature_errors(residue_p);
+			// if apply_swaps is true, apply swaps if they are found - otherwise just
+			// return a flag saying that they should be swapped.
+			int isw = test_and_fix_PHE_TYR_nomenclature_errors(residue_p, apply_swaps);
 			if (isw) { 
 			   std::cout << "INFO:: (result) PHE/TYR swapped atoms in "
 				     << coot::residue_spec_t(residue_p)
@@ -97,7 +119,11 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 				     << coot::residue_spec_t(residue_p) << std::endl;
 #endif // USE_DUNBRACK_ROTAMERS			
 
-			int swapped = d.optimize_rotamer_by_atom_names();
+			// d.optimize_rotamer_by_atom_names returns 1 if the atoms
+			// should be swapped (in the case that apply_swaps is 0) or
+			// actually were swapped (if apply_swaps is 1).
+			// If they don't need to be swapped, it returns 0 of course.
+			int swapped = d.optimize_rotamer_by_atom_names(apply_swaps);
 			if (swapped) {
 // 			   std::cout << "INFO:: residue " << residue_p->GetChainID()
 // 				     << " " << residue_p->GetSeqNum() << " "
@@ -167,12 +193,15 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 					     cg2 = residue_atoms[iat];
 				    }
 				    if (og1 && cg2) {
-				       og1->SetAtomName(" CG2");
-				       cg2->SetAtomName(" OG1");
-				       std::cout << "        CG2 and OG1 atoms swapped\n";
-				       std::cout << "INFO:: swapped atoms in "
-						 << coot::residue_spec_t(residue_p)
-						 << " " << residue_p->GetResName() << std::endl;
+
+				       if (apply_swaps) { 
+					  og1->SetAtomName(" CG2");
+					  cg2->SetAtomName(" OG1");
+					  std::cout << "        CG2 and OG1 atoms swapped\n";
+					  std::cout << "INFO:: swapped atoms in "
+						    << coot::residue_spec_t(residue_p)
+						    << " " << residue_p->GetResName() << std::endl;
+				       }
 				       vr.push_back(residue_p);
 				    } else {
 				       // This can't happen:
@@ -244,13 +273,15 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 				       cg2 = residue_atoms[iat];
 			      }
 			      if (cg1 && cg2) {
-				 cg1->SetAtomName(target_atom_2.c_str());
-				 cg2->SetAtomName(target_atom_1.c_str());
-				 std::cout << "        " << target_atom_1 << " and "
-					   << target_atom_2 << " atoms swapped\n";
-				 std::cout << "INFO:: swapped atoms in "
-					   << coot::residue_spec_t(residue_p)
-					   << " " << residue_p->GetResName() << std::endl;
+				 if (apply_swaps) { 
+				    cg1->SetAtomName(target_atom_2.c_str());
+				    cg2->SetAtomName(target_atom_1.c_str());
+				    std::cout << "        " << target_atom_1 << " and "
+					      << target_atom_2 << " atoms swapped\n";
+				    std::cout << "INFO:: swapped atoms in "
+					      << coot::residue_spec_t(residue_p)
+					      << " " << residue_p->GetResName() << std::endl;
+				 }
 				 vr.push_back(residue_p);
 			      } else {
 				 // This can't happen:
@@ -275,7 +306,8 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 
 // test chi2 (and potentially fix) so that chi2 is the range -90 -> +90.
 int
-coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p) {
+coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p,
+							     bool apply_swap_if_found) {
 
    int iswapped = 0; // number of alt confs swapped in this residue
    PPCAtom residue_atoms;
@@ -373,10 +405,12 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p
 		     }
 		  }
 		  if (CE1 && CE2) {
-		     CD1->SetAtomName(" CD2");
-		     CD2->SetAtomName(" CD1");
-		     CE1->SetAtomName(" CE2");
-		     CE2->SetAtomName(" CE1");
+		     if (apply_swap_if_found) { 
+			CD1->SetAtomName(" CD2");
+			CD2->SetAtomName(" CD1");
+			CE1->SetAtomName(" CE2");
+			CE2->SetAtomName(" CE1");
+		     }
 		     if (0)
 			std::cout << "DEBUG:: swapped in test_and_fix_PHE_TYR_nomenclature_errors()"
 				  << std::endl;

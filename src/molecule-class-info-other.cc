@@ -6538,20 +6538,46 @@ molecule_class_info_t::change_chain_id_with_residue_range_helper_insert_or_add(C
 // nomenclature errors
 // return a vector of the changed residues (used for updating the rotamer graph)
 std::vector<CResidue *>
-molecule_class_info_t::fix_nomenclature_errors() {    // by looking for bad rotamers in
+molecule_class_info_t::fix_nomenclature_errors(coot::protein_geometry *geom_p) {
+                                                      // by looking for bad rotamers in
 				                      // some residue types and alter ing
                             			      // the atom names to see if they get
 				                      // more likely rotamers
 
    std::vector<CResidue *> r;
    if (atom_sel.n_selected_atoms > 0) {
-      graphics_info_t g;
       make_backup();
       coot::nomenclature n(atom_sel.mol);
-      r = n.fix(g.Geom_p());
+      r = n.fix(geom_p);
       have_unsaved_changes_flag = 1;
    }
    return r;
+}
+
+
+// nomenclature errors
+// return a vector of the changed residues (used for updating the rotamer graph)
+std::vector<coot::residue_spec_t>
+molecule_class_info_t::list_nomenclature_errors(coot::protein_geometry *geom_p) {
+                                                      // by looking for bad rotamers in
+				                      // some residue types and alter ing
+                            			      // the atom names to see if they get
+				                      // more likely rotamers
+
+   std::vector<CResidue *> r;
+   if (atom_sel.n_selected_atoms > 0) {
+      make_backup();
+      coot::nomenclature n(atom_sel.mol);
+      r = n.list(geom_p);
+   }
+   std::vector<coot::residue_spec_t> rs;
+   if (r.size()) {
+      rs.resize(r.size());
+      for (unsigned int i=0; i<r.size(); i++) { 
+	 rs[i] = coot::residue_spec_t(r[i]);
+      }
+   }
+   return rs;
 }
 
 int

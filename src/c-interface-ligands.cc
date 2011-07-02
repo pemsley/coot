@@ -578,6 +578,7 @@ execute_ligand_search_internal() {
 	 std::string label = "Fitted ligand #";
 	 label += g.int_to_string(ilig);
 	 g.molecules[g_mol].install_model(g_mol, asc, label, 1);
+	 g.molecules[g_mol].assign_hetatms();
 	 solutions.push_back(g_mol);
 	 n_new_ligand++;
 	 if (g.go_to_atom_window){

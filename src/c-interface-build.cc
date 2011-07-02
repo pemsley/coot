@@ -486,16 +486,18 @@ void turn_on_backup(int imol) {
    add_to_history(command_strings);
 } 
 
-void apply_undo() {		/* "Undo" button callback */
+int apply_undo() {		/* "Undo" button callback */
    graphics_info_t g;
-   g.apply_undo();
+   int r = g.apply_undo();
    add_to_history_simple("apply-undo");
+   return r;
 }
 
-void apply_redo() { 
+int  apply_redo() { 
    graphics_info_t g;
-   g.apply_redo();
+   int r = g.apply_redo();
    add_to_history_simple("apply-redo");
+   return r;
 }
 
 void set_undo_molecule(int imol) {
@@ -642,9 +644,9 @@ void set_add_terminal_residue_immediate_addition(int i) {
 // return 0 on failure, 1 on success
 //
 int add_terminal_residue(int imol, 
-			 char *chain_id, 
+			 const char *chain_id, 
 			 int residue_number,
-			 char *residue_type,
+			 const char *residue_type,
 			 int immediate_add) {
 
    int istate = 0;
@@ -691,6 +693,22 @@ int add_terminal_residue(int imol,
    add_to_history(command_strings);
    return istate;
 }
+
+/*! \brief Add a terminal residue using given phi and psi angles
+ */
+int add_terminal_residue_using_phi_psi(int imol, const char *chain_id, int res_no, 
+				       const char *residue_type, float phi, float psi) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = graphics_info_t::molecules[imol].add_terminal_residue_using_phi_psi(chain_id, res_no, residue_type, phi, psi);
+      if (status)
+	 graphics_draw();
+   } 
+   return status;
+
+} 
+
 
 void set_add_terminal_residue_default_residue_type(const char *type) {
 
@@ -4944,10 +4962,10 @@ int fix_nomenclature_errors(int imol) {
 
    int ifixed = 0;
    if (is_valid_model_molecule(imol)) {
-      std::vector<CResidue *> vr =
-	 graphics_info_t::molecules[imol].fix_nomenclature_errors();
-      ifixed = vr.size();
       graphics_info_t g;
+      std::vector<CResidue *> vr =
+	 graphics_info_t::molecules[imol].fix_nomenclature_errors(g.Geom_p());
+      ifixed = vr.size();
       g.update_geometry_graphs(graphics_info_t::molecules[imol].atom_sel,
 			       imol);
       graphics_draw();
@@ -4957,7 +4975,19 @@ int fix_nomenclature_errors(int imol) {
    
    return ifixed; 
 
-} 
+}
+
+std::vector<coot::residue_spec_t>
+list_nomenclature_errors(int imol) {
+
+   std::vector<coot::residue_spec_t> r;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      r = g.molecules[imol].list_nomenclature_errors(g.Geom_p());
+   }
+   return r;
+}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  cis <-> trans conversion                                */
@@ -5203,7 +5233,10 @@ void copy_residue_range_from_ncs_master_to_others(int imol,
 			int res_range_start,
 			int res_range_end) {
 
-   if (is_valid_model_molecule(imol)) {
+   if (!is_valid_model_molecule(imol)) {
+      std::cout << " molecule " << imol << " is not a valid model molecule"
+		<< std::endl;
+   } else { 
       std::string c(master_chain_id);
       graphics_info_t::molecules[imol].copy_residue_range_from_ncs_master_to_others(c,
 										    res_range_start,

@@ -2906,7 +2906,55 @@ void remove_text(int text_handle) {
    args.push_back(text_handle);
    add_to_history_typed(cmd, args);
    graphics_draw();
-} 
+}
+
+
+void edit_text(int text_handle, const char *str) {
+
+   graphics_info_t g;
+   if (str) { 
+      if (text_handle >= 0) {
+	 if (text_handle < g.generic_texts_p->size()) {
+	    (*g.generic_texts_p)[text_handle].s = str;
+	 }
+      }
+   }
+   std::string cmd = "edit-text";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(text_handle);
+   args.push_back(str);
+   add_to_history_typed(cmd, args);
+   graphics_draw();
+}
+
+/*! \brief return the closest text that is with r A of the given
+  position.  If no text item is close, then return -1 */
+int text_index_near_position(float x, float y, float z, float rad) {
+
+   int r = -1;
+   graphics_info_t g;
+   double best_dist = 9999999999;
+
+   std::cout << "size: " << g.generic_texts_p->size() << std::endl;
+   
+   for (unsigned int i=0; i<g.generic_texts_p->size(); i++) {
+      std::cout << "i " << i << std::endl;
+      clipper::Coord_orth p1(x,y,z);
+      clipper::Coord_orth p2((*g.generic_texts_p)[i].x,
+			     (*g.generic_texts_p)[i].y,
+			     (*g.generic_texts_p)[i].z);
+      double d = (p1-p2).lengthsq();
+      std::cout << "   d " << d  << std::endl;
+      if (d < rad*rad) { 
+	 if (d < best_dist) {
+	    best_dist = d;
+	    r = i;
+	 }
+      }
+   }
+   return r;
+}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                         Dictionaries                                     */

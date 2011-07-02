@@ -178,7 +178,7 @@ namespace coot {
       // We deal with bifurcated symmetric non-chiral side chains (PHE, ASP,
       // GLU, THR)
       // 
-      int optimize_rotamer_by_atom_names();
+      int optimize_rotamer_by_atom_names(bool apply_swap_if_found);
 
       rotamer_probability_info_t probability_of_this_rotamer(); // can't const - mmdb
                                                                 // CResidue issues...

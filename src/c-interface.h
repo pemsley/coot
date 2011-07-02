@@ -1035,8 +1035,8 @@ void turn_on_backup(int imol);
 
  return 0 for backups off, 1 for backups on, -1 for unknown */
 int  backup_state(int imol);
-void apply_undo();		/* "Undo" button callback */
-void apply_redo();
+int apply_undo();		/* "Undo" button callback */
+int apply_redo();
 
 /*! \brief set the molecule number imol to be marked as having unsaved changes */
 void set_have_unsaved_changes(int imol);
@@ -4604,8 +4604,14 @@ void set_add_terminal_residue_immediate_addition(int i);
 residue type can be "auto" and immediate_add is recommended to be 1.
 
 return 0 on failure, 1 on success */
-int add_terminal_residue(int imol, char *chain_id, int residue_number,
-			 char *residue_type, int immediate_add); 
+int add_terminal_residue(int imol, const char *chain_id, int residue_number,
+			 const char *residue_type, int immediate_add); 
+
+
+/*! \brief Add a terminal residue using given phi and psi angles
+ */
+int add_terminal_residue_using_phi_psi(int imol, const char *chain_id, int res_no, 
+				       const char *residue_type, float phi, float psi);
 
 /*! \brief set the residue type of an added terminal residue.   */
 void set_add_terminal_residue_default_residue_type(const char *type);
@@ -6355,6 +6361,12 @@ int place_text(const char*text, float x, float y, float z, int size);
 
 /*! \brief Remove "3d" text item */
 void remove_text(int text_handle);
+
+void edit_text(int text_handle, const char *new_text);
+
+/*! \brief return the closest text that is with r A of the given
+  position.  If no text item is close, then return -1 */
+int text_index_near_position(float x, float y, float z, float r);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

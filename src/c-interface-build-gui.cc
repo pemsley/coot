@@ -2042,6 +2042,21 @@ my_delete_ramachandran_mol_option(GtkWidget *widget, void *data) {
    gtk_container_remove(GTK_CONTAINER(data), widget);
 }
 
+
+void
+fix_nomenclature_errors_gui(int imol,
+			    const std::vector<coot::residue_spec_t> &nomenclature_errors) {
+   if (graphics_info_t::use_graphics_interface_flag) {
+      if (is_valid_model_molecule(imol)) {
+
+	 // GtkWidget *w = create_nomenclature_errors_gui();
+	 // GtkWidget *box = lookup_widget(w, "nomenclature_errors_vbox");
+	 // fill box
+      }
+   }
+}
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  get molecule by libcheck/refmac code                    */
 /*  ----------------------------------------------------------------------- */
