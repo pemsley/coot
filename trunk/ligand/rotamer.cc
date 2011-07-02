@@ -43,7 +43,7 @@
 // GLU, TYR)
 // 
 int 
-coot::rotamer::optimize_rotamer_by_atom_names() {
+coot::rotamer::optimize_rotamer_by_atom_names(bool apply_swap_if_found) {
 
    // So, the plan is to compare the rotamer probabilies of
    // 1: the input residue
@@ -87,7 +87,9 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
 	 swapper_atoms.push_back(std::pair<std::string, std::string>(" CE1", " CE2"));
       }
 
-      CResidue *residue_copy = deep_copy_residue(residue);
+      // set up a copy of this residue
+      // 
+      CResidue *residue_copy = deep_copy_residue(residue); // Yes, gets deleted.
       PPCAtom residue_atoms;
       int n_residue_atoms;
       residue_copy->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -104,7 +106,6 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
 		     residue_atoms[isec  ]->SetAtomName(first_atom_name.c_str());
 		     ifound = 1;
 		     nfound++;
-		     // imoved = 1; surely this should not be set here(?)
 		  }
 		  if (ifound)
 		     break;
@@ -148,8 +149,10 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
 		     for (int isec=0; isec<n_residue_atoms; isec++) {
 			std::string sec_atom_name(residue_atoms[isec]->GetAtomName());
 			if (sec_atom_name == swapper_atoms[iswap].second) {
-			   residue_atoms[ifirst]->SetAtomName(  sec_atom_name.c_str());
-			   residue_atoms[isec  ]->SetAtomName(first_atom_name.c_str());
+			   if (apply_swap_if_found) { 
+			      residue_atoms[ifirst]->SetAtomName(  sec_atom_name.c_str());
+			      residue_atoms[isec  ]->SetAtomName(first_atom_name.c_str());
+			   }
 			   ifound = 1;
 			   nfound++;
 			   imoved = 1;
@@ -172,6 +175,9 @@ coot::rotamer::optimize_rotamer_by_atom_names() {
 	 std::cout << "badness in atom selection " << std::endl;
       }
    }
+
+   // Does this bit of code do anything!?  (This function is not
+   // called from coot-nomenclature for LEU, VAL or THR).
 
    // These have Chiral Centres, we can't swap the atom names and
    // check the rotamer.  We must make sure that the chiral centre has

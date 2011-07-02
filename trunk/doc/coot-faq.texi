@@ -740,13 +740,18 @@ You might like also to turn on antialiasing (see below).
 @section How do you make the antialiasing work better?
 
 The build-in antialiasing in Coot is not very good - it needs to be
-improved. Until then, if you have an nvidia card, turn on antialiasing
-using @t{nvidia-settings}
+improved. 
+
+If you have an nvidia card, you can turn on antialiasing using the
+environment variable @t{__GL_FSAA_MODE}.  I set it to 5 for my
+graphics card, the best setting (in the range 1-20 or so) depends on
+your hardware.
+
+Alternatively, use  @t{nvidia-settings}
 
 @code{Antialiasing Settings -> Override Application Setting,  16x Antialiasing}  (on the slider)
 
 Then restart coot.
-
 
 @node Stereo on a sgi?
 @section Stereo on a sgi?

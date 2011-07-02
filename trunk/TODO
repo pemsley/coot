@@ -304,11 +304,15 @@
    o Profile the bonding on reading in a ribosome fragment. 2 minutes? 
      Not good.
 
+* It's not the bonding, it's in the mmdb read function.
+
    o Make a demo script that downloads data and runs it - add it to
      the package and make it available to run from extensions.
 
    o Fit a ligand.  Use write_connectivity to generate its hydrogens.
      Use reduce and probe to make ligand interactions (and render them).
+
+* Done.
 
    o Display ligand diapoles using charges from cif file.
 
@@ -345,6 +349,8 @@
    o I want to be able to interupt those MR Extensions - not have to
      wait.
 
+* Done.
+
    o When fitting waters in a low resolution(ish) map (from buccaneer
      tutorial), the water were often placed in protein density - it was
      missing the fact that the "water" density was connected to the
@@ -353,6 +359,8 @@
 
    o Use LSQ not SSM for NCS ghost matrix.
      (Make a speed test.)
+
+* Done.
 
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.
@@ -579,6 +587,8 @@ Punted from 0.6:
    o Stephen Graham: the NCS Master chain id on the NCS edits is
      confusing.  see email 2009/09/16
 
+* Done.
+
    o Validate ligand corresponds to dictionary.  Are supposedly bonded
      atoms within 3A or each other?  Do the atom names match?
 
@@ -639,6 +649,8 @@ Punted from 0.6:
 
    o Need a keybinding for "regularize these 3 residues". ::: 0.5
 
+* Done.
+
    o OXT in refinement (e.g. monomer-BCS.pdb) fails to reach
      convergence. ::: 3
 
@@ -672,6 +684,8 @@ Punted from 0.6:
      i.e.  it should do a triple refine and look at the chi squareds.
      Keep doing that with different weights until we get to 1.0.  ::: 2
 
+* Done.
+
    o Make python coot work on CentOS 4.  It does?  Needs testing.  ::: 2
 
 * Done.
@@ -703,6 +717,8 @@ Punted from 0.6:
 
   o search for, download, update binary.  Needs libcurl ::: 4
 
+* Done.
+
   o extend ^g mechanism to comprehend a 3-letter triple e.g. AGL (or lower
     case) which refers to a position in the sequence.  Look in displayed
     molecules and go to the first one found. ::: 1
@@ -711,6 +727,8 @@ Punted from 0.6:
 
   o sort chains should create a model by copying chains.  that way
     headers don't get lost. [JED bug]  ::: 2
+
+* Done?
 
   o rework clipper.m4 so that it uses clipper-config, once
     clipper-config is in place.  ::: 2
@@ -746,6 +764,8 @@ Punted from 0.6:
      with atom elements 1-char.  Hence bonding fails.
 
      Maybe also importing molecules from SBase.
+
+* Done.
 
    o change clipper macros to use clipper-config and not invent mmdb
      and fftw, ccp4 libraries.  clipper-config is broken (cctbx libs)
@@ -803,6 +823,8 @@ Punted from 0.6:
      a problem or how to fix it.  Needs some thinking. Punted. ::: 1
 
    o white background with ball and stick models. Punted ::: 4
+
+* Done.
 
    o Put "Modified Residue/Other" button in Mutate dialog that fires
      up the "Replace Residue" dialog - or something like that.
@@ -877,6 +899,8 @@ Punted from 0.6:
 
    o Ramachandran plots don't update on "undo"?   Punt.
 
+*Maybe done, needs checking.
+
    o Rotamer plot doesn't update on sidechain 180?  Punt.
 
    o Martyn: http://2dx.org/documentation/mrc-software/mrc-documentation
@@ -904,6 +928,8 @@ Punted from 0.6:
      seems to work if the master chain is the same as that given in the
      NCS ghost control. Otherwise nothing happens and there's no error
      message."
+
+* Added error message.
 
      We need a function to return the NCS masters of a given molecule
      (deep inspection of the target chains of the ghosts, I guess).
@@ -985,6 +1011,8 @@ Punted from 0.6:
 
    o rewrite the SSM alignment output in a more robust and more
      simple-minded manner.
+
+* Done.
 
    o User pickable atoms.
 

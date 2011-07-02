@@ -1645,6 +1645,15 @@ molecule_class_info_t::copy_residue_range_from_ncs_master_to_others(const std::s
 	    }
 	 }
       }
+      if (ncopied == 0) {
+	 std::cout << "WARNING:: failed to find master_chain_id \"" << master_chain_id
+		   << "\" in " << ncs_ghosts.size() << " NCS ghosts" << std::endl;
+	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) { 
+	    std::cout << "    ghost: chainid \"" << ncs_ghosts[ighost].chain_id
+		      << "\" has NCS master \"" << ncs_ghosts[ighost] << "\""
+		      << std::endl;
+	 }
+      }
    }
    return ncopied;
 }

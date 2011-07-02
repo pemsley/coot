@@ -1769,6 +1769,11 @@ public:        //                      public
    // helper function for above function
    bool movable_atom(CAtom *mol_atom, bool replace_coords_with_zero_occ_flag) const;
 
+   int add_terminal_residue_using_phi_psi(const std::string &chain_id,
+					  int res_no,
+					  const std::string &residue_type,
+					  float phi, float psi);
+
    // extra modelling results, e.g. waters, terminal residues, etc
    void add_coords(const atom_selection_container_t &asc);
    //
@@ -2143,8 +2148,8 @@ public:        //                      public
    short int Have_redoable_modifications_p() const ;
    void turn_off_backup() { backup_this_molecule = 0; }
    void turn_on_backup()  { backup_this_molecule = 1; }
-   void apply_undo(const std::string &cwd);
-   void apply_redo(const std::string &cwd);
+   int apply_undo(const std::string &cwd);
+   int apply_redo(const std::string &cwd);
    // Called from outside, if there is a backup file more recent
    // than the file name_ then restore from it.
    // 
@@ -2636,10 +2641,12 @@ public:        //                      public
 
    // nomenclature errors
    // return a vector of the changed residues (used for updating the rotamer graph)
-   std::vector<CResidue *> fix_nomenclature_errors(); // by looking for bad rotamers in
+   std::vector<CResidue *> fix_nomenclature_errors(coot::protein_geometry *geom_p);
+                                                      // by looking for bad rotamers in
 				                      // some residue types and alter ing
                             			      // the atom names to see if they get
 				                      // more likely rotamers
+   std::vector<coot::residue_spec_t> list_nomenclature_errors(coot::protein_geometry *geom_p);
 
    // ---- cis <-> trans conversion
    int cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode);

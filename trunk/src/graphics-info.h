@@ -2791,8 +2791,8 @@ public:
    // saving temporary files (undo)
    //
    std::string save_molecule_dir(int imol) const;
-   void apply_undo(); 
-   void apply_redo();
+   int apply_undo(); 
+   int apply_redo();
    void activate_redo_button();
    // used by option menu item callback which sets the molecule for undoing
    void set_undo_molecule_number(int i) { undo_molecule = i; }

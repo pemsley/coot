@@ -84,6 +84,8 @@
 #endif 
 
 #include "ligand.hh"
+#include "residue_by_phi_psi.hh"
+#include "mini-mol-utils.hh"
 
 // for debugging
 #include "c-interface.h"
@@ -2273,13 +2275,17 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 					  bonds_box_type_in,
 					  bonds_width, draw_hydrogens_flag, info);
 
+   float ball_radius = 0.28;
+   // float ball_radius = 0.11;
+
    add_reps.push_back(rep);
    int n_rep = add_reps.size() -1;
    std::string name = rep.info_string();
    GtkWidget *vbox = display_control_add_reps_container(display_control_window, imol_no);
    display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
    if (representation_type == coot::BALL_AND_STICK) {
-      int display_list_handle_index = make_ball_and_stick(info.mmdb_string(), 0.11, 0.28, 1, glci, geom);
+      int display_list_handle_index = make_ball_and_stick(info.mmdb_string(), 0.11, ball_radius, 1,
+							  glci, geom);
       if ((display_list_handle_index >= 0) && (display_list_handle_index < display_list_tags.size())) {
 	 add_reps[n_rep].add_display_list_handle(display_list_handle_index);
       } 
@@ -3965,7 +3971,98 @@ molecule_class_info_t::find_serial_number_for_insert(int seqnum_new,
       }
    }
    return std::pair<int, CResidue *> (iserial_no, res);
-} 
+}
+
+int
+molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &chain_id,
+							  int res_no,
+							  const std::string &residue_type,
+							  float phi, float psi) {
+
+   int status = 0;
+   CResidue *res = get_residue(chain_id, res_no, "");
+   if (! res) {
+      std::cout << "WARNING:: residue not found for " << chain_id << " " << res_no << std::endl;
+   } else { 
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      res->GetAtomTable(residue_atoms, n_residue_atoms);
+      if (n_residue_atoms) {
+	 CAtom *at = residue_atoms[0];
+	 int atom_indx = get_atom_index(at);
+	 std::string term_type = get_term_type(atom_indx);
+	 int found_atoms_count = 0;
+	 clipper::Coord_orth previous_ca, previous_c, previous_n;
+	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	    std::string atom_name = residue_atoms[iat]->name;
+	    if (atom_name == " CA ") {
+	       found_atoms_count += 1;
+	       previous_ca = clipper::Coord_orth(residue_atoms[iat]->x,
+						 residue_atoms[iat]->y,
+						 residue_atoms[iat]->z);
+	    }
+	    if (atom_name == " C  ") {
+	       found_atoms_count += 2;
+	       previous_c = clipper::Coord_orth(residue_atoms[iat]->x,
+						residue_atoms[iat]->y,
+						residue_atoms[iat]->z);
+	    }
+	    if (atom_name == " N  ") {
+	       found_atoms_count += 4;
+	       previous_n = clipper::Coord_orth(residue_atoms[iat]->x,
+						residue_atoms[iat]->y,
+						residue_atoms[iat]->z);
+	    }
+	 }
+	 coot::minimol::residue r;
+	 if (term_type == "N") { 
+	    if (! (found_atoms_count&7)) {
+	       std::cout << "Bad for N current atom selection " << std::endl;
+	    } else {
+	       // happy path
+	       r = coot::build_N_terminal_ALA(phi, psi, res_no-1,
+					      previous_n,
+					      previous_ca,
+					      previous_c, 30);
+	       std::pair<bool, clipper::Coord_orth> cb = coot::cbeta_position(r);
+	       if (cb.first) {
+		  coot::minimol::atom at(" CB ", " C", cb.second, "", 1.0, 30);
+		  r.addatom(at);
+	       }
+	    }
+	 }
+	 if (term_type == "C") {
+	    if (! (found_atoms_count&7)) {
+	       std::cout << "Bad for N current atom selection " << std::endl;
+	    } else {
+	       r = coot::build_C_terminal_ALA(phi, psi, res_no+1,
+					      previous_n, 
+					      previous_ca,
+					      previous_c,
+					      30);
+	       std::pair<bool, clipper::Coord_orth> cb = coot::cbeta_position(r);
+	       if (cb.first) {
+		  coot::minimol::atom at(" CB ", " C", cb.second, "", 1.0, 30);
+		  r.addatom(at);
+	       }
+	    }
+	 }
+	 if (r.atoms.size()) {
+	    coot::minimol::fragment f(chain_id);
+	    f.addresidue(r,0);
+	    coot::minimol::molecule m(f);
+	    CMMDBManager *mol_new = m.pcmmdbmanager();
+	    atom_selection_container_t asc = make_asc(mol_new);
+	    add_coords(asc);
+	 } else {
+	    std::cout << "No residue added for term type "
+		      << term_type << std::endl;
+	 } 
+      }
+   }
+   return status;
+}
+
 
 
 // Put the regularization results back into the molecule:
@@ -5621,9 +5718,10 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 // initially it should be greyed out (insensitive).
 
 // restore from (next) backup
-void
+int
 molecule_class_info_t::apply_undo(const std::string &cwd) {
 
+   int state = 0;
 //    std::cout << std::endl << "DEBUG:: in apply undo start hist_index: "
 // 	     << history_index
 // 	     << " max_history_index: " << max_history_index << std::endl;
@@ -5634,6 +5732,7 @@ molecule_class_info_t::apply_undo(const std::string &cwd) {
 	 make_backup(); // increments history_index
 	 offset--;
       }
+      state = 1;
       restore_from_backup(offset, cwd);
       history_index += offset;
 
@@ -5648,11 +5747,14 @@ molecule_class_info_t::apply_undo(const std::string &cwd) {
    std::cout << "DEBUG:: apply_undo: (end) history_index: " <<
       history_index << " max_history_index: " << max_history_index << std::endl;
 
+   return state;
+
 }
 
-void
+int
 molecule_class_info_t::apply_redo(const std::string &cwd) {
 
+   int state = 0;
    if (history_index < max_history_index) {
       std::cout << "DEBUG:: molecule applying redo " << history_index << std::endl;
 
@@ -5662,6 +5764,7 @@ molecule_class_info_t::apply_redo(const std::string &cwd) {
       if (int(history_filename_vec.size()) > (history_index + 1)) { 
 	 restore_from_backup(+1, cwd); 
 	 history_index++; 
+	 state = 1;
 	 have_unsaved_changes_flag = 1;
       } else {
 	 std::cout << "Not redoing history file vec: " << history_filename_vec.size()
@@ -5671,6 +5774,7 @@ molecule_class_info_t::apply_redo(const std::string &cwd) {
       std::cout << "Not redoing history: " << max_history_index
 		<< " " << history_index << std::endl;
    }
+   return state;
 } 
 
 

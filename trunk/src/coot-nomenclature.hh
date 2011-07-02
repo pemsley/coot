@@ -9,7 +9,13 @@ namespace coot {
 
    class nomenclature {
       CMMDBManager *mol_;
-      int test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p); 
+      // return swap status.
+      int test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p,
+						   bool apply_swap_when_found); 
+
+      std::vector<CResidue *>  fix_and_swap_maybe(protein_geometry *Geom_p,
+						  bool apply_swaps); // adjust mol as needed
+                                                                     // if flagged.
 
    public:
       nomenclature(CMMDBManager *mol) {
@@ -18,7 +24,9 @@ namespace coot {
       // Here we rename atoms to fix nomeclature errors. Note ILEs are not fixed
       // by renaming atoms.
       // 
-      std::vector<CResidue *> fix(protein_geometry *Geom_p); // adjust mol as needed.
-                                                             // and Geom_p.
-   };
+      std::vector<CResidue *>  fix(protein_geometry *Geom_p); // adjust mol as needed.
+
+      std::vector<CResidue *> list(protein_geometry *Geom_p); // Don't touch the molecule,
+                                                              // just analyse it.
+   }; 
 }

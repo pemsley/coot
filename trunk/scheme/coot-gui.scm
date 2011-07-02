@@ -2933,7 +2933,7 @@
 (define *additional-solvent-ligands* '())
 
 (define *solvent-ligand-list* 
-  (append (list "EDO" "GOL" "DMS" "ACT" "MPD" "CIT" "SO4" "PO4" "TAM")
+  (append (list "EDO" "GOL" "DMS" "ACT" "MPD" "CIT" "SO4" "PO4" "TRS" "TAM")
 	  *additional-solvent-ligands*))
 
 (define *random-jiggle-n-trials* 50)

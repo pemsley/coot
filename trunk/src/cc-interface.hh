@@ -358,6 +358,15 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 //! \}
 
 /*  ----------------------------------------------------------------------- */
+/*                      list nomenclature errors                            */
+/*  ----------------------------------------------------------------------- */
+std::vector<coot::residue_spec_t>
+list_nomenclature_errors(int imol);
+
+void fix_nomenclature_errors_gui(int imol,
+				 const std::vector<coot::residue_spec_t> &nomenclature_errors); 
+
+/*  ----------------------------------------------------------------------- */
 /*                  dipole                                                  */
 /*  ----------------------------------------------------------------------- */
 // This is here because it uses a C++ class, coot::dipole
