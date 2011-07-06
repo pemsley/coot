@@ -2719,6 +2719,7 @@ graphics_info_t::apply_undo() {
    // and now tinker with the Redo button to make it active
    //
    activate_redo_button();  // has protection for --no-graphics
+   return state;
 }
 
 int 
@@ -2753,6 +2754,7 @@ graphics_info_t::apply_redo() {
 	 }
       }
    }
+   return state;
 }
 
 // This is a noddy - better is needed.
