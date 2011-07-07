@@ -308,7 +308,8 @@
 # 4.77 20110505 switch to new style Refmac library.
 # 4.78 20110507 Refmac mon lib to 5.29
 # 4.79 20110610 biop -> lmb.bioch
-script_version=4.79
+# 4.80 20110707 also make holding directory for stable builds
+script_version=4.80
 
 
 # :: NOTE:: 
@@ -1301,6 +1302,7 @@ END {
       # this path when there are no pre-releases to be built, i.e. build the latest release.
       echo trying to build pre-release coot, but failed to find pre-release version
       BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
+      mkdir -p ${BINARY_TAR_DEST_DIR}/holding
    else
       build_coot_prerelease=1  # belt and braces
       coot_prerelease_exists=1
