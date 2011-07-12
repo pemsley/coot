@@ -449,6 +449,7 @@
 
 ;; Return values: the source code url, a file-name (for the link) and
 ;; a revision number (a number) and a date (string) for the tar file.
+;; These values can be #f #f #f #f.
 ;; 
 ;; This is based on analysis of the file system.  
 ;; 
@@ -465,9 +466,9 @@
 
       (cond
        ((null? files)
-	;; (format #t "source-code-url-info returns using ~s ~s~%" latest-file latest-revision-number)
+	(format #t "debug:: source-code-url-info returns using ~s ~s~%" latest-file latest-revision-number)
 	(if (not latest-file)
-	    (values #f #f #f)
+	    (values #f #f #f #f)
 	    (values (string-append web-source-tar-dir latest-file)
 		    latest-file
 		    latest-revision-number
@@ -662,27 +663,6 @@
        (build-list
 	(list 
 	 
-	 (list "binary-Linux-i386-fedora-3"
-	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bunyip.chem.york.ac.uk/gtk1"
-	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	       #f #f)
-
-	 (list "binary-Linux-i386-fedora-3-python"
-	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bunyip.chem.york.ac.uk/gtk1"
-	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	       #t #f)
-
-
-;	 (list "binary-Linux-i386-fedora-4-python-gtk2"
-;	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
-;	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
-;	       #t #t)
-
-;	 (list "binary-Linux-i386-fedora-4-gtk2"
-;	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2" 
-;	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
-;	       #f #t)
-
 	 (list "binary-Linux-i386-fedora-8-python-gtk2"
 	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-8/gtk2"
 	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
