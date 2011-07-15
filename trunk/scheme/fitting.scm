@@ -618,10 +618,13 @@
 	    (if (= replacement-state 0)
 		(set-refinement-immediate-replacement 0)))))))
 		  
-
+;; refine active residue
+;; 
 (define (refine-active-residue)
   (refine-active-residue-generic 0))
 
+;; refine active residue triple
+;; 
 (define (refine-active-residue-triple)
   (refine-active-residue-generic 1))
 
@@ -652,7 +655,7 @@
 			     alt-conf)))))))
 
 ;; Pepflip the active residue - needs a key binding.
-;;
+;; 
 (define (pepflip-active-residue)
   (let ((active-atom (active-residue)))
     (if (not active-atom)
@@ -666,7 +669,7 @@
 	  
 	  (pepflip imol chain-id res-no ins-code alt-conf)))))
 
-;; Another cool function that needs a key binding.
+;; Auto-fit rotamer on active residues
 ;; 
 (define (auto-fit-rotamer-active-residue)
 
@@ -696,14 +699,12 @@
 ;; 
 ;; atom-sel-type is either 'all 'main-chain or 'ca
 ;; 
-;; 
-(define (add-extra-restraints-to-other-molecule imol chain-id 
-						resno-range-start resno-range-end 
-						atom-sel-type imol-ref)
+(define (add-extra-restraints-to-other-molecule imol chain-id resno-range-start resno-range-end atom-sel-type imol-ref)
   
   (for-each (lambda (res-no)
 
 	      'xx)
 
 	    (number-list resno-range-start resno-range-end)))
+
   
