@@ -226,7 +226,12 @@
 			    "-o"
 			    tmp-file-1
 			    source-file)))
-	 (goosh-command "guile-tools" args '() "snarf-log" #t)
+	 (format #t "guile-tools ~s > snarf.log~%" args)
+	 (let ((status (goosh-command "guile-tools" args '() "snarf-log" #t)))
+	   (format #t "guile-tools ~s returns status ~s~%" args status)
+	   (if (not (= status 0))
+	       (exit status)))
+	 
 	 (goosh-command "grep" (list "-v" "^" tmp-file-1) '() doc-file #f))
 
        (if (file-exists? tmp-file-1)
