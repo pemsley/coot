@@ -132,8 +132,11 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
+#ifdef HAVE_GOOCANVAS
 #include "goocanvas.h"
 #include "wmolecule.hh"
+#endif
+
 
 
 int test_function(int i, int j) {
@@ -161,6 +164,7 @@ int test_function(int i, int j) {
    } 
 
        
+#ifdef HAVE_GOOCANVAS      
    if (0) {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       graphics_info_t g;
@@ -176,7 +180,8 @@ int test_function(int i, int j) {
 	 } 
       }
    }
-
+#endif // HAVE_GOOCANVAS
+   
    if (0) {
 
       if (is_valid_model_molecule(0)) {

@@ -22,11 +22,13 @@
 #ifndef LBG_HH
 #define LBG_HH
 
+// Don't compile any of this if we don't have the canvas.
+
+#ifdef HAVE_GOOCANVAS
 
 #include <iostream>
 #include <map>
 #include <queue>
-
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 #include "rdkit-interface.hh"
@@ -1021,4 +1023,7 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		bool use_graphics_interface_flag,
 		bool stand_alone_flag_in);
 
+#endif // HAVE_GOOCANVAS
+
 #endif // LBG_HH
+
