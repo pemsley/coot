@@ -73,6 +73,7 @@
 
 
 (define (add-base-restraint imol spec-1 spec-2 atom-name-1 atom-name-2 dist)
+  (format #t "add-base-restraint ~s ~s ~s ~s ~s ~s~%" imol spec-1 spec-2 atom-name-1 atom-name-2 dist)
   (add-extra-bond-restraint imol
 			    (list-ref spec-1 2)
 			    (list-ref spec-1 3)
@@ -114,20 +115,20 @@
 			  (let ((res-name-1 (res-name-from-atom-spec spec-1))
 				(res-name-2 (res-name-from-atom-spec spec-2)))
 
-			    (if (and (string=? res-name-1 "Gr")
-				     (string=? res-name-2 "Cr"))
+			    (if (and (string=? res-name-1 "G")
+				     (string=? res-name-2 "C"))
 				(g-c-restraints spec-1 spec-2))
 
-			    (if (and (string=? res-name-1 "Cr")
-				     (string=? res-name-2 "Gr"))
+			    (if (and (string=? res-name-1 "C")
+				     (string=? res-name-2 "G"))
 				(g-c-restraints spec-2 spec-1))
 
-			    (if (and (string=? res-name-1 "Ar")
-				     (string=? res-name-2 "Ur"))
+			    (if (and (string=? res-name-1 "A")
+				     (string=? res-name-2 "U"))
 				(a-u-restraints spec-1 spec-2))
 
-			    (if (and (string=? res-name-1 "Ur")
-				     (string=? res-name-2 "Ar"))
+			    (if (and (string=? res-name-1 "U")
+				     (string=? res-name-2 "A"))
 				(a-u-restraints spec-2 spec-1)))))))
 
 (define (user-defined-add-helix-restraints)
