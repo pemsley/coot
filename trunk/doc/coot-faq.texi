@@ -263,8 +263,8 @@ Coot runs on Fedora Core 4, using the Fedora Core 3 binaries after making the fo
 
 
 
-@node Coot on 64-bit RHEL 6
-@section Coot on 64-bit RHEL 6
+@node       Coot on 64-bit RHEL 6
+@subsection Coot on 64-bit RHEL 6
 
 Robert Dagil found that if he used the Coot
 binary-Linux-x86_64-centos-5-python-gtk2, then he could get Coot to
@@ -282,7 +282,7 @@ of the coot binary distro.
 
 
 
-@node Additional Note for SuSE 9.1
+@node       Additional Note for SuSE 9.1
 @subsection Additional Note for SuSE 9.1
 
    Michael Latchem reports that coot-0.0.20-binary-Linux-Fedora-Core-1.tar.gz works with 
@@ -517,6 +517,7 @@ work try also:
 
 @c -----------------------------------------------------------------
 
+@node    Using Coot
 @chapter Using Coot
 @c -----------------------------------------------------------------
 

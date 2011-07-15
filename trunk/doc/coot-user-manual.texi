@@ -3766,7 +3766,7 @@ and
 * Dynamic Map Sampling and Display Size::
 * Skeletonization::
 * Map Sharpening::
-* Patterson::
+* Pattersons::
 * masks::
 * Trimming Atoms::
 * Map Transformation::
