@@ -243,6 +243,8 @@
 
        source-files))
   
+;; 
+;; 
 (define add-to-list-section-texis
   (lambda (texi-list)
 
@@ -250,13 +252,17 @@
 	    (new-list '()))
       
       (cond 
-       ((null? ls) new-list)
+       ((null? ls) (reverse new-list))
        (else 
 	(let* ((stub (strip-extension (car ls)))
 	       (section-texi-name (string-append stub "-section.texi")))
 	  (f (cdr ls)
-	     (append (list section-texi-name (car ls)) new-list))))))))
+             ;; the section texi and the tex go in "backwards" because the list is 
+             ;; reversed on return
+	     (append (list (car ls) section-texi-name) new-list))))))))
 
+;; 
+;; 
 (define delete-section-texi-files
   (lambda ()
 
@@ -264,6 +270,8 @@
       (map delete-file section-texi-files))))
     
 
+;; 
+;; 
 (delete-section-texi-files)
 (let ((all-raw-texi-files (glob "*.texi" ".")))
   
@@ -293,7 +301,7 @@
       (lambda (menu-port)
 	(format menu-port "@menu~%")
 	(for-each (lambda (file)
-		    (format #t "processing ~s~%" file)
+		    (format #t "menu section processing ~s~%" file)
 		    (let* ((stub (strip-extension file))
 			   (node-name (cond
 				  ((string=? stub "mutate") "mutate-in-scheme")
@@ -319,7 +327,7 @@
     (let ((all-useful-texis (cons "menu-section.texi"
 				  (add-to-list-section-texis non-empty-texis))))
 
-      (format #f "all-useful-texis: ~s~%" all-useful-texis)
+      (format #t "all-useful-texis: ~s~%" all-useful-texis)
       (goosh-command "cat" all-useful-texis '() "coot-scheme-functions.texi" #f))))
 
 
