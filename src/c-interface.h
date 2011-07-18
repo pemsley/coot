@@ -4420,10 +4420,8 @@ int additional_representation_by_string(int imol,  const char *atom_selection,
 					float bond_width,
 					int draw_hydrogens_flag);
 
-/*! \brief return the index of the additional representation.  
-
-  representation_types:
-  enum { coot::SIMPLE_LINES, coot::STICKS, coot::BALL_AND_STICK, coot::SURFACE };
+/*   representation_types: */
+/*   enum { coot::SIMPLE_LINES, coot::STICKS, coot::BALL_AND_STICK, coot::SURFACE }; 
 
   bonds_box_type:
   enum {  UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2, COLOUR_BY_CHAIN_BONDS=3,
@@ -4435,8 +4433,10 @@ int additional_representation_by_string(int imol,  const char *atom_selection,
 	  COLOUR_BY_RAINBOW_BONDS=9, COLOUR_BY_B_FACTOR_BONDS=10,
 	  COLOUR_BY_OCCUPANCY_BONDS=11};
 
-	  @return -1 on error.
+*/
 
+/*! \brief return the index of the additional representation.  
+  @return -1 on error.
  */
 int additional_representation_by_attributes(int imol,  const char *chain_id, 
 					    int resno_start, int resno_end, 
@@ -5839,8 +5839,8 @@ PyObject *alignment_mismatches_py(int imol);
 /*  ----------------------------------------------------------------------- */
 /*                  Surfaces                                                */
 /*  ----------------------------------------------------------------------- */
-/* section Surfaces */
-/*! \name Surfaces */
+/* section Surface Interface */
+/*! \name Surface Interface */
 /* \{ */
 /*! \brief draw surface of molecule number imol 
 
