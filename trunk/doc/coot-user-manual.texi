@@ -272,7 +272,8 @@ Hints and Usage Tips
 * Low Resolution::
 * Coot Droppings::
 * Clearing Backups::
-* chap-hints::
+* Getting out of ``Translate'' Mode::
+* Getting out of ``Continuous Rotation'' Mode::
 * Label Atom Only Mode::
 * Button Labels::
 * sec_picking::
@@ -597,7 +598,7 @@ How do we move around and select things?
   Decrease map contour level
 @end table
 
-See also Chapter @ref{chap-hints} for more help.
+See also Chapter @ref{Hints and Usage Tips} for more help.
 
 @menu
 * Next Residue::
@@ -762,6 +763,8 @@ describing the particular features and are documented in Chapter
 @menu 
 * Version number::
 * Antialiasing::
+* Molecule Number::
+* Display Issues::
 * Screenshot::
 * Raster3D::
 * Display Manager::
@@ -824,7 +827,7 @@ nvidia-settings:
 slide the slider to the right. On restarting Coot, it should be in
 antialias mode @footnote{that works for me, at least.}.
 
-
+@node Molecule Number
 @section Molecule Number
 @cindex molecule number 
 Coot is based on the concept of molecules.  Maps and coordinates are
@@ -840,6 +843,7 @@ Control window (Section @ref{Display Manager}).  It is also displayed on
 the left-hand side of the molecule name in the option menus of the
 ``Save Coordinates'' and ``Go To Atom'' windows.
 
+@node Display Issues
 @section Display Issues
 The ``graphics'' window is drawn using 
 @cindex OpenGL
@@ -2168,7 +2172,10 @@ endresno pdb-file-name})}
 * Ligand from SMILES strings::  
 * Find Ligands::                
 * Flip Ligand::                 
-* Find Waters::                 
+* Find Waters::
+* Add Terminal Residue::
+* Add OXT Atom to Residue::
+* Add Atom at Pointer::
 * Place Helix::                 
 * Building Ideal DNA and RNA::  
 * Merge Molecules::             
@@ -3265,6 +3272,7 @@ problem in the refinement.
 After a water search, Coot will create a blobs dialog (see Section
 @ref{sec_blobs}).
 
+@node Add Terminal Residue
 @section Add Terminal Residue
 @cindex terminal residue
 This creates a new residue at the C or N terminal extension of the
@@ -3311,7 +3319,8 @@ of the next residue.
 
 @end enumerate
 
-@section Add OXT Atom to Residue 
+@node Add OXT Atom to Residue
+@section Add OXT Atom to Residue
 
 @cindex terminal oxygen
 @cindex OXT atom
@@ -3335,6 +3344,7 @@ Note, in order to place OXT, the N, CA, C and O atoms must be present
 in the residue - if (for example) the existing carbonyl oxygen atom is
 called ``OE1'' then this function will not work.
 
+@node Add Atom at Pointer
 @section Add Atom at Pointer
 By default, ``Add Atom At Pointer'' will pop-up a dialog from which
 you can choose the atom type you wish to insert @footnote{including
@@ -3756,12 +3766,13 @@ and
 * Create a Map::
 * Map Contouring::
 * Map Extent::
+* Map Contour ``Scrolling'' Limits::
 * Map Line Width::
 * Map colouring::
 * Difference Map Colouring::
-* Map Sampling::
 * Make a Difference Map::
 * Make an Averaged Map::
+* Map Sampling::
 * Dragged Map::
 * Dynamic Map Sampling and Display Size::
 * Skeletonization::
@@ -3932,7 +3943,8 @@ Parameters -> Map Radius}) or by using the scripting function,
 
 @code{(set-map-radius 13.2)}
 
-@section Map contour ``scrolling'' limits
+@node    Map Contour ``Scrolling'' Limits
+@section Map Contour ``Scrolling'' Limits
 Usually one doesn't want to look at 
 @cindex negative contour levels
 negative contour levels of a map@footnote{in a coot
@@ -4630,7 +4642,8 @@ from side-chains charged at physiological pH (Arg, Lys, Asp, Glu).
 * Low Resolution::
 * Coot Droppings::
 * Clearing Backups::
-* chap-hints::
+* Getting out of ``Translate'' Mode::
+* Getting out of ``Continuous Rotation'' Mode::
 * Label Atom Only Mode::
 * Button Labels::
 * sec_picking::
@@ -4744,12 +4757,13 @@ time, without Coot asking you about it:
 @end smalllisp
 
 
-@node chap-hints 
+@node Getting out of ``Translate'' Mode 
 @section Getting out of ``Translate'' Mode 
 If you get stuck in "translate" mode in the GL canvas (@emph{i.e.} mouse
 does not rotate the view as you would expect) simply press and release
 the Ctrl key to return to "rotate" mode.
 
+@node    Getting out of ``Continuous Rotation'' Mode
 @section Getting out of ``Continuous Rotation'' Mode
 
 The keyboard @key{I} key toggles the ``continuous rotation'' mode.  The
