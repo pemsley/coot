@@ -90,7 +90,8 @@ Paul Emsley
 * Scripting Functions::
 * More Scripting Functions::
 * Scheme Scripting Functions::
-* Index::   Complete index.
+* Concept Index::   Concept index.
+* Function Index::   Function index.
 
 @detailmenu
  --- The Detailed Node Listing ---
@@ -4914,14 +4915,18 @@ are given at the end of the command line.
 @c nodes (mutate, povray) and (e.g.) `tips-gui', but has no menu entry for this node
 @c
 
-@include ../../coot/scheme/coot-scheme-functions.texi
+@include coot-scheme-functions.texi
 
 
 
 
-@node Index
-@unnumbered Index
+@node Concept Index
+@unnumbered Concept Index
      
 @printindex cp
+
+@node Function Index 
+@unnumbered Function Index
+@printindex fn
  
 @bye
