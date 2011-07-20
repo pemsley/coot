@@ -26,12 +26,6 @@ project_dir = os.path.join(home_dir, "Projects", "coot", "python-tests")
 unittest_filename = os.path.join(project_dir, "coot_unittest.py")
 begin_filename = os.path.join(project_dir, "begin.py")
 
-have_coot_python = False
-try: 
-  import coot_python
-  have_coot_python = True
-except:
-    pass
 
 def exec_file(filename):
     if (os.path.isfile(unittest_filename) and

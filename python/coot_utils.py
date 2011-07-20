@@ -2305,10 +2305,10 @@ def make_latest_version_url():
     # FIXME this is only for biop files !!!
     # what about versions in York?
     host = "http://www.biop.ox.ac.uk/coot/software/binaries/"
-    pre_dir = "pre-releases" if pre_release_qm else "releases"
+    pre_dir = "pre-releases" if pre_release_qm() else "releases"
     if is_windows():
         host = "http://www.ysbl.york.ac.uk/~lohkamp/software/binaries/"
-        pre_dir = "nightlies/pre-release" if pre_release_qm else "stable"
+        pre_dir = "nightlies/pre-release" if pre_release_qm() else "stable"
     url = host + \
           pre_dir + \
           "/" + \

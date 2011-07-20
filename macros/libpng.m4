@@ -24,7 +24,7 @@ dnl
      pkg_config_args=libpng
      LIBPNG_CFLAGS="-DUSE_LIBPNG "`$PKG_CONFIG $pkg_config_args --cflags`
      # need to use ../png.h since we need zlib.h too
-     LIBPNG_CFLAGS=$(echo $LIBPNG_CFLAGS | sed 's/\/libpng12//')
+     LIBPNG_CFLAGS=$(echo $LIBPNG_CFLAGS | sed 's/\/libpng1.//')
      LIBPNG_LIBS=`$PKG_CONFIG $pkg_config_args --libs`
 
       ac_save_CFLAGS="$CFLAGS"

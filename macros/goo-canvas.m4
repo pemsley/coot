@@ -13,6 +13,7 @@ saved_LIBS="$LIBS"
 saved_CXXFLAGS="$CXXFLAGS"
 
 
+ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
 if test x$goocanvas_prefix != x; then
 
  # the majority of cases, we will try to configure with:
@@ -21,7 +22,6 @@ if test x$goocanvas_prefix != x; then
 
   GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-1.0"
 
-  ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
   case $ac_cv_build_alias in
   *-mingw*)
     GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-0.15/goocanvas"
@@ -43,16 +43,24 @@ else
   # the compiler looks in the "standard" places for GOOCANVAS.  
   GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-1.0"
 
-  ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
   case $ac_cv_build_alias in
   *-mingw*)
-    GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-0.15/goocanvas"
+    # we can use pkg-config, so why not
+    if test -z "${PKG_CONFIG}"; then
+      GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-1.0.0"
+    else
+      GOOCANVAS_CFLAGS=`$PKG_CONFIG goocanvas --cflags`
+    fi
     break;;
   esac
   if test -e /usr/lib/libgoocanvas.la ; then
     GOOCANVAS_LDOPTS="libgoocanvas.la"
   else
-    GOOCANVAS_LDOPTS="-lgoocanvas"
+    if test -z "${PKG_CONFIG}"; then
+      GOOCANVAS_LDOPTS="-lgoocanvas"
+    else
+      GOOCANVAS_LDOPTS=`$PKG_CONFIG goocanvas --libs`
+    fi
   fi
 fi
 

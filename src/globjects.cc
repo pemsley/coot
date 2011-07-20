@@ -184,6 +184,7 @@ short int graphics_info_t::control_key_for_rotate_flag = 1;
 short int graphics_info_t::pick_pending_flag = 0;
 int    graphics_info_t::a_is_pressed = 0;
 int    graphics_info_t::shift_is_pressed = 0 ;       // false
+int    graphics_info_t::y_is_pressed = 0 ;       // false
 int    graphics_info_t::z_is_pressed = 0 ;       // false
 double graphics_info_t::mouse_begin_x = 0.0;
 double graphics_info_t::mouse_begin_y = 0.0;
@@ -3504,6 +3505,19 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 }
       }
       break;
+
+   case GDK_y:
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "y";
+      } else { 
+	 graphics_info_t::y_is_pressed = 1;
+	 if (graphics_info_t::control_is_pressed) { 
+	    apply_redo();
+	    handled = TRUE; 
+	 }
+      }
+      break;
+
    case GDK_F5:
       post_model_fit_refine_dialog();
       handled = TRUE; 
@@ -3898,6 +3912,11 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_z:
    case GDK_Z:
       graphics_info_t::z_is_pressed = 0;
+      break;
+
+   case GDK_y:
+   case GDK_Y:
+      graphics_info_t::y_is_pressed = 0;
       break;
 
    case GDK_space:

@@ -2286,6 +2286,9 @@
 	  (list 
 	   '("^g" "keyboard-go-to-residue")
 	   '("^s" "quick-save-as")
+	   '("^i" "residue info")
+	   '("^z" "undo")
+	   '("^y" "redo")
 	   '("a" "refine with auto-zone")
 	   '("b" "toggle baton swivel")
 	   '("c" "toggle cross-hairs")
