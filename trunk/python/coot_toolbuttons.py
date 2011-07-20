@@ -22,14 +22,6 @@ import pango
 import time
 
   
-have_coot_python = False
-try: 
-  import coot_python
-  have_coot_python = True
-except:
-  print """BL WARNING:: could not import coot_python module!!
-Some things, esp. extensions, may be crippled!"""
-
 # put all coot svgs in the default icon set
 def register_coot_icons():
   import glob

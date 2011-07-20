@@ -94,6 +94,10 @@
 #ifdef USE_LIBCURL
 #ifndef HAVE_CURL_H
 #define HAVE_CURL_H
+// defined in new python!?
+#ifdef socklen_t
+#undef socklen_t
+#endif
 #include <curl/curl.h>
 #endif // HAVE_CURL_H
 #endif 
@@ -1421,6 +1425,7 @@ public:
    // 
    static int control_is_pressed;
    static int shift_is_pressed; 
+   static int y_is_pressed;
    static int z_is_pressed;
    static int a_is_pressed;
    static short int control_key_for_rotate_flag;

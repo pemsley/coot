@@ -850,7 +850,7 @@ def interesting_things_with_fix_maybe(title, baddie_list):
    outside_vbox.add(scrolled_win)
    scrolled_win.add_with_viewport(inside_vbox)
    scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
-   tooltips = gtk.Tooltips()
+   #tooltips = gtk.Tooltips()
 
    for baddie_items in baddie_list:
 
@@ -881,7 +881,10 @@ def interesting_things_with_fix_maybe(title, baddie_list):
 
           if (tooltip_str):
              # we have a tooltip str
-             tooltips.set_tip(button, tooltip_str)
+             if gtk.pygtk_version >= (2,12):
+                button.set_tooltip_text(tooltip_str)
+             else:
+                coot_tooltips.set_tip(button, tooltip_str)
 
 
           if (len(baddie_items) == 4):               # e.g. ["blob",1,2,3]
@@ -1452,7 +1455,10 @@ def coot_toolbar_button(button_label, cb_function,
                                                      # otherwise only icon
       # tooltips?
       if tooltip:
-         coot_tooltips.set_tip(toolbutton, tooltip)
+         if gtk.pygtk_version >= (2,12):
+            toolbutton.set_tooltip_text(tooltip)
+         else:
+            coot_tooltips.set_tip(toolbutton, tooltip)
 
       def cb_wrapper(widget, callback_function):
          if (type(callback_function) is types.StringType):
@@ -2771,13 +2777,19 @@ def ncs_ligand_gui():
    chain_id_lig_entry.set_text("A")
    resno_start_entry.set_text("1")
 
-   tooltips = gtk.Tooltips()
-   tooltips.set_tip(chain_id_ref_entry, "'A' is a reasonable guess at the NCS master chain id.  " +
-                    "If your ligand (specified below) is NOT bound to the protein's " +
-                    "'A' chain, then you will need to change this chain and also " +
-                    "make sure that the master molecule is specified appropriately " +
-                    "in the Draw->NCS Ghost Control window.")
-   tooltips.set_tip(resno_end_entry, "Leave blank for a single residue")
+   #tooltips = gtk.Tooltips()
+   chain_tip = "'A' is a reasonable guess at the NCS master chain id.  " + \
+               "If your ligand (specified below) is NOT bound to the protein's " + \
+               "'A' chain, then you will need to change this chain and also " + \
+               "make sure that the master molecule is specified appropriately " + \
+               "in the Draw->NCS Ghost Control window."
+   resno_tip = "Leave blank for a single residue"
+   if gtk.pygtk_version >= (2,12):
+      chain_id_ref_entry.set_tooltip_text(chain_tip)
+      resno_end_entry.set_tooltip_text(resno_tip)
+   else:
+      coot_tooltips.set_tip(chain_id_ref_entry, chain_tip)
+      coot_tooltips.set_tip(resno_end_entry, resno_tip)
 
    ok_button.connect("clicked", go_button_function)
 
@@ -2890,6 +2902,8 @@ global std_key_bindings
 std_key_bindings = [["^g", "keyboard-go-to-residue"],
                     ["^s", "quick-save-as"],
                     ["^i", "residue info"],
+                    ["^z", "Undo"],
+                    ["^y", "Redo"],
                     ["a", "refine with auto-zone"],
                     ["b", "toggle baton swivel"],
                     ["c", "toggle cross-hairs"],
@@ -3547,7 +3561,7 @@ def cootaneer_gui_bl():
 
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    window.set_title("Sequencing GUI")
-   tooltips = gtk.Tooltips()
+   #tooltips = gtk.Tooltips()
    label = gtk.Label("Molecule to be sequenced")
    vbox = gtk.VBox(False, 2)
    option_menu = gtk.combo_box_new_text()
@@ -3564,7 +3578,10 @@ def cootaneer_gui_bl():
    buttons_hbox = gtk.HBox(False, 2)
    import_button = gtk.Button("  Import and associate sequence from file  ")
    go_button = gtk.Button("  Sequence all fragments!  ")
-   tooltips.set_tip(go_button, "This currently ignores all chain IDs")
+   if gtk.pygtk_version >= (2,12):
+      go_button.set_tooltip_text("This currently ignores all chain IDs")
+   else:
+      coot_tooltips.set_tip(go_button, "This currently ignores all chain IDs")
    cancel_button = gtk.Button("  Cancel  ")
    clear_button = gtk.Button("  Clear all  ")
 

@@ -10,11 +10,13 @@ build-it-win rev 2122
 * THINGS TO DO BEFORE 0.6.2 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
+WINDOWS:: update mechanism for stable release uses pre-release dir! Grrr
+
 UPDATE CCP4 on build machine! Use new dictionary!!!
 
 use dlls in rdkit/enterprise rather than static ?!
 
-make clean before new stable release!
+make clean before new stable release! check and uninstall old python!?
 
 CCP4
 - space update bar
@@ -27,15 +29,7 @@ notes from BioCrys
 - associate sequence GUI result GUI buttons, have action too rather than only
 	go-to-atom (have pair of buttons)
 
-- update build-it 
  
-* update python 7z install
- * update gtk (and gtk-glext)
- * martyn mrc stuff
- * guile gui
- * new(er) RDKit (incl assignRadicals etc)
-Done
-
 notes APS CCP4 workshop
 - document refmac extra params + lib files location (note to self ?!)
 - SF4 library file (for Garib at some point)
@@ -56,6 +50,8 @@ notes from Shanghai:
 
 **** General ****
 
+   o phs file dialog, make fill/expand properly
+
    o domain NCS (use parrot's code?!)
 
    o make LINK search and LINK in pdb
@@ -67,10 +63,6 @@ notes from Shanghai:
    o default bond length (e.g.) preferences conflict with state file
 
    o seq view colour by alignment (optional/button)
-
-   o Esc removes docked acccept/reject toolbar
-
-* Done!?
 
    o Go to Atom doe not update when open and new molecule gets created
 
@@ -255,6 +247,10 @@ from Osaka 2010
 
 **** Windows ****
 
+   o investigate gtkglext stuff for newer gtk
+
+   o make a second test for windows?! Do we have space?
+
    o move from runwincoot.bat to coot.bat and include in svn
 
    o check that update mechanism works with windowsy feeling
@@ -391,3 +387,42 @@ Osaka 2010
    o fix new large icon size for search water, preferences model toolbar (there
 	may be others)
 * Done
+
+   o rework coot_python
+
+* Done
+
+   o replace tooltips with tooltip (for newer pygtk)
+
+* Done
+
+   o update build-it 
+
+* Done!?
+
+   o update python 7z install (only for pygtk, newer ones have msi!)
+
+* Done
+
+   o update gtk (and gtk-glext)
+
+* Done (stupid gtk 2.16/gtkglext problem, newer version of gtk dont work
+	with gtkglext, not even the git one -> investigate!!!)
+
+   o martyn mrc ccp4 lib stuff in windows build
+
+* Done
+
+   o update windows to guile gui
+
+* Done
+
+   o update windows to new(er) RDKit (incl assignRadicals etc)
+
+* Done
+
+   o Esc removes docked acccept/reject toolbar
+
+* Done!?
+
+

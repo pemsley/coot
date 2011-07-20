@@ -27,14 +27,6 @@ def add_coot_menu_separator(menu):
   #   sep.props.sensitive = False
   sep.show()
    
-have_coot_python = False
-try: 
-  import coot_python
-  have_coot_python = True
-except:
-  print """BL WARNING:: could not import coot_python module!!
-Some things, esp. extensions, may be crippled!"""
-
 if (have_coot_python):
   if coot_python.main_menubar():
 
@@ -790,8 +782,11 @@ if (have_coot_python):
      
      menuitem2.set_submenu(submenu)
      submenu_ncs.append(menuitem2)
-     tooltip = gtk.Tooltips()
-     tooltip.set_tip(menuitem2, "use to change the way the NCS matrix is calculated")
+     #tooltip = gtk.Tooltips()
+     if gtk.pygtk_version >= (2,12):
+       menuitem2.set_tooltip_text("use to change the way the NCS matrix is calculated")
+     else:
+       coot_tooltip.set_tip(menuitem2, "use to change the way the NCS matrix is calculated")
      menuitem2.show()
 
      add_simple_coot_menu_menuitem(

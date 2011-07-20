@@ -30,12 +30,13 @@
 
 #include <gtk/gtk.h>
 
-#ifdef USE_LIBCURL
-#ifndef HAVE_CURL_H
-#define HAVE_CURL_H
-#include <curl/curl.h>
-#endif // HAVE_CURL_H
-#endif
+// this is defined in graphics-info.h, so omit here?!
+//#ifdef USE_LIBCURL
+//#ifndef HAVE_CURL_H
+//#define HAVE_CURL_H
+//#include <curl/curl.h>
+//#endif // HAVE_CURL_H
+//#endif
 
 #include "guile-fixups.h"
 #include "cc-interface.hh"

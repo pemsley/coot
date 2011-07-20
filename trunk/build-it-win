@@ -1167,7 +1167,9 @@ fi
 #python_version=python2.5
 #pver=2.5.2
 python_version=python2.6
-pver=2.6.2
+# no 2.6.7 for windows yet, need 2.6 because of gtk 2.16, cos of gtkglext
+#pver=2.6.7
+pver=2.6.6
 pver_short=${pver%.*}
 
 PATH=$install_top_dir/bin:$install_top_dir/${python_version}:$PATH
@@ -1895,14 +1897,16 @@ if test -n "$build_ccp4c" ; then
     # BL says:: not sure if needed?!
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/ccp4-libs-underlay.tar.gz
     ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/ccp4_library_utils.c.patch
+    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
     ( 
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4c-5.0.2-ysbl-2.tar.gz | tar xf -
     cd libccp4c-5.0.2-ysbl-2
-    patch -p0 < ${AUTOBUILD_SOURCES}/ccp4_library_utils.c.patch
     # apply the ccp4 new files
     gzip -dc ${AUTOBUILD_SOURCES}/ccp4-libs-underlay.tar.gz | tar xf -
     cp src/*.[ch] .
+    gzip -dc ${AUTOBUILD_SOURCES}/martyn-extras.tar.gz | tar xf -
+    patch -p0 < ${AUTOBUILD_SOURCES}/ccp4_library_utils.c.patch
     ./configure $generic_prefix
     $MAKE
     $MAKE install
@@ -2116,7 +2120,7 @@ fi
 if test -n "$build_pkg_config" ; then 
    echo BUILDING pkg-config:
    #
-   pkg_config_version=0.23-2
+   pkg_config_version=0.25-1
    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config-$pkg_config_version.zip
    (
    date
@@ -2162,9 +2166,10 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       echo BUILDING atk binaries
       echo  ======================================================
-      atk_version=1.24.0-1
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/atk/1.24/atk_${atk_version}_win32.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/atk/1.24/atk_dev-${atk_version}_win32.zip
+      atk_major_version=1.32
+      atk_version=1.32.0-1
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/atk/${atk_major_version}/atk_${atk_version}_win32.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/atk/${atk_major_version}/atk_dev-${atk_version}_win32.zip
       date
       cd $install_top_dir
       7z x -y ${AUTOBUILD_SOURCES}/atk_${atk_version}_win32.zip
@@ -2181,9 +2186,10 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       echo BUILDING glib binaries and dev
       echo  ======================================================
-      glib_version=2.18.4-1
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/glib/2.18/glib_${glib_version}_win32.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/glib/2.18/glib-dev_${glib_version}_win32.zip
+      glib_major_version=2.28
+      glib_version=2.28.1-1
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/glib/${glib_major_version}/glib_${glib_version}_win32.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/glib/${glib_major_version}/glib-dev_${glib_version}_win32.zip
       cd $install_top_dir
       7z x -y ${AUTOBUILD_SOURCES}/glib_${glib_version}_win32.zip
       7z x -y ${AUTOBUILD_SOURCES}/glib-dev_${glib_version}_win32.zip
@@ -2198,15 +2204,12 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       echo BUILDING freetype2
       echo  ======================================================
-      freetype2_version=2.3.4
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/freetype-$freetype2_version.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/freetype-dev-$freetype2_version.zip
+      freetype2_version=2.4.4-1
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/freetype-${freetype2_version}_win32.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/freetype-dev-${freetype2_version}_win32.zip
       cd $install_top_dir
-      7z x -y ${AUTOBUILD_SOURCES}/freetype-$freetype2_version.zip
-      7z x -y ${AUTOBUILD_SOURCES}/freetype-dev-$freetype2_version.zip
-      cd $install_top_dir
-      7z x -y ${AUTOBUILD_SOURCES}/freetype-$freetype2_version.zip
-      # 7z x -y ${AUTOBUILD_SOURCES}/freetype-dev-$freetype2_version.zip
+      7z x -y ${AUTOBUILD_SOURCES}/freetype-${freetype2_version}_win32.zip
+      7z x -y ${AUTOBUILD_SOURCES}/freetype-dev-${freetype2_version}_win32.zip
       cd -
    else 
       echo NOT BUILDING freetype2
@@ -2218,16 +2221,16 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       echo BUILDING fontconfig and expat
       echo  ======================================================
-      fontconfig_version=2.4.2-tml-20071015
+      fontconfig_version=2.8.0-2
       # we need libexpat for fontconfig
-      expat_version=2.0.0
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/fontconfig-$fontconfig_version.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/fontconfig-dev-$fontconfig_version.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/expat-$expat_version.zip
+      expat_version=2.0.1-1
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/fontconfig-${fontconfig_version}_win32.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/fontconfig-dev-${fontconfig_version}_win32.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/expat_${expat_version}_win32.zip
       cd $install_top_dir
-      7z x -y ${AUTOBUILD_SOURCES}/fontconfig-$fontconfig_version.zip
-      7z x -y ${AUTOBUILD_SOURCES}/fontconfig-dev-$fontconfig_version.zip
-      7z x -y ${AUTOBUILD_SOURCES}/expat-$expat_version.zip
+      7z x -y ${AUTOBUILD_SOURCES}/fontconfig-${fontconfig_version}_win32.zip
+      7z x -y ${AUTOBUILD_SOURCES}/fontconfig-dev-${fontconfig_version}_win32.zip
+      7z x -y ${AUTOBUILD_SOURCES}/expat_${expat_version}_win32.zip
       cd -
    else
       echo NOT BUILDING fontconfig
@@ -2237,7 +2240,7 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       echo  BUILDING cairo
       echo  ======================================================
-      cairo_version=1.8.6-1
+      cairo_version=1.10.2-1
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/cairo_${cairo_version}_win32.zip
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/cairo-dev_${cairo_version}_win32.zip
       cd $install_top_dir
@@ -2252,9 +2255,10 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       echo  BUILDING pango
       echo  ======================================================
-      pango_version=1.22.4-1
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/pango/1.22/pango_${pango_version}_win32.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/pango/1.22/pango-dev_${pango_version}_win32.zip
+      pango_major_version=1.28
+      pango_version=1.28.3-1
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/pango/${pango_major_version}/pango_${pango_version}_win32.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/pango/${pango_major_version}/pango-dev_${pango_version}_win32.zip
       cd $install_top_dir
       7z x -y ${AUTOBUILD_SOURCES}/pango_${pango_version}_win32.zip
       7z x -y ${AUTOBUILD_SOURCES}/pango-dev_${pango_version}_win32.zip
@@ -2269,23 +2273,29 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       echo  BUILDING libpng, libtiff, and libjpeg
       echo  ======================================================
-      libpng_version=1.2.34-1
-      libjpeg_version=6b-4
-      libtiff_version=3.8.2-1
-      zlib_version=1.2.3
+      libpng_version=1.4.3-1
+      libjpeg_version=8-1
+      #libtiff_version=3.8.2-1
+      libtiff_version=3.9.2-1
+      #zlib_version=1.2.3
+      zlib_version=1.2.5-2
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/libpng_${libpng_version}_win32.zip
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/libpng-dev_${libpng_version}_win32.zip
-      ${WGET} http://downloads.sourceforge.net/gnuwin32/jpeg-$libjpeg_version-bin.zip
-      ${WGET} http://downloads.sourceforge.net/gnuwin32/tiff-$libtiff_version-bin.zip
-      ${WGET} http://downloads.sourceforge.net/gnuwin32/zlib-$zlib_version-bin.zip
-      ${WGET} http://downloads.sourceforge.net/gnuwin32/zlib-$zlib_version-lib.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/jpeg_$libjpeg_version_win32.zip
+      #${WGET} http://downloads.sourceforge.net/gnuwin32/tiff-$libtiff_version-bin.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/libtiff_${libtiff_version}_win32.zip
+      #${WGET} http://downloads.sourceforge.net/gnuwin32/zlib-$zlib_version-bin.zip
+      #${WGET} http://downloads.sourceforge.net/gnuwin32/zlib-$zlib_version-lib.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/zlib_${zlib_version}_win32.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/zlib-dev_${zlib_version}_win32.zip
       cd $install_top_dir
       7z x -y ${AUTOBUILD_SOURCES}/libpng_${libpng_version}_win32.zip
       7z x -y ${AUTOBUILD_SOURCES}/libpng-dev_${libpng_version}_win32.zip
-      7z x -y ${AUTOBUILD_SOURCES}/jpeg-$libjpeg_version-bin.zip
-      7z x -y ${AUTOBUILD_SOURCES}/tiff-$libtiff_version-bin.zip
-      7z x -y ${AUTOBUILD_SOURCES}/zlib-$zlib_version-bin.zip
-      7z x -y ${AUTOBUILD_SOURCES}/zlib-$zlib_version-lib.zip
+      7z x -y ${AUTOBUILD_SOURCES}/jpeg_$libjpeg_version_win32.zip
+      7z x -y ${AUTOBUILD_SOURCES}/libtiff_${libtiff_version}_win32.zip
+      7z x -y ${AUTOBUILD_SOURCES}/zlib_${zlib_version}_win32.zip
+      7z x -y ${AUTOBUILD_SOURCES}/zlib-dev_${zlib_version}_win32.zip
+      cp  libjpeg-8.dll libjpeg-uchar-boolean-8.dll
       cd -
    else
        echo NOT BUILDING libpng
@@ -2295,10 +2305,12 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       echo  BUILDING libxml2
       echo  ======================================================
-      libxml2_version=2.4.12
-      ${WGET} http://downloads.sourceforge.net/gnuwin32/libxml2-$libxml2_version-bin.zip
+      #libxml2_version=2.4.12
+      libxml2_version=2.7.7-1
+      #${WGET} http://downloads.sourceforge.net/gnuwin32/libxml2-$libxml2_version-bin.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/libxml2_${libxml2_version}_win32.zip
       cd $install_top_dir
-      7z x -y ${AUTOBUILD_SOURCES}/libxml2-$libxml2_version-bin.zip
+      7z x -y ${AUTOBUILD_SOURCES}/libxml2_${libxml2_version}_win32.zip
       # now we need to make a pkg-config file
       echo 'prefix=/target' > ${AUTOBUILD_INSTALLED}/lib/pkgconfig/libxml-2.0.pc
       echo 'exec_prefix=${prefix}' >> ${AUTOBUILD_INSTALLED}/lib/pkgconfig/libxml-2.0.pc
@@ -2323,9 +2335,9 @@ if test -n "$build_gtk" ; then
       echo  BUILDING libiconv
       echo  ======================================================
       libiconv_version=1.9.1
-      ${WGET} http://www.gimp.org/~tml/gimp/win32/libiconv-$libiconv_version.bin.woe32.zip
+      ${WGET} http://http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/libiconv-${libiconv_version}.bin.woe32.zip
       cd $install_top_dir
-      7z x -y ${AUTOBUILD_SOURCES}/libiconv-$libiconv_version.bin.woe32.zip
+      7z x -y ${AUTOBUILD_SOURCES}/libiconv-${libiconv_version}.bin.woe32.zip
       cd -
    else
        echo NOT BUILDING libiconv
@@ -2341,15 +2353,21 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       echo  BUILDING librsvg and its extras, croco, gsf, bzip2
       echo  ======================================================
-      librsvg_version=2.22.3-1
-      ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/2.22/librsvg_${librsvg_version}_win32.zip
+      librsvg_major_version=2.32
+      librsvg_version=2.32.1-1
+      ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/${librsvg_major_version}/librsvg_${librsvg_version}_win32.zip
       # ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/2.22/librsvg-dev_${librsvg_version}_win32.zip
-      ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/2.22/svg-gdk-pixbuf-loader_${librsvg_version}_win32.zip
-      ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/2.22/svg-gtk-engine_${librsvg_version}_win32.zip
+      ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/${librsvg_major_version}/svg-gdk-pixbuf-loader_${librsvg_version}_win32.zip
+      ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/${librsvg_major_version}/svg-gtk-engine_${librsvg_version}_win32.zip
       # and we need croco, gsf and bzip for librsvg to run properly
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libcroco/0.6/libcroco-0.6.1.zip 
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libcroco/0.6/libcroco_0.6.2-1_win32.zip 
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgsf/1.14/libgsf-1.14.4.zip
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/libbzip2-1.0.2.zip
+      # now need gdk-pixbuf too (not included anywhere else any more)
+      # not yet only when using gtk above 2.20/22 or so
+      #gdk_pixbuf_major_version=2.22
+      #gdk_pixbuf_version=${gdk_pixbuf_major_version}.1-1 
+      #${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/gdk-pixbuf/${gdk_pixbuf_major_version}/gdk-pixbuf_{gdk_pixbuf_version}_win32.zip
       cd $install_top_dir
       7z x -y ${AUTOBUILD_SOURCES}/librsvg_${librsvg_version}_win32.zip
       # 7z x ${AUTOBUILD_SOURCES}/librsvg-dev_${librsvg_version}_win32.zip
@@ -2358,6 +2376,7 @@ if test -n "$build_gtk" ; then
       7z x -y ${AUTOBUILD_SOURCES}/libcroco-0.6.1.zip
       7z x -y ${AUTOBUILD_SOURCES}/libgsf-1.14.4.zip
       7z x -y ${AUTOBUILD_SOURCES}/libbzip2-1.0.2.zip
+      #7z x -y ${AUTOBUILD_SOURCES}/gdk-pixbuf_{gdk_pixbuf_version}_win32.zip
       cd -
       # we shall run gdk-pixbuf-query loader
       # but after we have gtk+!!!
@@ -2369,9 +2388,11 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       echo  BUILDING gtk+2
       echo  ======================================================
-      gtk2_version=2.14.7-1
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/2.14/gtk+_${gtk2_version}_win32.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/2.14/gtk+-dev_${gtk2_version}_win32.zip
+      # versions later up to 2.24 are not working with gtkglext on win32!!
+      gtk2_major_version=2.16
+      gtk2_version=2.16.6-3
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/${gtk2_major_version}/gtk+_${gtk2_version}_win32.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/${gtk2_major_version}/gtk+-dev_${gtk2_version}_win32.zip
       cd $install_top_dir
       7z x -y ${AUTOBUILD_SOURCES}/gtk+_${gtk2_version}_win32.zip
       7z x -y ${AUTOBUILD_SOURCES}/gtk+-dev_${gtk2_version}_win32.zip
@@ -2387,12 +2408,12 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       echo  BUILDING gettext
       echo  ======================================================
-      gettext_version=0.17-1
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/gettext-runtime-$gettext_version.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/gettext-runtime-dev-$gettext_version.zip
+      gettext_version=0.18.1.1-2
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/gettext-runtime_${gettext_version}_win32.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/gettext-runtime-dev_$gettext_version}_win32.zip
       cd $install_top_dir
-      7z x -y ${AUTOBUILD_SOURCES}/gettext-runtime-$gettext_version.zip
-      7z x -y ${AUTOBUILD_SOURCES}/gettext-runtime-dev-$gettext_version.zip
+      7z x -y ${AUTOBUILD_SOURCES}/gettext-runtime_${gettext_version}_win32.zip
+      7z x -y ${AUTOBUILD_SOURCES}/gettext-runtime-dev_${gettext_version}_win32.zip
       cd -
    else
       echo NOT BUILDING gettext
@@ -2425,6 +2446,31 @@ if test -n "$build_gtkglext" ; then
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
      cd gtkglext-$gtkglext_version
+     echo gtk+-2.0 version:
+     pkg-config gtk+-2.0 --modversion
+     # gtk+ 2.20 needs converting GTK_WIDGET_REALIZED to gtk_widget_get_realised, but 
+     # gtk+ 2.18 does not (it fails if we add that patch), so use a simpler one.
+     # BL says: for 1.16 we dont need to patch
+     if pkg-config gtk+-2.0 --atleast-version 2.18 ; then
+        patch_file=gtk-gtkglwidget.c-for-modern-gtk-for-2.18.patch
+        echo we have sufficiently new version of gtk+, we need to patch gtkglext with $patch_file
+        if pkg-config gtk+-2.0 --atleast-version 2.20 ; then
+           patch_file=gtk-gtkglwidget.c-for-modern-gtk.patch
+        fi
+        ${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/$patch_file
+
+        if patch -p0 < ${AUTOBUILD_SOURCES}/$patch_file ; then 
+            echo gtkglext patched good.
+        else 
+            echo gtkglext patch fail.
+            my_exit 2
+        fi
+
+
+     else 
+        echo version of gtk is old, no need to patch gtkglext.
+     fi
+
      patch -p0 < ${AUTOBUILD_SOURCES}/gtkglext_configure.patch
      ./configure --build=i386-pc-mingw32 $generic_prefix
      $MAKE
@@ -2446,25 +2492,35 @@ echo done with Gtk+-2 and dependencies...
 # http://ftp.gnome.org/pub/gnome/binaries/win32/goocanvas/0.15/
 cd ${AUTOBUILD_SOURCES}
 ## libgnomecanvas
+# 
+# and now goocanvas here too!
+#
 if test -n "$build_libgnomecanvas" ; then
     echo BUILDING libgnomecanvas:
     # we need gail and libartlgpl for gnomecanvas 
-    libgnomecanvas_major_version=2.20
-    libgnomecanvas_version=2.20.1
-    gail_version=1.9.3
+    libgnomecanvas_major_version=2.30
+    libgnomecanvas_version=2.30.1-1
+    #gail_version=1.22.0
     libart_version=2.3.19
-    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgnomecanvas/$libgnomecanvas_major_version/libgnomecanvas-$libgnomecanvas_version.zip
-    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgnomecanvas/$libgnomecanvas_major_version/libgnomecanvas-dev-$libgnomecanvas_version.zip
-    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gail/1.9/gail-$gail_version.zip
+    goocanvas_major_version=1.0
+    goocanvas_version=${goocanvas_major_version}.0
+    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgnomecanvas/$libgnomecanvas_major_version/libgnomecanvas_${libgnomecanvas_version}_win32.zip
+    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgnomecanvas/$libgnomecanvas_major_version/libgnomecanvas-dev_${libgnomecanvas_version}_win32.zip
+    # not needed any more as included in gtk+ now
+    #${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gail/1.22/gail-${gail_version}.zip
     ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libart_lgpl/2.3/libart_lgpl-$libart_version.zip
     ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libart_lgpl/2.3/libart_lgpl-dev-$libart_version.zip
+    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/goocanvas/${goocanvas_major_version}/goocanvas-${goocanvas_version}-win32.zip
+    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/goocanvas/${goocanvas_major_version}/goocanvas-dev-${goocanvas_version}-win32.zip
     cd $install_top_dir
 (
     7z x -y ${AUTOBUILD_SOURCES}/libgnomecanvas-$libgnomecanvas_version.zip
     7z x -y ${AUTOBUILD_SOURCES}/libgnomecanvas-dev-$libgnomecanvas_version.zip
-    7z x -y ${AUTOBUILD_SOURCES}/gail-$gail_version.zip
+    #7z x -y ${AUTOBUILD_SOURCES}/gail-$gail_version.zip
     7z x -y ${AUTOBUILD_SOURCES}/libart_lgpl-$libart_version.zip
     7z x -y ${AUTOBUILD_SOURCES}/libart_lgpl-dev-$libart_version.zip
+    7z x -y ${AUTOBUILD_SOURCES}/goocanvas-${goocanvas_version}-win32.zip
+    7z x -y ${AUTOBUILD_SOURCES}/goocanvas-dev-${goocanvas_version}-win32.zip
     cd -
 ) > $HOSTLOGDIR/09-gnomecanvas.txt 2>&1
 else
@@ -2506,9 +2562,12 @@ py_dll_dir=${py_dll_dir//\//\\}
 
 cd ${AUTOBUILD_SOURCES}
 ${WGET} http://www.python.org/ftp/python/$pver/python-$pver.msi
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/unittest_skip_win.patch
+#${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/unittest_skip_win.patch
 date
 msiexec //i python-$pver.msi TARGETDIR=$py_inst_dir DLLDIR=$py_dll_dir ALLUSERS=1 //qb
+
+# to uninstall use:
+# msiexec //uninstall python-$pver.msi //qb
 
 # We need these otherwise python moans about not finding the libraries.
 #
@@ -2520,10 +2579,11 @@ export PYTHONHOME
 echo PYTHONHOME is now $PYTHONHOME
 
 # patch the unittest module to allow skipping tests
-echo patching unittest for skipping
-cd ${PYTHONHOME}/Lib
-patch -p0<${AUTOBUILD_SOURCES}/unittest_skip_win.patch
-cd -
+# not any more (is included)
+#echo patching unittest for skipping
+#cd ${PYTHONHOME}/Lib
+#patch -p0<${AUTOBUILD_SOURCES}/unittest_skip_win.patch
+#cd -
 
 echo done python linking.
 # now we have "python" in our path - no need to rehash - 
@@ -2538,13 +2598,12 @@ fi
 if test -n "$build_pygobject" ; then 
    echo BUILDING pygobject:
    #
-   pygobject_version=2.14.2-2
+   pygobject_version=2.28.3
    #${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/2.14/pygobject-$pygobject_version.win32-py2.5.exe
-   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/2.14/pygobject-$pygobject_version.win32-py$pver_short.exe
+   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/2.28/pygobject-${pygobject_version}.win32-py$pver_short.msi
    (
    date
-   #${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.win32-py2.5.exe
-   ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.win32-py$pver_short.exe
+   msiexec //i ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.win32-py$pver_short.msi TARGETDIR=$py_inst_dir ALLUSERS=1 //qn
    # copy pkgconfig and include files
    mkdir $install_top_dir/include/pygtk-2.0
    cp    $install_top_dir/$python_version/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0
@@ -2559,13 +2618,13 @@ if test -n "$build_pycairo" ; then
    echo BUILDING pycairo:
    #
    #pycairo_version=1.4.12-1
-   pycairo_version=1.4.12-2
+   pycairo_version=1.8.10
    #${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/1.4/pycairo-$pycairo_version.win32-py2.5.exe
-   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/1.4/pycairo-$pycairo_version.win32-py$pver_short.exe
+   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/1.8/pycairo-$pycairo_version.win32-py$pver_short.msi
    (
    date
    #${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.win32-py2.5.exe
-   ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.win32-py$pver_short.exe
+   msiexec //i ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.win32-py$pver_short.msi TARGETDIR=$py_inst_dir ALLUSERS=1 //qn
    # copy pkgconfig and include files
    cp -r $install_top_dir/$python_version/include/pycairo $install_top_dir/include/
    cp    $install_top_dir/$python_version/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
@@ -2580,14 +2639,24 @@ fi
 if test -n "$build_pygtk" ; then 
    echo BUILDING pygtk:
    #
-   #py_gtk_version=2.12.1-2
-   py_gtk_version=2.12.1-3
+   # not yet (gtkglext only works with 2.16!!)
+   #py_gtk_version=2.24.0
+   py_gtk_version=2.16.0
    #${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.12/pygtk-$py_gtk_version.win32-py2.5.exe
-   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.12/pygtk-$py_gtk_version.win32-py$pver_short.exe
+   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.16/pygtk-$py_gtk_version.win32-py$pver_short.exe
    (
    date
    #${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py2.5.exe
-   ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
+   #msiexec //i ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.msi TARGETDIR=$py_inst_dir ALLUSERS=1 //qn
+   # 
+   # no msi installer for this version, so we use 7z to unpack and install
+   mkdir ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short
+   7z x -o${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
+   cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/DATA/* $install_top_dir/$python_version/
+   cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/PLATLIB/* $install_top_dir/$python_version/
+   $install_top_dir/$python_version/python ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/SCRIPTS/pygtk_postinstall.py -install
+   # the latter will give error since it cannot make shortcuts
+
    # copy pkgconfig and include files
    cp -r $install_top_dir/$python_version/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
    cp    $install_top_dir/$python_version/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
@@ -2625,7 +2694,7 @@ if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then
 cd $build_dir
 if test -n "$build_gmp" ; then
     echo BUILDING gmp:
-    gmp_version=4.2
+    gmp_version=4.2.4
     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.gz
     (date
      pwd
@@ -2691,6 +2760,7 @@ if test -n "$build_guile" ; then
 guile_version=1.8.3
 #guile_version=1.8.6
 # dont think works yet!?
+# same goes for 1.8.7 (issue with threading...)
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 
 cd $build_dir
@@ -2795,12 +2865,13 @@ fi
 if test -n "$build_guile_gui" ; then 
    echo BUILDING guile-gui:
 #
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
+#${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
+${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-gui-0.3.tar.gz
 ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-gui-0.2.patch
 ( 
 date
 pwd
-gzip -dc ${AUTOBUILD_SOURCES}/guile-gui-0.2.tar.gz | tar xf -
+gzip -dc ${AUTOBUILD_SOURCES}/guile-gui-0.3.tar.gz | tar xf -
 patch -bp0 < ${AUTOBUILD_SOURCES}/guile-gui-0.2.patch
 cd guile-gui-0.2
 ./configure $generic_prefix

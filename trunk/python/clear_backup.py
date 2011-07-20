@@ -119,12 +119,17 @@ def clear_backup_gui():
         ok_button.connect("clicked", lambda w: map(eval, ["delete_coot_backup_files('delete')", "coot_real_exit(0)"]))
         cancel_button.connect("clicked", lambda w: coot_real_exit(0))
 
-        tooltips = gtk.Tooltips()
-        tooltips.set_tip(ok_button, " Consider yourself patted on the back! ")
-        tooltips.set_tip(cancel_button, "A less pejorative label here might be \"Keep\" or \"Cancel\" " +
-				 "but seeing as (for the moment) I like my intestines where they are " +
-				 "and not used as hosiery fastenings for Systems Adminstrators then " +
-				 "we get this rather nannying label...")
+        ok_text = " Consider yourself patted on the back! "
+        cancel_text = "A less pejorative label here might be \"Keep\" or \"Cancel\" " + \
+                      "but seeing as (for the moment) I like my intestines where they are " + \
+                      "and not used as hosiery fastenings for Systems Adminstrators then " + \
+                      "we get this rather nannying label..."
+        if gtk.pygtk_version >= (2,12):
+            ok_button.set_tooltip_text(ok_text)
+            cancel_button.set_tooltip_text(cancel_text)
+        else:
+            coot_tooltips.set_tip(ok_button, ok_text)
+            coot_tooltips.set_tip(cancel_button, cancel_text)
 
         window.add(frame)
         frame.set_border_width(6)

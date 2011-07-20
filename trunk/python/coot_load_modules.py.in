@@ -52,8 +52,8 @@ pre_list = ["coot_utils.py",
             "shelx.py",
             "get_ebi.py",
             "local_code.py",
-# hello might give some people problems (according to Paul, it does 
-# in the scheme version), if so, just comment out the next line:
+            # hello might give some people problems (according to Paul, it does 
+            # in the scheme version), if so, just comment out the next line:
             "hello.py",
             "mutate.py",
             "refmac.py",
@@ -69,51 +69,57 @@ pre_list = ["coot_utils.py",
             "cns2coot.py",
             "tips.py",
             "americanisms.py",
-	    "group_settings.py"]
+            "group_settings.py"]
 post_list = ["coot_gui.py",
-             "tips_gui.py",
-             "check_for_updates.py",
-             "extensions.py",
-             "shelx_extensions.py",
-             "prodrg_import.py",
-             "clear_backup.py",
-             "coot_toolbuttons.py"]
+            "tips_gui.py",
+            "check_for_updates.py",
+            "extensions.py",
+            "shelx_extensions.py",
+            "prodrg_import.py",
+            "clear_backup.py",
+            "coot_toolbuttons.py"]
 
 # list of modules not available on Windows
 non_win_list = ["brute_lsqman.py"]
 
 python_list = pre_list
 
-if (os.name !='nt'):
+if (os.name != 'nt'):
     python_list += non_win_list
 
 # are we running unittesting?
 coot_unittesting = False
 for arg in sys.argv:
     if "coot_unittest.py" in arg:
-	coot_unittesting = True
-	break
+        coot_unittesting = True
+        break
 
 if use_gui_qm:
     try:
-	# we only append the graphics modules if we have pygtk 2
-	import pygtk
-	import gtk
-	# now make a global tooltip
-	coot_tooltips = gtk.Tooltips()
-	# pygtk.require("2.0")
-	python_list += post_list
- 	if (use_gui_qm == 2):
- 		# we do have guile_gtk and dont want to have 
- 		# the extra extensions from python
- 		python_list.remove("extensions.py")
-    except:
-	pass
+        # we only append the graphics modules if we have pygtk 2
+        import pygtk
+        import gtk
+        # now try to import coot_python
+        have_coot_python = False
+        try: 
+            import coot_python
+            have_coot_python = True
+        except:
+            print """BL WARNING:: could not import coot_python module!!
+            Some things, esp. extensions, may be crippled!"""
 
-# some extras for BL for testing etc
-#import getpass
-#if ((getpass.getuser == 'bernhard') and (os.getenv('HOSTNAME') == 'BERNIE')):
-#	files_list += "unittest-extension.py"
+        # now make a global tooltip
+        if (gtk.pygtk_version < (2, 12)):
+            coot_tooltips = gtk.Tooltips()
+        # pygtk.require("2.0")
+        python_list += post_list
+        if (use_gui_qm == 2):
+            # we do have guile_gtk and dont want to have 
+            # the extra extensions from python
+            python_list.remove("extensions.py")
+    except:
+        print "BL INFO:: could not import pygtk and gtk"
+        pass    
 
 coot_python_dir = os.getenv('COOT_PYTHON_DIR')
 if coot_python_dir:
@@ -136,8 +142,8 @@ for name in python_list:
         except:
             traceback.print_exc()
             print "BL ERROR: couldn't load ", name
-	    if coot_unittesting:
-		coot_real_exit(1)
+            if coot_unittesting:
+                coot_real_exit(1)
     else:
         print "ERROR: cannot find", name
 
