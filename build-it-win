@@ -1934,14 +1934,16 @@ mmdb_version=1.23.2
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # now we need to patch to not play with string definitions  
 ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.23.2-mattype_.h.patch
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.23.2-file_.cpp.patch
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
 echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz
 cd  mmdb-$mmdb_version
 pwd
-# gzip stuff
+# str stuff and newline
 patch -p0 < ${AUTOBUILD_SOURCES}/mmdb-1.23.2-mattype_.h.patch
+patch -p0 < ${AUTOBUILD_SOURCES}/mmdb-1.23.2-file_.cpp.patch
 # patch to read long lines in a cif file
 #patch -p0 < ../mmdb-mmcif-long-line.patch
 ./configure $generic_prefix
