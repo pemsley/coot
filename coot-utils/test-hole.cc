@@ -1,4 +1,5 @@
 
+#include <string.h>
 #include "coot-hole.hh"
 
 int main(int argc, char **argv) {
