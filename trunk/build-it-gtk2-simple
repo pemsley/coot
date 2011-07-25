@@ -309,8 +309,10 @@
 # 4.78 20110507 Refmac mon lib to 5.29
 # 4.79 20110610 biop -> lmb.bioch
 # 4.80 20110707 also make holding directory for stable builds.
-# 4.81 20110725 Add goocanvas
-script_version=4.81
+# 4.81 20110725 Add goocanvas.
+# 4.82 20110725 Add test for gtk and cairo before going ahead with compiling and using 
+#               goocanvas.
+script_version=4.82
 
 
 # :: NOTE:: 
@@ -2005,8 +2007,29 @@ fi
 # ##############################################################
 
 if [ "$build_goocanvas" = "" ] ; then
+
+    # has it been installed?
+    #
     if [ -e "${install_top_dir}/include/goocanvas-1.0/goocanvaswidget.h" ] ; then
 	build_goocanvas=no
+        goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
+    fi
+
+    # is it compilable? (do we have the right gtk (etc) version?)
+    #
+    if pkg-config gtk+-2.0 --atleast-version 2.12 ; then
+       if pkg-config cairo --atleast-version 1.4 ; then
+          # yes, compilable
+          goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
+       else
+          echo Cairo is too old.  Goocanvas needs cairo 1.4 or later. You have:
+	  pkg-config cairo --modversion
+	  build_goocanvas=no
+       fi
+    else 
+       echo gtk+-2.0 too old.  Goocanvas needs 2.12 or later. You have:
+       pkg-config gtk+-2.0 --modversion
+       build_goocanvas=no
     fi
 fi
 
@@ -3064,7 +3087,7 @@ echo ./configure $coot_prefix \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
       --with-gtkgl-prefix=$install_top_dir  \
-      --with-goocanvas-prefix=$install_top_dir \
+      $goocanvas_args     \
       --with-gtk2         \
        $glut_prefix       \
       $scripting          \
@@ -3081,6 +3104,7 @@ echo ./configure $coot_prefix \
       --with-gtkgl-prefix=$install_top_dir  \
       --with-goocanvas-prefix=$install_top_dir \
       --with-gtk2         \
+      $goocanvas_args     \
        $glut_prefix       \
       $scripting          \
       $python_scripting   \
