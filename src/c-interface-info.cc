@@ -2933,7 +2933,7 @@ int text_index_near_position(float x, float y, float z, float rad) {
 
    int r = -1;
    graphics_info_t g;
-   double best_dist = 9999999999;
+   double best_dist = 999999999.9; // not (long) integer, conversion to double problems in GCC 4.1.2
 
    std::cout << "size: " << g.generic_texts_p->size() << std::endl;
    
