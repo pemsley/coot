@@ -720,16 +720,6 @@
 	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 	       #t #t)
 
-	 (list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version)
-	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk1" 
-	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	       #f #f)
-
-	 (list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version "-python")
-	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk1" 
-	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	       #t #f)
-
 	 (list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version "-python-gtk2")
 	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk2" 
 	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
