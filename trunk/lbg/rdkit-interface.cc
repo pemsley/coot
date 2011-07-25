@@ -289,10 +289,11 @@ coot::rdkit_mol(CResidue *residue_p,
 	 std::cout << " " << iat << " " << name << " formal charge: "
 		   << formal_charge << std::endl;
       }
-      std::cout << ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+      std::cout << "::::::::::::::::::::::::: done clean up :::::::::::::::::::::::::::::"
 		<< std::endl;
    }
 
+   std::cout << "DEBUG:: sanitizeMol() " << std::endl;
    RDKit::MolOps::sanitizeMol(m);
 
    std::cout << "in constructing rdk molecule now adding a conf" << std::endl;
