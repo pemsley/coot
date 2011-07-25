@@ -308,8 +308,9 @@
 # 4.77 20110505 switch to new style Refmac library.
 # 4.78 20110507 Refmac mon lib to 5.29
 # 4.79 20110610 biop -> lmb.bioch
-# 4.80 20110707 also make holding directory for stable builds
-script_version=4.80
+# 4.80 20110707 also make holding directory for stable builds.
+# 4.81 20110725 Add goocanvas
+script_version=4.81
 
 
 # :: NOTE:: 
@@ -1522,6 +1523,7 @@ build_gsl=0
 # build_libpng=0
 # build_imlib=0
 # build_gtk_canvas=0
+build_goocanvas=
 build_python=
 build_pygobject=
 build_guile_gtk=
@@ -1998,6 +2000,16 @@ else
    echo gnomecanvas need to be built
 fi
 
+# ##############################################################
+#   test for goocanvas
+# ##############################################################
+
+if [ "$build_goocanvas" = "" ] ; then
+    if [ -e "${install_top_dir}/include/goocanvas-1.0/goocanvaswidget.h" ] ; then
+	build_goocanvas=no
+    fi
+fi
+
 # test for mmdb: Does mmdb_file.h exist, and if it does, does it
 # contain MMDBF_IgnoreHash.  If not, then build mmdb.
 #
@@ -2368,7 +2380,23 @@ else
 fi 
 
 
+##################### goocanvas #####################################
 
+if [ "$build_goocanvas" != "no" ] ; then
+    echo BUILDING goocanvas 
+    ${WGET} http://ftp.gnome.org/pub/GNOME/sources/goocanvas/1.0/goocanvas-1.0.0.tar.gz
+    (date
+     pwd
+     gzip -dc ${AUTOBUILD_SOURCES}/goocanvas-1.0.0.tar.gz | tar xf -
+     cd goocanvas-1.0.0
+     ./configure $generic_prefix
+     if ! $MAKE ; then
+        echo make of goocavnvas failed
+     else 
+	 $MAKE install
+     fi
+     ) > $HOSTLOGDIR/06-pre-goocanvas.txt
+fi
 
 
 ###############################################################################
@@ -3036,6 +3064,7 @@ echo ./configure $coot_prefix \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
       --with-gtkgl-prefix=$install_top_dir  \
+      --with-goocanvas-prefix=$install_top_dir \
       --with-gtk2         \
        $glut_prefix       \
       $scripting          \
@@ -3050,6 +3079,7 @@ echo ./configure $coot_prefix \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
       --with-gtkgl-prefix=$install_top_dir  \
+      --with-goocanvas-prefix=$install_top_dir \
       --with-gtk2         \
        $glut_prefix       \
       $scripting          \
