@@ -2414,7 +2414,7 @@ if [ "$build_goocanvas" != "no" ] ; then
      cd goocanvas-1.0.0
      ./configure $generic_prefix
      if ! $MAKE ; then
-        echo make of goocavnvas failed
+        echo make of goocanvas failed
      else 
 	 $MAKE install
      fi
@@ -3102,7 +3102,6 @@ echo ./configure $coot_prefix \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
       --with-gtkgl-prefix=$install_top_dir  \
-      --with-goocanvas-prefix=$install_top_dir \
       --with-gtk2         \
       $goocanvas_args     \
        $glut_prefix       \
