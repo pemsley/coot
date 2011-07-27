@@ -845,50 +845,23 @@ void setup_application_icon(GtkWindow *window) {
 
 void add_ligand_builder_menu_item_maybe() {
 
-#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
-   if (graphics_info_t::use_graphics_interface_flag) { 
-     // Why so complicated?
-     // requires ligand builder menu in glade of course
-     //GtkWidget *w;
-     //#ifndef MAKE_ENTERPRISE_TOOLS
-     //GtkWidget *p = main_window();
-     //w = lookup_widget(p, "ligand_builder");
-     //gtk_widget_set_sensitive(w, False);  // or hide!?
-     //#endif
+   
+   if (graphics_info_t::use_graphics_interface_flag) {
 
-      GtkWidget *menubar = main_menubar();
-      if (menubar) {
-	 GList *ls = gtk_container_children(GTK_CONTAINER(menubar));
-	 while (ls) {
-	    GtkMenuItem *item = GTK_MENU_ITEM(ls->data);
-	    std::string t = gtk_menu_item_get_label(item);
-	    if (t == "_Calculate") {
-	       GtkWidget *w = gtk_menu_item_get_submenu(item);
-
-	       // To put the menu item at a particular place, this might help:
-	       // 
-	       // 	    GList *ls_2 = gtk_container_children(GTK_CONTAINER(w));
-	       // 	    while (ls_2) {
-	       // 	       std::cout << "   inner " << ls_2->data << std::endl;
-	       // 	       GtkMenuItem *item = GTK_MENU_ITEM(ls_2->data);
-	       // 	       std::string t_2 = gtk_menu_item_get_label(item);
-	       // 	       std::cout << "   inner-2 " << t_2 << std::endl;
-	       // 	       ls_2 = ls_2->next;
-	       // 	    }
-
-	       GtkWidget *new_item = gtk_menu_item_new_with_label("Ligand Builder");
-	       gtk_container_add(GTK_CONTAINER(w), new_item);
-	       gtk_signal_connect(GTK_OBJECT(new_item), "activate",
-				  GTK_SIGNAL_FUNC(start_ligand_builder_gui),
-				  NULL);
-	       gtk_widget_show(new_item);
-	       return;
-	    }
-	    ls = ls->next;
-	 }
+      GtkWidget *w;
+      GtkWidget *p = main_window();
+      w = lookup_widget(p, "ligand_builder1");
+      if (! w) {
+	 std::cout << "oops failed to look up ligand_builder menu item" << std::endl;
+      } else { 
+#ifdef HAVE_GOOCANVAS
+	 // all is hunky dory, it's OK to see the menu item
+#else 	 
+	 gtk_widget_set_sensitive(w, False);  // or hide!?
+#endif // HAVE_GOOCANVAS
       }
-   } 
-#endif // GTK_VERSION
+   }
+
 }
 
 void

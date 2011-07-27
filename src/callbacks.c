@@ -11888,3 +11888,9 @@ on_fix_nomenclature_errors_cancel_button_clicked
   gtk_widget_destroy(w);
 }
 
+
+void
+on_ligand_builder1_activate            (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) { 
+   start_ligand_builder_gui(menuitem, user_data);
+} 
