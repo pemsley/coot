@@ -833,8 +833,6 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    bool use_sbase_molecules = 0;
    std::string t(text);
 
-   // std::cout << "DEBUG:: handle_make_monomer_search " << text << std::endl;
-
    GtkWidget *vbox_current = lookup_widget(viewport, "monomer_search_results_vbox");
    GtkWidget *checkbutton =
       lookup_widget(viewport, "monomer_search_minimal_descriptions_checkbutton");
@@ -889,6 +887,8 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       GtkWidget *button = gtk_button_new_with_label(l.c_str());
       // std::cout << "Adding button: " << button << std::endl;
       std::string button_name = "monomer_button_";
+
+      // gets embedded as user data (hmm).
       string *s = new string(v[i].first); // the 3-letter-code/comp_id (for user data).
       button_name += v[i].first;
       gtk_widget_ref (button);

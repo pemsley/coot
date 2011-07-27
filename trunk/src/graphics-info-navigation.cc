@@ -39,6 +39,8 @@
 #include <vector>
 #endif
 
+#include <string.h> // strncpy
+
 #include <gtk/gtk.h>
 
 #include <iostream>

@@ -715,10 +715,11 @@
 	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 	       #t #t)
 
-	 (list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
-	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/ubuntu-6.06/gtk2"
-	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	       #t #t)
+; dead, I think.
+;	 (list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
+;	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/ubuntu-6.06/gtk2"
+;	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+;	       #t #t)
 
 	 (list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version "-python-gtk2")
 	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk2" 

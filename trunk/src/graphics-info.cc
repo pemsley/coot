@@ -3544,20 +3544,21 @@ graphics_info_t::make_pointer_distance_objects() {
       for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].has_model()) {
 	    if (molecules[imol].is_displayed_p()) { 
-	       mol_distances = molecules[imol].distances_to_point(cen,
-								  pointer_min_dist,
-								  pointer_max_dist);
-	       if (mol_distances.size() > 0) {
-		  // append
-		  for (unsigned int id=0; id<mol_distances.size(); id++) { 
-		     distances.push_back(mol_distances[id]);
+	       if (molecules[imol].atom_selection_is_pickable()) { 
+		  mol_distances = molecules[imol].distances_to_point(cen,
+								     pointer_min_dist,
+								     pointer_max_dist);
+		  if (mol_distances.size() > 0) {
+		     // append
+		     for (unsigned int id=0; id<mol_distances.size(); id++)
+			distances.push_back(mol_distances[id]);
 		  }
 	       }
 	    }
 	 }
       }
    
-      pointer_distances_object_vec->resize(0);
+      pointer_distances_object_vec->clear();
       for (unsigned int id=0; id<distances.size(); id++) {
 	 pointer_distances_object_vec->push_back(std::pair<clipper::Coord_orth, clipper::Coord_orth> (distances[id], cen));
       }

@@ -39,6 +39,7 @@
 #include <vector>
 #include <stdexcept>
 
+#include <string.h> // strcmp
 #include "mmdb_manager.h"
 #include "mmdb_tables.h"
 #include "mmdb-extras.h"
@@ -867,7 +868,7 @@ molecule_class_info_t::update_symmetry() {
 void
 molecule_class_info_t::draw_extra_restraints_representation() {
 
-   if (drawit) { 
+   if (drawit) {
       if (extra_restraints_representation.bonds.size() > 0) { 
 	 glLineWidth(2.0);
 	 glColor3f(0.6, 0.6, 0.8);

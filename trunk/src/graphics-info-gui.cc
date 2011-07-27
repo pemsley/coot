@@ -40,6 +40,8 @@
 #include <iostream>
 #include <dirent.h>   // for refmac dictionary files
 
+#include <string.h> // strncpy
+
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 

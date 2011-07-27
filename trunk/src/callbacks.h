@@ -4271,3 +4271,13 @@ void
 on_remarks_browser_molecule_chooser_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_fix_nomenclature_errors_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_fix_nomenclature_errors_cancel_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);

@@ -2044,17 +2044,43 @@ my_delete_ramachandran_mol_option(GtkWidget *widget, void *data) {
 
 
 void
-fix_nomenclature_errors_gui(int imol,
-			    const std::vector<coot::residue_spec_t> &nomenclature_errors) {
+show_fix_nomenclature_errors_gui(int imol,
+				 const std::vector<std::pair<std::string, coot::residue_spec_t> > &nomenclature_errors) {
    if (graphics_info_t::use_graphics_interface_flag) {
       if (is_valid_model_molecule(imol)) {
 
-	 // GtkWidget *w = create_nomenclature_errors_gui();
-	 // GtkWidget *box = lookup_widget(w, "nomenclature_errors_vbox");
-	 // fill box
+	 GtkWidget *w = create_fix_nomenclature_errors_dialog();
+
+	 GtkWidget *label = lookup_widget(w, "fix_nomenclature_errors_label");
+
+	 std::string s = "\n  Molecule ";
+	 s += coot::util::int_to_string(imol);
+	 s += " has nomenclature errors  \n\n";
+	 s += "  Correct them?\n";
+
+	 gtk_object_set_user_data(GTK_OBJECT(w), GINT_TO_POINTER(imol));
+	 
+	 gtk_label_set_text(GTK_LABEL(label), s.c_str());
+
+	 GtkWidget *box = lookup_widget(w, "nomenclature_errors_vbox");
+
+	 if (box) {
+	    // fill box
+	    for (unsigned int i=0; i<nomenclature_errors.size(); i++) {
+	       s = nomenclature_errors[i].first; // the residue type
+	       s += " ";
+	       s += nomenclature_errors[i].second.format();
+	       GtkWidget *label = gtk_label_new(s.c_str());
+	       gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(label), FALSE, FALSE, 2);
+	       gtk_widget_show(GTK_WIDGET(label));
+	    }
+	 }
+	 gtk_widget_show(w);
+
       }
    }
 }
+
 
 
 /*  ----------------------------------------------------------------------- */

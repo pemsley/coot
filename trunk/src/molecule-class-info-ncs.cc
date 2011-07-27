@@ -32,6 +32,8 @@
 #endif
 
 #include <stdexcept>
+#include <string.h>  // strncpy
+
 
 #include "Cartesian.h"
 #include "mmdb_manager.h"

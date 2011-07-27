@@ -35,6 +35,7 @@
 #include <string>
 #endif // HAVE_STRING
 
+#include <string.h> // strlen, strcpy
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 #if !defined _MSC_VER

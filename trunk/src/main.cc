@@ -31,6 +31,8 @@
  */
 
 #include <sys/time.h>
+#include <string.h> // strcmp
+
 #include <iostream>
 
 #ifdef HAVE_CONFIG_H

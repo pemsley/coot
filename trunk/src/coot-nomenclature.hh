@@ -11,6 +11,11 @@ namespace coot {
       CMMDBManager *mol_;
       // return swap status.
       int test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p,
+						   bool apply_swap_when_found);
+
+      // 20110725 new function - don't use rotamers, simply use torsions -90 < tor < 90.
+      // 
+      int test_and_fix_ASP_GLU_nomenclature_errors(CResidue *residue_p,
 						   bool apply_swap_when_found); 
 
       std::vector<CResidue *>  fix_and_swap_maybe(protein_geometry *Geom_p,

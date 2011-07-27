@@ -33,6 +33,7 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h> // strncpy, strncmp
 #include <iostream>
 #include <fstream>
 
@@ -526,11 +527,11 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 }
 
 	 // Now, did that PDB file contain nomenclature errors?
-	 std::vector<coot::residue_spec_t> nomenclature_errors = 
+	 std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors = 
 	    g.molecules[imol].list_nomenclature_errors(g.Geom_p());
 	 // gui function checks use_graphics_interface_flag
 	 if (nomenclature_errors.size())
-	    fix_nomenclature_errors_gui(imol, nomenclature_errors); 
+	    show_fix_nomenclature_errors_gui(imol, nomenclature_errors); 
 	 
 
 	 // if the go to atom widget exists, update its optionmenu to

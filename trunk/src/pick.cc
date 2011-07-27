@@ -27,6 +27,7 @@
 #include <vector> // for mmdb-crystal
 
 #include <math.h>
+#include <string.h>  // strncpy
 
 #include <GL/gl.h>
 #include <GL/glu.h>

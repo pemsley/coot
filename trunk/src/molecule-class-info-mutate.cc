@@ -30,6 +30,8 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>  // strncpy
+
 #include <stdexcept>
 
 #include "clipper/core/xmap.h"
