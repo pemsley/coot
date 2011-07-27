@@ -4281,3 +4281,6 @@ void
 on_fix_nomenclature_errors_cancel_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
+void
+on_ligand_builder1_activate            (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
