@@ -94,7 +94,7 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 			// return a flag saying that they should be swapped.
 			int isw = test_and_fix_PHE_TYR_nomenclature_errors(residue_p, apply_swaps);
 			if (isw) { 
-			   std::cout << "INFO:: (result) PHE/TYR swapped atoms in "
+			   std::cout << "INFO:: (result) " << residue_name << " swapped atoms in "
 				     << coot::residue_spec_t(residue_p)
 				     << " " << residue_p->GetResName() << std::endl;
 			   vr.push_back(residue_p);
@@ -104,32 +104,9 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 		     if ((residue_name == "ASP") ||
 			 (residue_name == "GLU")) {
 
-			// we want a function that tests with changed
-			// atom names and then changes the atom names
-			// in residue_p if needed.  We want to know if
-			// this has happened.
-
-#ifdef USE_DUNBRACK_ROTAMERS			
-			coot::dunbrack d(residue_p);
-#else
-			const std::string &alt_conf = "";
-			coot::richardson_rotamer d(residue_p, alt_conf);
-			if (0)
-			   std::cout << "DEUB:: made a richardson_rotamer from residue "
-				     << coot::residue_spec_t(residue_p) << std::endl;
-#endif // USE_DUNBRACK_ROTAMERS			
-
-			// d.optimize_rotamer_by_atom_names returns 1 if the atoms
-			// should be swapped (in the case that apply_swaps is 0) or
-			// actually were swapped (if apply_swaps is 1).
-			// If they don't need to be swapped, it returns 0 of course.
-			int swapped = d.optimize_rotamer_by_atom_names(apply_swaps);
-			if (swapped) {
-// 			   std::cout << "INFO:: residue " << residue_p->GetChainID()
-// 				     << " " << residue_p->GetSeqNum() << " "
-// 				     << residue_p->GetResName()
-// 				     << " had its atoms swapped\n";
-			   std::cout << "INFO:: swapped (ASP or GLU) atoms in "
+			int isw = test_and_fix_ASP_GLU_nomenclature_errors(residue_p, apply_swaps);
+			if (isw) { 
+			   std::cout << "INFO:: (result) " << residue_name << " swapped atoms in "
 				     << coot::residue_spec_t(residue_p)
 				     << " " << residue_p->GetResName() << std::endl;
 			   vr.push_back(residue_p);
@@ -429,3 +406,117 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p
    }
    return iswapped;
 }
+
+// ASP:: test chi2 (and potentially fix) so that chi2 is the range -90 -> +90.
+// GLU:: test chi3 (and potentially fix) so that chi3 is the range -90 -> +90.
+// 
+int
+coot::nomenclature::test_and_fix_ASP_GLU_nomenclature_errors(CResidue *residue_p,
+							     bool apply_swap_if_found) {
+
+   int iswapped = 0;
+   PPCAtom residue_atoms;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   std::string residue_name = residue_p->GetResName();
+
+   if (residue_name == "ASP" || residue_name == "GLU") {
+
+      std::string test_atom_name = " OD1";
+      if (residue_name == "GLU")
+	 test_atom_name = " OE1";
+
+      std::vector<std::string> alt_conf_list;
+      // first get the altconfs in the residue:
+      for (int i=0; i<n_residue_atoms; i++) {
+	 std::string atom_name = residue_atoms[i]->name;
+	 if(atom_name == test_atom_name) {
+	    alt_conf_list.push_back(residue_atoms[i]->altLoc);
+	 }
+      }
+
+      // OK, so now we have a list of all alt confs.
+
+      for (unsigned int ialtconf=0; ialtconf<alt_conf_list.size(); ialtconf++) {
+
+	 coot::atom_index_quad quad;
+	 
+	 for (int i=0; i<n_residue_atoms; i++) {
+	    std::string atom_name = residue_atoms[i]->name;
+	    std::string atom_altconf = residue_atoms[i]->altLoc;
+	    if (atom_altconf == alt_conf_list[ialtconf]) {
+
+	       if (residue_name == "ASP") {
+		  if (atom_name == " CA ")
+		     quad.index1 = i;
+		  if (atom_name == " CB ")
+		     quad.index2 = i;
+		  if (atom_name == " CG ")
+		     quad.index3 = i;
+		  if (atom_name == " OD1")
+		     quad.index4 = i;
+	       }
+
+	       if (residue_name == "GLU") {
+		  if (atom_name == " CB ")
+		     quad.index1 = i;
+		  if (atom_name == " CG ")
+		     quad.index2 = i;
+		  if (atom_name == " CD ")
+		     quad.index3 = i;
+		  if (atom_name == " OE1")
+		     quad.index4 = i;
+	       }
+	    }
+	 }
+
+	 try {
+	    double torsion = quad.torsion(residue_p);
+	    bool torsion_is_good = false;
+	    if (torsion >= -90.0) {
+	       if (torsion <= 90.0) {
+		  torsion_is_good = true;
+	       }
+	    }
+	    if (! torsion_is_good) {
+
+	       // SWAP names
+
+	       std::string swap_name_1 = " OD1";
+	       std::string swap_name_2 = " OD2";
+	       if (residue_name == "GLU") {
+		  std::string swap_name_1 = " OE1";
+		  std::string swap_name_2 = " OE2";
+	       }
+
+	       CAtom *at_1 = 0;
+	       CAtom *at_2 = 0;
+	       for (int i=0; i<n_residue_atoms; i++) {
+		  std::string atom_name = residue_atoms[i]->name;
+		  std::string atom_altconf = residue_atoms[i]->altLoc;
+		  if (atom_altconf == alt_conf_list[ialtconf]) {
+		     if (atom_name == swap_name_1)
+			at_1 = residue_atoms[i];
+		     if (atom_name == swap_name_2)
+			at_2 = residue_atoms[i];
+		  }
+	       }
+	       if (at_1 && at_2) {
+		  if (apply_swap_if_found) {
+		     std::cout << "debug:: setting " << coot::atom_spec_t(at_1) << " to " << swap_name_2 << std::endl;
+		     std::cout << "debug:: setting " << coot::atom_spec_t(at_2) << " to " << swap_name_1 << std::endl;
+		     at_1->SetAtomName(swap_name_2.c_str());
+		     at_2->SetAtomName(swap_name_1.c_str());
+		  }
+		  iswapped = 1; // either they have been swapped or they need to be.
+	       }
+	    } 
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << "WARNING:: missing atoms " << rte.what() << std::endl;
+	 } 
+      }
+   } 
+   return iswapped;
+} 

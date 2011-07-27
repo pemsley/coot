@@ -11863,3 +11863,28 @@ on_remarks_browser_molecule_chooser_ok_button_clicked
   gtk_widget_destroy(w);
 
 }
+
+
+void
+on_fix_nomenclature_errors_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "fix_nomenclature_errors_dialog");
+  int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(w)));
+  fix_nomenclature_errors(imol);
+  gtk_widget_destroy(w);
+}
+
+
+void
+on_fix_nomenclature_errors_cancel_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "fix_nomenclature_errors_dialog");
+  gtk_widget_destroy(w);
+}
+

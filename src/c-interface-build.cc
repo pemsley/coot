@@ -36,6 +36,7 @@
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
+#include <string.h> // strncmp
 #if !defined _MSC_VER
 #include <unistd.h>
 #else
@@ -4977,16 +4978,50 @@ int fix_nomenclature_errors(int imol) {
 
 }
 
-std::vector<coot::residue_spec_t>
+// the residue type and the spec.
+//
+std::vector<std::pair<std::string, coot::residue_spec_t> > 
 list_nomenclature_errors(int imol) {
 
-   std::vector<coot::residue_spec_t> r;
+   std::vector<std::pair<std::string, coot::residue_spec_t> > r;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       r = g.molecules[imol].list_nomenclature_errors(g.Geom_p());
    }
    return r;
 }
+
+#ifdef USE_GUILE
+SCM list_nomenclature_errors_scm(int imol) {
+
+   std::vector<std::pair<std::string, coot::residue_spec_t> > v = list_nomenclature_errors(imol);
+   SCM r = SCM_EOL;
+   if (v.size()) { 
+      for(int i=v.size()-1; i>=0; i--) {
+	 r = scm_cons(scm_residue(v[i].second), r);
+      }
+   }
+   return r;
+
+} 
+#endif // USE_GUILE
+
+
+#ifdef USE_PYTHON
+PyObject *list_nomenclature_errors_py(int imol) {
+
+   PyObject *r = PyList_New(0);
+   std::vector<std::pair<std::string, coot::residue_spec_t> > v = list_nomenclature_errors(imol);
+   if (v.size()) {
+      r = PyList_New(v.size());
+      for (unsigned int i=0; i<v.size(); i++) { 
+	 PyList_SetItem(r, i, py_residue(v[i].second));
+      }
+   } 
+   return r;
+} 
+#endif // USE_PYTHON
+
 
 
 /*  ----------------------------------------------------------------------- */

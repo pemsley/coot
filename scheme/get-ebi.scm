@@ -1,5 +1,6 @@
 
-(use-modules (oop goops) (oop goops describe))
+(use-modules (oop goops) 
+	     (oop goops describe))
 
 ;;; Allow the user to set these variables in their .mapview file if
 ;;; they want some server other than the default choice.  (These
@@ -190,8 +191,10 @@
 
 
   (define eds-site "http://eds.bmc.uu.se/eds")
+  (define eds-core "http://eds.bmc.uu.se")
 
   ;; "1cbds" -> "cb/"
+  ;; 
   (define (mid-chars id-code)
     (if (not (string? id-code))
 	"//fail//"
@@ -216,11 +219,26 @@
 		     (model-url (string-append eds-url mc down-id "/" target-pdb-file))
 		     (target-mtz-file (string-append down-id "_sigmaa.mtz"))
 		     (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
-		     (mtz-url (string-append eds-url mc down-id "/" target-mtz-file)))
+		     (mtz-url (string-append eds-url mc down-id "/" target-mtz-file))
+		     (eds-info-page (string-append eds-core "/cgi-bin/eds/uusfs?pdbCode=" down-id)))
+
+		(print-var eds-info-page)
 		
-		(let ((s1 (net-get-url model-url dir-target-pdb-file))
-		      (s2 (net-get-url mtz-url   dir-target-mtz-file)))
-		  
+		(let* ((pre-download-info (coot-get-url-as-string eds-info-page))
+		       ;; (pre-download-info-sxml (xml->sxml pre-download-info))
+		       (s1 (net-get-url model-url dir-target-pdb-file))
+		       (s2 (net-get-url mtz-url   dir-target-mtz-file)))
+
+		  ;; (format #t "INFO:: --------------- pre-download-info-sxml: ~s~%" pre-download-info-sxml)
+
+		  (format #t "INFO:: --------------- pre-download-info: ~s~%" pre-download-info)
+		  (let ((bad-map-status (string-match "No reliable map available" pre-download-info)))
+		    (if bad-map-status
+			(let ((s  (string-append 
+				   "EDS message: This map ("
+				   down-id ") is not a reliable map")))
+			  (info-dialog s))))
+
 		  (format #t "INFO:: read model status: ~s~%" s1)
 		  (format #t "INFO:: read mtz   status: ~s~%" s2)
 		  

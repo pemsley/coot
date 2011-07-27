@@ -24,6 +24,7 @@
 #define HAVE_COOT_COORD_UTILS_HH
 
 #include <stdexcept>
+#include <sstream>
 
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
@@ -269,6 +270,13 @@ namespace coot {
 	       return 1;
 	 } 
 	 return 0;
+      }
+
+      std::string format() const {
+	 std::ostringstream s;
+	 if (!(s << *this))
+	    return "";
+	 return s.str();
       } 
 
       friend std::ostream& operator<< (std::ostream& s, const residue_spec_t &spec);

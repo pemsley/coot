@@ -3983,6 +3983,7 @@ INFO::
    o clear out pre-releases
    o Build binaries on some hosts
    o Mail mailing list
+   o Update latest version info on coot web page.
 
 ---
 Mon Jan 12 00:17:05 GMT 2009
@@ -6030,6 +6031,33 @@ Sun Jun 19 14:18:41 BST 2011
     same molecule (as the reference) but a different chain of course.
 
 * Done.
+
+---
+Sun Jul 10 23:29:32 BST 2011
+
+   Note: 
+   When making a scrolled list to add things in to, don't forget to put
+   the vbox into a viewport and the viewport into the scrolled window
+   (e.g. nomenclature errors dialog).
+
+---
+Mon Jul 11 11:58:13 BST 2011
+
+   2y0z has problematic Z40 on reading.  Why?
+
+
+----
+Wed Jul 20 13:03:27 BST 2011
+
+   ca+ ligands view mode should not be able to click on waters (or
+   things that are not ca/ligands!)
+
+
+----
+Tue Jul 26 23:11:17 BST 2011
+
+    mutate and autofit to an MSE should change the atoms to HETATM, but it does not.
+
 
 ------
 

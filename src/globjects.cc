@@ -55,6 +55,8 @@
 #endif // WINDOWS_MINGW
 #include "sleep-fixups.h"
 
+#include <string.h> // strncmp
+
 #include <math.h>
 #ifndef HAVE_VECTOR
 #include <vector>

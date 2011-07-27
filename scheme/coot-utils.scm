@@ -101,6 +101,7 @@
 (define make-link make-link-scm)
 (define ncs-master-chains ncs-master-chains-scm)
 (define get-lsq-matrix get-lsq-matrix-scm)
+(define list-nomenclature-errors list-nomenclature-errors-scm)
 
 ;; documented functions
 

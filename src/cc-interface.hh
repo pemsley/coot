@@ -360,11 +360,19 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 /*  ----------------------------------------------------------------------- */
 /*                      list nomenclature errors                            */
 /*  ----------------------------------------------------------------------- */
-std::vector<coot::residue_spec_t>
+std::vector<std::pair<std::string, coot::residue_spec_t> >
 list_nomenclature_errors(int imol);
 
-void fix_nomenclature_errors_gui(int imol,
-				 const std::vector<coot::residue_spec_t> &nomenclature_errors); 
+#ifdef USE_GUILE
+SCM list_nomenclature_errors_scm(int imol);
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+PyObject *list_nomenclature_errors_py(int imol);
+#endif // USE_PYTHON
+
+void
+show_fix_nomenclature_errors_gui(int imol,
+				 const std::vector<std::pair<std::string, coot::residue_spec_t> > &nomenclature_errors);
 
 /*  ----------------------------------------------------------------------- */
 /*                  dipole                                                  */

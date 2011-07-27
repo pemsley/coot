@@ -39,7 +39,7 @@
 #   endif
 #endif
 
-
+#include <string.h>  // strncpy
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
 #include <ctype.h>  // for toupper
@@ -6557,7 +6557,7 @@ molecule_class_info_t::fix_nomenclature_errors(coot::protein_geometry *geom_p) {
 
 // nomenclature errors
 // return a vector of the changed residues (used for updating the rotamer graph)
-std::vector<coot::residue_spec_t>
+std::vector<std::pair<std::string, coot::residue_spec_t> >
 molecule_class_info_t::list_nomenclature_errors(coot::protein_geometry *geom_p) {
                                                       // by looking for bad rotamers in
 				                      // some residue types and alter ing
@@ -6570,11 +6570,12 @@ molecule_class_info_t::list_nomenclature_errors(coot::protein_geometry *geom_p) 
       coot::nomenclature n(atom_sel.mol);
       r = n.list(geom_p);
    }
-   std::vector<coot::residue_spec_t> rs;
+   std::vector<std::pair<std::string, coot::residue_spec_t> > rs;
    if (r.size()) {
       rs.resize(r.size());
-      for (unsigned int i=0; i<r.size(); i++) { 
-	 rs[i] = coot::residue_spec_t(r[i]);
+      for (unsigned int i=0; i<r.size(); i++) {
+	 std::pair<std::string, coot::residue_spec_t> p(r[i]->GetResName(), coot::residue_spec_t(r[i]));
+	 rs[i] = p;
       }
    }
    return rs;

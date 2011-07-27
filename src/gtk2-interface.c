@@ -27122,4 +27122,96 @@ create_remarks_browser_molecule_chooser_dialog (void)
   return remarks_browser_molecule_chooser_dialog;
 }
 
+GtkWidget*
+create_fix_nomenclature_errors_dialog (void)
+{
+  GtkWidget *fix_nomenclature_errors_dialog;
+  GtkWidget *dialog_vbox125;
+  GtkWidget *vbox311;
+  GtkWidget *hbox417;
+  GtkWidget *image9619;
+  GtkWidget *fix_nomenclature_errors_label;
+  GtkWidget *scrolledwindow33;
+  GtkWidget *viewport21;
+  GtkWidget *nomenclature_errors_vbox;
+  GtkWidget *dialog_action_area124;
+  GtkWidget *fix_nomenclature_errors_ok_button;
+  GtkWidget *fix_nomenclature_errors_cancel_button;
+
+  fix_nomenclature_errors_dialog = gtk_dialog_new ();
+  gtk_window_set_title (GTK_WINDOW (fix_nomenclature_errors_dialog), _("Fix Nomenclature Errors"));
+  gtk_window_set_type_hint (GTK_WINDOW (fix_nomenclature_errors_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox125 = GTK_DIALOG (fix_nomenclature_errors_dialog)->vbox;
+  gtk_widget_show (dialog_vbox125);
+
+  vbox311 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox311);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox125), vbox311, TRUE, TRUE, 0);
+
+  hbox417 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox417);
+  gtk_box_pack_start (GTK_BOX (vbox311), hbox417, FALSE, TRUE, 0);
+
+  image9619 = gtk_image_new_from_stock ("gtk-dialog-warning", GTK_ICON_SIZE_DIALOG);
+  gtk_widget_show (image9619);
+  gtk_box_pack_start (GTK_BOX (hbox417), image9619, TRUE, TRUE, 0);
+  gtk_misc_set_padding (GTK_MISC (image9619), 6, 6);
+
+  fix_nomenclature_errors_label = gtk_label_new (_("                      "));
+  gtk_widget_show (fix_nomenclature_errors_label);
+  gtk_box_pack_start (GTK_BOX (hbox417), fix_nomenclature_errors_label, FALSE, FALSE, 8);
+
+  scrolledwindow33 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_show (scrolledwindow33);
+  gtk_box_pack_start (GTK_BOX (vbox311), scrolledwindow33, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (scrolledwindow33, -1, 110);
+
+  viewport21 = gtk_viewport_new (NULL, NULL);
+  gtk_widget_show (viewport21);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow33), viewport21);
+
+  nomenclature_errors_vbox = gtk_vbox_new (FALSE, 3);
+  gtk_widget_show (nomenclature_errors_vbox);
+  gtk_container_add (GTK_CONTAINER (viewport21), nomenclature_errors_vbox);
+  gtk_container_set_border_width (GTK_CONTAINER (nomenclature_errors_vbox), 2);
+
+  dialog_action_area124 = GTK_DIALOG (fix_nomenclature_errors_dialog)->action_area;
+  gtk_widget_show (dialog_action_area124);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area124), GTK_BUTTONBOX_END);
+
+  fix_nomenclature_errors_ok_button = gtk_button_new_from_stock ("gtk-yes");
+  gtk_widget_show (fix_nomenclature_errors_ok_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (fix_nomenclature_errors_dialog), fix_nomenclature_errors_ok_button, GTK_RESPONSE_YES);
+  GTK_WIDGET_SET_FLAGS (fix_nomenclature_errors_ok_button, GTK_CAN_DEFAULT);
+
+  fix_nomenclature_errors_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_show (fix_nomenclature_errors_cancel_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (fix_nomenclature_errors_dialog), fix_nomenclature_errors_cancel_button, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (fix_nomenclature_errors_cancel_button, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) fix_nomenclature_errors_ok_button, "clicked",
+                    G_CALLBACK (on_fix_nomenclature_errors_ok_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) fix_nomenclature_errors_cancel_button, "clicked",
+                    G_CALLBACK (on_fix_nomenclature_errors_cancel_button_clicked),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (fix_nomenclature_errors_dialog, fix_nomenclature_errors_dialog, "fix_nomenclature_errors_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (fix_nomenclature_errors_dialog, dialog_vbox125, "dialog_vbox125");
+  GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, vbox311, "vbox311");
+  GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, hbox417, "hbox417");
+  GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, image9619, "image9619");
+  GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, fix_nomenclature_errors_label, "fix_nomenclature_errors_label");
+  GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, scrolledwindow33, "scrolledwindow33");
+  GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, viewport21, "viewport21");
+  GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, nomenclature_errors_vbox, "nomenclature_errors_vbox");
+  GLADE_HOOKUP_OBJECT_NO_REF (fix_nomenclature_errors_dialog, dialog_action_area124, "dialog_action_area124");
+  GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, fix_nomenclature_errors_ok_button, "fix_nomenclature_errors_ok_button");
+  GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, fix_nomenclature_errors_cancel_button, "fix_nomenclature_errors_cancel_button");
+
+  return fix_nomenclature_errors_dialog;
+}
+
 #endif /* (GTK_MAJOR_VERSION > 1) */

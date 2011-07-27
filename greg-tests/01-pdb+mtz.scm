@@ -94,7 +94,7 @@
    (lambda ()
 
      (let ((imol (greg-pdb "2WF6.cif")))
-       (format #t "closing molecule number ~s~%" imol)
+       (format #t "   closing molecule number ~s~%" imol)
        (close-molecule imol)
        #t)))
 
@@ -134,10 +134,10 @@
 	 (change-residue-number frag-pdb "A" 67 "" 68 "")
 	 (let* ((ar-2 (active-residue))
 		(ins-2 (list-ref ar-2 3)))
-	   (format #t "pre and post ins codes: ~s ~s~%" ins-1 ins-2)
+	   (format #t "   pre and post ins codes: ~s ~s~%" ins-1 ins-2)
 	   (if (not (string=? ins-2 "A"))
 	       (begin
-		 (format #t " Fail ins code set: ~s is not \"A\"~%" ins-2)
+		 (format #t "Fail ins code set: ~s is not \"A\"~%" ins-2)
 		 (throw 'fail)))
 
 	   (let ((test-expected-results
@@ -217,7 +217,7 @@
        (map (lambda (file-name)
 	      (let ((r (auto-read-make-and-draw-maps file-name)))
 		
-		(format #t "got status: ~s~%" r)))
+		(format #t "   got status: ~s~%" r)))
 	    mtz-list))
      #t ;; no crash
 ))
@@ -234,7 +234,7 @@
 			 (< v 1.0)))
 	       #f
 	       (let ((v2 (map-sigma imol-rnase)))
-		 (format #t "INFO:: map sigmas ~s ~s~%" v v2)
+		 (format #t "   INFO:: map sigmas ~s ~s~%" v v2)
 		 (eq? v2 #f)))))))
 		     
 (greg-testcase "Another Level Test" #t 
@@ -747,10 +747,11 @@
 			  (if (not (= (length o) 1))
 			      (throw 'fail)
 			      (let ((parts (split-after-char-last #\: (car o) list)))
-				(format #t "CISPEPs: ~s~%" (car (cdr parts)))
+				(format #t "   CISPEPs: ~s~%" (car (cdr parts)))
 				(if (not (string=? "3" (car (cdr parts))))
 				    (throw 'fail)
 				    #t)))))))))))))
+
 
 
 (greg-testcase "Refine Zone with Alt conf" #t 
@@ -793,7 +794,7 @@
 				  (cons centred-residue other-residues)
 				  (list centred-residue))))
 	   
-	   (format #t "imol: ~s residues: ~s~%" imol all-residues)
+	   (format #t "   imol: ~s residues: ~s~%" imol all-residues)
 	   (refine-residues imol all-residues))))
 
      (let ((imol (greg-pdb "tutorial-add-terminal-1-test.pdb")))
@@ -847,14 +848,14 @@
        (set-imol-refinement-map imol-map)
 
        (let loop ((results (refine-zone-with-full-residue-spec imol "A" 40 "" 43 "" "")))
-	 (format #t "refinement results: ~s~%" results)
+	 (format #t "   refinement results: ~s~%" results)
 	 (let ((ow (weight-scale-from-refinement-results results)))
-	   (format #t "ow factor: ~s~%" ow)
+	   (format #t "   ow factor: ~s~%" ow)
 	   (if (and (< ow 1.1)
 		    (> ow 0.9))
 	       #t
 	       (let ((new-weight (/ (matrix-state) (* ow ow))))
-		 (format #t "INFO:: setting refinement weight to ~s~%" new-weight)
+		 (format #t "   INFO:: setting refinement weight to ~s~%" new-weight)
 		 (set-matrix new-weight)
 		 (loop (refine-zone-with-full-residue-spec imol "A" 40 "" 43 "" "")))))))))
 
@@ -1177,7 +1178,7 @@
 		((string=? (substring line 0 3) "END")
 		 #f)  ; should not have got here!
 		((string=? (substring line 0 3) "TER")
-		 (format #t "found TER ~s~%" line)
+		 (format #t "   found TER ~s~%" line)
 		 (if (number? oxt-line)
 		     #t; TER happens after OXT line
 		     (loop (read-line port) (+ count 1) count oxt-line)))
@@ -1323,7 +1324,7 @@
 	      (low-values (map (lambda(pt) 
 				 (apply density-at-point imol-masked pt)) low-pts)))
 
-	  (format #t "high-values: ~s  low values: ~s~%" 
+	  (format #t "   high-values: ~s  low values: ~s~%" 
 		  high-values low-values)
 
 
@@ -1351,7 +1352,7 @@
 		  (diff-low-values (map (lambda(pt) 
 					  (apply density-at-point diff-map pt)) low-pts)))
 	   
-	      (format #t "diff-high-values: ~s  diff-low-values: ~s~%" 
+	      (format #t "   diff-high-values: ~s  diff-low-values: ~s~%" 
 		      diff-high-values diff-low-values)
 
 	      (if (not (< (apply + diff-high-values) 0.03))
@@ -1422,7 +1423,7 @@
 	   (let ((atom-1 (get-atom imol "A" 1 "" " O4 "))
 		 (atom-2 (get-atom imol "A" 2 "" " C1 ")))
 	     
-	     (format #t "bond-length: ~s: ~%"
+	     (format #t "   bond-length: ~s: ~%"
 		     (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
 
 	     (let ((s (dragged-refinement-steps-per-frame)))
@@ -1434,7 +1435,7 @@
 	     (let ((atom-1 (get-atom imol "A" 1 "" " O4 "))
 		   (atom-2 (get-atom imol "A" 2 "" " C1 ")))
 
-	       (format #t "bond-length: ~s: ~%"
+	       (format #t "   bond-length: ~s: ~%"
 		       (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
 	       
 	       (bond-length-within-tolerance? atom-1 atom-2 1.439 0.04)))))))
@@ -1521,7 +1522,7 @@
 
        (if (not m)
 	   (begin 
-	     (format #t "update bond restraints - no momomer restraints~%")
+	     (format #t "   update bond restraints - no momomer restraints~%")
 	     (throw 'fail)))
 
        (let ((n (strip-bond-from-restraints atom-pair m)))
@@ -1543,7 +1544,7 @@
 		   (format #t "   Fail 2.8 tolerance test~%")
 		   #f)
 		 (begin 
-		   (format #t "pass intermediate 2.8 tolerance test~%")
+		   (format #t "   pass intermediate 2.8 tolerance test~%")
 		   (set-monomer-restraints "TYR" m)
 
 		   (with-auto-accept
@@ -1763,7 +1764,7 @@
 		 (format #t "   fail - moved-res and replaced-res Match!~%")
 		 (throw 'fail)))
 
-	   (format #t "distances: ~s~%" (map atom-distance reference-res replaced-res))
+	   (format #t "   distances: ~s~%" (map atom-distance reference-res replaced-res))
 	   (all-true? (map (lambda (d) (> d 20)) (map atom-distance reference-res replaced-res))))))))
 
 
@@ -1780,7 +1781,7 @@
 		     (format #t "wrong number of neighbours ~s ~s~%" (length rs) rs)
 		     #f)
 		   (begin
-		     (format #t "found ~s neighbours ~s~%" (length rs) rs)
+		     (format #t "   found ~s neighbours ~s~%" (length rs) rs)
 		     #t))))
 	   (list 4 0) (list 6 0)))))
 
@@ -1886,7 +1887,7 @@
 			  (append residue-attributes (list rotamer-number)))
 		   (let ((rotamer-name (apply get-rotamer-name imol residue-attributes))
 			 (rotamer-prob (apply rotamer-score imol residue-attributes-with-alt-conf)))
-		     (format #t " Rotamer ~s : ~s ~s ~%" 
+		     (format #t "   Rotamer ~s : ~s ~s ~%" 
 			     rotamer-number rotamer-name rotamer-prob)
 		     (if (not (close-float? correct-prob rotamer-prob))
 			 (begin
@@ -1932,7 +1933,7 @@
 	       (lambda (residue-info)
 		 (let ((residue-spec (cdr residue-info))
 		       (expected-status (car residue-info)))
-		   (format #t "::::: ~s ~s ~s~%" residue-spec 
+		   (format #t "    ::::: ~s ~s ~s~%" residue-spec 
 			   (apply residue-in-molecule? residue-spec)
 			   expected-status)
 		   (eq? 
@@ -2501,7 +2502,7 @@
    (lambda () 
      (let* ((imol (greg-pdb "tutorial-modern.pdb"))
 	    (specs (fit-protein-make-specs imol 'all-chains)))
-       (format #t "specs: ~s ~s~%" (length specs) specs)
+       (format #t "   specs: ~s ~s~%" (length specs) specs)
        (= (length specs) 189))))
 
 

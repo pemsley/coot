@@ -32,6 +32,8 @@
 
 #include "cos-sin.h"
 
+#include <string.h> // strncmp
+
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"
 #include "mmdb.h"

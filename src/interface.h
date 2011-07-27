@@ -143,6 +143,7 @@ GtkWidget* create_fixed_atom_dialog (void);
 GtkWidget* create_add_reps_dialog (void);
 GtkWidget* create_run_refmac_nolabels_help_dialog (void);
 GtkWidget* create_map_sharpening_dialog (void);
+GtkWidget* create_fix_nomenclature_errors_dialog (void);
 
 #if (GTK_MAJOR_VERSION > 1)
 char* coot_revision(void);

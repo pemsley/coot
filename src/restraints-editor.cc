@@ -31,6 +31,7 @@
 #  include <config.h>
 #endif
 
+#include <string.h>  // strcpy
 #include <gtk/gtk.h>
 
 #if (GTK_MAJOR_VERSION > 1)

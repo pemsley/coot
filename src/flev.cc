@@ -29,9 +29,7 @@
 // For reasons I don't understand, this should come near the top of
 // includes, otherwise we get RDKit dcgettext() include file problems.
 //
-#ifdef MAKE_ENTERPRISE_TOOLS
 #include "lbg.hh"
-#endif
 
 #include "c-interface-ligands.hh"
 #include "mmdb-extras.h"
@@ -263,6 +261,25 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		     ah.cannonballs(res_ref, prodrg_output_3d_pdb_file_name, p.second);
 		     ah.distances_to_protein(res_ref, mol);
 		     write_ligand_atom_accessibilities(s_a_v, ah, flat_res);
+
+		     std::pair<bool, coot::residue_spec_t>
+			ligand_spec_pair(1, coot::residue_spec_t(res_ref));
+		     
+		     std::string view_name;
+		     
+
+		     bool use_graphics_flag = graphics_info_t::use_graphics_interface_flag;
+		     bool stand_alone_flag = 0; // no, it isn't from here.
+
+		     lig_build::molfile_molecule_t m;
+
+#ifdef HAVE_GOOCANVAS		     
+		     lbg_info_t *lbg_local_p = lbg(m, ligand_spec_pair,
+						   NULL, view_name, ligand_res_name, imol,
+						   use_graphics_flag, stand_alone_flag);
+
+#endif // HAVE_GOOCANVAS		     
+		     
 
 		  }
 	       }
