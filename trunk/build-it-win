@@ -2123,11 +2123,11 @@ if test -n "$build_pkg_config" ; then
    echo BUILDING pkg-config:
    #
    pkg_config_version=0.25-1
-   ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config-$pkg_config_version.zip
+   ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config-$pkg_config_version_win32.zip
    (
    date
    cd $install_top_dir
-   7z x -y ${AUTOBUILD_SOURCES}/pkg-config-$pkg_config_version.zip
+   7z x -y ${AUTOBUILD_SOURCES}/pkg-config-$pkg_config_version_win32.zip
    cd -
 ) > $HOSTLOGDIR/05-pkg-config.txt 2>&1
 else 
