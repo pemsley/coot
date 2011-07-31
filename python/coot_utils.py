@@ -2851,6 +2851,7 @@ map_colour_components  = map_colour_components_py
 dictionaries_read      = dictionaries_read_py
 monomer_restraints     = monomer_restraints_py
 set_monomer_restraints = set_monomer_restraints_py
+list_nomenclature_errors = list_nomenclature_errors_py
 atom_info_string       = atom_info_string_py
 residue_info           = residue_info_py
 residue_name           = residue_name_py

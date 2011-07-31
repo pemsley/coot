@@ -1841,6 +1841,8 @@ topological_equivalence_t::assign_invariant_sequence_number(const std::vector<lo
    isn.resize(atoms.size(), 0);
    std::map<long int, std::vector<int> > topo_indices;
    std::map<long int, std::vector<int> >::const_reverse_iterator it_topo;
+   std::map<long int, std::vector<int> >::const_reverse_iterator start_it_topo  = topo_indices.rbegin();
+   std::map<long int, std::vector<int> >::const_reverse_iterator end_it_topo = topo_indices.rend();
 
    for (unsigned int iat=0; iat<extended_connectivity.size(); iat++)
       topo_indices[extended_connectivity[iat]].push_back(iat);
@@ -1851,7 +1853,7 @@ topological_equivalence_t::assign_invariant_sequence_number(const std::vector<lo
    // so now iterate through topo_indices, hight to low
    // 
    int next_index = 1;
-   for (it_topo=topo_indices.rbegin(); it_topo!=topo_indices.rend(); it_topo++) { 
+   for (it_topo=start_it_topo; it_topo!=end_it_topo; it_topo++) { 
 
       const std::vector<int> &atom_index_deepest = it_topo->second;
       int first_atom_index = atom_index_deepest[0];

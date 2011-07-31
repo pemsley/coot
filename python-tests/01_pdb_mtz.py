@@ -97,6 +97,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         """Don't crash on empty NCS from mmCIF file"""
 
         imol = unittest_pdb("2WF6.pdb")
+        print "   closing molecule number", imol
         close_molecule(imol)
          # no testing, just not crashing
          
@@ -133,9 +134,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
         change_residue_number(frag_pdb, "A", 67, "", 68, "")
         ar_2 = active_residue()
         ins_2 = ar_2[3]
-        print "pre and post ins codes: ", ins_1, ins_2
+        print "   pre and post ins codes: ", ins_1, ins_2
         self.failUnlessEqual(ins_2, "A",
-                             " Fail ins code set: %s is not 'A'" %ins_2)
+                             "Fail ins code set: %s is not 'A'" %ins_2)
 
         test_expected_results = [[goto_next_atom_maybe("A", 67, "",  " CA "),
                                   ["A", 68, "",  " CA "]],
@@ -207,7 +208,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         for file_name in mtz_list:
             r = auto_read_make_and_draw_maps(file_name)
-            print "got status: ", r
+            print "   got status: ", r
         # no crash
         
         
@@ -220,7 +221,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         v = map_sigma(imol_rnase_map)
         self.failUnless(v > 0.2 and v < 1.0)
         v2 = map_sigma(imol_rnase)
-        print "INFO:: map sigmas", v, v2
+        print "   INFO:: map sigmas", v, v2
         self.failIf(v2)
 
 
@@ -653,13 +654,6 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         o = grep_to_list("CISPEP", tmp_file)
         self.failUnlessEqual(len(o), 3)
-        #txt_str = "CISPEPs: "
-        #for cis in o:
-            #    txt_str += cis
-        #print txt_str
-
-        # self.failUnlessEqual("4", parts)   # this temporarily until MMDB works properly
-        #self.failUnlessEqual("3", parts)   # this is once MMDB works properly with CIS
 
 
     def test19_0(self):
@@ -695,7 +689,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
             all_residues = [centred_residue]
             if other_residues:
                 all_residues += other_residues
-            print "imol: %s residues: %s" %(imol, all_residues)
+            print "   imol: %s residues: %s" %(imol, all_residues)
             refine_residues(imol, all_residues)
 
         imol = unittest_pdb("tutorial-add-terminal-1-test.pdb")
@@ -742,15 +736,15 @@ class PdbMtzTestFunctions(unittest.TestCase):
         failed = True
         for idum in range(5):
             results = refine_zone_with_full_residue_spec(imol, "A", 40, "", 43, "", "")
-            print "refinement results:", results
+            print "   refinement results:", results
             ow = weight_scale_from_refinement_results(results)
-            print "ow factor", ow
+            print "   ow factor", ow
             if (ow < 1.1 and ow > 0.9):
                 failed = False
                 break
             else:
                 new_weight = matrix_state() / (ow * ow)
-                print "INFO:: setting refinement weight to", new_weight
+                print "   INFO:: setting refinement weight to", new_weight
                 set_matrix(new_weight)
 
         self.failIf(failed,
@@ -1001,7 +995,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
             self.failIf(line[0:3] == "END",
                         "Found END before TER and OXT")
             if (line[0:3] == "TER"):
-                print "found TER", line
+                print "   found TER", line
                 ter_line = True
                 self.failUnless(oxt_line)   # TER happens after OXT line
                 break # pass (have TER after OXT)
@@ -1107,7 +1101,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         low_values = map(lambda pt: density_at_point(imol_masked, *pt),
                          low_pts)
 
-        print "high-values: %s  low values: %s" %(high_values, low_values)
+        print "   high-values: %s  low values: %s" %(high_values, low_values)
 
         self.failUnless((sum(low_values) < 0.000001), "Bad low values")
 
@@ -1125,7 +1119,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         diff_low_values = map(lambda pt: density_at_point(diff_map, *pt),
                               low_pts)
 
-        print "diff-high-values: %s  diff-low-values: %s" %(diff_high_values, diff_low_values)
+        print "   diff-high-values: %s  diff-low-values: %s" %(diff_high_values, diff_low_values)
 
         self.failUnless((sum(diff_high_values) < 0.03),
                         "Bad diff low values")
@@ -1175,7 +1169,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         atom_1 = get_atom(imol, "A", 1, "", " O4 ")
         atom_2 = get_atom(imol, "A", 2, "", " C1 ")
 
-        print "bond-length: ", bond_length(atom_1[2], atom_2[2])
+        print "   bond-length: ", bond_length(atom_1[2], atom_2[2])
 
         s = dragged_refinement_steps_per_frame()
         set_dragged_refinement_steps_per_frame(300)
@@ -1185,7 +1179,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         atom_1 = get_atom(imol, "A", 1, "", " O4 ")
         atom_2 = get_atom(imol, "A", 2, "", " C1 ")
 
-        print "bond-length: ", bond_length(atom_1[2], atom_2[2])
+        print "   bond-length: ", bond_length(atom_1[2], atom_2[2])
 
     def test31_0(self):
         """Test for flying hydrogens on undo"""
@@ -1246,7 +1240,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         atom_pair = [" CB ", " CG "]
         m = monomer_restraints("TYR")
-
+        self.failUnless(m, "   update bond restraints - no momomer restraints")
+        
         n = strip_bond_from_restraints(atom_pair, m)
         set_monomer_restraints("TYR", n)
 
@@ -1263,7 +1258,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         self.failUnless(bond_length_within_tolerance_qm(atom_1, atom_2, 2.8, 0.6),
                         "fail 2.8 tolerance test")
-        print "pass intermediate 2.8 tolerance test"
+        print "   pass intermediate 2.8 tolerance test"
         set_monomer_restraints("TYR", m)
 
         with_auto_accept([refine_zone, imol, "A", 30, 30, ""])
@@ -1424,7 +1419,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failIf(all(map(atoms_match_qm, moved_res, reference_res)),
                     "   fail - moved-res and replaced-res Match!")
 
-        print "distances: ", map(atom_distance, reference_res, replaced_res)
+        print "   distances: ", map(atom_distance, reference_res, replaced_res)
         self.failUnless(all(map(lambda d: d > 20, map(atom_distance, reference_res, replaced_res))))
 
 
@@ -1436,7 +1431,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
             rs = residues_near_residue(imol_rnase, ["A", 40, ""], dist)
             self.failUnless(len(rs) == n_neighbours,
                             "wrong number of neighbours %s %s" %(len(rs), rs))
-            print "found %s neighbours %s" %(len(rs), rs)
+            print "   found %s neighbours %s" %(len(rs), rs)
 
 
     def test38_0(self):
@@ -1511,7 +1506,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
             set_residue_to_rotamer_number(imol, *(residue_attributes + [rotamer_number]))
             rotamer_name = get_rotamer_name(imol, *residue_attributes)
             rotamer_prob = rotamer_score(imol, *(residue_attributes + [""]))
-            print " Rotamer %s : %s %s" %(rotamer_number, rotamer_name, rotamer_prob)
+            print "   Rotamer %s : %s %s" %(rotamer_number, rotamer_name, rotamer_prob)
             self.failUnlessAlmostEqual(rotamer_prob, correct_prob, 3,
                                        "fail on rotamer probability: result: %s %s" %(rotamer_prob, correct_prob)),
             self.failUnless(rotamer_name == correct_name)
@@ -1556,7 +1551,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         def compare_res_spec(res_info):
             residue_spec = res_info[1:len(res_info)]
             expected_status = res_info[0]
-            print ":::::", residue_spec, residue_in_molecule_qm(*residue_spec), expected_status
+            print "    :::::", residue_spec, residue_in_molecule_qm(*residue_spec), expected_status
             if (residue_in_molecule_qm(*residue_spec) == expected_status):
                 return True
             else:
@@ -1988,7 +1983,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         imol = unittest_pdb("tutorial-modern.pdb")
         specs = fit_protein_make_specs(imol, 'all-chains')
-        print "specs:", len(specs), specs
+        print "   specs:", len(specs), specs
         self.failUnless(len(specs) == 189)
    
         

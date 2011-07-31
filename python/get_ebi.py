@@ -191,8 +191,10 @@ def get_eds_pdb_and_mtz(id):
                     return [imol, imol_map, imol_map_d]
     
     eds_site = "http://eds.bmc.uu.se/eds"
+    eds_core = "http://eds.bmc.uu.se"
 
     # "1cbds" -> "cb/"
+    #
     def mid_chars(id_code):
         if not id_code:  # check for string?
             return "//fail//"
@@ -217,8 +219,16 @@ def get_eds_pdb_and_mtz(id):
             model_url = eds_url + mc + down_id + "/" + target_pdb_file
             target_mtz_file = down_id + "_sigmaa.mtz"
             dir_target_mtz_file = coot_tmp_dir + "/" + target_mtz_file
-            mtz_url = eds_url + mc +down_id + "/" + target_mtz_file
+            mtz_url = eds_url + mc + down_id + "/" + target_mtz_file
+            eds_info_page = eds_core + "/cgi-bin/eds/uusfs?pdbCode=" + down_id
 
+            try:
+                pre_download_info = coot_get_url_as_string(eds_info_page)
+                print "INFO:: --------------- pre-download-info:", pre_download_info
+                bad_map_status = "No reliable map available" in pre_download_info
+            except:
+                print "BL ERROR:: could not get pre_download_info from", eds_core
+                bad_map_status = True
             try:
                 s1 = urllib.urlretrieve(model_url, dir_target_pdb_file)
                 print "INFO:: read model status: ",s1
@@ -230,10 +240,17 @@ def get_eds_pdb_and_mtz(id):
             except IOError:
                 print "BL ERROR:: We can't open ", mtz_url 
 
+            if bad_map_status:
+                s = "EDS message: This map (" + \
+                    down_id + ") is not a reliable map"
+                info_dialog(s)
+
+            # maybe should then not load the map!?
 
             r_imol = handle_read_draw_molecule(dir_target_pdb_file)
-            sc_map = make_and_draw_map(dir_target_mtz_file,"2FOFCWT","PH2FOFCWT","",0,0)
-            make_and_draw_map(dir_target_mtz_file,"FOFCWT","PHFOFCWT","",0,1)
+            sc_map = make_and_draw_map(dir_target_mtz_file, "2FOFCWT", "PH2FOFCWT","",0,0)
+            make_and_draw_map(dir_target_mtz_file, "FOFCWT", "PHFOFCWT",
+                              "", 0, 1)
             set_scrollable_map(sc_map)
             if (valid_model_molecule_qm(r_imol)):
                 return r_imol
