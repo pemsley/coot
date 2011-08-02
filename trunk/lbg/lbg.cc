@@ -54,7 +54,7 @@ lbg(lig_build::molfile_molecule_t mm,
    bool r = 0; // fail
    std::string glade_file = "lbg.glade";
 
-   std::string glade_file_full = PKGDATADIR;
+   std::string glade_file_full = coot::package_data_dir();
    glade_file_full += "/";
    glade_file_full += glade_file;
 
