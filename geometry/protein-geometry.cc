@@ -2155,33 +2155,49 @@ coot::protein_geometry::add_chem_links(PCMMCIFLoop mmCIFLoop) {
       
       s = mmCIFLoop->GetString("id", j, ierr);
       ierr_tot += ierr;
+      if (ierr)
+	 std::cout << "WARNING add_chem_links error getting field \"id\"" << std::endl;
       if (s) chem_link_id = s;
 
       s = mmCIFLoop->GetString("comp_id_1", j, ierr);
+      if (ierr)
+	 std::cout << "WARNING add_chem_links error getting field \"comp_id_1\"" << std::endl;
       ierr_tot += ierr;
       if (s) chem_link_comp_id_1 = s;
 
       s = mmCIFLoop->GetString("mod_id_1", j, ierr);
+      if (ierr)
+	 std::cout << "WARNING add_chem_links error getting field \"mod_id_1\"" << std::endl;
       ierr_tot += ierr;
       if (s) chem_link_mod_id_1 = s;
 
       s = mmCIFLoop->GetString("group_comp_1", j, ierr);
+      if (ierr)
+	 std::cout << "WARNING add_chem_links error getting field \"group_comp_1\"" << std::endl;
       ierr_tot += ierr;
       if (s) chem_link_group_comp_1 = s;
 
       s = mmCIFLoop->GetString("comp_id_2", j, ierr);
+      if (ierr)
+	 std::cout << "WARNING add_chem_links error getting field \"comp_id_2\"" << std::endl;
       ierr_tot += ierr;
       if (s) chem_link_comp_id_2 = s;
 
       s = mmCIFLoop->GetString("mod_id_2", j, ierr);
+      if (ierr)
+	 std::cout << "WARNING add_chem_links error getting field \"mod_id_2\"" << std::endl;
       ierr_tot += ierr;
       if (s) chem_link_mod_id_2 = s;
 
       s = mmCIFLoop->GetString("group_comp_2", j, ierr);
+      if (ierr)
+	 std::cout << "WARNING add_chem_links error getting field \"group_comp_2\"" << std::endl;
       ierr_tot += ierr;
       if (s) chem_link_group_comp_2 = s;
 
       s = mmCIFLoop->GetString("name", j, ierr);
+      if (ierr)
+	 std::cout << "WARNING add_chem_links error getting field \"name\"" << std::endl;
       ierr_tot += ierr;
       if (s) chem_link_name = s;
 
@@ -2192,6 +2208,17 @@ coot::protein_geometry::add_chem_links(PCMMCIFLoop mmCIFLoop) {
 			       chem_link_name);
 	 // std::cout << "Adding to chem_link_vec: " << clink << std::endl;
 	 chem_link_vec.push_back(clink);
+      } else {
+	 std::cout << "WARNING:: an error occurred when trying to add link: "
+		   << "\"" << chem_link_id << "\" "
+		   << "\"" << chem_link_comp_id_1 << "\" "
+		   << "\"" << chem_link_mod_id_1 << "\" "
+		   << "\"" << chem_link_group_comp_1 << "\" "
+		   << "\"" << chem_link_comp_id_2 << "\" "
+		   << "\"" << chem_link_mod_id_2 << "\" "
+		   << "\"" << chem_link_group_comp_2 << "\" "
+		   << "\"" << chem_link_name << "\" "
+		   << std::endl;
       }
    }
 }
@@ -2202,8 +2229,9 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &comp_id_2,
 					     const std::string &group_2) const {
 
-   if (0) { 
-      std::cout << "   ------\nDEBUG:: in matches_comp_ids_and_groups "
+   bool debug = 0;
+   if (debug) { 
+      std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups "
 		<< id << " " << chem_link_name << ": input comp_ids "
 		<< comp_id_1 << " and " << comp_id_2 << " vs :"
 		<< chem_link_comp_id_1 << ": :"
@@ -2246,11 +2274,11 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "DNA")))
       match = 1;
 
-   if (0) 
-      std::cout << "matches_comp_ids_and_groups given "
-		<< comp_id_1 << " and " << group_1 << " and " 
-		<< comp_id_2 << " and " << group_2 
-		<< " returns " << match << std::endl;
+   if (debug) 
+      std::cout << "    matches_comp_ids_and_groups given comp_id_1: \""
+		<< comp_id_1 << "\" and group_1: \"" << group_1 << "\" and comp_id_2: \"" 
+		<< comp_id_2 << "\" and group_2: \"" << group_2 
+		<< "\" returns " << match << std::endl;
 	
    if (match == 1)
       return std::pair<bool, bool>(match, order_switch);
@@ -2781,8 +2809,9 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 }
 
 // throw an error on no chem links at all. (20100420, not sure why an
-// exception is thrown, why not just return an empty vector?)  Perhaps
-// the throwing of the exception is a hang-over from when this
+// exception is thrown, why not just return an empty vector?)
+//
+// Perhaps the throwing of the exception is a hang-over from when this
 // function returned a pair, not a vector of chem_link (and
 // assocciated order_switch_flags).
 // 
@@ -2796,6 +2825,12 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    bool switch_order_flag = 0;
    bool found = 0;
    bool debug = 0;
+
+//    if (debug) { 
+//       std::cout << "---------------------- Here are the chem_links: -----------------"
+// 		<< std::endl;
+//       print_chem_links();
+//    }
    
    // Is this link a TRANS peptide or a CIS?  Both have same group and
    // comp_ids.  Similarly, is is BETA-1-2 or BETA1-4 (etc).  We need
@@ -2822,8 +2857,17 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	       found = 1;
 	       std::pair<coot::chem_link, bool> p(clt, switch_order_flag);
 	       matching_chem_links.push_back(p);
-	    }
-	 }
+	       break; // we only want to find one chem link for this comp_id pair.
+	    } else {
+	       if (debug)
+		  std::cout << "reject link on peptide/allow-peptide test " << std::endl;
+	    } 
+	 } else {
+	    if (debug) { 
+	       std::cout << "reject link \"" << chem_link_vec[i_chem_link].Id() << "\""
+			 << std::endl;
+	    } 
+	 } 
       }
    }
 
@@ -2832,14 +2876,15 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    // do).
    // 
    if ( (!found) && (allow_peptide_link_flag)) {
-      std::string rte = "INFO:: No chem link for groups ";
+      std::string rte = "INFO:: No chem link for groups \"";
       rte += group_1;
-      rte += " ";
+      rte += "\" \"";
       rte += group_2;
-      rte += " and comp_ids ";
+      rte += "\" and comp_ids \"";
       rte += comp_id_1;
-      rte += " ";
+      rte += "\" \"";
       rte += comp_id_2;
+      rte += "\"";
       throw std::runtime_error(rte);
    }
    return matching_chem_links;
