@@ -1217,7 +1217,6 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
  			   scroll_radio_button_1,
  			   NULL);
   
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), FALSE);
 
   gtk_widget_show(scroll_radio_button_1);
   gtk_box_pack_start(GTK_BOX(hbox32), scroll_radio_button_1, FALSE,FALSE, 2);
@@ -1227,9 +1226,14 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   gtk_signal_connect(GTK_OBJECT(scroll_radio_button_1), "group_changed",
 		     GTK_SIGNAL_FUNC (on_display_control_map_scroll_radio_button_group_changed),
 		     GINT_TO_POINTER(n));
+  
   if (scroll_wheel_map() == n) {
      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), TRUE);
-  }
+  } else {
+     if (previous_radio_button) { 
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), FALSE);
+     } 
+  } 
 
   
 /* -- */
@@ -1320,13 +1324,11 @@ GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
 	 if (i<imol_this) { 
 	    if (is_valid_map_molecule(i)) {
 	       if (i != imol_this) {
-		  if (map_is_displayed(i)) { 
-		     std::string test_name = "map_scroll_button_";
-		     test_name += coot::util::int_to_string(i);
-		     w = lookup_widget(display_manager_dialog, test_name.c_str());
-		     if (w)
-			break;
-		  }
+		  std::string test_name = "map_scroll_button_";
+		  test_name += coot::util::int_to_string(i);
+		  w = lookup_widget(display_manager_dialog, test_name.c_str());
+		  if (w)
+		     break;
 	       }
 	    }
 	 }
