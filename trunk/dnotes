@@ -6032,6 +6032,23 @@ Sun Jun 19 14:18:41 BST 2011
 
 * Done.
 
+
+----
+Wed Jul 20 19:34:25 BST 2011
+
+    Ctrl Shift middle-mouse behaves differently to Shift Ctrl middle-mouse
+
+
+----
+Fri Jul 22 16:43:47 BST 2011
+
+    Make a small tutorial for jligand link making.  
+
+    Find something from the PDB?
+
+    Check jligand tutorial first?
+
+
 ---
 Sun Jul 10 23:29:32 BST 2011
 
@@ -6058,6 +6075,13 @@ Tue Jul 26 23:11:17 BST 2011
 
     mutate and autofit to an MSE should change the atoms to HETATM, but it does not.
 
+
+----
+Fri Jul 29 19:48:03 BST 2011
+
+    importing an sdf/mdl file should create a residue with HETATMs!
+
+    Get the TLC from the first line (if the first line consists of 3 letters)
 
 ------
 

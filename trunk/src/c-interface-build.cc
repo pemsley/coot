@@ -6865,13 +6865,14 @@ protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int n
 		<< scm_to_locale_string(display_scm(residue_specs_scm))
 		<< std::endl;
    } else {
-      std::pair<int, std::vector<int> > p = 
+      std::pair<std::pair<int, int>, std::vector<int> > p = 
 	 protein_db_loops(imol_coords, specs, imol_map, nfrags);
       SCM mol_list_scm = SCM_EOL;
       // add backwards (for scheme)
       for (int i=(p.second.size()-1); i>=0; i--)
 	 mol_list_scm = scm_cons(SCM_MAKINUM(p.second[i]), mol_list_scm);
-      r = scm_list_2(SCM_MAKINUM(p.first), mol_list_scm);
+      SCM first_pair_scm = scm_list_2(SCM_MAKINUM(p.first.first), SCM_MAKINUM(p.first.second));
+      r = scm_list_2(first_pair_scm, mol_list_scm);
    } 
    return r;
 } 
@@ -6888,13 +6889,17 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
 		<< PyString_AsString(display_python(residue_specs_py))
 		<< std::endl;
    } else {
-      std::pair<int, std::vector<int> > p = 
+      std::pair<std::pair<int, int>, std::vector<int> > p = 
 	 protein_db_loops(imol_coords, specs, imol_map, nfrags);
       PyObject *mol_list_py = PyList_New(p.second.size());
       for (int i=0; i< p.second.size(); i++)
         PyList_SetItem(mol_list_py, i, PyInt_FromLong(p.second[i]));
       r = PyList_New(2);
-      PyList_SetItem(r, 0, PyInt_FromLong(p.first));
+      PyObject *loop_molecules = PyList_New(2);
+      PyList_SetItem(loop_molecules, 0, PyInt_FromLong(p.first.first));
+      PyList_SetItem(loop_molecules, 1, PyInt_FromLong(p.first.second));
+
+      PyList_SetItem(r, 0, loop_molecules);
       PyList_SetItem(r, 1, mol_list_py);
    } 
    if (PyBool_Check(r)) {
@@ -6904,12 +6909,15 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
 } 
 #endif //PYTHON 
 
-// return the imol of the consolodated molecule and the vector of
-// molecule indices for each of the candidate loops.
+// return in the first pair, the imol of the new molecule generated
+// from an atom selection of the imol_coords for the residue selection
+// of the loop and the molecule number of the consolidated solutions
+// (displayed in purple).  and the second of the outer pair, there is
+// vector of molecule indices for each of the candidate loops.
 // 
 // return -1 in the first of the pair on failure
 // 
-std::pair<int, std::vector<int> > 
+std::pair<std::pair<int, int> , std::vector<int> > 
 protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map, int nfrags) {
 
    int imol_consolodated = -1;
@@ -6973,7 +6981,8 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 	 }
       }
    }
-   return std::pair<int, std::vector<int> > (imol_loop_orig, vec_chain_mols); 
+   std::pair<int, int> p(imol_loop_orig, imol_consolodated);
+   return std::pair<std::pair<int, int>, std::vector<int> > (p, vec_chain_mols); 
 } 
 
 // so that we can create a "original loop" molecule from the atom
