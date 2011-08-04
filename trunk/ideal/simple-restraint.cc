@@ -4215,8 +4215,8 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 	    // ins code test here in the future.
 	    if ( abs(SelResidue[i]->GetSeqNum() - SelResidue[i+1]->GetSeqNum()) <= 1) { 
 	       link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
-	       std::cout << "DEBUG in bonded_residues_by_linear() link_type is :"
-			 << link_type << ":" << std::endl;
+	       // std::cout << "DEBUG in bonded_residues_by_linear() link_type is :"
+		// 	 << link_type << ":" << std::endl;
 	       if (link_type != "") {
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
@@ -4264,7 +4264,9 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
    bool debug = 0;
    coot::bonded_pair_container_t bpc;
    float dist_crit = 3.0;
-   // std::cout << "  debug:: residues_vec.size() " << residues_vec.size() << std::endl;
+
+   if (debug)
+      std::cout << "  debug:: residues_vec.size() " << residues_vec.size() << std::endl;
 
    int nres = residues_vec.size();
    for (int ii=0; ii<residues_vec.size(); ii++) {
@@ -4272,9 +4274,12 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
       for (int jj=ii+1; jj<residues_vec.size(); jj++) {
 	 CResidue *res_s = residues_vec[jj].second;
 	 std::pair<bool, float> d = closest_approach(res_f, res_s);
-// 	 std::cout << " closest approach given " << coot::residue_spec_t(res_f)
-// 		   << " and " << coot::residue_spec_t(res_s) << std::endl;
-// 	 std::cout << " closest approach d " << d.first << " " << d.second << std::endl;
+
+	 if (debug) { 
+	    std::cout << " closest approach given " << coot::residue_spec_t(res_f)
+		      << " and " << coot::residue_spec_t(res_s) << std::endl;
+	    std::cout << " closest approach d " << d.first << " " << d.second << std::endl;
+	 } 
 	 if (d.first) {
 	    if (d.second < dist_crit) {
 	       std::pair<std::string, bool> l = find_link_type_rigourous(res_f, res_s, geom);
@@ -4282,7 +4287,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	       if (link_type != "") {
 
 		  // too verbose?
-		  if (1) 
+		  if (debug) 
 		     std::cout << "   INFO:: "
 			       << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
 			       << " link_type :" << link_type << ":" << std::endl;
@@ -4300,6 +4305,10 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 					   whole_second_residue_is_fixed, link_type);
 		     bpc.try_add(p);
 		  }
+	       } else {
+		  if (debug)
+		     std::cout << "DEBUG:: find_link_type_rigourous() returns \"" << l.first << "\" "
+			       << l.second << std::endl;
 	       } 
 	    }
 	 }
@@ -4595,7 +4604,7 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
       std::string group_1 = geom.get_group(first);
       std::string group_2 = geom.get_group(second);
       if (debug)
-	 std::cout << "====== debug:: find_link_type_rigourous() from "
+	 std::cout << "====== DEBUG:: find_link_type_rigourous() from "
 		   << first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetResName()
 		   << " <--> " 
 		   << second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
@@ -4647,7 +4656,7 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 		  // debug::
 		  if (debug)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
-			std::cout << "   debug:: non-peptide link: " << link_infos_non_peptide[il].first.Id()
+			std::cout << "   DEBUG:: non-peptide link: " << link_infos_non_peptide[il].first.Id()
 				  << std::endl;
 	       
 		  // 20100330 eh?  is something missing here?  What
@@ -4672,7 +4681,7 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	    } else {
 
 	       if (debug)
-		  std::cout << "   find_link_type_rigourous() not a peptide link... " << std::endl;
+		  std::cout << "DEBUG::   find_link_type_rigourous() not a peptide link... " << std::endl;
 	       //
 	       order_switch_flag = link_infos[ilink].second;
 	    
@@ -4686,7 +4695,8 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	       } else {
 
 		  if (debug)
-		     std::cout << "   find_link_type_rigourous() not a glycosidic_linkage... " << std::endl;
+		     std::cout << "DEBUG::   find_link_type_rigourous() not a glycosidic_linkage... "
+			       << std::endl;
 
 		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
 		     geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
@@ -4694,7 +4704,7 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 		  // debug::
 		  if (debug)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
-			std::cout << "   debug:: " << il << " of " << link_infos_non_peptide.size()
+			std::cout << "   DEBUG:: " << il << " of " << link_infos_non_peptide.size()
 				  << " non-peptide link: " << link_infos_non_peptide[il].first.Id()
 				  << std::endl;
 	       
