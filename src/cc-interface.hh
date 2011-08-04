@@ -901,7 +901,15 @@ std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
 /*! \name protein-db */
 /* \{ */
 /*! \brief Cowtan's protein_db loops */
-std::pair<int, std::vector<int> >
+// return in the first pair, the imol of the new molecule generated
+// from an atom selection of the imol_coords for the residue selection
+// of the loop and the molecule number of the consolidated solutions
+// (displayed in purple).  and the second of the outer pair, there is
+// vector of molecule indices for each of the candidate loops.
+// 
+// return -1 in the first of the pair on failure
+// 
+std::pair<std::pair<int, int> , std::vector<int> >
 protein_db_loops(int imol_coords, 
 		 const std::vector<coot::residue_spec_t> &residue_specs, 
 		 int imol_map, int nfrags);

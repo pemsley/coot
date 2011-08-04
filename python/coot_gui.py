@@ -4895,7 +4895,8 @@ def click_protein_db_loop_gui():
             loop_mols = protein_db_loops(imol, residue_specs,
                                          imol_refinement_map(),
                                          10)
-            imol_loop_orig = loop_mols[0]
+            imol_loop_orig = loop_mols[0][0]
+            imol_loops_consolodated = loop_mols[0][1]
             loop_mols = loop_mols[1]
             min_resno = min_max_and_chain_id[0]
             max_resno = min_max_and_chain_id[1]

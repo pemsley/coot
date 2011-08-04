@@ -3650,7 +3650,9 @@
 					    (protein-db-loops imol residue-specs 
 							      (imol-refinement-map)
 							      10)))
-				       (let ((imol-loop-orig (car loop-mols))
+
+				       (let ((imol-loop-orig (car (car loop-mols)))
+					     (imol-loops-consolodated (cadr (car loop-mols)))
 					     (loop-mols (cadr loop-mols))
 					     (min-resno (list-ref min-max-and-chain-id 0))
 					     (max-resno (list-ref min-max-and-chain-id 1))
@@ -3673,12 +3675,17 @@
 						   (dialog-box-of-buttons
 						    "Loop Candidates" 
 						    (cons 360 200)
-						    (cons 
-						     (list "Original loop"
-							   (lambda () 
-							     (copy-residue-range imol chain-id 
-										 imol-loop-orig chain-id
-										 min-resno max-resno)))
+						    (append
+						     (list 
+						      (list "Original Loop"
+							    (lambda () 
+							      (copy-residue-range imol chain-id 
+										  imol-loop-orig chain-id
+										  min-resno max-resno)))
+						      (list "Toggle All Candidate Loops"
+							    (lambda () 
+							      (toggle-display-mol imol-loops-consolodated)))
+						      )
 						     buttons)
 						    " Close ")))))))))))))
 
