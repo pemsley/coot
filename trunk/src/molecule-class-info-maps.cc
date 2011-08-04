@@ -279,6 +279,9 @@ molecule_class_info_t::set_draw_solid_density_surface(bool state) {
 
 
 // Create a new combo box for this newly created map.
+//
+// bleugh.  Using graphics_info_t here!?
+// 
 void
 molecule_class_info_t::update_map_in_display_control_widget() const { 
 

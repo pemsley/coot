@@ -715,22 +715,45 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
 // I find this somewhat asthetically pleasing (maybe because the
 // display control widgets are uniquely named [which was a bit of a
 // struggle in C, I seem to recall]).
+//
+// scroll_wheel_map must be set correctly before coming here.
 // 
 // static
 void
 graphics_info_t::activate_scroll_radio_button_in_display_manager(int imol) {
 
+//    graphics_info_t g;
+//    if (g.display_control_window()) {
+//       std::string wname = "map_scroll_button_";
+//       wname += graphics_info_t::int_to_string(imol);
+//       GtkWidget *w = lookup_widget(g.display_control_window(), wname.c_str());
+//       if (w) {
+// 	 if (g.scroll_wheel_map == imol) {
+// 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+// 	 }
+//       }
+//    }
+
+   
    graphics_info_t g;
    if (g.display_control_window()) {
-      std::string wname = "map_scroll_button_";
-      wname += graphics_info_t::int_to_string(imol);
-      GtkWidget *w = lookup_widget(g.display_control_window(), wname.c_str());
-      if (w) {
-	 if (g.scroll_wheel_map == imol) {
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+
+      // toggle all the other maps off of being scrolled map and this one on.
+      for (unsigned int i=0; i<molecules.size(); i++) { 
+	 if (is_valid_map_molecule(i)) {
+	    std::string wname = "map_scroll_button_";
+	    wname += graphics_info_t::int_to_string(i);
+	    GtkWidget *w = lookup_widget(g.display_control_window(), wname.c_str());
+	    if (w) {
+	       if (i == g.scroll_wheel_map) {
+		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+	       } else {
+		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), FALSE);
+	       }
+	    } 
 	 }
       }
-   }
+   } 
 }
 
 
