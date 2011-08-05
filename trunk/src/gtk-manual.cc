@@ -1321,15 +1321,13 @@ GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
    GtkWidget *w = NULL;
    if (display_manager_dialog) {
       for (int i=0; i<graphics_n_molecules(); i++) {
-	 if (i<imol_this) { 
-	    if (is_valid_map_molecule(i)) {
-	       if (i != imol_this) {
-		  std::string test_name = "map_scroll_button_";
-		  test_name += coot::util::int_to_string(i);
-		  w = lookup_widget(display_manager_dialog, test_name.c_str());
-		  if (w)
-		     break;
-	       }
+	 if (is_valid_map_molecule(i)) {
+	    if (i != imol_this) {
+	       std::string test_name = "map_scroll_button_";
+	       test_name += coot::util::int_to_string(i);
+	       w = lookup_widget(display_manager_dialog, test_name.c_str());
+	       if (w)
+		  break;
 	    }
 	 }
       }
