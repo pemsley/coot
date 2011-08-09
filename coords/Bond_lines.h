@@ -435,7 +435,7 @@ public:
 			PPCAtom residue_atoms,
 			int n_residue_atoms,
 			coot::protein_geometry *protein_geom, // modifiable, currently
-			short int residue_is_water_flag,
+			bool residue_is_water_flag,
 			bool draw_env_distances_to_hydrogens_flag,
 			float min_dist,
 			float max_dist);

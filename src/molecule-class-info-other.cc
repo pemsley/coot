@@ -875,59 +875,47 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index,
 
    graphics_info_t g;
    graphical_bonds_container bonds_box;
-   
-   PCAtom point_atom_p = atom_sel.atom_selection[atom_index];
-   // std::cout << " DEBUG:: point_atom_p " << point_atom_p << std::endl;
 
-   PPCResidue SelResidues;
-   int nSelResdues;
+   if (atom_index < atom_sel.n_selected_atoms) { 
+      CAtom *point_atom_p = atom_sel.atom_selection[atom_index];
 
-   int ires = point_atom_p->GetSeqNum();
-   char *chain_id = point_atom_p->GetChainID();
+      PPCResidue SelResidues;
+      int nSelResdues;
 
-   int selHnd = atom_sel.mol->NewSelection();
-   atom_sel.mol->Select (selHnd, STYPE_RESIDUE, 1,
-		 chain_id, // chains
-		 ires,"*", // starting res
-		 ires,"*", // ending res
-		 "*",  // residue name
-		 "*",  // Residue must contain this atom name?
-		 "*",  // Residue must contain this Element?
-		 "*",  // altLocs
-		 SKEY_NEW // selection key
-		 );
-   atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResdues);
+      int ires = point_atom_p->GetSeqNum();
+      const char *chain_id = point_atom_p->GetChainID();
+      CResidue *residue_p = point_atom_p->residue;
 
-   if (nSelResdues != 1) {
-      std::cout << " something broken in residue selection in ";
-      std::cout << "make_environment_bonds_box: got " << nSelResdues
-		<< " residues " << std::endl;
-   } else {
+      if (residue_p) { 
 
-      PPCAtom residue_atoms;
-      int nResidueAtoms;
-      SelResidues[0]->GetAtomTable(residue_atoms, nResidueAtoms);
-      if (nResidueAtoms == 0) {
-	 std::cout << " something broken in atom residue selection in ";
-	 std::cout << "make_environment_bonds_box: got " << nResidueAtoms
-		   << " atoms " << std::endl;
+	 PPCAtom residue_atoms;
+	 int nResidueAtoms;
+	 residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+	 if (nResidueAtoms == 0) {
+	    std::cout << " something broken in atom residue selection in ";
+	    std::cout << "make_environment_bonds_box: got " << nResidueAtoms
+		      << " atoms " << std::endl;
+	 } else {
+
+	    bool residue_is_water_flag = false;
+	    bool draw_bonds_to_hydrogens_flag = draw_hydrogens_flag; // class var
+	    std::string residue_name = point_atom_p->GetResName();
+	    if (residue_name == "HOH" || residue_name == "WAT")
+	       residue_is_water_flag = 1;
+	    Bond_lines_container bonds(atom_sel,residue_atoms, nResidueAtoms,
+				       protein_geom_p,
+				       residue_is_water_flag,
+				       draw_bonds_to_hydrogens_flag,
+				       g.environment_min_distance,
+				       g.environment_max_distance);
+	    bonds_box = bonds.make_graphical_bonds();
+	 }
       } else {
-
-	 short int residue_is_water_flag = 0;
-	 bool draw_bonds_to_hydrogens_flag = draw_hydrogens_flag; // class var
-	 std::string residue_name = point_atom_p->GetResName();
-	 if (residue_name == "HOH" || residue_name == "WAT")
-	    residue_is_water_flag = 1;
-	 Bond_lines_container bonds(atom_sel,residue_atoms, nResidueAtoms,
-				    protein_geom_p,
-				    residue_is_water_flag,
-				    draw_bonds_to_hydrogens_flag,
-				    g.environment_min_distance,
-				    g.environment_max_distance);
-	 bonds_box = bonds.make_graphical_bonds();
-      }
-   }
-   atom_sel.mol->DeleteSelection(selHnd);  // Added 20090507
+	 std::cout << "ERROR:: NULL residue_p in make_environment_bonds_box() " << std::endl;
+      } 
+   } else {
+      std::cout << "ERROR bad atom index in make_environment_bonds_box() " << std::endl;
+   } 
    return bonds_box;
 } 
 
