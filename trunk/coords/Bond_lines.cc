@@ -1542,7 +1542,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   PPCAtom residue_atoms,
 					   int n_residue_atoms,
 					   coot::protein_geometry *protein_geom_p, // modifiable
-					   short int residue_is_water_flag,
+					   bool residue_is_water_flag,
 					   bool draw_env_distances_to_hydrogens_flag,
 					   float min_dist,
 					   float max_dist) {
@@ -1615,7 +1615,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	    // smaller if this atom is a hydrogen).
 	    // 
 	    double bonding_dist_max = max_dist;
-	    double shorter_bit = 0.5;
+	    double shorter_bit = 0.38; // tinkered value
 	    // 
 	    if (ele1 == "H" || ele1 == " H")
 	       bonding_dist_max -= shorter_bit;
@@ -1632,10 +1632,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	    double dist = coot::distance(residue_atoms[contact[i].id1],
 					 SelAtom.atom_selection[contact[i].id2]);
 
-	    if ((alt_conf_1 == alt_conf_2) ||
-		(alt_conf_1 == "") || 
-		(alt_conf_2 == "")) {
-	       if (dist <= bonding_dist_max) { 
+	    if (dist <= bonding_dist_max) { 
+	       if ((alt_conf_1 == alt_conf_2) ||
+		   (alt_conf_1 == "") || 
+		   (alt_conf_2 == "")) {
 		  if (draw_env_distances_to_hydrogens_flag ||
 		      ((ele1 != " H") && (ele2 != " H"))) { 
 		     if (ele1 == " C")
@@ -1643,11 +1643,14 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 		     else {
 			if (ele2 == " C") { 
 			   addBond(0, atom_1, atom_2);
-			} else { 
+			} else {
+			   
+			   // both atoms not Carbon
+			   
 			   if (ele1 == " H" && ele2 == " H") { 
-			      addBond(0, atom_1, atom_2);
+			      addBond(0, atom_1, atom_2); // not a charged/H-bond
 			   } else { 
-			      addBond(1, atom_1, atom_2);
+			      addBond(1, atom_1, atom_2); // interesting
 			   }
 			}
 		     }
