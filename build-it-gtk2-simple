@@ -2327,7 +2327,7 @@ cd freeglut-2.4.0
 
 # On 64 bit redhat 4, we need to use /usr/X11R6/lib64, not /usr/X11R6/lib.
 if [ "$MACHTYPE" = x86_64-redhat-linux-gnu ] ; then
-    sed -i -e 's?/usr/X11R6/lib?/usr/X11R6/lib64' configure 
+    sed -i -e 's?/usr/X11R6/lib?/usr/X11R6/lib64?' configure 
 fi
 
 ./configure $generic_prefix --disable-warnings 
