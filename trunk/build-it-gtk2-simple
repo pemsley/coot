@@ -312,7 +312,9 @@
 # 4.81 20110725 Add goocanvas.
 # 4.82 20110725 Add test for gtk and cairo before going ahead with compiling and using 
 #               goocanvas.
-script_version=4.82
+# 4.83 20110805 On 64 bit redhat 4, building freeglut, we need to use /usr/X11R6/lib64, 
+#               not /usr/X11R6/lib, edit configure.
+script_version=4.83
 
 
 # :: NOTE:: 
@@ -2322,6 +2324,12 @@ CFLAGS="$CFLAGS -I/usr/X11R6/include"
 export CFLAGS
 gzip -dc ${AUTOBUILD_SOURCES}/freeglut-2.4.0.tar.gz | tar xf -
 cd freeglut-2.4.0
+
+# On 64 bit redhat 4, we need to use /usr/X11R6/lib64, not /usr/X11R6/lib.
+if [ "$MACHTYPE" = x86_64-redhat-linux-gnu ] ; then
+    sed -i -e 's?/usr/X11R6/lib?/usr/X11R6/lib64' configure 
+fi
+
 ./configure $generic_prefix --disable-warnings 
 build_status=$?
 echo INFO:: freeglut configure status $build_status
