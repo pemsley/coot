@@ -1542,14 +1542,14 @@ graphics_info_t::picked_intermediate_atom_graphics_object() {
 void
 graphics_info_t::environment_graphics_object_internal(const graphical_bonds_container &env_bonds_box) const {
 
-   if (1) {
+   if (0) {
       environment_graphics_object_internal_lines(env_bonds_box); // GL lines
    } else {
-      // glEnable(GL_LIGHTING);
-      // glEnable(GL_LIGHT0);
-      // glEnable(GL_LIGHT1);
-      // environment_graphics_object_internal_tubes(env_bonds_box); // GL cylinders and disks
-      // glDisable(GL_LIGHTING);
+      glEnable(GL_LIGHTING);
+      glEnable(GL_LIGHT0);
+      glEnable(GL_LIGHT1);
+      environment_graphics_object_internal_tubes(env_bonds_box); // GL cylinders and disks
+      glDisable(GL_LIGHTING);
    } 
 }
 
@@ -1684,19 +1684,32 @@ void
 graphics_info_t::environment_graphics_object_internal_tube(const coot::CartesianPair &pair,
 							   int ipart, int n_parts) const {
    
-   double top =  0.04;
-   double base = 0.04;
+   coot::Cartesian bond_vec = pair.getFinish() - pair.getStart();
+   coot::Cartesian bond_frag = bond_vec * (1.0/double(n_parts));
+   coot::Cartesian base_point = pair.getStart() + (bond_frag * float(ipart));
+   double radius = 0.04;
+
+   graphics_object_internal_single_tube(base_point, base_point + bond_frag,
+					radius, coot::FLAT_ENDS);
+}
+
+void
+graphics_info_t::graphics_object_internal_single_tube(const coot::Cartesian &base_point,
+						      const coot::Cartesian &end_point,
+						      const double &radius,
+						      const coot::tube_end_t &end_type) const {
+   
+
+   double top =  radius;
+   double base = radius;
    int slices  = 12;
    int stacks  = 2;
    
-   coot::Cartesian bond_vec = pair.getFinish() - pair.getStart();
-   coot::Cartesian bond_frag = bond_vec * (1.0/double(n_parts));
-
    glPushMatrix();
 	       
+   coot::Cartesian bond_frag = end_point - base_point;
    double height = bond_frag.amplitude();
 
-   coot::Cartesian base_point = pair.getStart() + (bond_frag * float(ipart));
 
    glTranslatef(base_point.x(), base_point.y(), base_point.z());
 
@@ -1733,15 +1746,29 @@ graphics_info_t::environment_graphics_object_internal_tube(const coot::Cartesian
 
    GLUquadric* quad = gluNewQuadric();
    gluCylinder(quad, base, top, height, slices, stacks);
-   glScalef(1.0, 1.0, -1.0);
-   gluDisk(quad, 0, base, slices, 2);
-   glScalef(1.0, 1.0, -1.0);
-   glTranslated(0,0,height);
-   gluDisk(quad, 0, base, slices, 2);
+
+   if (end_type == coot::FLAT_ENDS) { 
+      glScalef(1.0, 1.0, -1.0);
+      gluDisk(quad, 0, base, slices, 2);
+      glScalef(1.0, 1.0, -1.0);
+      glTranslated(0,0,height);
+      gluDisk(quad, 0, base, slices, 2);
+   }
+
+   if (end_type == coot::ROUND_ENDS) {
+      GLUquadric* sphere_quad = gluNewQuadric();
+      int sphere_slices = 10;
+      int sphere_stacks = 10;
+      gluSphere(sphere_quad, top, sphere_slices, sphere_stacks);
+      glTranslated(0,0,height);
+      gluSphere(sphere_quad, top, sphere_slices, sphere_stacks);
+      gluDeleteQuadric(sphere_quad);
+   } 
    
    gluDeleteQuadric(quad);
    glPopMatrix();
 } 
+
 
 void
 graphics_info_t::update_environment_graphics_object(int atom_index, int imol) {
@@ -3787,6 +3814,18 @@ void coot::generic_display_object_t::add_point(const coot::colour_holder &colour
 // static
 void
 graphics_info_t::draw_generic_objects() {
+   graphics_info_t g;
+   if (1) // some user-setable parameter
+      g.draw_generic_objects_simple();
+   else 
+      g.draw_generic_objects_solid(); // gluCylinders and gluDisks
+}
+
+
+
+// static
+void
+graphics_info_t::draw_generic_objects_simple() {
 
    // std::cout << "debug:: drawing " << generic_objects_p->size() << " generic objects" << std::endl;
    for (unsigned int i=0; i<generic_objects_p->size(); i++) {
@@ -3839,6 +3878,62 @@ graphics_info_t::draw_generic_objects() {
       }
    }
 }
+
+// static
+void
+graphics_info_t::draw_generic_objects_solid() {
+
+   graphics_info_t g;
+   double radius = 0.025;
+   
+   glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT1);
+   glEnable(GL_LIGHT0);
+   for (unsigned int i=0; i<generic_objects_p->size(); i++) {
+
+      if ((*generic_objects_p)[i].is_displayed_flag) {
+
+	 // Lines
+	 for (unsigned int ils=0; ils< (*generic_objects_p)[i].lines_set.size(); ils++) {
+	    glLineWidth((*generic_objects_p)[i].lines_set[ils].width);
+	    glColor3f((*generic_objects_p)[i].lines_set[ils].colour.red,
+		      (*generic_objects_p)[i].lines_set[ils].colour.green,
+		      (*generic_objects_p)[i].lines_set[ils].colour.blue);
+	    glBegin(GL_LINES);
+	    unsigned int s = (*generic_objects_p)[i].lines_set[ils].lines.size();
+	    for (unsigned int iline=0; iline<s; iline++) {
+
+	       g.graphics_object_internal_single_tube((*generic_objects_p)[i].lines_set[ils].lines[iline].coords.first,
+						      (*generic_objects_p)[i].lines_set[ils].lines[iline].coords.second,
+						      radius, coot::ROUND_ENDS);
+	    }
+	 }
+	 
+	 // Points
+	 for (unsigned int ips=0; ips<(*generic_objects_p)[i].points_set.size(); ips++) {
+	    glColor3f((*generic_objects_p)[i].points_set[ips].colour.red,
+		      (*generic_objects_p)[i].points_set[ips].colour.green,
+		      (*generic_objects_p)[i].points_set[ips].colour.blue);
+	    
+	    unsigned int npoints = (*generic_objects_p)[i].points_set[ips].points.size();
+	    for (unsigned int ipoint=0; ipoint<npoints; ipoint++) {
+	       int sphere_slices = 5;
+	       int sphere_stacks = 5;
+	       GLUquadric* sphere_quad = gluNewQuadric();
+	       glPushMatrix();
+	       glTranslatef((*generic_objects_p)[i].points_set[ips].points[ipoint].x(),
+			    (*generic_objects_p)[i].points_set[ips].points[ipoint].y(),
+			    (*generic_objects_p)[i].points_set[ips].points[ipoint].z());	 
+	       gluSphere(sphere_quad, radius, sphere_slices, sphere_stacks);
+	       gluDeleteQuadric(sphere_quad);
+	       glPopMatrix();	 
+	    }
+	 }
+      }
+   }
+   glDisable(GL_LIGHTING);
+}
+
 
 void
 graphics_info_t::draw_generic_text() {

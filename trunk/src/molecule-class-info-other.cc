@@ -5899,7 +5899,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	    int slices = 10;
 	    int stacks = 2;
 
-	    // 	    This code from cc4mg's cprimitive.cc (but modified)
+	    // 	    This code from ccp4mg's cprimitive.cc (but modified)
 	    //  	    ----- 
 	    double ax;
 	    double rx = 0; 
@@ -5957,11 +5957,13 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 			 bonds_box_local.atom_centres_[i].second.get_z());
 
 	    GLUquadric* quad = gluNewQuadric();
+
 	    gluSphere(quad, local_sphere_size, slices, stacks);
 	    // gluQuadricNormals(quad, GL_SMOOTH);
 	    gluDeleteQuadric(quad);
 	    glPopMatrix();
 	 }
+	 
       }
 
       if (bonds_box_local.have_rings()) {

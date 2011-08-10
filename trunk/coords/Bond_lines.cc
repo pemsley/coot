@@ -810,7 +810,8 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 						add_triple_bond(iat, jat, residue_atoms, n_atoms, 
 								atom_colour_type,
 								restraints.second.bond_restraint);
-					     } else { 
+					     } else {
+						// could be "metal"
 						add_half_bonds(p1, p2,
 							       residue_atoms[iat],
 							       residue_atoms[jat],
