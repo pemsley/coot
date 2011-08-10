@@ -28,18 +28,22 @@ def describeEvent(days, label, off):
 def predict_release(data):
 
     cg_prediction = predict_release_by_crossing_graphs(data)
-    today = cg_prediction[2]
-    # print "%%cg_prediction: ", cg_prediction
-    dpb_prediction = predict_release_from_dev_points(data)
-    weight = get_weight(data)
-    pr_1 = cg_prediction[0]
-    pr_2 = dpb_prediction[0]
-    # print "%% combining pr_1 and pr_2 using weight ", pr_1, pr_2, weight
-    pred_x_combined = pr_1 * weight + pr_2 * (1.0 - weight)
-    pred_y_combined = cg_prediction[1] * weight + dpb_prediction[1] * (1.0 - weight)
-    # print "%% pred_x_combined ", pred_x_combined
-    # print "%% pred_y_combined ", pred_y_combined
-    return [pred_x_combined, pred_y_combined, today]
+    # print 'cg_prediction returned ', cg_prediction
+    if cg_prediction:
+       today = cg_prediction[2]
+       # print "%%cg_prediction: ", cg_prediction
+       dpb_prediction = predict_release_from_dev_points(data)
+       weight = get_weight(data)
+       pr_1 = cg_prediction[0]
+       pr_2 = dpb_prediction[0]
+       # print "%% combining pr_1 and pr_2 using weight ", pr_1, pr_2, weight
+       pred_x_combined = pr_1 * weight + pr_2 * (1.0 - weight)
+       pred_y_combined = cg_prediction[1] * weight + dpb_prediction[1] * (1.0 - weight)
+       # print "%% pred_x_combined ", pred_x_combined
+       # print "%% pred_y_combined ", pred_y_combined
+       return [pred_x_combined, pred_y_combined, today]
+    else:
+       return False
 
 def get_weight(data):
     # return the weight, 0-1, how much emphasis should be put on the
@@ -147,7 +151,7 @@ x_label = "Days (since pre-release start)"
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 330
+x_day_range = 60
 
 x_tick_interval = x_ticks(x_day_range)
 
@@ -158,14 +162,14 @@ yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 # is 0, but the Y maximum is to be computed automatically. Without
 # y_ranges, Pychart will pick the minimum Y value among the samples,
 # i.e., 20, as the base value of Y axis.
-ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,160))
+ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,x_day_range), y_range=(0,60))
 
 # The first plot extracts Y values from the 2nd column
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
 # column, which is the default.
 plot = line_plot.T(label="Done", data=data, ycol=1)
 # plot2 = line_plot.T(label="Total", data=data, ycol=2, tick_mark=tick_mark.square)
-plot2 = line_plot.T(label="Total Scope for 0.6.2", data=data, ycol=2)
+plot2 = line_plot.T(label="Total Scope for 0.7", data=data, ycol=2)
 
 ar.add_plot(plot, plot2)
 
@@ -200,19 +204,7 @@ def annotation_box(box_text, loc_x, loc_y, data_index, arrow_position):
 
 
 
-annotation_box("Jan 28", -6, 20, 0, "c")
-annotation_box("PISA Interfaces",   20, 7, 69, "tc")
-annotation_box("Ligand GUI Expmt.", 35, 16, 96, "tc")
-annotation_box("CCP4 Dev Meeting",  38, 25, 125, "tc")
-annotation_box("Madrid",  56, 34, 190, "tc")
-annotation_box("Montevideo",  64, 43, 195, "tc")
-annotation_box("Erice",  75, 51, 250, "tc")
-annotation_box("Integration Machine Dies",  80, 58, 268, "tc")
-annotation_box("GRC & ACA",  92, 65, 273, "tc")
-annotation_box("Munich",  87, 72, 279, "tc")
-annotation_box("FBLD & CSHL",  105, 77, 280, "l")
-annotation_box("CoLuAa",   108, 84, 281, "l")
-annotation_box("Florence", 115, 90, 282, "tc")
+annotation_box("1st August", -6, 20, 0, "c")
 
 
 # take-home:
