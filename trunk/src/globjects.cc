@@ -4667,7 +4667,7 @@ void set_skeleton_bond_colour_random(int i, const vector< vector<float> > &colou
 
 // ----------------------------------------------------------
 //
-// Remember, being GL_LINES mode will cause this to fail silently.
+// Remember, being in GL_LINES mode will cause this to fail silently.
 // 
 void printString(std::string s) {
    glPushAttrib (GL_LIST_BIT);

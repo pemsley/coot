@@ -77,7 +77,8 @@ namespace coot {
       short int  normalize();  // return success status 0: fails, 1: OK
 
       Cartesian operator+(const Cartesian &) const;
-      Cartesian operator-(const Cartesian &) const; 
+      Cartesian operator-(const Cartesian &) const;
+      Cartesian operator*(const float &f) const;
 
       void operator+=(const Cartesian &);
       void operator-=(const Cartesian &);

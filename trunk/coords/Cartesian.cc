@@ -39,18 +39,22 @@ coot::Cartesian
 coot::Cartesian::operator+(const Cartesian &in1) const {
    
    Cartesian out(x_+in1.x_, y_+in1.y_, z_+in1.z_);
-
    return out;
-
 } 
 
 coot::Cartesian
 coot::Cartesian::operator-(const coot::Cartesian &in1) const {
 
    coot::Cartesian out(x_-in1.x_, y_-in1.y_, z_-in1.z_);
-
    return out;
 }
+
+coot::Cartesian
+coot::Cartesian::operator*(const float &f) const {
+   
+   return coot::Cartesian(x_*f, y_*f, z_*f);
+} 
+
 
 void
 coot::Cartesian::operator+=(const coot::Cartesian &in) {
@@ -58,9 +62,6 @@ coot::Cartesian::operator+=(const coot::Cartesian &in) {
    x_ += in.x_;
    y_ += in.y_;
    z_ += in.z_;
-
-   // return *this;
-
 }
 
 void
@@ -69,7 +70,6 @@ coot::Cartesian::operator-=(const coot::Cartesian &in) {
    x_ -= in.x_;
    y_ -= in.y_;
    z_ -= in.z_;
-
 }
 
 void
@@ -86,7 +86,6 @@ coot::Cartesian::operator/=(float s) {
    x_ /= s;
    y_ /= s;
    z_ /= s;
-
 }
 
 

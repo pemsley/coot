@@ -1542,11 +1542,25 @@ graphics_info_t::picked_intermediate_atom_graphics_object() {
 void
 graphics_info_t::environment_graphics_object_internal(const graphical_bonds_container &env_bonds_box) const {
 
+   if (1) {
+      environment_graphics_object_internal_lines(env_bonds_box); // GL lines
+   } else {
+      // glEnable(GL_LIGHTING);
+      // glEnable(GL_LIGHT0);
+      // glEnable(GL_LIGHT1);
+      // environment_graphics_object_internal_tubes(env_bonds_box); // GL cylinders and disks
+      // glDisable(GL_LIGHTING);
+   } 
+}
+
+// This is the GL rendering of the environment bonds box
+// 
+void
+graphics_info_t::environment_graphics_object_internal_lines(const graphical_bonds_container &env_bonds_box) const {
    if (environment_show_distances == 1) {
 
       if (env_bonds_box.num_colours > 0) {
 	 
-	 coot::CartesianPair pair;
 	 Lines_list ll;
 	 coot::Cartesian text_pos;
 	 float dist;
@@ -1569,7 +1583,7 @@ graphics_info_t::environment_graphics_object_internal(const graphical_bonds_cont
 		  display_these_distances_flag = 0;
 
 	    if (display_these_distances_flag) { 
-	       ll = env_bonds_box.bonds_[i];
+	       ll = env_bonds_box.bonds_[i]; // lightweight
 	       float it = float(i);
 	       if (it > 1.0) 
 		  it = 1.0;
@@ -1581,9 +1595,9 @@ graphics_info_t::environment_graphics_object_internal(const graphical_bonds_cont
 	    
 	       for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
 	   
-		  pair = ll.pair_list[j];
+		  const coot::CartesianPair &pair = ll.pair_list[j];
 	    
-		  glBegin(GL_LINES); 
+		  glBegin(GL_LINES);
 		  glVertex3f(pair.getStart().get_x(),
 			     pair.getStart().get_y(),
 			     pair.getStart().get_z());
@@ -1604,6 +1618,130 @@ graphics_info_t::environment_graphics_object_internal(const graphical_bonds_cont
    }
 }
 
+// This is the GL rendering of the environment bonds box
+// 
+void
+graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bonds_container &env_bonds_box) const {
+
+   if (environment_show_distances == 1) {
+
+      if (env_bonds_box.num_colours > 0) {
+	 
+	 coot::Cartesian text_pos;
+	 float dist;
+
+	 float dark_bg_cor = 0.0;
+	 if (! background_is_black_p())
+	    dark_bg_cor = 0.29;
+	 
+	 for (int i=0; i< env_bonds_box.num_colours; i++) {
+
+	    bool display_these_distances_flag = 1;
+	    if (i==0)
+	       if (!environment_distances_show_bumps)
+		  display_these_distances_flag = 0;
+	    if (i==1)
+	       if (!environment_distances_show_h_bonds)
+		  display_these_distances_flag = 0;
+
+	    if (display_these_distances_flag) { 
+	       Lines_list ll = env_bonds_box.bonds_[i]; // lightweight
+	       float it = float(i);
+	       if (it > 1.0) 
+		  it = 1.0;
+
+	       // now we want to draw out our bonds in various colour,
+	       // according to if they have a carbon or not.
+	       // 
+	       glColor3f (0.8-dark_bg_cor, 0.8-0.4*it-dark_bg_cor, 0.4+0.5*it-dark_bg_cor);
+	    
+	       for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
+		  const coot::CartesianPair &pair = ll.pair_list[j];
+
+		  int n_parts = 15;
+		  for (unsigned int ipart=0; ipart<n_parts; ipart++) {
+		     if (coot::util::even_p(ipart)) { 
+			environment_graphics_object_internal_tube(pair, ipart, n_parts);
+		     }
+		  }
+
+		  // the distance text
+		  text_pos = pair.getFinish().mid_point(pair.getStart()) +
+		     coot::Cartesian(0.0, 0.2, 0.2);
+		  glRasterPos3f(text_pos.x(), text_pos.y(), text_pos.z());
+		  dist = (pair.getStart() - pair.getFinish()).amplitude();
+		  glDisable(GL_LIGHTING);
+		  printString(float_to_string(dist));
+		  glEnable(GL_LIGHTING);
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+void
+graphics_info_t::environment_graphics_object_internal_tube(const coot::CartesianPair &pair,
+							   int ipart, int n_parts) const {
+   
+   double top =  0.04;
+   double base = 0.04;
+   int slices  = 12;
+   int stacks  = 2;
+   
+   coot::Cartesian bond_vec = pair.getFinish() - pair.getStart();
+   coot::Cartesian bond_frag = bond_vec * (1.0/double(n_parts));
+
+   glPushMatrix();
+	       
+   double height = bond_frag.amplitude();
+
+   coot::Cartesian base_point = pair.getStart() + (bond_frag * float(ipart));
+
+   glTranslatef(base_point.x(), base_point.y(), base_point.z());
+
+
+   // 	    This code from ccp4mg's cprimitive.cc (but modified)
+   //  	    ----- 
+   double ax;
+   double rx = 0; 
+   double ry = 0;
+   double length = height;
+   double vz = bond_frag.z();
+	 
+   bool rot_x = false;
+   if(fabs(vz)>1e-7){
+      ax = 180.0/M_PI*acos(vz/length);
+      if(vz<0.0) ax = -ax;
+      rx = -bond_frag.y()*vz;
+      ry = bond_frag.x()*vz;
+   }else{
+      double vx = bond_frag.x();
+      double vy = bond_frag.y();
+      ax = 180.0/M_PI*acos(vx/length);
+      if(vy<0) ax = -ax;
+      rot_x = true;
+   }
+	 
+   if (rot_x) { 
+      glRotated(90.0, 0.0, 1.0, 0.0);
+      glRotated(ax,  -1.0, 0.0, 0.0);
+   } else {
+      glRotated(ax, rx, ry, 0.0);
+   }
+   // 	    --------
+
+   GLUquadric* quad = gluNewQuadric();
+   gluCylinder(quad, base, top, height, slices, stacks);
+   glScalef(1.0, 1.0, -1.0);
+   gluDisk(quad, 0, base, slices, 2);
+   glScalef(1.0, 1.0, -1.0);
+   glTranslated(0,0,height);
+   gluDisk(quad, 0, base, slices, 2);
+   
+   gluDeleteQuadric(quad);
+   glPopMatrix();
+} 
 
 void
 graphics_info_t::update_environment_graphics_object(int atom_index, int imol) {
