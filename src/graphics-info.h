@@ -390,6 +390,8 @@ namespace coot {
 				      view_info_t &view);
    };
 
+   enum tube_end_t { FLAT_ENDS, ROUND_ENDS};  // use gluDisk or gluSphere.
+
 
    class console_display_commands_t {
    public:
@@ -599,6 +601,11 @@ class graphics_info_t {
    void environment_graphics_object_internal_tubes(const graphical_bonds_container &env_bonds_box) const;
    void environment_graphics_object_internal_tube(const coot::CartesianPair &pair, 
 						  int ipart, int n_parts) const;
+   void graphics_object_internal_single_tube(const coot::Cartesian &base_point,
+					     const coot::Cartesian &end_point, 
+					     const double &radius,
+					     const coot::tube_end_t &end_type) const;
+
 
    void read_standard_residues();   // for mutation, we have
 				    // pre-prepared a pdb file with
@@ -3054,6 +3061,8 @@ public:
    static void geometry_objects();
    static void draw_dynamic_distances();
    static void draw_generic_objects();
+   static void draw_generic_objects_simple();
+   static void draw_generic_objects_solid();
    static void draw_generic_text();
    void clear_simple_distances();
    void clear_last_simple_distance();
