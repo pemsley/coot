@@ -1776,21 +1776,11 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
    coot::Cartesian back  = unproject(1.0);
 
    bool with_gl_lines = 0;
-   
-   coot::CartesianPair pair;
-   // Lines_list &ll;
-   
    glLineWidth(p_bond_width);
-   //
 
    for (int i=0; i<bonds_box.num_colours; i++) {
 
       Lines_list &ll = bonds_box.bonds_[i];
-      //cout << "j range: for i = " << i << " is "
-      //	   << bonds_box.bonds_[i].num_lines << endl;
-
-//       std::cout << "   DEBUG:: bonds_index: " << i << " has " << bonds_box.bonds_[i].num_lines
-// 		<< " lines, thin_flag:  " << bonds_box.bonds_[i].thin_lines_flag  << std::endl;
 
       if (bonds_box.bonds_[i].thin_lines_flag)
  	 glLineWidth(p_bond_width/2.0);
@@ -1801,7 +1791,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	 std::cout << "Fencepost heuristic failure bonds_box.bonds_[i].num_lines "
 	      << bonds_box.bonds_[i].num_lines << std::endl;
       }
-      // std::cout << "debug:: bonds_box_type " << bonds_box_type << std::endl;
+
       if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
 	 // if test suggested by Ezra Peisach.
 	 if (bonds_box.bonds_[i].num_lines > 0)

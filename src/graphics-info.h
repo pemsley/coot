@@ -595,6 +595,10 @@ class graphics_info_t {
    // function that uses this, picked_intermediate_atom_graphics_object() is public
 
    void environment_graphics_object_internal(const graphical_bonds_container &env_bonds_box) const;
+   void environment_graphics_object_internal_lines(const graphical_bonds_container &env_bonds_box) const;
+   void environment_graphics_object_internal_tubes(const graphical_bonds_container &env_bonds_box) const;
+   void environment_graphics_object_internal_tube(const coot::CartesianPair &pair, 
+						  int ipart, int n_parts) const;
 
    void read_standard_residues();   // for mutation, we have
 				    // pre-prepared a pdb file with

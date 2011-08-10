@@ -590,7 +590,6 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 	    
 	    // glEnable(GL_CULL_FACE); // eek! surfaces goes dark...
 	    
-	    // std::cout << " no sorting" << std::endl;
 	 }
 
 	 // solid_mode is 1 for density maps represented without
