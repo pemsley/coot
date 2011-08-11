@@ -388,6 +388,9 @@ int graphics_info_t::n_molecules_max = 60;
 
 // generic display objects, gets set in init.
 std::vector<coot::generic_display_object_t> *graphics_info_t::generic_objects_p = NULL;
+bool graphics_info_t::display_generic_objects_as_solid_flag = 0;
+bool graphics_info_t::display_environment_graphics_object_as_solid_flag = 0;
+
 
 coot::console_display_commands_t graphics_info_t::console_display_commands;
 

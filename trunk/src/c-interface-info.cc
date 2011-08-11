@@ -2026,7 +2026,12 @@ void set_environment_distances_distance_limits(float min_dist, float max_dist) {
 
    graphics_info_t::environment_min_distance = min_dist;
    graphics_info_t::environment_max_distance = max_dist;
+}
+
+void set_show_environment_distances_as_solid(int state) {
+   graphics_info_t::display_environment_graphics_object_as_solid_flag = state;
 } 
+
 
 
 

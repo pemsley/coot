@@ -3550,6 +3550,8 @@ void set_show_environment_distances_h_bonds(int state);
 int show_environment_distances_state();
 /*! \brief min and max distances for the environment distances */
 void set_environment_distances_distance_limits(float min_dist, float max_dist);
+
+void set_show_environment_distances_as_solid(int state);
 /* \} */
 
 
@@ -6080,6 +6082,7 @@ void generic_object_clear(int object_number);
   called from a callback.  */
 void generic_objects_gui_wrapper();
 
+void set_display_generic_objects_as_solid(int state);
 
 
 /* \} */
