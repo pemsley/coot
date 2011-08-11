@@ -1542,7 +1542,7 @@ graphics_info_t::picked_intermediate_atom_graphics_object() {
 void
 graphics_info_t::environment_graphics_object_internal(const graphical_bonds_container &env_bonds_box) const {
 
-   if (0) {
+   if (! display_environment_graphics_object_as_solid_flag) {
       environment_graphics_object_internal_lines(env_bonds_box); // GL lines
    } else {
       glEnable(GL_LIGHTING);
@@ -3815,7 +3815,7 @@ void coot::generic_display_object_t::add_point(const coot::colour_holder &colour
 void
 graphics_info_t::draw_generic_objects() {
    graphics_info_t g;
-   if (1) // some user-setable parameter
+   if (! g.display_generic_objects_as_solid_flag) 
       g.draw_generic_objects_simple();
    else 
       g.draw_generic_objects_solid(); // gluCylinders and gluDisks
@@ -3884,7 +3884,7 @@ void
 graphics_info_t::draw_generic_objects_solid() {
 
    graphics_info_t g;
-   double radius = 0.025;
+   double radius = 0.05;
    
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT1);

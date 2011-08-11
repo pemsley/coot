@@ -1777,7 +1777,12 @@ short int is_closed_generic_object_p(int object_number) {
       }
    }
    return state;
+}
+
+void set_display_generic_objects_as_solid(int state) {
+   graphics_info_t::display_generic_objects_as_solid_flag = state;
 } 
+
 
 
 // This is tedious and irritating to parse in C++.

@@ -2178,6 +2178,7 @@ public:
    static void moving_atoms_graphics_object(); // filled by flash_selection
 
    static int mol_no_for_environment_distances;
+   static bool display_environment_graphics_object_as_solid_flag;
    static void environment_graphics_object();
    // void symmetry_environment_graphics_object() const;
 
@@ -3058,6 +3059,7 @@ public:
 
    // distances and angles displayed on screen
    // uses distance_objects vector
+   static bool display_generic_objects_as_solid_flag;
    static void geometry_objects();
    static void draw_dynamic_distances();
    static void draw_generic_objects();
