@@ -50,7 +50,7 @@ lbg(lig_build::molfile_molecule_t mm,
     bool use_graphics_interface_flag,
     bool stand_alone_flag_in) {
 
-   lbg_info_t *lbg = NULL;
+   lbg_info_t *lbg = NULL; // failure return value.
    bool r = 0; // fail
    std::string glade_file = "lbg.glade";
 
@@ -64,27 +64,35 @@ lbg(lig_build::molfile_molecule_t mm,
    if (! err)
       glade_file_exists = 1;
 
-   if (glade_file_exists) { 
-
+   if (! glade_file_exists) { 
+      std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
+   } else {
       r = 1;
       GtkBuilder *builder = gtk_builder_new ();
-      gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
-      lbg = new lbg_info_t(imol);
-      if (stand_alone_flag_in)
-	 lbg->set_stand_alone();
-      if (use_graphics_interface_flag == 0)
-	 lbg->no_graphics_mode(); // don't display a window
-      lbg->init(builder);
-      gtk_builder_connect_signals (builder, lbg->canvas);
-      g_object_unref (G_OBJECT (builder));
-      if (ligand_spec_pair.first)
-	 lbg->set_ligand_spec(ligand_spec_pair.second);
+      guint add_from_file_status = gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
+      if (! add_from_file_status) {
+	 std::cout << "ERROR:: gtk_builder_add_from_file() \"" << glade_file_full
+		   << "\" failed." << std::endl;
+      } else { 
+	 lbg = new lbg_info_t(imol);
+	 if (stand_alone_flag_in)
+	    lbg->set_stand_alone();
+	 if (use_graphics_interface_flag == 0)
+	    lbg->no_graphics_mode(); // don't display a window
+	 bool init_status = lbg->init(builder);
+	 if (! init_status) {
+	    std::cout << "ERROR:: lbg init failed." << std::endl;
+	 } else {
+	    // happy path
+	    gtk_builder_connect_signals (builder, lbg->canvas);
+	    g_object_unref (G_OBJECT (builder));
+	    if (ligand_spec_pair.first)
+	       lbg->set_ligand_spec(ligand_spec_pair.second);
 
-      widgeted_molecule_t wmol = lbg->import(mm, molecule_file_name, mol);
-      lbg->render_from_molecule(wmol);
-      
-   } else {
-      std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
+	    widgeted_molecule_t wmol = lbg->import(mm, molecule_file_name, mol);
+	    lbg->render_from_molecule(wmol);
+	 }
+      }
    } 
    return lbg;
 }
@@ -2078,99 +2086,124 @@ lbg_info_t::clear_canvas() {
 
 
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
-void
+bool
 lbg_info_t::init(GtkBuilder *builder) {
 
    lbg_window = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_window"));
 
-   if (use_graphics_interface_flag)
-      gtk_widget_show (lbg_window);
+   if (! lbg_window) {
 
-   about_dialog =    GTK_WIDGET (gtk_builder_get_object (builder, "lbg_aboutdialog"));
-   open_dialog     = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_open_filechooserdialog"));
-   save_as_dialog  = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_save_as_filechooserdialog"));
-   lbg_sbase_search_results_dialog = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_sbase_search_results_dialog"));
-   lbg_sbase_search_results_vbox = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_sbase_search_results_vbox"));
-   lbg_export_as_pdf_dialog =      GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_pdf_filechooserdialog"));
-   lbg_export_as_png_dialog =      GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_png_filechooserdialog"));
-   lbg_smiles_dialog =             GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_dialog"));
-   lbg_smiles_entry =              GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_entry"));
-   lbg_search_combobox =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_combobox"));
-   lbg_statusbar =                 GTK_WIDGET(gtk_builder_get_object(builder, "lbg_statusbar"));
-   lbg_toolbar_layout_info_label = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_toolbar_layout_info_label"));
-   lbg_atom_x_dialog =             GTK_WIDGET(gtk_builder_get_object(builder, "lbg_atom_x_dialog"));
-   lbg_atom_x_entry =              GTK_WIDGET(gtk_builder_get_object(builder, "lbg_atom_x_entry"));
+      std::cout << "ERROR:: null lbg_window from builder:  " << builder << std::endl;
+      lbg_window = NULL;
+      about_dialog = NULL; 
+      lbg_search_combobox = NULL;
+      open_dialog = NULL;
+      save_as_dialog = NULL;
+      lbg_export_as_pdf_dialog = NULL;
+      lbg_export_as_png_dialog = NULL;
+      lbg_sbase_search_results_dialog = NULL;
+      lbg_sbase_search_results_vbox = NULL;
+      lbg_smiles_dialog = NULL;
+      lbg_smiles_entry = NULL;
+      lbg_statusbar = NULL;
+      lbg_toolbar_layout_info_label = NULL;
+      lbg_atom_x_dialog = NULL;
+      lbg_atom_x_entry = NULL;
+      canvas = NULL;
+      return false; // boo.
 
-   gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
+   } else { 
+
+      if (use_graphics_interface_flag)
+	 gtk_widget_show (lbg_window);
+
+      about_dialog =    GTK_WIDGET (gtk_builder_get_object (builder, "lbg_aboutdialog"));
+      open_dialog     = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_open_filechooserdialog"));
+      save_as_dialog  = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_save_as_filechooserdialog"));
+      lbg_sbase_search_results_dialog = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_sbase_search_results_dialog"));
+      lbg_sbase_search_results_vbox = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_sbase_search_results_vbox"));
+      lbg_export_as_pdf_dialog =      GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_pdf_filechooserdialog"));
+      lbg_export_as_png_dialog =      GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_png_filechooserdialog"));
+      lbg_smiles_dialog =             GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_dialog"));
+      lbg_smiles_entry =              GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_entry"));
+      lbg_search_combobox =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_combobox"));
+      lbg_statusbar =                 GTK_WIDGET(gtk_builder_get_object(builder, "lbg_statusbar"));
+      lbg_toolbar_layout_info_label = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_toolbar_layout_info_label"));
+      lbg_atom_x_dialog =             GTK_WIDGET(gtk_builder_get_object(builder, "lbg_atom_x_dialog"));
+      lbg_atom_x_entry =              GTK_WIDGET(gtk_builder_get_object(builder, "lbg_atom_x_entry"));
+
+      gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
 
 
-   GtkWidget *lbg_scrolled_win =
-      GTK_WIDGET(gtk_builder_get_object (builder, "lbg_scrolledwindow"));
+      GtkWidget *lbg_scrolled_win =
+	 GTK_WIDGET(gtk_builder_get_object (builder, "lbg_scrolledwindow"));
 
-   canvas = goo_canvas_new();
+      canvas = goo_canvas_new();
 
-   // gtk_widget_set(GTK_WIDGET(canvas), "automatic-bounds",  1, NULL);
-   gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
-   gtk_object_set_user_data(GTK_OBJECT(canvas), (gpointer) this);
-   std::cout << ":::::: attached this lbg_info_t pointer to canvas: " << this
-	     << " to " << canvas << std::endl;
+      // gtk_widget_set(GTK_WIDGET(canvas), "automatic-bounds",  1, NULL);
+      gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
+      gtk_object_set_user_data(GTK_OBJECT(canvas), (gpointer) this);
+      std::cout << ":::::: attached this lbg_info_t pointer to canvas: " << this
+		<< " to " << canvas << std::endl;
    
-   save_togglebutton_widgets(builder);
-   gtk_container_add(GTK_CONTAINER(lbg_scrolled_win), canvas);
-   goo_canvas_set_bounds (GOO_CANVAS (canvas), 0, 0, 1200, 700);
+      save_togglebutton_widgets(builder);
+      gtk_container_add(GTK_CONTAINER(lbg_scrolled_win), canvas);
+      goo_canvas_set_bounds (GOO_CANVAS (canvas), 0, 0, 1200, 700);
 
-   GooCanvas *gc = GOO_CANVAS(canvas);
+      GooCanvas *gc = GOO_CANVAS(canvas);
 
-   if (0) 
-      std::cout << "   after setting bounds: canvas adjustments: h-lower " 
-		<< gc->hadjustment->lower << " h-upper-page "
-		<< gc->hadjustment->upper - gc->hadjustment->page_size  << " v-lower "
-		<< gc->vadjustment->lower  << " v-upper-page"
-		<< gc->vadjustment->upper - gc->vadjustment->page_size  << " h-page "
-		<< gc->hadjustment->page_size  << " "
-		<< gc->vadjustment->page_size << std::endl;
+      if (0) 
+	 std::cout << "   after setting bounds: canvas adjustments: h-lower " 
+		   << gc->hadjustment->lower << " h-upper-page "
+		   << gc->hadjustment->upper - gc->hadjustment->page_size  << " v-lower "
+		   << gc->vadjustment->lower  << " v-upper-page"
+		   << gc->vadjustment->upper - gc->vadjustment->page_size  << " h-page "
+		   << gc->hadjustment->page_size  << " "
+		   << gc->vadjustment->page_size << std::endl;
 
-//    std::cout << ":::::::::::::::::::: compare canvas " << canvas
-// 	     << " and root item: "
-// 	     << goo_canvas_get_root_item(GOO_CANVAS(canvas))
-// 	     << std::endl;
+      //    std::cout << ":::::::::::::::::::: compare canvas " << canvas
+      // 	     << " and root item: "
+      // 	     << goo_canvas_get_root_item(GOO_CANVAS(canvas))
+      // 	     << std::endl;
    
-   g_object_set_data_full(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-			  "lbg-info", this, NULL);
+      g_object_set_data_full(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
+			     "lbg-info", this, NULL);
 
-   g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-		    "button_press_event",
- 		    G_CALLBACK(on_canvas_button_press_new), NULL);
+      g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
+		       "button_press_event",
+		       G_CALLBACK(on_canvas_button_press_new), NULL);
 
-   g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-		    "button_release_event",
- 		    G_CALLBACK(on_canvas_button_release_new), NULL);
+      g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
+		       "button_release_event",
+		       G_CALLBACK(on_canvas_button_release_new), NULL);
 
-   g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-		    "motion_notify_event",
- 		    G_CALLBACK(on_canvas_motion_new), NULL);
+      g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
+		       "motion_notify_event",
+		       G_CALLBACK(on_canvas_motion_new), NULL);
 
-//    g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-// 		    "key_press_event",
-// 		    G_CALLBACK(on_key_press_event), NULL);
+      //    g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
+      // 		    "key_press_event",
+      // 		    G_CALLBACK(on_key_press_event), NULL);
 
-   if (use_graphics_interface_flag)
-      gtk_widget_show(canvas);
+      if (use_graphics_interface_flag)
+	 gtk_widget_show(canvas);
 
-   // search combobox
-   add_search_combobox_text();
+      // search combobox
+      add_search_combobox_text();
 
 
-   // ------------ sbase ---------------------------
-   // 
-   init_sbase(".");
+      // ------------ sbase ---------------------------
+      // 
+      init_sbase(".");
 
    
-   // ------------ watch for new files from coot ---------------------------
-   //
+      // ------------ watch for new files from coot ---------------------------
+      //
 
-   if (is_stand_alone()) 
-      int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
+      if (is_stand_alone()) 
+	 int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
+      return true;
+   }
 
 }
 #endif // GTK_VERSION
