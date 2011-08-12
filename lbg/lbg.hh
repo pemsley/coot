@@ -888,7 +888,7 @@ public:
 	  CHARGE, ADD_SINGLE_BOND, ADD_DOUBLE_BOND, ADD_TRIPLE_BOND, ADD_STEREO_OUT_BOND,
 	  DELETE_MODE};
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
-   void init(GtkBuilder *builder);
+   bool init(GtkBuilder *builder); // return success status (true is good).
 #endif // GTK_VERSION
    int imol; // the coot molecule number from which this plot was
 	     // generated (quite possibly -1, i.e. no coot molecule)
