@@ -5,4 +5,21 @@
 
   * Make ligands work ::: 20
 
+  * "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
+
+  * Add nucleotide to 3' end - Sabine Schneider ::: 1
+
+  * Don't drag last-placed bond after button-up in lbg ::: 1
+
+  * Fix lighting for solid env distances ::: 1
+
+  * Fix lighting for solid generic objects ::: 1
+
+  * CCP4-based integrated path for FLEV ::: 6
+
+  * replace guile-gtk with guile-gnome ::: 15
+
+  * rework build script with guile-gnome dependencies (can of worms?) 
+    ::: 8
+
 -------
