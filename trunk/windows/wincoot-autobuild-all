@@ -49,6 +49,7 @@ cp -ur /h/data/greg-data/* ~/data/greg-data
 # before we really start building, lets do and svn update to get the
 # latest build script
 cd ~/Projects/coot
+svn cleanup
 svn update
 cd -
 
