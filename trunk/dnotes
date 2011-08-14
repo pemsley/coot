@@ -6083,6 +6083,21 @@ Fri Jul 29 19:48:03 BST 2011
 
     Get the TLC from the first line (if the first line consists of 3 letters)
 
+
+---
+Fri Aug 12 12:29:03 BST 2011
+
+   INFO:: For new depositions:
+
+   Parse this:
+   http://www.ebi.ac.uk/pdbe/searchResults.html?display=latest&tab=pdb
+
+   Then get:
+   http://www.ebi.ac.uk/pdbe-srv/view/files/$code.ent
+   http://www.ebi.ac.uk/pdbe-srv/view/files/r{$code}sf.ent
+
+   Then cif_to_mtz 
+
 ------
 
 
