@@ -4652,7 +4652,7 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
    if (std_base_name == "Ar" || std_base_name == "Ad" ||
        std_base_name == "Gr" || std_base_name == "Gd" ||
        std_base_name == "G"  || std_base_name == "DG" ||
-       std_base_name == "DA" ) {
+       std_base_name == "A"  || std_base_name == "DA" ) {
       std_base_is_purine = 1;
       std_base_is_pyrimidine = 0;
    }
@@ -4661,7 +4661,7 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
        std_base_name == "Tr" || std_base_name == "Td" ||
        std_base_name == "Ur" || std_base_name == "Ud" ||
        std_base_name == "U"  || std_base_name == "DT" ||
-       std_base_name == "DC" ) {
+       std_base_name == "C"  || std_base_name == "DC" ) {
       std_base_is_pyrimidine = 1;
       std_base_is_purine = 0;
    }
