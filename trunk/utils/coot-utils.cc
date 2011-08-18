@@ -609,6 +609,17 @@ coot::util::absolutise_file_name(const std::string &file_name) {
 
    return ret;
 }
+
+std::string
+coot::util::name_sans_extension(const std::string &f) {
+
+   std::string r = f;
+   std::string::size_type iext = f.find_last_of(".");
+   if (iext != std::string::npos)
+      r = f.substr(0, iext);
+   return r;
+} 
+
     
 
 std::string
