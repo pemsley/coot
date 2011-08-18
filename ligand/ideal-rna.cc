@@ -100,12 +100,13 @@ coot::ideal_rna::make_molecule() {
 	    int success = mutate_res(res, seq[iseq], is_dna_flag);
 	    if (success) { 
 	       sense_chain_p->AddResidue(res);
-	       if (! use_standard_refmac_names) {
+	       if (! use_standard_refmac_names) { // "standard" means v2
 		  fix_up_residue_and_atom_names(res, is_dna_flag);
 	       } 
 	    }
 	 } else {
-	    std::cout << "oops not a valid base " << iseq << " " << seq[iseq] << std::endl;
+	    std::cout << "ERROR:: oops not a valid base " << iseq << " "
+		      << seq[iseq] << std::endl;
 	 }
       }
 

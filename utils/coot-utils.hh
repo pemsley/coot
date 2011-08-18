@@ -60,6 +60,7 @@ namespace coot {
       // 
       std::string relativise_file_name(const std::string &f, const std::string &cwd);
       std::string absolutise_file_name(const std::string &file_name);
+      std::string name_sans_extension(const std::string &f);
       std::string Upper(const std::string &s);
       std::string remove_leading_spaces(const std::string &s);
       std::string remove_whitespace(const std::string &s);

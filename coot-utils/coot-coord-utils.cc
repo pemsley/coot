@@ -4948,6 +4948,8 @@ coot::util::mutate(CResidue *res, CResidue *std_res_unoriented, const std::strin
 
 
 // Here std_base is at some arbitary position when passed.
+//
+// use_old_style_naming means use pdb v2 atom names.
 // 
 void
 coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_style_naming) {
@@ -4990,10 +4992,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
    // 
    thymine.push_back(" O2 ");
    thymine.push_back(" O4 ");
-   if (use_old_style_naming)
-      thymine.push_back(" C5M");
-   else 
-      thymine.push_back(" C7 ");
+   thymine.push_back(" C5M");
    
    std::vector<std::string> cytosine;  // Purine
    cytosine.push_back(" N1 ");
@@ -5261,6 +5260,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 	    } else {
 	       
 	       std::vector<std::string> std_base_atom_names;
+
 	       if (std_base_name == "Ar" || std_base_name == "Ad")
 		  std_base_atom_names = adenine;
 	       if (std_base_name == "Gr" || std_base_name == "Gd")
@@ -5312,6 +5312,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 		  
 		  
 		  for (unsigned int iat=0; iat<std_base_atom_names.size(); iat++) {
+		     bool found = 0;
 		     for (int i=0; i<n_std_base_atoms; i++) {
 			if (std_base_atom_names[iat] == std_base_atoms[i]->name) {
 			   clipper::Coord_orth p(std_base_atoms[i]->x,
@@ -5323,7 +5324,12 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 // 			   std::cout << ".... Adding Atom " << std_base_atoms[i]->name
 // 				     << std::endl;
 			   at->SetCoordinates(pt.x(), pt.y(), pt.z(), 1.0, 20.0);
-			   at->SetAtomName(std_base_atoms[i]->name);
+			   std::string new_atom_name = std_base_atoms[i]->name;
+			   if (std_base_name == "Td")
+			      if (new_atom_name == " C5M")
+				 if (! use_old_style_naming)
+				    new_atom_name = " C7 ";
+			   at->SetAtomName(new_atom_name.c_str());
 			   at->SetElementName(ele.c_str());
 			   std::string new_alt_conf("");
 			   // force it down the atom's throat :) [is there a better way?]
@@ -5331,8 +5337,14 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 			   residue->AddAtom(at);
 			   if (use_old_seg_id)
 			      strcpy(at->segID, old_seg_id_for_residue_atoms.c_str());
+			   found = 1;
+			   break;
 			}
 		     }
+		     if (! found) {
+			// std::cout << "... failed to find std_base_atom  "
+			// << std_base_atom_names[iat] << std::endl;
+		     } 
 		  }
 	    
 	    

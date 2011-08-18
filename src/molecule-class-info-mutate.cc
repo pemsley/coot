@@ -976,6 +976,11 @@ molecule_class_info_t::mutate_base_internal(CResidue *residue, CResidue *std_bas
 
    make_backup();
 
+   if (0) 
+      std::cout << "DEBUG:: mutate_base_internal():: residue name: "
+		<< residue->GetResName()
+		<< " using std_base " << std_base->GetResName()
+		<< " use_old_names flag " << use_old_names<< std::endl;
    coot::util::mutate_base(residue, std_base, use_old_names);
    have_unsaved_changes_flag = 1;
 }
