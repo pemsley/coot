@@ -174,6 +174,7 @@ For the sake of completeness, you can download the old 2004 paper here:
 * I get a glut error when I try to start coot on Fedora Core 3::
 * When I start Coot it crashes after @t{load "hello.scm"}::
 * How do I compile coot and its dependencies?::
+* How do I report a bug?::
 @end menu
 
 @node I have Mac OS X. How do I get coot?
@@ -436,6 +437,23 @@ is not so advanced).
 These issues are sorted out in the autobuilder.  Just download it,
 change a few parameters to fit your personal system at the top and
 execute it.
+
+@node How do I report a bug?
+@section How do I report a bug?
+
+For general background on what a software developer wants to see (and
+not see) in a bug report:
+
+@url{http://www.chiark.greenend.org.uk/~sgtatham/bugs.html}
+
+For the case of Coot, I would also like to know the exact binary you
+are using 
+
+@command{coot --version-full}
+
+and the operating system that you are running it on.
+
+Also, the last several lines of the console output is often useful.
 
 @c -----------------------------------------------------------------
 @node    Configuration Problems
