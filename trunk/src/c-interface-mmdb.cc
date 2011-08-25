@@ -358,12 +358,48 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
 						 segid = PyString_AsString(segid_python);
                                                } 
 					     }
-					     float b = PyFloat_AsDouble(b_python);
+					     
                                              float occ = PyFloat_AsDouble(occ_python);
                                              std::string ele = PyString_AsString(ele_python);
                                              float x = PyFloat_AsDouble(PyList_GetItem(pos_expr, 0));
                                              float y = PyFloat_AsDouble(PyList_GetItem(pos_expr, 1));
                                              float z = PyFloat_AsDouble(PyList_GetItem(pos_expr, 2));
+                                             
+                                             //parse the B-factor information
+                                             bool have_aniso = 0;
+                                             float b, b_u11, b_u22, b_u33, b_u12, b_u13, b_u23;
+                                             PyObject *b_iso_python, *b_u11_python, *b_u22_python, *b_u33_python, *b_u12_python, *b_u13_python, *b_u23_python;
+                                             if (PyObject_TypeCheck(b_python, &PyFloat_Type) || PyObject_TypeCheck(b_python, &PyLong_Type) || PyObject_TypeCheck(b_python, &PyInt_Type)) {
+                                                //if the atom has an isotropic B-factor only
+                                                b = PyFloat_AsDouble(b_python);
+                                             } else if (PyObject_TypeCheck(b_python, &PyList_Type) && PyObject_Length(b_python) == 7) {
+                                                //if the atom has anisotropic B-factor information
+                                                have_aniso = 1;
+                                                
+                                                b_iso_python = PyList_GetItem(b_python, 0);
+                                                b_u11_python = PyList_GetItem(b_python, 1);
+                                                b_u22_python = PyList_GetItem(b_python, 2);
+                                                b_u33_python = PyList_GetItem(b_python, 3);
+                                                b_u12_python = PyList_GetItem(b_python, 4);
+                                                b_u13_python = PyList_GetItem(b_python, 5);
+                                                b_u23_python = PyList_GetItem(b_python, 6);
+                                                
+                                                b = PyFloat_AsDouble(b_iso_python);
+                                                b_u11 = PyFloat_AsDouble(b_u11_python);
+                                                b_u22 = PyFloat_AsDouble(b_u22_python);
+                                                b_u33 = PyFloat_AsDouble(b_u33_python);
+                                                b_u12 = PyFloat_AsDouble(b_u12_python);
+                                                b_u13 = PyFloat_AsDouble(b_u13_python);
+                                                b_u23 = PyFloat_AsDouble(b_u23_python);
+                                             } else {
+                                                b = -1.0;
+                                                std::cout << "bad b-factor"
+                                                       << std::endl;
+                                                PyObject *bad_python = display_python(b_python);
+                                                std::string bad_str = PyString_AsString(bad_python);
+                                                std::cout << bad_str << std::endl;
+                                             }
+                                             
                                              CAtom *atom = new CAtom;
                                              atom->SetCoordinates(x, y, z, occ, b);
                                              atom->SetAtomName(atom_name.c_str());
@@ -371,6 +407,15 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                              strncpy(atom->altLoc, alt_conf.c_str(), 2);
 					     if (have_segid)
 						strncpy(atom->segID, segid.c_str(), 5);
+                                             if (have_aniso) {
+                                                atom->u11 = b_u11;
+                                                atom->u22 = b_u22;
+                                                atom->u33 = b_u33;
+                                                atom->u12 = b_u12;
+                                                atom->u13 = b_u13;
+                                                atom->u23 = b_u23;
+                                                atom->WhatIsSet |= ASET_Anis_tFac;
+                                             }
                                              residue_p->AddAtom(atom);
 					     
                                              // std::cout << "DEBUG:: adding atom " << atom << std::endl;
