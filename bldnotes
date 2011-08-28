@@ -1,22 +1,14 @@
  -*-text-*-
 
-scripts      rev 3120 (0.6.2)
-tests        rev 3043 (0.6.2) update
-scripts      rev 3576 prodrg stuff needs testing) generic objects
-tests        rev 3576 update
+scripts      rev 3612 (prodrg stuff needs testing) generic objects
+tests        rev 3604 update
 build-it-win rev 2122
 
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.6.2 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
-WINDOWS:: update mechanism for stable release uses pre-release dir! Grrr
-
 UPDATE CCP4 on build machine! Use new dictionary!!!
-
-use dlls in rdkit/enterprise rather than static ?!
-
-make clean before new stable release! check and uninstall old python!?
 
 CCP4
 - space update bar
@@ -49,6 +41,12 @@ notes from Shanghai:
 ----------------
 
 **** General ****
+
+   o gradually include residues for refinement, good fi completely out!?
+
+   o update statusbar using space skipping
+
+   o check for updates in About?!
 
    o phs file dialog, make fill/expand properly
 
@@ -247,6 +245,26 @@ from Osaka 2010
 
 **** Windows ****
 
+   o use dlls in rdkit/enterprise rather than static ?!
+
+   o set sbase dir (maybe)
+
+   o make clean before new stable release! check and uninstall old python!?
+
+   o update download in defined directory, may go into examples folder
+
+   o streamline installer dirs/files, install and remove (use /r)
+
+   o swap guile and windows section in installer
+
+   o enable guile with extra warning in installer
+
+* Done, but better warning required!
+
+   o update with guile?
+
+   o changed runwincoot->wincoot.bat; make compatible
+
    o investigate gtkglext stuff for newer gtk
 
    o make a second test for windows?! Do we have space?
@@ -259,17 +277,8 @@ from Osaka 2010
 
    o installer with custom/typical to make easier (use InstType)
 
-   o WinCoot:
-    - update gtk? Better for Windows 7?!
-	- before stable release copy python over
-	- silent python installation? Possible? (http://www.autoitscript.com/autoit3/)
-
-   o icon on WinCoot website
-
-   o label main Window WinCoot
-
    o check save times with gz compression, maybe make optional (feels slow)
-(* Done - optional compress that is)
+(* Done - optional compress that is, make entry in preferences?)
 
    o better python std flushing for MINGW
 
@@ -279,7 +288,7 @@ from Osaka 2010
 
    o windows build: dont update src tar whilst building (if possible)
 
-   o merge build-it-win with buid-it-gtk2-simple?!
+   o merge build-it-win with build-it-gtk2-simple?!
 
    o A comprehensive windows test system(?):	
                 - start XP for testing after installer build
@@ -425,4 +434,26 @@ Osaka 2010
 
 * Done!?
 
+  o Windows NCS skip: after new chain(?), doesnt work, need to jump out of new chain (e.g. water)
+
+* Done
+
+  o WINDOWS:: update mechanism for stable release uses pre-release dir! Grrr
+
+* Done
+
+   o WinCoot:
+    - update gtk? Better for Windows 7?!
+	- before stable release copy python over
+	- silent python installation? Possible? (http://www.autoitscript.com/autoit3/)
+
+* Done 
+
+   o icon on WinCoot website
+
+* Done
+
+   o label main Window WinCoot
+
+* Done
 

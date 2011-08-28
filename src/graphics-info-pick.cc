@@ -52,6 +52,8 @@
 
 #include "pick.h"
 
+#include "cc-interface.hh"  // for atom_info_as_text_for_statusbar, maybe not here then
+
 // #define DEBUG_SYMM_PICK 1
 
 #ifdef DEBUG_SYMM_PICK
@@ -245,43 +247,13 @@ graphics_info_t::symmetry_atom_pick() const {
       coot::Cartesian tpos = translate_atom(molecules[p_i.imol].atom_sel,
 					    p_i.atom_index,
 					    p_i.symm_trans);
+
       std::string ai;
-      CAtom *at = molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
-      std::string alt_conf_bit("");
-      if (strncmp(at->altLoc, "", 1))
-	 alt_conf_bit=std::string(",") + std::string(at->altLoc);
-      ai += "(mol. no: ";
-      ai += graphics_info_t::int_to_string(p_i.imol);
-      ai += ") ";
-      ai += at->name;
-      ai += alt_conf_bit;
-      ai += "/";
-      ai += graphics_info_t::int_to_string(at->GetModelNum());
-      ai += "/";
-      ai += at->GetChainID();
-      ai += "/";
-      ai += graphics_info_t::int_to_string(at->GetSeqNum());
-      ai += at->GetInsCode();
-      ai += " ";
-      ai += at->GetResName();
-      ai += " [";
-      ai += p_i.symm_trans.str(1);
-      ai += "] occ: ";
-      ai += graphics_info_t::float_to_string(at->occupancy);
-      ai += " bf: ";
-      ai += graphics_info_t::float_to_string(at->tempFactor);
-      ai += " ele: ";
-      ai += at->element;
-      ai += " pos: (";
-      ai += graphics_info_t::float_to_string(tpos.x());
-      ai += ",";
-      ai += graphics_info_t::float_to_string(tpos.y());
-      ai += ",";
-      ai += graphics_info_t::float_to_string(tpos.z());
-      ai += ")";
-      gtk_statusbar_push(GTK_STATUSBAR(graphics_info_t::statusbar),
-			 graphics_info_t::statusbar_context_id,
-			 ai.c_str());
+      ai = atom_info_as_text_for_statusbar(p_i.atom_index, p_i.imol, p_i.symm_trans.str(1).c_str());
+      statusbar_text(ai);
+      //gtk_statusbar_push(GTK_STATUSBAR(graphics_info_t::statusbar),
+      //		 graphics_info_t::statusbar_context_id,
+      //		 ai.c_str());
    }
 
 //    std::cout << "Picked: status: " << p_i.success << " index: "<< p_i.atom_index

@@ -285,6 +285,9 @@ main (int argc, char *argv[]) {
      window1 = create_window1 ();
 #endif // USE_LIBGLADE
      
+#ifdef WINDOWS_MINGW
+     gtk_window_set_title (GTK_WINDOW (window1), _("WinCoot"));
+#endif
 
      // Trying to put a pixmap into the menu bar...
      GtkWidget *reset_view1 = lookup_widget(window1, "reset_view1");

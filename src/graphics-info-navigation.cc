@@ -56,6 +56,7 @@
 
 #include "graphics-info.h"
 
+#include "cc-interface.hh"  // for statusbar_text
 
 // After this function, we call try_centre_from_new_go_to_atom(); 
 void graphics_info_t::set_go_to_atom_chain_residue_atom_name(const gchar *t1, 
@@ -332,6 +333,10 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 	 // Update the graphics (glarea widget):
 	 // 
 	 update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
+     // and show something in the statusbar
+     std::string ai;
+     ai = atom_info_as_text_for_statusbar(atom_index, imol);
+     statusbar_text(ai);
       }
    }
    return 1;

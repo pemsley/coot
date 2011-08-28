@@ -220,7 +220,8 @@
 #
 # 1.1 08/05/11 switch to new style Refmac library
 # 1.2 25/06/11 apply clipper thread patch
-script_version=1.2 
+# 1.3 31/07/11 add proper goocanvas.
+script_version=1.3 
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1002,8 +1003,10 @@ coot_version=$fallback_coot_version
 
 pre_release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
 pre_release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/pre-releases/
+pre_release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/pre-releases/
 release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/
 release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/releases/
+release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/releases
 
 ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
 ${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
@@ -1307,15 +1310,10 @@ echo waiting for build... > $LOGS/gtk2$build_type-test-status
 build_mmdb=0
 build_ssmlib=0
 build_fftw=0
-build_python=0
 build_clipper=0
-build_gtk=0
-build_gettext=0
 build_guile=0
 build_guile_www=0
 build_guile_gui=0
-build_guile_goosh=0
-build_guile_lib=0
 build_libtool=0
 build_net_http=0
 build_gsl=0
@@ -1325,14 +1323,19 @@ build_gsl=0
 # build_libpng=0
 # build_imlib=0
 # build_gtk_canvas=0
-build_guile_gtk=0
-build_gtkglext=0
+build_goocanvas=
+build_python=
+build_guile_gtk=
+build_gtkglext=
 #build_freeglut=0
 build_glib=
 #build_readline=
 build_curl=
+#build_libidn=
+build_guile_lib=0
+build_gettext=0
+build_gtk=0
 #gnome_canvas????
-build_goocanvas=
 
 
 # In Gtk2, we presume that glib, gtk2 and gnomecanvas are available.  
@@ -1819,7 +1822,7 @@ if [ "$build_goocanvas" = "" ] ; then
 
     # has it been installed?
     #
-    if [ -e "${install_top_dir}/include/goocanvas-1.0/goocanvaswidget.h" ] ; then
+    if [ -e "${install_top_dir}/include/goocanvas-1.0.0/goocanvaswidget.h" ] ; then
         build_goocanvas=no
         goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
     fi
@@ -2537,8 +2540,8 @@ if test -n "$build_gtkglext" ; then
 else
     echo not building gtkglext:
 fi 
-echo done with Gtk+-2 and dependencies...
 
+##################### gnomecanvas #####################################
 
 cd ${AUTOBUILD_SOURCES}
 ## libgnomecanvas
@@ -2570,6 +2573,7 @@ else
 fi
 
 
+echo done with Gtk+-2 and dependencies...
 
 ##################### goocanvas #####################################
 

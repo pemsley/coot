@@ -224,6 +224,7 @@ class LigandTestFunctions(unittest.TestCase):
         read_cif_dictionary(os.path.join(unittest_data_dir, "libcheck_3GP.cif"))
 
         r = monomer_restraints("3GP")
+        self.failUnless(r, "Failed to get restraints from monomer 3GP")
         t = get_torsions(r)
 
         #

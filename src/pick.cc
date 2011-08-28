@@ -52,6 +52,8 @@
 
 #include "pick.h"
 
+#include "cc-interface.hh" // for status bar text
+
 pick_info
 pick_atom(const atom_selection_container_t &SelAtom, int imol,
 	  const coot::Cartesian &front, const coot::Cartesian &back, short int pick_mode,
@@ -287,37 +289,8 @@ atom_pick(GdkEventButton *event) {
 	      << (SelAtom.atom_selection)[nearest_atom_index]->z << ")"
 	      << " : " << dist_closest << endl;
 
-	 if (strncmp(at->altLoc, "", 1))
-	    alt_conf_bit=std::string(",") + std::string(at->altLoc);
-	 ai += "(mol. no: ";
-	 ai += graphics_info_t::int_to_string(p_i.imol);
-	 ai += ") ";
-	 ai += at->name;
-	 ai += alt_conf_bit;
-	 ai += "/";
-	 ai += graphics_info_t::int_to_string(at->GetModelNum());
-	 ai += "/";
-	 ai += at->GetChainID();
-	 ai += "/";
-	 ai += graphics_info_t::int_to_string(at->GetSeqNum());
-	 ai += at->GetInsCode();
-	 ai += " ";
-	 ai += at->GetResName();
-	 if (segid != "")
-	    ai += segid;
-	 ai += " occ: ";
-	 ai += graphics_info_t::float_to_string(at->occupancy);
-	 ai += " bf: ";
-	 ai += graphics_info_t::float_to_string(at->tempFactor);
-	 ai += " ele: ";
-	 ai += at->element;
-	 ai += " pos: (";
-	 ai += graphics_info_t::float_to_string(at->x);
-	 ai += ",";
-	 ai += graphics_info_t::float_to_string(at->y);
-	 ai += ",";
-	 ai += graphics_info_t::float_to_string(at->z);
-	 ai += ")";
+     ai = atom_info_as_text_for_statusbar(nearest_atom_index, p_i.imol);
+
 	 gtk_statusbar_push(GTK_STATUSBAR(graphics_info_t::statusbar),
 			    graphics_info_t::statusbar_context_id,
 			    ai.c_str());

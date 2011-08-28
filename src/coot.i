@@ -32,6 +32,8 @@
 %ignore main_menubar();
 %ignore main_statusbar();
 %ignore main_toolbar();
+/* conflicts with redefinition */
+%ignore list_nomenclature_errors(int);
 
 %include "c-interface.h"
 %include "cc-interface.hh"

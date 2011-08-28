@@ -68,7 +68,6 @@ def skip_to_next_ncs_chain(direction):
       else:
           return chain_guess
 
-  # not entirely sure what this shall do
   def get_chain_id_list(imol, this_chain_id):
       att = ncs_chain_ids(imol)
       if (not att):
@@ -77,6 +76,8 @@ def skip_to_next_ncs_chain(direction):
           for attempt in att:
               if (this_chain_id in attempt):
                   return attempt
+          # we havent found this_chain_id in ncs chains, so return all chains
+          return chain_ids(imol)
               
   # First, what is imol? imol is the go to atom molecule
   imol = go_to_atom_molecule_number()
@@ -86,7 +87,8 @@ def skip_to_next_ncs_chain(direction):
   make_ncs_ghosts_maybe(imol)
   found_atom_state = 0
   if (not chains):
-	print "BL WARNING:: empty set of chains!!!"
+	print "BL WARNING:: empty set of chains!!! This should never happen."
+    # what shall we do now? Bail out I guess. But this should never happen!
   next_chain = skip_to_chain(imol, this_chain_id, chains)
 
   try_next_chain = next_chain

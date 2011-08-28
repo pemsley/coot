@@ -1623,11 +1623,10 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                         dir_atoms = phos_dir[tlc]
                     else:
                         dir_atoms = False
-                    print "BL DEBUG:: .... spining atoms ", spin_atoms
                     refine_zone(imol, chain_id_in, resno, resno, "")
                     if dir_atoms:
                         spin_search(imol_map, imol, chain_id_in, resno, "", dir_atoms, spin_atoms)
-                    refine_zone(imol, chain_id_in, resno, resno, "")
+                        refine_zone(imol, chain_id_in, resno, resno, "")
                 accept_regularizement()
                 set_refinement_immediate_replacement(replacement_state)
 
