@@ -2902,8 +2902,8 @@ global std_key_bindings
 std_key_bindings = [["^g", "keyboard-go-to-residue"],
                     ["^s", "quick-save-as"],
                     ["^i", "residue info"],
-                    ["^z", "Undo"],
-                    ["^y", "Redo"],
+                    ["^z", "undo"],
+                    ["^y", "redo"],
                     ["a", "refine with auto-zone"],
                     ["b", "toggle baton swivel"],
                     ["c", "toggle cross-hairs"],
@@ -4246,7 +4246,8 @@ random_jiggle_n_trials = 50
 
 def solvent_ligand_list():
    global additional_solvent_ligands
-   return (["EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4", "PO4", "TRS", "TAM"] +
+   return (["EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4", "PO4", "TRS",
+            "TAM"] +
            additional_solvent_ligands)
 
 # add solvent molecules
@@ -4896,7 +4897,7 @@ def click_protein_db_loop_gui():
                                          imol_refinement_map(),
                                          10)
             imol_loop_orig = loop_mols[0][0]
-            imol_loops_consolodated = loop_mols[0][1]
+            imol_loops_consolidated = loop_mols[0][1]
             loop_mols = loop_mols[1]
             min_resno = min_max_and_chain_id[0]
             max_resno = min_max_and_chain_id[1]
@@ -4916,7 +4917,10 @@ def click_protein_db_loop_gui():
                                           copy_residue_range(imol, chain_id,
                                                              imol_loop_orig, chain_id,
                                                              min_resno, max_resno)
-                                         ]] + buttons,
+                                         ],
+                                         ["Toggle All Candidate Loops", lambda func:
+                                          toggle_display_mol(imol_loops_consolidated)]
+                                         ] + buttons,
                                         " Close ")
                   
       user_defined_click(n, pick_func)

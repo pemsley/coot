@@ -35,7 +35,7 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
   *-mingw*)
     COOT_WINDOWS_CFLAGS="-DWINDOWS_MINGW -DUSE_GNOME_CANVAS"
     have_windows_mingw=yes
-    break;;
+    ;;
  esac
 
 AC_MSG_RESULT([$have_windows_mingw])

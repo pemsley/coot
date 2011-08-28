@@ -20,11 +20,12 @@ if test x$goocanvas_prefix != x; then
  # --with-goocanvas-prefix=/some/thing
  #
 
-  GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-1.0"
-
   case $ac_cv_build_alias in
   *-mingw*)
-    GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-0.15/goocanvas"
+    GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-1.0.0/goocanvas"
+    break;;
+  *)
+    GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-1.0"
     break;;
   esac
   #
@@ -40,8 +41,7 @@ if test x$goocanvas_prefix != x; then
     GOOCANVAS_LDOPTS="-L$goocanvas_prefix/lib -lgoocanvas"
   fi
 else
-  # the compiler looks in the "standard" places for GOOCANVAS.  
-  GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-1.0"
+  # the compiler looks in the "standard" places for GOOCANVAS. (or uses pkgconfig)
 
   case $ac_cv_build_alias in
   *-mingw*)
@@ -51,6 +51,9 @@ else
     else
       GOOCANVAS_CFLAGS=`$PKG_CONFIG goocanvas --cflags`
     fi
+    break;;
+  *)
+    GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-1.0"
     break;;
   esac
   if test -e /usr/lib/libgoocanvas.la ; then
@@ -76,12 +79,12 @@ AC_LANG_PUSH(C++)
 save_CXX="$CXX"
 case $ac_cv_build_alias in
   *-mingw*)
-    # only do the libtool for non-mingw, propbably should be libtool version
-    # dependent
+    # only do the libtool for non-mingw, probably should be libtool version
+    # dependend!?
     break;;
   *)
-# note that we use ./libtool (running in the build dir) because $LIBOOL is wrong(!)
-CXX="libtool --mode=link $CXX"
+    # note that we use ./libtool (running in the build dir) because $LIBOOL is wrong(!)
+    CXX="libtool --mode=link $CXX"
     break;;
 esac
 AC_TRY_LINK([#include "goocanvas.h"] ,[ GooCanvas *a;  ], have_goocanvas=yes, have_goocanvas=no)

@@ -612,6 +612,9 @@ PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 
 //! \}
 
+// status bar atom info text here?!
+std::string atom_info_as_text_for_statusbar(int atom_index, int imol, const char *symmetry_text = "");
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Refinement                                              */
