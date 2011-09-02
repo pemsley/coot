@@ -32,6 +32,8 @@
 #include <string>
 #endif // HAVE_STRING
 
+#include <deque>
+
 enum {CONTOUR_UP, CONTOUR_DOWN}; 
 
 // needs:
@@ -2770,6 +2772,7 @@ public:        //                      public
 
    // replace molecule
    int replace_molecule(CMMDBManager *mol);
+   int replace_models(std::deque<CModel *> model_list);
 
 
    // add a factor to scale the colours in b factor representation:.

@@ -245,11 +245,32 @@ CMMDBManager *
 mmdb_manager_from_python_expression(PyObject *molecule_expression) {
 
    CMMDBManager *mol = 0;
+   std::deque<CModel *> model_list = mmdb_models_from_python_expression(molecule_expression);
+   
+   if (!model_list.empty()) {
+      mol = new CMMDBManager;
+      while (!model_list.empty()) {
+         mol->AddModel(model_list.front());
+         model_list.pop_front();
+      }
+   }
+   
+   if (mol) { 
+      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->FinishStructEdit();
+   }
+   return mol;
+} 
+
+
+std::deque<CModel *>
+mmdb_models_from_python_expression(PyObject *molecule_expression) {
+
+   std::deque<CModel *> model_list;
 
    int inmodel = PyObject_Length(molecule_expression);
 
    if (inmodel > 0) {
-      mol = new CMMDBManager; 
       for(int imodel=0; imodel<inmodel; imodel++) {
          CModel *model_p = new CModel;
          PyObject *model_expression = PyList_GetItem(molecule_expression, imodel);
@@ -449,18 +470,14 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                      model_p->AddChain(chain_p);
                   }
                }
-               mol->AddModel(model_p);
+               model_list.push_back(model_p);
             }
          }
       }
    }
-   if (mol) { 
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
-      mol->FinishStructEdit();
-   }
-   return mol;
-} 
-
+   
+   return model_list;
+}
 
 #endif // USE_PYTHON
 

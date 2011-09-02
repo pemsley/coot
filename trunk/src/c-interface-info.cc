@@ -1033,6 +1033,8 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 		     SCM all_atoms = SCM_EOL;
 		     for (int iat=0; iat<n_atoms; iat++) {
 			at = residue_p->GetAtom(iat);
+                        if (at->Ter) continue; //ignore TER records
+                        
 			at_x  = scm_float2num(at->x);
 			at_y  = scm_float2num(at->y);
 			at_z  = scm_float2num(at->z);
@@ -1107,10 +1109,12 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
 		     PyObject *at_x, *at_y, *at_z;
 		     PyObject *compound_name;
 		     PyObject *compound_attrib;
-		     all_atoms = PyList_New(n_atoms);
+		     all_atoms = PyList_New(0);
                      for (int iat=0; iat<n_atoms; iat++) {
 
                         at = residue_p->GetAtom(iat);
+                        if (at->Ter) continue; //ignore TER records
+                        
                         at_x  = PyFloat_FromDouble(at->x);
                         at_y  = PyFloat_FromDouble(at->y);
                         at_z  = PyFloat_FromDouble(at->z);
@@ -1153,7 +1157,7 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
                         PyList_SetItem(at_info, 1, compound_attrib);
                         PyList_SetItem(at_info, 2, at_pos);
 
-                        PyList_SetItem(all_atoms, iat, at_info);
+                        PyList_Append(all_atoms, at_info);
                      }
 		     r = all_atoms;
                   }

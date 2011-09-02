@@ -7863,6 +7863,40 @@ molecule_class_info_t::replace_molecule(CMMDBManager *mol) {
    return was_changed;
 }
 
+int
+molecule_class_info_t::replace_models(std::deque<CModel *> model_list) {
+   /*This function is nearly identical to replace_molecule(), but it replaces all MMDB models
+     within the existing MMDB manager instead of replacing the entire MMDB manager.  This means
+     that the header information associated with the current MMDB manager won't get erased.
+   */
+   int was_changed = 0;
+   
+   if (!model_list.empty()) {
+      
+      atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+      
+      CMMDBManager *mol = atom_sel.mol;
+      mol->DeleteAllModels();
+      while (!model_list.empty()) {
+         mol->AddModel(model_list.front());
+         model_list.pop_front();
+      }
+      
+      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->FinishStructEdit();
+      
+      atom_sel = make_asc(mol);
+      have_unsaved_changes_flag = 1; 
+      make_bonds_type_checked(); // calls update_ghosts()
+      trim_atom_label_table();
+      update_symmetry();
+      was_changed = 1;
+   }
+   
+   return was_changed;
+}
+
+
 // EM map function
 int
 molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
