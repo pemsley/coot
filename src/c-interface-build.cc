@@ -4395,13 +4395,13 @@ int clear_and_update_molecule_py(int molecule_number, PyObject *molecule_express
 
    int state = 0;
    if (is_valid_model_molecule(molecule_number)) {
+      
+      std::deque<CModel *> model_list =
+         mmdb_models_from_python_expression(molecule_expression);
 
-      CMMDBManager *mol =
-         mmdb_manager_from_python_expression(molecule_expression);
-
-      if (mol) {
+      if (!model_list.empty()) {
          state = 1;
-         graphics_info_t::molecules[molecule_number].replace_molecule(mol);
+         graphics_info_t::molecules[molecule_number].replace_models(model_list);
          graphics_draw();
       }
    }
