@@ -64,7 +64,7 @@ coot::protein_geometry::read_energy_lib(const std::string &file_name) {
 	       
 	       // std::cout << "DEBUG:: init_link is handling " << cat_name << std::endl;
 	       
-	       PCMMCIFLoop mmCIFLoop = data->GetLoop( (char *) cat_name.c_str() );
+	       PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str());
 	       
 	       if (mmCIFLoop == NULL) { 
 		  std::cout << "null loop" << std::endl; 
