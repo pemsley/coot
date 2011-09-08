@@ -27,8 +27,6 @@
 
   * Fix renumbering problem [John Berrisford] ::: 2
 
-  * Fix TER records on mutating a base [James Parker] ::: 2
-
   * DNA in sequence view [Miguel Ortiz Lombardia] ::: 1
 
   * Other DNA problem: mutation/adding Ts to DNA? ::: 2
@@ -36,6 +34,8 @@
 ------
 
   * "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
+
+  * Fix TER records on mutating a base [James Parker] ::: 2
 
 
  

@@ -46,6 +46,8 @@
 #include "mmdb.h"
 #include "mmdb-crystal.h"
 
+#include "read-sm-cif.hh"
+
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
@@ -1517,3 +1519,19 @@ topological_equivalence_chiral_centres(const std::string &residue_type) {
    return centres;
 } 
 
+
+int read_small_molecule_cif(const char *file_name) {
+
+
+   int imol = -1;
+   coot::smcif smcif;
+   CMMDBManager *mol = smcif.read_sm_cif(file_name);
+
+   if (mol) {
+      graphics_info_t g;
+      imol = g.create_molecule();
+      g.molecules[imol].install_model(imol, mol, "thing", 0, 1);
+   } 
+
+   return imol;
+} 
