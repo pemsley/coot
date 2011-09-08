@@ -5805,7 +5805,7 @@ Thu Sep  2 11:40:03 BST 2010
     use the `-Wl,-rpath -Wl,LIBDIR' linker flag
 
 
-=======
+-----
 Interesting valgrind problems:
 
 ==23673== 67,982 bytes in 2,432 blocks are possibly lost in loss record 9,100 of 9,127
@@ -6082,6 +6082,48 @@ Fri Jul 29 19:48:03 BST 2011
     importing an sdf/mdl file should create a residue with HETATMs!
 
     Get the TLC from the first line (if the first line consists of 3 letters)
+
+
+----
+Fri Aug 12 15:59:29 BST 2011
+
+	Areej bug: Adding an altconf on a ligand (hetgroup) makes the
+	atoms into ATOMs, (they were HETATMs)
+
+
+    or is it that ligands with alt confs are drawn without dictionary?
+
+
+----
+Fri Aug 12 16:05:07 BST 2011
+
+
+   Nice feature:
+
+   In the sequence view (the window needs a title) it would be nice if
+   the ligands had a highlighting background colour and showed the TLC
+   (and molecule name?) as a tooltip.
+
+----
+Fri Aug 12 16:07:05 BST 2011
+
+   Areej Bug. (Another one).
+
+   Add a Glycerol using Solvent Ligands.
+
+   Add another.  
+
+   They go into different chains.
+
+   Badness
+
+
+----
+Fri Aug 12 16:17:52 BST 2011
+
+    In the Solvent Ligands dialog, DTT should be added.
+
+    And it would be nice if the molecule names were there too.
 
 
 ---

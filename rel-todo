@@ -5,21 +5,37 @@
 
   * Make ligands work ::: 20
 
-  * "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
-
-  * Add nucleotide to 3' end - Sabine Schneider ::: 1
-
   * Don't drag last-placed bond after button-up in lbg ::: 1
+
+  * CCP4-based integrated path for FLEV ::: 6
+
+  * Recent structures browser ::: 8
+
+  * rework build script with guile-gnome dependencies (can of worms?)
+    ::: 8
+
+  * Add nucleotide to 3' end - Sabine Schneider.  Check Kevin's fix -
+    needs test ::: 1
 
   * Fix lighting for solid env distances ::: 1
 
   * Fix lighting for solid generic objects ::: 1
 
-  * CCP4-based integrated path for FLEV ::: 6
+  * Is pisa in 6.2 up to date enough to enable the menu in Coot? ::: 0.5
 
-  * replace guile-gtk with guile-gnome ::: 15
+  * in 3s4w the Bonding in CA mode is wrong at residue 411.   ::: 1
 
-  * rework build script with guile-gnome dependencies (can of worms?) 
-    ::: 8
+  * Fix renumbering problem [John Berrisford] ::: 2
 
--------
+  * Fix TER records on mutating a base [James Parker] ::: 2
+
+  * DNA in sequence view [Miguel Ortiz Lombardia] ::: 1
+
+  * Other DNA problem: mutation/adding Ts to DNA? ::: 2
+
+------
+
+  * "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
+
+
+ 
