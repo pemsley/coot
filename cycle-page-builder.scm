@@ -676,11 +676,12 @@
 	       ; "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 	       ; #t #t)
 
-	 ;; I make this occassionally.
-	 ; (list "binary-Linux-i386-fedora-12-gtk2"
-	       ; "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-jackal-f12/gtk2"
-	       ; "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	       ; #f #t)
+	 ;; I make routinely now
+	 ;; 
+	 (list "binary-Linux-i386-fedora-12-python-gtk2"
+	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-jackal-f12/gtk2"
+	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #t #t)
 
          ; dead virtual machine?
 	;; kevin makes this occassionally.
