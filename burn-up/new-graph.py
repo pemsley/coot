@@ -24,11 +24,15 @@ def describeEvent(days, label, off):
     tb = text_box.T(text=label, loc=(x1+off, yloc), shadow=(1,-1,fill_style.gray70))
     tb.add_arrow((x1, 0))
     tb.draw()
+
+def db_print(arg, val):
+    pass
+    # print arg, val
     
 def predict_release(data):
 
     cg_prediction = predict_release_by_crossing_graphs(data)
-    # print 'cg_prediction returned ', cg_prediction
+    db_print('cg_prediction returned ', cg_prediction)
     if cg_prediction:
        today = cg_prediction[2]
        # print "%%cg_prediction: ", cg_prediction
@@ -65,17 +69,25 @@ def predict_release_from_dev_points(data):
     # print "%% pred_y", pred_y
     return [pred_x, pred_y]
 
+# return either False or a list of [X_pred, Y_pred, today]
+#
 def predict_release_by_crossing_graphs(data):
     last = len(data) -1
     if (last > 1):
-        c1 = data[0][1]
-        c2 = data[0][2]
-        X_today = data[last][0]
+        c1 = data[0][1] # first how-much-done
+        c2 = data[0][2] # first scope
+        X_today = data[last][0] # how many days have passed
+        db_print('c1:', c1)
+        db_print('c2:', c2)
+        db_print('X_today:', X_today)
         if X_today > 0:
             m1 = (data[last][1] - c1)/X_today
             m2 = (data[last][2] - c2)/X_today
             m_diff = m1 - m2
-            if m_diff != 0:
+            db_print('m1:', m1) # 'done' gradient
+            db_print('m2:', m2) # scope gradient
+            db_print('m_diff:', m_diff)
+            if m_diff > 0:
                 X_pred = (c2-c1)/(m1-m2) 
                 Y_pred_1 = m1 * X_pred + c1
                 Y_pred_2 = m2 * X_pred + c2
@@ -119,7 +131,7 @@ def draw_prediction_on_canvas(pr, can):
       s += pred_date_str
       # can.show(70,90, s)
       # can.show(100,90, s)
-      can.show(8, 96, s)
+      can.show(8, 66, s)
       
       #   print "X_pred: :", X_pred, "Y_pred: :", Y_pred
       can.rectangle(line_style.default, fill_style.default,
@@ -204,7 +216,8 @@ def annotation_box(box_text, loc_x, loc_y, data_index, arrow_position):
 
 
 
-annotation_box("1st August", -6, 20, 0, "c")
+annotation_box("1st August",       -9, 17,  0, "c")
+annotation_box("IUCr Comp. Schl.",  9, 29, 18, "c")
 
 
 # take-home:
