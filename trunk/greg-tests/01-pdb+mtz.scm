@@ -1259,6 +1259,51 @@
 					   (throw 'fail))
 					 #t))))))))))))))
 
+
+(greg-testcase "TER is at the end of a nucleotide after mutation" #t 
+   (lambda ()
+
+     ;; Before this test, if we mutated a nucleotide at the end of a
+     ;; chain, then the TER record appeared in the PDB file before the
+     ;; additional new atoms.  Wrongness.  James Parker bug.
+
+     (let ((imol (greg-pdb "2yie-frag.pdb")))
+       
+       (if (not (valid-model-molecule? imol))
+	   (begin
+	     (format #t "failed to read 2yie-frag.pdb~%")
+	     (throw 'fail)))
+
+       (let ((status (mutate-base imol "X" 54 "" "C")))
+
+	 (if (not (= status 1))
+	   (begin
+	     (format #t "failed to mutate 2yie-frag.pdb~%")
+	     (throw 'fail)))
+
+	 (write-pdb-file imol "2yie-mutated.pdb")
+	 
+	 (call-with-input-file "2yie-mutated.pdb"
+	   (lambda (port)
+
+	     (let loop ((line (read-line port))
+			(ter-status #f))
+	       (cond
+		((eof-object? line) 
+		 (throw 'fail))
+		((string-contains line "END") 
+		 #t) ;; good, we got to the end without seeing ATOM records 
+		     ;; after a TER record.
+		((string-contains line "TER") (loop (read-line port) #t))
+		((string-contains line "ATOM")
+		 (if ter-status 
+		     #f ;; fail if we see an ATOM record after a TER record.
+		     (loop (read-line port) #f)))
+		(else 
+		 (loop (read-line port) ter-status))))))))))
+
+
+
 ;; Restore this when the delete-residue-with-full-spec makes it to trunk.
 ;; 
 
