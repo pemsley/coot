@@ -3657,6 +3657,9 @@ PyObject *non_standard_residue_names_py(int imol);
 /* Use the environment variable COOT_REFMAC_LIB_DIR to find cif files
    in subdirectories and import them all. */
 void import_all_refmac_cifs(); 
+
+int read_small_molecule_cif(const char *file_name);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
