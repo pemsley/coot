@@ -631,6 +631,7 @@ function my_exit {
 function test_coot { 
 
 echo testing with greg
+echo testing with greg &>2
 echo currently we are here:
 pwd
 date
@@ -702,6 +703,8 @@ fi
 function test_coot_python { 
 
 echo testing with python unittest
+echo testing with python unittest &>2
+
 echo currently we are here:
 pwd
 
@@ -1900,6 +1903,7 @@ else
    # if you change this, change also gsl_version below.
    needed_gsl_version=1.11
    needed_gsl_version=1.12
+   needed_gsl_version=1.15
 
    # tmp value
    build_gsl=`awk -v A=$gsl_version -v N=$needed_gsl_version 'BEGIN{x = ((A+0) != (N+0)) ; print x}'`
@@ -2255,6 +2259,7 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1-090522-ac
     clipper_version=2.1-090826-ac
     clipper_version=2.1-091215-ac
+    clipper_version=2.1-100511-ac
     clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
@@ -2326,8 +2331,17 @@ gzip -dc ${AUTOBUILD_SOURCES}/freeglut-2.4.0.tar.gz | tar xf -
 cd freeglut-2.4.0
 
 # On 64 bit redhat 4, we need to use /usr/X11R6/lib64, not /usr/X11R6/lib.
-if [ "$MACHTYPE" = x86_64-redhat-linux-gnu ] ; then
-    sed -i -e 's?/usr/X11R6/lib?/usr/X11R6/lib64?' configure 
+echo INFO:: MACHTYPE is $MACHTYPE
+echo INFO:: systype is $systype
+if [ "$systype" = x86_64-rhel-4 ] ; then
+    echo patching freeglut configure for lib64.
+    cp configure configure.orig
+    if sed -i -e 's?/usr/X11R6/lib?/usr/X11R6/lib64?' configure ; then
+       echo patching went OK.
+    else 
+	echo patching failed.
+	my_exit 1
+    fi
 fi
 
 ./configure $generic_prefix --disable-warnings 
@@ -2938,6 +2952,7 @@ if test -n "$build_gsl" ; then
 # wget http://ftp.gnu.org/gnu/gsl/gsl-1.6.tar.gz
 # if you change this, change needed_gsl_version above
 gsl_version=1.12
+gsl_version=1.15
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
@@ -3189,6 +3204,7 @@ if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
 else 
     echo INSTALLING refmac monomer library...
+    echo INSTALLING refmac monomer library... &>2
     $WGET $mon_lib_dir/$refmac_mon_lib
     mkdir -p $install_top_dir/share/coot/lib/data
     tar xzCf $install_top_dir/share/coot/lib/data $AUTOBUILD_SOURCES/$refmac_mon_lib
@@ -3197,6 +3213,7 @@ if [ -e $install_top_dir/share/coot/reference-structures ] ; then
     echo INFO:: installation has reference structures
 else 
     echo GETTING reference structures tar...
+    echo GETTING reference structures tar... &>2
     $WGET $extra_dir/reference-structures.tar.gz
     if [ -e $AUTOBUILD_SOURCES/reference-structures.tar.gz ] ; then
        echo INSTALLING reference structures...
