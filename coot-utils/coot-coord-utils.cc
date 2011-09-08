@@ -4950,6 +4950,8 @@ coot::util::mutate(CResidue *res, CResidue *std_res_unoriented, const std::strin
 // Here std_base is at some arbitary position when passed.
 //
 // use_old_style_naming means use pdb v2 atom names.
+//
+// You need to call mol->FinishStructEdit() after using this function.
 // 
 void
 coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_style_naming) {
@@ -5292,13 +5294,15 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 
 		  // now find the atoms of the given residue and apply
 		  // the transformation and add them to the residue;
-		  short int have_deleted = 0;
+		  bool have_deleted = 0;
+		  bool need_a_ter = 0;
 		  for (unsigned int iat=0; iat<mol_base_atom_names.size(); iat++) {
 		     for (int i=0; i<n_mol_base_atoms; i++) {
 			if (mol_base_atoms[i]) { 
+			
 			   if (mol_base_atom_names[iat] == mol_base_atoms[i]->name) {
-// 			      std::cout << ".... Deleting Atom " << mol_base_atoms[i]->name
-// 					<< std::endl;
+ 			      std::cout << ".... Deleting Atom " << mol_base_atoms[i]->name
+ 					<< " i = " << i << std::endl;
 			      residue->DeleteAtom(i);
 			      mol_base_atoms[i] = NULL;
 			      have_deleted = 1;
@@ -5309,7 +5313,23 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 		  }
  		  if (have_deleted)
  		     residue->TrimAtomTable();
-		  
+
+
+		  PPCAtom residue_atoms = 0;
+		  int n_residue_atoms;
+		  residue->GetAtomTable(residue_atoms, n_residue_atoms);
+		  have_deleted = 0; // reset for Ter tests.
+
+		  for (unsigned int i=0; i<n_residue_atoms; i++) { 
+		     if (residue_atoms[i]->isTer()) {
+			std::cout << "..... atom " << i << " is a Ter" << std::endl;
+			residue->DeleteAtom(i);
+			need_a_ter = 1;
+			have_deleted = 1;
+		     }
+		  }
+ 		  if (have_deleted)
+ 		     residue->TrimAtomTable();
 		  
 		  for (unsigned int iat=0; iat<std_base_atom_names.size(); iat++) {
 		     bool found = 0;
@@ -5347,16 +5367,23 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 		     } 
 		  }
 	    
-	    
-		  
-		  //       
+
  		  std::string new_base_name =
  		     coot::util::convert_base_name(std_base_name, use_old_style_naming);
-// 		  std::string new_base_name =
-// 		     coot::util::convert_base_name(std_base_name, 1);
-
 		  residue->SetResName(new_base_name.c_str());
 		  residue->TrimAtomTable();
+
+
+		  if (need_a_ter) {
+		     std::cout << ".................... adding in a new Ter" << std::endl;
+		     std::cout << " GetNumberOfAtoms() 1 " << residue->GetNumberOfAtoms(1) << std::endl;
+		     CAtom *at = new CAtom;
+		     at->MakeTer();
+		     int n_atoms_new = residue->AddAtom(at);
+		     std::cout << " GetNumberOfAtoms() 2 " << residue->GetNumberOfAtoms(1) << std::endl;
+		     residue->TrimAtomTable();
+		     std::cout << " GetNumberOfAtoms() 3 " << residue->GetNumberOfAtoms(1) << std::endl;
+		  }
 	       }
 	    }
 	 }
