@@ -289,8 +289,8 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 	    element_1 = atom_p_1->element;
 	    element_2 = atom_p_2->element;
 
-	    coot::Cartesian atom_1(atom_p_1->x, atom_p_1->y, atom_p_1->z);
-	    coot::Cartesian atom_2(atom_p_2->x, atom_p_2->y, atom_p_2->z);
+	    coot::Cartesian atom_1_pos(atom_p_1->x, atom_p_1->y, atom_p_1->z);
+	    coot::Cartesian atom_2_pos(atom_p_2->x, atom_p_2->y, atom_p_2->z);
 
 	    if (chain_id1 == chain_id2) {
 
@@ -357,40 +357,14 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			if (atom_selection_1[ contact[i].id1 ]->GetModel() ==
 			    atom_selection_2[ contact[i].id2 ]->GetModel()) {
 
-			   if (have_udd_atoms) {
-			      if (! ((!strcmp(atom_selection_1[ contact[i].id1 ]->element, " S")) ||
-				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "SE")) ||
-				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "CL")) ||
-				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
-				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Cl")) ||
-				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Br")) ||
-				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, " P")))) { 
-				 atom_selection_1[ contact[i].id1 ]->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-				 // 			      std::cout << "marking udd handle "
-				 // 					<< atom_selection_1[ contact[i].id1 ]
-				 // 					<< std::endl;
-			      } 
-
-			      if (! ((!strcmp(atom_selection_2[ contact[i].id2 ]->element, " S")) ||
-				     (!strcmp(atom_selection_2[ contact[i].id2 ]->element, "SE")) ||
-				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "CL")) ||
-				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
-				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Cl")) ||
-				     (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Br")) ||
-				     (!strcmp(atom_selection_2[ contact[i].id2 ]->element, " P")))) { 
-				 atom_selection_2[ contact[i].id2 ]->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-				 // 			      std::cout << "marking udd handle "
-				 // 					<< atom_selection_2[ contact[i].id2 ]
-				 // 					<< std::endl;
-			      }
-			   }
+			   bool done_bond_udd_handle = false; // set only for bonds to hydrogen
 
 			   if (element_1 != element_2) {
 		  
 			      // Bonded to different atom elements.
 
 			      if ((element_1 != " H") && (element_2 != " H")) {
-				 add_half_bonds(atom_1, atom_2,
+				 add_half_bonds(atom_1_pos, atom_2_pos,
 						atom_selection_1[contact[i].id1],
 						atom_selection_2[contact[i].id2],
 						atom_colour_type);
@@ -406,13 +380,45 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				 std::string resname_1 = atom_p_1->GetResName();
 				 std::string resname_2 = atom_p_2->GetResName();
 				 if (resname_1 == "HOH" || resname_2 == "HOH") {
-				    add_half_bonds(atom_1, atom_2,
+				    add_half_bonds(atom_1_pos, atom_2_pos,
 						   atom_selection_1[contact[i].id1],
 						   atom_selection_2[contact[i].id2],
 						   atom_colour_type);
-				 } else { 
+				 } else {
+
+				    bool done_h_bond = false; // set when we make a half-bond between H and O.
+				    if (element_1 == " O") {
+				       int bond_udd = NO_BOND;
+				       atom_p_1->GetUDData(udd_handle, bond_udd);
+				       if (bond_udd == BONDED_WITH_STANDARD_ATOM_BOND) {
+				       } else {
+					  add_half_bonds(atom_1_pos, atom_2_pos,
+							 atom_selection_1[contact[i].id1],
+							 atom_selection_2[contact[i].id2],
+							 atom_colour_type);
+					  done_h_bond = true;
+				       } 
+				    }
 				 
-				    addBond(HYDROGEN_GREY_BOND, atom_1, atom_2);
+				    if (element_2 == " O") {
+				       int bond_udd = NO_BOND;
+				       atom_p_2->GetUDData(udd_handle, bond_udd);
+				       if (bond_udd == BONDED_WITH_STANDARD_ATOM_BOND) {
+				       } else {
+					  add_half_bonds(atom_1_pos, atom_2_pos,
+							 atom_selection_1[contact[i].id1],
+							 atom_selection_2[contact[i].id2],
+							 atom_colour_type);
+					  done_h_bond = true;
+				       } 
+				    }
+
+				    if (! done_h_bond) { 
+				       addBond(HYDROGEN_GREY_BOND, atom_1_pos, atom_2_pos);
+				    }
+				    done_bond_udd_handle = true;
+				    atom_p_1->PutUDData(udd_handle, BONDED_WITH_BOND_TO_HYDROGEN);
+				    atom_p_2->PutUDData(udd_handle, BONDED_WITH_BOND_TO_HYDROGEN);
 				 }
 			      } // not hydrogen test
 		  
@@ -421,8 +427,11 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			      // Bonded to an atom of the same element.
 			      //
 			      col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
-			      addBond(col, atom_1, atom_2);
+			      addBond(col, atom_1_pos, atom_2_pos);
 			   }
+
+			   mark_atoms_as_bonded(atom_p_1, atom_p_2, have_udd_atoms, udd_handle, done_bond_udd_handle);
+
 			}
 		     }
 		  }
@@ -443,20 +452,58 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
    }
 }
 
+void
+Bond_lines_container::mark_atoms_as_bonded(CAtom *atom_p_1, CAtom *atom_p_2,
+					   bool have_udd_atoms,
+					   int udd_handle,
+					   bool done_bond_udd_handle) const {
+
+   // mark atoms as bonded.
+   // 
+   if (have_udd_atoms) {
+      if (! done_bond_udd_handle) { // already happened for bonds to Hs.
+	 if (! ((!strcmp(atom_p_1->element, " S")) ||
+		(!strcmp(atom_p_1->element, "SE")) ||
+		(!strcmp(atom_p_1->element, "CL")) ||
+		(!strcmp(atom_p_1->element, "BR")) ||
+		(!strcmp(atom_p_1->element, "Cl")) ||
+		(!strcmp(atom_p_1->element, "Br")) ||
+		(!strcmp(atom_p_1->element, " P")))) { 
+	    atom_p_1->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+	    std::cout << "marking udd handle for at1 standard bond for "
+		      << atom_p_1 << std::endl;
+	 } 
+
+	 if (! ((!strcmp(atom_p_2->element, " S")) ||
+		(!strcmp(atom_p_2->element, "SE")) ||
+		(!strcmp(atom_p_2->element, "CL")) ||
+		(!strcmp(atom_p_2->element, "BR")) ||
+		(!strcmp(atom_p_2->element, "Cl")) ||
+		(!strcmp(atom_p_2->element, "Br")) ||
+		(!strcmp(atom_p_2->element, " P")))) { 
+	    atom_p_2->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+	    std::cout << "marking udd handle for at2 standard bond for "
+		      << atom_p_2 << std::endl;
+	 }
+      }
+   }
+}
+
+
 
 void
-Bond_lines_container::add_half_bonds(const coot::Cartesian &atom_1,
-				     const coot::Cartesian &atom_2,
+Bond_lines_container::add_half_bonds(const coot::Cartesian &atom_1_pos,
+				     const coot::Cartesian &atom_2_pos,
 				     CAtom *at_1,
 				     CAtom *at_2,
 				     int atom_colour_type) {
    
-   coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
+   coot::Cartesian bond_mid_point = atom_1_pos.mid_point(atom_2_pos);
    int col = atom_colour(at_1, atom_colour_type);
-   addBond(col, atom_1, bond_mid_point);
+   addBond(col, atom_1_pos, bond_mid_point);
    
    col = atom_colour(at_2, atom_colour_type);
-   addBond(col, bond_mid_point, atom_2);
+   addBond(col, bond_mid_point, atom_2_pos);
 			      
 }
 

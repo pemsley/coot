@@ -287,7 +287,10 @@ enum symm_keys {NO_SYMMETRY_BONDS};
 
 class Bond_lines_container { 
 
-   enum { NO_BOND, BONDED_WITH_STANDARD_ATOM_BOND, BONDED_WITH_HETATM_BOND /* by dictionary */ };
+   enum { NO_BOND,
+	  BONDED_WITH_STANDARD_ATOM_BOND,
+	  BONDED_WITH_BOND_TO_HYDROGEN, 
+	  BONDED_WITH_HETATM_BOND /* by dictionary */ };
    bool verbose_reporting;
    bool do_disulfide_bonds_flag;
    bool do_bonds_to_hydrogens;
@@ -337,6 +340,11 @@ class Bond_lines_container {
 
    bool draw_these_residue_contacts(CResidue *this_residue, CResidue *env_residue,
 				    coot::protein_geometry *protein_geom);
+
+   // abstract this out of construct_from_atom_selection for cleanliness.
+   // 
+   void mark_atoms_as_bonded(CAtom *atom_p_1, CAtom *atom_p_2, bool have_udd_atoms, int udd_handle, bool done_bond_udd_handle) const;
+   
 
    void add_half_bonds(const coot::Cartesian &atom_1,
 		       const coot::Cartesian &atom_2,
