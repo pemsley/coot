@@ -309,6 +309,34 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        }
        break;
 
+     case PREFERENCES_MAIN_TOOLBAR_SHOW:
+       if (g.preferences_internal[i].ivalue1 == 0) {
+	 commands.push_back(state_command("hide-main-toolbar", il));
+       } else {
+	 commands.push_back(state_command("show-main-toolbar", il));
+       }
+       break;
+
+       //case PREFERENCES_MAIN_TOOLBAR_POSITION:
+       //commands.push_back(state_command("set-main-toolbar-docked-position",
+       //				g.preferences_internal[i].ivalue1, il));
+       //break;
+
+     case PREFERENCES_MAIN_TOOLBAR_STYLE:
+       commands.push_back(state_command("set-main-toolbar-style",
+					g.preferences_internal[i].ivalue1, il));
+       break;
+
+     case PREFERENCES_MAIN_TOOLBAR_ICONS:
+         if (g.preferences_internal[i].ivalue2 == 1) {
+             commands.push_back(state_command("show-main-toolbar-icon",
+                                              g.preferences_internal[i].ivalue1, il));
+         } else {
+             commands.push_back(state_command("hide-main-toolbar-icon",
+                                              g.preferences_internal[i].ivalue1, il));
+         }
+         break;
+
      }
    }
 
@@ -413,6 +441,38 @@ graphics_info_t::make_preferences_internal() {
     // ivalue 2 is show/hide
     p.ivalue2 = item.show_hide_flag;
     ret.push_back(p);
+  }
+
+  // main toolbar
+  // main toolbar show/hide
+  on = main_toolbar_show_hide_state;
+  p.preference_type = PREFERENCES_MAIN_TOOLBAR_SHOW;
+  p.ivalue1 = on;
+  ret.push_back(p);
+
+  // main toolbar top/bottom/left...
+  // not yet
+  //on = main_toolbar_position_state;
+  //p.preference_type = PREFERENCES_MAIN_TOOLBAR_POSITION;
+  //p.ivalue1 = on;
+  //ret.push_back(p);
+
+  // main toolbar style
+  on = main_toolbar_style_state;
+  p.preference_type = PREFERENCES_MAIN_TOOLBAR_STYLE;
+  p.ivalue1 = on;
+  ret.push_back(p);
+
+  // refinement toolbar icons
+  all_items =*main_toolbar_icons;
+  for (int i=0; i<all_items.size(); i++) {
+      coot::preferences_icon_info_t item = all_items[i];
+      p.preference_type = PREFERENCES_MAIN_TOOLBAR_ICONS;
+      // ivalue1 is icon_pos
+      p.ivalue1 = item.icon_pos;
+      // ivalue 2 is show/hide
+      p.ivalue2 = item.show_hide_flag;
+      ret.push_back(p);
   }
  
   // Bond preference settings
@@ -618,8 +678,27 @@ graphics_info_t::preferences_internal_change_value(int preference_type,
 #if (GTK_MAJOR_VERSION >1)
 void
 graphics_info_t::preferences_model_toolbar_icon_toggled(GtkCellRendererToggle *button,
-							gchar *path_string,
-							gpointer data) {
+                                                        gchar *path_string,
+                                                        gpointer data) {
+
+    preferences_toolbar_icon_toggled(button, path_string, data, MODEL_TOOLBAR);
+
+}
+
+void
+graphics_info_t::preferences_main_toolbar_icon_toggled(GtkCellRendererToggle *button,
+                                                       gchar *path_string,
+                                                       gpointer data) {
+
+    preferences_toolbar_icon_toggled(button, path_string, data, MAIN_TOOLBAR);
+
+}
+
+void
+graphics_info_t::preferences_toolbar_icon_toggled(GtkCellRendererToggle *button,
+                                                  gchar *path_string,
+                                                  gpointer data,
+                                                  int toolbar_index) {
 
   GtkTreeModel *model = GTK_TREE_MODEL (data);
   GtkTreeIter iter;
@@ -636,9 +715,9 @@ graphics_info_t::preferences_model_toolbar_icon_toggled(GtkCellRendererToggle *b
   gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, value, -1);
   graphics_info_t g;
   if (value) {
-    g.show_hide_model_toolbar_icon_pos(icon_pos, 1);
+      g.show_hide_toolbar_icon_pos(icon_pos, 1, toolbar_index);
   } else {
-    g.show_hide_model_toolbar_icon_pos(icon_pos, 0);
+      g.show_hide_toolbar_icon_pos(icon_pos, 0, toolbar_index);
   }
 
   gtk_tree_path_free (path);
@@ -657,24 +736,49 @@ void
 graphics_info_t::fill_preferences_model_toolbar_icons(GtkWidget *preferences,
 						      GtkWidget *scrolled_window) {
 
+    fill_preferences_toolbar_icons(preferences, scrolled_window, MODEL_TOOLBAR);
+
+}
+
+void
+graphics_info_t::fill_preferences_main_toolbar_icons(GtkWidget *preferences,
+                                                     GtkWidget *scrolled_window) {
+
+    fill_preferences_toolbar_icons(preferences, scrolled_window, MAIN_TOOLBAR);
+
+}
+
+void
+graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
+                                                GtkWidget *scrolled_window,
+                                                int toolbar_index) {
+
+    const gchar *tree_name;
+    std::vector<coot::preferences_icon_info_t>* pall_items;
+    if (toolbar_index == MODEL_TOOLBAR) {
+        tree_name = "preferences_model_toolbar_icon_tree";
+        pall_items = model_toolbar_icons;
+    } else {
+        tree_name = "preferences_main_toolbar_icon_tree";
+        pall_items = main_toolbar_icons;
+    }
   GtkWidget *icons_tree = gtk_tree_view_new();
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(icons_tree), FALSE);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					icons_tree);
   gtk_widget_ref(icons_tree);
-  gtk_object_set_data_full(GTK_OBJECT(preferences),
-			   "preferences_model_toolbar_icon_tree",
-			   icons_tree,
-			   (GtkDestroyNotify) gtk_widget_unref);
+  g_object_set_data_full(G_OBJECT(preferences),
+                         tree_name,
+                         icons_tree,
+                         (GtkDestroyNotify) gtk_widget_unref);
 
-  std::vector<coot::preferences_icon_info_t> all_items =  *model_toolbar_icons;
-  
   // maybe clear tree and model first?!
  
   // now fill the tree
   //  GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_tree));
   //  GtkListStore *list_store = gtk_list_store_new(3, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_STRING);
-  GtkTreeModel *model = GTK_TREE_MODEL(gtk_list_store_new(4, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT));
+  GtkTreeModel *model = GTK_TREE_MODEL(gtk_list_store_new(4, 
+                        G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT));
   GtkTreeIter toplevel;
   GdkPixbuf *icon;
   GtkCellRenderer *icon_renderer;
@@ -691,8 +795,8 @@ graphics_info_t::fill_preferences_model_toolbar_icons(GtkWidget *preferences,
   icon_col = gtk_tree_view_column_new();
   text_col = gtk_tree_view_column_new();
 
-  for (unsigned int i = 0; i < all_items.size(); i++) {
-    coot::preferences_icon_info_t item = all_items[i];
+  for (unsigned int i = 0; i < (*pall_items).size(); i++) {
+      coot::preferences_icon_info_t item = (*pall_items)[i];
     gtk_list_store_append(GTK_LIST_STORE(model), &toplevel);
 
     // for icons
@@ -700,7 +804,7 @@ graphics_info_t::fill_preferences_model_toolbar_icons(GtkWidget *preferences,
       icon = gtk_widget_render_icon(icons_tree, item.icon_filename.c_str(),
                                     GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
       if (icon == NULL) {
-        g_print("BL DEBUG:: something went wrong, icon is NULL\n");
+        g_print("BL ERROR:: something went wrong, icon is NULL\n");
         // try to read as filename (although then should be registered and
         // read in already, but let's try
         std::string splash_screen_pixmap_dir = PKGDATADIR;  
@@ -744,10 +848,15 @@ graphics_info_t::fill_preferences_model_toolbar_icons(GtkWidget *preferences,
   gtk_tree_view_column_set_attributes(button_col, button_renderer,
 				      "active", BUTTON_COL,
 				      NULL);
-  
-  g_signal_connect(button_renderer, "toggled", 
-		   G_CALLBACK (preferences_model_toolbar_icon_toggled), model);
-  //		   G_CALLBACK (test_toggled2), model);
+
+  // this could/should be done generic too, but requires an extra function...
+  if (toolbar_index == MODEL_TOOLBAR) {
+      g_signal_connect(button_renderer, "toggled", 
+                       G_CALLBACK (preferences_model_toolbar_icon_toggled), model);
+  } else {
+      g_signal_connect(button_renderer, "toggled", 
+                       G_CALLBACK (preferences_main_toolbar_icon_toggled), model);
+  }
 
   // icon column
   icon_col = gtk_tree_view_column_new();
@@ -768,7 +877,7 @@ graphics_info_t::fill_preferences_model_toolbar_icons(GtkWidget *preferences,
 				      NULL);
 
   // update the tree
-  update_model_toolbar_icons(model);
+  update_toolbar_icons(model, toolbar_index);
 
   gtk_widget_show(icons_tree);
 }
@@ -776,30 +885,43 @@ graphics_info_t::fill_preferences_model_toolbar_icons(GtkWidget *preferences,
 
 
 void
-graphics_info_t::show_hide_model_toolbar_icon_pos(int pos, int show_hide_flag) {
+graphics_info_t::show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int toolbar_index) {
 
    if (use_graphics_interface_flag) {
       GtkWidget *icon_button = NULL;
+      int preferences_index;
 
-      std::vector<coot::preferences_icon_info_t> all_items =*model_toolbar_icons;
-      coot::preferences_icon_info_t item = all_items[pos];
-      std::string widget_name = item.icon_widget;
+      std::vector<coot::preferences_icon_info_t>* pall_items;
+      std::string widget_name;
+
+      if (toolbar_index == MODEL_TOOLBAR) {
+          pall_items = model_toolbar_icons;
+          preferences_index = PREFERENCES_MODEL_TOOLBAR_ICONS;
+      } else {
+          pall_items = main_toolbar_icons;
+          preferences_index = PREFERENCES_MAIN_TOOLBAR_ICONS;
+      }
+      coot::preferences_icon_info_t item = (*pall_items)[pos];
+      widget_name = item.icon_widget;
       icon_button = lookup_widget(graphics_info_t::glarea, widget_name.c_str());
 
       if (icon_button) { 
 
 	 if (show_hide_flag == 1) {
-	    preferences_internal_change_value_int2(PREFERENCES_MODEL_TOOLBAR_ICONS, pos, 1);
-	    (*model_toolbar_icons)[pos].show();
+	    preferences_internal_change_value_int2(preferences_index, pos, 1);
+	    (*pall_items)[pos].show();
 	    gtk_widget_show(icon_button);
 	 } else {
-	    preferences_internal_change_value_int2(PREFERENCES_MODEL_TOOLBAR_ICONS, pos, 0);
-	    (*model_toolbar_icons)[pos].hide();
+	    preferences_internal_change_value_int2(preferences_index, pos, 0);
+	    (*pall_items)[pos].hide();
 	    gtk_widget_hide(icon_button);
 	 }
+         coot::preferences_icon_info_t item = (*pall_items)[pos];
+         
       }
    }
 }
+
 
 std::vector<int>
 graphics_info_t::get_model_toolbar_icons_list() {
@@ -823,15 +945,20 @@ graphics_info_t::get_model_toolbar_icons_list() {
 
 #if (GTK_MAJOR_VERSION >1)
 void
-graphics_info_t::update_model_toolbar_icons(GtkTreeModel *model) {
-
+graphics_info_t::update_toolbar_icons(GtkTreeModel *model, int toolbar_index) {
 
   gint button_value;
   gint col_index;
   GtkTreeIter iter;
 
   std::vector<int> ivector;
-  std::vector<coot::preferences_icon_info_t> all_items =*model_toolbar_icons;
+  std::vector<coot::preferences_icon_info_t>* pall_items;
+
+  if (toolbar_index == MODEL_TOOLBAR) {
+      pall_items = model_toolbar_icons;
+  } else {
+      pall_items = main_toolbar_icons;
+  }
 
   if (gtk_tree_model_get_iter_first(model, &iter)) {
     do {
@@ -839,7 +966,7 @@ graphics_info_t::update_model_toolbar_icons(GtkTreeModel *model) {
 			 0, &button_value,
 			 3, &col_index, -1);
 
-      coot::preferences_icon_info_t item = all_items[col_index];
+      coot::preferences_icon_info_t item = (*pall_items)[col_index];
       
       if (item.show_hide_flag) {
 	// show icon
@@ -853,5 +980,21 @@ graphics_info_t::update_model_toolbar_icons(GtkTreeModel *model) {
     
   }
 }
+
+
+void
+graphics_info_t::update_model_toolbar_icons(GtkTreeModel *model) {
+
+    update_toolbar_icons(model, MODEL_TOOLBAR);
+
+}
+
+void
+graphics_info_t::update_main_toolbar_icons(GtkTreeModel *model) {
+
+    update_toolbar_icons(model, MAIN_TOOLBAR);
+
+}
+
 #endif // GTK_MAJOR_VERSION
 

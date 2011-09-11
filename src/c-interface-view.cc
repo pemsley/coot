@@ -18,7 +18,6 @@
  * 02110-1301, USA
  */
 
-#include <gtk/gtk.h>
 
 #ifdef USE_GUILE
 #include <libguile.h>

@@ -16,8 +16,8 @@ if not os.getenv("CLIBD"):
         print "          and set CLIBD to", clibd
     else:
         print "BL ERROR:: no prodrg.param available"
-        print "searched in ", clidb
-        print "Sorry, module not available"
+        print "searched in ", clibd
+        print "Sorry, prodrg module not available"
         # should load rest?
         # i.e. stop here?
     

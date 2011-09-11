@@ -20,9 +20,14 @@
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
+
 #ifndef CC_INTERFACE_HH
 #define CC_INTERFACE_HH
 
+#include <gtk/gtk.h>
 
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
@@ -32,10 +37,6 @@
 
 #include "flev-annotations.hh" // animated ligand interactions
 
-
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif
 
 namespace coot {
 

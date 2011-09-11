@@ -7636,7 +7636,6 @@ on_preferences_model_toolbar_show_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(main_window()), "main_window_model_fit_dialog_frame");
   if (togglebutton->active) {
     show_modelling_toolbar();
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_SHOW, 1);
@@ -7787,6 +7786,107 @@ on_preferences_model_toolbar_show_icon_selection_button_clicked
                                         gpointer         user_data)
 {
   show_model_toolbar_main_icons();
+
+}
+
+void
+on_preferences_main_toolbar_show_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    show_main_toolbar();
+    preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_SHOW, 1);
+  }
+
+}
+
+
+void
+on_preferences_main_toolbar_hide_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    hide_main_toolbar();
+    preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_SHOW, 0);
+  }
+
+}
+
+
+/* not used currently */
+void
+on_preferences_main_toolbar_top_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_preferences_main_toolbar_bottom_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_preferences_main_toolbar_right_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_preferences_main_toolbar_left_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_preferences_main_toolbar_style_icons_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_STYLE, 1);
+    set_main_toolbar_style(1);
+  }
+
+}
+
+
+void
+on_preferences_main_toolbar_style_both_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_STYLE, 2);
+    set_main_toolbar_style(2);
+  }
+
+}
+
+
+void
+on_preferences_main_toolbar_style_text_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_STYLE, 3);
+    set_main_toolbar_style(3);
+  }
 
 }
 

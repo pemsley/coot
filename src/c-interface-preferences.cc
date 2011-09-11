@@ -72,8 +72,10 @@ void preferences() {
 void show_preferences(){
 
   GtkWidget *w = create_preferences();
-  GtkWidget *scrolled_win = lookup_widget(w, "preferences_model_toolbar_icons_scrolledwindow");
-  fill_preferences_model_toolbar_icons(w, scrolled_win);
+  GtkWidget *scrolled_win_model_toolbar = lookup_widget(w, "preferences_model_toolbar_icons_scrolledwindow");
+  fill_preferences_model_toolbar_icons(w, scrolled_win_model_toolbar);
+  GtkWidget *scrolled_win_main_toolbar = lookup_widget(w, "preferences_main_toolbar_icons_scrolledwindow");
+  fill_preferences_main_toolbar_icons(w, scrolled_win_main_toolbar);
   gtk_widget_show(w);
   graphics_info_t::preferences_widget = w;
 
@@ -629,6 +631,60 @@ void update_preference_gui() {
 	hide_model_toolbar_icon(ivalue);
       }
       break;
+
+    case PREFERENCES_MAIN_TOOLBAR_SHOW:
+      ivalue = g.preferences_internal[i].ivalue1;
+      if (ivalue == 0) {
+	w = lookup_widget(dialog, "preferences_main_toolbar_hide_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      } else {
+	w = lookup_widget(dialog, "preferences_main_toolbar_show_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      }
+      break;
+
+    //case PREFERENCES_MAIN_TOOLBAR_POSITION:
+    //  ivalue = g.preferences_internal[i].ivalue1;
+    //  if (ivalue == 0) {
+//	w = lookup_widget(dialog, "preferences_model_toolbar_right_radiobutton");
+	//gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      //} else if (ivalue == 1){
+//	w = lookup_widget(dialog, "preferences_model_toolbar_left_radiobutton");
+//	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+ //     } else if (ivalue == 2){
+//	w = lookup_widget(dialog, "preferences_model_toolbar_top_radiobutton");
+//	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+ //     } else if (ivalue == 3){
+//	w = lookup_widget(dialog, "preferences_model_toolbar_bottom_radiobutton");
+//	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+ //     }
+  //    break;
+
+    case PREFERENCES_MAIN_TOOLBAR_STYLE:
+      ivalue = g.preferences_internal[i].ivalue1;
+      if (ivalue <= 1) {
+	w = lookup_widget(dialog, "preferences_main_toolbar_style_icons_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      } else if (ivalue == 2) {
+	w = lookup_widget(dialog, "preferences_main_toolbar_style_both_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      } else {
+	w = lookup_widget(dialog, "preferences_main_toolbar_style_text_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      }
+      break;
+
+    case PREFERENCES_MAIN_TOOLBAR_ICONS:
+      ivalue  = g.preferences_internal[i].ivalue1;
+      ivalue2 = g.preferences_internal[i].ivalue2;
+      if (ivalue2 == 1) {
+	// show
+	show_main_toolbar_icon(ivalue);
+      } else {
+	// hide
+	hide_main_toolbar_icon(ivalue);
+      }
+      break;
     }
   }
 }
@@ -699,16 +755,29 @@ void preferences_internal_change_value_float3(int preference_type,
   g.preferences_internal_change_value(preference_type, fvalue1, fvalue2, fvalue3);
 }
 
+// FIXME:: make this generic with TOOLBAR enums
 void
 show_model_toolbar_icon(int pos) {
   graphics_info_t g;
-  g.show_hide_model_toolbar_icon_pos(pos, 1);
+  g.show_hide_toolbar_icon_pos(pos, 1, MODEL_TOOLBAR);
 }
 
 void
 hide_model_toolbar_icon(int pos) {
   graphics_info_t g;
-  g.show_hide_model_toolbar_icon_pos(pos, 0);
+  g.show_hide_toolbar_icon_pos(pos, 0, MODEL_TOOLBAR);
+}
+
+void
+show_main_toolbar_icon(int pos) {
+  graphics_info_t g;
+  g.show_hide_toolbar_icon_pos(pos, 1, MAIN_TOOLBAR);
+}
+
+void
+hide_main_toolbar_icon(int pos) {
+  graphics_info_t g;
+  g.show_hide_toolbar_icon_pos(pos, 0, MAIN_TOOLBAR);
 }
 
 void
@@ -720,6 +789,17 @@ fill_preferences_model_toolbar_icons(GtkWidget *preferences,
   g.fill_preferences_model_toolbar_icons(preferences, scrolled_window);
 #endif // GTK_MAJOR_VERSION
 }
+
+void
+fill_preferences_main_toolbar_icons(GtkWidget *preferences,
+				     GtkWidget *scrolled_window) {
+
+  graphics_info_t g;
+#if (GTK_MAJOR_VERSION >1)
+  g.fill_preferences_main_toolbar_icons(preferences, scrolled_window);
+#endif // GTK_MAJOR_VERSION
+}
+// end FIXME
 
 
 GtkWidget *popup_window(const char *str) {
