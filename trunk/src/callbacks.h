@@ -2678,6 +2678,50 @@ void
 on_preferences_reset_button_clicked    (GtkButton       *button,
                                         gpointer         user_data);
 
+void
+on_preferences_main_toolbar_show_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_main_toolbar_hide_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_main_toolbar_top_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_main_toolbar_bottom_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_main_toolbar_right_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_main_toolbar_left_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_main_toolbar_style_icons_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_main_toolbar_style_both_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_main_toolbar_style_text_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
 
 void
 on_preferences_destroy                 (GtkObject       *object,

@@ -867,6 +867,12 @@ void hide_modelling_toolbar();
   (the toolbar is shown by default) */
 void show_modelling_toolbar();
 
+/*! \brief hide the horizontal main toolbar in the GTK2 version */
+void hide_main_toolbar();
+/*! \brief show the horizontal main toolbar in the GTK2 version
+  (the toolbar is shown by default) */
+void show_main_toolbar();
+
 /*! \brief show all available icons in the modelling toolbar (same as MFR dialog) */
 void show_model_toolbar_all_icons();
 /*! \brief show only a selection of icons in the modelling toolbar */
@@ -918,6 +924,10 @@ int accept_reject_dialog_docked_show_state();
 /* functions for the refinement toolbar style */
 void set_model_toolbar_style(int state);
 int model_toolbar_style_state();
+
+/* functions for the main toolbar style */
+void set_main_toolbar_style(int state);
+int main_toolbar_style_state();
 
 /*! \} */
 
@@ -5963,6 +5973,13 @@ void hide_model_toolbar_icon(int pos);
 void fill_preferences_model_toolbar_icons(GtkWidget *preferences,
 				     	  GtkWidget *scrolled_window);
 void update_model_toolbar_icons_menu();
+
+void show_main_toolbar_icon(int pos);
+void hide_main_toolbar_icon(int pos);
+void fill_preferences_main_toolbar_icons(GtkWidget *preferences,
+				     	  GtkWidget *scrolled_window);
+void update_main_toolbar_icons_menu();
+void update_toolbar_icons_menu(int toolbar_index);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Browser Help                                            */

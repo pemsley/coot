@@ -173,6 +173,16 @@ short int graphics_info_t::model_toolbar_position_state = coot::model_toolbar::R
 // the refinement toolbar style
 short int graphics_info_t::model_toolbar_style_state = 1;
 
+// the main toolbar show/hide
+short int graphics_info_t::main_toolbar_show_hide_state = 1;
+
+// the main toolbar position
+// // not using (yet)
+//short int graphics_info_t::main_toolbar_position_state = coot::main_toolbar::TOP;
+
+// the main toolbar style
+short int graphics_info_t::main_toolbar_style_state = 2;
+
 // refmac option menu
 int graphics_info_t::refmac_molecule = -1; 
 
@@ -518,6 +528,7 @@ std::vector<std::string> *graphics_info_t::preferences_colour_tabs;
 std::vector<std::string> *graphics_info_t::preferences_map_tabs;
 std::vector<std::string> *graphics_info_t::preferences_other_tabs;
 std::vector<coot::preferences_icon_info_t> *graphics_info_t::model_toolbar_icons;
+std::vector<coot::preferences_icon_info_t> *graphics_info_t::main_toolbar_icons;
 
 std::vector<coot::preference_info_t> graphics_info_t::preferences_internal;
 std::vector<coot::preference_info_t> graphics_info_t::preferences_internal_default;

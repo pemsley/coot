@@ -1728,7 +1728,7 @@ GtkWidget *main_statusbar() {
 
 GtkWidget *main_toolbar() {
 
-   GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "toolbar1");
+   GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "main_toolbar");
    return w; 
 }
 

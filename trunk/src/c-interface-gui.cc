@@ -61,6 +61,7 @@
 #include "c-interface-scm.hh"
 #include "coot-fileselections.h"
 #include "coot-references.h"
+#include "coot-preferences.h"
 #include "rotate-translate-modes.hh"
 #include "nsv.hh"
 
@@ -2805,9 +2806,14 @@ show_model_toolbar_all_icons() {
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(toolbar_radiobutton), TRUE);
   if (graphics_info_t::preferences_widget) {
     // have preferences open and shall update the tree model for icon
-    GtkWidget *icons_treeview = lookup_widget(graphics_info_t::preferences_widget, "preferences_model_toolbar_icon_tree");
+    GtkWidget *icons_treeview = lookup_widget(graphics_info_t::preferences_widget, 
+                                              "preferences_model_toolbar_icon_tree");
     GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_treeview));
     graphics_info_t::update_model_toolbar_icons(model);
+    //icons_treeview = lookup_widget(graphics_info_t::preferences_widget, 
+    //                               "preferences_main_toolbar_icon_tree");
+    //model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_treeview));
+    //graphics_info_t::update_main_toolbar_icons(model);
   }
 #endif // GTK2
 
@@ -2836,9 +2842,14 @@ show_model_toolbar_main_icons() {
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(toolbar_radiobutton), TRUE);
   if (graphics_info_t::preferences_widget) {
     // have preferences open and shall update the tree model for icon
-    GtkWidget *icons_treeview = lookup_widget(graphics_info_t::preferences_widget, "preferences_model_toolbar_icon_tree");
+    GtkWidget *icons_treeview = lookup_widget(graphics_info_t::preferences_widget, 
+                                              "preferences_model_toolbar_icon_tree");
     GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_treeview));
     graphics_info_t::update_model_toolbar_icons(model);
+    //icons_treeview = lookup_widget(graphics_info_t::preferences_widget, 
+    //                               "preferences_main_toolbar_icon_tree");
+    //model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_treeview));
+    //graphics_info_t::update_main_toolbar_icons(model);
   }
 #endif // GTK2
   gtk_widget_hide(hsep);
@@ -2848,18 +2859,51 @@ show_model_toolbar_main_icons() {
 void
 update_model_toolbar_icons_menu() {
 
+    update_toolbar_icons_menu(MODEL_TOOLBAR);
+
+}
+
+void
+update_main_toolbar_icons_menu() {
+
+    update_toolbar_icons_menu(MAIN_TOOLBAR);
+
+}
+
+void
+update_toolbar_icons_menu(int toolbar_index) {
+
+    const gchar *user_defined_name;
+    const gchar *main_icons_name;
+    const gchar *all_icons_name;
+    std::vector<coot::preferences_icon_info_t> toolbar_icons;
+    
+    if (toolbar_index == MODEL_TOOLBAR) {
+        user_defined_name = "model_toolbar_user_defined1";
+        main_icons_name = "model_toolbar_main_icons";
+        all_icons_name = "model_toolbar_all_icons";
+        toolbar_icons = *graphics_info_t::model_toolbar_icons;
+    } else {
+        user_defined_name = "main_toolbar_user_defined1";
+        main_icons_name = "main_toolbar_main_icons";
+        all_icons_name = "main_toolbar_all_icons";
+        toolbar_icons = *graphics_info_t::main_toolbar_icons;
+    }
+
   GtkWidget *user_defined_button = lookup_widget(graphics_info_t::glarea,
-						 "model_toolbar_user_defined1");
+						 user_defined_name);
   GtkWidget *main_icons_button   = lookup_widget(graphics_info_t::glarea,
-						 "model_toolbar_main_icons");
+						 main_icons_name);
   GtkWidget *all_icons_button    = lookup_widget(graphics_info_t::glarea,
-						 "model_toolbar_all_icons");
+						 all_icons_name);
 
   int activate = 1;   // 0 is user defined, 1 all icons, 2 main/default icons
 
-  for (int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
-    if ((*graphics_info_t::model_toolbar_icons)[i].show_hide_flag == 0) {
-      if ((*graphics_info_t::model_toolbar_icons)[i].show_hide_flag == (*graphics_info_t::model_toolbar_icons)[i].default_show_flag) {
+  //g_print("BL DEBUG:: update size %i \n", (toolbar_icons).size());
+  for (int i=0; i<(toolbar_icons).size(); i++) {
+      //g_print("BL DEBUG:: sho_hide %i, default %i\n", (toolbar_icons)[i].show_hide_flag,(toolbar_icons)[i].default_show_flag);  
+    if ((toolbar_icons)[i].show_hide_flag == 0) {
+      if ((toolbar_icons)[i].show_hide_flag == (toolbar_icons)[i].default_show_flag) {
 	activate = 2;
       } else {
 	activate = 0;
@@ -2880,6 +2924,28 @@ update_model_toolbar_icons_menu() {
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(user_defined_button), TRUE);
   }
 
+}
+
+// functions for the modelling toolbar style
+void set_model_toolbar_style(int istate) {
+   graphics_info_t::model_toolbar_style_state = istate;
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      GtkWidget *menuitem;
+      if (istate <= 1) {
+	 menuitem = lookup_widget(main_window(), "model_toolbar_icons1");
+	 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+      } else if (istate == 2) {
+	 menuitem = lookup_widget(main_window(), "model_toolbar_icons_and_text1");
+	 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+      } else {
+	 menuitem = lookup_widget(main_window(), "model_toolbar_text1");
+	 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+      }
+   }
+}
+
+int model_toolbar_style_state() {
+  return graphics_info_t::model_toolbar_style_state;
 }
 
 /*  ------------------------------------------------------------------------ */
@@ -3282,6 +3348,67 @@ update_model_fit_refine_dialog_buttons(GtkWidget *dialog) {
 
 }
 
+/*  ------------------------------------------------------------------------ */
+//            main_toolbar things
+/*  ------------------------------------------------------------------------ */
+//
+
+/*! \brief hide the horizontal main toolbar in the GTK2 version */
+void hide_main_toolbar() {
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      GtkWidget *w = lookup_widget(graphics_info_t::glarea,
+			        		"main_toolbar");
+      if (!w) {
+	 std::cout << "failed to lookup main toolbar" << std::endl;
+      } else {
+	 graphics_info_t::main_toolbar_show_hide_state = 0;
+	 gtk_widget_hide(w);
+      }
+   }
+}
+
+/*! \brief show the horizontal maub toolbar in the GTK2 version
+  (the toolbar is shown by default) */
+void show_main_toolbar() {
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      GtkWidget *w = lookup_widget(graphics_info_t::glarea,
+					    "main_toolbar");
+
+      if (!w) {
+	 std::cout << "failed to lookup main toolbar" << std::endl;
+      } else {
+	 graphics_info_t::main_toolbar_show_hide_state = 1;
+	 gtk_widget_show(w);
+      }
+   }
+}
+
+// functions for the main toolbar style
+// should be generic!? FIXME BL
+void set_main_toolbar_style(int istate) {
+   graphics_info_t::main_toolbar_style_state = istate;
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      GtkWidget *toolbar;
+      toolbar = lookup_widget(graphics_info_t::glarea,
+                              "main_toolbar");
+      // may have to keep text somewhere?!?! FIXME
+      if (istate <= 1) {
+          gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS);
+      } else if (istate == 2) {
+          gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
+      } else {
+          gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT);
+      }
+   }
+}
+
+int main_toolbar_style_state() {
+  return graphics_info_t::main_toolbar_style_state;
+}
+
+/*  ------------------------------------------------------------------------ */
+// other modelling tools
+/*  ------------------------------------------------------------------------ */
 
 GtkWidget *wrapped_create_other_model_tools_dialog() {
 
@@ -5237,28 +5364,6 @@ void set_accept_reject_dialog_docked_show(int state){
 
 int accept_reject_dialog_docked_show_state() {
   return graphics_info_t::accept_reject_dialog_docked_show_flag;
-}
-
-// functions for the refinement toolbar style
-void set_model_toolbar_style(int istate) {
-   graphics_info_t::model_toolbar_style_state = istate;
-   if (graphics_info_t::use_graphics_interface_flag) { 
-      GtkWidget *menuitem;
-      if (istate <= 1) {
-	 menuitem = lookup_widget(main_window(), "model_toolbar_icons1");
-	 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-      } else if (istate == 2) {
-	 menuitem = lookup_widget(main_window(), "model_toolbar_icons_and_text1");
-	 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-      } else {
-	 menuitem = lookup_widget(main_window(), "model_toolbar_text1");
-	 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-      }
-   }
-}
-
-int model_toolbar_style_state() {
-  return graphics_info_t::model_toolbar_style_state;
 }
 
 GtkWidget *wrapped_create_geometry_dialog() {

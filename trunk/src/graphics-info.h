@@ -1046,6 +1046,7 @@ public:
       preferences_general_tabs->push_back("preferences_recentre_pdb");
       preferences_general_tabs->push_back("preferences_model_toolbar_style");
       preferences_general_tabs->push_back("preferences_smooth_scroll");
+      preferences_general_tabs->push_back("preferences_main_toolbar_style");
       
       preferences_bond_tabs->push_back("preferences_bond_parameters");
       preferences_bond_tabs->push_back("preferences_bond_colours");
@@ -1164,6 +1165,28 @@ public:
 								   "Run Refmac...",
 								   "model_toolbar_refmac_button",
 								   1, 0));
+      // for main icons in preferences
+      main_toolbar_icons = new std::vector<coot::preferences_icon_info_t>;
+      main_toolbar_icons->push_back(coot::preferences_icon_info_t(0, "gtk-open",
+								  "Open Coords...",
+								  "coords_toolbutton",
+								  1, 1));
+      main_toolbar_icons->push_back(coot::preferences_icon_info_t(1, "gtk-zoom-fit",
+								  "Reset View",
+								  "reset_view_toolbutton",
+								  1, 1));
+      main_toolbar_icons->push_back(coot::preferences_icon_info_t(2, "display-manager.png",
+								  "Display Manager",
+								  "display_manager_toolbutton",
+								  1, 1));
+      main_toolbar_icons->push_back(coot::preferences_icon_info_t(3, "go-to-atom.svg",
+								  "Go To Atom...",
+								  "go_to_atom_toolbutton",
+								  1, 1));
+      main_toolbar_icons->push_back(coot::preferences_icon_info_t(4, "go-to-ligand.svg",
+								  "Go To Ligand",
+								  "go_to_ligand_toolbutton",
+								  1, 1));
 
       do_expose_swap_buffers_flag = 1;
 
@@ -1329,6 +1352,15 @@ public:
 
    // flag for the refinement toolbar style
    static short int model_toolbar_style_state;
+
+   // flag for the main toolbar show/hide
+   static short int main_toolbar_show_hide_state;
+
+   // flag for the main toolbar position
+   static short int main_toolbar_position_state;
+
+   // flag for the main toolbar style
+   static short int main_toolbar_style_state;
 
    static short int do_lighting_flag; 
    static bool do_flat_shading_for_solid_density_surface;
@@ -3419,6 +3451,7 @@ public:
    static std::vector<std::string> *preferences_other_tabs;
 
    static std::vector<coot::preferences_icon_info_t> *model_toolbar_icons;
+   static std::vector<coot::preferences_icon_info_t> *main_toolbar_icons;
 
    short int save_preference_file(const std::string &filename, short int il);
    static std::vector<coot::preference_info_t> preferences_internal;
@@ -3434,12 +3467,27 @@ public:
    static void preferences_model_toolbar_icon_toggled(GtkCellRendererToggle *button,
 					      gchar *path,
 		    			      gpointer data);
+   static void update_toolbar_icons(GtkTreeModel *model, int toolbar_index);
+   static void update_main_toolbar_icons(GtkTreeModel *model);
    static void update_model_toolbar_icons(GtkTreeModel *model);
    void fill_preferences_model_toolbar_icons(GtkWidget *preferences,
 					     GtkWidget *scrolled_window);
+   static void preferences_main_toolbar_icon_toggled(GtkCellRendererToggle *button,
+					      gchar *path,
+		    			      gpointer data);
+   static void preferences_toolbar_icon_toggled(GtkCellRendererToggle *button,
+					      gchar *path,
+		    			      gpointer data,
+                                              int toolbar_index);
+   void fill_preferences_main_toolbar_icons(GtkWidget *preferences,
+					     GtkWidget *scrolled_window);
+   void fill_preferences_toolbar_icons(GtkWidget *preferences,
+				       GtkWidget *scrolled_window,
+				       int toolbar_index);
 #endif // GTK_MAJOR_VERSION
-   void show_hide_model_toolbar_icon_pos(int pos, int show_hide_flag);
+   void show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int toolbar_index);
    std::vector<int> get_model_toolbar_icons_list();
+   std::vector<int> get_main_toolbar_icons_list();
 
    // --- remote controlled coot: ----
    static int try_port_listener;

@@ -32,6 +32,8 @@ coot::smcif::get_cell(PCMMCIFData data) const {
    ierr += data->GetString (cell_beta,  "" ,"_cell_angle_beta");
    ierr += data->GetString (cell_gamma, "" ,"_cell_angle_gamma");
 
+   clipper::Cell cell;
+
    if (! ierr) {
       if (0)
 	 std::cout << "make cell from " 
@@ -60,9 +62,10 @@ coot::smcif::get_cell(PCMMCIFData data) const {
 				     clipper::Util::d2rad(beta),
 				     clipper::Util::d2rad(gamma));
       clipper::Cell cell(cell_descr);
-      return cell;
    }
-} 
+   // Oh dear, we are returning an empty cell, maybe sometimes
+   return cell;
+}
 
 
 // can throw an clipper::Message_base exception
