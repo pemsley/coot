@@ -470,8 +470,6 @@ Bond_lines_container::mark_atoms_as_bonded(CAtom *atom_p_1, CAtom *atom_p_2,
 		(!strcmp(atom_p_1->element, "Br")) ||
 		(!strcmp(atom_p_1->element, " P")))) { 
 	    atom_p_1->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-	    std::cout << "marking udd handle for at1 standard bond for "
-		      << atom_p_1 << std::endl;
 	 } 
 
 	 if (! ((!strcmp(atom_p_2->element, " S")) ||
@@ -482,8 +480,6 @@ Bond_lines_container::mark_atoms_as_bonded(CAtom *atom_p_1, CAtom *atom_p_2,
 		(!strcmp(atom_p_2->element, "Br")) ||
 		(!strcmp(atom_p_2->element, " P")))) { 
 	    atom_p_2->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-	    std::cout << "marking udd handle for at2 standard bond for "
-		      << atom_p_2 << std::endl;
 	 }
       }
    }
