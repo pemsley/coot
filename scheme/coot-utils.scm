@@ -547,15 +547,17 @@
 (define (command-in-path-or-absolute? cmd)
 
   (let ((v (command-in-path? cmd)))
-    v
-    (if (not (string? cmd))
-	#f
-	(let ((l (string-length cmd)))
-	  (if (= l 0)
-	      #f
-	      (if (file-exists? cmd)
-		  #t
-		  #f))))))
+    (if (not v)
+        (begin
+          (if (not (string? cmd))
+              #f
+              (let ((l (string-length cmd)))
+                (if (= l 0)
+                    #f
+                    (if (file-exists? cmd)
+                        #t
+                        #f)))))
+        #t)))
 
       
 ;; Where cmd is e.g. "refmac" 
