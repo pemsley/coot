@@ -42,9 +42,10 @@ notes from Shanghai:
 
 **** General ****
 
-   o gradually include residues for refinement, good fi completely out!?
+   o update sequence view after rename and renumber chains/residues
 
-   o update statusbar using space skipping
+   o gradually include residues for refinement, good if completely out 
+	(maybe not)!?
 
    o check for updates in About?!
 
@@ -53,10 +54,6 @@ notes from Shanghai:
    o domain NCS (use parrot's code?!)
 
    o make LINK search and LINK in pdb
-
-   o disable the 'Question Accept..' in Preferences
-
-   o preferencable main toolbar
 
    o default bond length (e.g.) preferences conflict with state file
 
@@ -89,7 +86,7 @@ from Osaka 2010
 
    o toolbar for other modelling tools?
 
-   o menu separators (?)
+   o (more) menu separators (?)
 
    o remove model fit refine dialog (for gtk2?)?
 
@@ -202,6 +199,8 @@ from Osaka 2010
 
 **** Python ****
 
+   o merge ligand chains?!
+
    o extensions menus separators (fill in)
 
    o enable PISA interface for new enough PISA
@@ -267,7 +266,7 @@ from Osaka 2010
 
    o investigate gtkglext stuff for newer gtk
 
-   o make a second test for windows?! Do we have space?
+   o make a second test for windows?!
 
    o move from runwincoot.bat to coot.bat and include in svn
 
@@ -454,6 +453,18 @@ Osaka 2010
 * Done
 
    o label main Window WinCoot
+
+* Done
+
+   o preferencable main toolbar
+
+* Done
+
+   o update statusbar using space skipping
+
+* Done
+
+   o disable the 'Question Accept..' in Preferences
 
 * Done
 

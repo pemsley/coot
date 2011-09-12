@@ -1,6 +1,6 @@
 # 01_pdb_mtz.py
 # Copyright 2007, 2008 by The University of York
-# Copyright 2009, 2010 by Bernhard Lohkamp
+# Copyright 2009, 2010, 2011 by Bernhard Lohkamp
 # Author: Bernhard Lohkamp
 # Copyright 2007, 2008 by The University of Oxford
 # Author: Paul Emsley
@@ -1048,6 +1048,38 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnlessEqual(o_pos, 4,
                              "   found O atom at %s (not 4)" %o_pos) 
 
+
+    def test27_1(self):
+        """TER is at the end of a nucleotide after mutation"""
+
+        # Before this test, if we mutated a nucleotide at the end of a
+        # chain, then the TER record appeared in the PDB file before the
+        # additional new atoms.  Wrongness.  James Parker bug.
+
+        imol = unittest_pdb("2yie-frag.pdb")
+        self.failUnless(valid_model_molecule_qm(imol),
+                        "   failed to read 2yie-frag.pdb")
+
+        status = mutate_base(imol, "X", 54, "", "C")
+
+        self.failUnlessEqual(status, 1,
+                             "failed to mutate 2yie-frag.pdb")
+
+        write_pdb_file(imol, "2yie-mutated.pdb")
+
+        fin = open(filename, 'r')
+        lines = fin.readlines()
+        fin.close()
+        ter_line = False
+        atom_line = False
+        # check for END in last line
+        self.failUnlessEqual(lines[-1][0:3] == "END",
+                             "'END' is not in the end")
+        for line in lines:
+            if (line[0:3] == "TER"):
+                ter_line = True
+            if (line[0:4] == "ATOM"):
+                self.failIf(ter_line)  # fail because TER has already happened
 
     def test28_0(self):
         """Deleting (non-existing) Alt conf and Go To Atom [JED]"""

@@ -596,15 +596,19 @@ def read_refmac_log(imol, refmac_log_file):
 
             warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", "",
                                       ["dummy"], "", tooltip]) # first 2 are dummies for tooltip to work
-            
-        elif (("gap" in this_line) and next_line):
+
+        # oh dear, how do we handle this, at the moment its for
+        # (all info in 1 line), e.g.:
+        #   WARNING : conn: gap.     ch:AA res: 163  THR     --> 165  LYS
+        #    "gap"-link will be created
+        elif ("gap" in this_line):
             # gap-link
             chain     = this_line[30:32]       # this is e.g. "AA"
             chain_id  = chain[1]
             res_no1   = int(this_line[37:41])
-            res_name1 = next_line[43:46]
-            res_no2   = int(next_line[54:58])
-            res_name2 = next_line[60:63]
+            res_name1 = this_line[43:46]
+            res_no2   = int(this_line[54:58])
+            res_name2 = this_line[60:63]
             extra_info = ""
             tooltip = " ".join(this_line.split())
             if ("-link will" in next_line):
@@ -1301,7 +1305,7 @@ def read_refmac_log(imol, refmac_log_file):
                         found_last = True
 
                 if (found_last):
-                    if ("ML based su of thermal parameters" in line):
+                    if ("Overall figure of merit" in line):
                         # last cycle is finished
                         last_cycle_finished = True
 
