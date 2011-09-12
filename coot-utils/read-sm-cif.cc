@@ -12,6 +12,8 @@
 
 #include "read-sm-cif.hh"
 
+#include "coot-sysdep.h"
+
 // This can throw a std::runtime_error.
 // 
 clipper::Cell
