@@ -1067,19 +1067,19 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         write_pdb_file(imol, "2yie-mutated.pdb")
 
-        fin = open(filename, 'r')
+        fin = open("2yie-mutated.pdb", 'r')
         lines = fin.readlines()
         fin.close()
         ter_line = False
-        atom_line = False
         # check for END in last line
-        self.failUnlessEqual(lines[-1][0:3] == "END",
+        self.failUnlessEqual(lines[-1][0:3], "END",
                              "'END' is not in the end")
         for line in lines:
             if (line[0:3] == "TER"):
                 ter_line = True
             if (line[0:4] == "ATOM"):
-                self.failIf(ter_line)  # fail because TER has already happened
+                self.failIf(ter_line, "TER before ATOM")  # fail because TER has already happened
+
 
     def test28_0(self):
         """Deleting (non-existing) Alt conf and Go To Atom [JED]"""
@@ -1422,7 +1422,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         sort_chains(imol)
 
         c = chain_ids(imol)
-        print "BL DEBUG:: chains_in_order_qm", chains_in_order_qm(c)
+        #print "BL DEBUG:: chains_in_order_qm", chains_in_order_qm(c)
         self.failUnless(chains_in_order_qm(c))
 
 
