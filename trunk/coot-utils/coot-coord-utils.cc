@@ -3382,6 +3382,22 @@ coot::util::three_letter_to_one_letter(const std::string &resname) {
 	 n = resname.substr(0, 1);
 	 done_locally = 1;
       }
+      if (resname == "DT") {
+	 n = "T";
+	 done_locally = 1;
+      } 
+      if (resname == "DG") {
+	 n = "G";
+	 done_locally = 1;
+      } 
+      if (resname == "DA") {
+	 n = "A";
+	 done_locally = 1;
+      } 
+      if (resname == "DC") {
+	 n = "C";
+	 done_locally = 1;
+      } 
    }
    
    if (! done_locally) { 
