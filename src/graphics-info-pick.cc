@@ -250,7 +250,7 @@ graphics_info_t::symmetry_atom_pick() const {
 
       std::string ai;
       ai = atom_info_as_text_for_statusbar(p_i.atom_index, p_i.imol, p_i.symm_trans.str(1).c_str());
-      statusbar_text(ai);
+      add_status_bar_text(ai);
       //gtk_statusbar_push(GTK_STATUSBAR(graphics_info_t::statusbar),
       //		 graphics_info_t::statusbar_context_id,
       //		 ai.c_str());
@@ -642,9 +642,9 @@ graphics_info_t::statusbar_ctrl_key_info() { // Ctrl to rotate or pick?
 
    graphics_info_t g;
    if (graphics_info_t::control_key_for_rotate_flag) {
-      g.statusbar_text("Use Ctrl Left-mouse to rotate the view.");
+      g.add_status_bar_text("Use Ctrl Left-mouse to rotate the view.");
    } else {
-      g.statusbar_text("Use Ctrl Left-mouse to pick an atom...");
+      g.add_status_bar_text("Use Ctrl Left-mouse to pick an atom...");
    }
 }
 

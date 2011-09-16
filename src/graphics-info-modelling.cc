@@ -1671,7 +1671,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
    // duck out now if the chains were not the same!
    if (chain_id_1 != chain_id_2) {
       std::string info_string("Atoms must be in the same chain");
-      statusbar_text(info_string);
+      add_status_bar_text(info_string);
       return; 
    }
    
@@ -2206,7 +2206,9 @@ void
 graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string &term_type, 
 						    CResidue *res_p, const std::string &chain_id) {
 
-   std::cout << "Adding a nucleotide, this is a term_type: " << term_type << std::endl;
+   // debug maybe?
+   std::cout << "INFO:: Adding a nucleotide, with term_type: \"" << term_type << "\""
+	     << std::endl;
 
    // If it's RNA beam it in in ideal A form,
    // If it's DNA beam it in in ideal B form
@@ -2220,113 +2222,120 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
    // sequence, adding a "base" residue (that we'll use to match to
    // res_p);
 
-   std::string seq = "aa";
-   std::string RNA_or_DNA_str = "RNA";
-   std::string form_str = "A";
-   short int single_stranded_flag = 1;
+   if (term_type == "not-terminal-residue") {
+      std::cout << "That was not a terminal residue (check for neighbour solvent residues maybe) "
+		<< coot::residue_spec_t(res_p) << std::endl;
+      add_status_bar_text("That was not a terminal residue.");
+   } else { 
+
+      std::string seq = "aa";
+      std::string RNA_or_DNA_str = "RNA";
+      std::string form_str = "A";
+      short int single_stranded_flag = 1;
    
-   if (coot::util::nucleotide_is_DNA(res_p)) { 
-      RNA_or_DNA_str = "DNA";
-      form_str = "B";
-   }
+      if (coot::util::nucleotide_is_DNA(res_p)) { 
+	 RNA_or_DNA_str = "DNA";
+	 form_str = "B";
+      }
 
-   coot::ideal_rna ir(RNA_or_DNA_str, form_str, single_stranded_flag,
-		      seq, graphics_info_t::standard_residues_asc.mol);
-   ir.use_v3_names();
-   CMMDBManager *mol = ir.make_molecule();
+      coot::ideal_rna ir(RNA_or_DNA_str, form_str, single_stranded_flag,
+			 seq, graphics_info_t::standard_residues_asc.mol);
+      ir.use_v3_names();
+      CMMDBManager *mol = ir.make_molecule();
 
-   int match_resno;
-   int interesting_resno;
-   if (term_type == "C") {
-      match_resno = 1;
-      interesting_resno = 2;
-   } else {
-      interesting_resno = 1;
-      match_resno = 2;
-   }
+      int match_resno;
+      int interesting_resno;
+      if (term_type == "C" || term_type == "MC") {
+	 match_resno = 1;
+	 interesting_resno = 2;
+      } else {
+	 interesting_resno = 1;
+	 match_resno = 2;
+      }
 
-   CResidue *moving_residue_p = NULL;
-   CResidue *interesting_residue_p = NULL;
-   int imod = 1;
-   // now set moving_residue_p and interesting_residue_p:
-   CModel *model_p = mol->GetModel(imod);
-   CChain *chain_p;
-   int nchains = model_p->GetNumberOfChains();
-   for (int ichain=0; ichain<nchains; ichain++) {
-      chain_p = model_p->GetChain(ichain);
-      int nres = chain_p->GetNumberOfResidues();
-      PCResidue residue_p;
-      for (int ires=0; ires<nres; ires++) { 
-	 residue_p = chain_p->GetResidue(ires);
-// 	 std::cout << "testing vs resno " << residue_p->GetSeqNum()
-// 		   << std::endl;
-	 if (residue_p->GetSeqNum() == match_resno) {
-	    moving_residue_p = residue_p;
-	 }
-	 if (residue_p->GetSeqNum() == interesting_resno) {
-	    interesting_residue_p = residue_p;
+      CResidue *moving_residue_p = NULL;
+      CResidue *interesting_residue_p = NULL;
+      int imod = 1;
+      // now set moving_residue_p and interesting_residue_p:
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 PCResidue residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    // 	 std::cout << "testing vs resno " << residue_p->GetSeqNum()
+	    // 		   << std::endl;
+	    if (residue_p->GetSeqNum() == match_resno) {
+	       moving_residue_p = residue_p;
+	    }
+	    if (residue_p->GetSeqNum() == interesting_resno) {
+	       interesting_residue_p = residue_p;
+	    }
+	    if (moving_residue_p && interesting_residue_p)
+	       break;
 	 }
 	 if (moving_residue_p && interesting_residue_p)
 	    break;
       }
-      if (moving_residue_p && interesting_residue_p)
-	 break;
-   }
 
-   if (interesting_residue_p) { 
-      if (moving_residue_p) {
-	 bool use_old_names = convert_to_v2_atom_names_flag;
+      if (interesting_residue_p) { 
+	 if (moving_residue_p) {
+	    bool use_old_names = convert_to_v2_atom_names_flag;
 	 
-	 std::pair<bool, clipper::RTop_orth> rtop_pair =
-	    coot::util::nucleotide_to_nucleotide(res_p, moving_residue_p,
-						 use_old_names);
+	    std::pair<bool, clipper::RTop_orth> rtop_pair =
+	       coot::util::nucleotide_to_nucleotide(res_p, moving_residue_p,
+						    use_old_names);
 	    
-	 // now apply rtop to mol:
-	 if (rtop_pair.first) {
-	    // fix up the residue number and chain id to match the clicked atom
-	    int new_resno = res_p->GetSeqNum() + interesting_resno - match_resno;
-	    interesting_residue_p->seqNum = new_resno;
-	    coot::util::transform_mol(mol, rtop_pair.second);
-	    // byte gz = GZM_NONE;
-	    // mol->WritePDBASCII("overlapped.pdb", gz);
-	    CMMDBManager *residue_mol =
-	       coot::util::create_mmdbmanager_from_residue(mol, interesting_residue_p);
+	    // now apply rtop to mol:
+	    if (rtop_pair.first) {
+	       // fix up the residue number and chain id to match the clicked atom
+	       int new_resno = res_p->GetSeqNum() + interesting_resno - match_resno;
+	       interesting_residue_p->seqNum = new_resno;
+	       coot::util::transform_mol(mol, rtop_pair.second);
+	       // byte gz = GZM_NONE;
+	       // mol->WritePDBASCII("overlapped.pdb", gz);
+	       CMMDBManager *residue_mol =
+		  coot::util::create_mmdbmanager_from_residue(mol, interesting_residue_p);
 
-	    atom_selection_container_t asc = make_asc(residue_mol);
-	    // set the chain id of the chain that contains interesting_residue_p:
-	    CModel *model_p = residue_mol->GetModel(imod);
-	    CChain *chain_p;
-	    // run over chains of the existing mol
-	    int nchains = model_p->GetNumberOfChains();
-	    for (int ichain=0; ichain<nchains; ichain++) {
-	       chain_p = model_p->GetChain(ichain);
-	       int nres = chain_p->GetNumberOfResidues();
-	       PCResidue residue_p;
-	       for (int ires=0; ires<nres; ires++) { 
-		  residue_p = chain_p->GetResidue(ires);
-		  if (residue_p->GetSeqNum() == interesting_residue_p->GetSeqNum()) {
-		     chain_p->SetChainID(chain_id.c_str());
+	       atom_selection_container_t asc = make_asc(residue_mol);
+	       // set the chain id of the chain that contains interesting_residue_p:
+	       CModel *model_p = residue_mol->GetModel(imod);
+	       CChain *chain_p;
+	       // run over chains of the existing mol
+	       int nchains = model_p->GetNumberOfChains();
+	       for (int ichain=0; ichain<nchains; ichain++) {
+		  chain_p = model_p->GetChain(ichain);
+		  int nres = chain_p->GetNumberOfResidues();
+		  PCResidue residue_p;
+		  for (int ires=0; ires<nres; ires++) { 
+		     residue_p = chain_p->GetResidue(ires);
+		     if (residue_p->GetSeqNum() == interesting_residue_p->GetSeqNum()) {
+			chain_p->SetChainID(chain_id.c_str());
+		     }
+		  }
+	       }
+	       graphics_info_t::molecules[imol].insert_coords(asc);
+
+	       if (add_terminal_residue_do_post_refine) { 
+		  // shall we refine it?  If there is a map, yes.
+		  int imol_map = Imol_Refinement_Map();
+		  if (imol_map >= 0) {
+		     refine_residue_range(imol, chain_id, chain_id, new_resno, "",
+					  new_resno, "", "", 0);
 		  }
 	       }
 	    }
-	    graphics_info_t::molecules[imol].insert_coords(asc);
-
-	    if (add_terminal_residue_do_post_refine) { 
-	       // shall we refine it?  If there is a map, yes.
-	       int imol_map = Imol_Refinement_Map();
-	       if (imol_map >= 0) {
-		  refine_residue_range(imol, chain_id, chain_id, new_resno, "",
-				       new_resno, "", "", 0);
-	       }
-	    }
 	 }
+      } else {
+	 std::cout << "Failed to find interesting residue (with resno " << interesting_resno
+		   << ")" << std::endl;
       }
-   } else {
-      std::cout << "Failed to find interesting residue (with resno " << interesting_resno
-		<< ")" << std::endl;
+      delete mol;
+      graphics_draw();
    }
-   delete mol;
-   graphics_draw();
 }
 
 
@@ -2370,7 +2379,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
       if (chain_id_1 != chain_id_2) {
 	 std::string info_string("Atoms must be in the same chain");
-	 statusbar_text(info_string);
+	 add_status_bar_text(info_string);
       } else {
 	 chain_id = chain_id_1;
 	 resno_1 = atom1->GetSeqNum();
@@ -2499,7 +2508,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       graphics_draw();
 
       std::string info_string("Drag on an atom to translate residue, Ctrl Drag off atoms to rotate residue");
-      statusbar_text(info_string);
+      add_status_bar_text(info_string);
    }
 }
 
@@ -3412,7 +3421,7 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
 	    display_density_level_screen_string += int_to_string(nth_chi);
 	    display_density_level_screen_string += "  =  ";
 	    display_density_level_screen_string += float_to_string(new_torsion);
-	    statusbar_text(display_density_level_screen_string);
+	    add_status_bar_text(display_density_level_screen_string);
 	 }
 	 catch (std::runtime_error rte) {
 	    // std::cout << rte.what() << std::endl;
@@ -3436,7 +3445,7 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
 	       display_density_level_screen_string += int_to_string(nth_chi);
 	       display_density_level_screen_string += "  =  ";
 	       display_density_level_screen_string += float_to_string(new_torsion);
-	       statusbar_text(display_density_level_screen_string);
+	       add_status_bar_text(display_density_level_screen_string);
 	    }
 	    catch (std::runtime_error rte) {
 	       std::cout << "Update chi - contact fall-back fails - " << rte.what() << std::endl;

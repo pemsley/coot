@@ -262,7 +262,7 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 	    std::string s("WARNING:: Can't proceed with Idea RNA - no standard residues!");
 	    std::cout << s << std::endl;
 	    graphics_info_t g;
-	    g.statusbar_text(s);
+	    g.add_status_bar_text(s);
 	 } 
       }
    }

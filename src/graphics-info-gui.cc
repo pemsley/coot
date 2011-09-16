@@ -523,7 +523,7 @@ graphics_info_t::set_transient_and_position(int widget_type, GtkWidget *window) 
 
 
 void
-graphics_info_t::statusbar_text(const std::string &text) const {
+graphics_info_t::add_status_bar_text(const std::string &text) const {
 
    if (use_graphics_interface_flag) { 
       if (statusbar) {
@@ -3676,7 +3676,7 @@ graphics_info_t::on_diff_map_peak_button_selection_toggled (GtkButton       *but
       graphics_draw();
       std::string s = "Difference map peak number ";
       s += int_to_string(hd->ipeak);
-      g.statusbar_text(s);
+      g.add_status_bar_text(s);
    } 
 }
 

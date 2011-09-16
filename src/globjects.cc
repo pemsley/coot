@@ -3464,7 +3464,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
            // it is now
            std::string ai;
            ai = atom_info_as_text_for_statusbar(cl_at.first, cl_at.second);
-           g.statusbar_text(ai);
+           g.add_status_bar_text(ai);
            // insert end
 	    }
 	    graphics_info_t::graphics_draw();

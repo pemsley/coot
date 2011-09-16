@@ -566,13 +566,13 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 s += ".  Molecule number ";
 	 s += coot::util::int_to_string(imol);
 	 s += " created.";
-	 g.statusbar_text(s);
+	 g.add_status_bar_text(s);
 	 r =  imol;
       } else {
 	 g.erase_last_molecule();
 	 std::string s("Failed to read coordinates file ");
 	 s += filename;
-	 g.statusbar_text(s);
+	 g.add_status_bar_text(s);
 	 r =  -1;
       }
    }
@@ -2045,7 +2045,7 @@ void set_display_intro_string(const char *str) {
 	 std::string s(str);
 	 graphics_info_t g;
 	 g.display_density_level_screen_string = s;
-	 g.statusbar_text(s);
+	 g.add_status_bar_text(s);
       }
 
       std::string cmd = "set-display-intro-string";
@@ -4411,7 +4411,7 @@ void screendump_image(const char *filename) {
       s += filename;
       s += " written";
       graphics_info_t g;
-      g.statusbar_text(s);
+      g.add_status_bar_text(s);
 // BL says: we wanna be nice and convert ppm to bmp for windoze user!?
 // but not if we have png!!!
 // still use that function with png but only to open file
@@ -4615,7 +4615,7 @@ handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
 	 std::string s = "Read map ";
 	 s += str;
 	 s += " failed.";
-	 g.statusbar_text(s);
+	 g.add_status_bar_text(s);
       } 
       graphics_draw();
    } else {
@@ -6167,7 +6167,7 @@ int export_map(int imol, const char *filename) {
       
    } else {
       graphics_info_t g;
-      g.statusbar_text("Invalid map molecule number");
+      g.add_status_bar_text("Invalid map molecule number");
    }
    return rv; 
 }

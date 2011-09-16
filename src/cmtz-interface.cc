@@ -275,7 +275,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
 	  s += graphics_info_t::int_to_string(imol_map_refmac);
 	  std::cout << s << std::endl;
 	  graphics_info_t g;
-	  g.statusbar_text(s);
+	  g.add_status_bar_text(s);
 	} else {
 	  // just check for refmac mtz file now
 	  if (graphics_info_t::molecules[imol_map_refmac].Refmac_mtz_filename().size() > 0) {

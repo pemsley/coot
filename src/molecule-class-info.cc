@@ -2920,13 +2920,13 @@ molecule_class_info_t::export_coordinates(std::string filename) const {
       graphics_info_t g;
       std::string s = "ERROR:: writing coordinates file ";
       s += filename;
-      g.statusbar_text(s);
+      g.add_status_bar_text(s);
    } else {
       std::string s = "INFO:: coordinates file ";
       s += filename;
       s += " saved successfully";
       graphics_info_t g;
-      g.statusbar_text(s);
+      g.add_status_bar_text(s);
    } 
    return err;
 }

@@ -750,7 +750,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	    if (resname == "WAT" || resname == "HOH") {
 	       std::string w = "Protection measure: ";
 	       w += "Waters can only be deleted using Delete Water";
-	       statusbar_text(w);
+	       add_status_bar_text(w);
 	    } else {
 	       normal_cursor();
 	       delete_atom_by_atom_index(naii.imol, naii.atom_index,
@@ -994,13 +994,13 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		     pick_pending_flag = 0;
 		     normal_cursor();
 		     std::string s = "Picked atoms not in same model.";
-		     statusbar_text(s);
+		     add_status_bar_text(s);
 		  } 
 	       } else {
 		  pick_pending_flag = 0;
 		  normal_cursor();
 		  std::string s = "Picked atoms not in same molecule.";
-		  statusbar_text(s);
+		  add_status_bar_text(s);
 	       } 
 	    }
 	    graphics_draw();
@@ -1502,7 +1502,7 @@ graphics_info_t::check_if_in_180_degree_flip_define(GdkEventButton *event) {
 	    s += resname;
 	    s += ". Not done.";
 	 }
-	 statusbar_text(s);
+	 add_status_bar_text(s);
 	 
 	 in_180_degree_flip_define = 0;
 	 pick_pending_flag = 0;
