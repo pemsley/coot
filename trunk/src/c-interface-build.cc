@@ -162,13 +162,13 @@ void calc_phases_generic(const char *mtz_file_name) {
 	 std::cout << "No Fobs found in " << mtz_file_name << std::endl;
 	 std::string s =  "No Fobs found in ";
 	 s += mtz_file_name;
-	 g.statusbar_text(s);
+	 g.add_status_bar_text(s);
       } else { 
 	 if (r.sigf_cols.size() == 0) {
 	    std::cout << "No SigFobs found in " << mtz_file_name << std::endl;
 	    std::string s =  "No SigFobs found in ";
 	    s += mtz_file_name;
-	    g.statusbar_text(s);
+	    g.add_status_bar_text(s);
 	 } else {
 	    // normal path:
 	    std::string f_obs_col = r.f_cols[0].column_label;
@@ -3734,7 +3734,7 @@ void setup_edit_chi_angles(short int state) {
       g.in_edit_chi_angles_define = 1;
       std::cout << "Click on an atom in the residue that you want to edit" << std::endl;
       g.pick_cursor_maybe();
-      g.statusbar_text("Click on a atom. The clicked atom affects the torsion's wagging dog/tail...");
+      g.add_status_bar_text("Click on a atom. The clicked atom affects the torsion's wagging dog/tail...");
       g.pick_pending_flag = 1;
    } else {
       g.in_edit_chi_angles_define = 0;
@@ -3760,7 +3760,7 @@ void setup_torsion_general(short int state) {
    if (state) {
       g.in_torsion_general_define = 1;
       g.pick_cursor_maybe();
-      g.statusbar_text("Click on a atom. The order of the clicked atoms affects the torsion's wagging dog/tail...");
+      g.add_status_bar_text("Click on a atom. The order of the clicked atoms affects the torsion's wagging dog/tail...");
       g.pick_pending_flag = 1;
    } else {
       g.in_torsion_general_define = 0;
@@ -4479,7 +4479,7 @@ void setup_save_symmetry_coords() {
    graphics_info_t::in_save_symmetry_define = 1;
    std::string s = "Now click on a symmetry atom";
    graphics_info_t g;
-   g.statusbar_text(s);
+   g.add_status_bar_text(s);
    pick_cursor_maybe();
 
 }
@@ -4550,14 +4550,14 @@ void save_symmetry_coords(int imol,
 	       s += filename;
 	       s += " failed.";
 	       graphics_info_t g;
-	       g.statusbar_text(s);
+	       g.add_status_bar_text(s);
 	    } else {
 	       std::cout << "INFO:: Wrote symmetry atoms to " << filename << "." << std::endl;
 	       std::string s = "INFO:: Wrote symmetry atoms to file ";
 	       s += filename;
 	       s += ".";
 	       graphics_info_t g;
-	       g.statusbar_text(s);
+	       g.add_status_bar_text(s);
 	    }
 	    
 	    std::vector<std::string> command_strings;
@@ -5075,7 +5075,7 @@ void do_180_degree_side_chain_flip(int imol, const char* chain_id, int resno,
 	 s += " successfully flipped.";
 	 graphics_draw();
       }
-      g.statusbar_text(s);
+      g.add_status_bar_text(s);
    }
 }
 
@@ -5088,7 +5088,7 @@ void setup_180_degree_flip(short int state) {
       g.in_180_degree_flip_define = 1;
       std::cout << "Click on a residue that you want to flip" << std::endl;
       g.pick_cursor_maybe();
-      g.statusbar_text("Click on an atom in the residue that you want to flip");
+      g.add_status_bar_text("Click on an atom in the residue that you want to flip");
       g.pick_pending_flag = 1;
    } else {
       g.normal_cursor();
@@ -5106,7 +5106,7 @@ setup_reverse_direction(short int istate) {
    graphics_info_t g;
    if (istate == 1) {
       g.pick_cursor_maybe();
-      g.statusbar_text("Click on an atom in the fragment that you want to reverse");
+      g.add_status_bar_text("Click on an atom in the fragment that you want to reverse");
       g.pick_pending_flag = 1;
    } else {
       g.normal_cursor();
@@ -5390,10 +5390,10 @@ int place_helix_here() {
 	  } else {
 	     g.set_go_to_atom_molecule(imol);
 	  }
-	  g.statusbar_text("Helix added");
+	  g.add_status_bar_text("Helix added");
        } else {
 	  std::cout << "Helix addition failure: message: " << n.failure_message << "\n";
-	  g.statusbar_text(n.failure_message);
+	  g.add_status_bar_text(n.failure_message);
        }
        std::vector<std::string> command_strings;
        command_strings.push_back("set-rotation-centre");
@@ -5409,7 +5409,7 @@ int place_helix_here() {
        return imol;
    } else {
       std::cout << " You need to set the map to fit against\n";
-      g.statusbar_text("You need to set the map to fit against");
+      g.add_status_bar_text("You need to set the map to fit against");
       g.show_select_map_dialog();
       return -1;
    }
@@ -5440,7 +5440,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 atom_selection_container_t asc = make_asc(si.mol[0].pcmmdbmanager());
 	 imol = g.create_molecule();
 	 graphics_info_t::molecules[imol].install_model(imol, asc, "Strand", 1);
-	 g.statusbar_text("Strand added");
+	 g.add_status_bar_text("Strand added");
 
 	 // Now refine.
 	 coot::minimol::zone_info_t zi = si.mol[0].zone_info();
@@ -5460,7 +5460,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 } 
       } else {
 	 std::cout << "Strand addition failure: message: " << si.failure_message << "\n";
-	 g.statusbar_text(si.failure_message);
+	 g.add_status_bar_text(si.failure_message);
       }
       if (g.go_to_atom_window) {
 	 g.set_go_to_atom_molecule(imol);
@@ -5483,7 +5483,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
       return imol;
    } else {
       std::cout << " You need to set the map to fit against\n";
-      g.statusbar_text("You need to set the map to fit against");
+      g.add_status_bar_text("You need to set the map to fit against");
       g.show_select_map_dialog();
       return -1;
    }
@@ -5572,10 +5572,10 @@ int find_secondary_structure_local(
 	 } else {
 	    g.set_go_to_atom_molecule(imol);
 	 }
-	 g.statusbar_text("Secondary structure added");
+	 g.add_status_bar_text("Secondary structure added");
       } else {
 	 std::cout << "No secondary structure found\n";
-	 g.statusbar_text("No secondary structure found" );
+	 g.add_status_bar_text("No secondary structure found" );
       }
       std::vector<std::string> command_strings;
       command_strings.resize(0);
@@ -5585,7 +5585,7 @@ int find_secondary_structure_local(
       return imol;
    } else {
       std::cout << " You need to set the map to fit against\n";
-      g.statusbar_text("You need to set the map to fit against");
+      g.add_status_bar_text("You need to set the map to fit against");
       g.show_select_map_dialog();
       return -1;
    }
@@ -6266,7 +6266,7 @@ int write_shelx_ins_file(int imol, const char *filename) {
 	    graphics_info_t::molecules[imol].write_shelx_ins_file(std::string(filename));
 	 istat = stat.first;
 	 graphics_info_t g;
-	 g.statusbar_text(stat.second);
+	 g.add_status_bar_text(stat.second);
 	 std::cout << stat.second << std::endl;
       } else {
 	 std::cout << "WARNING:: invalid molecule (" << imol

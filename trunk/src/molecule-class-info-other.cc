@@ -1061,7 +1061,10 @@ molecule_class_info_t::get_term_type(int atom_index) {
    short int has_down_neighb = 0;
    short int has_up_up_neighb = 0;
    short int has_down_down_neighb = 0;
-   
+
+   // Check for neighbouring residues to the clicked atom. Don't count
+   // waters as neighbours.
+   // 
    for (int ires=0; ires<nres; ires++) { 
       PCResidue res = chain->GetResidue(ires);
       if (res) { // could have been deleted (NULL)

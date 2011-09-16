@@ -4766,7 +4766,7 @@ void save_coordinates_using_widget(GtkWidget *widget) {
 	    std::string s = "Saved coordinates file ";
 	    s += filename;
 	    s += ".";
-	    g.statusbar_text(s);
+	    g.add_status_bar_text(s);
 	 }
       }
    }

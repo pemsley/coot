@@ -336,7 +336,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
      // and show something in the statusbar
      std::string ai;
      ai = atom_info_as_text_for_statusbar(atom_index, imol);
-     statusbar_text(ai);
+     add_status_bar_text(ai);
       }
    }
    return 1;

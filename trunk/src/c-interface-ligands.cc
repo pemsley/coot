@@ -803,7 +803,7 @@ void do_find_ligands_dialog() {
       gtk_widget_destroy(dialog);
       std::string s("Problem finding maps, coords or ligands!");
       graphics_info_t g;
-      g.statusbar_text(s);
+      g.add_status_bar_text(s);
       std::cout << s << std::endl;
    }
    else 

@@ -244,7 +244,7 @@ void do_refine(short int state) {
 	    std::string s = "Pick 2 atoms or Autozone (pick 1 atom the press the A key)";
 	    s += " [Ctrl Left-mouse rotates the view]";
 	    s += "...";
-	    g.statusbar_text(s);
+	    g.add_status_bar_text(s);
 	 } else {
 	    g.show_select_map_dialog();
 	    g.in_range_define_for_refine = 0;

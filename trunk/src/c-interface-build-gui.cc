@@ -517,7 +517,7 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 	    s += graphics_info_t::int_to_string(imol_map_refmac);
 	    std::cout << s << std::endl;
 	    graphics_info_t g;
-	    g.statusbar_text(s);
+	    g.add_status_bar_text(s);
 	  } else {
 	    // normal path
 	    //	       if (graphics_info_t::molecules[imol_map_refmac].Have_sensible_refmac_params()) { 

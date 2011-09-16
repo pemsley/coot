@@ -813,7 +813,7 @@ GtkWidget *popup_window(const char *str) {
 void add_status_bar_text(const char *s) {
 
    graphics_info_t g;
-   g.statusbar_text(std::string(s));
+   g.add_status_bar_text(std::string(s));
 } 
 
 

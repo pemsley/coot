@@ -595,11 +595,11 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	 std::string s = "Status file ";
 	 s += filename;
 	 s += " written.";
-	 statusbar_text(s);
+	 add_status_bar_text(s);
       } else {
 	 std::string s = "WARNING:: failed to write status file ";
 	 s += filename;
-	 statusbar_text(s);
+	 add_status_bar_text(s);
       }
    }
    return int(istat);

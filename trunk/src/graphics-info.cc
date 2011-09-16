@@ -323,7 +323,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 s += " atoms/links in restraints from ";
 	 s += cif_dictionary_filename;
 	 display_density_level_screen_string = s;
-	 statusbar_text(s);
+	 add_status_bar_text(s);
 	 graphics_draw();
       }
       std::cout << display_density_level_screen_string << std::endl;
@@ -796,7 +796,7 @@ graphics_info_t::ShowFPS(){
       s += " frames/sec";
 
       graphics_info_t g;
-      g.statusbar_text(s);
+      g.add_status_bar_text(s);
       std::cout << s << std::endl;
       graphics_info_t::T0=t;
       graphics_info_t::Frames=0;
@@ -1853,7 +1853,7 @@ graphics_info_t::display_geometry_distance() {
    std::string s = "Distance: ";
    s += float_to_string(dist);
    s += " A";
-   statusbar_text(s);
+   add_status_bar_text(s);
 }
 
 void 
@@ -1928,7 +1928,7 @@ graphics_info_t::display_geometry_angle() const {
    display_density_level_screen_string = "  Angle:  ";
    display_density_level_screen_string += float_to_string(theta*57.29578);
    display_density_level_screen_string += " degrees";
-   statusbar_text(display_density_level_screen_string);
+   add_status_bar_text(display_density_level_screen_string);
    // redraw is in calling function for angles.
 }
 
@@ -1980,7 +1980,7 @@ graphics_info_t::display_geometry_torsion() const {
    display_density_level_screen_string = "  Torsion:  ";
    display_density_level_screen_string += float_to_string(torsion);
    display_density_level_screen_string += " degrees";
-   statusbar_text(display_density_level_screen_string);
+   add_status_bar_text(display_density_level_screen_string);
    graphics_draw();
    
 }
@@ -2874,7 +2874,7 @@ graphics_info_t::apply_undo() {
 	       std::cout << "WARNING:: !!!  Changing the molecule to which "
 			 << "\"Undo\"s are done." << std::endl;
 	       std::string s = "WARNING:: Changing to Undo molecule";
-	       statusbar_text(s);
+	       add_status_bar_text(s);
 	    }
 	    apply_undo();       // find another molecule to undo
 	 }
@@ -4716,11 +4716,11 @@ graphics_info_t::measure_lsq_plane_deviant_atom(int imol, int atom_index) {
 	 s += " is ";
 	 s += float_to_string(d);
 	 s += "A from the least squares plane";
-	 statusbar_text(s);
+	 add_status_bar_text(s);
       } else {
 	 std::string s("Not enough atoms to find plane");
 	 std::cout << s << "\n";
-	 statusbar_text(s);
+	 add_status_bar_text(s);
       }
    }
    return r;
@@ -4739,7 +4739,7 @@ graphics_info_t::add_lsq_plane_atom(int imol, int atom_index) {
       s += int_to_string(at->GetSeqNum());
       s += at->GetChainID();
       std::cout << s << std::endl;
-      statusbar_text(s);
+      add_status_bar_text(s);
       lsq_plane_atom_positions->push_back(p);
       graphics_draw();
    }
