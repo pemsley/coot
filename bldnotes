@@ -11,7 +11,6 @@ build-it-win rev 2122
 UPDATE CCP4 on build machine! Use new dictionary!!!
 
 CCP4
-- space update bar
 - baton build no chainid (?)
 - 2nd baton build 'overrides' 1st
 

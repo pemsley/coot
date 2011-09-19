@@ -1,6 +1,9 @@
 
 #include "graphics-info.h"
 
+#include "sleep-fixups.h"
+
+
 #ifdef USE_LIBCURL
 // define the static
 std::vector<coot::simple_curl_handler_t> graphics_info_t::curl_handlers;

@@ -319,6 +319,19 @@ class PdbMtzTestFunctions(unittest.TestCase):
             new_atoms)
 
 
+    def test11_1(self):
+        """Adding residue by phi psi, no crash"""
+
+        imol = unittest_pdb("frag-2wot.pdb")
+        self.failUnless(valid_model_molecule_qm(imol))
+        v1 = add_terminal_residue_using_phi_psi(imol, "A", 275, "ALA", -60, -60)
+        self.failUnlessEqual(v1, 1)
+        v2 = add_terminal_residue_using_phi_psi(imol, "A", 276, "ALA", -60, -60)
+        self.failUnlessEqual(v2, 1)
+        v3 = add_terminal_residue_using_phi_psi(imol, "XX", 276, "ALA", -60, -60)
+        self.failUnlessEqual(v2, 0)
+        
+
     def test12_0(self):
         """Select by Sphere"""
 
