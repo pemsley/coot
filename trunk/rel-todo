@@ -27,6 +27,8 @@
 
   * Fix renumbering problem [John Berrisford] ::: 2
 
+  * consider adding displayed geometry -> Distances to session file.
+
   * DNA in sequence view [Miguel Ortiz Lombardia] ::: 1
 
   * Other DNA problem: mutation/adding Ts to DNA? ::: 2
@@ -37,5 +39,3 @@
 
   * Fix TER records on mutating a base [James Parker] ::: 2
 
-
- 

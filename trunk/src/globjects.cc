@@ -1197,6 +1197,9 @@ bool graphics_info_t::update_self = 0;  // Set by command line arg --update-self
 
 float graphics_info_t::electrostatic_surface_charge_range = 0.5;
 
+// network
+volatile bool graphics_info_t::curl_handlers_lock = 0; // not locked.
+
 
 // surface
 

@@ -1518,7 +1518,7 @@
 
 ;; This is exported outside of the box-of-buttons gui because the
 ;; clear-and-add-back function (e.g. from using the check button)
-;; needs to add buttons - let's not duplicate that code.
+;; also needs to add buttons - let's not duplicate that code.
 ;;
 (define (add-button-info-to-box-of-buttons-vbox button-info vbox)
 
@@ -1540,6 +1540,10 @@
 
 	  (gtk-widget-realize text-box)
 	  (gtk-text-thaw text-box)))
+
+    ;; "description" is a bad name!  We run a function and pass the button as the argument
+    (if (procedure? description)
+	(description button))
 
     (gtk-box-pack-start vbox button #f #f 2)
     (gtk-widget-show button)))

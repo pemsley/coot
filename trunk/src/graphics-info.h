@@ -3663,12 +3663,19 @@ public:
    // --- curl handlers
 #ifdef USE_LIBCURL
    static std::vector<coot::simple_curl_handler_t> curl_handlers;
-   void add_curl_handle_and_file_name(std::pair<CURL *, std::string> p);
-   void remove_curl_handle_with_file_name(std::string file_name);
+   // we have inner function for the add and remove handles so that we can use a lock.
+   static volatile bool curl_handlers_lock;
+   bool add_curl_handle_and_file_name(std::pair<CURL *, std::string> p);
+   bool add_curl_handle_and_file_name_inner(std::pair<CURL *, std::string> p);
+   bool remove_curl_handle_with_file_name(std::string file_name);
+   bool remove_curl_handle_with_file_name_inner(std::string file_name);
    // return NULL on no such filename being transfered.
    CURL *get_curl_handle_for_file_name(const std::string &filename) const;
+   CURL *get_curl_handle_for_file_name_inner(const std::string &filename) const;
    static bool curl_handler_stop_it_flag_set(CURL *c);
+   static bool curl_handler_stop_it_flag_set_inner(CURL *c);
    static void set_stop_curl_download_flag(const std::string &file_name);
+   static void set_stop_curl_download_flag_inner(const std::string &file_name);
 #endif    
 
 #ifdef USE_GUILE

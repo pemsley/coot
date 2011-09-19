@@ -892,7 +892,7 @@ class molecule_class_info_t {
    int get_atom_index(CAtom *atom) { 
      int idx = -1;
      if (has_model()) { 
-       int ic;
+       int ic = -1;
        if (atom->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
 	 idx = ic;
        }

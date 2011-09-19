@@ -64,27 +64,41 @@ coot::smcif::get_cell(PCMMCIFData data) const {
 				     clipper::Util::d2rad(beta),
 				     clipper::Util::d2rad(gamma));
       clipper::Cell cell(cell_descr);
-   }
+   } else {
+      std::string mess = "failed to get cell";
+      throw std::runtime_error(mess);
+   } 
    // Oh dear, we are returning an empty cell, maybe sometimes
-   return cell;
+   return cell; // shouldn't happen because we throw an exception in the other path.
 }
 
 
-// can throw an clipper::Message_base exception
 // 
-clipper::Spacegroup
+std::pair<bool,clipper::Spacegroup>
 coot::smcif::get_space_group(const std::vector<std::string> &symm_strings) const {
 
+   bool status = false;
    std::string symmetry_ops;
    for (unsigned int isym=0; isym<symm_strings.size(); isym++) { 
       symmetry_ops += symm_strings[isym];
       symmetry_ops += " ; ";
    }
    clipper::Spacegroup space_group;
-   space_group.init(clipper::Spgr_descr(symmetry_ops, clipper::Spgr_descr::Symops));
-   std::cout << "DEBUG:: space group initialised with symbol \""
-	     << space_group.symbol_hm() << "\"" << std::endl;
-   return space_group;
+   clipper::Spgr_descr spg_descr(symmetry_ops, clipper::Spgr_descr::Symops);
+
+   if (spg_descr.spacegroup_number() == 0) {
+      // Failed.
+      std::cout << "Failed to init space_group description with symop strings " << symmetry_ops << std::endl;
+      
+   } else {
+      // Happy path
+      space_group.init(spg_descr);
+      status = true;
+      if (1)
+	 std::cout << "DEBUG:: space group initialised with symbol \""
+		   << space_group.symbol_xhm() << "\"" << std::endl;
+   }
+   return std::pair<bool,clipper::Spacegroup>(status, space_group);
 }
 
 std::vector<CAtom *>
@@ -143,13 +157,17 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
 	    if (ierr_tot == 0) {
 	       CAtom *at = new CAtom;
 	       clipper::Coord_frac cf(xf,yf,zf);
-	       std::cout << " found atom: " << label << " " << symbol << " "
-			 << cf.format() << std::endl;
+	       if (0)
+		  std::cout << " found atom: " << label << " " << symbol << " "
+			    << cf.format() << std::endl;
 	       clipper::Coord_orth co = cf.coord_orth(cell);
 	       at->SetCoordinates(co.x(), co.y(),co.z(), occ, tf);
 	       // label -> 4c atom name conversion? 
 	       at->SetAtomName(label);
-	       at->SetElementName(symbol);
+	       std::string symbol_string(symbol);
+	       if (symbol_string.length() == 1)
+		  symbol_string = " " + symbol_string; // pad element name
+	       at->SetElementName(symbol_string.c_str());
 	       at->Het = 1; // all SM cifs atoms are HETATMs :)
 	       atom_vec.push_back(at);
 	    } else {
@@ -268,25 +286,33 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 	    } 
 	    if (symm_strings.size()) {
 	       try { 
-		  clipper::Spacegroup spg = get_space_group(symm_strings);
+		  std::pair<bool, clipper::Spacegroup> spg_pair = get_space_group(symm_strings);
+		  if (spg_pair.first == true) { 
 
-		  std::vector<CAtom *> atoms = read_coordinates(data, cell, spg);
-		  std::cout << "read " << atoms.size() << " atoms" << std::endl;
+		     std::vector<CAtom *> atoms = read_coordinates(data, cell, spg_pair.second);
+		     std::cout << "read " << atoms.size() << " atoms" << std::endl;
 
-		  if (atoms.size()) {
+		     if (atoms.size()) {
 
-		     mol = new CMMDBManager;
-		     CModel *model_p = new CModel;
-		     CChain *chain_p = new CChain;
-		     CResidue *residue_p = new CResidue;
-		     chain_p->SetChainID("");
-		     residue_p->seqNum = 1;
-		     residue_p->SetResName("XXX");
-		     for (unsigned int iat=0; iat<atoms.size(); iat++)
-			residue_p->AddAtom(atoms[iat]);
-		     chain_p->AddResidue(residue_p);
-		     model_p->AddChain(chain_p);
-		     mol->AddModel(model_p);
+			mol = new CMMDBManager;
+			CModel *model_p = new CModel;
+			CChain *chain_p = new CChain;
+			CResidue *residue_p = new CResidue;
+			chain_p->SetChainID("");
+			residue_p->seqNum = 1;
+			residue_p->SetResName("XXX");
+			for (unsigned int iat=0; iat<atoms.size(); iat++)
+			   residue_p->AddAtom(atoms[iat]);
+			chain_p->AddResidue(residue_p);
+			model_p->AddChain(chain_p);
+			mol->AddModel(model_p);
+
+			mol->SetCell(cell.a(), cell.b(), cell.c(),
+				     clipper::Util::rad2d(cell.alpha()),
+				     clipper::Util::rad2d(cell.beta()),
+				     clipper::Util::rad2d(cell.gamma()));
+			mol->SetSpaceGroup(spg_pair.second.symbol_xhm().c_str());
+		     }
 		  } 
 	       } 
 	       catch (clipper::Message_base exc) {
@@ -307,7 +333,9 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
    }
       
    delete data;
-   delete S;
+   // delete S;
+   data = NULL;
+   S = NULL;
    
    return mol;
 } 

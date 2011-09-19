@@ -575,6 +575,13 @@ int first_small_coords_imol();
    return -1 when there is none. */
 int first_unsaved_coords_imol(); 	
 
+/*! \brief convert the structure factors in cif_file_name to an mtz
+  file.  
+
+  Return 1 on success. Return 0 on a file without Rfree, return
+  -1 on complete failure to write a file. */
+int mmcif_sfs_to_mtz(const char *cif_file_name, const char *mtz_file_name);
+
 /* \} */
 
 /*  -------------------------------------------------------------------- */

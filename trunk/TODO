@@ -4,9 +4,10 @@
    What's Planned for the Upcoming Coot Releases?
 
 
+
 -----
 
-    Release 0.6 and 0.7 [Sept 2009, June 2010]
+    Release 0.6 and 0.7 [Sept 2009, Dec 2011]
 
    Top commitments:
 
@@ -997,7 +998,10 @@ Punted from 0.6:
 
  ------
     
-    Release 0.8 [Sept 2009]
+
+    Release 0.8, March 2012
+
+  * replace guile-gtk with guile-gnome ::: 15
 
    o Use gtk-builder.
 
@@ -1009,14 +1013,6 @@ Punted from 0.6:
    o 	We need to activate this: graphics_info_t::execute_add_terminal_residue
         // just shove it on without a map (i.e. add a residue with no map)
 
-   o rewrite the SSM alignment output in a more robust and more
-     simple-minded manner.
-
-* Done.
-
-   o User pickable atoms.
-
-* Done.
 
    o sort out the problem with the color wheel colour chooser from the
      colour-picker/patch widget for maps.  This needs to update the map 
@@ -1025,8 +1021,6 @@ Punted from 0.6:
    o sort out the includes so that I use -I .. and
      #include "ideal/geometry.hh" etc.
 
-   o Other Button: tw & penny
-
    o handle links properly (as above).
 
    o multiple representations?
@@ -1034,29 +1028,15 @@ Punted from 0.6:
    o Add Terminal Residue should pick up from the assigned sequence.
      Should work for bases too.
 
-   o mutate residue range for bases
-
-* Done.
 
    o Fix leak and deprecated functions message.
 
 * Half done
 
-   o Bring partial charges to electrostatic surface
-
-* Done.
-
-   o Activate molecule_class_info_t deconstuctor.  
-
-* No need now.
 
    o Add parentheses if they are missing from an interactive scripting
      command
 
-   o Make the N and M zoom keys work with multiframes, rather than a
-     step/jump in zoom.
-
-* Done!
 
    o RNA rotamer analysis "What is the rotamer of this suite here?"
 

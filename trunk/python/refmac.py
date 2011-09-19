@@ -128,7 +128,8 @@ def run_loggraph(logfile):
 def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, mtz_out_filename,
                            extra_cif_lib_filename, imol_refmac_count, swap_map_colours_post_refmac_p,
                            imol_mtz_molecule, show_diff_map_flag, phase_combine_flag, phib_fom_pair,
-                           force_n_cycles, ccp4i_project_dir, f_col, sig_f_col, r_free_col=""):
+                           force_n_cycles, make_molecules_flag,
+                           ccp4i_project_dir, f_col, sig_f_col, r_free_col=""):
 
     global refmac_count
     global refmac_extra_params
