@@ -786,7 +786,7 @@ if (have_coot_python):
      if gtk.pygtk_version >= (2,12):
        menuitem2.set_tooltip_text("use to change the way the NCS matrix is calculated")
      else:
-       coot_tooltip.set_tip(menuitem2, "use to change the way the NCS matrix is calculated")
+       coot_tooltips.set_tip(menuitem2, "use to change the way the NCS matrix is calculated")
      menuitem2.show()
 
      add_simple_coot_menu_menuitem(

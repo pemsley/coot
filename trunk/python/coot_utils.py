@@ -330,6 +330,15 @@ def number_list(a,b):
            a = a + 1
         return result
 
+def file_n_lines(file_name):
+    if not os.path.isfile(file_name):
+        return False
+    else:
+        fin = open(file_name, 'r')
+        n_lines = sum(1 for line in fin)
+        fin.close()
+        return n_lines
+    
 # Return True or False
 # adapted from find_exe
 # this finds absolute file names too
