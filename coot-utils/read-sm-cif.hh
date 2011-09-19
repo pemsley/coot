@@ -3,7 +3,7 @@ namespace coot {
 
    class smcif {
       clipper::Cell get_cell(PCMMCIFData data) const;
-      clipper::Spacegroup get_space_group(const std::vector<std::string> &symm_strings) const;
+      std::pair<bool,clipper::Spacegroup> get_space_group(const std::vector<std::string> &symm_strings) const;
       std::vector<CAtom *> read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const; 
    public:
       smcif() {};

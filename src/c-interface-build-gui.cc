@@ -963,16 +963,19 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 
 		  // And finally run refmac
 		  if (run_refmac_with_no_labels == 1 || fobs_col != "") {
-		    execute_refmac_real(pdb_in_filename, pdb_out_filename,
-					mtz_in_filename, mtz_out_filename,
-					cif_lib_filename,
-					fobs_col, sigfobs_col, r_free_col, sensible_r_free_col,
-					refmac_count_string,
-					g.swap_pre_post_refmac_map_colours_flag,
-					imol_map_refmac,
-					diff_map_flag,
-					phase_combine_flag, phib_string, fom_string,
-					graphics_info_t::refmac_ccp4i_project_dir);
+		     short int make_molecules_flag = 1; // not a sub-thread, (so do things
+		                                        // the normal/old way).
+		     execute_refmac_real(pdb_in_filename, pdb_out_filename,
+					 mtz_in_filename, mtz_out_filename,
+					 cif_lib_filename,
+					 fobs_col, sigfobs_col, r_free_col, sensible_r_free_col,
+					 make_molecules_flag,
+					 refmac_count_string,
+					 g.swap_pre_post_refmac_map_colours_flag,
+					 imol_map_refmac,
+					 diff_map_flag,
+					 phase_combine_flag, phib_string, fom_string,
+					 graphics_info_t::refmac_ccp4i_project_dir);
 		  } else {
 
 		    std::cout << "WARNING:: we cannot run Refmac without without valid labels" <<std::endl;

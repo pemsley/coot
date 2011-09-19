@@ -5,7 +5,7 @@
  * Copyright 2007 by Paul Emsley
  * Copyright 2007 by Bernhard Lohkamp
  * Copyright 2008 by Kevin Cowtan
- * Copyright 2007, 2008, 2009 The University of Oxford
+ * Copyright 2007, 2008, 2009, 2010, 2011 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -3144,6 +3144,11 @@ void set_write_conect_record_state(int state) {
 // pdb_in etc filename are manipulated in the calling routine.
 //
 // if swap_map_colours_post_refmac_flag is not 1 then imol_refmac_map is ignored.
+//
+// make_molecules_flag is 0 or 1: defining if run-refmac-by-filename
+// function should create molecules (it should *not* create molecules
+// if this is called in a sub-thread (because that will try to update
+// the graphics from the subthread and a crash will result).
 // 
 void
 execute_refmac_real(std::string pdb_in_filename,
@@ -3154,6 +3159,7 @@ execute_refmac_real(std::string pdb_in_filename,
 		    std::string fobs_col_name,
 		    std::string sigfobs_col_name,
 		    std::string r_free_col_name,
+		    short int make_molecules_flag,
 		    short int have_sensible_free_r_flag,
 		    std::string refmac_count_str,
 		    int swap_map_colours_post_refmac_flag,
@@ -3202,10 +3208,8 @@ execute_refmac_real(std::string pdb_in_filename,
    }
    cmds.push_back(phase_combine_cmd);
 
-   //cmds.push_back(graphics_info_t::int_to_string(-1)); // don't use NCYCLES
-   // oh yes, we do
    cmds.push_back(graphics_info_t::int_to_string(graphics_info_t::refmac_ncycles));
-   // BL says:: again debackslash
+   cmds.push_back(graphics_info_t::int_to_string(make_molecules_flag));
    cmds.push_back(single_quote(coot::util::intelligent_debackslash(ccp4i_project_dir)));
    if (phase_combine_flag == 3 && fobs_col_name != "") {
      cmds.push_back(fobs_col_name);
@@ -7014,7 +7018,8 @@ protein_db_loop_specs_to_atom_selection_string(const std::vector<coot::residue_s
       r += coot::util::int_to_string(highest_resno);
    }
    return r;
-} 
+}
+
 
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */

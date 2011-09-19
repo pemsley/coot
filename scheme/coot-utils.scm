@@ -493,6 +493,18 @@
 	    (loop (+ count 1)
 		  (cons count rng))))))))
 
+(define (file-n-lines file-name)
+  (if (not (file-exists? file-name))
+      #f
+      (call-with-input-file file-name
+	(lambda (port)
+	  (let loop ((line (read-line port))
+		     (n 0))
+	    (cond
+	     ((eof-object? line) n)
+	     (else (loop (read-line port) (+ n 1)))))))))
+
+
 ;; code from thi <ttn at mingle.glug.org>
 ;; 
 ;; run command and put the output into a string and return

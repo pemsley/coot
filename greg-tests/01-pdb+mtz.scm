@@ -354,6 +354,25 @@
 						 
 						 #t)))))))))))))))))
 
+
+(greg-testcase "Adding residue by phi psi, no crash" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "frag-2wot.pdb")))
+       (if (not (valid-model-molecule? imol))
+	   (throw 'fail))
+       (let ((v1 (add-terminal-residue-using-phi-psi imol "A" 275 "ALA" -60 -60)))
+	 (if (not (= v1 1))
+	     (throw 'fail)))
+       (let ((v2 (add-terminal-residue-using-phi-psi imol "A" 276 "ALA" -60 -60)))
+	 (if (not (= v2 1))
+	     (throw 'fail)))
+       (let ((v3 (add-terminal-residue-using-phi-psi imol "XX" 276 "ALA" -60 -60)))
+	 (if (not (= v3 0))
+	     (throw 'fail)))
+       #t)))
+
+
 				       
 (greg-testcase "Select by Sphere" #t
    (lambda ()

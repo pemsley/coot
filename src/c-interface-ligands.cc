@@ -1520,8 +1520,10 @@ topological_equivalence_chiral_centres(const std::string &residue_type) {
 } 
 
 
+// This doesn't reset the view, perhaps it should (normally, we do not
+// reset the view when using install_model).
+// 
 int read_small_molecule_cif(const char *file_name) {
-
 
    int imol = -1;
    coot::smcif smcif;
@@ -1530,7 +1532,9 @@ int read_small_molecule_cif(const char *file_name) {
    if (mol) {
       graphics_info_t g;
       imol = g.create_molecule();
-      g.molecules[imol].install_model(imol, mol, "thing", 0, 1);
+      g.molecules[imol].install_model(imol, mol, file_name, 0, 1);
+      update_go_to_atom_window_on_new_mol();
+      graphics_draw();
    } 
 
    return imol;

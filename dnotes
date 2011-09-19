@@ -6140,6 +6140,28 @@ Fri Aug 12 12:29:03 BST 2011
 
    Then cif_to_mtz 
 
+
+---
+Mon Sep  5 16:19:45 BST 2011
+
+
+dbi for COD:
+
+
+guile> (use-modules (dbi dbi))
+guile> (define db-obj (dbi-open "mysql" "cod_reader::molecules:tcp:www.crystallography.net::")
+... )
+guile> db-obj 
+#<guile-dbi open mysql cod_reader::molecules:tcp:www.crystallography.net:: (0 . db connected)>
+guile> db-obj
+#<guile-dbi open mysql cod_reader::molecules:tcp:www.crystallography.net:: (0 . query ok, got results)>
+guile> (display db-obj)
+#<guile-dbi open mysql cod_reader::molecules:tcp:www.crystallography.net:: (0 . query ok, got results)>
+guile> 
+guile> (dbi-query db-obj "select * from numbers")
+guile> db-obj
+
+
 ------
 
 

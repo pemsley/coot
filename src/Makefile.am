@@ -272,6 +272,7 @@ coot_real_SOURCES = \
 	c-interface-refine.cc	 \
 	c-interface-scm.hh	 \
 	c-interface-scm.cc	 \
+	c-interface-sfs.cc	 \
 	c-interface-superpose.cc \
 	c-interface-validate.cc	 \
 	c-interface-view.cc	 \

@@ -3970,10 +3970,13 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 							  const std::string &residue_type,
 							  float phi, float psi) {
 
+   std::cout << "DEUBG:: add_terminal_residue_using_phi_psi() " << res_no << std::endl;
+
    int status = 0;
    CResidue *res = get_residue(chain_id, res_no, "");
    if (! res) {
-      std::cout << "WARNING:: residue not found for " << chain_id << " " << res_no << std::endl;
+      std::cout << "WARNING:: add_terminal_residue_using_phi_psi() residue not found for \""
+		<< chain_id << "\" " << res_no << std::endl;
    } else { 
       PPCAtom residue_atoms = 0;
       int n_residue_atoms;
@@ -3981,74 +3984,83 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
       if (n_residue_atoms) {
 	 CAtom *at = residue_atoms[0];
 	 int atom_indx = get_atom_index(at);
-	 std::string term_type = get_term_type(atom_indx);
-	 int found_atoms_count = 0;
-	 clipper::Coord_orth previous_ca, previous_c, previous_n;
-	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
-	    std::string atom_name = residue_atoms[iat]->name;
-	    if (atom_name == " CA ") {
-	       found_atoms_count += 1;
-	       previous_ca = clipper::Coord_orth(residue_atoms[iat]->x,
-						 residue_atoms[iat]->y,
-						 residue_atoms[iat]->z);
-	    }
-	    if (atom_name == " C  ") {
-	       found_atoms_count += 2;
-	       previous_c = clipper::Coord_orth(residue_atoms[iat]->x,
-						residue_atoms[iat]->y,
-						residue_atoms[iat]->z);
-	    }
-	    if (atom_name == " N  ") {
-	       found_atoms_count += 4;
-	       previous_n = clipper::Coord_orth(residue_atoms[iat]->x,
-						residue_atoms[iat]->y,
-						residue_atoms[iat]->z);
-	    }
-	 }
-	 coot::minimol::residue r;
-	 if (term_type == "N") { 
-	    if (! (found_atoms_count&7)) {
-	       std::cout << "Bad for N current atom selection " << std::endl;
-	    } else {
-	       // happy path
-	       r = coot::build_N_terminal_ALA(phi, psi, res_no-1,
-					      previous_n,
-					      previous_ca,
-					      previous_c, 30);
-	       std::pair<bool, clipper::Coord_orth> cb = coot::cbeta_position(r);
-	       if (cb.first) {
-		  coot::minimol::atom at(" CB ", " C", cb.second, "", 1.0, 30);
-		  r.addatom(at);
+	 if (atom_indx < 0) {
+	    // This should not happen.  
+	    std::cout << "WARNING:: add_terminal_residue_using_phi_psi() "
+		      << "Failed to get atom index for 0th atom in \""
+		      << chain_id << "\" " << res_no << std::endl;
+	 } else { 
+	    std::string term_type = get_term_type(atom_indx);
+	    int found_atoms_count = 0;
+	    clipper::Coord_orth previous_ca, previous_c, previous_n;
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	       std::string atom_name = residue_atoms[iat]->name;
+	       if (atom_name == " CA ") {
+		  found_atoms_count += 1;
+		  previous_ca = clipper::Coord_orth(residue_atoms[iat]->x,
+						    residue_atoms[iat]->y,
+						    residue_atoms[iat]->z);
+	       }
+	       if (atom_name == " C  ") {
+		  found_atoms_count += 2;
+		  previous_c = clipper::Coord_orth(residue_atoms[iat]->x,
+						   residue_atoms[iat]->y,
+						   residue_atoms[iat]->z);
+	       }
+	       if (atom_name == " N  ") {
+		  found_atoms_count += 4;
+		  previous_n = clipper::Coord_orth(residue_atoms[iat]->x,
+						   residue_atoms[iat]->y,
+						   residue_atoms[iat]->z);
 	       }
 	    }
-	 }
-	 if (term_type == "C") {
-	    if (! (found_atoms_count&7)) {
-	       std::cout << "Bad for N current atom selection " << std::endl;
-	    } else {
-	       r = coot::build_C_terminal_ALA(phi, psi, res_no+1,
-					      previous_n, 
-					      previous_ca,
-					      previous_c,
-					      30);
-	       std::pair<bool, clipper::Coord_orth> cb = coot::cbeta_position(r);
-	       if (cb.first) {
-		  coot::minimol::atom at(" CB ", " C", cb.second, "", 1.0, 30);
-		  r.addatom(at);
+	    coot::minimol::residue r;
+	    if (term_type == "N") { 
+	       if (! (found_atoms_count&7)) {
+		  std::cout << "Bad for N current atom selection " << std::endl;
+	       } else {
+		  // happy path
+		  r = coot::build_N_terminal_ALA(phi, psi, res_no-1,
+						 previous_n,
+						 previous_ca,
+						 previous_c, 30);
+		  std::pair<bool, clipper::Coord_orth> cb = coot::cbeta_position(r);
+		  if (cb.first) {
+		     coot::minimol::atom at(" CB ", " C", cb.second, "", 1.0, 30);
+		     r.addatom(at);
+		  }
 	       }
 	    }
+	    if (term_type == "C") {
+	       if (! (found_atoms_count&7)) {
+		  std::cout << "Bad for N current atom selection " << std::endl;
+	       } else {
+		  r = coot::build_C_terminal_ALA(phi, psi, res_no+1,
+						 previous_n, 
+						 previous_ca,
+						 previous_c,
+						 30);
+		  std::pair<bool, clipper::Coord_orth> cb = coot::cbeta_position(r);
+		  if (cb.first) {
+		     coot::minimol::atom at(" CB ", " C", cb.second, "", 1.0, 30);
+		     r.addatom(at);
+		  }
+	       }
+	    }
+	    if (r.atoms.size()) {
+	       coot::minimol::fragment f(chain_id);
+	       f.addresidue(r,0);
+	       coot::minimol::molecule m(f);
+	       CMMDBManager *mol_new = m.pcmmdbmanager();
+	       atom_selection_container_t asc = make_asc(mol_new);
+	       add_coords(asc);
+	       update_molecule_after_additions(); // create UDDAtomIndexHandle for new atoms.
+	       status = 1;
+	    } else {
+	       std::cout << "No residue added for term type "
+			 << term_type << std::endl;
+	    }
 	 }
-	 if (r.atoms.size()) {
-	    coot::minimol::fragment f(chain_id);
-	    f.addresidue(r,0);
-	    coot::minimol::molecule m(f);
-	    CMMDBManager *mol_new = m.pcmmdbmanager();
-	    atom_selection_container_t asc = make_asc(mol_new);
-	    add_coords(asc);
-	 } else {
-	    std::cout << "No residue added for term type "
-		      << term_type << std::endl;
-	 } 
       }
    }
    return status;
@@ -4126,9 +4138,10 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
 			   new_atom->occupancy = 1.0;
 			   new_atom->tempFactor = 10.0;
 			   // chain id:
-			   std::cout << "setting chainid of this new atom from "
-				     << new_atom->GetChainID() << " to : "
-				     << atom->GetChainID() << std::endl;
+			   if (0) 
+			      std::cout << "setting chainid of this new atom from :"
+					<< new_atom->GetChainID() << ": to :"
+					<< atom->GetChainID() << ":" << std::endl;
 			   new_atom->residue->chain->SetChainID(atom->GetChainID());
 			   idone = 1;
 			   n_atom++;
@@ -4145,8 +4158,8 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
       if (idone == 0) { 
 
 	 std::cout << "adding whole residue triggered by atom " 
-		   << atom << std::endl;
-	 std::cout << "     with element " << atom->element << std::endl;
+		   << atom << " ";
+	 std::cout << " with element " << atom->element << std::endl;
 
 	 // in this bit of code, atom is an atom from the asc and
 	 // atom_p is a new atom that we are adding to a new residue
@@ -4202,7 +4215,6 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
    std::cout << "INFO:: old n_atoms: " << old_n_atoms << " new: " 
 	     << atom_sel.n_selected_atoms << std::endl;
 
-   debug_selection();
    have_unsaved_changes_flag = 1; 
 
    make_bonds_type_checked();
@@ -6694,7 +6706,7 @@ molecule_class_info_t::set_mmdb_cell_and_symm(std::pair<std::vector<float>, std:
    if (cell_spgr.first.size() == 6) { 
       std::vector<float> a = cell_spgr.first; // short name
       atom_sel.mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-      atom_sel.mol->SetSpaceGroup((char *)cell_spgr.second.c_str());
+      atom_sel.mol->SetSpaceGroup(cell_spgr.second.c_str());
       std::cout << "successfully set cell and symmetry" << std::endl;
    } else { 
       std::cout << "WARNING:: failure to set cell on this molecule" << std::endl;
