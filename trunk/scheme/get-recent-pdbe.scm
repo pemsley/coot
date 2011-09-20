@@ -16,7 +16,7 @@
 ;;;; Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 
-(load "json-reader.scm")
+;; (load "json-reader.scm") ;; loaded by coot.scm
 
 (use-modules (json reader)
 	     (ice-9 format))
@@ -868,14 +868,13 @@
 		(if (not (hash-table? citation-hm))
 		    "No Citation table"
 		    (let ((citation (hash-ref citation-hm "Authors")))
-		      (apply string-append citation)))))))
+		      (string-append-with-spaces citation)))))))
 
     (make-directory-maybe *coot-pdbe-image-cache-dir*)
 
     ;; now make a button list (a label and what to do)
     ;; 
-    (let* ((nov (format #t "(hash ref on a ~s to find EntryID~%" hm))
-	   (entry-id (hash-ref hm "EntryID"))
+    (let* ((entry-id (hash-ref hm "EntryID"))
 	   (entry-label (if (string? entry-id)
 			    entry-id
 			    "missing-entry-id"))) ;; should never happen
@@ -898,8 +897,6 @@
 		    ""
 		    (string-append "     Resolution: " resolution-item)))
 	       (label (string-append title-label "\n" entry-id ": " method-label resolution-string authors-label ligands-string)))
-
-	  (print-var label)
 
 	  (if (string=? method-label "x-ray diffraction")
 	      (list label

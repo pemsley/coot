@@ -29,15 +29,18 @@
 
   * consider adding displayed geometry -> Distances to session file.
 
-  * DNA in sequence view [Miguel Ortiz Lombardia] ::: 1
-
   * Other DNA problem: mutation/adding Ts to DNA? ::: 2
 
   * Picking atoms in Jones mode needs to pick only CAs.
+
+  * Load ASN from SBASE using Lidia menu.  Molecule has thick bonds to
+    hydrogens. ::: 1
 
 ------
 
   * "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
 
   * Fix TER records on mutating a base [James Parker] ::: 2
+
+  * DNA in sequence view [Miguel Ortiz Lombardia] ::: 1
 
