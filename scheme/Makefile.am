@@ -14,6 +14,7 @@ tips.scm             tips-gui.scm         generic-objects.scm cns2coot.scm \
 extensions.scm       ncs.scm create-server.scsh coot-crash-catcher.scm     \
 snarf-coot-docs.scm  clear-backup.scm     bones-reader.scm matrices.scm    \
 fascinating-things.scm shelx-extensions.scm parse-pisa-xml.scm             \
-check-for-updates.scm  prodrg-import.scm
+check-for-updates.scm  prodrg-import.scm  get-recent-pdbe.scm              \
+json-reader.scm
 
 # scheme_TEXINFOS = ... something generated?  More reading needed.

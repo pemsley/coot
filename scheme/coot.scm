@@ -61,7 +61,8 @@
 
     (let ((pre-list (list "filter.scm" 
 			  "matrices.scm"
-			  "coot-utils.scm"))
+			  "coot-utils.scm"
+			  "json-reader.scm"))
 	  (post-list (list "coot-lsq.scm"
 			   "shelx.scm"
 			   "get-ebi.scm" 
@@ -89,6 +90,7 @@
 	      ((eq? #t use-gui?) 
 	       (append pre-list (list "coot-gui.scm") post-list (list "tips-gui.scm"
 								      "check-for-updates.scm"
+								      "get-recent-pdbe.scm"
 								      "extensions.scm"
 								      "shelx-extensions.scm"
 								      "prodrg-import.scm"
