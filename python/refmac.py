@@ -29,9 +29,9 @@
 # refmac-extra-params.txt file
 # also params given in .coot.py are considered very first, so check is:
 #
-# 1.) .coot.py (needs to include: global refmac_extra_params)
+# 1.) whatever is written here
 #
-# 2.) whatever is written here
+# 2.) .coot.py (needs to include: global refmac_extra_params)
 #
 # 3.) refmac-extra-params.txt
 #
@@ -125,14 +125,16 @@ def run_loggraph(logfile):
                     run_concurrently(wish_exe, [loggraph_exe, logfile])
 
 
-def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, mtz_out_filename,
-                           extra_cif_lib_filename, imol_refmac_count, swap_map_colours_post_refmac_p,
-                           imol_mtz_molecule, show_diff_map_flag, phase_combine_flag, phib_fom_pair,
+def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
+                           mtz_in_filename, mtz_out_filename,
+                           extra_cif_lib_filename, imol_refmac_count,
+                           swap_map_colours_post_refmac_p,
+                           imol_mtz_molecule, show_diff_map_flag,
+                           phase_combine_flag, phib_fom_pair,
                            force_n_cycles, make_molecules_flag,
                            ccp4i_project_dir, f_col, sig_f_col, r_free_col=""):
 
     global refmac_count
-    global refmac_extra_params
     import os, stat, operator
 
     refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
@@ -251,20 +253,12 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                         ncs_string += " " + chain
                     std_lines.append(ncs_string)
 
-    if (refmac_extra_params):
-        extra_params = refmac_extra_params
-    else:
-        extra_params = get_refmac_extra_params()
+    data_lines = add_refmac_extra_params(std_lines, force_n_cycles)
 
-    if (extra_params == None): extra_params = [""]
-    data_lines = std_lines + extra_params
-
-    if (not extra_params_include_weight_p(extra_params)) :
+    if (not extra_params_include_weight_p(data_lines)) :
         data_lines.append("WEIGHT AUTO")
 
     data_lines.append(labin_string)
-
-    print "refmac extra params: ", extra_params
 
     refmac_log_file_name = ""
     if (len(ccp4i_project_dir) > 0) :
@@ -452,37 +446,63 @@ def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
 #
 def extra_params_include_weight_p(params_list):
 
-   have_weight = params_list.count('WEIG')
-   if (have_weight == 1):
-     return True
-   elif (have_weight == 0):
-     return False
+   have_weight = map(lambda x: 'WEI' in x.upper(), params_list)
+   if (sum(have_weight) == 1):
+       return True
+   elif (sum(have_weight) == 0):
+       return False
    else:
-     print 'BL WARNING:: This shouldn\'t happen, we have more than one weight defined. God knows what refmac will do now...'
-     return False
+       print 'BL WARNING:: This shouldn\'t happen, we have more than one weight defined. God knows what refmac will do now...'
+       return False
 
 
 # If refmac-extra-params is defined (as a list of strings), then
-# return that, else read the file "refmac-extra-params.txt"
+# add that, read the file "refmac-extra-params.txt" and add to the
+# refmac parameters
 #
 # Return a list a list of strings.
 #
-def get_refmac_extra_params():
+def add_refmac_extra_params(pre_lines, force_no_cycles):
   global refmac_extra_params
 
-  extras_file_name = "refmac-extra-params.txt"
-  try:
-     f = open(extras_file_name,'r')
-  except IOError:
-     print 'BL INFO:: we dont have refmac-extra-params file'
+  post_lines = pre_lines
+  extra_params = []
+  if refmac_extra_params:
+      # we ignore a file
+      extra_params = refmac_extra_params
   else:
-     refmac_extra_params = f.readlines()
-     print 'BL INFO:: we have refmac-extra-params file and read lines'
-     f.close()
+      # see if there is a refmac parameter file
+      extras_file_name = "refmac-extra-params.txt"
+      if os.path.isfile(extra_file_name):
+          try:
+              f = open(extras_file_name,'r')
+          except IOError:
+              print 'BL INFO:: we dont have refmac-extra-params file'
+          except:
+              print "BL ERROR:: unknown error reading", extras_file_name
+          else:
+              extra_params = f.readlines()
+              print 'BL INFO:: we have refmac-extra-params file and read lines'
+              f.close()
+      # else
+      # no extra params file, continue
 
-#  print "BL INFO:: we added ", refmac_extra_params
-     extra_params = refmac_extra_params
-     return extra_params
+  if extra_params:
+      print "refmac extra params: ", extra_params
+      # remove line with NCYC when n_cycle is 0
+      if (force_no_cycles == 0):
+          post_lines = [x if not (x[0:3].upper() == 'NCY') else 'NCYC 0' for x in extra_params]
+      else:
+          # may override standard lines, so we need to check them all
+          post_lines = extra_params
+      for line in pre_lines:
+          # check the first 3 chars of extra param as upper
+          ls = map(lambda x: line[0:3].upper() in x.upper(), extra_params)
+          if not sum(ls):
+              # add the param
+              post_lines.append(line.upper())
+
+  return post_lines
 
 #
 def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
@@ -510,7 +530,7 @@ def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
                 run_refmac_by_filename(pdb_in, pdb_out,
                         mtz_file_name, mtz_out, 
                         cif_lib_filename, 0, 0, -1,
-                        1, 0, [], 0, "",
+                        1, 0, [], 0, 0, "",
                         f_col, sig_f_col, "")
                 # I wish I could reset the state, but I currently cannot
                 # as refmac runs only after the button has been pushed
