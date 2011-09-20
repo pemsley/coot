@@ -33,6 +33,8 @@
 
   * Other DNA problem: mutation/adding Ts to DNA? ::: 2
 
+  * Picking atoms in Jones mode needs to pick only CAs.
+
 ------
 
   * "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1

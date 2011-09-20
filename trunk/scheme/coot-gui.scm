@@ -3604,8 +3604,8 @@
 		  (if (string? chain-id)
 		      (if (not (string=? chain-id spec-chain))
 			  (begin
-			    (set! chain-id #f)
-			    (break))
+			    (set! chain-id #f))
+
 			  (begin
 			    (if (not (number? min-res-no))
 				(set! min-res-no res-no)
