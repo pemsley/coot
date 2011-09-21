@@ -18,6 +18,8 @@
  * 02110-1301, USA
  */
 
+#include <algorithm>
+
 #include <string.h>
 
 // include files needed to include molecule-class-info.h correctly. Useful.

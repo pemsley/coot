@@ -1,6 +1,8 @@
 /*! \file buccaneer-prot.cpp buccaneer library */
 /* (C) 2002-2006 University of York all rights reserved */
 
+#include <algorithm>
+
 #include <string.h> // fro strncmp
 #include "buccaneer-prot.h"
 

@@ -42,6 +42,7 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"

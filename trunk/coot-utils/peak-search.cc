@@ -22,6 +22,7 @@
 
 #include <string>
 #include <queue>
+#include <algorithm>
 
 #include "peak-search.hh"
 #include "clipper/core/map_interp.h"

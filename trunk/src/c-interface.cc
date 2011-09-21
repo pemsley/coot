@@ -36,6 +36,7 @@
 #include <string.h> // strncpy, strncmp
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #if !defined(_MSC_VER)
 #include <glob.h> // for globbing.  Needed here?

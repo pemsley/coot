@@ -31,6 +31,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #define HAVE_CIF  // will become unnessary at some stage.
 

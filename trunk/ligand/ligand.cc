@@ -32,6 +32,8 @@
 		 // filling and keeping the ligand centres via
 		 // Coord_grids).
 
+#include <algorithm>
+
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 

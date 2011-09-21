@@ -36,6 +36,8 @@
 #undef __GNU_LIBRARY__
 #endif
 
+#include <algorithm>
+
 #include <clipper/clipper.h>
 #include "clipper/ccp4/ccp4_map_io.h"
 #include "helix-placement.hh"

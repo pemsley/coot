@@ -35,6 +35,8 @@
 #include <string>
 #endif // HAVE_STRING
 
+#include <algorithm>
+
 #include <string.h> // strlen, strcpy
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
