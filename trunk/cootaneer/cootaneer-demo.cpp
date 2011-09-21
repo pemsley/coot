@@ -1,6 +1,10 @@
 // Clipper buccaneer
 /* Copyright 2003-2006 Kevin Cowtan & University of York all rights reserved */
 
+
+
+#include <stdlib.h>  // needed for exit()
+
 #include <clipper/clipper-ccp4.h>
 #include <clipper/clipper-contrib.h>
 #include "cootaneer-sequence.h"
