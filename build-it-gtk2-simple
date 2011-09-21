@@ -314,7 +314,9 @@
 #               goocanvas.
 # 4.83 20110805 On 64 bit redhat 4, building freeglut, we need to use /usr/X11R6/lib64, 
 #               not /usr/X11R6/lib, edit configure.
-script_version=4.83
+# 4.84 20110821 Hack in a solution the the new clipper problem (new clipper with cif 
+#               tools needs new libtools/configure new ccp4 libs (underlay-2).
+script_version=4.84
 
 
 # :: NOTE:: 
@@ -2135,15 +2137,15 @@ fi
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4c
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/ccp4-libs-underlay.tar.gz
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
+    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/ccp4-libs-underlay-2.tar.gz
     ( 
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4c-5.0.2-ysbl-2.tar.gz | tar xf -
     cd libccp4c-5.0.2-ysbl-2
-    # apply the ccp4 new files
-    gzip -dc ${AUTOBUILD_SOURCES}/ccp4-libs-underlay.tar.gz | tar xf -
-    cp src/*.[ch] .
+    # apply the ccp4 new files (underlay-2 is needed for clipper-2.1-2011* or later)
+    gzip -dc ${AUTOBUILD_SOURCES}/ccp4-libs-underlay-2.tar.gz | tar xf -
+    # cp src/*.[ch] .
     gzip -dc ${AUTOBUILD_SOURCES}/martyn-extras.tar.gz | tar xf -
     ./configure $generic_prefix
     $MAKE
@@ -2262,12 +2264,22 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1-100511-ac
     clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
+
+    # 20110921 hack in a temporary solution, while Kevin's new clipper
+    # is not available yet from his site.
+    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-2.1-110915-fixup.tar.gz
+
     if [ "$need_clipper_contrib_patch" = true ] ; then
        ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
     fi
     (
-    echo Unzipping ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz 
-    gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
+    
+    # temporary hack:
+    #    echo Unzipping ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz 
+    #    gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
+    #
+    gzip -dc ${AUTOBUILD_SOURCES}/clipper-2.1-110915-fixup.tar.gz | tar xf -
+
     cd clipper-$clipper_dir_version
     pwd
     date
@@ -2289,8 +2301,9 @@ if test -n "$build_clipper" ; then
 	--enable-ccp4    \
 	--enable-minimol \
 	--enable-cns     \
-       CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la \
        CXXFLAGS="-g -O2 -fno-strict-aliasing"
+    # 20110921 I don't think we need these flags any longer
+    #        CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la
     # we don't want to make the clipper executables, so let's cd in to the clipper libs and 
     # make (just) those.
     $MAKE
