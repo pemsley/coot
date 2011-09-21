@@ -32,6 +32,7 @@
 #endif
 
 #include <stdexcept>
+#include <algorithm>
 #include <string.h>  // strncpy
 
 

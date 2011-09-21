@@ -23,6 +23,7 @@
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include <algorithm>
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 #if !defined _MSC_VER
