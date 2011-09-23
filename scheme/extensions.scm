@@ -948,9 +948,9 @@
 	;;
 	;; 20110921 too crashy at the moment (something to do with lots of threads?)
 	;; 
-; 	(add-simple-coot-menu-menuitem
-; 	 menu "PDBe recent structures"
-; 	 pdbe-latest-releases-gui)
+	(add-simple-coot-menu-menuitem
+	 menu "PDBe recent structures"
+	 pdbe-latest-releases-gui)
 
 
 	;; ---------------------------------------------------------------------

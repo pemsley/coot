@@ -19,10 +19,99 @@
 ;; (load "json-reader.scm") ;; loaded by coot.scm
 
 (use-modules (json reader)
-	     (ice-9 format))
+	     (ice-9 format)
+	     (ice-9 q))
+
 
 (define *coot-pdbe-image-cache-dir* "coot-pdbe-images") ;; can be shared (dir should
                                                         ;; be writable by sharers).
+
+(define coot-thread-dispatcher 
+  (let* ((q-locked #f)
+	 (q (make-q))
+	 (n-threads 0)
+	 (n-threads-locked #f)
+	 (get-q-lock (lambda () 
+		       (while q-locked (begin 
+					 (usleep (random 200)))) 
+		       (set! q-locked #t)))
+	 (release-q-lock (lambda () (set! q-locked #f)))
+	 (get-n-threads-lock (lambda () 
+			       (while n-threads-locked 
+				      (begin 
+					(usleep (random 200))))
+			       (set! n-threads-locked #t)))
+	 (release-n-threads-lock (lambda () (set! n-threads-locked #f)))
+	 (in-queue? (lambda (file-name)
+		      (if (q-empty? q)
+			  (begin 
+			    #f)
+
+			  (let loop ((i 0)
+				     (n (q-length q)))
+			    (if (= i n) 
+				(begin
+				  #f) ;; got to end without finding string
+				 
+				(begin
+				  (let* ((pv (car q))
+					 (v (list-ref pv i)))
+				    (if (string=? (car v) file-name)
+					(begin 
+					  #t)
+					(begin
+					  (loop (+ i 1) n))))))))))
+		    
+	 (timeout 
+	  ;; pull off items from the queue and run them
+	  ;; 
+	  (gtk-timeout-add 400
+			   (lambda ()
+			     (if (= (q-length q) 0)
+				 (begin
+				   ;; (format #t "nothing in queue\n")
+				   #t ;; nothing in queue
+				   )
+				 (begin
+				   
+				   (while (and (< n-threads 100) 
+					       (not (= (q-length q) 0)))
+					  
+					  (begin
+					    (get-q-lock)
+					    (let ((q-image-name-and-func (q-pop! q))) ;; changes q
+					      (release-q-lock)
+					      
+					      (let ((my-func
+						     (lambda ()
+						       (get-n-threads-lock)
+						       (set! n-threads (+ n-threads 1))
+						       (release-n-threads-lock)
+						       ((cdr q-image-name-and-func))
+						       (get-n-threads-lock)
+						       (set! n-threads (- n-threads 1))
+						       (release-n-threads-lock)
+						       #t)))
+						(call-with-new-thread my-func)))))))
+			     #t)))) ;; lots of threads already, pass for this round.
+
+    (lambda (image-name func)
+      ;; add the func to the queue
+
+      (let ((queue-status (in-queue? image-name)))
+	(if (not queue-status)
+	    (begin 
+	      ;; (format #t ":::::::: ~s was not in queue already, adding it~%" image-name)
+	      (get-q-lock)
+	      (q-push! q (cons image-name func))
+	      (release-q-lock)
+	      'dummy)
+	    (begin 
+	      ;; (format #t ":::::::: ~s WAS in queue already, skipping...~%" image-name)
+	      'previous-thread-getting ;; let caller know that a thread to get this image is in the queue
+	      ))))))
+
+	         
 
 ;;; 
 (define (get-recent-json file-name)
@@ -122,6 +211,16 @@
 ;; This is a generally useful function, so it has been promoted outside of dig-table.
 ;; 
 (define (cache-or-net-get-image image-url image-name func)
+
+  (define show-image-when-ready
+    (lambda ()
+      (if (file-exists? image-name)
+	  (begin
+	    (func)
+	    #f)
+	  (begin 
+	    #t))))
+
   
   (let ((curl-status 'start)
 	(part-image-name (string-append image-name ".part")))
@@ -140,49 +239,54 @@
 		;; progress is non-empty then some other thread got
 		;; there first).
 		;; 
-		(if (not (eq? (curl-progress-info part-image-name) #f))
+		(let ((image-curl-progress-info (curl-progress-info part-image-name)))
 
-		    ;; some other thread got there first.  Let's wait
-		    ;; for that to put the image in place.
-		    (begin
-		      (gtk-timeout-add 600
-				       (lambda ()
-					 (if (file-exists? image-name)
-					     (begin
-					       (func)
-					       #f)
-					     (begin 
-					       #t))))) ;; continue
-		    
-		    ;; OK, this thread should get the image.
-		    (begin
-		      ;; (format #t "let's get it ~s ~s ~s~%" image-url image-name func)
-		      (call-with-new-thread
-		       (lambda ()
-			 (let* ((status (coot-get-url-and-activate-curl-hook 
-					 image-url part-image-name 1)))
-			   (if (not (= status 0))
-			       (begin
-				 ;; (format #t "DEBUG:: curl status getting ~s is ~s~%" image-name status)
-				 (set! curl-status 'fail))
-			       (begin
-				 ;; (format #t "DEBUG:: HAPPY curl status getting ~s is ~s~%" image-name status)
-				 (if (file-exists? part-image-name)
-				     (rename-file part-image-name image-name))
-				 (set! curl-status func))))))
-		    
-		      (gtk-timeout-add 600
-				       (lambda ()
-					 (cond 
-					  ((procedure? curl-status)
-					   (curl-status)
-					   #f)
-					  ((eq? curl-status 'fail)
-					   #f) ; stop
-					  (else 
-					   #t ;; continue
-					   ))))))))))
+		  (if (not (eq? image-curl-progress-info #f))
 
+		      ;; some other thread got there first.  Let's wait
+		      ;; for that to put the image in place.
+		      (begin
+			(format #t "----------------- another thread already getting ~s~%" image-name)
+			(gtk-timeout-add 600 show-image-when-ready))
+
+		      ;; OK, this thread should get the image.
+		      (begin
+			;; (format #t "dispatch::: let's queue thread to get ~s ~s~%" image-url image-name)
+			(let ((prev-thread-getting-status 
+			       (coot-thread-dispatcher 
+				part-image-name
+				(lambda ()
+				  (let* ((status (coot-get-url-and-activate-curl-hook 
+						  image-url part-image-name 1)))
+				    (if (not (= status 0))
+					(begin
+					  ;; (format #t "DEBUG:: curl status getting ~s is ~s~%" image-name status)
+					  (set! curl-status 'fail))
+					(begin
+					  ;; (format #t "DEBUG:: HAPPY curl status getting ~s is ~s~%" image-name status)
+					  (if (not (file-exists? image-name))
+					      (if (file-exists? part-image-name)
+						  (rename-file part-image-name image-name)))
+					  (set! curl-status func))))))))
+
+			  
+			  (if (eq? prev-thread-getting-status 'previous-thread-getting)
+
+			      ;; wait for other thread to get it
+			      (gtk-timeout-add 600 show-image-when-ready)
+
+			      ;; wait for this thread to get it
+			      (gtk-timeout-add 600
+					       (lambda ()
+						 (cond 
+						  ((procedure? curl-status)
+						   (curl-status)
+						   #f)
+						  ((eq? curl-status 'fail)
+						   #f) ; stop
+						  (else 
+						   #t ;; continue
+						   )))))))))))))
 
 
 ;; return refmac-result or #f 
@@ -676,7 +780,8 @@
 				   ))))
 
 	      
-	      (call-with-new-thread
+	      (coot-thread-dispatcher
+	       pdb-file-name
 	       (lambda ()
 
 		 ;; Get the PDB file if we don't have it already.
@@ -695,7 +800,6 @@
 				 ;; an NMR structure
 				 ;; 
 				 (begin
-				   (format #t "Debug:: NMR path~%")
 				   (set! curl-status 
 					 (lambda () (read-pdb pdb-file-name)))))))))
 
@@ -801,7 +905,7 @@
 				     #f)))))
 		     ligand-ht-list))))
 
-  ;; the idea here is that we have a list of ligand tlcs.  From that,
+  ;; The idea here is that we have a list of ligand tlcs.  From that,
   ;; we make a function, which, when passed a button-hbox (you can put
   ;; things into a button) will download images from pdbe and add them
   ;; to the button.  We download the images in the background
@@ -812,6 +916,8 @@
   ;; a timeout function watches the value of the status and when it is
   ;; a function, it runs it.  (The function puts the image in the
   ;; button-hbox.)
+  ;; 
+  ;; Also we construct the url of a ribbon picture give the entry id
   ;; 
   (define (make-active-ligand-button-func entry-id ligand-tlc-list)
 
@@ -900,12 +1006,15 @@
 
 	  (if (string=? method-label "x-ray diffraction")
 	      (list label
-		    (lambda () (pdbe-get-pdb-and-sfs-cif 'include-sfs entry-id method-label))
+		    (lambda () 
+		      (pdbe-get-pdb-and-sfs-cif 'include-sfs entry-id method-label))
 		    (make-active-ligand-button-func entry-id ligand-tlc-list))
 		    
 	      ;; I am not interested in the ligands in NMR structures.  (Not yet).
 	      (list label
-		    (lambda () (pdbe-get-pdb-and-sfs-cif 'no-sfs      entry-id method-label))))))))
+		    (lambda () 
+		      (pdbe-get-pdb-and-sfs-cif 'no-sfs      entry-id method-label))
+		    (make-active-ligand-button-func entry-id ligand-tlc-list)))))))
 		    
     
        
@@ -1022,11 +1131,11 @@
 
 
 
-; ;; put this on a menu item
-; ;; 
-; (if (defined? 'coot-main-menubar)
-;     (let ((menu (coot-menubar-menu "PDB")))
-;       (add-simple-coot-menu-menuitem 
-;        menu
-;        "Latest Releases" pdbe-latest-releases-gui)))
-				  
+;; put this on a menu item
+; 
+(if (defined? 'coot-main-menubar)
+    (let ((menu (coot-menubar-menu "PDB")))
+      (add-simple-coot-menu-menuitem 
+       menu
+       "Latest Releases" pdbe-latest-releases-gui)))
+
