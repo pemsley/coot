@@ -329,7 +329,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         v2 = add_terminal_residue_using_phi_psi(imol, "A", 276, "ALA", -60, -60)
         self.failUnlessEqual(v2, 1)
         v3 = add_terminal_residue_using_phi_psi(imol, "XX", 276, "ALA", -60, -60)
-        self.failUnlessEqual(v2, 0)
+        self.failUnlessEqual(v3, 0)
         
 
     def test12_0(self):
