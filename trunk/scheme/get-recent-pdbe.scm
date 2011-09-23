@@ -466,6 +466,8 @@
 						 sfs-mtz-file-name
 						 refmac-out-mtz-file-name)))
 
+		  (format #t "      refmac-result: ~s\n" refmac-result)
+
 ;		  ;; if refmac-result is good?
 		  (if (not (list? refmac-result))
 
@@ -709,8 +711,8 @@
 					 (let ((n-lines-rest (- n-lines 100)))
 					   (if (> n-lines-rest 0)
 					       (let ((f (/ n-lines-rest max-lines)))
-						 (format #t "refmac progress bar update to ~s/~s = ~s~%"
-							 n-lines-rest max-lines f)
+; 						 (format #t "refmac progress bar update to ~s/~s = ~s~%"
+; 							 n-lines-rest max-lines f)
 						 (if (< f 1)
 						     (gtk-progress-bar-update refmac-progress-bar f))))))))
 				     
@@ -846,11 +848,13 @@
 	  (string-append "\n     " name)
 	  (string-append "\n     " (substring name 0 60) "..."))))
 
+  ;; as above but now preceeding newline and tab
+  ;; 
   (define (truncate-name name)
     (let ((sl (string-length name)))
-      (if (< sl 60)
+      (if (< sl 70)
 	  name
-	  (substring name 0 60))))
+	  (string-append (substring name 0 70) "..."))))
 
   ;; 
   ;; 
@@ -861,6 +865,7 @@
 	(let ((ligand-string-list
 	       (map (lambda(lht)
 		      (let ((name (hash-ref lht "Name"))
+			    (code (hash-ref lht "Code"))
 			    (n-atoms (hash-ref lht "NumberOfAtoms")))
 
 			(if (not (string? name))
@@ -873,7 +878,10 @@
 				(begin
 				  (if (> n-atoms n-atoms-limit-small-ligands)
 				      (begin
-					(pad-and-truncate-name name))
+					(if (string? code)
+					    (let ((code+name (string-append code ": " name)))
+					      (pad-and-truncate-name code+name))
+					    (pad-and-truncate-name name)))
 				      (begin
 					""))))))) ;; too small to be interesting
 			   ligand-ht-list)))
