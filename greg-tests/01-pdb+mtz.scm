@@ -2014,6 +2014,28 @@
 		))))))))
 
 
+
+
+(greg-testcase "renumbered residues should be in seqnum order" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+       (renumber-residue-range imol "A" 10 20 100)
+       (let ((iser (seqnum-from-serial-number imol "A" 90)))
+	 (if (not (= iser 118)) 
+	     (throw 'fail))))
+
+     ;; and again this time adding residue to the front of the molecule
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+       (renumber-residue-range imol "A" 10 20 -100)
+       (let ((iser (seqnum-from-serial-number imol "A" 0)))
+	 (if (not (= iser -90))
+	     (throw 'fail))))
+
+     #t))
+
+
+
 ;; 
 (greg-testcase "Autofit Rotamer on Residues with Insertion codes" #t 
    (lambda ()
