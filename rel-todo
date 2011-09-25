@@ -9,11 +9,6 @@
 
   * CCP4-based integrated path for FLEV ::: 6
 
-  * Recent structures browser ::: 8
-
-  * rework build script with guile-gnome dependencies (can of worms?)
-    ::: 8
-
   * Add nucleotide to 3' end - Sabine Schneider.  Check Kevin's fix -
     needs test ::: 1
 
@@ -36,6 +31,10 @@
   * Load ASN from SBASE using Lidia menu.  Molecule has thick bonds to
     hydrogens. ::: 1
 
+  * Fix splash screen per SS message.  Fix symmetry file names too ::: 2
+
+  * Fix crash Jim Branigan message ::: 4
+
 ------
 
   * "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
@@ -43,4 +42,6 @@
   * Fix TER records on mutating a base [James Parker] ::: 2
 
   * DNA in sequence view [Miguel Ortiz Lombardia] ::: 1
+
+  * Recent structures browser (scheme version) ::: 8
 
