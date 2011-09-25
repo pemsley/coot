@@ -1123,6 +1123,10 @@ namespace coot {
 						 const std::string &altconf,
 						 bool whole_residue_flag,
 						 bool attach_to_new_chain_flag);
+
+      // This doesn't add the new (returned) residue to the chain of
+      // passed residue.  Simple copy of residue and atoms.
+      //
       CResidue *deep_copy_this_residue(CResidue *residue);
       
 
