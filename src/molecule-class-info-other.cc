@@ -4988,8 +4988,22 @@ int
 molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 					      int start_resno, int last_resno, int offset) {
 
-   int i = 0;
+   std::cout << "debug:: renumber_residue_range() with " << chain_id << " " << start_resno
+	     << " " << last_resno << " offset: " << offset << std::endl;
 
+   int status = 0;
+
+   // PDBCleanup(PDBCLEAN_SERIAL) doesn't move the residue to
+   // the end of the chain when we change the seqNum. Boo.
+   // So, let's make a vector of residues that we will add
+   // (insert) after the original residues have been deleted.
+   // 
+   std::vector<CResidue *> renumbered_residues;
+   // std::vector<std::pair<CChain *, int> > residues_to_be_deleted;
+   std::vector<CResidue *> residues_to_be_deleted;
+   CChain *chain_p_active = NULL; // the renumbered residues are in this chain
+	    
+	    
    if (start_resno > last_resno) {
       int tmp = start_resno;
       start_resno = last_resno;
@@ -5004,7 +5018,8 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 	 chain_p = model_p->GetChain(i_chain);
 	 std::string mol_chain(chain_p->GetChainID());
 	 if (mol_chain == chain_id) {
-	    // std::cout << "DEBUG:: Found chain_id " << chain_id << std::endl;
+
+	    chain_p_active = chain_p;
 	    make_backup();
 	    int nres = chain_p->GetNumberOfResidues();
 	    CResidue *residue_p;
@@ -5012,20 +5027,78 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 	       residue_p = chain_p->GetResidue(ires);
 	       if (residue_p->seqNum >= start_resno) {
 		  if (residue_p->seqNum <= last_resno) {
-		     residue_p->seqNum += offset;
-		     i = 1; // found one residue at least.
+
+		     CResidue *residue_copy = coot::util::deep_copy_this_residue(residue_p);
+		     renumbered_residues.push_back(residue_copy);
+		     residues_to_be_deleted.push_back(residue_p);
+		     
+		     residue_copy->seqNum += offset;
+		     status = 1; // found one residue at least.
+		     
 		  }
 	       }
 	    }
 	 }
       }
    }
-   if (i) {
+   if (status) {
       have_unsaved_changes_flag = 1;
+
+      for (unsigned int ires=0; ires<residues_to_be_deleted.size(); ires++) { 
+	 delete residues_to_be_deleted[ires];
+	 residues_to_be_deleted[ires] = NULL;
+      }
+
+      for (unsigned int ires=0; ires<renumbered_residues.size(); ires++) {
+
+	 int rr_seq_num = renumbered_residues[ires]->GetSeqNum();
+	 std::string rr_ins_code = renumbered_residues[ires]->GetInsCode();
+	 
+	 CResidue *res_p = renumbered_residues[ires]; // short-hand
+	 
+	 // What is the current serial number of the residue that
+	 // should be immediately after residue to be inserted?
+	 int iser = -1; // unset
+
+	 int chain_n_residues = chain_p_active->GetNumberOfResidues();
+	 for (unsigned int ichres=0; ichres<chain_n_residues; ichres++) {
+	    CResidue *ch_res = chain_p_active->GetResidue(ichres);
+	    int ch_res_seq_num = ch_res->GetSeqNum();
+	    std::string ch_res_ins_code = ch_res->GetInsCode();
+	    if (ch_res_seq_num == rr_seq_num) {
+	       if (ch_res_ins_code > rr_ins_code) {
+		  iser = ichres;
+		  break;
+	       } 
+	    } 
+	    if (ch_res_seq_num > rr_seq_num) {
+	       iser = ichres;
+	       break;
+	    }
+	 }
+
+	 std::cout << "iser: " << iser << " for new residue seqnum " << rr_seq_num << std::endl;
+
+	 // now use iser if it was set.
+	 if (iser >= 0) {
+	    chain_p_active->InsResidue(res_p, iser);
+	 } else {
+	    // there was no residue that was that should be
+	    // immediately after the residue to be inserted.
+	    // Therefore, insert the residue at the end -
+	    // i.e. AddResidue.
+	    std::cout << "Adding Residue to active chain " << std::endl;
+	    chain_p_active->AddResidue(res_p);
+	 } 
+      }      
+      
+      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL);
+      atom_sel.mol->FinishStructEdit();
+      update_molecule_after_additions();
       // need to redraw the bonds:
       make_bonds_type_checked();
    } 
-   return i;
+   return status;
 }
 
 int

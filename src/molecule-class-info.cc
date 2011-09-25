@@ -471,6 +471,7 @@ molecule_class_info_t::install_model(int imol_no_in,
    }
    set_have_unit_cell_flag_maybe();
    
+   // make_bonds_type_checked();
    makebonds();
    if (g.show_symmetry == 1)
       if (show_symmetry) 
