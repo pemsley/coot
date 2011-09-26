@@ -1,35 +1,28 @@
-
+ 
  0.7
 
 ----
 
-  * Make ligands work ::: 20
+  o consider adding displayed geometry -> Distances to session file.
 
-  * Don't drag last-placed bond after button-up in lbg ::: 1
+  o Don't drag last-placed bond after button-up in lbg ::: 1
 
-  * CCP4-based integrated path for FLEV ::: 6
+  o CCP4-based integrated path for FLEV ::: 6
 
-  * Add nucleotide to 3' end - Sabine Schneider.  Check Kevin's fix -
+  o Make ligands work ::: 20
+
+  o Is PISA in 6.2 up to date enough to enable the menu in Coot? ::: 0.5
+
+  o Add nucleotide to 3' end - Sabine Schneider.  Check Kevin's fix -
     needs test ::: 1
 
-  * Fix lighting for solid env distances ::: 1
+  o Fix lighting for solid env distances ::: 1
 
-  * Fix lighting for solid generic objects ::: 1
+  o Fix lighting for solid generic objects ::: 1
 
-  * Is pisa in 6.2 up to date enough to enable the menu in Coot? ::: 0.5
+  o in 3s4w the Bonding in CA mode is wrong at residue 411.   ::: 1
 
-  * in 3s4w the Bonding in CA mode is wrong at residue 411.   ::: 1
-
-  * Fix renumbering problem [John Berrisford] ::: 2
-
-  * consider adding displayed geometry -> Distances to session file.
-
-  * Other DNA problem: mutation/adding Ts to DNA? ::: 2
-
-  * Picking atoms in Jones mode needs to pick only CAs.
-
-  * Load ASN from SBASE using Lidia menu.  Molecule has thick bonds to
-    hydrogens. ::: 1
+  o Picking atoms in Jones mode needs to pick only CAs. ::: 2
 
   * Fix splash screen per SS message.  Fix symmetry file names too ::: 2
 
@@ -37,11 +30,31 @@
 
 ------
 
-  * "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
+  o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
 
-  * Fix TER records on mutating a base [James Parker] ::: 2
+* Done
 
-  * DNA in sequence view [Miguel Ortiz Lombardia] ::: 1
+  o Fix TER records on mutating a base [James Parker] ::: 2
 
-  * Recent structures browser (scheme version) ::: 8
+* Done.
 
+  o DNA in sequence view [Miguel Ortiz Lombardia] ::: 1
+
+* Done
+
+  o Other DNA problem: mutation/adding Ts to DNA? ::: 2
+
+* Not as far as I can see - get Miguel to use the new version. Done.
+
+  o Recent structures browser (scheme version) ::: 8
+
+* Done.
+
+  o Load ASN from SBASE using Lidia menu.  Molecule has thick bonds to
+    hydrogens. ::: 0.5
+
+* Fixed now that SBASE residues are hetgroups, I think.
+
+  o Fix renumbering problem [John Berrisford] ::: 2
+
+* Done.
