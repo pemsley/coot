@@ -70,6 +70,7 @@ coot::protein_geometry::get_sbase_residue(const std::string &res_name) const {
 	       new_atom->SetCoordinates(at->x, at->y, at->z, 1.0, 30.0);
 	       new_atom->SetAtomName(new_atom_name.c_str());
 	       new_atom->SetElementName(at->element);
+	       new_atom->Het = true; 
 	       residue_p->AddAtom(new_atom);
 	    } else {
 	       std::cout << "WARNING:: rejecting " << res_name << " SBase atom :" << new_atom_name
