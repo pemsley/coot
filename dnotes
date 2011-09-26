@@ -6133,10 +6133,15 @@ Fri Aug 12 12:29:03 BST 2011
 
    Parse this:
    http://www.ebi.ac.uk/pdbe/searchResults.html?display=latest&tab=pdb
+   http://www.ebi.ac.uk/pdbe/searchResults.html?display=latest&tab=pdb
+
+   Or this, perhaps better: The rss feed:
+   http://www.ebi.ac.uk/pdbe/pdblatest/latest_pdb.xml
 
    Then get:
    http://www.ebi.ac.uk/pdbe-srv/view/files/$code.ent
    http://www.ebi.ac.uk/pdbe-srv/view/files/r{$code}sf.ent
+
 
    Then cif_to_mtz 
 
@@ -6162,6 +6167,34 @@ guile> (dbi-query db-obj "select * from numbers")
 guile> db-obj
 
 
+
+----
+Wed Aug 17 16:05:36 CEST 2011
+
+    C-c to copy residue 
+
+    Shift C-c to copy a molecule
+
+    C-v to paste residue/molecule to new molecule
+
+    C-x to delete residue
+   
+    Shift C-x to delete (undisplay) molecule.
+
+
+----
+
+  learnable (discoverable),
+  usable, 
+  forgiving (undo), 
+  repsonsive (feedback), 
+  asthetics (pretty)
+
+
+---
+Thu Aug 18 16:25:07 CEST 2011
+
+
+   3pcq for FEL data (photosystem I)
+
 ------
-
-
