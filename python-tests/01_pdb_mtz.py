@@ -1605,6 +1605,23 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnless(all(map(lambda res: compare_res_spec(res), ls)))
 
 
+    def test42_1(self):
+        """Renumber residues should be in seqnum order"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        self.failUnless(valid_model_molecule_qm(imol),
+                        " ERROR:: tutorial-modern.pdb not found")
+        renumber_residue_range(imol, "A", 10, 20, 100)
+        iser = seqnum_from_serial_number(imol, "A", 90)
+        self.failUnlessEqual(iser, 118)
+
+        # and again this time adding residue to the front of the molecule
+        imol = unittest_pdb("tutorial-modern.pdb")
+        renumber_residue_range(imol, "A", 10, 20, -100)
+        iser = seqnum_from_serial_number(imol, "A", 0)
+        self.failUnlessEqual(iser, -90)
+        
+        
     def test43_0(self):
         """Autofit Rotamer on Residue with Insertion codes"""
 

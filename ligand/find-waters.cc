@@ -24,8 +24,6 @@
 #include <unistd.h> // for getopt(3)
 #endif
 
-#include <stdlib.h>
-
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -37,6 +35,8 @@
 #include "coot-getopt.h"
 #undef __GNU_LIBRARY__
 #endif
+
+#include <stdlib.h>
 
 #include "mmdb-extras.h"
 #include "mmdb.h"
