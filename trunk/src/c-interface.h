@@ -4359,6 +4359,9 @@ void set_bond_thickness(int imol, float t);
 void set_bond_thickness_intermediate_atoms(float t);
 void set_unbonded_atom_star_size(float f);
 
+/*! \brief set the default represenation type (deafult 1).*/
+void set_default_representation_type(int type);
+
 /*! \brief get the default thickness for bonds*/
 int get_default_bond_thickness();
 

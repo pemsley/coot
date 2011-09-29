@@ -693,6 +693,7 @@ int graphics_info_t::imol_refinement_map = -1; // magic initial value
 graphical_bonds_container graphics_info_t::regularize_object_bonds_box;
 graphical_bonds_container graphics_info_t::environment_object_bonds_box;
 graphical_bonds_container graphics_info_t::symmetry_environment_object_bonds_box;
+int graphics_info_t::default_bonds_box_type = coot::NORMAL_BONDS; // Phil wants to change this.
 int graphics_info_t::mol_no_for_environment_distances = -1;
 
 int   graphics_info_t::bond_parameters_molecule = -1; // unset

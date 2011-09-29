@@ -1149,7 +1149,8 @@ public:        //                      public
 				 short int recentre_rotation_centre,
 				 short int is_undo_or_redo,
 				 bool convert_to_v2_atom_names_flag,
-				 float bond_width_in);
+				 float bond_width_in,
+				 int bonds_box_type);
 
    void      label_symm_atom(int i, symm_trans_t symm_trans);
    void test_label_symm_atom(int i);
@@ -2052,13 +2053,19 @@ public:        //                      public
    int intelligent_next_atom(const std::string &chain,
 			     int resno,
 			     const std::string &atom_name,
-			     const std::string &ins_code);
+			     const std::string &ins_code,
+			     const coot::Cartesian &rc);
    int intelligent_previous_atom(const std::string &chain,
 				 int resno,
 				 const std::string &atom_name,
-				 const std::string &ins_code);
+				 const std::string &ins_code,
+				 const coot::Cartesian &rc);
+   CResidue *next_residue_missing_residue(const coot::residue_spec_t &spec) const; 
    CAtom *atom_intelligent(const std::string &chain_id, int resno,
 			   const std::string &ins_code) const;
+
+   // is point close (< 1A) to any atom in the given residue?
+   bool close_to_residue(CResidue *residue_p, coot::Cartesian point) const;
 
    // If there is a CA in this residue then return the index of that
    // atom, if not, then return the index of the first atom in the

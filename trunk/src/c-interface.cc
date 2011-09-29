@@ -491,11 +491,12 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 // 		<< imol << std::endl;
 //       std::cout << " DEBUG:: created placeholder molecule number " << imol << std::endl;
       float bw = graphics_info_t::default_bond_width;
+      int bonds_box_type = graphics_info_t::default_bonds_box_type;
       istat = g.molecules[imol].handle_read_draw_molecule(imol, f,
 							  coot::util::current_working_dir(),
 							  recentre_on_read_pdb_flag, 0,
 							  g.convert_to_v2_atom_names_flag,
-							  bw);
+							  bw, bonds_box_type);
 
       if (istat == 1) {
 	 std::cout << "Molecule " << imol << " read successfully\n";
@@ -3061,7 +3062,14 @@ void set_default_bond_thickness(int t) {
    graphics_info_t g;
    g.default_bond_width = t;
 
+}
+
+/*! \brief set the default represenation type (deafult 1).*/
+void set_default_representation_type(int type) {
+   graphics_info_t g;
+   g.default_bonds_box_type = type;
 } 
+
 
 void set_bond_thickness(int imol, float t) {
 

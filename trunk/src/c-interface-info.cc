@@ -1276,9 +1276,11 @@ SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code,
    int imol = go_to_atom_molecule_number();
    if (is_valid_model_molecule(imol)) { 
 
+      graphics_info_t g;
+      coot::Cartesian rc = g.RotationCentre();
       int atom_index =
 	 graphics_info_t::molecules[imol].intelligent_next_atom(chain_id, resno,
-								atom_name, ins_code);
+								atom_name, ins_code, rc);
 
       if (atom_index != -1) {
 	 CAtom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
@@ -1307,9 +1309,11 @@ SCM goto_prev_atom_maybe(const char *chain_id, int resno, const char *ins_code,
    int imol = go_to_atom_molecule_number();
    if (is_valid_model_molecule(imol)) { 
 
+      graphics_info_t g;
+      coot::Cartesian rc = g.RotationCentre();
       int atom_index =
 	 graphics_info_t::molecules[imol].intelligent_previous_atom(chain_id, resno,
-								    atom_name, ins_code);
+								    atom_name, ins_code, rc);
 
       if (atom_index != -1) {
 	 CAtom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
@@ -1342,10 +1346,11 @@ PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *i
    int imol = go_to_atom_molecule_number();
    if (is_valid_model_molecule(imol)) { 
 
+      graphics_info_t g;
+      coot::Cartesian rc = g.RotationCentre();
       int atom_index =
-	 graphics_info_t::molecules[imol].intelligent_next_atom(chain_id, resno,
-								atom_name, ins_code);
-
+	 graphics_info_t::molecules[imol].intelligent_previous_atom(chain_id, resno,
+								    atom_name, ins_code, rc);
       if (atom_index != -1) {
 	 CAtom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
 
@@ -1376,9 +1381,11 @@ PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *i
    int imol = go_to_atom_molecule_number();
    if (is_valid_model_molecule(imol)) { 
 
+      graphics_info_t g;
+      coot::Cartesian rc = g.RotationCentre();
       int atom_index =
 	 graphics_info_t::molecules[imol].intelligent_previous_atom(chain_id, resno,
-								    atom_name, ins_code);
+								    atom_name, ins_code, rc);
 
       if (atom_index != -1) {
 	 CAtom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
