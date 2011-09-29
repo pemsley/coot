@@ -2097,6 +2097,53 @@ void set_show_environment_distances_as_solid(int state) {
 } 
 
 
+void add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2) {
+
+   graphics_info_t g;
+   g.display_geometry_distance_symm(imol_1, coot::Cartesian(x_1, y_1, z_1),
+				    imol_2, coot::Cartesian(x_2, y_2, z_2));
+
+} 
+
+#ifdef USE_GUILE
+void add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2) {
+
+   if (is_valid_model_molecule(imol_1)) {
+      if (is_valid_model_molecule(imol_2)) {
+	 
+	 graphics_info_t g;
+	 coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(atom_spec_1);
+	 coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(atom_spec_2);
+	 CAtom *at_1 = graphics_info_t::molecules[imol_1].get_atom(spec_1);
+	 CAtom *at_2 = graphics_info_t::molecules[imol_2].get_atom(spec_2);
+	 coot::Cartesian pos_1(at_1->x, at_1->y, at_1->z);
+	 coot::Cartesian pos_2(at_2->x, at_2->y, at_2->z);
+	 g.display_geometry_distance_symm(imol_1, pos_1, imol_2, pos_2);
+      }
+   }
+} 
+#endif
+
+#ifdef USE_PYTHON
+void add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol_2, PyObject *atom_spec_2) {
+
+   if (is_valid_model_molecule(imol_1)) {
+      if (is_valid_model_molecule(imol_2)) {
+	 
+	 graphics_info_t g;
+	 coot::atom_spec_t spec_1 = atom_spec_from_python_expression(atom_spec_1);
+	 coot::atom_spec_t spec_2 = atom_spec_from_python_expression(atom_spec_2);
+	 CAtom *at_1 = graphics_info_t::molecules[imol_1].get_atom(spec_1);
+	 CAtom *at_2 = graphics_info_t::molecules[imol_2].get_atom(spec_2);
+	 coot::Cartesian pos_1(at_1->x, at_1->y, at_1->z);
+	 coot::Cartesian pos_2(at_2->x, at_2->y, at_2->z);
+	 g.display_geometry_distance_symm(imol_1, pos_1, imol_2, pos_2);
+      }
+   }
+} 
+#endif
+
+
 
 
 void set_show_pointer_distances(int istate) {
