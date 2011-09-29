@@ -291,6 +291,25 @@ coot::util::remove_whitespace(const std::string &s) {
    return r;
 }
 
+// "ALA X  " -> "ALA X";
+std::string
+coot::util::remove_trailing_whitespace(const std::string &s) {
+
+   int sl = s.length();
+   int cutpoint = 0;
+   if (sl > 0) {
+      for (int i=sl-1; i>=0; i--) {
+	 if (s[i] != '\n' && s[i] != '\t' && s[i] != ' ') {
+	    return s.substr(0,i+1);
+	 } 
+      }
+      return ""; // got to the end of a string of whitespaces
+   } else {
+      return ""; // input was empty string.
+   } 
+} 
+
+
 
 
 std::string

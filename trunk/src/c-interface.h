@@ -3151,12 +3151,20 @@ int import_python_module(const char *module_name, int use_namespace);
   given string is a substring of the compound name */
 SCM matching_compound_names_from_dictionary_scm(const char *compound_name_fragment,
 						short int allow_minimal_descriptions_flag);
+/*! \brief return the monomer name
+
+  return scheme false if not found */
+SCM comp_id_to_name_scm(const char *comp_id);
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
 /*! \brief return a list of compoundIDs in the dictionary which the
   given string is a substring of the compound name */
 PyObject *matching_compound_names_from_dictionary_py(const char *compound_name_fragment,
 						     short int allow_minimal_descriptions_flag);
+/*! \brief return the monomer name
+
+  return python false if not found */
+PyObject *comp_id_to_name_py(const char *comp_id);
 #endif /* USE_PYTHON */
 #endif /*__cplusplus */
 

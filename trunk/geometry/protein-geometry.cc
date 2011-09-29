@@ -3735,6 +3735,26 @@ coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> res
 }
 
 
+// return a pair, the first is status (1 if the name was found, 0 if not)
+// 
+std::pair<bool, std::string>
+coot::protein_geometry::get_monomer_name(const std::string &comp_id) const {
+
+   std::pair<bool, std::string> r(0,"");
+
+   std::map<std::string,coot::dictionary_residue_restraints_t>::const_iterator it = 
+      simple_monomer_descriptions.find(comp_id);
+
+   if (it != simple_monomer_descriptions.end()) {
+      r.first = 1;
+      std::string s = it->second.residue_info.name;
+      r.second = coot::util::remove_trailing_whitespace(s);
+   } 
+
+   return r;
+} 
+
+
 
 
 // Try comparing vs the comp_id first, if that fails compare the

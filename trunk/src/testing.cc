@@ -199,6 +199,7 @@ int greg_internal_tests() {
    functions.push_back(named_func(test_translate_close_to_origin, "test symm trans to origin"));
    functions.push_back(named_func(test_lsq_plane, "test lsq plane"));
    functions.push_back(named_func(test_COO_mod, "test COO modification"));
+   functions.push_back(named_func(test_remove_whitespace, "remove whitespace"));
 
    // restore this at some stage
    // functions.push_back(named_func(test_copy_cell_symm_orig_scale_headers, "test copy cell, symm, orig, scale cards"));
@@ -281,7 +282,8 @@ int test_internal_single() {
       // status = test_residue_atom_renaming();
       // status = test_residue_atom_renaming();
       // status = test_mcd_and_thornton_h_bonds();
-      status = test_COO_mod();
+      // status = test_COO_mod();
+      status = test_remove_whitespace();
       
    }
    catch (std::runtime_error mess) {
@@ -2588,6 +2590,26 @@ int test_COO_mod() {
 
    }
    return status;
+}
+
+int test_remove_whitespace() {
+
+   std::string s = "";
+   if (coot::util::remove_trailing_whitespace(s) != "")
+      return 0;
+   s = "zz";
+   if (coot::util::remove_trailing_whitespace(s) != "zz")
+      return 0;
+   s = "  zz";
+   if (coot::util::remove_trailing_whitespace(s) != "  zz")
+      return 0;
+   s = "  zz x";
+   if (coot::util::remove_trailing_whitespace(s) != "zz x")
+      return 0;
+   s = "  zz  xx   ";
+   if (coot::util::remove_trailing_whitespace(s) != "  zz  xx")
+      return 0;
+   return 1;
 } 
 
 

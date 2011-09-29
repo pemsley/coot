@@ -64,6 +64,7 @@ namespace coot {
       std::string Upper(const std::string &s);
       std::string remove_leading_spaces(const std::string &s);
       std::string remove_whitespace(const std::string &s);
+      std::string remove_trailing_whitespace(const std::string &s); // "ALA X  " -> "ALA X";
       std::string int_to_string(int i);
       std::string long_int_to_string(long int i);
       std::string float_to_string(float f);

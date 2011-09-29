@@ -103,6 +103,7 @@
 (define get-lsq-matrix get-lsq-matrix-scm)
 (define list-nomenclature-errors list-nomenclature-errors-scm)
 (define matching-compound-names-from-dictionary matching-compound-names-from-dictionary-scm)
+(define comp-id->name comp-id-to-name-scm)
 
 ;; documented functions
 
