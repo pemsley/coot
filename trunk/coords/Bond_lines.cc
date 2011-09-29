@@ -803,6 +803,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 	       geom->get_monomer_restraints_at_least_minimal(res_name);
    	    // if (res_name != "HOH")
 	    // std::cout << "============== Considering bonding HET residue: " << res_name << " " << std::endl;
+
 	    if (! restraints.first) {
 	       std::cout << "Oooppps!  No bonding rules for residue type :" << res_name
 			 << ": missing bonds! " << std::endl;
