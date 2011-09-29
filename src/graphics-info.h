@@ -3579,6 +3579,7 @@ public:
 
    // -- default bond width
    static int default_bond_width;
+   static int default_bonds_box_type; // Phil want to configure this.
 
    // ---- default sigma level:
    static float default_sigma_level_for_map;

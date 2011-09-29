@@ -1864,8 +1864,6 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
 					     int clash_flag, float lowest_prob,
 					     const coot::protein_geometry &pg) {
 
-   std::cout << "-------- rotamer_search_mode is " << rotamer_search_mode
-	     << std::endl;
 
    // 20090714 We decide here if we go into auto_fit_best_rotamer
    // (conventional mode with rigid body fitting) or backrub rotamers
@@ -1940,17 +1938,19 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
    CResidue *res = get_residue(std::string(chain_id), resno, std::string(insertion_code));
 
    if (res) {
-      std::cout << " ==== fitting residue " << res->GetSeqNum() << res->GetInsCode()
-		<< " of chain " << chain_id;
-      if (have_map_flag)
-	 std::cout << " to map number " << imol_map << " ======" << std::endl;
-      else
-	 std::cout << " without a map =====" << std::endl;
+      if (0) { 
+	 std::cout << " ==== fitting residue " << res->GetSeqNum() << res->GetInsCode()
+		   << " of chain " << chain_id;
+	 if (have_map_flag)
+	    std::cout << " to map number " << imol_map << " ======" << std::endl;
+	 else
+	    std::cout << " without a map =====" << std::endl;
+      }
 
       if (coot::util::residue_has_hydrogens_p(res))
 	 clash_score_limit = 500; // be more generous... lots of hydrogen contacts
       
-      std::cout << "DEBUG:: found residue" << std::endl;
+      // std::cout << "DEBUG:: found residue" << std::endl;
       std::string res_type(res->name);
       CResidue *copied_res = coot::deep_copy_this_residue(res, altloc, 0,
 							  atom_sel.UDDAtomIndexHandle);
@@ -3374,7 +3374,7 @@ molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_fil
 			     reset_rotation_centre_flag,
 			     is_undo_or_redo,
 			     convert_flag,
-			     bond_width);
+			     bond_width, Bonds_box_type());
    save_state_command_strings_ = save_save_state;
    imol_no = save_imol; 
    name_ = save_name;

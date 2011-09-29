@@ -140,6 +140,8 @@
 
    o Use LSQ for NCS matrices - need to be user setable option.
 
+* Done.
+
    o Add the reading of a good map and a CNS map to tests.
 
    o Backrub-based auto-fit rotamer search.  Question: how do I test

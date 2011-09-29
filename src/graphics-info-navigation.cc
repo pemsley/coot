@@ -304,10 +304,11 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 
    } else {
 
+      coot::Cartesian rc = RotationCentre();
       if (direction == "next") {
-	 atom_index = molecules[imol].intelligent_next_atom(chain, resno, atom_name, ins_code);
+	 atom_index = molecules[imol].intelligent_next_atom(chain, resno, atom_name, ins_code, rc);
       } else { // "previous"
-	 atom_index = molecules[imol].intelligent_previous_atom(chain, resno, atom_name, ins_code);
+	 atom_index = molecules[imol].intelligent_previous_atom(chain, resno, atom_name, ins_code, rc);
       } 
 
       if (atom_index != -1) {
@@ -972,7 +973,15 @@ graphics_info_t::apply_go_to_residue_keyboading_string() {
 	    graphics_info_t::molecules[ii].update_clipper_skeleton(); 
 	 }
 	 graphics_draw();
-      } 
+	 g.set_go_to_atom_molecule(imol);
+	 g.set_go_to_atom_chain_residue_atom_name(new_centre_atom->GetChainID(),
+						  new_centre_atom->GetSeqNum(),
+						  new_centre_atom->GetAtomName());
+      } else {
+	 std::cout << "no new centre atom " << std::endl;
+      }
+   } else {
+      std::cout << "No active atom " << std::endl;
    } 
    
 } 

@@ -2131,9 +2131,10 @@ int test_previous_water() {
    mci.handle_read_draw_molecule(1,
 				 greg_test("pathological-water-test.pdb"),
 				 coot::util::current_working_dir(),
-				 0, 0, 1, 1);
+				 0, 0, 1, 1, coot::NORMAL_BONDS);
    mci.delete_atom("D", 162, "", " O  ", "");
-   int iprev = mci.intelligent_previous_atom("D", 162, " O  ", "");
+   coot::Cartesian rc(0,0,0); // hack?
+   int iprev = mci.intelligent_previous_atom("D", 162, " O  ", "", rc);
    CAtom *at = mci.atom_sel.atom_selection[iprev];
    std::cout << "previous atom: " << at << std::endl;
    if (std::string(at->GetChainID()) == "D")

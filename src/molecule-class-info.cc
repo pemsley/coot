@@ -105,14 +105,17 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 						 short int reset_rotation_centre,
 						 short int is_undo_or_redo,
 						 bool convert_to_v2_atom_names_flag,
-						 float bond_width_in) {
+						 float bond_width_in,
+						 int bonds_box_type_in) {
    
    //
    graphics_info_t g;
    imol_no = imol_no_in;
 
-   if (! is_undo_or_redo) 
+   if (! is_undo_or_redo) {
       bond_width = bond_width_in;
+      bonds_box_type = bonds_box_type_in;
+   }
 
    // std::cout << "DEBUG:: ---- imol_no is now " << imol_no << std::endl;
 
@@ -4309,7 +4312,8 @@ int
 molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
 					     int resno,
 					     const std::string &atom_name,
-					     const std::string &ins_code) {
+					     const std::string &ins_code,
+					     const coot::Cartesian &rc) {
 
    // This is really a problem of "what is the next residue?", the
    // actual atom is a superficial problem that is handled by
@@ -4330,79 +4334,44 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
       std::cout << "ERROR:: trying to move to (next) atom of a closed molecule!\n";
    } else {
 
-      CResidue *first_residue = NULL;
       CResidue *next_residue = NULL;
-      bool found_this_residue = 0; 
-      int imod = 1;
-      CModel *model_p = atom_sel.mol->GetModel(imod);
-      CChain *chain_p;
-      // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 if (chain_id == chain_p->GetChainID() || (found_this_residue && !next_residue)) {
-	    int nres = chain_p->GetNumberOfResidues();
-	    PCResidue residue_p;
-	    for (int ires=0; ires<nres; ires++) { 
-	       residue_p = chain_p->GetResidue(ires);
-	       if (! first_residue)
-		  first_residue = residue_p;
-	       if (found_this_residue) { 
-		  next_residue = residue_p;
-		  break;
-	       }
-	       if (residue_p->GetSeqNum() == resno) {
-		  if (ins_code == residue_p->GetInsCode()) {
-		     found_this_residue = 1; // setup for next loop
-		  }
-	       }
-	    }
-	 }
-	 if (next_residue)
-	    break;
-      }
 
-      // Now the case where this residue was not in the molecule
-      // (e.g. we just deleted "this" water)
-      //
-      if (!next_residue) { 
-	 for (int ichain=0; ichain<nchains; ichain++) {
-	    chain_p = model_p->GetChain(ichain);
-	    if (chain_id == chain_p->GetChainID()) { 
-	       int nres = chain_p->GetNumberOfResidues();
-	       PCResidue residue_p;
-	       for (int ires=0; ires<nres; ires++) { 
-		  residue_p = chain_p->GetResidue(ires);
-		  if (residue_p->GetSeqNum() > resno) {
-		     next_residue = residue_p;
-		     break;
-		  }
-	       }
-	    }
-	    if (next_residue)
-	       break;
-	 }
-      }
-	       
-      // The case where this residue was the last in the molecule:
+      // Note: we may not be at this residue.
       // 
-      if (found_this_residue && !next_residue) {
-	 int nchains = model_p->GetNumberOfChains();
-	 if (nchains > 0) { 
-	    chain_p = model_p->GetChain(0);
-	    int nres = chain_p->GetNumberOfResidues();
-	    if (nres > 0) 
-	       next_residue = chain_p->GetResidue(0);
+      coot::residue_spec_t this_residue_spec(chain_id, resno, ins_code);
+      CResidue *this_residue = get_residue(this_residue_spec);
+      if (this_residue) { 
+	 if (close_to_residue(this_residue, rc)) {
+	    // move on to next one
+	    int ser_num = this_residue->index;
+	    int ser_num_next = ser_num + 1;
+	    next_residue = this_residue->chain->GetResidue(ser_num_next);
+	       
+	    if (next_residue) {
+	       i_atom_index = intelligent_this_residue_atom(next_residue);
+	    } else {
+	       // OK, we need to move onto the next chain.
+	       next_residue = next_residue_missing_residue(this_residue);
+	    }
+	    
+	 } else {
+	    // Go (back) to this one - because we had moved away from it.
+	    i_atom_index = intelligent_this_residue_atom(this_residue);
 	 }
-      }
+      } else {
+	 // OK, the residue could not be found, it was a deleted atom
+	 // perhaps.  So find the next residue in the chain that has a
+	 // higher residue number than resno.
 
-      if (next_residue)
-	 i_atom_index = intelligent_this_residue_atom(next_residue);
-      
+	 // the residue is not found for this_residue_spec
+	 // 
+	 next_residue = next_residue_missing_residue(this_residue_spec);
+
+	 if (next_residue) 
+	    i_atom_index = intelligent_this_residue_atom(next_residue);
+
+      } 
    }
-//    std::cout << "DEBUG:: Intelligent:: returning index " << i_atom_index << std::endl;
-//    CAtom *at = atom_sel.atom_selection[i_atom_index];
-//    std::cout << "        Returing index of " << at << std::endl;
    return i_atom_index;
 } 
 
@@ -4413,7 +4382,8 @@ int
 molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
 						 int resno,
 						 const std::string &atom_name,
-						 const std::string &ins_code) {
+						 const std::string &ins_code,
+						 const coot::Cartesian &rc) {
 
    // This is quite similar to intelligent_next_atom() (see comments
    // there).  However, this is a bit more complex, because we keep a
@@ -4646,7 +4616,78 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
       atom_sel.mol->DeleteSelection(selHnd); // Safe to put it here?
    }
    return at;
-} 
+}
+
+// is point close (< 1A) to any atom in the given residue?
+bool
+molecule_class_info_t::close_to_residue(CResidue *residue_p, coot::Cartesian point) const {
+
+   bool status = false;
+   if (residue_p) {
+      if (atom_sel.mol) {
+	 //
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	    coot::Cartesian atom_pt(residue_atoms[iat]->x,
+				    residue_atoms[iat]->y,
+				    residue_atoms[iat]->z);
+	    double d = (atom_pt - point).amplitude();
+	    if (d < 1.0) {
+	       status = true;
+	       break;
+	    } 
+	 }
+      } 
+   }
+   return status;
+}
+
+// residue for spec is missing, return the next residue.
+// 
+CResidue *
+molecule_class_info_t::next_residue_missing_residue(const coot::residue_spec_t &spec) const {
+
+   CResidue *r = NULL;
+   int imod = 1;
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   bool found_chain = false;
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      std::string chain_id = chain_p->GetChainID();
+      if (chain_id == spec.chain) {
+	 found_chain = true;
+	 CResidue *residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    if (residue_p->GetSeqNum() > spec.resno) {
+	       r = residue_p;
+	       break;
+	    }
+	 }
+	 if (r)
+	    break;
+      } else {
+	 // OK, so spec was at the end of the chain, the previous
+	 // chain, just return the first residue of this chain.
+	 if (found_chain) {
+	    for (int ires=0; ires<nres; ires++) { 
+	       r = chain_p->GetResidue(ires);
+	       break;
+	    }
+	 }
+      }
+      if (r)
+	 break;
+   }
+   return r;
+}
+
+
 
 
 // ----------------------------------------------------------------------
@@ -5657,7 +5698,8 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 				   reset_rotation_centre,
 				   is_undo_or_redo,
 				   convert_flag,
-				   bond_width);
+				   bond_width,
+				   Bonds_box_type());
 	 save_state_command_strings_ = save_save_state;
 	 imol_no = save_imol; 
 	 name_ = save_name;
