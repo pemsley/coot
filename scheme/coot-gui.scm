@@ -2992,6 +2992,12 @@
 					 molecule-option-menu model-list)))
 			      (add-ligand-func imol button-label))))))
 
+  (define (comp-id->button-label comp-id)
+    (let* ((comp-id-name (comp-id->name comp-id)))
+      (if comp-id-name 
+	  (string-append comp-id ": " comp-id-name)
+	  comp-id)))
+
     
   ;; main 
   (let* ((window (gtk-window-new 'toplevel))
@@ -3025,18 +3031,20 @@
     (gtk-box-pack-start outside-vbox close-button #f #f 2)
     (gtk-option-menu-set-menu molecule-option-menu menu)
     
-    (map (lambda (button-label)
-	   (add-solvent-button button-label inside-vbox molecule-option-menu model-list))
+    (map (lambda (comp-id)
+	   (let ((button-label (comp-id->button-label comp-id)))
+	     (add-solvent-button button-label inside-vbox molecule-option-menu model-list)))
 	 (append *solvent-ligand-list* *additional-solvent-ligands*))
 
     (gtk-signal-connect add-new-button "clicked"
        (lambda ()
-	 (generic-single-entry "Add new three-letter-code"
+	 (generic-single-entry "Add new 3-letter-code/comp-id"
 			       ""  "  Add  "
 			       (lambda (txt)
 				 (set! *additional-solvent-ligands*
 				       (cons txt *additional-solvent-ligands*))
-				 (add-solvent-button txt inside-vbox 
+				 (add-solvent-button (comp-id->button-label txt)
+						     inside-vbox 
 						     molecule-option-menu 
 						     model-list)))))
 	 

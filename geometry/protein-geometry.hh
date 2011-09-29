@@ -1468,6 +1468,11 @@ namespace coot {
       // 
       int try_dynamic_add(const std::string &resname, int read_number);  // return success status?
       // this is not const if we use dynamic add.
+
+      // return a pair, the first is status (1 if the name was found, 0 if not)
+      // 
+      std::pair<bool, std::string> get_monomer_name(const std::string &comp_id) const;
+      
       std::vector <dict_torsion_restraint_t>
       get_monomer_torsions_from_geometry(const std::string &monomer_type);
       std::vector <dict_chiral_restraint_t>

@@ -22,10 +22,8 @@
 
   o Related to above: Fix crash-catcher script to work with pythonized coot ::: 2
 
-  o need tlc->name function and use it in add solvent molecules ::: 2
-
   o consider better analysis of disulfides, bonding and refinement.
-    Consider iron-sulfur clusters.
+    Consider iron-sulfur clusters.  ::: 3
 
 ------
 
@@ -73,5 +71,9 @@
   o Picking atoms in Jones mode needs to pick only CAs. ::: 0.5
 
 * Done.  Trivially set pick mode correctly for the display mode in atom_pick().
+
+  o need tlc->name function and use it in add solvent molecules ::: 0.5
+
+* Done
 
 

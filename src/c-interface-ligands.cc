@@ -1462,6 +1462,43 @@ int get_sbase_monomer(const char *comp_id) {
 }
 
 
+#ifdef USE_GUILE
+/*! \brief return the monomer name
+  return scheme false if not found */
+SCM comp_id_to_name_scm(const char *comp_id) {
+   SCM r = SCM_BOOL_F;
+   graphics_info_t g;
+   std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id);
+   if (name.first) {
+      r = scm_makfrom0str(name.second.c_str());
+   }
+   return r;
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+/*! \brief return the monomer name
+
+  return python false if not found */
+PyObject *comp_id_to_name_py(const char *comp_id) {
+
+   PyObject *r = Py_False;
+
+   graphics_info_t g;
+   std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id);
+   if (name.first) {
+      r = PyString_FromString(name.second.c_str());
+   }
+   if (PyBool_Check(r)) {
+      Py_INCREF(r);
+   }
+   return r;
+}
+
+#endif // USE_PYTHON
+
+
+
 /*  ----------------------------------------------------------------------- */
 //                  animated ligand interactions
 /*  ----------------------------------------------------------------------- */
