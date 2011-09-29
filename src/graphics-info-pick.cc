@@ -85,122 +85,124 @@ graphics_info_t::symmetry_atom_pick() const {
 
    for (int imol=0; imol<n_molecules(); imol++) {
 
-      if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) { 
+      if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) {
+	 if (graphics_info_t::molecules[imol].show_symmetry) { 
       
-	 if (graphics_info_t::molecules[imol].has_model()) {
-	    atom_selection_container_t atom_sel = graphics_info_t::molecules[imol].atom_sel;
-	    molecule_extents_t mol_extents(atom_sel, symmetry_search_radius);
-	    std::vector<std::pair<symm_trans_t, Cell_Translation> > boxes =
-	       mol_extents.which_boxes(screen_centre, atom_sel);
+	    if (graphics_info_t::molecules[imol].has_model()) {
+	       atom_selection_container_t atom_sel = graphics_info_t::molecules[imol].atom_sel;
+	       molecule_extents_t mol_extents(atom_sel, symmetry_search_radius);
+	       std::vector<std::pair<symm_trans_t, Cell_Translation> > boxes =
+		  mol_extents.which_boxes(screen_centre, atom_sel);
 
-	    if (boxes.size() > 0) { // used to be 1 (which was a bug, I'm pretty sure).
+	       if (boxes.size() > 0) { // used to be 1 (which was a bug, I'm pretty sure).
 
-	       char *spacegroup_str = atom_sel.mol->GetSpaceGroup();
-	       if (!spacegroup_str) {
-		  std::cout << "ERROR:: null spacegroup_str in symmetry pick\n";
-	       } else {
-		  clipper::Spacegroup spg;
-		  clipper::Cell cell;
-		  short int spacegroup_ok = 0;
-		  try {
-		     std::pair<clipper::Cell,clipper::Spacegroup> xtal =
-		        coot::util::get_cell_symm( atom_sel.mol );
-		     cell = xtal.first;
-		     spg  = xtal.second;
-		     spacegroup_ok = 1;
-		  } catch ( std::runtime_error except ) {
-		     cout << "!! get_cell_symm() fails in symmetry_atom_pick"
-			  << endl;
-		  }
-		  if (spacegroup_ok == 1) { 
-// 		     std::cout << "DEBUG:: Initing clipper::Spacegroup: "
-// 			       << spg.symbol_hm() << std::endl;
+		  char *spacegroup_str = atom_sel.mol->GetSpaceGroup();
+		  if (!spacegroup_str) {
+		     std::cout << "ERROR:: null spacegroup_str in symmetry pick\n";
+		  } else {
+		     clipper::Spacegroup spg;
+		     clipper::Cell cell;
+		     short int spacegroup_ok = 0;
+		     try {
+			std::pair<clipper::Cell,clipper::Spacegroup> xtal =
+			   coot::util::get_cell_symm( atom_sel.mol );
+			cell = xtal.first;
+			spg  = xtal.second;
+			spacegroup_ok = 1;
+		     } catch ( std::runtime_error except ) {
+			cout << "!! get_cell_symm() fails in symmetry_atom_pick"
+			     << endl;
+		     }
+		     if (spacegroup_ok == 1) { 
+			// 		     std::cout << "DEBUG:: Initing clipper::Spacegroup: "
+			// 			       << spg.symbol_hm() << std::endl;
 
-		     // we want to generate all the symmetry atoms for each box
-		     // and find the atom with the closest approach.
+			// we want to generate all the symmetry atoms for each box
+			// and find the atom with the closest approach.
 
-		     std::vector<coot::clip_hybrid_atom> hybrid_atom(atom_sel.n_selected_atoms);
+			std::vector<coot::clip_hybrid_atom> hybrid_atom(atom_sel.n_selected_atoms);
 
 #ifdef DEBUG_SYMM_PICK			   
- 		     std::cout << "symm_atom_pick: there are " << boxes.size() << " boxes" << std::endl;
- 		     std::cout << "Here are the boxes: " << std::endl;
-		     for (int ii=0; ii< boxes.size(); ii++) {
- 			std::cout << ii << " " << boxes[ii].first << " " << boxes[ii].second  << std::endl;
- 		     } 
+			std::cout << "symm_atom_pick: there are " << boxes.size() << " boxes" << std::endl;
+			std::cout << "Here are the boxes: " << std::endl;
+			for (int ii=0; ii< boxes.size(); ii++) {
+			   std::cout << ii << " " << boxes[ii].first << " " << boxes[ii].second  << std::endl;
+			} 
 #endif // DEBUG_SYMM_PICK			   
 
-		     for (unsigned int ii=0; ii< boxes.size(); ii++) {
+			for (unsigned int ii=0; ii< boxes.size(); ii++) {
 
-			// What are the symmetry atoms for this box?
+			   // What are the symmetry atoms for this box?
 
-			// Notice that we do the unusual step of creating the
-			// vector here and modifying it via a pointer - this is
-			// for speed.
-			// 
-			fill_hybrid_atoms(&hybrid_atom, atom_sel, spg, cell, boxes[ii]);
-			int n = hybrid_atom.size();
-			// std::cout << "DEBUG:: n hybrid_atoms" << n << std::endl;
-			for(int i=0; i<n; i++) { 
-			   dist = hybrid_atom[i].pos.distance_to_line(front, back);
+			   // Notice that we do the unusual step of creating the
+			   // vector here and modifying it via a pointer - this is
+			   // for speed.
+			   // 
+			   fill_hybrid_atoms(&hybrid_atom, atom_sel, spg, cell, boxes[ii]);
+			   int n = hybrid_atom.size();
+			   // std::cout << "DEBUG:: n hybrid_atoms" << n << std::endl;
+			   for(int i=0; i<n; i++) { 
+			      dist = hybrid_atom[i].pos.distance_to_line(front, back);
 
-			   // 		  if (boxes[ii].isym() == 3 && boxes[ii].x() == 0 && boxes[ii].y() == 0 && boxes[ii].z() == 0) {
-			   // 			std::cout << "selected box: " << hybrid_atom[i].atom << " "
-			   // 				  << hybrid_atom[i].pos << " "
-			   // 				  << "scrcent " << screen_centre << std::endl;
-			   // 		  }
+			      // 		  if (boxes[ii].isym() == 3 && boxes[ii].x() == 0 && boxes[ii].y() == 0 && boxes[ii].z() == 0) {
+			      // 			std::cout << "selected box: " << hybrid_atom[i].atom << " "
+			      // 				  << hybrid_atom[i].pos << " "
+			      // 				  << "scrcent " << screen_centre << std::endl;
+			      // 		  }
 
 #ifdef DEBUG_SYMM_PICK			   
-			   write_symm_search_point(sps, hybrid_atom[i].pos);
+			      write_symm_search_point(sps, hybrid_atom[i].pos);
 #endif			   
 		  
-			   if (dist < min_dist) {
+			      if (dist < min_dist) {
 
-			      float dist_to_rotation_centre = (hybrid_atom[i].pos - screen_centre).amplitude();
-			      // std::cout << "dist_to rotation_centre " << dist_to_rotation_centre << " " 
-			      //  			       << hybrid_atom[i].atom << " "
-			      // 			       << hybrid_atom[i].pos << " "
-			      // 			       << "scrcent " << screen_centre << " "
-			      //  			       << boxes[ii].isym() << " " 
-			      //  			       << boxes[ii].x() << " " << boxes[ii].y() << " " 
-			      //  			       << boxes[ii].z() << " "  << std::endl;
+				 float dist_to_rotation_centre = (hybrid_atom[i].pos - screen_centre).amplitude();
+				 // std::cout << "dist_to rotation_centre " << dist_to_rotation_centre << " " 
+				 //  			       << hybrid_atom[i].atom << " "
+				 // 			       << hybrid_atom[i].pos << " "
+				 // 			       << "scrcent " << screen_centre << " "
+				 //  			       << boxes[ii].isym() << " " 
+				 //  			       << boxes[ii].x() << " " << boxes[ii].y() << " " 
+				 //  			       << boxes[ii].z() << " "  << std::endl;
 
-			      if (dist_to_rotation_centre < symmetry_search_radius ||
-				  molecules[imol].symmetry_whole_chain_flag || molecules[imol].symmetry_as_calphas) {
-				 // 			std::cout << "updating min_dist to " << dist << " " 
-				 // 				  << hybrid_atom[i].atom << " "
-				 // 				  << boxes[ii].isym() << " " 
-				 // 				  << boxes[ii].x() << " " << boxes[ii].y() << " " 
-				 // 				  << boxes[ii].z() << " "  << std::endl;
+				 if (dist_to_rotation_centre < symmetry_search_radius ||
+				     molecules[imol].symmetry_whole_chain_flag || molecules[imol].symmetry_as_calphas) {
+				    // 			std::cout << "updating min_dist to " << dist << " " 
+				    // 				  << hybrid_atom[i].atom << " "
+				    // 				  << boxes[ii].isym() << " " 
+				    // 				  << boxes[ii].x() << " " << boxes[ii].y() << " " 
+				    // 				  << boxes[ii].z() << " "  << std::endl;
 
-				 // how do we know we are not picking
-				 // something behind the back clipping
-				 // plane?  e.g. we are zoomed in or have
-				 // narrow clipping planes, we don't want to
-				 // pick symmetry atoms that we can't see.
+				    // how do we know we are not picking
+				    // something behind the back clipping
+				    // plane?  e.g. we are zoomed in or have
+				    // narrow clipping planes, we don't want to
+				    // pick symmetry atoms that we can't see.
 
-				 float front_picked_atom_line_length = (front - hybrid_atom[i].pos).amplitude();
-				 float  back_picked_atom_line_length = (back  - hybrid_atom[i].pos).amplitude();
+				    float front_picked_atom_line_length = (front - hybrid_atom[i].pos).amplitude();
+				    float  back_picked_atom_line_length = (back  - hybrid_atom[i].pos).amplitude();
 			   
-				 // std::cout << "comparing " << front_picked_atom_line_length << " to "
-				 // << dist_front_to_back << " to " << back_picked_atom_line_length
-				 // << std::endl;
+				    // std::cout << "comparing " << front_picked_atom_line_length << " to "
+				    // << dist_front_to_back << " to " << back_picked_atom_line_length
+				    // << std::endl;
 
-				 // This test make things better, but still
-				 // not right, it seem, so lets artificially
-				 // slim down the limits - so that we don't
-				 // get so many false positives.
+				    // This test make things better, but still
+				    // not right, it seem, so lets artificially
+				    // slim down the limits - so that we don't
+				    // get so many false positives.
 			   
-				 if ( (front_picked_atom_line_length < dist_front_to_back) &&
-				      ( back_picked_atom_line_length < dist_front_to_back)
-				      ) { 
-				    min_dist = dist;
-				    p_i.success = GL_TRUE;
-				    p_i.hybrid_atom = hybrid_atom[i];
-				    // and these for labelling:
-				    p_i.atom_index = i;
-				    p_i.imol = imol; 
-				    p_i.symm_trans = boxes[ii].first;
-				    p_i.pre_shift_to_origin = boxes[ii].second;
+				    if ( (front_picked_atom_line_length < dist_front_to_back) &&
+					 ( back_picked_atom_line_length < dist_front_to_back)
+					 ) { 
+				       min_dist = dist;
+				       p_i.success = GL_TRUE;
+				       p_i.hybrid_atom = hybrid_atom[i];
+				       // and these for labelling:
+				       p_i.atom_index = i;
+				       p_i.imol = imol; 
+				       p_i.symm_trans = boxes[ii].first;
+				       p_i.pre_shift_to_origin = boxes[ii].second;
+				    }
 				 }
 			      }
 			   }
@@ -255,11 +257,11 @@ graphics_info_t::symmetry_atom_pick() const {
       //		 graphics_info_t::statusbar_context_id,
       //		 ai.c_str());
    }
-
+   
 //    std::cout << "Picked: status: " << p_i.success << " index: "<< p_i.atom_index
-// 	     << " " << p_i.symm_trans << " "
-// 	     << p_i.pre_shift_to_origin << std::endl;
-
+//  	     << " " << p_i.symm_trans << " "
+//  	     << p_i.pre_shift_to_origin << std::endl;
+   
    return p_i;
 }
 

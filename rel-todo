@@ -81,3 +81,7 @@
 
 * Seems good.
 
+  o display a molecule, activate distance, now try to pick atoms in space 
+    -> (undisplayed) symm atoms get picked!  Wrong  ::: 0.5
+
+* Done - add check that symmetry is displayed.
