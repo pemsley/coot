@@ -211,6 +211,8 @@ atom_pick(GdkEventButton *event) {
 		  pick_mode = PICK_ATOM_NON_HYDROGEN;
 	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS)
 		  pick_mode = PICK_ATOM_CA_OR_LIGAND;
+	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS)
+		  pick_mode = PICK_ATOM_CA_OR_LIGAND; // yes, this mode shows ligands
 
 	       bool verbose_mode = graphics_info_t::debug_atom_picking;
 	       pick_info mpi = pick_atom(SelAtom, ii, front, back, pick_mode, verbose_mode);
