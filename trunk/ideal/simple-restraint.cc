@@ -3826,7 +3826,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(CResidue *resid
 
       if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr),
 						 pdb_resname) ||
-	  dictionary_name_matches_coords_resname(geom[idr].comp_id, pdb_resname)) {
+	  dictionary_name_matches_coords_resname(geom[idr].residue_info.comp_id, pdb_resname)) {
 
 	 
 // 	 std::cout << "DEBUG:: ------------- dict/pdb name matches " << pdb_resname
@@ -6354,7 +6354,7 @@ coot::restraints_container_t::add_planes(int idr, PPCAtom res_selection,
 		      << std::endl;
 	    std::cout << "   needed " << geom[idr].plane_restraint[ip].n_atoms()
 		      << " got " << pos.size()<< std::endl;
-	    std::cout << "   residue type: " << geom[idr].comp_id << " "
+	    std::cout << "   residue type: " << geom[idr].residue_info.comp_id << " "
 		      << "   plane id: " << ip << std::endl;
 	 }
       } 

@@ -1576,7 +1576,18 @@
 			     atom-1 atom-2)
 		     #f))))
 	   atom-pairs))))))
-	       
+
+
+(greg-testcase "correct matching dictionary names from test name" #t
+   (lambda ()
+
+     ;; new dictionary
+     (let ((ls (matching-compound-names-from-dictionary "gua" 0)))
+       (or (= (length ls) 153)     ;; new dictionary
+	   (= (length ls)  63))))) ;; old dictionary
+
+
+
 
 (greg-testcase "update monomer restraints" #t 
    (lambda () 

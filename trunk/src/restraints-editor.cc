@@ -759,7 +759,6 @@ coot::restraints_editor::make_restraint() const {
       rest.chiral_restraint  = chirals;
       rest.assign_chiral_volume_targets();
       rest.plane_restraint   = planes;
-      rest.comp_id           = residue_info.second.comp_id;
 
       bool p_c_state = atom_info.first;
       rest.set_has_partial_charges(p_c_state);

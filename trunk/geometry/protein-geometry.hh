@@ -88,9 +88,14 @@ namespace coot {
 			number_atoms_all_in, number_atoms_nh_in,
 			description_level_in);
       }
-      dict_chem_comp_t() { 
-	 setup_internal("", "", "", "", 0, 0, "");
+      dict_chem_comp_t() {
+ 	 setup_internal("", "", "", "", 0, 0, "");
       }
+      dict_chem_comp_t(const dict_chem_comp_t &din) {
+	 setup_internal(din.comp_id, din.three_letter_code, din.name,
+			din.group, din.number_atoms_all, din.number_atoms_nh,
+			din.description_level);
+      } 
    };
 
 
@@ -368,18 +373,18 @@ namespace coot {
       dictionary_residue_restraints_t(std::string comp_id_in,
 				      int read_number_in) {
 	 has_partial_charges_flag = 0;
-	 comp_id = comp_id_in;
+	 // comp_id = comp_id_in;
 	 read_number = read_number_in;
 	 filled_with_sbase_data_flag = 0;
       }
       dictionary_residue_restraints_t() {
-	 comp_id = ""; /* things are unset */
+	 // comp_id = ""; /* things are unset */
 	 filled_with_sbase_data_flag = 0;
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
       }
       dictionary_residue_restraints_t(bool constructor_for_sbase_restraints) {
-	 comp_id = ""; /* things are unset */
+	 // comp_id = ""; /* things are unset */
 	 filled_with_sbase_data_flag = 1;
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
@@ -387,7 +392,8 @@ namespace coot {
       void clear_dictionary_residue();
       dict_chem_comp_t residue_info;
       std::vector <dict_atom> atom_info;
-      std::string comp_id; // i.e. residue type name
+      // std::string comp_id; // i.e. residue type name
+      std::string comp_id() const { return residue_info.comp_id; }
       std::vector <dict_chem_comp_tree_t> tree;
       int read_number; 
       std::vector    <dict_bond_restraint_t>    bond_restraint;
@@ -1088,7 +1094,10 @@ namespace coot {
       // restraints, just id, 3-letter-code, name, group,
       // number-of-atoms, description_level.
       // Added to by the simple_mon_lib* functions.
-      std::vector<dictionary_residue_restraints_t> simple_monomer_descriptions;
+      //
+      // Use a map for faster lookups.  the key is the comp_id;
+      // 
+      std::map<std::string,dictionary_residue_restraints_t> simple_monomer_descriptions;
 
       int  comp_atom   (PCMMCIFLoop mmCIFLoop); 
       std::string comp_atom_pad_atom_name(const std::string &atom_id, const std::string &type_symbol) const;

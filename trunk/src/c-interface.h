@@ -3145,6 +3145,22 @@ void run_guile_script (const char *filename);
 void run_python_script(const char *filename);
 int import_python_module(const char *module_name, int use_namespace);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return a list of compoundIDs in the dictionary of which the
+  given string is a substring of the compound name */
+SCM matching_compound_names_from_dictionary_scm(const char *compound_name_fragment,
+						short int allow_minimal_descriptions_flag);
+#endif /* USE_GUILE */
+#ifdef USE_PYTHON
+/*! \brief return a list of compoundIDs in the dictionary which the
+  given string is a substring of the compound name */
+PyObject *matching_compound_names_from_dictionary_py(const char *compound_name_fragment,
+						     short int allow_minimal_descriptions_flag);
+#endif /* USE_PYTHON */
+#endif /*__cplusplus */
+
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -6503,6 +6519,9 @@ The monomer will have chainid "A" and residue number 1.
 
 Return -1 on failure to get monomer. */
 int get_sbase_monomer(const char *comp_id);
+
+
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

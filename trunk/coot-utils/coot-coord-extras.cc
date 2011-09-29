@@ -125,7 +125,7 @@ coot::util::get_contact_indices_from_restraints(CResidue *residue,
    int n_restr = geom_p->size();
 
    for (int icomp=0; icomp<n_restr; icomp++) {
-      if ((*geom_p)[icomp].comp_id == restype) {
+      if ((*geom_p)[icomp].residue_info.comp_id == restype) {
 // 	 std::cout << "There are " << (*geom_p)[icomp].bond_restraint.size()
 // 		   << " bond restraints " << "for " << restype << std::endl;
 	 for (unsigned int ibr=0; ibr< (*geom_p)[icomp].bond_restraint.size(); ibr++) {
@@ -187,7 +187,7 @@ coot::util::get_contact_indices_for_PRO_residue(PPCAtom residue_atoms,
    CAtom *atom_p;
    int n_restr = geom_p->size();
    for (int icomp=0; icomp<n_restr; icomp++) {
-      if ((*geom_p)[icomp].comp_id == "PRO") {
+      if ((*geom_p)[icomp].residue_info.comp_id == "PRO") {
 	 for (unsigned int ibr=0; ibr< (*geom_p)[icomp].bond_restraint.size(); ibr++) {
 	    for (int iat=0; iat<nResidueAtoms; iat++) {
 	       atom_p = residue_atoms[iat];
@@ -247,7 +247,7 @@ coot::util::is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, coot::protein
 
    int n_restr = geom_p->size();
    for (int icomp=0; icomp<n_restr; icomp++) {
-      if ((*geom_p)[icomp].comp_id == residue_name) {
+      if ((*geom_p)[icomp].residue_info.comp_id == residue_name) {
 	 ifound = 1;
 	 if ((*geom_p)[icomp].residue_info.group == "RNA" ||
 	     (*geom_p)[icomp].residue_info.group == "DNA" ) {
@@ -283,7 +283,7 @@ coot::util::is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geome
 
    int n_restr = geom.size();
    for (int icomp=0; icomp<n_restr; icomp++) {
-      if (geom[icomp].comp_id == residue_name) {
+      if (geom[icomp].residue_info.comp_id == residue_name) {
 	 if (geom[icomp].residue_info.group == "RNA" ||
 	     geom[icomp].residue_info.group == "DNA" ) {
 	    is_nuc = 1;

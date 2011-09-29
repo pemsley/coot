@@ -102,6 +102,7 @@
 (define ncs-master-chains ncs-master-chains-scm)
 (define get-lsq-matrix get-lsq-matrix-scm)
 (define list-nomenclature-errors list-nomenclature-errors-scm)
+(define matching-compound-names-from-dictionary matching-compound-names-from-dictionary-scm)
 
 ;; documented functions
 
