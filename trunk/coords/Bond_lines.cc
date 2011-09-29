@@ -2907,6 +2907,12 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
    int atom_colours_udd = -1; // unset/bad
 
+   // heuristic cut off for when user has omitted GAP cards.
+   // 
+   float dist_max_CA_CA = 5.0;
+   float dist_max_P_P   = 8.5; // seems reasonable.
+   
+
    if (bond_colour_type == coot::COLOUR_BY_RAINBOW)
       atom_colours_udd = set_rainbow_colours(SelAtom.mol);
 
@@ -2937,44 +2943,56 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 			std::string alt_conf_prev = at_1->altLoc;
 			std::string alt_conf_this = at_2->altLoc;
 			if (!at_1->Het && !at_2->Het) {
-			   if (!at_1->isTer() && !at_2->isTer()) { 
-			      if (((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) ||
-				  ((atom_name_1 == " P  ") && (atom_name_2 == " P  "))) {
+			   if (!at_1->isTer() && !at_2->isTer()) {
+			      float dist_max_sqrd = dist_max_CA_CA * dist_max_CA_CA;
+			      bool phosphate_pair = false;
+			      bool Calpha_pair    = false;
+			      if ((atom_name_1 == " P  ") && (atom_name_2 == " P  ")) { 
+				 phosphate_pair = 1;
+				 dist_max_sqrd = dist_max_P_P * dist_max_P_P;
+			      } 
+			      if ((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) { 
+				 Calpha_pair = 1;
+			      }
+			      
+			      if (Calpha_pair || phosphate_pair) { 
 				 if (alt_conf_prev == alt_conf_this || alt_conf_this == "" || alt_conf_prev == "") {
 				    int col = 0; // overridden.
 				    coot::Cartesian ca_1(at_1->x, at_1->y, at_1->z);
 				    coot::Cartesian ca_2(at_2->x, at_2->y, at_2->z);
-				    if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
-				       coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-				       col = atom_colour(at_1, coot::COLOUR_BY_B_FACTOR);
-				       addBond(col, ca_1, bond_mid_point);
-				       col = atom_colour(at_2, coot::COLOUR_BY_B_FACTOR);
-				       addBond(col, bond_mid_point, ca_2);
-				    } else {
-				       if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
-					  col = atom_colour(at_1, bond_colour_type);
+				    if ((ca_1-ca_2).amplitude_squared() < dist_max_sqrd) { 
+				       if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
+					  coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+					  col = atom_colour(at_1, coot::COLOUR_BY_B_FACTOR);
+					  addBond(col, ca_1, bond_mid_point);
+					  col = atom_colour(at_2, coot::COLOUR_BY_B_FACTOR);
+					  addBond(col, bond_mid_point, ca_2);
 				       } else {
-					  if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
-					     if (atom_colours_udd > 0) {
-						realtype f;
-						if (at_1->GetUDData(atom_colours_udd, f) == UDDATA_Ok) {
-						   col = atom_colour_map.index_for_rainbow(f);
+					  if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
+					     col = atom_colour(at_1, bond_colour_type);
+					  } else {
+					     if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
+						if (atom_colours_udd > 0) {
+						   realtype f;
+						   if (at_1->GetUDData(atom_colours_udd, f) == UDDATA_Ok) {
+						      col = atom_colour_map.index_for_rainbow(f);
+						   } else {
+						      col = 0;
+						   }
 						} else {
 						   col = 0;
 						}
 					     } else {
-						col = 0;
+						col = atom_colour_map.index_for_chain(chain_p->GetChainID());
 					     }
-					  } else {
-					     col = atom_colour_map.index_for_chain(chain_p->GetChainID());
 					  }
+					  bonds_size_colour_check(col);
+					  addBond(col, ca_1, ca_2);
 				       }
-				       bonds_size_colour_check(col);
-				       addBond(col, ca_1, ca_2);
+				       // for use with Ca+ligand mode
+				       residue_this->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+				       residue_prev->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
 				    }
-				    // for use with Ca+ligand mode
-				    residue_this->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-				    residue_prev->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
 				 }				 
 			      }
 			   }
