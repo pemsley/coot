@@ -3,8 +3,6 @@
 
 ----
 
-  o consider adding displayed geometry -> Distances to session file.
-
   o Don't drag last-placed bond after button-up in lbg ::: 1
 
   o CCP4-based integrated path for FLEV ::: 6
@@ -62,3 +60,8 @@
   o Fix renumbering problem [John Berrisford] ::: 2
 
 * Done.
+
+  o consider adding displayed geometry -> Distances to session file. ::: 1
+
+* Done.
+

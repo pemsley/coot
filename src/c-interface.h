@@ -3562,7 +3562,7 @@ void store_geometry_dialog(GtkWidget *w);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
-/*                  residue enviroment                                      */
+/*                  residue environment                                     */
 /*  ----------------------------------------------------------------------- */
 /* section Residue Environment Functions */
 /*! \name Residue Environment Functions */
@@ -3585,6 +3585,17 @@ int show_environment_distances_state();
 void set_environment_distances_distance_limits(float min_dist, float max_dist);
 
 void set_show_environment_distances_as_solid(int state);
+
+void add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2);
+#ifdef __cplusplus
+#ifdef USE_GUILE
+void add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2);
+#endif
+#ifdef USE_PYTHON
+void add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol_2, PyObject *atom_spec_2);
+#endif
+#endif // __cplusplus
+
 /* \} */
 
 

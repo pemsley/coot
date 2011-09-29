@@ -93,10 +93,11 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 			// if apply_swaps is true, apply swaps if they are found - otherwise just
 			// return a flag saying that they should be swapped.
 			int isw = test_and_fix_PHE_TYR_nomenclature_errors(residue_p, apply_swaps);
-			if (isw) { 
-			   std::cout << "INFO:: (result) " << residue_name << " swapped atoms in "
-				     << coot::residue_spec_t(residue_p)
-				     << " " << residue_p->GetResName() << std::endl;
+			if (isw) {
+			   if (apply_swaps) // don't tell us before swap is made
+			      std::cout << "INFO:: (result) " << residue_name << " swapped atoms in "
+					<< coot::residue_spec_t(residue_p)
+					<< " " << residue_p->GetResName() << std::endl;
 			   vr.push_back(residue_p);
 			}
 		     }
@@ -105,10 +106,11 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 			 (residue_name == "GLU")) {
 
 			int isw = test_and_fix_ASP_GLU_nomenclature_errors(residue_p, apply_swaps);
-			if (isw) { 
-			   std::cout << "INFO:: (result) " << residue_name << " swapped atoms in "
-				     << coot::residue_spec_t(residue_p)
-				     << " " << residue_p->GetResName() << std::endl;
+			if (isw) {
+			   if (apply_swaps)
+			      std::cout << "INFO:: (result) " << residue_name << " swapped atoms in "
+					<< coot::residue_spec_t(residue_p)
+					<< " " << residue_p->GetResName() << std::endl;
 			   vr.push_back(residue_p);
 			}
 		     }
@@ -276,7 +278,8 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 	 }
       }
    }
-   std::cout << "INFO:: " << vr.size() << " residues had their atoms swapped\n";
+   if (apply_swaps)
+      std::cout << "INFO:: " << vr.size() << " residues had their atoms swapped\n";
    return vr;
 }
 

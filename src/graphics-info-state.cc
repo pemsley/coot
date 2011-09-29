@@ -61,7 +61,7 @@ graphics_info_t::save_state_file(const std::string &filename) {
 int
 graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
-   std::cout << "DEBUG:: ============================== saving state " << il << std::endl;
+   // std::cout << "DEBUG:: ============================== saving state " << il << std::endl;
    std::vector<std::string> commands;
    
    std::string comment_str;
@@ -523,6 +523,26 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    if (environment_show_distances) {
       commands.push_back(state_command("set-show-environment-distances",
 				       int(1), il));
+   }
+
+   // distance geometry
+   for (unsigned int idist=0; idist<distance_object_vec->size(); idist++) {
+      const coot::simple_distance_object_t &sdo = (*distance_object_vec)[idist];
+      if (is_valid_model_molecule(sdo.imol_start)) { 
+	 if (is_valid_model_molecule(sdo.imol_end)) {
+	    std::vector<std::string> s(9);
+	    s[0] = "add-geometry-distance";
+	    s[1] = coot::util::int_to_string(sdo.imol_start);
+	    s[2] = coot::util::float_to_string(sdo.start_pos.x());
+	    s[3] = coot::util::float_to_string(sdo.start_pos.y());
+	    s[4] = coot::util::float_to_string(sdo.start_pos.z());
+	    s[5] = coot::util::int_to_string(sdo.imol_end);
+	    s[6] = coot::util::float_to_string(sdo.end_pos.x());
+	    s[7] = coot::util::float_to_string(sdo.end_pos.y());
+	    s[8] = coot::util::float_to_string(sdo.end_pos.z());
+	    commands.push_back(state_command(s,il));
+	 }
+      }
    }
 
    // show symmetry.  Turn this on after molecules have been read so
