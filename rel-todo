@@ -24,9 +24,13 @@
 
   o Picking atoms in Jones mode needs to pick only CAs. ::: 2
 
-  * Fix splash screen per SS message.  Fix symmetry file names too ::: 2
+  o Fix splash screen per SS message.  Fix symmetry file names too ::: 2
 
-  * Fix crash Jim Branigan message ::: 4
+  o Fix crash, Jim Branigan message ::: 4
+
+  o Related to above: Fix crash-catcher script to work with pythonized coot ::: 2
+
+  o need tlc->name function and use it in add solvent molecules ::: 2
 
 ------
 

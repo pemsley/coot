@@ -1095,7 +1095,7 @@ graphics_info_t::load_needed_monomers(const std::vector<std::string> &pdb_residu
    for (unsigned int ipdb=0; ipdb<pdb_residue_types.size(); ipdb++) { 
       short int ifound = 0;
       for (int igeom=0; igeom<geom_p->size(); igeom++) {
-	 if (pdb_residue_types[ipdb] == (*geom_p)[igeom].comp_id) { 
+	 if (pdb_residue_types[ipdb] == (*geom_p)[igeom].comp_id()) { 
 	    ifound = 1;
 	    break;
 	 }

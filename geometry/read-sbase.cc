@@ -163,8 +163,8 @@ bool
 coot::protein_geometry::fill_using_sbase(const std::string &monomer_type) {
 
    bool success = 0;
-   coot::dictionary_residue_restraints_t rest(true);
-   rest.comp_id = monomer_type;
+   coot::dictionary_residue_restraints_t rest(true); // constructor for SBase
+   rest.residue_info.comp_id = monomer_type;
    
    if (SBase) {
       CSBStructure *SBS = SBase->GetStructure(monomer_type.c_str());
