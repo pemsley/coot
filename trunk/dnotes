@@ -4623,7 +4623,7 @@ Thu 20 Aug 2009 10:13:21 EDT
    There should be quick way to undo/undisplay "highight intereting
    residue"
 
-   Make and uberfile with views, maps proteins in.
+   Make an uberfile with views, maps, proteinm models in it.
 
    align vs pir sequence failed to do anything obvious.
    We then dis alignment-mismatches-gui by hand and it gave us a gui.
@@ -4872,6 +4872,7 @@ Tue Sep  1 19:17:15 BST 2009
 
    Put phosphate backbone mode into symmetry.
 
+* Done.
 
 ----
 Fri Sep  4 13:40:49 BST 2009
@@ -6073,7 +6074,32 @@ Wed Jul 20 13:03:27 BST 2011
 ----
 Tue Jul 26 23:11:17 BST 2011
 
-    mutate and autofit to an MSE should change the atoms to HETATM, but it does not.
+    Mutate and autofit to an MSE should change the atoms to HETATM,
+    but it does not.
+
+    So, minimol's atom class needs 'bool is_hetatm' flag.  
+
+    Import: minimol's residue constructors from CResidue * need to set
+    the is_hetatm flag by testing at->Het.
+
+    Extraction: When constructing the pcmmdbmanager(), we need to set
+    at->Het = true when making the CAtom *.
+
+
+---
+Thu Jul 28 14:26:13 BST 2011
+
+    Need to import and display the refmac external restraints (from a
+    file)
+
+
+----
+Thu Jul 28 14:42:51 BST 2011
+  
+    Must have user defined colour system! (for reading prosmart
+    output)
+	
+    here: green (good alignment), red (bad alignment), white (not aligned)
 
 
 ----
@@ -6165,7 +6191,6 @@ guile> (display db-obj)
 guile> 
 guile> (dbi-query db-obj "select * from numbers")
 guile> db-obj
-
 
 
 ----
