@@ -15,6 +15,10 @@ if [ "$gtk2" = gtk2 ] ; then
 else 
    echo "#ifndef COOT_USE_GTK2_INTERFACE"  >> $post
 fi    
-cat "$pre" >> "$post" 
+# cat "$pre" >> "$post" 
+sed -e 's/char .doc = (((PyCFunctionObject .)obj) -> m_ml -> ml_doc);/const char *doc = (((PyCFunctionObject *)obj) -> m_ml -> ml_doc);/' \
+    -e 's/char .c = methods[i].ml_doc/const char *c = methods[i].ml_doc/' \
+    -e 's/char .name = c + 10/const char *name = c + 10/' \
+  "$pre" >> "$post" 
 echo "#endif // COOT_USE_GTK2_INTERFACE" >> $post
 echo "#endif // USE_PYTHON " >> "$post"
