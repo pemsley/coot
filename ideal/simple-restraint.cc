@@ -5543,13 +5543,20 @@ coot::restraints_container_t::add_bonds(int idr, PPCAtom res_selection,
 // 			       << atom[index2]->GetSeqNum() << " "
 // 			       << atom[index2]->name
 // 			       << " restraint index " << n_bond_restr << "\n";
+		     try { 
+			add(BOND_RESTRAINT, index1, index2,
+			    fixed_flags,
+			    geom[idr].bond_restraint[ib].value_dist(),
+			    geom[idr].bond_restraint[ib].value_esd(),
+			    1.2);  // junk value
+			n_bond_restr++;
+		     }
 
-		     add(BOND_RESTRAINT, index1, index2,
-			 fixed_flags,
-			 geom[idr].bond_restraint[ib].dist(),
-			 geom[idr].bond_restraint[ib].esd(),
-			 1.2);  // junk value
-		     n_bond_restr++;
+		     catch (std::runtime_error rte) {
+			// do nothing, it's not really an error if the dictionary
+			// doesn't have target geometry (the bonding description came
+			// from a Chemical Component Dictionary entry for example).
+		     } 
 		  }
 	       }
 	    }

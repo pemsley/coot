@@ -385,13 +385,22 @@ coot::restraints_editor::fill_bond_tree_data(GtkWidget *restraints_editor_dialog
    
    for (unsigned int i=0; i<restraints.bond_restraint.size(); i++) { 
       gtk_tree_store_append(tree_store_bonds, &toplevel, NULL);
-      gtk_tree_store_set(tree_store_bonds, &toplevel,
-			 0, restraints.bond_restraint[i].atom_id_1_4c().c_str(),
-			 1, restraints.bond_restraint[i].atom_id_2_4c().c_str(),
-			 2, restraints.bond_restraint[i].type().c_str(),
-			 3, restraints.bond_restraint[i].dist(),
-			 4, restraints.bond_restraint[i].esd(),
-			 -1);
+      try { 
+	 gtk_tree_store_set(tree_store_bonds, &toplevel,
+			    0, restraints.bond_restraint[i].atom_id_1_4c().c_str(),
+			    1, restraints.bond_restraint[i].atom_id_2_4c().c_str(),
+			    2, restraints.bond_restraint[i].type().c_str(),
+			    3, restraints.bond_restraint[i].value_dist(),
+			    4, restraints.bond_restraint[i].value_esd(),
+			    -1);
+      }
+      catch (std::runtime_error rte) {
+	 // do nothing, it's not really an error if the dictionary
+	 // doesn't have target geometry (the bonding description came
+	 // from a Chemical Component Dictionary entry for example).
+	 //
+	 // but we don't want to set the store in that case.
+      } 
    }
 
    int tree_type = coot::restraints_editor::TREE_TYPE_BONDS;
@@ -784,15 +793,18 @@ coot::restraints_editor::get_bond_restraints() const {
       for (int col_no=0; col_no<5; col_no++) {
 	 int col_type = get_column_type(coot::restraints_editor::TREE_TYPE_BONDS, col_no, -1);
 	 if (col_type == G_TYPE_STRING) { 
-	    gchar *place_string_here;
+	    gchar *place_string_here = NULL;
 	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_bonds.store), &iter, col_no, &place_string_here, -1);
 	    // std::cout << "got string :" << place_string_here << ": from col_no " << col_no << std::endl;
 	    if (col_no == 0)
-	       atom1 = place_string_here;
+	       if (place_string_here)
+		  atom1 = place_string_here;
 	    if (col_no == 1)
-	       atom2 = place_string_here;
+	       if (place_string_here)
+		  atom2 = place_string_here;
 	    if (col_no == 2)
-	       type = place_string_here;
+	       if (place_string_here)
+		  type = place_string_here;
 	 }
 	 if (col_type == G_TYPE_FLOAT) {
 	    float f;

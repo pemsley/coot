@@ -693,6 +693,16 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
 						value_dist_esd));
 }
 
+void
+coot::protein_geometry::mon_lib_add_bond_no_target_geom(std::string comp_id,
+							std::string atom_id_1,
+							std::string atom_id_2,
+							std::string type) { 
+
+   add_restraint(comp_id, dict_bond_restraint_t(atom_id_1, atom_id_2, type));
+}
+
+
 void 
 coot::protein_geometry::add_restraint(std::string comp_id, const dict_bond_restraint_t &restr) { 
 
@@ -1553,23 +1563,29 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
    realtype value_dist = -1.0, value_dist_esd = -1.0;
 
    char *s; 
-   int ierr;
-   int ierr_tot = 0; 
    int nbond = 0;
    int comp_id_index = -1; // not found initially
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
 
+      int ierr;
+      int ierr_tot = 0; 
+      int ierr_tot_for_ccd = 0;  // CCD comp_bond entries don't have
+			         // target geometry (dist and esd) but we
+			         // want to be able to read them in
+			         // anyway (to get the bond orders for
+			         // drawing).
+
+   
       // modify a reference (ierr)
       //
 
       s = mmCIFLoop->GetString("comp_id",j,ierr);
       ierr_tot += ierr;
+      ierr_tot_for_ccd =+ ierr;
       if (s) { 
 	 comp_id = s;
 	 for (int id=(dict_res_restraints.size()-1); id >=0; id--) {
-	    // std::cout << " debug " << comp_id << " vs "
-	    // << dict_res_restraints[id].comp_id << std::endl;
 	    if (dict_res_restraints[id].residue_info.comp_id == comp_id) {
 	       comp_id_index = id;
 	       break;
@@ -1579,18 +1595,46 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
 
       s = mmCIFLoop->GetString("atom_id_1", j, ierr);
       ierr_tot += ierr;
+      ierr_tot_for_ccd =+ ierr;
       if (s) 
 	 atom_id_1 = get_padded_name(s, comp_id_index);
 
       s = mmCIFLoop->GetString("atom_id_2", j, ierr);
       ierr_tot += ierr;
+      ierr_tot_for_ccd =+ ierr;
       if (s) 
 	 atom_id_2 = get_padded_name(s, comp_id_index);
 
       s = mmCIFLoop->GetString("type", j, ierr);
-      ierr_tot += ierr;
       if (s) 
 	 type = s;
+      // perhaps it was in the dictionary as "value_order"?
+      if (ierr) {
+	 s = mmCIFLoop->GetString("value_order", j, ierr);
+	 if (! ierr) {
+	    if (s) { // just in case (should not be needed).
+	       std::string ss(s);
+	       // convert from Chemical Component Dictionary value_order to
+	       // refmac monomer library chem_comp_bond types. 
+	       if (ss == "SING")
+		  type = "single";
+	       if (ss == "DOUB")
+		  type = "double";
+	       if (ss == "TRIP")
+		  type = "triple";
+	       
+	       // Chemical Chemical Dictionary also has an aromatic flag, so
+	       // we can have bonds that are (for example) "double"
+	       // "aromatic" Hmm!  Food for thought.
+	       
+	       // Metal bonds are "SING" (i.e. CCD doesn't have metal
+	       // bonds).
+	    }
+	 } 
+      } 
+      ierr_tot += ierr;
+      ierr_tot_for_ccd =+ ierr;
+
 
       ierr = mmCIFLoop->GetReal(value_dist, "value_dist", j);
       ierr_tot += ierr;
@@ -1599,17 +1643,24 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
       ierr_tot += ierr;
 
       if (ierr_tot == 0) {
-//  	 std::cout << "debug Adding bond " << comp_id << " " << atom_id_1
-//  		   << " " << atom_id_2 << std::endl;
 	 mon_lib_add_bond(comp_id, atom_id_1, atom_id_2,
 			  type, value_dist, value_dist_esd); 
 	 nbond++;
       } else {
-	 // std::cout << "DEBUG::  ierr_tot " << ierr_tot << std::endl;
-	 if (verbose_output) { 
-	    std::cout << "Fail on read " << atom_id_1 << ": :" << atom_id_2 << ": :"
-		      << type << ": :" << value_dist << ": :" << value_dist_esd
-		      << ":" << std::endl;
+
+	 if (! ierr_tot_for_ccd) {
+
+	    mon_lib_add_bond_no_target_geom(comp_id, atom_id_1, atom_id_2, type);
+	    
+	 } else {
+	    // Hopeless - nothing worked...
+	    
+	    // std::cout << "DEBUG::  ierr_tot " << ierr_tot << std::endl;
+	    if (verbose_output) { 
+	       std::cout << "Fail on read " << atom_id_1 << ": :" << atom_id_2 << ": :"
+			 << type << ": :" << value_dist << ": :" << value_dist_esd
+			 << ":" << std::endl;
+	    }
 	 }
       } 
    }
@@ -4029,28 +4080,35 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target(const std::vector <di
    
    // local_atom_id_centre to local_atom_id_1 bond length
    for (unsigned int i=0; i<bonds.size(); i++) {
-      if (bonds[i].atom_id_1_4c() == mmdb_centre_atom) {
-	 if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_1)) { 
-	    a = bonds[i].dist();
+      try { 
+	 if (bonds[i].atom_id_1_4c() == mmdb_centre_atom) {
+	    if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_1)) { 
+	       a = bonds[i].value_dist();
+	    }
+	    if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_2)) { 
+	       b = bonds[i].value_dist();
+	    }
+	    if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_3)) { 
+	       c = bonds[i].value_dist();
+	    }
 	 }
-	 if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_2)) { 
-	    b = bonds[i].dist();
-	 }
-	 if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_3)) { 
-	    c = bonds[i].dist();
+	 if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_centre)) {
+	    if (bonds[i].atom_id_1_4c() == atom_id_mmdb_expand(local_atom_id_1)) { 
+	       a = bonds[i].value_dist();
+	    }
+	    if (bonds[i].atom_id_1_4c() == atom_id_mmdb_expand(local_atom_id_2)) { 
+	       b = bonds[i].value_dist();
+	    }
+	    if (bonds[i].atom_id_1_4c() == atom_id_mmdb_expand(local_atom_id_3)) { 
+	       c = bonds[i].value_dist();
+	    }
 	 }
       }
-      if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_centre)) {
-	 if (bonds[i].atom_id_1_4c() == atom_id_mmdb_expand(local_atom_id_1)) { 
-	    a = bonds[i].dist();
-	 }
-	 if (bonds[i].atom_id_1_4c() == atom_id_mmdb_expand(local_atom_id_2)) { 
-	    b = bonds[i].dist();
-	 }
-	 if (bonds[i].atom_id_1_4c() == atom_id_mmdb_expand(local_atom_id_3)) { 
-	    c = bonds[i].dist();
-	 }
-      }
+      catch (std::runtime_error rte) {
+	 // do nothing, it's not really an error if the dictionary
+	 // doesn't have target geometry (the bonding description came
+	 // from a Chemical Component Dictionary entry for example).
+      } 
    }
 
    for (unsigned int i=0; i<angles.size(); i++) {
@@ -4411,10 +4469,17 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    mmCIFLoop->PutString(ss, "atom_id_2", i);
 	    ss = bond_restraint[i].type().c_str();
 	    mmCIFLoop->PutString(ss, "type", i);
-	    float v = bond_restraint[i].dist();
-	    mmCIFLoop->PutReal(v, "value_dist", i);
-	    v = bond_restraint[i].esd(),
-	    mmCIFLoop->PutReal(v, "value_dist_esd", i);
+	    float v = bond_restraint[i].value_dist();
+	    try { 
+	       mmCIFLoop->PutReal(v, "value_dist", i);
+	       v = bond_restraint[i].value_esd();
+	       mmCIFLoop->PutReal(v, "value_dist_esd", i);
+	    }
+	    catch (std::runtime_error rte) {
+	       // do nothing, it's not really an error if the dictionary
+	       // doesn't have target geometry (the bonding description came
+	       // from a Chemical Component Dictionary entry for example).
+	    } 
 	 }
       }
 

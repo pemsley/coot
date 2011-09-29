@@ -7,10 +7,7 @@
 
   o CCP4-based integrated path for FLEV ::: 6
 
-  o Make ligands work ::: 20
-
-  o Add nucleotide to 3' end - Sabine Schneider.  Check Kevin's fix -
-    needs test ::: 1
+  o Make sure ligands work with prodrg ::: 6
 
   o Fix lighting for solid env distances ::: 1
 
@@ -24,6 +21,8 @@
 
   o consider better analysis of disulfides, bonding and refinement.
     Consider iron-sulfur clusters.  ::: 3
+
+  o double reading/displaying (or modification?) of HET residues? ::: 1
 
 ------
 
@@ -76,4 +75,9 @@
 
 * Done
 
+
+  o Add nucleotide to 3' end - Sabine Schneider.  Check Kevin's fix -
+    needs test ::: 1
+
+* Seems good.
 

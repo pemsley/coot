@@ -3130,9 +3130,9 @@ SCM monomer_restraints(const char *monomer_type) {
       SCM atom_info_list = SCM_EOL;
       for (int iat=0; iat<n_atoms; iat++) { 
 	 SCM atom_attributes_list = SCM_EOL;
-	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].atom_id_4c.c_str()), atom_attributes_list);
-	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].type_symbol.c_str()), atom_attributes_list);
-	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].type_energy.c_str()), atom_attributes_list);
+	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].atom_id_4c.c_str()),   atom_attributes_list);
+	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].type_symbol.c_str()),  atom_attributes_list);
+	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].type_energy.c_str()),  atom_attributes_list);
 	 atom_attributes_list = scm_cons(scm_double2num(atom_info[iat].partial_charge.second), atom_attributes_list);
 	 SCM partial_flag = SCM_BOOL_F;
 	 if (atom_info[iat].partial_charge.first)
@@ -3151,15 +3151,24 @@ SCM monomer_restraints(const char *monomer_type) {
       SCM bond_restraint_list = SCM_EOL;
       
       for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
-	 coot::dict_bond_restraint_t bond_restraint = restraints.bond_restraint[ibond];
+	 const coot::dict_bond_restraint_t &bond_restraint = restraints.bond_restraint[ibond];
 	 std::string a1 = bond_restraint.atom_id_1_4c();
 	 std::string a2 = bond_restraint.atom_id_2_4c();
 	 std::string type = bond_restraint.type();
-	 double d   = bond_restraint.dist();
-	 double esd = bond_restraint.esd();
 	 SCM bond_restraint_scm = SCM_EOL;
-	 bond_restraint_scm = scm_cons(scm_double2num(esd), bond_restraint_scm);
-	 bond_restraint_scm = scm_cons(scm_double2num(d),   bond_restraint_scm);
+	 SCM esd_scm = SCM_BOOL_F;
+	 SCM d_scm   = SCM_BOOL_F;
+	 try { 
+	    double esd = bond_restraint.value_esd();
+	    double d   = bond_restraint.value_dist();
+	    esd_scm = scm_double2num(esd);
+	    d_scm   = scm_double2num(d);
+	 }
+	 catch (std::runtime_error rte) {
+	    // we use the default values of #f, if the esd or dist is not set.
+	 } 
+	 bond_restraint_scm = scm_cons(esd_scm, bond_restraint_scm);
+	 bond_restraint_scm = scm_cons(d_scm,   bond_restraint_scm);
 	 bond_restraint_scm = scm_cons(scm_makfrom0str(type.c_str()), bond_restraint_scm);
 	 bond_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()),   bond_restraint_scm);
 	 bond_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()),   bond_restraint_scm);
@@ -3346,14 +3355,32 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 std::string a1   = restraints.bond_restraint[ibond].atom_id_1_4c();
 	 std::string a2   = restraints.bond_restraint[ibond].atom_id_2_4c();
 	 std::string type = restraints.bond_restraint[ibond].type();
-	 double d   = restraints.bond_restraint[ibond].dist();
-	 double esd = restraints.bond_restraint[ibond].esd();
+
+	 PyObject *py_value_dist = Py_False;
+	 PyObject *py_value_esd = Py_False;
+
+	 try { 
+	    double d   = restraints.bond_restraint[ibond].value_dist();
+	    double esd = restraints.bond_restraint[ibond].value_esd();
+	    py_value_dist = PyFloat_FromDouble(d);
+	    py_value_esd  = PyFloat_FromDouble(esd);
+	 }
+	 catch (std::runtime_error rte) {
+
+	    // Use default false values.
+	    // So I suppose that I need to do this then:
+	    if (PyBool_Check(py_value_dist))
+	       Py_INCREF(py_value_dist);
+	    if (PyBool_Check(py_value_esd))
+	       Py_INCREF(py_value_esd);
+	 }
+	 
 	 PyObject *bond_restraint = PyList_New(5);
 	 PyList_SetItem(bond_restraint, 0, PyString_FromString(a1.c_str()));
 	 PyList_SetItem(bond_restraint, 1, PyString_FromString(a2.c_str()));
 	 PyList_SetItem(bond_restraint, 2, PyString_FromString(type.c_str()));
-	 PyList_SetItem(bond_restraint, 3, PyFloat_FromDouble(d));
-	 PyList_SetItem(bond_restraint, 4, PyFloat_FromDouble(esd));
+	 PyList_SetItem(bond_restraint, 3, py_value_dist);
+	 PyList_SetItem(bond_restraint, 4, py_value_esd);
 	 PyList_SetItem(bond_restraint_list, ibond, bond_restraint);
       }
 

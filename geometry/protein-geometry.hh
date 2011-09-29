@@ -36,6 +36,7 @@
 #endif
 
 #include <map>
+#include <stdexcept>
 
 #include "mmdb_mmcif.h"
 
@@ -122,6 +123,7 @@ namespace coot {
       std::string type_;
       double dist_;
       double dist_esd_;
+      bool have_target_values; 
    
    public:
       // dict_bond_restraint_t() {};
@@ -135,10 +137,33 @@ namespace coot {
 	 dist_ = dist_in;
 	 dist_esd_ = dist_esd_in;
 	 type_ = type;
+	 have_target_values = 1;
       }
+
+
+      dict_bond_restraint_t(std::string atom_id_1_in,
+			    std::string atom_id_2_in,
+			    std::string type) :
+	 basic_dict_restraint_t(atom_id_1_in, atom_id_2_in) {
+	 have_target_values = 0;
+	 type_ = type;
+      }
+      
       std::string type() const { return type_; }
-      double dist() const { return dist_; }
-      double esd () const { return dist_esd_;}
+      // can throw a std::runtime_error exception (if target values not set)
+      double value_dist() const {
+	 if (have_target_values)
+	    return dist_;
+	 else
+	    throw std::runtime_error("unset target distance geometry");
+      }
+      // can throw a std::runtime_error exception
+      double value_esd () const {
+	 if (have_target_values)
+	    return dist_esd_;
+	 else
+	    throw std::runtime_error("unset target distance geometry");
+      }
    };
 
    class dict_angle_restraint_t : public basic_dict_restraint_t {
@@ -1152,6 +1177,10 @@ namespace coot {
 			    std::string type,
 			    realtype value_dist, realtype value_dist_esd);
 
+      void mon_lib_add_bond_no_target_geom(std::string comp_id,
+					   std::string atom_id_1, std::string atom_id_2,
+					   std::string type);
+      
       void mon_lib_add_angle(std::string comp_id,
 			     std::string atom_id_1,
 			     std::string atom_id_2,
