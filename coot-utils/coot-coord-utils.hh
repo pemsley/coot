@@ -652,7 +652,12 @@ namespace coot {
    //
    bool mol_has_symmetry(CMMDBManager *mol);
 
+   // This class doesn't work with alt confs - it just finds the first
+   // atom names that matches the strings in the given quad.
+   // 
    class position_residue_by_internal_coordinates {
+      // return NULL on atom not found (res_1 and res_2 are guarenteed
+      // to be non-null)
       CAtom *get_atom(CResidue *res_1, CResidue *res_2, const atom_name_quad &quad, int atom_index);
    public:
       position_residue_by_internal_coordinates(CResidue *residue_ref, CResidue *residue_moving,
