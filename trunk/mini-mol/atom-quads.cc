@@ -28,7 +28,7 @@
 std::ostream&
 coot::operator<<(std::ostream &o, const coot::atom_name_quad &q) {
 
-   o << "(" << q.atom1 << " " << q.atom2 << " " << q.atom3 << " " << q.atom4 << ")";
+   o << "(" << q.atom_name(0) << " " << q.atom_name(1) << " " << q.atom_name(2) << " " << q.atom_name(3) << ")";
    return o;
 }
 

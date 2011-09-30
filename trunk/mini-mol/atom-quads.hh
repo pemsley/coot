@@ -34,28 +34,51 @@ namespace coot {
 
    // 4 atom names for a torsion:
    class atom_name_quad {
+      std::string atom_name_[4];
    public:
-      std::string atom1;
-      std::string atom2;
-      std::string atom3;
-      std::string atom4;
+
+      // an atom quad can (now) refer to atoms in different residues.
+      // So make placeholders for the residue index (1 or 2)
+      int atom_residue_index[4]; 
+				 
       atom_name_quad() {} // sigh.  needed for torsioned_atoms_info_t,
 			  // don't know why.
-      atom_name_quad(const std::string &atom_name_1,
+      atom_name_quad(const std::string &atom_name_0,
+                     const std::string &atom_name_1,
                      const std::string &atom_name_2,
-                     const std::string &atom_name_3,
-                     const std::string &atom_name_4) {
-         atom1 = atom_name_1;
-         atom2 = atom_name_2;
-         atom3 = atom_name_3;
-         atom4 = atom_name_4;
+                     const std::string &atom_name_3) {
+
+	 atom_name_[0] = atom_name_0;
+	 atom_name_[1] = atom_name_1;
+	 atom_name_[2] = atom_name_2;
+	 atom_name_[3] = atom_name_3;
+	 
+	 atom_residue_index[0] = 1;
+	 atom_residue_index[1] = 1;
+	 atom_residue_index[2] = 1;
+	 atom_residue_index[3] = 1;
       }
       bool all_non_blank() const {
-	 if ((atom1 == "") || (atom2 == "") || (atom3 == "") || (atom4 == ""))
+	 if ((atom_name_[0] == "") || (atom_name_[1] == "") || (atom_name_[2] == "") || (atom_name_[3] == ""))
 	    return 0;
 	 else
 	    return 1;
       } 
+      std::string atom_name(int i) const {
+	 if (i>=0 && i<4) { 
+	    return atom_name_[i];
+	 } else {
+	    throw std::runtime_error("out of bounds index on atom_name_quad::atom_name()");
+	 }
+      }
+      void set_atom_residue_index(int atom_index, int residue_index) {
+	 if (atom_index>=0 && atom_index<4) {
+	    if (residue_index == 1 || residue_index == 2) {
+	       atom_residue_index[atom_index] = residue_index;
+	    }
+	 } 
+      } 
+      
       friend std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);
    };
    std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);

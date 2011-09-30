@@ -22,6 +22,11 @@
 
   o double reading/displaying (or modification?) of HET residues? ::: 1
 
+  o try to make a difference map by making an average map with scale
+    -1 for the second map.  Does it work?
+
+  o rework get-monomer() to be cleaner and use the prefer_python system. ::: 1
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1

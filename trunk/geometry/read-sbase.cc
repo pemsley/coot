@@ -43,7 +43,8 @@ CResidue *
 coot::protein_geometry::get_sbase_residue(const std::string &res_name) const {
 
    CResidue *residue_p = NULL;
-   if (SBase) { 
+   std::cout << "SBASE: " << SBase << std::endl;
+   if (SBase) {
       CSBStructure *SBS = SBase->GetStructure(res_name.c_str());
       if (SBS) {
 	 residue_p = new CResidue;
@@ -79,6 +80,7 @@ coot::protein_geometry::get_sbase_residue(const std::string &res_name) const {
 	 }
       }
    }
+   std::cout << "get_sbase_residue() returns " << residue_p << std::endl;
    return residue_p;
 }
 

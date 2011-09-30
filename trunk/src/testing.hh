@@ -89,6 +89,7 @@ int test_residue_atom_renaming();
 int test_mcd_and_thornton_h_bonds();
 int test_COO_mod();
 int test_remove_whitespace();
+int test_position_residue_by_internal_coords();
 
 // uses greg data test data
 int test_phi_psi_values();

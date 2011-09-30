@@ -1024,8 +1024,9 @@ coot::atom_tree_t::set_dihedral_multi(const std::vector<tree_dihedral_info_t> &d
 
    std::vector<double> v(di.size());
    for (unsigned int id=0; id<di.size(); id++) {
-      v[id] = set_dihedral(di[id].quad.atom1, di[id].quad.atom2,
-			   di[id].quad.atom3, di[id].quad.atom4, di[id].dihedral_angle);
+      v[id] = set_dihedral(di[id].quad.atom_name(0), di[id].quad.atom_name(1),
+			   di[id].quad.atom_name(2), di[id].quad.atom_name(3),
+			   di[id].dihedral_angle);
    }
    return v;
 }

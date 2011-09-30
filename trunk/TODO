@@ -1057,6 +1057,11 @@ Punted from 0.6:
 
   o cross2 chiral restraints, HEC and HEA.
 
+  * rework build script with guile-gnome dependencies (can of worms?)
+    ::: 8
+
+
+
 
 ------
 

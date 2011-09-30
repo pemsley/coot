@@ -593,10 +593,10 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
    if (0) { 
       for (unsigned int ichi=0; ichi<atom_name_quads.size(); ichi++) {
 	 std::cout << "Quad " << ichi << " "
-		   << atom_name_quads[ichi].atom1 << " "
-		   << atom_name_quads[ichi].atom2 << " "
-		   << atom_name_quads[ichi].atom3 << " "
-		   << atom_name_quads[ichi].atom4 << " "
+		   << atom_name_quads[ichi].atom_name(0) << " "
+		   << atom_name_quads[ichi].atom_name(1) << " "
+		   << atom_name_quads[ichi].atom_name(2) << " "
+		   << atom_name_quads[ichi].atom_name(3) << " "
 		   << std::endl;
       }
    }
@@ -605,10 +605,10 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
       double tors = this_rot[ichi];
       try {
 	 coot::atom_tree_t t(rest, rres, alt_conf);
-	 double new_angle = t.set_dihedral(atom_name_quads[ichi].atom1,
-					   atom_name_quads[ichi].atom2,
-					   atom_name_quads[ichi].atom3,
-					   atom_name_quads[ichi].atom4,
+	 double new_angle = t.set_dihedral(atom_name_quads[ichi].atom_name(0),
+					   atom_name_quads[ichi].atom_name(1),
+					   atom_name_quads[ichi].atom_name(2),
+					   atom_name_quads[ichi].atom_name(3),
 					   tors);
 
 	 if (debug) 

@@ -110,7 +110,6 @@
 	#t)))
 
 
-
 (greg-testcase "ins code change and Goto atom over an ins code break" #t
    (lambda () 	       
 
@@ -140,16 +139,27 @@
 		 (format #t "Fail ins code set: ~s is not \"A\"~%" ins-2)
 		 (throw 'fail)))
 
+	   (write-pdb-file frag-pdb "post-ins-change.pdb")
+
 	   (let ((test-expected-results
 		  (list 
+
+		   ;; note: 68B -> 70 doesn't happen unless we are on 68B (rc distance check)
+		   ;; 
 		   (cons (goto-next-atom-maybe "A" 67 ""  " CA ") (list "A" 68 ""  " CA "))
 		   (cons (goto-next-atom-maybe "A" 68 "A" " CA ") (list "A" 68 "B" " CA "))
-		   (cons (goto-next-atom-maybe "A" 68 "B" " CA ") (list "A" 70 ""  " CA "))
-		   (cons (goto-next-atom-maybe "D" 10 ""  " O  ") (list "A" 62  "" " CA "))
+		   (cons (goto-next-atom-maybe "A" 68 "B" " CA ") (list "A" 68 "B" " CA ")) 
 		   (cons (goto-prev-atom-maybe "A" 70 ""  " CA ") (list "A" 68 "B" " CA "))
 		   (cons (goto-prev-atom-maybe "A" 68 "B" " CA ") (list "A" 68 "A" " CA "))
 		   (cons (goto-prev-atom-maybe "A" 68 "A" " CA ") (list "A" 68  "" " CA "))
 		   (cons (goto-prev-atom-maybe "A" 68 ""  " CA ") (list "A" 66  "" " CA ")))))
+
+;; Note:: these are taken out beause goto-next-atom-maybe now checks
+;; where the screen centre is before the move, so the previously
+;; expected results no longer apply.  We could recentre and in these
+;; tests - (todo...).
+;; 		   (cons (goto-next-atom-maybe "A" 68 "B" " CA ") (list "A" 70 ""  " CA "))
+;; 		   (cons (goto-next-atom-maybe "D" 10 ""  " O  ") (list "A" 62  "" " CA "))
 
 	     (let loop ((real-results (map car test-expected-results))
 			(expected-results (map cdr test-expected-results)))

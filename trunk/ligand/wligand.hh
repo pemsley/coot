@@ -75,7 +75,7 @@ namespace coot {
 			   const minimol::molecule &ligand) const;
 
       std::vector<atom_index_quad>
-      get_atom_index_quads(std::vector<atom_name_quad>atom_name_quads,
+      get_atom_index_quads(const std::vector<atom_name_quad> &atom_name_quads,
 			   const minimol::molecule &ligand) const;
 
       std::vector<atom_index_pair>

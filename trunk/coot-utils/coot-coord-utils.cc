@@ -6646,3 +6646,60 @@ coot::util::copy_cell_and_symm_headers(CMMDBManager *m1, CMMDBManager *m2) {
    return r;
 }
 
+
+// return success status (0 = fail)
+
+coot::position_residue_by_internal_coordinates::position_residue_by_internal_coordinates(CResidue *residue_ref,
+											 CResidue *residue_moving,
+											 const atom_name_quad &quad,
+											 const double &bond_length,
+											 const double &bond_angle,
+											 const double &bond_torsion) {  // degrees
+
+   bool status = 0;
+
+   // first, can we find the atoms in the residues?
+   if (residue_ref) {
+      if (residue_moving) {
+
+	 CAtom *at_1 = get_atom(residue_ref, residue_moving, quad, 1);
+	 CAtom *at_2 = get_atom(residue_ref, residue_moving, quad, 2);
+	 CAtom *at_3 = get_atom(residue_ref, residue_moving, quad, 3);
+	 CAtom *at_4 = get_atom(residue_ref, residue_moving, quad, 4);
+
+      }
+   } 
+}
+
+
+bool 
+coot::position_residue_by_internal_coordinates::move_moving_residue() {
+
+   bool status = 0;
+
+   return status;
+} 
+
+// return NULL on atom not found (res_1 and res_2 are guarenteed to be non-null)
+CAtom *
+coot::position_residue_by_internal_coordinates::get_atom(CResidue *res_1,
+							 CResidue *res_2,
+							 const atom_name_quad &quad,
+							 int atom_index) {
+
+   CAtom *at = NULL;
+
+   std::string atom_name;
+
+   if (atom_name.length() > 0) {
+
+      CResidue *residue_p = NULL;
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      
+   }
+   return at;
+
+}
+

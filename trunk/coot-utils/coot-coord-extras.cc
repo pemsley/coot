@@ -421,10 +421,10 @@ coot::match_torsions::get_torsion(CResidue *res, const coot::atom_name_quad &qua
    bool status = 0;
    double tors = 0;
    std::vector<CAtom *> atoms(4, static_cast<CAtom *> (NULL));
-   atoms[0] = res->GetAtom(quad.atom1.c_str());
-   atoms[1] = res->GetAtom(quad.atom2.c_str());
-   atoms[2] = res->GetAtom(quad.atom3.c_str());
-   atoms[3] = res->GetAtom(quad.atom4.c_str());
+   atoms[0] = res->GetAtom(quad.atom_name(0).c_str());
+   atoms[1] = res->GetAtom(quad.atom_name(1).c_str());
+   atoms[2] = res->GetAtom(quad.atom_name(2).c_str());
+   atoms[3] = res->GetAtom(quad.atom_name(3).c_str());
 
    if (atoms[0] && atoms[1] && atoms[2] && atoms[3]) {
       clipper::Coord_orth pts[4];
@@ -456,8 +456,8 @@ coot::match_torsions::apply_torsion(const coot::atom_name_quad &moving_quad,
       try {
 	 coot::atom_tree_t tree(moving_residue_restraints, res_moving, alt_conf);
 	 
-	 new_angle = tree.set_dihedral(moving_quad.atom1, moving_quad.atom2,
-				       moving_quad.atom3, moving_quad.atom4,
+	 new_angle = tree.set_dihedral(moving_quad.atom_name(0), moving_quad.atom_name(1),
+				       moving_quad.atom_name(2), moving_quad.atom_name(3),
 				       tors.second * 180/M_PI);
 	 status = 1; // may not happen if set_dihedral() throws an exception
       }
