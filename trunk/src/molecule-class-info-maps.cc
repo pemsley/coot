@@ -2348,169 +2348,174 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
    imol_no = imol_no_in;
    clipper::HKL_info mydata;
    clipper::CIFfile cif; 
-      
-   cif.open_read ( cif_file_name );
-   cif.import_hkl_info(mydata); // set spacegroup, cell and get hkl list. 
-   clipper::HKL_data< clipper::datatypes::F_sigF<float> > myfsigf(mydata); // Fobs
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fc(mydata); // FC PHIC
 
-   cif.import_hkl_data(myfsigf);
-   cif.import_hkl_data(fc); 
 
-   cif.close_read(); 
+   try { 
+      cif.open_read ( cif_file_name );
+      cif.import_hkl_info(mydata); // set spacegroup, cell and get hkl list. 
+      clipper::HKL_data< clipper::datatypes::F_sigF<float> > myfsigf(mydata); // Fobs
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fc(mydata); // FC PHIC
 
-   // std::cout << "DEBUG:: make_map_from_cif_sigmaa" << std::endl;
-   std::cout << "Read " << mydata.num_reflections() << " from CIF file (sigmaa)." 
-	     << std::endl; 
+      cif.import_hkl_data(myfsigf);
+      cif.import_hkl_data(fc); 
 
-   if (mydata.num_reflections() == 0) {
-      return -1;
-   } else {
+      cif.close_read(); 
 
-      // Are all the calculated sfs missing/zero?
-      // 
-      int non_zero = 0;
-      for(int i=0; i< mydata.num_reflections(); i++) {
-	 if (! fc[i].missing()) {
-	    if (fc[i].f() > 0.0) {
-	       non_zero = 1;
-	       break;
-	    }
-	 }
-      }
+      // std::cout << "DEBUG:: make_map_from_cif_sigmaa" << std::endl;
+      std::cout << "Read " << mydata.num_reflections() << " from CIF file (sigmaa)." 
+		<< std::endl; 
 
-      if (non_zero == 0) {
-	 std::cout << "WARNING:: Ooops - all the structure factor amplitudes "
-		   << " appear to be zero - or missing.  " << std::endl;
-	 std::cout << "WARNING:: Are you sure this file (" << cif_file_name
-		   << ") contains calculated structure factors?" << std::endl;
-	 std::cout << "WARNING:: No map calculated." << std::endl;
-	 std::cout << "INFO:: if you want to calculate structure factors from a"
-		   << " set of coordinates, " << std::endl
-		   << "       consider the function (read-cif-data cif-file imol)"
-		   << std::endl;
+      if (mydata.num_reflections() == 0) {
+	 return -1;
       } else {
 
-	 if (max_xmaps == 0) {
-     
-	    xmap_list = new clipper::Xmap<float>[10];
-	    // these are allocated in initialize_map_things_on_read_molecule()
-// 	    xmap_is_filled   = new int[10];
-// 	    xmap_is_diff_map = new int[10];
-// 	    contour_level    = new float[10];
-	 }
-	 max_xmaps++; 
-	 std::string mol_name = cif_file_name;
-	 if (sigmaa_map_type == molecule_map_type::TYPE_SIGMAA)
-	    mol_name += " SigmaA";
-	 if (sigmaa_map_type == molecule_map_type::TYPE_DIFF_SIGMAA)
-	    mol_name += " Difference SigmaA";
-
-	 // new sigmaA code... needs to be updated to new Kevin
-	 // code... but that is slightly tricky because here we have
-	 // sfs, whereas KC code calculates them.
-	 
-	 std::cout << "sigmaa and scaling..." << std::endl; 
-	 
-	 clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(mydata);
-	 clipper::HKL_data<clipper::datatypes::Phi_fom<float> > phifom(mydata);
-
-	 clipper::Cell cxtl = myfsigf.hkl_info().cell();
-	 // "Aliases" to fix Kevin's sigmaA code into mine
-	 const clipper::HKL_data<clipper::datatypes::F_sigF<float> >& fo = myfsigf;
-	 const clipper::HKL_info& hkls = mydata;
-
-	 // now do sigmaa calc
-	 clipper::HKL_data<clipper::datatypes::F_phi<float> >   fb( hkls, cxtl ), fd( hkls, cxtl );
-	 clipper::HKL_data<clipper::datatypes::Phi_fom<float> > phiw( hkls, cxtl );
-	 clipper::HKL_data<clipper::datatypes::Flag>    flag( hkls, cxtl );
-	 typedef clipper::HKL_data_base::HKL_reference_index HRI;
-	 // If no free flag is available, then use all reflections..
-	 for (HRI ih = flag.first(); !ih.last(); ih.next() )
-	    flag[ih].flag() = clipper::SFweight_spline<float>::BOTH;
-
-	 /* This code uses free reflections only for sigmaa and scaling...
-	 for (HRI ih = flag.first(); !ih.last(); ih.next() )
-	    if ( !fo[ih].missing() && (free[ih].missing()||free[ih].flag()==0) )
-	       flag[ih].flag() = clipper::SFweight_spline<float>::BOTH;
-	    else
-	       flag[ih].flag() = clipper::SFweight_spline<float>::NONE;
-	 */
-
-	 // do sigmaa calc
-	 int n_refln = 1000;
-	 int n_param = 20;
-	 clipper::SFweight_spline<float> sfw( n_refln, n_param );
-	 sfw( fb, fd, phiw, fo, fc, flag );
-	 // fb is F+phi for "Best"
-	 // fd is F+phi for difference map
-	 short int is_diff = 0;
-	 if (sigmaa_map_type == molecule_map_type::TYPE_DIFF_SIGMAA) {
-	    map_fphidata = fd;
-	    is_diff = 1;
-	 } else { 
-	    map_fphidata = fb;
+	 // Are all the calculated sfs missing/zero?
+	 // 
+	 int non_zero = 0;
+	 for(int i=0; i< mydata.num_reflections(); i++) {
+	    if (! fc[i].missing()) {
+	       if (fc[i].f() > 0.0) {
+		  non_zero = 1;
+		  break;
+	       }
+	    }
 	 }
 
-
-	 // 20091101 This fails to give a sensible cell, spacegroup
-	 // and sampling for original_fphis.  Needs Kevin.
-	 //
-	 // original_fphis_filled = 1;
-	 // original_fphis.init(map_fphidata.spacegroup(), map_fphidata.cell(), map_fphidata.hkl_sampling());
-	 // original_fphis = map_fphidata;
-
-	 
-	 // back to old code 
-	 //
-	 cout << "initializing map..."; 
-	 xmap_list[0].init(mydata.spacegroup(), 
-			   mydata.cell(), 
-			   clipper::Grid_sampling(mydata.spacegroup(),
-						  mydata.cell(), 
-						  mydata.resolution(),
-						  graphics_info_t::map_sampling_rate));
-	 cout << "done."<< endl; 
-
-	 cout << "doing fft..." ; 
-	 // xmap_list[0].fft_from( fphidata );       // generate Fc alpha-c map
-	 xmap_list[0].fft_from( map_fphidata );       // generate sigmaA map 20050804
-	 cout << "done." << endl;
-	 initialize_map_things_on_read_molecule(mol_name, is_diff, 0);
-	 // now need to fill contour_level, xmap_is_diff_map xmap_is_filled
-	 if (is_diff)
-	    xmap_is_diff_map[0] = 1;
-	 else 
-	    xmap_is_diff_map[0] = 0;
-
-	 mean_and_variance<float> mv = map_density_distribution(xmap_list[0],0);
-
-	 cout << "Mean and sigma of map from CIF file (make_map_from_cif): "
-	      << mv.mean << " and " << sqrt(mv.variance) << endl; 
-
-	 xmap_is_filled[0] = 1; 
-	 update_map_in_display_control_widget();
-	 
-	 map_mean_  = mv.mean; 
-	 map_sigma_ = sqrt(mv.variance);
-	 map_max_   = mv.max_density;
-	 map_min_   = mv.min_density;
-	 
-	 set_initial_contour_level();
-
-	 int imol = imol_no_in;
-	 update_map(); 
-
-	 if (sigmaa_map_type != molecule_map_type::TYPE_DIFF_SIGMAA) {
-	    save_state_command_strings_.push_back("read-cif-data-with-phases-sigmaa");
-	    save_state_command_strings_.push_back(single_quote(cif_file_name));
+	 if (non_zero == 0) {
+	    std::cout << "WARNING:: Ooops - all the structure factor amplitudes "
+		      << " appear to be zero - or missing.  " << std::endl;
+	    std::cout << "WARNING:: Are you sure this file (" << cif_file_name
+		      << ") contains calculated structure factors?" << std::endl;
+	    std::cout << "WARNING:: No map calculated." << std::endl;
+	    std::cout << "INFO:: if you want to calculate structure factors from a"
+		      << " set of coordinates, " << std::endl
+		      << "       consider the function (read-cif-data cif-file imol)"
+		      << std::endl;
 	 } else {
-	    save_state_command_strings_.push_back("read-cif-data-with-phases-diff-sigmaa");
-	    save_state_command_strings_.push_back(single_quote(cif_file_name));
-	 } 
-	 return imol;
-      } 
+
+	    if (max_xmaps == 0) {
+     
+	       xmap_list = new clipper::Xmap<float>[10];
+	       // these are allocated in initialize_map_things_on_read_molecule()
+	       // 	    xmap_is_filled   = new int[10];
+	       // 	    xmap_is_diff_map = new int[10];
+	       // 	    contour_level    = new float[10];
+	    }
+	    max_xmaps++; 
+	    std::string mol_name = cif_file_name;
+	    if (sigmaa_map_type == molecule_map_type::TYPE_SIGMAA)
+	       mol_name += " SigmaA";
+	    if (sigmaa_map_type == molecule_map_type::TYPE_DIFF_SIGMAA)
+	       mol_name += " Difference SigmaA";
+
+	    // new sigmaA code... needs to be updated to new Kevin
+	    // code... but that is slightly tricky because here we have
+	    // sfs, whereas KC code calculates them.
 	 
+	    std::cout << "sigmaa and scaling..." << std::endl; 
+	 
+	    clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(mydata);
+	    clipper::HKL_data<clipper::datatypes::Phi_fom<float> > phifom(mydata);
+
+	    clipper::Cell cxtl = myfsigf.hkl_info().cell();
+	    // "Aliases" to fix Kevin's sigmaA code into mine
+	    const clipper::HKL_data<clipper::datatypes::F_sigF<float> >& fo = myfsigf;
+	    const clipper::HKL_info& hkls = mydata;
+
+	    // now do sigmaa calc
+	    clipper::HKL_data<clipper::datatypes::F_phi<float> >   fb( hkls, cxtl ), fd( hkls, cxtl );
+	    clipper::HKL_data<clipper::datatypes::Phi_fom<float> > phiw( hkls, cxtl );
+	    clipper::HKL_data<clipper::datatypes::Flag>    flag( hkls, cxtl );
+	    typedef clipper::HKL_data_base::HKL_reference_index HRI;
+	    // If no free flag is available, then use all reflections..
+	    for (HRI ih = flag.first(); !ih.last(); ih.next() )
+	       flag[ih].flag() = clipper::SFweight_spline<float>::BOTH;
+
+	    /* This code uses free reflections only for sigmaa and scaling...
+	       for (HRI ih = flag.first(); !ih.last(); ih.next() )
+	       if ( !fo[ih].missing() && (free[ih].missing()||free[ih].flag()==0) )
+	       flag[ih].flag() = clipper::SFweight_spline<float>::BOTH;
+	       else
+	       flag[ih].flag() = clipper::SFweight_spline<float>::NONE;
+	    */
+
+	    // do sigmaa calc
+	    int n_refln = 1000;
+	    int n_param = 20;
+	    clipper::SFweight_spline<float> sfw( n_refln, n_param );
+	    sfw( fb, fd, phiw, fo, fc, flag );
+	    // fb is F+phi for "Best"
+	    // fd is F+phi for difference map
+	    short int is_diff = 0;
+	    if (sigmaa_map_type == molecule_map_type::TYPE_DIFF_SIGMAA) {
+	       map_fphidata = fd;
+	       is_diff = 1;
+	    } else { 
+	       map_fphidata = fb;
+	    }
+
+
+	    // 20091101 This fails to give a sensible cell, spacegroup
+	    // and sampling for original_fphis.  Needs Kevin.
+	    //
+	    // original_fphis_filled = 1;
+	    // original_fphis.init(map_fphidata.spacegroup(), map_fphidata.cell(), map_fphidata.hkl_sampling());
+	    // original_fphis = map_fphidata;
+
+	 
+	    // back to old code 
+	    //
+	    cout << "initializing map..."; 
+	    xmap_list[0].init(mydata.spacegroup(), 
+			      mydata.cell(), 
+			      clipper::Grid_sampling(mydata.spacegroup(),
+						     mydata.cell(), 
+						     mydata.resolution(),
+						     graphics_info_t::map_sampling_rate));
+	    cout << "done."<< endl; 
+
+	    cout << "doing fft..." ; 
+	    // xmap_list[0].fft_from( fphidata );       // generate Fc alpha-c map
+	    xmap_list[0].fft_from( map_fphidata );       // generate sigmaA map 20050804
+	    cout << "done." << endl;
+	    initialize_map_things_on_read_molecule(mol_name, is_diff, 0);
+	    // now need to fill contour_level, xmap_is_diff_map xmap_is_filled
+	    if (is_diff)
+	       xmap_is_diff_map[0] = 1;
+	    else 
+	       xmap_is_diff_map[0] = 0;
+
+	    mean_and_variance<float> mv = map_density_distribution(xmap_list[0],0);
+
+	    cout << "Mean and sigma of map from CIF file (make_map_from_cif): "
+		 << mv.mean << " and " << sqrt(mv.variance) << endl; 
+
+	    xmap_is_filled[0] = 1; 
+	    update_map_in_display_control_widget();
+	 
+	    map_mean_  = mv.mean; 
+	    map_sigma_ = sqrt(mv.variance);
+	    map_max_   = mv.max_density;
+	    map_min_   = mv.min_density;
+	 
+	    set_initial_contour_level();
+
+	    int imol = imol_no_in;
+	    update_map(); 
+
+	    if (sigmaa_map_type != molecule_map_type::TYPE_DIFF_SIGMAA) {
+	       save_state_command_strings_.push_back("read-cif-data-with-phases-sigmaa");
+	       save_state_command_strings_.push_back(single_quote(cif_file_name));
+	    } else {
+	       save_state_command_strings_.push_back("read-cif-data-with-phases-diff-sigmaa");
+	       save_state_command_strings_.push_back(single_quote(cif_file_name));
+	    } 
+	    return imol;
+	 }
+      }
+   }
+   catch (clipper::Message_base rte) {
+      std::cout << "WARNING:: Problem reading " << cif_file_name << std::endl;
    }
    return -1; 
 }
