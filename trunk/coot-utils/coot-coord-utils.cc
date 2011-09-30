@@ -6647,8 +6647,31 @@ coot::util::copy_cell_and_symm_headers(CMMDBManager *m1, CMMDBManager *m2) {
 }
 
 
-// return success status (0 = fail)
-
+// The plan for positioning NAGs on ASN (N-link):
+//
+// Scenario Simple Beam-in:
+//    User has an ASN onto which they want to beam in a NAG.
+// 
+//    setup:
+//    Make CResidue *s and/or molecule for the N-linked NAG reference residues.
+// 
+///   Get the CResidue * for the user residue ASN 
+//    Get the CAtoms *s for the OD1, ND2, GC and CB in user residue [1]
+//    Get the CAtoms *s for the OD1, ND2, GC and CB in N-linked ASN molecule [2]
+//
+//    LSQ fit the NAG residue from the reference ASN+NAG pair using
+//    matrix that rotates [2] onto [1].  (We don't need the ASN from
+//    that pair).  Now we can add that rotated NAG CResidue * to user
+//    molecule.
+//
+//
+//  Scenario Torsion-angle Density Search:
+//    User has an ASN and a density map and want to add a NAG.
+//    or:
+//    User has a NAG and want to 1-4 add another.  This is harder.
+// 
+// 
+// 
 coot::position_residue_by_internal_coordinates::position_residue_by_internal_coordinates(CResidue *residue_ref,
 											 CResidue *residue_moving,
 											 const atom_name_quad &quad,
@@ -6662,16 +6685,24 @@ coot::position_residue_by_internal_coordinates::position_residue_by_internal_coo
    if (residue_ref) {
       if (residue_moving) {
 
+	 CAtom *at_0 = get_atom(residue_ref, residue_moving, quad, 0);
 	 CAtom *at_1 = get_atom(residue_ref, residue_moving, quad, 1);
 	 CAtom *at_2 = get_atom(residue_ref, residue_moving, quad, 2);
 	 CAtom *at_3 = get_atom(residue_ref, residue_moving, quad, 3);
-	 CAtom *at_4 = get_atom(residue_ref, residue_moving, quad, 4);
 
+	 if (at_0 && at_1 && at_2 && at_3) {
+
+	    // OK, we have found the atoms of the residue
+	    
+	 } 
       }
    } 
 }
 
 
+// return success status (0 = fail)
+//
+// 
 bool 
 coot::position_residue_by_internal_coordinates::move_moving_residue() {
 
@@ -6693,13 +6724,22 @@ coot::position_residue_by_internal_coordinates::get_atom(CResidue *res_1,
 
    if (atom_name.length() > 0) {
 
-      CResidue *residue_p = NULL;
+      CResidue *residue_p = res_1;
+      std::string torsion_atom_name = quad.atom_name(atom_index);
+      if (quad.atom_residue_index[atom_index] == 2)
+	 residue_p = res_2;
       PPCAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 CAtom *atom = residue_atoms[iat];
+	 std::string atom_name(atom->name);
+	 if (atom_name == torsion_atom_name) {
+	    at = atom;
+	    break;
+	 }
+      }
    }
    return at;
-
 }
 
