@@ -944,13 +944,13 @@ coot::chi_angles::get_atom_index_quads(const std::vector<coot::atom_name_quad> &
       int index_4 = -1;
       for (int iat=0; iat<nresatoms; iat++) {
 	 std::string atomname = atoms[iat]->name;
-	 if (atomname == atom_name_quads[iquad].atom1)
+	 if (atomname == atom_name_quads[iquad].atom_name(0))
 	    index_1 = iat;
-	 if (atomname == atom_name_quads[iquad].atom2)
+	 if (atomname == atom_name_quads[iquad].atom_name(1))
 	    index_2 = iat;
-	 if (atomname == atom_name_quads[iquad].atom3)
+	 if (atomname == atom_name_quads[iquad].atom_name(2))
 	    index_3 = iat;
-	 if (atomname == atom_name_quads[iquad].atom4)
+	 if (atomname == atom_name_quads[iquad].atom_name(3))
 	    index_4 = iat;
       }
       if ((index_1 != -1) && (index_2 != -1) && (index_3 != -1) && (index_4 != -1)) {

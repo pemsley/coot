@@ -1250,19 +1250,19 @@ coot::minimol::residue::get_torsion(coot::atom_name_quad &quad) const {
    bool fat4 = 0;
    clipper::Coord_orth pos1, pos2, pos3, pos4;
    for (unsigned int i=0; i< atoms.size(); i++) {
-      if (atoms[i].name == quad.atom1) { 
+      if (atoms[i].name == quad.atom_name(0)) { 
 	 pos1 = atoms[i].pos;
 	 fat1 = 1;
       } 
-      if (atoms[i].name == quad.atom2) { 
+      if (atoms[i].name == quad.atom_name(1)) { 
 	 pos2 = atoms[i].pos;
 	 fat2 = 1;
       } 
-      if (atoms[i].name == quad.atom3) { 
+      if (atoms[i].name == quad.atom_name(2)) { 
 	 pos3 = atoms[i].pos;
 	 fat3 = 1;
       } 
-      if (atoms[i].name == quad.atom4) { 
+      if (atoms[i].name == quad.atom_name(3)) { 
 	 pos4 = atoms[i].pos;
 	 fat4 = 1;
       } 
@@ -1271,13 +1271,13 @@ coot::minimol::residue::get_torsion(coot::atom_name_quad &quad) const {
    if (! (fat1 && fat2 && fat3 && fat4)) {
       std::string mess = "get_torsion: not all atoms found in residue\n";
       mess += "searching for ";
-      mess += quad.atom1;
+      mess += quad.atom_name(0);
       mess += " ";
-      mess += quad.atom2;
+      mess += quad.atom_name(1);
       mess += " ";
-      mess += quad.atom3;
+      mess += quad.atom_name(2);
       mess += " ";
-      mess += quad.atom4;
+      mess += quad.atom_name(3);
       mess += "\n available:   ";
       for (unsigned int iat=0; iat<atoms.size(); iat++) { 
 	 mess += atoms[iat].name;

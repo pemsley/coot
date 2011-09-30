@@ -246,16 +246,16 @@ coot::primitive_chi_angles::get_atom_index_quads(const std::vector<coot::atom_na
       int ifound = 0;
       for (int i1=0; i1<nresatoms; i1++) {
          std::string atom_name = atoms[i1]->name;
-         if (atom_name == atom_name_quads_in[iquad].atom1) {
+         if (atom_name == atom_name_quads_in[iquad].atom_name(0)) {
             for (int i2=0; i2<nresatoms; i2++) {
                std::string atom_name = atoms[i2]->name;
-               if (atom_name == atom_name_quads_in[iquad].atom2) {
+               if (atom_name == atom_name_quads_in[iquad].atom_name(1)) {
                   for (int i3=0; i3<nresatoms; i3++) {
                      std::string atom_name = atoms[i3]->name;
-                     if (atom_name == atom_name_quads_in[iquad].atom3) {
+                     if (atom_name == atom_name_quads_in[iquad].atom_name(2)) {
                         for (int i4=0; i4<nresatoms; i4++) {
                            std::string atom_name = atoms[i4]->name;
-                           if (atom_name == atom_name_quads_in[iquad].atom4) {
+                           if (atom_name == atom_name_quads_in[iquad].atom_name(3)) {
                               v.push_back(coot::atom_index_quad(i1, i2, i3, i4));
                            }
                         }
@@ -270,10 +270,10 @@ coot::primitive_chi_angles::get_atom_index_quads(const std::vector<coot::atom_na
       std::cout << "primitive chis: Failure to find correct atom quads in residue atoms\n" ;
       for (int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
          std::cout << "  quad needed: :"
-                   << atom_name_quads_in[iquad].atom1 << ":  :"
-                   << atom_name_quads_in[iquad].atom2 << ":  :"
-                   << atom_name_quads_in[iquad].atom3 << ":  :"
-                   << atom_name_quads_in[iquad].atom4 << ":\n";
+                   << atom_name_quads_in[iquad].atom_name(0) << ":  :"
+                   << atom_name_quads_in[iquad].atom_name(1) << ":  :"
+                   << atom_name_quads_in[iquad].atom_name(2) << ":  :"
+                   << atom_name_quads_in[iquad].atom_name(3) << ":\n";
       }
       for (unsigned int iv=0; iv<v.size(); iv++) {
          std::cout << "  found quad: "
@@ -326,19 +326,19 @@ coot::primitive_chi_angles::get_quads_using_altconfs(const std::vector<coot::ato
          for (int i1=0; i1<n_residue_atoms; i1++) {
             std::string atom_name = atoms[i1]->name;
             std::string alt_conf_1 = atoms[i1]->altLoc;
-            if (atom_name == atom_name_quads[iquad].atom1) {
+            if (atom_name == atom_name_quads[iquad].atom_name(0)) {
                for (int i2=0; i2<n_residue_atoms; i2++) {
                   std::string atom_name = atoms[i2]->name;
                   std::string alt_conf_2 = atoms[i2]->altLoc;
-                  if (atom_name == atom_name_quads[iquad].atom2) {
+                  if (atom_name == atom_name_quads[iquad].atom_name(1)) {
                      for (int i3=0; i3<n_residue_atoms; i3++) {
                         std::string atom_name = atoms[i3]->name;
                         std::string alt_conf_3 = atoms[i3]->altLoc;
-                        if (atom_name == atom_name_quads[iquad].atom3) {
+                        if (atom_name == atom_name_quads[iquad].atom_name(2)) {
                            for (int i4=0; i4<n_residue_atoms; i4++) {
                               std::string atom_name = atoms[i4]->name;
                               std::string alt_conf_4 = atoms[i4]->altLoc;
-                              if (atom_name == atom_name_quads[iquad].atom4) {
+                              if (atom_name == atom_name_quads[iquad].atom_name(3)) {
                                  if (alt_conf_4 == residue_alt_confs[i_alt_conf] || alt_conf_4 == "") {
                                     if (alt_conf_3 == residue_alt_confs[i_alt_conf] || alt_conf_3 == "") {
                                        if (alt_conf_2 == residue_alt_confs[i_alt_conf] || alt_conf_2 == "") {

@@ -5117,7 +5117,7 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 	 chain_p = model_p->GetChain(i_chain);
 	 std::string mol_chain(chain_p->GetChainID());
 	 if (mol_chain == chain_id) {
-	    std::cout << "DEBUG:: Found chain_id " << chain_id << std::endl;
+	    // std::cout << "DEBUG:: Found chain_id " << chain_id << std::endl;
 	    int nres = chain_p->GetNumberOfResidues();
 	    make_backup();
 	    CResidue *residue_p;

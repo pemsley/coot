@@ -577,7 +577,7 @@ coot::wligand::get_atom_index_pairs(std::vector<coot::atom_name_pair>atom_name_p
 }
 
 std::vector<coot::atom_index_quad>
-coot::wligand::get_atom_index_quads(std::vector<coot::atom_name_quad> atom_name_quads,
+coot::wligand::get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_quads,
 				    const coot::minimol::molecule &ligand) const {
    
    int i_store_index_1; 
@@ -592,17 +592,18 @@ coot::wligand::get_atom_index_quads(std::vector<coot::atom_name_quad> atom_name_
 	    i_store_index_2 = -2;
 	    i_store_index_3 = -3;
 	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++)
-	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom1)
+	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom_name(0))
 		  i_store_index_1 = iat;
 	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++)
-	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom2)
+	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom_name(1))
 		  i_store_index_2 = iat;
 	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++)
-	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom3)
+	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom_name(2))
 		  i_store_index_3 = iat;
 
 	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) {
-	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom2) {
+	       if (ligand[ifrag][ires][iat].name == atom_name_quads[iquad].atom_name(3)) {
+		  
 		  if (i_store_index_1 > -1) { 
 		     if (i_store_index_2 > -1) { 
 			if (i_store_index_3 > -1) { 

@@ -41,6 +41,7 @@
 #include "mmdb_manager.h"
 
 #include "clipper/core/coords.h"
+#include "atom-quads.hh"
 #include "coot-lsq-types.h"
 
 // How should I do this better?
@@ -650,6 +651,19 @@ namespace coot {
 
    //
    bool mol_has_symmetry(CMMDBManager *mol);
+
+   class position_residue_by_internal_coordinates {
+      CAtom *get_atom(CResidue *res_1, CResidue *res_2, const atom_name_quad &quad, int atom_index);
+   public:
+      position_residue_by_internal_coordinates(CResidue *residue_ref, CResidue *residue_moving,
+					       const atom_name_quad &quad,
+					       const double &bond_length,
+					       const double &bond_angle,
+					       const double &bond_torsion); // degrees
+      // return success status (0 = fail)
+      bool move_moving_residue();
+   };
+      
 
    namespace util {
 
@@ -1379,7 +1393,7 @@ namespace coot {
 
       // Print secondary structure info:
       void print_secondary_structure_info(CModel *model_p);
-      
+
    } // namespace util
    std::ostream&  operator<<(std::ostream&  s, const util::quaternion &q);
    std::ofstream& operator<<(std::ofstream& s, const util::quaternion &q);

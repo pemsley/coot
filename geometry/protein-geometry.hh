@@ -1493,7 +1493,8 @@ namespace coot {
       int init_standard(); // standard protein residues and links.
        			   // Return the current read_number
       
-      // Return 0 on failure to do a dynamic add 
+      // Return 0 on failure to do a dynamic add, otherwise return the
+      // number of atoms read.
       // 
       int try_dynamic_add(const std::string &resname, int read_number);  // return success status?
       // this is not const if we use dynamic add.

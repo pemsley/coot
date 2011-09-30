@@ -4339,14 +4339,15 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
       // Note: we may not be at this residue.
       // 
       coot::residue_spec_t this_residue_spec(chain_id, resno, ins_code);
+
       CResidue *this_residue = get_residue(this_residue_spec);
-      if (this_residue) { 
+      if (this_residue) {
 	 if (close_to_residue(this_residue, rc)) {
 	    // move on to next one
 	    int ser_num = this_residue->index;
 	    int ser_num_next = ser_num + 1;
 	    next_residue = this_residue->chain->GetResidue(ser_num_next);
-	       
+
 	    if (next_residue) {
 	       i_atom_index = intelligent_this_residue_atom(next_residue);
 	    } else {
@@ -5345,9 +5346,9 @@ molecule_class_info_t::next_ca_by_skel(const std::vector<clipper::Coord_orth> &p
    std::vector<coot::scored_skel_coord> t; 
    coot::CalphaBuild buildca(max_skeleton_search_depth);
 
-    std::cout << "DEBUG:: ------ "
- 	     << "in molecule_class_info_t::next_ca_by_skel skeleton_treenodemap_is_filled is "
-	      << skeleton_treenodemap_is_filled << " for molecule " << imol_no << std::endl;
+//     std::cout << "DEBUG:: ------ "
+//  	     << "in molecule_class_info_t::next_ca_by_skel skeleton_treenodemap_is_filled is "
+// 	      << skeleton_treenodemap_is_filled << " for molecule " << imol_no << std::endl;
 
     
    if (skeleton_treenodemap_is_filled) { 
@@ -5802,7 +5803,7 @@ molecule_class_info_t::apply_redo(const std::string &cwd) {
 
    int state = 0;
    if (history_index < max_history_index) {
-      std::cout << "DEBUG:: molecule applying redo " << history_index << std::endl;
+      // std::cout << "DEBUG:: molecule applying redo " << history_index << std::endl;
 
       // When there are 3 backups made and we are viewing molecule 2,
       // we don't want to restore from history_filename_vec[3]:
@@ -6205,7 +6206,7 @@ molecule_class_info_t::store_refmac_phase_params(const std::string &phi,
 						 const std::string &hlc,
 						 const std::string &hld) {
   
-  std::cout << "BL DEBUG:: in store refmac pahse params" <<std::endl;
+   // std::cout << "BL DEBUG:: in store refmac pahse params" <<std::endl;
   have_refmac_phase_params = 1; // true
   refmac_phi_col = phi;
   refmac_fom_col = fom;

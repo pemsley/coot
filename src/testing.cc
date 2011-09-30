@@ -283,7 +283,8 @@ int test_internal_single() {
       // status = test_residue_atom_renaming();
       // status = test_mcd_and_thornton_h_bonds();
       // status = test_COO_mod();
-      status = test_remove_whitespace();
+      // status = test_remove_whitespace();
+      status = test_position_residue_by_internal_coords();
       
    }
    catch (std::runtime_error mess) {
@@ -2595,22 +2596,78 @@ int test_COO_mod() {
 int test_remove_whitespace() {
 
    std::string s = "";
-   if (coot::util::remove_trailing_whitespace(s) != "")
+   if (coot::util::remove_trailing_whitespace(s) != "") {
+      std::cout << "fail on 1" << std::endl;
       return 0;
+   } 
    s = "zz";
-   if (coot::util::remove_trailing_whitespace(s) != "zz")
+   if (coot::util::remove_trailing_whitespace(s) != "zz") {
+      std::cout << "fail on 2" << std::endl;
       return 0;
+   } 
    s = "  zz";
-   if (coot::util::remove_trailing_whitespace(s) != "  zz")
+   if (coot::util::remove_trailing_whitespace(s) != "  zz") { 
+      std::cout << "fail on 3" << std::endl;
       return 0;
+   } 
    s = "  zz x";
-   if (coot::util::remove_trailing_whitespace(s) != "zz x")
+   if (coot::util::remove_trailing_whitespace(s) != "  zz x") { 
+      std::cout << "fail on 4" << std::endl;
       return 0;
+   } 
    s = "  zz  xx   ";
-   if (coot::util::remove_trailing_whitespace(s) != "  zz  xx")
+   if (coot::util::remove_trailing_whitespace(s) != "  zz  xx") { 
+      std::cout << "fail on 5" << std::endl;
       return 0;
+   }
    return 1;
+}
+
+int test_position_residue_by_internal_coords() {
+
+   int status = 0;
+
+   testing_data t;
+   int idealised_flag = 1;
+
+   const char *sbase_dir = getenv("COOT_SBASE_DIR");
+   if (sbase_dir) {
+      std::string sbase_monomer_dir = sbase_dir;
+      int init_status = t.geom.init_sbase(sbase_monomer_dir);
+      if (init_status != SBASE_Ok) {
+	 std::cout << "   WARNING:: Trouble initialising SBase" << std::endl;
+      } else { 
+
+	 CMMDBManager *r_mol = new CMMDBManager;
+	 r_mol->ReadPDBASCII("coot-ccp4/monomer-ASN.pdb");
+   
+	 CResidue *r = coot::util::get_first_residue(r_mol);
+	 CResidue *m = t.geom.get_sbase_residue("NAG");
+
+	 if (! r_mol) {
+	    std::cout << "Failed to get ASN molecule " << std::endl;
+	 } else {
+	    if (!r) {
+	       std::cout << "Failed to get ASN residue " << std::endl;
+	    } else { 
+	       if (!m) {
+		  std::cout << "Failed to get NAG residue " << std::endl;
+	       } else {
+
+		  coot::atom_name_quad quad(" CG ", " ND2", " C1 ", " O5 ");
+		  quad.set_atom_residue_index(2,2);
+		  quad.set_atom_residue_index(3,2);
+		  coot::position_residue_by_internal_coordinates p(r, m, quad, 1.45, 108.9, -100.4);
+		  status = p.move_moving_residue();
+		  std::cout << "DEBUG:: move_moving_residue status: " << status << std::endl;
+	       } 
+	    }
+	 }
+      }
+   }
+   return status;
 } 
+
 
 
 #endif // BUILT_IN_TESTING
