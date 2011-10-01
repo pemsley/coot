@@ -1593,8 +1593,15 @@
 
      ;; new dictionary
      (let ((ls (matching-compound-names-from-dictionary "gua" 0)))
-       (if (or (= (length ls) 153)     ;; new dictionary
-	       (= (length ls)  63))    ;; old dictionary
+       (if 
+
+	;; This is too fragile
+	;;
+	;; (or (= (length ls) 153)    ;; new dictionary
+	;;     (= (length ls)  63)    ;; 6.1.3 dictionary
+	;;     (= (length ls)  61))   ;; 6.0.2 dictionary
+
+	(> (length ls) 60)
 
 	   #t ;; good
 
