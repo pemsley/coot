@@ -387,6 +387,25 @@ namespace coot {
 		const long &start_time) const;
    };
 
+   // encapsulate this into molecule_class_info_t?
+   //
+   // trivial helper class to get specs and distance for atoms when a
+   // link is made.
+   // 
+   class dict_link_info_t {
+      bool check_for_order_switch(CResidue *residue_ref,
+				  CResidue *residue_new,
+				  const std::string &link_type,
+				  const coot::protein_geometry &geom) const;
+   public:
+      // this can throw a std::runtime_error
+      dict_link_info_t (CResidue *residue_ref, CResidue *residue_new,
+			const std::string &link_type, const protein_geometry &geom);
+      atom_spec_t spec_ref;
+      atom_spec_t spec_new;
+      double dist;
+   };
+
 
    class go_to_residue_string_info_t {
    public:
@@ -785,7 +804,8 @@ class molecule_class_info_t {
    // merge molecules helper function
    std::vector<std::string> map_chains_to_new_chains(const std::vector<std::string> &adding_model_chains,
 						     const std::vector<std::string> &this_model_chains) const;
-   void copy_and_add_residue_to_chain(CChain *this_model_chain, CResidue *add_model_residue);
+   // returned the copied residue (possibly can return NULL on failure).
+   CResidue* copy_and_add_residue_to_chain(CChain *this_model_chain, CResidue *add_model_residue);
 
    short int ligand_flip_number;
 
@@ -3041,6 +3061,21 @@ public:        //                      public
    coot::new_centre_info_t 
    new_ligand_centre(const clipper::Coord_orth &current_centre, int n_atoms_min) const;
 
+   // Add a LINK record if link_type is not blank (link_type is for
+   // example "NAG-ASN")
+   // return a pair, success-status and the added residue (it is a deep copy of the res_new)
+   std::pair<bool, CResidue *> add_residue(CResidue *res_new, const std::string &chain_id);
+   
+   // Add a LINK record if link_type is not blank (link_type is for
+   // example "NAG-ASN")
+   // 
+   //  (the protein_geometry is passes so that we // can look up the
+   //  bonded atoms in it for the link).
+   bool add_linked_residue(const coot::residue_spec_t &spec_in,
+			   const std::string &new_residue_comp_id,
+			   const std::string &link_type,
+			   const coot::protein_geometry &geom);
+   
 };
 
 #endif // MOLECULE_CLASS_INFO_T

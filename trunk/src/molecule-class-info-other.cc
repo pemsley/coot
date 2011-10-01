@@ -4959,10 +4959,11 @@ molecule_class_info_t::map_chains_to_new_chains(const std::vector<std::string> &
 }
 
 // This doesn't do a backup or finalise model.
-void
+CResidue *
 molecule_class_info_t::copy_and_add_residue_to_chain(CChain *this_model_chain,
 						     CResidue *add_model_residue) {
 
+   CResidue *res_copied = NULL;
    if (add_model_residue) {
       short int whole_res_flag = 1;
       int udd_atom_index_handle = 1; // does this matter?
@@ -4979,8 +4980,10 @@ molecule_class_info_t::copy_and_add_residue_to_chain(CChain *this_model_chain,
 	    new_res_resno = max_res_info.second;
 	 this_model_chain->AddResidue(residue_copy);
 	 residue_copy->seqNum = new_res_resno;
+	 res_copied = residue_copy;
       }
    }
+   return res_copied;
 }
 
 
