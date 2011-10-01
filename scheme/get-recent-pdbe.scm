@@ -1139,11 +1139,11 @@
 
 
 
-;; put this on a menu item
-; 
-(if (defined? 'coot-main-menubar)
-    (let ((menu (coot-menubar-menu "PDB")))
-      (add-simple-coot-menu-menuitem 
-       menu
-       "Latest Releases" pdbe-latest-releases-gui)))
+;;; put this on a menu item
+;; 
+;(if (defined? 'coot-main-menubar)
+;    (let ((menu (coot-menubar-menu "PDB")))
+;      (add-simple-coot-menu-menuitem 
+;       menu
+;       "Latest Releases" pdbe-latest-releases-gui)))
 

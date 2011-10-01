@@ -6539,9 +6539,22 @@ The monomer will have chainid "A" and residue number 1.
 Return -1 on failure to get monomer. */
 int get_sbase_monomer(const char *comp_id);
 
-
-
 /* \} */
+
+
+/* Needs a/the correct section */
+/* add a linked residue based purely on dictionary template. 
+   For addition of NAG to ASNs typically.
+
+   This doesn't work with residues with alt confs.
+
+   Link type is the refmac dictionary link type (e.g. "ASN-NAG").
+   
+   return success status (0 = fail).
+*/
+int add_linked_residue(int imol, const char *chain_id, int resno, const char *ins_code, 
+		       const char *new_residue_comp_id, const char *link_type);
+		       
 
 /*  ----------------------------------------------------------------------- */
 /*               Flattened Ligand Environment View  Interface               */

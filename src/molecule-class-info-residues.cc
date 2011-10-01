@@ -936,3 +936,189 @@ molecule_class_info_t::watson_crick_pair_for_residue_range(const std::string &ch
    } 
    return status;
 } 
+
+// Try to add a LINK record if LINK is not blank.
+//
+// Passed residue new_res does not have a useful residue_number.
+// 
+std::pair<bool, CResidue *>
+molecule_class_info_t::add_residue(CResidue *new_res,
+				   const std::string &chain_id_in) {
+
+   bool status = false;
+   CResidue *res_copied = NULL;
+   int imod = 1;
+   if (new_res) { 
+      if (atom_sel.n_selected_atoms > 0) { 
+	 CModel *model_p = atom_sel.mol->GetModel(imod);
+	 CChain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    std::string chain_id(chain_p->GetChainID());
+	    if (chain_id == chain_id_in) {
+	       res_copied = copy_and_add_residue_to_chain(chain_p, new_res);
+	       status = true;
+	       atom_sel.mol->FinishStructEdit();
+	       update_molecule_after_additions();
+	       break;
+	    }
+	 }
+      }
+   }
+   return std::pair<bool, CResidue *> (status, res_copied);
+}
+
+
+// Add a LINK record if link_type is not blank (link_type is for example "NAG-ASN")
+// 
+bool
+molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
+					  const std::string &new_residue_comp_id,
+					  const std::string &link_type,
+					  const coot::protein_geometry &geom) {
+
+   bool status = false;
+   CResidue *residue_ref = get_residue(spec_in);
+   if (residue_ref) {
+      const std::string link_type = "NAG-ASN"; // needs to be 
+      coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id);
+      CResidue *result = lr.get_residue();
+      std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);
+      status = status_pair.first;
+      if (status_pair.first) {
+
+	 try { 
+	    coot::dict_link_info_t link_info(residue_ref, status_pair.second, link_type, geom);
+	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist);
+	 }
+	 catch (std::runtime_error rte) {
+	    // we didn't find the info to make the link specs, oh well...
+	    std::cout << "WARNING:: add_linked_residue() catches exception \""
+		      << rte.what() << "\"" << std::endl;
+	 } 
+      }
+   }
+   return status;
+} 
+
+// this can throw a std::runtime_error
+coot::dict_link_info_t::dict_link_info_t(CResidue *residue_ref,
+					 CResidue *residue_new,
+					 const std::string &link_type,
+					 const coot::protein_geometry &geom) {
+
+   std::cout << "dict_link_info_t() constructor start with residue_ref: "
+	     << coot::residue_spec_t(residue_ref) << std::endl;
+   std::cout << "dict_link_info_t() constructor start with residue_new: "
+	     << coot::residue_spec_t(residue_new) << std::endl;
+   
+   bool ifound = false;
+   if (! residue_ref) {
+      throw (std::runtime_error("Null residue_ref"));
+   } else { 
+      if (! residue_ref) {
+	 throw (std::runtime_error("Null residue_new"));
+      } else {
+	 coot::dictionary_residue_link_restraints_t rr = geom.link(link_type);
+	 if (rr.link_id == "") {
+	    throw (std::runtime_error("Link not found in dictionary"));
+	 } else {
+
+	    bool order_switch_flag = check_for_order_switch(residue_ref,
+							    residue_new,
+							    link_type, geom);
+
+	    CResidue *res_1 = residue_ref;
+	    CResidue *res_2 = residue_new;
+
+	    if (order_switch_flag) { 
+	       std::swap(res_1, res_2);
+	    }
+	    
+	    // we found it (i.e. not null object)
+	    coot::residue_spec_t res_spec_ref(res_1);
+	    coot::residue_spec_t res_spec_new(res_2);
+	    for (unsigned int ibond=0; ibond<rr.link_bond_restraint.size(); ibond++) {
+	       PPCAtom residue_atoms_1 = 0;
+	       int n_residue_atoms_1;
+	       res_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+	       for (unsigned int iat1=0; iat1<n_residue_atoms_1; iat1++) { 
+		  std::string atom_name_1(residue_atoms_1[iat1]->name);
+		  if (atom_name_1 == rr.link_bond_restraint[ibond].atom_id_1_4c()) {
+		     // OK so the first atom matched
+		     PPCAtom residue_atoms_2 = 0;
+		     int n_residue_atoms_2;
+		     res_2->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+		     for (unsigned int iat2=0; iat2<n_residue_atoms_2; iat2++) { 
+			std::string atom_name_2(residue_atoms_2[iat2]->name);
+			if (atom_name_2 == rr.link_bond_restraint[ibond].atom_id_2_4c()) {
+			   ifound = 1;
+			   spec_ref = coot::atom_spec_t(res_spec_ref.chain,
+							res_spec_ref.resno,
+							res_spec_ref.insertion_code,
+							atom_name_1, "");
+			   spec_new = coot::atom_spec_t(res_spec_new.chain,
+							res_spec_new.resno,
+							res_spec_new.insertion_code,
+							atom_name_2, "");
+			   dist = coot::distance(residue_atoms_1[iat1],
+						 residue_atoms_2[iat2]);
+			   break;
+			}
+			if (ifound)
+			   break;
+		     }
+		  }
+		  if (ifound)
+		     break;
+	       }
+	       if (ifound)
+		  break;
+	    }
+
+	    if (! ifound)
+	       throw std::runtime_error("Dictionary links atom not found in link residues");
+	 }
+      }
+   }
+
+   std::cout << "Got to end of dict_link_info_t() constructor" << std::endl;
+   std::cout << "    ifound: " << ifound << std::endl;
+   std::cout << "    " << spec_ref << std::endl;
+   std::cout << "    " << spec_new << std::endl;
+   
+}
+
+bool
+coot::dict_link_info_t::check_for_order_switch(CResidue *residue_ref,
+					       CResidue *residue_new,
+					       const std::string &link_type,
+					       const coot::protein_geometry &geom) const {
+
+   bool order_switch_flag = false;
+   std::string comp_id_ref = residue_ref->GetResName();
+   std::string comp_id_new = residue_new->GetResName();
+
+   try {
+      std::string group_ref = geom.get_group(residue_ref);
+      std::cout << "got group_ref: " << group_ref << std::endl;
+      std::string group_new = geom.get_group(residue_new);
+      std::cout << "got group_new: " << group_new << std::endl;
+      std::vector<std::pair<coot::chem_link, bool> > link_infos =
+	 geom.matching_chem_link(comp_id_ref, group_ref, comp_id_new, group_new);
+      std::cout << "DEBUG:: in check_for_order_switch() found " << link_infos.size()
+		<< " link infos " << std::endl;
+      for (unsigned int ilink=0; ilink<link_infos.size(); ilink++) { 
+	 std::cout << "chem_link: " << ilink << " " << link_infos[ilink].first
+		   << " " << link_infos[ilink].second << std::endl;
+	 order_switch_flag = link_infos[ilink].second;
+	 break;
+      }
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "WARNING:: check_for_order_switch() exception: " << rte.what() << std::endl;
+   } 
+   std::cout << "returning order_switch_flag: " << order_switch_flag << std::endl;
+   return order_switch_flag;
+}

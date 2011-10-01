@@ -2259,22 +2259,24 @@ coot::util::get_first_residue(CMMDBManager *mol) {
    CResidue *res = NULL;
    if (mol) {
       CModel *model_p = mol->GetModel(1);
-      CChain *chain_p;
+      if (model_p) { 
+	 CChain *chain_p;
       
-      int n_chains = model_p->GetNumberOfChains();
-      for (int i_chain=0; i_chain<n_chains; i_chain++) {
-	 chain_p = model_p->GetChain(i_chain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 for (int ires=0; ires<nres; ires++) {
-	    residue_p = chain_p->GetResidue(ires);
-	    if (residue_p) {
-	       res = residue_p;
-	       break;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	    chain_p = model_p->GetChain(i_chain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    for (int ires=0; ires<nres; ires++) {
+	       residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) {
+		  res = residue_p;
+		  break;
+	       }
 	    }
+	    if (res)
+	       break;
 	 }
-	 if (res)
-	    break;
       }
    }
    return res;
@@ -6662,13 +6664,21 @@ coot::util::copy_cell_and_symm_headers(CMMDBManager *m1, CMMDBManager *m2) {
 //    LSQ fit the NAG residue from the reference ASN+NAG pair using
 //    matrix that rotates [2] onto [1].  (We don't need the ASN from
 //    that pair).  Now we can add that rotated NAG CResidue * to user
-//    molecule.
+//    molecule.  we have N-linked-NAG template - consider renaming to
+//    ASN-NAG-via-NAG-ASN i.e. the general case
+//    {ResType1}-{ResType2}-via-{LinkName} where ResType1 and ResType2
+//    are comp-ids, of course.  Actually, NAG-ASN is a pyronose-ASN
+//    link (group to comp_id). Hmm...
 //
 //
 //  Scenario Torsion-angle Density Search:
 //    User has an ASN and a density map and want to add a NAG.
 //    or:
-//    User has a NAG and want to 1-4 add another.  This is harder.
+//    User has a NAG and want to 1-4 (or other link) add another.
+//    This is harder.
+//
+//    OK, for the general case of ResType - link_type - ResType we need
+//    a template for that.
 // 
 // 
 // 

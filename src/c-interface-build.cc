@@ -6850,6 +6850,31 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
    return val;
 }
 
+/* add a linked residue based purely on dictionary templete. 
+   For addition of NAG to ASNs typically.
+
+   This doesn't work with residues with alt confs.
+   
+   return success status (0 = fail).
+*/
+int add_linked_residue(int imol, const char *chain_id, int resno, const char *ins_code, 
+		       const char *new_residue_comp_id, const char *link_type) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.Geom_p()->try_dynamic_add(new_residue_comp_id, 34);
+      coot::residue_spec_t res_spec(chain_id, resno, ins_code);
+      status = g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
+						    link_type, *(g.Geom_p()));
+      if (status) {
+	 graphics_draw();
+      } 
+   }
+   return status;
+} 
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*               Use Cowtan's protein_db to discover loops                  */

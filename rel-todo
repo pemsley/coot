@@ -23,9 +23,13 @@
   o double reading/displaying (or modification?) of HET residues? ::: 1
 
   o try to make a difference map by making an average map with scale
-    -1 for the second map.  Does it work?
+    -1 for the second map.  Does it work? ::: 1
 
   o rework get-monomer() to be cleaner and use the prefer_python system. ::: 1
+
+  o Does RCrane work? ::: 0.5
+
+  o download 3s9q from pdbe - crashes (not crash when files cached)
 
 ------
 

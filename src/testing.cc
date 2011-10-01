@@ -284,7 +284,7 @@ int test_internal_single() {
       // status = test_mcd_and_thornton_h_bonds();
       // status = test_COO_mod();
       // status = test_remove_whitespace();
-      status = test_position_residue_by_internal_coords();
+      status = test_beam_in_residue();
       
    }
    catch (std::runtime_error mess) {
@@ -2625,6 +2625,9 @@ int test_remove_whitespace() {
 
 int test_position_residue_by_internal_coords() {
 
+   // This test doesn't do proper test (as yet) and the class it tests
+   // is not complete either.
+
    int status = 0;
 
    testing_data t;
@@ -2669,5 +2672,22 @@ int test_position_residue_by_internal_coords() {
 } 
 
 
+int test_beam_in_residue() {
+
+   int status = 0;
+   CMMDBManager *r_mol = new CMMDBManager;
+   r_mol->ReadPDBASCII("coot-ccp4/monomer-ASN.pdb");
+   CResidue *r = coot::util::get_first_residue(r_mol);
+   if (r) {
+      coot::beam_in_linked_residue lr(r, "NAG-ASN", "NAG");
+      CResidue *result = lr.get_residue();
+      if (result) {
+	 status = 1;
+      } 
+   } 
+
+   return status;
+} 
 
 #endif // BUILT_IN_TESTING
+
