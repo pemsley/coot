@@ -1593,9 +1593,14 @@
 
      ;; new dictionary
      (let ((ls (matching-compound-names-from-dictionary "gua" 0)))
-       (or (= (length ls) 153)     ;; new dictionary
-	   (= (length ls)  63))))) ;; old dictionary
+       (if (or (= (length ls) 153)     ;; new dictionary
+	       (= (length ls)  63))    ;; old dictionary
 
+	   #t ;; good
+
+	   (begin
+	     (format #t "   found ~s matching names: ~s~%" (length ls) ls)
+	     #f)))))
 
 
 
