@@ -565,7 +565,7 @@
 		     (pdb-hbox (gtk-hbox-new #f 6))
 		     (cif-hbox (gtk-hbox-new #f 6))
 		     (refmac-hbox (gtk-hbox-new #f 6))
-		     (pdb-label (gtk-label-new "Download PDB:  "))
+		     (pdb-label (gtk-label-new "Download Coords: "))
 		     (cif-label (gtk-label-new "Download SFs cif:"))
 		     (refmac-label (gtk-label-new "Running Refmac:"))
 		     (refmac-fail-label (gtk-label-new "Running Refmac Failed"))
@@ -664,13 +664,15 @@
 	    ;; 
 	    (let* ((pdb-url (string-append 
 			     "http://www.ebi.ac.uk/pdbe-srv/view/files/"
-			     entry-id ".ent"))
+			     entry-id ".cif"))
 		   (sfs-cif-url (string-append
 				 "http://www.ebi.ac.uk/pdbe-srv/view/files/r"
 				 entry-id "sf.ent"))
-		   (pdb-file-name (append-dir-file "coot-download" (string-append entry-id ".ent")))
-		   (sfs-cif-file-name (append-dir-file "coot-download" (string-append "r" entry-id "sf.cif")))
-		   (sfs-mtz-file-name (append-dir-file "coot-download" (string-append "r" entry-id "sf.mtz")))
+		   (pdb-file-name (append-dir-file "coot-download" (string-append entry-id ".cif")))
+		   (sfs-cif-file-name (append-dir-file "coot-download" 
+						       (string-append "r" entry-id "sf.cif")))
+		   (sfs-mtz-file-name (append-dir-file "coot-download" 
+						       (string-append "r" entry-id "sf.mtz")))
 		   (refmac-out-mtz-file-name 
 		    (append-dir-file "coot-download" (string-append "r" entry-id "-refmac.mtz")))
 		   (refmac-log-file-name (string-append "refmac-from-coot-" 
@@ -1146,4 +1148,5 @@
 ;      (add-simple-coot-menu-menuitem 
 ;       menu
 ;       "Latest Releases" pdbe-latest-releases-gui)))
+
 
