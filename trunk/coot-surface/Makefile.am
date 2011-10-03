@@ -20,6 +20,7 @@
 
 INCLUDES = -I$(top_srcdir)/surface \
            -I$(top_srcdir)/coot-utils \
+           -I$(top_srcdir)/mini-mol \
 	$(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) $(GTKGL_CFLAGS) $(GLUT_CFLAGS)
 
 lib_LTLIBRARIES = libcoot-surface.la

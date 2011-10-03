@@ -94,13 +94,13 @@ for arg in sys.argv:
         coot_unittesting = True
         break
 
+have_coot_python = False
 if use_gui_qm:
     try:
         # we only append the graphics modules if we have pygtk 2
         import pygtk
         import gtk
         # now try to import coot_python
-        have_coot_python = False
         try: 
             import coot_python
             have_coot_python = True

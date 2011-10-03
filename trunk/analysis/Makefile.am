@@ -5,6 +5,7 @@ include_HEADERS=bfkurt.hh
 
 INCLUDES = \
 	-I$(top_srcdir)/coot-utils   	\
+	-I$(top_srcdir)/mini-mol   	\
 	$(CLIPPER_CXXFLAGS)		\
 	$(MMDB_CXXFLAGS)
 

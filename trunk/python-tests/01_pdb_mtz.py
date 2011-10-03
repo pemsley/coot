@@ -138,14 +138,16 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnlessEqual(ins_2, "A",
                              "Fail ins code set: %s is not 'A'" %ins_2)
 
+        write_pdb_file(frag_pdb, "post-ins-change.pdb")
+
+        # note note: 68B -> 70 doesn't happen unless we are on 68B (rc distance check)
+        #
         test_expected_results = [[goto_next_atom_maybe("A", 67, "",  " CA "),
                                   ["A", 68, "",  " CA "]],
                                  [goto_next_atom_maybe("A", 68, "A", " CA "),
                                   ["A", 68, "B", " CA "]],
                                  [goto_next_atom_maybe("A", 68, "B", " CA "),
-                                  ["A", 70, "",  " CA "]],
-                                 [goto_next_atom_maybe("D", 10, "",  " O  "),
-                                  ["A", 62, "",  " CA "]],
+                                  ["A", 68, "B",  " CA "]],
                                  [goto_prev_atom_maybe("A", 70, "",  " CA "),
                                   ["A", 68, "B", " CA "]],
                                  [goto_prev_atom_maybe("A", 68, "B", " CA "),
@@ -154,6 +156,15 @@ class PdbMtzTestFunctions(unittest.TestCase):
                                   ["A", 68, "",  " CA "]],
                                  [goto_prev_atom_maybe("A", 68, "",  " CA "),
                                   ["A", 66, "",  " CA "]]]
+
+        # Note:: these are taken out beause goto-next-atom-maybe now checks
+        # where the screen centre is before the move, so the previously
+        # expected results no longer apply.  We could recentre and in these
+        # tests - (todo...).
+        #[goto_next_atom_maybe("A", 68, "B", " CA "),
+        # ["A", 70, "",  " CA "]],
+        #[goto_next_atom_maybe("D", 10, "",  " O  "),
+        # ["A", 62, "",  " CA "]],
 
         for test_item in test_expected_results:
             real_result     = test_item[0]
@@ -1280,6 +1291,18 @@ class PdbMtzTestFunctions(unittest.TestCase):
                         "Hydrogen names mangled from PDB")
 
 
+    def test32_1(self):
+        """Correct matching dictionary names from test name"""
+
+        # new dictionary
+        ls = matching_compound_names_from_dictionary("gua", 0)
+        # too fragile
+        #self.failUnless(len(ls) == 153 or \  # new dictionary
+        #                len(ls) == 63)       # old dicionary
+        self.failUnless(len(ls) > 60,
+                        "   found %s matching names: %s" %(len(ls), ls))
+
+        
     def test33_0(self):
         """Update monomer restraints"""
 

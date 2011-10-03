@@ -2779,6 +2779,8 @@ nearest_residue_by_sequence = nearest_residue_by_sequence_py
 refine_residues        = refine_residues_py
 copy_residue_range_from_ncs_master_to_chains = copy_residue_range_from_ncs_master_to_chains_py
 # to be renamed later
+matching_compound_names_from_dictionary = matching_compound_names_from_dictionary_py
+comp_id2name           = comp_id_to_name_py
 refine_residues_with_alt_conf        = refine_residues_with_alt_conf_py
 refine_zone_with_score = refine_zone_with_score_py
 regularize_residues    = regularize_residues_py

@@ -1350,7 +1350,7 @@ PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *i
       graphics_info_t g;
       coot::Cartesian rc = g.RotationCentre();
       int atom_index =
-	 graphics_info_t::molecules[imol].intelligent_previous_atom(chain_id, resno,
+	 graphics_info_t::molecules[imol].intelligent_next_atom(chain_id, resno,
 								    atom_name, ins_code, rc);
       if (atom_index != -1) {
 	 CAtom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
