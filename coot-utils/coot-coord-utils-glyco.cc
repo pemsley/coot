@@ -21,6 +21,8 @@
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
 
+#include "coot-sysdep.h"
+
 // Note: this is a simple-minded hack.  The right way of doing this
 // is to define a bonding tree that includes atoms from both
 // residues.  Then we don't need reference structures - the

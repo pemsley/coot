@@ -4289,7 +4289,8 @@ def solvent_ligands_gui():
    def add_solvent_button(button_label, inside_vbox,
                           molecule_option_menu, model_list):
       def button_cb(*args):
-         imol = get_option_menu_active_molecule(molecule_option_menu, model_list)
+         imol = get_option_menu_active_molecule(molecule_option_menu,
+                                                model_list)
          add_ligand_func(imol, button_label)
 
       button = gtk.Button(button_label)
@@ -4305,14 +4306,19 @@ def solvent_ligands_gui():
       global additional_solvent_ligands
       def add_button_func(txt):
          additional_solvent_ligands.append(txt)
-         add_solvent_button(txt, inside_vbox,
+         add_solvent_button(comp_id2button_label(txt), inside_vbox,
                             molecule_option_menu,
                             model_list)
-      generic_single_entry("Add new three-letter-code",
+      generic_single_entry("Add new 3-letter-code/comp-id",
                            "", "  Add  ",
                            lambda txt:
                               add_button_func(txt))
 
+   def comp_id2button_label(comp_id):
+      comp_id_name = comp_id2name(comp_id)
+      ret = (comp_id + ": " + comp_id_name) if comp_id_name else comp_id
+      return ret
+      
    # main
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    scrolled_win = gtk.ScrolledWindow()
@@ -4343,7 +4349,8 @@ def solvent_ligands_gui():
    outside_vbox.pack_start(h_sep, False, False, 2)
    outside_vbox.pack_start(close_button, False, False, 2)
 
-   for button_label in solvent_ligand_list():
+   for comp_id in solvent_ligand_list():
+      button_label = comp_id2button_label(comp_id)
       add_solvent_button(button_label, inside_vbox,
                          molecule_option_menu, model_list)
 
