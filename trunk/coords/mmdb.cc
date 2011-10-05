@@ -200,7 +200,7 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 	     }
 	  }
 
-
+	  fix_element_name_lengths(asc.mol); // should not be needed with new mmdb
 	  if (convert_to_v2_name_flag)
 	     fix_nucleic_acid_residue_names(asc);
 	  fix_away_atoms(asc);
@@ -458,6 +458,34 @@ fix_wrapped_names(atom_selection_container_t asc) {
    // std::cout << "done hydrogen names " << n_changed << std::endl;
    return n_changed; 
 }
+
+void
+fix_element_name_lengths(CMMDBManager *mol) {
+
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       at = residue_p->GetAtom(iat);
+	       std::string ele(at->element);
+	       if (ele.length() == 1) {
+		  ele = " " + ele;
+		  at->SetElementName(ele.c_str());
+	       } 
+	    }
+	 }
+      }
+   }
+} 
 
 
 

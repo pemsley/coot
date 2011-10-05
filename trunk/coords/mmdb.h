@@ -38,6 +38,7 @@ atom_selection_container_t get_atom_selection(std::string t, bool convert_to_v2_
 int fix_nucleic_acid_residue_names(atom_selection_container_t asc);
 int fix_nucleic_acid_residue_name(CResidue *r); // return whether it was changed or not.
 void convert_to_old_nucleotide_atom_names(CResidue *r);
+void fix_element_name_lengths(CMMDBManager *mol);
 
 // return the number of fixed atoms
 int fix_away_atoms(atom_selection_container_t asc);
