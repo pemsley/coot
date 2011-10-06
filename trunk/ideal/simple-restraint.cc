@@ -262,7 +262,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 		    0,
 		    chain_id,
 		    iselection_start_res, "*",
-		    iselection_end_res, "*",
+		    iselection_end_res,   "*",
 		    "*", // rnames
 		    "*", // anames
 		    "*", // elements
@@ -280,8 +280,8 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 
    bool debug = 0;
    if (debug) { 
-      std::cout << "DEBUG:: Selecting residues in chain " << chain_id << " gives " << n_atoms
-		<< " atoms " << std::endl;
+      std::cout << "DEBUG:: Selecting residues in chain \"" << chain_id << "\" gives "
+		<< n_atoms << " atoms " << std::endl;
       for (int iat=0; iat<n_atoms; iat++) {
 	 std::cout << "   " << iat << " " << atom[iat]->name << " "  << atom[iat]->GetSeqNum()
 		   << " " << atom[iat]->GetChainID() << std::endl;
@@ -302,9 +302,9 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 
    if (n_atoms == 0) { 
       std::cout << "ERROR:: atom selection disaster:" << std::endl;
-      std::cout << "this should not happen" << std::endl;
-      std::cout << "res range: " << iselection_start_res << " " 
-		<< iselection_end_res << " " << chain_id << " " 
+      std::cout << "   This should not happen" << std::endl;
+      std::cout << "   residue range: " << iselection_start_res << " " 
+		<< iselection_end_res << " chain-id \"" << chain_id << "\" " 
 		<< "flanking flags: " << have_flanking_residue_at_start 
 		<< " " << have_flanking_residue_at_end << std::endl;
    }
@@ -3360,25 +3360,28 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 
    int iret = 0;
    restraints_usage_flag = flags_in; // also set in minimize() and geometric_distortions()
-   mark_OXT(geom);
-   iret += make_monomer_restraints(geom, do_residue_internal_torsions);
 
-   iret += make_link_restraints(geom, do_rama_plot_restraints);
-   //  don't do torsions, ramas maybe.   
-   iret += make_flanking_atoms_restraints(geom, do_rama_plot_restraints);
-   int iret_prev = restraints_vec.size();
+   if (n_atoms) { 
+      mark_OXT(geom);
+      iret += make_monomer_restraints(geom, do_residue_internal_torsions);
 
-   if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS) {
-      make_helix_pseudo_bond_restraints();
-   } 
-   if (sec_struct_pseudo_bonds == coot::STRAND_PSEUDO_BONDS) {
-      make_strand_pseudo_bond_restraints();
-   }
+      iret += make_link_restraints(geom, do_rama_plot_restraints);
+      //  don't do torsions, ramas maybe.   
+      iret += make_flanking_atoms_restraints(geom, do_rama_plot_restraints);
+      int iret_prev = restraints_vec.size();
 
-   if (restraints_usage_flag & coot::NON_BONDED_MASK) {
-      if (iret_prev > 0) {
-	 int n_nbcr = make_non_bonded_contact_restraints(geom);
-	 std::cout << "INFO:: made " << n_nbcr << " non-bonded restraints\n";
+      if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS) {
+	 make_helix_pseudo_bond_restraints();
+      } 
+      if (sec_struct_pseudo_bonds == coot::STRAND_PSEUDO_BONDS) {
+	 make_strand_pseudo_bond_restraints();
+      }
+
+      if (restraints_usage_flag & coot::NON_BONDED_MASK) {
+	 if (iret_prev > 0) {
+	    int n_nbcr = make_non_bonded_contact_restraints(geom);
+	    std::cout << "INFO:: made " << n_nbcr << " non-bonded restraints\n";
+	 }
       }
    }
 
