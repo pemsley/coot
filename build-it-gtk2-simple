@@ -1014,6 +1014,15 @@ else
     set
 fi
 
+# On 64 bit redhat 4, we (might) need to add X11 to the path for freeglut configure.
+#
+echo INFO:: MACHTYPE is $MACHTYPE
+echo INFO:: systype is $systype
+if [ "$systype" = x86_64-rhel-4 ] ; then
+    PATH=$PATH:/usr/X11R6/bin
+    export PATH
+fi
+
 
 # We want to add some compiler info in the directory name.
 # If CC is set, use that,
@@ -2172,6 +2181,7 @@ mmdb_version=1.21
 mmdb_version=1.22
 mmdb_version=1.23
 mmdb_version=1.23.2
+# mmdb_version=1.24
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
 # for now get mmdb-1.21 from york, the ebi one has out of date files causing 
