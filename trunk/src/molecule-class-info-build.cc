@@ -211,7 +211,9 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 	    std::cout << "WARNING:: specified atoms have mismatching models - abandoning LINK addition"
 		      << std::endl;
 
-	 } else { 
+	 } else {
+
+	    make_backup();
 	 
 	    CLink *link = new CLink; // sym ids default to 1555 1555
 
@@ -230,6 +232,7 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 	    link->seqNum2         = at_2->GetSeqNum();
 
 	    model_1->AddLink(link);
+	    have_unsaved_changes_flag = 1;
 	    atom_sel.mol->FinishStructEdit();
 	    update_molecule_after_additions();
 	 }
