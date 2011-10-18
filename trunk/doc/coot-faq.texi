@@ -122,7 +122,6 @@ Other Coot Information
 
 
 
-
 The reference for Coot has been published:
 You can use this BibTeX database entry (which can be imported 
 into EndNote)... format as you please:
@@ -577,6 +576,7 @@ work try also:
 * How do I setup auto-completion of command line options?::
 * How do 2 people use Coot with the same structure?::
 * How do I find CIS-peptides in my structure?::
+* How do I do a superposition on just a part of my structure?::
 @end menu
 
 @node How does it look when Coot starts properly?
@@ -889,7 +889,7 @@ If those are not available, you can mask out the density of the metals.
 
 @code{Extensions -> Maps -> Mask Map by Atom Selection...}
 
-For example, atom selection of @var{"//B/[CO]"} will remove all the
+For example, atom selection of @code{"//B/[CO]"} will remove all the
 density for Cobalts in the "B" chain.
 
 Then you will need to set the masked map as the map to be used for
@@ -1031,6 +1031,90 @@ COOT_BACKUP_DIR} to that directory.
 @section How do I find CIS-peptides in my structure?
 
 @command{Extensions -> Modelling -> Residues with CIS Peptide Bonds}
+
+
+@node How do I do a superposition on just a part of my structure?
+@section How do I do a superposition on just a part of my structure?
+
+There are a number of solutions, depending on the problem
+
+
+@itemize
+@item SSM superposition by atom selection
+
+The command is:
+
+@itemize
+@item
+@code{(superpose-with-atom-selection @emph{imol-1} @emph{imol-2} @emph{atom-selection-string-1} @emph{atom-selection-string-2} @emph{move-copy-flag})}
+@end itemize
+
+where:
+
+ @code{@emph{imol-1}} is the molecule number of the reference atoms
+
+ @code{@emph{imol-2}} is the molecule number of the molecule to be moved
+
+ the selection strings are mmdb atom selection string
+
+ the @code{@emph{move-copy-flag}} is either 1 or 0 signalling if a copy
+ of the @code{@emph{imol-2}} molecule should be moved (or the
+ @code{@emph{imol-2}} molecule itself).
+
+Typical usage might be: 
+
+@lisp
+        (superpose-with-atom-selection 0 1 "//A/20-80" "//B/30-90" 1)
+@end lisp
+
+
+@item multi-range LSQ superposition
+
+You can add any number of LSQ matches using 
+
+
+@code{(add-lsq-match @emph{resno-start-ref} @emph{resno-end-ref}
+ @emph{chain-id-ref}
+ @emph{resno-start-moving} @emph{resno-end-moving} 
+ @emph{chain-id-moving} 
+@emph{match-type} 
+ )}
+
+where 
+
+@code{@emph{match-type}} is 0 for all-atom, 1 for mainchain and 2 for CAs.
+
+For example:
+
+@lisp
+        (clear-lsq-matches)
+        (add-lsq-match 120 180 "A" 130 190 "B" 2)
+        (add-lsq-match 220 280 "A" 230 290 "B" 2)
+        (apply-lsq-matches)
+
+@end lisp
+
+
+@item Ligand superposition
+
+Ligand superposition is performed using a graph-based match -
+@emph{i.e.} there is no need to have matching atom names.
+
+@code{(overlap-ligands @emph{imol-ligand} @emph{imol-ref} @emph{chain-id-ref} @emph{resno-ref})}
+
+this presumes that there is only the ligand in the @code{@emph{imol-ligand}} molecule.
+
+Typical usage:
+
+
+@lisp
+        (overlap-ligands 2 1 "A" 50)
+@end lisp
+
+
+@end itemize
+
+
 
 
 
