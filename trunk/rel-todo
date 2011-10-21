@@ -3,6 +3,9 @@
 
 ----
 
+  o Accept/Reject dialog is not opening where I left it on previous
+    usage (not previous session, even!) ::: 1
+
   o Fix splash screen per SS message.  Fix symmetry file names too ::: 2
 
   o CCP4-based integrated path for FLEV ::: 6
@@ -22,6 +25,8 @@
 
   o double reading/displaying (or modification?) of HET residues? ::: 1
 
+  o Fix various bondings of 2ldf mmCIF (for example).
+
   o try to make a difference map by making an average map with scale
     -1 for the second map.  Does it work? ::: 1
 
@@ -29,7 +34,11 @@
 
   o Does RCrane work? ::: 0.5
 
-  o download 3s9q from pdbe - crashes (not crash when files cached)
+  o download 3s9q from pdbe - crashes (not crash when files cached)  :: 2
+
+  o Unusual Rotamers on 3amy ::: 2
+
+  o update go to atom on merge water chains. ::: 0.5
 
   o sphere refine 1284 A of 3zr5 -> fails to find link bonds and
     GSL_NOPROG.  (Try NAGs in other proteins, seems this problem is not
@@ -38,7 +47,7 @@
 
     WARNING:: dictionary vs model problem? We didn't find the bonded linking atoms : C1 : : ND2:
  
-    and refines to completion.
+    and refines to completion.  ::: 2
 
   o get rid of this debugging:
 
@@ -55,6 +64,12 @@ Adding monomer torsion restraint: 21 24 25 26 angle 180 esd 15 period 3
 Adding monomer torsion restraint: 24 25 26 28 angle 0 esd 30 period 2
 Adding monomer torsion restraint: 29 30 33 34 angle 180 esd 15 period 3
 Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
+
+     ::: 0.5
+
+
+
+   o use COOT_N_PROCESSOR in the conformer and ligand search. Puntable
 
 ------
 
@@ -122,3 +137,7 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 
 * Fixed.
 
+   o It would be good to allow the setting of n-processors for the
+     build-it-gtk2-simple ::: 0.5
+
+* Done.
