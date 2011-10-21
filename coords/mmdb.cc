@@ -70,7 +70,7 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
     // returns e.g. ".ins"
 
-    if (coot::util::extension_is_for_mdl_mol_coords(extension)) {
+    if (coot::util::extension_is_for_mdl_mol_or_mol2_coords(extension)) {
 
 #ifdef MAKE_ENTERPRISE_TOOLS
        asc = coot::mol_to_asc_rdkit(pdb_name); // (not a PDB file of course)

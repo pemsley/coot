@@ -707,7 +707,7 @@ coot::util::extension_is_for_shelx_coords(const std::string &ext) {
 
 
 bool
-coot::util::extension_is_for_mdl_mol_coords(const std::string &ext) {
+coot::util::extension_is_for_mdl_mol_or_mol2_coords(const std::string &ext) {
 
    bool r = 0;
    if ((ext == ".mdl") ||
