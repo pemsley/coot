@@ -653,6 +653,7 @@
 	(add-simple-coot-menu-menuitem 
 	 submenu-ncs "Copy NCS Residue Range..."
 	 (lambda ()
+
 	   (generic-chooser-and-entry "Apply NCS Range from Master"
 				      "Master Chain ID"
 				      (get-first-ncs-master-chain) ;; returns "" on fail
@@ -1302,7 +1303,10 @@
 	   (let* ((window (gtk-window-new 'toplevel))
 		  (label-text (string-append
 			       "   When happy, press \"Save\" to save   \n"
-			       "   dialog positions"))
+			       "   dialog positions\n"
+			       "   (You will have to open and close the "
+			       "Edit Chi Angles \n   yourself, if you want that)"
+			       ))
 		  (label (gtk-label-new label-text))
 		  (h-sep (gtk-hseparator-new))
 		  (cancel-button (gtk-button-new-with-label "  Cancel  "))
