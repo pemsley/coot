@@ -90,7 +90,7 @@ namespace coot {
       std::string file_name_extension(const std::string &file_name);
       std::string file_name_non_directory(const std::string &file_name);
       bool extension_is_for_shelx_coords(const std::string &ext);
-      bool extension_is_for_mdl_mol_coords(const std::string &ext);
+      bool extension_is_for_mdl_mol_or_mol2_coords(const std::string &ext);
       // void template<T> swap(*T v1, *T v2);
 
       // is ALA, GLY, TRP, MET, MSE...? (RNA, DNA allowed too)
