@@ -125,6 +125,10 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       commands.push_back(state_command("set-edit-chi-angles-dialog-position",
 				       edit_chi_angles_dialog_x_position,
 				       edit_chi_angles_dialog_y_position, il));
+   if (graphics_info_t::rotamer_selection_dialog_x_position > -1)
+      commands.push_back(state_command("set-rotamer-selection-dialog-position",
+				       rotamer_selection_dialog_x_position,
+				       rotamer_selection_dialog_y_position, il));
 
    // Virtual trackball
    if (vt_surface_status() == 1)
