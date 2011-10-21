@@ -316,6 +316,7 @@
 #               not /usr/X11R6/lib, edit configure.
 # 4.84 20110821 Hack in a solution the the new clipper problem (new clipper with cif 
 #               tools needs new libtools/configure new ccp4 libs (underlay-2).
+# 4.85 20111021 Update python to 2.6, guile to 1.8.8, add guile patch.
 script_version=4.84
 
 
@@ -1149,6 +1150,19 @@ if [ $? -ne 0 ] ; then
       echo Exiting now.
       my_exit 2
    fi
+else 
+   # let's try to set some args
+   if [ -e /proc/cpuinfo ] ; then
+      if np=$(grep processor /proc/cpuinfo | wc -l) ; then
+         # limit to 4 processors, not much speed up after that.
+         if [ "$np" -gt 4 ] ; then 
+            np=4
+         fi
+         echo using $np processors in compilation
+         MAKE="make -j$np"
+         echo MAKE set to $MAKE
+      fi
+   fi
 fi
 
 echo testing for patch 
@@ -1640,7 +1654,11 @@ case "$architecture" in
      STD_PKGCONFIG_DIR=/usr/lib64/pkgconfig
      ;; 
 esac
-PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
+if [ -z "$PKG_CONFIG_PATH" ] ; then 
+  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
+else 
+  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+fi
 export PKG_CONFIG_PATH
 echo  PKG_CONFIG_PATH is now $PKG_CONFIG_PATH
 
@@ -1841,8 +1859,8 @@ fi
 # python_version is the filename of the python executable.  For python
 # 2.5.1 it is python2.5, not python2.5.1
 #
-python_version=python2.6
-pver=2.6
+python_version=python2.7
+pver=2.7
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
@@ -2693,7 +2711,7 @@ fi
 
 if test -n "$build_readline" ; then
     echo BUILDING readline:
-    readline_version=5.2
+    readline_version=6.2
     # ${WGET} ftp://ftp.cwru.edu/pub/bash/readline-$readline_version.tar.gz
     ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/readline-5.1.patch
@@ -2724,11 +2742,12 @@ fi
 if test -n "$build_guile" ; then 
     echo BUILDING guile:
 #
-guile_version=1.8.7
+guile_version=1.8.8
 # mirror has gone/moved.
 # ${WGET} http://mirror.ac.uk/mirror/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
+${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-1.8.7-updated.patch
 
 ( 
 date
@@ -2736,10 +2755,16 @@ pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-${guile_version}.tar.gz | tar xf -
 cd guile-${guile_version}
 # we need to pass CFLAGS and LDFLAGS because there is no --with-readline-prefix
+
+# note that for guile's guile-readline module to compile correctly,
+# ncurses-dev needs to be installed (that is on this Fed 15 machine,
+# at least - I presume others also).
+
 # arg to guile's configure
 ./configure $generic_prefix CFLAGS="-I$install_top_dir/include -O" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
 # Multilib fix for procedures.txt
 perl -pi -e 's|threads.doc||' `find . -name Makefile`
+patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.8.7-updated.patch
 $MAKE
 status=$?
 if [ "$status" != 0 ] ; then 
