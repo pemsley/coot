@@ -14,6 +14,19 @@
 
 #include "coot-sysdep.h"
 
+// add a casting hack for old versions of mmdb
+//
+#if (MMDB_MAJOR_VERSION == 1)
+#if (MMDB_MINOR_VERSION < 24)
+#define PSTR_CAST_HACK (pstr *)
+#else 
+#define PSTR_CAST_HACK
+#endif
+#else 
+#define PSTR_CAST_HACK
+#endif
+
+
 // This can throw a std::runtime_error.
 // 
 clipper::Cell
@@ -115,7 +128,9 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
 
    int ierr = 0;
    pstr S = NULL;
-   PCMMCIFLoop loop = data->FindLoop((pstr *) loopTagsAtom);
+   // PCMMCIFLoop loop = data->FindLoop((pstr *) loopTagsAtom);
+   // PCMMCIFLoop loop = data->FindLoop(loopTagsAtom);
+   PCMMCIFLoop loop = data->FindLoop(PSTR_CAST_HACK loopTagsAtom);
    if (loop) {
       int ll = loop->GetLoopLength();
       if (ll >= 0) {
@@ -182,7 +197,8 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
    //
    std::vector<coot::simple_sm_u> u_aniso_vec;
    
-   loop = data->FindLoop((pstr *) loopTagsAniso);
+   // loop = data->FindLoop((pstr *) loopTagsAniso);
+   loop = data->FindLoop(PSTR_CAST_HACK loopTagsAniso);
    if (loop) {
       int ll = loop->GetLoopLength();
       char *label  = NULL;
@@ -268,7 +284,8 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 	 const char *loopTag1[2] = { "_symmetry_equiv_pos_as_xyz",
 				     ""};
 
-	 PCMMCIFLoop loop = data->FindLoop((pstr *) loopTag1);
+	 // PCMMCIFLoop loop = data->FindLoop((pstr *) loopTag1);
+	 PCMMCIFLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag1);
 	 if (loop) {
 	    int ll = loop->GetLoopLength();
 	    // std::cout << "loop length: " << ll << std::endl;
