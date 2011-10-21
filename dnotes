@@ -6192,6 +6192,10 @@ guile>
 guile> (dbi-query db-obj "select * from numbers")
 guile> db-obj
 
+(write (dbi-get_row db-obj)) (newline)
+(write (dbi-get_row db-obj)) (newline)
+(write (dbi-get_row db-obj)) (newline)
+(write (dbi-get_row db-obj)) (newline)
 
 ----
 Wed Aug 17 16:05:36 CEST 2011
@@ -6221,5 +6225,11 @@ Thu Aug 18 16:25:07 CEST 2011
 
 
    3pcq for FEL data (photosystem I)
+
+
+---
+
+   c.f.  Pioglitazone with Rosiglitazone
+
 
 ------
