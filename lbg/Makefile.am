@@ -23,7 +23,7 @@ AM_CXXFLAGS = \
 bin_PROGRAMS = lidia
 
 libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc  \
-    lbg-search.cc  residue-circles.cc rdkit-interface.cc \
+    lbg-search.cc  residue-circles.cc \
     flev-annotations.cc
 
 libcoot_lidia_la_LIBADD = \
@@ -35,7 +35,7 @@ libcoot_lidia_la_LIBADD = \
 
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc
 
-include_HEADERS = lbg.hh wmolecule.hh rdkit-interface.hh flev-annotations.hh 
+include_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interface-functions.hh
 
 
 # res spec output operator means we include libcoot-coord-utils
@@ -45,8 +45,8 @@ lidia_LDADD = \
 	./libcoot-lidia.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
-	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/utils/libcoot-utils.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
 
 EXTRA_DIST=lbg.glade $(appicon_DATA) lbg-callbacks.cc
@@ -55,7 +55,7 @@ subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = lbg.glade lbg-callbacks.cc
 
 check_PROGRAMS = test_lbg_functions
-test_lbg_functions_SOURCES = test_lbg_functions.cc 
+test_lbg_functions_SOURCES = test_lbg_functions.cc  graphics-c-interface-functions-blanks.cc
 test_lbg_functions_LDADD = \
        ./libcoot-lidia.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \

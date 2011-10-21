@@ -2280,6 +2280,8 @@ void set_accept_reject_dialog_position(int x_pos, int y_pos);
 void set_ramachandran_plot_dialog_position(int x_pos, int y_pos);
 /*! \brief set edit chi angles dialog position */
 void set_edit_chi_angles_dialog_position(int x_pos, int y_pos);
+/*! \brief set rotamer selection dialog position */
+void set_rotamer_selection_dialog_position(int x_pos, int y_pos);
 
 /* \} */
 

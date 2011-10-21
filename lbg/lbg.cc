@@ -30,6 +30,11 @@
 #include <iomanip>
 #include <algorithm>
 
+#ifdef MAKE_ENTERPRISE_TOOLS
+#include <RDGeneral/FileParseException.h>
+#include <RDGeneral/BadFileException.h>
+#include <GraphMol/FileParsers/FileParsers.h>
+#endif
 
 #include <cairo.h>
 #if CAIRO_HAS_PDF_SURFACE
@@ -89,7 +94,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	    if (ligand_spec_pair.first)
 	       lbg->set_ligand_spec(ligand_spec_pair.second);
 
-	    widgeted_molecule_t wmol = lbg->import(mm, molecule_file_name, mol);
+	    widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
 	    lbg->render_from_molecule(wmol);
 	 }
       }
@@ -105,6 +110,86 @@ GtkWidget *get_canvas_from_scrolled_win(GtkWidget *canvas) {
    return canvas;
 }
 
+#ifdef MAKE_ENTERPRISE_TOOLS
+// Caller deletes
+// 
+RDKit::RWMol
+lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
+
+   RDKit::RWMol m;
+   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+
+   for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+      if (! mol.atoms[iat].is_closed()) { 
+	 RDKit::Atom *at = new RDKit::Atom;
+	 at->setAtomicNum(tbl->getAtomicNumber(mol.atoms[iat].element));
+
+	 // add the name to at too here (if you can).
+	 // 
+	 try {
+	    at->setProp("name", std::string(mol.atoms[iat].get_atom_name()));
+	 }
+	 catch (std::exception rte) {
+	    std::cout << rte.what() << std::endl;
+	 }
+	 m.addAtom(at);
+      }
+   }
+
+   for (unsigned int ib=0; ib<mol.bonds.size(); ib++) {
+      if (! mol.bonds[ib].is_closed()) {
+	 RDKit::Bond::BondType type = convert_bond_type(mol.bonds[ib].get_bond_type());
+	 RDKit::Bond *bond = new RDKit::Bond(type);
+	 int idx_1 = mol.bonds[ib].get_atom_1_index();
+	 int idx_2 = mol.bonds[ib].get_atom_2_index();
+	 if (!mol.atoms[idx_1].is_closed() && !mol.atoms[idx_2].is_closed()) { 
+	    bond->setBeginAtomIdx(idx_1);
+	    bond->setEndAtomIdx(  idx_2);
+	    if (type == RDKit::Bond::AROMATIC) { 
+	       bond->setIsAromatic(true);
+	       m[idx_1]->setIsAromatic(true);
+	       m[idx_2]->setIsAromatic(true);
+	    } 
+	    m.addBond(bond);
+	 }
+      }
+   }
+   return m;
+}
+#endif
+
+#ifdef MAKE_ENTERPRISE_TOOLS
+RDKit::Bond::BondType
+lbg_info_t::convert_bond_type(const lig_build::bond_t::bond_type_t &t) const {
+
+   // There are lots more in RDKit::Bond::BondType!
+   // 
+   RDKit::Bond::BondType bt = RDKit::Bond::UNSPECIFIED;
+   if (t == lig_build::bond_t::SINGLE_BOND)
+      bt = RDKit::Bond::SINGLE;
+   if (t == lig_build::bond_t::DOUBLE_BOND)
+      bt = RDKit::Bond::DOUBLE;
+   if (t == lig_build::bond_t::TRIPLE_BOND)
+      bt = RDKit::Bond::TRIPLE;
+   return bt;
+}
+#endif
+
+
+#ifdef MAKE_ENTERPRISE_TOOLS
+// this can throw a std::exception
+// 
+std::string
+lbg_info_t::get_smiles_string_from_mol_rdkit() const {
+
+   RDKit::RWMol rdkm = rdkit_mol(mol);
+   RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(rdkm);
+   std::string s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs);
+   delete rdk_mol_with_no_Hs;
+
+   return s;
+}
+#endif
 
 void
 lbg_info_t::write_mdl_molfile_using_default_file_name() const {
@@ -2281,7 +2366,7 @@ lbg_info_t::handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb
    CMMDBManager *flat_pdb_mol = get_cmmdbmanager(coot_pdb_file);
    lig_build::molfile_molecule_t mm;
    mm.read(coot_mdl_file);
-   widgeted_molecule_t wmol = import(mm, coot_mdl_file, flat_pdb_mol);
+   widgeted_molecule_t wmol = import_mol_file(mm, coot_mdl_file, flat_pdb_mol);
    std::vector<solvent_accessible_atom_t> solvent_accessible_atoms =
       read_solvent_accessibilities(sa_file);
    wmol.map_solvent_accessibilities_to_atoms(solvent_accessible_atoms);
@@ -2577,14 +2662,82 @@ lbg_info_t::save_molecule() {
    }
 }
 
+void
+lbg_info_t::import_mol_from_file(const std::string &file_name) {
+
+   bool try_as_mdl_mol = false;
+#ifndef MAKE_ENTERPRISE_TOOLS
+   // fallback
+   try_as_mdl_mol = true; 
+#else    
+   try { 
+      RDKit::RWMol *m = RDKit::Mol2FileToMol(file_name);
+      if (m) {
+	 // molfile molecules don't know about aromatic bonds, we need
+	 // to kekulize now.
+	 RDKit::MolOps::Kekulize(*m); // non-const reference?
+	 double weight_for_3d_distances = 0.4; 
+	 int iconf = 0; // current conformer number
+	 int iconf_new = coot::add_2d_conformer(m, weight_for_3d_distances);
+	 // could we add another conformer (which is 2d), if so, use
+	 // that for layout instead.
+	 if (iconf_new > iconf) {
+	    iconf = iconf_new;
+	 } else {
+	    std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
+		      << std::endl;
+	 }
+	 lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(*m, iconf);
+	 CMMDBManager *mol = NULL; // no atom names to transfer
+	 widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
+	 render_from_molecule(wmol);
+	 update_statusbar_smiles_string();
+
+      } else {
+	 // should throw an exception before getting here, I think.
+	 std::cout << "Null m in import_mol_from_file() " << std::endl;
+	 try_as_mdl_mol = true;
+      } 
+   }
+   catch (RDKit::FileParseException rte) {
+      std::cout << "WARNING:: " << rte.message() << std::endl;
+      try_as_mdl_mol = true;
+   }
+   catch (RDKit::BadFileException &e) {
+      std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
+      try_as_mdl_mol = true;
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "WARNING runtime_error in mol_to_asc_rdkit() " << rte.what() << std::endl;
+      try_as_mdl_mol = true;
+   } 
+   catch (std::exception e) {
+      std::cout << "WARNING:: import_mol_from_file: exception: " << e.what() << std::endl;
+      try_as_mdl_mol = true;
+   }
+#endif // MAKE_ENTERPRISE_TOOLS
+
+   if (try_as_mdl_mol) { 
+      // read as an MDL mol file
+      // 
+      CMMDBManager *mol = NULL; // no atom names to transfer
+      lig_build::molfile_molecule_t mm;
+      mm.read(file_name);
+      widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
+      render_from_molecule(wmol);
+      update_statusbar_smiles_string();
+   }
+   
+}
+
 // pdb_mol is the pdb representation of the (flat) ligand - and it has
 // the atom names.  We will add the atom names into mol by matching
 // coordinates.
 // 
 widgeted_molecule_t
-lbg_info_t::import(const lig_build::molfile_molecule_t &mol_in,
-		   const std::string &file_name,
-		   CMMDBManager *pdb_mol) {
+lbg_info_t::import_mol_file(const lig_build::molfile_molecule_t &mol_in,
+			    const std::string &file_name,
+			    CMMDBManager *pdb_mol) {
 
    widgeted_molecule_t new_mol(mol_in, pdb_mol);
    mdl_file_name = file_name;

@@ -99,18 +99,26 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
    GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea, 
 						     "window1"));
-   GtkWidget *label;
+   GtkWidget *label = NULL;
+   
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
       label = lookup_widget(GTK_WIDGET(window),
 			    "accept_dialog_accept_docked_label_string");
    } else {
-      label = lookup_widget(GTK_WIDGET(window),
-			    "accept_dialog_accept_label_string");
+
+      std::cout << "DEBUG:: ------------- here ... " 
+		<< " --------" << std::endl;
+      label = lookup_widget(GTK_WIDGET(window), "accept_dialog_accept_label_string");
       gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
       
       // now set the position, if it was set:
       if ((graphics_info_t::accept_reject_dialog_x_position > -100) && 
 	  (graphics_info_t::accept_reject_dialog_y_position > -100)) {
+// 	 std::cout << "Here...... setting ..... " 
+// 		   << graphics_info_t::accept_reject_dialog_x_position
+// 		   << " "
+// 		   << graphics_info_t::accept_reject_dialog_y_position
+// 		   << std::endl;
 	 gtk_widget_set_uposition(window,
 				  graphics_info_t::accept_reject_dialog_x_position,
 				  graphics_info_t::accept_reject_dialog_y_position);
@@ -119,11 +127,11 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 
    update_accept_reject_dialog_with_results(window, coot::CHI_SQUAREDS, rr);
    if (rr.lights.size() > 0){
-     if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
-       add_accept_reject_lights(GTK_WIDGET(main_window), rr);
-     } else {
-       add_accept_reject_lights(window, rr);
-     }
+      if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
+	 add_accept_reject_lights(GTK_WIDGET(main_window), rr);
+      } else {
+	 add_accept_reject_lights(window, rr);
+      }
    }
    
    std::string txt = "";
@@ -136,28 +144,28 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
    // Was this a torsion general, in which we need to active the reverse button?
    GtkWidget *reverse_button;
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
-     reverse_button = lookup_widget(window, "accept_reject_docked_reverse_button");
-     if (fit_type == "Torsion General") {
-       gtk_widget_show(reverse_button);	
-     } else {
-       gtk_widget_hide(reverse_button);
-     }
+      reverse_button = lookup_widget(window, "accept_reject_docked_reverse_button");
+      if (fit_type == "Torsion General") {
+	 gtk_widget_show(reverse_button);	
+      } else {
+	 gtk_widget_hide(reverse_button);
+      }
    } else {
-     if (fit_type == "Torsion General") {
-       reverse_button = lookup_widget(window, "accept_reject_reverse_button");
-       gtk_widget_show(reverse_button);	
-     }
+      if (fit_type == "Torsion General") {
+	 reverse_button = lookup_widget(window, "accept_reject_reverse_button");
+	 gtk_widget_show(reverse_button);	
+      }
    }
    
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
-     // we need to show some individual widget to make sure we get the right amount
-     // of light boxes
-     GtkWidget *button_box = lookup_widget(GTK_WIDGET(main_window), "hbuttonbox1");
-     gtk_widget_show_all(button_box);
-     gtk_widget_show(label);
-     if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_SHOW) {
-       gtk_widget_set_sensitive(window, TRUE);
-     }
+      // we need to show some individual widget to make sure we get the right amount
+      // of light boxes
+      GtkWidget *button_box = lookup_widget(GTK_WIDGET(main_window), "hbuttonbox1");
+      gtk_widget_show_all(button_box);
+      gtk_widget_show(label);
+      if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_SHOW) {
+	 gtk_widget_set_sensitive(window, TRUE);
+      }
    }
    gtk_widget_show(window);
 }

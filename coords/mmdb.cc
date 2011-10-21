@@ -26,12 +26,17 @@
 
 #include "string.h"
 
+
+#ifdef MAKE_ENTERPRISE_TOOLS
+#include <RDGeneral/FileParseException.h>
+#include <RDGeneral/BadFileException.h>
+#include <GraphMol/FileParsers/FileParsers.h>
+#include "rdkit-interface.hh"
+#endif
+
 #include "mmdb_manager.h"
-
 #include "mmdb-extras.h"
-
 #include "Cartesian.h"
-
 #include "mmdb.h"
 
 #include "coot-utils.hh"
@@ -67,9 +72,13 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
     if (coot::util::extension_is_for_mdl_mol_coords(extension)) {
 
+#ifdef MAKE_ENTERPRISE_TOOLS
+       asc = coot::mol_to_asc_rdkit(pdb_name); // (not a PDB file of course)
+#else        
        lig_build::molfile_molecule_t m;
        m.read(pdb_name);
        asc = coot::mdl_mol_to_asc(m);
+#endif       
 
     } else { 
 
@@ -686,6 +695,42 @@ coot::delete_aniso_records_from_atoms(CMMDBManager *mol) {
       }
    }
 }
+
+
+#ifdef MAKE_ENTERPRISE_TOOLS
+
+atom_selection_container_t
+coot::mol_to_asc_rdkit(const std::string &file_name) {
+
+   atom_selection_container_t asc;
+
+   try { 
+      RDKit::RWMol *m = RDKit::Mol2FileToMol(file_name);
+      if (m) { 
+	 CResidue *res = coot::make_residue(*m, 0);
+	 if (res) { 
+	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(NULL, res);
+	    asc = make_asc(mol);
+	 }
+      } else {
+	 std::cout << "Null m" << std::endl;
+      } 
+   }
+   catch (RDKit::FileParseException rte) {
+      std::cout << "WARNING:: " << rte.message() << std::endl;
+   }
+   catch (RDKit::BadFileException &e) {
+      std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "WARNING runtime_error in mol_to_asc_rdkit() " << rte.what() << std::endl;
+   } 
+   catch (std::exception e) {
+      std::cout << "WARNING:: mol_to_asc_rdkit: exception: " << e.what() << std::endl;
+   } 
+   return asc;
+}
+#endif 
 
 
 atom_selection_container_t

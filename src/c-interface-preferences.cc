@@ -921,6 +921,13 @@ void set_edit_chi_angles_dialog_position(int x_pos, int y_pos) {
 }
 
 
+/*! \brief set rotamer selection dialog position */
+void set_rotamer_selection_dialog_position(int x_pos, int y_pos) {
+
+   graphics_info_t::rotamer_selection_dialog_x_position = x_pos;
+   graphics_info_t::rotamer_selection_dialog_y_position = y_pos;
+} 
+
 
 
 /*  ------------------------------------------------------------------------ */

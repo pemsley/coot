@@ -1,5 +1,4 @@
 
-#ifdef HAVE_GOOCANVAS
 
 #include "coot-utils.hh"
 #include "lbg.hh"
@@ -9,51 +8,6 @@
 #include "rdkit-interface.hh"
 
 
-// Caller deletes
-// 
-RDKit::RWMol
-lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
-
-   RDKit::RWMol m;
-   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
-
-   for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
-      if (! mol.atoms[iat].is_closed()) { 
-	 RDKit::Atom *at = new RDKit::Atom;
-	 at->setAtomicNum(tbl->getAtomicNumber(mol.atoms[iat].element));
-
-	 // add the name to at too here (if you can).
-	 // 
-	 try {
-	    at->setProp("name", std::string(mol.atoms[iat].get_atom_name()));
-	 }
-	 catch (std::exception rte) {
-	    std::cout << rte.what() << std::endl;
-	 }
-	 m.addAtom(at);
-      }
-   }
-
-   for (unsigned int ib=0; ib<mol.bonds.size(); ib++) {
-      if (! mol.bonds[ib].is_closed()) {
-	 RDKit::Bond::BondType type = convert_bond_type(mol.bonds[ib].get_bond_type());
-	 RDKit::Bond *bond = new RDKit::Bond(type);
-	 int idx_1 = mol.bonds[ib].get_atom_1_index();
-	 int idx_2 = mol.bonds[ib].get_atom_2_index();
-	 if (!mol.atoms[idx_1].is_closed() && !mol.atoms[idx_2].is_closed()) { 
-	    bond->setBeginAtomIdx(idx_1);
-	    bond->setEndAtomIdx(  idx_2);
-	    if (type == RDKit::Bond::AROMATIC) { 
-	       bond->setIsAromatic(true);
-	       m[idx_1]->setIsAromatic(true);
-	       m[idx_2]->setIsAromatic(true);
-	    } 
-	    m.addBond(bond);
-	 }
-      }
-   }
-   return m;
-}
 
 // This can throw an runtime_error exception (residue not in
 // dictionary).
@@ -327,21 +281,6 @@ coot::rdkit_mol(CResidue *residue_p,
 
 
 RDKit::Bond::BondType
-lbg_info_t::convert_bond_type(const lig_build::bond_t::bond_type_t &t) const {
-
-   // There are lots more in RDKit::Bond::BondType!
-   // 
-   RDKit::Bond::BondType bt = RDKit::Bond::UNSPECIFIED;
-   if (t == lig_build::bond_t::SINGLE_BOND)
-      bt = RDKit::Bond::SINGLE;
-   if (t == lig_build::bond_t::DOUBLE_BOND)
-      bt = RDKit::Bond::DOUBLE;
-   if (t == lig_build::bond_t::TRIPLE_BOND)
-      bt = RDKit::Bond::TRIPLE;
-   return bt;
-}
-
-RDKit::Bond::BondType
 coot::convert_bond_type(const std::string &t) {
    RDKit::Bond::BondType bt = RDKit::Bond::UNSPECIFIED;
    if (t == "single")
@@ -527,20 +466,6 @@ coot::add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
 }
 
 
-// this can throw a std::exception
-// 
-std::string
-lbg_info_t::get_smiles_string_from_mol_rdkit() const {
-
-   RDKit::RWMol rdkm = rdkit_mol(mol);
-   RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(rdkm);
-   std::string s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs);
-   delete rdk_mol_with_no_Hs;
-
-   return s;
-}
-
-
 lig_build::molfile_molecule_t
 coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 
@@ -554,9 +479,6 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
       int n_conf_atoms = conf.getNumAtoms();
       int n_mol_atoms = rdkm.getNumAtoms();
 
-      std::cout << "DEBUG:: in make_molfile_molecule() conformer has " << n_conf_atoms
-		<< " atoms" << std::endl;
-      
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
 	 RDKit::ATOM_SPTR at_p = rdkm[iat];
 	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
@@ -582,6 +504,12 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	 int idx_1 = bond_p->getBeginAtomIdx();
 	 int idx_2 = bond_p->getEndAtomIdx();
 	 lig_build::bond_t::bond_type_t bt = convert_bond_type(bond_p->getBondType());
+	 if (0) 
+	    std::cout << "   make_molfile_molecule() " << idx_1 << " "
+		      << idx_2 << "      "
+		      << bond_p->getBondType() << " to "
+		      << bt 
+		      << std::endl;
 	 lig_build::molfile_bond_t mol_bond(idx_1, idx_2, bt);
 	 RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
 	 if (bond_dir != RDKit::Bond::NONE) {
@@ -603,7 +531,9 @@ CResidue *
 coot::make_residue(const RDKit::ROMol &rdkm, int iconf) {
 
    CResidue *residue_p = NULL;
+   std::cout << "in make_residue() calling make_molfile_molecule() " << std::endl;
    lig_build::molfile_molecule_t mol = coot::make_molfile_molecule(rdkm, iconf);
+   std::cout << "in make_residue() done calling make_molfile_molecule() " << std::endl;
 
    // now convert mol to a CResidue *
    // 
@@ -630,6 +560,9 @@ coot::make_residue(const RDKit::ROMol &rdkm, int iconf) {
 }
 
 
+// This will fail to do the right thing when the passed bond type is
+// aromatic.
+// 
 lig_build::bond_t::bond_type_t
 coot::convert_bond_type(const RDKit::Bond::BondType &type) {
 
@@ -1179,4 +1112,3 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 
 
 #endif // MAKE_ENTERPRISE_TOOLS   
-#endif // HAVE_GOOCANVAS
