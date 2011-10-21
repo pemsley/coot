@@ -32,6 +32,8 @@ INCLUDES = \
 	-I$(top_srcdir)/geometry   \
 	-I$(top_srcdir)/mini-mol   \
 	-I$(top_srcdir)/compat     \
+	$(ENTERPRISE_TOOLS_CFLAGS)      \
+	$(RDKIT_CXXFLAGS) 		\
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = \
@@ -50,4 +52,5 @@ libcoot_coords_la_LIBADD = \
    ../coot-utils/libcoot-coord-utils.la \
    ../utils/libcoot-utils.la            \
    ../mini-mol/libcoot-mini-mol.la      \
+   $(RDKIT_LIBS)	        \
    $(MMDB_LIBS)

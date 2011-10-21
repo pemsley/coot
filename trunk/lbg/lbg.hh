@@ -944,9 +944,12 @@ public:
    void delete_hydrogens();
    void undo();
    void search() const;
-   widgeted_molecule_t  import(const lig_build::molfile_molecule_t &mol_in,
-			       const std::string &filename,
-			       CMMDBManager *pdb_mol);
+   // 20111021 try to read file_name as a MDL mol or a mol2 file.
+   void import_mol_from_file(const std::string &file_name);
+   // read an MDL mol file.
+   widgeted_molecule_t  import_mol_file(const lig_build::molfile_molecule_t &mol_in,
+					const std::string &filename,
+					CMMDBManager *pdb_mol);
    static void on_sbase_search_result_button_clicked(GtkButton *button, gpointer user_data);
    static gboolean watch_for_mdl_from_coot(gpointer user_data);
    time_t coot_mdl_ready_time;

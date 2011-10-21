@@ -353,12 +353,7 @@ on_lbg_open_filechooserdialog_response(GtkDialog       *dialog,
       lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->open_dialog));
-	 CMMDBManager *mol = NULL; // no atom names to transfer
-	 lig_build::molfile_molecule_t mm;
-	 mm.read(file_name);
-	 widgeted_molecule_t wmol = l->import(mm, file_name, mol);
-	 l->render_from_molecule(wmol);
-	 l->update_statusbar_smiles_string();
+	 l->import_mol_from_file(file_name);
       }
    }
    gtk_widget_hide(GTK_WIDGET(dialog));
