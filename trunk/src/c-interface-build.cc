@@ -4956,6 +4956,25 @@ PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, co
 
 
 
+
+/*! \brief set way nomenclature errors should be handled on reading
+  coordinates.
+
+  mode should be "auto-correct", "ignore", "prompt".  The
+  default is "prompt" */
+void set_nomenclature_errors_on_read(const char *mode) {
+
+   std::string m(mode);
+   if (m == "auto-correct")
+      graphics_info_t::nomenclature_errors_mode = coot::AUTO_CORRECT;
+   if (m == "ignore")
+      graphics_info_t::nomenclature_errors_mode = coot::IGNORE;
+   if (m == "prompt")
+      graphics_info_t::nomenclature_errors_mode = coot::PROMPT;
+
+}
+
+
 /*  ----------------------------------------------------------------------- */
 /*               Nomenclature Errors                                        */
 /*  ----------------------------------------------------------------------- */

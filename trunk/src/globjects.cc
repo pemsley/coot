@@ -424,6 +424,11 @@ int graphics_info_t::backup_compress_files_flag = 1;
 // Auto read
 int graphics_info_t::auto_read_do_difference_map_too_flag = 1;
 
+// nomenclature errors
+coot::nomenclature_error_handle_type graphics_info_t::nomenclature_errors_mode = coot::PROMPT;
+
+
+
 
 // Tip of the Day?
 short int graphics_info_t::do_tip_of_the_day_flag = 1;
@@ -4654,10 +4659,15 @@ void set_skeleton_bond_colour_random(int i, const vector< vector<float> > &colou
 // Remember, being in GL_LINES mode will cause this to fail silently.
 // 
 void printString(std::string s) {
+
+#ifdef HACK_OUT_GLUTBITMAPSCHARS
+   // pass
+#else   
    glPushAttrib (GL_LIST_BIT);
    for (unsigned int i = 0; i < s.length(); i++)
       glutBitmapCharacter (graphics_info_t::atom_label_font, s[i]);
    glPopAttrib ();
+#endif
 }
 
 
