@@ -1340,9 +1340,6 @@ namespace coot {
       void assign_link_chiral_volume_targets();
       int read_number;
 
-      void delete_mon_lib(std::string comp_id); // delete comp_id from dict_res_restraints
-						// (if it exists there).
-
       std::vector <std::string> standard_protein_monomer_files() const; 
       // a wrapper to init_refmac_mon_lib
       int refmac_monomer(const std::string &s, // dir
@@ -1497,7 +1494,13 @@ namespace coot {
       // number of atoms read.
       // 
       int try_dynamic_add(const std::string &resname, int read_number);  // return success status?
-      // this is not const if we use dynamic add.
+                                              // this is not const if we use dynamic add.
+
+      // return true on having deleted;
+      bool delete_mon_lib(std::string comp_id); // delete comp_id from dict_res_restraints
+						// (if it exists there).
+
+
 
       // return a pair, the first is status (1 if the name was found, 0 if not)
       // 

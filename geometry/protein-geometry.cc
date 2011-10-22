@@ -4883,17 +4883,19 @@ coot::protein_geometry::print_chem_links() const {
 } 
 
 // delete comp_id from dict_res_restraints (if it exists there).
-void
+bool
 coot::protein_geometry::delete_mon_lib(std::string comp_id) {
 
+   bool deleted = false; 
    std::vector<coot::dictionary_residue_restraints_t>::iterator it;
    for (it=dict_res_restraints.begin(); it!=dict_res_restraints.end(); it++) {
       if (it->residue_info.comp_id == comp_id) { 
 	 dict_res_restraints.erase(it);
+	 deleted = 1;
 	 break;
       }
-   } 
-
+   }
+   return deleted;
 } 
 
 bool

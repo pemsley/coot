@@ -3418,6 +3418,12 @@ int set_imol_refinement_map(int imol);	/* returns imol on success, otherwise -1 
 */
 int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode); 
 
+/* ! \brief delete the restraints for the given comp_id (i.e. residue name)  
+
+@return success status (0 is failed, 1 is success)
+*/
+int delete_restraints(const char *comp_id);
+
 /*! \brief add a user-define bond restraint
 
    this extra restraint is used when the given atoms are selected in
@@ -3507,6 +3513,13 @@ score_residue_range_fit_to_map(int res1, int res2, char *altloc, char *chain_id,
 
    @return the number of resides altered. */
 int fix_nomenclature_errors(int imol);
+
+/*! \brief set way nomenclature errors should be handled on reading
+  coordinates.
+
+  mode should be "auto-correct", "ignore", "prompt".  The
+  default is "prompt" */
+void set_nomenclature_errors_on_read(const char *mode);
 
 /* \} */
 

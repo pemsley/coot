@@ -199,6 +199,9 @@ namespace coot {
      };
    }
 
+   enum nomenclature_error_handle_type { 
+     AUTO_CORRECT, IGNORE, PROMPT};
+
    enum scripting_language_type { SCRIPT_UNSET = -1, 
 				  SCHEME_SCRIPT = 1,
 				  PYTHON_SCRIPT = 2};
@@ -950,10 +953,6 @@ public:
 /*       sequence_view_is_displayed = new GtkWidget * [n_molecules_max]; */
 /*       for (int i=0; i<n_molecules_max; i++) */
 /* 	 sequence_view_is_displayed[i] = NULL; */
-
-
-      // ---- Adding something here? Like another graph?  don't forget
-      // to update expand_molecule_space()
 
       // residue edits
       residue_info_edits = new std::vector<coot::select_atom_info>;
@@ -3788,6 +3787,10 @@ string   static std::string sessionid;
 
    // update self?
    static bool update_self;
+
+   // what shall we do with nomenclature errors on reading pdb files? 
+   // 
+   static coot::nomenclature_error_handle_type nomenclature_errors_mode;
 
 };
 

@@ -338,6 +338,17 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 }
 #endif // USE_PYTHON
 
+/* ! \brief delete the restraints for the given comp_id (i.e. residue name)  */
+// return 0 or 1
+// 
+int delete_restraints(const char *comp_id) {
+
+   graphics_info_t g;
+   return g.Geom_p()->delete_mon_lib(comp_id);
+   
+} 
+
+
 /*! \brief add a user-define bond restraint
 
    to be used when the given atoms are selected.  */
