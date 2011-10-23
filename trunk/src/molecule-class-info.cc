@@ -2648,7 +2648,13 @@ molecule_class_info_t::makebonds() {
 
    graphics_info_t g;
    int do_disulphide_flag = 1;
-   Bond_lines_container bonds(atom_sel, g.Geom_p(), do_disulphide_flag, draw_hydrogens_flag);
+   int model_number = 0; // flag for all models
+
+   if (single_model_view_current_model_number != 0)
+      model_number = single_model_view_current_model_number;
+   
+   Bond_lines_container bonds(atom_sel, g.Geom_p(), do_disulphide_flag, draw_hydrogens_flag,
+			      model_number);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::NORMAL_BONDS;
@@ -2755,6 +2761,79 @@ molecule_class_info_t::make_bonds_type_checked() {
    update_ghosts();
    update_extra_restraints_representation();
 }
+
+// n-models
+int
+molecule_class_info_t::n_models() const {
+   int r = -1;
+   if (has_model()) { 
+      r = atom_sel.mol->GetNumberOfModels();
+   }
+   return r;
+}
+
+// single model view
+void
+molecule_class_info_t::single_model_view_model_number(int imodel) {
+   if (has_model()) {
+      single_model_view_current_model_number = imodel;
+      make_bonds_type_checked();
+   }
+}
+
+int
+molecule_class_info_t::single_model_view_this_model_number() const {
+   int model_no = 0;
+   if (has_model()) {
+      model_no = single_model_view_current_model_number;
+   }
+   return model_no;
+}
+
+int
+molecule_class_info_t::single_model_view_prev_model_number() {
+   int model_no = 0;
+   if (has_model()) {
+      int n = n_models();
+      if (n > 1) {
+	 int prev = single_model_view_current_model_number - 1;
+	 if (prev >= 1) {
+	    // OK
+	 } else {
+	    prev = n;
+	 } 
+	 CModel *model = atom_sel.mol->GetModel(prev);
+	 if (model) {
+	    model_no = prev;
+	 }
+      }
+   }
+   single_model_view_model_number(model_no);
+   return model_no; 
+}
+
+int
+molecule_class_info_t::single_model_view_next_model_number() {
+   int model_no = 0;
+   if (has_model()) {
+      int n = n_models();
+      if (n > 1) {
+	 int next = single_model_view_current_model_number + 1;
+	 if (next <= n) {
+	    // OK
+	 } else {
+	    next = 1;
+	 } 
+	 CModel *model = atom_sel.mol->GetModel(next);
+	 if (model) {
+	    model_no = next;
+	 }
+      }
+   }
+   single_model_view_model_number(model_no);
+   return model_no; 
+}
+
 
 void
 molecule_class_info_t::update_additional_representations(const gl_context_info_t &gl_info,

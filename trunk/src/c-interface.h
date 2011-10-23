@@ -6638,6 +6638,29 @@ void toolbar_multi_refine_button_set_sensitive(const char *button_type, short in
 
 
 /*  ----------------------------------------------------------------------- */
+/*                         single-model view */
+/*  ----------------------------------------------------------------------- */
+/*! \name single-model view */
+/* \{ */
+/*! \brief put molecule number imol to display only model number imodel */
+void single_model_view_model_number(int imol, int imodel);
+/*! \brief the current model number being displayed
+
+return 0 on non-multimodel-molecule. */
+int single_model_view_this_model_number(int imol);
+/*! \brief change the representation to the next model number to be displayed 
+
+return 0 on non-multimodel-molecule.
+*/
+int single_model_view_next_model_number(int imol);
+/*! \brief change the representation to the previous model number to be displayed
+
+return 0 on non-multimodel-molecule. */
+int single_model_view_prev_model_number(int imol);
+/* \} */
+
+
+/*  ----------------------------------------------------------------------- */
 /*                  update self                                             */
 /*  ----------------------------------------------------------------------- */
 /* this function is here because it is called by c_inner_main() (ie. need a c interface). */
