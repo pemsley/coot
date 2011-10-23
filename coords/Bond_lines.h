@@ -301,10 +301,13 @@ class Bond_lines_container {
    // we rely on SelAtom.atom_selection being properly constucted to
    // contain all atoms
    //
+   // if model_number is 0, display all models.
+   //
    void construct_from_asc(const atom_selection_container_t &SelAtom, 
 			   float min_dist, float max_dist, 
 			   int atom_colour_type, 
-			   short int is_from_symmetry_flag);
+			   short int is_from_symmetry_flag,
+			   int model_number);
 
    void construct_from_atom_selection(const atom_selection_container_t &asc,
 				      const PPCAtom atom_selection_1,
@@ -316,6 +319,7 @@ class Bond_lines_container {
 				      bool are_different_atom_selections,
 				      bool have_udd_atoms,
 				      int udd_handle);
+   
    void construct_from_model_links(CModel *model, int atom_colour_type);
 
    // now wit optional arg.  If atom_colour_type is set, then use/fill
@@ -418,11 +422,15 @@ public:
 
    // the constructor for bond by dictionary - should use this most of the time.
    // geom_in can be null if you don't have it.
+   //
+   // if model_number is 0, display all models. If it is not 0 then
+   // display only the given model_number (if possible, of course).
    // 
    Bond_lines_container(const atom_selection_container_t &asc,
 			coot::protein_geometry *geom_in,
 			int include_disulphides,
-			int include_hydrogens);
+			int include_hydrogens,
+			int model_number);
 
    Bond_lines_container(atom_selection_container_t, float max_dist);
 

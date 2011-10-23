@@ -961,6 +961,9 @@ class molecule_class_info_t {
 					  const clipper::Coord_orth &current_position,
 					  const std::string &current_chain,
 					  const std::string &next_ncs_chain) const;
+
+   // single model view
+   int single_model_view_current_model_number;
    
 
    // ----------------------------------------------------------------------------------------
@@ -1161,6 +1164,9 @@ public:        //                      public
 
       // animated ligand interaction representation
       draw_animated_ligand_interactions_flag = 0;
+
+      // single model view
+      single_model_view_current_model_number = 0; // all models
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -3075,7 +3081,15 @@ public:        //                      public
 			   const std::string &new_residue_comp_id,
 			   const std::string &link_type,
 			   const coot::protein_geometry &geom);
-   
+
+   // n-models
+   int n_models() const;
+
+   // single model view
+   void single_model_view_model_number(int imodel);
+   int single_model_view_this_model_number() const;
+   int single_model_view_next_model_number(); // changes the represenation
+   int single_model_view_prev_model_number(); //    ditto.
 };
 
 #endif // MOLECULE_CLASS_INFO_T

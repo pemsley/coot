@@ -80,3 +80,63 @@ void orient_view(int imol,
    }
 }
 
+/*  ----------------------------------------------------------------------- */
+/*                         single-model view */
+/*  ----------------------------------------------------------------------- */
+/*! \name single-model view */
+/* \{ */
+/*! \brief put molecule number imol to display only model number imodel */
+void single_model_view_model_number(int imol, int imodel) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].single_model_view_model_number(imodel);
+      graphics_draw();
+      std::string s = "Model number ";
+      s += coot::util::int_to_string(imodel);
+      add_status_bar_text(s.c_str());
+   } 
+}
+
+/*! \brief the current model number being displayed */
+int single_model_view_this_model_number(int imol) {
+   int r = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      r = g.molecules[imol].single_model_view_this_model_number();
+      std::string s = "Model number ";
+      s += coot::util::int_to_string(r);
+      add_status_bar_text(s.c_str());
+      graphics_draw();
+   }
+   return r;
+}
+
+/*! \brief the next model number to be displayed */
+int single_model_view_next_model_number(int imol) {
+   int r = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      r = g.molecules[imol].single_model_view_next_model_number();
+      std::string s = "Model number ";
+      s += coot::util::int_to_string(r);
+      add_status_bar_text(s.c_str());
+      graphics_draw();
+   }
+   return r;
+}
+
+/*! \brief the previous model number to be displayed */
+int single_model_view_prev_model_number(int imol) {
+   int r = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      r = g.molecules[imol].single_model_view_prev_model_number();
+      std::string s = "Model number ";
+      s += coot::util::int_to_string(r);
+      add_status_bar_text(s.c_str());
+      graphics_draw();
+   }
+   return r;
+}
+

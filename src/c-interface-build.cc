@@ -2794,8 +2794,7 @@ int n_models(int imol) {
 
    int r = -1; // fail;
    if (is_valid_model_molecule(imol)) {
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      r = mol->GetNumberOfModels();
+      r = graphics_info_t::molecules[imol].n_models();
    }
    std::string cmd = "n-models";
    std::vector<coot::command_arg_t> args;
