@@ -28,6 +28,10 @@
 #undef small
 #undef near
 #undef far
+// for nomenclature errors
+#ifdef IGNORE
+#undef IGNORE
+#endif
 #endif
 
 // some redefinitions for Visual C++

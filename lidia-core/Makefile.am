@@ -25,6 +25,7 @@ include_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh rdkit-interface.hh u
 #
 INCLUDES = \
 	 -I$(top_srcdir)/geometry \
+	 -I$(top_srcdir)/lbg      \
 	$(ENTERPRISE_TOOLS_CFLAGS)      \
 	$(RDKIT_CXXFLAGS) 		\
         $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
