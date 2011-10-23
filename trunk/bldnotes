@@ -9,6 +9,8 @@ build-it-win rev 2122
 * THINGS TO DO BEFORE 0.6.2 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
+FIX probe/reduce status
+
 UPDATE CCP4 on build machine! Use new dictionary!!!
 
 CCP4
@@ -42,12 +44,14 @@ notes from Shanghai:
 
 **** General ****
 
+   o 'map_scroll_button_2' widget not found (display manager warning)
+
    o update sequence view after rename and renumber chains/residues
 
    o gradually include residues for refinement, good if completely out 
 	(maybe not)!?
 
-   o check for updates in About?!
+   o check for updates in About?! Include info on pre- or release!?
 
    o phs file dialog, make fill/expand properly
 
@@ -243,6 +247,10 @@ from Osaka 2010
 
 
 **** Windows ****
+
+   o installer options for guile/windowsy (sections)
+
+   o installer option to install (or not) icons/shortcuts
 
    o use dlls in rdkit/enterprise rather than static ?!
 

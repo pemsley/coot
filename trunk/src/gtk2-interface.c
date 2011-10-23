@@ -1283,7 +1283,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (reset_view_toolbutton), tooltips, _("Usage Note: click again to centre on a different molecule"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (reset_view_toolbutton), TRUE);
 
-  tmp_image = create_pixmap (window1, "display-manager.png");
+  tmp_image = gtk_image_new_from_stock ("display-manager.png", GTK_ICON_SIZE_MENU);
   gtk_widget_show (tmp_image);
   display_manager_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _(" Display Manager"));
   gtk_widget_show (display_manager_toolbutton);
@@ -1291,7 +1291,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (display_manager_toolbutton), tooltips, _("Display the dialog for displaying and undisplaying molecules and changing their representation (F7)"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (display_manager_toolbutton), TRUE);
 
-  tmp_image = create_pixmap (window1, "go-to-atom.svg");
+  tmp_image = gtk_image_new_from_stock ("go-to-atom.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (tmp_image);
   go_to_atom_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Go To Atom..."));
   gtk_widget_show (go_to_atom_toolbutton);
@@ -1301,7 +1301,7 @@ create_window1 (void)
                               GDK_F6, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
-  tmp_image = create_pixmap (window1, "go-to-ligand.svg");
+  tmp_image = gtk_image_new_from_stock ("go-to-ligand.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (tmp_image);
   go_to_ligand_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Go To Ligand"));
   gtk_widget_show (go_to_ligand_toolbutton);

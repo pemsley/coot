@@ -1995,7 +1995,15 @@ void fill_environment_widget(GtkWidget *widget) {
    } else {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 0);
       // std::cout << "filling: button is inactive" << std::endl;
-   } 
+   }
+   // set the label button
+   toggle_button = lookup_widget(widget, 
+                                 "environment_distance_label_atom_checkbutton");
+   if (g.environment_distance_label_atom) {
+     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 1);
+   } else {
+     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 0);
+   }
 }
 
 // Called when the OK button of the environment distances dialog is clicked 
@@ -2097,6 +2105,9 @@ void set_show_environment_distances_as_solid(int state) {
    graphics_info_t::display_environment_graphics_object_as_solid_flag = state;
 } 
 
+void set_environment_distance_label_atom(int state) {
+  graphics_info_t::environment_distance_label_atom = state;
+}
 
 void add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2) {
 
