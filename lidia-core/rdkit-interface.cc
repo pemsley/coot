@@ -1,7 +1,6 @@
 
 
 #include "coot-utils.hh"
-#include "lbg.hh"
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 
