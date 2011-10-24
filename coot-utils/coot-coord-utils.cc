@@ -165,6 +165,22 @@ coot::util::pair_residue_atoms(CResidue *a_residue_p,
    return pv;
 }
 
+// return an atom selection handle for the selection in the mol
+// that matches the spec.
+//
+int
+coot::residue_spec_t::select_atoms(CMMDBManager *mol, int selhnd, int selection_key_type) {
+
+   if (mol) { 
+      mol->SelectAtoms(selhnd, 0, chain.c_str(),
+		       resno, insertion_code.c_str(),
+		       resno, insertion_code.c_str(),
+		       "*", "*", "*", "*", selection_key_type);
+   }
+   return selhnd;
+} 
+
+
 CMMDBManager *
 coot::util::copy_molecule(CMMDBManager *mol) {
    CMMDBManager *n = new CMMDBManager;

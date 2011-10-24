@@ -278,7 +278,15 @@ namespace coot {
 	 if (!(s << *this))
 	    return "";
 	 return s.str();
-      } 
+      }
+
+      // return an atom selection handle for the selection in the mol
+      // that matches the spec.  Caller is responsible for deleting
+      // the atom selection.
+      //
+      // selection_key_type is typically either SKEY_NEW or SKEY_OR
+      // 
+      int select_atoms(CMMDBManager *mol, int selhnd, int selection_key_type);
 
       friend std::ostream& operator<< (std::ostream& s, const residue_spec_t &spec);
    };

@@ -56,6 +56,9 @@ class MyCMMDBManager : public CMMDBManager {
 
 #include "protein-geometry.hh"
 
+// we need this for bonded_pair_container_t.
+#include "bonded-pairs.hh"
+
 // 
 //
 class atom_selection_container_t { 
@@ -186,6 +189,16 @@ namespace coot {
     contact_info(const atom_selection_container_t &asc, 
 		 const std::string &monomer_type,
 		 coot::protein_geometry *geom_p);
+
+    // Here we look up the contacts for each monomer in the atom
+    // selection. We also allow descriptions of bonds between
+    // monomers.   
+    // 
+    // Can throw a std::runtime_error.
+    // 
+    contact_info(const atom_selection_container_t &asc,
+		 coot::protein_geometry *geom_p, 
+		 const bonded_pair_container_t &bonded_pairs);
 
     void add_MSE_Se_bonds(const atom_selection_container_t &asc);
     int n_contacts() const { return contacts.size(); } 

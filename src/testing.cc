@@ -284,7 +284,8 @@ int test_internal_single() {
       // status = test_mcd_and_thornton_h_bonds();
       // status = test_COO_mod();
       // status = test_remove_whitespace();
-      status = test_beam_in_residue();
+      // status = test_beam_in_residue();
+      status = test_multi_residue_torsion();
       
    }
    catch (std::runtime_error mess) {
@@ -2686,6 +2687,70 @@ int test_beam_in_residue() {
       } 
    } 
 
+   return status;
+}
+
+int test_multi_residue_torsion() {
+
+   int status = 0;
+   testing_data t;
+   t.geom.try_dynamic_add("NAG", 1);
+   CMMDBManager *mol = new CMMDBManager;
+   mol->ReadPDBASCII("ASN-NAG-pair.pdb");
+   CResidue *res_1 = coot::util::get_first_residue(mol);
+   if (res_1) {
+      coot::residue_spec_t specs[2];
+      int selhnd = mol->NewSelection();
+      specs[0] = coot::residue_spec_t("A", 131, "");
+      specs[1] = coot::residue_spec_t("A", 361, "");
+      for (unsigned int i=0; i<2; i++) {
+	 specs[i].select_atoms(mol, selhnd, SKEY_OR); 
+      }
+
+      PPCAtom atom_selection;
+      int n_selected_atoms;
+      mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
+
+      // now we need to add the link, we need a CResidue * for the
+      // second residue to do that.
+      //
+      int selhnd_res2 = mol->NewSelection();
+      mol->Select(selhnd_res2, STYPE_RESIDUE, 1, "A",
+		  361, "", 361, "", "*", "*", "*", "*", SKEY_NEW);
+      int nSelResidues;
+      PPCResidue SelResidues;
+      mol->GetSelIndex(selhnd_res2, SelResidues, nSelResidues);
+      
+      if (nSelResidues != 1) {
+	 std::cout << "problem in test_multi_residue_torsion" << std::endl;
+      } else {
+	 CResidue *res_2 = SelResidues[0];
+	 coot::bonded_pair_t bp(res_1, res_2, 0, 0, "NAG-ASN");
+	 coot::bonded_pair_container_t bpc;
+	 bpc.try_add(bp);
+	 atom_selection_container_t asc;
+	 asc.mol = (MyCMMDBManager *) mol;
+	 asc.atom_selection = atom_selection;
+	 asc.n_selected_atoms = n_selected_atoms;
+	 asc.SelectionHandle = selhnd;
+
+	 for (unsigned int i=0; i<n_selected_atoms; i++) { 
+	    std::cout << "selected atom: " << atom_selection[i] << std::endl;
+	 }
+	 coot::contact_info contacts(asc, &t.geom, bpc);
+ 	 std::vector<std::vector<int> > contact_indices =
+ 	    contacts.get_contact_indices_with_reverse_contacts();
+ 	 coot::atom_tree_t tree(contact_indices, 0, mol, selhnd);
+ 	 tree.rotate_about(1, 4, 3, 0); // CA-CB
+	 mol->WritePDBASCII("rotated.pdb");
+      } 
+
+      // clean up
+      // 
+      mol->DeleteSelection(selhnd_res2);
+      mol->DeleteSelection(selhnd);
+      
+   }
    return status;
 } 
 
