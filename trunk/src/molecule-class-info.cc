@@ -3414,9 +3414,9 @@ molecule_class_info_t::atom_index_first_atom_in_residue_internal(const std::stri
    int nSelResidues;
    PPCResidue SelResidues;
    atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 1,
-			(char *) chain_id.c_str(), 
-			iresno, (char *) ins_code.c_str(),
-			iresno, (char *) ins_code.c_str(),
+			chain_id.c_str(), 
+			iresno, ins_code.c_str(),
+			iresno, ins_code.c_str(),
 			"*",  // residue name
 			"*",  // Residue must contain this atom name?
 			"*",  // Residue must contain this Element?

@@ -394,6 +394,142 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
    }
 }
 
+// we can throw an exeption if any restraints are not found.
+//
+// The atom selection here has already sifted out the unwanted alt confs.
+// 
+coot::contact_info::contact_info(const atom_selection_container_t &asc,
+				 coot::protein_geometry *geom_p,
+				 const coot::bonded_pair_container_t &bonded_pairs) {
+
+   std::vector<CResidue *> residues;
+   std::pair<CResidue *, std::vector<int> > test;
+   
+   std::map<CResidue *, std::vector<int> > atoms_in_residue;
+
+   // fill residues and atoms_in_residue
+   for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
+      CResidue *r = asc.atom_selection[i]->residue;
+      if (std::find(residues.begin(), residues.end(), r) == residues.end())
+	 residues.push_back(r);
+      atoms_in_residue[r].push_back(i);
+   }
+
+   std::map<CResidue *, coot::dictionary_residue_restraints_t> res_restraints;
+   
+   for (unsigned int ires=0; ires<residues.size(); ires++) { 
+
+      std::string rn = residues[ires]->GetResName();
+      std::pair<bool, coot::dictionary_residue_restraints_t> rest = 
+	 geom_p->get_monomer_restraints(rn);
+      
+      if (! rest.first) {
+	 std::string m = "Restraints not found for type ";
+	 m += rn;
+	 throw std::runtime_error(m);
+      }
+      res_restraints[residues[ires]] = rest.second;
+   }
+
+   // make contacts from monomer restraints
+   // 
+   for (unsigned int iat=0; iat<asc.n_selected_atoms; iat++) {
+      CAtom *at_1 = asc.atom_selection[iat];
+      std::string atom_name_1 = at_1->name;
+      for (unsigned int jat=0; jat<asc.n_selected_atoms; jat++) {
+	 // if they are in the same residue...
+	 CAtom *at_2 = asc.atom_selection[jat];
+	 if (at_1->residue == at_2->residue) { 
+	    std::string atom_name_2 = at_2->name;
+	    // was there a bond between them?
+	    const std::vector<coot::dict_bond_restraint_t> &bond_restraints =
+	       res_restraints[at_1->residue].bond_restraint;
+	    for (unsigned int ibond=0; ibond<bond_restraints.size(); ibond++) {
+	       if (bond_restraints[ibond].atom_id_1_4c() == atom_name_1) { 
+		  if (bond_restraints[ibond].atom_id_2_4c() == atom_name_2) {
+		     contacts_pair p(iat, jat);
+		     contacts.push_back(p);
+		     break;
+		  }
+	       }
+	       // and the reverse indexing of that...
+	       if (bond_restraints[ibond].atom_id_1_4c() == atom_name_2) { 
+		  if (bond_restraints[ibond].atom_id_2_4c() == atom_name_1) {
+		     contacts_pair p(jat, iat);
+		     contacts.push_back(p);
+		     break;
+		  }
+	       }
+	    }
+	 }
+      } 
+   }
+
+   // now handle the bonded_pairs (they have residue_1, residue_2 and a link name)
+   for (unsigned int ib=0; ib<bonded_pairs.bonded_residues.size(); ib++) {
+      CResidue *res_1 = bonded_pairs.bonded_residues[ib].res_1;
+      CResidue *res_2 = bonded_pairs.bonded_residues[ib].res_2;
+      if (std::find(residues.begin(), residues.end(), res_1) != residues.end()) { 
+	 if (std::find(residues.begin(), residues.end(), res_2) != residues.end()) {
+	    // OK, both residues were in the atom selection (as it should be)
+	    std::string comp_id_1 = res_1->GetResName();
+	    std::string comp_id_2 = res_2->GetResName();
+	    std::string group_1 = geom_p->get_group(res_1);
+	    std::string group_2 = geom_p->get_group(res_2);
+	    std::vector<std::pair<coot::chem_link, bool> > mcl = 
+	       geom_p->matching_chem_link(comp_id_1, group_1,
+					  comp_id_2, group_2);
+	    std::cout << "debug:: found " << mcl.size() << " matching chem links"
+		      << std::endl;
+	    // there should be just one mcl of course, but ... by the book...
+	    for (unsigned int ilink=0; ilink<mcl.size(); ilink++) {
+	       bool order_switch = mcl[ilink].second;
+	       dictionary_residue_link_restraints_t lr = 
+		  geom_p->link(mcl[ilink].first.Id()); // or is it chem_link_name?
+	       if (lr.link_id != "") {
+		  // non-empty link, i.e. it was looked up OK.
+		  for (unsigned int ilr=0; ilr<lr.link_bond_restraint.size(); ilr++) { 
+		     std::string link_bond_atom_name_1 = lr.link_bond_restraint[ilr].atom_id_1_4c();
+		     std::string link_bond_atom_name_2 = lr.link_bond_restraint[ilr].atom_id_2_4c();
+
+		     if (order_switch == false) { 
+			for (unsigned int iat_1=0; iat_1<atoms_in_residue[res_1].size(); iat_1++) {
+			   std::string atom_name_1 = asc.atom_selection[iat_1]->name;
+			   if (link_bond_atom_name_1 == atom_name_1) {
+			      for (unsigned int iat_2=0; iat_2<atoms_in_residue[res_2].size(); iat_2++) {
+				 std::string atom_name_2 = asc.atom_selection[iat_2]->name;
+				 if (link_bond_atom_name_2 == atom_name_2) {
+				    contacts_pair p(iat_1, iat_2);
+				    contacts.push_back(p);
+				 }
+			      }
+			   }
+			}
+		     } else {
+
+			// order switch 
+			for (unsigned int iat_1=0; iat_1<atoms_in_residue[res_1].size(); iat_1++) {
+			   std::string atom_name_1 = asc.atom_selection[iat_1]->name;
+			   if (link_bond_atom_name_2 == atom_name_1) {
+			      for (unsigned int iat_2=0; iat_2<atoms_in_residue[res_2].size(); iat_2++) {
+				 std::string atom_name_2 = asc.atom_selection[iat_2]->name;
+				 if (link_bond_atom_name_1 == atom_name_2) {
+				    contacts_pair p(iat_1, iat_2);
+				    contacts.push_back(p);
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+
 
 // try to get the bonds/contacts from the dictionary.  If there are no
 // bonds, then fall back to the distance based search.

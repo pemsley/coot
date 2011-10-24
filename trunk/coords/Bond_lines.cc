@@ -3535,7 +3535,7 @@ Bond_lines_container::do_normal_bonds_no_water(const atom_selection_container_t 
    asc.mol->Select(asc.SelectionHandle, STYPE_ATOM, 0, "*",
 		   ANY_RES, "*",
 		   ANY_RES, "*",
-		   (char *) solvent_res.c_str(), "*", "*", "*",
+		   solvent_res.c_str(), "*", "*", "*",
 		   SKEY_XOR);
 
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);

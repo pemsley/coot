@@ -3512,7 +3512,7 @@ graphics_info_t::rotate_chi(double x, double y) {
    diff  = mouse_current_x - GetMouseBeginX();
    diff += mouse_current_y - GetMouseBeginY();
 
-   diff *= 0.5;
+   diff *= 15;
 
    // std::cout << "graphics_info_t::rotate_chi " << chi << " by "
    // << diff << std::endl;
@@ -3580,7 +3580,7 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
 	    int base_atom_index = 0;
 	    coot::atom_tree_t tree(torsion_general_contact_indices, base_atom_index, residue_p, altconf);
 	    tree.rotate_about(specs_local[1].atom_name, specs_local[2].atom_name,
-			      diff*0.04, torsion_general_reverse_flag);
+			      diff, torsion_general_reverse_flag);
 	    regularize_object_bonds_box.clear_up();
 	    make_moving_atoms_graphics_object(*moving_atoms_asc);
 	    graphics_draw();

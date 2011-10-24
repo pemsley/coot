@@ -146,8 +146,21 @@ namespace coot {
 
    class atom_tree_t {
       
-   protected: 
+   protected:
+
+      // either we create this class with a residue - in which case
+      // residue is set and atom_selection is not,
+      //
+      // or we create this class with an atom selection, in which case
+      // residue is not set.
+      //
+      // This difference is used in rotate_internal, where we decide
+      // which atoms to move.
+      //
+      // 
       CResidue *residue;
+      PPCAtom atom_selection;   // for the multi-residue interface
+      int     n_selected_atoms; // (we can't do residue_p->GetAtomTable())
       bool made_from_minimol_residue_flag; 
       std::vector<std::pair<int, int> > bonds;
       std::vector<atom_vertex> atom_vertex_vec;
@@ -199,6 +212,13 @@ namespace coot {
 			   const clipper::Coord_orth &base_atom_pos,
 			   double angle);
       double quad_to_torsion(const map_index_t &index2) const;
+
+      // factored out:
+      bool fill_atom_vertex_vec_using_contacts_by_atom_selection(const std::vector<std::vector<int> > &contact_indices,
+								 PPCAtom residue_atoms,
+								 int n_residue_atoms,
+								 int base_atom_index);
+      
       
    public:
 
@@ -253,6 +273,16 @@ namespace coot {
 		  const minimol::residue &res_in,
 		  const std::string &altconf);
 
+      // constructor, given a list of bonds and a base atom index.
+      //
+      // Used for multi-residue tree generation.
+      // 
+      atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
+		  int base_atom_index, 
+		  CMMDBManager *mol,
+		  int selection_handle);
+      
+
       ~atom_tree_t() {
 	 if (made_from_minimol_residue_flag)
 	    // question: does this delete the atoms in the residue too?
@@ -275,9 +305,22 @@ namespace coot {
       // Return the new torsion angle (use the embedded torsion on
       // index2 if you can) Otherwise return -1.0;
       // 
+      // this can throw a std::runtime_error exception
+      //
       double rotate_about(const std::string &atom1, const std::string &atom2,
 			  double angle,
 			  bool reversed_flag);
+
+
+      // Return the new torsion angle (use the embedded torsion on
+      // index2 if you can) Otherwise return -1.0;
+      // 
+      // this can throw a std::runtime_error exception
+      //
+      // for use with multi-residue (atom-selection) (we can't use
+      // atom names, because the may occur in different residues).
+      // 
+      double rotate_about(int index_1, int index_2, double angle, bool reversed_flag);
 
       // this can throw an exception
       //

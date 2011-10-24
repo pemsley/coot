@@ -91,6 +91,7 @@ int test_COO_mod();
 int test_remove_whitespace();
 int test_position_residue_by_internal_coords();
 int test_beam_in_residue();
+int test_multi_residue_torsion();
 
 // uses greg data test data
 int test_phi_psi_values();

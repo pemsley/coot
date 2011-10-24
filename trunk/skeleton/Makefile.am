@@ -25,6 +25,7 @@ INCLUDES = \
 	  -I$(top_srcdir)/geometry   \
           -I$(top_srcdir)/coords     \
           -I$(top_srcdir)/angles     \
+          -I$(top_srcdir)/coot-utils \
 	  -I$(top_srcdir)/compat     \
 	 $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) 
 
