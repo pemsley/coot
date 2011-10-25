@@ -4677,8 +4677,8 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
        mol_base_name == "Ur" || mol_base_name == "Ud" ||
        mol_base_name == "Tr" || mol_base_name == "Td" ||
        mol_base_name == "T"  || mol_base_name == "U"  ||
-       mol_base_name == "DT" || mol_base_name == "DC" ||
-       mol_base_name == "DU" ) {
+       mol_base_name == "C"  || mol_base_name == "DC" ||
+       mol_base_name == "DT" || mol_base_name == "DU" ) {
       mol_base_is_pyrimidine = 1;
       mol_base_is_purine = 0;
    }
