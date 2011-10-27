@@ -662,13 +662,14 @@
 
 	    ;; ----------------------------------------
 	    ;; 
-	    (let* ((pdb-url (string-append 
+	    (let* ((coords-type ".pdb") ;; can/will be ".cif"
+		   (pdb-url (string-append 
 			     "http://www.ebi.ac.uk/pdbe-srv/view/files/"
-			     entry-id ".cif"))
+			     entry-id coords-type))
 		   (sfs-cif-url (string-append
 				 "http://www.ebi.ac.uk/pdbe-srv/view/files/r"
 				 entry-id "sf.ent"))
-		   (pdb-file-name (append-dir-file "coot-download" (string-append entry-id ".cif")))
+		   (pdb-file-name (append-dir-file "coot-download" (string-append entry-id coords-type)))
 		   (sfs-cif-file-name (append-dir-file "coot-download" 
 						       (string-append "r" entry-id "sf.cif")))
 		   (sfs-mtz-file-name (append-dir-file "coot-download" 
