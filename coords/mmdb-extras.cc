@@ -403,8 +403,6 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 				 const coot::bonded_pair_container_t &bonded_pairs) {
 
    std::vector<CResidue *> residues;
-   std::pair<CResidue *, std::vector<int> > test;
-   
    std::map<CResidue *, std::vector<int> > atoms_in_residue;
 
    // fill residues and atoms_in_residue
@@ -414,15 +412,11 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 	 residues.push_back(r);
       atoms_in_residue[r].push_back(i);
    }
-
    std::map<CResidue *, coot::dictionary_residue_restraints_t> res_restraints;
-   
    for (unsigned int ires=0; ires<residues.size(); ires++) { 
-
       std::string rn = residues[ires]->GetResName();
       std::pair<bool, coot::dictionary_residue_restraints_t> rest = 
 	 geom_p->get_monomer_restraints(rn);
-      
       if (! rest.first) {
 	 std::string m = "Restraints not found for type ";
 	 m += rn;

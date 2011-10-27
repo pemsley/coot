@@ -8,7 +8,9 @@
 
 #include <mmdb_manager.h>
 
-namespace coot { 
+namespace coot {
+
+   // The residues here are in order.  res_1 is comp_1 and res_2 is comp_2
    class bonded_pair_t {
    public:
       CResidue *res_1;
