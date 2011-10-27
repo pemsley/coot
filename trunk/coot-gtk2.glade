@@ -6612,6 +6612,7 @@
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
 					  <property name="use_alpha">False</property>
+					  <property name="title" translatable="yes">Pick a Colour</property>
 					  <property name="focus_on_click">True</property>
 					  <signal name="color_set" handler="on_symmetry_colorbutton_color_set"/>
 					</widget>
@@ -12013,7 +12014,7 @@ just the cell and symmetry)
 		  <child>
 		    <widget class="GtkLabel" id="label145">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">  sigma  </property>
+		      <property name="label" translatable="yes">  rmsd  </property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -12040,7 +12041,7 @@ just the cell and symmetry)
 	      <child>
 		<widget class="GtkLabel" id="label280">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">Sigma Level</property>
+		  <property name="label" translatable="yes">r.m.s. d level</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -17345,7 +17346,7 @@ Do you want to continue?
 			<widget class="GtkEntry" id="find_waters_peak_level_entry">
 			  <property name="width_request">78</property>
 			  <property name="visible">True</property>
-			  <property name="tooltip" translatable="yes">Note that this is sigma of the map after it has been masked by the protein.  1.8 sigma seems good for a 2Fo-Fc style map and about 3.0 for a difference map.</property>
+			  <property name="tooltip" translatable="yes">Note that this is r.m.s.d. of the map after it has been masked by the protein.  1.8 r.m.s.d seems good for a 2Fo-Fc style map and about 3.0 for a difference map.</property>
 			  <property name="can_focus">True</property>
 			  <property name="editable">True</property>
 			  <property name="visibility">True</property>
@@ -17365,7 +17366,7 @@ Do you want to continue?
 		      <child>
 			<widget class="GtkLabel" id="label88">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes"> sigma </property>
+			  <property name="label" translatable="yes"> rmsd </property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -23668,7 +23669,7 @@ programs to which you may be more accustomed.
 				    <widget class="GtkRadioButton" id="single_map_properties_sigma_radiobutton">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
-				      <property name="label" translatable="yes">sigma</property>
+				      <property name="label" translatable="yes">rmsd</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
 				      <property name="focus_on_click">True</property>
@@ -23818,9 +23819,9 @@ programs to which you may be more accustomed.
 			      <child>
 				<widget class="GtkCheckButton" id="single_map_sigma_checkbutton">
 				  <property name="visible">True</property>
-				  <property name="tooltip" translatable="yes">By default, maps are contoured by fixed e/A3 units.  Setting this allows you to contour using sigma step instead.  This is useful for unusual maps - such as E-maps and maps synthesised from structure factors far off the absolute scale.</property>
+				  <property name="tooltip" translatable="yes">By default, maps are contoured by fixed e/A3 units.  Setting this allows you to contour using r.m.s.d. step instead.  This is useful for unusual maps - such as E-maps and maps synthesised from structure factors far off the absolute scale.</property>
 				  <property name="can_focus">True</property>
-				  <property name="label" translatable="yes">Change by sigma? </property>
+				  <property name="label" translatable="yes">Change by rmsd? </property>
 				  <property name="use_underline">True</property>
 				  <property name="relief">GTK_RELIEF_NORMAL</property>
 				  <property name="focus_on_click">True</property>
@@ -23842,7 +23843,7 @@ programs to which you may be more accustomed.
 			      <child>
 				<widget class="GtkLabel" id="label168">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">  Sigma Step  </property>
+				  <property name="label" translatable="yes">  r.m.s.d. step  </property>
 				  <property name="use_underline">False</property>
 				  <property name="use_markup">False</property>
 				  <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -27376,7 +27377,7 @@ density (too big to be waters):
 			  <child>
 			    <widget class="GtkLabel" id="label138">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">  with map sigma level less than:  </property>
+			      <property name="label" translatable="yes">  with map r.m.s.d. level less than:  </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -28445,7 +28446,7 @@ new molecules</property>
 Perhaps there were no ligands to be found?
 
 Alternatively you could try to reduce the search 
-sigma level or the acceptable fit fraction.</property>
+r.m.s.d. level or the acceptable fit fraction.</property>
 	  <property name="use_underline">False</property>
 	  <property name="use_markup">False</property>
 	  <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -34343,7 +34344,7 @@ search (this may not work well)</property>
 			  <child>
 			    <widget class="GtkEntry" id="find_blobs_peak_level_entry">
 			      <property name="visible">True</property>
-			      <property name="tooltip" translatable="yes">Note that this is sigma of the map after it has been masked by the protein.  1.8 sigma seems good for a 2Fo-Fc style map and about 3.0 for a difference map.</property>
+			      <property name="tooltip" translatable="yes">Note that this is r.m.s.d. of the map after it has been masked by the protein.  1.8 r.m.s.d. seems good for a 2Fo-Fc style map and about 3.0 for a difference map.</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
 			      <property name="visibility">True</property>
@@ -34363,7 +34364,7 @@ search (this may not work well)</property>
 			  <child>
 			    <widget class="GtkLabel" id="label214">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes"> sigma </property>
+			      <property name="label" translatable="yes"> r.m.s.d. </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -42384,7 +42385,7 @@ distances more than:</property>
 		      <child>
 			<widget class="GtkLabel" id="label230">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">  sigma  </property>
+			  <property name="label" translatable="yes">  r.m.s.d.  </property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -42411,7 +42412,7 @@ distances more than:</property>
 		  <child>
 		    <widget class="GtkLabel" id="label312">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Sigma Level</property>
+		      <property name="label" translatable="yes">r.m.s.d. level</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
