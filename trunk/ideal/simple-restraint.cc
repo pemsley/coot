@@ -4297,7 +4297,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
 		  bool order_switch_flag = l.second;
-		  if (!order_switch_flag) { 
+		  if (!order_switch_flag) {
 		     coot::bonded_pair_t p(res_f, res_s,
 					   whole_first_residue_is_fixed,
 					   whole_second_residue_is_fixed, link_type);
@@ -4568,9 +4568,10 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 		      << link_infos.size() 
 		      << " possible links: (link_infos):\n";
 	    for (unsigned int il=0; il<link_infos.size(); il++)
-	       std::cout << "            possible links: (link_infos): "
+	       std::cout << "            find_link_type_rigourous() possible links: (link_infos): "
 			 << il << " " << link_infos[il].first << " "
-			 << link_infos[il].second << std::endl;
+			 << link_infos[il].second << " "
+			 << std::endl;
 	 }
 
 	 // Now, if link is a TRANS (default-peptide-link), then
@@ -4621,12 +4622,11 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 		  // second is the order switch flag;
 		  // 
 		  std::pair<std::string, bool> non_peptide_close_link_info = 
-		     general_link_find_close_link(link_infos_non_peptide, first, second, geom);
-		  if (non_peptide_close_link_info.first != "") { 
+		     general_link_find_close_link(link_infos_non_peptide, first, second, order_switch_flag, geom);
+		  if (non_peptide_close_link_info.first != "") {
 		     link_type = non_peptide_close_link_info.first;
 		     order_switch_flag = non_peptide_close_link_info.second;
 		  }
-
 	       } 
 	    } else {
 
@@ -4662,7 +4662,8 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 		  // second is the order switch flag;
 		  // 
 		  std::pair<std::string, bool> non_peptide_close_link_info = 
-		     general_link_find_close_link(link_infos_non_peptide, first, second, geom);
+		     general_link_find_close_link(link_infos_non_peptide, first, second,
+						  order_switch_flag, geom);
 		  if (non_peptide_close_link_info.first != "") { 
 		     link_type = non_peptide_close_link_info.first;
 		     order_switch_flag = non_peptide_close_link_info.second;
@@ -4686,7 +4687,8 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
    }
 
    if (debug)
-      std::cout << "   DEBUG:: given " << coot::residue_spec_t(first) << " and "
+      std::cout << "   DEBUG:: find_link_type_rigourous() given "
+		<< coot::residue_spec_t(first) << " and "
 		<< coot::residue_spec_t(second)
 		<< " find_link_type_rigourous returns link type :"
 		<< link_type << ": and order-switch flag " << order_switch_flag << std::endl;
@@ -4756,8 +4758,9 @@ coot::restraints_container_t::peptide_C_and_N_are_close_p(CResidue *r1, CResidue
 
 }
 
-// a pair, first is if C and N are close and second is if an order
-// switch is needed to make it so.
+// a pair, first is if C and N (or whatever the bonding atoms were,
+// given the chem_link) are close and second is if an order switch is
+// needed to make it so.
 //
 // return "" as first if no close link found.
 //
@@ -4768,15 +4771,16 @@ coot::restraints_container_t::peptide_C_and_N_are_close_p(CResidue *r1, CResidue
 std::pair<std::string, bool>
 coot::restraints_container_t::general_link_find_close_link(std::vector<std::pair<coot::chem_link, bool> > &li,
 							   CResidue *r1, CResidue *r2,
+							   bool order_switch_flag,
 							   const coot::protein_geometry &geom) const {
 
    
-   std::pair<std::string, bool> r("", 0);
-   std::string rs = general_link_find_close_link_inner(li, r1, r2, geom);
+   std::pair<std::string, bool> r("", order_switch_flag);
+   std::string rs = general_link_find_close_link_inner(li, r1, r2, order_switch_flag, geom);
    if (rs != "") {
       r.first = rs;
    } else { 
-      rs = general_link_find_close_link_inner(li, r2, r1, geom);
+      rs = general_link_find_close_link_inner(li, r2, r1, order_switch_flag, geom);
       if (rs  != "") {
 	 r.first = rs;
 	 r.second = 1;
@@ -4790,10 +4794,14 @@ coot::restraints_container_t::general_link_find_close_link(std::vector<std::pair
 std::string
 coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std::pair<coot::chem_link, bool> > &li,
 								 CResidue *r1, CResidue *r2,
+								 bool order_switch_flag,
 								 const coot::protein_geometry &geom) const {
 
    float dist_crit = 3.0; // Angstroms.
    bool debug = 0;
+
+   if (order_switch_flag)
+      std::swap(r1, r2);
    
    std::string r("");
    std::pair<bool,float> close = closest_approach(r1, r2);
@@ -4825,8 +4833,38 @@ coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std
 		  } else {
 		     std::cout << "WARNING:: dictionary vs model problem? "
 			       << "We didn't find the bonded linking atoms :"
-			       << lr.link_bond_restraint[ib].atom_id_1_4c() << ": :"
-			       << lr.link_bond_restraint[ib].atom_id_2_4c() << ":" << std::endl;
+			       << atom_id_1 << ": :"
+			       << atom_id_2 << ":"
+			       << " for link " << link.Id() << " linking "
+			       << coot::residue_spec_t(r1) << " and "
+			       << coot::residue_spec_t(r2)
+			       << std::endl;
+		     std::cout << "       :: at_1: ";
+		     if (at_1)
+			std::cout << coot::atom_spec_t(at_1);
+		     else
+			std::cout << "NULL";
+		     std::cout << " at_2: ";
+		     if (at_2)
+			std::cout << coot::atom_spec_t(at_2);
+		     else
+			std::cout << "NULL";
+		     std::cout << std::endl;
+		     PPCAtom residue_atoms = 0;
+		     int n_residue_atoms;
+		     r1->GetAtomTable(residue_atoms, n_residue_atoms);
+		     for (unsigned int i=0; i<n_residue_atoms; i++) { 
+			std::cout << "   " << r1->GetResName() << " "
+				  << i << " :"  << residue_atoms[i]->name
+				  << ":" << std::endl;
+		     }
+		     residue_atoms = 0;
+		     r2->GetAtomTable(residue_atoms, n_residue_atoms);
+		     for (unsigned int i=0; i<n_residue_atoms; i++) { 
+			std::cout << "   " << r2->GetResName() << " "
+				  << i << " :"  << residue_atoms[i]->name
+				  << ":" << std::endl;
+		     }
 		  } 
 	       }
 	    }
@@ -4837,6 +4875,9 @@ coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std
 	 std::cout << "FAIL close enough with closer than dist_crit " << close.second << std::endl;
       }
    }
+   if (debug)
+      std::cout << "DEBUG:: general_link_find_close_link_inner() return \"" << r << "\""
+		<< " when called with order_switch_flag " << order_switch_flag<< std::endl;
    return r;
 }
 
@@ -7274,8 +7315,113 @@ coot::restraints_container_t::info() const {
    }
 } 
 
+std::vector<std::pair<CAtom *, CAtom *> >
+coot::torsionable_bonds(CMMDBManager *mol, PPCAtom atom_selection,
+			int n_selected_atoms,
+			coot::protein_geometry *geom_p) { 
+
+   std::vector<std::pair<CAtom *, CAtom *> > v;
+   bool include_pyranose_ring_torsions_flag = false;
+
+   std::vector<CResidue *> residues;
+   std::map<CResidue *, std::vector<int> > atoms_in_residue;
+   // fill residues and atoms_in_residue
+   for (unsigned int i=0; i<n_selected_atoms; i++) {
+      CResidue *r = atom_selection[i]->residue;
+      if (std::find(residues.begin(), residues.end(), r) == residues.end())
+	 residues.push_back(r);
+      atoms_in_residue[r].push_back(i);
+   }
+   std::map<CResidue *, coot::dictionary_residue_restraints_t> res_restraints;
+   for (unsigned int ires=0; ires<residues.size(); ires++) { 
+      std::string rn = residues[ires]->GetResName();
+      std::pair<bool, coot::dictionary_residue_restraints_t> rest = geom_p->get_monomer_restraints(rn);
+      if (! rest.first) {
+	 std::string m = "Restraints not found for type ";
+	 m += rn;
+	 throw std::runtime_error(m);
+      }
+      res_restraints[residues[ires]] = rest.second;
+   }
+
+   std::cout << "debug:: torsionable_bonds found " << residues.size() << " residues " << std::endl;
+   for (unsigned int ires=0; ires<residues.size(); ires++) {
+      // a coot-util function
+      std::vector<std::pair<CAtom *, CAtom *> > v_inner =
+	 coot::torsionable_bonds_monomer_internal(residues[ires], atom_selection, n_selected_atoms,
+						  include_pyranose_ring_torsions_flag, geom_p);
+      for (unsigned int ip=0; ip<v_inner.size(); ip++)
+	 v.push_back(v_inner[ip]);
+   }
+
+   std::vector<std::pair<CAtom *, CAtom *> > v_link =    
+      coot::torsionable_link_bonds(residues, mol, geom_p);
+   for (unsigned int il=0; il<v_link.size(); il++)
+      v.push_back(v_link[il]);
+   
+   for (unsigned int ipair=0; ipair<v.size(); ipair++) { 
+      std::cout << "   torsionable bond: "
+		<< coot::atom_spec_t(v[ipair].first) << "  "
+		<< coot::atom_spec_t(v[ipair].second)
+		<< std::endl;
+   }
+   return v;
+}
+
+std::vector<std::pair<CAtom *, CAtom *> >
+coot::torsionable_link_bonds(std::vector<CResidue *> residues_in,
+			     CMMDBManager *mol, coot::protein_geometry *geom_p) {
+
+   std::vector<std::pair<CAtom *, CAtom *> > v;
+   
+   std::vector<std::pair<bool, CResidue *> > residues(residues_in.size());
+   for (unsigned int i=0; i<residues_in.size(); i++)
+      residues[i] = std::pair<bool, CResidue *> (0, residues_in[i]);
+
+   std::vector<coot::atom_spec_t> dummy_fixed_atom_specs;
+   coot::restraints_container_t restraints(residues, *geom_p, mol, dummy_fixed_atom_specs);
+   coot::bonded_pair_container_t bpc = restraints.bonded_residues_from_res_vec(*geom_p);
+
+   // add in the torsion: CB-CG-ND2-C1 (Psi-N)
+   // add in the torsion: CG-ND2-C1-O5 (Phi-N)
+   // t.geom.link_add_torsion("NAG-ASN", 1, 2, 2, 2, " C1 ", "ND2 ", " CG ", " CB ", 180, 40, 3, "Psi-N");
+   // t.geom.link_add_torsion("NAG-ASN", 1, 1, 2, 2, " O5 ", " C1 ", "ND2 ", " CG ", 180, 40, 3, "Psi-N");
+      
+   std::cout << "found LINKR linked pairs:\n   " <<  bpc;
+
+   for (unsigned int i=0; i<bpc.bonded_residues.size(); i++) { 
+      coot::dictionary_residue_link_restraints_t link = geom_p->link(bpc[i].link_type);
+      if (link.link_id != "") {
+	 std::cout << "   dictionary link found " << link.link_id << " with "
+		   << link.link_bond_restraint.size() << " bond restraints and "
+		   << link.link_torsion_restraint.size() << " link torsions " << std::endl;
+	 for (unsigned int ib=0; ib<link.link_bond_restraint.size(); ib++) { 
+	    // we need to get the atoms and add them to "pairs".
+	    std::cout << "   "
+		      << link.link_bond_restraint[ib].atom_id_1_4c() << " "
+		      << link.link_bond_restraint[ib].atom_1_comp_id << " to "
+		      << link.link_bond_restraint[ib].atom_id_2_4c() << " " 
+		      << link.link_bond_restraint[ib].atom_2_comp_id << " "
+		      << " of "
+		      << bpc[i].res_1->GetResName() << " to "
+		      << bpc[i].res_2->GetResName()
+		      << std::endl;
+	    CAtom *link_atom_1 = bpc[i].res_1->GetAtom(link.link_bond_restraint[ib].atom_id_1_4c().c_str());
+	    CAtom *link_atom_2 = bpc[i].res_2->GetAtom(link.link_bond_restraint[ib].atom_id_2_4c().c_str());
+	    if (link_atom_1 && link_atom_2) { 
+	       std::pair<CAtom *, CAtom *> pair(link_atom_1, link_atom_2);
+	       v.push_back(pair);
+	    }
+	 }
+      }
+   }
+   return v;
+} 
+
+
 
 
 
 #endif // HAVE_GSL
+
 

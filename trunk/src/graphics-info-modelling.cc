@@ -34,6 +34,8 @@
 #include <vector>
 #endif
 
+#include <algorithm>
+
 #include <iostream>
 #include <stdexcept>
 
@@ -3920,5 +3922,6 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
    }
 #endif // HAVE_GSL   
 }
+
 
 

@@ -1186,8 +1186,6 @@ namespace coot {
       
       int make_flanking_atoms_rama_restraints(const protein_geometry &geom);
 
-      bonded_pair_container_t bonded_residues_from_res_vec(const coot::protein_geometry &geom) const;
-      
       // return a container of all the bonded residues (as pairs) from
       // the given atom selection
       bonded_pair_container_t bonded_residues_conventional(int SelResHnd,
@@ -1221,10 +1219,12 @@ namespace coot {
       // 
       std::pair<std::string, bool> general_link_find_close_link(std::vector<std::pair<coot::chem_link, bool> > &li,
 								CResidue *r1, CResidue *r2,
+								bool order_switch_flag,
 								const coot::protein_geometry &geom) const;
 
       std::string general_link_find_close_link_inner(std::vector<std::pair<coot::chem_link, bool> > &li,
 						     CResidue *r1, CResidue *r2,
+						     bool order_switch_flag,
 						     const coot::protein_geometry &geom) const; 
       
       
@@ -1663,12 +1663,26 @@ namespace coot {
       std::pair<std::string, bool> find_link_type_rigourous(CResidue *first, CResidue *second,
 							    const protein_geometry &geom) const;
 
+      // Allow public access to this - we need it to find the links
+      // between residues when all we have to go on is the refmac
+      // dictionary - no LINKRs and no user input.
+      bonded_pair_container_t bonded_residues_from_res_vec(const coot::protein_geometry &geom) const;
+      
       // more debugging interface:
       //
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}
       bool do_numerical_gradients_status() { return do_numerical_gradients_flag; }
 
+
    }; 
+
+   std::vector<std::pair<CAtom *, CAtom *> >
+   torsionable_bonds(CMMDBManager *mol, PPCAtom atom_selection, int n_selected_atoms,
+		     protein_geometry *geom);
+   // not sure this needs to public
+   std::vector<std::pair<CAtom *, CAtom *> >
+   torsionable_link_bonds(std::vector<CResidue *> residues_in, CMMDBManager *mol,
+			  protein_geometry *geom);
 
 } // namespace coot
 

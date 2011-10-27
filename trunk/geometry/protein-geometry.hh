@@ -229,8 +229,9 @@ namespace coot {
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}
       friend std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest);
+      bool is_pyranose_ring_torsion() const;
       // hack for mac, ostream problems
-      std::string format() const; 
+      std::string format() const;
    };
    std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest); 
 
@@ -1292,6 +1293,10 @@ namespace coot {
 			  const std::string &atom_id_3,
 			  realtype value_dist,
 			  realtype value_dist_esd);
+
+      // we want to allow synthetic/programatic addition of link
+      // torsion restraints (so we can then know the rotatable bonds
+      // in a link) so this should be public?
 
       void link_add_torsion(const std::string &link_id,
 			    int atom_1_comp_id,

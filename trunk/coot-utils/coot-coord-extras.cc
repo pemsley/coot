@@ -23,6 +23,7 @@
 
 #include <stdexcept>
 #include <iomanip>
+#include <algorithm> // for std::find
 
 #include "string.h"
 
@@ -466,4 +467,113 @@ coot::match_torsions::apply_torsion(const coot::atom_name_quad &moving_quad,
       } 
    }
    return std::pair<bool, double> (status, new_angle * M_PI/180.0);
+}
+
+
+
+// Don't return any hydrogen torsions - perhaps we should make that a
+// passed parameter.
+// 
+std::vector<std::pair<CAtom *, CAtom *> >
+coot::torsionable_bonds_monomer_internal(CResidue *residue_p,
+					 PPCAtom atom_selection, int n_selected_atoms,
+					 bool include_pyranose_ring_torsions_flag,
+					 coot::protein_geometry *geom_p) {
+
+   std::vector<std::pair<CAtom *, CAtom *> > v;
+
+   bool hydrogen_torsions = false;
+   std::string rn = residue_p->GetResName();
+   std::vector <dict_torsion_restraint_t> tors_restraints = 
+      geom_p->get_monomer_torsions_from_geometry(rn, hydrogen_torsions);
+   bool is_pyranose = false; // reset maybe
+   std::string group = geom_p->get_group(residue_p);
+   if (group == "pyranose")
+      is_pyranose = 1;
+
+   if (tors_restraints.size()) {
+      for (unsigned int itor=0; itor<tors_restraints.size(); itor++) { 
+	 std::string tr_atom_name_2 = tors_restraints[itor].atom_id_2_4c();
+	 std::string tr_atom_name_3 = tors_restraints[itor].atom_id_3_4c();
+
+	 for (unsigned int iat1=0; iat1<n_selected_atoms; iat1++) {
+	    CResidue *res_1 = atom_selection[iat1]->residue;
+	    std::string atom_name_1 = atom_selection[iat1]->name;
+	    for (unsigned int iat2=0; iat2<n_selected_atoms; iat2++) {
+	       if (iat1 != iat2) { 
+		  CResidue *res_2 = atom_selection[iat2]->residue;
+		  if (res_1 == res_2) {
+		     std::string atom_name_2 = atom_selection[iat2]->name;
+		     if (atom_name_1 == tr_atom_name_2) {
+			if (atom_name_2 == tr_atom_name_3) {
+
+			   if ((include_pyranose_ring_torsions_flag == 1) ||
+			       (is_pyranose && !tors_restraints[itor].is_pyranose_ring_torsion())) {
+
+			      std::pair<CAtom *, CAtom *> p(atom_selection[iat1],
+							    atom_selection[iat2]);
+			      v.push_back(p);
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+} 
+
+coot::bonded_pair_container_t 
+coot::linkrs_in_atom_selection(CMMDBManager *mol, PPCAtom atom_selection, int n_selected_atoms,
+			       protein_geometry *geom_p) {
+   coot::bonded_pair_container_t bpc;
+#ifdef MMDB_WITHOUT_LINKR
+#else
+   // normal case
+   std::vector<CResidue *> residues;
+   for (unsigned int i=0; i<n_selected_atoms; i++) {
+      CResidue *r = atom_selection[i]->residue;
+      if (std::find(residues.begin(), residues.end(), r) == residues.end())
+	 residues.push_back(r);
+   }
+
+   bool found = false; 
+   CModel *model_p = mol->GetModel(1);
+   int n_linkrs = model_p->GetNumberOfLinkRs();
+   std::cout << "model has " << n_linkrs << " LINKR records"
+	     << " and " << model_p->GetNumberOfLinks() << " LINK records"
+	     << std::endl;
+   for (unsigned int ilink=0; ilink<n_linkrs; ilink++) { 
+      PCLinkR linkr = model_p->GetLinkR(ilink);
+      coot::residue_spec_t link_spec_1(linkr->chainID1,
+				       linkr->seqNum1,
+				       linkr->insCode1);
+      coot::residue_spec_t link_spec_2(linkr->chainID2,
+				       linkr->seqNum2,
+				       linkr->insCode2);
+      for (unsigned int i=0; i<residues.size(); i++) {
+	 coot::residue_spec_t spec_1(residues[i]);
+	 if (spec_1 == link_spec_1) { 
+	    for (unsigned int j=0; j<residues.size(); j++) {
+	       if (i != j) {
+		  coot::residue_spec_t spec_2(residues[j]);
+		  if (spec_2 == link_spec_2) {
+		     found = true;
+		     coot::bonded_pair_t pair(residues[i], residues[j], 0, 0, linkr->linkRID);
+		     break;
+		  }
+	       }
+	    }
+	 }
+	 if (found)
+	    break;
+      }
+      if (found)
+	 break;
+   }
+
+#endif
+   return bpc;
 }

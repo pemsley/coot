@@ -726,7 +726,7 @@ namespace coot {
       // return success status (0 = fail)
       bool move_moving_residue();
    };
-      
+
 
    namespace util {
 

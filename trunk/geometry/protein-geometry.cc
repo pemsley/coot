@@ -776,6 +776,29 @@ coot::dictionary_residue_restraints_t::get_non_const_torsions(bool include_hydro
 }
 
 bool
+coot::dict_torsion_restraint_t::is_pyranose_ring_torsion() const {
+
+   bool status = false;
+   std::string ring_atoms[6] = { " C1 ", " C2 ", " C3 ", " C4 ", " C5 ", " O5 " };
+
+   int n_matches = 0;
+   for (unsigned int i=0; i<6; i++) { 
+      if (atom_id_1_4c() == ring_atoms[i])
+	 n_matches++;
+      if (atom_id_2_4c() == ring_atoms[i])
+	 n_matches++;
+      if (atom_id_3_4c() == ring_atoms[i])
+	 n_matches++;
+      if (atom_id_4_4c() == ring_atoms[i])
+	 n_matches++;
+   }
+   if (n_matches == 4)
+      status = true;
+   return status;
+} 
+
+
+bool
 coot::dict_torsion_restraint_t::is_const() const {
 
    bool const_flag = 0;
@@ -2743,7 +2766,7 @@ coot::protein_geometry::link_add_torsion(const std::string &link_id,
 					 realtype value_dist_esd,
 					 int period,
 					 const std::string &id) {  // e.g. phi, psi, omega
-   
+
    dict_link_torsion_restraint_t ltr(atom_1_comp_id,
 				     atom_2_comp_id,
 				     atom_3_comp_id,

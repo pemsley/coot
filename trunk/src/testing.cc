@@ -285,7 +285,8 @@ int test_internal_single() {
       // status = test_COO_mod();
       // status = test_remove_whitespace();
       // status = test_beam_in_residue();
-      status = test_multi_residue_torsion();
+      // status = test_multi_residue_torsion();
+      status = test_torsions_from_residue_selection();
       
    }
    catch (std::runtime_error mess) {
@@ -2751,6 +2752,45 @@ int test_multi_residue_torsion() {
       mol->DeleteSelection(selhnd);
       
    }
+   return status;
+}
+
+int
+test_torsions_from_residue_selection() {
+
+   int status = 1;
+   graphics_info_t g;
+   testing_data t;
+   t.geom.try_dynamic_add("NAG", 1);
+   CMMDBManager *mol = new CMMDBManager;
+   mol->ReadPDBASCII("frank.pdb"); // frankenstein, standard PDB file
+				   // with added refmac LINKRs (refmac
+				   // deletes HETATMs so we can't use
+				   // the unmodified refmac results.
+   CResidue *res_1 = coot::util::get_first_residue(mol);
+   if (! res_1) {
+      std::cout << "no res_1" << std::endl;
+   } else { 
+      coot::residue_spec_t specs[2];
+      int selhnd = mol->NewSelection();
+      specs[0] = coot::residue_spec_t("A", 121, "");
+      specs[1] = coot::residue_spec_t("A", 200, "");
+      for (unsigned int i=0; i<2; i++) {
+	 specs[i].select_atoms(mol, selhnd, SKEY_OR); 
+      }
+
+      PPCAtom atom_selection;
+      int n_selected_atoms;
+      mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
+
+      std::vector<std::pair<CAtom *, CAtom *> > v = 
+	 coot::torsionable_bonds(mol, atom_selection, n_selected_atoms, &t.geom);
+
+      // tidy up
+      mol->DeleteSelection(selhnd);
+   }
+   delete mol;
+
    return status;
 } 
 

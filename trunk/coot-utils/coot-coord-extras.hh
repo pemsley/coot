@@ -30,6 +30,7 @@
 #include "protein-geometry.hh"
 #include "atom-quads.hh"
 #include "mini-mol.hh"
+#include "bonded-pairs.hh"
 
 
 namespace coot {
@@ -373,8 +374,26 @@ namespace coot {
 		 const std::vector<dict_torsion_restraint_t>  &tr_ref);
 
    };
-   
-   
+
+
+   // which uses:
+   //
+   // (just the torsionable bonds (middle atom pairs)) by looking at
+   // the monomer restraints
+   // 
+   std::vector<std::pair<CAtom *, CAtom *> >
+   torsionable_bonds_monomer_internal(CResidue *residue_p,
+				      PPCAtom atom_selection, int n_selected_atoms,
+				      bool include_pyranose_ring_torsions_flag,
+				      protein_geometry *geom_p);
+
+   // only uses the LINKR records in the first model.
+   //
+   bonded_pair_container_t    
+   linkrs_in_atom_selection(CMMDBManager *mol, PPCAtom atom_selection, int n_selected_atoms,
+			    protein_geometry *geom_p);
+      
+
 
 }
 
