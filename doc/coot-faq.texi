@@ -465,6 +465,7 @@ Also, the last several lines of the console output is often useful.
 * I get a strange message when I use coot-scheme files::
 * I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?::
 * I get bizarre connectivity and other weirdness on reading files::
+* On my Mac the menu fonts are too big - how can I make them smaller?::
 @end menu
 
 
@@ -530,6 +531,12 @@ work try also:
 
 @t{$ setenv LC_ALL C}
 
+@node    On my Mac the menu fonts are too big - how can I make them smaller?
+@section On my Mac the menu fonts are too big - how can I make them smaller?
+
+Edit @file{/Library/Coot/etc/gtk-2.0/gtkrc} and set 
+
+@t{gtk-font-name = "Sans 9"}
 
 
 @c -----------------------------------------------------------------
